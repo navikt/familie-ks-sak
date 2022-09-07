@@ -28,7 +28,7 @@ jobs:
         with:
           java-version: 17
           distribution: 'temurin'
-          cache: 'maven'
+          cache: 'gradle'
       - name: Kjør ktlint sjekk
         env:
           GITHUB_USERNAME: x-access-token
@@ -62,7 +62,7 @@ jobs:
         with:
           java-version: 17
           distribution: 'temurin'
-          cache: 'maven'
+          cache: 'gradle'
       - name: Kjør verdikjedetester m/ feature toggles slått av
         env:
           GITHUB_USERNAME: x-access-token
@@ -78,7 +78,7 @@ jobs:
         with:
           java-version: 17
           distribution: 'temurin'
-          cache: 'maven'
+          cache: 'gradle'
       - name: Kjør verdikjedetester m/ feature toggles slått på
         env:
           GITHUB_USERNAME: x-access-token
