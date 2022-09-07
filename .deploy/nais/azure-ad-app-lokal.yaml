@@ -1,0 +1,28 @@
+#######
+# Denne er brukt til å gjøre det mulig å bruke tokens lokalt
+#
+# secret kan hentes fra cluster med "kubectl -n teamfamilie get secret azuread-familie-ks-sak-lokal -o json | jq '.data | map_values(@base64d)'"
+#
+# Kjøres en gang eller ved endringer med
+# kubectl apply -f .deploy/azure-ad-app-lokal.yaml
+###
+apiVersion: nais.io/v1
+kind: AzureAdApplication
+metadata:
+  name: familie-ks-sak-lokal
+  namespace: teamfamilie
+  labels:
+    team: teamfamilie
+spec:
+  preAuthorizedApplications:
+    - application: familie-ks-sak-frontend-lokal
+      cluster: dev-gcp
+      namespace: teamfamilie
+  tenant: trygdeetaten.no
+  secretName: azuread-familie-ks-sak-lokal
+  claims:
+    groups:
+      - id: "928636f4-fd0d-4149-978e-a6fb68bb19de"  # 0000-GA-STDAPPS
+      - id: "54cd86b8-2e23-48b2-8852-b05b5827bb0f"  # VEILEDER_ROLLE
+      - id: "e40090eb-c2fb-400e-b412-e9084019a73b"  # SAKSBEHANDLER_ROLLE
+      - id: "9449c153-5a1e-44a7-84c6-7cc7a8867233"  # BESLUTTER_ROLLE

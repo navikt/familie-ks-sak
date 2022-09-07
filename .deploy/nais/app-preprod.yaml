@@ -1,0 +1,115 @@
+apiVersion: "nais.io/v1alpha1"
+kind: "Application"
+metadata:
+  name: familie-ks-sak
+  namespace: teamfamilie
+  labels:
+    team: teamfamilie
+spec:
+  envFrom:
+    - secret: familie-ks-sak
+  image: {{image}}
+  port: 8089
+  leaderElection: true
+  liveness:
+    path: /internal/health/liveness
+    initialDelay: 30
+    failureThreshold: 10
+  readiness:
+    path: /internal/health/readyness
+    initialDelay: 30
+    failureThreshold: 10
+  prometheus:
+    enabled: true
+    path: /internal/prometheus
+  vault:
+    enabled: false
+  gcp: # Database
+    sqlInstances:
+      - type: POSTGRES_14 # IF This is changed, all data will be lost. Read on nais.io how to upgrade
+        tier: db-custom-1-3840
+        name: familie-ks-sak
+        autoBackupTime: "02:00"
+        pointInTimeRecovery: true
+        diskAutoresize: true
+        highAvailability: false
+        databases:
+          - name: familie-ks-sak
+            envVarPrefix: DB
+  azure:
+    application:
+      enabled: true
+      allowAllUsers: false
+      claims:
+        extra:
+          - "NAVident"
+        groups:
+          - id: "928636f4-fd0d-4149-978e-a6fb68bb19de"  # 0000-GA-STDAPPS
+          - id: "54cd86b8-2e23-48b2-8852-b05b5827bb0f"  # VEILEDER_ROLLE
+          - id: "e40090eb-c2fb-400e-b412-e9084019a73b"  # SAKSBEHANDLER_ROLLE
+          - id: "9449c153-5a1e-44a7-84c6-7cc7a8867233"  # BESLUTTER_ROLLE
+  accessPolicy:
+    inbound:
+      rules:
+        - application: familie-ks-sak-frontend
+          cluster: dev-gcp
+        - application: familie-ks-sak-frontend-lokal
+          cluster: dev-gcp
+        - application: familie-ba-mottak
+          cluster: dev-fss
+        - application: familie-prosessering
+          cluster: dev-gcp
+        - application: familie-ba-skatteetaten-api
+          cluster: dev-gcp
+        - application: familie-ba-migrering
+          cluster: dev-gcp
+        - application: familie-ba-statistikk
+          cluster: dev-fss
+        - application: bidrag-grunnlag-feature
+          namespace: bidrag
+          cluster: dev-gcp
+        - application: bidrag-grunnlag
+          namespace: bidrag
+          cluster: dev-gcp
+    outbound:
+      rules:
+        - application: familie-brev
+          cluster: dev-gcp
+        - application: familie-integrasjoner
+          cluster: dev-fss
+        - application: familie-ba-infotrygd-feed
+          cluster: dev-fss
+        - application: familie-ba-infotrygd
+          cluster: dev-fss
+        - application: familie-ef-sak
+          cluster: dev-gcp
+        - application: familie-tilbake
+          cluster: dev-gcp
+        - application: familie-ba-migrering
+          cluster: dev-gcp
+        - application: familie-oppdrag
+          cluster: dev-fss
+      external:
+        - host: xsrv1mh6.api.sanity.io
+  replicas:
+    min: 2
+    max: 4
+    cpuThresholdPercentage: 50
+  resources:
+    limits:
+      memory: 1024Mi
+      cpu: "1"
+    requests:
+      memory: 512Mi
+      cpu: 500m
+  ingresses:
+    - https://familie-ks-sak.dev.intern.nav.no
+  secureLogs:
+    enabled: true
+  env:
+    - name: SPRING_PROFILES_ACTIVE
+      value: preprod
+    - name: JAVA_OPTS
+      value: "-XX:MinRAMPercentage=25.0 -XX:MaxRAMPercentage=75.0 -XX:+HeapDumpOnOutOfMemoryError"
+  kafka:
+    pool: nav-dev
