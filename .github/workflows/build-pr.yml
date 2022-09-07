@@ -21,7 +21,7 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: "actions/checkout@v2"
+      - uses: "actions/checkout@v3"
       - uses: "gradle/wrapper-validation-action@v1"
       - uses: "actions/cache@v2"
         with:
@@ -41,7 +41,7 @@ jobs:
     name: Enhetstester, integrasjonstester og sonar
     runs-on: ubuntu-latest
     steps:
-      - uses: "actions/checkout@v2"
+      - uses: "actions/checkout@v3"
       - uses: "gradle/wrapper-validation-action@v1"
       - uses: "actions/cache@v2"
         with:
@@ -61,7 +61,7 @@ jobs:
     name: Verdikjedetester m/ feature toggles slått av
     runs-on: ubuntu-latest
     steps:
-      - uses: "actions/checkout@v2"
+      - uses: "actions/checkout@v3"
       - uses: "gradle/wrapper-validation-action@v1"
       - uses: "actions/cache@v2"
         with:
@@ -81,7 +81,7 @@ jobs:
     name: Verdikjedetester m/ feature toggles slått på
     runs-on: ubuntu-latest
     steps:
-      - uses: "actions/checkout@v2"
+      - uses: "actions/checkout@v3"
       - uses: "gradle/wrapper-validation-action@v1"
       - uses: "actions/cache@v2"
         with:
