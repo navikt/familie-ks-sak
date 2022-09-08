@@ -1,5 +1,7 @@
-package no.nav.familie.ks.sak.config
+package no.nav.familie.ks.sak.common.http.interceptor
 
+import no.nav.familie.ks.sak.config.BehandlerRolle
+import no.nav.familie.ks.sak.config.RolleConfig
 import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext
 import org.slf4j.LoggerFactory
 import org.springframework.context.annotation.Import

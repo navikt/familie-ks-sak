@@ -61,13 +61,12 @@ class ApplicationConfig {
      */
     @Bean
     @Primary
-    fun oAuth2HttpClient(): OAuth2HttpClient {
-        return RetryOAuth2HttpClient(
+    fun oAuth2HttpClient(): OAuth2HttpClient =
+        RetryOAuth2HttpClient(
             RestTemplateBuilder()
                 .setConnectTimeout(Duration.of(2, ChronoUnit.SECONDS))
                 .setReadTimeout(Duration.of(4, ChronoUnit.SECONDS))
         )
-    }
 
     companion object {
         private val log = LoggerFactory.getLogger(ApplicationConfig::class.java)

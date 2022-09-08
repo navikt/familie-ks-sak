@@ -1,5 +1,6 @@
 package no.nav.familie.ks.sak.config
 
+import no.nav.familie.ks.sak.common.http.interceptor.RolletilgangInterceptor
 import no.nav.familie.sikkerhet.OIDCUtil
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
