@@ -16,7 +16,7 @@ jobs:
           "path": "~/.gradle/caches"
           "key": "${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle.kts') }}"
           "restore-keys": "${{ runner.os }}-gradle-"
-      - uses: "actions/setup-java@v1"
+      - uses: "actions/setup-java@v3"
         with:
           "java-version": "17"
       - name: Bygg med gradle

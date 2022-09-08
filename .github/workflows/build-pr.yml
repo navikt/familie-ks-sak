@@ -28,9 +28,10 @@ jobs:
           "path": "~/.gradle/caches"
           "key": "${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle.kts') }}"
           "restore-keys": "${{ runner.os }}-gradle-"
-      - uses: "actions/setup-java@v1"
+      - uses: "actions/setup-java@v3"
         with:
-          "java-version": "17"
+          java-version: "17"
+          distribution: 'temurin'
       - name: Kjør ktlint sjekk
         env:
           GITHUB_USERNAME: x-access-token
@@ -48,9 +49,10 @@ jobs:
           "path": "~/.gradle/caches"
           "key": "${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle.kts') }}"
           "restore-keys": "${{ runner.os }}-gradle-"
-      - uses: "actions/setup-java@v1"
+      - uses: "actions/setup-java@v3"
         with:
-          "java-version": "17"
+          java-version: "17"
+          distribution: 'temurin'
       - name: Kjør enhetstester, integrasjonstester og sonar
         env:
           GITHUB_USERNAME: x-access-token
@@ -68,9 +70,10 @@ jobs:
           "path": "~/.gradle/caches"
           "key": "${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle.kts') }}"
           "restore-keys": "${{ runner.os }}-gradle-"
-      - uses: "actions/setup-java@v1"
+      - uses: "actions/setup-java@v3"
         with:
-          "java-version": "17"
+          java-version: "17"
+          distribution: 'temurin'
       - name: Kjør verdikjedetester m/ feature toggles slått av
         env:
           GITHUB_USERNAME: x-access-token
@@ -88,12 +91,13 @@ jobs:
           "path": "~/.gradle/caches"
           "key": "${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle.kts') }}"
           "restore-keys": "${{ runner.os }}-gradle-"
-      - uses: "actions/setup-java@v1"
+      - uses: "actions/setup-java@v3"
         with:
-          "java-version": "17"
+          java-version: "17"
+          distribution: 'temurin'
       - name: Kjør verdikjedetester m/ feature toggles slått på
         env:
           GITHUB_USERNAME: x-access-token
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          ./gradlew test -Pgithub -Pverdikjedetester -i
+          ./gradlew test -Pgithub -Pverdikjedetester -Pfeaturetoggle -i
