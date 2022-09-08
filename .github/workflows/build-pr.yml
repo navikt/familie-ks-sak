@@ -100,4 +100,4 @@ jobs:
           GITHUB_USERNAME: x-access-token
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          ./gradlew test -Pgithub -Pverdikjedetester -pfeaturetoggle -i
+          ./gradlew test -Pgithub -Pverdikjedetester -Pfeaturetoggle -i
