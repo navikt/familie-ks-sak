@@ -23,7 +23,6 @@ class RolletilgangInterceptor(private val rolleConfig: RolleConfig) : HandlerInt
             }
 
     companion object {
-
         private val logger = LoggerFactory.getLogger(RolletilgangInterceptor::class.java)
     }
 }

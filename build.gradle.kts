@@ -27,9 +27,7 @@ dependencies {
 
     val springdocVersion = "1.6.11"
     val sentryVersion = "6.4.1"
-
-    // NAV variabler
-    val NavFellesVersion = "1.20220901103347_4819e55"
+    val navFellesVersion = "1.20220901103347_4819e55"
     val eksterneKontrakterBisysVersion = "2.0_20220609214258_f30c3ce"
     val fellesKontrakterVersion = "2.0_20220831094750_9782fd7"
     val familieKontrakterSaksstatistikkVersion = "2.0_20220216121145_5a268ac"
@@ -39,40 +37,40 @@ dependencies {
     val navFoedselsnummerVersion = "1.0-SNAPSHOT.6"
     val prosesseringVersion = "1.20220624132237_7f5ba9c"
 
-    // Spring
+    // ---------- Spring ---------- \\
     implementation("org.springframework.boot:spring-boot-starter")
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-jetty")
     implementation("org.springframework.boot:spring-boot-starter-validation")
     implementation("org.springframework.boot:spring-boot-starter-actuator")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
-    implementation("org.springframework.kafka:spring-kafka")
     implementation("org.springframework.boot:spring-boot-devtools")
+    implementation("org.springframework.kafka:spring-kafka")
     implementation("org.springframework.retry:spring-retry")
 
-    // Spring doc
+    // ---------- Spring ---------- \\
     implementation("org.springdoc:springdoc-openapi-ui:$springdocVersion")
     implementation("org.springdoc:springdoc-openapi-kotlin:$springdocVersion")
 
-    // Kotlin
+    // ---------- Spring ---------- \\
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
 
-    // Micrometer
+    // ---------- Spring ---------- \\
     implementation("io.micrometer:micrometer-registry-prometheus")
 
-    // Jackson
+    // ---------- Serialisering/Deserialisering ---------- \\
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.13.4")
     implementation("org.flywaydb:flyway-core")
 
-    // NAV
-    implementation("no.nav.familie.felles:sikkerhet:$NavFellesVersion")
-    implementation("no.nav.familie.felles:log:$NavFellesVersion")
-    implementation("no.nav.familie.felles:leader:$NavFellesVersion")
-    implementation("no.nav.familie.felles:http-client:$NavFellesVersion")
-    implementation("no.nav.familie.felles:modell:$NavFellesVersion")
-    implementation("no.nav.familie.felles:util:$NavFellesVersion")
-    implementation("no.nav.familie.felles:valutakurs-klient:$NavFellesVersion")
+    // ---------- NAV ---------- \\
+    implementation("no.nav.familie.felles:sikkerhet:$navFellesVersion")
+    implementation("no.nav.familie.felles:log:$navFellesVersion")
+    implementation("no.nav.familie.felles:leader:$navFellesVersion")
+    implementation("no.nav.familie.felles:http-client:$navFellesVersion")
+    implementation("no.nav.familie.felles:modell:$navFellesVersion")
+    implementation("no.nav.familie.felles:util:$navFellesVersion")
+    implementation("no.nav.familie.felles:valutakurs-klient:$navFellesVersion")
     implementation("no.nav.familie.kontrakter:felles:$fellesKontrakterVersion")
     implementation("no.nav.familie.kontrakter:barnetrygd:$fellesKontrakterVersion")
     implementation("no.nav.familie.eksterne.kontrakter:bisys:$eksterneKontrakterBisysVersion")
@@ -80,15 +78,14 @@ dependencies {
     implementation("no.nav.familie.eksterne.kontrakter:saksstatistikk:$familieKontrakterSaksstatistikkVersion")
     implementation("no.nav.familie.eksterne.kontrakter:skatteetaten:$familieKontrakterSkatteetatenVersion")
     implementation("no.nav.security:token-client-spring:$tokenValidationSpringVersion")
-    implementation("nav-foedselsnummer:core:$navFoedselsnummerVersion")
     implementation("no.nav.familie:prosessering-jdbc:$prosesseringVersion")
+    implementation("nav-foedselsnummer:core:$navFoedselsnummerVersion")
 
     implementation("com.papertrailapp:logback-syslog4j:1.0.0")
     implementation("org.postgresql:postgresql:42.5.0")
     implementation("org.apache.httpcomponents:httpclient:4.5.13")
     implementation("org.apache.httpcomponents:httpcore:4.4.15")
     implementation("no.finn.unleash:unleash-client-java:4.4.1")
-    implementation("org.apache.maven:maven-model:3.8.6")
     implementation("io.sentry:sentry-spring-boot-starter:$sentryVersion")
     implementation("io.sentry:sentry-logback:$sentryVersion")
 
@@ -98,9 +95,6 @@ dependencies {
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.cloud:spring-cloud-contract-wiremock:3.1.3")
     testImplementation("org.testcontainers:postgresql:1.17.3")
-    testImplementation("com.h2database:h2")
-
-    // ---------- Spring ---------- \\
 }
 
 tasks.withType<KotlinCompile> {

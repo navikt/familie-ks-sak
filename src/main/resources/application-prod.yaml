@@ -142,9 +142,9 @@ no.nav.security.jwt:
           client-auth-method: client_secret_basic
 
 rolle:
-  veileder: "199c2b39-e535-4ae8-ac59-8ccbee7991ae"
-  saksbehandler: "847e3d72-9dc1-41c3-80ff-f5d4acdd5d46"
-  beslutter: "7a271f87-39fb-468b-a9ee-6cf3c070f548"
+  veileder: "54cd86b8-2e23-48b2-8852-b05b5827bb0f"
+  saksbehandler: "e40090eb-c2fb-400e-b412-e9084019a73b"
+  beslutter: "7a271f87-39fb-468b-a9ee-6cf3c070f548" #TODO: Må bestille ny beslutter rolle for ks.
   kode6: "ad7b87a6-9180-467c-affc-20a566b0fec0" # 0000-GA-Strengt_Fortrolig_Adresse
   kode7: "9ec6487d-f37a-4aad-a027-cd221c1ac32b" # 0000-GA-Fortrolig_Adresse
 
@@ -153,8 +153,6 @@ spring:
     url: jdbc:postgresql://${DB_HOST}:${DB_PORT}/familie-ks-sak
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
-  kafka:
-    bootstrap-servers: a01apvl00145.adeo.no:8443,a01apvl00146.adeo.no:8443,a01apvl00147.adeo.no:8443,a01apvl00148.adeo.no:8443,a01apvl00149.adeo.no:8443,a01apvl00150.adeo.no:8443
 
 sentry.environment: prod
 

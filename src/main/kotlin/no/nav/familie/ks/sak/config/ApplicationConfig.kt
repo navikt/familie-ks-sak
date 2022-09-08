@@ -34,10 +34,11 @@ class ApplicationConfig {
     @Bean
     fun logFilter(): FilterRegistrationBean<LogFilter> {
         log.info("Registering LogFilter filter")
-        val filterRegistration: FilterRegistrationBean<LogFilter> = FilterRegistrationBean()
-        filterRegistration.filter = LogFilter()
-        filterRegistration.order = 1
-        return filterRegistration
+
+        return FilterRegistrationBean<LogFilter>().apply {
+            filter = LogFilter()
+            order = 1
+        }
     }
 
     /**
@@ -69,7 +70,6 @@ class ApplicationConfig {
     }
 
     companion object {
-
         private val log = LoggerFactory.getLogger(ApplicationConfig::class.java)
         const val PAKKENAVN = "no.nav.familie.ks.sak"
     }

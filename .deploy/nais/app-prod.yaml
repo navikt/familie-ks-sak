@@ -1,0 +1,113 @@
+apiVersion: "nais.io/v1alpha1"
+kind: "Application"
+metadata:
+  name: familie-ks-sak-ny #TODO: Endres når vi er sikre på at vi kan overkjøre den gamle tjenesten.
+  namespace: teamfamilie
+  labels:
+    team: teamfamilie
+spec:
+  envFrom:
+    - secret: familie-ks-sak
+  image: {{image}}
+  port: 8089
+  leaderElection: true
+  liveness:
+    path: /internal/health/liveness
+    initialDelay: 30
+    failureThreshold: 10
+  readiness:
+    path: /internal/health/readyness
+    initialDelay: 30
+    failureThreshold: 10
+  prometheus:
+    enabled: true
+    path: /internal/prometheus
+  vault:
+    enabled: false
+  gcp: # Database
+    sqlInstances:
+      - type: POSTGRES_14 # IF This is changed, all data will be lost. Read on nais.io how to upgrade
+        tier: db-custom-4-3840
+        name: familie-ks-sak
+        autoBackupTime: "02:00"
+        diskAutoresize: true
+        highAvailability: true
+        databases:
+          - name: familie-ks-sak
+            envVarPrefix: DB
+  azure:
+    application:
+      enabled: true
+      allowAllUsers: false
+      claims:
+        extra:
+          - "NAVident"
+        groups:
+          - id: "87190cf3-b278-457d-8ab7-1a5c55a9edd7"  # Group_87190cf3-b278-457d-8ab7-1a5c55a9edd7 tilgang til prosessering
+          - id: "54cd86b8-2e23-48b2-8852-b05b5827bb0f"  # VEILEDER_ROLLE
+          - id: "e40090eb-c2fb-400e-b412-e9084019a73b"  # SAKSBEHANDLER_ROLLE
+          - id: "7a271f87-39fb-468b-a9ee-6cf3c070f548"  # TODO: Må endres og bestilles opp.
+  accessPolicy:
+    inbound:
+      rules:
+        - application: familie-ks-sak-frontend
+          cluster: prod-gcp
+        - application: familie-ba-mottak
+          cluster: prod-fss
+        - application: familie-prosessering
+          cluster: prod-gcp
+        - application: familie-ba-skatteetaten-api
+          cluster: prod-gcp
+        - application: familie-ba-migrering
+          cluster: prod-gcp
+        - application: familie-ba-statistikk
+          cluster: prod-fss
+        - application: bidrag-grunnlag-feature
+          namespace: bidrag
+          cluster: prod-gcp
+        - application: bidrag-grunnlag
+          namespace: bidrag
+          cluster: prod-gcp
+    outbound:
+      rules:
+        - application: familie-brev
+          cluster: prod-gcp
+        - application: familie-integrasjoner
+          cluster: prod-fss
+        - application: familie-ba-infotrygd-feed
+          cluster: prod-fss
+        - application: familie-ba-infotrygd
+          cluster: prod-fss
+        - application: familie-ef-sak
+          cluster: prod-gcp
+        - application: familie-tilbake
+          cluster: prod-gcp
+        - application: familie-ba-migrering
+          cluster: prod-gcp
+        - application: familie-oppdrag
+          cluster: prod-fss
+      external:
+        - host: xsrv1mh6.api.sanity.io
+  replicas:
+    min: 2
+    max: 4
+    cpuThresholdPercentage: 50
+  resources:
+    limits:
+      memory: 4096Mi
+      cpu: "4"
+    requests:
+      memory: 512Mi
+      cpu: 500m
+  ingresses:
+    - https://familie-ks-sak-ny.intern.nav.no #TODO: Endres når vi er sikre på at vi kan overkjøre den gamle tjenesten.
+  secureLogs:
+    enabled: true
+  env:
+    - name: SPRING_PROFILES_ACTIVE
+      value: prod
+
+    - name: JAVA_OPTS
+      value: "-XX:MinRAMPercentage=25.0 -XX:MaxRAMPercentage=75.0 -XX:+HeapDumpOnOutOfMemoryError"
+  kafka:
+    pool: nav-prod
