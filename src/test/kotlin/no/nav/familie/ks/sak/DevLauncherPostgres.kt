@@ -1,6 +1,6 @@
 package no.nav.familie.ks.sak
 
-import no.nav.familie.ks.sak.testconfig.ApplicationConfig
+import no.nav.familie.ks.sak.config.ApplicationConfig
 import no.nav.familie.ks.sak.testconfig.DbContainerInitializer
 import org.springframework.boot.builder.SpringApplicationBuilder
 

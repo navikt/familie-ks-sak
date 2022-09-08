@@ -1,4 +1,4 @@
-package no.nav.familie.ks.sak.testconfig
+package no.nav.familie.ks.sak.config
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import no.nav.familie.http.client.RetryOAuth2HttpClient
