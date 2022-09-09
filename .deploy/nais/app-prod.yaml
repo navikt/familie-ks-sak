@@ -1,7 +1,7 @@
 apiVersion: "nais.io/v1alpha1"
 kind: "Application"
 metadata:
-  name: familie-ks-sak-ny #TODO: Endres når vi er sikre på at vi kan overkjøre den gamle tjenesten.
+  name: familie-ks-sak
   namespace: teamfamilie
   labels:
     team: teamfamilie
