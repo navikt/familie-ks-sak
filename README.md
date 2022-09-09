@@ -59,7 +59,7 @@ CREATE DATABASE "familie-ks-sak";
 
 ## Produksjonssetting
 
-Master-branchen blir automatisk bygget ved merge og deployet først til preprod og deretter til prod.
+Main-branchen blir automatisk bygget ved merge og deployet først til preprod og deretter til prod.
 
 ### Hastedeploy
 Hvis vi trenger å deploye raskt til prod, har vi egne byggejobber for den biten, som trigges manuelt.
