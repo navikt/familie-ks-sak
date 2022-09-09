@@ -47,21 +47,20 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-devtools")
     implementation("org.springframework.kafka:spring-kafka")
     implementation("org.springframework.retry:spring-retry")
-
-    // ---------- Spring ---------- \\
     implementation("org.springdoc:springdoc-openapi-ui:$springdocVersion")
     implementation("org.springdoc:springdoc-openapi-kotlin:$springdocVersion")
 
-    // ---------- Spring ---------- \\
+    // ---------- Kotlin ---------- \\
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
 
-    // ---------- Spring ---------- \\
-    implementation("io.micrometer:micrometer-registry-prometheus")
-
-    // ---------- Serialisering/Deserialisering ---------- \\
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.13.4")
+    // ---------- DB ---------- \\
     implementation("org.flywaydb:flyway-core")
+    implementation("org.postgresql:postgresql:42.5.0")
+
+    // ---------- Apache ---------- \\
+    implementation("org.apache.httpcomponents:httpclient:4.5.13")
+    implementation("org.apache.httpcomponents:httpcore:4.4.15")
 
     // ---------- NAV ---------- \\
     implementation("no.nav.familie.felles:sikkerhet:$navFellesVersion")
@@ -82,13 +81,11 @@ dependencies {
     implementation("nav-foedselsnummer:core:$navFoedselsnummerVersion")
 
     implementation("com.papertrailapp:logback-syslog4j:1.0.0")
-    implementation("org.postgresql:postgresql:42.5.0")
-    implementation("org.apache.httpcomponents:httpclient:4.5.13")
-    implementation("org.apache.httpcomponents:httpcore:4.4.15")
     implementation("no.finn.unleash:unleash-client-java:4.4.1")
     implementation("io.sentry:sentry-spring-boot-starter:$sentryVersion")
     implementation("io.sentry:sentry-logback:$sentryVersion")
-
+    implementation("io.micrometer:micrometer-registry-prometheus")
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.13.4")
     implementation("com.pinterest:ktlint:0.47.0")
 
     testImplementation("io.mockk:mockk:1.12.7")
