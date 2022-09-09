@@ -1,1117 +1,981 @@
+CREATE SEQUENCE task_seq
+    START WITH 1
+    INCREMENT BY 50
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
 
-create table task
-(
-    id            bigint       default nextval('task_seq'::regclass)   not null
-        constraint task_pkey
-            primary key,
-    payload       text                                                 not null,
-    status        varchar(50)  default 'UBEHANDLET'::character varying not null,
-    versjon       bigint       default 0,
-    opprettet_tid timestamp(3) default LOCALTIMESTAMP,
-    type          varchar(100)                                         not null,
-    metadata      varchar(4000),
-    trigger_tid   timestamp    default LOCALTIMESTAMP,
-    avvikstype    varchar(50)
+CREATE TABLE task (
+                      id            BIGINT       DEFAULT NEXTVAL('task_seq'::REGCLASS)   NOT NULL
+                          CONSTRAINT task_pkey
+                              PRIMARY KEY,
+                      payload       TEXT                                                 NOT NULL,
+                      status        VARCHAR(50)  DEFAULT 'UBEHANDLET'::CHARACTER VARYING NOT NULL,
+                      versjon       BIGINT       DEFAULT 0,
+                      opprettet_tid TIMESTAMP(3) DEFAULT LOCALTIMESTAMP,
+                      type          VARCHAR(100)                                         NOT NULL,
+                      metadata      VARCHAR(4000),
+                      trigger_tid   TIMESTAMP    DEFAULT LOCALTIMESTAMP,
+                      avvikstype    VARCHAR(50)
 );
 
+ALTER SEQUENCE task_seq OWNED BY task.id;
 
-create index task_status_idx
-    on task (status);
+CREATE INDEX task_status_idx
+    ON task (status);
 
+CREATE SEQUENCE task_logg_seq
+    START WITH 1
+    INCREMENT BY 50
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
 
-
-create table task_logg
-(
-    id            bigint       default nextval('task_logg_seq'::regclass) not null
-        constraint task_logg_pkey
-            primary key,
-    task_id       bigint                                                  not null
-        constraint task_logg_task_id_fkey
-            references task,
-    type          varchar(50)                                             not null,
-    node          varchar(100)                                            not null,
-    opprettet_tid timestamp(3) default LOCALTIMESTAMP,
-    melding       text,
-    endret_av     varchar(100) default 'VL'::character varying
+CREATE TABLE task_logg (
+                           id            BIGINT       DEFAULT NEXTVAL('task_logg_seq'::REGCLASS) NOT NULL
+                               CONSTRAINT task_logg_pkey
+                                   PRIMARY KEY,
+                           task_id       BIGINT                                                  NOT NULL
+                               CONSTRAINT task_logg_task_id_fkey
+                                   REFERENCES task,
+                           type          VARCHAR(50)                                             NOT NULL,
+                           node          VARCHAR(100)                                            NOT NULL,
+                           opprettet_tid TIMESTAMP(3) DEFAULT LOCALTIMESTAMP,
+                           melding       TEXT,
+                           endret_av     VARCHAR(100) DEFAULT 'VL'::CHARACTER VARYING
 );
 
+CREATE INDEX task_logg_task_id_idx
+    ON task_logg (task_id);
 
-create index task_logg_task_id_idx
-    on task_logg (task_id);
-
-
-
-create table arbeidsfordeling_pa_behandling
-(
-    id                     bigint  not null
-        primary key,
-    fk_behandling_id       bigint  not null
-        unique,
-    behandlende_enhet_id   varchar not null,
-    behandlende_enhet_navn varchar not null,
-    manuelt_overstyrt      boolean not null
+CREATE TABLE arbeidsfordeling_pa_behandling (
+                                                id                     BIGINT  NOT NULL
+                                                    PRIMARY KEY,
+                                                fk_behandling_id       BIGINT  NOT NULL
+                                                    UNIQUE,
+                                                behandlende_enhet_id   VARCHAR NOT NULL,
+                                                behandlende_enhet_navn VARCHAR NOT NULL,
+                                                manuelt_overstyrt      BOOLEAN NOT NULL
 );
 
-
-
-
-create table aktoer
-(
-    aktoer_id     varchar                                      not null
-        primary key,
-    versjon       bigint       default 0                       not null,
-    opprettet_av  varchar      default 'VL'::character varying not null,
-    opprettet_tid timestamp(3) default LOCALTIMESTAMP          not null,
-    endret_av     varchar,
-    endret_tid    timestamp(3)
+CREATE TABLE aktoer (
+                        aktoer_id     VARCHAR                                      NOT NULL
+                            PRIMARY KEY,
+                        versjon       BIGINT       DEFAULT 0                       NOT NULL,
+                        opprettet_av  VARCHAR      DEFAULT 'VL'::CHARACTER VARYING NOT NULL,
+                        opprettet_tid TIMESTAMP(3) DEFAULT LOCALTIMESTAMP          NOT NULL,
+                        endret_av     VARCHAR,
+                        endret_tid    TIMESTAMP(3)
 );
 
-
-create table personident
-(
-    fk_aktoer_id   varchar                                      not null
-        constraint fk_personident
-            references aktoer
-            on update cascade,
-    foedselsnummer varchar                                      not null
-        primary key
-        unique,
-    aktiv          boolean      default false                   not null,
-    gjelder_til    timestamp(3),
-    versjon        bigint       default 0                       not null,
-    opprettet_av   varchar      default 'VL'::character varying not null,
-    opprettet_tid  timestamp(3) default LOCALTIMESTAMP          not null,
-    endret_av      varchar,
-    endret_tid     timestamp(3)
+CREATE TABLE personident (
+                             fk_aktoer_id   VARCHAR                                      NOT NULL
+                                 CONSTRAINT fk_personident
+                                     REFERENCES aktoer
+                                     ON UPDATE CASCADE,
+                             foedselsnummer VARCHAR                                      NOT NULL
+                                 PRIMARY KEY
+                                 UNIQUE,
+                             aktiv          BOOLEAN      DEFAULT FALSE                   NOT NULL,
+                             gjelder_til    TIMESTAMP(3),
+                             versjon        BIGINT       DEFAULT 0                       NOT NULL,
+                             opprettet_av   VARCHAR      DEFAULT 'VL'::CHARACTER VARYING NOT NULL,
+                             opprettet_tid  TIMESTAMP(3) DEFAULT LOCALTIMESTAMP          NOT NULL,
+                             endret_av      VARCHAR,
+                             endret_tid     TIMESTAMP(3)
 );
 
+CREATE UNIQUE INDEX uidx_personident_aktoer_id
+    ON personident (fk_aktoer_id)
+    WHERE (aktiv = TRUE);
 
+CREATE UNIQUE INDEX uidx_personident_foedselsnummer_id
+    ON personident (foedselsnummer);
 
-create unique index uidx_personident_aktoer_id
-    on personident (fk_aktoer_id)
-    where (aktiv = true);
+CREATE INDEX personident_aktoer_id_alle_idx
+    ON personident (fk_aktoer_id);
 
-create unique index uidx_personident_foedselsnummer_id
-    on personident (foedselsnummer);
-
-create index personident_aktoer_id_alle_idx
-    on personident (fk_aktoer_id);
-
-
-
-create table fagsak
-(
-    id                bigint                                           not null
-        primary key,
-    versjon           bigint       default 0,
-    opprettet_av      varchar(512) default 'VL'::character varying,
-    opprettet_tid     timestamp(3) default LOCALTIMESTAMP,
-    endret_av         varchar(512),
-    endret_tid        timestamp(3),
-    status            varchar(50)  default 'OPPRETTET'::character varying,
-    arkivert          boolean      default false                       not null,
-    fk_aktoer_id      varchar
-        constraint fagsak
-            references aktoer
-            on update cascade
+CREATE TABLE fagsak (
+                        id            BIGINT                     NOT NULL
+                            PRIMARY KEY,
+                        versjon       BIGINT       DEFAULT 0,
+                        opprettet_av  VARCHAR(512) DEFAULT 'VL'::CHARACTER VARYING,
+                        opprettet_tid TIMESTAMP(3) DEFAULT LOCALTIMESTAMP,
+                        endret_av     VARCHAR(512),
+                        endret_tid    TIMESTAMP(3),
+                        status        VARCHAR(50)  DEFAULT 'OPPRETTET'::CHARACTER VARYING,
+                        arkivert      BOOLEAN      DEFAULT FALSE NOT NULL,
+                        fk_aktoer_id  VARCHAR
+                            CONSTRAINT fagsak
+                                REFERENCES aktoer
+                                ON UPDATE CASCADE
 );
 
+CREATE INDEX fagsak_fk_idx
+    ON fagsak (fk_aktoer_id);
 
-create index fagsak_fk_idx
-    on fagsak (fk_aktoer_id);
+CREATE UNIQUE INDEX uidx_fagsak_type_aktoer_ikke_arkivert
+    ON fagsak (fk_aktoer_id)
+    WHERE (arkivert = FALSE);
 
-
-create unique index uidx_fagsak_type_aktoer_ikke_arkivert
-    on fagsak (fk_aktoer_id)
-    where (arkivert = false);
-
-
-create table behandling
-(
-    id                          bigint                                                 not null
-        primary key,
-    fk_fagsak_id                bigint
-        references fagsak,
-    versjon                     bigint       default 0,
-    opprettet_av                varchar(512) default 'VL'::character varying,
-    opprettet_tid               timestamp(3) default LOCALTIMESTAMP,
-    endret_av                   varchar(512),
-    endret_tid                  timestamp(3),
-    behandling_type             varchar(50),
-    aktiv                       boolean      default true,
-    status                      varchar(50)  default 'OPPRETTET'::character varying,
-    kategori                    varchar(50)  default 'NATIONAL'::character varying,
-    underkategori               varchar(50)  default 'ORDINÆR'::character varying,
-    opprettet_aarsak            varchar      default 'MANUELL'::character varying,
-    skal_behandles_automatisk   boolean      default false,
-    resultat                    varchar      default 'IKKE_VURDERT'::character varying not null,
-    overstyrt_endringstidspunkt timestamp(3)
+CREATE TABLE behandling (
+                            id                          BIGINT                                                 NOT NULL
+                                PRIMARY KEY,
+                            fk_fagsak_id                BIGINT
+                                REFERENCES fagsak,
+                            versjon                     BIGINT       DEFAULT 0,
+                            opprettet_av                VARCHAR(512) DEFAULT 'VL'::CHARACTER VARYING,
+                            opprettet_tid               TIMESTAMP(3) DEFAULT LOCALTIMESTAMP,
+                            endret_av                   VARCHAR(512),
+                            endret_tid                  TIMESTAMP(3),
+                            behandling_type             VARCHAR(50),
+                            aktiv                       BOOLEAN      DEFAULT TRUE,
+                            status                      VARCHAR(50)  DEFAULT 'OPPRETTET'::CHARACTER VARYING,
+                            kategori                    VARCHAR(50)  DEFAULT 'NATIONAL'::CHARACTER VARYING,
+                            underkategori               VARCHAR(50)  DEFAULT 'ORDINÆR'::CHARACTER VARYING,
+                            opprettet_aarsak            VARCHAR      DEFAULT 'MANUELL'::CHARACTER VARYING,
+                            skal_behandles_automatisk   BOOLEAN      DEFAULT FALSE,
+                            resultat                    VARCHAR      DEFAULT 'IKKE_VURDERT'::CHARACTER VARYING NOT NULL,
+                            overstyrt_endringstidspunkt TIMESTAMP(3)
 );
 
+CREATE INDEX behandling_fk_fagsak_id_idx
+    ON behandling (fk_fagsak_id);
 
-create index behandling_fk_fagsak_id_idx
-    on behandling (fk_fagsak_id);
-
-create unique index uidx_behandling_01
-    on behandling ((
+CREATE UNIQUE INDEX uidx_behandling_01
+    ON behandling ((
                    CASE
-                   WHEN aktiv = true THEN fk_fagsak_id
-                   ELSE NULL::bigint
+                   WHEN aktiv = TRUE THEN fk_fagsak_id
+                   ELSE NULL::BIGINT
                    END), (
                        CASE
-                           WHEN aktiv = true THEN aktiv
-                           ELSE NULL::boolean
+                           WHEN aktiv = TRUE THEN aktiv
+                           ELSE NULL::BOOLEAN
                            END));
 
-
-
-create table gr_personopplysninger
-(
-    id               bigint                                       not null
-        primary key,
-    fk_behandling_id bigint                                       not null
-        references behandling,
-    versjon          bigint       default 0                       not null,
-    opprettet_av     varchar(512) default 'VL'::character varying not null,
-    opprettet_tid    timestamp(3) default LOCALTIMESTAMP          not null,
-    endret_av        varchar(512),
-    endret_tid       timestamp(3),
-    aktiv            boolean      default true                    not null
+CREATE TABLE gr_personopplysninger (
+                                       id               BIGINT                                       NOT NULL
+                                           PRIMARY KEY,
+                                       fk_behandling_id BIGINT                                       NOT NULL
+                                           REFERENCES behandling,
+                                       versjon          BIGINT       DEFAULT 0                       NOT NULL,
+                                       opprettet_av     VARCHAR(512) DEFAULT 'VL'::CHARACTER VARYING NOT NULL,
+                                       opprettet_tid    TIMESTAMP(3) DEFAULT LOCALTIMESTAMP          NOT NULL,
+                                       endret_av        VARCHAR(512),
+                                       endret_tid       TIMESTAMP(3),
+                                       aktiv            BOOLEAN      DEFAULT TRUE                    NOT NULL
 );
 
+CREATE INDEX gr_personopplysninger_fk_behandling_id_idx
+    ON gr_personopplysninger (fk_behandling_id);
 
-create index gr_personopplysninger_fk_behandling_id_idx
-    on gr_personopplysninger (fk_behandling_id);
-
-create unique index uidx_gr_personopplysninger_01
-    on gr_personopplysninger ((
+CREATE UNIQUE INDEX uidx_gr_personopplysninger_01
+    ON gr_personopplysninger ((
                               CASE
-                              WHEN aktiv = true THEN fk_behandling_id
-                              ELSE NULL::bigint
+                              WHEN aktiv = TRUE THEN fk_behandling_id
+                              ELSE NULL::BIGINT
                               END), (
                                   CASE
-                                      WHEN aktiv = true THEN aktiv
-                                      ELSE NULL::boolean
+                                      WHEN aktiv = TRUE THEN aktiv
+                                      ELSE NULL::BOOLEAN
                                       END));
 
-
-create table po_person
-(
-    id                          bigint                                       not null
-        primary key,
-    fk_gr_personopplysninger_id bigint                                       not null
-        references gr_personopplysninger,
-    type                        varchar(10)                                  not null,
-    opprettet_av                varchar(512) default 'VL'::character varying not null,
-    opprettet_tid               timestamp(3) default CURRENT_TIMESTAMP       not null,
-    endret_av                   varchar(512),
-    versjon                     bigint       default 0                       not null,
-    endret_tid                  timestamp(3),
-    foedselsdato                timestamp(3) default CURRENT_TIMESTAMP,
-    fk_aktoer_id                varchar(50)
-        constraint fk_po_person
-            references aktoer
-            on update cascade,
-    navn                        varchar      default ''::character varying,
-    kjoenn                      varchar      default 'UKJENT'::character varying,
-    maalform                    varchar(2)   default 'NB'::character varying not null
+CREATE TABLE po_person (
+                           id                          BIGINT                                       NOT NULL
+                               PRIMARY KEY,
+                           fk_gr_personopplysninger_id BIGINT                                       NOT NULL
+                               REFERENCES gr_personopplysninger,
+                           type                        VARCHAR(10)                                  NOT NULL,
+                           opprettet_av                VARCHAR(512) DEFAULT 'VL'::CHARACTER VARYING NOT NULL,
+                           opprettet_tid               TIMESTAMP(3) DEFAULT CURRENT_TIMESTAMP       NOT NULL,
+                           endret_av                   VARCHAR(512),
+                           versjon                     BIGINT       DEFAULT 0                       NOT NULL,
+                           endret_tid                  TIMESTAMP(3),
+                           foedselsdato                TIMESTAMP(3) DEFAULT CURRENT_TIMESTAMP,
+                           fk_aktoer_id                VARCHAR(50)
+                               CONSTRAINT fk_po_person
+                                   REFERENCES aktoer
+                                   ON UPDATE CASCADE,
+                           navn                        VARCHAR      DEFAULT ''::CHARACTER VARYING,
+                           kjoenn                      VARCHAR      DEFAULT 'UKJENT'::CHARACTER VARYING,
+                           maalform                    VARCHAR(2)   DEFAULT 'NB'::CHARACTER VARYING NOT NULL
 );
 
+CREATE INDEX po_person_fk_gr_personopplysninger_id_idx
+    ON po_person (fk_gr_personopplysninger_id);
 
-create index po_person_fk_gr_personopplysninger_id_idx
-    on po_person (fk_gr_personopplysninger_id);
+CREATE INDEX po_person_fk_idx
+    ON po_person (fk_aktoer_id);
 
-create index po_person_fk_idx
-    on po_person (fk_aktoer_id);
-
-
-create table vedtak
-(
-    id               bigint                                       not null
-        constraint behandling_vedtak_pkey
-            primary key,
-    fk_behandling_id bigint                                       not null
-        constraint behandling_vedtak_fk_behandling_id_fkey
-            references behandling,
-    versjon          bigint       default 0                       not null,
-    opprettet_av     varchar(512) default 'VL'::character varying not null,
-    opprettet_tid    timestamp(3) default LOCALTIMESTAMP          not null,
-    vedtaksdato      timestamp(3) default LOCALTIMESTAMP,
-    endret_av        varchar(512),
-    endret_tid       timestamp(3),
-    aktiv            boolean      default true,
-    stonad_brev_pdf  bytea
+CREATE TABLE vedtak (
+                        id               BIGINT                                       NOT NULL
+                            CONSTRAINT behandling_vedtak_pkey
+                                PRIMARY KEY,
+                        fk_behandling_id BIGINT                                       NOT NULL
+                            CONSTRAINT behandling_vedtak_fk_behandling_id_fkey
+                                REFERENCES behandling,
+                        versjon          BIGINT       DEFAULT 0                       NOT NULL,
+                        opprettet_av     VARCHAR(512) DEFAULT 'VL'::CHARACTER VARYING NOT NULL,
+                        opprettet_tid    TIMESTAMP(3) DEFAULT LOCALTIMESTAMP          NOT NULL,
+                        vedtaksdato      TIMESTAMP(3) DEFAULT LOCALTIMESTAMP,
+                        endret_av        VARCHAR(512),
+                        endret_tid       TIMESTAMP(3),
+                        aktiv            BOOLEAN      DEFAULT TRUE,
+                        stonad_brev_pdf  BYTEA
 );
 
+CREATE INDEX behandling_vedtak_fk_behandling_id_idx
+    ON vedtak (fk_behandling_id);
 
-create index behandling_vedtak_fk_behandling_id_idx
-    on vedtak (fk_behandling_id);
-
-create unique index uidx_behandling_vedtak_01
-    on vedtak ((
+CREATE UNIQUE INDEX uidx_behandling_vedtak_01
+    ON vedtak ((
                CASE
-               WHEN aktiv = true THEN fk_behandling_id
-               ELSE NULL::bigint
+               WHEN aktiv = TRUE THEN fk_behandling_id
+               ELSE NULL::BIGINT
                END), (
                    CASE
-                       WHEN aktiv = true THEN aktiv
-                       ELSE NULL::boolean
+                       WHEN aktiv = TRUE THEN aktiv
+                       ELSE NULL::BOOLEAN
                        END));
 
-
-
-create table logg
-(
-    id               bigint                                       not null
-        primary key,
-    opprettet_av     varchar      default 'VL'::character varying not null,
-    opprettet_tid    timestamp(3) default LOCALTIMESTAMP          not null,
-    fk_behandling_id bigint                                       not null
-        references behandling,
-    type             varchar                                      not null,
-    tittel           varchar                                      not null,
-    rolle            varchar                                      not null,
-    tekst            text                                         not null
+CREATE TABLE logg (
+                      id               BIGINT                                       NOT NULL
+                          PRIMARY KEY,
+                      opprettet_av     VARCHAR      DEFAULT 'VL'::CHARACTER VARYING NOT NULL,
+                      opprettet_tid    TIMESTAMP(3) DEFAULT LOCALTIMESTAMP          NOT NULL,
+                      fk_behandling_id BIGINT                                       NOT NULL
+                          REFERENCES behandling,
+                      type             VARCHAR                                      NOT NULL,
+                      tittel           VARCHAR                                      NOT NULL,
+                      rolle            VARCHAR                                      NOT NULL,
+                      tekst            TEXT                                         NOT NULL
 );
 
+CREATE INDEX logg_fk_behandling_id_idx
+    ON logg (fk_behandling_id);
 
-create index logg_fk_behandling_id_idx
-    on logg (fk_behandling_id);
-
-
-create table gr_soknad
-(
-    id               bigint                                       not null
-        primary key,
-    opprettet_av     varchar      default 'VL'::character varying not null,
-    opprettet_tid    timestamp(3) default LOCALTIMESTAMP          not null,
-    fk_behandling_id bigint                                       not null
-        references behandling,
-    soknad           text                                         not null,
-    aktiv            boolean      default true                    not null
+CREATE TABLE gr_soknad (
+                           id               BIGINT                                       NOT NULL
+                               PRIMARY KEY,
+                           opprettet_av     VARCHAR      DEFAULT 'VL'::CHARACTER VARYING NOT NULL,
+                           opprettet_tid    TIMESTAMP(3) DEFAULT LOCALTIMESTAMP          NOT NULL,
+                           fk_behandling_id BIGINT                                       NOT NULL
+                               REFERENCES behandling,
+                           soknad           TEXT                                         NOT NULL,
+                           aktiv            BOOLEAN      DEFAULT TRUE                    NOT NULL
 );
 
+CREATE INDEX gr_soknad_fk_behandling_id_idx
+    ON gr_soknad (fk_behandling_id);
 
-create index gr_soknad_fk_behandling_id_idx
-    on gr_soknad (fk_behandling_id);
-
-create unique index uidx_gr_soknad_01
-    on gr_soknad ((
+CREATE UNIQUE INDEX uidx_gr_soknad_01
+    ON gr_soknad ((
                   CASE
-                  WHEN aktiv = true THEN fk_behandling_id
-                  ELSE NULL::bigint
+                  WHEN aktiv = TRUE THEN fk_behandling_id
+                  ELSE NULL::BIGINT
                   END), (
                       CASE
-                          WHEN aktiv = true THEN aktiv
-                          ELSE NULL::boolean
+                          WHEN aktiv = TRUE THEN aktiv
+                          ELSE NULL::BOOLEAN
                           END));
 
-
-
-create table tilkjent_ytelse
-(
-    id                 bigint                              not null
-        constraint beregning_resultat_pkey
-            primary key,
-    fk_behandling_id   bigint
-        constraint beregning_resultat_fk_behandling_id_fkey
-            references behandling,
-    stonad_fom         timestamp,
-    stonad_tom         timestamp,
-    opprettet_dato     timestamp                           not null,
-    opphor_fom         timestamp,
-    utbetalingsoppdrag text,
-    endret_dato        timestamp default CURRENT_TIMESTAMP not null
+CREATE TABLE tilkjent_ytelse (
+                                 id                 BIGINT                              NOT NULL
+                                     CONSTRAINT beregning_resultat_pkey
+                                         PRIMARY KEY,
+                                 fk_behandling_id   BIGINT
+                                     CONSTRAINT beregning_resultat_fk_behandling_id_fkey
+                                         REFERENCES behandling,
+                                 stonad_fom         TIMESTAMP,
+                                 stonad_tom         TIMESTAMP,
+                                 opprettet_dato     TIMESTAMP                           NOT NULL,
+                                 opphor_fom         TIMESTAMP,
+                                 utbetalingsoppdrag TEXT,
+                                 endret_dato        TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
 
+CREATE INDEX beregning_resultat_fk_behandling_id_idx
+    ON tilkjent_ytelse (fk_behandling_id);
 
-create index beregning_resultat_fk_behandling_id_idx
-    on tilkjent_ytelse (fk_behandling_id);
+CREATE INDEX tilkjent_ytelse_utbetalingsoppdrag_not_null_idx
+    ON tilkjent_ytelse (utbetalingsoppdrag)
+    WHERE (utbetalingsoppdrag IS NOT NULL);
 
-create index tilkjent_ytelse_utbetalingsoppdrag_not_null_idx
-    on tilkjent_ytelse (utbetalingsoppdrag)
-    where (utbetalingsoppdrag IS NOT NULL);
-
-
-create table andel_tilkjent_ytelse
-(
-    id                              bigint                                       not null
-        primary key,
-    fk_behandling_id                bigint                                       not null
-        references behandling,
-    versjon                         bigint       default 0                       not null,
-    opprettet_av                    varchar(512) default 'VL'::character varying not null,
-    opprettet_tid                   timestamp(3) default LOCALTIMESTAMP          not null,
-    stonad_fom                      timestamp(3)                                 not null,
-    stonad_tom                      timestamp(3)                                 not null,
-    type                            varchar(50)                                  not null,
-    kalkulert_utbetalingsbelop      numeric,
-    endret_av                       varchar(512),
-    endret_tid                      timestamp(3),
-    tilkjent_ytelse_id              bigint
-        references tilkjent_ytelse
-            on delete cascade,
-    periode_offset                  bigint,
-    forrige_periode_offset          bigint,
-    kilde_behandling_id             bigint
-        references behandling,
-    prosent                         numeric                                      not null,
-    sats                            bigint                                       not null,
-    fk_aktoer_id                    varchar
-        constraint fk_andel_tilkjent_ytelse
-            references aktoer
-            on update cascade,
-    nasjonalt_periodebelop          numeric,
-    differanseberegnet_periodebelop numeric
+CREATE TABLE andel_tilkjent_ytelse (
+                                       id                              BIGINT                                       NOT NULL
+                                           PRIMARY KEY,
+                                       fk_behandling_id                BIGINT                                       NOT NULL
+                                           REFERENCES behandling,
+                                       versjon                         BIGINT       DEFAULT 0                       NOT NULL,
+                                       opprettet_av                    VARCHAR(512) DEFAULT 'VL'::CHARACTER VARYING NOT NULL,
+                                       opprettet_tid                   TIMESTAMP(3) DEFAULT LOCALTIMESTAMP          NOT NULL,
+                                       stonad_fom                      TIMESTAMP(3)                                 NOT NULL,
+                                       stonad_tom                      TIMESTAMP(3)                                 NOT NULL,
+                                       type                            VARCHAR(50)                                  NOT NULL,
+                                       kalkulert_utbetalingsbelop      NUMERIC,
+                                       endret_av                       VARCHAR(512),
+                                       endret_tid                      TIMESTAMP(3),
+                                       tilkjent_ytelse_id              BIGINT
+                                           REFERENCES tilkjent_ytelse
+                                               ON DELETE CASCADE,
+                                       periode_offset                  BIGINT,
+                                       forrige_periode_offset          BIGINT,
+                                       kilde_behandling_id             BIGINT
+                                           REFERENCES behandling,
+                                       prosent                         NUMERIC                                      NOT NULL,
+                                       sats                            BIGINT                                       NOT NULL,
+                                       fk_aktoer_id                    VARCHAR
+                                           CONSTRAINT fk_andel_tilkjent_ytelse
+                                               REFERENCES aktoer
+                                               ON UPDATE CASCADE,
+                                       nasjonalt_periodebelop          NUMERIC,
+                                       differanseberegnet_periodebelop NUMERIC
 );
 
+CREATE INDEX andel_tilkjent_ytelse_fk_behandling_id_idx
+    ON andel_tilkjent_ytelse (fk_behandling_id);
 
-create index andel_tilkjent_ytelse_fk_behandling_id_idx
-    on andel_tilkjent_ytelse (fk_behandling_id);
+CREATE INDEX andel_tilkjent_ytelse_fk_idx
+    ON andel_tilkjent_ytelse (kilde_behandling_id);
 
-create index andel_tilkjent_ytelse_fk_idx
-    on andel_tilkjent_ytelse (kilde_behandling_id);
+CREATE INDEX andel_tilkjent_ytelse_fk_tilkjent_idx
+    ON andel_tilkjent_ytelse (tilkjent_ytelse_id);
 
-create index andel_tilkjent_ytelse_fk_tilkjent_idx
-    on andel_tilkjent_ytelse (tilkjent_ytelse_id);
+CREATE INDEX andel_tilkjent_ytelse_fk_aktoer_idx
+    ON andel_tilkjent_ytelse (fk_aktoer_id);
 
-create index andel_tilkjent_ytelse_fk_aktoer_idx
-    on andel_tilkjent_ytelse (fk_aktoer_id);
+CREATE INDEX aty_type_idx
+    ON andel_tilkjent_ytelse (type);
 
-create index aty_type_idx
-    on andel_tilkjent_ytelse (type);
-
-
-create table vilkaarsvurdering
-(
-    id               bigint                                       not null
-        constraint behandling_resultat_pkey
-            primary key,
-    fk_behandling_id bigint                                       not null
-        constraint behandling_resultat_fk_behandling_id_fkey
-            references behandling,
-    aktiv            boolean      default true                    not null,
-    versjon          bigint       default 0                       not null,
-    opprettet_av     varchar      default 'VL'::character varying not null,
-    opprettet_tid    timestamp(3) default LOCALTIMESTAMP          not null,
-    endret_av        varchar,
-    endret_tid       timestamp(3),
-    samlet_resultat  varchar,
-    ytelse_personer  text         default ''::text
+CREATE TABLE vilkaarsvurdering (
+                                   id               BIGINT                                       NOT NULL
+                                       CONSTRAINT behandling_resultat_pkey
+                                           PRIMARY KEY,
+                                   fk_behandling_id BIGINT                                       NOT NULL
+                                       CONSTRAINT behandling_resultat_fk_behandling_id_fkey
+                                           REFERENCES behandling,
+                                   aktiv            BOOLEAN      DEFAULT TRUE                    NOT NULL,
+                                   versjon          BIGINT       DEFAULT 0                       NOT NULL,
+                                   opprettet_av     VARCHAR      DEFAULT 'VL'::CHARACTER VARYING NOT NULL,
+                                   opprettet_tid    TIMESTAMP(3) DEFAULT LOCALTIMESTAMP          NOT NULL,
+                                   endret_av        VARCHAR,
+                                   endret_tid       TIMESTAMP(3),
+                                   samlet_resultat  VARCHAR,
+                                   ytelse_personer  TEXT         DEFAULT ''::TEXT
 );
 
+CREATE INDEX vilkaarsvurdering_fk_idx
+    ON vilkaarsvurdering (fk_behandling_id);
 
-create index vilkaarsvurdering_fk_idx
-    on vilkaarsvurdering (fk_behandling_id);
-
-
-create table person_resultat
-(
-    id                      bigint                                       not null
-        constraint periode_resultat_pkey
-            primary key,
-    fk_vilkaarsvurdering_id bigint                                       not null
-        constraint periode_resultat_fk_behandling_resultat_id_fkey
-            references vilkaarsvurdering,
-    versjon                 bigint       default 0                       not null,
-    opprettet_av            varchar      default 'VL'::character varying not null,
-    opprettet_tid           timestamp(3) default LOCALTIMESTAMP          not null,
-    endret_av               varchar,
-    endret_tid              timestamp(3),
-    fk_aktoer_id            varchar
-        constraint fk_person_resultat
-            references aktoer
-            on update cascade
+CREATE TABLE person_resultat (
+                                 id                      BIGINT                                       NOT NULL
+                                     CONSTRAINT periode_resultat_pkey
+                                         PRIMARY KEY,
+                                 fk_vilkaarsvurdering_id BIGINT                                       NOT NULL
+                                     CONSTRAINT periode_resultat_fk_behandling_resultat_id_fkey
+                                         REFERENCES vilkaarsvurdering,
+                                 versjon                 BIGINT       DEFAULT 0                       NOT NULL,
+                                 opprettet_av            VARCHAR      DEFAULT 'VL'::CHARACTER VARYING NOT NULL,
+                                 opprettet_tid           TIMESTAMP(3) DEFAULT LOCALTIMESTAMP          NOT NULL,
+                                 endret_av               VARCHAR,
+                                 endret_tid              TIMESTAMP(3),
+                                 fk_aktoer_id            VARCHAR
+                                     CONSTRAINT fk_person_resultat
+                                         REFERENCES aktoer
+                                         ON UPDATE CASCADE
 );
 
-
-create table vilkar_resultat
-(
-    id                                 bigint                                       not null
-        primary key,
-    vilkar                             varchar(50)                                  not null,
-    resultat                           varchar(50)                                  not null,
-    regel_input                        text,
-    regel_output                       text,
-    versjon                            bigint       default 0                       not null,
-    opprettet_av                       varchar(512) default 'VL'::character varying not null,
-    opprettet_tid                      timestamp(3) default LOCALTIMESTAMP          not null,
-    endret_av                          varchar(512),
-    endret_tid                         timestamp(3),
-    fk_person_resultat_id              bigint
-        references person_resultat,
-    begrunnelse                        text,
-    periode_fom                        timestamp(3) default NULL::timestamp without time zone,
-    periode_tom                        timestamp(3) default NULL::timestamp without time zone,
-    fk_behandling_id                   bigint                                       not null
-        constraint fk_behandling_id_vilkar_resultat
-            references behandling,
-    evaluering_aarsak                  text         default ''::text,
-    er_automatisk_vurdert              boolean      default false                   not null,
-    er_eksplisitt_avslag_paa_soknad    boolean,
-    vedtak_begrunnelse_spesifikasjoner text         default ''::text,
-    vurderes_etter                     varchar,
-    utdypende_vilkarsvurderinger       varchar
+CREATE TABLE vilkar_resultat (
+                                 id                                 BIGINT                                       NOT NULL
+                                     PRIMARY KEY,
+                                 vilkar                             VARCHAR(50)                                  NOT NULL,
+                                 resultat                           VARCHAR(50)                                  NOT NULL,
+                                 regel_input                        TEXT,
+                                 regel_output                       TEXT,
+                                 versjon                            BIGINT       DEFAULT 0                       NOT NULL,
+                                 opprettet_av                       VARCHAR(512) DEFAULT 'VL'::CHARACTER VARYING NOT NULL,
+                                 opprettet_tid                      TIMESTAMP(3) DEFAULT LOCALTIMESTAMP          NOT NULL,
+                                 endret_av                          VARCHAR(512),
+                                 endret_tid                         TIMESTAMP(3),
+                                 fk_person_resultat_id              BIGINT
+                                     REFERENCES person_resultat,
+                                 begrunnelse                        TEXT,
+                                 periode_fom                        TIMESTAMP(3) DEFAULT NULL::TIMESTAMP WITHOUT TIME ZONE,
+                                 periode_tom                        TIMESTAMP(3) DEFAULT NULL::TIMESTAMP WITHOUT TIME ZONE,
+                                 fk_behandling_id                   BIGINT                                       NOT NULL
+                                     CONSTRAINT fk_behandling_id_vilkar_resultat
+                                         REFERENCES behandling,
+                                 evaluering_aarsak                  TEXT         DEFAULT ''::TEXT,
+                                 er_automatisk_vurdert              BOOLEAN      DEFAULT FALSE                   NOT NULL,
+                                 er_eksplisitt_avslag_paa_soknad    BOOLEAN,
+                                 vedtak_begrunnelse_spesifikasjoner TEXT         DEFAULT ''::TEXT,
+                                 vurderes_etter                     VARCHAR,
+                                 utdypende_vilkarsvurderinger       VARCHAR
 );
 
+CREATE INDEX vilkar_resultat_fk_idx
+    ON vilkar_resultat (fk_behandling_id);
 
-create index vilkar_resultat_fk_idx
-    on vilkar_resultat (fk_behandling_id);
+CREATE INDEX vilkar_resultat_fk_personr_idx
+    ON vilkar_resultat (fk_person_resultat_id);
 
-create index vilkar_resultat_fk_personr_idx
-    on vilkar_resultat (fk_person_resultat_id);
+CREATE INDEX person_resultat_fk_idx
+    ON person_resultat (fk_vilkaarsvurdering_id);
 
+CREATE INDEX person_resultat_fk_aktoer_idx
+    ON person_resultat (fk_aktoer_id);
 
-create index person_resultat_fk_idx
-    on person_resultat (fk_vilkaarsvurdering_id);
-
-create index person_resultat_fk_aktoer_idx
-    on person_resultat (fk_aktoer_id);
-
-
-create table oppgave
-(
-    id               bigint    not null
-        primary key,
-    fk_behandling_id bigint    not null
-        references behandling,
-    gsak_id          varchar   not null,
-    type             varchar   not null,
-    ferdigstilt      boolean   not null,
-    opprettet_tid    timestamp not null
+CREATE TABLE oppgave (
+                         id               BIGINT    NOT NULL
+                             PRIMARY KEY,
+                         fk_behandling_id BIGINT    NOT NULL
+                             REFERENCES behandling,
+                         gsak_id          VARCHAR   NOT NULL,
+                         type             VARCHAR   NOT NULL,
+                         ferdigstilt      BOOLEAN   NOT NULL,
+                         opprettet_tid    TIMESTAMP NOT NULL
 );
 
+CREATE INDEX oppgave_fk_idx
+    ON oppgave (fk_behandling_id);
 
-create index oppgave_fk_idx
-    on oppgave (fk_behandling_id);
-
-
-create table totrinnskontroll
-(
-    id                 bigint                                           not null
-        primary key,
-    fk_behandling_id   bigint                                           not null
-        references behandling,
-    versjon            bigint       default 0                           not null,
-    opprettet_av       varchar      default 'VL'::character varying     not null,
-    opprettet_tid      timestamp(3) default LOCALTIMESTAMP              not null,
-    endret_av          varchar,
-    endret_tid         timestamp(3),
-    aktiv              boolean      default true                        not null,
-    saksbehandler      varchar                                          not null,
-    beslutter          varchar,
-    godkjent           boolean      default true,
-    saksbehandler_id   varchar      default 'ukjent'::character varying not null,
-    beslutter_id       varchar,
-    kontrollerte_sider text         default ''::text
+CREATE TABLE totrinnskontroll (
+                                  id                 BIGINT                                           NOT NULL
+                                      PRIMARY KEY,
+                                  fk_behandling_id   BIGINT                                           NOT NULL
+                                      REFERENCES behandling,
+                                  versjon            BIGINT       DEFAULT 0                           NOT NULL,
+                                  opprettet_av       VARCHAR      DEFAULT 'VL'::CHARACTER VARYING     NOT NULL,
+                                  opprettet_tid      TIMESTAMP(3) DEFAULT LOCALTIMESTAMP              NOT NULL,
+                                  endret_av          VARCHAR,
+                                  endret_tid         TIMESTAMP(3),
+                                  aktiv              BOOLEAN      DEFAULT TRUE                        NOT NULL,
+                                  saksbehandler      VARCHAR                                          NOT NULL,
+                                  beslutter          VARCHAR,
+                                  godkjent           BOOLEAN      DEFAULT TRUE,
+                                  saksbehandler_id   VARCHAR      DEFAULT 'ukjent'::CHARACTER VARYING NOT NULL,
+                                  beslutter_id       VARCHAR,
+                                  kontrollerte_sider TEXT         DEFAULT ''::TEXT
 );
 
+CREATE INDEX totrinnskontroll_fk_behandling_id_idx
+    ON totrinnskontroll (fk_behandling_id);
 
-create index totrinnskontroll_fk_behandling_id_idx
-    on totrinnskontroll (fk_behandling_id);
-
-create unique index uidx_totrinnskontroll_01
-    on totrinnskontroll ((
+CREATE UNIQUE INDEX uidx_totrinnskontroll_01
+    ON totrinnskontroll ((
                          CASE
-                         WHEN aktiv = true THEN fk_behandling_id
-                         ELSE NULL::bigint
+                         WHEN aktiv = TRUE THEN fk_behandling_id
+                         ELSE NULL::BIGINT
                          END), (
                              CASE
-                                 WHEN aktiv = true THEN aktiv
-                                 ELSE NULL::boolean
+                                 WHEN aktiv = TRUE THEN aktiv
+                                 ELSE NULL::BOOLEAN
                                  END));
 
 
-create table po_bostedsadresse
-(
-    id                bigint                                       not null
-        primary key,
-    type              varchar(20)                                  not null,
-    bostedskommune    varchar,
-    husnummer         varchar,
-    husbokstav        varchar,
-    bruksenhetsnummer varchar,
-    adressenavn       varchar,
-    kommunenummer     varchar,
-    tilleggsnavn      varchar,
-    postnummer        varchar,
-    opprettet_av      varchar      default 'VL'::character varying not null,
-    opprettet_tid     timestamp(3) default CURRENT_TIMESTAMP       not null,
-    endret_av         varchar,
-    versjon           bigint       default 0                       not null,
-    endret_tid        timestamp(3),
-    matrikkel_id      bigint,
-    fom               date,
-    tom               date,
-    fk_po_person_id   bigint
-        references po_person
+CREATE TABLE po_bostedsadresse (
+                                   id                BIGINT                                       NOT NULL
+                                       PRIMARY KEY,
+                                   type              VARCHAR(20)                                  NOT NULL,
+                                   bostedskommune    VARCHAR,
+                                   husnummer         VARCHAR,
+                                   husbokstav        VARCHAR,
+                                   bruksenhetsnummer VARCHAR,
+                                   adressenavn       VARCHAR,
+                                   kommunenummer     VARCHAR,
+                                   tilleggsnavn      VARCHAR,
+                                   postnummer        VARCHAR,
+                                   opprettet_av      VARCHAR      DEFAULT 'VL'::CHARACTER VARYING NOT NULL,
+                                   opprettet_tid     TIMESTAMP(3) DEFAULT CURRENT_TIMESTAMP       NOT NULL,
+                                   endret_av         VARCHAR,
+                                   versjon           BIGINT       DEFAULT 0                       NOT NULL,
+                                   endret_tid        TIMESTAMP(3),
+                                   matrikkel_id      BIGINT,
+                                   fom               DATE,
+                                   tom               DATE,
+                                   fk_po_person_id   BIGINT
+                                       REFERENCES po_person
 );
 
 
-create index po_bostedsadresse_fk_idx
-    on po_bostedsadresse (fk_po_person_id);
+CREATE INDEX po_bostedsadresse_fk_idx
+    ON po_bostedsadresse (fk_po_person_id);
 
 
-create table journalpost
-(
-    id               bigint                                       not null
-        primary key,
-    fk_behandling_id bigint                                       not null
-        references behandling,
-    journalpost_id   varchar                                      not null,
-    opprettet_tid    timestamp(3) default LOCALTIMESTAMP          not null,
-    opprettet_av     varchar      default 'VL'::character varying not null,
-    type             varchar
+CREATE TABLE journalpost (
+                             id               BIGINT                                       NOT NULL
+                                 PRIMARY KEY,
+                             fk_behandling_id BIGINT                                       NOT NULL
+                                 REFERENCES behandling,
+                             journalpost_id   VARCHAR                                      NOT NULL,
+                             opprettet_tid    TIMESTAMP(3) DEFAULT LOCALTIMESTAMP          NOT NULL,
+                             opprettet_av     VARCHAR      DEFAULT 'VL'::CHARACTER VARYING NOT NULL,
+                             type             VARCHAR
 );
 
 
-create index journalpost_fk_behandling_id_idx
-    on journalpost (fk_behandling_id);
+CREATE INDEX journalpost_fk_behandling_id_idx
+    ON journalpost (fk_behandling_id);
 
 
-create table po_statsborgerskap
-(
-    id              bigint                                           not null
-        primary key,
-    fk_po_person_id bigint                                           not null
-        references po_person,
-    landkode        varchar(3)   default 'XUK'::character varying    not null,
-    fom             date,
-    tom             date,
-    opprettet_av    varchar      default 'VL'::character varying     not null,
-    opprettet_tid   timestamp(3) default LOCALTIMESTAMP              not null,
-    endret_av       varchar,
-    endret_tid      timestamp(3),
-    versjon         bigint       default 0                           not null,
-    medlemskap      varchar      default 'UKJENT'::character varying not null
+CREATE TABLE po_statsborgerskap (
+                                    id              BIGINT                                           NOT NULL
+                                        PRIMARY KEY,
+                                    fk_po_person_id BIGINT                                           NOT NULL
+                                        REFERENCES po_person,
+                                    landkode        VARCHAR(3)   DEFAULT 'XUK'::CHARACTER VARYING    NOT NULL,
+                                    fom             DATE,
+                                    tom             DATE,
+                                    opprettet_av    VARCHAR      DEFAULT 'VL'::CHARACTER VARYING     NOT NULL,
+                                    opprettet_tid   TIMESTAMP(3) DEFAULT LOCALTIMESTAMP              NOT NULL,
+                                    endret_av       VARCHAR,
+                                    endret_tid      TIMESTAMP(3),
+                                    versjon         BIGINT       DEFAULT 0                           NOT NULL,
+                                    medlemskap      VARCHAR      DEFAULT 'UKJENT'::CHARACTER VARYING NOT NULL
 );
 
 
-create index po_statsborgerskap_fk_idx
-    on po_statsborgerskap (fk_po_person_id);
+CREATE INDEX po_statsborgerskap_fk_idx
+    ON po_statsborgerskap (fk_po_person_id);
 
 
-create table po_opphold
-(
-    id              bigint                                       not null
-        primary key,
-    fk_po_person_id bigint                                       not null
-        references po_person,
-    type            varchar                                      not null,
-    fom             date,
-    tom             date,
-    opprettet_av    varchar      default 'VL'::character varying not null,
-    opprettet_tid   timestamp(3) default LOCALTIMESTAMP          not null,
-    endret_av       varchar,
-    endret_tid      timestamp(3),
-    versjon         bigint       default 0                       not null
+CREATE TABLE po_opphold (
+                            id              BIGINT                                       NOT NULL
+                                PRIMARY KEY,
+                            fk_po_person_id BIGINT                                       NOT NULL
+                                REFERENCES po_person,
+                            type            VARCHAR                                      NOT NULL,
+                            fom             DATE,
+                            tom             DATE,
+                            opprettet_av    VARCHAR      DEFAULT 'VL'::CHARACTER VARYING NOT NULL,
+                            opprettet_tid   TIMESTAMP(3) DEFAULT LOCALTIMESTAMP          NOT NULL,
+                            endret_av       VARCHAR,
+                            endret_tid      TIMESTAMP(3),
+                            versjon         BIGINT       DEFAULT 0                       NOT NULL
 );
 
 
-create index po_opphold_fk_idx
-    on po_opphold (fk_po_person_id);
+CREATE INDEX po_opphold_fk_idx
+    ON po_opphold (fk_po_person_id);
 
-
-
-create table po_arbeidsforhold
-(
-    id                bigint                                       not null
-        primary key,
-    fk_po_person_id   bigint                                       not null
-        references po_person,
-    arbeidsgiver_id   varchar,
-    arbeidsgiver_type varchar,
-    fom               date,
-    tom               date,
-    opprettet_av      varchar      default 'VL'::character varying not null,
-    opprettet_tid     timestamp(3) default LOCALTIMESTAMP          not null,
-    endret_av         varchar,
-    endret_tid        timestamp(3),
-    versjon           bigint       default 0                       not null
+CREATE TABLE po_arbeidsforhold (
+                                   id                BIGINT                                       NOT NULL
+                                       PRIMARY KEY,
+                                   fk_po_person_id   BIGINT                                       NOT NULL
+                                       REFERENCES po_person,
+                                   arbeidsgiver_id   VARCHAR,
+                                   arbeidsgiver_type VARCHAR,
+                                   fom               DATE,
+                                   tom               DATE,
+                                   opprettet_av      VARCHAR      DEFAULT 'VL'::CHARACTER VARYING NOT NULL,
+                                   opprettet_tid     TIMESTAMP(3) DEFAULT LOCALTIMESTAMP          NOT NULL,
+                                   endret_av         VARCHAR,
+                                   endret_tid        TIMESTAMP(3),
+                                   versjon           BIGINT       DEFAULT 0                       NOT NULL
 );
 
+CREATE INDEX po_arbeidsforhold_fk_idx
+    ON po_arbeidsforhold (fk_po_person_id);
 
-create index po_arbeidsforhold_fk_idx
-    on po_arbeidsforhold (fk_po_person_id);
-
-
-create table po_bostedsadresseperiode
-(
-    id              bigint                                       not null
-        primary key,
-    fk_po_person_id bigint                                       not null
-        references po_person,
-    fom             date,
-    tom             date,
-    opprettet_av    varchar      default 'VL'::character varying not null,
-    opprettet_tid   timestamp(3) default LOCALTIMESTAMP          not null,
-    endret_av       varchar,
-    endret_tid      timestamp(3),
-    versjon         bigint       default 0                       not null
+CREATE TABLE po_bostedsadresseperiode (
+                                          id              BIGINT                                       NOT NULL
+                                              PRIMARY KEY,
+                                          fk_po_person_id BIGINT                                       NOT NULL
+                                              REFERENCES po_person,
+                                          fom             DATE,
+                                          tom             DATE,
+                                          opprettet_av    VARCHAR      DEFAULT 'VL'::CHARACTER VARYING NOT NULL,
+                                          opprettet_tid   TIMESTAMP(3) DEFAULT LOCALTIMESTAMP          NOT NULL,
+                                          endret_av       VARCHAR,
+                                          endret_tid      TIMESTAMP(3),
+                                          versjon         BIGINT       DEFAULT 0                       NOT NULL
 );
 
+CREATE INDEX po_bostedsadresseperiode_fk_idx
+    ON po_bostedsadresseperiode (fk_po_person_id);
 
-
-create index po_bostedsadresseperiode_fk_idx
-    on po_bostedsadresseperiode (fk_po_person_id);
-
-
-
-create table behandling_steg_tilstand
-(
-    id                     bigint                                                not null
-        primary key,
-    fk_behandling_id       bigint                                                not null
-        references behandling,
-    behandling_steg        varchar                                               not null,
-    behandling_steg_status varchar      default 'IKKE_UTFØRT'::character varying not null,
-    versjon                bigint       default 0                                not null,
-    opprettet_av           varchar      default 'VL'::character varying          not null,
-    opprettet_tid          timestamp(3) default LOCALTIMESTAMP                   not null,
-    endret_av              varchar,
-    endret_tid             timestamp(3)
+CREATE TABLE behandling_steg_tilstand (
+                                          id                     BIGINT                                                NOT NULL
+                                              PRIMARY KEY,
+                                          fk_behandling_id       BIGINT                                                NOT NULL
+                                              REFERENCES behandling,
+                                          behandling_steg        VARCHAR                                               NOT NULL,
+                                          behandling_steg_status VARCHAR      DEFAULT 'IKKE_UTFØRT'::CHARACTER VARYING NOT NULL,
+                                          versjon                BIGINT       DEFAULT 0                                NOT NULL,
+                                          opprettet_av           VARCHAR      DEFAULT 'VL'::CHARACTER VARYING          NOT NULL,
+                                          opprettet_tid          TIMESTAMP(3) DEFAULT LOCALTIMESTAMP                   NOT NULL,
+                                          endret_av              VARCHAR,
+                                          endret_tid             TIMESTAMP(3)
 );
 
+CREATE INDEX behandling_steg_tilstand_fk_idx
+    ON behandling_steg_tilstand (fk_behandling_id);
 
-create index behandling_steg_tilstand_fk_idx
-    on behandling_steg_tilstand (fk_behandling_id);
-
-
-create table annen_vurdering
-(
-    id                    bigint                                       not null
-        primary key,
-    fk_person_resultat_id bigint                                       not null
-        references person_resultat,
-    resultat              varchar                                      not null,
-    type                  varchar                                      not null,
-    begrunnelse           text,
-    versjon               bigint       default 0                       not null,
-    opprettet_av          varchar      default 'VL'::character varying not null,
-    opprettet_tid         timestamp(3) default LOCALTIMESTAMP          not null,
-    endret_av             varchar,
-    endret_tid            timestamp(3)
+CREATE TABLE annen_vurdering (
+                                 id                    BIGINT                                       NOT NULL
+                                     PRIMARY KEY,
+                                 fk_person_resultat_id BIGINT                                       NOT NULL
+                                     REFERENCES person_resultat,
+                                 resultat              VARCHAR                                      NOT NULL,
+                                 type                  VARCHAR                                      NOT NULL,
+                                 begrunnelse           TEXT,
+                                 versjon               BIGINT       DEFAULT 0                       NOT NULL,
+                                 opprettet_av          VARCHAR      DEFAULT 'VL'::CHARACTER VARYING NOT NULL,
+                                 opprettet_tid         TIMESTAMP(3) DEFAULT LOCALTIMESTAMP          NOT NULL,
+                                 endret_av             VARCHAR,
+                                 endret_tid            TIMESTAMP(3)
 );
 
+CREATE INDEX annen_vurdering_fk_idx
+    ON annen_vurdering (fk_person_resultat_id);
 
-create index annen_vurdering_fk_idx
-    on annen_vurdering (fk_person_resultat_id);
-
-
-create table okonomi_simulering_mottaker
-(
-    id               bigint                                       not null
-        constraint vedtak_simulering_mottaker_pkey
-            primary key,
-    mottaker_nummer  varchar(50),
-    mottaker_type    varchar(50),
-    opprettet_av     varchar(512) default 'VL'::character varying not null,
-    opprettet_tid    timestamp(3) default LOCALTIMESTAMP          not null,
-    endret_av        varchar(512),
-    endret_tid       timestamp(3),
-    versjon          bigint       default 0,
-    fk_behandling_id bigint
-        references behandling
+CREATE TABLE okonomi_simulering_mottaker (
+                                             id               BIGINT                                       NOT NULL
+                                                 CONSTRAINT vedtak_simulering_mottaker_pkey
+                                                     PRIMARY KEY,
+                                             mottaker_nummer  VARCHAR(50),
+                                             mottaker_type    VARCHAR(50),
+                                             opprettet_av     VARCHAR(512) DEFAULT 'VL'::CHARACTER VARYING NOT NULL,
+                                             opprettet_tid    TIMESTAMP(3) DEFAULT LOCALTIMESTAMP          NOT NULL,
+                                             endret_av        VARCHAR(512),
+                                             endret_tid       TIMESTAMP(3),
+                                             versjon          BIGINT       DEFAULT 0,
+                                             fk_behandling_id BIGINT
+                                                 REFERENCES behandling
 );
 
+CREATE INDEX okonomi_simulering_mottaker_fk_idx
+    ON okonomi_simulering_mottaker (fk_behandling_id);
 
-create index okonomi_simulering_mottaker_fk_idx
-    on okonomi_simulering_mottaker (fk_behandling_id);
-
-
-create table okonomi_simulering_postering
-(
-    id                                bigint                                       not null
-        constraint vedtak_simulering_postering_pkey
-            primary key,
-    fk_okonomi_simulering_mottaker_id bigint
-        constraint vedtak_simulering_postering_fk_vedtak_simulering_mottaker__fkey
-            references okonomi_simulering_mottaker
-            on delete cascade,
-    fag_omraade_kode                  varchar(50),
-    fom                               timestamp(3),
-    tom                               timestamp(3),
-    betaling_type                     varchar(50),
-    belop                             bigint,
-    postering_type                    varchar(50),
-    forfallsdato                      timestamp(3),
-    uten_inntrekk                     boolean,
-    opprettet_av                      varchar(512) default 'VL'::character varying not null,
-    opprettet_tid                     timestamp(3) default LOCALTIMESTAMP          not null,
-    endret_av                         varchar(512),
-    endret_tid                        timestamp(3),
-    versjon                           bigint       default 0
+CREATE TABLE okonomi_simulering_postering (
+                                              id                                BIGINT                                       NOT NULL
+                                                  CONSTRAINT vedtak_simulering_postering_pkey
+                                                      PRIMARY KEY,
+                                              fk_okonomi_simulering_mottaker_id BIGINT
+                                                  CONSTRAINT vedtak_simulering_postering_fk_vedtak_simulering_mottaker__fkey
+                                                      REFERENCES okonomi_simulering_mottaker
+                                                      ON DELETE CASCADE,
+                                              fag_omraade_kode                  VARCHAR(50),
+                                              fom                               TIMESTAMP(3),
+                                              tom                               TIMESTAMP(3),
+                                              betaling_type                     VARCHAR(50),
+                                              belop                             BIGINT,
+                                              postering_type                    VARCHAR(50),
+                                              forfallsdato                      TIMESTAMP(3),
+                                              uten_inntrekk                     BOOLEAN,
+                                              opprettet_av                      VARCHAR(512) DEFAULT 'VL'::CHARACTER VARYING NOT NULL,
+                                              opprettet_tid                     TIMESTAMP(3) DEFAULT LOCALTIMESTAMP          NOT NULL,
+                                              endret_av                         VARCHAR(512),
+                                              endret_tid                        TIMESTAMP(3),
+                                              versjon                           BIGINT       DEFAULT 0
 );
 
+CREATE INDEX vedtak_simulering_postering_fk_vedtak_simulering_mottaker_i_idx
+    ON okonomi_simulering_postering (fk_okonomi_simulering_mottaker_id);
 
-create index vedtak_simulering_postering_fk_vedtak_simulering_mottaker_i_idx
-    on okonomi_simulering_postering (fk_okonomi_simulering_mottaker_id);
-
-
-create table tilbakekreving
-(
-    id                           bigint                                    not null
-        primary key,
-    valg                         varchar                                   not null,
-    varsel                       text,
-    begrunnelse                  text                                      not null,
-    tilbakekrevingsbehandling_id text,
-    opprettet_av                 varchar   default 'VL'::character varying not null,
-    opprettet_tid                timestamp default LOCALTIMESTAMP          not null,
-    endret_av                    varchar,
-    endret_tid                   timestamp(3),
-    versjon                      bigint    default 0,
-    fk_behandling_id             bigint
-        references behandling
+CREATE TABLE tilbakekreving (
+                                id                           BIGINT                                    NOT NULL
+                                    PRIMARY KEY,
+                                valg                         VARCHAR                                   NOT NULL,
+                                varsel                       TEXT,
+                                begrunnelse                  TEXT                                      NOT NULL,
+                                tilbakekrevingsbehandling_id TEXT,
+                                opprettet_av                 VARCHAR   DEFAULT 'VL'::CHARACTER VARYING NOT NULL,
+                                opprettet_tid                TIMESTAMP DEFAULT LOCALTIMESTAMP          NOT NULL,
+                                endret_av                    VARCHAR,
+                                endret_tid                   TIMESTAMP(3),
+                                versjon                      BIGINT    DEFAULT 0,
+                                fk_behandling_id             BIGINT
+                                    REFERENCES behandling
 );
 
+CREATE INDEX tilbakekreving_fk_idx
+    ON tilbakekreving (fk_behandling_id);
 
-create index tilbakekreving_fk_idx
-    on tilbakekreving (fk_behandling_id);
-
-
-create table vedtaksperiode
-(
-    id            bigint                                    not null
-        primary key,
-    fk_vedtak_id  bigint
-        references vedtak,
-    fom           timestamp,
-    tom           timestamp,
-    type          varchar                                   not null,
-    opprettet_av  varchar   default 'VL'::character varying not null,
-    opprettet_tid timestamp default LOCALTIMESTAMP          not null,
-    endret_av     varchar,
-    endret_tid    timestamp(3),
-    versjon       bigint    default 0
+CREATE TABLE vedtaksperiode (
+                                id            BIGINT                                    NOT NULL
+                                    PRIMARY KEY,
+                                fk_vedtak_id  BIGINT
+                                    REFERENCES vedtak,
+                                fom           TIMESTAMP,
+                                tom           TIMESTAMP,
+                                type          VARCHAR                                   NOT NULL,
+                                opprettet_av  VARCHAR   DEFAULT 'VL'::CHARACTER VARYING NOT NULL,
+                                opprettet_tid TIMESTAMP DEFAULT LOCALTIMESTAMP          NOT NULL,
+                                endret_av     VARCHAR,
+                                endret_tid    TIMESTAMP(3),
+                                versjon       BIGINT    DEFAULT 0
 );
 
+CREATE INDEX vedtaksperiode_fk_vedtak_id_idx
+    ON vedtaksperiode (fk_vedtak_id);
 
-create index vedtaksperiode_fk_vedtak_id_idx
-    on vedtaksperiode (fk_vedtak_id);
-
-
-create table vedtaksbegrunnelse
-(
-    id                               bigint  not null
-        primary key,
-    fk_vedtaksperiode_id             bigint
-        references vedtaksperiode
-            on delete cascade,
-    vedtak_begrunnelse_spesifikasjon varchar not null
+CREATE TABLE vedtaksbegrunnelse (
+                                    id                               BIGINT  NOT NULL
+                                        PRIMARY KEY,
+                                    fk_vedtaksperiode_id             BIGINT
+                                        REFERENCES vedtaksperiode
+                                            ON DELETE CASCADE,
+                                    vedtak_begrunnelse_spesifikasjon VARCHAR NOT NULL
 );
 
+CREATE INDEX vedtaksbegrunnelse_fk_vedtaksperiode_id_idx
+    ON vedtaksbegrunnelse (fk_vedtaksperiode_id);
 
-create index vedtaksbegrunnelse_fk_vedtaksperiode_id_idx
-    on vedtaksbegrunnelse (fk_vedtaksperiode_id);
-
-
-create table vedtaksbegrunnelse_fritekst
-(
-    id                   bigint                not null
-        primary key,
-    fk_vedtaksperiode_id bigint
-        references vedtaksperiode
-            on delete cascade,
-    fritekst             text default ''::text not null
+CREATE TABLE vedtaksbegrunnelse_fritekst (
+                                             id                   BIGINT                NOT NULL
+                                                 PRIMARY KEY,
+                                             fk_vedtaksperiode_id BIGINT
+                                                 REFERENCES vedtaksperiode
+                                                     ON DELETE CASCADE,
+                                             fritekst             TEXT DEFAULT ''::TEXT NOT NULL
 );
 
+CREATE INDEX vedtaksbegrunnelse_fritekst_fk_vedtaksperiode_id_idx
+    ON vedtaksbegrunnelse_fritekst (fk_vedtaksperiode_id);
 
-
-create index vedtaksbegrunnelse_fritekst_fk_vedtaksperiode_id_idx
-    on vedtaksbegrunnelse_fritekst (fk_vedtaksperiode_id);
-
-
-create table po_sivilstand
-(
-    id              bigint                                       not null
-        primary key,
-    fk_po_person_id bigint                                       not null
-        references po_person,
-    fom             date,
-    type            varchar                                      not null,
-    opprettet_av    varchar      default 'VL'::character varying not null,
-    opprettet_tid   timestamp(3) default LOCALTIMESTAMP          not null,
-    endret_av       varchar,
-    endret_tid      timestamp(3),
-    versjon         bigint       default 0                       not null
+CREATE TABLE po_sivilstand (
+                               id              BIGINT                                       NOT NULL
+                                   PRIMARY KEY,
+                               fk_po_person_id BIGINT                                       NOT NULL
+                                   REFERENCES po_person,
+                               fom             DATE,
+                               type            VARCHAR                                      NOT NULL,
+                               opprettet_av    VARCHAR      DEFAULT 'VL'::CHARACTER VARYING NOT NULL,
+                               opprettet_tid   TIMESTAMP(3) DEFAULT LOCALTIMESTAMP          NOT NULL,
+                               endret_av       VARCHAR,
+                               endret_tid      TIMESTAMP(3),
+                               versjon         BIGINT       DEFAULT 0                       NOT NULL
 );
 
-
-create index po_sivilstand_fk_idx
-    on po_sivilstand (fk_po_person_id);
-
+CREATE INDEX po_sivilstand_fk_idx
+    ON po_sivilstand (fk_po_person_id);
 
 
-
-create table endret_utbetaling_andel
-(
-    id                                 bigint                                       not null
-        primary key,
-    fk_behandling_id                   bigint                                       not null
-        references behandling,
-    fk_po_person_id                    bigint
-        references po_person,
-    fom                                timestamp(3),
-    tom                                timestamp(3),
-    prosent                            numeric,
-    aarsak                             varchar,
-    begrunnelse                        text,
-    versjon                            bigint       default 0                       not null,
-    opprettet_av                       varchar      default 'VL'::character varying not null,
-    opprettet_tid                      timestamp(3) default LOCALTIMESTAMP          not null,
-    endret_av                          varchar,
-    endret_tid                         timestamp(3),
-    vedtak_begrunnelse_spesifikasjoner text         default ''::text,
-    avtaletidspunkt_delt_bosted        timestamp(3),
-    soknadstidspunkt                   timestamp(3)
+CREATE TABLE endret_utbetaling_andel (
+                                         id                                 BIGINT                                       NOT NULL
+                                             PRIMARY KEY,
+                                         fk_behandling_id                   BIGINT                                       NOT NULL
+                                             REFERENCES behandling,
+                                         fk_po_person_id                    BIGINT
+                                             REFERENCES po_person,
+                                         fom                                TIMESTAMP(3),
+                                         tom                                TIMESTAMP(3),
+                                         prosent                            NUMERIC,
+                                         aarsak                             VARCHAR,
+                                         begrunnelse                        TEXT,
+                                         versjon                            BIGINT       DEFAULT 0                       NOT NULL,
+                                         opprettet_av                       VARCHAR      DEFAULT 'VL'::CHARACTER VARYING NOT NULL,
+                                         opprettet_tid                      TIMESTAMP(3) DEFAULT LOCALTIMESTAMP          NOT NULL,
+                                         endret_av                          VARCHAR,
+                                         endret_tid                         TIMESTAMP(3),
+                                         vedtak_begrunnelse_spesifikasjoner TEXT         DEFAULT ''::TEXT,
+                                         avtaletidspunkt_delt_bosted        TIMESTAMP(3),
+                                         soknadstidspunkt                   TIMESTAMP(3)
 );
 
+CREATE INDEX endret_utbetaling_andel_fk_behandling_id_idx
+    ON endret_utbetaling_andel (fk_behandling_id);
 
-create index endret_utbetaling_andel_fk_behandling_id_idx
-    on endret_utbetaling_andel (fk_behandling_id);
+CREATE INDEX endret_utbetaling_andel_fk_idx
+    ON endret_utbetaling_andel (fk_po_person_id);
 
-create index endret_utbetaling_andel_fk_idx
-    on endret_utbetaling_andel (fk_po_person_id);
-
-
-create table andel_til_endret_andel
-(
-    fk_andel_tilkjent_ytelse_id   bigint not null
-        references andel_tilkjent_ytelse
-            on delete cascade,
-    fk_endret_utbetaling_andel_id bigint not null
-        references endret_utbetaling_andel,
-    primary key (fk_andel_tilkjent_ytelse_id, fk_endret_utbetaling_andel_id)
+CREATE TABLE andel_til_endret_andel (
+                                        fk_andel_tilkjent_ytelse_id   BIGINT NOT NULL
+                                            REFERENCES andel_tilkjent_ytelse
+                                                ON DELETE CASCADE,
+                                        fk_endret_utbetaling_andel_id BIGINT NOT NULL
+                                            REFERENCES endret_utbetaling_andel,
+                                        PRIMARY KEY (fk_andel_tilkjent_ytelse_id, fk_endret_utbetaling_andel_id)
 );
 
-
-
-create table sett_paa_vent
-(
-    id                bigint                                       not null
-        primary key,
-    fk_behandling_id  bigint                                       not null
-        references behandling,
-    versjon           bigint       default 0                       not null,
-    opprettet_av      varchar      default 'VL'::character varying not null,
-    opprettet_tid     timestamp(3) default LOCALTIMESTAMP          not null,
-    frist             timestamp(3)                                 not null,
-    aktiv             boolean      default false                   not null,
-    aarsak            varchar                                      not null,
-    endret_av         varchar,
-    endret_tid        timestamp(3),
-    tid_tatt_av_vent  timestamp(3),
-    tid_satt_paa_vent timestamp(3) default now()                   not null
+CREATE TABLE sett_paa_vent (
+                               id                BIGINT                                       NOT NULL
+                                   PRIMARY KEY,
+                               fk_behandling_id  BIGINT                                       NOT NULL
+                                   REFERENCES behandling,
+                               versjon           BIGINT       DEFAULT 0                       NOT NULL,
+                               opprettet_av      VARCHAR      DEFAULT 'VL'::CHARACTER VARYING NOT NULL,
+                               opprettet_tid     TIMESTAMP(3) DEFAULT LOCALTIMESTAMP          NOT NULL,
+                               frist             TIMESTAMP(3)                                 NOT NULL,
+                               aktiv             BOOLEAN      DEFAULT FALSE                   NOT NULL,
+                               aarsak            VARCHAR                                      NOT NULL,
+                               endret_av         VARCHAR,
+                               endret_tid        TIMESTAMP(3),
+                               tid_tatt_av_vent  TIMESTAMP(3),
+                               tid_satt_paa_vent TIMESTAMP(3) DEFAULT NOW()                   NOT NULL
 );
 
+CREATE INDEX sett_paa_vent_fk_behandling_id_idx
+    ON sett_paa_vent (fk_behandling_id);
 
-create index sett_paa_vent_fk_behandling_id_idx
-    on sett_paa_vent (fk_behandling_id);
+CREATE UNIQUE INDEX uidx_sett_paa_vent_aktiv
+    ON sett_paa_vent (fk_behandling_id, aktiv)
+    WHERE (aktiv = TRUE);
 
-create unique index uidx_sett_paa_vent_aktiv
-    on sett_paa_vent (fk_behandling_id, aktiv)
-    where (aktiv = true);
-
-
-create table po_doedsfall
-(
-    id                   bigint                                       not null
-        primary key,
-    fk_po_person_id      bigint                                       not null
-        references po_person,
-    versjon              bigint       default 0                       not null,
-    doedsfall_dato       timestamp(3)                                 not null,
-    doedsfall_adresse    varchar,
-    doedsfall_postnummer varchar,
-    doedsfall_poststed   varchar,
-    opprettet_av         varchar      default 'VL'::character varying not null,
-    opprettet_tid        timestamp(3) default LOCALTIMESTAMP          not null,
-    endret_av            varchar,
-    endret_tid           timestamp(3)
+CREATE TABLE po_doedsfall (
+                              id                   BIGINT                                       NOT NULL
+                                  PRIMARY KEY,
+                              fk_po_person_id      BIGINT                                       NOT NULL
+                                  REFERENCES po_person,
+                              versjon              BIGINT       DEFAULT 0                       NOT NULL,
+                              doedsfall_dato       TIMESTAMP(3)                                 NOT NULL,
+                              doedsfall_adresse    VARCHAR,
+                              doedsfall_postnummer VARCHAR,
+                              doedsfall_poststed   VARCHAR,
+                              opprettet_av         VARCHAR      DEFAULT 'VL'::CHARACTER VARYING NOT NULL,
+                              opprettet_tid        TIMESTAMP(3) DEFAULT LOCALTIMESTAMP          NOT NULL,
+                              endret_av            VARCHAR,
+                              endret_tid           TIMESTAMP(3)
 );
 
+CREATE INDEX po_doedsfall_fk_po_person_id_idx
+    ON po_doedsfall (fk_po_person_id);
 
-create index po_doedsfall_fk_po_person_id_idx
-    on po_doedsfall (fk_po_person_id);
-
-
-
-
-
-create table behandling_soknadsinfo
-(
-    id               bigint                                       not null
-        primary key,
-    fk_behandling_id bigint                                       not null
-        references behandling,
-    mottatt_dato     timestamp(3)                                 not null,
-    versjon          bigint       default 0                       not null,
-    opprettet_av     varchar      default 'VL'::character varying not null,
-    opprettet_tid    timestamp(3) default LOCALTIMESTAMP          not null,
-    endret_av        varchar,
-    endret_tid       timestamp(3)
+CREATE TABLE behandling_soknadsinfo (
+                                        id               BIGINT                                       NOT NULL
+                                            PRIMARY KEY,
+                                        fk_behandling_id BIGINT                                       NOT NULL
+                                            REFERENCES behandling,
+                                        mottatt_dato     TIMESTAMP(3)                                 NOT NULL,
+                                        versjon          BIGINT       DEFAULT 0                       NOT NULL,
+                                        opprettet_av     VARCHAR      DEFAULT 'VL'::CHARACTER VARYING NOT NULL,
+                                        opprettet_tid    TIMESTAMP(3) DEFAULT LOCALTIMESTAMP          NOT NULL,
+                                        endret_av        VARCHAR,
+                                        endret_tid       TIMESTAMP(3)
 );
 
+CREATE INDEX behandling_soknadsinfo_fk_behandling_id_idx
+    ON behandling_soknadsinfo (fk_behandling_id);
 
-create index behandling_soknadsinfo_fk_behandling_id_idx
-    on behandling_soknadsinfo (fk_behandling_id);
-
-
-create table kompetanse
-(
-    id                              bigint                                       not null
-        primary key,
-    fk_behandling_id                bigint                                       not null
-        references behandling,
-    fom                             timestamp(3),
-    tom                             timestamp(3),
-    versjon                         bigint       default 0                       not null,
-    opprettet_av                    varchar      default 'VL'::character varying not null,
-    opprettet_tid                   timestamp(3) default LOCALTIMESTAMP          not null,
-    endret_av                       varchar,
-    endret_tid                      timestamp(3),
-    soekers_aktivitet               varchar,
-    annen_forelderes_aktivitet      varchar,
-    annen_forelderes_aktivitetsland varchar,
-    barnets_bostedsland             varchar,
-    resultat                        varchar,
-    sokers_aktivitetsland           text
+CREATE TABLE kompetanse (
+                            id                              BIGINT                                       NOT NULL
+                                PRIMARY KEY,
+                            fk_behandling_id                BIGINT                                       NOT NULL
+                                REFERENCES behandling,
+                            fom                             TIMESTAMP(3),
+                            tom                             TIMESTAMP(3),
+                            versjon                         BIGINT       DEFAULT 0                       NOT NULL,
+                            opprettet_av                    VARCHAR      DEFAULT 'VL'::CHARACTER VARYING NOT NULL,
+                            opprettet_tid                   TIMESTAMP(3) DEFAULT LOCALTIMESTAMP          NOT NULL,
+                            endret_av                       VARCHAR,
+                            endret_tid                      TIMESTAMP(3),
+                            soekers_aktivitet               VARCHAR,
+                            annen_forelderes_aktivitet      VARCHAR,
+                            annen_forelderes_aktivitetsland VARCHAR,
+                            barnets_bostedsland             VARCHAR,
+                            resultat                        VARCHAR,
+                            sokers_aktivitetsland           TEXT
 );
 
+CREATE INDEX kompetanse_fk_behandling_id_idx
+    ON kompetanse (fk_behandling_id);
 
-create index kompetanse_fk_behandling_id_idx
-    on kompetanse (fk_behandling_id);
-
-
-create table aktoer_til_kompetanse
-(
-    fk_kompetanse_id bigint  not null
-        references kompetanse,
-    fk_aktoer_id     varchar not null
-        references aktoer
-            on update cascade,
-    primary key (fk_kompetanse_id, fk_aktoer_id)
+CREATE TABLE aktoer_til_kompetanse (
+                                       fk_kompetanse_id BIGINT  NOT NULL
+                                           REFERENCES kompetanse,
+                                       fk_aktoer_id     VARCHAR NOT NULL
+                                           REFERENCES aktoer
+                                               ON UPDATE CASCADE,
+                                       PRIMARY KEY (fk_kompetanse_id, fk_aktoer_id)
 );
 
-
-create table valutakurs
-(
-    id               bigint                                       not null
-        primary key,
-    fk_behandling_id bigint                                       not null
-        references behandling,
-    fom              timestamp(3),
-    tom              timestamp(3),
-    valutakursdato   timestamp(3) default NULL::timestamp without time zone,
-    valutakode       varchar,
-    kurs             numeric,
-    versjon          bigint       default 0                       not null,
-    opprettet_av     varchar      default 'VL'::character varying not null,
-    opprettet_tid    timestamp(3) default LOCALTIMESTAMP          not null,
-    endret_av        varchar,
-    endret_tid       timestamp(3)
+CREATE TABLE valutakurs (
+                            id               BIGINT                                       NOT NULL
+                                PRIMARY KEY,
+                            fk_behandling_id BIGINT                                       NOT NULL
+                                REFERENCES behandling,
+                            fom              TIMESTAMP(3),
+                            tom              TIMESTAMP(3),
+                            valutakursdato   TIMESTAMP(3) DEFAULT NULL::TIMESTAMP WITHOUT TIME ZONE,
+                            valutakode       VARCHAR,
+                            kurs             NUMERIC,
+                            versjon          BIGINT       DEFAULT 0                       NOT NULL,
+                            opprettet_av     VARCHAR      DEFAULT 'VL'::CHARACTER VARYING NOT NULL,
+                            opprettet_tid    TIMESTAMP(3) DEFAULT LOCALTIMESTAMP          NOT NULL,
+                            endret_av        VARCHAR,
+                            endret_tid       TIMESTAMP(3)
 );
 
+CREATE INDEX valutakurs_fk_behandling_id_idx
+    ON valutakurs (fk_behandling_id);
 
-create index valutakurs_fk_behandling_id_idx
-    on valutakurs (fk_behandling_id);
-
-
-create table aktoer_til_valutakurs
-(
-    fk_valutakurs_id bigint  not null
-        references valutakurs,
-    fk_aktoer_id     varchar not null
-        references aktoer
-            on update cascade,
-    primary key (fk_valutakurs_id, fk_aktoer_id)
+CREATE TABLE aktoer_til_valutakurs (
+                                       fk_valutakurs_id BIGINT  NOT NULL
+                                           REFERENCES valutakurs,
+                                       fk_aktoer_id     VARCHAR NOT NULL
+                                           REFERENCES aktoer
+                                               ON UPDATE CASCADE,
+                                       PRIMARY KEY (fk_valutakurs_id, fk_aktoer_id)
 );
 
-
-create table utenlandsk_periodebeloep
-(
-    id                         bigint                                       not null
-        primary key,
-    fk_behandling_id           bigint                                       not null
-        references behandling,
-    fom                        timestamp(3),
-    tom                        timestamp(3),
-    intervall                  varchar,
-    valutakode                 varchar,
-    beloep                     numeric,
-    versjon                    bigint       default 0                       not null,
-    opprettet_av               varchar      default 'VL'::character varying not null,
-    opprettet_tid              timestamp(3) default LOCALTIMESTAMP          not null,
-    endret_av                  varchar,
-    endret_tid                 timestamp(3),
-    utbetalingsland            varchar,
-    kalkulert_maanedlig_beloep numeric
+CREATE TABLE utenlandsk_periodebeloep (
+                                          id                         BIGINT                                       NOT NULL
+                                              PRIMARY KEY,
+                                          fk_behandling_id           BIGINT                                       NOT NULL
+                                              REFERENCES behandling,
+                                          fom                        TIMESTAMP(3),
+                                          tom                        TIMESTAMP(3),
+                                          intervall                  VARCHAR,
+                                          valutakode                 VARCHAR,
+                                          beloep                     NUMERIC,
+                                          versjon                    BIGINT       DEFAULT 0                       NOT NULL,
+                                          opprettet_av               VARCHAR      DEFAULT 'VL'::CHARACTER VARYING NOT NULL,
+                                          opprettet_tid              TIMESTAMP(3) DEFAULT LOCALTIMESTAMP          NOT NULL,
+                                          endret_av                  VARCHAR,
+                                          endret_tid                 TIMESTAMP(3),
+                                          utbetalingsland            VARCHAR,
+                                          kalkulert_maanedlig_beloep NUMERIC
 );
 
+CREATE INDEX utenlandsk_periodebeloep_fk_behandling_id_idx
+    ON utenlandsk_periodebeloep (fk_behandling_id);
 
-
-create index utenlandsk_periodebeloep_fk_behandling_id_idx
-    on utenlandsk_periodebeloep (fk_behandling_id);
-
-
-create table aktoer_til_utenlandsk_periodebeloep
-(
-    fk_utenlandsk_periodebeloep_id bigint  not null
-        constraint aktoer_til_utenlandsk_periode_fk_utenlandsk_periodebeloep__fkey
-            references utenlandsk_periodebeloep,
-    fk_aktoer_id                   varchar not null
-        references aktoer
-            on update cascade,
-    primary key (fk_utenlandsk_periodebeloep_id, fk_aktoer_id)
+CREATE TABLE aktoer_til_utenlandsk_periodebeloep (
+                                                     fk_utenlandsk_periodebeloep_id BIGINT  NOT NULL
+                                                         CONSTRAINT aktoer_til_utenlandsk_periode_fk_utenlandsk_periodebeloep__fkey
+                                                             REFERENCES utenlandsk_periodebeloep,
+                                                     fk_aktoer_id                   VARCHAR NOT NULL
+                                                         REFERENCES aktoer
+                                                             ON UPDATE CASCADE,
+                                                     PRIMARY KEY (fk_utenlandsk_periodebeloep_id, fk_aktoer_id)
 );
 
-
-
-create table verge
-(
-    id               bigint                                       not null
-        primary key,
-    ident            varchar,
-    fk_behandling_id bigint                                       not null
-        references behandling,
-    versjon          bigint       default 0                       not null,
-    opprettet_av     varchar(20)  default 'VL'::character varying not null,
-    opprettet_tid    timestamp(3) default LOCALTIMESTAMP          not null,
-    endret_av        varchar(20),
-    endret_tid       timestamp(3)
+CREATE TABLE verge (
+                       id               BIGINT                                       NOT NULL
+                           PRIMARY KEY,
+                       ident            VARCHAR,
+                       fk_behandling_id BIGINT                                       NOT NULL
+                           REFERENCES behandling,
+                       versjon          BIGINT       DEFAULT 0                       NOT NULL,
+                       opprettet_av     VARCHAR(20)  DEFAULT 'VL'::CHARACTER VARYING NOT NULL,
+                       opprettet_tid    TIMESTAMP(3) DEFAULT LOCALTIMESTAMP          NOT NULL,
+                       endret_av        VARCHAR(20),
+                       endret_tid       TIMESTAMP(3)
 );
 
+CREATE UNIQUE INDEX uidx_verge_behandling_id
+    ON verge (fk_behandling_id);
 
-
-create unique index uidx_verge_behandling_id
-    on verge (fk_behandling_id);
-
-
-create table korrigert_etterbetaling
-(
-    id               bigint                                       not null
-        primary key,
-    aarsak           varchar                                      not null,
-    begrunnelse      varchar,
-    belop            bigint                                       not null,
-    aktiv            boolean                                      not null,
-    fk_behandling_id bigint                                       not null
-        references behandling,
-    versjon          bigint       default 0                       not null,
-    opprettet_av     varchar      default 'VL'::character varying not null,
-    opprettet_tid    timestamp(3) default LOCALTIMESTAMP          not null,
-    endret_av        varchar,
-    endret_tid       timestamp(3)
+CREATE TABLE korrigert_etterbetaling (
+                                         id               BIGINT                                       NOT NULL
+                                             PRIMARY KEY,
+                                         aarsak           VARCHAR                                      NOT NULL,
+                                         begrunnelse      VARCHAR,
+                                         belop            BIGINT                                       NOT NULL,
+                                         aktiv            BOOLEAN                                      NOT NULL,
+                                         fk_behandling_id BIGINT                                       NOT NULL
+                                             REFERENCES behandling,
+                                         versjon          BIGINT       DEFAULT 0                       NOT NULL,
+                                         opprettet_av     VARCHAR      DEFAULT 'VL'::CHARACTER VARYING NOT NULL,
+                                         opprettet_tid    TIMESTAMP(3) DEFAULT LOCALTIMESTAMP          NOT NULL,
+                                         endret_av        VARCHAR,
+                                         endret_tid       TIMESTAMP(3)
 );
 
+CREATE UNIQUE INDEX uidx_korrigert_etterbetaling_fk_behandling_id_aktiv
+    ON korrigert_etterbetaling (fk_behandling_id)
+    WHERE (aktiv = TRUE);
 
-create unique index uidx_korrigert_etterbetaling_fk_behandling_id_aktiv
-    on korrigert_etterbetaling (fk_behandling_id)
-    where (aktiv = true);
-
-create index korrigert_etterbetaling_fk_behandling_id_idx
-    on korrigert_etterbetaling (fk_behandling_id);
-
-
-
+CREATE INDEX korrigert_etterbetaling_fk_behandling_id_idx
+    ON korrigert_etterbetaling (fk_behandling_id);
