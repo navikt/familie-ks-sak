@@ -1,27 +1,8 @@
-create table flyway_schema_history
-(
-    installed_rank integer                 not null
-        constraint flyway_schema_history_pk
-            primary key,
-    version        varchar(50),
-    description    varchar(200)            not null,
-    type           varchar(20)             not null,
-    script         varchar(1000)           not null,
-    checksum       integer,
-    installed_by   varchar(100)            not null,
-    installed_on   timestamp default now() not null,
-    execution_time integer                 not null,
-    success        boolean                 not null
-);
-
-create index flyway_schema_history_s_idx
-    on flyway_schema_history (success);
-
 
 create table task
 (
     id            bigint       default nextval('task_seq'::regclass)   not null
-        constraint henvendelse_pkey
+        constraint task_pkey
             primary key,
     payload       text                                                 not null,
     status        varchar(50)  default 'UBEHANDLET'::character varying not null,
@@ -34,7 +15,7 @@ create table task
 );
 
 
-create index henvendelse_status_idx
+create index task_status_idx
     on task (status);
 
 
@@ -42,10 +23,10 @@ create index henvendelse_status_idx
 create table task_logg
 (
     id            bigint       default nextval('task_logg_seq'::regclass) not null
-        constraint henvendelse_logg_pkey
+        constraint task_logg_pkey
             primary key,
     task_id       bigint                                                  not null
-        constraint henvendelse_logg_henvendelse_id_fkey
+        constraint task_logg_task_id_fkey
             references task,
     type          varchar(50)                                             not null,
     node          varchar(100)                                            not null,
@@ -55,18 +36,8 @@ create table task_logg
 );
 
 
-create index henvendelse_logg_henvendelse_id_idx
+create index task_logg_task_id_idx
     on task_logg (task_id);
-
-
-create table batch
-(
-    id        bigint                                         not null
-        primary key,
-    kjoredato timestamp(3)                                   not null,
-    status    varchar(50) default 'LEDIG'::character varying not null
-);
-
 
 
 
@@ -82,30 +53,6 @@ create table arbeidsfordeling_pa_behandling
 );
 
 
-
-create table saksstatistikk_mellomlagring
-(
-    id               bigint                              not null
-        primary key,
-    offset_verdi     bigint,
-    funksjonell_id   varchar                             not null,
-    type             varchar                             not null,
-    kontrakt_versjon varchar                             not null,
-    json             text                                not null,
-    konvertert_tid   timestamp(3) default LOCALTIMESTAMP,
-    opprettet_tid    timestamp(3) default LOCALTIMESTAMP not null,
-    sendt_tid        timestamp(3) default LOCALTIMESTAMP,
-    type_id          bigint
-);
-
-
-
-create index saksstatistikk_mellomlagring_sendt_tid_null_idx
-    on saksstatistikk_mellomlagring (sendt_tid)
-    where (sendt_tid IS NULL);
-
-create index saksstatistikk_mellomlagring_type_id_idx
-    on saksstatistikk_mellomlagring (type_id);
 
 
 create table aktoer
@@ -152,20 +99,6 @@ create index personident_aktoer_id_alle_idx
 
 
 
-create table skyggesak
-(
-    id           bigint not null
-        primary key,
-    fk_fagsak_id bigint not null,
-    sendt_tid    timestamp(3)
-);
-
-
-
-create index skyggesak_fagsak_id_idx
-    on skyggesak (fk_fagsak_id);
-
-
 create table fagsak
 (
     id                bigint                                           not null
@@ -189,7 +122,7 @@ create index fagsak_fk_idx
 
 
 create unique index uidx_fagsak_type_aktoer_ikke_arkivert
-    on fagsak (type, fk_aktoer_id)
+    on fagsak (fk_aktoer_id)
     where (arkivert = false);
 
 
@@ -909,27 +842,6 @@ create index po_sivilstand_fk_idx
     on po_sivilstand (fk_po_person_id);
 
 
-create table foedselshendelsefiltrering_resultat
-(
-    id                  bigint                                       not null
-        primary key,
-    fk_behandling_id    bigint                                       not null
-        references behandling,
-    filtreringsregel    varchar                                      not null,
-    resultat            varchar                                      not null,
-    begrunnelse         text                                         not null,
-    evalueringsaarsaker text                                         not null,
-    regel_input         text,
-    versjon             bigint       default 0                       not null,
-    opprettet_av        varchar      default 'VL'::character varying not null,
-    opprettet_tid       timestamp(3) default LOCALTIMESTAMP          not null,
-    endret_av           varchar,
-    endret_tid          timestamp(3)
-);
-
-
-create index foedselshendelsefiltrering_resultat_fk_behandling_id_idx
-    on foedselshendelsefiltrering_resultat (fk_behandling_id);
 
 
 create table endret_utbetaling_andel
@@ -973,34 +885,6 @@ create table andel_til_endret_andel
     primary key (fk_andel_tilkjent_ytelse_id, fk_endret_utbetaling_andel_id)
 );
 
-
-
-create table gr_periode_overgangsstonad
-(
-    id               bigint                                       not null
-        primary key,
-    fk_behandling_id bigint                                       not null
-        references behandling,
-    fom              timestamp(3)                                 not null,
-    tom              timestamp(3)                                 not null,
-    datakilde        varchar                                      not null,
-    versjon          bigint       default 0                       not null,
-    opprettet_av     varchar      default 'VL'::character varying not null,
-    opprettet_tid    timestamp(3) default LOCALTIMESTAMP          not null,
-    endret_av        varchar,
-    endret_tid       timestamp(3),
-    fk_aktoer_id     varchar
-        constraint fk_gr_periode_overgangsstonad
-            references aktoer
-            on update cascade
-);
-
-
-create index gr_periode_overgangsstonad_fk_behandling_id_idx
-    on gr_periode_overgangsstonad (fk_behandling_id);
-
-create index gr_periode_overgangsstonad_fk_idx
-    on gr_periode_overgangsstonad (fk_aktoer_id);
 
 
 create table sett_paa_vent
@@ -1181,23 +1065,6 @@ create table aktoer_til_utenlandsk_periodebeloep
             on update cascade,
     primary key (fk_utenlandsk_periodebeloep_id, fk_aktoer_id)
 );
-
-
-
-create table eos_begrunnelse
-(
-    id                   bigint  not null
-        primary key,
-    fk_vedtaksperiode_id bigint
-        references vedtaksperiode
-            on delete cascade,
-    begrunnelse          varchar not null
-);
-
-
-
-create index eos_begrunnelse_fk_vedtaksperiode_id_idx
-    on eos_begrunnelse (fk_vedtaksperiode_id);
 
 
 
