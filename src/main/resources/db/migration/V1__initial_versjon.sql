@@ -7,9 +7,7 @@ CREATE SEQUENCE task_seq
 
 CREATE TABLE task
 (
-    id            BIGINT       DEFAULT NEXTVAL('task_seq'::REGCLASS)   NOT NULL
-        CONSTRAINT task_pkey
-            PRIMARY KEY,
+    id            BIGINT       DEFAULT NEXTVAL('task_seq'::REGCLASS) PRIMARY KEY,
     payload       TEXT                                                 NOT NULL,
     status        VARCHAR(50)  DEFAULT 'UBEHANDLET'::CHARACTER VARYING NOT NULL,
     versjon       BIGINT       DEFAULT 0,
@@ -34,14 +32,10 @@ CREATE SEQUENCE task_logg_seq
 
 CREATE TABLE task_logg
 (
-    id            BIGINT       DEFAULT NEXTVAL('task_logg_seq'::REGCLASS) NOT NULL
-        CONSTRAINT task_logg_pkey
-            PRIMARY KEY,
-    task_id       BIGINT                                                  NOT NULL
-        CONSTRAINT task_logg_task_id_fkey
-            REFERENCES task,
-    type          VARCHAR(50)                                             NOT NULL,
-    node          VARCHAR(100)                                            NOT NULL,
+    id            BIGINT       DEFAULT NEXTVAL('task_logg_seq'::REGCLASS) PRIMARY KEY,
+    task_id       BIGINT REFERENCES task,
+    type          VARCHAR(50)  NOT NULL,
+    node          VARCHAR(100) NOT NULL,
     opprettet_tid TIMESTAMP(3) DEFAULT LOCALTIMESTAMP,
     melding       TEXT,
     endret_av     VARCHAR(100) DEFAULT 'VL'::CHARACTER VARYING
@@ -50,21 +44,9 @@ CREATE TABLE task_logg
 CREATE INDEX task_logg_task_id_idx
     ON task_logg (task_id);
 
-CREATE TABLE arbeidsfordeling_pa_behandling
-(
-    id                     BIGINT  NOT NULL
-        PRIMARY KEY,
-    fk_behandling_id       BIGINT  NOT NULL
-        UNIQUE,
-    behandlende_enhet_id   VARCHAR NOT NULL,
-    behandlende_enhet_navn VARCHAR NOT NULL,
-    manuelt_overstyrt      BOOLEAN NOT NULL
-);
-
 CREATE TABLE aktoer
 (
-    aktoer_id     VARCHAR                                      NOT NULL
-        PRIMARY KEY,
+    aktoer_id     VARCHAR PRIMARY KEY,
     versjon       BIGINT       DEFAULT 0                       NOT NULL,
     opprettet_av  VARCHAR      DEFAULT 'VL'::CHARACTER VARYING NOT NULL,
     opprettet_tid TIMESTAMP(3) DEFAULT LOCALTIMESTAMP          NOT NULL,
@@ -74,13 +56,8 @@ CREATE TABLE aktoer
 
 CREATE TABLE personident
 (
-    fk_aktoer_id   VARCHAR                                      NOT NULL
-        CONSTRAINT fk_personident
-            REFERENCES aktoer
-            ON UPDATE CASCADE,
-    foedselsnummer VARCHAR                                      NOT NULL
-        PRIMARY KEY
-        UNIQUE,
+    foedselsnummer VARCHAR PRIMARY KEY UNIQUE,
+    fk_aktoer_id   VARCHAR REFERENCES aktoer ON UPDATE CASCADE,
     aktiv          BOOLEAN      DEFAULT FALSE                   NOT NULL,
     gjelder_til    TIMESTAMP(3),
     versjon        BIGINT       DEFAULT 0                       NOT NULL,
@@ -102,8 +79,7 @@ CREATE INDEX personident_aktoer_id_alle_idx
 
 CREATE TABLE fagsak
 (
-    id            BIGINT                     NOT NULL
-        PRIMARY KEY,
+    id            BIGINT PRIMARY KEY,
     versjon       BIGINT       DEFAULT 0,
     opprettet_av  VARCHAR(512) DEFAULT 'VL'::CHARACTER VARYING,
     opprettet_tid TIMESTAMP(3) DEFAULT LOCALTIMESTAMP,
@@ -111,10 +87,7 @@ CREATE TABLE fagsak
     endret_tid    TIMESTAMP(3),
     status        VARCHAR(50)  DEFAULT 'OPPRETTET'::CHARACTER VARYING,
     arkivert      BOOLEAN      DEFAULT FALSE NOT NULL,
-    fk_aktoer_id  VARCHAR
-        CONSTRAINT fagsak
-            REFERENCES aktoer
-            ON UPDATE CASCADE
+    fk_aktoer_id  VARCHAR REFERENCES aktoer ON UPDATE CASCADE
 );
 
 CREATE INDEX fagsak_fk_idx
@@ -126,10 +99,8 @@ CREATE UNIQUE INDEX uidx_fagsak_type_aktoer_ikke_arkivert
 
 CREATE TABLE behandling
 (
-    id                          BIGINT                                                 NOT NULL
-        PRIMARY KEY,
-    fk_fagsak_id                BIGINT
-        REFERENCES fagsak,
+    id                          BIGINT PRIMARY KEY,
+    fk_fagsak_id                BIGINT REFERENCES fagsak,
     versjon                     BIGINT       DEFAULT 0,
     opprettet_av                VARCHAR(512) DEFAULT 'VL'::CHARACTER VARYING,
     opprettet_tid               TIMESTAMP(3) DEFAULT LOCALTIMESTAMP,
@@ -160,12 +131,19 @@ CREATE UNIQUE INDEX uidx_behandling_01
                            ELSE NULL::BOOLEAN
                            END));
 
+CREATE TABLE arbeidsfordeling_pa_behandling
+(
+    id                     BIGINT PRIMARY KEY,
+    fk_behandling_id       BIGINT REFERENCES behandling,
+    behandlende_enhet_id   VARCHAR NOT NULL,
+    behandlende_enhet_navn VARCHAR NOT NULL,
+    manuelt_overstyrt      BOOLEAN NOT NULL
+);
+
 CREATE TABLE gr_personopplysninger
 (
-    id               BIGINT                                       NOT NULL
-        PRIMARY KEY,
-    fk_behandling_id BIGINT                                       NOT NULL
-        REFERENCES behandling,
+    id               BIGINT PRIMARY KEY,
+    fk_behandling_id BIGINT REFERENCES behandling,
     versjon          BIGINT       DEFAULT 0                       NOT NULL,
     opprettet_av     VARCHAR(512) DEFAULT 'VL'::CHARACTER VARYING NOT NULL,
     opprettet_tid    TIMESTAMP(3) DEFAULT LOCALTIMESTAMP          NOT NULL,
@@ -190,10 +168,8 @@ CREATE UNIQUE INDEX uidx_gr_personopplysninger_01
 
 CREATE TABLE po_person
 (
-    id                          BIGINT                                       NOT NULL
-        PRIMARY KEY,
-    fk_gr_personopplysninger_id BIGINT                                       NOT NULL
-        REFERENCES gr_personopplysninger,
+    id                          BIGINT PRIMARY KEY,
+    fk_gr_personopplysninger_id BIGINT REFERENCES gr_personopplysninger,
     type                        VARCHAR(10)                                  NOT NULL,
     opprettet_av                VARCHAR(512) DEFAULT 'VL'::CHARACTER VARYING NOT NULL,
     opprettet_tid               TIMESTAMP(3) DEFAULT CURRENT_TIMESTAMP       NOT NULL,
@@ -201,10 +177,7 @@ CREATE TABLE po_person
     versjon                     BIGINT       DEFAULT 0                       NOT NULL,
     endret_tid                  TIMESTAMP(3),
     foedselsdato                TIMESTAMP(3) DEFAULT CURRENT_TIMESTAMP,
-    fk_aktoer_id                VARCHAR(50)
-        CONSTRAINT fk_po_person
-            REFERENCES aktoer
-            ON UPDATE CASCADE,
+    fk_aktoer_id                VARCHAR(50) REFERENCES aktoer ON UPDATE CASCADE,
     navn                        VARCHAR      DEFAULT ''::CHARACTER VARYING,
     kjoenn                      VARCHAR      DEFAULT 'UKJENT'::CHARACTER VARYING,
     maalform                    VARCHAR(2)   DEFAULT 'NB'::CHARACTER VARYING NOT NULL
@@ -218,12 +191,8 @@ CREATE INDEX po_person_fk_idx
 
 CREATE TABLE vedtak
 (
-    id               BIGINT                                       NOT NULL
-        CONSTRAINT behandling_vedtak_pkey
-            PRIMARY KEY,
-    fk_behandling_id BIGINT                                       NOT NULL
-        CONSTRAINT behandling_vedtak_fk_behandling_id_fkey
-            REFERENCES behandling,
+    id               BIGINT PRIMARY KEY,
+    fk_behandling_id BIGINT REFERENCES behandling,
     versjon          BIGINT       DEFAULT 0                       NOT NULL,
     opprettet_av     VARCHAR(512) DEFAULT 'VL'::CHARACTER VARYING NOT NULL,
     opprettet_tid    TIMESTAMP(3) DEFAULT LOCALTIMESTAMP          NOT NULL,
@@ -250,12 +219,10 @@ CREATE UNIQUE INDEX uidx_behandling_vedtak_01
 
 CREATE TABLE logg
 (
-    id               BIGINT                                       NOT NULL
-        PRIMARY KEY,
+    id               BIGINT PRIMARY KEY,
     opprettet_av     VARCHAR      DEFAULT 'VL'::CHARACTER VARYING NOT NULL,
     opprettet_tid    TIMESTAMP(3) DEFAULT LOCALTIMESTAMP          NOT NULL,
-    fk_behandling_id BIGINT                                       NOT NULL
-        REFERENCES behandling,
+    fk_behandling_id BIGINT REFERENCES behandling,
     type             VARCHAR                                      NOT NULL,
     tittel           VARCHAR                                      NOT NULL,
     rolle            VARCHAR                                      NOT NULL,
@@ -267,12 +234,10 @@ CREATE INDEX logg_fk_behandling_id_idx
 
 CREATE TABLE gr_soknad
 (
-    id               BIGINT                                       NOT NULL
-        PRIMARY KEY,
+    id               BIGINT PRIMARY KEY,
     opprettet_av     VARCHAR      DEFAULT 'VL'::CHARACTER VARYING NOT NULL,
     opprettet_tid    TIMESTAMP(3) DEFAULT LOCALTIMESTAMP          NOT NULL,
-    fk_behandling_id BIGINT                                       NOT NULL
-        REFERENCES behandling,
+    fk_behandling_id BIGINT REFERENCES behandling,
     soknad           TEXT                                         NOT NULL,
     aktiv            BOOLEAN      DEFAULT TRUE                    NOT NULL
 );
@@ -293,12 +258,8 @@ CREATE UNIQUE INDEX uidx_gr_soknad_01
 
 CREATE TABLE tilkjent_ytelse
 (
-    id                 BIGINT                              NOT NULL
-        CONSTRAINT beregning_resultat_pkey
-            PRIMARY KEY,
-    fk_behandling_id   BIGINT
-        CONSTRAINT beregning_resultat_fk_behandling_id_fkey
-            REFERENCES behandling,
+    id                 BIGINT PRIMARY KEY,
+    fk_behandling_id   BIGINT REFERENCES behandling,
     stonad_fom         TIMESTAMP,
     stonad_tom         TIMESTAMP,
     opprettet_dato     TIMESTAMP                           NOT NULL,
@@ -316,10 +277,8 @@ CREATE INDEX tilkjent_ytelse_utbetalingsoppdrag_not_null_idx
 
 CREATE TABLE andel_tilkjent_ytelse
 (
-    id                              BIGINT                                       NOT NULL
-        PRIMARY KEY,
-    fk_behandling_id                BIGINT                                       NOT NULL
-        REFERENCES behandling,
+    id                              BIGINT PRIMARY KEY,
+    fk_behandling_id                BIGINT REFERENCES behandling,
     versjon                         BIGINT       DEFAULT 0                       NOT NULL,
     opprettet_av                    VARCHAR(512) DEFAULT 'VL'::CHARACTER VARYING NOT NULL,
     opprettet_tid                   TIMESTAMP(3) DEFAULT LOCALTIMESTAMP          NOT NULL,
@@ -329,19 +288,13 @@ CREATE TABLE andel_tilkjent_ytelse
     kalkulert_utbetalingsbelop      NUMERIC,
     endret_av                       VARCHAR(512),
     endret_tid                      TIMESTAMP(3),
-    tilkjent_ytelse_id              BIGINT
-        REFERENCES tilkjent_ytelse
-            ON DELETE CASCADE,
+    tilkjent_ytelse_id              BIGINT REFERENCES tilkjent_ytelse ON DELETE CASCADE,
     periode_offset                  BIGINT,
     forrige_periode_offset          BIGINT,
-    kilde_behandling_id             BIGINT
-        REFERENCES behandling,
+    kilde_behandling_id             BIGINT REFERENCES behandling,
     prosent                         NUMERIC                                      NOT NULL,
     sats                            BIGINT                                       NOT NULL,
-    fk_aktoer_id                    VARCHAR
-        CONSTRAINT fk_andel_tilkjent_ytelse
-            REFERENCES aktoer
-            ON UPDATE CASCADE,
+    fk_aktoer_id                    VARCHAR REFERENCES aktoer ON UPDATE CASCADE,
     nasjonalt_periodebelop          NUMERIC,
     differanseberegnet_periodebelop NUMERIC
 );
@@ -363,12 +316,8 @@ CREATE INDEX aty_type_idx
 
 CREATE TABLE vilkaarsvurdering
 (
-    id               BIGINT                                       NOT NULL
-        CONSTRAINT behandling_resultat_pkey
-            PRIMARY KEY,
-    fk_behandling_id BIGINT                                       NOT NULL
-        CONSTRAINT behandling_resultat_fk_behandling_id_fkey
-            REFERENCES behandling,
+    id               BIGINT PRIMARY KEY,
+    fk_behandling_id BIGINT REFERENCES behandling,
     aktiv            BOOLEAN      DEFAULT TRUE                    NOT NULL,
     versjon          BIGINT       DEFAULT 0                       NOT NULL,
     opprettet_av     VARCHAR      DEFAULT 'VL'::CHARACTER VARYING NOT NULL,
@@ -384,27 +333,19 @@ CREATE INDEX vilkaarsvurdering_fk_idx
 
 CREATE TABLE person_resultat
 (
-    id                      BIGINT                                       NOT NULL
-        CONSTRAINT periode_resultat_pkey
-            PRIMARY KEY,
-    fk_vilkaarsvurdering_id BIGINT                                       NOT NULL
-        CONSTRAINT periode_resultat_fk_behandling_resultat_id_fkey
-            REFERENCES vilkaarsvurdering,
+    id                      BIGINT PRIMARY KEY,
+    fk_vilkaarsvurdering_id BIGINT REFERENCES vilkaarsvurdering,
     versjon                 BIGINT       DEFAULT 0                       NOT NULL,
     opprettet_av            VARCHAR      DEFAULT 'VL'::CHARACTER VARYING NOT NULL,
     opprettet_tid           TIMESTAMP(3) DEFAULT LOCALTIMESTAMP          NOT NULL,
     endret_av               VARCHAR,
     endret_tid              TIMESTAMP(3),
-    fk_aktoer_id            VARCHAR
-        CONSTRAINT fk_person_resultat
-            REFERENCES aktoer
-            ON UPDATE CASCADE
+    fk_aktoer_id            VARCHAR REFERENCES aktoer ON UPDATE CASCADE
 );
 
 CREATE TABLE vilkar_resultat
 (
-    id                                 BIGINT                                       NOT NULL
-        PRIMARY KEY,
+    id                                 BIGINT PRIMARY KEY,
     vilkar                             VARCHAR(50)                                  NOT NULL,
     resultat                           VARCHAR(50)                                  NOT NULL,
     regel_input                        TEXT,
@@ -414,14 +355,11 @@ CREATE TABLE vilkar_resultat
     opprettet_tid                      TIMESTAMP(3) DEFAULT LOCALTIMESTAMP          NOT NULL,
     endret_av                          VARCHAR(512),
     endret_tid                         TIMESTAMP(3),
-    fk_person_resultat_id              BIGINT
-        REFERENCES person_resultat,
+    fk_person_resultat_id              BIGINT REFERENCES person_resultat,
     begrunnelse                        TEXT,
     periode_fom                        TIMESTAMP(3) DEFAULT NULL::TIMESTAMP WITHOUT TIME ZONE,
     periode_tom                        TIMESTAMP(3) DEFAULT NULL::TIMESTAMP WITHOUT TIME ZONE,
-    fk_behandling_id                   BIGINT                                       NOT NULL
-        CONSTRAINT fk_behandling_id_vilkar_resultat
-            REFERENCES behandling,
+    fk_behandling_id                   BIGINT REFERENCES behandling,
     evaluering_aarsak                  TEXT         DEFAULT ''::TEXT,
     er_automatisk_vurdert              BOOLEAN      DEFAULT FALSE                   NOT NULL,
     er_eksplisitt_avslag_paa_soknad    BOOLEAN,
@@ -444,10 +382,8 @@ CREATE INDEX person_resultat_fk_aktoer_idx
 
 CREATE TABLE oppgave
 (
-    id               BIGINT    NOT NULL
-        PRIMARY KEY,
-    fk_behandling_id BIGINT    NOT NULL
-        REFERENCES behandling,
+    id               BIGINT PRIMARY KEY,
+    fk_behandling_id BIGINT REFERENCES behandling,
     gsak_id          VARCHAR   NOT NULL,
     type             VARCHAR   NOT NULL,
     ferdigstilt      BOOLEAN   NOT NULL,
@@ -459,10 +395,8 @@ CREATE INDEX oppgave_fk_idx
 
 CREATE TABLE totrinnskontroll
 (
-    id                 BIGINT                                           NOT NULL
-        PRIMARY KEY,
-    fk_behandling_id   BIGINT                                           NOT NULL
-        REFERENCES behandling,
+    id                 BIGINT PRIMARY KEY,
+    fk_behandling_id   BIGINT REFERENCES behandling,
     versjon            BIGINT       DEFAULT 0                           NOT NULL,
     opprettet_av       VARCHAR      DEFAULT 'VL'::CHARACTER VARYING     NOT NULL,
     opprettet_tid      TIMESTAMP(3) DEFAULT LOCALTIMESTAMP              NOT NULL,
@@ -494,8 +428,7 @@ CREATE UNIQUE INDEX uidx_totrinnskontroll_01
 
 CREATE TABLE po_bostedsadresse
 (
-    id                BIGINT                                       NOT NULL
-        PRIMARY KEY,
+    id                BIGINT PRIMARY KEY,
     type              VARCHAR(20)                                  NOT NULL,
     bostedskommune    VARCHAR,
     husnummer         VARCHAR,
@@ -513,8 +446,7 @@ CREATE TABLE po_bostedsadresse
     matrikkel_id      BIGINT,
     fom               DATE,
     tom               DATE,
-    fk_po_person_id   BIGINT
-        REFERENCES po_person
+    fk_po_person_id   BIGINT REFERENCES po_person
 );
 
 
@@ -524,10 +456,8 @@ CREATE INDEX po_bostedsadresse_fk_idx
 
 CREATE TABLE journalpost
 (
-    id               BIGINT                                       NOT NULL
-        PRIMARY KEY,
-    fk_behandling_id BIGINT                                       NOT NULL
-        REFERENCES behandling,
+    id               BIGINT PRIMARY KEY,
+    fk_behandling_id BIGINT REFERENCES behandling,
     journalpost_id   VARCHAR                                      NOT NULL,
     opprettet_tid    TIMESTAMP(3) DEFAULT LOCALTIMESTAMP          NOT NULL,
     opprettet_av     VARCHAR      DEFAULT 'VL'::CHARACTER VARYING NOT NULL,
@@ -541,10 +471,8 @@ CREATE INDEX journalpost_fk_behandling_id_idx
 
 CREATE TABLE po_statsborgerskap
 (
-    id              BIGINT                                           NOT NULL
-        PRIMARY KEY,
-    fk_po_person_id BIGINT                                           NOT NULL
-        REFERENCES po_person,
+    id              BIGINT PRIMARY KEY,
+    fk_po_person_id BIGINT REFERENCES po_person,
     landkode        VARCHAR(3)   DEFAULT 'XUK'::CHARACTER VARYING    NOT NULL,
     fom             DATE,
     tom             DATE,
@@ -563,10 +491,8 @@ CREATE INDEX po_statsborgerskap_fk_idx
 
 CREATE TABLE po_opphold
 (
-    id              BIGINT                                       NOT NULL
-        PRIMARY KEY,
-    fk_po_person_id BIGINT                                       NOT NULL
-        REFERENCES po_person,
+    id              BIGINT PRIMARY KEY,
+    fk_po_person_id BIGINT REFERENCES po_person,
     type            VARCHAR                                      NOT NULL,
     fom             DATE,
     tom             DATE,
@@ -583,10 +509,8 @@ CREATE INDEX po_opphold_fk_idx
 
 CREATE TABLE po_arbeidsforhold
 (
-    id                BIGINT                                       NOT NULL
-        PRIMARY KEY,
-    fk_po_person_id   BIGINT                                       NOT NULL
-        REFERENCES po_person,
+    id                BIGINT PRIMARY KEY,
+    fk_po_person_id   BIGINT REFERENCES po_person,
     arbeidsgiver_id   VARCHAR,
     arbeidsgiver_type VARCHAR,
     fom               DATE,
@@ -603,10 +527,8 @@ CREATE INDEX po_arbeidsforhold_fk_idx
 
 CREATE TABLE po_bostedsadresseperiode
 (
-    id              BIGINT                                       NOT NULL
-        PRIMARY KEY,
-    fk_po_person_id BIGINT                                       NOT NULL
-        REFERENCES po_person,
+    id              BIGINT PRIMARY KEY,
+    fk_po_person_id BIGINT REFERENCES po_person,
     fom             DATE,
     tom             DATE,
     opprettet_av    VARCHAR      DEFAULT 'VL'::CHARACTER VARYING NOT NULL,
@@ -621,10 +543,8 @@ CREATE INDEX po_bostedsadresseperiode_fk_idx
 
 CREATE TABLE behandling_steg_tilstand
 (
-    id                     BIGINT                                                NOT NULL
-        PRIMARY KEY,
-    fk_behandling_id       BIGINT                                                NOT NULL
-        REFERENCES behandling,
+    id                     BIGINT PRIMARY KEY,
+    fk_behandling_id       BIGINT REFERENCES behandling,
     behandling_steg        VARCHAR                                               NOT NULL,
     behandling_steg_status VARCHAR      DEFAULT 'IKKE_UTFØRT'::CHARACTER VARYING NOT NULL,
     versjon                BIGINT       DEFAULT 0                                NOT NULL,
@@ -639,10 +559,8 @@ CREATE INDEX behandling_steg_tilstand_fk_idx
 
 CREATE TABLE annen_vurdering
 (
-    id                    BIGINT                                       NOT NULL
-        PRIMARY KEY,
-    fk_person_resultat_id BIGINT                                       NOT NULL
-        REFERENCES person_resultat,
+    id                    BIGINT PRIMARY KEY,
+    fk_person_resultat_id BIGINT REFERENCES person_resultat,
     resultat              VARCHAR                                      NOT NULL,
     type                  VARCHAR                                      NOT NULL,
     begrunnelse           TEXT,
@@ -658,9 +576,7 @@ CREATE INDEX annen_vurdering_fk_idx
 
 CREATE TABLE okonomi_simulering_mottaker
 (
-    id               BIGINT                                       NOT NULL
-        CONSTRAINT vedtak_simulering_mottaker_pkey
-            PRIMARY KEY,
+    id               BIGINT PRIMARY KEY,
     mottaker_nummer  VARCHAR(50),
     mottaker_type    VARCHAR(50),
     opprettet_av     VARCHAR(512) DEFAULT 'VL'::CHARACTER VARYING NOT NULL,
@@ -668,8 +584,7 @@ CREATE TABLE okonomi_simulering_mottaker
     endret_av        VARCHAR(512),
     endret_tid       TIMESTAMP(3),
     versjon          BIGINT       DEFAULT 0,
-    fk_behandling_id BIGINT
-        REFERENCES behandling
+    fk_behandling_id BIGINT REFERENCES behandling
 );
 
 CREATE INDEX okonomi_simulering_mottaker_fk_idx
@@ -677,13 +592,8 @@ CREATE INDEX okonomi_simulering_mottaker_fk_idx
 
 CREATE TABLE okonomi_simulering_postering
 (
-    id                                BIGINT                                       NOT NULL
-        CONSTRAINT vedtak_simulering_postering_pkey
-            PRIMARY KEY,
-    fk_okonomi_simulering_mottaker_id BIGINT
-        CONSTRAINT vedtak_simulering_postering_fk_vedtak_simulering_mottaker__fkey
-            REFERENCES okonomi_simulering_mottaker
-            ON DELETE CASCADE,
+    id                                BIGINT PRIMARY KEY,
+    fk_okonomi_simulering_mottaker_id BIGINT REFERENCES okonomi_simulering_mottaker ON DELETE CASCADE,
     fag_omraade_kode                  VARCHAR(50),
     fom                               TIMESTAMP(3),
     tom                               TIMESTAMP(3),
@@ -704,8 +614,7 @@ CREATE INDEX vedtak_simulering_postering_fk_vedtak_simulering_mottaker_i_idx
 
 CREATE TABLE tilbakekreving
 (
-    id                           BIGINT                                    NOT NULL
-        PRIMARY KEY,
+    id                           BIGINT PRIMARY KEY,
     valg                         VARCHAR                                   NOT NULL,
     varsel                       TEXT,
     begrunnelse                  TEXT                                      NOT NULL,
@@ -715,8 +624,7 @@ CREATE TABLE tilbakekreving
     endret_av                    VARCHAR,
     endret_tid                   TIMESTAMP(3),
     versjon                      BIGINT    DEFAULT 0,
-    fk_behandling_id             BIGINT
-        REFERENCES behandling
+    fk_behandling_id             BIGINT REFERENCES behandling
 );
 
 CREATE INDEX tilbakekreving_fk_idx
@@ -724,10 +632,8 @@ CREATE INDEX tilbakekreving_fk_idx
 
 CREATE TABLE vedtaksperiode
 (
-    id            BIGINT                                    NOT NULL
-        PRIMARY KEY,
-    fk_vedtak_id  BIGINT
-        REFERENCES vedtak,
+    id            BIGINT PRIMARY KEY,
+    fk_vedtak_id  BIGINT REFERENCES vedtak,
     fom           TIMESTAMP,
     tom           TIMESTAMP,
     type          VARCHAR                                   NOT NULL,
@@ -743,11 +649,8 @@ CREATE INDEX vedtaksperiode_fk_vedtak_id_idx
 
 CREATE TABLE vedtaksbegrunnelse
 (
-    id                               BIGINT  NOT NULL
-        PRIMARY KEY,
-    fk_vedtaksperiode_id             BIGINT
-        REFERENCES vedtaksperiode
-            ON DELETE CASCADE,
+    id                               BIGINT PRIMARY KEY,
+    fk_vedtaksperiode_id             BIGINT REFERENCES vedtaksperiode ON DELETE CASCADE,
     vedtak_begrunnelse_spesifikasjon VARCHAR NOT NULL
 );
 
@@ -756,11 +659,8 @@ CREATE INDEX vedtaksbegrunnelse_fk_vedtaksperiode_id_idx
 
 CREATE TABLE vedtaksbegrunnelse_fritekst
 (
-    id                   BIGINT                NOT NULL
-        PRIMARY KEY,
-    fk_vedtaksperiode_id BIGINT
-        REFERENCES vedtaksperiode
-            ON DELETE CASCADE,
+    id                   BIGINT PRIMARY KEY,
+    fk_vedtaksperiode_id BIGINT REFERENCES vedtaksperiode ON DELETE CASCADE,
     fritekst             TEXT DEFAULT ''::TEXT NOT NULL
 );
 
@@ -769,10 +669,8 @@ CREATE INDEX vedtaksbegrunnelse_fritekst_fk_vedtaksperiode_id_idx
 
 CREATE TABLE po_sivilstand
 (
-    id              BIGINT                                       NOT NULL
-        PRIMARY KEY,
-    fk_po_person_id BIGINT                                       NOT NULL
-        REFERENCES po_person,
+    id              BIGINT PRIMARY KEY,
+    fk_po_person_id BIGINT REFERENCES po_person,
     fom             DATE,
     type            VARCHAR                                      NOT NULL,
     opprettet_av    VARCHAR      DEFAULT 'VL'::CHARACTER VARYING NOT NULL,
@@ -788,12 +686,9 @@ CREATE INDEX po_sivilstand_fk_idx
 
 CREATE TABLE endret_utbetaling_andel
 (
-    id                                 BIGINT                                       NOT NULL
-        PRIMARY KEY,
-    fk_behandling_id                   BIGINT                                       NOT NULL
-        REFERENCES behandling,
-    fk_po_person_id                    BIGINT
-        REFERENCES po_person,
+    id                                 BIGINT PRIMARY KEY,
+    fk_behandling_id                   BIGINT REFERENCES behandling,
+    fk_po_person_id                    BIGINT REFERENCES po_person,
     fom                                TIMESTAMP(3),
     tom                                TIMESTAMP(3),
     prosent                            NUMERIC,
@@ -827,10 +722,8 @@ CREATE TABLE andel_til_endret_andel
 
 CREATE TABLE sett_paa_vent
 (
-    id                BIGINT                                       NOT NULL
-        PRIMARY KEY,
-    fk_behandling_id  BIGINT                                       NOT NULL
-        REFERENCES behandling,
+    id                BIGINT PRIMARY KEY,
+    fk_behandling_id  BIGINT REFERENCES behandling,
     versjon           BIGINT       DEFAULT 0                       NOT NULL,
     opprettet_av      VARCHAR      DEFAULT 'VL'::CHARACTER VARYING NOT NULL,
     opprettet_tid     TIMESTAMP(3) DEFAULT LOCALTIMESTAMP          NOT NULL,
@@ -852,10 +745,8 @@ CREATE UNIQUE INDEX uidx_sett_paa_vent_aktiv
 
 CREATE TABLE po_doedsfall
 (
-    id                   BIGINT                                       NOT NULL
-        PRIMARY KEY,
-    fk_po_person_id      BIGINT                                       NOT NULL
-        REFERENCES po_person,
+    id                   BIGINT PRIMARY KEY,
+    fk_po_person_id      BIGINT REFERENCES po_person,
     versjon              BIGINT       DEFAULT 0                       NOT NULL,
     doedsfall_dato       TIMESTAMP(3)                                 NOT NULL,
     doedsfall_adresse    VARCHAR,
@@ -872,10 +763,8 @@ CREATE INDEX po_doedsfall_fk_po_person_id_idx
 
 CREATE TABLE behandling_soknadsinfo
 (
-    id               BIGINT                                       NOT NULL
-        PRIMARY KEY,
-    fk_behandling_id BIGINT                                       NOT NULL
-        REFERENCES behandling,
+    id               BIGINT PRIMARY KEY,
+    fk_behandling_id BIGINT REFERENCES behandling,
     mottatt_dato     TIMESTAMP(3)                                 NOT NULL,
     versjon          BIGINT       DEFAULT 0                       NOT NULL,
     opprettet_av     VARCHAR      DEFAULT 'VL'::CHARACTER VARYING NOT NULL,
@@ -889,10 +778,8 @@ CREATE INDEX behandling_soknadsinfo_fk_behandling_id_idx
 
 CREATE TABLE kompetanse
 (
-    id                              BIGINT                                       NOT NULL
-        PRIMARY KEY,
-    fk_behandling_id                BIGINT                                       NOT NULL
-        REFERENCES behandling,
+    id                              BIGINT PRIMARY KEY,
+    fk_behandling_id                BIGINT REFERENCES behandling,
     fom                             TIMESTAMP(3),
     tom                             TIMESTAMP(3),
     versjon                         BIGINT       DEFAULT 0                       NOT NULL,
@@ -913,20 +800,15 @@ CREATE INDEX kompetanse_fk_behandling_id_idx
 
 CREATE TABLE aktoer_til_kompetanse
 (
-    fk_kompetanse_id BIGINT  NOT NULL
-        REFERENCES kompetanse,
-    fk_aktoer_id     VARCHAR NOT NULL
-        REFERENCES aktoer
-            ON UPDATE CASCADE,
+    fk_kompetanse_id BIGINT REFERENCES kompetanse,
+    fk_aktoer_id     VARCHAR REFERENCES aktoer ON UPDATE CASCADE,
     PRIMARY KEY (fk_kompetanse_id, fk_aktoer_id)
 );
 
 CREATE TABLE valutakurs
 (
-    id               BIGINT                                       NOT NULL
-        PRIMARY KEY,
-    fk_behandling_id BIGINT                                       NOT NULL
-        REFERENCES behandling,
+    id               BIGINT PRIMARY KEY,
+    fk_behandling_id BIGINT REFERENCES behandling,
     fom              TIMESTAMP(3),
     tom              TIMESTAMP(3),
     valutakursdato   TIMESTAMP(3) DEFAULT NULL::TIMESTAMP WITHOUT TIME ZONE,
@@ -944,20 +826,15 @@ CREATE INDEX valutakurs_fk_behandling_id_idx
 
 CREATE TABLE aktoer_til_valutakurs
 (
-    fk_valutakurs_id BIGINT  NOT NULL
-        REFERENCES valutakurs,
-    fk_aktoer_id     VARCHAR NOT NULL
-        REFERENCES aktoer
-            ON UPDATE CASCADE,
+    fk_valutakurs_id BIGINT REFERENCES valutakurs,
+    fk_aktoer_id     VARCHAR REFERENCES aktoer ON UPDATE CASCADE,
     PRIMARY KEY (fk_valutakurs_id, fk_aktoer_id)
 );
 
 CREATE TABLE utenlandsk_periodebeloep
 (
-    id                         BIGINT                                       NOT NULL
-        PRIMARY KEY,
-    fk_behandling_id           BIGINT                                       NOT NULL
-        REFERENCES behandling,
+    id                         BIGINT PRIMARY KEY,
+    fk_behandling_id           BIGINT REFERENCES behandling,
     fom                        TIMESTAMP(3),
     tom                        TIMESTAMP(3),
     intervall                  VARCHAR,
@@ -977,22 +854,16 @@ CREATE INDEX utenlandsk_periodebeloep_fk_behandling_id_idx
 
 CREATE TABLE aktoer_til_utenlandsk_periodebeloep
 (
-    fk_utenlandsk_periodebeloep_id BIGINT  NOT NULL
-        CONSTRAINT aktoer_til_utenlandsk_periode_fk_utenlandsk_periodebeloep__fkey
-            REFERENCES utenlandsk_periodebeloep,
-    fk_aktoer_id                   VARCHAR NOT NULL
-        REFERENCES aktoer
-            ON UPDATE CASCADE,
+    fk_utenlandsk_periodebeloep_id BIGINT REFERENCES utenlandsk_periodebeloep,
+    fk_aktoer_id                   VARCHAR REFERENCES aktoer ON UPDATE CASCADE,
     PRIMARY KEY (fk_utenlandsk_periodebeloep_id, fk_aktoer_id)
 );
 
 CREATE TABLE verge
 (
-    id               BIGINT                                       NOT NULL
-        PRIMARY KEY,
+    id               BIGINT PRIMARY KEY,
     ident            VARCHAR,
-    fk_behandling_id BIGINT                                       NOT NULL
-        REFERENCES behandling,
+    fk_behandling_id BIGINT REFERENCES behandling,
     versjon          BIGINT       DEFAULT 0                       NOT NULL,
     opprettet_av     VARCHAR(20)  DEFAULT 'VL'::CHARACTER VARYING NOT NULL,
     opprettet_tid    TIMESTAMP(3) DEFAULT LOCALTIMESTAMP          NOT NULL,
@@ -1005,14 +876,12 @@ CREATE UNIQUE INDEX uidx_verge_behandling_id
 
 CREATE TABLE korrigert_etterbetaling
 (
-    id               BIGINT                                       NOT NULL
-        PRIMARY KEY,
+    id               BIGINT PRIMARY KEY,
     aarsak           VARCHAR                                      NOT NULL,
     begrunnelse      VARCHAR,
     belop            BIGINT                                       NOT NULL,
     aktiv            BOOLEAN                                      NOT NULL,
-    fk_behandling_id BIGINT                                       NOT NULL
-        REFERENCES behandling,
+    fk_behandling_id BIGINT REFERENCES behandling,
     versjon          BIGINT       DEFAULT 0                       NOT NULL,
     opprettet_av     VARCHAR      DEFAULT 'VL'::CHARACTER VARYING NOT NULL,
     opprettet_tid    TIMESTAMP(3) DEFAULT LOCALTIMESTAMP          NOT NULL,
