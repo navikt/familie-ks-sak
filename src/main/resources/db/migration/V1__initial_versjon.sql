@@ -1,5 +1,10 @@
-CREATE SEQUENCE task_seq INCREMENT BY 50;
-CREATE SEQUENCE task_logg_seq INCREMENT BY 50;
+CREATE SEQUENCE task_seq
+    START WITH 1
+    INCREMENT BY 50
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
 
 create table task
 (
@@ -34,6 +39,12 @@ create table task_logg
     endret_av     varchar(100) default 'VL'::character varying
 );
 
+CREATE SEQUENCE task_logg_seq
+    START WITH 1
+    INCREMENT BY 50
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
 
 create index task_logg_task_id_idx
     on task_logg (task_id);
