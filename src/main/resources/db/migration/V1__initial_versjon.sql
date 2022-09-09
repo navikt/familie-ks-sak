@@ -1,3 +1,5 @@
+CREATE SEQUENCE task_seq INCREMENT BY 50;
+CREATE SEQUENCE task_logg_seq INCREMENT BY 50;
 
 create table task
 (
@@ -14,11 +16,8 @@ create table task
     avvikstype    varchar(50)
 );
 
-
 create index task_status_idx
     on task (status);
-
-
 
 create table task_logg
 (
