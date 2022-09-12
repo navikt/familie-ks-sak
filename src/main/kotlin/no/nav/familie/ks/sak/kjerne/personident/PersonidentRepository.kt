@@ -1,4 +1,4 @@
-package no.nav.familie.ba.sak.kjerne.personident
+package no.nav.familie.ks.sak.kjerne.personident
 
 import no.nav.familie.ks.sak.kjerne.personident.Personident
 import org.springframework.data.jpa.repository.JpaRepository
