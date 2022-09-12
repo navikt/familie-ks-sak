@@ -37,7 +37,7 @@ data class Personident(
 
     init {
         require(VALID.matcher(fødselsnummer).matches()) {
-            "Ugyldig fødselsnummer, støtter kun 11 siffer.)"
+            "Ugyldig fødselsnummer, støtter kun 11 siffer."
         }
     }
 
