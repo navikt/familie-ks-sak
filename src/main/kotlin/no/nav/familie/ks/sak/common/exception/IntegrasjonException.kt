@@ -1,4 +1,4 @@
-package no.nav.familie.ks.sak.integrasjon.familieintegrasjon
+package no.nav.familie.ks.sak.common.exception
 
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus

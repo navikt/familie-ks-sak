@@ -1,6 +1,6 @@
 package no.nav.familie.ks.sak.sikkerhet
 
-import no.nav.familie.ks.sak.common.RolleTilgangskontrollFeil
+import no.nav.familie.ks.sak.common.exception.RolleTilgangskontrollFeil
 import no.nav.familie.ks.sak.config.BehandlerRolle
 import no.nav.familie.ks.sak.config.RolleConfig
 import org.springframework.beans.factory.annotation.Autowired
