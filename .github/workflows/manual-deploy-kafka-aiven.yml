@@ -1,0 +1,50 @@
+name: Deploy kafka topics
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Deploy dvh_vedtak_topic til dev
+        uses: nais/deploy/actions/deploy@v1
+        env:
+          APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
+          CLUSTER: dev-gcp
+          RESOURCE: .deploy/nais/kafka/dev/dvh_vedtak_topic
+      - name: Deploy dvh_vedtak_topic til prod
+        uses: nais/deploy/actions/deploy@v1
+        env:
+          APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
+          CLUSTER: prod-gcp
+          RESOURCE: .deploy/nais/kafka/prod/dvh_vedtak_topic
+
+      - name: Deploy dvh_sakstatistikk_behandling_topic til dev
+        uses: nais/deploy/actions/deploy@v1
+        env:
+          APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
+          CLUSTER: dev-gcp
+          RESOURCE: .deploy/nais/kafka/dev/dvh_sakstatistikk_behandling_topic
+      - name: Deploy dvh_sakstatistikk_behandling_topic til prod
+        uses: nais/deploy/actions/deploy@v1
+        env:
+          APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
+          CLUSTER: prod-gcp
+          RESOURCE: .deploy/nais/kafka/prod/dvh_sakstatistikk_behandling_topic
+
+      - name: Deploy dvh_sakstatistikk_sak_topic til dev
+        uses: nais/deploy/actions/deploy@v1
+        env:
+          APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
+          CLUSTER: dev-gcp
+          RESOURCE: .deploy/nais/kafka/dev/dvh_sakstatistikk_sak_topic
+      - name: Deploy dvh_sakstatistikk_sak_topic til prod
+        uses: nais/deploy/actions/deploy@v1
+        env:
+          APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
+          CLUSTER: prod-gcp
+          RESOURCE: .deploy/nais/kafka/prod/dvh_sakstatistikk_sak_topic
