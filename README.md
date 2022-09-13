@@ -74,6 +74,13 @@ Den andre (krise-eksisterende-image-rett-i-prod) lar deg deploye et tidligere by
 du skal rulle tilbake til forrige versjon. Denne tar som parameter taggen til imaget du vil deploye. Denne finner du
 under actions på GitHub, finn byggejobben du vil gå tilbake til, og kopier taggen derfra.
 
+### Monitorering av kafka køer
+Det er satt opp en tjeneste familie-ks-kafka-manager som er et verktøy for å monitorere
+kafka meldinger i preprod og prod.
+
+* Preprod: https://familie-ks-kafka-manager.dev.intern.nav.no
+* Prod: https://familie-ks-kafka-manager.intern.nav.no
+
 ## Kontaktinformasjon
 
 For NAV-interne kan henvendelser om applikasjonen rettes til #team-familie på slack. Ellers kan man opprette et issue
