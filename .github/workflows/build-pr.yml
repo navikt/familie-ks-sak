@@ -22,9 +22,18 @@ jobs:
       contents: read
     steps:
       - uses: "actions/checkout@v3"
-
       - uses: "gradle/wrapper-validation-action@v1"
       - uses: "actions/setup-java@v2"
+        with:
+          java-version: "17"
+          distribution: 'temurin'
+          cache: 'gradle'
+      - name: Kjør ktlint sjekk
+        env:
+          GITHUB_USERNAME: x-access-token
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          ./gradlew ktlintCheck --no-daemon
   enhetstester-integrasjonstester-og-sonar:
     name: Enhetstester, integrasjonstester og sonar
     runs-on: ubuntu-latest
