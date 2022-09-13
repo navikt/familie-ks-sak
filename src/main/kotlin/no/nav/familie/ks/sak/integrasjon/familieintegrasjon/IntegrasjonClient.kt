@@ -1,23 +1,20 @@
 package no.nav.familie.ks.sak.integrasjon.familieintegrasjon
 
-import no.nav.familie.ks.sak.common.Feil
-import no.nav.familie.ks.sak.common.kallEksternTjenesteRessurs
-import no.nav.familie.ks.sak.common.kallEksternTjenesteUtenRespons
-import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.domene.Arbeidsfordelingsenhet
-import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.domene.Arbeidsforhold
-import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.domene.ArbeidsforholdRequest
 import no.nav.familie.http.client.AbstractRestClient
 import no.nav.familie.kontrakter.felles.Fagsystem
 import no.nav.familie.kontrakter.felles.Ressurs
 import no.nav.familie.kontrakter.felles.Tema
-import no.nav.familie.kontrakter.felles.dokarkiv.*
+import no.nav.familie.kontrakter.felles.dokarkiv.ArkiverDokumentResponse
+import no.nav.familie.kontrakter.felles.dokarkiv.LogiskVedleggRequest
+import no.nav.familie.kontrakter.felles.dokarkiv.LogiskVedleggResponse
+import no.nav.familie.kontrakter.felles.dokarkiv.OppdaterJournalpostRequest
+import no.nav.familie.kontrakter.felles.dokarkiv.OppdaterJournalpostResponse
 import no.nav.familie.kontrakter.felles.dokarkiv.v2.ArkiverDokumentRequest
 import no.nav.familie.kontrakter.felles.dokdist.DistribuerJournalpostRequest
 import no.nav.familie.kontrakter.felles.dokdist.Distribusjonstidspunkt
 import no.nav.familie.kontrakter.felles.dokdist.Distribusjonstype
 import no.nav.familie.kontrakter.felles.journalpost.Journalpost
 import no.nav.familie.kontrakter.felles.journalpost.JournalposterForBrukerRequest
-import no.nav.familie.kontrakter.felles.kodeverk.KodeverkDto
 import no.nav.familie.kontrakter.felles.navkontor.NavKontorEnhet
 import no.nav.familie.kontrakter.felles.oppgave.FinnOppgaveRequest
 import no.nav.familie.kontrakter.felles.oppgave.FinnOppgaveResponseDto
@@ -26,6 +23,11 @@ import no.nav.familie.kontrakter.felles.oppgave.OppgaveResponse
 import no.nav.familie.kontrakter.felles.oppgave.OpprettOppgaveRequest
 import no.nav.familie.kontrakter.felles.tilgangskontroll.Tilgang
 import no.nav.familie.ks.sak.common.kallEksternTjeneste
+import no.nav.familie.ks.sak.common.kallEksternTjenesteRessurs
+import no.nav.familie.ks.sak.common.kallEksternTjenesteUtenRespons
+import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.domene.Arbeidsfordelingsenhet
+import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.domene.Arbeidsforhold
+import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.domene.ArbeidsforholdRequest
 import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Qualifier
@@ -358,7 +360,6 @@ class IntegrasjonClient(
         }
     }
 
-
     companion object {
 
         private val logger = LoggerFactory.getLogger(IntegrasjonClient::class.java)
@@ -366,6 +367,5 @@ class IntegrasjonClient(
         private const val PATH_TILGANG_PERSON = "tilgang/v2/personer"
         private const val HEADER_NAV_TEMA = "Nav-Tema"
         private val HEADER_NAV_TEMA_BAR = Tema.KON.name
-
     }
 }
