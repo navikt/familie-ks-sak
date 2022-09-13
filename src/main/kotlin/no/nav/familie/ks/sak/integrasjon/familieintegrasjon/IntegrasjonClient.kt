@@ -66,7 +66,7 @@ class IntegrasjonClient(
                 tilgangPersonUri,
                 personIdenter,
                 HttpHeaders().also {
-                    it.set(HEADER_NAV_TEMA, HEADER_NAV_TEMA_BAR)
+                    it.set(HEADER_NAV_TEMA, HEADER_NAV_TEMA_KON)
                 }
             )
         }
@@ -372,6 +372,6 @@ class IntegrasjonClient(
         const val RETRY_BACKOFF_5000MS = "\${retry.backoff.delay:5000}"
         private const val PATH_TILGANG_PERSON = "tilgang/v2/personer"
         private const val HEADER_NAV_TEMA = "Nav-Tema"
-        private val HEADER_NAV_TEMA_BAR = Tema.KON.name
+        private val HEADER_NAV_TEMA_KON = Tema.KON.name
     }
 }
