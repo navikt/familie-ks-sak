@@ -2,6 +2,7 @@ package no.nav.familie.ks.sak.config
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import no.nav.familie.http.client.RetryOAuth2HttpClient
+import no.nav.familie.http.config.RestTemplateAzure
 import no.nav.familie.log.filter.LogFilter
 import no.nav.security.token.support.client.core.http.OAuth2HttpClient
 import no.nav.security.token.support.client.core.oauth2.OAuth2AccessTokenResponse
@@ -15,6 +16,7 @@ import org.springframework.boot.web.client.RestTemplateBuilder
 import org.springframework.boot.web.servlet.FilterRegistrationBean
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.ComponentScan
+import org.springframework.context.annotation.Import
 import org.springframework.context.annotation.Primary
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter
 import org.springframework.retry.annotation.EnableRetry
@@ -28,6 +30,7 @@ import java.time.temporal.ChronoUnit
 @EnableRetry
 @ConfigurationPropertiesScan
 @EnableJwtTokenValidation(ignore = ["org.springdoc"])
+@Import(RestTemplateAzure::class)
 @EnableOAuth2Client(cacheEnabled = true)
 class ApplicationConfig {
 
