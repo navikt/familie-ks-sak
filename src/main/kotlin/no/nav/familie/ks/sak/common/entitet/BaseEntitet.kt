@@ -10,14 +10,14 @@ import javax.persistence.PreUpdate
 import javax.persistence.Version
 
 /**
- * En basis [Entity] klasse som håndtere felles standarder for utformign av tabeller (eks. sporing av hvem som har
+ * En basis [Entity] klasse som håndterer felles standarder for utforming av tabeller (eks. sporing av hvem som har
  * opprettet eller oppdatert en rad, og når).
  */
 @MappedSuperclass
 abstract class BaseEntitet : Serializable {
 
     // The properties have to be open because when a subclass is lazy class, hibernate needs to override the accessor
-    // to intercept its behavior. If they are final, hibernate will complain and it also can cause potential bug.
+    // to intercept its behavior. If they are final, hibernate will complain, and it can also cause potential bugs.
     // See: https://stackoverflow.com/questions/55958667/kotlin-inheritance-and-jpa
     @Column(name = "opprettet_av", nullable = false, updatable = false)
     open val opprettetAv: String = SikkerhetContext.hentSaksbehandler()

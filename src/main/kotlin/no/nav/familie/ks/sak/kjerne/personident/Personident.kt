@@ -18,7 +18,7 @@ data class Personident(
     @Id
     @Column(name = "foedselsnummer", nullable = false)
     // Lovlige typer er fnr, dnr eller npid
-    // Validator kommer virke først i Spring 3.0 grunnet at hibernate tatt i bruke Jakarta.
+    // Validator kommer til å først virke i Spring 3.0 grunnet at hibernate har tatt i bruk Jakarta.
     @Pattern(regexp = VALID_FØDSELSNUMMER)
     val fødselsnummer: String,
 
