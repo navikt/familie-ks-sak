@@ -21,7 +21,7 @@ data class Aktør(
     // Er ikke kalt id ettersom den refererer til en ekstern id.
     @Id
     @Column(name = "aktoer_id", updatable = false, length = 50)
-    // Validator kommer virke først i Spring 3.0 grunnet at hibernate tatt i bruke Jakarta.
+    // Validator kommer til å først virke i Spring 3.0 grunnet at hibernate har tatt i bruk Jakarta.
     @Pattern(regexp = VALID_REGEXP)
     val aktørId: String,
 
@@ -36,7 +36,7 @@ data class Aktør(
     init {
         require(VALID.matcher(aktørId).matches()) {
             // skal ikke skje, funksjonelle feilmeldinger håndteres ikke her.
-            "Ugyldig aktør, støtter kun 13 siffer.)"
+            "Ugyldig aktør, støtter kun 13 siffer."
         }
     }
 
