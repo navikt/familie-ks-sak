@@ -1,6 +1,7 @@
 package no.nav.familie.ks.sak.integrasjon.pdl.domene
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import no.nav.familie.kontrakter.felles.personopplysning.Adressebeskyttelse
 
 data class PdlBaseResponse<T>(
     val data: T,
@@ -36,3 +37,6 @@ data class PdlIdent(
     val historisk: Boolean,
     val gruppe: String
 )
+
+class PdlAdressebeskyttelseResponse(val person: PdlAdressebeskyttelsePerson?)
+class PdlAdressebeskyttelsePerson(val adressebeskyttelse: List<Adressebeskyttelse>)
