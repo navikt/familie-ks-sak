@@ -26,7 +26,7 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           reporter: github-check
-          ktlint_version: 0.43.2
+          ktlint_version: 0.47.0
   enhetstester-integrasjonstester-og-sonar:
     name: Enhetstester, integrasjonstester og sonar
     runs-on: ubuntu-latest
