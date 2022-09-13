@@ -109,6 +109,10 @@ tasks.withType<Test> {
     useJUnitPlatform()
 }
 
+configure<org.jlleitschuh.gradle.ktlint.KtlintExtension> {
+    ignoreFailures.set(true)
+}
+
 tasks {
     bootJar {
         archiveFileName.set("familie-ks-sak.jar")
