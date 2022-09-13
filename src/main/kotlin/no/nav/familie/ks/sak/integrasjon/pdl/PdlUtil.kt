@@ -1,7 +1,7 @@
 package no.nav.familie.ks.sak.integrasjon.pdl
 
-import no.nav.familie.ks.sak.common.PdlNotFoundException
-import no.nav.familie.ks.sak.common.PdlRequestException
+import no.nav.familie.ks.sak.common.exception.PdlNotFoundException
+import no.nav.familie.ks.sak.common.exception.PdlRequestException
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.PdlBaseResponse
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory

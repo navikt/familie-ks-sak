@@ -3,6 +3,7 @@ package no.nav.familie.ks.sak.common
 import no.nav.familie.http.client.RessursException
 import no.nav.familie.kontrakter.felles.Ressurs
 import no.nav.familie.kontrakter.felles.getDataOrThrow
+import no.nav.familie.ks.sak.common.exception.IntegrasjonException
 import org.slf4j.LoggerFactory
 import org.springframework.web.client.HttpClientErrorException
 import java.net.URI

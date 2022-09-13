@@ -1,4 +1,4 @@
-package no.nav.familie.ks.sak.common
+package no.nav.familie.ks.sak.common.exception
 
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonPropertyOrder

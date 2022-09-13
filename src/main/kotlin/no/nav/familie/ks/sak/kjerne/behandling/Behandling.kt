@@ -1,7 +1,7 @@
 package no.nav.familie.ks.sak.kjerne.behandling
 
-import no.nav.familie.ks.sak.common.Feil
 import no.nav.familie.ks.sak.common.entitet.BaseEntitet
+import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingType.FØRSTEGANGSBEHANDLING
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingType.REVURDERING
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingType.TEKNISK_ENDRING
