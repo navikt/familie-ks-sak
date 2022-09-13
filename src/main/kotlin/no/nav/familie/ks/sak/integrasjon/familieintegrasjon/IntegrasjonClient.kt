@@ -360,6 +360,12 @@ class IntegrasjonClient(
         }
     }
 
+    fun HttpHeaders.medContentTypeJsonUTF8(): HttpHeaders =
+        this.apply {
+            add("Content-Type", "application/json;charset=UTF-8")
+            acceptCharset = listOf(Charsets.UTF_8)
+        }
+
     companion object {
 
         private val logger = LoggerFactory.getLogger(IntegrasjonClient::class.java)
