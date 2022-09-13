@@ -110,6 +110,8 @@ tasks.withType<Test> {
 }
 
 tasks {
+
+
     bootJar {
         archiveFileName.set("familie-ks-sak.jar")
     }
