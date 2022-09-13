@@ -47,7 +47,7 @@ const val DEFAULT_JOURNALFØRENDE_ENHET = "9999"
 @Component
 class IntegrasjonClient(
     @Value("\${FAMILIE_INTEGRASJONER_API_URL}") private val integrasjonUri: URI,
-    @Qualifier("azureClientCredential") restOperations: RestOperations
+    @Qualifier("azure") restOperations: RestOperations
 ) : AbstractRestClient(restOperations, "integrasjon") {
 
     val tilgangPersonUri = UriComponentsBuilder.fromUri(integrasjonUri).pathSegment(PATH_TILGANG_PERSON).build().toUri()
