@@ -1,4 +1,4 @@
-package no.nav.familie.ba.sak.kjerne.grunnlag.personopplysninger.bostedsadresse
+package no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.bostedsadresse
 
 import com.fasterxml.jackson.annotation.JsonIgnore
 import no.nav.familie.ks.sak.common.entitet.BaseEntitet

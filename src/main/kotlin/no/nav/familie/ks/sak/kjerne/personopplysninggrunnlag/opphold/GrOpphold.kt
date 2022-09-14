@@ -1,4 +1,4 @@
-package no.nav.familie.ba.sak.kjerne.grunnlag.personopplysninger.opphold
+package no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.opphold
 
 import com.fasterxml.jackson.annotation.JsonIgnore
 import no.nav.familie.kontrakter.felles.personopplysning.OPPHOLDSTILLATELSE

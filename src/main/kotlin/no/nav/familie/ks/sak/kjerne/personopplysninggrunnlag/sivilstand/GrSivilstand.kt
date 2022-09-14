@@ -1,4 +1,4 @@
-package no.nav.familie.ba.sak.kjerne.grunnlag.personopplysninger.sivilstand
+package no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.sivilstand
 
 import com.fasterxml.jackson.annotation.JsonIgnore
 import no.nav.familie.kontrakter.felles.personopplysning.SIVILSTAND

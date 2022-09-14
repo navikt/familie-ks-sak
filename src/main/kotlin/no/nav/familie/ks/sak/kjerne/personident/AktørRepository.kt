@@ -1,10 +1,9 @@
-package no.nav.familie.ba.sak.kjerne.personident
+package no.nav.familie.ks.sak.kjerne.personident
 
-import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
 
-interface AktørIdRepository : JpaRepository<Aktør, String> {
+interface AktørRepository : JpaRepository<Aktør, String> {
     @Query("SELECT a FROM Aktør a WHERE a.aktørId = :aktørId")
     fun findByAktørIdOrNull(aktørId: String): Aktør?
 }

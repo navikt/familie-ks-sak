@@ -1,4 +1,4 @@
-package no.nav.familie.ba.sak.kjerne.grunnlag.personopplysninger.arbeidsforhold
+package no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.arbeidsforhold
 
 import com.fasterxml.jackson.annotation.JsonIgnore
 import no.nav.familie.ks.sak.common.entitet.BaseEntitet
