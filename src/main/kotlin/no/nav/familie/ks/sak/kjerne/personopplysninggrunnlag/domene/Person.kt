@@ -96,10 +96,7 @@ data class Person(
 ) : BaseEntitet() {
 
     override fun toString(): String {
-        return """Person(aktørId=$aktør,
-                        |type=$type
-                        |fødselsdato=$fødselsdato)
-        """.trimMargin()
+        return "Person(aktørId=$aktør,type=$type,fødselsdato=$fødselsdato)".trimMargin()
     }
 
     override fun equals(other: Any?): Boolean {

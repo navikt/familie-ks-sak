@@ -22,7 +22,7 @@ import javax.persistence.Table
 @DiscriminatorColumn(name = "type")
 @Table(name = "PO_BOSTEDSADRESSE")
 abstract class GrBostedsadresse(
-    // Alle attributter må være open ellers kastes feil ved oppsrart.
+    // Alle attributter må være open ellers kastes feil ved oppstart.
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "po_bostedsadresse_seq_generator")
     @SequenceGenerator(

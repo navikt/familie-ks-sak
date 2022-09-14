@@ -5,5 +5,5 @@ import org.springframework.data.jpa.repository.Query
 
 interface AktørRepository : JpaRepository<Aktør, String> {
     @Query("SELECT a FROM Aktør a WHERE a.aktørId = :aktørId")
-    fun findByAktørIdOrNull(aktørId: String): Aktør?
+    fun findByAktørId(aktørId: String): Aktør?
 }

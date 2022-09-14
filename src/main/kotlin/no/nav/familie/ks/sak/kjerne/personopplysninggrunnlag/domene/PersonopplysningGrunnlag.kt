@@ -40,11 +40,6 @@ data class PersonopplysningGrunnlag(
 ) : BaseEntitet() {
 
     override fun toString(): String {
-        val sb = StringBuilder("PersonopplysningGrunnlagEntitet{")
-        sb.append("id=").append(id)
-        sb.append(", personer=").append(personer.toString())
-        sb.append(", aktiv=").append(aktiv)
-        sb.append('}')
-        return sb.toString()
+        return "PersonopplysningGrunnlagEntitet{id=$id,personer=$personer,aktiv=$aktiv}"
     }
 }
