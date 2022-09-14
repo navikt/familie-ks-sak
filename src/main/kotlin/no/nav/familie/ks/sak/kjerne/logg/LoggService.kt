@@ -55,21 +55,6 @@ class LoggService(
         )
     }
 
-    fun opprettMottattDokument(behandling: Behandling, tekst: String, mottattDato: LocalDateTime) {
-        lagre(
-            Logg(
-                behandlingId = behandling.id,
-                type = LoggType.DOKUMENT_MOTTATT,
-                tittel = "Dokument mottatt ${mottattDato.toLocalDate().tilKortString()}",
-                rolle = SikkerhetContext.hentRolletilgangFraSikkerhetscontext(
-                    rolleConfig,
-                    BehandlerRolle.SAKSBEHANDLER
-                ),
-                tekst = tekst
-            )
-        )
-    }
-
     fun opprettRegistrertSøknadLogg(behandling: Behandling, søknadFinnesFraFør: Boolean) {
         val tittel = if (!søknadFinnesFraFør) "Søknaden ble registrert" else "Søknaden ble endret"
         lagre(
@@ -139,20 +124,6 @@ class LoggService(
         )
     }
 
-    fun opprettAutovedtakTilManuellBehandling(behandling: Behandling, tekst: String) {
-        lagre(
-            Logg(
-                behandlingId = behandling.id,
-                type = LoggType.AUTOVEDTAK_TIL_MANUELL_BEHANDLING,
-                rolle = SikkerhetContext.hentRolletilgangFraSikkerhetscontext(
-                    rolleConfig,
-                    BehandlerRolle.SAKSBEHANDLER
-                ),
-                tekst = tekst
-            )
-        )
-    }
-
     fun opprettBehandlingLogg(behandling: Behandling) {
         lagre(
             Logg(
@@ -164,39 +135,6 @@ class LoggService(
                     BehandlerRolle.SAKSBEHANDLER
                 ),
                 tekst = ""
-            )
-        )
-    }
-
-    fun opprettDistribuertBrevLogg(behandlingId: Long, tekst: String, rolle: BehandlerRolle) {
-        lagre(
-            Logg(
-                behandlingId = behandlingId,
-                type = LoggType.DISTRIBUERE_BREV,
-                rolle = SikkerhetContext.hentRolletilgangFraSikkerhetscontext(rolleConfig, rolle),
-                tekst = tekst
-            )
-        )
-    }
-
-    fun opprettBrevIkkeDistribuertUkjentAdresseLogg(behandlingId: Long, brevnavn: String) {
-        lagre(
-            Logg(
-                behandlingId = behandlingId,
-                type = LoggType.BREV_IKKE_DISTRIBUERT,
-                rolle = SikkerhetContext.hentRolletilgangFraSikkerhetscontext(rolleConfig, BehandlerRolle.SYSTEM),
-                tekst = brevnavn
-            )
-        )
-    }
-
-    fun opprettBrevIkkeDistribuertUkjentDødsboadresseLogg(behandlingId: Long, brevnavn: String) {
-        lagre(
-            Logg(
-                behandlingId = behandlingId,
-                type = LoggType.BREV_IKKE_DISTRIBUERT_UKJENT_DØDSBO,
-                rolle = SikkerhetContext.hentRolletilgangFraSikkerhetscontext(rolleConfig, BehandlerRolle.SYSTEM),
-                tekst = brevnavn
             )
         )
     }
@@ -292,9 +230,4 @@ class LoggService(
             return kategori.visningsnavn
         }
     }
-}
-
-enum class RegistrerVergeLoggType {
-    VERGE_REGISTRERT,
-    INSTITUSJON_REGISTRERT
 }
