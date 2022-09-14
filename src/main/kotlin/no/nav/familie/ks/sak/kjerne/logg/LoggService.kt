@@ -10,6 +10,8 @@ import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.domene.ArbeidsfordelingPåB
 import no.nav.familie.ks.sak.kjerne.behandling.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingKategori
 import no.nav.familie.ks.sak.kjerne.behandling.Behandlingsresultat
+import no.nav.familie.ks.sak.kjerne.logg.domene.Logg
+import no.nav.familie.ks.sak.kjerne.logg.domene.LoggRepository
 import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext
 import org.springframework.stereotype.Service
 import java.time.LocalDate
