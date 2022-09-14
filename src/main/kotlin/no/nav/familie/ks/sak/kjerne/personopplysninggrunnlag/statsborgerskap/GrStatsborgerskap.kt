@@ -59,8 +59,6 @@ data class GrStatsborgerskap(
     }
 
     override fun hashCode(): Int {
-        var result = gyldigPeriode.hashCode()
-        result = 31 * result + landkode.hashCode()
-        return result
+        return 31 * gyldigPeriode.hashCode() + landkode.hashCode()
     }
 }
