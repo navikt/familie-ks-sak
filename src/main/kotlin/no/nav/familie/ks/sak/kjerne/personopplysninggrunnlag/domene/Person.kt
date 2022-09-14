@@ -38,7 +38,6 @@ data class Person(
     @SequenceGenerator(name = "po_person_seq_generator", sequenceName = "po_person_seq", allocationSize = 50)
     val id: Long = 0,
 
-    // SØKER, BARN
     @Enumerated(EnumType.STRING)
     @Column(name = "type")
     val type: PersonType,

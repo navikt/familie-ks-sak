@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore
 import no.nav.familie.ks.sak.common.entitet.BaseEntitet
 import no.nav.familie.ks.sak.common.entitet.DatoIntervallEntitet
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
-import java.time.LocalDate
 import javax.persistence.Column
 import javax.persistence.Embedded
 import javax.persistence.Entity
@@ -42,7 +41,3 @@ data class GrArbeidsforhold(
     @JoinColumn(name = "fk_po_person_id", nullable = false, updatable = false)
     val person: Person
 ) : BaseEntitet()
-
-fun List<GrArbeidsforhold>.harLøpendeArbeidsforhold(): Boolean = this.any {
-    it.periode?.tom == null || it.periode.tom >= LocalDate.now()
-}
