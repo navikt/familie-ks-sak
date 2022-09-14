@@ -1,5 +1,6 @@
 package no.nav.familie.ks.sak.config
 
+import no.nav.familie.kontrakter.felles.Tema
 import org.apache.commons.lang3.StringUtils
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Configuration
@@ -19,6 +20,9 @@ class PdlConfig(@Value("\${PDL_URL}") pdlUrl: URI) {
 
         val hentIdenterQuery = graphqlQuery("/pdl/hentIdenter.graphql")
         val hentAdressebeskyttelseQuery = graphqlQuery("/pdl/hent-adressebeskyttelse.graphql")
+        val hentEnkelPersonQuery = graphqlQuery("/pdl/hentperson-enkel.graphql")
+        val hentPersonMedRelasjonOgRegisterInformasjonQuery = graphqlQuery("/pdl/hentperson-med-relasjoner-og-registerinformasjon.graphql")
+        val hentPersonMedNavnOgAdresseQuery = graphqlQuery("/pdl/hentperson-navn-og-adresse.graphql")
 
         private fun graphqlQuery(path: String) = PdlConfig::class.java.getResource(path)!!
             .readText().graphqlCompatible()
@@ -31,8 +35,14 @@ class PdlConfig(@Value("\${PDL_URL}") pdlUrl: URI) {
             return HttpHeaders().apply {
                 contentType = MediaType.APPLICATION_JSON
                 accept = listOf(MediaType.APPLICATION_JSON)
-                add("Tema", "KON")
+                add("Tema", Tema.KON.name)
             }
         }
     }
+}
+
+enum class PersonInfoQuery(val query: String) {
+    ENKEL(PdlConfig.hentEnkelPersonQuery),
+    MED_RELASJONER_OG_REGISTERINFORMASJON(PdlConfig.hentPersonMedRelasjonOgRegisterInformasjonQuery),
+    NAVN_OG_ADRESSE(PdlConfig.hentPersonMedNavnOgAdresseQuery)
 }
