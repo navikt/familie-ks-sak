@@ -81,5 +81,5 @@ enum class LoggType(val visningsnavn: String, val tittel: String = visningsnavn)
     HENLEGG_BEHANDLING("Henlegg behandling", "Behandlingen er henlagt"),
     BEHANDLIG_SATT_PÅ_VENT("Behandlingen er satt på vent"),
     BEHANDLIG_GJENOPPTATT("Behandling gjenopptatt"),
-    VENTENDE_BEHANDLING_ENDRET("Behandlingen er oppdatert"),
+    VENTENDE_BEHANDLING_ENDRET("Behandlingen er oppdatert")
 }
