@@ -53,8 +53,6 @@ data class GrOpphold(
     }
 
     override fun hashCode(): Int {
-        var result = gyldigPeriode.hashCode()
-        result = 31 * result + type.hashCode()
-        return result
+        return 31 * gyldigPeriode.hashCode() + landkode.hashCode()
     }
 }
