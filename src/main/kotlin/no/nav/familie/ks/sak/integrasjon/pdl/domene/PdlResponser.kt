@@ -16,7 +16,7 @@ data class PdlBaseRespons<T>(
 ) {
 
     fun harFeil(): Boolean {
-        return errors != null && errors.isNotEmpty()
+        return !errors.isNullOrEmpty()
     }
 
     fun errorMessages(): String {
