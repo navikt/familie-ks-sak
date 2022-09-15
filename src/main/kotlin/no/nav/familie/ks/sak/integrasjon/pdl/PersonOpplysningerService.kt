@@ -34,15 +34,18 @@ class PersonOpplysningerService(
             }.toSet()
 
         val identerMedAdressebeskyttelse = mutableSetOf<Pair<Aktør, FORELDERBARNRELASJONROLLE>>()
-        val forelderBarnRelasjonerMedAdressebeskyttelse = forelderBarnRelasjoner.mapNotNull {
-            val harTilgang = integrasjonClient.sjekkTilgangTilPersoner(listOf(it.aktør.aktivFødselsnummer())).harTilgang
+        val forelderBarnRelasjonerMedAdressebeskyttelseGradering = forelderBarnRelasjoner.mapNotNull { forelderBarnRelasjon ->
+            val harTilgang = integrasjonClient.sjekkTilgangTilPersoner(
+                listOf(forelderBarnRelasjon.aktør.aktivFødselsnummer())
+            ).harTilgang
             if (harTilgang) {
                 try {
-                    // henter alle aktive forelder barn relasjoner med adressebeskyttelse
-                    val relasjonData = hentPersoninfoEnkel(it.aktør)
+                    // henter alle aktive forelder barn relasjoner med adressebeskyttelse gradering
+                    // disse relasjoner har tilgang til aktør-en og er ikke en KODE6/KODE7 brukere
+                    val relasjonData = hentPersoninfoEnkel(forelderBarnRelasjon.aktør)
                     ForelderBarnRelasjonInfo(
-                        aktør = it.aktør,
-                        relasjonsrolle = it.relasjonsrolle,
+                        aktør = forelderBarnRelasjon.aktør,
+                        relasjonsrolle = forelderBarnRelasjon.relasjonsrolle,
                         fødselsdato = relasjonData.fødselsdato,
                         navn = relasjonData.navn,
                         adressebeskyttelseGradering = relasjonData.adressebeskyttelseGradering
@@ -50,13 +53,13 @@ class PersonOpplysningerService(
                 } catch (pdlPersonKanIkkeBehandlesIFagsystem: PdlPersonKanIkkeBehandlesIFagsystem) {
                     logger.warn("Ignorerer relasjon: ${pdlPersonKanIkkeBehandlesIFagsystem.årsak}")
                     secureLogger.warn(
-                        "Ignorerer relasjon ${it.aktør.aktivFødselsnummer()} " +
+                        "Ignorerer relasjon ${forelderBarnRelasjon.aktør.aktivFødselsnummer()} " +
                             "til ${aktør.aktivFødselsnummer()}: ${pdlPersonKanIkkeBehandlesIFagsystem.årsak}"
                     )
                     null
                 }
-            } else {
-                identerMedAdressebeskyttelse.add(Pair(it.aktør, it.relasjonsrolle))
+            } else { // disse relasjoner har ikke tilgang til aktør-en og er en KODE6/KODE7 brukere
+                identerMedAdressebeskyttelse.add(Pair(forelderBarnRelasjon.aktør, forelderBarnRelasjon.relasjonsrolle))
                 null
             }
         }.toSet()
@@ -68,7 +71,7 @@ class PersonOpplysningerService(
             )
         }.toSet()
 
-        return tilPersonInfo(pdlPersonData, forelderBarnRelasjonerMedAdressebeskyttelse, forelderBarnRelasjonMaskert)
+        return tilPersonInfo(pdlPersonData, forelderBarnRelasjonerMedAdressebeskyttelseGradering, forelderBarnRelasjonMaskert)
     }
 
     fun hentAdressebeskyttelseSomSystembruker(aktør: Aktør): ADRESSEBESKYTTELSEGRADERING =
