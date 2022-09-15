@@ -26,3 +26,6 @@ spec:
       - id: "54cd86b8-2e23-48b2-8852-b05b5827bb0f"  # VEILEDER_ROLLE
       - id: "e40090eb-c2fb-400e-b412-e9084019a73b"  # SAKSBEHANDLER_ROLLE
       - id: "9449c153-5a1e-44a7-84c6-7cc7a8867233"  # BESLUTTER_ROLLE
+  replyUrls:
+    - url: "http://localhost:8089/swagger-ui/oauth2-redirect.html"
+  singlePageApplication: true
