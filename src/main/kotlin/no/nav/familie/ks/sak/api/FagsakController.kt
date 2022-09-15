@@ -27,7 +27,7 @@ class FagsakController(private val fagsakService: FagsakService) {
     fun søkFagsak(@RequestBody søkParam: SøkParamDto): ResponseEntity<Ressurs<List<FagsakDeltagerResponsDto>>> {
         logger.info("${SikkerhetContext.hentSaksbehandlerNavn()} søker fagsak")
 
-        val fagsakDeltagere = fagsakService.hentFagsakDeltager(søkParam.personIdent)
+        val fagsakDeltagere = fagsakService.hentFagsakDeltagere(søkParam.personIdent)
         return ResponseEntity.ok().body(Ressurs.success(fagsakDeltagere))
     }
 }

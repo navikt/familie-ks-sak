@@ -24,7 +24,7 @@ class FagsakService(
     private val behandlingRepository: BehandlingRepository
 ) {
 
-    fun hentFagsakDeltager(personIdent: String): List<FagsakDeltagerResponsDto> {
+    fun hentFagsakDeltagere(personIdent: String): List<FagsakDeltagerResponsDto> {
         val aktør = personidentService.hentAktør(personIdent)
 
         // hent maskert fagsak deltaker hvis aktør ikke har tilgang
@@ -37,11 +37,11 @@ class FagsakService(
 
         // fagsaker som ikke finnes i assosierteForeldreDeltagere, er barn
         val fagsakerForBarn = fagsakRepository.finnFagsakerForAktør(aktør).filter { fagsak ->
-            assosierteFagsakDeltagere.find { it.ident == aktør.aktivFødselsnummer() && it.fagsakId == fagsak.id } == null
+            assosierteFagsakDeltagere.none { it.ident == aktør.aktivFødselsnummer() && it.fagsakId == fagsak.id }
         }
         fagsakerForBarn.forEach { fagsak ->
             assosierteFagsakDeltagere.add(
-                tilFagsakDeltagerResponsDto(
+                lagFagsakDeltagerResponsDto(
                     personInfo = personInfoMedRelasjoner,
                     ident = aktør.aktivFødselsnummer(),
                     // Vi setter rollen til Ukjent når det ikke er barn
@@ -53,7 +53,7 @@ class FagsakService(
 
         // Hvis søkparam(aktør) er barn og søker til barn ikke har behandling ennå, hentes det søker til barnet
         if (erBarn) {
-            hentForeldreDeltagerSomIkkeHarBehandling(personInfoMedRelasjoner, assosierteFagsakDeltagere)
+            leggTilForeldreDeltagerSomIkkeHarBehandling(personInfoMedRelasjoner, assosierteFagsakDeltagere)
         }
         return assosierteFagsakDeltagere
     }
@@ -69,16 +69,16 @@ class FagsakService(
             if (assosierteFagsakDeltagerMap.containsKey(fagsak.id)) return@forEach
             val fagsakDeltagerRespons: FagsakDeltagerResponsDto = when {
                 // når søkparam er samme som aktør til behandlingen
-                fagsak.aktør == aktør -> tilFagsakDeltagerResponsDto(
+                fagsak.aktør == aktør -> lagFagsakDeltagerResponsDto(
                     personInfo = personInfoMedRelasjoner,
                     ident = fagsak.aktør.aktivFødselsnummer(),
                     rolle = FagsakDeltagerRolle.FORELDER,
                     fagsak = behandling.fagsak
                 )
                 else -> { // søkparam(aktør) er ikke søkers aktør, da hentes her forelder til søkparam(aktør)
-                    val maskertForelder: FagsakDeltagerResponsDto? = hentMaskertFagsakdeltakerVedManglendeTilgang(fagsak.aktør)
+                    val maskertForelder = hentMaskertFagsakdeltakerVedManglendeTilgang(fagsak.aktør)
                     maskertForelder?.copy(rolle = FagsakDeltagerRolle.FORELDER)
-                        ?: tilFagsakDeltagerResponsDto(
+                        ?: lagFagsakDeltagerResponsDto(
                             personopplysningerService.hentPersoninfoEnkel(fagsak.aktør),
                             fagsak.aktør.aktivFødselsnummer(),
                             FagsakDeltagerRolle.FORELDER,
@@ -91,12 +91,12 @@ class FagsakService(
         return assosierteFagsakDeltagerMap.values.toList()
     }
 
-    private fun hentForeldreDeltagerSomIkkeHarBehandling(
+    private fun leggTilForeldreDeltagerSomIkkeHarBehandling(
         personInfoMedRelasjoner: PdlPersonInfo,
         assosierteFagsakDeltagere: MutableList<FagsakDeltagerResponsDto>
     ) {
         personInfoMedRelasjoner.forelderBarnRelasjoner.filter { it.harForelderRelasjon() }.forEach { relasjon ->
-            if (assosierteFagsakDeltagere.find { it.ident == relasjon.aktør.aktivFødselsnummer() } == null) {
+            if (assosierteFagsakDeltagere.none { it.ident == relasjon.aktør.aktivFødselsnummer() }) {
                 val maskertForelder = hentMaskertFagsakdeltakerVedManglendeTilgang(relasjon.aktør)
                 when {
                     maskertForelder != null -> assosierteFagsakDeltagere.add(maskertForelder.copy(rolle = FagsakDeltagerRolle.FORELDER))
@@ -105,7 +105,7 @@ class FagsakService(
                         val fagsaker = fagsakRepository.finnFagsakerForAktør(relasjon.aktør)
                         fagsaker.forEach { fagsak ->
                             assosierteFagsakDeltagere.add(
-                                tilFagsakDeltagerResponsDto(
+                                lagFagsakDeltagerResponsDto(
                                     personInfo = forelderInfo,
                                     ident = relasjon.aktør.aktivFødselsnummer(),
                                     rolle = FagsakDeltagerRolle.FORELDER,
@@ -121,10 +121,12 @@ class FagsakService(
 
     private fun hentMaskertFagsakdeltakerVedManglendeTilgang(aktør: Aktør): FagsakDeltagerResponsDto? {
         val harTilgang = integrasjonClient.sjekkTilgangTilPersoner(listOf(aktør.aktivFødselsnummer())).harTilgang
+
         return when {
             !harTilgang -> {
                 val adressebeskyttelse = personopplysningerService.hentAdressebeskyttelseSomSystembruker(aktør)
-                tilFagsakDeltagerResponsDto(
+
+                lagFagsakDeltagerResponsDto(
                     rolle = FagsakDeltagerRolle.UKJENT,
                     adressebeskyttelseGradering = adressebeskyttelse,
                     harTilgang = false
@@ -136,7 +138,7 @@ class FagsakService(
         }
     }
 
-    private fun tilFagsakDeltagerResponsDto(
+    private fun lagFagsakDeltagerResponsDto(
         personInfo: PdlPersonInfo? = null,
         ident: String = "",
         rolle: FagsakDeltagerRolle,

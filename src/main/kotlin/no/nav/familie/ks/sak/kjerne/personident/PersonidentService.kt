@@ -19,59 +19,61 @@ class PersonidentService(
         // hent Aktør hvis det allerede er lagret
         val aktør = personidentRepository.findByFødselsnummerOrNull(personIdentEllerAktørId)?.aktør
             ?: aktørRepository.findByAktørId(personIdentEllerAktørId)
-        if (aktør != null) return aktør
+
+        aktør?.let { return it }
 
         val pdlIdenter = hentIdenter(personIdentEllerAktørId, false)
-        val aktivFødselsnummer = filtrerAktivtFødselsnummer(pdlIdenter)
+        val aktivtFødselsnummer = filtrerAktivtFødselsnummer(pdlIdenter)
 
         // Hent aktør fra aktivFødselsnummer når aktivFødselsnummer er annerledes enn søk param og er lagret i system
-        val personident = personidentRepository.findByFødselsnummerOrNull(aktivFødselsnummer)
-        if (personident != null) return personident.aktør
+        val personident = personidentRepository.findByFødselsnummerOrNull(aktivtFødselsnummer)
 
-        val aktørId: String = filtrerAktørId(pdlIdenter)
-        return aktørRepository.findByAktørId(aktørId)?.let { opprettPersonIdent(it, aktivFødselsnummer, skalLagre) }
-            ?: opprettAktørIdOgPersonident(aktørId, aktivFødselsnummer, skalLagre)
+        personident?.let { return it.aktør }
+
+        val aktørId = filtrerAktørId(pdlIdenter)
+        return aktørRepository.findByAktørId(aktørId)?.let { opprettPersonIdent(it, aktivtFødselsnummer, skalLagre) }
+            ?: opprettAktørIdOgPersonident(aktørId, aktivtFødselsnummer, skalLagre)
     }
 
     fun hentAktør(identEllerAktørId: String): Aktør {
         val aktør = hentOgLagreAktør(personIdentEllerAktørId = identEllerAktørId, skalLagre = false)
 
-        if (aktør.personidenter.find { it.aktiv } == null) {
+        if (aktør.personidenter.none { it.aktiv }) {
             secureLogger.warn("Fant ikke aktiv ident for aktør med id ${aktør.aktørId} for ident $identEllerAktørId")
             throw Feil("Fant ikke aktiv ident for aktør")
         }
         return aktør
     }
 
-    private fun opprettPersonIdent(aktør: Aktør, fødselsnummer: String, kanLagre: Boolean = true): Aktør {
-        secureLogger.info("Oppretter personIdent. aktørIdStr=${aktør.aktørId} fødselsnummer=$fødselsnummer skal lagre=$kanLagre")
-        val eksisterendePersonIdent = aktør.personidenter.find { it.fødselsnummer == fødselsnummer && it.aktiv }
-        if (eksisterendePersonIdent == null) {
+    private fun opprettPersonIdent(aktør: Aktør, fødselsnummer: String, skalLagre: Boolean = true): Aktør {
+        secureLogger.info("Oppretter personIdent. aktørIdStr=${aktør.aktørId} fødselsnummer=$fødselsnummer skal lagre=$skalLagre")
+
+        if (aktør.personidenter.none { it.fødselsnummer == fødselsnummer && it.aktiv }) {
             aktør.personidenter.filter { it.aktiv }.map {
                 it.aktiv = false
                 it.gjelderTil = LocalDateTime.now()
             }
             // Må lagre her fordi unik index er en blanding av aktørid og gjelderTil,
             // og hvis man ikke lagerer før man legger til ny, så feiler det pga indexen.
-            if (kanLagre) aktørRepository.saveAndFlush(aktør)
+            if (skalLagre) aktørRepository.saveAndFlush(aktør)
 
             aktør.personidenter.add(Personident(fødselsnummer = fødselsnummer, aktør = aktør))
-            if (kanLagre) aktørRepository.saveAndFlush(aktør)
+            if (skalLagre) aktørRepository.saveAndFlush(aktør)
         }
         return aktør
     }
 
     private fun opprettAktørIdOgPersonident(aktørIdStr: String, fødselsnummer: String, kanLagre: Boolean): Aktør {
         secureLogger.info("Oppretter aktør og personIdent. aktørIdStr=$aktørIdStr fødselsnummer=$fødselsnummer skal lagre=$kanLagre")
-        val aktør = Aktør(aktørId = aktørIdStr).also {
-            it.personidenter.add(Personident(fødselsnummer = fødselsnummer, aktør = it))
+
+        val aktør = Aktør(aktørId = aktørIdStr).apply {
+            personidenter.add(Personident(fødselsnummer = fødselsnummer, aktør = this))
         }
+
         return if (kanLagre) aktørRepository.saveAndFlush(aktør) else aktør
     }
 
-    fun hentIdenter(personIdent: String, historikk: Boolean): List<PdlIdent> {
-        return pdlClient.hentIdenter(personIdent, historikk)
-    }
+    fun hentIdenter(personIdent: String, historikk: Boolean): List<PdlIdent> = pdlClient.hentIdenter(personIdent, historikk)
 
     private fun filtrerAktivtFødselsnummer(pdlIdenter: List<PdlIdent>) =
         pdlIdenter.singleOrNull { it.gruppe == "FOLKEREGISTERIDENT" }?.ident

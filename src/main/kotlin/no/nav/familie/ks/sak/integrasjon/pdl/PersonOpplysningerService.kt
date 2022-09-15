@@ -77,7 +77,6 @@ class PersonOpplysningerService(
     fun hentPersoninfoEnkel(aktør: Aktør): PdlPersonInfo =
         tilPersonInfo(hentPersoninfoMedQuery(aktør, PersonInfoQuery.ENKEL))
 
-    private fun hentPersoninfoMedQuery(aktør: Aktør, personInfoQuery: PersonInfoQuery): PdlPersonData {
-        return pdlClient.hentPerson(aktør, personInfoQuery)
-    }
+    private fun hentPersoninfoMedQuery(aktør: Aktør, personInfoQuery: PersonInfoQuery): PdlPersonData =
+        pdlClient.hentPerson(aktør, personInfoQuery)
 }
