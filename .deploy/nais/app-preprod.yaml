@@ -74,6 +74,9 @@ spec:
         - application: bidrag-grunnlag
           namespace: bidrag
           cluster: dev-gcp
+        - application: ida
+          namespace: traktor
+          cluster: prod-fss
     outbound:
       rules:
         - application: familie-brev

@@ -18,6 +18,9 @@ spec:
     - application: familie-ks-sak-frontend-lokal
       cluster: dev-gcp
       namespace: teamfamilie
+    - application: ida
+      cluster: prod-fss
+      namespace: traktor
   tenant: trygdeetaten.no
   secretName: azuread-familie-ks-sak-lokal
   claims:
