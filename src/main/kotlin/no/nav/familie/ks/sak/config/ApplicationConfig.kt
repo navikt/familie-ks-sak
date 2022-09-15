@@ -29,7 +29,7 @@ import java.time.temporal.ChronoUnit
 @ComponentScan("no.nav.familie.prosessering", ApplicationConfig.PAKKENAVN)
 @EnableRetry
 @ConfigurationPropertiesScan
-@EnableJwtTokenValidation(ignore = ["org.springdoc"])
+@EnableJwtTokenValidation(ignore = ["org.springdoc", "org.springframework"])
 @Import(RestTemplateAzure::class)
 @EnableOAuth2Client(cacheEnabled = true)
 class ApplicationConfig {
