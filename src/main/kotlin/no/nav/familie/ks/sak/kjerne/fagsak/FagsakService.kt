@@ -3,13 +3,14 @@ package no.nav.familie.ks.sak.kjerne.fagsak
 import no.nav.familie.kontrakter.felles.personopplysning.ADRESSEBESKYTTELSEGRADERING
 import no.nav.familie.ks.sak.api.dto.FagsakDeltagerResponsDto
 import no.nav.familie.ks.sak.api.dto.FagsakDeltagerRolle
+import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
 import no.nav.familie.ks.sak.integrasjon.pdl.PersonOpplysningerService
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.PdlPersonInfo
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingRepository
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
-import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonRepository
+import no.nav.familie.ks.sak.kjerne.personopplysning.domene.PersonRepository
 import org.springframework.stereotype.Service
 import java.time.LocalDate
 import java.time.Period
@@ -59,6 +60,13 @@ class FagsakService(
         }
         return assosierteFagsakDeltagere
     }
+
+    fun hentPåFagsakId(fagsakId: Long): Fagsak = fagsakRepository.finnFagsak(fagsakId) ?: throw FunksjonellFeil(
+        melding = "Finner ikke fagsak med id $fagsakId",
+        frontendFeilmelding = "Finner ikke fagsak med id $fagsakId"
+    )
+
+    fun hentAktør(fagsakId: Long): Aktør = hentPåFagsakId(fagsakId).aktør
 
     private fun hentForelderdeltagereFraBehandling(
         aktør: Aktør,

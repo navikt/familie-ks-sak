@@ -1,4 +1,4 @@
-package no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene
+package no.nav.familie.ks.sak.kjerne.personopplysning.domene
 
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query

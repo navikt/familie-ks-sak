@@ -1,9 +1,9 @@
-package no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.sivilstand
+package no.nav.familie.ks.sak.kjerne.personopplysning.sivilstand
 
 import com.fasterxml.jackson.annotation.JsonIgnore
 import no.nav.familie.kontrakter.felles.personopplysning.SIVILSTAND
 import no.nav.familie.ks.sak.common.entitet.BaseEntitet
-import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
+import no.nav.familie.ks.sak.kjerne.personopplysning.domene.Person
 import java.time.LocalDate
 import java.util.Objects
 import javax.persistence.Column
