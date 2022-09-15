@@ -20,7 +20,7 @@ inline fun <reified Data> kallEksternTjeneste(
 
     return try {
         eksterntKall().also {
-            logger.info("${lagEksternKallPreMelding(tjeneste, uri)} Kall ok")
+            logger.info("${lagEksternKallPreMelding(tjeneste, uri)} data: $it, Kall ok")
         }
     } catch (exception: Exception) {
         throw handleException(exception = exception, tjeneste = tjeneste, uri = uri, formål = formål)
@@ -37,7 +37,7 @@ inline fun <reified Data> kallEksternTjenesteRessurs(
 
     return try {
         eksterntKall().getDataOrThrow().also {
-            logger.info("${lagEksternKallPreMelding(tjeneste, uri)} Kall ok")
+            logger.info("${lagEksternKallPreMelding(tjeneste, uri)} data: $it Kall ok")
         }
     } catch (exception: Exception) {
         throw handleException(exception = exception, tjeneste = tjeneste, uri = uri, formål = formål)
@@ -54,7 +54,7 @@ inline fun <reified Data> kallEksternTjenesteUtenRespons(
 
     try {
         eksterntKall().also {
-            logger.info("${lagEksternKallPreMelding(tjeneste, uri)} Kall ok")
+            logger.info("${lagEksternKallPreMelding(tjeneste, uri)} data: $it, Kall ok")
         }
     } catch (exception: Exception) {
         throw handleException(exception = exception, tjeneste = tjeneste, uri = uri, formål = formål)

@@ -4,6 +4,7 @@ import no.nav.familie.http.client.AbstractPingableRestClient
 import no.nav.familie.kontrakter.felles.personopplysning.Adressebeskyttelse
 import no.nav.familie.ks.sak.common.exception.PdlNotFoundException
 import no.nav.familie.ks.sak.common.kallEksternTjeneste
+import no.nav.familie.ks.sak.common.logger
 import no.nav.familie.ks.sak.config.PdlConfig
 import no.nav.familie.ks.sak.config.PdlConfig.Companion.hentAdressebeskyttelseQuery
 import no.nav.familie.ks.sak.config.PdlConfig.Companion.hentIdenterQuery
@@ -51,6 +52,9 @@ class PdlClient(
         }
 
         val pdlIdenter = feilsjekkOgReturnerData(ident = personIdent, pdlRespons = pdlRespons) { it.pdlIdenter }
+
+        logger.info("Pdlidenter som ble hentet: ${pdlIdenter.identer.size}")
+
         return if (historikk) pdlIdenter.identer.map { it } else pdlIdenter.identer.filter { !it.historisk }.map { it }
     }
 
