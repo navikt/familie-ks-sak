@@ -1,0 +1,83 @@
+package no.nav.familie.ks.sak.integrasjon.pdl
+
+import no.nav.familie.kontrakter.felles.personopplysning.ADRESSEBESKYTTELSEGRADERING
+import no.nav.familie.kontrakter.felles.personopplysning.FORELDERBARNRELASJONROLLE
+import no.nav.familie.ks.sak.common.exception.PdlPersonKanIkkeBehandlesIFagsystem
+import no.nav.familie.ks.sak.common.logger
+import no.nav.familie.ks.sak.config.PersonInfoQuery
+import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
+import no.nav.familie.ks.sak.integrasjon.pdl.domene.ForelderBarnRelasjonInfo
+import no.nav.familie.ks.sak.integrasjon.pdl.domene.ForelderBarnRelasjonInfoMaskert
+import no.nav.familie.ks.sak.integrasjon.pdl.domene.PdlPersonData
+import no.nav.familie.ks.sak.integrasjon.pdl.domene.PdlPersonInfo
+import no.nav.familie.ks.sak.kjerne.personident.Aktør
+import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
+import org.springframework.stereotype.Service
+
+@Service
+class PersonOpplysningerService(
+    private val pdlClient: PdlClient,
+    private val integrasjonClient: IntegrasjonClient,
+    private val personidentService: PersonidentService
+) {
+
+    fun hentPersonInfoMedRelasjonerOgRegisterinformasjon(aktør: Aktør): PdlPersonInfo {
+        val pdlPersonData = hentPersoninfoMedQuery(aktør, PersonInfoQuery.MED_RELASJONER_OG_REGISTERINFORMASJON)
+        val forelderBarnRelasjoner: Set<ForelderBarnRelasjonInfo> = pdlPersonData.forelderBarnRelasjon
+            .mapNotNull { relasjon ->
+                relasjon.relatertPersonsIdent?.let { ident ->
+                    ForelderBarnRelasjonInfo(
+                        aktør = personidentService.hentAktør(ident),
+                        relasjonsrolle = relasjon.relatertPersonsRolle
+                    )
+                }
+            }.toSet()
+
+        val identerMedAdressebeskyttelse = mutableSetOf<Pair<Aktør, FORELDERBARNRELASJONROLLE>>()
+        val forelderBarnRelasjonerMedAdressebeskyttelse = forelderBarnRelasjoner.mapNotNull {
+            val harTilgang = integrasjonClient.sjekkTilgangTilPersoner(listOf(it.aktør.aktivFødselsnummer())).harTilgang
+            if (harTilgang) {
+                try {
+                    // henter alle aktive forelder barn relasjoner med adressebeskyttelse
+                    val relasjonData = hentPersoninfoEnkel(it.aktør)
+                    ForelderBarnRelasjonInfo(
+                        aktør = it.aktør,
+                        relasjonsrolle = it.relasjonsrolle,
+                        fødselsdato = relasjonData.fødselsdato,
+                        navn = relasjonData.navn,
+                        adressebeskyttelseGradering = relasjonData.adressebeskyttelseGradering
+                    )
+                } catch (pdlPersonKanIkkeBehandlesIFagsystem: PdlPersonKanIkkeBehandlesIFagsystem) {
+                    logger.warn("Ignorerer relasjon: ${pdlPersonKanIkkeBehandlesIFagsystem.årsak}")
+                    secureLogger.warn(
+                        "Ignorerer relasjon ${it.aktør.aktivFødselsnummer()} " +
+                            "til ${aktør.aktivFødselsnummer()}: ${pdlPersonKanIkkeBehandlesIFagsystem.årsak}"
+                    )
+                    null
+                }
+            } else {
+                identerMedAdressebeskyttelse.add(Pair(it.aktør, it.relasjonsrolle))
+                null
+            }
+        }.toSet()
+
+        val forelderBarnRelasjonMaskert = identerMedAdressebeskyttelse.map {
+            ForelderBarnRelasjonInfoMaskert(
+                relasjonsrolle = it.second,
+                adressebeskyttelseGradering = hentAdressebeskyttelseSomSystembruker(it.first)
+            )
+        }.toSet()
+
+        return tilPersonInfo(pdlPersonData, forelderBarnRelasjonerMedAdressebeskyttelse, forelderBarnRelasjonMaskert)
+    }
+
+    fun hentAdressebeskyttelseSomSystembruker(aktør: Aktør): ADRESSEBESKYTTELSEGRADERING =
+        pdlClient.hentAdressebeskyttelse(aktør).tilAdressebeskyttelse()
+
+    fun hentPersoninfoEnkel(aktør: Aktør): PdlPersonInfo =
+        tilPersonInfo(hentPersoninfoMedQuery(aktør, PersonInfoQuery.ENKEL))
+
+    private fun hentPersoninfoMedQuery(aktør: Aktør, personInfoQuery: PersonInfoQuery): PdlPersonData {
+        return pdlClient.hentPerson(aktør, personInfoQuery)
+    }
+}

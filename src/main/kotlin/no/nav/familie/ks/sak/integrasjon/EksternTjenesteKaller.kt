@@ -5,9 +5,7 @@ import no.nav.familie.kontrakter.felles.Ressurs
 import no.nav.familie.kontrakter.felles.getDataOrThrow
 import no.nav.familie.ks.sak.common.exception.IntegrasjonException
 import org.slf4j.LoggerFactory
-import org.springframework.http.HttpStatus
 import org.springframework.web.client.HttpClientErrorException
-import org.springframework.web.client.HttpStatusCodeException
 import java.net.URI
 
 val logger = LoggerFactory.getLogger("eksternTjenesteKaller")
@@ -105,17 +103,6 @@ fun handleException(
         }
         is HttpClientErrorException -> exception
         else -> opprettIntegrasjonsException(tjeneste, uri, exception, formål)
-    }
-}
-
-fun sjekkStatuskodeOgHåndterFeil(throwable: Throwable): List<Any> {
-    val clientError = throwable as? HttpStatusCodeException?
-    return if ((clientError != null && clientError.statusCode == HttpStatus.NOT_FOUND) ||
-        throwable.message?.contains("Fant ikke person") == true
-    ) {
-        emptyList()
-    } else {
-        throw throwable
     }
 }
 
