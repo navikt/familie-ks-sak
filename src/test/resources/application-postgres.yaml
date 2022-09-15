@@ -1,8 +1,4 @@
 no.nav.security.jwt:
-  issuer.azuread:
-    discoveryurl: https://login.microsoftonline.com/navq.onmicrosoft.com/v2.0/.well-known/openid-configuration
-    accepted_audience: ${KS_SAK_CLIENT_ID}
-    cookie_name: azure_token
   client:
     registration:
       familie-integrasjoner-onbehalfof:
@@ -163,6 +159,9 @@ spring:
     vault:
       database:
         role: postgres
+
+AZURE_APP_WELL_KNOWN_URL: https://login.microsoftonline.com/navq.onmicrosoft.com/v2.0/.well-known/openid-configuration
+AZURE_OPENID_CONFIG_TOKEN_ENDPOINT: https://login.microsoftonline.com/navq.onmicrosoft.com/oauth2/v2.0/token
 
 FAMILIE_INTEGRASJONER_SCOPE: "dummy"
 SANITY_DATASET: "ks-test"

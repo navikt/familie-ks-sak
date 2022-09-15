@@ -7,6 +7,12 @@ server:
   port: 8089
   shutdown: graceful
 
+no.nav.security.jwt:
+  issuer.azuread:
+    discoveryurl: ${AZURE_APP_WELL_KNOWN_URL}
+    accepted_audience: ${AZURE_APP_CLIENT_ID}
+    cookie_name: azure_token
+
 spring:
   lifecycle:
     timeout-per-shutdown-phase: 20s
