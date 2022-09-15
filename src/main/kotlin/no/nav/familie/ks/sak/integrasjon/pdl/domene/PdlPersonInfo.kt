@@ -50,6 +50,12 @@ data class ForelderBarnRelasjonInfo(
     fun toSecureString(): String {
         return "ForelderBarnRelasjon(personIdent=${aktør.aktivFødselsnummer()}, relasjonsrolle=$relasjonsrolle, navn=XXX, fødselsdato=$fødselsdato)"
     }
+
+    fun harForelderRelasjon() = this.relasjonsrolle in listOf(
+        FORELDERBARNRELASJONROLLE.FAR,
+        FORELDERBARNRELASJONROLLE.MOR,
+        FORELDERBARNRELASJONROLLE.MEDMOR
+    )
 }
 
 data class ForelderBarnRelasjonInfoMaskert(
