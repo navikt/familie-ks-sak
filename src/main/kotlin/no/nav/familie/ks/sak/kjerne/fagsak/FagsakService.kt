@@ -36,8 +36,8 @@ class FagsakService(
         val erBarn = Period.between(personInfoMedRelasjoner.fødselsdato, LocalDate.now()).years < 18
 
         // fagsaker som ikke finnes i assosierteForeldreDeltagere, er barn
-        val fagsakerForBarn = fagsakRepository.finnFagsakerForAktør(aktør).filter { fagsak ->
-            assosierteFagsakDeltagere.none { it.ident == aktør.aktivFødselsnummer() && it.fagsakId == fagsak.id }
+        val fagsakerForBarn = fagsakRepository.finnFagsakerForAktør(aktør).ifEmpty { listOf(null) }.filter { fagsak ->
+            assosierteFagsakDeltagere.none { it.ident == aktør.aktivFødselsnummer() && it.fagsakId == fagsak?.id }
         }
         fagsakerForBarn.forEach { fagsak ->
             assosierteFagsakDeltagere.add(
