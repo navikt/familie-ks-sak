@@ -48,6 +48,9 @@ spec:
           - id: "c7e0b108-7ae6-432c-9ab4-946174c240c0"  # 0000-GA-Kontantstotte
           - id: "71f503a2-c28f-4394-a05a-8da263ceca4a"  # 0000-GA-Kontantstotte-Veileder
           - id: "9449c153-5a1e-44a7-84c6-7cc7a8867233"  # TODO: Oppdater denne når vi får beslutter rolle
+      replyURLs:
+        - "https://familie-ks-sak.dev.intern.nav.no/swagger-ui/oauth2-redirect.html"
+      singlePageApplication: true
   accessPolicy:
     inbound:
       rules:
