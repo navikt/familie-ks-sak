@@ -2,8 +2,6 @@ package no.nav.familie.ks.sak.integrasjon.pdl
 
 import no.nav.familie.kontrakter.felles.personopplysning.ADRESSEBESKYTTELSEGRADERING
 import no.nav.familie.kontrakter.felles.personopplysning.FORELDERBARNRELASJONROLLE
-import no.nav.familie.ks.sak.common.exception.PdlPersonKanIkkeBehandlesIFagsystem
-import no.nav.familie.ks.sak.common.logger
 import no.nav.familie.ks.sak.config.PersonInfoQuery
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.ForelderBarnRelasjonInfo
@@ -37,24 +35,15 @@ class PersonOpplysningerService(
         val forelderBarnRelasjonerMedAdressebeskyttelse = forelderBarnRelasjoner.mapNotNull {
             val harTilgang = integrasjonClient.sjekkTilgangTilPersoner(listOf(it.aktør.aktivFødselsnummer())).harTilgang
             if (harTilgang) {
-                try {
-                    // henter alle aktive forelder barn relasjoner med adressebeskyttelse
-                    val relasjonData = hentPersoninfoEnkel(it.aktør)
-                    ForelderBarnRelasjonInfo(
-                        aktør = it.aktør,
-                        relasjonsrolle = it.relasjonsrolle,
-                        fødselsdato = relasjonData.fødselsdato,
-                        navn = relasjonData.navn,
-                        adressebeskyttelseGradering = relasjonData.adressebeskyttelseGradering
-                    )
-                } catch (pdlPersonKanIkkeBehandlesIFagsystem: PdlPersonKanIkkeBehandlesIFagsystem) {
-                    logger.warn("Ignorerer relasjon: ${pdlPersonKanIkkeBehandlesIFagsystem.årsak}")
-                    secureLogger.warn(
-                        "Ignorerer relasjon ${it.aktør.aktivFødselsnummer()} " +
-                            "til ${aktør.aktivFødselsnummer()}: ${pdlPersonKanIkkeBehandlesIFagsystem.årsak}"
-                    )
-                    null
-                }
+                // henter alle aktive forelder barn relasjoner med adressebeskyttelse
+                val relasjonData = hentPersoninfoEnkel(it.aktør)
+                ForelderBarnRelasjonInfo(
+                    aktør = it.aktør,
+                    relasjonsrolle = it.relasjonsrolle,
+                    fødselsdato = relasjonData.fødselsdato,
+                    navn = relasjonData.navn,
+                    adressebeskyttelseGradering = relasjonData.adressebeskyttelseGradering
+                )
             } else {
                 identerMedAdressebeskyttelse.add(Pair(it.aktør, it.relasjonsrolle))
                 null
