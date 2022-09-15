@@ -36,6 +36,8 @@ class FagsakService(
         val erBarn = Period.between(personInfoMedRelasjoner.fødselsdato, LocalDate.now()).years < 18
 
         // fagsaker som ikke finnes i assosierteForeldreDeltagere, er barn
+        // her bruker vi ifEmpty { listOf(null) } slik at fagsakerForBarn.forEach{} kjører minst en gang
+        // assosierteFagsakDeltagere kan legges til hvis ingen fagsak finnes for søkparam
         val fagsakerForBarn = fagsakRepository.finnFagsakerForAktør(aktør).ifEmpty { listOf(null) }.filter { fagsak ->
             assosierteFagsakDeltagere.none { it.ident == aktør.aktivFødselsnummer() && it.fagsakId == fagsak?.id }
         }
@@ -102,7 +104,9 @@ class FagsakService(
                     maskertForelder != null -> assosierteFagsakDeltagere.add(maskertForelder.copy(rolle = FagsakDeltagerRolle.FORELDER))
                     else -> {
                         val forelderInfo = personopplysningerService.hentPersoninfoEnkel(relasjon.aktør)
-                        val fagsaker = fagsakRepository.finnFagsakerForAktør(relasjon.aktør)
+                        // her bruker vi ifEmpty { listOf(null) } slik at fagsakerForBarn.forEach{} kjører minst en gang
+                        // assosierteFagsakDeltagere kan legges til hvis ingen fagsak finnes for søkparam
+                        val fagsaker = fagsakRepository.finnFagsakerForAktør(relasjon.aktør).ifEmpty { listOf(null) }
                         fagsaker.forEach { fagsak ->
                             assosierteFagsakDeltagere.add(
                                 lagFagsakDeltagerResponsDto(
