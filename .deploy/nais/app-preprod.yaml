@@ -91,6 +91,7 @@ spec:
           cluster: dev-fss
       external:
         - host: xsrv1mh6.api.sanity.io
+        - host: pdl-api-q1.dev-fss-pub.nais.io
   replicas:
     min: 2
     max: 4
