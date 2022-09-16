@@ -172,3 +172,10 @@ FAMILIE_STATISTIKK_URL: https://familie-ba-statistikk.dev-fss-pub.nais.io/api
 CRON_FAGSAKSTATUS_SCHEDULER: "0 0/30 * ? * *"
 
 ENVIRONMENT_NAME: q2
+
+rolle:
+  veileder: "71f503a2-c28f-4394-a05a-8da263ceca4a"
+  beslutter: "52fe1bef-224f-49df-a40a-29f92d4520f8"
+  saksbehandler: "c7e0b108-7ae6-432c-9ab4-946174c240c0"
+  kode6: "5ef775f2-61f8-4283-bf3d-8d03f428aa14" # 0000-GA-Strengt_Fortrolig_Adresse
+  kode7: "ea930b6b-9397-44d9-b9e6-f4cf527a632a" # 0000-GA-Fortrolig_Adresse
