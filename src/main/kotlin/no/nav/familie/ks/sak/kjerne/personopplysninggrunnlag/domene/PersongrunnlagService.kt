@@ -4,9 +4,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 
 @Service
-class PersongrunnlagService(
-    private val personopplysningGrunnlagRepository: PersonopplysningGrunnlagRepository,
-) {
+class PersongrunnlagService(private val personopplysningGrunnlagRepository: PersonopplysningGrunnlagRepository) {
 
     fun hentAktiv(behandlingId: Long): PersonopplysningGrunnlag? =
         personopplysningGrunnlagRepository.findByBehandlingAndAktiv(behandlingId = behandlingId)

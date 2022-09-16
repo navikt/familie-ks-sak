@@ -61,7 +61,6 @@ class OppgaveController(private val oppgaveService: OppgaveService) {
 
     @GetMapping("/{oppgaveId}/ferdigstill")
     fun ferdigstillOppgave(@PathVariable oppgaveId: Long): ResponseEntity<Ressurs<String>> {
-
         val oppgave = oppgaveService.hentOppgave(oppgaveId)
         oppgaveService.ferdigstillOppgave(oppgave)
 
