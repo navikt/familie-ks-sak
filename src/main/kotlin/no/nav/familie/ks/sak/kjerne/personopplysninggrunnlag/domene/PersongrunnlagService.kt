@@ -1,4 +1,4 @@
-package no.nav.familie.ks.sak.kjerne.personopplysning.domene
+package no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene
 
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service

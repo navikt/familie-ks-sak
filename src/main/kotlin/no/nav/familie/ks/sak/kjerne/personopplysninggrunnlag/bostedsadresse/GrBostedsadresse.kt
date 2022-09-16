@@ -1,9 +1,9 @@
-package no.nav.familie.ks.sak.kjerne.personopplysning.bostedsadresse
+package no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.bostedsadresse
 
 import com.fasterxml.jackson.annotation.JsonIgnore
 import no.nav.familie.ks.sak.common.entitet.BaseEntitet
 import no.nav.familie.ks.sak.common.entitet.DatoIntervallEntitet
-import no.nav.familie.ks.sak.kjerne.personopplysning.domene.Person
+import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
 import javax.persistence.DiscriminatorColumn
 import javax.persistence.Embedded
 import javax.persistence.Entity

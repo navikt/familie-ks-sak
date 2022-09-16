@@ -9,11 +9,10 @@ import no.nav.familie.ks.sak.config.RolleConfig
 import no.nav.familie.ks.sak.config.Sporingsdata
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingHentOgPersisterService
-import no.nav.familie.ks.sak.kjerne.personopplysning.domene.PersongrunnlagService
+import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersongrunnlagService
 import org.springframework.cache.CacheManager
-import org.springframework.stereotype.Service
 
-@Service
+// Skal ikke brukes foreløpig, det må omskrives.
 class TilgangService(
     private val behandlingHentOgPersisterService: BehandlingHentOgPersisterService,
     private val persongrunnlagService: PersongrunnlagService,

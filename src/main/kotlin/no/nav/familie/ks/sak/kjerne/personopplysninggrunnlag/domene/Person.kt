@@ -1,15 +1,15 @@
-package no.nav.familie.ks.sak.kjerne.personopplysning.domene
+package no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene
 
 import com.fasterxml.jackson.annotation.JsonIgnore
 import no.nav.familie.kontrakter.felles.Språkkode
 import no.nav.familie.ks.sak.common.entitet.BaseEntitet
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
-import no.nav.familie.ks.sak.kjerne.personopplysning.arbeidsforhold.GrArbeidsforhold
-import no.nav.familie.ks.sak.kjerne.personopplysning.bostedsadresse.GrBostedsadresse
-import no.nav.familie.ks.sak.kjerne.personopplysning.dødsfall.Dødsfall
-import no.nav.familie.ks.sak.kjerne.personopplysning.opphold.GrOpphold
-import no.nav.familie.ks.sak.kjerne.personopplysning.sivilstand.GrSivilstand
-import no.nav.familie.ks.sak.kjerne.personopplysning.statsborgerskap.GrStatsborgerskap
+import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.arbeidsforhold.GrArbeidsforhold
+import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.bostedsadresse.GrBostedsadresse
+import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.dødsfall.Dødsfall
+import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.opphold.GrOpphold
+import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.sivilstand.GrSivilstand
+import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.statsborgerskap.GrStatsborgerskap
 import org.hibernate.annotations.Fetch
 import org.hibernate.annotations.FetchMode
 import java.time.LocalDate

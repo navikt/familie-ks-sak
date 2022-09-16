@@ -10,7 +10,7 @@ import no.nav.familie.ks.sak.integrasjon.pdl.domene.PdlPersonInfo
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingRepository
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
-import no.nav.familie.ks.sak.kjerne.personopplysning.domene.PersonRepository
+import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonRepository
 import org.springframework.stereotype.Service
 import java.time.LocalDate
 import java.time.Period

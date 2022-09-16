@@ -1,10 +1,10 @@
-package no.nav.familie.ks.sak.kjerne.personopplysning.statsborgerskap
+package no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.statsborgerskap
 
 import com.fasterxml.jackson.annotation.JsonIgnore
 import no.nav.familie.ks.sak.common.entitet.BaseEntitet
 import no.nav.familie.ks.sak.common.entitet.DatoIntervallEntitet
-import no.nav.familie.ks.sak.kjerne.personopplysning.domene.Medlemskap
-import no.nav.familie.ks.sak.kjerne.personopplysning.domene.Person
+import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Medlemskap
+import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
 import javax.persistence.Column
 import javax.persistence.Embedded
 import javax.persistence.Entity

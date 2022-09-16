@@ -5,9 +5,7 @@ import no.nav.familie.kontrakter.felles.oppgave.FinnOppgaveResponseDto
 import no.nav.familie.kontrakter.felles.oppgave.Oppgave
 import no.nav.familie.ks.sak.api.dto.FinnOppgaveDto
 import no.nav.familie.ks.sak.common.util.RessursUtils.illegalState
-import no.nav.familie.ks.sak.config.BehandlerRolle
 import no.nav.familie.ks.sak.integrasjon.oppgave.OppgaveService
-import no.nav.familie.ks.sak.sikkerhet.TilgangService
 import no.nav.security.token.support.core.api.ProtectedWithClaims
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
@@ -24,10 +22,7 @@ import org.springframework.web.bind.annotation.RestController
 @RequestMapping("/api/oppgave")
 @ProtectedWithClaims(issuer = "azuread")
 @Validated
-class OppgaveController(
-    private val oppgaveService: OppgaveService,
-    private val tilgangService: TilgangService
-) {
+class OppgaveController(private val oppgaveService: OppgaveService) {
 
     @PostMapping(
         path = ["/hent-oppgaver"],
@@ -44,11 +39,6 @@ class OppgaveController(
 
     @PostMapping(path = ["/{oppgaveId}/fordel"], produces = [MediaType.APPLICATION_JSON_VALUE])
     fun fordelOppgave(@PathVariable oppgaveId: Long, @RequestParam saksbehandler: String): ResponseEntity<Ressurs<String>> {
-        tilgangService.verifiserHarTilgangTilHandling(
-            minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
-            handling = "Fordele oppgave"
-        )
-
         val oppgaveIdFraRespons =
             oppgaveService.fordelOppgave(
                 oppgaveId = oppgaveId,
@@ -61,12 +51,6 @@ class OppgaveController(
 
     @PostMapping(path = ["/{oppgaveId}/tilbakestill"], produces = [MediaType.APPLICATION_JSON_VALUE])
     fun tilbakestillFordelingPåOppgave(@PathVariable oppgaveId: Long): ResponseEntity<Ressurs<Oppgave>> {
-
-        tilgangService.verifiserHarTilgangTilHandling(
-            minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
-            handling = "tilbakestille fordeling på oppgave"
-        )
-
         Result.runCatching {
             oppgaveService.tilbakestillFordelingPåOppgave(oppgaveId)
         }.fold(
@@ -77,11 +61,6 @@ class OppgaveController(
 
     @GetMapping("/{oppgaveId}/ferdigstill")
     fun ferdigstillOppgave(@PathVariable oppgaveId: Long): ResponseEntity<Ressurs<String>> {
-
-        tilgangService.verifiserHarTilgangTilHandling(
-            minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
-            handling = "Ferdigstill oppgave"
-        )
 
         val oppgave = oppgaveService.hentOppgave(oppgaveId)
         oppgaveService.ferdigstillOppgave(oppgave)

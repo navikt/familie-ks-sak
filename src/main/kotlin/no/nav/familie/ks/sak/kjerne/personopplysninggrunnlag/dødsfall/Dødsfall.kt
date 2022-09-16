@@ -1,8 +1,8 @@
-package no.nav.familie.ks.sak.kjerne.personopplysning.dødsfall
+package no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.dødsfall
 
 import com.fasterxml.jackson.annotation.JsonIgnore
 import no.nav.familie.ks.sak.common.entitet.BaseEntitet
-import no.nav.familie.ks.sak.kjerne.personopplysning.domene.Person
+import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
 import java.time.LocalDate
 import javax.persistence.Column
 import javax.persistence.Entity
