@@ -1,8 +1,13 @@
 package no.nav.familie.ks.sak.kjerne.fagsak
 
-import no.nav.familie.kontrakter.felles.personopplysning.ADRESSEBESKYTTELSEGRADERING
+import io.micrometer.core.instrument.Metrics
 import no.nav.familie.ks.sak.api.dto.FagsakDeltagerResponsDto
 import no.nav.familie.ks.sak.api.dto.FagsakDeltagerRolle
+import no.nav.familie.ks.sak.api.dto.FagsakMapper.lagFagsakDeltagerResponsDto
+import no.nav.familie.ks.sak.api.dto.FagsakMapper.lagFagsakResponsDto
+import no.nav.familie.ks.sak.api.dto.FagsakRequestDto
+import no.nav.familie.ks.sak.api.dto.MinimalFagsakResponsDto
+import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
 import no.nav.familie.ks.sak.integrasjon.pdl.PersonOpplysningerService
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.PdlPersonInfo
@@ -10,7 +15,11 @@ import no.nav.familie.ks.sak.kjerne.behandling.BehandlingRepository
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonRepository
+import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext
+import org.slf4j.LoggerFactory
+import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDate
 import java.time.Period
 
@@ -23,6 +32,9 @@ class FagsakService(
     private val personRepository: PersonRepository,
     private val behandlingRepository: BehandlingRepository
 ) {
+
+    private val antallFagsakerOpprettetFraManuell =
+        Metrics.counter("familie.ks.sak.fagsak.opprettet", "saksbehandling", "manuell")
 
     fun hentFagsakDeltagere(personIdent: String): List<FagsakDeltagerResponsDto> {
         val aktør = personidentService.hentAktør(personIdent)
@@ -58,6 +70,29 @@ class FagsakService(
             leggTilForeldreDeltagerSomIkkeHarBehandling(personInfoMedRelasjoner, assosierteFagsakDeltagere)
         }
         return assosierteFagsakDeltagere
+    }
+
+    @Transactional
+    fun hentEllerOpprettFagsak(fagsakRequest: FagsakRequestDto): MinimalFagsakResponsDto {
+        val personident = when {
+            fagsakRequest.personIdent !== null -> fagsakRequest.personIdent
+            fagsakRequest.aktørId !== null -> fagsakRequest.aktørId
+            else -> throw Feil(
+                "Hverken aktørid eller personident er satt på fagsak-requesten. Klarer ikke opprette eller hente fagsak.",
+                "Fagsak er forsøkt opprettet uten ident. Dette er en systemfeil, vennligst ta kontakt med systemansvarlig.",
+                HttpStatus.BAD_REQUEST
+            )
+        }
+        val aktør = personidentService.hentOgLagreAktør(personident, true)
+        val fagsak: Fagsak = fagsakRepository.finnFagsakForAktør(aktør) ?: lagre(Fagsak(aktør = aktør))
+        antallFagsakerOpprettetFraManuell.increment()
+        return lagFagsakResponsDto(fagsak, behandlingRepository.findByFagsakAndAktiv(fagsak.id))
+    }
+
+    @Transactional
+    fun lagre(fagsak: Fagsak): Fagsak {
+        logger.info("${SikkerhetContext.hentSaksbehandlerNavn()} oppretter fagsak $fagsak")
+        return fagsakRepository.save(fagsak)
     }
 
     private fun hentForelderdeltagereFraBehandling(
@@ -142,21 +177,7 @@ class FagsakService(
         }
     }
 
-    private fun lagFagsakDeltagerResponsDto(
-        personInfo: PdlPersonInfo? = null,
-        ident: String = "",
-        rolle: FagsakDeltagerRolle,
-        fagsak: Fagsak? = null,
-        adressebeskyttelseGradering: ADRESSEBESKYTTELSEGRADERING? = null,
-        harTilgang: Boolean = true
-    ): FagsakDeltagerResponsDto = FagsakDeltagerResponsDto(
-        navn = personInfo?.navn,
-        ident = ident,
-        rolle = rolle,
-        kjønn = personInfo?.kjønn,
-        fagsakId = fagsak?.id,
-        fagsakStatus = fagsak?.status,
-        adressebeskyttelseGradering = adressebeskyttelseGradering,
-        harTilgang = harTilgang
-    )
+    companion object {
+        private val logger = LoggerFactory.getLogger(FagsakService::class.java)
+    }
 }
