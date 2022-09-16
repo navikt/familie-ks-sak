@@ -76,7 +76,8 @@ class FagsakService(
     fun hentEllerOpprettFagsak(fagsakRequest: FagsakRequestDto): MinimalFagsakResponsDto {
         val personident = fagsakRequest.personIdent ?: fagsakRequest.aktørId ?: throw Feil(
             "Hverken aktørid eller personident er satt på fagsak-requesten. Klarer ikke opprette eller hente fagsak.",
-            "Fagsak er forsøkt opprettet uten ident. Dette er en systemfeil, vennligst ta kontakt med systemansvarlig.", HttpStatus.BAD_REQUEST
+            "Fagsak er forsøkt opprettet uten ident. Dette er en systemfeil, vennligst ta kontakt med systemansvarlig.",
+            HttpStatus.BAD_REQUEST
         )
 
         val aktør = personidentService.hentOgLagreAktør(personident, true)
