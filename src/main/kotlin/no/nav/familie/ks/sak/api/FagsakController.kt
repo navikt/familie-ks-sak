@@ -10,7 +10,6 @@ import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext
 import no.nav.security.token.support.core.api.ProtectedWithClaims
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.validation.annotation.Validated
@@ -38,7 +37,6 @@ class FagsakController(private val fagsakService: FagsakService) {
     @PostMapping(produces = [MediaType.APPLICATION_JSON_VALUE])
     fun hentEllerOpprettFagsak(@RequestBody fagsakRequest: FagsakRequestDto): ResponseEntity<Ressurs<MinimalFagsakResponsDto>> {
         logger.info("${SikkerhetContext.hentSaksbehandlerNavn()} henter eller oppretter ny fagsak")
-        return ResponseEntity.status(HttpStatus.CREATED)
-            .body(Ressurs.success(fagsakService.hentEllerOpprettFagsak(fagsakRequest)))
+        return ResponseEntity.ok().body(Ressurs.success(fagsakService.hentEllerOpprettFagsak(fagsakRequest)))
     }
 }

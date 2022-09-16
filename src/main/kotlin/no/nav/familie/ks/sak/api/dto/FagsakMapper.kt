@@ -26,7 +26,7 @@ object FagsakMapper {
         harTilgang = harTilgang
     )
 
-    fun lagFagsakResponsDto(fagsak: Fagsak, behandling: Behandling?): MinimalFagsakResponsDto = MinimalFagsakResponsDto(
+    fun lagMinimalFagsakResponsDto(fagsak: Fagsak, behandling: Behandling?): MinimalFagsakResponsDto = MinimalFagsakResponsDto(
         opprettetTidspunkt = fagsak.opprettetTidspunkt,
         id = fagsak.id,
         søkerFødselsnummer = fagsak.aktør.aktivFødselsnummer(),

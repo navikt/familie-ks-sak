@@ -4,7 +4,7 @@ import io.micrometer.core.instrument.Metrics
 import no.nav.familie.ks.sak.api.dto.FagsakDeltagerResponsDto
 import no.nav.familie.ks.sak.api.dto.FagsakDeltagerRolle
 import no.nav.familie.ks.sak.api.dto.FagsakMapper.lagFagsakDeltagerResponsDto
-import no.nav.familie.ks.sak.api.dto.FagsakMapper.lagFagsakResponsDto
+import no.nav.familie.ks.sak.api.dto.FagsakMapper.lagMinimalFagsakResponsDto
 import no.nav.familie.ks.sak.api.dto.FagsakRequestDto
 import no.nav.familie.ks.sak.api.dto.MinimalFagsakResponsDto
 import no.nav.familie.ks.sak.common.exception.Feil
@@ -74,19 +74,15 @@ class FagsakService(
 
     @Transactional
     fun hentEllerOpprettFagsak(fagsakRequest: FagsakRequestDto): MinimalFagsakResponsDto {
-        val personident = when {
-            fagsakRequest.personIdent !== null -> fagsakRequest.personIdent
-            fagsakRequest.aktørId !== null -> fagsakRequest.aktørId
-            else -> throw Feil(
-                "Hverken aktørid eller personident er satt på fagsak-requesten. Klarer ikke opprette eller hente fagsak.",
-                "Fagsak er forsøkt opprettet uten ident. Dette er en systemfeil, vennligst ta kontakt med systemansvarlig.",
-                HttpStatus.BAD_REQUEST
-            )
-        }
+        val personident = fagsakRequest.personIdent ?: fagsakRequest.aktørId ?: throw Feil(
+            "Hverken aktørid eller personident er satt på fagsak-requesten. Klarer ikke opprette eller hente fagsak.",
+            "Fagsak er forsøkt opprettet uten ident. Dette er en systemfeil, vennligst ta kontakt med systemansvarlig.", HttpStatus.BAD_REQUEST
+        )
+
         val aktør = personidentService.hentOgLagreAktør(personident, true)
-        val fagsak: Fagsak = fagsakRepository.finnFagsakForAktør(aktør) ?: lagre(Fagsak(aktør = aktør))
+        val fagsak = fagsakRepository.finnFagsakForAktør(aktør) ?: lagre(Fagsak(aktør = aktør))
         antallFagsakerOpprettetFraManuell.increment()
-        return lagFagsakResponsDto(fagsak, behandlingRepository.findByFagsakAndAktiv(fagsak.id))
+        return lagMinimalFagsakResponsDto(fagsak, behandlingRepository.findByFagsakAndAktiv(fagsak.id))
     }
 
     @Transactional
