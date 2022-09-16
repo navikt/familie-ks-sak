@@ -43,10 +43,12 @@ spec:
         extra:
           - "NAVident"
         groups:
-          - id: "87190cf3-b278-457d-8ab7-1a5c55a9edd7"  # Group_87190cf3-b278-457d-8ab7-1a5c55a9edd7 tilgang til prosessering
-          - id: "e40090eb-c2fb-400e-b412-e9084019a73b"  # 0000-GA-Kontantstotte
-          - id: "54cd86b8-2e23-48b2-8852-b05b5827bb0f"  # 0000-GA-Kontantstotte-Veileder
-          - id: "7a271f87-39fb-468b-a9ee-6cf3c070f548"  # TODO: Oppdater denne når vi får beslutter rolle
+          - id: "54cd86b8-2e23-48b2-8852-b05b5827bb0f"  # VEILEDER_ROLLE
+          - id: "e40090eb-c2fb-400e-b412-e9084019a73b"  # SAKSBEHANDLER_ROLLE
+          - id: "4e7f23d9-5db1-45c0-acec-89c86a9ec678"  # BESLUTTER_ROLLE
+      replyURLs:
+        - "https://familie-ks-sak.intern.nav.no/swagger-ui/oauth2-redirect.html"
+      singlePageApplication: true
   accessPolicy:
     inbound:
       rules:
@@ -88,6 +90,7 @@ spec:
           cluster: prod-fss
       external:
         - host: xsrv1mh6.api.sanity.io
+        - host: pdl-api.prod-fss-pub.nais.io
   replicas:
     min: 2
     max: 4
