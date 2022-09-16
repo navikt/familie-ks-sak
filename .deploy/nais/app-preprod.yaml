@@ -111,6 +111,7 @@ spec:
       cpu: 500m
   ingresses:
     - https://familie-ks-sak.dev.intern.nav.no
+    - https://familie-kontantstotte-sak.dev.intern.nav.no
   secureLogs:
     enabled: true
   env:
