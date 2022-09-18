@@ -23,7 +23,7 @@ class TilgangController(
     private val integrasjonClient: IntegrasjonClient
 ) {
 
-    @PostMapping(path = ["tilgang"], produces = [MediaType.APPLICATION_JSON_VALUE])
+    @PostMapping(path = ["/tilgang"], produces = [MediaType.APPLICATION_JSON_VALUE])
     fun hentTilgangOgDiskresjonskode(@RequestBody tilgangRequestDTO: TilgangRequestDto): ResponseEntity<Ressurs<TilgangResponsDto>> {
         val aktør = personidentService.hentAktør(tilgangRequestDTO.brukerIdent)
         val adressebeskyttelse = personOpplysningerService.hentAdressebeskyttelseSomSystembruker(aktør)
