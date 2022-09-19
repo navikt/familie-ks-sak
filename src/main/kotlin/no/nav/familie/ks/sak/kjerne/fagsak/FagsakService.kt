@@ -97,12 +97,10 @@ class FagsakService(
         )
     }
 
-    fun hentMinimalFagsakForPerson(aktør: Aktør): MinimalFagsakResponsDto {
+    fun hentMinimalFagsakForPerson(personident: String): MinimalFagsakResponsDto {
+        val aktør = personidentService.hentOgLagreAktør(personident, true)
         val fagsak = fagsakRepository.finnFagsakForAktør(aktør) ?: throw Feil("Fant ikke fagsak på person")
-
-        return lagMinimalFagsakResponsDto(
-            fagsak = fagsak
-        )
+        return lagMinimalFagsakResponsDto(fagsak = fagsak)
     }
 
     @Transactional

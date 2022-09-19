@@ -7,7 +7,6 @@ import no.nav.familie.ks.sak.api.dto.FagsakRequestDto
 import no.nav.familie.ks.sak.api.dto.MinimalFagsakResponsDto
 import no.nav.familie.ks.sak.api.dto.SøkParamDto
 import no.nav.familie.ks.sak.kjerne.fagsak.FagsakService
-import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
 import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext
 import no.nav.security.token.support.core.api.ProtectedWithClaims
 import org.slf4j.Logger
@@ -26,7 +25,7 @@ import org.springframework.web.bind.annotation.RestController
 @RequestMapping("/api/fagsaker")
 @ProtectedWithClaims(issuer = "azuread")
 @Validated
-class FagsakController(private val fagsakService: FagsakService, private val personidentService: PersonidentService) {
+class FagsakController(private val fagsakService: FagsakService) {
 
     private val logger: Logger = LoggerFactory.getLogger(FagsakController::class.java)
 
@@ -52,10 +51,6 @@ class FagsakController(private val fagsakService: FagsakService, private val per
 
     @PostMapping(path = ["/hent-fagsak-paa-person"], produces = [MediaType.APPLICATION_JSON_VALUE])
     fun hentMinimalFagsakForPerson(@RequestBody request: PersonIdent): ResponseEntity<Ressurs<MinimalFagsakResponsDto>> {
-        val aktør = personidentService.hentAktør(request.ident)
-
-        val minimalFagsakForPerson = fagsakService.hentMinimalFagsakForPerson(aktør)
-
-        return ResponseEntity.ok().body(Ressurs.success(minimalFagsakForPerson))
+        return ResponseEntity.ok().body(Ressurs.success(fagsakService.hentMinimalFagsakForPerson(request.ident)))
     }
 }
