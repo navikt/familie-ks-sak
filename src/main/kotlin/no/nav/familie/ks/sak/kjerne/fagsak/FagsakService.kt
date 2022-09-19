@@ -10,7 +10,7 @@ import no.nav.familie.ks.sak.api.dto.FagsakMapper.lagMinimalFagsakResponsDto
 import no.nav.familie.ks.sak.api.dto.FagsakRequestDto
 import no.nav.familie.ks.sak.api.dto.MinimalFagsakResponsDto
 import no.nav.familie.ks.sak.common.exception.Feil
-import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
+import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonService
 import no.nav.familie.ks.sak.integrasjon.pdl.PersonOpplysningerService
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.PdlPersonInfo
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingRepository
@@ -29,7 +29,7 @@ import java.time.Period
 @Service
 class FagsakService(
     private val personidentService: PersonidentService,
-    private val integrasjonClient: IntegrasjonClient,
+    private val integrasjonService: IntegrasjonService,
     private val personopplysningerService: PersonOpplysningerService,
     private val fagsakRepository: FagsakRepository,
     private val personRepository: PersonRepository,
@@ -171,7 +171,7 @@ class FagsakService(
     }
 
     private fun hentMaskertFagsakdeltakerVedManglendeTilgang(aktør: Aktør): FagsakDeltagerResponsDto? {
-        val harTilgang = integrasjonClient.sjekkTilgangTilPersoner(listOf(aktør.aktivFødselsnummer())).harTilgang
+        val harTilgang = integrasjonService.sjekkTilgangTilPersoner(listOf(aktør.aktivFødselsnummer())).harTilgang
 
         return when {
             !harTilgang -> {
