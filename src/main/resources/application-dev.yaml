@@ -147,5 +147,6 @@ FAMILIE_STATISTIKK_URL: dummy
 PDL_URL: "dummy"
 CREDENTIAL_USERNAME: not-a-real-srvuser
 CREDENTIAL_PASSWORD: not-a-real-pw
+AZURE_APP_CLIENT_ID: ${KS_SAK_CLIENT_ID}
 
 retry.backoff.delay: 5
