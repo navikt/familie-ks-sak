@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service
 @Service
 class IntegrasjonService(private val integrasjonClient: IntegrasjonClient, private val pdlClient: PdlClient) {
 
-    private fun sjekkTilgangTilPersoner(personIdenter: List<String>): Tilgang = integrasjonClient.sjekkTilgangTilPersoner(personIdenter)
+    fun sjekkTilgangTilPersoner(personIdenter: List<String>): Tilgang = integrasjonClient.sjekkTilgangTilPersoner(personIdenter)
 
     fun hentMaskertPersonInfoVedManglendeTilgang(aktør: Aktør): PersonInfoDto? {
         val harTilgang = sjekkTilgangTilPersoner(listOf(aktør.aktivFødselsnummer())).harTilgang
