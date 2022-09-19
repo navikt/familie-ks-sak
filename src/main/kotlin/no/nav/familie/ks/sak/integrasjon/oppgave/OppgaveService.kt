@@ -38,9 +38,7 @@ class OppgaveService(private val integrasjonClient: IntegrasjonClient) {
 
     fun ferdigstillOppgave(oppgave: Oppgave) {
         val oppgaveId = oppgave.id
-
         requireNotNull(oppgaveId) { "Oppgaven må ha en id for å kunne ferdigstilles" }
-
         integrasjonClient.ferdigstillOppgave(oppgaveId)
     }
 
