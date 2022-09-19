@@ -26,12 +26,30 @@ object FagsakMapper {
         harTilgang = harTilgang
     )
 
-    fun lagMinimalFagsakResponsDto(fagsak: Fagsak, behandling: Behandling?): MinimalFagsakResponsDto = MinimalFagsakResponsDto(
-        opprettetTidspunkt = fagsak.opprettetTidspunkt,
-        id = fagsak.id,
-        søkerFødselsnummer = fagsak.aktør.aktivFødselsnummer(),
-        status = fagsak.status.name,
-        underBehandling = if (behandling == null) false else behandling.status != BehandlingStatus.AVSLUTTET,
-        løpendeKategori = behandling?.kategori?.name
+    fun lagMinimalFagsakResponsDto(
+        fagsak: Fagsak,
+        aktivtBehandling: Behandling?,
+        behandlinger: List<BehandlingResponsDto> = emptyList()
+    ): MinimalFagsakResponsDto =
+        MinimalFagsakResponsDto(
+            opprettetTidspunkt = fagsak.opprettetTidspunkt,
+            id = fagsak.id,
+            søkerFødselsnummer = fagsak.aktør.aktivFødselsnummer(),
+            status = fagsak.status.name,
+            underBehandling = if (aktivtBehandling == null) false else aktivtBehandling.status != BehandlingStatus.AVSLUTTET,
+            løpendeKategori = aktivtBehandling?.kategori?.name,
+            behandlinger = behandlinger
+        )
+
+    fun lagBehandlingResponsDto(behandling: Behandling) = BehandlingResponsDto(
+        behandlingId = behandling.id,
+        opprettetTidspunkt = behandling.opprettetTidspunkt,
+        kategori = behandling.kategori.name,
+        aktiv = behandling.aktiv,
+        årsak = behandling.opprettetÅrsak.visningsnavn,
+        type = behandling.type.visningsnavn,
+        status = behandling.status.name,
+        resultat = behandling.resultat.displayName,
+        vedtaksdato = null // TODO - kommer når vedtak er implementert
     )
 }

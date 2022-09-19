@@ -3,6 +3,7 @@ package no.nav.familie.ks.sak.kjerne.fagsak
 import io.micrometer.core.instrument.Metrics
 import no.nav.familie.ks.sak.api.dto.FagsakDeltagerResponsDto
 import no.nav.familie.ks.sak.api.dto.FagsakDeltagerRolle
+import no.nav.familie.ks.sak.api.dto.FagsakMapper.lagBehandlingResponsDto
 import no.nav.familie.ks.sak.api.dto.FagsakMapper.lagFagsakDeltagerResponsDto
 import no.nav.familie.ks.sak.api.dto.FagsakMapper.lagMinimalFagsakResponsDto
 import no.nav.familie.ks.sak.api.dto.FagsakRequestDto
@@ -87,10 +88,14 @@ class FagsakService(
         return lagMinimalFagsakResponsDto(fagsak, behandlingRepository.findByFagsakAndAktiv(fagsak.id))
     }
 
-    @Transactional
     fun hentMinimalFagsak(fagsakId: Long): MinimalFagsakResponsDto {
         val fagsak = fagsakRepository.findByIdOrNull(fagsakId) ?: throw Feil("Fagsak $fagsakId finnes ikke")
-        return lagMinimalFagsakResponsDto(fagsak, behandlingRepository.findByFagsakAndAktiv(fagsak.id))
+        val alleBehandlinger = behandlingRepository.finnBehandlinger(fagsakId).map { lagBehandlingResponsDto(it) }
+        return lagMinimalFagsakResponsDto(
+            fagsak = fagsak,
+            aktivtBehandling = behandlingRepository.findByFagsakAndAktiv(fagsakId),
+            behandlinger = alleBehandlinger
+        )
     }
 
     @Transactional
