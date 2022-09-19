@@ -52,15 +52,16 @@ class FagsakService(
         // fagsaker som ikke finnes i assosierteForeldreDeltagere, er barn
         val fagsakForBarn = fagsakRepository.finnFagsakForAktør(aktør)
 
-        assosierteFagsakDeltagere.add(
-            lagFagsakDeltagerResponsDto(
-                personInfo = personInfoMedRelasjoner,
-                ident = aktør.aktivFødselsnummer(),
-                // Vi setter rollen til Ukjent når det ikke er barn
-                rolle = if (erBarn) FagsakDeltagerRolle.BARN else FagsakDeltagerRolle.UKJENT,
-                fagsak = fagsakForBarn
+        if (assosierteFagsakDeltagere.none { it.ident == aktør.aktivFødselsnummer() && it.fagsakId == fagsakForBarn?.id })
+            assosierteFagsakDeltagere.add(
+                lagFagsakDeltagerResponsDto(
+                    personInfo = personInfoMedRelasjoner,
+                    ident = aktør.aktivFødselsnummer(),
+                    // Vi setter rollen til Ukjent når det ikke er barn
+                    rolle = if (erBarn) FagsakDeltagerRolle.BARN else FagsakDeltagerRolle.UKJENT,
+                    fagsak = fagsakForBarn
+                )
             )
-        )
 
         // Hvis søkparam(aktør) er barn og søker til barn ikke har behandling ennå, hentes det søker til barnet
         if (erBarn) {
