@@ -1,5 +1,6 @@
 package no.nav.familie.ks.sak.api
 
+import no.nav.familie.kontrakter.felles.PersonIdent
 import no.nav.familie.kontrakter.felles.Ressurs
 import no.nav.familie.ks.sak.api.dto.FagsakDeltagerResponsDto
 import no.nav.familie.ks.sak.api.dto.FagsakRequestDto
@@ -46,5 +47,10 @@ class FagsakController(private val fagsakService: FagsakService) {
     fun hentMinimalFagsak(@PathVariable fagsakId: Long): ResponseEntity<Ressurs<MinimalFagsakResponsDto>> {
         logger.info("${SikkerhetContext.hentSaksbehandlerNavn()} henter minimal fagsak med id $fagsakId")
         return ResponseEntity.ok().body(Ressurs.success(fagsakService.hentMinimalFagsak(fagsakId)))
+    }
+
+    @PostMapping(path = ["/hent-fagsak-paa-person"], produces = [MediaType.APPLICATION_JSON_VALUE])
+    fun hentMinimalFagsakForPerson(@RequestBody request: PersonIdent): ResponseEntity<Ressurs<MinimalFagsakResponsDto>> {
+        return ResponseEntity.ok().body(Ressurs.success(fagsakService.hentMinimalFagsakForPerson(request.ident)))
     }
 }

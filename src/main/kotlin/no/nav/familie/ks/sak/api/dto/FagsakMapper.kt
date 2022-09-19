@@ -28,7 +28,7 @@ object FagsakMapper {
 
     fun lagMinimalFagsakResponsDto(
         fagsak: Fagsak,
-        aktivtBehandling: Behandling?,
+        aktivtBehandling: Behandling? = null,
         behandlinger: List<BehandlingResponsDto> = emptyList()
     ): MinimalFagsakResponsDto =
         MinimalFagsakResponsDto(

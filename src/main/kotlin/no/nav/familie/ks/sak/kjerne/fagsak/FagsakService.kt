@@ -97,6 +97,12 @@ class FagsakService(
         )
     }
 
+    fun hentMinimalFagsakForPerson(personident: String): MinimalFagsakResponsDto {
+        val aktør = personidentService.hentOgLagreAktør(personident, true)
+        val fagsak = fagsakRepository.finnFagsakForAktør(aktør) ?: throw Feil("Fant ikke fagsak på person")
+        return lagMinimalFagsakResponsDto(fagsak = fagsak)
+    }
+
     @Transactional
     fun lagre(fagsak: Fagsak): Fagsak {
         logger.info("${SikkerhetContext.hentSaksbehandlerNavn()} oppretter fagsak $fagsak")
