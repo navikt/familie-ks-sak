@@ -13,6 +13,8 @@ import org.slf4j.LoggerFactory
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.validation.annotation.Validated
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
@@ -38,5 +40,11 @@ class FagsakController(private val fagsakService: FagsakService) {
     fun hentEllerOpprettFagsak(@RequestBody fagsakRequest: FagsakRequestDto): ResponseEntity<Ressurs<MinimalFagsakResponsDto>> {
         logger.info("${SikkerhetContext.hentSaksbehandlerNavn()} henter eller oppretter ny fagsak")
         return ResponseEntity.ok().body(Ressurs.success(fagsakService.hentEllerOpprettFagsak(fagsakRequest)))
+    }
+
+    @GetMapping(path = ["/minimal/{fagsakId}"], produces = [MediaType.APPLICATION_JSON_VALUE])
+    fun hentMinimalFagsak(@PathVariable fagsakId: Long): ResponseEntity<Ressurs<MinimalFagsakResponsDto>> {
+        logger.info("${SikkerhetContext.hentSaksbehandlerNavn()} henter minimal fagsak med id $fagsakId")
+        return ResponseEntity.ok().body(Ressurs.success(fagsakService.hentMinimalFagsak(fagsakId)))
     }
 }

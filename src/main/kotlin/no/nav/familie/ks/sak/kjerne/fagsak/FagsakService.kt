@@ -3,6 +3,7 @@ package no.nav.familie.ks.sak.kjerne.fagsak
 import io.micrometer.core.instrument.Metrics
 import no.nav.familie.ks.sak.api.dto.FagsakDeltagerResponsDto
 import no.nav.familie.ks.sak.api.dto.FagsakDeltagerRolle
+import no.nav.familie.ks.sak.api.dto.FagsakMapper.lagBehandlingResponsDto
 import no.nav.familie.ks.sak.api.dto.FagsakMapper.lagFagsakDeltagerResponsDto
 import no.nav.familie.ks.sak.api.dto.FagsakMapper.lagMinimalFagsakResponsDto
 import no.nav.familie.ks.sak.api.dto.FagsakRequestDto
@@ -17,6 +18,7 @@ import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonRepository
 import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext
 import org.slf4j.LoggerFactory
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -82,6 +84,16 @@ class FagsakService(
         val fagsak = fagsakRepository.finnFagsakForAktør(aktør) ?: lagre(Fagsak(aktør = aktør))
         antallFagsakerOpprettetFraManuell.increment()
         return lagMinimalFagsakResponsDto(fagsak, behandlingRepository.findByFagsakAndAktiv(fagsak.id))
+    }
+
+    fun hentMinimalFagsak(fagsakId: Long): MinimalFagsakResponsDto {
+        val fagsak = fagsakRepository.findByIdOrNull(fagsakId) ?: throw Feil("Fagsak $fagsakId finnes ikke")
+        val alleBehandlinger = behandlingRepository.finnBehandlinger(fagsakId).map { lagBehandlingResponsDto(it) }
+        return lagMinimalFagsakResponsDto(
+            fagsak = fagsak,
+            aktivtBehandling = behandlingRepository.findByFagsakAndAktiv(fagsakId),
+            behandlinger = alleBehandlinger
+        )
     }
 
     @Transactional
