@@ -1,6 +1,7 @@
 package no.nav.familie.ks.sak.kjerne.fagsak
 
 import io.micrometer.core.instrument.Metrics
+import no.nav.familie.kontrakter.felles.Ressurs
 import no.nav.familie.ks.sak.api.dto.FagsakDeltagerResponsDto
 import no.nav.familie.ks.sak.api.dto.FagsakDeltagerRolle
 import no.nav.familie.ks.sak.api.dto.FagsakMapper.lagBehandlingResponsDto
@@ -93,6 +94,14 @@ class FagsakService(
             fagsak = fagsak,
             aktivtBehandling = behandlingRepository.findByFagsakAndAktiv(fagsakId),
             behandlinger = alleBehandlinger
+        )
+    }
+
+    fun hentMinimalFagsakForPerson(aktør: Aktør): MinimalFagsakResponsDto {
+        val fagsak = fagsakRepository.finnFagsakForAktør(aktør) ?: throw Feil("Fant ikke fagsak på person")
+
+        return lagMinimalFagsakResponsDto(
+            fagsak = fagsak
         )
     }
 
