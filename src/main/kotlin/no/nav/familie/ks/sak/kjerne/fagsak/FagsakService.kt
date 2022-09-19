@@ -17,6 +17,7 @@ import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonRepository
 import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext
 import org.slf4j.LoggerFactory
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -83,6 +84,12 @@ class FagsakService(
         val aktør = personidentService.hentOgLagreAktør(personident, true)
         val fagsak = fagsakRepository.finnFagsakForAktør(aktør) ?: lagre(Fagsak(aktør = aktør))
         antallFagsakerOpprettetFraManuell.increment()
+        return lagMinimalFagsakResponsDto(fagsak, behandlingRepository.findByFagsakAndAktiv(fagsak.id))
+    }
+
+    @Transactional
+    fun hentMinimalFagsak(fagsakId: Long): MinimalFagsakResponsDto {
+        val fagsak = fagsakRepository.findByIdOrNull(fagsakId) ?: throw Feil("Fagsak $fagsakId finnes ikke")
         return lagMinimalFagsakResponsDto(fagsak, behandlingRepository.findByFagsakAndAktiv(fagsak.id))
     }
 
