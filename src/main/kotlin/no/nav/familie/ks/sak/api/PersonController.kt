@@ -4,7 +4,7 @@ import no.nav.familie.kontrakter.felles.PersonIdent
 import no.nav.familie.kontrakter.felles.Ressurs
 import no.nav.familie.ks.sak.api.dto.PersonInfoDto
 import no.nav.familie.ks.sak.api.dto.tilPersonInfoDto
-import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
+import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonService
 import no.nav.familie.ks.sak.integrasjon.pdl.PersonOpplysningerService
 import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
 import no.nav.security.token.support.core.api.ProtectedWithClaims
@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.RestController
 class PersonController(
     val personidentService: PersonidentService,
     val personOpplysningerService: PersonOpplysningerService,
-    val integrasjonClient: IntegrasjonClient
+    val integrasjonService: IntegrasjonService
 ) {
 
     @GetMapping
@@ -32,7 +32,7 @@ class PersonController(
         @RequestBody personIdentBody: PersonIdent?
     ): ResponseEntity<Ressurs<PersonInfoDto>> {
         val aktør = personidentService.hentAktør(personIdent)
-        val personinfo = integrasjonClient.hentMaskertPersonInfoVedManglendeTilgang(aktør)
+        val personinfo = integrasjonService.hentMaskertPersonInfoVedManglendeTilgang(aktør)
             ?: personOpplysningerService.hentPersonInfoMedRelasjonerOgRegisterinformasjon(aktør)
                 .tilPersonInfoDto(personIdent)
         return ResponseEntity.ok(Ressurs.success(personinfo))

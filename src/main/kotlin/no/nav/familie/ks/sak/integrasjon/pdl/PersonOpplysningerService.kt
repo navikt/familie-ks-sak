@@ -5,7 +5,7 @@ import no.nav.familie.kontrakter.felles.personopplysning.FORELDERBARNRELASJONROL
 import no.nav.familie.ks.sak.common.exception.PdlPersonKanIkkeBehandlesIFagsystem
 import no.nav.familie.ks.sak.common.logger
 import no.nav.familie.ks.sak.config.PersonInfoQuery
-import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
+import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonService
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.ForelderBarnRelasjonInfo
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.ForelderBarnRelasjonInfoMaskert
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.PdlPersonData
@@ -17,7 +17,7 @@ import org.springframework.stereotype.Service
 @Service
 class PersonOpplysningerService(
     private val pdlClient: PdlClient,
-    private val integrasjonClient: IntegrasjonClient,
+    private val integrasjonService: IntegrasjonService,
     private val personidentService: PersonidentService
 ) {
 
@@ -35,7 +35,7 @@ class PersonOpplysningerService(
 
         val identerMedAdressebeskyttelse = mutableSetOf<Pair<Aktør, FORELDERBARNRELASJONROLLE>>()
         val forelderBarnRelasjonerMedAdressebeskyttelseGradering = forelderBarnRelasjoner.mapNotNull { forelderBarnRelasjon ->
-            val harTilgang = integrasjonClient.sjekkTilgangTilPersoner(
+            val harTilgang = integrasjonService.sjekkTilgangTilPersoner(
                 listOf(forelderBarnRelasjon.aktør.aktivFødselsnummer())
             ).harTilgang
             if (harTilgang) {

@@ -3,7 +3,7 @@ package no.nav.familie.ks.sak.api
 import no.nav.familie.kontrakter.felles.Ressurs
 import no.nav.familie.ks.sak.api.dto.TilgangRequestDto
 import no.nav.familie.ks.sak.api.dto.TilgangResponsDto
-import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
+import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonService
 import no.nav.familie.ks.sak.integrasjon.pdl.PersonOpplysningerService
 import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
 import no.nav.security.token.support.core.api.ProtectedWithClaims
@@ -20,14 +20,14 @@ import org.springframework.web.bind.annotation.RestController
 class TilgangController(
     private val personOpplysningerService: PersonOpplysningerService,
     private val personidentService: PersonidentService,
-    private val integrasjonClient: IntegrasjonClient
+    private val integrasjonService: IntegrasjonService
 ) {
 
     @PostMapping(path = ["/tilgang"], produces = [MediaType.APPLICATION_JSON_VALUE])
     fun hentTilgangOgDiskresjonskode(@RequestBody tilgangRequestDTO: TilgangRequestDto): ResponseEntity<Ressurs<TilgangResponsDto>> {
         val aktør = personidentService.hentAktør(tilgangRequestDTO.brukerIdent)
         val adressebeskyttelse = personOpplysningerService.hentAdressebeskyttelseSomSystembruker(aktør)
-        val harTilgang = integrasjonClient.sjekkTilgangTilPersoner(listOf(tilgangRequestDTO.brukerIdent)).harTilgang
+        val harTilgang = integrasjonService.sjekkTilgangTilPersoner(listOf(tilgangRequestDTO.brukerIdent)).harTilgang
 
         return ResponseEntity.ok(
             Ressurs.success(
