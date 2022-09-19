@@ -22,12 +22,16 @@ import no.nav.familie.kontrakter.felles.oppgave.Oppgave
 import no.nav.familie.kontrakter.felles.oppgave.OppgaveResponse
 import no.nav.familie.kontrakter.felles.oppgave.OpprettOppgaveRequest
 import no.nav.familie.kontrakter.felles.tilgangskontroll.Tilgang
+import no.nav.familie.ks.sak.api.dto.PersonInfoDto
 import no.nav.familie.ks.sak.common.kallEksternTjeneste
 import no.nav.familie.ks.sak.common.kallEksternTjenesteRessurs
 import no.nav.familie.ks.sak.common.kallEksternTjenesteUtenRespons
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.domene.Arbeidsfordelingsenhet
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.domene.Arbeidsforhold
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.domene.ArbeidsforholdRequest
+import no.nav.familie.ks.sak.integrasjon.pdl.PdlClient
+import no.nav.familie.ks.sak.integrasjon.pdl.tilAdressebeskyttelse
+import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Qualifier
@@ -47,7 +51,8 @@ const val DEFAULT_JOURNALFØRENDE_ENHET = "9999"
 @Component
 class IntegrasjonClient(
     @Value("\${FAMILIE_INTEGRASJONER_API_URL}") private val integrasjonUri: URI,
-    @Qualifier("azure") restOperations: RestOperations
+    @Qualifier("azure") restOperations: RestOperations,
+    private val pdlClient: PdlClient
 ) : AbstractRestClient(restOperations, "integrasjon") {
 
     val tilgangPersonUri = UriComponentsBuilder.fromUri(integrasjonUri).pathSegment(PATH_TILGANG_PERSON).build().toUri()
@@ -357,6 +362,20 @@ class IntegrasjonClient(
             formål = "Journalfør dokument på fagsak ${arkiverDokumentRequest.fagsakId}"
         ) {
             postForEntity(uri, arkiverDokumentRequest)
+        }
+    }
+
+    fun hentMaskertPersonInfoVedManglendeTilgang(aktør: Aktør): PersonInfoDto? {
+        val harTilgang = sjekkTilgangTilPersoner(listOf(aktør.aktivFødselsnummer())).harTilgang
+        return if (!harTilgang) {
+            val adressebeskyttelse = pdlClient.hentAdressebeskyttelse(aktør).tilAdressebeskyttelse()
+            PersonInfoDto(
+                personIdent = aktør.aktivFødselsnummer(),
+                adressebeskyttelseGradering = adressebeskyttelse,
+                harTilgang = false
+            )
+        } else {
+            null
         }
     }
 
