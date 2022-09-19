@@ -7,8 +7,8 @@ no.nav.security.jwt:
         grant-type: urn:ietf:params:oauth:grant-type:jwt-bearer
         scope: ${FAMILIE_INTEGRASJONER_SCOPE}
         authentication:
-          client-id: ${KS_SAK_CLIENT_ID}
-          client-secret: ${CLIENT_SECRET}
+          client-id: ${AZURE_APP_CLIENT_ID}
+          client-secret: ${AZURE_APP_CLIENT_SECRET}
           client-auth-method: client_secret_basic
       familie-integrasjoner-clientcredentials:
         resource-url: ${FAMILIE_INTEGRASJONER_API_URL}
@@ -16,8 +16,8 @@ no.nav.security.jwt:
         grant-type: client_credentials
         scope: ${FAMILIE_INTEGRASJONER_SCOPE}
         authentication:
-          client-id: ${KS_SAK_CLIENT_ID}
-          client-secret: ${CLIENT_SECRET}
+          client-id: ${AZURE_APP_CLIENT_ID}
+          client-secret: ${AZURE_APP_CLIENT_SECRET}
           client-auth-method: client_secret_basic
       pdl-onbehalfof:
         resource-url: ${PDL_URL}
@@ -25,8 +25,8 @@ no.nav.security.jwt:
         grant-type: urn:ietf:params:oauth:grant-type:jwt-bearer
         scope: ${PDL_SCOPE}
         authentication:
-          client-id: ${KS_SAK_CLIENT_ID}
-          client-secret: ${CLIENT_SECRET}
+          client-id: ${AZURE_APP_CLIENT_ID}
+          client-secret: ${AZURE_APP_CLIENT_SECRET}
           client-auth-method: client_secret_basic
       pdl-clientcredentials:
         resource-url: ${PDL_URL}
@@ -34,8 +34,8 @@ no.nav.security.jwt:
         grant-type: client_credentials
         scope: ${PDL_SCOPE}
         authentication:
-          client-id: ${KS_SAK_CLIENT_ID}
-          client-secret: ${CLIENT_SECRET}
+          client-id: ${AZURE_APP_CLIENT_ID}
+          client-secret: ${AZURE_APP_CLIENT_SECRET}
           client-auth-method: client_secret_basic
       familie-oppdrag-clientcredentials:
         resource-url: ${FAMILIE_OPPDRAG_API_URL}
@@ -43,8 +43,8 @@ no.nav.security.jwt:
         grant-type: client_credentials
         scope: ${FAMILIE_OPPDRAG_SCOPE}
         authentication:
-          client-id: ${KS_SAK_CLIENT_ID}
-          client-secret: ${CLIENT_SECRET}
+          client-id: ${AZURE_APP_CLIENT_ID}
+          client-secret: ${AZURE_APP_CLIENT_SECRET}
           client-auth-method: client_secret_basic
       familie-tilbake-onbehalfof:
         resource-url: ${FAMILIE_TILBAKE_API_URL}
@@ -52,8 +52,8 @@ no.nav.security.jwt:
         grant-type: urn:ietf:params:oauth:grant-type:jwt-bearer
         scope: ${FAMILIE_TILBAKE_API_URL_SCOPE}
         authentication:
-          client-id: ${KS_SAK_CLIENT_ID}
-          client-secret: ${CLIENT_SECRET}
+          client-id: ${AZURE_APP_CLIENT_ID}
+          client-secret: ${AZURE_APP_CLIENT_SECRET}
           client-auth-method: client_secret_basic
       familie-tilbake-clientcredentials:
         resource-url: ${FAMILIE_TILBAKE_API_URL}
@@ -61,8 +61,8 @@ no.nav.security.jwt:
         grant-type: client_credentials
         scope: ${FAMILIE_TILBAKE_API_URL_SCOPE}
         authentication:
-          client-id: ${KS_SAK_CLIENT_ID}
-          client-secret: ${CLIENT_SECRET}
+          client-id: ${AZURE_APP_CLIENT_ID}
+          client-secret: ${AZURE_APP_CLIENT_SECRET}
           client-auth-method: client_secret_basic
       familie-ba-infotrygd-onbehalfof:
         resource-url: ${FAMILIE_BA_INFOTRYGD_API_URL}
@@ -70,8 +70,8 @@ no.nav.security.jwt:
         grant-type: urn:ietf:params:oauth:grant-type:jwt-bearer
         scope: ${FAMILIE_BA_INFOTRYGD_SCOPE}
         authentication:
-          client-id: ${KS_SAK_CLIENT_ID}
-          client-secret: ${CLIENT_SECRET}
+          client-id: ${AZURE_APP_CLIENT_ID}
+          client-secret: ${AZURE_APP_CLIENT_SECRET}
           client-auth-method: client_secret_basic
       familie-ba-infotrygd-feed-clientcredentials:
         resource-url: ${FAMILIE_BA_INFOTRYGD_FEED_API_URL}
@@ -79,8 +79,8 @@ no.nav.security.jwt:
         grant-type: client_credentials
         scope: ${FAMILIE_BA_INFOTRYGD_FEED_SCOPE}
         authentication:
-          client-id: ${KS_SAK_CLIENT_ID}
-          client-secret: ${CLIENT_SECRET}
+          client-id: ${AZURE_APP_CLIENT_ID}
+          client-secret: ${AZURE_APP_CLIENT_SECRET}
           client-auth-method: client_secret_basic
       familie-ba-infotrygd-clientcredentials:
         resource-url: ${FAMILIE_BA_INFOTRYGD_API_URL}
@@ -88,8 +88,8 @@ no.nav.security.jwt:
         grant-type: client_credentials
         scope: ${FAMILIE_BA_INFOTRYGD_SCOPE}
         authentication:
-          client-id: ${KS_SAK_CLIENT_ID}
-          client-secret: ${CLIENT_SECRET}
+          client-id: ${AZURE_APP_CLIENT_ID}
+          client-secret: ${AZURE_APP_CLIENT_SECRET}
           client-auth-method: client_secret_basic
       familie-oppdrag-onbehalfof:
         resource-url: ${FAMILIE_OPPDRAG_API_URL}
@@ -97,8 +97,8 @@ no.nav.security.jwt:
         grant-type: urn:ietf:params:oauth:grant-type:jwt-bearer
         scope: ${FAMILIE_OPPDRAG_SCOPE}
         authentication:
-          client-id: ${KS_SAK_CLIENT_ID}
-          client-secret: ${CLIENT_SECRET}
+          client-id: ${AZURE_APP_CLIENT_ID}
+          client-secret: ${AZURE_APP_CLIENT_SECRET}
           client-auth-method: client_secret_basic
       familie-ef-sak-onbehalfof:
         resource-url: ${FAMILIE_EF_SAK_API_URL}
@@ -106,8 +106,8 @@ no.nav.security.jwt:
         grant-type: urn:ietf:params:oauth:grant-type:jwt-bearer
         scope: ${FAMILIE_EF_SAK_API_URL_SCOPE}
         authentication:
-          client-id: ${KS_SAK_CLIENT_ID}
-          client-secret: ${CLIENT_SECRET}
+          client-id: ${AZURE_APP_CLIENT_ID}
+          client-secret: ${AZURE_APP_CLIENT_SECRET}
           client-auth-method: client_secret_basic
       familie-ef-sak-clientcredentials:
         resource-url: ${FAMILIE_EF_SAK_API_URL}
@@ -115,8 +115,8 @@ no.nav.security.jwt:
         grant-type: client_credentials
         scope: ${FAMILIE_EF_SAK_API_URL_SCOPE}
         authentication:
-          client-id: ${KS_SAK_CLIENT_ID}
-          client-secret: ${CLIENT_SECRET}
+          client-id: ${AZURE_APP_CLIENT_ID}
+          client-secret: ${AZURE_APP_CLIENT_SECRET}
           client-auth-method: client_secret_basic
 
 prosessering.fixedDelayString.in.milliseconds: 2000
@@ -181,5 +181,3 @@ KAFKA_BROKERS: http://localhost:9092
 retry.backoff.delay: 5
 NAIS_APP_NAME: familie-ks-sak
 CRON_FAGSAKSTATUS_SCHEDULER: "0 0/10 * ? * *"
-
-AZURE_APP_CLIENT_ID: ${KS_SAK_CLIENT_ID}
