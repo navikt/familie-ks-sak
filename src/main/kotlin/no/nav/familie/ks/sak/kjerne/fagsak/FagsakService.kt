@@ -44,7 +44,7 @@ class FagsakService(
 
         val personInfoMedRelasjoner = personopplysningerService.hentPersonInfoMedRelasjonerOgRegisterinformasjon(aktør)
 
-        // henter assosierte fagsak deltagere
+        // finner fagsak på aktør og henter assosierte fagsak deltagere
         val assosierteFagsakDeltagere = hentForelderdeltagereFraBehandling(aktør, personInfoMedRelasjoner).toMutableList()
 
         val erBarn = Period.between(personInfoMedRelasjoner.fødselsdato, LocalDate.now()).years < 18
