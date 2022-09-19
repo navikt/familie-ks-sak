@@ -19,9 +19,6 @@ interface FagsakRepository : JpaRepository<Fagsak, Long> {
     @Query(value = "SELECT f FROM Fagsak f WHERE f.aktør = :aktør and f.arkivert = false")
     fun finnFagsakForAktør(aktør: Aktør): Fagsak?
 
-    @Query(value = "SELECT f FROM Fagsak f WHERE f.aktør = :aktør and f.arkivert = false")
-    fun finnFagsakerForAktør(aktør: Aktør): List<Fagsak>
-
     @Query(value = "SELECT f from Fagsak f WHERE f.status = 'LØPENDE'  AND f.arkivert = false")
     fun finnLøpendeFagsaker(): List<Fagsak>
 }

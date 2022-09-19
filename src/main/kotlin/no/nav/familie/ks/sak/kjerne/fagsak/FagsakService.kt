@@ -39,31 +39,28 @@ class FagsakService(
     fun hentFagsakDeltagere(personIdent: String): List<FagsakDeltagerResponsDto> {
         val aktør = personidentService.hentAktør(personIdent)
 
-        // hent maskert fagsak deltaker hvis aktør ikke har tilgang
+        // returnerer maskert fagsak deltaker hvis aktør ikke har tilgang
         hentMaskertFagsakdeltakerVedManglendeTilgang(aktør)?.let { return listOf(it) }
+
         val personInfoMedRelasjoner = personopplysningerService.hentPersonInfoMedRelasjonerOgRegisterinformasjon(aktør)
 
-        // finner fagsak på aktør og henter assosierte fagsak deltagere
+        // henter assosierte fagsak deltagere
         val assosierteFagsakDeltagere = hentForelderdeltagereFraBehandling(aktør, personInfoMedRelasjoner).toMutableList()
+
         val erBarn = Period.between(personInfoMedRelasjoner.fødselsdato, LocalDate.now()).years < 18
 
         // fagsaker som ikke finnes i assosierteForeldreDeltagere, er barn
-        // her bruker vi ifEmpty { listOf(null) } slik at fagsakerForBarn.forEach{} kjører minst en gang
-        // assosierteFagsakDeltagere kan legges til hvis ingen fagsak finnes for søkparam
-        val fagsakerForBarn = fagsakRepository.finnFagsakerForAktør(aktør).ifEmpty { listOf(null) }.filter { fagsak ->
-            assosierteFagsakDeltagere.none { it.ident == aktør.aktivFødselsnummer() && it.fagsakId == fagsak?.id }
-        }
-        fagsakerForBarn.forEach { fagsak ->
-            assosierteFagsakDeltagere.add(
-                lagFagsakDeltagerResponsDto(
-                    personInfo = personInfoMedRelasjoner,
-                    ident = aktør.aktivFødselsnummer(),
-                    // Vi setter rollen til Ukjent når det ikke er barn
-                    rolle = if (erBarn) FagsakDeltagerRolle.BARN else FagsakDeltagerRolle.UKJENT,
-                    fagsak = fagsak
-                )
+        val fagsakForBarn = fagsakRepository.finnFagsakForAktør(aktør)
+
+        assosierteFagsakDeltagere.add(
+            lagFagsakDeltagerResponsDto(
+                personInfo = personInfoMedRelasjoner,
+                ident = aktør.aktivFødselsnummer(),
+                // Vi setter rollen til Ukjent når det ikke er barn
+                rolle = if (erBarn) FagsakDeltagerRolle.BARN else FagsakDeltagerRolle.UKJENT,
+                fagsak = fagsakForBarn
             )
-        }
+        )
 
         // Hvis søkparam(aktør) er barn og søker til barn ikke har behandling ennå, hentes det søker til barnet
         if (erBarn) {
@@ -136,19 +133,15 @@ class FagsakService(
                     maskertForelder != null -> assosierteFagsakDeltagere.add(maskertForelder.copy(rolle = FagsakDeltagerRolle.FORELDER))
                     else -> {
                         val forelderInfo = personopplysningerService.hentPersoninfoEnkel(relasjon.aktør)
-                        // her bruker vi ifEmpty { listOf(null) } slik at fagsakerForBarn.forEach{} kjører minst en gang
-                        // assosierteFagsakDeltagere kan legges til hvis ingen fagsak finnes for søkparam
-                        val fagsaker = fagsakRepository.finnFagsakerForAktør(relasjon.aktør).ifEmpty { listOf(null) }
-                        fagsaker.forEach { fagsak ->
-                            assosierteFagsakDeltagere.add(
-                                lagFagsakDeltagerResponsDto(
-                                    personInfo = forelderInfo,
-                                    ident = relasjon.aktør.aktivFødselsnummer(),
-                                    rolle = FagsakDeltagerRolle.FORELDER,
-                                    fagsak = fagsak
-                                )
+                        val fagsak = fagsakRepository.finnFagsakForAktør(relasjon.aktør)
+                        assosierteFagsakDeltagere.add(
+                            lagFagsakDeltagerResponsDto(
+                                personInfo = forelderInfo,
+                                ident = relasjon.aktør.aktivFødselsnummer(),
+                                rolle = FagsakDeltagerRolle.FORELDER,
+                                fagsak = fagsak
                             )
-                        }
+                        )
                     }
                 }
             }
