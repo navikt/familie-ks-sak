@@ -19,7 +19,7 @@ class JournalføringController(
     private val innkommendeJournalføringService: InnkommendeJournalføringService
 ) {
 
-    @GetMapping(path = ["/for-bruker/{brukerId}"])
+    @GetMapping(path = ["/bruker/{brukerId}"])
     fun hentJournalposterForBruker(@PathVariable brukerId: String): ResponseEntity<Ressurs<List<Journalpost>>> =
         ResponseEntity.ok(Ressurs.success(innkommendeJournalføringService.hentJournalposterForBruker(brukerId)))
 }

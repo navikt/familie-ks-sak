@@ -11,13 +11,12 @@ import org.springframework.stereotype.Service
 @Service
 class InnkommendeJournalføringService(private val integrasjonClient: IntegrasjonClient) {
 
-    fun hentJournalposterForBruker(brukerId: String): List<Journalpost> {
-        return integrasjonClient.hentJournalposterForBruker(
+    fun hentJournalposterForBruker(brukerId: String): List<Journalpost> =
+        integrasjonClient.hentJournalposterForBruker(
             JournalposterForBrukerRequest(
                 antall = 1000,
                 brukerId = Bruker(id = brukerId, type = BrukerIdType.FNR),
                 tema = listOf(Tema.KON)
             )
         )
-    }
 }
