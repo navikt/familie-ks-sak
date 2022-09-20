@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController
 @ProtectedWithClaims(issuer = "azuread")
 @Validated
 class JournalføringController(
-    private val innkommendeJournalføringService: InnkommendeJournalføringService,
+    private val innkommendeJournalføringService: InnkommendeJournalføringService
 ) {
 
     @GetMapping(path = ["/for-bruker/{brukerId}"])
