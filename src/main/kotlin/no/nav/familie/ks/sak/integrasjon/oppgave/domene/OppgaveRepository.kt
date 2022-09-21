@@ -7,17 +7,17 @@ import org.springframework.data.jpa.repository.Query
 import org.springframework.stereotype.Repository
 
 @Repository
-interface OppgaveRepository : JpaRepository<Dboppgave, Long> {
+interface OppgaveRepository : JpaRepository<DbOppgave, Long> {
 
     @Query(value = "SELECT o FROM Oppgave o WHERE o.erFerdigstilt = false AND o.behandling = :behandling AND o.type = :oppgavetype")
-    fun findByOppgavetypeAndBehandlingAndIkkeFerdigstilt(oppgavetype: Oppgavetype, behandling: Behandling): Dboppgave?
+    fun findByOppgavetypeAndBehandlingAndIkkeFerdigstilt(oppgavetype: Oppgavetype, behandling: Behandling): DbOppgave?
 
     @Query(value = "SELECT o FROM Oppgave o WHERE o.erFerdigstilt = false AND o.behandling = :behandling AND o.type = :oppgavetype")
-    fun finnOppgaverSomSkalFerdigstilles(oppgavetype: Oppgavetype, behandling: Behandling): List<Dboppgave>
+    fun finnOppgaverSomSkalFerdigstilles(oppgavetype: Oppgavetype, behandling: Behandling): List<DbOppgave>
 
     @Query(value = "SELECT o FROM Oppgave o WHERE o.erFerdigstilt = false AND o.behandling = :behandling")
-    fun findByBehandlingAndIkkeFerdigstilt(behandling: Behandling): List<Dboppgave>
+    fun findByBehandlingAndIkkeFerdigstilt(behandling: Behandling): List<DbOppgave>
 
     @Query(value = "SELECT o FROM Oppgave o WHERE o.erFerdigstilt = false AND o.behandling.id = :behandlingId")
-    fun findByBehandlingIdAndIkkeFerdigstilt(behandlingId: Long): List<Dboppgave>
+    fun findByBehandlingIdAndIkkeFerdigstilt(behandlingId: Long): List<DbOppgave>
 }

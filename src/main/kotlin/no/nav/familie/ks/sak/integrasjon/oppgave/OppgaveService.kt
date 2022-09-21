@@ -6,7 +6,7 @@ import no.nav.familie.kontrakter.felles.oppgave.Oppgave
 import no.nav.familie.kontrakter.felles.oppgave.OppgaveResponse
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
-import no.nav.familie.ks.sak.integrasjon.oppgave.domene.Dboppgave
+import no.nav.familie.ks.sak.integrasjon.oppgave.domene.DbOppgave
 import no.nav.familie.ks.sak.integrasjon.oppgave.domene.OppgaveRepository
 import no.nav.familie.ks.sak.kjerne.behandling.Behandling
 import org.slf4j.LoggerFactory
@@ -43,7 +43,7 @@ class OppgaveService(
     fun hentOppgaver(finnOppgaveRequest: FinnOppgaveRequest): FinnOppgaveResponseDto =
         integrasjonClient.hentOppgaver(finnOppgaveRequest)
 
-    fun hentOppgaverSomIkkeErFerdigstilt(behandling: Behandling): List<Dboppgave> {
+    fun hentOppgaverSomIkkeErFerdigstilt(behandling: Behandling): List<DbOppgave> {
         return oppgaveRepository.findByBehandlingAndIkkeFerdigstilt(behandling)
     }
 

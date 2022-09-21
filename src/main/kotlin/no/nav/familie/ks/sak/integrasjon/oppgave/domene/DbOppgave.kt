@@ -17,7 +17,7 @@ import javax.persistence.Table
 
 @Entity(name = "Oppgave")
 @Table(name = "OPPGAVE")
-data class Dboppgave(
+data class DbOppgave(
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "oppgave_seq_generator")
     @SequenceGenerator(name = "oppgave_seq_generator", sequenceName = "oppgave_seq", allocationSize = 50)
