@@ -2,9 +2,9 @@ package no.nav.familie.ks.sak.api.dto
 
 import no.nav.familie.kontrakter.felles.personopplysning.ADRESSEBESKYTTELSEGRADERING
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.PdlPersonInfo
-import no.nav.familie.ks.sak.kjerne.behandling.Behandling
-import no.nav.familie.ks.sak.kjerne.behandling.BehandlingStatus
-import no.nav.familie.ks.sak.kjerne.fagsak.Fagsak
+import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
+import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
+import no.nav.familie.ks.sak.kjerne.fagsak.domene.Fagsak
 
 object FagsakMapper {
 

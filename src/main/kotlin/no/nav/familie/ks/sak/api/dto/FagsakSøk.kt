@@ -2,7 +2,7 @@ package no.nav.familie.ks.sak.api.dto
 
 import no.nav.familie.kontrakter.felles.personopplysning.ADRESSEBESKYTTELSEGRADERING
 import no.nav.familie.kontrakter.felles.personopplysning.KJOENN
-import no.nav.familie.ks.sak.kjerne.fagsak.FagsakStatus
+import no.nav.familie.ks.sak.kjerne.fagsak.domene.FagsakStatus
 
 data class SøkParamDto(
     val personIdent: String,

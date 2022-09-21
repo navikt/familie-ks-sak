@@ -1,4 +1,4 @@
-package no.nav.familie.ks.sak.kjerne.behandling
+package no.nav.familie.ks.sak.kjerne.behandling.domene
 
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
