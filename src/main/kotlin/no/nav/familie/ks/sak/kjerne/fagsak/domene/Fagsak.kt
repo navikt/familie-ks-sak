@@ -1,4 +1,4 @@
-package no.nav.familie.ks.sak.kjerne.fagsak
+package no.nav.familie.ks.sak.kjerne.fagsak.domene
 
 import no.nav.familie.ks.sak.common.entitet.BaseEntitet
 import no.nav.familie.ks.sak.kjerne.personident.Aktør

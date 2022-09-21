@@ -1,15 +1,80 @@
 package no.nav.familie.ks.sak.integrasjon.oppgave
 
+import no.nav.familie.kontrakter.felles.Behandlingstema
+import no.nav.familie.kontrakter.felles.Tema
 import no.nav.familie.kontrakter.felles.oppgave.FinnOppgaveRequest
 import no.nav.familie.kontrakter.felles.oppgave.FinnOppgaveResponseDto
+import no.nav.familie.kontrakter.felles.oppgave.IdentGruppe
 import no.nav.familie.kontrakter.felles.oppgave.Oppgave
+import no.nav.familie.kontrakter.felles.oppgave.OppgaveIdentV2
+import no.nav.familie.kontrakter.felles.oppgave.OppgaveResponse
+import no.nav.familie.kontrakter.felles.oppgave.Oppgavetype
+import no.nav.familie.kontrakter.felles.oppgave.OpprettOppgaveRequest
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
+import no.nav.familie.ks.sak.integrasjon.oppgave.domene.DbOppgave
+import no.nav.familie.ks.sak.integrasjon.oppgave.domene.OppgaveRepository
+import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.domene.ArbeidsfordelingPåBehandlingRepository
+import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
+import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 @Service
-class OppgaveService(private val integrasjonClient: IntegrasjonClient) {
+class OppgaveService(
+    private val integrasjonClient: IntegrasjonClient,
+    private val oppgaveRepository: OppgaveRepository,
+    private val behandlingRepository: BehandlingRepository,
+    private val arbeidsfordelingPåBehandlingRepository: ArbeidsfordelingPåBehandlingRepository
+) {
+
+    fun opprettOppgave(
+        behandlingId: Long,
+        oppgavetype: Oppgavetype,
+        fristForFerdigstillelse: LocalDate,
+        tilordnetNavIdent: String? = null,
+        beskrivelse: String? = null
+    ): String {
+        val behandling = behandlingRepository.finnBehandling(behandlingId)
+        val eksisterendeIkkeFerdigstiltOppgave =
+            oppgaveRepository.findByOppgavetypeAndBehandlingAndIkkeFerdigstilt(oppgavetype, behandling)
+        if (eksisterendeIkkeFerdigstiltOppgave != null && oppgavetype != Oppgavetype.Journalføring) {
+            logger.warn(
+                "Fant eksisterende oppgave $eksisterendeIkkeFerdigstiltOppgave med " +
+                    "samme oppgavetype $oppgavetype som ikke er ferdigstilt for behandling ${behandling.id}." +
+                    "Vi oppretter ikke ny oppgave, men gjenbruker eksisterende."
+            )
+            return eksisterendeIkkeFerdigstiltOppgave.gsakId
+        }
+        val arbeidsfordelingsenhet = arbeidsfordelingPåBehandlingRepository.finnArbeidsfordelingPåBehandling(behandling.id)
+
+        if (arbeidsfordelingsenhet == null) {
+            logger.warn("Fant ikke behandlende enhet på behandling ${behandling.id} ved opprettelse av $oppgavetype-oppgave.")
+        }
+
+        val opprettOppgaveRequest = OpprettOppgaveRequest(
+            ident = OppgaveIdentV2(ident = behandling.fagsak.aktør.aktørId, gruppe = IdentGruppe.AKTOERID),
+            saksId = behandling.fagsak.id.toString(),
+            tema = Tema.KON,
+            oppgavetype = oppgavetype,
+            fristFerdigstillelse = fristForFerdigstillelse,
+            beskrivelse = lagOppgaveTekst(behandling.fagsak.id, beskrivelse),
+            enhetsnummer = arbeidsfordelingsenhet?.behandlendeEnhetId,
+            behandlingstema = Behandlingstema.Kontantstøtte.value,
+            // TODO - må diskuteres hva det kan være for KS-EØS
+            behandlingstype = behandling.kategori.tilOppgavebehandlingType().value,
+            tilordnetRessurs = tilordnetNavIdent
+        )
+        val opprettetOppgaveId = integrasjonClient.opprettOppgave(opprettOppgaveRequest).oppgaveId.toString()
+
+        val oppgave = DbOppgave(gsakId = opprettetOppgaveId, behandling = behandling, type = oppgavetype)
+        oppgaveRepository.save(oppgave)
+
+        return opprettetOppgaveId
+    }
 
     fun fordelOppgave(oppgaveId: Long, saksbehandler: String, overstyrFordeling: Boolean = false): String {
         if (!overstyrFordeling) {
@@ -36,10 +101,30 @@ class OppgaveService(private val integrasjonClient: IntegrasjonClient) {
     fun hentOppgaver(finnOppgaveRequest: FinnOppgaveRequest): FinnOppgaveResponseDto =
         integrasjonClient.hentOppgaver(finnOppgaveRequest)
 
+    fun hentOppgaverSomIkkeErFerdigstilt(behandling: Behandling): List<DbOppgave> =
+        oppgaveRepository.findByBehandlingAndIkkeFerdigstilt(behandling)
+
     fun ferdigstillOppgave(oppgave: Oppgave) {
         val oppgaveId = oppgave.id
         requireNotNull(oppgaveId) { "Oppgaven må ha en id for å kunne ferdigstilles" }
         integrasjonClient.ferdigstillOppgave(oppgaveId)
+    }
+
+    fun patchOppgave(patchOppgave: Oppgave): OppgaveResponse = integrasjonClient.patchOppgave(patchOppgave)
+
+    fun patchOppgaverForBehandling(behandling: Behandling, copyOppgave: (oppgave: Oppgave) -> Oppgave?) {
+        hentOppgaverSomIkkeErFerdigstilt(behandling).forEach { dbOppgave ->
+            val oppgave = hentOppgave(dbOppgave.gsakId.toLong())
+            copyOppgave(oppgave)?.also { patchOppgave(it) }
+        }
+    }
+
+    private fun lagOppgaveTekst(fagsakId: Long, beskrivelse: String? = null): String {
+        return beskrivelse?.let { it + "\n" }
+            ?: (
+                "----- Opprettet av familie-ks-sak ${LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME)} --- \n" +
+                    "https://ks.intern.nav.no/fagsak/$fagsakId"
+                )
     }
 
     companion object {

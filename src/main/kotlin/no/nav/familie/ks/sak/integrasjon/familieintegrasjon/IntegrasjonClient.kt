@@ -9,14 +9,17 @@ import no.nav.familie.kontrakter.felles.oppgave.FinnOppgaveRequest
 import no.nav.familie.kontrakter.felles.oppgave.FinnOppgaveResponseDto
 import no.nav.familie.kontrakter.felles.oppgave.Oppgave
 import no.nav.familie.kontrakter.felles.oppgave.OppgaveResponse
+import no.nav.familie.kontrakter.felles.oppgave.OpprettOppgaveRequest
 import no.nav.familie.kontrakter.felles.tilgangskontroll.Tilgang
 import no.nav.familie.ks.sak.common.kallEksternTjeneste
 import no.nav.familie.ks.sak.common.kallEksternTjenesteRessurs
 import no.nav.familie.ks.sak.common.kallEksternTjenesteUtenRespons
+import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.domene.Arbeidsfordelingsenhet
 import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.cache.annotation.Cacheable
 import org.springframework.http.HttpHeaders
 import org.springframework.retry.annotation.Backoff
 import org.springframework.retry.annotation.Retryable
@@ -82,6 +85,22 @@ class IntegrasjonClient(
         ) {
             postForEntity(
                 uri,
+                HttpHeaders().medContentTypeJsonUTF8()
+            )
+        }
+    }
+
+    fun patchOppgave(patchOppgave: Oppgave): OppgaveResponse {
+        val uri = URI.create("$integrasjonUri/oppgave/${patchOppgave.id}/oppdater")
+
+        return kallEksternTjenesteRessurs(
+            tjeneste = "oppgave",
+            uri = uri,
+            formål = "Patch oppgave"
+        ) {
+            patchForEntity(
+                uri,
+                patchOppgave,
                 HttpHeaders().medContentTypeJsonUTF8()
             )
         }
@@ -158,6 +177,38 @@ class IntegrasjonClient(
             formål = "Hent dokument $dokumentInfoId i journalpost $journalpostId"
         ) {
             getForEntity(uri)
+        }
+    }
+
+    @Cacheable("behandlendeEnhet", cacheManager = "shortCache")
+    fun hentBehandlendeEnhet(ident: String): List<Arbeidsfordelingsenhet> {
+        val uri = UriComponentsBuilder
+            .fromUri(integrasjonUri)
+            .pathSegment("arbeidsfordeling", "enhet", Tema.KON.name)
+            .build().toUri()
+
+        return kallEksternTjenesteRessurs(
+            tjeneste = "arbeidsfordeling",
+            uri = uri,
+            formål = "Hent behandlende enhet"
+        ) {
+            postForEntity(uri, mapOf("ident" to ident))
+        }
+    }
+
+    fun opprettOppgave(opprettOppgave: OpprettOppgaveRequest): OppgaveResponse {
+        val uri = URI.create("$integrasjonUri/oppgave/opprett")
+
+        return kallEksternTjenesteRessurs(
+            tjeneste = "oppgave",
+            uri = uri,
+            formål = "Opprett oppgave"
+        ) {
+            postForEntity(
+                uri,
+                opprettOppgave,
+                HttpHeaders().medContentTypeJsonUTF8()
+            )
         }
     }
 
