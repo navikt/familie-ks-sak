@@ -3,6 +3,8 @@ package no.nav.familie.ks.sak.integrasjon.familieintegrasjon
 import no.nav.familie.http.client.AbstractRestClient
 import no.nav.familie.kontrakter.felles.Ressurs
 import no.nav.familie.kontrakter.felles.Tema
+import no.nav.familie.kontrakter.felles.journalpost.Journalpost
+import no.nav.familie.kontrakter.felles.journalpost.JournalposterForBrukerRequest
 import no.nav.familie.kontrakter.felles.oppgave.FinnOppgaveRequest
 import no.nav.familie.kontrakter.felles.oppgave.FinnOppgaveResponseDto
 import no.nav.familie.kontrakter.felles.oppgave.Oppgave
@@ -11,11 +13,15 @@ import no.nav.familie.kontrakter.felles.tilgangskontroll.Tilgang
 import no.nav.familie.ks.sak.common.kallEksternTjeneste
 import no.nav.familie.ks.sak.common.kallEksternTjenesteRessurs
 import no.nav.familie.ks.sak.common.kallEksternTjenesteUtenRespons
+import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.domene.Arbeidsfordelingsenhet
 import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.cache.annotation.Cacheable
 import org.springframework.http.HttpHeaders
+import org.springframework.retry.annotation.Backoff
+import org.springframework.retry.annotation.Retryable
 import org.springframework.stereotype.Component
 import org.springframework.web.client.RestOperations
 import org.springframework.web.util.UriComponentsBuilder
@@ -83,6 +89,22 @@ class IntegrasjonClient(
         }
     }
 
+    fun patchOppgave(patchOppgave: Oppgave): OppgaveResponse {
+        val uri = URI.create("$integrasjonUri/oppgave/${patchOppgave.id}/oppdater")
+
+        return kallEksternTjenesteRessurs(
+            tjeneste = "oppgave",
+            uri = uri,
+            formål = "Patch oppgave"
+        ) {
+            patchForEntity(
+                uri,
+                patchOppgave,
+                HttpHeaders().medContentTypeJsonUTF8()
+            )
+        }
+    }
+
     fun finnOppgaveMedId(oppgaveId: Long): Oppgave {
         val uri = URI.create("$integrasjonUri/oppgave/$oppgaveId")
 
@@ -108,6 +130,44 @@ class IntegrasjonClient(
                 finnOppgaveRequest,
                 HttpHeaders().medContentTypeJsonUTF8()
             )
+        }
+    }
+
+    @Retryable(
+        value = [Exception::class],
+        maxAttempts = 3,
+        backoff = Backoff(delayExpression = RETRY_BACKOFF_5000MS)
+    )
+    fun hentJournalposterForBruker(journalposterForBrukerRequest: JournalposterForBrukerRequest): List<Journalpost> {
+        val uri = URI.create("$integrasjonUri/journalpost")
+
+        return kallEksternTjenesteRessurs(
+            tjeneste = "dokarkiv",
+            uri = uri,
+            formål = "Hent journalposter for bruker"
+        ) {
+            postForEntity(uri, journalposterForBrukerRequest)
+        }
+    }
+
+    @Retryable(
+        value = [Exception::class],
+        maxAttempts = 3,
+        backoff = Backoff(delayExpression = RETRY_BACKOFF_5000MS)
+    )
+    @Cacheable("behandlendeEnhet", cacheManager = "shortCache")
+    fun hentBehandlendeEnhet(ident: String): List<Arbeidsfordelingsenhet> {
+        val uri = UriComponentsBuilder
+            .fromUri(integrasjonUri)
+            .pathSegment("arbeidsfordeling", "enhet", Tema.KON.name)
+            .build().toUri()
+
+        return kallEksternTjenesteRessurs(
+            tjeneste = "arbeidsfordeling",
+            uri = uri,
+            formål = "Hent behandlende enhet"
+        ) {
+            postForEntity(uri, mapOf("ident" to ident))
         }
     }
 
