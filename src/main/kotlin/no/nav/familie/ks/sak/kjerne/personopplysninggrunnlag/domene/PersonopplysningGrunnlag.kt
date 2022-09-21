@@ -42,4 +42,6 @@ data class PersonopplysningGrunnlag(
     override fun toString(): String {
         return "PersonopplysningGrunnlagEntitet{id=$id,personer=$personer,aktiv=$aktiv}"
     }
+
+    val barna: List<Person> get() = personer.filter { it.type == PersonType.BARN }
 }
