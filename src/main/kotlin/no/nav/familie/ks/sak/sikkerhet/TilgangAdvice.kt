@@ -34,20 +34,21 @@ class TilgangAdvice(
         when (sjekkTilgang.tilgang) {
             Tilgang.FAGSAK -> {
                 sjekkTilgangTilHandling(sjekkTilgang.minimumBehandlerRolle, sjekkTilgang.handling)
-                val fagsakId = extractFieldFromJoinPoint(joinPoint, listOf("fagsakId"), sjekkTilgang.index) as Long
+                val fagsakId =
+                    lesFeltFraKontrollerMetodeParameter(joinPoint, listOf("fagsakId"), sjekkTilgang.index) as Long
                 sjekkTilgangTilFagsak(fagsakId, sjekkTilgang.auditLoggerEvent)
             }
 
             Tilgang.BEHANDLING -> {
                 sjekkTilgangTilHandling(sjekkTilgang.minimumBehandlerRolle, sjekkTilgang.handling)
                 val behandlingId =
-                    extractFieldFromJoinPoint(joinPoint, listOf("behandling"), sjekkTilgang.index) as Long
+                    lesFeltFraKontrollerMetodeParameter(joinPoint, listOf("behandling"), sjekkTilgang.index) as Long
                 sjekkTilgangTilBehandling(behandlingId, sjekkTilgang.auditLoggerEvent)
             }
 
             Tilgang.PERSON -> {
                 sjekkTilgangTilHandling(sjekkTilgang.minimumBehandlerRolle, sjekkTilgang.handling)
-                val personIdenter = extractFieldFromJoinPoint(
+                val personIdenter = lesFeltFraKontrollerMetodeParameter(
                     joinPoint,
                     listOf("personIdent", "søkersIdent", "ident"),
                     sjekkTilgang.index
@@ -61,21 +62,21 @@ class TilgangAdvice(
         }
     }
 
-    private fun extractFieldFromJoinPoint(
-        joinPoint: JoinPoint,
-        fieldAliases: List<String> = emptyList(),
+    private fun lesFeltFraKontrollerMetodeParameter(
+        kontrollerMetode: JoinPoint,
+        feltAliaser: List<String> = emptyList(),
         index: Int = 0
     ): Any {
-        val joinPointParameter = joinPoint.args[index]
-        if (isGetOrDeleteRequest()) {
-            return joinPointParameter
+        val kontrollerMetodeParameter = kontrollerMetode.args[index]
+        if (erGetEllerDelete()) {
+            return kontrollerMetodeParameter
         }
-        val fields = joinPointParameter::class.declaredMemberProperties
-        val field = fields.first { fieldAliases.contains(it.name) }.getter.call(joinPointParameter)
-        return field!!
+        val felter = kontrollerMetodeParameter::class.declaredMemberProperties
+        val felt = felter.first { feltAliaser.contains(it.name) }.getter.call(kontrollerMetodeParameter)
+        return felt!!
     }
 
-    private fun isGetOrDeleteRequest(): Boolean {
+    private fun erGetEllerDelete(): Boolean {
         val httpMethod: HttpMethod =
             HttpMethod.valueOf((RequestContextHolder.currentRequestAttributes() as ServletRequestAttributes).request.method)
         return httpMethod === HttpMethod.GET || httpMethod === HttpMethod.DELETE
@@ -151,6 +152,8 @@ class TilgangAdvice(
         }
         if (!harTilgang) {
             throw RolleTilgangskontrollFeil(
+                "Saksbehandler ${SikkerhetContext.hentSaksbehandler()} " +
+                    "har ikke tilgang.",
                 "Saksbehandler ${SikkerhetContext.hentSaksbehandler()} " +
                     "har ikke tilgang til behandling=$behandlingId"
             )
