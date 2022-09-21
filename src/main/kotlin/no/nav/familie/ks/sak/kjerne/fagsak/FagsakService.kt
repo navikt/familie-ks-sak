@@ -9,6 +9,7 @@ import no.nav.familie.ks.sak.api.dto.FagsakMapper.lagMinimalFagsakResponsDto
 import no.nav.familie.ks.sak.api.dto.FagsakRequestDto
 import no.nav.familie.ks.sak.api.dto.MinimalFagsakResponsDto
 import no.nav.familie.ks.sak.common.exception.Feil
+import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
 import no.nav.familie.ks.sak.integrasjon.pdl.PersonOpplysningerService
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.PdlPersonInfo
@@ -185,6 +186,13 @@ class FagsakService(
                 null
             }
         }
+    }
+
+    fun hentFagsak(fagsakId: Long): Fagsak {
+        return fagsakRepository.finnFagsak(fagsakId) ?: throw FunksjonellFeil(
+            melding = "Finner ikke fagsak med id $fagsakId",
+            frontendFeilmelding = "Finner ikke fagsak med id $fagsakId"
+        )
     }
 
     companion object {
