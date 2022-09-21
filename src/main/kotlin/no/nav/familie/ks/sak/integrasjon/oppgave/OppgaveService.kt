@@ -8,7 +8,7 @@ import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
 import no.nav.familie.ks.sak.integrasjon.oppgave.domene.DbOppgave
 import no.nav.familie.ks.sak.integrasjon.oppgave.domene.OppgaveRepository
-import no.nav.familie.ks.sak.kjerne.behandling.Behandling
+import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 

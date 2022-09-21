@@ -1,7 +1,7 @@
 package no.nav.familie.ks.sak.integrasjon.oppgave.domene
 
 import no.nav.familie.kontrakter.felles.oppgave.Oppgavetype
-import no.nav.familie.ks.sak.kjerne.behandling.Behandling
+import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
 import org.springframework.stereotype.Repository

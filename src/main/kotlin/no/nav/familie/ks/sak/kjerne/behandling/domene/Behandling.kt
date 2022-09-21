@@ -1,18 +1,15 @@
-package no.nav.familie.ks.sak.kjerne.behandling
+package no.nav.familie.ks.sak.kjerne.behandling.domene
 
 import no.nav.familie.ks.sak.common.entitet.BaseEntitet
 import no.nav.familie.ks.sak.common.exception.Feil
-import no.nav.familie.ks.sak.kjerne.behandling.BehandlingType.FØRSTEGANGSBEHANDLING
-import no.nav.familie.ks.sak.kjerne.behandling.BehandlingType.REVURDERING
-import no.nav.familie.ks.sak.kjerne.behandling.BehandlingType.TEKNISK_ENDRING
-import no.nav.familie.ks.sak.kjerne.behandling.Behandlingsresultat.ENDRET_UTBETALING
-import no.nav.familie.ks.sak.kjerne.behandling.Behandlingsresultat.FORTSATT_INNVILGET
-import no.nav.familie.ks.sak.kjerne.behandling.Behandlingsresultat.FORTSATT_OPPHØRT
-import no.nav.familie.ks.sak.kjerne.behandling.Behandlingsresultat.HENLAGT_FEILAKTIG_OPPRETTET
-import no.nav.familie.ks.sak.kjerne.behandling.Behandlingsresultat.HENLAGT_SØKNAD_TRUKKET
-import no.nav.familie.ks.sak.kjerne.behandling.Behandlingsresultat.HENLAGT_TEKNISK_VEDLIKEHOLD
-import no.nav.familie.ks.sak.kjerne.behandling.Behandlingsresultat.IKKE_VURDERT
-import no.nav.familie.ks.sak.kjerne.fagsak.Fagsak
+import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingType.FØRSTEGANGSBEHANDLING
+import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingType.REVURDERING
+import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingType.TEKNISK_ENDRING
+import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat.HENLAGT_FEILAKTIG_OPPRETTET
+import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat.HENLAGT_SØKNAD_TRUKKET
+import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat.HENLAGT_TEKNISK_VEDLIKEHOLD
+import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat.IKKE_VURDERT
+import no.nav.familie.ks.sak.kjerne.fagsak.domene.Fagsak
 import java.time.LocalDate
 import javax.persistence.Column
 import javax.persistence.Entity
@@ -103,14 +100,6 @@ data class Behandling(
     fun erVedtatt() = status == BehandlingStatus.AVSLUTTET && !erHenlagt()
 
     fun erSøknad() = opprettetÅrsak == BehandlingÅrsak.SØKNAD
-
-    fun skalRettFraBehandlingsresultatTilIverksetting(): Boolean {
-        return when {
-            skalBehandlesAutomatisk && resultat in listOf(FORTSATT_INNVILGET, FORTSATT_OPPHØRT) -> true
-            skalBehandlesAutomatisk && erSatsendring() && resultat == ENDRET_UTBETALING -> true
-            else -> false
-        }
-    }
 
     fun erKlage() = this.opprettetÅrsak == BehandlingÅrsak.KLAGE
 

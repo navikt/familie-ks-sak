@@ -1,7 +1,7 @@
 package no.nav.familie.ks.sak.integrasjon.oppgave.domene
 
 import no.nav.familie.kontrakter.felles.oppgave.Oppgavetype
-import no.nav.familie.ks.sak.kjerne.behandling.Behandling
+import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import java.time.LocalDateTime
 import javax.persistence.Column
 import javax.persistence.Entity
