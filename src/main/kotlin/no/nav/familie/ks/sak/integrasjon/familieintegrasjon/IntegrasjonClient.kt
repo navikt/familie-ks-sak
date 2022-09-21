@@ -9,6 +9,7 @@ import no.nav.familie.kontrakter.felles.oppgave.FinnOppgaveRequest
 import no.nav.familie.kontrakter.felles.oppgave.FinnOppgaveResponseDto
 import no.nav.familie.kontrakter.felles.oppgave.Oppgave
 import no.nav.familie.kontrakter.felles.oppgave.OppgaveResponse
+import no.nav.familie.kontrakter.felles.oppgave.OpprettOppgaveRequest
 import no.nav.familie.kontrakter.felles.tilgangskontroll.Tilgang
 import no.nav.familie.ks.sak.common.kallEksternTjeneste
 import no.nav.familie.ks.sak.common.kallEksternTjenesteRessurs
@@ -168,6 +169,22 @@ class IntegrasjonClient(
             formål = "Hent behandlende enhet"
         ) {
             postForEntity(uri, mapOf("ident" to ident))
+        }
+    }
+
+    fun opprettOppgave(opprettOppgave: OpprettOppgaveRequest): OppgaveResponse {
+        val uri = URI.create("$integrasjonUri/oppgave/opprett")
+
+        return kallEksternTjenesteRessurs(
+            tjeneste = "oppgave",
+            uri = uri,
+            formål = "Opprett oppgave"
+        ) {
+            postForEntity(
+                uri,
+                opprettOppgave,
+                HttpHeaders().medContentTypeJsonUTF8()
+            )
         }
     }
 
