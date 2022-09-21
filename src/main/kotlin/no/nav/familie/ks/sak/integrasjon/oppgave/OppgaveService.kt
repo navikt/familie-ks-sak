@@ -43,9 +43,8 @@ class OppgaveService(
     fun hentOppgaver(finnOppgaveRequest: FinnOppgaveRequest): FinnOppgaveResponseDto =
         integrasjonClient.hentOppgaver(finnOppgaveRequest)
 
-    fun hentOppgaverSomIkkeErFerdigstilt(behandling: Behandling): List<DbOppgave> {
-        return oppgaveRepository.findByBehandlingAndIkkeFerdigstilt(behandling)
-    }
+    fun hentOppgaverSomIkkeErFerdigstilt(behandling: Behandling): List<DbOppgave> =
+        oppgaveRepository.findByBehandlingAndIkkeFerdigstilt(behandling)
 
     fun ferdigstillOppgave(oppgave: Oppgave) {
         val oppgaveId = oppgave.id
@@ -53,9 +52,7 @@ class OppgaveService(
         integrasjonClient.ferdigstillOppgave(oppgaveId)
     }
 
-    fun patchOppgave(patchOppgave: Oppgave): OppgaveResponse {
-        return integrasjonClient.patchOppgave(patchOppgave)
-    }
+    fun patchOppgave(patchOppgave: Oppgave): OppgaveResponse = integrasjonClient.patchOppgave(patchOppgave)
 
     fun patchOppgaverForBehandling(behandling: Behandling, copyOppgave: (oppgave: Oppgave) -> Oppgave?) {
         hentOppgaverSomIkkeErFerdigstilt(behandling).forEach { dbOppgave ->
