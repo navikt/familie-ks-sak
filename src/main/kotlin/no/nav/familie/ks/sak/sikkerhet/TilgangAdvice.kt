@@ -4,21 +4,21 @@ import no.nav.familie.ks.sak.common.exception.RolleTilgangskontrollFeil
 import no.nav.familie.ks.sak.config.BehandlerRolle
 import no.nav.familie.ks.sak.config.RolleConfig
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonService
-import no.nav.familie.ks.sak.kjerne.behandling.BehandlingRepository
+import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
 import no.nav.familie.ks.sak.kjerne.fagsak.FagsakService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlagRepository
 import org.aspectj.lang.JoinPoint
 import org.aspectj.lang.annotation.Aspect
 import org.aspectj.lang.annotation.Before
 import org.springframework.cache.CacheManager
-import org.springframework.context.annotation.Configuration
 import org.springframework.http.HttpMethod
+import org.springframework.stereotype.Component
 import org.springframework.web.context.request.RequestContextHolder
 import org.springframework.web.context.request.ServletRequestAttributes
 import kotlin.reflect.full.declaredMemberProperties
 
 @Aspect
-@Configuration
+@Component
 class TilgangAdvice(
     private val fagsakService: FagsakService,
     private val behandlingRepository: BehandlingRepository,
@@ -37,23 +37,35 @@ class TilgangAdvice(
                 val fagsakId = extractFieldFromJoinPoint(joinPoint, listOf("fagsakId"), sjekkTilgang.index) as Long
                 sjekkTilgangTilFagsak(fagsakId, sjekkTilgang.auditLoggerEvent)
             }
+
             Tilgang.BEHANDLING -> {
                 sjekkTilgangTilHandling(sjekkTilgang.minimumBehandlerRolle, sjekkTilgang.handling)
-                val behandlingId = extractFieldFromJoinPoint(joinPoint, listOf("behandling"), sjekkTilgang.index) as Long
+                val behandlingId =
+                    extractFieldFromJoinPoint(joinPoint, listOf("behandling"), sjekkTilgang.index) as Long
                 sjekkTilgangTilBehandling(behandlingId, sjekkTilgang.auditLoggerEvent)
             }
+
             Tilgang.PERSON -> {
                 sjekkTilgangTilHandling(sjekkTilgang.minimumBehandlerRolle, sjekkTilgang.handling)
-                val personIdenter = extractFieldFromJoinPoint(joinPoint, listOf("personIdent", "søkersIdent", "ident"), sjekkTilgang.index) as String
+                val personIdenter = extractFieldFromJoinPoint(
+                    joinPoint,
+                    listOf("personIdent", "søkersIdent", "ident"),
+                    sjekkTilgang.index
+                ) as String
                 sjekkTilgangTilPersoner(listOf(personIdenter), sjekkTilgang.auditLoggerEvent)
             }
+
             Tilgang.HANDLING -> {
                 sjekkTilgangTilHandling(sjekkTilgang.minimumBehandlerRolle, sjekkTilgang.handling)
             }
         }
     }
 
-    private fun extractFieldFromJoinPoint(joinPoint: JoinPoint, fieldAliases: List<String> = emptyList(), index: Int = 0): Any {
+    private fun extractFieldFromJoinPoint(
+        joinPoint: JoinPoint,
+        fieldAliases: List<String> = emptyList(),
+        index: Int = 0
+    ): Any {
         val joinPointParameter = joinPoint.args[index]
         if (isGetOrDeleteRequest()) {
             return joinPointParameter
@@ -64,7 +76,8 @@ class TilgangAdvice(
     }
 
     private fun isGetOrDeleteRequest(): Boolean {
-        val httpMethod: HttpMethod = HttpMethod.valueOf((RequestContextHolder.currentRequestAttributes() as ServletRequestAttributes).request.method)
+        val httpMethod: HttpMethod =
+            HttpMethod.valueOf((RequestContextHolder.currentRequestAttributes() as ServletRequestAttributes).request.method)
         return httpMethod === HttpMethod.GET || httpMethod === HttpMethod.DELETE
     }
 
