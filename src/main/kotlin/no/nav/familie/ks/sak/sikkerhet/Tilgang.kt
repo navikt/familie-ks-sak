@@ -4,5 +4,5 @@ enum class Tilgang {
     FAGSAK,
     BEHANDLING,
     PERSON,
-    HANDLING,
+    HANDLING
 }
