@@ -28,10 +28,9 @@ class ArbeidsfordelingService(
             arbeidsfordelingPåBehandlingRepository.finnArbeidsfordelingPåBehandling(behandling.id)
 
         val oppdatertArbeidsfordelingPåBehandling = if (behandling.erSatsendring()) {
-            fastsettBehandledeEnhetPåSatsendringsbehandling(
+            aktivArbeidsfordelingPåBehandling ?: fastsettBehandledeEnhetPåSatsendringsbehandling(
                 behandling,
-                sisteVedtattBehandling,
-                aktivArbeidsfordelingPåBehandling
+                sisteVedtattBehandling
             )
         } else {
             val arbeidsfordelingsenhet = hentArbeidsfordelingsenhet(behandling)
@@ -80,24 +79,22 @@ class ArbeidsfordelingService(
 
     private fun fastsettBehandledeEnhetPåSatsendringsbehandling(
         behandling: Behandling,
-        sisteVedtattBehandling: Behandling?,
-        aktivArbeidsfordelingPåBehandling: ArbeidsfordelingPåBehandling?
+        sisteVedtattBehandling: Behandling?
     ): ArbeidsfordelingPåBehandling {
-        return aktivArbeidsfordelingPåBehandling
-            ?: if (sisteVedtattBehandling != null) {
-                val forrigeVedtattBehandlingArbeidsfordelingsenhet =
-                    arbeidsfordelingPåBehandlingRepository.finnArbeidsfordelingPåBehandling(sisteVedtattBehandling.id)
+        return if (sisteVedtattBehandling != null) {
+            val forrigeVedtattBehandlingArbeidsfordelingsenhet =
+                arbeidsfordelingPåBehandlingRepository.finnArbeidsfordelingPåBehandling(sisteVedtattBehandling.id)
 
-                arbeidsfordelingPåBehandlingRepository.save(
-                    forrigeVedtattBehandlingArbeidsfordelingsenhet?.copy(behandlingId = behandling.id)
-                        ?: throw Feil(
-                            "Finner ikke arbeidsfordelingsenhet på " +
-                                "forrige vedtatt behandling på satsendringsbehandling"
-                        )
-                )
-            } else {
-                throw Feil("Klarte ikke å fastsette arbeidsfordelingsenhet på satsendringsbehandling.")
-            }
+            arbeidsfordelingPåBehandlingRepository.save(
+                forrigeVedtattBehandlingArbeidsfordelingsenhet?.copy(behandlingId = behandling.id)
+                    ?: throw Feil(
+                        "Finner ikke arbeidsfordelingsenhet på " +
+                            "forrige vedtatt behandling på satsendringsbehandling"
+                    )
+            )
+        } else {
+            throw Feil("Klarte ikke å fastsette arbeidsfordelingsenhet på satsendringsbehandling.")
+        }
     }
 
     private fun postFastsattBehandlendeEnhet(
