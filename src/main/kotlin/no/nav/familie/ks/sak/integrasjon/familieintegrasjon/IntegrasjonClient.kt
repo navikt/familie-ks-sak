@@ -132,6 +132,35 @@ class IntegrasjonClient(
         }
     }
 
+    @Retryable(
+        value = [Exception::class],
+        maxAttempts = 3,
+        backoff = Backoff(delayExpression = RETRY_BACKOFF_5000MS)
+    )
+    fun hentJournalpost(journalpostId: String): Journalpost {
+        val uri = URI.create("$integrasjonUri/journalpost?journalpostId=$journalpostId")
+
+        return kallEksternTjenesteRessurs(
+            tjeneste = "dokarkiv",
+            uri = uri,
+            formål = "Hent journalpost id $journalpostId"
+        ) {
+            getForEntity(uri)
+        }
+    }
+
+    fun hentDokumentIJournalpost(dokumentInfoId: String, journalpostId: String): ByteArray {
+        val uri = URI.create("$integrasjonUri/journalpost/hentdokument/$journalpostId/$dokumentInfoId")
+
+        return kallEksternTjenesteRessurs(
+            tjeneste = "dokarkiv",
+            uri = uri,
+            formål = "Hent dokument $dokumentInfoId i journalpost $journalpostId"
+        ) {
+            getForEntity(uri)
+        }
+    }
+
     fun HttpHeaders.medContentTypeJsonUTF8(): HttpHeaders =
         this.apply {
             add("Content-Type", "application/json;charset=UTF-8")

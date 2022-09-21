@@ -22,4 +22,11 @@ class JournalføringController(
     @GetMapping(path = ["/bruker/{brukerId}"])
     fun hentJournalposterForBruker(@PathVariable brukerId: String): ResponseEntity<Ressurs<List<Journalpost>>> =
         ResponseEntity.ok(Ressurs.success(innkommendeJournalføringService.hentJournalposterForBruker(brukerId)))
+
+    @GetMapping("/{journalpostId}/dokument/{dokumentInfoId}")
+    fun hentDokumentIJournalpost(
+        @PathVariable journalpostId: String,
+        @PathVariable dokumentInfoId: String
+    ): ResponseEntity<Ressurs<ByteArray>> =
+        ResponseEntity.ok(Ressurs.success(innkommendeJournalføringService.hentDokumentIJournalpost(journalpostId, dokumentInfoId)))
 }

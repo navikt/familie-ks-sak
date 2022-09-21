@@ -19,4 +19,7 @@ class InnkommendeJournalføringService(private val integrasjonClient: Integrasjo
                 tema = listOf(Tema.KON)
             )
         )
+
+    fun hentDokumentIJournalpost(journalpostId: String, dokumentInfoId: String): ByteArray =
+        integrasjonClient.hentDokumentIJournalpost(dokumentInfoId, journalpostId)
 }

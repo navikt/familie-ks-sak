@@ -1,5 +1,6 @@
 package no.nav.familie.ks.sak.integrasjon.familieintegrasjon
 
+import no.nav.familie.kontrakter.felles.journalpost.Journalpost
 import no.nav.familie.kontrakter.felles.tilgangskontroll.Tilgang
 import no.nav.familie.ks.sak.api.dto.PersonInfoDto
 import no.nav.familie.ks.sak.integrasjon.pdl.PdlClient
@@ -25,4 +26,6 @@ class IntegrasjonService(private val integrasjonClient: IntegrasjonClient, priva
             null
         }
     }
+
+    fun hentJournalpost(journalpostId: String): Journalpost = integrasjonClient.hentJournalpost(journalpostId)
 }
