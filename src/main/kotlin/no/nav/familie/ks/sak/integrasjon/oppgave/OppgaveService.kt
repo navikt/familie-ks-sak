@@ -14,7 +14,6 @@ import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
 import no.nav.familie.ks.sak.integrasjon.oppgave.domene.DbOppgave
 import no.nav.familie.ks.sak.integrasjon.oppgave.domene.OppgaveRepository
-import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.domene.ArbeidsfordelingPåBehandling
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.domene.ArbeidsfordelingPåBehandlingRepository
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
@@ -40,18 +39,17 @@ class OppgaveService(
         beskrivelse: String? = null
     ): String {
         val behandling = behandlingRepository.finnBehandling(behandlingId)
-        val eksisterendeOppgave =
+        val eksisterendeIkkeFerdigstiltOppgave =
             oppgaveRepository.findByOppgavetypeAndBehandlingAndIkkeFerdigstilt(oppgavetype, behandling)
-        if (eksisterendeOppgave != null && oppgavetype != Oppgavetype.Journalføring) {
+        if (eksisterendeIkkeFerdigstiltOppgave != null && oppgavetype != Oppgavetype.Journalføring) {
             logger.warn(
-                "Fant eksisterende oppgave med samme oppgavetype som ikke er ferdigstilt " +
-                    "ved opprettelse av ny oppgave $eksisterendeOppgave. " +
+                "Fant eksisterende oppgave $eksisterendeIkkeFerdigstiltOppgave med " +
+                    "samme oppgavetype $oppgavetype som ikke er ferdigstilt for behandling ${behandling.id}." +
                     "Vi oppretter ikke ny oppgave, men gjenbruker eksisterende."
             )
-            return eksisterendeOppgave.gsakId
+            return eksisterendeIkkeFerdigstiltOppgave.gsakId
         }
-        val arbeidsfordelingsenhet: ArbeidsfordelingPåBehandling? =
-            arbeidsfordelingPåBehandlingRepository.finnArbeidsfordelingPåBehandling(behandling.id)
+        val arbeidsfordelingsenhet = arbeidsfordelingPåBehandlingRepository.finnArbeidsfordelingPåBehandling(behandling.id)
 
         if (arbeidsfordelingsenhet == null) {
             logger.warn("Fant ikke behandlende enhet på behandling ${behandling.id} ved opprettelse av $oppgavetype-oppgave.")
@@ -124,7 +122,7 @@ class OppgaveService(
     private fun lagOppgaveTekst(fagsakId: Long, beskrivelse: String? = null): String {
         return beskrivelse?.let { it + "\n" }
             ?: (
-                "----- Opprettet av familie-ba-sak ${LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME)} --- \n" +
+                "----- Opprettet av familie-ks-sak ${LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME)} --- \n" +
                     "https://ks.intern.nav.no/fagsak/$fagsakId"
                 )
     }
