@@ -27,7 +27,7 @@ class ArbeidsfordelingService(
         val aktivArbeidsfordelingPåBehandling =
             arbeidsfordelingPåBehandlingRepository.finnArbeidsfordelingPåBehandling(behandling.id)
 
-        val oppdatertArbeidsfordelingPåBehandling: ArbeidsfordelingPåBehandling = if (behandling.erSatsendring()) {
+        val oppdatertArbeidsfordelingPåBehandling = if (behandling.erSatsendring()) {
             fastsettBehandledeEnhetPåSatsendringsbehandling(
                 behandling,
                 sisteVedtattBehandling,
@@ -69,10 +69,8 @@ class ArbeidsfordelingService(
         val søker = identMedAdressebeskyttelse(behandling.fagsak.aktør)
         val personopplysningGrunnlag = personopplysningGrunnlagRepository.findByBehandlingAndAktiv(behandling.id)
 
-        val personer = when (personopplysningGrunnlag) {
-            null -> listOf(søker)
-            else -> personopplysningGrunnlag.barna.map { barn -> identMedAdressebeskyttelse(barn.aktør) }.plus(søker)
-        }
+        val personer = personopplysningGrunnlag?.barna?.map { barn -> identMedAdressebeskyttelse(barn.aktør) }?.plus(søker)
+            ?: listOf(søker)
 
         val identMedStrengeste = finnPersonMedStrengesteAdressebeskyttelse(personer)
 
