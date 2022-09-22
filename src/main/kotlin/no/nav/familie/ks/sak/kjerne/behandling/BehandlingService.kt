@@ -47,7 +47,7 @@ class BehandlingService(
         val sisteVedtattBehandling = hentSisteBehandlingSomErVedtatt(fagsak.id)
 
         // Kan ikke opprette en behandling når det allerede finnes en behandling som ikke er avsluttet
-        if (aktivBehandling?.status != BehandlingStatus.AVSLUTTET) {
+        if (aktivBehandling != null && aktivBehandling.status != BehandlingStatus.AVSLUTTET) {
             throw FunksjonellFeil(
                 melding = "Kan ikke lage ny behandling. Fagsaken har en aktiv behandling som ikke er ferdigstilt.",
                 frontendFeilmelding = "Kan ikke lage ny behandling. Fagsaken har en aktiv behandling som ikke er ferdigstilt."
