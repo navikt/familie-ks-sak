@@ -2,7 +2,7 @@ ALTER TABLE behandling
     DROP COLUMN skal_behandles_automatisk;
 
 ALTER TABLE behandling
-    ADD COLUMN soknadMottattDato TIMESTAMP(3);
+    ADD COLUMN soknad_mottatt_dato TIMESTAMP(3);
 
 CREATE SEQUENCE behandling_seq
     START WITH 1000000
