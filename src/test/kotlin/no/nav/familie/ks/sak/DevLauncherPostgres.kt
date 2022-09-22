@@ -1,8 +1,12 @@
 package no.nav.familie.ks.sak
 
 import no.nav.familie.ks.sak.config.ApplicationConfig
-import no.nav.familie.ks.sak.testconfig.DbContainerInitializer
+import no.nav.familie.ks.sak.database.DbContainerInitializer
+import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.builder.SpringApplicationBuilder
+
+@SpringBootApplication
+class DevLauncherPostgres
 
 fun main(args: Array<String>) {
     System.setProperty("spring.profiles.active", "postgres")
