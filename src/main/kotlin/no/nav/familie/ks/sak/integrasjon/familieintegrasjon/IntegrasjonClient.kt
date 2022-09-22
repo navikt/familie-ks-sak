@@ -156,6 +156,30 @@ class IntegrasjonClient(
         maxAttempts = 3,
         backoff = Backoff(delayExpression = RETRY_BACKOFF_5000MS)
     )
+    fun hentJournalpost(journalpostId: String): Journalpost {
+        val uri = URI.create("$integrasjonUri/journalpost?journalpostId=$journalpostId")
+
+        return kallEksternTjenesteRessurs(
+            tjeneste = "dokarkiv",
+            uri = uri,
+            formål = "Hent journalpost id $journalpostId"
+        ) {
+            getForEntity(uri)
+        }
+    }
+
+    fun hentDokumentIJournalpost(dokumentId: String, journalpostId: String): ByteArray {
+        val uri = URI.create("$integrasjonUri/journalpost/hentdokument/$journalpostId/$dokumentId")
+
+        return kallEksternTjenesteRessurs(
+            tjeneste = "dokarkiv",
+            uri = uri,
+            formål = "Hent dokument $dokumentId i journalpost $journalpostId"
+        ) {
+            getForEntity(uri)
+        }
+    }
+
     @Cacheable("behandlendeEnhet", cacheManager = "shortCache")
     fun hentBehandlendeEnhet(ident: String): List<Arbeidsfordelingsenhet> {
         val uri = UriComponentsBuilder
