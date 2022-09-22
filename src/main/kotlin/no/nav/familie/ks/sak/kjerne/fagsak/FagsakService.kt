@@ -50,7 +50,8 @@ class FagsakService(
         val personInfoMedRelasjoner = personopplysningerService.hentPersonInfoMedRelasjonerOgRegisterinformasjon(aktør)
 
         // finner fagsak på aktør og henter assosierte fagsak deltagere
-        val assosierteFagsakDeltagere = hentForelderdeltagereFraBehandling(aktør, personInfoMedRelasjoner).toMutableList()
+        val assosierteFagsakDeltagere =
+            hentForelderdeltagereFraBehandling(aktør, personInfoMedRelasjoner).toMutableList()
 
         val erBarn = Period.between(personInfoMedRelasjoner.fødselsdato, LocalDate.now()).years < 18
 
@@ -101,9 +102,7 @@ class FagsakService(
     }
 
     fun hentMinimalFagsakForPerson(personident: String): MinimalFagsakResponsDto {
-        val aktør = personidentService.hentOgLagreAktør(personident, true)
-        val fagsak = fagsakRepository.finnFagsakForAktør(aktør) ?: throw Feil("Fant ikke fagsak på person")
-        return lagMinimalFagsakResponsDto(fagsak = fagsak)
+        return lagMinimalFagsakResponsDto(hentFagsakForPerson(personident))
     }
 
     @Transactional
@@ -129,6 +128,7 @@ class FagsakService(
                     rolle = FagsakDeltagerRolle.FORELDER,
                     fagsak = behandling.fagsak
                 )
+
                 else -> { // søkparam(aktør) er ikke søkers aktør, da hentes her forelder til søkparam(aktør)
                     val maskertForelder = hentMaskertFagsakdeltakerVedManglendeTilgang(fagsak.aktør)
                     maskertForelder?.copy(rolle = FagsakDeltagerRolle.FORELDER)
@@ -184,6 +184,7 @@ class FagsakService(
                     harTilgang = false
                 )
             }
+
             else -> {
                 null
             }
@@ -195,6 +196,11 @@ class FagsakService(
             melding = "Finner ikke fagsak med id $fagsakId",
             frontendFeilmelding = "Finner ikke fagsak med id $fagsakId"
         )
+    }
+
+    fun hentFagsakForPerson(personIdent: String): Fagsak {
+        val aktør = personidentService.hentOgLagreAktør(personIdent, true)
+        return fagsakRepository.finnFagsakForAktør(aktør) ?: throw Feil("Fant ikke fagsak på person")
     }
 
     companion object {
