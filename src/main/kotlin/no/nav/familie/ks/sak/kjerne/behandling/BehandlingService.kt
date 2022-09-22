@@ -46,50 +46,48 @@ class BehandlingService(
         val aktivBehandling = behandlingRepository.findByFagsakAndAktiv(fagsak.id)
         val sisteVedtattBehandling = hentSisteBehandlingSomErVedtatt(fagsak.id)
 
-        return when {
-            aktivBehandling == null || aktivBehandling.status == BehandlingStatus.AVSLUTTET -> {
-                val behandlingKategori = bestemKategoriVedOpprettelse(
-                    overstyrtKategori = opprettBehandlingRequest.kategori,
-                    behandlingType = opprettBehandlingRequest.behandlingType,
-                    behandlingÅrsak = opprettBehandlingRequest.behandlingÅrsak,
-                    kategoriFraLøpendeBehandling = BehandlingKategori.NASJONAL // TODO EØS implementeres etter vilkårsvurdering
-                )
-                val behandling = Behandling(
-                    fagsak = fagsak,
-                    type = opprettBehandlingRequest.behandlingType,
-                    opprettetÅrsak = opprettBehandlingRequest.behandlingÅrsak,
-                    kategori = behandlingKategori,
-                    søknadMottattDato = opprettBehandlingRequest.søknadMottattDato?.atStartOfDay()
-                ).initBehandlingStegTilstand() // oppretter behandling med initielt steg tilstand
-
-                behandling.validerBehandlingstype(sisteVedtattBehandling)
-                val lagretBehandling = lagreNyOgDeaktiverGammelBehandling(
-                    nyBehandling = behandling,
-                    aktivBehandling = aktivBehandling,
-                    sisteVedtattBehandling = sisteVedtattBehandling
-                )
-                vedtakService.opprettOgInitierNyttVedtakForBehandling(lagretBehandling) // initierer vedtak
-                loggService.opprettBehandlingLogg(lagretBehandling) // lag historikkinnslag
-                // Oppretter BehandleSak oppgave via task. Ruller tasken tilbake, hvis behandling opprettelse feiler
-                if (lagretBehandling.opprettBehandleSakOppgave()) {
-                    taskRepository.save(
-                        OpprettOppgaveTask.opprettTask(
-                            behandlingId = lagretBehandling.id,
-                            oppgavetype = Oppgavetype.BehandleSak,
-                            fristForFerdigstillelse = LocalDate.now(),
-                            tilordnetRessurs = opprettBehandlingRequest.saksbehandlerIdent
-                        )
-                    )
-                }
-                lagretBehandling
-            }
-            else -> {
-                throw FunksjonellFeil(
-                    melding = "Kan ikke lage ny behandling. Fagsaken har en aktiv behandling som ikke er ferdigstilt.",
-                    frontendFeilmelding = "Kan ikke lage ny behandling. Fagsaken har en aktiv behandling som ikke er ferdigstilt."
-                )
-            }
+        // Kan ikke opprette en behandling når det allerede finnes en behandling som ikke er avsluttet
+        if (aktivBehandling?.status != BehandlingStatus.AVSLUTTET) {
+            throw FunksjonellFeil(
+                melding = "Kan ikke lage ny behandling. Fagsaken har en aktiv behandling som ikke er ferdigstilt.",
+                frontendFeilmelding = "Kan ikke lage ny behandling. Fagsaken har en aktiv behandling som ikke er ferdigstilt."
+            )
         }
+
+        val behandlingKategori = bestemKategoriVedOpprettelse(
+            overstyrtKategori = opprettBehandlingRequest.kategori,
+            behandlingType = opprettBehandlingRequest.behandlingType,
+            behandlingÅrsak = opprettBehandlingRequest.behandlingÅrsak,
+            kategoriFraLøpendeBehandling = BehandlingKategori.NASJONAL // TODO EØS implementeres etter vilkårsvurdering
+        )
+        val behandling = Behandling(
+            fagsak = fagsak,
+            type = opprettBehandlingRequest.behandlingType,
+            opprettetÅrsak = opprettBehandlingRequest.behandlingÅrsak,
+            kategori = behandlingKategori,
+            søknadMottattDato = opprettBehandlingRequest.søknadMottattDato?.atStartOfDay()
+        ).initBehandlingStegTilstand() // oppretter behandling med initielt steg tilstand
+
+        behandling.validerBehandlingstype(sisteVedtattBehandling)
+        val lagretBehandling = lagreNyOgDeaktiverGammelBehandling(
+            nyBehandling = behandling,
+            aktivBehandling = aktivBehandling,
+            sisteVedtattBehandling = sisteVedtattBehandling
+        )
+        vedtakService.opprettOgInitierNyttVedtakForBehandling(lagretBehandling) // initierer vedtak
+        loggService.opprettBehandlingLogg(lagretBehandling) // lag historikkinnslag
+        // Oppretter BehandleSak oppgave via task. Ruller tasken tilbake, hvis behandling opprettelse feiler
+        if (lagretBehandling.opprettBehandleSakOppgave()) {
+            taskRepository.save(
+                OpprettOppgaveTask.opprettTask(
+                    behandlingId = lagretBehandling.id,
+                    oppgavetype = Oppgavetype.BehandleSak,
+                    fristForFerdigstillelse = LocalDate.now(),
+                    tilordnetRessurs = opprettBehandlingRequest.saksbehandlerIdent
+                )
+            )
+        }
+        return lagretBehandling
     }
 
     fun lagreNyOgDeaktiverGammelBehandling(
