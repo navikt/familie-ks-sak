@@ -24,12 +24,11 @@ class BehandlingController(private val behandlingService: BehandlingService) {
     @PostMapping(produces = [MediaType.APPLICATION_JSON_VALUE])
     fun opprettBehandling(@RequestBody opprettBehandlingDto: OpprettBehandlingDto): ResponseEntity<Ressurs<BehandlingResponsDto>> {
         val behandling = behandlingService.opprettBehandling(opprettBehandlingDto)
-
         return ResponseEntity.ok(Ressurs.success(behandlingService.lagBehandlingRespons(behandlingId = behandling.id)))
     }
 
     @GetMapping(path = ["/{behandlingId}"], produces = [MediaType.APPLICATION_JSON_VALUE])
-    fun hentUtvidetBehandling(@PathVariable behandlingId: Long): ResponseEntity<Ressurs<BehandlingResponsDto>> {
+    fun hentBehandling(@PathVariable behandlingId: Long): ResponseEntity<Ressurs<BehandlingResponsDto>> {
         return ResponseEntity.ok(Ressurs.success(behandlingService.lagBehandlingRespons(behandlingId = behandlingId)))
     }
 }
