@@ -23,6 +23,6 @@ class BehandlingController(private val behandlingService: BehandlingService) {
     fun opprettBehandling(@RequestBody opprettBehandlingDto: OpprettBehandlingDto): ResponseEntity<Ressurs<BehandlingResponsDto>> {
         val behandling = behandlingService.opprettBehandling(opprettBehandlingDto)
 
-        return ResponseEntity.ok(Ressurs.success(behandlingService.hentBehandling(behandlingId = behandling.id)))
+        return ResponseEntity.ok(Ressurs.success(behandlingService.lagBehandlingRespons(behandlingId = behandling.id)))
     }
 }

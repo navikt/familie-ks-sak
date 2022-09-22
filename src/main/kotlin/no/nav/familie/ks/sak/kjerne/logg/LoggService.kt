@@ -80,8 +80,7 @@ class LoggService(
                 behandlingId = behandling.id,
                 type = LoggType.BEHANDLING_OPPRETTET,
                 tittel = "${behandling.type.visningsnavn} opprettet",
-                rolle = SikkerhetContext.hentRolletilgangFraSikkerhetscontext(rolleConfig, BehandlerRolle.SAKSBEHANDLER),
-                tekst = ""
+                rolle = SikkerhetContext.hentRolletilgangFraSikkerhetscontext(rolleConfig, BehandlerRolle.SAKSBEHANDLER)
             )
         )
     }

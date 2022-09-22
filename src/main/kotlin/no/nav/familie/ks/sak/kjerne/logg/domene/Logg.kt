@@ -46,7 +46,7 @@ data class Logg(
      * Feltet støtter markdown frontend.
      */
     @Column(name = "tekst")
-    val tekst: String
+    val tekst: String = ""
 ) {
 
     constructor(behandlingId: Long, type: LoggType, rolle: BehandlerRolle, tekst: String = "") : this(

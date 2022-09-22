@@ -1,0 +1,6 @@
+CREATE SEQUENCE behandling_steg_tilstand_seq
+    START WITH 1000000
+    INCREMENT BY 50
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;

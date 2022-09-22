@@ -112,7 +112,7 @@ class BehandlingService(
             .maxByOrNull { it.opprettetTidspunkt }
     }
 
-    fun hentBehandling(behandlingId: Long): BehandlingResponsDto {
+    fun lagBehandlingRespons(behandlingId: Long): BehandlingResponsDto {
         val behandling = behandlingRepository.finnBehandling(behandlingId)
         val arbeidsfordelingPåBehandling = arbeidsfordelingService.finnArbeidsfordelingPåBehandling(behandlingId)
         return BehandlingMapper.lagBehandlingRespons(behandling, arbeidsfordelingPåBehandling)
