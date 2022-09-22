@@ -66,7 +66,7 @@ data class Behandling(
     @Column(name = "status", nullable = false)
     var status: BehandlingStatus = initStatus(),
 
-    @Column(name = "soknad_motatt_dato")
+    @Column(name = "soknad_mottatt_dato")
     var søknadMottattDato: LocalDateTime? = null,
 
     var overstyrtEndringstidspunkt: LocalDate? = null
