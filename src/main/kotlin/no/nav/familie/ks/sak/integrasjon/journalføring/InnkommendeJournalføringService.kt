@@ -20,6 +20,6 @@ class InnkommendeJournalføringService(private val integrasjonClient: Integrasjo
             )
         )
 
-    fun hentDokumentIJournalpost(journalpostId: String, dokumentInfoId: String): ByteArray =
-        integrasjonClient.hentDokumentIJournalpost(dokumentInfoId, journalpostId)
+    fun hentDokumentIJournalpost(journalpostId: String, dokumentId: String): ByteArray =
+        integrasjonClient.hentDokumentIJournalpost(dokumentId, journalpostId)
 }

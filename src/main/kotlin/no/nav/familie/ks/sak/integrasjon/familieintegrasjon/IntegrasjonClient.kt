@@ -168,13 +168,13 @@ class IntegrasjonClient(
         }
     }
 
-    fun hentDokumentIJournalpost(dokumentInfoId: String, journalpostId: String): ByteArray {
-        val uri = URI.create("$integrasjonUri/journalpost/hentdokument/$journalpostId/$dokumentInfoId")
+    fun hentDokumentIJournalpost(dokumentId: String, journalpostId: String): ByteArray {
+        val uri = URI.create("$integrasjonUri/journalpost/hentdokument/$journalpostId/$dokumentId")
 
         return kallEksternTjenesteRessurs(
             tjeneste = "dokarkiv",
             uri = uri,
-            formål = "Hent dokument $dokumentInfoId i journalpost $journalpostId"
+            formål = "Hent dokument $dokumentId i journalpost $journalpostId"
         ) {
             getForEntity(uri)
         }
