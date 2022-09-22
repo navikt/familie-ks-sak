@@ -23,6 +23,10 @@ class ArbeidsfordelingService(
     private val oppgaveService: OppgaveService,
     private val loggService: LoggService
 ) {
+    fun finnArbeidsfordelingPåBehandling(behandlingId: Long) =
+        arbeidsfordelingPåBehandlingRepository.finnArbeidsfordelingPåBehandling(behandlingId)
+            ?: error("Finner ikke tilknyttet arbeidsfordeling på behandling med id $behandlingId")
+
     fun fastsettBehandledeEnhet(behandling: Behandling, sisteVedtattBehandling: Behandling? = null) {
         val aktivArbeidsfordelingPåBehandling =
             arbeidsfordelingPåBehandlingRepository.finnArbeidsfordelingPåBehandling(behandling.id)

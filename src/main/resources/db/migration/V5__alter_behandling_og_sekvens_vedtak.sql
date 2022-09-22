@@ -1,0 +1,19 @@
+ALTER TABLE behandling
+    DROP COLUMN skalBehandlesAutomatisk;
+
+ALTER TABLE behandling
+    ADD COLUMN soknadMottattDato TIMESTAMP(3);
+
+CREATE SEQUENCE behandling_seq
+    START WITH 1000000
+    INCREMENT BY 50
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+CREATE SEQUENCE vedtak_seq
+    START WITH 1000000
+    INCREMENT BY 50
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;

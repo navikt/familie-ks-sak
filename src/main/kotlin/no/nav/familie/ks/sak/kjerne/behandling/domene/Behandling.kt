@@ -11,15 +11,19 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat.HENLAG
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat.IKKE_VURDERT
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.Fagsak
 import java.time.LocalDate
+import java.time.LocalDateTime
+import javax.persistence.CascadeType
 import javax.persistence.Column
 import javax.persistence.Entity
 import javax.persistence.EnumType
 import javax.persistence.Enumerated
+import javax.persistence.FetchType
 import javax.persistence.GeneratedValue
 import javax.persistence.GenerationType
 import javax.persistence.Id
 import javax.persistence.JoinColumn
 import javax.persistence.ManyToOne
+import javax.persistence.OneToMany
 import javax.persistence.SequenceGenerator
 import javax.persistence.Table
 import no.nav.familie.kontrakter.felles.oppgave.Behandlingstype as OppgaveBehandlingType
@@ -48,12 +52,12 @@ data class Behandling(
     @Column(name = "opprettet_aarsak", nullable = false)
     val opprettetÅrsak: BehandlingÅrsak,
 
-    @Column(name = "skal_behandles_automatisk", nullable = false, updatable = true)
-    var skalBehandlesAutomatisk: Boolean = false,
-
     @Enumerated(EnumType.STRING)
     @Column(name = "kategori", nullable = false, updatable = true)
     var kategori: BehandlingKategori,
+
+    @OneToMany(mappedBy = "behandling", cascade = [CascadeType.ALL], fetch = FetchType.EAGER, orphanRemoval = true)
+    val behandlingStegTilstand: MutableSet<BehandlingStegTilstand> = mutableSetOf(),
 
     @Column(name = "aktiv", nullable = false)
     var aktiv: Boolean = true,
@@ -61,6 +65,9 @@ data class Behandling(
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
     var status: BehandlingStatus = initStatus(),
+
+    @Column(name = "soknad_motatt_dato")
+    var søknadMottattDato: LocalDateTime? = null,
 
     var overstyrtEndringstidspunkt: LocalDate? = null
 
@@ -72,7 +79,6 @@ data class Behandling(
             "fagsak=${fagsak.id}, " +
             "type=$type, " +
             "kategori=$kategori, " +
-            "automatisk=$skalBehandlesAutomatisk, " +
             "status=$status, " +
             "resultat=$resultat)"
     }
@@ -85,6 +91,22 @@ data class Behandling(
         if (type == REVURDERING && sisteBehandlingSomErVedtatt == null) {
             throw Feil("Kan ikke opprette revurdering på $fagsak uten noen andre behandlinger som er vedtatt")
         }
+    }
+
+    val steg: BehandlingSteg get() = behandlingStegTilstand.last().behandlingSteg
+
+    fun initBehandlingStegTilstand(): Behandling {
+        behandlingStegTilstand.add(
+            BehandlingStegTilstand(
+                behandling = this,
+                behandlingSteg = BehandlingSteg.REGISTRERE_PERSONGRUNNLAG
+            )
+        )
+        return this
+    }
+
+    fun opprettBehandleSakOppgave(): Boolean {
+        return type != TEKNISK_ENDRING
     }
 
     fun erBehandlingMedVedtaksbrevutsending(): Boolean {
