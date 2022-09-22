@@ -1,5 +1,5 @@
 ALTER TABLE behandling
-    DROP COLUMN skalBehandlesAutomatisk;
+    DROP COLUMN skal_behandles_automatisk;
 
 ALTER TABLE behandling
     ADD COLUMN soknadMottattDato TIMESTAMP(3);
