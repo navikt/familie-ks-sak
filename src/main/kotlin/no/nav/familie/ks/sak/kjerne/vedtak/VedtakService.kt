@@ -1,10 +1,10 @@
 package no.nav.familie.ks.sak.kjerne.vedtak
 
-import no.nav.familie.ba.sak.kjerne.vedtak.Vedtak
-import no.nav.familie.ba.sak.kjerne.vedtak.VedtakRepository
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingSteg
+import no.nav.familie.ks.sak.kjerne.vedtak.domene.Vedtak
+import no.nav.familie.ks.sak.kjerne.vedtak.domene.VedtakRepository
 import org.springframework.stereotype.Service
 
 @Service

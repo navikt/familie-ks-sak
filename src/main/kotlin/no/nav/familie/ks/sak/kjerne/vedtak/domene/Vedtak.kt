@@ -1,4 +1,4 @@
-package no.nav.familie.ba.sak.kjerne.vedtak
+package no.nav.familie.ks.sak.kjerne.vedtak.domene
 
 import no.nav.familie.ks.sak.common.entitet.BaseEntitet
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
@@ -29,7 +29,7 @@ class Vedtak(
     var vedtaksdato: LocalDateTime? = null,
 
     @Column(name = "stonad_brev_pdf", nullable = true)
-    var stønadBrevPdF: ByteArray? = null,
+    var stønadBrevPdf: ByteArray? = null,
 
     @Column(name = "aktiv", nullable = false)
     var aktiv: Boolean = true
