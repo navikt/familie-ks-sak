@@ -55,7 +55,7 @@ abstract class OppslagSpringRunnerTest {
 
     protected fun lokalTestToken(): String = mockOAuth2Server.issueToken("issuer1", audience = "aud-localhost").serialize()
 
-    protected fun localhost(uri: String): String =  LOCALHOST + port.toString() + uri
+    protected fun localhost(uri: String): String = LOCALHOST + port.toString() + uri
 
     private fun resetWiremockServers() =
         applicationContext.getBeansOfType(WireMockServer::class.java).values.forEach(WireMockServer::resetRequests)
