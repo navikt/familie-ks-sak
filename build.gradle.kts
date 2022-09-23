@@ -102,6 +102,11 @@ dependencies {
     testImplementation("nav-foedselsnummer:testutils:1.0-SNAPSHOT.6")
 }
 
+sourceSets.getByName("test") {
+    java.srcDir("src/test/enhetstester/kotlin")
+    java.srcDir("src/test/integrasjonstester/kotlin")
+}
+
 tasks.withType<KotlinCompile> {
     kotlinOptions {
         freeCompilerArgs = listOf("-Xjsr305=strict")

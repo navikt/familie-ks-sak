@@ -5,7 +5,7 @@ import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import no.nav.familie.ks.sak.kjerne.personident.Personident
 import kotlin.random.Random
 
-object Testdata {
+object TestdataGenerator {
 
     val fødselsnummerGenerator = FoedselsnummerGenerator()
 

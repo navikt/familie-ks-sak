@@ -3,8 +3,8 @@ package no.nav.familie.ks.sak
 import ch.qos.logback.classic.spi.ILoggingEvent
 import ch.qos.logback.core.read.ListAppender
 import com.github.tomakehurst.wiremock.WireMockServer
-import no.nav.familie.ks.sak.database.DatabaseCleanupService
-import no.nav.familie.ks.sak.database.DbContainerInitializer
+import no.nav.familie.ks.sak.config.DatabaseCleanupService
+import no.nav.familie.ks.sak.config.DbContainerInitializer
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import no.nav.security.token.support.spring.test.EnableMockOAuth2Server
 import org.junit.jupiter.api.AfterEach

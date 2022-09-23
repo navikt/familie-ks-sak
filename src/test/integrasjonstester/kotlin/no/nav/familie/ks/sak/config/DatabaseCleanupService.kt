@@ -1,4 +1,4 @@
-package no.nav.familie.ks.sak.database
+package no.nav.familie.ks.sak.config
 
 import org.slf4j.LoggerFactory
 import org.springframework.context.annotation.Profile

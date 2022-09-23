@@ -1,4 +1,4 @@
-package no.nav.familie.ks.sak.database
+package no.nav.familie.ks.sak.config
 
 import org.springframework.boot.test.util.TestPropertyValues
 import org.springframework.context.ApplicationContextInitializer

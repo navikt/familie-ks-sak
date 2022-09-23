@@ -1,7 +1,7 @@
 package no.nav.familie.ks.sak
 
 import no.nav.familie.ks.sak.config.ApplicationConfig
-import no.nav.familie.ks.sak.database.DbContainerInitializer
+import no.nav.familie.ks.sak.config.DbContainerInitializer
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.builder.SpringApplicationBuilder
 
