@@ -55,9 +55,7 @@ abstract class OppslagSpringRunnerTest {
 
     protected fun lokalTestToken(): String = mockOAuth2Server.issueToken("issuer1", audience = "aud-localhost").serialize()
 
-    protected fun localhost(uri: String): String {
-        return LOCALHOST + port.toString() + uri
-    }
+    protected fun localhost(uri: String): String =  LOCALHOST + port.toString() + uri
 
     private fun resetWiremockServers() {
         applicationContext.getBeansOfType(WireMockServer::class.java).values.forEach(WireMockServer::resetRequests)
@@ -74,11 +72,6 @@ abstract class OppslagSpringRunnerTest {
 
     companion object {
         private const val LOCALHOST = "http://localhost:"
-
-        protected fun initLoggingEventListAppender(): ListAppender<ILoggingEvent> {
-            val listAppender = ListAppender<ILoggingEvent>()
-            listAppender.start()
-            return listAppender
-        }
+        protected fun initLoggingEventListAppender(): ListAppender<ILoggingEvent> = ListAppender<ILoggingEvent>().apply { start() }
     }
 }
