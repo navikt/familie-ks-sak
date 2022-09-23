@@ -57,18 +57,14 @@ abstract class OppslagSpringRunnerTest {
 
     protected fun localhost(uri: String): String =  LOCALHOST + port.toString() + uri
 
-    private fun resetWiremockServers() {
+    private fun resetWiremockServers() =
         applicationContext.getBeansOfType(WireMockServer::class.java).values.forEach(WireMockServer::resetRequests)
-    }
 
-    private fun clearCaches() {
+    private fun clearCaches() =
         cacheManager.cacheNames.mapNotNull { cacheManager.getCache(it) }
             .forEach { it.clear() }
-    }
 
-    private fun resetTableForAllEntityClass() {
-        databaseCleanupService.truncate()
-    }
+    private fun resetTableForAllEntityClass() = databaseCleanupService.truncate()
 
     companion object {
         private const val LOCALHOST = "http://localhost:"
