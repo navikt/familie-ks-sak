@@ -105,6 +105,7 @@ dependencies {
 sourceSets.getByName("test") {
     java.srcDir("src/test/enhetstester/kotlin")
     java.srcDir("src/test/integrasjonstester/kotlin")
+    java.srcDir("src/test/common/")
 }
 
 tasks.withType<KotlinCompile> {
