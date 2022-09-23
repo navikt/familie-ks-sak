@@ -4,10 +4,10 @@ import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration
 import no.nav.familie.kontrakter.felles.personopplysning.KJOENN
-import no.nav.familie.ks.sak.data.TestdataGenerator.randomAktør
 import no.nav.familie.ks.sak.common.exception.PdlNotFoundException
 import no.nav.familie.ks.sak.config.PdlConfig
 import no.nav.familie.ks.sak.config.PersonInfoQuery
+import no.nav.familie.ks.sak.data.TestdataGenerator.randomAktør
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
