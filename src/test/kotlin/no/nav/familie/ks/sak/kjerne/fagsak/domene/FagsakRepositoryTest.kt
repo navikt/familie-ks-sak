@@ -37,14 +37,14 @@ internal class FagsakRepositoryTest : OppslagSpringRunnerTest() {
     }
 
     @Test
-    fun `finnFagsakForAktør skal returnere fagsak dersom det finnes fagsak for aktør`() {
+    fun `finnFagsakForAktør skal returnere null dersom det ikke finnes fagsak for aktør`() {
         val ikkeEksisterendeFagsak = fagsakRepository.finnFagsak(404)
 
         assertThat(ikkeEksisterendeFagsak, Is(nullValue()))
     }
 
     @Test
-    fun `finnFagsakForAktør skal returnere null dersom det ikke finnes fagsak for aktør`() {
+    fun `finnFagsakForAktør skal returnere fagsak dersom det finnes fagsak for aktør`() {
         val fagsak = lagreFagsak()
 
         val hentetFagsak = fagsakRepository.finnFagsakForAktør(randomAktør)!!
