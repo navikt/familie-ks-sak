@@ -40,7 +40,6 @@ class BehandlingController(private val behandlingService: BehandlingService) {
         @PathVariable behandlingId: Long,
         @RequestBody endreBehandlendeEnhet: EndreBehandlendeEnhetDto
     ): ResponseEntity<Ressurs<BehandlingResponsDto>> {
-
         if (endreBehandlendeEnhet.begrunnelse.isBlank()) {
             throw FunksjonellFeil(
                 melding = "Begrunnelse kan ikke være tom",
