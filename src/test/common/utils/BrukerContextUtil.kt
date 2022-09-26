@@ -1,4 +1,4 @@
-package no.nav.familie.ks.sak.utils
+package no.nav.familie.ks.sak.data.utils
 
 import io.mockk.every
 import io.mockk.mockk

@@ -1,5 +1,6 @@
 package no.nav.familie.ks.sak.sikkerhet
 
+import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
@@ -11,6 +12,8 @@ import no.nav.familie.ks.sak.config.RolleConfig
 import no.nav.familie.ks.sak.data.TestdataGenerator.defaultFagsak
 import no.nav.familie.ks.sak.data.TestdataGenerator.lagBehandling
 import no.nav.familie.ks.sak.data.TestdataGenerator.lagPersonopplysningGrunnlag
+import no.nav.familie.ks.sak.data.utils.BrukerContextUtil.clearBrukerContext
+import no.nav.familie.ks.sak.data.utils.BrukerContextUtil.mockBrukerContext
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
 import no.nav.familie.ks.sak.kjerne.fagsak.FagsakService
@@ -21,8 +24,6 @@ import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlagRepository
-import no.nav.familie.ks.sak.utils.BrukerContextUtil.clearBrukerContext
-import no.nav.familie.ks.sak.utils.BrukerContextUtil.mockBrukerContext
 import no.nav.familie.log.mdc.MDCConstants
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeAll
@@ -32,6 +33,7 @@ import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
 import org.slf4j.MDC
+import org.springframework.cache.CacheManager
 import org.springframework.cache.concurrent.ConcurrentMapCacheManager
 import java.time.LocalDate
 
@@ -87,16 +89,27 @@ class TilgangServiceTest {
 
     @BeforeEach
     internal fun beforeEach() {
+        clearAllMocks()
+        clearCache(cacheManager)
         MDC.put(MDCConstants.MDC_CALL_ID, "00001111")
         mockBrukerContext(groups = listOf(BehandlerRolle.SAKSBEHANDLER.name))
         every { fagsakService.hentFagsak(fagsak.id) } returns fagsak
         every { behandlingRepository.finnAktivBehandling(any()) } returns behandling
+        every { behandlingRepository.finnBehandlinger(fagsak.id) } returns listOf(behandling)
         every { personopplysningGrunnlagRepository.findByBehandlingAndAktiv(any()) } returns personopplysningGrunnlag
     }
 
     @AfterEach
     internal fun tearDown() {
         clearBrukerContext()
+    }
+
+    private fun clearCache(cacheManager: CacheManager) {
+        cacheManager.cacheNames.parallelStream().forEach { name: String? ->
+            cacheManager.getCache(
+                name!!
+            )!!.clear()
+        }
     }
 
     @Test
@@ -319,13 +332,13 @@ class TilgangServiceTest {
         mockBrukerContext("A", listOf(BehandlerRolle.SAKSBEHANDLER.name))
 
         tilgangService.validerTilgangTilFagsak(
-            behandling.id,
+            fagsak.id,
             AuditLoggerEvent.ACCESS,
             BehandlerRolle.SAKSBEHANDLER,
             ""
         )
         tilgangService.validerTilgangTilFagsak(
-            behandling.id,
+            fagsak.id,
             AuditLoggerEvent.ACCESS,
             BehandlerRolle.SAKSBEHANDLER,
             ""
@@ -344,14 +357,14 @@ class TilgangServiceTest {
 
         mockBrukerContext("A", roller)
         tilgangService.validerTilgangTilFagsak(
-            behandling.id,
+            fagsak.id,
             AuditLoggerEvent.ACCESS,
             BehandlerRolle.SAKSBEHANDLER,
             ""
         )
         mockBrukerContext("B", roller)
         tilgangService.validerTilgangTilFagsak(
-            behandling.id,
+            fagsak.id,
             AuditLoggerEvent.ACCESS,
             BehandlerRolle.SAKSBEHANDLER,
             ""
