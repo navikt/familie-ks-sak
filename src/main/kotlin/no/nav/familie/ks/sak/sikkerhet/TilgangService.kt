@@ -45,7 +45,7 @@ class TilgangService(
      * @param minimumBehandlerRolle den laveste rolle som kreves for den angitte handlingen
      * @param handling kort beskrivelse for handlingen.
      */
-    fun validerTilgangTilPersoner(
+    fun validerTilgangTilHandlingOgPersoner(
         personIdenter: List<String>,
         event: AuditLoggerEvent,
         minimumBehandlerRolle: BehandlerRolle,
@@ -68,29 +68,14 @@ class TilgangService(
      * @param minimumBehandlerRolle den laveste rolle som kreves for den angitte handlingen
      * @param handling kort beskrivelse for handlingen.
      */
-    fun validerTilgangTilFagsakForBehandling(
+    fun validerTilgangTilHandlingOgFagsakForBehandling(
         behandlingId: Long,
         event: AuditLoggerEvent,
         minimumBehandlerRolle: BehandlerRolle,
         handling: String
     ) {
-//        validerTilgangTilHandling(minimumBehandlerRolle, handling)
         val fagsakId = behandlingRepository.finnAktivBehandling(behandlingId).fagsak.id
-        validerTilgangTilFagsak(fagsakId, event, minimumBehandlerRolle, handling)
-//        val harTilgang = harSaksbehandlerTilgang("validerTilgangTilBehandling", behandlingId) {
-//            val behandling = behandlingRepository.finnAktivBehandling(behandlingId)
-//            val personIdenter =
-//                personopplysningGrunnlagRepository.findByBehandlingAndAktiv(behandlingId = behandlingId)?.personer?.map { it.aktør.aktivFødselsnummer() }
-//                    ?: listOf(behandling.fagsak.aktør.aktivFødselsnummer())
-//            loggPersonoppslag(personIdenter, event, CustomKeyValue("behandling", behandlingId.toString()))
-//            harTilgangTilPersoner(personIdenter)
-//        }
-//        if (!harTilgang) {
-//            throw RolleTilgangskontrollFeil(
-//                "Saksbehandler ${SikkerhetContext.hentSaksbehandler()} " +
-//                    "har ikke tilgang til behandling=$behandlingId"
-//            )
-//        }
+        validerTilgangTilHandlingOgFagsak(fagsakId, event, minimumBehandlerRolle, handling)
     }
 
     /**
@@ -100,7 +85,7 @@ class TilgangService(
      * @param minimumBehandlerRolle den laveste rolle som kreves for den angitte handlingen
      * @param handling kort beskrivelse for handlingen.
      */
-    fun validerTilgangTilFagsak(
+    fun validerTilgangTilHandlingOgFagsak(
         fagsakId: Long,
         event: AuditLoggerEvent,
         minimumBehandlerRolle: BehandlerRolle,
@@ -133,14 +118,14 @@ class TilgangService(
      * @param minimumBehandlerRolle den laveste rolle som kreves for den angitte handlingen
      * @param handling kort beskrivelse for handlingen.
      */
-    fun validerTilgangTilFagsakForPerson(
+    fun validerTilgangTilHandlingOgFagsakForPerson(
         personIdent: String,
         event: AuditLoggerEvent,
         minimumBehandlerRolle: BehandlerRolle,
         handling: String
     ) {
         val fagsakId = fagsakService.hentFagsakForPerson(personIdent).id
-        validerTilgangTilFagsak(fagsakId, event, minimumBehandlerRolle, handling)
+        validerTilgangTilHandlingOgFagsak(fagsakId, event, minimumBehandlerRolle, handling)
     }
 
     private fun harTilgangTilPersoner(

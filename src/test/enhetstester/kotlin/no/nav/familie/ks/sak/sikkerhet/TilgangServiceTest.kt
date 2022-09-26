@@ -186,7 +186,7 @@ class TilgangServiceTest {
         val personIdenter = listOf(aktør.aktivFødselsnummer())
 
         val rolleTilgangskontrollFeil = assertThrows<RolleTilgangskontrollFeil> {
-            tilgangService.validerTilgangTilPersoner(
+            tilgangService.validerTilgangTilHandlingOgPersoner(
                 personIdenter,
                 AuditLoggerEvent.ACCESS,
                 BehandlerRolle.SAKSBEHANDLER,
@@ -203,7 +203,7 @@ class TilgangServiceTest {
     internal fun `skal ikke feile når saksbehandler har tilgang til person`() {
         every { mockIntegrasjonService.sjekkTilgangTilPersoner(any()) } returns Tilgang(true)
 
-        tilgangService.validerTilgangTilPersoner(
+        tilgangService.validerTilgangTilHandlingOgPersoner(
             listOf(aktør.aktivFødselsnummer()),
             AuditLoggerEvent.ACCESS,
             BehandlerRolle.SAKSBEHANDLER,
@@ -216,7 +216,7 @@ class TilgangServiceTest {
         every { mockIntegrasjonService.sjekkTilgangTilPersoner(any()) } returns Tilgang(false)
 
         val rolleTilgangskontrollFeil = assertThrows<RolleTilgangskontrollFeil> {
-            tilgangService.validerTilgangTilFagsakForBehandling(
+            tilgangService.validerTilgangTilHandlingOgFagsakForBehandling(
                 behandling.id,
                 AuditLoggerEvent.ACCESS,
                 BehandlerRolle.SAKSBEHANDLER,
@@ -233,7 +233,7 @@ class TilgangServiceTest {
     internal fun `skal ikke feile når saksbehandler har tilgang til behandling`() {
         every { mockIntegrasjonService.sjekkTilgangTilPersoner(any()) } returns Tilgang(true)
 
-        tilgangService.validerTilgangTilFagsakForBehandling(
+        tilgangService.validerTilgangTilHandlingOgFagsakForBehandling(
             behandling.id,
             AuditLoggerEvent.ACCESS,
             BehandlerRolle.SAKSBEHANDLER,
@@ -248,13 +248,13 @@ class TilgangServiceTest {
         mockBrukerContext("A", groups = listOf(BehandlerRolle.SAKSBEHANDLER.name))
         val ident = "12345678910"
 
-        tilgangService.validerTilgangTilPersoner(
+        tilgangService.validerTilgangTilHandlingOgPersoner(
             listOf(ident),
             AuditLoggerEvent.ACCESS,
             BehandlerRolle.SAKSBEHANDLER,
             ""
         )
-        tilgangService.validerTilgangTilPersoner(
+        tilgangService.validerTilgangTilHandlingOgPersoner(
             listOf(ident),
             AuditLoggerEvent.ACCESS,
             BehandlerRolle.SAKSBEHANDLER,
@@ -274,14 +274,14 @@ class TilgangServiceTest {
         mockBrukerContext("A", roller)
         val ident = "12345678910"
 
-        tilgangService.validerTilgangTilPersoner(
+        tilgangService.validerTilgangTilHandlingOgPersoner(
             listOf(ident),
             AuditLoggerEvent.ACCESS,
             BehandlerRolle.SAKSBEHANDLER,
             ""
         )
         mockBrukerContext("B", roller)
-        tilgangService.validerTilgangTilPersoner(
+        tilgangService.validerTilgangTilHandlingOgPersoner(
             listOf(ident),
             AuditLoggerEvent.ACCESS,
             BehandlerRolle.SAKSBEHANDLER,
@@ -299,13 +299,13 @@ class TilgangServiceTest {
 
         mockBrukerContext("A", listOf(BehandlerRolle.SAKSBEHANDLER.name))
 
-        tilgangService.validerTilgangTilFagsakForBehandling(
+        tilgangService.validerTilgangTilHandlingOgFagsakForBehandling(
             behandling.id,
             AuditLoggerEvent.ACCESS,
             BehandlerRolle.SAKSBEHANDLER,
             ""
         )
-        tilgangService.validerTilgangTilFagsakForBehandling(
+        tilgangService.validerTilgangTilHandlingOgFagsakForBehandling(
             behandling.id,
             AuditLoggerEvent.ACCESS,
             BehandlerRolle.SAKSBEHANDLER,
@@ -324,14 +324,14 @@ class TilgangServiceTest {
         val roller = listOf(BehandlerRolle.SAKSBEHANDLER.name)
 
         mockBrukerContext("A", roller)
-        tilgangService.validerTilgangTilFagsakForBehandling(
+        tilgangService.validerTilgangTilHandlingOgFagsakForBehandling(
             behandling.id,
             AuditLoggerEvent.ACCESS,
             BehandlerRolle.SAKSBEHANDLER,
             ""
         )
         mockBrukerContext("B", roller)
-        tilgangService.validerTilgangTilFagsakForBehandling(
+        tilgangService.validerTilgangTilHandlingOgFagsakForBehandling(
             behandling.id,
             AuditLoggerEvent.ACCESS,
             BehandlerRolle.SAKSBEHANDLER,
@@ -348,7 +348,7 @@ class TilgangServiceTest {
         every { mockIntegrasjonService.sjekkTilgangTilPersoner(any()) } returns Tilgang(false)
 
         val rolleTilgangskontrollFeil = assertThrows<RolleTilgangskontrollFeil> {
-            tilgangService.validerTilgangTilFagsak(
+            tilgangService.validerTilgangTilHandlingOgFagsak(
                 fagsak.id,
                 AuditLoggerEvent.ACCESS,
                 BehandlerRolle.SAKSBEHANDLER,
@@ -362,7 +362,7 @@ class TilgangServiceTest {
     internal fun `skal ikke feile når saksbehandler har tilgang til fagsak`() {
         every { mockIntegrasjonService.sjekkTilgangTilPersoner(any()) } returns Tilgang(true)
 
-        tilgangService.validerTilgangTilFagsak(
+        tilgangService.validerTilgangTilHandlingOgFagsak(
             fagsak.id,
             AuditLoggerEvent.ACCESS,
             BehandlerRolle.SAKSBEHANDLER,
@@ -376,13 +376,13 @@ class TilgangServiceTest {
 
         mockBrukerContext("A", listOf(BehandlerRolle.SAKSBEHANDLER.name))
 
-        tilgangService.validerTilgangTilFagsak(
+        tilgangService.validerTilgangTilHandlingOgFagsak(
             fagsak.id,
             AuditLoggerEvent.ACCESS,
             BehandlerRolle.SAKSBEHANDLER,
             ""
         )
-        tilgangService.validerTilgangTilFagsak(
+        tilgangService.validerTilgangTilHandlingOgFagsak(
             fagsak.id,
             AuditLoggerEvent.ACCESS,
             BehandlerRolle.SAKSBEHANDLER,
@@ -401,14 +401,14 @@ class TilgangServiceTest {
         val roller = listOf(BehandlerRolle.SAKSBEHANDLER.name)
 
         mockBrukerContext("A", roller)
-        tilgangService.validerTilgangTilFagsak(
+        tilgangService.validerTilgangTilHandlingOgFagsak(
             fagsak.id,
             AuditLoggerEvent.ACCESS,
             BehandlerRolle.SAKSBEHANDLER,
             ""
         )
         mockBrukerContext("B", roller)
-        tilgangService.validerTilgangTilFagsak(
+        tilgangService.validerTilgangTilHandlingOgFagsak(
             fagsak.id,
             AuditLoggerEvent.ACCESS,
             BehandlerRolle.SAKSBEHANDLER,
@@ -426,7 +426,7 @@ class TilgangServiceTest {
         every { mockFagsakService.hentFagsakForPerson("12345678910") } returns fagsak
 
         val rolleTilgangskontrollFeil = assertThrows<RolleTilgangskontrollFeil> {
-            tilgangService.validerTilgangTilFagsakForPerson(
+            tilgangService.validerTilgangTilHandlingOgFagsakForPerson(
                 "12345678910",
                 AuditLoggerEvent.ACCESS,
                 BehandlerRolle.SAKSBEHANDLER,
@@ -441,7 +441,7 @@ class TilgangServiceTest {
         every { mockIntegrasjonService.sjekkTilgangTilPersoner(any()) } returns Tilgang(true)
         every { mockFagsakService.hentFagsakForPerson("12345678910") } returns fagsak
 
-        tilgangService.validerTilgangTilFagsakForPerson(
+        tilgangService.validerTilgangTilHandlingOgFagsakForPerson(
             "12345678910",
             AuditLoggerEvent.ACCESS,
             BehandlerRolle.SAKSBEHANDLER,
@@ -511,7 +511,7 @@ class TilgangServiceTest {
             Tilgang(false, null)
         )
         assertThrows<RolleTilgangskontrollFeil> {
-            tilgangService.validerTilgangTilFagsak(
+            tilgangService.validerTilgangTilHandlingOgFagsak(
                 fagsak.id,
                 AuditLoggerEvent.ACCESS,
                 BehandlerRolle.SAKSBEHANDLER,
