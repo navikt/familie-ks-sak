@@ -37,11 +37,11 @@ object TestdataGenerator {
     fun randomPersonident(aktør: Aktør, fnr: String = randomFnr()): Personident =
         Personident(fødselsnummer = fnr, aktør = aktør)
 
-    fun tilAktør(fnr: String, toSisteSiffrer: String = "00") = Aktør(fnr + toSisteSiffrer).also {
+    fun fnrTilAktør(fnr: String, toSisteSiffrer: String = "00") = Aktør(fnr + toSisteSiffrer).also {
         it.personidenter.add(Personident(fnr, aktør = it))
     }
 
-    fun defaultFagsak(aktør: Aktør = tilAktør(randomFnr())) = Fagsak(
+    fun defaultFagsak(aktør: Aktør = fnrTilAktør(randomFnr())) = Fagsak(
         1,
         aktør = aktør
     )
@@ -75,7 +75,7 @@ object TestdataGenerator {
         søkerPersonIdent: String,
         barnasIdenter: List<String>,
         barnasFødselsdatoer: List<LocalDate> = barnasIdenter.map { LocalDate.of(2019, 1, 1) },
-        søkerAktør: Aktør = tilAktør(søkerPersonIdent).also {
+        søkerAktør: Aktør = fnrTilAktør(søkerPersonIdent).also {
             it.personidenter.add(
                 Personident(
                     fødselsnummer = søkerPersonIdent,
@@ -85,7 +85,7 @@ object TestdataGenerator {
             )
         },
         barnAktør: List<Aktør> = barnasIdenter.map { fødselsnummer ->
-            tilAktør(fødselsnummer).also {
+            fnrTilAktør(fødselsnummer).also {
                 it.personidenter.add(
                     Personident(
                         fødselsnummer = fødselsnummer,

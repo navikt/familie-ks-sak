@@ -216,7 +216,7 @@ class TilgangServiceTest {
         every { mockIntegrasjonService.sjekkTilgangTilPersoner(any()) } returns Tilgang(false)
 
         val rolleTilgangskontrollFeil = assertThrows<RolleTilgangskontrollFeil> {
-            tilgangService.validerTilgangTilBehandling(
+            tilgangService.validerTilgangTilFagsakForBehandling(
                 behandling.id,
                 AuditLoggerEvent.ACCESS,
                 BehandlerRolle.SAKSBEHANDLER,
@@ -224,7 +224,7 @@ class TilgangServiceTest {
             )
         }
         assertEquals(
-            "Saksbehandler A har ikke tilgang til behandling=${behandling.id}",
+            "Saksbehandler A har ikke tilgang til fagsak=${fagsak.id}.",
             rolleTilgangskontrollFeil.melding
         )
     }
@@ -233,7 +233,7 @@ class TilgangServiceTest {
     internal fun `skal ikke feile når saksbehandler har tilgang til behandling`() {
         every { mockIntegrasjonService.sjekkTilgangTilPersoner(any()) } returns Tilgang(true)
 
-        tilgangService.validerTilgangTilBehandling(
+        tilgangService.validerTilgangTilFagsakForBehandling(
             behandling.id,
             AuditLoggerEvent.ACCESS,
             BehandlerRolle.SAKSBEHANDLER,
@@ -299,13 +299,13 @@ class TilgangServiceTest {
 
         mockBrukerContext("A", listOf(BehandlerRolle.SAKSBEHANDLER.name))
 
-        tilgangService.validerTilgangTilBehandling(
+        tilgangService.validerTilgangTilFagsakForBehandling(
             behandling.id,
             AuditLoggerEvent.ACCESS,
             BehandlerRolle.SAKSBEHANDLER,
             ""
         )
-        tilgangService.validerTilgangTilBehandling(
+        tilgangService.validerTilgangTilFagsakForBehandling(
             behandling.id,
             AuditLoggerEvent.ACCESS,
             BehandlerRolle.SAKSBEHANDLER,
@@ -324,14 +324,14 @@ class TilgangServiceTest {
         val roller = listOf(BehandlerRolle.SAKSBEHANDLER.name)
 
         mockBrukerContext("A", roller)
-        tilgangService.validerTilgangTilBehandling(
+        tilgangService.validerTilgangTilFagsakForBehandling(
             behandling.id,
             AuditLoggerEvent.ACCESS,
             BehandlerRolle.SAKSBEHANDLER,
             ""
         )
         mockBrukerContext("B", roller)
-        tilgangService.validerTilgangTilBehandling(
+        tilgangService.validerTilgangTilFagsakForBehandling(
             behandling.id,
             AuditLoggerEvent.ACCESS,
             BehandlerRolle.SAKSBEHANDLER,

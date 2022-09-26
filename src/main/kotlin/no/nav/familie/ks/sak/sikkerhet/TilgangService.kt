@@ -68,27 +68,29 @@ class TilgangService(
      * @param minimumBehandlerRolle den laveste rolle som kreves for den angitte handlingen
      * @param handling kort beskrivelse for handlingen.
      */
-    fun validerTilgangTilBehandling(
+    fun validerTilgangTilFagsakForBehandling(
         behandlingId: Long,
         event: AuditLoggerEvent,
         minimumBehandlerRolle: BehandlerRolle,
         handling: String
     ) {
-        validerTilgangTilHandling(minimumBehandlerRolle, handling)
-        val harTilgang = harSaksbehandlerTilgang("validerTilgangTilBehandling", behandlingId) {
-            val behandling = behandlingRepository.finnAktivBehandling(behandlingId)
-            val personIdenter =
-                personopplysningGrunnlagRepository.findByBehandlingAndAktiv(behandlingId = behandlingId)?.personer?.map { it.aktør.aktivFødselsnummer() }
-                    ?: listOf(behandling.fagsak.aktør.aktivFødselsnummer())
-            loggPersonoppslag(personIdenter, event, CustomKeyValue("behandling", behandlingId.toString()))
-            harTilgangTilPersoner(personIdenter)
-        }
-        if (!harTilgang) {
-            throw RolleTilgangskontrollFeil(
-                "Saksbehandler ${SikkerhetContext.hentSaksbehandler()} " +
-                    "har ikke tilgang til behandling=$behandlingId"
-            )
-        }
+//        validerTilgangTilHandling(minimumBehandlerRolle, handling)
+        val fagsakId = behandlingRepository.finnAktivBehandling(behandlingId).fagsak.id
+        validerTilgangTilFagsak(fagsakId, event, minimumBehandlerRolle, handling)
+//        val harTilgang = harSaksbehandlerTilgang("validerTilgangTilBehandling", behandlingId) {
+//            val behandling = behandlingRepository.finnAktivBehandling(behandlingId)
+//            val personIdenter =
+//                personopplysningGrunnlagRepository.findByBehandlingAndAktiv(behandlingId = behandlingId)?.personer?.map { it.aktør.aktivFødselsnummer() }
+//                    ?: listOf(behandling.fagsak.aktør.aktivFødselsnummer())
+//            loggPersonoppslag(personIdenter, event, CustomKeyValue("behandling", behandlingId.toString()))
+//            harTilgangTilPersoner(personIdenter)
+//        }
+//        if (!harTilgang) {
+//            throw RolleTilgangskontrollFeil(
+//                "Saksbehandler ${SikkerhetContext.hentSaksbehandler()} " +
+//                    "har ikke tilgang til behandling=$behandlingId"
+//            )
+//        }
     }
 
     /**
