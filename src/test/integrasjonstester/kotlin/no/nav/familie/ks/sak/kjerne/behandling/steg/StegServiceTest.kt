@@ -54,7 +54,7 @@ class StegServiceTest : OppslagSpringRunnerTest() {
     }
 
     @Test
-    fun `utførSteg skal utføre registerpersongrunnlag og flytter til register søknad for førstegangsbehandling`() {
+    fun `utførSteg skal utføre REGISTRER_PERSONGRUNNLAG og sette neste steg til REGISTRER_SØKNAD for FGB`() {
         var behandling = behandlingRepository.saveAndFlush(
             lagBehandling(
                 fagsak = fagsak,
@@ -72,7 +72,7 @@ class StegServiceTest : OppslagSpringRunnerTest() {
     }
 
     @Test
-    fun `utførSteg skal utføre registerpersongrunnlag og flytter til vilkårsvurdering for revurdering med årsak NYE_OPPLYSNINGER`() {
+    fun `utførSteg skal utføre REGISTRER_PERSONGRUNNLAG og sette neste steg til VILKÅRSVURDERING for revurdering`() {
         var behandling = behandlingRepository.saveAndFlush(
             lagBehandling(
                 fagsak = fagsak,
@@ -90,7 +90,7 @@ class StegServiceTest : OppslagSpringRunnerTest() {
     }
 
     @Test
-    fun `utførSteg skal tilbakeføre behandlingsresultat når registersøknad utføres på nytt for førstegangsbehandling`() {
+    fun `utførSteg skal tilbakeføre behandlingsresultat når REGISTRERE_SØKNAD utføres på nytt for FGB`() {
         var behandling = behandlingRepository.saveAndFlush(
             lagBehandling(
                 fagsak = fagsak,
@@ -119,7 +119,7 @@ class StegServiceTest : OppslagSpringRunnerTest() {
     }
 
     @Test
-    fun `utførSteg skal gjenoppta registersøknad når steget er på vent for førstegangsbehandling`() {
+    fun `utførSteg skal gjenoppta REGISTRERE_SØKNAD når steget er på vent for FGB`() {
         var behandling = behandlingRepository.saveAndFlush(
             lagBehandling(
                 fagsak = fagsak,
@@ -148,7 +148,7 @@ class StegServiceTest : OppslagSpringRunnerTest() {
     }
 
     @Test
-    fun `utførSteg skal ikke utføre iverksettmotOppdrag steg`() {
+    fun `utførSteg skal ikke utføre IVERKSETT_MOT_OPPDRAG steg`() {
         val behandling = behandlingRepository.saveAndFlush(
             lagBehandling(
                 fagsak = fagsak,
@@ -166,7 +166,7 @@ class StegServiceTest : OppslagSpringRunnerTest() {
     }
 
     @Test
-    fun `utførSteg skal ikke utføre registersøknad for behandling med årsak satsendring`() {
+    fun `utførSteg skal ikke utføre REGISTRERE_SØKNAD for behandling med årsak SATSENDRING`() {
         val behandling = behandlingRepository.saveAndFlush(
             lagBehandling(
                 fagsak = fagsak,
@@ -187,7 +187,7 @@ class StegServiceTest : OppslagSpringRunnerTest() {
     }
 
     @Test
-    fun `utførSteg skal ikke utføre registersøknad steg før registerpersongrunnlag er utført`() {
+    fun `utførSteg skal ikke utføre SATSENDRING steg før REGISTRERE_PERSONGRUNNLAG er utført`() {
         val behandling = behandlingRepository.saveAndFlush(
             lagBehandling(
                 fagsak = fagsak,

@@ -77,7 +77,7 @@ class StegService(
                     "med opprettetÅrsak ${behandling.opprettetÅrsak}"
             )
 
-        // valider om behandling har et steg med stegstatus KLAR som er forrige enn behandledeSteg
+        // valider om et tidligere steg i behandlingen har stegstatus KLAR
         val stegKlarForBehandling = behandling.behandlingStegTilstand.singleOrNull {
             it.behandlingSteg.sekvens < behandledeSteg.sekvens &&
                 it.behandlingStegStatus == BehandlingStegStatus.KLAR
