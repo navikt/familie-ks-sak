@@ -10,7 +10,7 @@ import org.springframework.transaction.annotation.Transactional
 
 @Service
 class StegService(
-    private val steg: List<IBehandlingssteg>,
+    private val steg: List<IBehandlingSteg>,
     private val behandlingRepository: BehandlingRepository
 ) {
 
@@ -118,7 +118,7 @@ class StegService(
             ?: throw Feil("$behandledeSteg finnes ikke i Behandling ${behandling.id}")
     }
 
-    private fun hentStegInstans(behandlingssteg: BehandlingSteg): IBehandlingssteg {
+    private fun hentStegInstans(behandlingssteg: BehandlingSteg): IBehandlingSteg {
         return steg.singleOrNull { it.getBehandlingssteg() == behandlingssteg }
             ?: throw Feil("Finner ikke behandlingssteg $behandlingssteg")
     }

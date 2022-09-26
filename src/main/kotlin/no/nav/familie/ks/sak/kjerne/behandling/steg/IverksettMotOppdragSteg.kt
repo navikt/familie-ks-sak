@@ -5,7 +5,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 
 @Service
-class IverksettMotOppdragSteg : IBehandlingssteg {
+class IverksettMotOppdragSteg : IBehandlingSteg {
     override fun getBehandlingssteg(): BehandlingSteg = BehandlingSteg.IVERKSETT_MOT_OPPDRAG
 
     override fun utførSteg(behandlingId: Long) {

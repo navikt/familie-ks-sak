@@ -5,7 +5,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 
 @Service
-class SimuleringSteg : IBehandlingssteg {
+class SimuleringSteg : IBehandlingSteg {
     override fun getBehandlingssteg(): BehandlingSteg = BehandlingSteg.SIMULERING
 
     override fun utførSteg(behandlingId: Long) {
