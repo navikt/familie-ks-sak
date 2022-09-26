@@ -326,6 +326,32 @@ class TilgangServiceTest {
     }
 
     @Test
+    internal fun `skal kaste RolleTilgangskontrollFeil dersom saksbehandler ikke har tilgang til fagsak`() {
+        every { integrasjonService.sjekkTilgangTilPersoner(any()) } returns Tilgang(false)
+
+        assertThrows<RolleTilgangskontrollFeil> {
+            tilgangService.validerTilgangTilFagsak(
+                fagsak.id,
+                AuditLoggerEvent.ACCESS,
+                BehandlerRolle.SAKSBEHANDLER,
+                "hente behandling"
+            )
+        }
+    }
+
+    @Test
+    internal fun `skal ikke feile når saksbehandler har tilgang til fagsak`() {
+        every { integrasjonService.sjekkTilgangTilPersoner(any()) } returns Tilgang(true)
+
+        tilgangService.validerTilgangTilFagsak(
+            fagsak.id,
+            AuditLoggerEvent.ACCESS,
+            BehandlerRolle.SAKSBEHANDLER,
+            "hente behandling"
+        )
+    }
+
+    @Test
     internal fun `validerTilgangTilFagsak - hvis samme saksbehandler kaller skal den ha cachet resultatet`() {
         every { integrasjonService.sjekkTilgangTilPersoner(any()) } returns Tilgang(true)
 
@@ -373,6 +399,34 @@ class TilgangServiceTest {
         verify(exactly = 2) {
             integrasjonService.sjekkTilgangTilPersoner(any())
         }
+    }
+
+    @Test
+    internal fun `validerTilgangTilFagsakForPerson - skal kaste RolleTilgangskontrollFeil dersom saksbehandler ikke har tilgang til fagsak`() {
+        every { integrasjonService.sjekkTilgangTilPersoner(any()) } returns Tilgang(false)
+        every { fagsakService.hentFagsakForPerson("12345678910") } returns fagsak
+
+        assertThrows<RolleTilgangskontrollFeil> {
+            tilgangService.validerTilgangTilFagsakForPerson(
+                "12345678910",
+                AuditLoggerEvent.ACCESS,
+                BehandlerRolle.SAKSBEHANDLER,
+                "hente behandling"
+            )
+        }
+    }
+
+    @Test
+    internal fun `validerTilgangTilFagsakForPerson - skal ikke feile når saksbehandler har tilgang til fagsak`() {
+        every { integrasjonService.sjekkTilgangTilPersoner(any()) } returns Tilgang(true)
+        every { fagsakService.hentFagsakForPerson("12345678910") } returns fagsak
+
+        tilgangService.validerTilgangTilFagsakForPerson(
+            "12345678910",
+            AuditLoggerEvent.ACCESS,
+            BehandlerRolle.SAKSBEHANDLER,
+            "hente behandling"
+        )
     }
 
     @Test
