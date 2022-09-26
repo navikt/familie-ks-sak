@@ -111,10 +111,7 @@ class TilgangService(
             val personIdenterIFagsak = behandlinger.flatMap { behandling ->
                 val personopplysningGrunnlag =
                     personopplysningGrunnlagRepository.findByBehandlingAndAktiv(behandling.id)
-                when {
-                    personopplysningGrunnlag != null -> personopplysningGrunnlag.personer.map { person -> person.aktør.aktivFødselsnummer() }
-                    else -> emptyList()
-                }
+                personopplysningGrunnlag?.personer?.map { person -> person.aktør.aktivFødselsnummer() } ?: emptyList()
             }.distinct().ifEmpty { listOf(aktør.aktivFødselsnummer()) }
             loggPersonoppslag(personIdenterIFagsak, event, CustomKeyValue("fagsak", fagsakId.toString()))
             harTilgangTilPersoner(personIdenterIFagsak)
