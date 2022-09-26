@@ -2,6 +2,8 @@ package no.nav.familie.ks.sak.kjerne.behandling.domene
 
 import com.fasterxml.jackson.annotation.JsonIgnore
 import no.nav.familie.ks.sak.common.entitet.BaseEntitet
+import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg
+import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingStegStatus
 import java.util.Objects
 import javax.persistence.Column
 import javax.persistence.Entity
