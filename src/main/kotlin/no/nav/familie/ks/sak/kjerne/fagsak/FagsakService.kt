@@ -101,9 +101,8 @@ class FagsakService(
         )
     }
 
-    fun hentMinimalFagsakForPerson(personident: String): MinimalFagsakResponsDto {
-        return lagMinimalFagsakResponsDto(hentFagsakForPerson(personident))
-    }
+    fun hentMinimalFagsakForPerson(personident: String): MinimalFagsakResponsDto =
+        lagMinimalFagsakResponsDto(hentFagsakForPerson(personident))
 
     @Transactional
     fun lagre(fagsak: Fagsak): Fagsak {
@@ -191,12 +190,10 @@ class FagsakService(
         }
     }
 
-    fun hentFagsak(fagsakId: Long): Fagsak {
-        return fagsakRepository.finnFagsak(fagsakId) ?: throw FunksjonellFeil(
-            melding = "Finner ikke fagsak med id $fagsakId",
-            frontendFeilmelding = "Finner ikke fagsak med id $fagsakId"
-        )
-    }
+    fun hentFagsak(fagsakId: Long): Fagsak = fagsakRepository.finnFagsak(fagsakId) ?: throw FunksjonellFeil(
+        melding = "Finner ikke fagsak med id $fagsakId",
+        frontendFeilmelding = "Finner ikke fagsak med id $fagsakId"
+    )
 
     fun hentFagsakForPerson(personIdent: String): Fagsak {
         val aktør = personidentService.hentOgLagreAktør(personIdent, true)
