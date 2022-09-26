@@ -155,7 +155,7 @@ class StegServiceTest : OppslagSpringRunnerTest() {
                 opprettetÅrsak = BehandlingÅrsak.SØKNAD
             )
         )
-        behandling.leggTilNySteg(IVERKSETT_MOT_OPPDRAG)
+        behandling.leggTilNesteSteg(IVERKSETT_MOT_OPPDRAG)
         behandlingRepository.saveAndFlush(behandling)
 
         val exception = assertThrows<RuntimeException> { stegService.utførSteg(behandling.id, IVERKSETT_MOT_OPPDRAG) }
@@ -175,7 +175,7 @@ class StegServiceTest : OppslagSpringRunnerTest() {
             )
         )
         assertBehandlingHarSteg(behandling, REGISTRERE_PERSONGRUNNLAG, KLAR)
-        behandling.leggTilNySteg(REGISTRERE_SØKNAD)
+        behandling.leggTilNesteSteg(REGISTRERE_SØKNAD)
         behandlingRepository.saveAndFlush(behandling)
 
         val exception = assertThrows<RuntimeException> { stegService.utførSteg(behandling.id, REGISTRERE_SØKNAD) }
@@ -194,7 +194,7 @@ class StegServiceTest : OppslagSpringRunnerTest() {
                 opprettetÅrsak = BehandlingÅrsak.SØKNAD
             )
         )
-        behandling.leggTilNySteg(REGISTRERE_SØKNAD)
+        behandling.leggTilNesteSteg(REGISTRERE_SØKNAD)
         behandlingRepository.saveAndFlush(behandling)
 
         val exception = assertThrows<RuntimeException> { stegService.utførSteg(behandling.id, REGISTRERE_SØKNAD) }

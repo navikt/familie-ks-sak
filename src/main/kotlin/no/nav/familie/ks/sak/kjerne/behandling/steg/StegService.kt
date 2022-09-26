@@ -32,7 +32,7 @@ class StegService(
                 // legger til neste steg hvis steget er ny, eller oppdaterer eksisterende steg status til KLAR
                 behandling.behandlingStegTilstand.singleOrNull { it.behandlingSteg == nesteSteg }
                     ?.let { it.behandlingStegStatus = BehandlingStegStatus.KLAR }
-                    ?: behandling.leggTilNySteg(nesteSteg)
+                    ?: behandling.leggTilNesteSteg(nesteSteg)
 
                 // oppdaterer behandling med behandlingstegtilstand og behandling status
                 behandlingRepository.saveAndFlush(oppdaterBehandlingStatus(behandling, behandledeSteg))

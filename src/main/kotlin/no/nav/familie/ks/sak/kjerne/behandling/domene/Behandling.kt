@@ -106,7 +106,7 @@ data class Behandling(
         return this
     }
 
-    fun leggTilNySteg(behandlingSteg: BehandlingSteg): Behandling {
+    fun leggTilNesteSteg(behandlingSteg: BehandlingSteg): Behandling {
         behandlingStegTilstand.add(
             BehandlingStegTilstand(
                 behandling = this,
