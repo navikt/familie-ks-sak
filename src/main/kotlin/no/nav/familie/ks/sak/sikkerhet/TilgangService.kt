@@ -76,7 +76,7 @@ class TilgangService(
     ) {
         validerTilgangTilHandling(minimumBehandlerRolle, handling)
         val harTilgang = harSaksbehandlerTilgang("validerTilgangTilBehandling", behandlingId) {
-            val behandling = behandlingRepository.finnBehandling(behandlingId)
+            val behandling = behandlingRepository.finnAktivBehandling(behandlingId)
             val personIdenter =
                 personopplysningGrunnlagRepository.findByBehandlingAndAktiv(behandlingId = behandlingId)?.personer?.map { it.aktør.aktivFødselsnummer() }
                     ?: listOf(behandling.fagsak.aktør.aktivFødselsnummer())
@@ -105,16 +105,20 @@ class TilgangService(
         handling: String
     ) {
         validerTilgangTilHandling(minimumBehandlerRolle, handling)
-        val aktør = fagsakService.hentFagsak(fagsakId).aktør
-        val behandlinger = behandlingRepository.finnBehandlinger(fagsakId)
-        val personIdenterIFagsak = behandlinger.flatMap { behandling ->
-            val personopplysningGrunnlag = personopplysningGrunnlagRepository.findByBehandlingAndAktiv(behandling.id)
-            when {
-                personopplysningGrunnlag != null -> personopplysningGrunnlag.personer.map { person -> person.aktør.aktivFødselsnummer() }
-                else -> emptyList()
-            }
-        }.distinct().ifEmpty { listOf(aktør.aktivFødselsnummer()) }
-        val harTilgang = harTilgangTilPersoner(personIdenterIFagsak)
+        val harTilgang = harSaksbehandlerTilgang("validerTilgangTilFagsak", fagsakId) {
+            val aktør = fagsakService.hentFagsak(fagsakId).aktør
+            val behandlinger = behandlingRepository.finnBehandlinger(fagsakId)
+            val personIdenterIFagsak = behandlinger.flatMap { behandling ->
+                val personopplysningGrunnlag =
+                    personopplysningGrunnlagRepository.findByBehandlingAndAktiv(behandling.id)
+                when {
+                    personopplysningGrunnlag != null -> personopplysningGrunnlag.personer.map { person -> person.aktør.aktivFødselsnummer() }
+                    else -> emptyList()
+                }
+            }.distinct().ifEmpty { listOf(aktør.aktivFødselsnummer()) }
+            loggPersonoppslag(personIdenterIFagsak, event, CustomKeyValue("fagsak", fagsakId.toString()))
+            harTilgangTilPersoner(personIdenterIFagsak)
+        }
         if (!harTilgang) {
             throw RolleTilgangskontrollFeil(
                 melding = "Saksbehandler ${SikkerhetContext.hentSaksbehandler()} " +

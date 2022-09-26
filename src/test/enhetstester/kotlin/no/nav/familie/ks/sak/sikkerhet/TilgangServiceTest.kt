@@ -1,4 +1,4 @@
-package no.nav.familie.ks.sak.enhetstester
+package no.nav.familie.ks.sak.sikkerhet
 
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
@@ -8,9 +8,9 @@ import no.nav.familie.kontrakter.felles.tilgangskontroll.Tilgang
 import no.nav.familie.ks.sak.common.exception.RolleTilgangskontrollFeil
 import no.nav.familie.ks.sak.config.BehandlerRolle
 import no.nav.familie.ks.sak.config.RolleConfig
-import no.nav.familie.ks.sak.data.Testdata.defaultFagsak
-import no.nav.familie.ks.sak.data.Testdata.lagBehandling
-import no.nav.familie.ks.sak.data.Testdata.lagPersonopplysningGrunnlag
+import no.nav.familie.ks.sak.data.TestdataGenerator.defaultFagsak
+import no.nav.familie.ks.sak.data.TestdataGenerator.lagBehandling
+import no.nav.familie.ks.sak.data.TestdataGenerator.lagPersonopplysningGrunnlag
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
 import no.nav.familie.ks.sak.kjerne.fagsak.FagsakService
@@ -21,9 +21,6 @@ import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlagRepository
-import no.nav.familie.ks.sak.sikkerhet.AuditLogger
-import no.nav.familie.ks.sak.sikkerhet.AuditLoggerEvent
-import no.nav.familie.ks.sak.sikkerhet.TilgangService
 import no.nav.familie.ks.sak.utils.BrukerContextUtil.clearBrukerContext
 import no.nav.familie.ks.sak.utils.BrukerContextUtil.mockBrukerContext
 import no.nav.familie.log.mdc.MDCConstants
@@ -31,6 +28,7 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
 import org.slf4j.MDC
@@ -38,6 +36,7 @@ import org.springframework.cache.concurrent.ConcurrentMapCacheManager
 import java.time.LocalDate
 
 @ExtendWith(MockKExtension::class)
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class TilgangServiceTest {
 
     @MockK
@@ -53,9 +52,14 @@ class TilgangServiceTest {
     private lateinit var personopplysningGrunnlagRepository: PersonopplysningGrunnlagRepository
 
     private val cacheManager = ConcurrentMapCacheManager()
-    private val kode6Gruppe = "kode6"
-    private val kode7Gruppe = "kode7"
-    private val rolleConfig = RolleConfig("", "", "", KODE6 = kode6Gruppe, KODE7 = kode7Gruppe)
+
+    private val rolleConfig = RolleConfig(
+        BehandlerRolle.BESLUTTER.name,
+        BehandlerRolle.SAKSBEHANDLER.name,
+        BehandlerRolle.VEILEDER.name,
+        KODE6 = "kode6",
+        KODE7 = "kode7"
+    )
     private val auditLogger = AuditLogger("familie-ks-sak")
     private lateinit var tilgangService: TilgangService
 
@@ -67,10 +71,9 @@ class TilgangServiceTest {
         søkerPersonIdent = aktør.aktivFødselsnummer(),
         barnasIdenter = emptyList()
     )
-    private val olaIdent = "4567"
 
     @BeforeAll
-    internal fun beforeAll() {
+    fun beforeAll() {
         tilgangService = TilgangService(
             integrasjonService = integrasjonService,
             behandlingRepository = behandlingRepository,
@@ -85,7 +88,7 @@ class TilgangServiceTest {
     @BeforeEach
     internal fun beforeEach() {
         MDC.put(MDCConstants.MDC_CALL_ID, "00001111")
-        mockBrukerContext()
+        mockBrukerContext(groups = listOf(BehandlerRolle.SAKSBEHANDLER.name))
         every { fagsakService.hentFagsak(fagsak.id) } returns fagsak
         every { behandlingRepository.finnAktivBehandling(any()) } returns behandling
         every { personopplysningGrunnlagRepository.findByBehandlingAndAktiv(any()) } returns personopplysningGrunnlag
@@ -94,6 +97,65 @@ class TilgangServiceTest {
     @AfterEach
     internal fun tearDown() {
         clearBrukerContext()
+    }
+
+    @Test
+    internal fun `skal kaste RolleTilgangskontrollFeil dersom saksbehandler eller veileder forsøker å gjøre handling som krever BESLUTTER-rolle`() {
+        mockBrukerContext(groups = listOf(BehandlerRolle.SAKSBEHANDLER.name))
+
+        assertThrows<RolleTilgangskontrollFeil> {
+            tilgangService.validerTilgangTilHandling(BehandlerRolle.BESLUTTER, "")
+        }
+
+        mockBrukerContext(groups = listOf(BehandlerRolle.VEILEDER.name))
+        assertThrows<RolleTilgangskontrollFeil> {
+            tilgangService.validerTilgangTilHandling(BehandlerRolle.BESLUTTER, "")
+        }
+    }
+
+    @Test
+    internal fun `skal kaste RolleTilgangskontrollFeil dersom veileder forsøker å gjøre handling som krever SAKSBEHANDLER-rolle`() {
+        mockBrukerContext(groups = listOf(BehandlerRolle.VEILEDER.name))
+
+        assertThrows<RolleTilgangskontrollFeil> {
+            tilgangService.validerTilgangTilHandling(BehandlerRolle.SAKSBEHANDLER, "")
+        }
+    }
+
+    @Test
+    internal fun `skal kaste RolleTilgangskontrollFeil dersom bruker verken er veileder saksbehandler eller beslutter`() {
+        mockBrukerContext(groups = emptyList())
+
+        assertThrows<RolleTilgangskontrollFeil> {
+            tilgangService.validerTilgangTilHandling(BehandlerRolle.VEILEDER, "")
+        }
+    }
+
+    @Test
+    internal fun `skal ikke kaste RolleTilgangskontrollFeil dersom beslutter beslutter forsøker å gjøre handling som krever BESLUTTER-rolle`() {
+        mockBrukerContext("A", listOf(BehandlerRolle.BESLUTTER.name))
+        tilgangService.validerTilgangTilHandling(BehandlerRolle.BESLUTTER, "")
+    }
+
+    @Test
+    internal fun `skal ikke kaste RolleTilgangskontrollFeil dersom saksbehandler eller beslutter forsøker å gjøre handling som krever SAKSBEHANDLER-rolle`() {
+        mockBrukerContext("A", listOf(BehandlerRolle.BESLUTTER.name))
+        tilgangService.validerTilgangTilHandling(BehandlerRolle.SAKSBEHANDLER, "")
+
+        mockBrukerContext("A", listOf(BehandlerRolle.SAKSBEHANDLER.name))
+        tilgangService.validerTilgangTilHandling(BehandlerRolle.SAKSBEHANDLER, "")
+    }
+
+    @Test
+    internal fun `skal ikke kaste RolleTilgangskontrollFeil dersom saksbehandler beslutter eller veileder forsøker å gjøre handling som krever VEILEDER-rolle`() {
+        mockBrukerContext("A", listOf(BehandlerRolle.BESLUTTER.name))
+        tilgangService.validerTilgangTilHandling(BehandlerRolle.VEILEDER, "")
+
+        mockBrukerContext("A", listOf(BehandlerRolle.SAKSBEHANDLER.name))
+        tilgangService.validerTilgangTilHandling(BehandlerRolle.VEILEDER, "")
+
+        mockBrukerContext("A", listOf(BehandlerRolle.VEILEDER.name))
+        tilgangService.validerTilgangTilHandling(BehandlerRolle.VEILEDER, "")
     }
 
     @Test
@@ -149,18 +211,20 @@ class TilgangServiceTest {
     }
 
     @Test
-    internal fun `validerTilgangTilPersoner - hvis samme saksbehandler kaller skal den ha cachet`() {
+    internal fun `validerTilgangTilPersoner - hvis samme saksbehandler kaller skal den ha cachet resultatet`() {
         every { integrasjonService.sjekkTilgangTilPersoner(any()) } returns Tilgang(true)
 
-        mockBrukerContext("A")
+        mockBrukerContext("A", groups = listOf(BehandlerRolle.SAKSBEHANDLER.name))
+        val ident = "12345678910"
+
         tilgangService.validerTilgangTilPersoner(
-            listOf(olaIdent),
+            listOf(ident),
             AuditLoggerEvent.ACCESS,
             BehandlerRolle.SAKSBEHANDLER,
             ""
         )
         tilgangService.validerTilgangTilPersoner(
-            listOf(olaIdent),
+            listOf(ident),
             AuditLoggerEvent.ACCESS,
             BehandlerRolle.SAKSBEHANDLER,
             ""
@@ -174,16 +238,20 @@ class TilgangServiceTest {
     internal fun `validerTilgangTilPersoner - hvis to ulike saksbehandler kaller skal den sjekke tilgang på nytt`() {
         every { integrasjonService.sjekkTilgangTilPersoner(any()) } returns Tilgang(true)
 
-        mockBrukerContext("A")
+        val roller = listOf(BehandlerRolle.SAKSBEHANDLER.name)
+
+        mockBrukerContext("A", roller)
+        val ident = "12345678910"
+
         tilgangService.validerTilgangTilPersoner(
-            listOf(olaIdent),
+            listOf(ident),
             AuditLoggerEvent.ACCESS,
             BehandlerRolle.SAKSBEHANDLER,
             ""
         )
-        mockBrukerContext("B")
+        mockBrukerContext("B", roller)
         tilgangService.validerTilgangTilPersoner(
-            listOf(olaIdent),
+            listOf(ident),
             AuditLoggerEvent.ACCESS,
             BehandlerRolle.SAKSBEHANDLER,
             ""
@@ -195,10 +263,10 @@ class TilgangServiceTest {
     }
 
     @Test
-    internal fun `validerTilgangTilBehandling - hvis samme saksbehandler kaller skal den ha cachet`() {
+    internal fun `validerTilgangTilBehandling - hvis samme saksbehandler kaller skal den ha cachet resultatet`() {
         every { integrasjonService.sjekkTilgangTilPersoner(any()) } returns Tilgang(true)
 
-        mockBrukerContext("A")
+        mockBrukerContext("A", listOf(BehandlerRolle.SAKSBEHANDLER.name))
 
         tilgangService.validerTilgangTilBehandling(
             behandling.id,
@@ -222,15 +290,67 @@ class TilgangServiceTest {
     internal fun `validerTilgangTilBehandling - hvis to ulike saksbehandler kaller skal den sjekke tilgang på nytt`() {
         every { integrasjonService.sjekkTilgangTilPersoner(any()) } returns Tilgang(true)
 
-        mockBrukerContext("A")
+        val roller = listOf(BehandlerRolle.SAKSBEHANDLER.name)
+
+        mockBrukerContext("A", roller)
         tilgangService.validerTilgangTilBehandling(
             behandling.id,
             AuditLoggerEvent.ACCESS,
             BehandlerRolle.SAKSBEHANDLER,
             ""
         )
-        mockBrukerContext("B")
+        mockBrukerContext("B", roller)
         tilgangService.validerTilgangTilBehandling(
+            behandling.id,
+            AuditLoggerEvent.ACCESS,
+            BehandlerRolle.SAKSBEHANDLER,
+            ""
+        )
+
+        verify(exactly = 2) {
+            integrasjonService.sjekkTilgangTilPersoner(any())
+        }
+    }
+
+    @Test
+    internal fun `validerTilgangTilFagsak - hvis samme saksbehandler kaller skal den ha cachet resultatet`() {
+        every { integrasjonService.sjekkTilgangTilPersoner(any()) } returns Tilgang(true)
+
+        mockBrukerContext("A", listOf(BehandlerRolle.SAKSBEHANDLER.name))
+
+        tilgangService.validerTilgangTilFagsak(
+            behandling.id,
+            AuditLoggerEvent.ACCESS,
+            BehandlerRolle.SAKSBEHANDLER,
+            ""
+        )
+        tilgangService.validerTilgangTilFagsak(
+            behandling.id,
+            AuditLoggerEvent.ACCESS,
+            BehandlerRolle.SAKSBEHANDLER,
+            ""
+        )
+
+        verify(exactly = 1) {
+            integrasjonService.sjekkTilgangTilPersoner(any())
+        }
+    }
+
+    @Test
+    internal fun `validerTilgangTilFagsak - hvis to ulike saksbehandlere kaller skal den sjekke tilgang på nytt`() {
+        every { integrasjonService.sjekkTilgangTilPersoner(any()) } returns Tilgang(true)
+
+        val roller = listOf(BehandlerRolle.SAKSBEHANDLER.name)
+
+        mockBrukerContext("A", roller)
+        tilgangService.validerTilgangTilFagsak(
+            behandling.id,
+            AuditLoggerEvent.ACCESS,
+            BehandlerRolle.SAKSBEHANDLER,
+            ""
+        )
+        mockBrukerContext("B", roller)
+        tilgangService.validerTilgangTilFagsak(
             behandling.id,
             AuditLoggerEvent.ACCESS,
             BehandlerRolle.SAKSBEHANDLER,
@@ -303,7 +423,6 @@ class TilgangServiceTest {
         }.returns(
             Tilgang(false, null)
         )
-        mockBrukerContext("A")
         assertThrows<RolleTilgangskontrollFeil> {
             tilgangService.validerTilgangTilFagsak(
                 fagsak.id,
