@@ -11,9 +11,9 @@ import no.nav.familie.ks.sak.config.BehandlerRolle
 import no.nav.familie.ks.sak.config.RolleConfig
 import no.nav.familie.ks.sak.data.BrukerContextUtil.clearBrukerContext
 import no.nav.familie.ks.sak.data.BrukerContextUtil.mockBrukerContext
-import no.nav.familie.ks.sak.data.TestdataGenerator.defaultFagsak
-import no.nav.familie.ks.sak.data.TestdataGenerator.lagBehandling
-import no.nav.familie.ks.sak.data.TestdataGenerator.lagPersonopplysningGrunnlag
+import no.nav.familie.ks.sak.data.defaultFagsak
+import no.nav.familie.ks.sak.data.lagBehandling
+import no.nav.familie.ks.sak.data.lagPersonopplysningGrunnlag
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
 import no.nav.familie.ks.sak.kjerne.fagsak.FagsakService

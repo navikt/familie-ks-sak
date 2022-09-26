@@ -21,131 +21,142 @@ import java.time.LocalDate
 import kotlin.math.abs
 import kotlin.random.Random
 
-object TestdataGenerator {
+val fødselsnummerGenerator = FoedselsnummerGenerator()
 
-    val fødselsnummerGenerator = FoedselsnummerGenerator()
+fun randomFnr(): String = fødselsnummerGenerator.foedselsnummer().asString
 
-    fun randomFnr(): String = fødselsnummerGenerator.foedselsnummer().asString
-
-    fun randomAktør(fnr: String = randomFnr()): Aktør =
-        Aktør(Random.nextLong(1000_000_000_000, 31_121_299_99999).toString()).also {
-            it.personidenter.add(
-                randomPersonident(it, fnr)
-            )
-        }
-
-    fun randomPersonident(aktør: Aktør, fnr: String = randomFnr()): Personident =
-        Personident(fødselsnummer = fnr, aktør = aktør)
-
-    fun fnrTilAktør(fnr: String, toSisteSiffrer: String = "00") = Aktør(fnr + toSisteSiffrer).also {
-        it.personidenter.add(Personident(fnr, aktør = it))
+fun randomAktør(fnr: String = randomFnr()): Aktør =
+    Aktør(Random.nextLong(1000_000_000_000, 31_121_299_99999).toString()).also {
+        it.personidenter.add(
+            randomPersonident(it, fnr)
+        )
     }
 
-    fun defaultFagsak(aktør: Aktør = fnrTilAktør(randomFnr())) = Fagsak(
-        1,
-        aktør = aktør
+fun randomPersonident(aktør: Aktør, fnr: String = randomFnr()): Personident =
+    Personident(fødselsnummer = fnr, aktør = aktør)
+
+fun fnrTilAktør(fnr: String, toSisteSiffrer: String = "00") = Aktør(fnr + toSisteSiffrer).also {
+    it.personidenter.add(Personident(fnr, aktør = it))
+}
+
+fun defaultFagsak(aktør: Aktør = fnrTilAktør(randomFnr())) = Fagsak(
+    1,
+    aktør = aktør
+)
+
+fun lagBehandling(
+    fagsak: Fagsak = defaultFagsak(),
+    behandlingKategori: BehandlingKategori = BehandlingKategori.NASJONAL,
+    behandlingType: BehandlingType = BehandlingType.FØRSTEGANGSBEHANDLING,
+    årsak: BehandlingÅrsak = BehandlingÅrsak.SØKNAD,
+    resultat: Behandlingsresultat = Behandlingsresultat.IKKE_VURDERT
+) =
+    Behandling(
+        id = nesteBehandlingId(),
+        fagsak = fagsak,
+        type = behandlingType,
+        kategori = behandlingKategori,
+        opprettetÅrsak = årsak,
+        resultat = resultat
     )
 
-    fun lagBehandling(
-        fagsak: Fagsak = defaultFagsak(),
-        behandlingKategori: BehandlingKategori = BehandlingKategori.NASJONAL,
-        behandlingType: BehandlingType = BehandlingType.FØRSTEGANGSBEHANDLING,
-        årsak: BehandlingÅrsak = BehandlingÅrsak.SØKNAD,
-        resultat: Behandlingsresultat = Behandlingsresultat.IKKE_VURDERT
-    ) =
-        Behandling(
-            id = nesteBehandlingId(),
-            fagsak = fagsak,
-            type = behandlingType,
-            kategori = behandlingKategori,
-            opprettetÅrsak = årsak,
-            resultat = resultat
+private var gjeldendeBehandlingId: Long = abs(Random.nextLong(10000000))
+private const val ID_INKREMENT = 50
+
+fun nesteBehandlingId(): Long {
+    gjeldendeBehandlingId += ID_INKREMENT
+    return gjeldendeBehandlingId
+}
+
+fun lagPersonopplysningGrunnlag(
+    behandlingId: Long,
+    søkerPersonIdent: String,
+    barnasIdenter: List<String>,
+    barnasFødselsdatoer: List<LocalDate> = barnasIdenter.map { LocalDate.of(2019, 1, 1) },
+    søkerAktør: Aktør = fnrTilAktør(søkerPersonIdent).also {
+        it.personidenter.add(
+            Personident(
+                fødselsnummer = søkerPersonIdent,
+                aktør = it,
+                aktiv = søkerPersonIdent == it.personidenter.first().fødselsnummer
+            )
         )
-
-    private var gjeldendeBehandlingId: Long = abs(Random.nextLong(10000000))
-    private const val ID_INKREMENT = 50
-
-    fun nesteBehandlingId(): Long {
-        gjeldendeBehandlingId += ID_INKREMENT
-        return gjeldendeBehandlingId
-    }
-
-    fun lagPersonopplysningGrunnlag(
-        behandlingId: Long,
-        søkerPersonIdent: String,
-        barnasIdenter: List<String>,
-        barnasFødselsdatoer: List<LocalDate> = barnasIdenter.map { LocalDate.of(2019, 1, 1) },
-        søkerAktør: Aktør = fnrTilAktør(søkerPersonIdent).also {
+    },
+    barnAktør: List<Aktør> = barnasIdenter.map { fødselsnummer ->
+        fnrTilAktør(fødselsnummer).also {
             it.personidenter.add(
                 Personident(
-                    fødselsnummer = søkerPersonIdent,
+                    fødselsnummer = fødselsnummer,
                     aktør = it,
-                    aktiv = søkerPersonIdent == it.personidenter.first().fødselsnummer
-                )
-            )
-        },
-        barnAktør: List<Aktør> = barnasIdenter.map { fødselsnummer ->
-            fnrTilAktør(fødselsnummer).also {
-                it.personidenter.add(
-                    Personident(
-                        fødselsnummer = fødselsnummer,
-                        aktør = it,
-                        aktiv = fødselsnummer == it.personidenter.first().fødselsnummer
-                    )
-                )
-            }
-        }
-    ): PersonopplysningGrunnlag {
-        val personopplysningGrunnlag = PersonopplysningGrunnlag(behandlingId = behandlingId)
-
-        val søker = Person(
-            aktør = søkerAktør,
-            type = PersonType.SØKER,
-            personopplysningGrunnlag = personopplysningGrunnlag,
-            fødselsdato = LocalDate.of(2019, 1, 1),
-            navn = "",
-            kjønn = Kjønn.KVINNE
-        ).also { søker ->
-            søker.statsborgerskap =
-                mutableListOf(GrStatsborgerskap(landkode = "NOR", medlemskap = Medlemskap.NORDEN, person = søker))
-            søker.bostedsadresser = mutableListOf()
-            søker.sivilstander = mutableListOf(
-                GrSivilstand(
-                    type = SIVILSTAND.GIFT,
-                    person = søker
+                    aktiv = fødselsnummer == it.personidenter.first().fødselsnummer
                 )
             )
         }
-        personopplysningGrunnlag.personer.add(søker)
+    }
+): PersonopplysningGrunnlag {
+    val personopplysningGrunnlag = PersonopplysningGrunnlag(behandlingId = behandlingId)
 
-        barnAktør.mapIndexed { index, aktør ->
-            personopplysningGrunnlag.personer.add(
-                Person(
-                    aktør = aktør,
-                    type = PersonType.BARN,
-                    personopplysningGrunnlag = personopplysningGrunnlag,
-                    fødselsdato = barnasFødselsdatoer.get(index),
-                    navn = "",
-                    kjønn = Kjønn.MANN
-                ).also { barn ->
-                    barn.statsborgerskap =
-                        mutableListOf(
-                            GrStatsborgerskap(
-                                landkode = "NOR",
-                                medlemskap = Medlemskap.NORDEN,
-                                person = barn
-                            )
-                        )
-                    barn.bostedsadresser = mutableListOf()
-                    barn.sivilstander = mutableListOf(
-                        GrSivilstand(
-                            type = SIVILSTAND.UGIFT,
+    val søker = Person(
+        aktør = søkerAktør,
+        type = PersonType.SØKER,
+        personopplysningGrunnlag = personopplysningGrunnlag,
+        fødselsdato = LocalDate.of(2019, 1, 1),
+        navn = "",
+        kjønn = Kjønn.KVINNE
+    ).also { søker ->
+        søker.statsborgerskap =
+            mutableListOf(GrStatsborgerskap(landkode = "NOR", medlemskap = Medlemskap.NORDEN, person = søker))
+        søker.bostedsadresser = mutableListOf()
+        søker.sivilstander = mutableListOf(
+            GrSivilstand(
+                type = SIVILSTAND.GIFT,
+                person = søker
+            )
+        )
+    }
+    personopplysningGrunnlag.personer.add(søker)
+
+    barnAktør.mapIndexed { index, aktør ->
+        personopplysningGrunnlag.personer.add(
+            Person(
+                aktør = aktør,
+                type = PersonType.BARN,
+                personopplysningGrunnlag = personopplysningGrunnlag,
+                fødselsdato = barnasFødselsdatoer.get(index),
+                navn = "",
+                kjønn = Kjønn.MANN
+            ).also { barn ->
+                barn.statsborgerskap =
+                    mutableListOf(
+                        GrStatsborgerskap(
+                            landkode = "NOR",
+                            medlemskap = Medlemskap.NORDEN,
                             person = barn
                         )
                     )
-                }
-            )
-        }
-        return personopplysningGrunnlag
+                barn.bostedsadresser = mutableListOf()
+                barn.sivilstander = mutableListOf(
+                    GrSivilstand(
+                        type = SIVILSTAND.UGIFT,
+                        person = barn
+                    )
+                )
+            }
+        )
     }
+    return personopplysningGrunnlag
 }
+
+fun lagFagsak(aktør: Aktør = randomAktør(randomFnr())) = Fagsak(aktør = aktør)
+
+fun lagBehandling(
+    fagsak: Fagsak = lagFagsak(),
+    type: BehandlingType = BehandlingType.FØRSTEGANGSBEHANDLING,
+    opprettetÅrsak: BehandlingÅrsak,
+    kategori: BehandlingKategori = BehandlingKategori.NASJONAL
+): Behandling = Behandling(
+    fagsak = fagsak,
+    type = type,
+    opprettetÅrsak = opprettetÅrsak,
+    kategori = kategori
+).initBehandlingStegTilstand()

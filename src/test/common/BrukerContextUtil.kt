@@ -9,7 +9,7 @@ import org.springframework.mock.web.MockHttpServletRequest
 import org.springframework.web.context.request.RequestAttributes
 import org.springframework.web.context.request.RequestContextHolder
 import org.springframework.web.context.request.ServletRequestAttributes
-import java.util.*
+import java.util.UUID
 import javax.servlet.http.HttpServletRequest
 
 object BrukerContextUtil {
