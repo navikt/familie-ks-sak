@@ -129,7 +129,10 @@ class StegServiceTest : OppslagSpringRunnerTest() {
         assertBehandlingHarSteg(behandling, REGISTRERE_PERSONGRUNNLAG, KLAR)
         assertDoesNotThrow { stegService.utførSteg(behandling.id, REGISTRERE_PERSONGRUNNLAG) }
         behandling = behandlingRepository.finnBehandling(behandling.id)
-            .also { it.behandlingStegTilstand.last().behandlingStegStatus = VENTER }
+            .also {
+                it.behandlingStegTilstand
+                    .maxByOrNull { tilstand -> tilstand.behandlingSteg.sekvens }?.behandlingStegStatus = VENTER
+            }
         behandlingRepository.saveAndFlush(behandling)
 
         behandling = behandlingRepository.finnBehandling(behandling.id)
