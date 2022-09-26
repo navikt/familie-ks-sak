@@ -1,5 +1,6 @@
 package no.nav.familie.ks.sak.kjerne.arbeidsfordeling
 
+import no.nav.familie.ks.sak.api.dto.EndreBehandlendeEnhetDto
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.domene.Arbeidsfordelingsenhet
@@ -68,6 +69,28 @@ class ArbeidsfordelingService(
         )
     }
 
+    fun manueltOppdaterBehandlendeEnhet(behandling: Behandling, endreBehandlendeEnhet: EndreBehandlendeEnhetDto) {
+        val aktivArbeidsfordelingPåBehandling =
+            arbeidsfordelingPåBehandlingRepository.finnArbeidsfordelingPåBehandling(behandling.id)
+                ?: throw Feil("Finner ikke tilknyttet arbeidsfordelingsenhet på behandling ${behandling.id}")
+
+        val oppdatertArbeidsfordelingPåBehandling = arbeidsfordelingPåBehandlingRepository.save(
+            aktivArbeidsfordelingPåBehandling.copy(
+                behandlendeEnhetId = endreBehandlendeEnhet.enhetId,
+                behandlendeEnhetNavn = integrasjonClient.hentNavKontorEnhet(endreBehandlendeEnhet.enhetId).navn,
+                manueltOverstyrt = true
+            )
+        )
+
+        postFastsattBehandlendeEnhet(
+            behandling = behandling,
+            aktivArbeidsfordelingPåBehandling = aktivArbeidsfordelingPåBehandling,
+            oppdatertArbeidsfordelingPåBehandling = oppdatertArbeidsfordelingPåBehandling,
+            manuellOppdatering = true,
+            begrunnelse = endreBehandlendeEnhet.begrunnelse
+        )
+    }
+
     fun hentArbeidsfordelingsenhet(behandling: Behandling): Arbeidsfordelingsenhet {
         val søker = identMedAdressebeskyttelse(behandling.fagsak.aktør)
         val personopplysningGrunnlag = personopplysningGrunnlagRepository.findByBehandlingAndAktiv(behandling.id)
@@ -77,7 +100,7 @@ class ArbeidsfordelingService(
 
         val identMedStrengeste = finnPersonMedStrengesteAdressebeskyttelse(personer)
 
-        return integrasjonClient.hentBehandlendeEnhet(identMedStrengeste ?: søker.first).singleOrNull()
+        return integrasjonClient.hentBehandlendeEnheter(identMedStrengeste ?: søker.first).singleOrNull()
             ?: throw Feil(message = "Fant flere eller ingen enheter på behandling.")
     }
 

@@ -1,0 +1,16 @@
+{
+  "data": [
+    {
+      "enhetId": "enhetId1",
+      "enhetNavn": "enhetNavn1"
+    },
+    {
+      "enhetId": "enhetId2",
+      "enhetNavn": "enhetNavn2"
+    }
+  ],
+  "status": "SUKSESS",
+  "melding": "string",
+  "frontendFeilmelding": "string",
+  "stacktrace": "string"
+}

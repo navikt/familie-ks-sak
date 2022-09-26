@@ -5,6 +5,7 @@ import no.nav.familie.kontrakter.felles.Ressurs
 import no.nav.familie.kontrakter.felles.Tema
 import no.nav.familie.kontrakter.felles.journalpost.Journalpost
 import no.nav.familie.kontrakter.felles.journalpost.JournalposterForBrukerRequest
+import no.nav.familie.kontrakter.felles.navkontor.NavKontorEnhet
 import no.nav.familie.kontrakter.felles.oppgave.FinnOppgaveRequest
 import no.nav.familie.kontrakter.felles.oppgave.FinnOppgaveResponseDto
 import no.nav.familie.kontrakter.felles.oppgave.Oppgave
@@ -181,7 +182,7 @@ class IntegrasjonClient(
     }
 
     @Cacheable("behandlendeEnhet", cacheManager = "shortCache")
-    fun hentBehandlendeEnhet(ident: String): List<Arbeidsfordelingsenhet> {
+    fun hentBehandlendeEnheter(ident: String): List<Arbeidsfordelingsenhet> {
         val uri = UriComponentsBuilder
             .fromUri(integrasjonUri)
             .pathSegment("arbeidsfordeling", "enhet", Tema.KON.name)
@@ -193,6 +194,19 @@ class IntegrasjonClient(
             formål = "Hent behandlende enhet"
         ) {
             postForEntity(uri, mapOf("ident" to ident))
+        }
+    }
+
+    @Cacheable("enhet", cacheManager = "kodeverkCache")
+    fun hentNavKontorEnhet(enhetId: String?): NavKontorEnhet {
+        val uri = URI.create("$integrasjonUri/arbeidsfordeling/nav-kontor/$enhetId")
+
+        return kallEksternTjenesteRessurs(
+            tjeneste = "arbeidsfordeling",
+            uri = uri,
+            formål = "Hent nav kontor for enhet $enhetId"
+        ) {
+            getForEntity(uri)
         }
     }
 
