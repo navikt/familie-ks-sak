@@ -61,7 +61,7 @@ class ArbeidsfordelingService(
                 }
             }
         }
-        postFastsattBehandlendeEnhet(
+        settBehandlendeEnhet(
             behandling = behandling,
             aktivArbeidsfordelingPåBehandling = aktivArbeidsfordelingPåBehandling,
             oppdatertArbeidsfordelingPåBehandling = oppdatertArbeidsfordelingPåBehandling,
@@ -82,7 +82,7 @@ class ArbeidsfordelingService(
             )
         )
 
-        postFastsattBehandlendeEnhet(
+        settBehandlendeEnhet(
             behandling = behandling,
             aktivArbeidsfordelingPåBehandling = aktivArbeidsfordelingPåBehandling,
             oppdatertArbeidsfordelingPåBehandling = oppdatertArbeidsfordelingPåBehandling,
@@ -124,7 +124,7 @@ class ArbeidsfordelingService(
         }
     }
 
-    private fun postFastsattBehandlendeEnhet(
+    private fun settBehandlendeEnhet(
         behandling: Behandling,
         aktivArbeidsfordelingPåBehandling: ArbeidsfordelingPåBehandling?,
         oppdatertArbeidsfordelingPåBehandling: ArbeidsfordelingPåBehandling,
