@@ -101,12 +101,12 @@ class StegService(
         }.sortedBy { it.sekvens }
         return when (behandledeSteg) {
             BehandlingSteg.BEHANDLING_AVSLUTTET -> throw Feil("Behandling ${behandling.id} er allerede avsluttet")
-            BehandlingSteg.BESLUTTE_VEDTAK -> hentNesteStegTypeBasertPåBehandlingsresultat(behandling.resultat)
+            BehandlingSteg.BESLUTTE_VEDTAK -> hentNesteStegEtterBeslutteVedtakBasertPåBehandlingsresultat(behandling.resultat)
             else -> nesteGyldigeStadier.first()
         }
     }
 
-    private fun hentNesteStegTypeBasertPåBehandlingsresultat(resultat: Behandlingsresultat): BehandlingSteg {
+    private fun hentNesteStegEtterBeslutteVedtakBasertPåBehandlingsresultat(resultat: Behandlingsresultat): BehandlingSteg {
         return when {
             resultat.kanIkkeSendesTilOppdrag() -> BehandlingSteg.JOURNALFØR_VEDTAKSBREV
             else -> BehandlingSteg.IVERKSETT_MOT_OPPDRAG

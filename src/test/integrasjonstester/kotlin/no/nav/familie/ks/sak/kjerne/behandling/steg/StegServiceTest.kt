@@ -62,13 +62,13 @@ class StegServiceTest : OppslagSpringRunnerTest() {
             )
         )
 
-        assertSteg(behandling, REGISTRERE_PERSONGRUNNLAG, KLAR)
+        assertBehandlingHarSteg(behandling, REGISTRERE_PERSONGRUNNLAG, KLAR)
         assertDoesNotThrow { stegService.utførSteg(behandling.id, REGISTRERE_PERSONGRUNNLAG) }
 
         behandling = behandlingRepository.finnBehandling(behandling.id)
         assertEquals(2, behandling.behandlingStegTilstand.size)
-        assertSteg(behandling, REGISTRERE_PERSONGRUNNLAG, UTFØRT)
-        assertSteg(behandling, REGISTRERE_SØKNAD, KLAR)
+        assertBehandlingHarSteg(behandling, REGISTRERE_PERSONGRUNNLAG, UTFØRT)
+        assertBehandlingHarSteg(behandling, REGISTRERE_SØKNAD, KLAR)
     }
 
     @Test
@@ -80,13 +80,13 @@ class StegServiceTest : OppslagSpringRunnerTest() {
                 opprettetÅrsak = BehandlingÅrsak.NYE_OPPLYSNINGER
             )
         )
-        assertSteg(behandling, REGISTRERE_PERSONGRUNNLAG, KLAR)
+        assertBehandlingHarSteg(behandling, REGISTRERE_PERSONGRUNNLAG, KLAR)
         assertDoesNotThrow { stegService.utførSteg(behandling.id, REGISTRERE_PERSONGRUNNLAG) }
 
         behandling = behandlingRepository.finnBehandling(behandling.id)
         assertEquals(2, behandling.behandlingStegTilstand.size)
-        assertSteg(behandling, REGISTRERE_PERSONGRUNNLAG, UTFØRT)
-        assertSteg(behandling, VILKÅRSVURDERING, KLAR)
+        assertBehandlingHarSteg(behandling, REGISTRERE_PERSONGRUNNLAG, UTFØRT)
+        assertBehandlingHarSteg(behandling, VILKÅRSVURDERING, KLAR)
     }
 
     @Test
@@ -97,25 +97,25 @@ class StegServiceTest : OppslagSpringRunnerTest() {
                 opprettetÅrsak = BehandlingÅrsak.SØKNAD
             )
         )
-        assertSteg(behandling, REGISTRERE_PERSONGRUNNLAG, KLAR)
+        assertBehandlingHarSteg(behandling, REGISTRERE_PERSONGRUNNLAG, KLAR)
         assertDoesNotThrow { stegService.utførSteg(behandling.id, REGISTRERE_PERSONGRUNNLAG) }
         assertDoesNotThrow { stegService.utførSteg(behandling.id, REGISTRERE_SØKNAD) }
         assertDoesNotThrow { stegService.utførSteg(behandling.id, VILKÅRSVURDERING) }
 
         behandling = behandlingRepository.finnBehandling(behandling.id)
         assertEquals(4, behandling.behandlingStegTilstand.size)
-        assertSteg(behandling, REGISTRERE_PERSONGRUNNLAG, UTFØRT)
-        assertSteg(behandling, REGISTRERE_SØKNAD, UTFØRT)
-        assertSteg(behandling, VILKÅRSVURDERING, UTFØRT)
-        assertSteg(behandling, BEHANDLINGSRESULTAT, KLAR)
+        assertBehandlingHarSteg(behandling, REGISTRERE_PERSONGRUNNLAG, UTFØRT)
+        assertBehandlingHarSteg(behandling, REGISTRERE_SØKNAD, UTFØRT)
+        assertBehandlingHarSteg(behandling, VILKÅRSVURDERING, UTFØRT)
+        assertBehandlingHarSteg(behandling, BEHANDLINGSRESULTAT, KLAR)
 
         assertDoesNotThrow { stegService.utførSteg(behandling.id, REGISTRERE_SØKNAD) }
         behandling = behandlingRepository.finnBehandling(behandling.id)
         assertEquals(4, behandling.behandlingStegTilstand.size)
-        assertSteg(behandling, REGISTRERE_PERSONGRUNNLAG, UTFØRT)
-        assertSteg(behandling, REGISTRERE_SØKNAD, UTFØRT)
-        assertSteg(behandling, VILKÅRSVURDERING, KLAR)
-        assertSteg(behandling, BEHANDLINGSRESULTAT, TILBAKEFØRT)
+        assertBehandlingHarSteg(behandling, REGISTRERE_PERSONGRUNNLAG, UTFØRT)
+        assertBehandlingHarSteg(behandling, REGISTRERE_SØKNAD, UTFØRT)
+        assertBehandlingHarSteg(behandling, VILKÅRSVURDERING, KLAR)
+        assertBehandlingHarSteg(behandling, BEHANDLINGSRESULTAT, TILBAKEFØRT)
     }
 
     @Test
@@ -126,7 +126,7 @@ class StegServiceTest : OppslagSpringRunnerTest() {
                 opprettetÅrsak = BehandlingÅrsak.SØKNAD
             )
         )
-        assertSteg(behandling, REGISTRERE_PERSONGRUNNLAG, KLAR)
+        assertBehandlingHarSteg(behandling, REGISTRERE_PERSONGRUNNLAG, KLAR)
         assertDoesNotThrow { stegService.utførSteg(behandling.id, REGISTRERE_PERSONGRUNNLAG) }
         behandling = behandlingRepository.finnBehandling(behandling.id)
             .also { it.behandlingStegTilstand.last().behandlingStegStatus = VENTER }
@@ -134,14 +134,14 @@ class StegServiceTest : OppslagSpringRunnerTest() {
 
         behandling = behandlingRepository.finnBehandling(behandling.id)
         assertEquals(2, behandling.behandlingStegTilstand.size)
-        assertSteg(behandling, REGISTRERE_PERSONGRUNNLAG, UTFØRT)
-        assertSteg(behandling, REGISTRERE_SØKNAD, VENTER)
+        assertBehandlingHarSteg(behandling, REGISTRERE_PERSONGRUNNLAG, UTFØRT)
+        assertBehandlingHarSteg(behandling, REGISTRERE_SØKNAD, VENTER)
 
         assertDoesNotThrow { stegService.utførSteg(behandling.id, REGISTRERE_SØKNAD) }
         behandling = behandlingRepository.finnBehandling(behandling.id)
         assertEquals(2, behandling.behandlingStegTilstand.size)
-        assertSteg(behandling, REGISTRERE_PERSONGRUNNLAG, UTFØRT)
-        assertSteg(behandling, REGISTRERE_SØKNAD, KLAR)
+        assertBehandlingHarSteg(behandling, REGISTRERE_PERSONGRUNNLAG, UTFØRT)
+        assertBehandlingHarSteg(behandling, REGISTRERE_SØKNAD, KLAR)
     }
 
     @Test
@@ -171,7 +171,7 @@ class StegServiceTest : OppslagSpringRunnerTest() {
                 opprettetÅrsak = BehandlingÅrsak.SATSENDRING
             )
         )
-        assertSteg(behandling, REGISTRERE_PERSONGRUNNLAG, KLAR)
+        assertBehandlingHarSteg(behandling, REGISTRERE_PERSONGRUNNLAG, KLAR)
         behandling.leggTilNySteg(REGISTRERE_SØKNAD)
         behandlingRepository.saveAndFlush(behandling)
 
@@ -203,7 +203,11 @@ class StegServiceTest : OppslagSpringRunnerTest() {
         )
     }
 
-    private fun assertSteg(behandling: Behandling, behandlingSteg: BehandlingSteg, behandlingStegStatus: BehandlingStegStatus) =
+    private fun assertBehandlingHarSteg(
+        behandling: Behandling,
+        behandlingSteg: BehandlingSteg,
+        behandlingStegStatus: BehandlingStegStatus
+    ) =
         assertTrue(
             behandling.behandlingStegTilstand.any {
                 it.behandlingSteg == behandlingSteg &&
