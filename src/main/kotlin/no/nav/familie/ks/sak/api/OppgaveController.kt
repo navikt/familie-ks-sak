@@ -3,9 +3,15 @@ package no.nav.familie.ks.sak.api
 import no.nav.familie.kontrakter.felles.Ressurs
 import no.nav.familie.kontrakter.felles.oppgave.FinnOppgaveResponseDto
 import no.nav.familie.kontrakter.felles.oppgave.Oppgave
+import no.nav.familie.ks.sak.api.dto.DataForManuellJournalføringDto
 import no.nav.familie.ks.sak.api.dto.FinnOppgaveDto
+import no.nav.familie.ks.sak.api.dto.tilPersonInfoDto
 import no.nav.familie.ks.sak.common.util.RessursUtils.illegalState
+import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonService
 import no.nav.familie.ks.sak.integrasjon.oppgave.OppgaveService
+import no.nav.familie.ks.sak.integrasjon.pdl.PersonOpplysningerService
+import no.nav.familie.ks.sak.kjerne.fagsak.FagsakService
+import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
 import no.nav.security.token.support.core.api.ProtectedWithClaims
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
@@ -22,7 +28,13 @@ import org.springframework.web.bind.annotation.RestController
 @RequestMapping("/api/oppgave")
 @ProtectedWithClaims(issuer = "azuread")
 @Validated
-class OppgaveController(private val oppgaveService: OppgaveService) {
+class OppgaveController(
+    private val oppgaveService: OppgaveService,
+    private val personOpplysningerService: PersonOpplysningerService,
+    private val personidentService: PersonidentService,
+    private val fagsakService: FagsakService,
+    private val integrasjonService: IntegrasjonService
+) {
 
     @PostMapping(
         path = ["/hent-oppgaver"],
@@ -38,7 +50,10 @@ class OppgaveController(private val oppgaveService: OppgaveService) {
         }
 
     @PostMapping(path = ["/{oppgaveId}/fordel"], produces = [MediaType.APPLICATION_JSON_VALUE])
-    fun fordelOppgave(@PathVariable oppgaveId: Long, @RequestParam saksbehandler: String): ResponseEntity<Ressurs<String>> {
+    fun fordelOppgave(
+        @PathVariable oppgaveId: Long,
+        @RequestParam saksbehandler: String
+    ): ResponseEntity<Ressurs<String>> {
         val oppgaveIdFraRespons =
             oppgaveService.fordelOppgave(
                 oppgaveId = oppgaveId,
@@ -65,5 +80,24 @@ class OppgaveController(private val oppgaveService: OppgaveService) {
         oppgaveService.ferdigstillOppgave(oppgave)
 
         return ResponseEntity.ok(Ressurs.success("Oppgave ferdigstilt"))
+    }
+
+    @GetMapping(path = ["/{oppgaveId}"], produces = [MediaType.APPLICATION_JSON_VALUE])
+    fun hentDataForManuellJournalføring(@PathVariable oppgaveId: Long): ResponseEntity<Ressurs<DataForManuellJournalføringDto>> {
+        val oppgave = oppgaveService.hentOppgave(oppgaveId)
+        val aktør = oppgave.aktoerId?.let { personidentService.hentAktør(it) }
+        val journalpost = oppgave.journalpostId?.let { integrasjonService.hentJournalpost(it) }
+
+        val dataForManuellJournalføringDto = DataForManuellJournalføringDto(
+            oppgave = oppgave,
+            journalpost = journalpost,
+            person = aktør?.let {
+                personOpplysningerService.hentPersonInfoMedRelasjonerOgRegisterinformasjon(it)
+                    .tilPersonInfoDto(it.aktivFødselsnummer())
+            },
+            minimalFagsak = aktør?.let { fagsakService.hentMinimalFagsakForPerson(aktør.aktørId) }
+        )
+
+        return ResponseEntity.ok(Ressurs.success(dataForManuellJournalføringDto))
     }
 }
