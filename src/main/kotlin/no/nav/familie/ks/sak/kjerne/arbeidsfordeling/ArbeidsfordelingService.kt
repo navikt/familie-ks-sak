@@ -70,9 +70,7 @@ class ArbeidsfordelingService(
     }
 
     fun manueltOppdaterBehandlendeEnhet(behandling: Behandling, endreBehandlendeEnhet: EndreBehandlendeEnhetDto) {
-        val aktivArbeidsfordelingPåBehandling =
-            arbeidsfordelingPåBehandlingRepository.finnArbeidsfordelingPåBehandling(behandling.id)
-                ?: throw Feil("Finner ikke tilknyttet arbeidsfordelingsenhet på behandling ${behandling.id}")
+        val aktivArbeidsfordelingPåBehandling = finnArbeidsfordelingPåBehandling(behandling.id)
 
         val oppdatertArbeidsfordelingPåBehandling = arbeidsfordelingPåBehandlingRepository.save(
             aktivArbeidsfordelingPåBehandling.copy(
