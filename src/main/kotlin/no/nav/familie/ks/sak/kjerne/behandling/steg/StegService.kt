@@ -113,15 +113,13 @@ class StegService(
         }
     }
 
-    private fun hentBehandledeSteg(behandling: Behandling, behandledeSteg: BehandlingSteg): BehandlingStegTilstand {
-        return behandling.behandlingStegTilstand.singleOrNull { it.behandlingSteg == behandledeSteg }
+    private fun hentBehandledeSteg(behandling: Behandling, behandledeSteg: BehandlingSteg): BehandlingStegTilstand =
+        behandling.behandlingStegTilstand.singleOrNull { it.behandlingSteg == behandledeSteg }
             ?: throw Feil("$behandledeSteg finnes ikke i Behandling ${behandling.id}")
-    }
 
-    private fun hentStegInstans(behandlingssteg: BehandlingSteg): IBehandlingSteg {
-        return steg.singleOrNull { it.getBehandlingssteg() == behandlingssteg }
+    private fun hentStegInstans(behandlingssteg: BehandlingSteg): IBehandlingSteg =
+        steg.singleOrNull { it.getBehandlingssteg() == behandlingssteg }
             ?: throw Feil("Finner ikke behandlingssteg $behandlingssteg")
-    }
 
     private fun oppdaterBehandlingStatus(behandling: Behandling, behandledeSteg: BehandlingSteg): Behandling {
         behandling.status = behandledeSteg.tilknyttetBehandlingStatus

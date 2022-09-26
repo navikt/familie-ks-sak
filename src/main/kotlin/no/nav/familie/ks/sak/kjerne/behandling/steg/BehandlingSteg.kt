@@ -1,6 +1,5 @@
 package no.nav.familie.ks.sak.kjerne.behandling.steg
 
-import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.config.BehandlerRolle
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
@@ -56,14 +55,9 @@ enum class BehandlingSteg(
         it == BehandlerRolle.SAKSBEHANDLER ||
             it == BehandlerRolle.BESLUTTER
     }
-
-    companion object {
-        fun fraSekvens(sekvens: Int) = values().singleOrNull { it.sekvens == sekvens }
-            ?: throw Feil("BehandlingSteg med sekvens=$sekvens finnes ikke")
-    }
 }
 
-enum class BehandlingStegStatus(val beskrivelse: String) {
+enum class BehandlingStegStatus(private val beskrivelse: String) {
     VENTER("Steget er satt på vent, f.eks. venter på brukertilbakemelding"),
     KLAR("Klar til saksbehandling"),
     UTFØRT("Steget er ferdig utført"),
