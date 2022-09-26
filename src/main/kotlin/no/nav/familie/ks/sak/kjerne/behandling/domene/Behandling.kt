@@ -9,6 +9,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat.HENLAG
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat.HENLAGT_SØKNAD_TRUKKET
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat.HENLAGT_TEKNISK_VEDLIKEHOLD
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat.IKKE_VURDERT
+import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.Fagsak
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -100,6 +101,16 @@ data class Behandling(
             BehandlingStegTilstand(
                 behandling = this,
                 behandlingSteg = BehandlingSteg.REGISTRERE_PERSONGRUNNLAG
+            )
+        )
+        return this
+    }
+
+    fun leggTilNesteSteg(behandlingSteg: BehandlingSteg): Behandling {
+        behandlingStegTilstand.add(
+            BehandlingStegTilstand(
+                behandling = this,
+                behandlingSteg = behandlingSteg
             )
         )
         return this
