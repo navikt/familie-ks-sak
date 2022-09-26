@@ -1,5 +1,6 @@
 package no.nav.familie.ks.sak.kjerne.arbeidsfordeling
 
+import no.nav.familie.ks.sak.api.dto.EndreBehandlendeEnhetDto
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.domene.Arbeidsfordelingsenhet
@@ -60,11 +61,31 @@ class ArbeidsfordelingService(
                 }
             }
         }
-        postFastsattBehandlendeEnhet(
+        settBehandlendeEnhet(
             behandling = behandling,
             aktivArbeidsfordelingPåBehandling = aktivArbeidsfordelingPåBehandling,
             oppdatertArbeidsfordelingPåBehandling = oppdatertArbeidsfordelingPåBehandling,
             manuellOppdatering = false
+        )
+    }
+
+    fun manueltOppdaterBehandlendeEnhet(behandling: Behandling, endreBehandlendeEnhet: EndreBehandlendeEnhetDto) {
+        val aktivArbeidsfordelingPåBehandling = finnArbeidsfordelingPåBehandling(behandling.id)
+
+        val oppdatertArbeidsfordelingPåBehandling = arbeidsfordelingPåBehandlingRepository.save(
+            aktivArbeidsfordelingPåBehandling.copy(
+                behandlendeEnhetId = endreBehandlendeEnhet.enhetId,
+                behandlendeEnhetNavn = integrasjonClient.hentNavKontorEnhet(endreBehandlendeEnhet.enhetId).navn,
+                manueltOverstyrt = true
+            )
+        )
+
+        settBehandlendeEnhet(
+            behandling = behandling,
+            aktivArbeidsfordelingPåBehandling = aktivArbeidsfordelingPåBehandling,
+            oppdatertArbeidsfordelingPåBehandling = oppdatertArbeidsfordelingPåBehandling,
+            manuellOppdatering = true,
+            begrunnelse = endreBehandlendeEnhet.begrunnelse
         )
     }
 
@@ -77,7 +98,7 @@ class ArbeidsfordelingService(
 
         val identMedStrengeste = finnPersonMedStrengesteAdressebeskyttelse(personer)
 
-        return integrasjonClient.hentBehandlendeEnhet(identMedStrengeste ?: søker.first).singleOrNull()
+        return integrasjonClient.hentBehandlendeEnheter(identMedStrengeste ?: søker.first).singleOrNull()
             ?: throw Feil(message = "Fant flere eller ingen enheter på behandling.")
     }
 
@@ -101,7 +122,7 @@ class ArbeidsfordelingService(
         }
     }
 
-    private fun postFastsattBehandlendeEnhet(
+    private fun settBehandlendeEnhet(
         behandling: Behandling,
         aktivArbeidsfordelingPåBehandling: ArbeidsfordelingPåBehandling?,
         oppdatertArbeidsfordelingPåBehandling: ArbeidsfordelingPåBehandling,

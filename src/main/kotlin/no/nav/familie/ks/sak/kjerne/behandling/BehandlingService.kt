@@ -3,6 +3,7 @@ package no.nav.familie.ks.sak.kjerne.behandling
 import no.nav.familie.kontrakter.felles.oppgave.Oppgavetype
 import no.nav.familie.ks.sak.api.BehandlingMapper
 import no.nav.familie.ks.sak.api.dto.BehandlingResponsDto
+import no.nav.familie.ks.sak.api.dto.EndreBehandlendeEnhetDto
 import no.nav.familie.ks.sak.api.dto.OpprettBehandlingDto
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.integrasjon.oppgave.OpprettOppgaveTask
@@ -96,7 +97,12 @@ class BehandlingService(
         sisteVedtattBehandling: Behandling?
     ): Behandling {
         aktivBehandling?.let { behandlingRepository.saveAndFlush(aktivBehandling.also { it.aktiv = false }) }
-        return lagreEllerOppdater(nyBehandling).also { arbeidsfordelingService.fastsettBehandledeEnhet(it, sisteVedtattBehandling) }
+        return lagreEllerOppdater(nyBehandling).also {
+            arbeidsfordelingService.fastsettBehandledeEnhet(
+                it,
+                sisteVedtattBehandling
+            )
+        }
     }
 
     fun lagreEllerOppdater(behandling: Behandling): Behandling {
@@ -110,11 +116,16 @@ class BehandlingService(
             .maxByOrNull { it.opprettetTidspunkt }
     }
 
+    fun hentBehandling(behandlingId: Long) = behandlingRepository.finnBehandling(behandlingId)
+
     fun lagBehandlingRespons(behandlingId: Long): BehandlingResponsDto {
-        val behandling = behandlingRepository.finnBehandling(behandlingId)
+        val behandling = hentBehandling(behandlingId)
         val arbeidsfordelingPåBehandling = arbeidsfordelingService.finnArbeidsfordelingPåBehandling(behandlingId)
         return BehandlingMapper.lagBehandlingRespons(behandling, arbeidsfordelingPåBehandling)
     }
+
+    fun oppdaterBehandlendeEnhet(behandlingId: Long, endreBehandlendeEnhet: EndreBehandlendeEnhetDto) =
+        arbeidsfordelingService.manueltOppdaterBehandlendeEnhet(hentBehandling(behandlingId), endreBehandlendeEnhet)
 
     companion object {
         private val logger: Logger = LoggerFactory.getLogger(BehandlingService::class.java)
