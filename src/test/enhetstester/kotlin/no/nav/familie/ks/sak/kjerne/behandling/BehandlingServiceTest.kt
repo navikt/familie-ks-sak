@@ -296,6 +296,29 @@ class BehandlingServiceTest {
     }
 
     @Test
+    fun `opprettBehandling - skal kaste feil dersom behandlingType er REVURDERING og det ikke finnes noen avsluttede vedtatte behandlinger på fagsaken til søker`() {
+        every { behandlingRepository.finnBehandlinger(fagsak.id) } returns listOf(
+            lagBehandling(
+                fagsak,
+                opprettetÅrsak = BehandlingÅrsak.SØKNAD
+            ).copy(status = BehandlingStatus.UTREDES)
+        )
+        val funksjonellFeil = assertThrows<Feil> {
+            behandlingService.opprettBehandling(
+                OpprettBehandlingDto(
+                    søkersIdent = søkersIdent,
+                    behandlingType = BehandlingType.REVURDERING,
+                    behandlingÅrsak = BehandlingÅrsak.BARNEHAGELISTE
+                )
+            )
+        }
+        assertEquals(
+            "Kan ikke opprette revurdering på $fagsak uten noen andre behandlinger som er vedtatt.",
+            funksjonellFeil.message
+        )
+    }
+
+    @Test
     fun `hentBehandling - skal hente behandling fra behandlingRepository`() {
         val hentetBehandling = behandlingService.hentBehandling(behandling.id)
 

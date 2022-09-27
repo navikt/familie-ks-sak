@@ -90,7 +90,7 @@ data class Behandling(
         }
 
         if (type == REVURDERING && sisteBehandlingSomErVedtatt == null) {
-            throw Feil("Kan ikke opprette revurdering på $fagsak uten noen andre behandlinger som er vedtatt")
+            throw Feil("Kan ikke opprette revurdering på $fagsak uten noen andre behandlinger som er vedtatt.")
         }
     }
 
