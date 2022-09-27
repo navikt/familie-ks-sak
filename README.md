@@ -26,7 +26,7 @@ For å kjøre opp appen lokalt kan en kjøre
 
 * `DevLauncherPostgres`, som kjører opp med Spring-profilen `postgres` satt, og forventer en kjørende database.
 
-Appen tilgjengeliggjøres da på `localhost:8089`. Se [Database](#database) for hvordan du setter opp databasen. For å
+Appen tilgjengeliggjøres da på `localhost:8083`. Se [Database](#database) for hvordan du setter opp databasen. For å
 tillate kall fra frontend, se [Autentisering](#autentisering).
 
 ### Database
