@@ -1,0 +1,12 @@
+{
+  "data": {
+    "enhetId": 200,
+    "navn": "Riktig navn",
+    "enhetNr": "200",
+    "status": "Riktig status"
+  },
+  "status": "SUKSESS",
+  "melding": "string",
+  "frontendFeilmelding": "string",
+  "stacktrace": "string"
+}
