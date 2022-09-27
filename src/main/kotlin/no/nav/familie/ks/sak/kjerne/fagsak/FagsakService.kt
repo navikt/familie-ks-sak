@@ -9,6 +9,7 @@ import no.nav.familie.ks.sak.api.dto.FagsakDeltagerRolle
 import no.nav.familie.ks.sak.api.dto.FagsakRequestDto
 import no.nav.familie.ks.sak.api.dto.MinimalFagsakResponsDto
 import no.nav.familie.ks.sak.common.exception.Feil
+import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
 import no.nav.familie.ks.sak.integrasjon.pdl.PersonOpplysningerService
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.PdlPersonInfo
@@ -49,7 +50,8 @@ class FagsakService(
         val personInfoMedRelasjoner = personopplysningerService.hentPersonInfoMedRelasjonerOgRegisterinformasjon(aktør)
 
         // finner fagsak på aktør og henter assosierte fagsak deltagere
-        val assosierteFagsakDeltagere = hentForelderdeltagereFraBehandling(aktør, personInfoMedRelasjoner).toMutableList()
+        val assosierteFagsakDeltagere =
+            hentForelderdeltagereFraBehandling(aktør, personInfoMedRelasjoner).toMutableList()
 
         val erBarn = Period.between(personInfoMedRelasjoner.fødselsdato, LocalDate.now()).years < 18
 
@@ -99,11 +101,8 @@ class FagsakService(
         )
     }
 
-    fun hentMinimalFagsakForPerson(personident: String): MinimalFagsakResponsDto {
-        val aktør = personidentService.hentOgLagreAktør(personident, true)
-        val fagsak = fagsakRepository.finnFagsakForAktør(aktør) ?: throw Feil("Fant ikke fagsak på person")
-        return lagMinimalFagsakResponsDto(fagsak = fagsak)
-    }
+    fun hentMinimalFagsakForPerson(personident: String): MinimalFagsakResponsDto =
+        lagMinimalFagsakResponsDto(hentFagsakForPerson(personident))
 
     @Transactional
     fun lagre(fagsak: Fagsak): Fagsak {
@@ -128,6 +127,7 @@ class FagsakService(
                     rolle = FagsakDeltagerRolle.FORELDER,
                     fagsak = behandling.fagsak
                 )
+
                 else -> { // søkparam(aktør) er ikke søkers aktør, da hentes her forelder til søkparam(aktør)
                     val maskertForelder = hentMaskertFagsakdeltakerVedManglendeTilgang(fagsak.aktør)
                     maskertForelder?.copy(rolle = FagsakDeltagerRolle.FORELDER)
@@ -183,10 +183,21 @@ class FagsakService(
                     harTilgang = false
                 )
             }
+
             else -> {
                 null
             }
         }
+    }
+
+    fun hentFagsak(fagsakId: Long): Fagsak = fagsakRepository.finnFagsak(fagsakId) ?: throw FunksjonellFeil(
+        melding = "Finner ikke fagsak med id $fagsakId",
+        frontendFeilmelding = "Finner ikke fagsak med id $fagsakId"
+    )
+
+    fun hentFagsakForPerson(personIdent: String): Fagsak {
+        val aktør = personidentService.hentOgLagreAktør(personIdent, true)
+        return fagsakRepository.finnFagsakForAktør(aktør) ?: throw Feil("Fant ikke fagsak på person")
     }
 
     companion object {
