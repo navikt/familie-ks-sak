@@ -40,8 +40,7 @@ class BehandlingService(
         val aktør = personidentService.hentAktør(opprettBehandlingRequest.søkersIdent)
         val fagsak = fagsakRepository.finnFagsakForAktør(aktør)
             ?: throw FunksjonellFeil(
-                melding = "Kan ikke lage behandling på person uten tilknyttet fagsak",
-                frontendFeilmelding = "Kan ikke lage behandling på person uten tilknyttet fagsak"
+                melding = "Kan ikke lage behandling på person uten tilknyttet fagsak."
             )
 
         val aktivBehandling = behandlingRepository.findByFagsakAndAktiv(fagsak.id)
@@ -50,8 +49,7 @@ class BehandlingService(
         // Kan ikke opprette en behandling når det allerede finnes en behandling som ikke er avsluttet
         if (aktivBehandling != null && aktivBehandling.status != BehandlingStatus.AVSLUTTET) {
             throw FunksjonellFeil(
-                melding = "Kan ikke lage ny behandling. Fagsaken har en aktiv behandling som ikke er ferdigstilt.",
-                frontendFeilmelding = "Kan ikke lage ny behandling. Fagsaken har en aktiv behandling som ikke er ferdigstilt."
+                melding = "Kan ikke lage ny behandling. Fagsaken har en aktiv behandling som ikke er ferdigstilt."
             )
         }
 
