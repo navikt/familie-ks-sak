@@ -4,7 +4,7 @@ application:
 server:
   servlet:
     context-path: /
-  port: 8089
+  port: 8083
   shutdown: graceful
 
 no.nav.security.jwt:

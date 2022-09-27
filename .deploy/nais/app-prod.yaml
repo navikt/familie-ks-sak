@@ -9,7 +9,7 @@ spec:
   envFrom:
     - secret: familie-ks-sak
   image: {{image}}
-  port: 8089
+  port: 8083
   leaderElection: true
   liveness:
     path: /internal/health/liveness
