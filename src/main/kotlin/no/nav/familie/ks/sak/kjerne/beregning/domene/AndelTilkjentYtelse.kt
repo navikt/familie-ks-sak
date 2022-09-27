@@ -134,9 +134,7 @@ data class AndelTilkjentYtelse(
 
     fun erLøpende(): Boolean = this.stønadTom > YearMonth.now()
 
-    fun erAndelSomSkalSendesTilOppdrag(): Boolean {
-        return this.kalkulertUtbetalingsbeløp != 0
-    }
+    fun erAndelSomSkalSendesTilOppdrag(): Boolean = this.kalkulertUtbetalingsbeløp != 0
 }
 
 enum class YtelseType(val klassifisering: String) {
