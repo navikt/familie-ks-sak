@@ -85,7 +85,7 @@ class BehandlingServiceTest {
             status = BehandlingStatus.AVSLUTTET,
             aktiv = true
         )
-        every { behandlingRepository.finnBehandling(any()) } returns behandling
+        every { behandlingRepository.hentBehandling(any()) } returns behandling
         every { behandlingRepository.finnBehandlinger(fagsak.id) } returns emptyList()
         every { behandlingRepository.saveAndFlush(any()) } returns behandling
         every { behandlingRepository.save(any()) } returns behandling
@@ -323,7 +323,7 @@ class BehandlingServiceTest {
         val hentetBehandling = behandlingService.hentBehandling(behandling.id)
 
         assertNotNull(hentetBehandling)
-        verify(exactly = 1) { behandlingRepository.finnBehandling(behandling.id) }
+        verify(exactly = 1) { behandlingRepository.hentBehandling(behandling.id) }
     }
 
     @Test
