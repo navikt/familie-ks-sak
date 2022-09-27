@@ -89,7 +89,7 @@ class BehandlingService(
         return lagretBehandling
     }
 
-    fun lagreNyOgDeaktiverGammelBehandling(
+    private fun lagreNyOgDeaktiverGammelBehandling(
         nyBehandling: Behandling,
         aktivBehandling: Behandling?,
         sisteVedtattBehandling: Behandling?
@@ -103,12 +103,12 @@ class BehandlingService(
         }
     }
 
-    fun lagreEllerOppdater(behandling: Behandling): Behandling {
+    private fun lagreEllerOppdater(behandling: Behandling): Behandling {
         logger.info("${SikkerhetContext.hentSaksbehandlerNavn()} oppretter behandling $behandling")
         return behandlingRepository.save(behandling)
     }
 
-    fun hentSisteBehandlingSomErVedtatt(fagsakId: Long): Behandling? {
+    private fun hentSisteBehandlingSomErVedtatt(fagsakId: Long): Behandling? {
         return behandlingRepository.finnBehandlinger(fagsakId)
             .filter { !it.erHenlagt() && it.status == BehandlingStatus.AVSLUTTET }
             .maxByOrNull { it.opprettetTidspunkt }
