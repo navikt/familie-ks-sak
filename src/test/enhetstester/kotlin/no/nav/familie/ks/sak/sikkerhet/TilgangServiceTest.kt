@@ -11,11 +11,12 @@ import no.nav.familie.ks.sak.config.BehandlerRolle
 import no.nav.familie.ks.sak.config.RolleConfig
 import no.nav.familie.ks.sak.data.BrukerContextUtil.clearBrukerContext
 import no.nav.familie.ks.sak.data.BrukerContextUtil.mockBrukerContext
-import no.nav.familie.ks.sak.data.defaultFagsak
 import no.nav.familie.ks.sak.data.lagBehandling
+import no.nav.familie.ks.sak.data.lagFagsak
 import no.nav.familie.ks.sak.data.lagPersonopplysningGrunnlag
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
+import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import no.nav.familie.ks.sak.kjerne.fagsak.FagsakService
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import no.nav.familie.ks.sak.kjerne.personident.Personident
@@ -68,8 +69,8 @@ class TilgangServiceTest {
     private val auditLogger = AuditLogger("familie-ks-sak")
     private lateinit var tilgangService: TilgangService
 
-    private val fagsak = defaultFagsak()
-    private val behandling = lagBehandling(fagsak)
+    private val fagsak = lagFagsak()
+    private val behandling = lagBehandling(fagsak, opprettetÅrsak = BehandlingÅrsak.SØKNAD)
     private val aktør = fagsak.aktør
     private val personopplysningGrunnlag = lagPersonopplysningGrunnlag(
         behandlingId = behandling.id,

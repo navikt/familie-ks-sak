@@ -5,7 +5,6 @@ import no.nav.familie.kontrakter.felles.personopplysning.SIVILSTAND
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingKategori
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingType
-import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.Fagsak
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
@@ -18,7 +17,6 @@ import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Personopplys
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.sivilstand.GrSivilstand
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.statsborgerskap.GrStatsborgerskap
 import java.time.LocalDate
-import kotlin.math.abs
 import kotlin.random.Random
 
 val fødselsnummerGenerator = FoedselsnummerGenerator()
@@ -37,35 +35,6 @@ fun randomPersonident(aktør: Aktør, fnr: String = randomFnr()): Personident =
 
 fun fnrTilAktør(fnr: String, toSisteSiffrer: String = "00") = Aktør(fnr + toSisteSiffrer).also {
     it.personidenter.add(Personident(fnr, aktør = it))
-}
-
-fun defaultFagsak(aktør: Aktør = fnrTilAktør(randomFnr())) = Fagsak(
-    1,
-    aktør = aktør
-)
-
-fun lagBehandling(
-    fagsak: Fagsak = defaultFagsak(),
-    behandlingKategori: BehandlingKategori = BehandlingKategori.NASJONAL,
-    behandlingType: BehandlingType = BehandlingType.FØRSTEGANGSBEHANDLING,
-    årsak: BehandlingÅrsak = BehandlingÅrsak.SØKNAD,
-    resultat: Behandlingsresultat = Behandlingsresultat.IKKE_VURDERT
-) =
-    Behandling(
-        id = nesteBehandlingId(),
-        fagsak = fagsak,
-        type = behandlingType,
-        kategori = behandlingKategori,
-        opprettetÅrsak = årsak,
-        resultat = resultat
-    )
-
-private var gjeldendeBehandlingId: Long = abs(Random.nextLong(10000000))
-private const val ID_INKREMENT = 50
-
-fun nesteBehandlingId(): Long {
-    gjeldendeBehandlingId += ID_INKREMENT
-    return gjeldendeBehandlingId
 }
 
 fun lagPersonopplysningGrunnlag(
