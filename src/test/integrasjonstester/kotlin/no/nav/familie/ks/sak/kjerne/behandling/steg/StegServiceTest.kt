@@ -3,6 +3,7 @@ package no.nav.familie.ks.sak.no.nav.familie.ks.sak.kjerne.behandling.steg
 import no.nav.familie.ks.sak.OppslagSpringRunnerTest
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagFagsak
+import no.nav.familie.ks.sak.data.lagRegisterSøknadDto
 import no.nav.familie.ks.sak.data.randomAktør
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
@@ -99,7 +100,7 @@ class StegServiceTest : OppslagSpringRunnerTest() {
         )
         assertBehandlingHarSteg(behandling, REGISTRERE_PERSONGRUNNLAG, KLAR)
         assertDoesNotThrow { stegService.utførSteg(behandling.id, REGISTRERE_PERSONGRUNNLAG) }
-        assertDoesNotThrow { stegService.utførSteg(behandling.id, REGISTRERE_SØKNAD) }
+        assertDoesNotThrow { stegService.utførSteg(behandling.id, REGISTRERE_SØKNAD, lagRegisterSøknadDto()) }
         assertDoesNotThrow { stegService.utførSteg(behandling.id, VILKÅRSVURDERING) }
 
         behandling = behandlingRepository.hentBehandling(behandling.id)
@@ -109,7 +110,7 @@ class StegServiceTest : OppslagSpringRunnerTest() {
         assertBehandlingHarSteg(behandling, VILKÅRSVURDERING, UTFØRT)
         assertBehandlingHarSteg(behandling, BEHANDLINGSRESULTAT, KLAR)
 
-        assertDoesNotThrow { stegService.utførSteg(behandling.id, REGISTRERE_SØKNAD) }
+        assertDoesNotThrow { stegService.utførSteg(behandling.id, REGISTRERE_SØKNAD, lagRegisterSøknadDto()) }
         behandling = behandlingRepository.hentBehandling(behandling.id)
         assertEquals(4, behandling.behandlingStegTilstand.size)
         assertBehandlingHarSteg(behandling, REGISTRERE_PERSONGRUNNLAG, UTFØRT)
@@ -140,7 +141,7 @@ class StegServiceTest : OppslagSpringRunnerTest() {
         assertBehandlingHarSteg(behandling, REGISTRERE_PERSONGRUNNLAG, UTFØRT)
         assertBehandlingHarSteg(behandling, REGISTRERE_SØKNAD, VENTER)
 
-        assertDoesNotThrow { stegService.utførSteg(behandling.id, REGISTRERE_SØKNAD) }
+        assertDoesNotThrow { stegService.utførSteg(behandling.id, REGISTRERE_SØKNAD, lagRegisterSøknadDto()) }
         behandling = behandlingRepository.hentBehandling(behandling.id)
         assertEquals(2, behandling.behandlingStegTilstand.size)
         assertBehandlingHarSteg(behandling, REGISTRERE_PERSONGRUNNLAG, UTFØRT)
@@ -178,7 +179,7 @@ class StegServiceTest : OppslagSpringRunnerTest() {
         behandling.leggTilNesteSteg(REGISTRERE_SØKNAD)
         behandlingRepository.saveAndFlush(behandling)
 
-        val exception = assertThrows<RuntimeException> { stegService.utførSteg(behandling.id, REGISTRERE_SØKNAD) }
+        val exception = assertThrows<RuntimeException> { stegService.utførSteg(behandling.id, REGISTRERE_SØKNAD, lagRegisterSøknadDto()) }
         assertEquals(
             "Steget ${REGISTRERE_SØKNAD.name} er ikke gyldig for behandling ${behandling.id} " +
                 "med opprettetÅrsak ${behandling.opprettetÅrsak}",
@@ -197,7 +198,7 @@ class StegServiceTest : OppslagSpringRunnerTest() {
         behandling.leggTilNesteSteg(REGISTRERE_SØKNAD)
         behandlingRepository.saveAndFlush(behandling)
 
-        val exception = assertThrows<RuntimeException> { stegService.utførSteg(behandling.id, REGISTRERE_SØKNAD) }
+        val exception = assertThrows<RuntimeException> { stegService.utførSteg(behandling.id, REGISTRERE_SØKNAD, lagRegisterSøknadDto()) }
         assertEquals(
             "Behandling ${behandling.id} har allerede et steg " +
                 "${REGISTRERE_PERSONGRUNNLAG.name}} som er klar for behandling. " +
