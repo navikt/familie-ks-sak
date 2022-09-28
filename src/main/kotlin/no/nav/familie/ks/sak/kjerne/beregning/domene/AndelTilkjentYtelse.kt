@@ -4,6 +4,7 @@ import no.nav.familie.ks.sak.common.entitet.BaseEntitet
 import no.nav.familie.ks.sak.common.util.MånedPeriode
 import no.nav.familie.ks.sak.common.util.YearMonthConverter
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
+import org.hibernate.annotations.Immutable
 import java.math.BigDecimal
 import java.time.YearMonth
 import java.util.Objects
@@ -23,6 +24,9 @@ import javax.persistence.SequenceGenerator
 import javax.persistence.Table
 
 @Entity(name = "AndelTilkjentYtelse")
+// denne brukes for å unngå å oppdatere database objekt automatisk(uten eksplisitt save)
+// Nå for å gjøre noen endringer på AndelTilkjentYtelse, må vi slette rad og legge til en ny rad.
+@Immutable
 @Table(name = "ANDEL_TILKJENT_YTELSE")
 data class AndelTilkjentYtelse(
     @Id
