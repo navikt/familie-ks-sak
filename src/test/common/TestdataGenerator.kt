@@ -13,13 +13,13 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.Fagsak
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import no.nav.familie.ks.sak.kjerne.personident.Personident
-import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Kjønn
-import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Medlemskap
+import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.Kjønn
+import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.Medlemskap
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
-import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.sivilstand.GrSivilstand
-import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.statsborgerskap.GrStatsborgerskap
+import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.sivilstand.GrSivilstand
+import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.statsborgerskap.GrStatsborgerskap
 import java.time.LocalDate
 import kotlin.random.Random
 
