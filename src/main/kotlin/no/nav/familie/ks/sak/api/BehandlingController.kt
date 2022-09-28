@@ -63,7 +63,7 @@ class BehandlingController(
         tilgangService.validerTilgangTilHandlingOgFagsakForBehandling(
             behandlingId = behandlingId,
             minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
-            event = AuditLoggerEvent.ACCESS,
+            event = AuditLoggerEvent.UPDATE,
             handling = "Endre behandlende enhet"
         )
 
