@@ -69,7 +69,7 @@ class BehandlingServiceTest {
     private lateinit var behandlingService: BehandlingService
 
     private val søker = randomAktør()
-    val søkersIdent = søker.personidenter.first { personIdent -> personIdent.aktiv }.fødselsnummer
+    private val søkersIdent = søker.personidenter.first { personIdent -> personIdent.aktiv }.fødselsnummer
     private val fagsak = lagFagsak(aktør = søker)
     private val behandling = lagBehandling(
         fagsak,

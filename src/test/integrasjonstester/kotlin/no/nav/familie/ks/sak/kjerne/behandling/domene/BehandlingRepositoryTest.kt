@@ -36,7 +36,7 @@ class BehandlingRepositoryTest : OppslagSpringRunnerTest() {
     private lateinit var behandling: Behandling
 
     @BeforeEach
-    fun beforeAll() {
+    fun beforeEach() {
         fagsak = lagreFagsak()
         behandling = lagreBehandling(fagsak)
     }
@@ -45,7 +45,6 @@ class BehandlingRepositoryTest : OppslagSpringRunnerTest() {
     fun `hentBehandling - skal finne behandling med behandlingsId`() {
         val hentetBehandling = behandlingRepository.hentBehandling(behandling.id)
 
-        assertNotNull(hentetBehandling)
         assertEquals(behandling.id, hentetBehandling.id)
     }
 
@@ -53,7 +52,6 @@ class BehandlingRepositoryTest : OppslagSpringRunnerTest() {
     fun `hentAktivBehandling - skal finne behandling med behandlingsId som er aktiv`() {
         val aktivBehandling = behandlingRepository.hentAktivBehandling(behandling.id)
 
-        assertNotNull(aktivBehandling)
         assertTrue(aktivBehandling.aktiv)
     }
 
