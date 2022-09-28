@@ -17,6 +17,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.StegService
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.FagsakRepository
 import no.nav.familie.ks.sak.kjerne.logg.LoggService
 import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
+import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
 import no.nav.familie.ks.sak.kjerne.vedtak.VedtakService
 import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext
 import no.nav.familie.prosessering.domene.TaskRepository
@@ -35,7 +36,8 @@ class BehandlingService(
     private val stegService: StegService,
     private val fagsakRepository: FagsakRepository,
     private val behandlingRepository: BehandlingRepository,
-    private val taskRepository: TaskRepository
+    private val taskRepository: TaskRepository,
+    private val personopplysningGrunnlagService: PersonopplysningGrunnlagService
 ) {
 
     @Transactional
@@ -124,7 +126,8 @@ class BehandlingService(
     fun lagBehandlingRespons(behandlingId: Long): BehandlingResponsDto {
         val behandling = hentBehandling(behandlingId)
         val arbeidsfordelingPåBehandling = arbeidsfordelingService.finnArbeidsfordelingPåBehandling(behandlingId)
-        return BehandlingMapper.lagBehandlingRespons(behandling, arbeidsfordelingPåBehandling)
+        val personer = personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlag(behandlingId)?.personer?.toList()
+        return BehandlingMapper.lagBehandlingRespons(behandling, arbeidsfordelingPåBehandling, personer)
     }
 
     fun oppdaterBehandlendeEnhet(behandlingId: Long, endreBehandlendeEnhet: EndreBehandlendeEnhetDto) =
