@@ -14,3 +14,7 @@ fun LocalDate.tilDagMånedÅr() = this.format(DateTimeFormatter.ofPattern("d. MM
 fun LocalDate.tilMånedÅr() = this.format(DateTimeFormatter.ofPattern("MMMM yyyy", nbLocale))
 fun YearMonth.tilKortString() = this.format(DateTimeFormatter.ofPattern("MM.yy", nbLocale))
 fun YearMonth.tilMånedÅr() = this.format(DateTimeFormatter.ofPattern("MMMM yyyy", nbLocale))
+fun YearMonth.toLocalDate() = LocalDate.of(this.year, this.month, 1)
+fun LocalDate.toYearMonth() = YearMonth.from(this)
+
+data class MånedPeriode(val fom: YearMonth, val tom: YearMonth)
