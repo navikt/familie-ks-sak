@@ -65,7 +65,7 @@ class StegServiceTest : OppslagSpringRunnerTest() {
         assertBehandlingHarSteg(behandling, REGISTRERE_PERSONGRUNNLAG, KLAR)
         assertDoesNotThrow { stegService.utførSteg(behandling.id, REGISTRERE_PERSONGRUNNLAG) }
 
-        behandling = behandlingRepository.finnBehandling(behandling.id)
+        behandling = behandlingRepository.hentBehandling(behandling.id)
         assertEquals(2, behandling.behandlingStegTilstand.size)
         assertBehandlingHarSteg(behandling, REGISTRERE_PERSONGRUNNLAG, UTFØRT)
         assertBehandlingHarSteg(behandling, REGISTRERE_SØKNAD, KLAR)
@@ -83,7 +83,7 @@ class StegServiceTest : OppslagSpringRunnerTest() {
         assertBehandlingHarSteg(behandling, REGISTRERE_PERSONGRUNNLAG, KLAR)
         assertDoesNotThrow { stegService.utførSteg(behandling.id, REGISTRERE_PERSONGRUNNLAG) }
 
-        behandling = behandlingRepository.finnBehandling(behandling.id)
+        behandling = behandlingRepository.hentBehandling(behandling.id)
         assertEquals(2, behandling.behandlingStegTilstand.size)
         assertBehandlingHarSteg(behandling, REGISTRERE_PERSONGRUNNLAG, UTFØRT)
         assertBehandlingHarSteg(behandling, VILKÅRSVURDERING, KLAR)
@@ -102,7 +102,7 @@ class StegServiceTest : OppslagSpringRunnerTest() {
         assertDoesNotThrow { stegService.utførSteg(behandling.id, REGISTRERE_SØKNAD) }
         assertDoesNotThrow { stegService.utførSteg(behandling.id, VILKÅRSVURDERING) }
 
-        behandling = behandlingRepository.finnBehandling(behandling.id)
+        behandling = behandlingRepository.hentBehandling(behandling.id)
         assertEquals(4, behandling.behandlingStegTilstand.size)
         assertBehandlingHarSteg(behandling, REGISTRERE_PERSONGRUNNLAG, UTFØRT)
         assertBehandlingHarSteg(behandling, REGISTRERE_SØKNAD, UTFØRT)
@@ -110,7 +110,7 @@ class StegServiceTest : OppslagSpringRunnerTest() {
         assertBehandlingHarSteg(behandling, BEHANDLINGSRESULTAT, KLAR)
 
         assertDoesNotThrow { stegService.utførSteg(behandling.id, REGISTRERE_SØKNAD) }
-        behandling = behandlingRepository.finnBehandling(behandling.id)
+        behandling = behandlingRepository.hentBehandling(behandling.id)
         assertEquals(4, behandling.behandlingStegTilstand.size)
         assertBehandlingHarSteg(behandling, REGISTRERE_PERSONGRUNNLAG, UTFØRT)
         assertBehandlingHarSteg(behandling, REGISTRERE_SØKNAD, UTFØRT)
@@ -128,20 +128,20 @@ class StegServiceTest : OppslagSpringRunnerTest() {
         )
         assertBehandlingHarSteg(behandling, REGISTRERE_PERSONGRUNNLAG, KLAR)
         assertDoesNotThrow { stegService.utførSteg(behandling.id, REGISTRERE_PERSONGRUNNLAG) }
-        behandling = behandlingRepository.finnBehandling(behandling.id)
+        behandling = behandlingRepository.hentBehandling(behandling.id)
             .also {
                 it.behandlingStegTilstand
                     .maxByOrNull { tilstand -> tilstand.behandlingSteg.sekvens }?.behandlingStegStatus = VENTER
             }
         behandlingRepository.saveAndFlush(behandling)
 
-        behandling = behandlingRepository.finnBehandling(behandling.id)
+        behandling = behandlingRepository.hentBehandling(behandling.id)
         assertEquals(2, behandling.behandlingStegTilstand.size)
         assertBehandlingHarSteg(behandling, REGISTRERE_PERSONGRUNNLAG, UTFØRT)
         assertBehandlingHarSteg(behandling, REGISTRERE_SØKNAD, VENTER)
 
         assertDoesNotThrow { stegService.utførSteg(behandling.id, REGISTRERE_SØKNAD) }
-        behandling = behandlingRepository.finnBehandling(behandling.id)
+        behandling = behandlingRepository.hentBehandling(behandling.id)
         assertEquals(2, behandling.behandlingStegTilstand.size)
         assertBehandlingHarSteg(behandling, REGISTRERE_PERSONGRUNNLAG, UTFØRT)
         assertBehandlingHarSteg(behandling, REGISTRERE_SØKNAD, KLAR)

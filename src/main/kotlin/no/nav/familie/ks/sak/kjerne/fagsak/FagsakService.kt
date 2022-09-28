@@ -116,7 +116,7 @@ class FagsakService(
     ): List<FagsakDeltagerResponsDto> {
         val assosierteFagsakDeltagerMap = mutableMapOf<Long, FagsakDeltagerResponsDto>()
         personRepository.findByAktør(aktør).filter { it.personopplysningGrunnlag.aktiv }.forEach { person ->
-            val behandling = behandlingRepository.finnAktivBehandling(person.personopplysningGrunnlag.behandlingId)
+            val behandling = behandlingRepository.hentAktivBehandling(person.personopplysningGrunnlag.behandlingId)
             val fagsak = behandling.fagsak // Behandling opprettet alltid med søker aktør
             if (assosierteFagsakDeltagerMap.containsKey(fagsak.id)) return@forEach
             val fagsakDeltagerRespons: FagsakDeltagerResponsDto = when {
