@@ -73,7 +73,7 @@ class FagsakController(private val fagsakService: FagsakService, private val til
 
         tilgangService.validerTilgangTilHandlingOgFagsakForPerson(
             personIdent = personIdent,
-            minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
+            minimumBehandlerRolle = BehandlerRolle.VEILEDER,
             event = AuditLoggerEvent.ACCESS,
             handling = "Hent fagsak for person"
         )
