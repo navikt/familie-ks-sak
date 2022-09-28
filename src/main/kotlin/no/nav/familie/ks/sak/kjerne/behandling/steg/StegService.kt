@@ -1,5 +1,6 @@
 package no.nav.familie.ks.sak.kjerne.behandling.steg
 
+import no.nav.familie.ks.sak.api.dto.BehandlingStegDto
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
@@ -15,7 +16,7 @@ class StegService(
 ) {
 
     @Transactional
-    fun utførSteg(behandlingId: Long, behandledeSteg: BehandlingSteg) {
+    fun utførSteg(behandlingId: Long, behandledeSteg: BehandlingSteg, behandlingStegDto: BehandlingStegDto? = null) {
         val behandling = behandlingRepository.hentAktivBehandling(behandlingId)
         val behandledeStegTilstand = hentBehandledeSteg(behandling, behandledeSteg)
 
@@ -24,7 +25,8 @@ class StegService(
         when (behandledeStegTilstand.behandlingStegStatus) {
             BehandlingStegStatus.KLAR -> {
                 // utfør steg, kaller utfør metode i tilsvarende steg klasser
-                hentStegInstans(behandledeSteg).utførSteg(behandlingId)
+                behandlingStegDto?.let { hentStegInstans(behandledeSteg).utførSteg(behandlingId, it) }
+                    ?: hentStegInstans(behandledeSteg).utførSteg(behandlingId)
                 // oppdaterer nåværendeSteg status til utført
                 hentBehandledeSteg(behandling, behandledeSteg).behandlingStegStatus = BehandlingStegStatus.UTFØRT
                 // Henter neste steg basert på sekvens og årsak
@@ -47,7 +49,7 @@ class StegService(
                 hentBehandledeSteg(behandling, behandledeSteg).behandlingStegStatus = BehandlingStegStatus.KLAR
                 behandlingRepository.saveAndFlush(oppdaterBehandlingStatus(behandling, behandledeSteg))
 
-                utførSteg(behandlingId, behandledeSteg)
+                utførSteg(behandlingId, behandledeSteg, behandlingStegDto)
             }
 
             BehandlingStegStatus.VENTER -> {
