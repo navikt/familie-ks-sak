@@ -6,6 +6,7 @@ import java.time.LocalDate
 
 abstract class BehandlingStegDto
 
+// TODO bør sjekke om vi trenger bekreftEndringerViaFrontend felt
 data class RegisterSøknadDto(val søknad: SøknadDTO, val bekreftEndringerViaFrontend: Boolean) : BehandlingStegDto()
 
 data class SøknadDTO(
