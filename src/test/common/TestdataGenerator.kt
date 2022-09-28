@@ -42,7 +42,7 @@ fun fnrTilAktør(fnr: String, toSisteSiffrer: String = "00") = Aktør(fnr + toSi
 fun lagPersonopplysningGrunnlag(
     behandlingId: Long,
     søkerPersonIdent: String,
-    barnasIdenter: List<String>,
+    barnasIdenter: List<String> = emptyList(), // FGB med register søknad steg har ikke barnasidenter
     barnasFødselsdatoer: List<LocalDate> = barnasIdenter.map { LocalDate.of(2019, 1, 1) },
     søkerAktør: Aktør = fnrTilAktør(søkerPersonIdent).also {
         it.personidenter.add(
