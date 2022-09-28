@@ -5,6 +5,8 @@ import io.mockk.every
 import io.mockk.impl.annotations.InjectMockKs
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
+import io.mockk.just
+import io.mockk.runs
 import io.mockk.verify
 import no.nav.familie.kontrakter.felles.oppgave.Oppgavetype
 import no.nav.familie.ks.sak.api.dto.EndreBehandlendeEnhetDto
@@ -89,15 +91,15 @@ class BehandlingServiceTest {
         every { behandlingRepository.finnBehandlinger(fagsak.id) } returns emptyList()
         every { behandlingRepository.saveAndFlush(any()) } returns behandling
         every { behandlingRepository.save(any()) } returns behandling
-        every { arbeidsfordelingService.fastsettBehandledeEnhet(any(), any()) } returns Unit
+        every { arbeidsfordelingService.fastsettBehandledeEnhet(any(), any()) } just runs
         every { arbeidsfordelingService.finnArbeidsfordelingPåBehandling(any()) } returns ArbeidsfordelingPåBehandling(
             behandlingId = behandling.id,
             behandlendeEnhetId = "enhet",
             behandlendeEnhetNavn = "enhetNavn"
         )
-        every { arbeidsfordelingService.manueltOppdaterBehandlendeEnhet(any(), any()) } returns Unit
-        every { vedtakService.opprettOgInitierNyttVedtakForBehandling(any()) } returns Unit
-        every { loggService.opprettBehandlingLogg(any()) } returns Unit
+        every { arbeidsfordelingService.manueltOppdaterBehandlendeEnhet(any(), any()) } just runs
+        every { vedtakService.opprettOgInitierNyttVedtakForBehandling(any()) } just runs
+        every { loggService.opprettBehandlingLogg(any()) } just runs
         every { taskRepository.save(any()) } returns OpprettOppgaveTask.opprettTask(
             behandling.id,
             Oppgavetype.BehandleSak,
