@@ -18,8 +18,8 @@ import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Medlemskap
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
-import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.sivilstand.GrSivilstand
-import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.statsborgerskap.GrStatsborgerskap
+import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.sivilstand.GrSivilstand
+import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.statsborgerskap.GrStatsborgerskap
 import java.time.LocalDate
 import kotlin.random.Random
 

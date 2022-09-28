@@ -1,6 +1,7 @@
-package no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.statsborgerskap
+package no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.statsborgerskap
 
 import com.fasterxml.jackson.annotation.JsonIgnore
+import no.nav.familie.kontrakter.felles.personopplysning.Statsborgerskap
 import no.nav.familie.ks.sak.common.entitet.BaseEntitet
 import no.nav.familie.ks.sak.common.entitet.DatoIntervallEntitet
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Medlemskap
@@ -60,5 +61,18 @@ data class GrStatsborgerskap(
 
     override fun hashCode(): Int {
         return 31 * gyldigPeriode.hashCode() + landkode.hashCode()
+    }
+
+    companion object {
+        fun fraStatsborgerskap(statsborgerskap: Statsborgerskap, medlemskap: Medlemskap, person: Person) =
+            GrStatsborgerskap(
+                gyldigPeriode = DatoIntervallEntitet(
+                    fom = statsborgerskap.bekreftelsesdato ?: statsborgerskap.gyldigFraOgMed,
+                    tom = statsborgerskap.gyldigTilOgMed
+                ),
+                landkode = statsborgerskap.land,
+                medlemskap = medlemskap,
+                person = person
+            )
     }
 }

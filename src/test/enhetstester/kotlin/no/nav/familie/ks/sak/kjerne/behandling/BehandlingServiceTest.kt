@@ -25,6 +25,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingType
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg
+import no.nav.familie.ks.sak.kjerne.behandling.steg.StegService
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.FagsakRepository
 import no.nav.familie.ks.sak.kjerne.logg.LoggService
 import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
@@ -57,6 +58,9 @@ class BehandlingServiceTest {
 
     @MockK
     private lateinit var loggService: LoggService
+
+    @MockK
+    private lateinit var stegService: StegService
 
     @MockK
     private lateinit var fagsakRepository: FagsakRepository
@@ -105,6 +109,7 @@ class BehandlingServiceTest {
             Oppgavetype.BehandleSak,
             LocalDate.now()
         )
+        every { stegService.utførSteg(any(), any()) } returns Unit
     }
 
     @Test

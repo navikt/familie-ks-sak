@@ -12,6 +12,8 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingKategori
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
+import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg
+import no.nav.familie.ks.sak.kjerne.behandling.steg.StegService
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.FagsakRepository
 import no.nav.familie.ks.sak.kjerne.logg.LoggService
 import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
@@ -30,6 +32,7 @@ class BehandlingService(
     private val arbeidsfordelingService: ArbeidsfordelingService,
     private val vedtakService: VedtakService,
     private val loggService: LoggService,
+    private val stegService: StegService,
     private val fagsakRepository: FagsakRepository,
     private val behandlingRepository: BehandlingRepository,
     private val taskRepository: TaskRepository
@@ -65,7 +68,7 @@ class BehandlingService(
             opprettetÅrsak = opprettBehandlingRequest.behandlingÅrsak,
             kategori = behandlingKategori,
             søknadMottattDato = opprettBehandlingRequest.søknadMottattDato?.atStartOfDay()
-        ).initBehandlingStegTilstand() // oppretter behandling med initielt steg tilstand
+        ).initBehandlingStegTilstand() // oppretter behandling med initielt steg Registrer Persongrunnlag
 
         behandling.validerBehandlingstype(sisteVedtattBehandling)
         val lagretBehandling = lagreNyOgDeaktiverGammelBehandling(
@@ -86,6 +89,8 @@ class BehandlingService(
                 )
             )
         }
+        // utfør Registrer Persongrunnlag steg
+        stegService.utførSteg(lagretBehandling.id, BehandlingSteg.REGISTRERE_PERSONGRUNNLAG)
         return lagretBehandling
     }
 
