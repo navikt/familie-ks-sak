@@ -90,7 +90,7 @@ data class Behandling(
         }
 
         if (type == REVURDERING && sisteBehandlingSomErVedtatt == null) {
-            throw Feil("Kan ikke opprette revurdering på $fagsak uten noen andre behandlinger som er vedtatt")
+            throw Feil("Kan ikke opprette revurdering på $fagsak uten noen andre behandlinger som er vedtatt.")
         }
     }
 
@@ -128,7 +128,8 @@ data class Behandling(
         }
     }
 
-    fun erHenlagt() = resultat in listOf(HENLAGT_FEILAKTIG_OPPRETTET, HENLAGT_SØKNAD_TRUKKET, HENLAGT_TEKNISK_VEDLIKEHOLD)
+    fun erHenlagt() =
+        resultat in listOf(HENLAGT_FEILAKTIG_OPPRETTET, HENLAGT_SØKNAD_TRUKKET, HENLAGT_TEKNISK_VEDLIKEHOLD)
 
     fun erVedtatt() = status == BehandlingStatus.AVSLUTTET && !erHenlagt()
 
@@ -198,7 +199,10 @@ enum class BehandlingÅrsak(val visningsnavn: String, val gyldigeBehandlingstype
     DØDSFALL("Dødsfall", listOf(REVURDERING)),
     NYE_OPPLYSNINGER("Nye opplysninger", listOf(REVURDERING)),
     KLAGE("Klage", listOf(REVURDERING)),
-    TEKNISK_ENDRING("Teknisk endring", listOf(BehandlingType.TEKNISK_ENDRING)), // Brukes i tilfeller ved systemfeil og vi ønsker å iverksette mot OS på nytt
+    TEKNISK_ENDRING(
+        "Teknisk endring",
+        listOf(BehandlingType.TEKNISK_ENDRING)
+    ), // Brukes i tilfeller ved systemfeil og vi ønsker å iverksette mot OS på nytt
     KORREKSJON_VEDTAKSBREV("Korrigere vedtak med egen brevmal", listOf(REVURDERING)),
     SATSENDRING("Satsendring", listOf(REVURDERING)),
     BARNEHAGELISTE("Barnehageliste", listOf(FØRSTEGANGSBEHANDLING, REVURDERING));

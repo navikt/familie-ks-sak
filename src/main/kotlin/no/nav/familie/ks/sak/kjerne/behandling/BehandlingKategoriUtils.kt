@@ -18,9 +18,10 @@ fun bestemKategoriVedOpprettelse(
             overstyrtKategori
                 ?: throw FunksjonellFeil(
                     "Behandling med type ${behandlingType.visningsnavn} " +
-                        "og årsak ${behandlingÅrsak.visningsnavn} $ krever behandlingskategori"
+                        "og årsak ${behandlingÅrsak.visningsnavn} krever behandlingskategori"
                 )
         }
+
         else -> {
             kategoriFraLøpendeBehandling
         }

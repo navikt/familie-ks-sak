@@ -16,7 +16,7 @@ class StegService(
 
     @Transactional
     fun utførSteg(behandlingId: Long, behandledeSteg: BehandlingSteg) {
-        val behandling = behandlingRepository.finnAktivBehandling(behandlingId)
+        val behandling = behandlingRepository.hentAktivBehandling(behandlingId)
         val behandledeStegTilstand = hentBehandledeSteg(behandling, behandledeSteg)
 
         valider(behandling, behandledeSteg)
@@ -37,6 +37,7 @@ class StegService(
                 // oppdaterer behandling med behandlingstegtilstand og behandling status
                 behandlingRepository.saveAndFlush(oppdaterBehandlingStatus(behandling, behandledeSteg))
             }
+
             BehandlingStegStatus.UTFØRT -> {
                 // tilbakefører alle stegene som er etter behandlede steg
                 behandling.behandlingStegTilstand.filter { it.behandlingSteg.sekvens > behandledeSteg.sekvens }
@@ -48,6 +49,7 @@ class StegService(
 
                 utførSteg(behandlingId, behandledeSteg)
             }
+
             BehandlingStegStatus.VENTER -> {
                 // oppdaterte behandling med behandlede steg som KLAR slik at det kan behandles
                 hentBehandledeSteg(behandling, behandledeSteg).behandlingStegStatus = BehandlingStegStatus.KLAR
