@@ -38,7 +38,7 @@ class OppgaveService(
         tilordnetNavIdent: String? = null,
         beskrivelse: String? = null
     ): String {
-        val behandling = behandlingRepository.finnBehandling(behandlingId)
+        val behandling = behandlingRepository.hentBehandling(behandlingId)
         val eksisterendeIkkeFerdigstiltOppgave =
             oppgaveRepository.findByOppgavetypeAndBehandlingAndIkkeFerdigstilt(oppgavetype, behandling)
         if (eksisterendeIkkeFerdigstiltOppgave != null && oppgavetype != Oppgavetype.Journalføring) {
@@ -49,7 +49,8 @@ class OppgaveService(
             )
             return eksisterendeIkkeFerdigstiltOppgave.gsakId
         }
-        val arbeidsfordelingsenhet = arbeidsfordelingPåBehandlingRepository.finnArbeidsfordelingPåBehandling(behandling.id)
+        val arbeidsfordelingsenhet =
+            arbeidsfordelingPåBehandlingRepository.finnArbeidsfordelingPåBehandling(behandling.id)
 
         if (arbeidsfordelingsenhet == null) {
             logger.warn("Fant ikke behandlende enhet på behandling ${behandling.id} ved opprettelse av $oppgavetype-oppgave.")
@@ -122,7 +123,9 @@ class OppgaveService(
     private fun lagOppgaveTekst(fagsakId: Long, beskrivelse: String? = null): String {
         return beskrivelse?.let { it + "\n" }
             ?: (
-                "----- Opprettet av familie-ks-sak ${LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME)} --- \n" +
+                "----- Opprettet av familie-ks-sak ${
+                LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME)
+                } --- \n" +
                     "https://ks.intern.nav.no/fagsak/$fagsakId"
                 )
     }
