@@ -1,6 +1,5 @@
 package no.nav.familie.ks.sak.kjerne.behandling
 
-import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.impl.annotations.InjectMockKs
 import io.mockk.impl.annotations.MockK
@@ -36,7 +35,6 @@ import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.jupiter.params.ParameterizedTest
@@ -44,7 +42,6 @@ import org.junit.jupiter.params.provider.EnumSource
 import java.time.LocalDate
 
 @ExtendWith(MockKExtension::class)
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class BehandlingServiceTest {
     @MockK
     private lateinit var personidentService: PersonidentService
@@ -80,7 +77,6 @@ class BehandlingServiceTest {
 
     @BeforeEach
     fun beforeEach() {
-        clearAllMocks()
         every { personidentService.hentAktør(any()) } returns søker
         every { fagsakRepository.finnFagsakForAktør(søker) } returns fagsak
         every { behandlingRepository.findByFagsakAndAktiv(fagsak.id) } returns behandling.copy(
