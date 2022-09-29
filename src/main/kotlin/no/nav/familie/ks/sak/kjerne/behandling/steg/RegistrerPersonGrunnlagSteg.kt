@@ -5,7 +5,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 
 @Service
-class RegisterPersonGrunnlagSteg : IBehandlingSteg {
+class RegistrerPersonGrunnlagSteg : IBehandlingSteg {
     override fun getBehandlingssteg(): BehandlingSteg = BehandlingSteg.REGISTRERE_PERSONGRUNNLAG
 
     override fun utførSteg(behandlingId: Long) {
@@ -13,6 +13,6 @@ class RegisterPersonGrunnlagSteg : IBehandlingSteg {
     }
 
     companion object {
-        private val logger: Logger = LoggerFactory.getLogger(RegisterPersonGrunnlagSteg::class.java)
+        private val logger: Logger = LoggerFactory.getLogger(RegistrerPersonGrunnlagSteg::class.java)
     }
 }
