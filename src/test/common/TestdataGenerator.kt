@@ -18,6 +18,9 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingKategori
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingType
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
+import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelse
+import no.nav.familie.ks.sak.kjerne.beregning.domene.TilkjentYtelse
+import no.nav.familie.ks.sak.kjerne.beregning.domene.YtelseType
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.Fagsak
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import no.nav.familie.ks.sak.kjerne.personident.Personident
@@ -26,9 +29,12 @@ import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Medlemskap
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
+import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.bostedsadresse.GrBostedsadresse
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.sivilstand.GrSivilstand
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.statsborgerskap.GrStatsborgerskap
+import java.math.BigDecimal
 import java.time.LocalDate
+import java.time.YearMonth
 import kotlin.random.Random
 
 val fødselsnummerGenerator = FoedselsnummerGenerator()
@@ -170,9 +176,44 @@ fun lagBostedsadresse(): Bostedsadresse = Bostedsadresse(
 
 fun lagSivilstand(): Sivilstand = Sivilstand(type = SIVILSTAND.UGIFT, gyldigFraOgMed = LocalDate.of(2004, 12, 2))
 
-fun lagStatsborgerskap(): Statsborgerskap = Statsborgerskap(
-    land = "NOR",
+fun lagStatsborgerskap(land: String = "NOR"): Statsborgerskap = Statsborgerskap(
+    land = land,
     gyldigFraOgMed = LocalDate.of(1987, 9, 1),
     gyldigTilOgMed = null,
     bekreftelsesdato = LocalDate.of(1987, 9, 1)
 )
+
+fun lagInitieltTilkjentYtelse(behandling: Behandling) =
+    TilkjentYtelse(behandling = behandling, opprettetDato = LocalDate.now(), endretDato = LocalDate.now())
+
+fun lagAndelTilkjentYtelse(
+    tilkjentYtelse: TilkjentYtelse? = null,
+    behandling: Behandling,
+    aktør: Aktør? = null
+) = AndelTilkjentYtelse(
+    behandlingId = behandling.id,
+    tilkjentYtelse = tilkjentYtelse ?: lagInitieltTilkjentYtelse(behandling),
+    aktør = aktør ?: behandling.fagsak.aktør,
+    kalkulertUtbetalingsbeløp = 1054,
+    stønadFom = YearMonth.now().minusMonths(1),
+    stønadTom = YearMonth.now().plusMonths(8),
+    type = YtelseType.ORDINÆR_KONTANTSTØTTE,
+    sats = 1054,
+    prosent = BigDecimal(100),
+    nasjonaltPeriodebeløp = 1054
+)
+
+fun lagPerson(personopplysningGrunnlag: PersonopplysningGrunnlag, aktør: Aktør): Person {
+    val person = Person(
+        type = PersonType.SØKER,
+        fødselsdato = LocalDate.now().minusYears(30),
+        kjønn = Kjønn.KVINNE,
+        personopplysningGrunnlag = personopplysningGrunnlag,
+        aktør = aktør
+    )
+    person.bostedsadresser = mutableListOf(GrBostedsadresse.fraBostedsadresse(lagBostedsadresse(), person))
+    person.statsborgerskap = mutableListOf(GrStatsborgerskap.fraStatsborgerskap(lagStatsborgerskap(), Medlemskap.NORDEN, person))
+    person.sivilstander = mutableListOf(GrSivilstand.fraSivilstand(lagSivilstand(), person))
+
+    return person
+}
