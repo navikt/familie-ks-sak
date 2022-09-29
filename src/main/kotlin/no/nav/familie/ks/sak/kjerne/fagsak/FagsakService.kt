@@ -44,7 +44,7 @@ class FagsakService(
     fun hentFagsakDeltagere(personIdent: String): List<FagsakDeltagerResponsDto> {
         val aktør = personidentService.hentAktør(personIdent)
 
-        // returnerer maskert fagsak deltaker hvis aktør ikke har tilgang
+        // returnerer maskert fagsak deltaker hvis saksbehandler ikke har tilgang til aktøren
         hentMaskertFagsakdeltakerVedManglendeTilgang(aktør)?.let { return listOf(it) }
 
         val personInfoMedRelasjoner = personopplysningerService.hentPersonInfoMedRelasjonerOgRegisterinformasjon(aktør)
