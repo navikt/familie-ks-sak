@@ -30,7 +30,7 @@ class BeregningServiceTest {
     private lateinit var beregningService: BeregningService
 
     @Test
-    fun `finnBarnFraBehandlingMedTilkjentYtelse skal ikke returnere når det ikke finnes en andel tilkjent ytelse`() {
+    fun `finnBarnFraBehandlingMedTilkjentYtelse skal returnere når tom liste når det ikke finnes en andel tilkjent ytelse`() {
         val behandlngId = 111L
         every { andelTilkjentYtelseRepository.finnAndelerTilkjentYtelseForBehandling(behandlngId) } returns emptyList()
         every { personopplysningGrunnlagRepository.hentByBehandlingAndAktiv(behandlngId) } returns
