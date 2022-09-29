@@ -40,7 +40,7 @@ class BeregningServiceTest {
     }
 
     @Test
-    fun `finnBarnFraBehandlingMedTilkjentYtelse skal ikke returnere når det ikke finnes barn`() {
+    fun `finnBarnFraBehandlingMedTilkjentYtelse skal returnere tom liste når det ikke finnes barn`() {
         val behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD)
         every { andelTilkjentYtelseRepository.finnAndelerTilkjentYtelseForBehandling(behandling.id) } returns
             listOf(lagAndelTilkjentYtelse(behandling = behandling))
