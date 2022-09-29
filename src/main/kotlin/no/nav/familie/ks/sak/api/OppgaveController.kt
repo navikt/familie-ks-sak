@@ -7,11 +7,13 @@ import no.nav.familie.ks.sak.api.dto.DataForManuellJournalføringDto
 import no.nav.familie.ks.sak.api.dto.FinnOppgaveDto
 import no.nav.familie.ks.sak.api.dto.tilPersonInfoDto
 import no.nav.familie.ks.sak.common.util.RessursUtils.illegalState
+import no.nav.familie.ks.sak.config.BehandlerRolle
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonService
 import no.nav.familie.ks.sak.integrasjon.oppgave.OppgaveService
 import no.nav.familie.ks.sak.integrasjon.pdl.PersonOpplysningerService
 import no.nav.familie.ks.sak.kjerne.fagsak.FagsakService
 import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
+import no.nav.familie.ks.sak.sikkerhet.TilgangService
 import no.nav.security.token.support.core.api.ProtectedWithClaims
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
@@ -33,7 +35,8 @@ class OppgaveController(
     private val personOpplysningerService: PersonOpplysningerService,
     private val personidentService: PersonidentService,
     private val fagsakService: FagsakService,
-    private val integrasjonService: IntegrasjonService
+    private val integrasjonService: IntegrasjonService,
+    private val tilgangService: TilgangService
 ) {
 
     @PostMapping(
@@ -54,6 +57,11 @@ class OppgaveController(
         @PathVariable oppgaveId: Long,
         @RequestParam saksbehandler: String
     ): ResponseEntity<Ressurs<String>> {
+        tilgangService.validerTilgangTilHandling(
+            minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
+            handling = "Fordele oppgave"
+        )
+
         val oppgaveIdFraRespons =
             oppgaveService.fordelOppgave(
                 oppgaveId = oppgaveId,
@@ -66,6 +74,11 @@ class OppgaveController(
 
     @PostMapping(path = ["/{oppgaveId}/tilbakestill"], produces = [MediaType.APPLICATION_JSON_VALUE])
     fun tilbakestillFordelingPåOppgave(@PathVariable oppgaveId: Long): ResponseEntity<Ressurs<Oppgave>> {
+        tilgangService.validerTilgangTilHandling(
+            minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
+            handling = "Tilbakestille fordeling på oppgave"
+        )
+
         Result.runCatching {
             oppgaveService.tilbakestillFordelingPåOppgave(oppgaveId)
         }.fold(
@@ -76,6 +89,11 @@ class OppgaveController(
 
     @GetMapping("/{oppgaveId}/ferdigstill")
     fun ferdigstillOppgave(@PathVariable oppgaveId: Long): ResponseEntity<Ressurs<String>> {
+        tilgangService.validerTilgangTilHandling(
+            minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
+            handling = "Ferdigstill oppgave"
+        )
+
         val oppgave = oppgaveService.hentOppgave(oppgaveId)
         oppgaveService.ferdigstillOppgave(oppgave)
 
