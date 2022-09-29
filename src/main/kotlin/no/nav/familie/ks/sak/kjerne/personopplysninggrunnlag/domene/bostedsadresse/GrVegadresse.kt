@@ -1,8 +1,8 @@
 package no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.bostedsadresse
 
 import no.nav.familie.kontrakter.felles.personopplysning.Vegadresse
-import no.nav.familie.ks.sak.common.util.Utils.nullableTilString
-import no.nav.familie.ks.sak.common.util.Utils.storForbokstav
+import no.nav.familie.ks.sak.common.util.nullableTilString
+import no.nav.familie.ks.sak.common.util.storForbokstav
 import java.util.Objects
 import javax.persistence.Column
 import javax.persistence.DiscriminatorValue

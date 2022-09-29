@@ -25,11 +25,10 @@ class RegistrerPersonGrunnlagSteg(
         // TODO generer vilkårsvurdering - behandling med årsak søknad trenger ikke å generere vilkårsvurdering periode
     }
 
-    private fun hentSisteBehandlingSomErVedtatt(fagsakId: Long): Behandling? {
-        return behandlingRepository.finnBehandlinger(fagsakId)
+    private fun hentSisteBehandlingSomErVedtatt(fagsakId: Long): Behandling? =
+        behandlingRepository.finnBehandlinger(fagsakId)
             .filter { !it.erHenlagt() && it.status == BehandlingStatus.AVSLUTTET }
             .maxByOrNull { it.opprettetTidspunkt }
-    }
 
     companion object {
         private val logger: Logger = LoggerFactory.getLogger(RegistrerPersonGrunnlagSteg::class.java)

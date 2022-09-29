@@ -2,6 +2,8 @@ package no.nav.familie.ks.sak.no.nav.familie.ks.sak.kjerne.behandling.steg
 
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
+import io.mockk.just
+import io.mockk.runs
 import no.nav.familie.ks.sak.OppslagSpringRunnerTest
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagFagsak
@@ -56,7 +58,7 @@ class StegServiceTest : OppslagSpringRunnerTest() {
 
     @BeforeEach
     fun setup() {
-        every { registerPersonGrunnlagSteg.utførSteg(any()) } returns Unit
+        every { registerPersonGrunnlagSteg.utførSteg(any()) } just runs
         every { registerPersonGrunnlagSteg.getBehandlingssteg() } answers { callOriginal() }
 
         val aktør = aktørRepository.saveAndFlush(randomAktør())

@@ -1,4 +1,4 @@
-package no.nav.familie.ks.sak.api
+package no.nav.familie.ks.sak.api.mapper
 
 import no.nav.familie.kontrakter.felles.personopplysning.KJOENN
 import no.nav.familie.ks.sak.api.dto.ArbeidsfordelingResponsDto
