@@ -55,7 +55,7 @@ class BeregningServiceTest {
     }
 
     @Test
-    fun `finnBarnFraBehandlingMedTilkjentYtelse skal returnere når det finnes andeler for barn`() {
+    fun `finnBarnFraBehandlingMedTilkjentYtelse skal returnere liste med barn når det finnes andeler for dem`() {
         val behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD)
         val tilkjentYtelse = lagInitieltTilkjentYtelse(behandling)
         val barnAktør = randomAktør()
