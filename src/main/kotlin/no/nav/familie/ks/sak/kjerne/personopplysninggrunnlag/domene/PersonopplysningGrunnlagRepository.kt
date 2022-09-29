@@ -7,4 +7,7 @@ interface PersonopplysningGrunnlagRepository : JpaRepository<PersonopplysningGru
 
     @Query("SELECT gr FROM PersonopplysningGrunnlag gr WHERE gr.behandlingId = :behandlingId AND gr.aktiv = true")
     fun findByBehandlingAndAktiv(behandlingId: Long): PersonopplysningGrunnlag?
+
+    @Query("SELECT gr FROM PersonopplysningGrunnlag gr WHERE gr.behandlingId = :behandlingId AND gr.aktiv = true")
+    fun hentByBehandlingAndAktiv(behandlingId: Long): PersonopplysningGrunnlag
 }

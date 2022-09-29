@@ -17,7 +17,7 @@ class BeregningService(
     fun finnBarnFraBehandlingMedTilkjentYtelse(behandlingId: Long): List<Aktør> {
         val andelerTilkjentYtelse = andelTilkjentYtelseRepository.finnAndelerTilkjentYtelseForBehandling(behandlingId)
 
-        return personopplysningGrunnlagRepository.findByBehandlingAndAktiv(behandlingId)?.barna?.map { it.aktør }
-            ?.filter { andelerTilkjentYtelse.any { aty -> aty.aktør == it } } ?: emptyList()
+        return personopplysningGrunnlagRepository.hentByBehandlingAndAktiv(behandlingId).barna.map { it.aktør }
+            .filter { andelerTilkjentYtelse.any { aty -> aty.aktør == it } }
     }
 }
