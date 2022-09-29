@@ -345,7 +345,7 @@ class BehandlingServiceTest {
         verify(exactly = 1) { arbeidsfordelingService.finnArbeidsfordelingPåBehandling(behandling.id) }
         verify(exactly = 1) { personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlag(behandling.id) }
 
-        assertNotNull(behandlingResponsDto.personer)
+        assertTrue { behandlingResponsDto.personer.isNotEmpty() }
         assertEquals(1, behandlingResponsDto.personer.size)
     }
 
