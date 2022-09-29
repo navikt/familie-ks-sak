@@ -21,7 +21,6 @@ import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonRepository
 import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext
 import org.slf4j.LoggerFactory
-import org.springframework.data.repository.findByIdOrNull
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -92,7 +91,7 @@ class FagsakService(
     }
 
     fun hentMinimalFagsak(fagsakId: Long): MinimalFagsakResponsDto {
-        val fagsak = fagsakRepository.findByIdOrNull(fagsakId) ?: throw Feil("Fagsak $fagsakId finnes ikke")
+        val fagsak = hentFagsak(fagsakId)
         val alleBehandlinger = behandlingRepository.finnBehandlinger(fagsakId).map { lagBehandlingResponsDto(it) }
         return lagMinimalFagsakResponsDto(
             fagsak = fagsak,

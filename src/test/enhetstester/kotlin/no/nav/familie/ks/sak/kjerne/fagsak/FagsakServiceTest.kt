@@ -7,6 +7,10 @@ import io.mockk.junit5.MockKExtension
 import no.nav.familie.kontrakter.felles.personopplysning.ADRESSEBESKYTTELSEGRADERING
 import no.nav.familie.kontrakter.felles.personopplysning.FORELDERBARNRELASJONROLLE
 import no.nav.familie.kontrakter.felles.tilgangskontroll.Tilgang
+import no.nav.familie.ks.sak.api.dto.FagsakDeltagerRolle
+import no.nav.familie.ks.sak.api.dto.FagsakRequestDto
+import no.nav.familie.ks.sak.common.exception.Feil
+import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagFagsak
 import no.nav.familie.ks.sak.data.lagPersonopplysningGrunnlag
@@ -26,6 +30,7 @@ import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonReposi
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
 import java.time.LocalDate
 
@@ -64,7 +69,7 @@ class FagsakServiceTest {
     }
 
     @Test
-    fun `hentFagsakDeltagere - skal returnere assosierte fagsakdeltakere derosom saksbehandlerhar tilgang til aktør med bestemt personident`() {
+    fun `hentFagsakDeltagere - skal returnere søker dersom metode kalles med søkers ident og saksbehandler har tilgang til identen`() {
         val søkersFødselsdato = LocalDate.of(1985, 5, 1)
         val søkerPersonident = "01058512345"
         val søkerAktør = randomAktør(søkerPersonident)
@@ -72,7 +77,6 @@ class FagsakServiceTest {
         val barnPersonident = "01052212345"
         val barnAktør = randomAktør(barnPersonident)
 
-        val assosiertDeltagerFødselsdato = LocalDate.now().minusMonths(3)
         val barnIdenter = listOf(barnPersonident)
 
         every { personidentService.hentAktør(any()) } returns søkerAktør
@@ -101,24 +105,194 @@ class FagsakServiceTest {
         assertEquals(1, fagsakdeltakere.size)
     }
 
-    fun `hentEllerOpprettFagsak - skal`() {
+    @Test
+    fun `hentFagsakDeltagere - skal returnere barn og forelder dersom metode kalles med barne-ident og saksbehandler har tilgang til barnet og forelderen`() {
+        val søkersFødselsdato = LocalDate.of(1985, 5, 1)
+        val søkerPersonident = "01058512345"
+        val søkerAktør = randomAktør(søkerPersonident)
+
+        val barnFødselsdato = LocalDate.of(2022, 5, 1)
+        val barnPersonident = "01052212345"
+        val barnAktør = randomAktør(barnPersonident)
+
+        every { personidentService.hentAktør(any()) } returns barnAktør
+        every { integrasjonClient.sjekkTilgangTilPersoner(any()) } returns Tilgang(true)
+        every { personopplysningerService.hentPersonInfoMedRelasjonerOgRegisterinformasjon(any()) } returns PdlPersonInfo(
+            barnFødselsdato,
+            forelderBarnRelasjoner = setOf(ForelderBarnRelasjonInfo(søkerAktør, FORELDERBARNRELASJONROLLE.FAR))
+        )
+        every { personRepository.findByAktør(any()) } returns listOf(
+            Person(
+                aktør = barnAktør,
+                type = PersonType.BARN,
+                fødselsdato = barnFødselsdato,
+                kjønn = Kjønn.MANN,
+                personopplysningGrunnlag = lagPersonopplysningGrunnlag(1, barnPersonident, emptyList())
+            )
+        )
+        val fagsak = lagFagsak(søkerAktør)
+        every { behandlingRepository.hentAktivBehandling(any()) } returns lagBehandling(
+            fagsak = fagsak,
+            opprettetÅrsak = BehandlingÅrsak.SØKNAD
+        )
+        every { personopplysningerService.hentPersoninfoEnkel(any()) } returns PdlPersonInfo(
+            søkersFødselsdato,
+            forelderBarnRelasjoner = setOf(
+                ForelderBarnRelasjonInfo(barnAktør, FORELDERBARNRELASJONROLLE.BARN)
+            )
+        )
+        every { fagsakRepository.finnFagsakForAktør(any()) } returns fagsak
+
+        val fagsakdeltakere = fagsakService.hentFagsakDeltagere(søkerPersonident)
+        assertEquals(2, fagsakdeltakere.size)
+
+        val barnDeltaker = fagsakdeltakere.find { it.rolle == FagsakDeltagerRolle.BARN }
+        val forelderDeltaker = fagsakdeltakere.find { it.rolle == FagsakDeltagerRolle.FORELDER }
+
+        assertEquals(barnPersonident, barnDeltaker?.ident)
+        assertEquals(søkerPersonident, forelderDeltaker?.ident)
     }
 
-    fun `hentEllerOpprettFagsak - skal kaste`() {
+    @Test
+    fun `hentEllerOpprettFagsak - skal returnere eksisterende fagsak når forespurt personIdent eller aktørId har fagsak i db`() {
+        val fødselsnummer = randomFnr()
+        val aktør = randomAktør(fødselsnummer)
+        val fagsak = lagFagsak(aktør)
+
+        every { personidentService.hentOgLagreAktør(aktør.aktørId, true) } returns aktør
+        every { personidentService.hentOgLagreAktør(fødselsnummer, true) } returns aktør
+        every { fagsakRepository.finnFagsakForAktør(aktør) } returns fagsak
+        every { behandlingRepository.findByFagsakAndAktiv(fagsak.id) } returns lagBehandling(
+            fagsak,
+            opprettetÅrsak = BehandlingÅrsak.SØKNAD
+        )
+
+        var minimalFagsak =
+            fagsakService.hentEllerOpprettFagsak(FagsakRequestDto(personIdent = null, aktørId = aktør.aktørId))
+
+        assertEquals(fagsak.id, minimalFagsak.id)
+        assertEquals(fagsak.aktør.aktivFødselsnummer(), minimalFagsak.søkerFødselsnummer)
+
+        minimalFagsak =
+            fagsakService.hentEllerOpprettFagsak(FagsakRequestDto(personIdent = fødselsnummer))
+
+        assertEquals(fagsak.id, minimalFagsak.id)
+        assertEquals(fagsak.aktør.aktivFødselsnummer(), minimalFagsak.søkerFødselsnummer)
     }
 
-    fun `hentMinimalFagsak - skal`() {
+    @Test
+    fun `hentEllerOpprettFagsak - skal returnere ny fagsak når forespurt personIdent eller aktørId ikke har fagsak i db`() {
+        val fødselsnummer = randomFnr()
+        val aktør = randomAktør(fødselsnummer)
+        val fagsak = lagFagsak(aktør)
+
+        every { personidentService.hentOgLagreAktør(aktør.aktørId, true) } returns aktør
+        every { personidentService.hentOgLagreAktør(fødselsnummer, true) } returns aktør
+        every { fagsakRepository.finnFagsakForAktør(aktør) } returns null
+        every { fagsakRepository.save(fagsak) } returns fagsak
+        every { behandlingRepository.findByFagsakAndAktiv(fagsak.id) } returns null
+
+        var minimalFagsak =
+            fagsakService.hentEllerOpprettFagsak(FagsakRequestDto(personIdent = null, aktørId = aktør.aktørId))
+
+        assertEquals(fagsak.id, minimalFagsak.id)
+        assertEquals(fagsak.aktør.aktivFødselsnummer(), minimalFagsak.søkerFødselsnummer)
+
+        minimalFagsak =
+            fagsakService.hentEllerOpprettFagsak(FagsakRequestDto(personIdent = fødselsnummer))
+
+        assertEquals(fagsak.id, minimalFagsak.id)
+        assertEquals(fagsak.aktør.aktivFødselsnummer(), minimalFagsak.søkerFødselsnummer)
     }
 
-    fun `hentFagsak - skal`() {
+    @Test
+    fun `hentEllerOpprettFagsak - skal kaste Feil dersom verken personident eller aktørId er satt i FagsakRequestDto`() {
+        val feil =
+            assertThrows<Feil> {
+                fagsakService.hentEllerOpprettFagsak(
+                    FagsakRequestDto(
+                        personIdent = null,
+                        aktørId = null
+                    )
+                )
+            }
+
+        assertEquals(
+            "Hverken aktørid eller personident er satt på fagsak-requesten. Klarer ikke opprette eller hente fagsak.",
+            feil.message
+        )
+        assertEquals(
+            "Fagsak er forsøkt opprettet uten ident. Dette er en systemfeil, vennligst ta kontakt med systemansvarlig.",
+            feil.frontendFeilmelding
+        )
     }
 
-    fun `hentFagsak - skal kaste`() {
+    @Test
+    fun `hentMinimalFagsak - skal returnere fagsak med tilhørende behandlinger når forespurt fagsakId finnes i db`() {
+        val fagsak = lagFagsak(randomAktør())
+        val barnehagelisteBehandling =
+            lagBehandling(fagsak, opprettetÅrsak = BehandlingÅrsak.BARNEHAGELISTE).apply { aktiv = true }
+
+        every { fagsakRepository.finnFagsak(any()) } returns fagsak
+        every { behandlingRepository.finnBehandlinger(fagsak.id) } returns listOf(
+            lagBehandling(
+                fagsak,
+                opprettetÅrsak = BehandlingÅrsak.SØKNAD
+            ).apply { aktiv = false },
+            barnehagelisteBehandling
+        )
+        every { behandlingRepository.findByFagsakAndAktiv(fagsak.id) } returns barnehagelisteBehandling
+
+        val fagsakResponse = fagsakService.hentMinimalFagsak(fagsak.id)
+
+        assertEquals(fagsak.id, fagsakResponse.id)
+        assertEquals(2, fagsakResponse.behandlinger.size)
     }
 
-    fun `hentFagsakForPeson - skal`() {
+    @Test
+    fun `hentMinimalFagsak - skal kaste FunksjonellFeil dersom fagsak med fagsakId ikke finnes i db`() {
+        every { fagsakRepository.finnFagsak(any()) } returns null
+
+        val funksjonellFeil = assertThrows<FunksjonellFeil> { fagsakService.hentMinimalFagsak(404L) }
+
+        assertEquals("Finner ikke fagsak med id 404", funksjonellFeil.message)
     }
 
-    fun `hentFagsakForPeson - skal kaste`() {
+    @Test
+    fun `hentFagsak - skal returnere fagsak når det finnes en fagsak med forespurt fagsakId i db`() {
+        val fagsak = lagFagsak(randomAktør())
+        every { fagsakRepository.finnFagsak(any()) } returns fagsak
+    }
+
+    @Test
+    fun `hentFagsak - skal kaste Funksjonell feil dersom fagsak med fagsakId ikke finnes i db`() {
+        every { fagsakRepository.finnFagsak(any()) } returns null
+
+        val funksjonellFeil = assertThrows<FunksjonellFeil> { fagsakService.hentFagsak(404L) }
+
+        assertEquals("Finner ikke fagsak med id 404", funksjonellFeil.message)
+    }
+
+    @Test
+    fun `hentFagsakForPeson - skal returnere fagsak dersom fagsak tilknyttet aktør med forespurt personident finnes i db`() {
+        val aktør = randomAktør()
+        val fagsak = lagFagsak(aktør)
+
+        every { personidentService.hentOgLagreAktør(any(), any()) } returns aktør
+        every { fagsakRepository.finnFagsakForAktør(any()) } returns fagsak
+
+        val fagsakForPerson = fagsakService.hentFagsakForPerson(aktør.aktørId)
+    }
+
+    @Test
+    fun `hentFagsakForPeson - skal kaste Feil dersom fagsak tilknyttet aktør med forespurt personident ikke finnes i db`() {
+        val aktør = randomAktør()
+
+        every { personidentService.hentOgLagreAktør(any(), any()) } returns aktør
+        every { fagsakRepository.finnFagsakForAktør(any()) } returns null
+
+        val feil = assertThrows<Feil> { fagsakService.hentFagsakForPerson(aktør.aktørId) }
+
+        assertEquals("Fant ikke fagsak på person", feil.message)
     }
 }
