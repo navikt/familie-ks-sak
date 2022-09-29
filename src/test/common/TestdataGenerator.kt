@@ -2,6 +2,10 @@ package no.nav.familie.ks.sak.data
 
 import no.nav.commons.foedselsnummer.testutils.FoedselsnummerGenerator
 import no.nav.familie.kontrakter.felles.personopplysning.SIVILSTAND
+import no.nav.familie.ks.sak.api.dto.BarnMedOpplysningerDto
+import no.nav.familie.ks.sak.api.dto.RegisterSøknadDto
+import no.nav.familie.ks.sak.api.dto.SøkerMedOpplysningerDto
+import no.nav.familie.ks.sak.api.dto.SøknadDTO
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingKategori
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingType
@@ -25,9 +29,7 @@ fun randomFnr(): String = fødselsnummerGenerator.foedselsnummer().asString
 
 fun randomAktør(fnr: String = randomFnr()): Aktør =
     Aktør(Random.nextLong(1000_000_000_000, 31_121_299_99999).toString()).also {
-        it.personidenter.add(
-            randomPersonident(it, fnr)
-        )
+        it.personidenter.add(randomPersonident(it, fnr))
     }
 
 fun randomPersonident(aktør: Aktør, fnr: String = randomFnr()): Personident =
@@ -76,12 +78,7 @@ fun lagPersonopplysningGrunnlag(
         søker.statsborgerskap =
             mutableListOf(GrStatsborgerskap(landkode = "NOR", medlemskap = Medlemskap.NORDEN, person = søker))
         søker.bostedsadresser = mutableListOf()
-        søker.sivilstander = mutableListOf(
-            GrSivilstand(
-                type = SIVILSTAND.GIFT,
-                person = søker
-            )
-        )
+        søker.sivilstander = mutableListOf(GrSivilstand(type = SIVILSTAND.GIFT, person = søker))
     }
     personopplysningGrunnlag.personer.add(søker)
 
@@ -96,20 +93,9 @@ fun lagPersonopplysningGrunnlag(
                 kjønn = Kjønn.MANN
             ).also { barn ->
                 barn.statsborgerskap =
-                    mutableListOf(
-                        GrStatsborgerskap(
-                            landkode = "NOR",
-                            medlemskap = Medlemskap.NORDEN,
-                            person = barn
-                        )
-                    )
+                    mutableListOf(GrStatsborgerskap(landkode = "NOR", medlemskap = Medlemskap.NORDEN, person = barn))
                 barn.bostedsadresser = mutableListOf()
-                barn.sivilstander = mutableListOf(
-                    GrSivilstand(
-                        type = SIVILSTAND.UGIFT,
-                        person = barn
-                    )
-                )
+                barn.sivilstander = mutableListOf(GrSivilstand(type = SIVILSTAND.UGIFT, person = barn))
             }
         )
     }
@@ -129,3 +115,12 @@ fun lagBehandling(
     opprettetÅrsak = opprettetÅrsak,
     kategori = kategori
 ).initBehandlingStegTilstand()
+
+fun lagRegisterSøknadDto() = RegisterSøknadDto(
+    søknad = SøknadDTO(
+        søkerMedOpplysninger = SøkerMedOpplysningerDto(ident = randomFnr()),
+        barnaMedOpplysninger = listOf(BarnMedOpplysningerDto(ident = randomFnr())),
+        endringAvOpplysningerBegrunnelse = ""
+    ),
+    bekreftEndringerViaFrontend = true
+)
