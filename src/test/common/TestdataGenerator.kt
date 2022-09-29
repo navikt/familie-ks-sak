@@ -1,11 +1,19 @@
 package no.nav.familie.ks.sak.data
 
 import no.nav.commons.foedselsnummer.testutils.FoedselsnummerGenerator
+import no.nav.familie.kontrakter.felles.personopplysning.Bostedsadresse
+import no.nav.familie.kontrakter.felles.personopplysning.FORELDERBARNRELASJONROLLE
+import no.nav.familie.kontrakter.felles.personopplysning.KJOENN
 import no.nav.familie.kontrakter.felles.personopplysning.SIVILSTAND
+import no.nav.familie.kontrakter.felles.personopplysning.Sivilstand
+import no.nav.familie.kontrakter.felles.personopplysning.Statsborgerskap
+import no.nav.familie.kontrakter.felles.personopplysning.Vegadresse
 import no.nav.familie.ks.sak.api.dto.BarnMedOpplysningerDto
 import no.nav.familie.ks.sak.api.dto.RegisterSøknadDto
 import no.nav.familie.ks.sak.api.dto.SøkerMedOpplysningerDto
 import no.nav.familie.ks.sak.api.dto.SøknadDTO
+import no.nav.familie.ks.sak.integrasjon.pdl.domene.ForelderBarnRelasjonInfo
+import no.nav.familie.ks.sak.integrasjon.pdl.domene.PdlPersonInfo
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingKategori
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingType
@@ -127,4 +135,44 @@ fun lagRegisterSøknadDto() = RegisterSøknadDto(
         endringAvOpplysningerBegrunnelse = ""
     ),
     bekreftEndringerViaFrontend = true
+)
+
+fun lagPdlPersonInfo(enkelPersonInfo: Boolean = false, erBarn: Boolean = false) = PdlPersonInfo(
+    fødselsdato = if (erBarn) LocalDate.now().minusYears(1) else LocalDate.of(1987, 5, 1),
+    navn = "John Doe",
+    kjønn = KJOENN.MANN,
+    forelderBarnRelasjoner = if (enkelPersonInfo) emptySet() else setOf(lagForelderBarnRelasjon()),
+    bostedsadresser = listOf(lagBostedsadresse()),
+    sivilstander = listOf(lagSivilstand()),
+    statsborgerskap = listOf(lagStatsborgerskap())
+)
+
+fun lagForelderBarnRelasjon(): ForelderBarnRelasjonInfo = ForelderBarnRelasjonInfo(
+    aktør = randomAktør(),
+    relasjonsrolle = FORELDERBARNRELASJONROLLE.BARN,
+    navn = "Ny barn",
+    fødselsdato = LocalDate.now().minusYears(1)
+)
+
+fun lagBostedsadresse(): Bostedsadresse = Bostedsadresse(
+    gyldigFraOgMed = LocalDate.of(2015, 1, 1),
+    vegadresse = Vegadresse(
+        matrikkelId = 1234,
+        husnummer = "3",
+        husbokstav = null,
+        bruksenhetsnummer = null,
+        adressenavn = "OTTO SVERDRUPS VEG",
+        kommunenummer = "1560",
+        postnummer = "6650",
+        tilleggsnavn = null
+    )
+)
+
+fun lagSivilstand(): Sivilstand = Sivilstand(type = SIVILSTAND.UGIFT, gyldigFraOgMed = LocalDate.of(2004, 12, 2))
+
+fun lagStatsborgerskap(): Statsborgerskap = Statsborgerskap(
+    land = "NOR",
+    gyldigFraOgMed = LocalDate.of(1987, 9, 1),
+    gyldigTilOgMed = null,
+    bekreftelsesdato = LocalDate.of(1987, 9, 1)
 )
