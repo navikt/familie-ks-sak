@@ -13,6 +13,7 @@ import no.nav.familie.ks.sak.data.randomFnr
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelseRepository
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlagRepository
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -80,7 +81,9 @@ class BeregningServiceTest {
                 barnasIdenter = listOf(barnAktør.aktivFødselsnummer()),
                 barnAktør = listOf(barnAktør)
             )
-
-        assertTrue { beregningService.finnBarnFraBehandlingMedTilkjentYtelse(behandling.id).isNotEmpty() }
+        val barn = beregningService.finnBarnFraBehandlingMedTilkjentYtelse(behandling.id)
+        assertTrue { barn.isNotEmpty() }
+        assertEquals(1, barn.size)
+        assertEquals(barnAktør, barn.single())
     }
 }
