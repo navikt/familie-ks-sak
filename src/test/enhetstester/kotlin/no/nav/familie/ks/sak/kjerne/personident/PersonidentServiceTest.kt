@@ -1,6 +1,5 @@
 package no.nav.familie.ks.sak.kjerne.personident
 
-import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.impl.annotations.InjectMockKs
 import io.mockk.impl.annotations.MockK
@@ -14,14 +13,11 @@ import no.nav.familie.ks.sak.integrasjon.pdl.PdlClient
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.PdlIdent
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
 
 @ExtendWith(MockKExtension::class)
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class PersonidentServiceTest {
 
     @MockK
@@ -35,11 +31,6 @@ class PersonidentServiceTest {
 
     @InjectMockKs
     private lateinit var personidentService: PersonidentService
-
-    @BeforeEach
-    fun beforeEach() {
-        clearAllMocks()
-    }
 
     @Test
     fun `hentOgLagreAktør - skal hente personident fra personidentRepository dersom personident finnes i db`() {
