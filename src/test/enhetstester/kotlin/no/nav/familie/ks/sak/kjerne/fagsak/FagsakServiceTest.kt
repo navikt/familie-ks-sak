@@ -103,6 +103,7 @@ class FagsakServiceTest {
 
         val fagsakdeltakere = fagsakService.hentFagsakDeltagere(søkerPersonident)
         assertEquals(1, fagsakdeltakere.size)
+        assertEquals(søkerPersonident, fagsakdeltakere.single().ident)
     }
 
     @Test
@@ -262,6 +263,10 @@ class FagsakServiceTest {
     fun `hentFagsak - skal returnere fagsak når det finnes en fagsak med forespurt fagsakId i db`() {
         val fagsak = lagFagsak(randomAktør())
         every { fagsakRepository.finnFagsak(any()) } returns fagsak
+
+        val hentetFagsak = fagsakService.hentFagsak(fagsak.id)
+
+        assertEquals(fagsak.id, hentetFagsak.id)
     }
 
     @Test
@@ -282,6 +287,9 @@ class FagsakServiceTest {
         every { fagsakRepository.finnFagsakForAktør(any()) } returns fagsak
 
         val fagsakForPerson = fagsakService.hentFagsakForPerson(aktør.aktørId)
+
+        assertEquals(fagsak.id, fagsakForPerson.id)
+        assertEquals(fagsak.aktør, fagsakForPerson.aktør)
     }
 
     @Test
