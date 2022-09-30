@@ -1,11 +1,13 @@
 package no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag
 
+import no.nav.familie.ks.sak.api.dto.SøknadDto
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.ArbeidsfordelingService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingType
 import no.nav.familie.ks.sak.kjerne.beregning.BeregningService
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
+import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Målform
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
@@ -20,7 +22,8 @@ class PersonopplysningGrunnlagService(
     private val personopplysningGrunnlagRepository: PersonopplysningGrunnlagRepository,
     private val beregningService: BeregningService,
     private val personService: PersonService,
-    private val arbeidsfordelingService: ArbeidsfordelingService
+    private val arbeidsfordelingService: ArbeidsfordelingService,
+    private val personidentService: PersonidentService
 ) {
 
     fun opprettPersonopplysningGrunnlag(
@@ -43,6 +46,24 @@ class PersonopplysningGrunnlagService(
             barnasAktør = barnasAktørFraSisteVedtattBehandling,
             behandling = behandling,
             målform = målform
+        )
+    }
+
+    fun oppdaterPersonopplysningGrunnlag(behandling: Behandling, søknadDto: SøknadDto) {
+        val eksisterendePersonopplysningGrunnlag =
+            personopplysningGrunnlagRepository.findByBehandlingAndAktiv(behandling.id)
+                ?: throw Feil("Der finnes ikke noe aktivt personopplysningsgrunnlag for ${behandling.id}")
+
+        val eksisterendeBarnAktører = eksisterendePersonopplysningGrunnlag.barna.map { it.aktør }
+        val valgteBarnAktører = søknadDto.barnaMedOpplysninger.filter { it.inkludertISøknaden }
+            .map { personidentService.hentOgLagreAktør(it.ident, true) }
+        val eksisterendeBarnOgNyeBarnFraSøknad = eksisterendeBarnAktører.union(valgteBarnAktører).toList()
+
+        lagreSøkerOgBarnINyttGrunnlag(
+            aktør = eksisterendePersonopplysningGrunnlag.søker.aktør,
+            barnasAktør = eksisterendeBarnOgNyeBarnFraSøknad,
+            behandling = behandling,
+            målform = eksisterendePersonopplysningGrunnlag.søker.målform
         )
     }
 

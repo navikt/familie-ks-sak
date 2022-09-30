@@ -2,7 +2,7 @@ package no.nav.familie.ks.sak.api
 
 import no.nav.familie.kontrakter.felles.Ressurs
 import no.nav.familie.ks.sak.api.dto.BehandlingResponsDto
-import no.nav.familie.ks.sak.api.dto.RegisterSøknadDto
+import no.nav.familie.ks.sak.api.dto.RegistrerSøknadDto
 import no.nav.familie.ks.sak.config.BehandlerRolle
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg
@@ -29,7 +29,7 @@ class BehandlingStegController(
     @PostMapping(path = ["registrer-søknad"], produces = [MediaType.APPLICATION_JSON_VALUE])
     fun registrereSøknadOgHentPersongrunnlag(
         @PathVariable behandlingId: Long,
-        @RequestBody registerSøknadDto: RegisterSøknadDto
+        @RequestBody registerSøknadDto: RegistrerSøknadDto
     ): ResponseEntity<Ressurs<BehandlingResponsDto>> {
         tilgangService.validerTilgangTilHandling(
             minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,

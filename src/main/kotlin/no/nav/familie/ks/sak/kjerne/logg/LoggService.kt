@@ -82,4 +82,19 @@ class LoggService(
             )
         )
     }
+
+    fun opprettRegistrertSøknadLogg(behandlingId: Long, søknadGrunnlagFinnesFraFør: Boolean) {
+        lagreLogg(
+            Logg(
+                behandlingId = behandlingId,
+                type = LoggType.SØKNAD_REGISTRERT,
+                tittel = if (!søknadGrunnlagFinnesFraFør) "Søknaden ble registrert" else "Søknaden ble endret",
+                rolle = SikkerhetContext.hentRolletilgangFraSikkerhetscontext(
+                    rolleConfig,
+                    BehandlerRolle.SAKSBEHANDLER
+                ),
+                tekst = ""
+            )
+        )
+    }
 }
