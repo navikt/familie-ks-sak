@@ -1,7 +1,8 @@
-package no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.dødsfall
+package no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.dødsfall
 
 import com.fasterxml.jackson.annotation.JsonIgnore
 import no.nav.familie.ks.sak.common.entitet.BaseEntitet
+import no.nav.familie.ks.sak.integrasjon.pdl.domene.PdlKontaktinformasjonForDødsboAdresse
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
 import java.time.LocalDate
 import javax.persistence.Column
@@ -41,5 +42,22 @@ data class Dødsfall(
 ) : BaseEntitet() {
     fun hentAdresseToString(): String {
         return """$dødsfallAdresse, $dødsfallPostnummer $dødsfallPoststed"""
+    }
+
+    companion object {
+        fun lagDødsfall(
+            person: Person,
+            pdlDødsfallDato: String?,
+            pdlDødsfallAdresse: PdlKontaktinformasjonForDødsboAdresse?
+        ): Dødsfall? {
+            if (pdlDødsfallDato.isNullOrEmpty()) return null
+            return Dødsfall(
+                person = person,
+                dødsfallDato = LocalDate.parse(pdlDødsfallDato),
+                dødsfallAdresse = pdlDødsfallAdresse?.adresselinje1,
+                dødsfallPostnummer = pdlDødsfallAdresse?.postnummer,
+                dødsfallPoststed = pdlDødsfallAdresse?.poststedsnavn
+            )
+        }
     }
 }

@@ -1,10 +1,10 @@
 package no.nav.familie.ks.sak.kjerne.behandling
 
 import no.nav.familie.kontrakter.felles.oppgave.Oppgavetype
-import no.nav.familie.ks.sak.api.BehandlingMapper
 import no.nav.familie.ks.sak.api.dto.BehandlingResponsDto
 import no.nav.familie.ks.sak.api.dto.EndreBehandlendeEnhetDto
 import no.nav.familie.ks.sak.api.dto.OpprettBehandlingDto
+import no.nav.familie.ks.sak.api.mapper.BehandlingMapper
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.integrasjon.oppgave.OpprettOppgaveTask
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.ArbeidsfordelingService
@@ -12,9 +12,12 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingKategori
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
+import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg
+import no.nav.familie.ks.sak.kjerne.behandling.steg.StegService
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.FagsakRepository
 import no.nav.familie.ks.sak.kjerne.logg.LoggService
 import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
+import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
 import no.nav.familie.ks.sak.kjerne.vedtak.VedtakService
 import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext
 import no.nav.familie.prosessering.domene.TaskRepository
@@ -30,9 +33,11 @@ class BehandlingService(
     private val arbeidsfordelingService: ArbeidsfordelingService,
     private val vedtakService: VedtakService,
     private val loggService: LoggService,
+    private val stegService: StegService,
     private val fagsakRepository: FagsakRepository,
     private val behandlingRepository: BehandlingRepository,
-    private val taskRepository: TaskRepository
+    private val taskRepository: TaskRepository,
+    private val personopplysningGrunnlagService: PersonopplysningGrunnlagService
 ) {
 
     @Transactional
@@ -65,7 +70,7 @@ class BehandlingService(
             opprettetÅrsak = opprettBehandlingRequest.behandlingÅrsak,
             kategori = behandlingKategori,
             søknadMottattDato = opprettBehandlingRequest.søknadMottattDato?.atStartOfDay()
-        ).initBehandlingStegTilstand() // oppretter behandling med initielt steg tilstand
+        ).initBehandlingStegTilstand() // oppretter behandling med initielt steg Registrer Persongrunnlag
 
         behandling.validerBehandlingstype(sisteVedtattBehandling)
         val lagretBehandling = lagreNyOgDeaktiverGammelBehandling(
@@ -86,6 +91,8 @@ class BehandlingService(
                 )
             )
         }
+        // utfør Registrer Persongrunnlag steg
+        stegService.utførSteg(lagretBehandling.id, BehandlingSteg.REGISTRERE_PERSONGRUNNLAG)
         return lagretBehandling
     }
 
@@ -119,7 +126,8 @@ class BehandlingService(
     fun lagBehandlingRespons(behandlingId: Long): BehandlingResponsDto {
         val behandling = hentBehandling(behandlingId)
         val arbeidsfordelingPåBehandling = arbeidsfordelingService.finnArbeidsfordelingPåBehandling(behandlingId)
-        return BehandlingMapper.lagBehandlingRespons(behandling, arbeidsfordelingPåBehandling)
+        val personer = personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlag(behandlingId)?.personer?.toList()
+        return BehandlingMapper.lagBehandlingRespons(behandling, arbeidsfordelingPåBehandling, personer)
     }
 
     fun oppdaterBehandlendeEnhet(behandlingId: Long, endreBehandlendeEnhet: EndreBehandlendeEnhetDto) =
