@@ -28,7 +28,7 @@ class LoggService(
     }
 
     fun opprettAutovedtakTilManuellBehandling(behandling: Behandling, tekst: String) {
-        lagre(
+        lagreLogg(
             Logg(
                 behandlingId = behandling.id,
                 type = LoggType.AUTOVEDTAK_TIL_MANUELL_BEHANDLING,
@@ -41,15 +41,13 @@ class LoggService(
         )
     }
 
-    fun lagre(logg: Logg): Logg {
+    private fun lagreLogg(logg: Logg): Logg {
         metrikkPerLoggType[logg.type]?.increment()
 
         return loggRepository.save(logg)
     }
 
-    fun hentLoggForBehandling(behandlingId: Long): List<Logg> {
-        return loggRepository.hentLoggForBehandling(behandlingId)
-    }
+    fun hentLoggForBehandling(behandlingId: Long): List<Logg> = loggRepository.hentLoggForBehandling(behandlingId)
 
     fun opprettBehandlendeEnhetEndret(
         behandling: Behandling,
@@ -58,7 +56,7 @@ class LoggService(
         manuellOppdatering: Boolean,
         begrunnelse: String
     ) {
-        lagre(
+        lagreLogg(
             Logg(
                 behandlingId = behandling.id,
                 type = LoggType.BEHANDLENDE_ENHET_ENDRET,
@@ -75,7 +73,7 @@ class LoggService(
     }
 
     fun opprettBehandlingLogg(behandling: Behandling) {
-        lagre(
+        lagreLogg(
             Logg(
                 behandlingId = behandling.id,
                 type = LoggType.BEHANDLING_OPPRETTET,
