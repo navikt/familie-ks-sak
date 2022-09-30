@@ -8,7 +8,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 
 @Service
-class RegisterSøknadSteg : IBehandlingSteg {
+class RegistrerSøknadSteg : IBehandlingSteg {
     override fun getBehandlingssteg(): BehandlingSteg = BehandlingSteg.REGISTRERE_SØKNAD
 
     override fun utførSteg(behandlingId: Long, behandlingStegDto: BehandlingStegDto) {
@@ -22,7 +22,7 @@ class RegisterSøknadSteg : IBehandlingSteg {
     }
 
     companion object {
-        private val logger: Logger = LoggerFactory.getLogger(RegisterSøknadSteg::class.java)
+        private val logger: Logger = LoggerFactory.getLogger(RegistrerSøknadSteg::class.java)
         private val secureLogger = LoggerFactory.getLogger("secureLogger")
     }
 }
