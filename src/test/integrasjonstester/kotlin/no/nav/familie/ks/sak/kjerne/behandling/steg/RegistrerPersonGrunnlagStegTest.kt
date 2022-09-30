@@ -11,6 +11,7 @@ import no.nav.familie.ks.sak.data.lagFagsak
 import no.nav.familie.ks.sak.data.lagPdlPersonInfo
 import no.nav.familie.ks.sak.data.lagPersonopplysningGrunnlag
 import no.nav.familie.ks.sak.data.randomAktør
+import no.nav.familie.ks.sak.data.shouldNotBeNull
 import no.nav.familie.ks.sak.integrasjon.pdl.PersonOpplysningerService
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.ArbeidsfordelingService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
@@ -145,6 +146,4 @@ class RegistrerPersonGrunnlagStegTest : OppslagSpringRunnerTest() {
         assertTrue(barn.statsborgerskap.isNotEmpty())
         assertTrue(barn.statsborgerskap.isNotEmpty())
     }
-
-    fun <T> T?.shouldNotBeNull(): T = this ?: throw AssertionError("$this kan ikke være null")
 }

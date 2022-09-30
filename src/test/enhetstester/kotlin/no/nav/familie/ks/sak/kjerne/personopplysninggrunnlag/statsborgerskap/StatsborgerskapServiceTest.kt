@@ -40,7 +40,7 @@ class StatsborgerskapServiceTest {
             statsborgerskapService.hentStatsborgerskapMedMedlemskap(
                 statsborgerskap,
                 lagPersonopplysningGrunnlag(111L, randomFnr()).søker
-            ).isEmpty()
+            ).isEmpty() // EØS er ikke implementert enda, derfor returnerer det tom liste
         }
     }
 }
