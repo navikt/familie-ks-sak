@@ -25,6 +25,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingStegStatus.TILBAKE
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingStegStatus.UTFØRT
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingStegStatus.VENTER
 import no.nav.familie.ks.sak.kjerne.behandling.steg.RegistrerPersonGrunnlagSteg
+import no.nav.familie.ks.sak.kjerne.behandling.steg.RegistrerSøknadSteg
 import no.nav.familie.ks.sak.kjerne.behandling.steg.StegService
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.Fagsak
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.FagsakRepository
@@ -45,6 +46,9 @@ class StegServiceTest : OppslagSpringRunnerTest() {
     @MockkBean(relaxed = true)
     private lateinit var registerPersonGrunnlagSteg: RegistrerPersonGrunnlagSteg
 
+    @MockkBean(relaxed = true)
+    private lateinit var registrerSøknadSteg: RegistrerSøknadSteg
+
     @Autowired
     private lateinit var aktørRepository: AktørRepository
 
@@ -60,6 +64,9 @@ class StegServiceTest : OppslagSpringRunnerTest() {
     fun setup() {
         every { registerPersonGrunnlagSteg.utførSteg(any()) } just runs
         every { registerPersonGrunnlagSteg.getBehandlingssteg() } answers { callOriginal() }
+
+        every { registrerSøknadSteg.utførSteg(any()) } just runs
+        every { registrerSøknadSteg.getBehandlingssteg() } answers { callOriginal() }
 
         val aktør = aktørRepository.saveAndFlush(randomAktør())
         fagsak = fagsakRepository.saveAndFlush(lagFagsak(aktør))
@@ -198,7 +205,7 @@ class StegServiceTest : OppslagSpringRunnerTest() {
         }
         assertEquals(
             "Steget ${REGISTRERE_SØKNAD.name} er ikke gyldig for behandling ${behandling.id} " +
-                "med opprettetÅrsak ${behandling.opprettetÅrsak}",
+                    "med opprettetÅrsak ${behandling.opprettetÅrsak}",
             exception.message
         )
     }
@@ -223,8 +230,8 @@ class StegServiceTest : OppslagSpringRunnerTest() {
         }
         assertEquals(
             "Behandling ${behandling.id} har allerede et steg " +
-                "${REGISTRERE_PERSONGRUNNLAG.name}} som er klar for behandling. " +
-                "Kan ikke behandle ${REGISTRERE_SØKNAD.name}",
+                    "${REGISTRERE_PERSONGRUNNLAG.name}} som er klar for behandling. " +
+                    "Kan ikke behandle ${REGISTRERE_SØKNAD.name}",
             exception.message
         )
     }
@@ -237,7 +244,7 @@ class StegServiceTest : OppslagSpringRunnerTest() {
         assertTrue(
             behandling.behandlingStegTilstand.any {
                 it.behandlingSteg == behandlingSteg &&
-                    it.behandlingStegStatus == behandlingStegStatus
+                        it.behandlingStegStatus == behandlingStegStatus
             }
         )
 }

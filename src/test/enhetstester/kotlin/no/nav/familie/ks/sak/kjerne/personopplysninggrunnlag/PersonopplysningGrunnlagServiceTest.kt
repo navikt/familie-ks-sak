@@ -14,6 +14,7 @@ import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.ArbeidsfordelingService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingType
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import no.nav.familie.ks.sak.kjerne.beregning.BeregningService
+import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Målform
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlagRepository
@@ -37,6 +38,9 @@ internal class PersonopplysningGrunnlagServiceTest {
 
     @MockK
     private lateinit var arbeidsfordelingService: ArbeidsfordelingService
+
+    @MockK
+    private lateinit var personidentService: PersonidentService
 
     @InjectMockKs
     private lateinit var personopplysningGrunnlagService: PersonopplysningGrunnlagService
@@ -72,7 +76,11 @@ internal class PersonopplysningGrunnlagServiceTest {
     @Test
     fun `opprettPersonopplysningGrunnlag skal opprette personopplysninggrunnlag for revurdering`() {
         val behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD)
-        val revurdering = lagBehandling(fagsak = behandling.fagsak, type = BehandlingType.REVURDERING, opprettetÅrsak = BehandlingÅrsak.SØKNAD)
+        val revurdering = lagBehandling(
+            fagsak = behandling.fagsak,
+            type = BehandlingType.REVURDERING,
+            opprettetÅrsak = BehandlingÅrsak.SØKNAD
+        )
         val barnAktør = randomAktør()
 
         every { beregningService.finnBarnFraBehandlingMedTilkjentYtelse(behandling.id) } returns listOf(barnAktør)
