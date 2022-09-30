@@ -14,6 +14,7 @@ import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagFagsak
+import no.nav.familie.ks.sak.data.lagPersonopplysningGrunnlag
 import no.nav.familie.ks.sak.data.randomAktør
 import no.nav.familie.ks.sak.integrasjon.oppgave.OpprettOppgaveTask
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.ArbeidsfordelingService
@@ -24,9 +25,11 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingType
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg
+import no.nav.familie.ks.sak.kjerne.behandling.steg.StegService
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.FagsakRepository
 import no.nav.familie.ks.sak.kjerne.logg.LoggService
 import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
+import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
 import no.nav.familie.ks.sak.kjerne.vedtak.VedtakService
 import no.nav.familie.prosessering.domene.TaskRepository
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -56,6 +59,9 @@ class BehandlingServiceTest {
     private lateinit var loggService: LoggService
 
     @MockK
+    private lateinit var stegService: StegService
+
+    @MockK
     private lateinit var fagsakRepository: FagsakRepository
 
     @MockK
@@ -63,6 +69,9 @@ class BehandlingServiceTest {
 
     @MockK
     private lateinit var taskRepository: TaskRepository
+
+    @MockK
+    private lateinit var personopplysningGrunnlagService: PersonopplysningGrunnlagService
 
     @InjectMockKs
     private lateinit var behandlingService: BehandlingService
@@ -101,6 +110,9 @@ class BehandlingServiceTest {
             Oppgavetype.BehandleSak,
             LocalDate.now()
         )
+        every { stegService.utførSteg(any(), any()) } returns Unit
+        every { personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlag(any()) } returns
+            lagPersonopplysningGrunnlag(behandlingId = behandling.id, søkerPersonIdent = søkersIdent)
     }
 
     @Test
@@ -330,11 +342,11 @@ class BehandlingServiceTest {
 
         assertNotNull(behandlingResponsDto)
         verify(exactly = 1) { behandlingService.hentBehandling(behandling.id) }
-        verify(exactly = 1) {
-            arbeidsfordelingService.finnArbeidsfordelingPåBehandling(
-                behandling.id
-            )
-        }
+        verify(exactly = 1) { arbeidsfordelingService.finnArbeidsfordelingPåBehandling(behandling.id) }
+        verify(exactly = 1) { personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlag(behandling.id) }
+
+        assertTrue { behandlingResponsDto.personer.isNotEmpty() }
+        assertEquals(1, behandlingResponsDto.personer.size)
     }
 
     @Test

@@ -1,8 +1,10 @@
-package no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.bostedsadresse
+package no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.bostedsadresse
 
 import com.fasterxml.jackson.annotation.JsonIgnore
+import no.nav.familie.kontrakter.felles.personopplysning.Bostedsadresse
 import no.nav.familie.ks.sak.common.entitet.BaseEntitet
 import no.nav.familie.ks.sak.common.entitet.DatoIntervallEntitet
+import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
 import javax.persistence.DiscriminatorColumn
 import javax.persistence.Embedded
@@ -44,4 +46,18 @@ abstract class GrBostedsadresse(
     abstract fun toSecureString(): String
 
     abstract fun tilFrontendString(): String
+
+    companion object {
+        fun fraBostedsadresse(bostedsadresse: Bostedsadresse, person: Person): GrBostedsadresse {
+            val mappetAdresse = bostedsadresse.vegadresse?.let { GrVegadresse.fraVegadresse(it) }
+                ?: bostedsadresse.matrikkeladresse?.let { GrMatrikkeladresse.fraMatrikkeladresse(it) }
+                ?: bostedsadresse.ukjentBosted?.let { GrUkjentBosted.fraUkjentBosted(it) }
+                ?: throw Feil("Vegadresse, matrikkeladresse og ukjent bosted har verdi null ved mapping fra bostedadresse")
+
+            return mappetAdresse.also {
+                it.person = person
+                it.periode = DatoIntervallEntitet(bostedsadresse.angittFlyttedato, bostedsadresse.gyldigTilOgMed)
+            }
+        }
+    }
 }

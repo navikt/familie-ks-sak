@@ -1,13 +1,13 @@
 package no.nav.familie.ks.sak.kjerne.fagsak
 
 import io.micrometer.core.instrument.Metrics
-import no.nav.familie.ks.sak.api.FagsakMapper.lagBehandlingResponsDto
-import no.nav.familie.ks.sak.api.FagsakMapper.lagFagsakDeltagerResponsDto
-import no.nav.familie.ks.sak.api.FagsakMapper.lagMinimalFagsakResponsDto
 import no.nav.familie.ks.sak.api.dto.FagsakDeltagerResponsDto
 import no.nav.familie.ks.sak.api.dto.FagsakDeltagerRolle
 import no.nav.familie.ks.sak.api.dto.FagsakRequestDto
 import no.nav.familie.ks.sak.api.dto.MinimalFagsakResponsDto
+import no.nav.familie.ks.sak.api.mapper.FagsakMapper.lagBehandlingResponsDto
+import no.nav.familie.ks.sak.api.mapper.FagsakMapper.lagFagsakDeltagerResponsDto
+import no.nav.familie.ks.sak.api.mapper.FagsakMapper.lagMinimalFagsakResponsDto
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient

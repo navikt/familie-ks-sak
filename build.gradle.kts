@@ -93,6 +93,9 @@ dependencies {
     implementation("com.pinterest:ktlint:0.47.1")
 
     testImplementation("io.mockk:mockk:1.12.8")
+    testImplementation("com.ninja-squad:springmockk:3.1.1") {
+        exclude(module = "mockito-core")
+    }
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.cloud:spring-cloud-contract-wiremock:3.1.4")
     testImplementation("org.testcontainers:postgresql:1.17.3")

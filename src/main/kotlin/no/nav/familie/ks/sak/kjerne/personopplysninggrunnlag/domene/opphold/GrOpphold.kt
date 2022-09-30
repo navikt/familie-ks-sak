@@ -1,7 +1,8 @@
-package no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.opphold
+package no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.opphold
 
 import com.fasterxml.jackson.annotation.JsonIgnore
 import no.nav.familie.kontrakter.felles.personopplysning.OPPHOLDSTILLATELSE
+import no.nav.familie.kontrakter.felles.personopplysning.Opphold
 import no.nav.familie.ks.sak.common.entitet.BaseEntitet
 import no.nav.familie.ks.sak.common.entitet.DatoIntervallEntitet
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
@@ -54,5 +55,14 @@ data class GrOpphold(
 
     override fun hashCode(): Int {
         return 31 * gyldigPeriode.hashCode() + type.hashCode()
+    }
+
+    companion object {
+
+        fun fraOpphold(opphold: Opphold, person: Person) = GrOpphold(
+            gyldigPeriode = DatoIntervallEntitet(fom = opphold.oppholdFra, tom = opphold.oppholdTil),
+            type = opphold.type,
+            person = person
+        )
     }
 }
