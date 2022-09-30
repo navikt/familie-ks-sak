@@ -205,7 +205,7 @@ class StegServiceTest : OppslagSpringRunnerTest() {
         }
         assertEquals(
             "Steget ${REGISTRERE_SØKNAD.name} er ikke gyldig for behandling ${behandling.id} " +
-                    "med opprettetÅrsak ${behandling.opprettetÅrsak}",
+                "med opprettetÅrsak ${behandling.opprettetÅrsak}",
             exception.message
         )
     }
@@ -230,8 +230,8 @@ class StegServiceTest : OppslagSpringRunnerTest() {
         }
         assertEquals(
             "Behandling ${behandling.id} har allerede et steg " +
-                    "${REGISTRERE_PERSONGRUNNLAG.name}} som er klar for behandling. " +
-                    "Kan ikke behandle ${REGISTRERE_SØKNAD.name}",
+                "${REGISTRERE_PERSONGRUNNLAG.name}} som er klar for behandling. " +
+                "Kan ikke behandle ${REGISTRERE_SØKNAD.name}",
             exception.message
         )
     }
@@ -244,7 +244,7 @@ class StegServiceTest : OppslagSpringRunnerTest() {
         assertTrue(
             behandling.behandlingStegTilstand.any {
                 it.behandlingSteg == behandlingSteg &&
-                        it.behandlingStegStatus == behandlingStegStatus
+                    it.behandlingStegStatus == behandlingStegStatus
             }
         )
 }
