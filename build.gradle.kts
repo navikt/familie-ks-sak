@@ -111,6 +111,7 @@ sourceSets.getByName("test") {
     java.srcDir("src/test/common/")
 }
 
+
 tasks.withType<KotlinCompile> {
     kotlinOptions {
         freeCompilerArgs = listOf("-Xjsr305=strict")
@@ -126,16 +127,25 @@ tasks {
     bootJar {
         archiveFileName.set("familie-ks-sak.jar")
     }
-    test {
-        if (project.hasProperty("github")) {
-            if (!project.hasProperty("enhetstester")) {
-                exclude("no/nav/familie/ks/sak/enhetstester/**")
+}
+
+allprojects {
+    plugins.withId("java") {
+        this@allprojects.tasks {
+            val test = "test"(Test::class) {
+                maxParallelForks = (Runtime.getRuntime().availableProcessors() / 2).takeIf { it > 0 } ?: 1
+                useJUnitPlatform {
+                    excludeTags("integrationTest")
+                }
             }
-            if (!project.hasProperty("integrasjonstester")) {
-                exclude("no/nav/familie/ks/sak/integrasjonstester/**")
+            val integrationTest = register<Test>("integrationTest") {
+                useJUnitPlatform {
+                    includeTags("integrationTest")
+                }
+                shouldRunAfter(test)
             }
-            if (!project.hasProperty("verdikjedetester")) {
-                exclude("no/nav/familie/ks/sak/verdikjedetester/**")
+            "check" {
+                dependsOn(integrationTest)
             }
         }
     }

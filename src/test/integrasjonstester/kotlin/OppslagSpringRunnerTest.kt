@@ -8,6 +8,7 @@ import no.nav.familie.ks.sak.config.DbContainerInitializer
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import no.nav.security.token.support.spring.test.EnableMockOAuth2Server
 import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.Tag
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -24,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional
 @SpringBootTest(classes = [DevLauncherLocal::class], webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("postgres")
 @EnableMockOAuth2Server
+@Tag("integrationTest")
 abstract class OppslagSpringRunnerTest {
 
     private val listAppender = initLoggingEventListAppender()
