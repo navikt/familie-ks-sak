@@ -5,50 +5,8 @@ on:
 env:
   IMAGE: ghcr.io/navikt/familie-ks-sak:${{ github.sha }}
 jobs:
-  enhetstester:
-    name: Enhetstester
-    runs-on: ubuntu-latest
-    steps:
-      - uses: "actions/checkout@v3"
-      - uses: "gradle/wrapper-validation-action@v1"
-      - uses: "actions/setup-java@v3"
-        with:
-          java-version: "17"
-          distribution: 'temurin'
-
-      - name: Setup Gradle
-        uses: gradle/gradle-build-action@v2
-
-      - name: Kjør enhetstester
-        env:
-          GITHUB_USERNAME: x-access-token
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          ./gradlew test 
-  integrasjonstester:
-    name: Integrasjonstester
-    runs-on: ubuntu-latest
-    steps:
-      - uses: "actions/checkout@v3"
-      - uses: "gradle/wrapper-validation-action@v1"
-      - uses: "actions/setup-java@v3"
-        with:
-          java-version: "17"
-          distribution: 'temurin'
-          cache: 'gradle'
-
-      - name: Setup Gradle
-        uses: gradle/gradle-build-action@v2
-
-      - name: Kjør integrasjonstester
-        env:
-          GITHUB_USERNAME: x-access-token
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          ./gradlew integrationTest 
   deploy-to-dev:
     name: Bygg app/image, push til github, deploy til dev-gcp
-    needs: [enhetstester, integrasjonstester]
     runs-on: ubuntu-latest
     steps:
       - uses: "actions/checkout@v3"
@@ -62,7 +20,7 @@ jobs:
         env:
           GITHUB_USERNAME: x-access-token
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: ./gradlew clean build -x test -x integrationTest
+        run: ./gradlew clean build
       - name: Bygg Docker image
         run: |
           docker build -t $IMAGE .
