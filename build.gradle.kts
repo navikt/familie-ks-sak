@@ -111,7 +111,6 @@ sourceSets.getByName("test") {
     java.srcDir("src/test/common/")
 }
 
-
 tasks.withType<KotlinCompile> {
     kotlinOptions {
         freeCompilerArgs = listOf("-Xjsr305=strict")
