@@ -69,7 +69,6 @@ abstract class OppslagSpringRunnerTest {
         subject: String = "subject1",
         behandlerRolle: BehandlerRolle? = null
     ): String {
-
         val behandlerRolle = when (behandlerRolle) {
             BehandlerRolle.VEILEDER -> rolleConfig.VEILEDER_ROLLE
             BehandlerRolle.SAKSBEHANDLER -> rolleConfig.SAKSBEHANDLER_ROLLE
