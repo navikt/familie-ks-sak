@@ -11,17 +11,10 @@ class SøknadGrunnlagService(
 ) {
     @Transactional
     fun lagreOgDeaktiverGammel(søknadGrunnlag: SøknadGrunnlag): SøknadGrunnlag {
-        val aktivSøknadGrunnlag = søknadGrunnlagRepository.hentAktiv(søknadGrunnlag.behandlingId)
-
-        if (aktivSøknadGrunnlag != null) {
-            søknadGrunnlagRepository.saveAndFlush(aktivSøknadGrunnlag.also { it.aktiv = false })
-        }
+        søknadGrunnlagRepository.hentAktiv(søknadGrunnlag.behandlingId)
+            ?.let { søknadGrunnlagRepository.saveAndFlush(it.also { it.aktiv = false }) }
 
         return søknadGrunnlagRepository.save(søknadGrunnlag)
-    }
-
-    fun hentAlle(behandlingId: Long): List<SøknadGrunnlag> {
-        return søknadGrunnlagRepository.hentAlle(behandlingId)
     }
 
     fun hentAktiv(behandlingId: Long): SøknadGrunnlag? {
