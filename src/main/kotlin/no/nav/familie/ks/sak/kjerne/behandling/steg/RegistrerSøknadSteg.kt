@@ -38,6 +38,8 @@ class RegistrerSøknadSteg(
         val behandling = behandlingService.hentBehandling(behandlingId)
         personopplysningGrunnlagService.oppdaterPersonopplysningGrunnlag(behandling, søknadGrunnlag.hentSøknadDto())
 
+        // TODO opprett initiell vilkårsvurdering
+
         secureLogger.info("Data mottatt ${søknadGrunnlag.søknad}")
     }
 

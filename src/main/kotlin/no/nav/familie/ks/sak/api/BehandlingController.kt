@@ -40,7 +40,6 @@ class BehandlingController(
             event = AuditLoggerEvent.CREATE,
             handling = "Opprett behandling"
         )
-
         val behandling = stegService.håndterNyBehandling(opprettBehandlingDto)
         return ResponseEntity.ok(Ressurs.success(behandlingService.lagBehandlingRespons(behandlingId = behandling.id)))
     }

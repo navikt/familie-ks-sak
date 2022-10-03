@@ -74,7 +74,7 @@ class PersonopplysningGrunnlagService(
 
     fun lagreOgDeaktiverGammel(personopplysningGrunnlag: PersonopplysningGrunnlag): PersonopplysningGrunnlag {
         hentAktivPersonopplysningGrunnlag(personopplysningGrunnlag.behandlingId)?.let {
-            personopplysningGrunnlagRepository.saveAndFlush(it.copy(aktiv = false))
+            personopplysningGrunnlagRepository.saveAndFlush(it.also { it.aktiv = false })
         }
 
         logger.info("${SikkerhetContext.hentSaksbehandlerNavn()} oppretter persongrunnlag $personopplysningGrunnlag")
