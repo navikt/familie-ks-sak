@@ -111,8 +111,9 @@ class RegistrerSøknadStegTest : OppslagSpringRunnerTest() {
         )
 
         // Valider at lagret søknad stemmer med innsendt søknad
-        val søknadGrunnlag = søknadGrunnlagRepository.hent(behandling.id)
-        assertEquals(behandling.id, søknadGrunnlag.behandlingId)
+        val søknadGrunnlag = søknadGrunnlagRepository.hentAktiv(behandling.id)
+        assertNotNull(søknadGrunnlag)
+        assertEquals(behandling.id, søknadGrunnlag!!.behandlingId)
         val lagretSøknad = søknadGrunnlag.hentSøknadDto()
         assertTrue(
             lagretSøknad.barnaMedOpplysninger.all {

@@ -9,8 +9,5 @@ interface SøknadGrunnlagRepository : JpaRepository<SøknadGrunnlag, Long> {
     fun hentAktiv(behandlingId: Long): SøknadGrunnlag?
 
     @Query("SELECT gr FROM SøknadGrunnlag gr WHERE gr.behandlingId = :behandlingId")
-    fun hent(behandlingId: Long): SøknadGrunnlag
-
-    @Query("SELECT gr FROM SøknadGrunnlag gr WHERE gr.behandlingId = :behandlingId")
     fun hentAlle(behandlingId: Long): List<SøknadGrunnlag>
 }
