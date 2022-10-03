@@ -92,8 +92,7 @@ class LoggService(
                 rolle = SikkerhetContext.hentRolletilgangFraSikkerhetscontext(
                     rolleConfig,
                     BehandlerRolle.SAKSBEHANDLER
-                ),
-                tekst = ""
+                )
             )
         )
     }
