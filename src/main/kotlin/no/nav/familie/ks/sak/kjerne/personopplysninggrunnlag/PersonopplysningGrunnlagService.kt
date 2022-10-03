@@ -52,7 +52,7 @@ class PersonopplysningGrunnlagService(
     fun oppdaterPersonopplysningGrunnlag(behandling: Behandling, søknadDto: SøknadDto) {
         val eksisterendePersonopplysningGrunnlag =
             personopplysningGrunnlagRepository.findByBehandlingAndAktiv(behandling.id)
-                ?: throw Feil("Der finnes ikke noe aktivt personopplysningsgrunnlag for ${behandling.id}")
+                ?: throw Feil("Det finnes ikke noe aktivt personopplysningsgrunnlag for ${behandling.id}")
 
         val eksisterendeBarnAktører = eksisterendePersonopplysningGrunnlag.barna.map { it.aktør }
         val valgteBarnAktører = søknadDto.barnaMedOpplysninger.filter { it.inkludertISøknaden }

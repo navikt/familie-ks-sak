@@ -27,7 +27,7 @@ class BehandlingStegController(
 ) {
 
     @PostMapping(path = ["registrer-søknad"], produces = [MediaType.APPLICATION_JSON_VALUE])
-    fun registrereSøknadOgHentPersongrunnlag(
+    fun registrereSøknadOgOppdaterPersongrunnlag(
         @PathVariable behandlingId: Long,
         @RequestBody registerSøknadDto: RegistrerSøknadDto
     ): ResponseEntity<Ressurs<BehandlingResponsDto>> {
