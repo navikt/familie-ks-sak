@@ -1,14 +1,15 @@
 package no.nav.familie.ks.sak.kjerne.fagsak
 
 import io.micrometer.core.instrument.Metrics
-import no.nav.familie.ks.sak.api.FagsakMapper.lagBehandlingResponsDto
-import no.nav.familie.ks.sak.api.FagsakMapper.lagFagsakDeltagerResponsDto
-import no.nav.familie.ks.sak.api.FagsakMapper.lagMinimalFagsakResponsDto
 import no.nav.familie.ks.sak.api.dto.FagsakDeltagerResponsDto
 import no.nav.familie.ks.sak.api.dto.FagsakDeltagerRolle
 import no.nav.familie.ks.sak.api.dto.FagsakRequestDto
 import no.nav.familie.ks.sak.api.dto.MinimalFagsakResponsDto
+import no.nav.familie.ks.sak.api.mapper.FagsakMapper.lagBehandlingResponsDto
+import no.nav.familie.ks.sak.api.mapper.FagsakMapper.lagFagsakDeltagerResponsDto
+import no.nav.familie.ks.sak.api.mapper.FagsakMapper.lagMinimalFagsakResponsDto
 import no.nav.familie.ks.sak.common.exception.Feil
+import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
 import no.nav.familie.ks.sak.integrasjon.pdl.PersonOpplysningerService
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.PdlPersonInfo
@@ -20,7 +21,6 @@ import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonRepository
 import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext
 import org.slf4j.LoggerFactory
-import org.springframework.data.repository.findByIdOrNull
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -43,13 +43,14 @@ class FagsakService(
     fun hentFagsakDeltagere(personIdent: String): List<FagsakDeltagerResponsDto> {
         val aktør = personidentService.hentAktør(personIdent)
 
-        // returnerer maskert fagsak deltaker hvis aktør ikke har tilgang
+        // returnerer maskert fagsak deltaker hvis saksbehandler ikke har tilgang til aktøren
         hentMaskertFagsakdeltakerVedManglendeTilgang(aktør)?.let { return listOf(it) }
 
         val personInfoMedRelasjoner = personopplysningerService.hentPersonInfoMedRelasjonerOgRegisterinformasjon(aktør)
 
         // finner fagsak på aktør og henter assosierte fagsak deltagere
-        val assosierteFagsakDeltagere = hentForelderdeltagereFraBehandling(aktør, personInfoMedRelasjoner).toMutableList()
+        val assosierteFagsakDeltagere =
+            hentForelderdeltagereFraBehandling(aktør, personInfoMedRelasjoner).toMutableList()
 
         val erBarn = Period.between(personInfoMedRelasjoner.fødselsdato, LocalDate.now()).years < 18
 
@@ -90,7 +91,7 @@ class FagsakService(
     }
 
     fun hentMinimalFagsak(fagsakId: Long): MinimalFagsakResponsDto {
-        val fagsak = fagsakRepository.findByIdOrNull(fagsakId) ?: throw Feil("Fagsak $fagsakId finnes ikke")
+        val fagsak = hentFagsak(fagsakId)
         val alleBehandlinger = behandlingRepository.finnBehandlinger(fagsakId).map { lagBehandlingResponsDto(it) }
         return lagMinimalFagsakResponsDto(
             fagsak = fagsak,
@@ -99,11 +100,8 @@ class FagsakService(
         )
     }
 
-    fun hentMinimalFagsakForPerson(personident: String): MinimalFagsakResponsDto {
-        val aktør = personidentService.hentOgLagreAktør(personident, true)
-        val fagsak = fagsakRepository.finnFagsakForAktør(aktør) ?: throw Feil("Fant ikke fagsak på person")
-        return lagMinimalFagsakResponsDto(fagsak = fagsak)
-    }
+    fun hentMinimalFagsakForPerson(personident: String): MinimalFagsakResponsDto =
+        lagMinimalFagsakResponsDto(hentFagsakForPerson(personident))
 
     @Transactional
     fun lagre(fagsak: Fagsak): Fagsak {
@@ -117,7 +115,7 @@ class FagsakService(
     ): List<FagsakDeltagerResponsDto> {
         val assosierteFagsakDeltagerMap = mutableMapOf<Long, FagsakDeltagerResponsDto>()
         personRepository.findByAktør(aktør).filter { it.personopplysningGrunnlag.aktiv }.forEach { person ->
-            val behandling = behandlingRepository.finnAktivBehandling(person.personopplysningGrunnlag.behandlingId)
+            val behandling = behandlingRepository.hentAktivBehandling(person.personopplysningGrunnlag.behandlingId)
             val fagsak = behandling.fagsak // Behandling opprettet alltid med søker aktør
             if (assosierteFagsakDeltagerMap.containsKey(fagsak.id)) return@forEach
             val fagsakDeltagerRespons: FagsakDeltagerResponsDto = when {
@@ -128,6 +126,7 @@ class FagsakService(
                     rolle = FagsakDeltagerRolle.FORELDER,
                     fagsak = behandling.fagsak
                 )
+
                 else -> { // søkparam(aktør) er ikke søkers aktør, da hentes her forelder til søkparam(aktør)
                     val maskertForelder = hentMaskertFagsakdeltakerVedManglendeTilgang(fagsak.aktør)
                     maskertForelder?.copy(rolle = FagsakDeltagerRolle.FORELDER)
@@ -183,10 +182,21 @@ class FagsakService(
                     harTilgang = false
                 )
             }
+
             else -> {
                 null
             }
         }
+    }
+
+    fun hentFagsak(fagsakId: Long): Fagsak = fagsakRepository.finnFagsak(fagsakId) ?: throw FunksjonellFeil(
+        melding = "Finner ikke fagsak med id $fagsakId",
+        frontendFeilmelding = "Finner ikke fagsak med id $fagsakId"
+    )
+
+    fun hentFagsakForPerson(personIdent: String): Fagsak {
+        val aktør = personidentService.hentOgLagreAktør(personIdent, true)
+        return fagsakRepository.finnFagsakForAktør(aktør) ?: throw Feil("Fant ikke fagsak på person")
     }
 
     companion object {

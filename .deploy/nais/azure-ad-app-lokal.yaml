@@ -30,5 +30,5 @@ spec:
       - id: "c7e0b108-7ae6-432c-9ab4-946174c240c0"  # SAKSBEHANDLER_ROLLE
       - id: "52fe1bef-224f-49df-a40a-29f92d4520f8"  # BESLUTTER_ROLLE
   replyUrls:
-    - url: "http://localhost:8089/swagger-ui/oauth2-redirect.html"
+    - url: "http://localhost:8083/swagger-ui/oauth2-redirect.html"
   singlePageApplication: true

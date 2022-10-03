@@ -1,9 +1,10 @@
 package no.nav.familie.ks.sak.kjerne.behandling
 
 import no.nav.familie.kontrakter.felles.oppgave.Oppgavetype
-import no.nav.familie.ks.sak.api.BehandlingMapper
 import no.nav.familie.ks.sak.api.dto.BehandlingResponsDto
+import no.nav.familie.ks.sak.api.dto.EndreBehandlendeEnhetDto
 import no.nav.familie.ks.sak.api.dto.OpprettBehandlingDto
+import no.nav.familie.ks.sak.api.mapper.BehandlingMapper
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.integrasjon.oppgave.OpprettOppgaveTask
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.ArbeidsfordelingService
@@ -11,9 +12,12 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingKategori
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
+import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg
+import no.nav.familie.ks.sak.kjerne.behandling.steg.StegService
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.FagsakRepository
 import no.nav.familie.ks.sak.kjerne.logg.LoggService
 import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
+import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
 import no.nav.familie.ks.sak.kjerne.vedtak.VedtakService
 import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext
 import no.nav.familie.prosessering.domene.TaskRepository
@@ -29,9 +33,11 @@ class BehandlingService(
     private val arbeidsfordelingService: ArbeidsfordelingService,
     private val vedtakService: VedtakService,
     private val loggService: LoggService,
+    private val stegService: StegService,
     private val fagsakRepository: FagsakRepository,
     private val behandlingRepository: BehandlingRepository,
-    private val taskRepository: TaskRepository
+    private val taskRepository: TaskRepository,
+    private val personopplysningGrunnlagService: PersonopplysningGrunnlagService
 ) {
 
     @Transactional
@@ -39,8 +45,7 @@ class BehandlingService(
         val aktør = personidentService.hentAktør(opprettBehandlingRequest.søkersIdent)
         val fagsak = fagsakRepository.finnFagsakForAktør(aktør)
             ?: throw FunksjonellFeil(
-                melding = "Kan ikke lage behandling på person uten tilknyttet fagsak",
-                frontendFeilmelding = "Kan ikke lage behandling på person uten tilknyttet fagsak"
+                melding = "Kan ikke lage behandling på person uten tilknyttet fagsak."
             )
 
         val aktivBehandling = behandlingRepository.findByFagsakAndAktiv(fagsak.id)
@@ -49,8 +54,7 @@ class BehandlingService(
         // Kan ikke opprette en behandling når det allerede finnes en behandling som ikke er avsluttet
         if (aktivBehandling != null && aktivBehandling.status != BehandlingStatus.AVSLUTTET) {
             throw FunksjonellFeil(
-                melding = "Kan ikke lage ny behandling. Fagsaken har en aktiv behandling som ikke er ferdigstilt.",
-                frontendFeilmelding = "Kan ikke lage ny behandling. Fagsaken har en aktiv behandling som ikke er ferdigstilt."
+                melding = "Kan ikke lage ny behandling. Fagsaken har en aktiv behandling som ikke er ferdigstilt."
             )
         }
 
@@ -66,7 +70,7 @@ class BehandlingService(
             opprettetÅrsak = opprettBehandlingRequest.behandlingÅrsak,
             kategori = behandlingKategori,
             søknadMottattDato = opprettBehandlingRequest.søknadMottattDato?.atStartOfDay()
-        ).initBehandlingStegTilstand() // oppretter behandling med initielt steg tilstand
+        ).initBehandlingStegTilstand() // oppretter behandling med initielt steg Registrer Persongrunnlag
 
         behandling.validerBehandlingstype(sisteVedtattBehandling)
         val lagretBehandling = lagreNyOgDeaktiverGammelBehandling(
@@ -87,34 +91,47 @@ class BehandlingService(
                 )
             )
         }
+        // utfør Registrer Persongrunnlag steg
+        stegService.utførSteg(lagretBehandling.id, BehandlingSteg.REGISTRERE_PERSONGRUNNLAG)
         return lagretBehandling
     }
 
-    fun lagreNyOgDeaktiverGammelBehandling(
+    private fun lagreNyOgDeaktiverGammelBehandling(
         nyBehandling: Behandling,
         aktivBehandling: Behandling?,
         sisteVedtattBehandling: Behandling?
     ): Behandling {
         aktivBehandling?.let { behandlingRepository.saveAndFlush(aktivBehandling.also { it.aktiv = false }) }
-        return lagreEllerOppdater(nyBehandling).also { arbeidsfordelingService.fastsettBehandledeEnhet(it, sisteVedtattBehandling) }
+        return lagreEllerOppdater(nyBehandling).also {
+            arbeidsfordelingService.fastsettBehandledeEnhet(
+                it,
+                sisteVedtattBehandling
+            )
+        }
     }
 
-    fun lagreEllerOppdater(behandling: Behandling): Behandling {
+    private fun lagreEllerOppdater(behandling: Behandling): Behandling {
         logger.info("${SikkerhetContext.hentSaksbehandlerNavn()} oppretter behandling $behandling")
         return behandlingRepository.save(behandling)
     }
 
-    fun hentSisteBehandlingSomErVedtatt(fagsakId: Long): Behandling? {
+    private fun hentSisteBehandlingSomErVedtatt(fagsakId: Long): Behandling? {
         return behandlingRepository.finnBehandlinger(fagsakId)
             .filter { !it.erHenlagt() && it.status == BehandlingStatus.AVSLUTTET }
             .maxByOrNull { it.opprettetTidspunkt }
     }
 
+    fun hentBehandling(behandlingId: Long) = behandlingRepository.hentBehandling(behandlingId)
+
     fun lagBehandlingRespons(behandlingId: Long): BehandlingResponsDto {
-        val behandling = behandlingRepository.finnBehandling(behandlingId)
+        val behandling = hentBehandling(behandlingId)
         val arbeidsfordelingPåBehandling = arbeidsfordelingService.finnArbeidsfordelingPåBehandling(behandlingId)
-        return BehandlingMapper.lagBehandlingRespons(behandling, arbeidsfordelingPåBehandling)
+        val personer = personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlag(behandlingId)?.personer?.toList()
+        return BehandlingMapper.lagBehandlingRespons(behandling, arbeidsfordelingPåBehandling, personer)
     }
+
+    fun oppdaterBehandlendeEnhet(behandlingId: Long, endreBehandlendeEnhet: EndreBehandlendeEnhetDto) =
+        arbeidsfordelingService.manueltOppdaterBehandlendeEnhet(hentBehandling(behandlingId), endreBehandlendeEnhet)
 
     companion object {
         private val logger: Logger = LoggerFactory.getLogger(BehandlingService::class.java)

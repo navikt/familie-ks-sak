@@ -1,7 +1,7 @@
 package no.nav.familie.ks.sak.kjerne.fagsak.domene
 
 import no.nav.familie.ks.sak.OppslagSpringRunnerTest
-import no.nav.familie.ks.sak.data.TestdataGenerator.randomAktør
+import no.nav.familie.ks.sak.data.randomAktør
 import no.nav.familie.ks.sak.kjerne.personident.AktørRepository
 import org.hamcrest.CoreMatchers.nullValue
 import org.hamcrest.MatcherAssert.assertThat
