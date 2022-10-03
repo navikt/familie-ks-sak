@@ -64,7 +64,8 @@ class OppgaveService(
             fristFerdigstillelse = fristForFerdigstillelse,
             beskrivelse = lagOppgaveTekst(behandling.fagsak.id, beskrivelse),
             enhetsnummer = arbeidsfordelingsenhet?.behandlendeEnhetId,
-            behandlingstema = Behandlingstema.Kontantstøtte.value,
+            // behandlingstema brukes ikke i kombinasjon med behandlingstype for kontantstøtte
+            behandlingstema = null,
             // TODO - må diskuteres hva det kan være for KS-EØS
             behandlingstype = behandling.kategori.tilOppgavebehandlingType().value,
             tilordnetRessurs = tilordnetNavIdent
