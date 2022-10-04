@@ -9,6 +9,12 @@ import no.nav.familie.ks.sak.config.BehandlerRolle
 import no.nav.familie.ks.sak.config.DatabaseCleanupService
 import no.nav.familie.ks.sak.config.DbContainerInitializer
 import no.nav.familie.ks.sak.config.RolleConfig
+import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
+import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
+import no.nav.familie.ks.sak.kjerne.fagsak.domene.Fagsak
+import no.nav.familie.ks.sak.kjerne.fagsak.domene.FagsakRepository
+import no.nav.familie.ks.sak.kjerne.personident.Aktør
+import no.nav.familie.ks.sak.kjerne.personident.AktørRepository
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import no.nav.security.mock.oauth2.token.DefaultOAuth2TokenCallback
 import no.nav.security.token.support.spring.test.EnableMockOAuth2Server
@@ -53,6 +59,15 @@ abstract class OppslagSpringRunnerTest {
 
     @Autowired
     lateinit var objectMapper: ObjectMapper
+
+    @Autowired
+    private lateinit var aktørRepository: AktørRepository
+
+    @Autowired
+    private lateinit var fagsakRepository: FagsakRepository
+
+    @Autowired
+    private lateinit var behandlingRepository: BehandlingRepository
 
     @LocalServerPort
     var port: Int = 0
@@ -100,6 +115,13 @@ abstract class OppslagSpringRunnerTest {
             .forEach { it.clear() }
 
     private fun resetTableForAllEntityClass() = databaseCleanupService.truncate()
+
+    fun lagreAktør(aktør: Aktør): Aktør = aktørRepository.saveAndFlush(aktør)
+
+    fun lagreFagsak(fagsak: Fagsak): Fagsak = fagsakRepository.saveAndFlush(fagsak)
+
+    fun lagreBehandling(behandling: Behandling): Behandling =
+        behandlingRepository.saveAndFlush(behandling)
 
     companion object {
         protected fun initLoggingEventListAppender(): ListAppender<ILoggingEvent> =

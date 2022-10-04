@@ -21,10 +21,10 @@ import javax.persistence.Table
 @Table(name = "person_resultat")
 class PersonResultat(
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "periode_resultat_seq_generator")
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "person_resultat_seq_generator")
     @SequenceGenerator(
-        name = "periode_resultat_seq_generator",
-        sequenceName = "periode_resultat_seq",
+        name = "person_resultat_seq_generator",
+        sequenceName = "person_resultat_seq",
         allocationSize = 50
     )
     val id: Long = 0,
@@ -53,4 +53,10 @@ class PersonResultat(
         orphanRemoval = true
     )
     val andreVurderinger: MutableSet<AnnenVurdering> = mutableSetOf()
-) : BaseEntitet()
+) : BaseEntitet() {
+
+    fun setSortedVilkårResultater(nyeVilkårResultater: Set<VilkårResultat>) {
+        vilkårResultater.clear()
+        vilkårResultater.addAll(nyeVilkårResultater.toSortedSet(VilkårResultatComparator))
+    }
+}

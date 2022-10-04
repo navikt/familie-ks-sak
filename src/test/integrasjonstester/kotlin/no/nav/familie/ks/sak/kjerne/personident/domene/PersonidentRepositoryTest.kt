@@ -42,8 +42,6 @@ class PersonidentRepositoryTest : OppslagSpringRunnerTest() {
 
     @Test
     fun `findByFødselsnummerOrNull - skal returnere null dersom det ikke finnes en personident med bestemt fødselsnummer i db`() {
-        val aktør = opprettAktør()
-        val aktivFødselsnummer = aktør.aktivFødselsnummer()
         val fødselsnummer = randomFnr()
 
         val personident = personidentRepository.findByFødselsnummerOrNull(fødselsnummer)
