@@ -9,8 +9,12 @@ import no.nav.familie.ks.sak.config.BehandlerRolle
 import no.nav.familie.ks.sak.config.DatabaseCleanupService
 import no.nav.familie.ks.sak.config.DbContainerInitializer
 import no.nav.familie.ks.sak.config.RolleConfig
+import no.nav.familie.ks.sak.data.lagBehandling
+import no.nav.familie.ks.sak.data.lagFagsak
+import no.nav.familie.ks.sak.data.randomAktør
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
+import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.Fagsak
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.FagsakRepository
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
@@ -19,6 +23,7 @@ import no.nav.security.mock.oauth2.MockOAuth2Server
 import no.nav.security.mock.oauth2.token.DefaultOAuth2TokenCallback
 import no.nav.security.token.support.spring.test.EnableMockOAuth2Server
 import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Tag
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
@@ -69,8 +74,21 @@ abstract class OppslagSpringRunnerTest {
     @Autowired
     private lateinit var behandlingRepository: BehandlingRepository
 
+    lateinit var søker: Aktør
+
+    lateinit var fagsak: Fagsak
+
+    lateinit var behandling: Behandling
+
     @LocalServerPort
     var port: Int = 0
+
+    @BeforeEach
+    fun beforeEach() {
+        søker = lagreAktør(randomAktør())
+        fagsak = lagreFagsak(lagFagsak(aktør = søker))
+        behandling = lagreBehandling(lagBehandling(fagsak = fagsak, opprettetÅrsak = BehandlingÅrsak.SØKNAD))
+    }
 
     @AfterEach
     @Transactional
