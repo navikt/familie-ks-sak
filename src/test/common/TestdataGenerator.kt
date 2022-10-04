@@ -9,9 +9,9 @@ import no.nav.familie.kontrakter.felles.personopplysning.Sivilstand
 import no.nav.familie.kontrakter.felles.personopplysning.Statsborgerskap
 import no.nav.familie.kontrakter.felles.personopplysning.Vegadresse
 import no.nav.familie.ks.sak.api.dto.BarnMedOpplysningerDto
-import no.nav.familie.ks.sak.api.dto.RegisterSøknadDto
+import no.nav.familie.ks.sak.api.dto.RegistrerSøknadDto
 import no.nav.familie.ks.sak.api.dto.SøkerMedOpplysningerDto
-import no.nav.familie.ks.sak.api.dto.SøknadDTO
+import no.nav.familie.ks.sak.api.dto.SøknadDto
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.ForelderBarnRelasjonInfo
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.PdlPersonInfo
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
@@ -134,8 +134,8 @@ fun lagBehandling(
     kategori = kategori
 ).initBehandlingStegTilstand()
 
-fun lagRegisterSøknadDto() = RegisterSøknadDto(
-    søknad = SøknadDTO(
+fun lagRegistrerSøknadDto() = RegistrerSøknadDto(
+    søknad = SøknadDto(
         søkerMedOpplysninger = SøkerMedOpplysningerDto(ident = randomFnr()),
         barnaMedOpplysninger = listOf(BarnMedOpplysningerDto(ident = randomFnr())),
         endringAvOpplysningerBegrunnelse = ""
@@ -203,16 +203,21 @@ fun lagAndelTilkjentYtelse(
     nasjonaltPeriodebeløp = 1054
 )
 
-fun lagPerson(personopplysningGrunnlag: PersonopplysningGrunnlag, aktør: Aktør): Person {
+fun lagPerson(
+    personopplysningGrunnlag: PersonopplysningGrunnlag,
+    aktør: Aktør,
+    personType: PersonType = PersonType.SØKER
+): Person {
     val person = Person(
-        type = PersonType.SØKER,
+        type = personType,
         fødselsdato = LocalDate.now().minusYears(30),
         kjønn = Kjønn.KVINNE,
         personopplysningGrunnlag = personopplysningGrunnlag,
         aktør = aktør
     )
     person.bostedsadresser = mutableListOf(GrBostedsadresse.fraBostedsadresse(lagBostedsadresse(), person))
-    person.statsborgerskap = mutableListOf(GrStatsborgerskap.fraStatsborgerskap(lagStatsborgerskap(), Medlemskap.NORDEN, person))
+    person.statsborgerskap =
+        mutableListOf(GrStatsborgerskap.fraStatsborgerskap(lagStatsborgerskap(), Medlemskap.NORDEN, person))
     person.sivilstander = mutableListOf(GrSivilstand.fraSivilstand(lagSivilstand(), person))
 
     return person

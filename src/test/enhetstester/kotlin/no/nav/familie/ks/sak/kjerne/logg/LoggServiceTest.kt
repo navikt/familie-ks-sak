@@ -83,11 +83,21 @@ class LoggServiceTest {
         val behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD)
         val lagredeLogg = mutableListOf<Logg>()
 
-        val arbeidsFordelingEnhet = ArbeidsfordelingPåBehandling(behandlingId = behandling.id, behandlendeEnhetId = "fraEnhetId", behandlendeEnhetNavn = "fraEnhetNavn")
+        val arbeidsFordelingEnhet = ArbeidsfordelingPåBehandling(
+            behandlingId = behandling.id,
+            behandlendeEnhetId = "fraEnhetId",
+            behandlendeEnhetNavn = "fraEnhetNavn"
+        )
 
         every { loggRepository.save(capture(lagredeLogg)) } returns mockk()
 
-        loggService.opprettBehandlendeEnhetEndret(behandling, arbeidsFordelingEnhet, arbeidsFordelingEnhet, true, "testbegrunnelse")
+        loggService.opprettBehandlendeEnhetEndret(
+            behandling,
+            arbeidsFordelingEnhet,
+            arbeidsFordelingEnhet,
+            true,
+            "testbegrunnelse"
+        )
 
         verify(exactly = 1) { loggRepository.save(lagredeLogg[0]) }
 
@@ -95,7 +105,10 @@ class LoggServiceTest {
 
         assertThat(lagretLoggManuellOppdatering.behandlingId, Is(behandling.id))
         assertThat(lagretLoggManuellOppdatering.type, Is(LoggType.BEHANDLENDE_ENHET_ENDRET))
-        assertThat(lagretLoggManuellOppdatering.tekst, Is("Behandlende enhet manuelt endret fra fraEnhetId fraEnhetNavn til fraEnhetId fraEnhetNavn.\n\ntestbegrunnelse"))
+        assertThat(
+            lagretLoggManuellOppdatering.tekst,
+            Is("Behandlende enhet manuelt endret fra fraEnhetId fraEnhetNavn til fraEnhetId fraEnhetNavn.\n\ntestbegrunnelse")
+        )
 
         loggService.opprettBehandlendeEnhetEndret(
             behandling,
@@ -111,6 +124,39 @@ class LoggServiceTest {
 
         assertThat(lagretLoggIkkeManuellOppdatering.behandlingId, Is(behandling.id))
         assertThat(lagretLoggIkkeManuellOppdatering.type, Is(LoggType.BEHANDLENDE_ENHET_ENDRET))
-        assertThat(lagretLoggIkkeManuellOppdatering.tekst, Is("Behandlende enhet automatisk endret fra fraEnhetId fraEnhetNavn til fraEnhetId fraEnhetNavn.\n\ntestbegrunnelse"))
+        assertThat(
+            lagretLoggIkkeManuellOppdatering.tekst,
+            Is("Behandlende enhet automatisk endret fra fraEnhetId fraEnhetNavn til fraEnhetId fraEnhetNavn.\n\ntestbegrunnelse")
+        )
+    }
+
+    @Test
+    fun `opprettRegistrertSøknadLogg - skal lagre logg med informasjon om at søknad er opprettet dersom det ikke finnes en søknad for behandling fra før`() {
+        val behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD)
+        val lagretLoggSlot = slot<Logg>()
+        every { loggRepository.save(capture(lagretLoggSlot)) } returns mockk()
+
+        loggService.opprettRegistrertSøknadLogg(behandling.id, false)
+
+        val lagretLogg = lagretLoggSlot.captured
+
+        assertThat(lagretLogg.behandlingId, Is(behandling.id))
+        assertThat(lagretLogg.type, Is(LoggType.SØKNAD_REGISTRERT))
+        assertThat(lagretLogg.tittel, Is("Søknaden ble registrert"))
+    }
+
+    @Test
+    fun `opprettRegistrertSøknadLogg - skal lagre logg med informasjon om at søknad er endret dersom det finnes en søknad for behandling fra før`() {
+        val behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD)
+        val lagretLoggSlot = slot<Logg>()
+        every { loggRepository.save(capture(lagretLoggSlot)) } returns mockk()
+
+        loggService.opprettRegistrertSøknadLogg(behandling.id, true)
+
+        val lagretLogg = lagretLoggSlot.captured
+
+        assertThat(lagretLogg.behandlingId, Is(behandling.id))
+        assertThat(lagretLogg.type, Is(LoggType.SØKNAD_REGISTRERT))
+        assertThat(lagretLogg.tittel, Is("Søknaden ble endret"))
     }
 }

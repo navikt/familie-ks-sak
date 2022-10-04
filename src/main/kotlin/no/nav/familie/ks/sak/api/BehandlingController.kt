@@ -7,6 +7,7 @@ import no.nav.familie.ks.sak.api.dto.OpprettBehandlingDto
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.config.BehandlerRolle
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
+import no.nav.familie.ks.sak.kjerne.behandling.steg.StegService
 import no.nav.familie.ks.sak.sikkerhet.AuditLoggerEvent
 import no.nav.familie.ks.sak.sikkerhet.TilgangService
 import no.nav.security.token.support.core.api.ProtectedWithClaims
@@ -27,7 +28,8 @@ import org.springframework.web.bind.annotation.RestController
 @Validated
 class BehandlingController(
     private val behandlingService: BehandlingService,
-    private val tilgangService: TilgangService
+    private val tilgangService: TilgangService,
+    private val stegService: StegService
 ) {
 
     @PostMapping(produces = [MediaType.APPLICATION_JSON_VALUE])
@@ -38,8 +40,7 @@ class BehandlingController(
             event = AuditLoggerEvent.CREATE,
             handling = "Opprett behandling"
         )
-
-        val behandling = behandlingService.opprettBehandling(opprettBehandlingDto)
+        val behandling = stegService.håndterNyBehandling(opprettBehandlingDto)
         return ResponseEntity.ok(Ressurs.success(behandlingService.lagBehandlingRespons(behandlingId = behandling.id)))
     }
 

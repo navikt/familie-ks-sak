@@ -12,8 +12,6 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingKategori
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
-import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg
-import no.nav.familie.ks.sak.kjerne.behandling.steg.StegService
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.FagsakRepository
 import no.nav.familie.ks.sak.kjerne.logg.LoggService
 import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
@@ -33,7 +31,6 @@ class BehandlingService(
     private val arbeidsfordelingService: ArbeidsfordelingService,
     private val vedtakService: VedtakService,
     private val loggService: LoggService,
-    private val stegService: StegService,
     private val fagsakRepository: FagsakRepository,
     private val behandlingRepository: BehandlingRepository,
     private val taskRepository: TaskRepository,
@@ -91,8 +88,6 @@ class BehandlingService(
                 )
             )
         }
-        // utfør Registrer Persongrunnlag steg
-        stegService.utførSteg(lagretBehandling.id, BehandlingSteg.REGISTRERE_PERSONGRUNNLAG)
         return lagretBehandling
     }
 
@@ -121,12 +116,13 @@ class BehandlingService(
             .maxByOrNull { it.opprettetTidspunkt }
     }
 
-    fun hentBehandling(behandlingId: Long) = behandlingRepository.hentBehandling(behandlingId)
+    fun hentBehandling(behandlingId: Long): Behandling = behandlingRepository.hentBehandling(behandlingId)
 
     fun lagBehandlingRespons(behandlingId: Long): BehandlingResponsDto {
         val behandling = hentBehandling(behandlingId)
         val arbeidsfordelingPåBehandling = arbeidsfordelingService.finnArbeidsfordelingPåBehandling(behandlingId)
-        val personer = personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlag(behandlingId)?.personer?.toList()
+        val personer =
+            personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlag(behandlingId)?.personer?.toList()
         return BehandlingMapper.lagBehandlingRespons(behandling, arbeidsfordelingPåBehandling, personer)
     }
 
