@@ -11,6 +11,7 @@ import no.nav.familie.kontrakter.felles.navkontor.NavKontorEnhet
 import no.nav.familie.kontrakter.felles.tilgangskontroll.Tilgang
 import no.nav.familie.ks.sak.OppslagSpringRunnerTest
 import no.nav.familie.ks.sak.api.dto.EndreBehandlendeEnhetDto
+import no.nav.familie.ks.sak.api.dto.OpprettBehandlingDto
 import no.nav.familie.ks.sak.config.BehandlerRolle
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagFagsak
@@ -19,7 +20,9 @@ import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.domene.ArbeidsfordelingPåBehandling
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.domene.ArbeidsfordelingPåBehandlingRepository
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
+import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingKategori
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
+import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingType
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.Fagsak
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.FagsakRepository
@@ -136,6 +139,33 @@ class BehandlingControllerTest : OppslagSpringRunnerTest() {
             body("data.arbeidsfordelingPåBehandling.behandlendeEnhetId", Is("50"))
             body("data.arbeidsfordelingPåBehandling.behandlendeEnhetNavn", Is("nyNavn"))
             body("data.arbeidsfordelingPåBehandling.manueltOverstyrt", Is(true))
+        }
+    }
+
+    @Test
+    fun `opprettBehandling - skal kaste funksjonell feil hvis fagsak allerede har en aktiv behandling som ikke er ferdigstilt`() {
+        val token = lokalTestToken(behandlerRolle = BehandlerRolle.BESLUTTER)
+
+        every { integrasjonClient.sjekkTilgangTilPersoner(listOf(fagsak.aktør.aktivFødselsnummer())) } returns Tilgang(true, "test")
+
+        Given {
+            header("Authorization", "Bearer $token")
+            contentType(ContentType.JSON)
+            body(
+                objectMapper.writeValueAsString(
+                    OpprettBehandlingDto(
+                        søkersIdent = fagsak.aktør.aktivFødselsnummer(),
+                        behandlingType = BehandlingType.FØRSTEGANGSBEHANDLING,
+                        kategori = BehandlingKategori.NASJONAL
+                    )
+                )
+            )
+        } When {
+            post(behandlingControllerUrl)
+        } Then {
+            body("status", Is("FUNKSJONELL_FEIL"))
+            body("melding", Is("Kan ikke lage ny behandling. Fagsaken har en aktiv behandling som ikke er ferdigstilt."))
+            body("frontendFeilmelding", Is("Kan ikke lage ny behandling. Fagsaken har en aktiv behandling som ikke er ferdigstilt."))
         }
     }
 
