@@ -1,7 +1,9 @@
 package no.nav.familie.ks.sak.kjerne.behandling.steg
 
 import no.nav.familie.ks.sak.api.dto.BehandlingStegDto
+import no.nav.familie.ks.sak.api.dto.OpprettBehandlingDto
 import no.nav.familie.ks.sak.common.exception.Feil
+import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStegTilstand
@@ -12,7 +14,8 @@ import org.springframework.transaction.annotation.Transactional
 @Service
 class StegService(
     private val steg: List<IBehandlingSteg>,
-    private val behandlingRepository: BehandlingRepository
+    private val behandlingRepository: BehandlingRepository,
+    private val behandlingService: BehandlingService
 ) {
 
     @Transactional
@@ -67,6 +70,13 @@ class StegService(
                         "med steg $behandledeSteg med status ${BehandlingStegStatus.AVBRUTT}"
                 )
         }
+    }
+
+    @Transactional
+    fun håndterNyBehandling(opprettBehandlingDto: OpprettBehandlingDto): Behandling {
+        val behandling = behandlingService.opprettBehandling(opprettBehandlingDto)
+        utførSteg(behandling.id, BehandlingSteg.REGISTRERE_PERSONGRUNNLAG)
+        return behandling
     }
 
     private fun valider(behandling: Behandling, behandledeSteg: BehandlingSteg) {

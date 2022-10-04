@@ -1,11 +1,13 @@
 package no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag
 
+import no.nav.familie.ks.sak.api.dto.SøknadDto
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.ArbeidsfordelingService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingType
 import no.nav.familie.ks.sak.kjerne.beregning.BeregningService
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
+import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Målform
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
@@ -14,13 +16,15 @@ import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Personopplys
 import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 
 @Service
 class PersonopplysningGrunnlagService(
     private val personopplysningGrunnlagRepository: PersonopplysningGrunnlagRepository,
     private val beregningService: BeregningService,
     private val personService: PersonService,
-    private val arbeidsfordelingService: ArbeidsfordelingService
+    private val arbeidsfordelingService: ArbeidsfordelingService,
+    private val personidentService: PersonidentService
 ) {
 
     fun opprettPersonopplysningGrunnlag(
@@ -46,6 +50,25 @@ class PersonopplysningGrunnlagService(
         )
     }
 
+    @Transactional
+    fun oppdaterPersonopplysningGrunnlag(behandling: Behandling, søknadDto: SøknadDto) {
+        val eksisterendePersonopplysningGrunnlag =
+            hentAktivPersonopplysningGrunnlag(behandling.id)
+                ?: throw Feil("Det finnes ikke noe aktivt personopplysningsgrunnlag for ${behandling.id}")
+
+        val eksisterendeBarnAktører = eksisterendePersonopplysningGrunnlag.barna.map { it.aktør }
+        val valgteBarnAktører = søknadDto.barnaMedOpplysninger.filter { it.inkludertISøknaden }
+            .map { personidentService.hentOgLagreAktør(it.ident, true) }
+        val eksisterendeBarnOgNyeBarnFraSøknad = eksisterendeBarnAktører.union(valgteBarnAktører).toList()
+
+        lagreSøkerOgBarnINyttGrunnlag(
+            aktør = eksisterendePersonopplysningGrunnlag.søker.aktør,
+            barnasAktør = eksisterendeBarnOgNyeBarnFraSøknad,
+            behandling = behandling,
+            målform = eksisterendePersonopplysningGrunnlag.søker.målform
+        )
+    }
+
     fun hentSøker(behandlingId: Long): Person? =
         personopplysningGrunnlagRepository.findByBehandlingAndAktiv(behandlingId)?.søker
 
@@ -53,7 +76,7 @@ class PersonopplysningGrunnlagService(
 
     fun lagreOgDeaktiverGammel(personopplysningGrunnlag: PersonopplysningGrunnlag): PersonopplysningGrunnlag {
         hentAktivPersonopplysningGrunnlag(personopplysningGrunnlag.behandlingId)?.let {
-            personopplysningGrunnlagRepository.saveAndFlush(it.copy(aktiv = false))
+            personopplysningGrunnlagRepository.saveAndFlush(it.also { it.aktiv = false })
         }
 
         logger.info("${SikkerhetContext.hentSaksbehandlerNavn()} oppretter persongrunnlag $personopplysningGrunnlag")
