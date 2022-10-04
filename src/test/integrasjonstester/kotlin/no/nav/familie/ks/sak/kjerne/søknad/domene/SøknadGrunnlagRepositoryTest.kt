@@ -9,12 +9,9 @@ import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagFagsak
 import no.nav.familie.ks.sak.data.randomAktør
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
-import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.Fagsak
-import no.nav.familie.ks.sak.kjerne.fagsak.domene.FagsakRepository
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
-import no.nav.familie.ks.sak.kjerne.personident.AktørRepository
 import no.nav.familie.ks.sak.kjerne.søknad.domene.SøknadGrunnlagRepository
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -30,15 +27,6 @@ class SøknadGrunnlagRepositoryTest : OppslagSpringRunnerTest() {
     @Autowired
     private lateinit var søknadGrunnlagRepository: SøknadGrunnlagRepository
 
-    @Autowired
-    private lateinit var aktørRepository: AktørRepository
-
-    @Autowired
-    private lateinit var fagsakRepository: FagsakRepository
-
-    @Autowired
-    private lateinit var behandlingRepository: BehandlingRepository
-
     private lateinit var søker: Aktør
 
     private lateinit var fagsak: Fagsak
@@ -48,8 +36,8 @@ class SøknadGrunnlagRepositoryTest : OppslagSpringRunnerTest() {
     @BeforeEach
     fun beforeEach() {
         søker = lagreAktør(randomAktør())
-        fagsak = lagreFagsak(søker)
-        behandling = lagreBehandling(fagsak)
+        fagsak = lagreFagsak(lagFagsak(søker))
+        behandling = lagreBehandling(lagBehandling(fagsak, opprettetÅrsak = BehandlingÅrsak.SØKNAD))
     }
 
     @Test
@@ -79,18 +67,6 @@ class SøknadGrunnlagRepositoryTest : OppslagSpringRunnerTest() {
 
         val søknadsGrunnlag = søknadGrunnlagRepository.hentAlle(behandling.id)
         assertEquals(3, søknadsGrunnlag.size)
-    }
-
-    fun lagreAktør(aktør: Aktør): Aktør {
-        return aktørRepository.saveAndFlush(aktør)
-    }
-
-    fun lagreFagsak(søker: Aktør): Fagsak {
-        return fagsakRepository.saveAndFlush(lagFagsak(aktør = søker))
-    }
-
-    fun lagreBehandling(fagsak: Fagsak): Behandling {
-        return behandlingRepository.saveAndFlush(lagBehandling(fagsak, opprettetÅrsak = BehandlingÅrsak.SØKNAD))
     }
 
     fun lagreSøknadGrunnlag(behandlingId: Long, barna: List<Aktør>, aktiv: Boolean = false): SøknadDto {
