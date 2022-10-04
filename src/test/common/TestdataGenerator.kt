@@ -203,9 +203,13 @@ fun lagAndelTilkjentYtelse(
     nasjonaltPeriodebeløp = 1054
 )
 
-fun lagPerson(personopplysningGrunnlag: PersonopplysningGrunnlag, aktør: Aktør): Person {
+fun lagPerson(
+    personopplysningGrunnlag: PersonopplysningGrunnlag,
+    aktør: Aktør,
+    personType: PersonType = PersonType.SØKER
+): Person {
     val person = Person(
-        type = PersonType.SØKER,
+        type = personType,
         fødselsdato = LocalDate.now().minusYears(30),
         kjønn = Kjønn.KVINNE,
         personopplysningGrunnlag = personopplysningGrunnlag,

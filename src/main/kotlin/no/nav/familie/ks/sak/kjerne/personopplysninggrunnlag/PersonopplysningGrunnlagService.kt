@@ -16,6 +16,7 @@ import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Personopplys
 import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 
 @Service
 class PersonopplysningGrunnlagService(
@@ -49,9 +50,10 @@ class PersonopplysningGrunnlagService(
         )
     }
 
+    @Transactional
     fun oppdaterPersonopplysningGrunnlag(behandling: Behandling, søknadDto: SøknadDto) {
         val eksisterendePersonopplysningGrunnlag =
-            personopplysningGrunnlagRepository.findByBehandlingAndAktiv(behandling.id)
+            hentAktivPersonopplysningGrunnlag(behandling.id)
                 ?: throw Feil("Det finnes ikke noe aktivt personopplysningsgrunnlag for ${behandling.id}")
 
         val eksisterendeBarnAktører = eksisterendePersonopplysningGrunnlag.barna.map { it.aktør }

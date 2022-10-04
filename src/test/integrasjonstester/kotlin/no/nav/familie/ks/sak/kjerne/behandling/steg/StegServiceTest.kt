@@ -25,7 +25,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingStegStatus.TILBAKE
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingStegStatus.UTFØRT
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingStegStatus.VENTER
 import no.nav.familie.ks.sak.kjerne.behandling.steg.RegistrerPersonGrunnlagSteg
-import no.nav.familie.ks.sak.kjerne.behandling.steg.RegistrerSøknadSteg
+import no.nav.familie.ks.sak.kjerne.behandling.steg.RegistrereSøknadSteg
 import no.nav.familie.ks.sak.kjerne.behandling.steg.StegService
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.Fagsak
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.FagsakRepository
@@ -47,7 +47,7 @@ class StegServiceTest : OppslagSpringRunnerTest() {
     private lateinit var registerPersonGrunnlagSteg: RegistrerPersonGrunnlagSteg
 
     @MockkBean(relaxed = true)
-    private lateinit var registrerSøknadSteg: RegistrerSøknadSteg
+    private lateinit var registrerSøknadSteg: RegistrereSøknadSteg
 
     @Autowired
     private lateinit var aktørRepository: AktørRepository

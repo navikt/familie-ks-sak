@@ -57,7 +57,7 @@ class SøknadGrunnlagRepositoryTest : OppslagSpringRunnerTest() {
         val barn = lagreAktør(randomAktør())
         val søknadDto = lagreSøknadGrunnlag(behandling.id, listOf(barn), true)
 
-        val søknadGrunnlag = søknadGrunnlagRepository.hentAktiv(behandling.id)
+        val søknadGrunnlag = søknadGrunnlagRepository.finnAktiv(behandling.id)
 
         assertNotNull(søknadGrunnlag)
         assertThat(søknadGrunnlag!!.behandlingId, Is(behandling.id))
@@ -66,7 +66,7 @@ class SøknadGrunnlagRepositoryTest : OppslagSpringRunnerTest() {
 
     @Test
     fun `hentAktiv - skal returnere null dersom det ikke finnes et SøknadsGrunnlag tilknyttet behandlingId`() {
-        val søknadGrunnlag = søknadGrunnlagRepository.hentAktiv(404L)
+        val søknadGrunnlag = søknadGrunnlagRepository.finnAktiv(404L)
 
         assertNull(søknadGrunnlag)
     }

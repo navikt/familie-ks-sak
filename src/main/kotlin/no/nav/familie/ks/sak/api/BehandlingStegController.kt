@@ -26,7 +26,7 @@ class BehandlingStegController(
     private val behandlingService: BehandlingService
 ) {
 
-    @PostMapping(path = ["registrer-søknad"], produces = [MediaType.APPLICATION_JSON_VALUE])
+    @PostMapping(path = ["/registrer-søknad"], produces = [MediaType.APPLICATION_JSON_VALUE])
     fun registrereSøknadOgOppdaterPersongrunnlag(
         @PathVariable behandlingId: Long,
         @RequestBody registerSøknadDto: RegistrerSøknadDto

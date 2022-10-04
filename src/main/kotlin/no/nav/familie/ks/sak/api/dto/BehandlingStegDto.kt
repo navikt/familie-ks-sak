@@ -16,12 +16,11 @@ data class SøknadDto(
     val endringAvOpplysningerBegrunnelse: String
 )
 
-fun SøknadDto.tilSøknadGrunnlag(behandlingId: Long): SøknadGrunnlag {
-    return SøknadGrunnlag(
+fun SøknadDto.tilSøknadGrunnlag(behandlingId: Long): SøknadGrunnlag =
+    SøknadGrunnlag(
         behandlingId = behandlingId,
         søknad = objectMapper.writeValueAsString(this)
     )
-}
 
 data class SøkerMedOpplysningerDto(
     val ident: String,

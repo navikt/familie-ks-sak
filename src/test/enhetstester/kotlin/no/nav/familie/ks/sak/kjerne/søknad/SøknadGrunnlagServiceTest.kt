@@ -41,7 +41,7 @@ class SøknadGrunnlagServiceTest {
             søknad = ""
         )
 
-        every { søknadGrunnlagRepository.hentAktiv(any()) } returns gammelSøknadGrunnlag
+        every { søknadGrunnlagRepository.finnAktiv(any()) } returns gammelSøknadGrunnlag
         every { søknadGrunnlagRepository.saveAndFlush(capture(deaktivertSøknadSlot)) } returns mockk()
         every { søknadGrunnlagRepository.save(capture(nySøknadSlot)) } returns nySøknadGrunnlag
 
@@ -58,23 +58,18 @@ class SøknadGrunnlagServiceTest {
             aktiv = true,
             søknad = ""
         )
-        every { søknadGrunnlagRepository.hentAktiv(any()) } returns søknadGrunnlag
+        every { søknadGrunnlagRepository.finnAktiv(any()) } returns søknadGrunnlag
 
-        val aktivSøknad = søknadGrunnlagService.hentAktiv(0L)
+        val aktivSøknad = søknadGrunnlagService.finnAktiv(0L)
 
         assertNotNull(aktivSøknad)
     }
 
     @Test
     fun `hentAktiv - skal returnere null dersom søknad tilknyttet behandlingId ikke finnes`() {
-        val søknadGrunnlag = SøknadGrunnlag(
-            behandlingId = 0,
-            aktiv = true,
-            søknad = ""
-        )
-        every { søknadGrunnlagRepository.hentAktiv(any()) } returns null
+        every { søknadGrunnlagRepository.finnAktiv(any()) } returns null
 
-        val aktivSøknad = søknadGrunnlagService.hentAktiv(404L)
+        val aktivSøknad = søknadGrunnlagService.finnAktiv(404L)
 
         assertNull(aktivSøknad)
     }
