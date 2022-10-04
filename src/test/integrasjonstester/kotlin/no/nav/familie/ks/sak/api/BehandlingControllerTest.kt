@@ -13,20 +13,11 @@ import no.nav.familie.ks.sak.OppslagSpringRunnerTest
 import no.nav.familie.ks.sak.api.dto.EndreBehandlendeEnhetDto
 import no.nav.familie.ks.sak.api.dto.OpprettBehandlingDto
 import no.nav.familie.ks.sak.config.BehandlerRolle
-import no.nav.familie.ks.sak.data.lagBehandling
-import no.nav.familie.ks.sak.data.lagFagsak
-import no.nav.familie.ks.sak.data.randomAktør
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.domene.ArbeidsfordelingPåBehandling
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.domene.ArbeidsfordelingPåBehandlingRepository
-import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingKategori
-import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingType
-import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
-import no.nav.familie.ks.sak.kjerne.fagsak.domene.Fagsak
-import no.nav.familie.ks.sak.kjerne.fagsak.domene.FagsakRepository
-import no.nav.familie.ks.sak.kjerne.personident.AktørRepository
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -36,34 +27,23 @@ import org.hamcrest.CoreMatchers.`is` as Is
 class BehandlingControllerTest : OppslagSpringRunnerTest() {
 
     @Autowired
-    private lateinit var behandlingRepository: BehandlingRepository
-
-    @Autowired
-    private lateinit var fagsakRepository: FagsakRepository
-
-    @Autowired
     private lateinit var arbeidsfordelingPåBehandlingRepository: ArbeidsfordelingPåBehandlingRepository
-
-    @Autowired
-    private lateinit var aktørRepository: AktørRepository
 
     @MockkBean
     private lateinit var integrasjonClient: IntegrasjonClient
-
-    private lateinit var fagsak: Fagsak
-    private lateinit var behandling: Behandling
-
-    @BeforeEach
-    fun beforeEach() {
-        fagsak = lagreFagsak()
-        behandling = lagreBehandling(fagsak)
-    }
 
     val behandlingControllerUrl = "/api/behandlinger"
 
     @BeforeEach
     fun setup() {
         RestAssured.port = port
+        arbeidsfordelingPåBehandlingRepository.save(
+            ArbeidsfordelingPåBehandling(
+                behandlingId = behandling.id,
+                behandlendeEnhetId = "test",
+                behandlendeEnhetNavn = "test"
+            )
+        )
     }
 
     @Test
@@ -126,7 +106,12 @@ class BehandlingControllerTest : OppslagSpringRunnerTest() {
     fun `endreBehandlendeEnhet - skal returnere behandling med endret enhet`() {
         val token = lokalTestToken(behandlerRolle = BehandlerRolle.BESLUTTER)
         every { integrasjonClient.sjekkTilgangTilPersoner(any()) } returns Tilgang(true, "test")
-        every { integrasjonClient.hentNavKontorEnhet("50") } returns NavKontorEnhet(50, "nyNavn", "nyEnhetNr", "nyStatus")
+        every { integrasjonClient.hentNavKontorEnhet("50") } returns NavKontorEnhet(
+            50,
+            "nyNavn",
+            "nyEnhetNr",
+            "nyStatus"
+        )
 
         Given {
             header("Authorization", "Bearer $token")
@@ -146,7 +131,10 @@ class BehandlingControllerTest : OppslagSpringRunnerTest() {
     fun `opprettBehandling - skal kaste funksjonell feil hvis fagsak allerede har en aktiv behandling som ikke er ferdigstilt`() {
         val token = lokalTestToken(behandlerRolle = BehandlerRolle.BESLUTTER)
 
-        every { integrasjonClient.sjekkTilgangTilPersoner(listOf(fagsak.aktør.aktivFødselsnummer())) } returns Tilgang(true, "test")
+        every { integrasjonClient.sjekkTilgangTilPersoner(listOf(fagsak.aktør.aktivFødselsnummer())) } returns Tilgang(
+            true,
+            "test"
+        )
 
         Given {
             header("Authorization", "Bearer $token")
@@ -164,29 +152,14 @@ class BehandlingControllerTest : OppslagSpringRunnerTest() {
             post(behandlingControllerUrl)
         } Then {
             body("status", Is("FUNKSJONELL_FEIL"))
-            body("melding", Is("Kan ikke lage ny behandling. Fagsaken har en aktiv behandling som ikke er ferdigstilt."))
-            body("frontendFeilmelding", Is("Kan ikke lage ny behandling. Fagsaken har en aktiv behandling som ikke er ferdigstilt."))
-        }
-    }
-
-    private fun lagreFagsak(): Fagsak {
-        val aktør = aktørRepository.saveAndFlush(randomAktør())
-
-        return fagsakRepository.saveAndFlush(lagFagsak(aktør))
-    }
-
-    private fun lagreBehandling(fagsak: Fagsak): Behandling {
-        val behandling =
-            behandlingRepository.saveAndFlush(lagBehandling(fagsak, opprettetÅrsak = BehandlingÅrsak.SØKNAD))
-
-        arbeidsfordelingPåBehandlingRepository.save(
-            ArbeidsfordelingPåBehandling(
-                behandlingId = behandling.id,
-                behandlendeEnhetId = "test",
-                behandlendeEnhetNavn = "test"
+            body(
+                "melding",
+                Is("Kan ikke lage ny behandling. Fagsaken har en aktiv behandling som ikke er ferdigstilt.")
             )
-        )
-
-        return behandling
+            body(
+                "frontendFeilmelding",
+                Is("Kan ikke lage ny behandling. Fagsaken har en aktiv behandling som ikke er ferdigstilt.")
+            )
+        }
     }
 }
