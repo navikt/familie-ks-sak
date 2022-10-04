@@ -44,5 +44,13 @@ enum class Vilkår(
         ytelseType = YtelseType.ORDINÆR_KONTANTSTØTTE,
         beskrivelse = "Mellom 1 og 2 år eller adoptert",
         false
-    )
+    );
+
+    companion object {
+        fun hentVilkårFor(personType: PersonType): Set<Vilkår> {
+            return values().filter {
+                personType in it.parterDetteGjelderFor
+            }.toSet()
+        }
+    }
 }
