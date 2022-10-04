@@ -40,6 +40,7 @@ dependencies {
     val tokenValidationSpringVersion = "2.1.4"
     val navFoedselsnummerVersion = "1.0-SNAPSHOT.6"
     val prosesseringVersion = "1.20220624132237_7f5ba9c"
+    val restAssuredVersion = "5.2.0"
 
     // ---------- Spring ---------- \\
     implementation("org.springframework.boot:spring-boot-starter")
@@ -98,6 +99,8 @@ dependencies {
     }
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.cloud:spring-cloud-contract-wiremock:3.1.4")
+    testImplementation("io.rest-assured:spring-mock-mvc:$restAssuredVersion")
+    testImplementation("io.rest-assured:kotlin-extensions:$restAssuredVersion")
     testImplementation("org.testcontainers:postgresql:1.17.3")
     testImplementation("no.nav.security:mock-oauth2-server:0.5.3")
     testImplementation("no.nav.security:token-validation-test-support:2.0.5")
