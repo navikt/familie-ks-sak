@@ -37,8 +37,11 @@ class VilkårsvurderingService(
         val førsteVilkårsvurderingPåBehandlingOgFinnesTidligereVedtattBehandling =
             forrigeBehandlingSomErVedtatt != null && !finnesVilkårsvurderingPåInneværendeBehandling
 
-        if (førsteVilkårsvurderingPåBehandlingOgFinnesTidligereVedtattBehandling) throw NotImplementedError()
-        else if (finnesVilkårsvurderingPåInneværendeBehandling) throw NotImplementedError()
+        if (førsteVilkårsvurderingPåBehandlingOgFinnesTidligereVedtattBehandling) {
+            throw NotImplementedError()
+        } else if (finnesVilkårsvurderingPåInneværendeBehandling) {
+            throw NotImplementedError()
+        }
 
         return lagreVilkårsvurdering(initiellVilkårsvurdering, aktivVilkårsvurdering)
     }
