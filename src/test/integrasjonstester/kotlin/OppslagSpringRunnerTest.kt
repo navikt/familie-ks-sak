@@ -2,10 +2,15 @@ package no.nav.familie.ks.sak
 
 import ch.qos.logback.classic.spi.ILoggingEvent
 import ch.qos.logback.core.read.ListAppender
+import com.fasterxml.jackson.databind.ObjectMapper
 import com.github.tomakehurst.wiremock.WireMockServer
+import com.nimbusds.jose.JOSEObjectType
+import no.nav.familie.ks.sak.config.BehandlerRolle
 import no.nav.familie.ks.sak.config.DatabaseCleanupService
 import no.nav.familie.ks.sak.config.DbContainerInitializer
+import no.nav.familie.ks.sak.config.RolleConfig
 import no.nav.security.mock.oauth2.MockOAuth2Server
+import no.nav.security.mock.oauth2.token.DefaultOAuth2TokenCallback
 import no.nav.security.token.support.spring.test.EnableMockOAuth2Server
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Tag
@@ -43,8 +48,14 @@ abstract class OppslagSpringRunnerTest {
     @Autowired
     private lateinit var mockOAuth2Server: MockOAuth2Server
 
+    @Autowired
+    private lateinit var rolleConfig: RolleConfig
+
+    @Autowired
+    lateinit var objectMapper: ObjectMapper
+
     @LocalServerPort
-    private var port: Int? = 0
+    var port: Int = 0
 
     @AfterEach
     @Transactional
@@ -55,9 +66,31 @@ abstract class OppslagSpringRunnerTest {
         resetWiremockServers()
     }
 
-    protected fun lokalTestToken(): String = mockOAuth2Server.issueToken("issuer1", audience = "aud-localhost").serialize()
+    protected fun lokalTestToken(
+        issuerId: String = "azuread",
+        subject: String = "subject1",
+        behandlerRolle: BehandlerRolle? = null
+    ): String {
+        val behandlerRolle = when (behandlerRolle) {
+            BehandlerRolle.VEILEDER -> rolleConfig.VEILEDER_ROLLE
+            BehandlerRolle.SAKSBEHANDLER -> rolleConfig.SAKSBEHANDLER_ROLLE
+            BehandlerRolle.BESLUTTER -> rolleConfig.BESLUTTER_ROLLE
+            else -> ""
+        }
 
-    protected fun localhost(uri: String): String = LOCALHOST + port.toString() + uri
+        return mockOAuth2Server.issueToken(
+            issuerId,
+            "theclientid",
+            DefaultOAuth2TokenCallback(
+                issuerId,
+                subject,
+                JOSEObjectType.JWT.type,
+                listOf("familie-ks-sak-test"),
+                mapOf(Pair("NAVident", "test"), Pair("groups", listOf(behandlerRolle))),
+                3600
+            )
+        ).serialize()
+    }
 
     private fun resetWiremockServers() =
         applicationContext.getBeansOfType(WireMockServer::class.java).values.forEach(WireMockServer::resetRequests)
@@ -69,7 +102,7 @@ abstract class OppslagSpringRunnerTest {
     private fun resetTableForAllEntityClass() = databaseCleanupService.truncate()
 
     companion object {
-        private const val LOCALHOST = "http://localhost:"
-        protected fun initLoggingEventListAppender(): ListAppender<ILoggingEvent> = ListAppender<ILoggingEvent>().apply { start() }
+        protected fun initLoggingEventListAppender(): ListAppender<ILoggingEvent> =
+            ListAppender<ILoggingEvent>().apply { start() }
     }
 }
