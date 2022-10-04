@@ -4,7 +4,7 @@ plugins {
     val kotlinVersion = "1.7.10"
     kotlin("jvm") version kotlinVersion
 
-    id("org.springframework.boot") version "2.7.3"
+    id("org.springframework.boot") version "2.7.4"
     id("io.spring.dependency-management") version "1.0.13.RELEASE"
     id("org.jetbrains.kotlin.plugin.spring") version kotlinVersion
     id("org.jetbrains.kotlin.plugin.jpa") version kotlinVersion
@@ -86,7 +86,7 @@ dependencies {
     implementation("nav-foedselsnummer:core:$navFoedselsnummerVersion")
 
     implementation("com.papertrailapp:logback-syslog4j:1.0.0")
-    implementation("no.finn.unleash:unleash-client-java:4.4.1")
+    implementation("io.getunleash:unleash-client-java:6.0.1")
     implementation("io.sentry:sentry-spring-boot-starter:$sentryVersion")
     implementation("io.sentry:sentry-logback:$sentryVersion")
     implementation("io.micrometer:micrometer-registry-prometheus")
@@ -129,16 +129,25 @@ tasks {
     bootJar {
         archiveFileName.set("familie-ks-sak.jar")
     }
-    test {
-        if (project.hasProperty("github")) {
-            if (!project.hasProperty("enhetstester")) {
-                exclude("no/nav/familie/ks/sak/enhetstester/**")
+}
+
+allprojects {
+    plugins.withId("java") {
+        this@allprojects.tasks {
+            val test = "test"(Test::class) {
+                maxParallelForks = (Runtime.getRuntime().availableProcessors() / 2).takeIf { it > 0 } ?: 1
+                useJUnitPlatform {
+                    excludeTags("integrationTest")
+                }
             }
-            if (!project.hasProperty("integrasjonstester")) {
-                exclude("no/nav/familie/ks/sak/integrasjonstester/**")
+            val integrationTest = register<Test>("integrationTest") {
+                useJUnitPlatform {
+                    includeTags("integrationTest")
+                }
+                shouldRunAfter(test)
             }
-            if (!project.hasProperty("verdikjedetester")) {
-                exclude("no/nav/familie/ks/sak/verdikjedetester/**")
+            "check" {
+                dependsOn(integrationTest)
             }
         }
     }
