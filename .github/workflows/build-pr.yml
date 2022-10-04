@@ -12,7 +12,7 @@ jobs:
       actions: write
     steps:
       - name: Cancel Previous Runs
-        uses: styfle/cancel-workflow-action@0.10.0
+        uses: styfle/cancel-workflow-action@0.10.1
         with:
           access_token: ${{ github.token }}
   ktlint:
@@ -27,8 +27,8 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           reporter: github-check
           ktlint_version: 0.47.0
-  enhetstester-integrasjonstester-og-sonar:
-    name: Enhetstester, integrasjonstester og sonar
+  enhetstester:
+    name: Enhetstester
     runs-on: ubuntu-latest
     steps:
       - uses: "actions/checkout@v3"
@@ -38,14 +38,14 @@ jobs:
           java-version: "17"
           distribution: 'temurin'
           cache: 'gradle'
-      - name: Kjør enhetstester, integrasjonstester og sonar
+      - name: Kjør enhetstester
         env:
           GITHUB_USERNAME: x-access-token
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          ./gradlew test -Pgithub -Penhetstester -Pintegrasjonstester -i --no-daemon
-  verdikjedetesterFeatureToggleOff:
-    name: Verdikjedetester m/ feature toggles slått av
+          ./gradlew test 
+  integrasjonstester:
+    name: Integrasjonstester
     runs-on: ubuntu-latest
     steps:
       - uses: "actions/checkout@v3"
@@ -55,26 +55,9 @@ jobs:
           java-version: "17"
           distribution: 'temurin'
           cache: 'gradle'
-      - name: Kjør verdikjedetester m/ feature toggles slått av
+      - name: Kjør integrasjonstester
         env:
           GITHUB_USERNAME: x-access-token
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          ./gradlew test -Pgithub -Pverdikjedetester -i --no-daemon
-  verdikjedetesterFeatureToggleOn:
-    name: Verdikjedetester m/ feature toggles slått på
-    runs-on: ubuntu-latest
-    steps:
-      - uses: "actions/checkout@v3"
-      - uses: "gradle/wrapper-validation-action@v1"
-      - uses: "actions/setup-java@v3"
-        with:
-          java-version: "17"
-          distribution: 'temurin'
-          cache: 'gradle'
-      - name: Kjør verdikjedetester m/ feature toggles slått på
-        env:
-          GITHUB_USERNAME: x-access-token
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          ./gradlew test -Pgithub -Pverdikjedetester -Pfeaturetoggle -i --no-daemon
+          ./gradlew integrationTest 

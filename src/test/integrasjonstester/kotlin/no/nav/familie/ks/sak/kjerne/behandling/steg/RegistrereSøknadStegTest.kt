@@ -9,6 +9,7 @@ import no.nav.familie.ks.sak.api.dto.BarnMedOpplysningerDto
 import no.nav.familie.ks.sak.api.dto.RegistrerSøknadDto
 import no.nav.familie.ks.sak.api.dto.SøkerMedOpplysningerDto
 import no.nav.familie.ks.sak.api.dto.SøknadDto
+import no.nav.familie.ks.sak.api.mapper.SøknadGrunnlagMapper.tilSøknadDto
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagFagsak
 import no.nav.familie.ks.sak.data.lagPdlPersonInfo
@@ -19,7 +20,7 @@ import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.ArbeidsfordelingService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
-import no.nav.familie.ks.sak.kjerne.behandling.steg.RegistrerSøknadSteg
+import no.nav.familie.ks.sak.kjerne.behandling.steg.RegistrereSøknadSteg
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.FagsakRepository
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import no.nav.familie.ks.sak.kjerne.personident.AktørRepository
@@ -32,10 +33,10 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 
-class RegistrerSøknadStegTest : OppslagSpringRunnerTest() {
+class RegistrereSøknadStegTest : OppslagSpringRunnerTest() {
 
     @Autowired
-    private lateinit var registrerSøknadSteg: RegistrerSøknadSteg
+    private lateinit var registrereSøknadSteg: RegistrereSøknadSteg
 
     @Autowired
     private lateinit var aktørRepository: AktørRepository
@@ -102,7 +103,7 @@ class RegistrerSøknadStegTest : OppslagSpringRunnerTest() {
         val personopplysningGrunnlagFørSteg = personopplysningGrunnlagRepository.hentByBehandlingAndAktiv(behandling.id)
         assertEquals(1, personopplysningGrunnlagFørSteg.personer.size)
 
-        registrerSøknadSteg.utførSteg(
+        registrereSøknadSteg.utførSteg(
             behandling.id,
             RegistrerSøknadDto(
                 søknadDto,
@@ -111,10 +112,10 @@ class RegistrerSøknadStegTest : OppslagSpringRunnerTest() {
         )
 
         // Valider at lagret søknad stemmer med innsendt søknad
-        val søknadGrunnlag = søknadGrunnlagRepository.hentAktiv(behandling.id)
+        val søknadGrunnlag = søknadGrunnlagRepository.finnAktiv(behandling.id)
         assertNotNull(søknadGrunnlag)
         assertEquals(behandling.id, søknadGrunnlag!!.behandlingId)
-        val lagretSøknad = søknadGrunnlag.hentSøknadDto()
+        val lagretSøknad = søknadGrunnlag.tilSøknadDto()
         assertTrue(
             lagretSøknad.barnaMedOpplysninger.all {
                 it.ident in listOf(
@@ -142,7 +143,7 @@ class RegistrerSøknadStegTest : OppslagSpringRunnerTest() {
             endringAvOpplysningerBegrunnelse = ""
         )
 
-        registrerSøknadSteg.utførSteg(behandling.id, RegistrerSøknadDto(søknadDto, true))
+        registrereSøknadSteg.utførSteg(behandling.id, RegistrerSøknadDto(søknadDto, true))
 
         val søknadDto2 = SøknadDto(
             søkerMedOpplysninger = SøkerMedOpplysningerDto(ident = søker.aktivFødselsnummer()),
@@ -153,13 +154,13 @@ class RegistrerSøknadStegTest : OppslagSpringRunnerTest() {
             endringAvOpplysningerBegrunnelse = ""
         )
 
-        registrerSøknadSteg.utførSteg(behandling.id, RegistrerSøknadDto(søknadDto2, true))
+        registrereSøknadSteg.utførSteg(behandling.id, RegistrerSøknadDto(søknadDto2, true))
 
         val søknadsGrunnlag = søknadGrunnlagRepository.hentAlle(behandling.id)
         val aktivtSøknadsGrunnlag = søknadsGrunnlag.singleOrNull { it.aktiv }
 
         assertEquals(2, søknadsGrunnlag.size)
         assertNotNull { aktivtSøknadsGrunnlag }
-        assertEquals(2, aktivtSøknadsGrunnlag?.hentSøknadDto()?.barnaMedOpplysninger?.size)
+        assertEquals(2, aktivtSøknadsGrunnlag?.tilSøknadDto()?.barnaMedOpplysninger?.size)
     }
 }

@@ -20,6 +20,7 @@ import org.springframework.context.annotation.Import
 import org.springframework.context.annotation.Primary
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter
 import org.springframework.retry.annotation.EnableRetry
+import org.springframework.scheduling.annotation.EnableScheduling
 import org.springframework.web.client.RestTemplate
 import java.time.Duration
 import java.time.temporal.ChronoUnit
@@ -30,6 +31,7 @@ import java.time.temporal.ChronoUnit
 @EnableRetry
 @ConfigurationPropertiesScan
 @EnableJwtTokenValidation(ignore = ["org.springdoc", "org.springframework"])
+@EnableScheduling
 @Import(RestTemplateAzure::class)
 @EnableOAuth2Client(cacheEnabled = true)
 class ApplicationConfig {

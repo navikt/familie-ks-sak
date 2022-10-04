@@ -11,13 +11,13 @@ class SøknadGrunnlagService(
 ) {
     @Transactional
     fun lagreOgDeaktiverGammel(søknadGrunnlag: SøknadGrunnlag): SøknadGrunnlag {
-        søknadGrunnlagRepository.hentAktiv(søknadGrunnlag.behandlingId)
+        søknadGrunnlagRepository.finnAktiv(søknadGrunnlag.behandlingId)
             ?.let { søknadGrunnlagRepository.saveAndFlush(it.also { it.aktiv = false }) }
 
         return søknadGrunnlagRepository.save(søknadGrunnlag)
     }
 
-    fun hentAktiv(behandlingId: Long): SøknadGrunnlag? {
-        return søknadGrunnlagRepository.hentAktiv(behandlingId)
+    fun finnAktiv(behandlingId: Long): SøknadGrunnlag? {
+        return søknadGrunnlagRepository.finnAktiv(behandlingId)
     }
 }
