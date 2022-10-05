@@ -9,8 +9,12 @@ import no.nav.familie.ks.sak.config.BehandlerRolle
 import no.nav.familie.ks.sak.config.DatabaseCleanupService
 import no.nav.familie.ks.sak.config.DbContainerInitializer
 import no.nav.familie.ks.sak.config.RolleConfig
+import no.nav.familie.ks.sak.data.lagBehandling
+import no.nav.familie.ks.sak.data.lagFagsak
+import no.nav.familie.ks.sak.data.randomAktør
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
+import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.Fagsak
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.FagsakRepository
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
@@ -69,6 +73,12 @@ abstract class OppslagSpringRunnerTest {
     @Autowired
     private lateinit var behandlingRepository: BehandlingRepository
 
+    lateinit var søker: Aktør
+
+    lateinit var fagsak: Fagsak
+
+    lateinit var behandling: Behandling
+
     @LocalServerPort
     var port: Int = 0
 
@@ -79,6 +89,12 @@ abstract class OppslagSpringRunnerTest {
         resetTableForAllEntityClass()
         clearCaches()
         resetWiremockServers()
+    }
+
+    fun opprettSøkerFagsakOgBehandling(søker: Aktør = randomAktør()) {
+        this.søker = lagreAktør(søker)
+        fagsak = lagreFagsak(lagFagsak(aktør = søker))
+        behandling = lagreBehandling(lagBehandling(fagsak = fagsak, opprettetÅrsak = BehandlingÅrsak.SØKNAD))
     }
 
     protected fun lokalTestToken(

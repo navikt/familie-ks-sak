@@ -7,22 +7,18 @@ import io.mockk.runs
 import io.mockk.verify
 import no.nav.familie.ks.sak.OppslagSpringRunnerTest
 import no.nav.familie.ks.sak.data.lagBehandling
-import no.nav.familie.ks.sak.data.lagFagsak
 import no.nav.familie.ks.sak.data.lagPdlPersonInfo
 import no.nav.familie.ks.sak.data.lagPersonopplysningGrunnlag
 import no.nav.familie.ks.sak.data.randomAktør
 import no.nav.familie.ks.sak.data.shouldNotBeNull
 import no.nav.familie.ks.sak.integrasjon.pdl.PersonOpplysningerService
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.ArbeidsfordelingService
-import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingType
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.RegistrerPersonGrunnlagSteg
 import no.nav.familie.ks.sak.kjerne.beregning.BeregningService
-import no.nav.familie.ks.sak.kjerne.fagsak.domene.FagsakRepository
-import no.nav.familie.ks.sak.kjerne.personident.AktørRepository
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Målform
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlagRepository
@@ -39,12 +35,6 @@ class RegistrerPersonGrunnlagStegTest : OppslagSpringRunnerTest() {
     private lateinit var registrerPersonGrunnlagSteg: RegistrerPersonGrunnlagSteg
 
     @Autowired
-    private lateinit var fagsakRepository: FagsakRepository
-
-    @Autowired
-    private lateinit var aktørRepository: AktørRepository
-
-    @Autowired
     private lateinit var behandlingRepository: BehandlingRepository
 
     @Autowired
@@ -59,18 +49,9 @@ class RegistrerPersonGrunnlagStegTest : OppslagSpringRunnerTest() {
     @MockkBean
     private lateinit var beregningService: BeregningService
 
-    private lateinit var behandling: Behandling
-
     @BeforeEach
     fun init() {
-        val aktør = aktørRepository.saveAndFlush(randomAktør())
-        val fagsak = fagsakRepository.saveAndFlush(lagFagsak(aktør))
-        behandling = behandlingRepository.saveAndFlush(
-            lagBehandling(
-                fagsak = fagsak,
-                opprettetÅrsak = BehandlingÅrsak.SØKNAD
-            )
-        )
+        opprettSøkerFagsakOgBehandling()
         every { personOpplysningerService.hentPersonInfoMedRelasjonerOgRegisterinformasjon(any()) } returns lagPdlPersonInfo()
         every { arbeidsfordelingService.fastsettBehandledeEnhet(any()) } just runs
     }
@@ -81,7 +62,8 @@ class RegistrerPersonGrunnlagStegTest : OppslagSpringRunnerTest() {
         verify(atLeast = 1) { arbeidsfordelingService.fastsettBehandledeEnhet(behandling) }
         verify(atMost = 1) { personOpplysningerService.hentPersonInfoMedRelasjonerOgRegisterinformasjon(behandling.fagsak.aktør) }
 
-        val personopplysningGrunnlag = personopplysningGrunnlagRepository.findByBehandlingAndAktiv(behandling.id).shouldNotBeNull()
+        val personopplysningGrunnlag =
+            personopplysningGrunnlagRepository.findByBehandlingAndAktiv(behandling.id).shouldNotBeNull()
         assertEquals(1, personopplysningGrunnlag.personer.size)
 
         val person = personopplysningGrunnlag.personer.single()
@@ -97,9 +79,12 @@ class RegistrerPersonGrunnlagStegTest : OppslagSpringRunnerTest() {
 
     @Test
     fun `utførSteg skal utføre REGISTRERE_PERSONGRUNNLAG steg for Revurdering`() {
-        val barnAktør = aktørRepository.saveAndFlush(randomAktør())
+        val barnAktør = lagreAktør(randomAktør())
         every { beregningService.finnBarnFraBehandlingMedTilkjentYtelse(behandling.id) } returns listOf(barnAktør)
-        every { personOpplysningerService.hentPersoninfoEnkel(any()) } returns lagPdlPersonInfo(enkelPersonInfo = true, erBarn = true)
+        every { personOpplysningerService.hentPersoninfoEnkel(any()) } returns lagPdlPersonInfo(
+            enkelPersonInfo = true,
+            erBarn = true
+        )
 
         val gammelPersonopplysningGrunnlag = lagPersonopplysningGrunnlag(
             behandlingId = behandling.id,
@@ -109,7 +94,12 @@ class RegistrerPersonGrunnlagStegTest : OppslagSpringRunnerTest() {
             barnAktør = listOf(barnAktør)
         )
         personopplysningGrunnlagRepository.save(gammelPersonopplysningGrunnlag)
-        behandlingRepository.saveAndFlush(behandling.copy(status = BehandlingStatus.AVSLUTTET, aktiv = false))
+        lagreBehandling(
+            behandling.also {
+                it.status = BehandlingStatus.AVSLUTTET
+                it.aktiv = false
+            }
+        )
 
         val revurdering = behandlingRepository.saveAndFlush(
             lagBehandling(
@@ -125,7 +115,8 @@ class RegistrerPersonGrunnlagStegTest : OppslagSpringRunnerTest() {
         verify(atMost = 1) { personOpplysningerService.hentPersonInfoMedRelasjonerOgRegisterinformasjon(revurdering.fagsak.aktør) }
         verify(atMost = 1) { personOpplysningerService.hentPersonInfoMedRelasjonerOgRegisterinformasjon(barnAktør) }
 
-        val personopplysningGrunnlag = personopplysningGrunnlagRepository.findByBehandlingAndAktiv(revurdering.id).shouldNotBeNull()
+        val personopplysningGrunnlag =
+            personopplysningGrunnlagRepository.findByBehandlingAndAktiv(revurdering.id).shouldNotBeNull()
         assertEquals(2, personopplysningGrunnlag.personer.size)
 
         val søker = personopplysningGrunnlag.personer.single { it.type == PersonType.SØKER }

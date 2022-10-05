@@ -1,9 +1,7 @@
 package no.nav.familie.ks.sak.kjerne.fagsak.domene
 
 import no.nav.familie.ks.sak.OppslagSpringRunnerTest
-import no.nav.familie.ks.sak.data.lagFagsak
 import no.nav.familie.ks.sak.data.randomAktør
-import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import org.hamcrest.CoreMatchers.nullValue
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.jupiter.api.BeforeEach
@@ -16,17 +14,13 @@ internal class FagsakRepositoryTest : OppslagSpringRunnerTest() {
     @Autowired
     private lateinit var fagsakRepository: FagsakRepository
 
-    private lateinit var søker: Aktør
-
     @BeforeEach
     fun beforeEach() {
-        søker = lagreAktør(randomAktør())
+        opprettSøkerFagsakOgBehandling()
     }
 
     @Test
     fun `finnFagsak skal returnere fagsak dersom det eksisterer en fagsak med id`() {
-        val fagsak = lagreFagsak(lagFagsak(søker))
-
         val hentetFagsak = fagsakRepository.finnFagsak(fagsak.id)!!
 
         assertThat(hentetFagsak.id, Is(fagsak.id))
@@ -50,8 +44,6 @@ internal class FagsakRepositoryTest : OppslagSpringRunnerTest() {
 
     @Test
     fun `finnFagsakForAktør skal returnere fagsak dersom det finnes fagsak for aktør`() {
-        val fagsak = lagreFagsak(lagFagsak(søker))
-
         val hentetFagsak = fagsakRepository.finnFagsakForAktør(søker)!!
 
         assertThat(hentetFagsak.id, Is(fagsak.id))

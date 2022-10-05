@@ -7,6 +7,7 @@ import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import no.nav.familie.ks.sak.kjerne.personident.AktørRepository
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertNull
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 
@@ -14,6 +15,11 @@ class AktørRepositoryTest : OppslagSpringRunnerTest() {
 
     @Autowired
     private lateinit var aktørRepository: AktørRepository
+
+    @BeforeEach
+    fun beforeEach() {
+        opprettSøkerFagsakOgBehandling()
+    }
 
     @Test
     fun `findByAktørId - skal returnere Aktør dersom aktør med bestemt aktørId finnes i db`() {

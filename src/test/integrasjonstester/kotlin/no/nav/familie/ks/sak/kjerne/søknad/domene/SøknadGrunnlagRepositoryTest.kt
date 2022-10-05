@@ -5,12 +5,7 @@ import no.nav.familie.ks.sak.api.dto.BarnMedOpplysningerDto
 import no.nav.familie.ks.sak.api.dto.SøkerMedOpplysningerDto
 import no.nav.familie.ks.sak.api.dto.SøknadDto
 import no.nav.familie.ks.sak.api.dto.tilSøknadGrunnlag
-import no.nav.familie.ks.sak.data.lagBehandling
-import no.nav.familie.ks.sak.data.lagFagsak
 import no.nav.familie.ks.sak.data.randomAktør
-import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
-import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
-import no.nav.familie.ks.sak.kjerne.fagsak.domene.Fagsak
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import no.nav.familie.ks.sak.kjerne.søknad.domene.SøknadGrunnlagRepository
 import org.hamcrest.MatcherAssert.assertThat
@@ -27,17 +22,9 @@ class SøknadGrunnlagRepositoryTest : OppslagSpringRunnerTest() {
     @Autowired
     private lateinit var søknadGrunnlagRepository: SøknadGrunnlagRepository
 
-    private lateinit var søker: Aktør
-
-    private lateinit var fagsak: Fagsak
-
-    private lateinit var behandling: Behandling
-
     @BeforeEach
     fun beforeEach() {
-        søker = lagreAktør(randomAktør())
-        fagsak = lagreFagsak(lagFagsak(søker))
-        behandling = lagreBehandling(lagBehandling(fagsak, opprettetÅrsak = BehandlingÅrsak.SØKNAD))
+        opprettSøkerFagsakOgBehandling()
     }
 
     @Test
