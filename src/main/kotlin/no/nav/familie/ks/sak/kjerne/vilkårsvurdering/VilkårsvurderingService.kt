@@ -42,7 +42,7 @@ class VilkårsvurderingService(
         return lagreVilkårsvurdering(vilkårsvurdering, aktivVilkårsvurdering)
     }
 
-    fun lagreVilkårsvurdering(
+    private fun lagreVilkårsvurdering(
         vilkårsvurdering: Vilkårsvurdering,
         aktivVilkårsvurdering: Vilkårsvurdering?
     ): Vilkårsvurdering {
