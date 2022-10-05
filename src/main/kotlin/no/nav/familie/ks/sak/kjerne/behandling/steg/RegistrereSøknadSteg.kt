@@ -41,7 +41,9 @@ class RegistrereSøknadSteg(
         val behandling = behandlingService.hentBehandling(behandlingId)
         personopplysningGrunnlagService.oppdaterPersonopplysningGrunnlag(behandling, søknadGrunnlag.tilSøknadDto())
 
-        vilkårsvurderingService.opprettVilkårsvurdering(behandlingId)
+        val forrigeBehandlingSomErVedtatt = behandlingService.hentSisteBehandlingSomErVedtatt(behandling.fagsak.id)
+
+        vilkårsvurderingService.opprettVilkårsvurdering(behandling, forrigeBehandlingSomErVedtatt)
 
         secureLogger.info("Data mottatt ${søknadGrunnlag.søknad}")
     }

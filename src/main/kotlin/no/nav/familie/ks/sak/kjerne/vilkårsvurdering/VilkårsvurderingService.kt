@@ -1,6 +1,5 @@
 package no.nav.familie.ks.sak.kjerne.vilkårsvurdering
 
-import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
@@ -17,33 +16,30 @@ import org.springframework.stereotype.Service
 @Service
 class VilkårsvurderingService(
     private val vilkårsvurderingRepository: VilkårsvurderingRepository,
-    private val behandlingService: BehandlingService,
     private val personopplysningGrunnlagService: PersonopplysningGrunnlagService
 ) {
 
-    fun opprettVilkårsvurdering(behandlingId: Long): Vilkårsvurdering {
-        logger.info("${SikkerhetContext.hentSaksbehandlerNavn()} oppretter vilkårsvurdering for behandling $behandlingId")
+    fun opprettVilkårsvurdering(behandling: Behandling, forrigeBehandlingSomErVedtatt: Behandling?): Vilkårsvurdering {
+        logger.info("${SikkerhetContext.hentSaksbehandlerNavn()} oppretter vilkårsvurdering for behandling ${behandling.id}")
 
-        val behandling = behandlingService.hentBehandling(behandlingId)
-        val forrigeBehandlingSomErVedtatt = behandlingService.hentSisteBehandlingSomErVedtatt(behandling.fagsak.id)
-
-        val aktivVilkårsvurdering = hentAktivVilkårsvurdering(behandlingId)
+        val aktivVilkårsvurdering = hentAktivVilkårsvurdering(behandling.id)
 
         val personopplysningGrunnlag =
-            personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(behandlingId)
+            personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(behandling.id)
         val initiellVilkårsvurdering = genererInitiellVilkårsvurdering(behandling, personopplysningGrunnlag)
 
         val finnesVilkårsvurderingPåInneværendeBehandling = aktivVilkårsvurdering != null
         val førsteVilkårsvurderingPåBehandlingOgFinnesTidligereVedtattBehandling =
             forrigeBehandlingSomErVedtatt != null && !finnesVilkårsvurderingPåInneværendeBehandling
 
+        var vilkårsvurdering = initiellVilkårsvurdering
+
         if (førsteVilkårsvurderingPåBehandlingOgFinnesTidligereVedtattBehandling) {
-            throw NotImplementedError()
-        } else if (finnesVilkårsvurderingPåInneværendeBehandling) {
-            throw NotImplementedError()
+            // vilkårsvurdering = genererVilkårsvurderingBasertPåTidligereVilkårsvurdering(initiellVilkårsvurdering, forrigeBehandlingSomErVedtatt)
+            // TODO: implementer generering av vilkårsvurdering basert på tidligere vilkårsvurdering
         }
 
-        return lagreVilkårsvurdering(initiellVilkårsvurdering, aktivVilkårsvurdering)
+        return lagreVilkårsvurdering(vilkårsvurdering, aktivVilkårsvurdering)
     }
 
     fun lagreVilkårsvurdering(
