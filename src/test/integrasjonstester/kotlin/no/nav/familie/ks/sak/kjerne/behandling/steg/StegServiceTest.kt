@@ -49,6 +49,7 @@ class StegServiceTest : OppslagSpringRunnerTest() {
 
     @BeforeEach
     fun setup() {
+        opprettSøkerFagsakOgBehandling()
         every { registerPersonGrunnlagSteg.utførSteg(any()) } just runs
         every { registerPersonGrunnlagSteg.getBehandlingssteg() } answers { callOriginal() }
 

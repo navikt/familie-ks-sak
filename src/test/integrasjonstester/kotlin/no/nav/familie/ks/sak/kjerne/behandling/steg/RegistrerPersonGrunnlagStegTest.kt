@@ -51,6 +51,7 @@ class RegistrerPersonGrunnlagStegTest : OppslagSpringRunnerTest() {
 
     @BeforeEach
     fun init() {
+        opprettSøkerFagsakOgBehandling()
         every { personOpplysningerService.hentPersonInfoMedRelasjonerOgRegisterinformasjon(any()) } returns lagPdlPersonInfo()
         every { arbeidsfordelingService.fastsettBehandledeEnhet(any()) } just runs
     }

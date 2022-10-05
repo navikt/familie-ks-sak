@@ -6,6 +6,7 @@ import no.nav.familie.ks.sak.kjerne.vedtak.domene.VedtakRepository
 import org.hamcrest.CoreMatchers.nullValue
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.containsInAnyOrder
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.springframework.beans.factory.annotation.Autowired
@@ -16,6 +17,11 @@ internal class VedtakRepositoryTest : OppslagSpringRunnerTest() {
 
     @Autowired
     private lateinit var vedtakRepository: VedtakRepository
+
+    @BeforeEach
+    fun beforeEach() {
+        opprettSøkerFagsakOgBehandling()
+    }
 
     @Test
     fun `findByBehandlingAndAktiv - skal kaste EmptyResultDataAccessException hvis det ikke finnes aktiv vedtak for behandling`() {

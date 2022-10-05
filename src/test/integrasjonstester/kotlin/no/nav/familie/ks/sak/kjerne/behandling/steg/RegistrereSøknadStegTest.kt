@@ -53,6 +53,7 @@ class RegistrereSøknadStegTest : OppslagSpringRunnerTest() {
 
     @BeforeEach
     fun init() {
+        opprettSøkerFagsakOgBehandling()
         barn1 = aktørRepository.saveAndFlush(randomAktør())
         barn2 = aktørRepository.saveAndFlush(randomAktør())
         val personopplysningGrunnlag =

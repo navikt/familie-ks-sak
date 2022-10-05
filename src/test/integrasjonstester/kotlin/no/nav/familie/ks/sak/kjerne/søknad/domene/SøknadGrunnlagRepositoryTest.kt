@@ -12,6 +12,7 @@ import org.hamcrest.MatcherAssert.assertThat
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertNull
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.hamcrest.CoreMatchers.`is` as Is
@@ -20,6 +21,11 @@ class SøknadGrunnlagRepositoryTest : OppslagSpringRunnerTest() {
 
     @Autowired
     private lateinit var søknadGrunnlagRepository: SøknadGrunnlagRepository
+
+    @BeforeEach
+    fun beforeEach() {
+        opprettSøkerFagsakOgBehandling()
+    }
 
     @Test
     fun `hentAktiv - skal hente aktiv SøknadGrunnlag tilknyttet behandlingId`() {

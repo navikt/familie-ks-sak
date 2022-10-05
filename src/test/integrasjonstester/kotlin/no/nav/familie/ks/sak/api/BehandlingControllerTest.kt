@@ -37,6 +37,7 @@ class BehandlingControllerTest : OppslagSpringRunnerTest() {
     @BeforeEach
     fun setup() {
         RestAssured.port = port
+        opprettSøkerFagsakOgBehandling()
         arbeidsfordelingPåBehandlingRepository.save(
             ArbeidsfordelingPåBehandling(
                 behandlingId = behandling.id,

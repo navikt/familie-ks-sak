@@ -7,15 +7,19 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.TestInstance
 import org.springframework.beans.factory.annotation.Autowired
 
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class BehandlingRepositoryTest : OppslagSpringRunnerTest() {
 
     @Autowired
     private lateinit var behandlingRepository: BehandlingRepository
+
+    @BeforeEach
+    fun beforeEach() {
+        opprettSøkerFagsakOgBehandling()
+    }
 
     @Test
     fun `hentBehandling - skal finne behandling med behandlingsId`() {

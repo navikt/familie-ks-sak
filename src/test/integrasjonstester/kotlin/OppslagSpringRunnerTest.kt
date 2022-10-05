@@ -23,7 +23,6 @@ import no.nav.security.mock.oauth2.MockOAuth2Server
 import no.nav.security.mock.oauth2.token.DefaultOAuth2TokenCallback
 import no.nav.security.token.support.spring.test.EnableMockOAuth2Server
 import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Tag
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
@@ -83,13 +82,6 @@ abstract class OppslagSpringRunnerTest {
     @LocalServerPort
     var port: Int = 0
 
-    @BeforeEach
-    fun beforeEach() {
-        søker = lagreAktør(randomAktør())
-        fagsak = lagreFagsak(lagFagsak(aktør = søker))
-        behandling = lagreBehandling(lagBehandling(fagsak = fagsak, opprettetÅrsak = BehandlingÅrsak.SØKNAD))
-    }
-
     @AfterEach
     @Transactional
     fun reset() {
@@ -97,6 +89,12 @@ abstract class OppslagSpringRunnerTest {
         resetTableForAllEntityClass()
         clearCaches()
         resetWiremockServers()
+    }
+
+    fun opprettSøkerFagsakOgBehandling(søker: Aktør = randomAktør()) {
+        this.søker = lagreAktør(søker)
+        fagsak = lagreFagsak(lagFagsak(aktør = søker))
+        behandling = lagreBehandling(lagBehandling(fagsak = fagsak, opprettetÅrsak = BehandlingÅrsak.SØKNAD))
     }
 
     protected fun lokalTestToken(

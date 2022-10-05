@@ -4,6 +4,7 @@ import no.nav.familie.ks.sak.OppslagSpringRunnerTest
 import no.nav.familie.ks.sak.config.BehandlerRolle
 import no.nav.familie.ks.sak.kjerne.logg.LoggType
 import org.hamcrest.MatcherAssert.assertThat
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.hamcrest.CoreMatchers.`is` as Is
@@ -12,6 +13,11 @@ internal class LoggRepositoryTest : OppslagSpringRunnerTest() {
 
     @Autowired
     private lateinit var loggRepository: LoggRepository
+
+    @BeforeEach
+    fun beforeEach() {
+        opprettSøkerFagsakOgBehandling()
+    }
 
     @Test
     fun `hentLoggForBehandling - skal returnere logg som er lagret for behandling`() {
