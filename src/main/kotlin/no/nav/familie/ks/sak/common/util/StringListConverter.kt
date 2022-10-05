@@ -7,7 +7,7 @@ import javax.persistence.Converter
 class StringListConverter : AttributeConverter<List<String>, String> {
 
     override fun convertToDatabaseColumn(stringList: List<String>): String {
-        return java.lang.String.join(SPLIT_CHAR, stringList)
+        return stringList.joinToString(separator = SPLIT_CHAR)
     }
 
     override fun convertToEntityAttribute(string: String?): List<String> {

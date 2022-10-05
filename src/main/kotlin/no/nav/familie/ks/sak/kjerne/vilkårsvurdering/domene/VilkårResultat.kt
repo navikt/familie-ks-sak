@@ -31,7 +31,7 @@ class VilkårResultat(
     )
     val id: Long = 0,
 
-    // Denne må være nullable=true slik at man kan slette vilkår fra person resultat
+    // Denne må være nullable slik at man kan slette vilkår fra person resultat
     @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "fk_person_resultat_id")
