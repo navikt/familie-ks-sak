@@ -35,6 +35,7 @@ import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.statsborgers
 import java.math.BigDecimal
 import java.time.LocalDate
 import java.time.YearMonth
+import kotlin.math.abs
 import kotlin.random.Random
 
 val fødselsnummerGenerator = FoedselsnummerGenerator()
@@ -122,12 +123,21 @@ fun lagPersonopplysningGrunnlag(
 
 fun lagFagsak(aktør: Aktør = randomAktør(randomFnr())) = Fagsak(aktør = aktør)
 
+private var gjeldendeBehandlingId: Long = abs(Random.nextLong(10000000))
+
+private const val ID_INKREMENT = 50
+fun nesteBehandlingId(): Long {
+    gjeldendeBehandlingId += ID_INKREMENT
+    return gjeldendeBehandlingId
+}
+
 fun lagBehandling(
     fagsak: Fagsak = lagFagsak(),
     type: BehandlingType = BehandlingType.FØRSTEGANGSBEHANDLING,
     opprettetÅrsak: BehandlingÅrsak,
     kategori: BehandlingKategori = BehandlingKategori.NASJONAL
 ): Behandling = Behandling(
+    id = nesteBehandlingId(),
     fagsak = fagsak,
     type = type,
     opprettetÅrsak = opprettetÅrsak,

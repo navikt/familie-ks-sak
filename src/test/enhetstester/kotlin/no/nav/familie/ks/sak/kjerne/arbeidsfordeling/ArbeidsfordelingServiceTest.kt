@@ -72,12 +72,17 @@ internal class ArbeidsfordelingServiceTest {
         val behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.ÅRLIG_KONTROLL)
         val endreBehandlendeEnhetDto = EndreBehandlendeEnhetDto("testId", "testBegrunnelse")
 
-        every { arbeidsfordelingPåBehandlingRepository.finnArbeidsfordelingPåBehandling(0) } returns null
+        every { arbeidsfordelingPåBehandlingRepository.finnArbeidsfordelingPåBehandling(behandling.id) } returns null
 
         val feil =
-            assertThrows<IllegalStateException> { arbeidsfordelingService.manueltOppdaterBehandlendeEnhet(behandling, endreBehandlendeEnhetDto) }
+            assertThrows<IllegalStateException> {
+                arbeidsfordelingService.manueltOppdaterBehandlendeEnhet(
+                    behandling,
+                    endreBehandlendeEnhetDto
+                )
+            }
 
-        assertThat(feil.message, Is("Finner ikke tilknyttet arbeidsfordeling på behandling med id 0"))
+        assertThat(feil.message, Is("Finner ikke tilknyttet arbeidsfordeling på behandling med id ${behandling.id}"))
     }
 
     @Test
@@ -87,14 +92,27 @@ internal class ArbeidsfordelingServiceTest {
         val mockedArbeidsfordelingPåBehandling = mockk<ArbeidsfordelingPåBehandling>(relaxed = true)
         val mockedArbeidsfordelingPåBehandlingEtterEndring = mockk<ArbeidsfordelingPåBehandling>(relaxed = true)
 
-        every { arbeidsfordelingPåBehandlingRepository.finnArbeidsfordelingPåBehandling(0) } returns mockedArbeidsfordelingPåBehandling
-        every { integrasjonClient.hentNavKontorEnhet("testId") } returns NavKontorEnhet(0, "testNavn", "testEnhet", "testStatus")
-        every { mockedArbeidsfordelingPåBehandling.copy(0, 0, "testId", "testNavn", true) } returns mockedArbeidsfordelingPåBehandlingEtterEndring
+        every { arbeidsfordelingPåBehandlingRepository.finnArbeidsfordelingPåBehandling(behandling.id) } returns mockedArbeidsfordelingPåBehandling
+        every { integrasjonClient.hentNavKontorEnhet("testId") } returns NavKontorEnhet(
+            0,
+            "testNavn",
+            "testEnhet",
+            "testStatus"
+        )
+        every {
+            mockedArbeidsfordelingPåBehandling.copy(
+                0,
+                0,
+                "testId",
+                "testNavn",
+                true
+            )
+        } returns mockedArbeidsfordelingPåBehandlingEtterEndring
         every { arbeidsfordelingPåBehandlingRepository.save(mockedArbeidsfordelingPåBehandlingEtterEndring) } returns mockedArbeidsfordelingPåBehandlingEtterEndring
 
         arbeidsfordelingService.manueltOppdaterBehandlendeEnhet(behandling, endreBehandlendeEnhetDto)
 
-        verify(exactly = 1) { arbeidsfordelingPåBehandlingRepository.finnArbeidsfordelingPåBehandling(0) }
+        verify(exactly = 1) { arbeidsfordelingPåBehandlingRepository.finnArbeidsfordelingPåBehandling(behandling.id) }
         verify(exactly = 1) { integrasjonClient.hentNavKontorEnhet("testId") }
         verify(exactly = 1) { mockedArbeidsfordelingPåBehandling.copy(0, 0, "testId", "testNavn", true) }
         verify(exactly = 1) { arbeidsfordelingPåBehandlingRepository.save(mockedArbeidsfordelingPåBehandlingEtterEndring) }

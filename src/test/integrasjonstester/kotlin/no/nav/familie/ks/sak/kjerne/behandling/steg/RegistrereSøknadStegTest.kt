@@ -10,18 +10,12 @@ import no.nav.familie.ks.sak.api.dto.RegistrerSøknadDto
 import no.nav.familie.ks.sak.api.dto.SøkerMedOpplysningerDto
 import no.nav.familie.ks.sak.api.dto.SøknadDto
 import no.nav.familie.ks.sak.api.mapper.SøknadGrunnlagMapper.tilSøknadDto
-import no.nav.familie.ks.sak.data.lagBehandling
-import no.nav.familie.ks.sak.data.lagFagsak
 import no.nav.familie.ks.sak.data.lagPdlPersonInfo
 import no.nav.familie.ks.sak.data.lagPersonopplysningGrunnlag
 import no.nav.familie.ks.sak.data.randomAktør
 import no.nav.familie.ks.sak.integrasjon.pdl.PersonOpplysningerService
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.ArbeidsfordelingService
-import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
-import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
-import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.RegistrereSøknadSteg
-import no.nav.familie.ks.sak.kjerne.fagsak.domene.FagsakRepository
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import no.nav.familie.ks.sak.kjerne.personident.AktørRepository
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlagRepository
@@ -42,12 +36,6 @@ class RegistrereSøknadStegTest : OppslagSpringRunnerTest() {
     private lateinit var aktørRepository: AktørRepository
 
     @Autowired
-    private lateinit var fagsakRepository: FagsakRepository
-
-    @Autowired
-    private lateinit var behandlingRepository: BehandlingRepository
-
-    @Autowired
     private lateinit var søknadGrunnlagRepository: SøknadGrunnlagRepository
 
     @Autowired
@@ -59,26 +47,15 @@ class RegistrereSøknadStegTest : OppslagSpringRunnerTest() {
     @MockkBean
     private lateinit var arbeidsfordelingService: ArbeidsfordelingService
 
-    private lateinit var behandling: Behandling
-
-    private lateinit var søker: Aktør
-
     private lateinit var barn1: Aktør
 
     private lateinit var barn2: Aktør
 
     @BeforeEach
     fun init() {
-        søker = aktørRepository.saveAndFlush(randomAktør())
+        opprettSøkerFagsakOgBehandling()
         barn1 = aktørRepository.saveAndFlush(randomAktør())
         barn2 = aktørRepository.saveAndFlush(randomAktør())
-        val fagsak = fagsakRepository.saveAndFlush(lagFagsak(søker))
-        behandling = behandlingRepository.saveAndFlush(
-            lagBehandling(
-                fagsak = fagsak,
-                opprettetÅrsak = BehandlingÅrsak.SØKNAD
-            )
-        )
         val personopplysningGrunnlag =
             lagPersonopplysningGrunnlag(behandling.id, søker.aktivFødselsnummer(), søkerAktør = søker)
         personopplysningGrunnlagRepository.saveAndFlush(personopplysningGrunnlag)

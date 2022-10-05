@@ -1,15 +1,6 @@
 package no.nav.familie.ks.sak.no.nav.familie.ks.sak.kjerne.vedtak.domene
 
 import no.nav.familie.ks.sak.OppslagSpringRunnerTest
-import no.nav.familie.ks.sak.data.lagBehandling
-import no.nav.familie.ks.sak.data.lagFagsak
-import no.nav.familie.ks.sak.data.randomAktør
-import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
-import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
-import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
-import no.nav.familie.ks.sak.kjerne.fagsak.domene.Fagsak
-import no.nav.familie.ks.sak.kjerne.fagsak.domene.FagsakRepository
-import no.nav.familie.ks.sak.kjerne.personident.AktørRepository
 import no.nav.familie.ks.sak.kjerne.vedtak.domene.Vedtak
 import no.nav.familie.ks.sak.kjerne.vedtak.domene.VedtakRepository
 import org.hamcrest.CoreMatchers.nullValue
@@ -27,22 +18,9 @@ internal class VedtakRepositoryTest : OppslagSpringRunnerTest() {
     @Autowired
     private lateinit var vedtakRepository: VedtakRepository
 
-    @Autowired
-    private lateinit var fagsakRepository: FagsakRepository
-
-    @Autowired
-    private lateinit var behandlingRepository: BehandlingRepository
-
-    @Autowired
-    private lateinit var aktørRepository: AktørRepository
-
-    private lateinit var fagsak: Fagsak
-    private lateinit var behandling: Behandling
-
     @BeforeEach
     fun beforeEach() {
-        fagsak = lagreFagsak()
-        behandling = lagreBehandling(fagsak)
+        opprettSøkerFagsakOgBehandling()
     }
 
     @Test
@@ -50,7 +28,8 @@ internal class VedtakRepositoryTest : OppslagSpringRunnerTest() {
         val vedtak = Vedtak(behandling = behandling, aktiv = false)
         vedtakRepository.saveAndFlush(vedtak)
 
-        val feil = assertThrows<EmptyResultDataAccessException> { vedtakRepository.findByBehandlingAndAktiv(behandling.id) }
+        val feil =
+            assertThrows<EmptyResultDataAccessException> { vedtakRepository.findByBehandlingAndAktiv(behandling.id) }
 
         assertThat(feil.message, Is("Result must not be null"))
     }
@@ -104,11 +83,4 @@ internal class VedtakRepositoryTest : OppslagSpringRunnerTest() {
         assertThat(hentetVedtaker.size, Is(2))
         assertThat(hentetVedtaker.map { it.aktiv }, containsInAnyOrder(false, true))
     }
-
-    private fun lagreFagsak(): Fagsak {
-        val aktør = aktørRepository.saveAndFlush(randomAktør())
-        return fagsakRepository.saveAndFlush(lagFagsak(aktør))
-    }
-
-    private fun lagreBehandling(fagsak: Fagsak): Behandling = behandlingRepository.saveAndFlush(lagBehandling(fagsak, opprettetÅrsak = BehandlingÅrsak.SØKNAD))
 }

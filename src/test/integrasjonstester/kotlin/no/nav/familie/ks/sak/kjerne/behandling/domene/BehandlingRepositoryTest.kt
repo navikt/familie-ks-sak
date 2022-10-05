@@ -1,44 +1,24 @@
 package no.nav.familie.ks.sak.no.nav.familie.ks.sak.kjerne.behandling.domene
 
 import no.nav.familie.ks.sak.OppslagSpringRunnerTest
-import no.nav.familie.ks.sak.data.lagBehandling
-import no.nav.familie.ks.sak.data.lagFagsak
-import no.nav.familie.ks.sak.data.randomAktør
-import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
-import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
-import no.nav.familie.ks.sak.kjerne.fagsak.domene.Fagsak
-import no.nav.familie.ks.sak.kjerne.fagsak.domene.FagsakRepository
-import no.nav.familie.ks.sak.kjerne.personident.AktørRepository
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.TestInstance
 import org.springframework.beans.factory.annotation.Autowired
 
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class BehandlingRepositoryTest : OppslagSpringRunnerTest() {
 
     @Autowired
     private lateinit var behandlingRepository: BehandlingRepository
 
-    @Autowired
-    private lateinit var fagsakRepository: FagsakRepository
-
-    @Autowired
-    private lateinit var aktørRepository: AktørRepository
-
-    private lateinit var fagsak: Fagsak
-    private lateinit var behandling: Behandling
-
     @BeforeEach
     fun beforeEach() {
-        fagsak = lagreFagsak()
-        behandling = lagreBehandling(fagsak)
+        opprettSøkerFagsakOgBehandling()
     }
 
     @Test
@@ -79,11 +59,9 @@ class BehandlingRepositoryTest : OppslagSpringRunnerTest() {
 
     @Test
     fun `findByFagsakAndAktiv - skal returnere null dersom det ikke finnes en aktiv behandling tilknyttet fagsakId`() {
-        val nyFagsak = lagreFagsak()
-        val nyBehandling = lagreBehandling(nyFagsak)
-        behandlingRepository.saveAndFlush(nyBehandling.copy(aktiv = false))
+        behandlingRepository.saveAndFlush(behandling.also { it.aktiv = false })
 
-        val behandling = behandlingRepository.findByFagsakAndAktiv(nyFagsak.id)
+        val behandling = behandlingRepository.findByFagsakAndAktiv(fagsak.id)
 
         assertNull(behandling)
     }
@@ -100,32 +78,19 @@ class BehandlingRepositoryTest : OppslagSpringRunnerTest() {
 
     @Test
     fun `findByFagsakAndAktivAndOpen - skal returnere null dersom aktiv behandling tilknyttet fagsakId er avsluttet`() {
-        val nyFagsak = lagreFagsak()
-        val nyBehandling = lagreBehandling(nyFagsak)
-        behandlingRepository.saveAndFlush(nyBehandling.copy(status = BehandlingStatus.AVSLUTTET))
+        behandlingRepository.saveAndFlush(behandling.also { it.status = BehandlingStatus.AVSLUTTET })
 
-        val behandling = behandlingRepository.findByFagsakAndAktivAndOpen(nyFagsak.id)
+        val behandling = behandlingRepository.findByFagsakAndAktivAndOpen(fagsak.id)
 
         assertNull(behandling)
     }
 
     @Test
     fun `findByFagsakAndAktivAndOpen - skal returnere null dersom åpen behandling tilknyttet fagsakId ikke er aktiv`() {
-        val nyFagsak = lagreFagsak()
-        val nyBehandling = lagreBehandling(nyFagsak)
-        behandlingRepository.saveAndFlush(nyBehandling.copy(aktiv = false))
+        behandlingRepository.saveAndFlush(behandling.also { it.aktiv = false })
 
-        val behandling = behandlingRepository.findByFagsakAndAktivAndOpen(nyFagsak.id)
+        val behandling = behandlingRepository.findByFagsakAndAktivAndOpen(fagsak.id)
 
         assertNull(behandling)
-    }
-
-    private fun lagreFagsak(): Fagsak {
-        val aktør = aktørRepository.saveAndFlush(randomAktør())
-        return fagsakRepository.saveAndFlush(lagFagsak(aktør))
-    }
-
-    private fun lagreBehandling(fagsak: Fagsak): Behandling {
-        return behandlingRepository.saveAndFlush(lagBehandling(fagsak, opprettetÅrsak = BehandlingÅrsak.SØKNAD))
     }
 }
