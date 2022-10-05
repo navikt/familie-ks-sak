@@ -3,10 +3,10 @@ package no.nav.familie.ks.sak.no.nav.familie.ks.sak.kjerne.vilkårsvurdering.dom
 import no.nav.familie.ks.sak.OppslagSpringRunnerTest
 import no.nav.familie.ks.sak.data.lagVilkårsvurdering
 import no.nav.familie.ks.sak.data.randomAktør
+import no.nav.familie.ks.sak.data.shouldNotBeNull
 import no.nav.familie.ks.sak.kjerne.vilkårsvurdering.domene.Resultat
 import no.nav.familie.ks.sak.kjerne.vilkårsvurdering.domene.VilkårsvurderingRepository
 import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -27,10 +27,9 @@ internal class VilkårsvurderingRepositoryTest : OppslagSpringRunnerTest() {
         val vilkårsvurdering = lagVilkårsvurdering(søker, behandling, Resultat.IKKE_VURDERT)
         vilkårsvurderingRepository.saveAndFlush(vilkårsvurdering)
 
-        val hentetVilkårsvurdering = vilkårsvurderingRepository.finnAktiv(behandling.id)
+        val hentetVilkårsvurdering = vilkårsvurderingRepository.finnAktiv(behandling.id).shouldNotBeNull()
 
-        assertNotNull(hentetVilkårsvurdering)
-        assertEquals(behandling.id, hentetVilkårsvurdering!!.behandling.id)
+        assertEquals(behandling.id, hentetVilkårsvurdering.behandling.id)
     }
 
     @Test
