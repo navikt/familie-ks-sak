@@ -35,7 +35,10 @@ data class BehandlingResponsDto(
     val valutakurser: List<Any> = emptyList() // TODO implementeres ved EØS,
 )
 
-data class BehandlingStegTilstandResponsDto(val behandlingSteg: BehandlingSteg, val behandlingStegStatus: BehandlingStegStatus)
+data class BehandlingStegTilstandResponsDto(
+    val behandlingSteg: BehandlingSteg,
+    val behandlingStegStatus: BehandlingStegStatus
+)
 
 data class ArbeidsfordelingResponsDto(
     val behandlendeEnhetId: String,
@@ -68,5 +71,3 @@ data class RegisteropplysningResponsDto(
     val tom: LocalDate?,
     var verdi: String
 )
-
-data class PersonResultatResponsDto(val personIdent: String)

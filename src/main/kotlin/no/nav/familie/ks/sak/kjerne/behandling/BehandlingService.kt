@@ -17,6 +17,7 @@ import no.nav.familie.ks.sak.kjerne.logg.LoggService
 import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
 import no.nav.familie.ks.sak.kjerne.vedtak.VedtakService
+import no.nav.familie.ks.sak.kjerne.vilkårsvurdering.VilkårsvurderingService
 import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext
 import no.nav.familie.prosessering.domene.TaskRepository
 import org.slf4j.Logger
@@ -34,7 +35,8 @@ class BehandlingService(
     private val fagsakRepository: FagsakRepository,
     private val behandlingRepository: BehandlingRepository,
     private val taskRepository: TaskRepository,
-    private val personopplysningGrunnlagService: PersonopplysningGrunnlagService
+    private val personopplysningGrunnlagService: PersonopplysningGrunnlagService,
+    private val vilkårsvurderingService: VilkårsvurderingService
 ) {
 
     @Transactional
@@ -110,7 +112,7 @@ class BehandlingService(
         return behandlingRepository.save(behandling)
     }
 
-    private fun hentSisteBehandlingSomErVedtatt(fagsakId: Long): Behandling? {
+    fun hentSisteBehandlingSomErVedtatt(fagsakId: Long): Behandling? {
         return behandlingRepository.finnBehandlinger(fagsakId)
             .filter { !it.erHenlagt() && it.status == BehandlingStatus.AVSLUTTET }
             .maxByOrNull { it.opprettetTidspunkt }
@@ -123,7 +125,14 @@ class BehandlingService(
         val arbeidsfordelingPåBehandling = arbeidsfordelingService.finnArbeidsfordelingPåBehandling(behandlingId)
         val personer =
             personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlag(behandlingId)?.personer?.toList()
-        return BehandlingMapper.lagBehandlingRespons(behandling, arbeidsfordelingPåBehandling, personer)
+        val personResultater =
+            vilkårsvurderingService.hentAktivVilkårsvurdering(behandlingId)?.personResultater?.toList()
+        return BehandlingMapper.lagBehandlingRespons(
+            behandling,
+            arbeidsfordelingPåBehandling,
+            personer,
+            personResultater
+        )
     }
 
     fun oppdaterBehandlendeEnhet(behandlingId: Long, endreBehandlendeEnhet: EndreBehandlendeEnhetDto) =

@@ -32,6 +32,13 @@ import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Personopplys
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.bostedsadresse.GrBostedsadresse
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.sivilstand.GrSivilstand
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.statsborgerskap.GrStatsborgerskap
+import no.nav.familie.ks.sak.kjerne.vilkårsvurdering.domene.AnnenVurdering
+import no.nav.familie.ks.sak.kjerne.vilkårsvurdering.domene.AnnenVurderingType
+import no.nav.familie.ks.sak.kjerne.vilkårsvurdering.domene.PersonResultat
+import no.nav.familie.ks.sak.kjerne.vilkårsvurdering.domene.Resultat
+import no.nav.familie.ks.sak.kjerne.vilkårsvurdering.domene.Vilkår
+import no.nav.familie.ks.sak.kjerne.vilkårsvurdering.domene.VilkårResultat
+import no.nav.familie.ks.sak.kjerne.vilkårsvurdering.domene.Vilkårsvurdering
 import java.math.BigDecimal
 import java.time.LocalDate
 import java.time.YearMonth
@@ -231,4 +238,53 @@ fun lagPerson(
     person.sivilstander = mutableListOf(GrSivilstand.fraSivilstand(lagSivilstand(), person))
 
     return person
+}
+
+fun lagVilkårsvurdering(
+    søkerAktør: Aktør,
+    behandling: Behandling,
+    resultat: Resultat,
+    søkerPeriodeFom: LocalDate? = LocalDate.now().minusMonths(1),
+    søkerPeriodeTom: LocalDate? = LocalDate.now().plusYears(2)
+): Vilkårsvurdering {
+    val vilkårsvurdering = Vilkårsvurdering(
+        behandling = behandling
+    )
+    val personResultat = PersonResultat(
+        vilkårsvurdering = vilkårsvurdering,
+        aktør = søkerAktør
+    )
+    personResultat.setSortedVilkårResultater(
+        setOf(
+            VilkårResultat(
+                personResultat = personResultat,
+                vilkårType = Vilkår.BOSATT_I_RIKET,
+                resultat = resultat,
+                periodeFom = søkerPeriodeFom,
+                periodeTom = søkerPeriodeTom,
+                begrunnelse = "",
+                behandlingId = behandling.id
+            ),
+            VilkårResultat(
+                personResultat = personResultat,
+                vilkårType = Vilkår.MEDLEMSSKAP,
+                resultat = resultat,
+                periodeFom = søkerPeriodeFom,
+                periodeTom = søkerPeriodeTom,
+                begrunnelse = "",
+                behandlingId = behandling.id
+            )
+        )
+    )
+    personResultat.andreVurderinger.add(
+        AnnenVurdering(
+            personResultat = personResultat,
+            resultat = resultat,
+            type = AnnenVurderingType.OPPLYSNINGSPLIKT,
+            begrunnelse = null
+        )
+    )
+
+    vilkårsvurdering.personResultater = setOf(personResultat)
+    return vilkårsvurdering
 }
