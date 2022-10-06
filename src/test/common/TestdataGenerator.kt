@@ -267,7 +267,7 @@ fun lagVilkårsvurdering(
             ),
             VilkårResultat(
                 personResultat = personResultat,
-                vilkårType = Vilkår.MEDLEMSSKAP,
+                vilkårType = Vilkår.MEDLEMSKAP,
                 resultat = resultat,
                 periodeFom = søkerPeriodeFom,
                 periodeTom = søkerPeriodeTom,

@@ -57,7 +57,7 @@ class VilkårsvurderingServiceTest : OppslagSpringRunnerTest() {
         assertEquals(3, lagretVilkårsvurdering.personResultater.size)
         assertThat(
             lagretVilkårsvurdering.personResultater.find { it.aktør.aktivFødselsnummer() === søker.aktivFødselsnummer() }?.vilkårResultater?.map { it.vilkårType },
-            containsInAnyOrder(Vilkår.BOSATT_I_RIKET, Vilkår.MEDLEMSSKAP)
+            containsInAnyOrder(Vilkår.BOSATT_I_RIKET, Vilkår.MEDLEMSKAP)
         )
         assertThat(
             lagretVilkårsvurdering.personResultater.find { it.aktør.aktivFødselsnummer() === barn1.aktivFødselsnummer() }?.vilkårResultater?.map { it.vilkårType },

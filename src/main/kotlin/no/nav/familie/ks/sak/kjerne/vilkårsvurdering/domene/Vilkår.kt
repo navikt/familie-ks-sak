@@ -16,7 +16,7 @@ enum class Vilkår(
         beskrivelse = "Bosatt i riket",
         harRegelverk = true
     ),
-    MEDLEMSSKAP(
+    MEDLEMSKAP(
         parterDetteGjelderFor = listOf(PersonType.SØKER),
         ytelseType = YtelseType.ORDINÆR_KONTANTSTØTTE,
         beskrivelse = "Medlemskap",
