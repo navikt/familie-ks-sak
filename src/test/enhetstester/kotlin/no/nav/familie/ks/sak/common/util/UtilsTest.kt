@@ -8,15 +8,15 @@ internal class UtilsTest {
 
     @Test
     fun `konverterEnumsTilString - skal konvertere liste av enum verdier til semikolon-separert string`() {
-        val enums: List<Vilkår> = listOf(Vilkår.MEDLEMSSKAP, Vilkår.BARNEHAGEPLASS, Vilkår.BOR_MED_SØKER)
+        val enums: List<Vilkår> = listOf(Vilkår.MEDLEMSKAP, Vilkår.BARNEHAGEPLASS, Vilkår.BOR_MED_SØKER)
         val enumString = konverterEnumsTilString(enums)
-        assertEquals("${Vilkår.MEDLEMSSKAP};${Vilkår.BARNEHAGEPLASS};${Vilkår.BOR_MED_SØKER}", enumString)
+        assertEquals("${Vilkår.MEDLEMSKAP};${Vilkår.BARNEHAGEPLASS};${Vilkår.BOR_MED_SØKER}", enumString)
     }
 
     @Test
     fun `konverterStringTilEnums - skal konvertere semikolon-separert enumString til liste av enum verdier`() {
-        val enumString = "${Vilkår.MEDLEMSSKAP};${Vilkår.BARNEHAGEPLASS};${Vilkår.BOR_MED_SØKER}"
+        val enumString = "${Vilkår.MEDLEMSKAP};${Vilkår.BARNEHAGEPLASS};${Vilkår.BOR_MED_SØKER}"
         val enums = konverterStringTilEnums<Vilkår>(enumString)
-        assertEquals(listOf(Vilkår.MEDLEMSSKAP, Vilkår.BARNEHAGEPLASS, Vilkår.BOR_MED_SØKER), enums)
+        assertEquals(listOf(Vilkår.MEDLEMSKAP, Vilkår.BARNEHAGEPLASS, Vilkår.BOR_MED_SØKER), enums)
     }
 }
