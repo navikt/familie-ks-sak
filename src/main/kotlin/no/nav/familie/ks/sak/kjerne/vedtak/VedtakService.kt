@@ -10,6 +10,8 @@ import org.springframework.stereotype.Service
 @Service
 class VedtakService(private val vedtakRepository: VedtakRepository) {
 
+    fun hentVedtak(vedtakId: Long): Vedtak = vedtakRepository.hentVedtak(vedtakId)
+
     fun opprettOgInitierNyttVedtakForBehandling(behandling: Behandling) {
         behandling.steg.takeUnless { it !== BehandlingSteg.BESLUTTE_VEDTAK && it !== BehandlingSteg.REGISTRERE_PERSONGRUNNLAG }
             ?: throw Feil("Forsøker å initiere vedtak på steg ${behandling.steg}")

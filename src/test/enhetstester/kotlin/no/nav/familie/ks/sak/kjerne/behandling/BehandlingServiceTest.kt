@@ -97,7 +97,7 @@ class BehandlingServiceTest {
         every { behandlingRepository.saveAndFlush(any()) } returns behandling
         every { behandlingRepository.save(any()) } returns behandling
         every { arbeidsfordelingService.fastsettBehandledeEnhet(any(), any()) } just runs
-        every { arbeidsfordelingService.finnArbeidsfordelingPåBehandling(any()) } returns ArbeidsfordelingPåBehandling(
+        every { arbeidsfordelingService.hentArbeidsfordelingPåBehandling(any()) } returns ArbeidsfordelingPåBehandling(
             behandlingId = behandling.id,
             behandlendeEnhetId = "enhet",
             behandlendeEnhetNavn = "enhetNavn"
@@ -342,7 +342,7 @@ class BehandlingServiceTest {
 
         assertNotNull(behandlingResponsDto)
         verify(exactly = 1) { behandlingService.hentBehandling(behandling.id) }
-        verify(exactly = 1) { arbeidsfordelingService.finnArbeidsfordelingPåBehandling(behandling.id) }
+        verify(exactly = 1) { arbeidsfordelingService.hentArbeidsfordelingPåBehandling(behandling.id) }
         verify(exactly = 1) { personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlag(behandling.id) }
 
         assertTrue { behandlingResponsDto.personer.isNotEmpty() }

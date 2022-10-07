@@ -24,6 +24,23 @@ internal class VedtakRepositoryTest : OppslagSpringRunnerTest() {
     }
 
     @Test
+    fun `hentVedtak - skal kaste EmptyResultDataAccessException hvis det ikke finnes noen vedtak med id`() {
+        val feil =
+            assertThrows<EmptyResultDataAccessException> { vedtakRepository.hentVedtak(404) }
+
+        assertThat(feil.message, Is("Result must not be null"))
+    }
+
+    @Test
+    fun `hentVedtak - skal returnere vedtak hvis vedtak med id finnes`() {
+        val vedtak = vedtakRepository.saveAndFlush(Vedtak(behandling = behandling, aktiv = false))
+
+        val hentetVedtak = vedtakRepository.hentVedtak(vedtak.id)
+
+        assertThat(vedtak.id, Is(hentetVedtak.id))
+    }
+
+    @Test
     fun `findByBehandlingAndAktiv - skal kaste EmptyResultDataAccessException hvis det ikke finnes aktiv vedtak for behandling`() {
         val vedtak = Vedtak(behandling = behandling, aktiv = false)
         vedtakRepository.saveAndFlush(vedtak)

@@ -2,6 +2,7 @@ package no.nav.familie.ks.sak.kjerne.logg
 
 import io.micrometer.core.instrument.Counter
 import io.micrometer.core.instrument.Metrics
+import no.nav.familie.ks.sak.common.util.tilKortString
 import no.nav.familie.ks.sak.config.BehandlerRolle
 import no.nav.familie.ks.sak.config.RolleConfig
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.domene.ArbeidsfordelingPåBehandling
@@ -10,6 +11,7 @@ import no.nav.familie.ks.sak.kjerne.logg.domene.Logg
 import no.nav.familie.ks.sak.kjerne.logg.domene.LoggRepository
 import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext
 import org.springframework.stereotype.Service
+import java.time.LocalDateTime
 
 @Service
 class LoggService(
@@ -93,6 +95,21 @@ class LoggService(
                     rolleConfig,
                     BehandlerRolle.SAKSBEHANDLER
                 )
+            )
+        )
+    }
+
+    fun opprettMottattDokumentLogg(behandling: Behandling, tekst: String = "", mottattDato: LocalDateTime) {
+        lagreLogg(
+            Logg(
+                behandlingId = behandling.id,
+                type = LoggType.DOKUMENT_MOTTATT,
+                tittel = "Dokument mottatt ${mottattDato.toLocalDate().tilKortString()}",
+                rolle = SikkerhetContext.hentRolletilgangFraSikkerhetscontext(
+                    rolleConfig,
+                    BehandlerRolle.SAKSBEHANDLER
+                ),
+                tekst = tekst
             )
         )
     }

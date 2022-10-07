@@ -52,7 +52,7 @@ internal class ArbeidsfordelingServiceTest {
         every { arbeidsfordelingPåBehandlingRepository.finnArbeidsfordelingPåBehandling(404) } returns null
 
         val feil =
-            assertThrows<IllegalStateException> { arbeidsfordelingService.finnArbeidsfordelingPåBehandling(404) }
+            assertThrows<IllegalStateException> { arbeidsfordelingService.hentArbeidsfordelingPåBehandling(404) }
 
         assertThat(feil.message, Is("Finner ikke tilknyttet arbeidsfordeling på behandling med id 404"))
     }
@@ -62,7 +62,7 @@ internal class ArbeidsfordelingServiceTest {
         val mockedArbeidsfordelingPåBehandling = mockk<ArbeidsfordelingPåBehandling>()
         every { arbeidsfordelingPåBehandlingRepository.finnArbeidsfordelingPåBehandling(200) } returns mockedArbeidsfordelingPåBehandling
 
-        val finnArbeidsfordelingPåBehandling = arbeidsfordelingService.finnArbeidsfordelingPåBehandling(200)
+        val finnArbeidsfordelingPåBehandling = arbeidsfordelingService.hentArbeidsfordelingPåBehandling(200)
 
         assertThat(finnArbeidsfordelingPåBehandling, Is(mockedArbeidsfordelingPåBehandling))
     }
