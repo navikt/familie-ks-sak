@@ -73,7 +73,7 @@ class InnkommendeJournalføringService(
                 type = request.nyBehandlingstype,
                 årsak = request.nyBehandlingsårsak,
                 kategori = request.kategori,
-                søknadMottattDato = request.datoMottatt?.toLocalDate(),
+                søknadMottattDato = request.datoMottatt?.toLocalDate()
             )
 
             tilknyttedeBehandlingIder.add(nyBehandling.id.toString())
@@ -103,7 +103,7 @@ class InnkommendeJournalføringService(
         type: BehandlingType,
         årsak: BehandlingÅrsak,
         kategori: BehandlingKategori? = null,
-        søknadMottattDato: LocalDate? = null,
+        søknadMottattDato: LocalDate? = null
     ): Behandling {
         fagsakService.hentEllerOpprettFagsak(FagsakRequestDto(personIdent))
 
@@ -113,7 +113,7 @@ class InnkommendeJournalføringService(
             behandlingType = type,
             behandlingÅrsak = årsak,
             saksbehandlerIdent = saksbehandlerIdent,
-            søknadMottattDato = søknadMottattDato,
+            søknadMottattDato = søknadMottattDato
         )
 
         return stegService.håndterNyBehandling(nyBehandlingDto)
@@ -182,7 +182,8 @@ class InnkommendeJournalføringService(
             secureLogger.info("Ferdigstiller journalpost $journalpostId")
 
             integrasjonClient.ferdigstillJournalpost(
-                journalpostId = journalpostId, journalførendeEnhet = behandlendeEnhet
+                journalpostId = journalpostId,
+                journalførendeEnhet = behandlendeEnhet
             )
 
             integrasjonClient.ferdigstillOppgave(oppgaveId = oppgaveId.toLong())
@@ -206,7 +207,9 @@ class InnkommendeJournalføringService(
 
         behandlinger.forEach {
             loggService.opprettMottattDokumentLogg(
-                behandling = it, tekst = loggTekst, mottattDato = journalpost.datoMottatt!!
+                behandling = it,
+                tekst = loggTekst,
+                mottattDato = journalpost.datoMottatt!!
             )
         }
     }

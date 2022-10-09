@@ -84,7 +84,7 @@ class JournalførVedtaksbrevSteg(
             journalførendeEnhet = journalførendeEnhet,
             brev = brev,
             vedlegg = vedlegg,
-            behandlingId = vedtak.behandling.id,
+            behandlingId = vedtak.behandling.id
         )
     }
 
