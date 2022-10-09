@@ -8,18 +8,25 @@ import no.nav.familie.ks.sak.api.dto.PersonResponsDto
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.domene.ArbeidsfordelingPåBehandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
+import no.nav.familie.ks.sak.kjerne.vilkårsvurdering.domene.PersonResultat
 
 object BehandlingMapper {
 
     fun lagBehandlingRespons(
         behandling: Behandling,
         arbeidsfordelingPåBehandling: ArbeidsfordelingPåBehandling,
-        personer: List<Person>?
+        personer: List<Person>?,
+        personResultater: List<PersonResultat>?
     ) =
         BehandlingResponsDto(
             behandlingId = behandling.id,
             steg = behandling.steg,
-            stegTilstand = behandling.behandlingStegTilstand.map { BehandlingStegTilstandResponsDto(it.behandlingSteg, it.behandlingStegStatus) },
+            stegTilstand = behandling.behandlingStegTilstand.map {
+                BehandlingStegTilstandResponsDto(
+                    it.behandlingSteg,
+                    it.behandlingStegStatus
+                )
+            },
             status = behandling.status,
             resultat = behandling.resultat,
             type = behandling.type,
@@ -28,7 +35,9 @@ object BehandlingMapper {
             opprettetTidspunkt = behandling.opprettetTidspunkt,
             endretAv = behandling.endretAv,
             arbeidsfordelingPåBehandling = lagArbeidsfordelingRespons(arbeidsfordelingPåBehandling),
-            personer = personer?.map { lagPersonRespons(it) } ?: emptyList()
+            personer = personer?.map { lagPersonRespons(it) } ?: emptyList(),
+            personResultater = personResultater?.map { VilkårsvurderingMapper.lagPersonResultatRespons(it) }
+                ?: emptyList()
         )
 
     private fun lagArbeidsfordelingRespons(arbeidsfordelingPåBehandling: ArbeidsfordelingPåBehandling) =

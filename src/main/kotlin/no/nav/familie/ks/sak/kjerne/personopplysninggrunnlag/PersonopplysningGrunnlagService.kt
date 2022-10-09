@@ -86,6 +86,10 @@ class PersonopplysningGrunnlagService(
     fun hentAktivPersonopplysningGrunnlag(behandlingId: Long): PersonopplysningGrunnlag? =
         personopplysningGrunnlagRepository.findByBehandlingAndAktiv(behandlingId = behandlingId)
 
+    fun hentAktivPersonopplysningGrunnlagThrows(behandlingId: Long): PersonopplysningGrunnlag =
+        personopplysningGrunnlagRepository.findByBehandlingAndAktiv(behandlingId = behandlingId)
+            ?: throw Feil("Det finnes ikke noe aktivt personopplysningsgrunnlag for $behandlingId")
+
     fun lagreSøkerOgBarnINyttGrunnlag(
         aktør: Aktør,
         behandling: Behandling,

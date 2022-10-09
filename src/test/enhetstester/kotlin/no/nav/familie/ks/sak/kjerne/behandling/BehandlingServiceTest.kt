@@ -31,6 +31,7 @@ import no.nav.familie.ks.sak.kjerne.logg.LoggService
 import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
 import no.nav.familie.ks.sak.kjerne.vedtak.VedtakService
+import no.nav.familie.ks.sak.kjerne.vilkårsvurdering.VilkårsvurderingService
 import no.nav.familie.prosessering.domene.TaskRepository
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
@@ -73,6 +74,9 @@ class BehandlingServiceTest {
     @MockK
     private lateinit var personopplysningGrunnlagService: PersonopplysningGrunnlagService
 
+    @MockK
+    private lateinit var vilkårsvurderingService: VilkårsvurderingService
+
     @InjectMockKs
     private lateinit var behandlingService: BehandlingService
 
@@ -113,6 +117,7 @@ class BehandlingServiceTest {
         every { stegService.utførSteg(any(), any()) } returns Unit
         every { personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlag(any()) } returns
             lagPersonopplysningGrunnlag(behandlingId = behandling.id, søkerPersonIdent = søkersIdent)
+        every { vilkårsvurderingService.hentAktivVilkårsvurdering(any()) } returns null
     }
 
     @Test
@@ -344,6 +349,7 @@ class BehandlingServiceTest {
         verify(exactly = 1) { behandlingService.hentBehandling(behandling.id) }
         verify(exactly = 1) { arbeidsfordelingService.hentArbeidsfordelingPåBehandling(behandling.id) }
         verify(exactly = 1) { personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlag(behandling.id) }
+        verify(exactly = 1) { vilkårsvurderingService.hentAktivVilkårsvurdering(behandling.id) }
 
         assertTrue { behandlingResponsDto.personer.isNotEmpty() }
         assertEquals(1, behandlingResponsDto.personer.size)
