@@ -191,6 +191,7 @@ enum class Behandlingsresultat(val displayName: String) {
 }
 
 fun Behandlingsresultat.tilDokumenttype() = when (this) {
+    // TODO: Oppdater enum i familie felles.
     Behandlingsresultat.AVSLÅTT -> Dokumenttype.BARNETRYGD_VEDTAK_AVSLAG
     Behandlingsresultat.OPPHØRT -> Dokumenttype.BARNETRYGD_OPPHØR
     else -> Dokumenttype.BARNETRYGD_VEDTAK_INNVILGELSE

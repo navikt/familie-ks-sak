@@ -39,7 +39,8 @@ internal class UtgåendeJournalføringServiceTest {
         val feil = assertThrows<Feil> {
             utgåendeJournalføringService.journalførDokument(
                 fagsakId = fagsakId,
-                fnr = fnr, brev = emptyList()
+                fnr = fnr,
+                brev = emptyList()
             )
         }
 
@@ -58,7 +59,8 @@ internal class UtgåendeJournalføringServiceTest {
 
         val journalpostId = utgåendeJournalføringService.journalførDokument(
             fagsakId = fagsakId,
-            fnr = fnr, brev = emptyList()
+            fnr = fnr,
+            brev = emptyList()
         )
 
         assertThat(journalpostId, Is("testId"))
@@ -72,7 +74,11 @@ internal class UtgåendeJournalføringServiceTest {
         val fnr = randomFnr()
         val fagsakId = 1L
 
-        every { integrasjonClient.journalførDokument(any()) } throws RessursException(mockk(), mockk(), HttpStatus.CONFLICT)
+        every { integrasjonClient.journalførDokument(any()) } throws RessursException(
+            mockk(),
+            mockk(),
+            HttpStatus.CONFLICT
+        )
         every { integrasjonClient.hentJournalposterForBruker(any()) } returns listOf(mocketEksisterendeJournalpost)
         every { mocketEksisterendeJournalpost.eksternReferanseId } returns "1_null_null"
 

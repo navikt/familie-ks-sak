@@ -44,7 +44,12 @@ class InnkommendeJournalføringService(
 
     fun hentJournalposterForBruker(brukerId: String): List<Journalpost> = integrasjonClient.hentJournalposterForBruker(
         JournalposterForBrukerRequest(
-            antall = 1000, brukerId = Bruker(id = brukerId, type = BrukerIdType.FNR), tema = listOf(Tema.KON)
+            antall = 1000,
+            brukerId = Bruker(
+                id = brukerId,
+                type = BrukerIdType.FNR
+            ),
+            tema = listOf(Tema.KON)
         )
     )
 
@@ -75,7 +80,8 @@ class InnkommendeJournalføringService(
         }
 
         val (tilknyttetFagsak, behandlinger) = lagreJournalpostOgKnyttFagsakTilJournalpost(
-            tilknyttedeBehandlingIder, journalpostId
+            tilknyttedeBehandlingIder,
+            journalpostId
         )
 
         oppdaterLogiskeVedlegg(request.dokumenter)

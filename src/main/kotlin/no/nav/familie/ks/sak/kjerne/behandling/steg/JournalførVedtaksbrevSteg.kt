@@ -23,7 +23,7 @@ class JournalførVedtaksbrevSteg(
     private val vedtakService: VedtakService,
     private val arbeidsfordelingService: ArbeidsfordelingService,
     private val utgåendeJournalføringService: UtgåendeJournalføringService,
-    private val fagsakService: FagsakService,
+    private val fagsakService: FagsakService
 ) : IBehandlingSteg {
     override fun getBehandlingssteg(): BehandlingSteg = BehandlingSteg.JOURNALFØR_VEDTAKSBREV
 
@@ -50,7 +50,7 @@ class JournalførVedtaksbrevSteg(
         fnr: String,
         fagsakId: Long,
         vedtak: Vedtak,
-        journalførendeEnhet: String,
+        journalførendeEnhet: String
     ): String {
         val vedleggPdf = hentVedlegg(VEDTAK_VEDLEGG_FILNAVN)
 
