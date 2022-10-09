@@ -24,7 +24,7 @@ class ArbeidsfordelingService(
     private val oppgaveService: OppgaveService,
     private val loggService: LoggService
 ) {
-    fun finnArbeidsfordelingPåBehandling(behandlingId: Long) =
+    fun hentArbeidsfordelingPåBehandling(behandlingId: Long) =
         arbeidsfordelingPåBehandlingRepository.finnArbeidsfordelingPåBehandling(behandlingId)
             ?: error("Finner ikke tilknyttet arbeidsfordeling på behandling med id $behandlingId")
 
@@ -70,7 +70,7 @@ class ArbeidsfordelingService(
     }
 
     fun manueltOppdaterBehandlendeEnhet(behandling: Behandling, endreBehandlendeEnhet: EndreBehandlendeEnhetDto) {
-        val aktivArbeidsfordelingPåBehandling = finnArbeidsfordelingPåBehandling(behandling.id)
+        val aktivArbeidsfordelingPåBehandling = hentArbeidsfordelingPåBehandling(behandling.id)
 
         val oppdatertArbeidsfordelingPåBehandling = arbeidsfordelingPåBehandlingRepository.save(
             aktivArbeidsfordelingPåBehandling.copy(

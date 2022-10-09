@@ -16,6 +16,7 @@ import no.nav.familie.ks.sak.kjerne.logg.domene.LoggRepository
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import java.time.LocalDateTime
 import org.hamcrest.CoreMatchers.`is` as Is
 
 @ExtendWith(MockKExtension::class)
@@ -158,5 +159,25 @@ class LoggServiceTest {
         assertThat(lagretLogg.behandlingId, Is(behandling.id))
         assertThat(lagretLogg.type, Is(LoggType.SØKNAD_REGISTRERT))
         assertThat(lagretLogg.tittel, Is("Søknaden ble endret"))
+    }
+
+    @Test
+    fun `opprettMottattDokumentLogg - skal lagre logg på at dokument er mottatt `() {
+        val behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD)
+        val mottattDato = LocalDateTime.of(2022, 4, 1, 0, 0)
+        val slot = slot<Logg>()
+
+        every { loggRepository.save(capture(slot)) } returns mockk()
+
+        loggService.opprettMottattDokumentLogg(behandling, "testTekst", mottattDato)
+
+        verify(exactly = 1) { loggRepository.save(slot.captured) }
+
+        val lagretLogg = slot.captured
+
+        assertThat(lagretLogg.behandlingId, Is(behandling.id))
+        assertThat(lagretLogg.type, Is(LoggType.DOKUMENT_MOTTATT))
+        assertThat(lagretLogg.tekst, Is("testTekst"))
+        assertThat(lagretLogg.tittel, Is("Dokument mottatt 01.04.22"))
     }
 }

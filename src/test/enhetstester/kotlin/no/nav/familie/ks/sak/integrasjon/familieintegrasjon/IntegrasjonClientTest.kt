@@ -6,7 +6,12 @@ import com.github.tomakehurst.wiremock.core.WireMockConfiguration
 import io.mockk.every
 import io.mockk.mockkObject
 import no.nav.familie.kontrakter.felles.Tema
+import no.nav.familie.kontrakter.felles.dokarkiv.LogiskVedleggRequest
+import no.nav.familie.kontrakter.felles.dokarkiv.v2.ArkiverDokumentRequest
 import no.nav.familie.kontrakter.felles.oppgave.FinnOppgaveRequest
+import no.nav.familie.ks.sak.api.dto.JournalpostBrukerDto
+import no.nav.familie.ks.sak.api.dto.OppdaterJournalpostRequestDto
+import no.nav.familie.ks.sak.data.randomFnr
 import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.containsInAnyOrder
@@ -134,6 +139,71 @@ internal class IntegrasjonClientTest {
         val fordeltOppgave = integrasjonClient.fordelOppgave(200, saksbehandler)
 
         assertThat(fordeltOppgave.oppgaveId, Is(200))
+    }
+
+    @Test
+    fun `leggTilLogiskVedlegg skal returnere id på vedlegg som ble lagt til`() {
+        val request = LogiskVedleggRequest("testtittel")
+
+        wiremockServerItem.stubFor(
+            WireMock.post(WireMock.urlEqualTo("/arkiv/dokument/testid/logiskVedlegg"))
+                .willReturn(WireMock.okJson(readFile("logiskVedleggEnkelResponse.json")))
+        )
+
+        val fordeltOppgave = integrasjonClient.leggTilLogiskVedlegg(request, "testid")
+
+        assertThat(fordeltOppgave.logiskVedleggId, Is(200))
+    }
+
+    @Test
+    fun `slettLogiskVedlegg skal returnere id på vedlegg som ble slettet til`() {
+        wiremockServerItem.stubFor(
+            WireMock.delete(WireMock.urlEqualTo("/arkiv/dokument/testDokumentId/logiskVedlegg/testId"))
+                .willReturn(WireMock.okJson(readFile("logiskVedleggEnkelResponse.json")))
+        )
+
+        val fordeltOppgave = integrasjonClient.slettLogiskVedlegg("testId", "testDokumentId")
+
+        assertThat(fordeltOppgave.logiskVedleggId, Is(200))
+    }
+
+    @Test
+    fun `oppdaterJournalpost skal returnere id på journalpost som ble oppdatert`() {
+        val request = OppdaterJournalpostRequestDto(bruker = JournalpostBrukerDto(id = "testId", navn = "testNavn"))
+
+        wiremockServerItem.stubFor(
+            WireMock.put(WireMock.urlEqualTo("/arkiv/v2/testJournalpostId"))
+                .willReturn(WireMock.okJson(readFile("oppdaterJournalpostEnkelResponse.json")))
+        )
+
+        val fordeltOppgave = integrasjonClient.oppdaterJournalpost(request, "testJournalpostId")
+
+        assertThat(fordeltOppgave.journalpostId, Is("oppdatertJournalpostId"))
+    }
+
+    @Test
+    fun `ferdigstillJournalpost skal sette journalpost til ferdigstilt`() {
+        wiremockServerItem.stubFor(
+            WireMock.put(WireMock.urlEqualTo("/arkiv/v2/testJournalPost/ferdigstill?journalfoerendeEnhet=testEnhet"))
+                .willReturn(WireMock.okJson(readFile("logiskVedleggEnkelResponse.json")))
+        )
+
+        integrasjonClient.ferdigstillJournalpost("testJournalPost", "testEnhet")
+    }
+
+    @Test
+    fun `journalførDokument skal returnere detaljer om dokument som ble journalført`() {
+        val request = ArkiverDokumentRequest(randomFnr(), true, emptyList(), emptyList())
+
+        wiremockServerItem.stubFor(
+            WireMock.post(WireMock.urlEqualTo("/arkiv/v4"))
+                .willReturn(WireMock.okJson(readFile("journalførDokumentEnkelResponse.json")))
+        )
+
+        val arkiverDokumentResponse = integrasjonClient.journalførDokument(request)
+
+        assertThat(arkiverDokumentResponse.ferdigstilt, Is(true))
+        assertThat(arkiverDokumentResponse.journalpostId, Is("12345678"))
     }
 
     private fun readFile(filnavn: String): String {

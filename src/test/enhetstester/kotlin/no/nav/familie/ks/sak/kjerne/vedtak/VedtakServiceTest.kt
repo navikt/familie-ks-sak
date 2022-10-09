@@ -13,6 +13,8 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg
 import no.nav.familie.ks.sak.kjerne.vedtak.domene.Vedtak
 import no.nav.familie.ks.sak.kjerne.vedtak.domene.VedtakRepository
 import org.hamcrest.MatcherAssert.assertThat
+import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.jupiter.params.ParameterizedTest
@@ -27,6 +29,16 @@ class VedtakServiceTest {
 
     @InjectMockKs
     private lateinit var vedtakService: VedtakService
+
+    @Test
+    fun `hentVedtak - skal hente vedtak fra VedtakRepository`() {
+        every { vedtakRepository.hentVedtak(1) } returns mockk()
+
+        val hentetVedtak = vedtakService.hentVedtak(1)
+
+        Assertions.assertNotNull(hentetVedtak)
+        verify(exactly = 1) { vedtakRepository.hentVedtak(1) }
+    }
 
     @ParameterizedTest
     @EnumSource(value = BehandlingSteg::class, names = ["BESLUTTE_VEDTAK", "REGISTRERE_PERSONGRUNNLAG"], mode = EnumSource.Mode.EXCLUDE)

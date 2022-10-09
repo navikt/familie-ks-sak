@@ -3,6 +3,11 @@ package no.nav.familie.ks.sak.integrasjon.familieintegrasjon
 import no.nav.familie.http.client.AbstractRestClient
 import no.nav.familie.kontrakter.felles.Ressurs
 import no.nav.familie.kontrakter.felles.Tema
+import no.nav.familie.kontrakter.felles.dokarkiv.ArkiverDokumentResponse
+import no.nav.familie.kontrakter.felles.dokarkiv.LogiskVedleggRequest
+import no.nav.familie.kontrakter.felles.dokarkiv.LogiskVedleggResponse
+import no.nav.familie.kontrakter.felles.dokarkiv.OppdaterJournalpostResponse
+import no.nav.familie.kontrakter.felles.dokarkiv.v2.ArkiverDokumentRequest
 import no.nav.familie.kontrakter.felles.journalpost.Journalpost
 import no.nav.familie.kontrakter.felles.journalpost.JournalposterForBrukerRequest
 import no.nav.familie.kontrakter.felles.navkontor.NavKontorEnhet
@@ -12,6 +17,7 @@ import no.nav.familie.kontrakter.felles.oppgave.Oppgave
 import no.nav.familie.kontrakter.felles.oppgave.OppgaveResponse
 import no.nav.familie.kontrakter.felles.oppgave.OpprettOppgaveRequest
 import no.nav.familie.kontrakter.felles.tilgangskontroll.Tilgang
+import no.nav.familie.ks.sak.api.dto.OppdaterJournalpostRequestDto
 import no.nav.familie.ks.sak.common.kallEksternTjeneste
 import no.nav.familie.ks.sak.common.kallEksternTjenesteRessurs
 import no.nav.familie.ks.sak.common.kallEksternTjenesteUtenRespons
@@ -226,11 +232,71 @@ class IntegrasjonClient(
         }
     }
 
+    fun leggTilLogiskVedlegg(request: LogiskVedleggRequest, dokumentinfoId: String): LogiskVedleggResponse {
+        val uri = URI.create("$integrasjonUri/arkiv/dokument/$dokumentinfoId/logiskVedlegg")
+
+        return kallEksternTjenesteRessurs(
+            tjeneste = "dokarkiv",
+            uri = uri,
+            formål = "Legg til logisk vedlegg på dokument $dokumentinfoId"
+        ) {
+            postForEntity(uri, request)
+        }
+    }
+
+    fun slettLogiskVedlegg(logiskVedleggId: String, dokumentinfoId: String): LogiskVedleggResponse {
+        val uri = URI.create("$integrasjonUri/arkiv/dokument/$dokumentinfoId/logiskVedlegg/$logiskVedleggId")
+        return kallEksternTjenesteRessurs(
+            tjeneste = "dokarkiv",
+            uri = uri,
+            formål = "Slett logisk vedlegg på dokument $dokumentinfoId"
+        ) {
+            deleteForEntity(uri)
+        }
+    }
+
+    fun oppdaterJournalpost(request: OppdaterJournalpostRequestDto, journalpostId: String): OppdaterJournalpostResponse {
+        val uri = URI.create("$integrasjonUri/arkiv/v2/$journalpostId")
+
+        return kallEksternTjenesteRessurs(
+            tjeneste = "dokarkiv",
+            uri = uri,
+            formål = "Oppdater journalpost"
+        ) {
+            putForEntity(uri, request)
+        }
+    }
+
+    fun ferdigstillJournalpost(journalpostId: String, journalførendeEnhet: String) {
+        val uri =
+            URI.create("$integrasjonUri/arkiv/v2/$journalpostId/ferdigstill?journalfoerendeEnhet=$journalførendeEnhet")
+
+        kallEksternTjenesteUtenRespons(
+            tjeneste = "dokarkiv",
+            uri = uri,
+            formål = "Hent journalposter for bruker"
+        ) {
+            putForEntity<Ressurs<Any>>(uri, "")
+        }
+    }
+
     fun HttpHeaders.medContentTypeJsonUTF8(): HttpHeaders =
         this.apply {
             add("Content-Type", "application/json;charset=UTF-8")
             acceptCharset = listOf(Charsets.UTF_8)
         }
+
+    fun journalførDokument(arkiverDokumentRequest: ArkiverDokumentRequest): ArkiverDokumentResponse {
+        val uri = URI.create("$integrasjonUri/arkiv/v4")
+
+        return kallEksternTjenesteRessurs(
+            tjeneste = "dokarkiv",
+            uri = uri,
+            formål = "Journalfør dokument på fagsak ${arkiverDokumentRequest.fagsakId}"
+        ) {
+            postForEntity(uri, arkiverDokumentRequest)
+        }
+    }
 
     companion object {
 

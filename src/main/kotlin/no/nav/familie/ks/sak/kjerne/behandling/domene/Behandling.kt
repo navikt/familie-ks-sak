@@ -1,5 +1,6 @@
 package no.nav.familie.ks.sak.kjerne.behandling.domene
 
+import no.nav.familie.kontrakter.felles.dokarkiv.Dokumenttype
 import no.nav.familie.ks.sak.common.entitet.BaseEntitet
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingType.FØRSTEGANGSBEHANDLING
@@ -187,6 +188,13 @@ enum class Behandlingsresultat(val displayName: String) {
         this in listOf(FORTSATT_INNVILGET, AVSLÅTT, FORTSATT_OPPHØRT, ENDRET_UTEN_UTBETALING)
 
     fun erAvslått(): Boolean = this in listOf(AVSLÅTT, AVSLÅTT_OG_OPPHØRT, AVSLÅTT_OG_ENDRET, AVSLÅTT_ENDRET_OG_OPPHØRT)
+}
+
+fun Behandlingsresultat.tilDokumenttype() = when (this) {
+    // TODO: Oppdater enum i familie felles.
+    Behandlingsresultat.AVSLÅTT -> Dokumenttype.BARNETRYGD_VEDTAK_AVSLAG
+    Behandlingsresultat.OPPHØRT -> Dokumenttype.BARNETRYGD_OPPHØR
+    else -> Dokumenttype.BARNETRYGD_VEDTAK_INNVILGELSE
 }
 
 /**

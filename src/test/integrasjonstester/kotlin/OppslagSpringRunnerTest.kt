@@ -102,7 +102,7 @@ abstract class OppslagSpringRunnerTest {
         subject: String = "subject1",
         behandlerRolle: BehandlerRolle? = null
     ): String {
-        val behandlerRolle = when (behandlerRolle) {
+        val behandlerRolleId = when (behandlerRolle) {
             BehandlerRolle.VEILEDER -> rolleConfig.VEILEDER_ROLLE
             BehandlerRolle.SAKSBEHANDLER -> rolleConfig.SAKSBEHANDLER_ROLLE
             BehandlerRolle.BESLUTTER -> rolleConfig.BESLUTTER_ROLLE
@@ -117,7 +117,7 @@ abstract class OppslagSpringRunnerTest {
                 subject,
                 JOSEObjectType.JWT.type,
                 listOf("familie-ks-sak-test"),
-                mapOf(Pair("NAVident", "test"), Pair("groups", listOf(behandlerRolle))),
+                mapOf(Pair("NAVident", "test"), Pair("groups", listOf(behandlerRolleId))),
                 3600
             )
         ).serialize()
