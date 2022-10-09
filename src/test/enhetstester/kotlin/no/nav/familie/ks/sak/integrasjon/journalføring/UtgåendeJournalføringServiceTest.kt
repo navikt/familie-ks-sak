@@ -84,7 +84,8 @@ internal class UtgåendeJournalføringServiceTest {
 
         val journalpostId = utgåendeJournalføringService.journalførDokument(
             fagsakId = fagsakId,
-            fnr = fnr, brev = emptyList()
+            fnr = fnr,
+            brev = emptyList()
         )
 
         assertThat(journalpostId, Is(mocketEksisterendeJournalpost.journalpostId))
