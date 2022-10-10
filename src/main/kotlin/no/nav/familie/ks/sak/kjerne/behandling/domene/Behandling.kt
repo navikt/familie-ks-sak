@@ -12,7 +12,6 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat.HENLAG
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat.IKKE_VURDERT
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.Fagsak
-import org.hibernate.annotations.SortComparator
 import java.time.LocalDate
 import java.time.LocalDateTime
 import javax.persistence.CascadeType
