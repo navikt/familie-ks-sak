@@ -12,6 +12,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat.HENLAG
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat.IKKE_VURDERT
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.Fagsak
+import org.hibernate.annotations.SortComparator
 import java.time.LocalDate
 import java.time.LocalDateTime
 import javax.persistence.CascadeType
@@ -59,6 +60,7 @@ data class Behandling(
     var kategori: BehandlingKategori,
 
     @OneToMany(mappedBy = "behandling", cascade = [CascadeType.ALL], fetch = FetchType.EAGER, orphanRemoval = true)
+    @SortComparator(BehandlingStegComparator::class)
     val behandlingStegTilstand: MutableSet<BehandlingStegTilstand> = mutableSetOf(),
 
     @Column(name = "aktiv", nullable = false)
@@ -254,4 +256,11 @@ enum class BehandlingStatus {
 
 fun initStatus(): BehandlingStatus {
     return BehandlingStatus.UTREDES
+}
+
+class BehandlingStegComparator : Comparator<BehandlingStegTilstand> {
+
+    override fun compare(bst1: BehandlingStegTilstand, bst2: BehandlingStegTilstand): Int {
+        return bst1.opprettetTidspunkt.compareTo(bst2.opprettetTidspunkt)
+    }
 }
