@@ -60,7 +60,6 @@ data class Behandling(
     var kategori: BehandlingKategori,
 
     @OneToMany(mappedBy = "behandling", cascade = [CascadeType.ALL], fetch = FetchType.EAGER, orphanRemoval = true)
-    @SortComparator(BehandlingStegComparator::class)
     val behandlingStegTilstand: MutableSet<BehandlingStegTilstand> = mutableSetOf(),
 
     @Column(name = "aktiv", nullable = false)
@@ -97,7 +96,7 @@ data class Behandling(
         }
     }
 
-    val steg: BehandlingSteg get() = behandlingStegTilstand.last().behandlingSteg
+    val steg: BehandlingSteg get() = behandlingStegTilstand.maxBy { it.opprettetTidspunkt }.behandlingSteg
 
     fun initBehandlingStegTilstand(): Behandling {
         behandlingStegTilstand.add(
@@ -256,9 +255,4 @@ enum class BehandlingStatus {
 
 fun initStatus(): BehandlingStatus {
     return BehandlingStatus.UTREDES
-}
-
-class BehandlingStegComparator : Comparator<BehandlingStegTilstand> {
-    override fun compare(bst1: BehandlingStegTilstand, bst2: BehandlingStegTilstand): Int =
-        bst1.opprettetTidspunkt.compareTo(bst2.opprettetTidspunkt)
 }
