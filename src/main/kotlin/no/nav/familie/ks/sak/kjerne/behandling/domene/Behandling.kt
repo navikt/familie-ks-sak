@@ -259,8 +259,6 @@ fun initStatus(): BehandlingStatus {
 }
 
 class BehandlingStegComparator : Comparator<BehandlingStegTilstand> {
-
-    override fun compare(bst1: BehandlingStegTilstand, bst2: BehandlingStegTilstand): Int {
-        return bst1.opprettetTidspunkt.compareTo(bst2.opprettetTidspunkt)
-    }
+    override fun compare(bst1: BehandlingStegTilstand, bst2: BehandlingStegTilstand): Int =
+        bst1.opprettetTidspunkt.compareTo(bst2.opprettetTidspunkt)
 }
