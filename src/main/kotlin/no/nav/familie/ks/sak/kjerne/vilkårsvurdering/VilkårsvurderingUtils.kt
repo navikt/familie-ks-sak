@@ -6,6 +6,7 @@ import no.nav.familie.ks.sak.common.tidslinje.TidsEnhet
 import no.nav.familie.ks.sak.common.tidslinje.Tidslinje
 import no.nav.familie.ks.sak.common.tidslinje.TidslinjePeriode
 import no.nav.familie.ks.sak.common.tidslinje.Verdi
+import no.nav.familie.ks.sak.common.tidslinje.utvidelser.TidslinjePeriodeMedDatoLocalDate
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.kombinerMed
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.tilTidslinjePerioderMedLocalDate
 import no.nav.familie.ks.sak.kjerne.vilkårsvurdering.domene.Resultat
@@ -98,21 +99,27 @@ fun tilpassVilkårForEndretVilkår(
             }
         }.tilTidslinjePerioderMedLocalDate()
         .mapNotNull {
-            val vilkårResultat = it.periodeVerdi.verdi
-
-            val vilkårsdatoErUendret = it.fom == vilkårResultat?.periodeFom &&
-                it.tom == vilkårResultat.periodeTom
-
-            if (vilkårsdatoErUendret) {
-                vilkårResultat
-            } else {
-                vilkårResultat?.kopierMedNyPeriode(
-                    fom = it.fom,
-                    tom = it.tom,
-                    behandlingId = endretVilkårResultat.behandlingId
-                )
-            }
+            it.tilVilkårResultatMedOppdatertFomOgTom(nyBehandlingsId = endretVilkårResultat.behandlingId)
         }
+}
+
+private fun TidslinjePeriodeMedDatoLocalDate<VilkårResultat>.tilVilkårResultatMedOppdatertFomOgTom(
+    nyBehandlingsId: Long
+): VilkårResultat? {
+    val vilkårResultat = periodeVerdi.verdi
+
+    val vilkårsdatoErUendret = fom == vilkårResultat?.periodeFom &&
+        tom == vilkårResultat.periodeTom
+
+    return if (vilkårsdatoErUendret) {
+        vilkårResultat
+    } else {
+        vilkårResultat?.kopierMedNyPeriode(
+            fom = fom,
+            tom = tom,
+            behandlingId = nyBehandlingsId
+        )
+    }
 }
 
 fun validerAvslagUtenPeriodeMedLøpende(vilkårResultater: List<VilkårResultat>, endretVilkårResultat: VilkårResultatDto) {
