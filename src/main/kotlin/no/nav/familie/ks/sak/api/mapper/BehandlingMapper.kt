@@ -5,6 +5,7 @@ import no.nav.familie.ks.sak.api.dto.ArbeidsfordelingResponsDto
 import no.nav.familie.ks.sak.api.dto.BehandlingResponsDto
 import no.nav.familie.ks.sak.api.dto.BehandlingStegTilstandResponsDto
 import no.nav.familie.ks.sak.api.dto.PersonResponsDto
+import no.nav.familie.ks.sak.api.dto.SøknadDto
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.domene.ArbeidsfordelingPåBehandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
@@ -15,6 +16,7 @@ object BehandlingMapper {
     fun lagBehandlingRespons(
         behandling: Behandling,
         arbeidsfordelingPåBehandling: ArbeidsfordelingPåBehandling,
+        søknadsgrunnlag: SøknadDto?,
         personer: List<Person>?,
         personResultater: List<PersonResultat>?
     ) =
@@ -35,6 +37,7 @@ object BehandlingMapper {
             opprettetTidspunkt = behandling.opprettetTidspunkt,
             endretAv = behandling.endretAv,
             arbeidsfordelingPåBehandling = lagArbeidsfordelingRespons(arbeidsfordelingPåBehandling),
+            søknadsgrunnlag = søknadsgrunnlag,
             personer = personer?.map { lagPersonRespons(it) } ?: emptyList(),
             personResultater = personResultater?.map { VilkårsvurderingMapper.lagPersonResultatRespons(it) }
                 ?: emptyList()
