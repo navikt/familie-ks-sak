@@ -25,6 +25,7 @@ data class BehandlingResponsDto(
     val opprettetTidspunkt: LocalDateTime,
     val endretAv: String,
     val arbeidsfordelingPåBehandling: ArbeidsfordelingResponsDto,
+    val søknadsgrunnlag: SøknadDto?,
     val personer: List<PersonResponsDto> = emptyList(), // TODO implementeres ved Register Persongrunnlag
     val personResultater: List<PersonResultatDto> = emptyList(), // TODO implementeres ved vilkårsvurdering
     val utbetalingsperioder: List<UtbetalingsperiodeResponsDto> = emptyList(),

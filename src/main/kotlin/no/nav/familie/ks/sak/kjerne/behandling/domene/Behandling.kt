@@ -95,7 +95,7 @@ data class Behandling(
         }
     }
 
-    val steg: BehandlingSteg get() = behandlingStegTilstand.last().behandlingSteg
+    val steg: BehandlingSteg get() = behandlingStegTilstand.maxBy { it.opprettetTidspunkt }.behandlingSteg
 
     fun initBehandlingStegTilstand(): Behandling {
         behandlingStegTilstand.add(

@@ -5,6 +5,7 @@ import no.nav.familie.ks.sak.api.dto.BehandlingResponsDto
 import no.nav.familie.ks.sak.api.dto.EndreBehandlendeEnhetDto
 import no.nav.familie.ks.sak.api.dto.OpprettBehandlingDto
 import no.nav.familie.ks.sak.api.mapper.BehandlingMapper
+import no.nav.familie.ks.sak.api.mapper.SøknadGrunnlagMapper.tilSøknadDto
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.integrasjon.oppgave.OpprettOppgaveTask
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.ArbeidsfordelingService
@@ -16,6 +17,7 @@ import no.nav.familie.ks.sak.kjerne.fagsak.domene.FagsakRepository
 import no.nav.familie.ks.sak.kjerne.logg.LoggService
 import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
+import no.nav.familie.ks.sak.kjerne.søknad.SøknadGrunnlagService
 import no.nav.familie.ks.sak.kjerne.vedtak.VedtakService
 import no.nav.familie.ks.sak.kjerne.vilkårsvurdering.VilkårsvurderingService
 import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext
@@ -35,6 +37,7 @@ class BehandlingService(
     private val fagsakRepository: FagsakRepository,
     private val behandlingRepository: BehandlingRepository,
     private val taskRepository: TaskRepository,
+    private val søknadGrunnlagService: SøknadGrunnlagService,
     private val personopplysningGrunnlagService: PersonopplysningGrunnlagService,
     private val vilkårsvurderingService: VilkårsvurderingService
 ) {
@@ -125,11 +128,13 @@ class BehandlingService(
         val arbeidsfordelingPåBehandling = arbeidsfordelingService.hentArbeidsfordelingPåBehandling(behandlingId)
         val personer =
             personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlag(behandlingId)?.personer?.toList()
+        val søknadsgrunnlag = søknadGrunnlagService.finnAktiv(behandlingId)?.tilSøknadDto()
         val personResultater =
             vilkårsvurderingService.hentAktivVilkårsvurdering(behandlingId)?.personResultater?.toList()
         return BehandlingMapper.lagBehandlingRespons(
             behandling,
             arbeidsfordelingPåBehandling,
+            søknadsgrunnlag,
             personer,
             personResultater
         )

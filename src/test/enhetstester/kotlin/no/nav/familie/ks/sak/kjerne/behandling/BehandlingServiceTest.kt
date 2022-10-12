@@ -5,11 +5,18 @@ import io.mockk.impl.annotations.InjectMockKs
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import io.mockk.just
+import io.mockk.mockk
+import io.mockk.mockkObject
 import io.mockk.runs
 import io.mockk.verify
 import no.nav.familie.kontrakter.felles.oppgave.Oppgavetype
+import no.nav.familie.ks.sak.api.dto.BarnMedOpplysningerDto
 import no.nav.familie.ks.sak.api.dto.EndreBehandlendeEnhetDto
 import no.nav.familie.ks.sak.api.dto.OpprettBehandlingDto
+import no.nav.familie.ks.sak.api.dto.SøkerMedOpplysningerDto
+import no.nav.familie.ks.sak.api.dto.SøknadDto
+import no.nav.familie.ks.sak.api.mapper.SøknadGrunnlagMapper
+import no.nav.familie.ks.sak.api.mapper.SøknadGrunnlagMapper.tilSøknadDto
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.data.lagBehandling
@@ -30,6 +37,8 @@ import no.nav.familie.ks.sak.kjerne.fagsak.domene.FagsakRepository
 import no.nav.familie.ks.sak.kjerne.logg.LoggService
 import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
+import no.nav.familie.ks.sak.kjerne.søknad.SøknadGrunnlagService
+import no.nav.familie.ks.sak.kjerne.søknad.domene.SøknadGrunnlag
 import no.nav.familie.ks.sak.kjerne.vedtak.VedtakService
 import no.nav.familie.ks.sak.kjerne.vilkårsvurdering.VilkårsvurderingService
 import no.nav.familie.prosessering.domene.TaskRepository
@@ -72,6 +81,9 @@ class BehandlingServiceTest {
     private lateinit var taskRepository: TaskRepository
 
     @MockK
+    private lateinit var søknadGrunnlagService: SøknadGrunnlagService
+
+    @MockK
     private lateinit var personopplysningGrunnlagService: PersonopplysningGrunnlagService
 
     @MockK
@@ -87,6 +99,7 @@ class BehandlingServiceTest {
         fagsak,
         opprettetÅrsak = BehandlingÅrsak.SØKNAD
     )
+    private val søknadsgrunnlagMockK = mockk<SøknadGrunnlag>()
 
     @BeforeEach
     fun beforeEach() {
@@ -118,6 +131,18 @@ class BehandlingServiceTest {
         every { personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlag(any()) } returns
             lagPersonopplysningGrunnlag(behandlingId = behandling.id, søkerPersonIdent = søkersIdent)
         every { vilkårsvurderingService.hentAktivVilkårsvurdering(any()) } returns null
+        every { søknadGrunnlagService.finnAktiv(any()) } returns søknadsgrunnlagMockK
+        mockkObject(SøknadGrunnlagMapper)
+        with(SøknadGrunnlagMapper) {
+            every { søknadsgrunnlagMockK.tilSøknadDto() } returns SøknadDto(
+                søkerMedOpplysninger = SøkerMedOpplysningerDto("søkerIdent"),
+                barnaMedOpplysninger = listOf(
+                    BarnMedOpplysningerDto(ident = "barn1"),
+                    BarnMedOpplysningerDto("barn2")
+                ),
+                "begrunnelse"
+            )
+        }
     }
 
     @Test
@@ -350,9 +375,13 @@ class BehandlingServiceTest {
         verify(exactly = 1) { arbeidsfordelingService.hentArbeidsfordelingPåBehandling(behandling.id) }
         verify(exactly = 1) { personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlag(behandling.id) }
         verify(exactly = 1) { vilkårsvurderingService.hentAktivVilkårsvurdering(behandling.id) }
+        verify(exactly = 1) {
+            søknadGrunnlagService.finnAktiv(behandling.id)
+        }
 
         assertTrue { behandlingResponsDto.personer.isNotEmpty() }
         assertEquals(1, behandlingResponsDto.personer.size)
+        assertNotNull(behandlingResponsDto.søknadsgrunnlag)
     }
 
     @Test
