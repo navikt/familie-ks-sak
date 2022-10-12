@@ -94,10 +94,30 @@ class VilkårResultat(
     fun oppdaterTilhørendeBehandling() {
         behandlingId = personResultat!!.vilkårsvurdering.behandling.id
     }
+
     fun erAvslagUtenPeriode() = erEksplisittAvslagPåSøknad == true && periodeFom == null && periodeTom == null
     fun harFremtidigTom() = periodeTom?.isAfter(LocalDate.now().sisteDagIMåned()) ?: true
 
     companion object {
+
         val VilkårResultatComparator = compareBy<VilkårResultat>({ it.periodeFom }, { it.resultat }, { it.vilkårType })
+    }
+
+    fun kopierMedNyPeriode(fom: LocalDate, tom: LocalDate, behandlingId: Long): VilkårResultat {
+        return VilkårResultat(
+            personResultat = personResultat,
+            erAutomatiskVurdert = erAutomatiskVurdert,
+            vilkårType = vilkårType,
+            resultat = resultat,
+            periodeFom = if (fom == LocalDate.MIN) null else fom,
+            periodeTom = if (tom == LocalDate.MAX) null else tom,
+            begrunnelse = begrunnelse,
+            regelInput = regelInput,
+            regelOutput = regelOutput,
+            behandlingId = behandlingId,
+            erEksplisittAvslagPåSøknad = erEksplisittAvslagPåSøknad,
+            vurderesEtter = vurderesEtter,
+            utdypendeVilkårsvurderinger = utdypendeVilkårsvurderinger
+        )
     }
 }

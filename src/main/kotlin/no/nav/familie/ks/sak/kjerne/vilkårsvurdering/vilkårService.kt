@@ -14,7 +14,7 @@ import org.springframework.transaction.annotation.Transactional
 class VilkårService(
     private val behandlingService: BehandlingService,
     private val vilkårsvurderingService: VilkårsvurderingService,
-    private val personidentService: PersonidentService,
+    private val personidentService: PersonidentService
 ) {
 
     fun hentVilkårsvurdering(behandlingId: Long): Vilkårsvurdering = vilkårsvurderingService.hentAktivForBehandling(
@@ -29,7 +29,7 @@ class VilkårService(
         behandlingId: Long,
         vilkårId: Long,
         personResultatDto: PersonResultatDto
-    ): List<PersonResultatDto> {
+    ) {
         val vilkårsvurdering = hentVilkårsvurdering(behandlingId)
         val vilkårSomSkalOppdateres = personResultatDto.vilkårResultater.singleOrNull { it.id == vilkårId }
             ?: throw Feil("Fant ikke vilkårResultat med id $vilkårId ved opppdatering av vikår")
@@ -37,7 +37,8 @@ class VilkårService(
         val personResultat =
             finnPersonResultatForPersonThrows(vilkårsvurdering.personResultater, personResultatDto.personIdent)
 
-        muterPersonVilkårResultaterPut(personResultat, vilkårSomSkalOppdateres)
+        val endretListe = endreVilkårResultat(personResultat.vilkårResultater.toList(), vilkårSomSkalOppdateres)
+        // settEndretListe()
 
         val vilkårResultat = personResultat.vilkårResultater.singleOrNull { it.id == vilkårId }
             ?: error("Finner ikke vilkår med vilkårId $vilkårId på personResultat ${personResultat.id}")
@@ -46,7 +47,7 @@ class VilkårService(
             it.standardbegrunnelser = vilkårSomSkalOppdateres.avslagBegrunnelser ?: emptyList()
         }
 
-        val migreringsdatoPåFagsak =
+        /*val migreringsdatoPåFagsak =
             behandlingService.hentMigreringsdatoPåFagsak(fagsakId = vilkårsvurdering.behandling.fagsak.id)
         validerVilkårStarterIkkeFørMigreringsdatoForMigreringsbehandling(
             vilkårsvurdering,
@@ -54,7 +55,7 @@ class VilkårService(
             migreringsdatoPåFagsak
         )
 
-        return vilkårsvurderingService.oppdater(vilkårsvurdering).personResultater.map { it.tilRestPersonResultat() }
+        return vilkårsvurderingService.oppdater(vilkårsvurdering).personResultater.map { it.tilRestPersonResultat() }*/
     }
 
     private fun finnPersonResultatForPersonThrows(
@@ -70,10 +71,10 @@ class VilkårService(
     }
 
     companion object {
+
         const val fantIkkeAktivVilkårsvurderingFeilmelding = "Fant ikke aktiv vilkårsvurdering"
         const val fantIkkeVilkårsvurderingForPersonFeilmelding = "Fant ikke vilkårsvurdering for person"
     }
 }
-
 
 fun SIVILSTAND.somForventetHosBarn() = this == SIVILSTAND.UOPPGITT || this == SIVILSTAND.UGIFT

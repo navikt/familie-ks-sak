@@ -14,12 +14,12 @@ class TidslinjePeriodeTest {
         val p1 = TidslinjePeriode(1, 2, false)
         val p2 = TidslinjePeriode(3, 2, false)
 
-        var p3 = p1.biFunksjon(p2, 2, false) { el1, el2 -> Verdi(el1.verdi!! + el2.verdi!!) }
+        var p3 = p1.kombinerMed(p2, 2, false) { el1, el2 -> Verdi(el1.verdi!! + el2.verdi!!) }
 
         assertNotNull(p3.periodeVerdi.verdi)
         Assertions.assertEquals(4, p3.periodeVerdi.verdi)
 
-        p3 = p1.biFunksjon(p2, 2, false) { el1, el2 -> Verdi(el1.verdi!! - el2.verdi!!) }
+        p3 = p1.kombinerMed(p2, 2, false) { el1, el2 -> Verdi(el1.verdi!! - el2.verdi!!) }
 
         Assertions.assertEquals(-2, p3.periodeVerdi.verdi)
     }

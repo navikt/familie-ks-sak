@@ -9,11 +9,29 @@ import no.nav.familie.ks.sak.common.tidslinje.TidslinjePeriode
  * funksjonen [operator].
  * [operator] vil få verdiene som de to input periodene består av som input.
  */
-fun <T, R, RESULTAT> TidslinjePeriode<T>.biFunksjon(
+fun <T, R, RESULTAT> TidslinjePeriode<T>.kombinerMed(
     operand: TidslinjePeriode<R>,
     lengde: Int,
     erUendelig: Boolean,
     operator: (elem1: PeriodeVerdi<T>, elem2: PeriodeVerdi<R>) -> PeriodeVerdi<RESULTAT>
 ): TidslinjePeriode<RESULTAT> {
     return TidslinjePeriode(operator(this.periodeVerdi, operand.periodeVerdi), lengde, erUendelig)
+}
+
+fun <T> List<TidslinjePeriode<T>>.slåSammenLike(): List<TidslinjePeriode<T>> {
+    return this.fold(emptyList()) { acc, tidslinjePeriode ->
+        val sisteElementIAcc = acc.lastOrNull()
+
+        if (sisteElementIAcc == null) {
+            acc
+        } else if (sisteElementIAcc.periodeVerdi == tidslinjePeriode.periodeVerdi) {
+            acc.dropLast(1) + TidslinjePeriode(
+                periodeVerdi = sisteElementIAcc.periodeVerdi,
+                lengde = sisteElementIAcc.lengde + tidslinjePeriode.lengde,
+                erUendelig = sisteElementIAcc.erUendelig || tidslinjePeriode.erUendelig
+            )
+        } else {
+            acc + tidslinjePeriode
+        }
+    }
 }

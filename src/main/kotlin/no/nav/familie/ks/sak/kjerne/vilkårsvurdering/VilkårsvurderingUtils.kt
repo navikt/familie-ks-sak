@@ -2,10 +2,17 @@ package no.nav.familie.ks.sak.kjerne.vilkårsvurdering
 
 import no.nav.familie.ks.sak.api.dto.VilkårResultatDto
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
-import no.nav.familie.ks.sak.kjerne.vilkårsvurdering.domene.PersonResultat
+import no.nav.familie.ks.sak.common.tidslinje.TidsEnhet
+import no.nav.familie.ks.sak.common.tidslinje.Tidslinje
+import no.nav.familie.ks.sak.common.tidslinje.TidslinjePeriode
+import no.nav.familie.ks.sak.common.tidslinje.Verdi
+import no.nav.familie.ks.sak.common.tidslinje.utvidelser.kombinerMed
+import no.nav.familie.ks.sak.common.tidslinje.utvidelser.tilTidslinjePerioderMedLocalDate
 import no.nav.familie.ks.sak.kjerne.vilkårsvurdering.domene.Resultat
 import no.nav.familie.ks.sak.kjerne.vilkårsvurdering.domene.Vilkår
 import no.nav.familie.ks.sak.kjerne.vilkårsvurdering.domene.VilkårResultat
+import java.time.Duration
+import java.time.LocalDate
 
 /**
  * Funksjon som tar inn endret vilkår og lager nye vilkårresultater til å få plass til den endrede perioden.
@@ -13,108 +20,116 @@ import no.nav.familie.ks.sak.kjerne.vilkårsvurdering.domene.VilkårResultat
  * @param[restVilkårResultat] Det endrede vilkårresultatet
  * @return VilkårResultater før og etter mutering
  */
-fun endreVilkårResultatVedEndringAvPeriode(
-    personResultat: PersonResultat,
-    vilkårSomEndres: VilkårResultatDto
-): Pair<List<VilkårResultat>, List<VilkårResultat>> {
-
+fun endreVilkårResultat(
+    vilkårResultater: List<VilkårResultat>,
+    endretVilkårResultatDto: VilkårResultatDto
+): List<VilkårResultat> {
     validerAvslagUtenPeriodeMedLøpende(
-        personResultat = personResultat,
-        vilkårSomEndres = vilkårSomEndres
+        vilkårResultater = vilkårResultater,
+        endretVilkårResultat = endretVilkårResultatDto
     )
 
-    val (vilkårResultaterSomSkalEndres, vilkårResultater) = personResultat.vilkårResultater.partition { !(it.erAvslagUtenPeriode() && it.id != vilkårSomEndres.id) }
+    val endretVilkårResultat =
+        endretVilkårResultatDto.tilVilkårResultat(vilkårResultater.single { it.id == endretVilkårResultatDto.id })
 
-    vilkårResultaterSomSkalEndres
-        .forEach {
+    val placeholder: List<VilkårResultat> = vilkårResultater
+        .filter { !it.erAvslagUtenPeriode() || it.id == endretVilkårResultatDto.id }
+        .flatMap {
             tilpassVilkårForEndretVilkår(
-                personResultat = personResultat,
-                vilkårResultat = it,
-                endretVilkårResultat = restVilkårResultat
+                eksisterendeVilkårResultat = it,
+                endretVilkårResultat = endretVilkårResultat!!
             )
         }
 
-    return Pair(vilkårResultaterSomSkalEndres, personResultat.vilkårResultater.toList())
+    return placeholder
 }
+
+fun lagTidslinjeForVilkårResultat(
+    innhold: List<VilkårResultat>,
+    startDato: LocalDate,
+    tidsEnhet: TidsEnhet
+): Tidslinje<VilkårResultat> {
+    val perioder = innhold.map {
+        TidslinjePeriode(
+            it,
+            Duration.between(
+                it.periodeFom?.atStartOfDay() ?: LocalDate.MIN,
+                it.periodeTom?.atStartOfDay() ?: LocalDate.MAX
+            ).toDaysPart().toInt(),
+            it.periodeFom == null || it.periodeTom == null
+        )
+    }
+
+    return Tidslinje(startDato, perioder, tidsEnhet = tidsEnhet)
+}
+
+fun List<VilkårResultat>.tilTidslinje() = lagTidslinjeForVilkårResultat(
+    innhold = this,
+    startDato = this.minOf { it.periodeFom ?: LocalDate.MIN },
+    tidsEnhet = TidsEnhet.DAG
+)
 
 /**
  * @param [personResultat] person vilkårresultatet tilhører
- * @param [vilkårResultat] vilkårresultat som skal oppdaters på person
- * @param [endretVilkårResultat] oppdatert resultat fra frontend
+ * @param [eksisterendeVilkårResultat] vilkårresultat som skal oppdaters på person
+ * @param [endretVilkårResultatDto] oppdatert resultat fra frontend
  */
 fun tilpassVilkårForEndretVilkår(
-    personResultat: PersonResultat,
-    vilkårResultat: VilkårResultat,
-    endretVilkårResultat: VilkårResultatDto
-) {
-    val periodePåNyttVilkår: Periode = endretVilkårResultat.toPeriode()
-
-    if (vilkårResultat.id == endretVilkårResultat.id) {
-        vilkårResultat.oppdater(endretVilkårResultat)
-
-    } else if (vilkårResultat.vilkårType == endretVilkårResultat.vilkårType && !endretVilkårResultat.erAvslagUtenPeriode()) {
-        val periode: Periode = vilkårResultat.toPeriode()
-
-        var nyFom = periodePåNyttVilkår.tom
-        if (periodePåNyttVilkår.tom != TIDENES_ENDE) {
-            nyFom = periodePåNyttVilkår.tom.plusDays(1)
-        }
-
-        val nyTom = periodePåNyttVilkår.fom.minusDays(1)
-
-        when {
-            periodePåNyttVilkår.kanErstatte(periode) -> {
-                personResultat.removeVilkårResultat(vilkårResultatId = vilkårResultat.id)
-            }
-
-            periodePåNyttVilkår.kanSplitte(periode) -> {
-                personResultat.removeVilkårResultat(vilkårResultatId = vilkårResultat.id)
-                personResultat.addVilkårResultat(
-                    vilkårResultat.kopierMedNyPeriode(
-                        fom = periode.fom,
-                        tom = nyTom,
-                        behandlingId = personResultat.vilkårsvurdering.behandling.id
-                    )
-                )
-                personResultat.addVilkårResultat(
-                    vilkårResultat.kopierMedNyPeriode(
-                        fom = nyFom,
-                        tom = periode.tom,
-                        behandlingId = personResultat.vilkårsvurdering.behandling.id
-                    )
-                )
-            }
-
-            periodePåNyttVilkår.kanFlytteFom(periode) -> {
-                vilkårResultat.periodeFom = nyFom
-                vilkårResultat.erAutomatiskVurdert = false
-                vilkårResultat.oppdaterPekerTilBehandling()
-            }
-
-            periodePåNyttVilkår.kanFlytteTom(periode) -> {
-                vilkårResultat.periodeTom = nyTom
-                vilkårResultat.erAutomatiskVurdert = false
-                vilkårResultat.oppdaterPekerTilBehandling()
-            }
-        }
+    eksisterendeVilkårResultat: VilkårResultat,
+    endretVilkårResultat: VilkårResultat
+): List<VilkårResultat> {
+    if (eksisterendeVilkårResultat.id == endretVilkårResultat.id) {
+        return listOf(endretVilkårResultat)
     }
+
+    if (eksisterendeVilkårResultat.vilkårType != endretVilkårResultat.vilkårType || endretVilkårResultat.erAvslagUtenPeriode()) {
+        return listOf(eksisterendeVilkårResultat)
+    }
+
+    val eksisterendeVilkårResultatTidslinje = listOf(eksisterendeVilkårResultat).tilTidslinje()
+    val endretVilkårResultatTidslinje = listOf(endretVilkårResultat).tilTidslinje()
+
+    return eksisterendeVilkårResultatTidslinje
+        .kombinerMed(endretVilkårResultatTidslinje) { eksisterendeVilkår, endretVilkår ->
+            if (endretVilkår is Verdi) {
+                endretVilkår
+            } else {
+                eksisterendeVilkår
+            }
+        }.tilTidslinjePerioderMedLocalDate()
+        .mapNotNull {
+            val vilkårResultat = it.periodeVerdi.verdi
+
+            val vilkårsdatoErUendret = it.fom == vilkårResultat?.periodeFom &&
+                it.tom == vilkårResultat.periodeTom
+
+            if (vilkårsdatoErUendret) {
+                vilkårResultat
+            } else {
+                vilkårResultat?.kopierMedNyPeriode(
+                    fom = it.fom,
+                    tom = it.tom,
+                    behandlingId = endretVilkårResultat.behandlingId
+                )
+            }
+        }
 }
 
-fun validerAvslagUtenPeriodeMedLøpende(personResultat: PersonResultat, vilkårSomEndres: VilkårResultatDto) {
-    val vilkårResultater =
-        personResultat.vilkårResultater.filter { it.vilkårType == vilkårSomEndres.vilkårType && it.id != vilkårSomEndres.id }
+fun validerAvslagUtenPeriodeMedLøpende(vilkårResultater: List<VilkårResultat>, endretVilkårResultat: VilkårResultatDto) {
+    val filtrerteVilkårResultater =
+        vilkårResultater.filter { it.vilkårType == endretVilkårResultat.vilkårType && it.id != endretVilkårResultat.id }
 
     when {
         // For bor med søker-vilkåret kan avslag og innvilgelse være overlappende, da man kan f.eks. avslå full kontantstøtte, men innvilge delt
-        vilkårSomEndres.vilkårType == Vilkår.BOR_MED_SØKER -> return
+        endretVilkårResultat.vilkårType == Vilkår.BOR_MED_SØKER -> return
 
-        vilkårSomEndres.erAvslagUtenPeriode() && vilkårResultater.any { it.resultat == Resultat.OPPFYLT && it.harFremtidigTom() } ->
+        endretVilkårResultat.erAvslagUtenPeriode() && filtrerteVilkårResultater.any { it.resultat == Resultat.OPPFYLT && it.harFremtidigTom() } ->
             throw FunksjonellFeil(
                 "Finnes løpende oppfylt ved forsøk på å legge til avslag uten periode ",
                 "Du kan ikke legge til avslag uten datoer fordi det finnes oppfylt løpende periode på vilkåret."
             )
 
-        vilkårSomEndres.harFremtidigTom() && vilkårResultater.any { it.erAvslagUtenPeriode() } ->
+        endretVilkårResultat.harFremtidigTom() && filtrerteVilkårResultater.any { it.erAvslagUtenPeriode() } ->
             throw FunksjonellFeil(
                 "Finnes avslag uten periode ved forsøk på å legge til løpende oppfylt",
                 "Du kan ikke legge til løpende periode fordi det er vurdert avslag uten datoer på vilkåret."

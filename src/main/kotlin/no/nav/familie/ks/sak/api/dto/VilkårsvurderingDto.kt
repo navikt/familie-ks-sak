@@ -7,6 +7,7 @@ import no.nav.familie.ks.sak.kjerne.vilkårsvurdering.domene.Regelverk
 import no.nav.familie.ks.sak.kjerne.vilkårsvurdering.domene.Resultat
 import no.nav.familie.ks.sak.kjerne.vilkårsvurdering.domene.UtdypendeVilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.vilkårsvurdering.domene.Vilkår
+import no.nav.familie.ks.sak.kjerne.vilkårsvurdering.domene.VilkårResultat
 import java.time.LocalDate
 import java.time.LocalDateTime
 
@@ -32,10 +33,28 @@ data class VilkårResultatDto(
     val avslagBegrunnelser: List<Standardbegrunnelse>? = emptyList(),
     val vurderesEtter: Regelverk? = null,
     val utdypendeVilkårsvurderinger: List<UtdypendeVilkårsvurdering> = emptyList()
-)
-{
+) {
+
     fun erAvslagUtenPeriode() = erEksplisittAvslagPåSøknad == true && periodeFom == null && periodeTom == null
     fun harFremtidigTom() = periodeTom?.isAfter(LocalDate.now().sisteDagIMåned()) ?: true
+
+    fun tilVilkårResultat(
+        vilkårResultat: VilkårResultat
+    ): VilkårResultat {
+        return VilkårResultat(
+            periodeFom = periodeFom,
+            periodeTom = periodeTom,
+            begrunnelse = begrunnelse,
+            resultat = resultat,
+            erAutomatiskVurdert = false,
+            erEksplisittAvslagPåSøknad = erEksplisittAvslagPåSøknad,
+            behandlingId = vilkårResultat.personResultat!!.vilkårsvurdering.behandling.id,
+            vurderesEtter = vurderesEtter,
+            utdypendeVilkårsvurderinger = utdypendeVilkårsvurderinger,
+            personResultat = vilkårResultat.personResultat,
+            vilkårType = vilkårResultat.vilkårType
+        )
+    }
 }
 
 data class AnnenVurderingDto(
