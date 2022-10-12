@@ -1,16 +1,15 @@
-package no.nav.familie.ks.sak.vilkaarsvurdering
+package no.nav.familie.ks.sak.kjerne.vilkårsvurdering
 
 import io.mockk.mockk
 import no.nav.familie.ks.sak.data.lagVilkårResultat
-import no.nav.familie.ks.sak.kjerne.vilkårsvurdering.tilpassVilkårForEndretVilkår
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
 
-class VilkaarsvurderingUtilsTest {
+class VilkårsvurderingUtilsTest {
 
     @Test
-    fun `hmm`() {
+    fun `tilpassVilkårForEndretVilkår - skal splitte gammelt vilkår og oppdatere behandling`() {
         val vilkårResultat1 =
             lagVilkårResultat(
                 id = 0,
@@ -33,7 +32,17 @@ class VilkaarsvurderingUtilsTest {
             endretVilkårResultat = vilkårResultat2
         )
 
-        Assertions.assertEquals(3, resultat.size)
+        Assertions.assertEquals(4, resultat.size)
+
         Assertions.assertEquals(LocalDate.now().minusMonths(3), resultat[0].periodeFom)
+        Assertions.assertEquals(LocalDate.now().minusMonths(2), resultat[0].periodeTom)
+        Assertions.assertEquals(LocalDate.now().minusMonths(2), resultat[1].periodeFom)
+        Assertions.assertEquals(LocalDate.now().minusMonths(1), resultat[1].periodeTom)
+        Assertions.assertEquals(LocalDate.now().minusMonths(1), resultat[2].periodeFom)
+        Assertions.assertEquals(LocalDate.now().minusMonths(0), resultat[2].periodeTom)
+
+        Assertions.assertEquals(2, resultat[0].behandlingId)
+        Assertions.assertEquals(2, resultat[0].behandlingId)
+        Assertions.assertEquals(2, resultat[0].behandlingId)
     }
 }
