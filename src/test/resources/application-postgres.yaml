@@ -1,9 +1,9 @@
 no.nav.security.jwt:
-  issuer:
-    azuread:
-      discoveryurl: http://localhost:${mock-oauth2-server.port}/azuread/.well-known/openid-configuration
-      acceptedaudience: familie-ks-sak-test
-      cookiename: localhost-idtoken
+  #  issuer:
+  #    azuread:
+  #      discoveryurl: http://localhost:${mock-oauth2-server.port}/azuread/.well-known/openid-configuration
+  #      acceptedaudience: familie-ks-sak-test
+  #      cookiename: localhost-idtoken
   client:
     registration:
       familie-integrasjoner-onbehalfof:

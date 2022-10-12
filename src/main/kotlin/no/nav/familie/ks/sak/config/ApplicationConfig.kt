@@ -3,6 +3,7 @@ package no.nav.familie.ks.sak.config
 import com.fasterxml.jackson.databind.ObjectMapper
 import no.nav.familie.http.client.RetryOAuth2HttpClient
 import no.nav.familie.http.config.RestTemplateAzure
+import no.nav.familie.kontrakter.felles.objectMapper
 import no.nav.familie.log.filter.LogFilter
 import no.nav.security.token.support.client.core.http.OAuth2HttpClient
 import no.nav.security.token.support.client.core.oauth2.OAuth2AccessTokenResponse
@@ -18,10 +19,14 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.ComponentScan
 import org.springframework.context.annotation.Import
 import org.springframework.context.annotation.Primary
+import org.springframework.http.converter.ByteArrayHttpMessageConverter
+import org.springframework.http.converter.StringHttpMessageConverter
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter
 import org.springframework.retry.annotation.EnableRetry
 import org.springframework.scheduling.annotation.EnableScheduling
+import org.springframework.web.client.RestOperations
 import org.springframework.web.client.RestTemplate
+import java.nio.charset.StandardCharsets
 import java.time.Duration
 import java.time.temporal.ChronoUnit
 
@@ -72,6 +77,17 @@ class ApplicationConfig {
                 .setConnectTimeout(Duration.of(2, ChronoUnit.SECONDS))
                 .setReadTimeout(Duration.of(4, ChronoUnit.SECONDS))
         )
+
+    @Bean
+    fun restOperations(): RestOperations {
+        return RestTemplate(
+            listOf(
+                StringHttpMessageConverter(StandardCharsets.UTF_8),
+                ByteArrayHttpMessageConverter(),
+                MappingJackson2HttpMessageConverter(objectMapper)
+            )
+        )
+    }
 
     companion object {
         private val log = LoggerFactory.getLogger(ApplicationConfig::class.java)
