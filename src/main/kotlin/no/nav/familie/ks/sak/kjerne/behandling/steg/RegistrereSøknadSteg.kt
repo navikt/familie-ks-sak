@@ -4,7 +4,7 @@ import no.nav.familie.ks.sak.api.dto.BehandlingStegDto
 import no.nav.familie.ks.sak.api.dto.RegistrerSøknadDto
 import no.nav.familie.ks.sak.api.dto.tilSøknadGrunnlag
 import no.nav.familie.ks.sak.api.mapper.SøknadGrunnlagMapper.tilSøknadDto
-import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
+import no.nav.familie.ks.sak.kjerne.behandling.BehandlingHentService
 import no.nav.familie.ks.sak.kjerne.logg.LoggService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
 import no.nav.familie.ks.sak.kjerne.søknad.SøknadGrunnlagService
@@ -18,7 +18,7 @@ class RegistrereSøknadSteg(
     private val søknadGrunnlagService: SøknadGrunnlagService,
     private val loggService: LoggService,
     private val personopplysningGrunnlagService: PersonopplysningGrunnlagService,
-    private val behandlingService: BehandlingService,
+    private val behandlingHentService: BehandlingHentService,
     private val vilkårsvurderingService: VilkårsvurderingService
 ) : IBehandlingSteg {
     override fun getBehandlingssteg(): BehandlingSteg = BehandlingSteg.REGISTRERE_SØKNAD
@@ -38,10 +38,10 @@ class RegistrereSøknadSteg(
             søknadGrunnlagService.lagreOgDeaktiverGammel(registrerSøknadDto.søknad.tilSøknadGrunnlag(behandlingId))
 
         // Oppdatere personopplysningsgrunnlag dersom det er lagt til barn som ikke fantes fra før
-        val behandling = behandlingService.hentBehandling(behandlingId)
+        val behandling = behandlingHentService.hentBehandling(behandlingId)
         personopplysningGrunnlagService.oppdaterPersonopplysningGrunnlag(behandling, søknadGrunnlag.tilSøknadDto())
 
-        val forrigeBehandlingSomErVedtatt = behandlingService.hentSisteBehandlingSomErVedtatt(behandling.fagsak.id)
+        val forrigeBehandlingSomErVedtatt = behandlingHentService.hentSisteBehandlingSomErVedtatt(behandling.fagsak.id)
 
         vilkårsvurderingService.opprettVilkårsvurdering(behandling, forrigeBehandlingSomErVedtatt)
 
