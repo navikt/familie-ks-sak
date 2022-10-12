@@ -3,10 +3,10 @@ package no.nav.familie.ks.sak.kjerne.tidslinje
 import no.nav.familie.ks.sak.kjerne.tidslinje.tid.Tidspunkt
 import no.nav.familie.ks.sak.kjerne.tidslinje.tid.rangeTo
 import org.hamcrest.MatcherAssert.assertThat
-import org.hamcrest.CoreMatchers.`is` as Is
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
 import java.time.YearMonth
+import org.hamcrest.CoreMatchers.`is` as Is
 
 class TidspunktClosedRangeTest {
     @Test

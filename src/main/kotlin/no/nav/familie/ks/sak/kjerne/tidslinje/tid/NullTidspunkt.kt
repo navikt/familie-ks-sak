@@ -37,7 +37,6 @@ data class NullTidspunkt<T : Tidsenhet> internal constructor(private val uendeli
 
     override fun somUendeligLengeTil(): Tidspunkt<T> = tilOgMed()
 
-
     override fun somFraOgMed(): Tidspunkt<T> = fraOgMed()
 
     override fun somTilOgMed(): Tidspunkt<T> = tilOgMed()

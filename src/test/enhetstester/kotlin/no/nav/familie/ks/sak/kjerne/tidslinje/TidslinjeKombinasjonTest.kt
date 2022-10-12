@@ -6,8 +6,8 @@ import no.nav.familie.ks.sak.kjerne.tidslinje.util.StringTidslinje
 import no.nav.familie.ks.sak.kjerne.tidslinje.util.jan
 import no.nav.familie.ks.sak.kjerne.tidslinje.util.tilCharTidslinje
 import org.hamcrest.MatcherAssert.assertThat
-import org.hamcrest.CoreMatchers.`is` as Is
 import org.junit.jupiter.api.Test
+import org.hamcrest.CoreMatchers.`is` as Is
 
 class TidslinjeKombinasjonTest {
 

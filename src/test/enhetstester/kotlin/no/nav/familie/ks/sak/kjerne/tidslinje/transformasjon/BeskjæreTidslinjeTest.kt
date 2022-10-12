@@ -6,8 +6,8 @@ import no.nav.familie.ks.sak.kjerne.tidslinje.util.des
 import no.nav.familie.ks.sak.kjerne.tidslinje.util.feb
 import no.nav.familie.ks.sak.kjerne.tidslinje.util.mar
 import no.nav.familie.ks.sak.kjerne.tidslinje.util.tilCharTidslinje
-import org.junit.jupiter.api.Test
 import org.hamcrest.MatcherAssert.assertThat
+import org.junit.jupiter.api.Test
 import org.hamcrest.CoreMatchers.`is` as Is
 
 internal class BeskjæreTidslinjeTest {

@@ -8,10 +8,10 @@ import no.nav.familie.ks.sak.kjerne.tidslinje.util.jan
 import no.nav.familie.ks.sak.kjerne.tidslinje.util.mai
 import no.nav.familie.ks.sak.kjerne.tidslinje.util.mar
 import org.hamcrest.MatcherAssert.assertThat
-import org.hamcrest.CoreMatchers.`is` as Is
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertDoesNotThrow
 import org.junit.jupiter.api.assertThrows
+import org.hamcrest.CoreMatchers.`is` as Is
 
 internal class TidslinjeTest {
 
