@@ -27,14 +27,14 @@ internal class VilkårsvurderingRepositoryTest : OppslagSpringRunnerTest() {
         val vilkårsvurdering = lagVilkårsvurdering(søker, behandling, Resultat.IKKE_VURDERT)
         vilkårsvurderingRepository.saveAndFlush(vilkårsvurdering)
 
-        val hentetVilkårsvurdering = vilkårsvurderingRepository.finnAktiv(behandling.id).shouldNotBeNull()
+        val hentetVilkårsvurdering = vilkårsvurderingRepository.finnAktivForBehandling(behandling.id).shouldNotBeNull()
 
         assertEquals(behandling.id, hentetVilkårsvurdering.behandling.id)
     }
 
     @Test
     fun `finnAktiv - skal returnere null dersom vilkårsvurdering for behandling ikke finnes`() {
-        val hentetVilkårsvurdering = vilkårsvurderingRepository.finnAktiv(404L)
+        val hentetVilkårsvurdering = vilkårsvurderingRepository.finnAktivForBehandling(404L)
 
         assertNull(hentetVilkårsvurdering)
     }

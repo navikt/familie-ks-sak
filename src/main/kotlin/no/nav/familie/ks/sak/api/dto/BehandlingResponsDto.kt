@@ -26,7 +26,7 @@ data class BehandlingResponsDto(
     val endretAv: String,
     val arbeidsfordelingPåBehandling: ArbeidsfordelingResponsDto,
     val personer: List<PersonResponsDto> = emptyList(), // TODO implementeres ved Register Persongrunnlag
-    val personResultater: List<PersonResultatResponsDto> = emptyList(), // TODO implementeres ved vilkårsvurdering
+    val personResultater: List<PersonResultatDto> = emptyList(), // TODO implementeres ved vilkårsvurdering
     val utbetalingsperioder: List<UtbetalingsperiodeResponsDto> = emptyList(),
     val personerMedAndelerTilkjentYtelse: List<Any> = emptyList(), // TODO implementeres ved tilkjentYtelse
     val endretUtbetalingAndeler: List<Any> = emptyList(), // TODO implementeres ved behandlingsresultat

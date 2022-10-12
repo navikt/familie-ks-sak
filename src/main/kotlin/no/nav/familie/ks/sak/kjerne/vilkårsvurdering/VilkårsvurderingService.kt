@@ -1,5 +1,6 @@
 package no.nav.familie.ks.sak.kjerne.vilkårsvurdering
 
+import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
@@ -53,7 +54,7 @@ class VilkårsvurderingService(
     }
 
     fun hentAktivVilkårsvurdering(behandlingId: Long): Vilkårsvurdering? =
-        vilkårsvurderingRepository.finnAktiv(behandlingId)
+        vilkårsvurderingRepository.finnAktivForBehandling(behandlingId)
 
     private fun genererInitiellVilkårsvurdering(
         behandling: Behandling,
@@ -82,6 +83,13 @@ class VilkårsvurderingService(
             }.toSet()
         }
     }
+
+    fun hentAktivForBehandling(behandlingId: Long): Vilkårsvurdering? =
+        vilkårsvurderingRepository.finnAktivForBehandling(behandlingId)
+
+    fun hentAktivForBehandlingThrows(behandlingId: Long): Vilkårsvurdering = hentAktivForBehandling(behandlingId)
+        ?: throw Feil("Fant ikke vilkårsvurdering knyttet til behandling=$behandlingId")
+
 
     companion object {
         val logger = LoggerFactory.getLogger(VilkårsvurderingService::class.java)

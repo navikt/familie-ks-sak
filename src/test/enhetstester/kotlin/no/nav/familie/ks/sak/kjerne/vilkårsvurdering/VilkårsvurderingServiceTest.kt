@@ -42,7 +42,7 @@ class VilkårsvurderingServiceTest : OppslagSpringRunnerTest() {
         val barn1 = lagreAktør(randomAktør())
         val barn2 = lagreAktør(randomAktør())
         val lagretVilkårsvurderingSlot = slot<Vilkårsvurdering>()
-        every { vilkårsvurderingRepository.finnAktiv(any()) } returns null
+        every { vilkårsvurderingRepository.finnAktivForBehandling(any()) } returns null
         every { personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(any()) } returns lagPersonopplysningGrunnlag(
             behandlingId = behandling.id,
             søkerPersonIdent = søker.aktivFødselsnummer(),
@@ -77,7 +77,7 @@ class VilkårsvurderingServiceTest : OppslagSpringRunnerTest() {
         val barn2 = lagreAktør(randomAktør())
         val lagretDeaktivertVilkårsvurderingSlot = slot<Vilkårsvurdering>()
         val lagretVilkårsvurderingSlot = slot<Vilkårsvurdering>()
-        every { vilkårsvurderingRepository.finnAktiv(any()) } returns lagVilkårsvurdering(
+        every { vilkårsvurderingRepository.finnAktivForBehandling(any()) } returns lagVilkårsvurdering(
             søker,
             behandling,
             Resultat.OPPFYLT

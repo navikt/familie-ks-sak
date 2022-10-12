@@ -3,8 +3,10 @@ package no.nav.familie.ks.sak.kjerne.vilkårsvurdering.domene
 import com.fasterxml.jackson.annotation.JsonIgnore
 import no.nav.familie.ks.sak.common.entitet.BaseEntitet
 import no.nav.familie.ks.sak.common.util.StringListConverter
+import no.nav.familie.ks.sak.common.util.sisteDagIMåned
 import no.nav.familie.ks.sak.kjerne.vedtak.Standardbegrunnelse
 import no.nav.familie.ks.sak.kjerne.vedtak.StandardbegrunnelseListConverter
+import org.hibernate.annotations.Immutable
 import java.time.LocalDate
 import javax.persistence.Column
 import javax.persistence.Convert
@@ -21,6 +23,9 @@ import javax.persistence.Table
 
 @Entity(name = "VilkårResultat")
 @Table(name = "vilkar_resultat")
+// denne brukes for å unngå å oppdatere database objekt automatisk(uten eksplisitt save)
+// Nå for å gjøre noen endringer på AndelTilkjentYtelse, må vi slette rad og legge til en ny rad.
+@Immutable
 class VilkårResultat(
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "vilkar_resultat_seq_generator")
@@ -85,6 +90,12 @@ class VilkårResultat(
     @Convert(converter = UtdypendeVilkårsvurderingerConverter::class)
     var utdypendeVilkårsvurderinger: List<UtdypendeVilkårsvurdering> = emptyList()
 ) : BaseEntitet() {
+
+    fun oppdaterTilhørendeBehandling() {
+        behandlingId = personResultat!!.vilkårsvurdering.behandling.id
+    }
+    fun erAvslagUtenPeriode() = erEksplisittAvslagPåSøknad == true && periodeFom == null && periodeTom == null
+    fun harFremtidigTom() = periodeTom?.isAfter(LocalDate.now().sisteDagIMåned()) ?: true
 
     companion object {
         val VilkårResultatComparator = compareBy<VilkårResultat>({ it.periodeFom }, { it.resultat }, { it.vilkårType })

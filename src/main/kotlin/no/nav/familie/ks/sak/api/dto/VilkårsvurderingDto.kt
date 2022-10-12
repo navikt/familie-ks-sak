@@ -1,5 +1,6 @@
 package no.nav.familie.ks.sak.api.dto
 
+import no.nav.familie.ks.sak.common.util.sisteDagIMåned
 import no.nav.familie.ks.sak.kjerne.vedtak.Standardbegrunnelse
 import no.nav.familie.ks.sak.kjerne.vilkårsvurdering.domene.AnnenVurderingType
 import no.nav.familie.ks.sak.kjerne.vilkårsvurdering.domene.Regelverk
@@ -9,7 +10,7 @@ import no.nav.familie.ks.sak.kjerne.vilkårsvurdering.domene.Vilkår
 import java.time.LocalDate
 import java.time.LocalDateTime
 
-data class PersonResultatResponsDto(
+data class PersonResultatDto(
     val personIdent: String,
     val vilkårResultater: List<VilkårResultatDto>,
     val andreVurderinger: List<AnnenVurderingDto>
@@ -32,6 +33,10 @@ data class VilkårResultatDto(
     val vurderesEtter: Regelverk? = null,
     val utdypendeVilkårsvurderinger: List<UtdypendeVilkårsvurdering> = emptyList()
 )
+{
+    fun erAvslagUtenPeriode() = erEksplisittAvslagPåSøknad == true && periodeFom == null && periodeTom == null
+    fun harFremtidigTom() = periodeTom?.isAfter(LocalDate.now().sisteDagIMåned()) ?: true
+}
 
 data class AnnenVurderingDto(
     val id: Long,
