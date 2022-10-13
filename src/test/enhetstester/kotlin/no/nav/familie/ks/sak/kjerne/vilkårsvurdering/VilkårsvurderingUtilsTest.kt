@@ -32,7 +32,7 @@ class VilkårsvurderingUtilsTest {
             endretVilkårResultat = vilkårResultat2
         )
 
-        Assertions.assertEquals(4, resultat.size)
+        Assertions.assertEquals(3, resultat.size)
 
         Assertions.assertEquals(LocalDate.now().minusMonths(3), resultat[0].periodeFom)
         Assertions.assertEquals(LocalDate.now().minusMonths(2), resultat[0].periodeTom)

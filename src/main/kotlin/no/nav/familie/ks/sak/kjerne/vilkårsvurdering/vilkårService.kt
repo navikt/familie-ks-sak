@@ -1,7 +1,7 @@
 package no.nav.familie.ks.sak.kjerne.vilkårsvurdering
 
 import no.nav.familie.kontrakter.felles.personopplysning.SIVILSTAND
-import no.nav.familie.ks.sak.api.dto.PersonResultatDto
+import no.nav.familie.ks.sak.api.dto.EndreVilkårResultatDto
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
@@ -27,35 +27,18 @@ class VilkårService(
     @Transactional
     fun endreVilkår(
         behandlingId: Long,
-        vilkårId: Long,
-        personResultatDto: PersonResultatDto
+        endreVilkårResultatDto: EndreVilkårResultatDto
     ) {
         val vilkårsvurdering = hentVilkårsvurdering(behandlingId)
-        val vilkårSomSkalOppdateres = personResultatDto.vilkårResultater.singleOrNull { it.id == vilkårId }
-            ?: throw Feil("Fant ikke vilkårResultat med id $vilkårId ved opppdatering av vikår")
 
         val personResultat =
-            finnPersonResultatForPersonThrows(vilkårsvurdering.personResultater, personResultatDto.personIdent)
+            finnPersonResultatForPersonThrows(vilkårsvurdering.personResultater, endreVilkårResultatDto.personIdent)
 
-        val endretListe = endreVilkårResultat(personResultat.vilkårResultater.toList(), vilkårSomSkalOppdateres)
-        // settEndretListe()
+        val nyeVilkårResultater =
+            endreVilkårResultat(personResultat.vilkårResultater.toList(), endreVilkårResultatDto.endretVilkårResultat)
 
-        val vilkårResultat = personResultat.vilkårResultater.singleOrNull { it.id == vilkårId }
-            ?: error("Finner ikke vilkår med vilkårId $vilkårId på personResultat ${personResultat.id}")
-
-        vilkårResultat.also {
-            it.standardbegrunnelser = vilkårSomSkalOppdateres.avslagBegrunnelser ?: emptyList()
-        }
-
-        /*val migreringsdatoPåFagsak =
-            behandlingService.hentMigreringsdatoPåFagsak(fagsakId = vilkårsvurdering.behandling.fagsak.id)
-        validerVilkårStarterIkkeFørMigreringsdatoForMigreringsbehandling(
-            vilkårsvurdering,
-            vilkårResultat,
-            migreringsdatoPåFagsak
-        )
-
-        return vilkårsvurderingService.oppdater(vilkårsvurdering).personResultater.map { it.tilRestPersonResultat() }*/
+        personResultat.vilkårResultater.clear()
+        personResultat.vilkårResultater.addAll(nyeVilkårResultater)
     }
 
     private fun finnPersonResultatForPersonThrows(

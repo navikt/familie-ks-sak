@@ -84,12 +84,16 @@ class VilkårsvurderingService(
         }
     }
 
+    fun oppdater(vilkårsvurdering: Vilkårsvurdering): Vilkårsvurdering {
+        logger.info("${SikkerhetContext.hentSaksbehandlerNavn()} oppdaterer vilkårsvurdering $vilkårsvurdering")
+        return vilkårsvurderingRepository.saveAndFlush(vilkårsvurdering)
+    }
+
     fun hentAktivForBehandling(behandlingId: Long): Vilkårsvurdering? =
         vilkårsvurderingRepository.finnAktivForBehandling(behandlingId)
 
     fun hentAktivForBehandlingThrows(behandlingId: Long): Vilkårsvurdering = hentAktivForBehandling(behandlingId)
         ?: throw Feil("Fant ikke vilkårsvurdering knyttet til behandling=$behandlingId")
-
 
     companion object {
         val logger = LoggerFactory.getLogger(VilkårsvurderingService::class.java)

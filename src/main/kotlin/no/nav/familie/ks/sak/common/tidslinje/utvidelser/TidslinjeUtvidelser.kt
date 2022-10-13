@@ -6,6 +6,7 @@ import no.nav.familie.ks.sak.common.tidslinje.PeriodeVerdi
 import no.nav.familie.ks.sak.common.tidslinje.TidsEnhet
 import no.nav.familie.ks.sak.common.tidslinje.Tidslinje
 import no.nav.familie.ks.sak.common.tidslinje.TidslinjePeriode
+import no.nav.familie.ks.sak.common.tidslinje.TidslinjePeriodeMedDatoLocalDate
 import no.nav.familie.ks.sak.common.tidslinje.Udefinert
 import no.nav.familie.ks.sak.common.tidslinje.inf
 import java.time.LocalDate

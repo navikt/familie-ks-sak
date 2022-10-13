@@ -1,6 +1,5 @@
-package no.nav.familie.ks.sak.common.tidslinje.utvidelser
+package no.nav.familie.ks.sak.common.tidslinje
 
-import no.nav.familie.ks.sak.common.tidslinje.PeriodeVerdi
 import java.time.LocalDate
 
 data class TidslinjePeriodeMedDatoLocalDate<T>(

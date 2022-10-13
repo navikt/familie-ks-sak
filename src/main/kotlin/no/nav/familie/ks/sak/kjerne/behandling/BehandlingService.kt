@@ -131,6 +131,7 @@ class BehandlingService(
         val søknadsgrunnlag = søknadGrunnlagService.finnAktiv(behandlingId)?.tilSøknadDto()
         val personResultater =
             vilkårsvurderingService.hentAktivVilkårsvurdering(behandlingId)?.personResultater?.toList()
+
         return BehandlingMapper.lagBehandlingRespons(
             behandling,
             arbeidsfordelingPåBehandling,

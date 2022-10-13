@@ -17,6 +17,11 @@ data class PersonResultatDto(
     val andreVurderinger: List<AnnenVurderingDto>
 )
 
+data class EndreVilkårResultatDto(
+    val personIdent: String,
+    val endretVilkårResultat: VilkårResultatDto,
+)
+
 data class VilkårResultatDto(
     val id: Long,
     val vilkårType: Vilkår,
@@ -45,6 +50,7 @@ data class VilkårResultatDto(
             periodeFom = periodeFom,
             periodeTom = periodeTom,
             begrunnelse = begrunnelse,
+            standardbegrunnelser = avslagBegrunnelser ?: emptyList(),
             resultat = resultat,
             erAutomatiskVurdert = false,
             erEksplisittAvslagPåSøknad = erEksplisittAvslagPåSøknad,

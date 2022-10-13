@@ -5,8 +5,8 @@ import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.common.tidslinje.TidsEnhet
 import no.nav.familie.ks.sak.common.tidslinje.Tidslinje
 import no.nav.familie.ks.sak.common.tidslinje.TidslinjePeriode
+import no.nav.familie.ks.sak.common.tidslinje.TidslinjePeriodeMedDatoLocalDate
 import no.nav.familie.ks.sak.common.tidslinje.Verdi
-import no.nav.familie.ks.sak.common.tidslinje.utvidelser.TidslinjePeriodeMedDatoLocalDate
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.kombinerMed
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.tilTidslinjePerioderMedLocalDate
 import no.nav.familie.ks.sak.kjerne.vilkårsvurdering.domene.Resultat
@@ -33,16 +33,19 @@ fun endreVilkårResultat(
     val endretVilkårResultat =
         endretVilkårResultatDto.tilVilkårResultat(vilkårResultater.single { it.id == endretVilkårResultatDto.id })
 
-    val placeholder: List<VilkårResultat> = vilkårResultater
-        .filter { !it.erAvslagUtenPeriode() || it.id == endretVilkårResultatDto.id }
+    val (vilkårResultaterSomSkalTilpasses, vilkårResultaterSomIkkeSkalTilpasses) = vilkårResultater.partition {
+        !it.erAvslagUtenPeriode() || it.id == endretVilkårResultatDto.id
+    }
+
+    val tilpassetVilkårResultater = vilkårResultaterSomSkalTilpasses
         .flatMap {
             tilpassVilkårForEndretVilkår(
                 eksisterendeVilkårResultat = it,
-                endretVilkårResultat = endretVilkårResultat!!
+                endretVilkårResultat = endretVilkårResultat
             )
         }
 
-    return placeholder
+    return tilpassetVilkårResultater + vilkårResultaterSomIkkeSkalTilpasses
 }
 
 fun lagTidslinjeForVilkårResultat(
