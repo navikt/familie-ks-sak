@@ -16,7 +16,6 @@ import no.nav.familie.ks.sak.api.dto.OpprettBehandlingDto
 import no.nav.familie.ks.sak.api.dto.SøkerMedOpplysningerDto
 import no.nav.familie.ks.sak.api.dto.SøknadDto
 import no.nav.familie.ks.sak.api.mapper.SøknadGrunnlagMapper
-import no.nav.familie.ks.sak.api.mapper.SøknadGrunnlagMapper.tilSøknadDto
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.data.lagBehandling
@@ -95,10 +94,7 @@ class BehandlingServiceTest {
     private val søker = randomAktør()
     private val søkersIdent = søker.personidenter.first { personIdent -> personIdent.aktiv }.fødselsnummer
     private val fagsak = lagFagsak(aktør = søker)
-    private val behandling = lagBehandling(
-        fagsak,
-        opprettetÅrsak = BehandlingÅrsak.SØKNAD
-    )
+    private val behandling = lagBehandling(fagsak = fagsak, opprettetÅrsak = BehandlingÅrsak.SØKNAD)
     private val søknadsgrunnlagMockK = mockk<SøknadGrunnlag>()
 
     @BeforeEach

@@ -13,6 +13,8 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingKategori
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
+import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg
+import no.nav.familie.ks.sak.kjerne.behandling.steg.StegService
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.FagsakRepository
 import no.nav.familie.ks.sak.kjerne.logg.LoggService
 import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
@@ -39,7 +41,8 @@ class BehandlingService(
     private val taskRepository: TaskRepository,
     private val søknadGrunnlagService: SøknadGrunnlagService,
     private val personopplysningGrunnlagService: PersonopplysningGrunnlagService,
-    private val vilkårsvurderingService: VilkårsvurderingService
+    private val vilkårsvurderingService: VilkårsvurderingService,
+    private val stegService: StegService
 ) {
 
     @Transactional
@@ -93,6 +96,8 @@ class BehandlingService(
                 )
             )
         }
+        // Utfør Registrer Persongrunnlag steg
+        stegService.utførSteg(lagretBehandling.id, BehandlingSteg.REGISTRERE_PERSONGRUNNLAG)
         return lagretBehandling
     }
 
@@ -115,12 +120,16 @@ class BehandlingService(
         return behandlingRepository.save(behandling)
     }
 
+    // kan kalles fra BehandlingController eller BehandlingServicetest metoder,
+    // andre tjenester bruker eventuelt BehandlingHentService istedet
     fun hentSisteBehandlingSomErVedtatt(fagsakId: Long): Behandling? {
         return behandlingRepository.finnBehandlinger(fagsakId)
             .filter { !it.erHenlagt() && it.status == BehandlingStatus.AVSLUTTET }
             .maxByOrNull { it.opprettetTidspunkt }
     }
 
+    // kan kalles fra BehandlingController eller BehandlingServicetest metoder,
+    // andre tjenester bruker eventuelt BehandlingHentService istedet
     fun hentBehandling(behandlingId: Long): Behandling = behandlingRepository.hentBehandling(behandlingId)
 
     fun lagBehandlingRespons(behandlingId: Long): BehandlingResponsDto {
