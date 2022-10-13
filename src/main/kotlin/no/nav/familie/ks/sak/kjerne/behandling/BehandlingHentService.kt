@@ -9,8 +9,8 @@ import org.springframework.stereotype.Service
 class BehandlingHentService(private val behandlingRepository: BehandlingRepository) {
 
     fun hentSisteBehandlingSomErVedtatt(fagsakId: Long): Behandling? = behandlingRepository.finnBehandlinger(fagsakId)
-            .filter { !it.erHenlagt() && it.status == BehandlingStatus.AVSLUTTET }
-            .maxByOrNull { it.opprettetTidspunkt }
+        .filter { !it.erHenlagt() && it.status == BehandlingStatus.AVSLUTTET }
+        .maxByOrNull { it.opprettetTidspunkt }
 
     fun hentBehandling(behandlingId: Long): Behandling = behandlingRepository.hentBehandling(behandlingId)
 }
