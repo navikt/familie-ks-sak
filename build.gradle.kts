@@ -41,6 +41,7 @@ dependencies {
     val navFoedselsnummerVersion = "1.0-SNAPSHOT.6"
     val prosesseringVersion = "1.20220624132237_7f5ba9c"
     val restAssuredVersion = "5.2.0"
+    val fpsakTidslinje = "2.6.5"
 
     // ---------- Spring ---------- \\
     implementation("org.springframework.boot:spring-boot-starter")
@@ -84,6 +85,7 @@ dependencies {
     implementation("no.nav.security:token-client-spring:$tokenValidationSpringVersion")
     implementation("no.nav.familie:prosessering-jdbc:$prosesseringVersion")
     implementation("nav-foedselsnummer:core:$navFoedselsnummerVersion")
+    implementation("no.nav.fpsak.tidsserie:fpsak-tidsserie:$fpsakTidslinje")
 
     implementation("com.papertrailapp:logback-syslog4j:1.0.0")
     implementation("io.getunleash:unleash-client-java:6.0.1")
