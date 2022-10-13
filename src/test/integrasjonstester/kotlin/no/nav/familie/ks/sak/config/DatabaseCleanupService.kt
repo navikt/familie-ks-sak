@@ -12,7 +12,7 @@ import kotlin.reflect.full.findAnnotation
 import org.springframework.data.relational.core.mapping.Table as JdbcTable
 
 @Service
-@Profile("dev", "postgres")
+@Profile("dev", "postgres", "integrasjonstest")
 class DatabaseCleanupService(
     private val entityManager: EntityManager,
     private val relationalMappingContext: RelationalMappingContext
