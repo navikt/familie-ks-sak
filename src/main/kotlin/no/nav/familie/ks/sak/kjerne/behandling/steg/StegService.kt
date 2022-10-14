@@ -64,7 +64,7 @@ class StegService(
             BehandlingStegStatus.AVBRUTT, BehandlingStegStatus.TILBAKEFØRT ->
                 throw Feil(
                     "Kan ikke behandle behandling $behandlingId " +
-                        "med steg $behandledeSteg med status ${BehandlingStegStatus.AVBRUTT}"
+                        "med steg $behandledeSteg med status ${behandledeStegTilstand.behandlingStegStatus}"
                 )
         }
     }

@@ -150,7 +150,7 @@ logging:
     root: INFO
 sentry.environment: preprod
 
-SANITY_DATASET: "ba-brev"
+SANITY_DATASET: "ks-brev"
 
 PDL_URL: https://pdl-api-q1.dev-fss-pub.nais.io
 PDL_SCOPE: api://dev-fss.pdl.pdl-api-q1/.default

@@ -20,8 +20,8 @@ import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
 import no.nav.familie.ks.sak.integrasjon.journalføring.domene.DbJournalpost
 import no.nav.familie.ks.sak.integrasjon.journalføring.domene.DbJournalpostType
 import no.nav.familie.ks.sak.integrasjon.journalføring.domene.JournalføringRepository
-import no.nav.familie.ks.sak.kjerne.behandling.BehandlingHentService
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
+import no.nav.familie.ks.sak.kjerne.behandling.OpprettBehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingKategori
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingType
@@ -36,8 +36,8 @@ import javax.transaction.Transactional
 class InnkommendeJournalføringService(
     private val integrasjonClient: IntegrasjonClient,
     private val fagsakService: FagsakService,
+    private val opprettBehandlingService: OpprettBehandlingService,
     private val behandlingService: BehandlingService,
-    private val behandlingHentService: BehandlingHentService,
     private val journalføringRepository: JournalføringRepository,
     private val loggService: LoggService
 ) {
@@ -116,14 +116,14 @@ class InnkommendeJournalføringService(
             søknadMottattDato = søknadMottattDato
         )
 
-        return behandlingService.opprettBehandling(nyBehandlingDto)
+        return opprettBehandlingService.opprettBehandling(nyBehandlingDto)
     }
 
     private fun lagreJournalpostOgKnyttFagsakTilJournalpost(
         tilknyttedeBehandlingIder: List<String>,
         journalpostId: String
     ): Pair<Sak, List<Behandling>> {
-        val behandlinger = tilknyttedeBehandlingIder.map { behandlingHentService.hentBehandling(it.toLong()) }
+        val behandlinger = tilknyttedeBehandlingIder.map { behandlingService.hentBehandling(it.toLong()) }
         val journalpost = hentJournalpost(journalpostId)
 
         behandlinger.forEach {

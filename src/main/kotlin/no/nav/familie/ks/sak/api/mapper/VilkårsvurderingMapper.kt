@@ -30,7 +30,8 @@ object VilkårsvurderingMapper {
         erVurdert = vilkårResultat.resultat != Resultat.IKKE_VURDERT || vilkårResultat.versjon > 0,
         avslagBegrunnelser = vilkårResultat.standardbegrunnelser,
         vurderesEtter = vilkårResultat.vurderesEtter,
-        utdypendeVilkårsvurderinger = vilkårResultat.utdypendeVilkårsvurderinger
+        utdypendeVilkårsvurderinger = vilkårResultat.utdypendeVilkårsvurderinger,
+        antallTimer = vilkårResultat.antallTimer
     )
 
     private fun lagAnnenVurderingRespons(annenVurdering: AnnenVurdering) = AnnenVurderingDto(
