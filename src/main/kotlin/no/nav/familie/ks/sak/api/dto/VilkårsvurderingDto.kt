@@ -7,6 +7,7 @@ import no.nav.familie.ks.sak.kjerne.vilkårsvurdering.domene.Regelverk
 import no.nav.familie.ks.sak.kjerne.vilkårsvurdering.domene.Resultat
 import no.nav.familie.ks.sak.kjerne.vilkårsvurdering.domene.UtdypendeVilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.vilkårsvurdering.domene.Vilkår
+import java.math.BigDecimal
 import java.time.LocalDate
 import java.time.LocalDateTime
 
@@ -31,7 +32,8 @@ data class VilkårResultatDto(
     val erEksplisittAvslagPåSøknad: Boolean? = null,
     val avslagBegrunnelser: List<Standardbegrunnelse>? = emptyList(),
     val vurderesEtter: Regelverk? = null,
-    val utdypendeVilkårsvurderinger: List<UtdypendeVilkårsvurdering> = emptyList()
+    val utdypendeVilkårsvurderinger: List<UtdypendeVilkårsvurdering> = emptyList(),
+    val antallTimer: BigDecimal? = null
 )
 
 data class AnnenVurderingDto(
