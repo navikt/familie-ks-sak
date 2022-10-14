@@ -34,6 +34,7 @@ class VilkårsvurderingUtilsTest {
             )
 
         val resultat = tilpassVilkårForEndretVilkår(
+            endretVilkårResultatId = vilkårResultat1.id,
             eksisterendeVilkårResultat = vilkårResultat1,
             endretVilkårResultat = vilkårResultat2
         )
@@ -70,6 +71,7 @@ class VilkårsvurderingUtilsTest {
             )
 
         val resultat = tilpassVilkårForEndretVilkår(
+            endretVilkårResultatId = vilkårResultat1.id,
             eksisterendeVilkårResultat = vilkårResultat1,
             endretVilkårResultat = vilkårResultat2
         )
@@ -104,6 +106,7 @@ class VilkårsvurderingUtilsTest {
             )
 
         val resultat = tilpassVilkårForEndretVilkår(
+            endretVilkårResultatId = vilkårResultat1.id,
             eksisterendeVilkårResultat = vilkårResultat1,
             endretVilkårResultat = vilkårResultat2
         )
@@ -138,6 +141,7 @@ class VilkårsvurderingUtilsTest {
             )
 
         val resultat = tilpassVilkårForEndretVilkår(
+            endretVilkårResultatId = vilkårResultat1.id,
             eksisterendeVilkårResultat = vilkårResultat1,
             endretVilkårResultat = vilkårResultat2
         )
@@ -172,6 +176,7 @@ class VilkårsvurderingUtilsTest {
             )
 
         val resultat = tilpassVilkårForEndretVilkår(
+            endretVilkårResultatId = vilkårResultat1.id,
             eksisterendeVilkårResultat = vilkårResultat1,
             endretVilkårResultat = vilkårResultat2
         )
@@ -199,6 +204,7 @@ class VilkårsvurderingUtilsTest {
             )
 
         val resultat = tilpassVilkårForEndretVilkår(
+            endretVilkårResultatId = vilkårResultat1.id,
             eksisterendeVilkårResultat = vilkårResultat1,
             endretVilkårResultat = vilkårResultat2
         )
@@ -235,6 +241,7 @@ class VilkårsvurderingUtilsTest {
             )
 
         val resultat = tilpassVilkårForEndretVilkår(
+            endretVilkårResultatId = vilkårResultat1.id,
             eksisterendeVilkårResultat = vilkårResultat1,
             endretVilkårResultat = vilkårResultat2
         )

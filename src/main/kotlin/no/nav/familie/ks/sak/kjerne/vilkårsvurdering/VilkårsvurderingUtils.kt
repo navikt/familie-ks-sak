@@ -39,6 +39,7 @@ fun endreVilkårResultat(
     val tilpassetVilkårResultater = vilkårResultaterSomSkalTilpasses
         .flatMap {
             tilpassVilkårForEndretVilkår(
+                endretVilkårResultatId = endretVilkårResultat.id,
                 eksisterendeVilkårResultat = it,
                 endretVilkårResultat = endretVilkårResultat
             )
@@ -92,10 +93,11 @@ fun List<VilkårResultat>.tilTidslinje(): Tidslinje<VilkårResultat> {
  * @param [endretVilkårResultatDto] oppdatert resultat fra frontend
  */
 fun tilpassVilkårForEndretVilkår(
+    endretVilkårResultatId: Long,
     eksisterendeVilkårResultat: VilkårResultat,
     endretVilkårResultat: VilkårResultat
 ): List<VilkårResultat> {
-    if (eksisterendeVilkårResultat.id == endretVilkårResultat.id) {
+    if (eksisterendeVilkårResultat.id == endretVilkårResultatId) {
         return listOf(endretVilkårResultat)
     }
 
