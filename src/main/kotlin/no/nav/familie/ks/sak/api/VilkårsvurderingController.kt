@@ -34,7 +34,7 @@ class VilkårsvurderingController(
 
     @PostMapping(path = ["/{behandlingId}"])
     fun nyttVilkår(@PathVariable behandlingId: Long, @RequestBody nyttVilkårDto: NyttVilkårDto):
-            ResponseEntity<Ressurs<BehandlingResponsDto>> {
+        ResponseEntity<Ressurs<BehandlingResponsDto>> {
         tilgangService.validerTilgangTilHandlingOgFagsakForBehandling(
             behandlingId = behandlingId,
             event = AuditLoggerEvent.CREATE,
@@ -68,7 +68,6 @@ class VilkårsvurderingController(
 
         return ResponseEntity.ok(Ressurs.success(behandlingService.lagBehandlingRespons(behandlingId = behandlingId)))
     }
-
 
     @DeleteMapping(path = ["/{behandlingId}/{vilkaarId}"])
     fun slettEllerNullstillVilkår(

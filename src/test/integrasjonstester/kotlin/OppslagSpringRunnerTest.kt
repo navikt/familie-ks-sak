@@ -95,7 +95,6 @@ abstract class OppslagSpringRunnerTest {
     @Autowired
     private lateinit var personRepository: PersonRepository
 
-
     lateinit var søker: Aktør
 
     lateinit var fagsak: Fagsak
@@ -125,19 +124,21 @@ abstract class OppslagSpringRunnerTest {
     fun opprettPersonopplysningGrunnlagOgPersonForBehandling(behandlingId: Long) {
         personopplysningGrunnlag = lagrePersonopplysningGrunnlag(PersonopplysningGrunnlag(behandlingId = behandlingId))
 
-        lagrePerson(Person(
-            aktør = søker,
-            type = PersonType.SØKER,
-            personopplysningGrunnlag = personopplysningGrunnlag,
-            fødselsdato = LocalDate.of(2019, 1, 1),
-            navn = "",
-            kjønn = Kjønn.KVINNE
-        ).also { søker ->
-            søker.statsborgerskap =
-                mutableListOf(GrStatsborgerskap(landkode = "NOR", medlemskap = Medlemskap.NORDEN, person = søker))
-            søker.bostedsadresser = mutableListOf()
-            søker.sivilstander = mutableListOf(GrSivilstand(type = SIVILSTAND.GIFT, person = søker))
-        })
+        lagrePerson(
+            Person(
+                aktør = søker,
+                type = PersonType.SØKER,
+                personopplysningGrunnlag = personopplysningGrunnlag,
+                fødselsdato = LocalDate.of(2019, 1, 1),
+                navn = "",
+                kjønn = Kjønn.KVINNE
+            ).also { søker ->
+                søker.statsborgerskap =
+                    mutableListOf(GrStatsborgerskap(landkode = "NOR", medlemskap = Medlemskap.NORDEN, person = søker))
+                søker.bostedsadresser = mutableListOf()
+                søker.sivilstander = mutableListOf(GrSivilstand(type = SIVILSTAND.GIFT, person = søker))
+            }
+        )
     }
 
     protected fun lokalTestToken(
@@ -192,7 +193,6 @@ abstract class OppslagSpringRunnerTest {
 
     fun lagrePersonopplysningGrunnlag(personopplysningGrunnlag: PersonopplysningGrunnlag): PersonopplysningGrunnlag =
         personopplysningGrunnlagRepository.saveAndFlush(personopplysningGrunnlag)
-
 
     fun lagreFagsak(fagsak: Fagsak): Fagsak = fagsakRepository.saveAndFlush(fagsak)
 

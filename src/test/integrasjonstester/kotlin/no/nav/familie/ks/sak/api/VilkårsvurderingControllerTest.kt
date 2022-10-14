@@ -20,7 +20,6 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.MediaType
 import org.hamcrest.CoreMatchers.`is` as Is
 
-
 class VilkårsvurderingControllerTest : OppslagSpringRunnerTest() {
 
     @Autowired
@@ -49,8 +48,8 @@ class VilkårsvurderingControllerTest : OppslagSpringRunnerTest() {
         )
     }
 
-    //@Test
-    //fun `endreVilkår - skal returnere endrede vilkår`() {
+    // @Test
+    // fun `endreVilkår - skal returnere endrede vilkår`() {
     //    val token = lokalTestToken(behandlerRolle = BehandlerRolle.BESLUTTER)
     //    every { integrasjonClient.sjekkTilgangTilPersoner(any()) } returns Tilgang(true, "test")
 //
@@ -88,7 +87,7 @@ class VilkårsvurderingControllerTest : OppslagSpringRunnerTest() {
     //    } Then {
     //        statusCode(HttpStatus.OK.value())
     //    }
-    //}
+    // }
 
     @Test
     fun `nyttVilkår - skal kaste feil dersom det eksisterer uvurdert vilkår av samme type`() {
@@ -173,5 +172,4 @@ class VilkårsvurderingControllerTest : OppslagSpringRunnerTest() {
             body("frontendFeilmelding", Is("Vilkåret du prøver å slette finnes ikke i systemet."))
         }
     }
-
 }

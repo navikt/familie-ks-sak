@@ -50,7 +50,6 @@ fun endreVilkårResultat(
     return tilpassetVilkårResultater + vilkårResultaterSomIkkeSkalTilpasses
 }
 
-
 /**
  * Funksjon som forsøker å legge til en periode på et vilkår.
  * Dersom det allerede finnes en uvurdet periode med samme vilkårstype
@@ -79,7 +78,6 @@ private fun harUvurdertePerioderForVilkårType(personResultat: PersonResultat, v
     personResultat.vilkårResultater
         .filter { it.vilkårType == vilkårType }
         .find { it.resultat == Resultat.IKKE_VURDERT } != null
-
 
 fun lagTidslinjeForVilkårResultat(
     innhold: List<VilkårResultat>,
@@ -145,7 +143,7 @@ private fun TidslinjePeriodeMedDatoLocalDate<VilkårResultat>.tilVilkårResultat
     val vilkårResultat = periodeVerdi.verdi
 
     val vilkårsdatoErUendret = fom == vilkårResultat?.periodeFom &&
-            tom == vilkårResultat.periodeTom
+        tom == vilkårResultat.periodeTom
 
     return if (vilkårsdatoErUendret) {
         vilkårResultat

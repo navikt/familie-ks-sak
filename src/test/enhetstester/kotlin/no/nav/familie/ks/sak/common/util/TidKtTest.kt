@@ -48,7 +48,7 @@ internal class TidKtTest {
         val localDate = LocalDate.of(2020, 12, 16)
         val yearMonth = localDate.tilYearMonth()
 
-        assertThat(yearMonth, Is(YearMonth.of(2020,12)))
+        assertThat(yearMonth, Is(YearMonth.of(2020, 12)))
     }
 
     @Test

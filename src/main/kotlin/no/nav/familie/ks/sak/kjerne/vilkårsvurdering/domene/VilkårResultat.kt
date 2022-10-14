@@ -95,7 +95,6 @@ class VilkårResultat(
 
     fun harFremtidigTom() = periodeTom?.isAfter(LocalDate.now().sisteDagIMåned()) ?: true
 
-
     fun kopierMedNyPeriode(fom: LocalDate, tom: LocalDate, behandlingId: Long): VilkårResultat =
         VilkårResultat(
             personResultat = personResultat,
@@ -115,6 +114,4 @@ class VilkårResultat(
     companion object {
         val VilkårResultatComparator = compareBy<VilkårResultat>({ it.periodeFom }, { it.resultat }, { it.vilkårType })
     }
-
-    }
-
+}

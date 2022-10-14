@@ -90,7 +90,6 @@ class VilkårsvurderingService(
         }
     }
 
-
     @Transactional
     fun endreVilkår(
         behandlingId: Long,
