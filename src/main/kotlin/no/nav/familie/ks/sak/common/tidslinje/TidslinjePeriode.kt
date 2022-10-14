@@ -56,6 +56,6 @@ data class TidslinjePeriode<T>(val periodeVerdi: PeriodeVerdi<T>, var lengde: In
     )
 
     override fun toString(): String {
-        return "no.nav.familie.ks.sak.common.tidslinje.Verdi: " + periodeVerdi.verdi.toString() + ", Lengde: " + lengde
+        return "Verdi: " + periodeVerdi.verdi.toString() + ", Lengde: " + lengde
     }
 }

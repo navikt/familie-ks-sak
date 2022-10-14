@@ -73,7 +73,7 @@ open class Tidslinje<T>(
         return "StartTidspunkt: " + startsTidspunkt + " Tidsenhet: " + tidsEnhet +
             " Total lengde: " + innhold.sumOf { it.lengde } +
             " Perioder: " + innhold.mapIndexed { indeks, it ->
-            "(no.nav.familie.ks.sak.common.tidslinje.Verdi: " + it.periodeVerdi.verdi.toString() +
+            "(Verdi: " + it.periodeVerdi.verdi.toString() +
                 ", fom: " + startsTidspunkt.plus(innhold.take(indeks).sumOf { it.lengde }.toLong(), mapper[this.tidsEnhet]) +
                 ", tom:" + kalkulerSluttTidspunkt(
                 startsTidspunkt.plus(
@@ -119,5 +119,5 @@ open class Tidslinje<T>(
             other.tittel == this.tittel
     }
 
-    companion object {}
+    companion object
 }
