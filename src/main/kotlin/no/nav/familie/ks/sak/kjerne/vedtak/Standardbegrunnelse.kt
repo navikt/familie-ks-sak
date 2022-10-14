@@ -14,7 +14,16 @@ interface IVedtakBegrunnelse {
     fun enumnavnTilString(): String
 }
 
-enum class Standardbegrunnelse : IVedtakBegrunnelse
+// TODO: Må legge inn faktiske begrunnelser vi skal ha her
+enum class Standardbegrunnelse : IVedtakBegrunnelse {
+    DUMMY {
+        override val sanityApiNavn = "dummyApiNavn"
+        override val vedtakBegrunnelseType = VedtakBegrunnelseType.AVSLAG
+    };
+
+    override val kanDelesOpp = false
+    override fun enumnavnTilString() = this.name
+}
 
 @Converter
 class StandardbegrunnelseListConverter :

@@ -51,7 +51,7 @@ import java.time.LocalDate
 @ExtendWith(SpringExtension::class)
 @ContextConfiguration(initializers = [DbContainerInitializer::class])
 @SpringBootTest(classes = [DevLauncherLocal::class], webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@ActiveProfiles("postgres")
+@ActiveProfiles("integrasjonstest")
 @EnableMockOAuth2Server
 @Tag("integrationTest")
 abstract class OppslagSpringRunnerTest {

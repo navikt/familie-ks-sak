@@ -7,6 +7,7 @@ import no.nav.familie.ks.sak.common.util.sisteDagIMåned
 import no.nav.familie.ks.sak.kjerne.vedtak.Standardbegrunnelse
 import no.nav.familie.ks.sak.kjerne.vedtak.StandardbegrunnelseListConverter
 import org.hibernate.annotations.Immutable
+import java.math.BigDecimal
 import java.time.LocalDate
 import javax.persistence.Column
 import javax.persistence.Convert
@@ -88,20 +89,14 @@ class VilkårResultat(
 
     @Column(name = "utdypende_vilkarsvurderinger")
     @Convert(converter = UtdypendeVilkårsvurderingerConverter::class)
-    var utdypendeVilkårsvurderinger: List<UtdypendeVilkårsvurdering> = emptyList()
-) : BaseEntitet() {
+    var utdypendeVilkårsvurderinger: List<UtdypendeVilkårsvurdering> = emptyList(),
 
-    fun oppdaterTilhørendeBehandling() {
-        behandlingId = personResultat!!.vilkårsvurdering.behandling.id
-    }
+    @Column(name = "antall_timer")
+    val antallTimer: BigDecimal? = null
+) : BaseEntitet() {
 
     fun erAvslagUtenPeriode() = erEksplisittAvslagPåSøknad == true && periodeFom == null && periodeTom == null
     fun harFremtidigTom() = periodeTom?.isAfter(LocalDate.now().sisteDagIMåned()) ?: true
-
-    companion object {
-
-        val VilkårResultatComparator = compareBy<VilkårResultat>({ it.periodeFom }, { it.resultat }, { it.vilkårType })
-    }
 
     fun kopierMedNyPeriode(fom: LocalDate?, tom: LocalDate?, behandlingId: Long): VilkårResultat {
         return VilkårResultat(
@@ -119,5 +114,10 @@ class VilkårResultat(
             vurderesEtter = this.vurderesEtter,
             utdypendeVilkårsvurderinger = this.utdypendeVilkårsvurderinger
         )
+    }
+
+    companion object {
+
+        val VilkårResultatComparator = compareBy<VilkårResultat>({ it.periodeFom }, { it.resultat }, { it.vilkårType })
     }
 }

@@ -1,6 +1,7 @@
 package no.nav.familie.ks.sak.api.dto
 
 import no.nav.familie.ks.sak.common.util.sisteDagIMåned
+import no.nav.familie.ks.sak.kjerne.vedtak.IVedtakBegrunnelse
 import no.nav.familie.ks.sak.kjerne.vedtak.Standardbegrunnelse
 import no.nav.familie.ks.sak.kjerne.vilkårsvurdering.domene.AnnenVurderingType
 import no.nav.familie.ks.sak.kjerne.vilkårsvurdering.domene.Regelverk
@@ -8,6 +9,7 @@ import no.nav.familie.ks.sak.kjerne.vilkårsvurdering.domene.Resultat
 import no.nav.familie.ks.sak.kjerne.vilkårsvurdering.domene.UtdypendeVilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.vilkårsvurdering.domene.Vilkår
 import no.nav.familie.ks.sak.kjerne.vilkårsvurdering.domene.VilkårResultat
+import java.math.BigDecimal
 import java.time.LocalDate
 import java.time.LocalDateTime
 
@@ -42,6 +44,7 @@ data class VilkårResultatDto(
     val erEksplisittAvslagPåSøknad: Boolean? = null,
     val avslagBegrunnelser: List<Standardbegrunnelse>? = emptyList(),
     val vurderesEtter: Regelverk? = null,
+    val antallTimer: BigDecimal? = null,
     val utdypendeVilkårsvurderinger: List<UtdypendeVilkårsvurdering> = emptyList()
 ) {
 
@@ -73,4 +76,10 @@ data class AnnenVurderingDto(
     val resultat: Resultat,
     val type: AnnenVurderingType,
     val begrunnelse: String?
+)
+
+data class VedtakBegrunnelseTilknyttetVilkårResponseDto(
+    val id: IVedtakBegrunnelse,
+    val navn: String,
+    val vilkår: Vilkår?
 )

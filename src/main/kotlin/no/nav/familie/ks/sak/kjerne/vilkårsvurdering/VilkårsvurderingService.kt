@@ -2,12 +2,15 @@ package no.nav.familie.ks.sak.kjerne.vilkårsvurdering
 
 import no.nav.familie.ks.sak.api.dto.EndreVilkårResultatDto
 import no.nav.familie.ks.sak.api.dto.NyttVilkårDto
+import no.nav.familie.ks.sak.api.dto.VedtakBegrunnelseTilknyttetVilkårResponseDto
 import no.nav.familie.ks.sak.common.exception.Feil
+import no.nav.familie.ks.sak.integrasjon.sanity.SanityService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
+import no.nav.familie.ks.sak.kjerne.vedtak.VedtakBegrunnelseType
 import no.nav.familie.ks.sak.kjerne.vilkårsvurdering.domene.PersonResultat
 import no.nav.familie.ks.sak.kjerne.vilkårsvurdering.domene.Resultat
 import no.nav.familie.ks.sak.kjerne.vilkårsvurdering.domene.Vilkår
@@ -23,6 +26,7 @@ import org.springframework.transaction.annotation.Transactional
 class VilkårsvurderingService(
     private val vilkårsvurderingRepository: VilkårsvurderingRepository,
     private val personopplysningGrunnlagService: PersonopplysningGrunnlagService,
+    private val sanityService: SanityService,
     private val personidentService: PersonidentService
 ) {
 
@@ -89,6 +93,11 @@ class VilkårsvurderingService(
             }.toSet()
         }
     }
+
+    fun hentVilkårsbegrunnelser(): Map<VedtakBegrunnelseType, List<VedtakBegrunnelseTilknyttetVilkårResponseDto>> =
+        standardbegrunnelserTilNedtrekksmenytekster(sanityService.hentSanityBegrunnelser()) + eøsStandardbegrunnelserTilNedtrekksmenytekster(
+            sanityService.hentSanityEØSBegrunnelser()
+        )
 
     @Transactional
     fun endreVilkår(

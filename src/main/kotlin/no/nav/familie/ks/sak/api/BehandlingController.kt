@@ -7,7 +7,7 @@ import no.nav.familie.ks.sak.api.dto.OpprettBehandlingDto
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.config.BehandlerRolle
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
-import no.nav.familie.ks.sak.kjerne.behandling.steg.StegService
+import no.nav.familie.ks.sak.kjerne.behandling.OpprettBehandlingService
 import no.nav.familie.ks.sak.sikkerhet.AuditLoggerEvent
 import no.nav.familie.ks.sak.sikkerhet.TilgangService
 import no.nav.security.token.support.core.api.ProtectedWithClaims
@@ -27,9 +27,9 @@ import org.springframework.web.bind.annotation.RestController
 @ProtectedWithClaims(issuer = "azuread")
 @Validated
 class BehandlingController(
+    private val opprettBehandlingService: OpprettBehandlingService,
     private val behandlingService: BehandlingService,
-    private val tilgangService: TilgangService,
-    private val stegService: StegService
+    private val tilgangService: TilgangService
 ) {
 
     @PostMapping(produces = [MediaType.APPLICATION_JSON_VALUE])
@@ -40,7 +40,7 @@ class BehandlingController(
             event = AuditLoggerEvent.CREATE,
             handling = "Opprett behandling"
         )
-        val behandling = stegService.håndterNyBehandling(opprettBehandlingDto)
+        val behandling = opprettBehandlingService.opprettBehandling(opprettBehandlingDto)
         return ResponseEntity.ok(Ressurs.success(behandlingService.lagBehandlingRespons(behandlingId = behandling.id)))
     }
 
