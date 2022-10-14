@@ -1,12 +1,12 @@
 package no.nav.familie.ks.sak.common.tidslinje.utvidelser
 
-import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.tidslinje.Null
+import no.nav.familie.ks.sak.common.tidslinje.PRAKTISK_SENESTE_DAG
 import no.nav.familie.ks.sak.common.tidslinje.PeriodeVerdi
 import no.nav.familie.ks.sak.common.tidslinje.TidsEnhet
 import no.nav.familie.ks.sak.common.tidslinje.Tidslinje
 import no.nav.familie.ks.sak.common.tidslinje.TidslinjePeriode
-import no.nav.familie.ks.sak.common.tidslinje.TidslinjePeriodeMedDatoLocalDate
+import no.nav.familie.ks.sak.common.tidslinje.TidslinjePeriodeMedDato
 import no.nav.familie.ks.sak.common.tidslinje.Udefinert
 import no.nav.familie.ks.sak.common.tidslinje.inf
 import java.time.LocalDate
@@ -607,27 +607,59 @@ fun <T> Tidslinje<T>.fjernForeldre(): Tidslinje<T> {
 fun <T> Tidslinje<T>.hentVerdier(): List<T?> =
     this.innhold.slåSammenLike().map { it.periodeVerdi.verdi }
 
-fun <T> Tidslinje<T>.tilTidslinjePerioderMedLocalDate(): List<TidslinjePeriodeMedDatoLocalDate<T>> {
-    if (this.tidsEnhet != TidsEnhet.DAG) {
-        throw Feil("antatt at tidsenhet er dag. Må bytte ut 'plusDays' med passende funksjon")
-    }
+/**
+ * Summerer opp tiden for hver periode og legger inn i en TidslinjePeriodeMedDato
+ *
+ * Om vi har en tidslinje med starttidspunkt 1. januar og tre perioder som varer én månde hver med verdiene a, b og c
+ * vil resulatet bli:
+ *
+ * List(TidslinjePeriodeMedDato(
+ *  verdi: a
+ *  fom: 1. januar
+ *  tom: 31. januar
+ * )
+ * TidslinjePeriodeMedDato(
+ *  verdi: b
+ *  fom: 1. februar
+ *  tom: 28. februar
+ * )
+ * TidslinjePeriodeMedDato(
+ *  verdi: c
+ *  fom: 1. mars
+ *  tom: 31. mars
+ * ))
+ *
+ */
+fun <T> Tidslinje<T>.tilTidslinjePerioderMedDato(): List<TidslinjePeriodeMedDato<T>> {
+    val (tidslinjePeriodeMedLocalDateListe, _) = this.innhold.fold(Pair(emptyList<TidslinjePeriodeMedDato<T>>(), 0L)) { (
+        tidslinjePeriodeMedLocalDateListe: List<TidslinjePeriodeMedDato<T>>,
+        tidFraStarttidspunktFom: Long
+    ),
+        tidslinjePeriode ->
+        val tidFraStarttidspunktTilNesteFom = tidFraStarttidspunktFom + tidslinjePeriode.lengde
 
-    val (tidslinjePeriodeMedLocalDateListe, _) = this.innhold.fold(
         Pair(
-            emptyList<TidslinjePeriodeMedDatoLocalDate<T>>(),
-            0L
-        )
-    ) { (tidslinjePeriodeMedLocalDateListe, sumTid), tidslinjePeriodeMedLocalDate ->
-        val nySumTid = sumTid + tidslinjePeriodeMedLocalDate.lengde
+            tidslinjePeriodeMedLocalDateListe + TidslinjePeriodeMedDato(
+                periodeVerdi = tidslinjePeriode.periodeVerdi,
+                fom = TidslinjePeriodeMedDato.Dato(this.startsTidspunkt.leggTil(tidsEnhet, tidFraStarttidspunktFom)),
+                tom = if (tidslinjePeriode.erUendelig) {
+                    TidslinjePeriodeMedDato.Dato(PRAKTISK_SENESTE_DAG)
+                } else {
+                    TidslinjePeriodeMedDato.Dato(
+                        this.startsTidspunkt.leggTil(tidsEnhet, tidFraStarttidspunktTilNesteFom).minusDays(1)
+                    )
+                }
 
-        Pair(
-            tidslinjePeriodeMedLocalDateListe + TidslinjePeriodeMedDatoLocalDate(
-                tidslinjePeriodeMedLocalDate.periodeVerdi,
-                fom = this.startsTidspunkt.plusDays(sumTid),
-                tom = this.startsTidspunkt.plusDays(nySumTid)
             ),
-            nySumTid
+            tidFraStarttidspunktTilNesteFom
         )
     }
     return tidslinjePeriodeMedLocalDateListe
+}
+
+private fun LocalDate.leggTil(tidsEnhet: TidsEnhet, antall: Long): LocalDate = when (tidsEnhet) {
+    TidsEnhet.DAG -> this.plusDays(antall)
+    TidsEnhet.UKE -> this.plusWeeks(antall)
+    TidsEnhet.MÅNED -> this.plusMonths(antall)
+    TidsEnhet.ÅR -> this.plusYears(antall)
 }

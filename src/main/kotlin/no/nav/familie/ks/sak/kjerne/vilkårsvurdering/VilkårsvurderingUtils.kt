@@ -2,20 +2,17 @@ package no.nav.familie.ks.sak.kjerne.vilkårsvurdering
 
 import no.nav.familie.ks.sak.api.dto.VilkårResultatDto
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
-import no.nav.familie.ks.sak.common.tidslinje.TidsEnhet
+import no.nav.familie.ks.sak.common.tidslinje.Null
 import no.nav.familie.ks.sak.common.tidslinje.Tidslinje
-import no.nav.familie.ks.sak.common.tidslinje.TidslinjePeriode
-import no.nav.familie.ks.sak.common.tidslinje.TidslinjePeriodeMedDatoLocalDate
+import no.nav.familie.ks.sak.common.tidslinje.TidslinjePeriodeMedDato
 import no.nav.familie.ks.sak.common.tidslinje.Verdi
+import no.nav.familie.ks.sak.common.tidslinje.tilTidslinje
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.kombinerMed
-import no.nav.familie.ks.sak.common.tidslinje.utvidelser.tilTidslinjePerioderMedLocalDate
+import no.nav.familie.ks.sak.common.tidslinje.utvidelser.tilTidslinjePerioderMedDato
 import no.nav.familie.ks.sak.kjerne.vilkårsvurdering.domene.PersonResultat
 import no.nav.familie.ks.sak.kjerne.vilkårsvurdering.domene.Resultat
 import no.nav.familie.ks.sak.kjerne.vilkårsvurdering.domene.Vilkår
 import no.nav.familie.ks.sak.kjerne.vilkårsvurdering.domene.VilkårResultat
-import java.time.LocalDate
-import java.time.LocalDateTime
-import java.time.temporal.ChronoUnit
 
 /**
  * Funksjon som tar inn endret vilkår og lager nye vilkårresultater til å få plass til den endrede perioden.
@@ -42,7 +39,7 @@ fun endreVilkårResultat(
     val tilpassetVilkårResultater = vilkårResultaterSomSkalTilpasses
         .flatMap {
             tilpassVilkårForEndretVilkår(
-                gammelVilkårResultat = it,
+                eksisterendeVilkårResultat = it,
                 endretVilkårResultat = endretVilkårResultat
             )
         }
@@ -79,71 +76,59 @@ private fun harUvurdertePerioderForVilkårType(personResultat: PersonResultat, v
         .filter { it.vilkårType == vilkårType }
         .find { it.resultat == Resultat.IKKE_VURDERT } != null
 
-fun lagTidslinjeForVilkårResultat(
-    innhold: List<VilkårResultat>,
-    startDato: LocalDate,
-    tidsEnhet: TidsEnhet
-): Tidslinje<VilkårResultat> {
-    val perioder = innhold.map {
-        TidslinjePeriode(
-            it,
-            ChronoUnit.DAYS.between(
-                it.periodeFom?.atStartOfDay() ?: LocalDateTime.MIN,
-                it.periodeTom?.atStartOfDay() ?: LocalDateTime.MAX
-            ).toInt(),
-            it.periodeFom == null || it.periodeTom == null
+fun List<VilkårResultat>.tilTidslinje(): Tidslinje<VilkårResultat> {
+    return map {
+        TidslinjePeriodeMedDato(
+            verdi = it,
+            fom = it.periodeFom,
+            tom = it.periodeTom
         )
-    }
-
-    return Tidslinje(startDato, perioder, tidsEnhet = tidsEnhet)
+    }.tilTidslinje()
 }
-
-fun List<VilkårResultat>.tilTidslinje() = lagTidslinjeForVilkårResultat(
-    innhold = this,
-    startDato = this.minOf { it.periodeFom ?: LocalDate.MIN },
-    tidsEnhet = TidsEnhet.DAG
-)
 
 /**
  * @param [personResultat] person vilkårresultatet tilhører
- * @param [gammelVilkårResultat] vilkårresultat som skal oppdaters på person
+ * @param [eksisterendeVilkårResultat] vilkårresultat som skal oppdaters på person
  * @param [endretVilkårResultatDto] oppdatert resultat fra frontend
  */
 fun tilpassVilkårForEndretVilkår(
-    gammelVilkårResultat: VilkårResultat,
+    eksisterendeVilkårResultat: VilkårResultat,
     endretVilkårResultat: VilkårResultat
 ): List<VilkårResultat> {
-    if (gammelVilkårResultat.id == endretVilkårResultat.id) {
+    if (eksisterendeVilkårResultat.id == endretVilkårResultat.id) {
         return listOf(endretVilkårResultat)
     }
 
-    if (gammelVilkårResultat.vilkårType != endretVilkårResultat.vilkårType || endretVilkårResultat.erAvslagUtenPeriode()) {
-        return listOf(gammelVilkårResultat)
+    if (eksisterendeVilkårResultat.vilkårType != endretVilkårResultat.vilkårType || endretVilkårResultat.erAvslagUtenPeriode()) {
+        return listOf(eksisterendeVilkårResultat)
     }
 
-    val gammelVilkårResultatTidslinje = listOf(gammelVilkårResultat).tilTidslinje()
+    val eksisterendeVilkårResultatTidslinje = listOf(eksisterendeVilkårResultat).tilTidslinje()
     val endretVilkårResultatTidslinje = listOf(endretVilkårResultat).tilTidslinje()
 
-    return gammelVilkårResultatTidslinje
+    return eksisterendeVilkårResultatTidslinje
         .kombinerMed(endretVilkårResultatTidslinje) { eksisterendeVilkår, endretVilkår ->
             if (endretVilkår is Verdi) {
-                endretVilkår
+                Null()
             } else {
                 eksisterendeVilkår
             }
-        }.tilTidslinjePerioderMedLocalDate()
+        }.tilTidslinjePerioderMedDato()
         .mapNotNull {
-            it.tilVilkårResultatMedOppdatertFomOgTom(nyBehandlingsId = endretVilkårResultat.behandlingId)
+            it.tilVilkårResultatMedOppdatertPeriodeOgBehandlingsId(nyBehandlingsId = endretVilkårResultat.behandlingId)
         }
 }
 
-private fun TidslinjePeriodeMedDatoLocalDate<VilkårResultat>.tilVilkårResultatMedOppdatertFomOgTom(
+private fun TidslinjePeriodeMedDato<VilkårResultat>.tilVilkårResultatMedOppdatertPeriodeOgBehandlingsId(
     nyBehandlingsId: Long
 ): VilkårResultat? {
-    val vilkårResultat = periodeVerdi.verdi
+    val vilkårResultat = this.periodeVerdi.verdi
+
+    val fom = this.fom.tilLocalDateEllerNull()
+    val tom = this.tom.tilLocalDateEllerNull()
 
     val vilkårsdatoErUendret = fom == vilkårResultat?.periodeFom &&
-        tom == vilkårResultat.periodeTom
+        tom == vilkårResultat?.periodeTom
 
     return if (vilkårsdatoErUendret) {
         vilkårResultat

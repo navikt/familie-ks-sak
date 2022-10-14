@@ -13,10 +13,12 @@ import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.domene.ArbeidsfordelingPåBehandling
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.domene.ArbeidsfordelingPåBehandlingRepository
 import no.nav.familie.ks.sak.kjerne.vilkårsvurdering.VilkårsvurderingService
+import no.nav.familie.ks.sak.kjerne.vilkårsvurdering.domene.Vilkår
 import org.hamcrest.CoreMatchers.notNullValue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.hamcrest.CoreMatchers.`is` as Is
 
@@ -48,46 +50,50 @@ class VilkårsvurderingControllerTest : OppslagSpringRunnerTest() {
         )
     }
 
-    // @Test
-    // fun `endreVilkår - skal returnere endrede vilkår`() {
-    //    val token = lokalTestToken(behandlerRolle = BehandlerRolle.BESLUTTER)
-    //    every { integrasjonClient.sjekkTilgangTilPersoner(any()) } returns Tilgang(true, "test")
-//
-    //    val request =
-    //        """
-    //            {
-    //              "personIdent": "${søker.aktivFødselsnummer()}",
-    //              "endretVilkårResultat": {
-    //                "begrunnelse": "ftg",
-    //                "behandlingId": ${behandling.id.toInt()},
-    //                "endretAv": "Z994151",
-    //                "endretTidspunkt": "2022-10-10T08:28:21.776",
-    //                "erAutomatiskVurdert": true,
-    //                "erVurdert": false,
-    //                "id": 999951,
-    //                "periodeFom": "2022-10-06",
-    //                "resultat": "OPPFYLT",
-    //                "erEksplisittAvslagPåSøknad": false,
-    //                "avslagBegrunnelser": [],
-    //                "vilkårType": "BOSATT_I_RIKET",
-    //                "vurderesEtter": "NASJONALE_REGLER",
-    //                "utdypendeVilkårsvurderinger": [
-    //                  "VURDERING_ANNET_GRUNNLAG"
-    //                ]
-    //              }
-    //            }
-    //        """.trimIndent()
-//
-    //    Given {
-    //        header("Authorization", "Bearer $token")
-    //        body(request)
-    //        contentType(MediaType.APPLICATION_JSON_VALUE)
-    //    } When {
-    //        put("$vilkårsvurderingControllerUrl/${behandling.id}")
-    //    } Then {
-    //        statusCode(HttpStatus.OK.value())
-    //    }
-    // }
+    @Test
+    fun `endreVilkår - skal returnere endrede vilkår`() {
+        val token = lokalTestToken(behandlerRolle = BehandlerRolle.BESLUTTER)
+        every { integrasjonClient.sjekkTilgangTilPersoner(any()) } returns Tilgang(true, "test")
+
+        val bosattIRiketVilkårId =
+            vilkårsvurderingService.hentAktivForBehandling(behandling.id)
+                .personResultater.find { it.aktør == søker }?.vilkårResultater?.find { it.vilkårType == Vilkår.BOSATT_I_RIKET }!!.id
+
+        val request =
+            """
+                {
+                  "personIdent": "${søker.aktivFødselsnummer()}",
+                  "endretVilkårResultat": {
+                    "begrunnelse": "ftg",
+                    "behandlingId": ${behandling.id.toInt()},
+                    "endretAv": "Z994151",
+                    "endretTidspunkt": "2022-10-10T08:28:21.776",
+                    "erAutomatiskVurdert": true,
+                    "erVurdert": false,
+                    "id": $bosattIRiketVilkårId,
+                    "periodeFom": "2022-10-06",
+                    "resultat": "OPPFYLT",
+                    "erEksplisittAvslagPåSøknad": false,
+                    "avslagBegrunnelser": [],
+                    "vilkårType": "BOSATT_I_RIKET",
+                    "vurderesEtter": "NASJONALE_REGLER",
+                    "utdypendeVilkårsvurderinger": [
+                      "VURDERING_ANNET_GRUNNLAG"
+                    ]
+                  }
+                }
+            """.trimIndent()
+
+        Given {
+            header("Authorization", "Bearer $token")
+            body(request)
+            contentType(MediaType.APPLICATION_JSON_VALUE)
+        } When {
+            put("$vilkårsvurderingControllerUrl/${behandling.id}")
+        } Then {
+            statusCode(HttpStatus.OK.value())
+        }
+    }
 
     @Test
     fun `nyttVilkår - skal kaste feil dersom det eksisterer uvurdert vilkår av samme type`() {
