@@ -66,7 +66,8 @@ data class VilkårResultatDto(
             vurderesEtter = vurderesEtter,
             utdypendeVilkårsvurderinger = utdypendeVilkårsvurderinger,
             personResultat = vilkårResultat.personResultat,
-            vilkårType = vilkårResultat.vilkårType
+            vilkårType = vilkårResultat.vilkårType,
+            antallTimer = antallTimer
         )
     }
 }
