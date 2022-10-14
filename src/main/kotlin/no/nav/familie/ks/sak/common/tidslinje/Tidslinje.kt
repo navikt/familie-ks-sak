@@ -63,8 +63,8 @@ open class Tidslinje<T>(
 
     private fun kalkulerSluttTidspunkt(sluttDato: LocalDate): LocalDate {
         return when (this.tidsEnhet) {
-            TidsEnhet.ÅR -> sluttDato.withDayOfYear(sluttDato.lengthOfYear())
-            TidsEnhet.MÅNED -> sluttDato.withDayOfMonth(sluttDato.lengthOfMonth())
+            TidsEnhet.ÅR -> sluttDato.with(TemporalAdjusters.lastDayOfYear())
+            TidsEnhet.MÅNED -> sluttDato.with(TemporalAdjusters.lastDayOfMonth())
             TidsEnhet.UKE -> sluttDato.with(DayOfWeek.SUNDAY)
             TidsEnhet.DAG -> sluttDato
         }
