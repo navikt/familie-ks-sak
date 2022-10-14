@@ -5,6 +5,7 @@ import no.nav.familie.ks.sak.common.entitet.BaseEntitet
 import no.nav.familie.ks.sak.common.util.StringListConverter
 import no.nav.familie.ks.sak.kjerne.vedtak.Standardbegrunnelse
 import no.nav.familie.ks.sak.kjerne.vedtak.StandardbegrunnelseListConverter
+import java.math.BigDecimal
 import java.time.LocalDate
 import javax.persistence.Column
 import javax.persistence.Convert
@@ -83,7 +84,10 @@ class VilkårResultat(
 
     @Column(name = "utdypende_vilkarsvurderinger")
     @Convert(converter = UtdypendeVilkårsvurderingerConverter::class)
-    var utdypendeVilkårsvurderinger: List<UtdypendeVilkårsvurdering> = emptyList()
+    var utdypendeVilkårsvurderinger: List<UtdypendeVilkårsvurdering> = emptyList(),
+
+    @Column(name = "antall_timer")
+    val antallTimer: BigDecimal? = null
 ) : BaseEntitet() {
 
     companion object {
