@@ -11,7 +11,7 @@ import no.nav.familie.ks.sak.kjerne.vilkårsvurdering.domene.VilkårResultat
 import java.time.LocalDate
 import java.time.LocalDateTime
 
-data class PersonResultatDto(
+data class PersonResultatResponsDto(
     val personIdent: String,
     val vilkårResultater: List<VilkårResultatDto>,
     val andreVurderinger: List<AnnenVurderingDto>
@@ -20,6 +20,11 @@ data class PersonResultatDto(
 data class EndreVilkårResultatDto(
     val personIdent: String,
     val endretVilkårResultat: VilkårResultatDto,
+)
+
+data class NyttVilkårDto(
+    val personIdent: String,
+    val vilkårType: Vilkår
 )
 
 data class VilkårResultatDto(

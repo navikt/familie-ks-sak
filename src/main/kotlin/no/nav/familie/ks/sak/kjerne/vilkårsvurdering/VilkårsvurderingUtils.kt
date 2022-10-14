@@ -9,11 +9,13 @@ import no.nav.familie.ks.sak.common.tidslinje.TidslinjePeriodeMedDatoLocalDate
 import no.nav.familie.ks.sak.common.tidslinje.Verdi
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.kombinerMed
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.tilTidslinjePerioderMedLocalDate
+import no.nav.familie.ks.sak.kjerne.vilkårsvurdering.domene.PersonResultat
 import no.nav.familie.ks.sak.kjerne.vilkårsvurdering.domene.Resultat
 import no.nav.familie.ks.sak.kjerne.vilkårsvurdering.domene.Vilkår
 import no.nav.familie.ks.sak.kjerne.vilkårsvurdering.domene.VilkårResultat
-import java.time.Duration
 import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.temporal.ChronoUnit
 
 /**
  * Funksjon som tar inn endret vilkår og lager nye vilkårresultater til å få plass til den endrede perioden.
@@ -40,13 +42,44 @@ fun endreVilkårResultat(
     val tilpassetVilkårResultater = vilkårResultaterSomSkalTilpasses
         .flatMap {
             tilpassVilkårForEndretVilkår(
-                eksisterendeVilkårResultat = it,
+                gammelVilkårResultat = it,
                 endretVilkårResultat = endretVilkårResultat
             )
         }
 
     return tilpassetVilkårResultater + vilkårResultaterSomIkkeSkalTilpasses
 }
+
+
+/**
+ * Funksjon som forsøker å legge til en periode på et vilkår.
+ * Dersom det allerede finnes en uvurdet periode med samme vilkårstype
+ * skal det kastes en feil.
+ */
+fun opprettNyttVilkårResultat(personResultat: PersonResultat, vilkårType: Vilkår): VilkårResultat {
+    val nyttVilkårResultat = VilkårResultat(
+        personResultat = personResultat,
+        vilkårType = vilkårType,
+        resultat = Resultat.IKKE_VURDERT,
+        begrunnelse = "",
+        behandlingId = personResultat.vilkårsvurdering.behandling.id
+    )
+
+    if (harUvurdertePerioderForVilkårType(personResultat, vilkårType)) {
+        throw FunksjonellFeil(
+            melding = "Det finnes allerede uvurderte vilkår av samme vilkårType",
+            frontendFeilmelding = "Du må ferdigstille vilkårsvurderingen på en periode som allerede er påbegynt, før du kan legge til en ny periode"
+        )
+    }
+
+    return nyttVilkårResultat
+}
+
+private fun harUvurdertePerioderForVilkårType(personResultat: PersonResultat, vilkårType: Vilkår): Boolean =
+    personResultat.vilkårResultater
+        .filter { it.vilkårType == vilkårType }
+        .find { it.resultat == Resultat.IKKE_VURDERT } != null
+
 
 fun lagTidslinjeForVilkårResultat(
     innhold: List<VilkårResultat>,
@@ -56,10 +89,10 @@ fun lagTidslinjeForVilkårResultat(
     val perioder = innhold.map {
         TidslinjePeriode(
             it,
-            Duration.between(
-                it.periodeFom?.atStartOfDay() ?: LocalDate.MIN,
-                it.periodeTom?.atStartOfDay() ?: LocalDate.MAX
-            ).toDaysPart().toInt(),
+            ChronoUnit.DAYS.between(
+                it.periodeFom?.atStartOfDay() ?: LocalDateTime.MIN,
+                it.periodeTom?.atStartOfDay() ?: LocalDateTime.MAX
+            ).toInt(),
             it.periodeFom == null || it.periodeTom == null
         )
     }
@@ -75,25 +108,25 @@ fun List<VilkårResultat>.tilTidslinje() = lagTidslinjeForVilkårResultat(
 
 /**
  * @param [personResultat] person vilkårresultatet tilhører
- * @param [eksisterendeVilkårResultat] vilkårresultat som skal oppdaters på person
+ * @param [gammelVilkårResultat] vilkårresultat som skal oppdaters på person
  * @param [endretVilkårResultatDto] oppdatert resultat fra frontend
  */
 fun tilpassVilkårForEndretVilkår(
-    eksisterendeVilkårResultat: VilkårResultat,
+    gammelVilkårResultat: VilkårResultat,
     endretVilkårResultat: VilkårResultat
 ): List<VilkårResultat> {
-    if (eksisterendeVilkårResultat.id == endretVilkårResultat.id) {
+    if (gammelVilkårResultat.id == endretVilkårResultat.id) {
         return listOf(endretVilkårResultat)
     }
 
-    if (eksisterendeVilkårResultat.vilkårType != endretVilkårResultat.vilkårType || endretVilkårResultat.erAvslagUtenPeriode()) {
-        return listOf(eksisterendeVilkårResultat)
+    if (gammelVilkårResultat.vilkårType != endretVilkårResultat.vilkårType || endretVilkårResultat.erAvslagUtenPeriode()) {
+        return listOf(gammelVilkårResultat)
     }
 
-    val eksisterendeVilkårResultatTidslinje = listOf(eksisterendeVilkårResultat).tilTidslinje()
+    val gammelVilkårResultatTidslinje = listOf(gammelVilkårResultat).tilTidslinje()
     val endretVilkårResultatTidslinje = listOf(endretVilkårResultat).tilTidslinje()
 
-    return eksisterendeVilkårResultatTidslinje
+    return gammelVilkårResultatTidslinje
         .kombinerMed(endretVilkårResultatTidslinje) { eksisterendeVilkår, endretVilkår ->
             if (endretVilkår is Verdi) {
                 endretVilkår
@@ -112,7 +145,7 @@ private fun TidslinjePeriodeMedDatoLocalDate<VilkårResultat>.tilVilkårResultat
     val vilkårResultat = periodeVerdi.verdi
 
     val vilkårsdatoErUendret = fom == vilkårResultat?.periodeFom &&
-        tom == vilkårResultat.periodeTom
+            tom == vilkårResultat.periodeTom
 
     return if (vilkårsdatoErUendret) {
         vilkårResultat
@@ -125,7 +158,10 @@ private fun TidslinjePeriodeMedDatoLocalDate<VilkårResultat>.tilVilkårResultat
     }
 }
 
-fun validerAvslagUtenPeriodeMedLøpende(vilkårResultater: List<VilkårResultat>, endretVilkårResultat: VilkårResultatDto) {
+private fun validerAvslagUtenPeriodeMedLøpende(
+    vilkårResultater: List<VilkårResultat>,
+    endretVilkårResultat: VilkårResultatDto
+) {
     val filtrerteVilkårResultater =
         vilkårResultater.filter { it.vilkårType == endretVilkårResultat.vilkårType && it.id != endretVilkårResultat.id }
 

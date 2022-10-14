@@ -9,6 +9,7 @@ import no.nav.familie.ks.sak.OppslagSpringRunnerTest
 import no.nav.familie.ks.sak.data.lagPersonopplysningGrunnlag
 import no.nav.familie.ks.sak.data.lagVilkårsvurdering
 import no.nav.familie.ks.sak.data.randomAktør
+import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
 import no.nav.familie.ks.sak.kjerne.vilkårsvurdering.domene.Resultat
 import no.nav.familie.ks.sak.kjerne.vilkårsvurdering.domene.Vilkår
@@ -28,6 +29,9 @@ class VilkårsvurderingServiceTest : OppslagSpringRunnerTest() {
 
     @MockK
     private lateinit var personopplysningGrunnlagService: PersonopplysningGrunnlagService
+
+    @MockK
+    private lateinit var personidentService: PersonidentService
 
     @InjectMockKs
     private lateinit var vilkårsvurderingService: VilkårsvurderingService

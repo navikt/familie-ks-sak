@@ -5,6 +5,7 @@ import ch.qos.logback.core.read.ListAppender
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.github.tomakehurst.wiremock.WireMockServer
 import com.nimbusds.jose.JOSEObjectType
+import no.nav.familie.kontrakter.felles.personopplysning.SIVILSTAND
 import no.nav.familie.ks.sak.config.BehandlerRolle
 import no.nav.familie.ks.sak.config.DatabaseCleanupService
 import no.nav.familie.ks.sak.config.DbContainerInitializer
@@ -19,6 +20,17 @@ import no.nav.familie.ks.sak.kjerne.fagsak.domene.Fagsak
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.FagsakRepository
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import no.nav.familie.ks.sak.kjerne.personident.AktørRepository
+import no.nav.familie.ks.sak.kjerne.personident.Personident
+import no.nav.familie.ks.sak.kjerne.personident.PersonidentRepository
+import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Kjønn
+import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Medlemskap
+import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
+import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonRepository
+import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
+import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
+import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlagRepository
+import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.sivilstand.GrSivilstand
+import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.statsborgerskap.GrStatsborgerskap
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import no.nav.security.mock.oauth2.token.DefaultOAuth2TokenCallback
 import no.nav.security.token.support.spring.test.EnableMockOAuth2Server
@@ -34,6 +46,7 @@ import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.transaction.annotation.Transactional
+import java.time.LocalDate
 
 @ExtendWith(SpringExtension::class)
 @ContextConfiguration(initializers = [DbContainerInitializer::class])
@@ -73,11 +86,23 @@ abstract class OppslagSpringRunnerTest {
     @Autowired
     private lateinit var behandlingRepository: BehandlingRepository
 
+    @Autowired
+    private lateinit var personopplysningGrunnlagRepository: PersonopplysningGrunnlagRepository
+
+    @Autowired
+    private lateinit var personIdentRepository: PersonidentRepository
+
+    @Autowired
+    private lateinit var personRepository: PersonRepository
+
+
     lateinit var søker: Aktør
 
     lateinit var fagsak: Fagsak
 
     lateinit var behandling: Behandling
+
+    lateinit var personopplysningGrunnlag: PersonopplysningGrunnlag
 
     @LocalServerPort
     var port: Int = 0
@@ -95,6 +120,24 @@ abstract class OppslagSpringRunnerTest {
         this.søker = lagreAktør(søker)
         fagsak = lagreFagsak(lagFagsak(aktør = søker))
         behandling = lagreBehandling(lagBehandling(fagsak = fagsak, opprettetÅrsak = BehandlingÅrsak.SØKNAD))
+    }
+
+    fun opprettPersonopplysningGrunnlagOgPersonForBehandling(behandlingId: Long) {
+        personopplysningGrunnlag = lagrePersonopplysningGrunnlag(PersonopplysningGrunnlag(behandlingId = behandlingId))
+
+        lagrePerson(Person(
+            aktør = søker,
+            type = PersonType.SØKER,
+            personopplysningGrunnlag = personopplysningGrunnlag,
+            fødselsdato = LocalDate.of(2019, 1, 1),
+            navn = "",
+            kjønn = Kjønn.KVINNE
+        ).also { søker ->
+            søker.statsborgerskap =
+                mutableListOf(GrStatsborgerskap(landkode = "NOR", medlemskap = Medlemskap.NORDEN, person = søker))
+            søker.bostedsadresser = mutableListOf()
+            søker.sivilstander = mutableListOf(GrSivilstand(type = SIVILSTAND.GIFT, person = søker))
+        })
     }
 
     protected fun lokalTestToken(
@@ -132,7 +175,24 @@ abstract class OppslagSpringRunnerTest {
 
     private fun resetTableForAllEntityClass() = databaseCleanupService.truncate()
 
-    fun lagreAktør(aktør: Aktør): Aktør = aktørRepository.saveAndFlush(aktør)
+    fun lagreAktør(aktør: Aktør): Aktør =
+        aktørRepository.saveAndFlush(aktør).also {
+            personIdentRepository.saveAndFlush(
+                Personident(
+                    fødselsnummer = it.aktivFødselsnummer(),
+                    aktør = it,
+                    aktiv = true,
+                    gjelderTil = null
+                )
+            )
+        }
+
+    fun lagrePerson(person: Person): Person =
+        personRepository.saveAndFlush(person)
+
+    fun lagrePersonopplysningGrunnlag(personopplysningGrunnlag: PersonopplysningGrunnlag): PersonopplysningGrunnlag =
+        personopplysningGrunnlagRepository.saveAndFlush(personopplysningGrunnlag)
+
 
     fun lagreFagsak(fagsak: Fagsak): Fagsak = fagsakRepository.saveAndFlush(fagsak)
 

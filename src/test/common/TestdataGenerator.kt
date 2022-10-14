@@ -301,7 +301,7 @@ fun lagVilkårResultat(
 ): VilkårResultat = VilkårResultat(
     id = id,
     personResultat = personResultat,
-    vilkårType = Vilkår.BOSATT_I_RIKET,
+    vilkårType = vilkårType,
     resultat = resultat,
     periodeFom = periodeFom,
     periodeTom = periodeTom,

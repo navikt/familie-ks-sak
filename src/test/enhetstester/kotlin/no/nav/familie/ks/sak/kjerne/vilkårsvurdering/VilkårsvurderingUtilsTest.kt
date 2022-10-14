@@ -28,7 +28,7 @@ class VilkårsvurderingUtilsTest {
             )
 
         val resultat = tilpassVilkårForEndretVilkår(
-            eksisterendeVilkårResultat = vilkårResultat1,
+            gammelVilkårResultat = vilkårResultat1,
             endretVilkårResultat = vilkårResultat2
         )
 

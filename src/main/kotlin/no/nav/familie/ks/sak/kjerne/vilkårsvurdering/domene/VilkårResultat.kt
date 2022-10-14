@@ -91,20 +91,13 @@ class VilkårResultat(
     var utdypendeVilkårsvurderinger: List<UtdypendeVilkårsvurdering> = emptyList()
 ) : BaseEntitet() {
 
-    fun oppdaterTilhørendeBehandling() {
-        behandlingId = personResultat!!.vilkårsvurdering.behandling.id
-    }
-
     fun erAvslagUtenPeriode() = erEksplisittAvslagPåSøknad == true && periodeFom == null && periodeTom == null
+
     fun harFremtidigTom() = periodeTom?.isAfter(LocalDate.now().sisteDagIMåned()) ?: true
 
-    companion object {
 
-        val VilkårResultatComparator = compareBy<VilkårResultat>({ it.periodeFom }, { it.resultat }, { it.vilkårType })
-    }
-
-    fun kopierMedNyPeriode(fom: LocalDate, tom: LocalDate, behandlingId: Long): VilkårResultat {
-        return VilkårResultat(
+    fun kopierMedNyPeriode(fom: LocalDate, tom: LocalDate, behandlingId: Long): VilkårResultat =
+        VilkårResultat(
             personResultat = personResultat,
             erAutomatiskVurdert = erAutomatiskVurdert,
             vilkårType = vilkårType,
@@ -119,5 +112,9 @@ class VilkårResultat(
             vurderesEtter = vurderesEtter,
             utdypendeVilkårsvurderinger = utdypendeVilkårsvurderinger
         )
+    companion object {
+        val VilkårResultatComparator = compareBy<VilkårResultat>({ it.periodeFom }, { it.resultat }, { it.vilkårType })
     }
-}
+
+    }
+
