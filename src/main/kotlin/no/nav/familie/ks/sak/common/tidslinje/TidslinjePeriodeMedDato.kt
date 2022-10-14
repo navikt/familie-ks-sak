@@ -13,11 +13,7 @@ data class TidslinjePeriodeMedDato<T>(
         fom: LocalDate?,
         tom: LocalDate?
     ) : this(
-        periodeVerdi = if (verdi != null) {
-            Verdi(verdi)
-        } else {
-            Null()
-        },
+        periodeVerdi = verdi?.let { Verdi(it) } ?: Null(),
         fom = Dato(fom ?: PRAKTISK_TIDLIGSTE_DAG),
         tom = Dato(tom ?: PRAKTISK_SENESTE_DAG)
     )
