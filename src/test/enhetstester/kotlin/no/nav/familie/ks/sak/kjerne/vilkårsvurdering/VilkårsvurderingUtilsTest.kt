@@ -34,7 +34,7 @@ class VilkårsvurderingUtilsTest {
             )
 
         val resultat = tilpassVilkårForEndretVilkår(
-            endretVilkårResultatId = vilkårResultat1.id,
+            endretVilkårResultatId = vilkårResultat2.id,
             eksisterendeVilkårResultat = vilkårResultat1,
             endretVilkårResultat = vilkårResultat2
         )
@@ -71,7 +71,7 @@ class VilkårsvurderingUtilsTest {
             )
 
         val resultat = tilpassVilkårForEndretVilkår(
-            endretVilkårResultatId = vilkårResultat1.id,
+            endretVilkårResultatId = vilkårResultat2.id,
             eksisterendeVilkårResultat = vilkårResultat1,
             endretVilkårResultat = vilkårResultat2
         )
@@ -106,7 +106,7 @@ class VilkårsvurderingUtilsTest {
             )
 
         val resultat = tilpassVilkårForEndretVilkår(
-            endretVilkårResultatId = vilkårResultat1.id,
+            endretVilkårResultatId = vilkårResultat2.id,
             eksisterendeVilkårResultat = vilkårResultat1,
             endretVilkårResultat = vilkårResultat2
         )
@@ -141,7 +141,7 @@ class VilkårsvurderingUtilsTest {
             )
 
         val resultat = tilpassVilkårForEndretVilkår(
-            endretVilkårResultatId = vilkårResultat1.id,
+            endretVilkårResultatId = vilkårResultat2.id,
             eksisterendeVilkårResultat = vilkårResultat1,
             endretVilkårResultat = vilkårResultat2
         )
@@ -176,7 +176,7 @@ class VilkårsvurderingUtilsTest {
             )
 
         val resultat = tilpassVilkårForEndretVilkår(
-            endretVilkårResultatId = vilkårResultat1.id,
+            endretVilkårResultatId = vilkårResultat2.id,
             eksisterendeVilkårResultat = vilkårResultat1,
             endretVilkårResultat = vilkårResultat2
         )
@@ -204,7 +204,7 @@ class VilkårsvurderingUtilsTest {
             )
 
         val resultat = tilpassVilkårForEndretVilkår(
-            endretVilkårResultatId = vilkårResultat1.id,
+            endretVilkårResultatId = vilkårResultat2.id,
             eksisterendeVilkårResultat = vilkårResultat1,
             endretVilkårResultat = vilkårResultat2
         )
@@ -241,7 +241,7 @@ class VilkårsvurderingUtilsTest {
             )
 
         val resultat = tilpassVilkårForEndretVilkår(
-            endretVilkårResultatId = vilkårResultat1.id,
+            endretVilkårResultatId = vilkårResultat2.id,
             eksisterendeVilkårResultat = vilkårResultat1,
             endretVilkårResultat = vilkårResultat2
         )
