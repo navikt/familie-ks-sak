@@ -39,7 +39,7 @@ fun endreVilkårResultat(
     val tilpassetVilkårResultater = vilkårResultaterSomSkalTilpasses
         .flatMap {
             tilpassVilkårForEndretVilkår(
-                endretVilkårResultatId = endretVilkårResultat.id,
+                endretVilkårResultatId = endretVilkårResultatDto.id,
                 eksisterendeVilkårResultat = it,
                 endretVilkårResultat = endretVilkårResultat
             )
