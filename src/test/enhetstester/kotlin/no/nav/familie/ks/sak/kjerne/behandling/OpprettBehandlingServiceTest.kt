@@ -5,25 +5,17 @@ import io.mockk.impl.annotations.InjectMockKs
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import io.mockk.just
-import io.mockk.mockk
-import io.mockk.mockkObject
 import io.mockk.runs
 import io.mockk.verify
 import no.nav.familie.kontrakter.felles.oppgave.Oppgavetype
-import no.nav.familie.ks.sak.api.dto.BarnMedOpplysningerDto
 import no.nav.familie.ks.sak.api.dto.OpprettBehandlingDto
-import no.nav.familie.ks.sak.api.dto.SøkerMedOpplysningerDto
-import no.nav.familie.ks.sak.api.dto.SøknadDto
-import no.nav.familie.ks.sak.api.mapper.SøknadGrunnlagMapper
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagFagsak
-import no.nav.familie.ks.sak.data.lagPersonopplysningGrunnlag
 import no.nav.familie.ks.sak.data.randomAktør
 import no.nav.familie.ks.sak.integrasjon.oppgave.OpprettOppgaveTask
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.ArbeidsfordelingService
-import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.domene.ArbeidsfordelingPåBehandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingKategori
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
@@ -34,11 +26,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.StegService
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.FagsakRepository
 import no.nav.familie.ks.sak.kjerne.logg.LoggService
 import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
-import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
-import no.nav.familie.ks.sak.kjerne.søknad.SøknadGrunnlagService
-import no.nav.familie.ks.sak.kjerne.søknad.domene.SøknadGrunnlag
 import no.nav.familie.ks.sak.kjerne.vedtak.VedtakService
-import no.nav.familie.ks.sak.kjerne.vilkårsvurdering.VilkårsvurderingService
 import no.nav.familie.prosessering.domene.TaskRepository
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
@@ -78,15 +66,6 @@ class OpprettBehandlingServiceTest {
     @MockK
     private lateinit var taskRepository: TaskRepository
 
-    @MockK
-    private lateinit var søknadGrunnlagService: SøknadGrunnlagService
-
-    @MockK
-    private lateinit var personopplysningGrunnlagService: PersonopplysningGrunnlagService
-
-    @MockK
-    private lateinit var vilkårsvurderingService: VilkårsvurderingService
-
     @InjectMockKs
     private lateinit var opprettBehandlingService: OpprettBehandlingService
 
@@ -94,7 +73,6 @@ class OpprettBehandlingServiceTest {
     private val søkersIdent = søker.personidenter.first { personIdent -> personIdent.aktiv }.fødselsnummer
     private val fagsak = lagFagsak(aktør = søker)
     private val behandling = lagBehandling(fagsak = fagsak, opprettetÅrsak = BehandlingÅrsak.SØKNAD)
-    private val søknadsgrunnlagMockK = mockk<SøknadGrunnlag>()
 
     @BeforeEach
     fun beforeEach() {
@@ -109,12 +87,7 @@ class OpprettBehandlingServiceTest {
         every { behandlingRepository.saveAndFlush(any()) } returns behandling
         every { behandlingRepository.save(any()) } returns behandling
         every { arbeidsfordelingService.fastsettBehandledeEnhet(any(), any()) } just runs
-        every { arbeidsfordelingService.hentArbeidsfordelingPåBehandling(any()) } returns ArbeidsfordelingPåBehandling(
-            behandlingId = behandling.id,
-            behandlendeEnhetId = "enhet",
-            behandlendeEnhetNavn = "enhetNavn"
-        )
-        every { arbeidsfordelingService.manueltOppdaterBehandlendeEnhet(any(), any()) } just runs
+
         every { vedtakService.opprettOgInitierNyttVedtakForBehandling(any()) } just runs
         every { loggService.opprettBehandlingLogg(any()) } just runs
         every { taskRepository.save(any()) } returns OpprettOppgaveTask.opprettTask(
@@ -123,21 +96,6 @@ class OpprettBehandlingServiceTest {
             LocalDate.now()
         )
         every { stegService.utførSteg(any(), any()) } returns Unit
-        every { personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlag(any()) } returns
-            lagPersonopplysningGrunnlag(behandlingId = behandling.id, søkerPersonIdent = søkersIdent)
-        every { vilkårsvurderingService.hentAktivVilkårsvurdering(any()) } returns null
-        every { søknadGrunnlagService.finnAktiv(any()) } returns søknadsgrunnlagMockK
-        mockkObject(SøknadGrunnlagMapper)
-        with(SøknadGrunnlagMapper) {
-            every { søknadsgrunnlagMockK.tilSøknadDto() } returns SøknadDto(
-                søkerMedOpplysninger = SøkerMedOpplysningerDto("søkerIdent"),
-                barnaMedOpplysninger = listOf(
-                    BarnMedOpplysningerDto(ident = "barn1"),
-                    BarnMedOpplysningerDto("barn2")
-                ),
-                "begrunnelse"
-            )
-        }
     }
 
     @Test
