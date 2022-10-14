@@ -1,5 +1,6 @@
 package no.nav.familie.ks.sak.api.dto
 
+import no.nav.familie.ks.sak.kjerne.vedtak.IVedtakBegrunnelse
 import no.nav.familie.ks.sak.kjerne.vedtak.Standardbegrunnelse
 import no.nav.familie.ks.sak.kjerne.vilkårsvurdering.domene.AnnenVurderingType
 import no.nav.familie.ks.sak.kjerne.vilkårsvurdering.domene.Regelverk
@@ -38,4 +39,10 @@ data class AnnenVurderingDto(
     val resultat: Resultat,
     val type: AnnenVurderingType,
     val begrunnelse: String?
+)
+
+data class VedtakBegrunnelseTilknyttetVilkårResponseDto(
+    val id: IVedtakBegrunnelse,
+    val navn: String,
+    val vilkår: Vilkår?
 )

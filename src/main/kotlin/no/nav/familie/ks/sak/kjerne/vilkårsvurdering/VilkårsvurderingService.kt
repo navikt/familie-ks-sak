@@ -1,8 +1,11 @@
 package no.nav.familie.ks.sak.kjerne.vilkårsvurdering
 
+import no.nav.familie.ks.sak.api.dto.VedtakBegrunnelseTilknyttetVilkårResponseDto
+import no.nav.familie.ks.sak.integrasjon.sanity.SanityService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
+import no.nav.familie.ks.sak.kjerne.vedtak.VedtakBegrunnelseType
 import no.nav.familie.ks.sak.kjerne.vilkårsvurdering.domene.PersonResultat
 import no.nav.familie.ks.sak.kjerne.vilkårsvurdering.domene.Resultat
 import no.nav.familie.ks.sak.kjerne.vilkårsvurdering.domene.Vilkår
@@ -16,7 +19,8 @@ import org.springframework.stereotype.Service
 @Service
 class VilkårsvurderingService(
     private val vilkårsvurderingRepository: VilkårsvurderingRepository,
-    private val personopplysningGrunnlagService: PersonopplysningGrunnlagService
+    private val personopplysningGrunnlagService: PersonopplysningGrunnlagService,
+    private val sanityService: SanityService
 ) {
 
     fun opprettVilkårsvurdering(behandling: Behandling, forrigeBehandlingSomErVedtatt: Behandling?): Vilkårsvurdering {
@@ -82,6 +86,11 @@ class VilkårsvurderingService(
             }.toSet()
         }
     }
+
+    fun hentVilkårsbegrunnelser(): Map<VedtakBegrunnelseType, List<VedtakBegrunnelseTilknyttetVilkårResponseDto>> =
+        standardbegrunnelserTilNedtrekksmenytekster(sanityService.hentSanityBegrunnelser()) + eøsStandardbegrunnelserTilNedtrekksmenytekster(
+            sanityService.hentSanityEØSBegrunnelser()
+        )
 
     companion object {
         val logger = LoggerFactory.getLogger(VilkårsvurderingService::class.java)
