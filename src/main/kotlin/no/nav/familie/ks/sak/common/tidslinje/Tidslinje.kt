@@ -3,6 +3,7 @@ package no.nav.familie.ks.sak.common.tidslinje
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.mapper
 import java.time.DayOfWeek
 import java.time.LocalDate
+import java.time.temporal.TemporalAdjusters
 
 enum class TidsEnhet {
     DAG,
@@ -53,8 +54,8 @@ open class Tidslinje<T>(
         val sluttTidspunkt = this.startsTidspunkt.plus(antallTidsEnheter.toLong() - 1, mapper[this.tidsEnhet])
 
         return when (this.tidsEnhet) {
-            TidsEnhet.ÅR -> sluttTidspunkt.withDayOfYear(sluttTidspunkt.lengthOfYear())
-            TidsEnhet.MÅNED -> sluttTidspunkt.withDayOfMonth(sluttTidspunkt.lengthOfMonth())
+            TidsEnhet.ÅR -> sluttTidspunkt.with(TemporalAdjusters.lastDayOfYear())
+            TidsEnhet.MÅNED -> sluttTidspunkt.with(TemporalAdjusters.lastDayOfMonth())
             TidsEnhet.UKE -> sluttTidspunkt.with(DayOfWeek.SUNDAY)
             TidsEnhet.DAG -> sluttTidspunkt
         }
