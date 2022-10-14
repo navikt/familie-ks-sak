@@ -110,16 +110,16 @@ class OpprettBehandlingService(
         return behandlingRepository.save(behandling)
     }
 
-    // kan kalles fra BehandlingController eller BehandlingServicetest metoder,
-    // andre tjenester bruker eventuelt BehandlingHentService istedet
+    // kan kalles fra BehandlingController eller OpprettBehandlingServiceTest metoder,
+    // andre tjenester bruker eventuelt BehandlingService istedet
     fun hentSisteBehandlingSomErVedtatt(fagsakId: Long): Behandling? {
         return behandlingRepository.finnBehandlinger(fagsakId)
             .filter { !it.erHenlagt() && it.status == BehandlingStatus.AVSLUTTET }
             .maxByOrNull { it.opprettetTidspunkt }
     }
 
-    // kan kalles fra BehandlingController eller BehandlingServicetest metoder,
-    // andre tjenester bruker eventuelt BehandlingHentService istedet
+    // kan kalles fra BehandlingController eller OpprettBehandlingServiceTest metoder,
+    // andre tjenester bruker eventuelt BehandlingService istedet
     fun hentBehandling(behandlingId: Long): Behandling = behandlingRepository.hentBehandling(behandlingId)
 
     companion object {
