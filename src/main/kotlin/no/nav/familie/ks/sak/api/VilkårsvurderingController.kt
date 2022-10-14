@@ -1,7 +1,7 @@
 package no.nav.familie.ks.sak.api
 
 import no.nav.familie.kontrakter.felles.Ressurs
-import no.nav.familie.ks.sak.api.dto.VedtakBegrunnelseTilknyttetVilkårDto
+import no.nav.familie.ks.sak.api.dto.VedtakBegrunnelseTilknyttetVilkårResponseDto
 import no.nav.familie.ks.sak.kjerne.vedtak.VedtakBegrunnelseType
 import no.nav.familie.ks.sak.kjerne.vilkårsvurdering.VilkårsvurderingService
 import no.nav.security.token.support.core.api.ProtectedWithClaims
@@ -19,7 +19,7 @@ class VilkårsvurderingController(
     private val vilkårsvurderingService: VilkårsvurderingService
 ) {
     @GetMapping(path = ["/vilkaarsbegrunnelser"])
-    fun hentVilkårsbegrunnelser(): ResponseEntity<Ressurs<Map<VedtakBegrunnelseType, List<VedtakBegrunnelseTilknyttetVilkårDto>>>> {
+    fun hentVilkårsbegrunnelser(): ResponseEntity<Ressurs<Map<VedtakBegrunnelseType, List<VedtakBegrunnelseTilknyttetVilkårResponseDto>>>> {
         return ResponseEntity.ok(Ressurs.success(vilkårsvurderingService.hentVilkårsbegrunnelser()))
     }
 }

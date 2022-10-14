@@ -41,7 +41,7 @@ data class AnnenVurderingDto(
     val begrunnelse: String?
 )
 
-data class VedtakBegrunnelseTilknyttetVilkårDto(
+data class VedtakBegrunnelseTilknyttetVilkårResponseDto(
     val id: IVedtakBegrunnelse,
     val navn: String,
     val vilkår: Vilkår?

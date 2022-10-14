@@ -1,6 +1,6 @@
 package no.nav.familie.ks.sak.kjerne.vilkårsvurdering
 
-import no.nav.familie.ks.sak.api.dto.VedtakBegrunnelseTilknyttetVilkårDto
+import no.nav.familie.ks.sak.api.dto.VedtakBegrunnelseTilknyttetVilkårResponseDto
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelse
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityEØSBegrunnelse
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.tilTriggesAv
@@ -40,7 +40,7 @@ fun eøsStandardbegrunnelserTilNedtrekksmenytekster(
 fun vedtakBegrunnelseTilRestVedtakBegrunnelseTilknyttetVilkår(
     sanityBegrunnelser: List<SanityBegrunnelse>,
     vedtakBegrunnelse: Standardbegrunnelse
-): List<VedtakBegrunnelseTilknyttetVilkårDto> {
+): List<VedtakBegrunnelseTilknyttetVilkårResponseDto> {
     val sanityBegrunnelse = vedtakBegrunnelse.tilSanityBegrunnelse(sanityBegrunnelser) ?: return emptyList()
 
     val triggesAv = sanityBegrunnelse.tilTriggesAv()
@@ -48,7 +48,7 @@ fun vedtakBegrunnelseTilRestVedtakBegrunnelseTilknyttetVilkår(
 
     return if (triggesAv.vilkår.isEmpty()) {
         listOf(
-            VedtakBegrunnelseTilknyttetVilkårDto(
+            VedtakBegrunnelseTilknyttetVilkårResponseDto(
                 id = vedtakBegrunnelse,
                 navn = visningsnavn,
                 vilkår = null
@@ -56,7 +56,7 @@ fun vedtakBegrunnelseTilRestVedtakBegrunnelseTilknyttetVilkår(
         )
     } else {
         triggesAv.vilkår.map {
-            VedtakBegrunnelseTilknyttetVilkårDto(
+            VedtakBegrunnelseTilknyttetVilkårResponseDto(
                 id = vedtakBegrunnelse,
                 navn = visningsnavn,
                 vilkår = it
@@ -68,11 +68,11 @@ fun vedtakBegrunnelseTilRestVedtakBegrunnelseTilknyttetVilkår(
 fun eøsBegrunnelseTilRestVedtakBegrunnelseTilknyttetVilkår(
     sanityEØSBegrunnelser: List<SanityEØSBegrunnelse>,
     vedtakBegrunnelse: EØSStandardbegrunnelse
-): List<VedtakBegrunnelseTilknyttetVilkårDto> {
+): List<VedtakBegrunnelseTilknyttetVilkårResponseDto> {
     val eøsSanityBegrunnelse = vedtakBegrunnelse.tilSanityEØSBegrunnelse(sanityEØSBegrunnelser) ?: return emptyList()
 
     return listOf(
-        VedtakBegrunnelseTilknyttetVilkårDto(
+        VedtakBegrunnelseTilknyttetVilkårResponseDto(
             id = vedtakBegrunnelse,
             navn = eøsSanityBegrunnelse.navnISystem,
             vilkår = null

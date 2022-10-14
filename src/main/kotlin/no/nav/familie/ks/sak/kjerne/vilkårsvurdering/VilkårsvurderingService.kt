@@ -1,6 +1,6 @@
 package no.nav.familie.ks.sak.kjerne.vilkårsvurdering
 
-import no.nav.familie.ks.sak.api.dto.VedtakBegrunnelseTilknyttetVilkårDto
+import no.nav.familie.ks.sak.api.dto.VedtakBegrunnelseTilknyttetVilkårResponseDto
 import no.nav.familie.ks.sak.integrasjon.sanity.SanityService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
@@ -87,7 +87,7 @@ class VilkårsvurderingService(
         }
     }
 
-    fun hentVilkårsbegrunnelser(): Map<VedtakBegrunnelseType, List<VedtakBegrunnelseTilknyttetVilkårDto>> =
+    fun hentVilkårsbegrunnelser(): Map<VedtakBegrunnelseType, List<VedtakBegrunnelseTilknyttetVilkårResponseDto>> =
         standardbegrunnelserTilNedtrekksmenytekster(sanityService.hentSanityBegrunnelser()) + eøsStandardbegrunnelserTilNedtrekksmenytekster(
             sanityService.hentSanityEØSBegrunnelser()
         )
