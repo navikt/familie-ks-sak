@@ -120,5 +120,9 @@ open class Tidslinje<T>(
             other.tittel == this.tittel
     }
 
+    override fun hashCode(): Int {
+        return this.startsTidspunkt.hashCode() + this.innhold.hashCode() + this.tidsEnhet.hashCode() + this.tittel.hashCode()
+    }
+
     companion object
 }
