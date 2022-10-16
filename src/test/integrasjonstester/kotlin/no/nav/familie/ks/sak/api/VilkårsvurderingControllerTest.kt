@@ -14,7 +14,10 @@ import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.domene.ArbeidsfordelingPåB
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.domene.ArbeidsfordelingPåBehandlingRepository
 import no.nav.familie.ks.sak.kjerne.vilkårsvurdering.VilkårsvurderingService
 import no.nav.familie.ks.sak.kjerne.vilkårsvurdering.domene.Vilkår
+import org.hamcrest.CoreMatchers.not
 import org.hamcrest.CoreMatchers.notNullValue
+import org.hamcrest.CoreMatchers.nullValue
+import org.hamcrest.MatcherAssert.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -55,9 +58,10 @@ class VilkårsvurderingControllerTest : OppslagSpringRunnerTest() {
         val token = lokalTestToken(behandlerRolle = BehandlerRolle.BESLUTTER)
         every { integrasjonClient.sjekkTilgangTilPersoner(any()) } returns Tilgang(true, "test")
 
-        val bosattIRiketVilkårId =
-            vilkårsvurderingService.hentAktivForBehandling(behandling.id)
-                .personResultater.find { it.aktør == søker }?.vilkårResultater?.find { it.vilkårType == Vilkår.BOSATT_I_RIKET }!!.id
+        val bosattIRiketVilkår = vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(behandling.id)
+            .personResultater.find { it.aktør == søker }?.vilkårResultater?.find { it.vilkårType == Vilkår.BOSATT_I_RIKET }!!
+
+        assertThat(bosattIRiketVilkår.periodeFom, Is(nullValue()))
 
         val request =
             """
@@ -70,7 +74,7 @@ class VilkårsvurderingControllerTest : OppslagSpringRunnerTest() {
                     "endretTidspunkt": "2022-10-10T08:28:21.776",
                     "erAutomatiskVurdert": true,
                     "erVurdert": false,
-                    "id": $bosattIRiketVilkårId,
+                    "id": ${bosattIRiketVilkår.id},
                     "periodeFom": "2022-10-06",
                     "resultat": "OPPFYLT",
                     "erEksplisittAvslagPåSøknad": false,
@@ -91,12 +95,16 @@ class VilkårsvurderingControllerTest : OppslagSpringRunnerTest() {
         } When {
             put("$vilkårsvurderingControllerUrl/${behandling.id}")
         } Then {
+            body(
+                "data.personResultater[0].vilkårResultater.find {it.vilkårType == 'BOSATT_I_RIKET'}.periodeFom",
+                Is("2022-10-06")
+            )
             statusCode(HttpStatus.OK.value())
         }
     }
 
     @Test
-    fun `nyttVilkår - skal kaste feil dersom det eksisterer uvurdert vilkår av samme type`() {
+    fun `opprettNyttVilkår - skal kaste feil dersom det eksisterer uvurdert vilkår av samme type`() {
         val token = lokalTestToken(behandlerRolle = BehandlerRolle.BESLUTTER)
         every { integrasjonClient.sjekkTilgangTilPersoner(any()) } returns Tilgang(true, "test")
 
@@ -126,7 +134,7 @@ class VilkårsvurderingControllerTest : OppslagSpringRunnerTest() {
     }
 
     @Test
-    fun `nyttVilkår - skal opprette nytt vilkår dersom det ikke eksisterer uvurdert vilkår av samme type på person`() {
+    fun `opprettNyttVilkår - skal opprette nytt vilkår dersom det ikke eksisterer uvurdert vilkår av samme type på person`() {
         val token = lokalTestToken(behandlerRolle = BehandlerRolle.BESLUTTER)
         every { integrasjonClient.sjekkTilgangTilPersoner(any()) } returns Tilgang(true, "test")
 
@@ -155,7 +163,7 @@ class VilkårsvurderingControllerTest : OppslagSpringRunnerTest() {
     }
 
     @Test
-    fun `slettEllerNullstillVilkår - skal kaste feil dersom det forsøkes å slette vilkår som ikke eksisterer`() {
+    fun `slettVilkår - skal kaste feil dersom det forsøkes å slette vilkår som ikke eksisterer`() {
         val token = lokalTestToken(behandlerRolle = BehandlerRolle.BESLUTTER)
         every { integrasjonClient.sjekkTilgangTilPersoner(any()) } returns Tilgang(true, "test")
 
@@ -176,6 +184,35 @@ class VilkårsvurderingControllerTest : OppslagSpringRunnerTest() {
             body("status", Is("FEILET"))
             body("melding", Is("Prøver å slette et vilkår som ikke finnes"))
             body("frontendFeilmelding", Is("Vilkåret du prøver å slette finnes ikke i systemet."))
+        }
+    }
+
+    @Test
+    fun `slettVilkår - skal lage nytt initiell vilkår av samme type dersom det bare finnes en ved sletting`() {
+        val token = lokalTestToken(behandlerRolle = BehandlerRolle.BESLUTTER)
+        every { integrasjonClient.sjekkTilgangTilPersoner(any()) } returns Tilgang(true, "test")
+
+        val bosattIRiketVilkår = vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(behandling.id)
+            .personResultater.find { it.aktør == søker }?.vilkårResultater?.find { it.vilkårType == Vilkår.BOSATT_I_RIKET }!!
+
+        val gammelVilkårId = bosattIRiketVilkår.id
+
+        val request =
+            """
+            ${søker.aktivFødselsnummer()}
+            """.trimIndent()
+
+        Given {
+            header("Authorization", "Bearer $token")
+            body(request)
+            contentType(MediaType.APPLICATION_JSON_VALUE)
+        } When {
+            delete("$vilkårsvurderingControllerUrl/${behandling.id}/${bosattIRiketVilkår.id}")
+        } Then {
+            body(
+                "data.personResultater[0].vilkårResultater.find {it.vilkårType == 'BOSATT_I_RIKET'}.id",
+                Is(not(gammelVilkårId))
+            )
         }
     }
 }

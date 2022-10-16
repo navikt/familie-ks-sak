@@ -104,7 +104,7 @@ class VilkårsvurderingService(
         behandlingId: Long,
         endreVilkårResultatDto: EndreVilkårResultatDto
     ) {
-        val vilkårsvurdering = hentAktivForBehandling(behandlingId)
+        val vilkårsvurdering = hentAktivVilkårsvurderingForBehandling(behandlingId)
         val personResultat =
             finnPersonResultatForPersonThrows(vilkårsvurdering.personResultater, endreVilkårResultatDto.personIdent)
 
@@ -120,7 +120,7 @@ class VilkårsvurderingService(
 
     @Transactional
     fun opprettNyttVilkårPåBehandling(behandlingId: Long, nyttVilkårDto: NyttVilkårDto) {
-        val vilkårsvurdering = hentAktivForBehandling(behandlingId)
+        val vilkårsvurdering = hentAktivVilkårsvurderingForBehandling(behandlingId)
         val personResultat =
             finnPersonResultatForPersonThrows(vilkårsvurdering.personResultater, nyttVilkårDto.personIdent)
 
@@ -134,7 +134,7 @@ class VilkårsvurderingService(
 
     @Transactional
     fun slettVilkårPåBehandling(behandlingId: Long, vilkårId: Long, aktør: Aktør) {
-        val vilkårsvurdering = hentAktivForBehandling(behandlingId)
+        val vilkårsvurdering = hentAktivVilkårsvurderingForBehandling(behandlingId)
 
         val personResultat =
             finnPersonResultatForPersonThrows(vilkårsvurdering.personResultater, aktør.aktivFødselsnummer())
@@ -160,7 +160,7 @@ class VilkårsvurderingService(
         }
     }
 
-    fun hentAktivForBehandling(behandlingId: Long): Vilkårsvurdering = finnAktivVilkårsvurdering(behandlingId)
+    fun hentAktivVilkårsvurderingForBehandling(behandlingId: Long): Vilkårsvurdering = finnAktivVilkårsvurdering(behandlingId)
         ?: throw Feil("Fant ikke vilkårsvurdering knyttet til behandling=$behandlingId")
 
     private fun finnPersonResultatForPersonThrows(
