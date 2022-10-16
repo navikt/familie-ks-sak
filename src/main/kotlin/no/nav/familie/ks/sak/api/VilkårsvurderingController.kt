@@ -36,7 +36,7 @@ class VilkårsvurderingController(
 ) {
 
     @PostMapping(path = ["/{behandlingId}"])
-    fun nyttVilkår(@PathVariable behandlingId: Long, @RequestBody nyttVilkårDto: NyttVilkårDto):
+    fun opprettNyttVilkår(@PathVariable behandlingId: Long, @RequestBody nyttVilkårDto: NyttVilkårDto):
         ResponseEntity<Ressurs<BehandlingResponsDto>> {
         tilgangService.validerTilgangTilHandlingOgFagsakForBehandling(
             behandlingId = behandlingId,
@@ -64,7 +64,7 @@ class VilkårsvurderingController(
 
         val behandling = behandlingService.hentBehandling(behandlingId)
 
-        vilkårsvurderingService.endreVilkår(
+        vilkårsvurderingService.endreVilkårPåBehandling(
             behandlingId = behandling.id,
             endreVilkårResultatDto = endreVilkårResultatDto
         )
@@ -73,7 +73,7 @@ class VilkårsvurderingController(
     }
 
     @DeleteMapping(path = ["/{behandlingId}/{vilkaarId}"])
-    fun slettEllerNullstillVilkår(
+    fun slettVilkår(
         @PathVariable behandlingId: Long,
         @PathVariable vilkaarId: Long,
         @RequestBody personIdent: String
@@ -82,12 +82,12 @@ class VilkårsvurderingController(
             behandlingId = behandlingId,
             event = AuditLoggerEvent.DELETE,
             minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
-            handling = "slette elller nullstill vilkårsperiode"
+            handling = "slette eller nullstill vilkår"
         )
 
         val aktør = personidentService.hentAktør(personIdent)
 
-        vilkårsvurderingService.slettEllerNullstillVilkår(
+        vilkårsvurderingService.slettVilkårPåBehandling(
             behandlingId,
             vilkårId = vilkaarId,
             aktør = aktør

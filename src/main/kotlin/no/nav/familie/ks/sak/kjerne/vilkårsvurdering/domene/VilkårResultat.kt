@@ -24,8 +24,6 @@ import javax.persistence.Table
 
 @Entity(name = "VilkårResultat")
 @Table(name = "vilkar_resultat")
-// denne brukes for å unngå å oppdatere database objekt automatisk(uten eksplisitt save)
-// Nå for å gjøre noen endringer på AndelTilkjentYtelse, må vi slette rad og legge til en ny rad.
 @Immutable
 class VilkårResultat(
     @Id
@@ -98,7 +96,7 @@ class VilkårResultat(
     fun erAvslagUtenPeriode() = erEksplisittAvslagPåSøknad == true && periodeFom == null && periodeTom == null
     fun harFremtidigTom() = periodeTom?.isAfter(LocalDate.now().sisteDagIMåned()) ?: true
 
-    fun kopierMedNyPeriode(fom: LocalDate?, tom: LocalDate?, behandlingId: Long): VilkårResultat {
+    fun kopierMedNyPeriodeOgBehandling(fom: LocalDate?, tom: LocalDate?, behandlingId: Long): VilkårResultat {
         return VilkårResultat(
             personResultat = this.personResultat,
             erAutomatiskVurdert = this.erAutomatiskVurdert,
@@ -117,7 +115,6 @@ class VilkårResultat(
     }
 
     companion object {
-
         val VilkårResultatComparator = compareBy<VilkårResultat>({ it.periodeFom }, { it.resultat }, { it.vilkårType })
     }
 }

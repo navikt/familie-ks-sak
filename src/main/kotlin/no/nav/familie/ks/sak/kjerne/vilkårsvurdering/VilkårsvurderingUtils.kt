@@ -94,7 +94,7 @@ fun eøsBegrunnelseTilRestVedtakBegrunnelseTilknyttetVilkår(
 }
 
 /**
- * Funksjon som tar inn endret vilkår og lager nye vilkårresultater til å få plass til den endrede perioden.
+ * Funksjon som tar inn et endret vilkår og lager nye vilkårresultater til å få plass til den endrede perioden.
  * @param[personResultat] Person med vilkår som eventuelt justeres
  * @param[restVilkårResultat] Det endrede vilkårresultatet
  * @return VilkårResultater før og etter mutering
@@ -111,7 +111,7 @@ fun endreVilkårResultat(
     val endretVilkårResultat =
         endretVilkårResultatDto.tilVilkårResultat(vilkårResultater.single { it.id == endretVilkårResultatDto.id })
 
-    val (vilkårResultaterSomSkalTilpasses, vilkårResultaterSomIkkeSkalTilpasses) = vilkårResultater.partition {
+    val (vilkårResultaterSomSkalTilpasses, vilkårResultaterSomIkkeTrengerTilpassning) = vilkårResultater.partition {
         !it.erAvslagUtenPeriode() || it.id == endretVilkårResultatDto.id
     }
 
@@ -124,7 +124,7 @@ fun endreVilkårResultat(
             )
         }
 
-    return tilpassetVilkårResultater + vilkårResultaterSomIkkeSkalTilpasses
+    return tilpassetVilkårResultater + vilkårResultaterSomIkkeTrengerTilpassning
 }
 
 /**
@@ -133,6 +133,13 @@ fun endreVilkårResultat(
  * skal det kastes en feil.
  */
 fun opprettNyttVilkårResultat(personResultat: PersonResultat, vilkårType: Vilkår): VilkårResultat {
+    if (harUvurdertePerioderForVilkårType(personResultat, vilkårType)) {
+        throw FunksjonellFeil(
+            melding = "Det finnes allerede uvurderte vilkår av samme vilkårType",
+            frontendFeilmelding = "Du må ferdigstille vilkårsvurderingen på en periode som allerede er påbegynt, før du kan legge til en ny periode"
+        )
+    }
+
     val nyttVilkårResultat = VilkårResultat(
         personResultat = personResultat,
         vilkårType = vilkårType,
@@ -141,29 +148,7 @@ fun opprettNyttVilkårResultat(personResultat: PersonResultat, vilkårType: Vilk
         behandlingId = personResultat.vilkårsvurdering.behandling.id
     )
 
-    if (harUvurdertePerioderForVilkårType(personResultat, vilkårType)) {
-        throw FunksjonellFeil(
-            melding = "Det finnes allerede uvurderte vilkår av samme vilkårType",
-            frontendFeilmelding = "Du må ferdigstille vilkårsvurderingen på en periode som allerede er påbegynt, før du kan legge til en ny periode"
-        )
-    }
-
     return nyttVilkårResultat
-}
-
-private fun harUvurdertePerioderForVilkårType(personResultat: PersonResultat, vilkårType: Vilkår): Boolean =
-    personResultat.vilkårResultater
-        .filter { it.vilkårType == vilkårType }
-        .find { it.resultat == Resultat.IKKE_VURDERT } != null
-
-fun List<VilkårResultat>.tilTidslinje(): Tidslinje<VilkårResultat> {
-    return map {
-        TidslinjePeriodeMedDato(
-            verdi = it,
-            fom = it.periodeFom,
-            tom = it.periodeTom
-        )
-    }.tilTidslinje()
 }
 
 /**
@@ -200,27 +185,8 @@ fun tilpassVilkårForEndretVilkår(
         }
 }
 
-private fun TidslinjePeriodeMedDato<VilkårResultat>.tilVilkårResultatMedOppdatertPeriodeOgBehandlingsId(
-    nyBehandlingsId: Long
-): VilkårResultat? {
-    val vilkårResultat = this.periodeVerdi.verdi
-
-    val fom = this.fom.tilLocalDateEllerNull()
-    val tom = this.tom.tilLocalDateEllerNull()
-
-    val vilkårsdatoErUendret = fom == vilkårResultat?.periodeFom &&
-        tom == vilkårResultat?.periodeTom
-
-    return if (vilkårsdatoErUendret) {
-        vilkårResultat
-    } else {
-        vilkårResultat?.kopierMedNyPeriode(
-            fom = fom,
-            tom = tom,
-            behandlingId = nyBehandlingsId
-        )
-    }
-}
+private fun harUvurdertePerioderForVilkårType(personResultat: PersonResultat, vilkårType: Vilkår): Boolean =
+    personResultat.vilkårResultater.any { it.vilkårType == vilkårType && it.resultat == Resultat.IKKE_VURDERT }
 
 private fun validerAvslagUtenPeriodeMedLøpende(
     vilkårResultater: List<VilkårResultat>,
@@ -244,5 +210,36 @@ private fun validerAvslagUtenPeriodeMedLøpende(
                 "Finnes avslag uten periode ved forsøk på å legge til løpende oppfylt",
                 "Du kan ikke legge til løpende periode fordi det er vurdert avslag uten datoer på vilkåret."
             )
+    }
+}
+
+private fun List<VilkårResultat>.tilTidslinje(): Tidslinje<VilkårResultat> {
+    return map {
+        TidslinjePeriodeMedDato(
+            verdi = it,
+            fom = it.periodeFom,
+            tom = it.periodeTom
+        )
+    }.tilTidslinje()
+}
+
+private fun TidslinjePeriodeMedDato<VilkårResultat>.tilVilkårResultatMedOppdatertPeriodeOgBehandlingsId(
+    nyBehandlingsId: Long
+): VilkårResultat? {
+    val vilkårResultat = periodeVerdi.verdi
+
+    val fom = fom.tilLocalDateEllerNull()
+    val tom = tom.tilLocalDateEllerNull()
+
+    val vilkårsdatoErUendret = fom == vilkårResultat?.periodeFom && tom == vilkårResultat?.periodeTom
+
+    return if (vilkårsdatoErUendret) {
+        vilkårResultat
+    } else {
+        vilkårResultat?.kopierMedNyPeriodeOgBehandling(
+            fom = fom,
+            tom = tom,
+            behandlingId = nyBehandlingsId
+        )
     }
 }

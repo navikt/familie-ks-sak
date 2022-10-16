@@ -100,21 +100,22 @@ class VilkårsvurderingService(
         )
 
     @Transactional
-    fun endreVilkår(
+    fun endreVilkårPåBehandling(
         behandlingId: Long,
         endreVilkårResultatDto: EndreVilkårResultatDto
     ) {
         val vilkårsvurdering = hentAktivForBehandling(behandlingId)
         val personResultat =
             finnPersonResultatForPersonThrows(vilkårsvurdering.personResultater, endreVilkårResultatDto.personIdent)
+
         val vilkårResultater = personResultat.vilkårResultater
 
-        val nyeVilkårResultater =
+        val nyeOgEndredeVilkårResultater =
             endreVilkårResultat(vilkårResultater.toList(), endreVilkårResultatDto.endretVilkårResultat)
 
-        // Vilkårresultatene trenger ikke å eksplitt save pga @Transactional
+        // Det er ikke nødvendig å save Vilkårresultatene eksplitt pga @Transactional
         vilkårResultater.clear()
-        vilkårResultater.addAll(nyeVilkårResultater)
+        vilkårResultater.addAll(nyeOgEndredeVilkårResultater)
     }
 
     @Transactional
@@ -122,16 +123,17 @@ class VilkårsvurderingService(
         val vilkårsvurdering = hentAktivForBehandling(behandlingId)
         val personResultat =
             finnPersonResultatForPersonThrows(vilkårsvurdering.personResultater, nyttVilkårDto.personIdent)
+
         val vilkårResultater = personResultat.vilkårResultater
 
-        val nyttVilkår = opprettNyttVilkårResultat(personResultat, nyttVilkårDto.vilkårType)
+        val nyttVilkårResultat = opprettNyttVilkårResultat(personResultat, nyttVilkårDto.vilkårType)
 
-        // Vilkårresultatene trenger ikke å eksplitt save pga @Transactional
-        vilkårResultater.add(nyttVilkår)
+        // Det er ikke nødvendig å save Vilkårresultatene eksplitt pga @Transactional
+        vilkårResultater.add(nyttVilkårResultat)
     }
 
     @Transactional
-    fun slettEllerNullstillVilkår(behandlingId: Long, vilkårId: Long, aktør: Aktør) {
+    fun slettVilkårPåBehandling(behandlingId: Long, vilkårId: Long, aktør: Aktør) {
         val vilkårsvurdering = hentAktivForBehandling(behandlingId)
 
         val personResultat =
@@ -139,19 +141,21 @@ class VilkårsvurderingService(
 
         val vilkårResultater = personResultat.vilkårResultater
 
-        val vilkårResultat = vilkårResultater.find { it.id == vilkårId }
+        val vilkårResultatSomSkalSlettes = vilkårResultater.find { it.id == vilkårId }
             ?: throw Feil(
                 message = "Prøver å slette et vilkår som ikke finnes",
                 frontendFeilmelding = "Vilkåret du prøver å slette finnes ikke i systemet."
             )
 
+        vilkårResultater.remove(vilkårResultatSomSkalSlettes)
+
         val perioderMedSammeVilkårType = vilkårResultater
-            .filter { it.vilkårType == vilkårResultat.vilkårType && it.id != vilkårResultat.id }
+            .filter { it.vilkårType == vilkårResultatSomSkalSlettes.vilkårType && it.id != vilkårResultatSomSkalSlettes.id }
 
-        vilkårResultater.remove(vilkårResultat)
-
+        // Vi oppretter initiell vilkår dersom det ikke finnes flere av samme type.
         if (perioderMedSammeVilkårType.isEmpty()) {
-            val nyttVilkårMedNullstilteFelter = opprettNyttVilkårResultat(personResultat, vilkårResultat.vilkårType)
+            val nyttVilkårMedNullstilteFelter = opprettNyttVilkårResultat(personResultat, vilkårResultatSomSkalSlettes.vilkårType)
+
             vilkårResultater.add(nyttVilkårMedNullstilteFelter)
         }
     }
