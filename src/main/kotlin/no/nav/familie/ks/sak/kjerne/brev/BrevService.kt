@@ -11,13 +11,13 @@ import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 
 @Service
-class DokumentService(
+class BrevService(
     private val brevKlient: BrevKlient,
     private val personopplysningGrunnlagService: PersonopplysningGrunnlagService,
     private val arbeidsfordelingService: ArbeidsfordelingService
 ) {
 
-    fun hentForhåndsvisning(behandlingId: Long, manueltBrevDto: ManueltBrevDto): ByteArray {
+    fun hentForhåndsvisningAvBrev(behandlingId: Long, manueltBrevDto: ManueltBrevDto): ByteArray {
         val mottakerPerson = personopplysningGrunnlagService.hentSøker(behandlingId)
         val arbeidsfordelingPåBehandling = arbeidsfordelingService.hentArbeidsfordelingPåBehandling(behandlingId)
 
@@ -32,7 +32,7 @@ class DokumentService(
         return genererManueltBrev(manueltBrevDtoMedMottakerData, true)
     }
 
-    fun genererManueltBrev(
+    private fun genererManueltBrev(
         manueltBrevRequest: ManueltBrevDto,
         erForhåndsvisning: Boolean = false
     ): ByteArray {
