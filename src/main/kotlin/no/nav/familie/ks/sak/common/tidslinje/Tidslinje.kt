@@ -3,6 +3,7 @@ package no.nav.familie.ks.sak.common.tidslinje
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.mapper
 import java.time.DayOfWeek
 import java.time.LocalDate
+import java.time.temporal.TemporalAdjusters
 
 enum class TidsEnhet {
     DAG,
@@ -53,8 +54,8 @@ open class Tidslinje<T>(
         val sluttTidspunkt = this.startsTidspunkt.plus(antallTidsEnheter.toLong() - 1, mapper[this.tidsEnhet])
 
         return when (this.tidsEnhet) {
-            TidsEnhet.ÅR -> sluttTidspunkt.withDayOfYear(sluttTidspunkt.lengthOfYear())
-            TidsEnhet.MÅNED -> sluttTidspunkt.withDayOfMonth(sluttTidspunkt.lengthOfMonth())
+            TidsEnhet.ÅR -> sluttTidspunkt.with(TemporalAdjusters.lastDayOfYear())
+            TidsEnhet.MÅNED -> sluttTidspunkt.with(TemporalAdjusters.lastDayOfMonth())
             TidsEnhet.UKE -> sluttTidspunkt.with(DayOfWeek.SUNDAY)
             TidsEnhet.DAG -> sluttTidspunkt
         }
@@ -62,8 +63,8 @@ open class Tidslinje<T>(
 
     private fun kalkulerSluttTidspunkt(sluttDato: LocalDate): LocalDate {
         return when (this.tidsEnhet) {
-            TidsEnhet.ÅR -> sluttDato.withDayOfYear(sluttDato.lengthOfYear())
-            TidsEnhet.MÅNED -> sluttDato.withDayOfMonth(sluttDato.lengthOfMonth())
+            TidsEnhet.ÅR -> sluttDato.with(TemporalAdjusters.lastDayOfYear())
+            TidsEnhet.MÅNED -> sluttDato.with(TemporalAdjusters.lastDayOfMonth())
             TidsEnhet.UKE -> sluttDato.with(DayOfWeek.SUNDAY)
             TidsEnhet.DAG -> sluttDato
         }
@@ -73,7 +74,7 @@ open class Tidslinje<T>(
         return "StartTidspunkt: " + startsTidspunkt + " Tidsenhet: " + tidsEnhet +
             " Total lengde: " + innhold.sumOf { it.lengde } +
             " Perioder: " + innhold.mapIndexed { indeks, it ->
-            "(no.nav.familie.ks.sak.common.tidslinje.Verdi: " + it.periodeVerdi.verdi.toString() +
+            "(Verdi: " + it.periodeVerdi.verdi.toString() +
                 ", fom: " + startsTidspunkt.plus(innhold.take(indeks).sumOf { it.lengde }.toLong(), mapper[this.tidsEnhet]) +
                 ", tom:" + kalkulerSluttTidspunkt(
                 startsTidspunkt.plus(
@@ -119,5 +120,9 @@ open class Tidslinje<T>(
             other.tittel == this.tittel
     }
 
-    companion object {}
+    override fun hashCode(): Int {
+        return this.startsTidspunkt.hashCode() + this.innhold.hashCode() + this.tidsEnhet.hashCode() + this.tittel.hashCode()
+    }
+
+    companion object
 }

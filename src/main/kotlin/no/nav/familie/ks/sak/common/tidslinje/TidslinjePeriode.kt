@@ -9,6 +9,10 @@ sealed class PeriodeVerdi<T>(val verdi: T?) {
         if (other.verdi == this.verdi) return true
         return false
     }
+
+    override fun hashCode(): Int {
+        return this.verdi.hashCode()
+    }
 }
 
 class Verdi<T>(verdi: T) : PeriodeVerdi<T>(verdi)
@@ -17,12 +21,20 @@ class Udefinert<T> : PeriodeVerdi<T>(null) {
     override fun equals(other: Any?): Boolean {
         return other is Udefinert<*>
     }
+
+    override fun hashCode(): Int {
+        return this.verdi.hashCode()
+    }
 }
 
 class Null<T> : PeriodeVerdi<T>(null) {
 
     override fun equals(other: Any?): Boolean {
         return other is Null<*>
+    }
+
+    override fun hashCode(): Int {
+        return this.verdi.hashCode()
     }
 }
 
@@ -56,6 +68,6 @@ data class TidslinjePeriode<T>(val periodeVerdi: PeriodeVerdi<T>, var lengde: In
     )
 
     override fun toString(): String {
-        return "no.nav.familie.ks.sak.common.tidslinje.Verdi: " + periodeVerdi.verdi.toString() + ", Lengde: " + lengde
+        return "Verdi: " + periodeVerdi.verdi.toString() + ", Lengde: " + lengde
     }
 }

@@ -24,7 +24,7 @@ fun <T, R, RESULTAT> List<Tidslinje<T>>.join(
     operand: Tidslinje<R>,
     operator: (elem1: PeriodeVerdi<T>, elem2: PeriodeVerdi<R>) -> PeriodeVerdi<RESULTAT>
 ): List<Tidslinje<RESULTAT>> {
-    return this.mapIndexed { _, tidslinjeBarn -> tidslinjeBarn.kombinerMed(operand, kombineringsfunksjon = operator) }
+    return this.mapIndexed { index, tidslinjeBarn -> tidslinjeBarn.kombinerMed(operand, kombineringsfunksjon = operator) }
 }
 
 fun <T, R, RESULTAT> List<Tidslinje<T>>.join(
