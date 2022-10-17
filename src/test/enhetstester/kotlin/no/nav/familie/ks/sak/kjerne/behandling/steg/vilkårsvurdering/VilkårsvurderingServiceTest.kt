@@ -6,6 +6,7 @@ import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import io.mockk.mockk
 import io.mockk.slot
+import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagFagsak
 import no.nav.familie.ks.sak.data.lagPersonopplysningGrunnlag
@@ -15,6 +16,7 @@ import no.nav.familie.ks.sak.integrasjon.sanity.SanityService
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelse
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityEØSBegrunnelse
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
+import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
 import no.nav.familie.ks.sak.kjerne.vedtak.EØSStandardbegrunnelse
 import no.nav.familie.ks.sak.kjerne.vedtak.Standardbegrunnelse
@@ -28,7 +30,9 @@ import org.hamcrest.Matchers.containsInAnyOrder
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
+import org.hamcrest.CoreMatchers.`is` as Is
 
 @ExtendWith(MockKExtension::class)
 class VilkårsvurderingServiceTest {
@@ -41,6 +45,9 @@ class VilkårsvurderingServiceTest {
 
     @MockK
     private lateinit var sanityService: SanityService
+
+    @MockK
+    private lateinit var personidentService: PersonidentService
 
     @InjectMockKs
     private lateinit var vilkårsvurderingService: VilkårsvurderingService
@@ -57,7 +64,7 @@ class VilkårsvurderingServiceTest {
         val barn2 = randomAktør()
 
         val lagretVilkårsvurderingSlot = slot<Vilkårsvurdering>()
-        every { vilkårsvurderingRepository.finnAktiv(any()) } returns null
+        every { vilkårsvurderingRepository.finnAktivForBehandling(any()) } returns null
         every { personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(any()) } returns lagPersonopplysningGrunnlag(
             behandlingId = behandling.id,
             søkerPersonIdent = søker.aktivFødselsnummer(),
@@ -92,7 +99,7 @@ class VilkårsvurderingServiceTest {
         val barn2 = randomAktør()
         val lagretDeaktivertVilkårsvurderingSlot = slot<Vilkårsvurdering>()
         val lagretVilkårsvurderingSlot = slot<Vilkårsvurdering>()
-        every { vilkårsvurderingRepository.finnAktiv(any()) } returns lagVilkårsvurdering(
+        every { vilkårsvurderingRepository.finnAktivForBehandling(any()) } returns lagVilkårsvurdering(
             søker,
             behandling,
             Resultat.OPPFYLT
@@ -137,5 +144,42 @@ class VilkårsvurderingServiceTest {
         assertEquals(2, vilkårsbegrunnelser.size)
         assertEquals(Vilkår.values().size, vilkårsbegrunnelser[VedtakBegrunnelseType.AVSLAG]?.size)
         assertEquals(1, vilkårsbegrunnelser[VedtakBegrunnelseType.EØS_OPPHØR]?.size)
+    }
+
+    @Test
+    fun `hentAktivVilkårsvurderingForBehandling - skal kaste feil hvis aktiv vilkårsvurdering for behandling ikke eksisterer`() {
+        every { vilkårsvurderingRepository.finnAktivForBehandling(404) } returns null
+
+        val feil = assertThrows<Feil> {
+            vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(404)
+        }
+
+        assertThat(feil.message, Is("Fant ikke vilkårsvurdering knyttet til behandling=404"))
+    }
+
+    @Test
+    fun `hentAktivVilkårsvurderingForBehandling - skal returnere aktiv vilkårsvurdering for behandling`() {
+        val mocketVilkårsvurdering = mockk<Vilkårsvurdering>()
+
+        every { vilkårsvurderingRepository.finnAktivForBehandling(404) } returns mocketVilkårsvurdering
+
+        val hentetVilkårsvurdering = vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(404)
+
+        assertThat(mocketVilkårsvurdering, Is(hentetVilkårsvurdering))
+    }
+
+    @Test
+    fun `slettVilkårPåBehandling - skal kaste feil dersom vilkåret som forsøkes å slettes ikke finnes`() {
+        val vilkårsvurdering = lagVilkårsvurdering(søker, behandling, Resultat.OPPFYLT)
+
+        every { personidentService.hentAktør(any()) } returns søker
+        every { vilkårsvurderingRepository.finnAktivForBehandling(200) } returns vilkårsvurdering
+
+        val feil = assertThrows<Feil> {
+            vilkårsvurderingService.slettVilkårPåBehandling(200, 404, søker)
+        }
+
+        assertThat(feil.message, Is("Prøver å slette et vilkår som ikke finnes"))
+        assertThat(feil.frontendFeilmelding, Is("Vilkåret du prøver å slette finnes ikke i systemet."))
     }
 }

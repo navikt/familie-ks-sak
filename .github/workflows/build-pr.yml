@@ -26,7 +26,7 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           reporter: github-check
-          ktlint_version: 0.47.0
+          ktlint_version: 0.43.2
   enhetstester:
     name: Enhetstester
     runs-on: ubuntu-latest

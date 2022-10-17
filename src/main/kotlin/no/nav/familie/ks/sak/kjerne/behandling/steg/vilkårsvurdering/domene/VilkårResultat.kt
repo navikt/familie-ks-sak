@@ -3,8 +3,10 @@ package no.nav.familie.ks.sak.kjerne.vilkårsvurdering.domene
 import com.fasterxml.jackson.annotation.JsonIgnore
 import no.nav.familie.ks.sak.common.entitet.BaseEntitet
 import no.nav.familie.ks.sak.common.util.StringListConverter
+import no.nav.familie.ks.sak.common.util.sisteDagIMåned
 import no.nav.familie.ks.sak.kjerne.vedtak.Standardbegrunnelse
 import no.nav.familie.ks.sak.kjerne.vedtak.StandardbegrunnelseListConverter
+import org.hibernate.annotations.Immutable
 import java.math.BigDecimal
 import java.time.LocalDate
 import javax.persistence.Column
@@ -22,6 +24,7 @@ import javax.persistence.Table
 
 @Entity(name = "VilkårResultat")
 @Table(name = "vilkar_resultat")
+@Immutable
 class VilkårResultat(
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "vilkar_resultat_seq_generator")
@@ -89,6 +92,27 @@ class VilkårResultat(
     @Column(name = "antall_timer")
     val antallTimer: BigDecimal? = null
 ) : BaseEntitet() {
+
+    fun erAvslagUtenPeriode() = erEksplisittAvslagPåSøknad == true && periodeFom == null && periodeTom == null
+    fun harFremtidigTom() = periodeTom?.isAfter(LocalDate.now().sisteDagIMåned()) ?: true
+
+    fun kopierMedNyPeriodeOgBehandling(fom: LocalDate?, tom: LocalDate?, behandlingId: Long): VilkårResultat {
+        return VilkårResultat(
+            personResultat = this.personResultat,
+            erAutomatiskVurdert = this.erAutomatiskVurdert,
+            vilkårType = this.vilkårType,
+            resultat = this.resultat,
+            periodeFom = fom,
+            periodeTom = tom,
+            begrunnelse = this.begrunnelse,
+            regelInput = this.regelInput,
+            regelOutput = this.regelOutput,
+            behandlingId = behandlingId,
+            erEksplisittAvslagPåSøknad = this.erEksplisittAvslagPåSøknad,
+            vurderesEtter = this.vurderesEtter,
+            utdypendeVilkårsvurderinger = this.utdypendeVilkårsvurderinger
+        )
+    }
 
     companion object {
         val VilkårResultatComparator = compareBy<VilkårResultat>({ it.periodeFom }, { it.resultat }, { it.vilkårType })
