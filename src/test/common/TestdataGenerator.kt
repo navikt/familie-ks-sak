@@ -288,3 +288,23 @@ fun lagVilkårsvurdering(
     vilkårsvurdering.personResultater = setOf(personResultat)
     return vilkårsvurdering
 }
+
+fun lagVilkårResultat(
+    id: Long = 0,
+    personResultat: PersonResultat,
+    vilkårType: Vilkår = Vilkår.BOSATT_I_RIKET,
+    resultat: Resultat = Resultat.OPPFYLT,
+    periodeFom: LocalDate = LocalDate.now().minusMonths(3),
+    periodeTom: LocalDate = LocalDate.now(),
+    begrunnelse: String = "",
+    behandlingId: Long
+): VilkårResultat = VilkårResultat(
+    id = id,
+    personResultat = personResultat,
+    vilkårType = vilkårType,
+    resultat = resultat,
+    periodeFom = periodeFom,
+    periodeTom = periodeTom,
+    begrunnelse = begrunnelse,
+    behandlingId = behandlingId
+)

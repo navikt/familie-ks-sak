@@ -10,5 +10,5 @@ class YearMonthConverter : AttributeConverter<YearMonth, Date> {
         Date.valueOf(it.toLocalDate())
     }
 
-    override fun convertToEntityAttribute(date: Date?): YearMonth? = date?.toLocalDate()?.toYearMonth()
+    override fun convertToEntityAttribute(date: Date?): YearMonth? = date?.toLocalDate()?.tilYearMonth()
 }
