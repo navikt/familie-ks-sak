@@ -1,6 +1,8 @@
 package no.nav.familie.ks.sak.kjerne.brev.domene.maler
 
 import no.nav.familie.kontrakter.felles.objectMapper
+import no.nav.familie.ks.sak.common.util.tilDagMånedÅr
+import java.time.LocalDate
 
 interface Brev {
 
@@ -20,6 +22,21 @@ interface FlettefelterForDokument {
     val navn: Flettefelt
     val fodselsnummer: Flettefelt
     val brevOpprettetDato: Flettefelt
+}
+
+data class FlettefelterForDokumentImpl(
+    override val navn: Flettefelt,
+    override val fodselsnummer: Flettefelt,
+    override val brevOpprettetDato: Flettefelt = flettefelt(LocalDate.now().tilDagMånedÅr())
+) : FlettefelterForDokument {
+
+    constructor(
+        navn: String,
+        fodselsnummer: String
+    ) : this(
+        navn = flettefelt(navn),
+        fodselsnummer = flettefelt(fodselsnummer)
+    )
 }
 
 typealias Flettefelt = List<String>?
@@ -101,3 +118,6 @@ enum class Brevmal(val erVedtaksbrev: Boolean, val apiNavn: String, val visnings
     AUTOVEDTAK_NYFØDT_FØRSTE_BARN(true, "autovedtakNyfodtForsteBarn", "Autovedtak nyfødt - første barn"),
     AUTOVEDTAK_NYFØDT_BARN_FRA_FØR(true, "autovedtakNyfodtBarnFraFor", "Autovedtak nyfødt - barn fra før");
 }
+
+fun flettefelt(flettefeltData: String?): Flettefelt = if (flettefeltData != null) listOf(flettefeltData) else null
+fun flettefelt(flettefeltData: List<String>): Flettefelt = flettefeltData
