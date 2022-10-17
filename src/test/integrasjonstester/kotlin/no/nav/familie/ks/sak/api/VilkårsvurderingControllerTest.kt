@@ -36,7 +36,7 @@ class VilkårsvurderingControllerTest : OppslagSpringRunnerTest() {
     @MockkBean
     private lateinit var integrasjonClient: IntegrasjonClient
 
-    val vilkårsvurderingControllerUrl = "/api/vilkaarsvurdering"
+    val vilkårsvurderingControllerUrl = "/api/vilkårsvurdering"
 
     @BeforeEach
     fun setup() {

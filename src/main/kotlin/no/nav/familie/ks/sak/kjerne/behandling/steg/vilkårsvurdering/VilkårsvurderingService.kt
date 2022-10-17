@@ -106,30 +106,30 @@ class VilkårsvurderingService(
     ) {
         val vilkårsvurdering = hentAktivVilkårsvurderingForBehandling(behandlingId)
         val personResultat =
-            finnPersonResultatForPersonThrows(vilkårsvurdering.personResultater, endreVilkårResultatDto.personIdent)
+            hentPersonResultatForPerson(vilkårsvurdering.personResultater, endreVilkårResultatDto.personIdent)
 
-        val vilkårResultater = personResultat.vilkårResultater
+        val eksisterendeVilkårResultater = personResultat.vilkårResultater
 
         val nyeOgEndredeVilkårResultater =
-            endreVilkårResultat(vilkårResultater.toList(), endreVilkårResultatDto.endretVilkårResultat)
+            endreVilkårResultat(eksisterendeVilkårResultater.toList(), endreVilkårResultatDto.endretVilkårResultat)
 
         // Det er ikke nødvendig å save Vilkårresultatene eksplitt pga @Transactional
-        vilkårResultater.clear()
-        vilkårResultater.addAll(nyeOgEndredeVilkårResultater)
+        eksisterendeVilkårResultater.clear()
+        eksisterendeVilkårResultater.addAll(nyeOgEndredeVilkårResultater)
     }
 
     @Transactional
     fun opprettNyttVilkårPåBehandling(behandlingId: Long, nyttVilkårDto: NyttVilkårDto) {
         val vilkårsvurdering = hentAktivVilkårsvurderingForBehandling(behandlingId)
         val personResultat =
-            finnPersonResultatForPersonThrows(vilkårsvurdering.personResultater, nyttVilkårDto.personIdent)
+            hentPersonResultatForPerson(vilkårsvurdering.personResultater, nyttVilkårDto.personIdent)
 
-        val vilkårResultater = personResultat.vilkårResultater
+        val eksisterendeVilkårResultater = personResultat.vilkårResultater
 
         val nyttVilkårResultat = opprettNyttVilkårResultat(personResultat, nyttVilkårDto.vilkårType)
 
         // Det er ikke nødvendig å save Vilkårresultatene eksplitt pga @Transactional
-        vilkårResultater.add(nyttVilkårResultat)
+        eksisterendeVilkårResultater.add(nyttVilkårResultat)
     }
 
     @Transactional
@@ -137,33 +137,33 @@ class VilkårsvurderingService(
         val vilkårsvurdering = hentAktivVilkårsvurderingForBehandling(behandlingId)
 
         val personResultat =
-            finnPersonResultatForPersonThrows(vilkårsvurdering.personResultater, aktør.aktivFødselsnummer())
+            hentPersonResultatForPerson(vilkårsvurdering.personResultater, aktør.aktivFødselsnummer())
 
-        val vilkårResultater = personResultat.vilkårResultater
+        val eksisterendeVilkårResultater = personResultat.vilkårResultater
 
-        val vilkårResultatSomSkalSlettes = vilkårResultater.find { it.id == vilkårId }
+        val vilkårResultatSomSkalSlettes = eksisterendeVilkårResultater.find { it.id == vilkårId }
             ?: throw Feil(
                 message = "Prøver å slette et vilkår som ikke finnes",
                 frontendFeilmelding = "Vilkåret du prøver å slette finnes ikke i systemet."
             )
 
-        vilkårResultater.remove(vilkårResultatSomSkalSlettes)
+        eksisterendeVilkårResultater.remove(vilkårResultatSomSkalSlettes)
 
-        val perioderMedSammeVilkårType = vilkårResultater
+        val perioderMedSammeVilkårType = eksisterendeVilkårResultater
             .filter { it.vilkårType == vilkårResultatSomSkalSlettes.vilkårType && it.id != vilkårResultatSomSkalSlettes.id }
 
         // Vi oppretter initiell vilkår dersom det ikke finnes flere av samme type.
         if (perioderMedSammeVilkårType.isEmpty()) {
             val nyttVilkårMedNullstilteFelter = opprettNyttVilkårResultat(personResultat, vilkårResultatSomSkalSlettes.vilkårType)
 
-            vilkårResultater.add(nyttVilkårMedNullstilteFelter)
+            eksisterendeVilkårResultater.add(nyttVilkårMedNullstilteFelter)
         }
     }
 
     fun hentAktivVilkårsvurderingForBehandling(behandlingId: Long): Vilkårsvurdering = finnAktivVilkårsvurdering(behandlingId)
         ?: throw Feil("Fant ikke vilkårsvurdering knyttet til behandling=$behandlingId")
 
-    private fun finnPersonResultatForPersonThrows(
+    private fun hentPersonResultatForPerson(
         personResultater: Set<PersonResultat>,
         personIdent: String
     ): PersonResultat {
