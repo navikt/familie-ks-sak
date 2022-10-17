@@ -13,27 +13,27 @@ class SnittOgKlippTest {
 
     @Test
     fun `kan ta snittet av to tidslinjer med ulik lengde`() {
-        val t1 = Tidslinje(
+        val tidslinje1 = Tidslinje(
             startsTidspunkt = LocalDate.of(2022, 2, 1),
             perioder = listOf(
-                TidslinjePeriode(1, 1, false),
-                TidslinjePeriode(2, 1, false),
-                TidslinjePeriode(15, 2, false)
+                TidslinjePeriode(periodeVerdi = 1, lengde = 1, erUendelig = false),
+                TidslinjePeriode(periodeVerdi = 2, lengde = 1, erUendelig = false),
+                TidslinjePeriode(periodeVerdi = 15, lengde = 2, erUendelig = false)
             ),
             tidsEnhet = TidsEnhet.MÅNED
         )
 
-        val t2 = Tidslinje(
+        val tidslinje2 = Tidslinje(
             startsTidspunkt = LocalDate.of(2022, 2, 1),
             perioder = listOf(
-                TidslinjePeriode(1, 1, false),
-                TidslinjePeriode(2, 1, false),
-                TidslinjePeriode(15, 11, false)
+                TidslinjePeriode(periodeVerdi = 1, lengde = 1, erUendelig = false),
+                TidslinjePeriode(periodeVerdi = 2, lengde = 1, erUendelig = false),
+                TidslinjePeriode(periodeVerdi = 15, lengde = 11, erUendelig = false)
             ),
             tidsEnhet = TidsEnhet.MÅNED
         )
 
-        val resultat = t1.biFunksjonSnitt(t2) { el1, el2 ->
+        val resultat = tidslinje1.biFunksjonSnitt(tidslinje2) { el1, el2 ->
             if (el1 is Udefinert || el2 is Udefinert) Udefinert()
             else Verdi(el1.verdi!! + el2.verdi!!)
         }
@@ -56,9 +56,9 @@ class SnittOgKlippTest {
         var tidslinje = Tidslinje(
             startsTidspunkt = LocalDate.of(2022, 2, 1),
             perioder = listOf(
-                TidslinjePeriode(1, 1, false),
-                TidslinjePeriode(2, 1, false),
-                TidslinjePeriode(15, 11, false)
+                TidslinjePeriode(periodeVerdi = 1, lengde = 1, erUendelig = false),
+                TidslinjePeriode(periodeVerdi = 2, lengde = 1, erUendelig = false),
+                TidslinjePeriode(periodeVerdi = 15, lengde = 11, erUendelig = false)
             ),
             tidsEnhet = TidsEnhet.MÅNED
         )
@@ -77,9 +77,9 @@ class SnittOgKlippTest {
         tidslinje = Tidslinje(
             startsTidspunkt = LocalDate.of(2022, 2, 1),
             perioder = listOf(
-                TidslinjePeriode(1, 1, false),
-                TidslinjePeriode(2, 1, false),
-                TidslinjePeriode(15, 11, false)
+                TidslinjePeriode(periodeVerdi = 1, lengde = 1, erUendelig = false),
+                TidslinjePeriode(periodeVerdi = 2, lengde = 1, erUendelig = false),
+                TidslinjePeriode(periodeVerdi = 15, lengde = 11, erUendelig = false)
             ),
             tidsEnhet = TidsEnhet.MÅNED
         )

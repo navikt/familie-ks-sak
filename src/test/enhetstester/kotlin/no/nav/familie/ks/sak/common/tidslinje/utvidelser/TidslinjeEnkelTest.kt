@@ -107,15 +107,15 @@ class TidslinjeEnkelTest {
 
     @Test
     fun `Ved initsialisering av tidlinjer vil påfølgende TidslinjePerioder med lik verdi slått sammen`() {
-        val lst1 = listOf(
+        val tidslinjePerioder = listOf(
             TidslinjePeriode(1, 6, false),
             TidslinjePeriode(1, 6, false),
             TidslinjePeriode(1, 6, false),
             TidslinjePeriode(1, 6, false)
         )
-        val t1 = Tidslinje(LocalDate.now(), lst1)
+        val t1 = Tidslinje(LocalDate.now(), tidslinjePerioder)
         Assertions.assertEquals(1, t1.innhold.size)
-        Assertions.assertEquals(1, t1.innhold.get(0).periodeVerdi.verdi)
+        Assertions.assertEquals(1, t1.innhold[0].periodeVerdi.verdi)
     }
 
     @Test
@@ -129,44 +129,44 @@ class TidslinjeEnkelTest {
             lst3.add(3 * i)
         }
 
-        val t1 = Tidslinje(LocalDate.now(), lst1)
-        val t2 = Tidslinje(LocalDate.now(), lst2)
+        val tidslinje1 = Tidslinje(LocalDate.now(), lst1)
+        val tidslinje2 = Tidslinje(LocalDate.now(), lst2)
 
-        val t3 = t1.kombinerMed(t2) { t1, t2 -> Verdi(t1.verdi!! + t2.verdi!!) }
+        val kombinertTidslinje = tidslinje1.kombinerMed(tidslinje2) { t1, t2 -> Verdi(t1.verdi!! + t2.verdi!!) }
 
-        Assertions.assertEquals(lst3, t3.innhold.map { it.periodeVerdi.verdi }.toList())
+        Assertions.assertEquals(lst3, kombinertTidslinje.innhold.map { it.periodeVerdi.verdi }.toList())
     }
 
     @Test
     fun `kan bruke objekter som verdier i tidslinjene`() {
-        val lst1 = listOf(
+        val tidslinjePerioder1 = listOf(
             TidslinjePeriode(Beløp(2.0, "nok"), 1),
             TidslinjePeriode(Beløp(3.0, "nok"), 1),
             TidslinjePeriode(Beløp(3.0, "nok"), 1)
         )
-        val lst2 = listOf(
+        val tidslinjePerioder2 = listOf(
             TidslinjePeriode(Beløp(2.0, "nok"), 1),
             TidslinjePeriode(Beløp(3.0, "nok"), 1),
             TidslinjePeriode(Beløp(4.0, "nok"), 1)
         )
 
-        val t1 = Tidslinje(LocalDate.now(), lst1)
+        val tidslinje1 = Tidslinje(LocalDate.now(), tidslinjePerioder1)
 
-        assertTrue { t1.innhold.size == 2 }
+        assertTrue { tidslinje1.innhold.size == 2 }
 
-        val t2 = Tidslinje(LocalDate.now(), lst2)
+        val tidslinje2 = Tidslinje(LocalDate.now(), tidslinjePerioder2)
 
-        var t3 = t1.kombinerMed(t2) { t1, t2 -> Verdi(Beløp(t1.verdi!!.verdi + t2.verdi!!.verdi, "nok")) }
+        val tidslinje3 = tidslinje1.kombinerMed(tidslinje2) { t1, t2 -> Verdi(Beløp(t1.verdi!!.verdi + t2.verdi!!.verdi, "nok")) }
 
-        val lst3 = lst1.map { it.periodeVerdi.verdi!!.verdi }.toMutableList()
+        val verdierTidslinjePerioder1 = tidslinjePerioder1.map { it.periodeVerdi.verdi!!.verdi }.toMutableList()
 
-        for (i in 0 until lst3.size) {
-            lst3[i] += lst2[i].periodeVerdi.verdi!!.verdi
+        for (i in 0 until verdierTidslinjePerioder1.size) {
+            verdierTidslinjePerioder1[i] += tidslinjePerioder2[i].periodeVerdi.verdi!!.verdi
         }
 
         Assertions.assertEquals(
-            lst3,
-            t3.innhold.map { it.periodeVerdi.verdi!!.verdi }.toList(),
+            verdierTidslinjePerioder1,
+            tidslinje3.innhold.map { it.periodeVerdi.verdi!!.verdi }.toList(),
             "Kunne ikke addere to tidslinjer"
         )
     }

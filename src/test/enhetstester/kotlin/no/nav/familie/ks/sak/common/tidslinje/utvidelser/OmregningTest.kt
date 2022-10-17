@@ -92,20 +92,20 @@ class OmregningTest {
         val dato4_start = LocalDate.of(2026, 1, 1)
         val dato4_slutt = LocalDate.of(2026, 12, 31)
 
-        val tmp = listOf(
+        val tidslinjePerioder = listOf(
             TidslinjePeriode(1, dato1_start.until(dato1_slutt, ChronoUnit.YEARS).toInt() + 1),
             TidslinjePeriode(2, dato2_start.until(dato2_slutt, ChronoUnit.YEARS).toInt() + 1),
             TidslinjePeriode(3, dato3_start.until(dato3_slutt, ChronoUnit.YEARS).toInt() + 1),
             TidslinjePeriode(4, dato4_start.until(dato4_slutt, ChronoUnit.YEARS).toInt() + 1)
         )
 
-        val tidslinje = Tidslinje(dato1_start, tmp, tidsEnhet = TidsEnhet.ÅR)
+        val tidslinje = Tidslinje(dato1_start, tidslinjePerioder, tidsEnhet = TidsEnhet.ÅR)
 
-        val correct = listOf(1, 2, 3, 4)
+        val forventedeVerdier = listOf(1, 2, 3, 4)
 
         val tidslinjeDag = tidslinje.konverterTilDag()
 
-        Assertions.assertEquals(correct, tidslinjeDag.innhold.map { it.periodeVerdi.verdi }.toList())
+        Assertions.assertEquals(forventedeVerdier, tidslinjeDag.innhold.map { it.periodeVerdi.verdi }.toList())
 
         Assertions.assertEquals(dato1_start.withDayOfYear(1), tidslinjeDag.startsTidspunkt)
 
