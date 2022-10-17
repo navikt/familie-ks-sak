@@ -110,7 +110,8 @@ class VilkårResultat(
             behandlingId = behandlingId,
             erEksplisittAvslagPåSøknad = this.erEksplisittAvslagPåSøknad,
             vurderesEtter = this.vurderesEtter,
-            utdypendeVilkårsvurderinger = this.utdypendeVilkårsvurderinger
+            utdypendeVilkårsvurderinger = this.utdypendeVilkårsvurderinger,
+            antallTimer = antallTimer
         )
     }
 
