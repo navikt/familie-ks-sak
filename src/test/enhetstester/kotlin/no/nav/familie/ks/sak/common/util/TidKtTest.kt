@@ -44,6 +44,21 @@ internal class TidKtTest {
     }
 
     @Test
+    fun `LocalDate tilYearMonth() skal konverte LocalDate til YearMonth`() {
+        val localDate = LocalDate.of(2020, 12, 16)
+        val yearMonth = localDate.tilYearMonth()
+
+        assertThat(yearMonth, Is(YearMonth.of(2020, 12)))
+    }
+
+    @Test
+    fun `LocalDate sisteDagIMåned() skal sette dagen til å være siste dagi måned`() {
+        val localDate = LocalDate.of(2020, 12, 16)
+
+        assertThat(localDate.sisteDagIMåned(), Is(LocalDate.of(2020, 12, 31)))
+    }
+
+    @Test
     fun `YearMonth tilKortString() skal formatere dato til MM yy format`() {
         val yearMonth = YearMonth.of(2020, 12)
 

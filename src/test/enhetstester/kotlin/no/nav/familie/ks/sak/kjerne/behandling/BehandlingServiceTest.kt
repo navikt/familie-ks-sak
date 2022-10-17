@@ -69,7 +69,7 @@ class BehandlingServiceTest {
         every { arbeidsfordelingService.manueltOppdaterBehandlendeEnhet(any(), any()) } just runs
         every { personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlag(any()) } returns
             lagPersonopplysningGrunnlag(behandlingId = behandling.id, søkerPersonIdent = søkersIdent)
-        every { vilkårsvurderingService.hentAktivVilkårsvurdering(any()) } returns null
+        every { vilkårsvurderingService.finnAktivVilkårsvurdering(any()) } returns null
         every { søknadGrunnlagService.finnAktiv(any()) } returns søknadsgrunnlagMockK
         mockkObject(SøknadGrunnlagMapper)
         with(SøknadGrunnlagMapper) {
@@ -92,7 +92,7 @@ class BehandlingServiceTest {
         verify(exactly = 1) { behandlingService.hentBehandling(behandling.id) }
         verify(exactly = 1) { arbeidsfordelingService.hentArbeidsfordelingPåBehandling(behandling.id) }
         verify(exactly = 1) { personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlag(behandling.id) }
-        verify(exactly = 1) { vilkårsvurderingService.hentAktivVilkårsvurdering(behandling.id) }
+        verify(exactly = 1) { vilkårsvurderingService.finnAktivVilkårsvurdering(behandling.id) }
         verify(exactly = 1) {
             søknadGrunnlagService.finnAktiv(behandling.id)
         }

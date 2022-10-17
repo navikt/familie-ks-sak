@@ -1,5 +1,6 @@
 package no.nav.familie.ks.sak.api.dto
 
+import no.nav.familie.ks.sak.common.util.sisteDagIMåned
 import no.nav.familie.ks.sak.kjerne.vedtak.IVedtakBegrunnelse
 import no.nav.familie.ks.sak.kjerne.vedtak.Standardbegrunnelse
 import no.nav.familie.ks.sak.kjerne.vilkårsvurdering.domene.AnnenVurderingType
@@ -7,6 +8,7 @@ import no.nav.familie.ks.sak.kjerne.vilkårsvurdering.domene.Regelverk
 import no.nav.familie.ks.sak.kjerne.vilkårsvurdering.domene.Resultat
 import no.nav.familie.ks.sak.kjerne.vilkårsvurdering.domene.UtdypendeVilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.vilkårsvurdering.domene.Vilkår
+import no.nav.familie.ks.sak.kjerne.vilkårsvurdering.domene.VilkårResultat
 import java.math.BigDecimal
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -15,6 +17,16 @@ data class PersonResultatResponsDto(
     val personIdent: String,
     val vilkårResultater: List<VilkårResultatDto>,
     val andreVurderinger: List<AnnenVurderingDto>
+)
+
+data class EndreVilkårResultatDto(
+    val personIdent: String,
+    val endretVilkårResultat: VilkårResultatDto,
+)
+
+data class NyttVilkårDto(
+    val personIdent: String,
+    val vilkårType: Vilkår
 )
 
 data class VilkårResultatDto(
@@ -32,9 +44,33 @@ data class VilkårResultatDto(
     val erEksplisittAvslagPåSøknad: Boolean? = null,
     val avslagBegrunnelser: List<Standardbegrunnelse>? = emptyList(),
     val vurderesEtter: Regelverk? = null,
-    val utdypendeVilkårsvurderinger: List<UtdypendeVilkårsvurdering> = emptyList(),
-    val antallTimer: BigDecimal? = null
-)
+    val antallTimer: BigDecimal? = null,
+    val utdypendeVilkårsvurderinger: List<UtdypendeVilkårsvurdering> = emptyList()
+) {
+
+    fun erAvslagUtenPeriode() = erEksplisittAvslagPåSøknad == true && periodeFom == null && periodeTom == null
+    fun harFremtidigTom() = periodeTom?.isAfter(LocalDate.now().sisteDagIMåned()) ?: true
+
+    fun tilVilkårResultat(
+        vilkårResultat: VilkårResultat
+    ): VilkårResultat {
+        return VilkårResultat(
+            periodeFom = periodeFom,
+            periodeTom = periodeTom,
+            begrunnelse = begrunnelse,
+            standardbegrunnelser = avslagBegrunnelser ?: emptyList(),
+            resultat = resultat,
+            erAutomatiskVurdert = false,
+            erEksplisittAvslagPåSøknad = erEksplisittAvslagPåSøknad,
+            behandlingId = vilkårResultat.personResultat!!.vilkårsvurdering.behandling.id,
+            vurderesEtter = vurderesEtter,
+            utdypendeVilkårsvurderinger = utdypendeVilkårsvurderinger,
+            personResultat = vilkårResultat.personResultat,
+            vilkårType = vilkårResultat.vilkårType,
+            antallTimer = antallTimer
+        )
+    }
+}
 
 data class AnnenVurderingDto(
     val id: Long,
