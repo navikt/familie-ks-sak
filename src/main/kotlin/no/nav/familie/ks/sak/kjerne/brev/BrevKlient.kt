@@ -4,6 +4,7 @@ import no.nav.familie.http.client.AbstractRestClient
 import no.nav.familie.ks.sak.common.kallEksternTjeneste
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.BegrunnelseDtoMedData
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.BrevDto
+import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.cache.annotation.Cacheable
 import org.springframework.stereotype.Component
@@ -16,7 +17,7 @@ val FAMILIE_BREV_TJENESTENAVN = "famile-brev"
 class BrevKlient(
     @Value("\${FAMILIE_BREV_API_URL}") private val familieBrevUri: String,
     @Value("\${SANITY_DATASET}") private val sanityDataset: String,
-    restOperations: RestOperations
+    @Qualifier("azure") restOperations: RestOperations
 ) : AbstractRestClient(restOperations, "familie-brev") {
 
     fun genererBrev(målform: String, brev: BrevDto): ByteArray {
