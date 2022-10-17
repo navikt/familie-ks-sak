@@ -37,4 +37,16 @@ class PersonController(
                 .tilPersonInfoDto(personIdent)
         return ResponseEntity.ok(Ressurs.success(personinfo))
     }
+
+    @GetMapping(path = ["/enkel"])
+    fun hentPersonEnkel(
+        @RequestHeader personIdent: String,
+        @RequestBody personIdentBody: PersonIdent?
+    ): ResponseEntity<Ressurs<PersonInfoDto>> {
+        val aktør = personidentService.hentAktør(personIdent)
+        val personinfo = integrasjonService.hentMaskertPersonInfoVedManglendeTilgang(aktør)
+            ?: personOpplysningerService.hentPersoninfoEnkel(aktør)
+                .tilPersonInfoDto(personIdent)
+        return ResponseEntity.ok(Ressurs.success(personinfo))
+    }
 }

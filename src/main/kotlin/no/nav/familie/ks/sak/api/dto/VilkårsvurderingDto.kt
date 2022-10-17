@@ -21,7 +21,7 @@ data class PersonResultatResponsDto(
 
 data class EndreVilkårResultatDto(
     val personIdent: String,
-    val endretVilkårResultat: VilkårResultatDto,
+    val endretVilkårResultat: VilkårResultatDto
 )
 
 data class NyttVilkårDto(
