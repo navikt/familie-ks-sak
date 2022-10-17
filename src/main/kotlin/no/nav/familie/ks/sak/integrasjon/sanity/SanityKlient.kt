@@ -7,7 +7,6 @@ import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelserRespons
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityEØSBegrunnelse
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityEØSBegrunnelserResponsDto
 import no.nav.familie.ks.sak.kjerne.vilkårsvurdering.domene.Vilkår
-import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import org.springframework.web.client.RestOperations
@@ -17,7 +16,7 @@ import java.net.URLEncoder
 @Service
 class SanityKlient(
     @Value("\${SANITY_BASE_URL}") private val sanityBaseUrl: String,
-    @Qualifier("azure") restOperations: RestOperations
+    restOperations: RestOperations
 ) :
     AbstractRestClient(restOperations, "sanity") {
     fun hentBegrunnelser(datasett: String = "ba-brev"): List<SanityBegrunnelse> {
