@@ -62,10 +62,8 @@ class VilkårsvurderingController(
             handling = "endre vilkår"
         )
 
-        val behandling = behandlingService.hentBehandling(behandlingId)
-
         vilkårsvurderingService.endreVilkårPåBehandling(
-            behandlingId = behandling.id,
+            behandlingId = behandlingId,
             endreVilkårResultatDto = endreVilkårResultatDto
         )
 
