@@ -95,23 +95,23 @@ fun eøsBegrunnelseTilRestVedtakBegrunnelseTilknyttetVilkår(
 
 /**
  * Funksjon som tar inn et endret vilkår og lager nye vilkårresultater til å få plass til den endrede perioden.
- * @param[personResultat] Person med vilkår som eventuelt justeres
- * @param[restVilkårResultat] Det endrede vilkårresultatet
+ * @param[eksisterendeVilkårResultater] Eksisterende vilkårresultater
+ * @param[endretVilkårResultatDto] Endret vilkårresultat
  * @return VilkårResultater før og etter mutering
  */
 fun endreVilkårResultat(
-    vilkårResultater: List<VilkårResultat>,
+    eksisterendeVilkårResultater: List<VilkårResultat>,
     endretVilkårResultatDto: VilkårResultatDto
 ): List<VilkårResultat> {
     validerAvslagUtenPeriodeMedLøpende(
-        vilkårResultater = vilkårResultater,
+        eksisterendeVilkårResultater = eksisterendeVilkårResultater,
         endretVilkårResultat = endretVilkårResultatDto
     )
 
     val endretVilkårResultat =
-        endretVilkårResultatDto.tilVilkårResultat(vilkårResultater.single { it.id == endretVilkårResultatDto.id })
+        endretVilkårResultatDto.tilVilkårResultat(eksisterendeVilkårResultater.single { it.id == endretVilkårResultatDto.id })
 
-    val (vilkårResultaterSomSkalTilpasses, vilkårResultaterSomIkkeTrengerTilpassning) = vilkårResultater.partition {
+    val (vilkårResultaterSomSkalTilpasses, vilkårResultaterSomIkkeTrengerTilpassning) = eksisterendeVilkårResultater.partition {
         !it.erAvslagUtenPeriode() || it.id == endretVilkårResultatDto.id
     }
 
@@ -189,11 +189,11 @@ private fun harUvurdertePerioderForVilkårType(personResultat: PersonResultat, v
     personResultat.vilkårResultater.any { it.vilkårType == vilkårType && it.resultat == Resultat.IKKE_VURDERT }
 
 private fun validerAvslagUtenPeriodeMedLøpende(
-    vilkårResultater: List<VilkårResultat>,
+    eksisterendeVilkårResultater: List<VilkårResultat>,
     endretVilkårResultat: VilkårResultatDto
 ) {
     val filtrerteVilkårResultater =
-        vilkårResultater.filter { it.vilkårType == endretVilkårResultat.vilkårType && it.id != endretVilkårResultat.id }
+        eksisterendeVilkårResultater.filter { it.vilkårType == endretVilkårResultat.vilkårType && it.id != endretVilkårResultat.id }
 
     when {
         // For bor med søker-vilkåret kan avslag og innvilgelse være overlappende, da man kan f.eks. avslå full kontantstøtte, men innvilge delt
