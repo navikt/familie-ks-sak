@@ -8,25 +8,25 @@ import no.nav.familie.ks.sak.common.util.tilDagMånedÅr
 import no.nav.familie.ks.sak.common.util.tilKortString
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingKategori
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.Brevmal
-import no.nav.familie.ks.sak.kjerne.brev.domene.maler.EnkeltInformasjonsbrev
-import no.nav.familie.ks.sak.kjerne.brev.domene.maler.FlettefelterForDokumentImpl
-import no.nav.familie.ks.sak.kjerne.brev.domene.maler.ForlengetSvartidsbrev
-import no.nav.familie.ks.sak.kjerne.brev.domene.maler.HenleggeTrukketSøknadBrev
-import no.nav.familie.ks.sak.kjerne.brev.domene.maler.HenleggeTrukketSøknadData
-import no.nav.familie.ks.sak.kjerne.brev.domene.maler.InformasjonsbrevDeltBostedBrev
-import no.nav.familie.ks.sak.kjerne.brev.domene.maler.InformasjonsbrevDeltBostedData
-import no.nav.familie.ks.sak.kjerne.brev.domene.maler.InformasjonsbrevKanSøke
-import no.nav.familie.ks.sak.kjerne.brev.domene.maler.InnhenteOpplysningerBrev
-import no.nav.familie.ks.sak.kjerne.brev.domene.maler.InnhenteOpplysningerData
-import no.nav.familie.ks.sak.kjerne.brev.domene.maler.InnhenteOpplysningerOmBarn
+import no.nav.familie.ks.sak.kjerne.brev.domene.maler.EnkeltInformasjonsbrevDto
+import no.nav.familie.ks.sak.kjerne.brev.domene.maler.FlettefelterForDokumentDtoImpl
+import no.nav.familie.ks.sak.kjerne.brev.domene.maler.ForlengetSvartidsbrevDto
+import no.nav.familie.ks.sak.kjerne.brev.domene.maler.HenleggeTrukketSøknadBrevDto
+import no.nav.familie.ks.sak.kjerne.brev.domene.maler.HenleggeTrukketSøknadDataDto
+import no.nav.familie.ks.sak.kjerne.brev.domene.maler.InformasjonsbrevDeltBostedBrevDto
+import no.nav.familie.ks.sak.kjerne.brev.domene.maler.InformasjonsbrevDeltBostedDataDto
+import no.nav.familie.ks.sak.kjerne.brev.domene.maler.InformasjonsbrevKanSøkeDto
+import no.nav.familie.ks.sak.kjerne.brev.domene.maler.InnhenteOpplysningerBrevDto
+import no.nav.familie.ks.sak.kjerne.brev.domene.maler.InnhenteOpplysningerDataDto
+import no.nav.familie.ks.sak.kjerne.brev.domene.maler.InnhenteOpplysningerOmBarnDto
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.SignaturDelmal
-import no.nav.familie.ks.sak.kjerne.brev.domene.maler.Svartidsbrev
-import no.nav.familie.ks.sak.kjerne.brev.domene.maler.VarselOmRevurderingDeltBostedParagraf14Brev
-import no.nav.familie.ks.sak.kjerne.brev.domene.maler.VarselOmRevurderingDeltBostedParagraf14Data
-import no.nav.familie.ks.sak.kjerne.brev.domene.maler.VarselOmRevurderingSamboerBrev
-import no.nav.familie.ks.sak.kjerne.brev.domene.maler.VarselOmRevurderingSamboerData
-import no.nav.familie.ks.sak.kjerne.brev.domene.maler.VarselbrevMedÅrsaker
-import no.nav.familie.ks.sak.kjerne.brev.domene.maler.VarselbrevMedÅrsakerOgBarn
+import no.nav.familie.ks.sak.kjerne.brev.domene.maler.SvartidsbrevDto
+import no.nav.familie.ks.sak.kjerne.brev.domene.maler.VarselOmRevurderingDeltBostedParagraf14BrevDto
+import no.nav.familie.ks.sak.kjerne.brev.domene.maler.VarselOmRevurderingDeltBostedParagraf14DataDto
+import no.nav.familie.ks.sak.kjerne.brev.domene.maler.VarselOmRevurderingSamboerBrevDto
+import no.nav.familie.ks.sak.kjerne.brev.domene.maler.VarselOmRevurderingSamboerDataDto
+import no.nav.familie.ks.sak.kjerne.brev.domene.maler.VarselbrevMedÅrsakerDto
+import no.nav.familie.ks.sak.kjerne.brev.domene.maler.VarselbrevMedÅrsakerOgBarnDto
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.flettefelt
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Målform
 import java.time.LocalDate
@@ -50,16 +50,16 @@ data class ManueltBrevDto(
 
 fun ManueltBrevDto.tilBrev() = when (this.brevmal) {
     Brevmal.INFORMASJONSBREV_DELT_BOSTED ->
-        InformasjonsbrevDeltBostedBrev(
-            data = InformasjonsbrevDeltBostedData(
-                delmalData = InformasjonsbrevDeltBostedData.DelmalData(
+        InformasjonsbrevDeltBostedBrevDto(
+            data = InformasjonsbrevDeltBostedDataDto(
+                delmalData = InformasjonsbrevDeltBostedDataDto.DelmalData(
                     signatur = SignaturDelmal(
                         enhet = flettefelt(
                             this.enhetNavn()
                         )
                     )
                 ),
-                flettefelter = InformasjonsbrevDeltBostedData.Flettefelter(
+                flettefelter = InformasjonsbrevDeltBostedDataDto.FlettefelterDto(
                     navn = this.mottakerNavn,
                     fodselsnummer = this.mottakerIdent,
                     barnMedDeltBostedAvtale = this.multiselectVerdier
@@ -68,10 +68,10 @@ fun ManueltBrevDto.tilBrev() = when (this.brevmal) {
         )
 
     Brevmal.INNHENTE_OPPLYSNINGER ->
-        InnhenteOpplysningerBrev(
-            data = InnhenteOpplysningerData(
-                delmalData = InnhenteOpplysningerData.DelmalData(signatur = SignaturDelmal(enhet = this.enhetNavn())),
-                flettefelter = InnhenteOpplysningerData.Flettefelter(
+        InnhenteOpplysningerBrevDto(
+            data = InnhenteOpplysningerDataDto(
+                delmalData = InnhenteOpplysningerDataDto.DelmalData(signatur = SignaturDelmal(enhet = this.enhetNavn())),
+                flettefelter = InnhenteOpplysningerDataDto.FlettefelterDto(
                     navn = this.mottakerNavn,
                     fodselsnummer = this.mottakerIdent,
                     dokumentliste = this.multiselectVerdier
@@ -80,10 +80,10 @@ fun ManueltBrevDto.tilBrev() = when (this.brevmal) {
         )
 
     Brevmal.HENLEGGE_TRUKKET_SØKNAD ->
-        HenleggeTrukketSøknadBrev(
-            data = HenleggeTrukketSøknadData(
-                delmalData = HenleggeTrukketSøknadData.DelmalData(signatur = SignaturDelmal(enhet = this.enhetNavn())),
-                flettefelter = FlettefelterForDokumentImpl(
+        HenleggeTrukketSøknadBrevDto(
+            data = HenleggeTrukketSøknadDataDto(
+                delmalData = HenleggeTrukketSøknadDataDto.DelmalData(signatur = SignaturDelmal(enhet = this.enhetNavn())),
+                flettefelter = FlettefelterForDokumentDtoImpl(
                     navn = this.mottakerNavn,
                     fodselsnummer = this.mottakerIdent
                 )
@@ -91,7 +91,7 @@ fun ManueltBrevDto.tilBrev() = when (this.brevmal) {
         )
 
     Brevmal.VARSEL_OM_REVURDERING ->
-        VarselbrevMedÅrsaker(
+        VarselbrevMedÅrsakerDto(
             mal = Brevmal.VARSEL_OM_REVURDERING,
             navn = this.mottakerNavn,
             fødselsnummer = this.mottakerIdent,
@@ -100,10 +100,10 @@ fun ManueltBrevDto.tilBrev() = when (this.brevmal) {
         )
 
     Brevmal.VARSEL_OM_REVURDERING_DELT_BOSTED_PARAGRAF_14 ->
-        VarselOmRevurderingDeltBostedParagraf14Brev(
-            data = VarselOmRevurderingDeltBostedParagraf14Data(
-                delmalData = VarselOmRevurderingDeltBostedParagraf14Data.DelmalData(signatur = SignaturDelmal(enhet = this.enhetNavn())),
-                flettefelter = VarselOmRevurderingDeltBostedParagraf14Data.Flettefelter(
+        VarselOmRevurderingDeltBostedParagraf14BrevDto(
+            data = VarselOmRevurderingDeltBostedParagraf14DataDto(
+                delmalData = VarselOmRevurderingDeltBostedParagraf14DataDto.DelmalData(signatur = SignaturDelmal(enhet = this.enhetNavn())),
+                flettefelter = VarselOmRevurderingDeltBostedParagraf14DataDto.FlettefelterDto(
                     navn = this.mottakerNavn,
                     fodselsnummer = this.mottakerIdent,
                     barnMedDeltBostedAvtale = this.multiselectVerdier
@@ -118,10 +118,10 @@ fun ManueltBrevDto.tilBrev() = when (this.brevmal) {
                 melding = "Dato er ikke satt for brevtype 'varsel om revurdering samboer'"
             )
         } else {
-            VarselOmRevurderingSamboerBrev(
-                data = VarselOmRevurderingSamboerData(
-                    delmalData = VarselOmRevurderingSamboerData.DelmalData(signatur = SignaturDelmal(enhet = this.enhetNavn())),
-                    flettefelter = VarselOmRevurderingSamboerData.Flettefelter(
+            VarselOmRevurderingSamboerBrevDto(
+                data = VarselOmRevurderingSamboerDataDto(
+                    delmalData = VarselOmRevurderingSamboerDataDto.DelmalData(signatur = SignaturDelmal(enhet = this.enhetNavn())),
+                    flettefelter = VarselOmRevurderingSamboerDataDto.FlettefelterDto(
                         navn = this.mottakerNavn,
                         fodselsnummer = this.mottakerIdent,
                         datoAvtale = LocalDate.parse(this.datoAvtale).tilDagMånedÅr()
@@ -131,7 +131,7 @@ fun ManueltBrevDto.tilBrev() = when (this.brevmal) {
         }
 
     Brevmal.SVARTIDSBREV ->
-        Svartidsbrev(
+        SvartidsbrevDto(
             navn = this.mottakerNavn,
             fodselsnummer = this.mottakerIdent,
             enhet = this.enhetNavn(),
@@ -144,7 +144,7 @@ fun ManueltBrevDto.tilBrev() = when (this.brevmal) {
         )
 
     Brevmal.FORLENGET_SVARTIDSBREV ->
-        ForlengetSvartidsbrev(
+        ForlengetSvartidsbrevDto(
             navn = this.mottakerNavn,
             fodselsnummer = this.mottakerIdent,
             enhetNavn = this.enhetNavn(),
@@ -153,7 +153,7 @@ fun ManueltBrevDto.tilBrev() = when (this.brevmal) {
         )
 
     Brevmal.INFORMASJONSBREV_FØDSEL_MINDREÅRIG ->
-        EnkeltInformasjonsbrev(
+        EnkeltInformasjonsbrevDto(
             navn = this.mottakerNavn,
             fodselsnummer = this.mottakerIdent,
             enhet = this.enhetNavn(),
@@ -162,7 +162,7 @@ fun ManueltBrevDto.tilBrev() = when (this.brevmal) {
 
     Brevmal.INFORMASJONSBREV_FØDSEL_UMYNDIG,
     Brevmal.INFORMASJONSBREV_FØDSEL_VERGEMÅL ->
-        EnkeltInformasjonsbrev(
+        EnkeltInformasjonsbrevDto(
             navn = this.mottakerNavn,
             fodselsnummer = this.mottakerIdent,
             enhet = this.enhetNavn(),
@@ -170,7 +170,7 @@ fun ManueltBrevDto.tilBrev() = when (this.brevmal) {
         )
 
     Brevmal.INFORMASJONSBREV_FØDSEL_GENERELL ->
-        EnkeltInformasjonsbrev(
+        EnkeltInformasjonsbrevDto(
             navn = this.mottakerNavn,
             fodselsnummer = this.mottakerIdent,
             enhet = this.enhetNavn(),
@@ -178,7 +178,7 @@ fun ManueltBrevDto.tilBrev() = when (this.brevmal) {
         )
 
     Brevmal.INFORMASJONSBREV_KAN_SØKE ->
-        InformasjonsbrevKanSøke(
+        InformasjonsbrevKanSøkeDto(
             navn = this.mottakerNavn,
             fodselsnummer = this.mottakerIdent,
             enhet = this.enhetNavn(),
@@ -186,7 +186,7 @@ fun ManueltBrevDto.tilBrev() = when (this.brevmal) {
         )
 
     Brevmal.VARSEL_OM_VEDTAK_ETTER_SØKNAD_I_SED ->
-        VarselbrevMedÅrsakerOgBarn(
+        VarselbrevMedÅrsakerOgBarnDto(
             mal = Brevmal.VARSEL_OM_VEDTAK_ETTER_SØKNAD_I_SED,
             navn = this.mottakerNavn,
             fødselsnummer = this.mottakerIdent,
@@ -196,7 +196,7 @@ fun ManueltBrevDto.tilBrev() = when (this.brevmal) {
         )
 
     Brevmal.VARSEL_OM_REVURDERING_FRA_NASJONAL_TIL_EØS ->
-        VarselbrevMedÅrsaker(
+        VarselbrevMedÅrsakerDto(
             mal = Brevmal.VARSEL_OM_REVURDERING_FRA_NASJONAL_TIL_EØS,
             navn = this.mottakerNavn,
             fødselsnummer = this.mottakerIdent,
@@ -205,7 +205,7 @@ fun ManueltBrevDto.tilBrev() = when (this.brevmal) {
         )
 
     Brevmal.INNHENTE_OPPLYSNINGER_ETTER_SØKNAD_I_SED ->
-        InnhenteOpplysningerOmBarn(
+        InnhenteOpplysningerOmBarnDto(
             mal = Brevmal.INNHENTE_OPPLYSNINGER_ETTER_SØKNAD_I_SED,
             navn = this.mottakerNavn,
             fødselsnummer = this.mottakerIdent,
@@ -215,7 +215,7 @@ fun ManueltBrevDto.tilBrev() = when (this.brevmal) {
         )
 
     Brevmal.INFORMASJONSBREV_KAN_SØKE_EØS ->
-        EnkeltInformasjonsbrev(
+        EnkeltInformasjonsbrevDto(
             navn = this.mottakerNavn,
             fodselsnummer = this.mottakerIdent,
             enhet = this.enhetNavn(),

@@ -4,31 +4,31 @@ import no.nav.familie.kontrakter.felles.objectMapper
 import no.nav.familie.ks.sak.common.util.tilDagMånedÅr
 import java.time.LocalDate
 
-interface Brev {
+interface BrevDto {
 
     val mal: Brevmal
-    val data: BrevData
+    val data: BrevDataDto
 }
 
-interface BrevData {
+interface BrevDataDto {
 
     val delmalData: Any
-    val flettefelter: FlettefelterForDokument
+    val flettefelter: FlettefelterForDokumentDto
     fun toBrevString(): String = objectMapper.writeValueAsString(this)
 }
 
-interface FlettefelterForDokument {
+interface FlettefelterForDokumentDto {
 
     val navn: Flettefelt
     val fodselsnummer: Flettefelt
     val brevOpprettetDato: Flettefelt
 }
 
-data class FlettefelterForDokumentImpl(
+data class FlettefelterForDokumentDtoImpl(
     override val navn: Flettefelt,
     override val fodselsnummer: Flettefelt,
     override val brevOpprettetDato: Flettefelt = flettefelt(LocalDate.now().tilDagMånedÅr())
-) : FlettefelterForDokument {
+) : FlettefelterForDokumentDto {
 
     constructor(
         navn: String,

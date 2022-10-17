@@ -10,11 +10,11 @@ enum class Begrunnelsetype {
     FRITEKST
 }
 
-interface Begrunnelse : Comparable<Begrunnelse> {
+interface BegrunnelseDto : Comparable<BegrunnelseDto> {
     val type: Begrunnelsetype
     val vedtakBegrunnelseType: VedtakBegrunnelseType?
 
-    override fun compareTo(other: Begrunnelse): Int {
+    override fun compareTo(other: BegrunnelseDto): Int {
         return when {
             this.type == Begrunnelsetype.FRITEKST -> Int.MAX_VALUE
             other.type == Begrunnelsetype.FRITEKST -> -Int.MAX_VALUE
@@ -26,11 +26,11 @@ interface Begrunnelse : Comparable<Begrunnelse> {
     }
 }
 
-interface BegrunnelseMedData : Begrunnelse {
+interface BegrunnelseDtoMedData : BegrunnelseDto {
     val apiNavn: String
 }
 
-data class BegrunnelseData(
+data class StandardBegrunnelseDataDto(
     override val vedtakBegrunnelseType: VedtakBegrunnelseType,
     override val apiNavn: String,
 
@@ -47,18 +47,18 @@ data class BegrunnelseData(
     val soknadstidspunkt: String,
     val avtaletidspunktDeltBosted: String,
     val sokersRettTilUtvidet: String
-) : BegrunnelseMedData {
+) : BegrunnelseDtoMedData {
     override val type: Begrunnelsetype = Begrunnelsetype.STANDARD_BEGRUNNELSE
 }
 
-data class FritekstBegrunnelse(
+data class FritekstBegrunnelseDto(
     val fritekst: String
-) : Begrunnelse {
+) : BegrunnelseDto {
     override val vedtakBegrunnelseType: VedtakBegrunnelseType? = null
     override val type: Begrunnelsetype = Begrunnelsetype.FRITEKST
 }
 
-data class EØSBegrunnelseData(
+data class EØSBegrunnelseDataDto(
     override val vedtakBegrunnelseType: VedtakBegrunnelseType,
     override val apiNavn: String,
 
@@ -70,6 +70,6 @@ data class EØSBegrunnelseData(
     val maalform: String,
     val sokersAktivitet: SøkersAktivitet,
     val sokersAktivitetsland: String?
-) : BegrunnelseMedData {
+) : BegrunnelseDtoMedData {
     override val type: Begrunnelsetype = Begrunnelsetype.EØS_BEGRUNNELSE
 }

@@ -3,10 +3,10 @@ package no.nav.familie.ks.sak.kjerne.brev.domene.maler
 import no.nav.familie.ks.sak.common.util.tilDagMånedÅr
 import java.time.LocalDate
 
-data class InnhenteOpplysningerOmBarn(
+data class InnhenteOpplysningerOmBarnDto(
     override val mal: Brevmal,
-    override val data: InnhenteOpplysningerOmBarnData
-) : Brev {
+    override val data: InnhenteOpplysningerOmBarnDataDto
+) : BrevDto {
     constructor(
         mal: Brevmal,
         navn: String,
@@ -16,9 +16,9 @@ data class InnhenteOpplysningerOmBarn(
         dokumentliste: List<String>
     ) : this(
         mal = mal,
-        data = InnhenteOpplysningerOmBarnData(
-            delmalData = InnhenteOpplysningerOmBarnData.DelmalData(signatur = SignaturDelmal(enhet = enhet)),
-            flettefelter = InnhenteOpplysningerOmBarnData.Flettefelter(
+        data = InnhenteOpplysningerOmBarnDataDto(
+            delmalData = InnhenteOpplysningerOmBarnDataDto.DelmalData(signatur = SignaturDelmal(enhet = enhet)),
+            flettefelter = InnhenteOpplysningerOmBarnDataDto.FlettefelterDto(
                 navn = navn,
                 fodselsnummer = fødselsnummer,
                 barnasFødselsdager = barnasFødselsdager,
@@ -28,18 +28,18 @@ data class InnhenteOpplysningerOmBarn(
     )
 }
 
-data class InnhenteOpplysningerOmBarnData(
+data class InnhenteOpplysningerOmBarnDataDto(
     override val delmalData: DelmalData,
-    override val flettefelter: Flettefelter
-) : BrevData {
+    override val flettefelter: FlettefelterDto
+) : BrevDataDto {
 
-    data class Flettefelter(
+    data class FlettefelterDto(
         override val navn: Flettefelt,
         override val fodselsnummer: Flettefelt,
         override val brevOpprettetDato: Flettefelt = flettefelt(LocalDate.now().tilDagMånedÅr()),
         val barnasFodselsdatoer: Flettefelt,
         val dokumentliste: Flettefelt
-    ) : FlettefelterForDokument {
+    ) : FlettefelterForDokumentDto {
 
         constructor(
             navn: String,

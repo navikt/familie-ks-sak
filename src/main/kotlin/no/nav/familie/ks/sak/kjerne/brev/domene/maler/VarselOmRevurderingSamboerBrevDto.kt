@@ -3,31 +3,30 @@ package no.nav.familie.ks.sak.kjerne.brev.domene.maler
 import no.nav.familie.ks.sak.common.util.tilDagMånedÅr
 import java.time.LocalDate
 
-data class VarselOmRevurderingDeltBostedParagraf14Brev(
-    override val mal: Brevmal = Brevmal.VARSEL_OM_REVURDERING_DELT_BOSTED_PARAGRAF_14,
-    override val data: VarselOmRevurderingDeltBostedParagraf14Data
-) : Brev
+data class VarselOmRevurderingSamboerBrevDto(
+    override val mal: Brevmal = Brevmal.VARSEL_OM_REVURDERING_SAMBOER,
+    override val data: VarselOmRevurderingSamboerDataDto
+) : BrevDto
 
-data class VarselOmRevurderingDeltBostedParagraf14Data(
+data class VarselOmRevurderingSamboerDataDto(
     override val delmalData: DelmalData,
-    override val flettefelter: Flettefelter
-) : BrevData {
-
-    data class Flettefelter(
+    override val flettefelter: FlettefelterDto
+) : BrevDataDto {
+    data class FlettefelterDto(
         override val navn: Flettefelt,
         override val fodselsnummer: Flettefelt,
         override val brevOpprettetDato: Flettefelt = flettefelt(LocalDate.now().tilDagMånedÅr()),
-        val barnMedDeltBostedAvtale: Flettefelt
-    ) : FlettefelterForDokument {
+        val datoAvtale: Flettefelt
+    ) : FlettefelterForDokumentDto {
 
         constructor(
             navn: String,
             fodselsnummer: String,
-            barnMedDeltBostedAvtale: List<String>
+            datoAvtale: String
         ) : this(
             navn = flettefelt(navn),
             fodselsnummer = flettefelt(fodselsnummer),
-            barnMedDeltBostedAvtale = flettefelt(barnMedDeltBostedAvtale)
+            datoAvtale = flettefelt(datoAvtale)
         )
     }
 

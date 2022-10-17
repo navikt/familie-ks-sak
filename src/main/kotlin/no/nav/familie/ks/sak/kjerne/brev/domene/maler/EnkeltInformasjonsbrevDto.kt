@@ -3,44 +3,42 @@ package no.nav.familie.ks.sak.kjerne.brev.domene.maler
 import no.nav.familie.ks.sak.common.util.tilDagMånedÅr
 import java.time.LocalDate
 
-data class Svartidsbrev(
+data class EnkeltInformasjonsbrevDto(
     override val mal: Brevmal,
-    override val data: SvartidsbrevData
-) : Brev {
+    override val data: EnkeltInformasjonsbrevDataDto
+) : BrevDto {
+
     constructor(
         navn: String,
         fodselsnummer: String,
         enhet: String,
-        mal: Brevmal,
-        erEøsBehandling: Boolean
+        mal: Brevmal
     ) : this(
         mal = mal,
-        data = SvartidsbrevData(
-            flettefelter = SvartidsbrevData.Flettefelter(
+        data = EnkeltInformasjonsbrevDataDto(
+            flettefelter = EnkeltInformasjonsbrevDataDto.FlettefelterDto(
                 navn = navn,
                 fodselsnummer = fodselsnummer
             ),
-            delmalData = SvartidsbrevData.DelmalData(
-                signatur = SignaturDelmal(
+            delmalData = EnkeltInformasjonsbrevDataDto.DelmalData(
+                SignaturDelmal(
                     enhet = enhet
-                ),
-                kontonummer = erEøsBehandling
-
+                )
             )
         )
     )
 }
 
-data class SvartidsbrevData(
+data class EnkeltInformasjonsbrevDataDto(
     override val delmalData: DelmalData,
-    override val flettefelter: Flettefelter
-) : BrevData {
+    override val flettefelter: FlettefelterDto
+) : BrevDataDto {
 
-    data class Flettefelter(
+    data class FlettefelterDto(
         override val navn: Flettefelt,
         override val fodselsnummer: Flettefelt,
         override val brevOpprettetDato: Flettefelt = flettefelt(LocalDate.now().tilDagMånedÅr())
-    ) : FlettefelterForDokument {
+    ) : FlettefelterForDokumentDto {
 
         constructor(
             navn: String,
@@ -52,7 +50,6 @@ data class SvartidsbrevData(
     }
 
     data class DelmalData(
-        val signatur: SignaturDelmal,
-        val kontonummer: Boolean
+        val signatur: SignaturDelmal
     )
 }

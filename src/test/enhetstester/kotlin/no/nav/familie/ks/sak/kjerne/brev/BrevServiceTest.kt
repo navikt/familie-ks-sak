@@ -16,9 +16,9 @@ import no.nav.familie.ks.sak.data.shouldNotBeNull
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.ArbeidsfordelingService
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.domene.ArbeidsfordelingPåBehandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
-import no.nav.familie.ks.sak.kjerne.brev.domene.maler.Brev
+import no.nav.familie.ks.sak.kjerne.brev.domene.maler.BrevDto
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.Brevmal
-import no.nav.familie.ks.sak.kjerne.brev.domene.maler.InnhenteOpplysningerData
+import no.nav.familie.ks.sak.kjerne.brev.domene.maler.InnhenteOpplysningerDataDto
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
@@ -51,7 +51,7 @@ class BrevServiceTest {
 
     @Test
     fun `hentForhåndsvisningAvBrev - skal hente pdf i form av en ByteArray fra BrevKlient`() {
-        val brevSlot = slot<Brev>()
+        val brevSlot = slot<BrevDto>()
 
         every { personopplysningGrunnlagService.hentSøker(behandlingId = behandling.id) } returns lagPerson(
             lagPersonopplysningGrunnlag(behandlingId = behandling.id, søkerPersonIdent = søker.aktivFødselsnummer()),
@@ -71,7 +71,7 @@ class BrevServiceTest {
 
         assertEquals(Brevmal.INNHENTE_OPPLYSNINGER, brev.mal)
 
-        val innhenteOpplysningerData = brev.data as InnhenteOpplysningerData
+        val innhenteOpplysningerData = brev.data as InnhenteOpplysningerDataDto
 
         assertEquals("Behandlende enhet", innhenteOpplysningerData.delmalData.signatur.enhet?.first())
         assertEquals(søker.aktivFødselsnummer(), innhenteOpplysningerData.flettefelter.fodselsnummer?.first())

@@ -9,4 +9,4 @@ inline fun <reified T : Enum<T>> konverterEnumsTilString(liste: List<T>) = liste
 inline fun <reified T : Enum<T>> konverterStringTilEnums(string: String?): List<T> =
     if (string.isNullOrBlank()) emptyList() else string.split(";").map { enumValueOf(it) }
 
-fun slåSammen(values: List<String>): String = Regex("(.*),").replace(values.joinToString(", "), "$1 og")
+fun slåSammen(stringListe: List<String>): String = Regex("(.*),").replace(stringListe.joinToString(", "), "$1 og")

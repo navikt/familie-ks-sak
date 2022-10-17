@@ -3,10 +3,10 @@ package no.nav.familie.ks.sak.kjerne.brev.domene.maler
 import no.nav.familie.ks.sak.common.util.tilDagMånedÅr
 import java.time.LocalDate
 
-data class VarselbrevMedÅrsaker(
+data class VarselbrevMedÅrsakerDto(
     override val mal: Brevmal,
-    override val data: VarselOmRevurderingData
-) : Brev {
+    override val data: VarselOmRevurderingDataDto
+) : BrevDto {
     constructor(
         mal: Brevmal,
         navn: String,
@@ -15,9 +15,9 @@ data class VarselbrevMedÅrsaker(
         enhet: String
     ) : this(
         mal = mal,
-        data = VarselOmRevurderingData(
-            delmalData = VarselOmRevurderingData.DelmalData(signatur = SignaturDelmal(enhet = enhet)),
-            flettefelter = VarselOmRevurderingData.Flettefelter(
+        data = VarselOmRevurderingDataDto(
+            delmalData = VarselOmRevurderingDataDto.DelmalData(signatur = SignaturDelmal(enhet = enhet)),
+            flettefelter = VarselOmRevurderingDataDto.FlettefelterDto(
                 navn = navn,
                 fodselsnummer = fødselsnummer,
                 varselÅrsaker = varselÅrsaker
@@ -26,17 +26,17 @@ data class VarselbrevMedÅrsaker(
     )
 }
 
-data class VarselOmRevurderingData(
+data class VarselOmRevurderingDataDto(
     override val delmalData: DelmalData,
-    override val flettefelter: Flettefelter
-) : BrevData {
+    override val flettefelter: FlettefelterDto
+) : BrevDataDto {
 
-    data class Flettefelter(
+    data class FlettefelterDto(
         override val navn: Flettefelt,
         override val fodselsnummer: Flettefelt,
         override val brevOpprettetDato: Flettefelt = flettefelt(LocalDate.now().tilDagMånedÅr()),
         val varselAarsaker: Flettefelt
-    ) : FlettefelterForDokument {
+    ) : FlettefelterForDokumentDto {
 
         constructor(
             navn: String,

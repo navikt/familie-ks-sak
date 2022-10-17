@@ -5,7 +5,6 @@ import no.nav.familie.ks.sak.api.dto.ManueltBrevDto
 import no.nav.familie.ks.sak.api.dto.tilBrev
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.ArbeidsfordelingService
-import no.nav.familie.ks.sak.kjerne.brev.domene.maler.Brev
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
@@ -37,7 +36,7 @@ class BrevService(
         erForhåndsvisning: Boolean = false
     ): ByteArray {
         Result.runCatching {
-            val brev: Brev = manueltBrevRequest.tilBrev()
+            val brev = manueltBrevRequest.tilBrev()
             return brevKlient.genererBrev(
                 målform = manueltBrevRequest.mottakerMålform.tilSanityFormat(),
                 brev = brev

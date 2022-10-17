@@ -2,8 +2,8 @@ package no.nav.familie.ks.sak.kjerne.brev
 
 import no.nav.familie.http.client.AbstractRestClient
 import no.nav.familie.ks.sak.common.kallEksternTjeneste
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.BegrunnelseMedData
-import no.nav.familie.ks.sak.kjerne.brev.domene.maler.Brev
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.BegrunnelseDtoMedData
+import no.nav.familie.ks.sak.kjerne.brev.domene.maler.BrevDto
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.cache.annotation.Cacheable
 import org.springframework.stereotype.Component
@@ -19,7 +19,7 @@ class BrevKlient(
     restOperations: RestOperations
 ) : AbstractRestClient(restOperations, "familie-brev") {
 
-    fun genererBrev(målform: String, brev: Brev): ByteArray {
+    fun genererBrev(målform: String, brev: BrevDto): ByteArray {
         val uri = URI.create("$familieBrevUri/api/$sanityDataset/dokument/$målform/${brev.mal.apiNavn}/pdf")
 
         secureLogger.info("Kaller familie brev($uri) med data ${brev.data.toBrevString()}")
@@ -29,7 +29,7 @@ class BrevKlient(
     }
 
     @Cacheable("begrunnelsestekst", cacheManager = "shortCache")
-    fun hentBegrunnelsestekst(begrunnelseData: BegrunnelseMedData): String {
+    fun hentBegrunnelsestekst(begrunnelseData: BegrunnelseDtoMedData): String {
         val uri = URI.create("$familieBrevUri/ks-sak/begrunnelser/${begrunnelseData.apiNavn}/tekst/")
         secureLogger.info("Kaller familie brev($uri) med data $begrunnelseData")
 

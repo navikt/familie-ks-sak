@@ -3,22 +3,22 @@ package no.nav.familie.ks.sak.kjerne.brev.domene.maler
 import no.nav.familie.ks.sak.common.util.tilDagMånedÅr
 import java.time.LocalDate
 
-data class InnhenteOpplysningerBrev(
+data class InnhenteOpplysningerBrevDto(
     override val mal: Brevmal = Brevmal.INNHENTE_OPPLYSNINGER,
-    override val data: InnhenteOpplysningerData
-) : Brev
+    override val data: InnhenteOpplysningerDataDto
+) : BrevDto
 
-data class InnhenteOpplysningerData(
+data class InnhenteOpplysningerDataDto(
     override val delmalData: DelmalData,
-    override val flettefelter: Flettefelter
-) : BrevData {
+    override val flettefelter: FlettefelterDto
+) : BrevDataDto {
 
-    data class Flettefelter(
+    data class FlettefelterDto(
         override val navn: Flettefelt,
         override val fodselsnummer: Flettefelt,
         override val brevOpprettetDato: Flettefelt = flettefelt(LocalDate.now().tilDagMånedÅr()),
         val dokumentliste: Flettefelt
-    ) : FlettefelterForDokument {
+    ) : FlettefelterForDokumentDto {
 
         constructor(
             navn: String,

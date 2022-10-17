@@ -3,16 +3,16 @@ package no.nav.familie.ks.sak.kjerne.brev.domene.maler
 import no.nav.familie.ks.sak.common.util.tilDagMånedÅr
 import java.time.LocalDate
 
-data class InformasjonsbrevKanSøke(
+data class InformasjonsbrevKanSøkeDto(
     override val mal: Brevmal = Brevmal.INFORMASJONSBREV_KAN_SØKE,
-    override val data: InformasjonsbrevKanSøkeData
-) : Brev {
+    override val data: InformasjonsbrevKanSøkeDataDto
+) : BrevDto {
     constructor(navn: String, fodselsnummer: String, dokumentliste: List<String>, enhet: String) : this(
-        data = InformasjonsbrevKanSøkeData(
-            delmalData = InformasjonsbrevKanSøkeData.DelmalData(
+        data = InformasjonsbrevKanSøkeDataDto(
+            delmalData = InformasjonsbrevKanSøkeDataDto.DelmalData(
                 signatur = SignaturDelmal(enhet)
             ),
-            flettefelter = InformasjonsbrevKanSøkeData.Flettefelter(
+            flettefelter = InformasjonsbrevKanSøkeDataDto.FlettefelterDto(
                 navn = navn,
                 fodselsnummer = fodselsnummer,
                 dokumentliste = dokumentliste
@@ -21,17 +21,17 @@ data class InformasjonsbrevKanSøke(
     )
 }
 
-data class InformasjonsbrevKanSøkeData(
+data class InformasjonsbrevKanSøkeDataDto(
     override val delmalData: DelmalData,
-    override val flettefelter: Flettefelter
-) : BrevData {
+    override val flettefelter: FlettefelterDto
+) : BrevDataDto {
 
-    data class Flettefelter(
+    data class FlettefelterDto(
         override val navn: Flettefelt,
         override val fodselsnummer: Flettefelt,
         override val brevOpprettetDato: Flettefelt = flettefelt(LocalDate.now().tilDagMånedÅr()),
         val dokumentliste: Flettefelt
-    ) : FlettefelterForDokument {
+    ) : FlettefelterForDokumentDto {
 
         constructor(
             navn: String,

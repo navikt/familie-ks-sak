@@ -3,42 +3,44 @@ package no.nav.familie.ks.sak.kjerne.brev.domene.maler
 import no.nav.familie.ks.sak.common.util.tilDagMånedÅr
 import java.time.LocalDate
 
-data class EnkeltInformasjonsbrev(
+data class SvartidsbrevDto(
     override val mal: Brevmal,
-    override val data: EnkeltInformasjonsbrevData
-) : Brev {
-
+    override val data: SvartidsbrevDataDto
+) : BrevDto {
     constructor(
         navn: String,
         fodselsnummer: String,
         enhet: String,
-        mal: Brevmal
+        mal: Brevmal,
+        erEøsBehandling: Boolean
     ) : this(
         mal = mal,
-        data = EnkeltInformasjonsbrevData(
-            flettefelter = EnkeltInformasjonsbrevData.Flettefelter(
+        data = SvartidsbrevDataDto(
+            flettefelter = SvartidsbrevDataDto.FlettefelterDto(
                 navn = navn,
                 fodselsnummer = fodselsnummer
             ),
-            delmalData = EnkeltInformasjonsbrevData.DelmalData(
-                SignaturDelmal(
+            delmalData = SvartidsbrevDataDto.DelmalData(
+                signatur = SignaturDelmal(
                     enhet = enhet
-                )
+                ),
+                kontonummer = erEøsBehandling
+
             )
         )
     )
 }
 
-data class EnkeltInformasjonsbrevData(
+data class SvartidsbrevDataDto(
     override val delmalData: DelmalData,
-    override val flettefelter: Flettefelter
-) : BrevData {
+    override val flettefelter: FlettefelterDto
+) : BrevDataDto {
 
-    data class Flettefelter(
+    data class FlettefelterDto(
         override val navn: Flettefelt,
         override val fodselsnummer: Flettefelt,
         override val brevOpprettetDato: Flettefelt = flettefelt(LocalDate.now().tilDagMånedÅr())
-    ) : FlettefelterForDokument {
+    ) : FlettefelterForDokumentDto {
 
         constructor(
             navn: String,
@@ -50,6 +52,7 @@ data class EnkeltInformasjonsbrevData(
     }
 
     data class DelmalData(
-        val signatur: SignaturDelmal
+        val signatur: SignaturDelmal,
+        val kontonummer: Boolean
     )
 }

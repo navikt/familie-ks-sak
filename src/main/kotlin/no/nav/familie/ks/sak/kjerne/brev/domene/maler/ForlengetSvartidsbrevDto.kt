@@ -3,10 +3,10 @@ package no.nav.familie.ks.sak.kjerne.brev.domene.maler
 import no.nav.familie.ks.sak.common.util.tilDagMånedÅr
 import java.time.LocalDate
 
-data class ForlengetSvartidsbrev(
+data class ForlengetSvartidsbrevDto(
     override val mal: Brevmal = Brevmal.FORLENGET_SVARTIDSBREV,
-    override val data: ForlengetSvartidsbrevData
-) : Brev {
+    override val data: ForlengetSvartidsbrevDataDto
+) : BrevDto {
     constructor(
         navn: String,
         fodselsnummer: String,
@@ -14,9 +14,9 @@ data class ForlengetSvartidsbrev(
         årsaker: List<String>,
         antallUkerSvarfrist: Int
     ) : this(
-        data = ForlengetSvartidsbrevData(
-            delmalData = ForlengetSvartidsbrevData.DelmalData(signatur = SignaturDelmal(enhet = enhetNavn)),
-            flettefelter = ForlengetSvartidsbrevData.Flettefelter(
+        data = ForlengetSvartidsbrevDataDto(
+            delmalData = ForlengetSvartidsbrevDataDto.DelmalData(signatur = SignaturDelmal(enhet = enhetNavn)),
+            flettefelter = ForlengetSvartidsbrevDataDto.FlettefelterDto(
                 navn = flettefelt(navn),
                 fodselsnummer = flettefelt(fodselsnummer),
                 antallUkerSvarfrist = flettefelt(antallUkerSvarfrist.toString()),
@@ -26,17 +26,17 @@ data class ForlengetSvartidsbrev(
     )
 }
 
-data class ForlengetSvartidsbrevData(
+data class ForlengetSvartidsbrevDataDto(
     override val delmalData: DelmalData,
-    override val flettefelter: Flettefelter
-) : BrevData {
-    data class Flettefelter(
+    override val flettefelter: FlettefelterDto
+) : BrevDataDto {
+    data class FlettefelterDto(
         override val navn: Flettefelt,
         override val fodselsnummer: Flettefelt,
         override val brevOpprettetDato: Flettefelt = flettefelt(LocalDate.now().tilDagMånedÅr()),
         val antallUkerSvarfrist: Flettefelt,
         val aarsakerSvartidsbrev: Flettefelt
-    ) : FlettefelterForDokument
+    ) : FlettefelterForDokumentDto
 
     data class DelmalData(
         val signatur: SignaturDelmal
