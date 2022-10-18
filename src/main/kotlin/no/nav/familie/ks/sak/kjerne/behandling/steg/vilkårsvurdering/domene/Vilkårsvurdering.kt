@@ -1,4 +1,4 @@
-package no.nav.familie.ks.sak.kjerne.vilkårsvurdering.domene
+package no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene
 
 import no.nav.familie.ks.sak.common.entitet.BaseEntitet
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
@@ -43,4 +43,8 @@ data class Vilkårsvurdering(
 
     @Column(name = "ytelse_personer", columnDefinition = "text")
     var ytelsePersoner: String? = null
-) : BaseEntitet()
+) : BaseEntitet() {
+    fun hentPersonResultaterTilAktør(aktørId: String): List<VilkårResultat> =
+        personResultater.find { it.aktør.aktørId == aktørId }?.vilkårResultater?.toList()
+            ?: throw IllegalStateException("Fant ikke personresultat for $aktørId")
+}

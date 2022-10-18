@@ -1,4 +1,4 @@
-package no.nav.familie.ks.sak.kjerne.vilkårsvurdering
+package no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering
 
 import no.nav.familie.ks.sak.api.dto.VedtakBegrunnelseTilknyttetVilkårResponseDto
 import no.nav.familie.ks.sak.api.dto.VilkårResultatDto
@@ -17,10 +17,10 @@ import no.nav.familie.ks.sak.kjerne.vedtak.EØSStandardbegrunnelse
 import no.nav.familie.ks.sak.kjerne.vedtak.Standardbegrunnelse
 import no.nav.familie.ks.sak.kjerne.vedtak.tilSanityBegrunnelse
 import no.nav.familie.ks.sak.kjerne.vedtak.tilSanityEØSBegrunnelse
-import no.nav.familie.ks.sak.kjerne.vilkårsvurdering.domene.PersonResultat
-import no.nav.familie.ks.sak.kjerne.vilkårsvurdering.domene.Resultat
-import no.nav.familie.ks.sak.kjerne.vilkårsvurdering.domene.Vilkår
-import no.nav.familie.ks.sak.kjerne.vilkårsvurdering.domene.VilkårResultat
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.PersonResultat
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
 
 fun standardbegrunnelserTilNedtrekksmenytekster(
     sanityBegrunnelser: List<SanityBegrunnelse>
@@ -213,7 +213,7 @@ private fun validerAvslagUtenPeriodeMedLøpende(
     }
 }
 
-private fun List<VilkårResultat>.tilTidslinje(): Tidslinje<VilkårResultat> {
+fun List<VilkårResultat>.tilTidslinje(): Tidslinje<VilkårResultat> {
     return map {
         TidslinjePeriodeMedDato(
             verdi = it,

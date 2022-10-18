@@ -3,10 +3,10 @@ package no.nav.familie.ks.sak.api.mapper
 import no.nav.familie.ks.sak.api.dto.AnnenVurderingDto
 import no.nav.familie.ks.sak.api.dto.PersonResultatResponsDto
 import no.nav.familie.ks.sak.api.dto.VilkårResultatDto
-import no.nav.familie.ks.sak.kjerne.vilkårsvurdering.domene.AnnenVurdering
-import no.nav.familie.ks.sak.kjerne.vilkårsvurdering.domene.PersonResultat
-import no.nav.familie.ks.sak.kjerne.vilkårsvurdering.domene.Resultat
-import no.nav.familie.ks.sak.kjerne.vilkårsvurdering.domene.VilkårResultat
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.AnnenVurdering
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.PersonResultat
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
 
 object VilkårsvurderingMapper {
     fun lagPersonResultatRespons(personResultat: PersonResultat) = PersonResultatResponsDto(
