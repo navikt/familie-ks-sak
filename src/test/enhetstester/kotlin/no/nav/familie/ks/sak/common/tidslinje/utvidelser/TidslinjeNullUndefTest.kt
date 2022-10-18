@@ -41,7 +41,7 @@ class TidslinjeNullUndefTest {
             listOf(TidslinjePeriode(3, 1, false), TidslinjePeriode(1, 1, false), TidslinjePeriode(1, 1, false))
         )
 
-        val testTidslinje = t1.kombinerMed(t2) { t1, t2 ->
+        val testTidslinje = t1.biFunksjon(t2) { t1, t2 ->
             if (t1 is Udefinert || t2 is Udefinert) Udefinert()
             else if (t1 is Null || t2 is Null) Null()
             else Verdi(t1.verdi!! + t2.verdi!!)
@@ -65,7 +65,7 @@ class TidslinjeNullUndefTest {
             listOf(TidslinjePeriode(3, 2, false), TidslinjePeriode(1, 1, false), TidslinjePeriode(1, 1, false))
         )
 
-        val testTidslinje = t1.kombinerMed(t2) { t1, t2 ->
+        val testTidslinje = t1.biFunksjon(t2) { t1, t2 ->
             if (t1 is Null || t2 is Null) Null()
             else if (t1 is Udefinert || t2 is Udefinert) Udefinert()
             else Verdi(t1.verdi!! + t2.verdi!!)

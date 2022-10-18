@@ -9,7 +9,7 @@ import no.nav.familie.ks.sak.common.tidslinje.TidslinjePeriode
  * funksjonen [operator].
  * [operator] vil få verdiene som de to input periodene består av som input.
  */
-fun <T, R, RESULTAT> TidslinjePeriode<T>.kombinerMed(
+fun <T, R, RESULTAT> TidslinjePeriode<T>.biFunksjon(
     operand: TidslinjePeriode<R>,
     lengde: Int,
     erUendelig: Boolean,

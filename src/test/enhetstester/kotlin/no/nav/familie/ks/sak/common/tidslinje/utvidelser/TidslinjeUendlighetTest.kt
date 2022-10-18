@@ -34,7 +34,7 @@ class TidslinjeUendlighetTest {
             listOf(TidslinjePeriode(3, 1, false))
         )
 
-        var t3 = t1.kombinerMed(t2) { t1, t2 ->
+        var t3 = t1.biFunksjon(t2) { t1, t2 ->
             if (t1 is Udefinert || t2 is Udefinert) Udefinert() else Verdi(t1.verdi!! + t2.verdi!!)
         }
 
@@ -54,7 +54,7 @@ class TidslinjeUendlighetTest {
             listOf(TidslinjePeriode(3, 1, false))
         )
 
-        t3 = t1.kombinerMed(t2) { el1, el2 ->
+        t3 = t1.biFunksjon(t2) { el1, el2 ->
             if (el1 is Udefinert || el2 is Udefinert) Udefinert()
             else Verdi(el1.verdi!! + el2.verdi!!)
         }
@@ -70,7 +70,7 @@ class TidslinjeUendlighetTest {
             listOf(TidslinjePeriode(3, 1, true))
         )
 
-        var t3 = t1.kombinerMed(t2) { t1, t2 -> Verdi(t1.verdi!! + t2.verdi!!) }
+        var t3 = t1.biFunksjon(t2) { t1, t2 -> Verdi(t1.verdi!! + t2.verdi!!) }
 
         assertTrue { t3.innhold.size == 2 }
         assertTrue { t3.innhold.last().erUendelig }
@@ -85,7 +85,7 @@ class TidslinjeUendlighetTest {
             listOf(TidslinjePeriode(1, 1, true), TidslinjePeriode(3, 1, false))
         )
 
-        t3 = t1.kombinerMed(t2) { t1, t2 -> Verdi(t1.verdi!! + t2.verdi!!) }
+        t3 = t1.biFunksjon(t2) { t1, t2 -> Verdi(t1.verdi!! + t2.verdi!!) }
 
         assertTrue { t3.innhold.size == 1 }
         assertTrue { t3.innhold.last().erUendelig }
@@ -109,7 +109,7 @@ class TidslinjeUendlighetTest {
         assertTrue { t1.innhold.size == 3 }
         assertTrue { t1.innhold.last().erUendelig }
 
-        val t3 = t1.kombinerMed(t2) { t1, t2 ->
+        val t3 = t1.biFunksjon(t2) { t1, t2 ->
             if (t1 is Udefinert || t2 is Udefinert) Udefinert() else Verdi(t1.verdi!! + t2.verdi!!)
         }
 

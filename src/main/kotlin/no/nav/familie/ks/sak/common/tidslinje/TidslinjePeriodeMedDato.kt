@@ -2,6 +2,15 @@ package no.nav.familie.ks.sak.common.tidslinje
 
 import java.time.LocalDate
 
+data class Periode<T>(
+    val verdi: T?,
+    val fom: LocalDate?,
+    val tom: LocalDate?
+) {
+
+    fun tilTidslinjePeriodeMedDato() = TidslinjePeriodeMedDato(verdi, fom, tom)
+}
+
 data class TidslinjePeriodeMedDato<T>(
     val periodeVerdi: PeriodeVerdi<T>,
     val fom: Dato,
@@ -32,7 +41,12 @@ data class TidslinjePeriodeMedDato<T>(
             return this.dato.compareTo(other.dato)
         }
     }
+
+    fun tilPeriode() = Periode(periodeVerdi.verdi, fom.tilLocalDateEllerNull(), tom.tilLocalDateEllerNull())
 }
+
+@JvmName("perioderTilTidslinje")
+fun <T> List<Periode<T>>.tilTidslinje(): Tidslinje<T> = this.map { it.tilTidslinjePeriodeMedDato() }.tilTidslinje()
 
 fun <T> List<TidslinjePeriodeMedDato<T>>.tilTidslinje(): Tidslinje<T> {
     val perioder = this.tilTidslinjePerioder()
