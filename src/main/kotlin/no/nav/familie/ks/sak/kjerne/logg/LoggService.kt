@@ -11,6 +11,7 @@ import no.nav.familie.ks.sak.kjerne.logg.domene.Logg
 import no.nav.familie.ks.sak.kjerne.logg.domene.LoggRepository
 import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext
 import org.springframework.stereotype.Service
+import java.time.LocalDate
 import java.time.LocalDateTime
 
 @Service
@@ -110,6 +111,57 @@ class LoggService(
                     BehandlerRolle.SAKSBEHANDLER
                 ),
                 tekst = tekst
+            )
+        )
+    }
+
+    fun opprettSettPåVentLogg(behandling: Behandling, årsak: String) {
+        lagreLogg(
+            Logg(
+                behandlingId = behandling.id,
+                type = LoggType.BEHANDLIG_SATT_PÅ_VENT,
+                rolle = SikkerhetContext.hentRolletilgangFraSikkerhetscontext(
+                    rolleConfig,
+                    BehandlerRolle.SAKSBEHANDLER
+                ),
+                tekst = "Årsak: $årsak"
+            )
+        )
+    }
+
+    fun opprettOppdaterVentingLogg(behandling: Behandling, endretÅrsak: String?, endretFrist: LocalDate?) {
+        val tekst = if (endretFrist != null && endretÅrsak != null) {
+            "Frist og årsak er endret til \"${endretÅrsak}\" og ${endretFrist.tilKortString()}"
+        } else if (endretFrist != null) {
+            "Frist er endret til ${endretFrist.tilKortString()}"
+        } else if (endretÅrsak != null) {
+            "Årsak er endret til \"${endretÅrsak}\""
+        } else {
+            return
+        }
+
+        lagreLogg(
+            Logg(
+                behandlingId = behandling.id,
+                type = LoggType.VENTENDE_BEHANDLING_ENDRET,
+                rolle = SikkerhetContext.hentRolletilgangFraSikkerhetscontext(
+                    rolleConfig,
+                    BehandlerRolle.SAKSBEHANDLER
+                ),
+                tekst = tekst
+            )
+        )
+    }
+
+    fun gjenopptaBehandlingLogg(behandling: Behandling) {
+        lagreLogg(
+            Logg(
+                behandlingId = behandling.id,
+                type = LoggType.BEHANDLIG_GJENOPPTATT,
+                rolle = SikkerhetContext.hentRolletilgangFraSikkerhetscontext(
+                    rolleConfig,
+                    BehandlerRolle.SAKSBEHANDLER
+                )
             )
         )
     }

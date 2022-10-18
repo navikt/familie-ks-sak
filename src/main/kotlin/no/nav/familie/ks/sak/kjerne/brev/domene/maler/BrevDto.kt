@@ -1,7 +1,11 @@
 package no.nav.familie.ks.sak.kjerne.brev.domene.maler
 
+import no.nav.familie.kontrakter.felles.dokarkiv.Dokumenttype
 import no.nav.familie.kontrakter.felles.objectMapper
+import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.util.tilDagMånedÅr
+import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingKategori
+import no.nav.familie.ks.sak.kjerne.settpåvent.domene.SettPåVentÅrsak
 import java.time.LocalDate
 
 interface BrevDto {
@@ -56,16 +60,6 @@ enum class Brevmal(val erVedtaksbrev: Boolean, val apiNavn: String, val visnings
 
     HENLEGGE_TRUKKET_SØKNAD(false, "henleggeTrukketSoknad", "Henlegge trukket søknad"),
     VARSEL_OM_REVURDERING(false, "varselOmRevurdering", "Varsel om revurdering"),
-    VARSEL_OM_REVURDERING_DELT_BOSTED_PARAGRAF_14(
-        false,
-        "varselOmRevurderingDeltBostedParagrafFjorten",
-        "Varsel om revurdering delt bosted § 14"
-    ),
-    VARSEL_OM_REVURDERING_SAMBOER(
-        false,
-        "varselOmRevurderingSamboer",
-        "Varsel om revurdering samboer"
-    ),
     VARSEL_OM_VEDTAK_ETTER_SØKNAD_I_SED(
         false,
         "varselOmVedtakEtterSoknadISED",
@@ -79,21 +73,9 @@ enum class Brevmal(val erVedtaksbrev: Boolean, val apiNavn: String, val visnings
 
     SVARTIDSBREV(false, "svartidsbrev", "Svartidsbrev"),
     FORLENGET_SVARTIDSBREV(false, "forlengetSvartidsbrev", "Forlenget svartidsbrev"),
-    INFORMASJONSBREV_FØDSEL_MINDREÅRIG(
-        false,
-        "informasjonsbrevFodselMindreaarig",
-        "Informasjonsbrev fødsel mindreårig"
-    ),
 
-    @Deprecated(
-        "Brukes ikke lenger. Må ha denne for å kunne få gjennom tasker med gammelt enum-navn." +
-            "Kan fjernes når de har kjørt."
-    )
-    INFORMASJONSBREV_FØDSEL_UMYNDIG(false, "informasjonsbrevFodselVergemaal", "Informasjonsbrev fødsel umyndig"),
-    INFORMASJONSBREV_FØDSEL_VERGEMÅL(false, "informasjonsbrevFodselVergemaal", "Informasjonsbrev fødsel vergemål"),
     INFORMASJONSBREV_KAN_SØKE(false, "informasjonsbrevKanSoke", "Informasjonsbrev kan søke"),
     INFORMASJONSBREV_KAN_SØKE_EØS(false, "informasjonsbrevKanSokeEOS", "Informasjonsbrev kan søke EØS"),
-    INFORMASJONSBREV_FØDSEL_GENERELL(false, "informasjonsbrevFodselGenerell", "Informasjonsbrev fødsel generell"),
 
     VEDTAK_FØRSTEGANGSVEDTAK(true, "forstegangsvedtak", "Førstegangsvedtak"),
     VEDTAK_ENDRING(true, "vedtakEndring", "Vedtak endring"),
@@ -104,12 +86,6 @@ enum class Brevmal(val erVedtaksbrev: Boolean, val apiNavn: String, val visnings
     VEDTAK_KORREKSJON_VEDTAKSBREV(true, "korrigertVedtakEgenBrevmal", "Korrigere vedtak med egen brevmal"),
     VEDTAK_OPPHØR_DØDSFALL(true, "dodsfall", "Dødsfall"),
 
-    @Deprecated(
-        "Brukes ikke lenger. Må ha denne for å kunne få gjennom tasker med gammelt enum-navn." +
-            "Kan fjernes når de har kjørt."
-    )
-    DØDSFALL(true, "dodsfall", "Dødsfall"),
-
     AUTOVEDTAK_BARN_6_OG_18_ÅR_OG_SMÅBARNSTILLEGG(
         true,
         "autovedtakBarn6AarOg18AarOgSmaabarnstillegg",
@@ -117,6 +93,106 @@ enum class Brevmal(val erVedtaksbrev: Boolean, val apiNavn: String, val visnings
     ),
     AUTOVEDTAK_NYFØDT_FØRSTE_BARN(true, "autovedtakNyfodtForsteBarn", "Autovedtak nyfødt - første barn"),
     AUTOVEDTAK_NYFØDT_BARN_FRA_FØR(true, "autovedtakNyfodtBarnFraFor", "Autovedtak nyfødt - barn fra før");
+
+    fun skalGenerereForside(): Boolean =
+        when (this) {
+            INNHENTE_OPPLYSNINGER,
+            INNHENTE_OPPLYSNINGER_ETTER_SØKNAD_I_SED,
+            VARSEL_OM_REVURDERING,
+            VARSEL_OM_VEDTAK_ETTER_SØKNAD_I_SED,
+            VARSEL_OM_REVURDERING_FRA_NASJONAL_TIL_EØS -> true
+
+            INFORMASJONSBREV_DELT_BOSTED,
+            HENLEGGE_TRUKKET_SØKNAD,
+            SVARTIDSBREV,
+            FORLENGET_SVARTIDSBREV,
+            INFORMASJONSBREV_KAN_SØKE,
+            INFORMASJONSBREV_KAN_SØKE_EØS -> false
+
+            VEDTAK_FØRSTEGANGSVEDTAK,
+            VEDTAK_ENDRING,
+            VEDTAK_OPPHØRT,
+            VEDTAK_OPPHØR_MED_ENDRING,
+            VEDTAK_AVSLAG,
+            VEDTAK_FORTSATT_INNVILGET,
+            VEDTAK_KORREKSJON_VEDTAKSBREV,
+            VEDTAK_OPPHØR_DØDSFALL,
+            AUTOVEDTAK_BARN_6_OG_18_ÅR_OG_SMÅBARNSTILLEGG,
+            AUTOVEDTAK_NYFØDT_FØRSTE_BARN,
+            AUTOVEDTAK_NYFØDT_BARN_FRA_FØR -> throw Feil("Ikke avgjort om $this skal generere forside")
+        }
+
+    fun tilFamilieKontrakterDokumentType(): Dokumenttype =
+        when (this) {
+            INNHENTE_OPPLYSNINGER -> Dokumenttype.KONTANTSTØTTE_INNHENTE_OPPLYSNINGER
+            VARSEL_OM_REVURDERING -> Dokumenttype.KONTANTSTØTTE_VARSEL_OM_REVURDERING
+            INFORMASJONSBREV_DELT_BOSTED -> Dokumenttype.KONTANTSTØTTE_INFORMASJONSBREV_DELT_BOSTED
+            HENLEGGE_TRUKKET_SØKNAD -> Dokumenttype.KONTANTSTØTTE_HENLEGGE_TRUKKET_SØKNAD
+            SVARTIDSBREV -> Dokumenttype.KONTANTSTØTTE_SVARTIDSBREV
+            FORLENGET_SVARTIDSBREV -> Dokumenttype.KONTANTSTØTTE_FORLENGET_SVARTIDSBREV
+            INFORMASJONSBREV_KAN_SØKE -> Dokumenttype.KONTANTSTØTTE_INFORMASJONSBREV_KAN_SØKE
+            INNHENTE_OPPLYSNINGER_ETTER_SØKNAD_I_SED -> Dokumenttype.KONTANTSTØTTE_INNHENTE_OPPLYSNINGER_ETTER_SØKNAD_I_SED
+            VARSEL_OM_VEDTAK_ETTER_SØKNAD_I_SED -> Dokumenttype.KONTANTSTØTTE_VARSEL_OM_VEDTAK_ETTER_SØKNAD_I_SED
+            VARSEL_OM_REVURDERING_FRA_NASJONAL_TIL_EØS -> Dokumenttype.KONTANTSTØTTE_VARSEL_OM_REVURDERING_FRA_NASJONAL_TIL_EØS
+            INFORMASJONSBREV_KAN_SØKE_EØS -> Dokumenttype.KONTANTSTØTTE_INFORMASJONSBREV_KAN_SØKE_EØS
+
+            VEDTAK_ENDRING,
+            VEDTAK_OPPHØRT,
+            VEDTAK_OPPHØR_MED_ENDRING,
+            VEDTAK_FORTSATT_INNVILGET,
+            VEDTAK_AVSLAG,
+            VEDTAK_FØRSTEGANGSVEDTAK,
+            VEDTAK_KORREKSJON_VEDTAKSBREV,
+            VEDTAK_OPPHØR_DØDSFALL,
+            AUTOVEDTAK_BARN_6_OG_18_ÅR_OG_SMÅBARNSTILLEGG,
+            AUTOVEDTAK_NYFØDT_FØRSTE_BARN,
+            AUTOVEDTAK_NYFØDT_BARN_FRA_FØR -> throw Feil("Ingen dokumenttype for $this")
+        }
+
+    fun setterBehandlingPåVent(): Boolean =
+        when (this) {
+            FORLENGET_SVARTIDSBREV,
+            INNHENTE_OPPLYSNINGER,
+            VARSEL_OM_REVURDERING,
+            INNHENTE_OPPLYSNINGER_ETTER_SØKNAD_I_SED,
+            VARSEL_OM_REVURDERING_FRA_NASJONAL_TIL_EØS,
+            VARSEL_OM_VEDTAK_ETTER_SØKNAD_I_SED,
+            SVARTIDSBREV -> true
+
+            else -> false
+        }
+
+    fun ventefristDager(manuellFrist: Long? = null, behandlingKategori: BehandlingKategori?): Long =
+        when (this) {
+            INNHENTE_OPPLYSNINGER,
+            VARSEL_OM_REVURDERING,
+            INNHENTE_OPPLYSNINGER_ETTER_SØKNAD_I_SED,
+            VARSEL_OM_REVURDERING_FRA_NASJONAL_TIL_EØS,
+            VARSEL_OM_VEDTAK_ETTER_SØKNAD_I_SED -> 3 * 7
+
+            SVARTIDSBREV -> when (behandlingKategori) {
+                BehandlingKategori.EØS -> 30 * 3
+                BehandlingKategori.NASJONAL -> 3 * 7
+                else -> throw Feil("Behandlingskategori er ikke satt fot $this")
+            }
+
+            FORLENGET_SVARTIDSBREV -> manuellFrist ?: throw Feil("Ventefrist var ikke satt for $this")
+
+            else -> throw Feil("Ventefrist ikke definert for brevtype $this")
+        }
+
+    fun venteårsak() =
+        when (this) {
+            FORLENGET_SVARTIDSBREV,
+            INNHENTE_OPPLYSNINGER,
+            VARSEL_OM_REVURDERING,
+            INNHENTE_OPPLYSNINGER_ETTER_SØKNAD_I_SED,
+            VARSEL_OM_REVURDERING_FRA_NASJONAL_TIL_EØS,
+            VARSEL_OM_VEDTAK_ETTER_SØKNAD_I_SED,
+            SVARTIDSBREV -> SettPåVentÅrsak.AVVENTER_DOKUMENTASJON
+
+            else -> throw Feil("Venteårsak ikke definert for brevtype $this")
+        }
 }
 
 fun flettefelt(flettefeltData: String?): Flettefelt = if (flettefeltData != null) listOf(flettefeltData) else null
