@@ -1,7 +1,5 @@
 package no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene
 
-import no.nav.familie.ks.sak.kjerne.vilkårsvurdering.domene.AnnenVurdering
-import no.nav.familie.ks.sak.kjerne.vilkårsvurdering.domene.AnnenVurderingType
 import no.nav.familie.ks.sak.kjerne.vilkårsvurdering.domene.PersonResultat
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
