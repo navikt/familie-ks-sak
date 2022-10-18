@@ -74,7 +74,7 @@ class JournalførVedtaksbrevSteg(
                 vedleggPdf,
                 filtype = Filtype.PDFA,
                 dokumenttype = Dokumenttype.BARNETRYGD_VEDLEGG,
-                tittel = VEDTAK_VEDLEGG_TITTEL
+                tittel = KONTANTSTØTTE_VEDTAK_VEDLEGG_TITTEL
             )
         )
 
@@ -108,7 +108,7 @@ class JournalførVedtaksbrevSteg(
         private val logger: Logger = LoggerFactory.getLogger(JournalførVedtaksbrevSteg::class.java)
 
         const val KONTANTSTØTTE_VEDTAK_VEDLEGG_FILNAVN = "NAV_34-0005bm08-2018.pdf"
-        const val VEDTAK_VEDLEGG_TITTEL = "Stønadsmottakerens rettigheter og plikter (Kontantstøtte)"
+        const val KONTANTSTØTTE_VEDTAK_VEDLEGG_TITTEL = "Stønadsmottakerens rettigheter og plikter (Kontantstøtte)"
 
         private fun hentVedlegg(vedleggsnavn: String): ByteArray {
             val inputStream = this::class.java.classLoader.getResourceAsStream("dokumenter/$vedleggsnavn")
