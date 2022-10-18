@@ -41,7 +41,7 @@ spring:
 
 logging:
   config: "classpath:logback-spring.xml"
-sentry.dsn: https://dd9a6107bdda4edeb51ece7283f37af4@sentry.gc.nav.no/112
+sentry.dsn: https://6f38c5d7dad244f786b493944b3087d4@sentry.gc.nav.no/3
 sentry.logging.enabled: true
 
 retry.backoff.delay: 5000
