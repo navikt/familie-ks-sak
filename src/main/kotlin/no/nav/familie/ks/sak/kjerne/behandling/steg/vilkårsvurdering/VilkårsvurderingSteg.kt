@@ -6,6 +6,8 @@ import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg
 import no.nav.familie.ks.sak.kjerne.behandling.steg.IBehandlingSteg
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.UtdypendeVilkårsvurdering
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
@@ -35,8 +37,22 @@ class VilkårsvurderingSteg(
             )
         }
 
+        validerAtDetIkkeErOverlappMellomGradertBarnehageplassOgDeltBosted(vilkårsvurdering)
+
         //TODO: Kommer etter vi har fått inn behandlignsresultat.
         // beregningService.oppdaterBehandlingMedBeregning(behandling, personopplysningGrunnlag)
+    }
+
+    private fun validerAtDetIkkeErOverlappMellomGradertBarnehageplassOgDeltBosted(vilkårsvurdering: Vilkårsvurdering) {
+        vilkårsvurdering.personResultater.forEach {
+
+            val relevanteVilkårResultater = it.vilkårResultater.filter { vilkårResultat ->
+                vilkårResultat.antallTimer != null || vilkårResultat.utdypendeVilkårsvurderinger.contains(
+                    UtdypendeVilkårsvurdering.DELT_BOSTED
+                )
+            }
+            relevanteVilkårResultater.tilTidslinje()
+        }
     }
 
     fun validerAtIngenVilkårErSattEtterSøkersDød(
