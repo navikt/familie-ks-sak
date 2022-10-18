@@ -168,7 +168,7 @@ class VilkårsvurderingStegTest {
     }
 
     @Test
-    fun `utførSteg - skal kaste validere vilkårsvurderingen`() {
+    fun `utførSteg - skal validere vilkårsvurderingen`() {
         val barn = randomAktør()
 
         val personopplysningGrunnlag = lagPersonopplysningGrunnlag(
