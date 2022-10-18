@@ -1,4 +1,4 @@
-package no.nav.familie.ks.sak.kjerne.vilkårsvurdering.domene
+package no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene
 
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
