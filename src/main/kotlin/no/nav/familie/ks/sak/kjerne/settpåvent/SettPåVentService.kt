@@ -3,7 +3,7 @@ package no.nav.familie.ks.sak.kjerne.settpåvent
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.integrasjon.oppgave.OppgaveService
-import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
+import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
 import no.nav.familie.ks.sak.kjerne.logg.LoggService
 import no.nav.familie.ks.sak.kjerne.settpåvent.domene.SettPåVent
 import no.nav.familie.ks.sak.kjerne.settpåvent.domene.SettPåVentRepository
@@ -17,9 +17,9 @@ import java.time.Period
 
 @Service
 class SettPåVentService(
-    private val behandlingService: BehandlingService,
     private val loggService: LoggService,
     private val oppgaveService: OppgaveService,
+    private val behandlingRepository: BehandlingRepository,
     private val settPåVentRepository: SettPåVentRepository
 ) {
 
@@ -34,7 +34,7 @@ class SettPåVentService(
 
     @Transactional
     fun settBehandlingPåVent(behandlingId: Long, frist: LocalDate, årsak: SettPåVentÅrsak): SettPåVent {
-        val behandling = behandlingService.hentBehandling(behandlingId)
+        val behandling = behandlingRepository.hentBehandling(behandlingId)
         val gammelSettPåVent: SettPåVent? = finnAktivSettPåVentPåBehandling(behandlingId)
         validerBehandlingKanSettesPåVent(gammelSettPåVent, frist, behandling)
 
@@ -53,7 +53,7 @@ class SettPåVentService(
 
     @Transactional
     fun oppdaterSettBehandlingPåVent(behandlingId: Long, frist: LocalDate, årsak: SettPåVentÅrsak): SettPåVent {
-        val behandling = behandlingService.hentBehandling(behandlingId)
+        val behandling = behandlingRepository.hentBehandling(behandlingId)
         val aktivSettPåVent = finnAktivSettPåVentPåBehandlingThrows(behandlingId)
 
         if (frist == aktivSettPåVent.frist && årsak == aktivSettPåVent.årsak) {
@@ -81,7 +81,7 @@ class SettPåVentService(
     }
 
     fun gjenopptaBehandling(behandlingId: Long, nå: LocalDate = LocalDate.now()): SettPåVent {
-        val behandling = behandlingService.hentBehandling(behandlingId)
+        val behandling = behandlingRepository.hentBehandling(behandlingId)
         val aktivSettPåVent =
             finnAktivSettPåVentPåBehandling(behandlingId)
                 ?: throw FunksjonellFeil(

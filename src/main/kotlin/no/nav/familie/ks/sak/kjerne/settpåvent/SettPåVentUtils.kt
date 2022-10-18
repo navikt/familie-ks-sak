@@ -4,6 +4,7 @@ import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
+import no.nav.familie.ks.sak.kjerne.settpåvent.domene.SettPåVent
 import java.time.LocalDate
 
 fun validerBehandlingKanSettesPåVent(

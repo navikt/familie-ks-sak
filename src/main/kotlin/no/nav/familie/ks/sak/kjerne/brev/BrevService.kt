@@ -126,20 +126,18 @@ class BrevService(
             førsteside = førsteside
         )
 
-        if (behandling != null) {
-            journalføringRepository.save(
-                DbJournalpost(
-                    behandling = behandling,
-                    journalpostId = journalpostId,
-                    type = DbJournalpostType.U
-                )
+        journalføringRepository.save(
+            DbJournalpost(
+                behandling = behandling,
+                journalpostId = journalpostId,
+                type = DbJournalpostType.U
             )
-        }
+        )
 
         if ((
             manueltBrevDto.brevmal == Brevmal.INNHENTE_OPPLYSNINGER ||
                 manueltBrevDto.brevmal == Brevmal.VARSEL_OM_REVURDERING
-            ) && behandling != null
+            )
         ) {
             leggTilOpplysningspliktIVilkårsvurdering(behandling)
         }
@@ -166,7 +164,6 @@ class BrevService(
         //        }
 
         if (
-            behandling != null &&
             manueltBrevDto.brevmal.setterBehandlingPåVent()
         ) {
             settPåVentService.settBehandlingPåVent(

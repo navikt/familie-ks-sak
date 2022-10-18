@@ -15,14 +15,14 @@ class AnnenVurderingService(private val annenVurderingRepository: AnnenVurdering
     @Transactional
     fun endreAnnenVurdering(
         annenVurderingId: Long,
-        restAnnenVurdering: AnnenVurderingDto
+        annenVurderingDto: AnnenVurderingDto
     ) {
         hent(annenVurderingId = annenVurderingId).let {
             annenVurderingRepository.save(
                 it.also {
-                    it.resultat = restAnnenVurdering.resultat
-                    it.begrunnelse = restAnnenVurdering.begrunnelse
-                    it.type = restAnnenVurdering.type
+                    it.resultat = annenVurderingDto.resultat
+                    it.begrunnelse = annenVurderingDto.begrunnelse
+                    it.type = annenVurderingDto.type
                 }
             )
         }

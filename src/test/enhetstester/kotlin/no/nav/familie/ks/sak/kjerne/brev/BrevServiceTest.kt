@@ -13,13 +13,19 @@ import no.nav.familie.ks.sak.data.lagPerson
 import no.nav.familie.ks.sak.data.lagPersonopplysningGrunnlag
 import no.nav.familie.ks.sak.data.randomAktør
 import no.nav.familie.ks.sak.data.shouldNotBeNull
+import no.nav.familie.ks.sak.integrasjon.journalføring.UtgåendeJournalføringService
+import no.nav.familie.ks.sak.integrasjon.journalføring.domene.JournalføringRepository
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.ArbeidsfordelingService
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.domene.ArbeidsfordelingPåBehandling
+import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.BrevDto
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.Brevmal
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.InnhenteOpplysningerDataDto
+import no.nav.familie.ks.sak.kjerne.fagsak.domene.FagsakRepository
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
+import no.nav.familie.ks.sak.kjerne.settpåvent.SettPåVentService
+import no.nav.familie.ks.sak.kjerne.vilkårsvurdering.VilkårsvurderingService
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -35,6 +41,24 @@ class BrevServiceTest {
 
     @MockK
     private lateinit var arbeidsfordelingService: ArbeidsfordelingService
+
+    @MockK
+    private lateinit var utgåendeJournalføringService: UtgåendeJournalføringService
+
+    @MockK
+    private lateinit var vilkårsvurderingService: VilkårsvurderingService
+
+    @MockK
+    private lateinit var settPåVentService: SettPåVentService
+
+    @MockK
+    private lateinit var behandlingRepository: BehandlingRepository
+
+    @MockK
+    private lateinit var fagsakRepository: FagsakRepository
+
+    @MockK
+    private lateinit var journalføringRepository: JournalføringRepository
 
     @InjectMockKs
     private lateinit var brevService: BrevService
