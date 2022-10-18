@@ -14,7 +14,10 @@ import java.net.URI
 import java.net.URLEncoder
 
 @Service
-class SanityKlient(@Value("\${SANITY_BASE_URL}") private val sanityBaseUrl: String, restOperations: RestOperations) :
+class SanityKlient(
+    @Value("\${SANITY_BASE_URL}") private val sanityBaseUrl: String,
+    restOperations: RestOperations
+) :
     AbstractRestClient(restOperations, "sanity") {
     fun hentBegrunnelser(datasett: String = "ba-brev"): List<SanityBegrunnelse> {
         val uri = lagHentUri(datasett, hentBegrunnelser)
