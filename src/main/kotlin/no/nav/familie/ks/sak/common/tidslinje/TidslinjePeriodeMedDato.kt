@@ -82,7 +82,7 @@ fun <T> List<TidslinjePeriodeMedDato<T>>.validerIngenOverlapp(feilmelding: Strin
     this.sortedBy { it.fom }
         .zipWithNext { a, b ->
             if (a.tom.tilDatoEllerPraktiskSenesteDag().isAfter(b.fom.tilDatoEllerPraktiskTidligsteDag())) {
-                FunksjonellFeil(melding = feilmelding, frontendFeilmelding = feilmelding)
+                throw FunksjonellFeil(melding = feilmelding, frontendFeilmelding = feilmelding)
             }
         }
 }

@@ -28,8 +28,7 @@ class VilkårsvurderingSteg(
         logger.info("Utfører steg ${getBehandlingssteg().name} for behandling $behandlingId")
 
         val behandling = behandlingService.hentBehandling(behandlingId)
-        val personopplysningGrunnlag =
-            personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(behandlingId)
+        val personopplysningGrunnlag = personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(behandlingId)
         val vilkårsvurdering = vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(behandling.id)
 
         if (behandling.opprettetÅrsak == BehandlingÅrsak.DØDSFALL) {
@@ -58,7 +57,7 @@ class VilkårsvurderingSteg(
         }
     }
 
-    fun validerAtIngenVilkårErSattEtterSøkersDød(
+    private fun validerAtIngenVilkårErSattEtterSøkersDød(
         personopplysningGrunnlag: PersonopplysningGrunnlag, vilkårsvurdering: Vilkårsvurdering
     ) {
         val vilkårResultaterSøker =
