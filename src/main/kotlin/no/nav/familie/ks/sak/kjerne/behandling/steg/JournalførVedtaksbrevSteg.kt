@@ -52,7 +52,7 @@ class JournalførVedtaksbrevSteg(
         vedtak: Vedtak,
         journalførendeEnhet: String
     ): String {
-        val vedleggPdf = hentVedlegg(VEDTAK_VEDLEGG_FILNAVN)
+        val vedleggPdf = hentVedlegg(KONTANTSTØTTE_VEDTAK_VEDLEGG_FILNAVN)
 
         val brev = listOf(
             Dokument(
@@ -107,13 +107,12 @@ class JournalførVedtaksbrevSteg(
     companion object {
         private val logger: Logger = LoggerFactory.getLogger(JournalførVedtaksbrevSteg::class.java)
 
-        // TODO: Oppdater med KS vedtak tittel og navn
-        const val VEDTAK_VEDLEGG_FILNAVN = "NAV_33-0005bm-10.2016.pdf"
-        const val VEDTAK_VEDLEGG_TITTEL = "Stønadsmottakerens rettigheter og plikter (Barnetrygd)"
+        const val KONTANTSTØTTE_VEDTAK_VEDLEGG_FILNAVN = "NAV_34-0005bm08-2018.pdf"
+        const val VEDTAK_VEDLEGG_TITTEL = "Stønadsmottakerens rettigheter og plikter (Kontantstøtte)"
 
         private fun hentVedlegg(vedleggsnavn: String): ByteArray {
             val inputStream = this::class.java.classLoader.getResourceAsStream("dokumenter/$vedleggsnavn")
-                ?: error("Klarte ikke hente vedlegg $VEDTAK_VEDLEGG_FILNAVN")
+                ?: error("Klarte ikke hente vedlegg $vedleggsnavn")
 
             return inputStream.readAllBytes()
         }
