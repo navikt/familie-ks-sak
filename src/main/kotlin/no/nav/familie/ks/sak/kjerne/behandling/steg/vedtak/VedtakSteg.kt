@@ -1,5 +1,7 @@
-package no.nav.familie.ks.sak.kjerne.behandling.steg
+package no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak
 
+import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg
+import no.nav.familie.ks.sak.kjerne.behandling.steg.IBehandlingSteg
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service

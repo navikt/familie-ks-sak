@@ -12,10 +12,13 @@ import no.nav.familie.ks.sak.config.DbContainerInitializer
 import no.nav.familie.ks.sak.config.RolleConfig
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagFagsak
+import no.nav.familie.ks.sak.data.lagVilkårsvurdering
 import no.nav.familie.ks.sak.data.randomAktør
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårsvurderingRepository
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.Fagsak
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.FagsakRepository
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
@@ -95,6 +98,9 @@ abstract class OppslagSpringRunnerTest {
     @Autowired
     private lateinit var personRepository: PersonRepository
 
+    @Autowired
+    private lateinit var vilkårsvurderingRepository: VilkårsvurderingRepository
+
     lateinit var søker: Aktør
 
     lateinit var fagsak: Fagsak
@@ -139,6 +145,11 @@ abstract class OppslagSpringRunnerTest {
                 søker.sivilstander = mutableListOf(GrSivilstand(type = SIVILSTAND.GIFT, person = søker))
             }
         )
+    }
+
+    fun opprettVilkårsvurdering(aktør: Aktør, behandling: Behandling, resultat: Resultat) {
+        val vilkårsvurdering = lagVilkårsvurdering(aktør, behandling, resultat)
+        vilkårsvurderingRepository.saveAndFlush(vilkårsvurdering)
     }
 
     protected fun lokalTestToken(

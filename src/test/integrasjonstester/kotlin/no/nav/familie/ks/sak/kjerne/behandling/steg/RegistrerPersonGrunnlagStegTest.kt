@@ -1,4 +1,4 @@
-package no.nav.familie.ks.sak.no.nav.familie.ks.sak.kjerne.behandling.steg
+package no.nav.familie.ks.sak.kjerne.behandling.steg
 
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
@@ -17,7 +17,6 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingType
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
-import no.nav.familie.ks.sak.kjerne.behandling.steg.RegistrerPersonGrunnlagSteg
 import no.nav.familie.ks.sak.kjerne.beregning.BeregningService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Målform
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType

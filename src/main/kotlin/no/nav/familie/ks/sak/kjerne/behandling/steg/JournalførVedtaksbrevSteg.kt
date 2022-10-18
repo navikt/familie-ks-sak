@@ -11,9 +11,9 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingType
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat
 import no.nav.familie.ks.sak.kjerne.behandling.domene.tilDokumenttype
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.VedtakService
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.Vedtak
 import no.nav.familie.ks.sak.kjerne.fagsak.FagsakService
-import no.nav.familie.ks.sak.kjerne.vedtak.VedtakService
-import no.nav.familie.ks.sak.kjerne.vedtak.domene.Vedtak
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service

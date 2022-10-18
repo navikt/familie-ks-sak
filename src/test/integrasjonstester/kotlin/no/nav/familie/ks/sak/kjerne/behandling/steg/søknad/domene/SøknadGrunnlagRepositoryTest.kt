@@ -1,4 +1,4 @@
-package no.nav.familie.ks.sak.no.nav.familie.ks.sak.kjerne.søknad.domene
+package no.nav.familie.ks.sak.kjerne.behandling.steg.søknad.domene
 
 import no.nav.familie.ks.sak.OppslagSpringRunnerTest
 import no.nav.familie.ks.sak.api.dto.BarnMedOpplysningerDto
@@ -7,7 +7,6 @@ import no.nav.familie.ks.sak.api.dto.SøknadDto
 import no.nav.familie.ks.sak.api.dto.tilSøknadGrunnlag
 import no.nav.familie.ks.sak.data.randomAktør
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
-import no.nav.familie.ks.sak.kjerne.søknad.domene.SøknadGrunnlagRepository
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
