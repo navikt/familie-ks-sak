@@ -1,4 +1,4 @@
-package no.nav.familie.ks.sak.kjerne.vedtak
+package no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak
 
 enum class VedtakBegrunnelseType(val sorteringsrekkefølge: Int) {
     INNVILGET(2),

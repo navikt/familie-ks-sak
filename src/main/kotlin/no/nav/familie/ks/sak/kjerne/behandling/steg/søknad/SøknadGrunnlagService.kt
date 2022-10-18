@@ -1,7 +1,7 @@
-package no.nav.familie.ks.sak.kjerne.søknad
+package no.nav.familie.ks.sak.kjerne.behandling.steg.søknad
 
-import no.nav.familie.ks.sak.kjerne.søknad.domene.SøknadGrunnlag
-import no.nav.familie.ks.sak.kjerne.søknad.domene.SøknadGrunnlagRepository
+import no.nav.familie.ks.sak.kjerne.behandling.steg.søknad.domene.SøknadGrunnlag
+import no.nav.familie.ks.sak.kjerne.behandling.steg.søknad.domene.SøknadGrunnlagRepository
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
