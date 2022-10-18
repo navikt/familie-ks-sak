@@ -1,6 +1,7 @@
-package no.nav.familie.ks.sak.kjerne.vilkårsvurdering.domene
+package no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene
 
 import no.nav.familie.ks.sak.common.entitet.BaseEntitet
+import no.nav.familie.ks.sak.kjerne.vilkårsvurdering.domene.PersonResultat
 import javax.persistence.Column
 import javax.persistence.Entity
 import javax.persistence.EnumType

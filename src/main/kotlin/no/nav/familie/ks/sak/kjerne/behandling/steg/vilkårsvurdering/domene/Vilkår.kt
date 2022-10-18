@@ -1,6 +1,7 @@
 package no.nav.familie.ks.sak.kjerne.vilkårsvurdering.domene
 
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingKategori
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Regelverk
 import no.nav.familie.ks.sak.kjerne.beregning.domene.YtelseType
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
 
@@ -10,6 +11,7 @@ enum class Vilkår(
     val beskrivelse: String,
     val harRegelverk: Boolean
 ) {
+
     BOSATT_I_RIKET(
         parterDetteGjelderFor = listOf(PersonType.SØKER, PersonType.BARN),
         ytelseType = YtelseType.ORDINÆR_KONTANTSTØTTE,
@@ -48,6 +50,7 @@ enum class Vilkår(
     );
 
     companion object {
+
         fun hentVilkårFor(personType: PersonType): Set<Vilkår> =
             values().filter { personType in it.parterDetteGjelderFor }.toSet()
     }
