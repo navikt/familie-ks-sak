@@ -1,4 +1,4 @@
-package no.nav.familie.ks.sak.kjerne.vilkårsvurdering.domene
+package no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene
 
 import com.fasterxml.jackson.annotation.JsonIgnore
 import no.nav.familie.ks.sak.common.entitet.BaseEntitet
@@ -7,10 +7,6 @@ import no.nav.familie.ks.sak.common.util.StringListConverter
 import no.nav.familie.ks.sak.common.util.førsteDagINesteMåned
 import no.nav.familie.ks.sak.common.util.sisteDagIMåned
 import no.nav.familie.ks.sak.common.util.toYearMonth
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Regelverk
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.UtdypendeVilkårsvurdering
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.UtdypendeVilkårsvurderingerConverter
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.finnTilOgMedDato
 import no.nav.familie.ks.sak.kjerne.vedtak.Standardbegrunnelse
 import no.nav.familie.ks.sak.kjerne.vedtak.StandardbegrunnelseListConverter
