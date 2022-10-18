@@ -1,7 +1,6 @@
 package no.nav.familie.ks.sak.common.tidslinje
 
 import no.nav.familie.ks.sak.common.exception.Feil
-import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import java.time.LocalDate
 
 data class TidslinjePeriodeMedDato<T>(
