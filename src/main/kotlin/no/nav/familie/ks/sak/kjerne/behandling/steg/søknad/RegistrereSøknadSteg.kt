@@ -5,10 +5,10 @@ import no.nav.familie.ks.sak.api.dto.RegistrerSøknadDto
 import no.nav.familie.ks.sak.api.dto.tilSøknadGrunnlag
 import no.nav.familie.ks.sak.api.mapper.SøknadGrunnlagMapper.tilSøknadDto
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
 import no.nav.familie.ks.sak.kjerne.logg.LoggService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
 import no.nav.familie.ks.sak.kjerne.søknad.SøknadGrunnlagService
-import no.nav.familie.ks.sak.kjerne.vilkårsvurdering.VilkårsvurderingService
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
@@ -21,6 +21,7 @@ class RegistrereSøknadSteg(
     private val behandlingService: BehandlingService,
     private val vilkårsvurderingService: VilkårsvurderingService
 ) : IBehandlingSteg {
+
     override fun getBehandlingssteg(): BehandlingSteg = BehandlingSteg.REGISTRERE_SØKNAD
 
     override fun utførSteg(behandlingId: Long, behandlingStegDto: BehandlingStegDto) {
@@ -53,6 +54,7 @@ class RegistrereSøknadSteg(
     }
 
     companion object {
+
         private val logger: Logger = LoggerFactory.getLogger(RegistrereSøknadSteg::class.java)
         private val secureLogger = LoggerFactory.getLogger("secureLogger")
     }

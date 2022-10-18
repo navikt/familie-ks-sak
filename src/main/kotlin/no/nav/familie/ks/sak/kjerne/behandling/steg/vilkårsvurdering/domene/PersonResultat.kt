@@ -2,6 +2,8 @@ package no.nav.familie.ks.sak.kjerne.vilkårsvurdering.domene
 
 import com.fasterxml.jackson.annotation.JsonIgnore
 import no.nav.familie.ks.sak.common.entitet.BaseEntitet
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.AnnenVurdering
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import no.nav.familie.ks.sak.kjerne.vilkårsvurdering.domene.VilkårResultat.Companion.VilkårResultatComparator
 import javax.persistence.CascadeType

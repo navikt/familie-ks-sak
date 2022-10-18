@@ -4,6 +4,10 @@ import com.fasterxml.jackson.annotation.JsonIgnore
 import no.nav.familie.ks.sak.common.entitet.BaseEntitet
 import no.nav.familie.ks.sak.common.util.StringListConverter
 import no.nav.familie.ks.sak.common.util.sisteDagIMåned
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Regelverk
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.UtdypendeVilkårsvurdering
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.UtdypendeVilkårsvurderingerConverter
 import no.nav.familie.ks.sak.kjerne.vedtak.Standardbegrunnelse
 import no.nav.familie.ks.sak.kjerne.vedtak.StandardbegrunnelseListConverter
 import org.hibernate.annotations.Immutable
@@ -116,6 +120,7 @@ class VilkårResultat(
     }
 
     companion object {
+
         val VilkårResultatComparator = compareBy<VilkårResultat>({ it.periodeFom }, { it.resultat }, { it.vilkårType })
     }
 }

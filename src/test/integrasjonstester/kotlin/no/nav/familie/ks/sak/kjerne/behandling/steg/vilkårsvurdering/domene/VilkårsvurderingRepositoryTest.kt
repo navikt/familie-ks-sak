@@ -4,8 +4,8 @@ import no.nav.familie.ks.sak.OppslagSpringRunnerTest
 import no.nav.familie.ks.sak.data.lagVilkårsvurdering
 import no.nav.familie.ks.sak.data.randomAktør
 import no.nav.familie.ks.sak.data.shouldNotBeNull
-import no.nav.familie.ks.sak.kjerne.vilkårsvurdering.domene.Resultat
-import no.nav.familie.ks.sak.kjerne.vilkårsvurdering.domene.VilkårsvurderingRepository
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårsvurderingRepository
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.BeforeEach

@@ -2,6 +2,7 @@ package no.nav.familie.ks.sak.kjerne.vilkårsvurdering
 
 import io.mockk.mockk
 import no.nav.familie.ks.sak.data.lagVilkårResultat
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.tilpassVilkårForEndretVilkår
 import no.nav.familie.ks.sak.kjerne.vilkårsvurdering.domene.Vilkår
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
