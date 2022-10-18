@@ -1,5 +1,6 @@
 package no.nav.familie.ks.sak.common.tidslinje
 
+import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import java.time.LocalDate
 
 data class TidslinjePeriodeMedDato<T>(
@@ -49,7 +50,7 @@ private fun <T> List<TidslinjePeriodeMedDato<T>>.fyllInnTommePerioder(): List<Ti
         if (sisteElement == null) {
             periodeListeMedTommePerioder + periode
         } else if (sisteElement.tom.tilDatoEllerPraktiskSenesteDag() == periode.fom.tilDatoEllerPraktiskTidligsteDag()
-            .minusDays(1)
+                .minusDays(1)
         ) {
             periodeListeMedTommePerioder + periode
         } else {
@@ -77,11 +78,11 @@ private fun <T> List<TidslinjePeriodeMedDato<T>>.tilTidslinjePerioder(): List<Ti
         }
 }
 
-private fun <T> List<TidslinjePeriodeMedDato<T>>.validerIngenOverlapp() {
+fun <T> List<TidslinjePeriodeMedDato<T>>.validerIngenOverlapp(feilmelding: String = "Feil med tidslinje. Overlapp på periode") {
     this.sortedBy { it.fom }
         .zipWithNext { a, b ->
             if (a.tom.tilDatoEllerPraktiskSenesteDag().isAfter(b.fom.tilDatoEllerPraktiskTidligsteDag())) {
-                error("Feil med tidslinje. Overlapp på periode")
+                FunksjonellFeil(melding = feilmelding, frontendFeilmelding = feilmelding)
             }
         }
 }
