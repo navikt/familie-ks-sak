@@ -42,7 +42,7 @@ class VilkårsvurderingSteg(
 
         validerAtDetIkkeErOverlappMellomGradertBarnehageplassOgDeltBosted(vilkårsvurdering)
 
-        //TODO: Kommer etter vi har fått inn behandlingsresultat.
+        // TODO: Kommer etter vi har fått inn behandlingsresultat.
         // beregningService.oppdaterBehandlingMedBeregning(behandling, personopplysningGrunnlag)
     }
 
@@ -64,7 +64,8 @@ class VilkårsvurderingSteg(
     }
 
     private fun validerAtIngenVilkårErSattEtterSøkersDød(
-        personopplysningGrunnlag: PersonopplysningGrunnlag, vilkårsvurdering: Vilkårsvurdering
+        personopplysningGrunnlag: PersonopplysningGrunnlag,
+        vilkårsvurdering: Vilkårsvurdering
     ) {
         val vilkårResultaterSøker =
             vilkårsvurdering.hentPersonResultaterTilAktør(personopplysningGrunnlag.søker.aktør.aktørId)
@@ -82,7 +83,8 @@ class VilkårsvurderingSteg(
         if (vilkårSomEnderEtterSøkersDød.isNotEmpty()) {
             throw FunksjonellFeil(
                 "Ved behandlingsårsak \"Dødsfall\" må vilkårene på søker avsluttes " + "senest dagen søker døde, men " + slåSammen(
-                    vilkårSomEnderEtterSøkersDød.map { "\"" + it.beskrivelse + "\"" }) + " vilkåret til søker slutter etter søkers død."
+                    vilkårSomEnderEtterSøkersDød.map { "\"" + it.beskrivelse + "\"" }
+                ) + " vilkåret til søker slutter etter søkers død."
             )
         }
     }

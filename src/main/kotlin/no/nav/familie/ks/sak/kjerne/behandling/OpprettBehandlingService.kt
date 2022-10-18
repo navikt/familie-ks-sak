@@ -11,10 +11,10 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg
 import no.nav.familie.ks.sak.kjerne.behandling.steg.StegService
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.VedtakService
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.FagsakRepository
 import no.nav.familie.ks.sak.kjerne.logg.LoggService
 import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.VedtakService
 import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext
 import no.nav.familie.prosessering.domene.TaskRepository
 import org.slf4j.Logger

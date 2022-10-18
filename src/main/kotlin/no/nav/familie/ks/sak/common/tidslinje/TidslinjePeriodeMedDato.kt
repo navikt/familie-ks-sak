@@ -50,7 +50,7 @@ private fun <T> List<TidslinjePeriodeMedDato<T>>.fyllInnTommePerioder(): List<Ti
         if (sisteElement == null) {
             periodeListeMedTommePerioder + periode
         } else if (sisteElement.tom.tilDatoEllerPraktiskSenesteDag() == periode.fom.tilDatoEllerPraktiskTidligsteDag()
-                .minusDays(1)
+            .minusDays(1)
         ) {
             periodeListeMedTommePerioder + periode
         } else {

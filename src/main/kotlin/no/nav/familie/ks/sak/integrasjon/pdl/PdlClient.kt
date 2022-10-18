@@ -3,12 +3,12 @@ package no.nav.familie.ks.sak.integrasjon.pdl
 import no.nav.familie.http.client.AbstractPingableRestClient
 import no.nav.familie.kontrakter.felles.personopplysning.Adressebeskyttelse
 import no.nav.familie.ks.sak.common.exception.PdlNotFoundException
-import no.nav.familie.ks.sak.integrasjon.kallEksternTjeneste
 import no.nav.familie.ks.sak.config.PdlConfig
 import no.nav.familie.ks.sak.config.PdlConfig.Companion.hentAdressebeskyttelseQuery
 import no.nav.familie.ks.sak.config.PdlConfig.Companion.hentIdenterQuery
 import no.nav.familie.ks.sak.config.PdlConfig.Companion.httpHeaders
 import no.nav.familie.ks.sak.config.PersonInfoQuery
+import no.nav.familie.ks.sak.integrasjon.kallEksternTjeneste
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.PdlAdressebeskyttelseResponse
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.PdlBaseRespons
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.PdlHentIdenterResponse

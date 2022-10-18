@@ -12,13 +12,13 @@ import no.nav.familie.ks.sak.data.lagPersonopplysningGrunnlag
 import no.nav.familie.ks.sak.data.randomAktør
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.PersonResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.UtdypendeVilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.PersonResultat
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -26,7 +26,6 @@ import org.junit.jupiter.api.extension.ExtendWith
 import java.math.BigDecimal
 import java.time.LocalDate
 import org.hamcrest.CoreMatchers.`is` as Is
-
 
 @ExtendWith(MockKExtension::class)
 class VilkårsvurderingStegTest {
@@ -80,7 +79,6 @@ class VilkårsvurderingStegTest {
         every { behandlingService.hentBehandling(behandling.id) } returns behandling
         every { personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(any()) } returns personopplysningGrunnlag
         every { vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(behandling.id) } returns vilkårsvurderingForSøker
-
 
         val feil = assertThrows<FunksjonellFeil> {
             vilkårsvurderingSteg.utførSteg(behandling.id)
@@ -154,7 +152,6 @@ class VilkårsvurderingStegTest {
         every { behandlingService.hentBehandling(behandling.id) } returns behandling
         every { personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(any()) } returns personopplysningGrunnlag
         every { vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(behandling.id) } returns vilkårsvurderingForSøker
-
 
         val feil = assertThrows<FunksjonellFeil> {
             vilkårsvurderingSteg.utførSteg(behandling.id)
