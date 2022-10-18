@@ -1,0 +1,76 @@
+package no.nav.familie.ks.sak.config
+
+import io.mockk.MockKAnnotations
+import io.mockk.impl.annotations.InjectMockKs
+import io.mockk.impl.annotations.MockK
+import io.mockk.junit5.MockKExtension
+import org.apache.kafka.clients.consumer.Consumer
+import org.apache.kafka.clients.consumer.ConsumerRecord
+import org.assertj.core.api.Assertions
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
+import org.springframework.kafka.listener.MessageListenerContainer
+
+@ExtendWith(MockKExtension::class)
+class KafkaErrorHandlerTest {
+    @MockK(relaxed = true)
+    lateinit var container: MessageListenerContainer
+
+    @MockK(relaxed = true)
+    lateinit var consumer: Consumer<*, *>
+
+    @InjectMockKs
+    lateinit var errorHandler: KafkaErrorHandler
+
+    @BeforeEach
+    internal fun setUp() {
+        MockKAnnotations.init(this)
+    }
+
+    @Test
+    fun `handle skal stoppe container hvis man mottar feil med en tom liste med records`() {
+        Assertions.assertThatThrownBy {
+            errorHandler.handleRemaining(
+                RuntimeException("Feil i test"),
+                emptyList(),
+                consumer,
+                container
+            )
+        }
+            .hasMessageNotContaining("Feil i test")
+            .hasMessageContaining("Sjekk securelogs for mer info")
+            .hasCauseExactlyInstanceOf(Exception::class.java)
+    }
+
+    @Test
+    fun `handle skal stoppe container hvis man mottar feil med en liste med records`() {
+        val consumerRecord = ConsumerRecord("topic", 1, 1, 1, "record")
+        Assertions.assertThatThrownBy {
+            errorHandler.handleRemaining(
+                RuntimeException("Feil i test"),
+                listOf(consumerRecord),
+                consumer,
+                container
+            )
+        }
+            .hasMessageNotContaining("Feil i test")
+            .hasMessageContaining("Sjekk securelogs for mer info")
+            .hasCauseExactlyInstanceOf(Exception::class.java)
+    }
+
+    @Test
+    fun `handle skal stoppe container hvis man mottar feil hvor liste med records er empty`() {
+        Assertions.assertThatThrownBy {
+            errorHandler.handleRemaining(
+                RuntimeException("Feil i test"),
+                emptyList(),
+                consumer,
+                container
+            )
+        }
+            .hasMessageNotContaining("Feil i test")
+            .hasMessageContaining("Sjekk securelogs for mer info")
+            .hasCauseExactlyInstanceOf(Exception::class.java)
+    }
+}
