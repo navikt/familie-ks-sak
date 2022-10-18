@@ -5,6 +5,7 @@ import io.mockk.impl.annotations.InjectMockKs
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import io.mockk.verify
+import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagFagsak
@@ -153,7 +154,7 @@ class VilkårsvurderingStegTest {
         every { personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(any()) } returns personopplysningGrunnlag
         every { vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(behandling.id) } returns vilkårsvurderingForSøker
 
-        val feil = assertThrows<FunksjonellFeil> {
+        val feil = assertThrows<Feil> {
             vilkårsvurderingSteg.utførSteg(behandling.id)
         }
 

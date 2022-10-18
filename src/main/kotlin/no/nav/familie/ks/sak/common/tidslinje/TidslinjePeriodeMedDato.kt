@@ -1,5 +1,6 @@
 package no.nav.familie.ks.sak.common.tidslinje
 
+import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import java.time.LocalDate
 
@@ -82,7 +83,7 @@ fun <T> List<TidslinjePeriodeMedDato<T>>.validerIngenOverlapp(feilmelding: Strin
     this.sortedBy { it.fom }
         .zipWithNext { a, b ->
             if (a.tom.tilDatoEllerPraktiskSenesteDag().isAfter(b.fom.tilDatoEllerPraktiskTidligsteDag())) {
-                throw FunksjonellFeil(melding = feilmelding, frontendFeilmelding = feilmelding)
+                throw Feil(message = feilmelding, frontendFeilmelding = feilmelding)
             }
         }
 }
