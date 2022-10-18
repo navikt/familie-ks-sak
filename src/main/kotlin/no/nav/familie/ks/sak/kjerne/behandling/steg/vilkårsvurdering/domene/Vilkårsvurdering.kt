@@ -2,6 +2,7 @@ package no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene
 
 import no.nav.familie.ks.sak.common.entitet.BaseEntitet
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
+import no.nav.familie.ks.sak.kjerne.vilkårsvurdering.domene.PersonResultat
 import javax.persistence.CascadeType
 import javax.persistence.Column
 import javax.persistence.Entity

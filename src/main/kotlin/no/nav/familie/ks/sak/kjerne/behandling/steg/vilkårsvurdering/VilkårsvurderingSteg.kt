@@ -88,6 +88,7 @@ class VilkårsvurderingSteg(
     }
 
     companion object {
+
         private val logger: Logger = LoggerFactory.getLogger(VilkårsvurderingSteg::class.java)
     }
 }

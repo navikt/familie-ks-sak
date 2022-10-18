@@ -116,6 +116,7 @@ class VilkårResultat(
     }
 
     companion object {
+
         val VilkårResultatComparator = compareBy<VilkårResultat>({ it.periodeFom }, { it.resultat }, { it.vilkårType })
     }
 }
