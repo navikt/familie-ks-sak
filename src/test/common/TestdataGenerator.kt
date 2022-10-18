@@ -39,6 +39,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Res
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
+import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.dødsfall.Dødsfall
 import java.math.BigDecimal
 import java.time.LocalDate
 import java.time.YearMonth
@@ -89,8 +90,9 @@ fun lagPersonopplysningGrunnlag(
                 )
             )
         }
-    }
-): PersonopplysningGrunnlag {
+    },
+    søkerDødsDato: LocalDate? = null,
+    ): PersonopplysningGrunnlag {
     val personopplysningGrunnlag = PersonopplysningGrunnlag(behandlingId = behandlingId)
 
     val søker = Person(
@@ -106,6 +108,11 @@ fun lagPersonopplysningGrunnlag(
         søker.bostedsadresser = mutableListOf()
         søker.sivilstander = mutableListOf(GrSivilstand(type = SIVILSTAND.GIFT, person = søker))
     }
+
+    søkerDødsDato?.let {
+        søker.dødsfall = Dødsfall(1, søker, it, null, null, null)
+    }
+
     personopplysningGrunnlag.personer.add(søker)
 
     barnAktør.mapIndexed { index, aktør ->

@@ -9,12 +9,14 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg
 import no.nav.familie.ks.sak.kjerne.behandling.steg.IBehandlingSteg
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.UtdypendeVilkårsvurdering
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
+import java.time.LocalDate
 
 @Service
 class VilkårsvurderingSteg(
@@ -28,7 +30,8 @@ class VilkårsvurderingSteg(
         logger.info("Utfører steg ${getBehandlingssteg().name} for behandling $behandlingId")
 
         val behandling = behandlingService.hentBehandling(behandlingId)
-        val personopplysningGrunnlag = personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(behandlingId)
+        val personopplysningGrunnlag =
+            personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(behandlingId)
         val vilkårsvurdering = vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(behandling.id)
 
         if (behandling.opprettetÅrsak == BehandlingÅrsak.DØDSFALL) {
@@ -46,14 +49,17 @@ class VilkårsvurderingSteg(
     private fun validerAtDetIkkeErOverlappMellomGradertBarnehageplassOgDeltBosted(vilkårsvurdering: Vilkårsvurdering) {
         vilkårsvurdering.personResultater.forEach {
             it.vilkårResultater.filter { vilkårResultat ->
-                vilkårResultat.antallTimer != null || vilkårResultat.utdypendeVilkårsvurderinger.contains(
-                    UtdypendeVilkårsvurdering.DELT_BOSTED
-                )
+                val gradertBarnehageplass =
+                    vilkårResultat.antallTimer != null && vilkårResultat.vilkårType == Vilkår.BARNEHAGEPLASS
+                val deltBosted =
+                    vilkårResultat.utdypendeVilkårsvurderinger.contains(UtdypendeVilkårsvurdering.DELT_BOSTED)
+
+                gradertBarnehageplass || deltBosted
             }.map { vilkårResultat ->
                 TidslinjePeriodeMedDato(
                     verdi = vilkårResultat, fom = vilkårResultat.periodeFom, tom = vilkårResultat.periodeTom
                 )
-            }.validerIngenOverlapp()
+            }.validerIngenOverlapp("Det er lagt inn gradert barnehageplass og delt bosted for samme periode.")
         }
     }
 
@@ -62,7 +68,7 @@ class VilkårsvurderingSteg(
     ) {
         val vilkårResultaterSøker =
             vilkårsvurdering.hentPersonResultaterTilAktør(personopplysningGrunnlag.søker.aktør.aktørId)
-        val søkersDød = personopplysningGrunnlag.søker.dødsfall?.dødsfallDato!!
+        val søkersDød = personopplysningGrunnlag.søker.dødsfall?.dødsfallDato ?: LocalDate.MAX
 
         val vilkårSomEnderEtterSøkersDød =
             vilkårResultaterSøker.groupBy { it.vilkårType }.mapNotNull { (vilkårType, vilkårResultater) ->
