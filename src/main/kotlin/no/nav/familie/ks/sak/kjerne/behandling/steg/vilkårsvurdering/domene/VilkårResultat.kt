@@ -4,8 +4,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore
 import no.nav.familie.ks.sak.common.entitet.BaseEntitet
 import no.nav.familie.ks.sak.common.util.StringListConverter
 import no.nav.familie.ks.sak.common.util.sisteDagIMåned
-import no.nav.familie.ks.sak.kjerne.vedtak.Standardbegrunnelse
-import no.nav.familie.ks.sak.kjerne.vedtak.StandardbegrunnelseListConverter
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.Standardbegrunnelse
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.StandardbegrunnelseListConverter
 import org.hibernate.annotations.Immutable
 import java.math.BigDecimal
 import java.time.LocalDate

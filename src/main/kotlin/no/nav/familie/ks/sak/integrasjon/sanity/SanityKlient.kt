@@ -1,7 +1,7 @@
 package no.nav.familie.ks.sak.integrasjon.sanity
 
 import no.nav.familie.http.client.AbstractRestClient
-import no.nav.familie.ks.sak.common.kallEksternTjeneste
+import no.nav.familie.ks.sak.integrasjon.kallEksternTjeneste
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelse
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelserResponsDto
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityEØSBegrunnelse

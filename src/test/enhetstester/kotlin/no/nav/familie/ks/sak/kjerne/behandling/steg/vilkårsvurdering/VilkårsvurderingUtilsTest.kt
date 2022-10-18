@@ -1,4 +1,4 @@
-package no.nav.familie.ks.sak.kjerne.vilkårsvurdering
+package no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering
 
 import io.mockk.mockk
 import no.nav.familie.ks.sak.data.lagVilkårResultat

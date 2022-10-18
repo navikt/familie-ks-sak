@@ -1,4 +1,4 @@
-package no.nav.familie.ks.sak.kjerne.vedtak
+package no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak
 
 import io.mockk.every
 import io.mockk.impl.annotations.InjectMockKs
@@ -10,8 +10,8 @@ import io.mockk.verify
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg
-import no.nav.familie.ks.sak.kjerne.vedtak.domene.Vedtak
-import no.nav.familie.ks.sak.kjerne.vedtak.domene.VedtakRepository
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.Vedtak
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.VedtakRepository
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test

@@ -2,7 +2,6 @@ package no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak
 
 import no.nav.familie.eksterne.kontrakter.AnnenForeldersAktivitet
 import no.nav.familie.eksterne.kontrakter.SøkersAktivitet
-import no.nav.familie.ks.sak.kjerne.vedtak.VedtakBegrunnelseType
 
 enum class Begrunnelsetype {
     STANDARD_BEGRUNNELSE,
