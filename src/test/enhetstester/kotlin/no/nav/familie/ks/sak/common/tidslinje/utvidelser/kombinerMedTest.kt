@@ -14,22 +14,25 @@ class kombinerMedTest {
     private val sisteDagIFebruar = LocalDate.of(2022, 2, 28)
     private val førsteMars = LocalDate.of(2022, 3, 1)
     private val sisteDagIMars = LocalDate.of(2022, 3, 31)
+    private val førsteApril = LocalDate.of(2022, 4, 1)
+    private val sisteDagIApril = LocalDate.of(2022, 4, 30)
 
     /**
-     * a = |111|
-     * b = |-2-|
-     * (a ?: 0) + (b ?: 0) = |131|
+     * a = |111-|
+     * b = |-2-2|
+     * (a ?: 0) + (b ?: 0) = |1312|
      **/
     @Test
     fun `kombinerMed - Skal kombinere overlappende verdier på tidslinjene`() {
         val tidslinjeA = listOf(Periode(1, førsteJanuar, sisteDagIMars)).tilTidslinje()
-        val tidslinjeB = listOf(Periode(2, førsteFebruar, sisteDagIFebruar)).tilTidslinje()
+        val tidslinjeB =
+            listOf(Periode(2, førsteFebruar, sisteDagIFebruar), Periode(2, førsteApril, sisteDagIApril)).tilTidslinje()
 
         val periode = tidslinjeA.kombinerMed(tidslinjeB) { verdiFraTidslinjeA, verdiFraTidslinjeB ->
             (verdiFraTidslinjeA ?: 0) + (verdiFraTidslinjeB ?: 0)
         }.tilPerioder()
 
-        Assertions.assertEquals(3, periode.size)
+        Assertions.assertEquals(4, periode.size)
 
         Assertions.assertEquals(førsteJanuar, periode[0].fom)
         Assertions.assertEquals(sisteDagIJanuar, periode[0].tom)
@@ -42,6 +45,10 @@ class kombinerMedTest {
         Assertions.assertEquals(førsteMars, periode[2].fom)
         Assertions.assertEquals(sisteDagIMars, periode[2].tom)
         Assertions.assertEquals(1, periode[2].verdi)
+
+        Assertions.assertEquals(førsteApril, periode[3].fom)
+        Assertions.assertEquals(sisteDagIApril, periode[3].tom)
+        Assertions.assertEquals(2, periode[3].verdi)
     }
 
     /**
