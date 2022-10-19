@@ -4,6 +4,7 @@ import no.nav.familie.ks.sak.api.dto.SøknadDto
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.ArbeidsfordelingService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
+import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingType
 import no.nav.familie.ks.sak.kjerne.beregning.BeregningService
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
@@ -90,6 +91,7 @@ class PersonopplysningGrunnlagService(
         personopplysningGrunnlagRepository.findByBehandlingAndAktiv(behandlingId = behandlingId)
             ?: throw Feil("Det finnes ikke noe aktivt personopplysningsgrunnlag for $behandlingId")
 
+    @Transactional
     fun lagreSøkerOgBarnINyttGrunnlag(
         aktør: Aktør,
         behandling: Behandling,
@@ -124,6 +126,21 @@ class PersonopplysningGrunnlagService(
              */
             arbeidsfordelingService.fastsettBehandledeEnhet(behandling)
         }
+    }
+
+    fun oppdaterRegisteropplysningerPåBehandling(behandling: Behandling): PersonopplysningGrunnlag {
+        val nåværendeGrunnlag = hentAktivPersonopplysningGrunnlagThrows(behandling.id)
+
+        if (behandling.status != BehandlingStatus.UTREDES) {
+            throw Feil("BehandlingStatus må være UTREDES for å manuelt oppdatere registeropplysninger")
+        }
+
+        return lagreSøkerOgBarnINyttGrunnlag(
+            aktør = nåværendeGrunnlag.søker.aktør,
+            barnasAktør = nåværendeGrunnlag.barna.map { it.aktør },
+            behandling = behandling,
+            målform = nåværendeGrunnlag.søker.målform
+        )
     }
 
     companion object {
