@@ -25,6 +25,10 @@ Deretter så kan denne kommandoen kjøres for å bygge
 For å kjøre opp appen lokalt kan en kjøre
 
 * `DevLauncherPostgres`, som kjører opp med Spring-profilen `postgres` satt, og forventer en kjørende database.
+* `DevLauncherPostgresPreprod`. Kjører mot intergrasjoner og pdl i preprod(ikke q1, men syntetisk). Har støtte for å
+  kjøre mot andre miljøer, men da må mock manuelt kommenteres ut i DevLauncherPostgresPreprod. AZURE_APP_CLIENT_ID og
+  AZURE_APP_CLIENT_SECRET må settes til familie-ks-sak sin azure client id og secret for å få tilgang til pdl og integrasjoner.
+  Frontend må derfor bruke scope mot familie-ks-sak og ikke familie-ks-sak-lokal
 
 Appen tilgjengeliggjøres da på `localhost:8083`. Se [Database](#database) for hvordan du setter opp databasen. For å
 tillate kall fra frontend, se [Autentisering](#autentisering).
@@ -57,7 +61,8 @@ dev-gcp-clusteret ved å gjøre følgende:
 1. Logg på `gcloud`, typisk med kommandoen: `gcloud auth login`
 2. Koble deg til dev-gcp-cluster'et: `kubectl config use-context dev-gcp`
 3. Hent info:  
-   `kubectl -n teamfamilie get secret azuread-familie-ks-sak-lokal -o json | jq '.data | map_values(@base64d)'`. Dersom du er på windows: `kubectl -n teamfamilie get secret azuread-familie-ks-sak-lokal -o json` og base64 decode verdiene "manuelt".
+   `kubectl -n teamfamilie get secret azuread-familie-ks-sak-lokal -o json | jq '.data | map_values(@base64d)'`. Dersom du er på
+   windows: `kubectl -n teamfamilie get secret azuread-familie-ks-sak-lokal -o json` og base64 decode verdiene "manuelt".
 
 Kopier og sett verdiene til de lokale miljøvariablene `AZURE_APP_CLIENT_ID` og `AZURE_APP_CLIENT_SECRET`.
 
@@ -104,6 +109,7 @@ du skal rulle tilbake til forrige versjon. Denne tar som parameter taggen til im
 under actions på GitHub, finn byggejobben du vil gå tilbake til, og kopier taggen derfra.
 
 ### Monitorering av kafka køer
+
 Det er satt opp en tjeneste familie-ks-kafka-manager som er et verktøy for å monitorere
 kafka meldinger i preprod og prod.
 
