@@ -3,8 +3,6 @@ package no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering
 import io.mockk.mockk
 import no.nav.familie.ks.sak.data.lagVilkårResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.tilpassVilkårForEndretVilkår
-
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import java.time.LocalDate

@@ -25,7 +25,7 @@ import java.time.LocalDateTime
 
 object EndretUtbetalingAndelValidator {
 
-    fun validerPeriodeInnenforTilkjentytelse(
+    fun validerPeriodeInnenforTilkjentYtelse(
         endretUtbetalingAndel: EndretUtbetalingAndel,
         andelTilkjentYtelser: List<AndelTilkjentYtelse>
     ) {

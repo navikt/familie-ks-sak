@@ -29,7 +29,7 @@ class EndretUtbetalingAndelTest {
     val person = lagPerson(personopplysningGrunnlag, søker, PersonType.SØKER)
 
     @Test
-    fun `validerUtfyltEndring skal ikke kaste feil når EndretUtbetalingAndel har riktig fylt ut`() {
+    fun `validerUtfyltEndring skal ikke kaste feil når EndretUtbetalingAndel er riktig fylt ut`() {
         assertDoesNotThrow {
             lagEndretUtbetalingAndel(
                 behandlingId = behandling.id,
@@ -63,10 +63,10 @@ class EndretUtbetalingAndelTest {
             periodeFom = YearMonth.now(),
             periodeTom = YearMonth.now().minusYears(1)
         )
-        val exception = assertThrows<RuntimeException> {
+        val exception = assertThrows<FunksjonellFeil> {
             endretUtbetalingAndel.validerUtfyltEndring()
         }
-        assertEquals("fom må være lik eller komme før tom", (exception as FunksjonellFeil).message)
+        assertEquals("fom må være lik eller komme før tom", exception.message)
         assertEquals("Du kan ikke sette en f.o.m. dato som er etter t.o.m. dato", exception.frontendFeilmelding)
     }
 
@@ -79,7 +79,7 @@ class EndretUtbetalingAndelTest {
             årsak = Årsak.DELT_BOSTED,
             avtaletidspunktDeltBosted = null
         )
-        val exception = assertThrows<RuntimeException> {
+        val exception = assertThrows<FunksjonellFeil> {
             endretUtbetalingAndel.validerUtfyltEndring()
         }
         assertEquals(

@@ -55,8 +55,8 @@ class EndretUtbetalingAndelValidatorTest {
             periodeTom = YearMonth.now().plusMonths(7)
         )
 
-        val exception = assertThrows<RuntimeException> {
-            EndretUtbetalingAndelValidator.validerPeriodeInnenforTilkjentytelse(
+        val exception = assertThrows<FunksjonellFeil> {
+            EndretUtbetalingAndelValidator.validerPeriodeInnenforTilkjentYtelse(
                 endretUtbetalingAndel,
                 listOf(andelTilkjentYtelse)
             )
@@ -80,8 +80,8 @@ class EndretUtbetalingAndelValidatorTest {
             periodeTom = YearMonth.now().plusMonths(5)
         )
 
-        val exception = assertThrows<RuntimeException> {
-            EndretUtbetalingAndelValidator.validerPeriodeInnenforTilkjentytelse(
+        val exception = assertThrows<FunksjonellFeil> {
+            EndretUtbetalingAndelValidator.validerPeriodeInnenforTilkjentYtelse(
                 endretUtbetalingAndel,
                 listOf(andelTilkjentYtelse)
             )
@@ -105,8 +105,8 @@ class EndretUtbetalingAndelValidatorTest {
             periodeTom = YearMonth.now().plusMonths(5)
         )
 
-        val exception = assertThrows<RuntimeException> {
-            EndretUtbetalingAndelValidator.validerPeriodeInnenforTilkjentytelse(
+        val exception = assertThrows<FunksjonellFeil> {
+            EndretUtbetalingAndelValidator.validerPeriodeInnenforTilkjentYtelse(
                 endretUtbetalingAndel,
                 listOf(andelTilkjentYtelse)
             )
@@ -131,7 +131,7 @@ class EndretUtbetalingAndelValidatorTest {
         )
 
         assertDoesNotThrow {
-            EndretUtbetalingAndelValidator.validerPeriodeInnenforTilkjentytelse(
+            EndretUtbetalingAndelValidator.validerPeriodeInnenforTilkjentYtelse(
                 endretUtbetalingAndel,
                 listOf(andelTilkjentYtelse)
             )
@@ -298,13 +298,13 @@ class EndretUtbetalingAndelValidatorTest {
             periodeTom = YearMonth.now().minusMonths(8)
         )
 
-        val exception = assertThrows<RuntimeException> {
+        val exception = assertThrows<FunksjonellFeil> {
             EndretUtbetalingAndelValidator.validerÅrsak(Årsak.DELT_BOSTED, endretUtbetalingAndel, vilkårsvurdering)
         }
 
         assertEquals(
             "Det finnes ingen delt bosted perioder i perioden det opprettes en endring med årsak delt bosted for.",
-            (exception as FunksjonellFeil).message
+            exception.message
         )
         assertEquals(
             "Du har valgt årsaken 'delt bosted', " +
@@ -349,13 +349,13 @@ class EndretUtbetalingAndelValidatorTest {
             periodeTom = YearMonth.now().minusMonths(2),
             prosent = BigDecimal(100)
         )
-        val exception = assertThrows<RuntimeException> {
+        val exception = assertThrows<FunksjonellFeil> {
             EndretUtbetalingAndelValidator.validerÅrsak(Årsak.ETTERBETALING_3MND, endretUtbetalingAndel, null)
         }
 
         assertEquals(
             "Du kan ikke sette årsak etterbetaling 3 måned når du har valgt at perioden skal utbetales.",
-            (exception as FunksjonellFeil).message
+            exception.message
         )
     }
 
@@ -368,13 +368,13 @@ class EndretUtbetalingAndelValidatorTest {
             periodeTom = YearMonth.now().plusMonths(2),
             prosent = BigDecimal.ZERO
         )
-        val exception = assertThrows<RuntimeException> {
+        val exception = assertThrows<FunksjonellFeil> {
             EndretUtbetalingAndelValidator.validerÅrsak(Årsak.ETTERBETALING_3MND, endretUtbetalingAndel, null)
         }
 
         assertEquals(
             "Du kan ikke stoppe etterbetaling for en periode som ikke strekker seg mer enn 3 måned tilbake i tid.",
-            (exception as FunksjonellFeil).message
+            exception.message
         )
     }
 
@@ -392,10 +392,10 @@ class EndretUtbetalingAndelValidatorTest {
         }
     }
 
-    private fun assertFeilMeldingerNårEndretUtbetalingPerioderIkkeInnenforTyPerioder(exception: Exception) {
+    private fun assertFeilMeldingerNårEndretUtbetalingPerioderIkkeInnenforTyPerioder(exception: FunksjonellFeil) {
         assertEquals(
             "Det er ingen tilkjent ytelse for personen det blir forsøkt lagt til en endret periode for.",
-            (exception as FunksjonellFeil).message
+            exception.message
         )
         assertEquals(
             "Du har valgt en periode der det ikke finnes tilkjent ytelse for valgt person " +

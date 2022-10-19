@@ -26,7 +26,7 @@ class AndelerTilkjentYtelseOgEndreteUtbetalingerService(
     fun finnEndreteUtbetalingerMedAndelerTilkjentYtelse(behandlingId: Long): List<EndretUtbetalingAndelMedAndelerTilkjentYtelse> =
         lagKombinator(behandlingId).lagEndreteUtbetalingMedAndeler().map { endretUtbetalingAndelMedAndelTilkjentYtelse ->
             endretUtbetalingAndelMedAndelTilkjentYtelse.utenAndelerVedValideringsfeil {
-                EndretUtbetalingAndelValidator.validerPeriodeInnenforTilkjentytelse(
+                EndretUtbetalingAndelValidator.validerPeriodeInnenforTilkjentYtelse(
                     endretUtbetalingAndelMedAndelTilkjentYtelse.endretUtbetaling,
                     endretUtbetalingAndelMedAndelTilkjentYtelse.andelerTilkjentYtelse
                 )
@@ -118,7 +118,7 @@ data class AndelTilkjentYtelseMedEndreteUtbetalinger internal constructor(
 
     companion object {
 
-        fun utenEndringer(andelTilkjentYtelse: AndelTilkjentYtelse): AndelTilkjentYtelseMedEndreteUtbetalinger {
+        fun validerUtenEndringer(andelTilkjentYtelse: AndelTilkjentYtelse): AndelTilkjentYtelseMedEndreteUtbetalinger {
             require(andelTilkjentYtelse.endretUtbetalingAndeler.size <= 0) {
                 "Skal opprette AndelTilkjentYtelseMedEndreteUtbetalinger uten endringer, " +
                     "men underliggende andel har endringer"

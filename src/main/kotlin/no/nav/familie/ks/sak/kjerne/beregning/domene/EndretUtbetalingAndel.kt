@@ -5,9 +5,9 @@ import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.common.util.MånedPeriode
 import no.nav.familie.ks.sak.common.util.YearMonthConverter
 import no.nav.familie.ks.sak.common.util.overlapperHeltEllerDelvisMed
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.Standardbegrunnelse
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.StandardbegrunnelseListConverter
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
-import no.nav.familie.ks.sak.kjerne.vedtak.Standardbegrunnelse
-import no.nav.familie.ks.sak.kjerne.vedtak.StandardbegrunnelseListConverter
 import java.math.BigDecimal
 import java.time.LocalDate
 import java.time.YearMonth
