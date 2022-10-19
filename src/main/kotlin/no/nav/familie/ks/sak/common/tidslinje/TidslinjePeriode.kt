@@ -71,3 +71,7 @@ data class TidslinjePeriode<T>(val periodeVerdi: PeriodeVerdi<T>, var lengde: In
         return "Verdi: " + periodeVerdi.verdi.toString() + ", Lengde: " + lengde
     }
 }
+
+fun <T> T?.tilPeriodeVerdi(): PeriodeVerdi<T> {
+    return this?.let { Verdi(it) } ?: Null()
+}
