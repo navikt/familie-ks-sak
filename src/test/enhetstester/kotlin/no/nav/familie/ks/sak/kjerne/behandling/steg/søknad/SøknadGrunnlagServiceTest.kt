@@ -1,4 +1,4 @@
-package no.nav.familie.ks.sak.kjerne.søknad
+package no.nav.familie.ks.sak.kjerne.behandling.steg.søknad
 
 import io.mockk.every
 import io.mockk.impl.annotations.InjectMockKs
@@ -6,8 +6,8 @@ import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import io.mockk.mockk
 import io.mockk.slot
-import no.nav.familie.ks.sak.kjerne.søknad.domene.SøknadGrunnlag
-import no.nav.familie.ks.sak.kjerne.søknad.domene.SøknadGrunnlagRepository
+import no.nav.familie.ks.sak.kjerne.behandling.steg.søknad.domene.SøknadGrunnlag
+import no.nav.familie.ks.sak.kjerne.behandling.steg.søknad.domene.SøknadGrunnlagRepository
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertNull

@@ -1,13 +1,17 @@
 package no.nav.familie.ks.sak.common.util
 
+import no.nav.familie.ks.sak.common.entitet.DatoIntervallEntitet
 import java.time.LocalDate
 import java.time.YearMonth
 import java.time.format.DateTimeFormatter
 import java.util.Locale
+import java.util.NavigableMap
+import java.util.TreeMap
 
 val nbLocale = Locale("nb", "Norway")
 
 val TIDENES_MORGEN = LocalDate.MIN
+val TIDENES_ENDE = LocalDate.MAX
 
 fun LocalDate.tilddMMyy() = this.format(DateTimeFormatter.ofPattern("ddMMyy", nbLocale))
 fun LocalDate.tilyyyyMMdd() = this.format(DateTimeFormatter.ofPattern("yyyy-MM-dd", nbLocale))
@@ -24,33 +28,26 @@ fun LocalDate.toYearMonth() = YearMonth.from(this)
 fun YearMonth.førsteDagIInneværendeMåned() = this.atDay(1)
 fun YearMonth.sisteDagIInneværendeMåned() = this.atEndOfMonth()
 
-fun YearMonth.erSammeEllerTidligere(toCompare: YearMonth): Boolean {
-    return this.isBefore(toCompare) || this == toCompare
-}
+fun YearMonth.erSammeEllerTidligere(toCompare: YearMonth): Boolean = this.isBefore(toCompare) || this == toCompare
 
-fun inneværendeMåned(): YearMonth {
-    return LocalDate.now().toYearMonth()
-}
+fun inneværendeMåned(): YearMonth = LocalDate.now().toYearMonth()
 
-fun LocalDate.nesteMåned(): YearMonth {
-    return this.toYearMonth().plusMonths(1)
-}
+fun LocalDate.nesteMåned(): YearMonth = this.toYearMonth().plusMonths(1)
 
-fun YearMonth.nesteMåned(): YearMonth {
-    return this.plusMonths(1)
-}
+fun YearMonth.nesteMåned(): YearMonth = this.plusMonths(1)
+
 
 fun LocalDate.erDagenFør(other: LocalDate?) = other != null && this.plusDays(1).equals(other)
 
 data class Periode(val fom: LocalDate, val tom: LocalDate)
 
-fun LocalDate.erSammeEllerEtter(toCompare: LocalDate): Boolean {
-    return this.isAfter(toCompare) || this == toCompare
-}
 
-fun LocalDate.erMellom(toCompare: Periode): Boolean {
-    return this.erSammeEllerEtter(toCompare.fom) && this.erSammeEllerEtter(toCompare.tom)
-}
+fun LocalDate.erSammeEllerFør(toCompare: LocalDate): Boolean = this.isBefore(toCompare) || this == toCompare
+fun LocalDate.erSammeEllerEtter(toCompare: LocalDate): Boolean = this.isAfter(toCompare) || this == toCompare
+fun LocalDate.erMellom(toCompare: Periode): Boolean = this.erSammeEllerEtter(toCompare.fom) &&
+    this.erSammeEllerEtter(toCompare.tom)
+fun LocalDate.førsteDagIInneværendeMåned() = this.withDayOfMonth(1)
+
 
 fun Periode.overlapperHeltEllerDelvisMed(annenPeriode: Periode) =
     this.fom.erMellom(annenPeriode) ||
@@ -58,6 +55,7 @@ fun Periode.overlapperHeltEllerDelvisMed(annenPeriode: Periode) =
         annenPeriode.fom.erMellom(this) ||
         annenPeriode.tom.erMellom(this)
 
+fun Periode.tilMånedPeriode(): MånedPeriode = MånedPeriode(fom = this.fom.toYearMonth(), tom = this.tom.toYearMonth())
 
 data class MånedPeriode(val fom: YearMonth, val tom: YearMonth)
 
@@ -67,3 +65,56 @@ fun MånedPeriode.overlapperHeltEllerDelvisMed(annenPeriode: MånedPeriode) =
         this.inkluderer(annenPeriode.tom) ||
         annenPeriode.inkluderer(this.fom) ||
         annenPeriode.inkluderer(this.tom)
+
+
+fun MånedPeriode.erMellom(annenPeriode: MånedPeriode) =
+    annenPeriode.inkluderer(this.fom) && annenPeriode.inkluderer(this.tom)
+
+fun LocalDate.førsteDagINesteMåned() = this.plusMonths(1).withDayOfMonth(1)
+
+fun erBack2BackIMånedsskifte(tilOgMed: LocalDate?, fraOgMed: LocalDate?): Boolean =
+    tilOgMed?.erDagenFør(fraOgMed) == true && tilOgMed.toYearMonth() != fraOgMed?.toYearMonth()
+
+fun DatoIntervallEntitet.erInnenfor(dato: LocalDate): Boolean =
+    when {
+        fom == null && tom == null -> true
+        fom == null -> dato.erSammeEllerFør(tom!!)
+        tom == null -> dato.erSammeEllerEtter(fom)
+        else -> dato.erSammeEllerEtter(fom) && dato.erSammeEllerFør(tom)
+    }
+
+fun slåSammenOverlappendePerioder(overlappendePerioder: Collection<DatoIntervallEntitet>): List<DatoIntervallEntitet> {
+    val map: NavigableMap<LocalDate, LocalDate?> = TreeMap()
+    for (periode in overlappendePerioder) {
+        if (periode.fom != null &&
+            (!map.containsKey(periode.fom) || periode.tom == null || periode.tom.isAfter(map[periode.fom]))
+        ) {
+            map[periode.fom] = periode.tom
+        }
+    }
+    val result = mutableListOf<DatoIntervallEntitet>()
+    var prevIntervall: DatoIntervallEntitet? = null
+    for ((key, value) in map) {
+        prevIntervall = if (prevIntervall != null && prevIntervall.erInnenfor(key)) {
+            val fom = prevIntervall.fom
+            val tom = if (prevIntervall.tom == null) {
+                null
+            } else {
+                if (value != null && prevIntervall.tom?.isAfter(value) == true) {
+                    prevIntervall.tom
+                } else {
+                    value
+                }
+            }
+            result.remove(prevIntervall)
+            val nyttIntervall = DatoIntervallEntitet(fom, tom)
+            result.add(nyttIntervall)
+            nyttIntervall
+        } else {
+            val nyttIntervall = DatoIntervallEntitet(key, value)
+            result.add(nyttIntervall)
+            nyttIntervall
+        }
+    }
+    return result
+}

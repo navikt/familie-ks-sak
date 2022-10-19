@@ -1,6 +1,6 @@
 package no.nav.familie.ks.sak.common.util
 
-import no.nav.familie.ks.sak.kjerne.vilkårsvurdering.domene.Vilkår
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 

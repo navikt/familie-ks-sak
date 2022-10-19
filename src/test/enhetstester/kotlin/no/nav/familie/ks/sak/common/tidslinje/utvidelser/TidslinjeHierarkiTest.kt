@@ -69,7 +69,7 @@ class TidslinjeHierarkiTest {
             listOf(TidslinjePeriode(2, 1, false), TidslinjePeriode(1, 1, false)),
             listOf(TidslinjePeriode(3, 1, false), TidslinjePeriode(2, 1, false))
         )
-        val t5 = t1.kombinerMed(t2) { t1, t2 -> if (t1 is Null || t2 is Null) Null() else Verdi(t1.verdi!! - t2.verdi!!) }
+        val t5 = t1.biFunksjon(t2) { t1, t2 -> if (t1 is Null || t2 is Null) Null() else Verdi(t1.verdi!! - t2.verdi!!) }
         t5.fjernForeldre()
 
         assertTrue(t5.foreldre.isEmpty())
@@ -82,7 +82,7 @@ class TidslinjeHierarkiTest {
             listOf(TidslinjePeriode(2, 1, false), TidslinjePeriode(1, 1, false)),
             listOf(TidslinjePeriode(3, 1, false), TidslinjePeriode(2, 1, false))
         )
-        val t5 = t1.kombinerMed(t2) { t1, t2 -> if (t1 is Null || t2 is Null) Null() else Verdi(t1.verdi!! - t2.verdi!!) }
+        val t5 = t1.biFunksjon(t2) { t1, t2 -> if (t1 is Null || t2 is Null) Null() else Verdi(t1.verdi!! - t2.verdi!!) }
 
         val tidslinjeListe = listOf(t1, t2)
 

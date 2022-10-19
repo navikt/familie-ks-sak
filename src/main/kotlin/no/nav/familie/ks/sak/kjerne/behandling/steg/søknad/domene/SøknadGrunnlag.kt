@@ -1,4 +1,4 @@
-package no.nav.familie.ks.sak.kjerne.søknad.domene
+package no.nav.familie.ks.sak.kjerne.behandling.steg.søknad.domene
 
 import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext
 import java.time.LocalDateTime
