@@ -28,27 +28,27 @@ class kombinerMedTest {
         val tidslinjeB =
             listOf(Periode(2, førsteFebruar, sisteDagIFebruar), Periode(2, førsteApril, sisteDagIApril)).tilTidslinje()
 
-        val periode = tidslinjeA.kombinerMed(tidslinjeB) { verdiFraTidslinjeA, verdiFraTidslinjeB ->
+        val perioder = tidslinjeA.kombinerMed(tidslinjeB) { verdiFraTidslinjeA, verdiFraTidslinjeB ->
             (verdiFraTidslinjeA ?: 0) + (verdiFraTidslinjeB ?: 0)
         }.tilPerioder()
 
-        Assertions.assertEquals(4, periode.size)
+        Assertions.assertEquals(4, perioder.size)
 
-        Assertions.assertEquals(førsteJanuar, periode[0].fom)
-        Assertions.assertEquals(sisteDagIJanuar, periode[0].tom)
-        Assertions.assertEquals(1, periode[0].verdi)
+        Assertions.assertEquals(førsteJanuar, perioder[0].fom)
+        Assertions.assertEquals(sisteDagIJanuar, perioder[0].tom)
+        Assertions.assertEquals(1, perioder[0].verdi)
 
-        Assertions.assertEquals(førsteFebruar, periode[1].fom)
-        Assertions.assertEquals(sisteDagIFebruar, periode[1].tom)
-        Assertions.assertEquals(3, periode[1].verdi)
+        Assertions.assertEquals(førsteFebruar, perioder[1].fom)
+        Assertions.assertEquals(sisteDagIFebruar, perioder[1].tom)
+        Assertions.assertEquals(3, perioder[1].verdi)
 
-        Assertions.assertEquals(førsteMars, periode[2].fom)
-        Assertions.assertEquals(sisteDagIMars, periode[2].tom)
-        Assertions.assertEquals(1, periode[2].verdi)
+        Assertions.assertEquals(førsteMars, perioder[2].fom)
+        Assertions.assertEquals(sisteDagIMars, perioder[2].tom)
+        Assertions.assertEquals(1, perioder[2].verdi)
 
-        Assertions.assertEquals(førsteApril, periode[3].fom)
-        Assertions.assertEquals(sisteDagIApril, periode[3].tom)
-        Assertions.assertEquals(2, periode[3].verdi)
+        Assertions.assertEquals(førsteApril, perioder[3].fom)
+        Assertions.assertEquals(sisteDagIApril, perioder[3].tom)
+        Assertions.assertEquals(2, perioder[3].verdi)
     }
 
     /**
@@ -61,22 +61,22 @@ class kombinerMedTest {
         val tidslinjeA = listOf(Periode(1, førsteJanuar, sisteDagIJanuar)).tilTidslinje()
         val tidslinjeB = listOf(Periode(2, førsteMars, sisteDagIMars)).tilTidslinje()
 
-        val periode = tidslinjeA.kombinerMed(tidslinjeB) { verdiFraTidslinjeA, verdiFraTidslinjeB ->
+        val perioder = tidslinjeA.kombinerMed(tidslinjeB) { verdiFraTidslinjeA, verdiFraTidslinjeB ->
             (verdiFraTidslinjeA ?: 0) + (verdiFraTidslinjeB ?: 0)
         }.tilPerioder()
 
-        Assertions.assertEquals(3, periode.size)
+        Assertions.assertEquals(3, perioder.size)
 
-        Assertions.assertEquals(førsteJanuar, periode[0].fom)
-        Assertions.assertEquals(sisteDagIJanuar, periode[0].tom)
-        Assertions.assertEquals(1, periode[0].verdi)
+        Assertions.assertEquals(førsteJanuar, perioder[0].fom)
+        Assertions.assertEquals(sisteDagIJanuar, perioder[0].tom)
+        Assertions.assertEquals(1, perioder[0].verdi)
 
-        Assertions.assertEquals(førsteFebruar, periode[1].fom)
-        Assertions.assertEquals(sisteDagIFebruar, periode[1].tom)
-        Assertions.assertEquals(0, periode[1].verdi)
+        Assertions.assertEquals(førsteFebruar, perioder[1].fom)
+        Assertions.assertEquals(sisteDagIFebruar, perioder[1].tom)
+        Assertions.assertEquals(0, perioder[1].verdi)
 
-        Assertions.assertEquals(førsteMars, periode[2].fom)
-        Assertions.assertEquals(sisteDagIMars, periode[2].tom)
-        Assertions.assertEquals(2, periode[2].verdi)
+        Assertions.assertEquals(førsteMars, perioder[2].fom)
+        Assertions.assertEquals(sisteDagIMars, perioder[2].tom)
+        Assertions.assertEquals(2, perioder[2].verdi)
     }
 }
