@@ -51,9 +51,9 @@ class VilkårsvurderingSteg(
         vilkårsvurdering.personResultater.forEach {
             it.vilkårResultater.filter { vilkårResultat ->
                 val gradertBarnehageplass =
-                    vilkårResultat.antallTimer != null
-                            && vilkårResultat.antallTimer > BigDecimal(0)
-                            && vilkårResultat.vilkårType == Vilkår.BARNEHAGEPLASS
+                    vilkårResultat.antallTimer != null &&
+                        vilkårResultat.antallTimer > BigDecimal(0) &&
+                        vilkårResultat.vilkårType == Vilkår.BARNEHAGEPLASS
 
                 val deltBosted =
                     vilkårResultat.utdypendeVilkårsvurderinger.contains(UtdypendeVilkårsvurdering.DELT_BOSTED)
