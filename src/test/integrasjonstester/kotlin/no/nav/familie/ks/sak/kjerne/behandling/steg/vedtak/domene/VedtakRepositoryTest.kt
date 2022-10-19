@@ -1,8 +1,6 @@
-package no.nav.familie.ks.sak.no.nav.familie.ks.sak.kjerne.vedtak.domene
+package no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene
 
 import no.nav.familie.ks.sak.OppslagSpringRunnerTest
-import no.nav.familie.ks.sak.kjerne.vedtak.domene.Vedtak
-import no.nav.familie.ks.sak.kjerne.vedtak.domene.VedtakRepository
 import org.hamcrest.CoreMatchers.nullValue
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.containsInAnyOrder

@@ -2,6 +2,7 @@ package no.nav.familie.ks.sak.common.tidslinje.utvidelser
 
 import no.nav.familie.ks.sak.common.tidslinje.Null
 import no.nav.familie.ks.sak.common.tidslinje.PRAKTISK_SENESTE_DAG
+import no.nav.familie.ks.sak.common.tidslinje.Periode
 import no.nav.familie.ks.sak.common.tidslinje.PeriodeVerdi
 import no.nav.familie.ks.sak.common.tidslinje.TidsEnhet
 import no.nav.familie.ks.sak.common.tidslinje.Tidslinje
@@ -9,6 +10,7 @@ import no.nav.familie.ks.sak.common.tidslinje.TidslinjePeriode
 import no.nav.familie.ks.sak.common.tidslinje.TidslinjePeriodeMedDato
 import no.nav.familie.ks.sak.common.tidslinje.Udefinert
 import no.nav.familie.ks.sak.common.tidslinje.inf
+import no.nav.familie.ks.sak.common.tidslinje.tilPeriodeVerdi
 import java.time.LocalDate
 import java.time.temporal.ChronoUnit
 import kotlin.math.absoluteValue
@@ -24,7 +26,7 @@ fun <T, R, RESULTAT> List<Tidslinje<T>>.join(
     operand: Tidslinje<R>,
     operator: (elem1: PeriodeVerdi<T>, elem2: PeriodeVerdi<R>) -> PeriodeVerdi<RESULTAT>
 ): List<Tidslinje<RESULTAT>> {
-    return this.mapIndexed { index, tidslinjeBarn -> tidslinjeBarn.kombinerMed(operand, kombineringsfunksjon = operator) }
+    return this.mapIndexed { index, tidslinjeBarn -> tidslinjeBarn.biFunksjon(operand, kombineringsfunksjon = operator) }
 }
 
 fun <T, R, RESULTAT> List<Tidslinje<T>>.join(
@@ -32,7 +34,7 @@ fun <T, R, RESULTAT> List<Tidslinje<T>>.join(
     operator: (elem1: PeriodeVerdi<T>, elem2: PeriodeVerdi<R>) -> PeriodeVerdi<RESULTAT>
 ): List<Tidslinje<RESULTAT>> {
     if (this.size != operand.size) throw IllegalArgumentException("Listene må ha lik lengde")
-    return this.mapIndexed { index, tidslinjeBarn -> tidslinjeBarn.kombinerMed(operand[index], kombineringsfunksjon = operator) }
+    return this.mapIndexed { index, tidslinjeBarn -> tidslinjeBarn.biFunksjon(operand[index], kombineringsfunksjon = operator) }
 }
 
 fun <T> Tidslinje<T>.medTittel(tittel: String): Tidslinje<T> {
@@ -380,7 +382,7 @@ fun <T> Tidslinje<T>.klipp(startsTidspunkt: LocalDate, sluttTidspunkt: LocalDate
             ),
             this.tidsEnhet
         )
-        this.kombinerMed(tidslinjeKlipp) { status1, status2 ->
+        this.biFunksjon(tidslinjeKlipp) { status1, status2 ->
             klippeOperator(
                 status1,
                 status2
@@ -413,7 +415,7 @@ fun <T, R, RESULTAT> Tidslinje<T>.biFunksjonSnitt(
     val sluttTidspunkt = if (sluttTidspunkt1 < sluttTidspunkt2) sluttTidspunkt1 else sluttTidspunkt2
 
     return this
-        .kombinerMed(operand, operator)
+        .biFunksjon(operand, operator)
         .klipp(startsTidspunkt, sluttTidspunkt)
 }
 
@@ -423,14 +425,14 @@ fun <T, R, RESULTAT> Tidslinje<T>.biFunksjonSnitt(
  * Hver nye periode som blir lagt inn i den resulterende tidslinja starter der den forrige stoppet og
  * har lengde lik det minste tidsrommet hvor input tidslinjene har konstant verdi.
  * Påfølgende perioder med lik verdi, blir slått sammen til en periode i den resulterende tidslinja.
- * [Operator] blir brukt for å beregne verdiene til de generete periodene basert på verdiene til input tidslinjene i
+ * [kombineringsfunksjon] blir brukt for å beregne verdiene til de generete periodene basert på verdiene til input tidslinjene i
  * de respektive tidsrommene. Om en av input-tidslinjene er uendleig(dvs at den siste perioden har uendelig varighet), vil
  * også den resulterende tidslinja være uendelig.
  * [PeriodeVerdi] er en wrapper-classe som blir brukt for å håndtere no.nav.familie.ks.sak.common.tidslinje.Udefinert og no.nav.familie.ks.sak.common.tidslinje.Null. [kombineringsfunksjon]
  * må ta høyde for at input kan være av en av disse typene, og definere hvordan disse situasjonene håndteres.
  * MERK: operator skal returnere enten Udefindert, no.nav.familie.ks.sak.common.tidslinje.Null eller no.nav.familie.ks.sak.common.tidslinje.PeriodeVerdi.
  */
-fun <T, R, RESULTAT> Tidslinje<T>.kombinerMed(
+fun <T, R, RESULTAT> Tidslinje<T>.biFunksjon(
     annen: Tidslinje<R>,
     kombineringsfunksjon: (elem1: PeriodeVerdi<T>, elem2: PeriodeVerdi<R>) -> PeriodeVerdi<RESULTAT>
 ): Tidslinje<RESULTAT> {
@@ -462,7 +464,7 @@ fun <T, R, RESULTAT> Tidslinje<T>.kombinerMed(
 
         if (tidslinjePeriode2.erUendelig && tidslinjePeriode1.erUendelig) {
             lst.add(
-                tidslinjePeriode1.kombinerMed(
+                tidslinjePeriode1.biFunksjon(
                     operand = tidslinjePeriode2,
                     lengde = inf,
                     erUendelig = true,
@@ -478,7 +480,7 @@ fun <T, R, RESULTAT> Tidslinje<T>.kombinerMed(
         while (lengde1 > 0 && lengde2 > 0) {
             if (lengde1 < lengde2) {
                 lengde2 -= lengde1
-                tmpTidslinjePeriode = tidslinjePeriode1.kombinerMed(
+                tmpTidslinjePeriode = tidslinjePeriode1.biFunksjon(
                     operand = tidslinjePeriode2,
                     lengde = lengde1,
                     erUendelig = false,
@@ -487,7 +489,7 @@ fun <T, R, RESULTAT> Tidslinje<T>.kombinerMed(
                 lengde1 = 0
             } else {
                 lengde1 -= lengde2
-                tmpTidslinjePeriode = tidslinjePeriode1.kombinerMed(
+                tmpTidslinjePeriode = tidslinjePeriode1.biFunksjon(
                     operand = tidslinjePeriode2,
                     lengde = lengde2,
                     erUendelig = false,
@@ -532,7 +534,7 @@ fun <T> Tidslinje<T>.binærOperator(
     operand: Tidslinje<T>,
     operator: (elem1: PeriodeVerdi<T>, elem2: PeriodeVerdi<T>) -> PeriodeVerdi<T>
 ): Tidslinje<T> {
-    return this.kombinerMed(operand, operator)
+    return this.biFunksjon(operand, operator)
 }
 
 /**
@@ -663,3 +665,15 @@ private fun LocalDate.leggTil(tidsEnhet: TidsEnhet, antall: Long): LocalDate = w
     TidsEnhet.MÅNED -> this.plusMonths(antall)
     TidsEnhet.ÅR -> this.plusYears(antall)
 }
+
+fun <T, R, RESULTAT> Tidslinje<T>.kombinerMed(
+    annen: Tidslinje<R>,
+    kombineringsfunksjon: (elem1: T?, elem2: R?) -> RESULTAT?
+): Tidslinje<RESULTAT> {
+    return this.biFunksjon(annen) { periodeverdiVenstre, periodeverdiHøyre ->
+        kombineringsfunksjon(periodeverdiVenstre.verdi, periodeverdiHøyre.verdi)
+            .tilPeriodeVerdi()
+    }
+}
+
+fun <T> Tidslinje<T>.tilPerioder(): List<Periode<T>> = this.tilTidslinjePerioderMedDato().map { it.tilPeriode() }

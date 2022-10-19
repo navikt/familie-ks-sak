@@ -14,10 +14,13 @@ import javax.persistence.Convert
 import javax.persistence.Entity
 import javax.persistence.EnumType
 import javax.persistence.Enumerated
+import javax.persistence.FetchType
 import javax.persistence.GeneratedValue
 import javax.persistence.GenerationType
 import javax.persistence.Id
 import javax.persistence.JoinColumn
+import javax.persistence.JoinTable
+import javax.persistence.ManyToMany
 import javax.persistence.ManyToOne
 import javax.persistence.OneToOne
 import javax.persistence.SequenceGenerator
@@ -69,6 +72,14 @@ data class AndelTilkjentYtelse(
 
     @Column(name = "prosent", nullable = false)
     val prosent: BigDecimal,
+
+    @ManyToMany(cascade = [CascadeType.PERSIST, CascadeType.REMOVE], fetch = FetchType.EAGER)
+    @JoinTable(
+        name = "ANDEL_TIL_ENDRET_ANDEL",
+        joinColumns = [JoinColumn(name = "fk_andel_tilkjent_ytelse_id")],
+        inverseJoinColumns = [JoinColumn(name = "fk_endret_utbetaling_andel_id")]
+    )
+    val endretUtbetalingAndeler: MutableList<EndretUtbetalingAndel> = mutableListOf(),
 
     // kildeBehandlingId, periodeOffset og forrigePeriodeOffset trengs kun i forbindelse med
     // iverksetting/konsistensavstemming, og settes først ved generering av selve oppdraget mot økonomi.
@@ -137,6 +148,15 @@ data class AndelTilkjentYtelse(
     fun stønadsPeriode() = MånedPeriode(this.stønadFom, this.stønadTom)
 
     fun erLøpende(): Boolean = this.stønadTom > YearMonth.now()
+
+    fun overlapperMed(andelFraAnnenBehandling: AndelTilkjentYtelse): Boolean {
+        return this.type == andelFraAnnenBehandling.type &&
+            this.overlapperPeriode(andelFraAnnenBehandling.periode)
+    }
+
+    fun overlapperPeriode(måndePeriode: MånedPeriode): Boolean =
+        this.stønadFom <= måndePeriode.tom &&
+            this.stønadTom >= måndePeriode.fom
 
     fun erAndelSomSkalSendesTilOppdrag(): Boolean = this.kalkulertUtbetalingsbeløp != 0
 }

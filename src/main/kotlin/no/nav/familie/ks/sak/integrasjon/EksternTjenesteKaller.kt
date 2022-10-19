@@ -1,4 +1,4 @@
-package no.nav.familie.ks.sak.common
+package no.nav.familie.ks.sak.integrasjon
 
 import no.nav.familie.http.client.RessursException
 import no.nav.familie.kontrakter.felles.Ressurs

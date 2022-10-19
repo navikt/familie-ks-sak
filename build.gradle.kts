@@ -36,7 +36,7 @@ dependencies {
     val familieKontrakterSaksstatistikkVersion = "2.0_20220216121145_5a268ac"
     val familieKontrakterStønadsstatistikkVersion = "2.0_20220905083828_e74ee8a"
     val familieKontrakterSkatteetatenVersion = "2.0_20210920094114_9c74239"
-    val tokenValidationSpringVersion = "2.1.4"
+    val tokenValidationSpringVersion = "2.1.6"
     val navFoedselsnummerVersion = "1.0-SNAPSHOT.6"
     val prosesseringVersion = "1.20220624132237_7f5ba9c"
     val restAssuredVersion = "5.2.0"
@@ -92,7 +92,7 @@ dependencies {
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.13.4")
     implementation("com.pinterest:ktlint:0.47.1")
 
-    testImplementation("io.mockk:mockk:1.12.8")
+    testImplementation("io.mockk:mockk:1.13.2")
     testImplementation("com.ninja-squad:springmockk:3.1.1") {
         exclude(module = "mockito-core")
     }
@@ -100,8 +100,8 @@ dependencies {
     testImplementation("org.springframework.cloud:spring-cloud-contract-wiremock:3.1.4")
     testImplementation("io.rest-assured:spring-mock-mvc:$restAssuredVersion")
     testImplementation("io.rest-assured:kotlin-extensions:$restAssuredVersion")
-    testImplementation("org.testcontainers:postgresql:1.17.3")
-    testImplementation("no.nav.security:mock-oauth2-server:0.5.3")
+    testImplementation("org.testcontainers:postgresql:1.17.4")
+    testImplementation("no.nav.security:mock-oauth2-server:0.5.4")
     testImplementation("no.nav.security:token-validation-test-support:2.0.5")
     testImplementation("no.nav.security:token-validation-spring-test:$tokenValidationSpringVersion")
     testImplementation("nav-foedselsnummer:testutils:1.0-SNAPSHOT.6")

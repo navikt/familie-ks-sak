@@ -1,7 +1,6 @@
-package no.nav.familie.ks.sak.kjerne.vilkårsvurdering.domene
+package no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene
 
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingKategori
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Regelverk
 import no.nav.familie.ks.sak.kjerne.beregning.domene.YtelseType
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
 
