@@ -16,6 +16,7 @@ import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Personopplys
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
+import java.math.BigDecimal
 import java.time.LocalDate
 
 @Service
@@ -50,7 +51,10 @@ class VilkårsvurderingSteg(
         vilkårsvurdering.personResultater.forEach {
             it.vilkårResultater.filter { vilkårResultat ->
                 val gradertBarnehageplass =
-                    vilkårResultat.antallTimer != null && vilkårResultat.vilkårType == Vilkår.BARNEHAGEPLASS
+                    vilkårResultat.antallTimer != null
+                            && vilkårResultat.antallTimer > BigDecimal(0)
+                            && vilkårResultat.vilkårType == Vilkår.BARNEHAGEPLASS
+
                 val deltBosted =
                     vilkårResultat.utdypendeVilkårsvurderinger.contains(UtdypendeVilkårsvurdering.DELT_BOSTED)
 
