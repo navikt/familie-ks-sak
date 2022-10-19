@@ -172,7 +172,7 @@ fun tilpassVilkårForEndretVilkår(
 
     return eksisterendeVilkårResultatTidslinje
         .kombinerMed(endretVilkårResultatTidslinje) { eksisterendeVilkår, endretVilkår ->
-            if (endretVilkår == null) {
+            if (endretVilkår != null) {
                 null
             } else {
                 eksisterendeVilkår
