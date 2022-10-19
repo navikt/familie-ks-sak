@@ -7,6 +7,7 @@ import io.mockk.junit5.MockKExtension
 import io.mockk.mockk
 import io.mockk.slot
 import io.mockk.verify
+import no.nav.familie.ks.sak.common.util.tilKortString
 import no.nav.familie.ks.sak.config.RolleConfig
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.domene.ArbeidsfordelingPåBehandling
@@ -16,6 +17,7 @@ import no.nav.familie.ks.sak.kjerne.logg.domene.LoggRepository
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import java.time.LocalDate
 import java.time.LocalDateTime
 import org.hamcrest.CoreMatchers.`is` as Is
 
@@ -179,5 +181,97 @@ class LoggServiceTest {
         assertThat(lagretLogg.type, Is(LoggType.DOKUMENT_MOTTATT))
         assertThat(lagretLogg.tekst, Is("testTekst"))
         assertThat(lagretLogg.tittel, Is("Dokument mottatt 01.04.22"))
+    }
+
+    @Test
+    fun `opprettSettPåVentLogg - skal lagre logg på at behandling er satt på vent`() {
+        val behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD)
+        val slot = slot<Logg>()
+
+        every { loggRepository.save(capture(slot)) } returns mockk()
+
+        loggService.opprettSettPåVentLogg(behandling, "Testårsak")
+
+        verify(exactly = 1) { loggRepository.save(slot.captured) }
+
+        val lagretLogg = slot.captured
+
+        assertThat(lagretLogg.behandlingId, Is(behandling.id))
+        assertThat(lagretLogg.type, Is(LoggType.BEHANDLIG_SATT_PÅ_VENT))
+        assertThat(lagretLogg.tekst, Is("Årsak: Testårsak"))
+    }
+
+    @Test
+    fun `opprettOppdaterVentingLogg - skal lagre logg på at årsak og frist på en behandlings SettPåVent er endret`() {
+        val behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD)
+        val nyFrist = LocalDate.now()
+        val slot = slot<Logg>()
+
+        every { loggRepository.save(capture(slot)) } returns mockk()
+
+        loggService.opprettOppdaterVentingLogg(behandling, "Testårsak", nyFrist)
+
+        verify(exactly = 1) { loggRepository.save(slot.captured) }
+
+        val lagretLogg = slot.captured
+
+        assertThat(lagretLogg.behandlingId, Is(behandling.id))
+        assertThat(lagretLogg.type, Is(LoggType.VENTENDE_BEHANDLING_ENDRET))
+        assertThat(lagretLogg.tekst, Is("Frist og årsak er endret til Testårsak og ${nyFrist.tilKortString()}"))
+    }
+
+    @Test
+    fun `opprettOppdaterVentingLogg - skal lagre logg på at årsak på en behandlings SettPåVent er endret`() {
+        val behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD)
+        val nyFrist = LocalDate.now()
+        val slot = slot<Logg>()
+
+        every { loggRepository.save(capture(slot)) } returns mockk()
+
+        loggService.opprettOppdaterVentingLogg(behandling = behandling, endretÅrsak = "Testårsak", endretFrist = null)
+
+        verify(exactly = 1) { loggRepository.save(slot.captured) }
+
+        val lagretLogg = slot.captured
+
+        assertThat(lagretLogg.behandlingId, Is(behandling.id))
+        assertThat(lagretLogg.type, Is(LoggType.VENTENDE_BEHANDLING_ENDRET))
+        assertThat(lagretLogg.tekst, Is("Årsak er endret til Testårsak"))
+    }
+
+    @Test
+    fun `opprettOppdaterVentingLogg - skal lagre logg på at frist på en behandlings SettPåVent er endret`() {
+        val behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD)
+        val nyFrist = LocalDate.now()
+        val slot = slot<Logg>()
+
+        every { loggRepository.save(capture(slot)) } returns mockk()
+
+        loggService.opprettOppdaterVentingLogg(behandling = behandling, endretÅrsak = null, endretFrist = nyFrist)
+
+        verify(exactly = 1) { loggRepository.save(slot.captured) }
+
+        val lagretLogg = slot.captured
+
+        assertThat(lagretLogg.behandlingId, Is(behandling.id))
+        assertThat(lagretLogg.type, Is(LoggType.VENTENDE_BEHANDLING_ENDRET))
+        assertThat(lagretLogg.tekst, Is("Frist er endret til ${nyFrist.tilKortString()}"))
+    }
+
+    @Test
+    fun `gjenopptaBehandlingLogg - skal lagre logg på en behandling som var satt på vent er gjenopptatt`() {
+        val behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD)
+        val slot = slot<Logg>()
+
+        every { loggRepository.save(capture(slot)) } returns mockk()
+
+        loggService.gjenopptaBehandlingLogg(behandling)
+
+        verify(exactly = 1) { loggRepository.save(slot.captured) }
+
+        val lagretLogg = slot.captured
+
+        assertThat(lagretLogg.behandlingId, Is(behandling.id))
+        assertThat(lagretLogg.type, Is(LoggType.BEHANDLIG_GJENOPPTATT))
     }
 }

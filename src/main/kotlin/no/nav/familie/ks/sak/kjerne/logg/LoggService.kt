@@ -131,11 +131,11 @@ class LoggService(
 
     fun opprettOppdaterVentingLogg(behandling: Behandling, endretÅrsak: String?, endretFrist: LocalDate?) {
         val tekst = if (endretFrist != null && endretÅrsak != null) {
-            "Frist og årsak er endret til \"${endretÅrsak}\" og ${endretFrist.tilKortString()}"
+            "Frist og årsak er endret til $endretÅrsak og ${endretFrist.tilKortString()}"
         } else if (endretFrist != null) {
             "Frist er endret til ${endretFrist.tilKortString()}"
         } else if (endretÅrsak != null) {
-            "Årsak er endret til \"${endretÅrsak}\""
+            "Årsak er endret til $endretÅrsak"
         } else {
             return
         }
