@@ -61,7 +61,7 @@ class TilTidslinjePerioderMedLocalDateTest {
             )
         )
 
-        val tidslinjePerioderMedDato = tidslinje1.kombinerMed(tidslinje2) { a, b ->
+        val tidslinjePerioderMedDato = tidslinje1.biFunksjon(tidslinje2) { a, b ->
             if (b is Verdi) {
                 b
             } else {

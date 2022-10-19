@@ -3,16 +3,17 @@ package no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering
 import no.nav.familie.ks.sak.api.dto.VedtakBegrunnelseTilknyttetVilkårResponseDto
 import no.nav.familie.ks.sak.api.dto.VilkårResultatDto
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
-import no.nav.familie.ks.sak.common.tidslinje.Null
+import no.nav.familie.ks.sak.common.tidslinje.Periode
 import no.nav.familie.ks.sak.common.tidslinje.Tidslinje
-import no.nav.familie.ks.sak.common.tidslinje.TidslinjePeriodeMedDato
-import no.nav.familie.ks.sak.common.tidslinje.Verdi
 import no.nav.familie.ks.sak.common.tidslinje.tilTidslinje
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.kombinerMed
+
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.tilTidslinjePerioderMedDato
 import no.nav.familie.ks.sak.common.util.TIDENES_ENDE
 import no.nav.familie.ks.sak.common.util.erBack2BackIMånedsskifte
 import no.nav.familie.ks.sak.common.util.sisteDagIMåned
+import no.nav.familie.ks.sak.common.tidslinje.utvidelser.tilPerioder
+
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelse
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityEØSBegrunnelse
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.tilTriggesAv
@@ -180,12 +181,12 @@ fun tilpassVilkårForEndretVilkår(
 
     return eksisterendeVilkårResultatTidslinje
         .kombinerMed(endretVilkårResultatTidslinje) { eksisterendeVilkår, endretVilkår ->
-            if (endretVilkår is Verdi) {
-                Null()
+            if (endretVilkår != null) {
+                null
             } else {
                 eksisterendeVilkår
             }
-        }.tilTidslinjePerioderMedDato()
+        }.tilPerioder()
         .mapNotNull {
             it.tilVilkårResultatMedOppdatertPeriodeOgBehandlingsId(nyBehandlingsId = endretVilkårResultat.behandlingId)
         }
@@ -221,7 +222,7 @@ private fun validerAvslagUtenPeriodeMedLøpende(
 
 fun List<VilkårResultat>.tilTidslinje(): Tidslinje<VilkårResultat> {
     return map {
-        TidslinjePeriodeMedDato(
+        Periode(
             verdi = it,
             fom = it.periodeFom,
             tom = it.periodeTom
@@ -229,22 +230,19 @@ fun List<VilkårResultat>.tilTidslinje(): Tidslinje<VilkårResultat> {
     }.tilTidslinje()
 }
 
-private fun TidslinjePeriodeMedDato<VilkårResultat>.tilVilkårResultatMedOppdatertPeriodeOgBehandlingsId(
+private fun Periode<VilkårResultat>.tilVilkårResultatMedOppdatertPeriodeOgBehandlingsId(
     nyBehandlingsId: Long
 ): VilkårResultat? {
-    val vilkårResultat = periodeVerdi.verdi
+    val vilkårResultat = this.verdi
 
-    val fom = fom.tilLocalDateEllerNull()
-    val tom = tom.tilLocalDateEllerNull()
-
-    val vilkårsdatoErUendret = fom == vilkårResultat?.periodeFom && tom == vilkårResultat?.periodeTom
+    val vilkårsdatoErUendret = this.fom == vilkårResultat?.periodeFom && this.tom == vilkårResultat?.periodeTom
 
     return if (vilkårsdatoErUendret) {
         vilkårResultat
     } else {
         vilkårResultat?.kopierMedNyPeriodeOgBehandling(
-            fom = fom,
-            tom = tom,
+            fom = this.fom,
+            tom = this.tom,
             behandlingId = nyBehandlingsId
         )
     }

@@ -33,7 +33,7 @@ class TidslinjeEnkelTest {
             listOf(TidslinjePeriode(3, 1, false), TidslinjePeriode(4, 1, false))
         )
 
-        var t3 = t1.kombinerMed(t2) { t1, t2 -> Verdi(t1.verdi!! + t2.verdi!!) }
+        var t3 = t1.biFunksjon(t2) { t1, t2 -> Verdi(t1.verdi!! + t2.verdi!!) }
 
         val lst3 = lst1.map { it.periodeVerdi.verdi!! }.toMutableList()
         for (i in 0 until lst3.size) {
@@ -42,7 +42,7 @@ class TidslinjeEnkelTest {
 
         Assertions.assertEquals(lst3, t3.innhold.map { it.periodeVerdi.verdi }.toList(), "Kunne ikke addere to tidslinjer")
 
-        t3 = t1.kombinerMed(t2) { t1, t2 -> Verdi(t1.verdi!! - t2.verdi!!) }
+        t3 = t1.biFunksjon(t2) { t1, t2 -> Verdi(t1.verdi!! - t2.verdi!!) }
 
         val lst4 = listOf(-2)
 
@@ -56,7 +56,7 @@ class TidslinjeEnkelTest {
             listOf(TidslinjePeriode(3, 1, false), TidslinjePeriode(4, 1, false))
         )
 
-        val t3 = t1.kombinerMed(t2) { t1, t2 -> Verdi(t1.verdi!! * t2.verdi!!) }
+        val t3 = t1.biFunksjon(t2) { t1, t2 -> Verdi(t1.verdi!! * t2.verdi!!) }
 
         val lst3 = lst1.map { it.periodeVerdi.verdi!! }.toMutableList()
         for (i in 0 until lst3.size) {
@@ -73,7 +73,7 @@ class TidslinjeEnkelTest {
             listOf(TidslinjePeriode(3, 1, false), TidslinjePeriode(4, 1, false))
         )
 
-        var t3 = t1.kombinerMed(t2) { t1, t2 -> Verdi(t1.verdi!! + t2.verdi!!) }
+        var t3 = t1.biFunksjon(t2) { t1, t2 -> Verdi(t1.verdi!! + t2.verdi!!) }
 
         var lst3 = lst2.map { it.periodeVerdi.verdi!! }.toMutableList()
         for (i in 0 until lst3.size) {
@@ -91,7 +91,7 @@ class TidslinjeEnkelTest {
         t1 = Tidslinje(LocalDate.now(), lst1)
         t2 = Tidslinje(LocalDate.now(), lst2)
 
-        t3 = t1.kombinerMed(t2) { t1, t2 -> Verdi(t1.verdi!! + t2.verdi!!) }
+        t3 = t1.biFunksjon(t2) { t1, t2 -> Verdi(t1.verdi!! + t2.verdi!!) }
 
         lst3 = lst2.map { it.periodeVerdi.verdi!! }.toMutableList()
         for (i in 0 until lst3.size) {
@@ -132,7 +132,7 @@ class TidslinjeEnkelTest {
         val tidslinje1 = Tidslinje(LocalDate.now(), lst1)
         val tidslinje2 = Tidslinje(LocalDate.now(), lst2)
 
-        val kombinertTidslinje = tidslinje1.kombinerMed(tidslinje2) { t1, t2 -> Verdi(t1.verdi!! + t2.verdi!!) }
+        val kombinertTidslinje = tidslinje1.biFunksjon(tidslinje2) { t1, t2 -> Verdi(t1.verdi!! + t2.verdi!!) }
 
         Assertions.assertEquals(lst3, kombinertTidslinje.innhold.map { it.periodeVerdi.verdi }.toList())
     }
@@ -156,7 +156,7 @@ class TidslinjeEnkelTest {
 
         val tidslinje2 = Tidslinje(LocalDate.now(), tidslinjePerioder2)
 
-        val tidslinje3 = tidslinje1.kombinerMed(tidslinje2) { t1, t2 -> Verdi(Beløp(t1.verdi!!.verdi + t2.verdi!!.verdi, "nok")) }
+        val tidslinje3 = tidslinje1.biFunksjon(tidslinje2) { t1, t2 -> Verdi(Beløp(t1.verdi!!.verdi + t2.verdi!!.verdi, "nok")) }
 
         val verdierTidslinjePerioder1 = tidslinjePerioder1.map { it.periodeVerdi.verdi!!.verdi }.toMutableList()
 

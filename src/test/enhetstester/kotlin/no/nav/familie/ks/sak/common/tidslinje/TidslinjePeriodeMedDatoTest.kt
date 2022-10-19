@@ -1,6 +1,6 @@
 package no.nav.familie.ks.sak.common.tidslinje
 
-import no.nav.familie.ks.sak.common.tidslinje.utvidelser.kombinerMed
+import no.nav.familie.ks.sak.common.tidslinje.utvidelser.biFunksjon
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.tilTidslinjePerioderMedDato
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
@@ -20,7 +20,7 @@ class TidslinjePeriodeMedDatoTest {
         val tidslinjeA = listOf(TidslinjePeriodeMedDato("a", førsteJanuar, sisteDagIMars)).tilTidslinje()
         val tidslinjeB = listOf(TidslinjePeriodeMedDato("b", førsteFebruar, sisteDagIFebruar)).tilTidslinje()
 
-        val tidslinjePerioderMedDato = tidslinjeA.kombinerMed(tidslinjeB) { a, b ->
+        val tidslinjePerioderMedDato = tidslinjeA.biFunksjon(tidslinjeB) { a, b ->
             if (b is Verdi) {
                 b
             } else {
