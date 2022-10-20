@@ -139,42 +139,12 @@ class BrevService(
             leggTilOpplysningspliktIVilkårsvurdering(behandling)
         }
 
-        // TODO: Legg inn kode for å opprette DistribuerDokumentTask:
-
-        //        DistribuerDokumentTask.opprettDistribuerDokumentTask(
-        //            distribuerDokumentDTO = DistribuerDokumentDTO(
-        //                personEllerInstitusjonIdent = manueltBrevRequest.mottakerIdent,
-        //                behandlingId = behandling?.id,
-        //                journalpostId = journalpostId,
-        //                brevmal = manueltBrevRequest.brevmal,
-        //                erManueltSendt = true
-        //            ),
-        //            properties = Properties().apply {
-        //                this["fagsakIdent"] = behandling?.fagsak?.aktør?.aktivFødselsnummer() ?: ""
-        //                this["mottakerIdent"] = manueltBrevRequest.mottakerIdent
-        //                this["journalpostId"] = journalpostId
-        //                this["behandlingId"] = behandling?.id.toString()
-        //                this["fagsakId"] = fagsakId.toString()
-        //            }
-        //        ).also {
-        //            taskRepository.save(it)
-        //        }
+        // TODO: Legg inn kode for å opprette DistribuerDokumentTask
 
         if (
             manueltBrevDto.brevmal.setterBehandlingPåVent()
         ) {
             // TODO: Legg inn kode som setter behandling på vent ved å bruke BehandlingstegTilstand og metode i StegService
-//            settPåVentService.settBehandlingPåVent(
-//                behandlingId = behandling.id,
-//                frist = LocalDate.now()
-//                    .plusDays(
-//                        manueltBrevDto.brevmal.ventefristDager(
-//                            manuellFrist = manueltBrevDto.antallUkerSvarfrist?.toLong(),
-//                            behandlingKategori = behandling.kategori
-//                        )
-//                    ),
-//                årsak = manueltBrevDto.brevmal.venteårsak()
-//            )
         }
     }
 
