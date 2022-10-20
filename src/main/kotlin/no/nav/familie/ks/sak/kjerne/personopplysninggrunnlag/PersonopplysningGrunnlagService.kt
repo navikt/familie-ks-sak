@@ -129,11 +129,11 @@ class PersonopplysningGrunnlagService(
     }
 
     fun oppdaterRegisteropplysningerPåBehandling(behandling: Behandling): PersonopplysningGrunnlag {
-        val nåværendeGrunnlag = hentAktivPersonopplysningGrunnlagThrows(behandling.id)
-
         if (behandling.status != BehandlingStatus.UTREDES) {
             throw Feil("BehandlingStatus må være UTREDES for å manuelt oppdatere registeropplysninger")
         }
+
+        val nåværendeGrunnlag = hentAktivPersonopplysningGrunnlagThrows(behandling.id)
 
         return lagreSøkerOgBarnINyttGrunnlag(
             aktør = nåværendeGrunnlag.søker.aktør,
