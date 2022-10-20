@@ -26,7 +26,6 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.søknad.SøknadGrunnlagServi
 import no.nav.familie.ks.sak.kjerne.behandling.steg.søknad.domene.SøknadGrunnlag
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
-import no.nav.familie.ks.sak.kjerne.settpåvent.SettPåVentService
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -50,9 +49,6 @@ class BehandlingServiceTest {
     @MockK
     private lateinit var vilkårsvurderingService: VilkårsvurderingService
 
-    @MockK
-    private lateinit var settPåVentService: SettPåVentService
-
     @InjectMockKs
     private lateinit var behandlingService: BehandlingService
 
@@ -75,7 +71,6 @@ class BehandlingServiceTest {
             lagPersonopplysningGrunnlag(behandlingId = behandling.id, søkerPersonIdent = søkersIdent)
         every { vilkårsvurderingService.finnAktivVilkårsvurdering(any()) } returns null
         every { søknadGrunnlagService.finnAktiv(any()) } returns søknadsgrunnlagMockK
-        every { settPåVentService.finnAktivSettPåVentPåBehandling(any()) } returns null
         mockkObject(SøknadGrunnlagMapper)
         with(SøknadGrunnlagMapper) {
             every { søknadsgrunnlagMockK.tilSøknadDto() } returns SøknadDto(

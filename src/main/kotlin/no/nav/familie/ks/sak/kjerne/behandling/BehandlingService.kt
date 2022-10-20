@@ -11,7 +11,6 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
 import no.nav.familie.ks.sak.kjerne.behandling.steg.søknad.SøknadGrunnlagService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
-import no.nav.familie.ks.sak.kjerne.settpåvent.SettPåVentService
 import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -23,8 +22,7 @@ class BehandlingService(
     private val arbeidsfordelingService: ArbeidsfordelingService,
     private val søknadGrunnlagService: SøknadGrunnlagService,
     private val personopplysningGrunnlagService: PersonopplysningGrunnlagService,
-    private val vilkårsvurderingService: VilkårsvurderingService,
-    private val settPåVentService: SettPåVentService
+    private val vilkårsvurderingService: VilkårsvurderingService
 ) {
 
     fun hentBehandling(behandlingId: Long): Behandling = behandlingRepository.hentBehandling(behandlingId)
@@ -46,14 +44,12 @@ class BehandlingService(
         val søknadsgrunnlag = søknadGrunnlagService.finnAktiv(behandlingId)?.tilSøknadDto()
         val personResultater =
             vilkårsvurderingService.finnAktivVilkårsvurdering(behandlingId)?.personResultater?.toList()
-        val settPåVent = settPåVentService.finnAktivSettPåVentPåBehandling(behandlingId)
         return BehandlingMapper.lagBehandlingRespons(
             behandling,
             arbeidsfordelingPåBehandling,
             søknadsgrunnlag,
             personer,
-            personResultater,
-            settPåVent
+            personResultater
         )
     }
 

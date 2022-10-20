@@ -25,7 +25,6 @@ import no.nav.familie.ks.sak.kjerne.brev.domene.maler.Brevmal
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.InnhenteOpplysningerDataDto
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.FagsakRepository
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
-import no.nav.familie.ks.sak.kjerne.settpåvent.SettPåVentService
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -47,9 +46,6 @@ class BrevServiceTest {
 
     @MockK
     private lateinit var vilkårsvurderingService: VilkårsvurderingService
-
-    @MockK
-    private lateinit var settPåVentService: SettPåVentService
 
     @MockK
     private lateinit var behandlingRepository: BehandlingRepository

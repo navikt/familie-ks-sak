@@ -6,13 +6,11 @@ import no.nav.familie.ks.sak.api.dto.BehandlingResponsDto
 import no.nav.familie.ks.sak.api.dto.BehandlingStegTilstandResponsDto
 import no.nav.familie.ks.sak.api.dto.PersonResponsDto
 import no.nav.familie.ks.sak.api.dto.SøknadDto
-import no.nav.familie.ks.sak.api.dto.tilSettPåVentDto
 import no.nav.familie.ks.sak.api.mapper.RegisterHistorikkMapper.lagRegisterHistorikkResponsDto
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.domene.ArbeidsfordelingPåBehandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.PersonResultat
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
-import no.nav.familie.ks.sak.kjerne.settpåvent.domene.SettPåVent
 
 object BehandlingMapper {
 
@@ -21,8 +19,7 @@ object BehandlingMapper {
         arbeidsfordelingPåBehandling: ArbeidsfordelingPåBehandling,
         søknadsgrunnlag: SøknadDto?,
         personer: List<Person>?,
-        personResultater: List<PersonResultat>?,
-        aktivSettPåVent: SettPåVent?
+        personResultater: List<PersonResultat>?
     ) =
         BehandlingResponsDto(
             behandlingId = behandling.id,
@@ -44,8 +41,7 @@ object BehandlingMapper {
             søknadsgrunnlag = søknadsgrunnlag,
             personer = personer?.map { lagPersonRespons(it) } ?: emptyList(),
             personResultater = personResultater?.map { VilkårsvurderingMapper.lagPersonResultatRespons(it) }
-                ?: emptyList(),
-            aktivSettPåVent = aktivSettPåVent?.tilSettPåVentDto()
+                ?: emptyList()
         )
 
     private fun lagArbeidsfordelingRespons(arbeidsfordelingPåBehandling: ArbeidsfordelingPåBehandling) =
