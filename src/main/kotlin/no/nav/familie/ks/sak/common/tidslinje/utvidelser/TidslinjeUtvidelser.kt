@@ -26,7 +26,7 @@ fun <T, R, RESULTAT> List<Tidslinje<T>>.join(
     operand: Tidslinje<R>,
     operator: (elem1: PeriodeVerdi<T>, elem2: PeriodeVerdi<R>) -> PeriodeVerdi<RESULTAT>
 ): List<Tidslinje<RESULTAT>> {
-    return this.mapIndexed { index, tidslinjeBarn -> tidslinjeBarn.biFunksjon(operand, kombineringsfunksjon = operator) }
+    return this.mapIndexed { _, tidslinjeBarn -> tidslinjeBarn.biFunksjon(operand, kombineringsfunksjon = operator) }
 }
 
 fun <T, R, RESULTAT> List<Tidslinje<T>>.join(
@@ -677,3 +677,10 @@ fun <T, R, RESULTAT> Tidslinje<T>.kombinerMed(
 }
 
 fun <T> Tidslinje<T>.tilPerioder(): List<Periode<T>> = this.tilTidslinjePerioderMedDato().map { it.tilPeriode() }
+
+fun <T> Tidslinje<T>.slåSammenLikePerioder(): Tidslinje<T> =
+    Tidslinje(
+        startsTidspunkt = this.startsTidspunkt,
+        perioder = this.innhold.slåSammenLike(),
+        tidsEnhet = this.tidsEnhet
+    )
