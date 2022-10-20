@@ -2,15 +2,21 @@ package no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering
 
 import no.nav.familie.ks.sak.api.dto.VedtakBegrunnelseTilknyttetVilkårResponseDto
 import no.nav.familie.ks.sak.api.dto.VilkårResultatDto
+import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
+import no.nav.familie.ks.sak.common.tidslinje.IkkeNullbarPeriode
 import no.nav.familie.ks.sak.common.tidslinje.Periode
 import no.nav.familie.ks.sak.common.tidslinje.Tidslinje
+import no.nav.familie.ks.sak.common.tidslinje.diffIDager
 import no.nav.familie.ks.sak.common.tidslinje.tilTidslinje
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.kombinerMed
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.tilPerioder
 import no.nav.familie.ks.sak.common.util.TIDENES_ENDE
+import no.nav.familie.ks.sak.common.util.TIDENES_MORGEN
 import no.nav.familie.ks.sak.common.util.erBack2BackIMånedsskifte
+import no.nav.familie.ks.sak.common.util.førsteDagIInneværendeMåned
 import no.nav.familie.ks.sak.common.util.sisteDagIMåned
+import no.nav.familie.ks.sak.common.util.tilDagMånedÅr
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelse
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityEØSBegrunnelse
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.tilTriggesAv
@@ -22,7 +28,10 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Per
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
+import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
 import java.time.LocalDate
+import java.time.Month
 
 fun standardbegrunnelserTilNedtrekksmenytekster(
     sanityBegrunnelser: List<SanityBegrunnelse>
@@ -253,3 +262,78 @@ fun finnTilOgMedDato(tilOgMed: LocalDate?, vilkårResultater: List<VilkårResult
 
     return if (skalVidereføresEnMndEkstra) tilOgMed.plusMonths(1).sisteDagIMåned() else tilOgMed.sisteDagIMåned()
 }
+
+fun validerBarnasVilkår(vilkårsvurdering: Vilkårsvurdering, barna: List<Person>) {
+    val feiler = mutableListOf<String>()
+
+    barna.map { barn ->
+        vilkårsvurdering.personResultater
+            .flatMap { it.vilkårResultater }
+            .filter { it.personResultat?.aktør == barn.aktør }
+            .forEach { vilkårResultat ->
+                val fødselsdato = barn.fødselsdato.tilDagMånedÅr()
+                val vilkårType = vilkårResultat.vilkårType
+                if (vilkårResultat.resultat == Resultat.OPPFYLT && vilkårResultat.periodeFom == null) {
+                    feiler.add("Vilkår '$vilkårType' for barn med fødselsdato $fødselsdato mangler fom dato.")
+                }
+                if (vilkårResultat.periodeFom != null && vilkårResultat.lagOgValiderPeriodeFraVilkår().fom.isBefore(barn.fødselsdato)) {
+                    feiler.add(
+                        "Vilkår '$vilkårType' for barn med fødselsdato $fødselsdato " +
+                            "har fra-og-med dato før barnets fødselsdato."
+                    )
+                }
+                if (vilkårResultat.periodeFom != null &&
+                    vilkårResultat.erEksplisittAvslagPåSøknad != true &&
+                    vilkårResultat.vilkårType == Vilkår.MELLOM_1_OG_2_ELLER_ADOPTERT
+                ) {
+                    vilkårResultat.validerVilkår_MELLOM_1_OG_2_ELLER_ADOPTERT(
+                        vilkårResultat.lagOgValiderPeriodeFraVilkår(),
+                        barn.fødselsdato
+                    )?.let { feiler.add(it) }
+                }
+            }
+    }
+
+    if (feiler.isNotEmpty()) {
+        throw Feil(feiler.joinToString(separator = "\n"))
+    }
+}
+
+private fun VilkårResultat.lagOgValiderPeriodeFraVilkår(): IkkeNullbarPeriode<Long> = when {
+    periodeFom !== null -> {
+        IkkeNullbarPeriode(verdi = behandlingId, fom = checkNotNull(periodeFom), tom = periodeTom ?: TIDENES_ENDE)
+    }
+    erEksplisittAvslagPåSøknad == true && periodeTom == null -> {
+        IkkeNullbarPeriode(verdi = behandlingId, fom = TIDENES_MORGEN, tom = TIDENES_ENDE)
+    }
+    else -> {
+        throw FunksjonellFeil("Ugyldig periode. Periode må ha t.o.m.-dato eller være et avslag uten datoer.")
+    }
+}
+
+private fun VilkårResultat.validerVilkår_MELLOM_1_OG_2_ELLER_ADOPTERT(
+    periode: IkkeNullbarPeriode<Long>,
+    barnFødselsdato: LocalDate
+): String? = when {
+    this.erAdopsjon() && periode.tom.isAfter(etterAugustBarnetFyller6År(barnFødselsdato.plusYears(6))) ->
+        "Du kan ikke sette en t.o.m dato som er etter august året barnet fyller 6 år."
+    this.erAdopsjon() && periode.tom.diffIDager(periode.tom) > 365 ->
+        "Differansen mellom f.o.m datoen og t.o.m datoen kan ikke være mer enn 1 år."
+    !this.erAdopsjon() && !periode.fom.isEqual(barnFødselsdato.plusYears(1)) ->
+        "F.o.m datoen må være lik barnets 1 års dag."
+    !this.erAdopsjon() && !periode.tom.isEqual(barnFødselsdato.plusYears(2)) ->
+        "T.o.m datoen må være lik barnets 2 års dag."
+    else -> null
+}
+
+fun etterAugustBarnetFyller6År(barnFødselsdato: LocalDate) = when {
+    barnFødselsdato.month > Month.AUGUST -> {
+        barnFødselsdato.plusMonths(((Month.DECEMBER.value - barnFødselsdato.month.value) + Month.AUGUST.value).toLong())
+    }
+    barnFødselsdato.month < Month.AUGUST -> {
+        barnFødselsdato.plusMonths((Month.AUGUST.value - barnFødselsdato.month.value).toLong())
+    }
+    else -> {
+        barnFødselsdato
+    }
+}.førsteDagIInneværendeMåned()

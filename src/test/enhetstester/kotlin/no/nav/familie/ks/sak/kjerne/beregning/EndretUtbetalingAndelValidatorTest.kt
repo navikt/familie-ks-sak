@@ -197,7 +197,7 @@ class EndretUtbetalingAndelValidatorTest {
     }
 
     @Test
-    fun `Skal finne riktige delt bosted perioder for søker, og slå sammen de som er sammenhengende`() {
+    fun `finnDeltBostedPerioder Skal finne riktige delt bosted perioder for søker, og slå sammen de som er sammenhengende`() {
         val fomBarn1 = LocalDate.now().minusMonths(5)
         val tomBarn1 = LocalDate.now().plusMonths(7)
         val fomBarn2 = fomBarn1.minusMonths(5)
@@ -237,7 +237,7 @@ class EndretUtbetalingAndelValidatorTest {
     }
 
     @Test
-    fun `Skal finne riktige delt bosted perioder for søker, og slå sammen de som overlapper`() {
+    fun `finnDeltBostedPerioder Skal finne riktige delt bosted perioder for søker, og slå sammen de som overlapper`() {
         val fomBarn1 = LocalDate.now().minusMonths(5)
         val tomBarn1 = LocalDate.now().plusMonths(7)
         val fomBarn2 = fomBarn1.minusMonths(5)

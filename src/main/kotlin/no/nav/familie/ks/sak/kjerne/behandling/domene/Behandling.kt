@@ -121,7 +121,7 @@ data class Behandling(
         return type != TEKNISK_ENDRING
     }
 
-    fun erBehandlingMedVedtaksbrevutsending(): Boolean {
+    fun kanSendeVedtaksbrev(): Boolean {
         return when {
             type == TEKNISK_ENDRING -> false
             opprettetÅrsak == BehandlingÅrsak.SATSENDRING -> false
@@ -151,38 +151,38 @@ data class Behandling(
  * Et behandlingsresultater beskriver det samlede resultatet for vurderinger gjort i inneværende behandling.
  * @displayName benyttes for visning av resultat
  */
-enum class Behandlingsresultat(val displayName: String) {
+enum class Behandlingsresultat(val displayName: String, val gyldigeBehandlingstyper: List<BehandlingType>) {
 
     // Søknad
-    INNVILGET(displayName = "Innvilget"),
-    INNVILGET_OG_OPPHØRT(displayName = "Innvilget og opphørt"),
-    INNVILGET_OG_ENDRET(displayName = "Innvilget og endret"),
-    INNVILGET_ENDRET_OG_OPPHØRT(displayName = "Innvilget, endret og opphørt"),
+    INNVILGET(displayName = "Innvilget", BehandlingType.values().toList()),
+    INNVILGET_OG_OPPHØRT(displayName = "Innvilget og opphørt", BehandlingType.values().toList()),
+    INNVILGET_OG_ENDRET(displayName = "Innvilget og endret", listOf(REVURDERING, TEKNISK_ENDRING)),
+    INNVILGET_ENDRET_OG_OPPHØRT(displayName = "Innvilget, endret og opphørt", listOf(REVURDERING, TEKNISK_ENDRING)),
 
-    DELVIS_INNVILGET(displayName = "Delvis innvilget"),
-    DELVIS_INNVILGET_OG_OPPHØRT(displayName = "Delvis innvilget og opphørt"),
-    DELVIS_INNVILGET_OG_ENDRET(displayName = "Delvis innvilget og endret"),
-    DELVIS_INNVILGET_ENDRET_OG_OPPHØRT(displayName = "Delvis innvilget, endret og opphørt"),
+    DELVIS_INNVILGET(displayName = "Delvis innvilget", BehandlingType.values().toList()),
+    DELVIS_INNVILGET_OG_OPPHØRT(displayName = "Delvis innvilget og opphørt", BehandlingType.values().toList()),
+    DELVIS_INNVILGET_OG_ENDRET(displayName = "Delvis innvilget og endret", listOf(REVURDERING, TEKNISK_ENDRING)),
+    DELVIS_INNVILGET_ENDRET_OG_OPPHØRT(displayName = "Delvis innvilget, endret og opphørt", listOf(REVURDERING, TEKNISK_ENDRING)),
 
-    AVSLÅTT(displayName = "Avslått"),
-    AVSLÅTT_OG_OPPHØRT(displayName = "Avslått og opphørt"),
-    AVSLÅTT_OG_ENDRET(displayName = "Avslått og endret"),
-    AVSLÅTT_ENDRET_OG_OPPHØRT(displayName = "Avslått, endret og opphørt"),
+    AVSLÅTT(displayName = "Avslått", BehandlingType.values().toList()),
+    AVSLÅTT_OG_OPPHØRT(displayName = "Avslått og opphørt", listOf(REVURDERING, TEKNISK_ENDRING)),
+    AVSLÅTT_OG_ENDRET(displayName = "Avslått og endret", listOf(REVURDERING, TEKNISK_ENDRING)),
+    AVSLÅTT_ENDRET_OG_OPPHØRT(displayName = "Avslått, endret og opphørt", listOf(REVURDERING, TEKNISK_ENDRING)),
 
     // Revurdering uten søknad
-    ENDRET_UTBETALING(displayName = "Endret utbetaling"),
-    ENDRET_UTEN_UTBETALING(displayName = "Endret, uten endret utbetaling"),
-    ENDRET_OG_OPPHØRT(displayName = "Endret og opphørt"),
-    OPPHØRT(displayName = "Opphørt"),
-    FORTSATT_OPPHØRT(displayName = "Fortsatt opphørt"),
-    FORTSATT_INNVILGET(displayName = "Fortsatt innvilget"),
+    ENDRET_UTBETALING(displayName = "Endret utbetaling", listOf(REVURDERING, TEKNISK_ENDRING)),
+    ENDRET_UTEN_UTBETALING(displayName = "Endret, uten endret utbetaling", listOf(REVURDERING, TEKNISK_ENDRING)),
+    ENDRET_OG_OPPHØRT(displayName = "Endret og opphørt", listOf(REVURDERING, TEKNISK_ENDRING)),
+    OPPHØRT(displayName = "Opphørt", BehandlingType.values().toList()),
+    FORTSATT_OPPHØRT(displayName = "Fortsatt opphørt", listOf(REVURDERING, TEKNISK_ENDRING)),
+    FORTSATT_INNVILGET(displayName = "Fortsatt innvilget", listOf(REVURDERING, TEKNISK_ENDRING)),
 
     // Henlagt
-    HENLAGT_FEILAKTIG_OPPRETTET(displayName = "Henlagt feilaktig opprettet"),
-    HENLAGT_SØKNAD_TRUKKET(displayName = "Henlagt søknad trukket"),
-    HENLAGT_TEKNISK_VEDLIKEHOLD(displayName = "Henlagt teknisk vedlikehold"),
+    HENLAGT_FEILAKTIG_OPPRETTET(displayName = "Henlagt feilaktig opprettet", BehandlingType.values().toList()),
+    HENLAGT_SØKNAD_TRUKKET(displayName = "Henlagt søknad trukket", BehandlingType.values().toList()),
+    HENLAGT_TEKNISK_VEDLIKEHOLD(displayName = "Henlagt teknisk vedlikehold", BehandlingType.values().toList()),
 
-    IKKE_VURDERT(displayName = "Ikke vurdert");
+    IKKE_VURDERT(displayName = "Ikke vurdert", emptyList());
 
     fun kanIkkeSendesTilOppdrag(): Boolean =
         this in listOf(FORTSATT_INNVILGET, AVSLÅTT, FORTSATT_OPPHØRT, ENDRET_UTEN_UTBETALING)

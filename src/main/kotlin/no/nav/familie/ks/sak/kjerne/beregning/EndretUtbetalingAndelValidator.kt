@@ -1,16 +1,16 @@
 package no.nav.familie.ks.sak.kjerne.beregning
 
-import no.nav.familie.ks.sak.common.entitet.DatoIntervallEntitet
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
+import no.nav.familie.ks.sak.common.tidslinje.Periode
+import no.nav.familie.ks.sak.common.tidslinje.Verdi
+import no.nav.familie.ks.sak.common.tidslinje.filtrerIkkeNull
+import no.nav.familie.ks.sak.common.tidslinje.tilTidslinje
+import no.nav.familie.ks.sak.common.tidslinje.utvidelser.slåSammenLikePerioder
+import no.nav.familie.ks.sak.common.tidslinje.utvidelser.slåSammenLikeTidslinjer
+import no.nav.familie.ks.sak.common.tidslinje.utvidelser.tilPerioder
 import no.nav.familie.ks.sak.common.util.MånedPeriode
-import no.nav.familie.ks.sak.common.util.Periode
-import no.nav.familie.ks.sak.common.util.erDagenFør
 import no.nav.familie.ks.sak.common.util.erMellom
-import no.nav.familie.ks.sak.common.util.førsteDagIInneværendeMåned
-import no.nav.familie.ks.sak.common.util.sisteDagIMåned
-import no.nav.familie.ks.sak.common.util.slåSammenOverlappendePerioder
-import no.nav.familie.ks.sak.common.util.tilMånedPeriode
 import no.nav.familie.ks.sak.common.util.toYearMonth
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.UtdypendeVilkårsvurdering
@@ -57,7 +57,7 @@ object EndretUtbetalingAndelValidator {
                 val deltBostedPerioder = finnDeltBostedPerioder(
                     person = endretUtbetalingAndel.person,
                     vilkårsvurdering = vilkårsvurdering
-                ).map { it.tilMånedPeriode() }
+                )
                 validerDeltBosted(endretUtbetalingAndel = endretUtbetalingAndel, deltBostedPerioder = deltBostedPerioder)
             }
             Årsak.ETTERBETALING_3MND -> {
@@ -70,7 +70,29 @@ object EndretUtbetalingAndelValidator {
         }
     }
 
-    internal fun finnDeltBostedPerioder(person: Person?, vilkårsvurdering: Vilkårsvurdering?): List<Periode> {
+    fun validerAtAlleOpprettedeEndringerErUtfylt(endretUtbetalingAndeler: List<EndretUtbetalingAndel>) {
+        runCatching {
+            endretUtbetalingAndeler.forEach { it.validerUtfyltEndring() }
+        }.onFailure {
+            throw FunksjonellFeil(
+                melding = "Det er opprettet instanser av EndretUtbetalingandel som ikke er fylt ut før navigering til neste steg.",
+                frontendFeilmelding = "Du har opprettet en eller flere endrede utbetalingsperioder " +
+                    "som er ufullstendig utfylt. Disse må enten fylles ut eller slettes før du kan gå videre."
+            )
+        }
+    }
+
+    fun validerAtEndringerErTilknyttetAndelTilkjentYtelse(endretUtbetalingAndeler: List<EndretUtbetalingAndelMedAndelerTilkjentYtelse>) {
+        if (endretUtbetalingAndeler.any { it.andelerTilkjentYtelse.isEmpty() }) {
+            throw FunksjonellFeil(
+                melding = "Det er opprettet instanser av EndretUtbetalingandel som ikke er tilknyttet noen andeler. " +
+                    "De må enten lagres eller slettes av SB.",
+                frontendFeilmelding = "Du har endrede utbetalingsperioder. Bekreft, slett eller oppdater periodene i listen."
+            )
+        }
+    }
+
+    internal fun finnDeltBostedPerioder(person: Person?, vilkårsvurdering: Vilkårsvurdering?): List<Periode<Long>> {
         if (vilkårsvurdering == null || person == null) return emptyList()
         val deltBostedPerioder = when (person.type) {
             PersonType.SØKER -> {
@@ -87,10 +109,10 @@ object EndretUtbetalingAndelValidator {
                 val deltBostedPerioder = deltBostedVilkårResultater.groupBy { it.personResultat?.aktør }
                     .flatMap { (_, vilkårResultater) -> vilkårResultater.mapNotNull { it.tilPeriode(vilkår = vilkårResultater) } }
 
-                slåSammenOverlappendePerioder(deltBostedPerioder.map { DatoIntervallEntitet(fom = it.fom, tom = it.tom) })
-                    .filter { it.fom != null && it.tom != null }.map {
-                        Periode(fom = checkNotNull(it.fom), tom = checkNotNull(it.tom))
-                    }
+                // slår sammen overlappende perioder
+                deltBostedPerioder.filter { it.fom != null && it.tom != null }.map { listOf(it).tilTidslinje() }
+                    .slåSammenLikeTidslinjer { elem1, _ -> Verdi(person.personopplysningGrunnlag.behandlingId) }
+                    .slåSammenLikePerioder().tilPerioder()
             }
             else -> { // For barn, hentes det delt bosted for spesikt barn
                 val personensVilkår = vilkårsvurdering.personResultater.single { it.aktør == person.aktør }
@@ -98,45 +120,16 @@ object EndretUtbetalingAndelValidator {
                     it.utdypendeVilkårsvurderinger.contains(UtdypendeVilkårsvurdering.DELT_BOSTED) && it.resultat == Resultat.OPPFYLT
                 }
 
-                deltBostedVilkårResultater.mapNotNull { it.tilPeriode(vilkår = deltBostedVilkårResultater) }
+                deltBostedVilkårResultater.mapNotNull { it.tilPeriode(vilkår = deltBostedVilkårResultater) }.tilTidslinje().tilPerioder()
             }
         }
         // det slår sammen alle delt bosted perioder som er sammenhengende
-        return slåSammenDeltBostedPerioderSomHengerSammen(perioder = deltBostedPerioder)
-    }
-
-    private fun slåSammenDeltBostedPerioderSomHengerSammen(perioder: List<Periode>): List<Periode> {
-        if (perioder.isEmpty()) return emptyList()
-        val sortertePerioder = perioder.sortedBy { it.fom }
-        var periodenSomVises: Periode = sortertePerioder.first()
-        val oppdatertListeMedPerioder = mutableListOf<Periode>()
-
-        for (index in sortertePerioder.indices) {
-            val periode = sortertePerioder[index]
-            val nestePeriode = if (index == sortertePerioder.size - 1) null else sortertePerioder[index + 1]
-
-            periodenSomVises = if (nestePeriode != null) {
-                val andelerSkalSlåsSammen =
-                    periode.tom.sisteDagIMåned().erDagenFør(nestePeriode.fom.førsteDagIInneværendeMåned())
-
-                if (andelerSkalSlåsSammen) {
-                    val nyPeriode = periodenSomVises.copy(tom = nestePeriode.tom)
-                    nyPeriode
-                } else {
-                    oppdatertListeMedPerioder.add(periodenSomVises)
-                    sortertePerioder[index + 1]
-                }
-            } else {
-                oppdatertListeMedPerioder.add(periodenSomVises)
-                break
-            }
-        }
-        return oppdatertListeMedPerioder
+        return deltBostedPerioder.tilTidslinje().slåSammenLikePerioder().tilPerioder().filtrerIkkeNull()
     }
 
     private fun validerDeltBosted(
         endretUtbetalingAndel: EndretUtbetalingAndel,
-        deltBostedPerioder: List<MånedPeriode>
+        deltBostedPerioder: List<Periode<Long>>
     ) {
         val fom = endretUtbetalingAndel.fom
         val tom = endretUtbetalingAndel.tom
@@ -145,7 +138,15 @@ object EndretUtbetalingAndelValidator {
         }
         val endringsperiode = MånedPeriode(fom, tom)
 
-        if (!deltBostedPerioder.any { endringsperiode.erMellom(MånedPeriode(fom = it.fom, tom = it.tom)) }) {
+        if (!deltBostedPerioder.any {
+            endringsperiode.erMellom(
+                    MånedPeriode(
+                            fom = checkNotNull(it.fom).toYearMonth(),
+                            tom = checkNotNull(it.tom).toYearMonth()
+                        )
+                )
+        }
+        ) {
             throw FunksjonellFeil(
                 melding = "Det finnes ingen delt bosted perioder i perioden det opprettes en endring med årsak delt bosted for.",
                 frontendFeilmelding = "Du har valgt årsaken 'delt bosted', " +

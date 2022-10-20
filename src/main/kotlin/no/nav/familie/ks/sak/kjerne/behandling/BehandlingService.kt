@@ -10,6 +10,8 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
 import no.nav.familie.ks.sak.kjerne.behandling.steg.søknad.SøknadGrunnlagService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
+import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat
+import no.nav.familie.ks.sak.kjerne.logg.LoggService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
 import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext
 import org.slf4j.Logger
@@ -22,7 +24,8 @@ class BehandlingService(
     private val arbeidsfordelingService: ArbeidsfordelingService,
     private val søknadGrunnlagService: SøknadGrunnlagService,
     private val personopplysningGrunnlagService: PersonopplysningGrunnlagService,
-    private val vilkårsvurderingService: VilkårsvurderingService
+    private val vilkårsvurderingService: VilkårsvurderingService,
+    private val loggService: LoggService
 ) {
 
     fun hentBehandling(behandlingId: Long): Behandling = behandlingRepository.hentBehandling(behandlingId)
@@ -56,8 +59,24 @@ class BehandlingService(
     fun oppdaterBehandlendeEnhet(behandlingId: Long, endreBehandlendeEnhet: EndreBehandlendeEnhetDto) =
         arbeidsfordelingService.manueltOppdaterBehandlendeEnhet(hentBehandling(behandlingId), endreBehandlendeEnhet)
 
-    companion object {
+    fun oppdaterBehandlingsresultat(behandlingId: Long, behandlingsresultat: Behandlingsresultat): Behandling {
+        val behandling = hentBehandling(behandlingId)
+        logger.info(
+            "${SikkerhetContext.hentSaksbehandlerNavn()} endrer resultat på behandling $behandlingId " +
+                "fra ${behandling.resultat} til $behandlingsresultat"
+        )
+        loggService.opprettVilkårsvurderingLogg(
+            behandling = behandling,
+            behandlingsForrigeResultat = behandling.resultat,
+            behandlingsNyResultat = behandlingsresultat
+        )
+        return lagreEllerOppdater(behandling.copy(resultat = behandlingsresultat))
+    }
 
+    fun nullstillEndringstidspunkt(behandlingId: Long) =
+        lagreEllerOppdater(hentBehandling(behandlingId).copy(overstyrtEndringstidspunkt = null))
+
+    companion object {
         private val logger: Logger = LoggerFactory.getLogger(BehandlingService::class.java)
     }
 }
