@@ -46,7 +46,7 @@ class TidslinjeLengdeTest {
         )
 
         // Her testes det med nullverdi lik -1 for bifunksjon, dvs hvis en av tidslinjene er null i en sammenligning vil den returnere null.
-        val t3 = t1.kombinerMed(t2) { el1, el2 ->
+        val t3 = t1.biFunksjon(t2) { el1, el2 ->
             if (el1 is Udefinert || el2 is Udefinert) Udefinert()
             else Verdi(el1.verdi!! + el2.verdi!!)
         }
@@ -59,7 +59,7 @@ class TidslinjeLengdeTest {
             "Kunne ikke addere to tidslinjer med ulik slutt"
         )
 
-        val t4 = t1.kombinerMed(t2) { el1, el2 ->
+        val t4 = t1.biFunksjon(t2) { el1, el2 ->
             if (el1 is Udefinert || el2 is Udefinert) Udefinert()
             else Verdi(el1.verdi!! - el2.verdi!!)
         }
@@ -80,7 +80,7 @@ class TidslinjeLengdeTest {
             listOf(TidslinjePeriode(10, 3, false), TidslinjePeriode(3, 1, false), TidslinjePeriode(4, 1, false))
         )
 
-        val t5 = t1.kombinerMed(t2) { el1, el2 ->
+        val t5 = t1.biFunksjon(t2) { el1, el2 ->
             if (el1 is Udefinert || el2 is Udefinert) Udefinert()
             else Verdi(el1.verdi!! + el2.verdi!!)
         }
@@ -93,7 +93,7 @@ class TidslinjeLengdeTest {
             "Kunne ikke addere to tidslinjer med ulik slutt"
         )
 
-        val t6 = t1.kombinerMed(t2) { el1, el2 ->
+        val t6 = t1.biFunksjon(t2) { el1, el2 ->
             if (el1 is Udefinert || el2 is Udefinert) Udefinert()
             else Verdi(el1.verdi!! - el2.verdi!!)
         }
@@ -114,7 +114,7 @@ class TidslinjeLengdeTest {
             listOf(TidslinjePeriode(10, 3, false), TidslinjePeriode(3, 1, false), TidslinjePeriode(4, 1, false))
         )
 
-        val t7 = t1.kombinerMed(t2) { el1, el2 ->
+        val t7 = t1.biFunksjon(t2) { el1, el2 ->
             if (el1 is Udefinert || el2 is Udefinert) Udefinert()
             else Verdi(el1.verdi!! + el2.verdi!!)
         }
@@ -127,7 +127,7 @@ class TidslinjeLengdeTest {
             "Kunne ikke addere to tidslinjer med ulik slutt"
         )
 
-        val t8 = t1.kombinerMed(t2) { el1, el2 ->
+        val t8 = t1.biFunksjon(t2) { el1, el2 ->
             if (el1 is Udefinert || el2 is Udefinert) Udefinert()
             else Verdi(el1.verdi!! - el2.verdi!!)
         }
@@ -148,7 +148,7 @@ class TidslinjeLengdeTest {
             listOf(TidslinjePeriode(10, 3, false), TidslinjePeriode(3, 1, false), TidslinjePeriode(null, 1, false))
         )
 
-        val t7 = t1.kombinerMed(t2) { el1, el2 ->
+        val t7 = t1.biFunksjon(t2) { el1, el2 ->
             if (el1 is Udefinert || el2 is Udefinert) Udefinert()
             else if (el1 is Null || el2 is Null) Null()
             else Verdi(el1.verdi!! + el2.verdi!!)
@@ -162,7 +162,7 @@ class TidslinjeLengdeTest {
             "Kunne ikke addere to tidslinjer med ulik slutt"
         )
 
-        val t8 = t1.kombinerMed(t2) { el1, el2 ->
+        val t8 = t1.biFunksjon(t2) { el1, el2 ->
             if (el1 is Udefinert || el2 is Udefinert) Udefinert()
             else if (el1 is Null || el2 is Null) Null()
             else Verdi(el1.verdi!! + el2.verdi!!)
@@ -199,7 +199,7 @@ class TidslinjeLengdeTest {
             tidsEnhet = TidsEnhet.MÅNED
         )
 
-        val resultat = t1.kombinerMed(t2) { el1, el2 ->
+        val resultat = t1.biFunksjon(t2) { el1, el2 ->
             if (el1 is Udefinert || el2 is Udefinert) Udefinert()
             else Verdi(el1.verdi!! + el2.verdi!!)
         }
@@ -238,7 +238,7 @@ class TidslinjeLengdeTest {
             tidsEnhet = TidsEnhet.MÅNED
         )
 
-        val resultat = t1.kombinerMed(t2) { el1, el2 ->
+        val resultat = t1.biFunksjon(t2) { el1, el2 ->
             if (el1 is Udefinert || el2 is Udefinert) Udefinert()
             else Verdi(el1.verdi!! + el2.verdi!!)
         }

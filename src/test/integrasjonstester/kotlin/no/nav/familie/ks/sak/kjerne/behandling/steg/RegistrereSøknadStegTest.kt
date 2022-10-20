@@ -1,4 +1,4 @@
-package no.nav.familie.ks.sak.no.nav.familie.ks.sak.kjerne.behandling.steg
+package no.nav.familie.ks.sak.kjerne.behandling.steg
 
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
@@ -15,11 +15,11 @@ import no.nav.familie.ks.sak.data.lagPersonopplysningGrunnlag
 import no.nav.familie.ks.sak.data.randomAktør
 import no.nav.familie.ks.sak.integrasjon.pdl.PersonOpplysningerService
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.ArbeidsfordelingService
-import no.nav.familie.ks.sak.kjerne.behandling.steg.RegistrereSøknadSteg
+import no.nav.familie.ks.sak.kjerne.behandling.steg.søknad.RegistrereSøknadSteg
+import no.nav.familie.ks.sak.kjerne.behandling.steg.søknad.domene.SøknadGrunnlagRepository
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import no.nav.familie.ks.sak.kjerne.personident.AktørRepository
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlagRepository
-import no.nav.familie.ks.sak.kjerne.søknad.domene.SøknadGrunnlagRepository
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertTrue

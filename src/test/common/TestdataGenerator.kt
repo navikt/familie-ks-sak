@@ -20,11 +20,17 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingType
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.AnnenVurdering
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.AnnenVurderingType
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.PersonResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.UtdypendeVilkårsvurdering
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelse
+import no.nav.familie.ks.sak.kjerne.beregning.domene.EndretUtbetalingAndel
 import no.nav.familie.ks.sak.kjerne.beregning.domene.TilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.domene.YtelseType
+import no.nav.familie.ks.sak.kjerne.beregning.domene.Årsak
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.Fagsak
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import no.nav.familie.ks.sak.kjerne.personident.Personident
@@ -34,11 +40,9 @@ import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.bostedsadresse.GrBostedsadresse
+import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.dødsfall.Dødsfall
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.sivilstand.GrSivilstand
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.statsborgerskap.GrStatsborgerskap
-import no.nav.familie.ks.sak.kjerne.vilkårsvurdering.domene.PersonResultat
-import no.nav.familie.ks.sak.kjerne.vilkårsvurdering.domene.Vilkår
-import no.nav.familie.ks.sak.kjerne.vilkårsvurdering.domene.VilkårResultat
 import java.math.BigDecimal
 import java.time.LocalDate
 import java.time.YearMonth
@@ -89,7 +93,8 @@ fun lagPersonopplysningGrunnlag(
                 )
             )
         }
-    }
+    },
+    søkerDødsDato: LocalDate? = null,
 ): PersonopplysningGrunnlag {
     val personopplysningGrunnlag = PersonopplysningGrunnlag(behandlingId = behandlingId)
 
@@ -106,6 +111,11 @@ fun lagPersonopplysningGrunnlag(
         søker.bostedsadresser = mutableListOf()
         søker.sivilstander = mutableListOf(GrSivilstand(type = SIVILSTAND.GIFT, person = søker))
     }
+
+    søkerDødsDato?.let {
+        søker.dødsfall = Dødsfall(1, søker, it, null, null, null)
+    }
+
     personopplysningGrunnlag.personer.add(søker)
 
     barnAktør.mapIndexed { index, aktør ->
@@ -206,14 +216,16 @@ fun lagInitieltTilkjentYtelse(behandling: Behandling) =
 fun lagAndelTilkjentYtelse(
     tilkjentYtelse: TilkjentYtelse? = null,
     behandling: Behandling,
-    aktør: Aktør? = null
+    aktør: Aktør? = null,
+    stønadFom: YearMonth = YearMonth.now().minusMonths(1),
+    stønadTom: YearMonth = YearMonth.now().plusMonths(8)
 ) = AndelTilkjentYtelse(
     behandlingId = behandling.id,
     tilkjentYtelse = tilkjentYtelse ?: lagInitieltTilkjentYtelse(behandling),
     aktør = aktør ?: behandling.fagsak.aktør,
     kalkulertUtbetalingsbeløp = 1054,
-    stønadFom = YearMonth.now().minusMonths(1),
-    stønadTom = YearMonth.now().plusMonths(8),
+    stønadFom = stønadFom,
+    stønadTom = stønadTom,
     type = YtelseType.ORDINÆR_KONTANTSTØTTE,
     sats = 1054,
     prosent = BigDecimal(100),
@@ -297,7 +309,8 @@ fun lagVilkårResultat(
     periodeFom: LocalDate = LocalDate.now().minusMonths(3),
     periodeTom: LocalDate = LocalDate.now(),
     begrunnelse: String = "",
-    behandlingId: Long
+    behandlingId: Long,
+    utdypendeVilkårsvurderinger: List<UtdypendeVilkårsvurdering> = emptyList()
 ): VilkårResultat = VilkårResultat(
     id = id,
     personResultat = personResultat,
@@ -306,5 +319,73 @@ fun lagVilkårResultat(
     periodeFom = periodeFom,
     periodeTom = periodeTom,
     begrunnelse = begrunnelse,
-    behandlingId = behandlingId
+    behandlingId = behandlingId,
+    utdypendeVilkårsvurderinger = utdypendeVilkårsvurderinger
+)
+
+fun lagVilkårResultaterForDeltBosted(
+    personResultat: PersonResultat,
+    fom1: LocalDate,
+    tom1: LocalDate,
+    fom2: LocalDate? = null,
+    tom2: LocalDate? = null,
+    behandlingId: Long
+): Set<VilkårResultat> {
+    val vilkårResultaterForBarn = mutableSetOf<VilkårResultat>()
+    Vilkår.hentVilkårFor(PersonType.BARN).forEach {
+        when (it) {
+            Vilkår.BOR_MED_SØKER -> {
+                val vilkårResultatMedDeltBosted1 = lagVilkårResultat(
+                    personResultat = personResultat,
+                    vilkårType = it,
+                    periodeFom = fom1,
+                    periodeTom = tom1,
+                    behandlingId = behandlingId,
+                    utdypendeVilkårsvurderinger = listOf(UtdypendeVilkårsvurdering.DELT_BOSTED)
+                )
+                vilkårResultaterForBarn.add(vilkårResultatMedDeltBosted1)
+                if (fom2 != null && tom2 != null) {
+                    val vilkårResultatMedDeltBosted2 = lagVilkårResultat(
+                        personResultat = personResultat,
+                        vilkårType = it,
+                        periodeFom = fom2,
+                        periodeTom = tom2,
+                        behandlingId = behandlingId,
+                        utdypendeVilkårsvurderinger = listOf(UtdypendeVilkårsvurdering.DELT_BOSTED)
+                    )
+                    vilkårResultaterForBarn.add(vilkårResultatMedDeltBosted2)
+                }
+            }
+            else -> vilkårResultaterForBarn.add(
+                lagVilkårResultat(
+                    personResultat = personResultat,
+                    vilkårType = it,
+                    periodeFom = fom1,
+                    periodeTom = tom2 ?: tom1,
+                    behandlingId = behandlingId
+                )
+            )
+        }
+    }
+    return vilkårResultaterForBarn
+}
+
+fun lagEndretUtbetalingAndel(
+    behandlingId: Long,
+    person: Person,
+    prosent: BigDecimal? = null,
+    periodeFom: YearMonth = YearMonth.now().minusMonths(1),
+    periodeTom: YearMonth = YearMonth.now(),
+    årsak: Årsak = Årsak.DELT_BOSTED,
+    avtaletidspunktDeltBosted: LocalDate? = LocalDate.now().minusMonths(1)
+): EndretUtbetalingAndel = EndretUtbetalingAndel(
+    behandlingId = behandlingId,
+    person = person,
+    prosent = prosent,
+    fom = periodeFom,
+    tom = periodeTom,
+    årsak = årsak,
+    avtaletidspunktDeltBosted = avtaletidspunktDeltBosted,
+    søknadstidspunkt = LocalDate.now().minusMonths(1),
+    begrunnelse = "test"
 )

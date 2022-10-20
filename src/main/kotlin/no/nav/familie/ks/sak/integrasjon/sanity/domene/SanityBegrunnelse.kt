@@ -1,8 +1,8 @@
 package no.nav.familie.ks.sak.integrasjon.sanity.domene
 
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.TriggesAv
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
-import no.nav.familie.ks.sak.kjerne.vedtak.TriggesAv
-import no.nav.familie.ks.sak.kjerne.vilkårsvurdering.domene.Vilkår
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 

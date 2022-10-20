@@ -3,24 +3,26 @@ package no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering
 import no.nav.familie.ks.sak.api.dto.VedtakBegrunnelseTilknyttetVilkårResponseDto
 import no.nav.familie.ks.sak.api.dto.VilkårResultatDto
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
-import no.nav.familie.ks.sak.common.tidslinje.Null
+import no.nav.familie.ks.sak.common.tidslinje.Periode
 import no.nav.familie.ks.sak.common.tidslinje.Tidslinje
-import no.nav.familie.ks.sak.common.tidslinje.TidslinjePeriodeMedDato
-import no.nav.familie.ks.sak.common.tidslinje.Verdi
 import no.nav.familie.ks.sak.common.tidslinje.tilTidslinje
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.kombinerMed
-import no.nav.familie.ks.sak.common.tidslinje.utvidelser.tilTidslinjePerioderMedDato
+import no.nav.familie.ks.sak.common.tidslinje.utvidelser.tilPerioder
+import no.nav.familie.ks.sak.common.util.TIDENES_ENDE
+import no.nav.familie.ks.sak.common.util.erBack2BackIMånedsskifte
+import no.nav.familie.ks.sak.common.util.sisteDagIMåned
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelse
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityEØSBegrunnelse
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.tilTriggesAv
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.EØSStandardbegrunnelse
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.Standardbegrunnelse
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.tilSanityBegrunnelse
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.tilSanityEØSBegrunnelse
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.PersonResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
-import no.nav.familie.ks.sak.kjerne.vedtak.EØSStandardbegrunnelse
-import no.nav.familie.ks.sak.kjerne.vedtak.Standardbegrunnelse
-import no.nav.familie.ks.sak.kjerne.vedtak.tilSanityBegrunnelse
-import no.nav.familie.ks.sak.kjerne.vedtak.tilSanityEØSBegrunnelse
-import no.nav.familie.ks.sak.kjerne.vilkårsvurdering.domene.PersonResultat
-import no.nav.familie.ks.sak.kjerne.vilkårsvurdering.domene.Vilkår
-import no.nav.familie.ks.sak.kjerne.vilkårsvurdering.domene.VilkårResultat
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
+import java.time.LocalDate
 
 fun standardbegrunnelserTilNedtrekksmenytekster(
     sanityBegrunnelser: List<SanityBegrunnelse>
@@ -174,12 +176,12 @@ fun tilpassVilkårForEndretVilkår(
 
     return eksisterendeVilkårResultatTidslinje
         .kombinerMed(endretVilkårResultatTidslinje) { eksisterendeVilkår, endretVilkår ->
-            if (endretVilkår is Verdi) {
-                Null()
+            if (endretVilkår != null) {
+                null
             } else {
                 eksisterendeVilkår
             }
-        }.tilTidslinjePerioderMedDato()
+        }.tilPerioder()
         .mapNotNull {
             it.tilVilkårResultatMedOppdatertPeriodeOgBehandlingsId(nyBehandlingsId = endretVilkårResultat.behandlingId)
         }
@@ -213,9 +215,9 @@ private fun validerAvslagUtenPeriodeMedLøpende(
     }
 }
 
-private fun List<VilkårResultat>.tilTidslinje(): Tidslinje<VilkårResultat> {
+fun List<VilkårResultat>.tilTidslinje(): Tidslinje<VilkårResultat> {
     return map {
-        TidslinjePeriodeMedDato(
+        Periode(
             verdi = it,
             fom = it.periodeFom,
             tom = it.periodeTom
@@ -223,23 +225,31 @@ private fun List<VilkårResultat>.tilTidslinje(): Tidslinje<VilkårResultat> {
     }.tilTidslinje()
 }
 
-private fun TidslinjePeriodeMedDato<VilkårResultat>.tilVilkårResultatMedOppdatertPeriodeOgBehandlingsId(
+private fun Periode<VilkårResultat>.tilVilkårResultatMedOppdatertPeriodeOgBehandlingsId(
     nyBehandlingsId: Long
 ): VilkårResultat? {
-    val vilkårResultat = periodeVerdi.verdi
+    val vilkårResultat = this.verdi
 
-    val fom = fom.tilLocalDateEllerNull()
-    val tom = tom.tilLocalDateEllerNull()
-
-    val vilkårsdatoErUendret = fom == vilkårResultat?.periodeFom && tom == vilkårResultat?.periodeTom
+    val vilkårsdatoErUendret = this.fom == vilkårResultat?.periodeFom && this.tom == vilkårResultat?.periodeTom
 
     return if (vilkårsdatoErUendret) {
         vilkårResultat
     } else {
         vilkårResultat?.kopierMedNyPeriodeOgBehandling(
-            fom = fom,
-            tom = tom,
+            fom = this.fom,
+            tom = this.tom,
             behandlingId = nyBehandlingsId
         )
     }
+}
+
+fun finnTilOgMedDato(tilOgMed: LocalDate?, vilkårResultater: List<VilkårResultat>): LocalDate {
+    // LocalDateTimeline krasjer i isTimelineOutsideInterval funksjonen dersom vi sender med TIDENES_ENDE,
+    // så bruker tidenes ende minus én dag.
+    if (tilOgMed == null) return TIDENES_ENDE.minusDays(1)
+    val skalVidereføresEnMndEkstra = vilkårResultater.any { vilkårResultat ->
+        erBack2BackIMånedsskifte(tilOgMed = tilOgMed, fraOgMed = vilkårResultat.periodeFom)
+    }
+
+    return if (skalVidereføresEnMndEkstra) tilOgMed.plusMonths(1).sisteDagIMåned() else tilOgMed.sisteDagIMåned()
 }

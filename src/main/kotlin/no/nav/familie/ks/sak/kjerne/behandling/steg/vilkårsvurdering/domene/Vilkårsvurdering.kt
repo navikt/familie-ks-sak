@@ -2,7 +2,6 @@ package no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene
 
 import no.nav.familie.ks.sak.common.entitet.BaseEntitet
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
-import no.nav.familie.ks.sak.kjerne.vilkårsvurdering.domene.PersonResultat
 import javax.persistence.CascadeType
 import javax.persistence.Column
 import javax.persistence.Entity
@@ -44,4 +43,11 @@ data class Vilkårsvurdering(
 
     @Column(name = "ytelse_personer", columnDefinition = "text")
     var ytelsePersoner: String? = null
-) : BaseEntitet()
+) : BaseEntitet() {
+    fun hentPersonResultaterTilAktør(aktørId: String): List<VilkårResultat> {
+        println(personResultater.map { it.aktør.aktørId })
+
+        return personResultater.find { it.aktør.aktørId == aktørId }?.vilkårResultater?.toList()
+            ?: throw IllegalStateException("Fant ikke personresultat for $aktørId")
+    }
+}

@@ -2,7 +2,7 @@ package no.nav.familie.ks.sak.api.mapper
 
 import no.nav.familie.kontrakter.felles.objectMapper
 import no.nav.familie.ks.sak.api.dto.SøknadDto
-import no.nav.familie.ks.sak.kjerne.søknad.domene.SøknadGrunnlag
+import no.nav.familie.ks.sak.kjerne.behandling.steg.søknad.domene.SøknadGrunnlag
 
 object SøknadGrunnlagMapper {
 

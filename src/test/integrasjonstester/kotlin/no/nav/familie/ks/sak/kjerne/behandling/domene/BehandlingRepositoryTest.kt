@@ -1,8 +1,6 @@
-package no.nav.familie.ks.sak.no.nav.familie.ks.sak.kjerne.behandling.domene
+package no.nav.familie.ks.sak.kjerne.behandling.domene
 
 import no.nav.familie.ks.sak.OppslagSpringRunnerTest
-import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
-import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertNull

@@ -18,10 +18,10 @@ import no.nav.familie.kontrakter.felles.oppgave.OppgaveResponse
 import no.nav.familie.kontrakter.felles.oppgave.OpprettOppgaveRequest
 import no.nav.familie.kontrakter.felles.tilgangskontroll.Tilgang
 import no.nav.familie.ks.sak.api.dto.OppdaterJournalpostRequestDto
-import no.nav.familie.ks.sak.common.kallEksternTjeneste
-import no.nav.familie.ks.sak.common.kallEksternTjenesteRessurs
-import no.nav.familie.ks.sak.common.kallEksternTjenesteUtenRespons
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.domene.Arbeidsfordelingsenhet
+import no.nav.familie.ks.sak.integrasjon.kallEksternTjeneste
+import no.nav.familie.ks.sak.integrasjon.kallEksternTjenesteRessurs
+import no.nav.familie.ks.sak.integrasjon.kallEksternTjenesteUtenRespons
 import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Qualifier

@@ -1,5 +1,6 @@
 package no.nav.familie.ks.sak.common.tidslinje
 
+import no.nav.familie.ks.sak.common.exception.Feil
 import java.time.LocalDate
 
 data class TidslinjePeriodeMedDato<T>(
@@ -32,6 +33,8 @@ data class TidslinjePeriodeMedDato<T>(
             return this.dato.compareTo(other.dato)
         }
     }
+
+    fun tilPeriode() = Periode(periodeVerdi.verdi, fom.tilLocalDateEllerNull(), tom.tilLocalDateEllerNull())
 }
 
 fun <T> List<TidslinjePeriodeMedDato<T>>.tilTidslinje(): Tidslinje<T> {
@@ -77,11 +80,11 @@ private fun <T> List<TidslinjePeriodeMedDato<T>>.tilTidslinjePerioder(): List<Ti
         }
 }
 
-private fun <T> List<TidslinjePeriodeMedDato<T>>.validerIngenOverlapp() {
+fun <T> List<TidslinjePeriodeMedDato<T>>.validerIngenOverlapp(feilmelding: String = "Feil med tidslinje. Overlapp på periode") {
     this.sortedBy { it.fom }
         .zipWithNext { a, b ->
             if (a.tom.tilDatoEllerPraktiskSenesteDag().isAfter(b.fom.tilDatoEllerPraktiskTidligsteDag())) {
-                error("Feil med tidslinje. Overlapp på periode")
+                throw Feil(message = feilmelding, frontendFeilmelding = feilmelding)
             }
         }
 }
