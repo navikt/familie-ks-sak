@@ -22,7 +22,7 @@ import org.springframework.kafka.listener.ContainerProperties
 
 @Configuration
 @EnableKafka
-@Profile("dev", "prod")
+@Profile("preprod", "prod")
 class KafkaConfig(
     @Value("\${KAFKA_BROKERS:localhost}") private val kafkaBrokers: String,
     @Value("\${KAFKA_TRUSTSTORE_PATH}") private val kafkaTruststorePath: String,
@@ -46,14 +46,13 @@ class KafkaConfig(
     }
 
     @Bean
-    fun concurrentKafkaListenerContainerFactory(kafkaErrorHandler: KafkaErrorHandler): ConcurrentKafkaListenerContainerFactory<String, String> {
-        val factory = ConcurrentKafkaListenerContainerFactory<String, String>()
-        factory.setConcurrency(1)
-        factory.containerProperties.ackMode = ContainerProperties.AckMode.MANUAL
-        factory.consumerFactory = consumerFactory()
-        factory.setCommonErrorHandler(kafkaErrorHandler)
-        return factory
-    }
+    fun concurrentKafkaListenerContainerFactory(kafkaErrorHandler: KafkaErrorHandler): ConcurrentKafkaListenerContainerFactory<String, String> =
+        ConcurrentKafkaListenerContainerFactory<String, String>().apply {
+            setConcurrency(1)
+            containerProperties.ackMode = ContainerProperties.AckMode.MANUAL
+            consumerFactory = consumerFactory()
+            setCommonErrorHandler(kafkaErrorHandler)
+        }
 
     private fun producerConfigs() = mapOf(
         ProducerConfig.BOOTSTRAP_SERVERS_CONFIG to kafkaBrokers,
@@ -61,7 +60,7 @@ class KafkaConfig(
         ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG to StringSerializer::class.java,
         ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG to true, // Den sikrer rekkefølge
         ProducerConfig.ACKS_CONFIG to "all", // Den sikrer at data ikke mistes
-        ProducerConfig.CLIENT_ID_CONFIG to Applikasjon.FAMILIE_TILBAKE.name
+        ProducerConfig.CLIENT_ID_CONFIG to Applikasjon.FAMILIE_KS_SAK.name
     ) + securityConfig()
 
     fun consumerConfigs() = mapOf(

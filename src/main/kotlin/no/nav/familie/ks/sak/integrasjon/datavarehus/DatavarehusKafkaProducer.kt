@@ -15,7 +15,7 @@ interface KafkaProducer {
 }
 
 @Service
-@Profile("!integrasjonstest & !e2e")
+@Profile("!integrasjonstest")
 class DatavarehusKafkaProducer(private val kafkaTemplate: KafkaTemplate<String, String>) : KafkaProducer {
 
     private val log = LoggerFactory.getLogger(this::class.java)
