@@ -12,3 +12,5 @@ data class Periode<T>(
 }
 
 fun <T> List<Periode<T>>.tilTidslinje(): Tidslinje<T> = this.map { it.tilTidslinjePeriodeMedDato() }.tilTidslinje()
+
+fun <T> List<Periode<T>>.filtrerIkkeNull() = this.filter { it.verdi != null }
