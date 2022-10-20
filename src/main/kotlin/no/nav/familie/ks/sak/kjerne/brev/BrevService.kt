@@ -20,11 +20,9 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Ann
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.Brevmal
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.FagsakRepository
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
-import no.nav.familie.ks.sak.kjerne.settpåvent.SettPåVentService
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import java.time.LocalDate
 
 @Service
 class BrevService(
@@ -33,7 +31,6 @@ class BrevService(
     private val arbeidsfordelingService: ArbeidsfordelingService,
     private val utgåendeJournalføringService: UtgåendeJournalføringService,
     private val vilkårsvurderingService: VilkårsvurderingService,
-    private val settPåVentService: SettPåVentService,
     private val behandlingRepository: BehandlingRepository,
     private val fagsakRepository: FagsakRepository,
     private val journalføringRepository: JournalføringRepository
@@ -166,17 +163,18 @@ class BrevService(
         if (
             manueltBrevDto.brevmal.setterBehandlingPåVent()
         ) {
-            settPåVentService.settBehandlingPåVent(
-                behandlingId = behandling.id,
-                frist = LocalDate.now()
-                    .plusDays(
-                        manueltBrevDto.brevmal.ventefristDager(
-                            manuellFrist = manueltBrevDto.antallUkerSvarfrist?.toLong(),
-                            behandlingKategori = behandling.kategori
-                        )
-                    ),
-                årsak = manueltBrevDto.brevmal.venteårsak()
-            )
+            // TODO: Legg inn kode som setter behandling på vent ved å bruke BehandlingstegTilstand og metode i StegService
+//            settPåVentService.settBehandlingPåVent(
+//                behandlingId = behandling.id,
+//                frist = LocalDate.now()
+//                    .plusDays(
+//                        manueltBrevDto.brevmal.ventefristDager(
+//                            manuellFrist = manueltBrevDto.antallUkerSvarfrist?.toLong(),
+//                            behandlingKategori = behandling.kategori
+//                        )
+//                    ),
+//                årsak = manueltBrevDto.brevmal.venteårsak()
+//            )
         }
     }
 
