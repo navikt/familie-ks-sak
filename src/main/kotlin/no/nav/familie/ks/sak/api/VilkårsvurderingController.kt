@@ -102,21 +102,19 @@ class VilkårsvurderingController(
         return ResponseEntity.ok(Ressurs.success(vilkårsvurderingService.hentVilkårsbegrunnelser()))
     }
 
-    @PutMapping(path = ["/{behandlingId}/annenvurdering/{annenVurderingId}"])
+    @PutMapping(path = ["/{behandlingId}/annenvurdering"])
     fun endreAnnenVurdering(
         @PathVariable behandlingId: Long,
-        @PathVariable annenVurderingId: Long,
         @RequestBody annenVurderingDto: AnnenVurderingDto
     ): ResponseEntity<Ressurs<BehandlingResponsDto>> {
         tilgangService.validerTilgangTilHandlingOgFagsakForBehandling(
             behandlingId = behandlingId,
             event = AuditLoggerEvent.UPDATE,
             minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
-            handling = "Annen vurdering"
+            handling = "endre på annen vurdering"
         )
 
         annenVurderingService.endreAnnenVurdering(
-            annenVurderingId = annenVurderingId,
             annenVurderingDto = annenVurderingDto
         )
 
