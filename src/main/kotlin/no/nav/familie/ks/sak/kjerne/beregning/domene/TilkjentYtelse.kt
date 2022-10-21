@@ -1,6 +1,15 @@
 package no.nav.familie.ks.sak.kjerne.beregning.domene
 
+import no.nav.familie.ks.sak.common.tidslinje.Periode
+import no.nav.familie.ks.sak.common.tidslinje.Tidslinje
+import no.nav.familie.ks.sak.common.tidslinje.tilPeriodeVerdi
+import no.nav.familie.ks.sak.common.tidslinje.tilTidslinje
+import no.nav.familie.ks.sak.common.tidslinje.utvidelser.kombinerMed
+import no.nav.familie.ks.sak.common.tidslinje.utvidelser.tilPerioder
+import no.nav.familie.ks.sak.common.util.TIDENES_MORGEN
 import no.nav.familie.ks.sak.common.util.YearMonthConverter
+import no.nav.familie.ks.sak.common.util.førsteDagIInneværendeMåned
+import no.nav.familie.ks.sak.common.util.sisteDagIInneværendeMåned
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import java.time.LocalDate
 import java.time.YearMonth
@@ -64,3 +73,31 @@ data class TilkjentYtelse(
     )
     val andelerTilkjentYtelse: MutableSet<AndelTilkjentYtelse> = mutableSetOf()
 )
+
+fun TilkjentYtelse.tilTidslinjeMedAndeler(): Tidslinje<List<AndelTilkjentYtelse>> {
+    val tidslinjer = andelerTilkjentYtelse.map {
+        listOf(
+            Periode(
+                verdi = it,
+                fom = it.stønadFom.førsteDagIInneværendeMåned(),
+                tom = it.stønadTom.sisteDagIInneværendeMåned()
+            )
+        ).tilTidslinje()
+    }
+    return lagTidslinjeMedOverlappendePerioderForAndeler(tidslinjer)
+}
+
+fun lagTidslinjeMedOverlappendePerioderForAndeler(tidslinjer: List<Tidslinje<AndelTilkjentYtelse>>): Tidslinje<List<AndelTilkjentYtelse>> {
+    if (tidslinjer.isEmpty()) return Tidslinje(startsTidspunkt = TIDENES_MORGEN, perioder = emptyList())
+
+    val førstePeriode = tidslinjer.first().tilPerioder().first()
+    val initiellSammenlagt = listOf(Periode(listOf(førstePeriode.verdi!!), førstePeriode.fom, førstePeriode.tom)).tilTidslinje()
+    val resterende = tidslinjer.drop(1)
+    return resterende.fold(initiellSammenlagt) { sammenlagt, neste ->
+        sammenlagt.kombinerMed(neste) { elem1, elem2 ->
+            if (elem1.isNullOrEmpty() || elem1.tilPeriodeVerdi().verdi == null) emptyList()
+            else if (elem2 == null || elem2.tilPeriodeVerdi().verdi == null) elem1.tilPeriodeVerdi().verdi
+            else elem1.tilPeriodeVerdi().verdi!! + elem2.tilPeriodeVerdi().verdi!!
+        }
+    }
+}

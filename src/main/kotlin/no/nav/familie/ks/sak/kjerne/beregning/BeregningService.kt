@@ -1,12 +1,14 @@
 package no.nav.familie.ks.sak.kjerne.beregning
 
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelseRepository
+import no.nav.familie.ks.sak.kjerne.beregning.domene.TilkjentYtelseRepository
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlagRepository
 import org.springframework.stereotype.Service
 
 @Service
 class BeregningService(
+    private val tilkjentYtelseRepository: TilkjentYtelseRepository,
     private val andelTilkjentYtelseRepository: AndelTilkjentYtelseRepository,
     private val personopplysningGrunnlagRepository: PersonopplysningGrunnlagRepository
 ) {
@@ -20,4 +22,7 @@ class BeregningService(
         return personopplysningGrunnlagRepository.hentByBehandlingAndAktiv(behandlingId).barna.map { it.aktør }
             .filter { andelerTilkjentYtelse.any { aty -> aty.aktør == it } }
     }
+
+    fun hentTilkjentYtelseForBehandling(behandlingId: Long) =
+        tilkjentYtelseRepository.hentTilkjentYtelseForBehandling(behandlingId)
 }

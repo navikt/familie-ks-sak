@@ -41,14 +41,25 @@ class BehandlingStegController(
     }
 
     @PostMapping(path = ["vilkårsvurdering"])
-    fun validerVilkårsvurdering(@PathVariable behandlingId: Long): ResponseEntity<Ressurs<BehandlingResponsDto>> {
+    fun utførVilkårsvurdering(@PathVariable behandlingId: Long): ResponseEntity<Ressurs<BehandlingResponsDto>> {
         tilgangService.validerTilgangTilHandling(
             minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
-            handling = "vurdere vilkårsvurdering"
+            handling = "utfør vilkårsvurdering"
         )
 
         stegService.utførSteg(behandlingId, BehandlingSteg.VILKÅRSVURDERING)
 
+        return ResponseEntity.ok(Ressurs.success(behandlingService.lagBehandlingRespons(behandlingId = behandlingId)))
+    }
+
+    @PostMapping(path = ["behandlingsresultat"])
+    fun utledBehandlingsresultat(@PathVariable behandlingId: Long): ResponseEntity<Ressurs<BehandlingResponsDto>> {
+        tilgangService.validerTilgangTilHandling(
+            minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
+            handling = "vurdere behandlingsresultat"
+        )
+
+        stegService.utførSteg(behandlingId, BehandlingSteg.BEHANDLINGSRESULTAT)
         return ResponseEntity.ok(Ressurs.success(behandlingService.lagBehandlingRespons(behandlingId = behandlingId)))
     }
 }
