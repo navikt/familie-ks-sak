@@ -10,7 +10,7 @@ import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagFagsak
 import no.nav.familie.ks.sak.data.lagPersonopplysningGrunnlag
-import no.nav.familie.ks.sak.data.lagVilkårsvurdering
+import no.nav.familie.ks.sak.data.lagVilkårsvurderingMedSøkersVilkår
 import no.nav.familie.ks.sak.data.randomAktør
 import no.nav.familie.ks.sak.integrasjon.sanity.SanityService
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelse
@@ -99,7 +99,7 @@ class VilkårsvurderingServiceTest {
         val barn2 = randomAktør()
         val lagretDeaktivertVilkårsvurderingSlot = slot<Vilkårsvurdering>()
         val lagretVilkårsvurderingSlot = slot<Vilkårsvurdering>()
-        every { vilkårsvurderingRepository.finnAktivForBehandling(any()) } returns lagVilkårsvurdering(
+        every { vilkårsvurderingRepository.finnAktivForBehandling(any()) } returns lagVilkårsvurderingMedSøkersVilkår(
             søker,
             behandling,
             Resultat.OPPFYLT
@@ -170,7 +170,7 @@ class VilkårsvurderingServiceTest {
 
     @Test
     fun `slettVilkårPåBehandling - skal kaste feil dersom vilkåret som forsøkes å slettes ikke finnes`() {
-        val vilkårsvurdering = lagVilkårsvurdering(søker, behandling, Resultat.OPPFYLT)
+        val vilkårsvurdering = lagVilkårsvurderingMedSøkersVilkår(søker, behandling, Resultat.OPPFYLT)
 
         every { personidentService.hentAktør(any()) } returns søker
         every { vilkårsvurderingRepository.finnAktivForBehandling(200) } returns vilkårsvurdering

@@ -94,7 +94,7 @@ fun lagPersonopplysningGrunnlag(
             )
         }
     },
-    søkerDødsDato: LocalDate? = null,
+    søkerDødsDato: LocalDate? = null
 ): PersonopplysningGrunnlag {
     val personopplysningGrunnlag = PersonopplysningGrunnlag(behandlingId = behandlingId)
 
@@ -252,7 +252,7 @@ fun lagPerson(
     return person
 }
 
-fun lagVilkårsvurdering(
+fun lagVilkårsvurderingMedSøkersVilkår(
     søkerAktør: Aktør,
     behandling: Behandling,
     resultat: Resultat,

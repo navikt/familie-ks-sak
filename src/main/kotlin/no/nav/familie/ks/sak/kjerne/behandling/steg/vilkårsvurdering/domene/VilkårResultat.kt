@@ -2,7 +2,7 @@ package no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene
 
 import com.fasterxml.jackson.annotation.JsonIgnore
 import no.nav.familie.ks.sak.common.entitet.BaseEntitet
-import no.nav.familie.ks.sak.common.util.Periode
+import no.nav.familie.ks.sak.common.tidslinje.Periode
 import no.nav.familie.ks.sak.common.util.StringListConverter
 import no.nav.familie.ks.sak.common.util.førsteDagINesteMåned
 import no.nav.familie.ks.sak.common.util.sisteDagIMåned
@@ -100,6 +100,10 @@ class VilkårResultat(
     fun erAvslagUtenPeriode() = erEksplisittAvslagPåSøknad == true && periodeFom == null && periodeTom == null
     fun harFremtidigTom() = periodeTom?.isAfter(LocalDate.now().sisteDagIMåned()) ?: true
 
+    fun erAdopsjonOppfylt() = vilkårType == Vilkår.MELLOM_1_OG_2_ELLER_ADOPTERT &&
+        utdypendeVilkårsvurderinger.contains(UtdypendeVilkårsvurdering.ADOPSJON) &&
+        resultat == Resultat.OPPFYLT
+
     fun kopierMedNyPeriodeOgBehandling(fom: LocalDate?, tom: LocalDate?, behandlingId: Long): VilkårResultat {
         return VilkårResultat(
             personResultat = this.personResultat,
@@ -119,11 +123,11 @@ class VilkårResultat(
         )
     }
 
-    fun tilPeriode(vilkår: List<VilkårResultat>): Periode? {
+    fun tilPeriode(vilkår: List<VilkårResultat>): Periode<Long>? {
         val fraOgMedDato = this.periodeFom?.førsteDagINesteMåned() ?: return null
         val tilOgMedDato = finnTilOgMedDato(tilOgMed = this.periodeTom, vilkårResultater = vilkår)
         if (fraOgMedDato.toYearMonth().isAfter(tilOgMedDato.toYearMonth())) return null
-        return Periode(fom = fraOgMedDato, tom = tilOgMedDato)
+        return Periode(verdi = this.behandlingId, fom = fraOgMedDato, tom = tilOgMedDato)
     }
 
     companion object {
