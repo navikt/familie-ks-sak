@@ -162,9 +162,9 @@ fun opprettNyttVilkårResultat(personResultat: PersonResultat, vilkårType: Vilk
 }
 
 /**
- * @param [personResultat] person vilkårresultatet tilhører
+ * @param [endretVilkårResultatId] id til VilkårResultat som er endret
  * @param [eksisterendeVilkårResultat] vilkårresultat som skal oppdaters på person
- * @param [endretVilkårResultatDto] oppdatert resultat fra frontend
+ * @param [endretVilkårResultat] endret VilkårResultat
  */
 fun tilpassVilkårForEndretVilkår(
     endretVilkårResultatId: Long,
