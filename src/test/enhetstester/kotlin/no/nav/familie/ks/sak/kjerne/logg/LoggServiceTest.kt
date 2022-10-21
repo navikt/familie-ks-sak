@@ -11,6 +11,7 @@ import no.nav.familie.ks.sak.common.util.tilKortString
 import no.nav.familie.ks.sak.config.RolleConfig
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.domene.ArbeidsfordelingPåBehandling
+import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import no.nav.familie.ks.sak.kjerne.logg.domene.Logg
 import no.nav.familie.ks.sak.kjerne.logg.domene.LoggRepository
@@ -192,13 +193,70 @@ class LoggServiceTest {
 
         loggService.opprettSettPåVentLogg(behandling, "Testårsak")
 
-        verify(exactly = 1) { loggRepository.save(slot.captured) }
-
         val lagretLogg = slot.captured
 
         assertThat(lagretLogg.behandlingId, Is(behandling.id))
         assertThat(lagretLogg.type, Is(LoggType.BEHANDLIG_SATT_PÅ_VENT))
         assertThat(lagretLogg.tekst, Is("Årsak: Testårsak"))
+    }
+
+    @Test
+    fun `opprettVilkårsvurderingLogg skal lagre logg når behandlingsresultat har utledet`() {
+        val behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD)
+        val slot = slot<Logg>()
+        every { loggRepository.save(capture(slot)) } returns mockk()
+
+        loggService.opprettVilkårsvurderingLogg(
+            behandling,
+            Behandlingsresultat.IKKE_VURDERT,
+            Behandlingsresultat.INNVILGET
+        )
+
+        verify(exactly = 1) { loggRepository.save(slot.captured) }
+
+        val lagretLogg = slot.captured
+
+        assertThat(lagretLogg.behandlingId, Is(behandling.id))
+        assertThat(lagretLogg.type, Is(LoggType.VILKÅRSVURDERING))
+        assertThat(lagretLogg.tekst, Is("Resultat ble ${Behandlingsresultat.INNVILGET.displayName.lowercase()}"))
+        assertThat(lagretLogg.tittel, Is("Vilkårsvurdering gjennomført"))
+    }
+
+    @Test
+    fun `opprettVilkårsvurderingLogg skal lagre logg når behandlingsresultat har endret`() {
+        val behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD)
+        val behandlingsforrigeResultat = Behandlingsresultat.INNVILGET
+        val behandlingsNyResultat = Behandlingsresultat.ENDRET_OG_OPPHØRT
+        val slot = slot<Logg>()
+        every { loggRepository.save(capture(slot)) } returns mockk()
+
+        loggService.opprettVilkårsvurderingLogg(behandling, behandlingsforrigeResultat, behandlingsNyResultat)
+
+        verify(exactly = 1) { loggRepository.save(slot.captured) }
+
+        val lagretLogg = slot.captured
+
+        assertThat(lagretLogg.behandlingId, Is(behandling.id))
+        assertThat(lagretLogg.type, Is(LoggType.VILKÅRSVURDERING))
+        assertThat(
+            lagretLogg.tekst,
+            Is(
+                "Resultat gikk fra ${behandlingsforrigeResultat.displayName.lowercase()} " +
+                    "til ${behandlingsNyResultat.displayName.lowercase()}"
+            )
+        )
+        assertThat(lagretLogg.tittel, Is("Vilkårsvurdering endret"))
+    }
+
+    @Test
+    fun `opprettVilkårsvurderingLogg skal ikke lagre logg når behandlingsresultat ikke har endret`() {
+        val behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD)
+        val behandlingsforrigeResultat = Behandlingsresultat.INNVILGET
+        val behandlingsNyResultat = Behandlingsresultat.INNVILGET
+
+        loggService.opprettVilkårsvurderingLogg(behandling, behandlingsforrigeResultat, behandlingsNyResultat)
+
+        verify(exactly = 0) { loggRepository.save(any()) }
     }
 
     @Test
@@ -210,8 +268,6 @@ class LoggServiceTest {
         every { loggRepository.save(capture(slot)) } returns mockk()
 
         loggService.opprettOppdaterVentingLogg(behandling, "Testårsak", nyFrist)
-
-        verify(exactly = 1) { loggRepository.save(slot.captured) }
 
         val lagretLogg = slot.captured
 

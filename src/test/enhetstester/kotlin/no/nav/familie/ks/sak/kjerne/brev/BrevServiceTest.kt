@@ -14,7 +14,7 @@ import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagFagsak
 import no.nav.familie.ks.sak.data.lagPerson
 import no.nav.familie.ks.sak.data.lagPersonopplysningGrunnlag
-import no.nav.familie.ks.sak.data.lagVilkårsvurdering
+import no.nav.familie.ks.sak.data.lagVilkårsvurderingMedSøkersVilkår
 import no.nav.familie.ks.sak.data.randomAktør
 import no.nav.familie.ks.sak.data.shouldNotBeNull
 import no.nav.familie.ks.sak.integrasjon.journalføring.UtgåendeJournalføringService
@@ -173,7 +173,7 @@ class BrevServiceTest {
 
         every { journalføringRepository.save(any()) } returns mockk()
 
-        every { vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(any()) } returns lagVilkårsvurdering(
+        every { vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(any()) } returns lagVilkårsvurderingMedSøkersVilkår(
             søkerAktør = søker,
             behandling = behandling,
             resultat = Resultat.IKKE_VURDERT
@@ -226,7 +226,7 @@ class BrevServiceTest {
 
         every { journalføringRepository.save(any()) } returns mockk()
 
-        every { vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(any()) } returns lagVilkårsvurdering(
+        every { vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(any()) } returns lagVilkårsvurderingMedSøkersVilkår(
             søkerAktør = søker,
             behandling = behandling,
             resultat = Resultat.IKKE_VURDERT
@@ -316,7 +316,7 @@ class BrevServiceTest {
 
         every { journalføringRepository.save(any()) } returns mockk()
 
-        every { vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(any()) } returns lagVilkårsvurdering(
+        every { vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(any()) } returns lagVilkårsvurderingMedSøkersVilkår(
             søkerAktør = søker,
             behandling = behandling,
             resultat = Resultat.IKKE_VURDERT

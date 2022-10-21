@@ -7,6 +7,7 @@ import no.nav.familie.ks.sak.config.BehandlerRolle
 import no.nav.familie.ks.sak.config.RolleConfig
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.domene.ArbeidsfordelingPåBehandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
+import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat
 import no.nav.familie.ks.sak.kjerne.logg.domene.Logg
 import no.nav.familie.ks.sak.kjerne.logg.domene.LoggRepository
 import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext
@@ -146,7 +147,6 @@ class LoggService(
                 return
             }
         }
-
         lagreLogg(
             Logg(
                 behandlingId = behandling.id,
@@ -173,7 +173,45 @@ class LoggService(
         )
     }
 
+    fun opprettVilkårsvurderingLogg(
+        behandling: Behandling,
+        behandlingsForrigeResultat: Behandlingsresultat,
+        behandlingsNyResultat: Behandlingsresultat
+    ) {
+        val tekst = when {
+            behandlingsForrigeResultat == Behandlingsresultat.IKKE_VURDERT -> {
+                "Resultat ble ${behandlingsNyResultat.displayName.lowercase()}"
+            }
+
+            behandlingsForrigeResultat != behandlingsNyResultat -> {
+                "Resultat gikk fra ${behandlingsForrigeResultat.displayName.lowercase()} til ${behandlingsNyResultat.displayName.lowercase()}"
+            }
+
+            else -> {
+                logger.info("Logg kan ikke lagres når $behandlingsForrigeResultat er samme som $behandlingsNyResultat")
+                return
+            }
+        }
+        val tittel = when {
+            behandlingsForrigeResultat != Behandlingsresultat.IKKE_VURDERT -> "Vilkårsvurdering endret"
+            else -> "Vilkårsvurdering gjennomført"
+        }
+
+        lagreLogg(
+            Logg(
+                behandlingId = behandling.id,
+                type = LoggType.VILKÅRSVURDERING,
+                tittel = tittel,
+                rolle = SikkerhetContext.hentRolletilgangFraSikkerhetscontext(
+                    rolleConfig,
+                    BehandlerRolle.SAKSBEHANDLER
+                ),
+                tekst = tekst
+            )
+        )
+    }
+
     companion object {
-        val logger = LoggerFactory.getLogger(LoggService::class.java)
+        private val logger = LoggerFactory.getLogger(LoggService::class.java)
     }
 }
