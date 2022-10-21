@@ -13,6 +13,10 @@ import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.domene.ArbeidsfordelingPåBehandling
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.domene.ArbeidsfordelingPåBehandlingRepository
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.AnnenVurdering
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.AnnenVurderingRepository
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.AnnenVurderingType
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
 import org.hamcrest.CoreMatchers.not
 import org.hamcrest.CoreMatchers.notNullValue
@@ -32,6 +36,9 @@ class VilkårsvurderingControllerTest : OppslagSpringRunnerTest() {
 
     @Autowired
     private lateinit var vilkårsvurderingService: VilkårsvurderingService
+
+    @Autowired
+    private lateinit var annenVurderingRepository: AnnenVurderingRepository
 
     @MockkBean
     private lateinit var integrasjonClient: IntegrasjonClient
@@ -212,6 +219,72 @@ class VilkårsvurderingControllerTest : OppslagSpringRunnerTest() {
             body(
                 "data.personResultater[0].vilkårResultater.find {it.vilkårType == 'BOSATT_I_RIKET'}.id",
                 Is(not(gammelVilkårId))
+            )
+        }
+    }
+
+    @Test
+    fun `endreAnnenVurdering - skal kaste feil dersom annen vurdering ikke finnes`() {
+        val token = lokalTestToken(behandlerRolle = BehandlerRolle.SAKSBEHANDLER)
+        every { integrasjonClient.sjekkTilgangTilPersoner(any()) } returns Tilgang(true, "test")
+        val request =
+            """
+                {
+                    "id": 404,
+                    "resultat": "OPPFYLT",
+                    "type": "OPPLYSNINGSPLIKT",
+                    "begrunnelse": "Begrunnelse"
+                  }
+                }
+            """.trimIndent()
+        Given {
+            header("Authorization", "Bearer $token")
+            body(request)
+            contentType(MediaType.APPLICATION_JSON_VALUE)
+        } When {
+            put("$vilkårsvurderingControllerUrl/${behandling.id}/annenvurdering")
+        } Then {
+            body("status", Is("FUNKSJONELL_FEIL"))
+            body("melding", Is("Annen vurdering med id 404 finnes ikke i db"))
+        }
+    }
+
+    @Test
+    fun `endreAnnenVurdering - skal oppdatere eksisterende annen vurdering`() {
+        val token = lokalTestToken(behandlerRolle = BehandlerRolle.SAKSBEHANDLER)
+        val personResultat = vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(behandling.id)
+            .personResultater.find { it.aktør == søker }
+        val annenVurdering = annenVurderingRepository.saveAndFlush(
+            AnnenVurdering(
+                personResultat = personResultat!!,
+                type = AnnenVurderingType.OPPLYSNINGSPLIKT
+            )
+        )
+        every { integrasjonClient.sjekkTilgangTilPersoner(any()) } returns Tilgang(true, "test")
+        val request =
+            """
+                {
+                    "id": ${annenVurdering.id},
+                    "resultat": "OPPFYLT",
+                    "type": "OPPLYSNINGSPLIKT",
+                    "begrunnelse": "Begrunnelse"
+                  }
+                }
+            """.trimIndent()
+        Given {
+            header("Authorization", "Bearer $token")
+            body(request)
+            contentType(MediaType.APPLICATION_JSON_VALUE)
+        } When {
+            put("$vilkårsvurderingControllerUrl/${behandling.id}/annenvurdering")
+        } Then {
+            body(
+                "data.personResultater[0].andreVurderinger[0].resultat",
+                Is(Resultat.OPPFYLT.name)
+            )
+            body(
+                "data.personResultater[0].andreVurderinger[0].begrunnelse",
+                Is("Begrunnelse")
             )
         }
     }
