@@ -92,6 +92,12 @@ object EndretUtbetalingAndelValidator {
         }
     }
 
+    /**
+     * Funksjon som finner delt bosted perioder for spesifikk person
+     * @param[person] Person kan enten være SØKER eller BARN
+     * @param[vilkårsvurdering] Vilkårsvurdering for å finne ut hvilke perioder har DELT_BOSTED
+     * @return List<Periode<Long>> returnerer delt bosted perioder hvor Periode har behandlingId som verdi
+     */
     internal fun finnDeltBostedPerioder(person: Person?, vilkårsvurdering: Vilkårsvurdering?): List<Periode<Long>> {
         if (vilkårsvurdering == null || person == null) return emptyList()
         val deltBostedPerioder = when (person.type) {

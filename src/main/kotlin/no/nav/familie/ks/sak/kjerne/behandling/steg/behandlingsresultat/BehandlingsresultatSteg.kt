@@ -46,7 +46,7 @@ class BehandlingsresultatSteg(
         BehandlingsresultatUtils.validerUtledetBehandlingsresultat(behandling, resultat)
         val behandlingMedOppdatertResultat = behandlingService.oppdaterBehandlingsresultat(behandlingId, resultat)
 
-        if (behandlingMedOppdatertResultat.kanSendeVedtaksbrev()) {
+        if (behandlingMedOppdatertResultat.skalSendeVedtaksbrev()) {
             behandlingService.nullstillEndringstidspunkt(behandlingId)
             // TODO oppdater vedtak med vedtaksperioder
         }

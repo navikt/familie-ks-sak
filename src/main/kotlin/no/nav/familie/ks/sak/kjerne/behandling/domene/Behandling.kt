@@ -121,7 +121,7 @@ data class Behandling(
         return type != TEKNISK_ENDRING
     }
 
-    fun kanSendeVedtaksbrev(): Boolean {
+    fun skalSendeVedtaksbrev(): Boolean {
         return when {
             type == TEKNISK_ENDRING -> false
             opprettetÅrsak == BehandlingÅrsak.SATSENDRING -> false

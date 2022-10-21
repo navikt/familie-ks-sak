@@ -21,6 +21,7 @@ import no.nav.familie.ks.sak.data.randomAktør
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.ArbeidsfordelingService
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.domene.ArbeidsfordelingPåBehandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
+import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.søknad.SøknadGrunnlagService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.søknad.domene.SøknadGrunnlag
@@ -28,8 +29,10 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.Vilkårsvu
 import no.nav.familie.ks.sak.kjerne.logg.LoggService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
 import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertDoesNotThrow
 import org.junit.jupiter.api.extension.ExtendWith
 
 @ExtendWith(MockKExtension::class)
@@ -102,7 +105,7 @@ class BehandlingServiceTest {
         }
 
         Assertions.assertTrue { behandlingResponsDto.personer.isNotEmpty() }
-        Assertions.assertEquals(1, behandlingResponsDto.personer.size)
+        assertEquals(1, behandlingResponsDto.personer.size)
         Assertions.assertNotNull(behandlingResponsDto.søknadsgrunnlag)
     }
 
@@ -117,5 +120,23 @@ class BehandlingServiceTest {
                 endreBehandlendeEnhetDto
             )
         }
+    }
+
+    @Test
+    fun `oppdaterBehandlingsresultat skal oppdatere behandlingsresultat til INNVILGET og lage historikk på det`() {
+        every {
+            loggService.opprettVilkårsvurderingLogg(
+                behandling = behandling,
+                behandlingsForrigeResultat = Behandlingsresultat.IKKE_VURDERT,
+                behandlingsNyResultat = Behandlingsresultat.INNVILGET
+            )
+        } just runs
+        every { behandlingRepository.save(any()) } returns behandling.copy(resultat = Behandlingsresultat.INNVILGET)
+
+        val oppdatertBehandling = assertDoesNotThrow {
+            behandlingService.oppdaterBehandlingsresultat(behandling.id, Behandlingsresultat.INNVILGET)
+        }
+        verify(exactly = 1) { loggService.opprettVilkårsvurderingLogg(any(), any(), any()) }
+        assertEquals(Behandlingsresultat.INNVILGET, oppdatertBehandling.resultat)
     }
 }

@@ -8,9 +8,9 @@ import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.ArbeidsfordelingService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
+import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.søknad.SøknadGrunnlagService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
-import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat
 import no.nav.familie.ks.sak.kjerne.logg.LoggService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
 import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext
@@ -59,18 +59,18 @@ class BehandlingService(
     fun oppdaterBehandlendeEnhet(behandlingId: Long, endreBehandlendeEnhet: EndreBehandlendeEnhetDto) =
         arbeidsfordelingService.manueltOppdaterBehandlendeEnhet(hentBehandling(behandlingId), endreBehandlendeEnhet)
 
-    fun oppdaterBehandlingsresultat(behandlingId: Long, behandlingsresultat: Behandlingsresultat): Behandling {
+    fun oppdaterBehandlingsresultat(behandlingId: Long, nyUtledetBehandlingsresultat: Behandlingsresultat): Behandling {
         val behandling = hentBehandling(behandlingId)
         logger.info(
             "${SikkerhetContext.hentSaksbehandlerNavn()} endrer resultat på behandling $behandlingId " +
-                "fra ${behandling.resultat} til $behandlingsresultat"
+                "fra ${behandling.resultat} til $nyUtledetBehandlingsresultat"
         )
         loggService.opprettVilkårsvurderingLogg(
             behandling = behandling,
             behandlingsForrigeResultat = behandling.resultat,
-            behandlingsNyResultat = behandlingsresultat
+            behandlingsNyResultat = nyUtledetBehandlingsresultat
         )
-        return lagreEllerOppdater(behandling.copy(resultat = behandlingsresultat))
+        return lagreEllerOppdater(behandling.copy(resultat = nyUtledetBehandlingsresultat))
     }
 
     fun nullstillEndringstidspunkt(behandlingId: Long) =

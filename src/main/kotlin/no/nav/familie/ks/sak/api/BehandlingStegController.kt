@@ -44,7 +44,7 @@ class BehandlingStegController(
     fun utførVilkårsvurdering(@PathVariable behandlingId: Long): ResponseEntity<Ressurs<BehandlingResponsDto>> {
         tilgangService.validerTilgangTilHandling(
             minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
-            handling = "vurdere vilkårsvurdering"
+            handling = "utfør vilkårsvurdering"
         )
 
         stegService.utførSteg(behandlingId, BehandlingSteg.VILKÅRSVURDERING)
