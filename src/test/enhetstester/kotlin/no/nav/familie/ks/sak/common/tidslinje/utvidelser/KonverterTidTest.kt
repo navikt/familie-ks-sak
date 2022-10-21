@@ -500,7 +500,7 @@ class KonverterTidTest {
         val tidslinje = Tidslinje(dato1_start, tmp)
 
         var tidslinjeMåned =
-            tidslinje.konverterTilMåned(2) { dato, it -> if (dato.month == java.time.Month.JULY) Verdi(1.0) else Verdi(0.0) }
+            tidslinje.konverterTilMåned(2) { dato, _ -> if (dato.month == java.time.Month.JULY) Verdi(1.0) else Verdi(0.0) }
 
         var correct = listOf(0.0, 1.0, 0.0)
 
