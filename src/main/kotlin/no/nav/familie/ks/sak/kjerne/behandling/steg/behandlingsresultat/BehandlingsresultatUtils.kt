@@ -7,8 +7,8 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.validerBarnasVilkår
 import no.nav.familie.ks.sak.kjerne.beregning.EndretUtbetalingAndelMedAndelerTilkjentYtelse
-import no.nav.familie.ks.sak.kjerne.beregning.EndretUtbetalingAndelValidator
 import no.nav.familie.ks.sak.kjerne.beregning.EndretUtbetalingAndelValidator.validerAtAlleOpprettedeEndringerErUtfylt
+import no.nav.familie.ks.sak.kjerne.beregning.EndretUtbetalingAndelValidator.validerAtEndringerErTilknyttetAndelTilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.TilkjentYtelseValidator
 import no.nav.familie.ks.sak.kjerne.beregning.domene.TilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
@@ -31,7 +31,7 @@ object BehandlingsresultatUtils {
 
         // valider EndretUtbetalingAndel
         validerAtAlleOpprettedeEndringerErUtfylt(endretUtbetalingMedAndeler.map { it.endretUtbetaling })
-        EndretUtbetalingAndelValidator.validerAtEndringerErTilknyttetAndelTilkjentYtelse(endretUtbetalingMedAndeler)
+        validerAtEndringerErTilknyttetAndelTilkjentYtelse(endretUtbetalingMedAndeler)
     }
 
     fun validerUtledetBehandlingsresultat(behandling: Behandling, behandlingsresultat: Behandlingsresultat) {

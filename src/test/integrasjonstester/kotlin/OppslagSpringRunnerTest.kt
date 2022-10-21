@@ -12,7 +12,7 @@ import no.nav.familie.ks.sak.config.DbContainerInitializer
 import no.nav.familie.ks.sak.config.RolleConfig
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagFagsak
-import no.nav.familie.ks.sak.data.lagVilkårsvurdering
+import no.nav.familie.ks.sak.data.lagVilkårsvurderingMedSøkersVilkår
 import no.nav.familie.ks.sak.data.randomAktør
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
@@ -148,7 +148,7 @@ abstract class OppslagSpringRunnerTest {
     }
 
     fun opprettVilkårsvurdering(aktør: Aktør, behandling: Behandling, resultat: Resultat) {
-        val vilkårsvurdering = lagVilkårsvurdering(aktør, behandling, resultat)
+        val vilkårsvurdering = lagVilkårsvurderingMedSøkersVilkår(aktør, behandling, resultat)
         vilkårsvurderingRepository.saveAndFlush(vilkårsvurdering)
     }
 

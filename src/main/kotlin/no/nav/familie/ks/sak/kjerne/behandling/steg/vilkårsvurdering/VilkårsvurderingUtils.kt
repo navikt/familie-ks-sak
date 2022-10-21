@@ -14,7 +14,6 @@ import no.nav.familie.ks.sak.common.tidslinje.utvidelser.tilPerioder
 import no.nav.familie.ks.sak.common.util.TIDENES_ENDE
 import no.nav.familie.ks.sak.common.util.TIDENES_MORGEN
 import no.nav.familie.ks.sak.common.util.erBack2BackIMånedsskifte
-import no.nav.familie.ks.sak.common.util.førsteDagIInneværendeMåned
 import no.nav.familie.ks.sak.common.util.sisteDagIMåned
 import no.nav.familie.ks.sak.common.util.tilDagMånedÅr
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelse
@@ -273,13 +272,14 @@ fun validerBarnasVilkår(vilkårsvurdering: Vilkårsvurdering, barna: List<Perso
             .forEach { vilkårResultat ->
                 val fødselsdato = barn.fødselsdato.tilDagMånedÅr()
                 val vilkårType = vilkårResultat.vilkårType
-                val validertVilkår = vilkårResultat.lagOgValiderPeriodeFraVilkår()
                 if (vilkårResultat.resultat == Resultat.OPPFYLT && vilkårResultat.periodeFom == null) {
-                    feil.add("Vilkår '$vilkårType' for barn med fødselsdato $fødselsdato mangler fom dato.")
+                    feil.add("Vilkår $vilkårType for barn med fødselsdato $fødselsdato mangler fom dato.")
                 }
-                if (vilkårResultat.periodeFom != null && validertVilkår.fom.isBefore(barn.fødselsdato)) {
+                if (vilkårResultat.periodeFom != null &&
+                    vilkårResultat.lagOgValiderPeriodeFraVilkår().fom.isBefore(barn.fødselsdato)
+                ) {
                     feil.add(
-                        "Vilkår '$vilkårType' for barn med fødselsdato $fødselsdato " +
+                        "Vilkår $vilkårType for barn med fødselsdato $fødselsdato " +
                             "har fom dato før barnets fødselsdato."
                     )
                 }
@@ -288,7 +288,7 @@ fun validerBarnasVilkår(vilkårsvurdering: Vilkårsvurdering, barna: List<Perso
                     vilkårResultat.vilkårType == Vilkår.MELLOM_1_OG_2_ELLER_ADOPTERT
                 ) {
                     vilkårResultat.validerVilkår_MELLOM_1_OG_2_ELLER_ADOPTERT(
-                        validertVilkår,
+                        vilkårResultat.lagOgValiderPeriodeFraVilkår(),
                         barn.fødselsdato
                     )?.let { feil.add(it) }
                 }
@@ -316,7 +316,8 @@ private fun VilkårResultat.validerVilkår_MELLOM_1_OG_2_ELLER_ADOPTERT(
     periode: IkkeNullbarPeriode<Long>,
     barnFødselsdato: LocalDate
 ): String? = when {
-    this.erAdopsjonOppfylt() && periode.tom.isAfter(etterAugustBarnetFyller6År(barnFødselsdato.plusYears(6))) ->
+    this.erAdopsjonOppfylt() &&
+        periode.tom.isAfter(barnFødselsdato.plusYears(6).withMonth(Month.AUGUST.value).sisteDagIMåned()) ->
         "Du kan ikke sette en t.o.m dato som er etter august året barnet fyller 6 år."
     this.erAdopsjonOppfylt() && periode.fom.diffIDager(periode.tom) > 365 ->
         "Differansen mellom f.o.m datoen og t.o.m datoen kan ikke være mer enn 1 år."
@@ -326,15 +327,3 @@ private fun VilkårResultat.validerVilkår_MELLOM_1_OG_2_ELLER_ADOPTERT(
         "T.o.m datoen må være lik barnets 2 års dag."
     else -> null
 }
-
-fun etterAugustBarnetFyller6År(barnFødselsdato: LocalDate) = when {
-    barnFødselsdato.month > Month.AUGUST -> {
-        barnFødselsdato.plusMonths(((Month.DECEMBER.value - barnFødselsdato.month.value) + Month.AUGUST.value).toLong())
-    }
-    barnFødselsdato.month < Month.AUGUST -> {
-        barnFødselsdato.plusMonths((Month.AUGUST.value - barnFødselsdato.month.value).toLong())
-    }
-    else -> {
-        barnFødselsdato
-    }
-}.førsteDagIInneværendeMåned()

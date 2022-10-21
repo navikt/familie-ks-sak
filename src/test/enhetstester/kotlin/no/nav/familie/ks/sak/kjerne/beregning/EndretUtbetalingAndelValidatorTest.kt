@@ -392,6 +392,89 @@ class EndretUtbetalingAndelValidatorTest {
         }
     }
 
+    @Test
+    fun `validerAtAlleOpprettedeEndringerErUtfylt skal ikke kaste feil når endret utbetaling andel er oppfylt`() {
+        val endretUtbetalingAndel = lagEndretUtbetalingAndel(
+            behandlingId = behandling.id,
+            person = barnPerson,
+            periodeFom = YearMonth.now().minusMonths(5),
+            periodeTom = YearMonth.now().minusMonths(4),
+            prosent = BigDecimal.ZERO
+        )
+        assertDoesNotThrow {
+            EndretUtbetalingAndelValidator.validerAtAlleOpprettedeEndringerErUtfylt(listOf(endretUtbetalingAndel))
+        }
+    }
+
+    @Test
+    fun `validerAtAlleOpprettedeEndringerErUtfylt skal kaste feil når endret utbetaling andel ikke er oppfylt`() {
+        val endretUtbetalingAndel = lagEndretUtbetalingAndel(
+            behandlingId = behandling.id,
+            person = barnPerson,
+            periodeFom = YearMonth.now().minusMonths(5),
+            periodeTom = YearMonth.now().minusMonths(4),
+            prosent = null
+        )
+        val exception = assertThrows<FunksjonellFeil> {
+            EndretUtbetalingAndelValidator.validerAtAlleOpprettedeEndringerErUtfylt(listOf(endretUtbetalingAndel))
+        }
+        assertEquals(
+            "Det er opprettet instanser av EndretUtbetalingandel som ikke er fylt ut " +
+                "før navigering til neste steg.",
+            exception.message
+        )
+        assertEquals(
+            "Du har opprettet en eller flere endrede utbetalingsperioder " +
+                "som er ufullstendig utfylt. Disse må enten fylles ut eller slettes før du kan gå videre.",
+            exception.frontendFeilmelding
+        )
+    }
+
+    @Test
+    fun `validerAtEndringerErTilknyttetAndelTilkjentYtelse skal ikke kaste feil når endret utbetaling andel har ATY`() {
+        val endretUtbetalingAndel = lagEndretUtbetalingAndel(
+            behandlingId = behandling.id,
+            person = barnPerson,
+            periodeFom = YearMonth.now().minusMonths(5),
+            periodeTom = YearMonth.now().minusMonths(4),
+            prosent = BigDecimal.ZERO
+        )
+        val andelerTilkjentYtelse = listOf(lagAndelTilkjentYtelse(behandling = behandling))
+        val endretUtbetalingAndelMedAndelerTilkjentYtelse =
+            EndretUtbetalingAndelMedAndelerTilkjentYtelse(endretUtbetalingAndel, andelerTilkjentYtelse)
+        assertDoesNotThrow {
+            EndretUtbetalingAndelValidator
+                .validerAtEndringerErTilknyttetAndelTilkjentYtelse(listOf(endretUtbetalingAndelMedAndelerTilkjentYtelse))
+        }
+    }
+
+    @Test
+    fun `validerAtEndringerErTilknyttetAndelTilkjentYtelse skal kaste feil når endret utbetaling andel ikke har ATY`() {
+        val endretUtbetalingAndel = lagEndretUtbetalingAndel(
+            behandlingId = behandling.id,
+            person = barnPerson,
+            periodeFom = YearMonth.now().minusMonths(5),
+            periodeTom = YearMonth.now().minusMonths(4),
+            prosent = BigDecimal.ZERO
+        )
+        val endretUtbetalingAndelMedAndelerTilkjentYtelse =
+            EndretUtbetalingAndelMedAndelerTilkjentYtelse(endretUtbetalingAndel, emptyList())
+        val exception = assertThrows<FunksjonellFeil> {
+            EndretUtbetalingAndelValidator
+                .validerAtEndringerErTilknyttetAndelTilkjentYtelse(listOf(endretUtbetalingAndelMedAndelerTilkjentYtelse))
+        }
+
+        assertEquals(
+            "Det er opprettet instanser av EndretUtbetalingandel som ikke er tilknyttet noen andeler. " +
+                "De må enten lagres eller slettes av SB.",
+            exception.message
+        )
+        assertEquals(
+            "Du har endrede utbetalingsperioder. Bekreft, slett eller oppdater periodene i listen.",
+            exception.frontendFeilmelding
+        )
+    }
+
     private fun assertFeilMeldingerNårEndretUtbetalingPerioderIkkeInnenforTyPerioder(exception: FunksjonellFeil) {
         assertEquals(
             "Det er ingen tilkjent ytelse for personen det blir forsøkt lagt til en endret periode for.",
