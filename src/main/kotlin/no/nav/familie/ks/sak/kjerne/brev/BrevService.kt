@@ -93,6 +93,7 @@ class BrevService(
     @Transactional
     fun sendBrev(behandlingId: Long, manueltBrevDto: ManueltBrevDto) {
         val behandling = behandlingRepository.hentBehandling(behandlingId)
+
         val generertBrev = genererManueltBrev(manueltBrevDto, false)
 
         val førsteside = if (manueltBrevDto.brevmal.skalGenerereForside()) {
@@ -105,11 +106,9 @@ class BrevService(
             null
         }
 
-        val fagsak = fagsakRepository.finnFagsak(behandling.fagsak.id)
-
         val journalpostId = utgåendeJournalføringService.journalførDokument(
-            fnr = fagsak!!.aktør.aktivFødselsnummer(),
-            fagsakId = fagsak.id,
+            fnr = behandling.fagsak.aktør.aktivFødselsnummer(),
+            fagsakId = behandling.fagsak.id,
             behandlingId = behandlingId,
             journalførendeEnhet = manueltBrevDto.enhet?.enhetId
                 ?: DEFAULT_JOURNALFØRENDE_ENHET,
