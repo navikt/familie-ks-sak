@@ -18,7 +18,6 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.AnnenVurderingType
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.Brevmal
-import no.nav.familie.ks.sak.kjerne.fagsak.domene.FagsakRepository
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
@@ -32,7 +31,6 @@ class BrevService(
     private val utgåendeJournalføringService: UtgåendeJournalføringService,
     private val vilkårsvurderingService: VilkårsvurderingService,
     private val behandlingRepository: BehandlingRepository,
-    private val fagsakRepository: FagsakRepository,
     private val journalføringRepository: JournalføringRepository
 ) {
 

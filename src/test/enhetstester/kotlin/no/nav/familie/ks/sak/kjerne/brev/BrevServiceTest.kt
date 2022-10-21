@@ -29,7 +29,6 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Res
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.BrevDto
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.Brevmal
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.InnhenteOpplysningerDataDto
-import no.nav.familie.ks.sak.kjerne.fagsak.domene.FagsakRepository
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
@@ -57,9 +56,6 @@ class BrevServiceTest {
 
     @MockK
     private lateinit var behandlingRepository: BehandlingRepository
-
-    @MockK
-    private lateinit var fagsakRepository: FagsakRepository
 
     @MockK
     private lateinit var journalføringRepository: JournalføringRepository
@@ -194,8 +190,6 @@ class BrevServiceTest {
 
         førstesideSlot.captured.shouldNotBeNull()
     }
-
-//    names = ["INNHENTE_OPPLYSNINGER", "INNHENTE_OPPLYSNINGER_ETTER_SØKNAD_I_SED", "VARSEL_OM_REVURDERING", "VARSEL_OM_VEDTAK_ETTER_SØKNAD_I_SED", "VARSEL_OM_REVURDERING_FRA_NASJONAL_TIL_EØS", "VEDTAK_FØRSTEGANGSVEDTAK", "VEDTAK_ENDRING", "VEDTAK_OPPHØRT", "VEDTAK_OPPHØR_MED_ENDRING", "VEDTAK_AVSLAG", "VEDTAK_FORTSATT_INNVILGET", "VEDTAK_KORREKSJON_VEDTAKSBREV", "VEDTAK_OPPHØR_DØDSFALL", "AUTOVEDTAK_BARN_6_OG_18_ÅR_OG_SMÅBARNSTILLEGG", "AUTOVEDTAK_NYFØDT_FØRSTE_BARN", "AUTOVEDTAK_NYFØDT_BARN_FRA_FØR"],
 
     @ParameterizedTest
     @EnumSource(

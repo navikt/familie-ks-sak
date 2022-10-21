@@ -265,7 +265,7 @@ class LoggServiceTest {
 
         every { loggRepository.save(capture(slot)) } returns mockk()
 
-        loggService.gjenopptaBehandlingLogg(behandling)
+        loggService.opprettBehandlingGjenopptattLogg(behandling)
 
         verify(exactly = 1) { loggRepository.save(slot.captured) }
 

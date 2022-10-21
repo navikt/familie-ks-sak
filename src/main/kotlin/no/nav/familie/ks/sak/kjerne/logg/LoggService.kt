@@ -10,6 +10,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.logg.domene.Logg
 import no.nav.familie.ks.sak.kjerne.logg.domene.LoggRepository
 import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext
+import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -130,14 +131,20 @@ class LoggService(
     }
 
     fun opprettOppdaterVentingLogg(behandling: Behandling, endretÅrsak: String?, endretFrist: LocalDate?) {
-        val tekst = if (endretFrist != null && endretÅrsak != null) {
-            "Frist og årsak er endret til $endretÅrsak og ${endretFrist.tilKortString()}"
-        } else if (endretFrist != null) {
-            "Frist er endret til ${endretFrist.tilKortString()}"
-        } else if (endretÅrsak != null) {
-            "Årsak er endret til $endretÅrsak"
-        } else {
-            return
+        val tekst = when {
+            endretFrist != null && endretÅrsak != null ->
+                "Frist og årsak er endret til $endretÅrsak og ${endretFrist.tilKortString()}"
+
+            endretFrist != null ->
+                "Frist er endret til ${endretFrist.tilKortString()}"
+
+            endretÅrsak != null ->
+                "Årsak er endret til $endretÅrsak"
+
+            else -> {
+                logger.info("Ingen endringer tilknyttet frist eller årsak på ventende behandling. Oppretter ikke logginnslag.")
+                return
+            }
         }
 
         lagreLogg(
@@ -153,7 +160,7 @@ class LoggService(
         )
     }
 
-    fun gjenopptaBehandlingLogg(behandling: Behandling) {
+    fun opprettBehandlingGjenopptattLogg(behandling: Behandling) {
         lagreLogg(
             Logg(
                 behandlingId = behandling.id,
@@ -164,5 +171,9 @@ class LoggService(
                 )
             )
         )
+    }
+
+    companion object {
+        val logger = LoggerFactory.getLogger(LoggService::class.java)
     }
 }
