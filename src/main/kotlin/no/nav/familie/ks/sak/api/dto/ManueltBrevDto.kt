@@ -2,9 +2,7 @@ package no.nav.familie.ks.sak.api.dto
 
 import no.nav.familie.kontrakter.felles.arbeidsfordeling.Enhet
 import no.nav.familie.ks.sak.common.exception.Feil
-import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.common.util.slåSammen
-import no.nav.familie.ks.sak.common.util.tilDagMånedÅr
 import no.nav.familie.ks.sak.common.util.tilKortString
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingKategori
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.Brevmal
@@ -21,10 +19,6 @@ import no.nav.familie.ks.sak.kjerne.brev.domene.maler.InnhenteOpplysningerDataDt
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.InnhenteOpplysningerOmBarnDto
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.SignaturDelmal
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.SvartidsbrevDto
-import no.nav.familie.ks.sak.kjerne.brev.domene.maler.VarselOmRevurderingDeltBostedParagraf14BrevDto
-import no.nav.familie.ks.sak.kjerne.brev.domene.maler.VarselOmRevurderingDeltBostedParagraf14DataDto
-import no.nav.familie.ks.sak.kjerne.brev.domene.maler.VarselOmRevurderingSamboerBrevDto
-import no.nav.familie.ks.sak.kjerne.brev.domene.maler.VarselOmRevurderingSamboerDataDto
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.VarselbrevMedÅrsakerDto
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.VarselbrevMedÅrsakerOgBarnDto
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.flettefelt
@@ -99,37 +93,6 @@ fun ManueltBrevDto.tilBrev() = when (this.brevmal) {
             enhet = this.enhetNavn()
         )
 
-    Brevmal.VARSEL_OM_REVURDERING_DELT_BOSTED_PARAGRAF_14 ->
-        VarselOmRevurderingDeltBostedParagraf14BrevDto(
-            data = VarselOmRevurderingDeltBostedParagraf14DataDto(
-                delmalData = VarselOmRevurderingDeltBostedParagraf14DataDto.DelmalData(signatur = SignaturDelmal(enhet = this.enhetNavn())),
-                flettefelter = VarselOmRevurderingDeltBostedParagraf14DataDto.FlettefelterDto(
-                    navn = this.mottakerNavn,
-                    fodselsnummer = this.mottakerIdent,
-                    barnMedDeltBostedAvtale = this.multiselectVerdier
-                )
-            )
-        )
-
-    Brevmal.VARSEL_OM_REVURDERING_SAMBOER ->
-        if (this.datoAvtale == null) {
-            throw FunksjonellFeil(
-                frontendFeilmelding = "Du må sette dato for samboerskap for å sende dette brevet.",
-                melding = "Dato er ikke satt for brevtype 'varsel om revurdering samboer'"
-            )
-        } else {
-            VarselOmRevurderingSamboerBrevDto(
-                data = VarselOmRevurderingSamboerDataDto(
-                    delmalData = VarselOmRevurderingSamboerDataDto.DelmalData(signatur = SignaturDelmal(enhet = this.enhetNavn())),
-                    flettefelter = VarselOmRevurderingSamboerDataDto.FlettefelterDto(
-                        navn = this.mottakerNavn,
-                        fodselsnummer = this.mottakerIdent,
-                        datoAvtale = LocalDate.parse(this.datoAvtale).tilDagMånedÅr()
-                    )
-                )
-            )
-        }
-
     Brevmal.SVARTIDSBREV ->
         SvartidsbrevDto(
             navn = this.mottakerNavn,
@@ -150,31 +113,6 @@ fun ManueltBrevDto.tilBrev() = when (this.brevmal) {
             enhetNavn = this.enhetNavn(),
             årsaker = this.multiselectVerdier,
             antallUkerSvarfrist = this.antallUkerSvarfrist ?: throw Feil("Antall uker svarfrist er ikke satt")
-        )
-
-    Brevmal.INFORMASJONSBREV_FØDSEL_MINDREÅRIG ->
-        EnkeltInformasjonsbrevDto(
-            navn = this.mottakerNavn,
-            fodselsnummer = this.mottakerIdent,
-            enhet = this.enhetNavn(),
-            mal = Brevmal.INFORMASJONSBREV_FØDSEL_MINDREÅRIG
-        )
-
-    Brevmal.INFORMASJONSBREV_FØDSEL_UMYNDIG,
-    Brevmal.INFORMASJONSBREV_FØDSEL_VERGEMÅL ->
-        EnkeltInformasjonsbrevDto(
-            navn = this.mottakerNavn,
-            fodselsnummer = this.mottakerIdent,
-            enhet = this.enhetNavn(),
-            mal = Brevmal.INFORMASJONSBREV_FØDSEL_VERGEMÅL
-        )
-
-    Brevmal.INFORMASJONSBREV_FØDSEL_GENERELL ->
-        EnkeltInformasjonsbrevDto(
-            navn = this.mottakerNavn,
-            fodselsnummer = this.mottakerIdent,
-            enhet = this.enhetNavn(),
-            mal = Brevmal.INFORMASJONSBREV_FØDSEL_GENERELL
         )
 
     Brevmal.INFORMASJONSBREV_KAN_SØKE ->
@@ -230,7 +168,6 @@ fun ManueltBrevDto.tilBrev() = when (this.brevmal) {
     Brevmal.VEDTAK_FORTSATT_INNVILGET,
     Brevmal.VEDTAK_KORREKSJON_VEDTAKSBREV,
     Brevmal.VEDTAK_OPPHØR_DØDSFALL,
-    Brevmal.DØDSFALL,
     Brevmal.AUTOVEDTAK_BARN_6_OG_18_ÅR_OG_SMÅBARNSTILLEGG,
     Brevmal.AUTOVEDTAK_NYFØDT_FØRSTE_BARN,
     Brevmal.AUTOVEDTAK_NYFØDT_BARN_FRA_FØR -> throw Feil("Kan ikke mappe fra manuel brevrequest til ${this.brevmal}.")

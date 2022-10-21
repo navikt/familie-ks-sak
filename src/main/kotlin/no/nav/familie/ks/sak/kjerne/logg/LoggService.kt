@@ -11,9 +11,9 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat
 import no.nav.familie.ks.sak.kjerne.logg.domene.Logg
 import no.nav.familie.ks.sak.kjerne.logg.domene.LoggRepository
 import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext
-import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
+import java.time.LocalDate
 import java.time.LocalDateTime
 
 @Service
@@ -117,6 +117,62 @@ class LoggService(
         )
     }
 
+    fun opprettSettPåVentLogg(behandling: Behandling, årsak: String) {
+        lagreLogg(
+            Logg(
+                behandlingId = behandling.id,
+                type = LoggType.BEHANDLIG_SATT_PÅ_VENT,
+                rolle = SikkerhetContext.hentRolletilgangFraSikkerhetscontext(
+                    rolleConfig,
+                    BehandlerRolle.SAKSBEHANDLER
+                ),
+                tekst = "Årsak: $årsak"
+            )
+        )
+    }
+
+    fun opprettOppdaterVentingLogg(behandling: Behandling, endretÅrsak: String?, endretFrist: LocalDate?) {
+        val tekst = when {
+            endretFrist != null && endretÅrsak != null ->
+                "Frist og årsak er endret til $endretÅrsak og ${endretFrist.tilKortString()}"
+
+            endretFrist != null ->
+                "Frist er endret til ${endretFrist.tilKortString()}"
+
+            endretÅrsak != null ->
+                "Årsak er endret til $endretÅrsak"
+
+            else -> {
+                logger.info("Ingen endringer tilknyttet frist eller årsak på ventende behandling. Oppretter ikke logginnslag.")
+                return
+            }
+        }
+        lagreLogg(
+            Logg(
+                behandlingId = behandling.id,
+                type = LoggType.VENTENDE_BEHANDLING_ENDRET,
+                rolle = SikkerhetContext.hentRolletilgangFraSikkerhetscontext(
+                    rolleConfig,
+                    BehandlerRolle.SAKSBEHANDLER
+                ),
+                tekst = tekst
+            )
+        )
+    }
+
+    fun opprettBehandlingGjenopptattLogg(behandling: Behandling) {
+        lagreLogg(
+            Logg(
+                behandlingId = behandling.id,
+                type = LoggType.BEHANDLIG_GJENOPPTATT,
+                rolle = SikkerhetContext.hentRolletilgangFraSikkerhetscontext(
+                    rolleConfig,
+                    BehandlerRolle.SAKSBEHANDLER
+                )
+            )
+        )
+    }
+
     fun opprettVilkårsvurderingLogg(
         behandling: Behandling,
         behandlingsForrigeResultat: Behandlingsresultat,
@@ -126,9 +182,11 @@ class LoggService(
             behandlingsForrigeResultat == Behandlingsresultat.IKKE_VURDERT -> {
                 "Resultat ble ${behandlingsNyResultat.displayName.lowercase()}"
             }
+
             behandlingsForrigeResultat != behandlingsNyResultat -> {
                 "Resultat gikk fra ${behandlingsForrigeResultat.displayName.lowercase()} til ${behandlingsNyResultat.displayName.lowercase()}"
             }
+
             else -> {
                 logger.info("Logg kan ikke lagres når $behandlingsForrigeResultat er samme som $behandlingsNyResultat")
                 return
@@ -144,13 +202,16 @@ class LoggService(
                 behandlingId = behandling.id,
                 type = LoggType.VILKÅRSVURDERING,
                 tittel = tittel,
-                rolle = SikkerhetContext.hentRolletilgangFraSikkerhetscontext(rolleConfig, BehandlerRolle.SAKSBEHANDLER),
+                rolle = SikkerhetContext.hentRolletilgangFraSikkerhetscontext(
+                    rolleConfig,
+                    BehandlerRolle.SAKSBEHANDLER
+                ),
                 tekst = tekst
             )
         )
     }
 
     companion object {
-        private val logger: Logger = LoggerFactory.getLogger(LoggService::class.java)
+        private val logger = LoggerFactory.getLogger(LoggService::class.java)
     }
 }

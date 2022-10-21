@@ -1,6 +1,7 @@
 package no.nav.familie.ks.sak.api
 
 import no.nav.familie.kontrakter.felles.Ressurs
+import no.nav.familie.ks.sak.api.dto.AnnenVurderingDto
 import no.nav.familie.ks.sak.api.dto.BehandlingResponsDto
 import no.nav.familie.ks.sak.api.dto.EndreVilkårResultatDto
 import no.nav.familie.ks.sak.api.dto.NyttVilkårDto
@@ -8,6 +9,7 @@ import no.nav.familie.ks.sak.api.dto.VedtakBegrunnelseTilknyttetVilkårResponseD
 import no.nav.familie.ks.sak.config.BehandlerRolle
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.VedtakBegrunnelseType
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.AnnenVurderingService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
 import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
 import no.nav.familie.ks.sak.sikkerhet.AuditLoggerEvent
@@ -32,7 +34,8 @@ class VilkårsvurderingController(
     private val behandlingService: BehandlingService,
     private val personidentService: PersonidentService,
     private val tilgangService: TilgangService,
-    private val vilkårsvurderingService: VilkårsvurderingService
+    private val vilkårsvurderingService: VilkårsvurderingService,
+    private val annenVurderingService: AnnenVurderingService
 ) {
 
     @PostMapping(path = ["/{behandlingId}"])
@@ -97,5 +100,24 @@ class VilkårsvurderingController(
     @GetMapping(path = ["/vilkaarsbegrunnelser"])
     fun hentVilkårsbegrunnelser(): ResponseEntity<Ressurs<Map<VedtakBegrunnelseType, List<VedtakBegrunnelseTilknyttetVilkårResponseDto>>>> {
         return ResponseEntity.ok(Ressurs.success(vilkårsvurderingService.hentVilkårsbegrunnelser()))
+    }
+
+    @PutMapping(path = ["/{behandlingId}/annenvurdering"])
+    fun endreAnnenVurdering(
+        @PathVariable behandlingId: Long,
+        @RequestBody annenVurderingDto: AnnenVurderingDto
+    ): ResponseEntity<Ressurs<BehandlingResponsDto>> {
+        tilgangService.validerTilgangTilHandlingOgFagsakForBehandling(
+            behandlingId = behandlingId,
+            event = AuditLoggerEvent.UPDATE,
+            minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
+            handling = "endre på annen vurdering"
+        )
+
+        annenVurderingService.endreAnnenVurdering(
+            annenVurderingDto = annenVurderingDto
+        )
+
+        return ResponseEntity.ok(Ressurs.success(behandlingService.lagBehandlingRespons(behandlingId = behandlingId)))
     }
 }

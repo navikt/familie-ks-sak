@@ -1,14 +1,17 @@
 package no.nav.familie.ks.sak.api
 
 import no.nav.familie.kontrakter.felles.Ressurs
+import no.nav.familie.ks.sak.api.dto.BehandlingResponsDto
 import no.nav.familie.ks.sak.api.dto.ManueltBrevDto
 import no.nav.familie.ks.sak.config.BehandlerRolle
+import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.brev.BrevService
 import no.nav.familie.ks.sak.sikkerhet.AuditLoggerEvent
 import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext
 import no.nav.familie.ks.sak.sikkerhet.TilgangService
 import no.nav.security.token.support.core.api.ProtectedWithClaims
 import org.slf4j.LoggerFactory
+import org.springframework.http.ResponseEntity
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
@@ -20,7 +23,11 @@ import org.springframework.web.bind.annotation.RestController
 @RequestMapping("/api/brev")
 @ProtectedWithClaims(issuer = "azuread")
 @Validated
-class BrevController(private val brevService: BrevService, private val tilgangService: TilgangService) {
+class BrevController(
+    private val brevService: BrevService,
+    private val tilgangService: TilgangService,
+    private val behandlingService: BehandlingService
+) {
 
     @PostMapping(path = ["/forhåndsvis-brev/{behandlingId}"])
     fun hentForhåndsvisning(
@@ -42,6 +49,28 @@ class BrevController(private val brevService: BrevService, private val tilgangSe
             behandlingId = behandlingId,
             manueltBrevDto = manueltBrevDto
         ).let { Ressurs.success(it) }
+    }
+
+    @PostMapping(path = ["/send-brev/{behandlingId}"])
+    fun sendBrev(
+        @PathVariable behandlingId: Long,
+        @RequestBody manueltBrevDto: ManueltBrevDto
+    ): ResponseEntity<Ressurs<BehandlingResponsDto>> {
+        logger.info("${SikkerhetContext.hentSaksbehandlerNavn()} genererer og sender brev: ${manueltBrevDto.brevmal}")
+        tilgangService.validerTilgangTilHandlingOgFagsakForBehandling(
+            behandlingId = behandlingId,
+            event = AuditLoggerEvent.UPDATE,
+            minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
+            handling = "sende brev"
+        )
+
+        brevService.genererOgSendBrev(behandlingId = behandlingId, manueltBrevDto = manueltBrevDto)
+
+        return ResponseEntity.ok(
+            Ressurs.success(
+                behandlingService.lagBehandlingRespons(behandlingId = behandlingId)
+            )
+        )
     }
 
     companion object {

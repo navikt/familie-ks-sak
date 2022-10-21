@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore
 import no.nav.familie.ks.sak.common.entitet.BaseEntitet
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat.Companion.VilkårResultatComparator
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
+import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
 import javax.persistence.CascadeType
 import javax.persistence.Entity
 import javax.persistence.FetchType
@@ -58,5 +59,16 @@ class PersonResultat(
     fun setSortedVilkårResultater(nyeVilkårResultater: Set<VilkårResultat>) {
         vilkårResultater.clear()
         vilkårResultater.addAll(nyeVilkårResultater.toSortedSet(VilkårResultatComparator))
+    }
+
+    fun erSøkersResultater() = vilkårResultater.all { it.vilkårType.parterDetteGjelderFor.contains(PersonType.SØKER) }
+
+    fun leggTilBlankAnnenVurdering(annenVurderingType: AnnenVurderingType) {
+        this.andreVurderinger.add(
+            AnnenVurdering(
+                personResultat = this,
+                type = annenVurderingType
+            )
+        )
     }
 }
