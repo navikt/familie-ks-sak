@@ -1,5 +1,6 @@
 package no.nav.familie.ks.sak.kjerne.behandling.steg.søknad
 
+import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.kjerne.behandling.steg.søknad.domene.SøknadGrunnlag
 import no.nav.familie.ks.sak.kjerne.behandling.steg.søknad.domene.SøknadGrunnlagRepository
 import org.springframework.stereotype.Service
@@ -20,4 +21,7 @@ class SøknadGrunnlagService(
     fun finnAktiv(behandlingId: Long): SøknadGrunnlag? {
         return søknadGrunnlagRepository.finnAktiv(behandlingId)
     }
+
+    fun hentAktiv(behandlingId: Long): SøknadGrunnlag =
+        finnAktiv(behandlingId) ?: throw Feil("Fant ikke aktiv søknadsgrunnlag for behandling $behandlingId.")
 }

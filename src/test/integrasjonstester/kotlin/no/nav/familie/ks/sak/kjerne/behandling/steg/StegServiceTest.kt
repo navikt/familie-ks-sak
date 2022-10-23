@@ -3,8 +3,14 @@ package no.nav.familie.ks.sak.kjerne.behandling.steg
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
 import io.mockk.just
+import io.mockk.mockk
+import io.mockk.mockkObject
 import io.mockk.runs
 import no.nav.familie.ks.sak.OppslagSpringRunnerTest
+import no.nav.familie.ks.sak.api.dto.BarnMedOpplysningerDto
+import no.nav.familie.ks.sak.api.dto.SøkerMedOpplysningerDto
+import no.nav.familie.ks.sak.api.dto.SøknadDto
+import no.nav.familie.ks.sak.api.mapper.SøknadGrunnlagMapper
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagRegistrerSøknadDto
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
@@ -21,6 +27,8 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingStegStatus.TILBAKE
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingStegStatus.UTFØRT
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingStegStatus.VENTER
 import no.nav.familie.ks.sak.kjerne.behandling.steg.søknad.RegistrereSøknadSteg
+import no.nav.familie.ks.sak.kjerne.behandling.steg.søknad.SøknadGrunnlagService
+import no.nav.familie.ks.sak.kjerne.behandling.steg.søknad.domene.SøknadGrunnlag
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -41,19 +49,37 @@ class StegServiceTest : OppslagSpringRunnerTest() {
     @MockkBean(relaxed = true)
     private lateinit var registrerSøknadSteg: RegistrereSøknadSteg
 
+    @MockkBean(relaxed = true)
+    private lateinit var søknadGrunnlagService: SøknadGrunnlagService
+
     @Autowired
     private lateinit var behandlingRepository: BehandlingRepository
 
     @BeforeEach
     fun setup() {
         opprettSøkerFagsakOgBehandling()
-        opprettPersonopplysningGrunnlagOgPersonForBehandling(behandling.id)
+        opprettPersonopplysningGrunnlagOgPersonForBehandling(behandlingId = behandling.id, lagBarn = true)
         opprettVilkårsvurdering(søker, behandling, Resultat.IKKE_VURDERT)
-        every { registerPersonGrunnlagSteg.utførSteg(any()) } just runs
-        every { registerPersonGrunnlagSteg.getBehandlingssteg() } answers { callOriginal() }
 
-        every { registrerSøknadSteg.utførSteg(any()) } just runs
-        every { registrerSøknadSteg.getBehandlingssteg() } answers { callOriginal() }
+        every { søknadGrunnlagService.hentAktiv(behandling.id) } returns mockk<SøknadGrunnlag>(relaxed = true).also {
+            mockkObject(SøknadGrunnlagMapper)
+            with(SøknadGrunnlagMapper) {
+                every { it.tilSøknadDto() } returns SøknadDto(
+                    søkerMedOpplysninger = SøkerMedOpplysningerDto("søkerIdent"),
+                    barnaMedOpplysninger = listOf(
+                        BarnMedOpplysningerDto(ident = "barn1"),
+                        BarnMedOpplysningerDto("barn2")
+                    ),
+                    "begrunnelse"
+                )
+            }
+
+            every { registerPersonGrunnlagSteg.utførSteg(any()) } just runs
+            every { registerPersonGrunnlagSteg.getBehandlingssteg() } answers { callOriginal() }
+
+            every { registrerSøknadSteg.utførSteg(any()) } just runs
+            every { registrerSøknadSteg.getBehandlingssteg() } answers { callOriginal() }
+        }
     }
 
     @Test
