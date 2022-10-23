@@ -18,7 +18,7 @@ object BehandlingMapper {
         behandling: Behandling,
         arbeidsfordelingPåBehandling: ArbeidsfordelingPåBehandling,
         søknadsgrunnlag: SøknadDto?,
-        personer: List<Person>?,
+        personer: List<PersonResponsDto>,
         personResultater: List<PersonResultat>?
     ) =
         BehandlingResponsDto(
@@ -39,7 +39,7 @@ object BehandlingMapper {
             endretAv = behandling.endretAv,
             arbeidsfordelingPåBehandling = lagArbeidsfordelingRespons(arbeidsfordelingPåBehandling),
             søknadsgrunnlag = søknadsgrunnlag,
-            personer = personer?.map { lagPersonRespons(it) } ?: emptyList(),
+            personer = personer,
             personResultater = personResultater?.map { VilkårsvurderingMapper.lagPersonResultatRespons(it) }
                 ?: emptyList()
         )
@@ -51,7 +51,7 @@ object BehandlingMapper {
             manueltOverstyrt = arbeidsfordelingPåBehandling.manueltOverstyrt
         )
 
-    private fun lagPersonRespons(person: Person) = PersonResponsDto(
+    fun lagPersonRespons(person: Person) = PersonResponsDto(
         type = person.type,
         fødselsdato = person.fødselsdato,
         personIdent = person.aktør.aktivFødselsnummer(),

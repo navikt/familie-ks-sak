@@ -1,0 +1,7 @@
+{
+  "data": "Norge",
+  "status": "SUKSESS",
+  "melding": "string",
+  "frontendFeilmelding": "string",
+  "stacktrace": "string"
+}
