@@ -1,6 +1,7 @@
 package no.nav.familie.ks.sak.integrasjon.familieintegrasjon
 
 import no.nav.familie.http.client.AbstractRestClient
+import no.nav.familie.kontrakter.felles.Fagsystem
 import no.nav.familie.kontrakter.felles.Ressurs
 import no.nav.familie.kontrakter.felles.Tema
 import no.nav.familie.kontrakter.felles.dokarkiv.ArkiverDokumentResponse
@@ -8,6 +9,9 @@ import no.nav.familie.kontrakter.felles.dokarkiv.LogiskVedleggRequest
 import no.nav.familie.kontrakter.felles.dokarkiv.LogiskVedleggResponse
 import no.nav.familie.kontrakter.felles.dokarkiv.OppdaterJournalpostResponse
 import no.nav.familie.kontrakter.felles.dokarkiv.v2.ArkiverDokumentRequest
+import no.nav.familie.kontrakter.felles.dokdist.DistribuerJournalpostRequest
+import no.nav.familie.kontrakter.felles.dokdist.Distribusjonstidspunkt
+import no.nav.familie.kontrakter.felles.dokdist.Distribusjonstype
 import no.nav.familie.kontrakter.felles.journalpost.Journalpost
 import no.nav.familie.kontrakter.felles.journalpost.JournalposterForBrukerRequest
 import no.nav.familie.kontrakter.felles.navkontor.NavKontorEnhet
@@ -296,6 +300,28 @@ class IntegrasjonClient(
         ) {
             postForEntity(uri, arkiverDokumentRequest)
         }
+    }
+
+    fun distribuerBrev(journalpostId: String, distribusjonstype: Distribusjonstype): String {
+        val uri = URI.create("$integrasjonUri/dist/v1")
+
+        val journalpostRequest = DistribuerJournalpostRequest(
+            journalpostId = journalpostId,
+            bestillendeFagsystem = Fagsystem.KONT,
+            dokumentProdApp = "FAMILIE_KS_SAK",
+            distribusjonstidspunkt = Distribusjonstidspunkt.KJERNETID,
+            distribusjonstype = distribusjonstype
+        )
+
+        val bestillingId: String = kallEksternTjenesteRessurs(
+            tjeneste = "dokdist",
+            uri = uri,
+            formål = "Distribuer brev"
+        ) {
+            postForEntity(uri, journalpostRequest, HttpHeaders().medContentTypeJsonUTF8())
+        }
+
+        return bestillingId
     }
 
     companion object {

@@ -211,6 +211,39 @@ class LoggService(
         )
     }
 
+    fun opprettBrevIkkeDistribuertUkjentAdresseLogg(behandlingId: Long, brevnavn: String) {
+        lagreLogg(
+            Logg(
+                behandlingId = behandlingId,
+                type = LoggType.BREV_IKKE_DISTRIBUERT,
+                rolle = SikkerhetContext.hentRolletilgangFraSikkerhetscontext(rolleConfig, BehandlerRolle.SYSTEM),
+                tekst = brevnavn
+            )
+        )
+    }
+
+    fun opprettDistribuertBrevLogg(behandlingId: Long, tekst: String, rolle: BehandlerRolle) {
+        lagreLogg(
+            Logg(
+                behandlingId = behandlingId,
+                type = LoggType.DISTRIBUERE_BREV,
+                rolle = SikkerhetContext.hentRolletilgangFraSikkerhetscontext(rolleConfig, rolle),
+                tekst = tekst
+            )
+        )
+    }
+
+    fun opprettBrevIkkeDistribuertUkjentDødsboadresseLogg(behandlingId: Long, brevnavn: String) {
+        lagreLogg(
+            Logg(
+                behandlingId = behandlingId,
+                type = LoggType.BREV_IKKE_DISTRIBUERT_UKJENT_DØDSBO,
+                rolle = SikkerhetContext.hentRolletilgangFraSikkerhetscontext(rolleConfig, BehandlerRolle.SYSTEM),
+                tekst = brevnavn
+            )
+        )
+    }
+
     companion object {
         private val logger = LoggerFactory.getLogger(LoggService::class.java)
     }
