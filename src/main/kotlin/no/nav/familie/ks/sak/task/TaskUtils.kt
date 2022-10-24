@@ -1,8 +1,10 @@
 package no.nav.familie.ks.sak.task
 
+import no.nav.familie.ks.sak.common.util.erHverdag
+import no.nav.familie.ks.sak.common.util.erKlokkenMellom21Og06
+import no.nav.familie.ks.sak.common.util.kl06IdagEllerNesteDag
 import java.time.DayOfWeek
 import java.time.LocalDateTime
-import java.time.LocalTime
 import java.time.Month
 import java.time.temporal.TemporalAdjusters
 
@@ -35,21 +37,4 @@ fun nesteGyldigeTriggertidForBehandlingIHverdager(
     }
 
     return date
-}
-
-fun LocalDateTime.erHverdag(plusDays: Long): Boolean {
-    val dayOfWeek = plusDays(plusDays).dayOfWeek
-
-    return dayOfWeek == DayOfWeek.SATURDAY || dayOfWeek == DayOfWeek.SUNDAY
-}
-
-fun erKlokkenMellom21Og06(localTime: LocalTime = LocalTime.now()): Boolean =
-    localTime.isAfter(LocalTime.of(21, 0)) || localTime.isBefore(LocalTime.of(6, 0))
-
-fun kl06IdagEllerNesteDag(date: LocalDateTime = LocalDateTime.now()): LocalDateTime {
-    return if (date.toLocalTime().isBefore(LocalTime.of(6, 0))) {
-        date.withHour(6)
-    } else {
-        date.plusDays(1).withHour(6)
-    }
 }
