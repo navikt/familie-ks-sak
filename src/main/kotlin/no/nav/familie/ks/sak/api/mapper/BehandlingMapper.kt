@@ -27,7 +27,9 @@ object BehandlingMapper {
             stegTilstand = behandling.behandlingStegTilstand.map {
                 BehandlingStegTilstandResponsDto(
                     it.behandlingSteg,
-                    it.behandlingStegStatus
+                    it.behandlingStegStatus,
+                    it.årsak,
+                    it.frist
                 )
             },
             status = behandling.status,

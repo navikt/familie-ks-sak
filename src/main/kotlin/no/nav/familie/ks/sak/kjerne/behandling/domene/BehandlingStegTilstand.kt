@@ -2,8 +2,10 @@ package no.nav.familie.ks.sak.kjerne.behandling.domene
 
 import com.fasterxml.jackson.annotation.JsonIgnore
 import no.nav.familie.ks.sak.common.entitet.BaseEntitet
+import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSettPåVentÅrsak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingStegStatus
+import java.time.LocalDate
 import java.util.Objects
 import javax.persistence.Column
 import javax.persistence.Entity
@@ -40,7 +42,14 @@ data class BehandlingStegTilstand(
 
     @Enumerated(EnumType.STRING)
     @Column(name = "behandling_steg_status", nullable = false)
-    var behandlingStegStatus: BehandlingStegStatus = BehandlingStegStatus.KLAR
+    var behandlingStegStatus: BehandlingStegStatus = BehandlingStegStatus.KLAR,
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "aarsak")
+    var årsak: BehandlingSettPåVentÅrsak? = null,
+
+    @Column(name = "frist")
+    var frist: LocalDate? = null
 ) : BaseEntitet() {
 
     override fun equals(other: Any?): Boolean {

@@ -20,6 +20,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.Period
 import java.time.format.DateTimeFormatter
 
 @Service
@@ -117,6 +118,48 @@ class OppgaveService(
         hentOppgaverSomIkkeErFerdigstilt(behandling).forEach { dbOppgave ->
             val oppgave = hentOppgave(dbOppgave.gsakId.toLong())
             copyOppgave(oppgave)?.also { patchOppgave(it) }
+        }
+    }
+
+    fun forlengFristÅpneOppgaverPåBehandling(behandlingId: Long, forlengelse: Period) {
+        val dbOppgaver = oppgaveRepository.findByBehandlingIdAndIkkeFerdigstilt(behandlingId)
+
+        dbOppgaver.forEach { dbOppgave ->
+            val gammelOppgave = hentOppgave(dbOppgave.gsakId.toLong())
+            val oppgaveErAvsluttet = gammelOppgave.ferdigstiltTidspunkt != null
+
+            when {
+                gammelOppgave.id == null ->
+                    logger.warn("Finner ikke oppgave ${dbOppgave.gsakId} ved oppdatering av frist")
+
+                gammelOppgave.fristFerdigstillelse == null ->
+                    logger.warn("Oppgave ${dbOppgave.gsakId} har ingen oppgavefrist ved oppdatering av frist")
+
+                oppgaveErAvsluttet -> {}
+                else -> {
+                    val nyFrist = LocalDate.parse(gammelOppgave.fristFerdigstillelse!!).plus(forlengelse)
+                    val nyOppgave = gammelOppgave.copy(fristFerdigstillelse = nyFrist?.toString())
+                    integrasjonClient.oppdaterOppgave(nyOppgave.id!!, nyOppgave)
+                }
+            }
+        }
+    }
+
+    fun settFristÅpneOppgaverPåBehandlingTil(behandlingId: Long, nyFrist: LocalDate) {
+        val dbOppgaver = oppgaveRepository.findByBehandlingIdAndIkkeFerdigstilt(behandlingId)
+
+        dbOppgaver.forEach { dbOppgave ->
+            val gammelOppgave = hentOppgave(dbOppgave.gsakId.toLong())
+            val oppgaveErAvsluttet = gammelOppgave.ferdigstiltTidspunkt != null
+
+            when {
+                gammelOppgave.id == null -> logger.warn("Finner ikke oppgave ${dbOppgave.gsakId} ved oppdatering av frist")
+                oppgaveErAvsluttet -> {}
+                else -> {
+                    val nyOppgave = gammelOppgave.copy(fristFerdigstillelse = nyFrist.toString())
+                    integrasjonClient.oppdaterOppgave(nyOppgave.id!!, nyOppgave)
+                }
+            }
         }
     }
 

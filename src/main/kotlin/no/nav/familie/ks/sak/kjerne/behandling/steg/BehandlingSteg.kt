@@ -14,7 +14,10 @@ enum class BehandlingSteg(
     val gyldigForÅrsaker: List<BehandlingÅrsak> = BehandlingÅrsak.values().toList(),
     val tilknyttetBehandlingStatus: BehandlingStatus = BehandlingStatus.UTREDES
 ) {
-    REGISTRERE_PERSONGRUNNLAG(sekvens = 1, gyldigBehandlerRolle = listOf(BehandlerRolle.SYSTEM, BehandlerRolle.SAKSBEHANDLER)),
+    REGISTRERE_PERSONGRUNNLAG(
+        sekvens = 1,
+        gyldigBehandlerRolle = listOf(BehandlerRolle.SYSTEM, BehandlerRolle.SAKSBEHANDLER)
+    ),
     REGISTRERE_SØKNAD(sekvens = 2, gyldigForÅrsaker = listOf(SØKNAD)),
     VILKÅRSVURDERING(sekvens = 3),
     BEHANDLINGSRESULTAT(sekvens = 4),
@@ -31,7 +34,8 @@ enum class BehandlingSteg(
     BESLUTTE_VEDTAK(
         sekvens = 7,
         gyldigBehandlerRolle = listOf(BehandlerRolle.SYSTEM, BehandlerRolle.BESLUTTER),
-        gyldigForÅrsaker = BehandlingÅrsak.values().filterNot { it == SATSENDRING }, // steg er gyldig for alle behandling årsaker bortsett fra SATSENDRING
+        gyldigForÅrsaker = BehandlingÅrsak.values()
+            .filterNot { it == SATSENDRING }, // steg er gyldig for alle behandling årsaker bortsett fra SATSENDRING
         tilknyttetBehandlingStatus = BehandlingStatus.FATTER_VEDTAK
     ),
     IVERKSETT_MOT_OPPDRAG(
@@ -63,4 +67,8 @@ enum class BehandlingStegStatus(private val beskrivelse: String) {
     UTFØRT("Steget er ferdig utført"),
     TILBAKEFØRT("Steget er avbrutt og tilbakeført til et tidligere steg"),
     AVBRUTT("Steget er avbrutt, skal brukes kun for henleggelse");
+}
+
+enum class BehandlingSettPåVentÅrsak(val visningsnavn: String) {
+    AVVENTER_DOKUMENTASJON("Avventer dokumentasjon")
 }

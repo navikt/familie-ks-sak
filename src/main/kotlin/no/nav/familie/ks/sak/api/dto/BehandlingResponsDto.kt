@@ -6,6 +6,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingType
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
+import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSettPåVentÅrsak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingStegStatus
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Målform
@@ -38,7 +39,9 @@ data class BehandlingResponsDto(
 
 data class BehandlingStegTilstandResponsDto(
     val behandlingSteg: BehandlingSteg,
-    val behandlingStegStatus: BehandlingStegStatus
+    val behandlingStegStatus: BehandlingStegStatus,
+    val årsak: BehandlingSettPåVentÅrsak?,
+    val frist: LocalDate?
 )
 
 data class ArbeidsfordelingResponsDto(
