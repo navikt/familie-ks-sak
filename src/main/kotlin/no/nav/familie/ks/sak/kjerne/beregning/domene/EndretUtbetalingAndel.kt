@@ -80,7 +80,7 @@ data class EndretUtbetalingAndel(
             return MånedPeriode(checkNotNull(this.fom), checkNotNull(this.tom))
         }
 
-    fun validerUtfyltEndring(): Boolean {
+    fun validerUtfyltEndring() {
         if (listOf(person, prosent, fom, tom, årsak, søknadstidspunkt).any { it == null } || (begrunnelse?.isEmpty() == true)) {
             val feilmelding =
                 "Person, prosent, fom, tom, årsak, begrunnese og søknadstidspunkt skal være utfylt: $this"
@@ -97,8 +97,6 @@ data class EndretUtbetalingAndel(
         if (årsak == Årsak.DELT_BOSTED && avtaletidspunktDeltBosted == null) {
             throw FunksjonellFeil("Avtaletidspunkt skal være utfylt når årsak er delt bosted: $this")
         }
-
-        return true
     }
 
     fun erÅrsakDeltBosted() = this.årsak == Årsak.DELT_BOSTED

@@ -101,7 +101,7 @@ private fun <T, R> konverterTilSammeLengde(
     }
 
     if (kopi1.kalkulerSluttTidspunkt() != kopi2.kalkulerSluttTidspunkt()) {
-        if (!kopi1.innhold.isEmpty() && kopi1.innhold.last().erUendelig) {
+        if (kopi1.innhold.isNotEmpty() && kopi1.innhold.last().erUendelig) {
             kopi2.innhold = kopi2.innhold + listOf(
                 TidslinjePeriode(
                     periodeVerdi = udefinert2,
@@ -110,7 +110,7 @@ private fun <T, R> konverterTilSammeLengde(
                 )
             )
             return Pair(kopi1, kopi2)
-        } else if (!kopi2.innhold.isEmpty() && kopi2.innhold.last().erUendelig) {
+        } else if (kopi2.innhold.isNotEmpty() && kopi2.innhold.last().erUendelig) {
             kopi1.innhold = kopi1.innhold + listOf(TidslinjePeriode(periodeVerdi = udefinert1, lengde = inf, erUendelig = true))
             return Pair(kopi1, kopi2)
         }
@@ -150,23 +150,27 @@ fun <T> Tidslinje<T>.konverterTilDag(): Tidslinje<T> {
 
     var tidspunkt = this.startsTidspunkt
 
-    if (this.tidsEnhet == TidsEnhet.UKE) {
-        for (periode in this.innhold) {
-            val nyttTidspunkt = tidspunkt.plusWeeks(periode.lengde.toLong())
-            periode.lengde = tidspunkt.until(nyttTidspunkt, ChronoUnit.DAYS).toInt()
-            tidspunkt = nyttTidspunkt
+    when (this.tidsEnhet) {
+        TidsEnhet.UKE -> {
+            for (periode in this.innhold) {
+                val nyttTidspunkt = tidspunkt.plusWeeks(periode.lengde.toLong())
+                periode.lengde = tidspunkt.until(nyttTidspunkt, ChronoUnit.DAYS).toInt()
+                tidspunkt = nyttTidspunkt
+            }
         }
-    } else if (this.tidsEnhet == TidsEnhet.MÅNED) {
-        for (periode in this.innhold) {
-            val nyttTidspunkt = tidspunkt.plusMonths(periode.lengde.toLong())
-            periode.lengde = tidspunkt.until(nyttTidspunkt, ChronoUnit.DAYS).toInt()
-            tidspunkt = nyttTidspunkt
+        TidsEnhet.MÅNED -> {
+            for (periode in this.innhold) {
+                val nyttTidspunkt = tidspunkt.plusMonths(periode.lengde.toLong())
+                periode.lengde = tidspunkt.until(nyttTidspunkt, ChronoUnit.DAYS).toInt()
+                tidspunkt = nyttTidspunkt
+            }
         }
-    } else {
-        for (periode in this.innhold) {
-            val nyttTidspunkt = tidspunkt.plusYears(periode.lengde.toLong())
-            periode.lengde = tidspunkt.until(nyttTidspunkt, ChronoUnit.DAYS).toInt()
-            tidspunkt = nyttTidspunkt
+        else -> {
+            for (periode in this.innhold) {
+                val nyttTidspunkt = tidspunkt.plusYears(periode.lengde.toLong())
+                periode.lengde = tidspunkt.until(nyttTidspunkt, ChronoUnit.DAYS).toInt()
+                tidspunkt = nyttTidspunkt
+            }
         }
     }
 
@@ -268,8 +272,8 @@ fun <T> Tidslinje<T>.konverterTilMåned(
         throw java.lang.IllegalArgumentException("Det er for få månender i tidslinja for dette vinduet.")
     }
 
-    listeAvMåneder.addAll(0, (0..antallMndBakoverITid - 1).map { emptyList() })
-    listeAvMåneder.addAll((0..antallMndFremoverITid - 1).map { emptyList() })
+    listeAvMåneder.addAll(0, (0 until antallMndBakoverITid).map { emptyList() })
+    listeAvMåneder.addAll((0 until antallMndFremoverITid).map { emptyList() })
 
     val perioder: MutableList<TidslinjePeriode<T>> = mutableListOf()
     var dato = this.startsTidspunkt.withDayOfMonth(1)
@@ -551,7 +555,6 @@ fun <R> Tidslinje.Companion.lagTidslinjeFraStreng(
     tidsEnhet: TidsEnhet
 ): Tidslinje<R> {
     val lst: MutableList<TidslinjePeriode<R>> = mutableListOf()
-    val nyStartDato = startDato
 
     innhold.forEach {
         if (mapper[it] == null) {
@@ -560,7 +563,7 @@ fun <R> Tidslinje.Companion.lagTidslinjeFraStreng(
         lst.add(TidslinjePeriode(mapper[it], 1, false))
     }
 
-    return Tidslinje(nyStartDato, lst, tidsEnhet)
+    return Tidslinje(startDato, lst, tidsEnhet)
 }
 
 /**

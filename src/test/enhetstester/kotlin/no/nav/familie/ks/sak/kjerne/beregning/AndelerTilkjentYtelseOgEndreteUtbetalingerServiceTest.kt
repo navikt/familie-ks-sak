@@ -43,7 +43,7 @@ class AndelerTilkjentYtelseOgEndreteUtbetalingerServiceTest {
     private lateinit var andelerTilkjentYtelseOgEndreteUtbetalingerService: AndelerTilkjentYtelseOgEndreteUtbetalingerService
 
     val søker = randomAktør()
-    val barn1 = randomAktør()
+    private val barn1 = randomAktør()
 
     val behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD)
     val personopplysningGrunnlag = lagPersonopplysningGrunnlag(
@@ -51,7 +51,7 @@ class AndelerTilkjentYtelseOgEndreteUtbetalingerServiceTest {
         søkerPersonIdent = søker.aktivFødselsnummer(),
         barnasIdenter = listOf(barn1.aktivFødselsnummer())
     )
-    val søkerPerson = lagPerson(personopplysningGrunnlag, søker, PersonType.SØKER)
+    private val søkerPerson = lagPerson(personopplysningGrunnlag, søker, PersonType.SØKER)
     val barnPerson = lagPerson(personopplysningGrunnlag, barn1, PersonType.BARN)
     val vilkårsvurdering = Vilkårsvurdering(behandling = behandling)
 

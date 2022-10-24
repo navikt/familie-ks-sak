@@ -124,7 +124,7 @@ fun lagPersonopplysningGrunnlag(
                 aktør = aktør,
                 type = PersonType.BARN,
                 personopplysningGrunnlag = personopplysningGrunnlag,
-                fødselsdato = barnasFødselsdatoer.get(index),
+                fødselsdato = barnasFødselsdatoer[index],
                 navn = "",
                 kjønn = Kjønn.MANN
             ).also { barn ->

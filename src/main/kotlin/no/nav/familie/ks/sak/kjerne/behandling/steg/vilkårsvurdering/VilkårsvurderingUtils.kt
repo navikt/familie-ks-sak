@@ -150,15 +150,13 @@ fun opprettNyttVilkårResultat(personResultat: PersonResultat, vilkårType: Vilk
         )
     }
 
-    val nyttVilkårResultat = VilkårResultat(
+    return VilkårResultat(
         personResultat = personResultat,
         vilkårType = vilkårType,
         resultat = Resultat.IKKE_VURDERT,
         begrunnelse = "",
         behandlingId = personResultat.vilkårsvurdering.behandling.id
     )
-
-    return nyttVilkårResultat
 }
 
 /**
