@@ -2,11 +2,9 @@ package no.nav.familie.ks.sak.kjerne.behandling
 
 import no.nav.familie.ks.sak.api.dto.BehandlingResponsDto
 import no.nav.familie.ks.sak.api.dto.EndreBehandlendeEnhetDto
-import no.nav.familie.ks.sak.api.dto.PersonResponsDto
 import no.nav.familie.ks.sak.api.mapper.BehandlingMapper
 import no.nav.familie.ks.sak.api.mapper.BehandlingMapper.lagPersonRespons
 import no.nav.familie.ks.sak.api.mapper.SøknadGrunnlagMapper.tilSøknadDto
-import no.nav.familie.ks.sak.common.util.storForbokstav
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.ArbeidsfordelingService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
@@ -52,9 +50,10 @@ class BehandlingService(
             personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlag(behandlingId)?.personer?.toList()
                 ?: emptyList()
 
-        val personResponserDtoer = personer.map { lagPersonRespons(it) }
+        val landKodeOgLandNavn = personer.flatMap { it.statsborgerskap }.toSet()
+            .associate { it.landkode to statsborgerskapService.hentLand(it.landkode) }
 
-        oppdaterPersonResponsMedStatsborgerskapLand(personResponserDtoer)
+        val personResponserDtoer = personer.map { lagPersonRespons(it, landKodeOgLandNavn) }
 
         val søknadsgrunnlag = søknadGrunnlagService.finnAktiv(behandlingId)?.tilSøknadDto()
         val personResultater =
@@ -66,23 +65,6 @@ class BehandlingService(
             personResponserDtoer,
             personResultater
         )
-    }
-
-    private fun oppdaterPersonResponsMedStatsborgerskapLand(personResponserDtoer: List<PersonResponsDto>) {
-        personResponserDtoer.forEach { person ->
-            person.registerhistorikk?.statsborgerskap?.forEach { statsborgerskap ->
-                val landkode = statsborgerskap.verdi
-                val land = statsborgerskapService.hentLand(landkode)
-
-                val nyVerdi = if (land.equals("uoppgitt", true)) {
-                    "$land ($landkode)"
-                } else {
-                    land.storForbokstav()
-                }
-
-                statsborgerskap.verdi = nyVerdi
-            }
-        }
     }
 
     fun oppdaterBehandlendeEnhet(behandlingId: Long, endreBehandlendeEnhet: EndreBehandlendeEnhetDto) =

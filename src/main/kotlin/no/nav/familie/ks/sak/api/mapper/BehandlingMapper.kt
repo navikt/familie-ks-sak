@@ -51,7 +51,7 @@ object BehandlingMapper {
             manueltOverstyrt = arbeidsfordelingPåBehandling.manueltOverstyrt
         )
 
-    fun lagPersonRespons(person: Person) = PersonResponsDto(
+    fun lagPersonRespons(person: Person, landKodeOgLandNavn: Map<String, String>) = PersonResponsDto(
         type = person.type,
         fødselsdato = person.fødselsdato,
         personIdent = person.aktør.aktivFødselsnummer(),
@@ -59,6 +59,6 @@ object BehandlingMapper {
         kjønn = KJOENN.valueOf(person.kjønn.name),
         målform = person.målform,
         dødsfallDato = person.dødsfall?.dødsfallDato,
-        registerhistorikk = lagRegisterHistorikkResponsDto(person)
+        registerhistorikk = lagRegisterHistorikkResponsDto(person, landKodeOgLandNavn)
     )
 }
