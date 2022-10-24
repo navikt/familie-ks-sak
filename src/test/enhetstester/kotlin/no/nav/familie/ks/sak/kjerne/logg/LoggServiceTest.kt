@@ -279,7 +279,6 @@ class LoggServiceTest {
     @Test
     fun `opprettOppdaterVentingLogg - skal lagre logg på at årsak på en behandlings SettPåVent er endret`() {
         val behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD)
-        val nyFrist = LocalDate.now()
         val slot = slot<Logg>()
 
         every { loggRepository.save(capture(slot)) } returns mockk()
