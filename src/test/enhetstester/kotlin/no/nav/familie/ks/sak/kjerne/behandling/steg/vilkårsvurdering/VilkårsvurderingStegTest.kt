@@ -195,18 +195,14 @@ class VilkårsvurderingStegTest {
     }
 
     @Test
-    fun `utførSteg - skal kaste funksjonell feil hvis ikke er noe barn i personopplysningsgrunnlaget`() {
-        val barn = randomAktør()
+    fun `utførSteg - skal kaste funksjonell feil hvis det ikke er noe barn i personopplysningsgrunnlaget`() {
         val søknadGrunnlagMock = mockk<SøknadGrunnlag>(relaxed = true)
 
         mockkObject(SøknadGrunnlagMapper)
         with(SøknadGrunnlagMapper) {
             every { søknadGrunnlagMock.tilSøknadDto() } returns SøknadDto(
                 søkerMedOpplysninger = SøkerMedOpplysningerDto("søkerIdent"),
-                barnaMedOpplysninger = listOf(
-                    BarnMedOpplysningerDto(ident = "barn1"),
-                    BarnMedOpplysningerDto("barn2")
-                ),
+                barnaMedOpplysninger = emptyList(),
                 "begrunnelse"
             )
         }
@@ -219,7 +215,6 @@ class VilkårsvurderingStegTest {
 
         val vilkårsvurderingForSøker = Vilkårsvurdering(behandling = behandling)
         val søkerPersonResultat = PersonResultat(vilkårsvurdering = vilkårsvurderingForSøker, aktør = søker)
-        val barnPersonResultat = PersonResultat(vilkårsvurdering = vilkårsvurderingForSøker, aktør = barn)
 
         søkerPersonResultat.setSortedVilkårResultater(
             setOf(
@@ -235,32 +230,7 @@ class VilkårsvurderingStegTest {
             )
         )
 
-        barnPersonResultat.setSortedVilkårResultater(
-            setOf(
-                VilkårResultat(
-                    personResultat = søkerPersonResultat,
-                    vilkårType = Vilkår.BARNEHAGEPLASS,
-                    resultat = Resultat.OPPFYLT,
-                    periodeFom = LocalDate.of(2018, 12, 12),
-                    periodeTom = LocalDate.of(2022, 10, 12),
-                    begrunnelse = "",
-                    behandlingId = behandling.id,
-                    antallTimer = BigDecimal(25)
-                ),
-                VilkårResultat(
-                    personResultat = søkerPersonResultat,
-                    vilkårType = Vilkår.BOR_MED_SØKER,
-                    resultat = Resultat.OPPFYLT,
-                    utdypendeVilkårsvurderinger = listOf(UtdypendeVilkårsvurdering.DELT_BOSTED),
-                    periodeFom = LocalDate.of(2022, 11, 12),
-                    periodeTom = LocalDate.of(2022, 12, 12),
-                    begrunnelse = "",
-                    behandlingId = behandling.id
-                )
-            )
-        )
-
-        vilkårsvurderingForSøker.personResultater = setOf(søkerPersonResultat, barnPersonResultat)
+        vilkårsvurderingForSøker.personResultater = setOf(søkerPersonResultat)
 
         every { behandlingService.hentBehandling(behandling.id) } returns behandling
         every { personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(any()) } returns personopplysningGrunnlag
