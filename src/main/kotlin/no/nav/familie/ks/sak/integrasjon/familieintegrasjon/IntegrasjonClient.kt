@@ -302,6 +302,19 @@ class IntegrasjonClient(
         }
     }
 
+    @Cacheable("land", cacheManager = "kodeverkCache")
+    fun hentLand(landkode: String): String {
+        val uri = URI.create("$integrasjonUri/kodeverk/landkoder/$landkode")
+
+        return kallEksternTjenesteRessurs(
+            tjeneste = "kodeverk",
+            uri = uri,
+            formål = "Hent landkoder for $landkode"
+        ) {
+            getForEntity(uri)
+        }
+    }
+
     fun distribuerBrev(journalpostId: String, distribusjonstype: Distribusjonstype): String {
         val uri = URI.create("$integrasjonUri/dist/v1")
 

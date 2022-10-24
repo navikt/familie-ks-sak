@@ -6,14 +6,18 @@ import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import io.mockk.mockk
 import io.mockk.slot
+import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.kjerne.behandling.steg.søknad.domene.SøknadGrunnlag
 import no.nav.familie.ks.sak.kjerne.behandling.steg.søknad.domene.SøknadGrunnlagRepository
+import org.hamcrest.MatcherAssert.assertThat
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
+import org.hamcrest.CoreMatchers.`is` as Is
 
 @ExtendWith(MockKExtension::class)
 class SøknadGrunnlagServiceTest {
@@ -52,7 +56,7 @@ class SøknadGrunnlagServiceTest {
     }
 
     @Test
-    fun `hentAktiv - skal hente aktiv søknad tilknyttet behandlingId når den finnes`() {
+    fun `finnAktiv - skal hente aktiv søknad tilknyttet behandlingId når den finnes`() {
         val søknadGrunnlag = SøknadGrunnlag(
             behandlingId = 0,
             aktiv = true,
@@ -66,11 +70,36 @@ class SøknadGrunnlagServiceTest {
     }
 
     @Test
-    fun `hentAktiv - skal returnere null dersom søknad tilknyttet behandlingId ikke finnes`() {
+    fun `finnAktiv - skal returnere null dersom søknad tilknyttet behandlingId ikke finnes`() {
         every { søknadGrunnlagRepository.finnAktiv(any()) } returns null
 
         val aktivSøknad = søknadGrunnlagService.finnAktiv(404L)
 
         assertNull(aktivSøknad)
+    }
+
+    @Test
+    fun `hentAktiv - skal hente aktiv søknad tilknyttet behandlingId når den finnes`() {
+        val søknadGrunnlag = SøknadGrunnlag(
+            behandlingId = 0,
+            aktiv = true,
+            søknad = ""
+        )
+        every { søknadGrunnlagRepository.finnAktiv(any()) } returns søknadGrunnlag
+
+        val aktivSøknad = søknadGrunnlagService.hentAktiv(0L)
+
+        assertNotNull(aktivSøknad)
+    }
+
+    @Test
+    fun `hentAktiv - skal kaste feil dersom søknad tilknyttet behandlingId ikke finnes`() {
+        every { søknadGrunnlagRepository.finnAktiv(0L) } returns null
+
+        val feil = assertThrows<Feil> {
+            søknadGrunnlagService.hentAktiv(0L)
+        }
+
+        assertThat(feil.message, Is("Fant ikke aktiv søknadsgrunnlag for behandling 0."))
     }
 }

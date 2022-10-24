@@ -18,7 +18,7 @@ import java.time.YearMonth
 class EndretUtbetalingAndelTest {
 
     val søker = randomAktør()
-    val barn1 = randomAktør()
+    private val barn1 = randomAktør()
 
     val behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD)
     val personopplysningGrunnlag = lagPersonopplysningGrunnlag(

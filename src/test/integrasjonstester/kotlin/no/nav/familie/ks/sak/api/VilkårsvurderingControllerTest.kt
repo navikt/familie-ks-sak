@@ -58,6 +58,8 @@ class VilkårsvurderingControllerTest : OppslagSpringRunnerTest() {
                 behandlendeEnhetNavn = "test"
             )
         )
+
+        every { integrasjonClient.hentLand(any()) } returns "Norge"
     }
 
     @Test

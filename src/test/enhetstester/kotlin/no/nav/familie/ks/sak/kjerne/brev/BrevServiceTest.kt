@@ -318,8 +318,6 @@ class BrevServiceTest {
 
         every { brevKlient.genererBrev(any(), any()) } returns ByteArray(10)
 
-        val førstesideSlot = slot<Førsteside>()
-
         every {
             utgåendeJournalføringService.journalførDokument(
                 any(),
