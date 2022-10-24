@@ -173,7 +173,7 @@ class StegServiceTest : OppslagSpringRunnerTest() {
     @Test
     fun `utførSteg skal ikke utføre REGISTRERE_SØKNAD for behandling med årsak SATSENDRING`() {
         lagreBehandling(behandling.also { it.aktiv = false })
-        var revurderingBehandling = lagreBehandling(
+        val revurderingBehandling = lagreBehandling(
             lagBehandling(
                 fagsak = fagsak,
                 type = BehandlingType.REVURDERING,

@@ -117,7 +117,7 @@ object EndretUtbetalingAndelValidator {
 
                 // slår sammen overlappende perioder
                 deltBostedPerioder.filter { it.fom != null && it.tom != null }.map { listOf(it).tilTidslinje() }
-                    .slåSammenLikeTidslinjer { elem1, _ -> Verdi(person.personopplysningGrunnlag.behandlingId) }
+                    .slåSammenLikeTidslinjer { _, _ -> Verdi(person.personopplysningGrunnlag.behandlingId) }
                     .slåSammenLikePerioder().tilPerioder()
             }
             else -> { // For barn, hentes det delt bosted for spesikt barn

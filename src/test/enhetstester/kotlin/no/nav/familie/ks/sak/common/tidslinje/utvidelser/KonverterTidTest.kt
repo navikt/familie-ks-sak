@@ -356,7 +356,7 @@ class KonverterTidTest {
 
         // Assertions.assertEquals(tidslinjeMåned.innhold[2].lengde, (dato3_start.until(LocalDate.of(2022, 9, 30), ChronoUnit.DAYS).toInt() + 1))
         Assertions.assertEquals(correct, tidslinjeMåned.innhold.map { it.periodeVerdi.verdi }.toList())
-        Assertions.assertEquals(correctBeforeTidslinje, splittPåMåned.map { it.maxBy { it.lengde }.periodeVerdi.verdi })
+        Assertions.assertEquals(correctBeforeTidslinje, splittPåMåned.map { it.maxBy { periode -> periode.lengde }.periodeVerdi.verdi })
     }
 
     @Test
@@ -443,7 +443,7 @@ class KonverterTidTest {
         Assertions.assertEquals(correct, tidslinjeMåned.innhold.map { it.periodeVerdi.verdi }.toList())
         Assertions.assertEquals(1, tidslinjeMåned.innhold[3].lengde)
         assertTrue { inf <= tidslinjeMåned.innhold[4].lengde }
-        Assertions.assertEquals(correctBeforeTidslinje, splittPåMåned.map { it.maxBy { it.lengde }.periodeVerdi.verdi })
+        Assertions.assertEquals(correctBeforeTidslinje, splittPåMåned.map { it.maxBy { periode -> periode.lengde }.periodeVerdi.verdi })
         assertTrue(tidslinjeMåned.innhold.last().erUendelig)
     }
 
