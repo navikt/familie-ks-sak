@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component
 import org.springframework.web.client.RestOperations
 import java.net.URI
 
-val FAMILIE_BREV_TJENESTENAVN = "famile-brev"
+const val FAMILIE_BREV_TJENESTENAVN = "famile-brev"
 
 @Component
 class BrevKlient(

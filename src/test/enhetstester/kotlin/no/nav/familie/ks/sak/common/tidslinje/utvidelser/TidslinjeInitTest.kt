@@ -10,8 +10,8 @@ import java.time.LocalDate
 
 class TidslinjeInitTest {
 
-    val tidslinjeSomStreng = "tttttfftftfftftff"
-    val mapper = mapOf(
+    private val tidslinjeSomStreng = "tttttfftftfftftff"
+    private val mapper = mapOf(
         't' to true,
         'f' to false
     )

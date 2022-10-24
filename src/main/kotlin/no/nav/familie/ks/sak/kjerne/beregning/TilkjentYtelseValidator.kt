@@ -26,12 +26,12 @@ object TilkjentYtelseValidator {
         }
     }
 
-    fun hentSøkersAndeler(
+    private fun hentSøkersAndeler(
         andeler: List<AndelTilkjentYtelse>,
         søker: Person
     ) = andeler.filter { it.aktør == søker.aktør }
 
-    fun hentBarnasAndeler(andeler: List<AndelTilkjentYtelse>, barna: List<Person>) = barna.map { barn ->
+    private fun hentBarnasAndeler(andeler: List<AndelTilkjentYtelse>, barna: List<Person>) = barna.map { barn ->
         barn to andeler.filter { it.aktør == barn.aktør }
     }
 }
