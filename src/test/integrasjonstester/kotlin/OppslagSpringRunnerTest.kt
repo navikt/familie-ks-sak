@@ -127,7 +127,7 @@ abstract class OppslagSpringRunnerTest {
         behandling = lagreBehandling(lagBehandling(fagsak = fagsak, opprettetÅrsak = BehandlingÅrsak.SØKNAD))
     }
 
-    fun opprettPersonopplysningGrunnlagOgPersonForBehandling(behandlingId: Long) {
+    fun opprettPersonopplysningGrunnlagOgPersonForBehandling(behandlingId: Long, lagBarn: Boolean = false) {
         personopplysningGrunnlag = lagrePersonopplysningGrunnlag(PersonopplysningGrunnlag(behandlingId = behandlingId))
 
         lagrePerson(
@@ -145,6 +145,24 @@ abstract class OppslagSpringRunnerTest {
                 søker.sivilstander = mutableListOf(GrSivilstand(type = SIVILSTAND.GIFT, person = søker))
             }
         )
+
+        if (lagBarn) {
+            lagrePerson(
+                Person(
+                    aktør = søker,
+                    type = PersonType.BARN,
+                    personopplysningGrunnlag = personopplysningGrunnlag,
+                    fødselsdato = LocalDate.of(2022, 1, 1),
+                    navn = "",
+                    kjønn = Kjønn.KVINNE
+                ).also { søker ->
+                    søker.statsborgerskap =
+                        mutableListOf(GrStatsborgerskap(landkode = "NOR", medlemskap = Medlemskap.NORDEN, person = søker))
+                    søker.bostedsadresser = mutableListOf()
+                    søker.sivilstander = mutableListOf(GrSivilstand(type = SIVILSTAND.GIFT, person = søker))
+                }
+            )
+        }
     }
 
     fun opprettVilkårsvurdering(aktør: Aktør, behandling: Behandling, resultat: Resultat) {

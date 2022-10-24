@@ -28,6 +28,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.søknad.domene.SøknadGrunnl
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
 import no.nav.familie.ks.sak.kjerne.logg.LoggService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
+import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.StatsborgerskapService
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
@@ -46,6 +47,9 @@ class BehandlingServiceTest {
 
     @MockK
     private lateinit var søknadGrunnlagService: SøknadGrunnlagService
+
+    @MockK
+    private lateinit var statsborgerskapService: StatsborgerskapService
 
     @MockK
     private lateinit var personopplysningGrunnlagService: PersonopplysningGrunnlagService
@@ -74,6 +78,7 @@ class BehandlingServiceTest {
             behandlendeEnhetNavn = "enhetNavn"
         )
         every { arbeidsfordelingService.manueltOppdaterBehandlendeEnhet(any(), any()) } just runs
+        every { statsborgerskapService.hentLand(any()) } returns "Norge"
         every { personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlag(any()) } returns
             lagPersonopplysningGrunnlag(behandlingId = behandling.id, søkerPersonIdent = søkersIdent)
         every { vilkårsvurderingService.finnAktivVilkårsvurdering(any()) } returns null

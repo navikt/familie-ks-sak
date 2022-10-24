@@ -3,6 +3,7 @@ package no.nav.familie.ks.sak.kjerne.behandling
 import no.nav.familie.ks.sak.api.dto.BehandlingResponsDto
 import no.nav.familie.ks.sak.api.dto.EndreBehandlendeEnhetDto
 import no.nav.familie.ks.sak.api.mapper.BehandlingMapper
+import no.nav.familie.ks.sak.api.mapper.BehandlingMapper.lagPersonRespons
 import no.nav.familie.ks.sak.api.mapper.SøknadGrunnlagMapper.tilSøknadDto
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.ArbeidsfordelingService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
@@ -13,6 +14,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.søknad.SøknadGrunnlagServi
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
 import no.nav.familie.ks.sak.kjerne.logg.LoggService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
+import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.StatsborgerskapService
 import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -25,6 +27,7 @@ class BehandlingService(
     private val søknadGrunnlagService: SøknadGrunnlagService,
     private val personopplysningGrunnlagService: PersonopplysningGrunnlagService,
     private val vilkårsvurderingService: VilkårsvurderingService,
+    private val statsborgerskapService: StatsborgerskapService,
     private val loggService: LoggService
 ) {
 
@@ -42,8 +45,16 @@ class BehandlingService(
     fun lagBehandlingRespons(behandlingId: Long): BehandlingResponsDto {
         val behandling = hentBehandling(behandlingId)
         val arbeidsfordelingPåBehandling = arbeidsfordelingService.hentArbeidsfordelingPåBehandling(behandlingId)
+
         val personer =
             personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlag(behandlingId)?.personer?.toList()
+                ?: emptyList()
+
+        val landKodeOgLandNavn = personer.flatMap { it.statsborgerskap }.toSet()
+            .associate { it.landkode to statsborgerskapService.hentLand(it.landkode) }
+
+        val personResponserDtoer = personer.map { lagPersonRespons(it, landKodeOgLandNavn) }
+
         val søknadsgrunnlag = søknadGrunnlagService.finnAktiv(behandlingId)?.tilSøknadDto()
         val personResultater =
             vilkårsvurderingService.finnAktivVilkårsvurdering(behandlingId)?.personResultater?.toList()
@@ -51,7 +62,7 @@ class BehandlingService(
             behandling,
             arbeidsfordelingPåBehandling,
             søknadsgrunnlag,
-            personer,
+            personResponserDtoer,
             personResultater
         )
     }
