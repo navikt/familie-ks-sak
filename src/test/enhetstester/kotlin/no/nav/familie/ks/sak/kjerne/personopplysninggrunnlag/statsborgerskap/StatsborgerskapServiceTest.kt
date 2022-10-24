@@ -1,10 +1,13 @@
 package no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.statsborgerskap
 
+import io.mockk.every
 import io.mockk.impl.annotations.InjectMockKs
+import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import no.nav.familie.ks.sak.data.lagPersonopplysningGrunnlag
 import no.nav.familie.ks.sak.data.lagStatsborgerskap
 import no.nav.familie.ks.sak.data.randomFnr
+import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.StatsborgerskapService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Medlemskap
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -15,8 +18,20 @@ import org.junit.jupiter.api.extension.ExtendWith
 @ExtendWith(MockKExtension::class)
 class StatsborgerskapServiceTest {
 
+    @MockK
+    private lateinit var integrasjonClient: IntegrasjonClient
+
     @InjectMockKs
     private lateinit var statsborgerskapService: StatsborgerskapService
+
+    @Test
+    fun `hentLand skal hente returnere landNavn gitt landKode`() {
+        every { integrasjonClient.hentLand("NOR") } returns "Norge"
+
+        val landNavn = statsborgerskapService.hentLand("NOR")
+
+        assertEquals(landNavn, "Norge")
+    }
 
     @Test
     fun `hentStatsborgerskapMedMedlemskap skal hente statsborgerskap for en nordisk statsborger`() {

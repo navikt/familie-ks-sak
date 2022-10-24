@@ -1,13 +1,16 @@
 package no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering
 
+import no.nav.familie.ks.sak.api.mapper.SøknadGrunnlagMapper.tilSøknadDto
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.common.tidslinje.TidslinjePeriodeMedDato
 import no.nav.familie.ks.sak.common.tidslinje.validerIngenOverlapp
 import no.nav.familie.ks.sak.common.util.slåSammen
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
+import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg
 import no.nav.familie.ks.sak.kjerne.behandling.steg.IBehandlingSteg
+import no.nav.familie.ks.sak.kjerne.behandling.steg.søknad.SøknadGrunnlagService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.UtdypendeVilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
@@ -23,6 +26,7 @@ import java.time.LocalDate
 class VilkårsvurderingSteg(
     private val personopplysningGrunnlagService: PersonopplysningGrunnlagService,
     private val behandlingService: BehandlingService,
+    private val søknadGrunnlagService: SøknadGrunnlagService,
     private val vilkårsvurderingService: VilkårsvurderingService
 ) : IBehandlingSteg {
     override fun getBehandlingssteg(): BehandlingSteg = BehandlingSteg.VILKÅRSVURDERING
@@ -41,6 +45,7 @@ class VilkårsvurderingSteg(
             )
         }
 
+        validerAtDetFinnesBarnIPersonopplysningsgrunnlaget(personopplysningGrunnlag, behandling)
         validerAtDetIkkeErOverlappMellomGradertBarnehageplassOgDeltBosted(vilkårsvurdering)
 
         // TODO: Kommer etter vi har fått inn behandlingsresultat.
@@ -89,6 +94,23 @@ class VilkårsvurderingSteg(
                 "Ved behandlingsårsak \"Dødsfall\" må vilkårene på søker avsluttes " + "senest dagen søker døde, men " + slåSammen(
                     vilkårSomEnderEtterSøkersDød.map { "\"" + it.beskrivelse + "\"" }
                 ) + " vilkåret til søker slutter etter søkers død."
+            )
+        }
+    }
+
+    fun validerAtDetFinnesBarnIPersonopplysningsgrunnlaget(
+        personopplysningGrunnlag: PersonopplysningGrunnlag,
+        behandling: Behandling
+    ) {
+        val barna = personopplysningGrunnlag.barna
+        val søknadGrunnlag = søknadGrunnlagService.hentAktiv(behandlingId = behandling.id).tilSøknadDto()
+        val uregistrerteBarn =
+            søknadGrunnlag.barnaMedOpplysninger.filter { !it.erFolkeregistrert && it.inkludertISøknaden }
+
+        if (barna.isEmpty() && uregistrerteBarn.isEmpty()) {
+            throw FunksjonellFeil(
+                melding = "Ingen barn i personopplysningsgrunnlag ved validering av vilkårsvurdering på behandling ${behandling.id}",
+                frontendFeilmelding = "Barn må legges til for å gjennomføre vilkårsvurdering."
             )
         }
     }
