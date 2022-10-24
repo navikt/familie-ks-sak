@@ -298,6 +298,19 @@ class IntegrasjonClient(
         }
     }
 
+    @Cacheable("land", cacheManager = "kodeverkCache")
+    fun hentLand(landkode: String): String {
+        val uri = URI.create("$integrasjonUri/kodeverk/landkoder/$landkode")
+
+        return kallEksternTjenesteRessurs(
+            tjeneste = "kodeverk",
+            uri = uri,
+            formål = "Hent landkoder for $landkode"
+        ) {
+            getForEntity(uri)
+        }
+    }
+
     companion object {
 
         private val logger = LoggerFactory.getLogger(IntegrasjonClient::class.java)

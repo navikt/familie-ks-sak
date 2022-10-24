@@ -206,6 +206,20 @@ internal class IntegrasjonClientTest {
         assertThat(arkiverDokumentResponse.journalpostId, Is("12345678"))
     }
 
+    @Test
+    fun `hentLand skal returnere landNavn gitt landKode`() {
+        val landKode = "NOR"
+
+        wiremockServerItem.stubFor(
+            WireMock.get(WireMock.urlEqualTo("/kodeverk/landkoder/$landKode"))
+                .willReturn(WireMock.okJson(readFile("hentLandEnkelResponse.json")))
+        )
+
+        val hentLandKodeRespons = integrasjonClient.hentLand(landKode)
+
+        assertThat(hentLandKodeRespons, Is("Norge"))
+    }
+
     private fun readFile(filnavn: String): String {
         return this::class.java.getResource("/familieintegrasjon/json/$filnavn").readText()
     }

@@ -45,6 +45,8 @@ class BehandlingControllerTest : OppslagSpringRunnerTest() {
                 behandlendeEnhetNavn = "test"
             )
         )
+
+        every { integrasjonClient.hentLand(any()) } returns "Norge"
     }
 
     @Test

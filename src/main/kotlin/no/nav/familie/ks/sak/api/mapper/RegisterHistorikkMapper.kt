@@ -12,10 +12,10 @@ import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.statsborgers
 
 object RegisterHistorikkMapper {
 
-    fun lagRegisterHistorikkResponsDto(person: Person) = RegisterHistorikkResponsDto(
+    fun lagRegisterHistorikkResponsDto(person: Person, landKodeOgLandNavn: Map<String, String>) = RegisterHistorikkResponsDto(
         hentetTidspunkt = person.personopplysningGrunnlag.opprettetTidspunkt,
         oppholdstillatelse = person.opphold.map { lagRegisterOpplysningDto(it) },
-        statsborgerskap = person.statsborgerskap.map { lagRegisterOpplysningDto(it) },
+        statsborgerskap = person.statsborgerskap.map { lagRegisterOpplysningDto(it, landKodeOgLandNavn) },
         bostedsadresse = person.bostedsadresser.map { lagRegisterOpplysningDto(it) },
         sivilstand = person.sivilstander.map { lagRegisterOpplysningDto(it) },
         dødsboadresse = person.dødsfall?.let { listOf(lagRegisterOpplysningDto(it)) } ?: emptyList()
@@ -42,12 +42,21 @@ object RegisterHistorikkMapper {
             verdi = bostedsAdresse.tilFrontendString()
         )
 
-    private fun lagRegisterOpplysningDto(statsborgerskap: GrStatsborgerskap): RegisteropplysningResponsDto =
-        RegisteropplysningResponsDto(
+    private fun lagRegisterOpplysningDto(statsborgerskap: GrStatsborgerskap, landKodeOgLandNavn: Map<String, String>): RegisteropplysningResponsDto {
+        val landNavn = landKodeOgLandNavn[statsborgerskap.landkode]!!
+
+        val verdi = if (landNavn.equals("uoppgitt", true)) {
+            "$landNavn ($landNavn)"
+        } else {
+            landNavn.storForbokstav()
+        }
+
+        return RegisteropplysningResponsDto(
             fom = statsborgerskap.gyldigPeriode?.fom,
             tom = statsborgerskap.gyldigPeriode?.tom,
-            verdi = statsborgerskap.landkode
+            verdi = verdi
         )
+    }
 
     private fun lagRegisterOpplysningDto(opphold: GrOpphold): RegisteropplysningResponsDto =
         RegisteropplysningResponsDto(
