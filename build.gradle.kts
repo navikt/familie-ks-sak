@@ -28,8 +28,8 @@ repositories {
 
 dependencies {
 
-    val springdocVersion = "1.6.11"
-    val sentryVersion = "6.4.2"
+    val springdocVersion = "1.6.12"
+    val sentryVersion = "6.5.0"
     val navFellesVersion = "1.20220901103347_4819e55"
     val eksterneKontrakterBisysVersion = "2.0_20220609214258_f30c3ce"
     val fellesKontrakterVersion = "2.0_20221020092848_3131a5b"
@@ -87,7 +87,7 @@ dependencies {
     implementation("no.nav.fpsak.tidsserie:fpsak-tidsserie:$fpsakTidslinje")
 
     implementation("com.papertrailapp:logback-syslog4j:1.0.0")
-    implementation("io.getunleash:unleash-client-java:6.0.1")
+    implementation("io.getunleash:unleash-client-java:6.1.0")
     implementation("io.sentry:sentry-spring-boot-starter:$sentryVersion")
     implementation("io.sentry:sentry-logback:$sentryVersion")
     implementation("io.micrometer:micrometer-registry-prometheus")
@@ -103,7 +103,7 @@ dependencies {
     testImplementation("io.rest-assured:spring-mock-mvc:$restAssuredVersion")
     testImplementation("io.rest-assured:kotlin-extensions:$restAssuredVersion")
     testImplementation("org.testcontainers:postgresql:1.17.4")
-    testImplementation("no.nav.security:mock-oauth2-server:0.5.4")
+    testImplementation("no.nav.security:mock-oauth2-server:0.5.5")
     testImplementation("no.nav.security:token-validation-test-support:2.0.5")
     testImplementation("no.nav.security:token-validation-spring-test:$tokenValidationSpringVersion")
     testImplementation("nav-foedselsnummer:testutils:1.0-SNAPSHOT.6")

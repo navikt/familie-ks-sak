@@ -27,7 +27,7 @@ import java.time.YearMonth
 class EndretUtbetalingAndelValidatorTest {
 
     val søker = randomAktør()
-    val barn1 = randomAktør()
+    private val barn1 = randomAktør()
 
     val behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD)
     val personopplysningGrunnlag = lagPersonopplysningGrunnlag(
@@ -35,8 +35,8 @@ class EndretUtbetalingAndelValidatorTest {
         søkerPersonIdent = søker.aktivFødselsnummer(),
         barnasIdenter = listOf(barn1.aktivFødselsnummer())
     )
-    val søkerPerson = lagPerson(personopplysningGrunnlag, søker, PersonType.SØKER)
-    val barnPerson = lagPerson(personopplysningGrunnlag, barn1, PersonType.BARN)
+    private val søkerPerson = lagPerson(personopplysningGrunnlag, søker, PersonType.SØKER)
+    private val barnPerson = lagPerson(personopplysningGrunnlag, barn1, PersonType.BARN)
     val vilkårsvurdering = Vilkårsvurdering(behandling = behandling)
 
     @Test
