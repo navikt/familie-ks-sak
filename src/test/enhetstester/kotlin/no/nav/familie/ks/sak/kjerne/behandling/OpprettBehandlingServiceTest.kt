@@ -250,7 +250,7 @@ class OpprettBehandlingServiceTest {
             funksjonellFeil.message
         )
 
-        funksjonellFeil = assertThrows<Feil> {
+        funksjonellFeil = assertThrows {
             opprettBehandlingService.opprettBehandling(
                 OpprettBehandlingDto(
                     søkersIdent = søkersIdent,

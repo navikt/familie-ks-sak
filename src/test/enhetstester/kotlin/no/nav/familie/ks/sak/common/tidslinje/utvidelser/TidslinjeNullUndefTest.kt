@@ -55,7 +55,7 @@ class TidslinjeNullUndefTest {
             "klarte ikke legge sammen listene"
         )
         Assertions.assertInstanceOf(Udefinert::class.java, testTidslinje.innhold.last().periodeVerdi)
-        Assertions.assertInstanceOf(Null::class.java, testTidslinje.innhold.get(1).periodeVerdi)
+        Assertions.assertInstanceOf(Null::class.java, testTidslinje.innhold[1].periodeVerdi)
     }
 
     @Test

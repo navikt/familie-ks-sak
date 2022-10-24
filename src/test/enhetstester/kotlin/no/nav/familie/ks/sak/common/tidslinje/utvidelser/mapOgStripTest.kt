@@ -57,12 +57,10 @@ class mapOgStripTest {
         )
 
         val tidslinje = t1.map {
-            if (it is Null) {
-                Verdi(1)
-            } else if (it is Udefinert) {
-                Verdi(2)
-            } else {
-                Verdi(3)
+            when (it) {
+                is Null -> Verdi(1)
+                is Udefinert -> Verdi(2)
+                else -> Verdi(3)
             }
         }
 
