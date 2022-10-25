@@ -1,7 +1,10 @@
 package no.nav.familie.ks.sak.common.util
 
 import no.nav.familie.ks.sak.common.entitet.DatoIntervallEntitet
+import java.time.DayOfWeek
 import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.LocalTime
 import java.time.YearMonth
 import java.time.format.DateTimeFormatter
 import java.util.Locale
@@ -77,3 +80,20 @@ fun DatoIntervallEntitet.erInnenfor(dato: LocalDate): Boolean =
         tom == null -> dato.erSammeEllerEtter(fom)
         else -> dato.erSammeEllerEtter(fom) && dato.erSammeEllerFør(tom)
     }
+
+fun LocalDateTime.erHverdag(plusDays: Long = 0): Boolean {
+    val dayOfWeek = plusDays(plusDays).dayOfWeek
+
+    return dayOfWeek != DayOfWeek.SATURDAY && dayOfWeek != DayOfWeek.SUNDAY
+}
+
+fun erKlokkenMellom21Og06(localTime: LocalTime = LocalTime.now()): Boolean =
+    localTime.isAfter(LocalTime.of(21, 0)) || localTime.isBefore(LocalTime.of(6, 0))
+
+fun kl06IdagEllerNesteDag(date: LocalDateTime = LocalDateTime.now()): LocalDateTime {
+    return if (date.toLocalTime().isBefore(LocalTime.of(6, 0))) {
+        date.withHour(6)
+    } else {
+        date.plusDays(1).withHour(6)
+    }
+}

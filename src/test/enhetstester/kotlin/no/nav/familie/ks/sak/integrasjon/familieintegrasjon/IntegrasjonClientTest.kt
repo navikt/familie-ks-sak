@@ -8,6 +8,7 @@ import io.mockk.mockkObject
 import no.nav.familie.kontrakter.felles.Tema
 import no.nav.familie.kontrakter.felles.dokarkiv.LogiskVedleggRequest
 import no.nav.familie.kontrakter.felles.dokarkiv.v2.ArkiverDokumentRequest
+import no.nav.familie.kontrakter.felles.dokdist.Distribusjonstype
 import no.nav.familie.kontrakter.felles.oppgave.FinnOppgaveRequest
 import no.nav.familie.ks.sak.api.dto.JournalpostBrukerDto
 import no.nav.familie.ks.sak.api.dto.OppdaterJournalpostRequestDto
@@ -218,6 +219,19 @@ internal class IntegrasjonClientTest {
         val hentLandKodeRespons = integrasjonClient.hentLand(landKode)
 
         assertThat(hentLandKodeRespons, Is("Norge"))
+    }
+
+    @Test
+    fun `distribuerBrev skal en bestillingsid på at brevet at distribuert`() {
+
+        wiremockServerItem.stubFor(
+            WireMock.post(WireMock.urlEqualTo("/dist/v1"))
+                .willReturn(WireMock.okJson(readFile("distribuerBrevEnkelResponse.json")))
+        )
+
+        val bestillingId = integrasjonClient.distribuerBrev("testId", Distribusjonstype.VEDTAK)
+
+        assertThat(bestillingId, Is("testBestillingId"))
     }
 
     private fun readFile(filnavn: String): String {
