@@ -163,6 +163,12 @@ class VilkårsvurderingService(
     fun hentAktivVilkårsvurderingForBehandling(behandlingId: Long): Vilkårsvurdering = finnAktivVilkårsvurdering(behandlingId)
         ?: throw Feil("Fant ikke vilkårsvurdering knyttet til behandling=$behandlingId")
 
+    @Transactional
+    fun oppdater(vilkårsvurdering: Vilkårsvurdering): Vilkårsvurdering {
+        logger.info("${SikkerhetContext.hentSaksbehandlerNavn()} oppdaterer vilkårsvurdering $vilkårsvurdering")
+        return vilkårsvurderingRepository.save(vilkårsvurdering)
+    }
+
     private fun hentPersonResultatForPerson(
         personResultater: Set<PersonResultat>,
         personIdent: String

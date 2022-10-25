@@ -2,11 +2,8 @@ package no.nav.familie.ks.sak.kjerne.beregning.domene
 
 import no.nav.familie.ks.sak.common.tidslinje.Periode
 import no.nav.familie.ks.sak.common.tidslinje.Tidslinje
-import no.nav.familie.ks.sak.common.tidslinje.tilPeriodeVerdi
 import no.nav.familie.ks.sak.common.tidslinje.tilTidslinje
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.kombinerMed
-import no.nav.familie.ks.sak.common.tidslinje.utvidelser.tilPerioder
-import no.nav.familie.ks.sak.common.util.TIDENES_MORGEN
 import no.nav.familie.ks.sak.common.util.YearMonthConverter
 import no.nav.familie.ks.sak.common.util.førsteDagIInneværendeMåned
 import no.nav.familie.ks.sak.common.util.sisteDagIInneværendeMåned
@@ -88,16 +85,12 @@ fun TilkjentYtelse.tilTidslinjeMedAndeler(): Tidslinje<List<AndelTilkjentYtelse>
 }
 
 fun lagTidslinjeMedOverlappendePerioderForAndeler(tidslinjer: List<Tidslinje<AndelTilkjentYtelse>>): Tidslinje<List<AndelTilkjentYtelse>> {
-    if (tidslinjer.isEmpty()) return Tidslinje(startsTidspunkt = TIDENES_MORGEN, perioder = emptyList())
-
-    val førstePeriode = tidslinjer.first().tilPerioder().first()
-    val initiellSammenlagt = listOf(Periode(listOf(førstePeriode.verdi!!), førstePeriode.fom, førstePeriode.tom)).tilTidslinje()
-    val resterende = tidslinjer.drop(1)
-    return resterende.fold(initiellSammenlagt) { sammenlagt, neste ->
-        sammenlagt.kombinerMed(neste) { elem1, elem2 ->
-            if (elem1.isNullOrEmpty() || elem1.tilPeriodeVerdi().verdi == null) emptyList()
-            else if (elem2 == null || elem2.tilPeriodeVerdi().verdi == null) elem1.tilPeriodeVerdi().verdi
-            else elem1.tilPeriodeVerdi().verdi!! + elem2.tilPeriodeVerdi().verdi!!
+    val tomTidslinje = emptyList<Periode<List<AndelTilkjentYtelse>>>().tilTidslinje()
+    return tidslinjer.fold(tomTidslinje) { acc, tidslinje ->
+        acc.kombinerMed(tidslinje) { venstre, høyre ->
+            if (høyre != null) {
+                if (venstre != null) venstre + høyre else listOf(høyre)
+            } else venstre
         }
     }
 }

@@ -1,4 +1,4 @@
-package no.nav.familie.ks.sak.kjerne.behandlingsresultat
+package no.nav.familie.ks.sak.kjerne.behandling.steg.behandlingsresultat
 
 import no.nav.familie.ks.sak.kjerne.beregning.domene.YtelseType
 import no.nav.familie.ks.sak.kjerne.personident.Aktør

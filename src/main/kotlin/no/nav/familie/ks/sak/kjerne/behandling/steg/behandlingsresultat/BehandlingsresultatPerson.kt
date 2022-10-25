@@ -1,20 +1,18 @@
-package no.nav.familie.ks.sak.kjerne.behandlingsresultat
+package no.nav.familie.ks.sak.kjerne.behandling.steg.behandlingsresultat
 
-import no.nav.familie.ks.sak.api.dto.BarnMedOpplysningerDto
 import no.nav.familie.ks.sak.common.util.MånedPeriode
 import no.nav.familie.ks.sak.common.util.førsteDagIInneværendeMåned
 import no.nav.familie.ks.sak.common.util.sisteDagIInneværendeMåned
 import no.nav.familie.ks.sak.kjerne.beregning.domene.YtelseType
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
-import java.time.LocalDate
 import java.time.Period
 import java.time.YearMonth
 
 data class BehandlingsresultatPerson(
     val aktør: Aktør,
     val personType: PersonType,
-    val søktForPerson: Boolean,
+    val søktForPerson: Boolean, // flagg som markerer om person er inkludert i utledning
     val eksplisittAvslag: Boolean = false,
     val forrigeAndeler: List<BehandlingsresultatAndelTilkjentYtelse> = emptyList(),
     val andeler: List<BehandlingsresultatAndelTilkjentYtelse>
@@ -42,7 +40,6 @@ data class BehandlingsresultatPerson(
                 KravOpprinnelse.TIDLIGERE,
                 KravOpprinnelse.INNEVÆRENDE
             )
-
             else -> listOf(KravOpprinnelse.INNEVÆRENDE)
         }
     }
@@ -57,30 +54,15 @@ data class BehandlingsresultatPerson(
     }
 }
 
-data class MinimertUregistrertBarn(
-    val personIdent: String,
-    val navn: String,
-    val fødselsdato: LocalDate? = null
-)
-
-fun BarnMedOpplysningerDto.tilMinimertUregisrertBarn() = MinimertUregistrertBarn(
-    personIdent = this.ident,
-    navn = this.navn,
-    fødselsdato = this.fødselsdato
-)
-
 data class BehandlingsresultatAndelTilkjentYtelse(
     val stønadFom: YearMonth,
     val stønadTom: YearMonth,
     val kalkulertUtbetalingsbeløp: Int
 ) {
 
-    val periode
-        get() = MånedPeriode(stønadFom, stønadTom)
+    val periode get() = MånedPeriode(stønadFom, stønadTom)
 
-    fun erLøpende(inneværendeMåned: YearMonth): Boolean {
-        return this.stønadTom > inneværendeMåned
-    }
+    fun erLøpende(inneværendeMåned: YearMonth): Boolean = this.stønadTom > inneværendeMåned
 
     fun sumForPeriode(): Int {
         val between = Period.between(
@@ -91,16 +73,4 @@ data class BehandlingsresultatAndelTilkjentYtelse(
 
         return antallMåneder * kalkulertUtbetalingsbeløp
     }
-}
-
-fun lagBehandlingsresultatAndelTilkjentYtelse(
-    fom: String,
-    tom: String,
-    kalkulertUtbetalingsbeløp: Int
-): BehandlingsresultatAndelTilkjentYtelse {
-    return BehandlingsresultatAndelTilkjentYtelse(
-        stønadFom = YearMonth.parse(fom),
-        stønadTom = YearMonth.parse(tom),
-        kalkulertUtbetalingsbeløp = kalkulertUtbetalingsbeløp
-    )
 }

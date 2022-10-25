@@ -1,15 +1,30 @@
 package no.nav.familie.ks.sak.kjerne.behandling.steg.behandlingsresultat
 
+import no.nav.familie.kontrakter.felles.objectMapper
+import no.nav.familie.ks.sak.common.exception.Feil
+import no.nav.familie.ks.sak.common.util.convertDataClassToJson
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat
+import no.nav.familie.ks.sak.kjerne.behandling.steg.søknad.SøknadGrunnlagService
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
 import no.nav.familie.ks.sak.kjerne.beregning.AndelerTilkjentYtelseOgEndreteUtbetalingerService
+import no.nav.familie.ks.sak.kjerne.personident.Aktør
+import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
+import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
+import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 
 @Service
 class BehandlingsresultatService(
     private val behandlingService: BehandlingService,
-    private val andelerTilkjentYtelseOgEndreteUtbetalingerService: AndelerTilkjentYtelseOgEndreteUtbetalingerService
+    private val andelerTilkjentYtelseOgEndreteUtbetalingerService: AndelerTilkjentYtelseOgEndreteUtbetalingerService,
+    private val vilkårsvurderingService: VilkårsvurderingService,
+    private val søknadGrunnlagService: SøknadGrunnlagService,
+    private val personidentService: PersonidentService,
+    private val personopplysningGrunnlagService: PersonopplysningGrunnlagService
 ) {
 
     fun utledBehandlingsresultat(behandling: Behandling): Behandlingsresultat {
@@ -22,6 +37,68 @@ class BehandlingsresultatService(
             andelerTilkjentYtelseOgEndreteUtbetalingerService.finnAndelerTilkjentYtelseMedEndreteUtbetalinger(it.id)
         } ?: emptyList()
 
-        return Behandlingsresultat.INNVILGET
+        val vilkårsvurdering = vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(behandling.id)
+
+        val personerFremslitKravFor = hentBarna(behandling)
+
+        val behandlingsresultatPersoner = personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(behandling.id)
+            .personer.filter { it.type == PersonType.BARN }.map {
+                BehandlingsresultatUtils.utledBehandlingsresultatDataForPerson(
+                    person = it,
+                    personerFremstiltKravFor = personerFremslitKravFor,
+                    andelerMedEndringer = andelerMedEndringer,
+                    forrigeAndelerMedEndringer = forrigeAndelerMedEndringer,
+                    erEksplisittAvslag = vilkårsvurdering.personResultater.find { personResultat -> personResultat.aktør == it.aktør }
+                        ?.harEksplisittAvslag()
+                        ?: false
+                )
+            }
+        secureLogger.info("Behandlingsresultatpersoner: ${behandlingsresultatPersoner.convertDataClassToJson()}")
+
+        val ytelsePersonerMedResultat = YtelsePersonUtils.utledYtelsePersonerMedResultat(
+            behandlingsresultatPersoner = behandlingsresultatPersoner,
+            uregistrerteBarn = søknadGrunnlagService.finnAktiv(behandling.id)?.hentUregistrerteBarn()?.map { it.ident }
+                ?: emptyList()
+        )
+
+        YtelsePersonUtils.validerYtelsePersoner(ytelsePersonerMedResultat)
+
+        secureLogger.info("Utledet YtelsePersonResultat på behandling $behandling: $ytelsePersonerMedResultat")
+
+        vilkårsvurderingService.oppdater(
+            vilkårsvurdering.also {
+                it.ytelsePersoner = ytelsePersonerMedResultat.writeValueAsString()
+            }
+        )
+
+        val ytelsePersonResultater = YtelsePersonUtils.oppdaterYtelsePersonResultaterVedOpphør(ytelsePersonerMedResultat)
+        val behandlingsresultat = BehandlingsresultatUtils.utledBehandlingsresuiltatBasertPåYtelsePersonResulater(ytelsePersonResultater)
+
+        logger.info("Utledet behandlingsresulat på behandling er $behandling: $behandlingsresultat")
+        secureLogger.info("Utledet behandlingsresulat på behandling er $behandling: $behandlingsresultat")
+
+        return behandlingsresultat
+    }
+
+    private fun hentBarna(behandling: Behandling): List<Aktør> {
+        // Søknad kan ha flere barn som er inkludert i søknaden og folkeregistert, men ikke i behandling
+        val barnFraSøknad = if (behandling.erSøknad()) {
+            søknadGrunnlagService.hentAktiv(behandling.id).hentSøknadDto()
+                .barnaMedOpplysninger.filter { it.inkludertISøknaden && it.erFolkeregistrert }
+                .map { personidentService.hentAktør(it.ident) }
+        } else emptyList()
+        // barn som allerede finnes i behandling
+        val barnSomErLagtTil = personopplysningGrunnlagService.hentBarna(behandling.id)?.map { it.aktør }
+            ?: throw Feil("Barn finnes ikke for behandling ${behandling.id}")
+
+        return (barnFraSøknad + barnSomErLagtTil).distinctBy { it.aktørId }
+    }
+
+    private fun List<YtelsePerson>.writeValueAsString(): String = objectMapper.writeValueAsString(this)
+
+    companion object {
+
+        private val logger: Logger = LoggerFactory.getLogger(BehandlingsresultatService::class.java)
+        private val secureLogger: Logger = LoggerFactory.getLogger("secureLogger")
     }
 }
