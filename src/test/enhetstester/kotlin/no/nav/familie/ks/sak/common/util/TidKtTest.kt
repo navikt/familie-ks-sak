@@ -2,7 +2,11 @@ package no.nav.familie.ks.sak.common.util
 
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.CsvSource
 import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.LocalTime
 import java.time.YearMonth
 import org.hamcrest.CoreMatchers.`is` as Is
 
@@ -66,9 +70,26 @@ internal class TidKtTest {
     }
 
     @Test
-    fun `YearMonth tilMånedÅr() skal formatere dato til MMMM yyyy format`() {
-        val yearMonth = YearMonth.of(2020, 12)
+    fun `LocalDateTime erHverdag() skal returnere true dersom det er en hverdag`() {
+        val mandag = LocalDateTime.of(2022, 10, 24, 0, 0)
 
-        assertThat(yearMonth.tilMånedÅr(), Is("desember 2020"))
+        assertThat(mandag.erHverdag(), Is(true))
+        assertThat(mandag.erHverdag(plusDays = 1), Is(true))
+        assertThat(mandag.erHverdag(plusDays = 2), Is(true))
+        assertThat(mandag.erHverdag(plusDays = 3), Is(true))
+        assertThat(mandag.erHverdag(plusDays = 4), Is(true))
+        assertThat(mandag.erHverdag(plusDays = 5), Is(false))
+        assertThat(mandag.erHverdag(plusDays = 6), Is(false))
+        assertThat(mandag.erHverdag(plusDays = 7), Is(true))
     }
+
+    @ParameterizedTest
+    @CsvSource("21:04", "23:02", "00:39", "04:04", "05:59")
+    fun `erKlokkenMellom21Og06 skal returnere true dersom klokken er mellom 21 og 06`(localTime: LocalTime) =
+        assertThat(erKlokkenMellom21Og06(localTime), Is(true))
+
+    @ParameterizedTest
+    @CsvSource("07:04", "09:15", "12:55", "18:20", "20:59")
+    fun `erKlokkenMellom21Og06 skal returnere false dersom klokken ikke er mellom 21 og 06`(localTime: LocalTime) =
+        assertThat(erKlokkenMellom21Og06(localTime), Is(false))
 }

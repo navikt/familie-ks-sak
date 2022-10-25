@@ -4,7 +4,9 @@ import no.nav.familie.kontrakter.felles.dokarkiv.Dokumenttype
 import no.nav.familie.kontrakter.felles.dokarkiv.v2.Dokument
 import no.nav.familie.kontrakter.felles.dokarkiv.v2.Filtype
 import no.nav.familie.ks.sak.api.dto.BehandlingStegDto
+import no.nav.familie.ks.sak.api.dto.DistribuerBrevDto
 import no.nav.familie.ks.sak.api.dto.JournalførVedtaksbrevDTO
+import no.nav.familie.ks.sak.integrasjon.distributering.DistribuerBrevTask
 import no.nav.familie.ks.sak.integrasjon.journalføring.UtgåendeJournalføringService
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.ArbeidsfordelingService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
@@ -13,7 +15,9 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat
 import no.nav.familie.ks.sak.kjerne.behandling.domene.tilDokumenttype
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.VedtakService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.Vedtak
+import no.nav.familie.ks.sak.kjerne.brev.hentBrevmal
 import no.nav.familie.ks.sak.kjerne.fagsak.FagsakService
+import no.nav.familie.prosessering.domene.TaskRepository
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
@@ -23,6 +27,7 @@ class JournalførVedtaksbrevSteg(
     private val vedtakService: VedtakService,
     private val arbeidsfordelingService: ArbeidsfordelingService,
     private val utgåendeJournalføringService: UtgåendeJournalføringService,
+    private val taskRepository: TaskRepository,
     private val fagsakService: FagsakService
 ) : IBehandlingSteg {
     override fun getBehandlingssteg(): BehandlingSteg = BehandlingSteg.JOURNALFØR_VEDTAKSBREV
@@ -36,14 +41,24 @@ class JournalførVedtaksbrevSteg(
 
         val behandlendeEnhet = arbeidsfordelingService.hentArbeidsfordelingPåBehandling(behandlingId).behandlendeEnhetId
 
-        journalførVedtaksbrev(
+        val journalpostId = journalførVedtaksbrev(
             fnr = fagsak.aktør.aktivFødselsnummer(),
             fagsakId = fagsak.id,
             vedtak = vedtak,
             journalførendeEnhet = behandlendeEnhet
         )
 
-        // TODO: Legg inn oppretting av brev distribusjon task når man starter på distribusjon av brev
+        val distributerTilSøkerTask = DistribuerBrevTask.opprettDistribuerBrevTask(
+            distribuerBrevDTO = DistribuerBrevDto(
+                personIdent = fagsak.aktør.aktivFødselsnummer(),
+                behandlingId = vedtak.behandling.id,
+                journalpostId = journalpostId,
+                brevmal = hentBrevmal(vedtak.behandling),
+                erManueltSendt = false
+            ),
+            properties = journalførVedtaksbrevDTO.task.metadata
+        )
+        taskRepository.save(distributerTilSøkerTask)
     }
 
     fun journalførVedtaksbrev(
