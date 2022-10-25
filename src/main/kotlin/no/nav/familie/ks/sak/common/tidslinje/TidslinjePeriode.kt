@@ -2,20 +2,23 @@ package no.nav.familie.ks.sak.common.tidslinje
 
 const val inf = 1_000_000_000
 
-sealed class PeriodeVerdi<T>(val verdi: T?) {
+sealed class PeriodeVerdi<T>(protected val _verdi: T?) {
 
     override operator fun equals(other: Any?): Boolean {
         if (other !is PeriodeVerdi<*>) return false
-        if (other.verdi == this.verdi) return true
+        if (other._verdi == this._verdi) return true
         return false
     }
 
     override fun hashCode(): Int {
-        return this.verdi.hashCode()
+        return this._verdi.hashCode()
     }
+
+    abstract val verdi: T?
 }
 
-class Verdi<T>(verdi: T) : PeriodeVerdi<T>(verdi)
+class Verdi<T>(override val verdi: T & Any) : PeriodeVerdi<T>(verdi)
+
 class Udefinert<T> : PeriodeVerdi<T>(null) {
 
     override fun equals(other: Any?): Boolean {
@@ -23,8 +26,10 @@ class Udefinert<T> : PeriodeVerdi<T>(null) {
     }
 
     override fun hashCode(): Int {
-        return this.verdi.hashCode()
+        return this._verdi.hashCode()
     }
+
+    override val verdi: T? = this._verdi
 }
 
 class Null<T> : PeriodeVerdi<T>(null) {
@@ -34,8 +39,10 @@ class Null<T> : PeriodeVerdi<T>(null) {
     }
 
     override fun hashCode(): Int {
-        return this.verdi.hashCode()
+        return this._verdi.hashCode()
     }
+
+    override val verdi: T? = this._verdi
 }
 
 /**
