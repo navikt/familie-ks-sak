@@ -8,6 +8,8 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.søknad.SøknadGrunnlagService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
+import no.nav.familie.ks.sak.kjerne.beregning.AndelTilkjentYtelseMedEndreteUtbetalinger
 import no.nav.familie.ks.sak.kjerne.beregning.AndelerTilkjentYtelseOgEndreteUtbetalingerService
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
@@ -41,18 +43,13 @@ class BehandlingsresultatService(
 
         val personerFremslitKravFor = hentBarna(behandling)
 
-        val behandlingsresultatPersoner = personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(behandling.id)
-            .personer.filter { it.type == PersonType.BARN }.map {
-                BehandlingsresultatUtils.utledBehandlingsresultatDataForPerson(
-                    person = it,
-                    personerFremstiltKravFor = personerFremslitKravFor,
-                    andelerMedEndringer = andelerMedEndringer,
-                    forrigeAndelerMedEndringer = forrigeAndelerMedEndringer,
-                    erEksplisittAvslag = vilkårsvurdering.personResultater.find { personResultat -> personResultat.aktør == it.aktør }
-                        ?.harEksplisittAvslag()
-                        ?: false
-                )
-            }
+        val behandlingsresultatPersoner = lagBehandlingsresulatPersoner(
+            behandling,
+            personerFremslitKravFor,
+            andelerMedEndringer,
+            forrigeAndelerMedEndringer,
+            vilkårsvurdering
+        )
         secureLogger.info("Behandlingsresultatpersoner: ${behandlingsresultatPersoner.convertDataClassToJson()}")
 
         val ytelsePersonerMedResultat = YtelsePersonUtils.utledYtelsePersonerMedResultat(
@@ -79,6 +76,20 @@ class BehandlingsresultatService(
 
         return behandlingsresultat
     }
+
+    private fun lagBehandlingsresulatPersoner(behandling: Behandling, personerFremslitKravFor: List<Aktør>, andelerMedEndringer: List<AndelTilkjentYtelseMedEndreteUtbetalinger>, forrigeAndelerMedEndringer: List<AndelTilkjentYtelseMedEndreteUtbetalinger>, vilkårsvurdering: Vilkårsvurdering) =
+        personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(behandling.id)
+            .personer.filter { it.type == PersonType.BARN }.map {
+                BehandlingsresultatUtils.utledBehandlingsresultatDataForPerson(
+                    person = it,
+                    personerFremstiltKravFor = personerFremslitKravFor,
+                    andelerMedEndringer = andelerMedEndringer,
+                    forrigeAndelerMedEndringer = forrigeAndelerMedEndringer,
+                    erEksplisittAvslag = vilkårsvurdering.personResultater.find { personResultat -> personResultat.aktør == it.aktør }
+                        ?.harEksplisittAvslag()
+                        ?: false
+                )
+            }
 
     private fun hentBarna(behandling: Behandling): List<Aktør> {
         // Søknad kan ha flere barn som er inkludert i søknaden og folkeregistert, men ikke i behandling
