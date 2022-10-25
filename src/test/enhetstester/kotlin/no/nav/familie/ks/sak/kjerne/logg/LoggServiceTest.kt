@@ -8,6 +8,7 @@ import io.mockk.mockk
 import io.mockk.slot
 import io.mockk.verify
 import no.nav.familie.ks.sak.common.util.tilKortString
+import no.nav.familie.ks.sak.config.BehandlerRolle
 import no.nav.familie.ks.sak.config.RolleConfig
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.domene.ArbeidsfordelingPåBehandling
@@ -328,5 +329,53 @@ class LoggServiceTest {
 
         assertThat(lagretLogg.behandlingId, Is(behandling.id))
         assertThat(lagretLogg.type, Is(LoggType.BEHANDLIG_GJENOPPTATT))
+    }
+
+    @Test
+    fun `opprettBrevIkkeDistribuertUkjentAdresseLogg - skal lagre logg på at brev ikke ble distribuert grunnet ukjent addresse`() {
+        val behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD)
+        val slot = slot<Logg>()
+
+        every { loggRepository.save(capture(slot)) } returns mockk()
+
+        loggService.opprettBrevIkkeDistribuertUkjentAdresseLogg(behandling.id, "ukjent addresse")
+
+        val lagretLogg = slot.captured
+
+        assertThat(lagretLogg.behandlingId, Is(behandling.id))
+        assertThat(lagretLogg.type, Is(LoggType.BREV_IKKE_DISTRIBUERT))
+        assertThat(lagretLogg.tekst, Is("ukjent addresse"))
+    }
+
+    @Test
+    fun `opprettDistribuertBrevLogg - skal lagre logg på at brev har blitt distribuert`() {
+        val behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD)
+        val slot = slot<Logg>()
+
+        every { loggRepository.save(capture(slot)) } returns mockk()
+
+        loggService.opprettDistribuertBrevLogg(behandling.id, "distribuert", BehandlerRolle.SYSTEM)
+
+        val lagretLogg = slot.captured
+
+        assertThat(lagretLogg.behandlingId, Is(behandling.id))
+        assertThat(lagretLogg.type, Is(LoggType.DISTRIBUERE_BREV))
+        assertThat(lagretLogg.tekst, Is("distribuert"))
+    }
+
+    @Test
+    fun `opprettBrevIkkeDistribuertUkjentDødsboadresseLogg - skal lagre logg på at brev ikke ble distribuert grunnet ukjent dødsboaddresse`() {
+        val behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD)
+        val slot = slot<Logg>()
+
+        every { loggRepository.save(capture(slot)) } returns mockk()
+
+        loggService.opprettBrevIkkeDistribuertUkjentDødsboadresseLogg(behandling.id, "ukjent dødsboaddresse")
+
+        val lagretLogg = slot.captured
+
+        assertThat(lagretLogg.behandlingId, Is(behandling.id))
+        assertThat(lagretLogg.type, Is(LoggType.BREV_IKKE_DISTRIBUERT_UKJENT_DØDSBO))
+        assertThat(lagretLogg.tekst, Is("ukjent dødsboaddresse"))
     }
 }

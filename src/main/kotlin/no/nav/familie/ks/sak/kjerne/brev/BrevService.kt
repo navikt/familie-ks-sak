@@ -1,31 +1,44 @@
 package no.nav.familie.ks.sak.kjerne.brev
 
+import no.nav.familie.http.client.RessursException
 import no.nav.familie.kontrakter.felles.arbeidsfordeling.Enhet
 import no.nav.familie.kontrakter.felles.dokarkiv.v2.Dokument
 import no.nav.familie.kontrakter.felles.dokarkiv.v2.Filtype
 import no.nav.familie.kontrakter.felles.dokarkiv.v2.Førsteside
+import no.nav.familie.ks.sak.api.dto.DistribuerBrevDto
 import no.nav.familie.ks.sak.api.dto.ManueltBrevDto
 import no.nav.familie.ks.sak.api.dto.tilBrev
 import no.nav.familie.ks.sak.common.exception.Feil
+import no.nav.familie.ks.sak.config.BehandlerRolle
+import no.nav.familie.ks.sak.integrasjon.distributering.DistribuerBrevTask
+import no.nav.familie.ks.sak.integrasjon.distributering.DistribuerDødsfallBrevPåFagsakTask
+import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
 import no.nav.familie.ks.sak.integrasjon.journalføring.UtgåendeJournalføringService
 import no.nav.familie.ks.sak.integrasjon.journalføring.UtgåendeJournalføringService.Companion.DEFAULT_JOURNALFØRENDE_ENHET
 import no.nav.familie.ks.sak.integrasjon.journalføring.domene.DbJournalpost
 import no.nav.familie.ks.sak.integrasjon.journalføring.domene.DbJournalpostType
 import no.nav.familie.ks.sak.integrasjon.journalføring.domene.JournalføringRepository
+import no.nav.familie.ks.sak.integrasjon.logger
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.ArbeidsfordelingService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.AnnenVurderingType
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.Brevmal
+import no.nav.familie.ks.sak.kjerne.logg.LoggService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
+import no.nav.familie.prosessering.domene.TaskRepository
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import java.util.Properties
 
 @Service
 class BrevService(
     private val brevKlient: BrevKlient,
+    private val integrasjonClient: IntegrasjonClient,
+    private val loggService: LoggService,
+    private val taskRepository: TaskRepository,
     private val personopplysningGrunnlagService: PersonopplysningGrunnlagService,
     private val arbeidsfordelingService: ArbeidsfordelingService,
     private val utgåendeJournalføringService: UtgåendeJournalføringService,
@@ -136,13 +149,101 @@ class BrevService(
             leggTilOpplysningspliktIVilkårsvurdering(behandling)
         }
 
-        // TODO: Legg inn kode for å opprette DistribuerDokumentTask
-
+        DistribuerBrevTask.opprettDistribuerBrevTask(
+            distribuerBrevDTO = DistribuerBrevDto(
+                personIdent = manueltBrevDto.mottakerIdent,
+                behandlingId = behandling.id,
+                journalpostId = journalpostId,
+                brevmal = manueltBrevDto.brevmal,
+                erManueltSendt = true
+            ),
+            properties = Properties().apply {
+                this["fagsakIdent"] = behandling.fagsak.aktør.aktivFødselsnummer()
+                this["mottakerIdent"] = manueltBrevDto.mottakerIdent
+                this["journalpostId"] = journalpostId
+                this["behandlingId"] = behandling.id.toString()
+                this["fagsakId"] = behandling.fagsak.id
+            }
+        ).also {
+            taskRepository.save(it)
+        }
         if (
             manueltBrevDto.brevmal.setterBehandlingPåVent()
         ) {
             // TODO: Legg inn kode som setter behandling på vent ved å bruke BehandlingstegTilstand og metode i StegService
         }
+    }
+
+    fun prøvDistribuerBrevOgLoggHendelse(
+        journalpostId: String,
+        behandlingId: Long?,
+        loggBehandlerRolle: BehandlerRolle,
+        brevmal: Brevmal
+    ) = try {
+        distribuerBrevOgLoggHendelse(journalpostId, behandlingId, brevmal, loggBehandlerRolle)
+    } catch (ressursException: RessursException) {
+        logger.info("Klarte ikke å distribuere brev til journalpost $journalpostId. Httpstatus ${ressursException.httpStatus}")
+
+        when {
+            mottakerErIkkeDigitalOgHarUkjentAdresse(ressursException) && behandlingId != null ->
+                loggBrevIkkeDistribuertUkjentAdresse(journalpostId, behandlingId, brevmal)
+
+            mottakerErDødUtenDødsboadresse(ressursException) && behandlingId != null ->
+                håndterMottakerDødIngenAdressePåBehandling(journalpostId, brevmal, behandlingId)
+
+            dokumentetErAlleredeDistribuert(ressursException) ->
+                logger.warn(
+                    "Journalpost med Id=$journalpostId er allerede distribuert. Hopper over distribuering." +
+                        if (behandlingId != null) " BehandlingId=$behandlingId." else ""
+                )
+
+            else -> throw ressursException
+        }
+    }
+
+    private fun distribuerBrevOgLoggHendelse(
+        journalpostId: String,
+        behandlingId: Long?,
+        brevMal: Brevmal,
+        loggBehandlerRolle: BehandlerRolle
+    ) {
+        integrasjonClient.distribuerBrev(journalpostId = journalpostId, distribusjonstype = brevMal.distribusjonstype)
+
+        if (behandlingId != null) {
+            loggService.opprettDistribuertBrevLogg(
+                behandlingId = behandlingId,
+                tekst = brevMal.visningsTekst,
+                rolle = loggBehandlerRolle
+            )
+        }
+    }
+
+    internal fun håndterMottakerDødIngenAdressePåBehandling(
+        journalpostId: String,
+        brevmal: Brevmal,
+        behandlingId: Long
+    ) {
+        val task = DistribuerDødsfallBrevPåFagsakTask.opprettTask(journalpostId = journalpostId, brevmal = brevmal)
+
+        taskRepository.save(task)
+
+        logger.info("Klarte ikke å distribuere brev for journalpostId $journalpostId på behandling $behandlingId. Bruker har ukjent dødsboadresse.")
+        loggService.opprettBrevIkkeDistribuertUkjentDødsboadresseLogg(
+            behandlingId = behandlingId,
+            brevnavn = brevmal.visningsTekst
+        )
+    }
+
+    internal fun loggBrevIkkeDistribuertUkjentAdresse(
+        journalpostId: String,
+        behandlingId: Long,
+        brevMal: Brevmal
+    ) {
+        logger.info("Klarte ikke å distribuere brev for journalpostId $journalpostId på behandling $behandlingId. Bruker har ukjent adresse.")
+        loggService.opprettBrevIkkeDistribuertUkjentAdresseLogg(
+            behandlingId = behandlingId,
+            brevnavn = brevMal.visningsTekst
+        )
     }
 
     private fun leggTilOpplysningspliktIVilkårsvurdering(behandling: Behandling) {
