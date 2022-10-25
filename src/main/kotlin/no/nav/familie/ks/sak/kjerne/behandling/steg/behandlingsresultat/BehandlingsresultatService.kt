@@ -1,6 +1,7 @@
 package no.nav.familie.ks.sak.kjerne.behandling.steg.behandlingsresultat
 
 import no.nav.familie.kontrakter.felles.objectMapper
+import no.nav.familie.ks.sak.api.mapper.SøknadGrunnlagMapper.tilSøknadDto
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.util.convertDataClassToJson
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
@@ -41,11 +42,11 @@ class BehandlingsresultatService(
 
         val vilkårsvurdering = vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(behandling.id)
 
-        val personerFremslitKravFor = hentBarna(behandling)
+        val personerFremstiltKravFor = hentBarna(behandling)
 
         val behandlingsresultatPersoner = lagBehandlingsresulatPersoner(
             behandling,
-            personerFremslitKravFor,
+            personerFremstiltKravFor,
             andelerMedEndringer,
             forrigeAndelerMedEndringer,
             vilkårsvurdering
@@ -94,7 +95,7 @@ class BehandlingsresultatService(
     private fun hentBarna(behandling: Behandling): List<Aktør> {
         // Søknad kan ha flere barn som er inkludert i søknaden og folkeregistert, men ikke i behandling
         val barnFraSøknad = if (behandling.erSøknad()) {
-            søknadGrunnlagService.hentAktiv(behandling.id).hentSøknadDto()
+            søknadGrunnlagService.hentAktiv(behandling.id).tilSøknadDto()
                 .barnaMedOpplysninger.filter { it.inkludertISøknaden && it.erFolkeregistrert }
                 .map { personidentService.hentAktør(it.ident) }
         } else emptyList()

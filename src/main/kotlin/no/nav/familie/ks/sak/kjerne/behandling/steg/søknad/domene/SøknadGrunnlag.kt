@@ -1,8 +1,7 @@
 package no.nav.familie.ks.sak.kjerne.behandling.steg.søknad.domene
 
-import no.nav.familie.kontrakter.felles.objectMapper
 import no.nav.familie.ks.sak.api.dto.BarnMedOpplysningerDto
-import no.nav.familie.ks.sak.api.dto.SøknadDto
+import no.nav.familie.ks.sak.api.mapper.SøknadGrunnlagMapper.tilSøknadDto
 import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext
 import java.time.LocalDateTime
 import javax.persistence.Column
@@ -36,8 +35,6 @@ data class SøknadGrunnlag(
     @Column(name = "aktiv", nullable = false)
     var aktiv: Boolean = true
 ) {
-    fun hentSøknadDto(): SøknadDto = objectMapper.readValue(this.søknad, SøknadDto::class.java)
-
     fun hentUregistrerteBarn(): List<BarnMedOpplysningerDto> =
-        hentSøknadDto().barnaMedOpplysninger.filter { !it.erFolkeregistrert && it.inkludertISøknaden }
+        tilSøknadDto().barnaMedOpplysninger.filter { !it.erFolkeregistrert && it.inkludertISøknaden }
 }
