@@ -14,6 +14,7 @@ import no.nav.familie.ks.sak.sikkerhet.TilgangService
 import no.nav.security.token.support.core.api.ProtectedWithClaims
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.validation.annotation.Validated
@@ -77,7 +78,10 @@ class FagsakController(private val fagsakService: FagsakService, private val til
             event = AuditLoggerEvent.ACCESS,
             handling = "Hent fagsak for person"
         )
+        val minimalFagsakForPerson = fagsakService.hentMinimalFagsakForPerson(personIdent)
 
-        return ResponseEntity.ok().body(Ressurs.success(fagsakService.hentMinimalFagsakForPerson(personIdent)))
+        return minimalFagsakForPerson?.let { ResponseEntity.ok().body(Ressurs.success(it)) }
+            ?: ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(Ressurs.failure(errorMessage = "Fant ikke fagsak på person"))
     }
 }
