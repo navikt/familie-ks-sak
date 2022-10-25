@@ -3,7 +3,7 @@ package no.nav.familie.ks.sak.kjerne.beregning.domene
 import no.nav.familie.ks.sak.common.tidslinje.Periode
 import no.nav.familie.ks.sak.common.tidslinje.Tidslinje
 import no.nav.familie.ks.sak.common.tidslinje.tilTidslinje
-import no.nav.familie.ks.sak.common.tidslinje.utvidelser.kombinerMed
+import no.nav.familie.ks.sak.common.tidslinje.utvidelser.kombinerTidslinjer
 import no.nav.familie.ks.sak.common.util.YearMonthConverter
 import no.nav.familie.ks.sak.common.util.førsteDagIInneværendeMåned
 import no.nav.familie.ks.sak.common.util.sisteDagIInneværendeMåned
@@ -81,16 +81,5 @@ fun TilkjentYtelse.tilTidslinjeMedAndeler(): Tidslinje<List<AndelTilkjentYtelse>
             )
         ).tilTidslinje()
     }
-    return lagTidslinjeMedOverlappendePerioderForAndeler(tidslinjer)
-}
-
-fun lagTidslinjeMedOverlappendePerioderForAndeler(tidslinjer: List<Tidslinje<AndelTilkjentYtelse>>): Tidslinje<List<AndelTilkjentYtelse>> {
-    val tomTidslinje = emptyList<Periode<List<AndelTilkjentYtelse>>>().tilTidslinje()
-    return tidslinjer.fold(tomTidslinje) { acc, tidslinje ->
-        acc.kombinerMed(tidslinje) { venstre, høyre ->
-            if (høyre != null) {
-                if (venstre != null) venstre + høyre else listOf(høyre)
-            } else venstre
-        }
-    }
+    return tidslinjer.kombinerTidslinjer()
 }
