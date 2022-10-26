@@ -286,7 +286,7 @@ class FagsakServiceTest {
         every { personidentService.hentOgLagreAktør(any(), any()) } returns aktør
         every { fagsakRepository.finnFagsakForAktør(any()) } returns fagsak
 
-        val fagsakForPerson = fagsakService.hentFagsakForPerson(aktør.aktørId)
+        val fagsakForPerson = fagsakService.hentFagsakForPerson(aktør)
 
         assertEquals(fagsak.id, fagsakForPerson.id)
         assertEquals(fagsak.aktør, fagsakForPerson.aktør)
@@ -299,7 +299,7 @@ class FagsakServiceTest {
         every { personidentService.hentOgLagreAktør(any(), any()) } returns aktør
         every { fagsakRepository.finnFagsakForAktør(any()) } returns null
 
-        val feil = assertThrows<Feil> { fagsakService.hentFagsakForPerson(aktør.aktørId) }
+        val feil = assertThrows<Feil> { fagsakService.hentFagsakForPerson(aktør) }
 
         assertEquals("Fant ikke fagsak på person", feil.message)
     }

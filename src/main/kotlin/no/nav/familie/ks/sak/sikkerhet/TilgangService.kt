@@ -6,6 +6,7 @@ import no.nav.familie.ks.sak.config.RolleConfig
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
 import no.nav.familie.ks.sak.kjerne.fagsak.FagsakService
+import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlagRepository
 import org.springframework.cache.CacheManager
 import org.springframework.stereotype.Service
@@ -17,6 +18,7 @@ class TilgangService(
     private val personopplysningGrunnlagRepository: PersonopplysningGrunnlagRepository,
     private val rolleConfig: RolleConfig,
     private val integrasjonService: IntegrasjonService,
+    private val personidentService: PersonidentService,
     private val cacheManager: CacheManager,
     private val auditLogger: AuditLogger
 ) {
@@ -124,7 +126,8 @@ class TilgangService(
         minimumBehandlerRolle: BehandlerRolle,
         handling: String
     ) {
-        val fagsakId = fagsakService.hentFagsakForPerson(personIdent).id
+        val aktør = personidentService.hentOgLagreAktør(personIdent, true)
+        val fagsakId = fagsakService.hentFagsakForPerson(aktør).id
         validerTilgangTilHandlingOgFagsak(fagsakId, event, minimumBehandlerRolle, handling)
     }
 
