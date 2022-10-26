@@ -1,6 +1,7 @@
 package no.nav.familie.ks.sak.integrasjon.journalføring
 
 import no.nav.familie.kontrakter.felles.BrukerIdType
+import no.nav.familie.kontrakter.felles.Fagsystem
 import no.nav.familie.kontrakter.felles.Tema
 import no.nav.familie.kontrakter.felles.dokarkiv.LogiskVedleggRequest
 import no.nav.familie.kontrakter.felles.journalpost.Bruker
@@ -140,7 +141,7 @@ class InnkommendeJournalføringService(
 
         val tilknyttetFagsak = Sak(
             fagsakId = fagsak?.id?.toString(),
-            fagsaksystem = fagsak?.let { Tema.KON.name },
+            fagsaksystem = fagsak?.let { Fagsystem.KONT.name },
             sakstype = fagsak?.let { Sakstype.FAGSAK.type } ?: Sakstype.GENERELL_SAK.type
         )
 
