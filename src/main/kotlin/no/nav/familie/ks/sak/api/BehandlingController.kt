@@ -101,7 +101,7 @@ class BehandlingController(
     }
 
     @PutMapping("/{behandlingId}/sett-på-vent/oppdater")
-    fun oppdaterVentendeBehandling(
+    fun oppdaterBehandlingPåVent(
         @PathVariable behandlingId: Long,
         settBehandlingPåVentDto: BehandlingPåVentDto
     ): ResponseEntity<Ressurs<BehandlingResponsDto>> {
@@ -118,7 +118,7 @@ class BehandlingController(
     }
 
     @PutMapping("/{behandlingId}/sett-på-vent/gjenoppta")
-    fun gjenopptaBehandling(
+    fun gjenopptaBehandlingPåVent(
         @PathVariable behandlingId: Long
     ): ResponseEntity<Ressurs<BehandlingResponsDto>> {
         tilgangService.validerTilgangTilHandling(
