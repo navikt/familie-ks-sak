@@ -5,13 +5,11 @@ import no.nav.familie.ks.sak.common.util.førsteDagIInneværendeMåned
 import no.nav.familie.ks.sak.common.util.sisteDagIInneværendeMåned
 import no.nav.familie.ks.sak.kjerne.beregning.domene.YtelseType
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
-import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
 import java.time.Period
 import java.time.YearMonth
 
 data class BehandlingsresultatPerson(
     val aktør: Aktør,
-    val personType: PersonType,
     val søktForPerson: Boolean, // flagg som markerer om person er inkludert i utledning
     val eksplisittAvslag: Boolean = false,
     val forrigeAndeler: List<BehandlingsresultatAndelTilkjentYtelse> = emptyList(),
@@ -46,7 +44,6 @@ data class BehandlingsresultatPerson(
 
     override fun toString(): String {
         return "BehandlingsresultatPerson(" +
-            "personType=$personType, " +
             "søktForPerson=$søktForPerson, " +
             "eksplisittAvslag=$eksplisittAvslag, " +
             "forrigeAndeler=$forrigeAndeler, " +

@@ -1,0 +1,34 @@
+{
+  "beskrivelse": "RV: SB har motatt ny søknad for 1 barn. SB øker og reduserer utbetaling for barnet.",
+  "kommentar": "2020-01-2020-2 var redusert(opphørt) mens 2020-06-2020-11 periode er økt(lagt til)",
+  "personer": [
+    {
+      "aktør": {
+        "fødselsnummer": "12345678911",
+        "aktørId": "1234567891100"
+      },
+      "søktForPerson": true,
+      "eksplisittAvslått": false,
+      "forrigeAndeler": [
+        {
+          "stønadFom": "2020-01",
+          "stønadTom": "2020-05",
+          "kalkulertUtbetalingsbeløp": 1054
+        },
+        {
+          "stønadFom": "2020-12",
+          "stønadTom": "2030-01",
+          "kalkulertUtbetalingsbeløp": 1054
+        }
+      ],
+      "andeler": [
+        {
+          "stønadFom": "2020-03",
+          "stønadTom": "2030-01",
+          "kalkulertUtbetalingsbeløp": 1054
+        }
+      ]
+    }
+  ],
+  "forventetResultat": "INNVILGET_OG_ENDRET"
+}

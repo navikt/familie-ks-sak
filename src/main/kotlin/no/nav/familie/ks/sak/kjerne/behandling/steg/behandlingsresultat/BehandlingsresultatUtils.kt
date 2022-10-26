@@ -82,7 +82,6 @@ object BehandlingsresultatUtils {
 
         return BehandlingsresultatPerson(
             aktør = aktør,
-            personType = person.type,
             søktForPerson = personerFremstiltKravFor.contains(aktør),
             forrigeAndeler =
             forrigeAndelerMedEndringer.filter { it.aktør == aktør }
@@ -171,7 +170,8 @@ object BehandlingsresultatUtils {
         }
     }
 
-    fun Set<YtelsePersonResultat>.eq(vararg ytelsePersonResultat: YtelsePersonResultat) = this == setOf(ytelsePersonResultat)
+    private fun Set<YtelsePersonResultat>.eq(vararg ytelsePersonResultat: YtelsePersonResultat): Boolean =
+        this == ytelsePersonResultat.toSet()
 
     private fun Set<YtelsePersonResultat>.matcherAltOgHarBådeEndretOgOpphørtResultat(vararg andreElementer: Any): Boolean {
         val endretResultat = this.singleOrNull {
@@ -180,19 +180,19 @@ object BehandlingsresultatUtils {
 
         val opphørtResultat = this.intersect(setOf(YtelsePersonResultat.OPPHØRT, YtelsePersonResultat.FORTSATT_OPPHØRT))
 
-        return if (opphørtResultat.isEmpty()) false else this == setOf(endretResultat) + opphørtResultat + andreElementer
+        return if (opphørtResultat.isEmpty()) false else this == setOf(endretResultat) + opphørtResultat + andreElementer.toSet()
     }
 
     private fun Set<YtelsePersonResultat>.matcherAltOgHarEndretResultat(vararg andreElementer: Any): Boolean {
         val endretResultat = this.singleOrNull {
             it == YtelsePersonResultat.ENDRET_UTBETALING || it == YtelsePersonResultat.ENDRET_UTEN_UTBETALING
         } ?: return false
-        return this == setOf(endretResultat) + andreElementer
+        return this == setOf(endretResultat) + andreElementer.toSet()
     }
 
     private fun Set<YtelsePersonResultat>.matcherAltOgHarOpphørtResultat(vararg andreElementer: Any): Boolean {
         val opphørtResultat = this.intersect(setOf(YtelsePersonResultat.OPPHØRT, YtelsePersonResultat.FORTSATT_OPPHØRT))
-        return if (opphørtResultat.isEmpty()) false else this == setOf(andreElementer) + opphørtResultat
+        return if (opphørtResultat.isEmpty()) false else this == andreElementer.toSet() + opphørtResultat
     }
 
     private val delvisInnvilgetKombinasjoner = setOf(YtelsePersonResultat.INNVILGET, YtelsePersonResultat.AVSLÅTT)

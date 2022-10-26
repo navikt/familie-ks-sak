@@ -24,6 +24,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.behandlingsresultat.YtelsePe
 import no.nav.familie.ks.sak.kjerne.behandling.steg.behandlingsresultat.YtelsePersonResultat.OPPHØRT
 import no.nav.familie.ks.sak.kjerne.beregning.domene.YtelseType
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
+import org.apache.commons.lang3.RandomStringUtils
 import java.time.YearMonth
 
 object YtelsePersonUtils {
@@ -95,7 +96,7 @@ object YtelsePersonUtils {
             ytelsePerson.copy(resultater = resultater, ytelseSlutt = ytelseSlutt)
         } + uregistrerteBarn.map {
             YtelsePerson(
-                aktør = Aktør("0000000"), // Aktør med dummy aktørId
+                aktør = Aktør(RandomStringUtils.randomNumeric(13)), // Aktør med dummy aktørId
                 resultater = setOf(AVSLÅTT),
                 ytelseType = YtelseType.ORDINÆR_KONTANTSTØTTE,
                 ytelseSlutt = TIDENES_MORGEN.toYearMonth(),
@@ -126,13 +127,18 @@ object YtelsePersonUtils {
         val erKunFremstilKravIDenneBehandling = ytelsePersoner.flatMap { it.kravOpprinnelse }.all { it == KravOpprinnelse.INNEVÆRENDE }
 
         val kunFortsattOpphørt = resultater.all { it == FORTSATT_OPPHØRT }
+        val erAvslått = resultater.all { it == AVSLÅTT }
 
         val altOpphører = ytelsePersoner.all { it.ytelseSlutt != null && it.ytelseSlutt.erSammeEllerTidligere(inneværendeMåned()) }
         val noeOpphørerPåTidligereBarn = ytelsePersoner.any {
             it.resultater.contains(OPPHØRT) && !it.kravOpprinnelse.contains(KravOpprinnelse.INNEVÆRENDE)
         }
-        // opphørPåSammeTid er ikke kopiert fordi skjønte ikke helt funskjonaliteten.
-        // Kan kopieres om vi trenger det i fremtiden
+        // alle barn har opphørt på samme dato, mao alle barn har samme ytelseSlutt og eller alle barn får avslått
+        val opphørPåSammeTid = altOpphører &&
+            (
+                ytelsePersoner.filter { it.resultater != setOf(YtelsePersonResultat.AVSLÅTT) }
+                    .groupBy { it.ytelseSlutt }.size == 1 || erAvslått
+                )
 
         // Hvis alt ikke er opphørt, kan ikke resultater ha Opphørt
         if (!altOpphører) resultater.remove(OPPHØRT)
@@ -142,7 +148,7 @@ object YtelsePersonUtils {
 
         // opphør som fører til endring
         val opphørSomFørerTilEndring =
-            altOpphører && !erKunFremstilKravIDenneBehandling && !kunFortsattOpphørt
+            altOpphører && !erKunFremstilKravIDenneBehandling && !kunFortsattOpphørt && !opphørPåSammeTid
         if (opphørSomFørerTilEndring) resultater.add(ENDRET_UTBETALING)
 
         return resultater
@@ -187,7 +193,7 @@ object YtelsePersonUtils {
 
         andelerFraForrigeBehandlingISammePeriode.map {
             andel.kalkulertUtbetalingsbeløp - it.kalkulertUtbetalingsbeløp
-        }
+        }.filter { it != 0 }
     }
 
     private fun utledYtelsePersonResultatVedEndring(
