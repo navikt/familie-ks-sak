@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.RestController
 @RequestMapping("/api/test")
 @ProtectedWithClaims(issuer = "azuread")
 @Validated
-@Profile("dev", "postgres", "preprod")
+@Profile("dev", "postgres", "preprod", "dev-postgres-preprod")
 class TestController(private val tilgangService: TilgangService, private val integrasjonClient: IntegrasjonClient) {
 
     @PostMapping("/journalfør-søknad/{fnr}")
