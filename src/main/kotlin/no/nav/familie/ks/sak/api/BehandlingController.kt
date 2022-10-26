@@ -1,6 +1,7 @@
 package no.nav.familie.ks.sak.api
 
 import no.nav.familie.kontrakter.felles.Ressurs
+import no.nav.familie.ks.sak.api.dto.BehandlingPåVentDto
 import no.nav.familie.ks.sak.api.dto.BehandlingResponsDto
 import no.nav.familie.ks.sak.api.dto.EndreBehandlendeEnhetDto
 import no.nav.familie.ks.sak.api.dto.OpprettBehandlingDto
@@ -77,6 +78,52 @@ class BehandlingController(
 
         behandlingService.oppdaterBehandlendeEnhet(behandlingId, endreBehandlendeEnhet)
 
+        return ResponseEntity.ok(Ressurs.success(behandlingService.lagBehandlingRespons(behandlingId = behandlingId)))
+    }
+
+    @PutMapping("/sett-på-vent")
+    fun settBehandlingPåVent(
+        @PathVariable behandlingId: Long,
+        settBehandlingPåVentDto: BehandlingPåVentDto
+    ): ResponseEntity<Ressurs<BehandlingResponsDto>> {
+        tilgangService.validerTilgangTilHandling(
+            minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
+            handling = "sette behandling på vent"
+        )
+        behandlingService.settBehandlingPåVent(
+            behandlingId,
+            settBehandlingPåVentDto.frist,
+            settBehandlingPåVentDto.årsak
+        )
+        return ResponseEntity.ok(Ressurs.success(behandlingService.lagBehandlingRespons(behandlingId = behandlingId)))
+    }
+
+    @PutMapping("/oppdater-ventende-behandling")
+    fun oppdaterVentendeBehandling(
+        @PathVariable behandlingId: Long,
+        settBehandlingPåVentDto: BehandlingPåVentDto
+    ): ResponseEntity<Ressurs<BehandlingResponsDto>> {
+        tilgangService.validerTilgangTilHandling(
+            minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
+            handling = "endre behandling på vent"
+        )
+        behandlingService.oppdaterBehandlingPåVent(
+            behandlingId,
+            settBehandlingPåVentDto.frist,
+            settBehandlingPåVentDto.årsak
+        )
+        return ResponseEntity.ok(Ressurs.success(behandlingService.lagBehandlingRespons(behandlingId = behandlingId)))
+    }
+
+    @PutMapping("/gjenoppta-behandling")
+    fun gjenopptaBehandling(
+        @PathVariable behandlingId: Long
+    ): ResponseEntity<Ressurs<BehandlingResponsDto>> {
+        tilgangService.validerTilgangTilHandling(
+            minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
+            handling = "gjenoppta behandling"
+        )
+        behandlingService.gjenopptaBehandlingPåVent(behandlingId)
         return ResponseEntity.ok(Ressurs.success(behandlingService.lagBehandlingRespons(behandlingId = behandlingId)))
     }
 }

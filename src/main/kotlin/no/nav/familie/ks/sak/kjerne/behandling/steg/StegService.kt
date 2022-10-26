@@ -6,7 +6,6 @@ import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.integrasjon.oppgave.OppgaveService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
-import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStegTilstand
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat
 import no.nav.familie.ks.sak.kjerne.logg.LoggService
@@ -14,7 +13,6 @@ import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDate
-import java.time.Period
 
 @Service
 class StegService(
@@ -37,8 +35,7 @@ class StegService(
                 behandlingStegDto?.let { hentStegInstans(behandledeSteg).utførSteg(behandlingId, it) }
                     ?: hentStegInstans(behandledeSteg).utførSteg(behandlingId)
                 // oppdaterer nåværendeSteg status til utført
-                hentStegTilstandForBehandlingSteg(behandling, behandledeSteg).behandlingStegStatus =
-                    BehandlingStegStatus.UTFØRT
+                behandledeStegTilstand.behandlingStegStatus = BehandlingStegStatus.UTFØRT
                 // Henter neste steg basert på sekvens og årsak
                 val nesteSteg = hentNesteSteg(behandling, behandledeSteg)
                 // legger til neste steg hvis steget er ny, eller oppdaterer eksisterende steg status til KLAR
@@ -122,95 +119,53 @@ class StegService(
         }
     }
 
-    fun settBehandlingPåVent(behandlingId: Long, frist: LocalDate, årsak: BehandlingSettPåVentÅrsak) {
-        val behandling = behandlingRepository.hentBehandling(behandlingId)
+    fun SettBehandlingstegTilstandPåVent(
+        behandling: Behandling,
+        frist: LocalDate,
+        årsak: BehandlingSettPåVentÅrsak
+    ) {
         val behandlingStegTilstand = hentStegTilstandForBehandlingSteg(behandling, behandling.steg)
-        validerBehandlingKanSettesPåVent(behandling, frist, årsak)
 
-        loggService.opprettSettPåVentLogg(behandling, årsak.visningsnavn)
-        logger.info("Setter behandling $behandlingId på vent med frist $frist og årsak $årsak")
+        logger.info("Setter behandling ${behandling.id} på vent med frist $frist og årsak $årsak")
 
         behandlingStegTilstand.frist = frist
         behandlingStegTilstand.årsak = årsak
         behandlingStegTilstand.behandlingStegStatus = BehandlingStegStatus.VENTER
         behandlingRepository.saveAndFlush(behandling)
-
-        oppgaveService.forlengFristÅpneOppgaverPåBehandling(
-            behandlingId = behandling.id,
-            forlengelse = Period.between(LocalDate.now(), frist)
-        )
     }
 
-    fun oppdaterFristOgEllerÅrsakPåVentendeBehandling(
-        behandlingId: Long,
+    fun oppdaterBehandlingstegTilstandPåVent(
+        behandling: Behandling,
         frist: LocalDate,
         årsak: BehandlingSettPåVentÅrsak
-    ) {
-        val behandling = behandlingRepository.hentBehandling(behandlingId)
+    ): Pair<LocalDate?, BehandlingSettPåVentÅrsak?> {
         val behandlingStegTilstand = hentStegTilstandForBehandlingSteg(behandling, behandling.steg)
 
         if (frist == behandlingStegTilstand.frist && årsak == behandlingStegTilstand.årsak) {
             throw FunksjonellFeil("Behandlingen er allerede satt på vent med frist $frist og årsak $årsak.")
         }
 
-        loggService.opprettOppdaterVentingLogg(
-            behandling = behandling,
-            endretÅrsak = if (årsak != behandlingStegTilstand.årsak) årsak.visningsnavn else null,
-            endretFrist = if (frist != behandlingStegTilstand.frist) frist else null
-        )
-        logger.info("Oppdater ventende behandling $behandlingId med frist $frist og årsak $årsak")
+        logger.info("Oppdater ventende behandling ${behandling.id} med frist $frist og årsak $årsak")
 
         val gammelFrist = behandlingStegTilstand.frist
+        val gammelÅrsak = behandlingStegTilstand.årsak
+
         behandlingStegTilstand.frist = frist
         behandlingStegTilstand.årsak = årsak
         behandlingRepository.saveAndFlush(behandling)
 
-        oppgaveService.forlengFristÅpneOppgaverPåBehandling(
-            behandlingId = behandlingId,
-            forlengelse = Period.between(gammelFrist, frist)
-        )
+        return Pair(gammelFrist, gammelÅrsak)
     }
 
-    fun gjenopptaBehandling(behandlingId: Long) {
-        val behandling = behandlingRepository.hentBehandling(behandlingId)
+    fun gjenopptaBehandlingstegTilstandPåVent(behandling: Behandling) {
         val behandlingStegTilstand = hentStegTilstandForBehandlingSteg(behandling, behandling.steg)
 
-        loggService.opprettBehandlingGjenopptattLogg(behandling)
-        logger.info("Gjenopptar behandling $behandlingId")
+        logger.info("Gjenopptar behandling ${behandling.id}")
 
         behandlingStegTilstand.frist = null
         behandlingStegTilstand.årsak = null
         behandlingStegTilstand.behandlingStegStatus = BehandlingStegStatus.KLAR
         behandlingRepository.saveAndFlush(behandling)
-
-        oppgaveService.settFristÅpneOppgaverPåBehandlingTil(
-            behandlingId = behandlingId,
-            nyFrist = LocalDate.now().plusDays(1)
-        )
-    }
-
-    fun validerBehandlingKanSettesPåVent(behandling: Behandling, frist: LocalDate, årsak: BehandlingSettPåVentÅrsak) {
-        when {
-            frist.isBefore(LocalDate.now()) -> {
-                throw FunksjonellFeil(
-                    melding = "Frist for å vente på behandling ${behandling.id} er satt før dagens dato.",
-                    frontendFeilmelding = "Fristen er satt før dagens dato."
-                )
-            }
-
-            behandling.status == BehandlingStatus.AVSLUTTET -> {
-                throw FunksjonellFeil(
-                    melding = "Behandling ${behandling.id} er avsluttet og kan ikke settes på vent.",
-                    frontendFeilmelding = "Kan ikke sette en avsluttet behandling på vent."
-                )
-            }
-
-            !behandling.aktiv -> {
-                throw Feil(
-                    "Behandling ${behandling.id} er ikke aktiv og kan ikke settes på vent."
-                )
-            }
-        }
     }
 
     private fun hentNesteStegEtterBeslutteVedtakBasertPåBehandlingsresultat(resultat: Behandlingsresultat): BehandlingSteg {
