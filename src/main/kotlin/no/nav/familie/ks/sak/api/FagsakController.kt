@@ -78,7 +78,7 @@ class FagsakController(private val fagsakService: FagsakService, private val til
             event = AuditLoggerEvent.ACCESS,
             handling = "Hent fagsak for person"
         )
-        val minimalFagsakForPerson = fagsakService.hentMinimalFagsakForPerson(personIdent)
+        val minimalFagsakForPerson = fagsakService.finnMinimalFagsakForPerson(personIdent)
 
         return minimalFagsakForPerson?.let { ResponseEntity.ok().body(Ressurs.success(it)) }
             ?: ResponseEntity.status(HttpStatus.NOT_FOUND)
