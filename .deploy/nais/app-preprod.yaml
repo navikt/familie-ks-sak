@@ -50,6 +50,7 @@ spec:
           - id: "52fe1bef-224f-49df-a40a-29f92d4520f8"  # BESLUTTER_ROLLE
       replyURLs:
         - "https://familie-kontantstotte-sak.dev.intern.nav.no/swagger-ui/oauth2-redirect.html"
+        - "http://localhost:8083/swagger-ui/oauth2-redirect.html"
       singlePageApplication: true
   accessPolicy:
     inbound:
