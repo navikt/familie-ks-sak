@@ -1,11 +1,7 @@
 package no.nav.familie.ks.sak.kjerne.behandling
 
-import no.nav.familie.ks.sak.common.exception.Feil
-import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.integrasjon.oppgave.OppgaveService
-import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
-import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSettPåVentÅrsak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.StegService
 import no.nav.familie.ks.sak.kjerne.logg.LoggService
@@ -23,9 +19,8 @@ class SettBehandlingPåVentService(
 
     fun settBehandlingPåVent(behandlingId: Long, frist: LocalDate, årsak: BehandlingSettPåVentÅrsak) {
         val behandling = behandlingRepository.hentBehandling(behandlingId)
-        validerBehandlingKanSettesPåVent(behandling, frist)
 
-        stegService.SettBehandlingstegTilstandPåVent(behandling, frist, årsak)
+        stegService.settBehandlingstegTilstandPåVent(behandling, frist, årsak)
 
         loggService.opprettSettPåVentLogg(behandling, årsak.visningsnavn)
 
@@ -68,29 +63,5 @@ class SettBehandlingPåVentService(
             behandlingId = behandlingId,
             nyFrist = LocalDate.now().plusDays(1)
         )
-    }
-
-    fun validerBehandlingKanSettesPåVent(behandling: Behandling, frist: LocalDate) {
-        when {
-            frist.isBefore(LocalDate.now()) -> {
-                throw FunksjonellFeil(
-                    melding = "Frist for å vente på behandling ${behandling.id} er satt før dagens dato.",
-                    frontendFeilmelding = "Fristen er satt før dagens dato."
-                )
-            }
-
-            behandling.status == BehandlingStatus.AVSLUTTET -> {
-                throw FunksjonellFeil(
-                    melding = "Behandling ${behandling.id} er avsluttet og kan ikke settes på vent.",
-                    frontendFeilmelding = "Kan ikke sette en avsluttet behandling på vent."
-                )
-            }
-
-            !behandling.aktiv -> {
-                throw Feil(
-                    "Behandling ${behandling.id} er ikke aktiv og kan ikke settes på vent."
-                )
-            }
-        }
     }
 }

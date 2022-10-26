@@ -5,6 +5,7 @@ import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
+import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStegTilstand
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat
 import org.slf4j.LoggerFactory
@@ -115,11 +116,12 @@ class StegService(
         }
     }
 
-    fun SettBehandlingstegTilstandPåVent(
+    fun settBehandlingstegTilstandPåVent(
         behandling: Behandling,
         frist: LocalDate,
         årsak: BehandlingSettPåVentÅrsak
     ) {
+        validerBehandlingKanSettesPåVent(behandling, frist)
         val behandlingStegTilstand = hentStegTilstandForBehandlingSteg(behandling, behandling.steg)
 
         logger.info("Setter behandling ${behandling.id} på vent med frist $frist og årsak $årsak")
@@ -162,6 +164,36 @@ class StegService(
         behandlingStegTilstand.årsak = null
         behandlingStegTilstand.behandlingStegStatus = BehandlingStegStatus.KLAR
         behandlingRepository.saveAndFlush(behandling)
+    }
+
+    private fun validerBehandlingKanSettesPåVent(behandling: Behandling, frist: LocalDate) {
+        when {
+            behandling.behandlingStegTilstand.any { it.behandlingStegStatus == BehandlingStegStatus.VENTER } -> {
+                throw FunksjonellFeil(
+                    melding = "Behandlingen er allerede satt på vent."
+                )
+            }
+
+            frist.isBefore(LocalDate.now()) -> {
+                throw FunksjonellFeil(
+                    melding = "Frist for å vente på behandling ${behandling.id} er satt før dagens dato.",
+                    frontendFeilmelding = "Fristen er satt før dagens dato."
+                )
+            }
+
+            behandling.status == BehandlingStatus.AVSLUTTET -> {
+                throw FunksjonellFeil(
+                    melding = "Behandling ${behandling.id} er avsluttet og kan ikke settes på vent.",
+                    frontendFeilmelding = "Kan ikke sette en avsluttet behandling på vent."
+                )
+            }
+
+            !behandling.aktiv -> {
+                throw FunksjonellFeil(
+                    "Behandling ${behandling.id} er ikke aktiv og kan ikke settes på vent."
+                )
+            }
+        }
     }
 
     private fun hentNesteStegEtterBeslutteVedtakBasertPåBehandlingsresultat(resultat: Behandlingsresultat): BehandlingSteg {
