@@ -3,12 +3,10 @@ package no.nav.familie.ks.sak.kjerne.behandling.steg
 import no.nav.familie.ks.sak.api.dto.BehandlingStegDto
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
-import no.nav.familie.ks.sak.integrasjon.oppgave.OppgaveService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStegTilstand
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat
-import no.nav.familie.ks.sak.kjerne.logg.LoggService
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -17,9 +15,7 @@ import java.time.LocalDate
 @Service
 class StegService(
     private val steg: List<IBehandlingSteg>,
-    private val behandlingRepository: BehandlingRepository,
-    private val oppgaveService: OppgaveService,
-    private val loggService: LoggService
+    private val behandlingRepository: BehandlingRepository
 ) {
 
     @Transactional

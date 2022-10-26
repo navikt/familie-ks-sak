@@ -135,7 +135,9 @@ class OppgaveService(
                 gammelOppgave.fristFerdigstillelse == null ->
                     logger.warn("Oppgave ${dbOppgave.gsakId} har ingen oppgavefrist ved oppdatering av frist")
 
-                oppgaveErAvsluttet -> {}
+                oppgaveErAvsluttet ->
+                    logger.warn("Oppgave ${dbOppgave.gsakId} er allerede avsluttet. Frist ikke forlenget.")
+
                 else -> {
                     val nyFrist = LocalDate.parse(gammelOppgave.fristFerdigstillelse).plus(forlengelse)
                     val nyOppgave = gammelOppgave.copy(fristFerdigstillelse = nyFrist?.toString())
@@ -154,7 +156,9 @@ class OppgaveService(
 
             when {
                 gammelOppgave.id == null -> logger.warn("Finner ikke oppgave ${dbOppgave.gsakId} ved oppdatering av frist")
-                oppgaveErAvsluttet -> {}
+                oppgaveErAvsluttet ->
+                    logger.warn("Oppgave ${dbOppgave.gsakId} er allerede avsluttet. Frist ikke satt.")
+
                 else -> {
                     val nyOppgave = gammelOppgave.copy(fristFerdigstillelse = nyFrist.toString())
                     integrasjonClient.oppdaterOppgave(nyOppgave.id!!, nyOppgave)

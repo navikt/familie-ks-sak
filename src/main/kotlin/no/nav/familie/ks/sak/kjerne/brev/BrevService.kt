@@ -20,7 +20,7 @@ import no.nav.familie.ks.sak.integrasjon.journalføring.domene.DbJournalpostType
 import no.nav.familie.ks.sak.integrasjon.journalføring.domene.JournalføringRepository
 import no.nav.familie.ks.sak.integrasjon.logger
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.ArbeidsfordelingService
-import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
+import no.nav.familie.ks.sak.kjerne.behandling.SettBehandlingPåVentService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
@@ -47,7 +47,7 @@ class BrevService(
     private val vilkårsvurderingService: VilkårsvurderingService,
     private val behandlingRepository: BehandlingRepository,
     private val journalføringRepository: JournalføringRepository,
-    private val behandlingService: BehandlingService
+    private val settBehandlingPåVentService: SettBehandlingPåVentService
 ) {
 
     fun hentForhåndsvisningAvBrev(behandlingId: Long, manueltBrevDto: ManueltBrevDto): ByteArray {
@@ -173,7 +173,7 @@ class BrevService(
         if (
             manueltBrevDto.brevmal.setterBehandlingPåVent()
         ) {
-            behandlingService.settBehandlingPåVent(
+            settBehandlingPåVentService.settBehandlingPåVent(
                 behandlingId = behandlingId,
                 frist = LocalDate.now()
                     .plusDays(

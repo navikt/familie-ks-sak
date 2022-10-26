@@ -9,6 +9,7 @@ import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.config.BehandlerRolle
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.OpprettBehandlingService
+import no.nav.familie.ks.sak.kjerne.behandling.SettBehandlingPåVentService
 import no.nav.familie.ks.sak.sikkerhet.AuditLoggerEvent
 import no.nav.familie.ks.sak.sikkerhet.TilgangService
 import no.nav.security.token.support.core.api.ProtectedWithClaims
@@ -30,7 +31,8 @@ import org.springframework.web.bind.annotation.RestController
 class BehandlingController(
     private val opprettBehandlingService: OpprettBehandlingService,
     private val behandlingService: BehandlingService,
-    private val tilgangService: TilgangService
+    private val tilgangService: TilgangService,
+    private val settBehandlingPåVentService: SettBehandlingPåVentService
 ) {
 
     @PostMapping(produces = [MediaType.APPLICATION_JSON_VALUE])
@@ -81,7 +83,7 @@ class BehandlingController(
         return ResponseEntity.ok(Ressurs.success(behandlingService.lagBehandlingRespons(behandlingId = behandlingId)))
     }
 
-    @PutMapping("/sett-på-vent")
+    @PostMapping("/{behandlingId}/sett-på-vent")
     fun settBehandlingPåVent(
         @PathVariable behandlingId: Long,
         settBehandlingPåVentDto: BehandlingPåVentDto
@@ -90,7 +92,7 @@ class BehandlingController(
             minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
             handling = "sette behandling på vent"
         )
-        behandlingService.settBehandlingPåVent(
+        settBehandlingPåVentService.settBehandlingPåVent(
             behandlingId,
             settBehandlingPåVentDto.frist,
             settBehandlingPåVentDto.årsak
@@ -98,7 +100,7 @@ class BehandlingController(
         return ResponseEntity.ok(Ressurs.success(behandlingService.lagBehandlingRespons(behandlingId = behandlingId)))
     }
 
-    @PutMapping("/oppdater-ventende-behandling")
+    @PutMapping("/{behandlingId}/sett-på-vent/oppdater")
     fun oppdaterVentendeBehandling(
         @PathVariable behandlingId: Long,
         settBehandlingPåVentDto: BehandlingPåVentDto
@@ -107,7 +109,7 @@ class BehandlingController(
             minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
             handling = "endre behandling på vent"
         )
-        behandlingService.oppdaterBehandlingPåVent(
+        settBehandlingPåVentService.oppdaterBehandlingPåVent(
             behandlingId,
             settBehandlingPåVentDto.frist,
             settBehandlingPåVentDto.årsak
@@ -115,7 +117,7 @@ class BehandlingController(
         return ResponseEntity.ok(Ressurs.success(behandlingService.lagBehandlingRespons(behandlingId = behandlingId)))
     }
 
-    @PutMapping("/gjenoppta-behandling")
+    @PutMapping("/{behandlingId}/sett-på-vent/gjenoppta")
     fun gjenopptaBehandling(
         @PathVariable behandlingId: Long
     ): ResponseEntity<Ressurs<BehandlingResponsDto>> {
@@ -123,7 +125,7 @@ class BehandlingController(
             minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
             handling = "gjenoppta behandling"
         )
-        behandlingService.gjenopptaBehandlingPåVent(behandlingId)
+        settBehandlingPåVentService.gjenopptaBehandlingPåVent(behandlingId)
         return ResponseEntity.ok(Ressurs.success(behandlingService.lagBehandlingRespons(behandlingId = behandlingId)))
     }
 }
