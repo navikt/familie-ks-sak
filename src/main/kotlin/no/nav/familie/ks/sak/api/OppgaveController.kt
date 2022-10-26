@@ -113,7 +113,7 @@ class OppgaveController(
                 personOpplysningerService.hentPersonInfoMedRelasjonerOgRegisterinformasjon(it)
                     .tilPersonInfoDto(it.aktivFødselsnummer())
             },
-            minimalFagsak = aktør?.let { fagsakService.hentMinimalFagsakForPerson(aktør.aktørId) }
+            minimalFagsak = aktør?.let { fagsakService.finnMinimalFagsakForPerson(aktør.aktørId) }
         )
 
         return ResponseEntity.ok(Ressurs.success(dataForManuellJournalføringDto))
