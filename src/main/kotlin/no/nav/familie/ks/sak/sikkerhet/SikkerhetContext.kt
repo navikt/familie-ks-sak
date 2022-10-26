@@ -7,7 +7,7 @@ import no.nav.security.token.support.spring.SpringTokenValidationContextHolder
 object SikkerhetContext {
 
     private const val SYSTEM_FORKORTELSE = "VL"
-    private const val SYSTEM_NAVN = "System"
+    const val SYSTEM_NAVN = "System"
 
     fun erSystemKontekst() = hentSaksbehandler() == SYSTEM_FORKORTELSE
 

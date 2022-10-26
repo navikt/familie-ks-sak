@@ -9,6 +9,7 @@ import no.nav.familie.kontrakter.felles.oppgave.OppgaveIdentV2
 import no.nav.familie.kontrakter.felles.oppgave.OppgaveResponse
 import no.nav.familie.kontrakter.felles.oppgave.Oppgavetype
 import no.nav.familie.kontrakter.felles.oppgave.OpprettOppgaveRequest
+import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
 import no.nav.familie.ks.sak.integrasjon.oppgave.domene.DbOppgave
@@ -90,6 +91,22 @@ class OppgaveService(
         }
 
         return integrasjonClient.fordelOppgave(oppgaveId, saksbehandler).oppgaveId.toString()
+    }
+
+    fun ferdigstillOppgaver(behandling: Behandling, oppgavetype: Oppgavetype) {
+        val oppgaverSomSkalFerdigstilles =
+            oppgaveRepository.finnOppgaverSomSkalFerdigstilles(oppgavetype, behandling)
+
+        oppgaverSomSkalFerdigstilles.forEach {
+            try {
+                integrasjonClient.ferdigstillOppgave(it.gsakId.toLong())
+
+                it.erFerdigstilt = true
+                oppgaveRepository.saveAndFlush(it)
+            } catch (exception: Exception) {
+                throw Feil(message = "Klarte ikke å ferdigstille oppgave med id ${it.gsakId}.", cause = exception)
+            }
+        }
     }
 
     fun tilbakestillFordelingPåOppgave(oppgaveId: Long): Oppgave {

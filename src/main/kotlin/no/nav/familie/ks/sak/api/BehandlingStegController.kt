@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
@@ -40,7 +41,7 @@ class BehandlingStegController(
         return ResponseEntity.ok(Ressurs.success(behandlingService.lagBehandlingRespons(behandlingId = behandlingId)))
     }
 
-    @PostMapping(path = ["vilkårsvurdering"])
+    @PostMapping(path = ["/vilkårsvurdering"])
     fun utførVilkårsvurdering(@PathVariable behandlingId: Long): ResponseEntity<Ressurs<BehandlingResponsDto>> {
         tilgangService.validerTilgangTilHandling(
             minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
@@ -52,7 +53,7 @@ class BehandlingStegController(
         return ResponseEntity.ok(Ressurs.success(behandlingService.lagBehandlingRespons(behandlingId = behandlingId)))
     }
 
-    @PostMapping(path = ["behandlingsresultat"])
+    @PostMapping(path = ["/behandlingsresultat"])
     fun utledBehandlingsresultat(@PathVariable behandlingId: Long): ResponseEntity<Ressurs<BehandlingResponsDto>> {
         tilgangService.validerTilgangTilHandling(
             minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
@@ -60,6 +61,20 @@ class BehandlingStegController(
         )
 
         stegService.utførSteg(behandlingId, BehandlingSteg.BEHANDLINGSRESULTAT)
+        return ResponseEntity.ok(Ressurs.success(behandlingService.lagBehandlingRespons(behandlingId = behandlingId)))
+    }
+
+    @PostMapping(path = ["/foreslå-vedtak"], produces = [MediaType.APPLICATION_JSON_VALUE])
+    fun foreslåVedtak(
+        @PathVariable behandlingId: Long,
+        @RequestParam behandlendeEnhet: String
+    ): ResponseEntity<Ressurs<BehandlingResponsDto>> {
+        tilgangService.validerTilgangTilHandling(
+            minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
+            handling = "foreslå vedtak"
+        )
+
+        stegService.utførSteg(behandlingId, BehandlingSteg.VEDTAK)
         return ResponseEntity.ok(Ressurs.success(behandlingService.lagBehandlingRespons(behandlingId = behandlingId)))
     }
 }

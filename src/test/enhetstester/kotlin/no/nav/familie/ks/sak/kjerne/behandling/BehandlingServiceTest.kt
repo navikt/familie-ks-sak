@@ -21,6 +21,7 @@ import no.nav.familie.ks.sak.data.randomAktør
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.ArbeidsfordelingService
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.domene.ArbeidsfordelingPåBehandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
+import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.søknad.SøknadGrunnlagService
@@ -80,7 +81,7 @@ class BehandlingServiceTest {
         every { arbeidsfordelingService.manueltOppdaterBehandlendeEnhet(any(), any()) } just runs
         every { statsborgerskapService.hentLand(any()) } returns "Norge"
         every { personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlag(any()) } returns
-            lagPersonopplysningGrunnlag(behandlingId = behandling.id, søkerPersonIdent = søkersIdent)
+                lagPersonopplysningGrunnlag(behandlingId = behandling.id, søkerPersonIdent = søkersIdent)
         every { vilkårsvurderingService.finnAktivVilkårsvurdering(any()) } returns null
         every { søknadGrunnlagService.finnAktiv(any()) } returns søknadsgrunnlagMockK
         mockkObject(SøknadGrunnlagMapper)
@@ -143,5 +144,21 @@ class BehandlingServiceTest {
         }
         verify(exactly = 1) { loggService.opprettVilkårsvurderingLogg(any(), any(), any()) }
         assertEquals(Behandlingsresultat.INNVILGET, oppdatertBehandling.resultat)
+    }
+
+    @Test
+    fun `oppdaterStatusPåBehandling skal sette oppdatert status på behandling`() {
+        every { behandlingRepository.hentBehandling(behandling.id) } returns behandling
+        every { behandlingRepository.save(behandling) } returns behandling
+
+        assertEquals(behandling.status, BehandlingStatus.UTREDES)
+
+        val oppdatertBehandling =
+            behandlingService.oppdaterStatusPåBehandling(behandling.id, BehandlingStatus.FATTER_VEDTAK)
+
+        assertEquals(oppdatertBehandling.status, BehandlingStatus.FATTER_VEDTAK)
+
+        verify(exactly = 1) { behandlingRepository.hentBehandling(oppdatertBehandling.id) }
+        verify(exactly = 1) { behandlingRepository.save(oppdatertBehandling) }
     }
 }

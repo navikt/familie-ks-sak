@@ -1,17 +1,82 @@
 package no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak
 
+import no.nav.familie.kontrakter.felles.oppgave.Oppgavetype
+import no.nav.familie.ks.sak.common.exception.Feil
+import no.nav.familie.ks.sak.integrasjon.oppgave.FerdigstillOppgaverTask
+import no.nav.familie.ks.sak.integrasjon.oppgave.OppgaveService
+import no.nav.familie.ks.sak.integrasjon.oppgave.OpprettOppgaveTask
+import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
+import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
+import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg
+import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingStegStatus
 import no.nav.familie.ks.sak.kjerne.behandling.steg.IBehandlingSteg
+import no.nav.familie.ks.sak.kjerne.logg.LoggService
+import no.nav.familie.ks.sak.kjerne.totrinnskontroll.TotrinnskontrollService
+import no.nav.familie.prosessering.domene.TaskRepository
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
+import java.time.LocalDate
 
 @Service
-class VedtakSteg : IBehandlingSteg {
+class VedtakSteg(
+    private val behandlingService: BehandlingService,
+    private val taskRepository: TaskRepository,
+    private val totrinnskontrollService: TotrinnskontrollService,
+    private val loggService: LoggService,
+    private val oppgaveService: OppgaveService
+) : IBehandlingSteg {
     override fun getBehandlingssteg(): BehandlingSteg = BehandlingSteg.VEDTAK
 
+    @Transactional
     override fun utførSteg(behandlingId: Long) {
         logger.info("Utfører steg ${getBehandlingssteg().name} for behandling $behandlingId")
+
+        val behandling = behandlingService.hentBehandling(behandlingId)
+        validerAtBehandlingErGyldigForVedtak(behandling)
+
+        loggService.opprettSendTilBeslutterLogg(behandling.id)
+        totrinnskontrollService.opprettTotrinnskontrollMedSaksbehandler(behandling)
+
+        val godkjenneVedtakTask = OpprettOppgaveTask.opprettTask(
+            behandlingId = behandling.id,
+            oppgavetype = Oppgavetype.GodkjenneVedtak,
+            fristForFerdigstillelse = LocalDate.now()
+        )
+
+        taskRepository.save(godkjenneVedtakTask)
+
+        opprettFerdigstillOppgaveTasker(behandling)
+
+        behandlingService.oppdaterStatusPåBehandling(behandlingId, BehandlingStatus.FATTER_VEDTAK)
+    }
+
+    private fun opprettFerdigstillOppgaveTasker(behandling: Behandling) {
+        val oppgaver = oppgaveService.hentOppgaverSomIkkeErFerdigstilt(behandling)
+        val relevanteOppgave = oppgaver.filter {
+            it.type in listOf(
+                Oppgavetype.BehandleSak,
+                Oppgavetype.BehandleUnderkjentVedtak,
+                Oppgavetype.VurderLivshendelse
+            )
+        }
+
+        relevanteOppgave.forEach {
+            val ferdigstillOppgaverTask = FerdigstillOppgaverTask.opprettTask(behandling.id, it.type)
+            taskRepository.save(ferdigstillOppgaverTask)
+        }
+    }
+
+    private fun validerAtBehandlingErGyldigForVedtak(behandling: Behandling) {
+        if (behandling.erHenlagt()) {
+            throw Feil("Behandlingen er henlagt og dermed så kan ikke vedtak foreslås.")
+        }
+
+        if (behandling.behandlingStegTilstand.count { it.behandlingStegStatus == BehandlingStegStatus.VENTER || it.behandlingStegStatus == BehandlingStegStatus.KLAR } > 1) {
+            throw Feil("Behandlingen har mer enn ett ikke fullført steg.")
+        }
     }
 
     companion object {

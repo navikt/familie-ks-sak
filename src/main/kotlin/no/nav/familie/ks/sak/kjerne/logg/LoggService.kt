@@ -244,6 +244,19 @@ class LoggService(
         )
     }
 
+    fun opprettSendTilBeslutterLogg(behandlingId: Long) {
+        lagreLogg(
+            Logg(
+                behandlingId = behandlingId,
+                type = LoggType.SEND_TIL_BESLUTTER,
+                rolle = SikkerhetContext.hentRolletilgangFraSikkerhetscontext(
+                    rolleConfig,
+                    BehandlerRolle.SAKSBEHANDLER
+                )
+            )
+        )
+    }
+
     companion object {
         private val logger = LoggerFactory.getLogger(LoggService::class.java)
     }

@@ -12,10 +12,12 @@ import no.nav.familie.ks.sak.config.BehandlerRolle
 import no.nav.familie.ks.sak.config.RolleConfig
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.domene.ArbeidsfordelingPåBehandling
+import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import no.nav.familie.ks.sak.kjerne.logg.domene.Logg
 import no.nav.familie.ks.sak.kjerne.logg.domene.LoggRepository
+import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -377,5 +379,20 @@ class LoggServiceTest {
         assertThat(lagretLogg.behandlingId, Is(behandling.id))
         assertThat(lagretLogg.type, Is(LoggType.BREV_IKKE_DISTRIBUERT_UKJENT_DØDSBO))
         assertThat(lagretLogg.tekst, Is("ukjent dødsboaddresse"))
+    }
+
+    @Test
+    fun `opprettSendTilBeslutterLogg - skal lagre logg på at behandling ble sendt til beslutter`() {
+        val behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD)
+        val slot = slot<Logg>()
+
+        every { loggRepository.save(capture(slot)) } returns mockk()
+
+        loggService.opprettSendTilBeslutterLogg(behandling.id)
+
+        val lagretLogg = slot.captured
+
+        assertThat(lagretLogg.behandlingId, Is(behandling.id))
+        assertThat(lagretLogg.type, Is(LoggType.SEND_TIL_BESLUTTER))
     }
 }

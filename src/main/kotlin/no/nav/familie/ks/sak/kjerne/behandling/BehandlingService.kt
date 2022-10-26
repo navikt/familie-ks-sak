@@ -84,6 +84,14 @@ class BehandlingService(
         return lagreEllerOppdater(behandling.copy(resultat = nyUtledetBehandlingsresultat))
     }
 
+    fun oppdaterStatusPåBehandling(behandlingId: Long, status: BehandlingStatus): Behandling {
+        val behandling = hentBehandling(behandlingId)
+        logger.info("${SikkerhetContext.hentSaksbehandlerNavn()} endrer status på behandling $behandlingId fra ${behandling.status} til $status")
+
+        behandling.status = status
+        return lagreEllerOppdater(behandling.copy(status = status))
+    }
+
     fun nullstillEndringstidspunkt(behandlingId: Long) =
         lagreEllerOppdater(hentBehandling(behandlingId).copy(overstyrtEndringstidspunkt = null))
 
