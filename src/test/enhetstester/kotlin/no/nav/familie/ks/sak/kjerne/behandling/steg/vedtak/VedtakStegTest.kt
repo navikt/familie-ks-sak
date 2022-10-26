@@ -50,7 +50,6 @@ class VedtakStegTest {
     @InjectMockKs
     private lateinit var vedtakSteg: VedtakSteg
 
-
     @Test
     fun `utførSteg skal kaste feil dersom behandlingen er henlagt`() {
         val mocketBehandling = mockk<Behandling>()

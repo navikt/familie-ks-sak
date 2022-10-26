@@ -1,6 +1,5 @@
 package no.nav.familie.ks.sak.kjerne.totrinnskontroll
 
-
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService

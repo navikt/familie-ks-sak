@@ -102,7 +102,7 @@ class TotrinnskontrollServiceTest {
 
         every { mocketTotrinnskontroll.erUgyldig() } returns false
         every { totrinnskontrollRepository.findByBehandlingAndAktiv(200) } returns mocketTotrinnskontroll
-        every { totrinnskontrollRepository.save(mocketTotrinnskontroll) } returns  mocketTotrinnskontroll
+        every { totrinnskontrollRepository.save(mocketTotrinnskontroll) } returns mocketTotrinnskontroll
         every { behandlingService.oppdaterStatusPåBehandling(200, BehandlingStatus.IVERKSETTER_VEDTAK) } returns mockk()
 
         totrinnskontrollService.besluttTotrinnskontroll(

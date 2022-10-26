@@ -81,7 +81,7 @@ class BehandlingServiceTest {
         every { arbeidsfordelingService.manueltOppdaterBehandlendeEnhet(any(), any()) } just runs
         every { statsborgerskapService.hentLand(any()) } returns "Norge"
         every { personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlag(any()) } returns
-                lagPersonopplysningGrunnlag(behandlingId = behandling.id, søkerPersonIdent = søkersIdent)
+            lagPersonopplysningGrunnlag(behandlingId = behandling.id, søkerPersonIdent = søkersIdent)
         every { vilkårsvurderingService.finnAktivVilkårsvurdering(any()) } returns null
         every { søknadGrunnlagService.finnAktiv(any()) } returns søknadsgrunnlagMockK
         mockkObject(SøknadGrunnlagMapper)

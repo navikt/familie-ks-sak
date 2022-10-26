@@ -1,6 +1,5 @@
 package no.nav.familie.ks.sak.integrasjon.oppgave
 
-
 import io.mockk.every
 import io.mockk.impl.annotations.InjectMockKs
 import io.mockk.impl.annotations.MockK
