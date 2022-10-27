@@ -56,8 +56,6 @@ class StegService(
                 // oppdaterte behandling med behandlede steg som KLAR slik at det kan behandles
                 hentBehandledeSteg(behandling, behandledeSteg).behandlingStegStatus = BehandlingStegStatus.KLAR
                 behandlingRepository.saveAndFlush(oppdaterBehandlingStatus(behandling, behandledeSteg))
-
-                hentStegInstans(behandledeSteg).gjenopptaSteg(behandlingId)
             }
             // AVBRUTT kan brukes kun for henleggelse
             // TILBAKEFØRT steg blir oppdatert til KLAR når det forrige steget er behandlet

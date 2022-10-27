@@ -49,10 +49,6 @@ class RegistrereSøknadSteg(
         secureLogger.info("Data mottatt ${søknadGrunnlag.søknad}")
     }
 
-    override fun gjenopptaSteg(behandlingId: Long) {
-        logger.info("Gjenopptar steg ${getBehandlingssteg().name} for behandling $behandlingId")
-    }
-
     companion object {
 
         private val logger: Logger = LoggerFactory.getLogger(RegistrereSøknadSteg::class.java)

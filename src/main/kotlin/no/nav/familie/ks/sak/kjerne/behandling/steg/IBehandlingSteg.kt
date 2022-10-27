@@ -13,9 +13,5 @@ interface IBehandlingSteg {
         throw Feil(message = "Implementasjon mangler, er i default method implementasjon for $behandlingId")
     }
 
-    fun gjenopptaSteg(behandlingId: Long) {
-        throw Feil(message = "Implementasjon mangler, er i default method implementasjon for $behandlingId")
-    }
-
     fun getBehandlingssteg(): BehandlingSteg
 }
