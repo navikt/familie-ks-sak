@@ -14,12 +14,14 @@ import no.nav.familie.ks.sak.data.BrukerContextUtil.mockBrukerContext
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagFagsak
 import no.nav.familie.ks.sak.data.lagPersonopplysningGrunnlag
+import no.nav.familie.ks.sak.data.randomAktør
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import no.nav.familie.ks.sak.kjerne.fagsak.FagsakService
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import no.nav.familie.ks.sak.kjerne.personident.Personident
+import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Kjønn
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
@@ -55,6 +57,9 @@ class TilgangServiceTest {
     private lateinit var mockFagsakService: FagsakService
 
     @MockK
+    private lateinit var personidentService: PersonidentService
+
+    @MockK
     private lateinit var mockPersonopplysningGrunnlagRepository: PersonopplysningGrunnlagRepository
 
     private val cacheManager = ConcurrentMapCacheManager()
@@ -88,7 +93,8 @@ class TilgangServiceTest {
             fagsakService = mockFagsakService,
             rolleConfig = rolleConfig,
             cacheManager = cacheManager,
-            auditLogger = auditLogger
+            auditLogger = auditLogger,
+            personidentService = personidentService
         )
     }
 
@@ -423,8 +429,10 @@ class TilgangServiceTest {
 
     @Test
     internal fun `validerTilgangTilFagsakForPerson - skal kaste RolleTilgangskontrollFeil dersom saksbehandler ikke har tilgang til fagsak`() {
+        val aktør = randomAktør("12345678910")
         every { mockIntegrasjonService.sjekkTilgangTilPersoner(any()) } returns Tilgang(false)
-        every { mockFagsakService.hentFagsakForPerson("12345678910") } returns fagsak
+        every { personidentService.hentOgLagreAktør("12345678910", any()) } returns aktør
+        every { mockFagsakService.hentFagsakForPerson(aktør) } returns fagsak
 
         val rolleTilgangskontrollFeil = assertThrows<RolleTilgangskontrollFeil> {
             tilgangService.validerTilgangTilHandlingOgFagsakForPerson(
@@ -439,8 +447,10 @@ class TilgangServiceTest {
 
     @Test
     internal fun `validerTilgangTilFagsakForPerson - skal ikke feile når saksbehandler har tilgang til fagsak`() {
+        val aktør = randomAktør("12345678910")
         every { mockIntegrasjonService.sjekkTilgangTilPersoner(any()) } returns Tilgang(true)
-        every { mockFagsakService.hentFagsakForPerson("12345678910") } returns fagsak
+        every { personidentService.hentOgLagreAktør("12345678910", any()) } returns aktør
+        every { mockFagsakService.hentFagsakForPerson(aktør) } returns fagsak
 
         tilgangService.validerTilgangTilHandlingOgFagsakForPerson(
             "12345678910",

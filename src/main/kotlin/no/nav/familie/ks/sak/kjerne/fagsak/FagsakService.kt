@@ -100,8 +100,11 @@ class FagsakService(
         )
     }
 
-    fun hentMinimalFagsakForPerson(personident: String): MinimalFagsakResponsDto =
-        lagMinimalFagsakResponsDto(hentFagsakForPerson(personident))
+    fun finnMinimalFagsakForPerson(personIdent: String): MinimalFagsakResponsDto? {
+        val aktør = personidentService.hentAktør(personIdent)
+        val fagsak = finnFagsakForPerson(aktør)
+        return fagsak?.let { lagMinimalFagsakResponsDto(it) }
+    }
 
     @Transactional
     fun lagre(fagsak: Fagsak): Fagsak {
@@ -194,10 +197,10 @@ class FagsakService(
         frontendFeilmelding = "Finner ikke fagsak med id $fagsakId"
     )
 
-    fun hentFagsakForPerson(personIdent: String): Fagsak {
-        val aktør = personidentService.hentOgLagreAktør(personIdent, true)
-        return fagsakRepository.finnFagsakForAktør(aktør) ?: throw Feil("Fant ikke fagsak på person")
-    }
+    fun finnFagsakForPerson(aktør: Aktør): Fagsak? = fagsakRepository.finnFagsakForAktør(aktør)
+
+    fun hentFagsakForPerson(aktør: Aktør): Fagsak =
+        finnFagsakForPerson(aktør) ?: throw Feil("Fant ikke fagsak på person")
 
     companion object {
         private val logger = LoggerFactory.getLogger(FagsakService::class.java)
