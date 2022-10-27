@@ -12,6 +12,7 @@ import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
+import no.nav.familie.ks.sak.statistikk.saksstatistikk.BehandlingTilstandService
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -26,6 +27,9 @@ class StegServiceUnitTest {
 
     @MockK
     private lateinit var behandlingRepository: BehandlingRepository
+
+    @MockK
+    private lateinit var behandlingTilstandService: BehandlingTilstandService
 
     @InjectMockKs
     private lateinit var stegService: StegService
