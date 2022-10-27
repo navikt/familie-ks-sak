@@ -1,14 +1,12 @@
 package no.nav.familie.ks.sak.kjerne.beregning
 
 import no.nav.familie.ks.sak.common.util.MånedPeriode
-
 import no.nav.familie.ks.sak.common.util.overlapperHeltEllerDelvisMed
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårsvurderingRepository
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelseRepository
 import no.nav.familie.ks.sak.kjerne.beregning.domene.EndretUtbetalingAndel
 import no.nav.familie.ks.sak.kjerne.beregning.domene.EndretUtbetalingAndelRepository
-
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.YearMonth
