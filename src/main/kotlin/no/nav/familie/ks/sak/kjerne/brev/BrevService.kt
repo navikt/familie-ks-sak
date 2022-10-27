@@ -20,6 +20,7 @@ import no.nav.familie.ks.sak.integrasjon.journalføring.domene.DbJournalpostType
 import no.nav.familie.ks.sak.integrasjon.journalføring.domene.JournalføringRepository
 import no.nav.familie.ks.sak.integrasjon.logger
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.ArbeidsfordelingService
+import no.nav.familie.ks.sak.kjerne.behandling.SettBehandlingPåVentService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
@@ -31,6 +32,7 @@ import no.nav.familie.prosessering.domene.TaskRepository
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import java.time.LocalDate
 import java.util.Properties
 
 @Service
@@ -44,7 +46,8 @@ class BrevService(
     private val utgåendeJournalføringService: UtgåendeJournalføringService,
     private val vilkårsvurderingService: VilkårsvurderingService,
     private val behandlingRepository: BehandlingRepository,
-    private val journalføringRepository: JournalføringRepository
+    private val journalføringRepository: JournalføringRepository,
+    private val settBehandlingPåVentService: SettBehandlingPåVentService
 ) {
 
     fun hentForhåndsvisningAvBrev(behandlingId: Long, manueltBrevDto: ManueltBrevDto): ByteArray {
@@ -170,7 +173,16 @@ class BrevService(
         if (
             manueltBrevDto.brevmal.setterBehandlingPåVent()
         ) {
-            // TODO: Legg inn kode som setter behandling på vent ved å bruke BehandlingstegTilstand og metode i StegService
+            settBehandlingPåVentService.settBehandlingPåVent(
+                behandlingId = behandlingId,
+                frist = LocalDate.now()
+                    .plusDays(
+                        manueltBrevDto.brevmal.ventefristDager(
+                            manuellFrist = manueltBrevDto.antallUkerSvarfrist?.toLong(),
+                            behandlingKategori = behandling.kategori
+                        )
+                    )
+            )
         }
     }
 
