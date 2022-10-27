@@ -14,6 +14,8 @@ class PeriodeTest {
     private val sisteDagIFebruar = LocalDate.of(2022, 2, 28)
     private val førsteMars = LocalDate.of(2022, 3, 1)
     private val sisteDagIMars = LocalDate.of(2022, 3, 31)
+    private val førsteApril = LocalDate.of(2022, 4, 1)
+    private val sisteDagIApril = LocalDate.of(2022, 4, 30)
 
     @Test
     fun `tilPerioder - Skal beholde datoer ved manipulering på tidslinje`() {
@@ -34,6 +36,35 @@ class PeriodeTest {
 
         Assertions.assertEquals(førsteMars, periode[2].fom)
         Assertions.assertEquals(sisteDagIMars, periode[2].tom)
+    }
+
+    @Test
+    fun `tilPerioder - skal finne fjernet perioder fra tidslinjer`() {
+        val tidslinjeA = listOf(Periode("a", førsteJanuar, sisteDagIMars)).tilTidslinje()
+        val tidslinjeB = listOf(
+            Periode("b", førsteJanuar, sisteDagIJanuar),
+            Periode("b", førsteMars, sisteDagIMars)
+        ).tilTidslinje()
+
+        val periode = tidslinjeA.kombinerMed(tidslinjeB) { v1, v2 -> if (v2 == null) v1 else null }.tilPerioder().filtrerIkkeNull()
+
+        Assertions.assertEquals(1, periode.size)
+
+        Assertions.assertEquals(førsteFebruar, periode[0].fom)
+        Assertions.assertEquals(sisteDagIFebruar, periode[0].tom)
+    }
+
+    @Test
+    fun `tilPerioder - skal finne lagret perioder fra tidslinjer`() {
+        val tidslinjeA = listOf(Periode("a", førsteJanuar, sisteDagIMars)).tilTidslinje()
+        val tidslinjeB = listOf(Periode("b", førsteJanuar, sisteDagIApril)).tilTidslinje()
+
+        val periode = tidslinjeB.kombinerMed(tidslinjeA) { v1, v2 -> if (v2 == null) v1 else null }.tilPerioder().filtrerIkkeNull()
+
+        Assertions.assertEquals(1, periode.size)
+
+        Assertions.assertEquals(førsteApril, periode[0].fom)
+        Assertions.assertEquals(sisteDagIApril, periode[0].tom)
     }
 
     @Test

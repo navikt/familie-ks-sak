@@ -73,6 +73,9 @@ class PersonopplysningGrunnlagService(
     fun hentSøker(behandlingId: Long): Person? =
         personopplysningGrunnlagRepository.findByBehandlingAndAktiv(behandlingId)?.søker
 
+    fun hentBarna(behandlingId: Long): List<Person>? =
+        personopplysningGrunnlagRepository.findByBehandlingAndAktiv(behandlingId)?.barna
+
     fun hentSøkersMålform(behandlingId: Long) = hentSøker(behandlingId)?.målform ?: Målform.NB
 
     fun lagreOgDeaktiverGammel(personopplysningGrunnlag: PersonopplysningGrunnlag): PersonopplysningGrunnlag {

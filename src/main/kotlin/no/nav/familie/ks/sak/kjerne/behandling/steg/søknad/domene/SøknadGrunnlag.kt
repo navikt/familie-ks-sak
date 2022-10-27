@@ -1,5 +1,7 @@
 package no.nav.familie.ks.sak.kjerne.behandling.steg.søknad.domene
 
+import no.nav.familie.ks.sak.api.dto.BarnMedOpplysningerDto
+import no.nav.familie.ks.sak.api.mapper.SøknadGrunnlagMapper.tilSøknadDto
 import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext
 import java.time.LocalDateTime
 import javax.persistence.Column
@@ -32,4 +34,7 @@ data class SøknadGrunnlag(
 
     @Column(name = "aktiv", nullable = false)
     var aktiv: Boolean = true
-)
+) {
+    fun hentUregistrerteBarn(): List<BarnMedOpplysningerDto> =
+        tilSøknadDto().barnaMedOpplysninger.filter { !it.erFolkeregistrert && it.inkludertISøknaden }
+}
