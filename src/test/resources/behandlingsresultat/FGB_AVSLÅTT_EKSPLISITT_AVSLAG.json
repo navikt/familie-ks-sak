@@ -1,0 +1,16 @@
+{
+  "beskrivelse": "FGB: Søknad for 1 barn med eksplisitt avslag",
+  "personer": [
+    {
+      "aktør": {
+        "fødselsnummer": "12345678911",
+        "aktørId": "1234567891100"
+      },
+      "søktForPerson": true,
+      "eksplisittAvslått": true,
+      "forrigeAndeler": [],
+      "andeler": []
+    }
+  ],
+  "forventetResultat": "AVSLÅTT"
+}

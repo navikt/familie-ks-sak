@@ -40,7 +40,6 @@ class BehandlingsresultatSteg(
             endretUtbetalingMedAndeler
         )
 
-        // TODO -- ikke komplett ennå, kommer i neste PR
         val resultat = behandlingsresultatService.utledBehandlingsresultat(behandling)
 
         // valider om behandlingsresultat samsvarer med Behandlingstype
