@@ -4,7 +4,9 @@ import io.mockk.every
 import io.mockk.impl.annotations.InjectMockKs
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
+import io.mockk.just
 import io.mockk.mockk
+import io.mockk.runs
 import io.mockk.slot
 import io.mockk.verify
 import no.nav.familie.kontrakter.felles.dokarkiv.v2.Førsteside
@@ -22,6 +24,7 @@ import no.nav.familie.ks.sak.integrasjon.journalføring.UtgåendeJournalføringS
 import no.nav.familie.ks.sak.integrasjon.journalføring.domene.JournalføringRepository
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.ArbeidsfordelingService
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.domene.ArbeidsfordelingPåBehandling
+import no.nav.familie.ks.sak.kjerne.behandling.SettBehandlingPåVentService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingKategori
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
@@ -71,6 +74,9 @@ class BrevServiceTest {
 
     @MockK
     private lateinit var taskRepository: TaskRepository
+
+    @MockK
+    private lateinit var settBehandlingPåVentService: SettBehandlingPåVentService
 
     @InjectMockKs
     private lateinit var brevService: BrevService
@@ -193,6 +199,8 @@ class BrevServiceTest {
             resultat = Resultat.IKKE_VURDERT
         )
 
+        every { settBehandlingPåVentService.settBehandlingPåVent(any(), any()) } just runs
+
         brevService.genererOgSendBrev(
             behandling.id,
             ManueltBrevDto(
@@ -247,6 +255,8 @@ class BrevServiceTest {
             behandling = behandling,
             resultat = Resultat.IKKE_VURDERT
         )
+
+        every { settBehandlingPåVentService.settBehandlingPåVent(any(), any()) } just runs
 
         brevService.genererOgSendBrev(
             behandling.id,
@@ -338,6 +348,8 @@ class BrevServiceTest {
             resultat = Resultat.IKKE_VURDERT
         )
 
+        every { settBehandlingPåVentService.settBehandlingPåVent(any(), any()) } just runs
+
         brevService.genererOgSendBrev(
             behandling.id,
             ManueltBrevDto(
@@ -348,5 +360,74 @@ class BrevServiceTest {
         )
 
         verify(exactly = 1) { vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(any()) }
+    }
+
+    @ParameterizedTest
+    @EnumSource(
+        value = Brevmal::class,
+        names = [
+            "FORLENGET_SVARTIDSBREV",
+            "INNHENTE_OPPLYSNINGER",
+            "VARSEL_OM_REVURDERING",
+            "INNHENTE_OPPLYSNINGER_ETTER_SØKNAD_I_SED",
+            "VARSEL_OM_REVURDERING_FRA_NASJONAL_TIL_EØS",
+            "VARSEL_OM_VEDTAK_ETTER_SØKNAD_I_SED",
+            "SVARTIDSBREV"
+        ],
+        mode = EnumSource.Mode.INCLUDE
+    )
+    fun `genererOgSendBrev - skal journalføre brev og sette behandling på vent`(
+        brevmal: Brevmal
+    ) {
+        every { personopplysningGrunnlagService.hentSøker(behandlingId = behandling.id) } returns lagPerson(
+            lagPersonopplysningGrunnlag(behandlingId = behandling.id, søkerPersonIdent = søker.aktivFødselsnummer()),
+            søker
+        )
+        every { arbeidsfordelingService.hentArbeidsfordelingPåBehandling(behandlingId = behandling.id) } returns ArbeidsfordelingPåBehandling(
+            behandlingId = behandling.id,
+            behandlendeEnhetNavn = "Behandlende enhet",
+            behandlendeEnhetId = "1234"
+        )
+
+        every { taskRepository.save(any()) } returns mockk()
+
+        every { behandlingRepository.hentBehandling(behandlingId = behandling.id) } returns behandling
+
+        every { brevKlient.genererBrev(any(), any()) } returns ByteArray(10)
+
+        every {
+            utgåendeJournalføringService.journalførDokument(
+                any(),
+                any(),
+                any(),
+                any(),
+                any(),
+                any(),
+                any()
+            )
+        } returns "0"
+
+        every { journalføringRepository.save(any()) } returns mockk()
+
+        every { vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(any()) } returns lagVilkårsvurderingMedSøkersVilkår(
+            søkerAktør = søker,
+            behandling = behandling,
+            resultat = Resultat.IKKE_VURDERT
+        )
+
+        every { settBehandlingPåVentService.settBehandlingPåVent(any(), any()) } just runs
+
+        brevService.genererOgSendBrev(
+            behandling.id,
+            ManueltBrevDto(
+                brevmal = brevmal,
+                mottakerIdent = søker.aktivFødselsnummer(),
+                barnasFødselsdager = emptyList(),
+                behandlingKategori = BehandlingKategori.NASJONAL,
+                antallUkerSvarfrist = 5
+            )
+        )
+
+        verify(exactly = 1) { settBehandlingPåVentService.settBehandlingPåVent(any(), any()) }
     }
 }

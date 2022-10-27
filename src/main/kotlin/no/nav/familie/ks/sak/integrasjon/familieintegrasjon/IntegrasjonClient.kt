@@ -236,6 +236,18 @@ class IntegrasjonClient(
         }
     }
 
+    fun oppdaterOppgave(oppgaveId: Long, oppdatertOppgave: Oppgave) {
+        val uri = URI.create("$integrasjonUri/oppgave/$oppgaveId/oppdater")
+
+        kallEksternTjenesteUtenRespons(
+            tjeneste = "oppgave",
+            uri = uri,
+            formål = "Oppdater oppgave"
+        ) {
+            patchForEntity<Ressurs<OppgaveResponse>>(uri, oppdatertOppgave)
+        }
+    }
+
     fun leggTilLogiskVedlegg(request: LogiskVedleggRequest, dokumentinfoId: String): LogiskVedleggResponse {
         val uri = URI.create("$integrasjonUri/arkiv/dokument/$dokumentinfoId/logiskVedlegg")
 
@@ -259,7 +271,10 @@ class IntegrasjonClient(
         }
     }
 
-    fun oppdaterJournalpost(request: OppdaterJournalpostRequestDto, journalpostId: String): OppdaterJournalpostResponse {
+    fun oppdaterJournalpost(
+        request: OppdaterJournalpostRequestDto,
+        journalpostId: String
+    ): OppdaterJournalpostResponse {
         val uri = URI.create("$integrasjonUri/arkiv/v2/$journalpostId")
 
         return kallEksternTjenesteRessurs(

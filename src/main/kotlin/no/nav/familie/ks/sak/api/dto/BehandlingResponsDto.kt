@@ -8,6 +8,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingStegStatus
+import no.nav.familie.ks.sak.kjerne.behandling.steg.VenteÅrsak
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Målform
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
 import java.time.LocalDate
@@ -26,6 +27,7 @@ data class BehandlingResponsDto(
     val endretAv: String,
     val arbeidsfordelingPåBehandling: ArbeidsfordelingResponsDto,
     val søknadsgrunnlag: SøknadDto?,
+    val behandlingPåVent: BehandlingPåVentResponsDto?,
     val personer: List<PersonResponsDto>,
     val personResultater: List<PersonResultatResponsDto>,
     val utbetalingsperioder: List<UtbetalingsperiodeResponsDto> = emptyList(),
@@ -38,7 +40,9 @@ data class BehandlingResponsDto(
 
 data class BehandlingStegTilstandResponsDto(
     val behandlingSteg: BehandlingSteg,
-    val behandlingStegStatus: BehandlingStegStatus
+    val behandlingStegStatus: BehandlingStegStatus,
+    val årsak: VenteÅrsak?,
+    val frist: LocalDate?
 )
 
 data class ArbeidsfordelingResponsDto(
