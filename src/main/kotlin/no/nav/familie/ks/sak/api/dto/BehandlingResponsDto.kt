@@ -27,6 +27,7 @@ data class BehandlingResponsDto(
     val endretAv: String,
     val arbeidsfordelingPåBehandling: ArbeidsfordelingResponsDto,
     val søknadsgrunnlag: SøknadDto?,
+    val behandlingPåVent: BehandlingPåVentDto?,
     val personer: List<PersonResponsDto>,
     val personResultater: List<PersonResultatResponsDto>,
     val utbetalingsperioder: List<UtbetalingsperiodeResponsDto> = emptyList(),

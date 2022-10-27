@@ -86,7 +86,7 @@ class BehandlingController(
     @PostMapping("/{behandlingId}/sett-på-vent")
     fun settBehandlingPåVent(
         @PathVariable behandlingId: Long,
-        settBehandlingPåVentDto: BehandlingPåVentDto
+        @RequestBody behandlingPåVentDto: BehandlingPåVentDto
     ): ResponseEntity<Ressurs<BehandlingResponsDto>> {
         tilgangService.validerTilgangTilHandling(
             minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
@@ -94,8 +94,8 @@ class BehandlingController(
         )
         settBehandlingPåVentService.settBehandlingPåVent(
             behandlingId,
-            settBehandlingPåVentDto.frist,
-            settBehandlingPåVentDto.årsak
+            behandlingPåVentDto.frist,
+            behandlingPåVentDto.årsak
         )
         return ResponseEntity.ok(Ressurs.success(behandlingService.lagBehandlingRespons(behandlingId = behandlingId)))
     }
@@ -103,7 +103,7 @@ class BehandlingController(
     @PutMapping("/{behandlingId}/sett-på-vent/oppdater")
     fun oppdaterBehandlingPåVent(
         @PathVariable behandlingId: Long,
-        settBehandlingPåVentDto: BehandlingPåVentDto
+        @RequestBody behandlingPåVentDto: BehandlingPåVentDto
     ): ResponseEntity<Ressurs<BehandlingResponsDto>> {
         tilgangService.validerTilgangTilHandling(
             minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
@@ -111,8 +111,8 @@ class BehandlingController(
         )
         settBehandlingPåVentService.oppdaterBehandlingPåVent(
             behandlingId,
-            settBehandlingPåVentDto.frist,
-            settBehandlingPåVentDto.årsak
+            behandlingPåVentDto.frist,
+            behandlingPåVentDto.årsak
         )
         return ResponseEntity.ok(Ressurs.success(behandlingService.lagBehandlingRespons(behandlingId = behandlingId)))
     }
