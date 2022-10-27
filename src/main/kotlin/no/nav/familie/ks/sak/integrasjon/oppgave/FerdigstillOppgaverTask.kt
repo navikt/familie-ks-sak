@@ -2,7 +2,7 @@ package no.nav.familie.ks.sak.integrasjon.oppgave
 
 import no.nav.familie.kontrakter.felles.objectMapper
 import no.nav.familie.kontrakter.felles.oppgave.Oppgavetype
-import no.nav.familie.ks.sak.api.dto.FerdigstillOppgaveDTO
+import no.nav.familie.ks.sak.api.dto.FerdigstillOppgaveDto
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.prosessering.AsyncTaskStep
 import no.nav.familie.prosessering.TaskStepBeskrivelse
@@ -21,7 +21,7 @@ class FerdigstillOppgaverTask(
 ) : AsyncTaskStep {
 
     override fun doTask(task: Task) {
-        val ferdigstillOppgave = objectMapper.readValue(task.payload, FerdigstillOppgaveDTO::class.java)
+        val ferdigstillOppgave = objectMapper.readValue(task.payload, FerdigstillOppgaveDto::class.java)
         val behandling = behandlingService.hentBehandling(ferdigstillOppgave.behandlingId)
 
         oppgaveService.ferdigstillOppgaver(
@@ -37,7 +37,7 @@ class FerdigstillOppgaverTask(
             return Task(
                 type = TASK_STEP_TYPE,
                 payload = objectMapper.writeValueAsString(
-                    FerdigstillOppgaveDTO(
+                    FerdigstillOppgaveDto(
                         behandlingId = behandlingId,
                         oppgavetype = oppgavetype
                     )

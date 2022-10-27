@@ -138,15 +138,4 @@ class TotrinnskontrollServiceTest {
         verify(exactly = 1) { mocketEksisterendeTotrinnskontroll.id }
         verify(exactly = 1) { mocketEksisterendeTotrinnskontroll.aktiv = false }
     }
-
-    @Test
-    fun `lagreEllerOppdater skal lagre totrinnskontroll`() {
-        val mocketTotrinnskontroll = mockk<Totrinnskontroll>()
-        every { totrinnskontrollRepository.save(mocketTotrinnskontroll) } returns mocketTotrinnskontroll
-
-        val totrinnskontroll = totrinnskontrollService.lagreEllerOppdater(mocketTotrinnskontroll)
-
-        assertThat(totrinnskontroll, Is(notNullValue()))
-        assertThat(totrinnskontroll, Is(mocketTotrinnskontroll))
-    }
 }

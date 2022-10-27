@@ -56,7 +56,7 @@ class TotrinnskontrollService(
             )
         }
 
-        lagreEllerOppdater(totrinnskontroll)
+        totrinnskontrollRepository.save(totrinnskontroll)
 
         behandlingService.oppdaterStatusPåBehandling(
             behandlingId = behandlingId,
@@ -76,9 +76,6 @@ class TotrinnskontrollService(
         logger.info("${SikkerhetContext.hentSaksbehandlerNavn()} oppretter totrinnskontroll $totrinnskontroll")
         return totrinnskontrollRepository.save(totrinnskontroll)
     }
-
-    fun lagreEllerOppdater(totrinnskontroll: Totrinnskontroll): Totrinnskontroll =
-        totrinnskontrollRepository.save(totrinnskontroll)
 
     companion object {
 

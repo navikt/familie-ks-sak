@@ -149,7 +149,7 @@ class BehandlingServiceTest {
     @Test
     fun `oppdaterStatusPåBehandling skal sette oppdatert status på behandling`() {
         every { behandlingRepository.hentBehandling(behandling.id) } returns behandling
-        every { behandlingRepository.save(behandling) } returns behandling
+        every { behandlingRepository.save(any()) } returnsArgument 0
 
         assertEquals(behandling.status, BehandlingStatus.UTREDES)
 
@@ -159,6 +159,6 @@ class BehandlingServiceTest {
         assertEquals(oppdatertBehandling.status, BehandlingStatus.FATTER_VEDTAK)
 
         verify(exactly = 1) { behandlingRepository.hentBehandling(oppdatertBehandling.id) }
-        verify(exactly = 1) { behandlingRepository.save(oppdatertBehandling) }
+        verify(exactly = 1) { behandlingRepository.save(any()) }
     }
 }

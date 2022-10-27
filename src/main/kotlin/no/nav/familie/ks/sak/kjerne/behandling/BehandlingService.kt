@@ -88,7 +88,6 @@ class BehandlingService(
         val behandling = hentBehandling(behandlingId)
         logger.info("${SikkerhetContext.hentSaksbehandlerNavn()} endrer status på behandling $behandlingId fra ${behandling.status} til $status")
 
-        behandling.status = status
         return lagreEllerOppdater(behandling.copy(status = status))
     }
 
