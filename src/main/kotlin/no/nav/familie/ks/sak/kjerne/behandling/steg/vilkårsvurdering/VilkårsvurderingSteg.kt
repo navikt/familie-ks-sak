@@ -41,7 +41,8 @@ class VilkårsvurderingSteg(
 
         if (behandling.opprettetÅrsak == BehandlingÅrsak.DØDSFALL) {
             validerAtIngenVilkårErSattEtterSøkersDød(
-                personopplysningGrunnlag = personopplysningGrunnlag, vilkårsvurdering = vilkårsvurdering
+                personopplysningGrunnlag = personopplysningGrunnlag,
+                vilkårsvurdering = vilkårsvurdering
             )
         }
 
@@ -66,7 +67,9 @@ class VilkårsvurderingSteg(
                 gradertBarnehageplass || deltBosted
             }.map { vilkårResultat ->
                 TidslinjePeriodeMedDato(
-                    verdi = vilkårResultat, fom = vilkårResultat.periodeFom, tom = vilkårResultat.periodeTom
+                    verdi = vilkårResultat,
+                    fom = vilkårResultat.periodeFom,
+                    tom = vilkårResultat.periodeTom
                 )
             }.validerIngenOverlapp("Det er lagt inn gradert barnehageplass og delt bosted for samme periode.")
         }

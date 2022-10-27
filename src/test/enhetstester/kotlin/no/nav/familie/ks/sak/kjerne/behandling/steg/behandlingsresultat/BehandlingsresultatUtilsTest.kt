@@ -1,5 +1,6 @@
 package no.nav.familie.ks.sak.kjerne.behandling.steg.behandlingsresultat
 
+import no.nav.familie.kontrakter.felles.objectMapper
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingType
@@ -9,6 +10,7 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertDoesNotThrow
 import org.junit.jupiter.api.assertThrows
+import java.io.File
 
 internal class BehandlingsresultatUtilsTest {
 
@@ -43,4 +45,31 @@ internal class BehandlingsresultatUtilsTest {
         assertEquals(feilmelding, exception.message)
         assertEquals(feilmelding, exception.frontendFeilmelding)
     }
+
+    @Test
+    fun `utledBehandlingsresuiltatBasertPåYtelsePersonResulater skal utlede behandlingsresultat og sjekke at det matcher forventet resulat`() {
+        val testmappe = File("./src/test/resources/behandlingsresultat/")
+        testmappe.listFiles()?.forEach { fil ->
+            val testData = objectMapper.readValue(fil.readText(), BehandlingsresulatTestData::class.java)
+            val forventetResultat = testData.forventetResultat
+            println("Tester: ${testData.beskrivelse}, forventet resultat: $forventetResultat")
+            val ytelsePersonerMedResulater = YtelsePersonUtils.utledYtelsePersonerMedResultat(
+                behandlingsresultatPersoner = testData.personer,
+                uregistrerteBarn = testData.uregistrerteBarn
+            )
+            val ytelsePersonResultater =
+                YtelsePersonUtils.oppdaterYtelsePersonResultaterVedOpphør(ytelsePersonerMedResulater)
+            val behandlingsresultat =
+                BehandlingsresultatUtils.utledBehandlingsresuiltatBasertPåYtelsePersonResulater(ytelsePersonResultater)
+            assertEquals(forventetResultat, behandlingsresultat)
+        }
+    }
 }
+
+data class BehandlingsresulatTestData(
+    val beskrivelse: String,
+    val kommentar: String? = "",
+    val personer: List<BehandlingsresultatPerson>,
+    val uregistrerteBarn: List<String> = emptyList(),
+    val forventetResultat: Behandlingsresultat
+)
