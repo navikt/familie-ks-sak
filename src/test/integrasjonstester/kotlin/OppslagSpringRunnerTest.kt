@@ -14,6 +14,8 @@ import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagFagsak
 import no.nav.familie.ks.sak.data.lagVilkårsvurderingMedSøkersVilkår
 import no.nav.familie.ks.sak.data.randomAktør
+import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.domene.ArbeidsfordelingPåBehandling
+import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.domene.ArbeidsfordelingPåBehandlingRepository
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
@@ -85,6 +87,9 @@ abstract class OppslagSpringRunnerTest {
 
     @Autowired
     private lateinit var fagsakRepository: FagsakRepository
+
+    @Autowired
+    private lateinit var arbeidsfordelingPåBehandlingRepository: ArbeidsfordelingPåBehandlingRepository
 
     @Autowired
     private lateinit var behandlingRepository: BehandlingRepository
@@ -227,6 +232,10 @@ abstract class OppslagSpringRunnerTest {
 
     fun lagreBehandling(behandling: Behandling): Behandling =
         behandlingRepository.saveAndFlush(behandling)
+
+    fun lagreArbeidsfordeling(arbeidsfordelingPåBehandling: ArbeidsfordelingPåBehandling) {
+        arbeidsfordelingPåBehandlingRepository.saveAndFlush(arbeidsfordelingPåBehandling)
+    }
 
     companion object {
         protected fun initLoggingEventListAppender(): ListAppender<ILoggingEvent> =

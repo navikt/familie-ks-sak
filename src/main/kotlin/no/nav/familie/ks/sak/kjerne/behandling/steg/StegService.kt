@@ -7,6 +7,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStegTilstand
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat
+import no.nav.familie.ks.sak.statistikk.saksstatistikk.BehandlingTilstandService
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -15,7 +16,8 @@ import java.time.LocalDate
 @Service
 class StegService(
     private val steg: List<IBehandlingSteg>,
-    private val behandlingRepository: BehandlingRepository
+    private val behandlingRepository: BehandlingRepository,
+    private val behandlingTilstandService: BehandlingTilstandService
 ) {
 
     @Transactional
@@ -73,6 +75,9 @@ class StegService(
                         "med steg $behandlingSteg med status ${behandlingStegTilstand.behandlingStegStatus}"
                 )
         }
+
+        // statistikk til datavarehus
+        behandlingTilstandService.opprettSendingAvBehandlingensTilstand(behandlingId, behandlingStegTilstand)
     }
 
     private fun valider(behandling: Behandling, behandledeSteg: BehandlingSteg) {
