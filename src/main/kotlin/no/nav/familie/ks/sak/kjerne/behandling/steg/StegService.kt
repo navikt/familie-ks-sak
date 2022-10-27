@@ -20,57 +20,57 @@ class StegService(
 ) {
 
     @Transactional
-    fun utførSteg(behandlingId: Long, behandledeSteg: BehandlingSteg, behandlingStegDto: BehandlingStegDto? = null) {
+    fun utførSteg(behandlingId: Long, behandlingSteg: BehandlingSteg, behandlingStegDto: BehandlingStegDto? = null) {
         val behandling = behandlingRepository.hentAktivBehandling(behandlingId)
-        val behandledeStegTilstand = hentStegTilstandForBehandlingSteg(behandling, behandledeSteg)
+        val behandlingStegTilstand = hentStegTilstandForBehandlingSteg(behandling, behandlingSteg)
 
-        valider(behandling, behandledeSteg)
+        valider(behandling, behandlingSteg)
 
-        when (behandledeStegTilstand.behandlingStegStatus) {
+        when (behandlingStegTilstand.behandlingStegStatus) {
             BehandlingStegStatus.KLAR -> {
                 // utfør steg, kaller utfør metode i tilsvarende steg klasser
-                behandlingStegDto?.let { hentStegInstans(behandledeSteg).utførSteg(behandlingId, it) }
-                    ?: hentStegInstans(behandledeSteg).utførSteg(behandlingId)
+                behandlingStegDto?.let { hentStegInstans(behandlingSteg).utførSteg(behandlingId, it) }
+                    ?: hentStegInstans(behandlingSteg).utførSteg(behandlingId)
                 // oppdaterer nåværendeSteg status til utført
-                behandledeStegTilstand.behandlingStegStatus = BehandlingStegStatus.UTFØRT
+                behandlingStegTilstand.behandlingStegStatus = BehandlingStegStatus.UTFØRT
                 // Henter neste steg basert på sekvens og årsak
-                val nesteSteg = hentNesteSteg(behandling, behandledeSteg)
+                val nesteSteg = hentNesteSteg(behandling, behandlingSteg)
                 // legger til neste steg hvis steget er ny, eller oppdaterer eksisterende steg status til KLAR
                 behandling.behandlingStegTilstand.singleOrNull { it.behandlingSteg == nesteSteg }
                     ?.let { it.behandlingStegStatus = BehandlingStegStatus.KLAR }
                     ?: behandling.leggTilNesteSteg(nesteSteg)
 
                 // oppdaterer behandling med behandlingstegtilstand og behandling status
-                behandlingRepository.saveAndFlush(oppdaterBehandlingStatus(behandling, behandledeSteg))
+                behandlingRepository.saveAndFlush(oppdaterBehandlingStatus(behandling, behandlingSteg))
             }
 
             BehandlingStegStatus.UTFØRT -> {
                 // tilbakefører alle stegene som er etter behandlede steg
-                behandling.behandlingStegTilstand.filter { it.behandlingSteg.sekvens > behandledeSteg.sekvens }
+                behandling.behandlingStegTilstand.filter { it.behandlingSteg.sekvens > behandlingSteg.sekvens }
                     .forEach { it.behandlingStegStatus = BehandlingStegStatus.TILBAKEFØRT }
 
                 // oppdaterte behandling med behandlede steg som KLAR slik at det kan behandles
-                hentStegTilstandForBehandlingSteg(behandling, behandledeSteg).behandlingStegStatus =
+                hentStegTilstandForBehandlingSteg(behandling, behandlingSteg).behandlingStegStatus =
                     BehandlingStegStatus.KLAR
-                behandlingRepository.saveAndFlush(oppdaterBehandlingStatus(behandling, behandledeSteg))
+                behandlingRepository.saveAndFlush(oppdaterBehandlingStatus(behandling, behandlingSteg))
 
-                utførSteg(behandlingId, behandledeSteg, behandlingStegDto)
+                utførSteg(behandlingId, behandlingSteg, behandlingStegDto)
             }
 
             BehandlingStegStatus.VENTER -> {
                 // oppdaterte behandling med behandlede steg som KLAR slik at det kan behandles
-                hentStegTilstandForBehandlingSteg(behandling, behandledeSteg).behandlingStegStatus =
+                hentStegTilstandForBehandlingSteg(behandling, behandlingSteg).behandlingStegStatus =
                     BehandlingStegStatus.KLAR
-                behandlingRepository.saveAndFlush(oppdaterBehandlingStatus(behandling, behandledeSteg))
+                behandlingRepository.saveAndFlush(oppdaterBehandlingStatus(behandling, behandlingSteg))
 
-                hentStegInstans(behandledeSteg).gjenopptaSteg(behandlingId)
+                hentStegInstans(behandlingSteg).gjenopptaSteg(behandlingId)
             }
             // AVBRUTT kan brukes kun for henleggelse
             // TILBAKEFØRT steg blir oppdatert til KLAR når det forrige steget er behandlet
             BehandlingStegStatus.AVBRUTT, BehandlingStegStatus.TILBAKEFØRT ->
                 throw Feil(
                     "Kan ikke behandle behandling $behandlingId " +
-                        "med steg $behandledeSteg med status ${behandledeStegTilstand.behandlingStegStatus}"
+                        "med steg $behandlingSteg med status ${behandlingStegTilstand.behandlingStegStatus}"
                 )
         }
     }
@@ -116,47 +116,47 @@ class StegService(
         }
     }
 
-    fun settBehandlingstegTilstandPåVent(
+    fun settBehandlingstegPåVent(
         behandling: Behandling,
-        frist: LocalDate,
-        årsak: BehandlingSettPåVentÅrsak
+        frist: LocalDate
     ) {
         validerBehandlingKanSettesPåVent(behandling, frist)
         val behandlingStegTilstand = hentStegTilstandForBehandlingSteg(behandling, behandling.steg)
 
-        logger.info("Setter behandling ${behandling.id} på vent med frist $frist og årsak $årsak")
+        logger.info("Setter behandling ${behandling.id} på vent med frist $frist og årsak ${VenteÅrsak.AVVENTER_DOKUMENTASJON}")
 
         behandlingStegTilstand.frist = frist
-        behandlingStegTilstand.årsak = årsak
+        behandlingStegTilstand.årsak = VenteÅrsak.AVVENTER_DOKUMENTASJON
         behandlingStegTilstand.behandlingStegStatus = BehandlingStegStatus.VENTER
         behandlingRepository.saveAndFlush(behandling)
     }
 
-    fun oppdaterBehandlingstegTilstandPåVent(
+    fun oppdaterBehandlingstegFrist(
         behandling: Behandling,
-        frist: LocalDate,
-        årsak: BehandlingSettPåVentÅrsak
-    ): Pair<LocalDate?, BehandlingSettPåVentÅrsak?> {
+        frist: LocalDate
+    ): LocalDate? {
         val behandlingStegTilstand = hentStegTilstandForBehandlingSteg(behandling, behandling.steg)
 
-        if (frist == behandlingStegTilstand.frist && årsak == behandlingStegTilstand.årsak) {
-            throw FunksjonellFeil("Behandlingen er allerede satt på vent med frist $frist og årsak $årsak.")
+        if (frist == behandlingStegTilstand.frist) {
+            throw FunksjonellFeil("Behandlingen er allerede satt på vent med frist $frist")
         }
 
-        logger.info("Oppdater ventende behandling ${behandling.id} med frist $frist og årsak $årsak")
+        logger.info("Oppdater ventende behandling ${behandling.id} med frist $frist")
 
         val gammelFrist = behandlingStegTilstand.frist
-        val gammelÅrsak = behandlingStegTilstand.årsak
 
         behandlingStegTilstand.frist = frist
-        behandlingStegTilstand.årsak = årsak
         behandlingRepository.saveAndFlush(behandling)
 
-        return Pair(gammelFrist, gammelÅrsak)
+        return gammelFrist
     }
 
-    fun gjenopptaBehandlingstegTilstandPåVent(behandling: Behandling) {
+    fun gjenopptaBehandlingsteg(behandling: Behandling) {
         val behandlingStegTilstand = hentStegTilstandForBehandlingSteg(behandling, behandling.steg)
+
+        if (behandlingStegTilstand.behandlingStegStatus != BehandlingStegStatus.VENTER) {
+            throw FunksjonellFeil("Behandlingen er ikke på vent og kan derfor ikke gjenopptas.")
+        }
 
         logger.info("Gjenopptar behandling ${behandling.id}")
 
@@ -205,10 +205,10 @@ class StegService(
 
     private fun hentStegTilstandForBehandlingSteg(
         behandling: Behandling,
-        behandledeSteg: BehandlingSteg
+        behandlingSteg: BehandlingSteg
     ): BehandlingStegTilstand =
-        behandling.behandlingStegTilstand.singleOrNull { it.behandlingSteg == behandledeSteg }
-            ?: throw Feil("$behandledeSteg finnes ikke i Behandling ${behandling.id}")
+        behandling.behandlingStegTilstand.singleOrNull { it.behandlingSteg == behandlingSteg }
+            ?: throw Feil("$behandlingSteg finnes ikke i Behandling ${behandling.id}")
 
     private fun hentStegInstans(behandlingssteg: BehandlingSteg): IBehandlingSteg =
         steg.singleOrNull { it.getBehandlingssteg() == behandlingssteg }

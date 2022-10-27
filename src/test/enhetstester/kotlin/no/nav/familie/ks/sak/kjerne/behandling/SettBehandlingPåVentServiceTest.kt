@@ -11,8 +11,8 @@ import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.integrasjon.oppgave.OppgaveService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
-import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSettPåVentÅrsak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.StegService
+import no.nav.familie.ks.sak.kjerne.behandling.steg.VenteÅrsak
 import no.nav.familie.ks.sak.kjerne.logg.LoggService
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -40,7 +40,7 @@ class SettBehandlingPåVentServiceTest {
     @Test
     fun `settBehandlingPåVent - skal sette behandling på vent, oppdatere logg og forlenge frist på oppgave`() {
         every { behandlingRepository.hentBehandling(any()) } returns behandling
-        every { stegService.settBehandlingstegTilstandPåVent(any(), any(), any()) } just runs
+        every { stegService.settBehandlingstegPåVent(any(), any(), any()) } just runs
         every { loggService.opprettSettPåVentLogg(any(), any()) } just runs
         every { oppgaveService.forlengFristÅpneOppgaverPåBehandling(any(), any()) } just runs
 
@@ -48,11 +48,11 @@ class SettBehandlingPåVentServiceTest {
         settBehandlingPåVentService.settBehandlingPåVent(
             behandling.id,
             frist,
-            BehandlingSettPåVentÅrsak.AVVENTER_DOKUMENTASJON
+            VenteÅrsak.AVVENTER_DOKUMENTASJON
         )
 
         verify(exactly = 1) { behandlingRepository.hentBehandling(any()) }
-        verify(exactly = 1) { stegService.settBehandlingstegTilstandPåVent(any(), any(), any()) }
+        verify(exactly = 1) { stegService.settBehandlingstegPåVent(any(), any(), any()) }
         verify(exactly = 1) { loggService.opprettSettPåVentLogg(any(), any()) }
         verify(exactly = 1) { oppgaveService.forlengFristÅpneOppgaverPåBehandling(any(), any()) }
     }
@@ -63,21 +63,21 @@ class SettBehandlingPåVentServiceTest {
         val frist = LocalDate.now().plusWeeks(2)
 
         every { behandlingRepository.hentBehandling(any()) } returns behandling
-        every { stegService.oppdaterBehandlingstegTilstandPåVent(any(), any(), any()) } returns Pair(
+        every { stegService.oppdaterBehandlingstegFrist(any(), any(), any()) } returns Pair(
             gammelFrist,
-            BehandlingSettPåVentÅrsak.AVVENTER_DOKUMENTASJON
+            VenteÅrsak.AVVENTER_DOKUMENTASJON
         )
         every { loggService.opprettOppdaterVentingLogg(behandling, null, frist) } just runs
         every { oppgaveService.forlengFristÅpneOppgaverPåBehandling(any(), any()) } just runs
 
-        settBehandlingPåVentService.oppdaterBehandlingPåVent(
+        settBehandlingPåVentService.oppdaterFrist(
             behandling.id,
             frist,
-            BehandlingSettPåVentÅrsak.AVVENTER_DOKUMENTASJON
+            VenteÅrsak.AVVENTER_DOKUMENTASJON
         )
 
         verify(exactly = 1) { behandlingRepository.hentBehandling(any()) }
-        verify(exactly = 1) { stegService.oppdaterBehandlingstegTilstandPåVent(any(), any(), any()) }
+        verify(exactly = 1) { stegService.oppdaterBehandlingstegFrist(any(), any(), any()) }
         verify(exactly = 1) { loggService.opprettOppdaterVentingLogg(any(), any(), any()) }
         verify(exactly = 1) { oppgaveService.forlengFristÅpneOppgaverPåBehandling(any(), any()) }
     }
@@ -85,7 +85,7 @@ class SettBehandlingPåVentServiceTest {
     @Test
     fun `gjenopptaBehandlingPåVent - skal gjenoppta ventende behandling, oppdatere logg og sette ny frist på oppgave`() {
         every { behandlingRepository.hentBehandling(any()) } returns behandling
-        every { stegService.gjenopptaBehandlingstegTilstandPåVent(any()) } just runs
+        every { stegService.gjenopptaBehandlingsteg(any()) } just runs
         every { loggService.opprettBehandlingGjenopptattLogg(behandling) } just runs
         every { oppgaveService.settFristÅpneOppgaverPåBehandlingTil(any(), any()) } just runs
 
@@ -94,7 +94,7 @@ class SettBehandlingPåVentServiceTest {
         )
 
         verify(exactly = 1) { behandlingRepository.hentBehandling(any()) }
-        verify(exactly = 1) { stegService.gjenopptaBehandlingstegTilstandPåVent(any()) }
+        verify(exactly = 1) { stegService.gjenopptaBehandlingsteg(any()) }
         verify(exactly = 1) { loggService.opprettBehandlingGjenopptattLogg(any()) }
         verify(exactly = 1) { oppgaveService.settFristÅpneOppgaverPåBehandlingTil(any(), any()) }
     }

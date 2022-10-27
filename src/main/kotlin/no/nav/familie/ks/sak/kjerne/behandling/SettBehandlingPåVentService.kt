@@ -2,10 +2,11 @@ package no.nav.familie.ks.sak.kjerne.behandling
 
 import no.nav.familie.ks.sak.integrasjon.oppgave.OppgaveService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
-import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSettPåVentÅrsak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.StegService
+import no.nav.familie.ks.sak.kjerne.behandling.steg.VenteÅrsak
 import no.nav.familie.ks.sak.kjerne.logg.LoggService
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDate
 import java.time.Period
 
@@ -17,12 +18,13 @@ class SettBehandlingPåVentService(
     private val oppgaveService: OppgaveService
 ) {
 
-    fun settBehandlingPåVent(behandlingId: Long, frist: LocalDate, årsak: BehandlingSettPåVentÅrsak) {
+    @Transactional
+    fun settBehandlingPåVent(behandlingId: Long, frist: LocalDate) {
         val behandling = behandlingRepository.hentBehandling(behandlingId)
 
-        stegService.settBehandlingstegTilstandPåVent(behandling, frist, årsak)
+        stegService.settBehandlingstegPåVent(behandling, frist)
 
-        loggService.opprettSettPåVentLogg(behandling, årsak.visningsnavn)
+        loggService.opprettSettPåVentLogg(behandling, VenteÅrsak.AVVENTER_DOKUMENTASJON.visningsnavn)
 
         oppgaveService.forlengFristÅpneOppgaverPåBehandling(
             behandlingId = behandling.id,
@@ -30,32 +32,32 @@ class SettBehandlingPåVentService(
         )
     }
 
-    fun oppdaterBehandlingPåVent(
+    @Transactional
+    fun oppdaterFrist(
         behandlingId: Long,
-        frist: LocalDate,
-        årsak: BehandlingSettPåVentÅrsak
+        frist: LocalDate
     ) {
         val behandling = behandlingRepository.hentBehandling(behandlingId)
 
-        val gammelFristOgÅrsak =
-            stegService.oppdaterBehandlingstegTilstandPåVent(behandling, frist, årsak)
+        val gammelFrist =
+            stegService.oppdaterBehandlingstegFrist(behandling, frist)
 
         loggService.opprettOppdaterVentingLogg(
             behandling = behandling,
-            endretFrist = if (frist != gammelFristOgÅrsak.first) frist else null,
-            endretÅrsak = if (årsak != gammelFristOgÅrsak.second) årsak.visningsnavn else null
+            endretFrist = if (frist != gammelFrist) frist else null
         )
 
         oppgaveService.forlengFristÅpneOppgaverPåBehandling(
             behandlingId = behandlingId,
-            forlengelse = Period.between(gammelFristOgÅrsak.first, frist)
+            forlengelse = Period.between(gammelFrist, frist)
         )
     }
 
+    @Transactional
     fun gjenopptaBehandlingPåVent(behandlingId: Long) {
         val behandling = behandlingRepository.hentBehandling(behandlingId)
 
-        stegService.gjenopptaBehandlingstegTilstandPåVent(behandling)
+        stegService.gjenopptaBehandlingsteg(behandling)
 
         loggService.opprettBehandlingGjenopptattLogg(behandling)
 

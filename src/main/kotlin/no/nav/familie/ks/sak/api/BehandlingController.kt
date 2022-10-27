@@ -94,25 +94,23 @@ class BehandlingController(
         )
         settBehandlingPåVentService.settBehandlingPåVent(
             behandlingId,
-            behandlingPåVentDto.frist,
-            behandlingPåVentDto.årsak
+            behandlingPåVentDto.frist
         )
         return ResponseEntity.ok(Ressurs.success(behandlingService.lagBehandlingRespons(behandlingId = behandlingId)))
     }
 
     @PutMapping("/{behandlingId}/sett-på-vent/oppdater")
-    fun oppdaterBehandlingPåVent(
+    fun oppdaterPåVentFrist(
         @PathVariable behandlingId: Long,
         @RequestBody behandlingPåVentDto: BehandlingPåVentDto
     ): ResponseEntity<Ressurs<BehandlingResponsDto>> {
         tilgangService.validerTilgangTilHandling(
             minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
-            handling = "endre behandling på vent"
+            handling = "oppdatere frist på ventende behandling"
         )
-        settBehandlingPåVentService.oppdaterBehandlingPåVent(
+        settBehandlingPåVentService.oppdaterFrist(
             behandlingId,
-            behandlingPåVentDto.frist,
-            behandlingPåVentDto.årsak
+            behandlingPåVentDto.frist
         )
         return ResponseEntity.ok(Ressurs.success(behandlingService.lagBehandlingRespons(behandlingId = behandlingId)))
     }

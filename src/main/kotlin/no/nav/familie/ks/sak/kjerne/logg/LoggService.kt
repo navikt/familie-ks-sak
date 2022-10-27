@@ -131,16 +131,10 @@ class LoggService(
         )
     }
 
-    fun opprettOppdaterVentingLogg(behandling: Behandling, endretÅrsak: String?, endretFrist: LocalDate?) {
+    fun opprettOppdaterVentingLogg(behandling: Behandling, endretFrist: LocalDate?) {
         val tekst = when {
-            endretFrist != null && endretÅrsak != null ->
-                "Frist og årsak er endret til $endretÅrsak og ${endretFrist.tilKortString()}"
-
             endretFrist != null ->
                 "Frist er endret til ${endretFrist.tilKortString()}"
-
-            endretÅrsak != null ->
-                "Årsak er endret til $endretÅrsak"
 
             else -> {
                 logger.info("Ingen endringer tilknyttet frist eller årsak på ventende behandling. Oppretter ikke logginnslag.")

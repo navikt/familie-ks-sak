@@ -42,10 +42,10 @@ class StegServiceUnitTest {
 
         val frist = LocalDate.now().plusWeeks(1)
 
-        stegService.settBehandlingstegTilstandPåVent(
+        stegService.settBehandlingstegPåVent(
             behandling,
             frist,
-            BehandlingSettPåVentÅrsak.AVVENTER_DOKUMENTASJON
+            VenteÅrsak.AVVENTER_DOKUMENTASJON
         )
 
         val behandling = behandlingSlot.captured
@@ -53,7 +53,7 @@ class StegServiceUnitTest {
 
         assertEquals(BehandlingStegStatus.VENTER, behandlingStegTilstand.behandlingStegStatus)
         assertEquals(frist, behandlingStegTilstand.frist)
-        assertEquals(BehandlingSettPåVentÅrsak.AVVENTER_DOKUMENTASJON, behandlingStegTilstand.årsak)
+        assertEquals(VenteÅrsak.AVVENTER_DOKUMENTASJON, behandlingStegTilstand.årsak)
     }
 
     @Test
@@ -62,17 +62,17 @@ class StegServiceUnitTest {
 
         val frist = LocalDate.now().plusWeeks(1)
 
-        stegService.settBehandlingstegTilstandPåVent(
+        stegService.settBehandlingstegPåVent(
             behandling,
             frist,
-            BehandlingSettPåVentÅrsak.AVVENTER_DOKUMENTASJON
+            VenteÅrsak.AVVENTER_DOKUMENTASJON
         )
 
         val funksjonellFeil = assertThrows<FunksjonellFeil> {
-            stegService.settBehandlingstegTilstandPåVent(
+            stegService.settBehandlingstegPåVent(
                 behandling,
                 frist,
-                BehandlingSettPåVentÅrsak.AVVENTER_DOKUMENTASJON
+                VenteÅrsak.AVVENTER_DOKUMENTASJON
             )
         }
 
@@ -86,10 +86,10 @@ class StegServiceUnitTest {
         val frist = LocalDate.now().minusWeeks(1)
 
         val funksjonellFeil = assertThrows<FunksjonellFeil> {
-            stegService.settBehandlingstegTilstandPåVent(
+            stegService.settBehandlingstegPåVent(
                 behandling,
                 frist,
-                BehandlingSettPåVentÅrsak.AVVENTER_DOKUMENTASJON
+                VenteÅrsak.AVVENTER_DOKUMENTASJON
             )
         }
 
@@ -108,10 +108,10 @@ class StegServiceUnitTest {
         val frist = LocalDate.now().plusWeeks(1)
 
         val funksjonellFeil = assertThrows<FunksjonellFeil> {
-            stegService.settBehandlingstegTilstandPåVent(
+            stegService.settBehandlingstegPåVent(
                 behandling,
                 frist,
-                BehandlingSettPåVentÅrsak.AVVENTER_DOKUMENTASJON
+                VenteÅrsak.AVVENTER_DOKUMENTASJON
             )
         }
 
@@ -130,10 +130,10 @@ class StegServiceUnitTest {
         val frist = LocalDate.now().plusWeeks(1)
 
         val funksjonellFeil = assertThrows<FunksjonellFeil> {
-            stegService.settBehandlingstegTilstandPåVent(
+            stegService.settBehandlingstegPåVent(
                 behandling,
                 frist,
-                BehandlingSettPåVentÅrsak.AVVENTER_DOKUMENTASJON
+                VenteÅrsak.AVVENTER_DOKUMENTASJON
             )
         }
 
@@ -151,18 +151,18 @@ class StegServiceUnitTest {
 
         val frist = LocalDate.now().plusWeeks(1)
 
-        stegService.settBehandlingstegTilstandPåVent(
+        stegService.settBehandlingstegPåVent(
             behandling,
             frist,
-            BehandlingSettPåVentÅrsak.AVVENTER_DOKUMENTASJON
+            VenteÅrsak.AVVENTER_DOKUMENTASJON
         )
 
         val nyFrist = LocalDate.now().plusMonths(1)
 
-        val gamleVerdier = stegService.oppdaterBehandlingstegTilstandPåVent(
+        val gamleVerdier = stegService.oppdaterBehandlingstegFrist(
             behandling,
             nyFrist,
-            BehandlingSettPåVentÅrsak.AVVENTER_DOKUMENTASJON
+            VenteÅrsak.AVVENTER_DOKUMENTASJON
         )
 
         val behandling = behandlingSlot.captured
@@ -170,7 +170,7 @@ class StegServiceUnitTest {
 
         assertEquals(BehandlingStegStatus.VENTER, behandlingStegTilstand.behandlingStegStatus)
         assertEquals(nyFrist, behandlingStegTilstand.frist)
-        assertEquals(BehandlingSettPåVentÅrsak.AVVENTER_DOKUMENTASJON, behandlingStegTilstand.årsak)
+        assertEquals(VenteÅrsak.AVVENTER_DOKUMENTASJON, behandlingStegTilstand.årsak)
 
         assertEquals(frist, gamleVerdier.first)
     }
@@ -181,22 +181,22 @@ class StegServiceUnitTest {
 
         val frist = LocalDate.now().plusWeeks(1)
 
-        stegService.settBehandlingstegTilstandPåVent(
+        stegService.settBehandlingstegPåVent(
             behandling,
             frist,
-            BehandlingSettPåVentÅrsak.AVVENTER_DOKUMENTASJON
+            VenteÅrsak.AVVENTER_DOKUMENTASJON
         )
 
         val funksjonellFeil = assertThrows<FunksjonellFeil> {
-            stegService.oppdaterBehandlingstegTilstandPåVent(
+            stegService.oppdaterBehandlingstegFrist(
                 behandling,
                 frist,
-                BehandlingSettPåVentÅrsak.AVVENTER_DOKUMENTASJON
+                VenteÅrsak.AVVENTER_DOKUMENTASJON
             )
         }
 
         assertEquals(
-            "Behandlingen er allerede satt på vent med frist $frist og årsak ${BehandlingSettPåVentÅrsak.AVVENTER_DOKUMENTASJON}.",
+            "Behandlingen er allerede satt på vent med frist $frist og årsak ${VenteÅrsak.AVVENTER_DOKUMENTASJON}.",
             funksjonellFeil.message
         )
 
@@ -209,7 +209,7 @@ class StegServiceUnitTest {
 
         every { behandlingRepository.saveAndFlush(capture(behandlingSlot)) } returns mockk()
 
-        stegService.gjenopptaBehandlingstegTilstandPåVent(behandling)
+        stegService.gjenopptaBehandlingsteg(behandling)
 
         val behandling = behandlingSlot.captured
         val behandlingStegTilstand = behandling.behandlingStegTilstand.single { it.behandlingSteg == behandling.steg }

@@ -6,7 +6,7 @@ import no.nav.familie.kontrakter.felles.objectMapper
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.util.tilDagMånedÅr
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingKategori
-import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSettPåVentÅrsak
+import no.nav.familie.ks.sak.kjerne.behandling.steg.VenteÅrsak
 import java.time.LocalDate
 
 interface BrevDto {
@@ -216,7 +216,7 @@ enum class Brevmal(val erVedtaksbrev: Boolean, val apiNavn: String, val visnings
             INNHENTE_OPPLYSNINGER_ETTER_SØKNAD_I_SED,
             VARSEL_OM_REVURDERING_FRA_NASJONAL_TIL_EØS,
             VARSEL_OM_VEDTAK_ETTER_SØKNAD_I_SED,
-            SVARTIDSBREV -> BehandlingSettPåVentÅrsak.AVVENTER_DOKUMENTASJON
+            SVARTIDSBREV -> VenteÅrsak.AVVENTER_DOKUMENTASJON
 
             else -> throw Feil("Venteårsak ikke definert for brevtype $this")
         }

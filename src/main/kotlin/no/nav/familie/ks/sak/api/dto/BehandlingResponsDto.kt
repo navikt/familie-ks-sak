@@ -6,9 +6,9 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingType
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
-import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSettPåVentÅrsak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingStegStatus
+import no.nav.familie.ks.sak.kjerne.behandling.steg.VenteÅrsak
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Målform
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
 import java.time.LocalDate
@@ -41,7 +41,7 @@ data class BehandlingResponsDto(
 data class BehandlingStegTilstandResponsDto(
     val behandlingSteg: BehandlingSteg,
     val behandlingStegStatus: BehandlingStegStatus,
-    val årsak: BehandlingSettPåVentÅrsak?,
+    val årsak: VenteÅrsak?,
     val frist: LocalDate?
 )
 

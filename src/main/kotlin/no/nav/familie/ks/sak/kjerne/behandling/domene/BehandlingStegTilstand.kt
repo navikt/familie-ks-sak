@@ -2,9 +2,9 @@ package no.nav.familie.ks.sak.kjerne.behandling.domene
 
 import com.fasterxml.jackson.annotation.JsonIgnore
 import no.nav.familie.ks.sak.common.entitet.BaseEntitet
-import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSettPåVentÅrsak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingStegStatus
+import no.nav.familie.ks.sak.kjerne.behandling.steg.VenteÅrsak
 import java.time.LocalDate
 import java.util.Objects
 import javax.persistence.Column
@@ -46,7 +46,7 @@ data class BehandlingStegTilstand(
 
     @Enumerated(EnumType.STRING)
     @Column(name = "aarsak")
-    var årsak: BehandlingSettPåVentÅrsak? = null,
+    var årsak: VenteÅrsak? = null,
 
     @Column(name = "frist")
     var frist: LocalDate? = null

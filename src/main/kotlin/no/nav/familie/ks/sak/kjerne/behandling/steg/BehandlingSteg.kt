@@ -69,6 +69,6 @@ enum class BehandlingStegStatus(private val beskrivelse: String) {
     AVBRUTT("Steget er avbrutt, skal brukes kun for henleggelse");
 }
 
-enum class BehandlingSettPåVentÅrsak(val visningsnavn: String) {
+enum class VenteÅrsak(val visningsnavn: String) {
     AVVENTER_DOKUMENTASJON("Avventer dokumentasjon")
 }

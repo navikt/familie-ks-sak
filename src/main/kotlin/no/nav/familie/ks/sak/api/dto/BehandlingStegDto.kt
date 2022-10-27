@@ -1,7 +1,7 @@
 package no.nav.familie.ks.sak.api.dto
 
 import no.nav.familie.kontrakter.felles.objectMapper
-import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSettPåVentÅrsak
+import no.nav.familie.ks.sak.kjerne.behandling.steg.VenteÅrsak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.søknad.domene.SøknadGrunnlag
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Målform
 import no.nav.familie.prosessering.domene.Task
@@ -40,4 +40,6 @@ data class BarnMedOpplysningerDto(
     val erFolkeregistrert: Boolean = true
 )
 
-data class BehandlingPåVentDto(val frist: LocalDate, val årsak: BehandlingSettPåVentÅrsak)
+data class BehandlingPåVentDto(val frist: LocalDate)
+
+data class BehandlingPåVentResponsDto(val frist: LocalDate, val årsak: VenteÅrsak)
