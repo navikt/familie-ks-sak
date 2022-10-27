@@ -199,7 +199,7 @@ class BrevServiceTest {
             resultat = Resultat.IKKE_VURDERT
         )
 
-        every { settBehandlingPåVentService.settBehandlingPåVent(any(), any(), any()) } just runs
+        every { settBehandlingPåVentService.settBehandlingPåVent(any(), any()) } just runs
 
         brevService.genererOgSendBrev(
             behandling.id,
@@ -256,7 +256,7 @@ class BrevServiceTest {
             resultat = Resultat.IKKE_VURDERT
         )
 
-        every { settBehandlingPåVentService.settBehandlingPåVent(any(), any(), any()) } just runs
+        every { settBehandlingPåVentService.settBehandlingPåVent(any(), any()) } just runs
 
         brevService.genererOgSendBrev(
             behandling.id,
@@ -348,7 +348,7 @@ class BrevServiceTest {
             resultat = Resultat.IKKE_VURDERT
         )
 
-        every { settBehandlingPåVentService.settBehandlingPåVent(any(), any(), any()) } just runs
+        every { settBehandlingPåVentService.settBehandlingPåVent(any(), any()) } just runs
 
         brevService.genererOgSendBrev(
             behandling.id,
@@ -415,7 +415,7 @@ class BrevServiceTest {
             resultat = Resultat.IKKE_VURDERT
         )
 
-        every { settBehandlingPåVentService.settBehandlingPåVent(any(), any(), any()) } just runs
+        every { settBehandlingPåVentService.settBehandlingPåVent(any(), any()) } just runs
 
         brevService.genererOgSendBrev(
             behandling.id,
@@ -428,6 +428,6 @@ class BrevServiceTest {
             )
         )
 
-        verify(exactly = 1) { settBehandlingPåVentService.settBehandlingPåVent(any(), any(), any()) }
+        verify(exactly = 1) { settBehandlingPåVentService.settBehandlingPåVent(any(), any()) }
     }
 }

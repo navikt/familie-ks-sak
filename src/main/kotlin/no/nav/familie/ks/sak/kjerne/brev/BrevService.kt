@@ -181,8 +181,7 @@ class BrevService(
                             manuellFrist = manueltBrevDto.antallUkerSvarfrist?.toLong(),
                             behandlingKategori = behandling.kategori
                         )
-                    ),
-                årsak = manueltBrevDto.brevmal.venteårsak()
+                    )
             )
         }
     }

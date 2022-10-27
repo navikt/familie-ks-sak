@@ -2,7 +2,7 @@ package no.nav.familie.ks.sak.api.mapper
 
 import no.nav.familie.kontrakter.felles.personopplysning.KJOENN
 import no.nav.familie.ks.sak.api.dto.ArbeidsfordelingResponsDto
-import no.nav.familie.ks.sak.api.dto.BehandlingPåVentDto
+import no.nav.familie.ks.sak.api.dto.BehandlingPåVentResponsDto
 import no.nav.familie.ks.sak.api.dto.BehandlingResponsDto
 import no.nav.familie.ks.sak.api.dto.BehandlingStegTilstandResponsDto
 import no.nav.familie.ks.sak.api.dto.PersonResponsDto
@@ -47,7 +47,7 @@ object BehandlingMapper {
             personResultater = personResultater?.map { VilkårsvurderingMapper.lagPersonResultatRespons(it) }
                 ?: emptyList(),
             behandlingPåVent = behandling.behandlingStegTilstand.singleOrNull { it.behandlingStegStatus == BehandlingStegStatus.VENTER }
-                ?.let { BehandlingPåVentDto(it.frist!!, it.årsak!!) }
+                ?.let { BehandlingPåVentResponsDto(it.frist!!, it.årsak!!) }
         )
 
     private fun lagArbeidsfordelingRespons(arbeidsfordelingPåBehandling: ArbeidsfordelingPåBehandling) =

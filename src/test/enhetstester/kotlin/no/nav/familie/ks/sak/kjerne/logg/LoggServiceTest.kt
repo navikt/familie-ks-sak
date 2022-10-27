@@ -261,41 +261,6 @@ class LoggServiceTest {
     }
 
     @Test
-    fun `opprettOppdaterVentingLogg - skal lagre logg på at årsak og frist på en behandlings SettPåVent er endret`() {
-        val behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD)
-        val nyFrist = LocalDate.now()
-        val slot = slot<Logg>()
-
-        every { loggRepository.save(capture(slot)) } returns mockk()
-
-        loggService.opprettOppdaterVentingLogg(behandling, "Testårsak", nyFrist)
-
-        val lagretLogg = slot.captured
-
-        assertThat(lagretLogg.behandlingId, Is(behandling.id))
-        assertThat(lagretLogg.type, Is(LoggType.VENTENDE_BEHANDLING_ENDRET))
-        assertThat(lagretLogg.tekst, Is("Frist og årsak er endret til Testårsak og ${nyFrist.tilKortString()}"))
-    }
-
-    @Test
-    fun `opprettOppdaterVentingLogg - skal lagre logg på at årsak på en behandlings SettPåVent er endret`() {
-        val behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD)
-        val slot = slot<Logg>()
-
-        every { loggRepository.save(capture(slot)) } returns mockk()
-
-        loggService.opprettOppdaterVentingLogg(behandling = behandling, endretÅrsak = "Testårsak", endretFrist = null)
-
-        verify(exactly = 1) { loggRepository.save(slot.captured) }
-
-        val lagretLogg = slot.captured
-
-        assertThat(lagretLogg.behandlingId, Is(behandling.id))
-        assertThat(lagretLogg.type, Is(LoggType.VENTENDE_BEHANDLING_ENDRET))
-        assertThat(lagretLogg.tekst, Is("Årsak er endret til Testårsak"))
-    }
-
-    @Test
     fun `opprettOppdaterVentingLogg - skal lagre logg på at frist på en behandlings SettPåVent er endret`() {
         val behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD)
         val nyFrist = LocalDate.now()
@@ -303,7 +268,7 @@ class LoggServiceTest {
 
         every { loggRepository.save(capture(slot)) } returns mockk()
 
-        loggService.opprettOppdaterVentingLogg(behandling = behandling, endretÅrsak = null, endretFrist = nyFrist)
+        loggService.opprettOppdaterVentingLogg(behandling = behandling, endretFrist = nyFrist)
 
         verify(exactly = 1) { loggRepository.save(slot.captured) }
 
