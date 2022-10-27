@@ -343,4 +343,19 @@ class LoggServiceTest {
         assertThat(lagretLogg.type, Is(LoggType.BREV_IKKE_DISTRIBUERT_UKJENT_DØDSBO))
         assertThat(lagretLogg.tekst, Is("ukjent dødsboaddresse"))
     }
+
+    @Test
+    fun `opprettSendTilBeslutterLogg - skal lagre logg på at behandling ble sendt til beslutter`() {
+        val behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD)
+        val slot = slot<Logg>()
+
+        every { loggRepository.save(capture(slot)) } returns mockk()
+
+        loggService.opprettSendTilBeslutterLogg(behandling.id)
+
+        val lagretLogg = slot.captured
+
+        assertThat(lagretLogg.behandlingId, Is(behandling.id))
+        assertThat(lagretLogg.type, Is(LoggType.SEND_TIL_BESLUTTER))
+    }
 }
