@@ -5,7 +5,7 @@ import io.mockk.every
 import io.mockk.just
 import io.mockk.runs
 import no.nav.familie.ks.sak.OppslagSpringRunnerTest
-import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.domene.ArbeidsfordelingPåBehandling
+import no.nav.familie.ks.sak.data.lagarbeidsfordelingPåBehandling
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.domene.ArbeidsfordelingPåBehandlingRepository
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg
 import no.nav.familie.ks.sak.kjerne.behandling.steg.RegistrerPersonGrunnlagSteg
@@ -40,15 +40,7 @@ class BehandlingTilstandServiceTest : OppslagSpringRunnerTest() {
         every { registerPersonGrunnlagSteg.utførSteg(any()) } just runs
         every { registerPersonGrunnlagSteg.getBehandlingssteg() } answers { callOriginal() }
         opprettSøkerFagsakOgBehandling()
-        arbeidsfordelingPåBehandlingRepository.save(
-            ArbeidsfordelingPåBehandling(
-                id = 123,
-                behandlingId = behandling.id,
-                behandlendeEnhetId = "4321",
-                behandlendeEnhetNavn = "Test enhet",
-                manueltOverstyrt = false
-            )
-        )
+        lagreArbeidsfordeling(lagarbeidsfordelingPåBehandling(behandlingId = behandling.id))
         opprettPersonopplysningGrunnlagOgPersonForBehandling(behandlingId = behandling.id, lagBarn = true)
         opprettVilkårsvurdering(søker, behandling, Resultat.IKKE_VURDERT)
         stegService.utførSteg(behandling.id, BehandlingSteg.REGISTRERE_PERSONGRUNNLAG)
@@ -63,15 +55,7 @@ class BehandlingTilstandServiceTest : OppslagSpringRunnerTest() {
         opprettSøkerFagsakOgBehandling()
         every { registerPersonGrunnlagSteg.utførSteg(any()) } just runs
         every { registerPersonGrunnlagSteg.getBehandlingssteg() } answers { callOriginal() }
-        arbeidsfordelingPåBehandlingRepository.save(
-            ArbeidsfordelingPåBehandling(
-                id = 123,
-                behandlingId = behandling.id,
-                behandlendeEnhetId = "4321",
-                behandlendeEnhetNavn = "Test enhet",
-                manueltOverstyrt = false
-            )
-        )
+        lagreArbeidsfordeling(lagarbeidsfordelingPåBehandling(behandlingId = behandling.id))
         opprettPersonopplysningGrunnlagOgPersonForBehandling(behandlingId = behandling.id, lagBarn = true)
         opprettVilkårsvurdering(søker, behandling, Resultat.IKKE_VURDERT)
         stegService.utførSteg(behandling.id, BehandlingSteg.REGISTRERE_PERSONGRUNNLAG)
