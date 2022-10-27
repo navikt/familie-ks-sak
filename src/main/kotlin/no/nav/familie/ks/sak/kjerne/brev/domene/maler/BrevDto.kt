@@ -6,7 +6,6 @@ import no.nav.familie.kontrakter.felles.objectMapper
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.util.tilDagMånedÅr
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingKategori
-import no.nav.familie.ks.sak.kjerne.behandling.steg.VenteÅrsak
 import java.time.LocalDate
 
 interface BrevDto {
@@ -206,19 +205,6 @@ enum class Brevmal(val erVedtaksbrev: Boolean, val apiNavn: String, val visnings
             FORLENGET_SVARTIDSBREV -> manuellFrist ?: throw Feil("Ventefrist var ikke satt for $this")
 
             else -> throw Feil("Ventefrist ikke definert for brevtype $this")
-        }
-
-    fun venteårsak() =
-        when (this) {
-            FORLENGET_SVARTIDSBREV,
-            INNHENTE_OPPLYSNINGER,
-            VARSEL_OM_REVURDERING,
-            INNHENTE_OPPLYSNINGER_ETTER_SØKNAD_I_SED,
-            VARSEL_OM_REVURDERING_FRA_NASJONAL_TIL_EØS,
-            VARSEL_OM_VEDTAK_ETTER_SØKNAD_I_SED,
-            SVARTIDSBREV -> VenteÅrsak.AVVENTER_DOKUMENTASJON
-
-            else -> throw Feil("Venteårsak ikke definert for brevtype $this")
         }
 }
 

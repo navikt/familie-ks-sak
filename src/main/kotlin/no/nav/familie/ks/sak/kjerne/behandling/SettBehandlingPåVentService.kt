@@ -1,7 +1,11 @@
 package no.nav.familie.ks.sak.kjerne.behandling
 
+import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.integrasjon.oppgave.OppgaveService
+import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
+import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
+import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingStegStatus
 import no.nav.familie.ks.sak.kjerne.behandling.steg.StegService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.VenteÅrsak
 import no.nav.familie.ks.sak.kjerne.logg.LoggService
@@ -21,6 +25,7 @@ class SettBehandlingPåVentService(
     @Transactional
     fun settBehandlingPåVent(behandlingId: Long, frist: LocalDate) {
         val behandling = behandlingRepository.hentBehandling(behandlingId)
+        validerBehandlingKanSettesPåVent(behandling, frist)
 
         stegService.settBehandlingstegPåVent(behandling, frist)
 
@@ -56,8 +61,13 @@ class SettBehandlingPåVentService(
     @Transactional
     fun gjenopptaBehandlingPåVent(behandlingId: Long) {
         val behandling = behandlingRepository.hentBehandling(behandlingId)
+        val behandlingStegTilstand = behandling.behandlingStegTilstand.single { it.behandlingSteg == behandling.steg }
 
-        stegService.gjenopptaBehandlingsteg(behandling)
+        if (behandlingStegTilstand.behandlingStegStatus != BehandlingStegStatus.VENTER) {
+            throw FunksjonellFeil("Behandlingen er ikke på vent og kan derfor ikke gjenopptas.")
+        }
+
+        stegService.utførSteg(behandling.id, behandling.steg)
 
         loggService.opprettBehandlingGjenopptattLogg(behandling)
 
@@ -65,5 +75,35 @@ class SettBehandlingPåVentService(
             behandlingId = behandlingId,
             nyFrist = LocalDate.now().plusDays(1)
         )
+    }
+
+    private fun validerBehandlingKanSettesPåVent(behandling: Behandling, frist: LocalDate) {
+        when {
+            behandling.behandlingStegTilstand.any { it.behandlingStegStatus == BehandlingStegStatus.VENTER } -> {
+                throw FunksjonellFeil(
+                    melding = "Behandlingen er allerede satt på vent."
+                )
+            }
+
+            frist.isBefore(LocalDate.now()) -> {
+                throw FunksjonellFeil(
+                    melding = "Frist for å vente på behandling ${behandling.id} er satt før dagens dato.",
+                    frontendFeilmelding = "Fristen er satt før dagens dato."
+                )
+            }
+
+            behandling.status == BehandlingStatus.AVSLUTTET -> {
+                throw FunksjonellFeil(
+                    melding = "Behandling ${behandling.id} er avsluttet og kan ikke settes på vent.",
+                    frontendFeilmelding = "Kan ikke sette en avsluttet behandling på vent."
+                )
+            }
+
+            !behandling.aktiv -> {
+                throw FunksjonellFeil(
+                    "Behandling ${behandling.id} er ikke aktiv og kan ikke settes på vent."
+                )
+            }
+        }
     }
 }

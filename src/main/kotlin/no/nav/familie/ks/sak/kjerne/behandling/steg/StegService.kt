@@ -5,7 +5,6 @@ import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
-import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStegTilstand
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat
 import org.slf4j.LoggerFactory
@@ -59,11 +58,12 @@ class StegService(
 
             BehandlingStegStatus.VENTER -> {
                 // oppdaterte behandling med behandlede steg som KLAR slik at det kan behandles
-                hentStegTilstandForBehandlingSteg(behandling, behandlingSteg).behandlingStegStatus =
-                    BehandlingStegStatus.KLAR
-                behandlingRepository.saveAndFlush(oppdaterBehandlingStatus(behandling, behandlingSteg))
+                logger.info("Gjenopptar behandling ${behandling.id}")
 
-                hentStegInstans(behandlingSteg).gjenopptaSteg(behandlingId)
+                behandlingStegTilstand.behandlingStegStatus = BehandlingStegStatus.KLAR
+                behandlingStegTilstand.frist = null
+                behandlingStegTilstand.årsak = null
+                behandlingRepository.saveAndFlush(oppdaterBehandlingStatus(behandling, behandlingSteg))
             }
             // AVBRUTT kan brukes kun for henleggelse
             // TILBAKEFØRT steg blir oppdatert til KLAR når det forrige steget er behandlet
@@ -120,7 +120,6 @@ class StegService(
         behandling: Behandling,
         frist: LocalDate
     ) {
-        validerBehandlingKanSettesPåVent(behandling, frist)
         val behandlingStegTilstand = hentStegTilstandForBehandlingSteg(behandling, behandling.steg)
 
         logger.info("Setter behandling ${behandling.id} på vent med frist $frist og årsak ${VenteÅrsak.AVVENTER_DOKUMENTASJON}")
@@ -149,51 +148,6 @@ class StegService(
         behandlingRepository.saveAndFlush(behandling)
 
         return gammelFrist
-    }
-
-    fun gjenopptaBehandlingsteg(behandling: Behandling) {
-        val behandlingStegTilstand = hentStegTilstandForBehandlingSteg(behandling, behandling.steg)
-
-        if (behandlingStegTilstand.behandlingStegStatus != BehandlingStegStatus.VENTER) {
-            throw FunksjonellFeil("Behandlingen er ikke på vent og kan derfor ikke gjenopptas.")
-        }
-
-        logger.info("Gjenopptar behandling ${behandling.id}")
-
-        behandlingStegTilstand.frist = null
-        behandlingStegTilstand.årsak = null
-        behandlingStegTilstand.behandlingStegStatus = BehandlingStegStatus.KLAR
-        behandlingRepository.saveAndFlush(behandling)
-    }
-
-    private fun validerBehandlingKanSettesPåVent(behandling: Behandling, frist: LocalDate) {
-        when {
-            behandling.behandlingStegTilstand.any { it.behandlingStegStatus == BehandlingStegStatus.VENTER } -> {
-                throw FunksjonellFeil(
-                    melding = "Behandlingen er allerede satt på vent."
-                )
-            }
-
-            frist.isBefore(LocalDate.now()) -> {
-                throw FunksjonellFeil(
-                    melding = "Frist for å vente på behandling ${behandling.id} er satt før dagens dato.",
-                    frontendFeilmelding = "Fristen er satt før dagens dato."
-                )
-            }
-
-            behandling.status == BehandlingStatus.AVSLUTTET -> {
-                throw FunksjonellFeil(
-                    melding = "Behandling ${behandling.id} er avsluttet og kan ikke settes på vent.",
-                    frontendFeilmelding = "Kan ikke sette en avsluttet behandling på vent."
-                )
-            }
-
-            !behandling.aktiv -> {
-                throw FunksjonellFeil(
-                    "Behandling ${behandling.id} er ikke aktiv og kan ikke settes på vent."
-                )
-            }
-        }
     }
 
     private fun hentNesteStegEtterBeslutteVedtakBasertPåBehandlingsresultat(resultat: Behandlingsresultat): BehandlingSteg {

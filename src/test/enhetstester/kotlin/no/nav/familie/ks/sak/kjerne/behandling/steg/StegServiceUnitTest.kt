@@ -11,10 +11,8 @@ import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
-import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
@@ -53,88 +51,6 @@ class StegServiceUnitTest {
         assertEquals(BehandlingStegStatus.VENTER, behandlingStegTilstand.behandlingStegStatus)
         assertEquals(frist, behandlingStegTilstand.frist)
         assertEquals(VenteÅrsak.AVVENTER_DOKUMENTASJON, behandlingStegTilstand.årsak)
-    }
-
-    @Test
-    fun `settBehandlingstegTilstandPåVent - skal kaste feil når behandling allerede er satt på vent`() {
-        every { behandlingRepository.saveAndFlush(any()) } returns mockk()
-
-        val frist = LocalDate.now().plusWeeks(1)
-
-        stegService.settBehandlingstegPåVent(
-            behandling,
-            frist
-        )
-
-        val funksjonellFeil = assertThrows<FunksjonellFeil> {
-            stegService.settBehandlingstegPåVent(
-                behandling,
-                frist
-            )
-        }
-
-        assertEquals("Behandlingen er allerede satt på vent.", funksjonellFeil.message)
-    }
-
-    @Test
-    fun `settBehandlingstegTilstandPåVent - skal kaste feil når frist er før dagens dato`() {
-        every { behandlingRepository.saveAndFlush(any()) } returns mockk()
-
-        val frist = LocalDate.now().minusWeeks(1)
-
-        val funksjonellFeil = assertThrows<FunksjonellFeil> {
-            stegService.settBehandlingstegPåVent(
-                behandling,
-                frist
-            )
-        }
-
-        assertEquals(
-            "Frist for å vente på behandling ${behandling.id} er satt før dagens dato.",
-            funksjonellFeil.message
-        )
-    }
-
-    @Test
-    fun `settBehandlingstegTilstandPåVent - skal kaste feil når behandlingen er avsluttet`() {
-        every { behandlingRepository.saveAndFlush(any()) } returns mockk()
-
-        behandling.status = BehandlingStatus.AVSLUTTET
-
-        val frist = LocalDate.now().plusWeeks(1)
-
-        val funksjonellFeil = assertThrows<FunksjonellFeil> {
-            stegService.settBehandlingstegPåVent(
-                behandling,
-                frist
-            )
-        }
-
-        assertEquals(
-            "Behandling ${behandling.id} er avsluttet og kan ikke settes på vent.",
-            funksjonellFeil.message
-        )
-    }
-
-    @Test
-    fun `settBehandlingstegTilstandPåVent - skal kaste feil når behandlingen ikke er aktiv`() {
-        every { behandlingRepository.saveAndFlush(any()) } returns mockk()
-
-        behandling.aktiv = false
-
-        val frist = LocalDate.now().plusWeeks(1)
-
-        val funksjonellFeil = assertThrows<FunksjonellFeil> {
-            stegService.settBehandlingstegPåVent(
-                behandling,
-                frist
-            )
-        }
-
-        assertEquals(
-            "Behandling ${behandling.id} er ikke aktiv og kan ikke settes på vent.",
-            funksjonellFeil.message
-        )
     }
 
     @Test
@@ -191,23 +107,5 @@ class StegServiceUnitTest {
         )
 
         verify(exactly = 1) { behandlingRepository.saveAndFlush(any()) }
-    }
-
-    @Test
-    fun `gjenopptaBehandlingstegTilstandPåVent - skal resette frist og årsak samt sette behandlingstegStatus til KLAR`() {
-        val behandlingSlot = slot<Behandling>()
-
-        every { behandlingRepository.saveAndFlush(capture(behandlingSlot)) } returns mockk()
-
-        stegService.settBehandlingstegPåVent(behandling, LocalDate.now().plusWeeks(1))
-
-        stegService.gjenopptaBehandlingsteg(behandling)
-
-        val behandling = behandlingSlot.captured
-        val behandlingStegTilstand = behandling.behandlingStegTilstand.single { it.behandlingSteg == behandling.steg }
-
-        assertEquals(BehandlingStegStatus.KLAR, behandlingStegTilstand.behandlingStegStatus)
-        assertNull(behandlingStegTilstand.frist)
-        assertNull(behandlingStegTilstand.årsak)
     }
 }
