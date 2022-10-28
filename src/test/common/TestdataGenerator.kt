@@ -307,7 +307,7 @@ fun lagVilkårResultat(
     vilkårType: Vilkår = Vilkår.BOSATT_I_RIKET,
     resultat: Resultat = Resultat.OPPFYLT,
     periodeFom: LocalDate = LocalDate.now().minusMonths(3),
-    periodeTom: LocalDate = LocalDate.now(),
+    periodeTom: LocalDate? = LocalDate.now(),
     begrunnelse: String = "",
     behandlingId: Long,
     utdypendeVilkårsvurderinger: List<UtdypendeVilkårsvurdering> = emptyList()
