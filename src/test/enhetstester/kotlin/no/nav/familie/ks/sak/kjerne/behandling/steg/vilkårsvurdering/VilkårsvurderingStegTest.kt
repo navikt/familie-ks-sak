@@ -4,8 +4,10 @@ import io.mockk.every
 import io.mockk.impl.annotations.InjectMockKs
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
+import io.mockk.just
 import io.mockk.mockk
 import io.mockk.mockkObject
+import io.mockk.runs
 import io.mockk.verify
 import no.nav.familie.ks.sak.api.dto.BarnMedOpplysningerDto
 import no.nav.familie.ks.sak.api.dto.SøkerMedOpplysningerDto
@@ -27,8 +29,10 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Utd
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
+import no.nav.familie.ks.sak.kjerne.beregning.BeregningService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
 import org.hamcrest.MatcherAssert.assertThat
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
@@ -51,6 +55,9 @@ class VilkårsvurderingStegTest {
     @MockK
     private lateinit var søknadGrunnlagService: SøknadGrunnlagService
 
+    @MockK
+    private lateinit var beregningService: BeregningService
+
     @InjectMockKs
     private lateinit var vilkårsvurderingSteg: VilkårsvurderingSteg
 
@@ -59,6 +66,11 @@ class VilkårsvurderingStegTest {
     private val fagsak = lagFagsak(søker)
 
     private val behandling = lagBehandling(fagsak, opprettetÅrsak = BehandlingÅrsak.DØDSFALL)
+
+    @BeforeEach
+    fun init() {
+        every { beregningService.oppdaterBehandlingMedBeregning(any(), any(), any(), any()) } just runs
+    }
 
     @Test
     fun `utførSteg - skal kaste funksjonell feil hvis behandlingsårsak er DØDSFALL og det eksisterer vilkår lengre fram i tid enn søkers dødsdato`() {
@@ -82,7 +94,7 @@ class VilkårsvurderingStegTest {
                     periodeTom = LocalDate.of(2022, 12, 12),
                     begrunnelse = "",
                     behandlingId = behandling.id
-                ),
+                )
             )
         )
 
@@ -144,7 +156,7 @@ class VilkårsvurderingStegTest {
                     periodeTom = LocalDate.of(2022, 12, 12),
                     begrunnelse = "",
                     behandlingId = behandling.id
-                ),
+                )
             )
         )
 
@@ -226,7 +238,7 @@ class VilkårsvurderingStegTest {
                     periodeTom = LocalDate.of(2022, 10, 12),
                     begrunnelse = "",
                     behandlingId = behandling.id
-                ),
+                )
             )
         )
 
@@ -295,7 +307,7 @@ class VilkårsvurderingStegTest {
                     periodeTom = LocalDate.of(2022, 10, 12),
                     begrunnelse = "",
                     behandlingId = behandling.id
-                ),
+                )
             )
         )
 
