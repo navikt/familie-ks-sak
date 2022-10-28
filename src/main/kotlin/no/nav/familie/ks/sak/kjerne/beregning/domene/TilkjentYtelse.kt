@@ -72,7 +72,7 @@ data class TilkjentYtelse(
 )
 
 fun TilkjentYtelse.tilTidslinjeMedAndeler(): Tidslinje<List<AndelTilkjentYtelse>> {
-    val tidslinjer = andelerTilkjentYtelse.map {
+    val tidslinjer = this.andelerTilkjentYtelse.map {
         listOf(
             Periode(
                 verdi = it,

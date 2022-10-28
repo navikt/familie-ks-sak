@@ -26,7 +26,9 @@ object TilkjentYtelseValidator {
             val søkersAndeler = hentSøkersAndeler(it.verdi!!, søker)
             val barnasAndeler = hentBarnasAndeler(it.verdi, barna)
 
-            validerAtBeløpForPartStemmerMedSatser(søker, søkersAndeler)
+            if (søkersAndeler.isNotEmpty()) {
+                validerAtBeløpForPartStemmerMedSatser(søker, søkersAndeler)
+            }
 
             barnasAndeler.forEach { (person, andeler) ->
                 validerAtBeløpForPartStemmerMedSatser(person, andeler)
