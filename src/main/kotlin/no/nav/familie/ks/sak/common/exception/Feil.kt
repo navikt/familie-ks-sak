@@ -85,3 +85,5 @@ open class EksternTjenesteFeilException(
         """.trimMargin()
     }
 }
+
+const val KONTAKT_TEAMET_SUFFIX = "Kontakt teamet for hjelp."

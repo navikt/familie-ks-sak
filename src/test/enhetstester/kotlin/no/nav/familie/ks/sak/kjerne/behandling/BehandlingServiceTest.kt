@@ -27,6 +27,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.søknad.SøknadGrunnlagService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.søknad.domene.SøknadGrunnlag
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
+import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelseRepository
 import no.nav.familie.ks.sak.kjerne.logg.LoggService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.StatsborgerskapService
@@ -60,6 +61,9 @@ class BehandlingServiceTest {
 
     @MockK
     private lateinit var loggService: LoggService
+
+    @MockK
+    private lateinit var andelTilkjentYtelseRepository: AndelTilkjentYtelseRepository
 
     @InjectMockKs
     private lateinit var behandlingService: BehandlingService
@@ -95,6 +99,8 @@ class BehandlingServiceTest {
                 "begrunnelse"
             )
         }
+
+        every { andelTilkjentYtelseRepository.finnAndelerTilkjentYtelseForBehandling(behandling.id) } returns emptyList()
     }
 
     @Test

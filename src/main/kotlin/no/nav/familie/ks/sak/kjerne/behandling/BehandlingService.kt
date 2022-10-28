@@ -4,6 +4,7 @@ import no.nav.familie.ks.sak.api.dto.BehandlingResponsDto
 import no.nav.familie.ks.sak.api.dto.EndreBehandlendeEnhetDto
 import no.nav.familie.ks.sak.api.mapper.BehandlingMapper
 import no.nav.familie.ks.sak.api.mapper.BehandlingMapper.lagPersonRespons
+import no.nav.familie.ks.sak.api.mapper.BehandlingMapper.lagPersonerMedAndelTilkjentYtelseRespons
 import no.nav.familie.ks.sak.api.mapper.SøknadGrunnlagMapper.tilSøknadDto
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.ArbeidsfordelingService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
@@ -12,6 +13,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.søknad.SøknadGrunnlagService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
+import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelseRepository
 import no.nav.familie.ks.sak.kjerne.logg.LoggService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.StatsborgerskapService
@@ -28,7 +30,8 @@ class BehandlingService(
     private val personopplysningGrunnlagService: PersonopplysningGrunnlagService,
     private val vilkårsvurderingService: VilkårsvurderingService,
     private val statsborgerskapService: StatsborgerskapService,
-    private val loggService: LoggService
+    private val loggService: LoggService,
+    private val andelTilkjentYtelseRepository: AndelTilkjentYtelseRepository
 ) {
 
     fun hentBehandling(behandlingId: Long): Behandling = behandlingRepository.hentBehandling(behandlingId)
@@ -45,25 +48,29 @@ class BehandlingService(
     fun lagBehandlingRespons(behandlingId: Long): BehandlingResponsDto {
         val behandling = hentBehandling(behandlingId)
         val arbeidsfordelingPåBehandling = arbeidsfordelingService.hentArbeidsfordelingPåBehandling(behandlingId)
+        val personopplysningGrunnlag = personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlag(behandlingId)
 
-        val personer =
-            personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlag(behandlingId)?.personer?.toList()
-                ?: emptyList()
-
+        val personer = personopplysningGrunnlag?.personer?.toList() ?: emptyList()
         val landKodeOgLandNavn = personer.flatMap { it.statsborgerskap }.toSet()
             .associate { it.landkode to statsborgerskapService.hentLand(it.landkode) }
-
-        val personResponserDtoer = personer.map { lagPersonRespons(it, landKodeOgLandNavn) }
+        val personResponser = personer.map { lagPersonRespons(it, landKodeOgLandNavn) }
 
         val søknadsgrunnlag = søknadGrunnlagService.finnAktiv(behandlingId)?.tilSøknadDto()
         val personResultater =
             vilkårsvurderingService.finnAktivVilkårsvurdering(behandlingId)?.personResultater?.toList()
+
+        val andelerTilkjentYtelse = andelTilkjentYtelseRepository.finnAndelerTilkjentYtelseForBehandling(behandlingId)
+        val personerMedAndelerResponsDto =
+            personopplysningGrunnlag?.let { lagPersonerMedAndelTilkjentYtelseRespons(it.personer, andelerTilkjentYtelse) }
+                ?: emptyList()
+
         return BehandlingMapper.lagBehandlingRespons(
             behandling,
             arbeidsfordelingPåBehandling,
             søknadsgrunnlag,
-            personResponserDtoer,
-            personResultater
+            personResponser,
+            personResultater,
+            personerMedAndelerResponsDto
         )
     }
 

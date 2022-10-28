@@ -6,13 +6,20 @@ import no.nav.familie.ks.sak.api.dto.BehandlingPåVentResponsDto
 import no.nav.familie.ks.sak.api.dto.BehandlingResponsDto
 import no.nav.familie.ks.sak.api.dto.BehandlingStegTilstandResponsDto
 import no.nav.familie.ks.sak.api.dto.PersonResponsDto
+import no.nav.familie.ks.sak.api.dto.PersonerMedAndelerResponsDto
 import no.nav.familie.ks.sak.api.dto.SøknadDto
+import no.nav.familie.ks.sak.api.dto.YtelsePerioderDto
 import no.nav.familie.ks.sak.api.mapper.RegisterHistorikkMapper.lagRegisterHistorikkResponsDto
+import no.nav.familie.ks.sak.common.util.toYearMonth
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.domene.ArbeidsfordelingPåBehandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingStegStatus
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.PersonResultat
+import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelse
+import no.nav.familie.ks.sak.kjerne.beregning.domene.slåSammenBack2BackAndelsperioderMedSammeBeløp
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
+import java.math.BigDecimal
+import java.time.LocalDate
 
 object BehandlingMapper {
 
@@ -21,7 +28,8 @@ object BehandlingMapper {
         arbeidsfordelingPåBehandling: ArbeidsfordelingPåBehandling,
         søknadsgrunnlag: SøknadDto?,
         personer: List<PersonResponsDto>,
-        personResultater: List<PersonResultat>?
+        personResultater: List<PersonResultat>?,
+        personerMedAndelerResponsDto: List<PersonerMedAndelerResponsDto>
     ) =
         BehandlingResponsDto(
             behandlingId = behandling.id,
@@ -47,7 +55,8 @@ object BehandlingMapper {
             personResultater = personResultater?.map { VilkårsvurderingMapper.lagPersonResultatRespons(it) }
                 ?: emptyList(),
             behandlingPåVent = behandling.behandlingStegTilstand.singleOrNull { it.behandlingStegStatus == BehandlingStegStatus.VENTER }
-                ?.let { BehandlingPåVentResponsDto(it.frist!!, it.årsak!!) }
+                ?.let { BehandlingPåVentResponsDto(it.frist!!, it.årsak!!) },
+            personerMedAndelerTilkjentYtelse = personerMedAndelerResponsDto
         )
 
     private fun lagArbeidsfordelingRespons(arbeidsfordelingPåBehandling: ArbeidsfordelingPåBehandling) =
@@ -67,4 +76,34 @@ object BehandlingMapper {
         dødsfallDato = person.dødsfall?.dødsfallDato,
         registerhistorikk = lagRegisterHistorikkResponsDto(person, landKodeOgLandNavn)
     )
+
+    fun lagPersonerMedAndelTilkjentYtelseRespons(
+        personer: Set<Person>,
+        andelerTilkjentYtelse: List<AndelTilkjentYtelse>
+    ) =
+        andelerTilkjentYtelse.groupBy { it.aktør }
+            .map { andelerForPerson ->
+                val aktør = andelerForPerson.key
+                val andeler = andelerForPerson.value
+
+                val sammenslåtteAndeler = andeler.groupBy { it.type }
+                    .flatMap { it.value.slåSammenBack2BackAndelsperioderMedSammeBeløp() }
+                PersonerMedAndelerResponsDto(
+                    personIdent = personer.find { person -> person.aktør == aktør }?.aktør?.aktivFødselsnummer(),
+                    beløp = sammenslåtteAndeler.sumOf { it.kalkulertUtbetalingsbeløp },
+                    stønadFom = sammenslåtteAndeler.map { it.stønadFom }.minOrNull()
+                        ?: LocalDate.MIN.toYearMonth(),
+                    stønadTom = sammenslåtteAndeler.map { it.stønadTom }.maxOrNull()
+                        ?: LocalDate.MAX.toYearMonth(),
+                    ytelsePerioder = sammenslåtteAndeler.map { sammenslåttAndel ->
+                        YtelsePerioderDto(
+                            beløp = sammenslåttAndel.kalkulertUtbetalingsbeløp,
+                            stønadFom = sammenslåttAndel.stønadFom,
+                            stønadTom = sammenslåttAndel.stønadTom,
+                            ytelseType = sammenslåttAndel.type,
+                            skalUtbetales = sammenslåttAndel.prosent > BigDecimal.ZERO
+                        )
+                    }
+                )
+            }
 }

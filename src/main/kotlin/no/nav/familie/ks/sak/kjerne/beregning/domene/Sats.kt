@@ -19,7 +19,9 @@ enum class SatsType(val beskrivelse: String) {
 
 data class SatsPeriode(val sats: Int, val fom: YearMonth, val tom: YearMonth, val prosent: BigDecimal)
 
-private val sats = Sats(type = SatsType.KS, beløp = 7500, gyldigFom = LocalDate.now(), gyldigTom = LocalDate.MAX)
+private val sats = Sats(type = SatsType.KS, beløp = 7500, gyldigFom = LocalDate.MIN, gyldigTom = LocalDate.MAX)
+
+fun maksBeløp() = sats.beløp
 
 fun hentGyldigSatsFor(antallTimer: BigDecimal?, erDeltBosted: Boolean, stønadFom: YearMonth, stønadTom: YearMonth): SatsPeriode {
     val prosent = when {

@@ -9,10 +9,12 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingStegStatus
 import no.nav.familie.ks.sak.kjerne.behandling.steg.VenteÅrsak
+import no.nav.familie.ks.sak.kjerne.beregning.domene.YtelseType
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Målform
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
 import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.YearMonth
 
 data class BehandlingResponsDto(
     val behandlingId: Long,
@@ -31,7 +33,7 @@ data class BehandlingResponsDto(
     val personer: List<PersonResponsDto>,
     val personResultater: List<PersonResultatResponsDto>,
     val utbetalingsperioder: List<UtbetalingsperiodeResponsDto> = emptyList(),
-    val personerMedAndelerTilkjentYtelse: List<Any> = emptyList(), // TODO implementeres ved tilkjentYtelse
+    val personerMedAndelerTilkjentYtelse: List<PersonerMedAndelerResponsDto> = emptyList(),
     val endretUtbetalingAndeler: List<Any> = emptyList(), // TODO implementeres ved behandlingsresultat
     val kompetanser: List<Any> = emptyList(), // TODO implementeres ved EØS
     val utenlandskePeriodebeløp: List<Any> = emptyList(), // TODO implementeres ved EØS
@@ -75,4 +77,20 @@ data class RegisteropplysningResponsDto(
     val fom: LocalDate?,
     val tom: LocalDate?,
     var verdi: String
+)
+
+data class PersonerMedAndelerResponsDto(
+    val personIdent: String?,
+    val beløp: Int,
+    val stønadFom: YearMonth,
+    val stønadTom: YearMonth,
+    val ytelsePerioder: List<YtelsePerioderDto>
+)
+
+data class YtelsePerioderDto(
+    val beløp: Int,
+    val stønadFom: YearMonth,
+    val stønadTom: YearMonth,
+    val ytelseType: YtelseType,
+    val skalUtbetales: Boolean
 )
