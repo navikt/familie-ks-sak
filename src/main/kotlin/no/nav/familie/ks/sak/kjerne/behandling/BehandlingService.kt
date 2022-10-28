@@ -98,8 +98,11 @@ class BehandlingService(
         return lagreEllerOppdater(behandling.copy(status = status))
     }
 
-    fun nullstillEndringstidspunkt(behandlingId: Long) =
-        lagreEllerOppdater(hentBehandling(behandlingId).copy(overstyrtEndringstidspunkt = null))
+    fun nullstillEndringstidspunkt(behandlingId: Long) {
+        val behandling = hentBehandling(behandlingId)
+        behandling.overstyrtEndringstidspunkt = null
+        lagreEllerOppdater(behandling)
+    }
 
     companion object {
         private val logger: Logger = LoggerFactory.getLogger(BehandlingService::class.java)
