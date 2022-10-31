@@ -162,7 +162,7 @@ fun lagBehandling(
     kategori = kategori
 ).initBehandlingStegTilstand()
 
-fun lagarbeidsfordelingPåBehandling(behandlingId: Long): ArbeidsfordelingPåBehandling = ArbeidsfordelingPåBehandling(
+fun lagArbeidsfordelingPåBehandling(behandlingId: Long): ArbeidsfordelingPåBehandling = ArbeidsfordelingPåBehandling(
     id = 123,
     behandlingId = behandlingId,
     behandlendeEnhetId = "4321",

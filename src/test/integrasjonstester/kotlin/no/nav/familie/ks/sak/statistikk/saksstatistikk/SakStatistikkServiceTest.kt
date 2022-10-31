@@ -5,7 +5,7 @@ import io.mockk.every
 import io.mockk.just
 import io.mockk.runs
 import no.nav.familie.ks.sak.OppslagSpringRunnerTest
-import no.nav.familie.ks.sak.data.lagarbeidsfordelingPåBehandling
+import no.nav.familie.ks.sak.data.lagArbeidsfordelingPåBehandling
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.domene.ArbeidsfordelingPåBehandlingRepository
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg
 import no.nav.familie.ks.sak.kjerne.behandling.steg.RegistrerPersonGrunnlagSteg
@@ -39,7 +39,7 @@ class SakStatistikkServiceTest : OppslagSpringRunnerTest() {
         every { registerPersonGrunnlagSteg.utførSteg(any()) } just runs
         every { registerPersonGrunnlagSteg.getBehandlingssteg() } answers { callOriginal() }
         opprettSøkerFagsakOgBehandling()
-        lagreArbeidsfordeling(lagarbeidsfordelingPåBehandling(behandlingId = behandling.id))
+        lagreArbeidsfordeling(lagArbeidsfordelingPåBehandling(behandlingId = behandling.id))
         opprettPersonopplysningGrunnlagOgPersonForBehandling(behandlingId = behandling.id, lagBarn = true)
         stegService.utførSteg(behandling.id, BehandlingSteg.REGISTRERE_PERSONGRUNNLAG)
         assertEquals(
@@ -53,7 +53,7 @@ class SakStatistikkServiceTest : OppslagSpringRunnerTest() {
         opprettSøkerFagsakOgBehandling()
         every { registerPersonGrunnlagSteg.utførSteg(any()) } just runs
         every { registerPersonGrunnlagSteg.getBehandlingssteg() } answers { callOriginal() }
-        lagreArbeidsfordeling(lagarbeidsfordelingPåBehandling(behandlingId = behandling.id))
+        lagreArbeidsfordeling(lagArbeidsfordelingPåBehandling(behandlingId = behandling.id))
         opprettPersonopplysningGrunnlagOgPersonForBehandling(behandlingId = behandling.id, lagBarn = true)
         stegService.utførSteg(behandling.id, BehandlingSteg.REGISTRERE_PERSONGRUNNLAG)
 

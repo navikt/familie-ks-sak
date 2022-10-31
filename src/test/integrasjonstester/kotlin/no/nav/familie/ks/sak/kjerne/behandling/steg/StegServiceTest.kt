@@ -11,9 +11,9 @@ import no.nav.familie.ks.sak.api.dto.BarnMedOpplysningerDto
 import no.nav.familie.ks.sak.api.dto.SøkerMedOpplysningerDto
 import no.nav.familie.ks.sak.api.dto.SøknadDto
 import no.nav.familie.ks.sak.api.mapper.SøknadGrunnlagMapper
+import no.nav.familie.ks.sak.data.lagArbeidsfordelingPåBehandling
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagRegistrerSøknadDto
-import no.nav.familie.ks.sak.data.lagarbeidsfordelingPåBehandling
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.domene.ArbeidsfordelingPåBehandlingRepository
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
@@ -63,7 +63,7 @@ class StegServiceTest : OppslagSpringRunnerTest() {
     @BeforeEach
     fun setup() {
         opprettSøkerFagsakOgBehandling()
-        lagreArbeidsfordeling(lagarbeidsfordelingPåBehandling(behandlingId = behandling.id))
+        lagreArbeidsfordeling(lagArbeidsfordelingPåBehandling(behandlingId = behandling.id))
         opprettPersonopplysningGrunnlagOgPersonForBehandling(behandlingId = behandling.id, lagBarn = true)
         opprettVilkårsvurdering(søker, behandling, Resultat.IKKE_VURDERT)
 
@@ -109,7 +109,7 @@ class StegServiceTest : OppslagSpringRunnerTest() {
                 opprettetÅrsak = BehandlingÅrsak.NYE_OPPLYSNINGER
             )
         )
-        lagreArbeidsfordeling(lagarbeidsfordelingPåBehandling(revurderingBehandling.id))
+        lagreArbeidsfordeling(lagArbeidsfordelingPåBehandling(revurderingBehandling.id))
         assertBehandlingHarSteg(revurderingBehandling, REGISTRERE_PERSONGRUNNLAG, KLAR)
         assertDoesNotThrow { stegService.utførSteg(revurderingBehandling.id, REGISTRERE_PERSONGRUNNLAG) }
 
