@@ -25,6 +25,5 @@ data class BehandlingStatistikkDto(
 
 data class SattPåVent(
     val frist: OffsetDateTime,
-    val tidSattPaaVent: OffsetDateTime,
     val aarsak: String
 )

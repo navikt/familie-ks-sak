@@ -73,7 +73,6 @@ class SakStatistikkService(
                         java.time.LocalTime.now(),
                         ZoneOffset.UTC
                     ),
-                    tidSattPaaVent = OffsetDateTime.now(),
                     aarsak = it
                 )
             },
