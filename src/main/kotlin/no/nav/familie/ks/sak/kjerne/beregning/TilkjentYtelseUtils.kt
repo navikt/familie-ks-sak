@@ -1,7 +1,6 @@
 package no.nav.familie.ks.sak.kjerne.beregning
 
 import no.nav.familie.ks.sak.common.exception.Feil
-import no.nav.familie.ks.sak.common.util.erBack2BackIMånedsskifte
 import no.nav.familie.ks.sak.common.util.erSammeEllerEtter
 import no.nav.familie.ks.sak.common.util.førsteDagIInneværendeMåned
 import no.nav.familie.ks.sak.common.util.sisteDagIMåned
@@ -111,16 +110,7 @@ object TilkjentYtelseUtils {
         barn: Person
     ): SatsPeriode {
         val oppfyltFom = maksimum(overlappendePeriodeResultatSøker.periodeFom, periodeResultatBarn.periodeFom)
-        val minsteTom = minimum(overlappendePeriodeResultatSøker.periodeTom, periodeResultatBarn.periodeTom)
-
-        val skalVidereføresEnMånedEkstra =
-            innvilgedePeriodeResultatBarna.any { periodeResultat ->
-                innvilgetPeriodeResultatSøker.any { periodeResultatSøker ->
-                    periodeResultatSøker.overlapper(periodeResultat)
-                } && erBack2BackIMånedsskifte(periodeResultatBarn.periodeTom, periodeResultat.periodeFom) &&
-                    periodeResultatBarn.aktør == periodeResultat.aktør
-            }
-        val oppfyltTom = if (skalVidereføresEnMånedEkstra) minsteTom.plusMonths(1) else minsteTom
+        val oppfyltTom = minimum(overlappendePeriodeResultatSøker.periodeTom, periodeResultatBarn.periodeTom)
 
         val periodeTomFraMellom1og2ÅrEllerAdoptertVilkår = periodeResultatBarn.vilkårResultater
             .find { it.vilkårType == Vilkår.MELLOM_1_OG_2_ELLER_ADOPTERT }?.periodeTom
@@ -147,9 +137,7 @@ object TilkjentYtelseUtils {
             antallTimer = antallTimer,
             erDeltBosted = erDeltBosted,
             stønadFom = oppfyltFom.plusMonths(1).withDayOfMonth(1).toYearMonth(),
-            stønadTom = if (skalAvsluttesMånedenFør) {
-                oppfyltTom.minusMonths(1).sisteDagIMåned().toYearMonth()
-            } else oppfyltTom.sisteDagIMåned().toYearMonth()
+            stønadTom = oppfyltTom.minusMonths(1).sisteDagIMåned().toYearMonth()
         )
     }
 

@@ -161,29 +161,20 @@ data class AndelTilkjentYtelse(
     fun erAndelSomSkalSendesTilOppdrag(): Boolean = this.kalkulertUtbetalingsbeløp != 0
 }
 
-// TODO må sjekke om den kan forenkleres
-fun List<AndelTilkjentYtelse>.slåSammenBack2BackAndelsperioderMedSammeBeløp(): List<AndelTilkjentYtelse> {
-    if (this.size <= 1) return this
-    val sorterteAndeler = this.sortedBy { it.stønadFom }
-    val sammenslåtteAndeler = mutableListOf<AndelTilkjentYtelse>()
-    var andel = sorterteAndeler.first()
-    sorterteAndeler.forEach { andelTilkjentYtelse ->
-        val back2BackAndelsperiodeMedSammeBeløp = this.singleOrNull {
-            andel.stønadTom.plusMonths(1).equals(it.stønadFom) &&
-                andel.aktør == it.aktør &&
-                andel.kalkulertUtbetalingsbeløp == it.kalkulertUtbetalingsbeløp &&
-                andel.type == it.type
-        }
-        if (back2BackAndelsperiodeMedSammeBeløp != null) {
-            andel = andel.copy(stønadTom = back2BackAndelsperiodeMedSammeBeløp.stønadTom)
+fun List<AndelTilkjentYtelse>.slåSammenBack2BackAndelsperioderMedSammeBeløp(): List<AndelTilkjentYtelse> =
+    this.fold(emptyList()) { acc, andelTilkjentYtelse ->
+        val sisteElement = acc.lastOrNull()
+
+        if (sisteElement?.stønadTom == andelTilkjentYtelse.stønadFom.plusMonths(1) &&
+            sisteElement?.aktør == andelTilkjentYtelse.aktør &&
+            sisteElement.kalkulertUtbetalingsbeløp == andelTilkjentYtelse.kalkulertUtbetalingsbeløp &&
+            sisteElement.type == andelTilkjentYtelse.type
+        ) {
+            acc.dropLast(1) + sisteElement.copy(stønadTom = andelTilkjentYtelse.stønadTom)
         } else {
-            sammenslåtteAndeler.add(andel)
-            andel = andelTilkjentYtelse
+            acc + andelTilkjentYtelse
         }
     }
-    sammenslåtteAndeler.add(andel)
-    return sammenslåtteAndeler
-}
 
 enum class YtelseType(val klassifisering: String) {
     ORDINÆR_KONTANTSTØTTE("KS") // TODO verdien må avklares med økonomi
