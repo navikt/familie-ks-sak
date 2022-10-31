@@ -3,7 +3,7 @@ package no.nav.familie.ks.sak.integrasjon.datavarehus
 import no.nav.familie.kontrakter.felles.objectMapper
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.config.KafkaConfig
-import no.nav.familie.ks.sak.statistikk.saksstatistikk.Behandlingtilstand
+import no.nav.familie.ks.sak.statistikk.saksstatistikk.BehandlingStatistikkDto
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.slf4j.LoggerFactory
 import org.springframework.context.annotation.Profile
@@ -11,7 +11,7 @@ import org.springframework.kafka.core.KafkaTemplate
 import org.springframework.stereotype.Service
 
 interface KafkaProducer {
-    fun sendBehandlingsTilstand(behandlingId: String, request: Behandlingtilstand)
+    fun sendBehandlingsTilstand(behandlingId: String, request: BehandlingStatistikkDto)
 }
 
 @Service
@@ -20,7 +20,7 @@ class DatavarehusKafkaProducer(private val kafkaTemplate: KafkaTemplate<String, 
 
     private val log = LoggerFactory.getLogger(this::class.java)
 
-    override fun sendBehandlingsTilstand(behandlingId: String, request: Behandlingtilstand) {
+    override fun sendBehandlingsTilstand(behandlingId: String, request: BehandlingStatistikkDto) {
         sendKafkamelding(behandlingId, KafkaConfig.BEHANDLING_TOPIC, request.behandlingID.toString(), request)
     }
 
@@ -49,7 +49,7 @@ class DatavarehusKafkaProducer(private val kafkaTemplate: KafkaTemplate<String, 
 @Profile("e2e", "integrasjonstest")
 class E2EKafkaProducer : KafkaProducer {
 
-    override fun sendBehandlingsTilstand(behandlingId: String, request: Behandlingtilstand) {
+    override fun sendBehandlingsTilstand(behandlingId: String, request: BehandlingStatistikkDto) {
         logger.info("Skipper sending av saksstatistikk for behandling $behandlingId fordi kafka ikke er enablet")
     }
 

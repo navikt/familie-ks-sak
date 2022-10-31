@@ -26,7 +26,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode
 import com.fasterxml.jackson.databind.node.JsonNodeFactory
 import com.fasterxml.jackson.databind.node.ObjectNode
 import no.nav.familie.kontrakter.felles.objectMapper
-import no.nav.familie.ks.sak.statistikk.saksstatistikk.Behandlingtilstand
+import no.nav.familie.ks.sak.statistikk.saksstatistikk.BehandlingStatistikkDto
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import java.io.File
@@ -43,7 +43,7 @@ class JsonGenerator {
     @Test
     fun genererSkjemaTilDatavarehus() {
         val jsonSchemaGenerator = JsonSchemaGenerator(objectMapper)
-        val behandlingstilstandSchema: JsonNode = jsonSchemaGenerator.generateJsonSchema(Behandlingtilstand::class.java)
+        val behandlingstilstandSchema: JsonNode = jsonSchemaGenerator.generateJsonSchema(BehandlingStatistikkDto::class.java)
         // val vedtaksoppsummeringSchema: JsonNode = jsonSchemaGenerator.generateJsonSchema(Vedtaksoppsummering::class.java)
 
         File("Behandlingtilstand.json").writeText(objectMapper.writeValueAsString(behandlingstilstandSchema))

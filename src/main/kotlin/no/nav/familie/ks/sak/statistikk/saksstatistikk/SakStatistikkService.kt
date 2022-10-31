@@ -13,7 +13,7 @@ import java.time.ZoneOffset
 import java.util.Properties
 
 @Service
-class BehandlingTilstandService(
+class SakStatistikkService(
     private val behandlingRepository: BehandlingRepository,
     private val taskService: TaskService,
     private val arbeidsfordelingService: ArbeidsfordelingService
@@ -30,7 +30,7 @@ class BehandlingTilstandService(
 
     private fun opprettProsessTask(
         behandlingId: Long,
-        behandlingTilstand: Behandlingtilstand,
+        behandlingTilstand: BehandlingStatistikkDto,
         hendelsesbeskrivelse: String
     ) {
         val task = Task(
@@ -44,11 +44,11 @@ class BehandlingTilstandService(
         taskService.save(task)
     }
 
-    fun hentBehandlingensTilstand(behandlingId: Long): Behandlingtilstand {
+    fun hentBehandlingensTilstand(behandlingId: Long): BehandlingStatistikkDto {
         val behandling: Behandling = behandlingRepository.hentBehandling(behandlingId)
         val ansvarligEnhet = arbeidsfordelingService.hentArbeidsfordelingPåBehandling(behandlingId).behandlendeEnhetId
 
-        return Behandlingtilstand(
+        return BehandlingStatistikkDto(
             saksnummer = behandling.fagsak.id,
             behandlingID = behandling.id,
             behandlingType = behandling.type,

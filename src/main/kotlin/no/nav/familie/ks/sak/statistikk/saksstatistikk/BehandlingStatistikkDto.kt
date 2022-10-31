@@ -6,7 +6,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import java.time.OffsetDateTime
 
-data class Behandlingtilstand(
+data class BehandlingStatistikkDto(
     val funksjoneltTidspunkt: OffsetDateTime, // Tidspunkt for siste endring på behandlingen.
     val tekniskTidspunkt: OffsetDateTime? = null, // Tidspunktet da fagsystemet legger hendelsen på grensesnittet/topicen
     val mottattTid: OffsetDateTime? = null, // Tidspunktet da behandlingen oppstår (eks søknadstidspunkt, inntektsmelding, etc). Det er ønskelig å måle brukers opplevde ventetid. Ved elektronisk kontakt regner vi med at denne er lik registrertTid

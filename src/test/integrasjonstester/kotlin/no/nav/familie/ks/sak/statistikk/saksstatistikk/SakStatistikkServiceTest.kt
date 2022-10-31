@@ -11,14 +11,14 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg
 import no.nav.familie.ks.sak.kjerne.behandling.steg.RegistrerPersonGrunnlagSteg
 import no.nav.familie.ks.sak.kjerne.behandling.steg.StegService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
-import no.nav.familie.ks.sak.statistikk.saksstatistikk.BehandlingTilstandService
+import no.nav.familie.ks.sak.statistikk.saksstatistikk.SakStatistikkService
 import no.nav.familie.ks.sak.statistikk.saksstatistikk.SendBehandlinghendelseTilDvhTask
 import no.nav.familie.prosessering.internal.TaskService
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 
-class BehandlingTilstandServiceTest : OppslagSpringRunnerTest() {
+class SakStatistikkServiceTest : OppslagSpringRunnerTest() {
 
     @Autowired
     private lateinit var taskService: TaskService
@@ -33,7 +33,7 @@ class BehandlingTilstandServiceTest : OppslagSpringRunnerTest() {
     private lateinit var stegService: StegService
 
     @Autowired
-    private lateinit var service: BehandlingTilstandService
+    private lateinit var service: SakStatistikkService
 
     @Test
     fun `opprettSendingAvBehandlingensTilstand skal generere melding om ny tilstand til DVH`() {
