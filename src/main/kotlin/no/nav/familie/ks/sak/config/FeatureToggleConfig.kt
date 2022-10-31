@@ -34,7 +34,7 @@ class FeatureToggleConfig(
         } else {
             logger.warn(
                 "Funksjonsbryter-funksjonalitet er skrudd AV. " +
-                        "Gir standardoppførsel for alle funksjonsbrytere, dvs 'false'"
+                    "Gir standardoppførsel for alle funksjonsbrytere, dvs 'false'"
             )
             lagDummyFeatureToggleService()
         }
