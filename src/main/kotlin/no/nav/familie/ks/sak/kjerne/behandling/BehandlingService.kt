@@ -42,7 +42,7 @@ class BehandlingService(
 
     fun lagreEllerOppdater(behandling: Behandling): Behandling {
         logger.info("${SikkerhetContext.hentSaksbehandlerNavn()} oppretter behandling $behandling")
-        return behandlingRepository.saveAndFlush(behandling)
+        return behandlingRepository.save(behandling)
     }
 
     fun lagBehandlingRespons(behandlingId: Long): BehandlingResponsDto {
@@ -88,7 +88,8 @@ class BehandlingService(
             behandlingsForrigeResultat = behandling.resultat,
             behandlingsNyResultat = nyUtledetBehandlingsresultat
         )
-        return lagreEllerOppdater(behandling.copy(resultat = nyUtledetBehandlingsresultat))
+        behandling.resultat = nyUtledetBehandlingsresultat
+        return lagreEllerOppdater(behandling)
     }
 
     fun oppdaterStatusPåBehandling(behandlingId: Long, status: BehandlingStatus): Behandling {

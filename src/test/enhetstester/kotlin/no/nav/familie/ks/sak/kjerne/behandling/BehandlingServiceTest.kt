@@ -143,7 +143,7 @@ class BehandlingServiceTest {
                 behandlingsNyResultat = Behandlingsresultat.INNVILGET
             )
         } just runs
-        every { behandlingRepository.saveAndFlush(any()) } returns behandling.copy(resultat = Behandlingsresultat.INNVILGET)
+        every { behandlingRepository.save(any()) } returns behandling.copy(resultat = Behandlingsresultat.INNVILGET)
 
         val oppdatertBehandling = assertDoesNotThrow {
             behandlingService.oppdaterBehandlingsresultat(behandling.id, Behandlingsresultat.INNVILGET)
@@ -155,7 +155,7 @@ class BehandlingServiceTest {
     @Test
     fun `oppdaterStatusPåBehandling skal sette oppdatert status på behandling`() {
         every { behandlingRepository.hentBehandling(behandling.id) } returns behandling
-        every { behandlingRepository.saveAndFlush(any()) } returnsArgument 0
+        every { behandlingRepository.save(any()) } returnsArgument 0
 
         assertEquals(behandling.status, BehandlingStatus.UTREDES)
 
@@ -165,6 +165,6 @@ class BehandlingServiceTest {
         assertEquals(oppdatertBehandling.status, BehandlingStatus.FATTER_VEDTAK)
 
         verify(exactly = 1) { behandlingRepository.hentBehandling(oppdatertBehandling.id) }
-        verify(exactly = 1) { behandlingRepository.saveAndFlush(any()) }
+        verify(exactly = 1) { behandlingRepository.save(any()) }
     }
 }
