@@ -60,7 +60,7 @@ class SakStatistikkService(
             behandlingID = behandling.id,
             behandlingType = behandling.type,
             behandlingStatus = behandling.status,
-            behandlingResultat = behandling.resultat,
+            behandlingsResultat = behandling.resultat,
             ansvarligEnhet = ansvarligEnhet,
             ansvarligBeslutter = totrinnskontroll?.beslutterId,
             ansvarligSaksbehandler = totrinnskontroll?.let { it.saksbehandlerId } ?: behandling.endretAv,

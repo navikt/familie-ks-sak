@@ -67,7 +67,7 @@ class SakStatistikkServiceTest : OppslagSpringRunnerTest() {
         assertEquals(behandling.opprettetÅrsak, tilstand.behandlingOpprettetÅrsak)
         assertEquals(behandling.status, tilstand.behandlingStatus)
         assertEquals(true, tilstand.behandlingErManueltOpprettet)
-        assertEquals(behandling.resultat, tilstand.behandlingResultat)
+        assertEquals(behandling.resultat, tilstand.behandlingsResultat)
         assertEquals(behandling.type, tilstand.behandlingType)
     }
 }

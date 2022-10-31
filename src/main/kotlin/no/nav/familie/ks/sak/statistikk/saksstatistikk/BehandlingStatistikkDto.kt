@@ -14,7 +14,7 @@ data class BehandlingStatistikkDto(
     val behandlingID: Long,
     val behandlingType: BehandlingType,
     val behandlingStatus: BehandlingStatus,
-    val behandlingResultat: Behandlingsresultat? = null,
+    val behandlingsResultat: Behandlingsresultat? = null,
     val behandlingErManueltOpprettet: Boolean,
     val sattPaaVent: SattPåVent? = null,
     val ansvarligEnhet: String,
