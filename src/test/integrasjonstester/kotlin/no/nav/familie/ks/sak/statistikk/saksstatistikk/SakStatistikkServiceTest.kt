@@ -10,7 +10,6 @@ import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.domene.ArbeidsfordelingPåB
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg
 import no.nav.familie.ks.sak.kjerne.behandling.steg.RegistrerPersonGrunnlagSteg
 import no.nav.familie.ks.sak.kjerne.behandling.steg.StegService
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
 import no.nav.familie.ks.sak.statistikk.saksstatistikk.SakStatistikkService
 import no.nav.familie.ks.sak.statistikk.saksstatistikk.SendBehandlinghendelseTilDvhTask
 import no.nav.familie.prosessering.internal.TaskService
@@ -42,7 +41,6 @@ class SakStatistikkServiceTest : OppslagSpringRunnerTest() {
         opprettSøkerFagsakOgBehandling()
         lagreArbeidsfordeling(lagarbeidsfordelingPåBehandling(behandlingId = behandling.id))
         opprettPersonopplysningGrunnlagOgPersonForBehandling(behandlingId = behandling.id, lagBarn = true)
-        opprettVilkårsvurdering(søker, behandling, Resultat.IKKE_VURDERT)
         stegService.utførSteg(behandling.id, BehandlingSteg.REGISTRERE_PERSONGRUNNLAG)
         assertEquals(
             1,
@@ -57,7 +55,6 @@ class SakStatistikkServiceTest : OppslagSpringRunnerTest() {
         every { registerPersonGrunnlagSteg.getBehandlingssteg() } answers { callOriginal() }
         lagreArbeidsfordeling(lagarbeidsfordelingPåBehandling(behandlingId = behandling.id))
         opprettPersonopplysningGrunnlagOgPersonForBehandling(behandlingId = behandling.id, lagBarn = true)
-        opprettVilkårsvurdering(søker, behandling, Resultat.IKKE_VURDERT)
         stegService.utførSteg(behandling.id, BehandlingSteg.REGISTRERE_PERSONGRUNNLAG)
 
         val tilstand = service.hentBehandlingensTilstand(behandling.id)
