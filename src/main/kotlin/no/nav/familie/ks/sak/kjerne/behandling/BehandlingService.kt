@@ -40,8 +40,8 @@ class BehandlingService(
         .filter { !it.erHenlagt() && it.status == BehandlingStatus.AVSLUTTET }
         .maxByOrNull { it.opprettetTidspunkt }
 
-    fun lagreEllerOppdater(behandling: Behandling): Behandling {
-        logger.info("${SikkerhetContext.hentSaksbehandlerNavn()} oppretter behandling $behandling")
+    fun oppdaterBehandling(behandling: Behandling): Behandling {
+        logger.info("${SikkerhetContext.hentSaksbehandlerNavn()} oppdaterer behandling $behandling")
         return behandlingRepository.save(behandling)
     }
 
@@ -89,20 +89,20 @@ class BehandlingService(
             behandlingsNyResultat = nyUtledetBehandlingsresultat
         )
         behandling.resultat = nyUtledetBehandlingsresultat
-        return lagreEllerOppdater(behandling)
+        return oppdaterBehandling(behandling)
     }
 
     fun oppdaterStatusPåBehandling(behandlingId: Long, status: BehandlingStatus): Behandling {
         val behandling = hentBehandling(behandlingId)
         logger.info("${SikkerhetContext.hentSaksbehandlerNavn()} endrer status på behandling $behandlingId fra ${behandling.status} til $status")
 
-        return lagreEllerOppdater(behandling.copy(status = status))
+        return oppdaterBehandling(behandling.copy(status = status))
     }
 
     fun nullstillEndringstidspunkt(behandlingId: Long) {
         val behandling = hentBehandling(behandlingId)
         behandling.overstyrtEndringstidspunkt = null
-        lagreEllerOppdater(behandling)
+        oppdaterBehandling(behandling)
     }
 
     companion object {
