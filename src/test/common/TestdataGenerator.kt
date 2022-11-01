@@ -14,6 +14,7 @@ import no.nav.familie.ks.sak.api.dto.SøkerMedOpplysningerDto
 import no.nav.familie.ks.sak.api.dto.SøknadDto
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.ForelderBarnRelasjonInfo
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.PdlPersonInfo
+import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.domene.ArbeidsfordelingPåBehandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingKategori
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingType
@@ -160,6 +161,14 @@ fun lagBehandling(
     opprettetÅrsak = opprettetÅrsak,
     kategori = kategori
 ).initBehandlingStegTilstand()
+
+fun lagArbeidsfordelingPåBehandling(behandlingId: Long): ArbeidsfordelingPåBehandling = ArbeidsfordelingPåBehandling(
+    id = 123,
+    behandlingId = behandlingId,
+    behandlendeEnhetId = "4321",
+    behandlendeEnhetNavn = "Test enhet",
+    manueltOverstyrt = false
+)
 
 fun lagRegistrerSøknadDto() = RegistrerSøknadDto(
     søknad = SøknadDto(
@@ -356,6 +365,7 @@ fun lagVilkårResultaterForDeltBosted(
                     vilkårResultaterForBarn.add(vilkårResultatMedDeltBosted2)
                 }
             }
+
             else -> vilkårResultaterForBarn.add(
                 lagVilkårResultat(
                     personResultat = personResultat,

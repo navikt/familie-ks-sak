@@ -22,10 +22,10 @@ class SendBehandlinghendelseTilDvhTask(private val kafkaProducer: KafkaProducer)
 
     override fun doTask(task: Task) {
         log.info("SendBehandlinghendelseTilDvhTask prosesserer med id=${task.id} og metadata ${task.metadata}")
-        val behandlingtilstand: Behandlingtilstand = objectMapper.readValue(task.payload)
+        val behandlingStatistikkDto: BehandlingStatistikkDto = objectMapper.readValue(task.payload)
         kafkaProducer.sendBehandlingsTilstand(
-            behandlingtilstand.behandlingID.toString(),
-            behandlingtilstand.copy(tekniskTidspunkt = OffsetDateTime.now(ZoneOffset.UTC))
+            behandlingStatistikkDto.behandlingID.toString(),
+            behandlingStatistikkDto.copy(tekniskTidspunkt = OffsetDateTime.now(ZoneOffset.UTC))
         )
     }
 
