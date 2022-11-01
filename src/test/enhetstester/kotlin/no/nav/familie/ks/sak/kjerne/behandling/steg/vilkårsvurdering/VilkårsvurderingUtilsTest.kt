@@ -2,6 +2,7 @@ package no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering
 
 import io.mockk.mockk
 import no.nav.familie.ks.sak.common.exception.Feil
+import no.nav.familie.ks.sak.common.util.Periode
 import no.nav.familie.ks.sak.common.util.førsteDagIInneværendeMåned
 import no.nav.familie.ks.sak.common.util.sisteDagIMåned
 import no.nav.familie.ks.sak.common.util.tilDagMånedÅr
@@ -9,6 +10,7 @@ import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagPerson
 import no.nav.familie.ks.sak.data.lagPersonopplysningGrunnlag
 import no.nav.familie.ks.sak.data.lagVilkårResultat
+import no.nav.familie.ks.sak.data.lagVilkårResultaterForBarn
 import no.nav.familie.ks.sak.data.lagVilkårsvurderingMedSøkersVilkår
 import no.nav.familie.ks.sak.data.randomAktør
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
@@ -499,51 +501,18 @@ class VilkårsvurderingUtilsTest {
         val personResultaterForSøker = vilkårsvurderingMedSøkersvilkår.personResultater
         val personResultatForBarn = PersonResultat(vilkårsvurdering = vilkårsvurderingMedSøkersvilkår, aktør = barn1)
         val barnFødselsdato = barnPerson.fødselsdato
-        val bosettIRiketVilkårResultat = lagVilkårResultat(
+        val barnehagePlassPeriodeMedAntallTimer = Periode(
+            fom = barnFødselsdato.plusYears(1),
+            tom = barnFødselsdato.plusYears(1).plusMonths(7)
+        ) to null // antallTimer null betyr at barn ikke har fått barnehageplass. Da får barn full KS
+        val vilkårResultaterForBarn = lagVilkårResultaterForBarn(
             personResultat = personResultatForBarn,
-            vilkårType = Vilkår.BOSATT_I_RIKET,
-            periodeFom = barnFødselsdato,
-            periodeTom = null,
-            behandlingId = behandling.id
-        )
-        val barnehageplassVilkårResultat = lagVilkårResultat(
-            personResultat = personResultatForBarn,
-            vilkårType = Vilkår.BARNEHAGEPLASS,
-            periodeFom = barnFødselsdato.plusYears(1),
-            periodeTom = barnFødselsdato.plusYears(1).plusMonths(7),
-            behandlingId = behandling.id
-        )
-        val medlemskapAnnenForelderVilkårResultat = lagVilkårResultat(
-            personResultat = personResultatForBarn,
-            vilkårType = Vilkår.MEDLEMSKAP_ANNEN_FORELDER,
-            periodeFom = barnFødselsdato,
-            periodeTom = null,
-            behandlingId = behandling.id
-        )
-        val borMedSøkerVilkårResultat = lagVilkårResultat(
-            personResultat = personResultatForBarn,
-            vilkårType = Vilkår.BOR_MED_SØKER,
-            periodeFom = barnFødselsdato,
-            periodeTom = null,
-            behandlingId = behandling.id
-        )
-        val mellom1og2ÅrVilkårResultat = lagVilkårResultat(
-            personResultat = personResultatForBarn,
-            vilkårType = Vilkår.MELLOM_1_OG_2_ELLER_ADOPTERT,
-            periodeFom = barnFødselsdato.plusYears(1),
-            periodeTom = barnFødselsdato.plusYears(2),
+            barnFødselsdato = barnFødselsdato,
+            barnehageplassPerioder = listOf(barnehagePlassPeriodeMedAntallTimer),
             behandlingId = behandling.id
         )
 
-        personResultatForBarn.setSortedVilkårResultater(
-            setOf(
-                bosettIRiketVilkårResultat,
-                barnehageplassVilkårResultat,
-                medlemskapAnnenForelderVilkårResultat,
-                borMedSøkerVilkårResultat,
-                mellom1og2ÅrVilkårResultat
-            )
-        )
+        personResultatForBarn.setSortedVilkårResultater(vilkårResultaterForBarn)
         vilkårsvurderingMedSøkersvilkår.personResultater = personResultaterForSøker + personResultatForBarn
 
         val result = hentInnvilgedePerioder(personopplysningGrunnlag, vilkårsvurderingMedSøkersvilkår)

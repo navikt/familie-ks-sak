@@ -27,10 +27,10 @@ fun hentGyldigSatsFor(antallTimer: BigDecimal?, erDeltBosted: Boolean, stønadFo
     val prosent = when {
         erDeltBosted -> 50
         antallTimer == null -> 100
-        antallTimer > BigDecimal(0) && antallTimer <= BigDecimal(8) -> 80
-        antallTimer >= BigDecimal(9) && antallTimer <= BigDecimal(16) -> 60
-        antallTimer >= BigDecimal(17) && antallTimer <= BigDecimal(24) -> 40
-        antallTimer >= BigDecimal(25) && antallTimer <= BigDecimal(32) -> 20
+        antallTimer in BigDecimal(0)..BigDecimal(8) -> 80
+        antallTimer in BigDecimal(9)..BigDecimal(16) -> 60
+        antallTimer in BigDecimal(17)..BigDecimal(24) -> 40
+        antallTimer in BigDecimal(25)..BigDecimal(32) -> 20
         else -> 0
     }
     return SatsPeriode(

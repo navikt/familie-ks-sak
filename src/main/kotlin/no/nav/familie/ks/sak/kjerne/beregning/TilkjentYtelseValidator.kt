@@ -24,7 +24,7 @@ object TilkjentYtelseValidator {
         val barna = personopplysningGrunnlag.barna
 
         val diff = Period.between(tilkjentYtelse.stønadFom?.toLocalDate(), tilkjentYtelse.stønadTom?.toLocalDate())
-        if (diff.months > 11) {
+        if (diff.toTotalMonths() > 11) {
             val feilmelding = "Kontantstøtte kan maks utbetales for 11 måneder. Du er i ferd med å utbetale mer enn dette. " +
                 "Kontroller datoene på vilkårene eller ta kontakt med team familie"
             throw FunksjonellFeil(frontendFeilmelding = feilmelding, melding = feilmelding)
@@ -34,12 +34,10 @@ object TilkjentYtelseValidator {
 
         tidslinjeMedAndeler.tilPerioder().forEach {
             if (hentSøkersAndeler(it.verdi!!, søker).isNotEmpty()) {
-                throw Feil("Feil i beregning. Søkers andeler må være tom!!")
+                throw Feil("Feil i beregning. Søkers andeler må være tom")
             }
             val barnasAndeler = hentBarnasAndeler(it.verdi, barna)
-            barnasAndeler.forEach { (_, andeler) ->
-                validerAtBeløpForPartStemmerMedSatser(andeler)
-            }
+            barnasAndeler.forEach { (_, andeler) -> validerAtBeløpForPartStemmerMedSatser(andeler) }
         }
     }
 

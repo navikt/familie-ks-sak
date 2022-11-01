@@ -12,6 +12,7 @@ import no.nav.familie.ks.sak.api.dto.BarnMedOpplysningerDto
 import no.nav.familie.ks.sak.api.dto.RegistrerSøknadDto
 import no.nav.familie.ks.sak.api.dto.SøkerMedOpplysningerDto
 import no.nav.familie.ks.sak.api.dto.SøknadDto
+import no.nav.familie.ks.sak.common.util.Periode
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.ForelderBarnRelasjonInfo
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.PdlPersonInfo
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.domene.ArbeidsfordelingPåBehandling
@@ -31,6 +32,7 @@ import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.domene.EndretUtbetalingAndel
 import no.nav.familie.ks.sak.kjerne.beregning.domene.TilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.domene.YtelseType
+import no.nav.familie.ks.sak.kjerne.beregning.domene.maksBeløp
 import no.nav.familie.ks.sak.kjerne.beregning.domene.Årsak
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.Fagsak
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
@@ -227,18 +229,19 @@ fun lagAndelTilkjentYtelse(
     behandling: Behandling,
     aktør: Aktør? = null,
     stønadFom: YearMonth = YearMonth.now().minusMonths(1),
-    stønadTom: YearMonth = YearMonth.now().plusMonths(8)
+    stønadTom: YearMonth = YearMonth.now().plusMonths(8),
+    sats: Int = maksBeløp()
 ) = AndelTilkjentYtelse(
     behandlingId = behandling.id,
     tilkjentYtelse = tilkjentYtelse ?: lagInitieltTilkjentYtelse(behandling),
     aktør = aktør ?: behandling.fagsak.aktør,
-    kalkulertUtbetalingsbeløp = 1054,
+    kalkulertUtbetalingsbeløp = sats,
     stønadFom = stønadFom,
     stønadTom = stønadTom,
     type = YtelseType.ORDINÆR_KONTANTSTØTTE,
-    sats = 1054,
+    sats = sats,
     prosent = BigDecimal(100),
-    nasjonaltPeriodebeløp = 1054
+    nasjonaltPeriodebeløp = sats
 )
 
 fun lagPerson(
@@ -319,7 +322,8 @@ fun lagVilkårResultat(
     periodeTom: LocalDate? = LocalDate.now(),
     begrunnelse: String = "",
     behandlingId: Long,
-    utdypendeVilkårsvurderinger: List<UtdypendeVilkårsvurdering> = emptyList()
+    utdypendeVilkårsvurderinger: List<UtdypendeVilkårsvurdering> = emptyList(),
+    antallTimer: BigDecimal? = null
 ): VilkårResultat = VilkårResultat(
     id = id,
     personResultat = personResultat,
@@ -329,8 +333,55 @@ fun lagVilkårResultat(
     periodeTom = periodeTom,
     begrunnelse = begrunnelse,
     behandlingId = behandlingId,
-    utdypendeVilkårsvurderinger = utdypendeVilkårsvurderinger
+    utdypendeVilkårsvurderinger = utdypendeVilkårsvurderinger,
+    antallTimer = antallTimer
 )
+
+fun lagVilkårResultaterForBarn(
+    personResultat: PersonResultat,
+    barnFødselsdato: LocalDate,
+    barnehageplassPerioder: List<Pair<Periode, BigDecimal?>>,
+    behandlingId: Long
+): Set<VilkårResultat> {
+    val vilkårResultaterForBarn = mutableSetOf<VilkårResultat>()
+    Vilkår.hentVilkårFor(PersonType.BARN).forEach {
+        when (it) {
+            Vilkår.MELLOM_1_OG_2_ELLER_ADOPTERT -> vilkårResultaterForBarn.add(
+                lagVilkårResultat(
+                    personResultat = personResultat,
+                    vilkårType = it,
+                    periodeFom = barnFødselsdato.plusYears(1),
+                    periodeTom = barnFødselsdato.plusYears(2),
+                    behandlingId = behandlingId
+                )
+            )
+            Vilkår.BARNEHAGEPLASS -> {
+                vilkårResultaterForBarn.addAll(
+                    barnehageplassPerioder.map { perioderMedAntallTimer ->
+                        lagVilkårResultat(
+                            personResultat = personResultat,
+                            vilkårType = it,
+                            periodeFom = perioderMedAntallTimer.first.fom,
+                            periodeTom = perioderMedAntallTimer.first.tom,
+                            behandlingId = behandlingId,
+                            antallTimer = perioderMedAntallTimer.second
+                        )
+                    }
+                )
+            }
+            else -> vilkårResultaterForBarn.add(
+                lagVilkårResultat(
+                    personResultat = personResultat,
+                    vilkårType = it,
+                    periodeFom = barnFødselsdato,
+                    periodeTom = null,
+                    behandlingId = behandlingId
+                )
+            )
+        }
+    }
+    return vilkårResultaterForBarn
+}
 
 fun lagVilkårResultaterForDeltBosted(
     personResultat: PersonResultat,
