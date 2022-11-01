@@ -27,4 +27,11 @@ interface BehandlingRepository : JpaRepository<Behandling, Long> {
             "b.aktiv = true AND b.status <> 'AVSLUTTET'"
     )
     fun findByFagsakAndAktivAndOpen(fagsakId: Long): Behandling?
+
+    @Query(
+        """select b from Behandling b
+                           inner join TilkjentYtelse ty on b.id = ty.behandling.id
+                        where b.fagsak.id = :fagsakId AND ty.utbetalingsoppdrag IS NOT NULL"""
+    )
+    fun finnIverksatteBehandlinger(fagsakId: Long): List<Behandling>
 }

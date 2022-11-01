@@ -80,7 +80,7 @@ class BehandlingServiceTest {
         )
         every { arbeidsfordelingService.manueltOppdaterBehandlendeEnhet(any(), any()) } just runs
         every { statsborgerskapService.hentLand(any()) } returns "Norge"
-        every { personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlag(any()) } returns
+        every { personopplysningGrunnlagService.finnAktivPersonopplysningGrunnlag(any()) } returns
             lagPersonopplysningGrunnlag(behandlingId = behandling.id, søkerPersonIdent = søkersIdent)
         every { vilkårsvurderingService.finnAktivVilkårsvurdering(any()) } returns null
         every { søknadGrunnlagService.finnAktiv(any()) } returns søknadsgrunnlagMockK
@@ -104,7 +104,7 @@ class BehandlingServiceTest {
         Assertions.assertNotNull(behandlingResponsDto)
         verify(exactly = 1) { behandlingService.hentBehandling(behandling.id) }
         verify(exactly = 1) { arbeidsfordelingService.hentArbeidsfordelingPåBehandling(behandling.id) }
-        verify(exactly = 1) { personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlag(behandling.id) }
+        verify(exactly = 1) { personopplysningGrunnlagService.finnAktivPersonopplysningGrunnlag(behandling.id) }
         verify(exactly = 1) { vilkårsvurderingService.finnAktivVilkårsvurdering(behandling.id) }
         verify(exactly = 1) {
             søknadGrunnlagService.finnAktiv(behandling.id)

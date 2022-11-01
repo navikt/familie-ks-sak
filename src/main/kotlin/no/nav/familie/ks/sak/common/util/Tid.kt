@@ -31,6 +31,10 @@ fun YearMonth.sisteDagIInneværendeMåned() = this.atEndOfMonth()
 
 fun YearMonth.erSammeEllerTidligere(toCompare: YearMonth): Boolean = this.isBefore(toCompare) || this == toCompare
 
+fun YearMonth.erSammeEllerEtter(toCompare: YearMonth): Boolean {
+    return this.isAfter(toCompare) || this == toCompare
+}
+
 fun inneværendeMåned(): YearMonth = LocalDate.now().toYearMonth()
 
 fun LocalDate.nesteMåned(): YearMonth = this.toYearMonth().plusMonths(1)
@@ -44,26 +48,34 @@ data class Periode(val fom: LocalDate, val tom: LocalDate)
 fun LocalDate.erSammeEllerFør(toCompare: LocalDate): Boolean = this.isBefore(toCompare) || this == toCompare
 fun LocalDate.erSammeEllerEtter(toCompare: LocalDate): Boolean = this.isAfter(toCompare) || this == toCompare
 fun LocalDate.erMellom(toCompare: Periode): Boolean = this.erSammeEllerEtter(toCompare.fom) &&
-    this.erSammeEllerEtter(toCompare.tom)
+        this.erSammeEllerEtter(toCompare.tom)
 
 fun LocalDate.førsteDagIInneværendeMåned() = this.withDayOfMonth(1)
 
 fun Periode.overlapperHeltEllerDelvisMed(annenPeriode: Periode) =
     this.fom.erMellom(annenPeriode) ||
-        this.tom.erMellom(annenPeriode) ||
-        annenPeriode.fom.erMellom(this) ||
-        annenPeriode.tom.erMellom(this)
+            this.tom.erMellom(annenPeriode) ||
+            annenPeriode.fom.erMellom(this) ||
+            annenPeriode.tom.erMellom(this)
 
 fun Periode.tilMånedPeriode(): MånedPeriode = MånedPeriode(fom = this.fom.toYearMonth(), tom = this.tom.toYearMonth())
 
 data class MånedPeriode(val fom: YearMonth, val tom: YearMonth)
 
+data class NullablePeriode(val fom: LocalDate?, val tom: LocalDate?) {
+    fun tilNullableMånedPeriode() = NullableMånedPeriode(fom?.toYearMonth(), tom?.toYearMonth())
+}
+
+data class NullableMånedPeriode(val fom: YearMonth?, val tom: YearMonth?)
+
+fun LocalDate.forrigeMåned() = this.toYearMonth().minusMonths(1)
+
 fun MånedPeriode.inkluderer(yearMonth: YearMonth) = yearMonth >= this.fom && yearMonth <= this.tom
 fun MånedPeriode.overlapperHeltEllerDelvisMed(annenPeriode: MånedPeriode) =
     this.inkluderer(annenPeriode.fom) ||
-        this.inkluderer(annenPeriode.tom) ||
-        annenPeriode.inkluderer(this.fom) ||
-        annenPeriode.inkluderer(this.tom)
+            this.inkluderer(annenPeriode.tom) ||
+            annenPeriode.inkluderer(this.fom) ||
+            annenPeriode.inkluderer(this.tom)
 
 fun MånedPeriode.erMellom(annenPeriode: MånedPeriode) =
     annenPeriode.inkluderer(this.fom) && annenPeriode.inkluderer(this.tom)

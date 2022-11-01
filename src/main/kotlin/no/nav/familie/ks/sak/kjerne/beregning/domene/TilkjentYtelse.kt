@@ -3,7 +3,7 @@ package no.nav.familie.ks.sak.kjerne.beregning.domene
 import no.nav.familie.ks.sak.common.tidslinje.Periode
 import no.nav.familie.ks.sak.common.tidslinje.Tidslinje
 import no.nav.familie.ks.sak.common.tidslinje.tilTidslinje
-import no.nav.familie.ks.sak.common.tidslinje.utvidelser.kombinerTidslinjer
+import no.nav.familie.ks.sak.common.tidslinje.utvidelser.slåSammen
 import no.nav.familie.ks.sak.common.util.YearMonthConverter
 import no.nav.familie.ks.sak.common.util.førsteDagIInneværendeMåned
 import no.nav.familie.ks.sak.common.util.sisteDagIInneværendeMåned
@@ -81,5 +81,5 @@ fun TilkjentYtelse.tilTidslinjeMedAndeler(): Tidslinje<List<AndelTilkjentYtelse>
             )
         ).tilTidslinje()
     }
-    return tidslinjer.kombinerTidslinjer()
+    return tidslinjer.slåSammen()
 }

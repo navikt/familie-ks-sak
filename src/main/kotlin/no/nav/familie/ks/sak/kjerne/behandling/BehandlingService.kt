@@ -47,7 +47,7 @@ class BehandlingService(
         val arbeidsfordelingPåBehandling = arbeidsfordelingService.hentArbeidsfordelingPåBehandling(behandlingId)
 
         val personer =
-            personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlag(behandlingId)?.personer?.toList()
+            personopplysningGrunnlagService.finnAktivPersonopplysningGrunnlag(behandlingId)?.personer?.toList()
                 ?: emptyList()
 
         val landKodeOgLandNavn = personer.flatMap { it.statsborgerskap }.toSet()
