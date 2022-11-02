@@ -1,0 +1,26 @@
+apiVersion: kafka.nais.io/v1
+kind: Topic
+metadata:
+  name: aapen-kontantstotte-saksstatistikk-siste-tilstand-behandling-v1
+  namespace: teamfamilie
+  labels:
+    team: teamfamilie
+spec:
+  pool: nav-prod
+  config: # optional; all fields are optional too; defaults shown
+    cleanupPolicy: delete  # delete, compact
+    minimumInSyncReplicas: 2
+    partitions: 3
+    replication: 3  # see min/max requirements
+    retentionBytes: -1  # -1 means unlimited
+    retentionHours: 24 # -1 means unlimited
+  acl:
+    - team: teamfamilie
+      application: familie-ks-sak #owner
+      access: write   # readwrite
+    - team: teamfamilie
+      application: familie-ks-kafka-manager
+      access: read
+    - team: dv-familie
+      application: dvh-fambt-konsumer
+      access: read

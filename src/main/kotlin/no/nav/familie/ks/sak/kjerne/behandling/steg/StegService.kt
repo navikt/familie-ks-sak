@@ -26,7 +26,6 @@ class StegService(
         val behandlingStegTilstand = hentStegTilstandForBehandlingSteg(behandling, behandlingSteg)
 
         valider(behandling, behandlingSteg)
-
         when (behandlingStegTilstand.behandlingStegStatus) {
             BehandlingStegStatus.KLAR -> {
                 // utfør steg, kaller utfør metode i tilsvarende steg klasser
@@ -75,9 +74,8 @@ class StegService(
                         "med steg $behandlingSteg med status ${behandlingStegTilstand.behandlingStegStatus}"
                 )
         }
-
         // statistikk til datavarehus
-        sakStatistikkService.opprettSendingAvBehandlingensTilstand(behandlingId, behandlingStegTilstand)
+        sakStatistikkService.opprettSendingAvBehandlingensTilstand(behandlingId, behandlingSteg)
     }
 
     private fun valider(behandling: Behandling, behandledeSteg: BehandlingSteg) {
