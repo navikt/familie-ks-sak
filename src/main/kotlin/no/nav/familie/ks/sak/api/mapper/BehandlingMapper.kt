@@ -85,7 +85,7 @@ object BehandlingMapper {
         kjønn = KJOENN.valueOf(person.kjønn.name),
         målform = person.målform,
         dødsfallDato = person.dødsfall?.dødsfallDato,
-        registerhistorikk = lagRegisterHistorikkResponsDto(person, landKodeOgLandNavn)
+        registerhistorikk = if (landKodeOgLandNavn.isNotEmpty()) lagRegisterHistorikkResponsDto(person, landKodeOgLandNavn) else null
     )
 
     fun lagPersonerMedAndelTilkjentYtelseRespons(
