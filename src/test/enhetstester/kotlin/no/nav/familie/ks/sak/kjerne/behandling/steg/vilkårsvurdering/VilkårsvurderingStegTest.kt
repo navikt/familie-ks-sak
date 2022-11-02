@@ -69,7 +69,7 @@ class VilkårsvurderingStegTest {
 
     @BeforeEach
     fun init() {
-        every { beregningService.oppdaterBehandlingMedBeregning(any(), any(), any(), any()) } just runs
+        every { beregningService.oppdaterTilkjentYtelsePåBehandling(any(), any(), any(), any()) } just runs
     }
 
     @Test

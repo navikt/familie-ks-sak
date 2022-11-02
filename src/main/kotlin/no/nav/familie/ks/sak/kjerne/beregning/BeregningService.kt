@@ -31,7 +31,7 @@ class BeregningService(
     fun hentTilkjentYtelseForBehandling(behandlingId: Long) =
         tilkjentYtelseRepository.hentTilkjentYtelseForBehandling(behandlingId)
 
-    fun oppdaterBehandlingMedBeregning(
+    fun oppdaterTilkjentYtelsePåBehandling(
         behandling: Behandling,
         personopplysningGrunnlag: PersonopplysningGrunnlag,
         vilkårsvurdering: Vilkårsvurdering,

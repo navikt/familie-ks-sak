@@ -5,8 +5,6 @@ import no.nav.familie.ks.sak.common.tidslinje.Periode
 import no.nav.familie.ks.sak.common.tidslinje.tilTidslinje
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.kombinerTidslinjer
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.tilPerioder
-import no.nav.familie.ks.sak.common.util.TIDENES_ENDE
-import no.nav.familie.ks.sak.common.util.TIDENES_MORGEN
 import no.nav.familie.ks.sak.common.util.sisteDagIMåned
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.PersonResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
@@ -25,7 +23,7 @@ data class PeriodeResultat(
 ) {
     fun allePåkrevdeVilkårErOppfylt(personType: PersonType): Boolean =
         vilkårResultater.map { it.vilkårType }.containsAll(Vilkår.hentVilkårFor(personType)) &&
-            vilkårResultater.all { it.resultat == Resultat.OPPFYLT }
+            vilkårResultater.all { it.resultat in listOf(Resultat.OPPFYLT, Resultat.IKKE_AKTUELT) }
 
     fun overlapper(annetPeriodeResultat: PeriodeResultat): Boolean {
         if (periodeFom == null && annetPeriodeResultat.periodeFom == null) {
@@ -71,8 +69,8 @@ fun PersonResultat.tilPeriodeResultater(): List<PeriodeResultat> {
     return kombinertTidslinjer.tilPerioder().map { periode ->
         PeriodeResultat(
             aktør = aktør,
-            periodeFom = if (periode.fom == TIDENES_MORGEN) null else periode.fom,
-            periodeTom = if (periode.tom == TIDENES_ENDE) null else periode.tom,
+            periodeFom = periode.fom,
+            periodeTom = periode.tom,
             vilkårResultater = periode.verdi!!.map { vilkårResultat ->
                 PeriodeVilkår(
                     vilkårType = vilkårResultat.vilkårType,

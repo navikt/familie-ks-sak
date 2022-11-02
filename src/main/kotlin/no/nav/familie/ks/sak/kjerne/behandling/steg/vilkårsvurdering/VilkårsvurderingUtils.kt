@@ -336,13 +336,13 @@ fun hentInnvilgedePerioder(
 ): Pair<List<PeriodeResultat>, List<PeriodeResultat>> {
     val periodeResultater = vilkårsvurdering.personResultater.flatMap { it.tilPeriodeResultater() }
 
-    val barnaIdenter = personopplysningGrunnlag.barna.associateBy { it.aktør }
+    val barnaIdenter = personopplysningGrunnlag.barna.map { it.aktør }
 
     val innvilgedePeriodeResultaterSøker = periodeResultater.filter {
         it.aktør == personopplysningGrunnlag.søker.aktør && it.allePåkrevdeVilkårErOppfylt(PersonType.SØKER)
     }
     val innvilgedePeriodeResultaterBarna = periodeResultater.filter {
-        barnaIdenter.containsKey(it.aktør) && it.allePåkrevdeVilkårErOppfylt(PersonType.BARN)
+        barnaIdenter.contains(it.aktør) && it.allePåkrevdeVilkårErOppfylt(PersonType.BARN)
     }
     return innvilgedePeriodeResultaterSøker to innvilgedePeriodeResultaterBarna
 }

@@ -51,7 +51,7 @@ class VilkårsvurderingSteg(
         validerAtDetFinnesBarnIPersonopplysningsgrunnlaget(personopplysningGrunnlag, behandling)
         validerAtDetIkkeErOverlappMellomGradertBarnehageplassOgDeltBosted(vilkårsvurdering)
 
-        beregningService.oppdaterBehandlingMedBeregning(behandling, personopplysningGrunnlag, vilkårsvurdering)
+        beregningService.oppdaterTilkjentYtelsePåBehandling(behandling, personopplysningGrunnlag, vilkårsvurdering)
     }
 
     private fun validerAtDetIkkeErOverlappMellomGradertBarnehageplassOgDeltBosted(vilkårsvurdering: Vilkårsvurdering) {
