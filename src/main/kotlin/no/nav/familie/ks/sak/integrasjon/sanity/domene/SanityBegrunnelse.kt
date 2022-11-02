@@ -1,10 +1,6 @@
 package no.nav.familie.ks.sak.integrasjon.sanity.domene
 
-import no.nav.familie.ks.sak.common.util.sisteDagIInneværendeMåned
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.TriggesAv
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.MinimertEndretAndel
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.MinimertPerson
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.MinimertVedtaksperiode
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
 import no.nav.familie.ks.sak.kjerne.beregning.domene.Årsak
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
@@ -18,8 +14,12 @@ data class SanityBegrunnelse(
     val rolle: List<PersonType> = emptyList(),
     val endringsaarsaker: List<Årsak>? = null,
     val ovrigeTriggere: List<ØvrigTrigger>? = null,
+    val lovligOppholdTriggere: List<VilkårTrigger>? = null,
+    val bosattIRiketTriggere: List<VilkårTrigger>? = null,
+    val borMedSokerTriggere: List<VilkårTrigger>? = null,
     val endretUtbetalingsperiodeTriggere: List<EndretUtbetalingsperiodeTrigger>? = null,
-    )
+    val endretUtbetalingsperiodeDeltBostedUtbetalingTrigger: EndretUtbetalingsperiodeDeltBostedTriggere? = null,
+)
 
 enum class EndretUtbetalingsperiodeTrigger {
     ETTER_ENDRET_UTBETALINGSPERIODE
@@ -34,13 +34,18 @@ enum class EndretUtbetalingsperiodeDeltBostedTriggere {
 enum class ØvrigTrigger {
     MANGLER_OPPLYSNINGER,
     SATSENDRING,
-    BARN_MED_6_ÅRS_DAG,
     ALLTID_AUTOMATISK,
-    ETTER_ENDRET_UTBETALING,
     ENDRET_UTBETALING,
     GJELDER_FØRSTE_PERIODE,
     GJELDER_FRA_INNVILGELSESTIDSPUNKT,
     BARN_DØD
+}
+
+enum class VilkårTrigger {
+    VURDERING_ANNET_GRUNNLAG,
+    MEDLEMSKAP,
+    DELT_BOSTED,
+    DELT_BOSTED_SKAL_IKKE_DELES
 }
 
 data class SanityBegrunnelserResponsDto(
@@ -111,9 +116,19 @@ fun SanityBegrunnelse.tilTriggesAv(): TriggesAv {
         valgbar = !this.inneholderØvrigTrigger(ØvrigTrigger.ALLTID_AUTOMATISK),
         etterEndretUtbetaling = this.endretUtbetalingsperiodeTriggere
             ?.contains(EndretUtbetalingsperiodeTrigger.ETTER_ENDRET_UTBETALINGSPERIODE) ?: false,
-
-
-        )
+        personerManglerOpplysninger = this.inneholderØvrigTrigger(ØvrigTrigger.MANGLER_OPPLYSNINGER),
+        vurderingAnnetGrunnlag = (
+                this.inneholderLovligOppholdTrigger(VilkårTrigger.VURDERING_ANNET_GRUNNLAG) ||
+                        this.inneholderBosattIRiketTrigger(VilkårTrigger.VURDERING_ANNET_GRUNNLAG) ||
+                        this.inneholderBorMedSøkerTrigger(VilkårTrigger.VURDERING_ANNET_GRUNNLAG)
+                ),
+        deltbosted = this.inneholderBorMedSøkerTrigger(VilkårTrigger.DELT_BOSTED),
+        endretUtbetalingSkalUtbetales = this.endretUtbetalingsperiodeDeltBostedUtbetalingTrigger
+            ?: EndretUtbetalingsperiodeDeltBostedTriggere.UTBETALING_IKKE_RELEVANT,
+        gjelderFørstePeriode = this.inneholderØvrigTrigger(ØvrigTrigger.GJELDER_FØRSTE_PERIODE),
+        gjelderFraInnvilgelsestidspunkt = this.inneholderØvrigTrigger(ØvrigTrigger.GJELDER_FRA_INNVILGELSESTIDSPUNKT),
+        barnDød = this.inneholderØvrigTrigger(ØvrigTrigger.BARN_DØD)
+    )
 }
 
 fun SanityBegrunnelse.inneholderØvrigTrigger(øvrigTrigger: ØvrigTrigger) =
@@ -122,14 +137,11 @@ fun SanityBegrunnelse.inneholderØvrigTrigger(øvrigTrigger: ØvrigTrigger) =
 fun SanityBegrunnelse.inneholderVilkår(vilkår: Vilkår) =
     this.vilkaar?.contains(vilkår) ?: false
 
-private fun erEtterEndretPeriodeAvSammeÅrsak(
-    endretUtbetalingAndeler: List<MinimertEndretAndel>,
-    minimertVedtaksperiode: MinimertVedtaksperiode,
-    aktuellePersoner: List<MinimertPerson>,
-    triggesAv: TriggesAv
-) = endretUtbetalingAndeler.any { endretUtbetalingAndel ->
-    endretUtbetalingAndel.månedPeriode().tom.sisteDagIInneværendeMåned()
-        .erDagenFør(minimertVedtaksperiode.fom) &&
-            aktuellePersoner.any { person -> person.aktørId == endretUtbetalingAndel.aktørId } &&
-            triggesAv.endringsaarsaker.contains(endretUtbetalingAndel.årsak)
-}
+fun SanityBegrunnelse.inneholderLovligOppholdTrigger(vilkårTrigger: VilkårTrigger) =
+    this.lovligOppholdTriggere?.contains(vilkårTrigger) ?: false
+
+fun SanityBegrunnelse.inneholderBosattIRiketTrigger(vilkårTrigger: VilkårTrigger) =
+    this.bosattIRiketTriggere?.contains(vilkårTrigger) ?: false
+
+fun SanityBegrunnelse.inneholderBorMedSøkerTrigger(vilkårTrigger: VilkårTrigger) =
+    this.borMedSokerTriggere?.contains(vilkårTrigger) ?: false

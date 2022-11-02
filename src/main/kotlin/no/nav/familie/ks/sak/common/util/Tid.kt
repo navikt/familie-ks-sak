@@ -31,13 +31,11 @@ fun YearMonth.sisteDagIInneværendeMåned() = this.atEndOfMonth()
 
 fun YearMonth.erSammeEllerTidligere(toCompare: YearMonth): Boolean = this.isBefore(toCompare) || this == toCompare
 
-fun YearMonth.erSammeEllerEtter(toCompare: YearMonth): Boolean {
-    return this.isAfter(toCompare) || this == toCompare
-}
-
 fun inneværendeMåned(): YearMonth = LocalDate.now().toYearMonth()
 
 fun LocalDate.nesteMåned(): YearMonth = this.toYearMonth().plusMonths(1)
+
+fun LocalDate.forrigeMåned() = this.toYearMonth().minusMonths(1)
 
 fun YearMonth.nesteMåned(): YearMonth = this.plusMonths(1)
 
@@ -67,8 +65,6 @@ data class NullablePeriode(val fom: LocalDate?, val tom: LocalDate?) {
 }
 
 data class NullableMånedPeriode(val fom: YearMonth?, val tom: YearMonth?)
-
-fun LocalDate.forrigeMåned() = this.toYearMonth().minusMonths(1)
 
 fun MånedPeriode.inkluderer(yearMonth: YearMonth) = yearMonth >= this.fom && yearMonth <= this.tom
 fun MånedPeriode.overlapperHeltEllerDelvisMed(annenPeriode: MånedPeriode) =

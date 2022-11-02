@@ -1,4 +1,4 @@
-package no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene
+package no.nav.familie.ks.sak.kjerne.brev.domene
 
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.common.util.Periode
@@ -10,7 +10,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vil
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
 import java.time.LocalDate
 
-data class MinimertVilkårResultat(
+data class BrevVilkårResultat(
     val vilkårType: Vilkår,
     val periodeFom: LocalDate?,
     val periodeTom: LocalDate?,
@@ -26,8 +26,8 @@ data class MinimertVilkårResultat(
     )
 }
 
-fun VilkårResultat.tilMinimertVilkårResultat() =
-    MinimertVilkårResultat(
+fun VilkårResultat.tilBrevVilkårResultat() =
+    BrevVilkårResultat(
         vilkårType = this.vilkårType,
         periodeFom = this.periodeFom,
         periodeTom = this.periodeTom,

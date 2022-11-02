@@ -1,11 +1,13 @@
 package no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak
 
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.EndretUtbetalingsperiodeDeltBostedTriggere
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.MinimertEndretAndel
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.MinimertVilkårResultat
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.BrevEndretUtbetalingAndel
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.BrevVilkårResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.UtdypendeVilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
 import no.nav.familie.ks.sak.kjerne.beregning.domene.Årsak
+import no.nav.familie.ks.sak.kjerne.brev.domene.BrevEndretUtbetalingAndel
+import no.nav.familie.ks.sak.kjerne.brev.domene.BrevVilkårResultat
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
 import java.math.BigDecimal
 
@@ -28,13 +30,13 @@ data class TriggesAv(
 
 
     fun erUtdypendeVilkårsvurderingOppfylt(
-        vilkårResultat: MinimertVilkårResultat
+        vilkårResultat: BrevVilkårResultat
     ): Boolean {
         return erDeltBostedOppfylt(vilkårResultat) &&
                 erSkjønnsmessigVurderingOppfylt(vilkårResultat)
     }
 
-    private fun erSkjønnsmessigVurderingOppfylt(vilkårResultat: MinimertVilkårResultat): Boolean {
+    private fun erSkjønnsmessigVurderingOppfylt(vilkårResultat: BrevVilkårResultat): Boolean {
         val vilkårResultatInneholderVurderingAnnetGrunnlag =
             vilkårResultat.utdypendeVilkårsvurderinger.contains(UtdypendeVilkårsvurdering.VURDERING_ANNET_GRUNNLAG)
 
@@ -42,7 +44,7 @@ data class TriggesAv(
     }
 
 
-    private fun erDeltBostedOppfylt(vilkårResultat: MinimertVilkårResultat): Boolean {
+    private fun erDeltBostedOppfylt(vilkårResultat: BrevVilkårResultat): Boolean {
         val vilkårResultatInneholderDeltBosted =
             vilkårResultat.utdypendeVilkårsvurderinger.contains(UtdypendeVilkårsvurdering.DELT_BOSTED)
 
@@ -52,7 +54,7 @@ data class TriggesAv(
 }
 
 
-fun MinimertEndretAndel.oppfyllerSkalUtbetalesTrigger(
+fun BrevEndretUtbetalingAndel.oppfyllerSkalUtbetalesTrigger(
     triggesAv: TriggesAv
 ): Boolean {
     val inneholderAndelSomSkalUtbetales = this.prosent!! != BigDecimal.ZERO

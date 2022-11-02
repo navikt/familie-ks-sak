@@ -1,10 +1,6 @@
 package no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene
 
 
-import no.nav.familie.ks.sak.common.util.MånedPeriode
-import no.nav.familie.ks.sak.common.util.TIDENES_ENDE
-import no.nav.familie.ks.sak.common.util.TIDENES_MORGEN
-import no.nav.familie.ks.sak.common.util.toYearMonth
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.IVedtakBegrunnelse
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.UtbetalingsperiodeDetalj
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.Vedtaksperiodetype
@@ -21,17 +17,7 @@ data class UtvidetVedtaksperiodeMedBegrunnelser(
     val fritekster: List<String> = emptyList(),
     val gyldigeBegrunnelser: List<IVedtakBegrunnelse> = emptyList(),
     val utbetalingsperiodeDetaljer: List<UtbetalingsperiodeDetalj> = emptyList()
-) {
-    fun hentMånedPeriode() = MånedPeriode(
-        (this.fom ?: TIDENES_MORGEN).toYearMonth(),
-        (this.tom ?: TIDENES_ENDE).toYearMonth()
-    )
-}
-
-fun List<UtvidetVedtaksperiodeMedBegrunnelser>.sorter(): List<UtvidetVedtaksperiodeMedBegrunnelser> {
-    val (perioderMedFom, perioderUtenFom) = this.partition { it.fom != null }
-    return perioderMedFom.sortedWith(compareBy { it.fom }) + perioderUtenFom
-}
+)
 
 fun VedtaksperiodeMedBegrunnelser.tilUtvidetVedtaksperiodeMedBegrunnelser(
     personopplysningGrunnlag: PersonopplysningGrunnlag,

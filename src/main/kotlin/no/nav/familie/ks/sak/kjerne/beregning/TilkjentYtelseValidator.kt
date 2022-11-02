@@ -19,8 +19,8 @@ object TilkjentYtelseValidator {
         val tidslinjeMedAndeler = tilkjentYtelse.tilTidslinjeMedAndeler()
 
         tidslinjeMedAndeler.tilPerioder().forEach {
-            val søkersAndeler = hentSøkersAndeler(it.verdi!!, søker)
-            val barnasAndeler = hentBarnasAndeler(it.verdi, barna)
+            val søkersAndeler = hentSøkersAndeler(it.verdi!!.toList(), søker)
+            val barnasAndeler = hentBarnasAndeler(it.verdi.toList(), barna)
 
             // TODO Sats validering
         }

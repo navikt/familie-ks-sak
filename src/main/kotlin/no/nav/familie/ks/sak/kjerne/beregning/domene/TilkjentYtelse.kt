@@ -71,7 +71,7 @@ data class TilkjentYtelse(
     val andelerTilkjentYtelse: MutableSet<AndelTilkjentYtelse> = mutableSetOf()
 )
 
-fun TilkjentYtelse.tilTidslinjeMedAndeler(): Tidslinje<List<AndelTilkjentYtelse>> {
+fun TilkjentYtelse.tilTidslinjeMedAndeler(): Tidslinje<Collection<AndelTilkjentYtelse>> {
     val tidslinjer = andelerTilkjentYtelse.map {
         listOf(
             Periode(

@@ -6,7 +6,6 @@ import no.nav.familie.ks.sak.common.util.erDagenFør
 import no.nav.familie.ks.sak.common.util.sisteDagIInneværendeMåned
 import no.nav.familie.ks.sak.common.util.toYearMonth
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelse
-import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityEØSBegrunnelse
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.tilTriggesAv
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.IVedtakBegrunnelse
@@ -15,20 +14,20 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.VedtakBegrunnelseType
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.endretUtbetalingsperiodeBegrunnelser
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.tilSanityBegrunnelse
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.triggesForPeriode
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.MinimertEndretAndel
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.MinimertPerson
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.MinimertRestPersonResultat
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.MinimertVedtaksperiode
+import no.nav.familie.ks.sak.kjerne.brev.domene.BrevPerson
+import no.nav.familie.ks.sak.kjerne.brev.domene.BrevPersonResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.UtvidetVedtaksperiodeMedBegrunnelser
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.VedtaksperiodeMedBegrunnelser
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.tilMinimertEndretUtbetalingAndel
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.tilMinimertPersonResultat
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.tilMinimertVedtaksperiode
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.tilMinimertePersoner
+import no.nav.familie.ks.sak.kjerne.brev.domene.tilBrevPersonResultat
+import no.nav.familie.ks.sak.kjerne.brev.domene.tilBrevPersoner
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.beregning.AndelTilkjentYtelseMedEndreteUtbetalinger
 import no.nav.familie.ks.sak.kjerne.beregning.domene.EndretUtbetalingAndel
 import no.nav.familie.ks.sak.kjerne.beregning.domene.YtelseType
+import no.nav.familie.ks.sak.kjerne.brev.domene.BrevEndretUtbetalingAndel
+import no.nav.familie.ks.sak.kjerne.brev.domene.BrevVedtaksPeriode
+import no.nav.familie.ks.sak.kjerne.brev.domene.tilBrevEndretUtbetalingAndel
+import no.nav.familie.ks.sak.kjerne.brev.domene.tilBrevVedtaksPeriode
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
 import java.time.LocalDate
 
@@ -94,14 +93,14 @@ fun hentGyldigeStandardbegrunnelserForVedtaksperiode(
     endretUtbetalingAndeler: List<EndretUtbetalingAndel>,
     andelerTilkjentYtelse: List<AndelTilkjentYtelseMedEndreteUtbetalinger>
 ) = hentGyldigeBegrunnelserForVedtaksperiodeMinimert(
-    minimertVedtaksperiode = utvidetVedtaksperiodeMedBegrunnelser.tilMinimertVedtaksperiode(),
+    brevVedtaksPeriode = utvidetVedtaksperiodeMedBegrunnelser.tilBrevVedtaksPeriode(),
     sanityBegrunnelser = sanityBegrunnelser,
-    minimertePersoner = persongrunnlag.tilMinimertePersoner(),
+    minimertePersoner = persongrunnlag.tilBrevPersoner(),
     minimertePersonresultater = vilkårsvurdering.personResultater
-        .map { it.tilMinimertPersonResultat() },
+        .map { it.tilBrevPersonResultat() },
     aktørIderMedUtbetaling = aktørIderMedUtbetaling,
     minimerteEndredeUtbetalingAndeler = endretUtbetalingAndeler
-        .map { it.tilMinimertEndretUtbetalingAndel() },
+        .map { it.tilBrevEndretUtbetalingAndel() },
     erFørsteVedtaksperiodePåFagsak = erFørsteVedtaksperiodePåFagsak(
         andelerTilkjentYtelse,
         utvidetVedtaksperiodeMedBegrunnelser.fom
@@ -119,19 +118,19 @@ fun hentGyldigeStandardbegrunnelserForVedtaksperiode(
 )
 
 fun hentGyldigeBegrunnelserForVedtaksperiodeMinimert(
-    minimertVedtaksperiode: MinimertVedtaksperiode,
+    brevVedtaksPeriode: BrevVedtaksPeriode,
     sanityBegrunnelser: List<SanityBegrunnelse>,
-    minimertePersoner: List<MinimertPerson>,
-    minimertePersonresultater: List<MinimertRestPersonResultat>,
+    minimertePersoner: List<BrevPerson>,
+    minimertePersonresultater: List<BrevPersonResultat>,
     aktørIderMedUtbetaling: List<String>,
-    minimerteEndredeUtbetalingAndeler: List<MinimertEndretAndel>,
+    minimerteEndredeUtbetalingAndeler: List<BrevEndretUtbetalingAndel>,
     erFørsteVedtaksperiodePåFagsak: Boolean,
     ytelserForSøkerForrigeMåned: List<YtelseType>,
     ytelserForrigePerioder: List<AndelTilkjentYtelseMedEndreteUtbetalinger>
 ): List<Standardbegrunnelse> {
     val tillateBegrunnelserForVedtakstype = Standardbegrunnelse.values()
         .filter {
-            minimertVedtaksperiode
+            brevVedtaksPeriode
                 .type
                 .tillatteBegrunnelsestyper
                 .contains(it.vedtakBegrunnelseType)
@@ -143,14 +142,15 @@ fun hentGyldigeBegrunnelserForVedtaksperiodeMinimert(
             }
         }
 
-    return when (minimertVedtaksperiode.type) {
+    return when (brevVedtaksPeriode.type) {
         Vedtaksperiodetype.FORTSATT_INNVILGET,
         Vedtaksperiodetype.AVSLAG -> tillateBegrunnelserForVedtakstype
+
         else -> {
             velgUtbetalingsbegrunnelser(
                 tillateBegrunnelserForVedtakstype,
                 sanityBegrunnelser,
-                minimertVedtaksperiode,
+                brevVedtaksPeriode,
                 minimertePersonresultater,
                 minimertePersoner,
                 aktørIderMedUtbetaling,
@@ -166,11 +166,11 @@ fun hentGyldigeBegrunnelserForVedtaksperiodeMinimert(
 private fun velgUtbetalingsbegrunnelser(
     tillateBegrunnelserForVedtakstype: List<Standardbegrunnelse>,
     sanityBegrunnelser: List<SanityBegrunnelse>,
-    minimertVedtaksperiode: MinimertVedtaksperiode,
-    minimertePersonresultater: List<MinimertRestPersonResultat>,
-    minimertePersoner: List<MinimertPerson>,
+    brevVedtaksPeriode: BrevVedtaksPeriode,
+    minimertePersonresultater: List<BrevPersonResultat>,
+    minimertePersoner: List<BrevPerson>,
     aktørIderMedUtbetaling: List<String>,
-    minimerteEndredeUtbetalingAndeler: List<MinimertEndretAndel>,
+    minimerteEndredeUtbetalingAndeler: List<BrevEndretUtbetalingAndel>,
     erFørsteVedtaksperiodePåFagsak: Boolean,
     ytelserForSøkerForrigeMåned: List<YtelseType>,
     ytelserForrigePeriode: List<AndelTilkjentYtelseMedEndreteUtbetalinger>
@@ -181,7 +181,7 @@ private fun velgUtbetalingsbegrunnelser(
             .filter { it.tilSanityBegrunnelse(sanityBegrunnelser)?.tilTriggesAv()?.valgbar ?: false }
             .fold(mutableSetOf()) { acc, standardBegrunnelse ->
                 if (standardBegrunnelse.triggesForPeriode(
-                        minimertVedtaksperiode = minimertVedtaksperiode,
+                        brevVedtaksPeriode = brevVedtaksPeriode,
                         minimertePersonResultater = minimertePersonresultater,
                         minimertePersoner = minimertePersoner,
                         aktørIderMedUtbetaling = aktørIderMedUtbetaling,
@@ -199,7 +199,7 @@ private fun velgUtbetalingsbegrunnelser(
             }
 
     val fantIngenbegrunnelserOgSkalDerforBrukeFortsattInnvilget =
-        minimertVedtaksperiode.type == Vedtaksperiodetype.UTBETALING &&
+        brevVedtaksPeriode.type == Vedtaksperiodetype.UTBETALING &&
                 standardbegrunnelser.isEmpty()
 
     return if (fantIngenbegrunnelserOgSkalDerforBrukeFortsattInnvilget) {

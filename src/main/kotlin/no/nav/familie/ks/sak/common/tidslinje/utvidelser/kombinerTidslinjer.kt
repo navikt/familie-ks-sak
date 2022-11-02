@@ -1,6 +1,5 @@
 package no.nav.familie.ks.sak.common.tidslinje.utvidelser
 
-import net.bytebuddy.dynamic.loading.PackageDefinitionStrategy.Definition.Undefined
 import no.nav.familie.ks.sak.common.tidslinje.Null
 import no.nav.familie.ks.sak.common.tidslinje.Tidslinje
 import no.nav.familie.ks.sak.common.tidslinje.Udefinert
@@ -34,14 +33,10 @@ fun <T> Collection<Tidslinje<T>>.slåSammen(): Tidslinje<Collection<T>> {
 
 fun <I, R> Collection<Tidslinje<I>>.kombiner(
     listeKombinator: (Iterable<I>) -> R
-): Tidslinje<R> {
-    val slåttSammen = this.slåSammen()
-    return slåttSammen.map {
-        when (it) {
-            is Verdi -> Verdi(listeKombinator(it.verdi)!!)
-            is Null -> Null()
-            is Udefinert -> Udefinert()
-        }
+): Tidslinje<R> = this.slåSammen().map {
+    when (it) {
+        is Verdi -> Verdi(listeKombinator(it.verdi)!!)
+        is Null -> Null()
+        is Udefinert -> Udefinert()
     }
-
 }

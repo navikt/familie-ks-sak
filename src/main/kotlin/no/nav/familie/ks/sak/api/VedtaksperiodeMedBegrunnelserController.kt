@@ -37,14 +37,12 @@ class VedtaksperiodeMedBegrunnelserController(
 
     @PutMapping("/standardbegrunnelser/{vedtaksperiodeId}")
     fun oppdaterVedtaksperiodeStandardbegrunnelser(
-        @PathVariable
-        vedtaksperiodeId: Long,
-        @RequestBody
-        vedtaksperiodeMedStandardbegrunnelserDto: VedtaksperiodeMedStandardbegrunnelserDto
+        @PathVariable vedtaksperiodeId: Long,
+        @RequestBody vedtaksperiodeMedStandardbegrunnelserDto: VedtaksperiodeMedStandardbegrunnelserDto
     ): ResponseEntity<Ressurs<BehandlingResponsDto>> {
         tilgangService.validerTilgangTilHandling(
             minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
-            handling = OPPDATERE_BEGRUNNELSER_HANDLING
+            handling = "oppdatere vedtaksperiode med standardbegrunnelser"
         )
 
         val standardbegrunnelser = vedtaksperiodeMedStandardbegrunnelserDto.standardbegrunnelser.map {
@@ -71,7 +69,7 @@ class VedtaksperiodeMedBegrunnelserController(
     ): ResponseEntity<Ressurs<BehandlingResponsDto>> {
         tilgangService.validerTilgangTilHandling(
             minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
-            handling = OPPDATERE_BEGRUNNELSER_HANDLING
+            handling = "oppdatere vedtaksperiode med fritekster"
         )
 
         val vedtak = vedtaksperiodeService.oppdaterVedtaksperiodeMedFritekster(
@@ -88,18 +86,18 @@ class VedtaksperiodeMedBegrunnelserController(
     ): ResponseEntity<Ressurs<BehandlingResponsDto>> {
         tilgangService.validerTilgangTilHandling(
             minimumBehandlerRolle = BehandlerRolle.VEILEDER,
-            handling = "Genererte vedtaksperioder"
+            handling = "Generer vedtaksperioder"
         )
 
         vedtaksperiodeService.genererVedtaksperiodeForOverstyrtEndringstidspunkt(
             genererVedtaksperioderForOverstyrtEndringstidspunktDto
         )
-        return ResponseEntity.ok(Ressurs.success(behandlingService.lagBehandlingRespons(behandlingId = genererVedtaksperioderForOverstyrtEndringstidspunktDto.behandlingId)))
 
+        return ResponseEntity.ok(Ressurs.success(behandlingService.lagBehandlingRespons(behandlingId = genererVedtaksperioderForOverstyrtEndringstidspunktDto.behandlingId)))
     }
 
     /*
-    * Dette endepunktet brukes for å overstyre hva slags vedtaksperioder man ønsker når resultatet er fortsatt innvilget.
+    * Dette endepnktet brukes for å overstyre hva slags vedtaksperioder man ønsker når resultatet er fortsatt innvilget.
     * Muligheter:
     * - skalGenererePerioderForFortsattInnvilget = false -> det blir kun generert 1 periode, uten dato (default valg for fortsatt innvilget)
     * - skalGenererePerioderForFortsattInnvilget = true -> det blir generert 'vanlige' perioder (overstyrer default for fortsatt innvilget)
@@ -128,12 +126,5 @@ class VedtaksperiodeMedBegrunnelserController(
         )
 
         return ResponseEntity.ok(Ressurs.success(behandlingService.lagBehandlingRespons(behandlingId = vedtak.behandling.id)))
-    }
-
-    private inline fun <reified T> konverterTilEnumverdi(it: String): T? where T : Enum<T> =
-        enumValues<T>().find { enum -> enum.name == it }
-
-    companion object {
-        const val OPPDATERE_BEGRUNNELSER_HANDLING = "oppdatere vedtaksperiode med begrunnelser"
     }
 }

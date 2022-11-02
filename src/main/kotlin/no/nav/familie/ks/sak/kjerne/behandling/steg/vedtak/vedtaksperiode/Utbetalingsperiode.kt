@@ -1,12 +1,7 @@
 package no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode
 
-
-import no.nav.familie.ks.sak.common.exception.Feil
-import no.nav.familie.ks.sak.common.tidslinje.Periode
-import no.nav.familie.ks.sak.common.util.inneværendeMåned
-import no.nav.familie.ks.sak.common.util.toYearMonth
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.MinimertPerson
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.tilMinimertPerson
+import no.nav.familie.ks.sak.kjerne.brev.domene.BrevPerson
+import no.nav.familie.ks.sak.kjerne.brev.domene.tilBrevPerson
 import no.nav.familie.ks.sak.kjerne.beregning.AndelTilkjentYtelseMedEndreteUtbetalinger
 import no.nav.familie.ks.sak.kjerne.beregning.domene.YtelseType
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
@@ -25,40 +20,15 @@ data class Utbetalingsperiode(
     val ytelseTyper: List<YtelseType>,
     val antallBarn: Int,
     val utbetaltPerMnd: Int
-) : Vedtaksperiode {
-    fun tilTomPeriode() = Periode<Utbetalingsperiode>(
-        verdi = null,
-        fom = this.periodeFom,
-        tom = this.periodeTom,
-    )
-}
+) : Vedtaksperiode
 
 data class UtbetalingsperiodeDetalj(
-    val minimertPerson: MinimertPerson,
+    val brevPerson: BrevPerson,
     val ytelseType: YtelseType,
     val utbetaltPerMnd: Int,
     val erPåvirketAvEndring: Boolean,
     val prosent: BigDecimal
 )
-
-fun List<UtbetalingsperiodeDetalj>.totaltUtbetalt(): Int =
-    this.sumOf { it.utbetaltPerMnd }
-
-fun hentUtbetalingsperiodeForVedtaksperiode(
-    utbetalingsperioder: List<Utbetalingsperiode>,
-    fom: LocalDate?
-): Utbetalingsperiode {
-    if (utbetalingsperioder.isEmpty()) {
-        throw Feil("Det finnes ingen utbetalingsperioder ved utledning av utbetalingsperiode.")
-    }
-    val fomDato = fom?.toYearMonth() ?: inneværendeMåned()
-
-    val sorterteUtbetalingsperioder = utbetalingsperioder.sortedBy { it.periodeFom }
-
-    return sorterteUtbetalingsperioder.lastOrNull { it.periodeFom.toYearMonth() <= fomDato }
-        ?: sorterteUtbetalingsperioder.firstOrNull()
-        ?: throw Feil("Finner ikke gjeldende utbetalingsperiode ved fortsatt innvilget")
-}
 
 fun mapTilUtbetalingsperioder(
     personopplysningGrunnlag: PersonopplysningGrunnlag,
@@ -89,7 +59,7 @@ internal fun List<AndelTilkjentYtelseMedEndreteUtbetalinger>.lagUtbetalingsperio
                 ?: throw IllegalStateException("Fant ikke personopplysningsgrunnlag for andel")
 
         UtbetalingsperiodeDetalj(
-            minimertPerson = personForAndel.tilMinimertPerson(),
+            brevPerson = personForAndel.tilBrevPerson(),
             ytelseType = andel.type,
             utbetaltPerMnd = andel.kalkulertUtbetalingsbeløp,
             erPåvirketAvEndring = andel.endreteUtbetalinger.isNotEmpty(),

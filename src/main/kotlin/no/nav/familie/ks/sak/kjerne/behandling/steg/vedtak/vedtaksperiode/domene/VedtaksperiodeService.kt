@@ -10,7 +10,6 @@ import no.nav.familie.ks.sak.common.util.TIDENES_ENDE
 import no.nav.familie.ks.sak.common.util.TIDENES_MORGEN
 import no.nav.familie.ks.sak.common.util.erSammeEllerEtter
 import no.nav.familie.ks.sak.common.util.sisteDagIInneværendeMåned
-import no.nav.familie.ks.sak.config.FeatureToggleService
 import no.nav.familie.ks.sak.integrasjon.sanity.SanityService
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.tilTriggesAv
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
@@ -193,7 +192,7 @@ class VedtaksperiodeService(
     ): List<VedtaksperiodeMedBegrunnelser> {
         val endringstidspunkt = manueltOverstyrtEndringstidspunkt
             ?: if (!gjelderFortsattInnvilget) {
-                //TODO: Legg til når vi får inn endringstidspunktservice som er avhengig av beregning
+                // TODO: Legg til når vi får inn endringstidspunktservice som er avhengig av beregning
                 //     endringstidspunktService.finnEndringstidpunkForBehandling(behandlingId = behandlingId)
                 TIDENES_MORGEN
             } else {
@@ -312,7 +311,6 @@ class VedtaksperiodeService(
             ?: error("Finner ikke vilkårsvurdering ved begrunning av vedtak")
 
         val sanityBegrunnelser = sanityService.hentSanityBegrunnelser()
-        val sanityEØSBegrunnelser = sanityService.hentSanityEØSBegrunnelser()
 
         return utvidedeVedtaksperioderMedBegrunnelser.map { utvidetVedtaksperiodeMedBegrunnelser ->
 
@@ -339,32 +337,10 @@ class VedtaksperiodeService(
     ): List<Aktør> = utvidetVedtaksperiodeMedBegrunnelser
         .utbetalingsperiodeDetaljer
         .map { utbetalingsperiodeDetalj ->
-            val ident = utbetalingsperiodeDetalj.minimertPerson.aktivPersonIdent
+            val ident = utbetalingsperiodeDetalj.brevPerson.aktivPersonIdent
             persongrunnlag.personer.find { it.aktør.aktivFødselsnummer() == ident }?.aktør
                 ?: personidentService.hentAktør(ident)
         }
-
-    fun oppdaterFortsattInnvilgetPeriodeMedAutobrevBegrunnelse(
-        vedtak: Vedtak,
-        standardbegrunnelse: Standardbegrunnelse
-    ) {
-        val vedtaksperioder = hentPersisterteVedtaksperioder(vedtak)
-
-        val fortsattInnvilgetPeriode: VedtaksperiodeMedBegrunnelser =
-            vedtaksperioder.singleOrNull()
-                ?: throw Feil("Finner ingen eller flere vedtaksperioder ved fortsatt innvilget")
-
-        fortsattInnvilgetPeriode.settBegrunnelser(
-            listOf(
-                Vedtaksbegrunnelse(
-                    vedtaksperiodeMedBegrunnelser = fortsattInnvilgetPeriode,
-                    standardbegrunnelse = standardbegrunnelse
-                )
-            )
-        )
-
-        vedtaksperiodeHentOgPersisterService.lagre(fortsattInnvilgetPeriode)
-    }
 
     private fun finnTomDatoIFørsteUtbetalingsintervallFraInneværendeMåned(behandlingId: Long): LocalDate =
         andelTilkjentYtelseRepository.finnAndelerTilkjentYtelseForBehandlinger(listOf(behandlingId))

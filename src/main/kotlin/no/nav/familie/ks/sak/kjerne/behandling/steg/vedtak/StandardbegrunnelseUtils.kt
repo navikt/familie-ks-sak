@@ -10,21 +10,18 @@ import no.nav.familie.ks.sak.common.util.sisteDagIInneværendeMåned
 import no.nav.familie.ks.sak.common.util.slåSammen
 import no.nav.familie.ks.sak.common.util.tilKortString
 import no.nav.familie.ks.sak.common.util.toYearMonth
-import no.nav.familie.ks.sak.integrasjon.sanity.domene.EndretUtbetalingsperiodeDeltBostedTriggere
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelse
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityEØSBegrunnelse
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.tilTriggesAv
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.MinimertEndretAndel
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.MinimertPerson
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.MinimertRestPersonResultat
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.MinimertVedtaksperiode
+import no.nav.familie.ks.sak.kjerne.brev.domene.BrevPerson
+import no.nav.familie.ks.sak.kjerne.brev.domene.BrevPersonResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.Vedtaksbegrunnelse
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.VedtaksperiodeMedBegrunnelser
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.harPersonerSomManglerOpplysninger
+import no.nav.familie.ks.sak.kjerne.brev.domene.harPersonerSomManglerOpplysninger
 import no.nav.familie.ks.sak.kjerne.beregning.AndelTilkjentYtelseMedEndreteUtbetalinger
 import no.nav.familie.ks.sak.kjerne.beregning.domene.YtelseType
-import no.nav.familie.ks.sak.kjerne.brev.domene.MinimertUtbetalingsperiodeDetalj
-import no.nav.familie.ks.sak.kjerne.brev.domene.tilMinimertUtbetalingsperiodeDetalj
+import no.nav.familie.ks.sak.kjerne.brev.domene.BrevEndretUtbetalingAndel
+import no.nav.familie.ks.sak.kjerne.brev.domene.BrevVedtaksPeriode
 import no.nav.familie.ks.sak.kjerne.brev.hentPersonerForAlleUtgjørendeVilkår
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
 import org.slf4j.LoggerFactory
@@ -78,11 +75,11 @@ fun Standardbegrunnelse.tilVedtaksbegrunnelse(
 }
 
 fun Standardbegrunnelse.triggesForPeriode(
-    minimertVedtaksperiode: MinimertVedtaksperiode,
-    minimertePersonResultater: List<MinimertRestPersonResultat>,
-    minimertePersoner: List<MinimertPerson>,
+    brevVedtaksPeriode: BrevVedtaksPeriode,
+    minimertePersonResultater: List<BrevPersonResultat>,
+    minimertePersoner: List<BrevPerson>,
     aktørIderMedUtbetaling: List<String>,
-    minimerteEndredeUtbetalingAndeler: List<MinimertEndretAndel> = emptyList(),
+    minimerteEndredeUtbetalingAndeler: List<BrevEndretUtbetalingAndel> = emptyList(),
     sanityBegrunnelser: List<SanityBegrunnelse>,
     erFørsteVedtaksperiodePåFagsak: Boolean,
     ytelserForSøkerForrigeMåned: List<YtelseType>,
@@ -100,16 +97,16 @@ fun Standardbegrunnelse.triggesForPeriode(
             }
         }
 
-    val ytelseTyperForPeriode = minimertVedtaksperiode.ytelseTyperForPeriode
+    val ytelseTyperForPeriode = brevVedtaksPeriode.ytelseTyperForPeriode
 
     fun hentPersonerForUtgjørendeVilkår() = hentPersonerForAlleUtgjørendeVilkår(
-        minimertePersonResultater = minimertePersonResultater,
+        brevPersonResultater = minimertePersonResultater,
         vedtaksperiode = Periode(
-            fom = minimertVedtaksperiode.fom ?: TIDENES_MORGEN,
-            tom = minimertVedtaksperiode.tom ?: TIDENES_ENDE
+            fom = brevVedtaksPeriode.fom ?: TIDENES_MORGEN,
+            tom = brevVedtaksPeriode.tom ?: TIDENES_ENDE
         ),
         oppdatertBegrunnelseType = this.vedtakBegrunnelseType,
-        aktuellePersonerForVedtaksperiode = aktuellePersoner.map { it.tilMinimertRestPerson() },
+        aktuellePersonerForVedtaksperiode = aktuellePersoner,
         triggesAv = triggesAv,
         erFørsteVedtaksperiodePåFagsak = erFørsteVedtaksperiodePåFagsak
     )
@@ -122,15 +119,15 @@ fun Standardbegrunnelse.triggesForPeriode(
         triggesAv.etterEndretUtbetaling ->
             erEtterEndretPeriodeAvSammeÅrsak(
                 minimerteEndredeUtbetalingAndeler,
-                minimertVedtaksperiode,
+                brevVedtaksPeriode,
                 aktuellePersoner,
                 triggesAv
             )
 
         triggesAv.erEndret() && !triggesAv.etterEndretUtbetaling -> erEndretTriggerErOppfylt(
             triggesAv = triggesAv,
-            minimerteEndredeUtbetalingAndeler = minimerteEndredeUtbetalingAndeler,
-            minimertVedtaksperiode = minimertVedtaksperiode
+            brevEndretUtbetalingAndel = minimerteEndredeUtbetalingAndeler,
+            brevVedtaksPeriode = brevVedtaksPeriode
         )
 
         triggesAv.gjelderFraInnvilgelsestidspunkt -> false
@@ -139,57 +136,56 @@ fun Standardbegrunnelse.triggesForPeriode(
             ytelserForrigePeriode,
             minimertePersoner.filter { it.type === PersonType.BARN }
         ).any()
+
         else -> hentPersonerForUtgjørendeVilkår().isNotEmpty()
     }
 }
 
 private fun erEndretTriggerErOppfylt(
     triggesAv: TriggesAv,
-    minimerteEndredeUtbetalingAndeler: List<MinimertEndretAndel>,
-    minimertVedtaksperiode: MinimertVedtaksperiode
+    brevEndretUtbetalingAndel: List<BrevEndretUtbetalingAndel>,
+    brevVedtaksPeriode: BrevVedtaksPeriode
 ): Boolean {
-    val endredeAndelerSomOverlapperVedtaksperiode = minimertVedtaksperiode
-        .finnEndredeAndelerISammePeriode(minimerteEndredeUtbetalingAndeler)
+    val endredeAndelerSomOverlapperVedtaksperiode = brevVedtaksPeriode
+        .finnEndredeAndelerISammePeriode(brevEndretUtbetalingAndel)
 
-    return endredeAndelerSomOverlapperVedtaksperiode.any { minimertEndretAndel ->
+    return endredeAndelerSomOverlapperVedtaksperiode.any {
         triggesAv.erTriggereOppfyltForEndretUtbetaling(
-            minimertEndretAndel = minimertEndretAndel,
-            minimerteUtbetalingsperiodeDetaljer = minimertVedtaksperiode
-                .utbetalingsperioder.map { it.tilMinimertUtbetalingsperiodeDetalj() }
+            brevEndretUtbetalingAndel = it
         )
     }
 }
 
 fun TriggesAv.erTriggereOppfyltForEndretUtbetaling(
-    minimertEndretAndel: MinimertEndretAndel,
-    minimerteUtbetalingsperiodeDetaljer: List<MinimertUtbetalingsperiodeDetalj>
+    brevEndretUtbetalingAndel: BrevEndretUtbetalingAndel,
 ): Boolean {
     val hørerTilEtterEndretUtbetaling = this.etterEndretUtbetaling
 
-    val oppfyllerSkalUtbetalesTrigger = minimertEndretAndel.oppfyllerSkalUtbetalesTrigger(this)
+    val oppfyllerSkalUtbetalesTrigger = brevEndretUtbetalingAndel.oppfyllerSkalUtbetalesTrigger(this)
 
 
-    val erAvSammeÅrsak = this.endringsaarsaker.contains(minimertEndretAndel.årsak)
+    val erAvSammeÅrsak = this.endringsaarsaker.contains(brevEndretUtbetalingAndel.årsak)
 
     return !hørerTilEtterEndretUtbetaling &&
-            oppfyllerSkalUtbetalesTrigger && erAvSammeÅrsak
+            oppfyllerSkalUtbetalesTrigger &&
+            erAvSammeÅrsak
 }
 
 private fun erEtterEndretPeriodeAvSammeÅrsak(
-    endretUtbetalingAndeler: List<MinimertEndretAndel>,
-    minimertVedtaksperiode: MinimertVedtaksperiode,
-    aktuellePersoner: List<MinimertPerson>,
+    endretUtbetalingAndeler: List<BrevEndretUtbetalingAndel>,
+    brevVedtaksPeriode: BrevVedtaksPeriode,
+    aktuellePersoner: List<BrevPerson>,
     triggesAv: TriggesAv
 ) = endretUtbetalingAndeler.any { endretUtbetalingAndel ->
     endretUtbetalingAndel.månedPeriode().tom.sisteDagIInneværendeMåned()
-        .erDagenFør(minimertVedtaksperiode.fom) &&
+        .erDagenFør(brevVedtaksPeriode.fom) &&
             aktuellePersoner.any { person -> person.aktørId == endretUtbetalingAndel.aktørId } &&
             triggesAv.endringsaarsaker.contains(endretUtbetalingAndel.årsak)
 }
 
 fun dødeBarnForrigePeriode(
     ytelserForrigePeriode: List<AndelTilkjentYtelseMedEndreteUtbetalinger>,
-    barnIBehandling: List<MinimertPerson>
+    barnIBehandling: List<BrevPerson>
 ): List<String> {
     return barnIBehandling.filter { barn ->
         val ytelserForrigePeriodeForBarn = ytelserForrigePeriode.filter {
