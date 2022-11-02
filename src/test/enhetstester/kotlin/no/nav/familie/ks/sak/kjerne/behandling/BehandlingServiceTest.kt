@@ -14,6 +14,7 @@ import no.nav.familie.ks.sak.api.dto.EndreBehandlendeEnhetDto
 import no.nav.familie.ks.sak.api.dto.SøkerMedOpplysningerDto
 import no.nav.familie.ks.sak.api.dto.SøknadDto
 import no.nav.familie.ks.sak.api.mapper.SøknadGrunnlagMapper
+import no.nav.familie.ks.sak.data.lagAndelTilkjentYtelse
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagFagsak
 import no.nav.familie.ks.sak.data.lagPersonopplysningGrunnlag
@@ -31,8 +32,9 @@ import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelseReposito
 import no.nav.familie.ks.sak.kjerne.logg.LoggService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.StatsborgerskapService
-import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNotNull
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertDoesNotThrow
@@ -100,25 +102,26 @@ class BehandlingServiceTest {
             )
         }
 
-        every { andelTilkjentYtelseRepository.finnAndelerTilkjentYtelseForBehandling(behandling.id) } returns emptyList()
+        every { andelTilkjentYtelseRepository.finnAndelerTilkjentYtelseForBehandling(behandling.id) } returns
+            listOf(lagAndelTilkjentYtelse(behandling = behandling))
     }
 
     @Test
     fun `lagBehandlingRespons - skal lage BehandlingResponsDto for behandling`() {
         val behandlingResponsDto = behandlingService.lagBehandlingRespons(behandling.id)
 
-        Assertions.assertNotNull(behandlingResponsDto)
+        assertNotNull(behandlingResponsDto)
         verify(exactly = 1) { behandlingService.hentBehandling(behandling.id) }
         verify(exactly = 1) { arbeidsfordelingService.hentArbeidsfordelingPåBehandling(behandling.id) }
         verify(exactly = 1) { personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlag(behandling.id) }
         verify(exactly = 1) { vilkårsvurderingService.finnAktivVilkårsvurdering(behandling.id) }
-        verify(exactly = 1) {
-            søknadGrunnlagService.finnAktiv(behandling.id)
-        }
+        verify(exactly = 1) { søknadGrunnlagService.finnAktiv(behandling.id) }
+        verify(exactly = 1) { andelTilkjentYtelseRepository.finnAndelerTilkjentYtelseForBehandling(behandling.id) }
 
-        Assertions.assertTrue { behandlingResponsDto.personer.isNotEmpty() }
+        assertTrue { behandlingResponsDto.personer.isNotEmpty() }
         assertEquals(1, behandlingResponsDto.personer.size)
-        Assertions.assertNotNull(behandlingResponsDto.søknadsgrunnlag)
+        assertNotNull(behandlingResponsDto.søknadsgrunnlag)
+        assertTrue { behandlingResponsDto.personerMedAndelerTilkjentYtelse.isNotEmpty() }
     }
 
     @Test
