@@ -4,6 +4,7 @@ import no.nav.familie.ks.sak.api.dto.VedtakBegrunnelseTilknyttetVilkårResponseD
 import no.nav.familie.ks.sak.api.dto.VilkårResultatDto
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
+import no.nav.familie.ks.sak.common.tidslinje.IkkeNullbarPeriode
 import no.nav.familie.ks.sak.common.tidslinje.Periode
 import no.nav.familie.ks.sak.common.tidslinje.Tidslinje
 import no.nav.familie.ks.sak.common.tidslinje.diffIDager
@@ -312,8 +313,6 @@ private fun VilkårResultat.lagOgValiderPeriodeFraVilkår(): IkkeNullbarPeriode<
         throw FunksjonellFeil("Ugyldig periode. Periode må ha t.o.m.-dato eller være et avslag uten datoer.")
     }
 }
-
-data class IkkeNullbarPeriode<T>(val verdi: T, val fom: LocalDate, val tom: LocalDate)
 
 private fun VilkårResultat.validerVilkår_MELLOM_1_OG_2_ELLER_ADOPTERT(
     periode: IkkeNullbarPeriode<Long>,

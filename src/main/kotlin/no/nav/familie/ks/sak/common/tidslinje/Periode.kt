@@ -18,3 +18,5 @@ fun <T> List<Periode<T>>.tilTidslinje(): Tidslinje<T> = this.map { it.tilTidslin
 
 fun <T> List<Periode<T>>.filtrerIkkeNull(): List<Periode<T & Any>> =
     this.mapNotNull { periode -> periode.verdi?.let { periode as Periode<T & Any> } }
+
+data class IkkeNullbarPeriode<T>(val verdi: T, val fom: LocalDate, val tom: LocalDate)
