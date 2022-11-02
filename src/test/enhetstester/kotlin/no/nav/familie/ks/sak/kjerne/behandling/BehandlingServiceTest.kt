@@ -110,7 +110,7 @@ class BehandlingServiceTest {
             listOf(lagAndelTilkjentYtelse(behandling = behandling))
         every {
             andelerTilkjentYtelseOgEndreteUtbetalingerService
-                .finnEndreteUtbetalingerMedAndelerTilkjentYtelse(behandling.id)
+                .finnAndelerTilkjentYtelseMedEndreteUtbetalinger(behandling.id)
         } returns emptyList()
     }
 
