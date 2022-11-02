@@ -1,12 +1,9 @@
 package no.nav.familie.ks.sak.kjerne.beregning
 
-import no.nav.familie.ks.sak.common.tidslinje.Null
 import no.nav.familie.ks.sak.common.tidslinje.Periode
 import no.nav.familie.ks.sak.common.tidslinje.Tidslinje
-import no.nav.familie.ks.sak.common.tidslinje.Verdi
 import no.nav.familie.ks.sak.common.tidslinje.tilTidslinje
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.kombinerTidslinjer
-import no.nav.familie.ks.sak.common.tidslinje.utvidelser.map
 import no.nav.familie.ks.sak.common.util.MånedPeriode
 import no.nav.familie.ks.sak.common.util.førsteDagIInneværendeMåned
 import no.nav.familie.ks.sak.common.util.overlapperHeltEllerDelvisMed
@@ -185,10 +182,3 @@ fun List<AndelTilkjentYtelseMedEndreteUtbetalinger>.tilTidslinjer(): List<Tidsli
 
 fun List<AndelTilkjentYtelseMedEndreteUtbetalinger>.lagVertikalePerioder(): Tidslinje<List<AndelTilkjentYtelseMedEndreteUtbetalinger>> =
     this.tilTidslinjer().kombinerTidslinjer()
-
-fun Tidslinje<List<AndelTilkjentYtelseMedEndreteUtbetalinger>>.tilSumTidslinje(): Tidslinje<Int> = this.map { periodeVerdi ->
-    when (periodeVerdi) {
-        is Verdi -> Verdi(periodeVerdi.verdi.sumOf { it.kalkulertUtbetalingsbeløp })
-        else -> Null()
-    }
-}

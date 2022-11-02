@@ -24,7 +24,6 @@ import no.nav.familie.ks.sak.kjerne.beregning.AndelTilkjentYtelseMedEndreteUtbet
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.domene.slåSammenBack2BackAndelsperioderMedSammeBeløp
 import no.nav.familie.ks.sak.kjerne.beregning.lagVertikalePerioder
-import no.nav.familie.ks.sak.kjerne.beregning.tilSumTidslinje
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
 import java.math.BigDecimal
@@ -123,14 +122,13 @@ object BehandlingMapper {
         andelerTilkjentYtelseMedEndreteUtbetalinger: List<AndelTilkjentYtelseMedEndreteUtbetalinger>
     ): List<UtbetalingsperiodeResponsDto> {
         if (andelerTilkjentYtelseMedEndreteUtbetalinger.isEmpty()) return emptyList()
-        val vertikalePerioder = andelerTilkjentYtelseMedEndreteUtbetalinger.lagVertikalePerioder()
-        return vertikalePerioder.tilSumTidslinje().tilPerioder().filtrerIkkeNull().map {
-            val periode = vertikalePerioder.tilPerioder().first { periode -> it.fom == periode.fom && it.tom == periode.tom }
-            val andelerForPeriode = checkNotNull(periode.verdi)
+        return andelerTilkjentYtelseMedEndreteUtbetalinger.lagVertikalePerioder().tilPerioder().filtrerIkkeNull().map {
+            val andelerForPeriode = it.verdi
+            val sumUtbetalingsbeløp = andelerForPeriode.sumOf { andel -> andel.kalkulertUtbetalingsbeløp }
             UtbetalingsperiodeResponsDto(
                 periodeFom = checkNotNull(it.fom),
                 periodeTom = checkNotNull(it.tom),
-                utbetaltPerMnd = checkNotNull(it.verdi),
+                utbetaltPerMnd = sumUtbetalingsbeløp,
                 antallBarn = andelerForPeriode.count { andel ->
                     personopplysningGrunnlag.barna.any { barn -> barn.aktør == andel.aktør }
                 },
