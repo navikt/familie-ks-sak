@@ -5,6 +5,7 @@ import no.nav.familie.ks.sak.api.dto.EndreBehandlendeEnhetDto
 import no.nav.familie.ks.sak.api.mapper.BehandlingMapper
 import no.nav.familie.ks.sak.api.mapper.BehandlingMapper.lagPersonRespons
 import no.nav.familie.ks.sak.api.mapper.BehandlingMapper.lagPersonerMedAndelTilkjentYtelseRespons
+import no.nav.familie.ks.sak.api.mapper.BehandlingMapper.lagUtbetalingsperioder
 import no.nav.familie.ks.sak.api.mapper.SøknadGrunnlagMapper.tilSøknadDto
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.ArbeidsfordelingService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
@@ -13,6 +14,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.søknad.SøknadGrunnlagService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
+import no.nav.familie.ks.sak.kjerne.beregning.AndelerTilkjentYtelseOgEndreteUtbetalingerService
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelseRepository
 import no.nav.familie.ks.sak.kjerne.logg.LoggService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
@@ -31,7 +33,8 @@ class BehandlingService(
     private val vilkårsvurderingService: VilkårsvurderingService,
     private val statsborgerskapService: StatsborgerskapService,
     private val loggService: LoggService,
-    private val andelTilkjentYtelseRepository: AndelTilkjentYtelseRepository
+    private val andelTilkjentYtelseRepository: AndelTilkjentYtelseRepository,
+    private val andelerTilkjentYtelseOgEndreteUtbetalingerService: AndelerTilkjentYtelseOgEndreteUtbetalingerService
 ) {
 
     fun hentBehandling(behandlingId: Long): Behandling = behandlingRepository.hentBehandling(behandlingId)
@@ -60,9 +63,15 @@ class BehandlingService(
             vilkårsvurderingService.finnAktivVilkårsvurdering(behandlingId)?.personResultater?.toList()
 
         val andelerTilkjentYtelse = andelTilkjentYtelseRepository.finnAndelerTilkjentYtelseForBehandling(behandlingId)
-        val personerMedAndelerResponsDto =
+        val personerMedAndelerTilkjentYtelse =
             personopplysningGrunnlag?.let { lagPersonerMedAndelTilkjentYtelseRespons(it.personer, andelerTilkjentYtelse) }
                 ?: emptyList()
+
+        val andelTilkjentYtelseMedEndreteUtbetalinger = andelerTilkjentYtelseOgEndreteUtbetalingerService
+            .finnAndelerTilkjentYtelseMedEndreteUtbetalinger(behandlingId)
+
+        val utbetalingsperioder = personopplysningGrunnlag?.let { lagUtbetalingsperioder(it, andelTilkjentYtelseMedEndreteUtbetalinger) }
+            ?: emptyList()
 
         return BehandlingMapper.lagBehandlingRespons(
             behandling,
@@ -70,7 +79,8 @@ class BehandlingService(
             søknadsgrunnlag,
             personResponser,
             personResultater,
-            personerMedAndelerResponsDto
+            personerMedAndelerTilkjentYtelse,
+            utbetalingsperioder
         )
     }
 

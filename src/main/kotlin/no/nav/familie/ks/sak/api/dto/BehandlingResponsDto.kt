@@ -12,6 +12,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.VenteÅrsak
 import no.nav.familie.ks.sak.kjerne.beregning.domene.YtelseType
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Målform
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
+import java.math.BigDecimal
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.YearMonth
@@ -93,4 +94,19 @@ data class YtelsePerioderDto(
     val stønadTom: YearMonth,
     val ytelseType: YtelseType,
     val skalUtbetales: Boolean
+)
+
+data class UtbetalingsperiodeResponsDto(
+    val periodeFom: LocalDate,
+    val periodeTom: LocalDate,
+    val antallBarn: Int,
+    val utbetaltPerMnd: Int,
+    val utbetalingsperiodeDetaljer: List<UtbetalingsperiodeDetaljDto>
+)
+
+data class UtbetalingsperiodeDetaljDto(
+    val person: PersonResponsDto,
+    val utbetaltPerMnd: Int,
+    val erPåvirketAvEndring: Boolean,
+    val prosent: BigDecimal
 )

@@ -8,16 +8,25 @@ import no.nav.familie.ks.sak.api.dto.BehandlingStegTilstandResponsDto
 import no.nav.familie.ks.sak.api.dto.PersonResponsDto
 import no.nav.familie.ks.sak.api.dto.PersonerMedAndelerResponsDto
 import no.nav.familie.ks.sak.api.dto.SøknadDto
+import no.nav.familie.ks.sak.api.dto.UtbetalingsperiodeDetaljDto
+import no.nav.familie.ks.sak.api.dto.UtbetalingsperiodeResponsDto
 import no.nav.familie.ks.sak.api.dto.YtelsePerioderDto
 import no.nav.familie.ks.sak.api.mapper.RegisterHistorikkMapper.lagRegisterHistorikkResponsDto
+import no.nav.familie.ks.sak.common.exception.Feil
+import no.nav.familie.ks.sak.common.tidslinje.filtrerIkkeNull
+import no.nav.familie.ks.sak.common.tidslinje.utvidelser.tilPerioder
 import no.nav.familie.ks.sak.common.util.toYearMonth
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.domene.ArbeidsfordelingPåBehandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingStegStatus
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.PersonResultat
+import no.nav.familie.ks.sak.kjerne.beregning.AndelTilkjentYtelseMedEndreteUtbetalinger
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.domene.slåSammenBack2BackAndelsperioderMedSammeBeløp
+import no.nav.familie.ks.sak.kjerne.beregning.lagVertikalePerioder
+import no.nav.familie.ks.sak.kjerne.beregning.tilSumTidslinje
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
+import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
 import java.math.BigDecimal
 import java.time.LocalDate
 
@@ -29,7 +38,8 @@ object BehandlingMapper {
         søknadsgrunnlag: SøknadDto?,
         personer: List<PersonResponsDto>,
         personResultater: List<PersonResultat>?,
-        personerMedAndelerResponsDto: List<PersonerMedAndelerResponsDto>
+        personerMedAndelerTilkjentYtelse: List<PersonerMedAndelerResponsDto>,
+        utbetalingsperioder: List<UtbetalingsperiodeResponsDto>
     ) =
         BehandlingResponsDto(
             behandlingId = behandling.id,
@@ -56,7 +66,8 @@ object BehandlingMapper {
                 ?: emptyList(),
             behandlingPåVent = behandling.behandlingStegTilstand.singleOrNull { it.behandlingStegStatus == BehandlingStegStatus.VENTER }
                 ?.let { BehandlingPåVentResponsDto(it.frist!!, it.årsak!!) },
-            personerMedAndelerTilkjentYtelse = personerMedAndelerResponsDto
+            personerMedAndelerTilkjentYtelse = personerMedAndelerTilkjentYtelse,
+            utbetalingsperioder = utbetalingsperioder
         )
 
     private fun lagArbeidsfordelingRespons(arbeidsfordelingPåBehandling: ArbeidsfordelingPåBehandling) =
@@ -91,9 +102,9 @@ object BehandlingMapper {
                 PersonerMedAndelerResponsDto(
                     personIdent = personer.find { person -> person.aktør == aktør }?.aktør?.aktivFødselsnummer(),
                     beløp = sammenslåtteAndeler.sumOf { it.kalkulertUtbetalingsbeløp },
-                    stønadFom = sammenslåtteAndeler.map { it.stønadFom }.minOrNull()
+                    stønadFom = sammenslåtteAndeler.minOfOrNull { it.stønadFom }
                         ?: LocalDate.MIN.toYearMonth(),
-                    stønadTom = sammenslåtteAndeler.map { it.stønadTom }.maxOrNull()
+                    stønadTom = sammenslåtteAndeler.maxOfOrNull { it.stønadTom }
                         ?: LocalDate.MAX.toYearMonth(),
                     ytelsePerioder = sammenslåtteAndeler.map { sammenslåttAndel ->
                         YtelsePerioderDto(
@@ -106,4 +117,39 @@ object BehandlingMapper {
                     }
                 )
             }
+
+    fun lagUtbetalingsperioder(
+        personopplysningGrunnlag: PersonopplysningGrunnlag,
+        andelerTilkjentYtelseMedEndreteUtbetalinger: List<AndelTilkjentYtelseMedEndreteUtbetalinger>
+    ): List<UtbetalingsperiodeResponsDto> {
+        val vertikalePerioder = andelerTilkjentYtelseMedEndreteUtbetalinger.lagVertikalePerioder()
+        return vertikalePerioder.tilSumTidslinje().tilPerioder().filtrerIkkeNull().map {
+            val periode = vertikalePerioder.tilPerioder().first { periode -> it.fom == periode.fom && it.tom == periode.tom }
+            val andelerForPeriode = checkNotNull(periode.verdi)
+            UtbetalingsperiodeResponsDto(
+                periodeFom = checkNotNull(it.fom),
+                periodeTom = checkNotNull(it.tom),
+                utbetaltPerMnd = checkNotNull(it.verdi),
+                antallBarn = andelerForPeriode.count { andel ->
+                    personopplysningGrunnlag.barna.any { barn -> barn.aktør == andel.aktør }
+                },
+                utbetalingsperiodeDetaljer = andelerForPeriode.lagUtbetalingsperiodeDetaljer(personopplysningGrunnlag)
+            )
+        }
+    }
+
+    private fun List<AndelTilkjentYtelseMedEndreteUtbetalinger>.lagUtbetalingsperiodeDetaljer(
+        personopplysningGrunnlag: PersonopplysningGrunnlag
+    ): List<UtbetalingsperiodeDetaljDto> =
+        this.map { andel ->
+            val personForAndel = personopplysningGrunnlag.personer.find { person -> andel.aktør == person.aktør }
+                ?: throw Feil("Fant ikke personopplysningsgrunnlag for andel")
+
+            UtbetalingsperiodeDetaljDto(
+                person = lagPersonRespons(personForAndel, emptyMap()),
+                utbetaltPerMnd = andel.kalkulertUtbetalingsbeløp,
+                erPåvirketAvEndring = andel.endreteUtbetalinger.isNotEmpty(),
+                prosent = andel.prosent
+            )
+        }
 }
