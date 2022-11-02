@@ -8,6 +8,7 @@ import no.nav.familie.ks.sak.common.tidslinje.IkkeNullbarPeriode
 import no.nav.familie.ks.sak.common.tidslinje.Periode
 import no.nav.familie.ks.sak.common.tidslinje.Tidslinje
 import no.nav.familie.ks.sak.common.tidslinje.diffIDager
+import no.nav.familie.ks.sak.common.tidslinje.filtrerIkkeNull
 import no.nav.familie.ks.sak.common.tidslinje.tilTidslinje
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.kombinerMed
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.tilPerioder
@@ -192,7 +193,8 @@ fun tilpassVilkårForEndretVilkår(
                 eksisterendeVilkår
             }
         }.tilPerioder()
-        .mapNotNull {
+        .filtrerIkkeNull()
+        .map {
             it.tilVilkårResultatMedOppdatertPeriodeOgBehandlingsId(nyBehandlingsId = endretVilkårResultat.behandlingId)
         }
 }
@@ -237,15 +239,15 @@ fun List<VilkårResultat>.tilTidslinje(): Tidslinje<VilkårResultat> {
 
 private fun Periode<VilkårResultat>.tilVilkårResultatMedOppdatertPeriodeOgBehandlingsId(
     nyBehandlingsId: Long
-): VilkårResultat? {
+): VilkårResultat {
     val vilkårResultat = this.verdi
 
-    val vilkårsdatoErUendret = this.fom == vilkårResultat?.periodeFom && this.tom == vilkårResultat?.periodeTom
+    val vilkårsdatoErUendret = this.fom == vilkårResultat.periodeFom && this.tom == vilkårResultat.periodeTom
 
     return if (vilkårsdatoErUendret) {
         vilkårResultat
     } else {
-        vilkårResultat?.kopierMedNyPeriodeOgBehandling(
+        vilkårResultat.kopierMedNyPeriodeOgBehandling(
             fom = this.fom,
             tom = this.tom,
             behandlingId = nyBehandlingsId
@@ -306,9 +308,11 @@ private fun VilkårResultat.lagOgValiderPeriodeFraVilkår(): IkkeNullbarPeriode<
     periodeFom !== null -> {
         IkkeNullbarPeriode(verdi = behandlingId, fom = checkNotNull(periodeFom), tom = periodeTom ?: TIDENES_ENDE)
     }
+
     erEksplisittAvslagPåSøknad == true && periodeTom == null -> {
         IkkeNullbarPeriode(verdi = behandlingId, fom = TIDENES_MORGEN, tom = TIDENES_ENDE)
     }
+
     else -> {
         throw FunksjonellFeil("Ugyldig periode. Periode må ha t.o.m.-dato eller være et avslag uten datoer.")
     }
@@ -321,6 +325,7 @@ private fun VilkårResultat.validerVilkår_MELLOM_1_OG_2_ELLER_ADOPTERT(
     this.erAdopsjonOppfylt() &&
         periode.tom.isAfter(barnFødselsdato.plusYears(6).withMonth(Month.AUGUST.value).sisteDagIMåned()) ->
         "Du kan ikke sette en t.o.m dato som er etter august året barnet fyller 6 år."
+
     this.erAdopsjonOppfylt() && periode.fom.diffIDager(periode.tom) > 365 ->
         "Differansen mellom f.o.m datoen og t.o.m datoen kan ikke være mer enn 1 år."
     !this.erAdopsjonOppfylt() && !periode.fom.isEqual(barnFødselsdato.plusYears(1)) ->
