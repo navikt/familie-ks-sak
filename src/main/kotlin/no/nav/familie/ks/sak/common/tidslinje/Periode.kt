@@ -5,6 +5,7 @@ package no.nav.familie.ks.sak.common.tidslinje
 import java.time.LocalDate
 
 data class Periode<T>(
+    // NB: Generiske klasser arver type fra "Any?", så verdi kan være null.
     val verdi: T,
     val fom: LocalDate?,
     val tom: LocalDate?
