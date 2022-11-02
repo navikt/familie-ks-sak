@@ -122,6 +122,7 @@ object BehandlingMapper {
         personopplysningGrunnlag: PersonopplysningGrunnlag,
         andelerTilkjentYtelseMedEndreteUtbetalinger: List<AndelTilkjentYtelseMedEndreteUtbetalinger>
     ): List<UtbetalingsperiodeResponsDto> {
+        if (andelerTilkjentYtelseMedEndreteUtbetalinger.isEmpty()) return emptyList()
         val vertikalePerioder = andelerTilkjentYtelseMedEndreteUtbetalinger.lagVertikalePerioder()
         return vertikalePerioder.tilSumTidslinje().tilPerioder().filtrerIkkeNull().map {
             val periode = vertikalePerioder.tilPerioder().first { periode -> it.fom == periode.fom && it.tom == periode.tom }
