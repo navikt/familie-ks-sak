@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service
 
 interface KafkaProducer {
     fun sendBehandlingsTilstand(behandlingId: String, request: BehandlingStatistikkDto)
+    fun sendSisteBehandlingsTilstand(request: BehandlingStatistikkDto)
 }
 
 @Service
@@ -22,6 +23,15 @@ class DatavarehusKafkaProducer(private val kafkaTemplate: KafkaTemplate<String, 
 
     override fun sendBehandlingsTilstand(behandlingId: String, request: BehandlingStatistikkDto) {
         sendKafkamelding(behandlingId, KafkaConfig.BEHANDLING_TOPIC, request.behandlingID.toString(), request)
+    }
+
+    override fun sendSisteBehandlingsTilstand(request: BehandlingStatistikkDto) {
+        sendKafkamelding(
+            request.behandlingID.toString(),
+            KafkaConfig.SISTE_TILSTAND_BEHANDLING_TOPIC,
+            request.behandlingID.toString(),
+            request
+        )
     }
 
     private fun sendKafkamelding(behandlingId: String, topic: String, key: String, request: Any) {
@@ -51,6 +61,10 @@ class E2EKafkaProducer : KafkaProducer {
 
     override fun sendBehandlingsTilstand(behandlingId: String, request: BehandlingStatistikkDto) {
         logger.info("Skipper sending av saksstatistikk for behandling $behandlingId fordi kafka ikke er enablet")
+    }
+
+    override fun sendSisteBehandlingsTilstand(request: BehandlingStatistikkDto) {
+        logger.info("Skipper sending av saksstatistikk for behandling ${request.behandlingID} fordi kafka ikke er enablet")
     }
 
     companion object {
