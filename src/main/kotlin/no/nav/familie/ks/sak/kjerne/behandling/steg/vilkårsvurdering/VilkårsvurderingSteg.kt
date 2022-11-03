@@ -14,6 +14,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.søknad.SøknadGrunnlagServi
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.UtdypendeVilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
+import no.nav.familie.ks.sak.kjerne.beregning.BeregningService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
 import org.slf4j.Logger
@@ -27,7 +28,8 @@ class VilkårsvurderingSteg(
     private val personopplysningGrunnlagService: PersonopplysningGrunnlagService,
     private val behandlingService: BehandlingService,
     private val søknadGrunnlagService: SøknadGrunnlagService,
-    private val vilkårsvurderingService: VilkårsvurderingService
+    private val vilkårsvurderingService: VilkårsvurderingService,
+    private val beregningService: BeregningService
 ) : IBehandlingSteg {
     override fun getBehandlingssteg(): BehandlingSteg = BehandlingSteg.VILKÅRSVURDERING
 
@@ -49,8 +51,7 @@ class VilkårsvurderingSteg(
         validerAtDetFinnesBarnIPersonopplysningsgrunnlaget(personopplysningGrunnlag, behandling)
         validerAtDetIkkeErOverlappMellomGradertBarnehageplassOgDeltBosted(vilkårsvurdering)
 
-        // TODO: Kommer etter vi har fått inn behandlingsresultat.
-        // beregningService.oppdaterBehandlingMedBeregning(behandling, personopplysningGrunnlag)
+        beregningService.oppdaterTilkjentYtelsePåBehandling(behandling, personopplysningGrunnlag, vilkårsvurdering)
     }
 
     private fun validerAtDetIkkeErOverlappMellomGradertBarnehageplassOgDeltBosted(vilkårsvurdering: Vilkårsvurdering) {

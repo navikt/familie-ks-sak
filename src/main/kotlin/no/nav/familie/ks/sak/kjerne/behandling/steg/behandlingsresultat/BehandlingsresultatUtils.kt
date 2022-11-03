@@ -48,7 +48,7 @@ object BehandlingsresultatUtils {
         if (behandling.type != BehandlingType.TEKNISK_ENDRING) {
             validerBarnasVilkår(vilkårsvurdering, personopplysningGrunnlag.barna)
         }
-        // valider TilkjentYtelse // TODO ikke komplett ennå, implementeres det med Sats
+        // valider TilkjentYtelse
         TilkjentYtelseValidator.validerAtTilkjentYtelseHarFornuftigePerioderOgBeløp(tilkjentYtelse, personopplysningGrunnlag)
 
         // valider EndretUtbetalingAndel

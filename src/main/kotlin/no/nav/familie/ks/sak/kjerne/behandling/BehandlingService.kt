@@ -4,6 +4,8 @@ import no.nav.familie.ks.sak.api.dto.BehandlingResponsDto
 import no.nav.familie.ks.sak.api.dto.EndreBehandlendeEnhetDto
 import no.nav.familie.ks.sak.api.mapper.BehandlingMapper
 import no.nav.familie.ks.sak.api.mapper.BehandlingMapper.lagPersonRespons
+import no.nav.familie.ks.sak.api.mapper.BehandlingMapper.lagPersonerMedAndelTilkjentYtelseRespons
+import no.nav.familie.ks.sak.api.mapper.BehandlingMapper.lagUtbetalingsperioder
 import no.nav.familie.ks.sak.api.mapper.SøknadGrunnlagMapper.tilSøknadDto
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.ArbeidsfordelingService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
@@ -12,6 +14,8 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.søknad.SøknadGrunnlagService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
+import no.nav.familie.ks.sak.kjerne.beregning.AndelerTilkjentYtelseOgEndreteUtbetalingerService
+import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelseRepository
 import no.nav.familie.ks.sak.kjerne.logg.LoggService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.StatsborgerskapService
@@ -28,7 +32,9 @@ class BehandlingService(
     private val personopplysningGrunnlagService: PersonopplysningGrunnlagService,
     private val vilkårsvurderingService: VilkårsvurderingService,
     private val statsborgerskapService: StatsborgerskapService,
-    private val loggService: LoggService
+    private val loggService: LoggService,
+    private val andelTilkjentYtelseRepository: AndelTilkjentYtelseRepository,
+    private val andelerTilkjentYtelseOgEndreteUtbetalingerService: AndelerTilkjentYtelseOgEndreteUtbetalingerService
 ) {
 
     fun hentBehandling(behandlingId: Long): Behandling = behandlingRepository.hentBehandling(behandlingId)
@@ -37,33 +43,44 @@ class BehandlingService(
         .filter { !it.erHenlagt() && it.status == BehandlingStatus.AVSLUTTET }
         .maxByOrNull { it.opprettetTidspunkt }
 
-    fun lagreEllerOppdater(behandling: Behandling): Behandling {
-        logger.info("${SikkerhetContext.hentSaksbehandlerNavn()} oppretter behandling $behandling")
+    fun oppdaterBehandling(behandling: Behandling): Behandling {
+        logger.info("${SikkerhetContext.hentSaksbehandlerNavn()} oppdaterer behandling $behandling")
         return behandlingRepository.save(behandling)
     }
 
     fun lagBehandlingRespons(behandlingId: Long): BehandlingResponsDto {
         val behandling = hentBehandling(behandlingId)
         val arbeidsfordelingPåBehandling = arbeidsfordelingService.hentArbeidsfordelingPåBehandling(behandlingId)
+        val personopplysningGrunnlag = personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlag(behandlingId)
 
-        val personer =
-            personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlag(behandlingId)?.personer?.toList()
-                ?: emptyList()
-
+        val personer = personopplysningGrunnlag?.personer?.toList() ?: emptyList()
         val landKodeOgLandNavn = personer.flatMap { it.statsborgerskap }.toSet()
             .associate { it.landkode to statsborgerskapService.hentLand(it.landkode) }
-
-        val personResponserDtoer = personer.map { lagPersonRespons(it, landKodeOgLandNavn) }
+        val personResponser = personer.map { lagPersonRespons(it, landKodeOgLandNavn) }
 
         val søknadsgrunnlag = søknadGrunnlagService.finnAktiv(behandlingId)?.tilSøknadDto()
         val personResultater =
             vilkårsvurderingService.finnAktivVilkårsvurdering(behandlingId)?.personResultater?.toList()
+
+        val andelerTilkjentYtelse = andelTilkjentYtelseRepository.finnAndelerTilkjentYtelseForBehandling(behandlingId)
+        val personerMedAndelerTilkjentYtelse =
+            personopplysningGrunnlag?.let { lagPersonerMedAndelTilkjentYtelseRespons(it.personer, andelerTilkjentYtelse) }
+                ?: emptyList()
+
+        val andelTilkjentYtelseMedEndreteUtbetalinger = andelerTilkjentYtelseOgEndreteUtbetalingerService
+            .finnAndelerTilkjentYtelseMedEndreteUtbetalinger(behandlingId)
+
+        val utbetalingsperioder = personopplysningGrunnlag?.let { lagUtbetalingsperioder(it, andelTilkjentYtelseMedEndreteUtbetalinger) }
+            ?: emptyList()
+
         return BehandlingMapper.lagBehandlingRespons(
             behandling,
             arbeidsfordelingPåBehandling,
             søknadsgrunnlag,
-            personResponserDtoer,
-            personResultater
+            personResponser,
+            personResultater,
+            personerMedAndelerTilkjentYtelse,
+            utbetalingsperioder
         )
     }
 
@@ -81,18 +98,22 @@ class BehandlingService(
             behandlingsForrigeResultat = behandling.resultat,
             behandlingsNyResultat = nyUtledetBehandlingsresultat
         )
-        return lagreEllerOppdater(behandling.copy(resultat = nyUtledetBehandlingsresultat))
+        behandling.resultat = nyUtledetBehandlingsresultat
+        return oppdaterBehandling(behandling)
     }
 
     fun oppdaterStatusPåBehandling(behandlingId: Long, status: BehandlingStatus): Behandling {
         val behandling = hentBehandling(behandlingId)
         logger.info("${SikkerhetContext.hentSaksbehandlerNavn()} endrer status på behandling $behandlingId fra ${behandling.status} til $status")
 
-        return lagreEllerOppdater(behandling.copy(status = status))
+        return oppdaterBehandling(behandling.copy(status = status))
     }
 
-    fun nullstillEndringstidspunkt(behandlingId: Long) =
-        lagreEllerOppdater(hentBehandling(behandlingId).copy(overstyrtEndringstidspunkt = null))
+    fun nullstillEndringstidspunkt(behandlingId: Long) {
+        val behandling = hentBehandling(behandlingId)
+        behandling.overstyrtEndringstidspunkt = null
+        oppdaterBehandling(behandling)
+    }
 
     companion object {
         private val logger: Logger = LoggerFactory.getLogger(BehandlingService::class.java)

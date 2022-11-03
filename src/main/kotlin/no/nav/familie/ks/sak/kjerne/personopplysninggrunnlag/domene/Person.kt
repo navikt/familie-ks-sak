@@ -110,6 +110,8 @@ data class Person(
     override fun hashCode(): Int {
         return Objects.hash(aktør, fødselsdato)
     }
+
+    fun erDød(): Boolean = dødsfall != null
 }
 
 enum class Kjønn {

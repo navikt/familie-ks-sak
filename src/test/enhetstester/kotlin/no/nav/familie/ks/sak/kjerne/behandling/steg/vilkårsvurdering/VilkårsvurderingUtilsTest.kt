@@ -2,11 +2,16 @@ package no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering
 
 import io.mockk.mockk
 import no.nav.familie.ks.sak.common.exception.Feil
+import no.nav.familie.ks.sak.common.util.Periode
+import no.nav.familie.ks.sak.common.util.førsteDagIInneværendeMåned
+import no.nav.familie.ks.sak.common.util.sisteDagIMåned
 import no.nav.familie.ks.sak.common.util.tilDagMånedÅr
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagPerson
 import no.nav.familie.ks.sak.data.lagPersonopplysningGrunnlag
 import no.nav.familie.ks.sak.data.lagVilkårResultat
+import no.nav.familie.ks.sak.data.lagVilkårResultaterForBarn
+import no.nav.familie.ks.sak.data.lagVilkårsvurderingMedSøkersVilkår
 import no.nav.familie.ks.sak.data.randomAktør
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.PersonResultat
@@ -18,6 +23,9 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vil
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
 import org.junit.jupiter.api.Assertions.assertDoesNotThrow
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNotNull
+import org.junit.jupiter.api.Assertions.assertNull
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import java.time.LocalDate
@@ -37,7 +45,9 @@ class VilkårsvurderingUtilsTest {
     private val personopplysningGrunnlag = lagPersonopplysningGrunnlag(
         behandlingId = behandling.id,
         søkerPersonIdent = søker.aktivFødselsnummer(),
-        barnasIdenter = listOf(barn1.aktivFødselsnummer())
+        barnasIdenter = listOf(barn1.aktivFødselsnummer()),
+        søkerAktør = søker,
+        barnAktør = listOf(barn1)
     )
     private val søkerPerson = lagPerson(personopplysningGrunnlag, søker, PersonType.SØKER)
     private val barnPerson = lagPerson(personopplysningGrunnlag, barn1, PersonType.BARN)
@@ -477,5 +487,51 @@ class VilkårsvurderingUtilsTest {
         vilkårsvurdering.personResultater = setOf(personResultatForBarn)
 
         assertDoesNotThrow { validerBarnasVilkår(vilkårsvurdering, barna = listOf(barnPerson)) }
+    }
+
+    @Test
+    fun `hentInnvilgedePerioder skal hente innvilgede perioder for søker og barna`() {
+        val vilkårsvurderingMedSøkersvilkår = lagVilkårsvurderingMedSøkersVilkår(
+            søkerAktør = søker,
+            behandling = behandling,
+            resultat = Resultat.OPPFYLT,
+            søkerPeriodeFom = LocalDate.of(1987, 1, 1),
+            søkerPeriodeTom = null
+        )
+        val personResultaterForSøker = vilkårsvurderingMedSøkersvilkår.personResultater
+        val personResultatForBarn = PersonResultat(vilkårsvurdering = vilkårsvurderingMedSøkersvilkår, aktør = barn1)
+        val barnFødselsdato = barnPerson.fødselsdato
+        val barnehagePlassPeriodeMedAntallTimer = Periode(
+            fom = barnFødselsdato.plusYears(1),
+            tom = barnFødselsdato.plusYears(1).plusMonths(7)
+        ) to null // antallTimer null betyr at barn ikke har fått barnehageplass. Da får barn full KS
+        val vilkårResultaterForBarn = lagVilkårResultaterForBarn(
+            personResultat = personResultatForBarn,
+            barnFødselsdato = barnFødselsdato,
+            barnehageplassPerioder = listOf(barnehagePlassPeriodeMedAntallTimer),
+            behandlingId = behandling.id
+        )
+
+        personResultatForBarn.setSortedVilkårResultater(vilkårResultaterForBarn)
+        vilkårsvurderingMedSøkersvilkår.personResultater = personResultaterForSøker + personResultatForBarn
+
+        val result = hentInnvilgedePerioder(personopplysningGrunnlag, vilkårsvurderingMedSøkersvilkår)
+        assertNotNull(result)
+
+        val innvilgedePeriodeResultaterSøker = result.first
+        assertTrue { innvilgedePeriodeResultaterSøker.isNotEmpty() && innvilgedePeriodeResultaterSøker.size == 1 }
+        assertEquals(LocalDate.of(1987, 1, 1), innvilgedePeriodeResultaterSøker.single().periodeFom)
+        assertNull(innvilgedePeriodeResultaterSøker.single().periodeTom)
+
+        val innvilgedePeriodeResultaterBarn = result.second
+        assertTrue { innvilgedePeriodeResultaterBarn.isNotEmpty() && innvilgedePeriodeResultaterBarn.size == 1 }
+        assertEquals(
+            barnFødselsdato.plusYears(1).førsteDagIInneværendeMåned(),
+            innvilgedePeriodeResultaterBarn.single().periodeFom
+        )
+        assertEquals(
+            barnFødselsdato.plusYears(1).plusMonths(7).sisteDagIMåned(),
+            innvilgedePeriodeResultaterBarn.single().periodeTom
+        )
     }
 }
