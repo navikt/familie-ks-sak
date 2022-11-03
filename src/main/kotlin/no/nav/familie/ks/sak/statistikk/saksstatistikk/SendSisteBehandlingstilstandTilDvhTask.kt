@@ -16,21 +16,20 @@ import java.time.ZoneOffset
     taskStepType = SendBehandlinghendelseTilDvhTask.TASK_TYPE,
     beskrivelse = "Sending av behandlinghendelse til datavarehus"
 )
-class SendBehandlinghendelseTilDvhTask(private val kafkaProducer: KafkaProducer) : AsyncTaskStep {
+class SendSisteBehandlingstilstandTilDvhTask(private val kafkaProducer: KafkaProducer) : AsyncTaskStep {
 
     private val log = LoggerFactory.getLogger(this::class.java)
 
     override fun doTask(task: Task) {
-        log.info("SendBehandlinghendelseTilDvhTask prosesserer med id=${task.id} og metadata ${task.metadata}")
+        log.info("SendSisteBehandlingstilstandTilDvhTask prosesserer med id=${task.id} og metadata ${task.metadata}")
         val behandlingStatistikkDto: BehandlingStatistikkDto = objectMapper.readValue(task.payload)
-        kafkaProducer.sendBehandlingsTilstand(
-            behandlingStatistikkDto.behandlingID.toString(),
+        kafkaProducer.sendSisteBehandlingsTilstand(
             behandlingStatistikkDto.copy(tekniskTidspunkt = OffsetDateTime.now(ZoneOffset.UTC))
         )
     }
 
     companion object {
 
-        const val TASK_TYPE = "dvh.send.behandlinghendelse"
+        const val TASK_TYPE = "dvh.send.behandlingsatus"
     }
 }

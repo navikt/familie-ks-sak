@@ -112,6 +112,7 @@ data class VedtaksperiodeMedBegrunnelser(
             val tidslinjer = andelTilkjentYtelsePerPerson.values.map { it.tilTidslinje() }
 
             val kombinertTidslinje = tidslinjer.slåSammen()
+
             val vedtaksperiodeTidslinje = listOf(Periode(verdi = this, fom = this.fom, this.tom)).tilTidslinje()
 
             val tidslinjeMedAndelerIPeriode =

@@ -1,9 +1,18 @@
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.tidslinje.Periode
 import no.nav.familie.ks.sak.common.tidslinje.Tidslinje
+import no.nav.familie.ks.sak.common.tidslinje.filtrerIkkeNull
 import no.nav.familie.ks.sak.common.tidslinje.tilTidslinje
+import no.nav.familie.ks.sak.common.tidslinje.utvidelser.filtrer
+import no.nav.familie.ks.sak.common.tidslinje.utvidelser.kombiner
+import no.nav.familie.ks.sak.common.tidslinje.utvidelser.kombinerMed
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.map
+import no.nav.familie.ks.sak.common.tidslinje.utvidelser.slåSammen
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.tilPerioder
+import no.nav.familie.ks.sak.common.tidslinje.utvidelser.tilPerioderIkkeNull
+import no.nav.familie.ks.sak.common.util.førsteDagIInneværendeMåned
+import no.nav.familie.ks.sak.common.util.sisteDagIInneværendeMåned
+import no.nav.familie.ks.sak.common.util.sisteDagIMåned
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.Vedtak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.Vedtaksperiodetype
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.VedtaksperiodeMedBegrunnelser
@@ -20,33 +29,37 @@ fun hentPerioderMedUtbetaling(
     forskjøvetVilkårResultatTidslinjeMap: Map<Aktør, Tidslinje<List<VilkårResultat>>>
 ): List<VedtaksperiodeMedBegrunnelser> {
 
-    // TODO: HELP
-    //  val splittkriterierForVedtaksperiodeTidslinje =
-    //      forskjøvetVilkårResultatTidslinjeMap
-    //          .tilSplittkriterierForVedtaksperiodeTidslinjer()
-    //          .kombinerUtenNull { it.filterNotNull().toMap() }
-    //          .filtrer { !it.isNullOrEmpty() }
-    //          .slåSammenLike()
-//
-    //  return andelerTilkjentYtelse
-    //      .tilTidslinjerPerPerson().values
-    //      .kombinerUtenNull { it }
-    //      .filtrer { !it?.toList().isNullOrEmpty() }
-    //      .leftJoin(splittkriterierForVedtaksperiodeTidslinje) { andelerTilkjentYtelseIPeriode, utdypendeVilkårIPeriode ->
-    //          Pair(andelerTilkjentYtelseIPeriode, utdypendeVilkårIPeriode)
-    //      }
-    //      .filtrerIkkeNull()
-    //      .perioder()
-    //      .map {
-    //          VedtaksperiodeMedBegrunnelser(
-    //              fom = it.fraOgMed.tilYearMonthEllerNull()?.førsteDagIInneværendeMåned(),
-    //              tom = it.tilOgMed.tilYearMonthEllerNull()?.sisteDagIInneværendeMåned(),
-    //              vedtak = vedtak,
-    //              type = Vedtaksperiodetype.UTBETALING
-    //          )
-    //      }
-    return emptyList()
+    val splittkriterierForVedtaksperiodeTidslinje = forskjøvetVilkårResultatTidslinjeMap
+        .tilSplittkriterierForVedtaksperiodeTidslinjer().kombiner { it.toMap() }
+
+    val andeltilkjentYtelserSplittetPåKriterier = andelerTilkjentYtelse
+        .tilTidslinjerPerPerson().values
+        .slåSammen()
+        .filtrer { !it.isNullOrEmpty() }
+        .kombinerMed(splittkriterierForVedtaksperiodeTidslinje) { andelerTilkjentYtelseIPeriode, splittkriterierPerPerson ->
+            andelerTilkjentYtelseIPeriode?.let { Pair(andelerTilkjentYtelseIPeriode, splittkriterierPerPerson) }
+        }
+
+    return andeltilkjentYtelserSplittetPåKriterier
+        .tilPerioderIkkeNull()
+        .map {
+            VedtaksperiodeMedBegrunnelser(
+                fom = it.fom?.førsteDagIInneværendeMåned(),
+                tom = it.tom?.sisteDagIMåned(),
+                vedtak = vedtak,
+                type = Vedtaksperiodetype.UTBETALING
+            )
+        }
 }
+
+fun List<AndelTilkjentYtelseMedEndreteUtbetalinger>.tilTidslinjerPerPerson() =
+    groupBy { Pair(it.aktør, it.type) }.mapValues { (_, andelerTilkjentYtelsePåPerson) ->
+        andelerTilkjentYtelsePåPerson.tilTidslinje()
+    }
+
+fun List<AndelTilkjentYtelseMedEndreteUtbetalinger>.tilTidslinje(): Tidslinje<AndelTilkjentYtelseMedEndreteUtbetalinger> =
+    this.map { Periode(it, it.stønadFom.førsteDagIInneværendeMåned(), it.stønadTom.sisteDagIInneværendeMåned()) }
+        .tilTidslinje()
 
 private data class SplittkriterierForVedtaksperiode(
     val utdypendeVilkårsvurderinger: Set<UtdypendeVilkårsvurdering>,
@@ -57,9 +70,9 @@ private fun Map<Aktør, Tidslinje<List<VilkårResultat>>>.tilSplittkriterierForV
         List<Tidslinje<Pair<Aktør, SplittkriterierForVedtaksperiode>>> =
 
     this.map { (aktør, vilkårsvurderingTidslinje) ->
-        vilkårsvurderingTidslinje.tilPerioder().map { vilkårResultater ->
+        vilkårsvurderingTidslinje.tilPerioder().filtrerIkkeNull().map { vilkårResultater ->
             Periode(
-                verdi = vilkårResultater.verdi?.let {
+                verdi = vilkårResultater.verdi.let {
                     val utdypendeVilkårsvurderinger = hentSetAvVilkårsVurderinger(it)
                     Pair(
                         aktør,

@@ -8,10 +8,12 @@ import no.nav.familie.kontrakter.felles.dokarkiv.v2.Filtype
 import no.nav.familie.ks.sak.config.BehandlerRolle
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
 import no.nav.familie.ks.sak.sikkerhet.TilgangService
+import no.nav.familie.ks.sak.statistikk.saksstatistikk.SakStatistikkService
 import no.nav.security.token.support.core.api.ProtectedWithClaims
 import org.springframework.context.annotation.Profile
 import org.springframework.http.ResponseEntity
 import org.springframework.validation.annotation.Validated
+import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestMapping
@@ -22,7 +24,11 @@ import org.springframework.web.bind.annotation.RestController
 @ProtectedWithClaims(issuer = "azuread")
 @Validated
 @Profile("dev", "postgres", "preprod", "dev-postgres-preprod")
-class TestController(private val tilgangService: TilgangService, private val integrasjonClient: IntegrasjonClient) {
+class TestController(
+    private val tilgangService: TilgangService,
+    private val integrasjonClient: IntegrasjonClient,
+    private val sakStatistikkService: SakStatistikkService
+) {
 
     @PostMapping("/journalfør-søknad/{fnr}")
     fun opprettJournalføringOppgave(@PathVariable fnr: String): ResponseEntity<Ressurs<String>> {
@@ -43,5 +49,15 @@ class TestController(private val tilgangService: TilgangService, private val int
         )
         val journalførDokumentResponse = integrasjonClient.journalførDokument(arkiverDokumentRequest)
         return ResponseEntity.ok(Ressurs.success(journalførDokumentResponse.journalpostId, "Dokument er Journalført"))
+    }
+
+    @GetMapping("/send-alle-behandlinger-til-dvh")
+    fun senAlleBehandlingerTilDVH(): ResponseEntity<Ressurs<String>> {
+        tilgangService.validerTilgangTilHandling(
+            minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
+            handling = "teste sending av siste tilstand for alle behandlinger til DVH"
+        )
+        sakStatistikkService.sendAlleBehandlingerTilDVH()
+        return ResponseEntity.ok(Ressurs.success(":)", "Alle behandlinger er sendt"))
     }
 }

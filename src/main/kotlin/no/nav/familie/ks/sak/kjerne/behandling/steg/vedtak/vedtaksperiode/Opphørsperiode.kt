@@ -1,8 +1,13 @@
 package no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode
 
 import no.nav.familie.ks.sak.common.tidslinje.Periode
+import no.nav.familie.ks.sak.common.tidslinje.Tidslinje
+import no.nav.familie.ks.sak.common.tidslinje.Udefinert
+import no.nav.familie.ks.sak.common.tidslinje.tilPeriodeVerdi
 import no.nav.familie.ks.sak.common.tidslinje.tilTidslinje
+import no.nav.familie.ks.sak.common.tidslinje.utvidelser.tilTidslinjePerioderMedDato
 import no.nav.familie.ks.sak.common.util.TIDENES_ENDE
+import no.nav.familie.ks.sak.common.util.TIDENES_MORGEN
 import no.nav.familie.ks.sak.common.util.erSammeEllerFør
 import no.nav.familie.ks.sak.common.util.førsteDagIInneværendeMåned
 import no.nav.familie.ks.sak.common.util.inneværendeMåned
@@ -46,7 +51,10 @@ fun mapTilOpphørsperioder(
         if (utbetalingsperioder.isEmpty()) {
             emptyList()
         } else {
-            listOf(finnOpphørsperiodeEtterSisteUtbetalingsperiode(utbetalingsperioder)).flatten()
+            listOf(
+                finnOpphørsperioderMellomUtbetalingsperioder(utbetalingsperioder),
+                finnOpphørsperiodeEtterSisteUtbetalingsperiode(utbetalingsperioder)
+            ).flatten()
         }.sortedBy { it.periodeFom }
     }
 
@@ -105,33 +113,19 @@ private fun finnOpphørsperiodeEtterSisteUtbetalingsperiode(utbetalingsperioder:
     }
 }
 
-private fun finnOpphørsperioderMellomUtbetalingsperioder(utbetalingsperioder: List<Utbetalingsperiode>): List<Opphørsperiode> {
-    val helYtelseTidslinje = (
-            listOf(
-                Periode(
-                    null,
-                    utbetalingsperioder.minOf { it.periodeFom },
-                    utbetalingsperioder.maxOf { it.periodeTom },
-                )
+private fun finnOpphørsperioderMellomUtbetalingsperioder(
+    utbetalingsperioder: List<Utbetalingsperiode>
+): List<Opphørsperiode> {
+
+    val utbetalingsperioderTidslinje =
+        utbetalingsperioder.map { Periode(it, it.periodeFom, it.periodeTom) }.tilTidslinje()
+
+    return utbetalingsperioderTidslinje.tilTidslinjePerioderMedDato().filter { it.periodeVerdi is Udefinert }
+        .map {
+            Opphørsperiode(
+                periodeFom = it.fom.tilLocalDateEllerNull() ?: TIDENES_MORGEN,
+                periodeTom = it.tom.tilLocalDateEllerNull(),
+                vedtaksperiodetype = Vedtaksperiodetype.OPPHØR
             )
-            ).tilTidslinje()
-
-    return emptyList() //utledSegmenterFjernetOgMapTilOpphørsperioder(utbetalingsperioder, helYtelseTidslinje)
+        }
 }
-
-// HELP
-// private fun utledSegmenterFjernetOgMapTilOpphørsperioder(
-//     utbetalingsperioder: List<Utbetalingsperiode>,
-//     sammenligningstidslinje: LocalDateTimeline<Nothing?>
-// ): List<Opphørsperiode> {
-//     val utbetalingstidslinje = LocalDateTimeline(utbetalingsperioder.map { it.tilTomtSegment() })
-//     val segmenterFjernet = sammenligningstidslinje.disjoint(utbetalingstidslinje).compress()
-//
-//     return segmenterFjernet.toList().map {
-//         Opphørsperiode(
-//             periodeFom = it.fom,
-//             periodeTom = it.tom,
-//             vedtaksperiodetype = Vedtaksperiodetype.OPPHØR
-//         )
-//     }
-// }

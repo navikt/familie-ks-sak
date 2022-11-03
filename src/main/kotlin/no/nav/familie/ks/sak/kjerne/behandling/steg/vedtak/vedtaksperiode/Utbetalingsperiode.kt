@@ -1,5 +1,15 @@
 package no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode
 
+import no.nav.familie.ks.sak.common.tidslinje.Periode
+import no.nav.familie.ks.sak.common.tidslinje.filtrerIkkeNull
+import no.nav.familie.ks.sak.common.tidslinje.tilTidslinje
+import no.nav.familie.ks.sak.common.tidslinje.utvidelser.map
+import no.nav.familie.ks.sak.common.tidslinje.utvidelser.slåSammen
+import no.nav.familie.ks.sak.common.tidslinje.utvidelser.tilPerioder
+import no.nav.familie.ks.sak.common.util.TIDENES_ENDE
+import no.nav.familie.ks.sak.common.util.TIDENES_MORGEN
+import no.nav.familie.ks.sak.common.util.førsteDagIInneværendeMåned
+import no.nav.familie.ks.sak.common.util.sisteDagIInneværendeMåned
 import no.nav.familie.ks.sak.kjerne.brev.domene.BrevPerson
 import no.nav.familie.ks.sak.kjerne.brev.domene.tilBrevPerson
 import no.nav.familie.ks.sak.kjerne.beregning.AndelTilkjentYtelseMedEndreteUtbetalinger
@@ -35,36 +45,48 @@ fun mapTilUtbetalingsperioder(
     andelerTilkjentYtelse: List<AndelTilkjentYtelseMedEndreteUtbetalinger>
 ): List<Utbetalingsperiode> {
 
-    //TODO: HELP
-    // return andelerTilkjentYtelse.lagVertikaleSegmenter().map { (segment, andelerForSegment) ->
-    //     Utbetalingsperiode(
-    //         periodeFom = segment.fom,
-    //         periodeTom = segment.tom,
-    //         ytelseTyper = andelerForSegment.map(AndelTilkjentYtelseMedEndreteUtbetalinger::type),
-    //         utbetaltPerMnd = segment.value,
-    //         antallBarn = andelerForSegment.count { andel ->
-    //             personopplysningGrunnlag.barna.any { barn -> barn.aktør == andel.aktør }
-    //         },
-    //         utbetalingsperiodeDetaljer = andelerForSegment.lagUtbetalingsperiodeDetaljer(personopplysningGrunnlag)
-    //     )
-    // }
+    val andelTilkjentYtelsePerPerson = andelerTilkjentYtelse.groupBy { it.aktør }
 
-    return emptyList()
+    val tidslinjer = andelTilkjentYtelsePerPerson.values.map { it.tilTidslinje() }
+
+    val kombinertTidslinje = tidslinjer.slåSammen()
+
+    val utbetalingsPerioder = kombinertTidslinje.tilPerioder().filtrerIkkeNull().map {
+        Utbetalingsperiode(
+            periodeFom = it.fom ?: TIDENES_MORGEN,
+            periodeTom = it.tom ?: TIDENES_ENDE,
+            ytelseTyper = it.verdi.map { it.type },
+            utbetaltPerMnd = it.verdi.sumOf { it.kalkulertUtbetalingsbeløp },
+            antallBarn = it.verdi.count { andel -> personopplysningGrunnlag.barna.any { barn -> barn.aktør == andel.aktør } },
+            utbetalingsperiodeDetaljer = it.verdi.lagUtbetalingsperiodeDetaljer(personopplysningGrunnlag)
+        )
+
+    }
+
+    return utbetalingsPerioder
 }
 
-internal fun List<AndelTilkjentYtelseMedEndreteUtbetalinger>.lagUtbetalingsperiodeDetaljer(
-    personopplysningGrunnlag: PersonopplysningGrunnlag
-): List<UtbetalingsperiodeDetalj> =
-    this.map { andel ->
-        val personForAndel =
-            personopplysningGrunnlag.personer.find { person -> andel.aktør == person.aktør }
-                ?: throw IllegalStateException("Fant ikke personopplysningsgrunnlag for andel")
 
-        UtbetalingsperiodeDetalj(
-            brevPerson = personForAndel.tilBrevPerson(),
-            ytelseType = andel.type,
-            utbetaltPerMnd = andel.kalkulertUtbetalingsbeløp,
-            erPåvirketAvEndring = andel.endreteUtbetalinger.isNotEmpty(),
-            prosent = andel.prosent
+private fun List<AndelTilkjentYtelseMedEndreteUtbetalinger>.tilTidslinje() = map {
+    Periode(
+        it, it.stønadFom.førsteDagIInneværendeMåned(), it.stønadTom.sisteDagIInneværendeMåned()
+    )
+}.tilTidslinje()
+
+internal fun Collection<AndelTilkjentYtelseMedEndreteUtbetalinger>.lagUtbetalingsperiodeDetaljer(
+    personopplysningGrunnlag: PersonopplysningGrunnlag
+): List<UtbetalingsperiodeDetalj> = this.map { andel ->
+    val personForAndel =
+        personopplysningGrunnlag.personer.find { person -> andel.aktør == person.aktør } ?: throw IllegalStateException(
+            "Fant ikke personopplysningsgrunnlag for andel"
         )
-    }
+
+    UtbetalingsperiodeDetalj(
+        brevPerson = personForAndel.tilBrevPerson(),
+        ytelseType = andel.type,
+        utbetaltPerMnd = andel.kalkulertUtbetalingsbeløp,
+        erPåvirketAvEndring = andel.endreteUtbetalinger.isNotEmpty(),
+        prosent = andel.prosent
+    )
+}
+
