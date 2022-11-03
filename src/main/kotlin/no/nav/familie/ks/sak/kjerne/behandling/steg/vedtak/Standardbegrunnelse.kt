@@ -23,6 +23,10 @@ enum class Standardbegrunnelse : IVedtakBegrunnelse {
     AVSLAG_UREGISTRERT_BARN {
         override val vedtakBegrunnelseType = VedtakBegrunnelseType.AVSLAG
         override val sanityApiNavn = "avslagUregistrertBarn"
+    },
+    INNVILGET_BOSATT_I_RIKTET {
+        override val vedtakBegrunnelseType = VedtakBegrunnelseType.INNVILGET
+        override val sanityApiNavn = "innvilgetBosattIRiket"
     };
 
 

@@ -47,19 +47,19 @@ class Vedtaksbegrunnelse(
     }
 }
 
-enum class Begrunnelsetype {
+enum class VedtaksBegrunnelseType {
     STANDARD_BEGRUNNELSE,
     FRITEKST
 }
 
 interface Begrunnelse : Comparable<Begrunnelse> {
-    val type: Begrunnelsetype
+    val type: VedtaksBegrunnelseType
     val vedtakBegrunnelseType: VedtakBegrunnelseType?
 
     override fun compareTo(other: Begrunnelse): Int {
         return when {
-            this.type == Begrunnelsetype.FRITEKST -> Int.MAX_VALUE
-            other.type == Begrunnelsetype.FRITEKST -> -Int.MAX_VALUE
+            this.type == VedtaksBegrunnelseType.FRITEKST -> Int.MAX_VALUE
+            other.type == VedtaksBegrunnelseType.FRITEKST -> -Int.MAX_VALUE
             this.vedtakBegrunnelseType == null -> Int.MAX_VALUE
             other.vedtakBegrunnelseType == null -> -Int.MAX_VALUE
 

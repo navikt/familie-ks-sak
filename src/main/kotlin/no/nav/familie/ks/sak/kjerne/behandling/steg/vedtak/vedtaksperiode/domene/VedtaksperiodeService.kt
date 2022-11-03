@@ -27,7 +27,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.tilSanityBegrunnelse
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.tilVedtaksbegrunnelse
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.Opphørsperiode
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.Utbetalingsperiode
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.UtbetalingsperiodeMedBegrunnelser.UtbetalingsperiodeMedBegrunnelserService
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.utbetalingsperiodeMedBegrunnelser.UtbetalingsperiodeMedBegrunnelserService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.VedtaksperiodeHentOgPersisterService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.Vedtaksperiodetype
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.hentGyldigeBegrunnelserForPeriode
@@ -441,8 +441,7 @@ class VedtaksperiodeService(
         }.toMutableList()
 
         val uregistrerteBarn =
-            søknadGrunnlagService.hentAktiv(behandlingId = behandling.id)?.hentUregistrerteBarn()
-                ?: emptyList()
+            søknadGrunnlagService.hentAktiv(behandlingId = behandling.id).hentUregistrerteBarn()
 
         return if (uregistrerteBarn.isNotEmpty()) {
             leggTilAvslagsbegrunnelseForUregistrertBarn(

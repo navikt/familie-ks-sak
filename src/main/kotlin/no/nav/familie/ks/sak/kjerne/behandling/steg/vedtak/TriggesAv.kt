@@ -1,8 +1,6 @@
 package no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak
 
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.EndretUtbetalingsperiodeDeltBostedTriggere
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.BrevEndretUtbetalingAndel
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.BrevVilkårResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.UtdypendeVilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
 import no.nav.familie.ks.sak.kjerne.beregning.domene.Årsak
@@ -43,7 +41,6 @@ data class TriggesAv(
         return this.vurderingAnnetGrunnlag == vilkårResultatInneholderVurderingAnnetGrunnlag
     }
 
-
     private fun erDeltBostedOppfylt(vilkårResultat: BrevVilkårResultat): Boolean {
         val vilkårResultatInneholderDeltBosted =
             vilkårResultat.utdypendeVilkårsvurderinger.contains(UtdypendeVilkårsvurdering.DELT_BOSTED)
@@ -52,7 +49,6 @@ data class TriggesAv(
     }
 
 }
-
 
 fun BrevEndretUtbetalingAndel.oppfyllerSkalUtbetalesTrigger(
     triggesAv: TriggesAv

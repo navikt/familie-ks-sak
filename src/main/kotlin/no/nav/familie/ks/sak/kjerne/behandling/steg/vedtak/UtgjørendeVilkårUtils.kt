@@ -1,4 +1,4 @@
-package no.nav.familie.ks.sak.kjerne.brev
+package no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak
 
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.util.Periode
@@ -6,8 +6,6 @@ import no.nav.familie.ks.sak.common.util.TIDENES_MORGEN
 import no.nav.familie.ks.sak.common.util.overlapperHeltEllerDelvisMed
 import no.nav.familie.ks.sak.common.util.sisteDagIMåned
 import no.nav.familie.ks.sak.common.util.toYearMonth
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.TriggesAv
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.VedtakBegrunnelseType
 import no.nav.familie.ks.sak.kjerne.brev.domene.BrevPerson
 import no.nav.familie.ks.sak.kjerne.brev.domene.BrevPersonResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
@@ -35,8 +33,8 @@ fun hentPersonerForAlleUtgjørendeVilkår(
     aktuellePersonerForVedtaksperiode: List<BrevPerson>,
     triggesAv: TriggesAv,
     erFørsteVedtaksperiodePåFagsak: Boolean
-): Set<BrevPerson> {
-    return triggesAv.vilkår.fold(setOf()) { acc, vilkår ->
+): Set<BrevPerson> =
+    triggesAv.vilkår.fold(setOf()) { acc, vilkår ->
         acc + hentPersonerMedUtgjørendeVilkår(
             brevPersonResultater = brevPersonResultater,
             vedtaksperiode = vedtaksperiode,
@@ -47,7 +45,6 @@ fun hentPersonerForAlleUtgjørendeVilkår(
             erFørsteVedtaksperiodePåFagsak = erFørsteVedtaksperiodePåFagsak
         )
     }
-}
 
 private fun hentPersonerMedUtgjørendeVilkår(
     brevPersonResultater: List<BrevPersonResultat>,
@@ -64,14 +61,14 @@ private fun hentPersonerMedUtgjørendeVilkår(
         .filter { aktuellePersonidenter.contains(it.personIdent) }
         .fold(mutableListOf()) { acc, personResultat ->
             val utgjørendeVilkårResultat =
-                personResultat.minimerteVilkårResultater
+                personResultat.brevVilkårResultater
                     .filter { it.vilkårType == vilkårGjeldendeForBegrunnelse }
-                    .firstOrNull { minimertVilkårResultat ->
-                        val nesteMinimerteVilkårResultatAvSammeType: BrevVilkårResultat? =
-                            personResultat.minimerteVilkårResultater.finnEtterfølgende(minimertVilkårResultat)
+                    .firstOrNull { brevVilkårResultat ->
+                        val nesteBrevVilkårResultatAvSammeType: BrevVilkårResultat? =
+                            personResultat.brevVilkårResultater.finnEtterfølgende(brevVilkårResultat)
                         erVilkårResultatUtgjørende(
-                            brevVilkårResultat = minimertVilkårResultat,
-                            nesteMinimerteVilkårResultat = nesteMinimerteVilkårResultatAvSammeType,
+                            brevVilkårResultat = brevVilkårResultat,
+                            nesteBrevVilkårResultat = nesteBrevVilkårResultatAvSammeType,
                             begrunnelseType = begrunnelseType,
                             triggesAv = triggesAv,
                             vedtaksperiode = vedtaksperiode,
@@ -97,7 +94,7 @@ private fun List<BrevVilkårResultat>.finnEtterfølgende(
 
 private fun erVilkårResultatUtgjørende(
     brevVilkårResultat: BrevVilkårResultat,
-    nesteMinimerteVilkårResultat: BrevVilkårResultat?,
+    nesteBrevVilkårResultat: BrevVilkårResultat?,
     begrunnelseType: VedtakBegrunnelseType,
     triggesAv: TriggesAv,
     vedtaksperiode: Periode,
@@ -135,7 +132,7 @@ private fun erVilkårResultatUtgjørende(
                 vilkårSomAvsluttesRettFørDennePerioden = brevVilkårResultat,
                 triggesAv = triggesAv,
                 vedtaksperiode = vedtaksperiode,
-                vilkårSomStarterIDennePerioden = nesteMinimerteVilkårResultat
+                vilkårSomStarterIDennePerioden = nesteBrevVilkårResultat
             )
         }
 

@@ -1,5 +1,7 @@
 package no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode
 
+import no.nav.familie.ks.sak.common.tidslinje.Periode
+import no.nav.familie.ks.sak.common.tidslinje.tilTidslinje
 import no.nav.familie.ks.sak.common.util.TIDENES_ENDE
 import no.nav.familie.ks.sak.common.util.erSammeEllerFør
 import no.nav.familie.ks.sak.common.util.førsteDagIInneværendeMåned
@@ -102,3 +104,34 @@ private fun finnOpphørsperiodeEtterSisteUtbetalingsperiode(utbetalingsperioder:
         emptyList()
     }
 }
+
+private fun finnOpphørsperioderMellomUtbetalingsperioder(utbetalingsperioder: List<Utbetalingsperiode>): List<Opphørsperiode> {
+    val helYtelseTidslinje = (
+            listOf(
+                Periode(
+                    null,
+                    utbetalingsperioder.minOf { it.periodeFom },
+                    utbetalingsperioder.maxOf { it.periodeTom },
+                )
+            )
+            ).tilTidslinje()
+
+    return emptyList() //utledSegmenterFjernetOgMapTilOpphørsperioder(utbetalingsperioder, helYtelseTidslinje)
+}
+
+// HELP
+// private fun utledSegmenterFjernetOgMapTilOpphørsperioder(
+//     utbetalingsperioder: List<Utbetalingsperiode>,
+//     sammenligningstidslinje: LocalDateTimeline<Nothing?>
+// ): List<Opphørsperiode> {
+//     val utbetalingstidslinje = LocalDateTimeline(utbetalingsperioder.map { it.tilTomtSegment() })
+//     val segmenterFjernet = sammenligningstidslinje.disjoint(utbetalingstidslinje).compress()
+//
+//     return segmenterFjernet.toList().map {
+//         Opphørsperiode(
+//             periodeFom = it.fom,
+//             periodeTom = it.tom,
+//             vedtaksperiodetype = Vedtaksperiodetype.OPPHØR
+//         )
+//     }
+// }

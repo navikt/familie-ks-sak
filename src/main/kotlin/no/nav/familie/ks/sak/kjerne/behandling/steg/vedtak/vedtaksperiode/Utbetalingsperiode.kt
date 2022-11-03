@@ -36,18 +36,20 @@ fun mapTilUtbetalingsperioder(
 ): List<Utbetalingsperiode> {
 
     //TODO: HELP
-    return andelerTilkjentYtelse.lagVertikaleSegmenter().map { (segment, andelerForSegment) ->
-        Utbetalingsperiode(
-            periodeFom = segment.fom,
-            periodeTom = segment.tom,
-            ytelseTyper = andelerForSegment.map(AndelTilkjentYtelseMedEndreteUtbetalinger::type),
-            utbetaltPerMnd = segment.value,
-            antallBarn = andelerForSegment.count { andel ->
-                personopplysningGrunnlag.barna.any { barn -> barn.aktør == andel.aktør }
-            },
-            utbetalingsperiodeDetaljer = andelerForSegment.lagUtbetalingsperiodeDetaljer(personopplysningGrunnlag)
-        )
-    }
+    // return andelerTilkjentYtelse.lagVertikaleSegmenter().map { (segment, andelerForSegment) ->
+    //     Utbetalingsperiode(
+    //         periodeFom = segment.fom,
+    //         periodeTom = segment.tom,
+    //         ytelseTyper = andelerForSegment.map(AndelTilkjentYtelseMedEndreteUtbetalinger::type),
+    //         utbetaltPerMnd = segment.value,
+    //         antallBarn = andelerForSegment.count { andel ->
+    //             personopplysningGrunnlag.barna.any { barn -> barn.aktør == andel.aktør }
+    //         },
+    //         utbetalingsperiodeDetaljer = andelerForSegment.lagUtbetalingsperiodeDetaljer(personopplysningGrunnlag)
+    //     )
+    // }
+
+    return emptyList()
 }
 
 internal fun List<AndelTilkjentYtelseMedEndreteUtbetalinger>.lagUtbetalingsperiodeDetaljer(

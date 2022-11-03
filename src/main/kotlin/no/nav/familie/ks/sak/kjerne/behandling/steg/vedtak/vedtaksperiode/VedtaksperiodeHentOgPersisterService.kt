@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service
 class VedtaksperiodeHentOgPersisterService(private val vedtaksperiodeRepository: VedtaksperiodeRepository) {
 
     fun hentVedtaksperiodeThrows(vedtaksperiodeId: Long): VedtaksperiodeMedBegrunnelser =
-        vedtaksperiodeRepository.hentVedtaksperiode(vedtaksperiodeId)
+        vedtaksperiodeRepository.finnVedtaksperiode(vedtaksperiodeId)
             ?: throw Feil(
                 message = "Fant ingen vedtaksperiode med id $vedtaksperiodeId",
                 frontendFeilmelding = "Fant ikke vedtaksperiode"
@@ -28,9 +28,9 @@ class VedtaksperiodeHentOgPersisterService(private val vedtaksperiodeRepository:
     }
 
     fun slettVedtaksperioderFor(vedtak: Vedtak) {
-        vedtaksperiodeRepository.slettVedtaksperioderFor(vedtak)
+        vedtaksperiodeRepository.slettVedtaksperioderForVedtak(vedtak)
     }
 
     fun finnVedtaksperioderFor(vedtakId: Long): List<VedtaksperiodeMedBegrunnelser> =
-        vedtaksperiodeRepository.finnVedtaksperioderFor(vedtakId)
+        vedtaksperiodeRepository.finnVedtaksperioderForVedtak(vedtakId)
 }

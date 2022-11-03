@@ -35,8 +35,6 @@ fun inneværendeMåned(): YearMonth = LocalDate.now().toYearMonth()
 
 fun LocalDate.nesteMåned(): YearMonth = this.toYearMonth().plusMonths(1)
 
-fun LocalDate.forrigeMåned() = this.toYearMonth().minusMonths(1)
-
 fun YearMonth.nesteMåned(): YearMonth = this.plusMonths(1)
 
 fun LocalDate.erDagenFør(other: LocalDate?) = other != null && this.plusDays(1).equals(other)
@@ -60,9 +58,7 @@ fun Periode.tilMånedPeriode(): MånedPeriode = MånedPeriode(fom = this.fom.toY
 
 data class MånedPeriode(val fom: YearMonth, val tom: YearMonth)
 
-data class NullablePeriode(val fom: LocalDate?, val tom: LocalDate?) {
-    fun tilNullableMånedPeriode() = NullableMånedPeriode(fom?.toYearMonth(), tom?.toYearMonth())
-}
+data class NullablePeriode(val fom: LocalDate?, val tom: LocalDate?)
 
 data class NullableMånedPeriode(val fom: YearMonth?, val tom: YearMonth?)
 

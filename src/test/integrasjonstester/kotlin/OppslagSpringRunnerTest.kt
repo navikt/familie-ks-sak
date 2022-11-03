@@ -17,8 +17,12 @@ import no.nav.familie.ks.sak.data.randomAktør
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.Vedtak
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.VedtakRepository
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårsvurderingRepository
+import no.nav.familie.ks.sak.kjerne.beregning.domene.TilkjentYtelse
+import no.nav.familie.ks.sak.kjerne.beregning.domene.TilkjentYtelseRepository
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.Fagsak
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.FagsakRepository
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
@@ -101,6 +105,12 @@ abstract class OppslagSpringRunnerTest {
     @Autowired
     private lateinit var vilkårsvurderingRepository: VilkårsvurderingRepository
 
+    @Autowired
+    private lateinit var vedtakRepository: VedtakRepository
+
+    @Autowired
+    private lateinit var tilkjentYtelseRepository: TilkjentYtelseRepository
+
     lateinit var søker: Aktør
 
     lateinit var fagsak: Fagsak
@@ -108,6 +118,10 @@ abstract class OppslagSpringRunnerTest {
     lateinit var behandling: Behandling
 
     lateinit var personopplysningGrunnlag: PersonopplysningGrunnlag
+
+    lateinit var vedtak: Vedtak
+
+    lateinit var tilkjentYtelse: TilkjentYtelse
 
     @LocalServerPort
     var port: Int = 0
@@ -157,7 +171,13 @@ abstract class OppslagSpringRunnerTest {
                     kjønn = Kjønn.KVINNE
                 ).also { søker ->
                     søker.statsborgerskap =
-                        mutableListOf(GrStatsborgerskap(landkode = "NOR", medlemskap = Medlemskap.NORDEN, person = søker))
+                        mutableListOf(
+                            GrStatsborgerskap(
+                                landkode = "NOR",
+                                medlemskap = Medlemskap.NORDEN,
+                                person = søker
+                            )
+                        )
                     søker.bostedsadresser = mutableListOf()
                     søker.sivilstander = mutableListOf(GrSivilstand(type = SIVILSTAND.GIFT, person = søker))
                 }
@@ -227,6 +247,21 @@ abstract class OppslagSpringRunnerTest {
 
     fun lagreBehandling(behandling: Behandling): Behandling =
         behandlingRepository.saveAndFlush(behandling)
+
+    fun lagTilkjentYtelse(utbetalingsOppdrag: String?) {
+        tilkjentYtelse = tilkjentYtelseRepository.saveAndFlush(
+            TilkjentYtelse(
+                behandling = behandling,
+                endretDato = LocalDate.now(),
+                opprettetDato = LocalDate.now(),
+                utbetalingsoppdrag = utbetalingsOppdrag
+            )
+        )
+    }
+
+    fun lagVedtak() {
+        vedtak = vedtakRepository.saveAndFlush(Vedtak(behandling = behandling))
+    }
 
     companion object {
         protected fun initLoggingEventListAppender(): ListAppender<ILoggingEvent> =

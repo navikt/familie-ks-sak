@@ -19,30 +19,33 @@ fun hentPerioderMedUtbetaling(
     vedtak: Vedtak,
     forskjøvetVilkårResultatTidslinjeMap: Map<Aktør, Tidslinje<List<VilkårResultat>>>
 ): List<VedtaksperiodeMedBegrunnelser> {
-    val splittkriterierForVedtaksperiodeTidslinje =
-        forskjøvetVilkårResultatTidslinjeMap
-            .tilSplittkriterierForVedtaksperiodeTidslinjer()
-            .kombinerUtenNull { it.filterNotNull().toMap() }
-            .filtrer { !it.isNullOrEmpty() }
-            .slåSammenLike()
 
-    return andelerTilkjentYtelse
-        .tilTidslinjerPerPerson().values
-        .kombinerUtenNull { it }
-        .filtrer { !it?.toList().isNullOrEmpty() }
-        .leftJoin(splittkriterierForVedtaksperiodeTidslinje) { andelerTilkjentYtelseIPeriode, utdypendeVilkårIPeriode ->
-            Pair(andelerTilkjentYtelseIPeriode, utdypendeVilkårIPeriode)
-        }
-        .filtrerIkkeNull()
-        .perioder()
-        .map {
-            VedtaksperiodeMedBegrunnelser(
-                fom = it.fraOgMed.tilYearMonthEllerNull()?.førsteDagIInneværendeMåned(),
-                tom = it.tilOgMed.tilYearMonthEllerNull()?.sisteDagIInneværendeMåned(),
-                vedtak = vedtak,
-                type = Vedtaksperiodetype.UTBETALING
-            )
-        }
+    // TODO: HELP
+    //  val splittkriterierForVedtaksperiodeTidslinje =
+    //      forskjøvetVilkårResultatTidslinjeMap
+    //          .tilSplittkriterierForVedtaksperiodeTidslinjer()
+    //          .kombinerUtenNull { it.filterNotNull().toMap() }
+    //          .filtrer { !it.isNullOrEmpty() }
+    //          .slåSammenLike()
+//
+    //  return andelerTilkjentYtelse
+    //      .tilTidslinjerPerPerson().values
+    //      .kombinerUtenNull { it }
+    //      .filtrer { !it?.toList().isNullOrEmpty() }
+    //      .leftJoin(splittkriterierForVedtaksperiodeTidslinje) { andelerTilkjentYtelseIPeriode, utdypendeVilkårIPeriode ->
+    //          Pair(andelerTilkjentYtelseIPeriode, utdypendeVilkårIPeriode)
+    //      }
+    //      .filtrerIkkeNull()
+    //      .perioder()
+    //      .map {
+    //          VedtaksperiodeMedBegrunnelser(
+    //              fom = it.fraOgMed.tilYearMonthEllerNull()?.førsteDagIInneværendeMåned(),
+    //              tom = it.tilOgMed.tilYearMonthEllerNull()?.sisteDagIInneværendeMåned(),
+    //              vedtak = vedtak,
+    //              type = Vedtaksperiodetype.UTBETALING
+    //          )
+    //      }
+    return emptyList()
 }
 
 private data class SplittkriterierForVedtaksperiode(

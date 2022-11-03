@@ -19,10 +19,8 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.VedtaksperiodeMedBegrunnelser
 import no.nav.familie.ks.sak.kjerne.brev.domene.harPersonerSomManglerOpplysninger
 import no.nav.familie.ks.sak.kjerne.beregning.AndelTilkjentYtelseMedEndreteUtbetalinger
-import no.nav.familie.ks.sak.kjerne.beregning.domene.YtelseType
 import no.nav.familie.ks.sak.kjerne.brev.domene.BrevEndretUtbetalingAndel
 import no.nav.familie.ks.sak.kjerne.brev.domene.BrevVedtaksPeriode
-import no.nav.familie.ks.sak.kjerne.brev.hentPersonerForAlleUtgjørendeVilkår
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
 import org.slf4j.LoggerFactory
 import java.text.NumberFormat
@@ -76,18 +74,17 @@ fun Standardbegrunnelse.tilVedtaksbegrunnelse(
 
 fun Standardbegrunnelse.triggesForPeriode(
     brevVedtaksPeriode: BrevVedtaksPeriode,
-    minimertePersonResultater: List<BrevPersonResultat>,
-    minimertePersoner: List<BrevPerson>,
+    brevPersonResultater: List<BrevPersonResultat>,
+    brevPersoner: List<BrevPerson>,
     aktørIderMedUtbetaling: List<String>,
-    minimerteEndredeUtbetalingAndeler: List<BrevEndretUtbetalingAndel> = emptyList(),
+    brevEndredeUtbetalingAndeler: List<BrevEndretUtbetalingAndel> = emptyList(),
     sanityBegrunnelser: List<SanityBegrunnelse>,
     erFørsteVedtaksperiodePåFagsak: Boolean,
-    ytelserForSøkerForrigeMåned: List<YtelseType>,
     ytelserForrigePeriode: List<AndelTilkjentYtelseMedEndreteUtbetalinger>
 ): Boolean {
     val triggesAv = this.tilSanityBegrunnelse(sanityBegrunnelser)?.tilTriggesAv() ?: return false
 
-    val aktuellePersoner = minimertePersoner
+    val aktuellePersoner = brevPersoner
         .filter { person -> triggesAv.personTyper.contains(person.type) }
         .filter { person ->
             if (this.vedtakBegrunnelseType == VedtakBegrunnelseType.INNVILGET) {
@@ -97,10 +94,8 @@ fun Standardbegrunnelse.triggesForPeriode(
             }
         }
 
-    val ytelseTyperForPeriode = brevVedtaksPeriode.ytelseTyperForPeriode
-
     fun hentPersonerForUtgjørendeVilkår() = hentPersonerForAlleUtgjørendeVilkår(
-        brevPersonResultater = minimertePersonResultater,
+        brevPersonResultater = brevPersonResultater,
         vedtaksperiode = Periode(
             fom = brevVedtaksPeriode.fom ?: TIDENES_MORGEN,
             tom = brevVedtaksPeriode.tom ?: TIDENES_ENDE
@@ -114,11 +109,11 @@ fun Standardbegrunnelse.triggesForPeriode(
     return when {
         !triggesAv.valgbar -> false
 
-        triggesAv.personerManglerOpplysninger -> minimertePersonResultater.harPersonerSomManglerOpplysninger()
+        triggesAv.personerManglerOpplysninger -> brevPersonResultater.harPersonerSomManglerOpplysninger()
 
         triggesAv.etterEndretUtbetaling ->
             erEtterEndretPeriodeAvSammeÅrsak(
-                minimerteEndredeUtbetalingAndeler,
+                brevEndredeUtbetalingAndeler,
                 brevVedtaksPeriode,
                 aktuellePersoner,
                 triggesAv
@@ -126,7 +121,7 @@ fun Standardbegrunnelse.triggesForPeriode(
 
         triggesAv.erEndret() && !triggesAv.etterEndretUtbetaling -> erEndretTriggerErOppfylt(
             triggesAv = triggesAv,
-            brevEndretUtbetalingAndel = minimerteEndredeUtbetalingAndeler,
+            brevEndretUtbetalingAndel = brevEndredeUtbetalingAndeler,
             brevVedtaksPeriode = brevVedtaksPeriode
         )
 
@@ -134,7 +129,7 @@ fun Standardbegrunnelse.triggesForPeriode(
 
         triggesAv.barnDød -> dødeBarnForrigePeriode(
             ytelserForrigePeriode,
-            minimertePersoner.filter { it.type === PersonType.BARN }
+            brevPersoner.filter { it.type === PersonType.BARN }
         ).any()
 
         else -> hentPersonerForUtgjørendeVilkår().isNotEmpty()

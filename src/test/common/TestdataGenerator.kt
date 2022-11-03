@@ -14,10 +14,12 @@ import no.nav.familie.ks.sak.api.dto.SøkerMedOpplysningerDto
 import no.nav.familie.ks.sak.api.dto.SøknadDto
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.ForelderBarnRelasjonInfo
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.PdlPersonInfo
+import no.nav.familie.ks.sak.integrasjon.sanity.domene.EndretUtbetalingsperiodeDeltBostedTriggere
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingKategori
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingType
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.TriggesAv
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.AnnenVurdering
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.AnnenVurderingType
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.PersonResultat
@@ -388,4 +390,32 @@ fun lagEndretUtbetalingAndel(
     avtaletidspunktDeltBosted = avtaletidspunktDeltBosted,
     søknadstidspunkt = LocalDate.now().minusMonths(1),
     begrunnelse = "test"
+)
+
+
+fun lagTriggesAv(
+    vilkår: Set<Vilkår> = emptySet(),
+    personTyper: Set<PersonType> = setOf(PersonType.BARN, PersonType.SØKER),
+    personerManglerOpplysninger: Boolean = false,
+    satsendring: Boolean = false,
+    vurderingAnnetGrunnlag: Boolean = false,
+    deltbosted: Boolean = false,
+    valgbar: Boolean = true,
+    endringsaarsaker: Set<Årsak> = emptySet(),
+    etterEndretUtbetaling: Boolean = false,
+    endretUtbetalingSkalUtbetales: EndretUtbetalingsperiodeDeltBostedTriggere = EndretUtbetalingsperiodeDeltBostedTriggere.UTBETALING_IKKE_RELEVANT,
+): TriggesAv = TriggesAv(
+    vilkår = vilkår,
+    personTyper = personTyper,
+    personerManglerOpplysninger = personerManglerOpplysninger,
+    satsendring = satsendring,
+    vurderingAnnetGrunnlag = vurderingAnnetGrunnlag,
+    deltbosted = deltbosted,
+    valgbar = valgbar,
+    endringsaarsaker = endringsaarsaker,
+    etterEndretUtbetaling = etterEndretUtbetaling,
+    endretUtbetalingSkalUtbetales = endretUtbetalingSkalUtbetales,
+    barnDød = false,
+    gjelderFraInnvilgelsestidspunkt = false,
+    gjelderFørstePeriode = false
 )
