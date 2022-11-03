@@ -140,7 +140,7 @@ class BehandlingController(
             handling = "henlegg behandling"
         )
 
-        henleggBehandlingService.henleggBehandling(behandlingId, henleggBehandlingDto)
+        henleggBehandlingService.henleggBehandling(behandlingId, henleggBehandlingDto.årsak, henleggBehandlingDto.begrunnelse)
         return ResponseEntity.ok(Ressurs.success(behandlingService.lagBehandlingRespons(behandlingId = behandlingId)))
     }
 }
