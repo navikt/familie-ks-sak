@@ -153,6 +153,10 @@ class StegService(
         return gammelFrist
     }
 
+    fun henleggBehandlingSteg(behandling: Behandling) {
+        behandling.behandlingStegTilstand.forEach { it.behandlingStegStatus = BehandlingStegStatus.AVBRUTT }
+    }
+
     private fun hentNesteStegEtterBeslutteVedtakBasertPåBehandlingsresultat(resultat: Behandlingsresultat): BehandlingSteg {
         return when {
             resultat.kanIkkeSendesTilOppdrag() -> BehandlingSteg.JOURNALFØR_VEDTAKSBREV
