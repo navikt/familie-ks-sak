@@ -1,6 +1,5 @@
 package no.nav.familie.ks.sak.kjerne.behandling
 
-import no.nav.familie.ks.sak.api.dto.HenleggBehandlingDto
 import no.nav.familie.ks.sak.api.dto.HenleggÅrsak
 import no.nav.familie.ks.sak.api.dto.ManueltBrevDto
 import no.nav.familie.ks.sak.common.exception.Feil
@@ -30,11 +29,10 @@ class HenleggBehandlingService(
 ) {
 
     @Transactional
-    fun henleggBehandling(behandlingId: Long, henleggBehandlingDto: HenleggBehandlingDto) {
+    fun henleggBehandling(behandlingId: Long, henleggÅrsak: HenleggÅrsak, begrunnelse: String) {
         val behandling = behandlingRepository.hentBehandling(behandlingId)
-        validerOmBehandlingKanHenlegges(behandling, henleggBehandlingDto)
+        validerOmBehandlingKanHenlegges(behandling, henleggÅrsak)
 
-        val henleggÅrsak = henleggBehandlingDto.årsak
         // send henleggelse brev
         if (henleggÅrsak == HenleggÅrsak.SØKNAD_TRUKKET) {
             brevService.genererOgSendBrev(
@@ -52,10 +50,10 @@ class HenleggBehandlingService(
         }
 
         // lag historikkinnslag
-        loggService.opprettHenleggBehandling(
+        loggService.opprettHenleggBehandlingLogg(
             behandling = behandling,
             årsak = henleggÅrsak.beskrivelse,
-            begrunnelse = henleggBehandlingDto.begrunnelse
+            begrunnelse = begrunnelse
         )
 
         // henlegg behandling steg
@@ -65,14 +63,13 @@ class HenleggBehandlingService(
         behandling.resultat = henleggÅrsak.tilBehandlingsresultat()
         behandling.status = BehandlingStatus.AVSLUTTET
 
-        // oppdater behandling
-        behandlingRepository.saveAndFlush(behandling)
+        // trenger ikke å kalle eksplisitt save fordi behandling objekt er mutert og ha @Transactional
     }
 
-    private fun validerOmBehandlingKanHenlegges(behandling: Behandling, henleggBehandlingDto: HenleggBehandlingDto) {
+    private fun validerOmBehandlingKanHenlegges(behandling: Behandling, henleggÅrsak: HenleggÅrsak) {
         val behandlingId = behandling.id
         when {
-            HenleggÅrsak.TEKNISK_VEDLIKEHOLD == henleggBehandlingDto.årsak &&
+            HenleggÅrsak.TEKNISK_VEDLIKEHOLD == henleggÅrsak &&
                 featureToggleService.isNotEnabled(FeatureToggleConfig.TEKNISK_VEDLIKEHOLD_HENLEGGELSE) -> {
                 throw Feil(
                     "Teknisk vedlikehold henleggele er ikke påslått for " +

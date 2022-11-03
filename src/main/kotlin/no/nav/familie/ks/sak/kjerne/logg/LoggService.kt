@@ -227,7 +227,7 @@ class LoggService(
         )
     }
 
-    fun opprettHenleggBehandling(behandling: Behandling, årsak: String, begrunnelse: String) {
+    fun opprettHenleggBehandlingLogg(behandling: Behandling, årsak: String, begrunnelse: String) {
         lagreLogg(
             Logg(
                 behandlingId = behandling.id,
