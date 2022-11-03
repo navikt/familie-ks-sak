@@ -10,6 +10,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Per
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.UtdypendeVilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
 import java.math.BigDecimal
@@ -60,8 +61,8 @@ fun PersonResultat.tilPeriodeResultater(): List<PeriodeResultat> {
             listOf(
                 Periode(
                     verdi = vilkårResultat,
-                    fom = vilkårResultat.periodeFom?.withDayOfMonth(1),
-                    tom = vilkårResultat.periodeTom?.sisteDagIMåned()
+                    fom = utledFomFraVilkårResultat(vilkårResultat),
+                    tom = utledTomFraVilkårResultat(vilkårResultat)
                 )
             ).tilTidslinje()
         }
@@ -78,10 +79,22 @@ fun PersonResultat.tilPeriodeResultater(): List<PeriodeResultat> {
                     begrunnelse = vilkårResultat.begrunnelse,
                     utdypendeVilkårsvurderinger = vilkårResultat.utdypendeVilkårsvurderinger,
                     antallTimer = vilkårResultat.antallTimer,
-                    periodeFom = vilkårResultat.periodeFom?.withDayOfMonth(1),
-                    periodeTom = vilkårResultat.periodeTom?.sisteDagIMåned()
+                    periodeFom = utledFomFraVilkårResultat(vilkårResultat),
+                    periodeTom = utledTomFraVilkårResultat(vilkårResultat)
                 )
             }.toSet()
         )
     }
+}
+
+fun utledFomFraVilkårResultat(vilkårResultat: VilkårResultat) = when {
+    // setter fom null slik at det ikke påvirker beregning
+    vilkårResultat.resultat == Resultat.IKKE_AKTUELT -> null
+    else -> vilkårResultat.periodeFom?.withDayOfMonth(1)
+}
+
+fun utledTomFraVilkårResultat(vilkårResultat: VilkårResultat) = when {
+    // setter tom null slik at det ikke påvirker beregning
+    vilkårResultat.resultat == Resultat.IKKE_AKTUELT -> null
+    else -> vilkårResultat.periodeTom?.sisteDagIMåned()
 }
