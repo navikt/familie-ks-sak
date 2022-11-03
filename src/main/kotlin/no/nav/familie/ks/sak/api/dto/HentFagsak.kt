@@ -10,7 +10,6 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingType
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.FagsakStatus
-import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
 
@@ -53,5 +52,3 @@ data class TilbakekrevingsbehandlingResponsDto(
     val resultat: Behandlingsresultatstype?,
     val vedtaksdato: LocalDateTime?
 )
-
-data class UtbetalingsperiodeResponsDto(val periodeFom: LocalDate, val periodeTom: LocalDate)
