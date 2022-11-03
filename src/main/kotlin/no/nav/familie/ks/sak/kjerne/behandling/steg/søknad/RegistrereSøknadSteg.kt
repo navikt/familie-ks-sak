@@ -40,9 +40,14 @@ class RegistrereSøknadSteg(
 
         // Oppdatere personopplysningsgrunnlag dersom det er lagt til barn som ikke fantes fra før
         val behandling = behandlingService.hentBehandling(behandlingId)
-        personopplysningGrunnlagService.oppdaterPersonopplysningGrunnlag(behandling, søknadGrunnlag.tilSøknadDto())
 
         val forrigeBehandlingSomErVedtatt = behandlingService.hentSisteBehandlingSomErVedtatt(behandling.fagsak.id)
+
+        personopplysningGrunnlagService.oppdaterPersonopplysningGrunnlag(
+            behandling,
+            forrigeBehandlingSomErVedtatt,
+            søknadGrunnlag.tilSøknadDto()
+        )
 
         vilkårsvurderingService.opprettVilkårsvurdering(behandling, forrigeBehandlingSomErVedtatt)
 

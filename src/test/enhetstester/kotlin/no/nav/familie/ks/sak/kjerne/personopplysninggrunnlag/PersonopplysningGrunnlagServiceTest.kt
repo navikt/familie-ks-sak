@@ -7,6 +7,7 @@ import io.mockk.junit5.MockKExtension
 import io.mockk.just
 import io.mockk.mockk
 import io.mockk.runs
+import io.mockk.slot
 import io.mockk.verify
 import no.nav.familie.ks.sak.api.dto.BarnMedOpplysningerDto
 import no.nav.familie.ks.sak.api.dto.SøkerMedOpplysningerDto
@@ -21,12 +22,14 @@ import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.ArbeidsfordelingService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingType
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import no.nav.familie.ks.sak.kjerne.beregning.BeregningService
+import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelseRepository
 import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Målform
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlagRepository
 import org.hamcrest.MatcherAssert.assertThat
+import org.hamcrest.Matchers.containsInAnyOrder
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -40,6 +43,9 @@ internal class PersonopplysningGrunnlagServiceTest {
 
     @MockK
     private lateinit var personopplysningGrunnlagRepository: PersonopplysningGrunnlagRepository
+
+    @MockK
+    private lateinit var andelTilkjentYtelseRepository: AndelTilkjentYtelseRepository
 
     @MockK
     private lateinit var beregningService: BeregningService
@@ -136,11 +142,12 @@ internal class PersonopplysningGrunnlagServiceTest {
     }
 
     @Test
-    fun `oppdaterPersonopplysningGrunnlag - skal deaktivere eksisterende aktivt personopplysningsgrunnlag og opprette et nytt`() {
-        val lagredePersonopplysningsGrunnlag = mutableListOf<PersonopplysningGrunnlag>()
+    fun `oppdaterPersonopplysningGrunnlag - skal i førstegangsbehandlinger deaktivere eksisterende aktivt personopplysningsgrunnlag og opprette et nytt med barn fra innsendt søknad`() {
+        val deaktivertPersonopplysningGrunnlagSlot = slot<PersonopplysningGrunnlag>()
         val søker = randomAktør()
         val barn1 = randomAktør()
         val barn2 = randomAktør()
+        val barn3 = randomAktør()
         val fagsak = lagFagsak(søker)
         val behandling = lagBehandling(fagsak, opprettetÅrsak = BehandlingÅrsak.SØKNAD)
         val eksisterendePersonopplysningGrunnlag = lagPersonopplysningGrunnlag(
@@ -154,14 +161,77 @@ internal class PersonopplysningGrunnlagServiceTest {
             søkerPersonIdent = søker.aktivFødselsnummer()
         ).also { it.personer.clear() }
 
-        val nyttPersonopplysningGrunnlagMedBarna = lagPersonopplysningGrunnlag(
-            behandlingId = behandling.id,
-            søkerPersonIdent = søker.aktivFødselsnummer(),
-            barnasIdenter = listOf(barn1.aktivFødselsnummer(), barn2.aktivFødselsnummer())
+        every { personopplysningGrunnlagRepository.findByBehandlingAndAktiv(any()) } returns eksisterendePersonopplysningGrunnlag
+        every { personidentService.hentOgLagreAktør(any(), any()) } returns barn2 andThen barn3
+        every { personService.lagPerson(any(), any(), any(), any(), any()) } returns lagPerson(
+            personopplysningGrunnlag = nyttPersonopplysningGrunnlag,
+            aktør = søker
+        ) andThen lagPerson(
+            personopplysningGrunnlag = nyttPersonopplysningGrunnlag,
+            aktør = barn2,
+            personType = PersonType.BARN
+        ) andThen lagPerson(
+            personopplysningGrunnlag = nyttPersonopplysningGrunnlag,
+            aktør = barn3,
+            personType = PersonType.BARN
+        )
+        every { personopplysningGrunnlagRepository.saveAndFlush(capture(deaktivertPersonopplysningGrunnlagSlot)) } returnsArgument 0
+        every { personopplysningGrunnlagRepository.save(any()) } returnsArgument 0
+        val lagretPersonopplysningsgrunnlag = personopplysningGrunnlagService.oppdaterPersonopplysningGrunnlag(
+            behandling = behandling,
+            forrigeBehandlingSomErVedtatt = null,
+            søknadDto = SøknadDto(
+                søkerMedOpplysninger = SøkerMedOpplysningerDto(søker.aktivFødselsnummer()),
+                barnaMedOpplysninger = listOf(
+                    BarnMedOpplysningerDto(barn2.aktivFødselsnummer()),
+                    BarnMedOpplysningerDto(barn3.aktivFødselsnummer())
+                ),
+                endringAvOpplysningerBegrunnelse = ""
+            )
         )
 
+        assertThat(deaktivertPersonopplysningGrunnlagSlot.captured.aktiv, Is(false))
+
+        assertThat(lagretPersonopplysningsgrunnlag.aktiv, Is(true))
+        assertThat(lagretPersonopplysningsgrunnlag.personer.size, Is(3))
+        assertThat(lagretPersonopplysningsgrunnlag.barna.size, Is(2))
+        assertThat(
+            lagretPersonopplysningsgrunnlag.barna.map { it.aktør.aktivFødselsnummer() },
+            containsInAnyOrder(barn2.aktivFødselsnummer(), barn3.aktivFødselsnummer())
+        )
+    }
+
+    @Test
+    fun `oppdaterPersonopplysningGrunnlag - skal i revurdering deaktivere eksisterende aktivt personopplysningsgrunnlag og opprette et nytt med barn fra søknad og tidligere vedtatt behandling`() {
+        val deaktivertPersonopplysningGrunnlagSlot = slot<PersonopplysningGrunnlag>()
+        val søker = randomAktør()
+        val barn1 = randomAktør()
+        val barn2 = randomAktør()
+        val barn3 = randomAktør()
+        val fagsak = lagFagsak(søker)
+        val vedtattBehandling = lagBehandling(fagsak, opprettetÅrsak = BehandlingÅrsak.SØKNAD)
+        val behandling = lagBehandling(fagsak, opprettetÅrsak = BehandlingÅrsak.SØKNAD)
+        val eksisterendePersonopplysningGrunnlag = lagPersonopplysningGrunnlag(
+            behandlingId = vedtattBehandling.id,
+            søkerPersonIdent = søker.aktivFødselsnummer(),
+            barnasIdenter = listOf(barn1.aktivFødselsnummer())
+        )
+
+        val nyttPersonopplysningGrunnlag = lagPersonopplysningGrunnlag(
+            behandlingId = behandling.id,
+            søkerPersonIdent = søker.aktivFødselsnummer()
+        ).also { it.personer.clear() }
+
         every { personopplysningGrunnlagRepository.findByBehandlingAndAktiv(any()) } returns eksisterendePersonopplysningGrunnlag
-        every { personidentService.hentOgLagreAktør(any(), any()) } returns barn2
+        every {
+            andelTilkjentYtelseRepository.finnAndelerTilkjentYtelseForBehandlingOgBarn(
+                any(),
+                any()
+            )
+        } returns listOf(
+            mockk()
+        )
+        every { personidentService.hentOgLagreAktør(any(), any()) } returns barn2 andThen barn3
         every { personService.lagPerson(any(), any(), any(), any(), any()) } returns lagPerson(
             personopplysningGrunnlag = nyttPersonopplysningGrunnlag,
             aktør = søker
@@ -173,24 +243,34 @@ internal class PersonopplysningGrunnlagServiceTest {
             personopplysningGrunnlag = nyttPersonopplysningGrunnlag,
             aktør = barn2,
             personType = PersonType.BARN
+        ) andThen lagPerson(
+            personopplysningGrunnlag = nyttPersonopplysningGrunnlag,
+            aktør = barn3,
+            personType = PersonType.BARN
         )
-        every { personopplysningGrunnlagRepository.saveAndFlush(capture(lagredePersonopplysningsGrunnlag)) } returns mockk()
-        every { personopplysningGrunnlagRepository.save(capture(lagredePersonopplysningsGrunnlag)) } returns nyttPersonopplysningGrunnlag andThen nyttPersonopplysningGrunnlagMedBarna
-        personopplysningGrunnlagService.oppdaterPersonopplysningGrunnlag(
-            behandling,
-            SøknadDto(
+        every { personopplysningGrunnlagRepository.saveAndFlush(capture(deaktivertPersonopplysningGrunnlagSlot)) } returnsArgument 0
+        every { personopplysningGrunnlagRepository.save(any()) } returnsArgument 0
+        val lagretPersonopplysningGrunnlag = personopplysningGrunnlagService.oppdaterPersonopplysningGrunnlag(
+            behandling = behandling,
+            forrigeBehandlingSomErVedtatt = vedtattBehandling,
+            søknadDto = SøknadDto(
                 søkerMedOpplysninger = SøkerMedOpplysningerDto(søker.aktivFødselsnummer()),
                 barnaMedOpplysninger = listOf(
-                    BarnMedOpplysningerDto(barn2.aktivFødselsnummer())
+                    BarnMedOpplysningerDto(barn2.aktivFødselsnummer()),
+                    BarnMedOpplysningerDto(barn3.aktivFødselsnummer())
                 ),
                 endringAvOpplysningerBegrunnelse = ""
             )
         )
 
-        assertThat(lagredePersonopplysningsGrunnlag.first().aktiv, Is(false))
-        assertThat(lagredePersonopplysningsGrunnlag[1].aktiv, Is(true))
-        assertThat(lagredePersonopplysningsGrunnlag[2].personer.size, Is(3))
-        assertThat(lagredePersonopplysningsGrunnlag[2].barna.size, Is(2))
+        assertThat(deaktivertPersonopplysningGrunnlagSlot.captured.aktiv, Is(false))
+        assertThat(lagretPersonopplysningGrunnlag.aktiv, Is(true))
+        assertThat(lagretPersonopplysningGrunnlag.personer.size, Is(4))
+        assertThat(lagretPersonopplysningGrunnlag.barna.size, Is(3))
+        assertThat(
+            lagretPersonopplysningGrunnlag.barna.map { it.aktør.aktivFødselsnummer() },
+            containsInAnyOrder(barn1.aktivFødselsnummer(), barn2.aktivFødselsnummer(), barn3.aktivFødselsnummer())
+        )
     }
 
     @Test
@@ -202,6 +282,7 @@ internal class PersonopplysningGrunnlagServiceTest {
         val feil = assertThrows<Feil> {
             personopplysningGrunnlagService.oppdaterPersonopplysningGrunnlag(
                 behandling,
+                null,
                 SøknadDto(
                     søkerMedOpplysninger = SøkerMedOpplysningerDto(""),
                     barnaMedOpplysninger = emptyList(),
