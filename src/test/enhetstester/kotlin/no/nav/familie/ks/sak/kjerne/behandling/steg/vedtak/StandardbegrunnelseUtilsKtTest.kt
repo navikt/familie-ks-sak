@@ -32,7 +32,8 @@ internal class StandardbegrunnelseUtilsKtTest {
                 type = PersonType.BARN,
                 aktørId = barn1Fnr,
                 fødselsdato = LocalDate.now().minusYears(2)
-            ), BrevPerson(
+            ),
+            BrevPerson(
                 dødsfallsdato = dødsfallDatoBarn2,
                 aktivPersonIdent = barn2Fnr,
                 type = PersonType.BARN,
@@ -44,12 +45,14 @@ internal class StandardbegrunnelseUtilsKtTest {
         var ytelserForrigePeriode =
             listOf(
                 AndelTilkjentYtelseMedEndreteUtbetalinger(
-                    lagAndelTilkjentYtelse(behandling = behandling,
+                    lagAndelTilkjentYtelse(
+                        behandling = behandling,
                         stønadFom = YearMonth.of(
                             dødsfallDatoBarn1.minusMonths(1).year, dødsfallDatoBarn1.minusMonths(1).month
                         ),
                         stønadTom = YearMonth.of(dødsfallDatoBarn1.year, dødsfallDatoBarn1.month),
-                        aktør = Aktør(barn1Fnr + "00").also { it.personidenter.add(Personident(barn1Fnr, it)) }),
+                        aktør = Aktør(barn1Fnr + "00").also { it.personidenter.add(Personident(barn1Fnr, it)) }
+                    ),
                     emptyList()
                 )
             )
@@ -61,12 +64,14 @@ internal class StandardbegrunnelseUtilsKtTest {
         ytelserForrigePeriode =
             listOf(
                 AndelTilkjentYtelseMedEndreteUtbetalinger(
-                    lagAndelTilkjentYtelse(behandling = behandling,
+                    lagAndelTilkjentYtelse(
+                        behandling = behandling,
                         stønadFom = YearMonth.of(
                             dødsfallDatoBarn1.minusMonths(1).year, dødsfallDatoBarn1.minusMonths(1).month
                         ),
                         stønadTom = YearMonth.of(dødsfallDatoBarn2.year, dødsfallDatoBarn2.month),
-                        aktør = Aktør(barn2Fnr + "00").also { it.personidenter.add(Personident(barn2Fnr, it)) }),
+                        aktør = Aktør(barn2Fnr + "00").also { it.personidenter.add(Personident(barn2Fnr, it)) }
+                    ),
                     emptyList()
                 )
             )

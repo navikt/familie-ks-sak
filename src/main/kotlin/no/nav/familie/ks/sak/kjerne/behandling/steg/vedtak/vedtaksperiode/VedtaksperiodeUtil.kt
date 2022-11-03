@@ -191,7 +191,7 @@ private fun velgUtbetalingsbegrunnelser(
 
     val fantIngenbegrunnelserOgSkalDerforBrukeFortsattInnvilget =
         brevVedtaksPeriode.type == Vedtaksperiodetype.UTBETALING &&
-                standardbegrunnelser.isEmpty()
+            standardbegrunnelser.isEmpty()
 
     return if (fantIngenbegrunnelserOgSkalDerforBrukeFortsattInnvilget) {
         tillateBegrunnelserForVedtakstype

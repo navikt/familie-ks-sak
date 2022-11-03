@@ -24,6 +24,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingType
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.Standardbegrunnelse
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.TriggesAv
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.Vedtak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.UtbetalingsperiodeDetalj
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.Vedtaksperiodetype
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.UtvidetVedtaksperiodeMedBegrunnelser
@@ -525,3 +526,73 @@ fun lagVedtaksbegrunnelse(
     vedtaksperiodeMedBegrunnelser = vedtaksperiodeMedBegrunnelser,
     standardbegrunnelse = standardbegrunnelse
 )
+
+fun lagVedtaksperiodeMedBegrunnelser(
+    vedtak: Vedtak = Vedtak(behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD)),
+    fom: LocalDate? = LocalDate.now().withDayOfMonth(1),
+    tom: LocalDate? = LocalDate.now().let { it.withDayOfMonth(it.lengthOfMonth()) },
+    type: Vedtaksperiodetype = Vedtaksperiodetype.FORTSATT_INNVILGET,
+    begrunnelser: MutableSet<Vedtaksbegrunnelse> = mutableSetOf(lagVedtaksbegrunnelse()),
+    fritekster: MutableList<VedtaksbegrunnelseFritekst> = mutableListOf()
+) = VedtaksperiodeMedBegrunnelser(
+    vedtak = vedtak,
+    fom = fom,
+    tom = tom,
+    type = type,
+    begrunnelser = begrunnelser,
+    fritekster = fritekster
+)
+
+fun lagPersonResultat(
+    vilkårsvurdering: Vilkårsvurdering,
+    aktør: Aktør,
+    resultat: Resultat,
+    periodeFom: LocalDate?,
+    periodeTom: LocalDate?,
+    lagFullstendigVilkårResultat: Boolean = false,
+    personType: PersonType = PersonType.BARN,
+    vilkårType: Vilkår = Vilkår.BOSATT_I_RIKET,
+    erDeltBosted: Boolean = false,
+): PersonResultat {
+    val personResultat = PersonResultat(
+        vilkårsvurdering = vilkårsvurdering,
+        aktør = aktør
+    )
+
+    if (lagFullstendigVilkårResultat) {
+        personResultat.setSortedVilkårResultater(
+            Vilkår.hentVilkårFor(personType).map {
+                VilkårResultat(
+                    personResultat = personResultat,
+                    periodeFom = periodeFom,
+                    periodeTom = periodeTom,
+                    vilkårType = it,
+                    resultat = resultat,
+                    begrunnelse = "",
+                    behandlingId = vilkårsvurdering.behandling.id,
+                    utdypendeVilkårsvurderinger = listOfNotNull(
+                        when {
+                            erDeltBosted && it == Vilkår.BOR_MED_SØKER -> UtdypendeVilkårsvurdering.DELT_BOSTED
+                            else -> null
+                        }
+                    )
+                )
+            }.toSet()
+        )
+    } else {
+        personResultat.setSortedVilkårResultater(
+            setOf(
+                VilkårResultat(
+                    personResultat = personResultat,
+                    periodeFom = periodeFom,
+                    periodeTom = periodeTom,
+                    vilkårType = vilkårType,
+                    resultat = resultat,
+                    begrunnelse = "",
+                    behandlingId = vilkårsvurdering.behandling.id
+                )
+            )
+        )
+    }
+    return personResultat
+}

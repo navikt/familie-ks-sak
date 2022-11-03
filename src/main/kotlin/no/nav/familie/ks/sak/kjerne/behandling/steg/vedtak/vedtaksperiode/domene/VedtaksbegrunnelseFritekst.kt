@@ -39,7 +39,6 @@ class VedtaksbegrunnelseFritekst(
         )
 
     override fun toString(): String = "VedtaksbegrunnelseFritekst(id=$id)"
-
 }
 
 fun tilVedtaksbegrunnelseFritekst(

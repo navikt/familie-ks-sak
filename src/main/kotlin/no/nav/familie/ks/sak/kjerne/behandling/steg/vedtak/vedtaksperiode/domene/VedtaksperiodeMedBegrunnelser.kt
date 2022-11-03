@@ -98,7 +98,6 @@ data class VedtaksperiodeMedBegrunnelser(
     fun harFriteksterOgStandardbegrunnelser(): Boolean =
         fritekster.isNotEmpty() && begrunnelser.isNotEmpty()
 
-
     fun hentUtbetalingsperiodeDetaljer(
         andelerTilkjentYtelse: List<AndelTilkjentYtelseMedEndreteUtbetalinger>,
         personopplysningGrunnlag: PersonopplysningGrunnlag
@@ -138,11 +137,11 @@ data class VedtaksperiodeMedBegrunnelser(
     ) {
         val delvisOverlapp = andelTilkjentYtelserIPeriode.any {
             (this.fom ?: TIDENES_MORGEN).isBefore(it.stønadFom.førsteDagIInneværendeMåned()) || (
-                    (
-                            this.tom
-                                ?: TIDENES_ENDE
-                            ).isAfter(it.stønadTom.sisteDagIInneværendeMåned())
-                    )
+                (
+                    this.tom
+                        ?: TIDENES_ENDE
+                    ).isAfter(it.stønadTom.sisteDagIInneværendeMåned())
+                )
         }
 
         if (delvisOverlapp) {

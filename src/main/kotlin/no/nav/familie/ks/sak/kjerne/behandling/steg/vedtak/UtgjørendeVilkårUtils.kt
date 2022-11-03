@@ -157,7 +157,7 @@ private fun vilkårResultatPasserForAvslagsperiode(
         }
 
     return fomVilkår == vedtaksperiode.fom.toYearMonth() &&
-            brevVilkårResultat.resultat == Resultat.IKKE_OPPFYLT
+        brevVilkårResultat.resultat == Resultat.IKKE_OPPFYLT
 }
 
 private fun erOpphørResultatUtgjøreneForPeriode(
@@ -171,9 +171,9 @@ private fun erOpphørResultatUtgjøreneForPeriode(
         if (erOppfyltTomMånedEtter) 1 else 0
     )
     return triggesAv.erUtdypendeVilkårsvurderingOppfylt(brevVilkårResultat) &&
-            brevVilkårResultat.periodeTom != null &&
-            brevVilkårResultat.resultat == Resultat.OPPFYLT &&
-            brevVilkårResultat.periodeTom.toYearMonth() == vilkårsluttForForrigePeriode.toYearMonth()
+        brevVilkårResultat.periodeTom != null &&
+        brevVilkårResultat.resultat == Resultat.OPPFYLT &&
+        brevVilkårResultat.periodeTom.toYearMonth() == vilkårsluttForForrigePeriode.toYearMonth()
 }
 
 private fun erReduksjonResultatUtgjøreneForPeriode(
@@ -190,9 +190,9 @@ private fun erReduksjonResultatUtgjøreneForPeriode(
 
     val erStartPåDeltBosted =
         vilkårSomAvsluttesRettFørDennePerioden.vilkårType == Vilkår.BOR_MED_SØKER &&
-                !vilkårSomAvsluttesRettFørDennePerioden.utdypendeVilkårsvurderinger.contains(UtdypendeVilkårsvurdering.DELT_BOSTED) &&
-                vilkårSomStarterIDennePerioden?.utdypendeVilkårsvurderinger?.contains(UtdypendeVilkårsvurdering.DELT_BOSTED) == true &&
-                triggesAv.deltbosted
+            !vilkårSomAvsluttesRettFørDennePerioden.utdypendeVilkårsvurderinger.contains(UtdypendeVilkårsvurdering.DELT_BOSTED) &&
+            vilkårSomStarterIDennePerioden?.utdypendeVilkårsvurderinger?.contains(UtdypendeVilkårsvurdering.DELT_BOSTED) == true &&
+            triggesAv.deltbosted
 
     val startNestePeriodeEtterVilkår = vilkårSomAvsluttesRettFørDennePerioden.periodeTom
         .plusDays(if (erStartPåDeltBosted) 1 else 0)
@@ -213,8 +213,8 @@ private fun erInnvilgetVilkårResultatUtgjørende(
     val vedtaksperiodeFomMåned = vedtaksperiode.fom.toYearMonth()
 
     return triggesAv.erUtdypendeVilkårsvurderingOppfylt(brevVilkårResultat) &&
-            vilkårResultatFomMåned == vedtaksperiodeFomMåned.minusMonths(1) &&
-            brevVilkårResultat.resultat == Resultat.OPPFYLT
+        vilkårResultatFomMåned == vedtaksperiodeFomMåned.minusMonths(1) &&
+        brevVilkårResultat.resultat == Resultat.OPPFYLT
 }
 
 private fun erFørstePeriodeOgVilkårIkkeOppfylt(
@@ -225,13 +225,13 @@ private fun erFørstePeriodeOgVilkårIkkeOppfylt(
 ): Boolean {
     val vilkårIkkeOppfyltForPeriode =
         vilkårResultat.resultat == Resultat.IKKE_OPPFYLT &&
-                vilkårResultat.toPeriode().overlapperHeltEllerDelvisMed(vedtaksperiode)
+            vilkårResultat.toPeriode().overlapperHeltEllerDelvisMed(vedtaksperiode)
 
     val vilkårOppfyltRettEtterPeriode =
         vilkårResultat.resultat == Resultat.OPPFYLT &&
-                vedtaksperiode.tom.toYearMonth() == vilkårResultat.periodeFom!!.toYearMonth()
+            vedtaksperiode.tom.toYearMonth() == vilkårResultat.periodeFom!!.toYearMonth()
 
     return erFørsteVedtaksperiodePåFagsak &&
-            triggesAv.erUtdypendeVilkårsvurderingOppfylt(vilkårResultat) &&
-            (vilkårIkkeOppfyltForPeriode || vilkårOppfyltRettEtterPeriode)
+        triggesAv.erUtdypendeVilkårsvurderingOppfylt(vilkårResultat) &&
+        (vilkårIkkeOppfyltForPeriode || vilkårOppfyltRettEtterPeriode)
 }

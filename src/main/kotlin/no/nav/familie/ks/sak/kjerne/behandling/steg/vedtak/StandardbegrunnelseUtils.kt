@@ -47,13 +47,13 @@ fun Standardbegrunnelse.tilVedtaksbegrunnelse(
     vedtaksperiodeMedBegrunnelser: VedtaksperiodeMedBegrunnelser
 ): Vedtaksbegrunnelse {
     if (!vedtaksperiodeMedBegrunnelser
-            .type
-            .tillatteBegrunnelsestyper
-            .contains(this.vedtakBegrunnelseType)
+        .type
+        .tillatteBegrunnelsestyper
+        .contains(this.vedtakBegrunnelseType)
     ) {
         throw Feil(
             "Begrunnelsestype ${this.vedtakBegrunnelseType} passer ikke med " +
-                    "typen '${vedtaksperiodeMedBegrunnelser.type}' som er satt på perioden."
+                "typen '${vedtaksperiodeMedBegrunnelser.type}' som er satt på perioden."
         )
     }
 
@@ -152,8 +152,8 @@ fun TriggesAv.erTriggereOppfyltForEndretUtbetaling(
     val erAvSammeÅrsak = this.endringsaarsaker.contains(brevEndretUtbetalingAndel.årsak)
 
     return !hørerTilEtterEndretUtbetaling &&
-            oppfyllerSkalUtbetalesTrigger &&
-            erAvSammeÅrsak
+        oppfyllerSkalUtbetalesTrigger &&
+        erAvSammeÅrsak
 }
 
 private fun erEtterEndretPeriodeAvSammeÅrsak(
@@ -164,8 +164,8 @@ private fun erEtterEndretPeriodeAvSammeÅrsak(
 ) = endretUtbetalingAndeler.any { endretUtbetalingAndel ->
     endretUtbetalingAndel.månedPeriode().tom.sisteDagIInneværendeMåned()
         .erDagenFør(brevVedtaksPeriode.fom) &&
-            aktuellePersoner.any { person -> person.aktørId == endretUtbetalingAndel.aktørId } &&
-            triggesAv.endringsaarsaker.contains(endretUtbetalingAndel.årsak)
+        aktuellePersoner.any { person -> person.aktørId == endretUtbetalingAndel.aktørId } &&
+        triggesAv.endringsaarsaker.contains(endretUtbetalingAndel.årsak)
 }
 
 fun dødeBarnForrigePeriode(

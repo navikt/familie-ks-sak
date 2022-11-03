@@ -50,12 +50,12 @@ fun hentPerioderMedUtbetaling(
         }
 }
 
-fun List<AndelTilkjentYtelseMedEndreteUtbetalinger>.tilTidslinjerPerPerson() =
+private fun List<AndelTilkjentYtelseMedEndreteUtbetalinger>.tilTidslinjerPerPerson() =
     groupBy { Pair(it.aktør, it.type) }.mapValues { (_, andelerTilkjentYtelsePåPerson) ->
         andelerTilkjentYtelsePåPerson.tilTidslinje()
     }
 
-fun List<AndelTilkjentYtelseMedEndreteUtbetalinger>.tilTidslinje(): Tidslinje<AndelTilkjentYtelseMedEndreteUtbetalinger> =
+private fun List<AndelTilkjentYtelseMedEndreteUtbetalinger>.tilTidslinje(): Tidslinje<AndelTilkjentYtelseMedEndreteUtbetalinger> =
     this.map { Periode(it, it.stønadFom.førsteDagIInneværendeMåned(), it.stønadTom.sisteDagIInneværendeMåned()) }
         .tilTidslinje()
 
@@ -65,7 +65,7 @@ private data class SplittkriterierForVedtaksperiode(
 )
 
 private fun Map<Aktør, Tidslinje<List<VilkårResultat>>>.tilSplittkriterierForVedtaksperiodeTidslinjer():
-        List<Tidslinje<Pair<Aktør, SplittkriterierForVedtaksperiode>>> =
+    List<Tidslinje<Pair<Aktør, SplittkriterierForVedtaksperiode>>> =
 
     this.map { (aktør, vilkårsvurderingTidslinje) ->
         vilkårsvurderingTidslinje.tilPerioder().filtrerIkkeNull().map { vilkårResultater ->
