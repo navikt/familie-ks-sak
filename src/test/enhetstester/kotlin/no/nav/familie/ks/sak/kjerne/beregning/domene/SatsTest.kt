@@ -26,7 +26,7 @@ internal class SatsTest {
     @Test
     fun `hentGyldigSatsFor skal utlede 80 prosent sats når barn har fått barnehageplass i 8 timer`() {
         val satsPeriode = hentGyldigSatsFor(
-            antallTimer = BigDecimal(8),
+            antallTimer = BigDecimal(8.99),
             erDeltBosted = false,
             stønadFom = stønadFom,
             stønadTom = stønadTom
@@ -37,7 +37,7 @@ internal class SatsTest {
     @Test
     fun `hentGyldigSatsFor skal utlede 60 prosent sats når barn har fått barnehageplass mindre enn 16 timer`() {
         val satsPeriode = hentGyldigSatsFor(
-            antallTimer = BigDecimal(13),
+            antallTimer = BigDecimal(13.55),
             erDeltBosted = false,
             stønadFom = stønadFom,
             stønadTom = stønadTom
@@ -59,7 +59,7 @@ internal class SatsTest {
     @Test
     fun `hentGyldigSatsFor skal utlede 20 prosent sats når barn har fått barnehageplass i 32 timer`() {
         val satsPeriode = hentGyldigSatsFor(
-            antallTimer = BigDecimal(32),
+            antallTimer = BigDecimal(32.85),
             erDeltBosted = false,
             stønadFom = stønadFom,
             stønadTom = stønadTom

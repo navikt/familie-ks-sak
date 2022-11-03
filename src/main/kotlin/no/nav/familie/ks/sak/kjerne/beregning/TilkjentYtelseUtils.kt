@@ -15,6 +15,7 @@ import no.nav.familie.ks.sak.kjerne.beregning.domene.hentGyldigSatsFor
 import no.nav.familie.ks.sak.kjerne.beregning.domene.prosent
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
+import java.math.RoundingMode
 import java.time.LocalDate
 
 object TilkjentYtelseUtils {
@@ -112,7 +113,7 @@ object TilkjentYtelseUtils {
 
         // I KS avslutter utbetaling alltid måneden før siste dato
         return hentGyldigSatsFor(
-            antallTimer = antallTimer,
+            antallTimer = antallTimer?.setScale(2, RoundingMode.HALF_UP),
             erDeltBosted = erDeltBosted,
             stønadFom = oppfyltFom.plusMonths(1).withDayOfMonth(1).toYearMonth(),
             stønadTom = oppfyltTom.minusMonths(1).sisteDagIMåned().toYearMonth()
