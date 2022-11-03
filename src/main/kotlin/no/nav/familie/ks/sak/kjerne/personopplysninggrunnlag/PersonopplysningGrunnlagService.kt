@@ -7,6 +7,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingType
 import no.nav.familie.ks.sak.kjerne.beregning.BeregningService
+import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelseRepository
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Målform
@@ -22,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional
 @Service
 class PersonopplysningGrunnlagService(
     private val personopplysningGrunnlagRepository: PersonopplysningGrunnlagRepository,
+    private val andelTilkjentYtelseRepository: AndelTilkjentYtelseRepository,
     private val beregningService: BeregningService,
     private val personService: PersonService,
     private val arbeidsfordelingService: ArbeidsfordelingService,
@@ -52,23 +54,40 @@ class PersonopplysningGrunnlagService(
     }
 
     @Transactional
-    fun oppdaterPersonopplysningGrunnlag(behandling: Behandling, søknadDto: SøknadDto) {
+    fun oppdaterPersonopplysningGrunnlag(
+        behandling: Behandling,
+        forrigeBehandlingSomErVedtatt: Behandling?,
+        søknadDto: SøknadDto
+    ): PersonopplysningGrunnlag {
         val eksisterendePersonopplysningGrunnlag =
             hentAktivPersonopplysningGrunnlag(behandling.id)
                 ?: throw Feil("Det finnes ikke noe aktivt personopplysningsgrunnlag for ${behandling.id}")
 
-        val eksisterendeBarnAktører = eksisterendePersonopplysningGrunnlag.barna.map { it.aktør }
         val valgteBarnAktører = søknadDto.barnaMedOpplysninger.filter { it.inkludertISøknaden }
             .map { personidentService.hentOgLagreAktør(it.ident, true) }
-        val eksisterendeBarnOgNyeBarnFraSøknad = eksisterendeBarnAktører.union(valgteBarnAktører).toList()
 
-        lagreSøkerOgBarnINyttGrunnlag(
+        val barnAktører = when {
+            forrigeBehandlingSomErVedtatt != null -> {
+                // Dersom det finnes en tidligere vedtatt behandling MÅ alle barna som har tilkjent ytelse være med i ny behandling.
+                val barnAktørerMedTilkjentYtelse = finnBarnMedTilkjentYtelseIBehandling(forrigeBehandlingSomErVedtatt)
+                barnAktørerMedTilkjentYtelse.union(valgteBarnAktører).toList()
+            }
+
+            else -> valgteBarnAktører
+        }
+
+        return lagreSøkerOgBarnINyttGrunnlag(
             aktør = eksisterendePersonopplysningGrunnlag.søker.aktør,
-            barnasAktør = eksisterendeBarnOgNyeBarnFraSøknad,
+            barnasAktør = barnAktører,
             behandling = behandling,
             målform = eksisterendePersonopplysningGrunnlag.søker.målform
         )
     }
+
+    private fun finnBarnMedTilkjentYtelseIBehandling(behandling: Behandling): List<Aktør> =
+        hentBarna(behandlingId = behandling.id)?.map { it.aktør }?.filter {
+            andelTilkjentYtelseRepository.finnAndelerTilkjentYtelseForBehandlingOgBarn(behandling.id, it).isNotEmpty()
+        } ?: emptyList()
 
     fun hentSøker(behandlingId: Long): Person? =
         personopplysningGrunnlagRepository.findByBehandlingAndAktiv(behandlingId)?.søker
