@@ -36,7 +36,7 @@ class VedtaksperiodeMedBegrunnelserController(
 ) {
 
     @PutMapping("/standardbegrunnelser/{vedtaksperiodeId}")
-    fun oppdaterVedtaksperiodeStandardbegrunnelser(
+    fun oppdaterVedtaksperiodeMedStandardbegrunnelser(
         @PathVariable vedtaksperiodeId: Long,
         @RequestBody vedtaksperiodeMedStandardbegrunnelserDto: VedtaksperiodeMedStandardbegrunnelserDto
     ): ResponseEntity<Ressurs<BehandlingResponsDto>> {

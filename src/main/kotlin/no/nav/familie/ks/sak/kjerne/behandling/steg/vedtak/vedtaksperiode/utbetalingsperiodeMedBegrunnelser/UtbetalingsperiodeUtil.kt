@@ -6,7 +6,6 @@ import no.nav.familie.ks.sak.common.tidslinje.tilTidslinje
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.filtrer
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.kombiner
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.kombinerMed
-import no.nav.familie.ks.sak.common.tidslinje.utvidelser.map
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.slåSammen
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.tilPerioder
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.tilPerioderIkkeNull
@@ -21,7 +20,6 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Utd
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
 import no.nav.familie.ks.sak.kjerne.beregning.AndelTilkjentYtelseMedEndreteUtbetalinger
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
-
 
 fun hentPerioderMedUtbetaling(
     andelerTilkjentYtelse: List<AndelTilkjentYtelseMedEndreteUtbetalinger>,

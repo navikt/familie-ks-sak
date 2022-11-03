@@ -21,7 +21,7 @@ import java.time.LocalDate
 internal class UtgjørendeVilkårUtilsTest {
 
     @Test
-    fun `hentPersonerForAlleUtgjørendeVilkår skal hente personer som trigger den gitte vedtaksperioden`() {
+    fun `hentPersonerForAlleUtgjørendeVilkår skal hente riktige personer fra vilkårsvurderingen basert på innvilgelsesbegrunnelse`() {
         val søkerFnr = randomFnr()
         val barn1Fnr = randomFnr()
         val barn2Fnr = randomFnr()
@@ -161,6 +161,4 @@ internal class UtgjørendeVilkårUtilsTest {
         assertEquals(1, personerMedUtgjørendeVilkårBosattIRiket.size)
         assertEquals(barn1Fnr, personerMedUtgjørendeVilkårBosattIRiket.first().aktivPersonIdent)
     }
-
-
 }

@@ -42,11 +42,11 @@ fun EndretUtbetalingAndel.tilBrevEndretUtbetalingAndel(): BrevEndretUtbetalingAn
         tom = this.tom!!,
         aktørId = this.person?.aktør?.aktørId ?: throw Feil(
             "Finner ikke aktørId på endretUtbetalingsandel ${this.id} " +
-                    "ved konvertering til brevEndretUtbetalingAndel"
+                "ved konvertering til brevEndretUtbetalingAndel"
         ),
         årsak = this.årsak ?: throw Feil(
             "Har ikke årsak på endretUtbetalingsandel ${this.id} " +
-                    "ved konvertering til brevEndretUtbetalingAndel"
+                "ved konvertering til brevEndretUtbetalingAndel"
         ),
         prosent = this.prosent
     )

@@ -6,11 +6,11 @@ import no.nav.familie.ks.sak.common.util.TIDENES_MORGEN
 import no.nav.familie.ks.sak.common.util.overlapperHeltEllerDelvisMed
 import no.nav.familie.ks.sak.common.util.sisteDagIMåned
 import no.nav.familie.ks.sak.common.util.toYearMonth
-import no.nav.familie.ks.sak.kjerne.brev.domene.BrevPerson
-import no.nav.familie.ks.sak.kjerne.brev.domene.BrevPersonResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.UtdypendeVilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
+import no.nav.familie.ks.sak.kjerne.brev.domene.BrevPerson
+import no.nav.familie.ks.sak.kjerne.brev.domene.BrevPersonResultat
 import no.nav.familie.ks.sak.kjerne.brev.domene.BrevVilkårResultat
 
 /**
@@ -160,7 +160,6 @@ private fun vilkårResultatPasserForAvslagsperiode(
             brevVilkårResultat.resultat == Resultat.IKKE_OPPFYLT
 }
 
-
 private fun erOpphørResultatUtgjøreneForPeriode(
     brevVilkårResultat: BrevVilkårResultat,
     triggesAv: TriggesAv,
@@ -218,7 +217,7 @@ private fun erInnvilgetVilkårResultatUtgjørende(
             brevVilkårResultat.resultat == Resultat.OPPFYLT
 }
 
-fun erFørstePeriodeOgVilkårIkkeOppfylt(
+private fun erFørstePeriodeOgVilkårIkkeOppfylt(
     erFørsteVedtaksperiodePåFagsak: Boolean,
     vedtaksperiode: Periode,
     triggesAv: TriggesAv,

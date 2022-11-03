@@ -23,15 +23,14 @@ data class TriggesAv(
     val gjelderFørstePeriode: Boolean,
     val vurderingAnnetGrunnlag: Boolean,
     val deltbosted: Boolean
-    ) {
+) {
     fun erEndret() = endringsaarsaker.isNotEmpty()
-
 
     fun erUtdypendeVilkårsvurderingOppfylt(
         vilkårResultat: BrevVilkårResultat
     ): Boolean {
         return erDeltBostedOppfylt(vilkårResultat) &&
-                erSkjønnsmessigVurderingOppfylt(vilkårResultat)
+            erSkjønnsmessigVurderingOppfylt(vilkårResultat)
     }
 
     private fun erSkjønnsmessigVurderingOppfylt(vilkårResultat: BrevVilkårResultat): Boolean {
@@ -47,7 +46,6 @@ data class TriggesAv(
 
         return this.deltbosted == vilkårResultatInneholderDeltBosted
     }
-
 }
 
 fun BrevEndretUtbetalingAndel.oppfyllerSkalUtbetalesTrigger(

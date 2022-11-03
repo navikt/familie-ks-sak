@@ -14,22 +14,21 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.VedtakBegrunnelseType
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.endretUtbetalingsperiodeBegrunnelser
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.tilSanityBegrunnelse
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.triggesForPeriode
-import no.nav.familie.ks.sak.kjerne.brev.domene.BrevPerson
-import no.nav.familie.ks.sak.kjerne.brev.domene.BrevPersonResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.UtvidetVedtaksperiodeMedBegrunnelser
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.VedtaksperiodeMedBegrunnelser
-import no.nav.familie.ks.sak.kjerne.brev.domene.tilBrevPersonResultat
-import no.nav.familie.ks.sak.kjerne.brev.domene.tilBrevPersoner
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.beregning.AndelTilkjentYtelseMedEndreteUtbetalinger
 import no.nav.familie.ks.sak.kjerne.beregning.domene.EndretUtbetalingAndel
 import no.nav.familie.ks.sak.kjerne.brev.domene.BrevEndretUtbetalingAndel
+import no.nav.familie.ks.sak.kjerne.brev.domene.BrevPerson
+import no.nav.familie.ks.sak.kjerne.brev.domene.BrevPersonResultat
 import no.nav.familie.ks.sak.kjerne.brev.domene.BrevVedtaksPeriode
 import no.nav.familie.ks.sak.kjerne.brev.domene.tilBrevEndretUtbetalingAndel
+import no.nav.familie.ks.sak.kjerne.brev.domene.tilBrevPersonResultat
+import no.nav.familie.ks.sak.kjerne.brev.domene.tilBrevPersoner
 import no.nav.familie.ks.sak.kjerne.brev.domene.tilBrevVedtaksPeriode
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
 import java.time.LocalDate
-
 
 fun validerVedtaksperiodeMedBegrunnelser(vedtaksperiodeMedBegrunnelser: VedtaksperiodeMedBegrunnelser) {
     if ((vedtaksperiodeMedBegrunnelser.type == Vedtaksperiodetype.OPPHØR || vedtaksperiodeMedBegrunnelser.type == Vedtaksperiodetype.AVSLAG) && vedtaksperiodeMedBegrunnelser.harFriteksterUtenStandardbegrunnelser()) {
@@ -43,7 +42,7 @@ fun validerVedtaksperiodeMedBegrunnelser(vedtaksperiodeMedBegrunnelser: Vedtaksp
 
     if (vedtaksperiodeMedBegrunnelser.vedtak.behandling.resultat == Behandlingsresultat.FORTSATT_INNVILGET && vedtaksperiodeMedBegrunnelser.harFriteksterOgStandardbegrunnelser()) {
         throw FunksjonellFeil(
-            "Det ble sendt med både fritekst og begrunnelse. " + "Vedtaket skal enten ha fritekst eller bregrunnelse, men ikke begge deler."
+            "Det ble sendt med både fritekst og begrunnelse. " + "Vedtaket skal enten ha fritekst eller begrunnelse, men ikke begge deler."
         )
     }
 }
@@ -51,8 +50,9 @@ fun validerVedtaksperiodeMedBegrunnelser(vedtaksperiodeMedBegrunnelser: Vedtaksp
 /**
  * Brukes for opphør som har egen logikk dersom det er første periode.
  */
-fun erFørsteVedtaksperiodePåFagsak(
-    andelerTilkjentYtelse: List<AndelTilkjentYtelseMedEndreteUtbetalinger>, periodeFom: LocalDate?
+private fun erFørsteVedtaksperiodePåFagsak(
+    andelerTilkjentYtelse: List<AndelTilkjentYtelseMedEndreteUtbetalinger>,
+    periodeFom: LocalDate?
 ): Boolean = !andelerTilkjentYtelse.any {
     it.stønadFom.isBefore(
         periodeFom?.toYearMonth() ?: TIDENES_MORGEN.toYearMonth()
@@ -78,12 +78,12 @@ fun hentGyldigeBegrunnelserForPeriode(
         andelerTilkjentYtelse = andelerTilkjentYtelse
     )
 
-//TODO: Legg inn EØS når vi kommer så langt
+// TODO: Legg inn EØS når vi kommer så langt
 
     return standardbegrunnelser
 }
 
-fun hentGyldigeStandardbegrunnelserForVedtaksperiode(
+private fun hentGyldigeStandardbegrunnelserForVedtaksperiode(
     utvidetVedtaksperiodeMedBegrunnelser: UtvidetVedtaksperiodeMedBegrunnelser,
     sanityBegrunnelser: List<SanityBegrunnelse>,
     persongrunnlag: PersonopplysningGrunnlag,
@@ -112,7 +112,7 @@ fun hentGyldigeStandardbegrunnelserForVedtaksperiode(
     }
 )
 
-fun hentGyldigeBegrunnelserForVedtaksperiode(
+private fun hentGyldigeBegrunnelserForVedtaksperiode(
     brevVedtaksPeriode: BrevVedtaksPeriode,
     sanityBegrunnelser: List<SanityBegrunnelse>,
     brevPersoner: List<BrevPerson>,
@@ -201,7 +201,7 @@ private fun velgUtbetalingsbegrunnelser(
     }
 }
 
-fun ytelseErFraForrigePeriode(
+private fun ytelseErFraForrigePeriode(
     ytelse: AndelTilkjentYtelseMedEndreteUtbetalinger,
     utvidetVedtaksperiodeMedBegrunnelser: UtvidetVedtaksperiodeMedBegrunnelser
 ) = ytelse.stønadTom.sisteDagIInneværendeMåned().erDagenFør(utvidetVedtaksperiodeMedBegrunnelser.fom)

@@ -681,7 +681,6 @@ fun <T, R, RESULTAT> Tidslinje<T>.kombinerMed(
 }
 
 fun <T> Tidslinje<T>.tilPerioder(): List<Periode<T?>> = this.tilTidslinjePerioderMedDato().map { it.tilPeriode() }
-
 fun <T> Tidslinje<T>.tilPerioderIkkeNull(): List<Periode<T & Any>> = this.tilPerioder().filtrerIkkeNull()
 
 fun <T> Tidslinje<T>.slåSammenLikePerioder(): Tidslinje<T> =

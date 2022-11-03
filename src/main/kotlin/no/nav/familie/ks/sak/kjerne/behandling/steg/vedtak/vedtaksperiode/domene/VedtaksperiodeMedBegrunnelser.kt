@@ -80,23 +80,24 @@ data class VedtaksperiodeMedBegrunnelser(
 
 ) : BaseEntitet() {
 
-    fun settBegrunnelser(nyeBegrunnelser: List<Vedtaksbegrunnelse>) {
-        begrunnelser.clear()
-        begrunnelser.addAll(nyeBegrunnelser)
-    }
+    fun settBegrunnelser(nyeBegrunnelser: List<Vedtaksbegrunnelse>) =
+        begrunnelser.apply {
+            clear()
+            addAll(nyeBegrunnelser)
+        }
 
-    fun settFritekster(nyeFritekster: List<VedtaksbegrunnelseFritekst>) {
-        fritekster.clear()
-        fritekster.addAll(nyeFritekster)
-    }
+    fun settFritekster(nyeFritekster: List<VedtaksbegrunnelseFritekst>) =
+        fritekster.apply {
+            clear()
+            addAll(nyeFritekster)
+        }
 
-    fun harFriteksterUtenStandardbegrunnelser(): Boolean {
-        return (type == Vedtaksperiodetype.OPPHØR || type == Vedtaksperiodetype.AVSLAG) && fritekster.isNotEmpty() && begrunnelser.isEmpty()
-    }
+    fun harFriteksterUtenStandardbegrunnelser(): Boolean =
+        (type == Vedtaksperiodetype.OPPHØR || type == Vedtaksperiodetype.AVSLAG) && fritekster.isNotEmpty() && begrunnelser.isEmpty()
 
-    fun harFriteksterOgStandardbegrunnelser(): Boolean {
-        return fritekster.isNotEmpty() && begrunnelser.isNotEmpty()
-    }
+    fun harFriteksterOgStandardbegrunnelser(): Boolean =
+        fritekster.isNotEmpty() && begrunnelser.isNotEmpty()
+
 
     fun hentUtbetalingsperiodeDetaljer(
         andelerTilkjentYtelse: List<AndelTilkjentYtelseMedEndreteUtbetalinger>,
@@ -136,8 +137,12 @@ data class VedtaksperiodeMedBegrunnelser(
         personopplysningGrunnlag: PersonopplysningGrunnlag
     ) {
         val delvisOverlapp = andelTilkjentYtelserIPeriode.any {
-            (this.fom ?: TIDENES_MORGEN).isBefore(it.stønadFom.førsteDagIInneværendeMåned()) || ((this.tom
-                ?: TIDENES_ENDE).isAfter(it.stønadTom.sisteDagIInneværendeMåned()))
+            (this.fom ?: TIDENES_MORGEN).isBefore(it.stønadFom.førsteDagIInneværendeMåned()) || (
+                    (
+                            this.tom
+                                ?: TIDENES_ENDE
+                            ).isAfter(it.stønadTom.sisteDagIInneværendeMåned())
+                    )
         }
 
         if (delvisOverlapp) {
@@ -153,5 +158,4 @@ data class VedtaksperiodeMedBegrunnelser(
                 it.stønadTom.sisteDagIInneværendeMåned()
             )
         }.tilTidslinje()
-
 }

@@ -5,7 +5,6 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Ann
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.PersonResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
 
-
 /**
  * NB: Bør ikke brukes internt, men kun ut mot eksterne tjenester siden klassen
  * inneholder aktiv personIdent og ikke aktørId.

@@ -1,6 +1,7 @@
 package no.nav.familie.ks.sak.kjerne.behandling.domene
 
 import no.nav.familie.ks.sak.OppslagSpringRunnerTest
+import org.hamcrest.MatcherAssert.assertThat
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertNull
@@ -8,7 +9,6 @@ import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
-import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.CoreMatchers.`is` as Is
 class BehandlingRepositoryTest : OppslagSpringRunnerTest() {
 

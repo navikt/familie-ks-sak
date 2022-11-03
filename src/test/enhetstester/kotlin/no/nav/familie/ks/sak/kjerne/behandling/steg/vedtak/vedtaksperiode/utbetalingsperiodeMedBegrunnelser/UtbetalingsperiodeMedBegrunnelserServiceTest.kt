@@ -1,13 +1,8 @@
 package no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.utbetalingsperiodeMedBegrunnelser
 
-import io.mockk.every
 import io.mockk.impl.annotations.InjectMockKs
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
-import io.mockk.mockk
-import io.mockk.slot
-import io.mockk.verify
-import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.tilPerioder
 import no.nav.familie.ks.sak.common.util.førsteDagIInneværendeMåned
 import no.nav.familie.ks.sak.common.util.sisteDagIInneværendeMåned
@@ -17,12 +12,7 @@ import no.nav.familie.ks.sak.data.lagPerson
 import no.nav.familie.ks.sak.data.lagPersonopplysningGrunnlag
 import no.nav.familie.ks.sak.data.lagVilkårsvurderingMedSøkersVilkår
 import no.nav.familie.ks.sak.data.randomAktør
-import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
-import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.Vedtak
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.VedtakRepository
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.utbetalingsperiodeMedBegrunnelser.UtbetalingsperiodeMedBegrunnelserService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.PersonResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
@@ -47,7 +37,6 @@ class UtbetalingsperiodeMedBegrunnelserServiceTest {
     @InjectMockKs
     private lateinit var utbetalingsperiodeMedBegrunnelserService: UtbetalingsperiodeMedBegrunnelserService
 
-
     private val mars2020 = YearMonth.of(2020, 3)
     private val april2020 = YearMonth.of(2020, 4)
     private val mai2020 = YearMonth.of(2020, 5)
@@ -62,7 +51,6 @@ class UtbetalingsperiodeMedBegrunnelserServiceTest {
             lagPersonopplysningGrunnlag(behandlingId = behandling.id, søkerPersonIdent = søker.aktivFødselsnummer())
         val søkerPerson = lagPerson(personopplysningGrunnlag, søker, PersonType.SØKER)
 
-
         val vilkårsvurdering = lagVilkårsvurderingMedSøkersVilkår(
             søkerAktør = søkerPerson.aktør, behandling = behandling, resultat = Resultat.OPPFYLT
         )
@@ -71,17 +59,17 @@ class UtbetalingsperiodeMedBegrunnelserServiceTest {
             vilkårsvurdering = vilkårsvurdering, aktør = søkerPerson.aktør
         )
         val vilkårResultater = Vilkår.hentVilkårFor(søkerPerson.type).map {
-                VilkårResultat(
-                    personResultat = personResultat,
-                    periodeFom = mars2020.førsteDagIInneværendeMåned(),
-                    periodeTom = juni2020.sisteDagIInneværendeMåned(),
-                    vilkårType = it,
-                    resultat = Resultat.OPPFYLT,
-                    begrunnelse = "",
-                    behandlingId = vilkårsvurdering.behandling.id,
-                    utdypendeVilkårsvurderinger = emptyList()
-                )
-            }
+            VilkårResultat(
+                personResultat = personResultat,
+                periodeFom = mars2020.førsteDagIInneværendeMåned(),
+                periodeTom = juni2020.sisteDagIInneværendeMåned(),
+                vilkårType = it,
+                resultat = Resultat.OPPFYLT,
+                begrunnelse = "",
+                behandlingId = vilkårsvurdering.behandling.id,
+                utdypendeVilkårsvurderinger = emptyList()
+            )
+        }
 
         personResultat.setSortedVilkårResultater(vilkårResultater.toSet())
 
@@ -104,7 +92,6 @@ class UtbetalingsperiodeMedBegrunnelserServiceTest {
             lagPersonopplysningGrunnlag(behandlingId = behandling.id, søkerPersonIdent = søker.aktivFødselsnummer())
         val søkerPerson = lagPerson(personopplysningGrunnlag, søker, PersonType.SØKER)
 
-
         val vilkårsvurdering = lagVilkårsvurderingMedSøkersVilkår(
             søkerAktør = søkerPerson.aktør, behandling = behandling, resultat = Resultat.OPPFYLT
         )
@@ -122,7 +109,8 @@ class UtbetalingsperiodeMedBegrunnelserServiceTest {
                         resultat = Resultat.OPPFYLT,
                         begrunnelse = "",
                         behandlingId = vilkårsvurdering.behandling.id
-                    ), VilkårResultat(
+                    ),
+                    VilkårResultat(
                         personResultat = it,
                         periodeFom = null,
                         periodeTom = null,
@@ -145,4 +133,3 @@ class UtbetalingsperiodeMedBegrunnelserServiceTest {
         }
     }
 }
-

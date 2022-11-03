@@ -2,14 +2,6 @@ package no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene
 
 import com.fasterxml.jackson.annotation.JsonIgnore
 import no.nav.familie.ks.sak.common.entitet.BaseEntitet
-import no.nav.familie.ks.sak.common.tidslinje.Periode
-import no.nav.familie.ks.sak.common.tidslinje.Tidslinje
-import no.nav.familie.ks.sak.common.tidslinje.filtrerIkkeNull
-import no.nav.familie.ks.sak.common.tidslinje.tilTidslinje
-import no.nav.familie.ks.sak.common.tidslinje.utvidelser.kombiner
-import no.nav.familie.ks.sak.common.tidslinje.utvidelser.tilPerioder
-import no.nav.familie.ks.sak.common.util.førsteDagIInneværendeMåned
-import no.nav.familie.ks.sak.common.util.sisteDagIMåned
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat.Companion.VilkårResultatComparator
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType

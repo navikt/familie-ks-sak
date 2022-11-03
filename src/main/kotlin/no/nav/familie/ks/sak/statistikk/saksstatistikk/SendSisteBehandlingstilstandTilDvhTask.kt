@@ -13,8 +13,8 @@ import java.time.ZoneOffset
 
 @Service
 @TaskStepBeskrivelse(
-    taskStepType = SendBehandlinghendelseTilDvhTask.TASK_TYPE,
-    beskrivelse = "Sending av behandlinghendelse til datavarehus"
+    taskStepType = SendSisteBehandlingstilstandTilDvhTask.TASK_TYPE,
+    beskrivelse = "Sending av behandling tilstand til datavarehus"
 )
 class SendSisteBehandlingstilstandTilDvhTask(private val kafkaProducer: KafkaProducer) : AsyncTaskStep {
 

@@ -27,8 +27,11 @@ enum class Standardbegrunnelse : IVedtakBegrunnelse {
     INNVILGET_BOSATT_I_RIKTET {
         override val vedtakBegrunnelseType = VedtakBegrunnelseType.INNVILGET
         override val sanityApiNavn = "innvilgetBosattIRiket"
+    },
+    FORTSATT_INNVILGET_SØKER_OG_BARN_BOSATT_I_RIKET {
+        override val vedtakBegrunnelseType = VedtakBegrunnelseType.FORTSATT_INNVILGET
+        override val sanityApiNavn = "fortsattInnvilgetSokerOgBarnBosattIRiket"
     };
-
 
     override val kanDelesOpp = false
     override fun enumnavnTilString() = this.name
@@ -47,5 +50,5 @@ class StandardbegrunnelseListConverter :
 
 val endretUtbetalingsperiodeBegrunnelser: List<Standardbegrunnelse> = listOf(
 
-    //TODO: Legg til standardbegrunnelser
+    // TODO: Legg til standardbegrunnelser
 )

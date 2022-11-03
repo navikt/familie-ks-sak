@@ -42,9 +42,8 @@ class Vedtaksbegrunnelse(
         standardbegrunnelse = this.standardbegrunnelse
     )
 
-    override fun toString(): String {
-        return "Vedtaksbegrunnelse(id=$id, standardbegrunnelse=$standardbegrunnelse)"
-    }
+    override fun toString(): String =
+        "Vedtaksbegrunnelse(id=$id, standardbegrunnelse=$standardbegrunnelse)"
 }
 
 enum class VedtaksBegrunnelseType {
@@ -56,8 +55,8 @@ interface Begrunnelse : Comparable<Begrunnelse> {
     val type: VedtaksBegrunnelseType
     val vedtakBegrunnelseType: VedtakBegrunnelseType?
 
-    override fun compareTo(other: Begrunnelse): Int {
-        return when {
+    override fun compareTo(other: Begrunnelse): Int =
+        when {
             this.type == VedtaksBegrunnelseType.FRITEKST -> Int.MAX_VALUE
             other.type == VedtaksBegrunnelseType.FRITEKST -> -Int.MAX_VALUE
             this.vedtakBegrunnelseType == null -> Int.MAX_VALUE
@@ -65,5 +64,4 @@ interface Begrunnelse : Comparable<Begrunnelse> {
 
             else -> this.vedtakBegrunnelseType!!.sorteringsrekkefølge - other.vedtakBegrunnelseType!!.sorteringsrekkefølge
         }
-    }
 }

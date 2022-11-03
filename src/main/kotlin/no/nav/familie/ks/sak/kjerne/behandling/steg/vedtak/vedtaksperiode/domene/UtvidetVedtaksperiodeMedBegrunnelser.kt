@@ -1,6 +1,5 @@
 package no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene
 
-
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.IVedtakBegrunnelse
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.UtbetalingsperiodeDetalj
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.Vedtaksperiodetype

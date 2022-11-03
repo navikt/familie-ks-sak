@@ -19,6 +19,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vil
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårsvurderingRepository
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelseRepository
 import no.nav.familie.ks.sak.kjerne.beregning.domene.EndretUtbetalingAndelRepository
+import no.nav.familie.ks.sak.kjerne.beregning.domene.maksBeløp
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
@@ -96,7 +97,7 @@ class AndelerTilkjentYtelseOgEndreteUtbetalingerServiceTest {
         assertEquals(fom, andelTilkjentYtelse.stønadFom)
         assertEquals(tom, andelTilkjentYtelse.stønadTom)
         assertEquals(BigDecimal(100), andelTilkjentYtelse.prosent)
-        assertEquals(1054, andelTilkjentYtelse.kalkulertUtbetalingsbeløp)
+        assertEquals(maksBeløp(), andelTilkjentYtelse.kalkulertUtbetalingsbeløp)
 
         val endretUtbetalingAndeler = andeler[0].endreteUtbetalinger
         assertTrue { endretUtbetalingAndeler.size == 1 }
@@ -165,6 +166,6 @@ class AndelerTilkjentYtelseOgEndreteUtbetalingerServiceTest {
         assertTrue { andelerTilkjentYtelse.any { it.stønadFom == YearMonth.now().minusMonths(2) } }
         assertTrue { andelerTilkjentYtelse.any { it.stønadTom == YearMonth.now().plusMonths(5) } }
         assertTrue { andelerTilkjentYtelse.any { it.prosent == BigDecimal(100) } }
-        assertTrue { andelerTilkjentYtelse.any { it.kalkulertUtbetalingsbeløp == 1054 } }
+        assertTrue { andelerTilkjentYtelse.any { it.kalkulertUtbetalingsbeløp == maksBeløp() } }
     }
 }

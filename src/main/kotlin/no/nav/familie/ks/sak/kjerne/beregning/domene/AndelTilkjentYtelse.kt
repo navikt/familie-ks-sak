@@ -161,6 +161,21 @@ data class AndelTilkjentYtelse(
     fun erAndelSomSkalSendesTilOppdrag(): Boolean = this.kalkulertUtbetalingsbeløp != 0
 }
 
+fun List<AndelTilkjentYtelse>.slåSammenBack2BackAndelsperioderMedSammeBeløp(): List<AndelTilkjentYtelse> =
+    this.fold(emptyList()) { acc, andelTilkjentYtelse ->
+        val sisteElement = acc.lastOrNull()
+
+        if (sisteElement?.stønadTom == andelTilkjentYtelse.stønadFom.plusMonths(1) &&
+            sisteElement?.aktør == andelTilkjentYtelse.aktør &&
+            sisteElement.kalkulertUtbetalingsbeløp == andelTilkjentYtelse.kalkulertUtbetalingsbeløp &&
+            sisteElement.type == andelTilkjentYtelse.type
+        ) {
+            acc.dropLast(1) + sisteElement.copy(stønadTom = andelTilkjentYtelse.stønadTom)
+        } else {
+            acc + andelTilkjentYtelse
+        }
+    }
+
 enum class YtelseType(val klassifisering: String) {
     ORDINÆR_KONTANTSTØTTE("KS") // TODO verdien må avklares med økonomi
 }

@@ -6,11 +6,11 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.VedtaksperiodeRepository
 import org.hamcrest.CoreMatchers.nullValue
 import org.hamcrest.MatcherAssert.assertThat
-import org.hamcrest.CoreMatchers.`is` as Is
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.transaction.annotation.Transactional
+import org.hamcrest.CoreMatchers.`is` as Is
 
 class VedtaksperiodeRepositoryTest : OppslagSpringRunnerTest() {
 
@@ -60,12 +60,10 @@ class VedtaksperiodeRepositoryTest : OppslagSpringRunnerTest() {
         assertThat(vedtaksperioderForVedtak.size, Is(1))
     }
 
-
     private fun opprettOgLagVedtaksperiode(): VedtaksperiodeMedBegrunnelser {
         val vedtaksperiodeMedBegrunnelser =
             VedtaksperiodeMedBegrunnelser(vedtak = vedtak, type = Vedtaksperiodetype.OPPHØR)
 
         return vedtaksperiodeRepository.saveAndFlush(vedtaksperiodeMedBegrunnelser)
     }
-
 }

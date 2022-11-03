@@ -5,26 +5,21 @@ import no.nav.familie.ks.sak.common.util.Periode
 import no.nav.familie.ks.sak.common.util.TIDENES_ENDE
 import no.nav.familie.ks.sak.common.util.TIDENES_MORGEN
 import no.nav.familie.ks.sak.common.util.erDagenFør
-import no.nav.familie.ks.sak.common.util.nbLocale
 import no.nav.familie.ks.sak.common.util.sisteDagIInneværendeMåned
-import no.nav.familie.ks.sak.common.util.slåSammen
-import no.nav.familie.ks.sak.common.util.tilKortString
 import no.nav.familie.ks.sak.common.util.toYearMonth
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelse
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityEØSBegrunnelse
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.tilTriggesAv
-import no.nav.familie.ks.sak.kjerne.brev.domene.BrevPerson
-import no.nav.familie.ks.sak.kjerne.brev.domene.BrevPersonResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.Vedtaksbegrunnelse
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.VedtaksperiodeMedBegrunnelser
-import no.nav.familie.ks.sak.kjerne.brev.domene.harPersonerSomManglerOpplysninger
 import no.nav.familie.ks.sak.kjerne.beregning.AndelTilkjentYtelseMedEndreteUtbetalinger
 import no.nav.familie.ks.sak.kjerne.brev.domene.BrevEndretUtbetalingAndel
+import no.nav.familie.ks.sak.kjerne.brev.domene.BrevPerson
+import no.nav.familie.ks.sak.kjerne.brev.domene.BrevPersonResultat
 import no.nav.familie.ks.sak.kjerne.brev.domene.BrevVedtaksPeriode
+import no.nav.familie.ks.sak.kjerne.brev.domene.harPersonerSomManglerOpplysninger
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
 import org.slf4j.LoggerFactory
-import java.text.NumberFormat
-import java.time.LocalDate
 
 private val logger = LoggerFactory.getLogger(Standardbegrunnelse::class.java)
 
@@ -47,10 +42,6 @@ fun EØSStandardbegrunnelse.tilSanityEØSBegrunnelse(
     }
     return sanityBegrunnelse
 }
-
-fun List<LocalDate>.tilBrevTekst(): String = slåSammen(this.sorted().map { it.tilKortString() })
-
-fun formaterBeløp(beløp: Int): String = NumberFormat.getNumberInstance(nbLocale).format(beløp)
 
 fun Standardbegrunnelse.tilVedtaksbegrunnelse(
     vedtaksperiodeMedBegrunnelser: VedtaksperiodeMedBegrunnelser
@@ -158,7 +149,6 @@ fun TriggesAv.erTriggereOppfyltForEndretUtbetaling(
 
     val oppfyllerSkalUtbetalesTrigger = brevEndretUtbetalingAndel.oppfyllerSkalUtbetalesTrigger(this)
 
-
     val erAvSammeÅrsak = this.endringsaarsaker.contains(brevEndretUtbetalingAndel.årsak)
 
     return !hørerTilEtterEndretUtbetaling &&
@@ -181,8 +171,8 @@ private fun erEtterEndretPeriodeAvSammeÅrsak(
 fun dødeBarnForrigePeriode(
     ytelserForrigePeriode: List<AndelTilkjentYtelseMedEndreteUtbetalinger>,
     barnIBehandling: List<BrevPerson>
-): List<String> {
-    return barnIBehandling.filter { barn ->
+): List<String> =
+    barnIBehandling.filter { barn ->
         val ytelserForrigePeriodeForBarn = ytelserForrigePeriode.filter {
             it.aktør.aktivFødselsnummer() == barn.aktivPersonIdent
         }
@@ -198,4 +188,3 @@ fun dødeBarnForrigePeriode(
         }
         barnDødeForrigePeriode
     }.map { it.aktivPersonIdent }
-}

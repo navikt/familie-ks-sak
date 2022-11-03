@@ -88,18 +88,14 @@ class UtbetalingsperiodeMedBegrunnelserService(
     private fun alleVilkårOppfyltEllerNull(
         vilkårResultater: Iterable<VilkårResultat?>,
         vilkårForPerson: Set<Vilkår>
-    ): List<VilkårResultat>? {
-        return if (erAlleVilkårForPersonOppfylt(
-                vilkårForPerson,
-                vilkårResultater
-            )
-        ) vilkårResultater.filterNotNull() else null
-    }
+    ): List<VilkårResultat>? =
+        if (erAlleVilkårForPersonOppfylt(vilkårForPerson, vilkårResultater))
+            vilkårResultater.filterNotNull()
+        else null
 
     private fun erAlleVilkårForPersonOppfylt(
         vilkårForPerson: Set<Vilkår>,
         vilkårResultater: Iterable<VilkårResultat?>
     ) =
         vilkårForPerson.all { vilkår -> vilkårResultater.any { it?.resultat == Resultat.OPPFYLT && it.vilkårType == vilkår } }
-
 }

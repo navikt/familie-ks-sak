@@ -31,6 +31,9 @@ class BeregningServiceTest {
     @MockK
     private lateinit var personopplysningGrunnlagRepository: PersonopplysningGrunnlagRepository
 
+    @MockK
+    private lateinit var andelerTilkjentYtelseOgEndreteUtbetalingerService: AndelerTilkjentYtelseOgEndreteUtbetalingerService
+
     @InjectMockKs
     private lateinit var beregningService: BeregningService
 

@@ -27,13 +27,13 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.tilSanityBegrunnelse
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.tilVedtaksbegrunnelse
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.Opphørsperiode
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.Utbetalingsperiode
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.utbetalingsperiodeMedBegrunnelser.UtbetalingsperiodeMedBegrunnelserService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.VedtaksperiodeHentOgPersisterService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.Vedtaksperiodetype
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.hentGyldigeBegrunnelserForPeriode
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.mapTilOpphørsperioder
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.mapTilUtbetalingsperioder
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.tilVedtaksperiodeMedBegrunnelse
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.utbetalingsperiodeMedBegrunnelser.UtbetalingsperiodeMedBegrunnelserService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårsvurderingRepository
 import no.nav.familie.ks.sak.kjerne.beregning.AndelTilkjentYtelseMedEndreteUtbetalinger
@@ -373,7 +373,6 @@ class VedtaksperiodeService(
         val forrigeIverksatteBehandling = iverksatteBehandlinger
             .filter { it.opprettetTidspunkt.isBefore(behandling.opprettetTidspunkt) && it.steg == BehandlingSteg.BEHANDLING_AVSLUTTET }
             .maxByOrNull { it.opprettetTidspunkt }
-
 
         val forrigePersonopplysningGrunnlag =
             if (forrigeIverksatteBehandling != null) {

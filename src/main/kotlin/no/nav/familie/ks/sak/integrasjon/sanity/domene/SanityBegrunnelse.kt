@@ -34,7 +34,7 @@ data class SanityBegrunnelseDto(
     val vilkaar: List<String>? = emptyList(),
     val rolle: List<String>? = emptyList(),
     val endringsaarsaker: List<String>? = emptyList(),
-    ) {
+) {
     fun tilSanityBegrunnelse(): SanityBegrunnelse {
         return SanityBegrunnelse(
             apiNavn = apiNavn,

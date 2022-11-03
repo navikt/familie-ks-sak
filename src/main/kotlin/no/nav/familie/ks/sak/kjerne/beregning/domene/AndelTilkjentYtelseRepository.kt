@@ -1,5 +1,6 @@
 package no.nav.familie.ks.sak.kjerne.beregning.domene
 
+import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
 
@@ -10,4 +11,7 @@ interface AndelTilkjentYtelseRepository : JpaRepository<AndelTilkjentYtelse, Lon
 
     @Query(value = "SELECT aty FROM AndelTilkjentYtelse aty WHERE aty.behandlingId = :behandlingId")
     fun finnAndelerTilkjentYtelseForBehandling(behandlingId: Long): List<AndelTilkjentYtelse>
+
+    @Query(value = "SELECT aty FROM AndelTilkjentYtelse aty WHERE aty.behandlingId = :behandlingId AND aty.aktør = :barnAktør")
+    fun finnAndelerTilkjentYtelseForBehandlingOgBarn(behandlingId: Long, barnAktør: Aktør): List<AndelTilkjentYtelse>
 }
