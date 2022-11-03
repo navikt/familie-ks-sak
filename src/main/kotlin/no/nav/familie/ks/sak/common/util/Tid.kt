@@ -33,8 +33,6 @@ fun YearMonth.erSammeEllerTidligere(toCompare: YearMonth): Boolean = this.isBefo
 
 fun inneværendeMåned(): YearMonth = LocalDate.now().toYearMonth()
 
-fun LocalDate.nesteMåned(): YearMonth = this.toYearMonth().plusMonths(1)
-
 fun YearMonth.nesteMåned(): YearMonth = this.plusMonths(1)
 
 fun LocalDate.erDagenFør(other: LocalDate?) = other != null && this.plusDays(1).equals(other)

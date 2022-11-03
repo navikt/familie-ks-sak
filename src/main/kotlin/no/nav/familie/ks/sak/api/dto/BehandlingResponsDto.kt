@@ -9,10 +9,13 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingStegStatus
 import no.nav.familie.ks.sak.kjerne.behandling.steg.VenteÅrsak
+import no.nav.familie.ks.sak.kjerne.beregning.domene.YtelseType
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Målform
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
+import java.math.BigDecimal
 import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.YearMonth
 
 data class BehandlingResponsDto(
     val behandlingId: Long,
@@ -30,8 +33,8 @@ data class BehandlingResponsDto(
     val behandlingPåVent: BehandlingPåVentResponsDto?,
     val personer: List<PersonResponsDto>,
     val personResultater: List<PersonResultatResponsDto>,
-    val utbetalingsperioder: List<UtbetalingsperiodeResponsDto> = emptyList(),
-    val personerMedAndelerTilkjentYtelse: List<Any> = emptyList(), // TODO implementeres ved tilkjentYtelse
+    val utbetalingsperioder: List<UtbetalingsperiodeResponsDto>,
+    val personerMedAndelerTilkjentYtelse: List<PersonerMedAndelerResponsDto>,
     val endretUtbetalingAndeler: List<Any> = emptyList(), // TODO implementeres ved behandlingsresultat
     val kompetanser: List<Any> = emptyList(), // TODO implementeres ved EØS
     val utenlandskePeriodebeløp: List<Any> = emptyList(), // TODO implementeres ved EØS
@@ -75,4 +78,35 @@ data class RegisteropplysningResponsDto(
     val fom: LocalDate?,
     val tom: LocalDate?,
     var verdi: String
+)
+
+data class PersonerMedAndelerResponsDto(
+    val personIdent: String?,
+    val beløp: Int,
+    val stønadFom: YearMonth,
+    val stønadTom: YearMonth,
+    val ytelsePerioder: List<YtelsePerioderDto>
+)
+
+data class YtelsePerioderDto(
+    val beløp: Int,
+    val stønadFom: YearMonth,
+    val stønadTom: YearMonth,
+    val ytelseType: YtelseType,
+    val skalUtbetales: Boolean
+)
+
+data class UtbetalingsperiodeResponsDto(
+    val periodeFom: LocalDate,
+    val periodeTom: LocalDate,
+    val antallBarn: Int,
+    val utbetaltPerMnd: Int,
+    val utbetalingsperiodeDetaljer: List<UtbetalingsperiodeDetaljDto>
+)
+
+data class UtbetalingsperiodeDetaljDto(
+    val person: PersonResponsDto,
+    val utbetaltPerMnd: Int,
+    val erPåvirketAvEndring: Boolean,
+    val prosent: BigDecimal
 )

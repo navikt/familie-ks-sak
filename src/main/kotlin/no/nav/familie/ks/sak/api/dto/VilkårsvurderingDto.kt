@@ -67,7 +67,8 @@ data class VilkårResultatDto(
             utdypendeVilkårsvurderinger = utdypendeVilkårsvurderinger,
             personResultat = vilkårResultat.personResultat,
             vilkårType = vilkårResultat.vilkårType,
-            antallTimer = antallTimer
+            // antallTimer kan ikke være 0
+            antallTimer = if (antallTimer == BigDecimal(0)) null else antallTimer
         )
     }
 }

@@ -16,7 +16,7 @@ interface KafkaProducer {
 }
 
 @Service
-@Profile("!integrasjonstest")
+@Profile("!integrasjonstest & !dev-postgres-preprod")
 class DatavarehusKafkaProducer(private val kafkaTemplate: KafkaTemplate<String, String>) : KafkaProducer {
 
     private val log = LoggerFactory.getLogger(this::class.java)
@@ -56,7 +56,7 @@ class DatavarehusKafkaProducer(private val kafkaTemplate: KafkaTemplate<String, 
 }
 
 @Service
-@Profile("e2e", "integrasjonstest")
+@Profile("e2e", "integrasjonstest", "dev-postgres-preprod")
 class E2EKafkaProducer : KafkaProducer {
 
     override fun sendBehandlingsTilstand(behandlingId: String, request: BehandlingStatistikkDto) {
