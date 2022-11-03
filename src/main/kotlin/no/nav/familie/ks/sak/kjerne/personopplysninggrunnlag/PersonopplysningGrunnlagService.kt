@@ -58,7 +58,7 @@ class PersonopplysningGrunnlagService(
         behandling: Behandling,
         forrigeBehandlingSomErVedtatt: Behandling?,
         søknadDto: SøknadDto
-    ) {
+    ): PersonopplysningGrunnlag {
         val eksisterendePersonopplysningGrunnlag =
             hentAktivPersonopplysningGrunnlag(behandling.id)
                 ?: throw Feil("Det finnes ikke noe aktivt personopplysningsgrunnlag for ${behandling.id}")
@@ -76,7 +76,7 @@ class PersonopplysningGrunnlagService(
             else -> valgteBarnAktører
         }
 
-        lagreSøkerOgBarnINyttGrunnlag(
+        return lagreSøkerOgBarnINyttGrunnlag(
             aktør = eksisterendePersonopplysningGrunnlag.søker.aktør,
             barnasAktør = barnAktører,
             behandling = behandling,
