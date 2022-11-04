@@ -182,3 +182,20 @@ fun List<AndelTilkjentYtelseMedEndreteUtbetalinger>.tilTidslinjer(): List<Tidsli
 
 fun List<AndelTilkjentYtelseMedEndreteUtbetalinger>.lagVertikalePerioder(): Tidslinje<Collection<AndelTilkjentYtelseMedEndreteUtbetalinger>> =
     this.tilTidslinjer().slåSammen()
+
+fun List<AndelTilkjentYtelseMedEndreteUtbetalinger>.tilKombinertTidslinjePerAktør(): Tidslinje<Collection<AndelTilkjentYtelseMedEndreteUtbetalinger>> {
+    val andelTilkjentYtelsePerPerson = groupBy { it.aktør }
+
+    val tidslinjer = andelTilkjentYtelsePerPerson.values.map { it.tilTidslinje() }
+
+    return tidslinjer.slåSammen()
+}
+
+fun List<AndelTilkjentYtelseMedEndreteUtbetalinger>.tilTidslinje() =
+    this.map {
+        Periode(
+            it,
+            it.stønadFom.førsteDagIInneværendeMåned(),
+            it.stønadTom.sisteDagIInneværendeMåned()
+        )
+    }.tilTidslinje()

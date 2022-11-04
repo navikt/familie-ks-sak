@@ -6,7 +6,6 @@ import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.tidslinje.Periode
 import no.nav.familie.ks.sak.common.tidslinje.tilTidslinje
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.kombinerMed
-import no.nav.familie.ks.sak.common.tidslinje.utvidelser.slåSammen
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.tilPerioder
 import no.nav.familie.ks.sak.common.util.TIDENES_ENDE
 import no.nav.familie.ks.sak.common.util.TIDENES_MORGEN
@@ -17,6 +16,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.Utbeta
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.Vedtaksperiodetype
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.lagUtbetalingsperiodeDetaljer
 import no.nav.familie.ks.sak.kjerne.beregning.AndelTilkjentYtelseMedEndreteUtbetalinger
+import no.nav.familie.ks.sak.kjerne.beregning.tilKombinertTidslinjePerAktør
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
 import java.time.LocalDate
 import javax.persistence.CascadeType
@@ -107,11 +107,7 @@ data class VedtaksperiodeMedBegrunnelser(
             this.type == Vedtaksperiodetype.UTBETALING_MED_REDUKSJON_FRA_SIST_IVERKSATTE_BEHANDLING
         ) {
 
-            val andelTilkjentYtelsePerPerson = andelerTilkjentYtelse.groupBy { it.aktør }
-
-            val tidslinjer = andelTilkjentYtelsePerPerson.values.map { it.tilTidslinje() }
-
-            val kombinertTidslinje = tidslinjer.slåSammen()
+            val kombinertTidslinje = andelerTilkjentYtelse.tilKombinertTidslinjePerAktør()
 
             val vedtaksperiodeTidslinje = listOf(Periode(verdi = this, fom = this.fom, this.tom)).tilTidslinje()
 
@@ -148,13 +144,4 @@ data class VedtaksperiodeMedBegrunnelser(
             throw Feil("Andel overlapper vedtaksperiode kun delvis for behandling ${personopplysningGrunnlag.behandlingId}")
         }
     }
-
-    fun List<AndelTilkjentYtelseMedEndreteUtbetalinger>.tilTidslinje() =
-        this.map {
-            Periode(
-                it,
-                it.stønadFom.førsteDagIInneværendeMåned(),
-                it.stønadTom.sisteDagIInneværendeMåned()
-            )
-        }.tilTidslinje()
 }

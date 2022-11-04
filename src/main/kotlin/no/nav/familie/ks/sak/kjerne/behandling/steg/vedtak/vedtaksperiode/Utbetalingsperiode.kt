@@ -1,16 +1,15 @@
 package no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode
 
 import no.nav.familie.ks.sak.common.tidslinje.Periode
-import no.nav.familie.ks.sak.common.tidslinje.filtrerIkkeNull
 import no.nav.familie.ks.sak.common.tidslinje.tilTidslinje
-import no.nav.familie.ks.sak.common.tidslinje.utvidelser.slåSammen
-import no.nav.familie.ks.sak.common.tidslinje.utvidelser.tilPerioder
+import no.nav.familie.ks.sak.common.tidslinje.utvidelser.tilPerioderIkkeNull
 import no.nav.familie.ks.sak.common.util.TIDENES_ENDE
 import no.nav.familie.ks.sak.common.util.TIDENES_MORGEN
 import no.nav.familie.ks.sak.common.util.førsteDagIInneværendeMåned
 import no.nav.familie.ks.sak.common.util.sisteDagIInneværendeMåned
 import no.nav.familie.ks.sak.kjerne.beregning.AndelTilkjentYtelseMedEndreteUtbetalinger
 import no.nav.familie.ks.sak.kjerne.beregning.domene.YtelseType
+import no.nav.familie.ks.sak.kjerne.beregning.tilKombinertTidslinjePerAktør
 import no.nav.familie.ks.sak.kjerne.brev.domene.BrevPerson
 import no.nav.familie.ks.sak.kjerne.brev.domene.tilBrevPerson
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
@@ -44,13 +43,9 @@ fun mapTilUtbetalingsperioder(
     andelerTilkjentYtelse: List<AndelTilkjentYtelseMedEndreteUtbetalinger>
 ): List<Utbetalingsperiode> {
 
-    val andelTilkjentYtelsePerPerson = andelerTilkjentYtelse.groupBy { it.aktør }
+    val kombinertTidslinjePerAktør = andelerTilkjentYtelse.tilKombinertTidslinjePerAktør()
 
-    val tidslinjer = andelTilkjentYtelsePerPerson.values.map { it.tilTidslinje() }
-
-    val kombinertTidslinje = tidslinjer.slåSammen()
-
-    val utbetalingsPerioder = kombinertTidslinje.tilPerioder().filtrerIkkeNull().map {
+    val utbetalingsPerioder = kombinertTidslinjePerAktør.tilPerioderIkkeNull().map {
         Utbetalingsperiode(
             periodeFom = it.fom ?: TIDENES_MORGEN,
             periodeTom = it.tom ?: TIDENES_ENDE,
