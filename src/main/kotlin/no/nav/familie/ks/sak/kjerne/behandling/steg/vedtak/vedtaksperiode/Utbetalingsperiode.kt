@@ -54,8 +54,8 @@ fun mapTilUtbetalingsperioder(
         Utbetalingsperiode(
             periodeFom = it.fom ?: TIDENES_MORGEN,
             periodeTom = it.tom ?: TIDENES_ENDE,
-            ytelseTyper = it.verdi.map { it.type },
-            utbetaltPerMnd = it.verdi.sumOf { it.kalkulertUtbetalingsbeløp },
+            ytelseTyper = it.verdi.map { andelTilkjentYtelse -> andelTilkjentYtelse.type },
+            utbetaltPerMnd = it.verdi.sumOf { andelTilkjentYtelse -> andelTilkjentYtelse.kalkulertUtbetalingsbeløp },
             antallBarn = it.verdi.count { andel -> personopplysningGrunnlag.barna.any { barn -> barn.aktør == andel.aktør } },
             utbetalingsperiodeDetaljer = it.verdi.lagUtbetalingsperiodeDetaljer(personopplysningGrunnlag)
         )

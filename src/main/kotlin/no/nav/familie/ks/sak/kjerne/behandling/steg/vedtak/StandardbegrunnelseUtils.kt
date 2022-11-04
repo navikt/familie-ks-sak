@@ -110,7 +110,7 @@ fun Standardbegrunnelse.triggesForPeriode(
                 triggesAv
             )
 
-        triggesAv.erEndret() && !triggesAv.etterEndretUtbetaling -> erEndretTriggerErOppfylt(
+        triggesAv.erEndret() -> erEndretTriggerErOppfylt(
             triggesAv = triggesAv,
             brevEndretUtbetalingAndel = brevEndredeUtbetalingAndeler,
             brevVedtaksPeriode = brevVedtaksPeriode

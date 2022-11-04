@@ -22,10 +22,10 @@ internal class StandardbegrunnelseUtilsKtTest {
         val barn2Fnr = "12345678911"
 
         // Barn1 dør før Barn2.
-        var dødsfallDatoBarn1 = LocalDate.of(2022, 5, 12)
-        var dødsfallDatoBarn2 = LocalDate.of(2022, 7, 2)
+        val dødsfallDatoBarn1 = LocalDate.of(2022, 5, 12)
+        val dødsfallDatoBarn2 = LocalDate.of(2022, 7, 2)
 
-        var barnIBehandling = listOf(
+        val barnIBehandling = listOf(
             BrevPerson(
                 dødsfallsdato = dødsfallDatoBarn1,
                 aktivPersonIdent = barn1Fnr,

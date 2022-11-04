@@ -68,7 +68,10 @@ fun hentGyldigeBegrunnelserForPeriode(
     endretUtbetalingAndeler: List<EndretUtbetalingAndel>,
     andelerTilkjentYtelse: List<AndelTilkjentYtelseMedEndreteUtbetalinger>
 ): List<IVedtakBegrunnelse> {
-    val standardbegrunnelser = hentGyldigeStandardbegrunnelserForVedtaksperiode(
+
+// TODO: Legg inn EØS når vi kommer så langt
+
+    return hentGyldigeStandardbegrunnelserForVedtaksperiode(
         utvidetVedtaksperiodeMedBegrunnelser = utvidetVedtaksperiodeMedBegrunnelser,
         sanityBegrunnelser = sanityBegrunnelser,
         persongrunnlag = persongrunnlag,
@@ -77,10 +80,6 @@ fun hentGyldigeBegrunnelserForPeriode(
         endretUtbetalingAndeler = endretUtbetalingAndeler,
         andelerTilkjentYtelse = andelerTilkjentYtelse
     )
-
-// TODO: Legg inn EØS når vi kommer så langt
-
-    return standardbegrunnelser
 }
 
 private fun hentGyldigeStandardbegrunnelserForVedtaksperiode(

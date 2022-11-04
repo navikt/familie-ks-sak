@@ -25,12 +25,10 @@ class UtbetalingsperiodeMedBegrunnelserService(
         val forskjøvetVilkårResultatTidslinjeMap =
             vilkårsvurdering.personResultater.tilFørskjøvetVilkårResultatTidslinjeMap()
 
-        val utbetalingsperioder = hentPerioderMedUtbetaling(
+        return hentPerioderMedUtbetaling(
             andelerTilkjentYtelse = andelerTilkjentYtelse,
             vedtak = vedtak,
             forskjøvetVilkårResultatTidslinjeMap = forskjøvetVilkårResultatTidslinjeMap
         )
-
-        return utbetalingsperioder
     }
 }

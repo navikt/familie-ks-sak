@@ -18,8 +18,8 @@ import org.junit.jupiter.api.Test
 
 class OpphørsperiodeTest {
     val behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD)
-    val søkerFnr = randomFnr()
-    val barn1Fnr = randomFnr()
+    private val søkerFnr = randomFnr()
+    private val barn1Fnr = randomFnr()
 
     val personopplysningGrunnlag = lagPersonopplysningGrunnlag(behandling.id, søkerFnr, listOf(barn1Fnr))
 
