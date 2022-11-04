@@ -29,6 +29,7 @@ import java.time.YearMonth
 
 @ExtendWith(MockKExtension::class)
 class UtbetalingsperiodeMedBegrunnelserServiceTest {
+
     @MockK
     private lateinit var vilkårsvurderingService: VilkårsvurderingService
 

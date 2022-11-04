@@ -31,7 +31,7 @@ class OpphørsperiodeTest {
     )
 
     @Test
-    fun `Skal utlede opphørsperiode mellom oppfylte perioder`() {
+    fun `mapTilOpphørsperioder skal utlede opphørsperiode mellom oppfylte perioder`() {
         val periodeTomFørsteAndel = inneværendeMåned().minusYears(2)
         val periodeFomAndreAndel = inneværendeMåned().minusYears(1)
         val periodeTomAndreAndel = inneværendeMåned().minusMonths(10)
@@ -83,7 +83,7 @@ class OpphørsperiodeTest {
     }
 
     @Test
-    fun `Skal utlede opphørsperiode når siste utbetalingsperiode er før neste måned`() {
+    fun `mapTilOpphørsperioder skal utlede opphørsperiode når siste utbetalingsperiode er før neste måned`() {
         val periodeTomFørsteAndel = inneværendeMåned().minusYears(1)
         val andelBarn1 = AndelTilkjentYtelseMedEndreteUtbetalinger(
             lagAndelTilkjentYtelse(
@@ -107,7 +107,7 @@ class OpphørsperiodeTest {
     }
 
     @Test
-    fun `Skal utlede opphørsperiode fra neste måned når siste utbetalingsperiode er inneværende måned`() {
+    fun `mapTilOpphørsperioder skal utlede opphørsperiode fra neste måned når siste utbetalingsperiode er inneværende måned`() {
         val periodeTomFørsteAndel = inneværendeMåned()
         val andelBarn1 = AndelTilkjentYtelseMedEndreteUtbetalinger(
             lagAndelTilkjentYtelse(
@@ -131,7 +131,7 @@ class OpphørsperiodeTest {
     }
 
     @Test
-    fun `Skal slå sammen to like opphørsperioder`() {
+    fun `mapTilOpphørsperioder skal slå sammen to like opphørsperioder`() {
         val periode12MånederFraInneværendeMåned = inneværendeMåned().minusMonths(12).toLocalDate()
 
         val toLikePerioder = listOf(
@@ -149,7 +149,7 @@ class OpphørsperiodeTest {
     }
 
     @Test
-    fun `Skal slå sammen to opphørsperioder med ulik sluttdato`() {
+    fun `mapTilOpphørsperioder skal slå sammen to opphørsperioder med ulik sluttdato`() {
         val toPerioderMedUlikSluttdato = listOf(
             Opphørsperiode(
                 periodeFom = inneværendeMåned().minusMonths(12).toLocalDate(),
@@ -167,7 +167,7 @@ class OpphørsperiodeTest {
     }
 
     @Test
-    fun `Skal slå sammen to opphørsperioder med ulik startdato`() {
+    fun `mapTilOpphørsperioder skal slå sammen to opphørsperioder med ulik startdato`() {
         val toPerioderMedUlikStartdato = listOf(
             Opphørsperiode(
                 periodeFom = inneværendeMåned().minusMonths(12).toLocalDate(),
@@ -188,7 +188,7 @@ class OpphørsperiodeTest {
     }
 
     @Test
-    fun `Skal slå sammen to opphørsperioder som overlapper`() {
+    fun `mapTilOpphørsperioder skal slå sammen to opphørsperioder som overlapper`() {
         val førsteOpphørsperiodeFom = inneværendeMåned().minusMonths(12).toLocalDate()
         val sisteOpphørsperiodeTom = inneværendeMåned().plusMonths(1).toLocalDate()
         val toPerioderMedUlikStartdato = listOf(

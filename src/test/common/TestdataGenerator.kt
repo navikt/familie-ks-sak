@@ -25,9 +25,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.Standardbegrunnelse
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.TriggesAv
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.Vedtak
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.UtbetalingsperiodeDetalj
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.Vedtaksperiodetype
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.UtvidetVedtaksperiodeMedBegrunnelser
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.Vedtaksbegrunnelse
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.VedtaksbegrunnelseFritekst
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.VedtaksperiodeMedBegrunnelser
@@ -39,7 +37,6 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Utd
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
-import no.nav.familie.ks.sak.kjerne.beregning.AndelTilkjentYtelseMedEndreteUtbetalinger
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.domene.EndretUtbetalingAndel
 import no.nav.familie.ks.sak.kjerne.beregning.domene.TilkjentYtelse
@@ -489,33 +486,6 @@ fun lagTriggesAv(
     barnDød = false,
     gjelderFraInnvilgelsestidspunkt = false,
     gjelderFørstePeriode = false
-)
-
-fun lagAndelTilkjentYtelseMedEndreteUtbetalinger(
-    behandling: Behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD),
-    endretUtbetalingAndeler: List<EndretUtbetalingAndel> = emptyList()
-): AndelTilkjentYtelseMedEndreteUtbetalinger {
-    val aty = lagAndelTilkjentYtelse(behandling = behandling)
-
-    return AndelTilkjentYtelseMedEndreteUtbetalinger(aty, endretUtbetalingAndeler)
-}
-
-fun lagUtvidetVedtaksperiodeMedBegrunnelser(
-    id: Long = 0,
-    fom: LocalDate? = LocalDate.now().withDayOfMonth(1),
-    tom: LocalDate? = LocalDate.now().let { it.withDayOfMonth(it.lengthOfMonth()) },
-    type: Vedtaksperiodetype = Vedtaksperiodetype.FORTSATT_INNVILGET,
-    begrunnelser: List<Vedtaksbegrunnelse> = listOf(lagVedtaksbegrunnelse()),
-    fritekster: MutableList<VedtaksbegrunnelseFritekst> = mutableListOf(),
-    utbetalingsperiodeDetaljer: List<UtbetalingsperiodeDetalj> = emptyList(),
-) = UtvidetVedtaksperiodeMedBegrunnelser(
-    id = id,
-    fom = fom,
-    tom = tom,
-    type = type,
-    begrunnelser = begrunnelser,
-    fritekster = fritekster.map { it.fritekst },
-    utbetalingsperiodeDetaljer = utbetalingsperiodeDetaljer
 )
 
 fun lagVedtaksbegrunnelse(

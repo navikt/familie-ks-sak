@@ -61,11 +61,10 @@ enum class Vedtaksperiodetype(val tillatteBegrunnelsestyper: List<VedtakBegrunne
 
 fun Vedtaksperiode.tilVedtaksperiodeMedBegrunnelse(
     vedtak: Vedtak
-): VedtaksperiodeMedBegrunnelser {
-    return VedtaksperiodeMedBegrunnelser(
+): VedtaksperiodeMedBegrunnelser =
+    VedtaksperiodeMedBegrunnelser(
         fom = this.periodeFom,
         tom = this.periodeTom,
         vedtak = vedtak,
         type = this.vedtaksperiodetype
     )
-}

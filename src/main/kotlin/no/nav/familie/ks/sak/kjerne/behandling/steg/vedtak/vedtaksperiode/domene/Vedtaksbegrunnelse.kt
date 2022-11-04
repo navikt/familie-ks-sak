@@ -2,7 +2,6 @@ package no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domen
 
 import com.fasterxml.jackson.annotation.JsonIgnore
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.Standardbegrunnelse
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.VedtakBegrunnelseType
 import javax.persistence.Column
 import javax.persistence.Entity
 import javax.persistence.EnumType
@@ -44,24 +43,4 @@ class Vedtaksbegrunnelse(
 
     override fun toString(): String =
         "Vedtaksbegrunnelse(id=$id, standardbegrunnelse=$standardbegrunnelse)"
-}
-
-enum class VedtaksBegrunnelseType {
-    STANDARD_BEGRUNNELSE,
-    FRITEKST
-}
-
-interface Begrunnelse : Comparable<Begrunnelse> {
-    val type: VedtaksBegrunnelseType
-    val vedtakBegrunnelseType: VedtakBegrunnelseType?
-
-    override fun compareTo(other: Begrunnelse): Int =
-        when {
-            this.type == VedtaksBegrunnelseType.FRITEKST -> Int.MAX_VALUE
-            other.type == VedtaksBegrunnelseType.FRITEKST -> -Int.MAX_VALUE
-            this.vedtakBegrunnelseType == null -> Int.MAX_VALUE
-            other.vedtakBegrunnelseType == null -> -Int.MAX_VALUE
-
-            else -> this.vedtakBegrunnelseType!!.sorteringsrekkefølge - other.vedtakBegrunnelseType!!.sorteringsrekkefølge
-        }
 }
