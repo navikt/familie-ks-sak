@@ -16,6 +16,7 @@ import no.nav.familie.ks.sak.integrasjon.pdl.domene.PdlPersonInfo
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.Fagsak
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.FagsakRepository
+import no.nav.familie.ks.sak.kjerne.fagsak.domene.FagsakStatus
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonRepository
@@ -112,13 +113,22 @@ class FagsakService(
         return fagsakRepository.save(fagsak)
     }
 
+    fun oppdaterStatus(fagsak: Fagsak, nyStatus: FagsakStatus) {
+        logger.info(
+            "${SikkerhetContext.hentSaksbehandlerNavn()} endrer status på fagsak ${fagsak.id} fra ${fagsak.status}" +
+                " til $nyStatus"
+        )
+        fagsak.status = nyStatus
+        lagre(fagsak)
+    }
+
     private fun hentForelderdeltagereFraBehandling(
         aktør: Aktør,
         personInfoMedRelasjoner: PdlPersonInfo
     ): List<FagsakDeltagerResponsDto> {
         val assosierteFagsakDeltagerMap = mutableMapOf<Long, FagsakDeltagerResponsDto>()
         personRepository.findByAktør(aktør).filter { it.personopplysningGrunnlag.aktiv }.forEach { person ->
-            val behandling = behandlingRepository.hentAktivBehandling(person.personopplysningGrunnlag.behandlingId)
+            val behandling = behandlingRepository.hentBehandling(person.personopplysningGrunnlag.behandlingId)
             val fagsak = behandling.fagsak // Behandling opprettet alltid med søker aktør
             if (assosierteFagsakDeltagerMap.containsKey(fagsak.id)) return@forEach
             val fagsakDeltagerRespons: FagsakDeltagerResponsDto = when {

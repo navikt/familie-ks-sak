@@ -13,6 +13,8 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
 import no.nav.familie.ks.sak.kjerne.behandling.steg.StegService
 import no.nav.familie.ks.sak.kjerne.brev.BrevService
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.Brevmal
+import no.nav.familie.ks.sak.kjerne.fagsak.FagsakService
+import no.nav.familie.ks.sak.kjerne.fagsak.domene.FagsakStatus
 import no.nav.familie.ks.sak.kjerne.logg.LoggService
 import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext
 import org.springframework.stereotype.Service
@@ -25,6 +27,7 @@ class HenleggBehandlingService(
     private val brevService: BrevService,
     private val oppgaveService: OppgaveService,
     private val loggService: LoggService,
+    private val fagsakService: FagsakService,
     private val behandlingRepository: BehandlingRepository
 ) {
 
@@ -57,11 +60,17 @@ class HenleggBehandlingService(
         )
 
         // henlegg behandling steg
-        stegService.henleggBehandlingSteg(behandling)
+        stegService.settAlleStegTilAvbrutt(behandling)
 
         // muterer behandling resultat og status
         behandling.resultat = henleggÅrsak.tilBehandlingsresultat()
         behandling.status = BehandlingStatus.AVSLUTTET
+        behandling.aktiv = false
+
+        // oppdater fagsak status til Avsluttet
+        if (behandlingRepository.finnBehandlinger(behandling.fagsak.id).size == 1) {
+            fagsakService.oppdaterStatus(behandling.fagsak, FagsakStatus.AVSLUTTET)
+        }
 
         // trenger ikke å kalle eksplisitt save fordi behandling objekt er mutert og ha @Transactional
     }
@@ -80,8 +89,11 @@ class HenleggBehandlingService(
                 throw Feil("Behandling $behandlingId er allerede avsluttet. Kan ikke henlegge behandling.")
             }
             // Hvis behandling kan behandles, kan den henlegges
-            !behandling.steg.kanStegBehandles() -> {
-                throw Feil("Behandling $behandlingId er på steg ${behandling.steg}. Kan ikke henlegge behandling.")
+            henleggÅrsak != HenleggÅrsak.TEKNISK_VEDLIKEHOLD && !behandling.steg.kanStegBehandles() -> {
+                throw FunksjonellFeil(
+                    "Behandling $behandlingId er på steg ${behandling.steg.displayName()} " +
+                        "og er da låst for alle andre type endringer. Kan ikke henlegge behandling."
+                )
             }
             behandling.erTekniskEndring() && featureToggleService.isNotEnabled(FeatureToggleConfig.TEKNISK_ENDRING) -> {
                 throw FunksjonellFeil(

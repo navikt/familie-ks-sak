@@ -153,7 +153,7 @@ class StegService(
         return gammelFrist
     }
 
-    fun henleggBehandlingSteg(behandling: Behandling) {
+    fun settAlleStegTilAvbrutt(behandling: Behandling) {
         behandling.behandlingStegTilstand.forEach { it.behandlingStegStatus = BehandlingStegStatus.AVBRUTT }
     }
 
