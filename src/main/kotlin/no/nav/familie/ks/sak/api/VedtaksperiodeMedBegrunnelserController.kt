@@ -74,7 +74,7 @@ class VedtaksperiodeMedBegrunnelserController(
 
         val vedtak = vedtaksperiodeService.oppdaterVedtaksperiodeMedFritekster(
             vedtaksperiodeId,
-            vedtaksperiodeMedFriteksterDto
+            vedtaksperiodeMedFriteksterDto.fritekster
         )
 
         return ResponseEntity.ok(Ressurs.success(behandlingService.lagBehandlingRespons(behandlingId = vedtak.behandling.id)))
@@ -90,7 +90,8 @@ class VedtaksperiodeMedBegrunnelserController(
         )
 
         vedtaksperiodeService.genererVedtaksperiodeForOverstyrtEndringstidspunkt(
-            genererVedtaksperioderForOverstyrtEndringstidspunktDto
+            genererVedtaksperioderForOverstyrtEndringstidspunktDto.behandlingId,
+            genererVedtaksperioderForOverstyrtEndringstidspunktDto.overstyrtEndringstidspunkt
         )
 
         return ResponseEntity.ok(Ressurs.success(behandlingService.lagBehandlingRespons(behandlingId = genererVedtaksperioderForOverstyrtEndringstidspunktDto.behandlingId)))

@@ -1,8 +1,6 @@
 package no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene
 
 import no.nav.familie.ks.sak.api.dto.BarnMedOpplysningerDto
-import no.nav.familie.ks.sak.api.dto.GenererVedtaksperioderForOverstyrtEndringstidspunktDto
-import no.nav.familie.ks.sak.api.dto.VedtaksperiodeMedFriteksterDto
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.common.util.NullablePeriode
@@ -68,13 +66,13 @@ class VedtaksperiodeService(
 ) {
     fun oppdaterVedtaksperiodeMedFritekster(
         vedtaksperiodeId: Long,
-        vedtaksperiodeMedFriteksterDto: VedtaksperiodeMedFriteksterDto
+        fritekster: List<String>
     ): Vedtak {
         val vedtaksperiodeMedBegrunnelser =
             vedtaksperiodeHentOgPersisterService.hentVedtaksperiodeThrows(vedtaksperiodeId)
 
         vedtaksperiodeMedBegrunnelser.settFritekster(
-            vedtaksperiodeMedFriteksterDto.fritekster.map {
+            fritekster.map {
                 tilVedtaksbegrunnelseFritekst(
                     vedtaksperiodeMedBegrunnelser = vedtaksperiodeMedBegrunnelser,
                     fritekst = it
@@ -204,12 +202,11 @@ class VedtaksperiodeService(
 
     @Transactional
     fun genererVedtaksperiodeForOverstyrtEndringstidspunkt(
-        genererVedtaksperioderForOverstyrtEndringstidspunktDto: GenererVedtaksperioderForOverstyrtEndringstidspunktDto
+        behandlingId: Long,
+        overstyrtEndringstidspunkt: LocalDate
     ) {
-        val vedtak =
-            vedtakRepository.findByBehandlingAndAktiv(genererVedtaksperioderForOverstyrtEndringstidspunktDto.behandlingId)
-        val overstyrtEndringstidspunkt =
-            genererVedtaksperioderForOverstyrtEndringstidspunktDto.overstyrtEndringstidspunkt
+        val vedtak = vedtakRepository.findByBehandlingAndAktiv(behandlingId)
+
         if (vedtak.behandling.resultat == Behandlingsresultat.FORTSATT_INNVILGET) {
             oppdaterVedtakMedVedtaksperioder(vedtak)
         } else {
