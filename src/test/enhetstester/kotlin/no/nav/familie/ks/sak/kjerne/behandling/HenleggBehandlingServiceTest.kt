@@ -157,7 +157,7 @@ internal class HenleggBehandlingServiceTest {
         }
 
         assertEquals(
-            "Behandling $behandlingId er på steg ${behandling.steg.displayName()} " +
+            "Behandling $behandlingId er på steg ${behandling.steg.visningsnavn()} " +
                 "og er da låst for alle andre type endringer. Kan ikke henlegge behandling.",
             exception.message
         )

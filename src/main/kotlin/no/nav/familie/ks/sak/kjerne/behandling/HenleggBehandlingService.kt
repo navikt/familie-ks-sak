@@ -91,7 +91,7 @@ class HenleggBehandlingService(
             // Hvis behandling kan behandles, kan den henlegges
             henleggÅrsak != HenleggÅrsak.TEKNISK_VEDLIKEHOLD && !behandling.steg.kanStegBehandles() -> {
                 throw FunksjonellFeil(
-                    "Behandling $behandlingId er på steg ${behandling.steg.displayName()} " +
+                    "Behandling $behandlingId er på steg ${behandling.steg.visningsnavn()} " +
                         "og er da låst for alle andre type endringer. Kan ikke henlegge behandling."
                 )
             }
