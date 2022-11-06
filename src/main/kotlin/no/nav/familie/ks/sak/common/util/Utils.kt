@@ -12,5 +12,6 @@ inline fun <reified T : Enum<T>> konverterStringTilEnums(string: String?): List<
     if (string.isNullOrBlank()) emptyList() else string.split(";").map { enumValueOf(it) }
 
 fun slåSammen(stringListe: List<String>): String = Regex("(.*),").replace(stringListe.joinToString(", "), "$1 og")
+fun String.storForbokstavIHvertOrd() = this.split(" ").joinToString(" ") { it.storForbokstav() }.trimEnd()
 
 fun Any.convertDataClassToJson(): String = objectMapper.writeValueAsString(this)

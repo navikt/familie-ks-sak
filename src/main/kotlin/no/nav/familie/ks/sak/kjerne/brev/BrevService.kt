@@ -23,11 +23,15 @@ import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.ArbeidsfordelingService
 import no.nav.familie.ks.sak.kjerne.behandling.SettBehandlingPåVentService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
+import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.AnnenVurderingType
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.Brevmal
 import no.nav.familie.ks.sak.kjerne.logg.LoggService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
+import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
+import no.nav.familie.ks.sak.kjerne.totrinnskontroll.domene.Totrinnskontroll
+import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext
 import no.nav.familie.prosessering.domene.TaskRepository
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
@@ -257,6 +261,43 @@ class BrevService(
             brevnavn = brevMal.visningsTekst
         )
     }
+
+    fun hentSaksbehandlerOgBeslutter(
+        behandling: Behandling,
+        totrinnskontroll: Totrinnskontroll?
+    ): Pair<String, String> {
+        return when {
+            behandling.steg <= BehandlingSteg.VEDTAK || totrinnskontroll == null -> {
+                Pair(SikkerhetContext.hentSaksbehandlerNavn(), "Beslutter")
+            }
+
+            totrinnskontroll.erBesluttet() -> {
+                Pair(totrinnskontroll.saksbehandler, totrinnskontroll.beslutter!!)
+            }
+
+            behandling.steg == BehandlingSteg.BESLUTTE_VEDTAK -> {
+                Pair(
+                    totrinnskontroll.saksbehandler,
+                    if (totrinnskontroll.saksbehandler == SikkerhetContext.hentSaksbehandlerNavn()) {
+                        "Beslutter"
+                    } else {
+                        SikkerhetContext.hentSaksbehandlerNavn()
+                    }
+                )
+            }
+
+            else -> {
+                throw Feil("Prøver å hente saksbehandler og beslutters navn for generering av brev i en ukjent tilstand.")
+            }
+        }
+    }
+
+    private data class GrunnlagOgSignaturData(
+        val grunnlag: PersonopplysningGrunnlag,
+        val saksbehandler: String,
+        val beslutter: String,
+        val enhet: String
+    )
 
     private fun leggTilOpplysningspliktIVilkårsvurdering(behandling: Behandling) {
         val vilkårsvurdering = vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(behandling.id)

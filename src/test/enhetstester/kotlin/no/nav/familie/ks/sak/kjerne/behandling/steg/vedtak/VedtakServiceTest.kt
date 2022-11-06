@@ -12,6 +12,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.Vedtak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.VedtakRepository
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.VedtaksperiodeService
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
@@ -26,6 +27,9 @@ class VedtakServiceTest {
 
     @MockK
     private lateinit var vedtakRepository: VedtakRepository
+
+    @MockK
+    private lateinit var vedtaksperiodeService: VedtaksperiodeService
 
     @InjectMockKs
     private lateinit var vedtakService: VedtakService

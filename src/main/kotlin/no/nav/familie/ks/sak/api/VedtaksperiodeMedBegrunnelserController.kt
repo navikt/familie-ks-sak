@@ -113,7 +113,7 @@ class VedtaksperiodeMedBegrunnelserController(
         )
 
         val vedtak =
-            vedtakService.hentAktivForBehandlingThrows(behandlingId = genererFortsattInnvilgetVedtaksperioderDto.behandlingId)
+            vedtakService.hentAktivVedtakForBehandling(behandlingId = genererFortsattInnvilgetVedtaksperioderDto.behandlingId)
 
         if (vedtak.behandling.resultat != Behandlingsresultat.FORTSATT_INNVILGET) {
             throw FunksjonellFeil(
