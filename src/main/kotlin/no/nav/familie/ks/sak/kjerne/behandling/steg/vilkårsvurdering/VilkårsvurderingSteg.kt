@@ -1,9 +1,11 @@
 package no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering
 
+import no.nav.familie.ks.sak.api.dto.SøknadDto
 import no.nav.familie.ks.sak.api.mapper.SøknadGrunnlagMapper.tilSøknadDto
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.common.tidslinje.TidslinjePeriodeMedDato
 import no.nav.familie.ks.sak.common.tidslinje.validerIngenOverlapp
+import no.nav.familie.ks.sak.common.util.TIDENES_ENDE
 import no.nav.familie.ks.sak.common.util.slåSammen
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
@@ -11,6 +13,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg
 import no.nav.familie.ks.sak.kjerne.behandling.steg.IBehandlingSteg
 import no.nav.familie.ks.sak.kjerne.behandling.steg.søknad.SøknadGrunnlagService
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.UtdypendeVilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
@@ -39,40 +42,44 @@ class VilkårsvurderingSteg(
         val behandling = behandlingService.hentBehandling(behandlingId)
         val personopplysningGrunnlag =
             personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(behandlingId)
+        val søknadDto = søknadGrunnlagService.hentAktiv(behandlingId = behandling.id).tilSøknadDto()
         val vilkårsvurdering = vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(behandling.id)
 
+        validerVilkårsvurdering(vilkårsvurdering, personopplysningGrunnlag, søknadDto, behandling)
+
+        beregningService.oppdaterTilkjentYtelsePåBehandling(behandling, personopplysningGrunnlag, vilkårsvurdering)
+    }
+
+    fun validerVilkårsvurdering(
+        vilkårsvurdering: Vilkårsvurdering,
+        personopplysningGrunnlag: PersonopplysningGrunnlag,
+        søknadGrunnlagDto: SøknadDto,
+        behandling: Behandling
+    ) {
+        validerAtDetFinnesBarnIPersonopplysningsgrunnlaget(personopplysningGrunnlag, søknadGrunnlagDto, behandling)
         if (behandling.opprettetÅrsak == BehandlingÅrsak.DØDSFALL) {
             validerAtIngenVilkårErSattEtterSøkersDød(
                 personopplysningGrunnlag = personopplysningGrunnlag,
                 vilkårsvurdering = vilkårsvurdering
             )
         }
-
-        validerAtDetFinnesBarnIPersonopplysningsgrunnlaget(personopplysningGrunnlag, behandling)
         validerAtDetIkkeErOverlappMellomGradertBarnehageplassOgDeltBosted(vilkårsvurdering)
-
-        beregningService.oppdaterTilkjentYtelsePåBehandling(behandling, personopplysningGrunnlag, vilkårsvurdering)
+        validerAtPerioderIBarnehageplassSamsvarerMedPeriodeIMellom1og2ÅrVilkår(vilkårsvurdering)
     }
 
-    private fun validerAtDetIkkeErOverlappMellomGradertBarnehageplassOgDeltBosted(vilkårsvurdering: Vilkårsvurdering) {
-        vilkårsvurdering.personResultater.forEach {
-            it.vilkårResultater.filter { vilkårResultat ->
-                val gradertBarnehageplass =
-                    vilkårResultat.antallTimer != null &&
-                        vilkårResultat.antallTimer > BigDecimal(0) &&
-                        vilkårResultat.vilkårType == Vilkår.BARNEHAGEPLASS
+    private fun validerAtDetFinnesBarnIPersonopplysningsgrunnlaget(
+        personopplysningGrunnlag: PersonopplysningGrunnlag,
+        søknadGrunnlagDto: SøknadDto,
+        behandling: Behandling
+    ) {
+        val barna = personopplysningGrunnlag.barna
+        val uregistrerteBarn = søknadGrunnlagDto.barnaMedOpplysninger.filter { !it.erFolkeregistrert && it.inkludertISøknaden }
 
-                val deltBosted =
-                    vilkårResultat.utdypendeVilkårsvurderinger.contains(UtdypendeVilkårsvurdering.DELT_BOSTED)
-
-                gradertBarnehageplass || deltBosted
-            }.map { vilkårResultat ->
-                TidslinjePeriodeMedDato(
-                    verdi = vilkårResultat,
-                    fom = vilkårResultat.periodeFom,
-                    tom = vilkårResultat.periodeTom
-                )
-            }.validerIngenOverlapp("Det er lagt inn gradert barnehageplass og delt bosted for samme periode.")
+        if (barna.isEmpty() && uregistrerteBarn.isEmpty()) {
+            throw FunksjonellFeil(
+                melding = "Ingen barn i personopplysningsgrunnlag ved validering av vilkårsvurdering på behandling ${behandling.id}",
+                frontendFeilmelding = "Barn må legges til for å gjennomføre vilkårsvurdering."
+            )
         }
     }
 
@@ -102,20 +109,69 @@ class VilkårsvurderingSteg(
         }
     }
 
-    fun validerAtDetFinnesBarnIPersonopplysningsgrunnlaget(
-        personopplysningGrunnlag: PersonopplysningGrunnlag,
-        behandling: Behandling
-    ) {
-        val barna = personopplysningGrunnlag.barna
-        val søknadGrunnlag = søknadGrunnlagService.hentAktiv(behandlingId = behandling.id).tilSøknadDto()
-        val uregistrerteBarn =
-            søknadGrunnlag.barnaMedOpplysninger.filter { !it.erFolkeregistrert && it.inkludertISøknaden }
+    private fun validerAtDetIkkeErOverlappMellomGradertBarnehageplassOgDeltBosted(vilkårsvurdering: Vilkårsvurdering) {
+        vilkårsvurdering.personResultater.forEach {
+            it.vilkårResultater.filter { vilkårResultat ->
+                val gradertBarnehageplass =
+                    vilkårResultat.antallTimer != null &&
+                        vilkårResultat.antallTimer > BigDecimal(0) &&
+                        vilkårResultat.vilkårType == Vilkår.BARNEHAGEPLASS
 
-        if (barna.isEmpty() && uregistrerteBarn.isEmpty()) {
-            throw FunksjonellFeil(
-                melding = "Ingen barn i personopplysningsgrunnlag ved validering av vilkårsvurdering på behandling ${behandling.id}",
-                frontendFeilmelding = "Barn må legges til for å gjennomføre vilkårsvurdering."
-            )
+                val deltBosted =
+                    vilkårResultat.utdypendeVilkårsvurderinger.contains(UtdypendeVilkårsvurdering.DELT_BOSTED)
+
+                gradertBarnehageplass || deltBosted
+            }.map { vilkårResultat ->
+                TidslinjePeriodeMedDato(
+                    verdi = vilkårResultat,
+                    fom = vilkårResultat.periodeFom,
+                    tom = vilkårResultat.periodeTom
+                )
+            }.validerIngenOverlapp("Det er lagt inn gradert barnehageplass og delt bosted for samme periode.")
+        }
+    }
+
+    private fun validerAtPerioderIBarnehageplassSamsvarerMedPeriodeIMellom1og2ÅrVilkår(
+        vilkårsvurdering: Vilkårsvurdering
+    ) {
+        vilkårsvurdering.personResultater.filter { !it.erSøkersResultater() }.forEach { personResultat ->
+            val barnehageplassVilkårResultater = personResultat.vilkårResultater.filter {
+                it.vilkårType == Vilkår.BARNEHAGEPLASS && it.resultat == Resultat.OPPFYLT
+            }
+
+            val minFraOgMedDatoIBarnehageplassVilkårResultater =
+                barnehageplassVilkårResultater.sortedBy { it.periodeFom }.first().periodeFom
+                    ?: error("Mangler fom dato")
+            val maksTilOmMedDatoIBarnehageplassVilkårResultater =
+                barnehageplassVilkårResultater.sortedBy { it.periodeTom }.last().periodeTom ?: TIDENES_ENDE
+
+            val mellom1ÅrOg2ÅrVilkårResultater = personResultat.vilkårResultater.filter {
+                it.vilkårType == Vilkår.MELLOM_1_OG_2_ELLER_ADOPTERT && it.resultat == Resultat.OPPFYLT
+            }
+            val minFraOgMedDatoIMellom1ÅrOg2ÅrVilkårResultater =
+                mellom1ÅrOg2ÅrVilkårResultater.sortedBy { it.periodeFom }.first().periodeFom
+                    ?: error("Mangler fom dato")
+            val maksTilOmMedDatoIMellom1ÅrOg2ÅrVilkårResultater =
+                mellom1ÅrOg2ÅrVilkårResultater.sortedBy { it.periodeTom }.last().periodeTom
+                    ?: error("Mangler tom dato")
+            if (minFraOgMedDatoIBarnehageplassVilkårResultater.isAfter(minFraOgMedDatoIMellom1ÅrOg2ÅrVilkårResultater) ||
+                maksTilOmMedDatoIBarnehageplassVilkårResultater.isBefore(maksTilOmMedDatoIMellom1ÅrOg2ÅrVilkårResultater)
+            ) {
+                throw FunksjonellFeil(
+                    "Det mangler vurdering på vilkåret ${Vilkår.BARNEHAGEPLASS.beskrivelse}. " +
+                        "Hele eller deler av perioden der barnet er mellom 1 og 2 år er ikke vurdert."
+                )
+            }
+            if (barnehageplassVilkårResultater.any {
+                it.periodeFom?.isAfter(maksTilOmMedDatoIMellom1ÅrOg2ÅrVilkårResultater) == true
+            }
+            ) {
+                throw FunksjonellFeil(
+                    "Du har lagt til en periode på vilkåret ${Vilkår.BARNEHAGEPLASS.beskrivelse}" +
+                        " som starter etter at barnet har fylt 2 år eller startet på skolen. " +
+                        "Du må fjerne denne perioden for å kunne fortsette"
+                )
+            }
         }
     }
 
