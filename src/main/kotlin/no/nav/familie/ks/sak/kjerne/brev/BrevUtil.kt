@@ -2,12 +2,10 @@ package no.nav.familie.ks.sak.kjerne.brev
 
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
-import no.nav.familie.ks.sak.common.util.tilMånedÅr
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingType
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.Opphørsperiode
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.Brevmal
 
 fun hentBrevmal(behandling: Behandling): Brevmal =
@@ -90,10 +88,3 @@ fun hentVedtaksbrevtype(
         )
     }
 }
-
-fun hentVirkningstidspunktVedDødsfall(opphørsperioder: List<Opphørsperiode>, behandlingId: Long) = (
-    opphørsperioder
-        .maxOfOrNull { it.periodeFom }
-        ?.tilMånedÅr()
-        ?: throw Feil("Fant ikke opphørdato ved generering av dødsfallbrev på behandling $behandlingId")
-    )

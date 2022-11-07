@@ -14,7 +14,6 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.VedtakService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
-import no.nav.familie.ks.sak.kjerne.beregning.BeregningService
 import no.nav.familie.ks.sak.kjerne.logg.LoggService
 import no.nav.familie.ks.sak.kjerne.totrinnskontroll.TotrinnskontrollService
 import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext
@@ -29,7 +28,6 @@ class BeslutteVedtakSteg(
     private val totrinnskontrollService: TotrinnskontrollService,
     private val vedtakService: VedtakService,
     private val behandlingService: BehandlingService,
-    private val beregningService: BeregningService,
     private val taskRepository: TaskRepository,
     private val loggService: LoggService,
     private val vilkårsvurderingService: VilkårsvurderingService,
@@ -44,7 +42,6 @@ class BeslutteVedtakSteg(
         validerAtBehandlingKanBesluttes(behandling)
 
         val besluttVedtakDto = behandlingStegDto as BesluttVedtakDto
-        val vedtak = vedtakService.hentAktivVedtakForBehandling(behandling.id)
 
         val totrinnskontroll = totrinnskontrollService.besluttTotrinnskontroll(
             behandlingId = behandling.id,
@@ -121,3 +118,4 @@ class BeslutteVedtakSteg(
         private val logger: Logger = LoggerFactory.getLogger(BeslutteVedtakSteg::class.java)
     }
 }
+6

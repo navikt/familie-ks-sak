@@ -143,13 +143,6 @@ data class Behandling(
     fun erTekniskEndring() = opprettetÅrsak == BehandlingÅrsak.TEKNISK_ENDRING
 
     fun erKorrigereVedtak() = opprettetÅrsak == BehandlingÅrsak.KORREKSJON_VEDTAKSBREV
-
-    fun erBehandlingMedVedtaksbrevUtsending(): Boolean =
-        when {
-            type == TEKNISK_ENDRING -> false
-            opprettetÅrsak == BehandlingÅrsak.SATSENDRING -> false
-            else -> true
-        }
 }
 
 /**
