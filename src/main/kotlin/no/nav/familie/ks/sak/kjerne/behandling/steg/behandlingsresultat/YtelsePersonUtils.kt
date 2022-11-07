@@ -224,7 +224,7 @@ object YtelsePersonUtils {
                     perioderFjernet.harPeriodeFør(inneværendeMåned)
 
                 val finnesReduksjonerTilbakeITidMedBeløp = finnesReduksjonerTilbakeITid &&
-                    perioderFjernet.any { it.verdi != null && it.verdi.kalkulertUtbetalingsbeløp > 0 }
+                    perioderFjernet.any { it.verdi.kalkulertUtbetalingsbeløp > 0 }
 
                 when {
                     opphører -> IKKE_VURDERT
@@ -243,12 +243,12 @@ object YtelsePersonUtils {
                     perioderLagtTil.harPeriodeFør(if (opphører) stønadSlutt else nesteMåned)
 
                 val erLagtTilPerioderMedEndringIUtbetaling = erPerioderLagtTil &&
-                    perioderLagtTil.any { it.verdi != null && it.verdi.kalkulertUtbetalingsbeløp > 0 }
+                        perioderLagtTil.any { it.verdi.kalkulertUtbetalingsbeløp > 0 }
 
                 val erPerioderFjernet = perioderFjernet.harPeriodeFør(if (opphører) stønadSlutt else nesteMåned)
 
                 val erFjernetPerioderMedEndringIUtbetaling = erPerioderFjernet &&
-                    perioderFjernet.any { it.verdi != null && it.verdi.kalkulertUtbetalingsbeløp > 0 }
+                        perioderFjernet.any { it.verdi.kalkulertUtbetalingsbeløp > 0 }
 
                 val opphørsdatoErSattSenere = stønadSlutt.isAfter(forrigeStønadSlutt)
 
