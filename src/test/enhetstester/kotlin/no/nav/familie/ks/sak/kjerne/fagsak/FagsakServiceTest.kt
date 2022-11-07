@@ -95,7 +95,7 @@ class FagsakServiceTest {
             )
         )
         val fagsak = lagFagsak(søkerAktør)
-        every { behandlingRepository.hentAktivBehandling(any()) } returns lagBehandling(
+        every { behandlingRepository.hentBehandling(any()) } returns lagBehandling(
             fagsak = fagsak,
             opprettetÅrsak = BehandlingÅrsak.SØKNAD
         )
@@ -132,7 +132,7 @@ class FagsakServiceTest {
             )
         )
         val fagsak = lagFagsak(søkerAktør)
-        every { behandlingRepository.hentAktivBehandling(any()) } returns lagBehandling(
+        every { behandlingRepository.hentBehandling(any()) } returns lagBehandling(
             fagsak = fagsak,
             opprettetÅrsak = BehandlingÅrsak.SØKNAD
         )

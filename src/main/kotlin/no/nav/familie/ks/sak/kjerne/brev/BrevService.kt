@@ -165,7 +165,7 @@ class BrevService(
                 this["mottakerIdent"] = manueltBrevDto.mottakerIdent
                 this["journalpostId"] = journalpostId
                 this["behandlingId"] = behandling.id.toString()
-                this["fagsakId"] = behandling.fagsak.id
+                this["fagsakId"] = behandling.fagsak.id.toString()
             }
         ).also {
             taskRepository.save(it)
