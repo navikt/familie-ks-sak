@@ -118,4 +118,3 @@ class BeslutteVedtakSteg(
         private val logger: Logger = LoggerFactory.getLogger(BeslutteVedtakSteg::class.java)
     }
 }
-6

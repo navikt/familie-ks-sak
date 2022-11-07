@@ -50,7 +50,7 @@ class VedtakServiceTest {
         val behandling = mockk<Behandling>()
         every { behandling.steg } returns behandlingSteg
 
-        val feil = assertThrows<Feil> { vedtakService.opprettOgInitierNyttVedtakForBehandling(behandling) }
+        val feil = assertThrows<Feil> { vedtakService.opprettOgInitierNyttVedtakForBehandling(behandling, false) }
 
         assertThat(feil.message, Is("Forsøker å initiere vedtak på steg ${behandlingSteg.name}"))
     }
@@ -68,10 +68,38 @@ class VedtakServiceTest {
         every { vedtakRepository.saveAndFlush(eksisterendeVedtak) } returns eksisterendeVedtak
         every { vedtakRepository.save(capture(slot)) } returns mockk(relaxed = true)
 
-        vedtakService.opprettOgInitierNyttVedtakForBehandling(behandling)
+        vedtakService.opprettOgInitierNyttVedtakForBehandling(behandling, false)
 
         val lagretVedtak = slot.captured
 
+        verify(exactly = 1) { vedtakRepository.findByBehandlingAndAktivOptional(behandling.id) }
+        verify(exactly = 1) { eksisterendeVedtak setProperty "aktiv" value false }
+        verify(exactly = 1) { vedtakRepository.save(lagretVedtak) }
+
+        assertThat(lagretVedtak.behandling, Is(behandling))
+    }
+
+    @ParameterizedTest
+    @EnumSource(value = BehandlingSteg::class, names = ["BESLUTTE_VEDTAK", "REGISTRERE_PERSONGRUNNLAG"])
+    fun `opprettOgInitierNyttVedtakForBehandling - skal kopiere over vedtaksperioder dersom det eksisterer gammmelt vedtak og kopierOverVedtaksperioder er satt til true`(
+        behandlingSteg: BehandlingSteg
+    ) {
+        val behandling = mockk<Behandling>(relaxed = true)
+        val eksisterendeVedtak = mockk<Vedtak>(relaxed = true)
+        val slot = slot<Vedtak>()
+
+        every { behandling.steg } returns behandlingSteg
+
+        every { vedtaksperiodeService.kopierOverVedtaksperioder(any(), any()) } returns mockk()
+        every { vedtakRepository.findByBehandlingAndAktivOptional(behandling.id) } returns eksisterendeVedtak
+        every { vedtakRepository.saveAndFlush(eksisterendeVedtak) } returns eksisterendeVedtak
+        every { vedtakRepository.save(capture(slot)) } returns mockk(relaxed = true)
+
+        vedtakService.opprettOgInitierNyttVedtakForBehandling(behandling, true)
+
+        val lagretVedtak = slot.captured
+
+        verify(exactly = 1) { vedtaksperiodeService.kopierOverVedtaksperioder(any(), any()) }
         verify(exactly = 1) { vedtakRepository.findByBehandlingAndAktivOptional(behandling.id) }
         verify(exactly = 1) { eksisterendeVedtak setProperty "aktiv" value false }
         verify(exactly = 1) { vedtakRepository.save(lagretVedtak) }
