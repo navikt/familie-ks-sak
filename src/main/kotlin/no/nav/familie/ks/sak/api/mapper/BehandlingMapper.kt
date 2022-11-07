@@ -84,7 +84,10 @@ object BehandlingMapper {
         kjønn = KJOENN.valueOf(person.kjønn.name),
         målform = person.målform,
         dødsfallDato = person.dødsfall?.dødsfallDato,
-        registerhistorikk = if (landKodeOgLandNavn.isNotEmpty()) lagRegisterHistorikkResponsDto(person, landKodeOgLandNavn) else null
+        registerhistorikk = if (landKodeOgLandNavn.isNotEmpty()) lagRegisterHistorikkResponsDto(
+            person,
+            landKodeOgLandNavn
+        ) else null
     )
 
     fun lagPersonerMedAndelTilkjentYtelseRespons(
@@ -137,7 +140,7 @@ object BehandlingMapper {
         }
     }
 
-    private fun List<AndelTilkjentYtelseMedEndreteUtbetalinger>.lagUtbetalingsperiodeDetaljer(
+    private fun Collection<AndelTilkjentYtelseMedEndreteUtbetalinger>.lagUtbetalingsperiodeDetaljer(
         personopplysningGrunnlag: PersonopplysningGrunnlag
     ): List<UtbetalingsperiodeDetaljDto> =
         this.map { andel ->

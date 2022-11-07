@@ -60,7 +60,7 @@ class PersonopplysningGrunnlagService(
         søknadDto: SøknadDto
     ): PersonopplysningGrunnlag {
         val eksisterendePersonopplysningGrunnlag =
-            hentAktivPersonopplysningGrunnlag(behandling.id)
+            finnAktivPersonopplysningGrunnlag(behandling.id)
                 ?: throw Feil("Det finnes ikke noe aktivt personopplysningsgrunnlag for ${behandling.id}")
 
         val valgteBarnAktører = søknadDto.barnaMedOpplysninger.filter { it.inkludertISøknaden }
@@ -98,7 +98,7 @@ class PersonopplysningGrunnlagService(
     fun hentSøkersMålform(behandlingId: Long) = hentSøker(behandlingId)?.målform ?: Målform.NB
 
     fun lagreOgDeaktiverGammel(personopplysningGrunnlag: PersonopplysningGrunnlag): PersonopplysningGrunnlag {
-        hentAktivPersonopplysningGrunnlag(personopplysningGrunnlag.behandlingId)?.let {
+        finnAktivPersonopplysningGrunnlag(personopplysningGrunnlag.behandlingId)?.let {
             personopplysningGrunnlagRepository.saveAndFlush(it.also { it.aktiv = false })
         }
 
@@ -106,7 +106,7 @@ class PersonopplysningGrunnlagService(
         return personopplysningGrunnlagRepository.save(personopplysningGrunnlag)
     }
 
-    fun hentAktivPersonopplysningGrunnlag(behandlingId: Long): PersonopplysningGrunnlag? =
+    fun finnAktivPersonopplysningGrunnlag(behandlingId: Long): PersonopplysningGrunnlag? =
         personopplysningGrunnlagRepository.findByBehandlingAndAktiv(behandlingId = behandlingId)
 
     fun hentAktivPersonopplysningGrunnlagThrows(behandlingId: Long): PersonopplysningGrunnlag =
