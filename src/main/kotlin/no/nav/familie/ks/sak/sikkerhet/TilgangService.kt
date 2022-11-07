@@ -76,7 +76,7 @@ class TilgangService(
         minimumBehandlerRolle: BehandlerRolle,
         handling: String
     ) {
-        val fagsakId = behandlingRepository.hentAktivBehandling(behandlingId).fagsak.id
+        val fagsakId = behandlingRepository.hentBehandling(behandlingId).fagsak.id
         validerTilgangTilHandlingOgFagsak(fagsakId, event, minimumBehandlerRolle, handling)
     }
 

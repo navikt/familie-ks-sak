@@ -37,10 +37,7 @@ class LoggService(
             Logg(
                 behandlingId = behandling.id,
                 type = LoggType.AUTOVEDTAK_TIL_MANUELL_BEHANDLING,
-                rolle = SikkerhetContext.hentRolletilgangFraSikkerhetscontext(
-                    rolleConfig,
-                    BehandlerRolle.SAKSBEHANDLER
-                ),
+                rolle = SikkerhetContext.hentRolletilgangFraSikkerhetscontext(rolleConfig, BehandlerRolle.SAKSBEHANDLER),
                 tekst = tekst
             )
         )
@@ -94,10 +91,7 @@ class LoggService(
                 behandlingId = behandlingId,
                 type = LoggType.SØKNAD_REGISTRERT,
                 tittel = if (!aktivSøknadGrunnlagFinnesFraFør) "Søknaden ble registrert" else "Søknaden ble endret",
-                rolle = SikkerhetContext.hentRolletilgangFraSikkerhetscontext(
-                    rolleConfig,
-                    BehandlerRolle.SAKSBEHANDLER
-                )
+                rolle = SikkerhetContext.hentRolletilgangFraSikkerhetscontext(rolleConfig, BehandlerRolle.SAKSBEHANDLER)
             )
         )
     }
@@ -108,10 +102,7 @@ class LoggService(
                 behandlingId = behandling.id,
                 type = LoggType.DOKUMENT_MOTTATT,
                 tittel = "Dokument mottatt ${mottattDato.toLocalDate().tilKortString()}",
-                rolle = SikkerhetContext.hentRolletilgangFraSikkerhetscontext(
-                    rolleConfig,
-                    BehandlerRolle.SAKSBEHANDLER
-                ),
+                rolle = SikkerhetContext.hentRolletilgangFraSikkerhetscontext(rolleConfig, BehandlerRolle.SAKSBEHANDLER),
                 tekst = tekst
             )
         )
@@ -122,10 +113,7 @@ class LoggService(
             Logg(
                 behandlingId = behandling.id,
                 type = LoggType.BEHANDLIG_SATT_PÅ_VENT,
-                rolle = SikkerhetContext.hentRolletilgangFraSikkerhetscontext(
-                    rolleConfig,
-                    BehandlerRolle.SAKSBEHANDLER
-                ),
+                rolle = SikkerhetContext.hentRolletilgangFraSikkerhetscontext(rolleConfig, BehandlerRolle.SAKSBEHANDLER),
                 tekst = "Årsak: $årsak"
             )
         )
@@ -145,10 +133,7 @@ class LoggService(
             Logg(
                 behandlingId = behandling.id,
                 type = LoggType.VENTENDE_BEHANDLING_ENDRET,
-                rolle = SikkerhetContext.hentRolletilgangFraSikkerhetscontext(
-                    rolleConfig,
-                    BehandlerRolle.SAKSBEHANDLER
-                ),
+                rolle = SikkerhetContext.hentRolletilgangFraSikkerhetscontext(rolleConfig, BehandlerRolle.SAKSBEHANDLER),
                 tekst = tekst
             )
         )
@@ -159,10 +144,7 @@ class LoggService(
             Logg(
                 behandlingId = behandling.id,
                 type = LoggType.BEHANDLIG_GJENOPPTATT,
-                rolle = SikkerhetContext.hentRolletilgangFraSikkerhetscontext(
-                    rolleConfig,
-                    BehandlerRolle.SAKSBEHANDLER
-                )
+                rolle = SikkerhetContext.hentRolletilgangFraSikkerhetscontext(rolleConfig, BehandlerRolle.SAKSBEHANDLER)
             )
         )
     }
@@ -196,10 +178,7 @@ class LoggService(
                 behandlingId = behandling.id,
                 type = LoggType.VILKÅRSVURDERING,
                 tittel = tittel,
-                rolle = SikkerhetContext.hentRolletilgangFraSikkerhetscontext(
-                    rolleConfig,
-                    BehandlerRolle.SAKSBEHANDLER
-                ),
+                rolle = SikkerhetContext.hentRolletilgangFraSikkerhetscontext(rolleConfig, BehandlerRolle.SAKSBEHANDLER),
                 tekst = tekst
             )
         )
@@ -243,10 +222,18 @@ class LoggService(
             Logg(
                 behandlingId = behandlingId,
                 type = LoggType.SEND_TIL_BESLUTTER,
-                rolle = SikkerhetContext.hentRolletilgangFraSikkerhetscontext(
-                    rolleConfig,
-                    BehandlerRolle.SAKSBEHANDLER
-                )
+                rolle = SikkerhetContext.hentRolletilgangFraSikkerhetscontext(rolleConfig, BehandlerRolle.SAKSBEHANDLER)
+            )
+        )
+    }
+
+    fun opprettHenleggBehandlingLogg(behandling: Behandling, årsak: String, begrunnelse: String) {
+        lagreLogg(
+            Logg(
+                behandlingId = behandling.id,
+                type = LoggType.HENLEGG_BEHANDLING,
+                rolle = SikkerhetContext.hentRolletilgangFraSikkerhetscontext(rolleConfig, BehandlerRolle.SAKSBEHANDLER),
+                tekst = "$årsak: $begrunnelse"
             )
         )
     }
