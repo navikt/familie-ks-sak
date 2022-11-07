@@ -33,6 +33,7 @@ fun YearMonth.erSammeEllerTidligere(toCompare: YearMonth): Boolean = this.isBefo
 
 fun inneværendeMåned(): YearMonth = LocalDate.now().toYearMonth()
 
+fun YearMonth.forrigeMåned(): YearMonth = this.minusMonths(1)
 fun YearMonth.nesteMåned(): YearMonth = this.plusMonths(1)
 
 fun LocalDate.erDagenFør(other: LocalDate?) = other != null && this.plusDays(1).equals(other)
@@ -55,6 +56,10 @@ fun Periode.overlapperHeltEllerDelvisMed(annenPeriode: Periode) =
 fun Periode.tilMånedPeriode(): MånedPeriode = MånedPeriode(fom = this.fom.toYearMonth(), tom = this.tom.toYearMonth())
 
 data class MånedPeriode(val fom: YearMonth, val tom: YearMonth)
+
+data class NullablePeriode(val fom: LocalDate?, val tom: LocalDate?)
+
+data class NullableMånedPeriode(val fom: YearMonth?, val tom: YearMonth?)
 
 fun MånedPeriode.inkluderer(yearMonth: YearMonth) = yearMonth >= this.fom && yearMonth <= this.tom
 fun MånedPeriode.overlapperHeltEllerDelvisMed(annenPeriode: MånedPeriode) =

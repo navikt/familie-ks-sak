@@ -1,6 +1,7 @@
 package no.nav.familie.ks.sak.kjerne.behandling.domene
 
 import no.nav.familie.ks.sak.OppslagSpringRunnerTest
+import org.hamcrest.MatcherAssert.assertThat
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertNull
@@ -8,7 +9,7 @@ import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
-
+import org.hamcrest.CoreMatchers.`is` as Is
 class BehandlingRepositoryTest : OppslagSpringRunnerTest() {
 
     @Autowired
@@ -90,5 +91,24 @@ class BehandlingRepositoryTest : OppslagSpringRunnerTest() {
         val behandling = behandlingRepository.findByFagsakAndAktivAndOpen(fagsak.id)
 
         assertNull(behandling)
+    }
+
+    @Test
+    fun `finnIverksatteBehandlinger - skal returnere alle behandlinger som har tilkjentytelse med utbetalingsoppdrag i fagsak`() {
+        lagTilkjentYtelse("utbetalingsoppdrag")
+
+        val behandlinger = behandlingRepository.finnIverksatteBehandlinger(fagsak.id)
+
+        assertThat(behandlinger.size, Is(1))
+        assertThat(behandlinger.single().id, Is(behandling.id))
+    }
+
+    @Test
+    fun `finnIverksatteBehandlinger - skal returnere tom liste dersom det ikke er noen behandliner som har tilkjentytelse med utbetalingsoppdrag i fagsak`() {
+        lagTilkjentYtelse(null)
+
+        val behandlinger = behandlingRepository.finnIverksatteBehandlinger(fagsak.id)
+
+        assertThat(behandlinger.size, Is(0))
     }
 }

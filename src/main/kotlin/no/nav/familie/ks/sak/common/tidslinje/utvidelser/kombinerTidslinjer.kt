@@ -6,9 +6,9 @@ import no.nav.familie.ks.sak.common.tidslinje.Udefinert
 import no.nav.familie.ks.sak.common.tidslinje.Verdi
 import no.nav.familie.ks.sak.common.tidslinje.tomTidslinje
 
-fun <T> List<Tidslinje<T>>.kombinerTidslinjer(): Tidslinje<List<T>> {
+fun <T> Collection<Tidslinje<T>>.slåSammen(): Tidslinje<Collection<T>> {
     val minsteTidspunkt = this.minOf { it.startsTidspunkt }
-    return fold(tomTidslinje(startsTidspunkt = minsteTidspunkt)) { sammenlagt, neste ->
+    return this.fold(tomTidslinje(startsTidspunkt = minsteTidspunkt)) { sammenlagt, neste ->
         sammenlagt.biFunksjon(neste) { periodeVerdiFraSammenlagt, periodeVerdiFraNeste ->
             when (periodeVerdiFraSammenlagt) {
                 is Verdi -> when (periodeVerdiFraNeste) {
@@ -28,5 +28,15 @@ fun <T> List<Tidslinje<T>>.kombinerTidslinjer(): Tidslinje<List<T>> {
                 }
             }
         }
+    }
+}
+
+fun <I, R> Collection<Tidslinje<I>>.kombiner(
+    listeKombinator: (Iterable<I>) -> R
+): Tidslinje<R> = this.slåSammen().map {
+    when (it) {
+        is Verdi -> Verdi(listeKombinator(it.verdi)!!)
+        is Null -> Null()
+        is Udefinert -> Udefinert()
     }
 }

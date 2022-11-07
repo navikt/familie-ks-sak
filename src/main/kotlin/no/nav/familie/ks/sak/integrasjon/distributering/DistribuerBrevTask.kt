@@ -69,6 +69,6 @@ class DistribuerBrevTask(
             )
         }
 
-        const val TASK_STEP_TYPE = "distribuerBrev"
+        private const val TASK_STEP_TYPE = "distribuerBrev"
     }
 }

@@ -3,7 +3,7 @@ package no.nav.familie.ks.sak.kjerne.beregning
 import no.nav.familie.ks.sak.common.tidslinje.Periode
 import no.nav.familie.ks.sak.common.tidslinje.Tidslinje
 import no.nav.familie.ks.sak.common.tidslinje.tilTidslinje
-import no.nav.familie.ks.sak.common.tidslinje.utvidelser.kombinerTidslinjer
+import no.nav.familie.ks.sak.common.tidslinje.utvidelser.slåSammen
 import no.nav.familie.ks.sak.common.util.MånedPeriode
 import no.nav.familie.ks.sak.common.util.førsteDagIInneværendeMåned
 import no.nav.familie.ks.sak.common.util.overlapperHeltEllerDelvisMed
@@ -180,5 +180,22 @@ fun List<AndelTilkjentYtelseMedEndreteUtbetalinger>.tilTidslinjer(): List<Tidsli
         ).tilTidslinje()
     }
 
-fun List<AndelTilkjentYtelseMedEndreteUtbetalinger>.lagVertikalePerioder(): Tidslinje<List<AndelTilkjentYtelseMedEndreteUtbetalinger>> =
-    this.tilTidslinjer().kombinerTidslinjer()
+fun List<AndelTilkjentYtelseMedEndreteUtbetalinger>.lagVertikalePerioder(): Tidslinje<Collection<AndelTilkjentYtelseMedEndreteUtbetalinger>> =
+    this.tilTidslinjer().slåSammen()
+
+fun List<AndelTilkjentYtelseMedEndreteUtbetalinger>.tilKombinertTidslinjePerAktør(): Tidslinje<Collection<AndelTilkjentYtelseMedEndreteUtbetalinger>> {
+    val andelTilkjentYtelsePerPerson = groupBy { it.aktør }
+
+    val tidslinjer = andelTilkjentYtelsePerPerson.values.map { it.tilTidslinje() }
+
+    return tidslinjer.slåSammen()
+}
+
+fun List<AndelTilkjentYtelseMedEndreteUtbetalinger>.tilTidslinje() =
+    this.map {
+        Periode(
+            it,
+            it.stønadFom.førsteDagIInneværendeMåned(),
+            it.stønadTom.sisteDagIInneværendeMåned()
+        )
+    }.tilTidslinje()
