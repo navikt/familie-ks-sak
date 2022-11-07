@@ -3,7 +3,7 @@ package no.nav.familie.ks.sak.kjerne.beregning.domene
 import no.nav.familie.ks.sak.common.tidslinje.Periode
 import no.nav.familie.ks.sak.common.tidslinje.Tidslinje
 import no.nav.familie.ks.sak.common.tidslinje.tilTidslinje
-import no.nav.familie.ks.sak.common.tidslinje.utvidelser.kombinerTidslinjer
+import no.nav.familie.ks.sak.common.tidslinje.utvidelser.slåSammen
 import no.nav.familie.ks.sak.common.util.YearMonthConverter
 import no.nav.familie.ks.sak.common.util.førsteDagIInneværendeMåned
 import no.nav.familie.ks.sak.common.util.sisteDagIInneværendeMåned
@@ -71,8 +71,8 @@ data class TilkjentYtelse(
     val andelerTilkjentYtelse: MutableSet<AndelTilkjentYtelse> = mutableSetOf()
 )
 
-fun TilkjentYtelse.tilTidslinjeMedAndeler(): Tidslinje<List<AndelTilkjentYtelse>> {
-    val tidslinjer = this.andelerTilkjentYtelse.map {
+fun TilkjentYtelse.tilTidslinjeMedAndeler(): Tidslinje<Collection<AndelTilkjentYtelse>> {
+    val tidslinjer = andelerTilkjentYtelse.map {
         listOf(
             Periode(
                 verdi = it,
@@ -81,5 +81,5 @@ fun TilkjentYtelse.tilTidslinjeMedAndeler(): Tidslinje<List<AndelTilkjentYtelse>
             )
         ).tilTidslinje()
     }
-    return tidslinjer.kombinerTidslinjer()
+    return tidslinjer.slåSammen()
 }

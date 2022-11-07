@@ -19,6 +19,18 @@ enum class Standardbegrunnelse : IVedtakBegrunnelse {
     DUMMY {
         override val sanityApiNavn = "dummyApiNavn"
         override val vedtakBegrunnelseType = VedtakBegrunnelseType.AVSLAG
+    },
+    AVSLAG_UREGISTRERT_BARN {
+        override val vedtakBegrunnelseType = VedtakBegrunnelseType.AVSLAG
+        override val sanityApiNavn = "avslagUregistrertBarn"
+    },
+    INNVILGET_BOSATT_I_RIKTET {
+        override val vedtakBegrunnelseType = VedtakBegrunnelseType.INNVILGET
+        override val sanityApiNavn = "innvilgetBosattIRiket"
+    },
+    FORTSATT_INNVILGET_SØKER_OG_BARN_BOSATT_I_RIKET {
+        override val vedtakBegrunnelseType = VedtakBegrunnelseType.FORTSATT_INNVILGET
+        override val sanityApiNavn = "fortsattInnvilgetSokerOgBarnBosattIRiket"
     };
 
     override val kanDelesOpp = false
@@ -35,3 +47,8 @@ class StandardbegrunnelseListConverter :
     override fun convertToEntityAttribute(string: String?): List<Standardbegrunnelse> =
         konverterStringTilEnums(string)
 }
+
+val endretUtbetalingsperiodeBegrunnelser: List<Standardbegrunnelse> = listOf(
+
+    // TODO: Legg til standardbegrunnelser
+)

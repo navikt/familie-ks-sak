@@ -35,7 +35,7 @@ class kombinerTidslinjerTest {
         ).tilTidslinje()
 
         val kombinerteTidslinjerPerioder =
-            listOf(tidslinjeA, tidslinjeB, tidslinjeC, nullTidlisline).kombinerTidslinjer().tilTidslinjePerioderMedDato()
+            listOf(tidslinjeA, tidslinjeB, tidslinjeC, nullTidlisline).slåSammen().tilTidslinjePerioderMedDato()
 
         Assertions.assertEquals(5, kombinerteTidslinjerPerioder.size)
 

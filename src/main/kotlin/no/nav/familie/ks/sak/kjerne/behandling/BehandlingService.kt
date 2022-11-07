@@ -51,8 +51,7 @@ class BehandlingService(
     fun lagBehandlingRespons(behandlingId: Long): BehandlingResponsDto {
         val behandling = hentBehandling(behandlingId)
         val arbeidsfordelingPåBehandling = arbeidsfordelingService.hentArbeidsfordelingPåBehandling(behandlingId)
-        val personopplysningGrunnlag = personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlag(behandlingId)
-
+        val personopplysningGrunnlag = personopplysningGrunnlagService.finnAktivPersonopplysningGrunnlag(behandlingId)
         val personer = personopplysningGrunnlag?.personer?.toList() ?: emptyList()
         val landKodeOgLandNavn = personer.flatMap { it.statsborgerskap }.toSet()
             .associate { it.landkode to statsborgerskapService.hentLand(it.landkode) }

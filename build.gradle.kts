@@ -29,14 +29,14 @@ repositories {
 dependencies {
 
     val springdocVersion = "1.6.12"
-    val sentryVersion = "6.5.0"
+    val sentryVersion = "6.6.0"
     val navFellesVersion = "1.20220901103347_4819e55"
     val eksterneKontrakterBisysVersion = "2.0_20220609214258_f30c3ce"
     val fellesKontrakterVersion = "2.0_20221020092848_3131a5b"
     val familieKontrakterSaksstatistikkVersion = "2.0_20220216121145_5a268ac"
     val familieKontrakterStønadsstatistikkVersion = "2.0_20220905083828_e74ee8a"
     val familieKontrakterSkatteetatenVersion = "2.0_20210920094114_9c74239"
-    val tokenValidationSpringVersion = "2.1.6"
+    val tokenValidationSpringVersion = "2.1.7"
     val navFoedselsnummerVersion = "1.0-SNAPSHOT.6"
     val prosesseringVersion = "1.20220624132237_7f5ba9c"
     val restAssuredVersion = "5.2.0"
@@ -101,7 +101,7 @@ dependencies {
     testImplementation("io.rest-assured:spring-mock-mvc:$restAssuredVersion")
     testImplementation("io.rest-assured:kotlin-extensions:$restAssuredVersion")
     testImplementation("org.testcontainers:postgresql:1.17.4")
-    testImplementation("no.nav.security:mock-oauth2-server:0.5.5")
+    testImplementation("no.nav.security:mock-oauth2-server:0.5.6")
     testImplementation("no.nav.security:token-validation-test-support:2.0.5")
     testImplementation("no.nav.security:token-validation-spring-test:$tokenValidationSpringVersion")
     testImplementation("nav-foedselsnummer:testutils:1.0-SNAPSHOT.6")

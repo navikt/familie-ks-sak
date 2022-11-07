@@ -20,7 +20,6 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingStegStatus
 import no.nav.familie.ks.sak.kjerne.logg.LoggService
 import no.nav.familie.ks.sak.kjerne.totrinnskontroll.TotrinnskontrollService
 import no.nav.familie.prosessering.domene.TaskRepository
-import org.hamcrest.CoreMatchers.any
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
