@@ -1,6 +1,7 @@
 package no.nav.familie.ks.sak.kjerne.beregning
 
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
+import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelseRepository
 import no.nav.familie.ks.sak.kjerne.beregning.domene.EndretUtbetalingAndel
@@ -54,5 +55,45 @@ class BeregningService(
         )
 
         tilkjentYtelseRepository.save(tilkjentYtelse)
+    }
+
+    /**
+     * Henter alle barn på behandlingen som har minst en periode med tilkjentytelse som ikke er endret til null i utbetaling.
+     */
+    fun finnAlleBarnFraBehandlingMedPerioderSomSkalUtbetales(behandlingId: Long): List<Aktør> {
+        val andelerMedEndringer = andelerTilkjentYtelseOgEndreteUtbetalingerService
+            .finnAndelerTilkjentYtelseMedEndreteUtbetalinger(behandlingId)
+
+        return personopplysningGrunnlagRepository.hentByBehandlingAndAktiv(behandlingId).barna.map { it.aktør }
+            .filter { aktør ->
+                andelerMedEndringer
+                    .filter { it.aktør == aktør }.any { aty ->
+                        aty.kalkulertUtbetalingsbeløp != 0 || aty.endreteUtbetalinger.isEmpty()
+                    }
+            }
+    }
+
+    fun innvilgetSøknadUtenUtbetalingsperioderGrunnetEndringsPerioder(behandling: Behandling): Boolean {
+        val barnMedUtbetalingSomIkkeBlittEndretISisteBehandling =
+            finnAlleBarnFraBehandlingMedPerioderSomSkalUtbetales(behandling.id)
+
+        val alleBarnISisteBehanlding = finnBarnFraBehandlingMedTilkjentYtelse(behandling.id)
+
+        val alleBarnISistIverksattBehandling =
+            behandlingHentOgPersisterService.hentForrigeBehandlingSomErIverksatt(behandling)?.let {
+                finnBarnFraBehandlingMedTilkjentYtelse(
+                    it.id
+                )
+            }
+                ?: emptyList()
+
+        val nyeBarnISisteBehandling = alleBarnISisteBehanlding.minus(alleBarnISistIverksattBehandling.toSet())
+
+        val nyeBarnMedUtebtalingSomIkkeErEndret =
+            barnMedUtbetalingSomIkkeBlittEndretISisteBehandling.intersect(nyeBarnISisteBehandling)
+
+        return behandling.resultat == Behandlingsresultat.INNVILGET_OG_OPPHØRT &&
+            behandling.erSøknad() &&
+            nyeBarnMedUtebtalingSomIkkeErEndret.isEmpty()
     }
 }
