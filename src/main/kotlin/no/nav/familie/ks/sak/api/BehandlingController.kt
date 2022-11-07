@@ -4,10 +4,12 @@ import no.nav.familie.kontrakter.felles.Ressurs
 import no.nav.familie.ks.sak.api.dto.BehandlingPåVentDto
 import no.nav.familie.ks.sak.api.dto.BehandlingResponsDto
 import no.nav.familie.ks.sak.api.dto.EndreBehandlendeEnhetDto
+import no.nav.familie.ks.sak.api.dto.HenleggBehandlingDto
 import no.nav.familie.ks.sak.api.dto.OpprettBehandlingDto
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.config.BehandlerRolle
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
+import no.nav.familie.ks.sak.kjerne.behandling.HenleggBehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.OpprettBehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.SettBehandlingPåVentService
 import no.nav.familie.ks.sak.sikkerhet.AuditLoggerEvent
@@ -32,7 +34,8 @@ class BehandlingController(
     private val opprettBehandlingService: OpprettBehandlingService,
     private val behandlingService: BehandlingService,
     private val tilgangService: TilgangService,
-    private val settBehandlingPåVentService: SettBehandlingPåVentService
+    private val settBehandlingPåVentService: SettBehandlingPåVentService,
+    private val henleggBehandlingService: HenleggBehandlingService
 ) {
 
     @PostMapping(produces = [MediaType.APPLICATION_JSON_VALUE])
@@ -124,6 +127,20 @@ class BehandlingController(
             handling = "gjenoppta behandling"
         )
         settBehandlingPåVentService.gjenopptaBehandlingPåVent(behandlingId)
+        return ResponseEntity.ok(Ressurs.success(behandlingService.lagBehandlingRespons(behandlingId = behandlingId)))
+    }
+
+    @PutMapping(path = ["/{behandlingId}/henlegg"], produces = [MediaType.APPLICATION_JSON_VALUE])
+    fun henleggBehandling(
+        @PathVariable behandlingId: Long,
+        @RequestBody henleggBehandlingDto: HenleggBehandlingDto
+    ): ResponseEntity<Ressurs<BehandlingResponsDto>> {
+        tilgangService.validerTilgangTilHandling(
+            minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
+            handling = "henlegg behandling"
+        )
+
+        henleggBehandlingService.henleggBehandling(behandlingId, henleggBehandlingDto.årsak, henleggBehandlingDto.begrunnelse)
         return ResponseEntity.ok(Ressurs.success(behandlingService.lagBehandlingRespons(behandlingId = behandlingId)))
     }
 }

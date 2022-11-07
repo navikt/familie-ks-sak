@@ -59,6 +59,9 @@ enum class BehandlingSteg(
         it == BehandlerRolle.SAKSBEHANDLER ||
             it == BehandlerRolle.BESLUTTER
     }
+
+    fun visningsnavn(): String =
+        this.name.replace('_', ' ').lowercase().replaceFirstChar { it.uppercase() }
 }
 
 enum class BehandlingStegStatus(private val beskrivelse: String) {

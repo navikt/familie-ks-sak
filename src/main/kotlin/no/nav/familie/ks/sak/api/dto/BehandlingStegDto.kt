@@ -1,6 +1,7 @@
 package no.nav.familie.ks.sak.api.dto
 
 import no.nav.familie.kontrakter.felles.objectMapper
+import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.VenteÅrsak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.søknad.domene.SøknadGrunnlag
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Målform
@@ -43,3 +44,17 @@ data class BarnMedOpplysningerDto(
 data class BehandlingPåVentDto(val frist: LocalDate)
 
 data class BehandlingPåVentResponsDto(val frist: LocalDate, val årsak: VenteÅrsak)
+
+data class HenleggBehandlingDto(val årsak: HenleggÅrsak, val begrunnelse: String)
+
+enum class HenleggÅrsak(val beskrivelse: String) {
+    SØKNAD_TRUKKET("Søknad trukket"),
+    FEILAKTIG_OPPRETTET("Behandling feilaktig opprettet"),
+    TEKNISK_VEDLIKEHOLD("Teknisk vedlikehold");
+
+    fun tilBehandlingsresultat() = when (this) {
+        FEILAKTIG_OPPRETTET -> Behandlingsresultat.HENLAGT_FEILAKTIG_OPPRETTET
+        SØKNAD_TRUKKET -> Behandlingsresultat.HENLAGT_SØKNAD_TRUKKET
+        TEKNISK_VEDLIKEHOLD -> Behandlingsresultat.HENLAGT_TEKNISK_VEDLIKEHOLD
+    }
+}

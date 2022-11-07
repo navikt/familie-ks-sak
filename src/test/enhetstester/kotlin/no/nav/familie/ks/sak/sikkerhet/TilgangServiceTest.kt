@@ -105,7 +105,7 @@ class TilgangServiceTest {
         MDC.put(MDCConstants.MDC_CALL_ID, "00001111")
         mockBrukerContext(groups = listOf(BehandlerRolle.SAKSBEHANDLER.name))
         every { mockFagsakService.hentFagsak(fagsak.id) } returns fagsak
-        every { mockBehandlingRepository.hentAktivBehandling(any()) } returns behandling
+        every { mockBehandlingRepository.hentBehandling(any()) } returns behandling
         every { mockBehandlingRepository.finnBehandlinger(fagsak.id) } returns listOf(behandling)
         every { mockPersonopplysningGrunnlagRepository.findByBehandlingAndAktiv(any()) } returns personopplysningGrunnlag
     }
