@@ -19,7 +19,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.VedtakService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
 import no.nav.familie.ks.sak.kjerne.logg.LoggService
 import no.nav.familie.ks.sak.kjerne.totrinnskontroll.TotrinnskontrollService
-import no.nav.familie.prosessering.domene.TaskRepository
+import no.nav.familie.prosessering.internal.TaskService
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -39,7 +39,7 @@ class BeslutteVedtakStegTest {
     private lateinit var behandlingService: BehandlingService
 
     @MockK
-    private lateinit var taskRepository: TaskRepository
+    private lateinit var taskService: TaskService
 
     @MockK
     private lateinit var loggService: LoggService
@@ -100,20 +100,28 @@ class BeslutteVedtakStegTest {
         every { featureToggleService.isEnabled(FeatureToggleConfig.KAN_MANUELT_KORRIGERE_MED_VEDTAKSBREV) } returns false
         every {
             totrinnskontrollService.besluttTotrinnskontroll(
-                any(), any(), any(), besluttVedtakDto.beslutning, emptyList()
+                any(),
+                any(),
+                any(),
+                besluttVedtakDto.beslutning,
+                emptyList()
             )
         } returns mockk(relaxed = true)
         every { loggService.opprettBeslutningOmVedtakLogg(any(), any(), any()) } returns mockk()
-        every { taskRepository.save(any()) } returns mockk()
+        every { taskService.save(any()) } returns mockk()
 
         beslutteVedtakSteg.utførSteg(200, besluttVedtakDto)
 
         verify(exactly = 1) {
             totrinnskontrollService.besluttTotrinnskontroll(
-                any(), any(), any(), besluttVedtakDto.beslutning, emptyList()
+                any(),
+                any(),
+                any(),
+                besluttVedtakDto.beslutning,
+                emptyList()
             )
         }
         verify(exactly = 1) { loggService.opprettBeslutningOmVedtakLogg(any(), any(), any()) }
-        verify(exactly = 1) { taskRepository.save(any()) }
+        verify(exactly = 1) { taskService.save(any()) }
     }
 }

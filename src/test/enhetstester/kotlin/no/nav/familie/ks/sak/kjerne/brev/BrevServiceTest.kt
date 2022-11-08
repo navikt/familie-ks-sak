@@ -37,7 +37,7 @@ import no.nav.familie.ks.sak.kjerne.brev.domene.maler.InnhenteOpplysningerDataDt
 import no.nav.familie.ks.sak.kjerne.logg.LoggService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
 import no.nav.familie.ks.sak.kjerne.totrinnskontroll.TotrinnskontrollService
-import no.nav.familie.prosessering.domene.TaskRepository
+import no.nav.familie.prosessering.internal.TaskService
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -75,7 +75,7 @@ class BrevServiceTest {
     private lateinit var loggService: LoggService
 
     @MockK
-    private lateinit var taskRepository: TaskRepository
+    private lateinit var taskService: TaskService
 
     @MockK
     private lateinit var settBehandlingPåVentService: SettBehandlingPåVentService
@@ -179,7 +179,7 @@ class BrevServiceTest {
             behandlendeEnhetId = "1234"
         )
 
-        every { taskRepository.save(any()) } returns mockk()
+        every { taskService.save(any()) } returns mockk()
 
         every { behandlingRepository.hentBehandling(behandlingId = behandling.id) } returns behandling
 
@@ -238,7 +238,7 @@ class BrevServiceTest {
             behandlendeEnhetId = "1234"
         )
 
-        every { taskRepository.save(any()) } returns mockk()
+        every { taskService.save(any()) } returns mockk()
 
         every { behandlingRepository.hentBehandling(behandlingId = behandling.id) } returns behandling
 
@@ -330,7 +330,7 @@ class BrevServiceTest {
             behandlendeEnhetId = "1234"
         )
 
-        every { taskRepository.save(any()) } returns mockk()
+        every { taskService.save(any()) } returns mockk()
 
         every { behandlingRepository.hentBehandling(behandlingId = behandling.id) } returns behandling
 
@@ -397,7 +397,7 @@ class BrevServiceTest {
             behandlendeEnhetId = "1234"
         )
 
-        every { taskRepository.save(any()) } returns mockk()
+        every { taskService.save(any()) } returns mockk()
 
         every { behandlingRepository.hentBehandling(behandlingId = behandling.id) } returns behandling
 
