@@ -5,8 +5,8 @@ import no.nav.familie.ks.sak.integrasjon.secureLogger
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.beregning.BeregningService
-import no.nav.familie.ks.sak.kjerne.beregning.TilkjentYtelseValidator
 import no.nav.familie.ks.sak.kjerne.beregning.TilkjentYtelseValidator.finnAktørIderMedUgyldigEtterbetalingsperiode
+import no.nav.familie.ks.sak.kjerne.beregning.TilkjentYtelseValidator.validerAtBarnIkkeFårFlereUtbetalingerSammePeriode
 import no.nav.familie.ks.sak.kjerne.beregning.domene.TilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
@@ -40,7 +40,7 @@ class TilkjentYtelseValideringService(
                 )
             }
 
-            TilkjentYtelseValidator.validerAtBarnIkkeFårFlereUtbetalingerSammePeriode(
+            validerAtBarnIkkeFårFlereUtbetalingerSammePeriode(
                 behandlendeBehandlingTilkjentYtelse = tilkjentYtelse,
                 barnMedAndreRelevanteTilkjentYtelser = barnMedAndreRelevanteTilkjentYtelser,
                 personopplysningGrunnlag = personopplysningGrunnlag
@@ -63,7 +63,7 @@ class TilkjentYtelseValideringService(
         return periodeOffsetForAndeler.size != periodeOffsetForAndeler.distinct().size
     }
 
-    fun barnetrygdLøperForAnnenForelder(behandling: Behandling, barna: List<Person>): Boolean {
+    fun kontantstøtteLøperForAnnenForelder(behandling: Behandling, barna: List<Person>): Boolean {
         return barna.any {
             beregningService.hentRelevanteTilkjentYtelserForBarn(barnAktør = it.aktør, fagsakId = behandling.fagsak.id)
                 .isNotEmpty()
