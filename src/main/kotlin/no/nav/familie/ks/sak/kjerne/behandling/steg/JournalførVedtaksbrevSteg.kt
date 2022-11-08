@@ -17,7 +17,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.VedtakService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.Vedtak
 import no.nav.familie.ks.sak.kjerne.brev.hentBrevmal
 import no.nav.familie.ks.sak.kjerne.fagsak.FagsakService
-import no.nav.familie.prosessering.domene.TaskRepository
+import no.nav.familie.prosessering.internal.TaskService
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
@@ -27,7 +27,7 @@ class JournalførVedtaksbrevSteg(
     private val vedtakService: VedtakService,
     private val arbeidsfordelingService: ArbeidsfordelingService,
     private val utgåendeJournalføringService: UtgåendeJournalføringService,
-    private val taskRepository: TaskRepository,
+    private val taskService: TaskService,
     private val fagsakService: FagsakService
 ) : IBehandlingSteg {
     override fun getBehandlingssteg(): BehandlingSteg = BehandlingSteg.JOURNALFØR_VEDTAKSBREV
@@ -58,7 +58,7 @@ class JournalførVedtaksbrevSteg(
             ),
             properties = journalførVedtaksbrevDTO.task.metadata
         )
-        taskRepository.save(distributerTilSøkerTask)
+        taskService.save(distributerTilSøkerTask)
     }
 
     fun journalførVedtaksbrev(
@@ -111,6 +111,7 @@ class JournalførVedtaksbrevSteg(
                 Behandlingsresultat.INNVILGET_OG_OPPHØRT,
                 Behandlingsresultat.DELVIS_INNVILGET_OG_OPPHØRT,
                 Behandlingsresultat.ENDRET_OG_OPPHØRT -> "Vedtak om endret barnetrygd"
+
                 Behandlingsresultat.FORTSATT_INNVILGET -> "Vedtak om fortsatt barnetrygd"
                 else -> null
             }

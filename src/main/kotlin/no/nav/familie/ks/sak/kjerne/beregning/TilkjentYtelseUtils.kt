@@ -2,6 +2,7 @@ package no.nav.familie.ks.sak.kjerne.beregning
 
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.util.sisteDagIMåned
+import no.nav.familie.ks.sak.common.util.toLocalDate
 import no.nav.familie.ks.sak.common.util.toYearMonth
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.UtdypendeVilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
@@ -61,13 +62,23 @@ object TilkjentYtelseUtils {
 
         return innvilgedePeriodeResultaterBarna.flatMap { periodeResultatBarn ->
             relevanteSøkerPerioder.filter { it.overlapper(periodeResultatBarn) }
-                .map { overlappendePeriodeResultatSøker ->
+                .mapNotNull { overlappendePeriodeResultatSøker ->
                     val barn = barnaIdenter[periodeResultatBarn.aktør.aktørId] ?: throw Feil("Finner ikke barn")
                     // beregn beløpsperiode med sats og tilsvarende gjeledende prosentandel
                     val beløpsperiode = beregnBeløpsperiode(
                         overlappendePeriodeResultatSøker,
                         periodeResultatBarn
                     )
+                    // beløpsperiode kan ikke starte etter barnet fyller 2 år
+                    val maksTomDatoIMellom1Og2ÅrVilkår = periodeResultatBarn.vilkårResultater
+                        .filter { it.vilkårType == Vilkår.MELLOM_1_OG_2_ELLER_ADOPTERT && it.periodeTom != null }
+                        .maxBy { checkNotNull(it.periodeTom) }.periodeTom
+                    if (beløpsperiode.fom.toLocalDate().isAfter(maksTomDatoIMellom1Og2ÅrVilkår)) {
+                        return@mapNotNull null
+                    }
+                    // valider beregnet periode
+                    validerBeregnetPeriode(beløpsperiode, vilkårsvurdering.behandling.id)
+
                     // beregn utbetalingsbeløp basert på sats og prosentandel og Opprett AndelTilkjentYtelse
                     val kalkulertUtbetalingsbeløp = beløpsperiode.sats.prosent(beløpsperiode.prosent)
                     AndelTilkjentYtelse(
@@ -83,6 +94,15 @@ object TilkjentYtelseUtils {
                         prosent = beløpsperiode.prosent
                     )
                 }
+        }
+    }
+
+    private fun validerBeregnetPeriode(beløpsperiode: SatsPeriode, behandlingId: Long) {
+        if (beløpsperiode.fom.isAfter(beløpsperiode.tom)) {
+            throw Feil(
+                "Feil i beregning for behandling $behandlingId," +
+                    "fom ${beløpsperiode.fom} kan ikke være større enn tom ${beløpsperiode.tom}"
+            )
         }
     }
 

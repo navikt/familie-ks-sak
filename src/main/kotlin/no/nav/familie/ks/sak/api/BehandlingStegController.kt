@@ -2,9 +2,11 @@ package no.nav.familie.ks.sak.api
 
 import no.nav.familie.kontrakter.felles.Ressurs
 import no.nav.familie.ks.sak.api.dto.BehandlingResponsDto
+import no.nav.familie.ks.sak.api.dto.BesluttVedtakDto
 import no.nav.familie.ks.sak.api.dto.RegistrerSøknadDto
 import no.nav.familie.ks.sak.config.BehandlerRolle
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
+import no.nav.familie.ks.sak.kjerne.behandling.domene.Beslutning
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg
 import no.nav.familie.ks.sak.kjerne.behandling.steg.StegService
 import no.nav.familie.ks.sak.sikkerhet.TilgangService
@@ -75,6 +77,26 @@ class BehandlingStegController(
         )
 
         stegService.utførSteg(behandlingId, BehandlingSteg.VEDTAK)
+        return ResponseEntity.ok(Ressurs.success(behandlingService.lagBehandlingRespons(behandlingId = behandlingId)))
+    }
+
+    @PostMapping(path = ["/beslutt-vedtak"], produces = [MediaType.APPLICATION_JSON_VALUE])
+    fun besluttVedtak(
+        @PathVariable behandlingId: Long,
+        @RequestBody besluttVedtakDto: BesluttVedtakDto
+    ): ResponseEntity<Ressurs<BehandlingResponsDto>> {
+        tilgangService.validerTilgangTilHandling(
+            minimumBehandlerRolle = BehandlerRolle.BESLUTTER,
+            handling = "beslutt vedtak"
+        )
+
+        stegService.utførSteg(behandlingId, BehandlingSteg.BESLUTTE_VEDTAK, besluttVedtakDto)
+
+        if (besluttVedtakDto.beslutning == Beslutning.UNDERKJENT) {
+            val behandling = behandlingService.hentBehandling(behandlingId)
+            stegService.tilbakeførBehandlingSteg(behandling, BehandlingSteg.VEDTAK)
+        }
+
         return ResponseEntity.ok(Ressurs.success(behandlingService.lagBehandlingRespons(behandlingId = behandlingId)))
     }
 }

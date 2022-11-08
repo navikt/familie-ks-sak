@@ -4,7 +4,6 @@ import no.nav.familie.kontrakter.felles.objectMapper
 import no.nav.familie.ks.sak.api.dto.DistribuerBrevDto
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.config.BehandlerRolle
-import no.nav.familie.ks.sak.integrasjon.oppgave.OpprettOppgaveTask.Companion.TASK_STEP_TYPE
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.brev.BrevService
 import no.nav.familie.ks.sak.task.nesteGyldigeTriggertidForBehandlingIHverdager
@@ -15,7 +14,11 @@ import org.springframework.stereotype.Service
 import java.util.Properties
 
 @Service
-@TaskStepBeskrivelse(taskStepType = TASK_STEP_TYPE, beskrivelse = "Send dokument til Dokdist", maxAntallFeil = 3)
+@TaskStepBeskrivelse(
+    taskStepType = DistribuerBrevTask.TASK_STEP_TYPE,
+    beskrivelse = "Send dokument til Dokdist",
+    maxAntallFeil = 3
+)
 class DistribuerBrevTask(
     private val behandlingService: BehandlingService,
     private val brevService: BrevService
@@ -69,6 +72,6 @@ class DistribuerBrevTask(
             )
         }
 
-        private const val TASK_STEP_TYPE = "distribuerBrev"
+        const val TASK_STEP_TYPE = "distribuerBrev"
     }
 }
