@@ -6,21 +6,13 @@ import java.time.YearMonth
 object ØkonomiUtils {
 
     /**
-     * Deler andeler inn i gruppene de skal kjedes i. Utbetalingsperioder kobles i kjeder per person, bortsett fra
-     * småbarnstillegg og utvidet barnetrygd som separeres i to kjeder for søker. På grunn av dette legges et suffix
-     * på småbarnstillegg når vi arbeider med map.
+     * Deler andeler inn i gruppene de skal kjedes i. Utbetalingsperioder kobles i kjeder per person
      *
      * @param[andelerForInndeling] andeler som skal sorteres i grupper for kjeding
      * @return ident med kjedegruppe.
      */
-    fun kjedeinndelteAndeler(andelerForInndeling: List<AndelTilkjentYtelseForUtbetalingsoppdrag>): Map<String, List<AndelTilkjentYtelseForUtbetalingsoppdrag>> {
-        val personerMedAndeler = andelerForInndeling.groupBy { it.aktør.aktivFødselsnummer() }
-
-        val andelerForKjeding = mutableMapOf<String, List<AndelTilkjentYtelseForUtbetalingsoppdrag>>()
-        andelerForKjeding.putAll(personerMedAndeler)
-
-        return andelerForKjeding
-    }
+    fun kjedeinndelteAndeler(andelerForInndeling: List<AndelTilkjentYtelseForUtbetalingsoppdrag>): Map<String, List<AndelTilkjentYtelseForUtbetalingsoppdrag>> =
+        andelerForInndeling.groupBy { it.aktør.aktivFødselsnummer() }
 
     /**
      * Finn alle presidenter i forrige og oppdatert liste. Presidentene er identifikatorn for hver kjede.
@@ -40,7 +32,7 @@ object ØkonomiUtils {
      * Lager oversikt over siste andel i hver kjede som finnes uten endring i oppdatert tilstand.
      * Vi må opphøre og eventuelt gjenoppbygge hver kjede etter denne. Må ta vare på andel og ikke kun offset da
      * filtrering av oppdaterte andeler senere skjer før offset blir satt.
-     * Personident er identifikator for hver kjede, med unntak av småbarnstillegg som vil være en egen "person".
+     * Personident er identifikator for hver kjede.
      *
      * @param[forrigeKjeder] forrige behandlings tilstand
      * @param[oppdaterteKjeder] nåværende tilstand
