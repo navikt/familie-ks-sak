@@ -76,8 +76,8 @@ DevLauncher/DevLauncherPostgres
 * AZURE_APP_CLIENT_SECRET=(verdi fra `azuread-familie-ks-sak-lokal`)
 
 DevLauncherPostgresPreprod:
-krever at man henter azuread fra en pod til familie-ks-sak. Som rulleres oftere enn azuread-familie-ks-sak-lokal
-`kubectl -n teamfamilie exec -c familie-ks-sak -it familie-ks-sak-byttmegmedpodid -- env | grep AZURE_APP_CLIENT`
+krever at man henter azuread fra en pod til familie-ks-sak, som rulleres oftere enn azuread-familie-ks-sak-lokal.
+`sh hentMiljøvariabler.sh`
 
 * AZURE_APP_CLIENT_ID=(verdi fra `familie-ks-sak`)
 * AZURE_APP_CLIENT_SECRET=(verdi fra `familie-ks-sak`)
