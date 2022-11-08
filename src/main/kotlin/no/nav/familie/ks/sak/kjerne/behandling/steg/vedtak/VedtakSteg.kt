@@ -8,9 +8,12 @@ import no.nav.familie.ks.sak.integrasjon.oppgave.OpprettOppgaveTask
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
+import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingStegStatus
 import no.nav.familie.ks.sak.kjerne.behandling.steg.IBehandlingSteg
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.VedtaksperiodeService
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.validerPerioderInneholderBegrunnelser
 import no.nav.familie.ks.sak.kjerne.logg.LoggService
 import no.nav.familie.ks.sak.kjerne.totrinnskontroll.TotrinnskontrollService
 import no.nav.familie.prosessering.domene.TaskRepository
@@ -26,7 +29,9 @@ class VedtakSteg(
     private val taskRepository: TaskRepository,
     private val totrinnskontrollService: TotrinnskontrollService,
     private val loggService: LoggService,
-    private val oppgaveService: OppgaveService
+    private val oppgaveService: OppgaveService,
+    private val vedtakService: VedtakService,
+    private val vedtaksperiodeService: VedtaksperiodeService
 ) : IBehandlingSteg {
     override fun getBehandlingssteg(): BehandlingSteg = BehandlingSteg.VEDTAK
 
@@ -76,6 +81,15 @@ class VedtakSteg(
 
         if (behandling.behandlingStegTilstand.count { it.behandlingStegStatus == BehandlingStegStatus.VENTER || it.behandlingStegStatus == BehandlingStegStatus.KLAR } > 1) {
             throw Feil("Behandlingen har mer enn ett ikke fullført steg.")
+        }
+
+        if (behandling.resultat != Behandlingsresultat.FORTSATT_INNVILGET) {
+            val vedtak = vedtakService.hentAktivVedtakForBehandling(behandlingId = behandling.id)
+            val utvidetVedtaksperioder = vedtaksperiodeService.hentUtvidetVedtaksperiodeMedBegrunnelser(vedtak)
+            utvidetVedtaksperioder.validerPerioderInneholderBegrunnelser(
+                behandlingId = behandling.id,
+                fagsakId = behandling.fagsak.id
+            )
         }
     }
 

@@ -10,6 +10,7 @@ import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
+import no.nav.familie.ks.sak.kjerne.behandling.domene.Beslutning
 import no.nav.familie.ks.sak.kjerne.totrinnskontroll.domene.Totrinnskontroll
 import org.hamcrest.CoreMatchers.notNullValue
 import org.hamcrest.CoreMatchers.nullValue
@@ -85,7 +86,7 @@ class TotrinnskontrollServiceTest {
                 200,
                 "beslutter",
                 "beslutterId",
-                TotrinnskontrollService.Beslutning.GODKJENT
+                Beslutning.GODKJENT
             )
         }
 
@@ -109,7 +110,7 @@ class TotrinnskontrollServiceTest {
             200,
             "beslutter",
             "beslutterId",
-            TotrinnskontrollService.Beslutning.GODKJENT
+            Beslutning.GODKJENT
         )
 
         verify(exactly = 1) { mocketTotrinnskontroll.erUgyldig() }

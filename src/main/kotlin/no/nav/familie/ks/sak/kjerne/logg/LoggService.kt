@@ -8,6 +8,7 @@ import no.nav.familie.ks.sak.config.RolleConfig
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.domene.ArbeidsfordelingPåBehandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat
+import no.nav.familie.ks.sak.kjerne.behandling.domene.Beslutning
 import no.nav.familie.ks.sak.kjerne.logg.domene.Logg
 import no.nav.familie.ks.sak.kjerne.logg.domene.LoggRepository
 import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext
@@ -234,6 +235,25 @@ class LoggService(
                 type = LoggType.HENLEGG_BEHANDLING,
                 rolle = SikkerhetContext.hentRolletilgangFraSikkerhetscontext(rolleConfig, BehandlerRolle.SAKSBEHANDLER),
                 tekst = "$årsak: $begrunnelse"
+            )
+        )
+    }
+
+    fun opprettBeslutningOmVedtakLogg(
+        behandling: Behandling,
+        beslutning: Beslutning,
+        begrunnelse: String?
+    ) {
+        val beslutningErGodkjent = beslutning.erGodkjent()
+
+        lagreLogg(
+            Logg(
+                behandlingId = behandling.id,
+                type = LoggType.GODKJENNE_VEDTAK,
+                tittel = if (beslutningErGodkjent) "Vedtak godkjent" else "Vedtak underkjent",
+                rolle = SikkerhetContext.hentRolletilgangFraSikkerhetscontext(rolleConfig, BehandlerRolle.BESLUTTER),
+                tekst = if (beslutningErGodkjent) "" else "Begrunnelse: $begrunnelse",
+                opprettetAv = SikkerhetContext.hentSaksbehandlerNavn()
             )
         )
     }
