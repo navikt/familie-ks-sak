@@ -16,7 +16,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.validerPerioderInneholderBegrunnelser
 import no.nav.familie.ks.sak.kjerne.logg.LoggService
 import no.nav.familie.ks.sak.kjerne.totrinnskontroll.TotrinnskontrollService
-import no.nav.familie.prosessering.domene.TaskRepository
+import no.nav.familie.prosessering.internal.TaskService
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
@@ -26,7 +26,7 @@ import java.time.LocalDate
 @Service
 class VedtakSteg(
     private val behandlingService: BehandlingService,
-    private val taskRepository: TaskRepository,
+    private val taskService: TaskService,
     private val totrinnskontrollService: TotrinnskontrollService,
     private val loggService: LoggService,
     private val oppgaveService: OppgaveService,
@@ -51,7 +51,7 @@ class VedtakSteg(
             fristForFerdigstillelse = LocalDate.now()
         )
 
-        taskRepository.save(godkjenneVedtakTask)
+        taskService.save(godkjenneVedtakTask)
 
         opprettFerdigstillOppgaveTasker(behandling)
 
@@ -70,7 +70,7 @@ class VedtakSteg(
 
         relevanteOppgave.forEach {
             val ferdigstillOppgaverTask = FerdigstillOppgaverTask.opprettTask(behandling.id, it.type)
-            taskRepository.save(ferdigstillOppgaverTask)
+            taskService.save(ferdigstillOppgaverTask)
         }
     }
 

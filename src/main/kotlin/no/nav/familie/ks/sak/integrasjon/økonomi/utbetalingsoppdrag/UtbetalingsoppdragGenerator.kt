@@ -19,6 +19,8 @@ import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import org.springframework.stereotype.Component
 import java.time.YearMonth
 
+const val FAGSYSTEM = "KS"
+
 @Component
 class UtbetalingsoppdragGenerator {
 
@@ -110,7 +112,7 @@ class UtbetalingsoppdragGenerator {
         val utbetalingsoppdrag = Utbetalingsoppdrag(
             saksbehandlerId = vedtakMedTilkjentYtelse.saksbehandlerId,
             kodeEndring = aksjonskodePåOppdragsnivå,
-            fagSystem = "KS",
+            fagSystem = FAGSYSTEM,
             saksnummer = vedtak.behandling.fagsak.id.toString(),
             aktoer = vedtak.behandling.fagsak.aktør.aktivFødselsnummer(),
             utbetalingsperiode = listOf(opphøres, opprettes).flatten()

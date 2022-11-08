@@ -66,7 +66,7 @@ internal class UtbetalingsoppdragValidatorTest {
 
     private fun lagUtbetalingsoppdrag(utbetalingsperioder: List<Utbetalingsperiode> = emptyList()) = Utbetalingsoppdrag(
         kodeEndring = Utbetalingsoppdrag.KodeEndring.NY,
-        fagSystem = "KS",
+        fagSystem = FAGSYSTEM,
         saksnummer = "",
         aktoer = UUID.randomUUID().toString(),
         saksbehandlerId = "",
