@@ -260,3 +260,10 @@ enum class BehandlingStatus {
 fun initStatus(): BehandlingStatus {
     return BehandlingStatus.UTREDES
 }
+
+enum class Beslutning {
+    GODKJENT,
+    UNDERKJENT;
+
+    fun erGodkjent() = this == GODKJENT
+}

@@ -14,6 +14,7 @@ import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
+import no.nav.familie.ks.sak.kjerne.behandling.domene.Beslutning
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.VedtakService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
 import no.nav.familie.ks.sak.kjerne.logg.LoggService
@@ -93,7 +94,7 @@ class BeslutteVedtakStegTest {
 
     @Test
     fun `utførSteg skal opprette FerdigstillGodkjenneVedtak task og logg dersom vedtaket er godkjent `() {
-        val besluttVedtakDto = BesluttVedtakDto(TotrinnskontrollService.Beslutning.GODKJENT, "GODKJENT")
+        val besluttVedtakDto = BesluttVedtakDto(Beslutning.GODKJENT, "GODKJENT")
 
         every { behandlingService.hentBehandling(200) } returns lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD)
         every { featureToggleService.isEnabled(FeatureToggleConfig.KAN_MANUELT_KORRIGERE_MED_VEDTAKSBREV) } returns false

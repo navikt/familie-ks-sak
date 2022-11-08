@@ -12,6 +12,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
+import no.nav.familie.ks.sak.kjerne.behandling.domene.Beslutning
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.VedtakService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
 import no.nav.familie.ks.sak.kjerne.logg.LoggService
@@ -103,7 +104,7 @@ class BeslutteVedtakSteg(
 
     private fun opprettTaskFerdigstillGodkjenneVedtak(
         behandling: Behandling,
-        beslutning: TotrinnskontrollService.Beslutning,
+        beslutning: Beslutning,
         begrunnelse: String?
     ) {
         loggService.opprettBeslutningOmVedtakLogg(behandling, beslutning, begrunnelse)

@@ -8,9 +8,9 @@ import no.nav.familie.ks.sak.config.RolleConfig
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.domene.ArbeidsfordelingPåBehandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat
+import no.nav.familie.ks.sak.kjerne.behandling.domene.Beslutning
 import no.nav.familie.ks.sak.kjerne.logg.domene.Logg
 import no.nav.familie.ks.sak.kjerne.logg.domene.LoggRepository
-import no.nav.familie.ks.sak.kjerne.totrinnskontroll.TotrinnskontrollService
 import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
@@ -241,7 +241,7 @@ class LoggService(
 
     fun opprettBeslutningOmVedtakLogg(
         behandling: Behandling,
-        beslutning: TotrinnskontrollService.Beslutning,
+        beslutning: Beslutning,
         begrunnelse: String?
     ) {
         val beslutningErGodkjent = beslutning.erGodkjent()

@@ -2,10 +2,10 @@ package no.nav.familie.ks.sak.api.dto
 
 import no.nav.familie.kontrakter.felles.objectMapper
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat
+import no.nav.familie.ks.sak.kjerne.behandling.domene.Beslutning
 import no.nav.familie.ks.sak.kjerne.behandling.steg.VenteÅrsak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.søknad.domene.SøknadGrunnlag
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Målform
-import no.nav.familie.ks.sak.kjerne.totrinnskontroll.TotrinnskontrollService
 import no.nav.familie.prosessering.domene.Task
 import java.time.LocalDate
 
@@ -17,7 +17,7 @@ data class RegistrerSøknadDto(val søknad: SøknadDto, val bekreftEndringerViaF
 data class JournalførVedtaksbrevDTO(val vedtakId: Long, val task: Task) : BehandlingStegDto()
 
 data class BesluttVedtakDto(
-    val beslutning: TotrinnskontrollService.Beslutning,
+    val beslutning: Beslutning,
     val begrunnelse: String?,
     val kontrollerteSider: List<String> = emptyList()
 ) : BehandlingStegDto()
