@@ -82,7 +82,6 @@ object ØkonomiUtils {
     fun andelerTilOpphørMedDato(
         forrigeKjeder: Map<String, List<AndelTilkjentYtelseForUtbetalingsoppdrag>>,
         sisteBeståendeAndelIHverKjede: Map<String, AndelTilkjentYtelseForUtbetalingsoppdrag?>,
-        endretMigreringsDato: YearMonth? = null
     ): List<Pair<AndelTilkjentYtelseForUtbetalingsoppdrag, YearMonth>> =
         forrigeKjeder
             .mapValues { (person, forrigeAndeler) ->
@@ -94,10 +93,7 @@ object ØkonomiUtils {
             .filter { (_, andelerSomOpphøres) -> andelerSomOpphøres.isNotEmpty() }
             .mapValues { andelForKjede -> andelForKjede.value.sortedBy { it.stønadFom } }
             .map { (_, kjedeEtterFørsteEndring) ->
-                kjedeEtterFørsteEndring.last() to (
-                    endretMigreringsDato
-                        ?: kjedeEtterFørsteEndring.first().stønadFom
-                    )
+                kjedeEtterFørsteEndring.last() to (kjedeEtterFørsteEndring.first().stønadFom)
             }
 
     private fun andelOpphøres(

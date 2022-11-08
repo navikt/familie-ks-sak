@@ -55,9 +55,8 @@ class UtbetalingsoppdragGenerator {
         val forrigeKjeder: Map<String, List<AndelTilkjentYtelseForUtbetalingsoppdrag>> =
             kjedeinndelteAndeler(forrigeAndeler)
 
-        val erEndretMigreringsDato = vedtakMedTilkjentYtelse.endretMigreringsdato != null
         // Generer et komplett nytt eller bare endringer på et eksisterende betalingsoppdrag.
-        val sisteBeståenAndelIHverKjede = if (vedtakMedTilkjentYtelse.erSimulering || erEndretMigreringsDato) {
+        val sisteBeståenAndelIHverKjede = if (vedtakMedTilkjentYtelse.erSimulering) {
             // Gjennom å sette andeler til null markeres at alle perioder i kjeden skal opphøres.
             sisteAndelPerKjede(forrigeKjeder, oppdaterteKjeder)
         } else {
@@ -101,8 +100,7 @@ class UtbetalingsoppdragGenerator {
         // Finner ut andeler som er opphørt
         val andelerTilOpphør = andelerTilOpphørMedDato(
             forrigeKjeder,
-            sisteBeståenAndelIHverKjede,
-            vedtakMedTilkjentYtelse.endretMigreringsdato
+            sisteBeståenAndelIHverKjede
         )
         val opphøres: List<Utbetalingsperiode> = lagUtbetalingsperioderForOpphør(
             andeler = andelerTilOpphør,
