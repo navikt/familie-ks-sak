@@ -4,12 +4,8 @@ import no.nav.familie.kontrakter.felles.oppdrag.Utbetalingsoppdrag
 import no.nav.familie.kontrakter.felles.oppdrag.Utbetalingsperiode
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.common.util.inneværendeMåned
-import no.nav.familie.ks.sak.data.fnrTilAktør
 import no.nav.familie.ks.sak.data.lagAndelTilkjentYtelse
 import no.nav.familie.ks.sak.data.lagBehandling
-import no.nav.familie.ks.sak.data.randomFnr
-import no.nav.familie.ks.sak.data.årMåned
-import no.nav.familie.ks.sak.integrasjon.økonomi.ØkonomiUtils
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingKategori
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak

@@ -72,7 +72,7 @@ class UtbetalingsoppdragGenerator {
         // offsettet de hadde i forrige behandling.
         // NB! Denne funksjonen muterer på tilkjent ytelse i databasen.
 
-        //TODO: FIKS MUTERING. RESULTAT AV oppdaterBeståendeAndelerMedOffset BRUKES IKKE
+        // TODO: FIKS MUTERING. RESULTAT AV oppdaterBeståendeAndelerMedOffset BRUKES IKKE
         if (andelerTilkjentYtelse.isNotEmpty() && forrigeAndeler.isNotEmpty()) {
             ØkonomiUtils.oppdaterBeståendeAndelerMedOffset(
                 oppdaterteKjeder = kjedeinndelteAndeler(andelerTilkjentYtelse),

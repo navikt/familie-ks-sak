@@ -1,28 +1,28 @@
 package no.nav.familie.ks.sak.integrasjon.økonomi.utbetalingsoppdrag
 
 import io.mockk.junit5.MockKExtension
+import no.nav.familie.kontrakter.felles.objectMapper
 import no.nav.familie.kontrakter.felles.oppdrag.Utbetalingsoppdrag
+import no.nav.familie.ks.sak.common.util.førsteDagIInneværendeMåned
+import no.nav.familie.ks.sak.data.dato
 import no.nav.familie.ks.sak.data.fnrTilAktør
 import no.nav.familie.ks.sak.data.lagAndelTilkjentYtelse
 import no.nav.familie.ks.sak.data.lagBehandling
+import no.nav.familie.ks.sak.data.lagFagsak
 import no.nav.familie.ks.sak.data.randomFnr
 import no.nav.familie.ks.sak.data.årMåned
+import no.nav.familie.ks.sak.integrasjon.økonomi.ØkonomiUtils
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
+import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingStegStatus
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.Vedtak
+import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.domene.TilkjentYtelse
+import org.hamcrest.CoreMatchers.nullValue
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import java.time.LocalDate
-import no.nav.familie.kontrakter.felles.objectMapper
-import no.nav.familie.ks.sak.common.util.førsteDagIInneværendeMåned
-import no.nav.familie.ks.sak.data.dato
-import no.nav.familie.ks.sak.data.lagFagsak
-import no.nav.familie.ks.sak.integrasjon.økonomi.ØkonomiUtils
-import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingStegStatus
-import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelse
-import org.hamcrest.CoreMatchers.nullValue
 import java.math.BigDecimal
+import java.time.LocalDate
 import org.hamcrest.CoreMatchers.`is` as Is
 
 @ExtendWith(MockKExtension::class)
@@ -233,7 +233,6 @@ internal class UtbetalingsoppdragGeneratorTest {
                 AndelTilkjentYtelseForIverksettingFactory()
             )
 
-
         val andreBehandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD, fagsak = fagsak)
         val andreVedtak = Vedtak(behandling = andreBehandling)
 
@@ -287,7 +286,6 @@ internal class UtbetalingsoppdragGeneratorTest {
                 forrigeTilkjentYtelse = oppdatertTilkjentYtelseIFørsteBehandling
             )
 
-
         val utbetalingsoppdrag =
             konvertTilUtbetalingsoppdrag(oppdatertTilkjentYtelseIAndreBehandling.utbetalingsoppdrag)
 
@@ -315,7 +313,6 @@ internal class UtbetalingsoppdragGeneratorTest {
         assertThat(utbetalingsoppdrag.utbetalingsperiode[2].vedtakdatoTom, Is(dato("2039-12-31")))
         assertThat(utbetalingsoppdrag.utbetalingsperiode[2].periodeId, Is(4))
         assertThat(utbetalingsoppdrag.utbetalingsperiode[2].forrigePeriodeId, Is(3))
-
     }
 
     @Test
@@ -366,7 +363,6 @@ internal class UtbetalingsoppdragGeneratorTest {
                 AndelTilkjentYtelseForIverksettingFactory()
             )
 
-
         val andreBehandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD, fagsak = fagsak)
         val andreVedtak = Vedtak(behandling = andreBehandling)
         val nyAktør = fnrTilAktør(randomFnr())
@@ -412,7 +408,6 @@ internal class UtbetalingsoppdragGeneratorTest {
                 AndelTilkjentYtelseForIverksettingFactory(),
                 forrigeTilkjentYtelse = oppdatertTilkjentYtelseIFørsteBehandling
             )
-
 
         val utbetalingsoppdrag =
             konvertTilUtbetalingsoppdrag(oppdatertTilkjentYtelseIAndreBehandling.utbetalingsoppdrag)
@@ -497,7 +492,6 @@ internal class UtbetalingsoppdragGeneratorTest {
                 ),
                 AndelTilkjentYtelseForIverksettingFactory()
             )
-
 
         val andreBehandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD, fagsak = fagsak)
         val andreVedtak = Vedtak(behandling = andreBehandling)
