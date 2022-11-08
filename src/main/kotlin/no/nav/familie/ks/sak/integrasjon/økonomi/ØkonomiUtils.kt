@@ -76,7 +76,6 @@ object ØkonomiUtils {
      *
      * @param[forrigeKjeder] ny tilstand
      * @param[sisteBeståendeAndelIHverKjede] andeler man må bygge opp etter
-     * @param[endretMigreringsDato] Satt betyr at opphørsdato skal settes fra før tidligeste dato i eksisterende kjede.
      * @return map av siste andel og opphørsdato fra kjeder med opphør
      */
     fun andelerTilOpphørMedDato(

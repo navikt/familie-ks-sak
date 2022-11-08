@@ -19,6 +19,8 @@ import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import org.springframework.stereotype.Component
 import java.time.YearMonth
 
+const val FAGSYSTEM = "KS"
+
 @Component
 class UtbetalingsoppdragGenerator {
 
@@ -60,7 +62,7 @@ class UtbetalingsoppdragGenerator {
             // Gjennom å sette andeler til null markeres at alle perioder i kjeden skal opphøres.
             sisteAndelPerKjede(forrigeKjeder, oppdaterteKjeder)
         } else {
-            // For å kunne behandling alle forlengelser/forkortelser av perioder likt har vi valgt å konsekvent opphøre og erstatte.
+            // For å kunne behandle alle forlengelser/forkortelser av perioder likt har vi valgt å konsekvent opphøre og erstatte.
             // Det vil si at vi alltid gjenoppbygger kjede fra første endring, selv om vi i realiteten av og til kun endrer datoer
             // på en eksisterende linje (endring på 150 linjenivå).
             sisteBeståendeAndelPerKjede(forrigeKjeder, oppdaterteKjeder)
@@ -112,7 +114,7 @@ class UtbetalingsoppdragGenerator {
         val utbetalingsoppdrag = Utbetalingsoppdrag(
             saksbehandlerId = vedtakMedTilkjentYtelse.saksbehandlerId,
             kodeEndring = aksjonskodePåOppdragsnivå,
-            fagSystem = "KS",
+            fagSystem = FAGSYSTEM,
             saksnummer = vedtak.behandling.fagsak.id.toString(),
             aktoer = vedtak.behandling.fagsak.aktør.aktivFødselsnummer(),
             utbetalingsperiode = listOf(opphøres, opprettes).flatten()
