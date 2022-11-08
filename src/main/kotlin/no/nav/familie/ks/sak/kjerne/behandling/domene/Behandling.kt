@@ -164,7 +164,10 @@ enum class Behandlingsresultat(val displayName: String, val gyldigeBehandlingsty
     DELVIS_INNVILGET(displayName = "Delvis innvilget", BehandlingType.values().toList()),
     DELVIS_INNVILGET_OG_OPPHØRT(displayName = "Delvis innvilget og opphørt", BehandlingType.values().toList()),
     DELVIS_INNVILGET_OG_ENDRET(displayName = "Delvis innvilget og endret", listOf(REVURDERING, TEKNISK_ENDRING)),
-    DELVIS_INNVILGET_ENDRET_OG_OPPHØRT(displayName = "Delvis innvilget, endret og opphørt", listOf(REVURDERING, TEKNISK_ENDRING)),
+    DELVIS_INNVILGET_ENDRET_OG_OPPHØRT(
+        displayName = "Delvis innvilget, endret og opphørt",
+        listOf(REVURDERING, TEKNISK_ENDRING)
+    ),
 
     AVSLÅTT(displayName = "Avslått", BehandlingType.values().toList()),
     AVSLÅTT_OG_OPPHØRT(displayName = "Avslått og opphørt", listOf(REVURDERING, TEKNISK_ENDRING)),
@@ -256,4 +259,11 @@ enum class BehandlingStatus {
 
 fun initStatus(): BehandlingStatus {
     return BehandlingStatus.UTREDES
+}
+
+enum class Beslutning {
+    GODKJENT,
+    UNDERKJENT;
+
+    fun erGodkjent() = this == GODKJENT
 }

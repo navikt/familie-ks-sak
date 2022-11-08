@@ -38,7 +38,7 @@ dependencies {
     val familieKontrakterSkatteetatenVersion = "2.0_20210920094114_9c74239"
     val tokenValidationSpringVersion = "2.1.7"
     val navFoedselsnummerVersion = "1.0-SNAPSHOT.6"
-    val prosesseringVersion = "1.20220624132237_7f5ba9c"
+    val prosesseringVersion = "1.20221107161505_a52c041"
     val restAssuredVersion = "5.2.0"
 
     // ---------- Spring ---------- \\
@@ -81,7 +81,7 @@ dependencies {
     implementation("no.nav.familie.eksterne.kontrakter:saksstatistikk:$familieKontrakterSaksstatistikkVersion")
     implementation("no.nav.familie.eksterne.kontrakter:skatteetaten:$familieKontrakterSkatteetatenVersion")
     implementation("no.nav.security:token-client-spring:$tokenValidationSpringVersion")
-    implementation("no.nav.familie:prosessering-jdbc:$prosesseringVersion")
+    implementation("no.nav.familie:prosessering-core:$prosesseringVersion")
     implementation("nav-foedselsnummer:core:$navFoedselsnummerVersion")
 
     implementation("com.papertrailapp:logback-syslog4j:1.0.0")

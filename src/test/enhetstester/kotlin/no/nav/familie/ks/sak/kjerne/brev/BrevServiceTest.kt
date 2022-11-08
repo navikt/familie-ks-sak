@@ -28,6 +28,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.SettBehandlingPåVentService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingKategori
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.VedtaksperiodeService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.BrevDto
@@ -35,7 +36,8 @@ import no.nav.familie.ks.sak.kjerne.brev.domene.maler.Brevmal
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.InnhenteOpplysningerDataDto
 import no.nav.familie.ks.sak.kjerne.logg.LoggService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
-import no.nav.familie.prosessering.domene.TaskRepository
+import no.nav.familie.ks.sak.kjerne.totrinnskontroll.TotrinnskontrollService
+import no.nav.familie.prosessering.internal.TaskService
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -73,10 +75,16 @@ class BrevServiceTest {
     private lateinit var loggService: LoggService
 
     @MockK
-    private lateinit var taskRepository: TaskRepository
+    private lateinit var taskService: TaskService
 
     @MockK
     private lateinit var settBehandlingPåVentService: SettBehandlingPåVentService
+
+    @MockK
+    private lateinit var totrinnskontrollService: TotrinnskontrollService
+
+    @MockK
+    private lateinit var vedtaksperiodeService: VedtaksperiodeService
 
     @InjectMockKs
     private lateinit var brevService: BrevService
@@ -171,7 +179,7 @@ class BrevServiceTest {
             behandlendeEnhetId = "1234"
         )
 
-        every { taskRepository.save(any()) } returns mockk()
+        every { taskService.save(any()) } returns mockk()
 
         every { behandlingRepository.hentBehandling(behandlingId = behandling.id) } returns behandling
 
@@ -230,7 +238,7 @@ class BrevServiceTest {
             behandlendeEnhetId = "1234"
         )
 
-        every { taskRepository.save(any()) } returns mockk()
+        every { taskService.save(any()) } returns mockk()
 
         every { behandlingRepository.hentBehandling(behandlingId = behandling.id) } returns behandling
 
@@ -322,7 +330,7 @@ class BrevServiceTest {
             behandlendeEnhetId = "1234"
         )
 
-        every { taskRepository.save(any()) } returns mockk()
+        every { taskService.save(any()) } returns mockk()
 
         every { behandlingRepository.hentBehandling(behandlingId = behandling.id) } returns behandling
 
@@ -389,7 +397,7 @@ class BrevServiceTest {
             behandlendeEnhetId = "1234"
         )
 
-        every { taskRepository.save(any()) } returns mockk()
+        every { taskService.save(any()) } returns mockk()
 
         every { behandlingRepository.hentBehandling(behandlingId = behandling.id) } returns behandling
 

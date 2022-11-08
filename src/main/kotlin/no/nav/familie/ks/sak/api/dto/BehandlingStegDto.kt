@@ -2,6 +2,7 @@ package no.nav.familie.ks.sak.api.dto
 
 import no.nav.familie.kontrakter.felles.objectMapper
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat
+import no.nav.familie.ks.sak.kjerne.behandling.domene.Beslutning
 import no.nav.familie.ks.sak.kjerne.behandling.steg.VenteÅrsak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.søknad.domene.SøknadGrunnlag
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Målform
@@ -14,6 +15,12 @@ abstract class BehandlingStegDto
 data class RegistrerSøknadDto(val søknad: SøknadDto, val bekreftEndringerViaFrontend: Boolean) : BehandlingStegDto()
 
 data class JournalførVedtaksbrevDTO(val vedtakId: Long, val task: Task) : BehandlingStegDto()
+
+data class BesluttVedtakDto(
+    val beslutning: Beslutning,
+    val begrunnelse: String?,
+    val kontrollerteSider: List<String> = emptyList()
+) : BehandlingStegDto()
 
 data class SøknadDto(
     val søkerMedOpplysninger: SøkerMedOpplysningerDto,
