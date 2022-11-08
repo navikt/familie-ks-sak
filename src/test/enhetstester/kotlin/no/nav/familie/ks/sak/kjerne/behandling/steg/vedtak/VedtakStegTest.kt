@@ -20,7 +20,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingStegStatus
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.VedtaksperiodeService
 import no.nav.familie.ks.sak.kjerne.logg.LoggService
 import no.nav.familie.ks.sak.kjerne.totrinnskontroll.TotrinnskontrollService
-import no.nav.familie.prosessering.domene.TaskRepository
+import no.nav.familie.prosessering.internal.TaskService
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -36,7 +36,7 @@ class VedtakStegTest {
     private lateinit var behandlingService: BehandlingService
 
     @MockK
-    private lateinit var taskRepository: TaskRepository
+    private lateinit var taskService: TaskService
 
     @MockK
     private lateinit var totrinnskontrollService: TotrinnskontrollService
@@ -99,7 +99,7 @@ class VedtakStegTest {
         every { behandlingService.hentBehandling(200) } returns behandling
         every { loggService.opprettSendTilBeslutterLogg(behandling.id) } just runs
         every { totrinnskontrollService.opprettTotrinnskontrollMedSaksbehandler(behandling) } returns mockk()
-        every { taskRepository.save(any()) } returns mockk()
+        every { taskService.save(any()) } returns mockk()
         every { oppgaveService.hentOppgaverSomIkkeErFerdigstilt(behandling) } returns emptyList()
         every { behandlingService.oppdaterStatusPåBehandling(200, BehandlingStatus.FATTER_VEDTAK) } returns behandling
         every { vedtakService.hentAktivVedtakForBehandling(behandling.id) } returns mockk()
@@ -110,7 +110,7 @@ class VedtakStegTest {
         verify(exactly = 1) { behandlingService.hentBehandling(200) }
         verify(exactly = 1) { loggService.opprettSendTilBeslutterLogg(behandling.id) }
         verify(exactly = 1) { totrinnskontrollService.opprettTotrinnskontrollMedSaksbehandler(behandling) }
-        verify(exactly = 1) { taskRepository.save(any()) }
+        verify(exactly = 1) { taskService.save(any()) }
         verify(exactly = 1) { oppgaveService.hentOppgaverSomIkkeErFerdigstilt(behandling) }
         verify(exactly = 1) { behandlingService.oppdaterStatusPåBehandling(200, BehandlingStatus.FATTER_VEDTAK) }
         verify(exactly = 1) { vedtakService.hentAktivVedtakForBehandling(behandling.id) }
