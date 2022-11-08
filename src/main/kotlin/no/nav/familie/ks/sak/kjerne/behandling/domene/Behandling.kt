@@ -134,6 +134,8 @@ data class Behandling(
 
     fun erVedtatt() = status == BehandlingStatus.AVSLUTTET && !erHenlagt()
 
+    fun erAvsluttet() = status == BehandlingStatus.AVSLUTTET
+
     fun erSøknad() = opprettetÅrsak == BehandlingÅrsak.SØKNAD
 
     fun erKlage() = this.opprettetÅrsak == BehandlingÅrsak.KLAGE

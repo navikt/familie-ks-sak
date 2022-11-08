@@ -76,7 +76,7 @@ class SakStatistikkService(
             sattPaaVent = behandlingPåVent?.årsak?.name?.let {
                 SattPåVent(
                     frist = OffsetDateTime.of(
-                        behandlingPåVent?.frist,
+                        behandlingPåVent.frist,
                         java.time.LocalTime.now(),
                         ZoneOffset.UTC
                     ),
