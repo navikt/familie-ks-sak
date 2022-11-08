@@ -18,7 +18,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.Vilkårsvu
 import no.nav.familie.ks.sak.kjerne.logg.LoggService
 import no.nav.familie.ks.sak.kjerne.totrinnskontroll.TotrinnskontrollService
 import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext
-import no.nav.familie.prosessering.domene.TaskRepository
+import no.nav.familie.prosessering.internal.TaskService
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
@@ -29,7 +29,7 @@ class BeslutteVedtakSteg(
     private val totrinnskontrollService: TotrinnskontrollService,
     private val vedtakService: VedtakService,
     private val behandlingService: BehandlingService,
-    private val taskRepository: TaskRepository,
+    private val taskService: TaskService,
     private val loggService: LoggService,
     private val vilkårsvurderingService: VilkårsvurderingService,
     private val featureToggleService: FeatureToggleService
@@ -81,7 +81,7 @@ class BeslutteVedtakSteg(
                 fristForFerdigstillelse = LocalDate.now()
             )
 
-            taskRepository.save(behandleUnderkjentVedtakTask)
+            taskService.save(behandleUnderkjentVedtakTask)
         }
     }
 
@@ -112,7 +112,7 @@ class BeslutteVedtakSteg(
         val ferdigstillGodkjenneVedtakTask =
             FerdigstillOppgaverTask.opprettTask(behandling.id, Oppgavetype.GodkjenneVedtak)
 
-        taskRepository.save(ferdigstillGodkjenneVedtakTask)
+        taskService.save(ferdigstillGodkjenneVedtakTask)
     }
 
     companion object {
