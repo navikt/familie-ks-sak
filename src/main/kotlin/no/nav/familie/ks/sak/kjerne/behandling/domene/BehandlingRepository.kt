@@ -34,4 +34,19 @@ interface BehandlingRepository : JpaRepository<Behandling, Long> {
                         WHERE b.fagsak.id = :fagsakId AND ty.utbetalingsoppdrag IS NOT NULL"""
     )
     fun finnIverksatteBehandlinger(fagsakId: Long): List<Behandling>
+
+    @Query(
+        """
+            select b from Behandling b
+                            where b.fagsak.id = :fagsakId and b.status = 'IVERKSETTER_VEDTAK'
+        """
+    )
+    fun finnBehandlingerSomHolderPåÅIverksettes(fagsakId: Long): List<Behandling>
+
+    @Query(
+        """select b from Behandling b
+                           inner join BehandlingStegTilstand bst on b.id = bst.behandling.id
+                        where b.fagsak.id = :fagsakId AND bst.behandlingSteg = 'BESLUTTE_VEDTAK' AND bst.behandlingStegStatus = 'IKKE_UTFØRT'"""
+    )
+    fun finnBehandlingerSentTilGodkjenning(fagsakId: Long): List<Behandling>
 }

@@ -6,6 +6,8 @@ import no.nav.familie.ks.sak.common.util.TIDENES_ENDE
 import no.nav.familie.ks.sak.common.util.TIDENES_MORGEN
 import no.nav.familie.ks.sak.common.util.erDagenFør
 import no.nav.familie.ks.sak.common.util.sisteDagIInneværendeMåned
+import no.nav.familie.ks.sak.common.util.slåSammen
+import no.nav.familie.ks.sak.common.util.tilKortString
 import no.nav.familie.ks.sak.common.util.toYearMonth
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelse
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityEØSBegrunnelse
@@ -20,6 +22,7 @@ import no.nav.familie.ks.sak.kjerne.brev.domene.BrevVedtaksPeriode
 import no.nav.familie.ks.sak.kjerne.brev.domene.harPersonerSomManglerOpplysninger
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
 import org.slf4j.LoggerFactory
+import java.time.LocalDate
 
 private val logger = LoggerFactory.getLogger(Standardbegrunnelse::class.java)
 
@@ -143,7 +146,7 @@ private fun erEndretTriggerErOppfylt(
 }
 
 fun TriggesAv.erTriggereOppfyltForEndretUtbetaling(
-    brevEndretUtbetalingAndel: BrevEndretUtbetalingAndel,
+    brevEndretUtbetalingAndel: BrevEndretUtbetalingAndel
 ): Boolean {
     val hørerTilEtterEndretUtbetaling = this.etterEndretUtbetaling
 
@@ -188,3 +191,5 @@ fun dødeBarnForrigePeriode(
         }
         barnDødeForrigePeriode
     }.map { it.aktivPersonIdent }
+
+fun List<LocalDate>.tilBrevTekst(): String = slåSammen(this.sorted().map { it.tilKortString() })

@@ -43,6 +43,16 @@ class BehandlingService(
         .filter { !it.erHenlagt() && it.status == BehandlingStatus.AVSLUTTET }
         .maxByOrNull { it.opprettetTidspunkt }
 
+    /**
+     * Henter siste iverksatte behandling FØR en gitt behandling.
+     * Bør kun brukes i forbindelse med oppdrag mot økonomisystemet
+     * eller ved behandlingsresultat.
+     */
+    fun hentForrigeBehandlingSomErIverksatt(behandling: Behandling): Behandling? {
+        val iverksatteBehandlinger = behandlingRepository.finnIverksatteBehandlinger(behandling.fagsak.id)
+        return BehandlingUtils.hentForrigeIverksatteBehandling(iverksatteBehandlinger, behandling)
+    }
+
     fun oppdaterBehandling(behandling: Behandling): Behandling {
         logger.info("${SikkerhetContext.hentSaksbehandlerNavn()} oppdaterer behandling $behandling")
         return behandlingRepository.save(behandling)
@@ -63,14 +73,20 @@ class BehandlingService(
 
         val andelerTilkjentYtelse = andelTilkjentYtelseRepository.finnAndelerTilkjentYtelseForBehandling(behandlingId)
         val personerMedAndelerTilkjentYtelse =
-            personopplysningGrunnlag?.let { lagPersonerMedAndelTilkjentYtelseRespons(it.personer, andelerTilkjentYtelse) }
+            personopplysningGrunnlag?.let {
+                lagPersonerMedAndelTilkjentYtelseRespons(
+                    it.personer,
+                    andelerTilkjentYtelse
+                )
+            }
                 ?: emptyList()
 
         val andelTilkjentYtelseMedEndreteUtbetalinger = andelerTilkjentYtelseOgEndreteUtbetalingerService
             .finnAndelerTilkjentYtelseMedEndreteUtbetalinger(behandlingId)
 
-        val utbetalingsperioder = personopplysningGrunnlag?.let { lagUtbetalingsperioder(it, andelTilkjentYtelseMedEndreteUtbetalinger) }
-            ?: emptyList()
+        val utbetalingsperioder =
+            personopplysningGrunnlag?.let { lagUtbetalingsperioder(it, andelTilkjentYtelseMedEndreteUtbetalinger) }
+                ?: emptyList()
 
         return BehandlingMapper.lagBehandlingRespons(
             behandling,
