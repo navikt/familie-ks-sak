@@ -5,6 +5,7 @@ import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
+import no.nav.familie.ks.sak.kjerne.behandling.domene.Beslutning
 import no.nav.familie.ks.sak.kjerne.totrinnskontroll.domene.Totrinnskontroll
 import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext
 import org.slf4j.LoggerFactory
@@ -80,12 +81,5 @@ class TotrinnskontrollService(
     companion object {
 
         private val logger = LoggerFactory.getLogger(TotrinnskontrollService::class.java)
-    }
-
-    enum class Beslutning {
-        GODKJENT,
-        UNDERKJENT;
-
-        fun erGodkjent() = this == GODKJENT
     }
 }

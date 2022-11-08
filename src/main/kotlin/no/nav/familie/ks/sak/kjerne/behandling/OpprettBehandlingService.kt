@@ -16,7 +16,7 @@ import no.nav.familie.ks.sak.kjerne.fagsak.domene.FagsakRepository
 import no.nav.familie.ks.sak.kjerne.logg.LoggService
 import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
 import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext
-import no.nav.familie.prosessering.domene.TaskRepository
+import no.nav.familie.prosessering.internal.TaskService
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
@@ -31,7 +31,7 @@ class OpprettBehandlingService(
     private val loggService: LoggService,
     private val fagsakRepository: FagsakRepository,
     private val behandlingRepository: BehandlingRepository,
-    private val taskRepository: TaskRepository,
+    private val taskService: TaskService,
     private val stegService: StegService
 ) {
 
@@ -77,7 +77,7 @@ class OpprettBehandlingService(
         loggService.opprettBehandlingLogg(lagretBehandling) // lag historikkinnslag
         // Oppretter BehandleSak oppgave via task. Ruller tasken tilbake, hvis behandling opprettelse feiler
         if (lagretBehandling.opprettBehandleSakOppgave()) {
-            taskRepository.save(
+            taskService.save(
                 OpprettOppgaveTask.opprettTask(
                     behandlingId = lagretBehandling.id,
                     oppgavetype = Oppgavetype.BehandleSak,

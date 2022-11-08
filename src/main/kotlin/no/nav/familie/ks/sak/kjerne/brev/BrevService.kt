@@ -28,7 +28,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Ann
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.Brevmal
 import no.nav.familie.ks.sak.kjerne.logg.LoggService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
-import no.nav.familie.prosessering.domene.TaskRepository
+import no.nav.familie.prosessering.internal.TaskService
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -40,7 +40,7 @@ class BrevService(
     private val brevKlient: BrevKlient,
     private val integrasjonClient: IntegrasjonClient,
     private val loggService: LoggService,
-    private val taskRepository: TaskRepository,
+    private val taskService: TaskService,
     private val personopplysningGrunnlagService: PersonopplysningGrunnlagService,
     private val arbeidsfordelingService: ArbeidsfordelingService,
     private val utgåendeJournalføringService: UtgåendeJournalføringService,
@@ -168,7 +168,7 @@ class BrevService(
                 this["fagsakId"] = behandling.fagsak.id.toString()
             }
         ).also {
-            taskRepository.save(it)
+            taskService.save(it)
         }
         if (
             manueltBrevDto.brevmal.setterBehandlingPåVent()
@@ -237,7 +237,7 @@ class BrevService(
     ) {
         val task = DistribuerDødsfallBrevPåFagsakTask.opprettTask(journalpostId = journalpostId, brevmal = brevmal)
 
-        taskRepository.save(task)
+        taskService.save(task)
 
         logger.info("Klarte ikke å distribuere brev for journalpostId $journalpostId på behandling $behandlingId. Bruker har ukjent dødsboadresse.")
         loggService.opprettBrevIkkeDistribuertUkjentDødsboadresseLogg(
