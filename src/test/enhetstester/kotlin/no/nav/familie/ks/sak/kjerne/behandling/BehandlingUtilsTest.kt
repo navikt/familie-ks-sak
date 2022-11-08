@@ -12,14 +12,14 @@ internal class BehandlingUtilsTest {
 
     @Test
     fun `hentSisteBehandlingSomErIverksatt - skal returnere avsluttet behandling med høyest opprettetTidspunkt`() {
-        val avsluttetBehandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD).copy(id = 1)
+        val avsluttetBehandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD)
         avsluttetBehandling.behandlingStegTilstand.add(
             BehandlingStegTilstand(
                 behandling = avsluttetBehandling,
                 behandlingSteg = BehandlingSteg.BEHANDLING_AVSLUTTET
             )
         )
-        val avsluttetBehandling2 = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD).copy(id = 2)
+        val avsluttetBehandling2 = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD)
         avsluttetBehandling2.behandlingStegTilstand.add(
             BehandlingStegTilstand(
                 behandling = avsluttetBehandling2,
@@ -28,7 +28,7 @@ internal class BehandlingUtilsTest {
         )
         val sisteIverksatteBehandling =
             BehandlingUtils.hentSisteBehandlingSomErIverksatt(listOf(avsluttetBehandling, avsluttetBehandling2))
-        assertEquals(2, sisteIverksatteBehandling?.id)
+        assertEquals(avsluttetBehandling2.id, sisteIverksatteBehandling?.id)
     }
 
     @Test
@@ -40,32 +40,32 @@ internal class BehandlingUtilsTest {
 
     @Test
     fun `hentForrigeIverksatteBehandling - skal hente den siste iverksatte behandlingen før inneværende behandling`() {
-        val avsluttetBehandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD).copy(id = 1)
+        val avsluttetBehandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD)
         avsluttetBehandling.behandlingStegTilstand.add(
             BehandlingStegTilstand(
                 behandling = avsluttetBehandling,
                 behandlingSteg = BehandlingSteg.BEHANDLING_AVSLUTTET
             )
         )
-        val avsluttetBehandling2 = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD).copy(id = 2)
+        val avsluttetBehandling2 = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD)
         avsluttetBehandling2.behandlingStegTilstand.add(
             BehandlingStegTilstand(
                 behandling = avsluttetBehandling2,
                 behandlingSteg = BehandlingSteg.BEHANDLING_AVSLUTTET
             )
         )
-        val inneværendeBehandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD).copy(id = 3)
+        val inneværendeBehandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD)
 
         val forrigeIverksatteBehandling = BehandlingUtils.hentForrigeIverksatteBehandling(
             listOf(avsluttetBehandling, avsluttetBehandling2),
             inneværendeBehandling
         )
-        assertEquals(2, forrigeIverksatteBehandling?.id)
+        assertEquals(avsluttetBehandling2.id, forrigeIverksatteBehandling?.id)
     }
 
     @Test
     fun `hentForrigeIverksatteBehandling - skal returnere null dersom det ikke finnes noen iverksatte behandlinger`() {
-        val inneværendeBehandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD).copy(id = 3)
+        val inneværendeBehandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD)
 
         val forrigeIverksatteBehandling = BehandlingUtils.hentForrigeIverksatteBehandling(
             emptyList(),

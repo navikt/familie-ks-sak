@@ -163,7 +163,8 @@ class BeregningServiceTest {
         val barnAktør = randomAktør()
         val fagak = lagFagsak(barnAktør, 1)
         val annenFagsak = lagFagsak(barnAktør, 2)
-        val godkjentBehandlingSomIkkeErIverksatt = lagBehandling(annenFagsak, opprettetÅrsak = BehandlingÅrsak.SØKNAD)
+        val godkjentBehandlingSomIkkeErIverksatt =
+            lagBehandling(fagsak = annenFagsak, opprettetÅrsak = BehandlingÅrsak.SØKNAD)
 
         val tilkjentYtelse = TilkjentYtelse(
             behandling = godkjentBehandlingSomIkkeErIverksatt,
@@ -212,7 +213,7 @@ class BeregningServiceTest {
         val fagak = lagFagsak(barnAktør, 1)
         val annenFagsak = lagFagsak(barnAktør, 2)
         val iverksatteBehandlinger = lagBehandling(
-            annenFagsak,
+            fagsak = annenFagsak,
             opprettetÅrsak = BehandlingÅrsak.SØKNAD
         )
         iverksatteBehandlinger.behandlingStegTilstand.add(
