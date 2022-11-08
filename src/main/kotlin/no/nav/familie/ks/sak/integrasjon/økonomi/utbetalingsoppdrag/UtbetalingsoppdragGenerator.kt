@@ -30,7 +30,7 @@ class UtbetalingsoppdragGenerator {
      * @param[forrigeTilkjentYtelse] forrige tilkjentYtelse
      * @return oppdatert TilkjentYtelse som inneholder generert utbetalingsoppdrag
      */
-    internal fun lagTilkjentYtelseMedUtbetalingsoppdrag(
+    fun lagTilkjentYtelseMedUtbetalingsoppdrag(
         vedtakMedTilkjentYtelse: VedtakMedTilkjentYtelse,
         andelTilkjentYtelseForUtbetalingsoppdragFactory: AndelTilkjentYtelseForUtbetalingsoppdragFactory,
         forrigeTilkjentYtelse: TilkjentYtelse? = null
