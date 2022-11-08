@@ -31,7 +31,7 @@ object ØkonomiUtils {
     /**
      * Lager oversikt over siste andel i hver kjede som finnes uten endring i oppdatert tilstand.
      * Vi må opphøre og eventuelt gjenoppbygge hver kjede etter denne. Må ta vare på andel og ikke kun offset da
-     * filtrering av oppdaterte andeler senere skjer før offset blir satt.
+     * filtrering av oppdaterte andeler skjer senere før offset blir satt.
      * Personident er identifikator for hver kjede.
      *
      * @param[forrigeKjeder] forrige behandlings tilstand
@@ -129,6 +129,8 @@ object ØkonomiUtils {
                 beståendeFraForrige?.forEach { bestående ->
                     val beståendeIOppdatert = oppdatertKjede.find { it.erTilsvarendeForUtbetaling(bestående) }
                         ?: error("Kan ikke finne andel fra utledet bestående andeler i oppdatert tilstand.")
+
+
                     beståendeIOppdatert.periodeOffset = bestående.periodeOffset
                     beståendeIOppdatert.forrigePeriodeOffset = bestående.forrigePeriodeOffset
                     beståendeIOppdatert.kildeBehandlingId = bestående.kildeBehandlingId
@@ -136,6 +138,15 @@ object ØkonomiUtils {
             }
         return oppdaterteKjeder
     }
+
+    fun gjeldendeForrigeOffsetForKjede(andelerFraForrigeBehandling: Map<String, List<AndelTilkjentYtelseForUtbetalingsoppdrag>>): Map<String, Int> =
+        andelerFraForrigeBehandling.map { (personIdent, forrigeKjede) ->
+            personIdent to (
+                    forrigeKjede.filter { it.kalkulertUtbetalingsbeløp > 0 }
+                        .maxByOrNull { andel -> andel.periodeOffset!! }?.periodeOffset?.toInt()
+                        ?: throw IllegalStateException("Andel i kjede skal ha offset")
+                    )
+        }.toMap()
 
     private fun beståendeAndelerIKjede(
         forrigeKjede: List<AndelTilkjentYtelseForUtbetalingsoppdrag>?,

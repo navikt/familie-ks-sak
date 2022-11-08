@@ -10,6 +10,5 @@ data class VedtakMedTilkjentYtelse(
     val saksbehandlerId: String,
     val sisteOffsetPerIdent: Map<String, Int> = emptyMap(),
     val sisteOffsetPåFagsak: Int? = null,
-    val erSimulering: Boolean,
-    val endretMigreringsdato: YearMonth? = null
+    val erSimulering: Boolean
 )

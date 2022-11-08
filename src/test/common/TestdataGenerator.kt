@@ -572,3 +572,4 @@ fun lagPersonResultat(
 }
 
 fun årMåned(årMåned: String) = YearMonth.parse(årMåned)
+fun dato(s: String) = LocalDate.parse(s)

@@ -27,7 +27,7 @@ class UtbetalingsoppdragGenerator {
      * Ved opphør sendes kun siste utbetalingsperiode (med opphørsdato).
      *
      * @param[vedtakMedTilkjentYtelse] tilpasset objekt som inneholder tilkjentytelse,og andre nødvendige felter som trenges for å lage utbetalingsoppdrag
-     * @param[forrigeTilkjentYtelser] forrige tilkjentYtelser
+     * @param[forrigeTilkjentYtelse] forrige tilkjentYtelse
      * @return oppdatert TilkjentYtelse som inneholder generert utbetalingsoppdrag
      */
     internal fun lagTilkjentYtelseMedUtbetalingsoppdrag(
@@ -38,42 +38,42 @@ class UtbetalingsoppdragGenerator {
         val tilkjentYtelse = vedtakMedTilkjentYtelse.tilkjentYtelse
         val vedtak = vedtakMedTilkjentYtelse.vedtak
         val erFørsteBehandlingPåFagsak = forrigeTilkjentYtelse == null
+
         // Filtrer kun andeler som kan sendes til oppdrag
         val andelerTilkjentYtelse = tilkjentYtelse.andelerTilkjentYtelse.filter { it.erAndelSomSkalSendesTilOppdrag() }
             .pakkInnForUtbetaling(andelTilkjentYtelseForUtbetalingsoppdragFactory)
 
         // grupperer andeler basert på personIdent.
-        val oppdaterteKjeder: Map<String, List<AndelTilkjentYtelseForUtbetalingsoppdrag>> =
-            kjedeinndelteAndeler(andelerTilkjentYtelse)
+        val oppdaterteKjeder = kjedeinndelteAndeler(andelerTilkjentYtelse)
 
-        // grupperer forrige andeler basert på personIdent.
+        // Filtrerer og grupperer forrige andeler basert på personIdent.
         val forrigeAndeler =
             forrigeTilkjentYtelse?.andelerTilkjentYtelse?.filter { it.erAndelSomSkalSendesTilOppdrag() }
                 ?.pakkInnForUtbetaling(andelTilkjentYtelseForUtbetalingsoppdragFactory)
                 ?: emptyList()
 
-        val forrigeKjeder: Map<String, List<AndelTilkjentYtelseForUtbetalingsoppdrag>> =
-            kjedeinndelteAndeler(forrigeAndeler)
+        val forrigeKjeder = kjedeinndelteAndeler(forrigeAndeler)
 
         // Generer et komplett nytt eller bare endringer på et eksisterende betalingsoppdrag.
-        val sisteBeståenAndelIHverKjede = if (vedtakMedTilkjentYtelse.erSimulering) {
+        val sisteBeståendeAndelIHverKjede = if (vedtakMedTilkjentYtelse.erSimulering) {
             // Gjennom å sette andeler til null markeres at alle perioder i kjeden skal opphøres.
             sisteAndelPerKjede(forrigeKjeder, oppdaterteKjeder)
         } else {
-            // For å kunne behandling alle forlengelser/forkortelser av perioder likt har vi valgt å konsekvent opphøre og erstatte.
+            // For å kunne behandle alle forlengelser/forkortelser av perioder likt har vi valgt å konsekvent opphøre og erstatte.
             // Det vil si at vi alltid gjenoppbygger kjede fra første endring, selv om vi i realiteten av og til kun endrer datoer
             // på en eksisterende linje (endring på 150 linjenivå).
             sisteBeståendeAndelPerKjede(forrigeKjeder, oppdaterteKjeder)
         }
 
         // Finner ut andeler som er opprettet
-        val andelerTilOpprettelse: List<List<AndelTilkjentYtelseForUtbetalingsoppdrag>> =
-            andelerTilOpprettelse(oppdaterteKjeder, sisteBeståenAndelIHverKjede)
+        val andelerTilOpprettelse = andelerTilOpprettelse(oppdaterteKjeder, sisteBeståendeAndelIHverKjede)
 
         // Setter offsettet til andeler som ikke er endret i denne behandlingen til
         // offsettet de hadde i forrige behandling.
         // NB! Denne funksjonen muterer på tilkjent ytelse i databasen.
-        if (andelerTilkjentYtelse.isNotEmpty() && !forrigeAndeler.isNullOrEmpty()) {
+
+        //TODO: FIKS MUTERING. RESULTAT AV oppdaterBeståendeAndelerMedOffset BRUKES IKKE
+        if (andelerTilkjentYtelse.isNotEmpty() && forrigeAndeler.isNotEmpty()) {
             ØkonomiUtils.oppdaterBeståendeAndelerMedOffset(
                 oppdaterteKjeder = kjedeinndelteAndeler(andelerTilkjentYtelse),
                 forrigeKjeder = kjedeinndelteAndeler(forrigeAndeler)
@@ -81,7 +81,7 @@ class UtbetalingsoppdragGenerator {
         }
 
         // Trenger denne sjekken som slipper å sette offset når det ikke finnes andelerTilOpprettelse,dvs nullutbetaling
-        val opprettes: List<Utbetalingsperiode> = if (andelerTilOpprettelse.isNotEmpty()) {
+        val opprettes = if (andelerTilOpprettelse.isNotEmpty()) {
             // lager utbetalingsperioder og oppdaterer andelerTilkjentYtelse
             // NB! Denne funksjonen muterer på tilkjent ytelse i databasen.
             val opprettelsePeriodeMedAndeler = lagUtbetalingsperioderForOpprettelse(
@@ -100,12 +100,10 @@ class UtbetalingsoppdragGenerator {
         // Finner ut andeler som er opphørt
         val andelerTilOpphør = andelerTilOpphørMedDato(
             forrigeKjeder,
-            sisteBeståenAndelIHverKjede
+            sisteBeståendeAndelIHverKjede
         )
-        val opphøres: List<Utbetalingsperiode> = lagUtbetalingsperioderForOpphør(
-            andeler = andelerTilOpphør,
-            vedtak = vedtak
-        )
+
+        val opphøres = lagUtbetalingsperioderForOpphør(andeler = andelerTilOpphør, vedtak = vedtak)
 
         val aksjonskodePåOppdragsnivå =
             if (erFørsteBehandlingPåFagsak) Utbetalingsoppdrag.KodeEndring.NY else Utbetalingsoppdrag.KodeEndring.ENDR
@@ -200,7 +198,7 @@ fun Collection<AndelTilkjentYtelse>.pakkInnForUtbetaling(
 ) = andelTilkjentYtelseForUtbetalingsoppdragFactory.pakkInnForUtbetaling(this)
 
 abstract class AndelTilkjentYtelseForUtbetalingsoppdrag(private val andelTilkjentYtelse: AndelTilkjentYtelse) {
-    val behandlingId: Long? = andelTilkjentYtelse.behandlingId
+    val behandlingId: Long = andelTilkjentYtelse.behandlingId
     val tilkjentYtelse: TilkjentYtelse = andelTilkjentYtelse.tilkjentYtelse
     val kalkulertUtbetalingsbeløp: Int = andelTilkjentYtelse.kalkulertUtbetalingsbeløp
     val stønadFom: YearMonth = andelTilkjentYtelse.stønadFom
@@ -213,7 +211,7 @@ abstract class AndelTilkjentYtelseForUtbetalingsoppdrag(private val andelTilkjen
 
     override fun equals(other: Any?): Boolean {
         return if (other is AndelTilkjentYtelseForUtbetalingsoppdrag) {
-            this.andelTilkjentYtelse.equals(other.andelTilkjentYtelse)
+            this.andelTilkjentYtelse == other.andelTilkjentYtelse
         } else {
             false
         }
