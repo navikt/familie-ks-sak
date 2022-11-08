@@ -20,7 +20,7 @@ object BehandlingUtils {
         ).maxByOrNull { it.opprettetTidspunkt }
     }
 
-    fun hentIverksatteBehandlinger(
+    private fun hentIverksatteBehandlinger(
         iverksatteBehandlinger: List<Behandling>,
         behandlingFørFølgende: Behandling
     ): List<Behandling> {

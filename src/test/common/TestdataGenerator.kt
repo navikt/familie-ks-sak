@@ -57,6 +57,7 @@ import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.sivilstand.G
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.statsborgerskap.GrStatsborgerskap
 import java.math.BigDecimal
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.time.YearMonth
 import kotlin.math.abs
 import kotlin.random.Random
@@ -164,7 +165,8 @@ fun lagBehandling(
     fagsak: Fagsak = lagFagsak(),
     type: BehandlingType = BehandlingType.FØRSTEGANGSBEHANDLING,
     opprettetÅrsak: BehandlingÅrsak,
-    kategori: BehandlingKategori = BehandlingKategori.NASJONAL
+    kategori: BehandlingKategori = BehandlingKategori.NASJONAL,
+    opprettetTidspunkt: LocalDateTime = LocalDateTime.now()
 ): Behandling = Behandling(
     id = nesteBehandlingId(),
     fagsak = fagsak,
