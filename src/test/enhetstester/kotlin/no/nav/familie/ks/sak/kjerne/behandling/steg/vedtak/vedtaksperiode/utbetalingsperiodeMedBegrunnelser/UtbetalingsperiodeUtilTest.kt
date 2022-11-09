@@ -1,29 +1,9 @@
 package no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.utbetalingsperiodeMedBegrunnelser
 
-import no.nav.familie.ks.sak.common.tidslinje.Periode
-import no.nav.familie.ks.sak.common.util.TIDENES_ENDE
-import no.nav.familie.ks.sak.common.util.TIDENES_MORGEN
-import no.nav.familie.ks.sak.common.util.førsteDagIInneværendeMåned
-import no.nav.familie.ks.sak.common.util.sisteDagIInneværendeMåned
 import no.nav.familie.ks.sak.data.fnrTilAktør
-import no.nav.familie.ks.sak.data.lagAndelTilkjentYtelse
 import no.nav.familie.ks.sak.data.lagBehandling
-import no.nav.familie.ks.sak.data.lagPersonResultat
-import no.nav.familie.ks.sak.data.lagVedtaksperiodeMedBegrunnelser
 import no.nav.familie.ks.sak.data.randomFnr
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.Vedtak
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.Vedtaksperiodetype
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.tilFørskjøvetVilkårResultatTidslinjeMap
-import no.nav.familie.ks.sak.kjerne.beregning.AndelTilkjentYtelseMedEndreteUtbetalinger
-import no.nav.familie.ks.sak.kjerne.personident.Aktør
-import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
-import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Test
-import java.time.LocalDate
-import java.time.YearMonth
 
 internal class UtbetalingsperiodeUtilTest {
 
@@ -34,7 +14,7 @@ internal class UtbetalingsperiodeUtilTest {
     private val person1 = fnrTilAktør(person1Fnr)
     private val person2 = fnrTilAktør(person2Fnr)
 
-    @Test
+   /* @Test
     fun `hentPerioderMedUtbetaling skal beholde split i andel tilkjent ytelse`() {
         val mars2020 = YearMonth.of(2020, 3)
         val april2020 = YearMonth.of(2020, 4)
@@ -205,5 +185,5 @@ internal class UtbetalingsperiodeUtilTest {
         periodeTom = LocalDate.now().plusYears(2),
         lagFullstendigVilkårResultat = true,
         personType = PersonType.BARN
-    )
+    )*/
 }

@@ -1,6 +1,8 @@
 package no.nav.familie.ks.sak.kjerne.beregning
 
 import no.nav.familie.ks.sak.common.exception.Feil
+import no.nav.familie.ks.sak.common.tidslinje.utvidelser.kombinerMed
+import no.nav.familie.ks.sak.common.tidslinje.utvidelser.tilPerioderIkkeNull
 import no.nav.familie.ks.sak.common.util.erBack2BackIMånedsskifte
 import no.nav.familie.ks.sak.common.util.sisteDagIMåned
 import no.nav.familie.ks.sak.common.util.toYearMonth
@@ -9,7 +11,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Res
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.UtdypendeVilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.hentInnvilgedePerioder
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.tilFørskjøvetVilkårResultatTidslinjeMap
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.domene.SatsPeriode
 import no.nav.familie.ks.sak.kjerne.beregning.domene.TilkjentYtelse
@@ -17,6 +19,7 @@ import no.nav.familie.ks.sak.kjerne.beregning.domene.YtelseType
 import no.nav.familie.ks.sak.kjerne.beregning.domene.hentGyldigSatsFor
 import no.nav.familie.ks.sak.kjerne.beregning.domene.hentProsentForAntallTimer
 import no.nav.familie.ks.sak.kjerne.beregning.domene.prosent
+import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
 import java.math.RoundingMode
@@ -55,48 +58,56 @@ object TilkjentYtelseUtils {
         vilkårsvurdering: Vilkårsvurdering,
         tilkjentYtelse: TilkjentYtelse
     ): List<AndelTilkjentYtelse> {
-        val barnaIdenter = personopplysningGrunnlag.barna.associateBy { it.aktør.aktørId }
-        val (innvilgedePeriodeResultaterSøker, innvilgedePeriodeResultaterBarna) = hentInnvilgedePerioder(
-            personopplysningGrunnlag,
-            vilkårsvurdering
-        )
-        val relevanteSøkerPerioder = innvilgedePeriodeResultaterSøker
-            .filter { søkersperiode -> innvilgedePeriodeResultaterBarna.any { søkersperiode.overlapper(it) } }
+        val førskjøvetVilkårResultatTidslinjeMap =
+            vilkårsvurdering.personResultater.tilFørskjøvetVilkårResultatTidslinjeMap(personopplysningGrunnlag)
 
-        val oppdatertPerioder = barnaIdenter.map { barn ->
-            slåSammenPerioderForFlereAntallTimere(innvilgedePeriodeResultaterBarna.filter { it.aktør.aktørId == barn.key })
-        }.flatten()
+        val søkersTidslinje = førskjøvetVilkårResultatTidslinjeMap[personopplysningGrunnlag.søker.aktør]!!
 
-        return oppdatertPerioder.flatMap { periodeResultatBarn ->
-            relevanteSøkerPerioder.filter { it.overlapper(periodeResultatBarn) }
-                .map { overlappendePeriodeResultatSøker ->
-                    val barn = barnaIdenter[periodeResultatBarn.aktør.aktørId] ?: throw Feil("Finner ikke barn")
-                    // beregn beløpsperiode med sats og tilsvarende gjeledende prosentandel
-                    val beløpsperiode = beregnBeløpsperiode(
-                        overlappendePeriodeResultatSøker,
-                        periodeResultatBarn,
-                        oppdatertPerioder.filter { it.aktør == barn.aktør },
-                        vilkårsvurdering
-                    )
-                    // valider beregnet periode
-                    validerBeregnetPeriode(beløpsperiode, vilkårsvurdering.behandling.id)
+        val barna = personopplysningGrunnlag.barna.map { it.aktør }
 
-                    // beregn utbetalingsbeløp basert på sats og prosentandel og Opprett AndelTilkjentYtelse
-                    val kalkulertUtbetalingsbeløp = beløpsperiode.sats.prosent(beløpsperiode.prosent)
-                    AndelTilkjentYtelse(
-                        behandlingId = vilkårsvurdering.behandling.id,
-                        tilkjentYtelse = tilkjentYtelse,
-                        aktør = barn.aktør,
-                        stønadFom = beløpsperiode.fom,
-                        stønadTom = beløpsperiode.tom,
-                        kalkulertUtbetalingsbeløp = kalkulertUtbetalingsbeløp,
-                        nasjonaltPeriodebeløp = kalkulertUtbetalingsbeløp,
-                        type = YtelseType.ORDINÆR_KONTANTSTØTTE,
-                        sats = beløpsperiode.sats,
-                        prosent = beløpsperiode.prosent
-                    )
+        return barna.flatMap { barn ->
+            val barnSinTidslinje = førskjøvetVilkårResultatTidslinjeMap[barn]!!
+            val barnVilkårResultaterBådeBarnOgSøkerHarAlleOppfylt =
+                barnSinTidslinje.kombinerMed(søkersTidslinje) { barnPeriode, søkerPeriode ->
+                    søkerPeriode?.let { barnPeriode }
                 }
+
+            barnVilkårResultaterBådeBarnOgSøkerHarAlleOppfylt.tilPerioderIkkeNull().map { vilkårResultaterPeriode ->
+                val erDeltBosted = vilkårResultaterPeriode.verdi.any {
+                    it.vilkårType == Vilkår.BOR_MED_SØKER &&
+                        it.utdypendeVilkårsvurderinger.contains(UtdypendeVilkårsvurdering.DELT_BOSTED)
+                }
+
+                val antallTimer = vilkårResultaterPeriode.verdi.single { it.vilkårType == Vilkår.BARNEHAGEPLASS }.antallTimer
+
+                hentGyldigSatsFor(
+                    antallTimer = antallTimer?.setScale(2, RoundingMode.HALF_UP),
+                    erDeltBosted = erDeltBosted,
+                    stønadFom = vilkårResultaterPeriode.fom!!.toYearMonth(),
+                    stønadTom = vilkårResultaterPeriode.tom!!.toYearMonth()
+                ).tilAndelTIlkjentYtelse(vilkårsvurdering.behandling.id, tilkjentYtelse, barn)
+            }
         }
+    }
+
+    private fun SatsPeriode.tilAndelTIlkjentYtelse(
+        behandlingId: Long,
+        tilkjentYtelse: TilkjentYtelse,
+        barn: Aktør
+    ): AndelTilkjentYtelse {
+        val kalkulertUtbetalingsbeløp = sats.prosent(prosent)
+        return AndelTilkjentYtelse(
+            behandlingId = behandlingId,
+            tilkjentYtelse = tilkjentYtelse,
+            aktør = barn,
+            stønadFom = fom,
+            stønadTom = tom,
+            kalkulertUtbetalingsbeløp = kalkulertUtbetalingsbeløp,
+            nasjonaltPeriodebeløp = kalkulertUtbetalingsbeløp,
+            type = YtelseType.ORDINÆR_KONTANTSTØTTE,
+            sats = sats,
+            prosent = prosent
+        )
     }
 
     private fun validerBeregnetPeriode(beløpsperiode: SatsPeriode, behandlingId: Long) {
