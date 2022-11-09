@@ -1,0 +1,7 @@
+{
+  "data": "KVITTERT_OK",
+  "status": "SUKSESS",
+  "melding": "string",
+  "frontendFeilmelding": "string",
+  "stacktrace": "string"
+}
