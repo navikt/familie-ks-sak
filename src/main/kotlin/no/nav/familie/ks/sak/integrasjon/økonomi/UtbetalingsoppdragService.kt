@@ -1,7 +1,6 @@
 package no.nav.familie.ks.sak.integrasjon.økonomi
 
 import io.micrometer.core.instrument.Metrics
-import no.nav.familie.ba.sak.kjerne.beregning.TilkjentYtelseValideringService
 import no.nav.familie.http.client.RessursException
 import no.nav.familie.kontrakter.felles.objectMapper
 import no.nav.familie.kontrakter.felles.oppdrag.OppdragId
@@ -15,6 +14,7 @@ import no.nav.familie.ks.sak.integrasjon.økonomi.utbetalingsoppdrag.VedtakMedTi
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.Vedtak
 import no.nav.familie.ks.sak.kjerne.beregning.BeregningService
+import no.nav.familie.ks.sak.kjerne.beregning.TilkjentYtelseValideringService
 import no.nav.familie.ks.sak.kjerne.beregning.domene.TilkjentYtelse
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
