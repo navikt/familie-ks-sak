@@ -3,7 +3,6 @@ package no.nav.familie.ks.sak.kjerne.beregning
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
-import no.nav.familie.ba.sak.kjerne.beregning.TilkjentYtelseValideringService
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.exception.UtbetalingsikkerhetFeil
 import no.nav.familie.ks.sak.common.util.tilKortString
