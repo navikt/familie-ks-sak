@@ -159,6 +159,10 @@ data class AndelTilkjentYtelse(
             this.stønadTom >= måndePeriode.fom
 
     fun erAndelSomSkalSendesTilOppdrag(): Boolean = this.kalkulertUtbetalingsbeløp != 0
+
+    fun erAndelSomharNullutbetaling() = this.kalkulertUtbetalingsbeløp == 0 &&
+        this.differanseberegnetPeriodebeløp != null &&
+        this.differanseberegnetPeriodebeløp <= 0
 }
 
 fun List<AndelTilkjentYtelse>.slåSammenBack2BackAndelsperioderMedSammeBeløp(): List<AndelTilkjentYtelse> =
