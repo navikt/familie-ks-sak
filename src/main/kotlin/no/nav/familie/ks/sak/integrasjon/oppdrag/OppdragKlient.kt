@@ -25,7 +25,7 @@ class OppdragKlient(
     @Value("\${FAMILIE_OPPDRAG_API_URL}")
     private val familieOppdragUri: String,
     @Qualifier("azure") restOperations: RestOperations
-) : AbstractRestClient(restOperations, "økonomi_barnetrygd") {
+) : AbstractRestClient(restOperations, "økonomi_kontantstøtte") {
 
     fun iverksettOppdrag(utbetalingsoppdrag: Utbetalingsoppdrag): String {
         val uri = URI.create("$familieOppdragUri/oppdrag")
