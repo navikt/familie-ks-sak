@@ -31,7 +31,7 @@ object ØkonomiUtils {
     /**
      * Lager oversikt over siste andel i hver kjede som finnes uten endring i oppdatert tilstand.
      * Vi må opphøre og eventuelt gjenoppbygge hver kjede etter denne. Må ta vare på andel og ikke kun offset da
-     * filtrering av oppdaterte andeler skjer senere før offset blir satt.
+     * filtrering av oppdaterte andeler senere skjer før offset blir satt.
      * Personident er identifikator for hver kjede.
      *
      * @param[forrigeKjeder] forrige behandlings tilstand

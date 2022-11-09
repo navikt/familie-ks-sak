@@ -72,9 +72,7 @@ class UtbetalingsoppdragGenerator {
 
         // Setter offsettet til andeler som ikke er endret i denne behandlingen til
         // offsettet de hadde i forrige behandling.
-        // NB! Denne funksjonen muterer på tilkjent ytelse i databasen.
 
-        // TODO: FIKS MUTERING. RESULTAT AV oppdaterBeståendeAndelerMedOffset BRUKES IKKE
         if (andelerTilkjentYtelse.isNotEmpty() && forrigeAndeler.isNotEmpty()) {
             ØkonomiUtils.oppdaterBeståendeAndelerMedOffset(
                 oppdaterteKjeder = kjedeinndelteAndeler(andelerTilkjentYtelse),
@@ -85,7 +83,6 @@ class UtbetalingsoppdragGenerator {
         // Trenger denne sjekken som slipper å sette offset når det ikke finnes andelerTilOpprettelse,dvs nullutbetaling
         val opprettes = if (andelerTilOpprettelse.isNotEmpty()) {
             // lager utbetalingsperioder og oppdaterer andelerTilkjentYtelse
-            // NB! Denne funksjonen muterer på tilkjent ytelse i databasen.
             val opprettelsePeriodeMedAndeler = lagUtbetalingsperioderForOpprettelse(
                 andeler = andelerTilOpprettelse,
                 erFørsteBehandlingPåFagsak = erFørsteBehandlingPåFagsak,
