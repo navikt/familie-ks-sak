@@ -239,7 +239,9 @@ fun lagAndelTilkjentYtelse(
     aktør: Aktør? = null,
     stønadFom: YearMonth = YearMonth.now().minusMonths(1),
     stønadTom: YearMonth = YearMonth.now().plusMonths(8),
-    sats: Int = maksBeløp()
+    sats: Int = maksBeløp(),
+    periodeOffset: Long? = null,
+    forrigePeriodeOffset: Long? = null
 ) = AndelTilkjentYtelse(
     behandlingId = behandling.id,
     tilkjentYtelse = tilkjentYtelse ?: lagInitieltTilkjentYtelse(behandling),
@@ -250,7 +252,9 @@ fun lagAndelTilkjentYtelse(
     type = YtelseType.ORDINÆR_KONTANTSTØTTE,
     sats = sats,
     prosent = BigDecimal(100),
-    nasjonaltPeriodebeløp = sats
+    nasjonaltPeriodebeløp = sats,
+    periodeOffset = periodeOffset,
+    forrigePeriodeOffset = forrigePeriodeOffset
 )
 
 fun lagPerson(
@@ -579,3 +583,5 @@ fun fnrTilFødselsdato(fnr: String): LocalDate {
     val year = fnr.substring(4, 6).toInt().let { if (it < (LocalDate.now().year - 2000)) it + 2000 else it + 1900 }
     return LocalDate.of(year, month, day)
 }
+
+fun årMåned(årMåned: String) = YearMonth.parse(årMåned)

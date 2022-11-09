@@ -1,0 +1,26 @@
+{
+  "data": {
+    "simuleringMottaker": [
+      {
+        "simulertPostering": [
+          {
+            "fagOmrådeKode": "KONTANTSTØTTE",
+            "fom": "2021-01-01",
+            "tom": "2021-05-31",
+            "betalingType": "DEBIT",
+            "beløp": 7500,
+            "posteringType": "YTELSE",
+            "forfallsdato": "2021-01-01",
+            "utenInntrekk": false
+          }
+        ],
+        "mottakerNummer": "12345678910",
+        "mottakerType": "BRUKER"
+      }
+    ]
+  },
+  "status": "SUKSESS",
+  "melding": "string",
+  "frontendFeilmelding": "string",
+  "stacktrace": "string"
+}
