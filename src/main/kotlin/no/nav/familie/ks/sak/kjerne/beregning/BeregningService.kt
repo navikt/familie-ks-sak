@@ -6,7 +6,6 @@ import no.nav.familie.ks.sak.common.util.toYearMonth
 import no.nav.familie.ks.sak.integrasjon.økonomi.utbetalingsoppdrag.AndelTilkjentYtelseForUtbetalingsoppdragFactory
 import no.nav.familie.ks.sak.integrasjon.økonomi.utbetalingsoppdrag.pakkInnForUtbetaling
 import no.nav.familie.ks.sak.integrasjon.økonomi.ØkonomiUtils
-import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingUtils
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
@@ -31,8 +30,7 @@ class BeregningService(
     private val personopplysningGrunnlagRepository: PersonopplysningGrunnlagRepository,
     private val behandlingRepository: BehandlingRepository,
     private val andelerTilkjentYtelseOgEndreteUtbetalingerService: AndelerTilkjentYtelseOgEndreteUtbetalingerService,
-    private val fagsakService: FagsakService,
-    private val behandlingService: BehandlingService
+    private val fagsakService: FagsakService
 ) {
 
     /**
@@ -181,7 +179,10 @@ class BeregningService(
     }
 
     fun hentSisteOffsetPåFagsak(behandling: Behandling): Int? =
-        behandlingService.hentBehandlingerSomErIverksatt(behandling = behandling)
+        BehandlingUtils.hentIverksatteBehandlinger(
+            behandlingRepository.finnIverksatteBehandlinger(behandling.fagsak.id),
+            behandling
+        )
             .mapNotNull { iverksattBehandling ->
                 hentAndelerTilkjentYtelseMedUtbetalingerForBehandling(iverksattBehandling.id)
                     .takeIf { it.isNotEmpty() }

@@ -1,4 +1,4 @@
-package no.nav.familie.ks.sak.integrasjon.økonomi
+package no.nav.familie.ks.sak.integrasjon.økonomi.utbetalingsoppdrag
 
 import io.micrometer.core.instrument.Metrics
 import no.nav.familie.http.client.RessursException
@@ -6,11 +6,7 @@ import no.nav.familie.kontrakter.felles.objectMapper
 import no.nav.familie.kontrakter.felles.oppdrag.OppdragId
 import no.nav.familie.kontrakter.felles.oppdrag.OppdragStatus
 import no.nav.familie.kontrakter.felles.oppdrag.Utbetalingsoppdrag
-import no.nav.familie.ks.sak.common.util.sisteDagIMåned
 import no.nav.familie.ks.sak.integrasjon.oppdrag.OppdragKlient
-import no.nav.familie.ks.sak.integrasjon.økonomi.utbetalingsoppdrag.AndelTilkjentYtelseForUtbetalingsoppdragFactory
-import no.nav.familie.ks.sak.integrasjon.økonomi.utbetalingsoppdrag.UtbetalingsoppdragGenerator
-import no.nav.familie.ks.sak.integrasjon.økonomi.utbetalingsoppdrag.VedtakMedTilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.Vedtak
 import no.nav.familie.ks.sak.kjerne.beregning.BeregningService
@@ -20,8 +16,6 @@ import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import java.math.BigDecimal
-import java.time.LocalDate
 
 @Service
 class UtbetalingsoppdragService(
@@ -94,8 +88,6 @@ class UtbetalingsoppdragService(
         // Henter tilkjentYtelse som har utbetalingsoppdrag og var sendt til oppdrag fra forrige iverksatt behandling
         val forrigeBehandling = behandlingService.hentForrigeBehandlingSomErIverksatt(behandling)
         val forrigeTilkjentYtelse = forrigeBehandling?.let { beregningService.hentTilkjentYtelseForBehandling(it.id) }
-        val forrigeAndeler =
-            forrigeTilkjentYtelse?.andelerTilkjentYtelse?.filter { it.erAndelSomSkalSendesTilOppdrag() }
 
         val sisteOffsetPerIdent = beregningService.hentSisteOffsetPerIdent(
             behandling.fagsak.id,
@@ -123,10 +115,3 @@ class UtbetalingsoppdragService(
         val logger = LoggerFactory.getLogger(UtbetalingsoppdragService::class.java)
     }
 }
-
-fun Utbetalingsoppdrag.harLøpendeUtbetaling() =
-    this.utbetalingsperiode.any {
-        it.opphør == null &&
-            it.sats > BigDecimal.ZERO &&
-            it.vedtakdatoTom > LocalDate.now().sisteDagIMåned()
-    }
