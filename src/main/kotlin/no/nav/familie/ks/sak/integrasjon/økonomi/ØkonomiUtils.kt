@@ -80,7 +80,7 @@ object ØkonomiUtils {
      */
     fun andelerTilOpphørMedDato(
         forrigeKjeder: Map<String, List<AndelTilkjentYtelseForUtbetalingsoppdrag>>,
-        sisteBeståendeAndelIHverKjede: Map<String, AndelTilkjentYtelseForUtbetalingsoppdrag?>,
+        sisteBeståendeAndelIHverKjede: Map<String, AndelTilkjentYtelseForUtbetalingsoppdrag?>
     ): List<Pair<AndelTilkjentYtelseForUtbetalingsoppdrag, YearMonth>> =
         forrigeKjeder
             .mapValues { (person, forrigeAndeler) ->
@@ -150,6 +150,15 @@ object ØkonomiUtils {
             forrigeKjede ?: emptyList()
         }
     }
+
+    fun gjeldendeForrigeOffsetForKjede(andelerFraForrigeBehandling: Map<String, List<AndelTilkjentYtelseForUtbetalingsoppdrag>>): Map<String, Int> =
+        andelerFraForrigeBehandling.map { (personIdent, forrigeKjede) ->
+            personIdent to (
+                forrigeKjede.filter { it.kalkulertUtbetalingsbeløp > 0 }
+                    .maxByOrNull { andel -> andel.periodeOffset!! }?.periodeOffset?.toInt()
+                    ?: throw IllegalStateException("Andel i kjede skal ha offset")
+                )
+        }.toMap()
 
     private fun Set<AndelTilkjentYtelseForUtbetalingsoppdrag>.snittAndeler(other: Set<AndelTilkjentYtelseForUtbetalingsoppdrag>): Set<AndelTilkjentYtelseForUtbetalingsoppdrag> {
         val andelerKunIDenne = this.subtractAndeler(other)

@@ -49,4 +49,7 @@ interface BehandlingRepository : JpaRepository<Behandling, Long> {
                         where b.fagsak.id = :fagsakId AND bst.behandlingSteg = 'BESLUTTE_VEDTAK' AND bst.behandlingStegStatus = 'IKKE_UTFØRT'"""
     )
     fun finnBehandlingerSentTilGodkjenning(fagsakId: Long): List<Behandling>
+
+    @Query("SELECT b FROM Behandling b JOIN b.fagsak f WHERE f.id = :fagsakId AND b.status = 'AVSLUTTET' AND f.arkivert = false")
+    fun finnByFagsakAndAvsluttet(fagsakId: Long): List<Behandling>
 }

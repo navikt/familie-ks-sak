@@ -12,4 +12,7 @@ interface TilkjentYtelseRepository : JpaRepository<TilkjentYtelse, Long> {
     @Modifying
     @Query("DELETE FROM TilkjentYtelse ty WHERE ty.behandling = :behandling")
     fun slettTilkjentYtelseForBehandling(behandling: Behandling)
+
+    @Query("SELECT ty FROM TilkjentYtelse ty JOIN ty.behandling b WHERE b.id = :behandlingId AND ty.utbetalingsoppdrag is not null")
+    fun finnByBehandlingAndHasUtbetalingsoppdrag(behandlingId: Long): TilkjentYtelse?
 }

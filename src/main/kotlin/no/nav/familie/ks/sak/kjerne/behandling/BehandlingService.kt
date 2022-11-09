@@ -130,6 +130,11 @@ class BehandlingService(
         oppdaterBehandling(behandling)
     }
 
+    fun hentBehandlingerSomErIverksatt(behandling: Behandling): List<Behandling> {
+        val iverksatteBehandlinger = behandlingRepository.finnIverksatteBehandlinger(fagsakId = behandling.fagsak.id)
+        return BehandlingUtils.hentIverksatteBehandlinger(iverksatteBehandlinger, behandling)
+    }
+
     companion object {
         private val logger: Logger = LoggerFactory.getLogger(BehandlingService::class.java)
     }
