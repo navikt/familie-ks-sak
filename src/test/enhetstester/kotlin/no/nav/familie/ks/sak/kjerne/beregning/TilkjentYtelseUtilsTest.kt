@@ -161,6 +161,7 @@ internal class TilkjentYtelseUtilsTest {
             andelTilkjentYtelse = tilkjentYtelse.andelerTilkjentYtelse.last(),
             prosent = BigDecimal(100),
             periodeFom = andrePeriodeFom.plusMonths(1).førsteDagIInneværendeMåned(),
+            // Todo: mellom 1 og 2 vilkåret slutter 1994-11-9, men dette er 1994-10-30
             periodeTom = barnFødselsdato.plusYears(2).minusMonths(1).sisteDagIMåned()
         )
     }

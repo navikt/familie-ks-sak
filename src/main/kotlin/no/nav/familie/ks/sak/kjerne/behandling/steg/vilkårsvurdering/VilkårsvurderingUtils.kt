@@ -326,14 +326,17 @@ private fun VilkårResultat.validerVilkår_MELLOM_1_OG_2_ELLER_ADOPTERT(
 
     this.erAdopsjonOppfylt() && periode.fom.diffIDager(periode.tom) > 365 ->
         "Differansen mellom f.o.m datoen og t.o.m datoen kan ikke være mer enn 1 år."
+
     !this.erAdopsjonOppfylt() && !periode.fom.isEqual(barnFødselsdato.plusYears(1)) ->
         "F.o.m datoen må være lik barnets 1 års dag."
+
     !this.erAdopsjonOppfylt() && !periode.tom.isEqual(barnFødselsdato.plusYears(2)) ->
         "T.o.m datoen må være lik barnets 2 års dag."
+
     else -> null
 }
 
-fun hentInnvilgedePerioder(
+fun hentInnvilgedePerioderGammel(
     personopplysningGrunnlag: PersonopplysningGrunnlag,
     vilkårsvurdering: Vilkårsvurdering
 ): Pair<List<PeriodeResultat>, List<PeriodeResultat>> {

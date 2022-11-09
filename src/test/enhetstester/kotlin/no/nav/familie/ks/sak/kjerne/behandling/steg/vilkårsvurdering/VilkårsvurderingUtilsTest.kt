@@ -515,7 +515,7 @@ class VilkårsvurderingUtilsTest {
         personResultatForBarn.setSortedVilkårResultater(vilkårResultaterForBarn)
         vilkårsvurderingMedSøkersvilkår.personResultater = personResultaterForSøker + personResultatForBarn
 
-        val result = hentInnvilgedePerioder(personopplysningGrunnlag, vilkårsvurderingMedSøkersvilkår)
+        val result = hentInnvilgedePerioderGammel(personopplysningGrunnlag, vilkårsvurderingMedSøkersvilkår)
         assertNotNull(result)
 
         val innvilgedePeriodeResultaterSøker = result.first

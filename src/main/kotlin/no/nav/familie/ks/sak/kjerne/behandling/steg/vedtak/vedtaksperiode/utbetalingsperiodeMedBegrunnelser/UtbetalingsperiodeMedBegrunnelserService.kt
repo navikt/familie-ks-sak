@@ -5,12 +5,14 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.tilFørskjøvetVilkårResultatTidslinjeMap
 import no.nav.familie.ks.sak.kjerne.beregning.AndelerTilkjentYtelseOgEndreteUtbetalingerService
+import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
 import org.springframework.stereotype.Service
 
 @Service
 class UtbetalingsperiodeMedBegrunnelserService(
     private val vilkårsvurderingService: VilkårsvurderingService,
-    private val andelerTilkjentYtelseOgEndreteUtbetalingerService: AndelerTilkjentYtelseOgEndreteUtbetalingerService
+    private val andelerTilkjentYtelseOgEndreteUtbetalingerService: AndelerTilkjentYtelseOgEndreteUtbetalingerService,
+    private val personopplysningGrunnlagService: PersonopplysningGrunnlagService
 ) {
     fun hentUtbetalingsperioder(
         vedtak: Vedtak,
@@ -21,9 +23,11 @@ class UtbetalingsperiodeMedBegrunnelserService(
 
         val vilkårsvurdering =
             vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(behandlingId = vedtak.behandling.id)
+        val personopplysningGrunnlag =
+            personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(behandlingId = vedtak.behandling.id)
 
         val forskjøvetVilkårResultatTidslinjeMap =
-            vilkårsvurdering.personResultater.tilFørskjøvetVilkårResultatTidslinjeMap()
+            vilkårsvurdering.personResultater.tilFørskjøvetVilkårResultatTidslinjeMap(personopplysningGrunnlag)
 
         return hentPerioderMedUtbetaling(
             andelerTilkjentYtelse = andelerTilkjentYtelse,
