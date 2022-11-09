@@ -13,7 +13,7 @@ import no.nav.familie.ks.sak.api.dto.BarnMedOpplysningerDto
 import no.nav.familie.ks.sak.api.dto.RegistrerSøknadDto
 import no.nav.familie.ks.sak.api.dto.SøkerMedOpplysningerDto
 import no.nav.familie.ks.sak.api.dto.SøknadDto
-import no.nav.familie.ks.sak.common.util.Periode
+import no.nav.familie.ks.sak.common.util.NullablePeriode
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.ForelderBarnRelasjonInfo
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.PdlPersonInfo
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.EndretUtbetalingsperiodeDeltBostedTriggere
@@ -241,7 +241,7 @@ fun lagAndelTilkjentYtelse(
     stønadTom: YearMonth = YearMonth.now().plusMonths(8),
     sats: Int = maksBeløp(),
     periodeOffset: Long? = null,
-    forrigePeriodeOffset: Long? = null,
+    forrigePeriodeOffset: Long? = null
 ) = AndelTilkjentYtelse(
     behandlingId = behandling.id,
     tilkjentYtelse = tilkjentYtelse ?: lagInitieltTilkjentYtelse(behandling),
@@ -331,7 +331,7 @@ fun lagVilkårResultat(
     personResultat: PersonResultat,
     vilkårType: Vilkår = Vilkår.BOSATT_I_RIKET,
     resultat: Resultat = Resultat.OPPFYLT,
-    periodeFom: LocalDate = LocalDate.now().minusMonths(3),
+    periodeFom: LocalDate? = LocalDate.now().minusMonths(3),
     periodeTom: LocalDate? = LocalDate.now(),
     begrunnelse: String = "",
     behandlingId: Long,
@@ -353,7 +353,7 @@ fun lagVilkårResultat(
 fun lagVilkårResultaterForBarn(
     personResultat: PersonResultat,
     barnFødselsdato: LocalDate,
-    barnehageplassPerioder: List<Pair<Periode, BigDecimal?>>,
+    barnehageplassPerioder: List<Pair<NullablePeriode, BigDecimal?>>,
     behandlingId: Long
 ): Set<VilkårResultat> {
     val vilkårResultaterForBarn = mutableSetOf<VilkårResultat>()
@@ -475,7 +475,8 @@ fun lagTriggesAv(
     valgbar: Boolean = true,
     endringsaarsaker: Set<Årsak> = emptySet(),
     etterEndretUtbetaling: Boolean = false,
-    endretUtbetalingSkalUtbetales: EndretUtbetalingsperiodeDeltBostedTriggere = EndretUtbetalingsperiodeDeltBostedTriggere.UTBETALING_IKKE_RELEVANT,
+    endretUtbetalingSkalUtbetales: EndretUtbetalingsperiodeDeltBostedTriggere =
+        EndretUtbetalingsperiodeDeltBostedTriggere.UTBETALING_IKKE_RELEVANT
 ): TriggesAv = TriggesAv(
     vilkår = vilkår,
     personTyper = personTyper,
@@ -526,7 +527,7 @@ fun lagPersonResultat(
     lagFullstendigVilkårResultat: Boolean = false,
     personType: PersonType = PersonType.BARN,
     vilkårType: Vilkår = Vilkår.BOSATT_I_RIKET,
-    erDeltBosted: Boolean = false,
+    erDeltBosted: Boolean = false
 ): PersonResultat {
     val personResultat = PersonResultat(
         vilkårsvurdering = vilkårsvurdering,

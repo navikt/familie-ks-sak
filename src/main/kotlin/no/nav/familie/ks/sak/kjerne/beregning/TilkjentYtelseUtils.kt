@@ -245,7 +245,7 @@ object TilkjentYtelseUtils {
                 )
             }
             BarnehageplassEndringstype.REDUKSJON -> {
-                // for REDUKSJON, hentes det forrige periode og slås det perioder sammen
+                // for REDUKSJON, hentes det forrige periode og perioder slås sammen
                 for (i in perioderResultaterForBarn.indices) {
                     if (perioderResultaterForBarn[i].overlapper(periodeMedFlereAntallTimere)) {
                         val sisteVerdi = if (i == 0) perioderResultaterForBarn[i] else perioderResultaterForBarn[i - 1]
@@ -267,7 +267,7 @@ object TilkjentYtelseUtils {
                 }
             }
             BarnehageplassEndringstype.ØKNING -> {
-                // for ØKNING hentes det neste periode og slås det perioder sammen
+                // for ØKNING hentes det neste periode og perioder slås sammen
                 for (i in perioderResultaterForBarn.indices) {
                     if (perioderResultaterForBarn[i].overlapper(periodeMedFlereAntallTimere)) {
                         val nesteVerdi = if (i == 0) perioderResultaterForBarn[i] else perioderResultaterForBarn[i + 1]

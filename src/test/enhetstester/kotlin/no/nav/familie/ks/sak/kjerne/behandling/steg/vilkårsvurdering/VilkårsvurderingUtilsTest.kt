@@ -2,7 +2,7 @@ package no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering
 
 import io.mockk.mockk
 import no.nav.familie.ks.sak.common.exception.Feil
-import no.nav.familie.ks.sak.common.util.Periode
+import no.nav.familie.ks.sak.common.util.NullablePeriode
 import no.nav.familie.ks.sak.common.util.førsteDagIInneværendeMåned
 import no.nav.familie.ks.sak.common.util.sisteDagIMåned
 import no.nav.familie.ks.sak.common.util.tilDagMånedÅr
@@ -501,7 +501,7 @@ class VilkårsvurderingUtilsTest {
         val personResultaterForSøker = vilkårsvurderingMedSøkersvilkår.personResultater
         val personResultatForBarn = PersonResultat(vilkårsvurdering = vilkårsvurderingMedSøkersvilkår, aktør = barn1)
         val barnFødselsdato = barnPerson.fødselsdato
-        val barnehagePlassPeriodeMedAntallTimer = Periode(
+        val barnehagePlassPeriodeMedAntallTimer = NullablePeriode(
             fom = barnFødselsdato.plusYears(1),
             tom = barnFødselsdato.plusYears(1).plusMonths(7)
         ) to null // antallTimer null betyr at barn ikke har fått barnehageplass. Da får barn full KS
