@@ -1,9 +1,11 @@
 package no.nav.familie.ks.sak.kjerne.beregning
 
 import no.nav.familie.ks.sak.common.exception.Feil
+import no.nav.familie.ks.sak.common.util.erBack2BackIMånedsskifte
 import no.nav.familie.ks.sak.common.util.sisteDagIMåned
-import no.nav.familie.ks.sak.common.util.toLocalDate
 import no.nav.familie.ks.sak.common.util.toYearMonth
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.BarnehageplassEndringstype
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.UtdypendeVilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
@@ -13,6 +15,7 @@ import no.nav.familie.ks.sak.kjerne.beregning.domene.SatsPeriode
 import no.nav.familie.ks.sak.kjerne.beregning.domene.TilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.domene.YtelseType
 import no.nav.familie.ks.sak.kjerne.beregning.domene.hentGyldigSatsFor
+import no.nav.familie.ks.sak.kjerne.beregning.domene.hentProsentForAntallTimer
 import no.nav.familie.ks.sak.kjerne.beregning.domene.prosent
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
@@ -60,22 +63,21 @@ object TilkjentYtelseUtils {
         val relevanteSøkerPerioder = innvilgedePeriodeResultaterSøker
             .filter { søkersperiode -> innvilgedePeriodeResultaterBarna.any { søkersperiode.overlapper(it) } }
 
-        return innvilgedePeriodeResultaterBarna.flatMap { periodeResultatBarn ->
+        val oppdatertPerioder = barnaIdenter.map { barn ->
+            slåSammenPerioderForFlereAntallTimere(innvilgedePeriodeResultaterBarna.filter { it.aktør.aktørId == barn.key })
+        }.flatten()
+
+        return oppdatertPerioder.flatMap { periodeResultatBarn ->
             relevanteSøkerPerioder.filter { it.overlapper(periodeResultatBarn) }
-                .mapNotNull { overlappendePeriodeResultatSøker ->
+                .map { overlappendePeriodeResultatSøker ->
                     val barn = barnaIdenter[periodeResultatBarn.aktør.aktørId] ?: throw Feil("Finner ikke barn")
                     // beregn beløpsperiode med sats og tilsvarende gjeledende prosentandel
                     val beløpsperiode = beregnBeløpsperiode(
                         overlappendePeriodeResultatSøker,
-                        periodeResultatBarn
+                        periodeResultatBarn,
+                        oppdatertPerioder.filter { it.aktør == barn.aktør },
+                        vilkårsvurdering
                     )
-                    // beløpsperiode kan ikke starte etter barnet fyller 2 år
-                    val maksTomDatoIMellom1Og2ÅrVilkår = periodeResultatBarn.vilkårResultater
-                        .filter { it.vilkårType == Vilkår.MELLOM_1_OG_2_ELLER_ADOPTERT && it.periodeTom != null }
-                        .maxBy { checkNotNull(it.periodeTom) }.periodeTom
-                    if (beløpsperiode.fom.toLocalDate().isAfter(maksTomDatoIMellom1Og2ÅrVilkår)) {
-                        return@mapNotNull null
-                    }
                     // valider beregnet periode
                     validerBeregnetPeriode(beløpsperiode, vilkårsvurdering.behandling.id)
 
@@ -119,24 +121,76 @@ object TilkjentYtelseUtils {
 
     private fun beregnBeløpsperiode(
         overlappendePeriodeResultatSøker: PeriodeResultat,
-        periodeResultatBarn: PeriodeResultat
+        periodeResultatBarn: PeriodeResultat,
+        perioderResultatForBarn: List<PeriodeResultat>,
+        vilkårsvurdering: Vilkårsvurdering
     ): SatsPeriode {
-        val oppfyltFom = maksimum(overlappendePeriodeResultatSøker.periodeFom, periodeResultatBarn.periodeFom)
-        val oppfyltTom = minimum(overlappendePeriodeResultatSøker.periodeTom, periodeResultatBarn.periodeTom)
+        var oppfyltFom = maksimum(overlappendePeriodeResultatSøker.periodeFom, periodeResultatBarn.periodeFom)
+        var oppfyltTom = minimum(overlappendePeriodeResultatSøker.periodeTom, periodeResultatBarn.periodeTom)
 
         val erDeltBosted = periodeResultatBarn.vilkårResultater.any {
             it.vilkårType == Vilkår.BOR_MED_SØKER &&
                 it.utdypendeVilkårsvurderinger.contains(UtdypendeVilkårsvurdering.DELT_BOSTED)
         }
+        // Siden det slår sammen perioder tidligere, bør det ikke har flere barnehageplass vilkår i en periode
+        val barnehageplassVilkår = periodeResultatBarn.vilkårResultater.first { it.vilkårType == Vilkår.BARNEHAGEPLASS }
+        val antallTimer = barnehageplassVilkår.antallTimer
 
-        val antallTimer = periodeResultatBarn.vilkårResultater.find { it.vilkårType == Vilkår.BARNEHAGEPLASS }?.antallTimer
+        when {
+            perioderResultatForBarn.size == 1 -> {
+                // når det finnes en IKKE_OPPFYLT periode etter, skal oppfyltTom ikke reduseres med en måned
+                val harIkkeOppfyltPeriodeEtter =
+                    vilkårsvurdering.personResultater.single { it.aktør == periodeResultatBarn.aktør }.vilkårResultater.any {
+                        it.vilkårType == Vilkår.BARNEHAGEPLASS &&
+                            it.resultat == Resultat.IKKE_OPPFYLT &&
+                            it.periodeFom?.isAfter(oppfyltTom) == true
+                    }
+                // når det finnes en IKKE_OPPFYLT periode før, skal oppfyltFom ikke startes fra neste måned
+                val harIkkeOppfyltPeriodeFør =
+                    vilkårsvurdering.personResultater.single { it.aktør == periodeResultatBarn.aktør }.vilkårResultater.any {
+                        it.vilkårType == Vilkår.BARNEHAGEPLASS &&
+                            it.resultat == Resultat.IKKE_OPPFYLT &&
+                            it.periodeTom?.isBefore(oppfyltFom) == true
+                    }
+                oppfyltFom = if (harIkkeOppfyltPeriodeFør) oppfyltFom else oppfyltFom.plusMonths(1)
+                oppfyltTom = if (harIkkeOppfyltPeriodeEtter) oppfyltTom else oppfyltTom.minusMonths(1)
+            }
+            perioderResultatForBarn.size > 1 -> {
+                // når det finnes 2 barnehageplass vilkår som er rett etter hverandre i månedsskifte,
+                // skal oppfyltTom videreføres med en måned
+                val skalVidereføresEnMånedEkstra = perioderResultatForBarn.any {
+                    erBack2BackIMånedsskifte(
+                        barnehageplassVilkår.periodeTom,
+                        it.vilkårResultater.first { vilkår -> vilkår.vilkårType == Vilkår.BARNEHAGEPLASS }.periodeFom
+                    )
+                }
+                // når det finnes 2 barnehageplass vilkår som er rett etter hverandre i månedsskifte,
+                // skal oppfyltFom til neste periode starte måneden etter
+                val skalStateNesteMåned = perioderResultatForBarn.any {
+                    erBack2BackIMånedsskifte(
+                        it.vilkårResultater.first { vilkår -> vilkår.vilkårType == Vilkår.BARNEHAGEPLASS }.periodeTom,
+                        barnehageplassVilkår.periodeFom
+                    )
+                }
 
-        // I KS avslutter utbetaling alltid måneden før siste dato
+                // første perioder starter alltid måneden etter og siste periode slutter alltid måneden før
+                val erFøstePeriode = perioderResultatForBarn.first().overlapper(periodeResultatBarn)
+                val erSistePeriode = perioderResultatForBarn.last().overlapper(periodeResultatBarn)
+
+                if (erFøstePeriode || skalStateNesteMåned) oppfyltFom = oppfyltFom.plusMonths(1)
+                oppfyltTom = when {
+                    skalVidereføresEnMånedEkstra -> oppfyltTom.plusMonths(1)
+                    erSistePeriode -> oppfyltTom.minusMonths(1)
+                    else -> oppfyltTom
+                }
+            }
+        }
+
         return hentGyldigSatsFor(
             antallTimer = antallTimer?.setScale(2, RoundingMode.HALF_UP),
             erDeltBosted = erDeltBosted,
-            stønadFom = oppfyltFom.plusMonths(1).withDayOfMonth(1).toYearMonth(),
-            stønadTom = oppfyltTom.minusMonths(1).sisteDagIMåned().toYearMonth()
+            stønadFom = oppfyltFom.withDayOfMonth(1).toYearMonth(),
+            stønadTom = oppfyltTom.sisteDagIMåned().toYearMonth()
         )
     }
 
@@ -152,5 +206,87 @@ object TilkjentYtelseUtils {
             throw Feil("Både søker og barn kan ikke ha null i tom-dato")
         }
         return minOf(periodeTomBarn ?: LocalDate.MAX, periodeTomSoker ?: LocalDate.MAX)
+    }
+
+    private fun slåSammenPerioderForFlereAntallTimere(perioderResultaterForBarn: List<PeriodeResultat>): List<PeriodeResultat> {
+        val periodeMedFlereAntallTimere = perioderResultaterForBarn.singleOrNull { periode ->
+            periode.vilkårResultater.filter { it.vilkårType == Vilkår.BARNEHAGEPLASS }.size > 1
+        } ?: return perioderResultaterForBarn
+
+        val antallTimere = periodeMedFlereAntallTimere.vilkårResultater.filter { it.vilkårType == Vilkår.BARNEHAGEPLASS }
+            .sortedBy { it.periodeFom }.map { it.antallTimer }
+
+        // Det kan ikke være mer enn 2 antall timer i en periode siden KS ikke støtter mer enn 2 split i en måned ennå
+        val kontantStøtteForFørstePeriode = hentProsentForAntallTimer(antallTimere.first())
+        val kontantStøtteForSistePeriode = hentProsentForAntallTimer(antallTimere.last())
+
+        val barnehageplassEndringstype = when {
+            // ingen endring i utbetalingsprosent selv om antall timer kan være annerledes
+            kontantStøtteForFørstePeriode == kontantStøtteForSistePeriode -> BarnehageplassEndringstype.INGEN_ENDRING
+            // kontantStøtteForFørstePeriode er større enn kontantStøtteForSistePeriode
+            // betyr utbetalingsprosent reduserer pga økning i barnehageplass
+            kontantStøtteForFørstePeriode > kontantStøtteForSistePeriode -> BarnehageplassEndringstype.ØKNING
+            // kontantStøtteForFørstePeriode er mindre enn kontantStøtteForSistePeriode
+            // betyr utbetalingsprosent øker pga reduksjon i barnehageplass
+            kontantStøtteForFørstePeriode < kontantStøtteForSistePeriode -> BarnehageplassEndringstype.REDUKSJON
+            else -> BarnehageplassEndringstype.ØKNING
+        }
+        val oppdatertPerioderResultat = mutableListOf<PeriodeResultat>()
+        when (barnehageplassEndringstype) {
+            BarnehageplassEndringstype.INGEN_ENDRING -> {
+                // når det er samme utbetalingsprosent, trenges det ikke en splitt. Da slås det perioder sammen
+                oppdatertPerioderResultat.add(
+                    PeriodeResultat(
+                        aktør = perioderResultaterForBarn.first().aktør,
+                        periodeFom = perioderResultaterForBarn.first().periodeFom,
+                        periodeTom = perioderResultaterForBarn.last().periodeTom,
+                        vilkårResultater = perioderResultaterForBarn.map { it.vilkårResultater }.flatten().toSet()
+                    )
+                )
+            }
+            BarnehageplassEndringstype.REDUKSJON -> {
+                // for REDUKSJON, hentes det forrige periode og slås det perioder sammen
+                for (i in perioderResultaterForBarn.indices) {
+                    if (perioderResultaterForBarn[i].overlapper(periodeMedFlereAntallTimere)) {
+                        val sisteVerdi = if (i == 0) perioderResultaterForBarn[i] else perioderResultaterForBarn[i - 1]
+                        oppdatertPerioderResultat.removeIf {
+                            sisteVerdi.periodeFom == it.periodeFom &&
+                                sisteVerdi.periodeTom == it.periodeTom
+                        }
+                        oppdatertPerioderResultat.add(
+                            PeriodeResultat(
+                                aktør = sisteVerdi.aktør,
+                                periodeFom = sisteVerdi.periodeFom,
+                                periodeTom = periodeMedFlereAntallTimere.periodeTom,
+                                vilkårResultater = sisteVerdi.vilkårResultater
+                            )
+                        )
+                    } else {
+                        oppdatertPerioderResultat.add(perioderResultaterForBarn[i])
+                    }
+                }
+            }
+            BarnehageplassEndringstype.ØKNING -> {
+                // for ØKNING hentes det neste periode og slås det perioder sammen
+                for (i in perioderResultaterForBarn.indices) {
+                    if (perioderResultaterForBarn[i].overlapper(periodeMedFlereAntallTimere)) {
+                        val nesteVerdi = if (i == 0) perioderResultaterForBarn[i] else perioderResultaterForBarn[i + 1]
+                        oppdatertPerioderResultat.add(
+                            PeriodeResultat(
+                                aktør = nesteVerdi.aktør,
+                                periodeFom = periodeMedFlereAntallTimere.periodeFom,
+                                periodeTom = nesteVerdi.periodeTom,
+                                vilkårResultater = nesteVerdi.vilkårResultater
+                            )
+                        )
+                    } else {
+                        if (oppdatertPerioderResultat.none { it.periodeTom == perioderResultaterForBarn[i].periodeTom }) {
+                            oppdatertPerioderResultat.add(perioderResultaterForBarn[i])
+                        }
+                    }
+                }
+            }
+        }
+        return oppdatertPerioderResultat
     }
 }

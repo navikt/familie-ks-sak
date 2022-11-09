@@ -18,6 +18,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Utd
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.beregning.BeregningService
+import no.nav.familie.ks.sak.kjerne.beregning.tilPeriodeResultater
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
 import org.slf4j.Logger
@@ -65,6 +66,7 @@ class VilkårsvurderingSteg(
         }
         validerAtDetIkkeErOverlappMellomGradertBarnehageplassOgDeltBosted(vilkårsvurdering)
         validerAtPerioderIBarnehageplassSamsvarerMedPeriodeIMellom1og2ÅrVilkår(vilkårsvurdering)
+        validerAtDetIkkeFinnesMerEnn2EndringerISammeMånedIBarnehageplassVilkår(vilkårsvurdering)
     }
 
     private fun validerAtDetFinnesBarnIPersonopplysningsgrunnlaget(
@@ -136,14 +138,15 @@ class VilkårsvurderingSteg(
     ) {
         vilkårsvurdering.personResultater.filter { !it.erSøkersResultater() }.forEach { personResultat ->
             val barnehageplassVilkårResultater = personResultat.vilkårResultater.filter {
-                it.vilkårType == Vilkår.BARNEHAGEPLASS && it.resultat == Resultat.OPPFYLT
+                it.vilkårType == Vilkår.BARNEHAGEPLASS
             }
 
             val minFraOgMedDatoIBarnehageplassVilkårResultater =
                 barnehageplassVilkårResultater.sortedBy { it.periodeFom }.first().periodeFom
                     ?: error("Mangler fom dato")
             val maksTilOmMedDatoIBarnehageplassVilkårResultater =
-                barnehageplassVilkårResultater.sortedBy { it.periodeTom }.last().periodeTom ?: TIDENES_ENDE
+                barnehageplassVilkårResultater.sortedWith(compareBy(nullsLast()) { it.periodeTom }).last().periodeTom
+                    ?: TIDENES_ENDE
 
             val mellom1ÅrOg2ÅrVilkårResultater = personResultat.vilkårResultater.filter {
                 it.vilkårType == Vilkår.MELLOM_1_OG_2_ELLER_ADOPTERT && it.resultat == Resultat.OPPFYLT
@@ -170,6 +173,20 @@ class VilkårsvurderingSteg(
                     "Du har lagt til en periode på vilkåret ${Vilkår.BARNEHAGEPLASS.beskrivelse}" +
                         " som starter etter at barnet har fylt 2 år eller startet på skolen. " +
                         "Du må fjerne denne perioden for å kunne fortsette"
+                )
+            }
+        }
+    }
+
+    private fun validerAtDetIkkeFinnesMerEnn2EndringerISammeMånedIBarnehageplassVilkår(vilkårsvurdering: Vilkårsvurdering) {
+        vilkårsvurdering.personResultater.filter { !it.erSøkersResultater() }.forEach { personResultat ->
+            if (personResultat.tilPeriodeResultater().any { periodeResultat ->
+                periodeResultat.vilkårResultater.count { it.vilkårType == Vilkår.BARNEHAGEPLASS } > 2
+            }
+            ) {
+                throw FunksjonellFeil(
+                    "Du har lagt inn flere endringer i barnehagevilkåret i samme måned. " +
+                        "Dette er ikke støttet enda. Ta kontakt med Team Familie."
                 )
             }
         }
