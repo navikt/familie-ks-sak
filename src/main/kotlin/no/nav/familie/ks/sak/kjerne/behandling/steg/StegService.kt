@@ -119,6 +119,25 @@ class StegService(
         }
     }
 
+    @Transactional
+    fun tilbakeførBehandlingSteg(behandling: Behandling, tilbakeføresSteg: BehandlingSteg) {
+        val nåværendeBehandlingSteg = behandling.steg
+        if (nåværendeBehandlingSteg.sekvens < tilbakeføresSteg.sekvens) {
+            throw Feil(
+                "Behandling ${behandling.id} er på ${nåværendeBehandlingSteg.visningsnavn()}, " +
+                    "kan ikke tilbakeføres til ${tilbakeføresSteg.visningsnavn()}."
+            )
+        }
+        behandling.behandlingStegTilstand.forEach {
+            when (it.behandlingSteg) {
+                nåværendeBehandlingSteg -> it.behandlingStegStatus = BehandlingStegStatus.TILBAKEFØRT
+                tilbakeføresSteg -> it.behandlingStegStatus = BehandlingStegStatus.KLAR
+                else -> {} // gjør ingenting
+            }
+        }
+        behandlingRepository.saveAndFlush(oppdaterBehandlingStatus(behandling, tilbakeføresSteg))
+    }
+
     fun settBehandlingstegPåVent(
         behandling: Behandling,
         frist: LocalDate

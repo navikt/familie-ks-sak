@@ -27,7 +27,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.VedtakService
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.FagsakRepository
 import no.nav.familie.ks.sak.kjerne.logg.LoggService
 import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
-import no.nav.familie.prosessering.domene.TaskRepository
+import no.nav.familie.prosessering.internal.TaskService
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertNotNull
@@ -64,7 +64,7 @@ class OpprettBehandlingServiceTest {
     private lateinit var behandlingRepository: BehandlingRepository
 
     @MockK
-    private lateinit var taskRepository: TaskRepository
+    private lateinit var taskService: TaskService
 
     @InjectMockKs
     private lateinit var opprettBehandlingService: OpprettBehandlingService
@@ -90,7 +90,7 @@ class OpprettBehandlingServiceTest {
 
         every { vedtakService.opprettOgInitierNyttVedtakForBehandling(any()) } just runs
         every { loggService.opprettBehandlingLogg(any()) } just runs
-        every { taskRepository.save(any()) } returns OpprettOppgaveTask.opprettTask(
+        every { taskService.save(any()) } returns OpprettOppgaveTask.opprettTask(
             behandling.id,
             Oppgavetype.BehandleSak,
             LocalDate.now()
@@ -132,7 +132,7 @@ class OpprettBehandlingServiceTest {
         }
 
         // Validerer at "BehandleSak"-oppgave blir opprettet
-        verify(exactly = 1) { taskRepository.save(any()) }
+        verify(exactly = 1) { taskService.save(any()) }
 
         assertNotNull(opprettetBehandling)
     }

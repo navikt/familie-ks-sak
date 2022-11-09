@@ -17,12 +17,16 @@ import no.nav.familie.ks.sak.data.lagRegistrerSøknadDto
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.domene.ArbeidsfordelingPåBehandlingRepository
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
+import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
+import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStegTilstand
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingType
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg.BEHANDLINGSRESULTAT
+import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg.BESLUTTE_VEDTAK
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg.IVERKSETT_MOT_OPPDRAG
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg.REGISTRERE_PERSONGRUNNLAG
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg.REGISTRERE_SØKNAD
+import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg.VEDTAK
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg.VILKÅRSVURDERING
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingStegStatus.KLAR
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingStegStatus.TILBAKEFØRT
@@ -223,6 +227,45 @@ class StegServiceTest : OppslagSpringRunnerTest() {
                 "Kan ikke behandle ${REGISTRERE_SØKNAD.name}",
             exception.message
         )
+    }
+
+    @Test
+    fun `tilbakeførBehandlingSteg skal ikke tilbakeføre behandling fra VEDTAK til BESLUTTE_VEDTAK steg`() {
+        behandling.leggTilNesteSteg(VEDTAK)
+
+        val exception = assertThrows<RuntimeException> {
+            stegService.tilbakeførBehandlingSteg(behandling, BESLUTTE_VEDTAK)
+        }
+        assertEquals(
+            "Behandling ${behandling.id} er på ${VEDTAK.visningsnavn()}, " +
+                "kan ikke tilbakeføres til ${BESLUTTE_VEDTAK.visningsnavn()}.",
+            exception.message
+        )
+    }
+
+    @Test
+    fun `tilbakeførBehandlingSteg skal tilbakeføre behandling fra BESLUTTE_VEDTAK til VEDTAK steg`() {
+        behandling.behandlingStegTilstand.add(
+            BehandlingStegTilstand(
+                behandling = behandling,
+                behandlingSteg = VEDTAK,
+                behandlingStegStatus = UTFØRT
+            )
+        )
+        behandling.behandlingStegTilstand.add(
+            BehandlingStegTilstand(
+                behandling = behandling,
+                behandlingSteg = BESLUTTE_VEDTAK,
+                behandlingStegStatus = KLAR
+            )
+        )
+        behandling.status = BehandlingStatus.FATTER_VEDTAK
+
+        assertDoesNotThrow { stegService.tilbakeførBehandlingSteg(behandling, VEDTAK) }
+        val behandling = behandlingRepository.hentBehandling(behandling.id)
+        assertTrue { behandling.status == BehandlingStatus.UTREDES }
+        assertBehandlingHarSteg(behandling, VEDTAK, KLAR)
+        assertBehandlingHarSteg(behandling, BESLUTTE_VEDTAK, TILBAKEFØRT)
     }
 
     private fun assertBehandlingHarSteg(
