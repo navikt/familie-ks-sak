@@ -50,7 +50,7 @@ object TilkjentYtelseUtils {
         return tilkjentYtelse
     }
 
-    fun beregnAndelerTilkjentYtelseForBarna(
+    private fun beregnAndelerTilkjentYtelseForBarna(
         personopplysningGrunnlag: PersonopplysningGrunnlag,
         vilkårsvurdering: Vilkårsvurdering,
         tilkjentYtelse: TilkjentYtelse
@@ -108,7 +108,7 @@ object TilkjentYtelseUtils {
         }
     }
 
-    fun oppdaterTilkjentYtelseMedEndretUtbetalingAndeler(
+    private fun oppdaterTilkjentYtelseMedEndretUtbetalingAndeler(
         andelTilkjentYtelserUtenEndringer: List<AndelTilkjentYtelse>,
         endretUtbetalingAndeler: List<EndretUtbetalingAndelMedAndelerTilkjentYtelse>
     ): List<AndelTilkjentYtelseMedEndreteUtbetalinger> {

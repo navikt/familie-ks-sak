@@ -136,7 +136,7 @@ object YtelsePersonUtils {
         // alle barn har opphørt på samme dato, mao alle barn har samme ytelseSlutt og eller alle barn får avslått
         val opphørPåSammeTid = altOpphører &&
             (
-                ytelsePersoner.filter { it.resultater != setOf(YtelsePersonResultat.AVSLÅTT) }
+                ytelsePersoner.filter { it.resultater != setOf(AVSLÅTT) }
                     .groupBy { it.ytelseSlutt }.size == 1 || erAvslått
                 )
 

@@ -28,7 +28,7 @@ internal class TilkjentYtelseValidatorTest {
         søkerAktør = søker,
         barnAktør = listOf(barn)
     )
-    val tilkjentYtelse = lagInitieltTilkjentYtelse(behandling).also {
+    private val tilkjentYtelse = lagInitieltTilkjentYtelse(behandling).also {
         it.stønadFom = YearMonth.now().minusMonths(11)
         it.stønadTom = YearMonth.now()
     }
