@@ -28,11 +28,11 @@ import java.time.YearMonth
 internal class UtbetalingsperiodeUtilTest {
 
     val behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD)
-    val person1Fnr = randomFnr()
-    val person2Fnr = randomFnr()
+    private val person1Fnr = randomFnr()
+    private val person2Fnr = randomFnr()
 
-    val person1 = fnrTilAktør(person1Fnr)
-    val person2 = fnrTilAktør(person2Fnr)
+    private val person1 = fnrTilAktør(person1Fnr)
+    private val person2 = fnrTilAktør(person2Fnr)
 
     @Test
     fun `hentPerioderMedUtbetaling skal beholde split i andel tilkjent ytelse`() {

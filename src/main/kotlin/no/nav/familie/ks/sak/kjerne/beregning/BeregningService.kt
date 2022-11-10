@@ -10,6 +10,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.BehandlingUtils
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingType
+import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelseRepository
@@ -104,22 +105,12 @@ class BeregningService(
             .filter { it.id != fagsakId }
 
         return andreFagsaker.mapNotNull { fagsak ->
-            val behandlingSomErSendtTilGodkjenning = behandlingRepository.finnBehandlingerSentTilGodkjenning(
-                fagsakId = fagsak.id
-            ).singleOrNull()
 
-            if (behandlingSomErSendtTilGodkjenning != null) {
-                behandlingSomErSendtTilGodkjenning
-            } else {
-                val godkjenteBehandlingerSomIkkeErIverksattEnda =
-                    behandlingRepository.finnBehandlingerSomHolderPåÅIverksettes(fagsakId = fagsak.id).singleOrNull()
-                if (godkjenteBehandlingerSomIkkeErIverksattEnda != null) {
-                    godkjenteBehandlingerSomIkkeErIverksattEnda
-                } else {
-                    val iverksatteBehandlinger = behandlingRepository.finnIverksatteBehandlinger(fagsakId = fagsak.id)
-                    BehandlingUtils.hentSisteBehandlingSomErIverksatt(iverksatteBehandlinger)
-                }
-            }
+            behandlingRepository.finnBehandlingerSendtTilGodkjenning(fagsakId = fagsak.id).singleOrNull()
+                ?: behandlingRepository.finnBehandlingerSomHolderPåÅIverksettes(fagsakId = fagsak.id).singleOrNull()
+                ?: behandlingRepository.finnIverksatteBehandlinger(fagsakId = fagsak.id)
+                    .filter { it.steg == BehandlingSteg.BEHANDLING_AVSLUTTET }
+                    .maxByOrNull { it.opprettetTidspunkt }
         }.map {
             hentTilkjentYtelseForBehandling(behandlingId = it.id)
         }.filter {
@@ -128,7 +119,7 @@ class BeregningService(
                 ?.barna?.map { barn -> barn.aktør }
                 ?.contains(barnAktør)
                 ?: false
-        }.map { it }
+        }
     }
 
     fun populerTilkjentYtelse(

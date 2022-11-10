@@ -145,7 +145,7 @@ class BeregningServiceTest {
             annenFagsak
         )
 
-        every { behandlingRepository.finnBehandlingerSentTilGodkjenning(any()) } returns listOf(
+        every { behandlingRepository.finnBehandlingerSendtTilGodkjenning(any()) } returns listOf(
             behandlingTilGodkjenning
         )
 
@@ -192,7 +192,7 @@ class BeregningServiceTest {
             annenFagsak
         )
 
-        every { behandlingRepository.finnBehandlingerSentTilGodkjenning(fagsakId = annenFagsak.id) } returns emptyList()
+        every { behandlingRepository.finnBehandlingerSendtTilGodkjenning(fagsakId = annenFagsak.id) } returns emptyList()
 
         every { tilkjentYtelseRepository.hentTilkjentYtelseForBehandling(godkjentBehandlingSomIkkeErIverksatt.id) } returns tilkjentYtelse
 
@@ -249,7 +249,7 @@ class BeregningServiceTest {
             annenFagsak
         )
 
-        every { behandlingRepository.finnBehandlingerSentTilGodkjenning(fagsakId = annenFagsak.id) } returns emptyList()
+        every { behandlingRepository.finnBehandlingerSendtTilGodkjenning(fagsakId = annenFagsak.id) } returns emptyList()
 
         every { tilkjentYtelseRepository.hentTilkjentYtelseForBehandling(iverksatteBehandlinger.id) } returns tilkjentYtelse
 

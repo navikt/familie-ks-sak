@@ -5,10 +5,10 @@ import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.common.exception.KONTAKT_TEAMET_SUFFIX
 import no.nav.familie.ks.sak.common.exception.UtbetalingsikkerhetFeil
 import no.nav.familie.ks.sak.common.tidslinje.Periode
-import no.nav.familie.ks.sak.common.tidslinje.filtrerIkkeNull
 import no.nav.familie.ks.sak.common.tidslinje.tilTidslinje
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.kombinerMed
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.tilPerioder
+import no.nav.familie.ks.sak.common.tidslinje.utvidelser.tilPerioderIkkeNull
 import no.nav.familie.ks.sak.common.util.overlapperHeltEllerDelvisMed
 import no.nav.familie.ks.sak.common.util.toLocalDate
 import no.nav.familie.ks.sak.common.util.toYearMonth
@@ -66,7 +66,7 @@ object TilkjentYtelseValidator {
         val maksAntallAndeler = 1
         val maksTotalBeløp = maksBeløp()
 
-        val feilMelding =
+        val feilmelding =
             "Validering av andeler for BARN i perioden (${andeler.first().stønadFom} - ${andeler.first().stønadTom}) feilet"
         val frontendFeilmelding =
             "Det har skjedd en systemfeil, og beløpene stemmer ikke overens med dagens satser. $KONTAKT_TEAMET_SUFFIX"
@@ -76,14 +76,14 @@ object TilkjentYtelseValidator {
         when {
             andeler.size > maksAntallAndeler -> {
                 throw UtbetalingsikkerhetFeil(
-                    melding = "$feilMelding: Tillatte andeler = $maksAntallAndeler, faktiske andeler = ${andeler.size}.",
+                    melding = "$feilmelding: Tillatte andeler = $maksAntallAndeler, faktiske andeler = ${andeler.size}.",
                     frontendFeilmelding = frontendFeilmelding
                 )
             }
 
             totalbeløp > maksTotalBeløp -> {
                 throw UtbetalingsikkerhetFeil(
-                    melding = "$feilMelding: Tillatt totalbeløp = $maksTotalBeløp, faktiske totalbeløp = $totalbeløp.",
+                    melding = "$feilmelding: Tillatt totalbeløp = $maksTotalBeløp, faktiske totalbeløp = $totalbeløp.",
                     frontendFeilmelding = frontendFeilmelding
                 )
             }
@@ -91,13 +91,13 @@ object TilkjentYtelseValidator {
     }
 
     fun validerAtBarnIkkeFårFlereUtbetalingerSammePeriode(
-        behandlendeBehandlingTilkjentYtelse: TilkjentYtelse,
+        tilkjentYtelseForBehandling: TilkjentYtelse,
         barnMedAndreRelevanteTilkjentYtelser: List<Pair<Person, List<TilkjentYtelse>>>,
         personopplysningGrunnlag: PersonopplysningGrunnlag
     ) {
         val barna = personopplysningGrunnlag.barna.sortedBy { it.fødselsdato }
 
-        val barnasAndeler = hentBarnasAndeler(behandlendeBehandlingTilkjentYtelse.andelerTilkjentYtelse.toList(), barna)
+        val barnasAndeler = hentBarnasAndeler(tilkjentYtelseForBehandling.andelerTilkjentYtelse.toList(), barna)
 
         val barnMedUtbetalingsikkerhetFeil = mutableListOf<Person>()
         barnasAndeler.forEach { (barn, andeler) ->
@@ -109,7 +109,7 @@ object TilkjentYtelseValidator {
 
             if (erOverlappAvAndeler(
                     andeler = andeler,
-                    barnsAndelerFraAndreBehandlinger = barnsAndelerFraAndreBehandlinger
+                    andelerFraAndreBehandlinger = barnsAndelerFraAndreBehandlinger
                 )
             ) {
                 barnMedUtbetalingsikkerhetFeil.add(barn)
@@ -129,10 +129,10 @@ object TilkjentYtelseValidator {
 
     private fun erOverlappAvAndeler(
         andeler: List<AndelTilkjentYtelse>,
-        barnsAndelerFraAndreBehandlinger: List<AndelTilkjentYtelse>
+        andelerFraAndreBehandlinger: List<AndelTilkjentYtelse>
     ): Boolean {
         return andeler.any { andelTilkjentYtelse ->
-            barnsAndelerFraAndreBehandlinger.any {
+            andelerFraAndreBehandlinger.any {
                 andelTilkjentYtelse.overlapperMed(it) &&
                     andelTilkjentYtelse.prosent + it.prosent > BigDecimal(100)
             }
@@ -210,7 +210,7 @@ object TilkjentYtelseValidator {
             val segmenterLagtTil =
                 andelerTidslinje.kombinerMed(forrigeAndelerTidslinje) { andel1, andel2 ->
                     if (andel2 == null) andel1 else null
-                }.tilPerioder().filtrerIkkeNull()
+                }.tilPerioderIkkeNull()
 
             val erLagtTilSegmentFørGyldigEtterbetalingsdato =
                 segmenterLagtTil.any { it.verdi.stønadFom < gyldigEtterbetalingFom && it.verdi.kalkulertUtbetalingsbeløp > 0 }

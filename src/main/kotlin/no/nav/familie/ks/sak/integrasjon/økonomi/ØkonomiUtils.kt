@@ -128,6 +128,7 @@ object ØkonomiUtils {
                 beståendeFraForrige?.forEach { bestående ->
                     val beståendeIOppdatert = oppdatertKjede.find { it.erTilsvarendeForUtbetaling(bestående) }
                         ?: error("Kan ikke finne andel fra utledet bestående andeler i oppdatert tilstand.")
+
                     beståendeIOppdatert.periodeOffset = bestående.periodeOffset
                     beståendeIOppdatert.forrigePeriodeOffset = bestående.forrigePeriodeOffset
                     beståendeIOppdatert.kildeBehandlingId = bestående.kildeBehandlingId
@@ -135,6 +136,15 @@ object ØkonomiUtils {
             }
         return oppdaterteKjeder
     }
+
+    fun gjeldendeForrigeOffsetForKjede(andelerFraForrigeBehandling: Map<String, List<AndelTilkjentYtelseForUtbetalingsoppdrag>>): Map<String, Int> =
+        andelerFraForrigeBehandling.map { (personIdent, forrigeKjede) ->
+            personIdent to (
+                forrigeKjede.filter { it.kalkulertUtbetalingsbeløp > 0 }
+                    .maxByOrNull { andel -> andel.periodeOffset!! }?.periodeOffset?.toInt()
+                    ?: throw IllegalStateException("Andel i kjede skal ha offset")
+                )
+        }.toMap()
 
     private fun beståendeAndelerIKjede(
         forrigeKjede: List<AndelTilkjentYtelseForUtbetalingsoppdrag>?,
@@ -150,15 +160,6 @@ object ØkonomiUtils {
             forrigeKjede ?: emptyList()
         }
     }
-
-    fun gjeldendeForrigeOffsetForKjede(andelerFraForrigeBehandling: Map<String, List<AndelTilkjentYtelseForUtbetalingsoppdrag>>): Map<String, Int> =
-        andelerFraForrigeBehandling.map { (personIdent, forrigeKjede) ->
-            personIdent to (
-                forrigeKjede.filter { it.kalkulertUtbetalingsbeløp > 0 }
-                    .maxByOrNull { andel -> andel.periodeOffset!! }?.periodeOffset?.toInt()
-                    ?: throw IllegalStateException("Andel i kjede skal ha offset")
-                )
-        }.toMap()
 
     private fun Set<AndelTilkjentYtelseForUtbetalingsoppdrag>.snittAndeler(other: Set<AndelTilkjentYtelseForUtbetalingsoppdrag>): Set<AndelTilkjentYtelseForUtbetalingsoppdrag> {
         val andelerKunIDenne = this.subtractAndeler(other)

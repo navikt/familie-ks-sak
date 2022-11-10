@@ -46,9 +46,9 @@ interface BehandlingRepository : JpaRepository<Behandling, Long> {
     @Query(
         """select b from Behandling b
                            inner join BehandlingStegTilstand bst on b.id = bst.behandling.id
-                        where b.fagsak.id = :fagsakId AND bst.behandlingSteg = 'BESLUTTE_VEDTAK' AND bst.behandlingStegStatus = 'IKKE_UTFØRT'"""
+                        where b.fagsak.id = :fagsakId AND bst.behandlingSteg = 'BESLUTTE_VEDTAK' AND bst.behandlingStegStatus IN (no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingStegStatus.KLAR, no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingStegStatus.VENTER)"""
     )
-    fun finnBehandlingerSentTilGodkjenning(fagsakId: Long): List<Behandling>
+    fun finnBehandlingerSendtTilGodkjenning(fagsakId: Long): List<Behandling>
 
     @Query("SELECT b FROM Behandling b JOIN b.fagsak f WHERE f.id = :fagsakId AND b.status = 'AVSLUTTET' AND f.arkivert = false")
     fun finnByFagsakAndAvsluttet(fagsakId: Long): List<Behandling>
