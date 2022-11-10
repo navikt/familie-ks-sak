@@ -159,7 +159,7 @@ class BehandlingRepositoryTest : OppslagSpringRunnerTest() {
         names = ["KLAR", "VENTER"],
         mode = EnumSource.Mode.EXCLUDE
     )
-    fun `finnBehandlingerSentTilGodkjenning - skal returnere tom liste når behandling står på steget BESLUTTE_VEDTAK og har status ikke er 'KLAR' eller 'VENTER'`(
+    fun `finnBehandlingerSentTilGodkjenning - skal returnere tom liste når behandling står på steget BESLUTTE_VEDTAK og har status som ikke er 'KLAR' eller 'VENTER'`(
         behandlingStegStatus: BehandlingStegStatus
     ) {
         behandling.behandlingStegTilstand.add(
