@@ -246,8 +246,4 @@ class AndelTilkjentYtelseForIverksettingFactory : AndelTilkjentYtelseForUtbetali
                 andelTilkjentYtelse.kildeBehandlingId = value
             }
     }
-
-    fun Collection<AndelTilkjentYtelse>.pakkInnForUtbetaling(
-        andelTilkjentYtelseForUtbetalingsoppdragFactory: AndelTilkjentYtelseForUtbetalingsoppdragFactory
-    ) = andelTilkjentYtelseForUtbetalingsoppdragFactory.pakkInnForUtbetaling(this)
 }

@@ -3,6 +3,7 @@ package no.nav.familie.ks.sak.data
 import io.mockk.mockk
 import no.nav.commons.foedselsnummer.testutils.FoedselsnummerGenerator
 import no.nav.familie.kontrakter.felles.objectMapper
+import no.nav.familie.kontrakter.felles.oppdrag.Opphør
 import no.nav.familie.kontrakter.felles.oppdrag.Utbetalingsoppdrag
 import no.nav.familie.kontrakter.felles.oppdrag.Utbetalingsperiode
 import no.nav.familie.kontrakter.felles.personopplysning.Bostedsadresse
@@ -597,9 +598,9 @@ fun lagUtbetalingsoppdrag(utbetalingsperiode: List<Utbetalingsperiode>) = Utbeta
     utbetalingsperiode = utbetalingsperiode
 )
 
-fun lagUtbetalingsperiode() = Utbetalingsperiode(
+fun lagUtbetalingsperiode(opphør: Opphør? = null) = Utbetalingsperiode(
     erEndringPåEksisterendePeriode = false,
-    opphør = null,
+    opphør = opphør,
     periodeId = 0,
     datoForVedtak = LocalDate.now(),
     klassifisering = "BATR",

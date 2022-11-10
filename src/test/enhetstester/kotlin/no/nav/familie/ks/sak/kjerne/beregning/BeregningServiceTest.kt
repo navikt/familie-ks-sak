@@ -4,11 +4,17 @@ import io.mockk.every
 import io.mockk.impl.annotations.InjectMockKs
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
+import io.mockk.mockk
+import no.nav.familie.kontrakter.felles.oppdrag.Opphør
+import no.nav.familie.ks.sak.common.util.toYearMonth
 import no.nav.familie.ks.sak.data.lagAndelTilkjentYtelse
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagFagsak
 import no.nav.familie.ks.sak.data.lagInitieltTilkjentYtelse
 import no.nav.familie.ks.sak.data.lagPersonopplysningGrunnlag
+import no.nav.familie.ks.sak.data.lagTilkjentYtelse
+import no.nav.familie.ks.sak.data.lagUtbetalingsoppdrag
+import no.nav.familie.ks.sak.data.lagUtbetalingsperiode
 import no.nav.familie.ks.sak.data.randomAktør
 import no.nav.familie.ks.sak.data.randomFnr
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
@@ -21,6 +27,7 @@ import no.nav.familie.ks.sak.kjerne.beregning.domene.TilkjentYtelseRepository
 import no.nav.familie.ks.sak.kjerne.fagsak.FagsakService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlagRepository
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -278,5 +285,120 @@ class BeregningServiceTest {
         val relevanteTilkjenteYtelserForBarn = beregningService.hentRelevanteTilkjentYtelserForBarn(barnAktør, fagak.id)
 
         assertEquals(0, relevanteTilkjenteYtelserForBarn.size)
+    }
+
+    @Test
+    fun `hentAndelerTilkjentYtelseMedUtbetalingerForBehandling - skal returnere liste av andel tilkjent ytelse som har utbetalinger`() {
+        every { andelTilkjentYtelseRepository.finnAndelerTilkjentYtelseForBehandling(any()) } returns listOf(
+            lagAndelTilkjentYtelse(behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD), sats = 5000)
+        )
+
+        val andelerTilkjentYtelseMedUtbetalingerForBehandling =
+            beregningService.hentAndelerTilkjentYtelseMedUtbetalingerForBehandling(1)
+
+        assertEquals(1, andelerTilkjentYtelseMedUtbetalingerForBehandling.size)
+    }
+
+    @Test
+    fun `hentAndelerTilkjentYtelseMedUtbetalingerForBehandling - skal returnere tom liste dersom ingen andeler tilkjent ytelse har utbetalinger`() {
+        every { andelTilkjentYtelseRepository.finnAndelerTilkjentYtelseForBehandling(any()) } returns listOf(
+            lagAndelTilkjentYtelse(behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD), sats = 0)
+        )
+
+        val andelerTilkjentYtelseMedUtbetalingerForBehandling =
+            beregningService.hentAndelerTilkjentYtelseMedUtbetalingerForBehandling(1)
+
+        assertEquals(0, andelerTilkjentYtelseMedUtbetalingerForBehandling.size)
+    }
+
+    @Test
+    fun `hentTilkjentYtelseForBehandlingerIverksattMotØkonomi - skal returnere liste over tilkjente ytelser som inneholder andeler med utbetalinger`() {
+        val behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD)
+        every { behandlingRepository.finnByFagsakAndAvsluttet(any()) } returns listOf(behandling)
+        every { tilkjentYtelseRepository.finnByBehandlingAndHasUtbetalingsoppdrag(any()) } returns lagTilkjentYtelse(
+            mockk(),
+            mockk()
+        ).also {
+            it.andelerTilkjentYtelse.add(
+                lagAndelTilkjentYtelse(behandling = behandling, sats = 5000)
+            )
+        }
+
+        val tilkjentYtelseIverksattMotØkonomi = beregningService.hentTilkjentYtelseForBehandlingerIverksattMotØkonomi(1)
+
+        assertEquals(1, tilkjentYtelseIverksattMotØkonomi.size)
+    }
+
+    @Test
+    fun `hentTilkjentYtelseForBehandlingerIverksattMotØkonomi - skal returnere tom liste det ikke finnes noen tilkjente ytelser som inneholder andeler med utbetalinger`() {
+        val behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD)
+        every { behandlingRepository.finnByFagsakAndAvsluttet(any()) } returns listOf(behandling)
+        every { tilkjentYtelseRepository.finnByBehandlingAndHasUtbetalingsoppdrag(any()) } returns lagTilkjentYtelse(
+            mockk(),
+            mockk()
+        ).also {
+            it.andelerTilkjentYtelse.add(
+                lagAndelTilkjentYtelse(behandling = behandling, sats = 0)
+            )
+        }
+
+        val tilkjentYtelseIverksattMotØkonomi = beregningService.hentTilkjentYtelseForBehandlingerIverksattMotØkonomi(1)
+
+        assertEquals(0, tilkjentYtelseIverksattMotØkonomi.size)
+    }
+
+    @Test
+    fun `populerTilkjentYtelse - skal oppdatere stønadFom til null dersom alle utbetalingsperioder er opphørt`() {
+        val behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD)
+        val andelTilkjentYtelse = lagAndelTilkjentYtelse(behandling = behandling)
+        val opphørDato = LocalDate.now()
+
+        every { tilkjentYtelseRepository.hentTilkjentYtelseForBehandling(any()) } returns lagTilkjentYtelse(
+            mockk(),
+            mockk()
+        ).also {
+            it.andelerTilkjentYtelse.add(
+                andelTilkjentYtelse
+            )
+        }
+
+        val utbetalingsoppdrag = lagUtbetalingsoppdrag(
+            listOf(
+                lagUtbetalingsperiode(
+                    Opphør(
+                        opphørDato
+                    )
+                ),
+                lagUtbetalingsperiode(Opphør(opphørDato))
+            )
+        )
+
+        val oppdatertTilkjentYtelse = beregningService.populerTilkjentYtelse(
+            behandling,
+            utbetalingsoppdrag
+        )
+        assertNull(oppdatertTilkjentYtelse.stønadFom)
+        assertEquals(andelTilkjentYtelse.stønadTom, oppdatertTilkjentYtelse.stønadTom)
+        assertEquals(opphørDato.toYearMonth(), oppdatertTilkjentYtelse.opphørFom)
+    }
+
+    @Test
+    fun `hentSisteOffsetPåFagsak - skal hente høyeste offset fra siste iverksatte behandling`() {
+        val behandling = lagBehandling(lagFagsak(), opprettetÅrsak = BehandlingÅrsak.SØKNAD).also {
+            it.behandlingStegTilstand.add(
+                BehandlingStegTilstand(behandling = it, behandlingSteg = BehandlingSteg.BEHANDLING_AVSLUTTET)
+            )
+        }
+
+        every { behandlingRepository.finnIverksatteBehandlinger(behandling.fagsak.id) } returns listOf(behandling)
+        every { andelTilkjentYtelseRepository.finnAndelerTilkjentYtelseForBehandling(behandling.id) } returns listOf(
+            lagAndelTilkjentYtelse(behandling = behandling, sats = 5000, periodeOffset = 1),
+            lagAndelTilkjentYtelse(behandling = behandling, sats = 5000, periodeOffset = 2),
+            lagAndelTilkjentYtelse(behandling = behandling, sats = 5000, periodeOffset = 3)
+
+        )
+        val høyesteOffset = beregningService.hentSisteOffsetPåFagsak(behandling)
+
+        assertEquals(3, høyesteOffset)
     }
 }
