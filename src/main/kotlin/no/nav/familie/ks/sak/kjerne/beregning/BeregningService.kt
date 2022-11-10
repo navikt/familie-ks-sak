@@ -1,8 +1,8 @@
 package no.nav.familie.ks.sak.kjerne.beregning
 
-import no.nav.familie.ks.sak.kjerne.behandling.BehandlingUtils
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
+import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelseRepository
 import no.nav.familie.ks.sak.kjerne.beregning.domene.EndretUtbetalingAndel
@@ -90,7 +90,9 @@ class BeregningService(
                     godkjenteBehandlingerSomIkkeErIverksattEnda
                 } else {
                     val iverksatteBehandlinger = behandlingRepository.finnIverksatteBehandlinger(fagsakId = fagsak.id)
-                    BehandlingUtils.hentSisteBehandlingSomErIverksatt(iverksatteBehandlinger)
+                    iverksatteBehandlinger
+                        .filter { it.steg == BehandlingSteg.BEHANDLING_AVSLUTTET }
+                        .maxByOrNull { it.opprettetTidspunkt }
                 }
             }
         }.map {

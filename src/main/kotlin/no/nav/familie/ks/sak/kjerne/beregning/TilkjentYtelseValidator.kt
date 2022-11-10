@@ -91,13 +91,13 @@ object TilkjentYtelseValidator {
     }
 
     fun validerAtBarnIkkeFårFlereUtbetalingerSammePeriode(
-        behandlendeBehandlingTilkjentYtelse: TilkjentYtelse,
+        tilkjentYtelseForBehandling: TilkjentYtelse,
         barnMedAndreRelevanteTilkjentYtelser: List<Pair<Person, List<TilkjentYtelse>>>,
         personopplysningGrunnlag: PersonopplysningGrunnlag
     ) {
         val barna = personopplysningGrunnlag.barna.sortedBy { it.fødselsdato }
 
-        val barnasAndeler = hentBarnasAndeler(behandlendeBehandlingTilkjentYtelse.andelerTilkjentYtelse.toList(), barna)
+        val barnasAndeler = hentBarnasAndeler(tilkjentYtelseForBehandling.andelerTilkjentYtelse.toList(), barna)
 
         val barnMedUtbetalingsikkerhetFeil = mutableListOf<Person>()
         barnasAndeler.forEach { (barn, andeler) ->
@@ -109,7 +109,7 @@ object TilkjentYtelseValidator {
 
             if (erOverlappAvAndeler(
                     andeler = andeler,
-                    barnsAndelerFraAndreBehandlinger = barnsAndelerFraAndreBehandlinger
+                    andelerFraAndreBehandlinger = barnsAndelerFraAndreBehandlinger
                 )
             ) {
                 barnMedUtbetalingsikkerhetFeil.add(barn)
@@ -129,10 +129,10 @@ object TilkjentYtelseValidator {
 
     private fun erOverlappAvAndeler(
         andeler: List<AndelTilkjentYtelse>,
-        barnsAndelerFraAndreBehandlinger: List<AndelTilkjentYtelse>
+        andelerFraAndreBehandlinger: List<AndelTilkjentYtelse>
     ): Boolean {
         return andeler.any { andelTilkjentYtelse ->
-            barnsAndelerFraAndreBehandlinger.any {
+            andelerFraAndreBehandlinger.any {
                 andelTilkjentYtelse.overlapperMed(it) &&
                     andelTilkjentYtelse.prosent + it.prosent > BigDecimal(100)
             }

@@ -40,7 +40,7 @@ class TilkjentYtelseValideringService(
             }
 
             validerAtBarnIkkeFårFlereUtbetalingerSammePeriode(
-                behandlendeBehandlingTilkjentYtelse = tilkjentYtelse,
+                tilkjentYtelseForBehandling = tilkjentYtelse,
                 barnMedAndreRelevanteTilkjentYtelser = barnMedAndreRelevanteTilkjentYtelser,
                 personopplysningGrunnlag = personopplysningGrunnlag
             )
@@ -75,10 +75,10 @@ class TilkjentYtelseValideringService(
         val tilkjentYtelse = beregningService.hentTilkjentYtelseForBehandling(behandlingId = behandlingId)
 
         val forrigeBehandling =
-            behandlingService.hentForrigeBehandlingSomErIverksatt(
-                behandling = behandlingService.hentBehandling(
+            behandlingService.hentSisteBehandlingSomErVedtatt(
+                fagsakId = behandlingService.hentBehandling(
                     behandlingId
-                )
+                ).fagsak.id
             )
         val forrigeAndelerTilkjentYtelse =
             forrigeBehandling?.let { beregningService.hentTilkjentYtelseForBehandling(behandlingId = it.id) }?.andelerTilkjentYtelse?.toList()
