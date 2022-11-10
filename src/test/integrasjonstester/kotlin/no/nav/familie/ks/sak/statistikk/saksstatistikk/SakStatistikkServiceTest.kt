@@ -44,7 +44,7 @@ class SakStatistikkServiceTest : OppslagSpringRunnerTest() {
         stegService.utførSteg(behandling.id, BehandlingSteg.REGISTRERE_PERSONGRUNNLAG)
         assertEquals(
             1,
-            taskService.findAll().filter { it.type == SendBehandlinghendelseTilDvhTask.TASK_TYPE }.count()
+            taskService.findAll().count { it.type == SendBehandlinghendelseTilDvhTask.TASK_TYPE }
         )
     }
 
