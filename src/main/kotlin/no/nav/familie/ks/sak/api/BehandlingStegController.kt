@@ -95,6 +95,9 @@ class BehandlingStegController(
         if (besluttVedtakDto.beslutning == Beslutning.UNDERKJENT) {
             val behandling = behandlingService.hentBehandling(behandlingId)
             stegService.tilbakeførBehandlingSteg(behandling, BehandlingSteg.VEDTAK)
+        } else {
+            // Vi iverksetter mot oppdrag med engang dersom vedtaket er godkjent
+            stegService.utførSteg(behandlingId, BehandlingSteg.IVERKSETT_MOT_OPPDRAG)
         }
 
         return ResponseEntity.ok(Ressurs.success(behandlingService.lagBehandlingRespons(behandlingId = behandlingId)))
