@@ -179,7 +179,7 @@ class TilkjentYtelseValideringServiceTest {
 
         every { beregningService.hentTilkjentYtelseForBehandling(behandlingId = behandling.id) } answers { tilkjentYtelse }
         every { behandlingService.hentBehandling(behandlingId = behandling.id) } answers { behandling }
-        every { behandlingService.hentForrigeBehandlingSomErIverksatt(behandling = behandling) } answers { forrigeBehandling }
+        every { behandlingService.hentSisteBehandlingSomErVedtatt(fagsakId = behandling.fagsak.id) } answers { forrigeBehandling }
         every { beregningService.hentTilkjentYtelseForBehandling(behandlingId = forrigeBehandling.id) } answers { forrigeTilkjentYtelse }
         every { personidentService.hentAktør(barn1.aktørId) } answers { barn1 }
         every { personidentService.hentAktør(barn2.aktørId) } answers { barn2 }
