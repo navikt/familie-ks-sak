@@ -77,24 +77,12 @@ class BeregningService(
             .filter { it.id != fagsakId }
 
         return andreFagsaker.mapNotNull { fagsak ->
-            val behandlingSomErSendtTilGodkjenning = behandlingRepository.finnBehandlingerSentTilGodkjenning(
-                fagsakId = fagsak.id
-            ).singleOrNull()
 
-            if (behandlingSomErSendtTilGodkjenning != null) {
-                behandlingSomErSendtTilGodkjenning
-            } else {
-                val godkjenteBehandlingerSomIkkeErIverksattEnda =
-                    behandlingRepository.finnBehandlingerSomHolderPåÅIverksettes(fagsakId = fagsak.id).singleOrNull()
-                if (godkjenteBehandlingerSomIkkeErIverksattEnda != null) {
-                    godkjenteBehandlingerSomIkkeErIverksattEnda
-                } else {
-                    val iverksatteBehandlinger = behandlingRepository.finnIverksatteBehandlinger(fagsakId = fagsak.id)
-                    iverksatteBehandlinger
-                        .filter { it.steg == BehandlingSteg.BEHANDLING_AVSLUTTET }
-                        .maxByOrNull { it.opprettetTidspunkt }
-                }
-            }
+            behandlingRepository.finnBehandlingerSentTilGodkjenning(fagsakId = fagsak.id).singleOrNull()
+                ?: behandlingRepository.finnBehandlingerSomHolderPåÅIverksettes(fagsakId = fagsak.id).singleOrNull()
+                ?: behandlingRepository.finnIverksatteBehandlinger(fagsakId = fagsak.id)
+                    .filter { it.steg == BehandlingSteg.BEHANDLING_AVSLUTTET }
+                    .maxByOrNull { it.opprettetTidspunkt }
         }.map {
             hentTilkjentYtelseForBehandling(behandlingId = it.id)
         }.filter {
@@ -103,6 +91,6 @@ class BeregningService(
                 ?.barna?.map { barn -> barn.aktør }
                 ?.contains(barnAktør)
                 ?: false
-        }.map { it }
+        }
     }
 }

@@ -26,7 +26,7 @@ class TilkjentYtelseValideringService(
         if (behandling.erTekniskEndring()) return
         val totrinnskontroll = totrinnskontrollService.hentAktivForBehandling(behandling.id)
 
-        if (totrinnskontroll.godkjent == true) {
+        if (totrinnskontroll.godkjent) {
             val tilkjentYtelse = beregningService.hentTilkjentYtelseForBehandling(behandlingId = behandling.id)
 
             val personopplysningGrunnlag =
