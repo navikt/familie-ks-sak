@@ -33,7 +33,7 @@ import java.time.LocalDate
 internal class TilkjentYtelseUtilsTest {
 
     private val søker = randomAktør()
-    private val barn1 = randomAktør()
+    private val barn1 = randomAktør("01012112345")
 
     private val behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD)
     private val personopplysningGrunnlag = lagPersonopplysningGrunnlag(

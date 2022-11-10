@@ -85,7 +85,7 @@ fun lagPersonopplysningGrunnlag(
     behandlingId: Long,
     søkerPersonIdent: String,
     barnasIdenter: List<String> = emptyList(), // FGB med register søknad steg har ikke barnasidenter
-    barnasFødselsdatoer: List<LocalDate> = barnasIdenter.map { LocalDate.of(2019, 1, 1) },
+    barnasFødselsdatoer: List<LocalDate> = barnasIdenter.map { fnrTilFødselsdato(it) },
     søkerAktør: Aktør = fnrTilAktør(søkerPersonIdent).also {
         it.personidenter.add(
             Personident(
@@ -150,7 +150,7 @@ fun lagPersonopplysningGrunnlag(
     return personopplysningGrunnlag
 }
 
-fun lagFagsak(aktør: Aktør = randomAktør(randomFnr())) = Fagsak(aktør = aktør)
+fun lagFagsak(aktør: Aktør = randomAktør(randomFnr()), id: Long = 0) = Fagsak(aktør = aktør, id = id)
 
 private var gjeldendeBehandlingId: Long = abs(Random.nextLong(10000000))
 
@@ -264,7 +264,7 @@ fun lagPerson(
 ): Person {
     val person = Person(
         type = personType,
-        fødselsdato = LocalDate.now().minusYears(30),
+        fødselsdato = fnrTilFødselsdato(aktør.aktivFødselsnummer()),
         kjønn = Kjønn.KVINNE,
         personopplysningGrunnlag = personopplysningGrunnlag,
         aktør = aktør
@@ -431,6 +431,7 @@ fun lagVilkårResultaterForDeltBosted(
                     vilkårResultaterForBarn.add(vilkårResultatMedDeltBosted2)
                 }
             }
+
             else -> vilkårResultaterForBarn.add(
                 lagVilkårResultat(
                     personResultat = personResultat,
@@ -475,8 +476,7 @@ fun lagTriggesAv(
     valgbar: Boolean = true,
     endringsaarsaker: Set<Årsak> = emptySet(),
     etterEndretUtbetaling: Boolean = false,
-    endretUtbetalingSkalUtbetales: EndretUtbetalingsperiodeDeltBostedTriggere =
-        EndretUtbetalingsperiodeDeltBostedTriggere.UTBETALING_IKKE_RELEVANT
+    endretUtbetalingSkalUtbetales: EndretUtbetalingsperiodeDeltBostedTriggere = EndretUtbetalingsperiodeDeltBostedTriggere.UTBETALING_IKKE_RELEVANT
 ): TriggesAv = TriggesAv(
     vilkår = vilkår,
     personTyper = personTyper,
@@ -570,6 +570,18 @@ fun lagPersonResultat(
         )
     }
     return personResultat
+}
+
+fun fnrTilFødselsdato(fnr: String): LocalDate {
+    val day = fnr.substring(0, 2).toInt()
+    val month = fnr.substring(2, 4).toInt().let {
+        if (it - 40 > 0) {
+            it - 40
+        }
+        it
+    }
+    val year = fnr.substring(4, 6).toInt().let { if (it < (LocalDate.now().year - 2000)) it + 2000 else it + 1900 }
+    return LocalDate.of(year, month, day)
 }
 
 fun årMåned(årMåned: String) = YearMonth.parse(årMåned)
