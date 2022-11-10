@@ -148,7 +148,7 @@ class BehandlingRepositoryTest : OppslagSpringRunnerTest() {
             )
         )
         behandlingRepository.saveAndFlush(behandling)
-        val behandlinger = behandlingRepository.finnBehandlingerSentTilGodkjenning(fagsak.id)
+        val behandlinger = behandlingRepository.finnBehandlingerSendtTilGodkjenning(fagsak.id)
         assertThat(behandlinger.size, Is(1))
         assertThat(behandlinger.single().id, Is(behandling.id))
     }
@@ -170,7 +170,7 @@ class BehandlingRepositoryTest : OppslagSpringRunnerTest() {
             )
         )
         behandlingRepository.saveAndFlush(behandling)
-        val behandlinger = behandlingRepository.finnBehandlingerSentTilGodkjenning(fagsak.id)
+        val behandlinger = behandlingRepository.finnBehandlingerSendtTilGodkjenning(fagsak.id)
         assertThat(behandlinger.size, Is(0))
     }
 }

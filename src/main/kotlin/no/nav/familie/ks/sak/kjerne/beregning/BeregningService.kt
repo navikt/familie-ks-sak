@@ -78,7 +78,7 @@ class BeregningService(
 
         return andreFagsaker.mapNotNull { fagsak ->
 
-            behandlingRepository.finnBehandlingerSentTilGodkjenning(fagsakId = fagsak.id).singleOrNull()
+            behandlingRepository.finnBehandlingerSendtTilGodkjenning(fagsakId = fagsak.id).singleOrNull()
                 ?: behandlingRepository.finnBehandlingerSomHolderPåÅIverksettes(fagsakId = fagsak.id).singleOrNull()
                 ?: behandlingRepository.finnIverksatteBehandlinger(fagsakId = fagsak.id)
                     .filter { it.steg == BehandlingSteg.BEHANDLING_AVSLUTTET }
