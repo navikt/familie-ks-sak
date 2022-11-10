@@ -63,14 +63,20 @@ class BehandlingService(
 
         val andelerTilkjentYtelse = andelTilkjentYtelseRepository.finnAndelerTilkjentYtelseForBehandling(behandlingId)
         val personerMedAndelerTilkjentYtelse =
-            personopplysningGrunnlag?.let { lagPersonerMedAndelTilkjentYtelseRespons(it.personer, andelerTilkjentYtelse) }
+            personopplysningGrunnlag?.let {
+                lagPersonerMedAndelTilkjentYtelseRespons(
+                    it.personer,
+                    andelerTilkjentYtelse
+                )
+            }
                 ?: emptyList()
 
         val andelTilkjentYtelseMedEndreteUtbetalinger = andelerTilkjentYtelseOgEndreteUtbetalingerService
             .finnAndelerTilkjentYtelseMedEndreteUtbetalinger(behandlingId)
 
-        val utbetalingsperioder = personopplysningGrunnlag?.let { lagUtbetalingsperioder(it, andelTilkjentYtelseMedEndreteUtbetalinger) }
-            ?: emptyList()
+        val utbetalingsperioder =
+            personopplysningGrunnlag?.let { lagUtbetalingsperioder(it, andelTilkjentYtelseMedEndreteUtbetalinger) }
+                ?: emptyList()
 
         return BehandlingMapper.lagBehandlingRespons(
             behandling,

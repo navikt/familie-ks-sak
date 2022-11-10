@@ -1,11 +1,15 @@
 package no.nav.familie.ks.sak.kjerne.beregning
 
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
+import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat
+import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelseRepository
 import no.nav.familie.ks.sak.kjerne.beregning.domene.EndretUtbetalingAndel
+import no.nav.familie.ks.sak.kjerne.beregning.domene.TilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.domene.TilkjentYtelseRepository
+import no.nav.familie.ks.sak.kjerne.fagsak.FagsakService
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlagRepository
@@ -16,7 +20,9 @@ class BeregningService(
     private val tilkjentYtelseRepository: TilkjentYtelseRepository,
     private val andelTilkjentYtelseRepository: AndelTilkjentYtelseRepository,
     private val personopplysningGrunnlagRepository: PersonopplysningGrunnlagRepository,
-    private val andelerTilkjentYtelseOgEndreteUtbetalingerService: AndelerTilkjentYtelseOgEndreteUtbetalingerService
+    private val behandlingRepository: BehandlingRepository,
+    private val andelerTilkjentYtelseOgEndreteUtbetalingerService: AndelerTilkjentYtelseOgEndreteUtbetalingerService,
+    private val fagsakService: FagsakService
 ) {
 
     /**
@@ -80,11 +86,12 @@ class BeregningService(
         val alleBarnISisteBehanlding = finnBarnFraBehandlingMedTilkjentYtelse(behandling.id)
 
         val alleBarnISistIverksattBehandling =
-            behandlingHentOgPersisterService.hentForrigeBehandlingSomErIverksatt(behandling)?.let {
-                finnBarnFraBehandlingMedTilkjentYtelse(
-                    it.id
-                )
-            }
+            behandlingRepository.finnIverksatteBehandlinger(behandling.fagsak.id)
+                .filter { it.steg == BehandlingSteg.BEHANDLING_AVSLUTTET }.maxByOrNull { it.opprettetTidspunkt }?.let {
+                    finnBarnFraBehandlingMedTilkjentYtelse(
+                        it.id
+                    )
+                }
                 ?: emptyList()
 
         val nyeBarnISisteBehandling = alleBarnISisteBehanlding.minus(alleBarnISistIverksattBehandling.toSet())
@@ -95,5 +102,37 @@ class BeregningService(
         return behandling.resultat == Behandlingsresultat.INNVILGET_OG_OPPHØRT &&
             behandling.erSøknad() &&
             nyeBarnMedUtebtalingSomIkkeErEndret.isEmpty()
+    }
+
+    /*
+ * Denne metoden henter alle relaterte behandlinger på en person.
+ * Per fagsak henter man tilkjent ytelse fra:
+ * 1. Behandling som er til godkjenning
+ * 2. Siste behandling som er iverksatt
+ * 3. Filtrer bort behandlinger der barnet ikke lenger finnes
+ */
+    fun hentRelevanteTilkjentYtelserForBarn(
+        barnAktør: Aktør,
+        fagsakId: Long
+    ): List<TilkjentYtelse> {
+        val andreFagsaker = fagsakService.hentFagsakerPåPerson(barnAktør)
+            .filter { it.id != fagsakId }
+
+        return andreFagsaker.mapNotNull { fagsak ->
+
+            behandlingRepository.finnBehandlingerSendtTilGodkjenning(fagsakId = fagsak.id).singleOrNull()
+                ?: behandlingRepository.finnBehandlingerSomHolderPåÅIverksettes(fagsakId = fagsak.id).singleOrNull()
+                ?: behandlingRepository.finnIverksatteBehandlinger(fagsakId = fagsak.id)
+                    .filter { it.steg == BehandlingSteg.BEHANDLING_AVSLUTTET }
+                    .maxByOrNull { it.opprettetTidspunkt }
+        }.map {
+            hentTilkjentYtelseForBehandling(behandlingId = it.id)
+        }.filter {
+            personopplysningGrunnlagRepository
+                .findByBehandlingAndAktiv(behandlingId = it.behandling.id)
+                ?.barna?.map { barn -> barn.aktør }
+                ?.contains(barnAktør)
+                ?: false
+        }
     }
 }
