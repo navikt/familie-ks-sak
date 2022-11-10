@@ -212,6 +212,15 @@ class FagsakService(
     fun hentFagsakForPerson(aktør: Aktør): Fagsak =
         finnFagsakForPerson(aktør) ?: throw Feil("Fant ikke fagsak på person")
 
+    fun hentFagsakerPåPerson(aktør: Aktør): List<Fagsak> {
+        val versjonerAvBarn = personRepository.findByAktør(aktør)
+        return versjonerAvBarn.map {
+            it.personopplysningGrunnlag.behandlingId
+        }.map {
+            behandlingRepository.hentBehandling(it).fagsak
+        }.distinct()
+    }
+
     companion object {
         private val logger = LoggerFactory.getLogger(FagsakService::class.java)
     }
