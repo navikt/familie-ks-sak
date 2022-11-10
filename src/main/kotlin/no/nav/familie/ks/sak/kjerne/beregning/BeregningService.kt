@@ -121,6 +121,7 @@ class BeregningService(
         }
     }
 
+    // Har ikke klart å identifisere at opphørFom på TilkjentYtelse faktisk brukes til noe, så mulig mye av logikken her kan fjernes, men har latt det være slik det er i BA inntil videre.
     fun populerTilkjentYtelse(
         behandling: Behandling,
         utbetalingsoppdrag: Utbetalingsoppdrag
