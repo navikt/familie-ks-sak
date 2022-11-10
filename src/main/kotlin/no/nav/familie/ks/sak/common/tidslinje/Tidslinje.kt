@@ -128,4 +128,4 @@ open class Tidslinje<T>(
 }
 
 fun <T> tomTidslinje(startsTidspunkt: LocalDate? = null, tidsEnhet: TidsEnhet = TidsEnhet.DAG): Tidslinje<T> =
-    Tidslinje<T>(startsTidspunkt = startsTidspunkt ?: PRAKTISK_TIDLIGSTE_DAG, emptyList(), tidsEnhet)
+    Tidslinje(startsTidspunkt = startsTidspunkt ?: PRAKTISK_TIDLIGSTE_DAG, emptyList(), tidsEnhet)

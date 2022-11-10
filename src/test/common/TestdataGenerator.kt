@@ -585,3 +585,4 @@ fun fnrTilFødselsdato(fnr: String): LocalDate {
 }
 
 fun årMåned(årMåned: String) = YearMonth.parse(årMåned)
+fun dato(s: String) = LocalDate.parse(s)
