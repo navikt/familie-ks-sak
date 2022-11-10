@@ -157,20 +157,28 @@ object TilkjentYtelseUtils {
             }
             perioderResultatForBarn.size > 1 -> {
                 // når det finnes 2 barnehageplass vilkår som er rett etter hverandre i månedsskifte,
-                // skal oppfyltTom videreføres med en måned
+                // skal oppfyltTom videreføres med en måned hvis det er reduksjon i barnehageplass
                 val skalVidereføresEnMånedEkstra = perioderResultatForBarn.any {
+                    val barnehageplassVilkårFraNestePeriode = it.vilkårResultater.first { vilkår ->
+                        vilkår.vilkårType == Vilkår.BARNEHAGEPLASS
+                    }
                     erBack2BackIMånedsskifte(
                         barnehageplassVilkår.periodeTom,
-                        it.vilkårResultater.first { vilkår -> vilkår.vilkårType == Vilkår.BARNEHAGEPLASS }.periodeFom
-                    )
+                        barnehageplassVilkårFraNestePeriode.periodeFom
+                    ) && hentProsentForAntallTimer(barnehageplassVilkår.antallTimer) <
+                        hentProsentForAntallTimer(barnehageplassVilkårFraNestePeriode.antallTimer)
                 }
                 // når det finnes 2 barnehageplass vilkår som er rett etter hverandre i månedsskifte,
-                // skal oppfyltFom til neste periode starte måneden etter
+                // skal oppfyltFom til neste periode starte måneden etter hvis det er reduksjon i barnehageplass
                 val skalStateNesteMåned = perioderResultatForBarn.any {
+                    val barnehageplassVilkårFraForrigePeriode = it.vilkårResultater.first { vilkår ->
+                        vilkår.vilkårType == Vilkår.BARNEHAGEPLASS
+                    }
                     erBack2BackIMånedsskifte(
-                        it.vilkårResultater.first { vilkår -> vilkår.vilkårType == Vilkår.BARNEHAGEPLASS }.periodeTom,
+                        barnehageplassVilkårFraForrigePeriode.periodeTom,
                         barnehageplassVilkår.periodeFom
-                    )
+                    ) && hentProsentForAntallTimer(barnehageplassVilkår.antallTimer) >
+                        hentProsentForAntallTimer(barnehageplassVilkårFraForrigePeriode.antallTimer)
                 }
 
                 // første perioder starter alltid måneden etter og siste periode slutter alltid måneden før

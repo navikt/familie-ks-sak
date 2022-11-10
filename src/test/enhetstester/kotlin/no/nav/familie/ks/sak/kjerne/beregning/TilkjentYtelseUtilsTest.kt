@@ -390,7 +390,7 @@ internal class TilkjentYtelseUtilsTest {
     }
 
     @Test
-    fun `beregnTilkjentYtelse skal beregne TY for et barn når barnehageplass vilkårene er rett etter hverandre i månedsskifte`() {
+    fun `beregnTilkjentYtelse skal beregne TY for et barn når barnehageplass reduserer med vilkårene er rett etter hverandre i månedsskifte`() {
         val personResultatForBarn = PersonResultat(vilkårsvurdering = vilkårsvurdering, aktør = barn1)
         val barnFødselsdato = barnPerson.fødselsdato
         val førstePeriodeFom = barnFødselsdato.plusYears(1)
@@ -400,7 +400,7 @@ internal class TilkjentYtelseUtilsTest {
 
         // kan ikke legge til full barnehageplass her fordi det gir IKKE_OPPFYLT vilkår resultat
         val barnehagePlassPerioderMedAntallTimer = listOf(
-            NullablePeriode(førstePeriodeFom, førstePeriodeTom) to null,
+            NullablePeriode(førstePeriodeFom, førstePeriodeTom) to BigDecimal(17),
             NullablePeriode(andrePeriodeFom, andrePeriodeTom) to BigDecimal(8)
         )
 
@@ -421,7 +421,7 @@ internal class TilkjentYtelseUtilsTest {
         assertTilkjentYtelse(tilkjentYtelse, 2)
         assertAndelTilkjentYtelse(
             andelTilkjentYtelse = tilkjentYtelse.andelerTilkjentYtelse.first(),
-            prosent = BigDecimal(100),
+            prosent = BigDecimal(40),
             periodeFom = førstePeriodeFom.plusMonths(1).førsteDagIInneværendeMåned(),
             periodeTom = førstePeriodeTom.plusMonths(1).sisteDagIMåned()
         )
@@ -429,6 +429,50 @@ internal class TilkjentYtelseUtilsTest {
             andelTilkjentYtelse = tilkjentYtelse.andelerTilkjentYtelse.last(),
             prosent = BigDecimal(80),
             periodeFom = andrePeriodeFom.førsteDagINesteMåned(),
+            periodeTom = barnFødselsdato.plusYears(2).minusMonths(1).sisteDagIMåned()
+        )
+    }
+
+    @Test
+    fun `beregnTilkjentYtelse skal beregne TY for et barn når barnehageplass øker med vilkårene er rett etter hverandre i månedsskifte`() {
+        val personResultatForBarn = PersonResultat(vilkårsvurdering = vilkårsvurdering, aktør = barn1)
+        val barnFødselsdato = barnPerson.fødselsdato
+        val førstePeriodeFom = barnFødselsdato.plusYears(1)
+        val førstePeriodeTom = barnFødselsdato.plusYears(1).plusMonths(7).sisteDagIMåned()
+        val andrePeriodeFom = førstePeriodeTom.plusDays(1)
+        val andrePeriodeTom = null
+
+        // kan ikke legge til full barnehageplass her fordi det gir IKKE_OPPFYLT vilkår resultat
+        val barnehagePlassPerioderMedAntallTimer = listOf(
+            NullablePeriode(førstePeriodeFom, førstePeriodeTom) to BigDecimal(8),
+            NullablePeriode(andrePeriodeFom, andrePeriodeTom) to BigDecimal(17)
+        )
+
+        val vilkårResultaterForBarn = lagVilkårResultaterForBarn(
+            personResultat = personResultatForBarn,
+            barnFødselsdato = barnFødselsdato,
+            barnehageplassPerioder = barnehagePlassPerioderMedAntallTimer,
+            behandlingId = behandling.id
+        )
+
+        personResultatForBarn.setSortedVilkårResultater(vilkårResultaterForBarn)
+        vilkårsvurdering.personResultater += personResultatForBarn
+
+        val tilkjentYtelse = TilkjentYtelseUtils.beregnTilkjentYtelse(
+            vilkårsvurdering = vilkårsvurdering,
+            personopplysningGrunnlag = personopplysningGrunnlag
+        )
+        assertTilkjentYtelse(tilkjentYtelse, 2)
+        assertAndelTilkjentYtelse(
+            andelTilkjentYtelse = tilkjentYtelse.andelerTilkjentYtelse.first(),
+            prosent = BigDecimal(80),
+            periodeFom = førstePeriodeFom.plusMonths(1).førsteDagIInneværendeMåned(),
+            periodeTom = førstePeriodeTom.sisteDagIMåned()
+        )
+        assertAndelTilkjentYtelse(
+            andelTilkjentYtelse = tilkjentYtelse.andelerTilkjentYtelse.last(),
+            prosent = BigDecimal(40),
+            periodeFom = andrePeriodeFom.førsteDagIInneværendeMåned(),
             periodeTom = barnFødselsdato.plusYears(2).minusMonths(1).sisteDagIMåned()
         )
     }
