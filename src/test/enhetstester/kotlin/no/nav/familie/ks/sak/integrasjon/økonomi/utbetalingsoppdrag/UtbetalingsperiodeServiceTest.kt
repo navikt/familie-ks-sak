@@ -52,7 +52,7 @@ internal class UtbetalingsperiodeServiceTest {
     @BeforeEach
     fun beforeEach() {
         every { beregningService.hentTilkjentYtelseForBehandling(any()) } returns mockk()
-        every { behandlingService.hentForrigeBehandlingSomErIverksatt(any()) } returns null
+        every { behandlingService.hentSisteBehandlingSomErVedtatt(any()) } returns null
         every {
             beregningService.hentSisteOffsetPerIdent(
                 any(),

@@ -43,16 +43,6 @@ class BehandlingService(
         .filter { !it.erHenlagt() && it.status == BehandlingStatus.AVSLUTTET }
         .maxByOrNull { it.opprettetTidspunkt }
 
-    /**
-     * Henter siste iverksatte behandling FØR en gitt behandling.
-     * Bør kun brukes i forbindelse med oppdrag mot økonomisystemet
-     * eller ved behandlingsresultat.
-     */
-    fun hentForrigeBehandlingSomErIverksatt(behandling: Behandling): Behandling? {
-        val iverksatteBehandlinger = behandlingRepository.finnIverksatteBehandlinger(behandling.fagsak.id)
-        return BehandlingUtils.hentForrigeIverksatteBehandling(iverksatteBehandlinger, behandling)
-    }
-
     fun oppdaterBehandling(behandling: Behandling): Behandling {
         logger.info("${SikkerhetContext.hentSaksbehandlerNavn()} oppdaterer behandling $behandling")
         return behandlingRepository.save(behandling)

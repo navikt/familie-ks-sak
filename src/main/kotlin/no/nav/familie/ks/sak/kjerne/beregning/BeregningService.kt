@@ -6,7 +6,6 @@ import no.nav.familie.ks.sak.common.util.toYearMonth
 import no.nav.familie.ks.sak.integrasjon.økonomi.utbetalingsoppdrag.AndelTilkjentYtelseForUtbetalingsoppdragFactory
 import no.nav.familie.ks.sak.integrasjon.økonomi.utbetalingsoppdrag.pakkInnForUtbetaling
 import no.nav.familie.ks.sak.integrasjon.økonomi.ØkonomiUtils
-import no.nav.familie.ks.sak.kjerne.behandling.BehandlingUtils
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingType
@@ -170,10 +169,8 @@ class BeregningService(
     }
 
     fun hentSisteOffsetPåFagsak(behandling: Behandling): Int? =
-        BehandlingUtils.hentIverksatteBehandlinger(
-            behandlingRepository.finnIverksatteBehandlinger(behandling.fagsak.id),
-            behandling
-        )
+        behandlingRepository.finnIverksatteBehandlinger(behandling.fagsak.id)
+            .filter { it.steg == BehandlingSteg.BEHANDLING_AVSLUTTET }
             .mapNotNull { iverksattBehandling ->
                 hentAndelerTilkjentYtelseMedUtbetalingerForBehandling(iverksattBehandling.id)
                     .takeIf { it.isNotEmpty() }

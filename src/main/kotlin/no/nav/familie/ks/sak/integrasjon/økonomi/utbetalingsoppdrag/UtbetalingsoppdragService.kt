@@ -86,7 +86,7 @@ class UtbetalingsoppdragService(
         val tilkjentYtelse = beregningService.hentTilkjentYtelseForBehandling(behandlingId)
 
         // Henter tilkjentYtelse som har utbetalingsoppdrag og var sendt til oppdrag fra forrige iverksatt behandling
-        val forrigeBehandling = behandlingService.hentForrigeBehandlingSomErIverksatt(behandling)
+        val forrigeBehandling = behandlingService.hentSisteBehandlingSomErVedtatt(behandling.fagsak.id)
         val forrigeTilkjentYtelse = forrigeBehandling?.let { beregningService.hentTilkjentYtelseForBehandling(it.id) }
 
         val sisteOffsetPerIdent = beregningService.hentSisteOffsetPerIdent(
