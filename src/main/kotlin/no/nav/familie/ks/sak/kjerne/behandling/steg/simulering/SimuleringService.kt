@@ -2,14 +2,17 @@ package no.nav.familie.ks.sak.kjerne.behandling.steg.simulering
 
 import io.micrometer.core.instrument.Metrics
 import no.nav.familie.kontrakter.felles.objectMapper
+import no.nav.familie.kontrakter.felles.oppdrag.Utbetalingsoppdrag
 import no.nav.familie.kontrakter.felles.simulering.DetaljertSimuleringResultat
 import no.nav.familie.kontrakter.felles.simulering.SimuleringMottaker
 import no.nav.familie.ks.sak.api.dto.SimuleringDto
+import no.nav.familie.ks.sak.api.mapper.SimuleringMapper.tilSimuleringDto
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.config.BehandlerRolle
-import no.nav.familie.ks.sak.config.FeatureToggleConfig
 import no.nav.familie.ks.sak.config.FeatureToggleService
-import no.nav.familie.ks.sak.integrasjon.secureLogger
+import no.nav.familie.ks.sak.integrasjon.oppdrag.OppdragKlient
+import no.nav.familie.ks.sak.integrasjon.økonomi.utbetalingsoppdrag.AndelTilkjentYtelseForSimuleringFactory
+import no.nav.familie.ks.sak.integrasjon.økonomi.utbetalingsoppdrag.UtbetalingsoppdragService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
@@ -28,8 +31,7 @@ import javax.transaction.Transactional
 
 @Service
 class SimuleringService(
-    private val økonomiKlient: ØkonomiKlient,
-    private val økonomiService: ØkonomiService,
+    private val oppdragKlient: OppdragKlient,
     private val utbetalingsoppdragService: UtbetalingsoppdragService,
     private val beregningService: BeregningService,
     private val øknomiSimuleringMottakerRepository: ØknomiSimuleringMottakerRepository,
@@ -38,7 +40,7 @@ class SimuleringService(
     private val vedtakRepository: VedtakRepository,
     private val behandlingRepository: BehandlingRepository
 ) {
-    private val simulert = Metrics.counter("familie.ba.sak.oppdrag.simulert")
+    private val simulert = Metrics.counter("familie.ks.sak.oppdrag.simulert")
 
     fun hentSimuleringFraFamilieOppdrag(vedtak: Vedtak): DetaljertSimuleringResultat? {
         if (vedtak.behandling.resultat == Behandlingsresultat.FORTSATT_INNVILGET ||
@@ -54,26 +56,21 @@ class SimuleringService(
          * Denne verdien brukes ikke til noe i simulering.
          */
 
-        val utbetalingsoppdrag = økonomiService.genererUtbetalingsoppdragOgOppdaterTilkjentYtelse(
+        val tilkjentYtelse = utbetalingsoppdragService.genererUtbetalingsoppdragOgOppdaterTilkjentYtelse(
             vedtak = vedtak,
             saksbehandlerId = SikkerhetContext.hentSaksbehandler().take(8),
+            andelTilkjentYtelseForUtbetalingsoppdragFactory = AndelTilkjentYtelseForSimuleringFactory(),
             erSimulering = true
         )
-        if (featureToggleService.isEnabled(FeatureToggleConfig.KAN_GENERERE_UTBETALINGSOPPDRAG_NY)) {
-            val tilkjentYtelse = utbetalingsoppdragService.genererUtbetalingsoppdragOgOppdaterTilkjentYtelse(
-                vedtak = vedtak,
-                saksbehandlerId = SikkerhetContext.hentSaksbehandler().take(8),
-                erSimulering = true
-            )
-            val gammelUtbetalingsoppdragIString = objectMapper.writeValueAsString(utbetalingsoppdrag)
-            secureLogger.info("Generert utbetalingsoppdrag på gamle måte=$gammelUtbetalingsoppdragIString")
-            secureLogger.info("Generert utbetalingsoppdrag på ny måte=${tilkjentYtelse.utbetalingsoppdrag}")
-        }
+
+        val utbetalingsoppdrag =
+            objectMapper.readValue(tilkjentYtelse.utbetalingsoppdrag, Utbetalingsoppdrag::class.java)
+
         // Simulerer ikke mot økonomi når det ikke finnes utbetalingsperioder
         if (utbetalingsoppdrag.utbetalingsperiode.isEmpty()) return null
 
         simulert.increment()
-        return økonomiKlient.hentSimulering(utbetalingsoppdrag)
+        return oppdragKlient.hentSimulering(utbetalingsoppdrag)
     }
 
     @Transactional
