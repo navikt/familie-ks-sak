@@ -17,8 +17,8 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat
-import no.nav.familie.ks.sak.kjerne.behandling.steg.simulering.domene.ØknomiSimuleringMottakerRepository
 import no.nav.familie.ks.sak.kjerne.behandling.steg.simulering.domene.ØkonomiSimuleringMottaker
+import no.nav.familie.ks.sak.kjerne.behandling.steg.simulering.domene.ØkonomiSimuleringMottakerRepository
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.Vedtak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.VedtakRepository
 import no.nav.familie.ks.sak.kjerne.beregning.BeregningService
@@ -34,7 +34,7 @@ class SimuleringService(
     private val oppdragKlient: OppdragKlient,
     private val utbetalingsoppdragService: UtbetalingsoppdragService,
     private val beregningService: BeregningService,
-    private val øknomiSimuleringMottakerRepository: ØknomiSimuleringMottakerRepository,
+    private val øknomiSimuleringMottakerRepository: ØkonomiSimuleringMottakerRepository,
     private val tilgangService: TilgangService,
     private val featureToggleService: FeatureToggleService,
     private val vedtakRepository: VedtakRepository,
