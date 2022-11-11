@@ -163,7 +163,7 @@ fun nesteBehandlingId(): Long {
 fun lagBehandling(
     fagsak: Fagsak = lagFagsak(),
     type: BehandlingType = BehandlingType.FØRSTEGANGSBEHANDLING,
-    opprettetÅrsak: BehandlingÅrsak,
+    opprettetÅrsak: BehandlingÅrsak = BehandlingÅrsak.SØKNAD,
     kategori: BehandlingKategori = BehandlingKategori.NASJONAL
 ): Behandling = Behandling(
     id = nesteBehandlingId(),
@@ -258,8 +258,8 @@ fun lagAndelTilkjentYtelse(
 )
 
 fun lagPerson(
-    personopplysningGrunnlag: PersonopplysningGrunnlag,
-    aktør: Aktør,
+    personopplysningGrunnlag: PersonopplysningGrunnlag = PersonopplysningGrunnlag(behandlingId = 0),
+    aktør: Aktør = randomAktør(),
     personType: PersonType = PersonType.SØKER
 ): Person {
     val person = Person(
@@ -396,6 +396,32 @@ fun lagVilkårResultaterForBarn(
         }
     }
     return vilkårResultaterForBarn
+}
+
+fun lagVilkårResultatForSøker(
+    søkerPersonResultat: PersonResultat,
+    periodeFom: LocalDate,
+    periodeTom: LocalDate? = null,
+    behandlingId: Long = 0L
+): MutableSet<VilkårResultat> {
+    return setOf(
+        lagVilkårResultat(
+            personResultat = søkerPersonResultat,
+            vilkårType = Vilkår.BOSATT_I_RIKET,
+            resultat = Resultat.OPPFYLT,
+            periodeFom = periodeFom,
+            periodeTom = periodeTom,
+            behandlingId = behandlingId
+        ),
+        lagVilkårResultat(
+            personResultat = søkerPersonResultat,
+            vilkårType = Vilkår.MEDLEMSKAP,
+            resultat = Resultat.OPPFYLT,
+            periodeFom = periodeFom,
+            periodeTom = periodeTom,
+            behandlingId = behandlingId
+        )
+    ).toMutableSet()
 }
 
 fun lagVilkårResultaterForDeltBosted(

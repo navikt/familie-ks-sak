@@ -362,34 +362,35 @@ fun genererVilkårsvurderingFraForrigeVedtattBehandling(
 
     vilkårsvurdering.personResultater.forEach { personResultat ->
         val person = personopplysningGrunnlag.personer.single { it.aktør == personResultat.aktør }
-
         val dødsDato = person.dødsfall?.dødsfallDato
+
         if (dødsDato != null) {
-            oppdaterPersonResultaterTilÅSlutteVedDødsfallsdato(personResultat, dødsDato)
+            val vilkårResultaterOppdatertMedDødsfalldato =
+                hentVilkårResultaterOppdatertMedDødsfalldato(personResultat.vilkårResultater, dødsDato)
+
+            personResultat.setSortedVilkårResultater(vilkårResultaterOppdatertMedDødsfalldato)
         }
     }
 
     return vilkårsvurdering
 }
 
-private fun oppdaterPersonResultaterTilÅSlutteVedDødsfallsdato(
-    personResultat: PersonResultat,
+fun hentVilkårResultaterOppdatertMedDødsfalldato(
+    vilkårResultater: MutableSet<VilkårResultat>,
     dødsDato: LocalDate
-) {
-    Vilkår.values().forEach { vilkårType ->
-        val vilkårAvTypeMedSenesteTom = personResultat.vilkårResultater
-            .filter { it.vilkårType == vilkårType }
-            .maxByOrNull { it.periodeTom ?: TIDENES_ENDE }
+): MutableSet<VilkårResultat> {
+    return vilkårResultater
+        .filter { dødsDato.isAfter(it.periodeFom) }
+        .map {
+            val erDødsdatoFørVilkårsperiodeSlutter =
+                dødsDato.isBefore(it.periodeTom ?: TIDENES_ENDE)
+            if (erDødsdatoFørVilkårsperiodeSlutter) {
+                it.periodeTom = dødsDato
+                it.begrunnelse = "Dødsfall"
 
-        if (vilkårAvTypeMedSenesteTom != null) {
-            val erDødsdatoEtterSisteVilkårPeriodeStarter = dødsDato.isAfter(vilkårAvTypeMedSenesteTom.periodeFom)
-            val erDødsdatoFørSisteVilkårsperiodeSlutter =
-                dødsDato.isBefore(vilkårAvTypeMedSenesteTom.periodeTom ?: TIDENES_ENDE)
-
-            if (erDødsdatoFørSisteVilkårsperiodeSlutter && erDødsdatoEtterSisteVilkårPeriodeStarter) {
-                vilkårAvTypeMedSenesteTom.periodeTom = dødsDato
-                vilkårAvTypeMedSenesteTom.begrunnelse = "Dødsfall"
+                it
+            } else {
+                it
             }
-        }
-    }
+        }.toMutableSet()
 }

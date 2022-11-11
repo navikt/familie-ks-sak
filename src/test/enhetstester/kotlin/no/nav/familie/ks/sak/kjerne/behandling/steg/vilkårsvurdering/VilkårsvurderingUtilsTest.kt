@@ -10,6 +10,7 @@ import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagPerson
 import no.nav.familie.ks.sak.data.lagPersonopplysningGrunnlag
 import no.nav.familie.ks.sak.data.lagVilkårResultat
+import no.nav.familie.ks.sak.data.lagVilkårResultatForSøker
 import no.nav.familie.ks.sak.data.lagVilkårResultaterForBarn
 import no.nav.familie.ks.sak.data.lagVilkårsvurderingMedSøkersVilkår
 import no.nav.familie.ks.sak.data.randomAktør
@@ -49,7 +50,6 @@ class VilkårsvurderingUtilsTest {
         søkerAktør = søker,
         barnAktør = listOf(barn1)
     )
-    private val søkerPerson = lagPerson(personopplysningGrunnlag, søker, PersonType.SØKER)
     private val barnPerson = lagPerson(personopplysningGrunnlag, barn1, PersonType.BARN)
     private val vilkårsvurdering = Vilkårsvurdering(behandling = behandling)
 
@@ -532,6 +532,48 @@ class VilkårsvurderingUtilsTest {
         assertEquals(
             barnFødselsdato.plusYears(1).plusMonths(7).sisteDagIMåned(),
             innvilgedePeriodeResultaterBarn.single().periodeTom
+        )
+    }
+
+    @Test
+    fun `Skal lage vilkårsvurdering med søkers vilkår satt med tom=dødsdato`() {
+        val dødsfallDato = LocalDate.now().minusYears(1)
+
+        val vilkårResultaterSomStarterFørDødsfall = lagVilkårResultatForSøker(
+            søkerPersonResultat = mockk(relaxed = true),
+            periodeFom = LocalDate.now().minusYears(2),
+            periodeTom = LocalDate.now()
+        )
+        val vilkårResultaterSomStarterEtterDødsfall = lagVilkårResultatForSøker(
+            søkerPersonResultat = mockk(relaxed = true),
+            periodeFom = LocalDate.now().plusDays(1),
+            periodeTom = null
+        )
+
+        val søkerVilkårResultater =
+            (vilkårResultaterSomStarterFørDødsfall + vilkårResultaterSomStarterEtterDødsfall).toMutableSet()
+
+        val vilkårResultaterOppdatertMedDødsfallDato =
+            hentVilkårResultaterOppdatertMedDødsfalldato(søkerVilkårResultater, dødsfallDato)
+
+        assertEquals(2, vilkårResultaterOppdatertMedDødsfallDato.size)
+
+        val vilkårSortert = vilkårResultaterOppdatertMedDødsfallDato.sortedBy { it.periodeTom }
+        assertEquals(LocalDate.now().minusYears(2), vilkårSortert.first().periodeFom!!)
+
+        assertEquals(dødsfallDato, vilkårSortert.last().periodeTom)
+        assertEquals(LocalDate.now().minusYears(2), vilkårSortert.last().periodeFom)
+
+        assertEquals(1, vilkårSortert.filter { it.vilkårType == Vilkår.BOSATT_I_RIKET }.size)
+        assertEquals(
+            dødsfallDato,
+            vilkårSortert.first { it.vilkårType == Vilkår.BOSATT_I_RIKET }.periodeTom
+        )
+
+        assertEquals(1, vilkårSortert.filter { it.vilkårType == Vilkår.MEDLEMSKAP }.size)
+        assertEquals(
+            dødsfallDato,
+            vilkårSortert.first { it.vilkårType == Vilkår.MEDLEMSKAP }.periodeTom
         )
     }
 }
