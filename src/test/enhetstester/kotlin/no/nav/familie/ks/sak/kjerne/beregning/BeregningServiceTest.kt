@@ -18,9 +18,8 @@ import no.nav.familie.ks.sak.data.lagUtbetalingsperiode
 import no.nav.familie.ks.sak.data.randomAktør
 import no.nav.familie.ks.sak.data.randomFnr
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
-import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStegTilstand
+import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
-import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelseRepository
 import no.nav.familie.ks.sak.kjerne.beregning.domene.TilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.domene.TilkjentYtelseRepository
@@ -143,7 +142,7 @@ class BeregningServiceTest {
 
         val personopplysningGrunnlag = lagPersonopplysningGrunnlag(
             behandlingTilGodkjenning.id,
-            "12345678910",
+            randomFnr(),
             listOf(barnAktør.aktivFødselsnummer()),
             barnAktør = listOf(barnAktør)
         )
@@ -190,7 +189,7 @@ class BeregningServiceTest {
 
         val personopplysningGrunnlag = lagPersonopplysningGrunnlag(
             godkjentBehandlingSomIkkeErIverksatt.id,
-            "12345678910",
+            randomFnr(),
             listOf(barnAktør.aktivFødselsnummer()),
             barnAktør = listOf(barnAktør)
         )
@@ -222,13 +221,7 @@ class BeregningServiceTest {
         val iverksatteBehandlinger = lagBehandling(
             fagsak = annenFagsak,
             opprettetÅrsak = BehandlingÅrsak.SØKNAD
-        )
-        iverksatteBehandlinger.behandlingStegTilstand.add(
-            BehandlingStegTilstand(
-                behandling = iverksatteBehandlinger,
-                behandlingSteg = BehandlingSteg.BEHANDLING_AVSLUTTET
-            )
-        )
+        ).also { it.status = BehandlingStatus.AVSLUTTET }
 
         val tilkjentYtelse = TilkjentYtelse(
             behandling = iverksatteBehandlinger,
@@ -247,7 +240,7 @@ class BeregningServiceTest {
 
         val personopplysningGrunnlag = lagPersonopplysningGrunnlag(
             iverksatteBehandlinger.id,
-            "12345678910",
+            randomFnr(),
             listOf(barnAktør.aktivFødselsnummer()),
             barnAktør = listOf(barnAktør)
         )
@@ -385,9 +378,7 @@ class BeregningServiceTest {
     @Test
     fun `hentSisteOffsetPåFagsak - skal hente høyeste offset fra siste iverksatte behandling`() {
         val behandling = lagBehandling(lagFagsak(), opprettetÅrsak = BehandlingÅrsak.SØKNAD).also {
-            it.behandlingStegTilstand.add(
-                BehandlingStegTilstand(behandling = it, behandlingSteg = BehandlingSteg.BEHANDLING_AVSLUTTET)
-            )
+            it.status = BehandlingStatus.AVSLUTTET
         }
 
         every { behandlingRepository.finnIverksatteBehandlinger(behandling.fagsak.id) } returns listOf(behandling)

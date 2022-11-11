@@ -122,7 +122,7 @@ fun lagPersonopplysningGrunnlag(
         aktør = søkerAktør,
         type = PersonType.SØKER,
         personopplysningGrunnlag = personopplysningGrunnlag,
-        fødselsdato = LocalDate.of(2019, 1, 1),
+        fødselsdato = fnrTilFødselsdato(søkerPersonIdent),
         navn = "",
         kjønn = Kjønn.KVINNE
     ).also { søker ->
