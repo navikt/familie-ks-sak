@@ -120,7 +120,7 @@ class StegService(
     }
 
     @Transactional
-    fun tilbakeførBehandlingSteg(behandling: Behandling, tilbakeføresSteg: BehandlingSteg) {
+    fun tilbakeførBehandlingSteg(behandling: Behandling, tilbakeføresSteg: BehandlingSteg): Behandling {
         val nåværendeBehandlingSteg = behandling.steg
         if (nåværendeBehandlingSteg.sekvens < tilbakeføresSteg.sekvens) {
             throw Feil(
@@ -135,7 +135,7 @@ class StegService(
                 else -> {} // gjør ingenting
             }
         }
-        behandlingRepository.saveAndFlush(oppdaterBehandlingStatus(behandling, tilbakeføresSteg))
+        return behandlingRepository.saveAndFlush(oppdaterBehandlingStatus(behandling, tilbakeføresSteg))
     }
 
     fun settBehandlingstegPåVent(
