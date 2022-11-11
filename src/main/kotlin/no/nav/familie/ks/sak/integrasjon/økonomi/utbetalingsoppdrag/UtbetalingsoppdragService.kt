@@ -25,7 +25,7 @@ class UtbetalingsoppdragService(
     private val utbetalingsoppdragGenerator: UtbetalingsoppdragGenerator,
     private val behandlingService: BehandlingService
 ) {
-    private val sammeOppdragSendtKonflikt = Metrics.counter("familie.ba.sak.samme.oppdrag.sendt.konflikt")
+    private val sammeOppdragSendtKonflikt = Metrics.counter("familie.ks.sak.samme.oppdrag.sendt.konflikt")
 
     fun oppdaterTilkjentYtelseMedUtbetalingsoppdragOgIverksett(
         vedtak: Vedtak,

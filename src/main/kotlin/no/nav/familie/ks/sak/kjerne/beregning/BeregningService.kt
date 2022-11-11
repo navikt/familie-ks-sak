@@ -163,10 +163,10 @@ class BeregningService(
                 .filter { it.erAndelSomSkalSendesTilOppdrag() }
                 .pakkInnForUtbetaling(andelTilkjentYtelseForUtbetalingsoppdragFactory)
 
-        val alleTideligereKjederIverksattMotØkonomi =
+        val alleTidligereKjederIverksattMotØkonomi =
             ØkonomiUtils.kjedeinndelteAndeler(alleAndelerTilkjentYtelserIverksattMotØkonomi)
 
-        return ØkonomiUtils.gjeldendeForrigeOffsetForKjede(alleTideligereKjederIverksattMotØkonomi)
+        return ØkonomiUtils.gjeldendeForrigeOffsetForKjede(alleTidligereKjederIverksattMotØkonomi)
     }
 
     fun hentSisteOffsetPåFagsak(behandling: Behandling): Int? =
