@@ -29,7 +29,6 @@ import org.hamcrest.CoreMatchers.`is` as Is
 @ExtendWith(MockKExtension::class)
 class BeslutteVedtakStegTest {
     @MockK
-
     private lateinit var totrinnskontrollService: TotrinnskontrollService
 
     @MockK

@@ -7,6 +7,7 @@ import io.mockk.junit5.MockKExtension
 import io.mockk.mockk
 import io.mockk.slot
 import no.nav.familie.ks.sak.common.exception.Feil
+import no.nav.familie.ks.sak.data.fnrTilFødselsdato
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagFagsak
 import no.nav.familie.ks.sak.data.lagPersonopplysningGrunnlag
@@ -29,6 +30,7 @@ import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.containsInAnyOrder
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
@@ -78,11 +80,15 @@ class VilkårsvurderingServiceTest {
 
         assertEquals(3, lagretVilkårsvurdering.personResultater.size)
         assertThat(
-            lagretVilkårsvurdering.personResultater.find { it.aktør.aktivFødselsnummer() === søker.aktivFødselsnummer() }?.vilkårResultater?.map { it.vilkårType },
+            lagretVilkårsvurdering.personResultater.find {
+                it.aktør.aktivFødselsnummer() === søker.aktivFødselsnummer()
+            }?.vilkårResultater?.map { it.vilkårType },
             containsInAnyOrder(Vilkår.BOSATT_I_RIKET, Vilkår.MEDLEMSKAP)
         )
         assertThat(
-            lagretVilkårsvurdering.personResultater.find { it.aktør.aktivFødselsnummer() === barn1.aktivFødselsnummer() }?.vilkårResultater?.map { it.vilkårType },
+            lagretVilkårsvurdering.personResultater.find {
+                it.aktør.aktivFødselsnummer() === barn1.aktivFødselsnummer()
+            }?.vilkårResultater?.map { it.vilkårType },
             containsInAnyOrder(
                 Vilkår.BOSATT_I_RIKET,
                 Vilkår.BARNEHAGEPLASS,
@@ -91,6 +97,36 @@ class VilkårsvurderingServiceTest {
                 Vilkår.MELLOM_1_OG_2_ELLER_ADOPTERT
             )
         )
+
+        // autoutfylling
+        val mellom1Og2ÅrVilkårer = lagretVilkårsvurdering.personResultater.filter { !it.erSøkersResultater() }
+            .flatMap { it.vilkårResultater.filter { it.vilkårType == Vilkår.MELLOM_1_OG_2_ELLER_ADOPTERT } }
+
+        assertTrue {
+            mellom1Og2ÅrVilkårer.all {
+                it.erAutomatiskVurdert &&
+                    it.resultat == Resultat.OPPFYLT &&
+                    it.begrunnelse == "Vurdert og satt automatisk"
+            }
+        }
+        val barn1FødselsDato = fnrTilFødselsdato(barn1.aktivFødselsnummer())
+        assertTrue {
+            mellom1Og2ÅrVilkårer.any {
+                it.periodeFom == barn1FødselsDato.plusYears(1) &&
+                    it.periodeTom == barn1FødselsDato.plusYears(2)
+            }
+        }
+        val barn2FødselsDato = fnrTilFødselsdato(barn2.aktivFødselsnummer())
+        assertTrue {
+            mellom1Og2ÅrVilkårer.any {
+                it.periodeFom == barn2FødselsDato.plusYears(1) &&
+                    it.periodeTom == barn2FødselsDato.plusYears(2)
+            }
+        }
+
+        val medlemskapVilkår = lagretVilkårsvurdering.personResultater.single { it.erSøkersResultater() }
+            .vilkårResultater.single { it.vilkårType == Vilkår.MEDLEMSKAP }
+        assertEquals(fnrTilFødselsdato(søker.aktivFødselsnummer()).plusYears(5), medlemskapVilkår.periodeFom)
     }
 
     @Test
