@@ -12,6 +12,7 @@ import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagPerson
 import no.nav.familie.ks.sak.data.lagPersonopplysningGrunnlag
 import no.nav.familie.ks.sak.data.randomAktør
+import no.nav.familie.ks.sak.data.randomFnr
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import no.nav.familie.ks.sak.kjerne.beregning.domene.TilkjentYtelse
@@ -56,7 +57,7 @@ class TilkjentYtelseValideringServiceTest {
     private val behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD)
     private val personopplysningGrunnlag = lagPersonopplysningGrunnlag(
         behandling.id,
-        "12345678910",
+        randomFnr(),
         barnasIdenter = listOf(
             barn1.aktivFødselsnummer(),
             barn2.aktivFødselsnummer(),

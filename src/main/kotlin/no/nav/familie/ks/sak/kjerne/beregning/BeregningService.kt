@@ -8,8 +8,8 @@ import no.nav.familie.ks.sak.integrasjon.økonomi.utbetalingsoppdrag.pakkInnForU
 import no.nav.familie.ks.sak.integrasjon.økonomi.ØkonomiUtils
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
+import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingType
-import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelseRepository
@@ -108,7 +108,7 @@ class BeregningService(
             behandlingRepository.finnBehandlingerSendtTilGodkjenning(fagsakId = fagsak.id).singleOrNull()
                 ?: behandlingRepository.finnBehandlingerSomHolderPåÅIverksettes(fagsakId = fagsak.id).singleOrNull()
                 ?: behandlingRepository.finnIverksatteBehandlinger(fagsakId = fagsak.id)
-                    .filter { it.steg == BehandlingSteg.BEHANDLING_AVSLUTTET }
+                    .filter { it.status == BehandlingStatus.AVSLUTTET }
                     .maxByOrNull { it.opprettetTidspunkt }
         }.map {
             hentTilkjentYtelseForBehandling(behandlingId = it.id)
@@ -171,7 +171,7 @@ class BeregningService(
 
     fun hentSisteOffsetPåFagsak(behandling: Behandling): Int? =
         behandlingRepository.finnIverksatteBehandlinger(behandling.fagsak.id)
-            .filter { it.steg == BehandlingSteg.BEHANDLING_AVSLUTTET }
+            .filter { it.status == BehandlingStatus.AVSLUTTET }
             .mapNotNull { iverksattBehandling ->
                 hentAndelerTilkjentYtelseMedUtbetalingerForBehandling(iverksattBehandling.id)
                     .takeIf { it.isNotEmpty() }

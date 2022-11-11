@@ -77,14 +77,28 @@ class VilkårsvurderingService(
                 val vilkårForPerson = Vilkår.hentVilkårFor(person.type)
 
                 val vilkårResultater = vilkårForPerson.map { vilkår ->
-                    VilkårResultat(
-                        personResultat = personResultat,
-                        erAutomatiskVurdert = true,
-                        resultat = Resultat.IKKE_VURDERT,
-                        vilkårType = vilkår,
-                        begrunnelse = "",
-                        behandlingId = behandling.id
-                    )
+                    when (vilkår) {
+                        // prefyller MELLOM_1_OG_2_ELLER_ADOPTERT vilkår automatisk
+                        Vilkår.MELLOM_1_OG_2_ELLER_ADOPTERT -> VilkårResultat(
+                            personResultat = personResultat,
+                            erAutomatiskVurdert = true,
+                            resultat = Resultat.OPPFYLT,
+                            vilkårType = vilkår,
+                            begrunnelse = "Vurdert og satt automatisk",
+                            behandlingId = behandling.id,
+                            periodeFom = person.fødselsdato.plusYears(1),
+                            periodeTom = person.fødselsdato.plusYears(2)
+                        )
+                        else -> VilkårResultat(
+                            personResultat = personResultat,
+                            erAutomatiskVurdert = false,
+                            resultat = Resultat.IKKE_VURDERT,
+                            vilkårType = vilkår,
+                            begrunnelse = "",
+                            periodeFom = if (vilkår == Vilkår.MEDLEMSKAP) person.fødselsdato.plusYears(5) else null,
+                            behandlingId = behandling.id
+                        )
+                    }
                 }.toSortedSet(VilkårResultat.VilkårResultatComparator)
 
                 personResultat.setSortedVilkårResultater(vilkårResultater)

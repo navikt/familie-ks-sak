@@ -88,7 +88,7 @@ class VilkårsvurderingStegTest {
         }
         val personopplysningGrunnlag = lagPersonopplysningGrunnlag(
             behandlingId = behandling.id,
-            søkerPersonIdent = søker.aktørId,
+            søkerPersonIdent = søker.aktivFødselsnummer(),
             søkerAktør = søker,
             barnasIdenter = listOf(barn.aktivFødselsnummer())
         )
@@ -104,7 +104,7 @@ class VilkårsvurderingStegTest {
         val barn = randomAktør()
         val personopplysningGrunnlag = lagPersonopplysningGrunnlag(
             behandlingId = behandling.id,
-            søkerPersonIdent = søker.aktørId,
+            søkerPersonIdent = søker.aktivFødselsnummer(),
             søkerAktør = søker,
             søkerDødsDato = LocalDate.of(2020, 12, 12),
             barnasIdenter = listOf(barn.aktivFødselsnummer())
@@ -224,7 +224,7 @@ class VilkårsvurderingStegTest {
 
         val personopplysningGrunnlag = lagPersonopplysningGrunnlag(
             behandlingId = behandling.id,
-            søkerPersonIdent = søker.aktørId,
+            søkerPersonIdent = søker.aktivFødselsnummer(),
             søkerAktør = søker
         )
 
