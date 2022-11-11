@@ -2,6 +2,10 @@ package no.nav.familie.ks.sak.data
 
 import io.mockk.mockk
 import no.nav.commons.foedselsnummer.testutils.FoedselsnummerGenerator
+import no.nav.familie.kontrakter.felles.objectMapper
+import no.nav.familie.kontrakter.felles.oppdrag.Opphør
+import no.nav.familie.kontrakter.felles.oppdrag.Utbetalingsoppdrag
+import no.nav.familie.kontrakter.felles.oppdrag.Utbetalingsperiode
 import no.nav.familie.kontrakter.felles.personopplysning.Bostedsadresse
 import no.nav.familie.kontrakter.felles.personopplysning.FORELDERBARNRELASJONROLLE
 import no.nav.familie.kontrakter.felles.personopplysning.KJOENN
@@ -14,6 +18,9 @@ import no.nav.familie.ks.sak.api.dto.RegistrerSøknadDto
 import no.nav.familie.ks.sak.api.dto.SøkerMedOpplysningerDto
 import no.nav.familie.ks.sak.api.dto.SøknadDto
 import no.nav.familie.ks.sak.common.util.NullablePeriode
+import no.nav.familie.ks.sak.common.util.Periode
+import no.nav.familie.ks.sak.common.util.førsteDagIInneværendeMåned
+import no.nav.familie.ks.sak.common.util.sisteDagIMåned
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.ForelderBarnRelasjonInfo
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.PdlPersonInfo
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.EndretUtbetalingsperiodeDeltBostedTriggere
@@ -57,7 +64,9 @@ import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.sivilstand.G
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.statsborgerskap.GrStatsborgerskap
 import java.math.BigDecimal
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.time.YearMonth
+import java.util.UUID
 import kotlin.math.abs
 import kotlin.random.Random
 
@@ -571,6 +580,38 @@ fun lagPersonResultat(
     }
     return personResultat
 }
+
+fun lagTilkjentYtelse(utbetalingsoppdrag: Utbetalingsoppdrag, behandling: Behandling) =
+    TilkjentYtelse(
+        utbetalingsoppdrag = objectMapper.writeValueAsString(utbetalingsoppdrag),
+        behandling = behandling,
+        opprettetDato = LocalDate.now(),
+        endretDato = LocalDate.now()
+    )
+
+fun lagUtbetalingsoppdrag(utbetalingsperiode: List<Utbetalingsperiode>) = Utbetalingsoppdrag(
+    kodeEndring = Utbetalingsoppdrag.KodeEndring.NY,
+    fagSystem = "KS",
+    saksnummer = "",
+    aktoer = UUID.randomUUID().toString(),
+    saksbehandlerId = "",
+    avstemmingTidspunkt = LocalDateTime.now(),
+    utbetalingsperiode = utbetalingsperiode
+)
+
+fun lagUtbetalingsperiode(opphør: Opphør? = null) = Utbetalingsperiode(
+    erEndringPåEksisterendePeriode = false,
+    opphør = opphør,
+    periodeId = 0,
+    datoForVedtak = LocalDate.now(),
+    klassifisering = "KS",
+    vedtakdatoFom = LocalDate.now().minusMonths(2).førsteDagIInneværendeMåned(),
+    vedtakdatoTom = LocalDate.now().minusMonths(1).sisteDagIMåned(),
+    sats = BigDecimal("1054"),
+    satsType = Utbetalingsperiode.SatsType.MND,
+    utbetalesTil = "",
+    behandlingId = 0
+)
 
 fun fnrTilFødselsdato(fnr: String): LocalDate {
     val day = fnr.substring(0, 2).toInt()

@@ -43,6 +43,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertDoesNotThrow
 import org.junit.jupiter.api.assertThrows
 import org.springframework.beans.factory.annotation.Autowired
+import java.time.LocalDate
 
 class StegServiceTest : OppslagSpringRunnerTest() {
 
@@ -151,11 +152,8 @@ class StegServiceTest : OppslagSpringRunnerTest() {
         assertBehandlingHarSteg(behandling, REGISTRERE_PERSONGRUNNLAG, KLAR)
         assertDoesNotThrow { stegService.utførSteg(behandling.id, REGISTRERE_PERSONGRUNNLAG) }
         behandling = behandlingRepository.hentBehandling(behandling.id)
-            .also {
-                it.behandlingStegTilstand
-                    .maxByOrNull { tilstand -> tilstand.behandlingSteg.sekvens }?.behandlingStegStatus = VENTER
-            }
-        lagreBehandling(behandling)
+
+        stegService.settBehandlingstegPåVent(behandling, LocalDate.now().plusMonths(2))
 
         behandling = behandlingRepository.hentBehandling(behandling.id)
         assertEquals(2, behandling.behandlingStegTilstand.size)
@@ -261,11 +259,10 @@ class StegServiceTest : OppslagSpringRunnerTest() {
         )
         behandling.status = BehandlingStatus.FATTER_VEDTAK
 
-        assertDoesNotThrow { stegService.tilbakeførBehandlingSteg(behandling, VEDTAK) }
-        val behandling = behandlingRepository.hentBehandling(behandling.id)
-        assertTrue { behandling.status == BehandlingStatus.UTREDES }
-        assertBehandlingHarSteg(behandling, VEDTAK, KLAR)
-        assertBehandlingHarSteg(behandling, BESLUTTE_VEDTAK, TILBAKEFØRT)
+        val oppdatertBehandling = assertDoesNotThrow { stegService.tilbakeførBehandlingSteg(behandling, VEDTAK) }
+        assertTrue { oppdatertBehandling.status == BehandlingStatus.UTREDES }
+        assertBehandlingHarSteg(oppdatertBehandling, VEDTAK, KLAR)
+        assertBehandlingHarSteg(oppdatertBehandling, BESLUTTE_VEDTAK, TILBAKEFØRT)
     }
 
     private fun assertBehandlingHarSteg(
