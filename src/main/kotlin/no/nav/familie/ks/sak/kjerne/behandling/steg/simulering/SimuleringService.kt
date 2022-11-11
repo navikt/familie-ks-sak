@@ -8,8 +8,6 @@ import no.nav.familie.kontrakter.felles.simulering.SimuleringMottaker
 import no.nav.familie.ks.sak.api.dto.SimuleringDto
 import no.nav.familie.ks.sak.api.mapper.SimuleringMapper.tilSimuleringDto
 import no.nav.familie.ks.sak.common.exception.Feil
-import no.nav.familie.ks.sak.config.BehandlerRolle
-import no.nav.familie.ks.sak.config.FeatureToggleService
 import no.nav.familie.ks.sak.integrasjon.oppdrag.OppdragKlient
 import no.nav.familie.ks.sak.integrasjon.økonomi.utbetalingsoppdrag.AndelTilkjentYtelseForSimuleringFactory
 import no.nav.familie.ks.sak.integrasjon.økonomi.utbetalingsoppdrag.UtbetalingsoppdragService
@@ -23,7 +21,6 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.Vedtak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.VedtakRepository
 import no.nav.familie.ks.sak.kjerne.beregning.BeregningService
 import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext
-import no.nav.familie.ks.sak.sikkerhet.TilgangService
 import org.springframework.stereotype.Service
 import java.math.BigDecimal
 import java.time.LocalDate
@@ -35,14 +32,12 @@ class SimuleringService(
     private val utbetalingsoppdragService: UtbetalingsoppdragService,
     private val beregningService: BeregningService,
     private val øknomiSimuleringMottakerRepository: ØkonomiSimuleringMottakerRepository,
-    private val tilgangService: TilgangService,
-    private val featureToggleService: FeatureToggleService,
     private val vedtakRepository: VedtakRepository,
     private val behandlingRepository: BehandlingRepository
 ) {
     private val simulert = Metrics.counter("familie.ks.sak.oppdrag.simulert")
 
-    fun hentSimuleringFraFamilieOppdrag(vedtak: Vedtak): DetaljertSimuleringResultat? {
+    private fun hentSimuleringFraFamilieOppdrag(vedtak: Vedtak): DetaljertSimuleringResultat? {
         if (vedtak.behandling.resultat == Behandlingsresultat.FORTSATT_INNVILGET ||
             vedtak.behandling.resultat == Behandlingsresultat.AVSLÅTT ||
             beregningService.innvilgetSøknadUtenUtbetalingsperioderGrunnetEndringsPerioder(behandling = vedtak.behandling)
@@ -66,15 +61,13 @@ class SimuleringService(
         val utbetalingsoppdrag =
             objectMapper.readValue(tilkjentYtelse.utbetalingsoppdrag, Utbetalingsoppdrag::class.java)
 
-        // Simulerer ikke mot økonomi når det ikke finnes utbetalingsperioder
         if (utbetalingsoppdrag.utbetalingsperiode.isEmpty()) return null
 
         simulert.increment()
         return oppdragKlient.hentSimulering(utbetalingsoppdrag)
     }
 
-    @Transactional
-    fun lagreSimuleringPåBehandling(
+    private fun lagreSimuleringPåBehandling(
         simuleringMottakere: List<SimuleringMottaker>,
         beahndling: Behandling
     ): List<ØkonomiSimuleringMottaker> {
@@ -82,8 +75,7 @@ class SimuleringService(
         return øknomiSimuleringMottakerRepository.saveAll(vedtakSimuleringMottakere)
     }
 
-    @Transactional
-    fun slettSimuleringPåBehandling(behandlingId: Long) =
+    private fun slettSimuleringPåBehandling(behandlingId: Long) =
         øknomiSimuleringMottakerRepository.deleteByBehandlingId(behandlingId)
 
     fun hentSimuleringPåBehandling(behandlingId: Long): List<ØkonomiSimuleringMottaker> {
@@ -97,9 +89,8 @@ class SimuleringService(
                 behandling.status == BehandlingStatus.AVSLUTTET
 
         val simulering = hentSimuleringPåBehandling(behandlingId)
-        val simuleringDto = simulering.tilSimuleringDto()
 
-        return if (!behandlingErFerdigBesluttet && simuleringErUtdatert(simuleringDto)) {
+        return if (!behandlingErFerdigBesluttet && simuleringErUtdatert(simulering.tilSimuleringDto())) {
             oppdaterSimuleringPåBehandling(behandling)
         } else {
             simulering
@@ -118,10 +109,6 @@ class SimuleringService(
     fun oppdaterSimuleringPåBehandling(behandling: Behandling): List<ØkonomiSimuleringMottaker> {
         val aktivtVedtak = vedtakRepository.findByBehandlingAndAktivOptional(behandling.id)
             ?: throw Feil("Fant ikke aktivt vedtak på behandling${behandling.id}")
-        tilgangService.validerTilgangTilHandling(
-            minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
-            handling = "opprette simulering"
-        )
 
         val simulering: List<SimuleringMottaker> =
             hentSimuleringFraFamilieOppdrag(vedtak = aktivtVedtak)?.simuleringMottaker ?: emptyList()
@@ -131,20 +118,12 @@ class SimuleringService(
     }
 
     fun hentEtterbetaling(behandlingId: Long): BigDecimal {
-        val vedtakSimuleringMottakere = hentSimuleringPåBehandling(behandlingId)
-        return hentEtterbetaling(vedtakSimuleringMottakere)
+        val simuleringMottakere = hentSimuleringPåBehandling(behandlingId)
+        return simuleringMottakere.tilSimuleringDto().etterbetaling
     }
 
     fun hentFeilutbetaling(behandlingId: Long): BigDecimal {
-        val vedtakSimuleringMottakere = hentSimuleringPåBehandling(behandlingId)
-        return hentFeilutbetaling(vedtakSimuleringMottakere)
-    }
-
-    fun hentEtterbetaling(økonomiSimuleringMottakere: List<ØkonomiSimuleringMottaker>): BigDecimal {
-        return økonomiSimuleringMottakere.tilSimuleringDto().etterbetaling
-    }
-
-    fun hentFeilutbetaling(økonomiSimuleringMottakere: List<ØkonomiSimuleringMottaker>): BigDecimal {
-        return økonomiSimuleringMottakere.tilSimuleringDto().feilutbetaling
+        val simuleringMottakere = hentSimuleringPåBehandling(behandlingId)
+        return simuleringMottakere.tilSimuleringDto().feilutbetaling
     }
 }
