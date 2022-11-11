@@ -247,3 +247,16 @@ class AndelTilkjentYtelseForIverksettingFactory : AndelTilkjentYtelseForUtbetali
             }
     }
 }
+
+class AndelTilkjentYtelseForSimuleringFactory : AndelTilkjentYtelseForUtbetalingsoppdragFactory {
+    override fun pakkInnForUtbetaling(andelerTilkjentYtelse: Collection<AndelTilkjentYtelse>): List<AndelTilkjentYtelseForUtbetalingsoppdrag> =
+        andelerTilkjentYtelse.map { AndelTilkjentYtelseForSimulering(it) }
+
+    private class AndelTilkjentYtelseForSimulering(
+        andelTilkjentYtelse: AndelTilkjentYtelse
+    ) : AndelTilkjentYtelseForUtbetalingsoppdrag(andelTilkjentYtelse) {
+        override var periodeOffset: Long? = andelTilkjentYtelse.periodeOffset
+        override var forrigePeriodeOffset: Long? = andelTilkjentYtelse.forrigePeriodeOffset
+        override var kildeBehandlingId: Long? = andelTilkjentYtelse.kildeBehandlingId
+    }
+}
