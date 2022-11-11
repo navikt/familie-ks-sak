@@ -12,6 +12,7 @@ import no.nav.familie.ks.sak.common.util.sisteDagIMåned
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat.Companion.VilkårResultatComparator
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
+import java.util.SortedSet
 import javax.persistence.CascadeType
 import javax.persistence.Entity
 import javax.persistence.FetchType
@@ -68,6 +69,11 @@ class PersonResultat(
         vilkårResultater.addAll(nyeVilkårResultater.toSortedSet(VilkårResultatComparator))
     }
 
+    fun setAndreVurderinger(nyeAndreVurderinger: Set<AnnenVurdering>) {
+        andreVurderinger.clear()
+        andreVurderinger.addAll(nyeAndreVurderinger)
+    }
+
     fun erSøkersResultater() = vilkårResultater.all { it.vilkårType.parterDetteGjelderFor.contains(PersonType.SØKER) }
 
     fun leggTilBlankAnnenVurdering(annenVurderingType: AnnenVurderingType) {
@@ -80,6 +86,27 @@ class PersonResultat(
     }
 
     fun harEksplisittAvslag() = vilkårResultater.any { it.erEksplisittAvslagPåSøknad == true }
+
+    fun kopierMedParent(
+        vilkårsvurdering: Vilkårsvurdering,
+        inkluderAndreVurderinger: Boolean = false
+    ): PersonResultat {
+        val nyttPersonResultat = PersonResultat(
+            vilkårsvurdering = vilkårsvurdering,
+            aktør = aktør
+        )
+        val kopierteVilkårResultater: SortedSet<VilkårResultat> =
+            vilkårResultater.map { it.kopierMedParent(nyttPersonResultat) }.toSortedSet(VilkårResultatComparator)
+        nyttPersonResultat.setSortedVilkårResultater(kopierteVilkårResultater)
+
+        if (inkluderAndreVurderinger) {
+            val kopierteAndreVurderinger: MutableSet<AnnenVurdering> =
+                andreVurderinger.map { it.kopierMedParent(nyttPersonResultat) }.toMutableSet()
+
+            nyttPersonResultat.setAndreVurderinger(kopierteAndreVurderinger)
+        }
+        return nyttPersonResultat
+    }
 }
 
 fun Set<PersonResultat>.tilFørskjøvetVilkårResultatTidslinjeMap(): Map<Aktør, Tidslinje<List<VilkårResultat>>> =
@@ -122,10 +149,9 @@ private fun Map<Vilkår, List<VilkårResultat>>.tilVilkårResultatTidslinjer() =
 private fun alleVilkårOppfyltEllerNull(
     vilkårResultater: Iterable<VilkårResultat?>,
     vilkårForPerson: Set<Vilkår>
-): List<VilkårResultat>? =
-    if (erAlleVilkårForPersonOppfylt(vilkårForPerson, vilkårResultater))
-        vilkårResultater.filterNotNull()
-    else null
+): List<VilkårResultat>? = if (erAlleVilkårForPersonOppfylt(vilkårForPerson, vilkårResultater)) {
+    vilkårResultater.filterNotNull()
+} else null
 
 private fun erAlleVilkårForPersonOppfylt(
     vilkårForPerson: Set<Vilkår>,

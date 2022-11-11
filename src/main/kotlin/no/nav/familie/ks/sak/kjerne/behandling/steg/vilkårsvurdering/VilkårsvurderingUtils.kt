@@ -349,3 +349,47 @@ fun hentInnvilgedePerioder(
     }
     return innvilgedePeriodeResultaterSøker to innvilgedePeriodeResultaterBarna
 }
+
+fun genererVilkårsvurderingFraForrigeVedtattBehandling(
+    initiellVilkårsvurdering: Vilkårsvurdering,
+    forrigeBehandlingVilkårsvurdering: Vilkårsvurdering,
+    personopplysningGrunnlag: PersonopplysningGrunnlag
+): Vilkårsvurdering {
+    val vilkårsvurdering = kopierVilkårResultaterFraGammelTilNyVilkårsvurdering(
+        forrigeBehandlingVilkårsvurdering = forrigeBehandlingVilkårsvurdering,
+        initiellVilkårsvurdering = initiellVilkårsvurdering
+    )
+
+    vilkårsvurdering.personResultater.forEach { personResultat ->
+        val person = personopplysningGrunnlag.personer.single { it.aktør == personResultat.aktør }
+
+        val dødsDato = person.dødsfall?.dødsfallDato
+        if (dødsDato != null) {
+            oppdaterPersonResultaterTilÅSlutteVedDødsfallsdato(personResultat, dødsDato)
+        }
+    }
+
+    return vilkårsvurdering
+}
+
+private fun oppdaterPersonResultaterTilÅSlutteVedDødsfallsdato(
+    personResultat: PersonResultat,
+    dødsDato: LocalDate
+) {
+    Vilkår.values().forEach { vilkårType ->
+        val vilkårAvTypeMedSenesteTom = personResultat.vilkårResultater
+            .filter { it.vilkårType == vilkårType }
+            .maxByOrNull { it.periodeTom ?: TIDENES_ENDE }
+
+        if (vilkårAvTypeMedSenesteTom != null) {
+            val erDødsdatoEtterSisteVilkårPeriodeStarter = dødsDato.isAfter(vilkårAvTypeMedSenesteTom.periodeFom)
+            val erDødsdatoFørSisteVilkårsperiodeSlutter =
+                dødsDato.isBefore(vilkårAvTypeMedSenesteTom.periodeTom ?: TIDENES_ENDE)
+
+            if (erDødsdatoFørSisteVilkårsperiodeSlutter && erDødsdatoEtterSisteVilkårPeriodeStarter) {
+                vilkårAvTypeMedSenesteTom.periodeTom = dødsDato
+                vilkårAvTypeMedSenesteTom.begrunnelse = "Dødsfall"
+            }
+        }
+    }
+}

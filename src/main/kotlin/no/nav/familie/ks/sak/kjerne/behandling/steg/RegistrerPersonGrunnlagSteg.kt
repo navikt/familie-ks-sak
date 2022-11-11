@@ -21,8 +21,6 @@ class RegistrerPersonGrunnlagSteg(
         val sisteVedtattBehandling = hentSisteBehandlingSomErVedtatt(behandling.fagsak.id)
 
         personopplysningGrunnlagService.opprettPersonopplysningGrunnlag(behandling, sisteVedtattBehandling)
-
-        // TODO generer vilkårsvurdering - behandling med årsak søknad trenger ikke å generere vilkårsvurdering periode
     }
 
     private fun hentSisteBehandlingSomErVedtatt(fagsakId: Long): Behandling? =

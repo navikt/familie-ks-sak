@@ -43,12 +43,19 @@ class VilkårsvurderingService(
         val førsteVilkårsvurderingPåBehandlingOgFinnesTidligereVedtattBehandling =
             forrigeBehandlingSomErVedtatt != null && !finnesVilkårsvurderingPåInneværendeBehandling
 
-        var vilkårsvurdering = initiellVilkårsvurdering
+        val vilkårsvurdering =
+            if (førsteVilkårsvurderingPåBehandlingOgFinnesTidligereVedtattBehandling) {
+                genererVilkårsvurderingFraForrigeVedtattBehandling(
+                    initiellVilkårsvurdering = initiellVilkårsvurdering,
+                    forrigeBehandlingVilkårsvurdering = hentAktivVilkårsvurderingForBehandling(forrigeBehandlingSomErVedtatt!!.id),
+                    personopplysningGrunnlag = personopplysningGrunnlag
+                )
+            } else {
+                // TODO: Burde kun slette vilkårene til fjernede barn dersom det finnes vilkår på inneværende behandling.
+                // Nå resettes alt.
 
-        if (førsteVilkårsvurderingPåBehandlingOgFinnesTidligereVedtattBehandling) {
-            // vilkårsvurdering = genererVilkårsvurderingBasertPåTidligereVilkårsvurdering(initiellVilkårsvurdering, forrigeBehandlingSomErVedtatt)
-            // TODO: implementer generering av vilkårsvurdering basert på tidligere vilkårsvurdering
-        }
+                initiellVilkårsvurdering
+            }
 
         return lagreVilkårsvurdering(vilkårsvurdering, aktivVilkårsvurdering)
     }

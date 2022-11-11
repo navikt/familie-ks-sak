@@ -39,7 +39,17 @@ class AnnenVurdering(
 
     @Column(name = "begrunnelse")
     var begrunnelse: String? = null
-) : BaseEntitet()
+) : BaseEntitet() {
+
+    fun kopierMedParent(nyPersonResultat: PersonResultat? = null): AnnenVurdering {
+        return AnnenVurdering(
+            personResultat = nyPersonResultat ?: personResultat,
+            type = type,
+            resultat = resultat,
+            begrunnelse = begrunnelse
+        )
+    }
+}
 
 enum class AnnenVurderingType {
     OPPLYSNINGSPLIKT

@@ -130,7 +130,26 @@ class VilkårResultat(
         return Periode(verdi = this.behandlingId, fom = fraOgMedDato, tom = tilOgMedDato)
     }
 
+    fun kopierMedParent(nyPersonResultat: PersonResultat? = null): VilkårResultat {
+        return VilkårResultat(
+            personResultat = nyPersonResultat ?: personResultat,
+            erAutomatiskVurdert = erAutomatiskVurdert,
+            vilkårType = vilkårType,
+            resultat = resultat,
+            periodeFom = if (periodeFom != null) LocalDate.from(periodeFom) else null,
+            periodeTom = if (periodeTom != null) LocalDate.from(periodeTom) else null,
+            begrunnelse = begrunnelse,
+            behandlingId = behandlingId,
+            regelInput = regelInput,
+            regelOutput = regelOutput,
+            erEksplisittAvslagPåSøknad = erEksplisittAvslagPåSøknad,
+            vurderesEtter = vurderesEtter,
+            utdypendeVilkårsvurderinger = utdypendeVilkårsvurderinger
+        )
+    }
+
     companion object {
+
         val VilkårResultatComparator = compareBy<VilkårResultat>({ it.periodeFom }, { it.resultat }, { it.vilkårType })
     }
 }

@@ -44,7 +44,23 @@ data class Vilkårsvurdering(
     @Column(name = "ytelse_personer", columnDefinition = "text")
     var ytelsePersoner: String? = null
 ) : BaseEntitet() {
+
     fun hentPersonResultaterTilAktør(aktørId: String): List<VilkårResultat> =
         personResultater.find { it.aktør.aktørId == aktørId }?.vilkårResultater?.toList()
             ?: throw IllegalStateException("Fant ikke personresultat for $aktørId")
+
+    fun kopier(inkluderAndreVurderinger: Boolean = false): Vilkårsvurdering {
+        val nyVilkårsvurdering = Vilkårsvurdering(
+            behandling = behandling,
+            aktiv = aktiv
+        )
+
+        nyVilkårsvurdering.personResultater = personResultater.map {
+            it.kopierMedParent(
+                vilkårsvurdering = nyVilkårsvurdering,
+                inkluderAndreVurderinger = inkluderAndreVurderinger
+            )
+        }.toSet()
+        return nyVilkårsvurdering
+    }
 }
