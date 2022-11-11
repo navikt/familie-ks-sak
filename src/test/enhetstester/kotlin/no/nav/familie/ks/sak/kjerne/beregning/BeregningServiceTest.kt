@@ -330,7 +330,7 @@ class BeregningServiceTest {
     }
 
     @Test
-    fun `hentTilkjentYtelseForBehandlingerIverksattMotØkonomi - skal returnere tom liste det ikke finnes noen tilkjente ytelser som inneholder andeler med utbetalinger`() {
+    fun `hentTilkjentYtelseForBehandlingerIverksattMotØkonomi - skal returnere tom liste hvis det ikke finnes noen tilkjente ytelser som inneholder andeler med utbetalinger`() {
         val behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD)
         every { behandlingRepository.finnByFagsakAndAvsluttet(any()) } returns listOf(behandling)
         every { tilkjentYtelseRepository.finnByBehandlingAndHasUtbetalingsoppdrag(any()) } returns lagTilkjentYtelse(

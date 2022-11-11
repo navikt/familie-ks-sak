@@ -590,7 +590,7 @@ fun lagTilkjentYtelse(utbetalingsoppdrag: Utbetalingsoppdrag, behandling: Behand
 
 fun lagUtbetalingsoppdrag(utbetalingsperiode: List<Utbetalingsperiode>) = Utbetalingsoppdrag(
     kodeEndring = Utbetalingsoppdrag.KodeEndring.NY,
-    fagSystem = "BA",
+    fagSystem = "KS",
     saksnummer = "",
     aktoer = UUID.randomUUID().toString(),
     saksbehandlerId = "",
@@ -603,7 +603,7 @@ fun lagUtbetalingsperiode(opphør: Opphør? = null) = Utbetalingsperiode(
     opphør = opphør,
     periodeId = 0,
     datoForVedtak = LocalDate.now(),
-    klassifisering = "BATR",
+    klassifisering = "KS",
     vedtakdatoFom = LocalDate.now().minusMonths(2).førsteDagIInneværendeMåned(),
     vedtakdatoTom = LocalDate.now().minusMonths(1).sisteDagIMåned(),
     sats = BigDecimal("1054"),
