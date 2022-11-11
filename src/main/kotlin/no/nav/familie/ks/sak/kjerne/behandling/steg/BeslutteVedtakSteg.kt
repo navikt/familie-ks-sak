@@ -22,6 +22,7 @@ import no.nav.familie.prosessering.internal.TaskService
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDate
 
 @Service
@@ -36,6 +37,7 @@ class BeslutteVedtakSteg(
 ) : IBehandlingSteg {
     override fun getBehandlingssteg(): BehandlingSteg = BehandlingSteg.BESLUTTE_VEDTAK
 
+    @Transactional
     override fun utførSteg(behandlingId: Long, behandlingStegDto: BehandlingStegDto) {
         logger.info("Utfører steg ${getBehandlingssteg().name} for behandling $behandlingId")
         val behandling = behandlingService.hentBehandling(behandlingId)
