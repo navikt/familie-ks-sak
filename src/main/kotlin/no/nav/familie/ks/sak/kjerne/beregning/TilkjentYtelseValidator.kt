@@ -171,7 +171,7 @@ object TilkjentYtelseValidator {
         return personerMedUgyldigEtterbetaling
     }
 
-    fun hentAktørIderForDenneOgForrigeBehandling(
+    private fun hentAktørIderForDenneOgForrigeBehandling(
         andelerTilkjentYtelse: List<AndelTilkjentYtelse>,
         forrigeAndelerTilkjentYtelse: List<AndelTilkjentYtelse>?
     ): Set<String> {
@@ -180,7 +180,7 @@ object TilkjentYtelseValidator {
         return (aktørIderFraAndeler + aktøerIderFraForrigeAndeler).toSet()
     }
 
-    fun erUgyldigEtterbetalingPåPerson(
+    private fun erUgyldigEtterbetalingPåPerson(
         forrigeAndelerForPerson: List<AndelTilkjentYtelse>?,
         andelerForPerson: List<AndelTilkjentYtelse>,
         gyldigEtterbetalingFom: YearMonth?
@@ -219,7 +219,7 @@ object TilkjentYtelseValidator {
         }
     }
 
-    fun hentGyldigEtterbetalingFom(kravDato: LocalDateTime) =
+    private fun hentGyldigEtterbetalingFom(kravDato: LocalDateTime) =
         kravDato.minusMonths(3)
             .toLocalDate()
             .toYearMonth()
