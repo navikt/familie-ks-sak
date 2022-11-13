@@ -11,6 +11,7 @@ import no.nav.familie.ks.sak.common.util.tilKortString
 import no.nav.familie.ks.sak.config.BehandlerRolle
 import no.nav.familie.ks.sak.config.RolleConfig
 import no.nav.familie.ks.sak.data.lagBehandling
+import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.domene.ArbeidsfordelingsEnhet
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.domene.ArbeidsfordelingPåBehandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
@@ -94,11 +95,16 @@ class LoggServiceTest {
             behandlendeEnhetNavn = "fraEnhetNavn"
         )
 
+        val aktivArbeidsfordelingenhet = ArbeidsfordelingsEnhet(
+            enhetId = arbeidsFordelingEnhet.behandlendeEnhetId,
+            enhetNavn = arbeidsFordelingEnhet.behandlendeEnhetNavn
+        )
+
         every { loggRepository.save(capture(lagredeLogg)) } returns mockk()
 
         loggService.opprettBehandlendeEnhetEndret(
             behandling,
-            arbeidsFordelingEnhet,
+            aktivArbeidsfordelingenhet,
             arbeidsFordelingEnhet,
             true,
             "testbegrunnelse"
@@ -117,7 +123,7 @@ class LoggServiceTest {
 
         loggService.opprettBehandlendeEnhetEndret(
             behandling,
-            arbeidsFordelingEnhet,
+            aktivArbeidsfordelingenhet,
             arbeidsFordelingEnhet,
             false,
             "testbegrunnelse"
