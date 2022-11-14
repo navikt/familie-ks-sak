@@ -13,6 +13,7 @@ class BrevVedtaksPeriode(
     val tom: LocalDate?,
     val ytelseTyperForPeriode: Set<YtelseType>,
     val type: Vedtaksperiodetype,
+    val begrunnelser: List<BegrunnelseMedTriggere>,
     val utbetalingsperioder: List<UtbetalingsperiodeDetalj>
 ) {
     fun finnEndredeAndelerISammePeriode(
