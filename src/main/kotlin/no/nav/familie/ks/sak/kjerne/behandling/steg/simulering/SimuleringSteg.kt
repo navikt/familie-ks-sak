@@ -12,6 +12,7 @@ class SimuleringSteg : IBehandlingSteg {
 
     override fun utførSteg(behandlingId: Long) {
         logger.info("Utfører steg ${getBehandlingssteg().name} for behandling $behandlingId")
+        // TODO: håndter eventuell tilbakekreving. Relevant for revurderinger, men ikke i førstegangsbehandling.
     }
 
     companion object {

@@ -7,7 +7,13 @@ import no.nav.familie.kontrakter.felles.oppdrag.OppdragId
 import no.nav.familie.kontrakter.felles.oppdrag.OppdragStatus
 import no.nav.familie.kontrakter.felles.oppdrag.PerioderForBehandling
 import no.nav.familie.kontrakter.felles.oppdrag.Utbetalingsoppdrag
+import no.nav.familie.kontrakter.felles.simulering.BetalingType
 import no.nav.familie.kontrakter.felles.simulering.DetaljertSimuleringResultat
+import no.nav.familie.kontrakter.felles.simulering.FagOmrådeKode
+import no.nav.familie.kontrakter.felles.simulering.MottakerType
+import no.nav.familie.kontrakter.felles.simulering.PosteringType
+import no.nav.familie.kontrakter.felles.simulering.SimuleringMottaker
+import no.nav.familie.kontrakter.felles.simulering.SimulertPostering
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient.Companion.RETRY_BACKOFF_5000MS
 import no.nav.familie.ks.sak.integrasjon.kallEksternTjenesteRessurs
 import org.springframework.beans.factory.annotation.Qualifier
@@ -17,6 +23,7 @@ import org.springframework.retry.annotation.Retryable
 import org.springframework.stereotype.Service
 import org.springframework.web.client.RestOperations
 import java.net.URI
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
 
@@ -44,6 +51,7 @@ class OppdragKlient(
         backoff = Backoff(delayExpression = RETRY_BACKOFF_5000MS)
     )
     fun hentSimulering(utbetalingsoppdrag: Utbetalingsoppdrag): DetaljertSimuleringResultat {
+        return DetaljertSimuleringResultat(simuleringMottakerMock)
         val uri = URI.create("$familieOppdragUri/simulering/v1")
 
         return kallEksternTjenesteRessurs(
@@ -163,3 +171,124 @@ class OppdragKlient(
         private val FAGSYSTEM = "KS"
     }
 }
+
+val simulertPosteringMock = listOf(
+    SimulertPostering(
+        fagOmrådeKode = FagOmrådeKode.BARNETRYGD,
+        fom = LocalDate.parse("2019-09-01"),
+        tom = LocalDate.parse("2019-09-30"),
+        betalingType = BetalingType.DEBIT,
+        beløp = 50.0.toBigDecimal(),
+        posteringType = PosteringType.YTELSE,
+        forfallsdato = LocalDate.parse("2021-02-23"),
+        utenInntrekk = false
+    ),
+    SimulertPostering(
+        fagOmrådeKode = FagOmrådeKode.BARNETRYGD,
+        fom = LocalDate.parse("2019-09-01"),
+        tom = LocalDate.parse("2019-09-30"),
+        betalingType = BetalingType.DEBIT,
+        beløp = 1004.0.toBigDecimal(),
+        posteringType = PosteringType.YTELSE,
+        forfallsdato = LocalDate.parse("2021-02-23"),
+        utenInntrekk = false
+    ),
+    SimulertPostering(
+        fagOmrådeKode = FagOmrådeKode.BARNETRYGD,
+        fom = LocalDate.parse("2019-09-01"),
+        tom = LocalDate.parse("2019-09-30"),
+        betalingType = BetalingType.DEBIT,
+        beløp = 50.0.toBigDecimal(),
+        posteringType = PosteringType.FEILUTBETALING,
+        forfallsdato = LocalDate.parse("2021-02-23"),
+        utenInntrekk = false
+    ),
+    SimulertPostering(
+        fagOmrådeKode = FagOmrådeKode.BARNETRYGD,
+        fom = LocalDate.parse("2019-09-01"),
+        tom = LocalDate.parse("2019-09-30"),
+        betalingType = BetalingType.KREDIT,
+        beløp = (-50.0).toBigDecimal(),
+        posteringType = PosteringType.MOTP,
+        forfallsdato = LocalDate.parse("2021-02-23"),
+        utenInntrekk = false
+    ),
+    SimulertPostering(
+        fagOmrådeKode = FagOmrådeKode.BARNETRYGD,
+        fom = LocalDate.parse("2019-09-01"),
+        tom = LocalDate.parse("2019-09-30"),
+        betalingType = BetalingType.KREDIT,
+        beløp = (-1054.0).toBigDecimal(),
+        posteringType = PosteringType.YTELSE,
+        forfallsdato = LocalDate.parse("2021-02-23"),
+        utenInntrekk = false
+    ),
+    SimulertPostering(
+        fagOmrådeKode = FagOmrådeKode.BARNETRYGD,
+        fom = LocalDate.parse("2019-10-01"),
+        tom = LocalDate.parse("2019-10-31"),
+        betalingType = BetalingType.DEBIT,
+        beløp = 50.0.toBigDecimal(),
+        posteringType = PosteringType.YTELSE,
+        forfallsdato = LocalDate.parse("2021-02-23"),
+        utenInntrekk = false
+    ),
+    SimulertPostering(
+        fagOmrådeKode = FagOmrådeKode.BARNETRYGD,
+        fom = LocalDate.parse("2019-10-01"),
+        tom = LocalDate.parse("2019-10-31"),
+        betalingType = BetalingType.DEBIT,
+        beløp = 1004.0.toBigDecimal(),
+        posteringType = PosteringType.YTELSE,
+        forfallsdato = LocalDate.parse("2021-02-23"),
+        utenInntrekk = false
+    ),
+    SimulertPostering(
+        fagOmrådeKode = FagOmrådeKode.BARNETRYGD,
+        fom = LocalDate.parse("2019-10-01"),
+        tom = LocalDate.parse("2019-10-31"),
+        betalingType = BetalingType.DEBIT,
+        beløp = 50.0.toBigDecimal(),
+        posteringType = PosteringType.FEILUTBETALING,
+        forfallsdato = LocalDate.parse("2021-02-23"),
+        utenInntrekk = false
+    ),
+    SimulertPostering(
+        fagOmrådeKode = FagOmrådeKode.BARNETRYGD,
+        fom = LocalDate.parse("2019-10-01"),
+        tom = LocalDate.parse("2019-10-31"),
+        betalingType = BetalingType.KREDIT,
+        beløp = (-50.0).toBigDecimal(),
+        posteringType = PosteringType.MOTP,
+        forfallsdato = LocalDate.parse("2021-02-23"),
+        utenInntrekk = false
+    ),
+    SimulertPostering(
+        fagOmrådeKode = FagOmrådeKode.BARNETRYGD,
+        fom = LocalDate.parse("2019-10-01"),
+        tom = LocalDate.parse("2019-10-31"),
+        betalingType = BetalingType.KREDIT,
+        beløp = (-1054.0).toBigDecimal(),
+        posteringType = PosteringType.YTELSE,
+        forfallsdato = LocalDate.parse("2021-02-23"),
+        utenInntrekk = false
+    ),
+    SimulertPostering(
+        fagOmrådeKode = FagOmrådeKode.BARNETRYGD,
+        fom = LocalDate.parse("2021-04-01"),
+        tom = LocalDate.parse("2021-04-30"),
+        betalingType = BetalingType.DEBIT,
+        beløp = 1054.0.toBigDecimal(),
+        posteringType = PosteringType.YTELSE,
+        forfallsdato = LocalDate.parse("2024-05-10"),
+        utenInntrekk = false
+    )
+)
+
+val simuleringMottakerMock = listOf(
+    SimuleringMottaker(
+        simulertPostering = simulertPosteringMock,
+        mottakerType = MottakerType.BRUKER,
+        mottakerNummer = "12345678910"
+    )
+)

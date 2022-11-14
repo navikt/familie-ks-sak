@@ -84,4 +84,12 @@ class FagsakController(private val fagsakService: FagsakService, private val til
             ?: ResponseEntity.status(HttpStatus.NOT_FOUND)
                 .body(Ressurs.failure(errorMessage = "Fant ikke fagsak på person"))
     }
+
+    @GetMapping(path = ["/{fagsakId}/har-apen-tilbakekreving"], produces = [MediaType.APPLICATION_JSON_VALUE])
+    fun harÅpenTilbakekreving(@PathVariable fagsakId: Long): ResponseEntity<Ressurs<Boolean>> {
+        // TODO: Sjekk om det finnes en åpen tilbakekreving. (tilbakekrevingService.søkerHarÅpenTilbakekreving(fagsakId))
+        return ResponseEntity.ok(
+            Ressurs.success(false)
+        )
+    }
 }
