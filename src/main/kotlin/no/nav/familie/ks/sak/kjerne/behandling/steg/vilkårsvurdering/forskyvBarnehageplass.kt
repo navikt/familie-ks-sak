@@ -29,12 +29,12 @@ fun List<VilkårResultat>.forskyvBarnehageplassVilkår(): List<Periode<VilkårRe
 }
 
 private fun List<VilkårResultat>.tilBarnehageplassVilkårMedGraderingsforskjellMellomPerioder(): List<BarnehageplassVilkårMedGraderingsforskjellMellomPerioder<VilkårResultat>> {
-    val oppfylteVilkårResultatListeMedNullverdierForHullITidslinje: List<VilkårResultat?> = this
+    val vilkårResultatListeMedNullverdierForHullITidslinje: List<VilkårResultat?> = this
         .tilTidslinje()
         .tilPerioder()
         .map { it.verdi }
 
-    return oppfylteVilkårResultatListeMedNullverdierForHullITidslinje
+    return vilkårResultatListeMedNullverdierForHullITidslinje
         .fold(emptyList()) { acc: List<BarnehageplassVilkårMedGraderingsforskjellMellomPerioder<VilkårResultat?>>, vilkårResultat ->
             val vilkårResultatIForrigePeriode = acc.lastOrNull()
 
