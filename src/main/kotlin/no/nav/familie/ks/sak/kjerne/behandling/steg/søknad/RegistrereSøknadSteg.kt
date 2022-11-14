@@ -3,6 +3,7 @@ package no.nav.familie.ks.sak.kjerne.behandling.steg.søknad
 import no.nav.familie.ks.sak.api.dto.BehandlingStegDto
 import no.nav.familie.ks.sak.api.dto.RegistrerSøknadDto
 import no.nav.familie.ks.sak.api.dto.tilSøknadGrunnlag
+import no.nav.familie.ks.sak.api.dto.writeValueAsString
 import no.nav.familie.ks.sak.api.mapper.SøknadGrunnlagMapper.tilSøknadDto
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg
@@ -29,7 +30,13 @@ class RegistrereSøknadSteg(
         val registrerSøknadDto = behandlingStegDto as RegistrerSøknadDto
 
         // Sjekk om det allerede finnes en registrert søknad tilknyttet behandlingen
-        val aktivSøknadGrunnlagFinnes = søknadGrunnlagService.finnAktiv(behandlingId) != null
+        val aktivSøknadGrunnlag = søknadGrunnlagService.finnAktiv(behandlingId)
+        val aktivSøknadGrunnlagFinnes = aktivSøknadGrunnlag != null
+
+        if (aktivSøknadGrunnlagFinnes && aktivSøknadGrunnlag!!.søknad == registrerSøknadDto.søknad.writeValueAsString()) {
+            logger.info("Det finnes allerede en identisk søknad, ingen endringer blir utført.")
+            return
+        }
 
         // Logg at vi registrerer ny søknad med info om det fantes en søknad fra før
         loggService.opprettRegistrertSøknadLogg(behandlingId, aktivSøknadGrunnlagFinnes)
