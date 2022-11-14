@@ -12,7 +12,6 @@ import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
-import no.nav.familie.ks.sak.kjerne.behandling.domene.Beslutning
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.VedtakService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
 import no.nav.familie.ks.sak.kjerne.logg.LoggService
@@ -54,26 +53,23 @@ class BeslutteVedtakSteg(
             kontrollerteSider = besluttVedtakDto.kontrollerteSider
         )
 
+        // opprett historikkinnslag
+        loggService.opprettBeslutningOmVedtakLogg(behandling, besluttVedtakDto.beslutning, behandlingStegDto.begrunnelse)
+
+        // ferdigstill GodkjenneVedtak oppgave
+        opprettTaskFerdigstillGodkjenneVedtak(behandling = behandling)
+
         if (besluttVedtakDto.beslutning.erGodkjent()) {
-            opprettTaskFerdigstillGodkjenneVedtak(
-                behandling = behandling,
-                beslutning = besluttVedtakDto.beslutning,
-                begrunnelse = behandlingStegDto.begrunnelse
-            )
+            val vedtak = vedtakService.hentAktivVedtakForBehandling(behandlingId)
+            vedtakService.oppdaterVedtaksdato(vedtak)
         } else {
             val vilkårsvurdering = vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(behandlingId)
-
+            // Her oppdaterer vi endretAv til beslutter saksbehandler og endretTid til næværende tidspunkt
             vilkårsvurderingService.oppdater(vilkårsvurdering)
 
             vedtakService.opprettOgInitierNyttVedtakForBehandling(
                 behandling = behandling,
                 kopierVedtakBegrunnelser = true
-            )
-
-            opprettTaskFerdigstillGodkjenneVedtak(
-                behandling = behandling,
-                beslutning = behandlingStegDto.beslutning,
-                begrunnelse = behandlingStegDto.begrunnelse
             )
 
             val behandleUnderkjentVedtakTask = OpprettOppgaveTask.opprettTask(
@@ -82,7 +78,6 @@ class BeslutteVedtakSteg(
                 tilordnetRessurs = totrinnskontroll.saksbehandlerId,
                 fristForFerdigstillelse = LocalDate.now()
             )
-
             taskService.save(behandleUnderkjentVedtakTask)
         }
     }
@@ -98,19 +93,15 @@ class BeslutteVedtakSteg(
             behandling.opprettetÅrsak == BehandlingÅrsak.KORREKSJON_VEDTAKSBREV &&
                 !featureToggleService.isEnabled(FeatureToggleConfig.KAN_MANUELT_KORRIGERE_MED_VEDTAKSBREV) ->
                 throw FunksjonellFeil(
-                    melding = "Årsak ${BehandlingÅrsak.KORREKSJON_VEDTAKSBREV.visningsnavn} og toggle ${FeatureToggleConfig.KAN_MANUELT_KORRIGERE_MED_VEDTAKSBREV} false",
-                    frontendFeilmelding = "Du har ikke tilgang til å beslutte for denne behandlingen. Ta kontakt med teamet dersom dette ikke stemmer."
+                    melding = "Årsak ${BehandlingÅrsak.KORREKSJON_VEDTAKSBREV.visningsnavn} og " +
+                        "toggle ${FeatureToggleConfig.KAN_MANUELT_KORRIGERE_MED_VEDTAKSBREV} false",
+                    frontendFeilmelding = "Du har ikke tilgang til å beslutte for denne behandlingen. " +
+                        "Ta kontakt med teamet dersom dette ikke stemmer."
                 )
         }
     }
 
-    private fun opprettTaskFerdigstillGodkjenneVedtak(
-        behandling: Behandling,
-        beslutning: Beslutning,
-        begrunnelse: String?
-    ) {
-        loggService.opprettBeslutningOmVedtakLogg(behandling, beslutning, begrunnelse)
-
+    private fun opprettTaskFerdigstillGodkjenneVedtak(behandling: Behandling) {
         val ferdigstillGodkjenneVedtakTask =
             FerdigstillOppgaverTask.opprettTask(behandling.id, Oppgavetype.GodkjenneVedtak)
 

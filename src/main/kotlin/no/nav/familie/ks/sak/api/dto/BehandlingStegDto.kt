@@ -22,6 +22,8 @@ data class BesluttVedtakDto(
     val kontrollerteSider: List<String> = emptyList()
 ) : BehandlingStegDto()
 
+data class IverksettMotOppdragDto(val behandlingId: Long, val saksbehandlerId: String) : BehandlingStegDto()
+
 data class SøknadDto(
     val søkerMedOpplysninger: SøkerMedOpplysningerDto,
     val barnaMedOpplysninger: List<BarnMedOpplysningerDto>,
