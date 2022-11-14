@@ -35,17 +35,26 @@ internal class TilkjentYtelseValidatorTest {
         søkerAktør = søker,
         barnAktør = listOf(barn)
     )
-    private val tilkjentYtelse = lagInitieltTilkjentYtelse(behandling).also {
-        it.stønadFom = YearMonth.now().minusMonths(11)
-        it.stønadTom = YearMonth.now()
-    }
+    private val tilkjentYtelse = lagInitieltTilkjentYtelse(behandling)
 
     @Test
     fun `validerAtTilkjentYtelseHarFornuftigePerioderOgBeløp skal kaste feil når utbetalingsperiode er mer enn 11 måneder`() {
-        val tilkjentYtelse = lagInitieltTilkjentYtelse(behandling).also {
-            it.stønadFom = YearMonth.now().minusYears(1)
-            it.stønadTom = YearMonth.now()
-        }
+        val andelTilkjentYtelse1 = lagAndelTilkjentYtelse(
+            tilkjentYtelse = tilkjentYtelse,
+            behandling = behandling,
+            aktør = barn,
+            stønadFom = YearMonth.now().minusMonths(10),
+            stønadTom = YearMonth.now().minusMonths(4)
+        )
+        val andelTilkjentYtelse2 = lagAndelTilkjentYtelse(
+            tilkjentYtelse = tilkjentYtelse,
+            behandling = behandling,
+            aktør = barn,
+            stønadFom = YearMonth.now().minusMonths(3),
+            stønadTom = YearMonth.now().plusMonths(6)
+        )
+        tilkjentYtelse.andelerTilkjentYtelse.addAll(setOf(andelTilkjentYtelse1, andelTilkjentYtelse2))
+
         val exception = assertThrows<FunksjonellFeil> {
             validerAtTilkjentYtelseHarFornuftigePerioderOgBeløp(tilkjentYtelse, personopplysningGrunnlag)
         }
