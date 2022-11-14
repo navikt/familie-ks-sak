@@ -34,25 +34,17 @@ object TilkjentYtelseValidator {
         val søker = personopplysningGrunnlag.søker
         val barna = personopplysningGrunnlag.barna
 
-        // TODO: Tilkjent ytelse har ikke satt stønadFom og stønadTom på dette tidspunktet. Legger inn midertidig håndtering slik at vi valideringen under ikke feiler.
-        //  Burde vi sette stønadFom og stønadTom tidligere eller burde denne validering skjedd et annet sted?
-        val tilkjentYtelseFom =
-            tilkjentYtelse.stønadFom?.toLocalDate() ?: tilkjentYtelse.andelerTilkjentYtelse.minOfOrNull { it.stønadFom }
-                ?.toLocalDate()
+        if (tilkjentYtelse.andelerTilkjentYtelse.isNotEmpty()) {
+            val stønadFom = tilkjentYtelse.andelerTilkjentYtelse.minOf { it.stønadFom }
+            val stønadTom = tilkjentYtelse.andelerTilkjentYtelse.maxOf { it.stønadTom }
 
-        val tilkjentYtelseTom =
-            tilkjentYtelse.stønadTom?.toLocalDate() ?: tilkjentYtelse.andelerTilkjentYtelse.maxOfOrNull { it.stønadTom }
-                ?.toLocalDate()
-
-        val diff = if (tilkjentYtelseFom == null || tilkjentYtelseTom == null) Period.ZERO else Period.between(
-            tilkjentYtelseFom,
-            tilkjentYtelseTom
-        )
-        if (diff.toTotalMonths() > 11) {
-            val feilmelding =
-                "Kontantstøtte kan maks utbetales for 11 måneder. Du er i ferd med å utbetale mer enn dette. " +
-                    "Kontroller datoene på vilkårene eller ta kontakt med team familie"
-            throw FunksjonellFeil(frontendFeilmelding = feilmelding, melding = feilmelding)
+            val diff = Period.between(stønadFom.toLocalDate(), stønadTom.toLocalDate())
+            if (diff.toTotalMonths() > 11) {
+                val feilmelding =
+                    "Kontantstøtte kan maks utbetales for 11 måneder. Du er i ferd med å utbetale mer enn dette. " +
+                        "Kontroller datoene på vilkårene eller ta kontakt med team familie"
+                throw FunksjonellFeil(frontendFeilmelding = feilmelding, melding = feilmelding)
+            }
         }
 
         val tidslinjeMedAndeler = tilkjentYtelse.tilTidslinjeMedAndeler()
