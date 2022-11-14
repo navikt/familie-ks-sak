@@ -9,7 +9,6 @@ import no.nav.familie.ks.sak.common.util.TIDENES_ENDE
 import no.nav.familie.ks.sak.common.util.TIDENES_MORGEN
 import no.nav.familie.ks.sak.common.util.førsteDagIInneværendeMåned
 import no.nav.familie.ks.sak.common.util.sisteDagIMåned
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
 import no.nav.familie.ks.sak.kjerne.beregning.domene.hentProsentForAntallTimer
 import java.math.BigDecimal
@@ -32,7 +31,6 @@ fun List<VilkårResultat>.forskyvBarnehageplassVilkår(): List<Periode<VilkårRe
 
 private fun List<VilkårResultat>.tilBarnehageplassVilkårMedDifferanserMellomPerioder(): List<BarnehageplassVilkårMedGraderingsforskjellMellomPerioder<VilkårResultat>> {
     val oppfylteVilkårResultater: List<VilkårResultat> = this
-        .filter { it.resultat == Resultat.OPPFYLT }
 
     val oppfylteVilkårResultatListeMedNullverdierForHullITidslinje: List<VilkårResultat?> = oppfylteVilkårResultater
         .tilTidslinje()
