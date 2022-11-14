@@ -54,7 +54,7 @@ class BehandlingsresultatSteg(
             behandlingService.nullstillEndringstidspunkt(behandlingId)
             // TODO oppdater vedtak med vedtaksperioder
         }
-        simuleringService.oppdaterSimuleringPåBehandling(behandlingMedOppdatertResultat)
+        simuleringService.oppdaterSimuleringPåBehandlingVedBehov(behandlingId)
     }
 
     companion object {

@@ -37,6 +37,47 @@ class SimuleringService(
 ) {
     private val simulert = Metrics.counter("familie.ks.sak.oppdrag.simulert")
 
+    @Transactional
+    fun oppdaterSimuleringPåBehandlingVedBehov(behandlingId: Long): List<ØkonomiSimuleringMottaker> {
+        val behandling = behandlingRepository.hentBehandling(behandlingId)
+        val behandlingErFerdigBesluttet =
+            behandling.status == BehandlingStatus.IVERKSETTER_VEDTAK ||
+                behandling.status == BehandlingStatus.AVSLUTTET
+
+        val simulering = hentSimuleringPåBehandling(behandlingId)
+
+        return if (!behandlingErFerdigBesluttet && simuleringErUtdatert(simulering.tilSimuleringDto())) {
+            oppdaterSimuleringPåBehandling(behandling)
+        } else {
+            simulering
+        }
+    }
+
+    fun hentEtterbetaling(behandlingId: Long): BigDecimal {
+        val simuleringMottakere = hentSimuleringPåBehandling(behandlingId)
+        return simuleringMottakere.tilSimuleringDto().etterbetaling
+    }
+
+    fun hentFeilutbetaling(behandlingId: Long): BigDecimal {
+        val simuleringMottakere = hentSimuleringPåBehandling(behandlingId)
+        return simuleringMottakere.tilSimuleringDto().feilutbetaling
+    }
+
+    private fun hentSimuleringPåBehandling(behandlingId: Long): List<ØkonomiSimuleringMottaker> {
+        return øknomiSimuleringMottakerRepository.findByBehandlingId(behandlingId)
+    }
+
+    private fun oppdaterSimuleringPåBehandling(behandling: Behandling): List<ØkonomiSimuleringMottaker> {
+        val aktivtVedtak = vedtakRepository.findByBehandlingAndAktivOptional(behandling.id)
+            ?: throw Feil("Fant ikke aktivt vedtak på behandling${behandling.id}")
+
+        val simulering: List<SimuleringMottaker> =
+            hentSimuleringFraFamilieOppdrag(vedtak = aktivtVedtak)?.simuleringMottaker ?: emptyList()
+
+        slettSimuleringPåBehandling(behandling.id)
+        return lagreSimuleringPåBehandling(simulering, behandling)
+    }
+
     private fun hentSimuleringFraFamilieOppdrag(vedtak: Vedtak): DetaljertSimuleringResultat? {
         if (vedtak.behandling.resultat == Behandlingsresultat.FORTSATT_INNVILGET ||
             vedtak.behandling.resultat == Behandlingsresultat.AVSLÅTT ||
@@ -67,6 +108,14 @@ class SimuleringService(
         return oppdragKlient.hentSimulering(utbetalingsoppdrag)
     }
 
+    private fun simuleringErUtdatert(simulering: SimuleringDto) =
+        simulering.tidSimuleringHentet == null ||
+            (
+                simulering.forfallsdatoNestePeriode != null &&
+                    simulering.tidSimuleringHentet < simulering.forfallsdatoNestePeriode &&
+                    LocalDate.now() > simulering.forfallsdatoNestePeriode
+                )
+
     private fun lagreSimuleringPåBehandling(
         simuleringMottakere: List<SimuleringMottaker>,
         beahndling: Behandling
@@ -77,53 +126,4 @@ class SimuleringService(
 
     private fun slettSimuleringPåBehandling(behandlingId: Long) =
         øknomiSimuleringMottakerRepository.deleteByBehandlingId(behandlingId)
-
-    fun hentSimuleringPåBehandling(behandlingId: Long): List<ØkonomiSimuleringMottaker> {
-        return øknomiSimuleringMottakerRepository.findByBehandlingId(behandlingId)
-    }
-
-    fun oppdaterSimuleringPåBehandlingVedBehov(behandlingId: Long): List<ØkonomiSimuleringMottaker> {
-        val behandling = behandlingRepository.hentBehandling(behandlingId)
-        val behandlingErFerdigBesluttet =
-            behandling.status == BehandlingStatus.IVERKSETTER_VEDTAK ||
-                behandling.status == BehandlingStatus.AVSLUTTET
-
-        val simulering = hentSimuleringPåBehandling(behandlingId)
-
-        return if (!behandlingErFerdigBesluttet && simuleringErUtdatert(simulering.tilSimuleringDto())) {
-            oppdaterSimuleringPåBehandling(behandling)
-        } else {
-            simulering
-        }
-    }
-
-    private fun simuleringErUtdatert(simulering: SimuleringDto) =
-        simulering.tidSimuleringHentet == null ||
-            (
-                simulering.forfallsdatoNestePeriode != null &&
-                    simulering.tidSimuleringHentet < simulering.forfallsdatoNestePeriode &&
-                    LocalDate.now() > simulering.forfallsdatoNestePeriode
-                )
-
-    @Transactional
-    fun oppdaterSimuleringPåBehandling(behandling: Behandling): List<ØkonomiSimuleringMottaker> {
-        val aktivtVedtak = vedtakRepository.findByBehandlingAndAktivOptional(behandling.id)
-            ?: throw Feil("Fant ikke aktivt vedtak på behandling${behandling.id}")
-
-        val simulering: List<SimuleringMottaker> =
-            hentSimuleringFraFamilieOppdrag(vedtak = aktivtVedtak)?.simuleringMottaker ?: emptyList()
-
-        slettSimuleringPåBehandling(behandling.id)
-        return lagreSimuleringPåBehandling(simulering, behandling)
-    }
-
-    fun hentEtterbetaling(behandlingId: Long): BigDecimal {
-        val simuleringMottakere = hentSimuleringPåBehandling(behandlingId)
-        return simuleringMottakere.tilSimuleringDto().etterbetaling
-    }
-
-    fun hentFeilutbetaling(behandlingId: Long): BigDecimal {
-        val simuleringMottakere = hentSimuleringPåBehandling(behandlingId)
-        return simuleringMottakere.tilSimuleringDto().feilutbetaling
-    }
 }
