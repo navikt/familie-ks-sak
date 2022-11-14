@@ -170,7 +170,7 @@ object TilkjentYtelseUtils {
                 }
                 // når det finnes 2 barnehageplass vilkår som er rett etter hverandre i månedsskifte,
                 // skal oppfyltFom til neste periode starte måneden etter hvis det er reduksjon i barnehageplass
-                val skalStateNesteMåned = perioderResultatForBarn.any {
+                val skalStarteNesteMåned = perioderResultatForBarn.any {
                     val barnehageplassVilkårFraForrigePeriode = it.vilkårResultater.first { vilkår ->
                         vilkår.vilkårType == Vilkår.BARNEHAGEPLASS
                     }
@@ -182,10 +182,10 @@ object TilkjentYtelseUtils {
                 }
 
                 // første perioder starter alltid måneden etter og siste periode slutter alltid måneden før
-                val erFøstePeriode = perioderResultatForBarn.first().overlapper(periodeResultatBarn)
+                val erFørstePeriode = perioderResultatForBarn.first().overlapper(periodeResultatBarn)
                 val erSistePeriode = perioderResultatForBarn.last().overlapper(periodeResultatBarn)
 
-                if (erFøstePeriode || skalStateNesteMåned) oppfyltFom = oppfyltFom.plusMonths(1)
+                if (erFørstePeriode || skalStarteNesteMåned) oppfyltFom = oppfyltFom.plusMonths(1)
                 oppfyltTom = when {
                     skalVidereføresEnMånedEkstra -> oppfyltTom.plusMonths(1)
                     erSistePeriode -> oppfyltTom.minusMonths(1)
