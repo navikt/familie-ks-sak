@@ -34,7 +34,10 @@ object TilkjentYtelseValidator {
         val søker = personopplysningGrunnlag.søker
         val barna = personopplysningGrunnlag.barna
 
-        val diff = Period.between(tilkjentYtelse.stønadFom?.toLocalDate(), tilkjentYtelse.stønadTom?.toLocalDate())
+        val stønadFom = tilkjentYtelse.andelerTilkjentYtelse.minOf { it.stønadFom }
+        val stønadTom = tilkjentYtelse.andelerTilkjentYtelse.maxOf { it.stønadTom }
+
+        val diff = Period.between(stønadFom.toLocalDate(), stønadTom.toLocalDate())
         if (diff.toTotalMonths() > 11) {
             val feilmelding =
                 "Kontantstøtte kan maks utbetales for 11 måneder. Du er i ferd med å utbetale mer enn dette. " +
