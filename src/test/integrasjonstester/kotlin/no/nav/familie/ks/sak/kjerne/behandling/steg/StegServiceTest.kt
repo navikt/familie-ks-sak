@@ -70,7 +70,7 @@ class StegServiceTest : OppslagSpringRunnerTest() {
 
     @MockkBean
     private lateinit var taskService: TaskService
-    
+
     @Autowired
     private lateinit var behandlingRepository: BehandlingRepository
 
