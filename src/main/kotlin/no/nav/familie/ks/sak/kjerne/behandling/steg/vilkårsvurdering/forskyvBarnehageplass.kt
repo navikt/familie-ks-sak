@@ -30,9 +30,7 @@ fun List<VilkårResultat>.forskyvBarnehageplassVilkår(): List<Periode<VilkårRe
 }
 
 private fun List<VilkårResultat>.tilBarnehageplassVilkårMedDifferanserMellomPerioder(): List<BarnehageplassVilkårMedGraderingsforskjellMellomPerioder<VilkårResultat>> {
-    val oppfylteVilkårResultater: List<VilkårResultat> = this
-
-    val oppfylteVilkårResultatListeMedNullverdierForHullITidslinje: List<VilkårResultat?> = oppfylteVilkårResultater
+    val oppfylteVilkårResultatListeMedNullverdierForHullITidslinje: List<VilkårResultat?> = this
         .tilTidslinje()
         .tilPerioder()
         .map { it.verdi }
