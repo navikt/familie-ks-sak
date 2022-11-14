@@ -34,7 +34,20 @@ object TilkjentYtelseValidator {
         val søker = personopplysningGrunnlag.søker
         val barna = personopplysningGrunnlag.barna
 
-        val diff = Period.between(tilkjentYtelse.stønadFom?.toLocalDate(), tilkjentYtelse.stønadTom?.toLocalDate())
+        // TODO: Tilkjent ytelse har ikke satt stønadFom og stønadTom på dette tidspunktet. Legger inn midertidig håndtering slik at vi valideringen under ikke feiler.
+        //  Burde vi sette stønadFom og stønadTom tidligere eller burde denne validering skjedd et annet sted?
+        val tilkjentYtelseFom =
+            tilkjentYtelse.stønadFom?.toLocalDate() ?: tilkjentYtelse.andelerTilkjentYtelse.minOfOrNull { it.stønadFom }
+                ?.toLocalDate()
+
+        val tilkjentYtelseTom =
+            tilkjentYtelse.stønadTom?.toLocalDate() ?: tilkjentYtelse.andelerTilkjentYtelse.maxOfOrNull { it.stønadTom }
+                ?.toLocalDate()
+
+        val diff = if (tilkjentYtelseFom == null || tilkjentYtelseTom == null) Period.ZERO else Period.between(
+            tilkjentYtelseFom,
+            tilkjentYtelseTom
+        )
         if (diff.toTotalMonths() > 11) {
             val feilmelding =
                 "Kontantstøtte kan maks utbetales for 11 måneder. Du er i ferd med å utbetale mer enn dette. " +

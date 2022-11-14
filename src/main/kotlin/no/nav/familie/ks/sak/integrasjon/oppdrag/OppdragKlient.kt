@@ -49,7 +49,7 @@ class OppdragKlient(
         return kallEksternTjenesteRessurs(
             tjeneste = "familie-oppdrag",
             uri = uri,
-            formål = "Henter simulering fra Økonomi"
+            formål = "Henter simulering fra oppdrag"
         ) {
             postForEntity(uri = uri, utbetalingsoppdrag)
         }
@@ -60,7 +60,7 @@ class OppdragKlient(
         return kallEksternTjenesteRessurs(
             tjeneste = "familie-oppdrag",
             uri = uri,
-            formål = "Henter oppdragstatus fra Økonomi"
+            formål = "Henter oppdragstatus fra oppdrag"
         ) {
             postForEntity(uri = uri, oppdragId)
         }
