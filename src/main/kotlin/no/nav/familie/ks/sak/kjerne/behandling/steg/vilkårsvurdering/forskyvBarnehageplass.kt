@@ -17,13 +17,12 @@ import java.time.LocalDate
 fun List<VilkårResultat>.forskyvBarnehageplassVilkår(): List<Periode<VilkårResultat>> {
     return tilBarnehageplassVilkårMedGraderingsforskjellMellomPerioder()
         .map {
-            val fom = forskyvFomBasertPåGraderingsforskjell(it.vilkår.periodeFom, it.graderingsforskjellFraForrigePeriode)
-            val tom = forskyvTomBasertPåGraderingsforskjell(it.graderingsforskjellTilNestePeriode, it.vilkår.periodeTom)
-
             Periode(
                 verdi = it.vilkår,
-                fom = fom,
-                tom = tom
+                fom = it.vilkår.periodeFom
+                    .tilPeriodefomBasertPåGraderingsforskjell(it.graderingsforskjellMellomDenneOgForrigePeriode),
+                tom = it.vilkår.periodeTom
+                    .tilPeriodetomBasertPåGraderingsforskjell(it.graderingsforskjellMellomDenneOgNestePeriode)
             )
         }.filter { (it.fom ?: TIDENES_MORGEN).isBefore(it.tom ?: TIDENES_ENDE) }
         .filtrerBortOverlappendePerioderMedMinstGradering()
@@ -39,29 +38,29 @@ private fun List<VilkårResultat>.tilBarnehageplassVilkårMedGraderingsforskjell
         .fold(emptyList()) { acc: List<BarnehageplassVilkårMedGraderingsforskjellMellomPerioder<VilkårResultat?>>, vilkårResultat ->
             val forrige = acc.lastOrNull()
 
-            val graderingsforskjellFraForrigePeriode = hentGraderingsforskjellFraForrigePeriode(forrige, vilkårResultat)
+            val graderingsforskjellMellomDenneOgForrigePeriode =
+                vilkårResultat.hentGraderingsforskjellMellomDenneOgForrigePeriode(forrige)
 
             val accMedForrigeOppdatert =
                 if (forrige == null) {
                     acc
                 } else {
-                    acc.dropLast(1) + forrige.copy(graderingsforskjellTilNestePeriode = graderingsforskjellFraForrigePeriode)
+                    acc.dropLast(1) + forrige.copy(graderingsforskjellMellomDenneOgNestePeriode = graderingsforskjellMellomDenneOgForrigePeriode)
                 }
 
             accMedForrigeOppdatert + BarnehageplassVilkårMedGraderingsforskjellMellomPerioder(
                 vilkår = vilkårResultat,
-                graderingsforskjellFraForrigePeriode = graderingsforskjellFraForrigePeriode,
-                graderingsforskjellTilNestePeriode = Graderingsforskjell.Reduksjon
+                graderingsforskjellMellomDenneOgForrigePeriode = graderingsforskjellMellomDenneOgForrigePeriode,
+                graderingsforskjellMellomDenneOgNestePeriode = Graderingsforskjell.Reduksjon
             )
         }.filtrerBortNullverdier()
 }
 
-private fun hentGraderingsforskjellFraForrigePeriode(
-    forrige: BarnehageplassVilkårMedGraderingsforskjellMellomPerioder<VilkårResultat?>?,
-    vilkårResultat: VilkårResultat?
+private fun VilkårResultat?.hentGraderingsforskjellMellomDenneOgForrigePeriode(
+    forrige: BarnehageplassVilkårMedGraderingsforskjellMellomPerioder<VilkårResultat?>?
 ): Graderingsforskjell {
     val graderingForrigePeriode = hentProsentForAntallTimer(forrige?.vilkår?.antallTimer)
-    val graderingDennePerioden = hentProsentForAntallTimer(vilkårResultat?.antallTimer)
+    val graderingDennePerioden = hentProsentForAntallTimer(this?.antallTimer)
 
     return when {
         graderingForrigePeriode > graderingDennePerioden -> Graderingsforskjell.Reduksjon
@@ -78,8 +77,8 @@ enum class Graderingsforskjell {
 
 data class BarnehageplassVilkårMedGraderingsforskjellMellomPerioder<NullableVilkårResultat : VilkårResultat?>(
     val vilkår: NullableVilkårResultat,
-    val graderingsforskjellFraForrigePeriode: Graderingsforskjell,
-    val graderingsforskjellTilNestePeriode: Graderingsforskjell
+    val graderingsforskjellMellomDenneOgForrigePeriode: Graderingsforskjell,
+    val graderingsforskjellMellomDenneOgNestePeriode: Graderingsforskjell
 )
 
 @Suppress("UNCHECKED_CAST")
@@ -91,16 +90,14 @@ private fun List<Periode<VilkårResultat>>.filtrerBortOverlappendePerioderMedMin
     map { listOf(it).tilTidslinje() }
         .kombiner { vilkårResultater -> vilkårResultater.maxByOrNull { it.antallTimer ?: BigDecimal.ZERO } }.tilPerioderIkkeNull()
 
-private fun forskyvTomBasertPåGraderingsforskjell(
-    graderingsforskjellTilNestePeriode: Graderingsforskjell,
-    periodeTom: LocalDate?
-) = if (graderingsforskjellTilNestePeriode == Graderingsforskjell.Reduksjon) {
-    periodeTom?.plusDays(1)?.minusMonths(1)?.sisteDagIMåned()
-} else periodeTom?.plusDays(1)?.sisteDagIMåned()
+private fun LocalDate?.tilPeriodetomBasertPåGraderingsforskjell(
+    graderingsforskjellMellomDenneOgNestePeriode: Graderingsforskjell
+) = if (graderingsforskjellMellomDenneOgNestePeriode == Graderingsforskjell.Reduksjon) {
+    this?.plusDays(1)?.minusMonths(1)?.sisteDagIMåned()
+} else this?.plusDays(1)?.sisteDagIMåned()
 
-private fun forskyvFomBasertPåGraderingsforskjell(
-    periodeFom: LocalDate?,
-    graderingsforskjellFraForrigePeriode: Graderingsforskjell
-) = if (graderingsforskjellFraForrigePeriode == Graderingsforskjell.Reduksjon) {
-    periodeFom?.førsteDagIInneværendeMåned()
-} else periodeFom?.plusMonths(1)?.førsteDagIInneværendeMåned()
+private fun LocalDate?.tilPeriodefomBasertPåGraderingsforskjell(
+    graderingsforskjellMellomDenneOgForrigePeriode: Graderingsforskjell
+) = if (graderingsforskjellMellomDenneOgForrigePeriode == Graderingsforskjell.Reduksjon) {
+    this?.førsteDagIInneværendeMåned()
+} else this?.plusMonths(1)?.førsteDagIInneværendeMåned()
