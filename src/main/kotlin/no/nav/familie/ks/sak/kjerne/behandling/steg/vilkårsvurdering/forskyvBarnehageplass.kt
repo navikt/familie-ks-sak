@@ -15,7 +15,7 @@ import java.math.BigDecimal
 import java.time.LocalDate
 
 fun List<VilkårResultat>.forskyvBarnehageplassVilkår(): List<Periode<VilkårResultat>> {
-    return tilBarnehageplassVilkårMedDifferanserMellomPerioder()
+    return tilBarnehageplassVilkårMedGraderingsforskjellMellomPerioder()
         .map {
             val fom = forskyvFomBasertPåGraderingsforskjell(it.vilkår.periodeFom, it.graderingsforskjellFraForrigePeriode)
             val tom = forskyvTomBasertPåGraderingsforskjell(it.graderingsforskjellTilNestePeriode, it.vilkår.periodeTom)
@@ -29,7 +29,7 @@ fun List<VilkårResultat>.forskyvBarnehageplassVilkår(): List<Periode<VilkårRe
         .filtrerBortOverlappendePerioderMedMinstGradering()
 }
 
-private fun List<VilkårResultat>.tilBarnehageplassVilkårMedDifferanserMellomPerioder(): List<BarnehageplassVilkårMedGraderingsforskjellMellomPerioder<VilkårResultat>> {
+private fun List<VilkårResultat>.tilBarnehageplassVilkårMedGraderingsforskjellMellomPerioder(): List<BarnehageplassVilkårMedGraderingsforskjellMellomPerioder<VilkårResultat>> {
     val oppfylteVilkårResultatListeMedNullverdierForHullITidslinje: List<VilkårResultat?> = this
         .tilTidslinje()
         .tilPerioder()
