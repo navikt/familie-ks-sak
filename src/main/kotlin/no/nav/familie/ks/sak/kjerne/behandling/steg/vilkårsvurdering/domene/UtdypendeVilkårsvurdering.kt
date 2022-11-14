@@ -8,7 +8,8 @@ import javax.persistence.Converter
 enum class UtdypendeVilkårsvurdering {
     VURDERING_ANNET_GRUNNLAG,
     DELT_BOSTED,
-    ADOPSJON
+    ADOPSJON,
+    SOMMERFERIE
 }
 
 @Converter
