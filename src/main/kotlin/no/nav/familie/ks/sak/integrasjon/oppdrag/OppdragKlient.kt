@@ -170,7 +170,7 @@ class OppdragKlient(
     }
 
     companion object {
-        private val FAGSYSTEM = "KS"
+        private const val FAGSYSTEM = "KS"
     }
 }
 
