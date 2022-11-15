@@ -27,6 +27,9 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.registrersøknad.SøknadGrunnlagService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.registrersøknad.domene.SøknadGrunnlag
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.Vedtak
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.VedtakRepository
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.VedtaksperiodeService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
 import no.nav.familie.ks.sak.kjerne.beregning.AndelerTilkjentYtelseOgEndreteUtbetalingerService
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelseRepository
@@ -71,6 +74,12 @@ class BehandlingServiceTest {
     @MockK
     private lateinit var andelerTilkjentYtelseOgEndreteUtbetalingerService: AndelerTilkjentYtelseOgEndreteUtbetalingerService
 
+    @MockK
+    private lateinit var vedtaksperiodeService: VedtaksperiodeService
+
+    @MockK
+    private lateinit var vedtakRepository: VedtakRepository
+
     @InjectMockKs
     private lateinit var behandlingService: BehandlingService
 
@@ -105,6 +114,10 @@ class BehandlingServiceTest {
                 "begrunnelse"
             )
         }
+
+        every { vedtakRepository.findByBehandlingAndAktivOptional(any()) } returns Vedtak(behandling = behandling)
+
+        every { vedtaksperiodeService.hentUtvidetVedtaksperiodeMedBegrunnelser(any()) } returns emptyList()
 
         every { andelTilkjentYtelseRepository.finnAndelerTilkjentYtelseForBehandling(behandling.id) } returns
             listOf(lagAndelTilkjentYtelse(behandling = behandling))
