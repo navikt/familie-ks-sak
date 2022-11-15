@@ -155,13 +155,10 @@ class ArbeidsfordelingService(
                 begrunnelse = begrunnelse
             )
 
-            oppgaveService.patchOppgaverForBehandling(behandling) {
-                logger.info(
-                    "Oppdaterer enhet fra ${it.tildeltEnhetsnr} " +
-                        "til ${oppdatertArbeidsfordelingPåBehandling.behandlendeEnhetId} på oppgave ${it.id}"
-                )
-                it.copy(tildeltEnhetsnr = oppdatertArbeidsfordelingPåBehandling.behandlendeEnhetId)
-            }
+            oppgaveService.endreTilordnetEnhetPåOppgaverForBehandling(
+                behandling,
+                oppdatertArbeidsfordelingPåBehandling.behandlendeEnhetId
+            )
         }
     }
 

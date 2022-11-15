@@ -101,17 +101,18 @@ class IntegrasjonClient(
         }
     }
 
-    fun patchOppgave(patchOppgave: Oppgave): OppgaveResponse {
-        val uri = URI.create("$integrasjonUri/oppgave/${patchOppgave.id}/oppdater")
+    fun tilordneEnhetForOppgave(oppgaveId: Long, nyEnhet: String): OppgaveResponse {
+        val baseUri = URI.create("$integrasjonUri/oppgave/$oppgaveId/enhet/$nyEnhet")
+        val uri = UriComponentsBuilder.fromUri(baseUri).queryParam("fjernMappeFraOppgave", true).build()
+            .toUri() // fjerner alltid mappe fra Kontantstøtte siden hver enhet har sin mappestruktur
 
         return kallEksternTjenesteRessurs(
             tjeneste = "oppgave",
             uri = uri,
-            formål = "Patch oppgave"
+            formål = "Bytt enhet"
         ) {
             patchForEntity(
                 uri,
-                patchOppgave,
                 HttpHeaders().medContentTypeJsonUTF8()
             )
         }
