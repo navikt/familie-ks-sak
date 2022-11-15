@@ -65,9 +65,3 @@ enum class Vilkår(
         return null
     }
 }
-
-enum class BarnehageplassEndringstype(private val beskrivelse: String) {
-    REDUKSJON("Reduksjon i barnehageplass, økning i stønad"),
-    ØKNING("Økning i barnehageplass, reduksjon i stønad"),
-    INGEN_ENDRING("Ingen endring")
-}
