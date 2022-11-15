@@ -42,7 +42,6 @@ fun mapTilUtbetalingsperioder(
     personopplysningGrunnlag: PersonopplysningGrunnlag,
     andelerTilkjentYtelse: List<AndelTilkjentYtelseMedEndreteUtbetalinger>
 ): List<Utbetalingsperiode> {
-
     val kombinertTidslinjePerAktør = andelerTilkjentYtelse.tilKombinertTidslinjePerAktør()
 
     val utbetalingsPerioder = kombinertTidslinjePerAktør.tilPerioderIkkeNull().map {
@@ -61,7 +60,9 @@ fun mapTilUtbetalingsperioder(
 
 private fun List<AndelTilkjentYtelseMedEndreteUtbetalinger>.tilTidslinje() = map {
     Periode(
-        it, it.stønadFom.førsteDagIInneværendeMåned(), it.stønadTom.sisteDagIInneværendeMåned()
+        it,
+        it.stønadFom.førsteDagIInneværendeMåned(),
+        it.stønadTom.sisteDagIInneværendeMåned()
     )
 }.tilTidslinje()
 
