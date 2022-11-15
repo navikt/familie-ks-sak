@@ -28,7 +28,7 @@ import org.hamcrest.CoreMatchers.`is` as Is
 @ExtendWith(MockKExtension::class)
 internal class UtbetalingsoppdragGeneratorTest {
 
-    val utbetalingsoppdragGenerator = UtbetalingsoppdragGenerator()
+    private val utbetalingsoppdragGenerator = UtbetalingsoppdragGenerator()
 
     @Test
     fun `lagTilkjentYtelseMedUtbetalingsoppdrag skal opprette et nytt utbetalingsoppdrag med felles løpende periodeId og separat kjeding på to personer`() {
@@ -184,7 +184,9 @@ internal class UtbetalingsoppdragGeneratorTest {
         val fagsak = lagFagsak(aktør)
 
         val førsteBehandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD, fagsak = fagsak).also {
-            it.behandlingStegTilstand.forEach { it.behandlingStegStatus = BehandlingStegStatus.UTFØRT }
+            it.behandlingStegTilstand.forEach { behandlingSteg ->
+                behandlingSteg.behandlingStegStatus = BehandlingStegStatus.UTFØRT
+            }
         }
 
         val vedtak = Vedtak(behandling = førsteBehandling)
@@ -323,7 +325,9 @@ internal class UtbetalingsoppdragGeneratorTest {
         val fagsak = lagFagsak(aktør)
 
         val førsteBehandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD, fagsak = fagsak).also {
-            it.behandlingStegTilstand.forEach { it.behandlingStegStatus = BehandlingStegStatus.UTFØRT }
+            it.behandlingStegTilstand.forEach { behandlingSteg ->
+                behandlingSteg.behandlingStegStatus = BehandlingStegStatus.UTFØRT
+            }
         }
 
         val vedtak = Vedtak(behandling = førsteBehandling)
@@ -446,7 +450,9 @@ internal class UtbetalingsoppdragGeneratorTest {
         val fagsak = lagFagsak(aktør)
 
         val førsteBehandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD, fagsak = fagsak).also {
-            it.behandlingStegTilstand.forEach { it.behandlingStegStatus = BehandlingStegStatus.UTFØRT }
+            it.behandlingStegTilstand.forEach { behandlingSteg ->
+                behandlingSteg.behandlingStegStatus = BehandlingStegStatus.UTFØRT
+            }
         }
 
         val vedtak = Vedtak(behandling = førsteBehandling)

@@ -6,7 +6,6 @@ import no.nav.familie.kontrakter.felles.oppgave.FinnOppgaveResponseDto
 import no.nav.familie.kontrakter.felles.oppgave.IdentGruppe
 import no.nav.familie.kontrakter.felles.oppgave.Oppgave
 import no.nav.familie.kontrakter.felles.oppgave.OppgaveIdentV2
-import no.nav.familie.kontrakter.felles.oppgave.OppgaveResponse
 import no.nav.familie.kontrakter.felles.oppgave.Oppgavetype
 import no.nav.familie.kontrakter.felles.oppgave.OpprettOppgaveRequest
 import no.nav.familie.ks.sak.common.exception.Feil
@@ -129,15 +128,6 @@ class OppgaveService(
         integrasjonClient.ferdigstillOppgave(oppgaveId)
     }
 
-    fun patchOppgave(patchOppgave: Oppgave): OppgaveResponse = integrasjonClient.patchOppgave(patchOppgave)
-
-    fun patchOppgaverForBehandling(behandling: Behandling, copyOppgave: (oppgave: Oppgave) -> Oppgave?) {
-        hentOppgaverSomIkkeErFerdigstilt(behandling).forEach { dbOppgave ->
-            val oppgave = hentOppgave(dbOppgave.gsakId.toLong())
-            copyOppgave(oppgave)?.also { patchOppgave(it) }
-        }
-    }
-
     fun forlengFristÅpneOppgaverPåBehandling(behandlingId: Long, forlengelse: Period) {
         val dbOppgaver = oppgaveRepository.findByBehandlingIdAndIkkeFerdigstilt(behandlingId)
 
@@ -181,6 +171,14 @@ class OppgaveService(
                     integrasjonClient.oppdaterOppgave(nyOppgave.id!!, nyOppgave)
                 }
             }
+        }
+    }
+
+    fun endreTilordnetEnhetPåOppgaverForBehandling(behandling: Behandling, nyEnhet: String) {
+        hentOppgaverSomIkkeErFerdigstilt(behandling).forEach { dbOppgave ->
+            val oppgave = hentOppgave(dbOppgave.gsakId.toLong())
+            logger.info("Oppdaterer enhet fra ${oppgave.tildeltEnhetsnr} til $nyEnhet på oppgave ${oppgave.id}")
+            integrasjonClient.tilordneEnhetForOppgave(oppgaveId = oppgave.id!!, nyEnhet = nyEnhet)
         }
     }
 

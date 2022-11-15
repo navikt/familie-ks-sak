@@ -30,6 +30,8 @@ data class SøknadDto(
     val endringAvOpplysningerBegrunnelse: String
 )
 
+fun SøknadDto.writeValueAsString(): String = objectMapper.writeValueAsString(this)
+
 fun SøknadDto.tilSøknadGrunnlag(behandlingId: Long): SøknadGrunnlag =
     SøknadGrunnlag(
         behandlingId = behandlingId,
@@ -46,7 +48,6 @@ data class BarnMedOpplysningerDto(
     val navn: String = "",
     val fødselsdato: LocalDate? = null,
     val inkludertISøknaden: Boolean = true,
-    val manueltRegistrert: Boolean = false,
     val erFolkeregistrert: Boolean = true
 )
 

@@ -11,6 +11,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat.HENLAG
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat.HENLAGT_TEKNISK_VEDLIKEHOLD
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat.IKKE_VURDERT
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg
+import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingStegStatus
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.Fagsak
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -95,7 +96,10 @@ data class Behandling(
         }
     }
 
-    val steg: BehandlingSteg get() = behandlingStegTilstand.maxBy { it.opprettetTidspunkt }.behandlingSteg
+    val steg: BehandlingSteg
+        get() = behandlingStegTilstand.singleOrNull {
+            it.behandlingStegStatus == BehandlingStegStatus.KLAR
+        }?.behandlingSteg ?: behandlingStegTilstand.maxBy { it.opprettetTidspunkt }.behandlingSteg
 
     fun initBehandlingStegTilstand(): Behandling {
         behandlingStegTilstand.add(
@@ -257,9 +261,7 @@ enum class BehandlingStatus {
     fun erÅpen(): Boolean = this != AVSLUTTET
 }
 
-fun initStatus(): BehandlingStatus {
-    return BehandlingStatus.UTREDES
-}
+fun initStatus(): BehandlingStatus = BehandlingStatus.UTREDES
 
 enum class Beslutning {
     GODKJENT,
