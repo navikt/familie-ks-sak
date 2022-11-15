@@ -90,8 +90,8 @@ fun fnrTilAktør(fnr: String, toSisteSiffrer: String = "00") = Aktør(fnr + toSi
 }
 
 fun lagPersonopplysningGrunnlag(
-    behandlingId: Long,
-    søkerPersonIdent: String,
+    behandlingId: Long = 0L,
+    søkerPersonIdent: String = randomFnr(),
     barnasIdenter: List<String> = emptyList(), // FGB med register søknad steg har ikke barnasidenter
     barnasFødselsdatoer: List<LocalDate> = barnasIdenter.map { fnrTilFødselsdato(it) },
     søkerAktør: Aktør = fnrTilAktør(søkerPersonIdent).also {
@@ -336,13 +336,13 @@ fun lagVilkårsvurderingMedSøkersVilkår(
 
 fun lagVilkårResultat(
     id: Long = 0,
-    personResultat: PersonResultat,
+    personResultat: PersonResultat = mockk(relaxed = true),
     vilkårType: Vilkår = Vilkår.BOSATT_I_RIKET,
     resultat: Resultat = Resultat.OPPFYLT,
     periodeFom: LocalDate? = LocalDate.now().minusMonths(3),
     periodeTom: LocalDate? = LocalDate.now(),
     begrunnelse: String = "",
-    behandlingId: Long,
+    behandlingId: Long = 0,
     utdypendeVilkårsvurderinger: List<UtdypendeVilkårsvurdering> = emptyList(),
     antallTimer: BigDecimal? = null
 ): VilkårResultat = VilkårResultat(
