@@ -56,11 +56,11 @@ internal class AvsluttBehandlingStegTest {
             .also { it.status = BehandlingStatus.IVERKSETTER_VEDTAK }
 
         every { behandlingService.hentBehandling(behandling.id) } returns behandling
-        every { loggService.opprettFerdigstillBehandling(behandling) } just runs
+        every { loggService.opprettAvsluttBehandlingLogg(behandling) } just runs
     }
 
     @Test
-    fun `skal ikke utføre steg når behandling ikke har IVERKSETT_VEDTAK status`() {
+    fun `utførSteg skal ikke utføre steg når behandling ikke har IVERKSETT_VEDTAK status`() {
         behandling.status = BehandlingStatus.UTREDES
 
         every { behandlingService.hentBehandling(behandling.id) } returns behandling
@@ -73,7 +73,7 @@ internal class AvsluttBehandlingStegTest {
     }
 
     @Test
-    fun `skal avslutte behandling og oppdatere fagsak status til løpende når behandling har løpende utbetaling`() {
+    fun `utførSteg skal avslutte behandling og oppdatere fagsak status til løpende når behandling har løpende utbetaling`() {
         val tilkjentYtelse = lagInitieltTilkjentYtelse(behandling).also {
             it.andelerTilkjentYtelse.add(
                 lagAndelTilkjentYtelse(
@@ -89,7 +89,7 @@ internal class AvsluttBehandlingStegTest {
 
         assertDoesNotThrow { avsluttBehandlingSteg.utførSteg(behandling.id) }
 
-        verify(exactly = 1) { loggService.opprettFerdigstillBehandling(behandling) }
+        verify(exactly = 1) { loggService.opprettAvsluttBehandlingLogg(behandling) }
         verify(exactly = 1) { fagsakService.oppdaterStatus(any(), any()) }
 
         assertEquals(FagsakStatus.LØPENDE, fagsakStausSlot.captured)
@@ -97,7 +97,7 @@ internal class AvsluttBehandlingStegTest {
     }
 
     @Test
-    fun `skal avslutte behandling og oppdatere fagsak status til avsluttet når behandling ikke har løpende utbetaling`() {
+    fun `utførSteg skal avslutte behandling og oppdatere fagsak status til avsluttet når behandling ikke har løpende utbetaling`() {
         val tilkjentYtelse = lagInitieltTilkjentYtelse(behandling).also {
             it.andelerTilkjentYtelse.add(
                 lagAndelTilkjentYtelse(
@@ -113,7 +113,7 @@ internal class AvsluttBehandlingStegTest {
 
         assertDoesNotThrow { avsluttBehandlingSteg.utførSteg(behandling.id) }
 
-        verify(exactly = 1) { loggService.opprettFerdigstillBehandling(behandling) }
+        verify(exactly = 1) { loggService.opprettAvsluttBehandlingLogg(behandling) }
         verify(exactly = 1) { fagsakService.oppdaterStatus(any(), any()) }
 
         assertEquals(FagsakStatus.AVSLUTTET, fagsakStausSlot.captured)
@@ -121,13 +121,13 @@ internal class AvsluttBehandlingStegTest {
     }
 
     @Test
-    fun `skal avslutte behandling men ikke oppdatere fagsak status når behandling resultat er AVSLÅTT`() {
+    fun `utførSteg skal avslutte behandling men ikke oppdatere fagsak status når behandling resultat er AVSLÅTT`() {
         behandling.resultat = Behandlingsresultat.AVSLÅTT
         every { behandlingService.hentBehandling(behandling.id) } returns behandling
 
         assertDoesNotThrow { avsluttBehandlingSteg.utførSteg(behandling.id) }
 
-        verify(exactly = 1) { loggService.opprettFerdigstillBehandling(behandling) }
+        verify(exactly = 1) { loggService.opprettAvsluttBehandlingLogg(behandling) }
         verify(exactly = 0) { fagsakService.oppdaterStatus(any(), any()) }
 
         assertEquals(BehandlingStatus.AVSLUTTET, behandling.status)

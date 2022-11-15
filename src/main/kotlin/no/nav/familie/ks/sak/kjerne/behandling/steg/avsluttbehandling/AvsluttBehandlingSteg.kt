@@ -35,7 +35,7 @@ class AvsluttBehandlingSteg(
         }
 
         // opprett historikk innslag
-        loggService.opprettFerdigstillBehandling(behandling)
+        loggService.opprettAvsluttBehandlingLogg(behandling)
 
         // oppdater fagsak status
         if (behandling.resultat != Behandlingsresultat.AVSLÅTT) {
@@ -50,8 +50,8 @@ class AvsluttBehandlingSteg(
 
     private fun oppdaterFagsakStatus(behandling: Behandling) {
         val tilkjentYtelse = beregningService.hentTilkjentYtelseForBehandling(behandlingId = behandling.id)
-        val erLøpende = tilkjentYtelse.andelerTilkjentYtelse.any { it.stønadTom >= inneværendeMåned() }
-        if (erLøpende) {
+        val harLøpendeUtbetaling = tilkjentYtelse.andelerTilkjentYtelse.any { it.stønadTom >= inneværendeMåned() }
+        if (harLøpendeUtbetaling) {
             fagsakService.oppdaterStatus(behandling.fagsak, FagsakStatus.LØPENDE)
         } else {
             fagsakService.oppdaterStatus(behandling.fagsak, FagsakStatus.AVSLUTTET)

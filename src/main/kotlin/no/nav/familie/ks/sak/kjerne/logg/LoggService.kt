@@ -258,7 +258,7 @@ class LoggService(
         )
     }
 
-    fun opprettFerdigstillBehandling(behandling: Behandling) {
+    fun opprettAvsluttBehandlingLogg(behandling: Behandling) {
         lagreLogg(
             Logg(
                 behandlingId = behandling.id,

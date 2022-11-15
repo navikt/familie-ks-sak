@@ -71,8 +71,8 @@ class HenleggBehandlingService(
 
         // oppdater fagsak status til avsluttet hvis første behandling på fagsak er henlagt
         val alleBehandlinger = behandlingRepository.finnBehandlinger(behandling.fagsak.id)
-        when {
-            alleBehandlinger.size == 1 -> {
+        when (alleBehandlinger.size) {
+            1 -> {
                 fagsakService.oppdaterStatus(behandling.fagsak, FagsakStatus.AVSLUTTET)
             }
             else -> {
