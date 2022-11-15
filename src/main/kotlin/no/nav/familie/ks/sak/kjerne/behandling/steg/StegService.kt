@@ -8,7 +8,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStegTilstand
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Beslutning
-import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg.BEHANDLING_AVSLUTTET
+import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg.AVSLUTT_BEHANDLING
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg.BESLUTTE_VEDTAK
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg.IVERKSETT_MOT_OPPDRAG
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg.JOURNALFØR_VEDTAKSBREV
@@ -132,7 +132,7 @@ class StegService(
                 behandling.opprettetÅrsak in it.gyldigForÅrsaker
         }.sortedBy { it.sekvens }
         return when (behandledeSteg) {
-            BEHANDLING_AVSLUTTET -> throw Feil("Behandling ${behandling.id} er allerede avsluttet")
+            AVSLUTT_BEHANDLING -> throw Feil("Behandling ${behandling.id} er allerede avsluttet")
             BESLUTTE_VEDTAK -> {
                 val beslutteVedtakDto = behandlingStegDto as BesluttVedtakDto
                 when (beslutteVedtakDto.beslutning) {
@@ -146,7 +146,7 @@ class StegService(
 
     private fun hentNesteStegEtterBeslutteVedtak(behandling: Behandling): BehandlingSteg {
         return when {
-            behandling.erTekniskEndring() -> BEHANDLING_AVSLUTTET
+            behandling.erTekniskEndring() -> AVSLUTT_BEHANDLING
             behandling.resultat.kanIkkeSendesTilOppdrag() -> JOURNALFØR_VEDTAKSBREV
             else -> IVERKSETT_MOT_OPPDRAG
         }
@@ -163,7 +163,7 @@ class StegService(
                 val vedtakId = vedtakRepository.findByBehandlingAndAktiv(behandling.id).id
                 taskService.save(JournalførVedtaksbrevTask.opprettTask(behandling, vedtakId))
             }
-            BEHANDLING_AVSLUTTET -> utførSteg(behandlingId = behandling.id, BEHANDLING_AVSLUTTET)
+            AVSLUTT_BEHANDLING -> utførSteg(behandlingId = behandling.id, AVSLUTT_BEHANDLING)
             else -> {} // Gjør ingenting. Steg kan ikke utføre automatisk
         }
     }
