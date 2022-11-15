@@ -10,6 +10,7 @@ import no.nav.familie.ks.sak.api.dto.PersonerMedAndelerResponsDto
 import no.nav.familie.ks.sak.api.dto.SøknadDto
 import no.nav.familie.ks.sak.api.dto.UtbetalingsperiodeDetaljDto
 import no.nav.familie.ks.sak.api.dto.UtbetalingsperiodeResponsDto
+import no.nav.familie.ks.sak.api.dto.VedtakDto
 import no.nav.familie.ks.sak.api.dto.YtelsePerioderDto
 import no.nav.familie.ks.sak.api.mapper.RegisterHistorikkMapper.lagRegisterHistorikkResponsDto
 import no.nav.familie.ks.sak.common.exception.Feil
@@ -38,7 +39,8 @@ object BehandlingMapper {
         personer: List<PersonResponsDto>,
         personResultater: List<PersonResultat>?,
         personerMedAndelerTilkjentYtelse: List<PersonerMedAndelerResponsDto>,
-        utbetalingsperioder: List<UtbetalingsperiodeResponsDto>
+        utbetalingsperioder: List<UtbetalingsperiodeResponsDto>,
+        vedtak: VedtakDto?
     ) =
         BehandlingResponsDto(
             behandlingId = behandling.id,
@@ -66,7 +68,8 @@ object BehandlingMapper {
             behandlingPåVent = behandling.behandlingStegTilstand.singleOrNull { it.behandlingStegStatus == BehandlingStegStatus.VENTER }
                 ?.let { BehandlingPåVentResponsDto(it.frist!!, it.årsak!!) },
             personerMedAndelerTilkjentYtelse = personerMedAndelerTilkjentYtelse,
-            utbetalingsperioder = utbetalingsperioder
+            utbetalingsperioder = utbetalingsperioder,
+            vedtak = vedtak
         )
 
     private fun lagArbeidsfordelingRespons(arbeidsfordelingPåBehandling: ArbeidsfordelingPåBehandling) =
