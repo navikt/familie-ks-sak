@@ -126,7 +126,7 @@ fun forskyvVilkårResultater(
 ): List<Periode<VilkårResultat>> = when (vilkårType) {
     Vilkår.BARNEHAGEPLASS -> vilkårResultater.forskyvBarnehageplassVilkår()
 
-    else -> tilVilkårResultaterMedInformasjonOmForrigeOgNestePeriode(vilkårResultater)
+    else -> tilVilkårResultaterMedInformasjonOmNestePeriode(vilkårResultater)
         .map {
             val forskjøvetTom = if (it.slutterDagenFørNeste) {
                 it.vilkårResultat.periodeTom?.plusDays(1)?.sisteDagIMåned()
@@ -140,7 +140,7 @@ fun forskyvVilkårResultater(
         }.filter { (it.fom ?: TIDENES_MORGEN).isBefore(it.tom ?: TIDENES_ENDE) }
 }
 
-private fun tilVilkårResultaterMedInformasjonOmForrigeOgNestePeriode(vilkårResultater: List<VilkårResultat>) =
+private fun tilVilkårResultaterMedInformasjonOmNestePeriode(vilkårResultater: List<VilkårResultat>) =
     vilkårResultater.zipWithNext { denne, neste ->
         VilkårResultaterMedInformasjonOmNestePeriode(
             denne,

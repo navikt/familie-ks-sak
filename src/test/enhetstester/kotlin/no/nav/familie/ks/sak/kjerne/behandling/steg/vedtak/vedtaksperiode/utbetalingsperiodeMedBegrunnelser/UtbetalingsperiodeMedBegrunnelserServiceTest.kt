@@ -1,45 +1,58 @@
 package no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.utbetalingsperiodeMedBegrunnelser
 
-import io.mockk.impl.annotations.InjectMockKs
-import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
-import no.nav.familie.ks.sak.kjerne.beregning.AndelerTilkjentYtelseOgEndreteUtbetalingerService
+import no.nav.familie.ks.sak.common.tidslinje.utvidelser.tilPerioder
+import no.nav.familie.ks.sak.common.util.førsteDagIInneværendeMåned
+import no.nav.familie.ks.sak.common.util.sisteDagIInneværendeMåned
+import no.nav.familie.ks.sak.common.util.tilYearMonth
+import no.nav.familie.ks.sak.data.lagBehandling
+import no.nav.familie.ks.sak.data.lagPerson
+import no.nav.familie.ks.sak.data.lagPersonopplysningGrunnlag
+import no.nav.familie.ks.sak.data.lagVilkårsvurderingMedSøkersVilkår
+import no.nav.familie.ks.sak.data.randomAktør
+import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.PersonResultat
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.tilFørskjøvetVilkårResultatTidslinjeMap
+import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
+import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertDoesNotThrow
 import org.junit.jupiter.api.extension.ExtendWith
 import java.time.YearMonth
 
 @ExtendWith(MockKExtension::class)
 class UtbetalingsperiodeMedBegrunnelserServiceTest {
 
-    @MockK
-    private lateinit var vilkårsvurderingService: VilkårsvurderingService
-
-    @MockK
-    private lateinit var andelerTilkjentYtelseOgEndreteUtbetalingerService: AndelerTilkjentYtelseOgEndreteUtbetalingerService
-
-    @InjectMockKs
-    private lateinit var utbetalingsperiodeMedBegrunnelserService: UtbetalingsperiodeMedBegrunnelserService
-
     private val mars2020 = YearMonth.of(2020, 3)
     private val april2020 = YearMonth.of(2020, 4)
     private val mai2020 = YearMonth.of(2020, 5)
     private val juni2020 = YearMonth.of(2020, 6)
-/*
-    @Test
+
     // Fom mars2020 til tom juni2020 gir utbetaling bare i april2020 og mai2020
+    @Test
     fun `lagFørskjøvetVilkårResultatTidslinjeMap - skal kutte først og siste måned`() {
         val søker = randomAktør()
         val behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD)
         val personopplysningGrunnlag =
-            lagPersonopplysningGrunnlag(behandlingId = behandling.id, søkerPersonIdent = søker.aktivFødselsnummer())
+            lagPersonopplysningGrunnlag(
+                søkerAktør = søker,
+                behandlingId = behandling.id,
+                søkerPersonIdent = søker.aktivFødselsnummer()
+            )
         val søkerPerson = lagPerson(personopplysningGrunnlag, søker, PersonType.SØKER)
 
         val vilkårsvurdering = lagVilkårsvurderingMedSøkersVilkår(
-            søkerAktør = søkerPerson.aktør, behandling = behandling, resultat = Resultat.OPPFYLT
+            søkerAktør = søkerPerson.aktør,
+            behandling = behandling,
+            resultat = Resultat.OPPFYLT
         )
 
         val personResultat = PersonResultat(
-            vilkårsvurdering = vilkårsvurdering, aktør = søkerPerson.aktør
+            vilkårsvurdering = vilkårsvurdering,
+            aktør = søkerPerson.aktør
         )
         val vilkårResultater = Vilkår.hentVilkårFor(søkerPerson.type).map {
             VilkårResultat(
@@ -56,7 +69,8 @@ class UtbetalingsperiodeMedBegrunnelserServiceTest {
 
         personResultat.setSortedVilkårResultater(vilkårResultater.toSet())
 
-        val førskjøvetVilkårResultatTidslinjeMap = setOf(personResultat).tilFørskjøvetVilkårResultatTidslinjeMap()
+        val førskjøvetVilkårResultatTidslinjeMap =
+            setOf(personResultat).tilFørskjøvetVilkårResultatTidslinjeMap(personopplysningGrunnlag)
 
         Assertions.assertEquals(1, førskjøvetVilkårResultatTidslinjeMap.size)
 
@@ -71,15 +85,22 @@ class UtbetalingsperiodeMedBegrunnelserServiceTest {
         val søker = randomAktør()
         val behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD)
         val personopplysningGrunnlag =
-            lagPersonopplysningGrunnlag(behandlingId = behandling.id, søkerPersonIdent = søker.aktivFødselsnummer())
+            lagPersonopplysningGrunnlag(
+                søkerAktør = søker,
+                behandlingId = behandling.id,
+                søkerPersonIdent = søker.aktivFødselsnummer()
+            )
         val søkerPerson = lagPerson(personopplysningGrunnlag, søker, PersonType.SØKER)
 
         val vilkårsvurdering = lagVilkårsvurderingMedSøkersVilkår(
-            søkerAktør = søkerPerson.aktør, behandling = behandling, resultat = Resultat.OPPFYLT
+            søkerAktør = søkerPerson.aktør,
+            behandling = behandling,
+            resultat = Resultat.OPPFYLT
         )
 
         val personResultat = PersonResultat(
-            vilkårsvurdering = vilkårsvurdering, aktør = søkerPerson.aktør
+            vilkårsvurdering = vilkårsvurdering,
+            aktør = søkerPerson.aktør
         ).also {
             it.setSortedVilkårResultater(
                 setOf(
@@ -107,7 +128,7 @@ class UtbetalingsperiodeMedBegrunnelserServiceTest {
         }
 
         assertDoesNotThrow {
-            setOf(personResultat).tilFørskjøvetVilkårResultatTidslinjeMap()
+            setOf(personResultat).tilFørskjøvetVilkårResultatTidslinjeMap(personopplysningGrunnlag)
         }
-    }*/
+    }
 }
