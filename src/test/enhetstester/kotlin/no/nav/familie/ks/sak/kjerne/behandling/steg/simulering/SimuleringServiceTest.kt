@@ -8,14 +8,11 @@ import io.mockk.just
 import io.mockk.mockk
 import io.mockk.runs
 import io.mockk.verify
-import no.nav.familie.kontrakter.felles.simulering.BetalingType
 import no.nav.familie.kontrakter.felles.simulering.DetaljertSimuleringResultat
-import no.nav.familie.kontrakter.felles.simulering.FagOmrådeKode
 import no.nav.familie.kontrakter.felles.simulering.MottakerType
-import no.nav.familie.kontrakter.felles.simulering.PosteringType
 import no.nav.familie.kontrakter.felles.simulering.SimuleringMottaker
-import no.nav.familie.kontrakter.felles.simulering.SimulertPostering
 import no.nav.familie.ks.sak.data.lagBehandling
+import no.nav.familie.ks.sak.data.lagSimulertPostering
 import no.nav.familie.ks.sak.data.lagTilkjentYtelse
 import no.nav.familie.ks.sak.data.lagUtbetalingsoppdrag
 import no.nav.familie.ks.sak.data.lagUtbetalingsperiode
@@ -148,25 +145,17 @@ class SimuleringServiceTest {
                 mottakerType = MottakerType.BRUKER,
                 mottakerNummer = "",
                 simulertPostering = listOf(
-                    SimulertPostering(
-                        fagOmrådeKode = FagOmrådeKode.KONTANTSTØTTE,
+                    lagSimulertPostering(
                         fom = LocalDate.now().minusMonths(4),
                         tom = LocalDate.now().minusMonths(2),
-                        betalingType = BetalingType.DEBIT,
                         beløp = BigDecimal.valueOf(7500),
-                        posteringType = PosteringType.YTELSE,
-                        forfallsdato = LocalDate.now(),
-                        utenInntrekk = true
+                        forfallsdato = LocalDate.now()
                     ),
-                    SimulertPostering(
-                        fagOmrådeKode = FagOmrådeKode.KONTANTSTØTTE,
+                    lagSimulertPostering(
                         fom = LocalDate.now().minusMonths(2),
                         tom = LocalDate.now(),
-                        betalingType = BetalingType.DEBIT,
                         beløp = BigDecimal.valueOf(7500),
-                        posteringType = PosteringType.YTELSE,
-                        forfallsdato = LocalDate.now().plusMonths(2),
-                        utenInntrekk = true
+                        forfallsdato = LocalDate.now().plusMonths(2)
                     )
                 )
             )

@@ -17,6 +17,8 @@ import no.nav.familie.kontrakter.felles.simulering.BetalingType
 import no.nav.familie.kontrakter.felles.simulering.FagOmrådeKode
 import no.nav.familie.kontrakter.felles.simulering.MottakerType
 import no.nav.familie.kontrakter.felles.simulering.PosteringType
+import no.nav.familie.kontrakter.felles.simulering.SimuleringMottaker
+import no.nav.familie.kontrakter.felles.simulering.SimulertPostering
 import no.nav.familie.ks.sak.api.dto.BarnMedOpplysningerDto
 import no.nav.familie.ks.sak.api.dto.RegistrerSøknadDto
 import no.nav.familie.ks.sak.api.dto.SøkerMedOpplysningerDto
@@ -647,6 +649,24 @@ fun lagØkonomiSimuleringPostering(
     forfallsdato = forfallsdato,
     utenInntrekk = false
 )
+
+fun lagSimulertMottaker(simulertePosteringer: List<SimulertPostering>) = SimuleringMottaker(
+    mottakerType = MottakerType.BRUKER,
+    mottakerNummer = "",
+    simulertPostering = simulertePosteringer
+)
+
+fun lagSimulertPostering(fom: LocalDate, tom: LocalDate, beløp: BigDecimal, forfallsdato: LocalDate) =
+    SimulertPostering(
+        fagOmrådeKode = FagOmrådeKode.KONTANTSTØTTE,
+        fom = fom,
+        tom = tom,
+        betalingType = BetalingType.DEBIT,
+        beløp = beløp,
+        posteringType = PosteringType.YTELSE,
+        forfallsdato = forfallsdato,
+        utenInntrekk = true
+    )
 
 fun fnrTilFødselsdato(fnr: String): LocalDate {
     val day = fnr.substring(0, 2).toInt()

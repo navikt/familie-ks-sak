@@ -72,7 +72,7 @@ class SimuleringUtilTest {
     }
 
     @Test
-    fun `Test henting av 'nytt beløp ', 'tidligere utbetalt ' og 'resultat ' for simuleringsperiode uten feilutbetaling`() {
+    fun `Test 'hentNyttBeløpIPeriode()', 'hentTidligereUtbetaltIPeriode()' og 'hentResultatIPeriode()' for simuleringsperiode uten feilutbetaling`() {
         val vedtaksimuleringPosteringer = listOf(
             mockVedtakSimuleringPostering(beløp = 100, posteringType = PosteringType.YTELSE),
             mockVedtakSimuleringPostering(beløp = 100, posteringType = PosteringType.YTELSE),
@@ -86,7 +86,7 @@ class SimuleringUtilTest {
     }
 
     @Test
-    fun `Test henting av 'nytt beløp', 'tidligere utbetalt' og 'resultat' for simuleringsperiode med feilutbetaling`() {
+    fun `Test 'hentNyttBeløpIPeriode()', 'hentTidligereUtbetaltIPeriode()' og 'hentResultatIPeriode()' for simuleringsperiode med feilutbetaling`() {
         val økonomiSimuleringPosteringer = listOf(
             mockVedtakSimuleringPostering(beløp = 100, posteringType = PosteringType.YTELSE),
             mockVedtakSimuleringPostering(beløp = 100, posteringType = PosteringType.YTELSE),
@@ -102,7 +102,7 @@ class SimuleringUtilTest {
     }
 
     @Test
-    fun `Test 'nytt beløp', 'tidligere utbetalt' og 'resultat' for simuleringsperiode med reduksjon i feilutbetaling`() {
+    fun `Test 'hentNyttBeløpIPeriode()', 'hentTidligereUtbetaltIPeriode()' og 'hentResultatIPeriode()' for simuleringsperiode med reduksjon i feilutbetaling`() {
         val økonomiSimuleringPosteringer = listOf(
             mockVedtakSimuleringPostering(beløp = 100, posteringType = PosteringType.YTELSE),
             mockVedtakSimuleringPostering(beløp = 100, posteringType = PosteringType.YTELSE),
@@ -125,7 +125,7 @@ class SimuleringUtilTest {
     )
 
     @Test
-    fun `Total etterbetaling skal bli summen av ytelsene i periode med negativ feilutbetaling`() {
+    fun `tilSimulertingDto - Total etterbetaling skal bli summen av ytelsene i periode med negativ feilutbetaling`() {
         val økonomiSimuleringMottaker =
             mockØkonomiSimuleringMottaker(økonomiSimuleringPostering = økonomiSimuleringPosteringerMedNegativFeilutbetaling)
         val simuleringDto = listOf(økonomiSimuleringMottaker).tilSimuleringDto()
@@ -134,7 +134,7 @@ class SimuleringUtilTest {
     }
 
     @Test
-    fun `Total feilutbetaling skal bli 0 i periode med negativ feilutbetaling`() {
+    fun `tilSimuleringDto - Total feilutbetaling skal bli 0 i periode med negativ feilutbetaling`() {
         val økonomiSimuleringMottaker =
             mockØkonomiSimuleringMottaker(økonomiSimuleringPostering = økonomiSimuleringPosteringerMedNegativFeilutbetaling)
         val simuleringDto = listOf(økonomiSimuleringMottaker).tilSimuleringDto()
@@ -143,7 +143,7 @@ class SimuleringUtilTest {
     }
 
     @Test
-    fun `Skal gi 0 etterbetaling og sum feilutbetaling ved positiv feilutbetaling`() {
+    fun `tilSimuleringDto - Skal gi 0 etterbetaling og sum feilutbetaling ved positiv feilutbetaling`() {
         val økonomiSimuleringPosteringerMedPositivFeilutbetaling = listOf(
             mockVedtakSimuleringPostering(beløp = 500, posteringType = PosteringType.FEILUTBETALING),
             mockVedtakSimuleringPostering(beløp = -2000, posteringType = PosteringType.YTELSE),
@@ -160,7 +160,7 @@ class SimuleringUtilTest {
     }
 
     @Test
-    fun `Test at bare perioder med passert forfalldato blir inludert i summeringen av etterbetaling`() {
+    fun `hentEtterbetalingIPeriode - Test at bare perioder med passert forfalldato blir inludert i summeringen av etterbetaling`() {
         val vedtaksimuleringPosteringer = listOf(
             mockVedtakSimuleringPostering(
                 beløp = 100,
