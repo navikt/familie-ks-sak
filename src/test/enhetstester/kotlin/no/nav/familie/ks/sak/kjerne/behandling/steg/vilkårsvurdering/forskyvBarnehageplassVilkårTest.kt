@@ -10,15 +10,15 @@ import java.time.YearMonth
 
 class forskyvBarnehageplassVilkårTest {
 
-    val januar = YearMonth.of(2022, 1)
-    val februar = YearMonth.of(2022, 2)
-    val mars = YearMonth.of(2022, 3)
-    val april = YearMonth.of(2022, 4)
-    val august = YearMonth.of(2022, 8)
-    val september = YearMonth.of(2022, 9)
-    val oktober = YearMonth.of(2022, 10)
-    val november = YearMonth.of(2022, 11)
-    val desember = YearMonth.of(2022, 12)
+    private val januar = YearMonth.of(2022, 1)
+    private val februar = YearMonth.of(2022, 2)
+    private val mars = YearMonth.of(2022, 3)
+    private val april = YearMonth.of(2022, 4)
+    private val august = YearMonth.of(2022, 8)
+    private val september = YearMonth.of(2022, 9)
+    private val oktober = YearMonth.of(2022, 10)
+    private val november = YearMonth.of(2022, 11)
+    private val desember = YearMonth.of(2022, 12)
 
     // Eksempel i src/test/resources/barnehageplassscenarioer
     @Test
@@ -27,7 +27,7 @@ class forskyvBarnehageplassVilkårTest {
             vilkårType = Vilkår.BARNEHAGEPLASS,
             periodeFom = august.atDay(15),
             periodeTom = oktober.atDay(14),
-            antallTimer = BigDecimal.valueOf(0)
+            antallTimer = null
         )
         val vilkårResultat2 = lagVilkårResultat(
             vilkårType = Vilkår.BARNEHAGEPLASS,
@@ -60,7 +60,7 @@ class forskyvBarnehageplassVilkårTest {
             vilkårType = Vilkår.BARNEHAGEPLASS,
             periodeFom = oktober.atDay(15),
             periodeTom = desember.atDay(1),
-            antallTimer = BigDecimal.valueOf(0)
+            antallTimer = null
         )
 
         val forskjøvedeVilkårResultater = listOf(vilkårResultat1, vilkårResultat2).forskyvBarnehageplassVilkår()
