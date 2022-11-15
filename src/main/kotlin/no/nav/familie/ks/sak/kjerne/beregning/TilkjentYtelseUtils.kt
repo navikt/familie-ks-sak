@@ -98,7 +98,7 @@ object TilkjentYtelseUtils {
             stønadTom = tom!!.toYearMonth()
         )
 
-        validerBeregnetPeriode(satsperiode)
+        validerBeregnetPeriode(beløpsperiode = satsperiode, behandlingId = vilkårsvurdering.behandling.id)
 
         val kalkulertUtbetalingsbeløp = satsperiode.sats.prosent(satsperiode.prosent)
 
