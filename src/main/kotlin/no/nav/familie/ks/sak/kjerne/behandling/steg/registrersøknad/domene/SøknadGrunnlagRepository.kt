@@ -1,4 +1,4 @@
-package no.nav.familie.ks.sak.kjerne.behandling.steg.søknad.domene
+package no.nav.familie.ks.sak.kjerne.behandling.steg.registrersøknad.domene
 
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query

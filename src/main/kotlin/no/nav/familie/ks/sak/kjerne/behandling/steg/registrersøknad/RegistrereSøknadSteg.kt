@@ -1,4 +1,4 @@
-package no.nav.familie.ks.sak.kjerne.behandling.steg.søknad
+package no.nav.familie.ks.sak.kjerne.behandling.steg.registrersøknad
 
 import no.nav.familie.ks.sak.api.dto.BehandlingStegDto
 import no.nav.familie.ks.sak.api.dto.RegistrerSøknadDto

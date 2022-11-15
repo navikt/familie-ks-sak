@@ -18,8 +18,8 @@ import no.nav.familie.ks.sak.data.lagPersonopplysningGrunnlag
 import no.nav.familie.ks.sak.data.randomAktør
 import no.nav.familie.ks.sak.integrasjon.pdl.PersonOpplysningerService
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.ArbeidsfordelingService
-import no.nav.familie.ks.sak.kjerne.behandling.steg.søknad.RegistrereSøknadSteg
-import no.nav.familie.ks.sak.kjerne.behandling.steg.søknad.domene.SøknadGrunnlagRepository
+import no.nav.familie.ks.sak.kjerne.behandling.steg.registrersøknad.RegistrereSøknadSteg
+import no.nav.familie.ks.sak.kjerne.behandling.steg.registrersøknad.domene.SøknadGrunnlagRepository
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import no.nav.familie.ks.sak.kjerne.personident.AktørRepository
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlagRepository
