@@ -205,7 +205,7 @@ class BeregningService(
         val alleBarnISisteBehanlding = finnBarnFraBehandlingMedTilkjentYtelse(behandling.id)
 
         val alleBarnISistIverksattBehandling = behandlingRepository.finnIverksatteBehandlinger(behandling.fagsak.id)
-            .filter { it.steg == BehandlingSteg.BEHANDLING_AVSLUTTET }.maxByOrNull { it.opprettetTidspunkt }?.let {
+            .filter { it.steg == BehandlingSteg.AVSLUTT_BEHANDLING }.maxByOrNull { it.opprettetTidspunkt }?.let {
                 finnBarnFraBehandlingMedTilkjentYtelse(
                     it.id
                 )
