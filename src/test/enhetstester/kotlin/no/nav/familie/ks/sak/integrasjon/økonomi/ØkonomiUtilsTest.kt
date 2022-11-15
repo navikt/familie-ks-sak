@@ -6,7 +6,7 @@ import no.nav.familie.ks.sak.data.lagAndelTilkjentYtelse
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.randomFnr
 import no.nav.familie.ks.sak.data.årMåned
-import no.nav.familie.ks.sak.integrasjon.økonomi.utbetalingsoppdrag.AndelTilkjentYtelseForIverksettingFactory
+import no.nav.familie.ks.sak.integrasjon.økonomi.utbetalingsoppdrag.AndelTilkjentYtelseForIverksetting
 import no.nav.familie.ks.sak.integrasjon.økonomi.ØkonomiUtils.andelerTilOpphørMedDato
 import no.nav.familie.ks.sak.integrasjon.økonomi.ØkonomiUtils.andelerTilOpprettelse
 import no.nav.familie.ks.sak.integrasjon.økonomi.ØkonomiUtils.kjedeinndelteAndeler
@@ -62,14 +62,14 @@ internal class ØkonomiUtilsTest {
         val kjederBehandling1 = kjedeinndelteAndeler(
             listOf(
                 lagAndelTilkjentYtelse(null, behandling, aktør, årMåned("2019-04"), årMåned("2020-01")),
-                lagAndelTilkjentYtelse(null, behandling, aktør, årMåned("2022-01"), årMåned("2023-01")),
+                lagAndelTilkjentYtelse(null, behandling, aktør, årMåned("2022-01"), årMåned("2023-01"))
             ).forIverksetting()
         )
 
         val kjederBehandling2 = kjedeinndelteAndeler(
             listOf(
                 lagAndelTilkjentYtelse(null, behandling, aktør, årMåned("2018-04"), årMåned("2020-01")),
-                lagAndelTilkjentYtelse(null, behandling, aktør, årMåned("2022-01"), årMåned("2023-01")),
+                lagAndelTilkjentYtelse(null, behandling, aktør, årMåned("2022-01"), årMåned("2023-01"))
             ).forIverksetting()
         )
 
@@ -87,7 +87,7 @@ internal class ØkonomiUtilsTest {
         val kjederBehandling = kjedeinndelteAndeler(
             listOf(
                 lagAndelTilkjentYtelse(null, behandling, aktør, årMåned("2023-10"), årMåned("2025-01")),
-                lagAndelTilkjentYtelse(null, behandling, aktør, årMåned("2027-10"), årMåned("2028-01")),
+                lagAndelTilkjentYtelse(null, behandling, aktør, årMåned("2027-10"), årMåned("2028-01"))
             ).forIverksetting()
         )
 
@@ -225,5 +225,5 @@ internal class ØkonomiUtilsTest {
     }
 
     private fun Collection<AndelTilkjentYtelse>.forIverksetting() =
-        AndelTilkjentYtelseForIverksettingFactory().pakkInnForUtbetaling(this)
+        AndelTilkjentYtelseForIverksetting.Factory.pakkInnForUtbetaling(this)
 }
