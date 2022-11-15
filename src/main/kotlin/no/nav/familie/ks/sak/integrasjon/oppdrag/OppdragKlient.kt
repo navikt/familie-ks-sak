@@ -176,7 +176,7 @@ class OppdragKlient(
 
 val simulertPosteringMock = listOf(
     SimulertPostering(
-        fagOmrådeKode = FagOmrådeKode.BARNETRYGD,
+        fagOmrådeKode = FagOmrådeKode.KONTANTSTØTTE,
         fom = LocalDate.now().minusMonths(3).førsteDagIInneværendeMåned(),
         tom = LocalDate.now().minusMonths(3).sisteDagIMåned(),
         betalingType = BetalingType.DEBIT,
@@ -186,7 +186,7 @@ val simulertPosteringMock = listOf(
         utenInntrekk = false
     ),
     SimulertPostering(
-        fagOmrådeKode = FagOmrådeKode.BARNETRYGD,
+        fagOmrådeKode = FagOmrådeKode.KONTANTSTØTTE,
         fom = LocalDate.now().minusMonths(2).førsteDagIInneværendeMåned(),
         tom = LocalDate.now().minusMonths(2).sisteDagIMåned(),
         betalingType = BetalingType.DEBIT,
@@ -196,7 +196,7 @@ val simulertPosteringMock = listOf(
         utenInntrekk = false
     ),
     SimulertPostering(
-        fagOmrådeKode = FagOmrådeKode.BARNETRYGD,
+        fagOmrådeKode = FagOmrådeKode.KONTANTSTØTTE,
         fom = LocalDate.now().minusMonths(1).førsteDagIInneværendeMåned(),
         tom = LocalDate.now().minusMonths(1).sisteDagIMåned(),
         betalingType = BetalingType.DEBIT,
