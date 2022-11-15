@@ -18,10 +18,10 @@ fun List<VilkårResultat>.forskyvBarnehageplassVilkår(): List<Periode<VilkårRe
     return tilBarnehageplassVilkårMedGraderingsforskjellMellomPerioder()
         .map {
             Periode(
-                verdi = it.vilkår,
-                fom = it.vilkår.periodeFom
+                verdi = it.vilkårResultat,
+                fom = it.vilkårResultat.periodeFom
                     .tilForskøvetFomBasertPåGraderingsforskjell(it.graderingsforskjellMellomDenneOgForrigePeriode),
-                tom = it.vilkår.periodeTom
+                tom = it.vilkårResultat.periodeTom
                     .tilForskøvetTomBasertPåGraderingsforskjell(it.graderingsforskjellMellomDenneOgNestePeriode)
             )
         }.filter { (it.fom ?: TIDENES_MORGEN).isBefore(it.tom ?: TIDENES_ENDE) }
@@ -50,7 +50,7 @@ private fun List<VilkårResultat>.tilBarnehageplassVilkårMedGraderingsforskjell
                 }
 
             accMedForrigeOppdatert + BarnehageplassVilkårMedGraderingsforskjellMellomPerioder(
-                vilkår = vilkårResultat,
+                vilkårResultat = vilkårResultat,
                 graderingsforskjellMellomDenneOgForrigePeriode = graderingsforskjellMellomDenneOgForrigePeriode,
                 graderingsforskjellMellomDenneOgNestePeriode = Graderingsforskjell.Reduksjon
             )
@@ -61,7 +61,7 @@ private fun VilkårResultat?.hentGraderingsforskjellMellomDenneOgForrigePeriode(
     vilkårResultatForrigePeriode: BarnehageplassVilkårMedGraderingsforskjellMellomPerioder<VilkårResultat?>?
 ): Graderingsforskjell {
     val graderingForrigePeriode =
-        vilkårResultatForrigePeriode?.vilkår?.let { hentProsentForAntallTimer(vilkårResultatForrigePeriode.vilkår.antallTimer) }
+        vilkårResultatForrigePeriode?.vilkårResultat?.let { hentProsentForAntallTimer(vilkårResultatForrigePeriode.vilkårResultat.antallTimer) }
             ?: BigDecimal.ZERO
     val graderingDennePerioden = this?.let { hentProsentForAntallTimer(this.antallTimer) } ?: BigDecimal.ZERO
 
@@ -79,7 +79,7 @@ enum class Graderingsforskjell {
 }
 
 data class BarnehageplassVilkårMedGraderingsforskjellMellomPerioder<NullableVilkårResultat : VilkårResultat?>(
-    val vilkår: NullableVilkårResultat,
+    val vilkårResultat: NullableVilkårResultat,
     val graderingsforskjellMellomDenneOgForrigePeriode: Graderingsforskjell,
     val graderingsforskjellMellomDenneOgNestePeriode: Graderingsforskjell
 )
@@ -87,7 +87,7 @@ data class BarnehageplassVilkårMedGraderingsforskjellMellomPerioder<NullableVil
 @Suppress("UNCHECKED_CAST")
 private fun List<BarnehageplassVilkårMedGraderingsforskjellMellomPerioder<VilkårResultat?>>.filtrerBortNullverdier():
     List<BarnehageplassVilkårMedGraderingsforskjellMellomPerioder<VilkårResultat>> =
-    this.filter { it.vilkår != null } as List<BarnehageplassVilkårMedGraderingsforskjellMellomPerioder<VilkårResultat>>
+    this.filter { it.vilkårResultat != null } as List<BarnehageplassVilkårMedGraderingsforskjellMellomPerioder<VilkårResultat>>
 
 private fun List<Periode<VilkårResultat>>.filtrerBortOverlappendePerioderMedMinstGradering() =
     map { listOf(it).tilTidslinje() }
