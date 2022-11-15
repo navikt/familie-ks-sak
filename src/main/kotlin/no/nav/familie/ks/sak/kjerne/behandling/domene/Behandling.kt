@@ -257,9 +257,7 @@ enum class BehandlingStatus {
     fun erÅpen(): Boolean = this != AVSLUTTET
 }
 
-fun initStatus(): BehandlingStatus {
-    return BehandlingStatus.UTREDES
-}
+fun initStatus(): BehandlingStatus = BehandlingStatus.UTREDES
 
 enum class Beslutning {
     GODKJENT,
