@@ -38,6 +38,8 @@ data class SøknadDto(
     val endringAvOpplysningerBegrunnelse: String
 )
 
+fun SøknadDto.writeValueAsString(): String = objectMapper.writeValueAsString(this)
+
 fun SøknadDto.tilSøknadGrunnlag(behandlingId: Long): SøknadGrunnlag =
     SøknadGrunnlag(
         behandlingId = behandlingId,
