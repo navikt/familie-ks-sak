@@ -78,7 +78,7 @@ data class ØkonomiSimuleringPostering(
     }
 
     override fun toString(): String {
-        return "BrSimuleringPostering(" +
+        return "ØkonomiSimuleringPostering(" +
             "id=$id, " +
             "økonomiSimuleringMottaker=${økonomiSimuleringMottaker.id}, " +
             "fagOmrådeKode=$fagOmrådeKode, " +

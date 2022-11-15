@@ -2,7 +2,7 @@ package no.nav.familie.ks.sak.kjerne.behandling.steg.iverksettmotoppdrag
 
 import io.micrometer.core.instrument.Metrics
 import no.nav.familie.ks.sak.common.exception.Feil
-import no.nav.familie.ks.sak.integrasjon.økonomi.utbetalingsoppdrag.AndelTilkjentYtelseForIverksettingFactory
+import no.nav.familie.ks.sak.integrasjon.økonomi.utbetalingsoppdrag.AndelTilkjentYtelseForIverksetting
 import no.nav.familie.ks.sak.integrasjon.økonomi.utbetalingsoppdrag.UtbetalingsoppdragService
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
@@ -43,7 +43,7 @@ class IverksettMotOppdragSteg(
         utbetalingsoppdragService.oppdaterTilkjentYtelseMedUtbetalingsoppdragOgIverksett(
             vedtak = vedtak,
             saksbehandlerId = SikkerhetContext.hentSaksbehandler(),
-            andelTilkjentYtelseForUtbetalingsoppdragFactory = AndelTilkjentYtelseForIverksettingFactory()
+            andelTilkjentYtelseForUtbetalingsoppdragFactory = AndelTilkjentYtelseForIverksetting.Factory
         )
 
         iverksattOppdrag.increment()

@@ -9,7 +9,7 @@ import no.nav.familie.ks.sak.api.dto.SimuleringDto
 import no.nav.familie.ks.sak.api.mapper.SimuleringMapper.tilSimuleringDto
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.integrasjon.oppdrag.OppdragKlient
-import no.nav.familie.ks.sak.integrasjon.økonomi.utbetalingsoppdrag.AndelTilkjentYtelseForSimuleringFactory
+import no.nav.familie.ks.sak.integrasjon.økonomi.utbetalingsoppdrag.AndelTilkjentYtelseForSimulering
 import no.nav.familie.ks.sak.integrasjon.økonomi.utbetalingsoppdrag.UtbetalingsoppdragService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
@@ -86,16 +86,10 @@ class SimuleringService(
             return null
         }
 
-        /**
-         * SOAP integrasjonen støtter ikke full epost som MQ,
-         * så vi bruker bare første 8 tegn av saksbehandlers epost for simulering.
-         * Denne verdien brukes ikke til noe i simulering.
-         */
-
         val tilkjentYtelse = utbetalingsoppdragService.genererUtbetalingsoppdragOgOppdaterTilkjentYtelse(
             vedtak = vedtak,
-            saksbehandlerId = SikkerhetContext.hentSaksbehandler().take(8),
-            andelTilkjentYtelseForUtbetalingsoppdragFactory = AndelTilkjentYtelseForSimuleringFactory(),
+            saksbehandlerId = SikkerhetContext.hentSaksbehandler(),
+            andelTilkjentYtelseForUtbetalingsoppdragFactory = AndelTilkjentYtelseForSimulering.Factory,
             erSimulering = true
         )
 

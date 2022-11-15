@@ -4,7 +4,6 @@ import no.nav.familie.kontrakter.felles.Ressurs
 import no.nav.familie.ks.sak.api.dto.BehandlingResponsDto
 import no.nav.familie.ks.sak.api.dto.BesluttVedtakDto
 import no.nav.familie.ks.sak.api.dto.RegistrerSøknadDto
-import no.nav.familie.ks.sak.api.dto.TilbakekrevingDto
 import no.nav.familie.ks.sak.config.BehandlerRolle
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg
@@ -68,8 +67,7 @@ class BehandlingStegController(
 
     @PostMapping(path = ["/simulering"])
     fun fullførSimulering(
-        @PathVariable behandlingId: Long,
-        @RequestBody tilbakekrevingDto: TilbakekrevingDto?
+        @PathVariable behandlingId: Long
     ): ResponseEntity<Ressurs<BehandlingResponsDto>> {
         tilgangService.validerTilgangTilHandling(
             minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
