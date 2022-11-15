@@ -87,14 +87,14 @@ fun PersonResultat.tilPeriodeResultater(): List<PeriodeResultat> {
     }
 }
 
-fun utledFomFraVilkårResultat(vilkårResultat: VilkårResultat) = when {
-    // setter fom null slik at det ikke påvirker beregning
-    vilkårResultat.resultat == Resultat.IKKE_AKTUELT -> null
-    else -> vilkårResultat.periodeFom?.withDayOfMonth(1)
-}
+fun utledFomFraVilkårResultat(vilkårResultat: VilkårResultat) =
+    when (vilkårResultat.resultat) {
+        Resultat.IKKE_AKTUELT -> null // setter fom null slik at det ikke påvirker beregning
+        else -> vilkårResultat.periodeFom?.withDayOfMonth(1)
+    }
 
-fun utledTomFraVilkårResultat(vilkårResultat: VilkårResultat) = when {
-    // setter tom null slik at det ikke påvirker beregning
-    vilkårResultat.resultat == Resultat.IKKE_AKTUELT -> null
-    else -> vilkårResultat.periodeTom?.sisteDagIMåned()
-}
+fun utledTomFraVilkårResultat(vilkårResultat: VilkårResultat) =
+    when (vilkårResultat.resultat) {
+        Resultat.IKKE_AKTUELT -> null // setter tom null slik at det ikke påvirker beregning v
+        else -> vilkårResultat.periodeTom?.sisteDagIMåned()
+    }
