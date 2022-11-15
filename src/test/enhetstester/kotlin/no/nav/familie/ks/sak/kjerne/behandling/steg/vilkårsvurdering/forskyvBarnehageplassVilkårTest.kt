@@ -76,7 +76,7 @@ class forskyvBarnehageplassVilkårTest {
 
     // Eksempel i src/test/resources/barnehageplassscenarioer
     @Test
-    fun `Scenario 3,0 - Barnet går fra deltids barnehageplass til økt barnehageplass`() {
+    fun `Scenario 3,0 - Barnet går fra deltids barnehageplass til økt barnehageplass i månedsskifte`() {
         val vilkårResultat1 = lagVilkårResultat(
             vilkårType = Vilkår.BARNEHAGEPLASS,
             periodeFom = august.atDay(1),
@@ -130,7 +130,7 @@ class forskyvBarnehageplassVilkårTest {
 
     // Eksempel i src/test/resources/barnehageplassscenarioer
     @Test
-    fun `Scenario 4 - Barnet går fra deltids barnehageplass til redusert barnehageplass`() {
+    fun `Scenario 4 - Barnet går fra deltids barnehageplass til redusert barnehageplass i månedsskifte`() {
         val vilkårResultat1 = lagVilkårResultat(
             vilkårType = Vilkår.BARNEHAGEPLASS,
             periodeFom = august.atDay(1),
