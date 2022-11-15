@@ -336,13 +336,13 @@ fun lagVilkårsvurderingMedSøkersVilkår(
 
 fun lagVilkårResultat(
     id: Long = 0,
-    personResultat: PersonResultat,
+    personResultat: PersonResultat = mockk(relaxed = true),
     vilkårType: Vilkår = Vilkår.BOSATT_I_RIKET,
     resultat: Resultat = Resultat.OPPFYLT,
     periodeFom: LocalDate? = LocalDate.now().minusMonths(3),
     periodeTom: LocalDate? = LocalDate.now(),
     begrunnelse: String = "",
-    behandlingId: Long,
+    behandlingId: Long = 0,
     utdypendeVilkårsvurderinger: List<UtdypendeVilkårsvurdering> = emptyList(),
     antallTimer: BigDecimal? = null
 ): VilkårResultat = VilkårResultat(

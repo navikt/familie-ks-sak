@@ -58,10 +58,12 @@ private fun List<VilkårResultat>.tilBarnehageplassVilkårMedGraderingsforskjell
 }
 
 private fun VilkårResultat?.hentGraderingsforskjellMellomDenneOgForrigePeriode(
-    forrige: BarnehageplassVilkårMedGraderingsforskjellMellomPerioder<VilkårResultat?>?
+    vilkårResultatForrigePeriode: BarnehageplassVilkårMedGraderingsforskjellMellomPerioder<VilkårResultat?>?
 ): Graderingsforskjell {
-    val graderingForrigePeriode = hentProsentForAntallTimer(forrige?.vilkår?.antallTimer)
-    val graderingDennePerioden = hentProsentForAntallTimer(this?.antallTimer)
+    val graderingForrigePeriode =
+        vilkårResultatForrigePeriode?.vilkår?.let { hentProsentForAntallTimer(vilkårResultatForrigePeriode.vilkår.antallTimer) }
+            ?: BigDecimal.ZERO
+    val graderingDennePerioden = this?.let { hentProsentForAntallTimer(this.antallTimer) } ?: BigDecimal.ZERO
 
     return when {
         graderingForrigePeriode > graderingDennePerioden -> Graderingsforskjell.Reduksjon
