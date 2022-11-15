@@ -7,12 +7,16 @@ import no.nav.familie.ks.sak.api.mapper.SøknadGrunnlagMapper.tilSøknadDto
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg
 import no.nav.familie.ks.sak.kjerne.behandling.steg.IBehandlingSteg
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.VedtakService
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.VedtaksperiodeRepository
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
+import no.nav.familie.ks.sak.kjerne.beregning.domene.TilkjentYtelseRepository
 import no.nav.familie.ks.sak.kjerne.logg.LoggService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 
 @Service
 class RegistrereSøknadSteg(
@@ -20,10 +24,14 @@ class RegistrereSøknadSteg(
     private val loggService: LoggService,
     private val personopplysningGrunnlagService: PersonopplysningGrunnlagService,
     private val behandlingService: BehandlingService,
-    private val vilkårsvurderingService: VilkårsvurderingService
+    private val vilkårsvurderingService: VilkårsvurderingService,
+    private val vedtakService: VedtakService,
+    private val vedtaksperiodeRepository: VedtaksperiodeRepository,
+    private val tilkjentYtelseRepository: TilkjentYtelseRepository
 ) : IBehandlingSteg {
     override fun getBehandlingssteg(): BehandlingSteg = BehandlingSteg.REGISTRERE_SØKNAD
 
+    @Transactional
     override fun utførSteg(behandlingId: Long, behandlingStegDto: BehandlingStegDto) {
         logger.info("Utfører steg ${getBehandlingssteg().name} for behandling $behandlingId")
         val registrerSøknadDto = behandlingStegDto as RegistrerSøknadDto
@@ -50,6 +58,12 @@ class RegistrereSøknadSteg(
         )
 
         vilkårsvurderingService.opprettVilkårsvurdering(behandling, forrigeBehandlingSomErVedtatt)
+
+        // Vi sletter vedtaksperioder og tilkjentytelse hvis de tidligere har blitt generert
+        val vedtak = vedtakService.hentAktivVedtakForBehandling(behandlingId)
+
+        vedtaksperiodeRepository.slettVedtaksperioderForVedtak(vedtak)
+        tilkjentYtelseRepository.slettTilkjentYtelseForBehandling(behandling)
 
         secureLogger.info("Data mottatt ${søknadGrunnlag.søknad}")
     }
