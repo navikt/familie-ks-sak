@@ -1,5 +1,6 @@
 package no.nav.familie.ks.sak.kjerne.beregning
 
+import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.tidslinje.Periode
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.kombinerMed
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.tilPerioderIkkeNull
@@ -9,6 +10,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vil
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelse
+import no.nav.familie.ks.sak.kjerne.beregning.domene.SatsPeriode
 import no.nav.familie.ks.sak.kjerne.beregning.domene.TilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.domene.YtelseType
 import no.nav.familie.ks.sak.kjerne.beregning.domene.hentGyldigSatsFor
@@ -95,6 +97,8 @@ object TilkjentYtelseUtils {
             stønadFom = fom!!.toYearMonth(),
             stønadTom = tom!!.toYearMonth()
         )
+
+        validerBeregnetPeriode(satsperiode)
 
         val kalkulertUtbetalingsbeløp = satsperiode.sats.prosent(satsperiode.prosent)
 

@@ -1,6 +1,5 @@
 package no.nav.familie.ks.sak.kjerne.beregning
 
-import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.common.tidslinje.Periode
 import no.nav.familie.ks.sak.common.tidslinje.tilTidslinje
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.slåSammen
@@ -12,7 +11,6 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Utd
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
-import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
 import java.math.BigDecimal
 import java.time.LocalDate
 
@@ -21,29 +19,7 @@ data class PeriodeResultat(
     val periodeFom: LocalDate?,
     val periodeTom: LocalDate?,
     val vilkårResultater: Set<PeriodeVilkår>
-) {
-    fun allePåkrevdeVilkårErOppfylt(personType: PersonType): Boolean =
-        vilkårResultater.map { it.vilkårType }.containsAll(Vilkår.hentVilkårFor(personType)) &&
-            vilkårResultater.all { it.resultat in listOf(Resultat.OPPFYLT, Resultat.IKKE_AKTUELT) }
-
-    fun overlapper(annetPeriodeResultat: PeriodeResultat): Boolean {
-        if (periodeFom == null && annetPeriodeResultat.periodeFom == null) {
-            throw FunksjonellFeil(
-                melding = "Enten søker eller barn må ha fom dato på vilkårsresultatet",
-                frontendFeilmelding = "Du må sette en fom dato på minst et vilkår i vilkårsvurderingen"
-            )
-        }
-        if (periodeTom == null && annetPeriodeResultat.periodeTom == null) {
-            throw FunksjonellFeil(
-                melding = "Enten søker eller barn må ha tom dato på vilkårsresultatet",
-                frontendFeilmelding = "Du må sette en tom dato på minst et vilkår i vilkårsvurderingen"
-            )
-        }
-
-        return (periodeFom == null || annetPeriodeResultat.periodeTom == null || periodeFom <= annetPeriodeResultat.periodeTom) &&
-            (periodeTom == null || annetPeriodeResultat.periodeFom == null || periodeTom >= annetPeriodeResultat.periodeFom)
-    }
-}
+)
 
 data class PeriodeVilkår(
     val vilkårType: Vilkår,
