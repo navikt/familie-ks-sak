@@ -34,9 +34,9 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingStegStatus.KLAR
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingStegStatus.TILBAKEFØRT
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingStegStatus.UTFØRT
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingStegStatus.VENTER
-import no.nav.familie.ks.sak.kjerne.behandling.steg.søknad.RegistrereSøknadSteg
-import no.nav.familie.ks.sak.kjerne.behandling.steg.søknad.SøknadGrunnlagService
-import no.nav.familie.ks.sak.kjerne.behandling.steg.søknad.domene.SøknadGrunnlag
+import no.nav.familie.ks.sak.kjerne.behandling.steg.registrersøknad.RegistrereSøknadSteg
+import no.nav.familie.ks.sak.kjerne.behandling.steg.registrersøknad.SøknadGrunnlagService
+import no.nav.familie.ks.sak.kjerne.behandling.steg.registrersøknad.domene.SøknadGrunnlag
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.Vedtak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.VedtakRepository
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
