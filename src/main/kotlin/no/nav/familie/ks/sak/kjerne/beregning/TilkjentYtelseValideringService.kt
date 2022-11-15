@@ -76,12 +76,11 @@ class TilkjentYtelseValideringService(
 
         val forrigeBehandling =
             behandlingService.hentSisteBehandlingSomErVedtatt(
-                fagsakId = behandlingService.hentBehandling(
-                    behandlingId
-                ).fagsak.id
+                fagsakId = behandlingService.hentBehandling(behandlingId).fagsak.id
             )
-        val forrigeAndelerTilkjentYtelse =
-            forrigeBehandling?.let { beregningService.hentTilkjentYtelseForBehandling(behandlingId = it.id) }?.andelerTilkjentYtelse?.toList()
+        val forrigeAndelerTilkjentYtelse = forrigeBehandling?.let {
+            beregningService.hentTilkjentYtelseForBehandling(behandlingId = it.id)
+        }?.andelerTilkjentYtelse?.toList()
 
         val aktørIderMedUgyldigEtterbetaling = finnAktørIderMedUgyldigEtterbetalingsperiode(
             forrigeAndelerTilkjentYtelse = forrigeAndelerTilkjentYtelse,

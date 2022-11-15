@@ -5,11 +5,13 @@ import no.nav.familie.ks.sak.api.dto.DistribuerBrevDto
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.config.BehandlerRolle
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
+import no.nav.familie.ks.sak.kjerne.behandling.steg.avsluttbehandling.AvsluttBehandlingTask
 import no.nav.familie.ks.sak.kjerne.brev.BrevService
 import no.nav.familie.ks.sak.task.nesteGyldigeTriggertidForBehandlingIHverdager
 import no.nav.familie.prosessering.AsyncTaskStep
 import no.nav.familie.prosessering.TaskStepBeskrivelse
 import no.nav.familie.prosessering.domene.Task
+import no.nav.familie.prosessering.internal.TaskService
 import org.springframework.stereotype.Service
 import java.util.Properties
 
@@ -21,7 +23,8 @@ import java.util.Properties
 )
 class DistribuerBrevTask(
     private val behandlingService: BehandlingService,
-    private val brevService: BrevService
+    private val brevService: BrevService,
+    private val taskService: TaskService
 ) : AsyncTaskStep {
 
     override fun doTask(task: Task) {
@@ -34,7 +37,9 @@ class DistribuerBrevTask(
                 loggBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
                 brevmal = distribuerBrevDto.brevmal
             )
-        } else if (!distribuerBrevDto.erManueltSendt && distribuerBrevDto.brevmal.erVedtaksbrev && distribuerBrevDto.behandlingId != null) {
+        } else if (!distribuerBrevDto.erManueltSendt && distribuerBrevDto.brevmal.erVedtaksbrev &&
+            distribuerBrevDto.behandlingId != null
+        ) {
             brevService.prøvDistribuerBrevOgLoggHendelse(
                 journalpostId = distribuerBrevDto.journalpostId,
                 behandlingId = distribuerBrevDto.behandlingId,
@@ -45,15 +50,16 @@ class DistribuerBrevTask(
             val behandling = behandlingService.hentBehandling(distribuerBrevDto.behandlingId)
             val søkerIdent = behandling.fagsak.aktør.aktivFødselsnummer()
 
-            // TODO: Legg til ferdigstilling av behandling
-            // val ferdigstillBehandlingTask = FerdigstillBehandlingTask.opprettTask(
-            //     søkerIdent = søkerIdent,
-            //     behandlingsId = behandling.id
-            // )
-            //
-            // taskRepository.save(ferdigstillBehandlingTask)
+            val avsluttBehandlingTask = AvsluttBehandlingTask.opprettTask(
+                søkerIdent = søkerIdent,
+                behandlingId = behandling.id
+            )
+            taskService.save(avsluttBehandlingTask)
         } else {
-            throw Feil("erManueltSendt=${distribuerBrevDto.erManueltSendt} ikke støttet for brev=${distribuerBrevDto.brevmal.visningsTekst}")
+            throw Feil(
+                "erManueltSendt=${distribuerBrevDto.erManueltSendt} " +
+                    "ikke støttet for brev=${distribuerBrevDto.brevmal.visningsTekst}"
+            )
         }
     }
 
