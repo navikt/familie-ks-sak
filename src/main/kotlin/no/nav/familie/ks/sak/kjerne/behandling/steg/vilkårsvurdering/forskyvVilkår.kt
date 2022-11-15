@@ -22,7 +22,7 @@ fun Collection<PersonResultat>.tilFørskjøvetVilkårResultatTidslinjeMap(person
     personopplysningGrunnlag.personer.associate { person ->
         Pair(
             person.aktør,
-            tilFørskjøvetVilkårResultatTidslinjeForPerson(person)
+            this.tilFørskjøvetVilkårResultatTidslinjeForPerson(person)
         )
     }
 
