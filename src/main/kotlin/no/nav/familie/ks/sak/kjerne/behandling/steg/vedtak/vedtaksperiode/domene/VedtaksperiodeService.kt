@@ -367,7 +367,7 @@ class VedtaksperiodeService(
             behandlingRepository.finnIverksatteBehandlinger(fagsakId = behandling.fagsak.id)
 
         val forrigeIverksatteBehandling = iverksatteBehandlinger
-            .filter { it.opprettetTidspunkt.isBefore(behandling.opprettetTidspunkt) && it.steg == BehandlingSteg.BEHANDLING_AVSLUTTET }
+            .filter { it.opprettetTidspunkt.isBefore(behandling.opprettetTidspunkt) && it.steg == BehandlingSteg.AVSLUTT_BEHANDLING }
             .maxByOrNull { it.opprettetTidspunkt }
 
         val forrigePersonopplysningGrunnlag =

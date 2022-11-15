@@ -258,6 +258,16 @@ class LoggService(
         )
     }
 
+    fun opprettFerdigstillBehandling(behandling: Behandling) {
+        lagreLogg(
+            Logg(
+                behandlingId = behandling.id,
+                type = LoggType.FERDIGSTILLE_BEHANDLING,
+                rolle = SikkerhetContext.hentRolletilgangFraSikkerhetscontext(rolleConfig, BehandlerRolle.SYSTEM)
+            )
+        )
+    }
+
     companion object {
         private val logger = LoggerFactory.getLogger(LoggService::class.java)
     }

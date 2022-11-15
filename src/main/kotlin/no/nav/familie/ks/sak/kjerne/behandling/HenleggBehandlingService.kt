@@ -17,6 +17,7 @@ import no.nav.familie.ks.sak.kjerne.fagsak.FagsakService
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.FagsakStatus
 import no.nav.familie.ks.sak.kjerne.logg.LoggService
 import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext
+import no.nav.familie.ks.sak.statistikk.saksstatistikk.SakStatistikkService
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -28,6 +29,7 @@ class HenleggBehandlingService(
     private val oppgaveService: OppgaveService,
     private val loggService: LoggService,
     private val fagsakService: FagsakService,
+    private val sakStatistikkService: SakStatistikkService,
     private val behandlingRepository: BehandlingRepository
 ) {
 
@@ -67,10 +69,24 @@ class HenleggBehandlingService(
         behandling.status = BehandlingStatus.AVSLUTTET
         behandling.aktiv = false
 
-        // oppdater fagsak status til Avsluttet
-        if (behandlingRepository.finnBehandlinger(behandling.fagsak.id).size == 1) {
-            fagsakService.oppdaterStatus(behandling.fagsak, FagsakStatus.AVSLUTTET)
+        // oppdater fagsak status til avsluttet hvis første behandling på fagsak er henlagt
+        val alleBehandlinger = behandlingRepository.finnBehandlinger(behandling.fagsak.id)
+        when {
+            alleBehandlinger.size == 1 -> {
+                fagsakService.oppdaterStatus(behandling.fagsak, FagsakStatus.AVSLUTTET)
+            }
+            else -> {
+                // aktiverer siste vedtatt behandling på nytt
+                alleBehandlinger.filter { !it.erHenlagt() && it.status == BehandlingStatus.AVSLUTTET }
+                    .maxByOrNull { it.opprettetTidspunkt }?.apply {
+                        aktiv = true
+                        behandlingRepository.saveAndFlush(this)
+                    }
+            }
         }
+
+        // Send data til Dvh
+        sakStatistikkService.opprettSendingAvBehandlingensTilstand(behandlingId, behandling.steg)
 
         // trenger ikke å kalle eksplisitt save fordi behandling objekt er mutert og ha @Transactional
     }
