@@ -1,13 +1,14 @@
 package no.nav.familie.ks.sak.common.tidslinje.utvidelser
 
 import no.nav.familie.ks.sak.common.tidslinje.Null
+import no.nav.familie.ks.sak.common.tidslinje.PRAKTISK_TIDLIGSTE_DAG
 import no.nav.familie.ks.sak.common.tidslinje.Tidslinje
 import no.nav.familie.ks.sak.common.tidslinje.Udefinert
 import no.nav.familie.ks.sak.common.tidslinje.Verdi
 import no.nav.familie.ks.sak.common.tidslinje.tomTidslinje
 
 fun <T> Collection<Tidslinje<T>>.slåSammen(): Tidslinje<Collection<T>> {
-    val minsteTidspunkt = this.minOf { it.startsTidspunkt }
+    val minsteTidspunkt = this.minOfOrNull { it.startsTidspunkt } ?: PRAKTISK_TIDLIGSTE_DAG
     return this.fold(tomTidslinje(startsTidspunkt = minsteTidspunkt)) { sammenlagt, neste ->
         sammenlagt.biFunksjon(neste) { periodeVerdiFraSammenlagt, periodeVerdiFraNeste ->
             when (periodeVerdiFraSammenlagt) {

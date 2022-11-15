@@ -15,6 +15,7 @@ import no.nav.familie.ks.sak.common.util.sisteDagIMåned
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat.Companion.VilkårResultatComparator
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.forskyvBarnehageplassVilkår
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
+import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
 import javax.persistence.CascadeType
@@ -93,27 +94,34 @@ class PersonResultat(
  * Gir en tidslinje for hver person.
  */
 fun Collection<PersonResultat>.tilFørskjøvetVilkårResultatTidslinjeMap(personopplysningGrunnlag: PersonopplysningGrunnlag): Map<Aktør, Tidslinje<List<VilkårResultat>>> =
-    associate { personResultat ->
-        val personType = personopplysningGrunnlag.personer.single { it.aktør == personResultat.aktør }.type
-
-        val vilkårResultaterForAktørMap = personResultat.vilkårResultater
-            .groupByTo(mutableMapOf()) { it.vilkårType }
-            .mapValues { if (it.key == Vilkår.BOR_MED_SØKER) it.value.fjernAvslagUtenPeriodeHvisDetFinsAndreVilkårResultat() else it.value }
-
-        val forskjøvedeVilkårResultater = vilkårResultaterForAktørMap.map { (vilkårType, vilkårResultater) ->
-            forskyvVilkårResultater(vilkårType, vilkårResultater).tilTidslinje()
-        }
-
-        val vilkårResultaterKombinert = forskjøvedeVilkårResultater
-            .kombiner { alleVilkårOppfyltEllerNull(it, personType) }
-            .tilPerioderIkkeNull()
-            .tilTidslinje()
-
+    personopplysningGrunnlag.personer.associate { person ->
         Pair(
-            personResultat.aktør,
-            vilkårResultaterKombinert
+            person.aktør,
+            tilFørskjøvetVilkårResultatTidslinjeForPerson(person)
         )
     }
+
+fun Collection<PersonResultat>.tilFørskjøvetVilkårResultatTidslinjeForPerson(
+    person: Person
+): Tidslinje<List<VilkårResultat>> {
+    val personResultat = this.find { it.aktør == person.aktør }
+
+    val vilkårResultaterForAktør = personResultat?.vilkårResultater ?: emptyList()
+
+    val vilkårResultaterForAktørMap = vilkårResultaterForAktør
+        .groupByTo(mutableMapOf()) { it.vilkårType }
+        .mapValues { if (it.key == Vilkår.BOR_MED_SØKER) it.value.fjernAvslagUtenPeriodeHvisDetFinsAndreVilkårResultat() else it.value }
+
+    val forskjøvedeVilkårResultater = vilkårResultaterForAktørMap.map { (vilkårType, vilkårResultater) ->
+        forskyvVilkårResultater(vilkårType, vilkårResultater).tilTidslinje()
+    }
+
+    val vilkårResultaterKombinert = forskjøvedeVilkårResultater
+        .kombiner { alleVilkårOppfyltEllerNull(it, person.type) }
+        .tilPerioderIkkeNull()
+        .tilTidslinje()
+    return vilkårResultaterKombinert
+}
 
 data class VilkårResultaterMedInformasjonOmNestePeriode(
     val vilkårResultat: VilkårResultat,

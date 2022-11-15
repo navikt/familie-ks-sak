@@ -11,7 +11,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Res
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.UtdypendeVilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.tilFørskjøvetVilkårResultatTidslinjeMap
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.tilFørskjøvetVilkårResultatTidslinjeForPerson
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.domene.SatsPeriode
 import no.nav.familie.ks.sak.kjerne.beregning.domene.TilkjentYtelse
@@ -58,15 +58,11 @@ object TilkjentYtelseUtils {
         vilkårsvurdering: Vilkårsvurdering,
         tilkjentYtelse: TilkjentYtelse
     ): List<AndelTilkjentYtelse> {
-        val førskjøvetVilkårResultatTidslinjeMap =
-            vilkårsvurdering.personResultater.tilFørskjøvetVilkårResultatTidslinjeMap(personopplysningGrunnlag)
+        val søkersTidslinje =
+            vilkårsvurdering.personResultater.tilFørskjøvetVilkårResultatTidslinjeForPerson(personopplysningGrunnlag.søker)
 
-        val søkersTidslinje = førskjøvetVilkårResultatTidslinjeMap[personopplysningGrunnlag.søker.aktør]!!
-
-        val barna = personopplysningGrunnlag.barna.map { it.aktør }
-
-        return barna.flatMap { barn ->
-            val barnSinTidslinje = førskjøvetVilkårResultatTidslinjeMap[barn]!!
+        return personopplysningGrunnlag.barna.flatMap { barn ->
+            val barnSinTidslinje = vilkårsvurdering.personResultater.tilFørskjøvetVilkårResultatTidslinjeForPerson(barn)
             val barnVilkårResultaterBådeBarnOgSøkerHarAlleOppfylt =
                 barnSinTidslinje.kombinerMed(søkersTidslinje) { barnPeriode, søkerPeriode ->
                     søkerPeriode?.let { barnPeriode }
@@ -85,7 +81,7 @@ object TilkjentYtelseUtils {
                     erDeltBosted = erDeltBosted,
                     stønadFom = vilkårResultaterPeriode.fom!!.toYearMonth(),
                     stønadTom = vilkårResultaterPeriode.tom!!.toYearMonth()
-                ).tilAndelTIlkjentYtelse(vilkårsvurdering.behandling.id, tilkjentYtelse, barn)
+                ).tilAndelTIlkjentYtelse(vilkårsvurdering.behandling.id, tilkjentYtelse, barn.aktør)
             }
         }
     }

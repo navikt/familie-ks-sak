@@ -117,6 +117,7 @@ abstract class OppslagSpringRunnerTest {
     private lateinit var tilkjentYtelseRepository: TilkjentYtelseRepository
 
     lateinit var søker: Aktør
+    lateinit var barn: Aktør
 
     lateinit var fagsak: Fagsak
 
@@ -140,8 +141,9 @@ abstract class OppslagSpringRunnerTest {
         resetWiremockServers()
     }
 
-    fun opprettSøkerFagsakOgBehandling(søker: Aktør = randomAktør()) {
+    fun opprettSøkerFagsakOgBehandling(søker: Aktør = randomAktør(), barn: Aktør = randomAktør()) {
         this.søker = lagreAktør(søker)
+        this.barn = lagreAktør(barn)
         fagsak = lagreFagsak(lagFagsak(aktør = søker))
         behandling = lagreBehandling(lagBehandling(fagsak = fagsak, opprettetÅrsak = BehandlingÅrsak.SØKNAD))
     }
@@ -168,7 +170,7 @@ abstract class OppslagSpringRunnerTest {
         if (lagBarn) {
             lagrePerson(
                 Person(
-                    aktør = søker,
+                    aktør = barn,
                     type = PersonType.BARN,
                     personopplysningGrunnlag = personopplysningGrunnlag,
                     fødselsdato = LocalDate.of(2022, 1, 1),
