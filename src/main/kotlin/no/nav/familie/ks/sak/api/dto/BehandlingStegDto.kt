@@ -46,7 +46,6 @@ data class BarnMedOpplysningerDto(
     val navn: String = "",
     val fødselsdato: LocalDate? = null,
     val inkludertISøknaden: Boolean = true,
-    val manueltRegistrert: Boolean = false,
     val erFolkeregistrert: Boolean = true
 )
 
