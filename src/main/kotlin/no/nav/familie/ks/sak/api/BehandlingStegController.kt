@@ -67,7 +67,7 @@ class BehandlingStegController(
     }
 
     @PostMapping(path = ["/simulering"])
-    fun vurderTilbakekreving(
+    fun fullførSimulering(
         @PathVariable behandlingId: Long,
         @RequestBody tilbakekrevingDto: TilbakekrevingDto?
     ): ResponseEntity<Ressurs<BehandlingResponsDto>> {
