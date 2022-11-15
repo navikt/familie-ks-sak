@@ -3,7 +3,7 @@ package no.nav.familie.ks.sak.api.dto
 import java.math.BigDecimal
 import java.time.LocalDate
 
-data class SimuleringDto(
+data class SimuleringResponsDto(
     val perioder: List<SimuleringsPeriodeDto>,
     val fomDatoNestePeriode: LocalDate?,
     val etterbetaling: BigDecimal,

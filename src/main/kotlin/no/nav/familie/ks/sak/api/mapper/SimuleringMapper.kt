@@ -1,6 +1,6 @@
 package no.nav.familie.ks.sak.api.mapper
 
-import no.nav.familie.ks.sak.api.dto.SimuleringDto
+import no.nav.familie.ks.sak.api.dto.SimuleringResponsDto
 import no.nav.familie.ks.sak.api.dto.SimuleringsPeriodeDto
 import no.nav.familie.ks.sak.kjerne.behandling.steg.simulering.domene.ØkonomiSimuleringMottaker
 import no.nav.familie.ks.sak.kjerne.behandling.steg.simulering.domene.ØkonomiSimuleringPostering
@@ -17,7 +17,7 @@ import java.time.LocalDate
 
 object SimuleringMapper {
 
-    fun List<ØkonomiSimuleringMottaker>.tilSimuleringDto(): SimuleringDto {
+    fun List<ØkonomiSimuleringMottaker>.tilSimuleringDto(): SimuleringResponsDto {
         val perioder = this.tilSimuleringsPerioder()
         val tidSimuleringHentet = this.firstOrNull()?.opprettetTidspunkt?.toLocalDate()
 
@@ -31,7 +31,7 @@ object SimuleringMapper {
         val tomSisteUtbetaling =
             perioder.filter { nestePeriode == null || it.fom < nestePeriode.fom }.maxOfOrNull { it.tom }
 
-        return SimuleringDto(
+        return SimuleringResponsDto(
             perioder = perioder,
             fomDatoNestePeriode = nestePeriode?.fom,
             etterbetaling = hentTotalEtterbetaling(perioder, nestePeriode?.fom),

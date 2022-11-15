@@ -13,6 +13,10 @@ import no.nav.familie.kontrakter.felles.personopplysning.SIVILSTAND
 import no.nav.familie.kontrakter.felles.personopplysning.Sivilstand
 import no.nav.familie.kontrakter.felles.personopplysning.Statsborgerskap
 import no.nav.familie.kontrakter.felles.personopplysning.Vegadresse
+import no.nav.familie.kontrakter.felles.simulering.BetalingType
+import no.nav.familie.kontrakter.felles.simulering.FagOmrådeKode
+import no.nav.familie.kontrakter.felles.simulering.MottakerType
+import no.nav.familie.kontrakter.felles.simulering.PosteringType
 import no.nav.familie.ks.sak.api.dto.BarnMedOpplysningerDto
 import no.nav.familie.ks.sak.api.dto.RegistrerSøknadDto
 import no.nav.familie.ks.sak.api.dto.SøkerMedOpplysningerDto
@@ -28,6 +32,8 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingKategori
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingType
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
+import no.nav.familie.ks.sak.kjerne.behandling.steg.simulering.domene.ØkonomiSimuleringMottaker
+import no.nav.familie.ks.sak.kjerne.behandling.steg.simulering.domene.ØkonomiSimuleringPostering
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.Standardbegrunnelse
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.TriggesAv
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.Vedtak
@@ -610,6 +616,36 @@ fun lagUtbetalingsperiode(opphør: Opphør? = null) = Utbetalingsperiode(
     satsType = Utbetalingsperiode.SatsType.MND,
     utbetalesTil = "",
     behandlingId = 0
+)
+
+fun lagØkonomiSimuleringMottaker(
+    behandling: Behandling,
+    økonomiSimuleringPosteringer: List<ØkonomiSimuleringPostering> = emptyList()
+) = ØkonomiSimuleringMottaker(
+    mottakerType = MottakerType.BRUKER,
+    mottakerNummer = "",
+    behandling = behandling,
+    økonomiSimuleringPostering = økonomiSimuleringPosteringer
+)
+
+fun lagØkonomiSimuleringPostering(
+    behandling: Behandling,
+    fom: LocalDate,
+    tom: LocalDate,
+    beløp: BigDecimal,
+    forfallsdato: LocalDate
+) = ØkonomiSimuleringPostering(
+    økonomiSimuleringMottaker = lagØkonomiSimuleringMottaker(
+        behandling = behandling
+    ),
+    fagOmrådeKode = FagOmrådeKode.KONTANTSTØTTE,
+    fom = fom,
+    tom = tom,
+    betalingType = BetalingType.DEBIT,
+    beløp = beløp,
+    posteringType = PosteringType.YTELSE,
+    forfallsdato = forfallsdato,
+    utenInntrekk = false
 )
 
 fun fnrTilFødselsdato(fnr: String): LocalDate {

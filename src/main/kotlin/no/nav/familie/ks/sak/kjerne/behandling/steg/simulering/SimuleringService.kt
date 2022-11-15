@@ -5,7 +5,7 @@ import no.nav.familie.kontrakter.felles.objectMapper
 import no.nav.familie.kontrakter.felles.oppdrag.Utbetalingsoppdrag
 import no.nav.familie.kontrakter.felles.simulering.DetaljertSimuleringResultat
 import no.nav.familie.kontrakter.felles.simulering.SimuleringMottaker
-import no.nav.familie.ks.sak.api.dto.SimuleringDto
+import no.nav.familie.ks.sak.api.dto.SimuleringResponsDto
 import no.nav.familie.ks.sak.api.mapper.SimuleringMapper.tilSimuleringDto
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.integrasjon.oppdrag.OppdragKlient
@@ -102,7 +102,7 @@ class SimuleringService(
         return oppdragKlient.hentSimulering(utbetalingsoppdrag)
     }
 
-    private fun simuleringErUtdatert(simulering: SimuleringDto) =
+    private fun simuleringErUtdatert(simulering: SimuleringResponsDto) =
         simulering.tidSimuleringHentet == null ||
             (
                 simulering.forfallsdatoNestePeriode != null &&

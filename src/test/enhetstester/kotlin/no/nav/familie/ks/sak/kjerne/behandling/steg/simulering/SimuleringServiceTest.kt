@@ -19,6 +19,8 @@ import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagTilkjentYtelse
 import no.nav.familie.ks.sak.data.lagUtbetalingsoppdrag
 import no.nav.familie.ks.sak.data.lagUtbetalingsperiode
+import no.nav.familie.ks.sak.data.lagØkonomiSimuleringMottaker
+import no.nav.familie.ks.sak.data.lagØkonomiSimuleringPostering
 import no.nav.familie.ks.sak.integrasjon.oppdrag.OppdragKlient
 import no.nav.familie.ks.sak.integrasjon.økonomi.utbetalingsoppdrag.UtbetalingsoppdragService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
@@ -26,7 +28,6 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.simulering.domene.ØkonomiSimuleringMottaker
 import no.nav.familie.ks.sak.kjerne.behandling.steg.simulering.domene.ØkonomiSimuleringMottakerRepository
-import no.nav.familie.ks.sak.kjerne.behandling.steg.simulering.domene.ØkonomiSimuleringPostering
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.Vedtak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.VedtakRepository
 import no.nav.familie.ks.sak.kjerne.beregning.BeregningService
@@ -68,25 +69,15 @@ class SimuleringServiceTest {
     ) {
         val behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD).also { it.status = behandlingStatus }
         val eksisterendeSimulering = listOf(
-            ØkonomiSimuleringMottaker(
-                mottakerType = MottakerType.BRUKER,
-                mottakerNummer = "",
+            lagØkonomiSimuleringMottaker(
                 behandling = behandling,
-                økonomiSimuleringPostering = listOf(
-                    ØkonomiSimuleringPostering(
-                        økonomiSimuleringMottaker = ØkonomiSimuleringMottaker(
-                            mottakerType = MottakerType.BRUKER,
-                            mottakerNummer = "",
-                            behandling = behandling
-                        ),
-                        fagOmrådeKode = FagOmrådeKode.KONTANTSTØTTE,
+                økonomiSimuleringPosteringer = listOf(
+                    lagØkonomiSimuleringPostering(
+                        behandling = behandling,
                         fom = LocalDate.now().minusMonths(2),
                         tom = LocalDate.now(),
-                        betalingType = BetalingType.DEBIT,
                         beløp = BigDecimal.valueOf(7500),
-                        posteringType = PosteringType.YTELSE,
-                        forfallsdato = LocalDate.now().plusMonths(5),
-                        utenInntrekk = true
+                        forfallsdato = LocalDate.now().plusMonths(5)
                     )
                 )
             )
@@ -112,40 +103,22 @@ class SimuleringServiceTest {
     ) {
         val behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD).also { it.status = behandlingStatus }
         val eksisterendeSimulering = listOf(
-            ØkonomiSimuleringMottaker(
-                mottakerType = MottakerType.BRUKER,
-                mottakerNummer = "",
+            lagØkonomiSimuleringMottaker(
                 behandling = behandling,
-                økonomiSimuleringPostering = listOf(
-                    ØkonomiSimuleringPostering(
-                        økonomiSimuleringMottaker = ØkonomiSimuleringMottaker(
-                            mottakerType = MottakerType.BRUKER,
-                            mottakerNummer = "",
-                            behandling = behandling
-                        ),
-                        fagOmrådeKode = FagOmrådeKode.KONTANTSTØTTE,
+                økonomiSimuleringPosteringer = listOf(
+                    lagØkonomiSimuleringPostering(
+                        behandling = behandling,
                         fom = LocalDate.now().minusMonths(2),
                         tom = LocalDate.now(),
-                        betalingType = BetalingType.DEBIT,
                         beløp = BigDecimal.valueOf(7500),
-                        posteringType = PosteringType.YTELSE,
-                        forfallsdato = LocalDate.now().plusMonths(5),
-                        utenInntrekk = true
+                        forfallsdato = LocalDate.now().plusMonths(5)
                     ),
-                    ØkonomiSimuleringPostering(
-                        økonomiSimuleringMottaker = ØkonomiSimuleringMottaker(
-                            mottakerType = MottakerType.BRUKER,
-                            mottakerNummer = "",
-                            behandling = behandling
-                        ),
-                        fagOmrådeKode = FagOmrådeKode.KONTANTSTØTTE,
+                    lagØkonomiSimuleringPostering(
+                        behandling = behandling,
                         fom = LocalDate.now().plusMonths(2),
                         tom = LocalDate.now().plusMonths(4),
-                        betalingType = BetalingType.DEBIT,
                         beløp = BigDecimal.valueOf(7500),
-                        posteringType = PosteringType.YTELSE,
-                        forfallsdato = LocalDate.now().plusMonths(5),
-                        utenInntrekk = true
+                        forfallsdato = LocalDate.now().plusMonths(5)
                     )
                 )
             )

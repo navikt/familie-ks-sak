@@ -1,7 +1,7 @@
 package no.nav.familie.ks.sak.api
 
 import no.nav.familie.kontrakter.felles.Ressurs
-import no.nav.familie.ks.sak.api.dto.SimuleringDto
+import no.nav.familie.ks.sak.api.dto.SimuleringResponsDto
 import no.nav.familie.ks.sak.api.mapper.SimuleringMapper.tilSimuleringDto
 import no.nav.familie.ks.sak.config.BehandlerRolle
 import no.nav.familie.ks.sak.kjerne.behandling.steg.simulering.SimuleringService
@@ -25,7 +25,7 @@ class SimuleringController(
     @GetMapping(path = ["/{behandlingId}/simulering"])
     fun hentSimulering(
         @PathVariable behandlingId: Long
-    ): ResponseEntity<Ressurs<SimuleringDto>> {
+    ): ResponseEntity<Ressurs<SimuleringResponsDto>> {
         tilgangService.validerTilgangTilHandlingOgFagsakForBehandling(
             behandlingId = behandlingId,
             event = AuditLoggerEvent.ACCESS,
