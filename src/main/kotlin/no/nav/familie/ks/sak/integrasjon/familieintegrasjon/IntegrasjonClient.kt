@@ -22,7 +22,7 @@ import no.nav.familie.kontrakter.felles.oppgave.OppgaveResponse
 import no.nav.familie.kontrakter.felles.oppgave.OpprettOppgaveRequest
 import no.nav.familie.kontrakter.felles.tilgangskontroll.Tilgang
 import no.nav.familie.ks.sak.api.dto.OppdaterJournalpostRequestDto
-import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.domene.Arbeidsfordelingsenhet
+import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.domene.ArbeidsfordelingsEnhet
 import no.nav.familie.ks.sak.integrasjon.kallEksternTjeneste
 import no.nav.familie.ks.sak.integrasjon.kallEksternTjenesteRessurs
 import no.nav.familie.ks.sak.integrasjon.kallEksternTjenesteUtenRespons
@@ -193,7 +193,7 @@ class IntegrasjonClient(
     }
 
     @Cacheable("behandlendeEnhet", cacheManager = "shortCache")
-    fun hentBehandlendeEnheter(ident: String): List<Arbeidsfordelingsenhet> {
+    fun hentBehandlendeEnheter(ident: String): List<ArbeidsfordelingsEnhet> {
         val uri = UriComponentsBuilder
             .fromUri(integrasjonUri)
             .pathSegment("arbeidsfordeling", "enhet", Tema.KON.name)
