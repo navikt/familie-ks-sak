@@ -4,7 +4,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.BegrunnelseDto
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.Flettefelt
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.flettefelt
 
-data class BrevPeriode(
+data class BrevPeriodeDto(
     val fom: Flettefelt,
     val tom: Flettefelt,
     val belop: Flettefelt,
