@@ -333,7 +333,7 @@ class VedtaksperiodeService(
     ): List<Aktør> = utvidetVedtaksperiodeMedBegrunnelser
         .utbetalingsperiodeDetaljer
         .map { utbetalingsperiodeDetalj ->
-            val ident = utbetalingsperiodeDetalj.brevPerson.aktør.aktivFødselsnummer()
+            val ident = utbetalingsperiodeDetalj.person.aktør.aktivFødselsnummer()
             persongrunnlag.personer.find { it.aktør.aktivFødselsnummer() == ident }?.aktør
                 ?: personidentService.hentAktør(ident)
         }

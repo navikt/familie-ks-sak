@@ -30,7 +30,7 @@ data class Utbetalingsperiode(
 ) : Vedtaksperiode
 
 data class UtbetalingsperiodeDetalj(
-    val brevPerson: Person,
+    val person: Person,
     val ytelseType: YtelseType,
     val utbetaltPerMnd: Int,
     val erPåvirketAvEndring: Boolean,
@@ -74,7 +74,7 @@ internal fun Collection<AndelTilkjentYtelseMedEndreteUtbetalinger>.lagUtbetaling
         )
 
     UtbetalingsperiodeDetalj(
-        brevPerson = personForAndel,
+        person = personForAndel,
         ytelseType = andel.type,
         utbetaltPerMnd = andel.kalkulertUtbetalingsbeløp,
         erPåvirketAvEndring = andel.endreteUtbetalinger.isNotEmpty(),

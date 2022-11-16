@@ -61,7 +61,7 @@ private fun Collection<AndelTilkjentYtelseMedEndreteUtbetalinger>.tilUtbetalings
     }
 
 fun UtbetalingsperiodeDetalj.tilUtbetalingsperiodeDetaljDto() = UtbetalingsperiodeDetaljDto(
-    person = BehandlingMapper.lagPersonRespons(this.brevPerson, emptyMap()),
+    person = BehandlingMapper.lagPersonRespons(this.person, emptyMap()),
     utbetaltPerMnd = this.utbetaltPerMnd,
     erPåvirketAvEndring = this.erPåvirketAvEndring,
     prosent = this.prosent
