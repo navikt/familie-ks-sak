@@ -39,6 +39,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.registrersøknad.SøknadGrun
 import no.nav.familie.ks.sak.kjerne.behandling.steg.registrersøknad.domene.SøknadGrunnlag
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.Vedtak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.VedtakRepository
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingSteg
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
 import no.nav.familie.prosessering.internal.TaskService
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -61,6 +62,9 @@ class StegServiceTest : OppslagSpringRunnerTest() {
 
     @MockkBean(relaxed = true)
     private lateinit var registrerSøknadSteg: RegistrereSøknadSteg
+
+    @MockkBean(relaxed = true)
+    private lateinit var vilkårsvurderingSteg: VilkårsvurderingSteg
 
     @MockkBean(relaxed = true)
     private lateinit var søknadGrunnlagService: SøknadGrunnlagService
@@ -102,6 +106,9 @@ class StegServiceTest : OppslagSpringRunnerTest() {
 
             every { registrerSøknadSteg.utførSteg(any()) } just runs
             every { registrerSøknadSteg.getBehandlingssteg() } answers { callOriginal() }
+
+            every { vilkårsvurderingSteg.utførSteg(any()) } just runs
+            every { vilkårsvurderingSteg.getBehandlingssteg() } answers { callOriginal() }
 
             every { beslutteVedtakSteg.getBehandlingssteg() } answers { callOriginal() }
             every { beslutteVedtakSteg.utførSteg(any(), any()) } just runs
@@ -148,20 +155,20 @@ class StegServiceTest : OppslagSpringRunnerTest() {
         assertDoesNotThrow { stegService.utførSteg(behandling.id, REGISTRERE_SØKNAD, lagRegistrerSøknadDto()) }
         assertDoesNotThrow { stegService.utførSteg(behandling.id, VILKÅRSVURDERING) }
 
-        behandling = behandlingRepository.hentBehandling(behandling.id)
-        assertEquals(4, behandling.behandlingStegTilstand.size)
-        assertBehandlingHarSteg(behandling, REGISTRERE_PERSONGRUNNLAG, UTFØRT)
-        assertBehandlingHarSteg(behandling, REGISTRERE_SØKNAD, UTFØRT)
-        assertBehandlingHarSteg(behandling, VILKÅRSVURDERING, UTFØRT)
-        assertBehandlingHarSteg(behandling, BEHANDLINGSRESULTAT, KLAR)
+        val behandlingEtterVilkårsvurdering = behandlingRepository.hentBehandling(behandling.id)
+        assertEquals(4, behandlingEtterVilkårsvurdering.behandlingStegTilstand.size)
+        assertBehandlingHarSteg(behandlingEtterVilkårsvurdering, REGISTRERE_PERSONGRUNNLAG, UTFØRT)
+        assertBehandlingHarSteg(behandlingEtterVilkårsvurdering, REGISTRERE_SØKNAD, UTFØRT)
+        assertBehandlingHarSteg(behandlingEtterVilkårsvurdering, VILKÅRSVURDERING, UTFØRT)
+        assertBehandlingHarSteg(behandlingEtterVilkårsvurdering, BEHANDLINGSRESULTAT, KLAR)
 
         assertDoesNotThrow { stegService.utførSteg(behandling.id, REGISTRERE_SØKNAD, lagRegistrerSøknadDto()) }
-        behandling = behandlingRepository.hentBehandling(behandling.id)
-        assertEquals(4, behandling.behandlingStegTilstand.size)
-        assertBehandlingHarSteg(behandling, REGISTRERE_PERSONGRUNNLAG, UTFØRT)
-        assertBehandlingHarSteg(behandling, REGISTRERE_SØKNAD, UTFØRT)
-        assertBehandlingHarSteg(behandling, VILKÅRSVURDERING, KLAR)
-        assertBehandlingHarSteg(behandling, BEHANDLINGSRESULTAT, TILBAKEFØRT)
+        val behandlingEtterRegistrerSøknad = behandlingRepository.hentBehandling(behandling.id)
+        assertEquals(4, behandlingEtterRegistrerSøknad.behandlingStegTilstand.size)
+        assertBehandlingHarSteg(behandlingEtterRegistrerSøknad, REGISTRERE_PERSONGRUNNLAG, UTFØRT)
+        assertBehandlingHarSteg(behandlingEtterRegistrerSøknad, REGISTRERE_SØKNAD, UTFØRT)
+        assertBehandlingHarSteg(behandlingEtterRegistrerSøknad, VILKÅRSVURDERING, KLAR)
+        assertBehandlingHarSteg(behandlingEtterRegistrerSøknad, BEHANDLINGSRESULTAT, TILBAKEFØRT)
     }
 
     @Test
