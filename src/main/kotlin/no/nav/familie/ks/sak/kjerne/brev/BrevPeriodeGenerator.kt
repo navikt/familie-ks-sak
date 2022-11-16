@@ -1,17 +1,20 @@
 package no.nav.familie.ks.sak.kjerne.brev
 
-import no.nav.familie.ks.sak.common.util.NullablePeriode
 import no.nav.familie.ks.sak.common.util.erSenereEnnInneværendeMåned
+import no.nav.familie.ks.sak.common.util.formaterBeløp
 import no.nav.familie.ks.sak.common.util.tilDagMånedÅr
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.BegrunnelseDto
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.VedtakBegrunnelseType
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.Vedtaksperiodetype
-import no.nav.familie.ks.sak.kjerne.brev.domene.BrevBegrunnelseGrunnlagMedPersoner
 import no.nav.familie.ks.sak.kjerne.brev.domene.BrevBehandlingsGrunnlag
+import no.nav.familie.ks.sak.kjerne.brev.domene.BrevPerson
 import no.nav.familie.ks.sak.kjerne.brev.domene.BrevVedtaksPeriode
 import no.nav.familie.ks.sak.kjerne.brev.domene.BrevtUregistrertBarn
-import no.nav.familie.ks.sak.kjerne.brev.domene.maler.brevperioder.BrevPeriode
+import no.nav.familie.ks.sak.kjerne.brev.domene.maler.brevperioder.BrevPeriodeDto
+import no.nav.familie.ks.sak.kjerne.brev.domene.maler.brevperioder.BrevPeriodeType
+import no.nav.familie.ks.sak.kjerne.brev.domene.tilBarnasFødselsdatoer
+import no.nav.familie.ks.sak.kjerne.brev.domene.totaltUtbetalt
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Målform
+import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
 import java.time.LocalDate
 
 class BrevPeriodeGenerator(
@@ -24,27 +27,31 @@ class BrevPeriodeGenerator(
     private val dødeBarnForrigePeriode: List<String>
 ) {
 
-    fun genererBrevPeriode(): BrevPeriode? {
-        // kan droppe hentBegrunnelsegrunnlagMedPersoner
-        val begrunnelseGrunnlagMedPersoner = hentBegrunnelsegrunnlagMedPersoner()
+    constructor(grunnlagForBrevperiode: GrunnlagForBrevperiode) : this(
+        brevBehandlingsGrunnlag = grunnlagForBrevperiode.brevBehandlingsGrunnlag,
+        erFørsteVedtaksperiodePåFagsak = grunnlagForBrevperiode.erFørsteVedtaksperiodePåFagsak,
+        uregistrerteBarn = grunnlagForBrevperiode.uregistrerteBarn,
+        brevMålform = grunnlagForBrevperiode.brevMålform,
+        brevVedtaksPeriode = grunnlagForBrevperiode.brevVedtaksPeriode,
+        barnMedReduksjonFraForrigeBehandlingIdent = grunnlagForBrevperiode.barnMedReduksjonFraForrigeBehandlingIdent,
+        dødeBarnForrigePeriode = grunnlagForBrevperiode.dødeBarnForrigePeriode
+    )
 
-        val begrunnelserOgFritekster =
-            byggBegrunnelserOgFritekster(
-                begrunnelserGrunnlagMedPersoner = begrunnelseGrunnlagMedPersoner
-            )
+    fun genererBrevPeriode(): BrevPeriodeDto? {
+        // TODO: Hente relevante begrunnelser med riktige personer
+        // oppgave her: https://favro.com/organization/98c34fb974ce445eac854de0/077068028bffba85055cca2d?card=Tea-10394
+        val begrunnelserOgFritekster = emptyList<BegrunnelseDto>()
 
         if (begrunnelserOgFritekster.isEmpty()) return null
 
         val tomDato =
             if (brevVedtaksPeriode.tom?.erSenereEnnInneværendeMåned() == false) {
-                brevVedtaksPeriode.tom?.tilDagMånedÅr()
+                brevVedtaksPeriode.tom.tilDagMånedÅr()
             } else {
                 null
             }
 
-        val identerIBegrunnelene = begrunnelseGrunnlagMedPersoner
-            .filter { it.vedtakBegrunnelseType == VedtakBegrunnelseType.INNVILGET }
-            .flatMap { it.personIdenter }
+        val identerIBegrunnelene = emptyList<String>()
 
         return byggBrevPeriode(
             tomDato = tomDato,
@@ -53,60 +60,20 @@ class BrevPeriodeGenerator(
         )
     }
 
-    fun hentBegrunnelsegrunnlagMedPersoner() = brevVedtaksPeriode.begrunnelser.flatMap {
-        it.tilBrevBegrunnelseGrunnlagMedPersoner(
-            periode = NullablePeriode(
-                fom = brevVedtaksPeriode.fom,
-                tom = brevVedtaksPeriode.tom
-            ),
-            vedtaksperiodetype = brevVedtaksPeriode.type,
-            restBehandlingsgrunnlagForBrev = brevBehandlingsGrunnlag,
-            identerMedUtbetalingPåPeriode = brevVedtaksPeriode.brevUtbetalingsperiodeDetaljer
-                .map { utbetalingsperiodeDetalj -> utbetalingsperiodeDetalj.person.aktivPersonIdent },
-            minimerteUtbetalingsperiodeDetaljer = brevVedtaksPeriode.brevUtbetalingsperiodeDetaljer,
-            erFørsteVedtaksperiodePåFagsak = erFørsteVedtaksperiodePåFagsak,
-            erUregistrerteBarnPåbehandling = uregistrerteBarn.isNotEmpty(),
-            barnMedReduksjonFraForrigeBehandlingIdent = barnMedReduksjonFraForrigeBehandlingIdent,
-            dødeBarnForrigePeriode = dødeBarnForrigePeriode
-        )
-    }
-
-    fun byggBegrunnelserOgFritekster(
-        begrunnelserGrunnlagMedPersoner: List<BrevBegrunnelseGrunnlagMedPersoner>
-    ): List<BegrunnelseDto> {
-        val brevBegrunnelser = begrunnelserGrunnlagMedPersoner
-            .map {
-                it.tilBrevBegrunnelse(
-                    vedtaksperiode = NullablePeriode(brevVedtaksPeriode.fom, brevVedtaksPeriode.tom),
-                    personerIPersongrunnlag = brevBehandlingsGrunnlag.personerPåBehandling,
-                    brevMålform = brevMålform,
-                    uregistrerteBarn = uregistrerteBarn,
-                    minimerteUtbetalingsperiodeDetaljer = brevVedtaksPeriode.brevUtbetalingsperiodeDetaljer,
-                    minimerteRestEndredeAndeler = brevBehandlingsGrunnlag.endretUtbetalingAndeler
-                )
-            }
-
-        // val eøsBegrunnelser = hentEØSBegrunnelseData(eøsBegrunnelserMedKompetanser)
-
-        // val fritekster = brevVedtaksPeriode.fritekster.map { FritekstBegrunnelse(it) }
-
-        // return (brevBegrunnelser + eøsBegrunnelser + fritekster).sorted()
-        return (brevBegrunnelser)
-    }
-
     private fun byggBrevPeriode(
         tomDato: String?,
-        begrunnelserOgFritekster: List<Begrunnelse>,
+        begrunnelserOgFritekster: List<BegrunnelseDto>,
         identerIBegrunnelene: List<String>
-    ): BrevPeriode {
-        val (utbetalingerBarn, nullutbetalingerBarn) = brevVedtaksPeriode.minimerteUtbetalingsperiodeDetaljer
+    ): BrevPeriodeDto {
+        val (utbetalingerBarn, nullutbetalingerBarn) = brevVedtaksPeriode
+            .brevUtbetalingsperiodeDetaljer
             .filter { it.person.type == PersonType.BARN }
             .partition { it.utbetaltPerMnd != 0 }
 
         val barnMedUtbetaling = utbetalingerBarn.map { it.person }
         val barnMedNullutbetaling = nullutbetalingerBarn.map { it.person }
 
-        val barnIPeriode: List<MinimertRestPerson> = when (brevVedtaksPeriode.type) {
+        val barnIPeriode: List<BrevPerson> = when (brevVedtaksPeriode.type) {
             Vedtaksperiodetype.UTBETALING -> finnBarnIUtbetalingPeriode(identerIBegrunnelene)
 
             Vedtaksperiodetype.OPPHØR -> emptyList()
@@ -114,9 +81,9 @@ class BrevPeriodeGenerator(
             Vedtaksperiodetype.FORTSATT_INNVILGET -> barnMedUtbetaling + barnMedNullutbetaling
         }
 
-        val utbetalingsbeløp = brevVedtaksPeriode.minimerteUtbetalingsperiodeDetaljer.totaltUtbetalt()
+        val utbetalingsbeløp = brevVedtaksPeriode.brevUtbetalingsperiodeDetaljer.totaltUtbetalt()
         val brevPeriodeType = hentPeriodetype(brevVedtaksPeriode.fom, barnMedUtbetaling, utbetalingsbeløp)
-        return BrevPeriode(
+        return BrevPeriodeDto(
 
             fom = this.hentFomTekst(),
             tom = when {
@@ -125,7 +92,7 @@ class BrevPeriodeGenerator(
                 brevPeriodeType == BrevPeriodeType.INNVILGELSE_INGEN_UTBETALING -> " til $tomDato"
                 else -> "til $tomDato "
             },
-            belop = Utils.formaterBeløp(utbetalingsbeløp),
+            belop = formaterBeløp(utbetalingsbeløp),
             begrunnelser = begrunnelserOgFritekster,
             brevPeriodeType = brevPeriodeType,
             antallBarn = barnIPeriode.size.toString(),
@@ -138,12 +105,7 @@ class BrevPeriodeGenerator(
     }
 
     private fun hentFomTekst(): String = when (brevVedtaksPeriode.type) {
-        Vedtaksperiodetype.FORTSATT_INNVILGET -> hentFomtekstFortsattInnvilget(
-            brevMålform,
-            brevVedtaksPeriode.fom,
-            brevVedtaksPeriode.begrunnelser.map { it.standardbegrunnelse }
-        ) ?: "Du får:"
-
+        Vedtaksperiodetype.FORTSATT_INNVILGET -> "Du får:"
         Vedtaksperiodetype.UTBETALING -> brevVedtaksPeriode.fom!!.tilDagMånedÅr()
         Vedtaksperiodetype.OPPHØR -> brevVedtaksPeriode.fom!!.tilDagMånedÅr()
         Vedtaksperiodetype.AVSLAG -> if (brevVedtaksPeriode.fom != null) brevVedtaksPeriode.fom.tilDagMånedÅr() else ""
@@ -151,22 +113,9 @@ class BrevPeriodeGenerator(
 
     private fun hentPeriodetype(
         fom: LocalDate?,
-        barnMedUtbetaling: List<MinimertRestPerson>,
+        barnMedUtbetaling: List<BrevPerson>,
         utbetalingsbeløp: Int
-    ) = if (brevBehandlingsGrunnlag.erInstitusjon) {
-        when (brevVedtaksPeriode.type) {
-            Vedtaksperiodetype.FORTSATT_INNVILGET -> BrevPeriodeType.FORTSATT_INNVILGET_INSTITUSJON
-            Vedtaksperiodetype.UTBETALING -> when (utbetalingsbeløp) {
-                0 -> BrevPeriodeType.INNVILGELSE_INGEN_UTBETALING
-                else -> BrevPeriodeType.INNVILGELSE_INSTITUSJON
-            }
-
-            Vedtaksperiodetype.ENDRET_UTBETALING -> throw Feil("Endret utbetaling skal ikke benyttes lenger.")
-            Vedtaksperiodetype.AVSLAG -> if (fom != null) BrevPeriodeType.AVSLAG_INSTITUSJON else BrevPeriodeType.AVSLAG_UTEN_PERIODE_INSTITUSJON
-            Vedtaksperiodetype.OPPHØR -> BrevPeriodeType.OPPHOR_INSTITUSJON
-            Vedtaksperiodetype.UTBETALING_MED_REDUKSJON_FRA_SIST_IVERKSATTE_BEHANDLING -> BrevPeriodeType.INNVILGELSE_INSTITUSJON
-        }
-    } else {
+    ) =
         when (brevVedtaksPeriode.type) {
             Vedtaksperiodetype.FORTSATT_INNVILGET -> BrevPeriodeType.FORTSATT_INNVILGET
             Vedtaksperiodetype.UTBETALING -> when {
@@ -175,126 +124,21 @@ class BrevPeriodeGenerator(
                 else -> BrevPeriodeType.INNVILGELSE
             }
 
-            Vedtaksperiodetype.ENDRET_UTBETALING -> throw Feil("Endret utbetaling skal ikke benyttes lenger.")
             Vedtaksperiodetype.AVSLAG -> if (fom != null) BrevPeriodeType.AVSLAG else BrevPeriodeType.AVSLAG_UTEN_PERIODE
             Vedtaksperiodetype.OPPHØR -> BrevPeriodeType.OPPHOR
-            Vedtaksperiodetype.UTBETALING_MED_REDUKSJON_FRA_SIST_IVERKSATTE_BEHANDLING -> BrevPeriodeType.INNVILGELSE
         }
-    }
 
-    fun finnBarnIUtbetalingPeriode(identerIBegrunnelene: List<String>): List<MinimertRestPerson> {
+    fun finnBarnIUtbetalingPeriode(identerIBegrunnelene: List<String>): List<BrevPerson> {
         val identerMedUtbetaling =
-            brevVedtaksPeriode.minimerteUtbetalingsperiodeDetaljer.map { it.person.personIdent }
+            brevVedtaksPeriode.brevUtbetalingsperiodeDetaljer.map { it.person.aktivPersonIdent }
 
         val barnIPeriode = (identerIBegrunnelene + identerMedUtbetaling)
             .toSet()
             .mapNotNull { personIdent ->
-                brevBehandlingsGrunnlag.personerPåBehandling.find { it.personIdent == personIdent }
+                brevBehandlingsGrunnlag.personerPåBehandling.find { it.aktivPersonIdent == personIdent }
             }
             .filter { it.type == PersonType.BARN }
 
         return barnIPeriode
-    }
-
-    private fun hentFomtekstFortsattInnvilget(
-        målform: Målform,
-        fom: LocalDate?,
-        begrunnelser: List<Standardbegrunnelse>
-    ): String? {
-        val erAutobrev = begrunnelser.any {
-            it == Standardbegrunnelse.REDUKSJON_UNDER_6_ÅR_AUTOVEDTAK ||
-                it == Standardbegrunnelse.REDUKSJON_UNDER_18_ÅR_AUTOVEDTAK
-        }
-        return if (erAutobrev && fom != null) {
-            val fra = if (målform == Målform.NB) "Fra" else "Frå"
-            "$fra ${fom.tilDagMånedÅr()} får du:"
-        } else {
-            null
-        }
-    }
-
-    fun BrevBegrunnelseGrunnlagMedPersoner.tilBrevBegrunnelse(
-        vedtaksperiode: NullablePeriode,
-        personerIPersongrunnlag: List<MinimertRestPerson>,
-        brevMålform: Målform,
-        uregistrerteBarn: List<MinimertUregistrertBarn>,
-        minimerteUtbetalingsperiodeDetaljer: List<MinimertUtbetalingsperiodeDetalj>,
-        minimerteRestEndredeAndeler: List<MinimertRestEndretAndel>
-    ): Begrunnelse {
-        val personerPåBegrunnelse =
-            personerIPersongrunnlag.filter { person -> this.personIdenter.contains(person.personIdent) }
-
-        val barnSomOppfyllerTriggereOgHarUtbetaling = personerPåBegrunnelse.filter { person ->
-            person.type == PersonType.BARN && minimerteUtbetalingsperiodeDetaljer.any { it.utbetaltPerMnd > 0 && it.person.personIdent == person.personIdent }
-        }
-        val barnSomOppfyllerTriggereOgHarNullutbetaling = personerPåBegrunnelse.filter { person ->
-            person.type == PersonType.BARN && minimerteUtbetalingsperiodeDetaljer.any { it.utbetaltPerMnd == 0 && it.person.personIdent == person.personIdent }
-        }
-
-        val gjelderSøker = personerPåBegrunnelse.any { it.type == PersonType.SØKER }
-
-        val barnasFødselsdatoer = this.hentBarnasFødselsdagerForBegrunnelse(
-            uregistrerteBarn = uregistrerteBarn,
-            personerIBehandling = personerIPersongrunnlag,
-            personerPåBegrunnelse = personerPåBegrunnelse,
-            personerMedUtbetaling = minimerteUtbetalingsperiodeDetaljer.map { it.person },
-            gjelderSøker = gjelderSøker
-        )
-
-        val antallBarn = this.hentAntallBarnForBegrunnelse(
-            uregistrerteBarn = uregistrerteBarn,
-            gjelderSøker = gjelderSøker,
-            barnasFødselsdatoer = barnasFødselsdatoer
-        )
-
-        val månedOgÅrBegrunnelsenGjelderFor =
-            if (vedtaksperiode.fom == null) {
-                null
-            } else {
-                this.vedtakBegrunnelseType.hentMånedOgÅrForBegrunnelse(
-                    periode = Periode(
-                        fom = vedtaksperiode.fom,
-                        tom = vedtaksperiode.tom ?: TIDENES_ENDE
-                    )
-                )
-            }
-
-        val beløp = this.hentBeløp(gjelderSøker, minimerteUtbetalingsperiodeDetaljer)
-
-        val endringsperioder = this.standardbegrunnelse.hentRelevanteEndringsperioderForBegrunnelse(
-            minimerteRestEndredeAndeler = minimerteRestEndredeAndeler,
-            vedtaksperiode = vedtaksperiode
-        )
-
-        val søknadstidspunkt = endringsperioder.sortedBy { it.søknadstidspunkt }
-            .firstOrNull { this.triggesAv.endringsaarsaker.contains(it.årsak) }?.søknadstidspunkt
-
-        val søkersRettTilUtvidet =
-            finnUtOmSøkerFårUtbetaltEllerHarRettPåUtvidet(minimerteUtbetalingsperiodeDetaljer = minimerteUtbetalingsperiodeDetaljer)
-
-        this.validerBrevbegrunnelse(
-            gjelderSøker = gjelderSøker,
-            barnasFødselsdatoer = barnasFødselsdatoer
-        )
-
-        return BegrunnelseData(
-            gjelderSoker = gjelderSøker,
-            barnasFodselsdatoer = barnasFødselsdatoer.tilBrevTekst(),
-            fodselsdatoerBarnOppfyllerTriggereOgHarUtbetaling = barnSomOppfyllerTriggereOgHarUtbetaling.map { it.fødselsdato }
-                .tilBrevTekst(),
-            fodselsdatoerBarnOppfyllerTriggereOgHarNullutbetaling = barnSomOppfyllerTriggereOgHarNullutbetaling.map { it.fødselsdato }
-                .tilBrevTekst(),
-            antallBarn = antallBarn,
-            antallBarnOppfyllerTriggereOgHarUtbetaling = barnSomOppfyllerTriggereOgHarUtbetaling.size,
-            antallBarnOppfyllerTriggereOgHarNullutbetaling = barnSomOppfyllerTriggereOgHarNullutbetaling.size,
-            maanedOgAarBegrunnelsenGjelderFor = månedOgÅrBegrunnelsenGjelderFor,
-            maalform = brevMålform.tilSanityFormat(),
-            apiNavn = this.standardbegrunnelse.sanityApiNavn,
-            belop = Utils.formaterBeløp(beløp),
-            soknadstidspunkt = søknadstidspunkt?.tilKortString() ?: "",
-            avtaletidspunktDeltBosted = this.avtaletidspunktDeltBosted?.tilKortString() ?: "",
-            sokersRettTilUtvidet = søkersRettTilUtvidet.tilSanityFormat(),
-            vedtakBegrunnelseType = this.vedtakBegrunnelseType
-        )
     }
 }
