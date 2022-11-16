@@ -2,12 +2,12 @@ package no.nav.familie.ks.sak.kjerne.behandling
 
 import no.nav.familie.ks.sak.api.dto.BehandlingResponsDto
 import no.nav.familie.ks.sak.api.dto.EndreBehandlendeEnhetDto
+import no.nav.familie.ks.sak.api.dto.tilUtbetalingsperiodeResponsDto
 import no.nav.familie.ks.sak.api.dto.tilUtvidetVedtaksperiodeMedBegrunnelserDto
 import no.nav.familie.ks.sak.api.dto.tilVedtakDto
 import no.nav.familie.ks.sak.api.mapper.BehandlingMapper
 import no.nav.familie.ks.sak.api.mapper.BehandlingMapper.lagPersonRespons
 import no.nav.familie.ks.sak.api.mapper.BehandlingMapper.lagPersonerMedAndelTilkjentYtelseRespons
-import no.nav.familie.ks.sak.api.mapper.BehandlingMapper.lagUtbetalingsperioder
 import no.nav.familie.ks.sak.api.mapper.SøknadGrunnlagMapper.tilSøknadDto
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.ArbeidsfordelingService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
@@ -81,7 +81,7 @@ class BehandlingService(
             .finnAndelerTilkjentYtelseMedEndreteUtbetalinger(behandlingId)
 
         val utbetalingsperioder =
-            personopplysningGrunnlag?.let { lagUtbetalingsperioder(it, andelTilkjentYtelseMedEndreteUtbetalinger) }
+            personopplysningGrunnlag?.let { andelTilkjentYtelseMedEndreteUtbetalinger.tilUtbetalingsperiodeResponsDto(it) }
                 ?: emptyList()
 
         val vedtak = vedtakRepository.findByBehandlingAndAktivOptional(behandlingId)?.let {
