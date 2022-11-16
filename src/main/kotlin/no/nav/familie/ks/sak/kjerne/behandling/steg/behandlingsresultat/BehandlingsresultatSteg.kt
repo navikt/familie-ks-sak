@@ -3,6 +3,9 @@ package no.nav.familie.ks.sak.kjerne.behandling.steg.behandlingsresultat
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg
 import no.nav.familie.ks.sak.kjerne.behandling.steg.IBehandlingSteg
+import no.nav.familie.ks.sak.kjerne.behandling.steg.simulering.SimuleringService
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.VedtakRepository
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.VedtaksperiodeService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
 import no.nav.familie.ks.sak.kjerne.beregning.AndelerTilkjentYtelseOgEndreteUtbetalingerService
 import no.nav.familie.ks.sak.kjerne.beregning.BeregningService
@@ -19,7 +22,10 @@ class BehandlingsresultatSteg(
     private val vilkårsvurderingService: VilkårsvurderingService,
     private val beregningService: BeregningService,
     private val andelerTilkjentYtelseOgEndreteUtbetalingerService: AndelerTilkjentYtelseOgEndreteUtbetalingerService,
-    private val behandlingsresultatService: BehandlingsresultatService
+    private val behandlingsresultatService: BehandlingsresultatService,
+    private val simuleringService: SimuleringService,
+    private val vedtakRepository: VedtakRepository,
+    private val vedtaksperiodeService: VedtaksperiodeService
 ) : IBehandlingSteg {
     override fun getBehandlingssteg(): BehandlingSteg = BehandlingSteg.BEHANDLINGSRESULTAT
 
@@ -27,8 +33,10 @@ class BehandlingsresultatSteg(
     override fun utførSteg(behandlingId: Long) {
         logger.info("Utfører steg ${getBehandlingssteg().name} for behandling $behandlingId")
         val behandling = behandlingService.hentBehandling(behandlingId)
-        val vilkårsvurdering = vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(behandlingId = behandlingId)
-        val personopplysningGrunnlag = personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(behandlingId)
+        val vilkårsvurdering =
+            vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(behandlingId = behandlingId)
+        val personopplysningGrunnlag =
+            personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(behandlingId)
         val tilkjentYtelse = beregningService.hentTilkjentYtelseForBehandling(behandlingId)
         val endretUtbetalingMedAndeler = andelerTilkjentYtelseOgEndreteUtbetalingerService
             .finnEndreteUtbetalingerMedAndelerTilkjentYtelse(behandlingId)
@@ -48,9 +56,13 @@ class BehandlingsresultatSteg(
 
         if (behandlingMedOppdatertResultat.skalSendeVedtaksbrev()) {
             behandlingService.nullstillEndringstidspunkt(behandlingId)
-            // TODO oppdater vedtak med vedtaksperioder
+            vedtaksperiodeService.oppdaterVedtakMedVedtaksperioder(
+                vedtak = vedtakRepository.findByBehandlingAndAktiv(
+                    behandlingId = behandling.id
+                )
+            )
         }
-        // TODO simulering
+        simuleringService.oppdaterSimuleringPåBehandlingVedBehov(behandlingId)
     }
 
     companion object {

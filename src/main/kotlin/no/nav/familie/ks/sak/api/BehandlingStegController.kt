@@ -65,6 +65,19 @@ class BehandlingStegController(
         return ResponseEntity.ok(Ressurs.success(behandlingService.lagBehandlingRespons(behandlingId = behandlingId)))
     }
 
+    @PostMapping(path = ["/simulering"])
+    fun fullførSimulering(
+        @PathVariable behandlingId: Long
+    ): ResponseEntity<Ressurs<BehandlingResponsDto>> {
+        tilgangService.validerTilgangTilHandling(
+            minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
+            handling = "fullfør simulering"
+        )
+
+        stegService.utførSteg(behandlingId, BehandlingSteg.SIMULERING)
+        return ResponseEntity.ok(Ressurs.success(behandlingService.lagBehandlingRespons(behandlingId = behandlingId)))
+    }
+
     @PostMapping(path = ["/foreslå-vedtak"], produces = [MediaType.APPLICATION_JSON_VALUE])
     fun foreslåVedtak(
         @PathVariable behandlingId: Long,

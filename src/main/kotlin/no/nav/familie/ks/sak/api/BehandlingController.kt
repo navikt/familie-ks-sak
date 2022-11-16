@@ -12,6 +12,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.HenleggBehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.OpprettBehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.SettBehandlingPåVentService
+import no.nav.familie.ks.sak.kjerne.beregning.TilkjentYtelseValideringService
 import no.nav.familie.ks.sak.sikkerhet.AuditLoggerEvent
 import no.nav.familie.ks.sak.sikkerhet.TilgangService
 import no.nav.security.token.support.core.api.ProtectedWithClaims
@@ -35,7 +36,8 @@ class BehandlingController(
     private val behandlingService: BehandlingService,
     private val tilgangService: TilgangService,
     private val settBehandlingPåVentService: SettBehandlingPåVentService,
-    private val henleggBehandlingService: HenleggBehandlingService
+    private val henleggBehandlingService: HenleggBehandlingService,
+    private val tilkjentYtelseValideringService: TilkjentYtelseValideringService
 ) {
 
     @PostMapping(produces = [MediaType.APPLICATION_JSON_VALUE])
@@ -140,7 +142,32 @@ class BehandlingController(
             handling = "henlegg behandling"
         )
 
-        henleggBehandlingService.henleggBehandling(behandlingId, henleggBehandlingDto.årsak, henleggBehandlingDto.begrunnelse)
+        henleggBehandlingService.henleggBehandling(
+            behandlingId,
+            henleggBehandlingDto.årsak,
+            henleggBehandlingDto.begrunnelse
+        )
         return ResponseEntity.ok(Ressurs.success(behandlingService.lagBehandlingRespons(behandlingId = behandlingId)))
+    }
+
+    @GetMapping(path = ["/{behandlingId}/personer-med-ugyldig-etterbetalingsperiode"])
+    fun hentPersonerMedUgyldigEtterbetalingsperiode(
+        @PathVariable behandlingId: Long
+    ): ResponseEntity<Ressurs<List<String>>> {
+        tilgangService.validerTilgangTilHandlingOgFagsakForBehandling(
+            behandlingId = behandlingId,
+            event = AuditLoggerEvent.ACCESS,
+            minimumBehandlerRolle = BehandlerRolle.VEILEDER,
+            handling = "hent gyldig etterbetaling"
+        )
+
+        val aktørerMedUgyldigEtterbetalingsperiode =
+            tilkjentYtelseValideringService.finnAktørerMedUgyldigEtterbetalingsperiode(
+                behandlingId = behandlingId
+            )
+        val personerMedUgyldigEtterbetalingsperiode =
+            aktørerMedUgyldigEtterbetalingsperiode.map { it.aktivFødselsnummer() }
+
+        return ResponseEntity.ok(Ressurs.success(personerMedUgyldigEtterbetalingsperiode))
     }
 }
