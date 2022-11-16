@@ -78,7 +78,7 @@ internal class UtbetalingsperiodeServiceTest {
         utbetalingsoppdragService.oppdaterTilkjentYtelseMedUtbetalingsoppdragOgIverksett(
             vedtak,
             "",
-            AndelTilkjentYtelseForIverksettingFactory()
+            AndelTilkjentYtelseForIverksetting.Factory
         )
         verify(exactly = 0) { oppdragKlient.iverksettOppdrag(any()) }
     }
@@ -95,7 +95,7 @@ internal class UtbetalingsperiodeServiceTest {
         utbetalingsoppdragService.oppdaterTilkjentYtelseMedUtbetalingsoppdragOgIverksett(
             vedtak,
             "",
-            AndelTilkjentYtelseForIverksettingFactory()
+            AndelTilkjentYtelseForIverksetting.Factory
         )
         verify(exactly = 1) { oppdragKlient.iverksettOppdrag(any()) }
     }

@@ -10,6 +10,8 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingType
+import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat
+import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelseRepository
@@ -179,4 +181,44 @@ class BeregningService(
                         andelerTilkjentYtelse.maxByOrNull { it.periodeOffset!! }?.periodeOffset?.toInt()
                     }
             }.maxByOrNull { it }
+
+    /*
+     * Henter alle barn på behandlingen som har minst en periode med tilkjentytelse som ikke er endret til null i utbetaling.
+     */
+    fun finnAlleBarnFraBehandlingMedPerioderSomSkalUtbetales(behandlingId: Long): List<Aktør> {
+        val andelerMedEndringer = andelerTilkjentYtelseOgEndreteUtbetalingerService
+            .finnAndelerTilkjentYtelseMedEndreteUtbetalinger(behandlingId)
+
+        return personopplysningGrunnlagRepository.hentByBehandlingAndAktiv(behandlingId).barna.map { it.aktør }
+            .filter { aktør ->
+                andelerMedEndringer
+                    .filter { it.aktør == aktør }.any { aty ->
+                        aty.kalkulertUtbetalingsbeløp != 0 || aty.endreteUtbetalinger.isEmpty()
+                    }
+            }
+    }
+
+    fun innvilgetSøknadUtenUtbetalingsperioderGrunnetEndringsPerioder(behandling: Behandling): Boolean {
+        val barnMedUtbetalingSomIkkeBlittEndretISisteBehandling =
+            finnAlleBarnFraBehandlingMedPerioderSomSkalUtbetales(behandling.id)
+
+        val alleBarnISisteBehanlding = finnBarnFraBehandlingMedTilkjentYtelse(behandling.id)
+
+        val alleBarnISistIverksattBehandling = behandlingRepository.finnIverksatteBehandlinger(behandling.fagsak.id)
+            .filter { it.steg == BehandlingSteg.AVSLUTT_BEHANDLING }.maxByOrNull { it.opprettetTidspunkt }?.let {
+                finnBarnFraBehandlingMedTilkjentYtelse(
+                    it.id
+                )
+            }
+            ?: emptyList()
+
+        val nyeBarnISisteBehandling = alleBarnISisteBehanlding.minus(alleBarnISistIverksattBehandling.toSet())
+
+        val nyeBarnMedUtebtalingSomIkkeErEndret =
+            barnMedUtbetalingSomIkkeBlittEndretISisteBehandling.intersect(nyeBarnISisteBehandling)
+
+        return behandling.resultat == Behandlingsresultat.INNVILGET_OG_OPPHØRT &&
+            behandling.erSøknad() &&
+            nyeBarnMedUtebtalingSomIkkeErEndret.isEmpty()
+    }
 }
