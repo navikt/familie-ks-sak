@@ -15,7 +15,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg
-import no.nav.familie.ks.sak.kjerne.behandling.steg.søknad.SøknadGrunnlagService
+import no.nav.familie.ks.sak.kjerne.behandling.steg.registrersøknad.SøknadGrunnlagService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.EØSStandardbegrunnelse
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.Standardbegrunnelse
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.VedtakBegrunnelseType
@@ -142,7 +142,6 @@ class VedtaksperiodeService(
     fun oppdaterVedtakMedVedtaksperioder(vedtak: Vedtak, skalOverstyreFortsattInnvilget: Boolean = false) {
         vedtaksperiodeHentOgPersisterService.slettVedtaksperioderFor(vedtak)
         if (vedtak.behandling.resultat == Behandlingsresultat.FORTSATT_INNVILGET && !skalOverstyreFortsattInnvilget) {
-
             vedtaksperiodeHentOgPersisterService.lagre(
                 VedtaksperiodeMedBegrunnelser(
                     fom = null,
@@ -368,7 +367,7 @@ class VedtaksperiodeService(
             behandlingRepository.finnIverksatteBehandlinger(fagsakId = behandling.fagsak.id)
 
         val forrigeIverksatteBehandling = iverksatteBehandlinger
-            .filter { it.opprettetTidspunkt.isBefore(behandling.opprettetTidspunkt) && it.steg == BehandlingSteg.BEHANDLING_AVSLUTTET }
+            .filter { it.opprettetTidspunkt.isBefore(behandling.opprettetTidspunkt) && it.steg == BehandlingSteg.AVSLUTT_BEHANDLING }
             .maxByOrNull { it.opprettetTidspunkt }
 
         val forrigePersonopplysningGrunnlag =

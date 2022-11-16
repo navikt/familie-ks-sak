@@ -1,22 +1,25 @@
 package no.nav.familie.ks.sak.kjerne.behandling.steg
 
 import com.ninjasquad.springmockk.MockkBean
+import io.mockk.called
 import io.mockk.every
 import io.mockk.just
 import io.mockk.runs
+import io.mockk.verify
 import no.nav.familie.ks.sak.OppslagSpringRunnerTest
 import no.nav.familie.ks.sak.api.dto.BarnMedOpplysningerDto
 import no.nav.familie.ks.sak.api.dto.RegistrerSøknadDto
 import no.nav.familie.ks.sak.api.dto.SøkerMedOpplysningerDto
 import no.nav.familie.ks.sak.api.dto.SøknadDto
+import no.nav.familie.ks.sak.api.dto.tilSøknadGrunnlag
 import no.nav.familie.ks.sak.api.mapper.SøknadGrunnlagMapper.tilSøknadDto
 import no.nav.familie.ks.sak.data.lagPdlPersonInfo
 import no.nav.familie.ks.sak.data.lagPersonopplysningGrunnlag
 import no.nav.familie.ks.sak.data.randomAktør
 import no.nav.familie.ks.sak.integrasjon.pdl.PersonOpplysningerService
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.ArbeidsfordelingService
-import no.nav.familie.ks.sak.kjerne.behandling.steg.søknad.RegistrereSøknadSteg
-import no.nav.familie.ks.sak.kjerne.behandling.steg.søknad.domene.SøknadGrunnlagRepository
+import no.nav.familie.ks.sak.kjerne.behandling.steg.registrersøknad.RegistrereSøknadSteg
+import no.nav.familie.ks.sak.kjerne.behandling.steg.registrersøknad.domene.SøknadGrunnlagRepository
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import no.nav.familie.ks.sak.kjerne.personident.AktørRepository
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlagRepository
@@ -54,6 +57,7 @@ class RegistrereSøknadStegTest : OppslagSpringRunnerTest() {
     @BeforeEach
     fun init() {
         opprettSøkerFagsakOgBehandling()
+        lagVedtak()
         barn1 = aktørRepository.saveAndFlush(randomAktør())
         barn2 = aktørRepository.saveAndFlush(randomAktør())
         val personopplysningGrunnlag =
@@ -139,5 +143,23 @@ class RegistrereSøknadStegTest : OppslagSpringRunnerTest() {
         assertEquals(2, søknadsGrunnlag.size)
         assertNotNull { aktivtSøknadsGrunnlag }
         assertEquals(2, aktivtSøknadsGrunnlag?.tilSøknadDto()?.barnaMedOpplysninger?.size)
+    }
+
+    @Test
+    fun `utførSteg - skal ikke utføre noen endringer dersom det allerede finnes en identisk søknad`() {
+        val søknadDto = SøknadDto(
+            søkerMedOpplysninger = SøkerMedOpplysningerDto(ident = søker.aktivFødselsnummer()),
+            barnaMedOpplysninger = listOf(
+                BarnMedOpplysningerDto(ident = barn1.aktivFødselsnummer())
+            ),
+            endringAvOpplysningerBegrunnelse = ""
+        )
+
+        søknadGrunnlagRepository.saveAndFlush(søknadDto.tilSøknadGrunnlag(behandling.id))
+
+        registrereSøknadSteg.utførSteg(behandling.id, RegistrerSøknadDto(søknadDto, false))
+
+        verify { personOpplysningerService wasNot called }
+        verify { arbeidsfordelingService wasNot called }
     }
 }

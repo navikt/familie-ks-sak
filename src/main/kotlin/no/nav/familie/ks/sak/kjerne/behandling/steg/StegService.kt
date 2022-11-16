@@ -1,13 +1,23 @@
 package no.nav.familie.ks.sak.kjerne.behandling.steg
 
 import no.nav.familie.ks.sak.api.dto.BehandlingStegDto
+import no.nav.familie.ks.sak.api.dto.BesluttVedtakDto
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStegTilstand
-import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat
+import no.nav.familie.ks.sak.kjerne.behandling.domene.Beslutning
+import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg.AVSLUTT_BEHANDLING
+import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg.BESLUTTE_VEDTAK
+import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg.IVERKSETT_MOT_OPPDRAG
+import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg.JOURNALFØR_VEDTAKSBREV
+import no.nav.familie.ks.sak.kjerne.behandling.steg.iverksettmotoppdrag.IverksettMotOppdragTask
+import no.nav.familie.ks.sak.kjerne.behandling.steg.journalførvedtaksbrev.JournalførVedtaksbrevTask
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.VedtakRepository
+import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext
 import no.nav.familie.ks.sak.statistikk.saksstatistikk.SakStatistikkService
+import no.nav.familie.prosessering.internal.TaskService
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -17,7 +27,9 @@ import java.time.LocalDate
 class StegService(
     private val steg: List<IBehandlingSteg>,
     private val behandlingRepository: BehandlingRepository,
-    private val sakStatistikkService: SakStatistikkService
+    private val vedtakRepository: VedtakRepository,
+    private val sakStatistikkService: SakStatistikkService,
+    private val taskService: TaskService
 ) {
 
     @Transactional
@@ -31,17 +43,23 @@ class StegService(
                 // utfør steg, kaller utfør metode i tilsvarende steg klasser
                 behandlingStegDto?.let { hentStegInstans(behandlingSteg).utførSteg(behandlingId, it) }
                     ?: hentStegInstans(behandlingSteg).utførSteg(behandlingId)
-                // oppdaterer nåværendeSteg status til utført
-                behandlingStegTilstand.behandlingStegStatus = BehandlingStegStatus.UTFØRT
+                // utleder nåværendeSteg status, den blir TILBAKEFØRT når beslutter underkjenner vedtaket ellers UTFØRT
+                behandlingStegTilstand.behandlingStegStatus = utledNåværendeBehandlingStegStatus(
+                    behandlingSteg,
+                    behandlingStegDto
+                )
                 // Henter neste steg basert på sekvens og årsak
-                val nesteSteg = hentNesteSteg(behandling, behandlingSteg)
+                val nesteSteg = hentNesteSteg(behandling, behandlingSteg, behandlingStegDto)
                 // legger til neste steg hvis steget er ny, eller oppdaterer eksisterende steg status til KLAR
                 behandling.behandlingStegTilstand.singleOrNull { it.behandlingSteg == nesteSteg }
                     ?.let { it.behandlingStegStatus = BehandlingStegStatus.KLAR }
                     ?: behandling.leggTilNesteSteg(nesteSteg)
 
                 // oppdaterer behandling med behandlingstegtilstand og behandling status
-                behandlingRepository.saveAndFlush(oppdaterBehandlingStatus(behandling, behandlingSteg))
+                behandlingRepository.saveAndFlush(oppdaterBehandlingStatus(behandling))
+
+                // forsøker om neste steg kan utføres automatisk
+                utførStegAutomatisk(behandling)
             }
 
             BehandlingStegStatus.UTFØRT -> {
@@ -52,7 +70,7 @@ class StegService(
                 // oppdaterte behandling med behandlede steg som KLAR slik at det kan behandles
                 hentStegTilstandForBehandlingSteg(behandling, behandlingSteg).behandlingStegStatus =
                     BehandlingStegStatus.KLAR
-                behandlingRepository.saveAndFlush(oppdaterBehandlingStatus(behandling, behandlingSteg))
+                behandlingRepository.saveAndFlush(oppdaterBehandlingStatus(behandling))
 
                 utførSteg(behandlingId, behandlingSteg, behandlingStegDto)
             }
@@ -64,7 +82,7 @@ class StegService(
                 behandlingStegTilstand.behandlingStegStatus = BehandlingStegStatus.KLAR
                 behandlingStegTilstand.frist = null
                 behandlingStegTilstand.årsak = null
-                behandlingRepository.saveAndFlush(oppdaterBehandlingStatus(behandling, behandlingSteg))
+                behandlingRepository.saveAndFlush(oppdaterBehandlingStatus(behandling))
             }
             // AVBRUTT kan brukes kun for henleggelse
             // TILBAKEFØRT steg blir oppdatert til KLAR når det forrige steget er behandlet
@@ -102,40 +120,52 @@ class StegService(
                     "Kan ikke behandle ${behandledeSteg.name}"
             )
         }
-
-        // valider om inlogget bruker har riktig rolle
-        // TODO tilgangssjekk
     }
 
-    fun hentNesteSteg(behandling: Behandling, behandledeSteg: BehandlingSteg): BehandlingSteg {
+    fun hentNesteSteg(
+        behandling: Behandling,
+        behandledeSteg: BehandlingSteg,
+        behandlingStegDto: BehandlingStegDto?
+    ): BehandlingSteg {
         val nesteGyldigeStadier = BehandlingSteg.values().filter {
             it.sekvens > behandledeSteg.sekvens &&
                 behandling.opprettetÅrsak in it.gyldigForÅrsaker
         }.sortedBy { it.sekvens }
         return when (behandledeSteg) {
-            BehandlingSteg.BEHANDLING_AVSLUTTET -> throw Feil("Behandling ${behandling.id} er allerede avsluttet")
-            BehandlingSteg.BESLUTTE_VEDTAK -> hentNesteStegEtterBeslutteVedtakBasertPåBehandlingsresultat(behandling.resultat)
+            AVSLUTT_BEHANDLING -> throw Feil("Behandling ${behandling.id} er allerede avsluttet")
+            BESLUTTE_VEDTAK -> {
+                val beslutteVedtakDto = behandlingStegDto as BesluttVedtakDto
+                when (beslutteVedtakDto.beslutning) {
+                    Beslutning.GODKJENT -> hentNesteStegEtterBeslutteVedtak(behandling)
+                    Beslutning.UNDERKJENT -> BehandlingSteg.VEDTAK
+                }
+            }
             else -> nesteGyldigeStadier.first()
         }
     }
 
-    @Transactional
-    fun tilbakeførBehandlingSteg(behandling: Behandling, tilbakeføresSteg: BehandlingSteg): Behandling {
-        val nåværendeBehandlingSteg = behandling.steg
-        if (nåværendeBehandlingSteg.sekvens < tilbakeføresSteg.sekvens) {
-            throw Feil(
-                "Behandling ${behandling.id} er på ${nåværendeBehandlingSteg.visningsnavn()}, " +
-                    "kan ikke tilbakeføres til ${tilbakeføresSteg.visningsnavn()}."
-            )
+    private fun hentNesteStegEtterBeslutteVedtak(behandling: Behandling): BehandlingSteg {
+        return when {
+            behandling.erTekniskEndring() -> AVSLUTT_BEHANDLING
+            behandling.resultat.kanIkkeSendesTilOppdrag() -> JOURNALFØR_VEDTAKSBREV
+            else -> IVERKSETT_MOT_OPPDRAG
         }
-        behandling.behandlingStegTilstand.forEach {
-            when (it.behandlingSteg) {
-                nåværendeBehandlingSteg -> it.behandlingStegStatus = BehandlingStegStatus.TILBAKEFØRT
-                tilbakeføresSteg -> it.behandlingStegStatus = BehandlingStegStatus.KLAR
-                else -> {} // gjør ingenting
+    }
+
+    private fun utførStegAutomatisk(behandling: Behandling) {
+        when (behandling.steg) {
+            IVERKSETT_MOT_OPPDRAG -> {
+                val vedtakId = vedtakRepository.findByBehandlingAndAktiv(behandling.id).id
+                val saksbehandlerId = SikkerhetContext.hentSaksbehandler()
+                taskService.save(IverksettMotOppdragTask.opprettTask(behandling, vedtakId, saksbehandlerId))
             }
+            JOURNALFØR_VEDTAKSBREV -> {
+                val vedtakId = vedtakRepository.findByBehandlingAndAktiv(behandling.id).id
+                taskService.save(JournalførVedtaksbrevTask.opprettTask(behandling, vedtakId))
+            }
+            AVSLUTT_BEHANDLING -> utførSteg(behandlingId = behandling.id, AVSLUTT_BEHANDLING)
+            else -> {} // Gjør ingenting. Steg kan ikke utføre automatisk
         }
-        return behandlingRepository.saveAndFlush(oppdaterBehandlingStatus(behandling, tilbakeføresSteg))
     }
 
     fun settBehandlingstegPåVent(
@@ -176,13 +206,6 @@ class StegService(
         behandling.behandlingStegTilstand.forEach { it.behandlingStegStatus = BehandlingStegStatus.AVBRUTT }
     }
 
-    private fun hentNesteStegEtterBeslutteVedtakBasertPåBehandlingsresultat(resultat: Behandlingsresultat): BehandlingSteg {
-        return when {
-            resultat.kanIkkeSendesTilOppdrag() -> BehandlingSteg.JOURNALFØR_VEDTAKSBREV
-            else -> BehandlingSteg.IVERKSETT_MOT_OPPDRAG
-        }
-    }
-
     private fun hentStegTilstandForBehandlingSteg(
         behandling: Behandling,
         behandlingSteg: BehandlingSteg
@@ -194,9 +217,23 @@ class StegService(
         steg.singleOrNull { it.getBehandlingssteg() == behandlingssteg }
             ?: throw Feil("Finner ikke behandlingssteg $behandlingssteg")
 
-    private fun oppdaterBehandlingStatus(behandling: Behandling, behandledeSteg: BehandlingSteg): Behandling {
-        behandling.status = behandledeSteg.tilknyttetBehandlingStatus
+    private fun oppdaterBehandlingStatus(behandling: Behandling): Behandling {
+        behandling.status = behandling.steg.tilknyttetBehandlingStatus
         return behandling
+    }
+
+    private fun utledNåværendeBehandlingStegStatus(
+        behandlingSteg: BehandlingSteg,
+        behandlingStegDto: BehandlingStegDto? = null
+    ) = when (behandlingSteg) {
+        BESLUTTE_VEDTAK -> {
+            val beslutteVedtakDto = behandlingStegDto as BesluttVedtakDto
+            when (beslutteVedtakDto.beslutning) {
+                Beslutning.GODKJENT -> BehandlingStegStatus.UTFØRT
+                Beslutning.UNDERKJENT -> BehandlingStegStatus.TILBAKEFØRT
+            }
+        }
+        else -> BehandlingStegStatus.UTFØRT
     }
 
     companion object {

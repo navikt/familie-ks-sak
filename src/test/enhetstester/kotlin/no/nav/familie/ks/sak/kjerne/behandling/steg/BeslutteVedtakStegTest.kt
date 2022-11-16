@@ -4,7 +4,9 @@ import io.mockk.every
 import io.mockk.impl.annotations.InjectMockKs
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
+import io.mockk.just
 import io.mockk.mockk
+import io.mockk.runs
 import io.mockk.verify
 import no.nav.familie.ks.sak.api.dto.BesluttVedtakDto
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
@@ -21,6 +23,7 @@ import no.nav.familie.ks.sak.kjerne.logg.LoggService
 import no.nav.familie.ks.sak.kjerne.totrinnskontroll.TotrinnskontrollService
 import no.nav.familie.prosessering.internal.TaskService
 import org.hamcrest.MatcherAssert.assertThat
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
@@ -51,6 +54,14 @@ class BeslutteVedtakStegTest {
 
     @InjectMockKs
     private lateinit var beslutteVedtakSteg: BeslutteVedtakSteg
+
+    @BeforeEach
+    private fun init() {
+        every { behandlingService.hentBehandling(200) } returns lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD)
+        every { featureToggleService.isEnabled(FeatureToggleConfig.KAN_MANUELT_KORRIGERE_MED_VEDTAKSBREV) } returns false
+        every { loggService.opprettBeslutningOmVedtakLogg(any(), any(), any()) } returns mockk()
+        every { taskService.save(any()) } returns mockk()
+    }
 
     @Test
     fun `utførSteg skal kaste FunksjonellFeil dersom behandlingen er satt til IVERKSETTER_VEDTAK `() {
@@ -92,11 +103,8 @@ class BeslutteVedtakStegTest {
     }
 
     @Test
-    fun `utførSteg skal opprette FerdigstillGodkjenneVedtak task og logg dersom vedtaket er godkjent `() {
+    fun `utførSteg skal oppdatere vedtak dersom vedtaket er godkjent `() {
         val besluttVedtakDto = BesluttVedtakDto(Beslutning.GODKJENT, "GODKJENT")
-
-        every { behandlingService.hentBehandling(200) } returns lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD)
-        every { featureToggleService.isEnabled(FeatureToggleConfig.KAN_MANUELT_KORRIGERE_MED_VEDTAKSBREV) } returns false
         every {
             totrinnskontrollService.besluttTotrinnskontroll(
                 any(),
@@ -106,8 +114,8 @@ class BeslutteVedtakStegTest {
                 emptyList()
             )
         } returns mockk(relaxed = true)
-        every { loggService.opprettBeslutningOmVedtakLogg(any(), any(), any()) } returns mockk()
-        every { taskService.save(any()) } returns mockk()
+        every { vedtakService.hentAktivVedtakForBehandling(any()) } returns mockk()
+        every { vedtakService.oppdaterVedtaksdato(any()) } just runs
 
         beslutteVedtakSteg.utførSteg(200, besluttVedtakDto)
 
@@ -122,5 +130,43 @@ class BeslutteVedtakStegTest {
         }
         verify(exactly = 1) { loggService.opprettBeslutningOmVedtakLogg(any(), any(), any()) }
         verify(exactly = 1) { taskService.save(any()) }
+        verify(exactly = 1) { vedtakService.hentAktivVedtakForBehandling(any()) }
+        verify(exactly = 1) { vedtakService.oppdaterVedtaksdato(any()) }
+    }
+
+    @Test
+    fun `utførSteg skal opprette og initiere nytt vedtak dersom vedtaket er underkjent `() {
+        val besluttVedtakDto = BesluttVedtakDto(Beslutning.UNDERKJENT, "UNDERKJENT")
+
+        every {
+            totrinnskontrollService.besluttTotrinnskontroll(
+                any(),
+                any(),
+                any(),
+                besluttVedtakDto.beslutning,
+                emptyList()
+            )
+        } returns mockk(relaxed = true)
+        every { vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(any()) } returns mockk()
+        every { vilkårsvurderingService.oppdater(any()) } returns mockk()
+        every { vedtakService.opprettOgInitierNyttVedtakForBehandling(any(), any()) } just runs
+
+        beslutteVedtakSteg.utførSteg(200, besluttVedtakDto)
+
+        verify(exactly = 1) {
+            totrinnskontrollService.besluttTotrinnskontroll(
+                any(),
+                any(),
+                any(),
+                besluttVedtakDto.beslutning,
+                emptyList()
+            )
+        }
+        verify(exactly = 1) { loggService.opprettBeslutningOmVedtakLogg(any(), any(), any()) }
+        verify(exactly = 2) { taskService.save(any()) }
+        verify(exactly = 0) { vedtakService.oppdaterVedtaksdato(any()) }
+        verify(exactly = 1) { vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(any()) }
+        verify(exactly = 1) { vilkårsvurderingService.oppdater(any()) }
+        verify(exactly = 1) { vedtakService.opprettOgInitierNyttVedtakForBehandling(any(), any()) }
     }
 }

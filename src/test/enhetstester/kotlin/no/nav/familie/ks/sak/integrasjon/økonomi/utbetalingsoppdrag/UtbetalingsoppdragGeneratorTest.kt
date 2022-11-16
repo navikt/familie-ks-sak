@@ -28,7 +28,7 @@ import org.hamcrest.CoreMatchers.`is` as Is
 @ExtendWith(MockKExtension::class)
 internal class UtbetalingsoppdragGeneratorTest {
 
-    val utbetalingsoppdragGenerator = UtbetalingsoppdragGenerator()
+    private val utbetalingsoppdragGenerator = UtbetalingsoppdragGenerator()
 
     @Test
     fun `lagTilkjentYtelseMedUtbetalingsoppdrag skal opprette et nytt utbetalingsoppdrag med felles løpende periodeId og separat kjeding på to personer`() {
@@ -45,7 +45,7 @@ internal class UtbetalingsoppdragGeneratorTest {
                 lagAndelTilkjentYtelse(tilkjentYtelse, behandling, aktør, årMåned("2019-04"), årMåned("2023-03")),
                 lagAndelTilkjentYtelse(tilkjentYtelse, behandling, aktør, årMåned("2026-05"), årMåned("2027-06")),
                 lagAndelTilkjentYtelse(tilkjentYtelse, behandling, aktør2, årMåned("2019-03"), årMåned("2037-02")),
-                lagAndelTilkjentYtelse(tilkjentYtelse, behandling, aktør2, årMåned("2037-05"), årMåned("2050-02")),
+                lagAndelTilkjentYtelse(tilkjentYtelse, behandling, aktør2, årMåned("2037-05"), årMåned("2050-02"))
             )
 
         tilkjentYtelse.andelerTilkjentYtelse.addAll(andelTilkjentYtelser)
@@ -55,7 +55,7 @@ internal class UtbetalingsoppdragGeneratorTest {
                 vedtak = vedtak,
                 tilkjentYtelse = tilkjentYtelse
             ),
-            AndelTilkjentYtelseForIverksettingFactory()
+            AndelTilkjentYtelseForIverksetting.Factory
         )
 
         val utbetalingsoppdrag = konvertTilUtbetalingsoppdrag(oppdatertTilkjentYtelse.utbetalingsoppdrag)
@@ -129,7 +129,7 @@ internal class UtbetalingsoppdragGeneratorTest {
                     stønadFom = førsteDatoKjede2,
                     stønadTom = årMåned("2037-02"),
                     periodeOffset = 2
-                ),
+                )
             )
 
         forrigeTilkjentYtelse.andelerTilkjentYtelse.addAll(andelTilkjentYtelser)
@@ -144,7 +144,7 @@ internal class UtbetalingsoppdragGeneratorTest {
                     )
                 )
             ),
-            AndelTilkjentYtelseForIverksettingFactory(),
+            AndelTilkjentYtelseForIverksetting.Factory,
             forrigeTilkjentYtelse = forrigeTilkjentYtelse
         )
 
@@ -184,7 +184,9 @@ internal class UtbetalingsoppdragGeneratorTest {
         val fagsak = lagFagsak(aktør)
 
         val førsteBehandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD, fagsak = fagsak).also {
-            it.behandlingStegTilstand.forEach { it.behandlingStegStatus = BehandlingStegStatus.UTFØRT }
+            it.behandlingStegTilstand.forEach { behandlingSteg ->
+                behandlingSteg.behandlingStegStatus = BehandlingStegStatus.UTFØRT
+            }
         }
 
         val vedtak = Vedtak(behandling = førsteBehandling)
@@ -219,7 +221,7 @@ internal class UtbetalingsoppdragGeneratorTest {
                     stønadFom = årMåned("2037-01"),
                     stønadTom = årMåned("2039-12"),
                     periodeOffset = 2
-                ),
+                )
             )
 
         tilkjentYtelseIFørsteBehandling.andelerTilkjentYtelse.addAll(andelTilkjentYtelserIFørsteBehandling)
@@ -230,7 +232,7 @@ internal class UtbetalingsoppdragGeneratorTest {
                     vedtak = vedtak,
                     tilkjentYtelse = tilkjentYtelseIFørsteBehandling
                 ),
-                AndelTilkjentYtelseForIverksettingFactory()
+                AndelTilkjentYtelseForIverksetting.Factory
             )
 
         val andreBehandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD, fagsak = fagsak)
@@ -264,7 +266,7 @@ internal class UtbetalingsoppdragGeneratorTest {
                     stønadFom = årMåned("2037-01"),
                     stønadTom = årMåned("2039-12"),
                     periodeOffset = 4
-                ),
+                )
             )
 
         tilkjentYtelseIAndreBehandling.andelerTilkjentYtelse.addAll(andelTilkjentYtelserIAndreBehandling)
@@ -282,7 +284,7 @@ internal class UtbetalingsoppdragGeneratorTest {
                     sisteOffsetPåFagsak = sisteOffsetPåFagsak,
                     tilkjentYtelse = tilkjentYtelseIAndreBehandling
                 ),
-                AndelTilkjentYtelseForIverksettingFactory(),
+                AndelTilkjentYtelseForIverksetting.Factory,
                 forrigeTilkjentYtelse = oppdatertTilkjentYtelseIFørsteBehandling
             )
 
@@ -323,7 +325,9 @@ internal class UtbetalingsoppdragGeneratorTest {
         val fagsak = lagFagsak(aktør)
 
         val førsteBehandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD, fagsak = fagsak).also {
-            it.behandlingStegTilstand.forEach { it.behandlingStegStatus = BehandlingStegStatus.UTFØRT }
+            it.behandlingStegTilstand.forEach { behandlingSteg ->
+                behandlingSteg.behandlingStegStatus = BehandlingStegStatus.UTFØRT
+            }
         }
 
         val vedtak = Vedtak(behandling = førsteBehandling)
@@ -360,7 +364,7 @@ internal class UtbetalingsoppdragGeneratorTest {
                     vedtak = vedtak,
                     tilkjentYtelse = tilkjentYtelseIFørsteBehandling
                 ),
-                AndelTilkjentYtelseForIverksettingFactory()
+                AndelTilkjentYtelseForIverksetting.Factory
             )
 
         val andreBehandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD, fagsak = fagsak)
@@ -405,7 +409,7 @@ internal class UtbetalingsoppdragGeneratorTest {
                     sisteOffsetPåFagsak = sisteOffsetPåFagsak,
                     tilkjentYtelse = tilkjentYtelseIAndreBehandling
                 ),
-                AndelTilkjentYtelseForIverksettingFactory(),
+                AndelTilkjentYtelseForIverksetting.Factory,
                 forrigeTilkjentYtelse = oppdatertTilkjentYtelseIFørsteBehandling
             )
 
@@ -446,7 +450,9 @@ internal class UtbetalingsoppdragGeneratorTest {
         val fagsak = lagFagsak(aktør)
 
         val førsteBehandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD, fagsak = fagsak).also {
-            it.behandlingStegTilstand.forEach { it.behandlingStegStatus = BehandlingStegStatus.UTFØRT }
+            it.behandlingStegTilstand.forEach { behandlingSteg ->
+                behandlingSteg.behandlingStegStatus = BehandlingStegStatus.UTFØRT
+            }
         }
 
         val vedtak = Vedtak(behandling = førsteBehandling)
@@ -490,7 +496,7 @@ internal class UtbetalingsoppdragGeneratorTest {
                     vedtak = vedtak,
                     tilkjentYtelse = tilkjentYtelseIFørsteBehandling
                 ),
-                AndelTilkjentYtelseForIverksettingFactory()
+                AndelTilkjentYtelseForIverksetting.Factory
             )
 
         val andreBehandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD, fagsak = fagsak)
@@ -543,7 +549,7 @@ internal class UtbetalingsoppdragGeneratorTest {
                     tilkjentYtelse = tilkjentYtelseIAndreBehandling,
                     erSimulering = true
                 ),
-                AndelTilkjentYtelseForIverksettingFactory(),
+                AndelTilkjentYtelseForIverksetting.Factory,
                 forrigeTilkjentYtelse = oppdatertTilkjentYtelseIFørsteBehandling
             )
 
@@ -601,4 +607,4 @@ internal class UtbetalingsoppdragGeneratorTest {
 }
 
 fun Collection<AndelTilkjentYtelse>.forIverksetting() =
-    AndelTilkjentYtelseForIverksettingFactory().pakkInnForUtbetaling(this)
+    AndelTilkjentYtelseForIverksetting.Factory.pakkInnForUtbetaling(this)

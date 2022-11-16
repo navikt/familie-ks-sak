@@ -5,6 +5,7 @@ import io.micrometer.core.instrument.Metrics
 import no.nav.familie.ks.sak.common.util.tilKortString
 import no.nav.familie.ks.sak.config.BehandlerRolle
 import no.nav.familie.ks.sak.config.RolleConfig
+import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.domene.ArbeidsfordelingsEnhet
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.domene.ArbeidsfordelingPåBehandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat
@@ -54,7 +55,7 @@ class LoggService(
 
     fun opprettBehandlendeEnhetEndret(
         behandling: Behandling,
-        fraEnhet: ArbeidsfordelingPåBehandling,
+        fraEnhet: ArbeidsfordelingsEnhet,
         tilEnhet: ArbeidsfordelingPåBehandling,
         manuellOppdatering: Boolean,
         begrunnelse: String
@@ -68,7 +69,7 @@ class LoggService(
                     BehandlerRolle.SAKSBEHANDLER
                 ),
                 tekst = "Behandlende enhet ${if (manuellOppdatering) "manuelt" else "automatisk"} endret " +
-                    "fra ${fraEnhet.behandlendeEnhetId} ${fraEnhet.behandlendeEnhetNavn} " +
+                    "fra ${fraEnhet.enhetId} ${fraEnhet.enhetNavn} " +
                     "til ${tilEnhet.behandlendeEnhetId} ${tilEnhet.behandlendeEnhetNavn}." +
                     if (begrunnelse.isNotBlank()) "\n\n$begrunnelse" else ""
             )
@@ -254,6 +255,16 @@ class LoggService(
                 rolle = SikkerhetContext.hentRolletilgangFraSikkerhetscontext(rolleConfig, BehandlerRolle.BESLUTTER),
                 tekst = if (beslutningErGodkjent) "" else "Begrunnelse: $begrunnelse",
                 opprettetAv = SikkerhetContext.hentSaksbehandlerNavn()
+            )
+        )
+    }
+
+    fun opprettAvsluttBehandlingLogg(behandling: Behandling) {
+        lagreLogg(
+            Logg(
+                behandlingId = behandling.id,
+                type = LoggType.FERDIGSTILLE_BEHANDLING,
+                rolle = SikkerhetContext.hentRolletilgangFraSikkerhetscontext(rolleConfig, BehandlerRolle.SYSTEM)
             )
         )
     }

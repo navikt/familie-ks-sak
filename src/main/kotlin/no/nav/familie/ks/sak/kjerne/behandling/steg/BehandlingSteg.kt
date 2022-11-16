@@ -49,7 +49,7 @@ enum class BehandlingSteg(
         gyldigForÅrsaker = BehandlingÅrsak.values().filterNot { it == SATSENDRING && it == TEKNISK_ENDRING },
         tilknyttetBehandlingStatus = BehandlingStatus.IVERKSETTER_VEDTAK
     ),
-    BEHANDLING_AVSLUTTET(
+    AVSLUTT_BEHANDLING(
         sekvens = 10,
         gyldigBehandlerRolle = listOf(BehandlerRolle.SYSTEM),
         tilknyttetBehandlingStatus = BehandlingStatus.AVSLUTTET

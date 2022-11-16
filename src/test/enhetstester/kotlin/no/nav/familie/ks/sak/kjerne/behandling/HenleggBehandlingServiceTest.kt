@@ -5,7 +5,9 @@ import io.mockk.impl.annotations.InjectMockKs
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import io.mockk.just
+import io.mockk.mockk
 import io.mockk.runs
+import io.mockk.slot
 import io.mockk.verify
 import no.nav.familie.ks.sak.api.dto.HenleggÅrsak
 import no.nav.familie.ks.sak.common.exception.Feil
@@ -14,6 +16,7 @@ import no.nav.familie.ks.sak.config.FeatureToggleConfig
 import no.nav.familie.ks.sak.config.FeatureToggleService
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.integrasjon.oppgave.OppgaveService
+import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStegTilstand
@@ -26,8 +29,10 @@ import no.nav.familie.ks.sak.kjerne.fagsak.FagsakService
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.FagsakStatus
 import no.nav.familie.ks.sak.kjerne.logg.LoggService
 import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext
+import no.nav.familie.ks.sak.statistikk.saksstatistikk.SakStatistikkService
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertDoesNotThrow
@@ -56,6 +61,9 @@ internal class HenleggBehandlingServiceTest {
     private lateinit var fagsakService: FagsakService
 
     @MockK
+    private lateinit var sakStatistikkService: SakStatistikkService
+
+    @MockK
     private lateinit var behandlingRepository: BehandlingRepository
 
     @InjectMockKs
@@ -74,6 +82,7 @@ internal class HenleggBehandlingServiceTest {
         every { fagsakService.oppdaterStatus(behandling.fagsak, FagsakStatus.AVSLUTTET) } just runs
         every { stegService.settAlleStegTilAvbrutt(behandling) } just runs
         every { brevService.genererOgSendBrev(any(), any()) } just runs
+        every { sakStatistikkService.opprettSendingAvBehandlingensTilstand(any(), any()) } just runs
     }
 
     @Test
@@ -192,6 +201,7 @@ internal class HenleggBehandlingServiceTest {
         verify(exactly = 0) { brevService.sendBrev(any(), any()) }
         verify(exactly = 1) { fagsakService.oppdaterStatus(behandling.fagsak, FagsakStatus.AVSLUTTET) }
         verify(exactly = 1) { stegService.settAlleStegTilAvbrutt(behandling) }
+        verify(exactly = 1) { sakStatistikkService.opprettSendingAvBehandlingensTilstand(any(), any()) }
 
         assertEquals(BehandlingStatus.AVSLUTTET, behandling.status)
         assertFalse(behandling.aktiv)
@@ -218,9 +228,48 @@ internal class HenleggBehandlingServiceTest {
         verify(exactly = 1) { brevService.genererOgSendBrev(any(), any()) }
         verify(exactly = 1) { fagsakService.oppdaterStatus(behandling.fagsak, FagsakStatus.AVSLUTTET) }
         verify(exactly = 1) { stegService.settAlleStegTilAvbrutt(behandling) }
+        verify(exactly = 1) { sakStatistikkService.opprettSendingAvBehandlingensTilstand(any(), any()) }
 
         assertEquals(BehandlingStatus.AVSLUTTET, behandling.status)
         assertFalse(behandling.aktiv)
         assertEquals(Behandlingsresultat.HENLAGT_SØKNAD_TRUKKET, behandling.resultat)
+    }
+
+    @Test
+    fun `henleggBehandling skal henlegge behandling og aktivere siste vedtatt behandling når fagsak har flere behandlinger`() {
+        val sisteVedtattBehandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD).also {
+            it.aktiv = false
+            it.status = BehandlingStatus.AVSLUTTET
+            it.resultat = Behandlingsresultat.INNVILGET
+        }
+        val sisteVedtattBehandlingSlot = slot<Behandling>()
+        every { behandlingRepository.finnBehandlinger(behandling.fagsak.id) } returns listOf(sisteVedtattBehandling, behandling)
+        every { behandlingRepository.saveAndFlush(capture(sisteVedtattBehandlingSlot)) } returns mockk()
+
+        assertDoesNotThrow {
+            henleggBehandlingService.henleggBehandling(
+                behandlingId = behandlingId,
+                henleggÅrsak = HenleggÅrsak.SØKNAD_TRUKKET,
+                begrunnelse = ""
+            )
+        }
+        verify(exactly = 1) { oppgaveService.hentOppgaverSomIkkeErFerdigstilt(behandling) }
+        verify(exactly = 1) {
+            loggService.opprettHenleggBehandlingLogg(
+                behandling,
+                HenleggÅrsak.SØKNAD_TRUKKET.beskrivelse,
+                ""
+            )
+        }
+        verify(exactly = 1) { brevService.genererOgSendBrev(any(), any()) }
+        verify(exactly = 0) { fagsakService.oppdaterStatus(behandling.fagsak, FagsakStatus.AVSLUTTET) }
+        verify(exactly = 1) { stegService.settAlleStegTilAvbrutt(behandling) }
+        verify(exactly = 1) { sakStatistikkService.opprettSendingAvBehandlingensTilstand(any(), any()) }
+        verify(exactly = 1) { behandlingRepository.saveAndFlush(any()) }
+
+        assertEquals(BehandlingStatus.AVSLUTTET, behandling.status)
+        assertFalse(behandling.aktiv)
+        assertEquals(Behandlingsresultat.HENLAGT_SØKNAD_TRUKKET, behandling.resultat)
+        assertTrue { sisteVedtattBehandlingSlot.captured.aktiv }
     }
 }
