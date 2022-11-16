@@ -1,7 +1,6 @@
 package no.nav.familie.ks.sak.api.dto
 
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.VedtakBegrunnelseType
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.UtbetalingsperiodeDetalj
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.Vedtaksperiodetype
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.UtvidetVedtaksperiodeMedBegrunnelser
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.Vedtaksbegrunnelse
@@ -33,7 +32,7 @@ data class UtvidetVedtaksperiodeMedBegrunnelserDto(
     val begrunnelser: List<VedtaksbegrunnelseDto>,
     val fritekster: List<String> = emptyList(),
     val gyldigeBegrunnelser: List<String>,
-    val utbetalingsperiodeDetaljer: List<UtbetalingsperiodeDetalj> = emptyList()
+    val utbetalingsperiodeDetaljer: List<UtbetalingsperiodeDetaljDto> = emptyList()
 )
 
 fun UtvidetVedtaksperiodeMedBegrunnelser.tilUtvidetVedtaksperiodeMedBegrunnelserDto(): UtvidetVedtaksperiodeMedBegrunnelserDto {
@@ -44,7 +43,7 @@ fun UtvidetVedtaksperiodeMedBegrunnelser.tilUtvidetVedtaksperiodeMedBegrunnelser
         type = this.type,
         begrunnelser = this.begrunnelser.map { it.tilRestVedtaksbegrunnelse() },
         fritekster = this.fritekster,
-        utbetalingsperiodeDetaljer = this.utbetalingsperiodeDetaljer,
+        utbetalingsperiodeDetaljer = this.utbetalingsperiodeDetaljer.map { it.tilUtbetalingsperiodeDetaljDto() },
         gyldigeBegrunnelser = this.gyldigeBegrunnelser.map { it.enumnavnTilString() }
     )
 }

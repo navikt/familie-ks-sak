@@ -48,7 +48,8 @@ internal class StandardbegrunnelseUtilsKtTest {
                     lagAndelTilkjentYtelse(
                         behandling = behandling,
                         stønadFom = YearMonth.of(
-                            dødsfallDatoBarn1.minusMonths(1).year, dødsfallDatoBarn1.minusMonths(1).month
+                            dødsfallDatoBarn1.minusMonths(1).year,
+                            dødsfallDatoBarn1.minusMonths(1).month
                         ),
                         stønadTom = YearMonth.of(dødsfallDatoBarn1.year, dødsfallDatoBarn1.month),
                         aktør = Aktør(barn1Fnr + "00").also { it.personidenter.add(Personident(barn1Fnr, it)) }
@@ -67,7 +68,8 @@ internal class StandardbegrunnelseUtilsKtTest {
                     lagAndelTilkjentYtelse(
                         behandling = behandling,
                         stønadFom = YearMonth.of(
-                            dødsfallDatoBarn1.minusMonths(1).year, dødsfallDatoBarn1.minusMonths(1).month
+                            dødsfallDatoBarn1.minusMonths(1).year,
+                            dødsfallDatoBarn1.minusMonths(1).month
                         ),
                         stønadTom = YearMonth.of(dødsfallDatoBarn2.year, dødsfallDatoBarn2.month),
                         aktør = Aktør(barn2Fnr + "00").also { it.personidenter.add(Personident(barn2Fnr, it)) }
