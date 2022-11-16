@@ -18,6 +18,7 @@ data class SanityBegrunnelse(
     val borMedSokerTriggere: List<VilkårTrigger>? = null,
     val endretUtbetalingsperiodeTriggere: List<EndretUtbetalingsperiodeTrigger>? = null,
     val endretUtbetalingsperiodeDeltBostedUtbetalingTrigger: EndretUtbetalingsperiodeDeltBostedTriggere? = null,
+    val hjemler: List<String>
 )
 
 data class SanityBegrunnelserResponsDto(
@@ -33,7 +34,7 @@ data class SanityBegrunnelseDto(
     val navnISystem: String,
     val vilkaar: List<String>? = emptyList(),
     val rolle: List<String>? = emptyList(),
-    val endringsaarsaker: List<String>? = emptyList(),
+    val endringsaarsaker: List<String>? = emptyList()
 ) {
     fun tilSanityBegrunnelse(): SanityBegrunnelse {
         return SanityBegrunnelse(
@@ -45,7 +46,8 @@ data class SanityBegrunnelseDto(
             rolle = rolle?.mapNotNull { finnEnumverdi(it, PersonType.values(), apiNavn) } ?: emptyList(),
             endringsaarsaker = endringsaarsaker?.mapNotNull {
                 finnEnumverdi(it, Årsak.values(), apiNavn)
-            }
+            },
+            hjemler = emptyList() // TODO legg til hjemler
         )
     }
 }

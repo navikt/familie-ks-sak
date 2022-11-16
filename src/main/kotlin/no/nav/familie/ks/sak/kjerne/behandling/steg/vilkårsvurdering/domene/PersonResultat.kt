@@ -123,9 +123,9 @@ private fun alleVilkårOppfyltEllerNull(
     vilkårResultater: Iterable<VilkårResultat?>,
     vilkårForPerson: Set<Vilkår>
 ): List<VilkårResultat>? =
-    if (erAlleVilkårForPersonOppfylt(vilkårForPerson, vilkårResultater))
+    if (erAlleVilkårForPersonOppfylt(vilkårForPerson, vilkårResultater)) {
         vilkårResultater.filterNotNull()
-    else null
+    } else null
 
 private fun erAlleVilkårForPersonOppfylt(
     vilkårForPerson: Set<Vilkår>,
