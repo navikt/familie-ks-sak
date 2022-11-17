@@ -143,6 +143,20 @@ internal class IntegrasjonClientTest {
     }
 
     @Test
+    fun `tilordneEnhetForOppgave skal returnere tildelt oppgave ved OK fordelelse av enhet`() {
+        val nyEnhet = "testenhet"
+
+        wiremockServerItem.stubFor(
+            WireMock.patch(WireMock.urlEqualTo("/oppgave/200/enhet/testenhet?fjernMappeFraOppgave=true"))
+                .willReturn(WireMock.okJson(readFile("fordelOppgaveEnkelResponse.json")))
+        )
+
+        val fordeltOppgave = integrasjonClient.tilordneEnhetForOppgave(200, nyEnhet)
+
+        assertThat(fordeltOppgave.oppgaveId, Is(200))
+    }
+
+    @Test
     fun `leggTilLogiskVedlegg skal returnere id på vedlegg som ble lagt til`() {
         val request = LogiskVedleggRequest("testtittel")
 

@@ -4,7 +4,7 @@ import no.nav.familie.kontrakter.felles.objectMapper
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Beslutning
 import no.nav.familie.ks.sak.kjerne.behandling.steg.VenteÅrsak
-import no.nav.familie.ks.sak.kjerne.behandling.steg.søknad.domene.SøknadGrunnlag
+import no.nav.familie.ks.sak.kjerne.behandling.steg.registrersøknad.domene.SøknadGrunnlag
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Målform
 import no.nav.familie.prosessering.domene.Task
 import java.time.LocalDate
@@ -22,11 +22,15 @@ data class BesluttVedtakDto(
     val kontrollerteSider: List<String> = emptyList()
 ) : BehandlingStegDto()
 
+data class IverksettMotOppdragDto(val behandlingId: Long, val saksbehandlerId: String) : BehandlingStegDto()
+
 data class SøknadDto(
     val søkerMedOpplysninger: SøkerMedOpplysningerDto,
     val barnaMedOpplysninger: List<BarnMedOpplysningerDto>,
     val endringAvOpplysningerBegrunnelse: String
 )
+
+fun SøknadDto.writeValueAsString(): String = objectMapper.writeValueAsString(this)
 
 fun SøknadDto.tilSøknadGrunnlag(behandlingId: Long): SøknadGrunnlag =
     SøknadGrunnlag(
@@ -44,7 +48,6 @@ data class BarnMedOpplysningerDto(
     val navn: String = "",
     val fødselsdato: LocalDate? = null,
     val inkludertISøknaden: Boolean = true,
-    val manueltRegistrert: Boolean = false,
     val erFolkeregistrert: Boolean = true
 )
 

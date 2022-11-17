@@ -188,8 +188,8 @@ class UtbetalingsoppdragGenerator {
     }
 }
 
-interface AndelTilkjentYtelseForUtbetalingsoppdragFactory {
-    fun pakkInnForUtbetaling(andelerTilkjentYtelse: Collection<AndelTilkjentYtelse>): List<AndelTilkjentYtelseForUtbetalingsoppdrag>
+abstract class AndelTilkjentYtelseForUtbetalingsoppdragFactory {
+    abstract fun pakkInnForUtbetaling(andelerTilkjentYtelse: Collection<AndelTilkjentYtelse>): List<AndelTilkjentYtelseForUtbetalingsoppdrag>
 }
 
 fun Collection<AndelTilkjentYtelse>.pakkInnForUtbetaling(
@@ -221,29 +221,44 @@ abstract class AndelTilkjentYtelseForUtbetalingsoppdrag(private val andelTilkjen
     }
 }
 
-class AndelTilkjentYtelseForIverksettingFactory : AndelTilkjentYtelseForUtbetalingsoppdragFactory {
-    override fun pakkInnForUtbetaling(andelerTilkjentYtelse: Collection<AndelTilkjentYtelse>): List<AndelTilkjentYtelseForUtbetalingsoppdrag> =
-        andelerTilkjentYtelse.map { AndelTilkjentYtelseForIverksetting(it) }
+class AndelTilkjentYtelseForIverksetting(
+    private val andelTilkjentYtelse: AndelTilkjentYtelse
+) : AndelTilkjentYtelseForUtbetalingsoppdrag(andelTilkjentYtelse) {
 
-    private class AndelTilkjentYtelseForIverksetting(
-        private val andelTilkjentYtelse: AndelTilkjentYtelse
-    ) : AndelTilkjentYtelseForUtbetalingsoppdrag(andelTilkjentYtelse) {
-        override var periodeOffset: Long?
-            get() = andelTilkjentYtelse.periodeOffset
-            set(value) {
-                andelTilkjentYtelse.periodeOffset = value
-            }
+    override var periodeOffset: Long?
+        get() = andelTilkjentYtelse.periodeOffset
+        set(value) {
+            andelTilkjentYtelse.periodeOffset = value
+        }
 
-        override var forrigePeriodeOffset: Long?
-            get() = andelTilkjentYtelse.forrigePeriodeOffset
-            set(value) {
-                andelTilkjentYtelse.forrigePeriodeOffset = value
-            }
+    override var forrigePeriodeOffset: Long?
+        get() = andelTilkjentYtelse.forrigePeriodeOffset
+        set(value) {
+            andelTilkjentYtelse.forrigePeriodeOffset = value
+        }
 
-        override var kildeBehandlingId: Long?
-            get() = andelTilkjentYtelse.kildeBehandlingId
-            set(value) {
-                andelTilkjentYtelse.kildeBehandlingId = value
-            }
+    override var kildeBehandlingId: Long?
+        get() = andelTilkjentYtelse.kildeBehandlingId
+        set(value) {
+            andelTilkjentYtelse.kildeBehandlingId = value
+        }
+
+    companion object Factory : AndelTilkjentYtelseForUtbetalingsoppdragFactory() {
+        override fun pakkInnForUtbetaling(andelerTilkjentYtelse: Collection<AndelTilkjentYtelse>): List<AndelTilkjentYtelseForUtbetalingsoppdrag> =
+            andelerTilkjentYtelse.map { AndelTilkjentYtelseForIverksetting(it) }
+    }
+}
+
+class AndelTilkjentYtelseForSimulering(
+    andelTilkjentYtelse: AndelTilkjentYtelse
+) : AndelTilkjentYtelseForUtbetalingsoppdrag(andelTilkjentYtelse) {
+
+    override var periodeOffset: Long? = andelTilkjentYtelse.periodeOffset
+    override var forrigePeriodeOffset: Long? = andelTilkjentYtelse.forrigePeriodeOffset
+    override var kildeBehandlingId: Long? = andelTilkjentYtelse.kildeBehandlingId
+
+    companion object Factory : AndelTilkjentYtelseForUtbetalingsoppdragFactory() {
+        override fun pakkInnForUtbetaling(andelerTilkjentYtelse: Collection<AndelTilkjentYtelse>): List<AndelTilkjentYtelseForUtbetalingsoppdrag> =
+            andelerTilkjentYtelse.map { AndelTilkjentYtelseForSimulering(it) }
     }
 }

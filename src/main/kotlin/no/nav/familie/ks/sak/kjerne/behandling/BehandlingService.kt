@@ -2,17 +2,21 @@ package no.nav.familie.ks.sak.kjerne.behandling
 
 import no.nav.familie.ks.sak.api.dto.BehandlingResponsDto
 import no.nav.familie.ks.sak.api.dto.EndreBehandlendeEnhetDto
+import no.nav.familie.ks.sak.api.dto.tilUtbetalingsperiodeResponsDto
+import no.nav.familie.ks.sak.api.dto.tilUtvidetVedtaksperiodeMedBegrunnelserDto
+import no.nav.familie.ks.sak.api.dto.tilVedtakDto
 import no.nav.familie.ks.sak.api.mapper.BehandlingMapper
 import no.nav.familie.ks.sak.api.mapper.BehandlingMapper.lagPersonRespons
 import no.nav.familie.ks.sak.api.mapper.BehandlingMapper.lagPersonerMedAndelTilkjentYtelseRespons
-import no.nav.familie.ks.sak.api.mapper.BehandlingMapper.lagUtbetalingsperioder
 import no.nav.familie.ks.sak.api.mapper.SøknadGrunnlagMapper.tilSøknadDto
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.ArbeidsfordelingService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat
-import no.nav.familie.ks.sak.kjerne.behandling.steg.søknad.SøknadGrunnlagService
+import no.nav.familie.ks.sak.kjerne.behandling.steg.registrersøknad.SøknadGrunnlagService
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.VedtakRepository
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.VedtaksperiodeService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
 import no.nav.familie.ks.sak.kjerne.beregning.AndelerTilkjentYtelseOgEndreteUtbetalingerService
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelseRepository
@@ -34,7 +38,9 @@ class BehandlingService(
     private val statsborgerskapService: StatsborgerskapService,
     private val loggService: LoggService,
     private val andelTilkjentYtelseRepository: AndelTilkjentYtelseRepository,
-    private val andelerTilkjentYtelseOgEndreteUtbetalingerService: AndelerTilkjentYtelseOgEndreteUtbetalingerService
+    private val andelerTilkjentYtelseOgEndreteUtbetalingerService: AndelerTilkjentYtelseOgEndreteUtbetalingerService,
+    private val vedtakRepository: VedtakRepository,
+    private val vedtaksperiodeService: VedtaksperiodeService
 ) {
 
     fun hentBehandling(behandlingId: Long): Behandling = behandlingRepository.hentBehandling(behandlingId)
@@ -75,8 +81,21 @@ class BehandlingService(
             .finnAndelerTilkjentYtelseMedEndreteUtbetalinger(behandlingId)
 
         val utbetalingsperioder =
-            personopplysningGrunnlag?.let { lagUtbetalingsperioder(it, andelTilkjentYtelseMedEndreteUtbetalinger) }
+            personopplysningGrunnlag?.let { andelTilkjentYtelseMedEndreteUtbetalinger.tilUtbetalingsperiodeResponsDto(it) }
                 ?: emptyList()
+
+        val vedtak = vedtakRepository.findByBehandlingAndAktivOptional(behandlingId)?.let {
+            it.tilVedtakDto(
+                vedtaksperioderMedBegrunnelser = if (behandling.status != BehandlingStatus.AVSLUTTET) {
+                    vedtaksperiodeService.hentUtvidetVedtaksperiodeMedBegrunnelser(vedtak = it)
+                        .map { utvidetVedtaksPerioder -> utvidetVedtaksPerioder.tilUtvidetVedtaksperiodeMedBegrunnelserDto() }
+                        .sortedBy { dto -> dto.fom }
+                } else {
+                    emptyList()
+                },
+                skalMinimeres = behandling.status != BehandlingStatus.UTREDES
+            )
+        }
 
         return BehandlingMapper.lagBehandlingRespons(
             behandling,
@@ -85,7 +104,8 @@ class BehandlingService(
             personResponser,
             personResultater,
             personerMedAndelerTilkjentYtelse,
-            utbetalingsperioder
+            utbetalingsperioder,
+            vedtak
         )
     }
 

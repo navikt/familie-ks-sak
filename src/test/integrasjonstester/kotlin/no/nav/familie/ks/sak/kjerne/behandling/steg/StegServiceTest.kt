@@ -6,21 +6,23 @@ import io.mockk.just
 import io.mockk.mockk
 import io.mockk.mockkObject
 import io.mockk.runs
+import io.mockk.verify
 import no.nav.familie.ks.sak.OppslagSpringRunnerTest
 import no.nav.familie.ks.sak.api.dto.BarnMedOpplysningerDto
+import no.nav.familie.ks.sak.api.dto.BesluttVedtakDto
 import no.nav.familie.ks.sak.api.dto.SøkerMedOpplysningerDto
 import no.nav.familie.ks.sak.api.dto.SøknadDto
 import no.nav.familie.ks.sak.api.mapper.SøknadGrunnlagMapper
 import no.nav.familie.ks.sak.data.lagArbeidsfordelingPåBehandling
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagRegistrerSøknadDto
-import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.domene.ArbeidsfordelingPåBehandlingRepository
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStegTilstand
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingType
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
+import no.nav.familie.ks.sak.kjerne.behandling.domene.Beslutning
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg.BEHANDLINGSRESULTAT
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg.BESLUTTE_VEDTAK
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg.IVERKSETT_MOT_OPPDRAG
@@ -32,10 +34,14 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingStegStatus.KLAR
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingStegStatus.TILBAKEFØRT
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingStegStatus.UTFØRT
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingStegStatus.VENTER
-import no.nav.familie.ks.sak.kjerne.behandling.steg.søknad.RegistrereSøknadSteg
-import no.nav.familie.ks.sak.kjerne.behandling.steg.søknad.SøknadGrunnlagService
-import no.nav.familie.ks.sak.kjerne.behandling.steg.søknad.domene.SøknadGrunnlag
+import no.nav.familie.ks.sak.kjerne.behandling.steg.registrersøknad.RegistrereSøknadSteg
+import no.nav.familie.ks.sak.kjerne.behandling.steg.registrersøknad.SøknadGrunnlagService
+import no.nav.familie.ks.sak.kjerne.behandling.steg.registrersøknad.domene.SøknadGrunnlag
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.Vedtak
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.VedtakRepository
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingSteg
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
+import no.nav.familie.prosessering.internal.TaskService
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
@@ -44,6 +50,7 @@ import org.junit.jupiter.api.assertDoesNotThrow
 import org.junit.jupiter.api.assertThrows
 import org.springframework.beans.factory.annotation.Autowired
 import java.time.LocalDate
+import java.time.LocalDateTime
 
 class StegServiceTest : OppslagSpringRunnerTest() {
 
@@ -57,13 +64,22 @@ class StegServiceTest : OppslagSpringRunnerTest() {
     private lateinit var registrerSøknadSteg: RegistrereSøknadSteg
 
     @MockkBean(relaxed = true)
+    private lateinit var vilkårsvurderingSteg: VilkårsvurderingSteg
+
+    @MockkBean(relaxed = true)
     private lateinit var søknadGrunnlagService: SøknadGrunnlagService
 
-    @Autowired
-    private lateinit var arbeidsfordelingPåBehandlingRepository: ArbeidsfordelingPåBehandlingRepository
+    @MockkBean(relaxed = true)
+    private lateinit var beslutteVedtakSteg: BeslutteVedtakSteg
+
+    @MockkBean
+    private lateinit var taskService: TaskService
 
     @Autowired
     private lateinit var behandlingRepository: BehandlingRepository
+
+    @Autowired
+    private lateinit var vedtakRepository: VedtakRepository
 
     @BeforeEach
     fun setup() {
@@ -90,6 +106,14 @@ class StegServiceTest : OppslagSpringRunnerTest() {
 
             every { registrerSøknadSteg.utførSteg(any()) } just runs
             every { registrerSøknadSteg.getBehandlingssteg() } answers { callOriginal() }
+
+            every { vilkårsvurderingSteg.utførSteg(any()) } just runs
+            every { vilkårsvurderingSteg.getBehandlingssteg() } answers { callOriginal() }
+
+            every { beslutteVedtakSteg.getBehandlingssteg() } answers { callOriginal() }
+            every { beslutteVedtakSteg.utførSteg(any(), any()) } just runs
+
+            every { taskService.save(any()) } returns mockk()
         }
     }
 
@@ -131,20 +155,20 @@ class StegServiceTest : OppslagSpringRunnerTest() {
         assertDoesNotThrow { stegService.utførSteg(behandling.id, REGISTRERE_SØKNAD, lagRegistrerSøknadDto()) }
         assertDoesNotThrow { stegService.utførSteg(behandling.id, VILKÅRSVURDERING) }
 
-        behandling = behandlingRepository.hentBehandling(behandling.id)
-        assertEquals(4, behandling.behandlingStegTilstand.size)
-        assertBehandlingHarSteg(behandling, REGISTRERE_PERSONGRUNNLAG, UTFØRT)
-        assertBehandlingHarSteg(behandling, REGISTRERE_SØKNAD, UTFØRT)
-        assertBehandlingHarSteg(behandling, VILKÅRSVURDERING, UTFØRT)
-        assertBehandlingHarSteg(behandling, BEHANDLINGSRESULTAT, KLAR)
+        val behandlingEtterVilkårsvurdering = behandlingRepository.hentBehandling(behandling.id)
+        assertEquals(4, behandlingEtterVilkårsvurdering.behandlingStegTilstand.size)
+        assertBehandlingHarSteg(behandlingEtterVilkårsvurdering, REGISTRERE_PERSONGRUNNLAG, UTFØRT)
+        assertBehandlingHarSteg(behandlingEtterVilkårsvurdering, REGISTRERE_SØKNAD, UTFØRT)
+        assertBehandlingHarSteg(behandlingEtterVilkårsvurdering, VILKÅRSVURDERING, UTFØRT)
+        assertBehandlingHarSteg(behandlingEtterVilkårsvurdering, BEHANDLINGSRESULTAT, KLAR)
 
         assertDoesNotThrow { stegService.utførSteg(behandling.id, REGISTRERE_SØKNAD, lagRegistrerSøknadDto()) }
-        behandling = behandlingRepository.hentBehandling(behandling.id)
-        assertEquals(4, behandling.behandlingStegTilstand.size)
-        assertBehandlingHarSteg(behandling, REGISTRERE_PERSONGRUNNLAG, UTFØRT)
-        assertBehandlingHarSteg(behandling, REGISTRERE_SØKNAD, UTFØRT)
-        assertBehandlingHarSteg(behandling, VILKÅRSVURDERING, KLAR)
-        assertBehandlingHarSteg(behandling, BEHANDLINGSRESULTAT, TILBAKEFØRT)
+        val behandlingEtterRegistrerSøknad = behandlingRepository.hentBehandling(behandling.id)
+        assertEquals(4, behandlingEtterRegistrerSøknad.behandlingStegTilstand.size)
+        assertBehandlingHarSteg(behandlingEtterRegistrerSøknad, REGISTRERE_PERSONGRUNNLAG, UTFØRT)
+        assertBehandlingHarSteg(behandlingEtterRegistrerSøknad, REGISTRERE_SØKNAD, UTFØRT)
+        assertBehandlingHarSteg(behandlingEtterRegistrerSøknad, VILKÅRSVURDERING, KLAR)
+        assertBehandlingHarSteg(behandlingEtterRegistrerSøknad, BEHANDLINGSRESULTAT, TILBAKEFØRT)
     }
 
     @Test
@@ -228,21 +252,8 @@ class StegServiceTest : OppslagSpringRunnerTest() {
     }
 
     @Test
-    fun `tilbakeførBehandlingSteg skal ikke tilbakeføre behandling fra VEDTAK til BESLUTTE_VEDTAK steg`() {
-        behandling.leggTilNesteSteg(VEDTAK)
-
-        val exception = assertThrows<RuntimeException> {
-            stegService.tilbakeførBehandlingSteg(behandling, BESLUTTE_VEDTAK)
-        }
-        assertEquals(
-            "Behandling ${behandling.id} er på ${VEDTAK.visningsnavn()}, " +
-                "kan ikke tilbakeføres til ${BESLUTTE_VEDTAK.visningsnavn()}.",
-            exception.message
-        )
-    }
-
-    @Test
-    fun `tilbakeførBehandlingSteg skal tilbakeføre behandling fra BESLUTTE_VEDTAK til VEDTAK steg`() {
+    fun `utførSteg skal videresende behandling fra BESLUTTE_VEDTAK til IVERKSETT_MOT_OPPDRAG steg når SB godkjenner`() {
+        behandling.behandlingStegTilstand.clear()
         behandling.behandlingStegTilstand.add(
             BehandlingStegTilstand(
                 behandling = behandling,
@@ -258,8 +269,45 @@ class StegServiceTest : OppslagSpringRunnerTest() {
             )
         )
         behandling.status = BehandlingStatus.FATTER_VEDTAK
+        lagreBehandling(behandling)
+        vedtakRepository.saveAndFlush(Vedtak(behandling = behandling, vedtaksdato = LocalDateTime.now()))
 
-        val oppdatertBehandling = assertDoesNotThrow { stegService.tilbakeførBehandlingSteg(behandling, VEDTAK) }
+        val beslutteVedtakDto = BesluttVedtakDto(beslutning = Beslutning.GODKJENT, begrunnelse = "Godkjent")
+        assertDoesNotThrow { stegService.utførSteg(behandling.id, BESLUTTE_VEDTAK, beslutteVedtakDto) }
+
+        val oppdatertBehandling = behandlingRepository.hentBehandling(behandling.id)
+        assertTrue { oppdatertBehandling.status == BehandlingStatus.IVERKSETTER_VEDTAK }
+        assertBehandlingHarSteg(oppdatertBehandling, VEDTAK, UTFØRT)
+        assertBehandlingHarSteg(oppdatertBehandling, BESLUTTE_VEDTAK, UTFØRT)
+        assertBehandlingHarSteg(oppdatertBehandling, IVERKSETT_MOT_OPPDRAG, KLAR)
+
+        verify(atLeast = 1) { taskService.save(any()) }
+    }
+
+    @Test
+    fun `utførSteg skal tilbakeføre behandling fra BESLUTTE_VEDTAK til VEDTAK steg når SB underkjenner vedtaket`() {
+        behandling.behandlingStegTilstand.clear()
+        behandling.behandlingStegTilstand.add(
+            BehandlingStegTilstand(
+                behandling = behandling,
+                behandlingSteg = VEDTAK,
+                behandlingStegStatus = UTFØRT
+            )
+        )
+        behandling.behandlingStegTilstand.add(
+            BehandlingStegTilstand(
+                behandling = behandling,
+                behandlingSteg = BESLUTTE_VEDTAK,
+                behandlingStegStatus = KLAR
+            )
+        )
+        behandling.status = BehandlingStatus.FATTER_VEDTAK
+        lagreBehandling(behandling)
+
+        val beslutteVedtakDto = BesluttVedtakDto(beslutning = Beslutning.UNDERKJENT, begrunnelse = "Underkjent")
+        assertDoesNotThrow { stegService.utførSteg(behandling.id, BESLUTTE_VEDTAK, beslutteVedtakDto) }
+
+        val oppdatertBehandling = behandlingRepository.hentBehandling(behandling.id)
         assertTrue { oppdatertBehandling.status == BehandlingStatus.UTREDES }
         assertBehandlingHarSteg(oppdatertBehandling, VEDTAK, KLAR)
         assertBehandlingHarSteg(oppdatertBehandling, BESLUTTE_VEDTAK, TILBAKEFØRT)

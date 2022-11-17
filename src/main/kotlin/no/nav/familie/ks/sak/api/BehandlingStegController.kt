@@ -6,7 +6,6 @@ import no.nav.familie.ks.sak.api.dto.BesluttVedtakDto
 import no.nav.familie.ks.sak.api.dto.RegistrerSøknadDto
 import no.nav.familie.ks.sak.config.BehandlerRolle
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
-import no.nav.familie.ks.sak.kjerne.behandling.domene.Beslutning
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg
 import no.nav.familie.ks.sak.kjerne.behandling.steg.StegService
 import no.nav.familie.ks.sak.sikkerhet.TilgangService
@@ -66,6 +65,19 @@ class BehandlingStegController(
         return ResponseEntity.ok(Ressurs.success(behandlingService.lagBehandlingRespons(behandlingId = behandlingId)))
     }
 
+    @PostMapping(path = ["/simulering"])
+    fun fullførSimulering(
+        @PathVariable behandlingId: Long
+    ): ResponseEntity<Ressurs<BehandlingResponsDto>> {
+        tilgangService.validerTilgangTilHandling(
+            minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
+            handling = "fullfør simulering"
+        )
+
+        stegService.utførSteg(behandlingId, BehandlingSteg.SIMULERING)
+        return ResponseEntity.ok(Ressurs.success(behandlingService.lagBehandlingRespons(behandlingId = behandlingId)))
+    }
+
     @PostMapping(path = ["/foreslå-vedtak"], produces = [MediaType.APPLICATION_JSON_VALUE])
     fun foreslåVedtak(
         @PathVariable behandlingId: Long,
@@ -91,15 +103,6 @@ class BehandlingStegController(
         )
 
         stegService.utførSteg(behandlingId, BehandlingSteg.BESLUTTE_VEDTAK, besluttVedtakDto)
-
-        if (besluttVedtakDto.beslutning == Beslutning.UNDERKJENT) {
-            val behandling = behandlingService.hentBehandling(behandlingId)
-            stegService.tilbakeførBehandlingSteg(behandling, BehandlingSteg.VEDTAK)
-        } else {
-            // Vi iverksetter mot oppdrag med engang dersom vedtaket er godkjent
-            stegService.utførSteg(behandlingId, BehandlingSteg.IVERKSETT_MOT_OPPDRAG)
-        }
-
         return ResponseEntity.ok(Ressurs.success(behandlingService.lagBehandlingRespons(behandlingId = behandlingId)))
     }
 }

@@ -10,8 +10,7 @@ import no.nav.familie.ks.sak.common.util.sisteDagIInneværendeMåned
 import no.nav.familie.ks.sak.kjerne.beregning.AndelTilkjentYtelseMedEndreteUtbetalinger
 import no.nav.familie.ks.sak.kjerne.beregning.domene.YtelseType
 import no.nav.familie.ks.sak.kjerne.beregning.tilKombinertTidslinjePerAktør
-import no.nav.familie.ks.sak.kjerne.brev.domene.BrevPerson
-import no.nav.familie.ks.sak.kjerne.brev.domene.tilBrevPerson
+import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
 import java.math.BigDecimal
 import java.time.LocalDate
@@ -31,7 +30,7 @@ data class Utbetalingsperiode(
 ) : Vedtaksperiode
 
 data class UtbetalingsperiodeDetalj(
-    val brevPerson: BrevPerson,
+    val person: Person,
     val ytelseType: YtelseType,
     val utbetaltPerMnd: Int,
     val erPåvirketAvEndring: Boolean,
@@ -75,7 +74,7 @@ internal fun Collection<AndelTilkjentYtelseMedEndreteUtbetalinger>.lagUtbetaling
         )
 
     UtbetalingsperiodeDetalj(
-        brevPerson = personForAndel.tilBrevPerson(),
+        person = personForAndel,
         ytelseType = andel.type,
         utbetaltPerMnd = andel.kalkulertUtbetalingsbeløp,
         erPåvirketAvEndring = andel.endreteUtbetalinger.isNotEmpty(),

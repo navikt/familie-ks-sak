@@ -13,11 +13,17 @@ import no.nav.familie.kontrakter.felles.personopplysning.SIVILSTAND
 import no.nav.familie.kontrakter.felles.personopplysning.Sivilstand
 import no.nav.familie.kontrakter.felles.personopplysning.Statsborgerskap
 import no.nav.familie.kontrakter.felles.personopplysning.Vegadresse
+import no.nav.familie.kontrakter.felles.simulering.BetalingType
+import no.nav.familie.kontrakter.felles.simulering.FagOmrådeKode
+import no.nav.familie.kontrakter.felles.simulering.MottakerType
+import no.nav.familie.kontrakter.felles.simulering.PosteringType
+import no.nav.familie.kontrakter.felles.simulering.SimuleringMottaker
+import no.nav.familie.kontrakter.felles.simulering.SimulertPostering
 import no.nav.familie.ks.sak.api.dto.BarnMedOpplysningerDto
 import no.nav.familie.ks.sak.api.dto.RegistrerSøknadDto
 import no.nav.familie.ks.sak.api.dto.SøkerMedOpplysningerDto
 import no.nav.familie.ks.sak.api.dto.SøknadDto
-import no.nav.familie.ks.sak.common.util.Periode
+import no.nav.familie.ks.sak.common.util.NullablePeriode
 import no.nav.familie.ks.sak.common.util.førsteDagIInneværendeMåned
 import no.nav.familie.ks.sak.common.util.sisteDagIMåned
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.ForelderBarnRelasjonInfo
@@ -28,6 +34,8 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingKategori
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingType
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
+import no.nav.familie.ks.sak.kjerne.behandling.steg.simulering.domene.ØkonomiSimuleringMottaker
+import no.nav.familie.ks.sak.kjerne.behandling.steg.simulering.domene.ØkonomiSimuleringPostering
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.Standardbegrunnelse
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.TriggesAv
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.Vedtak
@@ -90,8 +98,8 @@ fun fnrTilAktør(fnr: String, toSisteSiffrer: String = "00") = Aktør(fnr + toSi
 }
 
 fun lagPersonopplysningGrunnlag(
-    behandlingId: Long,
-    søkerPersonIdent: String,
+    behandlingId: Long = 0L,
+    søkerPersonIdent: String = randomFnr(),
     barnasIdenter: List<String> = emptyList(), // FGB med register søknad steg har ikke barnasidenter
     barnasFødselsdatoer: List<LocalDate> = barnasIdenter.map { fnrTilFødselsdato(it) },
     søkerAktør: Aktør = fnrTilAktør(søkerPersonIdent).also {
@@ -336,13 +344,13 @@ fun lagVilkårsvurderingMedSøkersVilkår(
 
 fun lagVilkårResultat(
     id: Long = 0,
-    personResultat: PersonResultat,
+    personResultat: PersonResultat = mockk(relaxed = true),
     vilkårType: Vilkår = Vilkår.BOSATT_I_RIKET,
     resultat: Resultat = Resultat.OPPFYLT,
-    periodeFom: LocalDate = LocalDate.now().minusMonths(3),
+    periodeFom: LocalDate? = LocalDate.now().minusMonths(3),
     periodeTom: LocalDate? = LocalDate.now(),
     begrunnelse: String = "",
-    behandlingId: Long,
+    behandlingId: Long = 0,
     utdypendeVilkårsvurderinger: List<UtdypendeVilkårsvurdering> = emptyList(),
     antallTimer: BigDecimal? = null
 ): VilkårResultat = VilkårResultat(
@@ -361,7 +369,7 @@ fun lagVilkårResultat(
 fun lagVilkårResultaterForBarn(
     personResultat: PersonResultat,
     barnFødselsdato: LocalDate,
-    barnehageplassPerioder: List<Pair<Periode, BigDecimal?>>,
+    barnehageplassPerioder: List<Pair<NullablePeriode, BigDecimal?>>,
     behandlingId: Long
 ): Set<VilkårResultat> {
     val vilkårResultaterForBarn = mutableSetOf<VilkårResultat>()
@@ -611,6 +619,54 @@ fun lagUtbetalingsperiode(opphør: Opphør? = null) = Utbetalingsperiode(
     utbetalesTil = "",
     behandlingId = 0
 )
+
+fun lagØkonomiSimuleringMottaker(
+    behandling: Behandling,
+    økonomiSimuleringPosteringer: List<ØkonomiSimuleringPostering> = emptyList()
+) = ØkonomiSimuleringMottaker(
+    mottakerType = MottakerType.BRUKER,
+    mottakerNummer = "",
+    behandling = behandling,
+    økonomiSimuleringPostering = økonomiSimuleringPosteringer
+)
+
+fun lagØkonomiSimuleringPostering(
+    behandling: Behandling,
+    fom: LocalDate,
+    tom: LocalDate,
+    beløp: BigDecimal,
+    forfallsdato: LocalDate
+) = ØkonomiSimuleringPostering(
+    økonomiSimuleringMottaker = lagØkonomiSimuleringMottaker(
+        behandling = behandling
+    ),
+    fagOmrådeKode = FagOmrådeKode.KONTANTSTØTTE,
+    fom = fom,
+    tom = tom,
+    betalingType = BetalingType.DEBIT,
+    beløp = beløp,
+    posteringType = PosteringType.YTELSE,
+    forfallsdato = forfallsdato,
+    utenInntrekk = false
+)
+
+fun lagSimulertMottaker(simulertePosteringer: List<SimulertPostering>) = SimuleringMottaker(
+    mottakerType = MottakerType.BRUKER,
+    mottakerNummer = "",
+    simulertPostering = simulertePosteringer
+)
+
+fun lagSimulertPostering(fom: LocalDate, tom: LocalDate, beløp: BigDecimal, forfallsdato: LocalDate) =
+    SimulertPostering(
+        fagOmrådeKode = FagOmrådeKode.KONTANTSTØTTE,
+        fom = fom,
+        tom = tom,
+        betalingType = BetalingType.DEBIT,
+        beløp = beløp,
+        posteringType = PosteringType.YTELSE,
+        forfallsdato = forfallsdato,
+        utenInntrekk = true
+    )
 
 fun fnrTilFødselsdato(fnr: String): LocalDate {
     val day = fnr.substring(0, 2).toInt()
