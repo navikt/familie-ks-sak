@@ -161,8 +161,8 @@ class VilkårsvurderingServiceTest {
     fun `hentVilkårsbegrunnelser - skal returnere et map med begrunnelsestyper mappet mot liste av begrunnelser`() {
         every { sanityService.hentSanityBegrunnelser() } returns listOf(
             SanityBegrunnelse(
-                Standardbegrunnelse.DUMMY.sanityApiNavn,
-                "navnISystem",
+                Standardbegrunnelse.INNVILGET_IKKE_BARNEHAGE.sanityApiNavn,
+                "innvilgetIkkeBarnehage",
                 Vilkår.values().toList()
             )
         )

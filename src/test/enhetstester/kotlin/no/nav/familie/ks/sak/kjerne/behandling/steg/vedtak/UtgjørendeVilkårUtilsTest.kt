@@ -151,7 +151,7 @@ internal class UtgjørendeVilkårUtilsTest {
                 fom = LocalDate.of(2010, 1, 1),
                 tom = LocalDate.of(2010, 6, 1)
             ),
-            oppdatertBegrunnelseType = Standardbegrunnelse.INNVILGET_BOSATT_I_RIKTET.vedtakBegrunnelseType,
+            oppdatertBegrunnelseType = Standardbegrunnelse.INNVILGET_IKKE_BARNEHAGE.vedtakBegrunnelseType,
             triggesAv = lagTriggesAv(vilkår = setOf(Vilkår.BOSATT_I_RIKET)),
             aktuellePersonerForVedtaksperiode = personopplysningGrunnlag.personer.toList()
                 .map { it.tilBrevPerson() },
