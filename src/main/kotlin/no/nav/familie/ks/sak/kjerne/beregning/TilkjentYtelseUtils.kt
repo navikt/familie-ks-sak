@@ -70,7 +70,7 @@ object TilkjentYtelseUtils {
             barnVilkårResultaterForskjøvetBådeBarnOgSøkerHarAlleOppfylt
                 .tilPerioderIkkeNull()
                 .map { vilkårResultaterPeriode ->
-                    vilkårResultaterPeriode.tilAdelTilkjentYtelse(
+                    vilkårResultaterPeriode.tilAndelTilkjentYtelse(
                         vilkårsvurdering = vilkårsvurdering,
                         tilkjentYtelse = tilkjentYtelse,
                         barn = barn
@@ -79,7 +79,7 @@ object TilkjentYtelseUtils {
         }
     }
 
-    private fun Periode<List<VilkårResultat>>.tilAdelTilkjentYtelse(
+    private fun Periode<List<VilkårResultat>>.tilAndelTilkjentYtelse(
         vilkårsvurdering: Vilkårsvurdering,
         tilkjentYtelse: TilkjentYtelse,
         barn: Person
