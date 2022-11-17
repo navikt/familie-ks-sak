@@ -15,7 +15,7 @@ import no.nav.familie.ks.sak.api.dto.SøknadDto
 import no.nav.familie.ks.sak.api.mapper.SøknadGrunnlagMapper
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
-import no.nav.familie.ks.sak.common.util.Periode
+import no.nav.familie.ks.sak.common.util.NullablePeriode
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagFagsak
 import no.nav.familie.ks.sak.data.lagPersonopplysningGrunnlag
@@ -286,7 +286,7 @@ class VilkårsvurderingStegTest {
             personResultat = barnPersonResultat,
             barnFødselsdato = barnFødselsDato,
             barnehageplassPerioder = listOf(
-                Periode(
+                NullablePeriode(
                     LocalDate.of(2021, 4, 1),
                     LocalDate.of(2021, 8, 31) // stopper før barnets blir 2 år
                 ) to BigDecimal(10)
@@ -321,11 +321,11 @@ class VilkårsvurderingStegTest {
             personResultat = barnPersonResultat,
             barnFødselsdato = barnFødselsDato,
             barnehageplassPerioder = listOf(
-                Periode(
+                NullablePeriode(
                     LocalDate.of(2021, 4, 1),
                     LocalDate.of(2022, 4, 1)
                 ) to null,
-                Periode( // periode starter etter barnets 2 års dato
+                NullablePeriode( // periode starter etter barnets 2 års dato
                     LocalDate.of(2022, 4, 2),
                     LocalDate.of(2022, 8, 31)
                 ) to BigDecimal(30)
@@ -342,6 +342,49 @@ class VilkårsvurderingStegTest {
             "Du har lagt til en periode på vilkåret ${Vilkår.BARNEHAGEPLASS.beskrivelse}" +
                 " som starter etter at barnet har fylt 2 år eller startet på skolen. " +
                 "Du må fjerne denne perioden for å kunne fortsette",
+            exception.message
+        )
+    }
+
+    @Test
+    fun `utførSteg - skal kaste feil hvis det finnes mer enn 2 barnehageplass vilkår i en måned`() {
+        val vilkårsvurdering = lagVilkårsvurderingMedSøkersVilkår(
+            søkerAktør = søker,
+            behandling = behandling,
+            resultat = Resultat.OPPFYLT
+        )
+        val søkerPersonResultat = vilkårsvurdering.personResultater.first()
+
+        val barnPersonResultat = PersonResultat(vilkårsvurdering = vilkårsvurdering, aktør = barn)
+        val barnFødselsDato = LocalDate.of(2020, 4, 1)
+        val vilkårResultaterForBarn = lagVilkårResultaterForBarn(
+            personResultat = barnPersonResultat,
+            barnFødselsdato = barnFødselsDato,
+            barnehageplassPerioder = listOf(
+                NullablePeriode(
+                    LocalDate.of(2021, 4, 1),
+                    LocalDate.of(2021, 6, 8)
+                ) to null,
+                NullablePeriode(
+                    LocalDate.of(2021, 6, 9),
+                    LocalDate.of(2021, 6, 15)
+                ) to BigDecimal(30),
+                NullablePeriode(
+                    LocalDate.of(2021, 6, 16),
+                    LocalDate.of(2022, 4, 30)
+                ) to BigDecimal(16)
+            ),
+            behandlingId = behandling.id
+        )
+        barnPersonResultat.setSortedVilkårResultater(vilkårResultaterForBarn)
+        vilkårsvurdering.personResultater = setOf(søkerPersonResultat, barnPersonResultat)
+
+        every { vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(behandling.id) } returns vilkårsvurdering
+
+        val exception = assertThrows<FunksjonellFeil> { vilkårsvurderingSteg.utførSteg(behandling.id) }
+        assertEquals(
+            "Du har lagt inn flere enn 2 endringer i barnehagevilkåret i samme måned. " +
+                "Dette er ikke støttet enda. Ta kontakt med Team Familie.",
             exception.message
         )
     }
@@ -369,7 +412,9 @@ class VilkårsvurderingStegTest {
         val vilkårResultaterForBarn = lagVilkårResultaterForBarn(
             personResultat = barnPersonResultat,
             barnFødselsdato = barnFødselsDato,
-            barnehageplassPerioder = listOf(Periode(barnFødselsDato.plusYears(1), barnFødselsDato.plusYears(2)) to null),
+            barnehageplassPerioder = listOf(
+                NullablePeriode(barnFødselsDato.plusYears(1), barnFødselsDato.plusYears(2)) to null
+            ),
             behandlingId = behandling.id
         )
         barnPersonResultat.setSortedVilkårResultater(vilkårResultaterForBarn)

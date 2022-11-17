@@ -28,11 +28,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Res
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
-import no.nav.familie.ks.sak.kjerne.beregning.PeriodeResultat
-import no.nav.familie.ks.sak.kjerne.beregning.tilPeriodeResultater
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
-import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
-import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
 import java.time.LocalDate
 import java.time.Month
 
@@ -331,21 +327,4 @@ private fun VilkårResultat.validerVilkår_MELLOM_1_OG_2_ELLER_ADOPTERT(
     !this.erAdopsjonOppfylt() && !periode.tom.isEqual(barnFødselsdato.plusYears(2)) ->
         "T.o.m datoen må være lik barnets 2 års dag."
     else -> null
-}
-
-fun hentInnvilgedePerioder(
-    personopplysningGrunnlag: PersonopplysningGrunnlag,
-    vilkårsvurdering: Vilkårsvurdering
-): Pair<List<PeriodeResultat>, List<PeriodeResultat>> {
-    val periodeResultater = vilkårsvurdering.personResultater.flatMap { it.tilPeriodeResultater() }
-
-    val barnaIdenter = personopplysningGrunnlag.barna.map { it.aktør }
-
-    val innvilgedePeriodeResultaterSøker = periodeResultater.filter {
-        it.aktør == personopplysningGrunnlag.søker.aktør && it.allePåkrevdeVilkårErOppfylt(PersonType.SØKER)
-    }
-    val innvilgedePeriodeResultaterBarna = periodeResultater.filter {
-        barnaIdenter.contains(it.aktør) && it.allePåkrevdeVilkårErOppfylt(PersonType.BARN)
-    }
-    return innvilgedePeriodeResultaterSøker to innvilgedePeriodeResultaterBarna
 }
