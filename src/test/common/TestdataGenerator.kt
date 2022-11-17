@@ -23,7 +23,7 @@ import no.nav.familie.ks.sak.api.dto.BarnMedOpplysningerDto
 import no.nav.familie.ks.sak.api.dto.RegistrerSøknadDto
 import no.nav.familie.ks.sak.api.dto.SøkerMedOpplysningerDto
 import no.nav.familie.ks.sak.api.dto.SøknadDto
-import no.nav.familie.ks.sak.common.util.Periode
+import no.nav.familie.ks.sak.common.util.NullablePeriode
 import no.nav.familie.ks.sak.common.util.førsteDagIInneværendeMåned
 import no.nav.familie.ks.sak.common.util.sisteDagIMåned
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.ForelderBarnRelasjonInfo
@@ -98,8 +98,8 @@ fun fnrTilAktør(fnr: String, toSisteSiffrer: String = "00") = Aktør(fnr + toSi
 }
 
 fun lagPersonopplysningGrunnlag(
-    behandlingId: Long,
-    søkerPersonIdent: String,
+    behandlingId: Long = 0L,
+    søkerPersonIdent: String = randomFnr(),
     barnasIdenter: List<String> = emptyList(), // FGB med register søknad steg har ikke barnasidenter
     barnasFødselsdatoer: List<LocalDate> = barnasIdenter.map { fnrTilFødselsdato(it) },
     søkerAktør: Aktør = fnrTilAktør(søkerPersonIdent).also {
@@ -344,13 +344,13 @@ fun lagVilkårsvurderingMedSøkersVilkår(
 
 fun lagVilkårResultat(
     id: Long = 0,
-    personResultat: PersonResultat,
+    personResultat: PersonResultat = mockk(relaxed = true),
     vilkårType: Vilkår = Vilkår.BOSATT_I_RIKET,
     resultat: Resultat = Resultat.OPPFYLT,
-    periodeFom: LocalDate = LocalDate.now().minusMonths(3),
+    periodeFom: LocalDate? = LocalDate.now().minusMonths(3),
     periodeTom: LocalDate? = LocalDate.now(),
     begrunnelse: String = "",
-    behandlingId: Long,
+    behandlingId: Long = 0,
     utdypendeVilkårsvurderinger: List<UtdypendeVilkårsvurdering> = emptyList(),
     antallTimer: BigDecimal? = null
 ): VilkårResultat = VilkårResultat(
@@ -369,7 +369,7 @@ fun lagVilkårResultat(
 fun lagVilkårResultaterForBarn(
     personResultat: PersonResultat,
     barnFødselsdato: LocalDate,
-    barnehageplassPerioder: List<Pair<Periode, BigDecimal?>>,
+    barnehageplassPerioder: List<Pair<NullablePeriode, BigDecimal?>>,
     behandlingId: Long
 ): Set<VilkårResultat> {
     val vilkårResultaterForBarn = mutableSetOf<VilkårResultat>()

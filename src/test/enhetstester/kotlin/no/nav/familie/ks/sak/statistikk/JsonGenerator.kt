@@ -369,12 +369,6 @@ class JsonSchemaGenerator(private val rootObjectMapper: ObjectMapper) {
             node.put("type", "object")
             node.set<JsonNode>("additionalProperties", additionalPropsObject)
 
-            // TODO: this is from latest mbknor - is it better?
-//            definitionsHandler.pushWorkInProgress()
-//            val childVisitor = createChild(additionalPropsObject, null)
-//            objectMapper.acceptJsonFormatVisitor(type!!.containedType(1), childVisitor)
-//            definitionsHandler.popworkInProgress()
-
             return object : JsonMapFormatVisitor, MySerializerProvider() {
                 override fun valueFormat(handler: JsonFormatVisitable?, valueType: JavaType?) {
                     objectMapper.acceptJsonFormatVisitor(valueType, createChild(additionalPropsObject, currentProperty = null))
