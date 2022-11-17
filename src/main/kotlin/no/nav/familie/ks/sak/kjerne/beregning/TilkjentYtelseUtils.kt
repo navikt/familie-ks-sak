@@ -1,21 +1,24 @@
 package no.nav.familie.ks.sak.kjerne.beregning
 
 import no.nav.familie.ks.sak.common.exception.Feil
-import no.nav.familie.ks.sak.common.util.sisteDagIMåned
-import no.nav.familie.ks.sak.common.util.toLocalDate
+import no.nav.familie.ks.sak.common.tidslinje.Periode
+import no.nav.familie.ks.sak.common.tidslinje.utvidelser.kombinerMed
+import no.nav.familie.ks.sak.common.tidslinje.utvidelser.tilPerioderIkkeNull
 import no.nav.familie.ks.sak.common.util.toYearMonth
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.UtdypendeVilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.hentInnvilgedePerioder
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.domene.SatsPeriode
 import no.nav.familie.ks.sak.kjerne.beregning.domene.TilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.domene.YtelseType
 import no.nav.familie.ks.sak.kjerne.beregning.domene.hentGyldigSatsFor
 import no.nav.familie.ks.sak.kjerne.beregning.domene.prosent
+import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
+import tilFørskjøvetVilkårResultatTidslinjeForPerson
 import java.math.RoundingMode
 import java.time.LocalDate
 
@@ -52,49 +55,65 @@ object TilkjentYtelseUtils {
         vilkårsvurdering: Vilkårsvurdering,
         tilkjentYtelse: TilkjentYtelse
     ): List<AndelTilkjentYtelse> {
-        val barnaIdenter = personopplysningGrunnlag.barna.associateBy { it.aktør.aktørId }
-        val (innvilgedePeriodeResultaterSøker, innvilgedePeriodeResultaterBarna) = hentInnvilgedePerioder(
-            personopplysningGrunnlag,
-            vilkårsvurdering
-        )
-        val relevanteSøkerPerioder = innvilgedePeriodeResultaterSøker
-            .filter { søkersperiode -> innvilgedePeriodeResultaterBarna.any { søkersperiode.overlapper(it) } }
+        val søkersVilkårResultaterForskjøvetTidslinje =
+            vilkårsvurdering.personResultater.tilFørskjøvetVilkårResultatTidslinjeForPerson(personopplysningGrunnlag.søker)
 
-        return innvilgedePeriodeResultaterBarna.flatMap { periodeResultatBarn ->
-            relevanteSøkerPerioder.filter { it.overlapper(periodeResultatBarn) }
-                .mapNotNull { overlappendePeriodeResultatSøker ->
-                    val barn = barnaIdenter[periodeResultatBarn.aktør.aktørId] ?: throw Feil("Finner ikke barn")
-                    // beregn beløpsperiode med sats og tilsvarende gjeledende prosentandel
-                    val beløpsperiode = beregnBeløpsperiode(
-                        overlappendePeriodeResultatSøker,
-                        periodeResultatBarn
-                    )
-                    // beløpsperiode kan ikke starte etter barnet fyller 2 år
-                    val maksTomDatoIMellom1Og2ÅrVilkår = periodeResultatBarn.vilkårResultater
-                        .filter { it.vilkårType == Vilkår.MELLOM_1_OG_2_ELLER_ADOPTERT && it.periodeTom != null }
-                        .maxBy { checkNotNull(it.periodeTom) }.periodeTom
-                    if (beløpsperiode.fom.toLocalDate().isAfter(maksTomDatoIMellom1Og2ÅrVilkår)) {
-                        return@mapNotNull null
-                    }
-                    // valider beregnet periode
-                    validerBeregnetPeriode(beløpsperiode, vilkårsvurdering.behandling.id)
+        return personopplysningGrunnlag.barna.flatMap { barn ->
+            val barnetsVilkårResultaterForskjøvetTidslinje =
+                vilkårsvurdering.personResultater.tilFørskjøvetVilkårResultatTidslinjeForPerson(barn)
 
-                    // beregn utbetalingsbeløp basert på sats og prosentandel og Opprett AndelTilkjentYtelse
-                    val kalkulertUtbetalingsbeløp = beløpsperiode.sats.prosent(beløpsperiode.prosent)
-                    AndelTilkjentYtelse(
-                        behandlingId = vilkårsvurdering.behandling.id,
+            val barnVilkårResultaterForskjøvetBådeBarnOgSøkerHarAlleOppfylt =
+                barnetsVilkårResultaterForskjøvetTidslinje.kombinerMed(søkersVilkårResultaterForskjøvetTidslinje) { barnPeriode, søkerPeriode ->
+                    søkerPeriode?.let { barnPeriode }
+                }
+
+            barnVilkårResultaterForskjøvetBådeBarnOgSøkerHarAlleOppfylt
+                .tilPerioderIkkeNull()
+                .map { vilkårResultaterPeriode ->
+                    vilkårResultaterPeriode.tilAndelTilkjentYtelse(
+                        vilkårsvurdering = vilkårsvurdering,
                         tilkjentYtelse = tilkjentYtelse,
-                        aktør = barn.aktør,
-                        stønadFom = beløpsperiode.fom,
-                        stønadTom = beløpsperiode.tom,
-                        kalkulertUtbetalingsbeløp = kalkulertUtbetalingsbeløp,
-                        nasjonaltPeriodebeløp = kalkulertUtbetalingsbeløp,
-                        type = YtelseType.ORDINÆR_KONTANTSTØTTE,
-                        sats = beløpsperiode.sats,
-                        prosent = beløpsperiode.prosent
+                        barn = barn
                     )
                 }
         }
+    }
+
+    private fun Periode<List<VilkårResultat>>.tilAndelTilkjentYtelse(
+        vilkårsvurdering: Vilkårsvurdering,
+        tilkjentYtelse: TilkjentYtelse,
+        barn: Person
+    ): AndelTilkjentYtelse {
+        val erDeltBosted = this.verdi.any {
+            it.vilkårType == Vilkår.BOR_MED_SØKER &&
+                it.utdypendeVilkårsvurderinger.contains(UtdypendeVilkårsvurdering.DELT_BOSTED)
+        }
+
+        val antallTimer = this.verdi.single { it.vilkårType == Vilkår.BARNEHAGEPLASS }.antallTimer
+
+        val satsperiode = hentGyldigSatsFor(
+            antallTimer = antallTimer?.setScale(2, RoundingMode.HALF_UP),
+            erDeltBosted = erDeltBosted,
+            stønadFom = fom!!.toYearMonth(),
+            stønadTom = tom!!.toYearMonth()
+        )
+
+        validerBeregnetPeriode(beløpsperiode = satsperiode, behandlingId = vilkårsvurdering.behandling.id)
+
+        val kalkulertUtbetalingsbeløp = satsperiode.sats.prosent(satsperiode.prosent)
+
+        return AndelTilkjentYtelse(
+            behandlingId = vilkårsvurdering.behandling.id,
+            tilkjentYtelse = tilkjentYtelse,
+            aktør = barn.aktør,
+            stønadFom = satsperiode.fom,
+            stønadTom = satsperiode.tom,
+            kalkulertUtbetalingsbeløp = kalkulertUtbetalingsbeløp,
+            nasjonaltPeriodebeløp = kalkulertUtbetalingsbeløp,
+            type = YtelseType.ORDINÆR_KONTANTSTØTTE,
+            sats = satsperiode.sats,
+            prosent = satsperiode.prosent
+        )
     }
 
     private fun validerBeregnetPeriode(beløpsperiode: SatsPeriode, behandlingId: Long) {
@@ -115,42 +134,5 @@ object TilkjentYtelseUtils {
         }
         // TODO - Endret Utbetaling Andel implementasjon kommer i neste levering
         return emptyList()
-    }
-
-    private fun beregnBeløpsperiode(
-        overlappendePeriodeResultatSøker: PeriodeResultat,
-        periodeResultatBarn: PeriodeResultat
-    ): SatsPeriode {
-        val oppfyltFom = maksimum(overlappendePeriodeResultatSøker.periodeFom, periodeResultatBarn.periodeFom)
-        val oppfyltTom = minimum(overlappendePeriodeResultatSøker.periodeTom, periodeResultatBarn.periodeTom)
-
-        val erDeltBosted = periodeResultatBarn.vilkårResultater.any {
-            it.vilkårType == Vilkår.BOR_MED_SØKER &&
-                it.utdypendeVilkårsvurderinger.contains(UtdypendeVilkårsvurdering.DELT_BOSTED)
-        }
-
-        val antallTimer = periodeResultatBarn.vilkårResultater.find { it.vilkårType == Vilkår.BARNEHAGEPLASS }?.antallTimer
-
-        // I KS avslutter utbetaling alltid måneden før siste dato
-        return hentGyldigSatsFor(
-            antallTimer = antallTimer?.setScale(2, RoundingMode.HALF_UP),
-            erDeltBosted = erDeltBosted,
-            stønadFom = oppfyltFom.plusMonths(1).withDayOfMonth(1).toYearMonth(),
-            stønadTom = oppfyltTom.minusMonths(1).sisteDagIMåned().toYearMonth()
-        )
-    }
-
-    private fun maksimum(periodeFomSoker: LocalDate?, periodeFomBarn: LocalDate?): LocalDate {
-        if (periodeFomSoker == null && periodeFomBarn == null) {
-            throw Feil("Både søker og barn kan ikke ha null fom-dato")
-        }
-        return maxOf(periodeFomSoker ?: LocalDate.MIN, periodeFomBarn ?: LocalDate.MIN)
-    }
-
-    private fun minimum(periodeTomSoker: LocalDate?, periodeTomBarn: LocalDate?): LocalDate {
-        if (periodeTomSoker == null && periodeTomBarn == null) {
-            throw Feil("Både søker og barn kan ikke ha null i tom-dato")
-        }
-        return minOf(periodeTomBarn ?: LocalDate.MAX, periodeTomSoker ?: LocalDate.MAX)
     }
 }
