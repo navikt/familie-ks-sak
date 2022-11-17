@@ -97,10 +97,10 @@ private fun LocalDate?.tilForskøvetTomBasertPåGraderingsforskjell(
     graderingsforskjellMellomDenneOgNestePeriode: Graderingsforskjell
 ) = if (graderingsforskjellMellomDenneOgNestePeriode == Graderingsforskjell.Reduksjon) {
     this?.plusDays(1)?.minusMonths(1)?.sisteDagIMåned()
-} else this?.plusDays(1)?.sisteDagIMåned()
+} else this?.sisteDagIMåned()
 
 private fun LocalDate?.tilForskøvetFomBasertPåGraderingsforskjell(
     graderingsforskjellMellomDenneOgForrigePeriode: Graderingsforskjell
 ) = if (graderingsforskjellMellomDenneOgForrigePeriode == Graderingsforskjell.Reduksjon) {
     this?.førsteDagIInneværendeMåned()
-} else this?.plusMonths(1)?.førsteDagIInneværendeMåned()
+} else this?.minusDays(1)?.plusMonths(1)?.førsteDagIInneværendeMåned()

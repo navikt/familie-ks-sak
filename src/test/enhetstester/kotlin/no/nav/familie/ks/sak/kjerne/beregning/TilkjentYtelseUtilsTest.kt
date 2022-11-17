@@ -2,7 +2,6 @@ package no.nav.familie.ks.sak.kjerne.beregning
 
 import no.nav.familie.ks.sak.common.util.NullablePeriode
 import no.nav.familie.ks.sak.common.util.førsteDagIInneværendeMåned
-import no.nav.familie.ks.sak.common.util.førsteDagINesteMåned
 import no.nav.familie.ks.sak.common.util.sisteDagIMåned
 import no.nav.familie.ks.sak.common.util.toYearMonth
 import no.nav.familie.ks.sak.data.lagBehandling
@@ -423,12 +422,12 @@ internal class TilkjentYtelseUtilsTest {
             andelTilkjentYtelse = tilkjentYtelse.andelerTilkjentYtelse.first(),
             prosent = BigDecimal(40),
             periodeFom = førstePeriodeFom.plusMonths(1).førsteDagIInneværendeMåned(),
-            periodeTom = førstePeriodeTom.plusMonths(1).sisteDagIMåned()
+            periodeTom = førstePeriodeTom
         )
         assertAndelTilkjentYtelse(
             andelTilkjentYtelse = tilkjentYtelse.andelerTilkjentYtelse.last(),
             prosent = BigDecimal(80),
-            periodeFom = andrePeriodeFom.førsteDagINesteMåned(),
+            periodeFom = andrePeriodeFom,
             periodeTom = barnFødselsdato.plusYears(2).minusMonths(1).sisteDagIMåned()
         )
     }
