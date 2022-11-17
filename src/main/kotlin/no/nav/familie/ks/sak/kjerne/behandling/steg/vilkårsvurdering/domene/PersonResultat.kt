@@ -2,6 +2,8 @@ package no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene
 
 import com.fasterxml.jackson.annotation.JsonIgnore
 import no.nav.familie.ks.sak.common.entitet.BaseEntitet
+import no.nav.familie.ks.sak.common.tidslinje.Periode
+import no.nav.familie.ks.sak.common.tidslinje.tilTidslinje
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat.Companion.VilkårResultatComparator
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
@@ -74,35 +76,6 @@ class PersonResultat(
 
     fun harEksplisittAvslag() = vilkårResultater.any { it.erEksplisittAvslagPåSøknad == true }
 }
-
-fun Set<PersonResultat>.tilFørskjøvetVilkårResultatTidslinjeMap(): Map<Aktør, Tidslinje<List<VilkårResultat>>> =
-    associate { personResultat ->
-        val vilkårResultaterForAktørMap = personResultat.vilkårResultater
-            .groupByTo(mutableMapOf()) { it.vilkårType }
-            .mapValues { if (it.key != Vilkår.BOR_MED_SØKER) it.value else it.value.fjernAvslagUtenPeriodeHvisDetFinsAndreVilkårResultat() }
-
-        val alleVilkår = vilkårResultaterForAktørMap.keys
-
-        val vilkårResultaterKombinert = vilkårResultaterForAktørMap
-            .tilVilkårResultatTidslinjer()
-            .kombiner { alleVilkårOppfyltEllerNull(it, alleVilkår) }
-            .tilPerioderIkkeNull()
-            .map {
-                Periode(
-                    it.verdi,
-                    it.fom?.plusMonths(1)?.førsteDagIInneværendeMåned(),
-                    it.tom?.minusMonths(1)?.sisteDagIMåned()
-                )
-            }
-            .tilTidslinje()
-
-        // TODO: Forflytt riktig når vi kommer fram til riktig regelverk
-
-        Pair(
-            personResultat.aktør,
-            vilkårResultaterKombinert
-        )
-    }
 
 private fun MutableList<VilkårResultat>.fjernAvslagUtenPeriodeHvisDetFinsAndreVilkårResultat(): List<VilkårResultat> =
     if (this.any { !it.erAvslagUtenPeriode() }) this.filterNot { it.erAvslagUtenPeriode() } else this

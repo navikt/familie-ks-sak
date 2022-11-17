@@ -103,10 +103,8 @@ data class VedtaksperiodeMedBegrunnelser(
         personopplysningGrunnlag: PersonopplysningGrunnlag
     ): List<UtbetalingsperiodeDetalj> =
         if (this.type == Vedtaksperiodetype.UTBETALING ||
-            this.type == Vedtaksperiodetype.FORTSATT_INNVILGET ||
-            this.type == Vedtaksperiodetype.UTBETALING_MED_REDUKSJON_FRA_SIST_IVERKSATTE_BEHANDLING
+            this.type == Vedtaksperiodetype.FORTSATT_INNVILGET
         ) {
-
             val kombinertTidslinje = andelerTilkjentYtelse.tilKombinertTidslinjePerAktør()
 
             val vedtaksperiodeTidslinje = listOf(Periode(verdi = this, fom = this.fom, this.tom)).tilTidslinje()

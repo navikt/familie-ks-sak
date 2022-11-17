@@ -29,6 +29,18 @@ class BrevVedtaksPeriode(
     }
 }
 
+fun UtvidetVedtaksperiodeMedBegrunnelser.tilBrevVedtaksPeriode(): BrevVedtaksPeriode {
+    return BrevVedtaksPeriode(
+        fom = this.fom,
+        tom = this.tom,
+        ytelseTyperForPeriode = this.utbetalingsperiodeDetaljer.map { it.ytelseType }.toSet(),
+        type = this.type,
+        brevUtbetalingsperiodeDetaljer = this.utbetalingsperiodeDetaljer.map { it.tilBrevUtbetalingsperiodeDetalj() },
+        fritekster = this.fritekster,
+        begrunnelseMedDataFraSanity = emptyList()
+    )
+}
+
 fun UtvidetVedtaksperiodeMedBegrunnelser.tilBrevVedtaksPeriode(sanityBegrunnelser: List<SanityBegrunnelse>): BrevVedtaksPeriode {
     return BrevVedtaksPeriode(
         fom = this.fom,

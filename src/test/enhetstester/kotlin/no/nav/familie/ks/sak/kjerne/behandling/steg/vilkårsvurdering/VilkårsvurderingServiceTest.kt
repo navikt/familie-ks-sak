@@ -163,7 +163,8 @@ class VilkårsvurderingServiceTest {
             SanityBegrunnelse(
                 Standardbegrunnelse.DUMMY.sanityApiNavn,
                 "navnISystem",
-                Vilkår.values().toList()
+                Vilkår.values().toList(),
+                hjemler = emptyList()
             )
         )
 

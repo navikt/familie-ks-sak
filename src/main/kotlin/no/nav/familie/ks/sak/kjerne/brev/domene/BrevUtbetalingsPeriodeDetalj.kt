@@ -14,7 +14,7 @@ data class BrevUtbetalingsperiodeDetalj(
 )
 
 fun UtbetalingsperiodeDetalj.tilBrevUtbetalingsperiodeDetalj() = BrevUtbetalingsperiodeDetalj(
-    person = this.brevPerson,
+    person = this.person.tilBrevPerson(),
     ytelseType = this.ytelseType,
     utbetaltPerMnd = this.utbetaltPerMnd,
     erPåvirketAvEndring = this.erPåvirketAvEndring,
