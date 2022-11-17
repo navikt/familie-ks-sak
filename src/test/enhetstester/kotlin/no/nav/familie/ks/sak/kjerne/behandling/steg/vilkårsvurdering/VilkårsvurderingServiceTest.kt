@@ -163,7 +163,8 @@ class VilkårsvurderingServiceTest {
             SanityBegrunnelse(
                 Standardbegrunnelse.INNVILGET_IKKE_BARNEHAGE.sanityApiNavn,
                 "innvilgetIkkeBarnehage",
-                Vilkår.values().toList()
+                Vilkår.values().toList(),
+                hjemler = emptyList()
             )
         )
 

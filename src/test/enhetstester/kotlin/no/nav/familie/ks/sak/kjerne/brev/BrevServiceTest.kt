@@ -22,6 +22,7 @@ import no.nav.familie.ks.sak.data.shouldNotBeNull
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
 import no.nav.familie.ks.sak.integrasjon.journalføring.UtgåendeJournalføringService
 import no.nav.familie.ks.sak.integrasjon.journalføring.domene.JournalføringRepository
+import no.nav.familie.ks.sak.integrasjon.sanity.SanityService
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.ArbeidsfordelingService
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.domene.ArbeidsfordelingPåBehandling
 import no.nav.familie.ks.sak.kjerne.behandling.SettBehandlingPåVentService
@@ -82,6 +83,12 @@ class BrevServiceTest {
 
     @MockK
     private lateinit var totrinnskontrollService: TotrinnskontrollService
+
+    @MockK
+    private lateinit var brevPeriodeService: BrevPeriodeService
+
+    @MockK
+    private lateinit var sanityService: SanityService
 
     @MockK
     private lateinit var vedtaksperiodeService: VedtaksperiodeService

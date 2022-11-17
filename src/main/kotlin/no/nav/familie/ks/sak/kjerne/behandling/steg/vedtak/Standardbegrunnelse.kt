@@ -9,7 +9,6 @@ interface IVedtakBegrunnelse {
 
     val sanityApiNavn: String
     val vedtakBegrunnelseType: VedtakBegrunnelseType
-    val kanDelesOpp: Boolean
 
     fun enumnavnTilString(): String
 }
@@ -35,8 +34,6 @@ enum class Standardbegrunnelse : IVedtakBegrunnelse {
         override val vedtakBegrunnelseType = VedtakBegrunnelseType.AVSLAG
         override val sanityApiNavn = "avslagUregistrertBarn"
     };
-
-    override val kanDelesOpp = false
     override fun enumnavnTilString() = this.name
 }
 

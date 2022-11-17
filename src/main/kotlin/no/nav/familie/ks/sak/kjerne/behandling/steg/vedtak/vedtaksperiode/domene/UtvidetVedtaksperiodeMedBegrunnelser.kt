@@ -13,6 +13,7 @@ data class UtvidetVedtaksperiodeMedBegrunnelser(
     val tom: LocalDate?,
     val type: Vedtaksperiodetype,
     val begrunnelser: List<Vedtaksbegrunnelse>,
+    val eøsBegrunnelser: List<Unit> = emptyList(),
     val fritekster: List<String> = emptyList(),
     val gyldigeBegrunnelser: List<IVedtakBegrunnelse> = emptyList(),
     val utbetalingsperiodeDetaljer: List<UtbetalingsperiodeDetalj> = emptyList()

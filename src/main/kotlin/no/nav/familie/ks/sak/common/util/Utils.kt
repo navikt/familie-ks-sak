@@ -1,6 +1,7 @@
 package no.nav.familie.ks.sak.common.util
 
 import no.nav.familie.kontrakter.felles.objectMapper
+import java.text.NumberFormat
 
 fun Any?.nullableTilString() = this?.toString() ?: ""
 
@@ -14,3 +15,5 @@ inline fun <reified T : Enum<T>> konverterStringTilEnums(string: String?): List<
 fun slåSammen(stringListe: List<String>): String = Regex("(.*),").replace(stringListe.joinToString(", "), "$1 og")
 
 fun Any.convertDataClassToJson(): String = objectMapper.writeValueAsString(this)
+
+fun formaterBeløp(beløp: Int): String = NumberFormat.getNumberInstance(nbLocale).format(beløp)

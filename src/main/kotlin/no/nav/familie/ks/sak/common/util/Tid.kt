@@ -30,6 +30,7 @@ fun YearMonth.førsteDagIInneværendeMåned() = this.atDay(1)
 fun YearMonth.sisteDagIInneværendeMåned() = this.atEndOfMonth()
 
 fun YearMonth.erSammeEllerTidligere(toCompare: YearMonth): Boolean = this.isBefore(toCompare) || this == toCompare
+fun LocalDate.erSenereEnnInneværendeMåned(): Boolean = this.isAfter(LocalDate.now().sisteDagIMåned())
 
 fun inneværendeMåned(): YearMonth = LocalDate.now().toYearMonth()
 

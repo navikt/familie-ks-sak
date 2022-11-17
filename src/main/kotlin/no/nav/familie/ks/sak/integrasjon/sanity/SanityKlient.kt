@@ -35,7 +35,7 @@ class SanityKlient(
 
             restSanityBegrunnelser.result.map { it.tilSanityBegrunnelse() }
         } catch (e: Exception) {
-            listOf(SanityBegrunnelse("dummyApiNavn", "dummyNavnISystem", Vilkår.values().toList()))
+            listOf(SanityBegrunnelse("dummyApiNavn", "dummyNavnISystem", Vilkår.values().toList(), hjemler = emptyList()))
         }
     }
 

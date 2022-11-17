@@ -46,26 +46,6 @@ fun EØSStandardbegrunnelse.tilSanityEØSBegrunnelse(
     return sanityBegrunnelse
 }
 
-fun Standardbegrunnelse.tilVedtaksbegrunnelse(
-    vedtaksperiodeMedBegrunnelser: VedtaksperiodeMedBegrunnelser
-): Vedtaksbegrunnelse {
-    if (!vedtaksperiodeMedBegrunnelser
-        .type
-        .tillatteBegrunnelsestyper
-        .contains(this.vedtakBegrunnelseType)
-    ) {
-        throw Feil(
-            "Begrunnelsestype ${this.vedtakBegrunnelseType} passer ikke med " +
-                "typen '${vedtaksperiodeMedBegrunnelser.type}' som er satt på perioden."
-        )
-    }
-
-    return Vedtaksbegrunnelse(
-        vedtaksperiodeMedBegrunnelser = vedtaksperiodeMedBegrunnelser,
-        standardbegrunnelse = this
-    )
-}
-
 fun Standardbegrunnelse.triggesForPeriode(
     brevVedtaksPeriode: BrevVedtaksPeriode,
     brevPersonResultater: List<BrevPersonResultat>,
@@ -130,6 +110,61 @@ fun Standardbegrunnelse.triggesForPeriode(
     }
 }
 
+private fun erEtterEndretPeriodeAvSammeÅrsak(
+    endretUtbetalingAndeler: List<BrevEndretUtbetalingAndel>,
+    brevVedtaksPeriode: BrevVedtaksPeriode,
+    aktuellePersoner: List<BrevPerson>,
+    triggesAv: TriggesAv
+) = endretUtbetalingAndeler.any { endretUtbetalingAndel ->
+    endretUtbetalingAndel.månedPeriode().tom.sisteDagIInneværendeMåned()
+        .erDagenFør(brevVedtaksPeriode.fom) &&
+        aktuellePersoner.any { person -> person.aktørId == endretUtbetalingAndel.aktørId } &&
+        triggesAv.endringsaarsaker.contains(endretUtbetalingAndel.årsak)
+}
+
+fun Standardbegrunnelse.tilVedtaksbegrunnelse(
+    vedtaksperiodeMedBegrunnelser: VedtaksperiodeMedBegrunnelser
+): Vedtaksbegrunnelse {
+    if (!vedtaksperiodeMedBegrunnelser
+        .type
+        .tillatteBegrunnelsestyper
+        .contains(this.vedtakBegrunnelseType)
+    ) {
+        throw Feil(
+            "Begrunnelsestype ${this.vedtakBegrunnelseType} passer ikke med " +
+                "typen '${vedtaksperiodeMedBegrunnelser.type}' som er satt på perioden."
+        )
+    }
+
+    return Vedtaksbegrunnelse(
+        vedtaksperiodeMedBegrunnelser = vedtaksperiodeMedBegrunnelser,
+        standardbegrunnelse = this
+    )
+}
+
+fun dødeBarnForrigePeriode(
+    ytelserForrigePeriode: List<AndelTilkjentYtelseMedEndreteUtbetalinger>,
+    barnIBehandling: List<BrevPerson>
+): List<String> =
+    barnIBehandling.filter { barn ->
+        val ytelserForrigePeriodeForBarn = ytelserForrigePeriode.filter {
+            it.aktør.aktivFødselsnummer() == barn.aktivPersonIdent
+        }
+        var barnDødeForrigePeriode = false
+        if (barn.erDød() && ytelserForrigePeriodeForBarn.isNotEmpty()) {
+            val fom =
+                ytelserForrigePeriodeForBarn.minOf { it.stønadFom }
+            val tom =
+                ytelserForrigePeriodeForBarn.maxOf { it.stønadTom }
+            val fomFørDødsfall = fom <= barn.dødsfallsdato!!.toYearMonth()
+            val tomEtterDødsfall = tom >= barn.dødsfallsdato.toYearMonth()
+            barnDødeForrigePeriode = fomFørDødsfall && tomEtterDødsfall
+        }
+        barnDødeForrigePeriode
+    }.map { it.aktivPersonIdent }
+
+fun List<LocalDate>.tilBrevTekst(): String = slåSammen(this.sorted().map { it.tilKortString() })
+
 private fun erEndretTriggerErOppfylt(
     triggesAv: TriggesAv,
     brevEndretUtbetalingAndel: List<BrevEndretUtbetalingAndel>,
@@ -158,38 +193,3 @@ fun TriggesAv.erTriggereOppfyltForEndretUtbetaling(
         oppfyllerSkalUtbetalesTrigger &&
         erAvSammeÅrsak
 }
-
-private fun erEtterEndretPeriodeAvSammeÅrsak(
-    endretUtbetalingAndeler: List<BrevEndretUtbetalingAndel>,
-    brevVedtaksPeriode: BrevVedtaksPeriode,
-    aktuellePersoner: List<BrevPerson>,
-    triggesAv: TriggesAv
-) = endretUtbetalingAndeler.any { endretUtbetalingAndel ->
-    endretUtbetalingAndel.månedPeriode().tom.sisteDagIInneværendeMåned()
-        .erDagenFør(brevVedtaksPeriode.fom) &&
-        aktuellePersoner.any { person -> person.aktørId == endretUtbetalingAndel.aktørId } &&
-        triggesAv.endringsaarsaker.contains(endretUtbetalingAndel.årsak)
-}
-
-fun dødeBarnForrigePeriode(
-    ytelserForrigePeriode: List<AndelTilkjentYtelseMedEndreteUtbetalinger>,
-    barnIBehandling: List<BrevPerson>
-): List<String> =
-    barnIBehandling.filter { barn ->
-        val ytelserForrigePeriodeForBarn = ytelserForrigePeriode.filter {
-            it.aktør.aktivFødselsnummer() == barn.aktivPersonIdent
-        }
-        var barnDødeForrigePeriode = false
-        if (barn.erDød() && ytelserForrigePeriodeForBarn.isNotEmpty()) {
-            val fom =
-                ytelserForrigePeriodeForBarn.minOf { it.stønadFom }
-            val tom =
-                ytelserForrigePeriodeForBarn.maxOf { it.stønadTom }
-            val fomFørDødsfall = fom <= barn.dødsfallsdato!!.toYearMonth()
-            val tomEtterDødsfall = tom >= barn.dødsfallsdato.toYearMonth()
-            barnDødeForrigePeriode = fomFørDødsfall && tomEtterDødsfall
-        }
-        barnDødeForrigePeriode
-    }.map { it.aktivPersonIdent }
-
-fun List<LocalDate>.tilBrevTekst(): String = slåSammen(this.sorted().map { it.tilKortString() })
