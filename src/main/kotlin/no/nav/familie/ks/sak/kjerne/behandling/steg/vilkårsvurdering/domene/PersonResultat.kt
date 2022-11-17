@@ -2,6 +2,8 @@ package no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene
 
 import com.fasterxml.jackson.annotation.JsonIgnore
 import no.nav.familie.ks.sak.common.entitet.BaseEntitet
+import no.nav.familie.ks.sak.common.tidslinje.Periode
+import no.nav.familie.ks.sak.common.tidslinje.tilTidslinje
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat.Companion.VilkårResultatComparator
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
@@ -74,3 +76,25 @@ class PersonResultat(
 
     fun harEksplisittAvslag() = vilkårResultater.any { it.erEksplisittAvslagPåSøknad == true }
 }
+
+private fun MutableList<VilkårResultat>.fjernAvslagUtenPeriodeHvisDetFinsAndreVilkårResultat(): List<VilkårResultat> =
+    if (this.any { !it.erAvslagUtenPeriode() }) this.filterNot { it.erAvslagUtenPeriode() } else this
+
+private fun Map<Vilkår, List<VilkårResultat>>.tilVilkårResultatTidslinjer() =
+    this.map { (_, vilkårResultater) ->
+        vilkårResultater.map { Periode(it, it.periodeFom, it.periodeTom) }.tilTidslinje()
+    }
+
+private fun alleVilkårOppfyltEllerNull(
+    vilkårResultater: Iterable<VilkårResultat?>,
+    vilkårForPerson: Set<Vilkår>
+): List<VilkårResultat>? =
+    if (erAlleVilkårForPersonOppfylt(vilkårForPerson, vilkårResultater)) {
+        vilkårResultater.filterNotNull()
+    } else null
+
+private fun erAlleVilkårForPersonOppfylt(
+    vilkårForPerson: Set<Vilkår>,
+    vilkårResultater: Iterable<VilkårResultat?>
+) =
+    vilkårForPerson.all { vilkår -> vilkårResultater.any { it?.resultat == Resultat.OPPFYLT && it.vilkårType == vilkår } }

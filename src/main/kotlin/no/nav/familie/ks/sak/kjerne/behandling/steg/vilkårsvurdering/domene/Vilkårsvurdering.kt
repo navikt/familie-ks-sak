@@ -44,7 +44,13 @@ data class Vilkårsvurdering(
     @Column(name = "ytelse_personer", columnDefinition = "text")
     var ytelsePersoner: String? = null
 ) : BaseEntitet() {
+
     fun hentPersonResultaterTilAktør(aktørId: String): List<VilkårResultat> =
         personResultater.find { it.aktør.aktørId == aktørId }?.vilkårResultater?.toList()
             ?: throw IllegalStateException("Fant ikke personresultat for $aktørId")
+
+    fun finnOpplysningspliktVilkår(): AnnenVurdering? {
+        return personResultater.single { it.erSøkersResultater() }
+            .andreVurderinger.singleOrNull { it.type == AnnenVurderingType.OPPLYSNINGSPLIKT }
+    }
 }

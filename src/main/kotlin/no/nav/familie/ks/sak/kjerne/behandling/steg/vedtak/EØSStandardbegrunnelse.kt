@@ -7,6 +7,5 @@ enum class EØSStandardbegrunnelse : IVedtakBegrunnelse {
         override val vedtakBegrunnelseType = VedtakBegrunnelseType.EØS_OPPHØR
     };
 
-    override val kanDelesOpp = false
     override fun enumnavnTilString() = this.name
 }

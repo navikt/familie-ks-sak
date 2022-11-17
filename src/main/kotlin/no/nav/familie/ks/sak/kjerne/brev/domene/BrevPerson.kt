@@ -1,5 +1,7 @@
 package no.nav.familie.ks.sak.kjerne.brev.domene
 
+import no.nav.familie.ks.sak.common.util.slåSammen
+import no.nav.familie.ks.sak.common.util.tilKortString
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
@@ -34,3 +36,15 @@ fun Set<Person>.tilBrevPersoner(): List<BrevPerson> = map {
         it.dødsfall?.dødsfallDato
     )
 }
+
+fun List<BrevPerson>.tilBarnasFødselsdatoer(): String =
+    slåSammen(
+        this
+            .filter { it.type == PersonType.BARN }
+            .sortedBy { person ->
+                person.fødselsdato
+            }
+            .map { person ->
+                person.fødselsdato.tilKortString()
+            }
+    )
