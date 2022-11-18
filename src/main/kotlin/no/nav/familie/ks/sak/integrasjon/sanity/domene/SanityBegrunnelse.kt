@@ -9,17 +9,17 @@ import org.slf4j.LoggerFactory
 data class SanityBegrunnelse(
     val apiNavn: String?,
     val navnISystem: String,
-    val vilkaar: List<Vilkår>? = null,
-    val rolle: List<PersonType> = emptyList(),
-    val lovligOppholdTriggere: List<VilkårTrigger>? = null,
-    val bosattIRiketTriggere: List<VilkårTrigger>? = null,
-    val borMedSokerTriggere: List<VilkårTrigger>? = null,
-    val ovrigeTriggere: List<ØvrigTrigger>? = null,
-    val endringsaarsaker: List<Årsak>? = null,
-    val hjemler: List<String> = emptyList(),
-    val hjemlerFolketrygdloven: List<String> = emptyList(),
-    val endretUtbetalingsperiodeTriggere: List<EndretUtbetalingsperiodeTrigger>? = null,
-    val endretUtbetalingsperiodeDeltBostedUtbetalingTrigger: EndretUtbetalingsperiodeDeltBostedTriggere? = null
+    val vilkår: List<Vilkår>,
+    val rolle: List<PersonType>,
+    val lovligOppholdTriggere: List<VilkårTrigger>,
+    val bosattIRiketTriggere: List<VilkårTrigger>,
+    val borMedSokerTriggere: List<VilkårTrigger>,
+    val ovrigeTriggere: List<ØvrigTrigger>,
+    val endringsaarsaker: List<Årsak>,
+    val hjemler: List<String>,
+    val hjemlerFolketrygdloven: List<String>,
+    val endretUtbetalingsperiodeTriggere: List<EndretUtbetalingsperiodeTrigger>,
+    val endretUtbetalingsperiodeDeltBostedUtbetalingTrigger: EndretUtbetalingsperiodeDeltBostedTriggere?
 )
 
 data class SanityBegrunnelserResponsDto(
@@ -33,50 +33,50 @@ data class SanityBegrunnelserResponsDto(
 data class SanityBegrunnelseDto(
     val apiNavn: String?,
     val navnISystem: String,
-    val vilkaar: List<String>? = emptyList(),
-    val rolle: List<String>? = emptyList(),
-    val lovligOppholdTriggere: List<String>? = emptyList(),
-    val bosattIRiketTriggere: List<String>? = emptyList(),
-    val borMedSokerTriggere: List<String>? = emptyList(),
-    val ovrigeTriggere: List<String>? = emptyList(),
-    val endringsaarsaker: List<String>? = emptyList(),
-    val hjemler: List<String>? = emptyList(),
-    val hjemlerFolketrygdloven: List<String>?,
+    val vilkaar: List<String> = emptyList(),
+    val rolle: List<String> = emptyList(),
+    val lovligOppholdTriggere: List<String> = emptyList(),
+    val bosattIRiketTriggere: List<String> = emptyList(),
+    val borMedSokerTriggere: List<String> = emptyList(),
+    val ovrigeTriggere: List<String> = emptyList(),
+    val endringsaarsaker: List<String> = emptyList(),
+    val hjemler: List<String> = emptyList(),
+    val hjemlerFolketrygdloven: List<String> = emptyList(),
     val endretUtbetalingsperiodeDeltBostedUtbetalingTrigger: String?,
-    val endretUtbetalingsperiodeTriggere: List<String>? = emptyList()
+    val endretUtbetalingsperiodeTriggere: List<String> = emptyList()
 ) {
     fun tilSanityBegrunnelse(): SanityBegrunnelse {
         return SanityBegrunnelse(
             apiNavn = apiNavn,
             navnISystem = navnISystem,
-            vilkaar = vilkaar?.mapNotNull {
+            vilkår = vilkaar.mapNotNull {
                 finnEnumverdi(it, Vilkår.values(), apiNavn)
             },
-            rolle = rolle?.mapNotNull { finnEnumverdi(it, PersonType.values(), apiNavn) } ?: emptyList(),
-            lovligOppholdTriggere = lovligOppholdTriggere?.mapNotNull {
+            rolle = rolle.mapNotNull { finnEnumverdi(it, PersonType.values(), apiNavn) },
+            lovligOppholdTriggere = lovligOppholdTriggere.mapNotNull {
                 finnEnumverdi(it, VilkårTrigger.values(), apiNavn)
             },
-            bosattIRiketTriggere = bosattIRiketTriggere?.mapNotNull {
+            bosattIRiketTriggere = bosattIRiketTriggere.mapNotNull {
                 finnEnumverdi(it, VilkårTrigger.values(), apiNavn)
             },
-            borMedSokerTriggere = borMedSokerTriggere?.mapNotNull {
+            borMedSokerTriggere = borMedSokerTriggere.mapNotNull {
                 finnEnumverdi(it, VilkårTrigger.values(), apiNavn)
             },
-            ovrigeTriggere = ovrigeTriggere?.mapNotNull {
+            ovrigeTriggere = ovrigeTriggere.mapNotNull {
                 finnEnumverdi(it, ØvrigTrigger.values(), apiNavn)
             },
-            endringsaarsaker = endringsaarsaker?.mapNotNull {
+            endringsaarsaker = endringsaarsaker.mapNotNull {
                 finnEnumverdi(it, Årsak.values(), apiNavn)
             },
-            hjemler = hjemler ?: emptyList(),
-            hjemlerFolketrygdloven = hjemlerFolketrygdloven ?: emptyList(),
+            hjemler = hjemler,
+            hjemlerFolketrygdloven = hjemlerFolketrygdloven,
             endretUtbetalingsperiodeDeltBostedUtbetalingTrigger =
             if (endretUtbetalingsperiodeDeltBostedUtbetalingTrigger != null) finnEnumverdi(
                 endretUtbetalingsperiodeDeltBostedUtbetalingTrigger,
                 EndretUtbetalingsperiodeDeltBostedTriggere.values(),
                 apiNavn
             ) else null,
-            endretUtbetalingsperiodeTriggere = endretUtbetalingsperiodeTriggere?.mapNotNull {
+            endretUtbetalingsperiodeTriggere = endretUtbetalingsperiodeTriggere.mapNotNull {
                 finnEnumverdi(it, EndretUtbetalingsperiodeTrigger.values(), apiNavn)
             }
         )

@@ -33,7 +33,7 @@ enum class VilkårTrigger {
 
 fun SanityBegrunnelse.tilTriggesAv(): TriggesAv {
     return TriggesAv(
-        vilkår = this.vilkaar?.toSet() ?: emptySet(),
+        vilkår = this.vilkår?.toSet() ?: emptySet(),
         personTyper = if (this.rolle.isEmpty()) {
             when {
                 this.inneholderVilkår(Vilkår.BOSATT_I_RIKET) -> Vilkår.BOSATT_I_RIKET.parterDetteGjelderFor.toSet()
@@ -71,7 +71,7 @@ fun SanityBegrunnelse.inneholderØvrigTrigger(øvrigTrigger: ØvrigTrigger) =
     this.ovrigeTriggere?.contains(øvrigTrigger) ?: false
 
 fun SanityBegrunnelse.inneholderVilkår(vilkår: Vilkår) =
-    this.vilkaar?.contains(vilkår) ?: false
+    this.vilkår?.contains(vilkår) ?: false
 
 fun SanityBegrunnelse.inneholderLovligOppholdTrigger(vilkårTrigger: VilkårTrigger) =
     this.lovligOppholdTriggere?.contains(vilkårTrigger) ?: false

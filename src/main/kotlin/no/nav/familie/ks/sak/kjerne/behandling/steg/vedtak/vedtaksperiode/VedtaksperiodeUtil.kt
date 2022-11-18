@@ -11,7 +11,6 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.IVedtakBegrunnelse
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.Standardbegrunnelse
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.VedtakBegrunnelseType
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.endretUtbetalingsperiodeBegrunnelser
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.tilSanityBegrunnelse
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.triggesForPeriode
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.UtvidetVedtaksperiodeMedBegrunnelser
@@ -19,6 +18,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.beregning.AndelTilkjentYtelseMedEndreteUtbetalinger
 import no.nav.familie.ks.sak.kjerne.beregning.domene.EndretUtbetalingAndel
+import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.FinnGyldigeBegrunnelserForPeriodeContext
 import no.nav.familie.ks.sak.kjerne.brev.domene.BrevEndretUtbetalingAndel
 import no.nav.familie.ks.sak.kjerne.brev.domene.BrevPerson
 import no.nav.familie.ks.sak.kjerne.brev.domene.BrevPersonResultat
@@ -68,18 +68,28 @@ fun hentGyldigeBegrunnelserForPeriode(
     endretUtbetalingAndeler: List<EndretUtbetalingAndel>,
     andelerTilkjentYtelse: List<AndelTilkjentYtelseMedEndreteUtbetalinger>
 ): List<IVedtakBegrunnelse> {
-
 // TODO: Legg inn EØS når vi kommer så langt
 
-    return hentGyldigeStandardbegrunnelserForVedtaksperiode(
-        utvidetVedtaksperiodeMedBegrunnelser = utvidetVedtaksperiodeMedBegrunnelser,
+    return FinnGyldigeBegrunnelserForPeriodeContext(
+        brevVedtaksPeriode = utvidetVedtaksperiodeMedBegrunnelser.tilBrevVedtaksPeriode(),
         sanityBegrunnelser = sanityBegrunnelser,
-        persongrunnlag = persongrunnlag,
-        vilkårsvurdering = vilkårsvurdering,
+        brevPersoner = persongrunnlag.tilBrevPersoner(),
+        brevPersonResultater = vilkårsvurdering.personResultater
+            .map { it.tilBrevPersonResultat() },
         aktørIderMedUtbetaling = aktørIderMedUtbetaling,
-        endretUtbetalingAndeler = endretUtbetalingAndeler,
-        andelerTilkjentYtelse = andelerTilkjentYtelse
-    )
+        brevEndretUtbetalingAndeler = endretUtbetalingAndeler
+            .map { it.tilBrevEndretUtbetalingAndel() },
+        erFørsteVedtaksperiodePåFagsak = erFørsteVedtaksperiodePåFagsak(
+            andelerTilkjentYtelse,
+            utvidetVedtaksperiodeMedBegrunnelser.fom
+        ),
+        ytelserForrigePerioder = andelerTilkjentYtelse.filter {
+            ytelseErFraForrigePeriode(
+                it,
+                utvidetVedtaksperiodeMedBegrunnelser
+            )
+        }
+    ).hentGyldigeBegrunnelserForVedtaksperiode()
 }
 
 private fun hentGyldigeStandardbegrunnelserForVedtaksperiode(
@@ -90,26 +100,27 @@ private fun hentGyldigeStandardbegrunnelserForVedtaksperiode(
     aktørIderMedUtbetaling: List<String>,
     endretUtbetalingAndeler: List<EndretUtbetalingAndel>,
     andelerTilkjentYtelse: List<AndelTilkjentYtelseMedEndreteUtbetalinger>
-) = hentGyldigeBegrunnelserForVedtaksperiode(
-    brevVedtaksPeriode = utvidetVedtaksperiodeMedBegrunnelser.tilBrevVedtaksPeriode(),
-    sanityBegrunnelser = sanityBegrunnelser,
-    brevPersoner = persongrunnlag.tilBrevPersoner(),
-    brevPersonResultater = vilkårsvurdering.personResultater
-        .map { it.tilBrevPersonResultat() },
-    aktørIderMedUtbetaling = aktørIderMedUtbetaling,
-    brevEndretUtbetalingAndeler = endretUtbetalingAndeler
-        .map { it.tilBrevEndretUtbetalingAndel() },
-    erFørsteVedtaksperiodePåFagsak = erFørsteVedtaksperiodePåFagsak(
-        andelerTilkjentYtelse,
-        utvidetVedtaksperiodeMedBegrunnelser.fom
-    ),
-    ytelserForrigePerioder = andelerTilkjentYtelse.filter {
-        ytelseErFraForrigePeriode(
-            it,
-            utvidetVedtaksperiodeMedBegrunnelser
-        )
-    }
-)
+) =
+    FinnGyldigeBegrunnelserForPeriodeContext(
+        brevVedtaksPeriode = utvidetVedtaksperiodeMedBegrunnelser.tilBrevVedtaksPeriode(),
+        sanityBegrunnelser = sanityBegrunnelser,
+        brevPersoner = persongrunnlag.tilBrevPersoner(),
+        brevPersonResultater = vilkårsvurdering.personResultater
+            .map { it.tilBrevPersonResultat() },
+        aktørIderMedUtbetaling = aktørIderMedUtbetaling,
+        brevEndretUtbetalingAndeler = endretUtbetalingAndeler
+            .map { it.tilBrevEndretUtbetalingAndel() },
+        erFørsteVedtaksperiodePåFagsak = erFørsteVedtaksperiodePåFagsak(
+            andelerTilkjentYtelse,
+            utvidetVedtaksperiodeMedBegrunnelser.fom
+        ),
+        ytelserForrigePerioder = andelerTilkjentYtelse.filter {
+            ytelseErFraForrigePeriode(
+                it,
+                utvidetVedtaksperiodeMedBegrunnelser
+            )
+        }
+    ).hentGyldigeBegrunnelserForVedtaksperiode()
 
 private fun hentGyldigeBegrunnelserForVedtaksperiode(
     brevVedtaksPeriode: BrevVedtaksPeriode,
@@ -127,12 +138,6 @@ private fun hentGyldigeBegrunnelserForVedtaksperiode(
                 .type
                 .tillatteBegrunnelsestyper
                 .contains(it.vedtakBegrunnelseType)
-        }.filter {
-            if (it.vedtakBegrunnelseType == VedtakBegrunnelseType.ENDRET_UTBETALING) {
-                endretUtbetalingsperiodeBegrunnelser.contains(it)
-            } else {
-                true
-            }
         }
 
     return when (brevVedtaksPeriode.type) {
