@@ -13,7 +13,6 @@ import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelse
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.Standardbegrunnelse
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.TriggesAv
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.VedtakBegrunnelseType
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.dødeBarnForrigePeriode
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.erTriggereOppfyltForEndretUtbetaling
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.tilSanityBegrunnelse
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.Vedtaksperiodetype
@@ -26,8 +25,6 @@ import no.nav.familie.ks.sak.kjerne.brev.domene.BrevPerson
 import no.nav.familie.ks.sak.kjerne.brev.domene.BrevPersonResultat
 import no.nav.familie.ks.sak.kjerne.brev.domene.BrevVedtaksPeriode
 import no.nav.familie.ks.sak.kjerne.brev.domene.BrevVilkårResultat
-import no.nav.familie.ks.sak.kjerne.brev.domene.harPersonerSomManglerOpplysninger
-import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
 
 class FinnGyldigeBegrunnelserForPeriodeContext(
     private val brevVedtaksPeriode: BrevVedtaksPeriode,
@@ -78,52 +75,31 @@ class FinnGyldigeBegrunnelserForPeriodeContext(
         }
     }
 
+    private fun hentPersonFraAktørId(aktørId: String) = brevPersoner.find { it.aktørId == aktørId }
+
     private fun Standardbegrunnelse.triggesForPeriode(): Boolean {
         val sanityBegrunnelse = this.tilSanityBegrunnelse(sanityBegrunnelser) ?: return false
 
-        val aktuellePersoner = brevPersoner
-            .filter { person -> sanityBegrunnelse.vilkår.any { it.parterDetteGjelderFor.contains(person.type) } }
-            .filter { person ->
-                if (this.vedtakBegrunnelseType == VedtakBegrunnelseType.INNVILGET) {
-                    aktørIderMedUtbetaling.contains(person.aktørId) || person.type == PersonType.SØKER
-                } else {
-                    true
-                }
-            }
-
-        return when {
-            !triggesAv.valgbar -> false
-
-            triggesAv.personerManglerOpplysninger -> brevPersonResultater.harPersonerSomManglerOpplysninger()
-
-            triggesAv.etterEndretUtbetaling ->
-                erEtterEndretPeriodeAvSammeÅrsak(
-                    brevEndretUtbetalingAndeler,
-                    brevVedtaksPeriode,
-                    aktuellePersoner,
-                    triggesAv
-                )
-
-            triggesAv.erEndret() -> erEndretTriggerErOppfylt(
-                triggesAv = triggesAv,
-                brevEndretUtbetalingAndel = brevEndretUtbetalingAndeler,
-                brevVedtaksPeriode = brevVedtaksPeriode
-            )
-
-            triggesAv.gjelderFraInnvilgelsestidspunkt -> false
-
-            triggesAv.barnDød -> dødeBarnForrigePeriode(
-                ytelserForrigePerioder,
-                brevPersoner.filter { it.type === PersonType.BARN }
-            ).any()
-
-            else -> hentPersonerForAlleUtgjørendeVilkår(
-                triggesAv,
-                this.vedtakBegrunnelseType,
-                aktuellePersoner
-            ).isNotEmpty()
+        val personer: Map<String, BrevVilkårResultat> = when (this.vedtakBegrunnelseType) {
+            VedtakBegrunnelseType.REDUKSJON -> TODO()
+            VedtakBegrunnelseType.INNVILGET -> finnPersonerForInnvilgelse(sanityBegrunnelse)
+            VedtakBegrunnelseType.EØS_INNVILGET -> TODO()
+            VedtakBegrunnelseType.AVSLAG -> TODO()
+            VedtakBegrunnelseType.OPPHØR -> TODO()
+            VedtakBegrunnelseType.EØS_OPPHØR -> TODO()
+            VedtakBegrunnelseType.FORTSATT_INNVILGET -> TODO()
+            VedtakBegrunnelseType.ETTER_ENDRET_UTBETALING -> TODO()
+            VedtakBegrunnelseType.ENDRET_UTBETALING -> TODO()
         }
+        return personer.isNotEmpty()
     }
+
+    private fun finnPersonerForInnvilgelse(sanityBegrunnelse: SanityBegrunnelse): Map<String, BrevVilkårResultat> =
+        brevPersonResultater.flatMap { brevPersonResultat ->
+            brevPersonResultat.brevVilkårResultater.filter {
+                it.periodeFom == vedtaksperiode.fom
+            }.associate { Pair(brevPersonResultat.aktør.aktivFødselsnummer(), it) }
+        }
 
     fun hentPersonerForAlleUtgjørendeVilkår(
         triggesAv: TriggesAv,
@@ -147,8 +123,33 @@ class FinnGyldigeBegrunnelserForPeriodeContext(
     ): List<BrevPerson> {
         val aktuellePersonidenter = aktuellePersonerForVedtaksperiode.map { it.aktivPersonIdent }
 
+        triggesAv.vilkår.fold(setOf()) { acc, vilkår ->
+            acc + brevPersonResultater.filter { aktuellePersonidenter.contains(it.aktør) }
+                .map { brevPersonResultat ->
+                    val utgjørendeVilkårResultat = brevPersonResultat.brevVilkårResultater
+                        .filter { vilkårResultat -> vilkårResultat.vilkårType == vilkårGjeldendeForBegrunnelse }
+                        .firstOrNull { brevVilkårResultat ->
+                            val nesteBrevVilkårResultatAvSammeType: BrevVilkårResultat? =
+                                brevPersonResultat.brevVilkårResultater.finnEtterfølgende(brevVilkårResultat)
+                            erVilkårResultatUtgjørende(
+                                brevVilkårResultat = brevVilkårResultat,
+                                nesteBrevVilkårResultat = nesteBrevVilkårResultatAvSammeType,
+                                begrunnelseType = begrunnelseType,
+                                triggesAv = triggesAv
+                            )
+                        }
+                    val person = aktuellePersonerForVedtaksperiode.firstOrNull { person ->
+                        person.aktivPersonIdent == brevPersonResultat.aktør
+                    }
+
+                    if (utgjørendeVilkårResultat != null && person != null) {
+                        acc.add(person)
+                    }
+                }
+        }
+
         return brevPersonResultater
-            .filter { aktuellePersonidenter.contains(it.personIdent) }
+            .filter { aktuellePersonidenter.contains(it.aktør) }
             .fold(mutableListOf()) { acc, personResultat ->
                 val utgjørendeVilkårResultat =
                     personResultat.brevVilkårResultater
@@ -165,7 +166,7 @@ class FinnGyldigeBegrunnelserForPeriodeContext(
                         }
 
                 val person = aktuellePersonerForVedtaksperiode.firstOrNull { person ->
-                    person.aktivPersonIdent == personResultat.personIdent
+                    person.aktivPersonIdent == personResultat.aktør
                 }
 
                 if (utgjørendeVilkårResultat != null && person != null) {

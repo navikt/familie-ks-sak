@@ -58,7 +58,7 @@ private fun hentPersonerMedUtgjørendeVilkår(
     val aktuellePersonidenter = aktuellePersonerForVedtaksperiode.map { it.aktivPersonIdent }
 
     return brevPersonResultater
-        .filter { aktuellePersonidenter.contains(it.personIdent) }
+        .filter { aktuellePersonidenter.contains(it.aktør) }
         .fold(mutableListOf()) { acc, personResultat ->
             val utgjørendeVilkårResultat =
                 personResultat.brevVilkårResultater
@@ -77,7 +77,7 @@ private fun hentPersonerMedUtgjørendeVilkår(
                     }
 
             val person = aktuellePersonerForVedtaksperiode.firstOrNull { person ->
-                person.aktivPersonIdent == personResultat.personIdent
+                person.aktivPersonIdent == personResultat.aktør
             }
 
             if (utgjørendeVilkårResultat != null && person != null) {

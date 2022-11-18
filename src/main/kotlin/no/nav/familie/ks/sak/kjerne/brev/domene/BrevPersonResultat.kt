@@ -4,13 +4,14 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Ann
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.AnnenVurderingType
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.PersonResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
+import no.nav.familie.ks.sak.kjerne.personident.Aktør
 
 /**
  * NB: Bør ikke brukes internt, men kun ut mot eksterne tjenester siden klassen
  * inneholder aktiv personIdent og ikke aktørId.
  */
 data class BrevPersonResultat(
-    val personIdent: String,
+    val aktør: Aktør,
     val brevVilkårResultater: List<BrevVilkårResultat>,
     val brevAnnenVurderinger: List<BrevAnnenVurdering>
 )
@@ -26,7 +27,7 @@ fun AnnenVurdering.tilBrevAnnenVurdering(): BrevAnnenVurdering {
 
 fun PersonResultat.tilBrevPersonResultat() =
     BrevPersonResultat(
-        personIdent = this.aktør.aktivFødselsnummer(),
+        aktør = this.aktør,
         brevVilkårResultater = this.vilkårResultater.map { it.tilBrevVilkårResultat() },
         brevAnnenVurderinger = this.andreVurderinger.map { it.tilBrevAnnenVurdering() }
     )
