@@ -161,8 +161,8 @@ class VilkårsvurderingServiceTest {
     fun `hentVilkårsbegrunnelser - skal returnere et map med begrunnelsestyper mappet mot liste av begrunnelser`() {
         every { sanityService.hentSanityBegrunnelser() } returns listOf(
             SanityBegrunnelse(
-                Standardbegrunnelse.DUMMY.sanityApiNavn,
-                "navnISystem",
+                Standardbegrunnelse.INNVILGET_IKKE_BARNEHAGE.sanityApiNavn,
+                "innvilgetIkkeBarnehage",
                 Vilkår.values().toList(),
                 hjemler = emptyList()
             )
@@ -178,8 +178,8 @@ class VilkårsvurderingServiceTest {
         val vilkårsbegrunnelser = vilkårsvurderingService.hentVilkårsbegrunnelser()
 
         // TODO: Endre denne testen når vi får lagt inn riktige Standardbegrunnelser og EØSStandardbegrunnelser
-        assertEquals(4, vilkårsbegrunnelser.size)
-        assertEquals(Vilkår.values().size, vilkårsbegrunnelser[VedtakBegrunnelseType.AVSLAG]?.size)
+        assertEquals(3, vilkårsbegrunnelser.size)
+        assertEquals(0, vilkårsbegrunnelser[VedtakBegrunnelseType.AVSLAG]?.size)
         assertEquals(1, vilkårsbegrunnelser[VedtakBegrunnelseType.EØS_OPPHØR]?.size)
     }
 

@@ -511,7 +511,7 @@ fun lagTriggesAv(
 
 fun lagVedtaksbegrunnelse(
     standardbegrunnelse: Standardbegrunnelse =
-        Standardbegrunnelse.FORTSATT_INNVILGET_SØKER_OG_BARN_BOSATT_I_RIKET,
+        Standardbegrunnelse.INNVILGET_IKKE_BARNEHAGE,
     vedtaksperiodeMedBegrunnelser: VedtaksperiodeMedBegrunnelser = mockk()
 ) = Vedtaksbegrunnelse(
     vedtaksperiodeMedBegrunnelser = vedtaksperiodeMedBegrunnelser,

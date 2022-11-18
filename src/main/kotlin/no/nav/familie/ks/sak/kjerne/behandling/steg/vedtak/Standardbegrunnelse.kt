@@ -13,23 +13,26 @@ interface IVedtakBegrunnelse {
     fun enumnavnTilString(): String
 }
 
-// TODO: Må legge inn faktiske begrunnelser vi skal ha her
 enum class Standardbegrunnelse : IVedtakBegrunnelse {
-    DUMMY {
-        override val sanityApiNavn = "dummyApiNavn"
-        override val vedtakBegrunnelseType = VedtakBegrunnelseType.AVSLAG
+    INNVILGET_IKKE_BARNEHAGE {
+        override val sanityApiNavn = "innvilgetIkkeBarnehage"
+        override val vedtakBegrunnelseType = VedtakBegrunnelseType.INNVILGET
+    },
+    INNVILGET_IKKE_BARNEHAGE_ADOPSJON {
+        override val vedtakBegrunnelseType = VedtakBegrunnelseType.INNVILGET
+        override val sanityApiNavn = "innvilgetIkkeBarnehageAdopsjon"
+    },
+    INNVILGET_DELTID_BARNEHAGE {
+        override val vedtakBegrunnelseType = VedtakBegrunnelseType.INNVILGET
+        override val sanityApiNavn = "innvilgetDeltidBarnehage"
+    },
+    INNVILGET_DELTID_BARNEHAGE_ADOPSJON {
+        override val vedtakBegrunnelseType = VedtakBegrunnelseType.INNVILGET
+        override val sanityApiNavn = "innvilgetDeltidBarnehageAdopsjon"
     },
     AVSLAG_UREGISTRERT_BARN {
         override val vedtakBegrunnelseType = VedtakBegrunnelseType.AVSLAG
         override val sanityApiNavn = "avslagUregistrertBarn"
-    },
-    INNVILGET_BOSATT_I_RIKTET {
-        override val vedtakBegrunnelseType = VedtakBegrunnelseType.INNVILGET
-        override val sanityApiNavn = "innvilgetBosattIRiket"
-    },
-    FORTSATT_INNVILGET_SØKER_OG_BARN_BOSATT_I_RIKET {
-        override val vedtakBegrunnelseType = VedtakBegrunnelseType.FORTSATT_INNVILGET
-        override val sanityApiNavn = "fortsattInnvilgetSokerOgBarnBosattIRiket"
     };
     override fun enumnavnTilString() = this.name
 }

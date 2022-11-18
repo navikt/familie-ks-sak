@@ -19,7 +19,7 @@ class SanityKlient(
     restOperations: RestOperations
 ) :
     AbstractRestClient(restOperations, "sanity") {
-    fun hentBegrunnelser(datasett: String = "ba-brev"): List<SanityBegrunnelse> {
+    fun hentBegrunnelser(datasett: String = "ks-test"): List<SanityBegrunnelse> {
         val uri = lagHentUri(datasett, hentBegrunnelser)
 
         // TODO: Fjern try/catch og default dummy-respons ved feil når vi får satt opp sanity dokument og struktur på respons.
@@ -39,7 +39,7 @@ class SanityKlient(
         }
     }
 
-    fun hentEØSBegrunnelser(datasett: String = "ba-brev"): List<SanityEØSBegrunnelse> {
+    fun hentEØSBegrunnelser(datasett: String = "ks-test"): List<SanityEØSBegrunnelse> {
         val uri = lagHentUri(datasett, hentEØSBegrunnelser)
 
         // TODO: Fjern try/catch og default dummy-respons ved feil når vi får satt opp sanity dokument og struktur på respons.

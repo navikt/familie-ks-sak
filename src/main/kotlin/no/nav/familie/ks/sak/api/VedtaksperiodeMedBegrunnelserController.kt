@@ -45,12 +45,12 @@ class VedtaksperiodeMedBegrunnelserController(
             handling = "oppdatere vedtaksperiode med standardbegrunnelser"
         )
 
-        val standardbegrunnelser = vedtaksperiodeMedStandardbegrunnelserDto.standardbegrunnelser.map {
-            Standardbegrunnelse.valueOf(it)
+        val standardbegrunnelser = vedtaksperiodeMedStandardbegrunnelserDto.standardbegrunnelser.mapNotNull {
+            konverterTilEnumverdi<Standardbegrunnelse>(it)
         }
 
-        val eøsStandardbegrunnelser = vedtaksperiodeMedStandardbegrunnelserDto.standardbegrunnelser.map {
-            EØSStandardbegrunnelse.valueOf(it)
+        val eøsStandardbegrunnelser = vedtaksperiodeMedStandardbegrunnelserDto.standardbegrunnelser.mapNotNull {
+            konverterTilEnumverdi<EØSStandardbegrunnelse>(it)
         }
 
         val vedtak = vedtaksperiodeService.oppdaterVedtaksperiodeMedStandardbegrunnelser(
@@ -128,4 +128,7 @@ class VedtaksperiodeMedBegrunnelserController(
 
         return ResponseEntity.ok(Ressurs.success(behandlingService.lagBehandlingRespons(behandlingId = vedtak.behandling.id)))
     }
+
+    private inline fun <reified T> konverterTilEnumverdi(it: String): T? where T : Enum<T> =
+        enumValues<T>().find { enum -> enum.name == it }
 }
