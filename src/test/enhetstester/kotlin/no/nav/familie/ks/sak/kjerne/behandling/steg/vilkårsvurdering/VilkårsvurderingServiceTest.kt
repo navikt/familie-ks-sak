@@ -100,7 +100,11 @@ class VilkårsvurderingServiceTest {
 
         // autoutfylling
         val mellom1Og2ÅrVilkårer = lagretVilkårsvurdering.personResultater.filter { !it.erSøkersResultater() }
-            .flatMap { it.vilkårResultater.filter { it.vilkårType == Vilkår.MELLOM_1_OG_2_ELLER_ADOPTERT } }
+            .flatMap { it.vilkårResultater.filter { vilkår -> vilkår.vilkårType == Vilkår.MELLOM_1_OG_2_ELLER_ADOPTERT } }
+
+        val barnehageVilkårer =
+            lagretVilkårsvurdering.personResultater.filter { !it.erSøkersResultater() }
+                .flatMap { it.vilkårResultater.filter { vilkår -> vilkår.vilkårType == Vilkår.BARNEHAGEPLASS } }
 
         assertTrue {
             mellom1Og2ÅrVilkårer.all {
@@ -116,6 +120,8 @@ class VilkårsvurderingServiceTest {
                     it.periodeTom == barn1FødselsDato.plusYears(2)
             }
         }
+        assertTrue { barnehageVilkårer.any { it.periodeFom == barn1FødselsDato } }
+
         val barn2FødselsDato = fnrTilFødselsdato(barn2.aktivFødselsnummer())
         assertTrue {
             mellom1Og2ÅrVilkårer.any {
@@ -123,6 +129,7 @@ class VilkårsvurderingServiceTest {
                     it.periodeTom == barn2FødselsDato.plusYears(2)
             }
         }
+        assertTrue { barnehageVilkårer.any { it.periodeFom == barn2FødselsDato } }
 
         val medlemskapVilkår = lagretVilkårsvurdering.personResultater.single { it.erSøkersResultater() }
             .vilkårResultater.single { it.vilkårType == Vilkår.MEDLEMSKAP }
