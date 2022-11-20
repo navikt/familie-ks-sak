@@ -79,7 +79,7 @@ class VilkårsvurderingService(
                 val vilkårResultater = vilkårForPerson.map { vilkår ->
                     when (vilkår) {
                         // prefyller MELLOM_1_OG_2_ELLER_ADOPTERT vilkår automatisk
-                        Vilkår.MELLOM_1_OG_2_ELLER_ADOPTERT -> VilkårResultat(
+                        Vilkår.BARNETS_ALDER -> VilkårResultat(
                             personResultat = personResultat,
                             erAutomatiskVurdert = true,
                             resultat = Resultat.OPPFYLT,
@@ -89,6 +89,7 @@ class VilkårsvurderingService(
                             periodeFom = person.fødselsdato.plusYears(1),
                             periodeTom = person.fødselsdato.plusYears(2)
                         )
+
                         else -> VilkårResultat(
                             personResultat = personResultat,
                             erAutomatiskVurdert = false,

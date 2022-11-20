@@ -100,7 +100,7 @@ class VilkårResultat(
     fun erAvslagUtenPeriode() = erEksplisittAvslagPåSøknad == true && periodeFom == null && periodeTom == null
     fun harFremtidigTom() = periodeTom?.isAfter(LocalDate.now().sisteDagIMåned()) ?: true
 
-    fun erAdopsjonOppfylt() = vilkårType == Vilkår.MELLOM_1_OG_2_ELLER_ADOPTERT &&
+    fun erAdopsjonOppfylt() = vilkårType == Vilkår.BARNETS_ALDER &&
         utdypendeVilkårsvurderinger.contains(UtdypendeVilkårsvurdering.ADOPSJON) &&
         resultat == Resultat.OPPFYLT
 

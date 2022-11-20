@@ -94,16 +94,16 @@ class VilkårsvurderingServiceTest {
                 Vilkår.BARNEHAGEPLASS,
                 Vilkår.BOR_MED_SØKER,
                 Vilkår.MEDLEMSKAP_ANNEN_FORELDER,
-                Vilkår.MELLOM_1_OG_2_ELLER_ADOPTERT
+                Vilkår.BARNETS_ALDER
             )
         )
 
         // autoutfylling
-        val mellom1Og2ÅrVilkårer = lagretVilkårsvurdering.personResultater.filter { !it.erSøkersResultater() }
-            .flatMap { it.vilkårResultater.filter { it.vilkårType == Vilkår.MELLOM_1_OG_2_ELLER_ADOPTERT } }
+        val barnetsAlderVilkårer = lagretVilkårsvurdering.personResultater.filter { !it.erSøkersResultater() }
+            .flatMap { it.vilkårResultater.filter { it.vilkårType == Vilkår.BARNETS_ALDER } }
 
         assertTrue {
-            mellom1Og2ÅrVilkårer.all {
+            barnetsAlderVilkårer.all {
                 it.erAutomatiskVurdert &&
                     it.resultat == Resultat.OPPFYLT &&
                     it.begrunnelse == "Vurdert og satt automatisk"
@@ -111,14 +111,14 @@ class VilkårsvurderingServiceTest {
         }
         val barn1FødselsDato = fnrTilFødselsdato(barn1.aktivFødselsnummer())
         assertTrue {
-            mellom1Og2ÅrVilkårer.any {
+            barnetsAlderVilkårer.any {
                 it.periodeFom == barn1FødselsDato.plusYears(1) &&
                     it.periodeTom == barn1FødselsDato.plusYears(2)
             }
         }
         val barn2FødselsDato = fnrTilFødselsdato(barn2.aktivFødselsnummer())
         assertTrue {
-            mellom1Og2ÅrVilkårer.any {
+            barnetsAlderVilkårer.any {
                 it.periodeFom == barn2FødselsDato.plusYears(1) &&
                     it.periodeTom == barn2FødselsDato.plusYears(2)
             }

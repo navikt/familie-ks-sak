@@ -283,9 +283,9 @@ fun validerBarnasVilkår(vilkårsvurdering: Vilkårsvurdering, barna: List<Perso
                 }
                 if (vilkårResultat.periodeFom != null &&
                     vilkårResultat.erEksplisittAvslagPåSøknad != true &&
-                    vilkårResultat.vilkårType == Vilkår.MELLOM_1_OG_2_ELLER_ADOPTERT
+                    vilkårResultat.vilkårType == Vilkår.BARNETS_ALDER
                 ) {
-                    vilkårResultat.validerVilkår_MELLOM_1_OG_2_ELLER_ADOPTERT(
+                    vilkårResultat.validerVilkår_BARNETS_ALDER(
                         vilkårResultat.lagOgValiderPeriodeFraVilkår(),
                         barn.fødselsdato
                     )?.let { feil.add(it) }
@@ -312,7 +312,7 @@ private fun VilkårResultat.lagOgValiderPeriodeFraVilkår(): IkkeNullbarPeriode<
     }
 }
 
-private fun VilkårResultat.validerVilkår_MELLOM_1_OG_2_ELLER_ADOPTERT(
+private fun VilkårResultat.validerVilkår_BARNETS_ALDER(
     periode: IkkeNullbarPeriode<Long>,
     barnFødselsdato: LocalDate
 ): String? = when {
@@ -322,6 +322,7 @@ private fun VilkårResultat.validerVilkår_MELLOM_1_OG_2_ELLER_ADOPTERT(
 
     this.erAdopsjonOppfylt() && periode.fom.diffIDager(periode.tom) > 365 ->
         "Differansen mellom f.o.m datoen og t.o.m datoen kan ikke være mer enn 1 år."
+
     !this.erAdopsjonOppfylt() && !periode.fom.isEqual(barnFødselsdato.plusYears(1)) ->
         "F.o.m datoen må være lik barnets 1 års dag."
     !this.erAdopsjonOppfylt() && !periode.tom.isEqual(barnFødselsdato.plusYears(2)) ->
