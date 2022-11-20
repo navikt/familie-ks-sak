@@ -21,8 +21,11 @@ class PdlConfig(@Value("\${PDL_URL}") pdlUrl: URI) {
         val hentIdenterQuery = graphqlQuery("/pdl/hentIdenter.graphql")
         val hentAdressebeskyttelseQuery = graphqlQuery("/pdl/hent-adressebeskyttelse.graphql")
         val hentEnkelPersonQuery = graphqlQuery("/pdl/hentperson-enkel.graphql")
-        val hentPersonMedRelasjonOgRegisterInformasjonQuery = graphqlQuery("/pdl/hentperson-med-relasjoner-og-registerinformasjon.graphql")
+        val hentPersonMedRelasjonOgRegisterInformasjonQuery =
+            graphqlQuery("/pdl/hentperson-med-relasjoner-og-registerinformasjon.graphql")
         val hentPersonMedNavnOgAdresseQuery = graphqlQuery("/pdl/hentperson-navn-og-adresse.graphql")
+        val hentStatsborgerskapUtenHistorikkQuery = graphqlQuery("/pdl/statsborgerskap-uten-historikk.graphql")
+        val hentBostedsadresseUtenlandskQuery = graphqlQuery("/pdl/bostedsadresse-utenlandsk.graphql")
 
         private fun graphqlQuery(path: String) = PdlConfig::class.java.getResource(path)!!
             .readText().graphqlCompatible()

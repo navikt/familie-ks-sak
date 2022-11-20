@@ -2,6 +2,7 @@ package no.nav.familie.ks.sak.integrasjon.pdl
 
 import no.nav.familie.kontrakter.felles.personopplysning.ADRESSEBESKYTTELSEGRADERING
 import no.nav.familie.kontrakter.felles.personopplysning.FORELDERBARNRELASJONROLLE
+import no.nav.familie.kontrakter.felles.personopplysning.Statsborgerskap
 import no.nav.familie.ks.sak.common.exception.PdlPersonKanIkkeBehandlesIFagsystem
 import no.nav.familie.ks.sak.config.PersonInfoQuery
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
@@ -71,7 +72,11 @@ class PersonOpplysningerService(
             )
         }.toSet()
 
-        return tilPersonInfo(pdlPersonData, forelderBarnRelasjonerMedAdressebeskyttelseGradering, forelderBarnRelasjonMaskert)
+        return tilPersonInfo(
+            pdlPersonData,
+            forelderBarnRelasjonerMedAdressebeskyttelseGradering,
+            forelderBarnRelasjonMaskert
+        )
     }
 
     fun hentAdressebeskyttelseSomSystembruker(aktør: Aktør): ADRESSEBESKYTTELSEGRADERING =
@@ -80,6 +85,22 @@ class PersonOpplysningerService(
     fun hentPersoninfoEnkel(aktør: Aktør): PdlPersonInfo =
         tilPersonInfo(hentPersoninfoMedQuery(aktør, PersonInfoQuery.ENKEL))
 
+    fun hentGjeldendeStatsborgerskap(aktør: Aktør): Statsborgerskap {
+        return pdlClient.hentStatsborgerskapUtenHistorikk(aktør).firstOrNull() ?: UKJENT_STATSBORGERSKAP
+    }
+
+    fun hentLandkodeUtenlandskBostedsadresse(aktør: Aktør): String {
+        val landkode = pdlClient.hentUtenlandskBostedsadresse(aktør)?.landkode
+        return if (landkode.isNullOrEmpty()) UKJENT_LANDKODE else landkode
+    }
+
     private fun hentPersoninfoMedQuery(aktør: Aktør, personInfoQuery: PersonInfoQuery): PdlPersonData =
         pdlClient.hentPerson(aktør, personInfoQuery)
+
+    companion object {
+
+        const val UKJENT_LANDKODE = "ZZ"
+        val UKJENT_STATSBORGERSKAP =
+            Statsborgerskap(land = "XUK", bekreftelsesdato = null, gyldigFraOgMed = null, gyldigTilOgMed = null)
+    }
 }

@@ -47,6 +47,8 @@ data class PdlIdent(
 
 class PdlAdressebeskyttelseResponse(val person: PdlAdressebeskyttelsePerson?)
 class PdlAdressebeskyttelsePerson(val adressebeskyttelse: List<Adressebeskyttelse>)
+class PdlStatsborgerskapResponse(val person: PdlStatsborgerskapPerson?)
+class PdlStatsborgerskapPerson(val statsborgerskap: List<Statsborgerskap>)
 
 data class PdlHentPersonResponse(val person: PdlPersonData?)
 
@@ -105,3 +107,13 @@ data class PdlNavn(
 data class PdlKjoenn(val kjoenn: KJOENN)
 
 class Doedsfall(val doedsdato: String?)
+
+class PdlUtenlandskAdressseResponse(val person: PdlUtenlandskAdresssePerson?)
+
+class PdlUtenlandskAdresssePerson(val bostedsadresse: List<PdlUtenlandskAdresssePersonBostedsadresse>)
+class PdlUtenlandskAdresssePersonBostedsadresse(val utenlandskAdresse: PdlUtenlandskAdresssePersonUtenlandskAdresse?)
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+class PdlUtenlandskAdresssePersonUtenlandskAdresse(
+    val landkode: String
+)
