@@ -36,12 +36,10 @@ class StønadsstatistikkService(
         val vedtak = vedtakService.hentAktivVedtakForBehandling(behandlingId)
         val datoVedtak = vedtak.vedtaksdato ?: error("Fant ikke vedtaksdato for behandling $behandlingId")
 
-        val tidspunktVedtak = datoVedtak
-
         return VedtakDVHV2(
             fagsakId = behandling.fagsak.id.toString(),
             behandlingsId = behandlingId.toString(),
-            tidspunktVedtak = tidspunktVedtak.atZone(TIMEZONE),
+            tidspunktVedtak = datoVedtak.atZone(TIMEZONE),
             personV2 = hentSøkerV2(behandlingId),
             ensligForsørger = false, // Bruk VedtakDVHV2 fra ks og fjern dette når branch er merget
             kategoriV2 = KategoriV2.valueOf(behandling.kategori.name),
@@ -96,23 +94,21 @@ class StønadsstatistikkService(
         }
     }
 
-    private fun lagPersonDVHV2(person: Person, delingsProsentYtelse: Int = 0): PersonDVHV2 {
-        return PersonDVHV2(
+    private fun lagPersonDVHV2(person: Person, delingsProsentYtelse: Int = 0): PersonDVHV2 =
+        PersonDVHV2(
             rolle = person.type.name,
             statsborgerskap = hentStatsborgerskap(person),
             bostedsland = hentLandkode(person),
             delingsprosentYtelse = if (delingsProsentYtelse == 50) delingsProsentYtelse else 0,
             personIdent = person.aktør.aktivFødselsnummer()
         )
-    }
 
-    private fun hentStatsborgerskap(person: Person): List<String> {
-        return if (person.statsborgerskap.isNotEmpty()) {
+    private fun hentStatsborgerskap(person: Person): List<String> =
+        if (person.statsborgerskap.isNotEmpty()) {
             person.statsborgerskap.filtrerGjeldendeNå().map { it.landkode }
         } else {
             listOf(personOpplysningerService.hentGjeldendeStatsborgerskap(person.aktør).land)
         }
-    }
 
     private fun hentLandkode(person: Person): String =
         when {
