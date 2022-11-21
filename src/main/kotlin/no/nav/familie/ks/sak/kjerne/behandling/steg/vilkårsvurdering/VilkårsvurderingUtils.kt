@@ -280,7 +280,7 @@ fun validerBarnasVilkår(vilkårsvurdering: Vilkårsvurdering, barna: List<Perso
                 }
                 if (vilkårResultat.periodeFom != null &&
                     vilkårResultat.erEksplisittAvslagPåSøknad != true &&
-                    vilkårResultat.vilkårType == Vilkår.MELLOM_1_OG_2_ELLER_ADOPTERT
+                    vilkårResultat.vilkårType == Vilkår.BARNETS_ALDER
                 ) {
                     vilkårResultat.validerVilkår_MELLOM_1_OG_2_ELLER_ADOPTERT(
                         vilkårResultat.lagOgValiderPeriodeFraVilkår(),

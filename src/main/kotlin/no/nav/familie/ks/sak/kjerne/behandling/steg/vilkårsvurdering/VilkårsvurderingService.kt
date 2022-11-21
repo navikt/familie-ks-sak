@@ -79,7 +79,7 @@ class VilkårsvurderingService(
                 val vilkårResultater = vilkårForPerson.map { vilkår ->
                     when (vilkår) {
                         // prefyller MELLOM_1_OG_2_ELLER_ADOPTERT vilkår automatisk
-                        Vilkår.MELLOM_1_OG_2_ELLER_ADOPTERT -> VilkårResultat(
+                        Vilkår.BARNETS_ALDER -> VilkårResultat(
                             personResultat = personResultat,
                             erAutomatiskVurdert = true,
                             resultat = Resultat.OPPFYLT,
@@ -89,6 +89,7 @@ class VilkårsvurderingService(
                             periodeFom = person.fødselsdato.plusYears(1),
                             periodeTom = person.fødselsdato.plusYears(2)
                         )
+
                         else -> VilkårResultat(
                             personResultat = personResultat,
                             erAutomatiskVurdert = false,
@@ -168,14 +169,16 @@ class VilkårsvurderingService(
 
         // Vi oppretter initiell vilkår dersom det ikke finnes flere av samme type.
         if (perioderMedSammeVilkårType.isEmpty()) {
-            val nyttVilkårMedNullstilteFelter = opprettNyttVilkårResultat(personResultat, vilkårResultatSomSkalSlettes.vilkårType)
+            val nyttVilkårMedNullstilteFelter =
+                opprettNyttVilkårResultat(personResultat, vilkårResultatSomSkalSlettes.vilkårType)
 
             eksisterendeVilkårResultater.add(nyttVilkårMedNullstilteFelter)
         }
     }
 
-    fun hentAktivVilkårsvurderingForBehandling(behandlingId: Long): Vilkårsvurdering = finnAktivVilkårsvurdering(behandlingId)
-        ?: throw Feil("Fant ikke vilkårsvurdering knyttet til behandling=$behandlingId")
+    fun hentAktivVilkårsvurderingForBehandling(behandlingId: Long): Vilkårsvurdering =
+        finnAktivVilkårsvurdering(behandlingId)
+            ?: throw Feil("Fant ikke vilkårsvurdering knyttet til behandling=$behandlingId")
 
     @Transactional
     fun oppdater(vilkårsvurdering: Vilkårsvurdering): Vilkårsvurdering {

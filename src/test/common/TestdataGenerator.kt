@@ -373,7 +373,7 @@ fun lagVilkårResultaterForBarn(
     val vilkårResultaterForBarn = mutableSetOf<VilkårResultat>()
     Vilkår.hentVilkårFor(PersonType.BARN).forEach {
         when (it) {
-            Vilkår.MELLOM_1_OG_2_ELLER_ADOPTERT -> vilkårResultaterForBarn.add(
+            Vilkår.BARNETS_ALDER -> vilkårResultaterForBarn.add(
                 lagVilkårResultat(
                     personResultat = personResultat,
                     vilkårType = it,

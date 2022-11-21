@@ -314,9 +314,7 @@ class VedtaksperiodeService(
                     sanityBegrunnelser = sanityBegrunnelser,
                     persongrunnlag = persongrunnlag,
                     vilkårsvurdering = vilkårsvurdering,
-                    aktørIderMedUtbetaling = aktørIderMedUtbetaling,
-                    endretUtbetalingAndeler = endretUtbetalingAndeler,
-                    andelerTilkjentYtelse = andelerTilkjentYtelse
+                    aktørIderMedUtbetaling = aktørIderMedUtbetaling
                 ).hentGyldigeBegrunnelserForVedtaksperiode()
             )
         }

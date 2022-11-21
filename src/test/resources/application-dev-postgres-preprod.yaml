@@ -160,10 +160,14 @@ spring:
       database:
         role: postgres
 
+
+  cache:
+    type=NONE:
+
 AZURE_APP_WELL_KNOWN_URL: https://login.microsoftonline.com/navq.onmicrosoft.com/v2.0/.well-known/openid-configuration
 AZURE_OPENID_CONFIG_TOKEN_ENDPOINT: https://login.microsoftonline.com/navq.onmicrosoft.com/oauth2/v2.0/token
 
-SANITY_DATASET: "ks-test"
+SANITY_DATASET: "ks-brev"
 
 
 FAMILIE_KS_SAK_API_URL: http://localhost:8086/api
@@ -195,3 +199,5 @@ rolle:
   saksbehandler: "c7e0b108-7ae6-432c-9ab4-946174c240c0"
   kode6: "5ef775f2-61f8-4283-bf3d-8d03f428aa14" # 0000-GA-Strengt_Fortrolig_Adresse
   kode7: "ea930b6b-9397-44d9-b9e6-f4cf527a632a" # 0000-GA-Fortrolig_Adresse
+
+

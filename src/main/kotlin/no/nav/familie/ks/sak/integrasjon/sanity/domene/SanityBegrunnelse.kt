@@ -3,18 +3,16 @@ package no.nav.familie.ks.sak.integrasjon.sanity.domene
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.UtdypendeVilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
 import no.nav.familie.ks.sak.kjerne.brev.domene.BrevPerson
-import no.nav.familie.ks.sak.kjerne.brev.domene.BrevVilkårResultat
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import java.math.BigDecimal
 
 data class SanityBegrunnelse(
     val apiNavn: String?,
     val navnISystem: String,
     val vilkår: List<Vilkår>,
     val rolle: List<PersonType>,
-    val utdypendeVilkårsvurdering: List<UtdypendeVilkårsvurdering>,
+    val utdypendeVilkårsvurderinger: List<UtdypendeVilkårsvurdering>,
     val triggere: List<Trigger>,
     val hjemler: List<String>
 )
@@ -31,12 +29,9 @@ enum class Trigger {
     BARN_DØD,
     DELTID;
 
-    fun erOppfylt(vilkårResultat: BrevVilkårResultat, brevPerson: BrevPerson) = when (this) {
-        DELTID -> vilkårResultat.antallTimer in BigDecimal.valueOf(0.01)..BigDecimal.valueOf(
-            32.99
-        )
-
-        SATSENDRING -> TODO()
+    fun erOppfylt(erDeltid: Boolean, brevPerson: BrevPerson) = when (this) {
+        DELTID -> erDeltid
+        SATSENDRING -> false
         BARN_DØD -> brevPerson.erDød() && brevPerson.type == PersonType.BARN
     }
 }
@@ -47,7 +42,7 @@ data class SanityBegrunnelseDto(
     val navnISystem: String,
     val vilkaar: List<String> = emptyList(),
     val rolle: List<String> = emptyList(),
-    val utdypendeVilkårsvurdering: List<String> = emptyList(),
+    val utdypendeVilkaarsvurderinger: List<String> = emptyList(),
     val triggere: List<String> = emptyList(),
     val hjemler: List<String> = emptyList()
 ) {
@@ -59,7 +54,7 @@ data class SanityBegrunnelseDto(
                 finnEnumverdi(it, Vilkår.values(), apiNavn)
             },
             rolle = rolle.mapNotNull { finnEnumverdi(it, PersonType.values(), apiNavn) },
-            utdypendeVilkårsvurdering = utdypendeVilkårsvurdering.mapNotNull {
+            utdypendeVilkårsvurderinger = utdypendeVilkaarsvurderinger.mapNotNull {
                 finnEnumverdi(
                     it,
                     UtdypendeVilkårsvurdering.values(),

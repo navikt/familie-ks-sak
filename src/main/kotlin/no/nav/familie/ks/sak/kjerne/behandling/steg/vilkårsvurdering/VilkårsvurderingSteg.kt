@@ -75,7 +75,8 @@ class VilkårsvurderingSteg(
         behandling: Behandling
     ) {
         val barna = personopplysningGrunnlag.barna
-        val uregistrerteBarn = søknadGrunnlagDto.barnaMedOpplysninger.filter { !it.erFolkeregistrert && it.inkludertISøknaden }
+        val uregistrerteBarn =
+            søknadGrunnlagDto.barnaMedOpplysninger.filter { !it.erFolkeregistrert && it.inkludertISøknaden }
 
         if (barna.isEmpty() && uregistrerteBarn.isEmpty()) {
             throw FunksjonellFeil(
@@ -149,7 +150,7 @@ class VilkårsvurderingSteg(
                     ?: TIDENES_ENDE
 
             val mellom1ÅrOg2ÅrVilkårResultater = personResultat.vilkårResultater.filter {
-                it.vilkårType == Vilkår.MELLOM_1_OG_2_ELLER_ADOPTERT && it.resultat == Resultat.OPPFYLT
+                it.vilkårType == Vilkår.BARNETS_ALDER && it.resultat == Resultat.OPPFYLT
             }
             val minFraOgMedDatoIMellom1ÅrOg2ÅrVilkårResultater =
                 mellom1ÅrOg2ÅrVilkårResultater.sortedBy { it.periodeFom }.first().periodeFom

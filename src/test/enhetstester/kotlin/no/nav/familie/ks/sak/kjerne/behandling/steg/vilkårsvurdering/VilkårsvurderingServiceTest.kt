@@ -94,13 +94,13 @@ class VilkårsvurderingServiceTest {
                 Vilkår.BARNEHAGEPLASS,
                 Vilkår.BOR_MED_SØKER,
                 Vilkår.MEDLEMSKAP_ANNEN_FORELDER,
-                Vilkår.MELLOM_1_OG_2_ELLER_ADOPTERT
+                Vilkår.BARNETS_ALDER
             )
         )
 
         // autoutfylling
         val mellom1Og2ÅrVilkårer = lagretVilkårsvurdering.personResultater.filter { !it.erSøkersResultater() }
-            .flatMap { it.vilkårResultater.filter { it.vilkårType == Vilkår.MELLOM_1_OG_2_ELLER_ADOPTERT } }
+            .flatMap { it.vilkårResultater.filter { it.vilkårType == Vilkår.BARNETS_ALDER } }
 
         assertTrue {
             mellom1Og2ÅrVilkårer.all {
@@ -166,7 +166,7 @@ class VilkårsvurderingServiceTest {
                 Vilkår.values().toList(),
                 rolle = emptyList(),
                 triggere = emptyList(),
-                utdypendeVilkårsvurdering = emptyList(),
+                utdypendeVilkårsvurderinger = emptyList(),
                 hjemler = emptyList()
             )
         )
