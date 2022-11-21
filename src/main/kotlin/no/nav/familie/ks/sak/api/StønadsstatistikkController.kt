@@ -1,7 +1,6 @@
 package no.nav.familie.ks.sak.api
 
 import no.nav.familie.eksterne.kontrakter.VedtakDVHV2
-import no.nav.familie.ks.sak.integrasjon.statistikk.StatistikkClient
 import no.nav.familie.ks.sak.statistikk.stønadsstatistikk.PubliserVedtakV2Task
 import no.nav.familie.ks.sak.statistikk.stønadsstatistikk.StønadsstatistikkService
 import no.nav.familie.prosessering.internal.TaskService
@@ -17,8 +16,7 @@ import org.springframework.web.bind.annotation.RestController
 @ProtectedWithClaims(issuer = "azuread")
 class StønadsstatistikkController(
     private val stønadsstatistikkService: StønadsstatistikkService,
-    private val taskService: TaskService,
-    private val statistikkClient: StatistikkClient,
+    private val taskService: TaskService
 ) {
 
     private val logger = LoggerFactory.getLogger(StønadsstatistikkController::class.java)
@@ -34,22 +32,18 @@ class StønadsstatistikkController(
     }
 
     @PostMapping(path = ["/send-til-dvh"])
-    fun sendTilStønadsstatistikk(@RequestBody(required = true) behandlinger: List<Long>) {
-        behandlinger.forEach {
-            if (!statistikkClient.harSendtVedtaksmeldingForBehandling(it)) {
-                val vedtakV2DVH = stønadsstatistikkService.hentVedtakV2(it)
-                val vedtakV2Task = PubliserVedtakV2Task.opprettTask(vedtakV2DVH.personV2.personIdent, it)
-                taskService.save(vedtakV2Task)
-            }
-        }
-    }
-
-    @PostMapping(path = ["/send-til-dvh-manuell"])
-    fun sendTilStønadsstatistikkManuell(@RequestBody(required = true) behandlinger: List<Long>) {
+    fun sendTilStønadsstatistikk(@RequestBody(required = true) behandlinger: List<Long>) =
         behandlinger.forEach {
             val vedtakV2DVH = stønadsstatistikkService.hentVedtakV2(it)
             val vedtakV2Task = PubliserVedtakV2Task.opprettTask(vedtakV2DVH.personV2.personIdent, it)
             taskService.save(vedtakV2Task)
         }
-    }
+
+    @PostMapping(path = ["/send-til-dvh-manuell"])
+    fun sendTilStønadsstatistikkManuell(@RequestBody(required = true) behandlinger: List<Long>) =
+        behandlinger.forEach {
+            val vedtakV2DVH = stønadsstatistikkService.hentVedtakV2(it)
+            val vedtakV2Task = PubliserVedtakV2Task.opprettTask(vedtakV2DVH.personV2.personIdent, it)
+            taskService.save(vedtakV2Task)
+        }
 }
