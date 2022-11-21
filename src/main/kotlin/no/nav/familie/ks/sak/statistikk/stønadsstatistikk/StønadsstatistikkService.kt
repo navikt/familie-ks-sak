@@ -34,12 +34,12 @@ class StønadsstatistikkService(
         val behandling = behandlingService.hentBehandling(behandlingId)
 
         val vedtak = vedtakService.hentAktivVedtakForBehandling(behandlingId)
-        val datoVedtak = vedtak.vedtaksdato ?: error("Fant ikke vedtaksdato for behandling $behandlingId")
+        val vedtaksdato = vedtak.vedtaksdato ?: error("Fant ikke vedtaksdato for behandling $behandlingId")
 
         return VedtakDVHV2(
             fagsakId = behandling.fagsak.id.toString(),
             behandlingsId = behandlingId.toString(),
-            tidspunktVedtak = datoVedtak.atZone(TIMEZONE),
+            tidspunktVedtak = vedtaksdato.atZone(TIMEZONE),
             personV2 = hentSøkerV2(behandlingId),
             ensligForsørger = false, // Bruk VedtakDVHV2 fra ks og fjern dette når branch er merget
             kategoriV2 = KategoriV2.valueOf(behandling.kategori.name),
