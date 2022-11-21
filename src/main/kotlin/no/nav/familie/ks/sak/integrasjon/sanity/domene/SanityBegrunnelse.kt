@@ -1,25 +1,22 @@
 package no.nav.familie.ks.sak.integrasjon.sanity.domene
 
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.UtdypendeVilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
-import no.nav.familie.ks.sak.kjerne.beregning.domene.Årsak
+import no.nav.familie.ks.sak.kjerne.brev.domene.BrevPerson
+import no.nav.familie.ks.sak.kjerne.brev.domene.BrevVilkårResultat
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import java.math.BigDecimal
 
 data class SanityBegrunnelse(
     val apiNavn: String?,
     val navnISystem: String,
     val vilkår: List<Vilkår>,
     val rolle: List<PersonType>,
-    val lovligOppholdTriggere: List<VilkårTrigger>,
-    val bosattIRiketTriggere: List<VilkårTrigger>,
-    val borMedSokerTriggere: List<VilkårTrigger>,
-    val ovrigeTriggere: List<ØvrigTrigger>,
-    val endringsaarsaker: List<Årsak>,
-    val hjemler: List<String>,
-    val hjemlerFolketrygdloven: List<String>,
-    val endretUtbetalingsperiodeTriggere: List<EndretUtbetalingsperiodeTrigger>,
-    val endretUtbetalingsperiodeDeltBostedUtbetalingTrigger: EndretUtbetalingsperiodeDeltBostedTriggere?
+    val utdypendeVilkårsvurdering: List<UtdypendeVilkårsvurdering>,
+    val triggere: List<Trigger>,
+    val hjemler: List<String>
 )
 
 data class SanityBegrunnelserResponsDto(
@@ -29,21 +26,30 @@ data class SanityBegrunnelserResponsDto(
     val endringsaarsaker: List<String>? = emptyList()
 )
 
+enum class Trigger {
+    SATSENDRING,
+    BARN_DØD,
+    DELTID;
+
+    fun erOppfylt(vilkårResultat: BrevVilkårResultat, brevPerson: BrevPerson) = when (this) {
+        DELTID -> vilkårResultat.antallTimer in BigDecimal.valueOf(0.01)..BigDecimal.valueOf(
+            32.99
+        )
+
+        SATSENDRING -> TODO()
+        BARN_DØD -> brevPerson.erDød() && brevPerson.type == PersonType.BARN
+    }
+}
+
 // TODO: Har fjernet de fleste av feltene som brukes i ba-sak, så her må vi finne ut hvilke felter vi skal ha for KS
 data class SanityBegrunnelseDto(
     val apiNavn: String?,
     val navnISystem: String,
     val vilkaar: List<String> = emptyList(),
     val rolle: List<String> = emptyList(),
-    val lovligOppholdTriggere: List<String> = emptyList(),
-    val bosattIRiketTriggere: List<String> = emptyList(),
-    val borMedSokerTriggere: List<String> = emptyList(),
-    val ovrigeTriggere: List<String> = emptyList(),
-    val endringsaarsaker: List<String> = emptyList(),
-    val hjemler: List<String> = emptyList(),
-    val hjemlerFolketrygdloven: List<String> = emptyList(),
-    val endretUtbetalingsperiodeDeltBostedUtbetalingTrigger: String?,
-    val endretUtbetalingsperiodeTriggere: List<String> = emptyList()
+    val utdypendeVilkårsvurdering: List<String> = emptyList(),
+    val triggere: List<String> = emptyList(),
+    val hjemler: List<String> = emptyList()
 ) {
     fun tilSanityBegrunnelse(): SanityBegrunnelse {
         return SanityBegrunnelse(
@@ -53,32 +59,15 @@ data class SanityBegrunnelseDto(
                 finnEnumverdi(it, Vilkår.values(), apiNavn)
             },
             rolle = rolle.mapNotNull { finnEnumverdi(it, PersonType.values(), apiNavn) },
-            lovligOppholdTriggere = lovligOppholdTriggere.mapNotNull {
-                finnEnumverdi(it, VilkårTrigger.values(), apiNavn)
+            utdypendeVilkårsvurdering = utdypendeVilkårsvurdering.mapNotNull {
+                finnEnumverdi(
+                    it,
+                    UtdypendeVilkårsvurdering.values(),
+                    apiNavn
+                )
             },
-            bosattIRiketTriggere = bosattIRiketTriggere.mapNotNull {
-                finnEnumverdi(it, VilkårTrigger.values(), apiNavn)
-            },
-            borMedSokerTriggere = borMedSokerTriggere.mapNotNull {
-                finnEnumverdi(it, VilkårTrigger.values(), apiNavn)
-            },
-            ovrigeTriggere = ovrigeTriggere.mapNotNull {
-                finnEnumverdi(it, ØvrigTrigger.values(), apiNavn)
-            },
-            endringsaarsaker = endringsaarsaker.mapNotNull {
-                finnEnumverdi(it, Årsak.values(), apiNavn)
-            },
-            hjemler = hjemler,
-            hjemlerFolketrygdloven = hjemlerFolketrygdloven,
-            endretUtbetalingsperiodeDeltBostedUtbetalingTrigger =
-            if (endretUtbetalingsperiodeDeltBostedUtbetalingTrigger != null) finnEnumverdi(
-                endretUtbetalingsperiodeDeltBostedUtbetalingTrigger,
-                EndretUtbetalingsperiodeDeltBostedTriggere.values(),
-                apiNavn
-            ) else null,
-            endretUtbetalingsperiodeTriggere = endretUtbetalingsperiodeTriggere.mapNotNull {
-                finnEnumverdi(it, EndretUtbetalingsperiodeTrigger.values(), apiNavn)
-            }
+            triggere = triggere.mapNotNull { finnEnumverdi(it, Trigger.values(), apiNavn) },
+            hjemler = hjemler
         )
     }
 }

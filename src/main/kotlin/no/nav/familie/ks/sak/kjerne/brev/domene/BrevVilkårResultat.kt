@@ -8,6 +8,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Res
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.UtdypendeVilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
+import java.math.BigDecimal
 import java.time.LocalDate
 
 data class BrevVilkårResultat(
@@ -15,6 +16,7 @@ data class BrevVilkårResultat(
     val periodeFom: LocalDate?,
     val periodeTom: LocalDate?,
     val resultat: Resultat,
+    val antallTimer: BigDecimal?,
     val utdypendeVilkårsvurderinger: List<UtdypendeVilkårsvurdering>,
     val erEksplisittAvslagPåSøknad: Boolean?
 ) {
@@ -32,6 +34,7 @@ fun VilkårResultat.tilBrevVilkårResultat() =
         periodeFom = this.periodeFom,
         periodeTom = this.periodeTom,
         resultat = this.resultat,
+        antallTimer = this.antallTimer,
         utdypendeVilkårsvurderinger = this.utdypendeVilkårsvurderinger,
         erEksplisittAvslagPåSøknad = this.erEksplisittAvslagPåSøknad
     )
