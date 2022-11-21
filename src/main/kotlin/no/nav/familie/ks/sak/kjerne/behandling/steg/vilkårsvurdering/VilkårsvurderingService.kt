@@ -77,8 +77,8 @@ class VilkårsvurderingService(
                 val vilkårForPerson = Vilkår.hentVilkårFor(person.type)
 
                 val vilkårResultater = vilkårForPerson.map { vilkår ->
+                    // prefyller diverse vilkår automatisk basert på type
                     when (vilkår) {
-                        // prefyller MELLOM_1_OG_2_ELLER_ADOPTERT vilkår automatisk
                         Vilkår.MELLOM_1_OG_2_ELLER_ADOPTERT -> VilkårResultat(
                             personResultat = personResultat,
                             erAutomatiskVurdert = true,
@@ -89,13 +89,36 @@ class VilkårsvurderingService(
                             periodeFom = person.fødselsdato.plusYears(1),
                             periodeTom = person.fødselsdato.plusYears(2)
                         )
+
+                        Vilkår.MEDLEMSKAP ->
+                            VilkårResultat(
+                                personResultat = personResultat,
+                                erAutomatiskVurdert = false,
+                                resultat = Resultat.IKKE_VURDERT,
+                                vilkårType = vilkår,
+                                begrunnelse = "",
+                                periodeFom = person.fødselsdato.plusYears(5),
+                                behandlingId = behandling.id
+                            )
+
+                        Vilkår.BARNEHAGEPLASS ->
+                            VilkårResultat(
+                                personResultat = personResultat,
+                                erAutomatiskVurdert = false,
+                                resultat = Resultat.OPPFYLT,
+                                vilkårType = vilkår,
+                                begrunnelse = "",
+                                periodeFom = person.fødselsdato,
+                                behandlingId = behandling.id
+                            )
+
                         else -> VilkårResultat(
                             personResultat = personResultat,
                             erAutomatiskVurdert = false,
                             resultat = Resultat.IKKE_VURDERT,
                             vilkårType = vilkår,
                             begrunnelse = "",
-                            periodeFom = if (vilkår == Vilkår.MEDLEMSKAP) person.fødselsdato.plusYears(5) else null,
+                            periodeFom = null,
                             behandlingId = behandling.id
                         )
                     }
@@ -168,14 +191,16 @@ class VilkårsvurderingService(
 
         // Vi oppretter initiell vilkår dersom det ikke finnes flere av samme type.
         if (perioderMedSammeVilkårType.isEmpty()) {
-            val nyttVilkårMedNullstilteFelter = opprettNyttVilkårResultat(personResultat, vilkårResultatSomSkalSlettes.vilkårType)
+            val nyttVilkårMedNullstilteFelter =
+                opprettNyttVilkårResultat(personResultat, vilkårResultatSomSkalSlettes.vilkårType)
 
             eksisterendeVilkårResultater.add(nyttVilkårMedNullstilteFelter)
         }
     }
 
-    fun hentAktivVilkårsvurderingForBehandling(behandlingId: Long): Vilkårsvurdering = finnAktivVilkårsvurdering(behandlingId)
-        ?: throw Feil("Fant ikke vilkårsvurdering knyttet til behandling=$behandlingId")
+    fun hentAktivVilkårsvurderingForBehandling(behandlingId: Long): Vilkårsvurdering =
+        finnAktivVilkårsvurdering(behandlingId)
+            ?: throw Feil("Fant ikke vilkårsvurdering knyttet til behandling=$behandlingId")
 
     @Transactional
     fun oppdater(vilkårsvurdering: Vilkårsvurdering): Vilkårsvurdering {
