@@ -3,7 +3,7 @@ package no.nav.familie.ks.sak.integrasjon.sanity.domene
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.UtdypendeVilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
-import no.nav.familie.ks.sak.kjerne.brev.domene.BrevPerson
+import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -31,7 +31,7 @@ enum class Trigger {
     BARN_DØD,
     DELTID;
 
-    fun erOppfylt(vilkårResultater: List<VilkårResultat>, brevPerson: BrevPerson) = when (this) {
+    fun erOppfylt(vilkårResultater: List<VilkårResultat>, person: Person) = when (this) {
         DELTID -> vilkårResultater.mapNotNull { it.antallTimer }.maxByOrNull { it }?.let {
             it in BigDecimal.valueOf(0.01)..BigDecimal.valueOf(
                 32.99
@@ -39,7 +39,7 @@ enum class Trigger {
         } ?: false
 
         SATSENDRING -> false
-        BARN_DØD -> brevPerson.erDød() && brevPerson.type == PersonType.BARN
+        BARN_DØD -> person.erDød() && person.type == PersonType.BARN
     }
 }
 

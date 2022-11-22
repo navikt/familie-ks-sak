@@ -16,52 +16,34 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.UtdypendeVilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
-import no.nav.familie.ks.sak.kjerne.brev.domene.BrevPerson
-import no.nav.familie.ks.sak.kjerne.brev.domene.BrevVedtaksPeriode
-import no.nav.familie.ks.sak.kjerne.brev.domene.tilBrevPersoner
-import no.nav.familie.ks.sak.kjerne.brev.domene.tilBrevVedtaksPeriode
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
+import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
+import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
-import tilFørskjøvetVilkårResultatTidslinjeMap
 
 class FinnGyldigeBegrunnelserForPeriodeContext(
-    private val brevVedtaksPeriode: BrevVedtaksPeriode,
+    private val utvidetVedtaksperiodeMedBegrunnelser: UtvidetVedtaksperiodeMedBegrunnelser,
     private val sanityBegrunnelser: List<SanityBegrunnelse>,
-    private val brevPersoner: List<BrevPerson>,
-    private val brevPersonResultater: Map<Aktør, Tidslinje<List<VilkårResultat>>>,
+    private val persongrunnlag: PersonopplysningGrunnlag,
+    private val personResultater: Map<Aktør, Tidslinje<List<VilkårResultat>>>,
     private val aktørIderMedUtbetaling: List<String>
 ) {
 
     private val vedtaksperiode = Periode(
-        fom = brevVedtaksPeriode.fom ?: TIDENES_MORGEN,
-        tom = brevVedtaksPeriode.tom ?: TIDENES_ENDE
-    )
-
-    constructor(
-        utvidetVedtaksperiodeMedBegrunnelser: UtvidetVedtaksperiodeMedBegrunnelser,
-        sanityBegrunnelser: List<SanityBegrunnelse>,
-        persongrunnlag: PersonopplysningGrunnlag,
-        vilkårsvurdering: Vilkårsvurdering,
-        aktørIderMedUtbetaling: List<String>
-    ) : this(
-        brevVedtaksPeriode = utvidetVedtaksperiodeMedBegrunnelser.tilBrevVedtaksPeriode(),
-        sanityBegrunnelser = sanityBegrunnelser,
-        brevPersoner = persongrunnlag.tilBrevPersoner(),
-        brevPersonResultater = vilkårsvurdering.personResultater.tilFørskjøvetVilkårResultatTidslinjeMap(persongrunnlag),
-        aktørIderMedUtbetaling = aktørIderMedUtbetaling
+        fom = utvidetVedtaksperiodeMedBegrunnelser.fom ?: TIDENES_MORGEN,
+        tom = utvidetVedtaksperiodeMedBegrunnelser.tom ?: TIDENES_ENDE
     )
 
     fun hentGyldigeBegrunnelserForVedtaksperiode(): List<Standardbegrunnelse> {
         val tillateBegrunnelserForVedtakstype = Standardbegrunnelse.values()
             .filter {
-                brevVedtaksPeriode
+                utvidetVedtaksperiodeMedBegrunnelser
                     .type
                     .tillatteBegrunnelsestyper
                     .contains(it.vedtakBegrunnelseType)
             }
 
-        return when (brevVedtaksPeriode.type) {
+        return when (utvidetVedtaksperiodeMedBegrunnelser.type) {
             Vedtaksperiodetype.FORTSATT_INNVILGET,
             Vedtaksperiodetype.AVSLAG -> tillateBegrunnelserForVedtakstype
 
@@ -76,7 +58,7 @@ class FinnGyldigeBegrunnelserForPeriodeContext(
                 .filter { it.triggesForPeriode() }
 
         val fantIngenbegrunnelserOgSkalDerforBrukeFortsattInnvilget =
-            brevVedtaksPeriode.type == Vedtaksperiodetype.UTBETALING && standardbegrunnelser.isEmpty()
+            utvidetVedtaksperiodeMedBegrunnelser.type == Vedtaksperiodetype.UTBETALING && standardbegrunnelser.isEmpty()
 
         return if (fantIngenbegrunnelserOgSkalDerforBrukeFortsattInnvilget) {
             filter { it.vedtakBegrunnelseType == VedtakBegrunnelseType.FORTSATT_INNVILGET }
@@ -88,14 +70,24 @@ class FinnGyldigeBegrunnelserForPeriodeContext(
     private fun Standardbegrunnelse.triggesForPeriode(): Boolean {
         val sanityBegrunnelse = this.tilSanityBegrunnelse(sanityBegrunnelser) ?: return false
 
-        val vilkårResultaterSomPasserVedtaksperioden: Map<String, List<VilkårResultat>> =
+        val vilkårResultaterSomPasserVedtaksperioden: Map<Person, List<VilkårResultat>> =
             this.filtrerPåPeriodeGittVedtakBegrunnelseType()
+                .filtrerPersonerUtenUtbetalingVedInnvilget(this.vedtakBegrunnelseType)
                 .filtrerPåVilkårType(sanityBegrunnelse.vilkår)
                 .filtrerPåTriggere(sanityBegrunnelse.triggere)
                 .filtrerPåUtdypendeVilkårsvurdering(sanityBegrunnelse.utdypendeVilkårsvurderinger)
 
         return vilkårResultaterSomPasserVedtaksperioden.isNotEmpty()
     }
+
+    private fun Map<Person, List<VilkårResultat>>.filtrerPersonerUtenUtbetalingVedInnvilget(vedtakBegrunnelseType: VedtakBegrunnelseType) =
+        this.filterKeys {
+            if (vedtakBegrunnelseType == VedtakBegrunnelseType.INNVILGET) {
+                aktørIderMedUtbetaling.contains(it.aktør.aktørId) || it.type == PersonType.SØKER
+            } else {
+                true
+            }
+        }
 
     private fun Standardbegrunnelse.filtrerPåPeriodeGittVedtakBegrunnelseType() =
         when (this.vedtakBegrunnelseType) {
@@ -112,51 +104,48 @@ class FinnGyldigeBegrunnelserForPeriodeContext(
             VedtakBegrunnelseType.FORTSATT_INNVILGET -> throw Feil("FORTSATT_INNVILGET skal være filtrert bort.")
         }
 
-    private fun Map<String, List<VilkårResultat>>.filtrerPåVilkårType(vilkårTyperFraSanity: List<Vilkår>) =
+    private fun Map<Person, List<VilkårResultat>>.filtrerPåVilkårType(vilkårTyperFraSanity: List<Vilkår>) =
         this.mapValues { (_, vilkårResultaterForPerson) ->
             vilkårResultaterForPerson.filter { vilkårTyperFraSanity.contains(it.vilkårType) }
         }.filterValues { it.isNotEmpty() }
 
-    private fun finnPersonerMedVilkårResultaterSomStarterSamtidigSomPeriode(): Map<String, List<VilkårResultat>> =
+    private fun finnPersonerMedVilkårResultaterSomStarterSamtidigSomPeriode(): Map<Person, List<VilkårResultat>> =
 
-        brevPersonResultater.mapNotNull { (aktør, vilkårResultatTidslinjeForPerson) ->
+        personResultater.mapNotNull { (aktør, vilkårResultatTidslinjeForPerson) ->
+            val person = persongrunnlag.personer.find { it.aktør.aktivFødselsnummer() == aktør.aktivFødselsnummer() }
             val forskøvedeVilkårResultaterMedSammeFom =
                 vilkårResultatTidslinjeForPerson.tilPerioderIkkeNull().singleOrNull {
                     it.fom == vedtaksperiode.fom
                 }?.verdi
-
-            forskøvedeVilkårResultaterMedSammeFom?.let {
-                Pair(
-                    aktør.aktivFødselsnummer(),
-                    forskøvedeVilkårResultaterMedSammeFom
-                )
+            if (person != null && forskøvedeVilkårResultaterMedSammeFom != null) {
+                Pair(person, forskøvedeVilkårResultaterMedSammeFom)
+            } else {
+                null
             }
         }.toMap().filterValues { it.isNotEmpty() }
 
-    private fun finnPersonerMedVilkårResultaterSomSlutterFørPeriode(): Map<String, List<VilkårResultat>> =
-        brevPersonResultater.mapNotNull { (aktør, tidsjlinje) ->
+    private fun finnPersonerMedVilkårResultaterSomSlutterFørPeriode(): Map<Person, List<VilkårResultat>> =
+        personResultater.mapNotNull { (aktør, tidsjlinje) ->
+            val person = persongrunnlag.personer.find { it.aktør.aktivFødselsnummer() == aktør.aktivFødselsnummer() }
             val forskøvedeVilkårResultaterSlutterDagenFørVedtaksperiode =
                 tidsjlinje.tilPerioderIkkeNull().singleOrNull {
                     it.tom?.plusDays(1) == vedtaksperiode.fom
                 }?.verdi
 
-            forskøvedeVilkårResultaterSlutterDagenFørVedtaksperiode?.let {
-                Pair(
-                    aktør.aktivFødselsnummer(),
-                    forskøvedeVilkårResultaterSlutterDagenFørVedtaksperiode
-                )
+            if (person != null && forskøvedeVilkårResultaterSlutterDagenFørVedtaksperiode != null) {
+                Pair(person, forskøvedeVilkårResultaterSlutterDagenFørVedtaksperiode)
+            } else {
+                null
             }
         }.toMap().filterValues { it.isNotEmpty() }
 
-    private fun Map<String, List<VilkårResultat>>.filtrerPåTriggere(
+    private fun Map<Person, List<VilkårResultat>>.filtrerPåTriggere(
         triggereFraSanity: List<Trigger>
-    ) = this.filter { (aktivtFødselsnummer, vilkårResultaterForPerson) ->
-        val person = brevPersoner.find { it.aktivPersonIdent == aktivtFødselsnummer }!!
-
+    ) = this.filter { (person, vilkårResultaterForPerson) ->
         Trigger.values().filter { it.erOppfylt(vilkårResultaterForPerson, person) } == triggereFraSanity
     }.filterValues { it.isNotEmpty() }
 
-    private fun Map<String, List<VilkårResultat>>.filtrerPåUtdypendeVilkårsvurdering(utdypendeVilkårFraSanity: List<UtdypendeVilkårsvurdering>): Map<String, List<VilkårResultat>> =
+    private fun Map<Person, List<VilkårResultat>>.filtrerPåUtdypendeVilkårsvurdering(utdypendeVilkårFraSanity: List<UtdypendeVilkårsvurdering>) =
         this.filterValues { vilkårResultaterForPerson ->
             val utdypendeVilkårIBehandling =
                 vilkårResultaterForPerson.flatMap { it.utdypendeVilkårsvurderinger }.toSet()
