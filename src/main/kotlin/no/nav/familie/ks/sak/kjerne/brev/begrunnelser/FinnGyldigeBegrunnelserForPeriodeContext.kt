@@ -24,7 +24,6 @@ import no.nav.familie.ks.sak.kjerne.brev.domene.tilBrevVedtaksPeriode
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
 import tilFørskjøvetVilkårResultatTidslinjeMap
-import java.math.BigDecimal
 
 class FinnGyldigeBegrunnelserForPeriodeContext(
     private val brevVedtaksPeriode: BrevVedtaksPeriode,
@@ -67,26 +66,20 @@ class FinnGyldigeBegrunnelserForPeriodeContext(
             Vedtaksperiodetype.AVSLAG -> tillateBegrunnelserForVedtakstype
 
             Vedtaksperiodetype.UTBETALING,
-            Vedtaksperiodetype.OPPHØR -> velgUtbetalingsbegrunnelser(
-                tillateBegrunnelserForVedtakstype
-            )
+            Vedtaksperiodetype.OPPHØR -> tillateBegrunnelserForVedtakstype.filtrerPasserVedtaksperiode()
         }
     }
 
-    private fun velgUtbetalingsbegrunnelser(
-        tillateBegrunnelserForVedtakstype: List<Standardbegrunnelse>
-    ): List<Standardbegrunnelse> {
+    private fun List<Standardbegrunnelse>.filtrerPasserVedtaksperiode(): List<Standardbegrunnelse> {
         val standardbegrunnelser =
-            tillateBegrunnelserForVedtakstype
-                .filter { it.vedtakBegrunnelseType != VedtakBegrunnelseType.FORTSATT_INNVILGET }
+            filter { it.vedtakBegrunnelseType != VedtakBegrunnelseType.FORTSATT_INNVILGET }
                 .filter { it.triggesForPeriode() }
 
         val fantIngenbegrunnelserOgSkalDerforBrukeFortsattInnvilget =
             brevVedtaksPeriode.type == Vedtaksperiodetype.UTBETALING && standardbegrunnelser.isEmpty()
 
         return if (fantIngenbegrunnelserOgSkalDerforBrukeFortsattInnvilget) {
-            tillateBegrunnelserForVedtakstype
-                .filter { it.vedtakBegrunnelseType == VedtakBegrunnelseType.FORTSATT_INNVILGET }
+            filter { it.vedtakBegrunnelseType == VedtakBegrunnelseType.FORTSATT_INNVILGET }
         } else {
             standardbegrunnelser
         }
@@ -95,21 +88,10 @@ class FinnGyldigeBegrunnelserForPeriodeContext(
     private fun Standardbegrunnelse.triggesForPeriode(): Boolean {
         val sanityBegrunnelse = this.tilSanityBegrunnelse(sanityBegrunnelser) ?: return false
 
-        val vilkårResultaterForVedtaksperiode = this.filtrerPåPeriodeGittVedtakBegrunnelseType()
-
-        val erDeltid =
-            vilkårResultaterForVedtaksperiode.mapValues { entry ->
-                entry.value.mapNotNull { it.antallTimer }.maxByOrNull { it }?.let {
-                    it in BigDecimal.valueOf(0.01)..BigDecimal.valueOf(
-                        32.99
-                    )
-                } ?: false
-            }
-
         val vilkårResultaterSomPasserVedtaksperioden: Map<String, List<VilkårResultat>> =
-            vilkårResultaterForVedtaksperiode
+            this.filtrerPåPeriodeGittVedtakBegrunnelseType()
                 .filtrerPåVilkårType(sanityBegrunnelse.vilkår)
-                .filtrerPåTriggere(sanityBegrunnelse.triggere, erDeltid)
+                .filtrerPåTriggere(sanityBegrunnelse.triggere)
                 .filtrerPåUtdypendeVilkårsvurdering(sanityBegrunnelse.utdypendeVilkårsvurderinger)
 
         return vilkårResultaterSomPasserVedtaksperioden.isNotEmpty()
@@ -130,9 +112,9 @@ class FinnGyldigeBegrunnelserForPeriodeContext(
             VedtakBegrunnelseType.FORTSATT_INNVILGET -> throw Feil("FORTSATT_INNVILGET skal være filtrert bort.")
         }
 
-    private fun Map<String, List<VilkårResultat>>.filtrerPåVilkårType(vilkårTyper: List<Vilkår>) =
-        this.mapValues { (_, value) ->
-            value.filter { vilkårTyper.contains(it.vilkårType) }
+    private fun Map<String, List<VilkårResultat>>.filtrerPåVilkårType(vilkårTyperFraSanity: List<Vilkår>) =
+        this.mapValues { (_, vilkårResultaterForPerson) ->
+            vilkårResultaterForPerson.filter { vilkårTyperFraSanity.contains(it.vilkårType) }
         }.filterValues { it.isNotEmpty() }
 
     private fun finnPersonerMedVilkårResultaterSomStarterSamtidigSomPeriode(): Map<String, List<VilkårResultat>> =
@@ -167,19 +149,18 @@ class FinnGyldigeBegrunnelserForPeriodeContext(
         }.toMap().filterValues { it.isNotEmpty() }
 
     private fun Map<String, List<VilkårResultat>>.filtrerPåTriggere(
-        triggere: List<Trigger>,
-        erDeltidMapPerson: Map<String, Boolean>
-    ) =
-        this.mapValues { (aktivtFødselsnummer, vilkårResultater) ->
-            val person = brevPersoner.find { it.aktivPersonIdent == aktivtFødselsnummer }!!
+        triggereFraSanity: List<Trigger>
+    ) = this.filter { (aktivtFødselsnummer, vilkårResultaterForPerson) ->
+        val person = brevPersoner.find { it.aktivPersonIdent == aktivtFødselsnummer }!!
 
-            vilkårResultater.filter { vilkårResultat ->
-                Trigger.values().filter { it.erOppfylt(erDeltidMapPerson[aktivtFødselsnummer]!!, person) } == triggere
-            }
-        }.filterValues { it.isNotEmpty() }
+        Trigger.values().filter { it.erOppfylt(vilkårResultaterForPerson, person) } == triggereFraSanity
+    }.filterValues { it.isNotEmpty() }
 
-    private fun Map<String, List<VilkårResultat>>.filtrerPåUtdypendeVilkårsvurdering(utdypendeVilkårsvurdering: List<UtdypendeVilkårsvurdering>): Map<String, List<VilkårResultat>> =
-        this.filterValues { value ->
-            value.flatMap { it.utdypendeVilkårsvurderinger }.toSet() == utdypendeVilkårsvurdering.toSet()
+    private fun Map<String, List<VilkårResultat>>.filtrerPåUtdypendeVilkårsvurdering(utdypendeVilkårFraSanity: List<UtdypendeVilkårsvurdering>): Map<String, List<VilkårResultat>> =
+        this.filterValues { vilkårResultaterForPerson ->
+            val utdypendeVilkårIBehandling =
+                vilkårResultaterForPerson.flatMap { it.utdypendeVilkårsvurderinger }.toSet()
+
+            utdypendeVilkårFraSanity.toSet().all { utdypendeVilkårIBehandling.contains(it) }
         }
 }
