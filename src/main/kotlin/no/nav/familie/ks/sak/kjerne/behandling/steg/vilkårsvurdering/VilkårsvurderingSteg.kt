@@ -65,7 +65,7 @@ class VilkårsvurderingSteg(
             )
         }
         validerAtDetIkkeErOverlappMellomGradertBarnehageplassOgDeltBosted(vilkårsvurdering)
-        validerAtPerioderIBarnehageplassSamsvarerMedPeriodeIMellom1og2ÅrVilkår(vilkårsvurdering)
+        validerAtPerioderIBarnehageplassSamsvarerMedPeriodeIBarnetsAlderVilkår(vilkårsvurdering)
         validerAtDetIkkeFinnesMerEnn2EndringerISammeMånedIBarnehageplassVilkår(vilkårsvurdering)
     }
 
@@ -75,8 +75,7 @@ class VilkårsvurderingSteg(
         behandling: Behandling
     ) {
         val barna = personopplysningGrunnlag.barna
-        val uregistrerteBarn =
-            søknadGrunnlagDto.barnaMedOpplysninger.filter { !it.erFolkeregistrert && it.inkludertISøknaden }
+        val uregistrerteBarn = søknadGrunnlagDto.barnaMedOpplysninger.filter { !it.erFolkeregistrert && it.inkludertISøknaden }
 
         if (barna.isEmpty() && uregistrerteBarn.isEmpty()) {
             throw FunksjonellFeil(
@@ -134,7 +133,7 @@ class VilkårsvurderingSteg(
         }
     }
 
-    private fun validerAtPerioderIBarnehageplassSamsvarerMedPeriodeIMellom1og2ÅrVilkår(
+    private fun validerAtPerioderIBarnehageplassSamsvarerMedPeriodeIBarnetsAlderVilkår(
         vilkårsvurdering: Vilkårsvurdering
     ) {
         vilkårsvurdering.personResultater.filter { !it.erSøkersResultater() }.forEach { personResultat ->
@@ -149,17 +148,17 @@ class VilkårsvurderingSteg(
                 barnehageplassVilkårResultater.sortedWith(compareBy(nullsLast()) { it.periodeTom }).last().periodeTom
                     ?: TIDENES_ENDE
 
-            val mellom1ÅrOg2ÅrVilkårResultater = personResultat.vilkårResultater.filter {
+            val barnetsAlderVilkårResultater = personResultat.vilkårResultater.filter {
                 it.vilkårType == Vilkår.BARNETS_ALDER && it.resultat == Resultat.OPPFYLT
             }
-            val minFraOgMedDatoIMellom1ÅrOg2ÅrVilkårResultater =
-                mellom1ÅrOg2ÅrVilkårResultater.sortedBy { it.periodeFom }.first().periodeFom
+            val minFraOgMedDatoIBarnetsAlderVilkårResultater =
+                barnetsAlderVilkårResultater.sortedBy { it.periodeFom }.first().periodeFom
                     ?: error("Mangler fom dato")
-            val maksTilOmMedDatoIMellom1ÅrOg2ÅrVilkårResultater =
-                mellom1ÅrOg2ÅrVilkårResultater.sortedBy { it.periodeTom }.last().periodeTom
+            val maksTilOmMedDatoIBarnetsAlderVilkårResultater =
+                barnetsAlderVilkårResultater.sortedBy { it.periodeTom }.last().periodeTom
                     ?: error("Mangler tom dato")
-            if (minFraOgMedDatoIBarnehageplassVilkårResultater.isAfter(minFraOgMedDatoIMellom1ÅrOg2ÅrVilkårResultater) ||
-                maksTilOmMedDatoIBarnehageplassVilkårResultater.isBefore(maksTilOmMedDatoIMellom1ÅrOg2ÅrVilkårResultater)
+            if (minFraOgMedDatoIBarnehageplassVilkårResultater.isAfter(minFraOgMedDatoIBarnetsAlderVilkårResultater) ||
+                maksTilOmMedDatoIBarnehageplassVilkårResultater.isBefore(maksTilOmMedDatoIBarnetsAlderVilkårResultater)
             ) {
                 throw FunksjonellFeil(
                     "Det mangler vurdering på vilkåret ${Vilkår.BARNEHAGEPLASS.beskrivelse}. " +
@@ -167,7 +166,7 @@ class VilkårsvurderingSteg(
                 )
             }
             if (barnehageplassVilkårResultater.any {
-                it.periodeFom?.isAfter(maksTilOmMedDatoIMellom1ÅrOg2ÅrVilkårResultater) == true
+                it.periodeFom?.isAfter(maksTilOmMedDatoIBarnetsAlderVilkårResultater) == true
             }
             ) {
                 throw FunksjonellFeil(

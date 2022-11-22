@@ -77,8 +77,8 @@ class VilkårsvurderingService(
                 val vilkårForPerson = Vilkår.hentVilkårFor(person.type)
 
                 val vilkårResultater = vilkårForPerson.map { vilkår ->
+                    // prefyller diverse vilkår automatisk basert på type
                     when (vilkår) {
-                        // prefyller MELLOM_1_OG_2_ELLER_ADOPTERT vilkår automatisk
                         Vilkår.BARNETS_ALDER -> VilkårResultat(
                             personResultat = personResultat,
                             erAutomatiskVurdert = true,
@@ -90,13 +90,35 @@ class VilkårsvurderingService(
                             periodeTom = person.fødselsdato.plusYears(2)
                         )
 
+                        Vilkår.MEDLEMSKAP ->
+                            VilkårResultat(
+                                personResultat = personResultat,
+                                erAutomatiskVurdert = false,
+                                resultat = Resultat.IKKE_VURDERT,
+                                vilkårType = vilkår,
+                                begrunnelse = "",
+                                periodeFom = person.fødselsdato.plusYears(5),
+                                behandlingId = behandling.id
+                            )
+
+                        Vilkår.BARNEHAGEPLASS ->
+                            VilkårResultat(
+                                personResultat = personResultat,
+                                erAutomatiskVurdert = false,
+                                resultat = Resultat.OPPFYLT,
+                                vilkårType = vilkår,
+                                begrunnelse = "",
+                                periodeFom = person.fødselsdato,
+                                behandlingId = behandling.id
+                            )
+
                         else -> VilkårResultat(
                             personResultat = personResultat,
                             erAutomatiskVurdert = false,
                             resultat = Resultat.IKKE_VURDERT,
                             vilkårType = vilkår,
                             begrunnelse = "",
-                            periodeFom = if (vilkår == Vilkår.MEDLEMSKAP) person.fødselsdato.plusYears(5) else null,
+                            periodeFom = null,
                             behandlingId = behandling.id
                         )
                     }

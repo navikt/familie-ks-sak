@@ -282,7 +282,7 @@ fun validerBarnasVilkår(vilkårsvurdering: Vilkårsvurdering, barna: List<Perso
                     vilkårResultat.erEksplisittAvslagPåSøknad != true &&
                     vilkårResultat.vilkårType == Vilkår.BARNETS_ALDER
                 ) {
-                    vilkårResultat.validerVilkår_MELLOM_1_OG_2_ELLER_ADOPTERT(
+                    vilkårResultat.validerVilkår_BARNETS_ALDER(
                         vilkårResultat.lagOgValiderPeriodeFraVilkår(),
                         barn.fødselsdato
                     )?.let { feil.add(it) }
@@ -309,7 +309,7 @@ private fun VilkårResultat.lagOgValiderPeriodeFraVilkår(): IkkeNullbarPeriode<
     }
 }
 
-private fun VilkårResultat.validerVilkår_MELLOM_1_OG_2_ELLER_ADOPTERT(
+private fun VilkårResultat.validerVilkår_BARNETS_ALDER(
     periode: IkkeNullbarPeriode<Long>,
     barnFødselsdato: LocalDate
 ): String? = when {

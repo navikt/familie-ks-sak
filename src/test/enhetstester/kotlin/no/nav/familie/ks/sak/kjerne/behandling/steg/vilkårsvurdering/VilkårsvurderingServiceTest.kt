@@ -99,11 +99,15 @@ class VilkårsvurderingServiceTest {
         )
 
         // autoutfylling
-        val mellom1Og2ÅrVilkårer = lagretVilkårsvurdering.personResultater.filter { !it.erSøkersResultater() }
+        val barnetsAlderVilkårer = lagretVilkårsvurdering.personResultater.filter { !it.erSøkersResultater() }
             .flatMap { it.vilkårResultater.filter { it.vilkårType == Vilkår.BARNETS_ALDER } }
 
+        val barnehageVilkårer =
+            lagretVilkårsvurdering.personResultater.filter { !it.erSøkersResultater() }
+                .flatMap { it.vilkårResultater.filter { vilkår -> vilkår.vilkårType == Vilkår.BARNEHAGEPLASS } }
+
         assertTrue {
-            mellom1Og2ÅrVilkårer.all {
+            barnetsAlderVilkårer.all {
                 it.erAutomatiskVurdert &&
                     it.resultat == Resultat.OPPFYLT &&
                     it.begrunnelse == "Vurdert og satt automatisk"
@@ -111,18 +115,21 @@ class VilkårsvurderingServiceTest {
         }
         val barn1FødselsDato = fnrTilFødselsdato(barn1.aktivFødselsnummer())
         assertTrue {
-            mellom1Og2ÅrVilkårer.any {
+            barnetsAlderVilkårer.any {
                 it.periodeFom == barn1FødselsDato.plusYears(1) &&
                     it.periodeTom == barn1FødselsDato.plusYears(2)
             }
         }
+        assertTrue { barnehageVilkårer.any { it.periodeFom == barn1FødselsDato } }
+
         val barn2FødselsDato = fnrTilFødselsdato(barn2.aktivFødselsnummer())
         assertTrue {
-            mellom1Og2ÅrVilkårer.any {
+            barnetsAlderVilkårer.any {
                 it.periodeFom == barn2FødselsDato.plusYears(1) &&
                     it.periodeTom == barn2FødselsDato.plusYears(2)
             }
         }
+        assertTrue { barnehageVilkårer.any { it.periodeFom == barn2FødselsDato } }
 
         val medlemskapVilkår = lagretVilkårsvurdering.personResultater.single { it.erSøkersResultater() }
             .vilkårResultater.single { it.vilkårType == Vilkår.MEDLEMSKAP }
