@@ -24,7 +24,7 @@ class SendStartBehandlingHendelseTilInfotrygdTask(private val kafkaProducer: Kaf
 
     companion object {
 
-        const val TASK_STEP_TYPE = "SendStartBehandlingHendelseTilInfotrygd"
+        const val TASK_STEP_TYPE = "sendStartBehandlingHendelseTilInfotrygd"
         private val secureLogger = LoggerFactory.getLogger("secureLogger")
 
         fun opprettTask(aktørStønadsmottaker: Aktør): Task {
