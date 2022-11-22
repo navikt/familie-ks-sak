@@ -260,7 +260,7 @@ fun finnTilOgMedDato(tilOgMed: LocalDate?, vilkårResultater: List<VilkårResult
     return if (skalVidereføresEnMndEkstra) tilOgMed.plusMonths(1).sisteDagIMåned() else tilOgMed.sisteDagIMåned()
 }
 
-fun validerBarnasVilkår(vilkårsvurdering: Vilkårsvurdering, barna: List<Person>) {
+fun validerAtDatoErKorrektIBarnasVilkår(vilkårsvurdering: Vilkårsvurdering, barna: List<Person>) {
     val feil = mutableListOf<String>()
 
     barna.map { barn ->

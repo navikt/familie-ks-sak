@@ -101,7 +101,8 @@ private fun alleVilkårOppfyltEllerNull(
 }
 
 private fun erAlleVilkårForPersonOppfylt(
-    vilkårForPerson: Set<Vilkår>,
-    vilkårResultater: Iterable<VilkårResultat?>
-) =
-    vilkårForPerson.all { vilkår -> vilkårResultater.any { it?.resultat == Resultat.OPPFYLT && it.vilkårType == vilkår } }
+    vilkårForPerson: Set<Vilkår>, vilkårResultater: Iterable<VilkårResultat?>
+) = vilkårForPerson.all { vilkår ->
+    vilkårResultater.filter { it?.resultat != Resultat.IKKE_AKTUELT }
+        .any { it?.resultat == Resultat.OPPFYLT && it.vilkårType == vilkår }
+}
