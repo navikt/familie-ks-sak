@@ -41,7 +41,7 @@ fun SanityBegrunnelse.tilTriggesAv(): TriggesAv {
                 this.inneholderVilkår(Vilkår.BARNEHAGEPLASS) -> Vilkår.BARNEHAGEPLASS.parterDetteGjelderFor.toSet()
                 this.inneholderVilkår(Vilkår.MEDLEMSKAP_ANNEN_FORELDER) -> Vilkår.MEDLEMSKAP_ANNEN_FORELDER.parterDetteGjelderFor.toSet()
                 this.inneholderVilkår(Vilkår.BOR_MED_SØKER) -> Vilkår.BOR_MED_SØKER.parterDetteGjelderFor.toSet()
-                this.inneholderVilkår(Vilkår.MELLOM_1_OG_2_ELLER_ADOPTERT) -> Vilkår.MELLOM_1_OG_2_ELLER_ADOPTERT.parterDetteGjelderFor.toSet()
+                this.inneholderVilkår(Vilkår.BARNETS_ALDER) -> Vilkår.BARNETS_ALDER.parterDetteGjelderFor.toSet()
                 else -> setOf(PersonType.BARN, PersonType.SØKER)
             }
         } else {

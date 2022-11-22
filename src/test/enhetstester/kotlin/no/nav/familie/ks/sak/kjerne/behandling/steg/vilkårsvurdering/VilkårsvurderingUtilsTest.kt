@@ -374,7 +374,7 @@ class VilkårsvurderingUtilsTest {
             VilkårResultat(
                 id = 0,
                 personResultat = personResultatForBarn,
-                vilkårType = Vilkår.MELLOM_1_OG_2_ELLER_ADOPTERT,
+                vilkårType = Vilkår.BARNETS_ALDER,
                 resultat = Resultat.OPPFYLT,
                 periodeFom = barnPerson.fødselsdato.plusMonths(13),
                 periodeTom = barnPerson.fødselsdato.plusYears(2),
@@ -396,7 +396,7 @@ class VilkårsvurderingUtilsTest {
             VilkårResultat(
                 id = 0,
                 personResultat = personResultatForBarn,
-                vilkårType = Vilkår.MELLOM_1_OG_2_ELLER_ADOPTERT,
+                vilkårType = Vilkår.BARNETS_ALDER,
                 resultat = Resultat.OPPFYLT,
                 periodeFom = barnPerson.fødselsdato.plusYears(1),
                 periodeTom = barnPerson.fødselsdato.plusYears(2).plusMonths(2),
@@ -418,7 +418,7 @@ class VilkårsvurderingUtilsTest {
             VilkårResultat(
                 id = 0,
                 personResultat = personResultatForBarn,
-                vilkårType = Vilkår.MELLOM_1_OG_2_ELLER_ADOPTERT,
+                vilkårType = Vilkår.BARNETS_ALDER,
                 resultat = Resultat.OPPFYLT,
                 periodeFom = barnPerson.fødselsdato.plusYears(3),
                 periodeTom = barnPerson.fødselsdato.plusYears(6).withMonth(Month.AUGUST.value).plusMonths(2),
@@ -441,7 +441,7 @@ class VilkårsvurderingUtilsTest {
             VilkårResultat(
                 id = 0,
                 personResultat = personResultatForBarn,
-                vilkårType = Vilkår.MELLOM_1_OG_2_ELLER_ADOPTERT,
+                vilkårType = Vilkår.BARNETS_ALDER,
                 resultat = Resultat.OPPFYLT,
                 periodeFom = barnPerson.fødselsdato.plusYears(3),
                 periodeTom = barnPerson.fødselsdato.plusYears(6).withMonth(Month.AUGUST.value),
@@ -466,7 +466,7 @@ class VilkårsvurderingUtilsTest {
             VilkårResultat(
                 id = 0,
                 personResultat = personResultatForBarn,
-                vilkårType = Vilkår.MELLOM_1_OG_2_ELLER_ADOPTERT,
+                vilkårType = Vilkår.BARNETS_ALDER,
                 resultat = Resultat.OPPFYLT,
                 periodeFom = fom,
                 periodeTom = tom,

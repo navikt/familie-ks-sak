@@ -3,7 +3,6 @@ package no.nav.familie.ks.sak.kjerne.behandling.steg.behandlingsresultat
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
-import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingType
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat.AVSLÅTT
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat.AVSLÅTT_ENDRET_OG_OPPHØRT
@@ -23,8 +22,6 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat.INNVIL
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat.INNVILGET_OG_ENDRET
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat.INNVILGET_OG_OPPHØRT
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat.OPPHØRT
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.validerBarnasVilkår
 import no.nav.familie.ks.sak.kjerne.beregning.AndelTilkjentYtelseMedEndreteUtbetalinger
 import no.nav.familie.ks.sak.kjerne.beregning.EndretUtbetalingAndelMedAndelerTilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.EndretUtbetalingAndelValidator.validerAtAlleOpprettedeEndringerErUtfylt
@@ -38,16 +35,10 @@ import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Personopplys
 object BehandlingsresultatUtils {
 
     fun validerAtBehandlingsresultatKanUtføres(
-        vilkårsvurdering: Vilkårsvurdering,
         personopplysningGrunnlag: PersonopplysningGrunnlag,
         tilkjentYtelse: TilkjentYtelse,
         endretUtbetalingMedAndeler: List<EndretUtbetalingAndelMedAndelerTilkjentYtelse>
     ) {
-        val behandling = vilkårsvurdering.behandling
-        // valider vilkårsvurdering
-        if (behandling.type != BehandlingType.TEKNISK_ENDRING) {
-            validerBarnasVilkår(vilkårsvurdering, personopplysningGrunnlag.barna)
-        }
         // valider TilkjentYtelse
         TilkjentYtelseValidator.validerAtTilkjentYtelseHarFornuftigePerioderOgBeløp(tilkjentYtelse, personopplysningGrunnlag)
 

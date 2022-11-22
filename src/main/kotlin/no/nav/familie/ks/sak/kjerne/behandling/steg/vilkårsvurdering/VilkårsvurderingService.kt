@@ -79,7 +79,7 @@ class VilkårsvurderingService(
                 val vilkårResultater = vilkårForPerson.map { vilkår ->
                     // prefyller diverse vilkår automatisk basert på type
                     when (vilkår) {
-                        Vilkår.MELLOM_1_OG_2_ELLER_ADOPTERT -> VilkårResultat(
+                        Vilkår.BARNETS_ALDER -> VilkårResultat(
                             personResultat = personResultat,
                             erAutomatiskVurdert = true,
                             resultat = Resultat.OPPFYLT,
