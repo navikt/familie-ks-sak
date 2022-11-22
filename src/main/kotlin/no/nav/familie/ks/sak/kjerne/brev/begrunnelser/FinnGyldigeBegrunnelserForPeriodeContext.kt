@@ -178,7 +178,8 @@ class FinnGyldigeBegrunnelserForPeriodeContext(
             }
         }.filterValues { it.isNotEmpty() }
 
-    private fun Map<String, List<VilkårResultat>>.filtrerPåUtdypendeVilkårsvurdering(utdypendeVilkårsvurdering: List<UtdypendeVilkårsvurdering>) =
-        this.mapValues { (_, value) -> value.filter { it.utdypendeVilkårsvurderinger == utdypendeVilkårsvurdering } }
-            .filterValues { it.isNotEmpty() }
+    private fun Map<String, List<VilkårResultat>>.filtrerPåUtdypendeVilkårsvurdering(utdypendeVilkårsvurdering: List<UtdypendeVilkårsvurdering>): Map<String, List<VilkårResultat>> =
+        this.filterValues { value ->
+            value.flatMap { it.utdypendeVilkårsvurderinger }.toSet() == utdypendeVilkårsvurdering.toSet()
+        }
 }
