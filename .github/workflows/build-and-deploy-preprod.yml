@@ -3,10 +3,11 @@ on:
   workflow_dispatch:
 
 env:
-  IMAGE: ghcr.io/navikt/familie-ks-sak:${{ github.sha }}
+  IMAGE: ghcr.io/${{ github.repository }}:${{ github.sha }}
+
 jobs:
-  deploy-to-dev:
-    name: Bygg app/image, push til github, deploy til dev-gcp
+  bygg-og-push-til-github:
+    name: Bygg app/image, push til github
     runs-on: ubuntu-latest
     steps:
       - uses: "actions/checkout@v3"
@@ -16,24 +17,55 @@ jobs:
           java-version: "17"
           distribution: 'temurin'
           cache: 'gradle'
+
       - name: Bygg med gradle
         env:
           GITHUB_USERNAME: x-access-token
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: ./gradlew clean build
+
       - name: Bygg Docker image
         run: |
           docker build -t $IMAGE .
+
       - name: Login to GitHub Container Registry
         uses: docker/login-action@f4ef78c080cd8ba55a85445d5b36e214a81df20a
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Push Docker image
-        run: docker push $IMAGE
-      - name: Deploy til dev-gcp
-        uses: nais/deploy/actions/deploy@v1
+
+      - uses: docker/build-push-action@v3
+        with:
+          context: .
+          push: true
+          tags: ${{ env.IMAGE }}
+
+  lag-salsa-proveniens:
+    name: Lag salsa proveniens
+    needs: bygg-og-push-til-github
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v0
+        with:
+          credentials_json: ${{ secrets.SALSA_CREDENTIALS }}
+
+      - name: Provenance, upload and sign attestation
+        uses: nais/salsa@v0.3
+        with:
+          key: ${{ secrets.SALSA_KMS_KEY }}
+          docker_pwd: ${{ secrets.GITHUB_TOKEN }}
+
+  deploy-til-preprod:
+    name: Deploy to dev-gcp
+    needs: bygg-og-push-til-github
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: nais/deploy/actions/deploy@v1
         env:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: dev-gcp
