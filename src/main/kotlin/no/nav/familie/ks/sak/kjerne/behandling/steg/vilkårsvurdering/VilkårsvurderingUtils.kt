@@ -274,6 +274,7 @@ fun validerAtDatoErKorrektIBarnasVilkår(vilkårsvurdering: Vilkårsvurdering, b
                     feil.add("Vilkår $vilkårType for barn med fødselsdato $fødselsdato mangler fom dato.")
                 }
                 if (vilkårResultat.periodeFom != null &&
+                    vilkårType != Vilkår.MEDLEMSKAP_ANNEN_FORELDER &&
                     vilkårResultat.lagOgValiderPeriodeFraVilkår().fom.isBefore(barn.fødselsdato)
                 ) {
                     feil.add(
