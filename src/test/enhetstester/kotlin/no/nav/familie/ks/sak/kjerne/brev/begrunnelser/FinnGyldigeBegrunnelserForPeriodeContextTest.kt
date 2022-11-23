@@ -176,7 +176,7 @@ class FinnGyldigeBegrunnelserForPeriodeContextTest {
     }
 
     @Test
-    fun `hentGyldigeBegrunnelserForVedtaksperiode - skal returnere standardbegrunnelsen INNVILGET_DELTID_BARNEHAGE når antall timer barnehage er større enn 0 og mindre enn 33 og barnet er adoptert`() {
+    fun `hentGyldigeBegrunnelserForVedtaksperiode - skal returnere standardbegrunnelsen INNVILGET_DELTID_BARNEHAGE_ADOPSJON når antall timer barnehage er større enn 0 og mindre enn 33 og barnet er adoptert`() {
         val personResultatBarn = PersonResultat(
             aktør = barnAktør,
             vilkårsvurdering = mockk(),
@@ -232,7 +232,7 @@ class FinnGyldigeBegrunnelserForPeriodeContextTest {
     }
 
     @Test
-    fun `hentGyldigeBegrunnelserForVedtaksperiode - skal returnere 1 begrunnelse av type Standard i tillegg til INNVILGET_BARN_1_ÅR når vilkåret BARNETS_ALDER trigger vedtaksperioden`() {
+    fun `hentGyldigeBegrunnelserForVedtaksperiode - skal returnere 1 begrunnelse av type Standard i tillegg til INNVILGET_BARN_UNDER_2_ÅR når vilkåret BARNETS_ALDER trigger vedtaksperioden`() {
         val barn1årSanityBegrunnelse = SanityBegrunnelse(
             apiNavn = Standardbegrunnelse.INNVILGET_BARN_UNDER_2_ÅR.sanityApiNavn,
             navnISystem = "Barn 1 år",
