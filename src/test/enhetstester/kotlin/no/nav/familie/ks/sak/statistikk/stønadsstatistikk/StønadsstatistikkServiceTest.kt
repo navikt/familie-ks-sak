@@ -70,14 +70,14 @@ internal class StønadsstatistikkServiceTest {
             listOf(mockk())
 
         val exception = assertThrows<IllegalStateException> {
-            stønadsstatistikkService.hentVedtakV2(1L)
+            stønadsstatistikkService.hentVedtakDVH(1L)
         }
 
         assertEquals(exception.message, "Fant ikke vedtaksdato for behandling 1")
     }
 
     @Test
-    fun `hentVedtakV2 skal hente og generere VedtakV2 med riktige detaljer om utbetalinger`() {
+    fun `hentVedtakDVH skal hente og generere VedtakDVH med riktige detaljer om utbetalinger`() {
         val vedtak = Vedtak(behandling = behandling, vedtaksdato = LocalDateTime.now())
 
         val andelTilkjentYtelseBarn1 = AndelTilkjentYtelseMedEndreteUtbetalinger(
@@ -127,11 +127,11 @@ internal class StønadsstatistikkServiceTest {
         every { andelerTilkjentYtelseOgEndreteUtbetalingerService.finnAndelerTilkjentYtelseMedEndreteUtbetalinger(any()) } returns
             andelerTilkjentYtelse
 
-        val vedtakV2 = stønadsstatistikkService.hentVedtakV2(1L)
+        val vedtakDvh = stønadsstatistikkService.hentVedtakDVH(1L)
 
-        assertEquals(2, vedtakV2.utbetalingsperioderV2[0].utbetalingsDetaljer.size)
+        assertEquals(2, vedtakDvh.utbetalingsperioder[0].utbetalingsDetaljer.size)
 
-        vedtakV2.utbetalingsperioderV2
+        vedtakDvh.utbetalingsperioder
             .flatMap { it.utbetalingsDetaljer.map { ud -> ud.person } }
             .filter { it.personIdent != søkerFnr }
             .forEach {
