@@ -95,13 +95,18 @@ private fun alleVilkårOppfyltEllerNull(
 ): List<VilkårResultat>? {
     val vilkårForPerson = Vilkår.hentVilkårFor(personType)
 
-    return if (erAlleVilkårForPersonOppfylt(vilkårForPerson, vilkårResultater)) {
+    return if (erAlleVilkårForPersonEntenOppfyltEllerIkkeAktuelt(vilkårForPerson, vilkårResultater)) {
         vilkårResultater.filterNotNull()
     } else null
 }
 
-private fun erAlleVilkårForPersonOppfylt(
+private fun erAlleVilkårForPersonEntenOppfyltEllerIkkeAktuelt(
     vilkårForPerson: Set<Vilkår>,
     vilkårResultater: Iterable<VilkårResultat?>
-) =
-    vilkårForPerson.all { vilkår -> vilkårResultater.any { it?.resultat == Resultat.OPPFYLT && it.vilkårType == vilkår } }
+) = vilkårForPerson.all { vilkår ->
+    vilkårResultater.any {
+        val erOppfyltEllerIkkeAktuelt = it?.resultat == Resultat.OPPFYLT || it?.resultat == Resultat.IKKE_AKTUELT
+
+        erOppfyltEllerIkkeAktuelt && it?.vilkårType == vilkår
+    }
+}

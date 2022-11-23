@@ -9,6 +9,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingKategori
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
+import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingType
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg
 import no.nav.familie.ks.sak.kjerne.behandling.steg.StegService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.VedtakService
@@ -88,6 +89,11 @@ class OpprettBehandlingService(
         }
         // Utfør Registrer Persongrunnlag steg
         stegService.utførSteg(lagretBehandling.id, BehandlingSteg.REGISTRERE_PERSONGRUNNLAG)
+
+        // opprett task for å sende start behandling hendelse til infotrygd for førstegangsbehandling
+        if (lagretBehandling.type == BehandlingType.FØRSTEGANGSBEHANDLING) {
+            taskService.save(SendStartBehandlingHendelseTilInfotrygdTask.opprettTask(aktør))
+        }
         return lagretBehandling
     }
 

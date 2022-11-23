@@ -56,8 +56,8 @@ class DatavarehusKafkaProducer(private val kafkaTemplate: KafkaTemplate<String, 
 }
 
 @Service
-@Profile("e2e", "integrasjonstest", "dev-postgres-preprod")
-class E2EKafkaProducer : KafkaProducer {
+@Profile("postgres", "integrasjonstest", "dev-postgres-preprod")
+class DummyDatavarehusKafkaProducer : KafkaProducer {
 
     override fun sendBehandlingsTilstand(behandlingId: String, request: BehandlingStatistikkDto) {
         logger.info("Skipper sending av saksstatistikk for behandling $behandlingId fordi kafka ikke er enablet")
@@ -69,6 +69,6 @@ class E2EKafkaProducer : KafkaProducer {
 
     companion object {
 
-        private val logger = LoggerFactory.getLogger(E2EKafkaProducer::class.java)
+        private val logger = LoggerFactory.getLogger(DummyDatavarehusKafkaProducer::class.java)
     }
 }

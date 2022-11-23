@@ -41,7 +41,7 @@ enum class Vilkår(
         beskrivelse = "Bor fast hos søker",
         harRegelverk = true
     ),
-    MELLOM_1_OG_2_ELLER_ADOPTERT(
+    BARNETS_ALDER(
         parterDetteGjelderFor = listOf(PersonType.BARN),
         ytelseType = YtelseType.ORDINÆR_KONTANTSTØTTE,
         beskrivelse = "Mellom 1 og 2 år eller adoptert",
