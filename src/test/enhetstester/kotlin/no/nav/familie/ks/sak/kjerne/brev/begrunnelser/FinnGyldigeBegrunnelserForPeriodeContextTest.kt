@@ -14,7 +14,10 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Per
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.UtdypendeVilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
+import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
+import org.hamcrest.MatcherAssert.assertThat
+import org.hamcrest.Matchers.containsInAnyOrder
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import tilFørskjøvetVilkårResultatTidslinjeMap
@@ -23,7 +26,6 @@ import java.time.LocalDate
 
 class FinnGyldigeBegrunnelserForPeriodeContextTest {
 
-    private val sanityBegrunnelser = lagSanityBegrunnelser()
     private val barnAktør = randomAktør()
     private val søkerAktør = randomAktør()
     private val persongrunnlag = lagPersonopplysningGrunnlag(
@@ -61,7 +63,11 @@ class FinnGyldigeBegrunnelserForPeriodeContextTest {
         )
 
         val standardbegrunnelser =
-            lagFinnGyldigeBegrunnelserForPeriodeContext(personResultater).hentGyldigeBegrunnelserForVedtaksperiode()
+            lagFinnGyldigeBegrunnelserForPeriodeContext(
+                personResultater,
+                lagSanityStandardBegrunnelser(),
+                barnAktør
+            ).hentGyldigeBegrunnelserForVedtaksperiode()
 
         assertEquals(1, standardbegrunnelser.size)
         assertEquals(Standardbegrunnelse.INNVILGET_IKKE_BARNEHAGE, standardbegrunnelser.first())
@@ -108,7 +114,11 @@ class FinnGyldigeBegrunnelserForPeriodeContextTest {
         )
 
         val standardbegrunnelser =
-            lagFinnGyldigeBegrunnelserForPeriodeContext(personResultater).hentGyldigeBegrunnelserForVedtaksperiode()
+            lagFinnGyldigeBegrunnelserForPeriodeContext(
+                personResultater,
+                lagSanityStandardBegrunnelser(),
+                barnAktør
+            ).hentGyldigeBegrunnelserForVedtaksperiode()
 
         assertEquals(1, standardbegrunnelser.size)
         assertEquals(Standardbegrunnelse.INNVILGET_IKKE_BARNEHAGE_ADOPSJON, standardbegrunnelser.first())
@@ -155,7 +165,11 @@ class FinnGyldigeBegrunnelserForPeriodeContextTest {
         )
 
         val standardbegrunnelser =
-            lagFinnGyldigeBegrunnelserForPeriodeContext(personResultater).hentGyldigeBegrunnelserForVedtaksperiode()
+            lagFinnGyldigeBegrunnelserForPeriodeContext(
+                personResultater,
+                lagSanityStandardBegrunnelser(),
+                barnAktør
+            ).hentGyldigeBegrunnelserForVedtaksperiode()
 
         assertEquals(1, standardbegrunnelser.size)
         assertEquals(Standardbegrunnelse.INNVILGET_DELTID_BARNEHAGE, standardbegrunnelser.first())
@@ -207,13 +221,177 @@ class FinnGyldigeBegrunnelserForPeriodeContextTest {
         )
 
         val standardbegrunnelser =
-            lagFinnGyldigeBegrunnelserForPeriodeContext(personResultater).hentGyldigeBegrunnelserForVedtaksperiode()
+            lagFinnGyldigeBegrunnelserForPeriodeContext(
+                personResultater,
+                lagSanityStandardBegrunnelser(),
+                barnAktør
+            ).hentGyldigeBegrunnelserForVedtaksperiode()
 
         assertEquals(1, standardbegrunnelser.size)
         assertEquals(Standardbegrunnelse.INNVILGET_DELTID_BARNEHAGE_ADOPSJON, standardbegrunnelser.first())
     }
 
-    private fun lagSanityBegrunnelser(): List<SanityBegrunnelse> = listOf(
+    @Test
+    fun `hentGyldigeBegrunnelserForVedtaksperiode - skal returnere 1 begrunnelse av type Standard i tillegg til INNVILGET_BARN_1_ÅR når vilkåret BARNETS_ALDER trigger vedtaksperioden`() {
+        val barn1årSanityBegrunnelse = SanityBegrunnelse(
+            apiNavn = Standardbegrunnelse.INNVILGET_BARN_UNDER_2_ÅR.sanityApiNavn,
+            navnISystem = "Barn 1 år",
+            type = SanityBegrunnelseType.TILLEGGSTEKST,
+            vilkår = listOf(Vilkår.BARNETS_ALDER),
+            rolle = emptyList(),
+            triggere = emptyList(),
+            utdypendeVilkårsvurderinger = emptyList(),
+            hjemler = emptyList()
+        )
+        val personResultatBarn = PersonResultat(
+            aktør = barnAktør,
+            vilkårsvurdering = mockk(),
+            vilkårResultater = lagVilkårResultaterForVilkårTyper(
+                vilkårTyper = setOf(
+                    Vilkår.BARNEHAGEPLASS,
+                    Vilkår.BOSATT_I_RIKET,
+                    Vilkår.BOR_MED_SØKER,
+                    Vilkår.MEDLEMSKAP_ANNEN_FORELDER
+                ),
+                fom = vilkårOppfyltFom,
+                tom = vilkårOppfyltTom
+            )
+        )
+        personResultatBarn.vilkårResultater.add(
+            lagVilkårResultat(
+                vilkårType = Vilkår.BARNETS_ALDER,
+                periodeFom = vilkårOppfyltFom.plusDays(15),
+                periodeTom = vilkårOppfyltTom.minusDays(15)
+            )
+        )
+        val personResultatSøker = PersonResultat(
+            aktør = søkerAktør,
+            vilkårsvurdering = mockk(),
+            vilkårResultater = lagVilkårResultaterForVilkårTyper(
+                vilkårTyper = Vilkår.hentVilkårFor(PersonType.SØKER),
+                fom = vilkårOppfyltFom,
+                tom = vilkårOppfyltTom
+            )
+        )
+        val personResultater = listOf(
+            personResultatBarn,
+            personResultatSøker
+        )
+
+        val standardbegrunnelser = lagFinnGyldigeBegrunnelserForPeriodeContext(
+            personResultater,
+            lagSanityStandardBegrunnelser() + barn1årSanityBegrunnelse,
+            barnAktør
+        ).hentGyldigeBegrunnelserForVedtaksperiode()
+
+        assertEquals(2, standardbegrunnelser.size)
+        assertThat(
+            standardbegrunnelser,
+            containsInAnyOrder(
+                Standardbegrunnelse.INNVILGET_BARN_UNDER_2_ÅR,
+                Standardbegrunnelse.INNVILGET_IKKE_BARNEHAGE
+            )
+        )
+    }
+
+    @Test
+    fun `hentGyldigeBegrunnelserForVedtaksperiode - skal returnere 1 begrunnelse av type Standard i tillegg til 3 begrunnelser som skal vises når BOSATT_I_RIKET trigger vedtaksperioden`() {
+        val bosattIRiketBegrunnelser = listOf(
+            SanityBegrunnelse(
+                apiNavn = Standardbegrunnelse.INNVILGET_SØKER_OG_ELLER_BARN_BOSATT_I_RIKET.sanityApiNavn,
+                navnISystem = "Søker og eller barn bosatt i riket",
+                type = SanityBegrunnelseType.TILLEGGSTEKST,
+                vilkår = listOf(Vilkår.BOSATT_I_RIKET),
+                rolle = emptyList(),
+                triggere = emptyList(),
+                utdypendeVilkårsvurderinger = emptyList(),
+                hjemler = emptyList()
+            ),
+            SanityBegrunnelse(
+                apiNavn = Standardbegrunnelse.INNVILGET_SØKER_OG_ELLER_BARN_HAR_OPPHOLDSTILLATELSE.sanityApiNavn,
+                navnISystem = "Søker og eller barn har oppholdstillatelse",
+                type = SanityBegrunnelseType.TILLEGGSTEKST,
+                vilkår = listOf(Vilkår.BOSATT_I_RIKET),
+                rolle = emptyList(),
+                triggere = emptyList(),
+                utdypendeVilkårsvurderinger = emptyList(),
+                hjemler = emptyList()
+            ),
+            SanityBegrunnelse(
+                apiNavn = Standardbegrunnelse.INNVILGET_SØKER_OG_ELLER_BARN_BOSATT_I_RIKET.sanityApiNavn,
+                navnISystem = "Søker og eller barn bosatt i riket",
+                type = SanityBegrunnelseType.TILLEGGSTEKST,
+                vilkår = listOf(Vilkår.BOSATT_I_RIKET),
+                rolle = emptyList(),
+                triggere = emptyList(),
+                utdypendeVilkårsvurderinger = emptyList(),
+                hjemler = emptyList()
+            ),
+            SanityBegrunnelse(
+                apiNavn = Standardbegrunnelse.INNVILGET_SØKER_OG_ELLER_BARN_BOSATT_I_RIKET_OG_HAR_OPPHOLDSTILLATELSE.sanityApiNavn,
+                navnISystem = "Søker og eller barn bosatt i riket og har oppholdstillatelse",
+                type = SanityBegrunnelseType.TILLEGGSTEKST,
+                vilkår = listOf(Vilkår.BOSATT_I_RIKET),
+                rolle = emptyList(),
+                triggere = emptyList(),
+                utdypendeVilkårsvurderinger = emptyList(),
+                hjemler = emptyList()
+            )
+        )
+        val personResultatBarn = PersonResultat(
+            aktør = barnAktør,
+            vilkårsvurdering = mockk(),
+            vilkårResultater = lagVilkårResultaterForVilkårTyper(
+                vilkårTyper = setOf(
+                    Vilkår.BARNEHAGEPLASS,
+                    Vilkår.BARNETS_ALDER,
+                    Vilkår.BOR_MED_SØKER,
+                    Vilkår.MEDLEMSKAP_ANNEN_FORELDER
+                ),
+                fom = vilkårOppfyltFom,
+                tom = vilkårOppfyltTom
+            )
+        )
+        personResultatBarn.vilkårResultater.add(
+            lagVilkårResultat(
+                vilkårType = Vilkår.BOSATT_I_RIKET,
+                periodeFom = vilkårOppfyltFom.plusDays(15),
+                periodeTom = vilkårOppfyltTom.minusDays(15)
+            )
+        )
+        val personResultatSøker = PersonResultat(
+            aktør = søkerAktør,
+            vilkårsvurdering = mockk(),
+            vilkårResultater = lagVilkårResultaterForVilkårTyper(
+                vilkårTyper = Vilkår.hentVilkårFor(PersonType.SØKER),
+                fom = vilkårOppfyltFom,
+                tom = vilkårOppfyltTom
+            )
+        )
+        val personResultater = listOf(
+            personResultatBarn,
+            personResultatSøker
+        )
+
+        val standardbegrunnelser = lagFinnGyldigeBegrunnelserForPeriodeContext(
+            personResultater,
+            lagSanityStandardBegrunnelser() + bosattIRiketBegrunnelser,
+            barnAktør
+        ).hentGyldigeBegrunnelserForVedtaksperiode()
+
+        assertEquals(4, standardbegrunnelser.size)
+        assertThat(
+            standardbegrunnelser,
+            containsInAnyOrder(
+                Standardbegrunnelse.INNVILGET_IKKE_BARNEHAGE,
+                Standardbegrunnelse.INNVILGET_SØKER_OG_ELLER_BARN_BOSATT_I_RIKET,
+                Standardbegrunnelse.INNVILGET_SØKER_OG_ELLER_BARN_HAR_OPPHOLDSTILLATELSE,
+                Standardbegrunnelse.INNVILGET_SØKER_OG_ELLER_BARN_BOSATT_I_RIKET_OG_HAR_OPPHOLDSTILLATELSE
+            )
+        )
+    }
+
+    private fun lagSanityStandardBegrunnelser(): List<SanityBegrunnelse> = listOf(
         SanityBegrunnelse(
             apiNavn = Standardbegrunnelse.INNVILGET_IKKE_BARNEHAGE.sanityApiNavn,
             navnISystem = "Ikke barnehage",
@@ -263,10 +441,15 @@ class FinnGyldigeBegrunnelserForPeriodeContextTest {
     ): MutableSet<VilkårResultat> =
         vilkårTyper.map { lagVilkårResultat(vilkårType = it, periodeFom = fom, periodeTom = tom) }.toMutableSet()
 
-    private fun lagFinnGyldigeBegrunnelserForPeriodeContext(personResultater: List<PersonResultat>): FinnGyldigeBegrunnelserForPeriodeContext {
+    private fun lagFinnGyldigeBegrunnelserForPeriodeContext(
+        personResultater: List<PersonResultat>,
+        sanityBegrunnelser: List<SanityBegrunnelse>,
+        aktørSomTriggerVedtaksperiode: Aktør
+    ): FinnGyldigeBegrunnelserForPeriodeContext {
         // Må forskyve personresultatene for å finne riktig dato for vedtaksperiode.
         val vedtaksperiodeStartsTidpunkt =
-            personResultater.tilFørskjøvetVilkårResultatTidslinjeMap(persongrunnlag).values.first().startsTidspunkt
+            personResultater.tilFørskjøvetVilkårResultatTidslinjeMap(persongrunnlag)
+                .filterKeys { it.aktørId == aktørSomTriggerVedtaksperiode.aktørId }.values.first().startsTidspunkt
 
         val utvidetVedtaksperiodeMedBegrunnelser = UtvidetVedtaksperiodeMedBegrunnelser(
             id = 0,

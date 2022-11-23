@@ -1,5 +1,6 @@
 package no.nav.familie.ks.sak.kjerne.brev.begrunnelser
 
+import forskyvVilkårResultater
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.tilPerioderIkkeNull
 import no.nav.familie.ks.sak.common.util.Periode
@@ -115,8 +116,9 @@ class FinnGyldigeBegrunnelserForPeriodeContext(
         personResultater.flatMap { personResultat ->
             val vilkårTilVilkårResultaterMap = personResultat.vilkårResultater.groupBy { it.vilkårType }
 
-            vilkårTilVilkårResultaterMap.mapValues { (_, vilkårResultater) ->
-                vilkårResultater.filter { it.periodeFom == vedtaksperiode.fom }.map { it.id }
+            vilkårTilVilkårResultaterMap.mapValues { (vilkår, vilkårResultater) ->
+                forskyvVilkårResultater(vilkår, vilkårResultater).filter { it.fom == vedtaksperiode.fom }
+                    .map { it.verdi.id }
             }.filterValues { it.isNotEmpty() }.flatMap { it.value }
         }
 
@@ -124,8 +126,9 @@ class FinnGyldigeBegrunnelserForPeriodeContext(
         personResultater.flatMap { personResultat ->
             val vilkårTilVilkårResultaterMap = personResultat.vilkårResultater.groupBy { it.vilkårType }
 
-            vilkårTilVilkårResultaterMap.mapValues { (_, vilkårResultater) ->
-                vilkårResultater.filter { it.periodeTom?.plusDays(1) == vedtaksperiode.fom }.map { it.id }
+            vilkårTilVilkårResultaterMap.mapValues { (vilkår, vilkårResultater) ->
+                forskyvVilkårResultater(vilkår, vilkårResultater).filter { it.tom?.plusDays(1) == vedtaksperiode.fom }
+                    .map { it.verdi.id }
             }.filterValues { it.isNotEmpty() }.flatMap { it.value }
         }
 
