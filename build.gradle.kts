@@ -32,7 +32,7 @@ dependencies {
     val sentryVersion = "6.6.0"
     val navFellesVersion = "1.20220901103347_4819e55"
     val eksterneKontrakterBisysVersion = "2.0_20220609214258_f30c3ce"
-    val fellesKontrakterVersion = "2.0_20221020092848_3131a5b"
+    val fellesKontrakterVersion = "2.0_20221121103857_87ffed0"
     val familieKontrakterSaksstatistikkVersion = "2.0_20220216121145_5a268ac"
     val familieKontrakterStønadsstatistikkVersion = "2.0_20220905083828_e74ee8a"
     val familieKontrakterSkatteetatenVersion = "2.0_20210920094114_9c74239"
@@ -76,6 +76,7 @@ dependencies {
     implementation("no.nav.familie.felles:valutakurs-klient:$navFellesVersion")
     implementation("no.nav.familie.kontrakter:felles:$fellesKontrakterVersion")
     implementation("no.nav.familie.kontrakter:barnetrygd:$fellesKontrakterVersion")
+    implementation("no.nav.familie.kontrakter:kontantstotte:$fellesKontrakterVersion")
     implementation("no.nav.familie.eksterne.kontrakter:bisys:$eksterneKontrakterBisysVersion")
     implementation("no.nav.familie.eksterne.kontrakter:stonadsstatistikk:$familieKontrakterStønadsstatistikkVersion")
     implementation("no.nav.familie.eksterne.kontrakter:saksstatistikk:$familieKontrakterSaksstatistikkVersion")
