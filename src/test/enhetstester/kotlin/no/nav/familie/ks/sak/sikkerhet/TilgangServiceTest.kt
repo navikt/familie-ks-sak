@@ -68,6 +68,7 @@ class TilgangServiceTest {
         BehandlerRolle.BESLUTTER.name,
         BehandlerRolle.SAKSBEHANDLER.name,
         BehandlerRolle.VEILEDER.name,
+        BehandlerRolle.FORVALTER.name,
         KODE6 = "kode6",
         KODE7 = "kode7"
     )

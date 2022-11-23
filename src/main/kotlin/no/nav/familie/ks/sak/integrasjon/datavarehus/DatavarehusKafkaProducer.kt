@@ -1,6 +1,6 @@
 package no.nav.familie.ks.sak.integrasjon.datavarehus
 
-import no.nav.familie.eksterne.kontrakter.VedtakDVHV2
+import no.nav.familie.eksterne.kontrakter.VedtakDVH
 import no.nav.familie.kontrakter.felles.objectMapper
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.config.KafkaConfig
@@ -15,8 +15,7 @@ import org.springframework.stereotype.Service
 interface KafkaProducer {
     fun sendBehandlingsTilstand(behandlingId: String, request: BehandlingStatistikkDto)
     fun sendSisteBehandlingsTilstand(request: BehandlingStatistikkDto)
-
-    fun sendMessageForTopicVedtakV2(vedtakV2: VedtakDVHV2): Long
+    fun sendMessageForTopicVedtak(vedtak: VedtakDVH): Long
 }
 
 @Service
@@ -29,9 +28,9 @@ class DatavarehusKafkaProducer(private val kafkaTemplate: KafkaTemplate<String, 
         sendKafkamelding(behandlingId, KafkaConfig.BEHANDLING_TOPIC, request.behandlingID.toString(), request)
     }
 
-    override fun sendMessageForTopicVedtakV2(vedtakV2: VedtakDVHV2): Long {
-        val vedtakForDVHV2Melding = objectMapper.writeValueAsString(vedtakV2)
-        val response = kafkaTemplate.send(VEDTAK_TOPIC, vedtakV2.funksjonellId, vedtakForDVHV2Melding).get()
+    override fun sendMessageForTopicVedtak(vedtak: VedtakDVH): Long {
+        val vedtakForDVHMelding = objectMapper.writeValueAsString(vedtak)
+        val response = kafkaTemplate.send(VEDTAK_TOPIC, vedtak.funksjonellId, vedtakForDVHMelding).get()
 
         return response.recordMetadata.offset()
     }
@@ -78,7 +77,7 @@ class DummyDatavarehusKafkaProducer : KafkaProducer {
         logger.info("Skipper sending av saksstatistikk for behandling ${request.behandlingID} fordi kafka ikke er enablet")
     }
 
-    override fun sendMessageForTopicVedtakV2(vedtakV2: VedtakDVHV2): Long {
+    override fun sendMessageForTopicVedtak(vedtak: VedtakDVH): Long {
         // TODO: Undersøke framtiden til E2EKafkaProducer
         return 0
     }

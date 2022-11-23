@@ -1,7 +1,9 @@
 package no.nav.familie.ks.sak.api
 
-import no.nav.familie.eksterne.kontrakter.VedtakDVHV2
-import no.nav.familie.ks.sak.statistikk.stønadsstatistikk.PubliserVedtakV2Task
+import no.nav.familie.eksterne.kontrakter.VedtakDVH
+import no.nav.familie.ks.sak.config.BehandlerRolle
+import no.nav.familie.ks.sak.sikkerhet.TilgangService
+import no.nav.familie.ks.sak.statistikk.stønadsstatistikk.PubliserVedtakTask
 import no.nav.familie.ks.sak.statistikk.stønadsstatistikk.StønadsstatistikkService
 import no.nav.familie.prosessering.internal.TaskService
 import no.nav.security.token.support.core.api.ProtectedWithClaims
@@ -16,34 +18,38 @@ import org.springframework.web.bind.annotation.RestController
 @ProtectedWithClaims(issuer = "azuread")
 class StønadsstatistikkController(
     private val stønadsstatistikkService: StønadsstatistikkService,
+    private val tilgangService: TilgangService,
     private val taskService: TaskService
 ) {
 
     private val logger = LoggerFactory.getLogger(StønadsstatistikkController::class.java)
 
-    @PostMapping(path = ["/vedtakV2"])
-    fun hentVedtakDvhV2(@RequestBody(required = true) behandlinger: List<Long>): List<VedtakDVHV2> {
+    @PostMapping(path = ["/vedtak"])
+    fun hentVedtakDVH(@RequestBody(required = true) behandlinger: List<Long>): List<VedtakDVH> {
+        tilgangService.validerTilgangTilHandling(
+            minimumBehandlerRolle = BehandlerRolle.FORVALTER,
+            handling = "Hente Vedtak DVH"
+        )
+
         try {
-            return behandlinger.map { stønadsstatistikkService.hentVedtakV2(it) }
+            return behandlinger.map { stønadsstatistikkService.hentVedtakDVH(it) }
         } catch (e: Exception) {
             logger.warn("Feil ved henting av stønadsstatistikk V2 for $behandlinger", e)
             throw e
         }
     }
 
-    @PostMapping(path = ["/send-til-dvh"])
-    fun sendTilStønadsstatistikk(@RequestBody(required = true) behandlinger: List<Long>) =
-        behandlinger.forEach {
-            val vedtakV2DVH = stønadsstatistikkService.hentVedtakV2(it)
-            val vedtakV2Task = PubliserVedtakV2Task.opprettTask(vedtakV2DVH.personV2.personIdent, it)
-            taskService.save(vedtakV2Task)
-        }
-
     @PostMapping(path = ["/send-til-dvh-manuell"])
-    fun sendTilStønadsstatistikkManuell(@RequestBody(required = true) behandlinger: List<Long>) =
+    fun sendTilStønadsstatistikkManuell(@RequestBody(required = true) behandlinger: List<Long>) {
+        tilgangService.validerTilgangTilHandling(
+            minimumBehandlerRolle = BehandlerRolle.FORVALTER,
+            handling = "Sender vedtakDVH til stønadsstatistikk manuelt"
+        )
+
         behandlinger.forEach {
-            val vedtakV2DVH = stønadsstatistikkService.hentVedtakV2(it)
-            val vedtakV2Task = PubliserVedtakV2Task.opprettTask(vedtakV2DVH.personV2.personIdent, it)
-            taskService.save(vedtakV2Task)
+            val vedtakDVH = stønadsstatistikkService.hentVedtakDVH(it)
+            val vedtakTask = PubliserVedtakTask.opprettTask(vedtakDVH.person.personIdent, it)
+            taskService.save(vedtakTask)
         }
+    }
 }
