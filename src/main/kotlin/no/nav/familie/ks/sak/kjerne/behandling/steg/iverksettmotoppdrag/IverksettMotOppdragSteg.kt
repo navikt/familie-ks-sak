@@ -50,8 +50,8 @@ class IverksettMotOppdragSteg(
         iverksattOppdrag.increment()
 
         // Opprett task for å sende vedtak hendelse til infotrygd
-        val forrigeIverksatteBehandling = behandlingService.hentSisteBehandlingSomErVedtatt(behandling.fagsak.id)
-        if (forrigeIverksatteBehandling == null) {
+        val sisteBehandlingSomErVedtatt = behandlingService.hentSisteBehandlingSomErVedtatt(behandling.fagsak.id)
+        if (sisteBehandlingSomErVedtatt == null) {
             taskService.save(
                 SendVedtakHendelseTilInfotrygdTask.opprettTask(behandling.fagsak.aktør.aktivFødselsnummer(), behandlingId)
             )
