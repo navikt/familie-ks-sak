@@ -70,11 +70,11 @@ class DatavarehusKafkaProducer(private val kafkaTemplate: KafkaTemplate<String, 
 class DummyDatavarehusKafkaProducer : KafkaProducer {
 
     override fun sendBehandlingsTilstand(behandlingId: String, request: BehandlingStatistikkDto) {
-        logger.info("Skipper sending av saksstatistikk for behandling $behandlingId fordi kafka ikke er enablet")
+        log.info("Skipper sending av saksstatistikk for behandling $behandlingId fordi kafka ikke er enablet")
     }
 
     override fun sendSisteBehandlingsTilstand(request: BehandlingStatistikkDto) {
-        logger.info("Skipper sending av saksstatistikk for behandling ${request.behandlingID} fordi kafka ikke er enablet")
+        log.info("Skipper sending av saksstatistikk for behandling ${request.behandlingID} fordi kafka ikke er enablet")
     }
 
     override fun sendMessageForTopicVedtak(vedtak: VedtakDVH): Long {
@@ -84,6 +84,6 @@ class DummyDatavarehusKafkaProducer : KafkaProducer {
 
     companion object {
 
-        private val logger = LoggerFactory.getLogger(DummyDatavarehusKafkaProducer::class.java)
+        private val log = LoggerFactory.getLogger(DummyDatavarehusKafkaProducer::class.java)
     }
 }
