@@ -486,4 +486,26 @@ class VilkårsvurderingUtilsTest {
 
         assertDoesNotThrow { validerAtDatoErKorrektIBarnasVilkår(vilkårsvurdering, barna = listOf(barnPerson)) }
     }
+
+    @Test
+    fun `validerAtDatoErKorrektIBarnasVilkår skal ikke kaste feil når MEDLEMSKAP_ANNEN_FORELDER har fom før barnets fødselsdato`() {
+        val fom = barnPerson.fødselsdato.minusYears(10)
+        val personResultatForBarn = PersonResultat(vilkårsvurdering = vilkårsvurdering, aktør = barn1)
+        val vilkårResultaterForBarn = setOf(
+            VilkårResultat(
+                id = 0,
+                personResultat = personResultatForBarn,
+                vilkårType = Vilkår.MEDLEMSKAP_ANNEN_FORELDER,
+                resultat = Resultat.OPPFYLT,
+                periodeFom = fom,
+                begrunnelse = "begrunnelse",
+                behandlingId = behandling.id,
+                utdypendeVilkårsvurderinger = listOf(UtdypendeVilkårsvurdering.ADOPSJON)
+            )
+        )
+        personResultatForBarn.setSortedVilkårResultater(vilkårResultaterForBarn)
+        vilkårsvurdering.personResultater = setOf(personResultatForBarn)
+
+        assertDoesNotThrow { validerAtDatoErKorrektIBarnasVilkår(vilkårsvurdering, barna = listOf(barnPerson)) }
+    }
 }
