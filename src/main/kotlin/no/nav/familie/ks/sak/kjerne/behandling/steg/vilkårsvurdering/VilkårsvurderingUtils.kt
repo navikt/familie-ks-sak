@@ -257,7 +257,7 @@ fun finnTilOgMedDato(tilOgMed: LocalDate?, vilkårResultater: List<VilkårResult
     return if (skalVidereføresEnMndEkstra) tilOgMed.plusMonths(1).sisteDagIMåned() else tilOgMed.sisteDagIMåned()
 }
 
-fun validerBarnasVilkår(vilkårsvurdering: Vilkårsvurdering, barna: List<Person>) {
+fun validerAtDatoErKorrektIBarnasVilkår(vilkårsvurdering: Vilkårsvurdering, barna: List<Person>) {
     val feil = mutableListOf<String>()
 
     barna.map { barn ->
@@ -271,6 +271,7 @@ fun validerBarnasVilkår(vilkårsvurdering: Vilkårsvurdering, barna: List<Perso
                     feil.add("Vilkår $vilkårType for barn med fødselsdato $fødselsdato mangler fom dato.")
                 }
                 if (vilkårResultat.periodeFom != null &&
+                    vilkårType != Vilkår.MEDLEMSKAP_ANNEN_FORELDER &&
                     vilkårResultat.lagOgValiderPeriodeFraVilkår().fom.isBefore(barn.fødselsdato)
                 ) {
                     feil.add(

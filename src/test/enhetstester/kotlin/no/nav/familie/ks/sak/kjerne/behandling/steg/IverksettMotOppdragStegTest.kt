@@ -18,6 +18,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.VedtakService
 import no.nav.familie.ks.sak.kjerne.beregning.TilkjentYtelseValideringService
 import no.nav.familie.ks.sak.kjerne.totrinnskontroll.TotrinnskontrollService
 import no.nav.familie.ks.sak.kjerne.totrinnskontroll.domene.Totrinnskontroll
+import no.nav.familie.prosessering.internal.TaskService
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -41,6 +42,9 @@ class IverksettMotOppdragStegTest {
 
     @MockK
     private lateinit var vedtakService: VedtakService
+
+    @MockK
+    private lateinit var taskService: TaskService
 
     @InjectMockKs
     private lateinit var iverksettMotOppdragSteg: IverksettMotOppdragSteg
@@ -100,12 +104,10 @@ class IverksettMotOppdragStegTest {
         every { totrinnskontrollService.hentAktivForBehandling(any()) } returns mocketTotrinnskontroll
         every { vedtakService.hentAktivVedtakForBehandling(any()) } returns mockk()
         every {
-            utbetalingsoppdragService.oppdaterTilkjentYtelseMedUtbetalingsoppdragOgIverksett(
-                any(),
-                any(),
-                any()
-            )
+            utbetalingsoppdragService.oppdaterTilkjentYtelseMedUtbetalingsoppdragOgIverksett(any(), any(), any())
         } returns mockk()
+        every { behandlingService.hentSisteBehandlingSomErVedtatt(any()) } returns null
+        every { taskService.save(any()) } returns mockk()
 
         iverksettMotOppdragSteg.utførSteg(200)
 
@@ -120,5 +122,6 @@ class IverksettMotOppdragStegTest {
         verify(exactly = 1) {
             utbetalingsoppdragService.oppdaterTilkjentYtelseMedUtbetalingsoppdragOgIverksett(any(), any(), any())
         }
+        verify(exactly = 1) { taskService.save(any()) }
     }
 }
