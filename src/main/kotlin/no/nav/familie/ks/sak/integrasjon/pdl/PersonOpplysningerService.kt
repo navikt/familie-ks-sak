@@ -85,9 +85,8 @@ class PersonOpplysningerService(
     fun hentPersoninfoEnkel(aktør: Aktør): PdlPersonInfo =
         tilPersonInfo(hentPersoninfoMedQuery(aktør, PersonInfoQuery.ENKEL))
 
-    fun hentGjeldendeStatsborgerskap(aktør: Aktør): Statsborgerskap {
-        return pdlClient.hentStatsborgerskapUtenHistorikk(aktør).firstOrNull() ?: UKJENT_STATSBORGERSKAP
-    }
+    fun hentGjeldendeStatsborgerskap(aktør: Aktør): Statsborgerskap =
+        pdlClient.hentStatsborgerskapUtenHistorikk(aktør).firstOrNull() ?: UKJENT_STATSBORGERSKAP
 
     fun hentLandkodeUtenlandskBostedsadresse(aktør: Aktør): String {
         val landkode = pdlClient.hentUtenlandskBostedsadresse(aktør)?.landkode

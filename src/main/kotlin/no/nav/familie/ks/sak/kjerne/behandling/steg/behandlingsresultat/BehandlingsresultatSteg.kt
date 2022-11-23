@@ -6,7 +6,6 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.IBehandlingSteg
 import no.nav.familie.ks.sak.kjerne.behandling.steg.simulering.SimuleringService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.VedtakRepository
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.VedtaksperiodeService
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
 import no.nav.familie.ks.sak.kjerne.beregning.AndelerTilkjentYtelseOgEndreteUtbetalingerService
 import no.nav.familie.ks.sak.kjerne.beregning.BeregningService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
@@ -19,7 +18,6 @@ import org.springframework.transaction.annotation.Transactional
 class BehandlingsresultatSteg(
     private val behandlingService: BehandlingService,
     private val personopplysningGrunnlagService: PersonopplysningGrunnlagService,
-    private val vilkårsvurderingService: VilkårsvurderingService,
     private val beregningService: BeregningService,
     private val andelerTilkjentYtelseOgEndreteUtbetalingerService: AndelerTilkjentYtelseOgEndreteUtbetalingerService,
     private val behandlingsresultatService: BehandlingsresultatService,
@@ -33,8 +31,6 @@ class BehandlingsresultatSteg(
     override fun utførSteg(behandlingId: Long) {
         logger.info("Utfører steg ${getBehandlingssteg().name} for behandling $behandlingId")
         val behandling = behandlingService.hentBehandling(behandlingId)
-        val vilkårsvurdering =
-            vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(behandlingId = behandlingId)
         val personopplysningGrunnlag =
             personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(behandlingId)
         val tilkjentYtelse = beregningService.hentTilkjentYtelseForBehandling(behandlingId)
@@ -42,7 +38,6 @@ class BehandlingsresultatSteg(
             .finnEndreteUtbetalingerMedAndelerTilkjentYtelse(behandlingId)
 
         BehandlingsresultatUtils.validerAtBehandlingsresultatKanUtføres(
-            vilkårsvurdering,
             personopplysningGrunnlag,
             tilkjentYtelse,
             endretUtbetalingMedAndeler

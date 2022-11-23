@@ -15,18 +15,18 @@ class forskyvVilkårTest {
     @Test
     fun `forskyvVilkårResultater skal ikke lage opphold i vilkår som ligger back to back`() {
         val vilkårResultat1 = lagVilkårResultat(
-            vilkårType = Vilkår.MELLOM_1_OG_2_ELLER_ADOPTERT,
+            vilkårType = Vilkår.BARNETS_ALDER,
             periodeFom = august.atDay(15),
             periodeTom = oktober.atDay(14)
         )
         val vilkårResultat2 = lagVilkårResultat(
-            vilkårType = Vilkår.MELLOM_1_OG_2_ELLER_ADOPTERT,
+            vilkårType = Vilkår.BARNETS_ALDER,
             periodeFom = oktober.atDay(15),
             periodeTom = desember.atDay(1)
         )
 
         val forskjøvedeVilkårResultater =
-            forskyvVilkårResultater(Vilkår.MELLOM_1_OG_2_ELLER_ADOPTERT, listOf(vilkårResultat1, vilkårResultat2))
+            forskyvVilkårResultater(Vilkår.BARNETS_ALDER, listOf(vilkårResultat1, vilkårResultat2))
 
         Assertions.assertEquals(2, forskjøvedeVilkårResultater.size)
 
@@ -40,18 +40,18 @@ class forskyvVilkårTest {
     @Test
     fun `forskyvVilkårResultater skal lage opphold i vilkårene ved perioder som ikke er back to back`() {
         val vilkårResultat1 = lagVilkårResultat(
-            vilkårType = Vilkår.MELLOM_1_OG_2_ELLER_ADOPTERT,
+            vilkårType = Vilkår.BARNETS_ALDER,
             periodeFom = august.atDay(15),
             periodeTom = oktober.atDay(13)
         )
         val vilkårResultat2 = lagVilkårResultat(
-            vilkårType = Vilkår.MELLOM_1_OG_2_ELLER_ADOPTERT,
+            vilkårType = Vilkår.BARNETS_ALDER,
             periodeFom = oktober.atDay(15),
             periodeTom = desember.atDay(1)
         )
 
         val forskjøvedeVilkårResultater =
-            forskyvVilkårResultater(Vilkår.MELLOM_1_OG_2_ELLER_ADOPTERT, listOf(vilkårResultat1, vilkårResultat2))
+            forskyvVilkårResultater(Vilkår.BARNETS_ALDER, listOf(vilkårResultat1, vilkårResultat2))
 
         Assertions.assertEquals(2, forskjøvedeVilkårResultater.size)
 
@@ -65,18 +65,18 @@ class forskyvVilkårTest {
     @Test
     fun `forskyvVilkårResultater skal ikke lage opphold i vilkår som ligger back to back i månedsskifte`() {
         val vilkårResultat1 = lagVilkårResultat(
-            vilkårType = Vilkår.MELLOM_1_OG_2_ELLER_ADOPTERT,
+            vilkårType = Vilkår.BARNETS_ALDER,
             periodeFom = august.atDay(15),
             periodeTom = august.atEndOfMonth()
         )
         val vilkårResultat2 = lagVilkårResultat(
-            vilkårType = Vilkår.MELLOM_1_OG_2_ELLER_ADOPTERT,
+            vilkårType = Vilkår.BARNETS_ALDER,
             periodeFom = september.atDay(1),
             periodeTom = desember.atDay(1)
         )
 
         val forskjøvedeVilkårResultater =
-            forskyvVilkårResultater(Vilkår.MELLOM_1_OG_2_ELLER_ADOPTERT, listOf(vilkårResultat1, vilkårResultat2))
+            forskyvVilkårResultater(Vilkår.BARNETS_ALDER, listOf(vilkårResultat1, vilkårResultat2))
 
         Assertions.assertEquals(2, forskjøvedeVilkårResultater.size)
 
@@ -90,18 +90,18 @@ class forskyvVilkårTest {
     @Test
     fun `forskyvVilkårResultater skal lage opphold i vilkår som ikke ligger back to back i månedsskifte`() {
         val vilkårResultat1 = lagVilkårResultat(
-            vilkårType = Vilkår.MELLOM_1_OG_2_ELLER_ADOPTERT,
+            vilkårType = Vilkår.BARNETS_ALDER,
             periodeFom = august.atDay(15),
             periodeTom = september.atEndOfMonth()
         )
         val vilkårResultat2 = lagVilkårResultat(
-            vilkårType = Vilkår.MELLOM_1_OG_2_ELLER_ADOPTERT,
+            vilkårType = Vilkår.BARNETS_ALDER,
             periodeFom = oktober.atDay(2),
             periodeTom = desember.atDay(1)
         )
 
         val forskjøvedeVilkårResultater =
-            forskyvVilkårResultater(Vilkår.MELLOM_1_OG_2_ELLER_ADOPTERT, listOf(vilkårResultat1, vilkårResultat2))
+            forskyvVilkårResultater(Vilkår.BARNETS_ALDER, listOf(vilkårResultat1, vilkårResultat2))
 
         Assertions.assertEquals(1, forskjøvedeVilkårResultater.size)
 
@@ -112,12 +112,12 @@ class forskyvVilkårTest {
     @Test
     fun `forskyvVilkårResultater skal filtrere bort peroder som ikke gjelder for noen måneder`() {
         val vilkårResultat1 = lagVilkårResultat(
-            vilkårType = Vilkår.MELLOM_1_OG_2_ELLER_ADOPTERT,
+            vilkårType = Vilkår.BARNETS_ALDER,
             periodeFom = august.atDay(15),
             periodeTom = september.atEndOfMonth()
         )
         val forskjøvedeVilkårResultater =
-            forskyvVilkårResultater(Vilkår.MELLOM_1_OG_2_ELLER_ADOPTERT, listOf(vilkårResultat1))
+            forskyvVilkårResultater(Vilkår.BARNETS_ALDER, listOf(vilkårResultat1))
 
         Assertions.assertEquals(0, forskjøvedeVilkårResultater.size)
     }
