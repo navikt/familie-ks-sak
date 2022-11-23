@@ -52,9 +52,9 @@ class TestController(
     }
 
     @GetMapping("/send-alle-behandlinger-til-dvh")
-    fun senAlleBehandlingerTilDVH(): ResponseEntity<Ressurs<String>> {
+    fun sendAlleBehandlingerTilDVH(): ResponseEntity<Ressurs<String>> {
         tilgangService.validerTilgangTilHandling(
-            minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
+            minimumBehandlerRolle = BehandlerRolle.FORVALTER,
             handling = "teste sending av siste tilstand for alle behandlinger til DVH"
         )
         sakStatistikkService.sendAlleBehandlingerTilDVH()

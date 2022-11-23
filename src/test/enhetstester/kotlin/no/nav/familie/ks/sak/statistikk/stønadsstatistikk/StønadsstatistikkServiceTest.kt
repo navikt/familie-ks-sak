@@ -59,7 +59,7 @@ internal class StønadsstatistikkServiceTest {
     private val barn2 = personopplysningGrunnlag.barna.last()
 
     @Test
-    fun `hentVedtakV2 skal kaste feil dersom vedtak ikke har noe dato satt`() {
+    fun `hentVedtakDVH skal kaste feil dersom vedtak ikke har noe dato satt`() {
         val vedtak = Vedtak(behandling = behandling)
 
         every { behandlingHentOgPersisterService.hentBehandling(any()) } returns behandling
