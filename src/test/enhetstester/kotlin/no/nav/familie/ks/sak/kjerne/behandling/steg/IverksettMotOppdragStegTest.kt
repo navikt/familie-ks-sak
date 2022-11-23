@@ -106,6 +106,7 @@ class IverksettMotOppdragStegTest {
         every {
             utbetalingsoppdragService.oppdaterTilkjentYtelseMedUtbetalingsoppdragOgIverksett(any(), any(), any())
         } returns mockk()
+        every { behandlingService.hentSisteBehandlingSomErVedtatt(any()) } returns null
         every { taskService.save(any()) } returns mockk()
 
         iverksettMotOppdragSteg.utførSteg(200)
