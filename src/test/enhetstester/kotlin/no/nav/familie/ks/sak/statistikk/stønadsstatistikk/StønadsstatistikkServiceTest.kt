@@ -67,7 +67,7 @@ internal class StønadsstatistikkServiceTest {
         every { vedtakService.hentAktivVedtakForBehandling(any()) } returns vedtak
         every { personopplysningerService.hentLandkodeUtenlandskBostedsadresse(any()) } returns "DK"
         every { andelerTilkjentYtelseOgEndreteUtbetalingerService.finnAndelerTilkjentYtelseMedEndreteUtbetalinger(any()) } returns
-                listOf(mockk())
+            listOf(mockk())
 
         val exception = assertThrows<IllegalStateException> {
             stønadsstatistikkService.hentVedtakDVH(1L)

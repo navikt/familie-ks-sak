@@ -14,8 +14,8 @@ object SikkerhetContext {
     fun erMaskinTilMaskinToken(): Boolean {
         val claims = SpringTokenValidationContextHolder().tokenValidationContext.getClaims("azuread")
         return claims.get("oid") != null &&
-                claims.get("oid") == claims.get("sub") &&
-                claims.getAsList("roles").contains("access_as_application")
+            claims.get("oid") == claims.get("sub") &&
+            claims.getAsList("roles").contains("access_as_application")
     }
 
     fun hentSaksbehandler(): String =
