@@ -12,12 +12,19 @@ import java.math.BigDecimal
 data class SanityBegrunnelse(
     val apiNavn: String?,
     val navnISystem: String,
+    val type: SanityBegrunnelseType,
     val vilkår: List<Vilkår>,
     val rolle: List<PersonType>,
     val utdypendeVilkårsvurderinger: List<UtdypendeVilkårsvurdering>,
     val triggere: List<Trigger>,
     val hjemler: List<String>
 )
+
+enum class SanityBegrunnelseType {
+    STANDARD,
+    TILLEGGSTEKST,
+    ENDRINGSPERIODE
+}
 
 data class SanityBegrunnelserResponsDto(
     val ms: Int,
@@ -47,6 +54,7 @@ enum class Trigger {
 data class SanityBegrunnelseDto(
     val apiNavn: String?,
     val navnISystem: String,
+    val type: String,
     val vilkaar: List<String> = emptyList(),
     val rolle: List<String> = emptyList(),
     val utdypendeVilkaarsvurderinger: List<String> = emptyList(),
@@ -57,6 +65,7 @@ data class SanityBegrunnelseDto(
         return SanityBegrunnelse(
             apiNavn = apiNavn,
             navnISystem = navnISystem,
+            type = finnEnumverdi(type, SanityBegrunnelseType.values(), apiNavn) ?: SanityBegrunnelseType.TILLEGGSTEKST,
             vilkår = vilkaar.mapNotNull {
                 finnEnumverdi(it, Vilkår.values(), apiNavn)
             },

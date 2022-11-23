@@ -5,6 +5,7 @@ import no.nav.familie.ks.sak.data.lagPersonopplysningGrunnlag
 import no.nav.familie.ks.sak.data.lagVilkårResultat
 import no.nav.familie.ks.sak.data.randomAktør
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelse
+import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelseType
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.Trigger
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.Standardbegrunnelse
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.Vedtaksperiodetype
@@ -57,22 +58,10 @@ class FinnGyldigeBegrunnelserForPeriodeContextTest {
         val personResultater = listOf(
             personResultatBarn,
             personResultatSøker
-        ).tilFørskjøvetVilkårResultatTidslinjeMap(persongrunnlag)
-
-        val utvidetVedtaksperiodeMedBegrunnelser = UtvidetVedtaksperiodeMedBegrunnelser(
-            id = 0,
-            fom = personResultater.values.first().startsTidspunkt,
-            tom = personResultater.values.first().startsTidspunkt.plusDays(1),
-            type = Vedtaksperiodetype.UTBETALING,
-            begrunnelser = emptyList()
         )
-        val standardbegrunnelser = FinnGyldigeBegrunnelserForPeriodeContext(
-            utvidetVedtaksperiodeMedBegrunnelser,
-            sanityBegrunnelser,
-            persongrunnlag,
-            personResultater,
-            listOf(barnAktør.aktørId, søkerAktør.aktørId)
-        ).hentGyldigeBegrunnelserForVedtaksperiode()
+
+        val standardbegrunnelser =
+            lagFinnGyldigeBegrunnelserForPeriodeContext(personResultater).hentGyldigeBegrunnelserForVedtaksperiode()
 
         assertEquals(1, standardbegrunnelser.size)
         assertEquals(Standardbegrunnelse.INNVILGET_IKKE_BARNEHAGE, standardbegrunnelser.first())
@@ -116,22 +105,10 @@ class FinnGyldigeBegrunnelserForPeriodeContextTest {
         val personResultater = listOf(
             personResultatBarn,
             personResultatSøker
-        ).tilFørskjøvetVilkårResultatTidslinjeMap(persongrunnlag)
-
-        val utvidetVedtaksperiodeMedBegrunnelser = UtvidetVedtaksperiodeMedBegrunnelser(
-            id = 0,
-            fom = personResultater.values.first().startsTidspunkt,
-            tom = personResultater.values.first().startsTidspunkt.plusDays(1),
-            type = Vedtaksperiodetype.UTBETALING,
-            begrunnelser = emptyList()
         )
-        val standardbegrunnelser = FinnGyldigeBegrunnelserForPeriodeContext(
-            utvidetVedtaksperiodeMedBegrunnelser,
-            sanityBegrunnelser,
-            persongrunnlag,
-            personResultater,
-            listOf(barnAktør.aktørId, søkerAktør.aktørId)
-        ).hentGyldigeBegrunnelserForVedtaksperiode()
+
+        val standardbegrunnelser =
+            lagFinnGyldigeBegrunnelserForPeriodeContext(personResultater).hentGyldigeBegrunnelserForVedtaksperiode()
 
         assertEquals(1, standardbegrunnelser.size)
         assertEquals(Standardbegrunnelse.INNVILGET_IKKE_BARNEHAGE_ADOPSJON, standardbegrunnelser.first())
@@ -175,22 +152,10 @@ class FinnGyldigeBegrunnelserForPeriodeContextTest {
         val personResultater = listOf(
             personResultatBarn,
             personResultatSøker
-        ).tilFørskjøvetVilkårResultatTidslinjeMap(persongrunnlag)
-
-        val utvidetVedtaksperiodeMedBegrunnelser = UtvidetVedtaksperiodeMedBegrunnelser(
-            id = 0,
-            fom = personResultater.values.first().startsTidspunkt,
-            tom = personResultater.values.first().startsTidspunkt.plusDays(1),
-            type = Vedtaksperiodetype.UTBETALING,
-            begrunnelser = emptyList()
         )
-        val standardbegrunnelser = FinnGyldigeBegrunnelserForPeriodeContext(
-            utvidetVedtaksperiodeMedBegrunnelser,
-            sanityBegrunnelser,
-            persongrunnlag,
-            personResultater,
-            listOf(barnAktør.aktørId, søkerAktør.aktørId)
-        ).hentGyldigeBegrunnelserForVedtaksperiode()
+
+        val standardbegrunnelser =
+            lagFinnGyldigeBegrunnelserForPeriodeContext(personResultater).hentGyldigeBegrunnelserForVedtaksperiode()
 
         assertEquals(1, standardbegrunnelser.size)
         assertEquals(Standardbegrunnelse.INNVILGET_DELTID_BARNEHAGE, standardbegrunnelser.first())
@@ -239,22 +204,10 @@ class FinnGyldigeBegrunnelserForPeriodeContextTest {
         val personResultater = listOf(
             personResultatBarn,
             personResultatSøker
-        ).tilFørskjøvetVilkårResultatTidslinjeMap(persongrunnlag)
-
-        val utvidetVedtaksperiodeMedBegrunnelser = UtvidetVedtaksperiodeMedBegrunnelser(
-            id = 0,
-            fom = personResultater.values.first().startsTidspunkt,
-            tom = personResultater.values.first().startsTidspunkt.plusDays(1),
-            type = Vedtaksperiodetype.UTBETALING,
-            begrunnelser = emptyList()
         )
-        val standardbegrunnelser = FinnGyldigeBegrunnelserForPeriodeContext(
-            utvidetVedtaksperiodeMedBegrunnelser,
-            sanityBegrunnelser,
-            persongrunnlag,
-            personResultater,
-            listOf(barnAktør.aktørId, søkerAktør.aktørId)
-        ).hentGyldigeBegrunnelserForVedtaksperiode()
+
+        val standardbegrunnelser =
+            lagFinnGyldigeBegrunnelserForPeriodeContext(personResultater).hentGyldigeBegrunnelserForVedtaksperiode()
 
         assertEquals(1, standardbegrunnelser.size)
         assertEquals(Standardbegrunnelse.INNVILGET_DELTID_BARNEHAGE_ADOPSJON, standardbegrunnelser.first())
@@ -264,6 +217,7 @@ class FinnGyldigeBegrunnelserForPeriodeContextTest {
         SanityBegrunnelse(
             apiNavn = Standardbegrunnelse.INNVILGET_IKKE_BARNEHAGE.sanityApiNavn,
             navnISystem = "Ikke barnehage",
+            type = SanityBegrunnelseType.STANDARD,
             vilkår = listOf(Vilkår.BARNEHAGEPLASS, Vilkår.BARNETS_ALDER),
             rolle = emptyList(),
             triggere = emptyList(),
@@ -273,6 +227,7 @@ class FinnGyldigeBegrunnelserForPeriodeContextTest {
         SanityBegrunnelse(
             apiNavn = Standardbegrunnelse.INNVILGET_IKKE_BARNEHAGE_ADOPSJON.sanityApiNavn,
             navnISystem = "Ikke barnehage - adopsjon",
+            type = SanityBegrunnelseType.STANDARD,
             vilkår = listOf(Vilkår.BARNEHAGEPLASS, Vilkår.BARNETS_ALDER),
             rolle = emptyList(),
             triggere = emptyList(),
@@ -282,6 +237,7 @@ class FinnGyldigeBegrunnelserForPeriodeContextTest {
         SanityBegrunnelse(
             apiNavn = Standardbegrunnelse.INNVILGET_DELTID_BARNEHAGE.sanityApiNavn,
             navnISystem = "Deltid barnehage",
+            type = SanityBegrunnelseType.STANDARD,
             vilkår = listOf(Vilkår.BARNEHAGEPLASS, Vilkår.BARNETS_ALDER),
             rolle = emptyList(),
             triggere = listOf(Trigger.DELTID),
@@ -291,6 +247,7 @@ class FinnGyldigeBegrunnelserForPeriodeContextTest {
         SanityBegrunnelse(
             apiNavn = Standardbegrunnelse.INNVILGET_DELTID_BARNEHAGE_ADOPSJON.sanityApiNavn,
             navnISystem = "Deltid barnehage - adopsjon",
+            type = SanityBegrunnelseType.STANDARD,
             vilkår = listOf(Vilkår.BARNEHAGEPLASS, Vilkår.BARNETS_ALDER),
             rolle = emptyList(),
             triggere = listOf(Trigger.DELTID),
@@ -305,4 +262,26 @@ class FinnGyldigeBegrunnelserForPeriodeContextTest {
         tom: LocalDate
     ): MutableSet<VilkårResultat> =
         vilkårTyper.map { lagVilkårResultat(vilkårType = it, periodeFom = fom, periodeTom = tom) }.toMutableSet()
+
+    private fun lagFinnGyldigeBegrunnelserForPeriodeContext(personResultater: List<PersonResultat>): FinnGyldigeBegrunnelserForPeriodeContext {
+        // Må forskyve personresultatene for å finne riktig dato for vedtaksperiode.
+        val vedtaksperiodeStartsTidpunkt =
+            personResultater.tilFørskjøvetVilkårResultatTidslinjeMap(persongrunnlag).values.first().startsTidspunkt
+
+        val utvidetVedtaksperiodeMedBegrunnelser = UtvidetVedtaksperiodeMedBegrunnelser(
+            id = 0,
+            fom = vedtaksperiodeStartsTidpunkt,
+            tom = vedtaksperiodeStartsTidpunkt.plusDays(1),
+            type = Vedtaksperiodetype.UTBETALING,
+            begrunnelser = emptyList()
+        )
+
+        return FinnGyldigeBegrunnelserForPeriodeContext(
+            utvidetVedtaksperiodeMedBegrunnelser,
+            sanityBegrunnelser,
+            persongrunnlag,
+            personResultater,
+            listOf(barnAktør.aktørId, søkerAktør.aktørId)
+        )
+    }
 }

@@ -44,7 +44,6 @@ import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Personopplys
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import tilFørskjøvetVilkårResultatTidslinjeMap
 import java.time.LocalDate
 import java.time.YearMonth
 
@@ -314,9 +313,7 @@ class VedtaksperiodeService(
                     utvidetVedtaksperiodeMedBegrunnelser = utvidetVedtaksperiodeMedBegrunnelser,
                     sanityBegrunnelser = sanityBegrunnelser,
                     persongrunnlag = persongrunnlag,
-                    personResultater = vilkårsvurdering.personResultater.tilFørskjøvetVilkårResultatTidslinjeMap(
-                        persongrunnlag
-                    ),
+                    personResultater = vilkårsvurdering.personResultater.toList(),
                     aktørIderMedUtbetaling = aktørIderMedUtbetaling
                 ).hentGyldigeBegrunnelserForVedtaksperiode()
             )
