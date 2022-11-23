@@ -18,7 +18,7 @@ fun main(args: Array<String>) {
         springBuilder.initializers(DbContainerInitializer())
     }
 
-    // settClientIdOgSecret()
+    settClientIdOgSecret()
 
     springBuilder.run(*args)
 }
