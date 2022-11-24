@@ -49,13 +49,13 @@ fun UtvidetVedtaksperiodeMedBegrunnelser.tilUtvidetVedtaksperiodeMedBegrunnelser
 }
 
 data class VedtaksbegrunnelseDto(
-    val standardbegrunnelse: String,
+    val begrunnelse: String,
     val vedtakBegrunnelseSpesifikasjon: String,
     val begrunnelseType: BegrunnelseType
 )
 
 fun Vedtaksbegrunnelse.tilRestVedtaksbegrunnelse() = VedtaksbegrunnelseDto(
-    standardbegrunnelse = this.begrunnelse.enumnavnTilString(),
+    begrunnelse = this.begrunnelse.enumnavnTilString(),
     begrunnelseType = this.begrunnelse.begrunnelseType,
     vedtakBegrunnelseSpesifikasjon = this.begrunnelse.enumnavnTilString()
 )
