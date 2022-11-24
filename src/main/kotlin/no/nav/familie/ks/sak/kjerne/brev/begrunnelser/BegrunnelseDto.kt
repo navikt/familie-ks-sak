@@ -1,26 +1,20 @@
-package no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak
+package no.nav.familie.ks.sak.kjerne.brev.begrunnelser
 
 import no.nav.familie.eksterne.kontrakter.AnnenForeldersAktivitet
 import no.nav.familie.eksterne.kontrakter.SøkersAktivitet
 
-enum class Begrunnelsetype {
-    STANDARD_BEGRUNNELSE,
-    EØS_BEGRUNNELSE,
-    FRITEKST
-}
-
 interface BegrunnelseDto : Comparable<BegrunnelseDto> {
-    val type: Begrunnelsetype
-    val vedtakBegrunnelseType: VedtakBegrunnelseType?
+    val brevBegrunnelseType: BrevBegrunnelseType
+    val begrunnelseType: BegrunnelseType?
 
     override fun compareTo(other: BegrunnelseDto): Int {
         return when {
-            this.type == Begrunnelsetype.FRITEKST -> Int.MAX_VALUE
-            other.type == Begrunnelsetype.FRITEKST -> -Int.MAX_VALUE
-            this.vedtakBegrunnelseType == null -> Int.MAX_VALUE
-            other.vedtakBegrunnelseType == null -> -Int.MAX_VALUE
+            this.brevBegrunnelseType == BrevBegrunnelseType.FRITEKST -> Int.MAX_VALUE
+            other.brevBegrunnelseType == BrevBegrunnelseType.FRITEKST -> -Int.MAX_VALUE
+            this.begrunnelseType == null -> Int.MAX_VALUE
+            other.begrunnelseType == null -> -Int.MAX_VALUE
 
-            else -> this.vedtakBegrunnelseType!!.sorteringsrekkefølge - other.vedtakBegrunnelseType!!.sorteringsrekkefølge
+            else -> this.begrunnelseType!!.sorteringsrekkefølge - other.begrunnelseType!!.sorteringsrekkefølge
         }
     }
 }
@@ -30,7 +24,7 @@ interface BegrunnelseDtoMedData : BegrunnelseDto {
 }
 
 data class StandardBegrunnelseDataDto(
-    override val vedtakBegrunnelseType: VedtakBegrunnelseType,
+    override val begrunnelseType: BegrunnelseType,
     override val apiNavn: String,
 
     val gjelderSoker: Boolean,
@@ -47,18 +41,18 @@ data class StandardBegrunnelseDataDto(
     val avtaletidspunktDeltBosted: String,
     val sokersRettTilUtvidet: String
 ) : BegrunnelseDtoMedData {
-    override val type: Begrunnelsetype = Begrunnelsetype.STANDARD_BEGRUNNELSE
+    override val brevBegrunnelseType: BrevBegrunnelseType = BrevBegrunnelseType.STANDARD_BEGRUNNELSE
 }
 
 data class FritekstBegrunnelseDto(
     val fritekst: String
 ) : BegrunnelseDto {
-    override val vedtakBegrunnelseType: VedtakBegrunnelseType? = null
-    override val type: Begrunnelsetype = Begrunnelsetype.FRITEKST
+    override val begrunnelseType: BegrunnelseType? = null
+    override val brevBegrunnelseType: BrevBegrunnelseType = BrevBegrunnelseType.FRITEKST
 }
 
 data class EØSBegrunnelseDataDto(
-    override val vedtakBegrunnelseType: VedtakBegrunnelseType,
+    override val begrunnelseType: BegrunnelseType,
     override val apiNavn: String,
 
     val annenForeldersAktivitet: AnnenForeldersAktivitet,
@@ -70,5 +64,5 @@ data class EØSBegrunnelseDataDto(
     val sokersAktivitet: SøkersAktivitet,
     val sokersAktivitetsland: String?
 ) : BegrunnelseDtoMedData {
-    override val type: Begrunnelsetype = Begrunnelsetype.EØS_BEGRUNNELSE
+    override val brevBegrunnelseType: BrevBegrunnelseType = BrevBegrunnelseType.EØS_BEGRUNNELSE
 }

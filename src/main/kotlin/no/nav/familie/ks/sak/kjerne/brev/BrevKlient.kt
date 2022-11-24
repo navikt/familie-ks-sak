@@ -2,7 +2,7 @@ package no.nav.familie.ks.sak.kjerne.brev
 
 import no.nav.familie.http.client.AbstractRestClient
 import no.nav.familie.ks.sak.integrasjon.kallEksternTjeneste
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.BegrunnelseDtoMedData
+import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.BegrunnelseDtoMedData
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.BrevDto
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.cache.annotation.Cacheable

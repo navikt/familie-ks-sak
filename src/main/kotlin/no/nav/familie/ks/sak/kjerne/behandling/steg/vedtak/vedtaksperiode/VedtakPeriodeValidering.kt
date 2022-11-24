@@ -1,8 +1,8 @@
 package no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode
 
 import no.nav.familie.ks.sak.common.util.tilKortString
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.VedtakBegrunnelseType
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.UtvidetVedtaksperiodeMedBegrunnelser
+import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.BegrunnelseType
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
@@ -27,9 +27,9 @@ private fun UtvidetVedtaksperiodeMedBegrunnelser.validerMinstEnEndretUtbetalingb
     fagsakId: Long
 ) {
     val erMuligÅVelgeEndretUtbetalingBegrunnelse =
-        this.gyldigeBegrunnelser.any { it.vedtakBegrunnelseType == VedtakBegrunnelseType.ENDRET_UTBETALING }
+        this.gyldigeBegrunnelser.any { it.begrunnelseType == BegrunnelseType.ENDRET_UTBETALING }
     val erValgtEndretUtbetalingBegrunnelse =
-        this.begrunnelser.any { it.standardbegrunnelse.vedtakBegrunnelseType == VedtakBegrunnelseType.ENDRET_UTBETALING }
+        this.begrunnelser.any { it.begrunnelse.begrunnelseType == BegrunnelseType.ENDRET_UTBETALING }
 
     if (erMuligÅVelgeEndretUtbetalingBegrunnelse && !erValgtEndretUtbetalingBegrunnelse) {
         logger.warn("Vedtaksperioden ${this.fom?.tilKortString() ?: ""} - ${this.tom?.tilKortString() ?: ""} mangler endretubetalingsbegrunnelse. Fagsak: $fagsakId, behandling: $behandlingId")
@@ -41,9 +41,9 @@ private fun UtvidetVedtaksperiodeMedBegrunnelser.validerMinstEnInnvilgetbegrunne
     fagsakId: Long
 ) {
     val erMuligÅVelgeInnvilgetBegrunnelse =
-        this.gyldigeBegrunnelser.any { it.vedtakBegrunnelseType == VedtakBegrunnelseType.INNVILGET }
+        this.gyldigeBegrunnelser.any { it.begrunnelseType == BegrunnelseType.INNVILGET }
     val erValgtInnvilgetBegrunnelse =
-        this.begrunnelser.any { it.standardbegrunnelse.vedtakBegrunnelseType == VedtakBegrunnelseType.INNVILGET }
+        this.begrunnelser.any { it.begrunnelse.begrunnelseType == BegrunnelseType.INNVILGET }
 
     if (erMuligÅVelgeInnvilgetBegrunnelse && !erValgtInnvilgetBegrunnelse) {
         logger.warn("Vedtaksperioden ${this.fom?.tilKortString() ?: ""} - ${this.tom?.tilKortString() ?: ""} mangler innvilgelsebegrunnelse. Fagsak: $fagsakId, behandling: $behandlingId")
@@ -55,9 +55,9 @@ private fun UtvidetVedtaksperiodeMedBegrunnelser.validerMinstEnReduksjonsbegrunn
     fagsakId: Long
 ) {
     val erMuligÅVelgeReduksjonBegrunnelse =
-        this.gyldigeBegrunnelser.any { it.vedtakBegrunnelseType == VedtakBegrunnelseType.REDUKSJON }
+        this.gyldigeBegrunnelser.any { it.begrunnelseType == BegrunnelseType.REDUKSJON }
     val erValgtReduksjonBegrunnelse =
-        this.begrunnelser.any { it.standardbegrunnelse.vedtakBegrunnelseType == VedtakBegrunnelseType.REDUKSJON }
+        this.begrunnelser.any { it.begrunnelse.begrunnelseType == BegrunnelseType.REDUKSJON }
 
     if (erMuligÅVelgeReduksjonBegrunnelse && !erValgtReduksjonBegrunnelse) {
         logger.warn("Vedtaksperioden ${this.fom?.tilKortString() ?: ""} - ${this.tom?.tilKortString() ?: ""} mangler reduksjonsbegrunnelse. Fagsak: $fagsakId, behandling: $behandlingId")

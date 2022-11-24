@@ -2,7 +2,7 @@ package no.nav.familie.ks.sak.kjerne.brev
 
 import no.nav.familie.ks.sak.common.util.TIDENES_MORGEN
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.Vedtaksperiodetype
-import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.Begrunnelse
+import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.BrevBegrunnelse
 import no.nav.familie.ks.sak.kjerne.brev.domene.BrevBehandlingsGrunnlag
 import no.nav.familie.ks.sak.kjerne.brev.domene.BrevVedtaksPeriode
 import no.nav.familie.ks.sak.kjerne.brev.domene.BrevtUregistrertBarn
@@ -18,7 +18,7 @@ data class GrunnlagForBrevperiode(
     val dødeBarnForrigePeriode: List<String>
 ) : Comparable<GrunnlagForBrevperiode> {
 
-    fun hentBegrunnelserOgFritekster(): List<Begrunnelse> {
+    fun hentBegrunnelserOgFritekster(): List<BrevBegrunnelse> {
         val brevPeriodeGenereator = BrevPeriodeGenerator(this)
         // TODO lag begrunnelser og fritekster slik at de kan forhåndsvises i frontend
         return emptyList()

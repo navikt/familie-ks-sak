@@ -5,8 +5,8 @@ import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.common.util.MånedPeriode
 import no.nav.familie.ks.sak.common.util.YearMonthConverter
 import no.nav.familie.ks.sak.common.util.overlapperHeltEllerDelvisMed
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.Standardbegrunnelse
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.StandardbegrunnelseListConverter
+import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.Begrunnelse
+import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.StandardbegrunnelseListConverter
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
 import java.math.BigDecimal
 import java.time.LocalDate
@@ -69,7 +69,7 @@ data class EndretUtbetalingAndel(
 
     @Column(name = "vedtak_begrunnelse_spesifikasjoner")
     @Convert(converter = StandardbegrunnelseListConverter::class)
-    var standardbegrunnelser: List<Standardbegrunnelse> = emptyList()
+    var begrunnelser: List<Begrunnelse> = emptyList()
 ) : BaseEntitet() {
 
     fun overlapperMed(periode: MånedPeriode) = periode.overlapperHeltEllerDelvisMed(this.periode)
@@ -81,7 +81,15 @@ data class EndretUtbetalingAndel(
         }
 
     fun validerUtfyltEndring() {
-        if (listOf(person, prosent, fom, tom, årsak, søknadstidspunkt).any { it == null } || (begrunnelse?.isEmpty() == true)) {
+        if (listOf(
+                person,
+                prosent,
+                fom,
+                tom,
+                årsak,
+                søknadstidspunkt
+            ).any { it == null } || (begrunnelse?.isEmpty() == true)
+        ) {
             val feilmelding =
                 "Person, prosent, fom, tom, årsak, begrunnese og søknadstidspunkt skal være utfylt: $this"
             throw FunksjonellFeil(melding = feilmelding, frontendFeilmelding = feilmelding)

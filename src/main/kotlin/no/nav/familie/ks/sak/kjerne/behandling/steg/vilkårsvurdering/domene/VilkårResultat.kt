@@ -7,9 +7,9 @@ import no.nav.familie.ks.sak.common.util.StringListConverter
 import no.nav.familie.ks.sak.common.util.førsteDagINesteMåned
 import no.nav.familie.ks.sak.common.util.sisteDagIMåned
 import no.nav.familie.ks.sak.common.util.toYearMonth
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.Standardbegrunnelse
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.StandardbegrunnelseListConverter
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.finnTilOgMedDato
+import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.Begrunnelse
+import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.StandardbegrunnelseListConverter
 import org.hibernate.annotations.Immutable
 import java.math.BigDecimal
 import java.time.LocalDate
@@ -83,7 +83,7 @@ class VilkårResultat(
 
     @Column(name = "vedtak_begrunnelse_spesifikasjoner")
     @Convert(converter = StandardbegrunnelseListConverter::class)
-    var standardbegrunnelser: List<Standardbegrunnelse> = emptyList(),
+    var begrunnelser: List<Begrunnelse> = emptyList(),
 
     @Enumerated(EnumType.STRING)
     @Column(name = "vurderes_etter")

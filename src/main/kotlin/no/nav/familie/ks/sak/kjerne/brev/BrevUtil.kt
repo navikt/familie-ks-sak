@@ -8,7 +8,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingType
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.tilSanityBegrunnelse
+import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.tilSanityBegrunnelse
 import no.nav.familie.ks.sak.kjerne.brev.domene.BrevVedtaksPeriode
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.Brevmal
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Målform
@@ -102,7 +102,7 @@ fun hentHjemmeltekst(
 ): String {
     val sanityStandardbegrunnelser = brevVedtaksperioder.flatMap { vedtaksperiode ->
         vedtaksperiode.begrunnelseMedDataFraSanity.mapNotNull { begrunnelse ->
-            begrunnelse.standardbegrunnelse.tilSanityBegrunnelse(sanityBegrunnelser)
+            begrunnelse.begrunnelse.tilSanityBegrunnelse(sanityBegrunnelser)
         }
     }
 

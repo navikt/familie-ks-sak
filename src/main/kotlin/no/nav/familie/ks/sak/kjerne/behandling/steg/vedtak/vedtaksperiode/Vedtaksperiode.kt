@@ -2,9 +2,9 @@ package no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode
 
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.VedtakBegrunnelseType
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.Vedtak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.VedtaksperiodeMedBegrunnelser
+import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.BegrunnelseType
 import java.time.LocalDate
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "vedtaksperiodetype")
@@ -20,19 +20,19 @@ interface Vedtaksperiode {
     val vedtaksperiodetype: Vedtaksperiodetype
 }
 
-enum class Vedtaksperiodetype(val tillatteBegrunnelsestyper: List<VedtakBegrunnelseType>) {
+enum class Vedtaksperiodetype(val tillatteBegrunnelsestyper: List<BegrunnelseType>) {
     UTBETALING(
         listOf(
-            VedtakBegrunnelseType.INNVILGET,
-            VedtakBegrunnelseType.REDUKSJON,
-            VedtakBegrunnelseType.FORTSATT_INNVILGET,
-            VedtakBegrunnelseType.ETTER_ENDRET_UTBETALING,
-            VedtakBegrunnelseType.ENDRET_UTBETALING
+            BegrunnelseType.INNVILGET,
+            BegrunnelseType.REDUKSJON,
+            BegrunnelseType.FORTSATT_INNVILGET,
+            BegrunnelseType.ETTER_ENDRET_UTBETALING,
+            BegrunnelseType.ENDRET_UTBETALING
         )
     ),
-    OPPHØR(listOf(VedtakBegrunnelseType.OPPHØR, VedtakBegrunnelseType.ETTER_ENDRET_UTBETALING)),
-    AVSLAG(listOf(VedtakBegrunnelseType.AVSLAG)),
-    FORTSATT_INNVILGET(listOf(VedtakBegrunnelseType.FORTSATT_INNVILGET))
+    OPPHØR(listOf(BegrunnelseType.OPPHØR, BegrunnelseType.ETTER_ENDRET_UTBETALING)),
+    AVSLAG(listOf(BegrunnelseType.AVSLAG)),
+    FORTSATT_INNVILGET(listOf(BegrunnelseType.FORTSATT_INNVILGET))
 }
 
 fun Vedtaksperiode.tilVedtaksperiodeMedBegrunnelse(

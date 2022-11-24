@@ -1,17 +1,17 @@
 package no.nav.familie.ks.sak.api.dto
 
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.VedtakBegrunnelseType
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.Vedtaksperiodetype
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.UtvidetVedtaksperiodeMedBegrunnelser
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.Vedtaksbegrunnelse
+import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.BegrunnelseType
 import java.time.LocalDate
 
 data class VedtaksperiodeMedFriteksterDto(
     val fritekster: List<String> = emptyList()
 )
 
-data class VedtaksperiodeMedStandardbegrunnelserDto(
-    val standardbegrunnelser: List<String>
+data class VedtaksperiodeMedBegrunnelserDto(
+    val begrunnelser: List<String>
 )
 
 data class GenererVedtaksperioderForOverstyrtEndringstidspunktDto(
@@ -51,11 +51,11 @@ fun UtvidetVedtaksperiodeMedBegrunnelser.tilUtvidetVedtaksperiodeMedBegrunnelser
 data class VedtaksbegrunnelseDto(
     val standardbegrunnelse: String,
     val vedtakBegrunnelseSpesifikasjon: String,
-    val vedtakBegrunnelseType: VedtakBegrunnelseType
+    val begrunnelseType: BegrunnelseType
 )
 
 fun Vedtaksbegrunnelse.tilRestVedtaksbegrunnelse() = VedtaksbegrunnelseDto(
-    standardbegrunnelse = this.standardbegrunnelse.enumnavnTilString(),
-    vedtakBegrunnelseType = this.standardbegrunnelse.vedtakBegrunnelseType,
-    vedtakBegrunnelseSpesifikasjon = this.standardbegrunnelse.enumnavnTilString()
+    standardbegrunnelse = this.begrunnelse.enumnavnTilString(),
+    begrunnelseType = this.begrunnelse.begrunnelseType,
+    vedtakBegrunnelseSpesifikasjon = this.begrunnelse.enumnavnTilString()
 )

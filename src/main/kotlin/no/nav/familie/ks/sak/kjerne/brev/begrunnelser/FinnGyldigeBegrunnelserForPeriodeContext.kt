@@ -9,9 +9,6 @@ import no.nav.familie.ks.sak.common.util.TIDENES_MORGEN
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelse
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelseType
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.Trigger
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.Standardbegrunnelse
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.VedtakBegrunnelseType
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.tilSanityBegrunnelse
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.Vedtaksperiodetype
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.UtvidetVedtaksperiodeMedBegrunnelser
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.PersonResultat
@@ -36,13 +33,13 @@ class FinnGyldigeBegrunnelserForPeriodeContext(
         tom = utvidetVedtaksperiodeMedBegrunnelser.tom ?: TIDENES_ENDE
     )
 
-    fun hentGyldigeBegrunnelserForVedtaksperiode(): List<Standardbegrunnelse> {
-        val tillateBegrunnelserForVedtakstype = Standardbegrunnelse.values()
+    fun hentGyldigeBegrunnelserForVedtaksperiode(): List<Begrunnelse> {
+        val tillateBegrunnelserForVedtakstype = Begrunnelse.values()
             .filter {
                 utvidetVedtaksperiodeMedBegrunnelser
                     .type
                     .tillatteBegrunnelsestyper
-                    .contains(it.vedtakBegrunnelseType)
+                    .contains(it.begrunnelseType)
             }
 
         return when (utvidetVedtaksperiodeMedBegrunnelser.type) {
@@ -54,27 +51,27 @@ class FinnGyldigeBegrunnelserForPeriodeContext(
         }
     }
 
-    private fun List<Standardbegrunnelse>.filtrerPasserVedtaksperiode(): List<Standardbegrunnelse> {
+    private fun List<Begrunnelse>.filtrerPasserVedtaksperiode(): List<Begrunnelse> {
         val begrunnelserSomTriggesForVedtaksperiode =
-            filter { it.vedtakBegrunnelseType != VedtakBegrunnelseType.FORTSATT_INNVILGET }
+            filter { it.begrunnelseType != BegrunnelseType.FORTSATT_INNVILGET }
                 .filter { it.triggesForVedtaksperiode() }
 
         val fantIngenbegrunnelserOgSkalDerforBrukeFortsattInnvilget =
             utvidetVedtaksperiodeMedBegrunnelser.type == Vedtaksperiodetype.UTBETALING && begrunnelserSomTriggesForVedtaksperiode.isEmpty()
 
         return if (fantIngenbegrunnelserOgSkalDerforBrukeFortsattInnvilget) {
-            filter { it.vedtakBegrunnelseType == VedtakBegrunnelseType.FORTSATT_INNVILGET }
+            filter { it.begrunnelseType == BegrunnelseType.FORTSATT_INNVILGET }
         } else {
             begrunnelserSomTriggesForVedtaksperiode
         }
     }
 
-    private fun Standardbegrunnelse.triggesForVedtaksperiode(): Boolean {
+    private fun Begrunnelse.triggesForVedtaksperiode(): Boolean {
         val sanityBegrunnelse = this.tilSanityBegrunnelse(sanityBegrunnelser) ?: return false
 
         val vilkårResultaterSomPasserVedtaksperioden: Map<Person, List<VilkårResultat>> =
             hentVilkårResultaterSomOverlapperVedtaksperiode(this)
-                .filtrerPersonerUtenUtbetalingVedInnvilget(this.vedtakBegrunnelseType)
+                .filtrerPersonerUtenUtbetalingVedInnvilget(this.begrunnelseType)
                 .filtrerPåVilkårType(sanityBegrunnelse.vilkår)
                 .filtrerPåTriggere(sanityBegrunnelse.triggere, sanityBegrunnelse.type)
                 .filtrerPåUtdypendeVilkårsvurdering(
@@ -100,19 +97,19 @@ class FinnGyldigeBegrunnelserForPeriodeContext(
         }
     }.filterValues { it.isNotEmpty() }
 
-    private fun Standardbegrunnelse.finnVilkårResultatIderSomPasserMedVedtaksperiodeDato() =
-        when (this.vedtakBegrunnelseType) {
-            VedtakBegrunnelseType.REDUKSJON,
-            VedtakBegrunnelseType.EØS_INNVILGET,
-            VedtakBegrunnelseType.AVSLAG,
-            VedtakBegrunnelseType.ENDRET_UTBETALING,
-            VedtakBegrunnelseType.INNVILGET -> finnVilkårResultaterSomStarterSamtidigSomPeriode()
+    private fun Begrunnelse.finnVilkårResultatIderSomPasserMedVedtaksperiodeDato() =
+        when (this.begrunnelseType) {
+            BegrunnelseType.REDUKSJON,
+            BegrunnelseType.EØS_INNVILGET,
+            BegrunnelseType.AVSLAG,
+            BegrunnelseType.ENDRET_UTBETALING,
+            BegrunnelseType.INNVILGET -> finnVilkårResultaterSomStarterSamtidigSomPeriode()
 
-            VedtakBegrunnelseType.EØS_OPPHØR,
-            VedtakBegrunnelseType.ETTER_ENDRET_UTBETALING,
-            VedtakBegrunnelseType.OPPHØR -> finnVilkårResultaterSomSlutterFørPeriode()
+            BegrunnelseType.EØS_OPPHØR,
+            BegrunnelseType.ETTER_ENDRET_UTBETALING,
+            BegrunnelseType.OPPHØR -> finnVilkårResultaterSomSlutterFørPeriode()
 
-            VedtakBegrunnelseType.FORTSATT_INNVILGET -> throw Feil("FORTSATT_INNVILGET skal være filtrert bort.")
+            BegrunnelseType.FORTSATT_INNVILGET -> throw Feil("FORTSATT_INNVILGET skal være filtrert bort.")
         }
 
     private fun finnVilkårResultaterSomStarterSamtidigSomPeriode() =
@@ -135,19 +132,19 @@ class FinnGyldigeBegrunnelserForPeriodeContext(
             }.filterValues { it.isNotEmpty() }.flatMap { it.value }
         }
 
-    private fun hentVilkårResultaterSomOverlapperVedtaksperiode(standardBegrunnelse: Standardbegrunnelse) =
-        when (standardBegrunnelse.vedtakBegrunnelseType) {
-            VedtakBegrunnelseType.REDUKSJON,
-            VedtakBegrunnelseType.EØS_INNVILGET,
-            VedtakBegrunnelseType.AVSLAG,
-            VedtakBegrunnelseType.ENDRET_UTBETALING,
-            VedtakBegrunnelseType.INNVILGET -> finnPersonerMedVilkårResultaterSomGjelderIPeriode()
+    private fun hentVilkårResultaterSomOverlapperVedtaksperiode(standardBegrunnelse: Begrunnelse) =
+        when (standardBegrunnelse.begrunnelseType) {
+            BegrunnelseType.REDUKSJON,
+            BegrunnelseType.EØS_INNVILGET,
+            BegrunnelseType.AVSLAG,
+            BegrunnelseType.ENDRET_UTBETALING,
+            BegrunnelseType.INNVILGET -> finnPersonerMedVilkårResultaterSomGjelderIPeriode()
 
-            VedtakBegrunnelseType.EØS_OPPHØR,
-            VedtakBegrunnelseType.ETTER_ENDRET_UTBETALING,
-            VedtakBegrunnelseType.OPPHØR -> finnPersonerMedVilkårResultaterSomGjelderRettFørPeriode()
+            BegrunnelseType.EØS_OPPHØR,
+            BegrunnelseType.ETTER_ENDRET_UTBETALING,
+            BegrunnelseType.OPPHØR -> finnPersonerMedVilkårResultaterSomGjelderRettFørPeriode()
 
-            VedtakBegrunnelseType.FORTSATT_INNVILGET -> throw Feil("FORTSATT_INNVILGET skal være filtrert bort.")
+            BegrunnelseType.FORTSATT_INNVILGET -> throw Feil("FORTSATT_INNVILGET skal være filtrert bort.")
         }
 
     private fun finnPersonerMedVilkårResultaterSomGjelderIPeriode(): Map<Person, List<VilkårResultat>> =
@@ -182,9 +179,9 @@ class FinnGyldigeBegrunnelserForPeriodeContext(
             }
         }.toMap().filterValues { it.isNotEmpty() }
 
-    private fun Map<Person, List<VilkårResultat>>.filtrerPersonerUtenUtbetalingVedInnvilget(vedtakBegrunnelseType: VedtakBegrunnelseType) =
+    private fun Map<Person, List<VilkårResultat>>.filtrerPersonerUtenUtbetalingVedInnvilget(begrunnelseType: BegrunnelseType) =
         this.filterKeys {
-            vedtakBegrunnelseType != VedtakBegrunnelseType.INNVILGET ||
+            begrunnelseType != BegrunnelseType.INNVILGET ||
                 aktørIderMedUtbetaling.contains(it.aktør.aktørId) ||
                 it.type == PersonType.SØKER
         }

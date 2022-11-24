@@ -1,9 +1,9 @@
 package no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene
 
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.IVedtakBegrunnelse
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.UtbetalingsperiodeDetalj
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.Vedtaksperiodetype
 import no.nav.familie.ks.sak.kjerne.beregning.AndelTilkjentYtelseMedEndreteUtbetalinger
+import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.IBegrunnelse
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
 import java.time.LocalDate
 
@@ -15,7 +15,7 @@ data class UtvidetVedtaksperiodeMedBegrunnelser(
     val begrunnelser: List<Vedtaksbegrunnelse>,
     val eøsBegrunnelser: List<Unit> = emptyList(),
     val fritekster: List<String> = emptyList(),
-    val gyldigeBegrunnelser: List<IVedtakBegrunnelse> = emptyList(),
+    val gyldigeBegrunnelser: List<IBegrunnelse> = emptyList(),
     val utbetalingsperiodeDetaljer: List<UtbetalingsperiodeDetalj> = emptyList()
 )
 
