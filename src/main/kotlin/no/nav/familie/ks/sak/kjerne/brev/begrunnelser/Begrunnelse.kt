@@ -1,4 +1,4 @@
-package no.nav.familie.ks.sak.kjerne.brev
+package no.nav.familie.ks.sak.kjerne.brev.begrunnelser
 
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.VedtakBegrunnelseType
 

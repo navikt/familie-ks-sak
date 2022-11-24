@@ -6,7 +6,6 @@ import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelse
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelserResponsDto
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityEØSBegrunnelse
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityEØSBegrunnelserResponsDto
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import org.springframework.web.client.RestOperations
@@ -22,40 +21,30 @@ class SanityKlient(
     fun hentBegrunnelser(datasett: String = "ks-test"): List<SanityBegrunnelse> {
         val uri = lagHentUri(datasett, hentBegrunnelser)
 
-        // TODO: Fjern try/catch og default dummy-respons ved feil når vi får satt opp sanity dokument og struktur på respons.
-        return try {
-            val restSanityBegrunnelser =
-                kallEksternTjeneste<SanityBegrunnelserResponsDto>(
-                    tjeneste = "Sanity",
-                    uri = uri,
-                    formål = "Henter begrunnelser fra sanity"
-                ) {
-                    getForEntity(uri)
-                }
+        val restSanityBegrunnelser =
+            kallEksternTjeneste<SanityBegrunnelserResponsDto>(
+                tjeneste = "Sanity",
+                uri = uri,
+                formål = "Henter begrunnelser fra sanity"
+            ) {
+                getForEntity(uri)
+            }
 
-            restSanityBegrunnelser.result.map { it.tilSanityBegrunnelse() }
-        } catch (e: Exception) {
-            listOf(SanityBegrunnelse("dummyApiNavn", "dummyNavnISystem", Vilkår.values().toList(), hjemler = emptyList()))
-        }
+        return restSanityBegrunnelser.result.map { it.tilSanityBegrunnelse() }
     }
 
     fun hentEØSBegrunnelser(datasett: String = "ks-test"): List<SanityEØSBegrunnelse> {
         val uri = lagHentUri(datasett, hentEØSBegrunnelser)
 
-        // TODO: Fjern try/catch og default dummy-respons ved feil når vi får satt opp sanity dokument og struktur på respons.
-        return try {
-            val restSanityEØSBegrunnelser = kallEksternTjeneste<SanityEØSBegrunnelserResponsDto>(
-                tjeneste = "Sanity",
-                uri = uri,
-                formål = "Henter EØS-begrunnelser fra sanity"
-            ) {
-                getForEntity(uri)
-            }
-
-            restSanityEØSBegrunnelser.result.map { it.tilSanityEØSBegrunnelse() }
-        } catch (e: Exception) {
-            listOf(SanityEØSBegrunnelse("dummyApiNavn", "dummyNavnISystem"))
+        val restSanityEØSBegrunnelser = kallEksternTjeneste<SanityEØSBegrunnelserResponsDto>(
+            tjeneste = "Sanity",
+            uri = uri,
+            formål = "Henter EØS-begrunnelser fra sanity"
+        ) {
+            getForEntity(uri)
         }
+
+        return restSanityEØSBegrunnelser.result.map { it.tilSanityEØSBegrunnelse() }
     }
 
     private fun lagHentUri(datasett: String, query: String): URI {

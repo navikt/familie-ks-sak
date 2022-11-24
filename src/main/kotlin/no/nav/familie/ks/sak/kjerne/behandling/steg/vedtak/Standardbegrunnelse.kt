@@ -30,10 +30,31 @@ enum class Standardbegrunnelse : IVedtakBegrunnelse {
         override val vedtakBegrunnelseType = VedtakBegrunnelseType.INNVILGET
         override val sanityApiNavn = "innvilgetDeltidBarnehageAdopsjon"
     },
+    INNVILGET_BARN_UNDER_2_ÅR {
+        override val vedtakBegrunnelseType = VedtakBegrunnelseType.INNVILGET
+        override val sanityApiNavn = "innvilgetBarnUnder2År"
+    },
+    INNVILGET_BARN_SLUTTET_I_BARNEHAGE {
+        override val vedtakBegrunnelseType = VedtakBegrunnelseType.INNVILGET
+        override val sanityApiNavn = "innvilgetBarnSluttetIBarnehage"
+    },
+    INNVILGET_SØKER_OG_ELLER_BARN_BOSATT_I_RIKET {
+        override val vedtakBegrunnelseType = VedtakBegrunnelseType.INNVILGET
+        override val sanityApiNavn = "innvilgetSøkerOgEllerBarnBosattIRiket"
+    },
+    INNVILGET_SØKER_OG_ELLER_BARN_HAR_OPPHOLDSTILLATELSE {
+        override val vedtakBegrunnelseType = VedtakBegrunnelseType.INNVILGET
+        override val sanityApiNavn = "innvilgetSøkerOgEllerBarnHarOppholdstillatelse"
+    },
+    INNVILGET_SØKER_OG_ELLER_BARN_BOSATT_I_RIKET_OG_HAR_OPPHOLDSTILLATELSE {
+        override val vedtakBegrunnelseType = VedtakBegrunnelseType.INNVILGET
+        override val sanityApiNavn = "innvilgetSøkerOgEllerBarnBosattIRiketOgHarOppholdstillatelse"
+    },
     AVSLAG_UREGISTRERT_BARN {
         override val vedtakBegrunnelseType = VedtakBegrunnelseType.AVSLAG
         override val sanityApiNavn = "avslagUregistrertBarn"
     };
+
     override fun enumnavnTilString() = this.name
 }
 

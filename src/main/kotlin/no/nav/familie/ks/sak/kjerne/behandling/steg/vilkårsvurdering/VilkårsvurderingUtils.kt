@@ -18,7 +18,6 @@ import no.nav.familie.ks.sak.common.util.sisteDagIMåned
 import no.nav.familie.ks.sak.common.util.tilDagMånedÅr
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelse
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityEØSBegrunnelse
-import no.nav.familie.ks.sak.integrasjon.sanity.domene.tilTriggesAv
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.EØSStandardbegrunnelse
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.Standardbegrunnelse
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.tilSanityBegrunnelse
@@ -65,11 +64,9 @@ fun vedtakBegrunnelseTilRestVedtakBegrunnelseTilknyttetVilkår(
     vedtakBegrunnelse: Standardbegrunnelse
 ): List<VedtakBegrunnelseTilknyttetVilkårResponseDto> {
     val sanityBegrunnelse = vedtakBegrunnelse.tilSanityBegrunnelse(sanityBegrunnelser) ?: return emptyList()
-
-    val triggesAv = sanityBegrunnelse.tilTriggesAv()
     val visningsnavn = sanityBegrunnelse.navnISystem
 
-    return if (triggesAv.vilkår.isEmpty()) {
+    return if (sanityBegrunnelse.vilkår.isEmpty()) {
         listOf(
             VedtakBegrunnelseTilknyttetVilkårResponseDto(
                 id = vedtakBegrunnelse,
@@ -78,7 +75,7 @@ fun vedtakBegrunnelseTilRestVedtakBegrunnelseTilknyttetVilkår(
             )
         )
     } else {
-        triggesAv.vilkår.map {
+        sanityBegrunnelse.vilkår.map {
             VedtakBegrunnelseTilknyttetVilkårResponseDto(
                 id = vedtakBegrunnelse,
                 navn = visningsnavn,
@@ -326,7 +323,9 @@ private fun VilkårResultat.validerVilkår_BARNETS_ALDER(
 
     !this.erAdopsjonOppfylt() && !periode.fom.isEqual(barnFødselsdato.plusYears(1)) ->
         "F.o.m datoen må være lik barnets 1 års dag."
+
     !this.erAdopsjonOppfylt() && !periode.tom.isEqual(barnFødselsdato.plusYears(2)) ->
         "T.o.m datoen må være lik barnets 2 års dag."
+
     else -> null
 }

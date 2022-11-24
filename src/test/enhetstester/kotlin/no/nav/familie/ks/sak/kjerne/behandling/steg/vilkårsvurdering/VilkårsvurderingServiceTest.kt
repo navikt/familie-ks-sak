@@ -15,6 +15,7 @@ import no.nav.familie.ks.sak.data.lagVilkårsvurderingMedSøkersVilkår
 import no.nav.familie.ks.sak.data.randomAktør
 import no.nav.familie.ks.sak.integrasjon.sanity.SanityService
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelse
+import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelseType
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityEØSBegrunnelse
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.EØSStandardbegrunnelse
@@ -170,7 +171,11 @@ class VilkårsvurderingServiceTest {
             SanityBegrunnelse(
                 Standardbegrunnelse.INNVILGET_IKKE_BARNEHAGE.sanityApiNavn,
                 "innvilgetIkkeBarnehage",
+                SanityBegrunnelseType.STANDARD,
                 Vilkår.values().toList(),
+                rolle = emptyList(),
+                triggere = emptyList(),
+                utdypendeVilkårsvurderinger = emptyList(),
                 hjemler = emptyList()
             )
         )
