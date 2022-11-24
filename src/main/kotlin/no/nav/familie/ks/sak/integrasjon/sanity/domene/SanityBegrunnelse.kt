@@ -14,7 +14,7 @@ data class SanityBegrunnelse(
     val navnISystem: String,
     val type: SanityBegrunnelseType,
     val vilkår: List<Vilkår>,
-    val rolle: List<PersonType>,
+    val rolle: List<VilkårRolle>,
     val utdypendeVilkårsvurderinger: List<UtdypendeVilkårsvurdering>,
     val triggere: List<Trigger>,
     val hjemler: List<String>
@@ -36,10 +36,10 @@ data class SanityBegrunnelserResponsDto(
 enum class Trigger {
     SATSENDRING,
     BARN_DØD,
-    DELTID;
+    DELTID_BARNEHAGEPLASS;
 
     fun erOppfylt(vilkårResultater: List<VilkårResultat>, person: Person) = when (this) {
-        DELTID -> vilkårResultater.mapNotNull { it.antallTimer }.maxByOrNull { it }?.let {
+        DELTID_BARNEHAGEPLASS -> vilkårResultater.mapNotNull { it.antallTimer }.maxByOrNull { it }?.let {
             it in BigDecimal.valueOf(0.01)..BigDecimal.valueOf(
                 32.99
             )
@@ -69,7 +69,7 @@ data class SanityBegrunnelseDto(
             vilkår = vilkaar.mapNotNull {
                 finnEnumverdi(it, Vilkår.values(), apiNavn)
             },
-            rolle = rolle.mapNotNull { finnEnumverdi(it, PersonType.values(), apiNavn) },
+            rolle = rolle.mapNotNull { finnEnumverdi(it, VilkårRolle.values(), apiNavn) },
             utdypendeVilkårsvurderinger = utdypendeVilkaarsvurderinger.mapNotNull {
                 finnEnumverdi(
                     it,

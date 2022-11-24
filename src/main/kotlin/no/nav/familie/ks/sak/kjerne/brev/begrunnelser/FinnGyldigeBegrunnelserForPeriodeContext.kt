@@ -55,21 +55,21 @@ class FinnGyldigeBegrunnelserForPeriodeContext(
     }
 
     private fun List<Standardbegrunnelse>.filtrerPasserVedtaksperiode(): List<Standardbegrunnelse> {
-        val standardbegrunnelser =
+        val begrunnelserSomTriggesForVedtaksperiode =
             filter { it.vedtakBegrunnelseType != VedtakBegrunnelseType.FORTSATT_INNVILGET }
-                .filter { it.triggesForPeriode() }
+                .filter { it.triggesForVedtaksperiode() }
 
         val fantIngenbegrunnelserOgSkalDerforBrukeFortsattInnvilget =
-            utvidetVedtaksperiodeMedBegrunnelser.type == Vedtaksperiodetype.UTBETALING && standardbegrunnelser.isEmpty()
+            utvidetVedtaksperiodeMedBegrunnelser.type == Vedtaksperiodetype.UTBETALING && begrunnelserSomTriggesForVedtaksperiode.isEmpty()
 
         return if (fantIngenbegrunnelserOgSkalDerforBrukeFortsattInnvilget) {
             filter { it.vedtakBegrunnelseType == VedtakBegrunnelseType.FORTSATT_INNVILGET }
         } else {
-            standardbegrunnelser
+            begrunnelserSomTriggesForVedtaksperiode
         }
     }
 
-    private fun Standardbegrunnelse.triggesForPeriode(): Boolean {
+    private fun Standardbegrunnelse.triggesForVedtaksperiode(): Boolean {
         val sanityBegrunnelse = this.tilSanityBegrunnelse(sanityBegrunnelser) ?: return false
 
         val vilkårResultaterSomPasserVedtaksperioden: Map<Person, List<VilkårResultat>> =

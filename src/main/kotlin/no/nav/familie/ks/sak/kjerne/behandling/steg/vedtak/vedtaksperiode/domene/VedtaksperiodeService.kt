@@ -34,7 +34,6 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vil
 import no.nav.familie.ks.sak.kjerne.beregning.AndelTilkjentYtelseMedEndreteUtbetalinger
 import no.nav.familie.ks.sak.kjerne.beregning.AndelerTilkjentYtelseOgEndreteUtbetalingerService
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelseRepository
-import no.nav.familie.ks.sak.kjerne.beregning.domene.EndretUtbetalingAndel
 import no.nav.familie.ks.sak.kjerne.beregning.domene.EndretUtbetalingAndelRepository
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.FinnGyldigeBegrunnelserForPeriodeContext
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
@@ -260,8 +259,6 @@ class VedtaksperiodeService(
 
         val behandling = vedtak.behandling
 
-        val endreteUtbetalinger = endretUtbetalingAndelRepository.findByBehandlingId(behandling.id)
-
         val andelerTilkjentYtelse = andelerTilkjentYtelseOgEndreteUtbetalingerService
             .finnAndelerTilkjentYtelseMedEndreteUtbetalinger(behandling.id)
 
@@ -282,9 +279,7 @@ class VedtaksperiodeService(
             hentUtvidetVedtaksperioderMedBegrunnelserOgGyldigeBegrunnelser(
                 behandling = behandling,
                 utvidedeVedtaksperioderMedBegrunnelser = utvidetVedtaksperioderMedBegrunnelser,
-                persongrunnlag = personopplysningGrunnlag,
-                andelerTilkjentYtelse = andelerTilkjentYtelse,
-                endretUtbetalingAndeler = endreteUtbetalinger
+                persongrunnlag = personopplysningGrunnlag
             )
         } else {
             utvidetVedtaksperioderMedBegrunnelser
@@ -294,9 +289,7 @@ class VedtaksperiodeService(
     private fun hentUtvidetVedtaksperioderMedBegrunnelserOgGyldigeBegrunnelser(
         behandling: Behandling,
         utvidedeVedtaksperioderMedBegrunnelser: List<UtvidetVedtaksperiodeMedBegrunnelser>,
-        persongrunnlag: PersonopplysningGrunnlag,
-        andelerTilkjentYtelse: List<AndelTilkjentYtelseMedEndreteUtbetalinger>,
-        endretUtbetalingAndeler: List<EndretUtbetalingAndel>
+        persongrunnlag: PersonopplysningGrunnlag
     ): List<UtvidetVedtaksperiodeMedBegrunnelser> {
         val vilkårsvurdering = vilkårsvurderingRepository.finnAktivForBehandling(behandling.id)
             ?: error("Finner ikke vilkårsvurdering ved begrunning av vedtak")

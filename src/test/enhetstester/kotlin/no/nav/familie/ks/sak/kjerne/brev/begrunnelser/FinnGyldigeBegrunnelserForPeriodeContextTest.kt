@@ -418,7 +418,7 @@ class FinnGyldigeBegrunnelserForPeriodeContextTest {
             type = SanityBegrunnelseType.STANDARD,
             vilkår = listOf(Vilkår.BARNEHAGEPLASS, Vilkår.BARNETS_ALDER),
             rolle = emptyList(),
-            triggere = listOf(Trigger.DELTID),
+            triggere = listOf(Trigger.DELTID_BARNEHAGEPLASS),
             utdypendeVilkårsvurderinger = emptyList(),
             hjemler = emptyList()
         ),
@@ -428,7 +428,7 @@ class FinnGyldigeBegrunnelserForPeriodeContextTest {
             type = SanityBegrunnelseType.STANDARD,
             vilkår = listOf(Vilkår.BARNEHAGEPLASS, Vilkår.BARNETS_ALDER),
             rolle = emptyList(),
-            triggere = listOf(Trigger.DELTID),
+            triggere = listOf(Trigger.DELTID_BARNEHAGEPLASS),
             utdypendeVilkårsvurderinger = listOf(UtdypendeVilkårsvurdering.ADOPSJON),
             hjemler = emptyList()
         )

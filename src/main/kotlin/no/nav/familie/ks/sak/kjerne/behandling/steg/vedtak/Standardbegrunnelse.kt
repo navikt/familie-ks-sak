@@ -32,7 +32,7 @@ enum class Standardbegrunnelse : IVedtakBegrunnelse {
     },
     INNVILGET_BARN_UNDER_2_ÅR {
         override val vedtakBegrunnelseType = VedtakBegrunnelseType.INNVILGET
-        override val sanityApiNavn = "innvilgetBarn1år"
+        override val sanityApiNavn = "innvilgetBarnUnder2År"
     },
     INNVILGET_BARN_SLUTTET_I_BARNEHAGE {
         override val vedtakBegrunnelseType = VedtakBegrunnelseType.INNVILGET
