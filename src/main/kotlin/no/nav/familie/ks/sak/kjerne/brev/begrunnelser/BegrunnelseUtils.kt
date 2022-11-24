@@ -1,4 +1,4 @@
-package no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak
+package no.nav.familie.ks.sak.kjerne.brev.begrunnelser
 
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.util.slåSammen
@@ -13,9 +13,9 @@ import no.nav.familie.ks.sak.kjerne.brev.domene.BrevPerson
 import org.slf4j.LoggerFactory
 import java.time.LocalDate
 
-private val logger = LoggerFactory.getLogger(Standardbegrunnelse::class.java)
+private val logger = LoggerFactory.getLogger(Begrunnelse::class.java)
 
-fun Standardbegrunnelse.tilSanityBegrunnelse(
+fun Begrunnelse.tilSanityBegrunnelse(
     sanityBegrunnelser: List<SanityBegrunnelse>
 ): SanityBegrunnelse? {
     val sanityBegrunnelse = sanityBegrunnelser.find { it.apiNavn == this.sanityApiNavn }
@@ -25,7 +25,7 @@ fun Standardbegrunnelse.tilSanityBegrunnelse(
     return sanityBegrunnelse
 }
 
-fun EØSStandardbegrunnelse.tilSanityEØSBegrunnelse(
+fun EØSBegrunnelse.tilSanityEØSBegrunnelse(
     eøsSanityBegrunnelser: List<SanityEØSBegrunnelse>
 ): SanityEØSBegrunnelse? {
     val sanityBegrunnelse = eøsSanityBegrunnelser.find { it.apiNavn == this.sanityApiNavn }
@@ -35,23 +35,23 @@ fun EØSStandardbegrunnelse.tilSanityEØSBegrunnelse(
     return sanityBegrunnelse
 }
 
-fun Standardbegrunnelse.tilVedtaksbegrunnelse(
+fun Begrunnelse.tilVedtaksbegrunnelse(
     vedtaksperiodeMedBegrunnelser: VedtaksperiodeMedBegrunnelser
 ): Vedtaksbegrunnelse {
     if (!vedtaksperiodeMedBegrunnelser
         .type
         .tillatteBegrunnelsestyper
-        .contains(this.vedtakBegrunnelseType)
+        .contains(this.begrunnelseType)
     ) {
         throw Feil(
-            "Begrunnelsestype ${this.vedtakBegrunnelseType} passer ikke med " +
+            "Begrunnelsestype ${this.begrunnelseType} passer ikke med " +
                 "typen '${vedtaksperiodeMedBegrunnelser.type}' som er satt på perioden."
         )
     }
 
     return Vedtaksbegrunnelse(
         vedtaksperiodeMedBegrunnelser = vedtaksperiodeMedBegrunnelser,
-        standardbegrunnelse = this
+        begrunnelse = this
     )
 }
 

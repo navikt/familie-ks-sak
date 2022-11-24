@@ -18,13 +18,13 @@ import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelse
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelseType
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityEØSBegrunnelse
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.EØSStandardbegrunnelse
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.Standardbegrunnelse
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.VedtakBegrunnelseType
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårsvurderingRepository
+import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.Begrunnelse
+import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.BegrunnelseType
+import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.EØSBegrunnelse
 import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
 import org.hamcrest.MatcherAssert.assertThat
@@ -169,7 +169,7 @@ class VilkårsvurderingServiceTest {
     fun `hentVilkårsbegrunnelser - skal returnere et map med begrunnelsestyper mappet mot liste av begrunnelser`() {
         every { sanityService.hentSanityBegrunnelser() } returns listOf(
             SanityBegrunnelse(
-                Standardbegrunnelse.INNVILGET_IKKE_BARNEHAGE.sanityApiNavn,
+                Begrunnelse.INNVILGET_IKKE_BARNEHAGE.sanityApiNavn,
                 "innvilgetIkkeBarnehage",
                 SanityBegrunnelseType.STANDARD,
                 Vilkår.values().toList(),
@@ -182,17 +182,17 @@ class VilkårsvurderingServiceTest {
 
         every { sanityService.hentSanityEØSBegrunnelser() } returns listOf(
             SanityEØSBegrunnelse(
-                EØSStandardbegrunnelse.DUMMY.sanityApiNavn,
+                EØSBegrunnelse.DUMMY.sanityApiNavn,
                 "navnISystem"
             )
         )
 
         val vilkårsbegrunnelser = vilkårsvurderingService.hentVilkårsbegrunnelser()
 
-        // TODO: Endre denne testen når vi får lagt inn riktige Standardbegrunnelser og EØSStandardbegrunnelser
+        // TODO: Endre denne testen når vi får lagt inn riktige Begrunnelser og EØSBegrunnelser
         assertEquals(3, vilkårsbegrunnelser.size)
-        assertEquals(0, vilkårsbegrunnelser[VedtakBegrunnelseType.AVSLAG]?.size)
-        assertEquals(1, vilkårsbegrunnelser[VedtakBegrunnelseType.EØS_OPPHØR]?.size)
+        assertEquals(0, vilkårsbegrunnelser[BegrunnelseType.AVSLAG]?.size)
+        assertEquals(1, vilkårsbegrunnelser[BegrunnelseType.EØS_OPPHØR]?.size)
     }
 
     @Test

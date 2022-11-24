@@ -29,7 +29,7 @@ object VilkårsvurderingMapper {
         endretTidspunkt = vilkårResultat.endretTidspunkt,
         behandlingId = vilkårResultat.behandlingId,
         erVurdert = vilkårResultat.resultat != Resultat.IKKE_VURDERT || vilkårResultat.versjon > 0,
-        avslagBegrunnelser = vilkårResultat.standardbegrunnelser,
+        avslagBegrunnelser = vilkårResultat.begrunnelser,
         vurderesEtter = vilkårResultat.vurderesEtter,
         utdypendeVilkårsvurderinger = vilkårResultat.utdypendeVilkårsvurderinger,
         antallTimer = vilkårResultat.antallTimer
