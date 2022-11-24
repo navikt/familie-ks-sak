@@ -50,7 +50,6 @@ enum class Trigger {
     }
 }
 
-// TODO: Har fjernet de fleste av feltene som brukes i ba-sak, så her må vi finne ut hvilke felter vi skal ha for KS
 data class SanityBegrunnelseDto(
     val apiNavn: String?,
     val navnISystem: String,

@@ -76,8 +76,11 @@ class FinnGyldigeBegrunnelserForPeriodeContext(
             hentVilkårResultaterSomOverlapperVedtaksperiode(this)
                 .filtrerPersonerUtenUtbetalingVedInnvilget(this.vedtakBegrunnelseType)
                 .filtrerPåVilkårType(sanityBegrunnelse.vilkår)
-                .filtrerPåTriggere(sanityBegrunnelse.triggere)
-                .filtrerPåUtdypendeVilkårsvurdering(sanityBegrunnelse.utdypendeVilkårsvurderinger)
+                .filtrerPåTriggere(sanityBegrunnelse.triggere, sanityBegrunnelse.type)
+                .filtrerPåUtdypendeVilkårsvurdering(
+                    sanityBegrunnelse.utdypendeVilkårsvurderinger,
+                    sanityBegrunnelse.type
+                )
                 .filtrerPåVilkårResultaterSomPasserMedVedtaksperiodeDatoEllerSanityBegrunnelseType(
                     finnVilkårResultatIderSomPasserMedVedtaksperiodeDato(),
                     sanityBegrunnelse.type
@@ -194,20 +197,32 @@ class FinnGyldigeBegrunnelserForPeriodeContext(
         }.filterValues { it.isNotEmpty() }
 
     private fun Map<Person, List<VilkårResultat>>.filtrerPåTriggere(
-        triggereFraSanity: List<Trigger>
+        triggereFraSanity: List<Trigger>,
+        sanityBegrunnelseType: SanityBegrunnelseType
     ) = this.filter { (person, vilkårResultaterForPerson) ->
-        Trigger.values().filter { it.erOppfylt(vilkårResultaterForPerson, person) } == triggereFraSanity
+        val oppfylteTriggereIBehandling =
+            Trigger.values().filter { it.erOppfylt(vilkårResultaterForPerson, person) }
+
+        // Strengere logikk for Standardbegrunnelsene for innvilgelse
+        if (sanityBegrunnelseType == SanityBegrunnelseType.STANDARD) {
+            oppfylteTriggereIBehandling == triggereFraSanity
+        } else {
+            triggereFraSanity.all { oppfylteTriggereIBehandling.contains(it) }
+        }
     }.filterValues { it.isNotEmpty() }
 
-    private fun Map<Person, List<VilkårResultat>>.filtrerPåUtdypendeVilkårsvurdering(utdypendeVilkårFraSanity: List<UtdypendeVilkårsvurdering>) =
+    private fun Map<Person, List<VilkårResultat>>.filtrerPåUtdypendeVilkårsvurdering(
+        utdypendeVilkårFraSanity: List<UtdypendeVilkårsvurdering>,
+        sanityBegrunnelseType: SanityBegrunnelseType
+    ) =
         this.filterValues { vilkårResultaterForPerson ->
             val utdypendeVilkårIBehandling =
                 vilkårResultaterForPerson.flatMap { it.utdypendeVilkårsvurderinger }.toSet()
 
-            if (utdypendeVilkårIBehandling.isEmpty()) {
-                utdypendeVilkårFraSanity.toSet() == utdypendeVilkårIBehandling
+            if (sanityBegrunnelseType == SanityBegrunnelseType.STANDARD) {
+                utdypendeVilkårIBehandling == utdypendeVilkårFraSanity.toSet()
             } else {
-                utdypendeVilkårIBehandling.all { utdypendeVilkårFraSanity.contains(it) }
+                utdypendeVilkårFraSanity.all { utdypendeVilkårIBehandling.contains(it) }
             }
         }
 }
