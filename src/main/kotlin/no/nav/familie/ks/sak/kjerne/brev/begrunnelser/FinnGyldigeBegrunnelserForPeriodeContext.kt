@@ -184,11 +184,9 @@ class FinnGyldigeBegrunnelserForPeriodeContext(
 
     private fun Map<Person, List<VilkårResultat>>.filtrerPersonerUtenUtbetalingVedInnvilget(vedtakBegrunnelseType: VedtakBegrunnelseType) =
         this.filterKeys {
-            if (vedtakBegrunnelseType == VedtakBegrunnelseType.INNVILGET) {
-                aktørIderMedUtbetaling.contains(it.aktør.aktørId) || it.type == PersonType.SØKER
-            } else {
-                true
-            }
+            vedtakBegrunnelseType != VedtakBegrunnelseType.INNVILGET ||
+                aktørIderMedUtbetaling.contains(it.aktør.aktørId) ||
+                it.type == PersonType.SØKER
         }
 
     private fun Map<Person, List<VilkårResultat>>.filtrerPåVilkårType(vilkårTyperFraSanity: List<Vilkår>) =
