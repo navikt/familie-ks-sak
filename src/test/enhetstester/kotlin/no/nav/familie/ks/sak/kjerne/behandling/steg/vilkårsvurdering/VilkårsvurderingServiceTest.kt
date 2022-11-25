@@ -15,15 +15,16 @@ import no.nav.familie.ks.sak.data.lagVilkårsvurderingMedSøkersVilkår
 import no.nav.familie.ks.sak.data.randomAktør
 import no.nav.familie.ks.sak.integrasjon.sanity.SanityService
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelse
+import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelseType
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityEØSBegrunnelse
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.EØSStandardbegrunnelse
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.Standardbegrunnelse
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.VedtakBegrunnelseType
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårsvurderingRepository
+import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.Begrunnelse
+import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.BegrunnelseType
+import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.EØSBegrunnelse
 import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
 import org.hamcrest.MatcherAssert.assertThat
@@ -94,16 +95,20 @@ class VilkårsvurderingServiceTest {
                 Vilkår.BARNEHAGEPLASS,
                 Vilkår.BOR_MED_SØKER,
                 Vilkår.MEDLEMSKAP_ANNEN_FORELDER,
-                Vilkår.MELLOM_1_OG_2_ELLER_ADOPTERT
+                Vilkår.BARNETS_ALDER
             )
         )
 
         // autoutfylling
-        val mellom1Og2ÅrVilkårer = lagretVilkårsvurdering.personResultater.filter { !it.erSøkersResultater() }
-            .flatMap { it.vilkårResultater.filter { it.vilkårType == Vilkår.MELLOM_1_OG_2_ELLER_ADOPTERT } }
+        val barnetsAlderVilkårer = lagretVilkårsvurdering.personResultater.filter { !it.erSøkersResultater() }
+            .flatMap { it.vilkårResultater.filter { it.vilkårType == Vilkår.BARNETS_ALDER } }
+
+        val barnehageVilkårer =
+            lagretVilkårsvurdering.personResultater.filter { !it.erSøkersResultater() }
+                .flatMap { it.vilkårResultater.filter { vilkår -> vilkår.vilkårType == Vilkår.BARNEHAGEPLASS } }
 
         assertTrue {
-            mellom1Og2ÅrVilkårer.all {
+            barnetsAlderVilkårer.all {
                 it.erAutomatiskVurdert &&
                     it.resultat == Resultat.OPPFYLT &&
                     it.begrunnelse == "Vurdert og satt automatisk"
@@ -111,18 +116,21 @@ class VilkårsvurderingServiceTest {
         }
         val barn1FødselsDato = fnrTilFødselsdato(barn1.aktivFødselsnummer())
         assertTrue {
-            mellom1Og2ÅrVilkårer.any {
+            barnetsAlderVilkårer.any {
                 it.periodeFom == barn1FødselsDato.plusYears(1) &&
                     it.periodeTom == barn1FødselsDato.plusYears(2)
             }
         }
+        assertTrue { barnehageVilkårer.any { it.periodeFom == barn1FødselsDato } }
+
         val barn2FødselsDato = fnrTilFødselsdato(barn2.aktivFødselsnummer())
         assertTrue {
-            mellom1Og2ÅrVilkårer.any {
+            barnetsAlderVilkårer.any {
                 it.periodeFom == barn2FødselsDato.plusYears(1) &&
                     it.periodeTom == barn2FødselsDato.plusYears(2)
             }
         }
+        assertTrue { barnehageVilkårer.any { it.periodeFom == barn2FødselsDato } }
 
         val medlemskapVilkår = lagretVilkårsvurdering.personResultater.single { it.erSøkersResultater() }
             .vilkårResultater.single { it.vilkårType == Vilkår.MEDLEMSKAP }
@@ -161,26 +169,30 @@ class VilkårsvurderingServiceTest {
     fun `hentVilkårsbegrunnelser - skal returnere et map med begrunnelsestyper mappet mot liste av begrunnelser`() {
         every { sanityService.hentSanityBegrunnelser() } returns listOf(
             SanityBegrunnelse(
-                Standardbegrunnelse.DUMMY.sanityApiNavn,
-                "navnISystem",
+                Begrunnelse.INNVILGET_IKKE_BARNEHAGE.sanityApiNavn,
+                "innvilgetIkkeBarnehage",
+                SanityBegrunnelseType.STANDARD,
                 Vilkår.values().toList(),
+                rolle = emptyList(),
+                triggere = emptyList(),
+                utdypendeVilkårsvurderinger = emptyList(),
                 hjemler = emptyList()
             )
         )
 
         every { sanityService.hentSanityEØSBegrunnelser() } returns listOf(
             SanityEØSBegrunnelse(
-                EØSStandardbegrunnelse.DUMMY.sanityApiNavn,
+                EØSBegrunnelse.DUMMY.sanityApiNavn,
                 "navnISystem"
             )
         )
 
         val vilkårsbegrunnelser = vilkårsvurderingService.hentVilkårsbegrunnelser()
 
-        // TODO: Endre denne testen når vi får lagt inn riktige Standardbegrunnelser og EØSStandardbegrunnelser
-        assertEquals(4, vilkårsbegrunnelser.size)
-        assertEquals(Vilkår.values().size, vilkårsbegrunnelser[VedtakBegrunnelseType.AVSLAG]?.size)
-        assertEquals(1, vilkårsbegrunnelser[VedtakBegrunnelseType.EØS_OPPHØR]?.size)
+        // TODO: Endre denne testen når vi får lagt inn riktige Begrunnelser og EØSBegrunnelser
+        assertEquals(3, vilkårsbegrunnelser.size)
+        assertEquals(0, vilkårsbegrunnelser[BegrunnelseType.AVSLAG]?.size)
+        assertEquals(1, vilkårsbegrunnelser[BegrunnelseType.EØS_OPPHØR]?.size)
     }
 
     @Test

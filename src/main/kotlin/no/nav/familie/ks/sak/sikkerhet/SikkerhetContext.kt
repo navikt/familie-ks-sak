@@ -18,29 +18,26 @@ object SikkerhetContext {
             claims.getAsList("roles").contains("access_as_application")
     }
 
-    fun hentSaksbehandler(): String {
-        return Result.runCatching { SpringTokenValidationContextHolder().tokenValidationContext }
+    fun hentSaksbehandler(): String =
+        Result.runCatching { SpringTokenValidationContextHolder().tokenValidationContext }
             .fold(
                 onSuccess = { it.getClaims("azuread")?.get("NAVident")?.toString() ?: SYSTEM_FORKORTELSE },
                 onFailure = { SYSTEM_FORKORTELSE }
             )
-    }
 
-    fun hentSaksbehandlerEpost(): String {
-        return Result.runCatching { SpringTokenValidationContextHolder().tokenValidationContext }
+    fun hentSaksbehandlerEpost(): String =
+        Result.runCatching { SpringTokenValidationContextHolder().tokenValidationContext }
             .fold(
                 onSuccess = { it.getClaims("azuread")?.get("preferred_username")?.toString() ?: SYSTEM_FORKORTELSE },
                 onFailure = { SYSTEM_FORKORTELSE }
             )
-    }
 
-    fun hentSaksbehandlerNavn(): String {
-        return Result.runCatching { SpringTokenValidationContextHolder().tokenValidationContext }
+    fun hentSaksbehandlerNavn(): String =
+        Result.runCatching { SpringTokenValidationContextHolder().tokenValidationContext }
             .fold(
                 onSuccess = { it.getClaims("azuread")?.get("name")?.toString() ?: SYSTEM_NAVN },
                 onFailure = { SYSTEM_NAVN }
             )
-    }
 
     fun hentRolletilgangFraSikkerhetscontext(
         rolleConfig: RolleConfig,
@@ -49,10 +46,11 @@ object SikkerhetContext {
         if (hentSaksbehandler() == SYSTEM_FORKORTELSE) return BehandlerRolle.SYSTEM
 
         val grupper = hentGrupper()
-        val høyesteSikkerhetsnivåForInnloggetBruker: BehandlerRolle =
+        val høyesteSikkerhetsnivåForInnloggetBruker =
             when {
                 grupper.contains(rolleConfig.BESLUTTER_ROLLE) -> BehandlerRolle.BESLUTTER
                 grupper.contains(rolleConfig.SAKSBEHANDLER_ROLLE) -> BehandlerRolle.SAKSBEHANDLER
+                grupper.contains(rolleConfig.FORVALTER_ROLLE) -> BehandlerRolle.FORVALTER
                 grupper.contains(rolleConfig.VEILEDER_ROLLE) -> BehandlerRolle.VEILEDER
                 else -> BehandlerRolle.UKJENT
             }
@@ -68,16 +66,18 @@ object SikkerhetContext {
         if (hentSaksbehandler() == SYSTEM_FORKORTELSE) return BehandlerRolle.SYSTEM
 
         val grupper = hentGrupper()
+
         return when {
             grupper.contains(rolleConfig.BESLUTTER_ROLLE) -> BehandlerRolle.BESLUTTER
             grupper.contains(rolleConfig.SAKSBEHANDLER_ROLLE) -> BehandlerRolle.SAKSBEHANDLER
+            grupper.contains(rolleConfig.FORVALTER_ROLLE) -> BehandlerRolle.FORVALTER
             grupper.contains(rolleConfig.VEILEDER_ROLLE) -> BehandlerRolle.VEILEDER
             else -> BehandlerRolle.UKJENT
         }
     }
 
-    private fun hentGrupper(): List<String> {
-        return Result.runCatching { SpringTokenValidationContextHolder().tokenValidationContext }
+    private fun hentGrupper(): List<String> =
+        Result.runCatching { SpringTokenValidationContextHolder().tokenValidationContext }
             .fold(
                 onSuccess = {
                     @Suppress("UNCHECKED_CAST")
@@ -85,5 +85,4 @@ object SikkerhetContext {
                 },
                 onFailure = { emptyList() }
             )
-    }
 }

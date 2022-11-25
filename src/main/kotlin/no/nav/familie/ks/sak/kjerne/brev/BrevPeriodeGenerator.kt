@@ -3,8 +3,8 @@ package no.nav.familie.ks.sak.kjerne.brev
 import no.nav.familie.ks.sak.common.util.erSenereEnnInneværendeMåned
 import no.nav.familie.ks.sak.common.util.formaterBeløp
 import no.nav.familie.ks.sak.common.util.tilDagMånedÅr
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.BegrunnelseDto
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.Vedtaksperiodetype
+import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.BegrunnelseDto
 import no.nav.familie.ks.sak.kjerne.brev.domene.BrevBehandlingsGrunnlag
 import no.nav.familie.ks.sak.kjerne.brev.domene.BrevPerson
 import no.nav.familie.ks.sak.kjerne.brev.domene.BrevVedtaksPeriode

@@ -6,13 +6,13 @@ import no.nav.familie.ks.sak.api.dto.VedtakBegrunnelseTilknyttetVilkårResponseD
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.integrasjon.sanity.SanityService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.VedtakBegrunnelseType
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.PersonResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårsvurderingRepository
+import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.BegrunnelseType
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
@@ -77,9 +77,9 @@ class VilkårsvurderingService(
                 val vilkårForPerson = Vilkår.hentVilkårFor(person.type)
 
                 val vilkårResultater = vilkårForPerson.map { vilkår ->
+                    // prefyller diverse vilkår automatisk basert på type
                     when (vilkår) {
-                        // prefyller MELLOM_1_OG_2_ELLER_ADOPTERT vilkår automatisk
-                        Vilkår.MELLOM_1_OG_2_ELLER_ADOPTERT -> VilkårResultat(
+                        Vilkår.BARNETS_ALDER -> VilkårResultat(
                             personResultat = personResultat,
                             erAutomatiskVurdert = true,
                             resultat = Resultat.OPPFYLT,
@@ -89,13 +89,36 @@ class VilkårsvurderingService(
                             periodeFom = person.fødselsdato.plusYears(1),
                             periodeTom = person.fødselsdato.plusYears(2)
                         )
+
+                        Vilkår.MEDLEMSKAP ->
+                            VilkårResultat(
+                                personResultat = personResultat,
+                                erAutomatiskVurdert = false,
+                                resultat = Resultat.IKKE_VURDERT,
+                                vilkårType = vilkår,
+                                begrunnelse = "",
+                                periodeFom = person.fødselsdato.plusYears(5),
+                                behandlingId = behandling.id
+                            )
+
+                        Vilkår.BARNEHAGEPLASS ->
+                            VilkårResultat(
+                                personResultat = personResultat,
+                                erAutomatiskVurdert = false,
+                                resultat = Resultat.OPPFYLT,
+                                vilkårType = vilkår,
+                                begrunnelse = "",
+                                periodeFom = person.fødselsdato,
+                                behandlingId = behandling.id
+                            )
+
                         else -> VilkårResultat(
                             personResultat = personResultat,
                             erAutomatiskVurdert = false,
                             resultat = Resultat.IKKE_VURDERT,
                             vilkårType = vilkår,
                             begrunnelse = "",
-                            periodeFom = if (vilkår == Vilkår.MEDLEMSKAP) person.fødselsdato.plusYears(5) else null,
+                            periodeFom = null,
                             behandlingId = behandling.id
                         )
                     }
@@ -108,7 +131,7 @@ class VilkårsvurderingService(
         }
     }
 
-    fun hentVilkårsbegrunnelser(): Map<VedtakBegrunnelseType, List<VedtakBegrunnelseTilknyttetVilkårResponseDto>> =
+    fun hentVilkårsbegrunnelser(): Map<BegrunnelseType, List<VedtakBegrunnelseTilknyttetVilkårResponseDto>> =
         standardbegrunnelserTilNedtrekksmenytekster(sanityService.hentSanityBegrunnelser()) + eøsStandardbegrunnelserTilNedtrekksmenytekster(
             sanityService.hentSanityEØSBegrunnelser()
         )
@@ -168,14 +191,16 @@ class VilkårsvurderingService(
 
         // Vi oppretter initiell vilkår dersom det ikke finnes flere av samme type.
         if (perioderMedSammeVilkårType.isEmpty()) {
-            val nyttVilkårMedNullstilteFelter = opprettNyttVilkårResultat(personResultat, vilkårResultatSomSkalSlettes.vilkårType)
+            val nyttVilkårMedNullstilteFelter =
+                opprettNyttVilkårResultat(personResultat, vilkårResultatSomSkalSlettes.vilkårType)
 
             eksisterendeVilkårResultater.add(nyttVilkårMedNullstilteFelter)
         }
     }
 
-    fun hentAktivVilkårsvurderingForBehandling(behandlingId: Long): Vilkårsvurdering = finnAktivVilkårsvurdering(behandlingId)
-        ?: throw Feil("Fant ikke vilkårsvurdering knyttet til behandling=$behandlingId")
+    fun hentAktivVilkårsvurderingForBehandling(behandlingId: Long): Vilkårsvurdering =
+        finnAktivVilkårsvurdering(behandlingId)
+            ?: throw Feil("Fant ikke vilkårsvurdering knyttet til behandling=$behandlingId")
 
     @Transactional
     fun oppdater(vilkårsvurdering: Vilkårsvurdering): Vilkårsvurdering {

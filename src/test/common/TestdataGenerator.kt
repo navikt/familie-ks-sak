@@ -28,7 +28,6 @@ import no.nav.familie.ks.sak.common.util.førsteDagIInneværendeMåned
 import no.nav.familie.ks.sak.common.util.sisteDagIMåned
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.ForelderBarnRelasjonInfo
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.PdlPersonInfo
-import no.nav.familie.ks.sak.integrasjon.sanity.domene.EndretUtbetalingsperiodeDeltBostedTriggere
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.domene.ArbeidsfordelingPåBehandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingKategori
@@ -36,8 +35,6 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingType
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.simulering.domene.ØkonomiSimuleringMottaker
 import no.nav.familie.ks.sak.kjerne.behandling.steg.simulering.domene.ØkonomiSimuleringPostering
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.Standardbegrunnelse
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.TriggesAv
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.Vedtak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.Vedtaksperiodetype
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.Vedtaksbegrunnelse
@@ -57,6 +54,7 @@ import no.nav.familie.ks.sak.kjerne.beregning.domene.TilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.domene.YtelseType
 import no.nav.familie.ks.sak.kjerne.beregning.domene.maksBeløp
 import no.nav.familie.ks.sak.kjerne.beregning.domene.Årsak
+import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.Begrunnelse
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.Fagsak
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import no.nav.familie.ks.sak.kjerne.personident.Personident
@@ -375,7 +373,7 @@ fun lagVilkårResultaterForBarn(
     val vilkårResultaterForBarn = mutableSetOf<VilkårResultat>()
     Vilkår.hentVilkårFor(PersonType.BARN).forEach {
         when (it) {
-            Vilkår.MELLOM_1_OG_2_ELLER_ADOPTERT -> vilkårResultaterForBarn.add(
+            Vilkår.BARNETS_ALDER -> vilkårResultaterForBarn.add(
                 lagVilkårResultat(
                     personResultat = personResultat,
                     vilkårType = it,
@@ -482,40 +480,13 @@ fun lagEndretUtbetalingAndel(
     begrunnelse = "test"
 )
 
-fun lagTriggesAv(
-    vilkår: Set<Vilkår> = emptySet(),
-    personTyper: Set<PersonType> = setOf(PersonType.BARN, PersonType.SØKER),
-    personerManglerOpplysninger: Boolean = false,
-    satsendring: Boolean = false,
-    vurderingAnnetGrunnlag: Boolean = false,
-    deltbosted: Boolean = false,
-    valgbar: Boolean = true,
-    endringsaarsaker: Set<Årsak> = emptySet(),
-    etterEndretUtbetaling: Boolean = false,
-    endretUtbetalingSkalUtbetales: EndretUtbetalingsperiodeDeltBostedTriggere = EndretUtbetalingsperiodeDeltBostedTriggere.UTBETALING_IKKE_RELEVANT
-): TriggesAv = TriggesAv(
-    vilkår = vilkår,
-    personTyper = personTyper,
-    personerManglerOpplysninger = personerManglerOpplysninger,
-    satsendring = satsendring,
-    vurderingAnnetGrunnlag = vurderingAnnetGrunnlag,
-    deltbosted = deltbosted,
-    valgbar = valgbar,
-    endringsaarsaker = endringsaarsaker,
-    etterEndretUtbetaling = etterEndretUtbetaling,
-    endretUtbetalingSkalUtbetales = endretUtbetalingSkalUtbetales,
-    barnDød = false,
-    gjelderFraInnvilgelsestidspunkt = false,
-    gjelderFørstePeriode = false
-)
-
 fun lagVedtaksbegrunnelse(
-    standardbegrunnelse: Standardbegrunnelse =
-        Standardbegrunnelse.FORTSATT_INNVILGET_SØKER_OG_BARN_BOSATT_I_RIKET,
+    begrunnelse: Begrunnelse =
+        Begrunnelse.INNVILGET_IKKE_BARNEHAGE,
     vedtaksperiodeMedBegrunnelser: VedtaksperiodeMedBegrunnelser = mockk()
 ) = Vedtaksbegrunnelse(
     vedtaksperiodeMedBegrunnelser = vedtaksperiodeMedBegrunnelser,
-    standardbegrunnelse = standardbegrunnelse
+    begrunnelse = begrunnelse
 )
 
 fun lagVedtaksperiodeMedBegrunnelser(

@@ -272,7 +272,7 @@ class VilkårsvurderingStegTest {
     }
 
     @Test
-    fun `utførSteg - skal kaste feil hvis barnehageplass perioder ikke dekker perioder i mellom 1 og 2 år vilkår`() {
+    fun `utførSteg - skal kaste feil hvis barnehageplass perioder ikke dekker perioder i barnets alder vilkår`() {
         val vilkårsvurdering = lagVilkårsvurderingMedSøkersVilkår(
             søkerAktør = søker,
             behandling = behandling,
@@ -307,7 +307,7 @@ class VilkårsvurderingStegTest {
     }
 
     @Test
-    fun `utførSteg - skal kaste feil hvis barnehageplass perioder starter etter siste dato i mellom 1 og 2 år vilkår`() {
+    fun `utførSteg - skal kaste feil hvis barnehageplass perioder starter etter siste dato i barnets alder vilkår`() {
         val vilkårsvurdering = lagVilkårsvurderingMedSøkersVilkår(
             søkerAktør = søker,
             behandling = behandling,

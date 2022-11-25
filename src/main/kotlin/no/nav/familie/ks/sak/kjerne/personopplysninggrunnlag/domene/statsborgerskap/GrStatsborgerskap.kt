@@ -4,8 +4,10 @@ import com.fasterxml.jackson.annotation.JsonIgnore
 import no.nav.familie.kontrakter.felles.personopplysning.Statsborgerskap
 import no.nav.familie.ks.sak.common.entitet.BaseEntitet
 import no.nav.familie.ks.sak.common.entitet.DatoIntervallEntitet
+import no.nav.familie.ks.sak.common.util.erInnenfor
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Medlemskap
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
+import java.time.LocalDate
 import javax.persistence.Column
 import javax.persistence.Embedded
 import javax.persistence.Entity
@@ -47,6 +49,8 @@ data class GrStatsborgerskap(
     val person: Person
 ) : BaseEntitet() {
 
+    fun gjeldendeNå(): Boolean = gyldigPeriode?.erInnenfor(LocalDate.now()) ?: true
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
@@ -76,3 +80,5 @@ data class GrStatsborgerskap(
             )
     }
 }
+
+fun List<GrStatsborgerskap>.filtrerGjeldendeNå(): List<GrStatsborgerskap> = this.filter { it.gjeldendeNå() }

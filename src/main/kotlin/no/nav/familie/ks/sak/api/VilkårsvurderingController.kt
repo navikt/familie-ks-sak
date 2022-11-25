@@ -8,9 +8,9 @@ import no.nav.familie.ks.sak.api.dto.NyttVilkårDto
 import no.nav.familie.ks.sak.api.dto.VedtakBegrunnelseTilknyttetVilkårResponseDto
 import no.nav.familie.ks.sak.config.BehandlerRolle
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.VedtakBegrunnelseType
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.AnnenVurderingService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
+import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.BegrunnelseType
 import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
 import no.nav.familie.ks.sak.sikkerhet.AuditLoggerEvent
 import no.nav.familie.ks.sak.sikkerhet.TilgangService
@@ -98,7 +98,7 @@ class VilkårsvurderingController(
     }
 
     @GetMapping(path = ["/vilkaarsbegrunnelser"])
-    fun hentVilkårsbegrunnelser(): ResponseEntity<Ressurs<Map<VedtakBegrunnelseType, List<VedtakBegrunnelseTilknyttetVilkårResponseDto>>>> {
+    fun hentVilkårsbegrunnelser(): ResponseEntity<Ressurs<Map<BegrunnelseType, List<VedtakBegrunnelseTilknyttetVilkårResponseDto>>>> {
         return ResponseEntity.ok(Ressurs.success(vilkårsvurderingService.hentVilkårsbegrunnelser()))
     }
 

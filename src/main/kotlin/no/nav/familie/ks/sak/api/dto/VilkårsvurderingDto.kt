@@ -1,14 +1,14 @@
 package no.nav.familie.ks.sak.api.dto
 
 import no.nav.familie.ks.sak.common.util.sisteDagIMåned
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.IVedtakBegrunnelse
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.Standardbegrunnelse
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.AnnenVurderingType
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Regelverk
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.UtdypendeVilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
+import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.Begrunnelse
+import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.IBegrunnelse
 import java.math.BigDecimal
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -42,7 +42,7 @@ data class VilkårResultatDto(
     val erVurdert: Boolean = false,
     val erAutomatiskVurdert: Boolean = false,
     val erEksplisittAvslagPåSøknad: Boolean? = null,
-    val avslagBegrunnelser: List<Standardbegrunnelse>? = emptyList(),
+    val avslagBegrunnelser: List<Begrunnelse>? = emptyList(),
     val vurderesEtter: Regelverk? = null,
     val antallTimer: BigDecimal? = null,
     val utdypendeVilkårsvurderinger: List<UtdypendeVilkårsvurdering> = emptyList()
@@ -58,7 +58,7 @@ data class VilkårResultatDto(
             periodeFom = periodeFom,
             periodeTom = periodeTom,
             begrunnelse = begrunnelse,
-            standardbegrunnelser = avslagBegrunnelser ?: emptyList(),
+            begrunnelser = avslagBegrunnelser ?: emptyList(),
             resultat = resultat,
             erAutomatiskVurdert = false,
             erEksplisittAvslagPåSøknad = erEksplisittAvslagPåSøknad,
@@ -81,7 +81,7 @@ data class AnnenVurderingDto(
 )
 
 data class VedtakBegrunnelseTilknyttetVilkårResponseDto(
-    val id: IVedtakBegrunnelse,
+    val id: IBegrunnelse,
     val navn: String,
     val vilkår: Vilkår?
 )

@@ -6,7 +6,6 @@ import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelse
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelserResponsDto
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityEØSBegrunnelse
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityEØSBegrunnelserResponsDto
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import org.springframework.web.client.RestOperations
@@ -19,43 +18,33 @@ class SanityKlient(
     restOperations: RestOperations
 ) :
     AbstractRestClient(restOperations, "sanity") {
-    fun hentBegrunnelser(datasett: String = "ba-brev"): List<SanityBegrunnelse> {
+    fun hentBegrunnelser(datasett: String = "ks-test"): List<SanityBegrunnelse> {
         val uri = lagHentUri(datasett, hentBegrunnelser)
 
-        // TODO: Fjern try/catch og default dummy-respons ved feil når vi får satt opp sanity dokument og struktur på respons.
-        return try {
-            val restSanityBegrunnelser =
-                kallEksternTjeneste<SanityBegrunnelserResponsDto>(
-                    tjeneste = "Sanity",
-                    uri = uri,
-                    formål = "Henter begrunnelser fra sanity"
-                ) {
-                    getForEntity(uri)
-                }
-
-            restSanityBegrunnelser.result.map { it.tilSanityBegrunnelse() }
-        } catch (e: Exception) {
-            listOf(SanityBegrunnelse("dummyApiNavn", "dummyNavnISystem", Vilkår.values().toList(), hjemler = emptyList()))
-        }
-    }
-
-    fun hentEØSBegrunnelser(datasett: String = "ba-brev"): List<SanityEØSBegrunnelse> {
-        val uri = lagHentUri(datasett, hentEØSBegrunnelser)
-
-        // TODO: Fjern try/catch og default dummy-respons ved feil når vi får satt opp sanity dokument og struktur på respons.
-        return try {
-            val restSanityEØSBegrunnelser = kallEksternTjeneste<SanityEØSBegrunnelserResponsDto>(
+        val restSanityBegrunnelser =
+            kallEksternTjeneste<SanityBegrunnelserResponsDto>(
                 tjeneste = "Sanity",
                 uri = uri,
-                formål = "Henter EØS-begrunnelser fra sanity"
+                formål = "Henter begrunnelser fra sanity"
             ) {
                 getForEntity(uri)
             }
 
-            restSanityEØSBegrunnelser.result.map { it.tilSanityEØSBegrunnelse() }
-        } catch (e: Exception) {
-            listOf(SanityEØSBegrunnelse("dummyApiNavn", "dummyNavnISystem"))
+        return restSanityBegrunnelser.result.map { it.tilSanityBegrunnelse() }
+    }
+
+    fun hentEØSBegrunnelser(datasett: String = "ks-test"): List<SanityEØSBegrunnelse> {
+        val uri = lagHentUri(datasett, hentEØSBegrunnelser)
+
+        val restSanityEØSBegrunnelser = kallEksternTjeneste<SanityEØSBegrunnelserResponsDto>(
+            tjeneste = "Sanity",
+            uri = uri,
+            formål = "Henter EØS-begrunnelser fra sanity"
+        ) {
+            getForEntity(uri)
         }
+
+        return restSanityEØSBegrunnelser.result.map { it.tilSanityEØSBegrunnelse() }
     }
 
     private fun lagHentUri(datasett: String, query: String): URI {

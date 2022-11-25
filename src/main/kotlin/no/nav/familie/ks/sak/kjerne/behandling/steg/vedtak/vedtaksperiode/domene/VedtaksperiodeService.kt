@@ -9,25 +9,18 @@ import no.nav.familie.ks.sak.common.util.TIDENES_MORGEN
 import no.nav.familie.ks.sak.common.util.erSammeEllerEtter
 import no.nav.familie.ks.sak.common.util.sisteDagIInneværendeMåned
 import no.nav.familie.ks.sak.integrasjon.sanity.SanityService
-import no.nav.familie.ks.sak.integrasjon.sanity.domene.tilTriggesAv
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg
 import no.nav.familie.ks.sak.kjerne.behandling.steg.registrersøknad.SøknadGrunnlagService
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.EØSStandardbegrunnelse
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.Standardbegrunnelse
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.VedtakBegrunnelseType
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.Vedtak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.VedtakRepository
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.tilSanityBegrunnelse
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.tilVedtaksbegrunnelse
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.Opphørsperiode
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.Utbetalingsperiode
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.VedtaksperiodeHentOgPersisterService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.Vedtaksperiodetype
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.hentGyldigeBegrunnelserForPeriode
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.mapTilOpphørsperioder
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.mapTilUtbetalingsperioder
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.tilVedtaksperiodeMedBegrunnelse
@@ -37,8 +30,12 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vil
 import no.nav.familie.ks.sak.kjerne.beregning.AndelTilkjentYtelseMedEndreteUtbetalinger
 import no.nav.familie.ks.sak.kjerne.beregning.AndelerTilkjentYtelseOgEndreteUtbetalingerService
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelseRepository
-import no.nav.familie.ks.sak.kjerne.beregning.domene.EndretUtbetalingAndel
 import no.nav.familie.ks.sak.kjerne.beregning.domene.EndretUtbetalingAndelRepository
+import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.Begrunnelse
+import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.BegrunnelseType
+import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.EØSBegrunnelse
+import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.FinnGyldigeBegrunnelserForPeriodeContext
+import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.tilVedtaksbegrunnelse
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
@@ -85,10 +82,10 @@ class VedtaksperiodeService(
         return vedtaksperiodeMedBegrunnelser.vedtak
     }
 
-    fun oppdaterVedtaksperiodeMedStandardbegrunnelser(
+    fun oppdaterVedtaksperiodeMedBegrunnelser(
         vedtaksperiodeId: Long,
-        standardbegrunnelserFraFrontend: List<Standardbegrunnelse>,
-        eøsStandardbegrunnelserFraFrontend: List<EØSStandardbegrunnelse> = emptyList()
+        begrunnelserFraFrontend: List<Begrunnelse>,
+        eøsBegrunnelserFraFrontend: List<EØSBegrunnelse> = emptyList()
     ): Vedtak {
         val vedtaksperiodeMedBegrunnelser =
             vedtaksperiodeHentOgPersisterService.hentVedtaksperiodeThrows(vedtaksperiodeId)
@@ -98,17 +95,14 @@ class VedtaksperiodeService(
         val persongrunnlag =
             personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(behandlingId = behandling.id)
 
-        val sanityBegrunnelser = sanityService.hentSanityBegrunnelser()
-
         vedtaksperiodeMedBegrunnelser.settBegrunnelser(
-            standardbegrunnelserFraFrontend.mapNotNull {
-                it.tilSanityBegrunnelse(sanityBegrunnelser)?.tilTriggesAv() ?: return@mapNotNull null
+            begrunnelserFraFrontend.map {
                 it.tilVedtaksbegrunnelse(vedtaksperiodeMedBegrunnelser)
             }
         )
 
         if (
-            standardbegrunnelserFraFrontend.any { it.vedtakBegrunnelseType == VedtakBegrunnelseType.ENDRET_UTBETALING }
+            begrunnelserFraFrontend.any { it.begrunnelseType == BegrunnelseType.ENDRET_UTBETALING }
         ) {
             val andelerTilkjentYtelse = andelerTilkjentYtelseOgEndreteUtbetalingerService
                 .finnAndelerTilkjentYtelseMedEndreteUtbetalinger(behandling.id)
@@ -265,8 +259,6 @@ class VedtaksperiodeService(
 
         val behandling = vedtak.behandling
 
-        val endreteUtbetalinger = endretUtbetalingAndelRepository.findByBehandlingId(behandling.id)
-
         val andelerTilkjentYtelse = andelerTilkjentYtelseOgEndreteUtbetalingerService
             .finnAndelerTilkjentYtelseMedEndreteUtbetalinger(behandling.id)
 
@@ -287,9 +279,7 @@ class VedtaksperiodeService(
             hentUtvidetVedtaksperioderMedBegrunnelserOgGyldigeBegrunnelser(
                 behandling = behandling,
                 utvidedeVedtaksperioderMedBegrunnelser = utvidetVedtaksperioderMedBegrunnelser,
-                persongrunnlag = personopplysningGrunnlag,
-                andelerTilkjentYtelse = andelerTilkjentYtelse,
-                endretUtbetalingAndeler = endreteUtbetalinger
+                persongrunnlag = personopplysningGrunnlag
             )
         } else {
             utvidetVedtaksperioderMedBegrunnelser
@@ -299,9 +289,7 @@ class VedtaksperiodeService(
     private fun hentUtvidetVedtaksperioderMedBegrunnelserOgGyldigeBegrunnelser(
         behandling: Behandling,
         utvidedeVedtaksperioderMedBegrunnelser: List<UtvidetVedtaksperiodeMedBegrunnelser>,
-        persongrunnlag: PersonopplysningGrunnlag,
-        andelerTilkjentYtelse: List<AndelTilkjentYtelseMedEndreteUtbetalinger>,
-        endretUtbetalingAndeler: List<EndretUtbetalingAndel>
+        persongrunnlag: PersonopplysningGrunnlag
     ): List<UtvidetVedtaksperiodeMedBegrunnelser> {
         val vilkårsvurdering = vilkårsvurderingRepository.finnAktivForBehandling(behandling.id)
             ?: error("Finner ikke vilkårsvurdering ved begrunning av vedtak")
@@ -314,15 +302,13 @@ class VedtaksperiodeService(
                 hentAktørerMedUtbetaling(utvidetVedtaksperiodeMedBegrunnelser, persongrunnlag).map { it.aktørId }
 
             utvidetVedtaksperiodeMedBegrunnelser.copy(
-                gyldigeBegrunnelser = hentGyldigeBegrunnelserForPeriode(
+                gyldigeBegrunnelser = FinnGyldigeBegrunnelserForPeriodeContext(
                     utvidetVedtaksperiodeMedBegrunnelser = utvidetVedtaksperiodeMedBegrunnelser,
                     sanityBegrunnelser = sanityBegrunnelser,
                     persongrunnlag = persongrunnlag,
-                    vilkårsvurdering = vilkårsvurdering,
-                    aktørIderMedUtbetaling = aktørIderMedUtbetaling,
-                    endretUtbetalingAndeler = endretUtbetalingAndeler,
-                    andelerTilkjentYtelse = andelerTilkjentYtelse
-                )
+                    personResultater = vilkårsvurdering.personResultater.toList(),
+                    aktørIderMedUtbetaling = aktørIderMedUtbetaling
+                ).hentGyldigeBegrunnelserForVedtaksperiode()
             )
         }
     }
@@ -414,8 +400,8 @@ class VedtaksperiodeService(
 
         val avslagsperioder = periodegrupperteAvslagsvilkår.map { (fellesPeriode, vilkårResultater) ->
 
-            val standardbegrunnelser =
-                vilkårResultater.map { it.standardbegrunnelser }.flatten().toSet().toList()
+            val avslagsbegrunnelser =
+                vilkårResultater.map { it.begrunnelser }.flatten().toSet().toList()
 
             VedtaksperiodeMedBegrunnelser(
                 vedtak = vedtak,
@@ -425,10 +411,10 @@ class VedtaksperiodeService(
             )
                 .apply {
                     begrunnelser.addAll(
-                        standardbegrunnelser.map { begrunnelse ->
+                        avslagsbegrunnelser.map { begrunnelse ->
                             Vedtaksbegrunnelse(
                                 vedtaksperiodeMedBegrunnelser = this,
-                                standardbegrunnelse = begrunnelse
+                                begrunnelse = begrunnelse
                             )
                         }
                     )
@@ -472,7 +458,7 @@ class VedtaksperiodeService(
                     begrunnelser.add(
                         Vedtaksbegrunnelse(
                             vedtaksperiodeMedBegrunnelser = this,
-                            standardbegrunnelse = Standardbegrunnelse.AVSLAG_UREGISTRERT_BARN
+                            begrunnelse = Begrunnelse.AVSLAG_UREGISTRERT_BARN
                         )
                     )
                 }

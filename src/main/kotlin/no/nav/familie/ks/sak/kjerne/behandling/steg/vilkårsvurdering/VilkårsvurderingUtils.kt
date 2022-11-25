@@ -18,16 +18,15 @@ import no.nav.familie.ks.sak.common.util.sisteDagIMåned
 import no.nav.familie.ks.sak.common.util.tilDagMånedÅr
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelse
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityEØSBegrunnelse
-import no.nav.familie.ks.sak.integrasjon.sanity.domene.tilTriggesAv
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.EØSStandardbegrunnelse
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.Standardbegrunnelse
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.tilSanityBegrunnelse
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.tilSanityEØSBegrunnelse
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.PersonResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
+import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.Begrunnelse
+import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.EØSBegrunnelse
+import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.tilSanityBegrunnelse
+import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.tilSanityEØSBegrunnelse
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
 import java.time.LocalDate
 import java.time.Month
@@ -35,9 +34,9 @@ import java.time.Month
 fun standardbegrunnelserTilNedtrekksmenytekster(
     sanityBegrunnelser: List<SanityBegrunnelse>
 ) =
-    Standardbegrunnelse
+    Begrunnelse
         .values()
-        .groupBy { it.vedtakBegrunnelseType }
+        .groupBy { it.begrunnelseType }
         .mapValues { begrunnelseGruppe ->
             begrunnelseGruppe.value
                 .flatMap { vedtakBegrunnelse ->
@@ -50,7 +49,7 @@ fun standardbegrunnelserTilNedtrekksmenytekster(
 
 fun eøsStandardbegrunnelserTilNedtrekksmenytekster(
     sanityEØSBegrunnelser: List<SanityEØSBegrunnelse>
-) = EØSStandardbegrunnelse.values().groupBy { it.vedtakBegrunnelseType }
+) = EØSBegrunnelse.values().groupBy { it.begrunnelseType }
     .mapValues { begrunnelseGruppe ->
         begrunnelseGruppe.value.flatMap { vedtakBegrunnelse ->
             eøsBegrunnelseTilRestVedtakBegrunnelseTilknyttetVilkår(
@@ -62,14 +61,12 @@ fun eøsStandardbegrunnelserTilNedtrekksmenytekster(
 
 fun vedtakBegrunnelseTilRestVedtakBegrunnelseTilknyttetVilkår(
     sanityBegrunnelser: List<SanityBegrunnelse>,
-    vedtakBegrunnelse: Standardbegrunnelse
+    vedtakBegrunnelse: Begrunnelse
 ): List<VedtakBegrunnelseTilknyttetVilkårResponseDto> {
     val sanityBegrunnelse = vedtakBegrunnelse.tilSanityBegrunnelse(sanityBegrunnelser) ?: return emptyList()
-
-    val triggesAv = sanityBegrunnelse.tilTriggesAv()
     val visningsnavn = sanityBegrunnelse.navnISystem
 
-    return if (triggesAv.vilkår.isEmpty()) {
+    return if (sanityBegrunnelse.vilkår.isEmpty()) {
         listOf(
             VedtakBegrunnelseTilknyttetVilkårResponseDto(
                 id = vedtakBegrunnelse,
@@ -78,7 +75,7 @@ fun vedtakBegrunnelseTilRestVedtakBegrunnelseTilknyttetVilkår(
             )
         )
     } else {
-        triggesAv.vilkår.map {
+        sanityBegrunnelse.vilkår.map {
             VedtakBegrunnelseTilknyttetVilkårResponseDto(
                 id = vedtakBegrunnelse,
                 navn = visningsnavn,
@@ -90,7 +87,7 @@ fun vedtakBegrunnelseTilRestVedtakBegrunnelseTilknyttetVilkår(
 
 fun eøsBegrunnelseTilRestVedtakBegrunnelseTilknyttetVilkår(
     sanityEØSBegrunnelser: List<SanityEØSBegrunnelse>,
-    vedtakBegrunnelse: EØSStandardbegrunnelse
+    vedtakBegrunnelse: EØSBegrunnelse
 ): List<VedtakBegrunnelseTilknyttetVilkårResponseDto> {
     val eøsSanityBegrunnelse = vedtakBegrunnelse.tilSanityEØSBegrunnelse(sanityEØSBegrunnelser) ?: return emptyList()
 
@@ -260,7 +257,7 @@ fun finnTilOgMedDato(tilOgMed: LocalDate?, vilkårResultater: List<VilkårResult
     return if (skalVidereføresEnMndEkstra) tilOgMed.plusMonths(1).sisteDagIMåned() else tilOgMed.sisteDagIMåned()
 }
 
-fun validerBarnasVilkår(vilkårsvurdering: Vilkårsvurdering, barna: List<Person>) {
+fun validerAtDatoErKorrektIBarnasVilkår(vilkårsvurdering: Vilkårsvurdering, barna: List<Person>) {
     val feil = mutableListOf<String>()
 
     barna.map { barn ->
@@ -274,6 +271,7 @@ fun validerBarnasVilkår(vilkårsvurdering: Vilkårsvurdering, barna: List<Perso
                     feil.add("Vilkår $vilkårType for barn med fødselsdato $fødselsdato mangler fom dato.")
                 }
                 if (vilkårResultat.periodeFom != null &&
+                    vilkårType != Vilkår.MEDLEMSKAP_ANNEN_FORELDER &&
                     vilkårResultat.lagOgValiderPeriodeFraVilkår().fom.isBefore(barn.fødselsdato)
                 ) {
                     feil.add(
@@ -283,9 +281,9 @@ fun validerBarnasVilkår(vilkårsvurdering: Vilkårsvurdering, barna: List<Perso
                 }
                 if (vilkårResultat.periodeFom != null &&
                     vilkårResultat.erEksplisittAvslagPåSøknad != true &&
-                    vilkårResultat.vilkårType == Vilkår.MELLOM_1_OG_2_ELLER_ADOPTERT
+                    vilkårResultat.vilkårType == Vilkår.BARNETS_ALDER
                 ) {
-                    vilkårResultat.validerVilkår_MELLOM_1_OG_2_ELLER_ADOPTERT(
+                    vilkårResultat.validerVilkår_BARNETS_ALDER(
                         vilkårResultat.lagOgValiderPeriodeFraVilkår(),
                         barn.fødselsdato
                     )?.let { feil.add(it) }
@@ -312,7 +310,7 @@ private fun VilkårResultat.lagOgValiderPeriodeFraVilkår(): IkkeNullbarPeriode<
     }
 }
 
-private fun VilkårResultat.validerVilkår_MELLOM_1_OG_2_ELLER_ADOPTERT(
+private fun VilkårResultat.validerVilkår_BARNETS_ALDER(
     periode: IkkeNullbarPeriode<Long>,
     barnFødselsdato: LocalDate
 ): String? = when {
@@ -322,9 +320,12 @@ private fun VilkårResultat.validerVilkår_MELLOM_1_OG_2_ELLER_ADOPTERT(
 
     this.erAdopsjonOppfylt() && periode.fom.diffIDager(periode.tom) > 365 ->
         "Differansen mellom f.o.m datoen og t.o.m datoen kan ikke være mer enn 1 år."
+
     !this.erAdopsjonOppfylt() && !periode.fom.isEqual(barnFødselsdato.plusYears(1)) ->
         "F.o.m datoen må være lik barnets 1 års dag."
+
     !this.erAdopsjonOppfylt() && !periode.tom.isEqual(barnFødselsdato.plusYears(2)) ->
         "T.o.m datoen må være lik barnets 2 års dag."
+
     else -> null
 }
