@@ -2,7 +2,7 @@ package no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domen
 
 import com.fasterxml.jackson.annotation.JsonIgnore
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelse
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.Standardbegrunnelse
+import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.Begrunnelse
 import no.nav.familie.ks.sak.kjerne.brev.domene.BegrunnelseMedDataFraSanity
 import javax.persistence.Column
 import javax.persistence.Entity
@@ -35,26 +35,26 @@ class Vedtaksbegrunnelse(
 
     @Enumerated(EnumType.STRING)
     @Column(name = "vedtak_begrunnelse_spesifikasjon", updatable = false)
-    val standardbegrunnelse: Standardbegrunnelse
+    val begrunnelse: Begrunnelse
 ) {
 
     fun kopier(vedtaksperiodeMedBegrunnelser: VedtaksperiodeMedBegrunnelser): Vedtaksbegrunnelse = Vedtaksbegrunnelse(
         vedtaksperiodeMedBegrunnelser = vedtaksperiodeMedBegrunnelser,
-        standardbegrunnelse = this.standardbegrunnelse
+        begrunnelse = this.begrunnelse
     )
 
     fun tilBegrunnelseMedDataFraSanity(
         sanityBegrunnelser: List<SanityBegrunnelse>
     ): BegrunnelseMedDataFraSanity? {
         val sanityBegrunnelse = sanityBegrunnelser
-            .firstOrNull { it.apiNavn == this.standardbegrunnelse.sanityApiNavn } ?: return null
+            .firstOrNull { it.apiNavn == this.begrunnelse.sanityApiNavn } ?: return null
 
         return BegrunnelseMedDataFraSanity(
-            standardbegrunnelse = this.standardbegrunnelse,
+            begrunnelse = this.begrunnelse,
             sanityBegrunnelse = sanityBegrunnelse
         )
     }
 
     override fun toString(): String =
-        "Vedtaksbegrunnelse(id=$id, standardbegrunnelse=$standardbegrunnelse)"
+        "Vedtaksbegrunnelse(id=$id, standardbegrunnelse=$begrunnelse)"
 }

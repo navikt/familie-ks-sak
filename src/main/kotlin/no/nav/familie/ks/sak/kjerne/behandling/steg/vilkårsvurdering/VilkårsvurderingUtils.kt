@@ -18,15 +18,15 @@ import no.nav.familie.ks.sak.common.util.sisteDagIMåned
 import no.nav.familie.ks.sak.common.util.tilDagMånedÅr
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelse
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityEØSBegrunnelse
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.EØSStandardbegrunnelse
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.Standardbegrunnelse
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.tilSanityBegrunnelse
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.tilSanityEØSBegrunnelse
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.PersonResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
+import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.Begrunnelse
+import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.EØSBegrunnelse
+import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.tilSanityBegrunnelse
+import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.tilSanityEØSBegrunnelse
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
 import java.time.LocalDate
 import java.time.Month
@@ -34,9 +34,9 @@ import java.time.Month
 fun standardbegrunnelserTilNedtrekksmenytekster(
     sanityBegrunnelser: List<SanityBegrunnelse>
 ) =
-    Standardbegrunnelse
+    Begrunnelse
         .values()
-        .groupBy { it.vedtakBegrunnelseType }
+        .groupBy { it.begrunnelseType }
         .mapValues { begrunnelseGruppe ->
             begrunnelseGruppe.value
                 .flatMap { vedtakBegrunnelse ->
@@ -49,7 +49,7 @@ fun standardbegrunnelserTilNedtrekksmenytekster(
 
 fun eøsStandardbegrunnelserTilNedtrekksmenytekster(
     sanityEØSBegrunnelser: List<SanityEØSBegrunnelse>
-) = EØSStandardbegrunnelse.values().groupBy { it.vedtakBegrunnelseType }
+) = EØSBegrunnelse.values().groupBy { it.begrunnelseType }
     .mapValues { begrunnelseGruppe ->
         begrunnelseGruppe.value.flatMap { vedtakBegrunnelse ->
             eøsBegrunnelseTilRestVedtakBegrunnelseTilknyttetVilkår(
@@ -61,7 +61,7 @@ fun eøsStandardbegrunnelserTilNedtrekksmenytekster(
 
 fun vedtakBegrunnelseTilRestVedtakBegrunnelseTilknyttetVilkår(
     sanityBegrunnelser: List<SanityBegrunnelse>,
-    vedtakBegrunnelse: Standardbegrunnelse
+    vedtakBegrunnelse: Begrunnelse
 ): List<VedtakBegrunnelseTilknyttetVilkårResponseDto> {
     val sanityBegrunnelse = vedtakBegrunnelse.tilSanityBegrunnelse(sanityBegrunnelser) ?: return emptyList()
     val visningsnavn = sanityBegrunnelse.navnISystem
@@ -87,7 +87,7 @@ fun vedtakBegrunnelseTilRestVedtakBegrunnelseTilknyttetVilkår(
 
 fun eøsBegrunnelseTilRestVedtakBegrunnelseTilknyttetVilkår(
     sanityEØSBegrunnelser: List<SanityEØSBegrunnelse>,
-    vedtakBegrunnelse: EØSStandardbegrunnelse
+    vedtakBegrunnelse: EØSBegrunnelse
 ): List<VedtakBegrunnelseTilknyttetVilkårResponseDto> {
     val eøsSanityBegrunnelse = vedtakBegrunnelse.tilSanityEØSBegrunnelse(sanityEØSBegrunnelser) ?: return emptyList()
 

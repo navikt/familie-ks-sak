@@ -1,6 +1,6 @@
 package no.nav.familie.ks.sak.kjerne.brev.domene.maler.brevperioder
 
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.BegrunnelseDto
+import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.BegrunnelseDto
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.Flettefelt
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.flettefelt
 

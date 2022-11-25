@@ -4,16 +4,16 @@ import no.nav.familie.kontrakter.felles.Ressurs
 import no.nav.familie.ks.sak.api.dto.BehandlingResponsDto
 import no.nav.familie.ks.sak.api.dto.GenererFortsattInnvilgetVedtaksperioderDto
 import no.nav.familie.ks.sak.api.dto.GenererVedtaksperioderForOverstyrtEndringstidspunktDto
+import no.nav.familie.ks.sak.api.dto.VedtaksperiodeMedBegrunnelserDto
 import no.nav.familie.ks.sak.api.dto.VedtaksperiodeMedFriteksterDto
-import no.nav.familie.ks.sak.api.dto.VedtaksperiodeMedStandardbegrunnelserDto
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.config.BehandlerRolle
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.EØSStandardbegrunnelse
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.Standardbegrunnelse
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.VedtakService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.VedtaksperiodeService
+import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.Begrunnelse
+import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.EØSBegrunnelse
 import no.nav.familie.ks.sak.sikkerhet.TilgangService
 import no.nav.security.token.support.core.api.ProtectedWithClaims
 import org.springframework.http.ResponseEntity
@@ -35,28 +35,28 @@ class VedtaksperiodeMedBegrunnelserController(
     private val tilgangService: TilgangService
 ) {
 
-    @PutMapping("/standardbegrunnelser/{vedtaksperiodeId}")
-    fun oppdaterVedtaksperiodeMedStandardbegrunnelser(
+    @PutMapping("/begrunnelser/{vedtaksperiodeId}")
+    fun oppdaterVedtaksperiodeMedBegrunnelser(
         @PathVariable vedtaksperiodeId: Long,
-        @RequestBody vedtaksperiodeMedStandardbegrunnelserDto: VedtaksperiodeMedStandardbegrunnelserDto
+        @RequestBody vedtaksperiodeMedBegrunnelserDto: VedtaksperiodeMedBegrunnelserDto
     ): ResponseEntity<Ressurs<BehandlingResponsDto>> {
         tilgangService.validerTilgangTilHandling(
             minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
-            handling = "oppdatere vedtaksperiode med standardbegrunnelser"
+            handling = "oppdatere vedtaksperiode med begrunnelser"
         )
 
-        val standardbegrunnelser = vedtaksperiodeMedStandardbegrunnelserDto.standardbegrunnelser.mapNotNull {
-            konverterTilEnumverdi<Standardbegrunnelse>(it)
+        val begrunnelser = vedtaksperiodeMedBegrunnelserDto.begrunnelser.mapNotNull {
+            konverterTilEnumverdi<Begrunnelse>(it)
         }
 
-        val eøsStandardbegrunnelser = vedtaksperiodeMedStandardbegrunnelserDto.standardbegrunnelser.mapNotNull {
-            konverterTilEnumverdi<EØSStandardbegrunnelse>(it)
+        val eøsBegrunnelser = vedtaksperiodeMedBegrunnelserDto.begrunnelser.mapNotNull {
+            konverterTilEnumverdi<EØSBegrunnelse>(it)
         }
 
-        val vedtak = vedtaksperiodeService.oppdaterVedtaksperiodeMedStandardbegrunnelser(
+        val vedtak = vedtaksperiodeService.oppdaterVedtaksperiodeMedBegrunnelser(
             vedtaksperiodeId = vedtaksperiodeId,
-            standardbegrunnelserFraFrontend = standardbegrunnelser,
-            eøsStandardbegrunnelserFraFrontend = eøsStandardbegrunnelser
+            begrunnelserFraFrontend = begrunnelser,
+            eøsBegrunnelserFraFrontend = eøsBegrunnelser
         )
 
         return ResponseEntity.ok(Ressurs.success(behandlingService.lagBehandlingRespons(behandlingId = vedtak.behandling.id)))

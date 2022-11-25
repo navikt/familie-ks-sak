@@ -1,6 +1,6 @@
-package no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak
+package no.nav.familie.ks.sak.kjerne.brev.begrunnelser
 
-enum class VedtakBegrunnelseType(val sorteringsrekkefølge: Int) {
+enum class BegrunnelseType(val sorteringsrekkefølge: Int) {
     REDUKSJON(1),
     INNVILGET(2),
     EØS_INNVILGET(2),
