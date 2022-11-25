@@ -73,12 +73,12 @@ class VedtaksperiodeHentOgPersisterServiceTest {
     @Test
     fun `slettVedtaksperioderFor - skal slette vedtaksperioder for behandling`() {
         val mocketVedtak = mockk<Vedtak>()
-        every { vedtakRepository.findByBehandlingAndAktiv(any()) } returns mocketVedtak
+        every { vedtakRepository.findByBehandlingAndAktivOptional(any()) } returns mocketVedtak
         every { vedtaksperiodeRepository.slettVedtaksperioderForVedtak(mocketVedtak) } just runs
 
         vedtaksperiodeHentOgPersisterService.slettVedtaksperioderFor(behandlingId = 200)
 
-        verify(exactly = 1) { vedtakRepository.findByBehandlingAndAktiv(200) }
+        verify(exactly = 1) { vedtakRepository.findByBehandlingAndAktivOptional(200) }
         verify(exactly = 1) { vedtaksperiodeRepository.slettVedtaksperioderForVedtak(mocketVedtak) }
     }
 }
