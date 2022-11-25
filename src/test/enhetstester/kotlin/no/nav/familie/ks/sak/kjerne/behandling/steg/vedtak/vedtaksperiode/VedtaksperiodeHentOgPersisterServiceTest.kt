@@ -9,6 +9,7 @@ import io.mockk.mockk
 import io.mockk.runs
 import io.mockk.verify
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.Vedtak
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.VedtakRepository
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.VedtaksperiodeMedBegrunnelser
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.VedtaksperiodeRepository
 import org.hamcrest.MatcherAssert.assertThat
@@ -22,6 +23,9 @@ class VedtaksperiodeHentOgPersisterServiceTest {
 
     @MockK
     private lateinit var vedtaksperiodeRepository: VedtaksperiodeRepository
+
+    @MockK
+    private lateinit var vedtakRepository: VedtakRepository
 
     @InjectMockKs
     private lateinit var vedtaksperiodeHentOgPersisterService: VedtaksperiodeHentOgPersisterService
@@ -64,5 +68,17 @@ class VedtaksperiodeHentOgPersisterServiceTest {
         val vedtaksperioder = vedtaksperiodeHentOgPersisterService.finnVedtaksperioderFor(200)
 
         assertThat(vedtaksperioder.size, Is(1))
+    }
+
+    @Test
+    fun `slettVedtaksperioderFor - skal slette vedtaksperioder for behandling`() {
+        val mocketVedtak = mockk<Vedtak>()
+        every { vedtakRepository.findByBehandlingAndAktiv(any()) } returns mocketVedtak
+        every { vedtaksperiodeRepository.slettVedtaksperioderForVedtak(mocketVedtak) } just runs
+
+        vedtaksperiodeHentOgPersisterService.slettVedtaksperioderFor(behandlingId = 200)
+
+        verify(exactly = 1) { vedtakRepository.findByBehandlingAndAktiv(200) }
+        verify(exactly = 1) { vedtaksperiodeRepository.slettVedtaksperioderForVedtak(mocketVedtak) }
     }
 }

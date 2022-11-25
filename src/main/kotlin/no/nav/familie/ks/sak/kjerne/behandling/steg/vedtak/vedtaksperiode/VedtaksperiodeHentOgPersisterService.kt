@@ -2,12 +2,16 @@ package no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode
 
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.Vedtak
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.VedtakRepository
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.VedtaksperiodeMedBegrunnelser
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.VedtaksperiodeRepository
 import org.springframework.stereotype.Service
 
 @Service
-class VedtaksperiodeHentOgPersisterService(private val vedtaksperiodeRepository: VedtaksperiodeRepository) {
+class VedtaksperiodeHentOgPersisterService(
+    private val vedtaksperiodeRepository: VedtaksperiodeRepository,
+    private val vedtakRepository: VedtakRepository
+) {
 
     fun hentVedtaksperiodeThrows(vedtaksperiodeId: Long): VedtaksperiodeMedBegrunnelser =
         vedtaksperiodeRepository.finnVedtaksperiode(vedtaksperiodeId)
@@ -30,6 +34,11 @@ class VedtaksperiodeHentOgPersisterService(private val vedtaksperiodeRepository:
 
     fun slettVedtaksperioderFor(vedtak: Vedtak) =
         vedtaksperiodeRepository.slettVedtaksperioderForVedtak(vedtak)
+
+    fun slettVedtaksperioderFor(behandlingId: Long) =
+        vedtakRepository.findByBehandlingAndAktivOptional(behandlingId)?.let {
+            vedtaksperiodeRepository.slettVedtaksperioderForVedtak(it)
+        }
 
     fun finnVedtaksperioderFor(vedtakId: Long): List<VedtaksperiodeMedBegrunnelser> =
         vedtaksperiodeRepository.finnVedtaksperioderForVedtak(vedtakId)

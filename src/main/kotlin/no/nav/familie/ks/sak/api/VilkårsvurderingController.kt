@@ -8,6 +8,7 @@ import no.nav.familie.ks.sak.api.dto.NyttVilkårDto
 import no.nav.familie.ks.sak.api.dto.VedtakBegrunnelseTilknyttetVilkårResponseDto
 import no.nav.familie.ks.sak.config.BehandlerRolle
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
+import no.nav.familie.ks.sak.kjerne.behandling.TilbakestillBehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.AnnenVurderingService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.BegrunnelseType
@@ -35,7 +36,8 @@ class VilkårsvurderingController(
     private val personidentService: PersonidentService,
     private val tilgangService: TilgangService,
     private val vilkårsvurderingService: VilkårsvurderingService,
-    private val annenVurderingService: AnnenVurderingService
+    private val annenVurderingService: AnnenVurderingService,
+    private val tilbakestillBehandlingService: TilbakestillBehandlingService
 ) {
 
     @PostMapping(path = ["/{behandlingId}"])
@@ -49,6 +51,8 @@ class VilkårsvurderingController(
         )
 
         vilkårsvurderingService.opprettNyttVilkårPåBehandling(behandlingId, nyttVilkårDto)
+
+        tilbakestillBehandlingService.tilbakestillBehandlingTilVilkårsvurdering(behandlingId)
 
         return ResponseEntity.ok(Ressurs.success(behandlingService.lagBehandlingRespons(behandlingId = behandlingId)))
     }
@@ -69,6 +73,8 @@ class VilkårsvurderingController(
             behandlingId = behandlingId,
             endreVilkårResultatDto = endreVilkårResultatDto
         )
+
+        tilbakestillBehandlingService.tilbakestillBehandlingTilVilkårsvurdering(behandlingId)
 
         return ResponseEntity.ok(Ressurs.success(behandlingService.lagBehandlingRespons(behandlingId = behandlingId)))
     }
@@ -93,6 +99,8 @@ class VilkårsvurderingController(
             vilkårId = vilkaarId,
             aktør = aktør
         )
+
+        tilbakestillBehandlingService.tilbakestillBehandlingTilVilkårsvurdering(behandlingId)
 
         return ResponseEntity.ok(Ressurs.success(behandlingService.lagBehandlingRespons(behandlingId = behandlingId)))
     }
