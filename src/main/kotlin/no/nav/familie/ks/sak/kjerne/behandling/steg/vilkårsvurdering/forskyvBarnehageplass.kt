@@ -52,7 +52,7 @@ private fun List<VilkårResultat>.tilBarnehageplassVilkårMedGraderingsforskjell
             accMedForrigeOppdatert + BarnehageplassVilkårMedGraderingsforskjellMellomPerioder(
                 vilkårResultat = vilkårResultat,
                 graderingsforskjellMellomDenneOgForrigePeriode = graderingsforskjellMellomDenneOgForrigePeriode,
-                graderingsforskjellMellomDenneOgNestePeriode = Graderingsforskjell.Reduksjon
+                graderingsforskjellMellomDenneOgNestePeriode = Graderingsforskjell.ReduksjonGårTilIngenUtbetaling
             )
         }.filtrerBortNullverdier()
 }
@@ -66,14 +66,20 @@ private fun VilkårResultat?.hentGraderingsforskjellMellomDenneOgForrigePeriode(
     val graderingDennePerioden = this?.let { hentProsentForAntallTimer(this.antallTimer) } ?: BigDecimal.ZERO
 
     return when {
+        graderingForrigePeriode > graderingDennePerioden && graderingDennePerioden == BigDecimal.ZERO -> Graderingsforskjell.ReduksjonGårTilIngenUtbetaling
         graderingForrigePeriode > graderingDennePerioden -> Graderingsforskjell.Reduksjon
+
+        graderingForrigePeriode < graderingDennePerioden && graderingForrigePeriode == BigDecimal.ZERO -> Graderingsforskjell.ØkingGårFraIngenUtbetaling
         graderingForrigePeriode < graderingDennePerioden -> Graderingsforskjell.Øking
+
         else -> Graderingsforskjell.Lik
     }
 }
 
 enum class Graderingsforskjell {
+    ØkingGårFraIngenUtbetaling,
     Øking,
+    ReduksjonGårTilIngenUtbetaling,
     Reduksjon,
     Lik
 }
@@ -95,12 +101,24 @@ private fun List<Periode<VilkårResultat>>.filtrerBortOverlappendePerioderMedMin
 
 private fun LocalDate?.tilForskøvetTomBasertPåGraderingsforskjell(
     graderingsforskjellMellomDenneOgNestePeriode: Graderingsforskjell
-) = if (graderingsforskjellMellomDenneOgNestePeriode == Graderingsforskjell.Reduksjon) {
-    this?.plusDays(1)?.minusMonths(1)?.sisteDagIMåned()
-} else this?.sisteDagIMåned()
+) = when (graderingsforskjellMellomDenneOgNestePeriode) {
+    Graderingsforskjell.Lik,
+    Graderingsforskjell.Øking -> this?.sisteDagIMåned()
+
+    Graderingsforskjell.ØkingGårFraIngenUtbetaling -> this?.plusDays(1)?.sisteDagIMåned()
+
+    Graderingsforskjell.Reduksjon -> this?.plusDays(1)?.minusMonths(1)?.sisteDagIMåned()
+    Graderingsforskjell.ReduksjonGårTilIngenUtbetaling -> this?.minusMonths(1)?.sisteDagIMåned()
+}
 
 private fun LocalDate?.tilForskøvetFomBasertPåGraderingsforskjell(
     graderingsforskjellMellomDenneOgForrigePeriode: Graderingsforskjell
-) = if (graderingsforskjellMellomDenneOgForrigePeriode == Graderingsforskjell.Reduksjon) {
-    this?.førsteDagIInneværendeMåned()
-} else this?.minusDays(1)?.plusMonths(1)?.førsteDagIInneværendeMåned()
+) = when (graderingsforskjellMellomDenneOgForrigePeriode) {
+    Graderingsforskjell.Lik,
+    Graderingsforskjell.Øking -> this?.minusDays(1)?.plusMonths(1)?.førsteDagIInneværendeMåned()
+
+    Graderingsforskjell.ØkingGårFraIngenUtbetaling -> this?.plusMonths(1)?.førsteDagIInneværendeMåned()
+
+    Graderingsforskjell.Reduksjon -> this?.førsteDagIInneværendeMåned()
+    Graderingsforskjell.ReduksjonGårTilIngenUtbetaling -> this?.minusDays(1)?.førsteDagIInneværendeMåned()
+}

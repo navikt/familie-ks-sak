@@ -307,6 +307,62 @@ class forskyvBarnehageplassVilkårTest {
     }
 
     @Test
+    fun `forskyvBarnehageplassVilkår skal skyves en måned framover ved overgang fra periode med 33 timer eller mer`() {
+        val vilkårResultat1 = lagVilkårResultat(
+            vilkårType = Vilkår.BARNEHAGEPLASS,
+            periodeFom = august.atDay(14),
+            periodeTom = september.atEndOfMonth(),
+            antallTimer = BigDecimal.valueOf(33)
+        )
+        val vilkårResultat2 = lagVilkårResultat(
+            vilkårType = Vilkår.BARNEHAGEPLASS,
+            periodeFom = oktober.atDay(1),
+            periodeTom = desember.atDay(1),
+            antallTimer = BigDecimal.valueOf(8)
+        )
+
+        val forskjøvedeVilkårResultater = listOf(vilkårResultat1, vilkårResultat2).forskyvBarnehageplassVilkår()
+
+        Assertions.assertEquals(2, forskjøvedeVilkårResultater.size)
+
+        Assertions.assertEquals(september.atDay(1), forskjøvedeVilkårResultater.first().fom)
+        Assertions.assertEquals(oktober.atEndOfMonth(), forskjøvedeVilkårResultater.first().tom)
+        Assertions.assertEquals(BigDecimal.valueOf(33), forskjøvedeVilkårResultater.first().verdi.antallTimer)
+
+        Assertions.assertEquals(november.atDay(1), forskjøvedeVilkårResultater[1].fom)
+        Assertions.assertEquals(november.atEndOfMonth(), forskjøvedeVilkårResultater[1].tom)
+        Assertions.assertEquals(BigDecimal.valueOf(8), forskjøvedeVilkårResultater[1].verdi.antallTimer)
+    }
+
+    @Test
+    fun `forskyvBarnehageplassVilkår skal skyves en måned tilbake ved overgang til periode med 33 timer eller mer`() {
+        val vilkårResultat1 = lagVilkårResultat(
+            vilkårType = Vilkår.BARNEHAGEPLASS,
+            periodeFom = august.atDay(14),
+            periodeTom = oktober.atEndOfMonth(),
+            antallTimer = BigDecimal.valueOf(8)
+        )
+        val vilkårResultat2 = lagVilkårResultat(
+            vilkårType = Vilkår.BARNEHAGEPLASS,
+            periodeFom = november.atDay(1),
+            periodeTom = desember.atDay(1),
+            antallTimer = BigDecimal.valueOf(33)
+        )
+
+        val forskjøvedeVilkårResultater = listOf(vilkårResultat1, vilkårResultat2).forskyvBarnehageplassVilkår()
+
+        Assertions.assertEquals(2, forskjøvedeVilkårResultater.size)
+
+        Assertions.assertEquals(september.atDay(1), forskjøvedeVilkårResultater.first().fom)
+        Assertions.assertEquals(september.atEndOfMonth(), forskjøvedeVilkårResultater.first().tom)
+        Assertions.assertEquals(BigDecimal.valueOf(8), forskjøvedeVilkårResultater.first().verdi.antallTimer)
+
+        Assertions.assertEquals(oktober.atDay(1), forskjøvedeVilkårResultater[1].fom)
+        Assertions.assertEquals(november.atEndOfMonth(), forskjøvedeVilkårResultater[1].tom)
+        Assertions.assertEquals(BigDecimal.valueOf(33), forskjøvedeVilkårResultater[1].verdi.antallTimer)
+    }
+
+    @Test
     fun `Skal forskyve riktig ved opphold av barnehageplass`() {
         val vilkårResultat1 = lagVilkårResultat(
             vilkårType = Vilkår.BARNEHAGEPLASS,
