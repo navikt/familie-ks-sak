@@ -191,10 +191,10 @@ class VilkårsvurderingControllerTest : OppslagSpringRunnerTest() {
         assertTrue { vedtaksperiodeRepository.finnVedtaksperioderForVedtak(vedtak.id).isEmpty() }
 
         val oppdatertBehandling = behandlingRepository.hentAktivBehandling(behandlingForOppdatering.id)
-        assertBehandlingHarSteg(oppdatertBehandling, BehandlingSteg.VILKÅRSVURDERING, BehandlingStegStatus.KLAR)
-        assertBehandlingHarSteg(oppdatertBehandling, BehandlingSteg.BEHANDLINGSRESULTAT, BehandlingStegStatus.TILBAKEFØRT)
-        assertBehandlingHarSteg(oppdatertBehandling, BehandlingSteg.SIMULERING, BehandlingStegStatus.TILBAKEFØRT)
-        assertBehandlingHarSteg(oppdatertBehandling, BehandlingSteg.VEDTAK, BehandlingStegStatus.TILBAKEFØRT)
+        assertBehandlingHarStegOgStatus(oppdatertBehandling, BehandlingSteg.VILKÅRSVURDERING, BehandlingStegStatus.KLAR)
+        assertBehandlingHarStegOgStatus(oppdatertBehandling, BehandlingSteg.BEHANDLINGSRESULTAT, BehandlingStegStatus.TILBAKEFØRT)
+        assertBehandlingHarStegOgStatus(oppdatertBehandling, BehandlingSteg.SIMULERING, BehandlingStegStatus.TILBAKEFØRT)
+        assertBehandlingHarStegOgStatus(oppdatertBehandling, BehandlingSteg.VEDTAK, BehandlingStegStatus.TILBAKEFØRT)
     }
 
     @Test
@@ -288,10 +288,10 @@ class VilkårsvurderingControllerTest : OppslagSpringRunnerTest() {
         assertTrue { vedtaksperiodeRepository.finnVedtaksperioderForVedtak(vedtak.id).isEmpty() }
 
         val oppdatertBehandling = behandlingRepository.hentAktivBehandling(behandlingForOppdatering.id)
-        assertBehandlingHarSteg(oppdatertBehandling, BehandlingSteg.VILKÅRSVURDERING, BehandlingStegStatus.KLAR)
-        assertBehandlingHarSteg(oppdatertBehandling, BehandlingSteg.BEHANDLINGSRESULTAT, BehandlingStegStatus.TILBAKEFØRT)
-        assertBehandlingHarSteg(oppdatertBehandling, BehandlingSteg.SIMULERING, BehandlingStegStatus.TILBAKEFØRT)
-        assertBehandlingHarSteg(oppdatertBehandling, BehandlingSteg.VEDTAK, BehandlingStegStatus.TILBAKEFØRT)
+        assertBehandlingHarStegOgStatus(oppdatertBehandling, BehandlingSteg.VILKÅRSVURDERING, BehandlingStegStatus.KLAR)
+        assertBehandlingHarStegOgStatus(oppdatertBehandling, BehandlingSteg.BEHANDLINGSRESULTAT, BehandlingStegStatus.TILBAKEFØRT)
+        assertBehandlingHarStegOgStatus(oppdatertBehandling, BehandlingSteg.SIMULERING, BehandlingStegStatus.TILBAKEFØRT)
+        assertBehandlingHarStegOgStatus(oppdatertBehandling, BehandlingSteg.VEDTAK, BehandlingStegStatus.TILBAKEFØRT)
     }
 
     @Test
@@ -415,7 +415,7 @@ class VilkårsvurderingControllerTest : OppslagSpringRunnerTest() {
         vedtaksperiodeRepository.saveAndFlush(vedtaksperiodeMedBegrunnelser)
     }
 
-    private fun assertBehandlingHarSteg(
+    private fun assertBehandlingHarStegOgStatus(
         behandling: Behandling,
         behandlingSteg: BehandlingSteg,
         behandlingStegStatus: BehandlingStegStatus

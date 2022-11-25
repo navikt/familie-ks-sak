@@ -28,7 +28,7 @@ class TilbakestillBehandlingService(
 
         // TODO slett tilbakekreving
 
-        // tilbakefører Behandling til Vilkårsvurdering steg
+        // tilbakefører Behandling til gitt behandlingSteg
         stegService.tilbakeførSteg(behandlingId, behandlingSteg)
     }
 }
