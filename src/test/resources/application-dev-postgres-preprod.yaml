@@ -155,12 +155,6 @@ spring:
     hibernate:
       ddl-auto: none
 
-  cloud:
-    vault:
-      database:
-        role: postgres
-
-
   cache:
     type=NONE:
 
