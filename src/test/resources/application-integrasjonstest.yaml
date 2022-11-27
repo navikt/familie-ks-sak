@@ -145,6 +145,7 @@ funksjonsbrytere:
     producer:
       enabled: false
 
+
 spring:
   datasource:
     url: jdbc:postgresql://localhost:5432/familie-ks-sak
