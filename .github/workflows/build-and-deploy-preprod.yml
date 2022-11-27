@@ -55,7 +55,7 @@ jobs:
         env:
           GITHUB_USERNAME: x-access-token
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: ./gradlew clean build -x test
+        run: ./gradlew clean build -x test -x integrationTest
       - name: Bygg Docker image
         run: |
           docker build -t $IMAGE .
