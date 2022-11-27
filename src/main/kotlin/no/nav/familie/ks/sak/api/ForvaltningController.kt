@@ -15,7 +15,6 @@ import no.nav.familie.ks.sak.statistikk.stønadsstatistikk.StønadsstatistikkSer
 import no.nav.familie.prosessering.internal.TaskService
 import no.nav.security.token.support.core.api.ProtectedWithClaims
 import org.slf4j.LoggerFactory
-import org.springframework.context.annotation.Profile
 import org.springframework.http.ResponseEntity
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.GetMapping
