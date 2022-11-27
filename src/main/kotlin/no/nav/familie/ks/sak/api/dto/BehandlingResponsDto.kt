@@ -35,7 +35,7 @@ data class BehandlingResponsDto(
     val utbetalingsperioder: List<UtbetalingsperiodeResponsDto>,
     val personerMedAndelerTilkjentYtelse: List<PersonerMedAndelerResponsDto>,
     val vedtak: VedtakDto?,
-    val endretUtbetalingAndeler: List<Any> = emptyList(), // TODO implementeres ved behandlingsresultat
+    val endretUtbetalingAndeler: List<EndretUtbetalingAndelDto>,
     val kompetanser: List<Any> = emptyList(), // TODO implementeres ved EØS
     val utenlandskePeriodebeløp: List<Any> = emptyList(), // TODO implementeres ved EØS
     val valutakurser: List<Any> = emptyList() // TODO implementeres ved EØS,

@@ -125,6 +125,10 @@ class BehandlingServiceTest {
             andelerTilkjentYtelseOgEndreteUtbetalingerService
                 .finnAndelerTilkjentYtelseMedEndreteUtbetalinger(behandling.id)
         } returns emptyList()
+        every {
+            andelerTilkjentYtelseOgEndreteUtbetalingerService
+                .finnEndreteUtbetalingerMedAndelerIHenholdTilVilkårsvurdering(behandling.id)
+        } returns emptyList()
     }
 
     @Test

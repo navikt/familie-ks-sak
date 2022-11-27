@@ -28,7 +28,7 @@ repositories {
 
 dependencies {
 
-    val springdocVersion = "1.6.12"
+    val springdocVersion = "1.6.13"
     val sentryVersion = "6.6.0"
     val navFellesVersion = "1.20220901103347_4819e55"
     val eksterneKontrakterBisysVersion = "2.0_20220609214258_f30c3ce"

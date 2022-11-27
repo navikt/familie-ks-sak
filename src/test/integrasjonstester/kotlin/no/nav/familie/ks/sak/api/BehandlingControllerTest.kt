@@ -90,6 +90,7 @@ class BehandlingControllerTest : OppslagSpringRunnerTest() {
     @Test
     fun `endreBehandlendeEnhet - skal kaste FunksjonellFeil hvis begrunnelse er tom`() {
         val token = lokalTestToken(behandlerRolle = BehandlerRolle.BESLUTTER)
+        println(token)
         every { integrasjonClient.sjekkTilgangTilPersoner(any()) } returns Tilgang(true, "test")
 
         Given {

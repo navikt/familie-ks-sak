@@ -6,8 +6,8 @@ import no.nav.familie.ks.sak.common.util.NullableMånedPeriode
 import no.nav.familie.ks.sak.common.util.TIDENES_ENDE
 import no.nav.familie.ks.sak.common.util.overlapperHeltEllerDelvisMed
 import no.nav.familie.ks.sak.common.util.toYearMonth
-import no.nav.familie.ks.sak.kjerne.beregning.domene.EndretUtbetalingAndel
-import no.nav.familie.ks.sak.kjerne.beregning.domene.Årsak
+import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.EndretUtbetalingAndel
+import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.Årsak
 import java.math.BigDecimal
 import java.time.YearMonth
 

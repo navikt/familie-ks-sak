@@ -1,12 +1,17 @@
-package no.nav.familie.ks.sak.kjerne.beregning.domene
+package no.nav.familie.ks.sak.kjerne.endretutbetaling.domene
 
+import no.nav.familie.ks.sak.api.dto.EndretUtbetalingAndelDto
 import no.nav.familie.ks.sak.common.entitet.BaseEntitet
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.common.util.MånedPeriode
 import no.nav.familie.ks.sak.common.util.YearMonthConverter
+import no.nav.familie.ks.sak.common.util.erDagenFør
 import no.nav.familie.ks.sak.common.util.overlapperHeltEllerDelvisMed
+import no.nav.familie.ks.sak.common.util.sisteDagIInneværendeMåned
+import no.nav.familie.ks.sak.kjerne.beregning.EndretUtbetalingAndelMedAndelerTilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.Begrunnelse
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.StandardbegrunnelseListConverter
+import no.nav.familie.ks.sak.kjerne.brev.domene.BrevEndretAndel
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
 import java.math.BigDecimal
 import java.time.LocalDate
@@ -109,6 +114,45 @@ data class EndretUtbetalingAndel(
 
     fun erÅrsakDeltBosted() = this.årsak == Årsak.DELT_BOSTED
 }
+
+fun EndretUtbetalingAndelMedAndelerTilkjentYtelse.tilEndretUtbetalingAndelDto() =
+    EndretUtbetalingAndelDto(
+        id = this.id,
+        personIdent = this.aktivtFødselsnummer,
+        prosent = this.prosent,
+        fom = this.fom,
+        tom = this.tom,
+        årsak = this.årsak,
+        avtaletidspunktDeltBosted = this.avtaletidspunktDeltBosted,
+        søknadstidspunkt = this.søknadstidspunkt,
+        begrunnelse = this.begrunnelse,
+        erTilknyttetAndeler = this.andelerTilkjentYtelse.isNotEmpty()
+    )
+
+fun EndretUtbetalingAndel.fraEndretUtbetalingAndelDto(
+    restEndretUtbetalingAndel: EndretUtbetalingAndelDto,
+    person: Person
+): EndretUtbetalingAndel {
+    this.fom = restEndretUtbetalingAndel.fom
+    this.tom = restEndretUtbetalingAndel.tom
+    this.prosent = restEndretUtbetalingAndel.prosent ?: BigDecimal(0)
+    this.årsak = restEndretUtbetalingAndel.årsak
+    this.avtaletidspunktDeltBosted = restEndretUtbetalingAndel.avtaletidspunktDeltBosted
+    this.søknadstidspunkt = restEndretUtbetalingAndel.søknadstidspunkt
+    this.begrunnelse = restEndretUtbetalingAndel.begrunnelse
+    this.person = person
+    return this
+}
+
+fun hentPersonerForEtterEndretUtbetalingsperiode(
+    brevEndretAndeler: List<BrevEndretAndel>,
+    fom: LocalDate?,
+    endringsaarsaker: Set<Årsak>
+) = brevEndretAndeler.filter { brevEndretAndel ->
+    brevEndretAndel.periode.tom.sisteDagIInneværendeMåned()
+        .erDagenFør(fom) &&
+        endringsaarsaker.contains(brevEndretAndel.årsak)
+}.map { it.personIdent }
 
 enum class Årsak(val visningsnavn: String) {
     DELT_BOSTED("Delt bosted"),
