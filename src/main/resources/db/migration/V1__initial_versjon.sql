@@ -113,7 +113,7 @@ CREATE TABLE behandling
     opprettet_aarsak            VARCHAR      DEFAULT 'MANUELL'::CHARACTER VARYING,
     resultat                    VARCHAR      DEFAULT 'IKKE_VURDERT'::CHARACTER VARYING NOT NULL,
     overstyrt_endringstidspunkt TIMESTAMP(3),
-    soknad_mottatt_dato TIMESTAMP(3);
+    soknad_mottatt_dato         TIMESTAMP(3)
 );
 
 CREATE INDEX behandling_fk_fagsak_id_idx
