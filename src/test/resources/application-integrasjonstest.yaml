@@ -145,6 +145,7 @@ funksjonsbrytere:
     producer:
       enabled: false
 
+
 spring:
   datasource:
     url: jdbc:postgresql://localhost:5432/familie-ks-sak
@@ -159,11 +160,6 @@ spring:
         format_sql=false
     hibernate:
       ddl-auto: none
-
-  cloud:
-    vault:
-      database:
-        role: postgres
 
 AZURE_APP_WELL_KNOWN_URL: https://login.microsoftonline.com/navq.onmicrosoft.com/v2.0/.well-known/openid-configuration
 AZURE_OPENID_CONFIG_TOKEN_ENDPOINT: https://login.microsoftonline.com/navq.onmicrosoft.com/oauth2/v2.0/token

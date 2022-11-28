@@ -15,11 +15,11 @@ import no.nav.familie.ks.sak.api.dto.SøknadDto
 import no.nav.familie.ks.sak.api.mapper.SøknadGrunnlagMapper
 import no.nav.familie.ks.sak.data.lagArbeidsfordelingPåBehandling
 import no.nav.familie.ks.sak.data.lagBehandling
+import no.nav.familie.ks.sak.data.lagBehandlingStegTilstand
 import no.nav.familie.ks.sak.data.lagRegistrerSøknadDto
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
-import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStegTilstand
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingType
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Beslutning
@@ -28,6 +28,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg.BESLUTTE_VEDT
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg.IVERKSETT_MOT_OPPDRAG
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg.REGISTRERE_PERSONGRUNNLAG
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg.REGISTRERE_SØKNAD
+import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg.SIMULERING
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg.VEDTAK
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg.VILKÅRSVURDERING
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingStegStatus.KLAR
@@ -41,6 +42,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.Vedtak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.VedtakRepository
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingSteg
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
+import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext
 import no.nav.familie.prosessering.internal.TaskService
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -192,9 +194,13 @@ class StegServiceTest : OppslagSpringRunnerTest() {
     }
 
     @Test
-    fun `utførSteg skal ikke utføre IVERKSETT_MOT_OPPDRAG steg`() {
+    fun `utførSteg skal ikke utføre IVERKSETT_MOT_OPPDRAG steg av beslutter`() {
+        behandling.behandlingStegTilstand.clear()
         behandling.leggTilNesteSteg(IVERKSETT_MOT_OPPDRAG)
         lagreBehandling(behandling)
+
+        mockkObject(SikkerhetContext)
+        every { SikkerhetContext.erSystemKontekst() } returns false
 
         val exception = assertThrows<RuntimeException> { stegService.utførSteg(behandling.id, IVERKSETT_MOT_OPPDRAG) }
         assertEquals(
@@ -254,20 +260,9 @@ class StegServiceTest : OppslagSpringRunnerTest() {
     @Test
     fun `utførSteg skal videresende behandling fra BESLUTTE_VEDTAK til IVERKSETT_MOT_OPPDRAG steg når SB godkjenner`() {
         behandling.behandlingStegTilstand.clear()
-        behandling.behandlingStegTilstand.add(
-            BehandlingStegTilstand(
-                behandling = behandling,
-                behandlingSteg = VEDTAK,
-                behandlingStegStatus = UTFØRT
-            )
-        )
-        behandling.behandlingStegTilstand.add(
-            BehandlingStegTilstand(
-                behandling = behandling,
-                behandlingSteg = BESLUTTE_VEDTAK,
-                behandlingStegStatus = KLAR
-            )
-        )
+        lagBehandlingStegTilstand(behandling, VEDTAK, UTFØRT)
+        lagBehandlingStegTilstand(behandling, BESLUTTE_VEDTAK, KLAR)
+
         behandling.status = BehandlingStatus.FATTER_VEDTAK
         lagreBehandling(behandling)
         vedtakRepository.saveAndFlush(Vedtak(behandling = behandling, vedtaksdato = LocalDateTime.now()))
@@ -287,20 +282,9 @@ class StegServiceTest : OppslagSpringRunnerTest() {
     @Test
     fun `utførSteg skal tilbakeføre behandling fra BESLUTTE_VEDTAK til VEDTAK steg når SB underkjenner vedtaket`() {
         behandling.behandlingStegTilstand.clear()
-        behandling.behandlingStegTilstand.add(
-            BehandlingStegTilstand(
-                behandling = behandling,
-                behandlingSteg = VEDTAK,
-                behandlingStegStatus = UTFØRT
-            )
-        )
-        behandling.behandlingStegTilstand.add(
-            BehandlingStegTilstand(
-                behandling = behandling,
-                behandlingSteg = BESLUTTE_VEDTAK,
-                behandlingStegStatus = KLAR
-            )
-        )
+        lagBehandlingStegTilstand(behandling, VEDTAK, UTFØRT)
+        lagBehandlingStegTilstand(behandling, BESLUTTE_VEDTAK, KLAR)
+
         behandling.status = BehandlingStatus.FATTER_VEDTAK
         lagreBehandling(behandling)
 
@@ -311,6 +295,38 @@ class StegServiceTest : OppslagSpringRunnerTest() {
         assertTrue { oppdatertBehandling.status == BehandlingStatus.UTREDES }
         assertBehandlingHarSteg(oppdatertBehandling, VEDTAK, KLAR)
         assertBehandlingHarSteg(oppdatertBehandling, BESLUTTE_VEDTAK, TILBAKEFØRT)
+    }
+
+    @Test
+    fun `tilbakeførSteg skal tilbakeføre til behandling steg`() {
+        behandling.behandlingStegTilstand.clear()
+        lagBehandlingStegTilstand(behandling, VILKÅRSVURDERING, UTFØRT)
+        lagBehandlingStegTilstand(behandling, BEHANDLINGSRESULTAT, UTFØRT)
+        lagBehandlingStegTilstand(behandling, SIMULERING, KLAR)
+
+        lagreBehandling(behandling)
+        assertDoesNotThrow { stegService.tilbakeførSteg(behandling.id, VILKÅRSVURDERING) }
+
+        val oppdatertBehandling = behandlingRepository.hentBehandling(behandling.id)
+        assertBehandlingHarSteg(oppdatertBehandling, VILKÅRSVURDERING, KLAR)
+        assertBehandlingHarSteg(oppdatertBehandling, BEHANDLINGSRESULTAT, TILBAKEFØRT)
+        assertBehandlingHarSteg(oppdatertBehandling, SIMULERING, TILBAKEFØRT)
+    }
+
+    @Test
+    fun `tilbakeførSteg skal ikke tilbakeføre til behandling steg når behandling er på samme steg`() {
+        behandling.behandlingStegTilstand.clear()
+        lagBehandlingStegTilstand(behandling, VILKÅRSVURDERING, UTFØRT)
+        lagBehandlingStegTilstand(behandling, BEHANDLINGSRESULTAT, UTFØRT)
+        lagBehandlingStegTilstand(behandling, SIMULERING, KLAR)
+
+        lagreBehandling(behandling)
+        assertDoesNotThrow { stegService.tilbakeførSteg(behandling.id, SIMULERING) }
+
+        val oppdatertBehandling = behandlingRepository.hentBehandling(behandling.id)
+        assertBehandlingHarSteg(oppdatertBehandling, VILKÅRSVURDERING, UTFØRT)
+        assertBehandlingHarSteg(oppdatertBehandling, BEHANDLINGSRESULTAT, UTFØRT)
+        assertBehandlingHarSteg(oppdatertBehandling, SIMULERING, KLAR)
     }
 
     private fun assertBehandlingHarSteg(

@@ -96,9 +96,25 @@ class StegService(
         sakStatistikkService.opprettSendingAvBehandlingensTilstand(behandlingId, behandlingSteg)
     }
 
+    @Transactional
+    fun tilbakeførSteg(behandlingId: Long, behandlingSteg: BehandlingSteg) {
+        val behandling = behandlingRepository.hentAktivBehandling(behandlingId)
+        val behandlingStegTilstand = hentStegTilstandForBehandlingSteg(behandling, behandlingSteg)
+        if (behandlingStegTilstand.behandlingStegStatus == BehandlingStegStatus.KLAR) { // steget er allerede tilbakeført
+            return
+        }
+
+        // tilbakefører alle stegene som er etter behandlede steg
+        behandling.behandlingStegTilstand.filter { it.behandlingSteg.sekvens > behandlingSteg.sekvens }
+            .forEach { it.behandlingStegStatus = BehandlingStegStatus.TILBAKEFØRT }
+        behandlingStegTilstand.behandlingStegStatus = BehandlingStegStatus.KLAR
+
+        behandlingRepository.saveAndFlush(oppdaterBehandlingStatus(behandling))
+    }
+
     private fun valider(behandling: Behandling, behandledeSteg: BehandlingSteg) {
-        // valider om steget kan behandles
-        if (!behandledeSteg.kanStegBehandles()) {
+        // valider om steget kan behandles av saksbehandler eller beslutter
+        if (!behandledeSteg.kanStegBehandles() && !SikkerhetContext.erSystemKontekst()) {
             throw Feil("Steget ${behandledeSteg.name} kan ikke behandles for behandling ${behandling.id}")
         }
         // valider om steget samsvarer med opprettet årsak til behandling

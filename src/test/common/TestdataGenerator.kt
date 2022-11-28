@@ -31,8 +31,11 @@ import no.nav.familie.ks.sak.integrasjon.pdl.domene.PdlPersonInfo
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.domene.ArbeidsfordelingPåBehandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingKategori
+import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStegTilstand
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingType
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
+import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg
+import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingStegStatus
 import no.nav.familie.ks.sak.kjerne.behandling.steg.simulering.domene.ØkonomiSimuleringMottaker
 import no.nav.familie.ks.sak.kjerne.behandling.steg.simulering.domene.ØkonomiSimuleringPostering
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.Vedtak
@@ -187,6 +190,18 @@ fun lagBehandling(
     opprettetÅrsak = opprettetÅrsak,
     kategori = kategori
 ).initBehandlingStegTilstand()
+
+fun lagBehandlingStegTilstand(
+    behandling: Behandling,
+    behandlingSteg: BehandlingSteg,
+    behandlingStegStatus: BehandlingStegStatus
+) = behandling.behandlingStegTilstand.add(
+    BehandlingStegTilstand(
+        behandling = behandling,
+        behandlingSteg = behandlingSteg,
+        behandlingStegStatus = behandlingStegStatus
+    )
+)
 
 fun lagArbeidsfordelingPåBehandling(behandlingId: Long): ArbeidsfordelingPåBehandling = ArbeidsfordelingPåBehandling(
     id = 123,
