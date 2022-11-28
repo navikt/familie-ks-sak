@@ -1,6 +1,7 @@
 package no.nav.familie.ks.sak.kjerne.avstemming
 
 import no.nav.familie.kontrakter.felles.objectMapper
+import no.nav.familie.ks.sak.common.util.erHelligdag
 import no.nav.familie.ks.sak.kjerne.avstemming.domene.GrensesnittavstemmingTaskDto
 import no.nav.familie.ks.sak.task.nesteGyldigeTriggertidForBehandlingIHverdager
 import no.nav.familie.leader.LeaderClient
@@ -19,7 +20,7 @@ class GrensesnittavstemmingScheduler(private val taskService: TaskService) {
 
     @Scheduled(cron = "\${CRON_GRENSESNITT_AVSTEMMING}")
     fun utfør() {
-        if (LeaderClient.isLeader() != true) {
+        if (LeaderClient.isLeader() != true || LocalDate.now().erHelligdag()) {
             return
         }
         logger.info("Starter GrensesnittavstemmingScheduler..")

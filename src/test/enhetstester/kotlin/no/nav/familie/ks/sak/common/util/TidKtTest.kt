@@ -1,6 +1,8 @@
 package no.nav.familie.ks.sak.common.util
 
 import org.hamcrest.MatcherAssert.assertThat
+import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.CsvSource
@@ -92,4 +94,15 @@ internal class TidKtTest {
     @CsvSource("07:04", "09:15", "12:55", "18:20", "20:59")
     fun `erKlokkenMellom21Og06 skal returnere false dersom klokken ikke er mellom 21 og 06`(localTime: LocalTime) =
         assertThat(erKlokkenMellom21Og06(localTime), Is(false))
+
+    @Test
+    fun `LocalDate erHelligDag skal returnere true for alle helligedager`() {
+        assertTrue { LocalDate.of(2022, 1, 1).erHelligdag() }
+        assertTrue { LocalDate.of(2022, 5, 1).erHelligdag() }
+        assertTrue { LocalDate.of(2022, 5, 17).erHelligdag() }
+        assertTrue { LocalDate.of(2022, 12, 25).erHelligdag() }
+        assertTrue { LocalDate.of(2022, 12, 26).erHelligdag() }
+
+        assertFalse { LocalDate.of(2022, 11, 28).erHelligdag() }
+    }
 }

@@ -169,26 +169,6 @@ internal class GrensesnittavstemmingSchedulerTest {
         assertEquals(LocalDate.of(2022, 12, 27).atStartOfDay(), taskData.tom)
     }
 
-    @Test
-    fun `utfør skal utføre scheduler når scheduler kjører på 25 desember, tom blir 27 desember`() {
-        // siste kjørte task er for fom 24.12.2022 00:00 og tom 25.12.2022 00:00
-        val fom = LocalDate.of(2022, 12, 24)
-        val tom = fom.plusDays(1)
-        every { taskService.finnTasksMedStatus(any(), any(), any()) } returns listOf(lagTask(fom, tom))
-        val taskDataSlot = slot<Task>()
-        every { taskService.save(capture(taskDataSlot)) } returns mockk()
-
-        grensesnittavstemmingScheduler.utfør()
-
-        verify(exactly = 1) { taskService.finnTasksMedStatus(any(), any(), any()) }
-        verify(exactly = 1) { taskService.save(any()) }
-
-        val taskData = objectMapper.readValue(taskDataSlot.captured.payload, GrensesnittavstemmingTaskDto::class.java)
-        // siden 26.desember er en heligdag
-        assertEquals(LocalDate.of(2022, 12, 25).atStartOfDay(), taskData.fom)
-        assertEquals(LocalDate.of(2022, 12, 27).atStartOfDay(), taskData.tom)
-    }
-
     private fun lagTask(fom: LocalDate, tom: LocalDate) = Task(
         type = GrensesnittavstemmingTask.TASK_STEP_TYPE,
         payload = objectMapper.writeValueAsString(GrensesnittavstemmingTaskDto(fom.atStartOfDay(), tom.atStartOfDay()))
