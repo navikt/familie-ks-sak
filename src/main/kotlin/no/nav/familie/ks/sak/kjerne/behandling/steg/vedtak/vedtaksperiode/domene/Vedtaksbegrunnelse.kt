@@ -1,9 +1,7 @@
 package no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene
 
 import com.fasterxml.jackson.annotation.JsonIgnore
-import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelse
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.Begrunnelse
-import no.nav.familie.ks.sak.kjerne.brev.domene.BegrunnelseMedDataFraSanity
 import javax.persistence.Column
 import javax.persistence.Entity
 import javax.persistence.EnumType
@@ -42,18 +40,6 @@ class Vedtaksbegrunnelse(
         vedtaksperiodeMedBegrunnelser = vedtaksperiodeMedBegrunnelser,
         begrunnelse = this.begrunnelse
     )
-
-    fun tilBegrunnelseMedDataFraSanity(
-        sanityBegrunnelser: List<SanityBegrunnelse>
-    ): BegrunnelseMedDataFraSanity? {
-        val sanityBegrunnelse = sanityBegrunnelser
-            .firstOrNull { it.apiNavn == this.begrunnelse.sanityApiNavn } ?: return null
-
-        return BegrunnelseMedDataFraSanity(
-            begrunnelse = this.begrunnelse,
-            sanityBegrunnelse = sanityBegrunnelse
-        )
-    }
 
     override fun toString(): String =
         "Vedtaksbegrunnelse(id=$id, standardbegrunnelse=$begrunnelse)"
