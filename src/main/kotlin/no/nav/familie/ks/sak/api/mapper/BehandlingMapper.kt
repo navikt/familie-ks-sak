@@ -35,7 +35,7 @@ object BehandlingMapper {
         personerMedAndelerTilkjentYtelse: List<PersonerMedAndelerResponsDto>,
         utbetalingsperioder: List<UtbetalingsperiodeResponsDto>,
         vedtak: VedtakDto?,
-        endreteUtbetalingerMedAndeler: List<EndretUtbetalingAndelDto>
+        endretUtbetalingAndeler: List<EndretUtbetalingAndelDto>
     ) =
         BehandlingResponsDto(
             behandlingId = behandling.id,
@@ -65,7 +65,7 @@ object BehandlingMapper {
             personerMedAndelerTilkjentYtelse = personerMedAndelerTilkjentYtelse,
             utbetalingsperioder = utbetalingsperioder,
             vedtak = vedtak,
-            endretUtbetalingAndeler = endreteUtbetalingerMedAndeler
+            endretUtbetalingAndeler = endretUtbetalingAndeler
         )
 
     private fun lagArbeidsfordelingRespons(arbeidsfordelingPåBehandling: ArbeidsfordelingPåBehandling) =

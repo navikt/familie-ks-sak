@@ -125,8 +125,7 @@ fun EndretUtbetalingAndelMedAndelerTilkjentYtelse.tilEndretUtbetalingAndelDto() 
         årsak = this.årsak,
         avtaletidspunktDeltBosted = this.avtaletidspunktDeltBosted,
         søknadstidspunkt = this.søknadstidspunkt,
-        begrunnelse = this.begrunnelse,
-        erTilknyttetAndeler = this.andelerTilkjentYtelse.isNotEmpty()
+        begrunnelse = this.begrunnelse
     )
 
 fun EndretUtbetalingAndel.fraEndretUtbetalingAndelDto(

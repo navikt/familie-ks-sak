@@ -14,6 +14,5 @@ class EndretUtbetalingAndelDto(
     val årsak: Årsak?,
     val avtaletidspunktDeltBosted: LocalDate?,
     val søknadstidspunkt: LocalDate?,
-    val begrunnelse: String?,
-    val erTilknyttetAndeler: Boolean?
+    val begrunnelse: String?
 )
