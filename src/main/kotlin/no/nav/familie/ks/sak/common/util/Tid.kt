@@ -85,11 +85,7 @@ fun DatoIntervallEntitet.erInnenfor(dato: LocalDate): Boolean =
         else -> dato.erSammeEllerEtter(fom) && dato.erSammeEllerFør(tom)
     }
 
-fun LocalDateTime.erHverdag(plusDays: Long = 0): Boolean {
-    val dayOfWeek = plusDays(plusDays).dayOfWeek
-
-    return dayOfWeek != DayOfWeek.SATURDAY && dayOfWeek != DayOfWeek.SUNDAY
-}
+fun LocalDateTime.erHverdag(): Boolean = this.dayOfWeek != DayOfWeek.SATURDAY && this.dayOfWeek != DayOfWeek.SUNDAY
 
 fun erKlokkenMellom21Og06(localTime: LocalTime = LocalTime.now()): Boolean =
     localTime.isAfter(LocalTime.of(21, 0)) || localTime.isBefore(LocalTime.of(6, 0))

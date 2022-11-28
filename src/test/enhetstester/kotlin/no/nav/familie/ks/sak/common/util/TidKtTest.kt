@@ -74,13 +74,13 @@ internal class TidKtTest {
         val mandag = LocalDateTime.of(2022, 10, 24, 0, 0)
 
         assertThat(mandag.erHverdag(), Is(true))
-        assertThat(mandag.erHverdag(plusDays = 1), Is(true))
-        assertThat(mandag.erHverdag(plusDays = 2), Is(true))
-        assertThat(mandag.erHverdag(plusDays = 3), Is(true))
-        assertThat(mandag.erHverdag(plusDays = 4), Is(true))
-        assertThat(mandag.erHverdag(plusDays = 5), Is(false))
-        assertThat(mandag.erHverdag(plusDays = 6), Is(false))
-        assertThat(mandag.erHverdag(plusDays = 7), Is(true))
+        assertThat(mandag.plusDays(1).erHverdag(), Is(true))
+        assertThat(mandag.plusDays(2).erHverdag(), Is(true))
+        assertThat(mandag.plusDays(3).erHverdag(), Is(true))
+        assertThat(mandag.plusDays(4).erHverdag(), Is(true))
+        assertThat(mandag.plusDays(5).erHverdag(), Is(false))
+        assertThat(mandag.plusDays(6).erHverdag(), Is(false))
+        assertThat(mandag.plusDays(7).erHverdag(), Is(true))
     }
 
     @ParameterizedTest
