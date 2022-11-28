@@ -13,6 +13,7 @@ import no.nav.security.token.support.core.api.ProtectedWithClaims
 import org.slf4j.LoggerFactory
 import org.springframework.http.ResponseEntity
 import org.springframework.validation.annotation.Validated
+import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
@@ -71,6 +72,20 @@ class BrevController(
                 behandlingService.lagBehandlingRespons(behandlingId = behandlingId)
             )
         )
+    }
+
+    @GetMapping(path = ["forhåndsvis-vedtaksbrev/{behandlingId}"])
+    fun genererVedtaksbrev(@PathVariable behandlingId: Long): Ressurs<ByteArray> {
+        logger.info("${SikkerhetContext.hentSaksbehandlerNavn()} henter vedtaksbrev")
+
+        tilgangService.validerTilgangTilHandlingOgFagsakForBehandling(
+            behandlingId = behandlingId,
+            event = AuditLoggerEvent.ACCESS,
+            minimumBehandlerRolle = BehandlerRolle.VEILEDER,
+            handling = "Vis vedtaksbrev"
+        )
+
+        return Ressurs.success(brevService.genererBrevForBehandling(behandlingId))
     }
 
     companion object {

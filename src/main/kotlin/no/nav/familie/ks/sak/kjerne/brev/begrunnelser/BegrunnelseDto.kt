@@ -20,6 +20,12 @@ sealed class BegrunnelseDto(
     }
 }
 
+enum class BrevBegrunnelseType {
+    BEGRUNNELSE,
+    EØS_BEGRUNNELSE,
+    FRITEKST
+}
+
 sealed class BegrunnelseDtoMedData(
     open val apiNavn: String,
     open val vedtakBegrunnelseType: BegrunnelseType,

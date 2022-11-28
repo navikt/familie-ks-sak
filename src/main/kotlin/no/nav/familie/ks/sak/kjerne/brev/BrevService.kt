@@ -21,18 +21,21 @@ import no.nav.familie.ks.sak.integrasjon.journalføring.domene.DbJournalpostType
 import no.nav.familie.ks.sak.integrasjon.journalføring.domene.JournalføringRepository
 import no.nav.familie.ks.sak.integrasjon.logger
 import no.nav.familie.ks.sak.integrasjon.sanity.SanityService
+import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelse
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.ArbeidsfordelingService
 import no.nav.familie.ks.sak.kjerne.behandling.SettBehandlingPåVentService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.VedtakService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.Vedtak
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.UtvidetVedtaksperiodeMedBegrunnelser
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.VedtaksperiodeService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.AnnenVurderingType
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
-import no.nav.familie.ks.sak.kjerne.brev.domene.BrevVedtaksPeriode
+import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.tilSanityBegrunnelse
 import no.nav.familie.ks.sak.kjerne.brev.domene.FellesdataForVedtaksbrev
 import no.nav.familie.ks.sak.kjerne.brev.domene.VedtaksbrevDto
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.Brevmal
@@ -67,7 +70,9 @@ class BrevService(
     private val vedtaksperiodeService: VedtaksperiodeService,
     private val brevPeriodeService: BrevPeriodeService,
     private val sanityService: SanityService,
-    private val totrinnskontrollService: TotrinnskontrollService
+    private val totrinnskontrollService: TotrinnskontrollService,
+    private val vedtakService: VedtakService
+
 ) {
 
     fun hentForhåndsvisningAvBrev(behandlingId: Long, manueltBrevDto: ManueltBrevDto): ByteArray {
@@ -121,7 +126,8 @@ class BrevService(
         }
     }
 
-    fun genererBrevForVedtak(vedtak: Vedtak): ByteArray {
+    fun genererBrevForBehandling(behandlingId: Long): ByteArray {
+        val vedtak = vedtakService.hentAktivVedtakForBehandling(behandlingId)
         try {
             if (vedtak.behandling.steg > BehandlingSteg.BESLUTTE_VEDTAK) {
                 throw FunksjonellFeil("Ikke tillatt å generere brev etter at behandlingen er sendt fra beslutter")
@@ -323,9 +329,9 @@ class BrevService(
 
     fun lagDataForVedtaksbrev(vedtak: Vedtak): FellesdataForVedtaksbrev {
         val utvidetVedtaksperioderMedBegrunnelser =
-            vedtaksperiodeService.hentUtvidetVedtaksperiodeMedBegrunnelser(vedtak).filter {
+            vedtaksperiodeService.hentUtvidetVedtaksperioderMedBegrunnelser(vedtak).filter {
                 !(it.begrunnelser.isEmpty() && it.fritekster.isEmpty() && it.eøsBegrunnelser.isEmpty())
-            }.sortedBy { it.fom }
+            }
 
         if (utvidetVedtaksperioderMedBegrunnelser.isEmpty()) {
             throw FunksjonellFeil(
@@ -334,15 +340,15 @@ class BrevService(
         }
 
         val personopplysningsgrunnlagOgSignaturData = hentGrunnlagOgSignaturData(vedtak)
-        val grunnlagForBrevperioder = brevPeriodeService
-            .hentGrunnlagForBrevperioder(utvidetVedtaksperioderMedBegrunnelser.map { it.id }, vedtak.id)
-        val brevPeriodeDtoer = grunnlagForBrevperioder.sorted().mapNotNull {
-            BrevPeriodeGenerator(it).genererBrevPeriode()
-        }
+
+        val brevPeriodeDtoer = brevPeriodeService
+            .hentBrevPeriodeDtoer(utvidetVedtaksperioderMedBegrunnelser, vedtak.behandling.id)
+
         val hjemler = hentHjemler(
             behandlingId = vedtak.behandling.id,
-            brevVedtaksPerioder = grunnlagForBrevperioder.map { it.brevVedtaksPeriode },
-            målform = personopplysningsgrunnlagOgSignaturData.grunnlag.søker.målform
+            utvidetVedtaksperioderMedBegrunnelser = utvidetVedtaksperioderMedBegrunnelser,
+            målform = personopplysningsgrunnlagOgSignaturData.grunnlag.søker.målform,
+            sanityBegrunnelser = sanityService.hentSanityBegrunnelser()
         )
 
         return FellesdataForVedtaksbrev(
@@ -373,8 +379,9 @@ class BrevService(
 
     private fun hentHjemler(
         behandlingId: Long,
-        brevVedtaksPerioder: List<BrevVedtaksPeriode>,
-        målform: Målform
+        utvidetVedtaksperioderMedBegrunnelser: List<UtvidetVedtaksperiodeMedBegrunnelser>,
+        målform: Målform,
+        sanityBegrunnelser: List<SanityBegrunnelse>
     ): String {
         val vilkårsvurdering = vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(behandlingId = behandlingId)
 
@@ -382,10 +389,11 @@ class BrevService(
             vilkårsvurdering.finnOpplysningspliktVilkår()?.resultat == Resultat.IKKE_OPPFYLT
 
         return hentHjemmeltekst(
-            brevVedtaksperioder = brevVedtaksPerioder,
-            sanityBegrunnelser = sanityService.hentSanityBegrunnelser(),
             opplysningspliktHjemlerSkalMedIBrev = opplysningspliktHjemlerSkalMedIBrev,
-            målform = målform
+            målform = målform,
+            erFriteksterIPeriode = utvidetVedtaksperioderMedBegrunnelser.any { it.fritekster.isNotEmpty() },
+            sanitybegrunnelserBruktIBrev = utvidetVedtaksperioderMedBegrunnelser.flatMap { it.begrunnelser }
+                .mapNotNull { it.begrunnelse.tilSanityBegrunnelse(sanityBegrunnelser) }
         )
     }
 

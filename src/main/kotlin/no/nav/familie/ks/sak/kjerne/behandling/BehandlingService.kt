@@ -87,7 +87,7 @@ class BehandlingService(
         val vedtak = vedtakRepository.findByBehandlingAndAktivOptional(behandlingId)?.let {
             it.tilVedtakDto(
                 vedtaksperioderMedBegrunnelser = if (behandling.status != BehandlingStatus.AVSLUTTET) {
-                    vedtaksperiodeService.hentUtvidetVedtaksperiodeMedBegrunnelser(vedtak = it)
+                    vedtaksperiodeService.hentUtvidetVedtaksperioderMedBegrunnelser(vedtak = it)
                         .map { utvidetVedtaksPerioder -> utvidetVedtaksPerioder.tilUtvidetVedtaksperiodeMedBegrunnelserDto() }
                         .sortedBy { dto -> dto.fom }
                 } else {

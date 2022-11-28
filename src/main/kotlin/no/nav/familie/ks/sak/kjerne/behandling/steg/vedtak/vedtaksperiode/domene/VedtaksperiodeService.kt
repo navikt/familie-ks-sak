@@ -32,8 +32,8 @@ import no.nav.familie.ks.sak.kjerne.beregning.AndelerTilkjentYtelseOgEndreteUtbe
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelseRepository
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.Begrunnelse
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.BegrunnelseType
+import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.BegrunnelserForPeriodeContext
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.EØSBegrunnelse
-import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.FinnGyldigeBegrunnelserForPeriodeContext
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.tilVedtaksbegrunnelse
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
@@ -250,7 +250,25 @@ class VedtaksperiodeService(
         return vedtaksperiodeHentOgPersisterService.finnVedtaksperioderFor(vedtakId = vedtak.id)
     }
 
-    fun hentUtvidetVedtaksperiodeMedBegrunnelser(vedtak: Vedtak): List<UtvidetVedtaksperiodeMedBegrunnelser> {
+    fun hentUtvidetVedtaksperiodeMedBegrunneleser(vedtaksperiodeId: Long): UtvidetVedtaksperiodeMedBegrunnelser {
+        val vedtaksperiodeMedBegrunnelser =
+            vedtaksperiodeHentOgPersisterService.hentVedtaksperiodeThrows(vedtaksperiodeId = vedtaksperiodeId)
+
+        val behandlingId = vedtaksperiodeMedBegrunnelser.vedtak.behandling.id
+
+        val personopplysningGrunnlag =
+            personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(behandlingId = behandlingId)
+
+        val andelerTilkjentYtelse =
+            andelerTilkjentYtelseOgEndreteUtbetalingerService.finnAndelerTilkjentYtelseMedEndreteUtbetalinger(behandlingId = behandlingId)
+
+        return vedtaksperiodeMedBegrunnelser.tilUtvidetVedtaksperiodeMedBegrunnelser(
+            personopplysningGrunnlag,
+            andelerTilkjentYtelse
+        )
+    }
+
+    fun hentUtvidetVedtaksperioderMedBegrunnelser(vedtak: Vedtak): List<UtvidetVedtaksperiodeMedBegrunnelser> {
         val vedtaksperioderMedBegrunnelser = hentPersisterteVedtaksperioder(vedtak)
 
         val behandling = vedtak.behandling
@@ -294,16 +312,12 @@ class VedtaksperiodeService(
 
         return utvidedeVedtaksperioderMedBegrunnelser.map { utvidetVedtaksperiodeMedBegrunnelser ->
 
-            val aktørIderMedUtbetaling =
-                hentAktørerMedUtbetaling(utvidetVedtaksperiodeMedBegrunnelser).map { it.aktørId }
-
             utvidetVedtaksperiodeMedBegrunnelser.copy(
-                gyldigeBegrunnelser = FinnGyldigeBegrunnelserForPeriodeContext(
+                gyldigeBegrunnelser = BegrunnelserForPeriodeContext(
                     utvidetVedtaksperiodeMedBegrunnelser = utvidetVedtaksperiodeMedBegrunnelser,
                     sanityBegrunnelser = sanityBegrunnelser,
-                    persongrunnlag = persongrunnlag,
-                    personResultater = vilkårsvurdering.personResultater.toList(),
-                    aktørIderMedUtbetaling = aktørIderMedUtbetaling
+                    personopplysningGrunnlag = persongrunnlag,
+                    personResultater = vilkårsvurdering.personResultater.toList()
                 ).hentGyldigeBegrunnelserForVedtaksperiode()
             )
         }
