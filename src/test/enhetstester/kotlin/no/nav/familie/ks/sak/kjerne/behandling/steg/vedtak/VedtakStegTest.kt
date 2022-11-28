@@ -103,7 +103,7 @@ class VedtakStegTest {
         every { oppgaveService.hentOppgaverSomIkkeErFerdigstilt(behandling) } returns emptyList()
         every { behandlingService.oppdaterStatusPåBehandling(200, BehandlingStatus.FATTER_VEDTAK) } returns behandling
         every { vedtakService.hentAktivVedtakForBehandling(behandling.id) } returns mockk()
-        every { vedtaksperiodeService.hentUtvidetVedtaksperiodeMedBegrunnelser(any()) } returns mockk(relaxed = true)
+        every { vedtaksperiodeService.hentUtvidetVedtaksperioderMedBegrunnelser(any()) } returns mockk(relaxed = true)
 
         vedtakSteg.utførSteg(200)
 
@@ -114,6 +114,6 @@ class VedtakStegTest {
         verify(exactly = 1) { oppgaveService.hentOppgaverSomIkkeErFerdigstilt(behandling) }
         verify(exactly = 1) { behandlingService.oppdaterStatusPåBehandling(200, BehandlingStatus.FATTER_VEDTAK) }
         verify(exactly = 1) { vedtakService.hentAktivVedtakForBehandling(behandling.id) }
-        verify(exactly = 1) { vedtaksperiodeService.hentUtvidetVedtaksperiodeMedBegrunnelser(any()) }
+        verify(exactly = 1) { vedtaksperiodeService.hentUtvidetVedtaksperioderMedBegrunnelser(any()) }
     }
 }
