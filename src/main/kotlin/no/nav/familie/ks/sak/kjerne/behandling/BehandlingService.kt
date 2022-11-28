@@ -131,7 +131,8 @@ class BehandlingService(
         val behandling = hentBehandling(behandlingId)
         logger.info("${SikkerhetContext.hentSaksbehandlerNavn()} endrer status på behandling $behandlingId fra ${behandling.status} til $status")
 
-        return oppdaterBehandling(behandling.copy(status = status))
+        behandling.status = status
+        return oppdaterBehandling(behandling)
     }
 
     fun nullstillEndringstidspunkt(behandlingId: Long) {
