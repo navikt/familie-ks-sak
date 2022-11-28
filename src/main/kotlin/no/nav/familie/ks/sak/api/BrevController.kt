@@ -5,6 +5,7 @@ import no.nav.familie.ks.sak.api.dto.BehandlingResponsDto
 import no.nav.familie.ks.sak.api.dto.ManueltBrevDto
 import no.nav.familie.ks.sak.config.BehandlerRolle
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.VedtakService
 import no.nav.familie.ks.sak.kjerne.brev.BrevService
 import no.nav.familie.ks.sak.sikkerhet.AuditLoggerEvent
 import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
+import javax.transaction.Transactional
 
 @RestController
 @RequestMapping("/api/brev")
@@ -27,7 +29,8 @@ import org.springframework.web.bind.annotation.RestController
 class BrevController(
     private val brevService: BrevService,
     private val tilgangService: TilgangService,
-    private val behandlingService: BehandlingService
+    private val behandlingService: BehandlingService,
+    private val vedtakService: VedtakService
 ) {
 
     @PostMapping(path = ["/forhåndsvis-brev/{behandlingId}"])
@@ -86,6 +89,26 @@ class BrevController(
         )
 
         return Ressurs.success(brevService.genererBrevForBehandling(behandlingId))
+    }
+
+    @Transactional
+    @PostMapping(path = ["forhåndsvis-og-lagre-vedtaksbrev/{behandlingId}"])
+    fun genererOgLagreVedtaksbrev(@PathVariable behandlingId: Long): Ressurs<ByteArray> {
+        logger.info("${SikkerhetContext.hentSaksbehandlerNavn()} henter vedtaksbrev")
+
+        tilgangService.validerTilgangTilHandlingOgFagsakForBehandling(
+            behandlingId = behandlingId,
+            event = AuditLoggerEvent.ACCESS,
+            minimumBehandlerRolle = BehandlerRolle.VEILEDER,
+            handling = "Vis vedtaksbrev"
+        )
+
+        val generertPdf = brevService.genererBrevForBehandling(behandlingId)
+
+        val vedtak = vedtakService.hentAktivVedtakForBehandling(behandlingId)
+        vedtak.stønadBrevPdf = generertPdf
+
+        return Ressurs.success(generertPdf)
     }
 
     companion object {
