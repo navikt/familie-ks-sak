@@ -103,7 +103,6 @@ class BehandlingService(
         val totrinnskontroll =
             totrinnskontrollRepository.findByBehandlingAndAktiv(behandlingId = behandling.id)?.tilTotrinnskontrollDto()
 
-
         return BehandlingMapper.lagBehandlingRespons(
             behandling,
             arbeidsfordelingPåBehandling,
@@ -124,7 +123,7 @@ class BehandlingService(
         val behandling = hentBehandling(behandlingId)
         logger.info(
             "${SikkerhetContext.hentSaksbehandlerNavn()} endrer resultat på behandling $behandlingId " +
-                    "fra ${behandling.resultat} til $nyUtledetBehandlingsresultat"
+                "fra ${behandling.resultat} til $nyUtledetBehandlingsresultat"
         )
         loggService.opprettVilkårsvurderingLogg(
             behandling = behandling,
