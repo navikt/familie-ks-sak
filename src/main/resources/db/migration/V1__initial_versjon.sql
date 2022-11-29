@@ -110,11 +110,10 @@ CREATE TABLE behandling
     aktiv                       BOOLEAN      DEFAULT TRUE,
     status                      VARCHAR(50)  DEFAULT 'OPPRETTET'::CHARACTER VARYING,
     kategori                    VARCHAR(50)  DEFAULT 'NATIONAL'::CHARACTER VARYING,
-    underkategori               VARCHAR(50)  DEFAULT 'ORDINÆR'::CHARACTER VARYING,
     opprettet_aarsak            VARCHAR      DEFAULT 'MANUELL'::CHARACTER VARYING,
-    skal_behandles_automatisk   BOOLEAN      DEFAULT FALSE,
     resultat                    VARCHAR      DEFAULT 'IKKE_VURDERT'::CHARACTER VARYING NOT NULL,
-    overstyrt_endringstidspunkt TIMESTAMP(3)
+    overstyrt_endringstidspunkt TIMESTAMP(3),
+    soknad_mottatt_dato         TIMESTAMP(3)
 );
 
 CREATE INDEX behandling_fk_fagsak_id_idx
@@ -365,7 +364,8 @@ CREATE TABLE vilkar_resultat
     er_eksplisitt_avslag_paa_soknad    BOOLEAN,
     vedtak_begrunnelse_spesifikasjoner TEXT         DEFAULT ''::TEXT,
     vurderes_etter                     VARCHAR,
-    utdypende_vilkarsvurderinger       VARCHAR
+    utdypende_vilkarsvurderinger       VARCHAR,
+    antall_timer                       NUMERIC
 );
 
 CREATE INDEX vilkar_resultat_fk_idx
@@ -551,7 +551,9 @@ CREATE TABLE behandling_steg_tilstand
     opprettet_av           VARCHAR      DEFAULT 'VL'::CHARACTER VARYING          NOT NULL,
     opprettet_tid          TIMESTAMP(3) DEFAULT LOCALTIMESTAMP                   NOT NULL,
     endret_av              VARCHAR,
-    endret_tid             TIMESTAMP(3)
+    endret_tid             TIMESTAMP(3),
+    aarsak                 VARCHAR,
+    frist                  TIMESTAMP(3)
 );
 
 CREATE INDEX behandling_steg_tilstand_fk_idx
@@ -720,29 +722,6 @@ CREATE TABLE andel_til_endret_andel
     PRIMARY KEY (fk_andel_tilkjent_ytelse_id, fk_endret_utbetaling_andel_id)
 );
 
-CREATE TABLE sett_paa_vent
-(
-    id                BIGINT PRIMARY KEY,
-    fk_behandling_id  BIGINT REFERENCES behandling,
-    versjon           BIGINT       DEFAULT 0                       NOT NULL,
-    opprettet_av      VARCHAR      DEFAULT 'VL'::CHARACTER VARYING NOT NULL,
-    opprettet_tid     TIMESTAMP(3) DEFAULT LOCALTIMESTAMP          NOT NULL,
-    frist             TIMESTAMP(3)                                 NOT NULL,
-    aktiv             BOOLEAN      DEFAULT FALSE                   NOT NULL,
-    aarsak            VARCHAR                                      NOT NULL,
-    endret_av         VARCHAR,
-    endret_tid        TIMESTAMP(3),
-    tid_tatt_av_vent  TIMESTAMP(3),
-    tid_satt_paa_vent TIMESTAMP(3) DEFAULT NOW()                   NOT NULL
-);
-
-CREATE INDEX sett_paa_vent_fk_behandling_id_idx
-    ON sett_paa_vent (fk_behandling_id);
-
-CREATE UNIQUE INDEX uidx_sett_paa_vent_aktiv
-    ON sett_paa_vent (fk_behandling_id, aktiv)
-    WHERE (aktiv = TRUE);
-
 CREATE TABLE po_doedsfall
 (
     id                   BIGINT PRIMARY KEY,
@@ -895,3 +874,306 @@ CREATE UNIQUE INDEX uidx_korrigert_etterbetaling_fk_behandling_id_aktiv
 
 CREATE INDEX korrigert_etterbetaling_fk_behandling_id_idx
     ON korrigert_etterbetaling (fk_behandling_id);
+
+--Sekvenser
+
+CREATE SEQUENCE fagsak_seq
+    START WITH 1000000
+    INCREMENT BY 50
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+CREATE SEQUENCE arbeidsfordeling_pa_behandling_seq
+    START WITH 1000000
+    INCREMENT BY 50
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+CREATE SEQUENCE gr_personopplysninger_seq
+    START WITH 1000000
+    INCREMENT BY 50
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+CREATE SEQUENCE oppgave_seq
+    START WITH 1000000
+    INCREMENT BY 50
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+CREATE SEQUENCE behandling_seq
+    START WITH 1000000
+    INCREMENT BY 50
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+CREATE SEQUENCE vedtak_seq
+    START WITH 1000000
+    INCREMENT BY 50
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+CREATE SEQUENCE behandling_steg_tilstand_seq
+    START WITH 1000000
+    INCREMENT BY 50
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+CREATE SEQUENCE logg_seq
+    START WITH 1000000
+    INCREMENT BY 50
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+CREATE SEQUENCE aktoer_seq
+    START WITH 1000000
+    INCREMENT BY 50
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+CREATE SEQUENCE personident_seq
+    START WITH 1000000
+    INCREMENT BY 50
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+CREATE SEQUENCE po_person_seq
+    START WITH 1000000
+    INCREMENT BY 50
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+CREATE SEQUENCE gr_soknad_seq
+    START WITH 1000000
+    INCREMENT BY 50
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+CREATE SEQUENCE tilkjent_ytelse_seq
+    START WITH 1000000
+    INCREMENT BY 50
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+CREATE SEQUENCE andel_tilkjent_ytelse_seq
+    START WITH 1000000
+    INCREMENT BY 50
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+CREATE SEQUENCE vilkaarsvurdering_seq
+    START WITH 1000000
+    INCREMENT BY 50
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+CREATE SEQUENCE person_resultat_seq
+    START WITH 1000000
+    INCREMENT BY 50
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+CREATE SEQUENCE vilkar_resultat_seq
+    START WITH 1000000
+    INCREMENT BY 50
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+CREATE SEQUENCE totrinnskontroll_seq
+    START WITH 1000000
+    INCREMENT BY 50
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+CREATE SEQUENCE po_bostedsadresse_seq
+    START WITH 1000000
+    INCREMENT BY 50
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+CREATE SEQUENCE journalpost_seq
+    START WITH 1000000
+    INCREMENT BY 50
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+CREATE SEQUENCE po_statsborgerskap_seq
+    START WITH 1000000
+    INCREMENT BY 50
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+CREATE SEQUENCE po_opphold_seq
+    START WITH 1000000
+    INCREMENT BY 50
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+CREATE SEQUENCE po_arbeidsforhold_seq
+    START WITH 1000000
+    INCREMENT BY 50
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+CREATE SEQUENCE po_bostedsadresseperiode_seq
+    START WITH 1000000
+    INCREMENT BY 50
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+CREATE SEQUENCE annen_vurdering_seq
+    START WITH 1000000
+    INCREMENT BY 50
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+CREATE SEQUENCE okonomi_simulering_mottaker_seq
+    START WITH 1000000
+    INCREMENT BY 50
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+CREATE SEQUENCE okonomi_simulering_postering_seq
+    START WITH 1000000
+    INCREMENT BY 50
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+CREATE SEQUENCE tilbakekreving_seq
+    START WITH 1000000
+    INCREMENT BY 50
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+CREATE SEQUENCE vedtaksperiode_seq
+    START WITH 1000000
+    INCREMENT BY 50
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+CREATE SEQUENCE vedtaksbegrunnelse_seq
+    START WITH 1000000
+    INCREMENT BY 50
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+CREATE SEQUENCE vedtaksbegrunnelse_fritekst_seq
+    START WITH 1000000
+    INCREMENT BY 50
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+CREATE SEQUENCE po_sivilstand_seq
+    START WITH 1000000
+    INCREMENT BY 50
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+CREATE SEQUENCE endret_utbetaling_andel_seq
+    START WITH 1000000
+    INCREMENT BY 50
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+CREATE SEQUENCE andel_til_endret_andel_seq
+    START WITH 1000000
+    INCREMENT BY 50
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+CREATE SEQUENCE po_doedsfall_seq
+    START WITH 1000000
+    INCREMENT BY 50
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+CREATE SEQUENCE behandling_soknadsinfo_seq
+    START WITH 1000000
+    INCREMENT BY 50
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+CREATE SEQUENCE kompetanse_seq
+    START WITH 1000000
+    INCREMENT BY 50
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+CREATE SEQUENCE aktoer_til_kompetanse_seq
+    START WITH 1000000
+    INCREMENT BY 50
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+CREATE SEQUENCE valutakurs_seq
+    START WITH 1000000
+    INCREMENT BY 50
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+CREATE SEQUENCE aktoer_til_valutakurs_seq
+    START WITH 1000000
+    INCREMENT BY 50
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+CREATE SEQUENCE utenlandsk_periodebeloep_seq
+    START WITH 1000000
+    INCREMENT BY 50
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+CREATE SEQUENCE aktoer_til_utenlandsk_periodebeloep_seq
+    START WITH 1000000
+    INCREMENT BY 50
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+CREATE SEQUENCE korrigert_etterbetaling_seq
+    START WITH 1000000
+    INCREMENT BY 50
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
