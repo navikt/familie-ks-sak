@@ -1,4 +1,4 @@
-package no.nav.familie.ks.sak.integrasjon.distributering
+package no.nav.familie.ks.sak.integrasjon.distribuering
 
 import io.sentry.Sentry
 import no.nav.familie.http.client.RessursException
@@ -65,7 +65,7 @@ class DistribuerDødsfallBrevPåFagsakTask(
     companion object {
         fun opprettTask(journalpostId: String, brevmal: Brevmal): Task {
             return Task(
-                type = this.TASK_STEP_TYPE,
+                type = TASK_STEP_TYPE,
                 payload = objectMapper.writeValueAsString(
                     DistribuerDødsfallBrevPåFagsakDTO(
                         journalpostId,

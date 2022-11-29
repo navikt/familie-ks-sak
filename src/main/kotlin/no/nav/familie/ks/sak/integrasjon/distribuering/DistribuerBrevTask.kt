@@ -1,4 +1,4 @@
-package no.nav.familie.ks.sak.integrasjon.distributering
+package no.nav.familie.ks.sak.integrasjon.distribuering
 
 import no.nav.familie.kontrakter.felles.objectMapper
 import no.nav.familie.ks.sak.api.dto.DistribuerBrevDto
