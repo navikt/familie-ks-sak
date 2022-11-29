@@ -50,7 +50,7 @@ object TilkjentYtelseUtils {
         return tilkjentYtelse
     }
 
-    private fun beregnAndelerTilkjentYtelseForBarna(
+    fun beregnAndelerTilkjentYtelseForBarna(
         personopplysningGrunnlag: PersonopplysningGrunnlag,
         vilkårsvurdering: Vilkårsvurdering,
         tilkjentYtelse: TilkjentYtelse
