@@ -40,7 +40,7 @@ import java.time.LocalDate
 class BrevPeroideContextTest {
 
     @Test
-    fun `genererBrevPeriodeDto skal gi rigktig output for innvilgetIkkeBarnehage-begrunnelse når alle vilkår er oppfylt`() {
+    fun `genererBrevPeriodeDto skal gi riktig output for innvilgetIkkeBarnehage-begrunnelse når alle vilkår er oppfylt`() {
         val barnFødselsdato = LocalDate.now().minusYears(2)
 
         val personerIbehandling = listOf(
@@ -99,7 +99,7 @@ class BrevPeroideContextTest {
     }
 
     @Test
-    fun `genererBrevPeriodeDto skal gi rigktig output for innvilgetDeltidBarnehage-begrunnelse ved 17 timer barnehageplass`() {
+    fun `genererBrevPeriodeDto skal gi riktig output for innvilgetDeltidBarnehage-begrunnelse ved 17 timer barnehageplass`() {
         val barnFødselsdato = LocalDate.now().minusYears(2)
 
         val personerIbehandling = listOf(
@@ -145,7 +145,7 @@ class BrevPeroideContextTest {
     }
 
     @Test
-    fun `genererBrevPeriodeDto skal gi rigktig output for innvilgetDeltidBarnehageAdopsjon ved 17 timer barnehageplass`() {
+    fun `genererBrevPeriodeDto skal gi riktig output for innvilgetDeltidBarnehageAdopsjon ved 17 timer barnehageplass`() {
         val barnFødselsdato = LocalDate.now().minusYears(2)
 
         val personerIbehandling = listOf(
@@ -197,7 +197,7 @@ class BrevPeroideContextTest {
     }
 
     @Test
-    fun `genererBrevPeriodeDto skal gi rigktig output for innvilgetIkkeBarnehageAdopsjon`() {
+    fun `genererBrevPeriodeDto skal gi riktig output for innvilgetIkkeBarnehageAdopsjon`() {
         val barnFødselsdato = LocalDate.now().minusYears(2)
 
         val personerIbehandling = listOf(
