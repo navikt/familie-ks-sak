@@ -327,7 +327,7 @@ class BrevPeriodeContext(
             hentForskjøvedeVilkårResultaterSomErSamtidigSomVedtaksperiode()[this.aktør]?.get(Vilkår.BARNEHAGEPLASS)
 
         return forskjøvetBarnehageplassTidslinjeSomErSamtidigSomVedtakspreiode?.tilPerioderIkkeNull()
-            ?.singleOrNull() // Skal være maks ett barnehageresultat i periode, ellers burde vi ha splittet opp vedtakspeiroden.
+            ?.singleOrNull() // Skal være maks ett barnehageresultat i periode, ellers burde vi ha splittet opp vedtaksperioden.
             ?.verdi?.antallTimer ?: BigDecimal.ZERO
     }
 
