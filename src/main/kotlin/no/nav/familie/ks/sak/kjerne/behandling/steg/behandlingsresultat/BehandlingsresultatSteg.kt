@@ -57,7 +57,7 @@ class BehandlingsresultatSteg(
                 )
             )
         }
-        simuleringService.oppdaterSimuleringPåBehandlingVedBehov(behandlingId)
+        simuleringService.oppdaterSimuleringPåBehandling(behandlingId)
     }
 
     companion object {
