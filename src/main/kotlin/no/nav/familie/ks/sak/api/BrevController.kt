@@ -77,7 +77,7 @@ class BrevController(
         )
     }
 
-    @GetMapping(path = ["forhåndsvis-vedtaksbrev/{behandlingId}"])
+    @GetMapping(path = ["/forhåndsvis-vedtaksbrev/{behandlingId}"])
     fun genererVedtaksbrev(@PathVariable behandlingId: Long): Ressurs<ByteArray> {
         logger.info("${SikkerhetContext.hentSaksbehandlerNavn()} henter vedtaksbrev")
 
