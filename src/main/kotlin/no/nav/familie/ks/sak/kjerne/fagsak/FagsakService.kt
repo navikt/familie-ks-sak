@@ -5,6 +5,7 @@ import no.nav.familie.ks.sak.api.dto.FagsakDeltagerResponsDto
 import no.nav.familie.ks.sak.api.dto.FagsakDeltagerRolle
 import no.nav.familie.ks.sak.api.dto.FagsakRequestDto
 import no.nav.familie.ks.sak.api.dto.MinimalFagsakResponsDto
+import no.nav.familie.ks.sak.api.dto.tilUtbetalingsperiodeResponsDto
 import no.nav.familie.ks.sak.api.mapper.FagsakMapper.lagBehandlingResponsDto
 import no.nav.familie.ks.sak.api.mapper.FagsakMapper.lagFagsakDeltagerResponsDto
 import no.nav.familie.ks.sak.api.mapper.FagsakMapper.lagMinimalFagsakResponsDto
@@ -14,12 +15,15 @@ import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
 import no.nav.familie.ks.sak.integrasjon.pdl.PersonOpplysningerService
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.PdlPersonInfo
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
+import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg
+import no.nav.familie.ks.sak.kjerne.beregning.AndelerTilkjentYtelseOgEndreteUtbetalingerService
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.Fagsak
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.FagsakRepository
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.FagsakStatus
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonRepository
+import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlagRepository
 import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
@@ -33,9 +37,11 @@ class FagsakService(
     private val personidentService: PersonidentService,
     private val integrasjonClient: IntegrasjonClient,
     private val personopplysningerService: PersonOpplysningerService,
+    private val personopplysningGrunnlagRepository: PersonopplysningGrunnlagRepository,
     private val fagsakRepository: FagsakRepository,
     private val personRepository: PersonRepository,
-    private val behandlingRepository: BehandlingRepository
+    private val behandlingRepository: BehandlingRepository,
+    private val andelerTilkjentYtelseOgEndreteUtbetalingerService: AndelerTilkjentYtelseOgEndreteUtbetalingerService
 ) {
 
     private val antallFagsakerOpprettetFraManuell =
@@ -93,11 +99,25 @@ class FagsakService(
 
     fun hentMinimalFagsak(fagsakId: Long): MinimalFagsakResponsDto {
         val fagsak = hentFagsak(fagsakId)
-        val alleBehandlinger = behandlingRepository.finnBehandlinger(fagsakId).map { lagBehandlingResponsDto(it) }
+        val alleBehandlinger = behandlingRepository.finnBehandlinger(fagsakId)
+
+        val sistIverksatteBehandling = alleBehandlinger.filter { it.steg == BehandlingSteg.AVSLUTT_BEHANDLING }
+            .maxByOrNull { it.opprettetTidspunkt }
+
+        val gjeldendeUtbetalingsperioder = sistIverksatteBehandling?.let {
+            val personopplysningGrunnlag =
+                personopplysningGrunnlagRepository.hentByBehandlingAndAktiv(it.id)
+            val andeler =
+                andelerTilkjentYtelseOgEndreteUtbetalingerService.finnAndelerTilkjentYtelseMedEndreteUtbetalinger(it.id)
+
+            andeler.tilUtbetalingsperiodeResponsDto(personopplysningGrunnlag)
+        }
+
         return lagMinimalFagsakResponsDto(
             fagsak = fagsak,
             aktivtBehandling = behandlingRepository.findByFagsakAndAktiv(fagsakId),
-            behandlinger = alleBehandlinger
+            behandlinger = alleBehandlinger.map { lagBehandlingResponsDto(it) },
+            gjeldendeUtbetalingsperioder = gjeldendeUtbetalingsperioder ?: emptyList()
         )
     }
 
