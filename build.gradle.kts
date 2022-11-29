@@ -38,7 +38,7 @@ dependencies {
     val familieKontrakterSkatteetatenVersion = "2.0_20210920094114_9c74239"
     val tokenValidationSpringVersion = "2.1.7"
     val navFoedselsnummerVersion = "1.0-SNAPSHOT.6"
-    val prosesseringVersion = "1.20221107161505_a52c041"
+    val prosesseringVersion = "1.20221110194901_e9e0d90"
     val restAssuredVersion = "5.2.0"
 
     // ---------- Spring ---------- \\
