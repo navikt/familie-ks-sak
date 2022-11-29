@@ -11,8 +11,8 @@ import no.nav.familie.ks.sak.api.dto.tilBrev
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.config.BehandlerRolle
-import no.nav.familie.ks.sak.integrasjon.distributering.DistribuerBrevTask
-import no.nav.familie.ks.sak.integrasjon.distributering.DistribuerDødsfallBrevPåFagsakTask
+import no.nav.familie.ks.sak.integrasjon.distribuering.DistribuerBrevTask
+import no.nav.familie.ks.sak.integrasjon.distribuering.DistribuerDødsfallBrevPåFagsakTask
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
 import no.nav.familie.ks.sak.integrasjon.journalføring.UtgåendeJournalføringService
 import no.nav.familie.ks.sak.integrasjon.journalføring.UtgåendeJournalføringService.Companion.DEFAULT_JOURNALFØRENDE_ENHET
