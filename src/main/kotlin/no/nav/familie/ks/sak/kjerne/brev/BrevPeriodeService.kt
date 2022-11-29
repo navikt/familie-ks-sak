@@ -35,7 +35,8 @@ class BrevPeriodeService(
         val utvidetVedtaksperiodeMedBegrunnelser =
             vedtaksperiodeService.hentUtvidetVedtaksperiodeMedBegrunnelser(vedtaksperiodeId)
 
-        return hentBrevPeriodeDtoer(listOf(utvidetVedtaksperiodeMedBegrunnelser), behandlingId).single().begrunnelser
+        return hentBrevPeriodeDtoer(listOf(utvidetVedtaksperiodeMedBegrunnelser), behandlingId).singleOrNull()?.begrunnelser
+            ?: emptyList()
     }
 
     fun hentBrevPeriodeDtoer(
