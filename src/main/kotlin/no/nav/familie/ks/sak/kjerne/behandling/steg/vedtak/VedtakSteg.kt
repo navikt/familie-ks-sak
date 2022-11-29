@@ -85,7 +85,7 @@ class VedtakSteg(
 
         if (behandling.resultat != Behandlingsresultat.FORTSATT_INNVILGET) {
             val vedtak = vedtakService.hentAktivVedtakForBehandling(behandlingId = behandling.id)
-            val utvidetVedtaksperioder = vedtaksperiodeService.hentUtvidetVedtaksperiodeMedBegrunnelser(vedtak)
+            val utvidetVedtaksperioder = vedtaksperiodeService.hentUtvidetVedtaksperioderMedBegrunnelser(vedtak)
             utvidetVedtaksperioder.validerPerioderInneholderBegrunnelser(
                 behandlingId = behandling.id,
                 fagsakId = behandling.fagsak.id

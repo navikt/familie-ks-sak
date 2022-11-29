@@ -1,5 +1,6 @@
 package no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene
 
+import no.nav.familie.ks.sak.common.util.TIDENES_MORGEN
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.UtbetalingsperiodeDetalj
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.Vedtaksperiodetype
 import no.nav.familie.ks.sak.kjerne.beregning.AndelTilkjentYtelseMedEndreteUtbetalinger
@@ -17,7 +18,18 @@ data class UtvidetVedtaksperiodeMedBegrunnelser(
     val fritekster: List<String> = emptyList(),
     val gyldigeBegrunnelser: List<IBegrunnelse> = emptyList(),
     val utbetalingsperiodeDetaljer: List<UtbetalingsperiodeDetalj> = emptyList()
-)
+) : Comparable<UtvidetVedtaksperiodeMedBegrunnelser> {
+
+    override fun compareTo(other: UtvidetVedtaksperiodeMedBegrunnelser): Int {
+        return if (this.type == Vedtaksperiodetype.AVSLAG) {
+            1
+        } else if (other.type == Vedtaksperiodetype.AVSLAG) {
+            -1
+        } else {
+            (fom ?: TIDENES_MORGEN).compareTo(other.fom ?: TIDENES_MORGEN)
+        }
+    }
+}
 
 fun VedtaksperiodeMedBegrunnelser.tilUtvidetVedtaksperiodeMedBegrunnelser(
     personopplysningGrunnlag: PersonopplysningGrunnlag,

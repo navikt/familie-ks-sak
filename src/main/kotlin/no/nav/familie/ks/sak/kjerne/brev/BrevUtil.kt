@@ -8,8 +8,6 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingType
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
-import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.tilSanityBegrunnelse
-import no.nav.familie.ks.sak.kjerne.brev.domene.BrevVedtaksPeriode
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.Brevmal
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Målform
 
@@ -95,23 +93,17 @@ fun hentVedtaksbrevtype(
 }
 
 fun hentHjemmeltekst(
-    brevVedtaksperioder: List<BrevVedtaksPeriode>,
-    sanityBegrunnelser: List<SanityBegrunnelse>,
+    sanitybegrunnelserBruktIBrev: List<SanityBegrunnelse>,
+    erFriteksterIPeriode: Boolean,
     opplysningspliktHjemlerSkalMedIBrev: Boolean = false,
     målform: Målform
 ): String {
-    val sanityStandardbegrunnelser = brevVedtaksperioder.flatMap { vedtaksperiode ->
-        vedtaksperiode.begrunnelseMedDataFraSanity.mapNotNull { begrunnelse ->
-            begrunnelse.begrunnelse.tilSanityBegrunnelse(sanityBegrunnelser)
-        }
-    }
-
     val ordinæreHjemler =
         hentOrdinæreHjemler(
-            hjemler = sanityStandardbegrunnelser.flatMap { it.hjemler }
+            hjemler = sanitybegrunnelserBruktIBrev.flatMap { it.hjemler }
                 .toMutableSet(),
             opplysningspliktHjemlerSkalMedIBrev = opplysningspliktHjemlerSkalMedIBrev,
-            finnesVedtaksperiodeMedFritekst = brevVedtaksperioder.flatMap { it.fritekster }.isNotEmpty()
+            finnesVedtaksperiodeMedFritekst = erFriteksterIPeriode
         )
 
     val alleHjemlerForBegrunnelser = hentAlleTyperHjemler(
