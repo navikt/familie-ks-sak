@@ -33,7 +33,7 @@ class BrevPeriodeService(
         val behandlingId = vedtaksperiodeHentOgPersisterService.hentVedtaksperiodeThrows(vedtaksperiodeId).vedtak.behandling.id
 
         val utvidetVedtaksperiodeMedBegrunnelser =
-            vedtaksperiodeService.hentUtvidetVedtaksperiodeMedBegrunneleser(vedtaksperiodeId)
+            vedtaksperiodeService.hentUtvidetVedtaksperiodeMedBegrunnelser(vedtaksperiodeId)
 
         return hentBrevPeriodeDtoer(listOf(utvidetVedtaksperiodeMedBegrunnelser), behandlingId).single().begrunnelser
     }
