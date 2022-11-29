@@ -1,6 +1,12 @@
 package no.nav.familie.ks.sak.kjerne.brev
 
+import forskyvVilkårResultater
 import no.nav.familie.ks.sak.api.dto.BarnMedOpplysningerDto
+import no.nav.familie.ks.sak.common.tidslinje.Periode
+import no.nav.familie.ks.sak.common.tidslinje.Tidslinje
+import no.nav.familie.ks.sak.common.tidslinje.tilTidslinje
+import no.nav.familie.ks.sak.common.tidslinje.utvidelser.kombinerMed
+import no.nav.familie.ks.sak.common.tidslinje.utvidelser.tilPerioderIkkeNull
 import no.nav.familie.ks.sak.common.util.MånedPeriode
 import no.nav.familie.ks.sak.common.util.TIDENES_ENDE
 import no.nav.familie.ks.sak.common.util.TIDENES_MORGEN
@@ -10,6 +16,7 @@ import no.nav.familie.ks.sak.common.util.formaterBeløp
 import no.nav.familie.ks.sak.common.util.førsteDagIInneværendeMåned
 import no.nav.familie.ks.sak.common.util.overlapperHeltEllerDelvisMed
 import no.nav.familie.ks.sak.common.util.sisteDagIInneværendeMåned
+import no.nav.familie.ks.sak.common.util.slåSammen
 import no.nav.familie.ks.sak.common.util.tilDagMånedÅr
 import no.nav.familie.ks.sak.common.util.tilYearMonth
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelse
@@ -17,6 +24,8 @@ import no.nav.familie.ks.sak.integrasjon.sanity.domene.Trigger
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.Vedtaksperiodetype
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.UtvidetVedtaksperiodeMedBegrunnelser
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.PersonResultat
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
 import no.nav.familie.ks.sak.kjerne.beregning.AndelTilkjentYtelseMedEndreteUtbetalinger
 import no.nav.familie.ks.sak.kjerne.beregning.domene.EndretUtbetalingAndel
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.Begrunnelse
@@ -29,10 +38,12 @@ import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.tilBrevTekst
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.tilSanityBegrunnelse
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.brevperioder.BrevPeriodeDto
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.brevperioder.BrevPeriodeType
+import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.tilBarnasFødselsdatoer
+import java.math.BigDecimal
 import java.time.LocalDate
 
 class BrevPeriodeContext(
@@ -72,16 +83,6 @@ class BrevPeriodeContext(
 
     private fun hentFritekstBegrunnelseDtoer() =
         utvidetVedtaksperiodeMedBegrunnelser.fritekster.map { FritekstBegrunnelseDto(it) }
-
-    private fun hentBarnSomOppfyllerTriggereOgHarNullKronerIUtbetaling(personerIBegrunnelse: Set<Person>) =
-        personerIBegrunnelse.filter { person ->
-            person.type == PersonType.BARN && utvidetVedtaksperiodeMedBegrunnelser.utbetalingsperiodeDetaljer.any { it.utbetaltPerMnd == 0 && it.person == person }
-        }.map { it.fødselsdato }
-
-    private fun hentBarnSomOppfyllerTriggereOgHarUtbetaling(personerIBegrunnelse: Set<Person>) =
-        personerIBegrunnelse.filter { person ->
-            person.type == PersonType.BARN && utvidetVedtaksperiodeMedBegrunnelser.utbetalingsperiodeDetaljer.any { it.utbetaltPerMnd > 0 && it.person == person }
-        }.map { it.fødselsdato }
 
     private fun byggBrevPeriode(
         tomDato: String?,
@@ -279,10 +280,7 @@ class BrevPeriodeContext(
                         sanityBegrunnelse = sanityBegrunnelse
                     )
 
-                val barnSomOppfyllerTriggereOgHarUtbetaling =
-                    hentBarnSomOppfyllerTriggereOgHarUtbetaling(personerMedVilkårSomPasserBegrunnelse)
-                val barnSomOppfyllerTriggereOgHarNullKronerIUtbetaling =
-                    hentBarnSomOppfyllerTriggereOgHarNullKronerIUtbetaling(personerMedVilkårSomPasserBegrunnelse)
+                val antallTimerBarnehageplass = hentAntallTimerBarnehageplassTekst(personerMedVilkårSomPasserBegrunnelse)
 
                 val gjelderSøker = personerMedVilkårSomPasserBegrunnelse.any { it.type == PersonType.SØKER }
 
@@ -302,20 +300,66 @@ class BrevPeriodeContext(
                 BegrunnelseDataDto(
                     gjelderSoker = gjelderSøker,
                     barnasFodselsdatoer = barnasFødselsdatoer.tilBrevTekst(),
-                    fodselsdatoerBarnOppfyllerTriggereOgHarUtbetaling = barnSomOppfyllerTriggereOgHarUtbetaling.tilBrevTekst(),
-                    fodselsdatoerBarnOppfyllerTriggereOgHarNullutbetaling = barnSomOppfyllerTriggereOgHarNullKronerIUtbetaling.tilBrevTekst(),
                     antallBarn = hentAntallBarnForBegrunnelse(
                         gjelderSøker = gjelderSøker,
                         barnasFødselsdatoer = barnasFødselsdatoer,
                         begrunnelse = begrunnelse
                     ),
-                    antallBarnOppfyllerTriggereOgHarUtbetaling = barnSomOppfyllerTriggereOgHarUtbetaling.size,
-                    antallBarnOppfyllerTriggereOgHarNullutbetaling = barnSomOppfyllerTriggereOgHarNullKronerIUtbetaling.size,
                     maalform = persongrunnlag.søker.målform.tilSanityFormat(),
                     apiNavn = begrunnelse.sanityApiNavn,
                     belop = formaterBeløp(hentBeløp(begrunnelse)),
-                    vedtakBegrunnelseType = begrunnelse.begrunnelseType
+                    vedtakBegrunnelseType = begrunnelse.begrunnelseType,
+                    antallTimerBarnehageplass = antallTimerBarnehageplass
                 )
             }
+    }
+
+    private fun hentAntallTimerBarnehageplassTekst(personerMedVilkårSomPasserBegrunnelse: Set<Person>) =
+        slåSammen(
+            personerMedVilkårSomPasserBegrunnelse
+                .filter { it.type == PersonType.BARN }
+                .sortedBy { it.fødselsdato }
+                .map { it.hentAntallTimerBarnehageplass().toString() }
+        )
+
+    private fun Person.hentAntallTimerBarnehageplass(): BigDecimal {
+        val forskjøvetBarnehageplassPeriodeSomErSamtidigSomVedtaksperiode =
+            hentForskjøvedeVilkårResultaterSomErSamtidigSomVedtaksperiode()[this.aktør]
+                ?.get(Vilkår.BARNEHAGEPLASS)
+                ?.tilPerioderIkkeNull()
+
+        return forskjøvetBarnehageplassPeriodeSomErSamtidigSomVedtaksperiode
+            ?.singleOrNull() // Skal være maks ett barnehageresultat i periode, ellers burde vi ha splittet opp vedtaksperioden.
+            ?.verdi?.antallTimer ?: BigDecimal.ZERO
+    }
+
+    private fun hentForskjøvedeVilkårResultater(): Map<Aktør, Map<Vilkår, Tidslinje<VilkårResultat>>> {
+        return personResultater.associate { personResultat ->
+            val vilkårTilVilkårResultaterMap = personResultat.vilkårResultater.groupBy { it.vilkårType }
+
+            personResultat.aktør to vilkårTilVilkårResultaterMap.mapValues { (vilkår, vilkårResultater) ->
+                forskyvVilkårResultater(vilkår, vilkårResultater).tilTidslinje()
+            }
+        }
+    }
+
+    private fun hentForskjøvedeVilkårResultaterSomErSamtidigSomVedtaksperiode(): Map<Aktør, Map<Vilkår, Tidslinje<VilkårResultat>>> {
+        val vedtaksperiodeTidslinje = listOf(
+            Periode(
+                verdi = utvidetVedtaksperiodeMedBegrunnelser,
+                fom = utvidetVedtaksperiodeMedBegrunnelser.fom,
+                tom = utvidetVedtaksperiodeMedBegrunnelser.tom
+            )
+        ).tilTidslinje()
+
+        val personTilVilkårResultaterMap = hentForskjøvedeVilkårResultater()
+
+        return personTilVilkårResultaterMap.mapValues { (_, vilkårResultaterMap) ->
+            vilkårResultaterMap.mapValues { (_, vilkårResultatTidslinje) ->
+                vilkårResultatTidslinje.kombinerMed(vedtaksperiodeTidslinje) { vilkårResultat, vedtaksperiode ->
+                    vedtaksperiode?.let { vilkårResultat }
+                }
+            }
+        }
     }
 }
