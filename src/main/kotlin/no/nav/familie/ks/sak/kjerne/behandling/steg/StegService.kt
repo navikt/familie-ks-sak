@@ -179,7 +179,6 @@ class StegService(
                 val vedtakId = vedtakRepository.findByBehandlingAndAktiv(behandling.id).id
                 taskService.save(JournalførVedtaksbrevTask.opprettTask(behandling, vedtakId))
             }
-            AVSLUTT_BEHANDLING -> utførSteg(behandlingId = behandling.id, AVSLUTT_BEHANDLING)
             else -> {} // Gjør ingenting. Steg kan ikke utføre automatisk
         }
     }
