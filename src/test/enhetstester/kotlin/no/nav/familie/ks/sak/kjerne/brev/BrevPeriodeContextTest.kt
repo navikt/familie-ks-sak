@@ -37,7 +37,7 @@ import java.io.File
 import java.math.BigDecimal
 import java.time.LocalDate
 
-class BrevPeroideContextTest {
+class BrevPeriodeContextTest {
 
     @Test
     fun `genererBrevPeriodeDto skal gi riktig output for innvilgetIkkeBarnehage-begrunnelse når alle vilkår er oppfylt`() {

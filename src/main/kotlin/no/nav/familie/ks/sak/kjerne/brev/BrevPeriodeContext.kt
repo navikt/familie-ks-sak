@@ -323,12 +323,12 @@ class BrevPeriodeContext(
         )
 
     private fun Person.hentAntallTimerBarnehageplass(): BigDecimal {
-        val forskjøvetBarnehageplassPeriodeSomErSamtidigSomVedtakspreiode =
+        val forskjøvetBarnehageplassPeriodeSomErSamtidigSomVedtaksperiode =
             hentForskjøvedeVilkårResultaterSomErSamtidigSomVedtaksperiode()[this.aktør]
                 ?.get(Vilkår.BARNEHAGEPLASS)
                 ?.tilPerioderIkkeNull()
 
-        return forskjøvetBarnehageplassPeriodeSomErSamtidigSomVedtakspreiode
+        return forskjøvetBarnehageplassPeriodeSomErSamtidigSomVedtaksperiode
             ?.singleOrNull() // Skal være maks ett barnehageresultat i periode, ellers burde vi ha splittet opp vedtaksperioden.
             ?.verdi?.antallTimer ?: BigDecimal.ZERO
     }
