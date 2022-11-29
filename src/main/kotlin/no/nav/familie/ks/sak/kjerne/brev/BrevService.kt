@@ -28,6 +28,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg
+import no.nav.familie.ks.sak.kjerne.behandling.steg.simulering.SimuleringService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.VedtakService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.Vedtak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.UtvidetVedtaksperiodeMedBegrunnelser
@@ -71,7 +72,8 @@ class BrevService(
     private val brevPeriodeService: BrevPeriodeService,
     private val sanityService: SanityService,
     private val totrinnskontrollService: TotrinnskontrollService,
-    private val vedtakService: VedtakService
+    private val vedtakService: VedtakService,
+    private val simuleringService: SimuleringService
 
 ) {
 
@@ -320,7 +322,7 @@ class BrevService(
         return when (brevtype) {
             Brevmal.VEDTAK_FØRSTEGANGSVEDTAK -> Førstegangsvedtak(
                 fellesdataForVedtaksbrev = fellestdataForVedtaksbrev,
-                etterbetaling = null // TODO når simulering er inne
+                etterbetaling = simuleringService.hentEtterbetaling(vedtak.behandling.id)
             )
 
             else -> throw Feil("Forsøker å hente vedtaksbrevdata for brevmal ${brevtype.visningsTekst}")
