@@ -13,6 +13,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.IBehandlingSteg
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.VedtakService
 import no.nav.familie.ks.sak.kjerne.beregning.TilkjentYtelseValideringService
 import no.nav.familie.ks.sak.kjerne.totrinnskontroll.TotrinnskontrollService
+import no.nav.familie.ks.sak.statistikk.stønadsstatistikk.PubliserVedtakTask
 import no.nav.familie.prosessering.internal.TaskService
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -57,6 +58,8 @@ class IverksettMotOppdragSteg(
                 SendVedtakHendelseTilInfotrygdTask.opprettTask(behandling.fagsak.aktør.aktivFødselsnummer(), behandlingId)
             )
         }
+        // lag task for sending av stønadsstatistikk
+        taskService.save(PubliserVedtakTask.opprettTask(behandling.fagsak.aktør.aktivFødselsnummer(), behandlingId))
     }
 
     fun validerTotrinnskontrollForBehandling(behandling: Behandling) =
