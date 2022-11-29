@@ -52,7 +52,7 @@ enum class BehandlingSteg(
     AVSLUTT_BEHANDLING(
         sekvens = 10,
         gyldigBehandlerRolle = listOf(BehandlerRolle.SYSTEM),
-        tilknyttetBehandlingStatus = BehandlingStatus.AVSLUTTET
+        tilknyttetBehandlingStatus = BehandlingStatus.IVERKSETTER_VEDTAK
     );
 
     fun kanStegBehandles(): Boolean = this.gyldigBehandlerRolle.any {
