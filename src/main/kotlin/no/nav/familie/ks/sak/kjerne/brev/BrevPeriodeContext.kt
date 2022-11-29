@@ -84,16 +84,6 @@ class BrevPeriodeContext(
     private fun hentFritekstBegrunnelseDtoer() =
         utvidetVedtaksperiodeMedBegrunnelser.fritekster.map { FritekstBegrunnelseDto(it) }
 
-    private fun hentBarnSomOppfyllerTriggereOgHarNullKronerIUtbetaling(personerIBegrunnelse: Set<Person>) =
-        personerIBegrunnelse.filter { person ->
-            person.type == PersonType.BARN && utvidetVedtaksperiodeMedBegrunnelser.utbetalingsperiodeDetaljer.any { it.utbetaltPerMnd == 0 && it.person == person }
-        }.map { it.fødselsdato }
-
-    private fun hentBarnSomOppfyllerTriggereOgHarUtbetaling(personerIBegrunnelse: Set<Person>) =
-        personerIBegrunnelse.filter { person ->
-            person.type == PersonType.BARN && utvidetVedtaksperiodeMedBegrunnelser.utbetalingsperiodeDetaljer.any { it.utbetaltPerMnd > 0 && it.person == person }
-        }.map { it.fødselsdato }
-
     private fun byggBrevPeriode(
         tomDato: String?,
         begrunnelserOgFritekster: List<BegrunnelseDto>,
@@ -292,11 +282,6 @@ class BrevPeriodeContext(
 
                 val antallTimerBarnehageplass = hentAntallTimerBarnehageplassTekst(personerMedVilkårSomPasserBegrunnelse)
 
-                val barnSomOppfyllerTriggereOgHarUtbetaling =
-                    hentBarnSomOppfyllerTriggereOgHarUtbetaling(personerMedVilkårSomPasserBegrunnelse)
-                val barnSomOppfyllerTriggereOgHarNullKronerIUtbetaling =
-                    hentBarnSomOppfyllerTriggereOgHarNullKronerIUtbetaling(personerMedVilkårSomPasserBegrunnelse)
-
                 val gjelderSøker = personerMedVilkårSomPasserBegrunnelse.any { it.type == PersonType.SØKER }
 
                 val barnasFødselsdatoer = hentBarnasFødselsdagerForBegrunnelse(
@@ -315,15 +300,11 @@ class BrevPeriodeContext(
                 BegrunnelseDataDto(
                     gjelderSoker = gjelderSøker,
                     barnasFodselsdatoer = barnasFødselsdatoer.tilBrevTekst(),
-                    fodselsdatoerBarnOppfyllerTriggereOgHarUtbetaling = barnSomOppfyllerTriggereOgHarUtbetaling.tilBrevTekst(),
-                    fodselsdatoerBarnOppfyllerTriggereOgHarNullutbetaling = barnSomOppfyllerTriggereOgHarNullKronerIUtbetaling.tilBrevTekst(),
                     antallBarn = hentAntallBarnForBegrunnelse(
                         gjelderSøker = gjelderSøker,
                         barnasFødselsdatoer = barnasFødselsdatoer,
                         begrunnelse = begrunnelse
                     ),
-                    antallBarnOppfyllerTriggereOgHarUtbetaling = barnSomOppfyllerTriggereOgHarUtbetaling.size,
-                    antallBarnOppfyllerTriggereOgHarNullutbetaling = barnSomOppfyllerTriggereOgHarNullKronerIUtbetaling.size,
                     maalform = persongrunnlag.søker.målform.tilSanityFormat(),
                     apiNavn = begrunnelse.sanityApiNavn,
                     belop = formaterBeløp(hentBeløp(begrunnelse)),

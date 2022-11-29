@@ -38,11 +38,7 @@ data class BegrunnelseDataDto(
 
     val gjelderSoker: Boolean,
     val barnasFodselsdatoer: String,
-    val fodselsdatoerBarnOppfyllerTriggereOgHarUtbetaling: String,
-    val fodselsdatoerBarnOppfyllerTriggereOgHarNullutbetaling: String,
     val antallBarn: Int,
-    val antallBarnOppfyllerTriggereOgHarUtbetaling: Int,
-    val antallBarnOppfyllerTriggereOgHarNullutbetaling: Int,
     val maanedOgAarBegrunnelsenGjelderFor: String? = null,
     val maalform: String,
     val belop: String,
