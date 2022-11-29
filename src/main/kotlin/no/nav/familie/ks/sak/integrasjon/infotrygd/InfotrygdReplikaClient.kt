@@ -16,17 +16,17 @@ class InfotrygdReplikaClient(
     @Qualifier("azure") restOperations: RestOperations
 ) : AbstractRestClient(restOperations, "familie-ba-infotrygd") {
 
-    fun harKontantstøtteIInfotrygd(personIdenter: List<PersonIdent>): Boolean {
+    fun harKontantstøtteIInfotrygd(personerIGjeldendeBehandling: List<PersonIdent>): Boolean {
         val harKontantstøtteIInfotrygdUri =
             UriComponentsBuilder.fromUri(familieKsInfotrygdUri).pathSegment("harLøpendeKontantstotteIInfotrygd").build().toUri()
         val harKontantstøtte = kallEksternTjeneste<Boolean>(
             tjeneste = "harKontantstøtteIInfotrygd",
             uri = harKontantstøtteIInfotrygdUri,
-            formål = "Sjekk om person har løpende kontantstøtte i infotrygd"
+            formål = "Sjekk om noen av personene i denne behandlingen har løpende kontantstøtte i infotrygd"
         ) {
             postForEntity(
                 uri = harKontantstøtteIInfotrygdUri,
-                personIdenter.tilInnsynsRequest()
+                personerIGjeldendeBehandling.tilInnsynsRequest()
             )
         }
         return harKontantstøtte
