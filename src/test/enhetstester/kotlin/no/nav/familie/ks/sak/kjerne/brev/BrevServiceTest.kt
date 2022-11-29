@@ -4,9 +4,7 @@ import io.mockk.every
 import io.mockk.impl.annotations.InjectMockKs
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
-import io.mockk.just
 import io.mockk.mockk
-import io.mockk.runs
 import io.mockk.slot
 import io.mockk.verify
 import no.nav.familie.kontrakter.felles.dokarkiv.v2.Førsteside
@@ -25,7 +23,6 @@ import no.nav.familie.ks.sak.integrasjon.journalføring.domene.JournalføringRep
 import no.nav.familie.ks.sak.integrasjon.sanity.SanityService
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.ArbeidsfordelingService
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.domene.ArbeidsfordelingPåBehandling
-import no.nav.familie.ks.sak.kjerne.behandling.SettBehandlingPåVentService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingKategori
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
@@ -78,9 +75,6 @@ class BrevServiceTest {
 
     @MockK
     private lateinit var taskService: TaskService
-
-    @MockK
-    private lateinit var settBehandlingPåVentService: SettBehandlingPåVentService
 
     @MockK
     private lateinit var totrinnskontrollService: TotrinnskontrollService
@@ -218,8 +212,6 @@ class BrevServiceTest {
             resultat = Resultat.IKKE_VURDERT
         )
 
-        every { settBehandlingPåVentService.settBehandlingPåVent(any(), any()) } just runs
-
         brevService.genererOgSendBrev(
             behandling.id,
             ManueltBrevDto(
@@ -274,8 +266,6 @@ class BrevServiceTest {
             behandling = behandling,
             resultat = Resultat.IKKE_VURDERT
         )
-
-        every { settBehandlingPåVentService.settBehandlingPåVent(any(), any()) } just runs
 
         brevService.genererOgSendBrev(
             behandling.id,
@@ -367,8 +357,6 @@ class BrevServiceTest {
             resultat = Resultat.IKKE_VURDERT
         )
 
-        every { settBehandlingPåVentService.settBehandlingPåVent(any(), any()) } just runs
-
         brevService.genererOgSendBrev(
             behandling.id,
             ManueltBrevDto(
@@ -434,8 +422,6 @@ class BrevServiceTest {
             resultat = Resultat.IKKE_VURDERT
         )
 
-        every { settBehandlingPåVentService.settBehandlingPåVent(any(), any()) } just runs
-
         brevService.genererOgSendBrev(
             behandling.id,
             ManueltBrevDto(
@@ -446,7 +432,5 @@ class BrevServiceTest {
                 antallUkerSvarfrist = 5
             )
         )
-
-        verify(exactly = 1) { settBehandlingPåVentService.settBehandlingPåVent(any(), any()) }
     }
 }

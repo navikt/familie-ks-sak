@@ -19,6 +19,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Beslutning
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.VedtakService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
+import no.nav.familie.ks.sak.kjerne.brev.BrevService
 import no.nav.familie.ks.sak.kjerne.logg.LoggService
 import no.nav.familie.ks.sak.kjerne.totrinnskontroll.TotrinnskontrollService
 import no.nav.familie.prosessering.internal.TaskService
@@ -52,6 +53,9 @@ class BeslutteVedtakStegTest {
     @MockK
     private lateinit var featureToggleService: FeatureToggleService
 
+    @MockK
+    private lateinit var brevService: BrevService
+
     @InjectMockKs
     private lateinit var beslutteVedtakSteg: BeslutteVedtakSteg
 
@@ -61,6 +65,7 @@ class BeslutteVedtakStegTest {
         every { featureToggleService.isEnabled(FeatureToggleConfig.KAN_MANUELT_KORRIGERE_MED_VEDTAKSBREV) } returns false
         every { loggService.opprettBeslutningOmVedtakLogg(any(), any(), any()) } returns mockk()
         every { taskService.save(any()) } returns mockk()
+        every { brevService.genererBrevForBehandling(any()) } returns ByteArray(0)
     }
 
     @Test
@@ -114,8 +119,8 @@ class BeslutteVedtakStegTest {
                 emptyList()
             )
         } returns mockk(relaxed = true)
-        every { vedtakService.hentAktivVedtakForBehandling(any()) } returns mockk()
-        every { vedtakService.oppdaterVedtaksdato(any()) } just runs
+        every { vedtakService.hentAktivVedtakForBehandling(any()) } returns mockk(relaxed = true)
+        every { vedtakService.oppdaterVedtak(any()) } just runs
 
         beslutteVedtakSteg.utførSteg(200, besluttVedtakDto)
 
@@ -131,7 +136,7 @@ class BeslutteVedtakStegTest {
         verify(exactly = 1) { loggService.opprettBeslutningOmVedtakLogg(any(), any(), any()) }
         verify(exactly = 1) { taskService.save(any()) }
         verify(exactly = 1) { vedtakService.hentAktivVedtakForBehandling(any()) }
-        verify(exactly = 1) { vedtakService.oppdaterVedtaksdato(any()) }
+        verify(exactly = 1) { vedtakService.oppdaterVedtak(any()) }
     }
 
     @Test
@@ -164,7 +169,7 @@ class BeslutteVedtakStegTest {
         }
         verify(exactly = 1) { loggService.opprettBeslutningOmVedtakLogg(any(), any(), any()) }
         verify(exactly = 2) { taskService.save(any()) }
-        verify(exactly = 0) { vedtakService.oppdaterVedtaksdato(any()) }
+        verify(exactly = 0) { vedtakService.oppdaterVedtak(any()) }
         verify(exactly = 1) { vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(any()) }
         verify(exactly = 1) { vilkårsvurderingService.oppdater(any()) }
         verify(exactly = 1) { vedtakService.opprettOgInitierNyttVedtakForBehandling(any(), any()) }

@@ -5,6 +5,7 @@ import no.nav.familie.ks.sak.api.dto.BehandlingResponsDto
 import no.nav.familie.ks.sak.api.dto.ManueltBrevDto
 import no.nav.familie.ks.sak.config.BehandlerRolle
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
+import no.nav.familie.ks.sak.kjerne.behandling.SettBehandlingPåVentService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.VedtakService
 import no.nav.familie.ks.sak.kjerne.brev.BrevService
 import no.nav.familie.ks.sak.sikkerhet.AuditLoggerEvent
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
+import java.time.LocalDate
 import javax.transaction.Transactional
 
 @RestController
@@ -30,6 +32,7 @@ class BrevController(
     private val brevService: BrevService,
     private val tilgangService: TilgangService,
     private val behandlingService: BehandlingService,
+    private val settBehandlingPåVentService: SettBehandlingPåVentService,
     private val vedtakService: VedtakService
 ) {
 
@@ -61,6 +64,9 @@ class BrevController(
         @RequestBody manueltBrevDto: ManueltBrevDto
     ): ResponseEntity<Ressurs<BehandlingResponsDto>> {
         logger.info("${SikkerhetContext.hentSaksbehandlerNavn()} genererer og sender brev: ${manueltBrevDto.brevmal}")
+
+        val behandling = behandlingService.hentBehandling(behandlingId)
+
         tilgangService.validerTilgangTilHandlingOgFagsakForBehandling(
             behandlingId = behandlingId,
             event = AuditLoggerEvent.UPDATE,
@@ -69,6 +75,19 @@ class BrevController(
         )
 
         brevService.genererOgSendBrev(behandlingId = behandlingId, manueltBrevDto = manueltBrevDto)
+
+        if (manueltBrevDto.brevmal.setterBehandlingPåVent()) {
+            settBehandlingPåVentService.settBehandlingPåVent(
+                behandlingId = behandlingId,
+                frist = LocalDate.now()
+                    .plusDays(
+                        manueltBrevDto.brevmal.ventefristDager(
+                            manuellFrist = manueltBrevDto.antallUkerSvarfrist?.toLong(),
+                            behandlingKategori = behandling.kategori
+                        )
+                    )
+            )
+        }
 
         return ResponseEntity.ok(
             Ressurs.success(
