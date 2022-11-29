@@ -30,7 +30,7 @@ class VedtaksperioderController(
     fun genererBegrunnelserForPeriode(@PathVariable vedtaksperiodeId: Long): ResponseEntity<Ressurs<List<String>>> {
         tilgangService.validerTilgangTilHandling(
             minimumBehandlerRolle = BehandlerRolle.VEILEDER,
-            handling = "Hente genererte begrunnelser"
+            handling = "Henter begrunnelsetekster"
         )
 
         val begrunnelser = brevPeriodeService.hentBegrunnelsesteksterForPeriode(vedtaksperiodeId).map {
