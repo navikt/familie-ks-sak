@@ -3,56 +3,58 @@ package no.nav.familie.ks.sak.kjerne.brev.begrunnelser
 import no.nav.familie.eksterne.kontrakter.AnnenForeldersAktivitet
 import no.nav.familie.eksterne.kontrakter.SøkersAktivitet
 
-interface BegrunnelseDto : Comparable<BegrunnelseDto> {
-    val brevBegrunnelseType: BrevBegrunnelseType
-    val begrunnelseType: BegrunnelseType?
+sealed class BegrunnelseDto(
+    open val type: BrevBegrunnelseType
+) : Comparable<BegrunnelseDto> {
 
     override fun compareTo(other: BegrunnelseDto): Int {
-        return when {
-            this.brevBegrunnelseType == BrevBegrunnelseType.FRITEKST -> Int.MAX_VALUE
-            other.brevBegrunnelseType == BrevBegrunnelseType.FRITEKST -> -Int.MAX_VALUE
-            this.begrunnelseType == null -> Int.MAX_VALUE
-            other.begrunnelseType == null -> -Int.MAX_VALUE
-
-            else -> this.begrunnelseType!!.sorteringsrekkefølge - other.begrunnelseType!!.sorteringsrekkefølge
+        return when (this) {
+            is FritekstBegrunnelseDto -> Int.MAX_VALUE
+            is BegrunnelseDtoMedData -> when (other) {
+                is FritekstBegrunnelseDto -> -Int.MAX_VALUE
+                is BegrunnelseDtoMedData -> {
+                    this.vedtakBegrunnelseType.sorteringsrekkefølge - other.vedtakBegrunnelseType.sorteringsrekkefølge
+                }
+            }
         }
     }
 }
 
-interface BegrunnelseDtoMedData : BegrunnelseDto {
-    val apiNavn: String
+enum class BrevBegrunnelseType {
+    BEGRUNNELSE,
+    EØS_BEGRUNNELSE,
+    FRITEKST
 }
 
-data class StandardBegrunnelseDataDto(
-    override val begrunnelseType: BegrunnelseType,
+sealed class BegrunnelseDtoMedData(
+    open val apiNavn: String,
+    open val vedtakBegrunnelseType: BegrunnelseType,
+    type: BrevBegrunnelseType
+) : BegrunnelseDto(type)
+
+data class BegrunnelseDataDto(
+    override val vedtakBegrunnelseType: BegrunnelseType,
     override val apiNavn: String,
 
     val gjelderSoker: Boolean,
     val barnasFodselsdatoer: String,
-    val fodselsdatoerBarnOppfyllerTriggereOgHarUtbetaling: String,
-    val fodselsdatoerBarnOppfyllerTriggereOgHarNullutbetaling: String,
     val antallBarn: Int,
-    val antallBarnOppfyllerTriggereOgHarUtbetaling: Int,
-    val antallBarnOppfyllerTriggereOgHarNullutbetaling: Int,
-    val maanedOgAarBegrunnelsenGjelderFor: String?,
+    val maanedOgAarBegrunnelsenGjelderFor: String? = null,
     val maalform: String,
     val belop: String,
-    val soknadstidspunkt: String,
-    val avtaletidspunktDeltBosted: String,
-    val sokersRettTilUtvidet: String
-) : BegrunnelseDtoMedData {
-    override val brevBegrunnelseType: BrevBegrunnelseType = BrevBegrunnelseType.STANDARD_BEGRUNNELSE
-}
+    val antallTimerBarnehageplass: String
+) : BegrunnelseDtoMedData(
+    apiNavn = apiNavn,
+    type = BrevBegrunnelseType.BEGRUNNELSE,
+    vedtakBegrunnelseType = vedtakBegrunnelseType
+)
 
 data class FritekstBegrunnelseDto(
     val fritekst: String
-) : BegrunnelseDto {
-    override val begrunnelseType: BegrunnelseType? = null
-    override val brevBegrunnelseType: BrevBegrunnelseType = BrevBegrunnelseType.FRITEKST
-}
+) : BegrunnelseDto(type = BrevBegrunnelseType.FRITEKST)
 
 data class EØSBegrunnelseDataDto(
-    override val begrunnelseType: BegrunnelseType,
+    override val vedtakBegrunnelseType: BegrunnelseType,
     override val apiNavn: String,
 
     val annenForeldersAktivitet: AnnenForeldersAktivitet,
@@ -63,6 +65,8 @@ data class EØSBegrunnelseDataDto(
     val maalform: String,
     val sokersAktivitet: SøkersAktivitet,
     val sokersAktivitetsland: String?
-) : BegrunnelseDtoMedData {
-    override val brevBegrunnelseType: BrevBegrunnelseType = BrevBegrunnelseType.EØS_BEGRUNNELSE
-}
+) : BegrunnelseDtoMedData(
+    type = BrevBegrunnelseType.EØS_BEGRUNNELSE,
+    apiNavn = apiNavn,
+    vedtakBegrunnelseType = vedtakBegrunnelseType
+)

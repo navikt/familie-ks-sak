@@ -2,12 +2,11 @@ package no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak
 
 import no.nav.familie.ks.sak.data.lagAndelTilkjentYtelse
 import no.nav.familie.ks.sak.data.lagBehandling
+import no.nav.familie.ks.sak.data.lagDødsfall
+import no.nav.familie.ks.sak.data.lagPerson
+import no.nav.familie.ks.sak.data.randomAktør
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
-import no.nav.familie.ks.sak.kjerne.beregning.AndelTilkjentYtelseMedEndreteUtbetalinger
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.dødeBarnForrigePeriode
-import no.nav.familie.ks.sak.kjerne.brev.domene.BrevPerson
-import no.nav.familie.ks.sak.kjerne.personident.Aktør
-import no.nav.familie.ks.sak.kjerne.personident.Personident
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
@@ -26,61 +25,55 @@ internal class BegrunnelseUtilsKtTest {
         val dødsfallDatoBarn1 = LocalDate.of(2022, 5, 12)
         val dødsfallDatoBarn2 = LocalDate.of(2022, 7, 2)
 
+        val barn1 = lagPerson(
+            aktør = randomAktør(barn1Fnr),
+            personType = PersonType.BARN,
+            fødselsdato = LocalDate.now().minusYears(2)
+        ).let { it.copy(dødsfall = lagDødsfall(dødsfallDato = dødsfallDatoBarn1, person = it)) }
+
+        val barn2 = lagPerson(
+            aktør = randomAktør(barn2Fnr),
+            personType = PersonType.BARN,
+            fødselsdato = LocalDate.now().minusYears(2)
+        ).let { it.copy(dødsfall = lagDødsfall(dødsfallDato = dødsfallDatoBarn2, person = it)) }
+
         val barnIBehandling = listOf(
-            BrevPerson(
-                dødsfallsdato = dødsfallDatoBarn1,
-                aktivPersonIdent = barn1Fnr,
-                type = PersonType.BARN,
-                aktørId = barn1Fnr,
-                fødselsdato = LocalDate.now().minusYears(2)
-            ),
-            BrevPerson(
-                dødsfallsdato = dødsfallDatoBarn2,
-                aktivPersonIdent = barn2Fnr,
-                type = PersonType.BARN,
-                aktørId = barn2Fnr,
-                fødselsdato = LocalDate.now().minusYears(2)
-            )
+            barn1,
+            barn2
         )
 
         var ytelserForrigePeriode =
             listOf(
-                AndelTilkjentYtelseMedEndreteUtbetalinger(
-                    lagAndelTilkjentYtelse(
-                        behandling = behandling,
-                        stønadFom = YearMonth.of(
-                            dødsfallDatoBarn1.minusMonths(1).year,
-                            dødsfallDatoBarn1.minusMonths(1).month
-                        ),
-                        stønadTom = YearMonth.of(dødsfallDatoBarn1.year, dødsfallDatoBarn1.month),
-                        aktør = Aktør(barn1Fnr + "00").also { it.personidenter.add(Personident(barn1Fnr, it)) }
+                lagAndelTilkjentYtelse(
+                    behandling = behandling,
+                    stønadFom = YearMonth.of(
+                        dødsfallDatoBarn1.minusMonths(1).year,
+                        dødsfallDatoBarn1.minusMonths(1).month
                     ),
-                    emptyList()
+                    stønadTom = YearMonth.of(dødsfallDatoBarn1.year, dødsfallDatoBarn1.month),
+                    aktør = barn1.aktør
                 )
             )
 
         var dødeBarnForrigePeriode = dødeBarnForrigePeriode(ytelserForrigePeriode, barnIBehandling)
         assertEquals(1, dødeBarnForrigePeriode.size)
-        assertEquals(barn1Fnr, dødeBarnForrigePeriode[0])
+        assertEquals(barn1, dødeBarnForrigePeriode[0])
 
         ytelserForrigePeriode =
             listOf(
-                AndelTilkjentYtelseMedEndreteUtbetalinger(
-                    lagAndelTilkjentYtelse(
-                        behandling = behandling,
-                        stønadFom = YearMonth.of(
-                            dødsfallDatoBarn1.minusMonths(1).year,
-                            dødsfallDatoBarn1.minusMonths(1).month
-                        ),
-                        stønadTom = YearMonth.of(dødsfallDatoBarn2.year, dødsfallDatoBarn2.month),
-                        aktør = Aktør(barn2Fnr + "00").also { it.personidenter.add(Personident(barn2Fnr, it)) }
+                lagAndelTilkjentYtelse(
+                    behandling = behandling,
+                    stønadFom = YearMonth.of(
+                        dødsfallDatoBarn1.minusMonths(1).year,
+                        dødsfallDatoBarn1.minusMonths(1).month
                     ),
-                    emptyList()
+                    stønadTom = YearMonth.of(dødsfallDatoBarn2.year, dødsfallDatoBarn2.month),
+                    aktør = barn2.aktør
                 )
             )
 
         dødeBarnForrigePeriode = dødeBarnForrigePeriode(ytelserForrigePeriode, barnIBehandling)
         assertEquals(1, dødeBarnForrigePeriode.size)
-        assertEquals(barn2Fnr, dødeBarnForrigePeriode[0])
+        assertEquals(barn2, dødeBarnForrigePeriode[0])
     }
 }
