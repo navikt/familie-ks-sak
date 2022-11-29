@@ -1,0 +1,286 @@
+{
+  "ms": 10,
+  "query": "*[_type == \"ksBegrunnelse\" \u0026\u0026 tema != \"EØS_PRIMÆRLAND\" \u0026\u0026 tema != \"EØS_SEKUNDÆRLAND\" \u0026\u0026 apiNavn != null \u0026\u0026 navnISystem != null]",
+  "result": [
+    {
+      "_createdAt": "2022-10-14T07:09:44Z",
+      "_id": "cbbc1f9e-ccce-4684-acb1-db8630e165c0",
+      "_rev": "Y19sMkrokem5ta9WfBTnLY",
+      "_type": "ksBegrunnelse",
+      "_updatedAt": "2022-11-24T12:24:33Z",
+      "apiNavn": "innvilgetIkkeBarnehage",
+      "bokmaal": [
+        {
+          "_key": "40495b121b53",
+          "_type": "block",
+          "children": [
+            {
+              "_key": "4328d1dc0a490",
+              "_type": "span",
+              "marks": [],
+              "text": "Du får kontantstøtte for barn født "
+            },
+            {
+              "_key": "998c11701fc2",
+              "_type": "flettefelt",
+              "flettefelt": "barnasFodselsdatoer"
+            },
+            {
+              "_key": "518465d45c8c",
+              "_type": "span",
+              "marks": [],
+              "text": " fordi barnet/barna er under 2 år og ikke har fått tildelt barnehageplass."
+            }
+          ],
+          "markDefs": [],
+          "style": "normal"
+        }
+      ],
+      "hjemler": [
+        "2",
+        "3",
+        "7",
+        "8",
+        "9"
+      ],
+      "navnISystem": "Ikke barnehage",
+      "resultat": "INNVILGET",
+      "tema": "NASJONAL",
+      "type": "STANDARD",
+      "vilkaar": [
+        "BARNEHAGEPLASS",
+        "BARNETS_ALDER"
+      ],
+      "visningsnavn": "Ikke barnehage"
+    },
+    {
+      "_createdAt": "2022-10-14T07:34:22Z",
+      "_id": "cd6d8ac0-4655-44e9-9d84-7d980b025693",
+      "_rev": "yY1aViAEH6Mx1bwq0cSGzK",
+      "_type": "ksBegrunnelse",
+      "_updatedAt": "2022-11-24T12:24:48Z",
+      "apiNavn": "innvilgetIkkeBarnehageAdopsjon",
+      "bokmaal": [
+        {
+          "_key": "89a5773c589b",
+          "_type": "block",
+          "children": [
+            {
+              "_key": "126afcfd39310",
+              "_type": "span",
+              "marks": [],
+              "text": "Du får kontantstøtte for barn født "
+            },
+            {
+              "_key": "053315d0f03d",
+              "_type": "flettefelt",
+              "flettefelt": "barnasFodselsdatoer"
+            },
+            {
+              "_key": "9fc7298894c4",
+              "_type": "span",
+              "marks": [],
+              "text": " fordi "
+            },
+            {
+              "_key": "126afcfd39311",
+              "_type": "span",
+              "marks": [
+                "em"
+              ],
+              "text": "barnet/barna"
+            },
+            {
+              "_key": "126afcfd39312",
+              "_type": "span",
+              "marks": [],
+              "text": " ikke har fått tildelt barnehageplass."
+            }
+          ],
+          "markDefs": [],
+          "style": "normal"
+        }
+      ],
+      "hjemler": [
+        "2",
+        "3",
+        "7",
+        "8",
+        "10"
+      ],
+      "navnISystem": "Ikke barnehage adopsjon",
+      "resultat": "INNVILGET",
+      "tema": "NASJONAL",
+      "type": "STANDARD",
+      "utdypendeVilkaarsvurderinger": [
+        "ADOPSJON"
+      ],
+      "vilkaar": [
+        "BARNEHAGEPLASS",
+        "BARNETS_ALDER"
+      ],
+      "visningsnavn": "Ikke barnehage adopsjon"
+    },
+    {
+      "_createdAt": "2022-10-14T07:28:26Z",
+      "_id": "f8b2dd36-22a9-488f-bb3a-075bbd63a46a",
+      "_rev": "yY1aViAEH6Mx1bwq0cSLZC",
+      "_type": "ksBegrunnelse",
+      "_updatedAt": "2022-11-24T12:25:06Z",
+      "apiNavn": "innvilgetDeltidBarnehage",
+      "bokmaal": [
+        {
+          "_key": "422f2121e753",
+          "_type": "block",
+          "children": [
+            {
+              "_key": "e5626664ede10",
+              "_type": "span",
+              "marks": [],
+              "text": "Du får kontantstøtte for barn født "
+            },
+            {
+              "_key": "8f38be1f7cb8",
+              "_type": "flettefelt",
+              "flettefelt": "barnasFodselsdatoer"
+            },
+            {
+              "_key": "5495e168f2b1",
+              "_type": "span",
+              "marks": [],
+              "text": " fordi "
+            },
+            {
+              "_key": "e5626664ede11",
+              "_type": "span",
+              "marks": [
+                "em"
+              ],
+              "text": "barnet/barna"
+            },
+            {
+              "_key": "e5626664ede12",
+              "_type": "span",
+              "marks": [],
+              "text": " er under 2 år og er tildelt "
+            },
+            {
+              "_key": "7e22e5229014",
+              "_type": "flettefelt",
+              "flettefelt": "antallTimerBarnehageplass"
+            },
+            {
+              "_key": "1e3ae0b15b4f",
+              "_type": "span",
+              "marks": [],
+              "text": " timer i barnehagen per uke. "
+            }
+          ],
+          "markDefs": [],
+          "style": "normal"
+        }
+      ],
+      "hjemler": [
+        "2",
+        "3",
+        "7",
+        "8",
+        "9"
+      ],
+      "navnISystem": "Barnehage mindre enn 33 timer",
+      "resultat": "INNVILGET",
+      "tema": "NASJONAL",
+      "triggere": [
+        "DELTID_BARNEHAGEPLASS"
+      ],
+      "type": "STANDARD",
+      "vilkaar": [
+        "BARNEHAGEPLASS",
+        "BARNETS_ALDER"
+      ],
+      "visningsnavn": "Barnehage mindre enn 33 timer"
+    },
+    {
+      "_createdAt": "2022-11-09T11:49:09Z",
+      "_id": "ksBegrunnelse-9f907020-d5d3-40fe-8280-ddfeb3e3b358",
+      "_rev": "Y19sMkrokem5ta9WfBv4mm",
+      "_type": "ksBegrunnelse",
+      "_updatedAt": "2022-11-24T13:27:05Z",
+      "apiNavn": "innvilgetDeltidBarnehageAdopsjon",
+      "bokmaal": [
+        {
+          "_key": "e168c3ec775f",
+          "_type": "block",
+          "children": [
+            {
+              "_key": "6393d85a831f",
+              "_type": "span",
+              "marks": [],
+              "text": "Du får kontantstøtte for barn født "
+            },
+            {
+              "_key": "d071d0a1a15d",
+              "_type": "flettefelt",
+              "flettefelt": "barnasFodselsdatoer"
+            },
+            {
+              "_key": "360a35be1773",
+              "_type": "span",
+              "marks": [],
+              "text": " fordi "
+            },
+            {
+              "_key": "61c865618178",
+              "_type": "span",
+              "marks": [
+                "em"
+              ],
+              "text": "barnet/barna"
+            },
+            {
+              "_key": "8708bfd76497",
+              "_type": "span",
+              "marks": [],
+              "text": " er tildelt "
+            },
+            {
+              "_key": "953d4b6b146d",
+              "_type": "flettefelt",
+              "flettefelt": "antallTimerBarnehageplass"
+            },
+            {
+              "_key": "0738452080fa",
+              "_type": "span",
+              "marks": [],
+              "text": " timer i barnehagen per uke."
+            }
+          ],
+          "markDefs": [],
+          "style": "normal"
+        }
+      ],
+      "hjemler": [
+        "2",
+        "3",
+        "7",
+        "8",
+        "10"
+      ],
+      "navnISystem": "Barnehage mindre enn 33 timer - Adopsjon",
+      "resultat": "INNVILGET",
+      "tema": "NASJONAL",
+      "triggere": [
+        "DELTID_BARNEHAGEPLASS"
+      ],
+      "type": "STANDARD",
+      "utdypendeVilkaarsvurderinger": [
+        "ADOPSJON"
+      ],
+      "vilkaar": [
+        "BARNEHAGEPLASS",
+        "BARNETS_ALDER"
+      ],
+      "visningsnavn": "Barnehage mindre enn 33 timer - Adopsjon"
+    }
+  ]
+}
