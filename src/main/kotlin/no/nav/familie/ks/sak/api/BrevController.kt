@@ -98,9 +98,9 @@ class BrevController(
 
         tilgangService.validerTilgangTilHandlingOgFagsakForBehandling(
             behandlingId = behandlingId,
-            event = AuditLoggerEvent.ACCESS,
-            minimumBehandlerRolle = BehandlerRolle.VEILEDER,
-            handling = "Vis vedtaksbrev"
+            event = AuditLoggerEvent.CREATE,
+            minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
+            handling = "Vis og lagre vedtaksbrev"
         )
 
         val generertPdf = brevService.genererBrevForBehandling(behandlingId)
