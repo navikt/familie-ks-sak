@@ -3,6 +3,8 @@ package no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene
 import com.fasterxml.jackson.annotation.JsonIgnore
 import no.nav.familie.kontrakter.felles.Språkkode
 import no.nav.familie.ks.sak.common.entitet.BaseEntitet
+import no.nav.familie.ks.sak.common.util.slåSammen
+import no.nav.familie.ks.sak.common.util.tilKortString
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.arbeidsforhold.GrArbeidsforhold
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.bostedsadresse.GrBostedsadresse
@@ -144,5 +146,18 @@ enum class Målform {
 }
 
 enum class PersonType {
-    SØKER, BARN;
+    SØKER,
+    BARN;
 }
+
+fun List<Person>.tilBarnasFødselsdatoer(): String =
+    slåSammen(
+        this
+            .filter { it.type == PersonType.BARN }
+            .sortedBy { person ->
+                person.fødselsdato
+            }
+            .map { person ->
+                person.fødselsdato.tilKortString()
+            }
+    )
