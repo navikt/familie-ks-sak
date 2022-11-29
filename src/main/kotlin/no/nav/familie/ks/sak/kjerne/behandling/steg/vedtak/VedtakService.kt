@@ -25,7 +25,6 @@ class VedtakService(
 
     fun oppdaterVedtaksdato(vedtak: Vedtak) {
         vedtak.vedtaksdato = LocalDateTime.now()
-        // TODO oppdaterVedtakMedStønadsbrev
         logger.info("${SikkerhetContext.hentSaksbehandlerNavn()} beslutter vedtak $vedtak")
         vedtakRepository.saveAndFlush(vedtak)
     }

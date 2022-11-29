@@ -14,6 +14,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.VedtakService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
+import no.nav.familie.ks.sak.kjerne.brev.BrevService
 import no.nav.familie.ks.sak.kjerne.logg.LoggService
 import no.nav.familie.ks.sak.kjerne.totrinnskontroll.TotrinnskontrollService
 import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext
@@ -32,7 +33,8 @@ class BeslutteVedtakSteg(
     private val taskService: TaskService,
     private val loggService: LoggService,
     private val vilkårsvurderingService: VilkårsvurderingService,
-    private val featureToggleService: FeatureToggleService
+    private val featureToggleService: FeatureToggleService,
+    private val brevService: BrevService
 ) : IBehandlingSteg {
     override fun getBehandlingssteg(): BehandlingSteg = BehandlingSteg.BESLUTTE_VEDTAK
 
@@ -61,6 +63,12 @@ class BeslutteVedtakSteg(
 
         if (besluttVedtakDto.beslutning.erGodkjent()) {
             val vedtak = vedtakService.hentAktivVedtakForBehandling(behandlingId)
+
+            if (behandling.skalSendeVedtaksbrev()) {
+                val brev = brevService.genererBrevForBehandling(behandling.id)
+                vedtak.stønadBrevPdf = brev
+            }
+
             vedtakService.oppdaterVedtaksdato(vedtak)
         } else {
             val vilkårsvurdering = vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(behandlingId)

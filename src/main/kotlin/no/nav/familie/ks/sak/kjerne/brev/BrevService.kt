@@ -23,7 +23,6 @@ import no.nav.familie.ks.sak.integrasjon.logger
 import no.nav.familie.ks.sak.integrasjon.sanity.SanityService
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelse
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.ArbeidsfordelingService
-import no.nav.familie.ks.sak.kjerne.behandling.SettBehandlingPåVentService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
@@ -51,7 +50,6 @@ import no.nav.familie.prosessering.internal.TaskService
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import java.time.LocalDate
 import java.util.Properties
 
 @Service
@@ -66,7 +64,6 @@ class BrevService(
     private val vilkårsvurderingService: VilkårsvurderingService,
     private val behandlingRepository: BehandlingRepository,
     private val journalføringRepository: JournalføringRepository,
-    private val settBehandlingPåVentService: SettBehandlingPåVentService,
     private val vedtaksperiodeService: VedtaksperiodeService,
     private val brevPeriodeService: BrevPeriodeService,
     private val sanityService: SanityService,
@@ -218,20 +215,6 @@ class BrevService(
             }
         ).also {
             taskService.save(it)
-        }
-        if (
-            manueltBrevDto.brevmal.setterBehandlingPåVent()
-        ) {
-            settBehandlingPåVentService.settBehandlingPåVent(
-                behandlingId = behandlingId,
-                frist = LocalDate.now()
-                    .plusDays(
-                        manueltBrevDto.brevmal.ventefristDager(
-                            manuellFrist = manueltBrevDto.antallUkerSvarfrist?.toLong(),
-                            behandlingKategori = behandling.kategori
-                        )
-                    )
-            )
         }
     }
 
