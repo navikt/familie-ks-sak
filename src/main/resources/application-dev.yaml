@@ -47,10 +47,10 @@ no.nav.security.jwt:
           client-secret: ${AZURE_APP_CLIENT_SECRET}
           client-auth-method: client_secret_basic
       familie-ba-infotrygd-onbehalfof:
-        resource-url: ${FAMILIE_BA_INFOTRYGD_API_URL}
+        resource-url: ${FAMILIE_KS_INFOTRYGD_API_URL}
         token-endpoint-url: https://login.microsoftonline.com/navq.onmicrosoft.com/oauth2/v2.0/token
         grant-type: urn:ietf:params:oauth:grant-type:jwt-bearer
-        scope: ${FAMILIE_BA_INFOTRYGD_SCOPE}
+        scope: ${FAMILIE_KS_INFOTRYGD_SCOPE}
         authentication:
           client-id: ${AZURE_APP_CLIENT_ID}
           client-secret: ${AZURE_APP_CLIENT_SECRET}
@@ -64,11 +64,11 @@ no.nav.security.jwt:
           client-id: ${AZURE_APP_CLIENT_ID}
           client-secret: ${AZURE_APP_CLIENT_SECRET}
           client-auth-method: client_secret_basic
-      familie-ba-infotrygd-clientcredentials:
-        resource-url: ${FAMILIE_BA_INFOTRYGD_API_URL}
+      familie-ks-infotrygd-clientcredentials:
+        resource-url: ${FAMILIE_KS_INFOTRYGD_API_URL}
         token-endpoint-url: https://login.microsoftonline.com/navq.onmicrosoft.com/oauth2/v2.0/token
         grant-type: client_credentials
-        scope: ${FAMILIE_BA_INFOTRYGD_SCOPE}
+        scope: ${FAMILIE_KS_INFOTRYGD_SCOPE}
         authentication:
           client-id: ${AZURE_APP_CLIENT_ID}
           client-secret: ${AZURE_APP_CLIENT_SECRET}
@@ -140,7 +140,7 @@ FAMILIE_INTEGRASJONER_SCOPE: "dummy"
 
 FAMILIE_INTEGRASJONER_API_URL: http://localhost:8085/api
 FAMILIE_BA_INFOTRYGD_FEED_API_URL: http://localhost:8092/api
-FAMILIE_BA_INFOTRYGD_API_URL: http://localhost:8093
+FAMILIE_KS_INFOTRYGD_API_URL: http://localhost:8093
 FAMILIE_TILBAKE_API_URL: http://localhost:8030/api
 FAMILIE_OPPDRAG_API_URL: http://localhost:8087/api
 PDL_URL: "dummy"
