@@ -175,12 +175,22 @@ class StegService(
                 val saksbehandlerId = SikkerhetContext.hentSaksbehandler()
                 taskService.save(IverksettMotOppdragTask.opprettTask(behandling, vedtakId, saksbehandlerId))
             }
+            else -> {} // Gjør ingenting. Steg kan ikke utføre automatisk
+        }
+    }
+
+    // Denne metoden kalles av HentStatusFraOppdragTask for å sende behandling videre etter OK status fra oppdrag er mottatt
+    fun utførStegEtterIverksettelseAutomatisk(behandlingId: Long) {
+        val behandling = behandlingRepository.hentAktivBehandling(behandlingId)
+        when (behandling.steg) {
             JOURNALFØR_VEDTAKSBREV -> {
+                // JournalførVedtaksbrevTask -> DistribuerBrevTask -> AvsluttBehandlingTask for å avslutte behandling automatisk
                 val vedtakId = vedtakRepository.findByBehandlingAndAktiv(behandling.id).id
                 taskService.save(JournalførVedtaksbrevTask.opprettTask(behandling, vedtakId))
             }
+            // Behandling med årsak SATSENDRING eller TEKNISK_ENDRING sender ikke vedtaksbrev. Da avslutter behandling her
             AVSLUTT_BEHANDLING -> utførSteg(behandlingId = behandling.id, AVSLUTT_BEHANDLING)
-            else -> {} // Gjør ingenting. Steg kan ikke utføre automatisk
+            else -> {} // Gjør ingenting
         }
     }
 

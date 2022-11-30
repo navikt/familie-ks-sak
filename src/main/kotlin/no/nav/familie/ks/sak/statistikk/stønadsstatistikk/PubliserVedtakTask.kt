@@ -17,18 +17,18 @@ import java.util.Properties
 )
 class PubliserVedtakTask(
     val kafkaProducer: KafkaProducer,
-    val stønadsstatistikkService: StønadsstatistikkService,
+    val stønadsstatistikkService: StønadsstatistikkService
 ) : AsyncTaskStep {
 
     override fun doTask(task: Task) {
         val vedtakDVH = stønadsstatistikkService.hentVedtakDVH(task.payload.toLong())
-        LOG.info("Send Vedtak til DVH, behandling id ${vedtakDVH.behandlingsId}")
+        logger.info("Send Vedtak til DVH, behandling id ${vedtakDVH.behandlingsId}")
         task.metadata["offset"] = kafkaProducer.sendMessageForTopicVedtak(vedtakDVH).toString()
     }
 
     companion object {
 
-        val LOG = LoggerFactory.getLogger(PubliserVedtakTask::class.java)
+        val logger = LoggerFactory.getLogger(PubliserVedtakTask::class.java)
         const val TASK_STEP_TYPE = "publiserVedtakTask"
 
         fun opprettTask(personIdent: String, behandlingsId: Long): Task {
