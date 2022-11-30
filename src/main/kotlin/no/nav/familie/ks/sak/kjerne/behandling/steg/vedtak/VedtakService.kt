@@ -6,10 +6,8 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.Vedtak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.VedtakRepository
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.VedtaksperiodeService
-import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
-import java.time.LocalDateTime
 
 @Service
 class VedtakService(
@@ -23,12 +21,8 @@ class VedtakService(
         vedtakRepository.findByBehandlingAndAktivOptional(behandlingId)
             ?: throw Feil("Fant ikke aktiv vedtak for behandling $behandlingId")
 
-    fun oppdaterVedtaksdato(vedtak: Vedtak) {
-        vedtak.vedtaksdato = LocalDateTime.now()
-        // TODO oppdaterVedtakMedStønadsbrev
-        logger.info("${SikkerhetContext.hentSaksbehandlerNavn()} beslutter vedtak $vedtak")
+    fun oppdaterVedtak(vedtak: Vedtak) =
         vedtakRepository.saveAndFlush(vedtak)
-    }
 
     fun opprettOgInitierNyttVedtakForBehandling(behandling: Behandling, kopierVedtakBegrunnelser: Boolean = false) {
         behandling.steg.takeUnless { it !== BehandlingSteg.BESLUTTE_VEDTAK && it !== BehandlingSteg.REGISTRERE_PERSONGRUNNLAG }
