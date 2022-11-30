@@ -12,6 +12,7 @@ import no.nav.familie.prosessering.internal.TaskService
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.slf4j.MDC
+import org.springframework.core.env.Environment
 import org.springframework.data.domain.Pageable
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
@@ -19,14 +20,20 @@ import java.time.LocalDate
 import java.util.UUID
 
 @Service
-class GrensesnittavstemmingScheduler(private val taskService: TaskService) {
+class GrensesnittavstemmingScheduler(private val taskService: TaskService, private val environment: Environment) {
 
     @Scheduled(cron = "\${CRON_GRENSESNITT_AVSTEMMING}")
     fun utfør() {
         logger.info("Starter GrensesnittavstemmingScheduler..")
         MDC.put(MDCConstants.MDC_CALL_ID, UUID.randomUUID().toString())
 
-        if (LeaderClient.isLeader() != true || LocalDate.now().erHelligdag()) {
+        if ((
+            LeaderClient.isLeader() != true &&
+                !environment.activeProfiles.any { // Denne sjekken er lagt slik at det kan testes i lokal
+                    it.contains("dev-postgres-preprod") || it.contains("postgres")
+                }
+            ) || LocalDate.now().erHelligdag()
+        ) {
             return
         }
         logger.info("Finner siste kjørte ${GrensesnittavstemmingTask.TASK_STEP_TYPE}")
