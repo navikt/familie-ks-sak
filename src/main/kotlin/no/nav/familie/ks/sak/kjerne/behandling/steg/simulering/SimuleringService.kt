@@ -67,7 +67,12 @@ class SimuleringService(
         return øknomiSimuleringMottakerRepository.findByBehandlingId(behandlingId)
     }
 
-    private fun oppdaterSimuleringPåBehandling(behandling: Behandling): List<ØkonomiSimuleringMottaker> {
+    fun oppdaterSimuleringPåBehandling(behandlingId: Long): List<ØkonomiSimuleringMottaker> {
+        val behandling = behandlingRepository.hentBehandling(behandlingId)
+        return oppdaterSimuleringPåBehandling(behandling)
+    }
+
+    fun oppdaterSimuleringPåBehandling(behandling: Behandling): List<ØkonomiSimuleringMottaker> {
         val aktivtVedtak = vedtakRepository.findByBehandlingAndAktivOptional(behandling.id)
             ?: throw Feil("Fant ikke aktivt vedtak på behandling${behandling.id}")
 
