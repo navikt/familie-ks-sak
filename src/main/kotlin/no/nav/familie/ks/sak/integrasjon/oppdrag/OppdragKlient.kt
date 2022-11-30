@@ -66,21 +66,14 @@ class OppdragKlient(
         }
     }
 
-    fun grensesnittavstemOppdrag(fraDato: LocalDateTime, tilDato: LocalDateTime): String {
+    fun sendGrensesnittavstemmingTilOppdrag(fom: LocalDateTime, tom: LocalDateTime): String {
         val uri = URI.create("$familieOppdragUri/grensesnittavstemming")
         return kallEksternTjenesteRessurs(
             tjeneste = "familie-oppdrag",
             uri = uri,
             formål = "Gjør grensesnittavstemming mot oppdrag"
         ) {
-            postForEntity(
-                uri = uri,
-                GrensesnittavstemmingRequest(
-                    fagsystem = FAGSYSTEM,
-                    fra = fraDato,
-                    til = tilDato
-                )
-            )
+            postForEntity(uri = uri, payload = GrensesnittavstemmingRequest(FAGSYSTEM, fom, tom))
         }
     }
 

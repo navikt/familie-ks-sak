@@ -36,6 +36,7 @@ import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelseReposito
 import no.nav.familie.ks.sak.kjerne.logg.LoggService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.StatsborgerskapService
+import no.nav.familie.ks.sak.kjerne.totrinnskontroll.TotrinnskontrollRepository
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -79,6 +80,9 @@ class BehandlingServiceTest {
 
     @MockK
     private lateinit var vedtakRepository: VedtakRepository
+
+    @MockK
+    private lateinit var totrinnskontrollRepository: TotrinnskontrollRepository
 
     @InjectMockKs
     private lateinit var behandlingService: BehandlingService
@@ -125,6 +129,7 @@ class BehandlingServiceTest {
             andelerTilkjentYtelseOgEndreteUtbetalingerService
                 .finnAndelerTilkjentYtelseMedEndreteUtbetalinger(behandling.id)
         } returns emptyList()
+        every { totrinnskontrollRepository.findByBehandlingAndAktiv(any()) } returns mockk(relaxed = true)
     }
 
     @Test

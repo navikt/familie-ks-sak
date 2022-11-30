@@ -5,6 +5,7 @@ import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
+import java.time.Month
 import java.time.YearMonth
 import java.time.format.DateTimeFormatter
 import java.util.Locale
@@ -85,11 +86,7 @@ fun DatoIntervallEntitet.erInnenfor(dato: LocalDate): Boolean =
         else -> dato.erSammeEllerEtter(fom) && dato.erSammeEllerFør(tom)
     }
 
-fun LocalDateTime.erHverdag(plusDays: Long = 0): Boolean {
-    val dayOfWeek = plusDays(plusDays).dayOfWeek
-
-    return dayOfWeek != DayOfWeek.SATURDAY && dayOfWeek != DayOfWeek.SUNDAY
-}
+fun LocalDateTime.erHverdag(): Boolean = this.dayOfWeek != DayOfWeek.SATURDAY && this.dayOfWeek != DayOfWeek.SUNDAY
 
 fun erKlokkenMellom21Og06(localTime: LocalTime = LocalTime.now()): Boolean =
     localTime.isAfter(LocalTime.of(21, 0)) || localTime.isBefore(LocalTime.of(6, 0))
@@ -101,3 +98,9 @@ fun kl06IdagEllerNesteDag(date: LocalDateTime = LocalDateTime.now()): LocalDateT
         date.plusDays(1).withHour(6)
     }
 }
+
+fun LocalDate.erHelligdag() = this.dayOfMonth == 1 && this.month == Month.JANUARY ||
+    this.dayOfMonth == 1 && this.month == Month.MAY ||
+    this.dayOfMonth == 17 && this.month == Month.MAY ||
+    this.dayOfMonth == 25 && this.month == Month.DECEMBER ||
+    this.dayOfMonth == 26 && this.month == Month.DECEMBER

@@ -5,6 +5,7 @@ import no.nav.familie.ks.sak.api.dto.FagsakDeltagerResponsDto
 import no.nav.familie.ks.sak.api.dto.FagsakDeltagerRolle
 import no.nav.familie.ks.sak.api.dto.MinimalBehandlingResponsDto
 import no.nav.familie.ks.sak.api.dto.MinimalFagsakResponsDto
+import no.nav.familie.ks.sak.api.dto.UtbetalingsperiodeResponsDto
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.PdlPersonInfo
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
@@ -33,7 +34,8 @@ object FagsakMapper {
     fun lagMinimalFagsakResponsDto(
         fagsak: Fagsak,
         aktivtBehandling: Behandling? = null,
-        behandlinger: List<MinimalBehandlingResponsDto> = emptyList()
+        behandlinger: List<MinimalBehandlingResponsDto> = emptyList(),
+        gjeldendeUtbetalingsperioder: List<UtbetalingsperiodeResponsDto> = emptyList()
     ): MinimalFagsakResponsDto =
         MinimalFagsakResponsDto(
             opprettetTidspunkt = fagsak.opprettetTidspunkt,
@@ -42,7 +44,8 @@ object FagsakMapper {
             status = fagsak.status,
             underBehandling = if (aktivtBehandling == null) false else aktivtBehandling.status != BehandlingStatus.AVSLUTTET,
             løpendeKategori = aktivtBehandling?.kategori,
-            behandlinger = behandlinger
+            behandlinger = behandlinger,
+            gjeldendeUtbetalingsperioder = gjeldendeUtbetalingsperioder
         )
 
     fun lagBehandlingResponsDto(behandling: Behandling) = MinimalBehandlingResponsDto(

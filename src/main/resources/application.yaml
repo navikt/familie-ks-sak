@@ -125,7 +125,7 @@ BA_SKATTEETATEN_CLIENT_ID: "dummy"
 
 FAMILIE_BREV_API_URL: http://familie-brev
 FAMILIE_BA_INFOTRYGD_FEED_API_URL: http://familie-ba-infotrygd-feed/api
-FAMILIE_BA_INFOTRYGD_API_URL: http://familie-ba-infotrygd
+FAMILIE_KS_INFOTRYGD_API_URL: http://familie-ks-infotrygd
 FAMILIE_TILBAKE_API_URL: http://familie-tilbake/api
 PDL_URL: http://pdl-api.default
 FAMILIE_INTEGRASJONER_API_URL: http://familie-integrasjoner/api
@@ -139,3 +139,6 @@ CRON_FAGSAKSTATUS_SCHEDULER: "0 0 7 1 * *"
 AUTHORIZATION_URL: https://login.microsoftonline.com/navq.onmicrosoft.com/oauth2/v2.0/authorize
 TOKEN_URL: https://login.microsoftonline.com/navq.onmicrosoft.com/oauth2/v2.0/token
 API_SCOPE: api://${AZURE_APP_CLIENT_ID}/.default
+
+# Scheduler
+CRON_GRENSESNITT_AVSTEMMING: "0 0 8 ? * MON-FRI"

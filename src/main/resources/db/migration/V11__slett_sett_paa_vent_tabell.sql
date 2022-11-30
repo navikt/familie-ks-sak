@@ -1,1 +1,0 @@
-DROP TABLE sett_paa_vent;

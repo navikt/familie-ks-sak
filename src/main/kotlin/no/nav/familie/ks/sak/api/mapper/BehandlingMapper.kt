@@ -8,6 +8,7 @@ import no.nav.familie.ks.sak.api.dto.BehandlingStegTilstandResponsDto
 import no.nav.familie.ks.sak.api.dto.PersonResponsDto
 import no.nav.familie.ks.sak.api.dto.PersonerMedAndelerResponsDto
 import no.nav.familie.ks.sak.api.dto.SøknadDto
+import no.nav.familie.ks.sak.api.dto.TotrinnskontrollDto
 import no.nav.familie.ks.sak.api.dto.UtbetalingsperiodeResponsDto
 import no.nav.familie.ks.sak.api.dto.VedtakDto
 import no.nav.familie.ks.sak.api.dto.YtelsePerioderDto
@@ -33,7 +34,8 @@ object BehandlingMapper {
         personResultater: List<PersonResultat>?,
         personerMedAndelerTilkjentYtelse: List<PersonerMedAndelerResponsDto>,
         utbetalingsperioder: List<UtbetalingsperiodeResponsDto>,
-        vedtak: VedtakDto?
+        vedtak: VedtakDto?,
+        totrinnskontroll: TotrinnskontrollDto?
     ) =
         BehandlingResponsDto(
             behandlingId = behandling.id,
@@ -62,7 +64,8 @@ object BehandlingMapper {
                 ?.let { BehandlingPåVentResponsDto(it.frist!!, it.årsak!!) },
             personerMedAndelerTilkjentYtelse = personerMedAndelerTilkjentYtelse,
             utbetalingsperioder = utbetalingsperioder,
-            vedtak = vedtak
+            vedtak = vedtak,
+            totrinnskontroll = totrinnskontroll
         )
 
     private fun lagArbeidsfordelingRespons(arbeidsfordelingPåBehandling: ArbeidsfordelingPåBehandling) =

@@ -2,6 +2,7 @@ package no.nav.familie.ks.sak.kjerne.behandling
 
 import no.nav.familie.ks.sak.api.dto.BehandlingResponsDto
 import no.nav.familie.ks.sak.api.dto.EndreBehandlendeEnhetDto
+import no.nav.familie.ks.sak.api.dto.tilTotrinnskontrollDto
 import no.nav.familie.ks.sak.api.dto.tilUtbetalingsperiodeResponsDto
 import no.nav.familie.ks.sak.api.dto.tilUtvidetVedtaksperiodeMedBegrunnelserDto
 import no.nav.familie.ks.sak.api.dto.tilVedtakDto
@@ -23,6 +24,7 @@ import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelseReposito
 import no.nav.familie.ks.sak.kjerne.logg.LoggService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.StatsborgerskapService
+import no.nav.familie.ks.sak.kjerne.totrinnskontroll.TotrinnskontrollRepository
 import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -40,7 +42,8 @@ class BehandlingService(
     private val andelTilkjentYtelseRepository: AndelTilkjentYtelseRepository,
     private val andelerTilkjentYtelseOgEndreteUtbetalingerService: AndelerTilkjentYtelseOgEndreteUtbetalingerService,
     private val vedtakRepository: VedtakRepository,
-    private val vedtaksperiodeService: VedtaksperiodeService
+    private val vedtaksperiodeService: VedtaksperiodeService,
+    private val totrinnskontrollRepository: TotrinnskontrollRepository
 ) {
 
     fun hentBehandling(behandlingId: Long): Behandling = behandlingRepository.hentBehandling(behandlingId)
@@ -97,6 +100,9 @@ class BehandlingService(
             )
         }
 
+        val totrinnskontroll =
+            totrinnskontrollRepository.findByBehandlingAndAktiv(behandlingId = behandling.id)?.tilTotrinnskontrollDto()
+
         return BehandlingMapper.lagBehandlingRespons(
             behandling,
             arbeidsfordelingPåBehandling,
@@ -105,7 +111,8 @@ class BehandlingService(
             personResultater,
             personerMedAndelerTilkjentYtelse,
             utbetalingsperioder,
-            vedtak
+            vedtak,
+            totrinnskontroll
         )
     }
 

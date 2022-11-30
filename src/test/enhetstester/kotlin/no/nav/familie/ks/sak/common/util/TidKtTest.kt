@@ -1,6 +1,8 @@
 package no.nav.familie.ks.sak.common.util
 
 import org.hamcrest.MatcherAssert.assertThat
+import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.CsvSource
@@ -74,13 +76,13 @@ internal class TidKtTest {
         val mandag = LocalDateTime.of(2022, 10, 24, 0, 0)
 
         assertThat(mandag.erHverdag(), Is(true))
-        assertThat(mandag.erHverdag(plusDays = 1), Is(true))
-        assertThat(mandag.erHverdag(plusDays = 2), Is(true))
-        assertThat(mandag.erHverdag(plusDays = 3), Is(true))
-        assertThat(mandag.erHverdag(plusDays = 4), Is(true))
-        assertThat(mandag.erHverdag(plusDays = 5), Is(false))
-        assertThat(mandag.erHverdag(plusDays = 6), Is(false))
-        assertThat(mandag.erHverdag(plusDays = 7), Is(true))
+        assertThat(mandag.plusDays(1).erHverdag(), Is(true))
+        assertThat(mandag.plusDays(2).erHverdag(), Is(true))
+        assertThat(mandag.plusDays(3).erHverdag(), Is(true))
+        assertThat(mandag.plusDays(4).erHverdag(), Is(true))
+        assertThat(mandag.plusDays(5).erHverdag(), Is(false))
+        assertThat(mandag.plusDays(6).erHverdag(), Is(false))
+        assertThat(mandag.plusDays(7).erHverdag(), Is(true))
     }
 
     @ParameterizedTest
@@ -92,4 +94,15 @@ internal class TidKtTest {
     @CsvSource("07:04", "09:15", "12:55", "18:20", "20:59")
     fun `erKlokkenMellom21Og06 skal returnere false dersom klokken ikke er mellom 21 og 06`(localTime: LocalTime) =
         assertThat(erKlokkenMellom21Og06(localTime), Is(false))
+
+    @Test
+    fun `LocalDate erHelligDag skal returnere true for alle helligedager`() {
+        assertTrue { LocalDate.of(2022, 1, 1).erHelligdag() }
+        assertTrue { LocalDate.of(2022, 5, 1).erHelligdag() }
+        assertTrue { LocalDate.of(2022, 5, 17).erHelligdag() }
+        assertTrue { LocalDate.of(2022, 12, 25).erHelligdag() }
+        assertTrue { LocalDate.of(2022, 12, 26).erHelligdag() }
+
+        assertFalse { LocalDate.of(2022, 11, 28).erHelligdag() }
+    }
 }
