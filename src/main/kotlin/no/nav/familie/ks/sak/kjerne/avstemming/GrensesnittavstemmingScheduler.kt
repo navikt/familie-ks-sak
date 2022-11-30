@@ -20,10 +20,10 @@ class GrensesnittavstemmingScheduler(private val taskService: TaskService) {
 
     @Scheduled(cron = "\${CRON_GRENSESNITT_AVSTEMMING}")
     fun utfør() {
+        logger.info("Starter GrensesnittavstemmingScheduler med leader client ${LeaderClient.isLeader()}..")
         if (LeaderClient.isLeader() != true || LocalDate.now().erHelligdag()) {
             return
         }
-        logger.info("Starter GrensesnittavstemmingScheduler..")
         logger.info("Finner siste kjørte ${GrensesnittavstemmingTask.TASK_STEP_TYPE}")
         val alleFerdigeGrensesnittavstemmingTasker = taskService.finnTasksMedStatus(
             status = listOf(Status.FERDIG),
