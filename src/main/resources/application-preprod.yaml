@@ -122,7 +122,6 @@ FAMILIE_KS_INFOTRYGD_API_URL: https://familie-ks-infotrygd.dev-fss-pub.nais.io
 
 FAMILIE_OPPDRAG_API_URL: https://familie-oppdrag.dev-fss-pub.nais.io/api
 CRON_FAGSAKSTATUS_SCHEDULER: "0 0/30 * ? * *"
-CRON_GRENSESNITT_AVSTEMMING: "0 0/5 * ? * MON-FRI"
 
 ENVIRONMENT_NAME: q2
 

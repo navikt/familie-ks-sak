@@ -5,22 +5,27 @@ import no.nav.familie.ks.sak.common.util.erHelligdag
 import no.nav.familie.ks.sak.kjerne.avstemming.domene.GrensesnittavstemmingTaskDto
 import no.nav.familie.ks.sak.task.nesteGyldigeTriggertidForBehandlingIHverdager
 import no.nav.familie.leader.LeaderClient
+import no.nav.familie.log.mdc.MDCConstants
 import no.nav.familie.prosessering.domene.Status
 import no.nav.familie.prosessering.domene.Task
 import no.nav.familie.prosessering.internal.TaskService
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import org.slf4j.MDC
 import org.springframework.data.domain.Pageable
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
 import java.time.LocalDate
+import java.util.UUID
 
 @Service
 class GrensesnittavstemmingScheduler(private val taskService: TaskService) {
 
     @Scheduled(cron = "\${CRON_GRENSESNITT_AVSTEMMING}")
     fun utfør() {
-        logger.info("Starter GrensesnittavstemmingScheduler med leader client ${LeaderClient.isLeader()}..")
+        logger.info("Starter GrensesnittavstemmingScheduler..")
+        MDC.put(MDCConstants.MDC_CALL_ID, UUID.randomUUID().toString())
+
         if (LeaderClient.isLeader() != true || LocalDate.now().erHelligdag()) {
             return
         }
