@@ -4,6 +4,7 @@ import no.nav.familie.ks.sak.kjerne.brev.domene.FellesdataForVedtaksbrev
 import no.nav.familie.ks.sak.kjerne.brev.domene.VedtaksbrevData
 import no.nav.familie.ks.sak.kjerne.brev.domene.VedtaksbrevDto
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.brevperioder.BrevPeriodeDto
+import java.math.BigDecimal
 
 data class Førstegangsvedtak(
     override val mal: Brevmal,
@@ -12,7 +13,7 @@ data class Førstegangsvedtak(
 
     constructor(
         fellesdataForVedtaksbrev: FellesdataForVedtaksbrev,
-        etterbetaling: Etterbetaling? = null
+        etterbetaling: BigDecimal
     ) :
         this(
             mal = Brevmal.VEDTAK_FØRSTEGANGSVEDTAK,
@@ -23,7 +24,7 @@ data class Førstegangsvedtak(
                         saksbehandler = fellesdataForVedtaksbrev.saksbehandler,
                         beslutter = fellesdataForVedtaksbrev.beslutter
                     ),
-                    etterbetaling = etterbetaling,
+                    etterbetaling = Etterbetaling(etterbetaling.toString()),
                     hjemmeltekst = fellesdataForVedtaksbrev.hjemmeltekst
                 ),
                 flettefelter = FlettefelterForDokumentDtoImpl(
