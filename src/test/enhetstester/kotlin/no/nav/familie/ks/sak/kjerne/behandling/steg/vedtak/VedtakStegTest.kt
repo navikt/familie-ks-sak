@@ -18,6 +18,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStegTilstand
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingStegStatus
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.VedtaksperiodeService
+import no.nav.familie.ks.sak.kjerne.brev.GenererBrevService
 import no.nav.familie.ks.sak.kjerne.logg.LoggService
 import no.nav.familie.ks.sak.kjerne.totrinnskontroll.TotrinnskontrollService
 import no.nav.familie.prosessering.internal.TaskService
@@ -52,6 +53,9 @@ class VedtakStegTest {
 
     @MockK
     private lateinit var vedtaksperiodeService: VedtaksperiodeService
+
+    @MockK
+    private lateinit var genererBrevService: GenererBrevService
 
     @InjectMockKs
     private lateinit var vedtakSteg: VedtakSteg
@@ -102,8 +106,10 @@ class VedtakStegTest {
         every { taskService.save(any()) } returns mockk()
         every { oppgaveService.hentOppgaverSomIkkeErFerdigstilt(behandling) } returns emptyList()
         every { behandlingService.oppdaterStatusPåBehandling(200, BehandlingStatus.FATTER_VEDTAK) } returns behandling
-        every { vedtakService.hentAktivVedtakForBehandling(behandling.id) } returns mockk()
+        every { vedtakService.hentAktivVedtakForBehandling(any()) } returns mockk(relaxed = true)
+        every { vedtakService.oppdaterVedtak(any()) } returns mockk()
         every { vedtaksperiodeService.hentUtvidetVedtaksperioderMedBegrunnelser(any()) } returns mockk(relaxed = true)
+        every { genererBrevService.genererBrevForBehandling(any()) } returns ByteArray(30)
 
         vedtakSteg.utførSteg(200)
 

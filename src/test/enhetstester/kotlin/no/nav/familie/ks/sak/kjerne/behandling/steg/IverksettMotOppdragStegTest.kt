@@ -125,6 +125,6 @@ class IverksettMotOppdragStegTest {
         verify(exactly = 1) {
             utbetalingsoppdragService.oppdaterTilkjentYtelseMedUtbetalingsoppdragOgIverksett(any(), any(), any())
         }
-        verify(exactly = 2) { taskService.save(any()) }
+        verify(exactly = 1) { taskService.save(any()) }
     }
 }
