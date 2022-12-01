@@ -247,7 +247,16 @@ class StegService(
             ?: throw Feil("Finner ikke behandlingssteg $behandlingssteg")
 
     private fun oppdaterBehandlingStatus(behandling: Behandling): Behandling {
-        behandling.status = behandling.steg.tilknyttetBehandlingStatus
+        // oppdaterer ikke behandling status for siste steg AVSLUTT_BEHANDLING. Det skjer direkte i steget
+        if (behandling.steg == AVSLUTT_BEHANDLING) {
+            return behandling
+        }
+        val nyBehandlingStatus = behandling.steg.tilknyttetBehandlingStatus
+        logger.info(
+            "${SikkerhetContext.hentSaksbehandlerNavn()} endrer status på behandling ${behandling.id} " +
+                "fra ${behandling.status} til $nyBehandlingStatus"
+        )
+        behandling.status = nyBehandlingStatus
         return behandling
     }
 
