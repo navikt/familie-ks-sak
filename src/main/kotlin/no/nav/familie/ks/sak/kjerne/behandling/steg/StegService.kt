@@ -48,12 +48,15 @@ class StegService(
                     behandlingSteg,
                     behandlingStegDto
                 )
-                // Henter neste steg basert på sekvens og årsak
-                val nesteSteg = hentNesteSteg(behandling, behandlingSteg, behandlingStegDto)
-                // legger til neste steg hvis steget er ny, eller oppdaterer eksisterende steg status til KLAR
-                behandling.behandlingStegTilstand.singleOrNull { it.behandlingSteg == nesteSteg }
-                    ?.let { it.behandlingStegStatus = BehandlingStegStatus.KLAR }
-                    ?: behandling.leggTilNesteSteg(nesteSteg)
+                // AVSLUTT_BEHANDLING er siste steg, der slipper man å hente neste steg
+                if (behandlingSteg != AVSLUTT_BEHANDLING) {
+                    // Henter neste steg basert på sekvens og årsak
+                    val nesteSteg = hentNesteSteg(behandling, behandlingSteg, behandlingStegDto)
+                    // legger til neste steg hvis steget er ny, eller oppdaterer eksisterende steg status til KLAR
+                    behandling.behandlingStegTilstand.singleOrNull { it.behandlingSteg == nesteSteg }
+                        ?.let { it.behandlingStegStatus = BehandlingStegStatus.KLAR }
+                        ?: behandling.leggTilNesteSteg(nesteSteg)
+                }
 
                 // oppdaterer behandling med behandlingstegtilstand og behandling status
                 behandlingRepository.saveAndFlush(oppdaterBehandlingStatus(behandling))
