@@ -103,38 +103,6 @@ class BeslutteVedtakStegTest {
     }
 
     @Test
-    fun `utførSteg skal oppdatere vedtak dersom vedtaket er godkjent `() {
-        val besluttVedtakDto = BesluttVedtakDto(Beslutning.GODKJENT, "GODKJENT")
-        every {
-            totrinnskontrollService.besluttTotrinnskontroll(
-                any(),
-                any(),
-                any(),
-                besluttVedtakDto.beslutning,
-                emptyList()
-            )
-        } returns mockk(relaxed = true)
-        every { vedtakService.hentAktivVedtakForBehandling(any()) } returns mockk()
-        every { vedtakService.oppdaterVedtaksdato(any()) } just runs
-
-        beslutteVedtakSteg.utførSteg(200, besluttVedtakDto)
-
-        verify(exactly = 1) {
-            totrinnskontrollService.besluttTotrinnskontroll(
-                any(),
-                any(),
-                any(),
-                besluttVedtakDto.beslutning,
-                emptyList()
-            )
-        }
-        verify(exactly = 1) { loggService.opprettBeslutningOmVedtakLogg(any(), any(), any()) }
-        verify(exactly = 1) { taskService.save(any()) }
-        verify(exactly = 1) { vedtakService.hentAktivVedtakForBehandling(any()) }
-        verify(exactly = 1) { vedtakService.oppdaterVedtaksdato(any()) }
-    }
-
-    @Test
     fun `utførSteg skal opprette og initiere nytt vedtak dersom vedtaket er underkjent `() {
         val besluttVedtakDto = BesluttVedtakDto(Beslutning.UNDERKJENT, "UNDERKJENT")
 
@@ -164,7 +132,6 @@ class BeslutteVedtakStegTest {
         }
         verify(exactly = 1) { loggService.opprettBeslutningOmVedtakLogg(any(), any(), any()) }
         verify(exactly = 2) { taskService.save(any()) }
-        verify(exactly = 0) { vedtakService.oppdaterVedtaksdato(any()) }
         verify(exactly = 1) { vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(any()) }
         verify(exactly = 1) { vilkårsvurderingService.oppdater(any()) }
         verify(exactly = 1) { vedtakService.opprettOgInitierNyttVedtakForBehandling(any(), any()) }
