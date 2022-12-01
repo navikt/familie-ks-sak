@@ -27,6 +27,7 @@ import no.nav.familie.ks.sak.kjerne.beregning.domene.TilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.domene.TilkjentYtelseRepository
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.Fagsak
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.FagsakRepository
+import no.nav.familie.ks.sak.kjerne.fagsak.domene.FagsakStatus
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import no.nav.familie.ks.sak.kjerne.personident.AktørRepository
 import no.nav.familie.ks.sak.kjerne.personident.Personident
@@ -145,7 +146,7 @@ abstract class OppslagSpringRunnerTest {
     fun opprettSøkerFagsakOgBehandling(søker: Aktør = randomAktør(), barn: Aktør = randomAktør()) {
         this.søker = lagreAktør(søker)
         this.barn = lagreAktør(barn)
-        fagsak = lagreFagsak(lagFagsak(aktør = søker))
+        fagsak = lagreFagsak(lagFagsak(aktør = søker, status = FagsakStatus.LØPENDE))
         behandling = lagreBehandling(lagBehandling(fagsak = fagsak, opprettetÅrsak = BehandlingÅrsak.SØKNAD))
     }
 
