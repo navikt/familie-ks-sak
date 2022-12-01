@@ -3,6 +3,7 @@ package no.nav.familie.ks.sak.kjerne.fagsak.domene
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Lock
+import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.jpa.repository.Query
 import org.springframework.stereotype.Repository
 import javax.persistence.LockModeType
@@ -21,4 +22,29 @@ interface FagsakRepository : JpaRepository<Fagsak, Long> {
 
     @Query(value = "SELECT f from Fagsak f WHERE f.status = 'LØPENDE'  AND f.arkivert = false")
     fun finnLøpendeFagsaker(): List<Fagsak>
+
+    @Modifying
+    @Query(
+        value = """
+                SELECT id FROM fagsak
+                WHERE fagsak.id IN (
+                    WITH sisteiverksatte AS (
+                        SELECT b.fk_fagsak_id AS fagsakid, MAX(b.opprettet_tid) AS opprettet_tid
+                        FROM behandling b
+                                 INNER JOIN tilkjent_ytelse ty ON b.id = ty.fk_behandling_id
+                                 INNER JOIN fagsak f ON f.id = b.fk_fagsak_id
+                        WHERE ty.utbetalingsoppdrag IS NOT NULL
+                          AND f.status = 'LØPENDE'
+                          AND f.arkivert = FALSE
+                        GROUP BY b.fk_fagsak_id)
+                
+                    SELECT silp.fagsakid
+                    FROM sisteiverksatte silp
+                             INNER JOIN behandling b ON b.fk_fagsak_id = silp.fagsakid
+                             INNER JOIN tilkjent_ytelse ty ON b.id = ty.fk_behandling_id
+                    WHERE b.opprettet_tid = silp.opprettet_tid AND ty.stonad_tom < DATE_TRUNC('month', NOW()));
+                """,
+        nativeQuery = true
+    )
+    fun finnFagsakerSomSkalAvsluttes(): List<Long>
 }

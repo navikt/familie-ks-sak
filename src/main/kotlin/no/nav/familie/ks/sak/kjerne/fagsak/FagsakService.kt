@@ -135,6 +135,15 @@ class FagsakService(
         return fagsakRepository.save(fagsak).also { taskService.save(PubliserSaksstatistikkTask.lagTask(it.id)) }
     }
 
+    @Transactional
+    fun finnOgAvsluttFagsakerSomSkalAvsluttes(): Int {
+        val fagsaker = fagsakRepository.finnFagsakerSomSkalAvsluttes()
+        fagsaker
+            .map { fagsakRepository.getReferenceById(it) }
+            .forEach { oppdaterStatus(it, FagsakStatus.AVSLUTTET) }
+        return fagsaker.size
+    }
+
     fun oppdaterStatus(fagsak: Fagsak, nyStatus: FagsakStatus) {
         logger.info(
             "${SikkerhetContext.hentSaksbehandlerNavn()} endrer status på fagsak ${fagsak.id} fra ${fagsak.status}" +
