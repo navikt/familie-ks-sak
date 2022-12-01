@@ -101,7 +101,8 @@ data class Behandling(
             it.behandlingStegStatus == BehandlingStegStatus.KLAR
         }?.behandlingSteg
             ?: behandlingStegTilstand.filter { it.behandlingStegStatus != BehandlingStegStatus.TILBAKEFØRT }
-                .maxBy { it.opprettetTidspunkt }.behandlingSteg
+                .maxBy { it.behandlingSteg.sekvens }.behandlingSteg
+
     fun initBehandlingStegTilstand(): Behandling {
         behandlingStegTilstand.add(
             BehandlingStegTilstand(
