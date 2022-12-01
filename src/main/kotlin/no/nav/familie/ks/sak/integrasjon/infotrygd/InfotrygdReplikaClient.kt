@@ -1,7 +1,7 @@
 package no.nav.familie.ks.sak.integrasjon.infotrygd
 
 import no.nav.familie.http.client.AbstractRestClient
-import no.nav.familie.kontrakter.felles.PersonIdent
+import no.nav.familie.ks.sak.api.dto.BarnMedOpplysningerDto
 import no.nav.familie.ks.sak.integrasjon.kallEksternTjeneste
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.beans.factory.annotation.Value
@@ -16,7 +16,7 @@ class InfotrygdReplikaClient(
     @Qualifier("azure") restOperations: RestOperations
 ) : AbstractRestClient(restOperations, "familie-ba-infotrygd") {
 
-    fun harKontantstøtteIInfotrygd(personerIGjeldendeBehandling: List<PersonIdent>): Boolean {
+    fun harKontantstøtteIInfotrygd(barnIGjeldendeBehandling: List<BarnMedOpplysningerDto>): Boolean {
         val harKontantstøtteIInfotrygdUri =
             UriComponentsBuilder.fromUri(familieKsInfotrygdUri).pathSegment("harLøpendeKontantstotteIInfotrygd").build().toUri()
         val harKontantstøtte = kallEksternTjeneste<Boolean>(
@@ -26,18 +26,17 @@ class InfotrygdReplikaClient(
         ) {
             postForEntity(
                 uri = harKontantstøtteIInfotrygdUri,
-                personerIGjeldendeBehandling.tilInnsynsRequest()
+                barnIGjeldendeBehandling.tilInnsynsRequest()
             )
         }
         return harKontantstøtte
     }
 }
 
-fun List<PersonIdent>.tilInnsynsRequest(): InnsynRequest {
-    return InnsynRequest(this.map { Foedselsnummer(asString = it.ident) })
+fun List<BarnMedOpplysningerDto>.tilInnsynsRequest(): InnsynRequest {
+    return InnsynRequest(barn = this.map { it.ident })
 }
 
-data class Foedselsnummer(val asString: String)
 data class InnsynRequest(
-    val fnr: List<Foedselsnummer>
+    val barn: List<String>
 )

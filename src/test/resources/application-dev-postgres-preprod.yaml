@@ -64,29 +64,20 @@ no.nav.security.jwt:
           client-id: ${AZURE_APP_CLIENT_ID}
           client-secret: ${AZURE_APP_CLIENT_SECRET}
           client-auth-method: client_secret_basic
-      familie-ba-infotrygd-onbehalfof:
-        resource-url: ${FAMILIE_BA_INFOTRYGD_API_URL}
+      familie-ks-infotrygd-onbehalfof:
+        resource-url: ${FAMILIE_KS_INFOTRYGD_API_URL}
         token-endpoint-url: https://login.microsoftonline.com/navq.onmicrosoft.com/oauth2/v2.0/token
         grant-type: urn:ietf:params:oauth:grant-type:jwt-bearer
-        scope: ${FAMILIE_BA_INFOTRYGD_SCOPE}
+        scope: ${FAMILIE_KS_INFOTRYGD_SCOPE}
         authentication:
           client-id: ${AZURE_APP_CLIENT_ID}
           client-secret: ${AZURE_APP_CLIENT_SECRET}
           client-auth-method: client_secret_basic
-      familie-ba-infotrygd-feed-clientcredentials:
-        resource-url: ${FAMILIE_BA_INFOTRYGD_FEED_API_URL}
+      familie-ks-infotrygd-clientcredentials:
+        resource-url: ${FAMILIE_KS_INFOTRYGD_API_URL}
         token-endpoint-url: https://login.microsoftonline.com/navq.onmicrosoft.com/oauth2/v2.0/token
         grant-type: client_credentials
-        scope: ${FAMILIE_BA_INFOTRYGD_FEED_SCOPE}
-        authentication:
-          client-id: ${AZURE_APP_CLIENT_ID}
-          client-secret: ${AZURE_APP_CLIENT_SECRET}
-          client-auth-method: client_secret_basic
-      familie-ba-infotrygd-clientcredentials:
-        resource-url: ${FAMILIE_BA_INFOTRYGD_API_URL}
-        token-endpoint-url: https://login.microsoftonline.com/navq.onmicrosoft.com/oauth2/v2.0/token
-        grant-type: client_credentials
-        scope: ${FAMILIE_BA_INFOTRYGD_SCOPE}
+        scope: ${FAMILIE_KS_INFOTRYGD_SCOPE}
         authentication:
           client-id: ${AZURE_APP_CLIENT_ID}
           client-secret: ${AZURE_APP_CLIENT_SECRET}
@@ -96,24 +87,6 @@ no.nav.security.jwt:
         token-endpoint-url: https://login.microsoftonline.com/navq.onmicrosoft.com/oauth2/v2.0/token
         grant-type: urn:ietf:params:oauth:grant-type:jwt-bearer
         scope: ${FAMILIE_OPPDRAG_SCOPE}
-        authentication:
-          client-id: ${AZURE_APP_CLIENT_ID}
-          client-secret: ${AZURE_APP_CLIENT_SECRET}
-          client-auth-method: client_secret_basic
-      familie-ef-sak-onbehalfof:
-        resource-url: ${FAMILIE_EF_SAK_API_URL}
-        token-endpoint-url: https://login.microsoftonline.com/navq.onmicrosoft.com/oauth2/v2.0/token
-        grant-type: urn:ietf:params:oauth:grant-type:jwt-bearer
-        scope: ${FAMILIE_EF_SAK_API_URL_SCOPE}
-        authentication:
-          client-id: ${AZURE_APP_CLIENT_ID}
-          client-secret: ${AZURE_APP_CLIENT_SECRET}
-          client-auth-method: client_secret_basic
-      familie-ef-sak-clientcredentials:
-        resource-url: ${FAMILIE_EF_SAK_API_URL}
-        token-endpoint-url: https://login.microsoftonline.com/navq.onmicrosoft.com/oauth2/v2.0/token
-        grant-type: client_credentials
-        scope: ${FAMILIE_EF_SAK_API_URL_SCOPE}
         authentication:
           client-id: ${AZURE_APP_CLIENT_ID}
           client-secret: ${AZURE_APP_CLIENT_SECRET}
@@ -165,6 +138,8 @@ SANITY_DATASET: "ks-test"
 
 
 FAMILIE_KS_SAK_API_URL: http://localhost:8086/api
+FAMILIE_KS_INFOTRYGD_API_URL: https://familie-ks-infotrygd.dev.intern.nav.no/api
+FAMILIE_KS_INFOTRYGD_SCOPE: api://dev-fss.teamfamilie.familie-ks-infotrygd/.default
 CREDENTIAL_USERNAME: not-a-real-srvuser
 CREDENTIAL_PASSWORD: not-a-real-pw
 
