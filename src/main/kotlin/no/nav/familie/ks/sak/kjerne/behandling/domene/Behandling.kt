@@ -99,8 +99,9 @@ data class Behandling(
     val steg: BehandlingSteg
         get() = behandlingStegTilstand.singleOrNull {
             it.behandlingStegStatus == BehandlingStegStatus.KLAR
-        }?.behandlingSteg ?: behandlingStegTilstand.maxBy { it.opprettetTidspunkt }.behandlingSteg
-
+        }?.behandlingSteg
+            ?: behandlingStegTilstand.filter { it.behandlingStegStatus != BehandlingStegStatus.TILBAKEFØRT }
+                .maxBy { it.opprettetTidspunkt }.behandlingSteg
     fun initBehandlingStegTilstand(): Behandling {
         behandlingStegTilstand.add(
             BehandlingStegTilstand(
