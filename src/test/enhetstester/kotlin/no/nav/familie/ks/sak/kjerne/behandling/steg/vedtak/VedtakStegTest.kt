@@ -13,7 +13,6 @@ import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.integrasjon.oppgave.OppgaveService
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
-import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStegTilstand
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingStegStatus
@@ -105,7 +104,6 @@ class VedtakStegTest {
         every { totrinnskontrollService.opprettTotrinnskontrollMedSaksbehandler(behandling) } returns mockk()
         every { taskService.save(any()) } returns mockk()
         every { oppgaveService.hentOppgaverSomIkkeErFerdigstilt(behandling) } returns emptyList()
-        every { behandlingService.oppdaterStatusPåBehandling(200, BehandlingStatus.FATTER_VEDTAK) } returns behandling
         every { vedtakService.hentAktivVedtakForBehandling(any()) } returns mockk(relaxed = true)
         every { vedtakService.oppdaterVedtak(any()) } returns mockk()
         every { vedtaksperiodeService.hentUtvidetVedtaksperioderMedBegrunnelser(any()) } returns mockk(relaxed = true)
@@ -118,7 +116,6 @@ class VedtakStegTest {
         verify(exactly = 1) { totrinnskontrollService.opprettTotrinnskontrollMedSaksbehandler(behandling) }
         verify(exactly = 1) { taskService.save(any()) }
         verify(exactly = 1) { oppgaveService.hentOppgaverSomIkkeErFerdigstilt(behandling) }
-        verify(exactly = 1) { behandlingService.oppdaterStatusPåBehandling(200, BehandlingStatus.FATTER_VEDTAK) }
         verify(exactly = 1) { vedtakService.hentAktivVedtakForBehandling(behandling.id) }
         verify(exactly = 1) { vedtaksperiodeService.hentUtvidetVedtaksperioderMedBegrunnelser(any()) }
     }

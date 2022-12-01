@@ -45,6 +45,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.Vedtak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.VedtakRepository
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingSteg
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
+import no.nav.familie.ks.sak.kjerne.beregning.BeregningService
 import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext
 import no.nav.familie.prosessering.internal.TaskService
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -82,6 +83,9 @@ class StegServiceTest : OppslagSpringRunnerTest() {
 
     @MockkBean
     private lateinit var taskService: TaskService
+
+    @MockkBean
+    private lateinit var beregningService: BeregningService
 
     @Autowired
     private lateinit var behandlingRepository: BehandlingRepository
@@ -348,10 +352,11 @@ class StegServiceTest : OppslagSpringRunnerTest() {
 
         assertDoesNotThrow { stegService.utførStegEtterIverksettelseAutomatisk(behandling.id) }
 
+        verify(exactly = 1) { avsluttBehandlingSteg.utførSteg(any()) }
+
         val oppdatertBehandling = behandlingRepository.hentBehandling(behandling.id)
         assertBehandlingHarSteg(oppdatertBehandling, JOURNALFØR_VEDTAKSBREV, UTFØRT)
         assertBehandlingHarSteg(oppdatertBehandling, AVSLUTT_BEHANDLING, UTFØRT)
-        assertEquals(BehandlingStatus.AVSLUTTET, oppdatertBehandling.status)
     }
 
     @Test

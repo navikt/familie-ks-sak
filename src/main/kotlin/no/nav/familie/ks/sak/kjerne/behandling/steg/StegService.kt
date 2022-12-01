@@ -49,8 +49,7 @@ class StegService(
                     behandlingStegDto
                 )
                 // AVSLUTT_BEHANDLING er siste steg, der slipper man å hente neste steg
-                // JOURNALFØR_VEDTAKSBREV steg kaller AVSLUTT_BEHANDLING steg automatisk, derfor slipper man der også
-                if (behandlingSteg.sekvens < JOURNALFØR_VEDTAKSBREV.sekvens) {
+                if (behandlingSteg != AVSLUTT_BEHANDLING) {
                     // Henter neste steg basert på sekvens og årsak
                     val nesteSteg = hentNesteSteg(behandling, behandlingSteg, behandlingStegDto)
                     // legger til neste steg hvis steget er ny, eller oppdaterer eksisterende steg status til KLAR
@@ -248,7 +247,16 @@ class StegService(
             ?: throw Feil("Finner ikke behandlingssteg $behandlingssteg")
 
     private fun oppdaterBehandlingStatus(behandling: Behandling): Behandling {
-        behandling.status = behandling.steg.tilknyttetBehandlingStatus
+        // oppdaterer ikke behandling status for siste steg AVSLUTT_BEHANDLING. Det skjer direkte i steget
+        if (behandling.steg == AVSLUTT_BEHANDLING) {
+            return behandling
+        }
+        val nyBehandlingStatus = behandling.steg.tilknyttetBehandlingStatus
+        logger.info(
+            "${SikkerhetContext.hentSaksbehandlerNavn()} endrer status på behandling ${behandling.id} " +
+                "fra ${behandling.status} til $nyBehandlingStatus"
+        )
+        behandling.status = nyBehandlingStatus
         return behandling
     }
 
