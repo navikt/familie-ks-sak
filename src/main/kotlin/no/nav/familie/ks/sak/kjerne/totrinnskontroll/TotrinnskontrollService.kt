@@ -2,9 +2,7 @@ package no.nav.familie.ks.sak.kjerne.totrinnskontroll
 
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
-import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
-import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Beslutning
 import no.nav.familie.ks.sak.kjerne.totrinnskontroll.domene.Totrinnskontroll
 import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext
@@ -12,10 +10,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 
 @Service
-class TotrinnskontrollService(
-    private val behandlingService: BehandlingService,
-    private val totrinnskontrollRepository: TotrinnskontrollRepository
-) {
+class TotrinnskontrollService(private val totrinnskontrollRepository: TotrinnskontrollRepository) {
 
     fun finnAktivForBehandling(behandlingId: Long): Totrinnskontroll? =
         totrinnskontrollRepository.findByBehandlingAndAktiv(behandlingId)
@@ -58,11 +53,6 @@ class TotrinnskontrollService(
         }
 
         totrinnskontrollRepository.save(totrinnskontroll)
-
-        behandlingService.oppdaterStatusPåBehandling(
-            behandlingId = behandlingId,
-            status = if (beslutning.erGodkjent()) BehandlingStatus.IVERKSETTER_VEDTAK else BehandlingStatus.UTREDES
-        )
 
         return totrinnskontroll
     }
