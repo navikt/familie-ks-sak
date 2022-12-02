@@ -134,14 +134,6 @@ class BehandlingService(
         return oppdaterBehandling(behandling)
     }
 
-    fun oppdaterStatusPåBehandling(behandlingId: Long, status: BehandlingStatus): Behandling {
-        val behandling = hentBehandling(behandlingId)
-        logger.info("${SikkerhetContext.hentSaksbehandlerNavn()} endrer status på behandling $behandlingId fra ${behandling.status} til $status")
-
-        behandling.status = status
-        return oppdaterBehandling(behandling)
-    }
-
     fun nullstillEndringstidspunkt(behandlingId: Long) {
         val behandling = hentBehandling(behandlingId)
         behandling.overstyrtEndringstidspunkt = null

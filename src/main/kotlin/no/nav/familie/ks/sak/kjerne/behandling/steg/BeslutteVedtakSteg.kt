@@ -59,10 +59,7 @@ class BeslutteVedtakSteg(
         // ferdigstill GodkjenneVedtak oppgave
         opprettTaskFerdigstillGodkjenneVedtak(behandling = behandling)
 
-        if (besluttVedtakDto.beslutning.erGodkjent()) {
-            val vedtak = vedtakService.hentAktivVedtakForBehandling(behandlingId)
-            vedtakService.oppdaterVedtaksdato(vedtak)
-        } else {
+        if (!besluttVedtakDto.beslutning.erGodkjent()) {
             val vilkårsvurdering = vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(behandlingId)
             // Her oppdaterer vi endretAv til beslutter saksbehandler og endretTid til næværende tidspunkt
             vilkårsvurderingService.oppdater(vilkårsvurdering)

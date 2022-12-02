@@ -1,29 +1,36 @@
 package no.nav.familie.ks.sak.kjerne.avstemming
 
 import no.nav.familie.kontrakter.felles.objectMapper
+import no.nav.familie.ks.sak.common.EnvService
 import no.nav.familie.ks.sak.common.util.erHelligdag
 import no.nav.familie.ks.sak.kjerne.avstemming.domene.GrensesnittavstemmingTaskDto
 import no.nav.familie.ks.sak.task.nesteGyldigeTriggertidForBehandlingIHverdager
 import no.nav.familie.leader.LeaderClient
+import no.nav.familie.log.mdc.MDCConstants
 import no.nav.familie.prosessering.domene.Status
 import no.nav.familie.prosessering.domene.Task
 import no.nav.familie.prosessering.internal.TaskService
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import org.slf4j.MDC
 import org.springframework.data.domain.Pageable
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
 import java.time.LocalDate
+import java.util.UUID
 
 @Service
-class GrensesnittavstemmingScheduler(private val taskService: TaskService) {
+class GrensesnittavstemmingScheduler(private val taskService: TaskService, private val envService: EnvService) {
 
     @Scheduled(cron = "\${CRON_GRENSESNITT_AVSTEMMING}")
     fun utfør() {
-        if (LeaderClient.isLeader() != true || LocalDate.now().erHelligdag()) {
+        logger.info("Starter GrensesnittavstemmingScheduler..")
+        MDC.put(MDCConstants.MDC_CALL_ID, UUID.randomUUID().toString())
+
+        if ((LeaderClient.isLeader() != true && !envService.erLokal()) || LocalDate.now().erHelligdag()) {
+            // envService.erLokal() sjekk er lagt slik at scheduler-en kan testes i lokalt
             return
         }
-        logger.info("Starter GrensesnittavstemmingScheduler..")
         logger.info("Finner siste kjørte ${GrensesnittavstemmingTask.TASK_STEP_TYPE}")
         val alleFerdigeGrensesnittavstemmingTasker = taskService.finnTasksMedStatus(
             status = listOf(Status.FERDIG),

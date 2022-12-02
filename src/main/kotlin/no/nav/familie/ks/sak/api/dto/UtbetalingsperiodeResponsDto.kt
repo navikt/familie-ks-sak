@@ -5,6 +5,7 @@ import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.tidslinje.filtrerIkkeNull
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.tilPerioder
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.UtbetalingsperiodeDetalj
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.Vedtaksperiodetype
 import no.nav.familie.ks.sak.kjerne.beregning.AndelTilkjentYtelseMedEndreteUtbetalinger
 import no.nav.familie.ks.sak.kjerne.beregning.lagVertikalePerioder
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
@@ -16,7 +17,8 @@ data class UtbetalingsperiodeResponsDto(
     val periodeTom: LocalDate,
     val antallBarn: Int,
     val utbetaltPerMnd: Int,
-    val utbetalingsperiodeDetaljer: List<UtbetalingsperiodeDetaljDto>
+    val utbetalingsperiodeDetaljer: List<UtbetalingsperiodeDetaljDto>,
+    val vedtaksperiodetype: Vedtaksperiodetype = Vedtaksperiodetype.UTBETALING
 )
 
 data class UtbetalingsperiodeDetaljDto(

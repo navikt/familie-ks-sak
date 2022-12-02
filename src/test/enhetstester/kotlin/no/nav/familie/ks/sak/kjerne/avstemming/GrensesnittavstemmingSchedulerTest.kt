@@ -9,6 +9,7 @@ import io.mockk.mockkStatic
 import io.mockk.slot
 import io.mockk.verify
 import no.nav.familie.kontrakter.felles.objectMapper
+import no.nav.familie.ks.sak.common.EnvService
 import no.nav.familie.ks.sak.kjerne.avstemming.domene.GrensesnittavstemmingTaskDto
 import no.nav.familie.leader.LeaderClient
 import no.nav.familie.prosessering.domene.Task
@@ -25,6 +26,9 @@ internal class GrensesnittavstemmingSchedulerTest {
     @MockK
     private lateinit var taskService: TaskService
 
+    @MockK
+    private lateinit var envService: EnvService
+
     @InjectMockKs
     private lateinit var grensesnittavstemmingScheduler: GrensesnittavstemmingScheduler
 
@@ -32,6 +36,7 @@ internal class GrensesnittavstemmingSchedulerTest {
     fun setup() {
         mockkStatic(LeaderClient::class)
         every { LeaderClient.isLeader() } returns true
+        every { envService.erLokal() } returns true
     }
 
     @Test
