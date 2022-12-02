@@ -102,13 +102,18 @@ class ForvaltningController(
 
     @PostMapping(path = ["/avstemming/send-grensesnittavstemming-manuell"])
     fun sendGrensesnittavstemmingManuell(
-        @RequestBody(required = true) fom: LocalDate,
-        @RequestBody(required = true) tom: LocalDate
+        @RequestBody(required = true) fom: String,
+        @RequestBody(required = true) tom: String
     ) {
         tilgangService.validerTilgangTilHandling(
             minimumBehandlerRolle = BehandlerRolle.FORVALTER,
             handling = "Sender vedtakDVH til stønadsstatistikk manuelt"
         )
-        taskService.save(GrensesnittavstemmingTask.opprettTask(fom.atStartOfDay(), tom.atStartOfDay()))
+        taskService.save(
+            GrensesnittavstemmingTask.opprettTask(
+                LocalDate.parse(fom).atStartOfDay(),
+                LocalDate.parse(tom).atStartOfDay()
+            )
+        )
     }
 }
