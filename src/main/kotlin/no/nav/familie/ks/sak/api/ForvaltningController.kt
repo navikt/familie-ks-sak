@@ -24,7 +24,7 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
-import java.time.LocalDateTime
+import java.time.LocalDate
 
 @RestController
 @RequestMapping("/api/forvaltning/")
@@ -102,13 +102,13 @@ class ForvaltningController(
 
     @PostMapping(path = ["/avstemming/send-grensesnittavstemming-manuell"])
     fun sendGrensesnittavstemmingManuell(
-        @RequestBody(required = true) fom: LocalDateTime,
-        @RequestBody(required = true) tom: LocalDateTime
+        @RequestBody(required = true) fom: LocalDate,
+        @RequestBody(required = true) tom: LocalDate
     ) {
         tilgangService.validerTilgangTilHandling(
             minimumBehandlerRolle = BehandlerRolle.FORVALTER,
             handling = "Sender vedtakDVH til stønadsstatistikk manuelt"
         )
-        taskService.save(GrensesnittavstemmingTask.opprettTask(fom, tom))
+        taskService.save(GrensesnittavstemmingTask.opprettTask(fom.atStartOfDay(), tom.atStartOfDay()))
     }
 }
