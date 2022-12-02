@@ -6,6 +6,7 @@ import no.nav.familie.kontrakter.felles.dokarkiv.Dokumenttype
 import no.nav.familie.kontrakter.felles.dokarkiv.v2.ArkiverDokumentRequest
 import no.nav.familie.kontrakter.felles.dokarkiv.v2.Dokument
 import no.nav.familie.kontrakter.felles.dokarkiv.v2.Filtype
+import no.nav.familie.ks.sak.common.util.Periode
 import no.nav.familie.ks.sak.config.BehandlerRolle
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
 import no.nav.familie.ks.sak.kjerne.avstemming.GrensesnittavstemmingTask
@@ -24,7 +25,6 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
-import java.time.LocalDate
 
 @RestController
 @RequestMapping("/api/forvaltning/")
@@ -101,19 +101,13 @@ class ForvaltningController(
     }
 
     @PostMapping(path = ["/avstemming/send-grensesnittavstemming-manuell"])
-    fun sendGrensesnittavstemmingManuell(
-        @RequestBody(required = true) fom: String,
-        @RequestBody(required = true) tom: String
-    ) {
+    fun sendGrensesnittavstemmingManuell(@RequestBody(required = true) periode: Periode) {
         tilgangService.validerTilgangTilHandling(
             minimumBehandlerRolle = BehandlerRolle.FORVALTER,
             handling = "Sender vedtakDVH til stønadsstatistikk manuelt"
         )
         taskService.save(
-            GrensesnittavstemmingTask.opprettTask(
-                LocalDate.parse(fom).atStartOfDay(),
-                LocalDate.parse(tom).atStartOfDay()
-            )
+            GrensesnittavstemmingTask.opprettTask(periode.fom.atStartOfDay(), periode.tom.atStartOfDay())
         )
     }
 }

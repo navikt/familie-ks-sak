@@ -33,8 +33,8 @@ class GrensesnittavstemmingTask(private val avstemmingService: AvstemmingService
             type = TASK_STEP_TYPE,
             payload = objectMapper.writeValueAsString(GrensesnittavstemmingTaskDto(fom, tom)),
             properties = Properties().apply { // la til denne i properties slik at de kan vises i familie-prosessering
-                this["fom"] = fom
-                this["tom"] = tom
+                this["fom"] = fom.toString()
+                this["tom"] = tom.toString()
             }
         )
 
