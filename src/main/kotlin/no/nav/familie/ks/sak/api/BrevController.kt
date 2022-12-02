@@ -7,6 +7,7 @@ import no.nav.familie.ks.sak.config.BehandlerRolle
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.VedtakService
 import no.nav.familie.ks.sak.kjerne.brev.BrevService
+import no.nav.familie.ks.sak.kjerne.brev.GenererBrevService
 import no.nav.familie.ks.sak.sikkerhet.AuditLoggerEvent
 import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext
 import no.nav.familie.ks.sak.sikkerhet.TilgangService
@@ -28,6 +29,7 @@ import javax.transaction.Transactional
 @Validated
 class BrevController(
     private val brevService: BrevService,
+    private val genererBrevService: GenererBrevService,
     private val tilgangService: TilgangService,
     private val behandlingService: BehandlingService,
     private val vedtakService: VedtakService
@@ -88,7 +90,7 @@ class BrevController(
             handling = "Vis vedtaksbrev"
         )
 
-        return Ressurs.success(brevService.genererBrevForBehandling(behandlingId))
+        return Ressurs.success(genererBrevService.genererBrevForBehandling(behandlingId))
     }
 
     @Transactional
@@ -103,7 +105,7 @@ class BrevController(
             handling = "Vis og lagre vedtaksbrev"
         )
 
-        val generertPdf = brevService.genererBrevForBehandling(behandlingId)
+        val generertPdf = genererBrevService.genererBrevForBehandling(behandlingId)
 
         val vedtak = vedtakService.hentAktivVedtakForBehandling(behandlingId)
         vedtak.stønadBrevPdf = generertPdf
