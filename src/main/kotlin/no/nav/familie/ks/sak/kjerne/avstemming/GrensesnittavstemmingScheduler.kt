@@ -17,6 +17,7 @@ import org.springframework.data.domain.Pageable
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
 import java.time.LocalDate
+import java.util.Properties
 import java.util.UUID
 
 @Service
@@ -55,12 +56,17 @@ class GrensesnittavstemmingScheduler(private val taskService: TaskService, priva
         taskService.save(
             Task(
                 type = GrensesnittavstemmingTask.TASK_STEP_TYPE,
-                payload = objectMapper.writeValueAsString(grensesnittavstemmingTaskDto)
+                payload = objectMapper.writeValueAsString(grensesnittavstemmingTaskDto),
+                properties = Properties().apply { // la til denne i properties slik at de kan vises i familie-prosessering
+                    this["fom"] = fom
+                    this["tom"] = tom
+                }
             )
         )
+        logger.info("Stopper GrensesnittavstemmingScheduler..")
     }
 
     companion object {
-        private val logger: Logger = LoggerFactory.getLogger(GrensesnittavstemmingTask::class.java)
+        private val logger: Logger = LoggerFactory.getLogger(GrensesnittavstemmingScheduler::class.java)
     }
 }
