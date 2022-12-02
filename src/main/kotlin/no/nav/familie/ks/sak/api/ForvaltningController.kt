@@ -8,6 +8,7 @@ import no.nav.familie.kontrakter.felles.dokarkiv.v2.Dokument
 import no.nav.familie.kontrakter.felles.dokarkiv.v2.Filtype
 import no.nav.familie.ks.sak.config.BehandlerRolle
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
+import no.nav.familie.ks.sak.kjerne.avstemming.GrensesnittavstemmingTask
 import no.nav.familie.ks.sak.sikkerhet.TilgangService
 import no.nav.familie.ks.sak.statistikk.saksstatistikk.SakStatistikkService
 import no.nav.familie.ks.sak.statistikk.stønadsstatistikk.PubliserVedtakTask
@@ -23,6 +24,7 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
+import java.time.LocalDateTime
 
 @RestController
 @RequestMapping("/api/forvaltning/")
@@ -96,5 +98,17 @@ class ForvaltningController(
             val vedtakTask = PubliserVedtakTask.opprettTask(vedtakDVH.person.personIdent, it)
             taskService.save(vedtakTask)
         }
+    }
+
+    @PostMapping(path = ["/avstemming/send-grensesnittavstemming-manuell"])
+    fun sendGrensesnittavstemmingManuell(
+        @RequestBody(required = true) fom: LocalDateTime,
+        @RequestBody(required = true) tom: LocalDateTime
+    ) {
+        tilgangService.validerTilgangTilHandling(
+            minimumBehandlerRolle = BehandlerRolle.FORVALTER,
+            handling = "Sender vedtakDVH til stønadsstatistikk manuelt"
+        )
+        taskService.save(GrensesnittavstemmingTask.opprettTask(fom, tom))
     }
 }
