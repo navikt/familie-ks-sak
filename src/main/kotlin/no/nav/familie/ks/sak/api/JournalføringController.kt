@@ -39,15 +39,9 @@ class JournalføringController(
     fun hentDokumentIJournalpost(
         @PathVariable journalpostId: String,
         @PathVariable dokumentId: String
-    ): ResponseEntity<Ressurs<ByteArray>> =
-        ResponseEntity.ok(
-            Ressurs.success(
-                innkommendeJournalføringService.hentDokumentIJournalpost(
-                    journalpostId,
-                    dokumentId
-                )
-            )
-        )
+    ): ResponseEntity<ByteArray> =
+        ResponseEntity.ok(innkommendeJournalføringService.hentDokumentIJournalpost(journalpostId, dokumentId))
+
 
     @PostMapping(path = ["/{journalpostId}/journalfør/{oppgaveId}"], produces = [MediaType.APPLICATION_JSON_VALUE])
     fun journalførOppgave(
