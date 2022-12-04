@@ -21,7 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import java.math.BigDecimal
 import java.time.LocalDate
 
-class FagsakStatusOppdatererIntegrasjonTest : OppslagSpringRunnerTest() {
+class FagsakServiceIntegrasjonTest : OppslagSpringRunnerTest() {
 
     @Autowired
     private lateinit var fagsakService: FagsakService
