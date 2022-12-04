@@ -23,9 +23,11 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingType
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Beslutning
+import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg.AVSLUTT_BEHANDLING
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg.BEHANDLINGSRESULTAT
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg.BESLUTTE_VEDTAK
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg.IVERKSETT_MOT_OPPDRAG
+import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg.JOURNALFØR_VEDTAKSBREV
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg.REGISTRERE_PERSONGRUNNLAG
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg.REGISTRERE_SØKNAD
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg.SIMULERING
@@ -35,6 +37,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingStegStatus.KLAR
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingStegStatus.TILBAKEFØRT
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingStegStatus.UTFØRT
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingStegStatus.VENTER
+import no.nav.familie.ks.sak.kjerne.behandling.steg.avsluttbehandling.AvsluttBehandlingSteg
 import no.nav.familie.ks.sak.kjerne.behandling.steg.registrersøknad.RegistrereSøknadSteg
 import no.nav.familie.ks.sak.kjerne.behandling.steg.registrersøknad.SøknadGrunnlagService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.registrersøknad.domene.SøknadGrunnlag
@@ -42,6 +45,8 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.Vedtak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.VedtakRepository
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingSteg
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
+import no.nav.familie.ks.sak.kjerne.beregning.BeregningService
+import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext
 import no.nav.familie.prosessering.internal.TaskService
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -73,8 +78,14 @@ class StegServiceTest : OppslagSpringRunnerTest() {
     @MockkBean(relaxed = true)
     private lateinit var beslutteVedtakSteg: BeslutteVedtakSteg
 
+    @MockkBean(relaxed = true)
+    private lateinit var avsluttBehandlingSteg: AvsluttBehandlingSteg
+
     @MockkBean
     private lateinit var taskService: TaskService
+
+    @MockkBean
+    private lateinit var beregningService: BeregningService
 
     @Autowired
     private lateinit var behandlingRepository: BehandlingRepository
@@ -113,6 +124,9 @@ class StegServiceTest : OppslagSpringRunnerTest() {
 
             every { beslutteVedtakSteg.getBehandlingssteg() } answers { callOriginal() }
             every { beslutteVedtakSteg.utførSteg(any(), any()) } just runs
+
+            every { avsluttBehandlingSteg.getBehandlingssteg() } answers { callOriginal() }
+            every { avsluttBehandlingSteg.utførSteg(any()) } just runs
 
             every { taskService.save(any()) } returns mockk()
         }
@@ -193,9 +207,13 @@ class StegServiceTest : OppslagSpringRunnerTest() {
     }
 
     @Test
-    fun `utførSteg skal ikke utføre IVERKSETT_MOT_OPPDRAG steg`() {
+    fun `utførSteg skal ikke utføre IVERKSETT_MOT_OPPDRAG steg av beslutter`() {
+        behandling.behandlingStegTilstand.clear()
         behandling.leggTilNesteSteg(IVERKSETT_MOT_OPPDRAG)
         lagreBehandling(behandling)
+
+        mockkObject(SikkerhetContext)
+        every { SikkerhetContext.erSystemKontekst() } returns false
 
         val exception = assertThrows<RuntimeException> { stegService.utførSteg(behandling.id, IVERKSETT_MOT_OPPDRAG) }
         assertEquals(
@@ -314,14 +332,45 @@ class StegServiceTest : OppslagSpringRunnerTest() {
         lagBehandlingStegTilstand(behandling, VILKÅRSVURDERING, UTFØRT)
         lagBehandlingStegTilstand(behandling, BEHANDLINGSRESULTAT, UTFØRT)
         lagBehandlingStegTilstand(behandling, SIMULERING, KLAR)
-
         lagreBehandling(behandling)
+
         assertDoesNotThrow { stegService.tilbakeførSteg(behandling.id, SIMULERING) }
 
         val oppdatertBehandling = behandlingRepository.hentBehandling(behandling.id)
         assertBehandlingHarSteg(oppdatertBehandling, VILKÅRSVURDERING, UTFØRT)
         assertBehandlingHarSteg(oppdatertBehandling, BEHANDLINGSRESULTAT, UTFØRT)
         assertBehandlingHarSteg(oppdatertBehandling, SIMULERING, KLAR)
+    }
+
+    @Test
+    fun `utførStegEtterIverksettelseAutomatisk skal utføre AVSLUTT_BEHANDLING steg automatisk`() {
+        behandling.behandlingStegTilstand.clear()
+        lagBehandlingStegTilstand(behandling, JOURNALFØR_VEDTAKSBREV, UTFØRT)
+        lagBehandlingStegTilstand(behandling, AVSLUTT_BEHANDLING, KLAR)
+        behandling.status = BehandlingStatus.IVERKSETTER_VEDTAK
+        lagreBehandling(behandling)
+
+        assertDoesNotThrow { stegService.utførStegEtterIverksettelseAutomatisk(behandling.id) }
+
+        verify(exactly = 1) { avsluttBehandlingSteg.utførSteg(any()) }
+
+        val oppdatertBehandling = behandlingRepository.hentBehandling(behandling.id)
+        assertBehandlingHarSteg(oppdatertBehandling, JOURNALFØR_VEDTAKSBREV, UTFØRT)
+        assertBehandlingHarSteg(oppdatertBehandling, AVSLUTT_BEHANDLING, UTFØRT)
+    }
+
+    @Test
+    fun `utførStegEtterIverksettelseAutomatisk skal opprette task for å utføre JOURNALFØR_VEDTAKSBREV steg automatisk`() {
+        behandling.behandlingStegTilstand.clear()
+        lagBehandlingStegTilstand(behandling, IVERKSETT_MOT_OPPDRAG, UTFØRT)
+        lagBehandlingStegTilstand(behandling, JOURNALFØR_VEDTAKSBREV, KLAR)
+        behandling.status = BehandlingStatus.IVERKSETTER_VEDTAK
+        lagreBehandling(behandling)
+        vedtakRepository.saveAndFlush(Vedtak(behandling = behandling, vedtaksdato = LocalDateTime.now()))
+
+        assertDoesNotThrow { stegService.utførStegEtterIverksettelseAutomatisk(behandling.id) }
+
+        verify(exactly = 1) { taskService.save(any()) }
     }
 
     private fun assertBehandlingHarSteg(

@@ -48,12 +48,15 @@ class StegService(
                     behandlingSteg,
                     behandlingStegDto
                 )
-                // Henter neste steg basert på sekvens og årsak
-                val nesteSteg = hentNesteSteg(behandling, behandlingSteg, behandlingStegDto)
-                // legger til neste steg hvis steget er ny, eller oppdaterer eksisterende steg status til KLAR
-                behandling.behandlingStegTilstand.singleOrNull { it.behandlingSteg == nesteSteg }
-                    ?.let { it.behandlingStegStatus = BehandlingStegStatus.KLAR }
-                    ?: behandling.leggTilNesteSteg(nesteSteg)
+                // AVSLUTT_BEHANDLING er siste steg, der slipper man å hente neste steg
+                if (behandlingSteg != AVSLUTT_BEHANDLING) {
+                    // Henter neste steg basert på sekvens og årsak
+                    val nesteSteg = hentNesteSteg(behandling, behandlingSteg, behandlingStegDto)
+                    // legger til neste steg hvis steget er ny, eller oppdaterer eksisterende steg status til KLAR
+                    behandling.behandlingStegTilstand.singleOrNull { it.behandlingSteg == nesteSteg }
+                        ?.let { it.behandlingStegStatus = BehandlingStegStatus.KLAR }
+                        ?: behandling.leggTilNesteSteg(nesteSteg)
+                }
 
                 // oppdaterer behandling med behandlingstegtilstand og behandling status
                 behandlingRepository.saveAndFlush(oppdaterBehandlingStatus(behandling))
@@ -113,8 +116,8 @@ class StegService(
     }
 
     private fun valider(behandling: Behandling, behandledeSteg: BehandlingSteg) {
-        // valider om steget kan behandles
-        if (!behandledeSteg.kanStegBehandles()) {
+        // valider om steget kan behandles av saksbehandler eller beslutter
+        if (!behandledeSteg.kanStegBehandles() && !SikkerhetContext.erSystemKontekst()) {
             throw Feil("Steget ${behandledeSteg.name} kan ikke behandles for behandling ${behandling.id}")
         }
         // valider om steget samsvarer med opprettet årsak til behandling
@@ -175,12 +178,22 @@ class StegService(
                 val saksbehandlerId = SikkerhetContext.hentSaksbehandler()
                 taskService.save(IverksettMotOppdragTask.opprettTask(behandling, vedtakId, saksbehandlerId))
             }
+            else -> {} // Gjør ingenting. Steg kan ikke utføre automatisk
+        }
+    }
+
+    // Denne metoden kalles av HentStatusFraOppdragTask for å sende behandling videre etter OK status fra oppdrag er mottatt
+    fun utførStegEtterIverksettelseAutomatisk(behandlingId: Long) {
+        val behandling = behandlingRepository.hentAktivBehandling(behandlingId)
+        when (behandling.steg) {
             JOURNALFØR_VEDTAKSBREV -> {
+                // JournalførVedtaksbrevTask -> DistribuerBrevTask -> AvsluttBehandlingTask for å avslutte behandling automatisk
                 val vedtakId = vedtakRepository.findByBehandlingAndAktiv(behandling.id).id
                 taskService.save(JournalførVedtaksbrevTask.opprettTask(behandling, vedtakId))
             }
+            // Behandling med årsak SATSENDRING eller TEKNISK_ENDRING sender ikke vedtaksbrev. Da avslutter behandling her
             AVSLUTT_BEHANDLING -> utførSteg(behandlingId = behandling.id, AVSLUTT_BEHANDLING)
-            else -> {} // Gjør ingenting. Steg kan ikke utføre automatisk
+            else -> {} // Gjør ingenting
         }
     }
 
@@ -234,7 +247,16 @@ class StegService(
             ?: throw Feil("Finner ikke behandlingssteg $behandlingssteg")
 
     private fun oppdaterBehandlingStatus(behandling: Behandling): Behandling {
-        behandling.status = behandling.steg.tilknyttetBehandlingStatus
+        // oppdaterer ikke behandling status for siste steg AVSLUTT_BEHANDLING. Det skjer direkte i steget
+        if (behandling.steg == AVSLUTT_BEHANDLING) {
+            return behandling
+        }
+        val nyBehandlingStatus = behandling.steg.tilknyttetBehandlingStatus
+        logger.info(
+            "${SikkerhetContext.hentSaksbehandlerNavn()} endrer status på behandling ${behandling.id} " +
+                "fra ${behandling.status} til $nyBehandlingStatus"
+        )
+        behandling.status = nyBehandlingStatus
         return behandling
     }
 

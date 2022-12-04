@@ -8,6 +8,7 @@ import io.mockk.just
 import io.mockk.mockk
 import io.mockk.runs
 import io.mockk.verify
+import no.nav.familie.ks.sak.integrasjon.distribuering.DistribuerDødsfallBrevPåFagsakTask
 import no.nav.familie.ks.sak.kjerne.brev.BrevService
 import no.nav.familie.prosessering.domene.Task
 import org.junit.jupiter.api.Test

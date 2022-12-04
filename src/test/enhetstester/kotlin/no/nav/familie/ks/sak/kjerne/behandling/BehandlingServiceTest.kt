@@ -22,7 +22,6 @@ import no.nav.familie.ks.sak.data.randomAktør
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.ArbeidsfordelingService
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.domene.ArbeidsfordelingPåBehandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
-import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.registrersøknad.SøknadGrunnlagService
@@ -36,6 +35,7 @@ import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelseReposito
 import no.nav.familie.ks.sak.kjerne.logg.LoggService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.StatsborgerskapService
+import no.nav.familie.ks.sak.kjerne.totrinnskontroll.TotrinnskontrollRepository
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -80,6 +80,9 @@ class BehandlingServiceTest {
     @MockK
     private lateinit var vedtakRepository: VedtakRepository
 
+    @MockK
+    private lateinit var totrinnskontrollRepository: TotrinnskontrollRepository
+
     @InjectMockKs
     private lateinit var behandlingService: BehandlingService
 
@@ -117,7 +120,7 @@ class BehandlingServiceTest {
 
         every { vedtakRepository.findByBehandlingAndAktivOptional(any()) } returns Vedtak(behandling = behandling)
 
-        every { vedtaksperiodeService.hentUtvidetVedtaksperiodeMedBegrunnelser(any()) } returns emptyList()
+        every { vedtaksperiodeService.hentUtvidetVedtaksperioderMedBegrunnelser(any()) } returns emptyList()
 
         every { andelTilkjentYtelseRepository.finnAndelerTilkjentYtelseForBehandling(behandling.id) } returns
             listOf(lagAndelTilkjentYtelse(behandling = behandling))
@@ -129,6 +132,7 @@ class BehandlingServiceTest {
             andelerTilkjentYtelseOgEndreteUtbetalingerService
                 .finnEndreteUtbetalingerMedAndelerIHenholdTilVilkårsvurdering(behandling.id)
         } returns emptyList()
+        every { totrinnskontrollRepository.findByBehandlingAndAktiv(any()) } returns mockk(relaxed = true)
     }
 
     @Test
@@ -178,21 +182,5 @@ class BehandlingServiceTest {
         }
         verify(exactly = 1) { loggService.opprettVilkårsvurderingLogg(any(), any(), any()) }
         assertEquals(Behandlingsresultat.INNVILGET, oppdatertBehandling.resultat)
-    }
-
-    @Test
-    fun `oppdaterStatusPåBehandling skal sette oppdatert status på behandling`() {
-        every { behandlingRepository.hentBehandling(behandling.id) } returns behandling
-        every { behandlingRepository.save(any()) } returnsArgument 0
-
-        assertEquals(behandling.status, BehandlingStatus.UTREDES)
-
-        val oppdatertBehandling =
-            behandlingService.oppdaterStatusPåBehandling(behandling.id, BehandlingStatus.FATTER_VEDTAK)
-
-        assertEquals(oppdatertBehandling.status, BehandlingStatus.FATTER_VEDTAK)
-
-        verify(exactly = 1) { behandlingRepository.hentBehandling(oppdatertBehandling.id) }
-        verify(exactly = 1) { behandlingRepository.save(any()) }
     }
 }

@@ -9,6 +9,7 @@ import no.nav.familie.ks.sak.api.dto.EndretUtbetalingAndelDto
 import no.nav.familie.ks.sak.api.dto.PersonResponsDto
 import no.nav.familie.ks.sak.api.dto.PersonerMedAndelerResponsDto
 import no.nav.familie.ks.sak.api.dto.SøknadDto
+import no.nav.familie.ks.sak.api.dto.TotrinnskontrollDto
 import no.nav.familie.ks.sak.api.dto.UtbetalingsperiodeResponsDto
 import no.nav.familie.ks.sak.api.dto.VedtakDto
 import no.nav.familie.ks.sak.api.dto.YtelsePerioderDto
@@ -35,6 +36,7 @@ object BehandlingMapper {
         personerMedAndelerTilkjentYtelse: List<PersonerMedAndelerResponsDto>,
         utbetalingsperioder: List<UtbetalingsperiodeResponsDto>,
         vedtak: VedtakDto?,
+        totrinnskontroll: TotrinnskontrollDto?,
         endretUtbetalingAndeler: List<EndretUtbetalingAndelDto>
     ) =
         BehandlingResponsDto(
@@ -65,6 +67,7 @@ object BehandlingMapper {
             personerMedAndelerTilkjentYtelse = personerMedAndelerTilkjentYtelse,
             utbetalingsperioder = utbetalingsperioder,
             vedtak = vedtak,
+            totrinnskontroll = totrinnskontroll,
             endretUtbetalingAndeler = endretUtbetalingAndeler
         )
 

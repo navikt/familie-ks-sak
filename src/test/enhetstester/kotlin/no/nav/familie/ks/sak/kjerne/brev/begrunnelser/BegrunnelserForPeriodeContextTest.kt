@@ -1,7 +1,9 @@
 package no.nav.familie.ks.sak.kjerne.brev.begrunnelser
 
 import io.mockk.mockk
+import no.nav.familie.ks.sak.data.lagPerson
 import no.nav.familie.ks.sak.data.lagPersonopplysningGrunnlag
+import no.nav.familie.ks.sak.data.lagUtbetalingsperiodeDetalj
 import no.nav.familie.ks.sak.data.lagVilkårResultat
 import no.nav.familie.ks.sak.data.randomAktør
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelse
@@ -23,7 +25,7 @@ import tilFørskjøvetVilkårResultatTidslinjeMap
 import java.math.BigDecimal
 import java.time.LocalDate
 
-class FinnGyldigeBegrunnelserForPeriodeContextTest {
+class BegrunnelserForPeriodeContextTest {
 
     private val barnAktør = randomAktør()
     private val søkerAktør = randomAktør()
@@ -444,7 +446,7 @@ class FinnGyldigeBegrunnelserForPeriodeContextTest {
         personResultater: List<PersonResultat>,
         sanityBegrunnelser: List<SanityBegrunnelse>,
         aktørSomTriggerVedtaksperiode: Aktør
-    ): FinnGyldigeBegrunnelserForPeriodeContext {
+    ): BegrunnelserForPeriodeContext {
         // Må forskyve personresultatene for å finne riktig dato for vedtaksperiode.
         val vedtaksperiodeStartsTidpunkt =
             personResultater.tilFørskjøvetVilkårResultatTidslinjeMap(persongrunnlag)
@@ -455,15 +457,18 @@ class FinnGyldigeBegrunnelserForPeriodeContextTest {
             fom = vedtaksperiodeStartsTidpunkt,
             tom = vedtaksperiodeStartsTidpunkt.plusDays(1),
             type = Vedtaksperiodetype.UTBETALING,
-            begrunnelser = emptyList()
+            begrunnelser = emptyList(),
+            utbetalingsperiodeDetaljer = listOf(
+                lagUtbetalingsperiodeDetalj(person = lagPerson(aktør = søkerAktør, personType = PersonType.SØKER)),
+                lagUtbetalingsperiodeDetalj(person = lagPerson(aktør = barnAktør, personType = PersonType.BARN))
+            )
         )
 
-        return FinnGyldigeBegrunnelserForPeriodeContext(
+        return BegrunnelserForPeriodeContext(
             utvidetVedtaksperiodeMedBegrunnelser,
             sanityBegrunnelser,
             persongrunnlag,
-            personResultater,
-            listOf(barnAktør.aktørId, søkerAktør.aktørId)
+            personResultater
         )
     }
 }

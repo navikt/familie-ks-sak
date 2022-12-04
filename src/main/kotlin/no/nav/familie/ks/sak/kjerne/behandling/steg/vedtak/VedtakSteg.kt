@@ -7,13 +7,13 @@ import no.nav.familie.ks.sak.integrasjon.oppgave.OppgaveService
 import no.nav.familie.ks.sak.integrasjon.oppgave.OpprettOppgaveTask
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
-import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingStegStatus
 import no.nav.familie.ks.sak.kjerne.behandling.steg.IBehandlingSteg
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.VedtaksperiodeService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.validerPerioderInneholderBegrunnelser
+import no.nav.familie.ks.sak.kjerne.brev.GenererBrevService
 import no.nav.familie.ks.sak.kjerne.logg.LoggService
 import no.nav.familie.ks.sak.kjerne.totrinnskontroll.TotrinnskontrollService
 import no.nav.familie.prosessering.internal.TaskService
@@ -22,6 +22,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDate
+import java.time.LocalDateTime
 
 @Service
 class VedtakSteg(
@@ -31,7 +32,8 @@ class VedtakSteg(
     private val loggService: LoggService,
     private val oppgaveService: OppgaveService,
     private val vedtakService: VedtakService,
-    private val vedtaksperiodeService: VedtaksperiodeService
+    private val vedtaksperiodeService: VedtaksperiodeService,
+    private val genererBrevService: GenererBrevService
 ) : IBehandlingSteg {
     override fun getBehandlingssteg(): BehandlingSteg = BehandlingSteg.VEDTAK
 
@@ -55,7 +57,15 @@ class VedtakSteg(
 
         opprettFerdigstillOppgaveTasker(behandling)
 
-        behandlingService.oppdaterStatusPåBehandling(behandlingId, BehandlingStatus.FATTER_VEDTAK)
+        val vedtak = vedtakService.hentAktivVedtakForBehandling(behandlingId)
+
+        vedtak.vedtaksdato = LocalDateTime.now()
+        if (behandling.skalSendeVedtaksbrev()) {
+            val brev = genererBrevService.genererBrevForBehandling(behandling.id)
+            vedtak.stønadBrevPdf = brev
+        }
+
+        vedtakService.oppdaterVedtak(vedtak)
     }
 
     private fun opprettFerdigstillOppgaveTasker(behandling: Behandling) {
@@ -85,7 +95,7 @@ class VedtakSteg(
 
         if (behandling.resultat != Behandlingsresultat.FORTSATT_INNVILGET) {
             val vedtak = vedtakService.hentAktivVedtakForBehandling(behandlingId = behandling.id)
-            val utvidetVedtaksperioder = vedtaksperiodeService.hentUtvidetVedtaksperiodeMedBegrunnelser(vedtak)
+            val utvidetVedtaksperioder = vedtaksperiodeService.hentUtvidetVedtaksperioderMedBegrunnelser(vedtak)
             utvidetVedtaksperioder.validerPerioderInneholderBegrunnelser(
                 behandlingId = behandling.id,
                 fagsakId = behandling.fagsak.id

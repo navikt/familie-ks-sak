@@ -107,8 +107,8 @@ private fun LocalDate?.tilForskøvetTomBasertPåGraderingsforskjell(
 
     Graderingsforskjell.ØkingGårFraIngenUtbetaling -> this?.plusDays(1)?.sisteDagIMåned()
 
+    Graderingsforskjell.ReduksjonGårTilIngenUtbetaling,
     Graderingsforskjell.Reduksjon -> this?.plusDays(1)?.minusMonths(1)?.sisteDagIMåned()
-    Graderingsforskjell.ReduksjonGårTilIngenUtbetaling -> this?.minusMonths(1)?.sisteDagIMåned()
 }
 
 private fun LocalDate?.tilForskøvetFomBasertPåGraderingsforskjell(
@@ -119,6 +119,6 @@ private fun LocalDate?.tilForskøvetFomBasertPåGraderingsforskjell(
 
     Graderingsforskjell.ØkingGårFraIngenUtbetaling -> this?.plusMonths(1)?.førsteDagIInneværendeMåned()
 
+    Graderingsforskjell.ReduksjonGårTilIngenUtbetaling,
     Graderingsforskjell.Reduksjon -> this?.førsteDagIInneværendeMåned()
-    Graderingsforskjell.ReduksjonGårTilIngenUtbetaling -> this?.minusDays(1)?.førsteDagIInneværendeMåned()
 }

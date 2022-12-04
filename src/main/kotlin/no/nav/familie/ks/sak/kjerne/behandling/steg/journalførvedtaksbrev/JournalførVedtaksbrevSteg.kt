@@ -6,7 +6,7 @@ import no.nav.familie.kontrakter.felles.dokarkiv.v2.Filtype
 import no.nav.familie.ks.sak.api.dto.BehandlingStegDto
 import no.nav.familie.ks.sak.api.dto.DistribuerBrevDto
 import no.nav.familie.ks.sak.api.dto.JournalførVedtaksbrevDTO
-import no.nav.familie.ks.sak.integrasjon.distributering.DistribuerBrevTask
+import no.nav.familie.ks.sak.integrasjon.distribuering.DistribuerBrevTask
 import no.nav.familie.ks.sak.integrasjon.journalføring.UtgåendeJournalføringService
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.ArbeidsfordelingService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling

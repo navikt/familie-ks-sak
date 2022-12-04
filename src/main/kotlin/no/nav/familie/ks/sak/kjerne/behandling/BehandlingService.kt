@@ -2,6 +2,7 @@ package no.nav.familie.ks.sak.kjerne.behandling
 
 import no.nav.familie.ks.sak.api.dto.BehandlingResponsDto
 import no.nav.familie.ks.sak.api.dto.EndreBehandlendeEnhetDto
+import no.nav.familie.ks.sak.api.dto.tilTotrinnskontrollDto
 import no.nav.familie.ks.sak.api.dto.tilUtbetalingsperiodeResponsDto
 import no.nav.familie.ks.sak.api.dto.tilUtvidetVedtaksperiodeMedBegrunnelserDto
 import no.nav.familie.ks.sak.api.dto.tilVedtakDto
@@ -24,6 +25,7 @@ import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.tilEndretUtbetalingA
 import no.nav.familie.ks.sak.kjerne.logg.LoggService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.StatsborgerskapService
+import no.nav.familie.ks.sak.kjerne.totrinnskontroll.TotrinnskontrollRepository
 import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -41,7 +43,8 @@ class BehandlingService(
     private val andelTilkjentYtelseRepository: AndelTilkjentYtelseRepository,
     private val andelerTilkjentYtelseOgEndreteUtbetalingerService: AndelerTilkjentYtelseOgEndreteUtbetalingerService,
     private val vedtakRepository: VedtakRepository,
-    private val vedtaksperiodeService: VedtaksperiodeService
+    private val vedtaksperiodeService: VedtaksperiodeService,
+    private val totrinnskontrollRepository: TotrinnskontrollRepository
 ) {
 
     fun hentBehandling(behandlingId: Long): Behandling = behandlingRepository.hentBehandling(behandlingId)
@@ -88,7 +91,7 @@ class BehandlingService(
         val vedtak = vedtakRepository.findByBehandlingAndAktivOptional(behandlingId)?.let {
             it.tilVedtakDto(
                 vedtaksperioderMedBegrunnelser = if (behandling.status != BehandlingStatus.AVSLUTTET) {
-                    vedtaksperiodeService.hentUtvidetVedtaksperiodeMedBegrunnelser(vedtak = it)
+                    vedtaksperiodeService.hentUtvidetVedtaksperioderMedBegrunnelser(vedtak = it)
                         .map { utvidetVedtaksPerioder -> utvidetVedtaksPerioder.tilUtvidetVedtaksperiodeMedBegrunnelserDto() }
                         .sortedBy { dto -> dto.fom }
                 } else {
@@ -102,6 +105,9 @@ class BehandlingService(
             .finnEndreteUtbetalingerMedAndelerIHenholdTilVilkårsvurdering(behandlingId)
             .map { it.tilEndretUtbetalingAndelDto() }
 
+        val totrinnskontroll =
+            totrinnskontrollRepository.findByBehandlingAndAktiv(behandlingId = behandling.id)?.tilTotrinnskontrollDto()
+
         return BehandlingMapper.lagBehandlingRespons(
             behandling,
             arbeidsfordelingPåBehandling,
@@ -111,6 +117,7 @@ class BehandlingService(
             personerMedAndelerTilkjentYtelse,
             utbetalingsperioder,
             vedtak,
+            totrinnskontroll,
             endreteUtbetalingerMedAndeler
         )
     }
@@ -131,13 +138,6 @@ class BehandlingService(
         )
         behandling.resultat = nyUtledetBehandlingsresultat
         return oppdaterBehandling(behandling)
-    }
-
-    fun oppdaterStatusPåBehandling(behandlingId: Long, status: BehandlingStatus): Behandling {
-        val behandling = hentBehandling(behandlingId)
-        logger.info("${SikkerhetContext.hentSaksbehandlerNavn()} endrer status på behandling $behandlingId fra ${behandling.status} til $status")
-
-        return oppdaterBehandling(behandling.copy(status = status))
     }
 
     fun nullstillEndringstidspunkt(behandlingId: Long) {

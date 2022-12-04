@@ -20,12 +20,16 @@ fun nesteGyldigeTriggertidForBehandlingIHverdager(
 ): LocalDateTime {
     var date = triggerTid.plusMinutes(minutesToAdd)
 
-    date = if (erKlokkenMellom21Og06(date.toLocalTime()) && date.erHverdag(1)) {
-        kl06IdagEllerNesteDag(date)
-    } else if (erKlokkenMellom21Og06(date.toLocalTime()) || !date.erHverdag(0)) {
-        date.with(TemporalAdjusters.next(DayOfWeek.MONDAY)).withHour(6)
-    } else {
-        date
+    date = when {
+        erKlokkenMellom21Og06(date.toLocalTime()) && date.plusDays(1).erHverdag() -> {
+            kl06IdagEllerNesteDag(date)
+        }
+        erKlokkenMellom21Og06(date.toLocalTime()) && !date.erHverdag() -> {
+            date.with(TemporalAdjusters.next(DayOfWeek.MONDAY)).withHour(6)
+        }
+        else -> {
+            date
+        }
     }
 
     when {

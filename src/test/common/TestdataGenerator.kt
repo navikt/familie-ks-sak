@@ -39,6 +39,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingStegStatus
 import no.nav.familie.ks.sak.kjerne.behandling.steg.simulering.domene.ØkonomiSimuleringMottaker
 import no.nav.familie.ks.sak.kjerne.behandling.steg.simulering.domene.ØkonomiSimuleringPostering
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.Vedtak
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.UtbetalingsperiodeDetalj
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.Vedtaksperiodetype
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.Vedtaksbegrunnelse
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.VedtaksbegrunnelseFritekst
@@ -287,16 +288,19 @@ fun lagAndelTilkjentYtelse(
 )
 
 fun lagPerson(
-    personopplysningGrunnlag: PersonopplysningGrunnlag,
+    personopplysningGrunnlag: PersonopplysningGrunnlag = mockk(relaxed = true),
     aktør: Aktør,
-    personType: PersonType = PersonType.SØKER
+    personType: PersonType = PersonType.SØKER,
+    fødselsdato: LocalDate = fnrTilFødselsdato(aktør.aktivFødselsnummer()),
+    dødsfall: Dødsfall? = null
 ): Person {
     val person = Person(
         type = personType,
-        fødselsdato = fnrTilFødselsdato(aktør.aktivFødselsnummer()),
+        fødselsdato = fødselsdato,
         kjønn = Kjønn.KVINNE,
         personopplysningGrunnlag = personopplysningGrunnlag,
-        aktør = aktør
+        aktør = aktør,
+        dødsfall = dødsfall
     )
     person.bostedsadresser = mutableListOf(GrBostedsadresse.fraBostedsadresse(lagBostedsadresse(), person))
     person.statsborgerskap =
@@ -668,3 +672,31 @@ fun fnrTilFødselsdato(fnr: String): LocalDate {
 
 fun årMåned(årMåned: String) = YearMonth.parse(årMåned)
 fun dato(s: String) = LocalDate.parse(s)
+
+fun lagUtbetalingsperiodeDetalj(
+    person: Person,
+    ytelseType: YtelseType = YtelseType.ORDINÆR_KONTANTSTØTTE,
+    utbetaltPerMnd: Int = 1,
+    erPåvirketAvEndring: Boolean = false,
+    prosent: BigDecimal = BigDecimal.valueOf(100)
+): UtbetalingsperiodeDetalj = UtbetalingsperiodeDetalj(
+    person = person,
+    ytelseType = ytelseType,
+    utbetaltPerMnd = utbetaltPerMnd,
+    erPåvirketAvEndring = erPåvirketAvEndring,
+    prosent = prosent
+)
+
+fun lagDødsfall(
+    person: Person,
+    dødsfallDato: LocalDate = LocalDate.now(),
+    dødsfallAdresse: String? = "",
+    dødsfallPostnummer: String? = "",
+    dødsfallPoststed: String? = ""
+) = Dødsfall(
+    person = person,
+    dødsfallDato = dødsfallDato,
+    dødsfallAdresse = dødsfallAdresse,
+    dødsfallPostnummer = dødsfallPostnummer,
+    dødsfallPoststed = dødsfallPoststed
+)
