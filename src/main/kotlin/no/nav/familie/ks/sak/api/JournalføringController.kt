@@ -32,7 +32,10 @@ class JournalføringController(
     fun hentJournalposterForBruker(@PathVariable brukerId: String): ResponseEntity<Ressurs<List<Journalpost>>> =
         ResponseEntity.ok(Ressurs.success(innkommendeJournalføringService.hentJournalposterForBruker(brukerId)))
 
-    @GetMapping("/{journalpostId}/dokument/{dokumentId}")
+    @GetMapping(
+        path = ["/{journalpostId}/dokument/{dokumentId}"],
+        produces = [MediaType.APPLICATION_PDF_VALUE]
+    )
     fun hentDokumentIJournalpost(
         @PathVariable journalpostId: String,
         @PathVariable dokumentId: String
