@@ -28,7 +28,10 @@ import no.nav.familie.ks.sak.kjerne.totrinnskontroll.TotrinnskontrollRepository
 import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
+import java.math.BigInteger
 
 @Service
 class BehandlingService(
@@ -139,6 +142,12 @@ class BehandlingService(
         behandling.overstyrtEndringstidspunkt = null
         oppdaterBehandling(behandling)
     }
+
+    fun hentSisteIverksatteBehandlingerFraLøpendeFagsaker(page: Pageable): Page<BigInteger> =
+        behandlingRepository.finnSisteIverksatteBehandlingFraLøpendeFagsaker(page)
+
+    fun hentAktivtFødselsnummerForBehandlinger(behandlingIder: List<Long>): Map<Long, String> =
+        behandlingRepository.finnAktivtFødselsnummerForBehandlinger(behandlingIder).associate { it.first to it.second }
 
     companion object {
         private val logger: Logger = LoggerFactory.getLogger(BehandlingService::class.java)

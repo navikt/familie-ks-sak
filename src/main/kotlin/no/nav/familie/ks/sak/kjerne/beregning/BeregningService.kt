@@ -24,6 +24,7 @@ import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Personopplys
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlagRepository
 import org.springframework.stereotype.Service
 import java.time.LocalDate
+import java.time.LocalDateTime
 
 @Service
 class BeregningService(
@@ -221,4 +222,12 @@ class BeregningService(
             behandling.erSøknad() &&
             nyeBarnMedUtebtalingSomIkkeErEndret.isEmpty()
     }
+
+    fun hentLøpendeAndelerTilkjentYtelseMedUtbetalingerForBehandlinger(
+        behandlingIder: List<Long>,
+        avstemmingstidspunkt: LocalDateTime
+    ): List<AndelTilkjentYtelse> = andelTilkjentYtelseRepository.finnLøpendeAndelerTilkjentYtelseForBehandlinger(
+        behandlingIder,
+        avstemmingstidspunkt.toLocalDate().toYearMonth()
+    ).filter { it.erAndelSomSkalSendesTilOppdrag() }
 }
