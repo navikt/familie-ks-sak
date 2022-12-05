@@ -14,9 +14,9 @@ import java.util.UUID
 
 @Service
 class AvstemmingService(
-        private val oppdragKlient: OppdragKlient,
-        private val behandlingService: BehandlingService,
-        private val beregningService: BeregningService
+    private val oppdragKlient: OppdragKlient,
+    private val behandlingService: BehandlingService,
+    private val beregningService: BeregningService
 ) {
 
     fun sendGrensesnittavstemming(fom: LocalDateTime, tom: LocalDateTime) {
@@ -29,9 +29,9 @@ class AvstemmingService(
     }
 
     fun sendKonsistensavstemmingData(
-            avstemmingstidspunkt: LocalDateTime,
-            perioderTilAvstemming: List<PerioderForBehandling>,
-            transaksjonsId: UUID
+        avstemmingstidspunkt: LocalDateTime,
+        perioderTilAvstemming: List<PerioderForBehandling>,
+        transaksjonsId: UUID
     ) {
         logger.info("Utfører Konsistensavstemming: Sender perioder for transaksjonsId $transaksjonsId")
         oppdragKlient.konsistensavstemOppdragData(avstemmingstidspunkt, perioderTilAvstemming, transaksjonsId)
@@ -43,31 +43,31 @@ class AvstemmingService(
     }
 
     fun hentSisteIverksatteBehandlingerFraLøpendeFagsaker(pageable: Pageable) =
-            behandlingService.hentSisteIverksatteBehandlingerFraLøpendeFagsaker(pageable)
+        behandlingService.hentSisteIverksatteBehandlingerFraLøpendeFagsaker(pageable)
 
     fun hentDataForKonsistensavstemming(
-            avstemmingtidspunkt: LocalDateTime,
-            relevanteBehandlingIder: List<Long>
+        avstemmingtidspunkt: LocalDateTime,
+        relevanteBehandlingIder: List<Long>
     ): List<PerioderForBehandling> {
         val relevanteAndeler = beregningService.hentLøpendeAndelerTilkjentYtelseMedUtbetalingerForBehandlinger(
-                relevanteBehandlingIder,
-                avstemmingtidspunkt
+            relevanteBehandlingIder,
+            avstemmingtidspunkt
         )
         val aktiveFødselsnummere = behandlingService.hentAktivtFødselsnummerForBehandlinger(
-                relevanteAndeler.mapNotNull { it.kildeBehandlingId }
+            relevanteAndeler.mapNotNull { it.kildeBehandlingId }
         )
         return relevanteAndeler.groupBy { it.kildeBehandlingId }
-                .map { (kildeBehandlingId, andeler) ->
-                    if (kildeBehandlingId == null) secureLogger.warn("Finner ikke behandlingsId for andeler=$andeler")
-                    PerioderForBehandling(
-                            behandlingId = kildeBehandlingId.toString(),
-                            aktivFødselsnummer = aktiveFødselsnummere[kildeBehandlingId]
-                                    ?: error("Finnes ikke et aktivt fødselsnummer for behandling $kildeBehandlingId"),
-                            perioder = andeler.map {
-                                it.periodeOffset ?: error("Andel $it mangler periodeOffset")
-                            }.toSet()
-                    )
-                }
+            .map { (kildeBehandlingId, andeler) ->
+                if (kildeBehandlingId == null) secureLogger.warn("Finner ikke behandlingsId for andeler=$andeler")
+                PerioderForBehandling(
+                    behandlingId = kildeBehandlingId.toString(),
+                    aktivFødselsnummer = aktiveFødselsnummere[kildeBehandlingId]
+                        ?: error("Finnes ikke et aktivt fødselsnummer for behandling $kildeBehandlingId"),
+                    perioder = andeler.map {
+                        it.periodeOffset ?: error("Andel $it mangler periodeOffset")
+                    }.toSet()
+                )
+            }
     }
 
     companion object {
