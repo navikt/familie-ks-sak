@@ -66,7 +66,7 @@ class EndretUtbetalingAndelController(
         tilgangService.validerTilgangTilHandlingOgFagsakForBehandling(
             behandlingId = behandlingId,
             minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
-            event = AuditLoggerEvent.UPDATE,
+            event = AuditLoggerEvent.DELETE,
             handling = "Fjern endretutbetalingandel",
         )
 
@@ -90,8 +90,8 @@ class EndretUtbetalingAndelController(
         tilgangService.validerTilgangTilHandlingOgFagsakForBehandling(
             behandlingId = behandlingId,
             minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
-            event = AuditLoggerEvent.UPDATE,
-            handling = "Oppdater endretutbetalingandel",
+            event = AuditLoggerEvent.CREATE,
+            handling = "Lagre endretutbetalingandel",
         )
 
         val behandling = behandlingService.hentBehandling(behandlingId)

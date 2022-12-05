@@ -5,7 +5,7 @@ import java.math.BigDecimal
 import java.time.LocalDate
 import java.time.YearMonth
 
-class EndretUtbetalingAndelDto(
+data class EndretUtbetalingAndelDto(
     val id: Long?,
     val personIdent: String?,
     val prosent: BigDecimal?,

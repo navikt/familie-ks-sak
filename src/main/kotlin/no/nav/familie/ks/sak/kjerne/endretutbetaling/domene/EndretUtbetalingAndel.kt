@@ -143,16 +143,6 @@ fun EndretUtbetalingAndel.fraEndretUtbetalingAndelDto(
     return this
 }
 
-fun hentPersonerForEtterEndretUtbetalingsperiode(
-    brevEndretAndeler: List<BrevEndretAndel>,
-    fom: LocalDate?,
-    endringsaarsaker: Set<Årsak>
-) = brevEndretAndeler.filter { brevEndretAndel ->
-    brevEndretAndel.periode.tom.sisteDagIInneværendeMåned()
-        .erDagenFør(fom) &&
-        endringsaarsaker.contains(brevEndretAndel.årsak)
-}.map { it.personIdent }
-
 enum class Årsak(val visningsnavn: String) {
     DELT_BOSTED("Delt bosted"),
     ETTERBETALING_3MND("Etterbetaling 3 måneder"),
