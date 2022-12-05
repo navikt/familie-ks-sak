@@ -25,8 +25,8 @@ class KonsistensavstemmingScheduler(
     @Scheduled(cron = "\${CRON_KONSISTENS_AVSTEMMING}")
     @Transactional
     fun utfør() {
-        logger.info("Starter KonsistensavstemmingScheduler..")
         MDC.put(MDCConstants.MDC_CALL_ID, UUID.randomUUID().toString())
+        logger.info("Starter KonsistensavstemmingScheduler..")
 
         if (LeaderClient.isLeader() != true && !envService.erLokal()) {
             // envService.erLokal() sjekk er lagt slik at scheduler-en kan testes i lokalt
