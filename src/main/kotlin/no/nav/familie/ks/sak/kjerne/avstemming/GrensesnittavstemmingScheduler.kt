@@ -8,7 +8,6 @@ import no.nav.familie.ks.sak.task.nesteGyldigeTriggertidForBehandlingIHverdager
 import no.nav.familie.leader.LeaderClient
 import no.nav.familie.log.mdc.MDCConstants
 import no.nav.familie.prosessering.domene.Status
-import no.nav.familie.prosessering.domene.Task
 import no.nav.familie.prosessering.internal.TaskService
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -17,7 +16,6 @@ import org.springframework.data.domain.Pageable
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
 import java.time.LocalDate
-import java.util.Properties
 import java.util.UUID
 
 @Service
@@ -51,18 +49,9 @@ class GrensesnittavstemmingScheduler(private val taskService: TaskService, priva
             fom = sisteFerdigTaskData.tom.toLocalDate().atStartOfDay()
             tom = nesteGyldigeTriggertidForBehandlingIHverdager((24 * 60).toLong(), fom).toLocalDate().atStartOfDay()
         }
-        val grensesnittavstemmingTaskDto = GrensesnittavstemmingTaskDto(fom, tom)
+        // Opprett GrensesnittavstemmingTask
+        taskService.save(GrensesnittavstemmingTask.opprettTask(fom, tom))
 
-        taskService.save(
-            Task(
-                type = GrensesnittavstemmingTask.TASK_STEP_TYPE,
-                payload = objectMapper.writeValueAsString(grensesnittavstemmingTaskDto),
-                properties = Properties().apply { // la til denne i properties slik at de kan vises i familie-prosessering
-                    this["fom"] = fom
-                    this["tom"] = tom
-                }
-            )
-        )
         logger.info("Stopper GrensesnittavstemmingScheduler..")
     }
 
