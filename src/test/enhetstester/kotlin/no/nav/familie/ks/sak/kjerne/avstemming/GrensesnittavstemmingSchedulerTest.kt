@@ -58,7 +58,7 @@ internal class GrensesnittavstemmingSchedulerTest {
     @Test
     fun `utfør skal utføre scheduler når det finnes siste ferdig task`() {
         // siste kjørte task er på tirsdag for fom mandag 28.11.2022 00:00 og tom tirsdag 29.11.2022 00:00
-        val fom = LocalDate.of(2022, 11, 28) // mandag
+        val fom = LocalDate.of(2022, 12, 1) // torsdag
         val tom = fom.plusDays(1) // tirsdag
         every { taskService.finnTasksMedStatus(any(), any(), any()) } returns listOf(lagTask(fom, tom))
         val taskDataSlot = slot<Task>()
@@ -70,8 +70,8 @@ internal class GrensesnittavstemmingSchedulerTest {
         verify(exactly = 1) { taskService.save(any()) }
 
         val taskData = objectMapper.readValue(taskDataSlot.captured.payload, GrensesnittavstemmingTaskDto::class.java)
-        assertEquals(LocalDate.of(2022, 11, 29).atStartOfDay(), taskData.fom) // tirsdag
-        assertEquals(LocalDate.of(2022, 11, 30).atStartOfDay(), taskData.tom) // onsdag
+        assertEquals(LocalDate.of(2022, 12, 2).atStartOfDay(), taskData.fom) // fredag
+        assertEquals(LocalDate.of(2022, 12, 5).atStartOfDay(), taskData.tom) // mandag
     }
 
     @Test

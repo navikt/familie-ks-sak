@@ -8,7 +8,6 @@ import no.nav.familie.ks.sak.task.nesteGyldigeTriggertidForBehandlingIHverdager
 import no.nav.familie.leader.LeaderClient
 import no.nav.familie.log.mdc.MDCConstants
 import no.nav.familie.prosessering.domene.Status
-import no.nav.familie.prosessering.domene.Task
 import no.nav.familie.prosessering.internal.TaskService
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -50,17 +49,13 @@ class GrensesnittavstemmingScheduler(private val taskService: TaskService, priva
             fom = sisteFerdigTaskData.tom.toLocalDate().atStartOfDay()
             tom = nesteGyldigeTriggertidForBehandlingIHverdager((24 * 60).toLong(), fom).toLocalDate().atStartOfDay()
         }
-        val grensesnittavstemmingTaskDto = GrensesnittavstemmingTaskDto(fom, tom)
+        // Opprett GrensesnittavstemmingTask
+        taskService.save(GrensesnittavstemmingTask.opprettTask(fom, tom))
 
-        taskService.save(
-            Task(
-                type = GrensesnittavstemmingTask.TASK_STEP_TYPE,
-                payload = objectMapper.writeValueAsString(grensesnittavstemmingTaskDto)
-            )
-        )
+        logger.info("Stopper GrensesnittavstemmingScheduler..")
     }
 
     companion object {
-        private val logger: Logger = LoggerFactory.getLogger(GrensesnittavstemmingTask::class.java)
+        private val logger: Logger = LoggerFactory.getLogger(GrensesnittavstemmingScheduler::class.java)
     }
 }

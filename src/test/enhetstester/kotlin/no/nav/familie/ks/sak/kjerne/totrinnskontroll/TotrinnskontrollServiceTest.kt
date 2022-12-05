@@ -8,8 +8,6 @@ import io.mockk.mockk
 import io.mockk.verify
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
-import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
-import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Beslutning
 import no.nav.familie.ks.sak.kjerne.totrinnskontroll.domene.Totrinnskontroll
 import org.hamcrest.CoreMatchers.notNullValue
@@ -22,9 +20,6 @@ import org.hamcrest.CoreMatchers.`is` as Is
 
 @ExtendWith(MockKExtension::class)
 class TotrinnskontrollServiceTest {
-
-    @MockK
-    private lateinit var behandlingService: BehandlingService
 
     @MockK
     private lateinit var totrinnskontrollRepository: TotrinnskontrollRepository
@@ -104,7 +99,6 @@ class TotrinnskontrollServiceTest {
         every { mocketTotrinnskontroll.erUgyldig() } returns false
         every { totrinnskontrollRepository.findByBehandlingAndAktiv(200) } returns mocketTotrinnskontroll
         every { totrinnskontrollRepository.save(mocketTotrinnskontroll) } returns mocketTotrinnskontroll
-        every { behandlingService.oppdaterStatusPåBehandling(200, BehandlingStatus.IVERKSETTER_VEDTAK) } returns mockk()
 
         totrinnskontrollService.besluttTotrinnskontroll(
             200,
@@ -116,7 +110,6 @@ class TotrinnskontrollServiceTest {
         verify(exactly = 1) { mocketTotrinnskontroll.erUgyldig() }
         verify(exactly = 1) { totrinnskontrollRepository.findByBehandlingAndAktiv(200) }
         verify(exactly = 1) { totrinnskontrollRepository.save(mocketTotrinnskontroll) }
-        verify(exactly = 1) { behandlingService.oppdaterStatusPåBehandling(200, BehandlingStatus.IVERKSETTER_VEDTAK) }
     }
 
     @Test
