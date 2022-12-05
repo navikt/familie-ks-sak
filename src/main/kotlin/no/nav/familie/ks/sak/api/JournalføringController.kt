@@ -46,6 +46,16 @@ class JournalføringController(
             )
         )
 
+    @GetMapping(
+        path = ["/{journalpostId}/dokument/{dokumentId}/pdf"],
+        produces = [MediaType.APPLICATION_PDF_VALUE]
+    )
+    fun hentDokumentIJournalpostSomPdf(
+        @PathVariable journalpostId: String,
+        @PathVariable dokumentId: String
+    ): ResponseEntity<ByteArray> =
+        ResponseEntity.ok(innkommendeJournalføringService.hentDokumentIJournalpost(journalpostId, dokumentId))
+
     @PostMapping(path = ["/{journalpostId}/journalfør/{oppgaveId}"], produces = [MediaType.APPLICATION_JSON_VALUE])
     fun journalførOppgave(
         @PathVariable journalpostId: String,
