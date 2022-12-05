@@ -8,6 +8,8 @@ import no.nav.familie.prosessering.domene.Task
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
+import java.time.LocalDateTime
+import java.util.Properties
 
 @Service
 @TaskStepBeskrivelse(
@@ -26,6 +28,15 @@ class GrensesnittavstemmingTask(private val avstemmingService: AvstemmingService
     companion object {
 
         const val TASK_STEP_TYPE = "grensesnittavstemming"
+
+        fun opprettTask(fom: LocalDateTime, tom: LocalDateTime) = Task(
+            type = TASK_STEP_TYPE,
+            payload = objectMapper.writeValueAsString(GrensesnittavstemmingTaskDto(fom, tom)),
+            properties = Properties().apply { // la til denne i properties slik at de kan vises i familie-prosessering
+                this["fom"] = fom.toString()
+                this["tom"] = tom.toString()
+            }
+        )
 
         private val logger: Logger = LoggerFactory.getLogger(GrensesnittavstemmingTask::class.java)
     }
