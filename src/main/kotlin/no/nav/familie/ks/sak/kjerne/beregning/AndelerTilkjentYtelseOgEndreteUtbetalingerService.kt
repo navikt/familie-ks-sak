@@ -126,11 +126,7 @@ data class AndelTilkjentYtelseMedEndreteUtbetalinger internal constructor(
     companion object {
 
         fun utenEndringer(andelTilkjentYtelse: AndelTilkjentYtelse): AndelTilkjentYtelseMedEndreteUtbetalinger {
-            require(andelTilkjentYtelse.endretUtbetalingAndeler.size <= 0) {
-                "Skal opprette AndelTilkjentYtelseMedEndreteUtbetalinger uten endringer, " +
-                    "men underliggende andel har endringer"
-            }
-            return AndelTilkjentYtelseMedEndreteUtbetalinger(andelTilkjentYtelse, emptyList())
+           return AndelTilkjentYtelseMedEndreteUtbetalinger(andelTilkjentYtelse, emptyList())
         }
     }
 }

@@ -170,8 +170,7 @@ object TilkjentYtelseUtils {
                             stønadFom = månedPeriodeEndret.fom,
                             stønadTom = månedPeriodeEndret.tom,
                             kalkulertUtbetalingsbeløp = nyttNasjonaltPeriodebeløp,
-                            nasjonaltPeriodebeløp = nyttNasjonaltPeriodebeløp,
-                            endretUtbetalingAndeler = mutableListOf(endretUtbetalingMedAndeler.endretUtbetalingAndel)
+                            nasjonaltPeriodebeløp = nyttNasjonaltPeriodebeløp
                         )
 
                         andelTilkjentYtelse.medEndring(endretUtbetalingMedAndeler)
