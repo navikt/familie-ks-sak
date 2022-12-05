@@ -100,9 +100,9 @@ class BehandlingService(
                 skalMinimeres = behandling.status != BehandlingStatus.UTREDES
             )
         }
-
+        bu
         val endreteUtbetalingerMedAndeler = andelerTilkjentYtelseOgEndreteUtbetalingerService
-            .finnEndreteUtbetalingerMedAndelerIHenholdTilVilkårsvurdering(behandlingId)
+            .finnEndreteUtbetalingerMedAndelerTilkjentYtelse(behandlingId)
             .map { it.tilEndretUtbetalingAndelDto() }
 
         val totrinnskontroll =
