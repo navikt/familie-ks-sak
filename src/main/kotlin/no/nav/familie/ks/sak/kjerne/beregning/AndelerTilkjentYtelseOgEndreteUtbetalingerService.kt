@@ -126,7 +126,7 @@ data class AndelTilkjentYtelseMedEndreteUtbetalinger internal constructor(
     companion object {
 
         fun utenEndringer(andelTilkjentYtelse: AndelTilkjentYtelse): AndelTilkjentYtelseMedEndreteUtbetalinger {
-           return AndelTilkjentYtelseMedEndreteUtbetalinger(andelTilkjentYtelse, emptyList())
+            return AndelTilkjentYtelseMedEndreteUtbetalinger(andelTilkjentYtelse, emptyList())
         }
     }
 }
