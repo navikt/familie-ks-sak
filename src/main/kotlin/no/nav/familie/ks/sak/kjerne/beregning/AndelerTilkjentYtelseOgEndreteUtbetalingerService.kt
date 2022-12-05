@@ -140,7 +140,7 @@ data class AndelTilkjentYtelseMedEndreteUtbetalinger internal constructor(
 }
 
 data class EndretUtbetalingAndelMedAndelerTilkjentYtelse(
-    private val endretUtbetalingAndel: EndretUtbetalingAndel,
+    val endretUtbetalingAndel: EndretUtbetalingAndel,
     private val andeler: List<AndelTilkjentYtelse>
 ) {
 

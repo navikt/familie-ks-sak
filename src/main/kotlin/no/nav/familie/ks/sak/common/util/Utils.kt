@@ -1,6 +1,8 @@
 package no.nav.familie.ks.sak.common.util
 
 import no.nav.familie.kontrakter.felles.objectMapper
+import java.math.BigDecimal
+import java.math.RoundingMode
 import java.text.NumberFormat
 
 fun Any?.nullableTilString() = this?.toString() ?: ""
@@ -17,3 +19,9 @@ fun slåSammen(stringListe: List<String>): String = Regex("(.*),").replace(strin
 fun Any.convertDataClassToJson(): String = objectMapper.writeValueAsString(this)
 
 fun formaterBeløp(beløp: Int): String = NumberFormat.getNumberInstance(nbLocale).format(beløp)
+
+fun Int.avrundetHeltallAvProsent(prosent: BigDecimal) = this.toBigDecimal().avrundetHeltallAvProsent(prosent)
+
+fun BigDecimal.avrundetHeltallAvProsent(prosent: BigDecimal) = this.times(prosent)
+    .divide(100.toBigDecimal()).setScale(0, RoundingMode.HALF_UP)
+    .toInt()
