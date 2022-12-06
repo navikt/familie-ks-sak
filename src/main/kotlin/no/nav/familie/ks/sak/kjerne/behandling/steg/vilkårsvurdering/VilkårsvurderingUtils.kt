@@ -329,3 +329,68 @@ private fun VilkårResultat.validerVilkår_BARNETS_ALDER(
 
     else -> null
 }
+
+fun genererInitiellVilkårsvurdering(
+    behandling: Behandling,
+    personopplysningGrunnlag: PersonopplysningGrunnlag
+): Vilkårsvurdering {
+    return Vilkårsvurdering(behandling = behandling).apply {
+        personResultater = personopplysningGrunnlag.personer.map { person ->
+            val personResultat = PersonResultat(vilkårsvurdering = this, aktør = person.aktør)
+
+            val vilkårForPerson = Vilkår.hentVilkårFor(person.type)
+
+            val vilkårResultater = vilkårForPerson.map { vilkår ->
+                // prefyller diverse vilkår automatisk basert på type
+                when (vilkår) {
+                    Vilkår.BARNETS_ALDER -> VilkårResultat(
+                        personResultat = personResultat,
+                        erAutomatiskVurdert = true,
+                        resultat = Resultat.OPPFYLT,
+                        vilkårType = vilkår,
+                        begrunnelse = "Vurdert og satt automatisk",
+                        behandlingId = behandling.id,
+                        periodeFom = person.fødselsdato.plusYears(1),
+                        periodeTom = person.fødselsdato.plusYears(2)
+                    )
+
+                    Vilkår.MEDLEMSKAP ->
+                        VilkårResultat(
+                            personResultat = personResultat,
+                            erAutomatiskVurdert = false,
+                            resultat = Resultat.IKKE_VURDERT,
+                            vilkårType = vilkår,
+                            begrunnelse = "",
+                            periodeFom = person.fødselsdato.plusYears(5),
+                            behandlingId = behandling.id
+                        )
+
+                    Vilkår.BARNEHAGEPLASS ->
+                        VilkårResultat(
+                            personResultat = personResultat,
+                            erAutomatiskVurdert = false,
+                            resultat = Resultat.OPPFYLT,
+                            vilkårType = vilkår,
+                            begrunnelse = "",
+                            periodeFom = person.fødselsdato,
+                            behandlingId = behandling.id
+                        )
+
+                    else -> VilkårResultat(
+                        personResultat = personResultat,
+                        erAutomatiskVurdert = false,
+                        resultat = Resultat.IKKE_VURDERT,
+                        vilkårType = vilkår,
+                        begrunnelse = "",
+                        periodeFom = null,
+                        behandlingId = behandling.id
+                    )
+                }
+            }.toSortedSet(VilkårResultat.VilkårResultatComparator)
+
+            personResultat.setSortedVilkårResultater(vilkårResultater)
+
+            personResultat
+        }.toSet()
+    }
+}
