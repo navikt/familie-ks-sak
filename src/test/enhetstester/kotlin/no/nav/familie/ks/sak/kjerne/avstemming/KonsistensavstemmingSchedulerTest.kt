@@ -43,7 +43,7 @@ internal class KonsistensavstemmingSchedulerTest {
     @Test
     fun `utfør skal utføre konsistensavstemming og lager task når dagensdato matchher med kjøreplan`() {
         every { konsistensavstemmingKjøreplanService.plukkLedigKjøreplanFor(any()) } returns
-            KonsistensavstemmingKjøreplan(kjøreDato = LocalDate.now())
+            KonsistensavstemmingKjøreplan(kjøredato = LocalDate.now())
 
         konsistensavstemmingScheduler.utfør()
 

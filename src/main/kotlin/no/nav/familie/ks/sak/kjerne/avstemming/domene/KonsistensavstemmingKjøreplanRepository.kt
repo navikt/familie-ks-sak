@@ -8,6 +8,6 @@ import java.time.LocalDate
 @Repository
 interface KonsistensavstemmingKjøreplanRepository : JpaRepository<KonsistensavstemmingKjøreplan, Long> {
 
-    @Query("SELECT k FROM KonsistensavstemmingKjoreplan k where kjoredato = :dato AND status = 'LEDIG'")
+    @Query("SELECT k FROM KonsistensavstemmingKjoreplan k where k.kjøredato = :dato AND k.status = 'LEDIG'")
     fun findByKjøreDatoAndLedig(dato: LocalDate): KonsistensavstemmingKjøreplan?
 }

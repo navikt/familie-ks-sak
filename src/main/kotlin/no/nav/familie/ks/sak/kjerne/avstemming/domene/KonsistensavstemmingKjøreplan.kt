@@ -20,7 +20,7 @@ class KonsistensavstemmingKjøreplan(
     val id: Long = 0,
 
     @Column(name = "kjoredato", nullable = false)
-    val kjøreDato: LocalDate,
+    val kjøredato: LocalDate,
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -30,6 +30,5 @@ class KonsistensavstemmingKjøreplan(
 enum class KjøreStatus {
     FERDIG,
     BEHANDLER,
-    LEDIG,
-    MANUELL
+    LEDIG
 }

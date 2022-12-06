@@ -7,7 +7,6 @@ import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.beregning.BeregningService
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 import java.time.LocalDateTime
 import java.util.UUID
@@ -41,9 +40,6 @@ class AvstemmingService(
         logger.info("Utfører Konsistensavstemming: Sender avslutt melding for transaksjonsId $transaksjonsId")
         oppdragKlient.konsistensavstemOppdragAvslutt(avstemmingstidspunkt, transaksjonsId)
     }
-
-    fun hentSisteIverksatteBehandlingerFraLøpendeFagsaker(pageable: Pageable) =
-        behandlingService.hentSisteIverksatteBehandlingerFraLøpendeFagsaker(pageable)
 
     fun hentDataForKonsistensavstemming(
         avstemmingtidspunkt: LocalDateTime,

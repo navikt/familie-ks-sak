@@ -11,6 +11,7 @@ import io.mockk.verify
 import no.nav.familie.kontrakter.felles.objectMapper
 import no.nav.familie.ks.sak.kjerne.avstemming.domene.KonsistensavstemmingKjøreplan
 import no.nav.familie.ks.sak.kjerne.avstemming.domene.KonsistensavstemmingTaskDto
+import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.prosessering.domene.Task
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -28,6 +29,9 @@ internal class KonsistensavstemmingTaskTest {
 
     @MockK
     private lateinit var avstemmingService: AvstemmingService
+
+    @MockK
+    private lateinit var behandlingService: BehandlingService
 
     @InjectMockKs
     private lateinit var konsistensavstemmingTask: KonsistensavstemmingTask
@@ -61,13 +65,13 @@ internal class KonsistensavstemmingTaskTest {
         every { page.nextPageable() } returns pageable
         every { page.content } returns behandlingIder
 
-        every { avstemmingService.hentSisteIverksatteBehandlingerFraLøpendeFagsaker(any()) } returns page
+        every { behandlingService.hentSisteIverksatteBehandlingerFraLøpendeFagsaker(any()) } returns page
         every { avstemmingService.hentDataForKonsistensavstemming(any(), any()) } returns mockk()
 
         konsistensavstemmingTask.doTask(lagTask())
 
         verify(exactly = 1) { avstemmingService.sendKonsistensavstemmingStartMelding(any(), any()) }
-        verify(exactly = 5) { avstemmingService.sendKonsistensavstemmingData(any(), any(), any()) }
+        verify(exactly = 50) { avstemmingService.sendKonsistensavstemmingData(any(), any(), any()) }
         verify(exactly = 1) { avstemmingService.sendKonsistensavstemmingAvsluttMelding(any(), any()) }
         verify(exactly = 1) { konsistensavstemmingKjøreplanService.lagreNyStatus(any<Long>(), any()) }
     }
