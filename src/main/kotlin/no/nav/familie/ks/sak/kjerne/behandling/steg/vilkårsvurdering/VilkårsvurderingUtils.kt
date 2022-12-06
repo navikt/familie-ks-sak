@@ -18,6 +18,7 @@ import no.nav.familie.ks.sak.common.util.sisteDagIMåned
 import no.nav.familie.ks.sak.common.util.tilDagMånedÅr
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelse
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityEØSBegrunnelse
+import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.PersonResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
@@ -28,6 +29,7 @@ import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.EØSBegrunnelse
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.tilSanityBegrunnelse
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.tilSanityEØSBegrunnelse
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
+import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
 import java.time.LocalDate
 import java.time.Month
 
@@ -392,5 +394,62 @@ fun genererInitiellVilkårsvurdering(
 
             personResultat
         }.toSet()
+    }
+}
+
+fun Vilkårsvurdering.oppdaterMedDødsdatoer(
+    personopplysningGrunnlag: PersonopplysningGrunnlag
+) {
+    this.personResultater.forEach { personResultat ->
+        val dødsDato = personopplysningGrunnlag.personer.single { it.aktør == personResultat.aktør }.dødsfall?.dødsfallDato
+
+        val vikårResultaterOppdatertMedDødsdato = if (dødsDato != null) {
+            personResultat.vilkårResultater
+                .filter { (it.periodeFom ?: TIDENES_MORGEN).isAfter(dødsDato) }
+                .map {
+                    if ((it.periodeTom ?: TIDENES_ENDE).isAfter(dødsDato)) {
+                        it.kopier(periodeTom = dødsDato, begrunnelse = "Dødsfall")
+                    } else it
+                }
+        } else personResultat.vilkårResultater
+
+        personResultat.setSortedVilkårResultater(vikårResultaterOppdatertMedDødsdato.toSet())
+    }
+}
+
+fun Vilkårsvurdering.kopierOverInnvilgedeResultaterFraForrigeBehandling(
+    vilkårsvurderingForrigeBehandling: Vilkårsvurdering
+) {
+    personResultater.forEach { initieltPersonResultat ->
+        val personResultatForrigeBehandling =
+            vilkårsvurderingForrigeBehandling.personResultater.find {
+                it.aktør == initieltPersonResultat.aktør
+            }
+
+        val oppdaterteVilkårResultater = if (personResultatForrigeBehandling == null) {
+            initieltPersonResultat.vilkårResultater
+        } else {
+            initieltPersonResultat.vilkårResultater
+                .overskrivMedGodkjenteVilkårResultaterFraForrigeBehandling(
+                    vilkårResultaterFraForrigeBehandling = personResultatForrigeBehandling.vilkårResultater,
+                    nyttPersonResultat = initieltPersonResultat
+                )
+        }
+
+        initieltPersonResultat.setSortedVilkårResultater(oppdaterteVilkårResultater.toSet())
+    }
+}
+
+private fun Collection<VilkårResultat>.overskrivMedGodkjenteVilkårResultaterFraForrigeBehandling(
+    vilkårResultaterFraForrigeBehandling: Collection<VilkårResultat>,
+    nyttPersonResultat: PersonResultat
+) = flatMap { initeltVilkårResultat ->
+    val vilkårResultaterForrigeBehandlingSomViØnskerÅTaMed = vilkårResultaterFraForrigeBehandling
+        .filter { it.vilkårType == initeltVilkårResultat.vilkårType }
+        .filter { it.resultat in listOf(Resultat.IKKE_AKTUELT, Resultat.OPPFYLT) }
+        .map { it.kopier(personResultat = nyttPersonResultat) }
+
+    vilkårResultaterForrigeBehandlingSomViØnskerÅTaMed.ifEmpty {
+        listOf(initeltVilkårResultat)
     }
 }

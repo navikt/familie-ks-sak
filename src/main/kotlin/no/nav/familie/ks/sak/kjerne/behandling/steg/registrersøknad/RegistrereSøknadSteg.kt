@@ -10,7 +10,6 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg
 import no.nav.familie.ks.sak.kjerne.behandling.steg.IBehandlingSteg
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.VedtakService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.VedtaksperiodeRepository
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
 import no.nav.familie.ks.sak.kjerne.beregning.domene.TilkjentYtelseRepository
 import no.nav.familie.ks.sak.kjerne.logg.LoggService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
@@ -25,7 +24,6 @@ class RegistrereSøknadSteg(
     private val loggService: LoggService,
     private val personopplysningGrunnlagService: PersonopplysningGrunnlagService,
     private val behandlingService: BehandlingService,
-    private val vilkårsvurderingService: VilkårsvurderingService,
     private val vedtakService: VedtakService,
     private val vedtaksperiodeRepository: VedtaksperiodeRepository,
     private val tilkjentYtelseRepository: TilkjentYtelseRepository
@@ -64,7 +62,13 @@ class RegistrereSøknadSteg(
             søknadGrunnlag.tilSøknadDto()
         )
 
-        vilkårsvurderingService.opprettVilkårsvurdering(behandling, forrigeBehandlingSomErVedtatt)
+        if (forrigeBehandlingSomErVedtatt != null) {
+            // TODO sette vilkårene til barna som er fjernet fra søknad til slik de var etter VilkårsvurderingService.opprettVilkårsvurdering()
+        }
+
+        if (forrigeBehandlingSomErVedtatt != null) {
+            // TODO kopier over endretutbetaling fra forrige behandling
+        }
 
         // Vi sletter vedtaksperioder og tilkjentytelse hvis de tidligere har blitt generert
         val vedtak = vedtakService.hentAktivVedtakForBehandling(behandlingId)

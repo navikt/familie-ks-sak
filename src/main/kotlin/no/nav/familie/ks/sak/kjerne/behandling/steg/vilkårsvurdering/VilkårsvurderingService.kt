@@ -7,16 +7,12 @@ import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.integrasjon.sanity.SanityService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.PersonResultat
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårsvurderingRepository
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.BegrunnelseType
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
-import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
 import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
@@ -30,27 +26,30 @@ class VilkårsvurderingService(
     private val personidentService: PersonidentService
 ) {
 
-    fun opprettVilkårsvurdering(behandling: Behandling, forrigeBehandlingSomErVedtatt: Behandling?): Vilkårsvurdering {
+    @Transactional
+    fun opprettVilkårsvurdering(
+        behandling: Behandling,
+        forrigeBehandlingSomErVedtatt: Behandling?
+    ): Vilkårsvurdering {
         logger.info("${SikkerhetContext.hentSaksbehandlerNavn()} oppretter vilkårsvurdering for behandling ${behandling.id}")
 
         val aktivVilkårsvurdering = finnAktivVilkårsvurdering(behandling.id)
 
-        val personopplysningGrunnlag =
-            personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(behandling.id)
+        val personopplysningGrunnlag = personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(behandling.id)
+
         val initiellVilkårsvurdering = genererInitiellVilkårsvurdering(behandling, personopplysningGrunnlag)
 
-        val finnesVilkårsvurderingPåInneværendeBehandling = aktivVilkårsvurdering != null
-        val førsteVilkårsvurderingPåBehandlingOgFinnesTidligereVedtattBehandling =
-            forrigeBehandlingSomErVedtatt != null && !finnesVilkårsvurderingPåInneværendeBehandling
-
-        var vilkårsvurdering = initiellVilkårsvurdering
-
-        if (førsteVilkårsvurderingPåBehandlingOgFinnesTidligereVedtattBehandling) {
-            // vilkårsvurdering = genererVilkårsvurderingBasertPåTidligereVilkårsvurdering(initiellVilkårsvurdering, forrigeBehandlingSomErVedtatt)
-            // TODO: implementer generering av vilkårsvurdering basert på tidligere vilkårsvurdering
+        if (forrigeBehandlingSomErVedtatt != null) {
+            initiellVilkårsvurdering.kopierOverInnvilgedeResultaterFraForrigeBehandling(
+                vilkårsvurderingForrigeBehandling = hentAktivVilkårsvurderingForBehandling(forrigeBehandlingSomErVedtatt.id)
+            )
         }
 
-        return lagreVilkårsvurdering(vilkårsvurdering, aktivVilkårsvurdering)
+        initiellVilkårsvurdering.oppdaterMedDødsdatoer(
+            personopplysningGrunnlag = personopplysningGrunnlag
+        )
+
+        return lagreVilkårsvurdering(initiellVilkårsvurdering, aktivVilkårsvurdering)
     }
 
     private fun lagreVilkårsvurdering(

@@ -3,6 +3,7 @@ package no.nav.familie.ks.sak.kjerne.behandling.steg
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -11,7 +12,8 @@ import org.springframework.stereotype.Service
 @Service
 class RegistrerPersonGrunnlagSteg(
     private val behandlingRepository: BehandlingRepository,
-    private val personopplysningGrunnlagService: PersonopplysningGrunnlagService
+    private val personopplysningGrunnlagService: PersonopplysningGrunnlagService,
+    private val vilkårsvurderingService: VilkårsvurderingService
 ) : IBehandlingSteg {
     override fun getBehandlingssteg(): BehandlingSteg = BehandlingSteg.REGISTRERE_PERSONGRUNNLAG
 
@@ -22,7 +24,11 @@ class RegistrerPersonGrunnlagSteg(
 
         personopplysningGrunnlagService.opprettPersonopplysningGrunnlag(behandling, sisteVedtattBehandling)
 
-        // TODO generer vilkårsvurdering - behandling med årsak søknad trenger ikke å generere vilkårsvurdering periode
+        vilkårsvurderingService.opprettVilkårsvurdering(behandling, sisteVedtattBehandling)
+
+        if (sisteVedtattBehandling != null) {
+            // TODO kopier over endretutbetaling fra forrige behandling
+        }
     }
 
     private fun hentSisteBehandlingSomErVedtatt(fagsakId: Long): Behandling? =
