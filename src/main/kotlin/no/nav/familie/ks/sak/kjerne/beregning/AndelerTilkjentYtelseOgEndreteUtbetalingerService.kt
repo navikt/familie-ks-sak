@@ -11,8 +11,9 @@ import no.nav.familie.ks.sak.common.util.sisteDagIInneværendeMåned
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårsvurderingRepository
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelseRepository
-import no.nav.familie.ks.sak.kjerne.beregning.domene.EndretUtbetalingAndel
-import no.nav.familie.ks.sak.kjerne.beregning.domene.EndretUtbetalingAndelRepository
+import no.nav.familie.ks.sak.kjerne.endretutbetaling.EndretUtbetalingAndelValidator
+import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.EndretUtbetalingAndel
+import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.EndretUtbetalingAndelRepository
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.YearMonth
@@ -47,7 +48,7 @@ class AndelerTilkjentYtelseOgEndreteUtbetalingerService(
 
     private fun lagKombinator(behandlingId: Long) = AndelTilkjentYtelseOgEndreteUtbetalingerKombinator(
         andelerTilkjentYtelse = andelTilkjentYtelseRepository.finnAndelerTilkjentYtelseForBehandling(behandlingId),
-        endretUtbetalingAndeler = endretUtbetalingAndelRepository.findByBehandlingId(behandlingId)
+        endretUtbetalingAndeler = endretUtbetalingAndelRepository.hentEndretUtbetalingerForBehandling(behandlingId)
     )
 
     /**
@@ -125,17 +126,13 @@ data class AndelTilkjentYtelseMedEndreteUtbetalinger internal constructor(
     companion object {
 
         fun utenEndringer(andelTilkjentYtelse: AndelTilkjentYtelse): AndelTilkjentYtelseMedEndreteUtbetalinger {
-            require(andelTilkjentYtelse.endretUtbetalingAndeler.size <= 0) {
-                "Skal opprette AndelTilkjentYtelseMedEndreteUtbetalinger uten endringer, " +
-                    "men underliggende andel har endringer"
-            }
             return AndelTilkjentYtelseMedEndreteUtbetalinger(andelTilkjentYtelse, emptyList())
         }
     }
 }
 
 data class EndretUtbetalingAndelMedAndelerTilkjentYtelse(
-    private val endretUtbetalingAndel: EndretUtbetalingAndel,
+    val endretUtbetalingAndel: EndretUtbetalingAndel,
     private val andeler: List<AndelTilkjentYtelse>
 ) {
 

@@ -27,7 +27,6 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Per
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
 import no.nav.familie.ks.sak.kjerne.beregning.AndelTilkjentYtelseMedEndreteUtbetalinger
-import no.nav.familie.ks.sak.kjerne.beregning.domene.EndretUtbetalingAndel
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.Begrunnelse
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.BegrunnelseDataDto
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.BegrunnelseDto
@@ -38,6 +37,7 @@ import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.tilBrevTekst
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.tilSanityBegrunnelse
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.brevperioder.BrevPeriodeDto
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.brevperioder.BrevPeriodeType
+import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.EndretUtbetalingAndel
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
@@ -105,8 +105,10 @@ class BrevPeriodeContext(
             Vedtaksperiodetype.FORTSATT_INNVILGET -> barnMedUtbetaling + barnMedNullutbetaling
         }
 
-        val utbetalingsbeløp = utvidetVedtaksperiodeMedBegrunnelser.utbetalingsperiodeDetaljer.sumOf { it.utbetaltPerMnd }
-        val brevPeriodeType = hentPeriodetype(utvidetVedtaksperiodeMedBegrunnelser.fom, barnMedUtbetaling, utbetalingsbeløp)
+        val utbetalingsbeløp =
+            utvidetVedtaksperiodeMedBegrunnelser.utbetalingsperiodeDetaljer.sumOf { it.utbetaltPerMnd }
+        val brevPeriodeType =
+            hentPeriodetype(utvidetVedtaksperiodeMedBegrunnelser.fom, barnMedUtbetaling, utbetalingsbeløp)
         return BrevPeriodeDto(
 
             fom = this.hentFomTekst(),
@@ -280,7 +282,8 @@ class BrevPeriodeContext(
                         sanityBegrunnelse = sanityBegrunnelse
                     )
 
-                val antallTimerBarnehageplass = hentAntallTimerBarnehageplassTekst(personerMedVilkårSomPasserBegrunnelse)
+                val antallTimerBarnehageplass =
+                    hentAntallTimerBarnehageplassTekst(personerMedVilkårSomPasserBegrunnelse)
 
                 val gjelderSøker = personerMedVilkårSomPasserBegrunnelse.any { it.type == PersonType.SØKER }
 
