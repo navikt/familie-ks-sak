@@ -181,7 +181,7 @@ fun nesteBehandlingId(): Long {
 fun lagBehandling(
     fagsak: Fagsak = lagFagsak(),
     type: BehandlingType = BehandlingType.FØRSTEGANGSBEHANDLING,
-    opprettetÅrsak: BehandlingÅrsak,
+    opprettetÅrsak: BehandlingÅrsak = BehandlingÅrsak.SØKNAD,
     kategori: BehandlingKategori = BehandlingKategori.NASJONAL
 ): Behandling = Behandling(
     id = nesteBehandlingId(),
