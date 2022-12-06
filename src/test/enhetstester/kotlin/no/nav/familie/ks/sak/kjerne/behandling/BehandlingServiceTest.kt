@@ -128,6 +128,10 @@ class BehandlingServiceTest {
             andelerTilkjentYtelseOgEndreteUtbetalingerService
                 .finnAndelerTilkjentYtelseMedEndreteUtbetalinger(behandling.id)
         } returns emptyList()
+        every {
+            andelerTilkjentYtelseOgEndreteUtbetalingerService
+                .finnEndreteUtbetalingerMedAndelerTilkjentYtelse(behandling.id)
+        } returns emptyList()
         every { totrinnskontrollRepository.findByBehandlingAndAktiv(any()) } returns mockk(relaxed = true)
     }
 

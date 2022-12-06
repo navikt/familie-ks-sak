@@ -2,9 +2,12 @@ package no.nav.familie.ks.sak.kjerne.beregning
 
 import no.nav.familie.ks.sak.common.util.NullablePeriode
 import no.nav.familie.ks.sak.common.util.førsteDagIInneværendeMåned
+import no.nav.familie.ks.sak.common.util.nesteMåned
 import no.nav.familie.ks.sak.common.util.sisteDagIMåned
 import no.nav.familie.ks.sak.common.util.toYearMonth
+import no.nav.familie.ks.sak.data.lagAndelTilkjentYtelse
 import no.nav.familie.ks.sak.data.lagBehandling
+import no.nav.familie.ks.sak.data.lagEndretUtbetalingAndel
 import no.nav.familie.ks.sak.data.lagPerson
 import no.nav.familie.ks.sak.data.lagPersonopplysningGrunnlag
 import no.nav.familie.ks.sak.data.lagVilkårResultaterForBarn
@@ -16,6 +19,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Res
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
+import no.nav.familie.ks.sak.kjerne.beregning.TilkjentYtelseUtils.oppdaterTilkjentYtelseMedEndretUtbetalingAndeler
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.domene.TilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.domene.YtelseType
@@ -28,10 +32,12 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.math.BigDecimal
 import java.time.LocalDate
+import java.time.YearMonth
 
 internal class TilkjentYtelseUtilsTest {
 
     private val søker = randomAktør()
+
     private val barn1 = randomAktør("01012112345")
 
     private val behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD)
@@ -43,6 +49,7 @@ internal class TilkjentYtelseUtilsTest {
         barnAktør = listOf(barn1)
     )
     private val barnPerson = lagPerson(personopplysningGrunnlag, barn1, PersonType.BARN)
+    private val søkerPerson = lagPerson(personopplysningGrunnlag, søker, PersonType.SØKER)
 
     private val maksBeløp = maksBeløp()
 
@@ -476,13 +483,117 @@ internal class TilkjentYtelseUtilsTest {
         )
     }
 
+    @Test
+    fun `oppdaterTilkjentYtelseMedEndretUtbetalingAndeler - endret utbetalingsandel skal overstyre andel`() {
+        val fom = YearMonth.of(2018, 1)
+        val tom = YearMonth.of(2019, 1)
+
+        val utbetalingsandeler = listOf(
+            lagAndelTilkjentYtelse(
+                stønadFom = fom,
+                stønadTom = tom,
+                aktør = søker,
+                behandling = behandling
+            )
+        )
+
+        val endretProsent = BigDecimal.ZERO
+
+        val endretUtbetalingAndel = lagEndretUtbetalingAndel(
+            behandlingId = behandling.id,
+            person = søkerPerson,
+            periodeFom = fom,
+            periodeTom = tom,
+            prosent = BigDecimal.ZERO
+        )
+
+        val endretUtbetalingAndelMedAndelerTilkjentYtelse =
+            EndretUtbetalingAndelMedAndelerTilkjentYtelse(endretUtbetalingAndel, utbetalingsandeler)
+
+        val andelerTilkjentYtelse = oppdaterTilkjentYtelseMedEndretUtbetalingAndeler(
+            utbetalingsandeler,
+            listOf(endretUtbetalingAndelMedAndelerTilkjentYtelse)
+        )
+
+        assertEquals(1, andelerTilkjentYtelse.size)
+        assertEquals(endretProsent, andelerTilkjentYtelse.single().prosent)
+        assertEquals(1, andelerTilkjentYtelse.single().endreteUtbetalinger.size)
+    }
+
+    @Test
+    fun `oppdaterTilkjentYtelseMedEndretUtbetalingAndeler - endret utbetalingsandel koble endrede andeler til riktig endret utbetalingandel`() {
+        val fom1 = YearMonth.of(2018, 1)
+        val tom1 = YearMonth.of(2018, 11)
+
+        val fom2 = YearMonth.of(2019, 1)
+        val tom2 = YearMonth.of(2019, 11)
+
+        val utbetalingsandeler = listOf(
+            lagAndelTilkjentYtelse(
+                stønadFom = fom1,
+                stønadTom = tom1,
+                aktør = søker,
+                behandling = behandling
+            ),
+            lagAndelTilkjentYtelse(
+                stønadFom = fom2,
+                stønadTom = tom2,
+                aktør = søker,
+                behandling = behandling
+            )
+        )
+
+        val endretProsent = BigDecimal.ZERO
+
+        val endretUtbetalingAndel = lagEndretUtbetalingAndel(
+            behandlingId = behandling.id,
+            person = søkerPerson,
+            periodeFom = fom1,
+            periodeTom = tom2,
+            prosent = BigDecimal.ZERO
+        )
+
+        val endretUtbetalingAndelMedAndelerTilkjentYtelse1 =
+            EndretUtbetalingAndelMedAndelerTilkjentYtelse(endretUtbetalingAndel, utbetalingsandeler)
+
+        val endretUtbetalingAndel2 = lagEndretUtbetalingAndel(
+            behandlingId = behandling.id,
+            person = søkerPerson,
+            periodeFom = tom2.nesteMåned(),
+            prosent = endretProsent
+        )
+
+        val endretUtbetalingAndelMedAndelerTilkjentYtelse2 =
+            EndretUtbetalingAndelMedAndelerTilkjentYtelse(endretUtbetalingAndel2, utbetalingsandeler)
+
+        val andelerTilkjentYtelse = oppdaterTilkjentYtelseMedEndretUtbetalingAndeler(
+            utbetalingsandeler,
+            listOf(endretUtbetalingAndelMedAndelerTilkjentYtelse1, endretUtbetalingAndelMedAndelerTilkjentYtelse2)
+        )
+
+        assertEquals(2, andelerTilkjentYtelse.size)
+        andelerTilkjentYtelse.forEach { assertEquals(endretProsent, it.prosent) }
+        andelerTilkjentYtelse.forEach { assertEquals(1, it.endreteUtbetalinger.size) }
+        andelerTilkjentYtelse.forEach {
+            assertEquals(
+                endretUtbetalingAndel.id,
+                it.endreteUtbetalinger.single().id
+            )
+        }
+    }
+
     private fun assertTilkjentYtelse(tilkjentYtelse: TilkjentYtelse, antallAndeler: Int) {
         assertEquals(LocalDate.now(), tilkjentYtelse.opprettetDato)
         assertEquals(LocalDate.now(), tilkjentYtelse.endretDato)
         assertTrue { tilkjentYtelse.andelerTilkjentYtelse.isNotEmpty() && tilkjentYtelse.andelerTilkjentYtelse.size == antallAndeler }
     }
 
-    private fun assertAndelTilkjentYtelse(andelTilkjentYtelse: AndelTilkjentYtelse, prosent: BigDecimal, periodeFom: LocalDate, periodeTom: LocalDate) {
+    private fun assertAndelTilkjentYtelse(
+        andelTilkjentYtelse: AndelTilkjentYtelse,
+        prosent: BigDecimal,
+        periodeFom: LocalDate,
+        periodeTom: LocalDate
+    ) {
         assertEquals(barn1, andelTilkjentYtelse.aktør)
         assertEquals(YtelseType.ORDINÆR_KONTANTSTØTTE, andelTilkjentYtelse.type)
         assertEquals(prosent, andelTilkjentYtelse.prosent)
