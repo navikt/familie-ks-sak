@@ -3,6 +3,7 @@ package no.nav.familie.ks.sak.kjerne.beregning.domene
 import no.nav.familie.ks.sak.common.entitet.BaseEntitet
 import no.nav.familie.ks.sak.common.util.MånedPeriode
 import no.nav.familie.ks.sak.common.util.YearMonthConverter
+import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.EndretUtbetalingAndel
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import org.hibernate.annotations.Immutable
 import java.math.BigDecimal

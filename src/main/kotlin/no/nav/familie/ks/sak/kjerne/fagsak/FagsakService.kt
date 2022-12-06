@@ -16,6 +16,7 @@ import no.nav.familie.ks.sak.integrasjon.pdl.PersonOpplysningerService
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.PdlPersonInfo
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.VedtakRepository
 import no.nav.familie.ks.sak.kjerne.beregning.AndelerTilkjentYtelseOgEndreteUtbetalingerService
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.Fagsak
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.FagsakRepository
@@ -41,7 +42,8 @@ class FagsakService(
     private val fagsakRepository: FagsakRepository,
     private val personRepository: PersonRepository,
     private val behandlingRepository: BehandlingRepository,
-    private val andelerTilkjentYtelseOgEndreteUtbetalingerService: AndelerTilkjentYtelseOgEndreteUtbetalingerService
+    private val andelerTilkjentYtelseOgEndreteUtbetalingerService: AndelerTilkjentYtelseOgEndreteUtbetalingerService,
+    private val vedtakRepository: VedtakRepository
 ) {
 
     private val antallFagsakerOpprettetFraManuell =
@@ -116,7 +118,12 @@ class FagsakService(
         return lagMinimalFagsakResponsDto(
             fagsak = fagsak,
             aktivtBehandling = behandlingRepository.findByFagsakAndAktiv(fagsakId),
-            behandlinger = alleBehandlinger.map { lagBehandlingResponsDto(it) },
+            behandlinger = alleBehandlinger.map {
+                lagBehandlingResponsDto(
+                    behandling = it,
+                    vedtaksdato = vedtakRepository.findByBehandlingAndAktivOptional(it.id)?.vedtaksdato
+                )
+            },
             gjeldendeUtbetalingsperioder = gjeldendeUtbetalingsperioder ?: emptyList()
         )
     }
