@@ -29,17 +29,17 @@ repositories {
 dependencies {
 
     val springdocVersion = "1.6.13"
-    val sentryVersion = "6.6.0"
+    val sentryVersion = "6.8.0"
     val navFellesVersion = "1.20220901103347_4819e55"
     val eksterneKontrakterBisysVersion = "2.0_20220609214258_f30c3ce"
     val fellesKontrakterVersion = "2.0_20221121103857_87ffed0"
     val familieKontrakterSaksstatistikkVersion = "2.0_20220216121145_5a268ac"
     val familieKontrakterStønadsstatistikkKsVersion = "2.0_20221123121611_ca933bd"
     val familieKontrakterSkatteetatenVersion = "2.0_20210920094114_9c74239"
-    val tokenValidationSpringVersion = "2.1.7"
+    val tokenValidationSpringVersion = "2.1.8"
     val navFoedselsnummerVersion = "1.0-SNAPSHOT.6"
     val prosesseringVersion = "1.20221110194901_e9e0d90"
-    val restAssuredVersion = "5.2.0"
+    val restAssuredVersion = "5.3.0"
 
     // ---------- Spring ---------- \\
     implementation("org.springframework.boot:spring-boot-starter")
@@ -90,7 +90,7 @@ dependencies {
     implementation("io.sentry:sentry-spring-boot-starter:$sentryVersion")
     implementation("io.sentry:sentry-logback:$sentryVersion")
     implementation("io.micrometer:micrometer-registry-prometheus")
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.13.4")
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.14.0")
     implementation("com.pinterest:ktlint:0.47.1")
 
     testImplementation("io.mockk:mockk:1.13.2")
@@ -98,10 +98,10 @@ dependencies {
         exclude(module = "mockito-core")
     }
     testImplementation("org.springframework.boot:spring-boot-starter-test")
-    testImplementation("org.springframework.cloud:spring-cloud-contract-wiremock:3.1.4")
+    testImplementation("org.springframework.cloud:spring-cloud-contract-wiremock:3.1.5")
     testImplementation("io.rest-assured:spring-mock-mvc:$restAssuredVersion")
     testImplementation("io.rest-assured:kotlin-extensions:$restAssuredVersion")
-    testImplementation("org.testcontainers:postgresql:1.17.4")
+    testImplementation("org.testcontainers:postgresql:1.17.6")
     testImplementation("no.nav.security:mock-oauth2-server:0.5.6")
     testImplementation("no.nav.security:token-validation-test-support:2.0.5")
     testImplementation("no.nav.security:token-validation-spring-test:$tokenValidationSpringVersion")
