@@ -297,7 +297,8 @@ fun lagAndelTilkjentYtelse(
     prosent = BigDecimal(100),
     nasjonaltPeriodebeløp = sats,
     periodeOffset = periodeOffset,
-    forrigePeriodeOffset = forrigePeriodeOffset
+    forrigePeriodeOffset = forrigePeriodeOffset,
+    kildeBehandlingId = behandling.id
 )
 
 fun lagPerson(
