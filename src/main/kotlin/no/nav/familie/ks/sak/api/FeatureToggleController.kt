@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
-@RequestMapping("/api/feature")
+@RequestMapping("/api/featuretoggles")
 @ProtectedWithClaims(issuer = "azuread")
 @Validated
 class FeatureToggleController(private val featureToggleService: FeatureToggleService) {
