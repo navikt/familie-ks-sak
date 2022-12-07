@@ -5,16 +5,14 @@ import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagPerson
 import no.nav.familie.ks.sak.data.lagPersonopplysningGrunnlag
 import no.nav.familie.ks.sak.data.lagVilkårResultat
+import no.nav.familie.ks.sak.data.lagVilkårsvurderingOppfylt
 import no.nav.familie.ks.sak.data.randomAktør
 import no.nav.familie.ks.sak.data.randomFnr
-import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.AnnenVurderingType
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.PersonResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
-import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
@@ -258,38 +256,5 @@ class OppdaterVilkårsvurderingTest {
                 .any { it.type == AnnenVurderingType.OPPLYSNINGSPLIKT }
 
         Assertions.assertTrue(nyInitInnholderOpplysningspliktVilkår)
-    }
-
-    private fun lagVilkårsvurderingOppfylt(personer: List<Person>, behandling: Behandling = lagBehandling()): Vilkårsvurdering {
-        val vilkårsvurdering = Vilkårsvurdering(
-            behandling = behandling
-        )
-
-        val personResultater = personer.map { person ->
-            val personResultat = PersonResultat(
-                vilkårsvurdering = vilkårsvurdering,
-                aktør = person.aktør
-            )
-
-            personResultat.setSortedVilkårResultater(
-                Vilkår.hentVilkårFor(person.type).map {
-                    VilkårResultat(
-                        personResultat = personResultat,
-                        periodeFom = if (person.type == PersonType.SØKER) person.fødselsdato else person.fødselsdato.plusYears(1),
-                        periodeTom = if (person.type == PersonType.SØKER) null else person.fødselsdato.plusYears(2),
-                        vilkårType = it,
-                        resultat = Resultat.OPPFYLT,
-                        begrunnelse = "",
-                        behandlingId = vilkårsvurdering.behandling.id,
-                        utdypendeVilkårsvurderinger = emptyList()
-                    )
-                }.toSet()
-            )
-            personResultat
-        }.toSet()
-
-        vilkårsvurdering.personResultater = personResultater
-
-        return vilkårsvurdering
     }
 }
