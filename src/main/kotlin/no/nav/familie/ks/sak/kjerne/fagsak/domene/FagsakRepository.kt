@@ -26,16 +26,16 @@ interface FagsakRepository : JpaRepository<Fagsak, Long> {
     @Modifying
     @Query(
         value = """
-                SELECT id FROM fagsak
-                WHERE fagsak.id IN (
+                SELECT f1.* FROM fagsak f1
+                WHERE f1.id IN (
                     WITH sisteiverksatte AS (
                         SELECT b.fk_fagsak_id AS fagsakid, MAX(b.opprettet_tid) AS opprettet_tid
                         FROM behandling b
                                  INNER JOIN tilkjent_ytelse ty ON b.id = ty.fk_behandling_id
-                                 INNER JOIN fagsak f ON f.id = b.fk_fagsak_id
+                                 INNER JOIN fagsak f2 ON f2.id = b.fk_fagsak_id
                         WHERE ty.utbetalingsoppdrag IS NOT NULL
-                          AND f.status = 'LØPENDE'
-                          AND f.arkivert = FALSE
+                          AND f2.status = 'LØPENDE'
+                          AND f2.arkivert = FALSE
                         GROUP BY b.fk_fagsak_id)
                 
                     SELECT silp.fagsakid
@@ -46,5 +46,5 @@ interface FagsakRepository : JpaRepository<Fagsak, Long> {
                 """,
         nativeQuery = true
     )
-    fun finnFagsakerSomSkalAvsluttes(): List<Long>
+    fun finnFagsakerSomSkalAvsluttes(): List<Fagsak>
 }

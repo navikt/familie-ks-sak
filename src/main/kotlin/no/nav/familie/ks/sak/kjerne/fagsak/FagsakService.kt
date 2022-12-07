@@ -143,21 +143,18 @@ class FagsakService(
     }
 
     @Transactional
-    fun finnOgAvsluttFagsakerSomSkalAvsluttes(): Int {
-        val fagsaker = fagsakRepository.finnFagsakerSomSkalAvsluttes()
-        fagsaker
-            .map { fagsakRepository.getReferenceById(it) }
-            .forEach { oppdaterStatus(it, FagsakStatus.AVSLUTTET) }
-        return fagsaker.size
-    }
+    fun finnOgAvsluttFagsakerSomSkalAvsluttes(): Int =
+        fagsakRepository.finnFagsakerSomSkalAvsluttes()
+            .map { oppdaterStatus(it, FagsakStatus.AVSLUTTET) }
+            .size
 
-    fun oppdaterStatus(fagsak: Fagsak, nyStatus: FagsakStatus) {
+    fun oppdaterStatus(fagsak: Fagsak, nyStatus: FagsakStatus): Fagsak {
         logger.info(
             "${SikkerhetContext.hentSaksbehandlerNavn()} endrer status på fagsak ${fagsak.id} fra ${fagsak.status}" +
                 " til $nyStatus"
         )
         fagsak.status = nyStatus
-        lagre(fagsak)
+        return lagre(fagsak)
     }
 
     private fun hentForelderdeltagereFraBehandling(
