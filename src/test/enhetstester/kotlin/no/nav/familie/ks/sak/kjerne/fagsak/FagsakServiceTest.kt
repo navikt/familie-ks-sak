@@ -23,6 +23,7 @@ import no.nav.familie.ks.sak.integrasjon.pdl.domene.ForelderBarnRelasjonInfo
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.PdlPersonInfo
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.VedtakRepository
 import no.nav.familie.ks.sak.kjerne.beregning.AndelerTilkjentYtelseOgEndreteUtbetalingerService
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.FagsakRepository
 import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
@@ -66,6 +67,9 @@ class FagsakServiceTest {
 
     @MockK
     private lateinit var taskService: TaskService
+
+    @MockK
+    private lateinit var vedtakRepository: VedtakRepository
 
     @InjectMockKs
     private lateinit var fagsakService: FagsakService
@@ -259,6 +263,7 @@ class FagsakServiceTest {
             barnehagelisteBehandling
         )
         every { behandlingRepository.findByFagsakAndAktiv(fagsak.id) } returns barnehagelisteBehandling
+        every { vedtakRepository.findByBehandlingAndAktivOptional(any()) } returns mockk(relaxed = true)
 
         val fagsakResponse = fagsakService.hentMinimalFagsak(fagsak.id)
 

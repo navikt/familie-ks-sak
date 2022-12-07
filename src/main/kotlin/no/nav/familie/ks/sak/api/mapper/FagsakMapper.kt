@@ -10,6 +10,7 @@ import no.nav.familie.ks.sak.integrasjon.pdl.domene.PdlPersonInfo
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.Fagsak
+import java.time.LocalDateTime
 
 object FagsakMapper {
 
@@ -48,7 +49,7 @@ object FagsakMapper {
             gjeldendeUtbetalingsperioder = gjeldendeUtbetalingsperioder
         )
 
-    fun lagBehandlingResponsDto(behandling: Behandling) = MinimalBehandlingResponsDto(
+    fun lagBehandlingResponsDto(behandling: Behandling, vedtaksdato: LocalDateTime?) = MinimalBehandlingResponsDto(
         behandlingId = behandling.id,
         opprettetTidspunkt = behandling.opprettetTidspunkt,
         kategori = behandling.kategori,
@@ -57,6 +58,6 @@ object FagsakMapper {
         type = behandling.type,
         status = behandling.status,
         resultat = behandling.resultat,
-        vedtaksdato = null // TODO - kommer når vedtak er implementert
+        vedtaksdato = vedtaksdato
     )
 }
