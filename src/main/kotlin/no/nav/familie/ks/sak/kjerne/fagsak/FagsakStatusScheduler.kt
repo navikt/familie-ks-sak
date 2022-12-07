@@ -1,3 +1,4 @@
+import no.nav.familie.ks.sak.common.EnvService
 import no.nav.familie.leader.LeaderClient
 import no.nav.familie.prosessering.domene.Task
 import no.nav.familie.prosessering.internal.TaskService
@@ -7,7 +8,8 @@ import org.springframework.stereotype.Component
 
 @Component
 class FagsakStatusScheduler(
-    private val taskService: TaskService
+    private val taskService: TaskService,
+    private val envService: EnvService
 ) {
 
     /*
@@ -17,13 +19,15 @@ class FagsakStatusScheduler(
 
     @Scheduled(cron = "\${CRON_FAGSAKSTATUS_SCHEDULER}")
     fun oppdaterFagsakStatuser() {
-        if (LeaderClient.isLeader() == true) {
-            val oppdaterLøpendeFlaggTask = Task(type = AvsluttUtløpteFagsakerTask.TASK_STEP_TYPE, payload = "")
-            taskService.save(oppdaterLøpendeFlaggTask)
-            logger.info("Opprettet oppdaterLøpendeFlaggTask")
-        } else {
+        val erLederpodEllerLokal = envService.erLokal() || LeaderClient.isLeader() == true
+        if (!erLederpodEllerLokal) {
             logger.info("Ikke opprettet oppdaterLøpendeFlaggTask på denne poden")
+            return
         }
+
+        val oppdaterLøpendeFlaggTask = Task(type = AvsluttUtløpteFagsakerTask.TASK_STEP_TYPE, payload = "")
+        taskService.save(oppdaterLøpendeFlaggTask)
+        logger.info("Opprettet oppdaterLøpendeFlaggTask")
     }
 
     companion object {
