@@ -79,7 +79,8 @@ internal class HenleggBehandlingServiceTest {
         every { oppgaveService.hentOppgaverSomIkkeErFerdigstilt(behandling) } returns emptyList()
         every { loggService.opprettHenleggBehandlingLogg(any(), any(), any()) } just runs
         every { behandlingRepository.finnBehandlinger(behandling.fagsak.id) } returns listOf(behandling)
-        every { fagsakService.oppdaterStatus(behandling.fagsak, FagsakStatus.AVSLUTTET) } just runs
+        every { fagsakService.oppdaterStatus(behandling.fagsak, FagsakStatus.AVSLUTTET) } returns
+            behandling.fagsak.copy(status = FagsakStatus.AVSLUTTET)
         every { stegService.settAlleStegTilAvbrutt(behandling) } just runs
         every { brevService.genererOgSendBrev(any(), any()) } just runs
         every { sakStatistikkService.opprettSendingAvBehandlingensTilstand(any(), any()) } just runs
