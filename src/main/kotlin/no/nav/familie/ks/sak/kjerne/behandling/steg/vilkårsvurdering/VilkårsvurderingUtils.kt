@@ -405,11 +405,17 @@ fun Vilkårsvurdering.oppdaterMedDødsdatoer(
 
         val vikårResultaterOppdatertMedDødsdato = if (dødsDato != null) {
             personResultat.vilkårResultater
-                .filter { (it.periodeFom ?: TIDENES_MORGEN).isAfter(dødsDato) }
                 .map {
-                    if ((it.periodeTom ?: TIDENES_ENDE).isAfter(dødsDato)) {
-                        it.kopier(periodeTom = dødsDato, begrunnelse = "Dødsfall")
-                    } else it
+                    val erDødsfallFørVilkårStarter = (it.periodeFom ?: TIDENES_MORGEN).isAfter(dødsDato)
+                    val erDødsfallFørVilkårSlutter = (it.periodeTom ?: TIDENES_ENDE).isAfter(dødsDato)
+
+                    when {
+                        // Ønsker ikke å fjerne vilkår resultater,
+                        // så lar saksbehandleren avgjøre hva som skjer når vilkået saterter før person dør
+                        erDødsfallFørVilkårStarter -> it
+                        erDødsfallFørVilkårSlutter -> it.kopier(periodeTom = dødsDato, begrunnelse = "Dødsfall")
+                        else -> it
+                    }
                 }
         } else personResultat.vilkårResultater
 

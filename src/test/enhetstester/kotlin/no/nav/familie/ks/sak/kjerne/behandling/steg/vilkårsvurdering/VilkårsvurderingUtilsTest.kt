@@ -7,7 +7,9 @@ import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagPerson
 import no.nav.familie.ks.sak.data.lagPersonopplysningGrunnlag
 import no.nav.familie.ks.sak.data.lagVilkårResultat
+import no.nav.familie.ks.sak.data.lagVilkårsvurderingOppfylt
 import no.nav.familie.ks.sak.data.randomAktør
+import no.nav.familie.ks.sak.data.randomFnr
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.PersonResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
@@ -507,5 +509,36 @@ class VilkårsvurderingUtilsTest {
         vilkårsvurdering.personResultater = setOf(personResultatForBarn)
 
         assertDoesNotThrow { validerAtDatoErKorrektIBarnasVilkår(vilkårsvurdering, barna = listOf(barnPerson)) }
+    }
+
+    @Test
+    fun `oppdaterMedDødsdatoer skal oppdatere vikårsvurdering slik at den avsluttes ved dødsdato dersom den starter før dødsdato`() {
+        val søkerPersonIdent = randomFnr()
+        val personIdentBarn1 = randomFnr()
+        val personIdentBarn2 = randomFnr()
+
+        val fødselsDatoBarn1 = LocalDate.of(2022, 2, 2)
+        val fødselsDatoBarn2 = LocalDate.of(2022, 2, 2)
+
+        val dødsdatoBarn1 = LocalDate.of(2023, 1, 2)
+        val dødsdatoBarn2 = LocalDate.of(2023, 8, 2)
+
+        val persongrunnlag = lagPersonopplysningGrunnlag(
+            søkerPersonIdent = søkerPersonIdent,
+            barnasIdenter = listOf(personIdentBarn1, personIdentBarn2),
+            barnasFødselsdatoer = listOf(fødselsDatoBarn1, fødselsDatoBarn2),
+            barnasDødsfallDatoer = listOf(dødsdatoBarn1, dødsdatoBarn2)
+        )
+
+        val vilkårsvurdering = lagVilkårsvurderingOppfylt(personer = persongrunnlag.personer)
+
+        vilkårsvurdering.oppdaterMedDødsdatoer(persongrunnlag)
+
+        // Siden barnet dør før vilkårResulatatene starter skal vi ikke gjøre noe med dem
+        val personResultaterBarn1 = vilkårsvurdering.personResultater.single { it.aktør.aktivFødselsnummer() == personIdentBarn1 }
+        personResultaterBarn1.vilkårResultater.forEach { assertEquals(fødselsDatoBarn1.plusYears(2), it.periodeTom) }
+
+        val personResultaterBarn2 = vilkårsvurdering.personResultater.single { it.aktør.aktivFødselsnummer() == personIdentBarn2 }
+        personResultaterBarn2.vilkårResultater.forEach { assertEquals(dødsdatoBarn2, it.periodeTom) }
     }
 }
