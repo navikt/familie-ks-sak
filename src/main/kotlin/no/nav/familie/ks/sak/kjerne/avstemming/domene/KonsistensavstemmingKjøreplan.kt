@@ -30,5 +30,6 @@ class KonsistensavstemmingKjøreplan(
 enum class KjøreStatus {
     FERDIG,
     BEHANDLER,
-    LEDIG
+    LEDIG,
+    MANUELL // Brukes for å kjøre Konsistensavstemming manuelt
 }
