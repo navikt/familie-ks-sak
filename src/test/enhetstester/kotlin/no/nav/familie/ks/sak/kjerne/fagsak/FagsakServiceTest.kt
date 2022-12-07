@@ -32,6 +32,7 @@ import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonRepository
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlagRepository
+import no.nav.familie.prosessering.internal.TaskService
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -63,6 +64,9 @@ class FagsakServiceTest {
 
     @MockK
     private lateinit var andelerTilkjentYtelseOgEndreteUtbetalingerService: AndelerTilkjentYtelseOgEndreteUtbetalingerService
+
+    @MockK
+    private lateinit var taskService: TaskService
 
     @MockK
     private lateinit var vedtakRepository: VedtakRepository
@@ -207,6 +211,7 @@ class FagsakServiceTest {
         every { fagsakRepository.finnFagsakForAktør(aktør) } returns null
         every { fagsakRepository.save(fagsak) } returns fagsak
         every { behandlingRepository.findByFagsakAndAktiv(fagsak.id) } returns null
+        every { taskService.save(any()) } returns mockk()
 
         var minimalFagsak =
             fagsakService.hentEllerOpprettFagsak(FagsakRequestDto(personIdent = null, aktørId = aktør.aktørId))

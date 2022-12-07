@@ -60,6 +60,7 @@ import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.Begrunnelse
 import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.EndretUtbetalingAndel
 import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.Årsak
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.Fagsak
+import no.nav.familie.ks.sak.kjerne.fagsak.domene.FagsakStatus
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import no.nav.familie.ks.sak.kjerne.personident.Personident
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Kjønn
@@ -168,7 +169,8 @@ fun lagPersonopplysningGrunnlag(
     return personopplysningGrunnlag
 }
 
-fun lagFagsak(aktør: Aktør = randomAktør(randomFnr()), id: Long = 0) = Fagsak(aktør = aktør, id = id)
+fun lagFagsak(aktør: Aktør = randomAktør(randomFnr()), id: Long = 0, status: FagsakStatus = FagsakStatus.OPPRETTET) =
+    Fagsak(aktør = aktør, id = id, status = status)
 
 private var gjeldendeBehandlingId: Long = abs(Random.nextLong(10000000))
 
