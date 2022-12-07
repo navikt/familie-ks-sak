@@ -1,5 +1,6 @@
 package no.nav.familie.ks.sak.integrasjon.pdl
 
+import com.neovisionaries.i18n.CountryCode
 import no.nav.familie.kontrakter.felles.personopplysning.ADRESSEBESKYTTELSEGRADERING
 import no.nav.familie.kontrakter.felles.personopplysning.FORELDERBARNRELASJONROLLE
 import no.nav.familie.kontrakter.felles.personopplysning.Statsborgerskap
@@ -96,8 +97,25 @@ class PersonOpplysningerService(
     private fun hentPersoninfoMedQuery(aktør: Aktør, personInfoQuery: PersonInfoQuery): PdlPersonData =
         pdlClient.hentPerson(aktør, personInfoQuery)
 
+    fun hentLandkodeAlpha2UtenlandskBostedsadresse(aktør: Aktør): String {
+        val landkode = pdlClient.hentUtenlandskBostedsadresse(aktør)?.landkode
+
+        if (landkode.isNullOrEmpty()) return UKJENT_LANDKODE
+
+        return if (landkode.length == 3) {
+            if (landkode == PDL_UKJENT_LANDKODE) {
+                UKJENT_LANDKODE
+            } else {
+                CountryCode.getByAlpha3Code(landkode.uppercase()).alpha2
+            }
+        } else {
+            landkode
+        }
+    }
+
     companion object {
 
+        const val PDL_UKJENT_LANDKODE = "XUK"
         const val UKJENT_LANDKODE = "ZZ"
         val UKJENT_STATSBORGERSKAP =
             Statsborgerskap(land = "XUK", bekreftelsesdato = null, gyldigFraOgMed = null, gyldigTilOgMed = null)
