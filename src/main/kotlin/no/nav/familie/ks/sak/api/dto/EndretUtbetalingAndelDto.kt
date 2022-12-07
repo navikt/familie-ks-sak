@@ -15,5 +15,5 @@ data class EndretUtbetalingAndelDto(
     val avtaletidspunktDeltBosted: LocalDate?,
     val søknadstidspunkt: LocalDate?,
     val begrunnelse: String?,
-    var erEksplisittAvslagPåSøknad: Boolean?
+    val erEksplisittAvslagPåSøknad: Boolean?
 )
