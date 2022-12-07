@@ -7,8 +7,10 @@ import io.mockk.junit5.MockKExtension
 import io.mockk.mockk
 import io.mockk.slot
 import io.mockk.verify
+import no.nav.familie.kontrakter.felles.objectMapper
 import no.nav.familie.ks.sak.common.EnvService
 import no.nav.familie.ks.sak.kjerne.avstemming.domene.KonsistensavstemmingKjøreplan
+import no.nav.familie.ks.sak.kjerne.avstemming.domene.KonsistensavstemmingTaskDto
 import no.nav.familie.prosessering.domene.Task
 import no.nav.familie.prosessering.internal.TaskService
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -48,8 +50,12 @@ internal class KonsistensavstemmingSchedulerTest {
         konsistensavstemmingScheduler.utfør()
 
         verify(exactly = 1) { taskService.save(any()) }
+
         val taskData = taskSlot.captured
         assertEquals(KonsistensavstemmingTask.TASK_STEP_TYPE, taskData.type)
+        val konsistensavstemmingTaskDto = objectMapper.readValue(taskData.payload, KonsistensavstemmingTaskDto::class.java)
+        assertEquals(0, konsistensavstemmingTaskDto.kjøreplanId)
+        assertEquals(LocalDate.now(), konsistensavstemmingTaskDto.initieltKjøreTidspunkt.toLocalDate())
     }
 
     @Test

@@ -12,7 +12,7 @@ class KonsistensavstemmingKjøreplanService(
 ) {
 
     fun plukkLedigKjøreplanFor(dato: LocalDate): KonsistensavstemmingKjøreplan? {
-        val kjøreplan = konsistensavstemmingKjøreplanRepository.findByKjøreDatoAndLedig(dato)
+        val kjøreplan = konsistensavstemmingKjøreplanRepository.findByKjøredatoAndLedig(dato)
         return kjøreplan?.also { lagreNyStatus(kjøreplan, KjøreStatus.BEHANDLER) }
     }
 
