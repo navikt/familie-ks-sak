@@ -83,7 +83,7 @@ class KonsistensavstemmingTask(
 
     companion object {
         const val TASK_STEP_TYPE = "konsistensavstemming"
-        const val ANTALL_BEHANDLINGER = 1000
+        const val ANTALL_BEHANDLINGER = 5000
         private val logger = LoggerFactory.getLogger(KonsistensavstemmingTask::class.java)
 
         fun opprettTask(konsistensavstemmingTaskDto: KonsistensavstemmingTaskDto) = Task(

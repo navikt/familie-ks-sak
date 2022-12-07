@@ -40,6 +40,7 @@ class KonsistensavstemmingScheduler(
             )
         )
         logger.info("Stopper KonsistensavstemmingScheduler..")
+        MDC.clear() // rydder opp MDC
     }
 
     companion object {
