@@ -41,7 +41,7 @@ class VilkårsvurderingService(
 
         if (forrigeBehandlingSomErVedtatt != null) {
             initiellVilkårsvurdering.kopierOverInnvilgedeResultaterFraForrigeBehandling(
-                vilkårsvurderingForrigeBehandling = hentAktivVilkårsvurderingForBehandling(forrigeBehandlingSomErVedtatt.id)
+                vilkårsvurderingForrigeBehandling = finnAktivVilkårsvurdering(forrigeBehandlingSomErVedtatt.id)
             )
         }
 
