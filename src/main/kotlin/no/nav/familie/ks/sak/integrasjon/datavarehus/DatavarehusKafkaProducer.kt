@@ -4,18 +4,19 @@ import no.nav.familie.eksterne.kontrakter.VedtakDVH
 import no.nav.familie.kontrakter.felles.objectMapper
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.config.KafkaConfig
-import no.nav.familie.ks.sak.config.KafkaConfig.Companion.VEDTAK_TOPIC
 import no.nav.familie.ks.sak.statistikk.saksstatistikk.BehandlingStatistikkDto
-import org.apache.kafka.clients.producer.ProducerRecord
+import no.nav.familie.ks.sak.statistikk.saksstatistikk.SakStatistikkDto
 import org.slf4j.LoggerFactory
 import org.springframework.context.annotation.Profile
 import org.springframework.kafka.core.KafkaTemplate
 import org.springframework.stereotype.Service
 
 interface KafkaProducer {
+
     fun sendBehandlingsTilstand(behandlingId: String, request: BehandlingStatistikkDto)
     fun sendSisteBehandlingsTilstand(request: BehandlingStatistikkDto)
-    fun sendMessageForTopicVedtak(vedtak: VedtakDVH): Long
+    fun sendMessageForTopicVedtak(vedtak: VedtakDVH)
+    fun sendMessageForTopicSak(sakStatistikkDto: SakStatistikkDto)
 }
 
 @Service
@@ -25,41 +26,64 @@ class DatavarehusKafkaProducer(private val kafkaTemplate: KafkaTemplate<String, 
     private val log = LoggerFactory.getLogger(this::class.java)
 
     override fun sendBehandlingsTilstand(behandlingId: String, request: BehandlingStatistikkDto) {
-        sendKafkamelding(behandlingId, KafkaConfig.BEHANDLING_TOPIC, request.behandlingID.toString(), request)
+        sendKafkamelding(
+            topic = KafkaConfig.BEHANDLING_TOPIC,
+            key = request.behandlingID.toString(),
+            request = request,
+            behandlingId = behandlingId,
+            fagsakId = request.saksnummer.toString()
+        )
     }
 
-    override fun sendMessageForTopicVedtak(vedtak: VedtakDVH): Long {
-        val vedtakForDVHMelding = objectMapper.writeValueAsString(vedtak)
-        val response = kafkaTemplate.send(VEDTAK_TOPIC, vedtak.funksjonellId, vedtakForDVHMelding).get()
-
-        return response.recordMetadata.offset()
+    override fun sendMessageForTopicVedtak(vedtak: VedtakDVH) {
+        sendKafkamelding(
+            topic = KafkaConfig.VEDTAK_TOPIC,
+            key = vedtak.funksjonellId,
+            request = vedtak,
+            behandlingId = vedtak.behandlingsId,
+            fagsakId = vedtak.fagsakId
+        )
     }
 
     override fun sendSisteBehandlingsTilstand(request: BehandlingStatistikkDto) {
         sendKafkamelding(
-            request.behandlingID.toString(),
-            KafkaConfig.SISTE_TILSTAND_BEHANDLING_TOPIC,
-            request.behandlingID.toString(),
-            request
+            topic = KafkaConfig.SISTE_TILSTAND_BEHANDLING_TOPIC,
+            key = request.behandlingID.toString(),
+            request = request,
+            behandlingId = request.behandlingID.toString(),
+            fagsakId = request.saksnummer.toString()
         )
     }
 
-    private fun sendKafkamelding(behandlingId: String, topic: String, key: String, request: Any) {
+    override fun sendMessageForTopicSak(sakStatistikkDto: SakStatistikkDto) {
+        sendKafkamelding(
+            topic = KafkaConfig.SAK_TOPIC,
+            key = sakStatistikkDto.funksjonellId,
+            request = sakStatistikkDto,
+            fagsakId = sakStatistikkDto.sakId
+        )
+    }
+
+    private fun sendKafkamelding(
+        topic: String,
+        key: String,
+        request: Any,
+        behandlingId: String? = null,
+        fagsakId: String? = null
+    ) {
         val melding = objectMapper.writeValueAsString(request)
-        val producerRecord = ProducerRecord(topic, key, melding)
-        kafkaTemplate.send(producerRecord)
+
+        val logMeldingMetadata =
+            "Topicnavn: $topic \n" +
+                "Nøkkel: $key \n" +
+                "BehandlingId: $behandlingId \n" +
+                "FagsakId: $fagsakId \n"
+
+        kafkaTemplate.send(topic, key, melding)
             .addCallback(
+                { log.info("Melding sendt på kafka. \n" + "Offset: ${it?.recordMetadata?.offset()} \n" + logMeldingMetadata) },
                 {
-                    log.info(
-                        "Melding på topic $topic for $behandlingId med $key er sendt. " +
-                            "Fikk offset ${it?.recordMetadata?.offset()}"
-                    )
-                },
-                {
-                    val feilmelding = "Melding på topic $topic kan ikke sendes for $behandlingId med $key. " +
-                        "Feiler med ${it.message}"
-                    log.warn(feilmelding)
-                    throw Feil(message = feilmelding)
+                    throw Feil("Kafkamelding kan ikke sendes. \n" + logMeldingMetadata + "Feilmelding: \"${it.message}\"")
                 }
             )
     }
@@ -77,9 +101,12 @@ class DummyDatavarehusKafkaProducer : KafkaProducer {
         log.info("Skipper sending av saksstatistikk for behandling ${request.behandlingID} fordi kafka ikke er enablet")
     }
 
-    override fun sendMessageForTopicVedtak(vedtak: VedtakDVH): Long {
-        // TODO: Undersøke framtiden til E2EKafkaProducer
-        return 0
+    override fun sendMessageForTopicVedtak(vedtak: VedtakDVH) {
+        log.info("Skipper sending av vedtak for behandling ${vedtak.behandlingsId} fordi kafka ikke er enablet")
+    }
+
+    override fun sendMessageForTopicSak(sakStatistikkDto: SakStatistikkDto) {
+        log.info("Skipper sending av vedtak for fagsak ${sakStatistikkDto.sakId} fordi kafka ikke er enablet")
     }
 
     companion object {
