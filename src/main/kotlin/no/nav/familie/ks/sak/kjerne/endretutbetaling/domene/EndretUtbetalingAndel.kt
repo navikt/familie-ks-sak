@@ -71,7 +71,10 @@ data class EndretUtbetalingAndel(
 
     @Column(name = "vedtak_begrunnelse_spesifikasjoner")
     @Convert(converter = StandardbegrunnelseListConverter::class)
-    var begrunnelser: List<Begrunnelse> = emptyList()
+    var begrunnelser: List<Begrunnelse> = emptyList(),
+
+    @Column(name = "er_eksplisitt_avslag_paa_soknad")
+    var erEksplisittAvslagPåSøknad: Boolean? = null
 ) : BaseEntitet() {
 
     fun overlapperMed(periode: MånedPeriode) = periode.overlapperHeltEllerDelvisMed(this.periode)
@@ -122,21 +125,23 @@ fun EndretUtbetalingAndelMedAndelerTilkjentYtelse.tilEndretUtbetalingAndelDto() 
         årsak = this.årsak,
         avtaletidspunktDeltBosted = this.avtaletidspunktDeltBosted,
         søknadstidspunkt = this.søknadstidspunkt,
-        begrunnelse = this.begrunnelse
+        begrunnelse = this.begrunnelse,
+        erEksplisittAvslagPåSøknad = this.erEksplisittAvslagPåSøknad
     )
 
 fun EndretUtbetalingAndel.fraEndretUtbetalingAndelDto(
-    restEndretUtbetalingAndel: EndretUtbetalingAndelDto,
+    endretUtbetalingAndelDto: EndretUtbetalingAndelDto,
     person: Person
 ): EndretUtbetalingAndel {
-    this.fom = restEndretUtbetalingAndel.fom
-    this.tom = restEndretUtbetalingAndel.tom
-    this.prosent = restEndretUtbetalingAndel.prosent ?: BigDecimal(0)
-    this.årsak = restEndretUtbetalingAndel.årsak
-    this.avtaletidspunktDeltBosted = restEndretUtbetalingAndel.avtaletidspunktDeltBosted
-    this.søknadstidspunkt = restEndretUtbetalingAndel.søknadstidspunkt
-    this.begrunnelse = restEndretUtbetalingAndel.begrunnelse
+    this.fom = endretUtbetalingAndelDto.fom
+    this.tom = endretUtbetalingAndelDto.tom
+    this.prosent = endretUtbetalingAndelDto.prosent ?: BigDecimal(0)
+    this.årsak = endretUtbetalingAndelDto.årsak
+    this.avtaletidspunktDeltBosted = endretUtbetalingAndelDto.avtaletidspunktDeltBosted
+    this.søknadstidspunkt = endretUtbetalingAndelDto.søknadstidspunkt
+    this.begrunnelse = endretUtbetalingAndelDto.begrunnelse
     this.person = person
+    this.erEksplisittAvslagPåSøknad = endretUtbetalingAndelDto.erEksplisittAvslagPåSøknad
     return this
 }
 
