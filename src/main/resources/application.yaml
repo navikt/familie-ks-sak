@@ -133,7 +133,6 @@ FAMILIE_OPPDRAG_API_URL: http://familie-oppdrag/api
 SANITY_FAMILIE_API_URL: https://xsrv1mh6.apicdn.sanity.io/v2021-06-07/data/query/ba-brev
 FAMILIE_BA_MIGRERING_API_URL: http://familie-ba-migrering/api
 ECB_API_URL: https://sdw-wsrest.ecb.europa.eu/service/data/EXR/
-CRON_FAGSAKSTATUS_SCHEDULER: "0 0 7 1 * *"
 
 # Swagger
 AUTHORIZATION_URL: https://login.microsoftonline.com/navq.onmicrosoft.com/oauth2/v2.0/authorize
@@ -142,3 +141,5 @@ API_SCOPE: api://${AZURE_APP_CLIENT_ID}/.default
 
 # Scheduler
 CRON_GRENSESNITT_AVSTEMMING: "0 0 8 ? * MON-FRI"
+CRON_KONSISTENS_AVSTEMMING: "0 0 21 * * *"
+CRON_FAGSAKSTATUS_SCHEDULER: "0 0 7 1 * *"
