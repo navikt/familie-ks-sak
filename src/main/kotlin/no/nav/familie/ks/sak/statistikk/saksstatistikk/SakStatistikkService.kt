@@ -147,7 +147,7 @@ class SakStatistikkService(
             aktorId = fagsak.aktør.aktørId.toLong(),
             aktorer = aktørDVHer,
             sakStatus = fagsak.status.name,
-            avsender = "familie-ba-sak",
+            avsender = "familie-ks-sak",
             bostedsland = hentLandkode(fagsak.aktør)
         )
     }

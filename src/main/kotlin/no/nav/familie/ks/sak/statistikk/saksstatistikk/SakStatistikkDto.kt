@@ -15,5 +15,5 @@ data class SakStatistikkDto(
     val aktorer: List<AktørDVH>? = emptyList(),
     val sakStatus: String,
     val avsender: String,
-    val ytelseType: String = "BARNETRYGD"
+    val ytelseType: String = "KONTANTSTOTTE"
 )
