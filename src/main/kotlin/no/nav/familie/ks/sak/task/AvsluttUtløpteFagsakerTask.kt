@@ -25,5 +25,6 @@ class AvsluttUtløpteFagsakerTask(val fagsakService: FagsakService) : AsyncTaskS
 
         const val TASK_STEP_TYPE = "avsluttUtløpteFagsaker"
         private val logger: Logger = LoggerFactory.getLogger(this::class.java)
+        fun lagTask() = Task(type = this.TASK_STEP_TYPE, payload = "")
     }
 }

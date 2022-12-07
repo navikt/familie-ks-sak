@@ -1,6 +1,5 @@
 import no.nav.familie.ks.sak.common.EnvService
 import no.nav.familie.leader.LeaderClient
-import no.nav.familie.prosessering.domene.Task
 import no.nav.familie.prosessering.internal.TaskService
 import org.slf4j.LoggerFactory
 import org.springframework.scheduling.annotation.Scheduled
@@ -25,8 +24,7 @@ class FagsakStatusScheduler(
             return
         }
 
-        val oppdaterLøpendeFlaggTask = Task(type = AvsluttUtløpteFagsakerTask.TASK_STEP_TYPE, payload = "")
-        taskService.save(oppdaterLøpendeFlaggTask)
+        taskService.save(AvsluttUtløpteFagsakerTask.lagTask())
         logger.info("Opprettet oppdaterLøpendeFlaggTask")
     }
 
