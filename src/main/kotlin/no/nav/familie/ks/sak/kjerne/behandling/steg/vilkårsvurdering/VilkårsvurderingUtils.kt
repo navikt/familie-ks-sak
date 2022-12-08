@@ -424,11 +424,11 @@ fun Vilkårsvurdering.oppdaterMedDødsdatoer(
 }
 
 fun Vilkårsvurdering.kopierOverInnvilgedeResultaterFraForrigeBehandling(
-    vilkårsvurderingForrigeBehandling: Vilkårsvurdering?
+    vilkårsvurderingForrigeBehandling: Vilkårsvurdering
 ) {
     personResultater.forEach { initieltPersonResultat ->
         val personResultatForrigeBehandling =
-            vilkårsvurderingForrigeBehandling?.personResultater?.find {
+            vilkårsvurderingForrigeBehandling.personResultater.find {
                 it.aktør == initieltPersonResultat.aktør
             }
 
