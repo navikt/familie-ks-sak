@@ -21,6 +21,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
 import no.nav.familie.ks.sak.kjerne.beregning.AndelerTilkjentYtelseOgEndreteUtbetalingerService
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelseRepository
+import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.tilEndretUtbetalingAndelDto
 import no.nav.familie.ks.sak.kjerne.logg.LoggService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.StatsborgerskapService
@@ -28,7 +29,10 @@ import no.nav.familie.ks.sak.kjerne.totrinnskontroll.TotrinnskontrollRepository
 import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
+import java.math.BigInteger
 
 @Service
 class BehandlingService(
@@ -100,6 +104,10 @@ class BehandlingService(
             )
         }
 
+        val endreteUtbetalingerMedAndeler = andelerTilkjentYtelseOgEndreteUtbetalingerService
+            .finnEndreteUtbetalingerMedAndelerTilkjentYtelse(behandlingId)
+            .map { it.tilEndretUtbetalingAndelDto() }
+
         val totrinnskontroll =
             totrinnskontrollRepository.findByBehandlingAndAktiv(behandlingId = behandling.id)?.tilTotrinnskontrollDto()
 
@@ -112,7 +120,8 @@ class BehandlingService(
             personerMedAndelerTilkjentYtelse,
             utbetalingsperioder,
             vedtak,
-            totrinnskontroll
+            totrinnskontroll,
+            endreteUtbetalingerMedAndeler
         )
     }
 
@@ -139,6 +148,12 @@ class BehandlingService(
         behandling.overstyrtEndringstidspunkt = null
         oppdaterBehandling(behandling)
     }
+
+    fun hentSisteIverksatteBehandlingerFraLøpendeFagsaker(page: Pageable): Page<BigInteger> =
+        behandlingRepository.finnSisteIverksatteBehandlingFraLøpendeFagsaker(page)
+
+    fun hentAktivtFødselsnummerForBehandlinger(behandlingIder: List<Long>): Map<Long, String> =
+        behandlingRepository.finnAktivtFødselsnummerForBehandlinger(behandlingIder).associate { it.first to it.second }
 
     companion object {
         private val logger: Logger = LoggerFactory.getLogger(BehandlingService::class.java)

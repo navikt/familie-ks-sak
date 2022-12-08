@@ -23,8 +23,8 @@ class GrensesnittavstemmingScheduler(private val taskService: TaskService, priva
 
     @Scheduled(cron = "\${CRON_GRENSESNITT_AVSTEMMING}")
     fun utfør() {
-        logger.info("Starter GrensesnittavstemmingScheduler..")
         MDC.put(MDCConstants.MDC_CALL_ID, UUID.randomUUID().toString())
+        logger.info("Starter GrensesnittavstemmingScheduler..")
 
         if ((LeaderClient.isLeader() != true && !envService.erLokal()) || LocalDate.now().erHelligdag()) {
             // envService.erLokal() sjekk er lagt slik at scheduler-en kan testes i lokalt

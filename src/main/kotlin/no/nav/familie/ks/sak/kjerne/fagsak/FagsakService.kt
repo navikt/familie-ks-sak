@@ -16,6 +16,7 @@ import no.nav.familie.ks.sak.integrasjon.pdl.PersonOpplysningerService
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.PdlPersonInfo
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.VedtakRepository
 import no.nav.familie.ks.sak.kjerne.beregning.AndelerTilkjentYtelseOgEndreteUtbetalingerService
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.Fagsak
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.FagsakRepository
@@ -25,6 +26,7 @@ import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonRepository
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlagRepository
 import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext
+import no.nav.familie.prosessering.internal.TaskService
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
@@ -41,7 +43,9 @@ class FagsakService(
     private val fagsakRepository: FagsakRepository,
     private val personRepository: PersonRepository,
     private val behandlingRepository: BehandlingRepository,
-    private val andelerTilkjentYtelseOgEndreteUtbetalingerService: AndelerTilkjentYtelseOgEndreteUtbetalingerService
+    private val andelerTilkjentYtelseOgEndreteUtbetalingerService: AndelerTilkjentYtelseOgEndreteUtbetalingerService,
+    private val taskService: TaskService,
+    private val vedtakRepository: VedtakRepository
 ) {
 
     private val antallFagsakerOpprettetFraManuell =
@@ -116,7 +120,12 @@ class FagsakService(
         return lagMinimalFagsakResponsDto(
             fagsak = fagsak,
             aktivtBehandling = behandlingRepository.findByFagsakAndAktiv(fagsakId),
-            behandlinger = alleBehandlinger.map { lagBehandlingResponsDto(it) },
+            behandlinger = alleBehandlinger.map {
+                lagBehandlingResponsDto(
+                    behandling = it,
+                    vedtaksdato = vedtakRepository.findByBehandlingAndAktivOptional(it.id)?.vedtaksdato
+                )
+            },
             gjeldendeUtbetalingsperioder = gjeldendeUtbetalingsperioder ?: emptyList()
         )
     }
@@ -130,16 +139,22 @@ class FagsakService(
     @Transactional
     fun lagre(fagsak: Fagsak): Fagsak {
         logger.info("${SikkerhetContext.hentSaksbehandlerNavn()} oppretter fagsak $fagsak")
-        return fagsakRepository.save(fagsak)
+        return fagsakRepository.save(fagsak).also { taskService.save(PubliserSaksstatistikkTask.lagTask(it.id)) }
     }
 
-    fun oppdaterStatus(fagsak: Fagsak, nyStatus: FagsakStatus) {
+    @Transactional
+    fun finnOgAvsluttFagsakerSomSkalAvsluttes(): Int =
+        fagsakRepository.finnFagsakerSomSkalAvsluttes()
+            .map { oppdaterStatus(it, FagsakStatus.AVSLUTTET) }
+            .size
+
+    fun oppdaterStatus(fagsak: Fagsak, nyStatus: FagsakStatus): Fagsak {
         logger.info(
             "${SikkerhetContext.hentSaksbehandlerNavn()} endrer status på fagsak ${fagsak.id} fra ${fagsak.status}" +
                 " til $nyStatus"
         )
         fagsak.status = nyStatus
-        lagre(fagsak)
+        return lagre(fagsak)
     }
 
     private fun hentForelderdeltagereFraBehandling(

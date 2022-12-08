@@ -15,15 +15,16 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelseRepository
-import no.nav.familie.ks.sak.kjerne.beregning.domene.EndretUtbetalingAndel
 import no.nav.familie.ks.sak.kjerne.beregning.domene.TilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.domene.TilkjentYtelseRepository
+import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.EndretUtbetalingAndel
 import no.nav.familie.ks.sak.kjerne.fagsak.FagsakService
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlagRepository
 import org.springframework.stereotype.Service
 import java.time.LocalDate
+import java.time.LocalDateTime
 
 @Service
 class BeregningService(
@@ -221,4 +222,12 @@ class BeregningService(
             behandling.erSøknad() &&
             nyeBarnMedUtebtalingSomIkkeErEndret.isEmpty()
     }
+
+    fun hentLøpendeAndelerTilkjentYtelseMedUtbetalingerForBehandlinger(
+        behandlingIder: List<Long>,
+        avstemmingstidspunkt: LocalDateTime
+    ): List<AndelTilkjentYtelse> = andelTilkjentYtelseRepository.finnLøpendeAndelerTilkjentYtelseForBehandlinger(
+        behandlingIder,
+        avstemmingstidspunkt.toLocalDate().toYearMonth()
+    ).filter { it.erAndelSomSkalSendesTilOppdrag() }
 }
