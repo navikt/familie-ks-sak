@@ -120,12 +120,17 @@ class OppdaterVilkårsvurderingTest {
                 personopplysningGrunnlag = persongrunnlagRevurdering
             )
 
-        val persongrunnlag2 = lagPersonopplysningGrunnlag(
+        val persongrunnlagForrigeBehandling = lagPersonopplysningGrunnlag(
             søkerPersonIdent = randomFnr(),
             barnasIdenter = listOf(randomFnr())
         )
         val vilkårsvurderingForrigeBehandling =
-            lagVilkårsvurderingOppfylt(personer = listOf(persongrunnlag2.søker, persongrunnlag2.barna.single()))
+            lagVilkårsvurderingOppfylt(
+                personer = listOf(
+                    persongrunnlagForrigeBehandling.søker,
+                    persongrunnlagForrigeBehandling.barna.single()
+                )
+            )
 
         initiellVilkårsvurdering.kopierOverInnvilgedeResultaterFraForrigeBehandling(
             vilkårsvurderingForrigeBehandling = vilkårsvurderingForrigeBehandling
