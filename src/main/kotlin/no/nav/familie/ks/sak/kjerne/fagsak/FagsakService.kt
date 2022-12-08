@@ -26,6 +26,7 @@ import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonRepository
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlagRepository
 import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext
+import no.nav.familie.ks.sak.task.PubliserSaksstatistikkTask
 import no.nav.familie.prosessering.internal.TaskService
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
@@ -139,7 +140,9 @@ class FagsakService(
     @Transactional
     fun lagre(fagsak: Fagsak): Fagsak {
         logger.info("${SikkerhetContext.hentSaksbehandlerNavn()} oppretter fagsak $fagsak")
-        return fagsakRepository.save(fagsak).also { taskService.save(PubliserSaksstatistikkTask.lagTask(it.id)) }
+        return fagsakRepository.save(fagsak).also {
+            taskService.save(PubliserSaksstatistikkTask.lagTask(it.id))
+        }
     }
 
     @Transactional
