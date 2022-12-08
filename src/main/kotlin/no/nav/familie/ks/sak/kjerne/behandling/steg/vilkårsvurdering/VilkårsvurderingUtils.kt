@@ -423,7 +423,7 @@ fun Vilkårsvurdering.oppdaterMedDødsdatoer(
     }
 }
 
-fun Vilkårsvurdering.kopierOverInnvilgedeResultaterFraForrigeBehandling(
+fun Vilkårsvurdering.kopierOverOppfylteOgIkkeAktuelleResultaterFraForrigeBehandling(
     vilkårsvurderingForrigeBehandling: Vilkårsvurdering
 ) {
     personResultater.forEach { initieltPersonResultat ->

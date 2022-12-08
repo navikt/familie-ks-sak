@@ -40,7 +40,7 @@ class VilkårsvurderingService(
         val initiellVilkårsvurdering = genererInitiellVilkårsvurdering(behandling, personopplysningGrunnlag)
 
         if (forrigeBehandlingSomErVedtatt != null) {
-            initiellVilkårsvurdering.kopierOverInnvilgedeResultaterFraForrigeBehandling(
+            initiellVilkårsvurdering.kopierOverOppfylteOgIkkeAktuelleResultaterFraForrigeBehandling(
                 vilkårsvurderingForrigeBehandling = hentAktivVilkårsvurderingForBehandling(forrigeBehandlingSomErVedtatt.id)
             )
         }

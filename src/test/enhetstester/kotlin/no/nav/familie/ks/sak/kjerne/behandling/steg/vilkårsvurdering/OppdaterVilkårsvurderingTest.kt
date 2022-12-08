@@ -33,7 +33,7 @@ class OppdaterVilkårsvurderingTest {
         val initiellVilkårsvurdering =
             genererInitiellVilkårsvurdering(behandling = mockk(relaxed = true), personopplysningGrunnlag = persongrunnlag)
 
-        initiellVilkårsvurdering.kopierOverInnvilgedeResultaterFraForrigeBehandling(
+        initiellVilkårsvurdering.kopierOverOppfylteOgIkkeAktuelleResultaterFraForrigeBehandling(
             vilkårsvurderingForrigeBehandling = vilkårsvurderingForrigeBehandling
         )
 
@@ -77,7 +77,7 @@ class OppdaterVilkårsvurderingTest {
         val initiellVilkårsvurdering =
             genererInitiellVilkårsvurdering(behandling = mockk(relaxed = true), personopplysningGrunnlag = persongrunnlag2)
 
-        initiellVilkårsvurdering.kopierOverInnvilgedeResultaterFraForrigeBehandling(
+        initiellVilkårsvurdering.kopierOverOppfylteOgIkkeAktuelleResultaterFraForrigeBehandling(
             vilkårsvurderingForrigeBehandling = vilkårsvurderingForrigeBehandling
         )
 
@@ -132,7 +132,7 @@ class OppdaterVilkårsvurderingTest {
                 )
             )
 
-        initiellVilkårsvurdering.kopierOverInnvilgedeResultaterFraForrigeBehandling(
+        initiellVilkårsvurdering.kopierOverOppfylteOgIkkeAktuelleResultaterFraForrigeBehandling(
             vilkårsvurderingForrigeBehandling = vilkårsvurderingForrigeBehandling
         )
         Assertions.assertEquals(1, initiellVilkårsvurdering.personResultater.size)
@@ -171,7 +171,7 @@ class OppdaterVilkårsvurderingTest {
         personResultat.setSortedVilkårResultater(bosattIRiketVilkårResultater)
         vilkårsvurderingForrigeBehandling.personResultater = setOf(personResultat)
 
-        initiellVilkårsvurdering.kopierOverInnvilgedeResultaterFraForrigeBehandling(
+        initiellVilkårsvurdering.kopierOverOppfylteOgIkkeAktuelleResultaterFraForrigeBehandling(
             vilkårsvurderingForrigeBehandling = vilkårsvurderingForrigeBehandling
         )
 
@@ -223,7 +223,7 @@ class OppdaterVilkårsvurderingTest {
         personResultat.setSortedVilkårResultater(bosattIRiketVilkårResultater)
         aktivMedBosattIRiketDelvisIkkeOppfylt.personResultater = setOf(personResultat)
 
-        initiellVilkårsvurdering.kopierOverInnvilgedeResultaterFraForrigeBehandling(
+        initiellVilkårsvurdering.kopierOverOppfylteOgIkkeAktuelleResultaterFraForrigeBehandling(
             vilkårsvurderingForrigeBehandling = aktivMedBosattIRiketDelvisIkkeOppfylt
         )
 
@@ -252,7 +252,7 @@ class OppdaterVilkårsvurderingTest {
         vilkårsvurderingForrigeBehandling.personResultater.find { it.erSøkersResultater() }!!
             .leggTilBlankAnnenVurdering(AnnenVurderingType.OPPLYSNINGSPLIKT)
 
-        initiellVilkårsvurderingUtenAndreVurderinger.kopierOverInnvilgedeResultaterFraForrigeBehandling(
+        initiellVilkårsvurderingUtenAndreVurderinger.kopierOverOppfylteOgIkkeAktuelleResultaterFraForrigeBehandling(
             vilkårsvurderingForrigeBehandling = vilkårsvurderingForrigeBehandling
         )
 
