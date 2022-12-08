@@ -21,7 +21,7 @@ import java.time.LocalDate
 class OppdaterVilkårsvurderingTest {
 
     @Test
-    fun `Skal legge til nytt vilkår`() {
+    fun `kopierOverOppfylteOgIkkeAktuelleResultaterFraForrigeBehandling skal legge til nytt vilkår`() {
         val søkerPersonIdent = randomFnr()
         val barnPersonIdent = randomFnr()
         val persongrunnlag = lagPersonopplysningGrunnlag(
@@ -62,7 +62,7 @@ class OppdaterVilkårsvurderingTest {
     }
 
     @Test
-    fun `Skal legge til person på vilkårsvurdering`() {
+    fun `kopierOverOppfylteOgIkkeAktuelleResultaterFraForrigeBehandling skal legge til person på vilkårsvurdering`() {
         val søkerPersonIdent = randomFnr()
         val persongrunnlag1 = lagPersonopplysningGrunnlag(
             søkerPersonIdent = søkerPersonIdent
@@ -110,7 +110,7 @@ class OppdaterVilkårsvurderingTest {
     }
 
     @Test
-    fun `Skal fjerne person på vilkårsvurdering`() {
+    fun `kopierOverOppfylteOgIkkeAktuelleResultaterFraForrigeBehandling skal fjerne person på vilkårsvurdering`() {
         val persongrunnlagRevurdering = lagPersonopplysningGrunnlag(
             søkerPersonIdent = randomFnr()
         )
@@ -139,7 +139,7 @@ class OppdaterVilkårsvurderingTest {
     }
 
     @Test
-    fun `Skal ha med tomt vilkår på person hvis vilkåret ble avslått forrige behandling`() {
+    fun `kopierOverOppfylteOgIkkeAktuelleResultaterFraForrigeBehandling skal ha med tomt vilkår på person hvis vilkåret ble avslått forrige behandling`() {
         val søkerFnr = randomFnr()
         val nyBehandling = lagBehandling()
         val forrigeBehandling = lagBehandling()
@@ -184,8 +184,9 @@ class OppdaterVilkårsvurderingTest {
         Assertions.assertTrue(nyInitBosattIRiketVilkår.single().resultat == Resultat.IKKE_VURDERT)
     }
 
+    // kopierOverOppfylteOgIkkeAktuelleResultaterFraForrigeBehandling
     @Test
-    fun `Skal ha med oppfylte perioder fra vilkår på person hvis vilkåret ble både avslått og innvilget forrige behandling`() {
+    fun `kopierOverOppfylteOgIkkeAktuelleResultaterFraForrigeBehandling skal kun ta med oppfylte og ikke aktuelle perioder`() {
         val søkerAktørId = randomAktør()
         val nyBehandling = lagBehandling()
         val forrigeBehandling = lagBehandling()
@@ -218,6 +219,13 @@ class OppdaterVilkårsvurderingTest {
                 resultat = Resultat.OPPFYLT,
                 periodeFom = LocalDate.now(),
                 periodeTom = LocalDate.now().plusYears(1)
+            ),
+            lagVilkårResultat(
+                vilkårType = Vilkår.BOSATT_I_RIKET,
+                personResultat = personResultat,
+                resultat = Resultat.IKKE_AKTUELT,
+                periodeFom = LocalDate.now().plusYears(2),
+                periodeTom = LocalDate.now().plusYears(3)
             )
         )
         personResultat.setSortedVilkårResultater(bosattIRiketVilkårResultater)
@@ -232,11 +240,11 @@ class OppdaterVilkårsvurderingTest {
                 ?: emptyList()
 
         Assertions.assertTrue(nyInitBosattIRiketVilkår.isNotEmpty())
-        Assertions.assertTrue(nyInitBosattIRiketVilkår.single().resultat == Resultat.OPPFYLT)
+        Assertions.assertTrue(nyInitBosattIRiketVilkår.all { it.resultat == Resultat.OPPFYLT || it.resultat == Resultat.IKKE_AKTUELT })
     }
 
     @Test
-    fun `Skal beholde andreVurderinger lagt til på inneværende behandling`() {
+    fun `kopierOverOppfylteOgIkkeAktuelleResultaterFraForrigeBehandling skal beholde andreVurderinger lagt til på inneværende behandling`() {
         val søkerAktørId = randomAktør()
         val nyBehandling = lagBehandling()
 
