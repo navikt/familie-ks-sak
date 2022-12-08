@@ -7,15 +7,12 @@ import io.mockk.junit5.MockKExtension
 import io.mockk.just
 import io.mockk.mockk
 import io.mockk.runs
-import io.mockk.slot
 import io.mockk.verify
 import no.nav.familie.kontrakter.felles.objectMapper
 import no.nav.familie.ks.sak.kjerne.avstemming.domene.KonsistensavstemmingKjøreplan
 import no.nav.familie.ks.sak.kjerne.avstemming.domene.KonsistensavstemmingTaskDto
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.prosessering.domene.Task
-import no.nav.familie.prosessering.internal.TaskService
-import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -36,9 +33,6 @@ internal class KonsistensavstemmingTaskTest {
     @MockK
     private lateinit var behandlingService: BehandlingService
 
-    @MockK
-    private lateinit var taskService: TaskService
-
     @InjectMockKs
     private lateinit var konsistensavstemmingTask: KonsistensavstemmingTask
 
@@ -53,7 +47,6 @@ internal class KonsistensavstemmingTaskTest {
 
     @Test
     fun `doTask skal ikke utføre task når kjøreplan status er FERDIG`() {
-        every { taskService.save(any()) } returns mockk()
         every { konsistensavstemmingKjøreplanService.harKjøreplanStatusFerdig(1) } returns true
 
         konsistensavstemmingTask.doTask(lagTask())
@@ -72,11 +65,8 @@ internal class KonsistensavstemmingTaskTest {
         every { page.nextPageable() } returns pageable
         every { page.content } returns behandlingIder
 
-        val taskSlot = slot<Task>()
-
         every { behandlingService.hentSisteIverksatteBehandlingerFraLøpendeFagsaker(any()) } returns page
         every { avstemmingService.hentDataForKonsistensavstemming(any(), any()) } returns mockk()
-        every { taskService.save(capture(taskSlot)) } returns mockk()
 
         konsistensavstemmingTask.doTask(lagTask())
 
@@ -84,8 +74,6 @@ internal class KonsistensavstemmingTaskTest {
         verify(exactly = 50) { avstemmingService.sendKonsistensavstemmingData(any(), any(), any()) }
         verify(exactly = 1) { avstemmingService.sendKonsistensavstemmingAvsluttMelding(any(), any()) }
         verify(exactly = 1) { konsistensavstemmingKjøreplanService.lagreNyStatus(any<Long>(), any()) }
-
-        assertTrue { taskSlot.captured.metadata["transaksjonId"] != null }
     }
 
     private fun lagTask() = Task(

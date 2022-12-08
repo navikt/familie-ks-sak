@@ -7,7 +7,6 @@ import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.prosessering.AsyncTaskStep
 import no.nav.familie.prosessering.TaskStepBeskrivelse
 import no.nav.familie.prosessering.domene.Task
-import no.nav.familie.prosessering.internal.TaskService
 import org.slf4j.LoggerFactory
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
@@ -24,8 +23,7 @@ import java.util.UUID
 class KonsistensavstemmingTask(
     private val konsistensavstemmingKjøreplanService: KonsistensavstemmingKjøreplanService,
     private val avstemmingService: AvstemmingService,
-    private val behandlingService: BehandlingService,
-    private val taskService: TaskService
+    private val behandlingService: BehandlingService
 ) : AsyncTaskStep {
 
     override fun doTask(task: Task) {
@@ -38,7 +36,6 @@ class KonsistensavstemmingTask(
 
         // oppdaterer task med transaksjonId som metadata
         task.metadataWrapper.properties["transaksjonId"] = transaksjonId.toString()
-        taskService.save(task)
 
         logger.info(
             "Konsistensavstemming med transaksjonId $transaksjonId ble initielt trigget " +

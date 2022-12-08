@@ -4,6 +4,7 @@ import no.nav.familie.ks.sak.kjerne.avstemming.domene.KjøreStatus
 import no.nav.familie.ks.sak.kjerne.avstemming.domene.KonsistensavstemmingKjøreplan
 import no.nav.familie.ks.sak.kjerne.avstemming.domene.KonsistensavstemmingKjøreplanRepository
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDate
 
 @Service
@@ -30,5 +31,11 @@ class KonsistensavstemmingKjøreplanService(
     fun harKjøreplanStatusFerdig(kjøreplanId: Long): Boolean {
         val kjøreplan = konsistensavstemmingKjøreplanRepository.getReferenceById(kjøreplanId)
         return kjøreplan.status == KjøreStatus.FERDIG
+    }
+
+    @Transactional
+    fun leggTilManuellKjøreplan(): KonsistensavstemmingKjøreplan {
+        val kjøreplan = KonsistensavstemmingKjøreplan(kjøredato = LocalDate.now(), status = KjøreStatus.MANUELL)
+        return konsistensavstemmingKjøreplanRepository.saveAndFlush(kjøreplan)
     }
 }

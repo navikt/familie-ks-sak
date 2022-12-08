@@ -6,10 +6,14 @@ import no.nav.familie.kontrakter.felles.dokarkiv.Dokumenttype
 import no.nav.familie.kontrakter.felles.dokarkiv.v2.ArkiverDokumentRequest
 import no.nav.familie.kontrakter.felles.dokarkiv.v2.Dokument
 import no.nav.familie.kontrakter.felles.dokarkiv.v2.Filtype
+import no.nav.familie.ks.sak.api.dto.ManuellStartKonsistensavstemmingDto
 import no.nav.familie.ks.sak.common.util.Periode
 import no.nav.familie.ks.sak.config.BehandlerRolle
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
 import no.nav.familie.ks.sak.kjerne.avstemming.GrensesnittavstemmingTask
+import no.nav.familie.ks.sak.kjerne.avstemming.KonsistensavstemmingKjøreplanService
+import no.nav.familie.ks.sak.kjerne.avstemming.KonsistensavstemmingTask
+import no.nav.familie.ks.sak.kjerne.avstemming.domene.KonsistensavstemmingTaskDto
 import no.nav.familie.ks.sak.sikkerhet.TilgangService
 import no.nav.familie.ks.sak.statistikk.saksstatistikk.SakStatistikkService
 import no.nav.familie.ks.sak.statistikk.stønadsstatistikk.PubliserVedtakTask
@@ -35,7 +39,8 @@ class ForvaltningController(
     private val integrasjonClient: IntegrasjonClient,
     private val sakStatistikkService: SakStatistikkService,
     private val stønadsstatistikkService: StønadsstatistikkService,
-    private val taskService: TaskService
+    private val taskService: TaskService,
+    private val konsistensavstemmingKjøreplanService: KonsistensavstemmingKjøreplanService
 ) {
 
     private val logger = LoggerFactory.getLogger(ForvaltningController::class.java)
@@ -104,10 +109,31 @@ class ForvaltningController(
     fun sendGrensesnittavstemmingManuell(@RequestBody(required = true) periode: Periode) {
         tilgangService.validerTilgangTilHandling(
             minimumBehandlerRolle = BehandlerRolle.FORVALTER,
-            handling = "Sender vedtakDVH til stønadsstatistikk manuelt"
+            handling = "Kjører grensesnittavstemming manuelt"
         )
         taskService.save(
             GrensesnittavstemmingTask.opprettTask(periode.fom.atStartOfDay(), periode.tom.atStartOfDay())
+        )
+    }
+
+    @PostMapping(path = ["/avstemming/send-konsistensavstemming-manuell"])
+    fun sendKonsistensavstemmingManuell(
+        @RequestBody(required = true)
+        manuellStartKonsistensavstemmingDto: ManuellStartKonsistensavstemmingDto
+    ) {
+        tilgangService.validerTilgangTilHandling(
+            minimumBehandlerRolle = BehandlerRolle.FORVALTER,
+            handling = "Kjører konsistensavstemming manuelt"
+        )
+
+        val manuellKjøreplan = konsistensavstemmingKjøreplanService.leggTilManuellKjøreplan()
+        taskService.save(
+            KonsistensavstemmingTask.opprettTask(
+                KonsistensavstemmingTaskDto(
+                    kjøreplanId = manuellKjøreplan.id,
+                    initieltKjøreTidspunkt = manuellStartKonsistensavstemmingDto.triggerTid
+                )
+            )
         )
     }
 }

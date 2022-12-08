@@ -5,6 +5,9 @@ import no.nav.familie.ks.sak.api.dto.RegistrerSøknadDto
 import no.nav.familie.ks.sak.api.dto.tilSøknadGrunnlag
 import no.nav.familie.ks.sak.api.dto.writeValueAsString
 import no.nav.familie.ks.sak.api.mapper.SøknadGrunnlagMapper.tilSøknadDto
+import no.nav.familie.ks.sak.common.EnvService
+import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
+import no.nav.familie.ks.sak.integrasjon.infotrygd.InfotrygdReplikaClient
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg
 import no.nav.familie.ks.sak.kjerne.behandling.steg.IBehandlingSteg
@@ -21,6 +24,8 @@ import org.springframework.transaction.annotation.Transactional
 @Service
 class RegistrereSøknadSteg(
     private val søknadGrunnlagService: SøknadGrunnlagService,
+    private val infotrygdReplikaClient: InfotrygdReplikaClient,
+    private val envService: EnvService,
     private val loggService: LoggService,
     private val personopplysningGrunnlagService: PersonopplysningGrunnlagService,
     private val behandlingService: BehandlingService,
@@ -34,6 +39,9 @@ class RegistrereSøknadSteg(
     override fun utførSteg(behandlingId: Long, behandlingStegDto: BehandlingStegDto) {
         logger.info("Utfører steg ${getBehandlingssteg().name} for behandling $behandlingId")
         val registrerSøknadDto = behandlingStegDto as RegistrerSøknadDto
+
+        logger.info("valider steg ${getBehandlingssteg().name}")
+        validerRegistrerSøknadSteg(registrerSøknadDto)
 
         // Sjekk om det allerede finnes en registrert søknad tilknyttet behandlingen
         val aktivSøknadGrunnlag = søknadGrunnlagService.finnAktiv(behandlingId)
@@ -73,6 +81,15 @@ class RegistrereSøknadSteg(
         tilkjentYtelseRepository.slettTilkjentYtelseForBehandling(behandling)
 
         secureLogger.info("Data mottatt ${søknadGrunnlag.søknad}")
+    }
+
+    fun validerRegistrerSøknadSteg(registrerSøknadDto: RegistrerSøknadDto) {
+        // Valider at det ikke finnes løpende kontantstøtte for barna i infotrygd, gjøres kun i preprod siden replika mangler i prod
+        if (envService.erPreprod() && infotrygdReplikaClient.harKontantstøtteIInfotrygd(registrerSøknadDto.søknad.barnaMedOpplysninger)) {
+            throw FunksjonellFeil(
+                melding = "Kan ikke fortsette. Ett eller flere av barna har løpende kontantstøtte i infotrygd."
+            )
+        }
     }
 
     companion object {
