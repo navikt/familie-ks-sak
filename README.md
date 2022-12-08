@@ -46,7 +46,7 @@ Postgres-databasen kan settes opp slik:
 
 ```
 docker run --name familie-ks-sak-postgres -e POSTGRES_PASSWORD=test -d -p 5432:5432 postgres
-docker ps (finn container id)
+docker ps --quiet --all --filter "name=familie-ks-sak-postgres"
 docker exec -it <container_id> bash
 psql -U postgres
 CREATE DATABASE "familie-ks-sak";

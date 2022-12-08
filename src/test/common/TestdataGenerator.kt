@@ -105,6 +105,7 @@ fun lagPersonopplysningGrunnlag(
     søkerPersonIdent: String = randomFnr(),
     barnasIdenter: List<String> = emptyList(), // FGB med register søknad steg har ikke barnasidenter
     barnasFødselsdatoer: List<LocalDate> = barnasIdenter.map { fnrTilFødselsdato(it) },
+    barnasDødsfallDatoer: List<LocalDate?> = barnasIdenter.map { null },
     søkerAktør: Aktør = fnrTilAktør(søkerPersonIdent).also {
         it.personidenter.add(
             Personident(
@@ -163,6 +164,16 @@ fun lagPersonopplysningGrunnlag(
                     mutableListOf(GrStatsborgerskap(landkode = "NOR", medlemskap = Medlemskap.NORDEN, person = barn))
                 barn.bostedsadresser = mutableListOf()
                 barn.sivilstander = mutableListOf(GrSivilstand(type = SIVILSTAND.UGIFT, person = barn))
+                barn.dødsfall =
+                    barnasDødsfallDatoer.getOrNull(index)?.let {
+                        Dødsfall(
+                            person = barn,
+                            dødsfallDato = it,
+                            dødsfallAdresse = null,
+                            dødsfallPostnummer = null,
+                            dødsfallPoststed = null
+                        )
+                    }
             }
         )
     }
@@ -183,7 +194,7 @@ fun nesteBehandlingId(): Long {
 fun lagBehandling(
     fagsak: Fagsak = lagFagsak(),
     type: BehandlingType = BehandlingType.FØRSTEGANGSBEHANDLING,
-    opprettetÅrsak: BehandlingÅrsak,
+    opprettetÅrsak: BehandlingÅrsak = BehandlingÅrsak.SØKNAD,
     kategori: BehandlingKategori = BehandlingKategori.NASJONAL
 ): Behandling = Behandling(
     id = nesteBehandlingId(),
@@ -703,3 +714,36 @@ fun lagDødsfall(
     dødsfallPostnummer = dødsfallPostnummer,
     dødsfallPoststed = dødsfallPoststed
 )
+
+fun lagVilkårsvurderingOppfylt(personer: Collection<Person>, behandling: Behandling = lagBehandling()): Vilkårsvurdering {
+    val vilkårsvurdering = Vilkårsvurdering(
+        behandling = behandling
+    )
+
+    val personResultater = personer.map { person ->
+        val personResultat = PersonResultat(
+            vilkårsvurdering = vilkårsvurdering,
+            aktør = person.aktør
+        )
+
+        personResultat.setSortedVilkårResultater(
+            Vilkår.hentVilkårFor(person.type).map {
+                VilkårResultat(
+                    personResultat = personResultat,
+                    periodeFom = if (person.type == PersonType.SØKER) person.fødselsdato else person.fødselsdato.plusYears(1),
+                    periodeTom = if (person.type == PersonType.SØKER) null else person.fødselsdato.plusYears(2),
+                    vilkårType = it,
+                    resultat = Resultat.OPPFYLT,
+                    begrunnelse = "",
+                    behandlingId = vilkårsvurdering.behandling.id,
+                    utdypendeVilkårsvurderinger = emptyList()
+                )
+            }.toSet()
+        )
+        personResultat
+    }.toSet()
+
+    vilkårsvurdering.personResultater = personResultater
+
+    return vilkårsvurdering
+}

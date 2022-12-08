@@ -17,6 +17,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingType
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
 import no.nav.familie.ks.sak.kjerne.beregning.BeregningService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Målform
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
@@ -38,6 +39,9 @@ class RegistrerPersonGrunnlagStegTest : OppslagSpringRunnerTest() {
 
     @Autowired
     private lateinit var personopplysningGrunnlagRepository: PersonopplysningGrunnlagRepository
+
+    @Autowired
+    private lateinit var vilkårsvurderingService: VilkårsvurderingService
 
     @MockkBean(relaxed = true)
     private lateinit var personOpplysningerService: PersonOpplysningerService
@@ -93,6 +97,9 @@ class RegistrerPersonGrunnlagStegTest : OppslagSpringRunnerTest() {
             barnAktør = listOf(barnAktør)
         )
         personopplysningGrunnlagRepository.save(gammelPersonopplysningGrunnlag)
+
+        vilkårsvurderingService.opprettVilkårsvurdering(behandling, null)
+
         lagreBehandling(
             behandling.also {
                 it.status = BehandlingStatus.AVSLUTTET
