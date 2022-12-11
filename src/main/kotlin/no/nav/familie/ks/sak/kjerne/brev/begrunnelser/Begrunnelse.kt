@@ -53,6 +53,10 @@ enum class Begrunnelse : IBegrunnelse {
     AVSLAG_UREGISTRERT_BARN {
         override val begrunnelseType = BegrunnelseType.AVSLAG
         override val sanityApiNavn = "avslagUregistrertBarn"
+    },
+    AVSLAG_BOSATT_I_RIKET {
+        override val begrunnelseType = BegrunnelseType.AVSLAG
+        override val sanityApiNavn = "avslagBosattIRiket"
     };
 
     override fun enumnavnTilString() = this.name

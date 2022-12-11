@@ -1,3 +1,12 @@
+CURRENT_CONTEXT=$(kubectl config current-context)
+
+if [ "$CURRENT_CONTEXT" != "dev-gcp" ]
+then
+  echo "Current context er feil, skal være dev-gcp"
+  return 2
+  exit
+fi
+
 PODNAVN=$(kubectl -n teamfamilie get pods -o name | grep familie-ks-sak | grep -v "frontend" |  sed "s/^.\{4\}//" | head -n 1);
 
 PODVARIABLER="$(kubectl -n teamfamilie exec -c familie-ks-sak -it "$PODNAVN" -- env)"
