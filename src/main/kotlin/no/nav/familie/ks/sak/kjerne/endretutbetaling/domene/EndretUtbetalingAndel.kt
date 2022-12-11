@@ -142,6 +142,11 @@ fun EndretUtbetalingAndel.fraEndretUtbetalingAndelDto(
     this.begrunnelse = endretUtbetalingAndelDto.begrunnelse
     this.person = person
     this.erEksplisittAvslagPåSøknad = endretUtbetalingAndelDto.erEksplisittAvslagPåSøknad
+
+    // Vi skal bare ha 1 mulig avslagebegrunnelse for endret utbetalingandel.
+    // TODO: Endre til riktig avslagtekst når vi får dem inn.
+    this.begrunnelser = listOf(Begrunnelse.AVSLAG_UREGISTRERT_BARN)
+
     return this
 }
 

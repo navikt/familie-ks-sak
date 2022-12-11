@@ -69,8 +69,10 @@ class BehandlingsresultatService(
             }
         )
 
-        val ytelsePersonResultater = YtelsePersonUtils.oppdaterYtelsePersonResultaterVedOpphør(ytelsePersonerMedResultat)
-        val behandlingsresultat = BehandlingsresultatUtils.utledBehandlingsresuiltatBasertPåYtelsePersonResulater(ytelsePersonResultater)
+        val ytelsePersonResultater =
+            YtelsePersonUtils.oppdaterYtelsePersonResultaterVedOpphør(ytelsePersonerMedResultat)
+        val behandlingsresultat =
+            BehandlingsresultatUtils.utledBehandlingsresuiltatBasertPåYtelsePersonResulater(ytelsePersonResultater)
 
         logger.info("Utledet behandlingsresulat på behandling er $behandling: $behandlingsresultat")
         secureLogger.info("Utledet behandlingsresulat på behandling er $behandling: $behandlingsresultat")
@@ -78,17 +80,32 @@ class BehandlingsresultatService(
         return behandlingsresultat
     }
 
-    private fun lagBehandlingsresulatPersoner(behandling: Behandling, personerFremslitKravFor: List<Aktør>, andelerMedEndringer: List<AndelTilkjentYtelseMedEndreteUtbetalinger>, forrigeAndelerMedEndringer: List<AndelTilkjentYtelseMedEndreteUtbetalinger>, vilkårsvurdering: Vilkårsvurdering) =
+    private fun lagBehandlingsresulatPersoner(
+        behandling: Behandling,
+        personerFremslitKravFor: List<Aktør>,
+        andelerMedEndringer: List<AndelTilkjentYtelseMedEndreteUtbetalinger>,
+        forrigeAndelerMedEndringer: List<AndelTilkjentYtelseMedEndreteUtbetalinger>,
+        vilkårsvurdering: Vilkårsvurdering
+    ) =
         personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(behandling.id)
             .personer.filter { it.type == PersonType.BARN }.map {
+                val harEksplisittAvslagIVilkårsvurderingen =
+                    vilkårsvurdering.personResultater.find { personResultat -> personResultat.aktør == it.aktør }
+                        ?.harEksplisittAvslag() ?: false
+
+                val harEksplisittAvslagIEndreteUtbetalinger =
+                    andelerTilkjentYtelseOgEndreteUtbetalingerService.finnEndreteUtbetalingerMedAndelerTilkjentYtelse(
+                        behandling.id
+                    ).any { endretUtbetalingAndel ->
+                        endretUtbetalingAndel.erEksplisittAvslagPåSøknad == true && endretUtbetalingAndel.person?.aktør == it.aktør
+                    }
+
                 BehandlingsresultatUtils.utledBehandlingsresultatDataForPerson(
                     person = it,
                     personerFremstiltKravFor = personerFremslitKravFor,
                     andelerMedEndringer = andelerMedEndringer,
                     forrigeAndelerMedEndringer = forrigeAndelerMedEndringer,
-                    erEksplisittAvslag = vilkårsvurdering.personResultater.find { personResultat -> personResultat.aktør == it.aktør }
-                        ?.harEksplisittAvslag()
-                        ?: false
+                    erEksplisittAvslag = harEksplisittAvslagIVilkårsvurderingen || harEksplisittAvslagIEndreteUtbetalinger
                 )
             }
 
