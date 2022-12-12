@@ -1,5 +1,7 @@
+package no.nav.familie.ks.sak.kjerne.fagsak
+
 import no.nav.familie.kontrakter.felles.objectMapper
-import no.nav.familie.ks.sak.integrasjon.datavarehus.DatavarehusKafkaProducer
+import no.nav.familie.ks.sak.integrasjon.datavarehus.KafkaProducer
 import no.nav.familie.ks.sak.statistikk.saksstatistikk.SakStatistikkService
 import no.nav.familie.prosessering.AsyncTaskStep
 import no.nav.familie.prosessering.TaskStepBeskrivelse
@@ -11,20 +13,20 @@ import org.springframework.stereotype.Service
 @Service
 @TaskStepBeskrivelse(
     taskStepType = PubliserSaksstatistikkTask.TASK_STEP_TYPE,
-    beskrivelse = "Sendt fagsakdata til datavarehus",
+    beskrivelse = "Send fagsakdata til datavarehus",
     maxAntallFeil = 3,
     triggerTidVedFeilISekunder = 60
 )
 class PubliserSaksstatistikkTask(
     val sakStatistikkService: SakStatistikkService,
-    val datavarehusKafkaProducer: DatavarehusKafkaProducer
+    val kafkaProducer: KafkaProducer
 ) : AsyncTaskStep {
 
     override fun doTask(task: Task) {
-        val fagsakId = objectMapper.readValue(task.payload, Long::class.java)
+        val fagsakId = task.payload.toLong()
 
         val sakStatistikkDto = sakStatistikkService.mapTilSakDvh(fagsakId)
-        datavarehusKafkaProducer.sendMessageForTopicSak(sakStatistikkDto)
+        kafkaProducer.sendMessageForTopicSak(sakStatistikkDto)
 
         logger.info("Sender info om fagsak $fagsakId til datavarehus")
     }

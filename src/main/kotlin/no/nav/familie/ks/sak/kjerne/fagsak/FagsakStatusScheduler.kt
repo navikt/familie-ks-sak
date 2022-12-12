@@ -1,4 +1,5 @@
 import no.nav.familie.ks.sak.common.EnvService
+import no.nav.familie.ks.sak.kjerne.fagsak.AvsluttUtløpteFagsakerTask
 import no.nav.familie.leader.LeaderClient
 import no.nav.familie.prosessering.internal.TaskService
 import org.slf4j.LoggerFactory
