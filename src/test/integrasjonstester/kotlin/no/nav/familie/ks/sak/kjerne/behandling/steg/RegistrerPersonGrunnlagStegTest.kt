@@ -81,7 +81,7 @@ class RegistrerPersonGrunnlagStegTest : OppslagSpringRunnerTest() {
     }
 
     @Test
-    fun `utførSteg skal utføre REGISTRERE_PERSONGRUNNLAG steg for Revurdering`() {
+    fun `utførSteg skal utføre REGISTRERE_PERSONGRUNNLAG steg for Revurdering med opprettet årsak søknad`() {
         val barnAktør = lagreAktør(randomAktør())
         every { beregningService.finnBarnFraBehandlingMedTilkjentYtelse(behandling.id) } returns listOf(barnAktør)
         every { personOpplysningerService.hentPersoninfoEnkel(any()) } returns lagPdlPersonInfo(
@@ -97,8 +97,6 @@ class RegistrerPersonGrunnlagStegTest : OppslagSpringRunnerTest() {
             barnAktør = listOf(barnAktør)
         )
         personopplysningGrunnlagRepository.save(gammelPersonopplysningGrunnlag)
-
-        vilkårsvurderingService.opprettVilkårsvurdering(behandling, null)
 
         lagreBehandling(
             behandling.also {
@@ -142,5 +140,72 @@ class RegistrerPersonGrunnlagStegTest : OppslagSpringRunnerTest() {
         assertTrue(barn.bostedsadresser.isNotEmpty())
         assertTrue(barn.statsborgerskap.isNotEmpty())
         assertTrue(barn.statsborgerskap.isNotEmpty())
+
+        assertTrue { vilkårsvurderingService.finnAktivVilkårsvurdering(revurdering.id) == null }
+    }
+
+    @Test
+    fun `utførSteg skal utføre REGISTRERE_PERSONGRUNNLAG steg for Revurdering med opprettet årsak ÅRLIG_KONTROLL`() {
+        val barnAktør = lagreAktør(randomAktør())
+        every { beregningService.finnBarnFraBehandlingMedTilkjentYtelse(behandling.id) } returns listOf(barnAktør)
+        every { personOpplysningerService.hentPersoninfoEnkel(any()) } returns lagPdlPersonInfo(
+            enkelPersonInfo = true,
+            erBarn = true
+        )
+
+        val gammelPersonopplysningGrunnlag = lagPersonopplysningGrunnlag(
+            behandlingId = behandling.id,
+            søkerPersonIdent = behandling.fagsak.aktør.aktivFødselsnummer(),
+            søkerAktør = behandling.fagsak.aktør,
+            barnasIdenter = listOf(barnAktør.aktivFødselsnummer()),
+            barnAktør = listOf(barnAktør)
+        )
+        personopplysningGrunnlagRepository.save(gammelPersonopplysningGrunnlag)
+        vilkårsvurderingService.opprettVilkårsvurdering(behandling, null)
+
+        lagreBehandling(
+            behandling.also {
+                it.status = BehandlingStatus.AVSLUTTET
+                it.aktiv = false
+            }
+        )
+
+        val revurdering = behandlingRepository.saveAndFlush(
+            lagBehandling(
+                fagsak = behandling.fagsak,
+                type = BehandlingType.REVURDERING,
+                opprettetÅrsak = BehandlingÅrsak.ÅRLIG_KONTROLL
+            )
+        )
+        assertDoesNotThrow { registrerPersonGrunnlagSteg.utførSteg(revurdering.id) }
+
+        verify(atLeast = 1) { beregningService.finnBarnFraBehandlingMedTilkjentYtelse(behandling.id) }
+        verify(atLeast = 1) { arbeidsfordelingService.fastsettBehandledeEnhet(revurdering) }
+        verify(atMost = 1) { personOpplysningerService.hentPersonInfoMedRelasjonerOgRegisterinformasjon(revurdering.fagsak.aktør) }
+        verify(atMost = 1) { personOpplysningerService.hentPersonInfoMedRelasjonerOgRegisterinformasjon(barnAktør) }
+
+        val personopplysningGrunnlag =
+            personopplysningGrunnlagRepository.findByBehandlingAndAktiv(revurdering.id).shouldNotBeNull()
+        assertEquals(2, personopplysningGrunnlag.personer.size)
+
+        val søker = personopplysningGrunnlag.personer.single { it.type == PersonType.SØKER }
+        assertEquals(revurdering.fagsak.aktør, søker.aktør)
+        assertEquals(Målform.NB, søker.målform)
+
+        assertTrue(søker.sivilstander.isNotEmpty())
+        assertTrue(søker.bostedsadresser.isNotEmpty())
+        assertTrue(søker.statsborgerskap.isNotEmpty())
+        assertTrue(søker.statsborgerskap.isNotEmpty())
+
+        val barn = personopplysningGrunnlag.personer.single { it.type == PersonType.BARN }
+        assertEquals(barnAktør, barn.aktør)
+        assertEquals(Målform.NB, barn.målform)
+
+        assertTrue(barn.sivilstander.isNotEmpty())
+        assertTrue(barn.bostedsadresser.isNotEmpty())
+        assertTrue(barn.statsborgerskap.isNotEmpty())
+        assertTrue(barn.statsborgerskap.isNotEmpty())
+
+        assertTrue { vilkårsvurderingService.finnAktivVilkårsvurdering(revurdering.id) != null }
     }
 }
