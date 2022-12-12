@@ -1,6 +1,5 @@
-package no.nav.familie.ks.sak.task
+package no.nav.familie.ks.sak.kjerne.fagsak
 
-import no.nav.familie.ks.sak.kjerne.fagsak.FagsakService
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.FagsakStatus
 import no.nav.familie.prosessering.AsyncTaskStep
 import no.nav.familie.prosessering.TaskStepBeskrivelse

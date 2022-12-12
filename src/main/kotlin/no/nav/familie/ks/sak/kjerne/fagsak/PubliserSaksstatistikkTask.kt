@@ -1,4 +1,4 @@
-package no.nav.familie.ks.sak.task
+package no.nav.familie.ks.sak.kjerne.fagsak
 
 import no.nav.familie.kontrakter.felles.objectMapper
 import no.nav.familie.ks.sak.integrasjon.datavarehus.KafkaProducer
@@ -23,7 +23,7 @@ class PubliserSaksstatistikkTask(
 ) : AsyncTaskStep {
 
     override fun doTask(task: Task) {
-        val fagsakId = objectMapper.readValue(task.payload, Long::class.java)
+        val fagsakId = task.payload.toLong()
 
         val sakStatistikkDto = sakStatistikkService.mapTilSakDvh(fagsakId)
         kafkaProducer.sendMessageForTopicSak(sakStatistikkDto)
