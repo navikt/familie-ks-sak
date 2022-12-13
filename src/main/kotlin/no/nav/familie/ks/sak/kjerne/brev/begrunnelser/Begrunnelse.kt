@@ -70,7 +70,7 @@ enum class Begrunnelse : IBegrunnelse {
         override val begrunnelseType = BegrunnelseType.INNVILGET
         override val sanityApiNavn = "innvilgetForeldreneBorSammenEndretMottaker"
     },
-    INNVILGET_DELT_BOSTED_MAANED_ETTER_SØKNAD {
+    INNVILGET_DELT_BOSTED_MÅNED_ETTER_SØKNAD {
         override val begrunnelseType = BegrunnelseType.INNVILGET
         override val sanityApiNavn = "innvilgetDeltBostedMaanedEtterSoknad"
     },
