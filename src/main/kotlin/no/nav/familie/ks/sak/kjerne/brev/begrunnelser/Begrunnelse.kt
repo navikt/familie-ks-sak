@@ -50,6 +50,78 @@ enum class Begrunnelse : IBegrunnelse {
         override val begrunnelseType = BegrunnelseType.INNVILGET
         override val sanityApiNavn = "innvilgetSøkerOgEllerBarnBosattIRiketOgHarOppholdstillatelse"
     },
+    INNVILGET_MÅNEDEN_ETTER_ETT_ÅR {
+        override val begrunnelseType = BegrunnelseType.INNVILGET
+        override val sanityApiNavn = "innvilgetMaanedenEtterEttAar"
+    },
+    INNVILGET_MÅNEDEN_ETTER_SLUTTET_I_BARNEHAGE {
+        override val begrunnelseType = BegrunnelseType.INNVILGET
+        override val sanityApiNavn = "innvilgetMaanedenEtterSluttetIBarnehage"
+    },
+    INNVILGET_BOR_FAST_HOS_SØKER {
+        override val begrunnelseType = BegrunnelseType.INNVILGET
+        override val sanityApiNavn = "innvilgetBorFastHosSoker"
+    },
+    INNVILGET_BOSATT_I_NORGE {
+        override val begrunnelseType = BegrunnelseType.INNVILGET
+        override val sanityApiNavn = "innvilgetBosattINorge"
+    },
+    INNVILGET_FORELDRENE_BOR_SAMMEN_ENDRET_MOTTAKER {
+        override val begrunnelseType = BegrunnelseType.INNVILGET
+        override val sanityApiNavn = "innvilgetForeldreneBorSammenEndretMottaker"
+    },
+    INNVILGET_DELT_BOSTED_MAANED_ETTER_SØKNAD {
+        override val begrunnelseType = BegrunnelseType.INNVILGET
+        override val sanityApiNavn = "innvilgetDeltBostedMaanedEtterSoknad"
+    },
+    INNVILGET_DELT_BOSTED_MÅNED_ETTER_ENIGHET {
+        override val begrunnelseType = BegrunnelseType.INNVILGET
+        override val sanityApiNavn = "innvilgetDeltBostedMaanedEtterEnighet"
+    },
+    INNVILGET_MEDLEMSKAP_I_FOLKETRYGDEN {
+        override val begrunnelseType = BegrunnelseType.INNVILGET
+        override val sanityApiNavn = "innvilgetMedlemskapIFolketrygden"
+    },
+    INNVILGET_MEDLEMSKAP_FOLKETRYGDEN_OG_EØS_LAND {
+        override val begrunnelseType = BegrunnelseType.INNVILGET
+        override val sanityApiNavn = "innvilgetMedlemskapFolketrygdenOgEOSLand"
+    },
+    INNVILGET_FRA_MÅNEDEN_ETTER_FORELDREPENGER {
+        override val begrunnelseType = BegrunnelseType.INNVILGET
+        override val sanityApiNavn = "innvilgetFraMaanedenEtterForeldrepenger"
+    },
+    INNVILGET_OPPHOLD_I_EØS_LAND {
+        override val begrunnelseType = BegrunnelseType.INNVILGET
+        override val sanityApiNavn = "innvilgetOppholdIEosLand"
+    },
+    INNVILGET_TREDJELANDSBORGER_LOVLIG_OPPHOLD_SAMTIDIG_BOSATT_I_NORGE {
+        override val begrunnelseType = BegrunnelseType.INNVILGET
+        override val sanityApiNavn = "innvilgetTredjelandsborgerLovligOppholdSamtidigBosattINorge"
+    },
+    INNVILGET_TREDJELANDSBORGER_LOVLIG_OPPHOLD_FØR_BOSATT_I_NORGE {
+        override val begrunnelseType = BegrunnelseType.INNVILGET
+        override val sanityApiNavn = "innvilgetTredjelandsborgerLovligOppholdForBosattINorge"
+    },
+    INNVILGET_TREDJELANDSBORGER_BOSATT_FØR_LOVLIG_OPPHOLD_I_NORGE {
+        override val begrunnelseType = BegrunnelseType.INNVILGET
+        override val sanityApiNavn = "innvilgetTredjelandsborgerBosattForLovligOppholdINorge"
+    },
+    INNVILGET_VURDERING_BOR_FAST_HOS_SØKER {
+        override val begrunnelseType = BegrunnelseType.INNVILGET
+        override val sanityApiNavn = "innvilgetVurderingBorFastHosSoker"
+    },
+    INNVILGET_RETTSAVGJØRELSE_BOR_FAST_HOS_SØKER {
+        override val begrunnelseType = BegrunnelseType.INNVILGET
+        override val sanityApiNavn = "innvilgetRettsavgjorelseBorFastHosSoker"
+    },
+    INNVILGET_SATSENDRING {
+        override val begrunnelseType = BegrunnelseType.INNVILGET
+        override val sanityApiNavn = "innvilgetSatsendring"
+    },
+    INNVILGET_ERKLÆRING_OM_MOTREGNING {
+        override val begrunnelseType = BegrunnelseType.INNVILGET
+        override val sanityApiNavn = "innvilgetErklaringOmMotregning"
+    },
     AVSLAG_UREGISTRERT_BARN {
         override val begrunnelseType = BegrunnelseType.AVSLAG
         override val sanityApiNavn = "avslagUregistrertBarn"
