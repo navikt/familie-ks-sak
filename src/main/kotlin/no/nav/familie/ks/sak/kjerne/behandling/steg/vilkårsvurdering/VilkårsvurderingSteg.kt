@@ -43,7 +43,7 @@ class VilkårsvurderingSteg(
         val behandling = behandlingService.hentBehandling(behandlingId)
         val personopplysningGrunnlag =
             personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(behandlingId)
-        val søknadDto = søknadGrunnlagService.hentAktiv(behandlingId = behandling.id).tilSøknadDto()
+        val søknadDto = søknadGrunnlagService.finnAktiv(behandlingId = behandling.id)?.tilSøknadDto()
         val vilkårsvurdering = vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(behandling.id)
 
         validerVilkårsvurdering(vilkårsvurdering, personopplysningGrunnlag, søknadDto, behandling)
@@ -54,7 +54,7 @@ class VilkårsvurderingSteg(
     fun validerVilkårsvurdering(
         vilkårsvurdering: Vilkårsvurdering,
         personopplysningGrunnlag: PersonopplysningGrunnlag,
-        søknadGrunnlagDto: SøknadDto,
+        søknadGrunnlagDto: SøknadDto?,
         behandling: Behandling
     ) {
         validerAtDetFinnesBarnIPersonopplysningsgrunnlaget(personopplysningGrunnlag, søknadGrunnlagDto, behandling)
@@ -72,11 +72,13 @@ class VilkårsvurderingSteg(
 
     private fun validerAtDetFinnesBarnIPersonopplysningsgrunnlaget(
         personopplysningGrunnlag: PersonopplysningGrunnlag,
-        søknadGrunnlagDto: SøknadDto,
+        søknadGrunnlagDto: SøknadDto?,
         behandling: Behandling
     ) {
         val barna = personopplysningGrunnlag.barna
-        val uregistrerteBarn = søknadGrunnlagDto.barnaMedOpplysninger.filter { !it.erFolkeregistrert && it.inkludertISøknaden }
+        val uregistrerteBarn = søknadGrunnlagDto?.barnaMedOpplysninger?.filter {
+            !it.erFolkeregistrert && it.inkludertISøknaden
+        } ?: emptyList()
 
         if (barna.isEmpty() && uregistrerteBarn.isEmpty()) {
             throw FunksjonellFeil(
