@@ -29,6 +29,7 @@ class UtbetalingsoppdragGenerator {
      * Ved opphør sendes kun siste utbetalingsperiode (med opphørsdato).
      *
      * @param[vedtakMedTilkjentYtelse] tilpasset objekt som inneholder tilkjentytelse,og andre nødvendige felter som trenges for å lage utbetalingsoppdrag
+     * @param[andelTilkjentYtelseForUtbetalingsoppdragFactory] type factory bestemmer om AndelTilkjentYtelse muteres eller ikke. Avhengig om det er AndelTilkjentYtelseForIverksetting eller AndelTilkjentYtelseForSimulerin
      * @param[forrigeTilkjentYtelse] forrige tilkjentYtelse
      * @return oppdatert TilkjentYtelse som inneholder generert utbetalingsoppdrag
      */
@@ -127,37 +128,12 @@ class UtbetalingsoppdragGenerator {
             )
         }
 
-        // Siden AndelTilkjentYtelser er immutable oppretter vi nye og legger disse inn i TilkjentYtelse
         // oppdater tilkjentYtlese med andelerTilkjentYTelser og utbetalingsoppdrag
-        val nyAndelTilkjentYtelserEtterMutering =
-            tilkjentYtelse.andelerTilkjentYtelse.map { lagNyAndelTilkjentYtelseEtterMutering(it) }
-        tilkjentYtelse.andelerTilkjentYtelse.clear()
-
         return tilkjentYtelse.copy(
-            andelerTilkjentYtelse = nyAndelTilkjentYtelserEtterMutering.toMutableSet(),
             behandling = vedtak.behandling,
             utbetalingsoppdrag = objectMapper.writeValueAsString(utbetalingsoppdrag)
         )
     }
-
-    private fun lagNyAndelTilkjentYtelseEtterMutering(andelTilkjentYtelse: AndelTilkjentYtelse) =
-        AndelTilkjentYtelse(
-            behandlingId = andelTilkjentYtelse.behandlingId,
-            tilkjentYtelse = andelTilkjentYtelse.tilkjentYtelse,
-            aktør = andelTilkjentYtelse.aktør,
-            kalkulertUtbetalingsbeløp = andelTilkjentYtelse.kalkulertUtbetalingsbeløp,
-            stønadFom = andelTilkjentYtelse.stønadFom,
-            stønadTom = andelTilkjentYtelse.stønadTom,
-            type = andelTilkjentYtelse.type,
-            sats = andelTilkjentYtelse.sats,
-            prosent = andelTilkjentYtelse.prosent,
-            endretUtbetalingAndeler = andelTilkjentYtelse.endretUtbetalingAndeler,
-            kildeBehandlingId = andelTilkjentYtelse.kildeBehandlingId,
-            periodeOffset = andelTilkjentYtelse.periodeOffset,
-            forrigePeriodeOffset = andelTilkjentYtelse.forrigePeriodeOffset,
-            nasjonaltPeriodebeløp = andelTilkjentYtelse.nasjonaltPeriodebeløp,
-            differanseberegnetPeriodebeløp = andelTilkjentYtelse.differanseberegnetPeriodebeløp
-        )
 
     private fun lagUtbetalingsperioderForOpphør(
         andeler: List<Pair<AndelTilkjentYtelseForUtbetalingsoppdrag, YearMonth>>,
