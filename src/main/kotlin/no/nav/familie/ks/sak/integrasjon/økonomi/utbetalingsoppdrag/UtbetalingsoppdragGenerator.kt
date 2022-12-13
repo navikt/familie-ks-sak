@@ -29,6 +29,7 @@ class UtbetalingsoppdragGenerator {
      * Ved opphør sendes kun siste utbetalingsperiode (med opphørsdato).
      *
      * @param[vedtakMedTilkjentYtelse] tilpasset objekt som inneholder tilkjentytelse,og andre nødvendige felter som trenges for å lage utbetalingsoppdrag
+     * @param[andelTilkjentYtelseForUtbetalingsoppdragFactory] type factory bestemmer om AndelTilkjentYtelse muteres eller ikke. Avhengig om det er AndelTilkjentYtelseForIverksetting eller AndelTilkjentYtelseForSimulerin
      * @param[forrigeTilkjentYtelse] forrige tilkjentYtelse
      * @return oppdatert TilkjentYtelse som inneholder generert utbetalingsoppdrag
      */
