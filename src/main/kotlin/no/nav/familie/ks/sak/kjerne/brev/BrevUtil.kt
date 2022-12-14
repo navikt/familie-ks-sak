@@ -141,8 +141,8 @@ private fun hentAlleTyperHjemler(
         alleHjemlerForBegrunnelser.add(
             "${
             when (målform) {
-                Målform.NB -> "barnetrygdloven" // TODO hvilken lov? kontantstøtteloven?
-                Målform.NN -> "barnetrygdlova"
+                Målform.NB -> "kontantstøtteloven"
+                Målform.NN -> "kontantstøttelova"
             }
             } ${
             hjemlerTilHjemmeltekst(
