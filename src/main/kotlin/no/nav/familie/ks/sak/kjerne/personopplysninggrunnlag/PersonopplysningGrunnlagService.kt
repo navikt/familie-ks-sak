@@ -2,12 +2,14 @@ package no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag
 
 import no.nav.familie.ks.sak.api.dto.SøknadDto
 import no.nav.familie.ks.sak.common.exception.Feil
+import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.ArbeidsfordelingService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingType
 import no.nav.familie.ks.sak.kjerne.beregning.BeregningService
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelseRepository
+import no.nav.familie.ks.sak.kjerne.logg.LoggService
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Målform
@@ -16,6 +18,7 @@ import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlagRepository
 import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext
+import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -27,7 +30,8 @@ class PersonopplysningGrunnlagService(
     private val beregningService: BeregningService,
     private val personService: PersonService,
     private val arbeidsfordelingService: ArbeidsfordelingService,
-    private val personidentService: PersonidentService
+    private val personidentService: PersonidentService,
+    private val loggService: LoggService
 ) {
 
     fun opprettPersonopplysningGrunnlag(
@@ -165,7 +169,43 @@ class PersonopplysningGrunnlagService(
         )
     }
 
+    fun leggTilBarnIPersonopplysningGrunnlagOgOpprettLogg(behandling: Behandling, nyttBarnIdent: String) {
+        val nyttBarnAktør = personidentService.hentOgLagreAktør(nyttBarnIdent, true)
+
+        val personopplysningGrunnlag = hentAktivPersonopplysningGrunnlagThrows(behandling.id)
+        val inneværendeBarnasAktør = personopplysningGrunnlag.barna.map { it.aktør }
+
+        if (inneværendeBarnasAktør.any { it == nyttBarnAktør }) {
+            throw FunksjonellFeil(
+                melding = "Forsøker å legge til barn som allerede finnes i " +
+                    "personopplysningsgrunnlag id=${personopplysningGrunnlag.id}",
+                frontendFeilmelding = "Barn finnes allerede på behandling og er derfor ikke lagt til."
+            )
+        }
+
+        val oppdatertPersonopplysningGrunnlag = lagreSøkerOgBarnINyttGrunnlag(
+            aktør = personopplysningGrunnlag.søker.aktør,
+            behandling = behandling,
+            målform = personopplysningGrunnlag.søker.målform,
+            barnasAktør = inneværendeBarnasAktør.plus(nyttBarnAktør)
+        )
+
+        // la til historikkinnslag
+        oppdatertPersonopplysningGrunnlag.barna.singleOrNull { nyttBarnAktør == it.aktør }
+            ?.also { loggService.opprettBarnLagtTilLogg(behandling, it) } ?: run {
+            secureLogger.info(
+                "Klarte ikke legge til barn med aktør $nyttBarnAktør " +
+                    "på personopplysningsgrunnlag id=${personopplysningGrunnlag.id}"
+            )
+            throw Feil(
+                "Nytt barn ikke lagt til i personopplysningsgrunnlag id=${personopplysningGrunnlag.id}. " +
+                    "Se securelog for mer informasjon."
+            )
+        }
+    }
+
     companion object {
         private val logger = LoggerFactory.getLogger(PersonopplysningGrunnlagService::class.java)
+        private val secureLogger: Logger = LoggerFactory.getLogger("secureLogger")
     }
 }

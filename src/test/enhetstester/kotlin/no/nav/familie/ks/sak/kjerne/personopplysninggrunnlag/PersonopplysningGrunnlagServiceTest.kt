@@ -13,6 +13,7 @@ import no.nav.familie.ks.sak.api.dto.BarnMedOpplysningerDto
 import no.nav.familie.ks.sak.api.dto.SøkerMedOpplysningerDto
 import no.nav.familie.ks.sak.api.dto.SøknadDto
 import no.nav.familie.ks.sak.common.exception.Feil
+import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagFagsak
 import no.nav.familie.ks.sak.data.lagPerson
@@ -23,6 +24,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingType
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import no.nav.familie.ks.sak.kjerne.beregning.BeregningService
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelseRepository
+import no.nav.familie.ks.sak.kjerne.logg.LoggService
 import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Målform
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
@@ -58,6 +60,9 @@ internal class PersonopplysningGrunnlagServiceTest {
 
     @MockK
     private lateinit var personidentService: PersonidentService
+
+    @MockK
+    private lateinit var loggService: LoggService
 
     @InjectMockKs
     private lateinit var personopplysningGrunnlagService: PersonopplysningGrunnlagService
@@ -291,5 +296,62 @@ internal class PersonopplysningGrunnlagServiceTest {
             )
         }
         assertEquals("Det finnes ikke noe aktivt personopplysningsgrunnlag for ${behandling.id}", feil.message)
+    }
+
+    @Test
+    fun `leggTilBarnIPersonopplysningGrunnlagOgOpprettLogg skal ikke legge til barn når det allerede finnes`() {
+        val behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD)
+        val barn1 = randomAktør()
+
+        every { personidentService.hentOgLagreAktør(any(), any()) } returns barn1
+        every { personopplysningGrunnlagRepository.findByBehandlingAndAktiv(behandling.id) } returns
+            lagPersonopplysningGrunnlag(
+                behandlingId = behandling.id,
+                barnasIdenter = listOf(barn1.aktivFødselsnummer()),
+                barnAktør = listOf(barn1)
+            )
+
+        val exception = assertThrows<FunksjonellFeil> {
+            personopplysningGrunnlagService.leggTilBarnIPersonopplysningGrunnlagOgOpprettLogg(behandling, barn1.aktivFødselsnummer())
+        }
+        assertEquals("Forsøker å legge til barn som allerede finnes i personopplysningsgrunnlag id=0", exception.message)
+        assertEquals("Barn finnes allerede på behandling og er derfor ikke lagt til.", exception.frontendFeilmelding)
+    }
+
+    @Test
+    fun `leggTilBarnIPersonopplysningGrunnlagOgOpprettLogg skal legge til barn pg opprette historikkinnslag`() {
+        val behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD)
+        val barn1 = randomAktør()
+        val søker = randomAktør()
+        val nyBarn = randomAktør()
+        val eksisterendePersonOpplysningGrunnlag = lagPersonopplysningGrunnlag(
+            behandlingId = behandling.id,
+            søkerPersonIdent = søker.aktivFødselsnummer(),
+            søkerAktør = søker,
+            barnasIdenter = listOf(barn1.aktivFødselsnummer()),
+            barnAktør = listOf(barn1)
+        )
+        val nyPersonopplysningGrunnlag = PersonopplysningGrunnlag(behandlingId = behandling.id)
+
+        every { personidentService.hentOgLagreAktør(any(), any()) } returns nyBarn
+        every { personopplysningGrunnlagRepository.findByBehandlingAndAktiv(behandling.id) } returns eksisterendePersonOpplysningGrunnlag
+        every { personService.lagPerson(any(), any(), any(), any(), any()) } returns
+            lagPerson(personopplysningGrunnlag = nyPersonopplysningGrunnlag, aktør = søker, personType = PersonType.SØKER) andThen
+            lagPerson(personopplysningGrunnlag = nyPersonopplysningGrunnlag, aktør = barn1, personType = PersonType.BARN) andThen
+            lagPerson(personopplysningGrunnlag = nyPersonopplysningGrunnlag, aktør = nyBarn, personType = PersonType.BARN)
+        every { loggService.opprettBarnLagtTilLogg(any(), any()) } just runs
+        every { personopplysningGrunnlagRepository.saveAndFlush(any()) } returns eksisterendePersonOpplysningGrunnlag
+        every { personopplysningGrunnlagRepository.save(any()) } returns nyPersonopplysningGrunnlag
+
+        assertDoesNotThrow {
+            personopplysningGrunnlagService.leggTilBarnIPersonopplysningGrunnlagOgOpprettLogg(behandling, barn1.aktivFødselsnummer())
+        }
+        verify(exactly = 1) { personidentService.hentOgLagreAktør(any(), any()) }
+        verify(exactly = 2) { personopplysningGrunnlagRepository.findByBehandlingAndAktiv(behandling.id) }
+        verify(exactly = 2) { personopplysningGrunnlagRepository.save(any()) } // opprett ny og så oppdaterer det med barn
+        verify(exactly = 1) { personopplysningGrunnlagRepository.saveAndFlush(any()) } // deaktiverer eksisterende
+        verify(exactly = 1) { arbeidsfordelingService.fastsettBehandledeEnhet(behandling) }
+        verify(exactly = 3) { personService.lagPerson(any(), any(), any(), any(), any()) }
+        verify(exactly = 1) { loggService.opprettBarnLagtTilLogg(any(), any()) }
     }
 }

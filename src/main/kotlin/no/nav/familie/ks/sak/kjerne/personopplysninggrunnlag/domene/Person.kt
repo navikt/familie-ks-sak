@@ -15,6 +15,7 @@ import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.statsborgers
 import org.hibernate.annotations.Fetch
 import org.hibernate.annotations.FetchMode
 import java.time.LocalDate
+import java.time.Period
 import java.util.Objects
 import javax.persistence.CascadeType
 import javax.persistence.Column
@@ -114,6 +115,7 @@ data class Person(
     }
 
     fun erDød(): Boolean = dødsfall != null
+    fun hentAlder(): Int = Period.between(fødselsdato, LocalDate.now()).years
 }
 
 enum class Kjønn {
