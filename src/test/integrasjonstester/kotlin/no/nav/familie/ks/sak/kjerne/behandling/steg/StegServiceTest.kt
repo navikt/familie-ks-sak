@@ -16,11 +16,14 @@ import no.nav.familie.ks.sak.api.mapper.SøknadGrunnlagMapper
 import no.nav.familie.ks.sak.data.lagArbeidsfordelingPåBehandling
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagBehandlingStegTilstand
+import no.nav.familie.ks.sak.data.lagFagsak
 import no.nav.familie.ks.sak.data.lagRegistrerSøknadDto
+import no.nav.familie.ks.sak.data.randomAktør
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingType
+import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Beslutning
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg.AVSLUTT_BEHANDLING
@@ -46,6 +49,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.VedtakReposito
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingSteg
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
 import no.nav.familie.ks.sak.kjerne.beregning.BeregningService
+import no.nav.familie.ks.sak.kjerne.fagsak.domene.FagsakStatus
 import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext
 import no.nav.familie.prosessering.internal.TaskService
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -371,6 +375,50 @@ class StegServiceTest : OppslagSpringRunnerTest() {
         assertDoesNotThrow { stegService.utførStegEtterIverksettelseAutomatisk(behandling.id) }
 
         verify(exactly = 1) { taskService.save(any()) }
+    }
+
+    @Test
+    fun `utførSteg skal utføre TEKNISK_ENDRING behandling som ikke iverksetter og ikke sender brev til bruker`() {
+        val aktør = lagreAktør(aktør = randomAktør())
+        val fagsak = lagreFagsak(lagFagsak(aktør = aktør, status = FagsakStatus.LØPENDE))
+        val tekniskEndringBehandling = lagreBehandling(lagBehandling(fagsak = fagsak, opprettetÅrsak = BehandlingÅrsak.TEKNISK_ENDRING))
+        lagreArbeidsfordeling(lagArbeidsfordelingPåBehandling(behandlingId = tekniskEndringBehandling.id))
+
+        tekniskEndringBehandling.resultat = Behandlingsresultat.ENDRET_UTEN_UTBETALING
+        tekniskEndringBehandling.status = BehandlingStatus.FATTER_VEDTAK
+        tekniskEndringBehandling.behandlingStegTilstand.clear()
+        lagBehandlingStegTilstand(tekniskEndringBehandling, BESLUTTE_VEDTAK, KLAR)
+        lagreBehandling(tekniskEndringBehandling)
+        vedtakRepository.saveAndFlush(Vedtak(behandling = tekniskEndringBehandling, vedtaksdato = LocalDateTime.now()))
+
+        val beslutteVedtakDto = BesluttVedtakDto(beslutning = Beslutning.GODKJENT, begrunnelse = "Godkjent")
+        assertDoesNotThrow { stegService.utførSteg(tekniskEndringBehandling.id, BESLUTTE_VEDTAK, beslutteVedtakDto) }
+
+        val oppdatertBehandling = behandlingRepository.hentBehandling(tekniskEndringBehandling.id)
+        assertBehandlingHarSteg(oppdatertBehandling, BESLUTTE_VEDTAK, UTFØRT)
+        assertBehandlingHarSteg(oppdatertBehandling, AVSLUTT_BEHANDLING, KLAR)
+    }
+
+    @Test
+    fun `utførSteg skal utføre TEKNISK_ENDRING behandling som iverksetter`() {
+        val aktør = lagreAktør(aktør = randomAktør())
+        val fagsak = lagreFagsak(lagFagsak(aktør = aktør, status = FagsakStatus.LØPENDE))
+        val tekniskEndringBehandling = lagreBehandling(lagBehandling(fagsak = fagsak, opprettetÅrsak = BehandlingÅrsak.TEKNISK_ENDRING))
+        lagreArbeidsfordeling(lagArbeidsfordelingPåBehandling(behandlingId = tekniskEndringBehandling.id))
+
+        tekniskEndringBehandling.resultat = Behandlingsresultat.ENDRET_UTBETALING
+        tekniskEndringBehandling.status = BehandlingStatus.FATTER_VEDTAK
+        tekniskEndringBehandling.behandlingStegTilstand.clear()
+        lagBehandlingStegTilstand(tekniskEndringBehandling, BESLUTTE_VEDTAK, KLAR)
+        lagreBehandling(tekniskEndringBehandling)
+        vedtakRepository.saveAndFlush(Vedtak(behandling = tekniskEndringBehandling, vedtaksdato = LocalDateTime.now()))
+
+        val beslutteVedtakDto = BesluttVedtakDto(beslutning = Beslutning.GODKJENT, begrunnelse = "Godkjent")
+        assertDoesNotThrow { stegService.utførSteg(tekniskEndringBehandling.id, BESLUTTE_VEDTAK, beslutteVedtakDto) }
+
+        val oppdatertBehandling = behandlingRepository.hentBehandling(tekniskEndringBehandling.id)
+        assertBehandlingHarSteg(oppdatertBehandling, BESLUTTE_VEDTAK, UTFØRT)
+        assertBehandlingHarSteg(oppdatertBehandling, IVERKSETT_MOT_OPPDRAG, KLAR)
     }
 
     private fun assertBehandlingHarSteg(
