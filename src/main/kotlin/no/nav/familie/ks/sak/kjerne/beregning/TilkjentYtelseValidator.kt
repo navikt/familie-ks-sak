@@ -70,6 +70,7 @@ object TilkjentYtelseValidator {
     private fun validerAtBeløpForPartStemmerMedSatser(andeler: List<AndelTilkjentYtelse>) {
         val maksAntallAndeler = 1
         val maksTotalBeløp = maksBeløp()
+        if (andeler.isEmpty()) return
 
         val feilmelding =
             "Validering av andeler for BARN i perioden (${andeler.first().stønadFom} - ${andeler.first().stønadTom}) feilet"

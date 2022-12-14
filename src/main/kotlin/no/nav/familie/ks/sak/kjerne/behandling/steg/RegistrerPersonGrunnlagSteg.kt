@@ -3,7 +3,6 @@ package no.nav.familie.ks.sak.kjerne.behandling.steg
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
-import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingType
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
 import org.slf4j.Logger
@@ -25,8 +24,8 @@ class RegistrerPersonGrunnlagSteg(
 
         personopplysningGrunnlagService.opprettPersonopplysningGrunnlag(behandling, sisteVedtattBehandling)
 
-        // Oppretter vilkårsvurdering her for revurderinger som ikke har opprettet årsak søknad
-        if (behandling.type == BehandlingType.REVURDERING && !behandling.erSøknad()) {
+        // Oppretter vilkårsvurdering her for behandlinger(revurdering,teknisk endring) som ikke har opprettet årsak søknad
+        if (!behandling.erSøknad()) {
             vilkårsvurderingService.opprettVilkårsvurdering(behandling, sisteVedtattBehandling)
         }
 

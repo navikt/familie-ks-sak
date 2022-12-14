@@ -93,7 +93,7 @@ class VilkårsvurderingStegTest {
             barnasIdenter = listOf(barn.aktivFødselsnummer())
         )
 
-        every { søknadGrunnlagService.hentAktiv(behandling.id) } returns søknadGrunnlagMock
+        every { søknadGrunnlagService.finnAktiv(behandling.id) } returns søknadGrunnlagMock
         every { behandlingService.hentBehandling(behandling.id) } returns behandling
         every { personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(any()) } returns personopplysningGrunnlag
         every { beregningService.oppdaterTilkjentYtelsePåBehandling(any(), any(), any(), any()) } just runs
@@ -249,7 +249,7 @@ class VilkårsvurderingStegTest {
 
         every { personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(any()) } returns personopplysningGrunnlag
         every { vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(behandling.id) } returns vilkårsvurderingForSøker
-        every { søknadGrunnlagService.hentAktiv(behandling.id) } returns søknadGrunnlagMock
+        every { søknadGrunnlagService.finnAktiv(behandling.id) } returns søknadGrunnlagMock
 
         val feil = assertThrows<FunksjonellFeil> {
             vilkårsvurderingSteg.utførSteg(behandling.id)
@@ -268,7 +268,7 @@ class VilkårsvurderingStegTest {
         verify(exactly = 1) { behandlingService.hentBehandling(behandling.id) }
         verify(exactly = 1) { personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(any()) }
         verify(exactly = 1) { vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(behandling.id) }
-        verify(exactly = 1) { søknadGrunnlagService.hentAktiv(behandling.id) }
+        verify(exactly = 1) { søknadGrunnlagService.finnAktiv(behandling.id) }
     }
 
     @Test
@@ -427,6 +427,6 @@ class VilkårsvurderingStegTest {
         verify(exactly = 1) { behandlingService.hentBehandling(behandling.id) }
         verify(exactly = 1) { personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(any()) }
         verify(exactly = 1) { vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(behandling.id) }
-        verify(exactly = 1) { søknadGrunnlagService.hentAktiv(behandling.id) }
+        verify(exactly = 1) { søknadGrunnlagService.finnAktiv(behandling.id) }
     }
 }
