@@ -92,7 +92,8 @@ class BrevPeriodeContextTest {
                 maanedOgAarBegrunnelsenGjelderFor = null,
                 maalform = "bokmaal",
                 belop = "7 500",
-                antallTimerBarnehageplass = "0"
+                antallTimerBarnehageplass = "0",
+                soknadstidspunkt = ""
             ),
             brevPeriodeDto?.begrunnelser?.single()
         )
@@ -138,7 +139,8 @@ class BrevPeriodeContextTest {
                 maanedOgAarBegrunnelsenGjelderFor = null,
                 maalform = "bokmaal",
                 belop = "3 000",
-                antallTimerBarnehageplass = "17"
+                antallTimerBarnehageplass = "17",
+                soknadstidspunkt = ""
             ),
             brevPeriodeDto?.begrunnelser?.single()
         )
@@ -190,7 +192,8 @@ class BrevPeriodeContextTest {
                 maanedOgAarBegrunnelsenGjelderFor = null,
                 maalform = "bokmaal",
                 belop = "3 000",
-                antallTimerBarnehageplass = "17"
+                antallTimerBarnehageplass = "17",
+                soknadstidspunkt = ""
             ),
             brevPeriodeDto?.begrunnelser?.single()
         )
@@ -236,7 +239,8 @@ class BrevPeriodeContextTest {
                 maanedOgAarBegrunnelsenGjelderFor = null,
                 maalform = "bokmaal",
                 belop = "7 500",
-                antallTimerBarnehageplass = "0"
+                antallTimerBarnehageplass = "0",
+                soknadstidspunkt = ""
             ),
             brevPeriodeDto?.begrunnelser?.single()
         )

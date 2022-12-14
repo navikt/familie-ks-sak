@@ -42,7 +42,8 @@ data class BegrunnelseDataDto(
     val maanedOgAarBegrunnelsenGjelderFor: String? = null,
     val maalform: String,
     val belop: String,
-    val antallTimerBarnehageplass: String
+    val antallTimerBarnehageplass: String,
+    val soknadstidspunkt: String
 ) : BegrunnelseDtoMedData(
     apiNavn = apiNavn,
     type = BrevBegrunnelseType.BEGRUNNELSE,
