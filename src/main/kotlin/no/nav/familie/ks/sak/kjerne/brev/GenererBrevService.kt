@@ -4,6 +4,7 @@ import no.nav.familie.ks.sak.api.dto.ManueltBrevDto
 import no.nav.familie.ks.sak.api.dto.tilBrev
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
+import no.nav.familie.ks.sak.common.util.formaterBeløp
 import no.nav.familie.ks.sak.integrasjon.sanity.SanityService
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelse
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.ArbeidsfordelingService
@@ -20,6 +21,7 @@ import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.tilSanityBegrunnelse
 import no.nav.familie.ks.sak.kjerne.brev.domene.FellesdataForVedtaksbrev
 import no.nav.familie.ks.sak.kjerne.brev.domene.VedtaksbrevDto
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.Brevmal
+import no.nav.familie.ks.sak.kjerne.brev.domene.maler.Etterbetaling
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.Førstegangsvedtak
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.Hjemmeltekst
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
@@ -29,6 +31,7 @@ import no.nav.familie.ks.sak.kjerne.totrinnskontroll.TotrinnskontrollService
 import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
+import java.math.BigDecimal
 
 @Service
 class GenererBrevService(
@@ -100,10 +103,15 @@ class GenererBrevService(
         val fellestdataForVedtaksbrev = lagDataForVedtaksbrev(vedtak)
 
         return when (brevtype) {
-            Brevmal.VEDTAK_FØRSTEGANGSVEDTAK -> Førstegangsvedtak(
-                fellesdataForVedtaksbrev = fellestdataForVedtaksbrev,
-                etterbetaling = simuleringService.hentEtterbetaling(vedtak.behandling.id)
-            )
+            Brevmal.VEDTAK_FØRSTEGANGSVEDTAK -> {
+                val etterbetaling = simuleringService.hentEtterbetaling(vedtak.behandling.id)
+
+                Førstegangsvedtak(
+                    fellesdataForVedtaksbrev = fellestdataForVedtaksbrev,
+                    etterbetaling = etterbetaling.takeIf { it > BigDecimal.ZERO }?.run { formaterBeløp(this.toInt()) }
+                        ?.let { Etterbetaling(it) }
+                )
+            }
 
             else -> throw Feil("Forsøker å hente vedtaksbrevdata for brevmal ${brevtype.visningsTekst}")
         }
