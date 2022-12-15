@@ -123,7 +123,7 @@ FAMILIE_INTEGRASJONER_SCOPE: api://prod-fss.teamfamilie.familie-integrasjoner/.d
 
 
 FAMILIE_KS_INFOTRYGD_SCOPE: api://prod-fss.teamfamilie.familie-ks-infotrygd/.default
-FAMILIE_KS_INFOTRYGD_API_URL: https://familie-ks-infotrygd.prod-fss-pub.nais.io
+FAMILIE_KS_INFOTRYGD_API_URL: https://familie-ks-infotrygd.prod-fss-pub.nais.io/api
 
 
 FAMILIE_OPPDRAG_API_URL: https://familie-oppdrag.prod-fss-pub.nais.io/api

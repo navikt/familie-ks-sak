@@ -141,13 +141,13 @@ private fun hentAlleTyperHjemler(
         alleHjemlerForBegrunnelser.add(
             "${
             when (målform) {
-                Målform.NB -> "barnetrygdloven" // TODO hvilken lov? kontantstøtteloven?
-                Målform.NN -> "barnetrygdlova"
+                Målform.NB -> "kontantstøtteloven"
+                Målform.NN -> "kontantstøttelova"
             }
             } ${
             hjemlerTilHjemmeltekst(
                 hjemler = ordinæreHjemler,
-                lovForHjemmel = "barnetrygdloven"
+                lovForHjemmel = "kontantstøtteloven"
             )
             }"
         )
@@ -174,8 +174,7 @@ private fun hentOrdinæreHjemler(
     }
 
     if (finnesVedtaksperiodeMedFritekst) {
-        val pass = Unit
-        pass
+        throw FunksjonellFeil("Fritekst er ikke implementert enda.")
         // TODO er det de samme hjemlene for fritekst i ba og ks? hjemler.addAll(hjemlerTilhørendeFritekst.map { it.toString() }.toSet())
     }
 

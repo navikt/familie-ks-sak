@@ -106,7 +106,7 @@ class DummyDatavarehusKafkaProducer : KafkaProducer {
     }
 
     override fun sendMessageForTopicSak(sakStatistikkDto: SakStatistikkDto) {
-        log.info("Skipper sending av vedtak for fagsak ${sakStatistikkDto.sakId} fordi kafka ikke er enablet")
+        log.info("Skipper sending av saksstatistikk for fagsak ${sakStatistikkDto.sakId} fordi kafka ikke er enablet")
     }
 
     companion object {

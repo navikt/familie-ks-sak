@@ -46,7 +46,7 @@ enum class BehandlingSteg(
     JOURNALFØR_VEDTAKSBREV(
         sekvens = 9,
         gyldigBehandlerRolle = listOf(BehandlerRolle.SYSTEM),
-        gyldigForÅrsaker = BehandlingÅrsak.values().filterNot { it == SATSENDRING && it == TEKNISK_ENDRING },
+        gyldigForÅrsaker = BehandlingÅrsak.values().filterNot { it == SATSENDRING || it == TEKNISK_ENDRING },
         tilknyttetBehandlingStatus = BehandlingStatus.IVERKSETTER_VEDTAK
     ),
     AVSLUTT_BEHANDLING(
