@@ -299,7 +299,7 @@ class BrevPeriodeContext(
                 )
 
                 val søknadstidspunkt = endringsperioder.sortedBy { it.søknadstidspunkt }
-                    .firstOrNull { sanityBegrunnelse.endringsaarsaker.contains(it.årsak) }?.søknadstidspunkt
+                    .firstOrNull { sanityBegrunnelse.endringsårsaker.contains(it.årsak) }?.søknadstidspunkt
 
                 val gjelderSøker = relevantePersoner.any { it.type == PersonType.SØKER }
 

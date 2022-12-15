@@ -19,7 +19,7 @@ data class SanityBegrunnelse(
     val utdypendeVilkårsvurderinger: List<UtdypendeVilkårsvurdering>,
     val triggere: List<Trigger>,
     val hjemler: List<String>,
-    val endringsaarsaker: List<Årsak>,
+    val endringsårsaker: List<Årsak>,
     val endretUtbetalingsperiode: List<EndretUtbetalingsperiodeTrigger>
 )
 
@@ -83,7 +83,7 @@ data class SanityBegrunnelseDto(
             },
             triggere = triggere.mapNotNull { finnEnumverdi(it, Trigger.values(), apiNavn) },
             hjemler = hjemler,
-            endringsaarsaker = endringsaarsaker.mapNotNull { finnEnumverdi(it, Årsak.values(), apiNavn) },
+            endringsårsaker = endringsaarsaker.mapNotNull { finnEnumverdi(it, Årsak.values(), apiNavn) },
             endretUtbetalingsperiode = endretUtbetalingsperiode.mapNotNull {
                 finnEnumverdi(it, EndretUtbetalingsperiodeTrigger.values(), apiNavn)
             }

@@ -244,7 +244,7 @@ class BegrunnelserForPeriodeContextTest {
             utdypendeVilkårsvurderinger = emptyList(),
             hjemler = emptyList(),
             endretUtbetalingsperiode = emptyList(),
-            endringsaarsaker = emptyList()
+            endringsårsaker = emptyList()
         )
         val personResultatBarn = PersonResultat(
             aktør = barnAktør,
@@ -310,7 +310,7 @@ class BegrunnelserForPeriodeContextTest {
                 utdypendeVilkårsvurderinger = emptyList(),
                 hjemler = emptyList(),
                 endretUtbetalingsperiode = emptyList(),
-                endringsaarsaker = emptyList()
+                endringsårsaker = emptyList()
             ),
             SanityBegrunnelse(
                 apiNavn = Begrunnelse.INNVILGET_SØKER_OG_ELLER_BARN_HAR_OPPHOLDSTILLATELSE.sanityApiNavn,
@@ -322,7 +322,7 @@ class BegrunnelserForPeriodeContextTest {
                 utdypendeVilkårsvurderinger = emptyList(),
                 hjemler = emptyList(),
                 endretUtbetalingsperiode = emptyList(),
-                endringsaarsaker = emptyList()
+                endringsårsaker = emptyList()
             ),
             SanityBegrunnelse(
                 apiNavn = Begrunnelse.INNVILGET_SØKER_OG_ELLER_BARN_BOSATT_I_RIKET.sanityApiNavn,
@@ -334,7 +334,7 @@ class BegrunnelserForPeriodeContextTest {
                 utdypendeVilkårsvurderinger = emptyList(),
                 hjemler = emptyList(),
                 endretUtbetalingsperiode = emptyList(),
-                endringsaarsaker = emptyList()
+                endringsårsaker = emptyList()
             ),
             SanityBegrunnelse(
                 apiNavn = Begrunnelse.INNVILGET_SØKER_OG_ELLER_BARN_BOSATT_I_RIKET_OG_HAR_OPPHOLDSTILLATELSE.sanityApiNavn,
@@ -346,7 +346,7 @@ class BegrunnelserForPeriodeContextTest {
                 utdypendeVilkårsvurderinger = emptyList(),
                 hjemler = emptyList(),
                 endretUtbetalingsperiode = emptyList(),
-                endringsaarsaker = emptyList()
+                endringsårsaker = emptyList()
             )
         )
         val personResultatBarn = PersonResultat(
@@ -413,7 +413,7 @@ class BegrunnelserForPeriodeContextTest {
             utdypendeVilkårsvurderinger = emptyList(),
             hjemler = emptyList(),
             endretUtbetalingsperiode = emptyList(),
-            endringsaarsaker = emptyList()
+            endringsårsaker = emptyList()
         ),
         SanityBegrunnelse(
             apiNavn = Begrunnelse.INNVILGET_IKKE_BARNEHAGE_ADOPSJON.sanityApiNavn,
@@ -425,7 +425,7 @@ class BegrunnelserForPeriodeContextTest {
             utdypendeVilkårsvurderinger = listOf(UtdypendeVilkårsvurdering.ADOPSJON),
             hjemler = emptyList(),
             endretUtbetalingsperiode = emptyList(),
-            endringsaarsaker = emptyList()
+            endringsårsaker = emptyList()
         ),
         SanityBegrunnelse(
             apiNavn = Begrunnelse.INNVILGET_DELTID_BARNEHAGE.sanityApiNavn,
@@ -437,7 +437,7 @@ class BegrunnelserForPeriodeContextTest {
             utdypendeVilkårsvurderinger = emptyList(),
             hjemler = emptyList(),
             endretUtbetalingsperiode = emptyList(),
-            endringsaarsaker = emptyList()
+            endringsårsaker = emptyList()
         ),
         SanityBegrunnelse(
             apiNavn = Begrunnelse.INNVILGET_DELTID_BARNEHAGE_ADOPSJON.sanityApiNavn,
@@ -449,7 +449,7 @@ class BegrunnelserForPeriodeContextTest {
             utdypendeVilkårsvurderinger = listOf(UtdypendeVilkårsvurdering.ADOPSJON),
             hjemler = emptyList(),
             endretUtbetalingsperiode = emptyList(),
-            endringsaarsaker = emptyList()
+            endringsårsaker = emptyList()
         )
     )
 

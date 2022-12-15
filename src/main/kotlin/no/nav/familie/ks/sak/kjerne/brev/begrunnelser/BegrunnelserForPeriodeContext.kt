@@ -87,7 +87,7 @@ class BegrunnelserForPeriodeContext(
             endretUtbetalingAndel.tom?.sisteDagIInneværendeMåned()
                 ?.erDagenFør(utvidetVedtaksperiodeMedBegrunnelser.fom) ?: false &&
                 personResultater.any { person -> person.aktør.aktørId == endretUtbetalingAndel.person?.aktør?.aktørId } &&
-                begrunnelse.endringsaarsaker.contains(endretUtbetalingAndel.årsak)
+                begrunnelse.endringsårsaker.contains(endretUtbetalingAndel.årsak)
         }
 
     fun hentPersonerMedVilkårResultaterSomPasserMedBegrunnelseOgPeriode(
@@ -114,7 +114,7 @@ class BegrunnelserForPeriodeContext(
         endretUtbetalingsandeler.filter { endretUtbetalingAndel ->
             endretUtbetalingAndel.periode.tom.sisteDagIInneværendeMåned()
                 .erDagenFør(utvidetVedtaksperiodeMedBegrunnelser.fom) &&
-                sanityBegrunnelse.endringsaarsaker.contains(endretUtbetalingAndel.årsak)
+                    sanityBegrunnelse.endringsårsaker.contains(endretUtbetalingAndel.årsak)
         }.mapNotNull { it.person }.toSet()
 
     private fun Map<Person, List<VilkårResultat>>.filtrerPåVilkårResultaterSomPasserMedVedtaksperiodeDatoEllerSanityBegrunnelseType(
