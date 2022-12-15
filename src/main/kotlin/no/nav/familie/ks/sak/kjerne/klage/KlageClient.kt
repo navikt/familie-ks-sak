@@ -5,6 +5,7 @@ import no.nav.familie.kontrakter.felles.klage.Fagsystem
 import no.nav.familie.kontrakter.felles.klage.KlagebehandlingDto
 import no.nav.familie.kontrakter.felles.klage.OpprettKlagebehandlingRequest
 import no.nav.familie.ks.sak.integrasjon.kallEksternTjenesteRessurs
+import no.nav.familie.ks.sak.integrasjon.kallEksternTjenesteUtenRespons
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
@@ -24,7 +25,7 @@ class KlageClient(
             .pathSegment("api/ekstern/behandling/opprett")
             .build().toUri()
 
-        return kallEksternTjenesteRessurs(
+        return kallEksternTjenesteUtenRespons<Unit>(
             tjeneste = "klage",
             uri = uri,
             formål = "Opprett klagebehandling"
