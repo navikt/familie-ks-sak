@@ -12,6 +12,17 @@ no.nav.security.jwt:
     discoveryurl: ${AZURE_APP_WELL_KNOWN_URL}
     accepted_audience: ${AZURE_APP_CLIENT_ID}
     cookie_name: azure_token
+  client:
+    registration:
+      familie-klage-onbehalfof:
+        resource-url: ${FAMILIE_KLAGE_URL}
+        token-endpoint-url: ${AZUREAD_TOKEN_ENDPOINT_URL}
+        grant-type: urn:ietf:params:oauth:grant-type:jwt-bearer
+        scope: ${FAMILIE_KLAGE_SCOPE}
+        authentication:
+          client-id: ${AZURE_APP_CLIENT_ID}
+          client-secret: ${AZURE_APP_CLIENT_SECRET}
+          client-auth-method: client_secret_basic
 
 spring:
   lifecycle:
@@ -112,6 +123,7 @@ prosessering:
       weeks: 4
 
 FAMILIE_EF_SAK_API_URL_SCOPE: api://dev-gcp.teamfamilie.familie-ef-sak/.default
+FAMILIE_KLAGE_SCOPE: api://dev-gcp.teamfamilie.familie-klage/.default
 FAMILIE_EF_SAK_API_URL: http://familie-ef-sak/api
 
 PDL_SCOPE: api://dev-fss.pdl.pdl-api/.default
@@ -143,3 +155,5 @@ API_SCOPE: api://${AZURE_APP_CLIENT_ID}/.default
 CRON_GRENSESNITT_AVSTEMMING: "0 0 8 ? * MON-FRI"
 CRON_KONSISTENS_AVSTEMMING: "0 0 21 * * *"
 CRON_FAGSAKSTATUS_SCHEDULER: "0 0 7 1 * *"
+
+AZUREAD_TOKEN_ENDPOINT_URL: https://login.microsoftonline.com/navq.onmicrosoft.com/oauth2/v2.0/token
