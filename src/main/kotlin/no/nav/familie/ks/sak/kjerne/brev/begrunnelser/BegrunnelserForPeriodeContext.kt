@@ -114,7 +114,7 @@ class BegrunnelserForPeriodeContext(
         endretUtbetalingsandeler.filter { endretUtbetalingAndel ->
             endretUtbetalingAndel.periode.tom.sisteDagIInneværendeMåned()
                 .erDagenFør(utvidetVedtaksperiodeMedBegrunnelser.fom) &&
-                    sanityBegrunnelse.endringsårsaker.contains(endretUtbetalingAndel.årsak)
+                sanityBegrunnelse.endringsårsaker.contains(endretUtbetalingAndel.årsak)
         }.mapNotNull { it.person }.toSet()
 
     private fun Map<Person, List<VilkårResultat>>.filtrerPåVilkårResultaterSomPasserMedVedtaksperiodeDatoEllerSanityBegrunnelseType(
