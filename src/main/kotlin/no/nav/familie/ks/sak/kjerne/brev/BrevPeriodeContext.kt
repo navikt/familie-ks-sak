@@ -293,13 +293,15 @@ class BrevPeriodeContext(
                 val antallTimerBarnehageplass =
                     hentAntallTimerBarnehageplassTekst(relevantePersoner)
 
-                val endringsperioder = begrunnelse.hentRelevanteEndringsperioderForBegrunnelse(
+                val relevanteEndringsperioderForBegrunnelse = begrunnelse.hentRelevanteEndringsperioderForBegrunnelse(
+                    sanityBegrunnelse = sanityBegrunnelse,
                     endretUtbetalingAndeler = andelTilkjentYtelserMedEndreteUtbetalinger.flatMap { it.endreteUtbetalinger },
                     vedtaksperiode = utvidetVedtaksperiodeMedBegrunnelser
                 )
 
-                val søknadstidspunkt = endringsperioder.sortedBy { it.søknadstidspunkt }
-                    .firstOrNull { sanityBegrunnelse.endringsårsaker.contains(it.årsak) }?.søknadstidspunkt
+                val søknadstidspunkt =
+                    relevanteEndringsperioderForBegrunnelse.sortedBy { it.søknadstidspunkt }
+                        .firstOrNull()?.søknadstidspunkt
 
                 val gjelderSøker = relevantePersoner.any { it.type == PersonType.SØKER }
 
@@ -386,12 +388,14 @@ class BrevPeriodeContext(
 
 private fun Begrunnelse.hentRelevanteEndringsperioderForBegrunnelse(
     endretUtbetalingAndeler: List<EndretUtbetalingAndel>,
-    vedtaksperiode: UtvidetVedtaksperiodeMedBegrunnelser
+    vedtaksperiode: UtvidetVedtaksperiodeMedBegrunnelser,
+    sanityBegrunnelse: SanityBegrunnelse
 ): List<EndretUtbetalingAndel> = when (this.begrunnelseType) {
     BegrunnelseType.ETTER_ENDRET_UTBETALING -> {
         endretUtbetalingAndeler.filter {
             it.periode.tom.sisteDagIInneværendeMåned()
-                ?.erDagenFør(vedtaksperiode.fom?.førsteDagIInneværendeMåned()) == true
+                ?.erDagenFør(vedtaksperiode.fom?.førsteDagIInneværendeMåned()) == true &&
+                sanityBegrunnelse.endringsårsaker.contains(it.årsak)
         }
     }
 

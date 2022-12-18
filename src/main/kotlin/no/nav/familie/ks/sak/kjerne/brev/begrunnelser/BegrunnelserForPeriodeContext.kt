@@ -84,10 +84,20 @@ class BegrunnelserForPeriodeContext(
 
     private fun erEtterEndretPeriodeAvSammeÅrsak(begrunnelse: SanityBegrunnelse) =
         endretUtbetalingsandeler.any { endretUtbetalingAndel ->
-            endretUtbetalingAndel.tom?.sisteDagIInneværendeMåned()
-                ?.erDagenFør(utvidetVedtaksperiodeMedBegrunnelser.fom) ?: false &&
-                personResultater.any { person -> person.aktør.aktørId == endretUtbetalingAndel.person?.aktør?.aktørId } &&
+
+            val endringsperiodeErDagenEtterVedtaksperiode =
+                endretUtbetalingAndel.tom?.sisteDagIInneværendeMåned()
+                    ?.erDagenFør(utvidetVedtaksperiodeMedBegrunnelser.fom) ?: false
+
+            val endringsperiodeGjelderSammePersonSomVedtaksperiode =
+                personResultater.any { person -> person.aktør.aktørId == endretUtbetalingAndel.person?.aktør?.aktørId }
+
+            val begrunnelseHarSammeÅrsakSomEndringsperiode =
                 begrunnelse.endringsårsaker.contains(endretUtbetalingAndel.årsak)
+
+            endringsperiodeErDagenEtterVedtaksperiode &&
+                endringsperiodeGjelderSammePersonSomVedtaksperiode &&
+                begrunnelseHarSammeÅrsakSomEndringsperiode
         }
 
     fun hentPersonerMedVilkårResultaterSomPasserMedBegrunnelseOgPeriode(
