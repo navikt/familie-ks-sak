@@ -81,7 +81,7 @@ class BeregningService(
                         else -> it.andelerTilkjentYtelse.isNotEmpty()
                     }
                 }
-        tilkjentYtelseRepository.slettTilkjentYtelseForBehandling(behandling)
+        slettTilkjentYtelseForBehandling(behandling)
 
         val tilkjentYtelse = TilkjentYtelseUtils.beregnTilkjentYtelse(
             vilkårsvurdering,
@@ -230,4 +230,7 @@ class BeregningService(
         behandlingIder,
         avstemmingstidspunkt.toLocalDate().toYearMonth()
     ).filter { it.erAndelSomSkalSendesTilOppdrag() }
+
+    fun slettTilkjentYtelseForBehandling(behandling: Behandling) =
+        tilkjentYtelseRepository.slettTilkjentYtelseForBehandling(behandling)
 }

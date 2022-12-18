@@ -5,11 +5,13 @@ import no.nav.familie.ks.sak.api.dto.BehandlingPåVentDto
 import no.nav.familie.ks.sak.api.dto.BehandlingResponsDto
 import no.nav.familie.ks.sak.api.dto.EndreBehandlendeEnhetDto
 import no.nav.familie.ks.sak.api.dto.HenleggBehandlingDto
+import no.nav.familie.ks.sak.api.dto.LeggTilBarnDto
 import no.nav.familie.ks.sak.api.dto.OpprettBehandlingDto
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.config.BehandlerRolle
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.HenleggBehandlingService
+import no.nav.familie.ks.sak.kjerne.behandling.LeggTilBarnService
 import no.nav.familie.ks.sak.kjerne.behandling.OpprettBehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.SettBehandlingPåVentService
 import no.nav.familie.ks.sak.kjerne.beregning.TilkjentYtelseValideringService
@@ -37,7 +39,8 @@ class BehandlingController(
     private val tilgangService: TilgangService,
     private val settBehandlingPåVentService: SettBehandlingPåVentService,
     private val henleggBehandlingService: HenleggBehandlingService,
-    private val tilkjentYtelseValideringService: TilkjentYtelseValideringService
+    private val tilkjentYtelseValideringService: TilkjentYtelseValideringService,
+    private val leggTilBarnService: LeggTilBarnService
 ) {
 
     @PostMapping(produces = [MediaType.APPLICATION_JSON_VALUE])
@@ -169,5 +172,20 @@ class BehandlingController(
             aktørerMedUgyldigEtterbetalingsperiode.map { it.aktivFødselsnummer() }
 
         return ResponseEntity.ok(Ressurs.success(personerMedUgyldigEtterbetalingsperiode))
+    }
+
+    @PostMapping(path = ["/{behandlingId}/legg-til-barn"])
+    fun leggTilBarn(
+        @PathVariable behandlingId: Long,
+        @RequestBody leggTilBarnDto: LeggTilBarnDto
+    ): ResponseEntity<Ressurs<BehandlingResponsDto>> {
+        tilgangService.validerTilgangTilHandlingOgFagsakForBehandling(
+            behandlingId = behandlingId,
+            event = AuditLoggerEvent.UPDATE,
+            minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
+            handling = "legge til barn"
+        )
+        leggTilBarnService.leggTilBarn(behandlingId, leggTilBarnDto.barnIdent)
+        return ResponseEntity.ok(Ressurs.success(behandlingService.lagBehandlingRespons(behandlingId = behandlingId)))
     }
 }

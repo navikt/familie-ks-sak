@@ -24,7 +24,10 @@ class RegistrerPersonGrunnlagSteg(
 
         personopplysningGrunnlagService.opprettPersonopplysningGrunnlag(behandling, sisteVedtattBehandling)
 
-        vilkårsvurderingService.opprettVilkårsvurdering(behandling, sisteVedtattBehandling)
+        // Oppretter vilkårsvurdering her for behandlinger(revurdering,teknisk endring) som ikke har opprettet årsak søknad
+        if (!behandling.erSøknad()) {
+            vilkårsvurderingService.opprettVilkårsvurdering(behandling, sisteVedtattBehandling)
+        }
 
         if (sisteVedtattBehandling != null) {
             // TODO kopier over endretutbetaling fra forrige behandling

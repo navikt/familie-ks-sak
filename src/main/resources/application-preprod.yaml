@@ -118,7 +118,7 @@ FAMILIE_INTEGRASJONER_API_URL: https://familie-integrasjoner-q1.dev-fss-pub.nais
 FAMILIE_INTEGRASJONER_SCOPE: api://dev-fss.teamfamilie.familie-integrasjoner-q1/.default
 FAMILIE_KS_INFOTRYGD_SCOPE: api://dev-fss.teamfamilie.familie-ks-infotrygd/.default
 FAMILIE_OPPDRAG_SCOPE: api://dev-fss.teamfamilie.familie-oppdrag/.default
-FAMILIE_KS_INFOTRYGD_API_URL: https://familie-ks-infotrygd.dev-fss-pub.nais.io
+FAMILIE_KS_INFOTRYGD_API_URL: https://familie-ks-infotrygd.dev-fss-pub.nais.io/api
 
 FAMILIE_OPPDRAG_API_URL: https://familie-oppdrag.dev-fss-pub.nais.io/api
 CRON_FAGSAKSTATUS_SCHEDULER: "0 0/30 * ? * *"

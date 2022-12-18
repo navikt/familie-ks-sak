@@ -2,6 +2,7 @@ package no.nav.familie.ks.sak.kjerne.logg
 
 import io.micrometer.core.instrument.Counter
 import io.micrometer.core.instrument.Metrics
+import no.nav.familie.ks.sak.common.util.formaterIdent
 import no.nav.familie.ks.sak.common.util.tilKortString
 import no.nav.familie.ks.sak.config.BehandlerRolle
 import no.nav.familie.ks.sak.config.RolleConfig
@@ -12,6 +13,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Beslutning
 import no.nav.familie.ks.sak.kjerne.logg.domene.Logg
 import no.nav.familie.ks.sak.kjerne.logg.domene.LoggRepository
+import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
 import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
@@ -265,6 +267,19 @@ class LoggService(
                 behandlingId = behandling.id,
                 type = LoggType.FERDIGSTILLE_BEHANDLING,
                 rolle = SikkerhetContext.hentRolletilgangFraSikkerhetscontext(rolleConfig, BehandlerRolle.SYSTEM)
+            )
+        )
+    }
+
+    fun opprettBarnLagtTilLogg(behandling: Behandling, barn: Person) {
+        val beskrivelse = "${barn.navn.uppercase()} (${barn.hentAlder()} år) | " +
+            "${formaterIdent(barn.aktør.aktivFødselsnummer())} lagt til"
+        lagreLogg(
+            Logg(
+                behandlingId = behandling.id,
+                type = LoggType.BARN_LAGT_TIL,
+                rolle = SikkerhetContext.hentRolletilgangFraSikkerhetscontext(rolleConfig, BehandlerRolle.SAKSBEHANDLER),
+                tekst = beskrivelse
             )
         )
     }

@@ -139,7 +139,9 @@ class FagsakService(
     @Transactional
     fun lagre(fagsak: Fagsak): Fagsak {
         logger.info("${SikkerhetContext.hentSaksbehandlerNavn()} oppretter fagsak $fagsak")
-        return fagsakRepository.save(fagsak).also { taskService.save(PubliserSaksstatistikkTask.lagTask(it.id)) }
+        return fagsakRepository.save(fagsak).also {
+            taskService.save(PubliserSaksstatistikkTask.lagTask(it.id))
+        }
     }
 
     @Transactional
