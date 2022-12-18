@@ -715,7 +715,11 @@ fun lagDødsfall(
     dødsfallPoststed = dødsfallPoststed
 )
 
-fun lagVilkårsvurderingOppfylt(personer: Collection<Person>, behandling: Behandling = lagBehandling()): Vilkårsvurdering {
+fun lagVilkårsvurderingOppfylt(
+    personer: Collection<Person>,
+    behandling: Behandling = lagBehandling(),
+    erEksplisittAvslagPåSøknad: Boolean = false
+): Vilkårsvurdering {
     val vilkårsvurdering = Vilkårsvurdering(
         behandling = behandling
     )
@@ -730,13 +734,16 @@ fun lagVilkårsvurderingOppfylt(personer: Collection<Person>, behandling: Behand
             Vilkår.hentVilkårFor(person.type).map {
                 VilkårResultat(
                     personResultat = personResultat,
-                    periodeFom = if (person.type == PersonType.SØKER) person.fødselsdato else person.fødselsdato.plusYears(1),
+                    periodeFom = if (person.type == PersonType.SØKER) person.fødselsdato else person.fødselsdato.plusYears(
+                        1
+                    ),
                     periodeTom = if (person.type == PersonType.SØKER) null else person.fødselsdato.plusYears(2),
                     vilkårType = it,
                     resultat = Resultat.OPPFYLT,
                     begrunnelse = "",
                     behandlingId = vilkårsvurdering.behandling.id,
-                    utdypendeVilkårsvurderinger = emptyList()
+                    utdypendeVilkårsvurderinger = emptyList(),
+                    erEksplisittAvslagPåSøknad = erEksplisittAvslagPåSøknad
                 )
             }.toSet()
         )
