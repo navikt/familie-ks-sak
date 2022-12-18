@@ -80,7 +80,7 @@ class BehandlingsresultatService(
         return behandlingsresultat
     }
 
-    private fun lagBehandlingsresulatPersoner(
+    fun lagBehandlingsresulatPersoner(
         behandling: Behandling,
         personerFremslitKravFor: List<Aktør>,
         andelerMedEndringer: List<AndelTilkjentYtelseMedEndreteUtbetalinger>,
