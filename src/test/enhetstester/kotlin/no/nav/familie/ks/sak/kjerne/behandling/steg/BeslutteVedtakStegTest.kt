@@ -19,6 +19,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Beslutning
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.VedtakService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
+import no.nav.familie.ks.sak.kjerne.brev.GenererBrevService
 import no.nav.familie.ks.sak.kjerne.logg.LoggService
 import no.nav.familie.ks.sak.kjerne.totrinnskontroll.TotrinnskontrollService
 import no.nav.familie.prosessering.internal.TaskService
@@ -52,6 +53,9 @@ class BeslutteVedtakStegTest {
     @MockK
     private lateinit var featureToggleService: FeatureToggleService
 
+    @MockK
+    private lateinit var genererBrevService: GenererBrevService
+
     @InjectMockKs
     private lateinit var beslutteVedtakSteg: BeslutteVedtakSteg
 
@@ -61,6 +65,7 @@ class BeslutteVedtakStegTest {
         every { featureToggleService.isEnabled(FeatureToggleConfig.KAN_MANUELT_KORRIGERE_MED_VEDTAKSBREV) } returns false
         every { loggService.opprettBeslutningOmVedtakLogg(any(), any(), any()) } returns mockk()
         every { taskService.save(any()) } returns mockk()
+        every { genererBrevService.genererBrevForBehandling(any()) } returns ByteArray(200)
     }
 
     @Test
@@ -135,5 +140,38 @@ class BeslutteVedtakStegTest {
         verify(exactly = 1) { vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(any()) }
         verify(exactly = 1) { vilkårsvurderingService.oppdater(any()) }
         verify(exactly = 1) { vedtakService.opprettOgInitierNyttVedtakForBehandling(any(), any()) }
+    }
+
+    @Test
+    fun `utførSteg skal oppdatere vedtak med nytt vedtaksbrev dersom vedtaket er godkjent `() {
+        val besluttVedtakDto = BesluttVedtakDto(Beslutning.GODKJENT, "GODKJENT")
+
+        every {
+            totrinnskontrollService.besluttTotrinnskontroll(
+                any(),
+                any(),
+                any(),
+                besluttVedtakDto.beslutning,
+                emptyList()
+            )
+        } returns mockk(relaxed = true)
+
+        every { vedtakService.hentAktivVedtakForBehandling(any()) } returns mockk(relaxed = true)
+        every { vedtakService.oppdaterVedtak(any()) } returns mockk()
+        beslutteVedtakSteg.utførSteg(200, besluttVedtakDto)
+
+        verify(exactly = 1) {
+            totrinnskontrollService.besluttTotrinnskontroll(
+                any(),
+                any(),
+                any(),
+                besluttVedtakDto.beslutning,
+                emptyList()
+            )
+        }
+        verify(exactly = 1) { loggService.opprettBeslutningOmVedtakLogg(any(), any(), any()) }
+        verify(exactly = 1) { genererBrevService.genererBrevForBehandling(any()) }
+        verify(exactly = 1) { vedtakService.hentAktivVedtakForBehandling(any()) }
+        verify(exactly = 1) { vedtakService.oppdaterVedtak(any()) }
     }
 }

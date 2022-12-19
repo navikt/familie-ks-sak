@@ -5,7 +5,6 @@ import no.nav.familie.ks.sak.config.DbContainerInitializer
 import org.springframework.boot.builder.SpringApplicationBuilder
 import java.io.BufferedReader
 import java.io.InputStreamReader
-import kotlin.system.exitProcess
 
 class DevLauncherPostgresPreprod
 
@@ -32,10 +31,8 @@ private fun settClientIdOgSecret() {
     val status = process.waitFor()
     if (status == 1) {
         error("Klarte ikke hente variabler fra Nais. Er du logget på Naisdevice og gcloud?")
-        exitProcess(1)
     } else if (status == 2) {
         error("Feil context satt for kubectl, du må bruke dev-gcp?")
-        exitProcess(2)
     }
 
     val inputStream = BufferedReader(InputStreamReader(process.inputStream))
