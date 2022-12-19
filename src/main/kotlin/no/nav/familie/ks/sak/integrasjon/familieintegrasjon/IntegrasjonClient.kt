@@ -2,6 +2,7 @@ package no.nav.familie.ks.sak.integrasjon.familieintegrasjon
 
 import no.nav.familie.http.client.AbstractRestClient
 import no.nav.familie.kontrakter.felles.Fagsystem
+import no.nav.familie.kontrakter.felles.PersonIdent
 import no.nav.familie.kontrakter.felles.Ressurs
 import no.nav.familie.kontrakter.felles.Tema
 import no.nav.familie.kontrakter.felles.dokarkiv.ArkiverDokumentResponse
@@ -27,7 +28,6 @@ import no.nav.familie.ks.sak.integrasjon.kallEksternTjeneste
 import no.nav.familie.ks.sak.integrasjon.kallEksternTjenesteRessurs
 import no.nav.familie.ks.sak.integrasjon.kallEksternTjenesteUtenRespons
 import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext
-import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.cache.annotation.Cacheable
@@ -353,9 +353,24 @@ class IntegrasjonClient(
         return bestillingId
     }
 
+    @Cacheable("behandlendeEnhetForPersonMedRelasjon", cacheManager = "shortCache")
+    fun hentBehandlendeEnhetForPersonIdentMedRelasjoner(ident: String): ArbeidsfordelingsEnhet {
+        val uri = UriComponentsBuilder
+            .fromUri(integrasjonUri)
+            .pathSegment("arbeidsfordeling", "enhet", Tema.KON.name, "med-relasjoner")
+            .build().toUri()
+
+        return kallEksternTjenesteRessurs<List<ArbeidsfordelingsEnhet>>(
+            tjeneste = "arbeidsfordeling",
+            uri = uri,
+            formål = "Hent strengeste behandlende enhet for person og alle relasjoner til personen"
+        ) {
+            postForEntity(uri, PersonIdent(ident))
+        }.single()
+    }
+
     companion object {
 
-        private val logger = LoggerFactory.getLogger(IntegrasjonClient::class.java)
         const val RETRY_BACKOFF_5000MS = "\${retry.backoff.delay:5000}"
         private const val PATH_TILGANG_PERSON = "tilgang/v2/personer"
         private const val HEADER_NAV_TEMA = "Nav-Tema"
