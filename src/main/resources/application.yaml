@@ -137,6 +137,7 @@ BA_SKATTEETATEN_CLIENT_ID: "dummy"
 
 FAMILIE_BREV_API_URL: http://familie-brev
 FAMILIE_BA_INFOTRYGD_FEED_API_URL: http://familie-ba-infotrygd-feed/api
+FAMILIE_KLAGE_URL: http://familie-klage
 FAMILIE_KS_INFOTRYGD_API_URL: http://familie-ks-infotrygd
 FAMILIE_TILBAKE_API_URL: http://familie-tilbake/api
 PDL_URL: http://pdl-api.default
