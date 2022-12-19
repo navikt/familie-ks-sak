@@ -18,7 +18,7 @@ typealias AktørId = String
 
 enum class BehandlingAlder { NY, GAMMEL }
 
-data class AndelTilkjentYtelseDataForÅKalkulereEndring(
+private data class AndelTilkjentYtelseDataForÅKalkulereEndring(
     val aktørId: AktørId,
     val kalkulertBeløp: Int,
     val endretUtbetalingÅrsaker: List<Årsak>,
