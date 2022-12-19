@@ -104,11 +104,11 @@ sentry.environment: local
 sentry.logging.enabled: false
 
 funksjonsbrytere:
-  enabled: false
+  enabled: true
   unleash:
-    uri: http://dummy/api/
+    uri: https://unleash.nais.io/api/
     cluster: localhost
-    applicationName: familie-ks-sak
+    applicationName: ${NAIS_APP_NAME}
   kafka:
     producer:
       enabled: false
@@ -152,6 +152,8 @@ FAMILIE_OPPDRAG_SCOPE: api://dev-fss.teamfamilie.familie-oppdrag/.default
 FAMILIE_BREV_API_URL: https://familie-brev.dev.intern.nav.no
 FAMILIE_TILBAKE_API_URL: https://familie-tilbake.dev.intern.nav.no
 FAMILIE_TILBAKE_API_URL_SCOPE: api://dev-gcp.teamfamilie.familie-tilbake/.default
+
+FAMILIE_KLAGE_URL: https://familie-klage-backend.dev.intern.nav.no
 
 KAFKA_BROKERS: http://localhost:9092
 

@@ -18,7 +18,7 @@ import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.domene.ArbeidsfordelingPåB
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.simulering.SimuleringService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.VedtakService
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.VedtaksperiodeService
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.VedtaksperiodeService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.Brevmal
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
@@ -83,7 +83,6 @@ class GenererBrevServiceTest {
         mode = EnumSource.Mode.INCLUDE
     )
     fun `genererManueltBrev - skal ikke journalføre brev for brevmaler som ikke kan sendes manuelt`(brevmal: Brevmal) {
-
         val feil = assertThrows<Feil> {
             genererBrevService.genererManueltBrev(
                 ManueltBrevDto(
