@@ -84,7 +84,7 @@ class PersonopplysningGrunnlagService(
             aktør = eksisterendePersonopplysningGrunnlag.søker.aktør,
             barnasAktør = barnAktører,
             behandling = behandling,
-            målform = eksisterendePersonopplysningGrunnlag.søker.målform
+            målform = søknadDto.søkerMedOpplysninger.målform
         )
     }
 

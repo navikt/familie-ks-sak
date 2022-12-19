@@ -142,6 +142,7 @@ data class EndretUtbetalingAndelMedAndelerTilkjentYtelse(
     val periode get() = endretUtbetalingAndel.periode
     val person get() = endretUtbetalingAndel.person
     val begrunnelse get() = endretUtbetalingAndel.begrunnelse
+    val begrunnelser get() = endretUtbetalingAndel.begrunnelser
     val søknadstidspunkt get() = endretUtbetalingAndel.søknadstidspunkt
     val avtaletidspunktDeltBosted get() = endretUtbetalingAndel.avtaletidspunktDeltBosted
     val prosent get() = endretUtbetalingAndel.prosent
@@ -150,6 +151,7 @@ data class EndretUtbetalingAndelMedAndelerTilkjentYtelse(
     val id get() = endretUtbetalingAndel.id
     val fom get() = endretUtbetalingAndel.fom
     val tom get() = endretUtbetalingAndel.tom
+    val erEksplisittAvslagPåSøknad get() = endretUtbetalingAndel.erEksplisittAvslagPåSøknad
     val endretUtbetaling get() = endretUtbetalingAndel
     val andelerTilkjentYtelse get() = andeler
 }
