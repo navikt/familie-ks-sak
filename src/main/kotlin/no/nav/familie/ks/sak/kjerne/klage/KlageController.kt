@@ -34,7 +34,7 @@ class KlageController(
         return klageService.opprettKlage(fagsakId, opprettKlageDto)
     }
 
-    @GetMapping("/{fagsakId}/hent-klager")
+    @GetMapping("/{fagsakId}/hent-klagebehandlinger")
     fun hentKlagebehandlinger(@PathVariable fagsakId: Long): Ressurs<List<KlagebehandlingDto>> {
         tilgangService.validerTilgangTilHandlingOgFagsak(
             fagsakId = fagsakId,
