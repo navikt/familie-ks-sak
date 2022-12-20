@@ -5,6 +5,7 @@ import no.nav.familie.ks.sak.api.dto.tilBrev
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.common.util.formaterBeløp
+import no.nav.familie.ks.sak.common.util.tilDagMånedÅr
 import no.nav.familie.ks.sak.integrasjon.sanity.SanityService
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelse
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.ArbeidsfordelingService
@@ -24,10 +25,12 @@ import no.nav.familie.ks.sak.kjerne.brev.domene.maler.Brevmal
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.Etterbetaling
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.Førstegangsvedtak
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.Hjemmeltekst
+import no.nav.familie.ks.sak.kjerne.brev.domene.maler.KorrigertVedtakData
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Målform
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
 import no.nav.familie.ks.sak.kjerne.totrinnskontroll.TotrinnskontrollService
+import no.nav.familie.ks.sak.korrigertvedtak.KorrigertVedtakService
 import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
@@ -44,7 +47,8 @@ class GenererBrevService(
     private val totrinnskontrollService: TotrinnskontrollService,
     private val sanityService: SanityService,
     private val arbeidsfordelingService: ArbeidsfordelingService,
-    private val vilkårsvurderingService: VilkårsvurderingService
+    private val vilkårsvurderingService: VilkårsvurderingService,
+    private val korrigertVedtakService: KorrigertVedtakService
 ) {
 
     fun genererManueltBrev(
@@ -134,11 +138,14 @@ class GenererBrevService(
         val brevPeriodeDtoer = brevPeriodeService
             .hentBrevPeriodeDtoer(utvidetVedtaksperioderMedBegrunnelser, vedtak.behandling.id)
 
+        val korrigertVedtak = korrigertVedtakService.finnAktivtKorrigertVedtakPåBehandling(vedtak.behandling.id)
+
         val hjemler = hentHjemler(
             behandlingId = vedtak.behandling.id,
             utvidetVedtaksperioderMedBegrunnelser = utvidetVedtaksperioderMedBegrunnelser,
             målform = personopplysningsgrunnlagOgSignaturData.grunnlag.søker.målform,
-            sanityBegrunnelser = sanityService.hentSanityBegrunnelser()
+            sanityBegrunnelser = sanityService.hentSanityBegrunnelser(),
+            vedtakKorrigertHjemmelSkalMedIBrev = korrigertVedtak != null
         )
 
         return FellesdataForVedtaksbrev(
@@ -149,7 +156,8 @@ class GenererBrevService(
             søkerNavn = personopplysningsgrunnlagOgSignaturData.grunnlag.søker.navn,
             søkerFødselsnummer = personopplysningsgrunnlagOgSignaturData.grunnlag.søker.aktør.aktivFødselsnummer(),
             perioder = brevPeriodeDtoer,
-            gjelder = personopplysningsgrunnlagOgSignaturData.grunnlag.søker.navn
+            gjelder = personopplysningsgrunnlagOgSignaturData.grunnlag.søker.navn,
+            korrigertVedtakData = korrigertVedtak?.let { KorrigertVedtakData(datoKorrigertVedtak = it.vedtaksdato.tilDagMånedÅr()) }
         )
     }
 
@@ -172,7 +180,8 @@ class GenererBrevService(
         behandlingId: Long,
         utvidetVedtaksperioderMedBegrunnelser: List<UtvidetVedtaksperiodeMedBegrunnelser>,
         målform: Målform,
-        sanityBegrunnelser: List<SanityBegrunnelse>
+        sanityBegrunnelser: List<SanityBegrunnelse>,
+        vedtakKorrigertHjemmelSkalMedIBrev: Boolean = false
     ): String {
         val vilkårsvurdering =
             vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(behandlingId = behandlingId)
@@ -185,7 +194,8 @@ class GenererBrevService(
             målform = målform,
             erFriteksterIPeriode = utvidetVedtaksperioderMedBegrunnelser.any { it.fritekster.isNotEmpty() },
             sanitybegrunnelserBruktIBrev = utvidetVedtaksperioderMedBegrunnelser.flatMap { it.begrunnelser }
-                .mapNotNull { it.begrunnelse.tilSanityBegrunnelse(sanityBegrunnelser) }
+                .mapNotNull { it.begrunnelse.tilSanityBegrunnelse(sanityBegrunnelser) },
+            vedtakKorrigertHjemmelSkalMedIBrev = vedtakKorrigertHjemmelSkalMedIBrev
         )
     }
 

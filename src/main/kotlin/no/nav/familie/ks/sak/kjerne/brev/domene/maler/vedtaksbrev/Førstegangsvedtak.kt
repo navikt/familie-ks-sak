@@ -24,7 +24,8 @@ data class Førstegangsvedtak(
                         beslutter = fellesdataForVedtaksbrev.beslutter
                     ),
                     etterbetaling = etterbetaling,
-                    hjemmeltekst = fellesdataForVedtaksbrev.hjemmeltekst
+                    hjemmeltekst = fellesdataForVedtaksbrev.hjemmeltekst,
+                    korrigertVedtak = fellesdataForVedtaksbrev.korrigertVedtakData
                 ),
                 flettefelter = FlettefelterForDokumentDtoImpl(
                     navn = fellesdataForVedtaksbrev.søkerNavn,
@@ -44,6 +45,7 @@ data class FørstegangsvedtakData(
     data class Delmaler(
         val signaturVedtak: SignaturVedtak,
         val etterbetaling: Etterbetaling?,
-        val hjemmeltekst: Hjemmeltekst
+        val hjemmeltekst: Hjemmeltekst,
+        val korrigertVedtak: KorrigertVedtakData?
     )
 }

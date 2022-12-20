@@ -96,7 +96,8 @@ fun hentHjemmeltekst(
     sanitybegrunnelserBruktIBrev: List<SanityBegrunnelse>,
     erFriteksterIPeriode: Boolean,
     opplysningspliktHjemlerSkalMedIBrev: Boolean = false,
-    målform: Målform
+    målform: Målform,
+    vedtakKorrigertHjemmelSkalMedIBrev: Boolean = false
 ): String {
     val ordinæreHjemler =
         hentOrdinæreHjemler(
@@ -106,13 +107,19 @@ fun hentHjemmeltekst(
             finnesVedtaksperiodeMedFritekst = erFriteksterIPeriode
         )
 
+    val forvaltningsloverHjemler = hentForvaltningsloverHjemler(vedtakKorrigertHjemmelSkalMedIBrev)
+
     val alleHjemlerForBegrunnelser = hentAlleTyperHjemler(
         ordinæreHjemler = ordinæreHjemler.distinct(),
-        målform = målform
+        målform = målform,
+        hjemlerFraForvaltningsloven = forvaltningsloverHjemler
     )
 
     return slåSammenHjemlerAvUlikeTyper(alleHjemlerForBegrunnelser)
 }
+
+fun hentForvaltningsloverHjemler(vedtakKorrigertHjemmelSkalMedIBrev: Boolean): List<String> =
+    if (vedtakKorrigertHjemmelSkalMedIBrev) listOf("35") else emptyList()
 
 private fun slåSammenHjemlerAvUlikeTyper(hjemler: List<String>) = when (hjemler.size) {
     0 -> throw FunksjonellFeil("Ingen hjemler var knyttet til begrunnelsen(e) som er valgt. Du må velge minst én begrunnelse som er knyttet til en hjemmel.")
@@ -132,7 +139,8 @@ private fun slåSammenListeMedHjemler(hjemler: List<String>): String {
 
 private fun hentAlleTyperHjemler(
     ordinæreHjemler: List<String>,
-    målform: Målform
+    målform: Målform,
+    hjemlerFraForvaltningsloven: List<String>
 ): List<String> {
     val alleHjemlerForBegrunnelser = mutableListOf<String>()
 
@@ -149,6 +157,19 @@ private fun hentAlleTyperHjemler(
                 hjemler = ordinæreHjemler,
                 lovForHjemmel = "kontantstøtteloven"
             )
+            }"
+        )
+    }
+
+    if (hjemlerFraForvaltningsloven.isNotEmpty()) {
+        alleHjemlerForBegrunnelser.add(
+            "${
+            when (målform) {
+                Målform.NB -> "forvaltningsloven"
+                Målform.NN -> "forvaltningslova"
+            }
+            } ${
+            hjemlerTilHjemmeltekst(hjemler = hjemlerFraForvaltningsloven, lovForHjemmel = "forvaltningsloven")
             }"
         )
     }
