@@ -17,7 +17,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.registrersøknad.SøknadGrunnlagService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.VedtakRepository
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.VedtaksperiodeService
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.VedtaksperiodeService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
 import no.nav.familie.ks.sak.kjerne.beregning.AndelerTilkjentYtelseOgEndreteUtbetalingerService
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelseRepository
@@ -112,6 +112,11 @@ class BehandlingService(
         val totrinnskontroll =
             totrinnskontrollRepository.findByBehandlingAndAktiv(behandlingId = behandling.id)?.tilTotrinnskontrollDto()
 
+        val endringstidspunkt = vedtaksperiodeService.finnEndringstidspunktForBehandling(
+            behandling = behandling,
+            sisteVedtattBehandling = hentSisteBehandlingSomErVedtatt(behandling.fagsak.id)
+        )
+
         return BehandlingMapper.lagBehandlingRespons(
             behandling,
             arbeidsfordelingPåBehandling,
@@ -122,7 +127,8 @@ class BehandlingService(
             utbetalingsperioder,
             vedtak,
             totrinnskontroll,
-            endreteUtbetalingerMedAndeler
+            endreteUtbetalingerMedAndeler,
+            endringstidspunkt
         )
     }
 

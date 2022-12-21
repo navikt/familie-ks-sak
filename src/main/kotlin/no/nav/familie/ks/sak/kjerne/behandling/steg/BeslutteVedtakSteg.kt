@@ -14,6 +14,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.VedtakService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
+import no.nav.familie.ks.sak.kjerne.brev.GenererBrevService
 import no.nav.familie.ks.sak.kjerne.logg.LoggService
 import no.nav.familie.ks.sak.kjerne.totrinnskontroll.TotrinnskontrollService
 import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext
@@ -23,6 +24,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDate
+import java.time.LocalDateTime
 
 @Service
 class BeslutteVedtakSteg(
@@ -32,7 +34,8 @@ class BeslutteVedtakSteg(
     private val taskService: TaskService,
     private val loggService: LoggService,
     private val vilkårsvurderingService: VilkårsvurderingService,
-    private val featureToggleService: FeatureToggleService
+    private val featureToggleService: FeatureToggleService,
+    private val genererBrevService: GenererBrevService
 ) : IBehandlingSteg {
     override fun getBehandlingssteg(): BehandlingSteg = BehandlingSteg.BESLUTTE_VEDTAK
 
@@ -54,12 +57,28 @@ class BeslutteVedtakSteg(
         )
 
         // opprett historikkinnslag
-        loggService.opprettBeslutningOmVedtakLogg(behandling, besluttVedtakDto.beslutning, behandlingStegDto.begrunnelse)
+        loggService.opprettBeslutningOmVedtakLogg(
+            behandling,
+            besluttVedtakDto.beslutning,
+            behandlingStegDto.begrunnelse
+        )
 
         // ferdigstill GodkjenneVedtak oppgave
         opprettTaskFerdigstillGodkjenneVedtak(behandling = behandling)
 
-        if (!besluttVedtakDto.beslutning.erGodkjent()) {
+        if (besluttVedtakDto.beslutning.erGodkjent()) {
+
+            // Oppdater vedtaksbrev med beslutter
+            val vedtak = vedtakService.hentAktivVedtakForBehandling(behandlingId)
+
+            vedtak.vedtaksdato = LocalDateTime.now()
+            if (behandling.skalSendeVedtaksbrev()) {
+                val brev = genererBrevService.genererBrevForBehandling(behandling.id)
+                vedtak.stønadBrevPdf = brev
+            }
+
+            vedtakService.oppdaterVedtak(vedtak)
+        } else {
             val vilkårsvurdering = vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(behandlingId)
             // Her oppdaterer vi endretAv til beslutter saksbehandler og endretTid til næværende tidspunkt
             vilkårsvurderingService.oppdater(vilkårsvurdering)

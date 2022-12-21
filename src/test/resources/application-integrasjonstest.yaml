@@ -1,7 +1,7 @@
 no.nav.security.jwt:
   issuer:
     azuread:
-      discoveryurl: http://localhost:${mock-oauth2-server.port}/azuread/.well-known/openid-configuration
+      discoveryurl: ${AZURE_APP_WELL_KNOWN_URL}
       acceptedaudience: familie-ks-sak-test
       cookiename: localhost-idtoken
   client:
@@ -161,7 +161,7 @@ spring:
     hibernate:
       ddl-auto: none
 
-AZURE_APP_WELL_KNOWN_URL: https://login.microsoftonline.com/navq.onmicrosoft.com/v2.0/.well-known/openid-configuration
+AZURE_APP_WELL_KNOWN_URL: http://localhost:${mock-oauth2-server.port}/azuread/.well-known/openid-configuration
 AZURE_OPENID_CONFIG_TOKEN_ENDPOINT: https://login.microsoftonline.com/navq.onmicrosoft.com/oauth2/v2.0/token
 
 FAMILIE_INTEGRASJONER_SCOPE: "dummy"

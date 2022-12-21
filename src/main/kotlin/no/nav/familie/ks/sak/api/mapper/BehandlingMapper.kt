@@ -14,6 +14,8 @@ import no.nav.familie.ks.sak.api.dto.UtbetalingsperiodeResponsDto
 import no.nav.familie.ks.sak.api.dto.VedtakDto
 import no.nav.familie.ks.sak.api.dto.YtelsePerioderDto
 import no.nav.familie.ks.sak.api.mapper.RegisterHistorikkMapper.lagRegisterHistorikkResponsDto
+import no.nav.familie.ks.sak.common.util.TIDENES_ENDE
+import no.nav.familie.ks.sak.common.util.TIDENES_MORGEN
 import no.nav.familie.ks.sak.common.util.toYearMonth
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.domene.ArbeidsfordelingPåBehandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
@@ -37,7 +39,8 @@ object BehandlingMapper {
         utbetalingsperioder: List<UtbetalingsperiodeResponsDto>,
         vedtak: VedtakDto?,
         totrinnskontroll: TotrinnskontrollDto?,
-        endretUtbetalingAndeler: List<EndretUtbetalingAndelDto>
+        endretUtbetalingAndeler: List<EndretUtbetalingAndelDto>,
+        endringstidspunkt: LocalDate
     ) =
         BehandlingResponsDto(
             behandlingId = behandling.id,
@@ -68,7 +71,8 @@ object BehandlingMapper {
             utbetalingsperioder = utbetalingsperioder,
             vedtak = vedtak,
             totrinnskontroll = totrinnskontroll,
-            endretUtbetalingAndeler = endretUtbetalingAndeler
+            endretUtbetalingAndeler = endretUtbetalingAndeler,
+            endringstidspunkt = utledEndringstidpunkt(endringstidspunkt, behandling)
         )
 
     private fun lagArbeidsfordelingRespons(arbeidsfordelingPåBehandling: ArbeidsfordelingPåBehandling) =
@@ -121,4 +125,13 @@ object BehandlingMapper {
                     }
                 )
             }
+
+    private fun utledEndringstidpunkt(
+        endringstidspunkt: LocalDate,
+        behandling: Behandling
+    ) = when {
+        endringstidspunkt == TIDENES_MORGEN || endringstidspunkt == TIDENES_ENDE -> null
+        behandling.overstyrtEndringstidspunkt != null -> behandling.overstyrtEndringstidspunkt
+        else -> endringstidspunkt
+    }
 }
