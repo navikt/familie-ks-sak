@@ -5,6 +5,7 @@ import no.nav.familie.ks.sak.api.dto.NyttVilkårDto
 import no.nav.familie.ks.sak.api.dto.VedtakBegrunnelseTilknyttetVilkårResponseDto
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.integrasjon.sanity.SanityService
+import no.nav.familie.ks.sak.integrasjon.secureLogger
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.PersonResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
@@ -138,7 +139,7 @@ class VilkårsvurderingService(
 
     @Transactional
     fun oppdater(vilkårsvurdering: Vilkårsvurdering): Vilkårsvurdering {
-        logger.info("${SikkerhetContext.hentSaksbehandlerNavn()} oppdaterer vilkårsvurdering $vilkårsvurdering")
+        secureLogger.info("${SikkerhetContext.hentSaksbehandlerNavn()} oppdaterer vilkårsvurdering $vilkårsvurdering")
         return vilkårsvurderingRepository.save(vilkårsvurdering)
     }
 
