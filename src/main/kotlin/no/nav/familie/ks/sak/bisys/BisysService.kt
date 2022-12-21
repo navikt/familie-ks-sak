@@ -5,14 +5,14 @@ import no.nav.familie.ks.sak.api.dto.UtbetalingsinfoDto
 import no.nav.familie.ks.sak.integrasjon.infotrygd.InfotrygdReplikaClient
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.beregning.AndelerTilkjentYtelseOgEndreteUtbetalingerService
-import no.nav.familie.ks.sak.kjerne.fagsak.domene.FagsakRepository
+import no.nav.familie.ks.sak.kjerne.fagsak.FagsakService
 import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 
 @Service
 class BisysService(
-    private val fagsakRepository: FagsakRepository,
+    private val fagsakService: FagsakService,
     private val behandlingService: BehandlingService,
     private val personidentService: PersonidentService,
     private val andelerTilkjentYtelseOgEndreteUtbetalingerService: AndelerTilkjentYtelseOgEndreteUtbetalingerService,
@@ -22,7 +22,7 @@ class BisysService(
     fun hentUtbetalingsinfo(barnIdenter: List<String>): BisysResponsDto {
         // hent fagsaker
         val barnAktører = barnIdenter.map { personidentService.hentAktør(it) }
-        val fagsaker = barnAktører.mapNotNull { fagsakRepository.finnFagsakForAktør(it) }
+        val fagsaker = barnAktører.mapNotNull { fagsakService.finnFagsakForPerson(it) }
 
         // hent siste vedtatt behandlinger fra fagsak
         val behandlinger = fagsaker.mapNotNull { behandlingService.hentSisteBehandlingSomErVedtatt(it.id) }

@@ -18,7 +18,7 @@ import no.nav.familie.ks.sak.integrasjon.infotrygd.StonadDto
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.beregning.AndelTilkjentYtelseMedEndreteUtbetalinger
 import no.nav.familie.ks.sak.kjerne.beregning.AndelerTilkjentYtelseOgEndreteUtbetalingerService
-import no.nav.familie.ks.sak.kjerne.fagsak.domene.FagsakRepository
+import no.nav.familie.ks.sak.kjerne.fagsak.FagsakService
 import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -31,7 +31,7 @@ import java.time.YearMonth
 internal class BisysServiceTest {
 
     @MockK
-    private lateinit var fagsakRepository: FagsakRepository
+    private lateinit var fagsakService: FagsakService
 
     @MockK
     private lateinit var behandlingService: BehandlingService
@@ -61,8 +61,8 @@ internal class BisysServiceTest {
     fun setup() {
         every { personidentService.hentAktør(barn1IKsSak) } returns barn1Aktør
         every { personidentService.hentAktør(barn2IInfotrygd) } returns barn2Aktør
-        every { fagsakRepository.finnFagsakForAktør(barn1Aktør) } returns fagsak
-        every { fagsakRepository.finnFagsakForAktør(barn2Aktør) } returns null
+        every { fagsakService.finnFagsakForPerson(barn1Aktør) } returns fagsak
+        every { fagsakService.finnFagsakForPerson(barn2Aktør) } returns null
         every { behandlingService.hentSisteBehandlingSomErVedtatt(fagsak.id) } returns behandling
 
         val andelerTilkjentYtelse1 = lagAndelTilkjentYtelse(
