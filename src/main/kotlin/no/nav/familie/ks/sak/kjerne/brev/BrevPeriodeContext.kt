@@ -18,6 +18,7 @@ import no.nav.familie.ks.sak.common.util.overlapperHeltEllerDelvisMed
 import no.nav.familie.ks.sak.common.util.sisteDagIInneværendeMåned
 import no.nav.familie.ks.sak.common.util.slåSammen
 import no.nav.familie.ks.sak.common.util.tilDagMånedÅr
+import no.nav.familie.ks.sak.common.util.tilKortString
 import no.nav.familie.ks.sak.common.util.tilYearMonth
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelse
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.Trigger
@@ -266,7 +267,8 @@ class BrevPeriodeContext(
         utvidetVedtaksperiodeMedBegrunnelser = utvidetVedtaksperiodeMedBegrunnelser,
         sanityBegrunnelser = sanityBegrunnelser,
         personopplysningGrunnlag = persongrunnlag,
-        personResultater = personResultater
+        personResultater = personResultater,
+        endretUtbetalingsandeler = andelTilkjentYtelserMedEndreteUtbetalinger.flatMap { it.endreteUtbetalinger }
     )
 
     fun hentBegrunnelseDtoer(): List<BegrunnelseDataDto> {
@@ -276,20 +278,35 @@ class BrevPeriodeContext(
                 val nullableSanitybegrunnelse = vedtakBegrunnelse.begrunnelse.tilSanityBegrunnelse(sanityBegrunnelser)
                 nullableSanitybegrunnelse?.let { Pair(vedtakBegrunnelse.begrunnelse, it) }
             }.map { (begrunnelse, sanityBegrunnelse) ->
-                val personerMedVilkårSomPasserBegrunnelse = begrunnelserForPeriodeContext
-                    .hentPersonerMedVilkårResultaterSomPasserMedBegrunnelseOgPeriode(
+
+                val relevantePersoner = when (begrunnelse.begrunnelseType) {
+                    BegrunnelseType.ETTER_ENDRET_UTBETALING -> begrunnelserForPeriodeContext.hentPersonerMedEndretUtbetalingerSomPasserMedVedtaksperiode(
+                        sanityBegrunnelse
+                    )
+
+                    else -> begrunnelserForPeriodeContext.hentPersonerMedVilkårResultaterSomPasserMedBegrunnelseOgPeriode(
                         begrunnelse = begrunnelse,
                         sanityBegrunnelse = sanityBegrunnelse
                     )
+                }
 
                 val antallTimerBarnehageplass =
-                    hentAntallTimerBarnehageplassTekst(personerMedVilkårSomPasserBegrunnelse)
+                    hentAntallTimerBarnehageplassTekst(relevantePersoner)
 
-                val gjelderSøker = personerMedVilkårSomPasserBegrunnelse.any { it.type == PersonType.SØKER }
+                val relevanteEndringsperioderForBegrunnelse = begrunnelse.hentRelevanteEndringsperioderForBegrunnelse(
+                    sanityBegrunnelse = sanityBegrunnelse,
+                    endretUtbetalingAndeler = andelTilkjentYtelserMedEndreteUtbetalinger.flatMap { it.endreteUtbetalinger },
+                    vedtaksperiode = utvidetVedtaksperiodeMedBegrunnelser
+                )
+
+                val søknadstidspunkt =
+                    relevanteEndringsperioderForBegrunnelse.minOfOrNull { it.søknadstidspunkt!! }
+
+                val gjelderSøker = relevantePersoner.any { it.type == PersonType.SØKER }
 
                 val barnasFødselsdatoer = hentBarnasFødselsdagerForBegrunnelse(
                     gjelderSøker = gjelderSøker,
-                    personerMedVilkårSomPasserBegrunnelse = personerMedVilkårSomPasserBegrunnelse,
+                    personerMedVilkårSomPasserBegrunnelse = relevantePersoner,
                     begrunnelse = begrunnelse
                 )
 
@@ -312,7 +329,8 @@ class BrevPeriodeContext(
                     apiNavn = begrunnelse.sanityApiNavn,
                     belop = formaterBeløp(hentBeløp(begrunnelse)),
                     vedtakBegrunnelseType = begrunnelse.begrunnelseType,
-                    antallTimerBarnehageplass = antallTimerBarnehageplass
+                    antallTimerBarnehageplass = antallTimerBarnehageplass,
+                    soknadstidspunkt = søknadstidspunkt?.tilKortString() ?: ""
                 )
             }
     }
@@ -365,4 +383,20 @@ class BrevPeriodeContext(
             }
         }
     }
+}
+
+private fun Begrunnelse.hentRelevanteEndringsperioderForBegrunnelse(
+    endretUtbetalingAndeler: List<EndretUtbetalingAndel>,
+    vedtaksperiode: UtvidetVedtaksperiodeMedBegrunnelser,
+    sanityBegrunnelse: SanityBegrunnelse
+): List<EndretUtbetalingAndel> = when (this.begrunnelseType) {
+    BegrunnelseType.ETTER_ENDRET_UTBETALING -> {
+        endretUtbetalingAndeler.filter {
+            it.periode.tom.sisteDagIInneværendeMåned()
+                ?.erDagenFør(vedtaksperiode.fom?.førsteDagIInneværendeMåned()) == true &&
+                sanityBegrunnelse.endringsårsaker.contains(it.årsak)
+        }
+    }
+
+    else -> emptyList()
 }
