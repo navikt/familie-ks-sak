@@ -300,8 +300,7 @@ class BrevPeriodeContext(
                 )
 
                 val søknadstidspunkt =
-                    relevanteEndringsperioderForBegrunnelse.sortedBy { it.søknadstidspunkt }
-                        .firstOrNull()?.søknadstidspunkt
+                    relevanteEndringsperioderForBegrunnelse.minOfOrNull { it.søknadstidspunkt!! }
 
                 val gjelderSøker = relevantePersoner.any { it.type == PersonType.SØKER }
 
