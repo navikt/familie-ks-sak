@@ -5,12 +5,14 @@ import no.nav.familie.sikkerhet.OIDCUtil
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.context.annotation.Profile
 import org.springframework.web.filter.OncePerRequestFilter
 import javax.servlet.FilterChain
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
 
 @Configuration
+@Profile("!integrasjonstest")
 class BisysConfig(
     private val oidcUtil: OIDCUtil,
     private val rolleConfig: RolleConfig,
