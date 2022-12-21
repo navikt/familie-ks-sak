@@ -24,3 +24,6 @@ spec:
     - team: dv-familie
       application: dvh-fambt-konsumer
       access: read
+    - team: ptsak
+      application: pt-sak-kontantstotte
+      access: read
