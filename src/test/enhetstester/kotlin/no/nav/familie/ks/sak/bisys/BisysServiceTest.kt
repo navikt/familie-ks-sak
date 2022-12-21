@@ -61,8 +61,8 @@ internal class BisysServiceTest {
     fun setup() {
         every { personidentService.hentAktør(barn1IKsSak) } returns barn1Aktør
         every { personidentService.hentAktør(barn2IInfotrygd) } returns barn2Aktør
-        every { fagsakService.finnFagsakForPerson(barn1Aktør) } returns fagsak
-        every { fagsakService.finnFagsakForPerson(barn2Aktør) } returns null
+        every { fagsakService.hentFagsakerPåPerson(barn1Aktør) } returns listOf(fagsak)
+        every { fagsakService.hentFagsakerPåPerson(barn2Aktør) } returns emptyList()
         every { behandlingService.hentSisteBehandlingSomErVedtatt(fagsak.id) } returns behandling
 
         val andelerTilkjentYtelse1 = lagAndelTilkjentYtelse(

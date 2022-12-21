@@ -22,7 +22,7 @@ class BisysService(
     fun hentUtbetalingsinfo(barnIdenter: List<String>): BisysResponsDto {
         // hent fagsaker
         val barnAktører = barnIdenter.map { personidentService.hentAktør(it) }
-        val fagsaker = barnAktører.mapNotNull { fagsakService.finnFagsakForPerson(it) }
+        val fagsaker = barnAktører.map { fagsakService.hentFagsakerPåPerson(it) }.flatten()
 
         // hent siste vedtatt behandlinger fra fagsak
         val behandlinger = fagsaker.mapNotNull { behandlingService.hentSisteBehandlingSomErVedtatt(it.id) }
