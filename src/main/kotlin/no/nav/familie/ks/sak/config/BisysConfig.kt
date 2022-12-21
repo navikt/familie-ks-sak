@@ -2,7 +2,6 @@ package no.nav.familie.ks.sak.config
 
 import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext
 import no.nav.familie.sikkerhet.OIDCUtil
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Profile
@@ -15,18 +14,14 @@ import javax.servlet.http.HttpServletResponse
 @Profile("!integrasjonstest")
 class BisysConfig(
     private val oidcUtil: OIDCUtil,
-    private val rolleConfig: RolleConfig,
-    @Value("\${BIDRAG_GRUNNLAG_CLIENT_ID:dummy}")
-    private val bidragGrunnlagClientId: String,
-    @Value("\${BIDRAG_GRUNNLAG_FEATURE_CLIENT_ID:dummy}")
-    private val bidragGrunnlagFeatureClientId: String
+    private val rolleConfig: RolleConfig
 ) {
 
     @Bean
     fun bisysFilter() = object : OncePerRequestFilter() {
         override fun doFilterInternal(request: HttpServletRequest, response: HttpServletResponse, filterChain: FilterChain) {
-            val clientId = oidcUtil.getClaim("azp")
-            val erKallerBisys = clientId == bidragGrunnlagClientId || clientId == bidragGrunnlagFeatureClientId
+            val clientNavn = oidcUtil.getClaim("azp_name")
+            val erKallerBisys = clientNavn.contains("bidrag")
             val harForvalterRolle = SikkerhetContext.harInnloggetBrukerForvalterRolle(rolleConfig)
             val erBisysRequest = request.requestURI.startsWith("/api/bisys")
 
