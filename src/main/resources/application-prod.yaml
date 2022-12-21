@@ -136,3 +136,6 @@ ENVIRONMENT_NAME: p
 # Swagger
 AUTHORIZATION_URL: https://login.microsoftonline.com/navno.onmicrosoft.com/oauth2/v2.0/authorize
 TOKEN_URL: https://login.microsoftonline.com/navno.onmicrosoft.com/oauth2/v2.0/token
+
+#Bisys
+BIDRAG_GRUNNLAG_CLIENT_ID: cd120207-6ed7-4462-9b34-5afb6f9b89b0
