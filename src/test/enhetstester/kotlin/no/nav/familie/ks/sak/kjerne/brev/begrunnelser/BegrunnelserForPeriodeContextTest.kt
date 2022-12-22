@@ -413,7 +413,9 @@ class BegrunnelserForPeriodeContextTest {
                 rolle = emptyList(),
                 triggere = emptyList(),
                 utdypendeVilkårsvurderinger = emptyList(),
-                hjemler = emptyList()
+                hjemler = emptyList(),
+                endringsårsaker = emptyList(),
+                endretUtbetalingsperiode = emptyList()
             )
         )
         val personResultatBarn = PersonResultat(
