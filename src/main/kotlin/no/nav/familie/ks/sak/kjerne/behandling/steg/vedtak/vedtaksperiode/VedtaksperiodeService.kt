@@ -304,6 +304,10 @@ class VedtaksperiodeService(
         val vilkårsvurdering = vilkårsvurderingRepository.finnAktivForBehandling(behandling.id)
             ?: error("Finner ikke vilkårsvurdering ved begrunning av vedtak")
 
+        val endreteUtbetalinger =
+            andelerTilkjentYtelseOgEndreteUtbetalingerService.finnEndreteUtbetalingerMedAndelerTilkjentYtelse(behandling.id)
+                .map { it.endretUtbetalingAndel }
+
         val sanityBegrunnelser = sanityService.hentSanityBegrunnelser()
 
         return utvidedeVedtaksperioderMedBegrunnelser.map { utvidetVedtaksperiodeMedBegrunnelser ->
@@ -313,7 +317,8 @@ class VedtaksperiodeService(
                     utvidetVedtaksperiodeMedBegrunnelser = utvidetVedtaksperiodeMedBegrunnelser,
                     sanityBegrunnelser = sanityBegrunnelser,
                     personopplysningGrunnlag = persongrunnlag,
-                    personResultater = vilkårsvurdering.personResultater.toList()
+                    personResultater = vilkårsvurdering.personResultater.toList(),
+                    endretUtbetalingsandeler = endreteUtbetalinger
                 ).hentGyldigeBegrunnelserForVedtaksperiode()
             )
         }
