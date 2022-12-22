@@ -2,6 +2,7 @@ package no.nav.familie.ks.sak.kjerne.brev.begrunnelser
 
 import forskyvVilkårResultater
 import no.nav.familie.ks.sak.common.exception.Feil
+import no.nav.familie.ks.sak.common.tidslinje.utvidelser.klipp
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.tilPerioderIkkeNull
 import no.nav.familie.ks.sak.common.util.Periode
 import no.nav.familie.ks.sak.common.util.TIDENES_ENDE
@@ -162,9 +163,10 @@ class BegrunnelserForPeriodeContext(
                 val person =
                     personopplysningGrunnlag.personer.find { it.aktør.aktivFødselsnummer() == aktør.aktivFødselsnummer() }
                 val forskøvedeVilkårResultaterMedSammeFom =
-                    vilkårResultatTidslinjeForPerson.tilPerioderIkkeNull().singleOrNull {
-                        it.fom == vedtaksperiode.fom
-                    }?.verdi
+                    vilkårResultatTidslinjeForPerson.klipp(vedtaksperiode.fom, vedtaksperiode.tom).tilPerioderIkkeNull()
+                        .singleOrNull {
+                            it.fom == vedtaksperiode.fom
+                        }?.verdi
                 if (person != null && forskøvedeVilkårResultaterMedSammeFom != null) {
                     Pair(person, forskøvedeVilkårResultaterMedSammeFom)
                 } else {
@@ -173,19 +175,21 @@ class BegrunnelserForPeriodeContext(
             }.toMap().filterValues { it.isNotEmpty() }
 
     private fun finnPersonerMedVilkårResultaterSomGjelderRettFørPeriode(): Map<Person, List<VilkårResultat>> =
-        personResultater.tilFørskjøvetVilkårResultatTidslinjeMap(personopplysningGrunnlag).mapNotNull { (aktør, tidsjlinje) ->
-            val person = personopplysningGrunnlag.personer.find { it.aktør.aktivFødselsnummer() == aktør.aktivFødselsnummer() }
-            val forskøvedeVilkårResultaterSlutterDagenFørVedtaksperiode =
-                tidsjlinje.tilPerioderIkkeNull().singleOrNull {
-                    it.tom?.plusDays(1) == vedtaksperiode.fom
-                }?.verdi
+        personResultater.tilFørskjøvetVilkårResultatTidslinjeMap(personopplysningGrunnlag)
+            .mapNotNull { (aktør, tidsjlinje) ->
+                val person =
+                    personopplysningGrunnlag.personer.find { it.aktør.aktivFødselsnummer() == aktør.aktivFødselsnummer() }
+                val forskøvedeVilkårResultaterSlutterDagenFørVedtaksperiode =
+                    tidsjlinje.tilPerioderIkkeNull().singleOrNull {
+                        it.tom?.plusDays(1) == vedtaksperiode.fom
+                    }?.verdi
 
-            if (person != null && forskøvedeVilkårResultaterSlutterDagenFørVedtaksperiode != null) {
-                Pair(person, forskøvedeVilkårResultaterSlutterDagenFørVedtaksperiode)
-            } else {
-                null
-            }
-        }.toMap().filterValues { it.isNotEmpty() }
+                if (person != null && forskøvedeVilkårResultaterSlutterDagenFørVedtaksperiode != null) {
+                    Pair(person, forskøvedeVilkårResultaterSlutterDagenFørVedtaksperiode)
+                } else {
+                    null
+                }
+            }.toMap().filterValues { it.isNotEmpty() }
 
     private fun Map<Person, List<VilkårResultat>>.filtrerPersonerUtenUtbetalingVedInnvilget(begrunnelseType: BegrunnelseType) =
         this.filterKeys {

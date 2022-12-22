@@ -392,6 +392,70 @@ class BegrunnelserForPeriodeContextTest {
         )
     }
 
+    @Test
+    fun `hentGyldigeBegrunnelserForVedtaksperiode - skal returnere 1 begrunnelse av type Standard i tillegg til 1 tilleggstekst som skal vises når BOSATT_I_RIKET for søker trigger vedtaksperioden`() {
+        val bosattIRiketBegrunnelser = listOf(
+            SanityBegrunnelse(
+                apiNavn = Begrunnelse.INNVILGET_SØKER_OG_ELLER_BARN_BOSATT_I_RIKET.sanityApiNavn,
+                navnISystem = "Søker og eller barn bosatt i riket",
+                type = SanityBegrunnelseType.TILLEGGSTEKST,
+                vilkår = listOf(Vilkår.BOSATT_I_RIKET),
+                rolle = emptyList(),
+                triggere = emptyList(),
+                utdypendeVilkårsvurderinger = emptyList(),
+                hjemler = emptyList()
+            )
+        )
+        val personResultatBarn = PersonResultat(
+            aktør = barnAktør,
+            vilkårsvurdering = mockk(),
+            vilkårResultater = lagVilkårResultaterForVilkårTyper(
+                vilkårTyper = Vilkår.hentVilkårFor(PersonType.BARN),
+                fom = vilkårOppfyltFom,
+                tom = vilkårOppfyltTom
+            )
+        )
+
+        val personResultatSøker = PersonResultat(
+            aktør = søkerAktør,
+            vilkårsvurdering = mockk(),
+            vilkårResultater = lagVilkårResultaterForVilkårTyper(
+                vilkårTyper = setOf(
+                    Vilkår.MEDLEMSKAP
+                ),
+                fom = vilkårOppfyltFom,
+                tom = vilkårOppfyltTom
+            )
+        )
+
+        personResultatSøker.vilkårResultater.add(
+            lagVilkårResultat(
+                vilkårType = Vilkår.BOSATT_I_RIKET,
+                periodeFom = vilkårOppfyltFom.plusMonths(2),
+                periodeTom = vilkårOppfyltTom.minusDays(15)
+            )
+        )
+        val personResultater = listOf(
+            personResultatBarn,
+            personResultatSøker
+        )
+
+        val begrunnelser = lagFinnGyldigeBegrunnelserForPeriodeContext(
+            personResultater,
+            lagSanitybegrunnelser() + bosattIRiketBegrunnelser,
+            søkerAktør
+        ).hentGyldigeBegrunnelserForVedtaksperiode()
+
+        assertEquals(2, begrunnelser.size)
+        assertThat(
+            begrunnelser,
+            containsInAnyOrder(
+                Begrunnelse.INNVILGET_IKKE_BARNEHAGE,
+                Begrunnelse.INNVILGET_SØKER_OG_ELLER_BARN_BOSATT_I_RIKET
+            )
+        )
+    }
+
     private fun lagSanitybegrunnelser(): List<SanityBegrunnelse> = listOf(
         SanityBegrunnelse(
             apiNavn = Begrunnelse.INNVILGET_IKKE_BARNEHAGE.sanityApiNavn,

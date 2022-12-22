@@ -76,7 +76,7 @@ class BrevPeriodeContext(
 
         return byggBrevPeriode(
             tomDato = tomDato,
-            begrunnelserOgFritekster = begrunnelserOgFritekster,
+            begrunnelserOgFritekster = begrunnelserOgFritekster.sorted(),
             identerIBegrunnelene = identerIBegrunnelene
         )
     }
@@ -312,7 +312,8 @@ class BrevPeriodeContext(
                     apiNavn = begrunnelse.sanityApiNavn,
                     belop = formaterBeløp(hentBeløp(begrunnelse)),
                     vedtakBegrunnelseType = begrunnelse.begrunnelseType,
-                    antallTimerBarnehageplass = antallTimerBarnehageplass
+                    antallTimerBarnehageplass = antallTimerBarnehageplass,
+                    sanityBegrunnelseType = sanityBegrunnelse.type
                 )
             }
     }

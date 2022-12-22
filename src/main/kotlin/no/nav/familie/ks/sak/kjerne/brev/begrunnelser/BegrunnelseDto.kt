@@ -2,6 +2,7 @@ package no.nav.familie.ks.sak.kjerne.brev.begrunnelser
 
 import no.nav.familie.eksterne.kontrakter.AnnenForeldersAktivitet
 import no.nav.familie.eksterne.kontrakter.SøkersAktivitet
+import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelseType
 
 sealed class BegrunnelseDto(
     open val type: BrevBegrunnelseType
@@ -11,9 +12,19 @@ sealed class BegrunnelseDto(
         return when (this) {
             is FritekstBegrunnelseDto -> Int.MAX_VALUE
             is BegrunnelseDtoMedData -> when (other) {
-                is FritekstBegrunnelseDto -> -Int.MAX_VALUE
-                is BegrunnelseDtoMedData -> {
-                    this.vedtakBegrunnelseType.sorteringsrekkefølge - other.vedtakBegrunnelseType.sorteringsrekkefølge
+                is FritekstBegrunnelseDto -> this.vedtakBegrunnelseType.sorteringsrekkefølge
+                is BegrunnelseDtoMedData -> when (this.sanityBegrunnelseType) {
+                    SanityBegrunnelseType.STANDARD -> if (other.sanityBegrunnelseType == SanityBegrunnelseType.STANDARD) {
+                        this.vedtakBegrunnelseType.sorteringsrekkefølge - other.vedtakBegrunnelseType.sorteringsrekkefølge
+                    } else {
+                        -Int.MAX_VALUE
+                    }
+
+                    else -> if (other.sanityBegrunnelseType == SanityBegrunnelseType.STANDARD) {
+                        Int.MAX_VALUE
+                    } else {
+                        this.vedtakBegrunnelseType.sorteringsrekkefølge - other.vedtakBegrunnelseType.sorteringsrekkefølge
+                    }
                 }
             }
         }
@@ -29,12 +40,14 @@ enum class BrevBegrunnelseType {
 sealed class BegrunnelseDtoMedData(
     open val apiNavn: String,
     open val vedtakBegrunnelseType: BegrunnelseType,
+    open val sanityBegrunnelseType: SanityBegrunnelseType,
     type: BrevBegrunnelseType
 ) : BegrunnelseDto(type)
 
 data class BegrunnelseDataDto(
     override val vedtakBegrunnelseType: BegrunnelseType,
     override val apiNavn: String,
+    override val sanityBegrunnelseType: SanityBegrunnelseType,
 
     val gjelderSoker: Boolean,
     val barnasFodselsdatoer: String,
@@ -46,7 +59,8 @@ data class BegrunnelseDataDto(
 ) : BegrunnelseDtoMedData(
     apiNavn = apiNavn,
     type = BrevBegrunnelseType.BEGRUNNELSE,
-    vedtakBegrunnelseType = vedtakBegrunnelseType
+    vedtakBegrunnelseType = vedtakBegrunnelseType,
+    sanityBegrunnelseType = sanityBegrunnelseType
 )
 
 data class FritekstBegrunnelseDto(
@@ -56,6 +70,7 @@ data class FritekstBegrunnelseDto(
 data class EØSBegrunnelseDataDto(
     override val vedtakBegrunnelseType: BegrunnelseType,
     override val apiNavn: String,
+    override val sanityBegrunnelseType: SanityBegrunnelseType,
 
     val annenForeldersAktivitet: AnnenForeldersAktivitet,
     val annenForeldersAktivitetsland: String?,
@@ -68,5 +83,6 @@ data class EØSBegrunnelseDataDto(
 ) : BegrunnelseDtoMedData(
     type = BrevBegrunnelseType.EØS_BEGRUNNELSE,
     apiNavn = apiNavn,
-    vedtakBegrunnelseType = vedtakBegrunnelseType
+    vedtakBegrunnelseType = vedtakBegrunnelseType,
+    sanityBegrunnelseType = sanityBegrunnelseType
 )
