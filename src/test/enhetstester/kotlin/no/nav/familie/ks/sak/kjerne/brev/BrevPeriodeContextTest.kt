@@ -297,7 +297,7 @@ class BrevPeriodeContextTest {
             BegrunnelseDataDto(
                 vedtakBegrunnelseType = BegrunnelseType.ETTER_ENDRET_UTBETALING,
                 apiNavn = "etterEndretUtbetalingEtterbetalingTreMaanedTilbakeITid",
-                sanityBegrunnelseType = SanityBegrunnelseType.ENDRINGSPERIODE,
+                sanityBegrunnelseType = SanityBegrunnelseType.STANDARD,
                 gjelderSoker = false,
                 barnasFodselsdatoer = barnFødselsdato.tilKortString(),
                 antallBarn = 1,
