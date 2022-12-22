@@ -2,6 +2,7 @@ package no.nav.familie.ks.sak.kjerne.brev.begrunnelser
 
 import forskyvVilkårResultater
 import no.nav.familie.ks.sak.common.exception.Feil
+import no.nav.familie.ks.sak.common.tidslinje.utvidelser.klipp
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.tilPerioderIkkeNull
 import no.nav.familie.ks.sak.common.util.Periode
 import no.nav.familie.ks.sak.common.util.TIDENES_ENDE
@@ -195,9 +196,10 @@ class BegrunnelserForPeriodeContext(
                 val person =
                     personopplysningGrunnlag.personer.find { it.aktør.aktivFødselsnummer() == aktør.aktivFødselsnummer() }
                 val forskøvedeVilkårResultaterMedSammeFom =
-                    vilkårResultatTidslinjeForPerson.tilPerioderIkkeNull().singleOrNull {
-                        it.fom == vedtaksperiode.fom
-                    }?.verdi
+                    vilkårResultatTidslinjeForPerson.klipp(vedtaksperiode.fom, vedtaksperiode.tom).tilPerioderIkkeNull()
+                        .singleOrNull {
+                            it.fom == vedtaksperiode.fom
+                        }?.verdi
                 if (person != null && forskøvedeVilkårResultaterMedSammeFom != null) {
                     Pair(person, forskøvedeVilkårResultaterMedSammeFom)
                 } else {

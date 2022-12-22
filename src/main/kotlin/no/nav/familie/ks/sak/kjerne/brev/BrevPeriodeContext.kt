@@ -77,7 +77,7 @@ class BrevPeriodeContext(
 
         return byggBrevPeriode(
             tomDato = tomDato,
-            begrunnelserOgFritekster = begrunnelserOgFritekster,
+            begrunnelserOgFritekster = begrunnelserOgFritekster.sorted(),
             identerIBegrunnelene = identerIBegrunnelene
         )
     }
@@ -330,7 +330,8 @@ class BrevPeriodeContext(
                     belop = formaterBeløp(hentBeløp(begrunnelse)),
                     vedtakBegrunnelseType = begrunnelse.begrunnelseType,
                     antallTimerBarnehageplass = antallTimerBarnehageplass,
-                    soknadstidspunkt = søknadstidspunkt?.tilKortString() ?: ""
+                    soknadstidspunkt = søknadstidspunkt?.tilKortString() ?: "",
+                    sanityBegrunnelseType = sanityBegrunnelse.type
                 )
             }
     }

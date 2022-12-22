@@ -16,6 +16,7 @@ import no.nav.familie.ks.sak.data.lagVedtaksperiodeMedBegrunnelser
 import no.nav.familie.ks.sak.data.lagVilkårResultat
 import no.nav.familie.ks.sak.data.randomFnr
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelse
+import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelseType
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelserResponsDto
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.Vedtaksperiodetype
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.tilUtvidetVedtaksperiodeMedBegrunnelser
@@ -94,6 +95,7 @@ class BrevPeriodeContextTest {
             BegrunnelseDataDto(
                 vedtakBegrunnelseType = BegrunnelseType.INNVILGET,
                 apiNavn = "innvilgetIkkeBarnehage",
+                sanityBegrunnelseType = SanityBegrunnelseType.STANDARD,
                 gjelderSoker = false,
                 barnasFodselsdatoer = barnFødselsdato.tilKortString(),
                 antallBarn = 1,
@@ -142,6 +144,7 @@ class BrevPeriodeContextTest {
             BegrunnelseDataDto(
                 vedtakBegrunnelseType = BegrunnelseType.INNVILGET,
                 apiNavn = "innvilgetDeltidBarnehage",
+                sanityBegrunnelseType = SanityBegrunnelseType.STANDARD,
                 gjelderSoker = false,
                 barnasFodselsdatoer = barnFødselsdato.tilKortString(),
                 antallBarn = 1,
@@ -196,6 +199,7 @@ class BrevPeriodeContextTest {
             BegrunnelseDataDto(
                 vedtakBegrunnelseType = BegrunnelseType.INNVILGET,
                 apiNavn = "innvilgetDeltidBarnehageAdopsjon",
+                sanityBegrunnelseType = SanityBegrunnelseType.STANDARD,
                 gjelderSoker = false,
                 barnasFodselsdatoer = barnFødselsdato.tilKortString(),
                 antallBarn = 1,
@@ -244,6 +248,7 @@ class BrevPeriodeContextTest {
             BegrunnelseDataDto(
                 vedtakBegrunnelseType = BegrunnelseType.INNVILGET,
                 apiNavn = "innvilgetIkkeBarnehageAdopsjon",
+                sanityBegrunnelseType = SanityBegrunnelseType.STANDARD,
                 gjelderSoker = false,
                 barnasFodselsdatoer = barnFødselsdato.tilKortString(),
                 antallBarn = 1,
@@ -292,6 +297,7 @@ class BrevPeriodeContextTest {
             BegrunnelseDataDto(
                 vedtakBegrunnelseType = BegrunnelseType.ETTER_ENDRET_UTBETALING,
                 apiNavn = "etterEndretUtbetalingEtterbetalingTreMaanedTilbakeITid",
+                sanityBegrunnelseType = SanityBegrunnelseType.STANDARD,
                 gjelderSoker = false,
                 barnasFodselsdatoer = barnFødselsdato.tilKortString(),
                 antallBarn = 1,
