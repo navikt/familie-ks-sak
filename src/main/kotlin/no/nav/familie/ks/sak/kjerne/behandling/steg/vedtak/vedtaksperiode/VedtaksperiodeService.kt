@@ -367,6 +367,9 @@ class VedtaksperiodeService(
         if (sisteVedtattBehandling == null) return TIDENES_MORGEN
         val andelerTilkjentYtelseForBehandling = andelerTilkjentYtelseOgEndreteUtbetalingerService
             .finnAndelerTilkjentYtelseMedEndreteUtbetalinger(behandling.id)
+
+        if (andelerTilkjentYtelseForBehandling.isEmpty() || sisteVedtattBehandling == null) return TIDENES_MORGEN
+
         val andelerTilkjentYtelseForForrigeBehandling = andelerTilkjentYtelseOgEndreteUtbetalingerService
             .finnAndelerTilkjentYtelseMedEndreteUtbetalinger(sisteVedtattBehandling.id)
 
@@ -384,7 +387,9 @@ class VedtaksperiodeService(
         val avslagsperioderFraVilkårsvurdering = hentAvslagsperioderFraVilkårsvurdering(behandling.id, vedtak)
         val avslagsperioderFraEndretUtbetalinger = hentAvslagsperioderFraEndretUtbetalinger(behandling.id, vedtak)
 
-        val uregistrerteBarn = søknadGrunnlagService.hentAktiv(behandlingId = behandling.id).hentUregistrerteBarn()
+        val uregistrerteBarn = if (behandling.erSøknad()) {
+            søknadGrunnlagService.hentAktiv(behandlingId = behandling.id).hentUregistrerteBarn()
+        } else emptyList()
 
         return if (uregistrerteBarn.isNotEmpty()) {
             leggTilAvslagsbegrunnelseForUregistrertBarn(
@@ -449,12 +454,16 @@ class VedtaksperiodeService(
         periode: NullablePeriode,
         avslagsbegrunnelser: List<Begrunnelse>
     ): VedtaksperiodeMedBegrunnelser = VedtaksperiodeMedBegrunnelser(
-        vedtak = vedtak, fom = periode.fom, tom = periode.tom?.sisteDagIMåned(), type = Vedtaksperiodetype.AVSLAG
+        vedtak = vedtak,
+        fom = periode.fom,
+        tom = periode.tom?.sisteDagIMåned(),
+        type = Vedtaksperiodetype.AVSLAG
     ).apply {
         begrunnelser.addAll(
             avslagsbegrunnelser.map { begrunnelse ->
                 Vedtaksbegrunnelse(
-                    vedtaksperiodeMedBegrunnelser = this, begrunnelse = begrunnelse
+                    vedtaksperiodeMedBegrunnelser = this,
+                    begrunnelse = begrunnelse
                 )
             }
         )
@@ -468,7 +477,10 @@ private fun leggTilAvslagsbegrunnelseForUregistrertBarn(
 ): List<VedtaksperiodeMedBegrunnelser> {
     val avslagsperioderMedTomPeriode = if (avslagsperioder.none { it.fom == null && it.tom == null }) {
         avslagsperioder + VedtaksperiodeMedBegrunnelser(
-            vedtak = vedtak, fom = null, tom = null, type = Vedtaksperiodetype.AVSLAG
+            vedtak = vedtak,
+            fom = null,
+            tom = null,
+            type = Vedtaksperiodetype.AVSLAG
         )
     } else {
         avslagsperioder
@@ -479,7 +491,8 @@ private fun leggTilAvslagsbegrunnelseForUregistrertBarn(
             it.apply {
                 begrunnelser.add(
                     Vedtaksbegrunnelse(
-                        vedtaksperiodeMedBegrunnelser = this, begrunnelse = Begrunnelse.AVSLAG_UREGISTRERT_BARN
+                        vedtaksperiodeMedBegrunnelser = this,
+                        begrunnelse = Begrunnelse.AVSLAG_UREGISTRERT_BARN
                     )
                 )
             }
