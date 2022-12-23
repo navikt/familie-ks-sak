@@ -94,18 +94,18 @@ internal class BisysServiceTest {
         } returns InnsynResponse(
             data = listOf(
                 StonadDto(
-                    fnr = Foedselsnummer(barn2IInfotrygd),
+                    fnr = Foedselsnummer(randomFnr()),
                     fom = YearMonth.now().minusMonths(5),
                     tom = YearMonth.now().plusMonths(3),
                     belop = 7500,
-                    barn = listOf(BarnDto(fnr = Foedselsnummer(randomFnr())))
+                    barn = listOf(BarnDto(fnr = Foedselsnummer(barn2IInfotrygd)))
                 ),
                 StonadDto(
-                    fnr = Foedselsnummer(barn2IInfotrygd),
+                    fnr = Foedselsnummer(randomFnr()),
                     fom = YearMonth.now().minusMonths(7),
                     tom = YearMonth.now().plusMonths(5),
                     belop = 4500,
-                    barn = listOf(BarnDto(fnr = Foedselsnummer(randomFnr())))
+                    barn = listOf(BarnDto(fnr = Foedselsnummer(barn2IInfotrygd)))
                 )
             )
         )

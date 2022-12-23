@@ -46,7 +46,7 @@ class BisysService(
         val respons = infotrygdReplikaClient.hentKontantstøttePerioderFraInfotrygd(barnIdenter)
         logger.info("Hentet ${respons.data.size} data fra infotrygd")
         val utbetalingsinfoFraInfotrygd = respons.data.map { stonad ->
-            val barn = barnIdenter.first { it == stonad.fnr.asString }
+            val barn = stonad.barn.first { stonadBarn -> barnIdenter.any { it == stonadBarn.fnr.asString } }.fnr.asString
             barn to UtbetalingsinfoDto(
                 fomMåned = checkNotNull(stonad.fom),
                 tomMåned = checkNotNull(stonad.tom),
