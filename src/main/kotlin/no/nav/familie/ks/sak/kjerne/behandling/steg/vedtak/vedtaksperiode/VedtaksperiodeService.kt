@@ -365,8 +365,12 @@ class VedtaksperiodeService(
 
     fun finnEndringstidspunktForBehandling(behandling: Behandling, sisteVedtattBehandling: Behandling?): LocalDate {
         if (sisteVedtattBehandling == null) return TIDENES_MORGEN
+
         val andelerTilkjentYtelseForBehandling = andelerTilkjentYtelseOgEndreteUtbetalingerService
             .finnAndelerTilkjentYtelseMedEndreteUtbetalinger(behandling.id)
+
+        if (andelerTilkjentYtelseForBehandling.isEmpty()) return TIDENES_MORGEN
+
         val andelerTilkjentYtelseForForrigeBehandling = andelerTilkjentYtelseOgEndreteUtbetalingerService
             .finnAndelerTilkjentYtelseMedEndreteUtbetalinger(sisteVedtattBehandling.id)
 
@@ -384,7 +388,9 @@ class VedtaksperiodeService(
         val avslagsperioderFraVilkårsvurdering = hentAvslagsperioderFraVilkårsvurdering(behandling.id, vedtak)
         val avslagsperioderFraEndretUtbetalinger = hentAvslagsperioderFraEndretUtbetalinger(behandling.id, vedtak)
 
-        val uregistrerteBarn = søknadGrunnlagService.hentAktiv(behandlingId = behandling.id).hentUregistrerteBarn()
+        val uregistrerteBarn = if (behandling.erSøknad()) {
+            søknadGrunnlagService.hentAktiv(behandlingId = behandling.id).hentUregistrerteBarn()
+        } else emptyList()
 
         return if (uregistrerteBarn.isNotEmpty()) {
             leggTilAvslagsbegrunnelseForUregistrertBarn(
