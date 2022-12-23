@@ -365,10 +365,11 @@ class VedtaksperiodeService(
 
     fun finnEndringstidspunktForBehandling(behandling: Behandling, sisteVedtattBehandling: Behandling?): LocalDate {
         if (sisteVedtattBehandling == null) return TIDENES_MORGEN
+
         val andelerTilkjentYtelseForBehandling = andelerTilkjentYtelseOgEndreteUtbetalingerService
             .finnAndelerTilkjentYtelseMedEndreteUtbetalinger(behandling.id)
 
-        if (andelerTilkjentYtelseForBehandling.isEmpty() || sisteVedtattBehandling == null) return TIDENES_MORGEN
+        if (andelerTilkjentYtelseForBehandling.isEmpty()) return TIDENES_MORGEN
 
         val andelerTilkjentYtelseForForrigeBehandling = andelerTilkjentYtelseOgEndreteUtbetalingerService
             .finnAndelerTilkjentYtelseMedEndreteUtbetalinger(sisteVedtattBehandling.id)
