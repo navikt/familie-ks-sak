@@ -19,6 +19,6 @@ data class UtbetalingsinfoDto(
     @Schema(implementation = String::class, example = "2022-12")
     val fomMåned: YearMonth,
     @Schema(implementation = String::class, example = "2022-12")
-    val tomMåned: YearMonth,
+    val tomMåned: YearMonth?,
     val beløp: Int
 )
