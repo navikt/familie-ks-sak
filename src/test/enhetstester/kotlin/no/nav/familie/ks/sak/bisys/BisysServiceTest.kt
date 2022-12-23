@@ -99,6 +99,13 @@ internal class BisysServiceTest {
                     tom = YearMonth.now().plusMonths(3),
                     belop = 7500,
                     barn = listOf(BarnDto(fnr = Foedselsnummer(barn2IInfotrygd)))
+                ),
+                StonadDto(
+                    fnr = Foedselsnummer(randomFnr()),
+                    fom = YearMonth.now().minusMonths(7),
+                    tom = YearMonth.now().plusMonths(5),
+                    belop = 4500,
+                    barn = listOf(BarnDto(fnr = Foedselsnummer(barn2IInfotrygd)))
                 )
             )
         )
@@ -121,11 +128,16 @@ internal class BisysServiceTest {
         )
 
         val utbetalingerFraInfotrygd = utbetalinger.utbetalingsinfo[barn2IInfotrygd]
-        assertEquals(1, utbetalingerFraInfotrygd?.size)
+        assertEquals(2, utbetalingerFraInfotrygd?.size)
         utbetalingerFraInfotrygd!!.assertUtbetaling(
             beløp = 7500,
             fomMåned = YearMonth.now().minusMonths(5),
             tomMåned = YearMonth.now().plusMonths(3)
+        )
+        utbetalingerFraInfotrygd.assertUtbetaling(
+            beløp = 4500,
+            fomMåned = YearMonth.now().minusMonths(7),
+            tomMåned = YearMonth.now().plusMonths(5)
         )
     }
 
