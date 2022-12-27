@@ -159,7 +159,7 @@ class VedtaksperiodeService(
 
         return filtrerUtPerioderBasertPåEndringstidspunkt(
             vedtaksperioderMedBegrunnelser = (utbetalingsperioder + opphørsperioder),
-            behandlingId = vedtak.behandling.id,
+            behandling = vedtak.behandling,
             gjelderFortsattInnvilget = gjelderFortsattInnvilget,
             manueltOverstyrtEndringstidspunkt = manueltOverstyrtEndringstidspunkt
         ) + avslagsperioder
@@ -167,21 +167,26 @@ class VedtaksperiodeService(
 
     fun filtrerUtPerioderBasertPåEndringstidspunkt(
         vedtaksperioderMedBegrunnelser: List<VedtaksperiodeMedBegrunnelser>,
-        behandlingId: Long,
+        behandling: Behandling,
         gjelderFortsattInnvilget: Boolean = false,
         manueltOverstyrtEndringstidspunkt: LocalDate? = null
     ): List<VedtaksperiodeMedBegrunnelser> {
         val endringstidspunkt = manueltOverstyrtEndringstidspunkt
             ?: if (!gjelderFortsattInnvilget) {
-                // TODO: Legg til når vi får inn endringstidspunktservice som er avhengig av beregning
-                //     endringstidspunktService.finnEndringstidpunkForBehandling(behandlingId = behandlingId)
-                TIDENES_MORGEN
+                finnEndringstidspunktForBehandling(
+                    behandling = behandling,
+                    sisteVedtattBehandling = hentSisteBehandlingSomErVedtatt(behandling.fagsak.id)
+                )
             } else {
                 TIDENES_MORGEN
             }
 
         return vedtaksperioderMedBegrunnelser.filter { (it.tom ?: TIDENES_ENDE).erSammeEllerEtter(endringstidspunkt) }
     }
+
+    private fun hentSisteBehandlingSomErVedtatt(fagsakId: Long): Behandling? = behandlingRepository.finnBehandlinger(fagsakId)
+        .filter { !it.erHenlagt() && it.status == BehandlingStatus.AVSLUTTET }
+        .maxByOrNull { it.opprettetTidspunkt }
 
     @Transactional
     fun genererVedtaksperiodeForOverstyrtEndringstidspunkt(
@@ -455,12 +460,16 @@ class VedtaksperiodeService(
         periode: NullablePeriode,
         avslagsbegrunnelser: List<Begrunnelse>
     ): VedtaksperiodeMedBegrunnelser = VedtaksperiodeMedBegrunnelser(
-        vedtak = vedtak, fom = periode.fom, tom = periode.tom?.sisteDagIMåned(), type = Vedtaksperiodetype.AVSLAG
+        vedtak = vedtak,
+        fom = periode.fom,
+        tom = periode.tom?.sisteDagIMåned(),
+        type = Vedtaksperiodetype.AVSLAG
     ).apply {
         begrunnelser.addAll(
             avslagsbegrunnelser.map { begrunnelse ->
                 Vedtaksbegrunnelse(
-                    vedtaksperiodeMedBegrunnelser = this, begrunnelse = begrunnelse
+                    vedtaksperiodeMedBegrunnelser = this,
+                    begrunnelse = begrunnelse
                 )
             }
         )
@@ -474,7 +483,10 @@ private fun leggTilAvslagsbegrunnelseForUregistrertBarn(
 ): List<VedtaksperiodeMedBegrunnelser> {
     val avslagsperioderMedTomPeriode = if (avslagsperioder.none { it.fom == null && it.tom == null }) {
         avslagsperioder + VedtaksperiodeMedBegrunnelser(
-            vedtak = vedtak, fom = null, tom = null, type = Vedtaksperiodetype.AVSLAG
+            vedtak = vedtak,
+            fom = null,
+            tom = null,
+            type = Vedtaksperiodetype.AVSLAG
         )
     } else {
         avslagsperioder
@@ -485,7 +497,8 @@ private fun leggTilAvslagsbegrunnelseForUregistrertBarn(
             it.apply {
                 begrunnelser.add(
                     Vedtaksbegrunnelse(
-                        vedtaksperiodeMedBegrunnelser = this, begrunnelse = Begrunnelse.AVSLAG_UREGISTRERT_BARN
+                        vedtaksperiodeMedBegrunnelser = this,
+                        begrunnelse = Begrunnelse.AVSLAG_UREGISTRERT_BARN
                     )
                 )
             }
