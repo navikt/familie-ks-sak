@@ -90,15 +90,18 @@ class FagsakController(
                 .body(Ressurs.failure(errorMessage = "Fant ikke fagsak på person"))
     }
 
-    @GetMapping(path = ["/{fagsakId}/har-apen-tilbakekreving"], produces = [MediaType.APPLICATION_JSON_VALUE])
-    fun harÅpenTilbakekreving(@PathVariable fagsakId: Long): ResponseEntity<Ressurs<Boolean>> {
+    @GetMapping(
+        path = ["/{fagsakId}/har-åpen-tilbakekrevingsbehandling"],
+        produces = [MediaType.APPLICATION_JSON_VALUE]
+    )
+    fun harÅpenTilbakekrevingsbehandling(@PathVariable fagsakId: Long): ResponseEntity<Ressurs<Boolean>> {
         tilgangService.validerTilgangTilHandlingOgFagsak(
             fagsakId = fagsakId,
             minimumBehandlerRolle = BehandlerRolle.VEILEDER,
             event = AuditLoggerEvent.ACCESS,
-            handling = "sjekke om saken har en åpen tilbakekrevingssak"
+            handling = "sjekke om saken har en åpen tilbakekrevingsbehandling"
         )
 
-        return ResponseEntity.ok(Ressurs.success(tilbakekrevingService.harÅpenTilbakekreving(fagsakId)))
+        return ResponseEntity.ok(Ressurs.success(tilbakekrevingService.harÅpenTilbakekrevingsbehandling(fagsakId)))
     }
 }

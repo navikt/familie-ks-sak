@@ -6,6 +6,6 @@ import org.springframework.stereotype.Service
 @Service
 class TilbakekrevingService(private val tilbakekrevingKlient: TilbakekrevingKlient) {
 
-    fun harÅpenTilbakekreving(fagsakId: Long): Boolean =
+    fun harÅpenTilbakekrevingsbehandling(fagsakId: Long): Boolean =
         tilbakekrevingKlient.harÅpenTilbakekrevingsbehandling(fagsakId)
 }
