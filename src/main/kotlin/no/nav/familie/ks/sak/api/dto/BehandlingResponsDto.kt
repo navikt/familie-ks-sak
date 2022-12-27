@@ -1,6 +1,7 @@
 package no.nav.familie.ks.sak.api.dto
 
 import no.nav.familie.kontrakter.felles.personopplysning.KJOENN
+import no.nav.familie.kontrakter.felles.tilbakekreving.Tilbakekrevingsvalg
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingKategori
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingType
@@ -38,6 +39,7 @@ data class BehandlingResponsDto(
     val endretUtbetalingAndeler: List<EndretUtbetalingAndelDto>,
     val totrinnskontroll: TotrinnskontrollDto?,
     val endringstidspunkt: LocalDate?,
+    val tilbakekreving: TilbakekrevingResponsDto?,
     val kompetanser: List<Any> = emptyList(), // TODO implementeres ved EØS
     val utenlandskePeriodebeløp: List<Any> = emptyList(), // TODO implementeres ved EØS
     val valutakurser: List<Any> = emptyList() // TODO implementeres ved EØS,
@@ -96,4 +98,11 @@ data class YtelsePerioderDto(
     val stønadTom: YearMonth,
     val ytelseType: YtelseType,
     val skalUtbetales: Boolean
+)
+
+data class TilbakekrevingResponsDto(
+    val valg: Tilbakekrevingsvalg,
+    val varsel: String? = null,
+    val begrunnelse: String,
+    val tilbakekrevingsbehandlingId: String? = null
 )

@@ -4,6 +4,8 @@ import no.nav.familie.kontrakter.felles.simulering.PosteringType
 import no.nav.familie.kontrakter.felles.simulering.SimuleringMottaker
 import no.nav.familie.kontrakter.felles.simulering.SimulertPostering
 import no.nav.familie.ks.sak.api.dto.SimuleringsPeriodeDto
+import no.nav.familie.ks.sak.api.dto.TilbakekrevingDto
+import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.steg.simulering.domene.ØkonomiSimuleringMottaker
 import no.nav.familie.ks.sak.kjerne.behandling.steg.simulering.domene.ØkonomiSimuleringPostering
@@ -124,3 +126,12 @@ fun SimulertPostering.tilVedtakSimuleringPostering(økonomiSimuleringMottaker: �
         utenInntrekk = this.utenInntrekk,
         økonomiSimuleringMottaker = økonomiSimuleringMottaker
     )
+
+fun validerTilbakekrevingData(tilbakekrevingDto: TilbakekrevingDto?, feilutbetaling: BigDecimal) {
+    if (feilutbetaling == BigDecimal.ZERO && tilbakekrevingDto != null) {
+        throw FunksjonellFeil(
+            "Simuleringen har ikke en feilutbetaling, men tilbakekrevingDto var ikke null",
+            frontendFeilmelding = "Du kan ikke opprette en tilbakekreving når det ikke er en feilutbetaling."
+        )
+    }
+}

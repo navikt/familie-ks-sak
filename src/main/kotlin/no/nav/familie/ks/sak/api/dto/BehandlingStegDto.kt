@@ -1,6 +1,7 @@
 package no.nav.familie.ks.sak.api.dto
 
 import no.nav.familie.kontrakter.felles.objectMapper
+import no.nav.familie.kontrakter.felles.tilbakekreving.Tilbakekrevingsvalg
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Beslutning
 import no.nav.familie.ks.sak.kjerne.behandling.steg.VenteÅrsak
@@ -49,7 +50,7 @@ data class BarnMedOpplysningerDto(
     val fødselsdato: LocalDate? = null,
     val inkludertISøknaden: Boolean = true,
     val erFolkeregistrert: Boolean = true
-)
+) : BehandlingStegDto()
 
 data class BehandlingPåVentDto(val frist: LocalDate)
 
@@ -68,3 +69,10 @@ enum class HenleggÅrsak(val beskrivelse: String) {
         TEKNISK_VEDLIKEHOLD -> Behandlingsresultat.HENLAGT_TEKNISK_VEDLIKEHOLD
     }
 }
+
+data class TilbakekrevingDto(
+    val valg: Tilbakekrevingsvalg,
+    val varsel: String? = null,
+    val begrunnelse: String,
+    val tilbakekrevingsbehandlingId: String? = null
+) : BehandlingStegDto()
