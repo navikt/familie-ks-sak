@@ -70,7 +70,7 @@ enum class HenleggÅrsak(val beskrivelse: String) {
     }
 }
 
-data class TilbakekrevingDto(
+data class TilbakekrevingRequestDto(
     val valg: Tilbakekrevingsvalg,
     val varsel: String? = null,
     val begrunnelse: String,

@@ -1,7 +1,7 @@
 package no.nav.familie.ks.sak.kjerne.behandling.steg.simulering
 
 import no.nav.familie.ks.sak.api.dto.BehandlingStegDto
-import no.nav.familie.ks.sak.api.dto.TilbakekrevingDto
+import no.nav.familie.ks.sak.api.dto.TilbakekrevingRequestDto
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg
 import no.nav.familie.ks.sak.kjerne.behandling.steg.IBehandlingSteg
@@ -22,13 +22,14 @@ class SimuleringSteg(
         logger.info("Utfører steg ${getBehandlingssteg().name} for behandling $behandlingId med tilbakekreving")
         val behandling = behandlingService.hentBehandling(behandlingId)
         if (tilbakekrevingService.harÅpenTilbakekrevingsbehandling(behandling.fagsak.id)) {
+            logger.info("Det finnes allerede en åpen tilbakekrevingsbehandling for fagsak ${behandling.fagsak.id}")
             return
         }
 
-        val tilbakekrevingDto = behandlingStegDto as TilbakekrevingDto
+        val tilbakekrevingRequestDto = behandlingStegDto as TilbakekrevingRequestDto
         val feilutbetaling = simuleringService.hentFeilutbetaling(behandlingId)
-        validerTilbakekrevingData(tilbakekrevingDto, feilutbetaling)
-        tilbakekrevingService.lagreTilbakekreving(tilbakekrevingDto, behandling)
+        validerTilbakekrevingData(tilbakekrevingRequestDto, feilutbetaling)
+        tilbakekrevingService.lagreTilbakekreving(tilbakekrevingRequestDto, behandling)
     }
 
     // denne metoden kalles når frontend ikke sender tilbakekrevingDto,

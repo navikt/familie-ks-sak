@@ -34,16 +34,16 @@ data class Tilbakekreving(
 
     @Enumerated(EnumType.STRING)
     @Column(name = "valg")
-    var valg: Tilbakekrevingsvalg,
+    val valg: Tilbakekrevingsvalg,
 
     @Column(name = "varsel")
-    var varsel: String? = null,
+    val varsel: String? = null,
 
     @Column(name = "begrunnelse")
-    var begrunnelse: String,
+    val begrunnelse: String,
 
     @Column(name = "tilbakekrevingsbehandling_id")
-    var tilbakekrevingsbehandlingId: String?
+    val tilbakekrevingsbehandlingId: String?
 ) : BaseEntitet() {
 
     override fun hashCode() = id.hashCode()

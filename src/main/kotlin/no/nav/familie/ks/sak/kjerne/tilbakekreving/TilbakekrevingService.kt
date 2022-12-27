@@ -1,6 +1,6 @@
 package no.nav.familie.ks.sak.kjerne.tilbakekreving
 
-import no.nav.familie.ks.sak.api.dto.TilbakekrevingDto
+import no.nav.familie.ks.sak.api.dto.TilbakekrevingRequestDto
 import no.nav.familie.ks.sak.integrasjon.tilbakekreving.TilbakekrevingKlient
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.tilbakekreving.domene.Tilbakekreving
@@ -18,13 +18,13 @@ class TilbakekrevingService(
         tilbakekrevingKlient.harÅpenTilbakekrevingsbehandling(fagsakId)
 
     @Transactional
-    fun lagreTilbakekreving(tilbakekrevingDto: TilbakekrevingDto, behandling: Behandling): Tilbakekreving? {
+    fun lagreTilbakekreving(tilbakekrevingRequestDto: TilbakekrevingRequestDto, behandling: Behandling): Tilbakekreving? {
         val eksisterendeTilbakekreving = tilbakekrevingRepository.findByBehandlingId(behandling.id)
         val tilbakekreving = Tilbakekreving(
-            begrunnelse = tilbakekrevingDto.begrunnelse,
+            begrunnelse = tilbakekrevingRequestDto.begrunnelse,
             behandling = behandling,
-            valg = tilbakekrevingDto.valg,
-            varsel = tilbakekrevingDto.varsel,
+            valg = tilbakekrevingRequestDto.valg,
+            varsel = tilbakekrevingRequestDto.varsel,
             tilbakekrevingsbehandlingId = eksisterendeTilbakekreving?.tilbakekrevingsbehandlingId
         )
 

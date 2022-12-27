@@ -7,7 +7,7 @@ import io.mockk.junit5.MockKExtension
 import io.mockk.mockk
 import io.mockk.verify
 import no.nav.familie.kontrakter.felles.tilbakekreving.Tilbakekrevingsvalg
-import no.nav.familie.ks.sak.api.dto.TilbakekrevingDto
+import no.nav.familie.ks.sak.api.dto.TilbakekrevingRequestDto
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
@@ -74,7 +74,7 @@ internal class SimuleringStegTest {
         assertEquals("Du kan ikke opprette en tilbakekreving når det ikke er en feilutbetaling.", exception.frontendFeilmelding)
     }
 
-    private fun lagTilbakekrevingDto() = TilbakekrevingDto(
+    private fun lagTilbakekrevingDto() = TilbakekrevingRequestDto(
         valg = Tilbakekrevingsvalg.OPPRETT_TILBAKEKREVING_MED_VARSEL,
         varsel = "Opprett en tilbakekreving",
         begrunnelse = "Test begrunnelse"
