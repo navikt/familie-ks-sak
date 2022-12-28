@@ -22,13 +22,13 @@ class TilbakekrevingKlient(
     fun harÅpenTilbakekrevingsbehandling(fagsakId: Long): Boolean {
         val uri = URI.create("$familieTilbakeUri/fagsystem/$FAGSYSTEM/fagsak/$fagsakId/finnesApenBehandling/v1")
 
-        val finnesBehandlingsresponsDto: FinnesBehandlingsresponsDto = kallEksternTjenesteRessurs(
+        val finnesTilbakekrevingBehandlingsresponsDto: FinnesTilbakekrevingBehandlingsresponsDto = kallEksternTjenesteRessurs(
             tjeneste = "familie-tilbake",
             uri = uri,
             formål = "Sjekker om en fagsak har åpen tilbakekrevingsbehandling"
         ) { getForEntity(uri) }
 
-        return finnesBehandlingsresponsDto.finnesÅpenBehandling
+        return finnesTilbakekrevingBehandlingsresponsDto.finnesÅpenBehandling
     }
 
     fun hentForhåndsvisningTilbakekrevingVarselbrev(forhåndsvisVarselbrevRequest: ForhåndsvisVarselbrevRequest): ByteArray {
@@ -50,4 +50,4 @@ class TilbakekrevingKlient(
     }
 }
 
-data class FinnesBehandlingsresponsDto(val finnesÅpenBehandling: Boolean)
+data class FinnesTilbakekrevingBehandlingsresponsDto(val finnesÅpenBehandling: Boolean)

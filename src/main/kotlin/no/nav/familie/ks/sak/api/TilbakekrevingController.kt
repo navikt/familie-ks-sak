@@ -1,7 +1,7 @@
 package no.nav.familie.ks.sak.api
 
 import no.nav.familie.kontrakter.felles.Ressurs
-import no.nav.familie.ks.sak.api.dto.ForhåndsvisTilbakekrevingsvarselbrevDto
+import no.nav.familie.ks.sak.api.dto.ForhåndsvisTilbakekrevingVarselbrevDto
 import no.nav.familie.ks.sak.config.BehandlerRolle
 import no.nav.familie.ks.sak.kjerne.tilbakekreving.TilbakekrevingService
 import no.nav.familie.ks.sak.sikkerhet.TilgangService
@@ -26,7 +26,7 @@ class TilbakekrevingController(
     @PostMapping("/{behandlingId}/forhåndsvis-tilbakekreving-varselbrev")
     fun hentForhåndsvisningVarselbrev(
         @PathVariable behandlingId: Long,
-        @RequestBody forhåndsvisTilbakekrevingsvarselbrevDto: ForhåndsvisTilbakekrevingsvarselbrevDto
+        @RequestBody forhåndsvisTilbakekrevingVarselbrevDto: ForhåndsvisTilbakekrevingVarselbrevDto
     ): ResponseEntity<Ressurs<ByteArray>> {
         tilgangService.validerTilgangTilHandling(
             minimumBehandlerRolle = BehandlerRolle.VEILEDER,
@@ -36,7 +36,7 @@ class TilbakekrevingController(
             Ressurs.success(
                 tilbakekrevingService.hentForhåndsvisningTilbakekrevingVarselBrev(
                     behandlingId,
-                    forhåndsvisTilbakekrevingsvarselbrevDto
+                    forhåndsvisTilbakekrevingVarselbrevDto
                 )
             )
         )

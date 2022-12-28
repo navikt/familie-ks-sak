@@ -4,7 +4,7 @@ import no.nav.familie.kontrakter.felles.Fagsystem
 import no.nav.familie.kontrakter.felles.tilbakekreving.FeilutbetaltePerioderDto
 import no.nav.familie.kontrakter.felles.tilbakekreving.ForhåndsvisVarselbrevRequest
 import no.nav.familie.kontrakter.felles.tilbakekreving.Ytelsestype
-import no.nav.familie.ks.sak.api.dto.ForhåndsvisTilbakekrevingsvarselbrevDto
+import no.nav.familie.ks.sak.api.dto.ForhåndsvisTilbakekrevingVarselbrevDto
 import no.nav.familie.ks.sak.api.dto.TilbakekrevingRequestDto
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.integrasjon.tilbakekreving.TilbakekrevingKlient
@@ -50,7 +50,7 @@ class TilbakekrevingService(
 
     fun hentForhåndsvisningTilbakekrevingVarselBrev(
         behandlingId: Long,
-        forhåndsvisTilbakekrevingsvarselbrevDto: ForhåndsvisTilbakekrevingsvarselbrevDto
+        forhåndsvisTilbakekrevingVarselbrevDto: ForhåndsvisTilbakekrevingVarselbrevDto
     ): ByteArray {
         val vedtak = vedtakRepository.findByBehandlingAndAktivOptional(behandlingId) ?: throw Feil(
             "Fant ikke vedtak for behandling $behandlingId ved forhåndsvisning av varselbrev for tilbakekreving."
@@ -60,7 +60,7 @@ class TilbakekrevingService(
         val arbeidsfordeling = arbeidsfordelingService.hentArbeidsfordelingPåBehandling(behandlingId)
         return tilbakekrevingKlient.hentForhåndsvisningTilbakekrevingVarselbrev(
             forhåndsvisVarselbrevRequest = ForhåndsvisVarselbrevRequest(
-                varseltekst = forhåndsvisTilbakekrevingsvarselbrevDto.fritekst,
+                varseltekst = forhåndsvisTilbakekrevingVarselbrevDto.fritekst,
                 ytelsestype = Ytelsestype.KONTANTSTØTTE,
                 behandlendeEnhetId = arbeidsfordeling.behandlendeEnhetId,
                 behandlendeEnhetsNavn = arbeidsfordeling.behandlendeEnhetNavn,

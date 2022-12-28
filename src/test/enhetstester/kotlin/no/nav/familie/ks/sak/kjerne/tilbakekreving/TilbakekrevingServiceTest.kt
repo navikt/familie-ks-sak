@@ -10,7 +10,7 @@ import no.nav.familie.kontrakter.felles.Fagsystem
 import no.nav.familie.kontrakter.felles.simulering.PosteringType
 import no.nav.familie.kontrakter.felles.tilbakekreving.ForhåndsvisVarselbrevRequest
 import no.nav.familie.kontrakter.felles.tilbakekreving.Ytelsestype
-import no.nav.familie.ks.sak.api.dto.ForhåndsvisTilbakekrevingsvarselbrevDto
+import no.nav.familie.ks.sak.api.dto.ForhåndsvisTilbakekrevingVarselbrevDto
 import no.nav.familie.ks.sak.common.util.førsteDagIInneværendeMåned
 import no.nav.familie.ks.sak.data.lagArbeidsfordelingPåBehandling
 import no.nav.familie.ks.sak.data.lagBehandling
@@ -110,7 +110,7 @@ internal class TilbakekrevingServiceTest {
 
         tilbakekrevingService.hentForhåndsvisningTilbakekrevingVarselBrev(
             behandling.id,
-            ForhåndsvisTilbakekrevingsvarselbrevDto("fritekst")
+            ForhåndsvisTilbakekrevingVarselbrevDto("fritekst")
         )
         verify(exactly = 1) { vedtakRepository.findByBehandlingAndAktivOptional(behandling.id) }
         verify(exactly = 1) { personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(behandling.id) }
