@@ -63,7 +63,7 @@ class SimuleringService(
         return simuleringMottakere.tilSimuleringDto().feilutbetaling
     }
 
-    private fun hentSimuleringPåBehandling(behandlingId: Long): List<ØkonomiSimuleringMottaker> {
+    fun hentSimuleringPåBehandling(behandlingId: Long): List<ØkonomiSimuleringMottaker> {
         return øknomiSimuleringMottakerRepository.findByBehandlingId(behandlingId)
     }
 
