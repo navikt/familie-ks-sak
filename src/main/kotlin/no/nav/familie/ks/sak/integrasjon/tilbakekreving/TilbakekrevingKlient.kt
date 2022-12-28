@@ -1,10 +1,14 @@
 package no.nav.familie.ks.sak.integrasjon.tilbakekreving
 
 import no.nav.familie.http.client.AbstractRestClient
+import no.nav.familie.kontrakter.felles.tilbakekreving.ForhåndsvisVarselbrevRequest
+import no.nav.familie.ks.sak.integrasjon.kallEksternTjeneste
 import no.nav.familie.ks.sak.integrasjon.kallEksternTjenesteRessurs
 import no.nav.familie.ks.sak.integrasjon.økonomi.utbetalingsoppdrag.FAGSYSTEM
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.http.HttpHeaders
+import org.springframework.http.MediaType
 import org.springframework.stereotype.Service
 import org.springframework.web.client.RestOperations
 import java.net.URI
@@ -25,6 +29,24 @@ class TilbakekrevingKlient(
         ) { getForEntity(uri) }
 
         return finnesBehandlingsresponsDto.finnesÅpenBehandling
+    }
+
+    fun hentForhåndsvisningTilbakekrevingVarselbrev(forhåndsvisVarselbrevRequest: ForhåndsvisVarselbrevRequest): ByteArray {
+        val uri = URI.create("$familieTilbakeUri/dokument/forhandsvis-varselbrev")
+
+        return kallEksternTjeneste(
+            tjeneste = "familie-tilbake",
+            uri = uri,
+            formål = "Henter forhåndsvisning av varselbrev"
+        ) {
+            postForEntity(
+                uri = uri,
+                payload = forhåndsvisVarselbrevRequest,
+                httpHeaders = HttpHeaders().apply {
+                    accept = listOf(MediaType.APPLICATION_PDF)
+                }
+            )
+        }
     }
 }
 

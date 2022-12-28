@@ -3,9 +3,12 @@ package no.nav.familie.ks.sak.kjerne.behandling.steg.simulering
 import no.nav.familie.kontrakter.felles.simulering.PosteringType
 import no.nav.familie.kontrakter.felles.simulering.SimuleringMottaker
 import no.nav.familie.kontrakter.felles.simulering.SimulertPostering
+import no.nav.familie.kontrakter.felles.tilbakekreving.Periode
 import no.nav.familie.ks.sak.api.dto.SimuleringsPeriodeDto
 import no.nav.familie.ks.sak.api.dto.TilbakekrevingRequestDto
+import no.nav.familie.ks.sak.api.mapper.SimuleringMapper.tilSimuleringDto
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
+import no.nav.familie.ks.sak.common.util.toYearMonth
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.steg.simulering.domene.ØkonomiSimuleringMottaker
 import no.nav.familie.ks.sak.kjerne.behandling.steg.simulering.domene.ØkonomiSimuleringPostering
@@ -134,4 +137,23 @@ fun validerTilbakekrevingData(tilbakekrevingRequestDto: TilbakekrevingRequestDto
             frontendFeilmelding = "Du kan ikke opprette en tilbakekreving når det ikke er en feilutbetaling."
         )
     }
+}
+
+fun hentTilbakekrevingsperioderISimulering(simulering: List<ØkonomiSimuleringMottaker>): List<Periode> {
+    val tilbakekrevingsperioder = mutableListOf<Periode>()
+    val feilutbetaltePerioder = simulering.tilSimuleringDto().perioder
+        .filter { it.feilutbetaling != BigDecimal.ZERO }.sortedBy { it.fom }
+
+    var aktuellFom = feilutbetaltePerioder.first().fom
+    var aktuellTom = feilutbetaltePerioder.first().tom
+
+    feilutbetaltePerioder.forEach { periode ->
+        if (aktuellTom.toYearMonth().plusMonths(1) < periode.fom.toYearMonth()) {
+            tilbakekrevingsperioder.add(Periode(aktuellFom, aktuellTom))
+            aktuellFom = periode.fom
+        }
+        aktuellTom = periode.tom
+    }
+    tilbakekrevingsperioder.add(Periode(aktuellFom, aktuellTom))
+    return tilbakekrevingsperioder
 }
