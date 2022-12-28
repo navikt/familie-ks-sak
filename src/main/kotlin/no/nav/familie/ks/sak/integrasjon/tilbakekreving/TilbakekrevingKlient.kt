@@ -2,6 +2,7 @@ package no.nav.familie.ks.sak.integrasjon.tilbakekreving
 
 import no.nav.familie.http.client.AbstractRestClient
 import no.nav.familie.kontrakter.felles.tilbakekreving.ForhåndsvisVarselbrevRequest
+import no.nav.familie.kontrakter.felles.tilbakekreving.OpprettTilbakekrevingRequest
 import no.nav.familie.ks.sak.integrasjon.kallEksternTjeneste
 import no.nav.familie.ks.sak.integrasjon.kallEksternTjenesteRessurs
 import no.nav.familie.ks.sak.integrasjon.økonomi.utbetalingsoppdrag.FAGSYSTEM
@@ -46,6 +47,18 @@ class TilbakekrevingKlient(
                     accept = listOf(MediaType.APPLICATION_PDF)
                 }
             )
+        }
+    }
+
+    fun opprettTilbakekrevingBehandling(opprettTilbakekrevingRequest: OpprettTilbakekrevingRequest): String {
+        val uri = URI.create("$familieTilbakeUri/behandling/v1")
+
+        return kallEksternTjenesteRessurs(
+            tjeneste = "familie-tilbake",
+            uri = uri,
+            formål = "Oppretter tilbakekrevingsbehandling"
+        ) {
+            postForEntity(uri, opprettTilbakekrevingRequest)
         }
     }
 }

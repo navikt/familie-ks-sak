@@ -26,6 +26,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.VedtakReposito
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Målform
 import no.nav.familie.ks.sak.kjerne.tilbakekreving.domene.TilbakekrevingRepository
+import no.nav.familie.ks.sak.kjerne.totrinnskontroll.TotrinnskontrollRepository
 import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
@@ -48,6 +49,9 @@ internal class TilbakekrevingServiceTest {
 
     @MockK
     private lateinit var vedtakRepository: VedtakRepository
+
+    @MockK
+    private lateinit var totrinnskontrollRepository: TotrinnskontrollRepository
 
     @MockK
     private lateinit var personopplysningGrunnlagService: PersonopplysningGrunnlagService
