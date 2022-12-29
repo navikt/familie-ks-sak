@@ -36,6 +36,7 @@ import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelseReposito
 import no.nav.familie.ks.sak.kjerne.logg.LoggService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.StatsborgerskapService
+import no.nav.familie.ks.sak.kjerne.tilbakekreving.domene.TilbakekrevingRepository
 import no.nav.familie.ks.sak.kjerne.totrinnskontroll.TotrinnskontrollRepository
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
@@ -84,6 +85,9 @@ class BehandlingServiceTest {
 
     @MockK
     private lateinit var totrinnskontrollRepository: TotrinnskontrollRepository
+
+    @MockK
+    private lateinit var tilbakekrevingRepository: TilbakekrevingRepository
 
     @InjectMockKs
     private lateinit var behandlingService: BehandlingService
@@ -137,6 +141,7 @@ class BehandlingServiceTest {
                 .finnEndreteUtbetalingerMedAndelerTilkjentYtelse(behandling.id)
         } returns emptyList()
         every { totrinnskontrollRepository.findByBehandlingAndAktiv(any()) } returns mockk(relaxed = true)
+        every { tilbakekrevingRepository.findByBehandlingId(any()) } returns null
     }
 
     @Test
@@ -151,6 +156,7 @@ class BehandlingServiceTest {
         verify(exactly = 1) { søknadGrunnlagService.finnAktiv(behandling.id) }
         verify(exactly = 1) { andelTilkjentYtelseRepository.finnAndelerTilkjentYtelseForBehandling(behandling.id) }
         verify(exactly = 1) { vedtaksperiodeService.finnEndringstidspunktForBehandling(behandling, null) }
+        verify(exactly = 1) { tilbakekrevingRepository.findByBehandlingId(behandling.id) }
 
         assertTrue { behandlingResponsDto.personer.isNotEmpty() }
         assertEquals(1, behandlingResponsDto.personer.size)

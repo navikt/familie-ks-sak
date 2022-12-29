@@ -48,7 +48,7 @@ class ForvaltningController(
     @PostMapping("/journalfør-søknad/{fnr}")
     fun opprettJournalføringOppgave(@PathVariable fnr: String): ResponseEntity<Ressurs<String>> {
         tilgangService.validerTilgangTilHandling(
-            minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
+            minimumBehandlerRolle = BehandlerRolle.FORVALTER,
             handling = "teste journalføring av innkommende søknad for opprettelse av journalføring oppgave"
         )
         val arkiverDokumentRequest = ArkiverDokumentRequest(

@@ -8,6 +8,7 @@ import no.nav.familie.ks.sak.api.dto.MinimalFagsakResponsDto
 import no.nav.familie.ks.sak.api.dto.SøkParamDto
 import no.nav.familie.ks.sak.config.BehandlerRolle
 import no.nav.familie.ks.sak.kjerne.fagsak.FagsakService
+import no.nav.familie.ks.sak.kjerne.tilbakekreving.TilbakekrevingService
 import no.nav.familie.ks.sak.sikkerhet.AuditLoggerEvent
 import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext
 import no.nav.familie.ks.sak.sikkerhet.TilgangService
@@ -29,7 +30,11 @@ import org.springframework.web.bind.annotation.RestController
 @RequestMapping("/api/fagsaker")
 @ProtectedWithClaims(issuer = "azuread")
 @Validated
-class FagsakController(private val fagsakService: FagsakService, private val tilgangService: TilgangService) {
+class FagsakController(
+    private val fagsakService: FagsakService,
+    private val tilgangService: TilgangService,
+    private val tilbakekrevingService: TilbakekrevingService
+) {
 
     private val logger: Logger = LoggerFactory.getLogger(FagsakController::class.java)
 
@@ -83,5 +88,20 @@ class FagsakController(private val fagsakService: FagsakService, private val til
         return minimalFagsakForPerson?.let { ResponseEntity.ok().body(Ressurs.success(it)) }
             ?: ResponseEntity.status(HttpStatus.NOT_FOUND)
                 .body(Ressurs.failure(errorMessage = "Fant ikke fagsak på person"))
+    }
+
+    @GetMapping(
+        path = ["/{fagsakId}/har-åpen-tilbakekrevingsbehandling"],
+        produces = [MediaType.APPLICATION_JSON_VALUE]
+    )
+    fun harÅpenTilbakekrevingsbehandling(@PathVariable fagsakId: Long): ResponseEntity<Ressurs<Boolean>> {
+        tilgangService.validerTilgangTilHandlingOgFagsak(
+            fagsakId = fagsakId,
+            minimumBehandlerRolle = BehandlerRolle.VEILEDER,
+            event = AuditLoggerEvent.ACCESS,
+            handling = "sjekke om saken har en åpen tilbakekrevingsbehandling"
+        )
+
+        return ResponseEntity.ok(Ressurs.success(tilbakekrevingService.harÅpenTilbakekrevingsbehandling(fagsakId)))
     }
 }
