@@ -130,6 +130,13 @@ class EndretUtbetalingAndelService(
     fun opprettTomEndretUtbetalingAndel(
         behandling: Behandling
     ) = endretUtbetalingAndelRepository.save(EndretUtbetalingAndel(behandlingId = behandling.id))
+
+    @Transactional
+    fun kopierEndretUtbetalingAndelFraForrigeBehandling(behandling: Behandling, forrigeBehandling: Behandling) =
+        hentEndredeUtbetalingAndeler(forrigeBehandling.id).forEach {
+            val kopiertOverEndretUtbetalingAndel = it.copy(behandlingId = behandling.id)
+            endretUtbetalingAndelRepository.save(kopiertOverEndretUtbetalingAndel)
+        }
 }
 
 interface EndretUtbetalingAndelerOppdatertAbonnent {
