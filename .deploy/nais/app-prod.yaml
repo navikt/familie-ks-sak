@@ -47,7 +47,7 @@ spec:
           - id: "4e7f23d9-5db1-45c0-acec-89c86a9ec678"  # BESLUTTER_ROLLE
           - id: "3d718ae5-f25e-47a4-b4b3-084a97604c1d"  # teamfamilie-forvaltning
       replyURLs:
-        - "https://familie-ks-sak-ny.intern.nav.no/swagger-ui/oauth2-redirect.html"
+        - "https://familie-ks-sak.intern.nav.no/swagger-ui/oauth2-redirect.html"
       singlePageApplication: true
   accessPolicy:
     inbound:
@@ -93,7 +93,7 @@ spec:
       memory: 512Mi
       cpu: 500m
   ingresses:
-    - https://familie-ks-sak-ny.intern.nav.no #TODO: Endres når vi er sikre på at vi kan overkjøre den gamle tjenesten.
+    - https://familie-ks-sak.intern.nav.no
   secureLogs:
     enabled: true
   env:
