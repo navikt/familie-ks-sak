@@ -639,7 +639,8 @@ fun lagØkonomiSimuleringPostering(
     fom: LocalDate,
     tom: LocalDate,
     beløp: BigDecimal,
-    forfallsdato: LocalDate
+    forfallsdato: LocalDate,
+    posteringType: PosteringType = PosteringType.YTELSE
 ) = ØkonomiSimuleringPostering(
     økonomiSimuleringMottaker = lagØkonomiSimuleringMottaker(
         behandling = behandling
@@ -649,7 +650,7 @@ fun lagØkonomiSimuleringPostering(
     tom = tom,
     betalingType = BetalingType.DEBIT,
     beløp = beløp,
-    posteringType = PosteringType.YTELSE,
+    posteringType = posteringType,
     forfallsdato = forfallsdato,
     utenInntrekk = false
 )
