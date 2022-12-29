@@ -9,6 +9,7 @@ import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGru
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 
 @Service
 class RegistrerPersonGrunnlagSteg(
@@ -19,6 +20,7 @@ class RegistrerPersonGrunnlagSteg(
 ) : IBehandlingSteg {
     override fun getBehandlingssteg(): BehandlingSteg = BehandlingSteg.REGISTRERE_PERSONGRUNNLAG
 
+    @Transactional
     override fun utførSteg(behandlingId: Long) {
         logger.info("Utfører steg ${getBehandlingssteg().name} for behandling $behandlingId")
         val behandling = behandlingRepository.hentBehandling(behandlingId)
