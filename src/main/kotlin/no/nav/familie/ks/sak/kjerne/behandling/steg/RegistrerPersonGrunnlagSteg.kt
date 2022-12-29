@@ -4,6 +4,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
+import no.nav.familie.ks.sak.kjerne.endretutbetaling.EndretUtbetalingAndelService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -13,7 +14,8 @@ import org.springframework.stereotype.Service
 class RegistrerPersonGrunnlagSteg(
     private val behandlingRepository: BehandlingRepository,
     private val personopplysningGrunnlagService: PersonopplysningGrunnlagService,
-    private val vilkårsvurderingService: VilkårsvurderingService
+    private val vilkårsvurderingService: VilkårsvurderingService,
+    private val endretUtbetalingAndelService: EndretUtbetalingAndelService
 ) : IBehandlingSteg {
     override fun getBehandlingssteg(): BehandlingSteg = BehandlingSteg.REGISTRERE_PERSONGRUNNLAG
 
@@ -30,7 +32,10 @@ class RegistrerPersonGrunnlagSteg(
         }
 
         if (sisteVedtattBehandling != null) {
-            // TODO kopier over endretutbetaling fra forrige behandling
+            endretUtbetalingAndelService.kopierEndretUtbetalingAndelFraForrigeBehandling(
+                behandling,
+                sisteVedtattBehandling
+            )
         }
     }
 
