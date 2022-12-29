@@ -4,6 +4,12 @@ import io.mockk.every
 import io.mockk.impl.annotations.InjectMockKs
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
+import io.mockk.just
+import io.mockk.mockk
+import io.mockk.runs
+import io.mockk.slot
+import io.mockk.verify
+import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.util.MånedPeriode
 import no.nav.familie.ks.sak.common.util.TIDENES_MORGEN
 import no.nav.familie.ks.sak.common.util.førsteDagIInneværendeMåned
@@ -14,18 +20,30 @@ import no.nav.familie.ks.sak.data.randomAktør
 import no.nav.familie.ks.sak.integrasjon.sanity.SanityService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
+import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.registrersøknad.SøknadGrunnlagService
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.Vedtak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.VedtakRepository
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.VedtaksperiodeMedBegrunnelser
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.utbetalingsperiodeMedBegrunnelser.UtbetalingsperiodeMedBegrunnelserService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårsvurderingRepository
 import no.nav.familie.ks.sak.kjerne.beregning.AndelTilkjentYtelseMedEndreteUtbetalinger
 import no.nav.familie.ks.sak.kjerne.beregning.AndelerTilkjentYtelseOgEndreteUtbetalingerService
+import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.Begrunnelse
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
+import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
+import org.hamcrest.CoreMatchers.nullValue
+import org.hamcrest.MatcherAssert.assertThat
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.EnumSource
+import java.time.LocalDate
 import java.time.YearMonth
+import org.hamcrest.CoreMatchers.`is` as Is
 
 @ExtendWith(MockKExtension::class)
 internal class VedtaksperiodeServiceTest {
@@ -65,6 +83,146 @@ internal class VedtaksperiodeServiceTest {
     @BeforeEach
     fun setup() {
         behandling = lagBehandling()
+    }
+
+    @Test
+    fun `oppdaterVedtaksperiodeMedFritekster skal sette fritekster på eksisterende vedtaksperiode`() {
+        val mocketVedtaksperiode = mockk<VedtaksperiodeMedBegrunnelser>()
+
+        every { vedtaksperiodeHentOgPersisterService.hentVedtaksperiodeThrows(any()) } returns mocketVedtaksperiode
+        every { vedtaksperiodeHentOgPersisterService.lagre(mocketVedtaksperiode) } returns mocketVedtaksperiode
+        every { mocketVedtaksperiode.settFritekster(any()) } returns mockk()
+        every { mocketVedtaksperiode.vedtak } returns mockk()
+
+        vedtaksperiodeService.oppdaterVedtaksperiodeMedFritekster(0, listOf("test", "test2"))
+
+        verify(exactly = 1) { vedtaksperiodeHentOgPersisterService.hentVedtaksperiodeThrows(any()) }
+        verify(exactly = 1) { vedtaksperiodeHentOgPersisterService.lagre(mocketVedtaksperiode) }
+        verify(exactly = 1) { mocketVedtaksperiode.settFritekster(any()) }
+    }
+
+    @ParameterizedTest
+    @EnumSource(
+        value = Begrunnelse::class,
+        names = ["AVSLAG_UREGISTRERT_BARN", "AVSLAG_BOSATT_I_RIKET"]
+    )
+    fun `oppdaterVedtaksperiodeMedBegrunnelser skal kaste feil dersom begrunnelse ikke er tillatt for vedtaksperiode type`(
+        begrunnelse: Begrunnelse
+    ) {
+        val vedtaksperiodeMedBegrunnelse = VedtaksperiodeMedBegrunnelser(
+            id = 0,
+            vedtak = Vedtak(id = 0, behandling = behandling),
+            type = Vedtaksperiodetype.UTBETALING
+        )
+
+        val mocketPersonOpplysningGrunnlag = mockk<PersonopplysningGrunnlag>()
+
+        every { personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(behandling.id) } returns mocketPersonOpplysningGrunnlag
+        every { vedtaksperiodeHentOgPersisterService.hentVedtaksperiodeThrows(any()) } returns vedtaksperiodeMedBegrunnelse
+
+        val feil = assertThrows<Feil> {
+            vedtaksperiodeService.oppdaterVedtaksperiodeMedBegrunnelser(1, listOf(begrunnelse))
+        }
+
+        assertThat(
+            feil.message,
+            Is("Begrunnelsestype ${begrunnelse.begrunnelseType} passer ikke med typen 'UTBETALING' som er satt på perioden.")
+        )
+    }
+
+    @ParameterizedTest
+    @EnumSource(
+        value = Begrunnelse::class,
+        names = ["INNVILGET_IKKE_BARNEHAGE", "INNVILGET_IKKE_BARNEHAGE_ADOPSJON", "INNVILGET_DELTID_BARNEHAGE"]
+    )
+    fun `oppdaterVedtaksperiodeMedBegrunnelser skal oppdatere vedtaksperioder dersom begrunnelse er tillatt for vedtakstype`(
+        begrunnelse: Begrunnelse
+    ) {
+        val vedtaksperiodeMedBegrunnelse = VedtaksperiodeMedBegrunnelser(
+            id = 0,
+            vedtak = Vedtak(id = 0, behandling = behandling),
+            type = Vedtaksperiodetype.UTBETALING
+        )
+
+        val mocketPersonOpplysningGrunnlag = mockk<PersonopplysningGrunnlag>()
+
+        every { personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(behandling.id) } returns mocketPersonOpplysningGrunnlag
+        every { vedtaksperiodeHentOgPersisterService.hentVedtaksperiodeThrows(any()) } returns vedtaksperiodeMedBegrunnelse
+        every { vedtaksperiodeHentOgPersisterService.lagre(vedtaksperiodeMedBegrunnelse) } returns vedtaksperiodeMedBegrunnelse
+
+        vedtaksperiodeService.oppdaterVedtaksperiodeMedBegrunnelser(1, listOf(begrunnelse))
+
+        verify { personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(behandling.id) }
+        verify { vedtaksperiodeHentOgPersisterService.hentVedtaksperiodeThrows(any()) }
+        verify { vedtaksperiodeHentOgPersisterService.lagre(vedtaksperiodeMedBegrunnelse) }
+    }
+
+    @Test
+    fun `oppdaterVedtakMedVedtaksperioder skal slette eksisterende vedtaksperioder for vedtak og lage ny`() {
+        behandling.resultat = Behandlingsresultat.FORTSATT_INNVILGET
+
+        val mocketVedtak = mockk<Vedtak>()
+        val vedtaksperiodeMedBegrunnelseSlot = slot<VedtaksperiodeMedBegrunnelser>()
+
+        every { vedtaksperiodeHentOgPersisterService.slettVedtaksperioderFor(mocketVedtak) } just runs
+        every { vedtaksperiodeHentOgPersisterService.lagre(capture(vedtaksperiodeMedBegrunnelseSlot)) } returns mockk()
+        every { mocketVedtak.behandling } returns behandling
+
+        vedtaksperiodeService.oppdaterVedtakMedVedtaksperioder(mocketVedtak)
+
+        val lagretVedtaksperiodeMedBegrunnelser = vedtaksperiodeMedBegrunnelseSlot.captured
+
+        assertThat(lagretVedtaksperiodeMedBegrunnelser.fom, Is(nullValue()))
+        assertThat(lagretVedtaksperiodeMedBegrunnelser.tom, Is(nullValue()))
+        assertThat(lagretVedtaksperiodeMedBegrunnelser.vedtak, Is(mocketVedtak))
+        assertThat(lagretVedtaksperiodeMedBegrunnelser.type, Is(Vedtaksperiodetype.FORTSATT_INNVILGET))
+
+        verify { vedtaksperiodeHentOgPersisterService.slettVedtaksperioderFor(mocketVedtak) }
+        verify { vedtaksperiodeHentOgPersisterService.lagre(capture(vedtaksperiodeMedBegrunnelseSlot)) }
+        verify { mocketVedtak.behandling }
+    }
+
+    @Test
+    fun `kopierOverVedtaksperioder skal kopiere over vedtaksperioder fra gammel til nytt vedtak`() {
+        val gammelVedtak = Vedtak(id = 1, behandling = behandling, aktiv = false)
+        val nyttVedtak = Vedtak(id = 2, behandling = behandling, aktiv = true)
+        val vedtaksperiodeMedBegrunnelseSlot = slot<VedtaksperiodeMedBegrunnelser>()
+
+        val gammelVedtaksperiodeMedBegrunnelse =
+            VedtaksperiodeMedBegrunnelser(
+                id = 0,
+                vedtak = gammelVedtak,
+                fom = LocalDate.of(2020, 12, 12),
+                tom = LocalDate.of(2022, 12, 12),
+                type = Vedtaksperiodetype.FORTSATT_INNVILGET
+            )
+
+        every { vedtaksperiodeHentOgPersisterService.finnVedtaksperioderFor(1) } returns listOf(
+            gammelVedtaksperiodeMedBegrunnelse
+        )
+        every { vedtaksperiodeHentOgPersisterService.lagre(capture(vedtaksperiodeMedBegrunnelseSlot)) } returnsArgument 0
+
+        vedtaksperiodeService.kopierOverVedtaksperioder(gammelVedtak, nyttVedtak)
+
+        val nyVedtaksperiodeMedBegrunnelse = vedtaksperiodeMedBegrunnelseSlot.captured
+
+        assertThat(nyVedtaksperiodeMedBegrunnelse.vedtak, Is(nyttVedtak))
+        assertThat(nyVedtaksperiodeMedBegrunnelse.type, Is(Vedtaksperiodetype.FORTSATT_INNVILGET))
+        assertThat(nyVedtaksperiodeMedBegrunnelse.fom, Is(LocalDate.of(2020, 12, 12)))
+        assertThat(nyVedtaksperiodeMedBegrunnelse.tom, Is(LocalDate.of(2022, 12, 12)))
+
+        verify { vedtaksperiodeHentOgPersisterService.finnVedtaksperioderFor(1) }
+    }
+
+    @Test
+    fun `hentPersisterteVedtaksperioder skal returnere vedtaksperioder fra vedtaksperiodeHentOgPersisterService`() {
+        val vedtak = Vedtak(1, behandling)
+
+        every { vedtaksperiodeHentOgPersisterService.finnVedtaksperioderFor(1) } returns listOf(mockk(), mockk())
+
+        val vedtaksperioder = vedtaksperiodeService.hentPersisterteVedtaksperioder(vedtak)
+
+        assertThat(vedtaksperioder.size, Is(2))
     }
 
     @Test

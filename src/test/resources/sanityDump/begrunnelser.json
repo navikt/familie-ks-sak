@@ -281,6 +281,24 @@
         "BARNETS_ALDER"
       ],
       "visningsnavn": "Barnehage mindre enn 33 timer - Adopsjon"
+    },
+    {
+      "apiNavn": "etterEndretUtbetalingEtterbetalingTreMaanedTilbakeITid",
+      "navnISystem": "Etterbetaling tre måneder tilbake i tid",
+      "type": "STANDARD",
+      "vilkår": [],
+      "rolle": [],
+      "utdypendeVilkårsvurderinger": [],
+      "triggere": [],
+      "hjemler": [
+        "10"
+      ],
+      "endringsaarsaker": [
+        "ETTERBETALING_3MND"
+      ],
+      "endretUtbetalingsperiode": [
+        "ETTER_ENDRET_UTBETALINGSPERIODE"
+      ]
     }
   ]
 }

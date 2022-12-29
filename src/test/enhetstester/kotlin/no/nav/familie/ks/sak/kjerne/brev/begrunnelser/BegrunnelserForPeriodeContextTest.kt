@@ -242,7 +242,9 @@ class BegrunnelserForPeriodeContextTest {
             rolle = emptyList(),
             triggere = emptyList(),
             utdypendeVilkårsvurderinger = emptyList(),
-            hjemler = emptyList()
+            hjemler = emptyList(),
+            endretUtbetalingsperiode = emptyList(),
+            endringsårsaker = emptyList()
         )
         val personResultatBarn = PersonResultat(
             aktør = barnAktør,
@@ -306,7 +308,9 @@ class BegrunnelserForPeriodeContextTest {
                 rolle = emptyList(),
                 triggere = emptyList(),
                 utdypendeVilkårsvurderinger = emptyList(),
-                hjemler = emptyList()
+                hjemler = emptyList(),
+                endretUtbetalingsperiode = emptyList(),
+                endringsårsaker = emptyList()
             ),
             SanityBegrunnelse(
                 apiNavn = Begrunnelse.INNVILGET_SØKER_OG_ELLER_BARN_HAR_OPPHOLDSTILLATELSE.sanityApiNavn,
@@ -316,7 +320,9 @@ class BegrunnelserForPeriodeContextTest {
                 rolle = emptyList(),
                 triggere = emptyList(),
                 utdypendeVilkårsvurderinger = emptyList(),
-                hjemler = emptyList()
+                hjemler = emptyList(),
+                endretUtbetalingsperiode = emptyList(),
+                endringsårsaker = emptyList()
             ),
             SanityBegrunnelse(
                 apiNavn = Begrunnelse.INNVILGET_SØKER_OG_ELLER_BARN_BOSATT_I_RIKET.sanityApiNavn,
@@ -326,7 +332,9 @@ class BegrunnelserForPeriodeContextTest {
                 rolle = emptyList(),
                 triggere = emptyList(),
                 utdypendeVilkårsvurderinger = emptyList(),
-                hjemler = emptyList()
+                hjemler = emptyList(),
+                endretUtbetalingsperiode = emptyList(),
+                endringsårsaker = emptyList()
             ),
             SanityBegrunnelse(
                 apiNavn = Begrunnelse.INNVILGET_SØKER_OG_ELLER_BARN_BOSATT_I_RIKET_OG_HAR_OPPHOLDSTILLATELSE.sanityApiNavn,
@@ -336,7 +344,9 @@ class BegrunnelserForPeriodeContextTest {
                 rolle = emptyList(),
                 triggere = emptyList(),
                 utdypendeVilkårsvurderinger = emptyList(),
-                hjemler = emptyList()
+                hjemler = emptyList(),
+                endretUtbetalingsperiode = emptyList(),
+                endringsårsaker = emptyList()
             )
         )
         val personResultatBarn = PersonResultat(
@@ -392,6 +402,72 @@ class BegrunnelserForPeriodeContextTest {
         )
     }
 
+    @Test
+    fun `hentGyldigeBegrunnelserForVedtaksperiode - skal returnere 1 begrunnelse av type Standard i tillegg til 1 tilleggstekst som skal vises når BOSATT_I_RIKET for søker trigger vedtaksperioden`() {
+        val bosattIRiketBegrunnelser = listOf(
+            SanityBegrunnelse(
+                apiNavn = Begrunnelse.INNVILGET_SØKER_OG_ELLER_BARN_BOSATT_I_RIKET.sanityApiNavn,
+                navnISystem = "Søker og eller barn bosatt i riket",
+                type = SanityBegrunnelseType.TILLEGGSTEKST,
+                vilkår = listOf(Vilkår.BOSATT_I_RIKET),
+                rolle = emptyList(),
+                triggere = emptyList(),
+                utdypendeVilkårsvurderinger = emptyList(),
+                hjemler = emptyList(),
+                endringsårsaker = emptyList(),
+                endretUtbetalingsperiode = emptyList()
+            )
+        )
+        val personResultatBarn = PersonResultat(
+            aktør = barnAktør,
+            vilkårsvurdering = mockk(),
+            vilkårResultater = lagVilkårResultaterForVilkårTyper(
+                vilkårTyper = Vilkår.hentVilkårFor(PersonType.BARN),
+                fom = vilkårOppfyltFom,
+                tom = vilkårOppfyltTom
+            )
+        )
+
+        val personResultatSøker = PersonResultat(
+            aktør = søkerAktør,
+            vilkårsvurdering = mockk(),
+            vilkårResultater = lagVilkårResultaterForVilkårTyper(
+                vilkårTyper = setOf(
+                    Vilkår.MEDLEMSKAP
+                ),
+                fom = vilkårOppfyltFom,
+                tom = vilkårOppfyltTom
+            )
+        )
+
+        personResultatSøker.vilkårResultater.add(
+            lagVilkårResultat(
+                vilkårType = Vilkår.BOSATT_I_RIKET,
+                periodeFom = vilkårOppfyltFom.plusMonths(2),
+                periodeTom = vilkårOppfyltTom.minusDays(15)
+            )
+        )
+        val personResultater = listOf(
+            personResultatBarn,
+            personResultatSøker
+        )
+
+        val begrunnelser = lagFinnGyldigeBegrunnelserForPeriodeContext(
+            personResultater,
+            lagSanitybegrunnelser() + bosattIRiketBegrunnelser,
+            søkerAktør
+        ).hentGyldigeBegrunnelserForVedtaksperiode()
+
+        assertEquals(2, begrunnelser.size)
+        assertThat(
+            begrunnelser,
+            containsInAnyOrder(
+                Begrunnelse.INNVILGET_IKKE_BARNEHAGE,
+                Begrunnelse.INNVILGET_SØKER_OG_ELLER_BARN_BOSATT_I_RIKET
+            )
+        )
+    }
+
     private fun lagSanitybegrunnelser(): List<SanityBegrunnelse> = listOf(
         SanityBegrunnelse(
             apiNavn = Begrunnelse.INNVILGET_IKKE_BARNEHAGE.sanityApiNavn,
@@ -401,7 +477,9 @@ class BegrunnelserForPeriodeContextTest {
             rolle = emptyList(),
             triggere = emptyList(),
             utdypendeVilkårsvurderinger = emptyList(),
-            hjemler = emptyList()
+            hjemler = emptyList(),
+            endretUtbetalingsperiode = emptyList(),
+            endringsårsaker = emptyList()
         ),
         SanityBegrunnelse(
             apiNavn = Begrunnelse.INNVILGET_IKKE_BARNEHAGE_ADOPSJON.sanityApiNavn,
@@ -411,7 +489,9 @@ class BegrunnelserForPeriodeContextTest {
             rolle = emptyList(),
             triggere = emptyList(),
             utdypendeVilkårsvurderinger = listOf(UtdypendeVilkårsvurdering.ADOPSJON),
-            hjemler = emptyList()
+            hjemler = emptyList(),
+            endretUtbetalingsperiode = emptyList(),
+            endringsårsaker = emptyList()
         ),
         SanityBegrunnelse(
             apiNavn = Begrunnelse.INNVILGET_DELTID_BARNEHAGE.sanityApiNavn,
@@ -421,7 +501,9 @@ class BegrunnelserForPeriodeContextTest {
             rolle = emptyList(),
             triggere = listOf(Trigger.DELTID_BARNEHAGEPLASS),
             utdypendeVilkårsvurderinger = emptyList(),
-            hjemler = emptyList()
+            hjemler = emptyList(),
+            endretUtbetalingsperiode = emptyList(),
+            endringsårsaker = emptyList()
         ),
         SanityBegrunnelse(
             apiNavn = Begrunnelse.INNVILGET_DELTID_BARNEHAGE_ADOPSJON.sanityApiNavn,
@@ -431,7 +513,9 @@ class BegrunnelserForPeriodeContextTest {
             rolle = emptyList(),
             triggere = listOf(Trigger.DELTID_BARNEHAGEPLASS),
             utdypendeVilkårsvurderinger = listOf(UtdypendeVilkårsvurdering.ADOPSJON),
-            hjemler = emptyList()
+            hjemler = emptyList(),
+            endretUtbetalingsperiode = emptyList(),
+            endringsårsaker = emptyList()
         )
     )
 
@@ -468,7 +552,8 @@ class BegrunnelserForPeriodeContextTest {
             utvidetVedtaksperiodeMedBegrunnelser,
             sanityBegrunnelser,
             persongrunnlag,
-            personResultater
+            personResultater,
+            emptyList()
         )
     }
 }

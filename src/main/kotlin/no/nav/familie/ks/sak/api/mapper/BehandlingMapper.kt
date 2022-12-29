@@ -9,6 +9,7 @@ import no.nav.familie.ks.sak.api.dto.EndretUtbetalingAndelDto
 import no.nav.familie.ks.sak.api.dto.PersonResponsDto
 import no.nav.familie.ks.sak.api.dto.PersonerMedAndelerResponsDto
 import no.nav.familie.ks.sak.api.dto.SøknadDto
+import no.nav.familie.ks.sak.api.dto.TilbakekrevingResponsDto
 import no.nav.familie.ks.sak.api.dto.TotrinnskontrollDto
 import no.nav.familie.ks.sak.api.dto.UtbetalingsperiodeResponsDto
 import no.nav.familie.ks.sak.api.dto.VedtakDto
@@ -24,6 +25,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Per
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.domene.slåSammenBack2BackAndelsperioderMedSammeBeløp
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
+import no.nav.familie.ks.sak.kjerne.tilbakekreving.domene.Tilbakekreving
 import java.math.BigDecimal
 import java.time.LocalDate
 
@@ -40,7 +42,8 @@ object BehandlingMapper {
         vedtak: VedtakDto?,
         totrinnskontroll: TotrinnskontrollDto?,
         endretUtbetalingAndeler: List<EndretUtbetalingAndelDto>,
-        endringstidspunkt: LocalDate
+        endringstidspunkt: LocalDate,
+        tilbakekreving: Tilbakekreving?
     ) =
         BehandlingResponsDto(
             behandlingId = behandling.id,
@@ -72,7 +75,8 @@ object BehandlingMapper {
             vedtak = vedtak,
             totrinnskontroll = totrinnskontroll,
             endretUtbetalingAndeler = endretUtbetalingAndeler,
-            endringstidspunkt = utledEndringstidpunkt(endringstidspunkt, behandling)
+            endringstidspunkt = utledEndringstidpunkt(endringstidspunkt, behandling),
+            tilbakekreving = tilbakekreving?.let { lagTilbakekrevingRespons(it) }
         )
 
     private fun lagArbeidsfordelingRespons(arbeidsfordelingPåBehandling: ArbeidsfordelingPåBehandling) =
@@ -134,4 +138,11 @@ object BehandlingMapper {
         behandling.overstyrtEndringstidspunkt != null -> behandling.overstyrtEndringstidspunkt
         else -> endringstidspunkt
     }
+
+    private fun lagTilbakekrevingRespons(tilbakekreving: Tilbakekreving) = TilbakekrevingResponsDto(
+        valg = tilbakekreving.valg,
+        varsel = tilbakekreving.varsel,
+        begrunnelse = tilbakekreving.begrunnelse,
+        tilbakekrevingsbehandlingId = tilbakekreving.tilbakekrevingsbehandlingId
+    )
 }

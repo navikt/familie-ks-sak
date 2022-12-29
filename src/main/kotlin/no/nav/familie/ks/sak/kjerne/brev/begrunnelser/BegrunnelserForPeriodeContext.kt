@@ -2,10 +2,13 @@ package no.nav.familie.ks.sak.kjerne.brev.begrunnelser
 
 import forskyvVilkårResultater
 import no.nav.familie.ks.sak.common.exception.Feil
+import no.nav.familie.ks.sak.common.tidslinje.utvidelser.klipp
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.tilPerioderIkkeNull
 import no.nav.familie.ks.sak.common.util.Periode
 import no.nav.familie.ks.sak.common.util.TIDENES_ENDE
 import no.nav.familie.ks.sak.common.util.TIDENES_MORGEN
+import no.nav.familie.ks.sak.common.util.erDagenFør
+import no.nav.familie.ks.sak.common.util.sisteDagIInneværendeMåned
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelse
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelseType
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.Trigger
@@ -15,6 +18,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Per
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.UtdypendeVilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
+import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.EndretUtbetalingAndel
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
@@ -24,7 +28,8 @@ class BegrunnelserForPeriodeContext(
     private val utvidetVedtaksperiodeMedBegrunnelser: UtvidetVedtaksperiodeMedBegrunnelser,
     private val sanityBegrunnelser: List<SanityBegrunnelse>,
     private val personopplysningGrunnlag: PersonopplysningGrunnlag,
-    private val personResultater: List<PersonResultat>
+    private val personResultater: List<PersonResultat>,
+    private val endretUtbetalingsandeler: List<EndretUtbetalingAndel>
 ) {
 
     private val aktørIderMedUtbetaling =
@@ -71,8 +76,30 @@ class BegrunnelserForPeriodeContext(
     private fun Begrunnelse.triggesForVedtaksperiode(): Boolean {
         val sanityBegrunnelse = this.tilSanityBegrunnelse(sanityBegrunnelser) ?: return false
 
+        if (sanityBegrunnelse.endretUtbetalingsperiode.isNotEmpty()) return erEtterEndretPeriodeAvSammeÅrsak(
+            sanityBegrunnelse
+        )
+
         return hentPersonerMedVilkårResultaterSomPasserMedBegrunnelseOgPeriode(this, sanityBegrunnelse).isNotEmpty()
     }
+
+    private fun erEtterEndretPeriodeAvSammeÅrsak(begrunnelse: SanityBegrunnelse) =
+        endretUtbetalingsandeler.any { endretUtbetalingAndel ->
+
+            val endringsperiodeErDagenEtterVedtaksperiode =
+                endretUtbetalingAndel.tom?.sisteDagIInneværendeMåned()
+                    ?.erDagenFør(utvidetVedtaksperiodeMedBegrunnelser.fom) ?: false
+
+            val endringsperiodeGjelderSammePersonSomVedtaksperiode =
+                personResultater.any { person -> person.aktør.aktørId == endretUtbetalingAndel.person?.aktør?.aktørId }
+
+            val begrunnelseHarSammeÅrsakSomEndringsperiode =
+                begrunnelse.endringsårsaker.contains(endretUtbetalingAndel.årsak)
+
+            endringsperiodeErDagenEtterVedtaksperiode &&
+                endringsperiodeGjelderSammePersonSomVedtaksperiode &&
+                begrunnelseHarSammeÅrsakSomEndringsperiode
+        }
 
     fun hentPersonerMedVilkårResultaterSomPasserMedBegrunnelseOgPeriode(
         begrunnelse: Begrunnelse,
@@ -93,6 +120,13 @@ class BegrunnelserForPeriodeContext(
                 )
         return personerMedVilkårResultaterSomPasserVedtaksperioden.keys
     }
+
+    fun hentPersonerMedEndretUtbetalingerSomPasserMedVedtaksperiode(sanityBegrunnelse: SanityBegrunnelse): Set<Person> =
+        endretUtbetalingsandeler.filter { endretUtbetalingAndel ->
+            endretUtbetalingAndel.periode.tom.sisteDagIInneværendeMåned()
+                .erDagenFør(utvidetVedtaksperiodeMedBegrunnelser.fom) &&
+                sanityBegrunnelse.endringsårsaker.contains(endretUtbetalingAndel.årsak)
+        }.mapNotNull { it.person }.toSet()
 
     private fun Map<Person, List<VilkårResultat>>.filtrerPåVilkårResultaterSomPasserMedVedtaksperiodeDatoEllerSanityBegrunnelseType(
         vilkårResultaterSomPasserMedVedtaksperiodeDato: List<Long>,
@@ -162,9 +196,10 @@ class BegrunnelserForPeriodeContext(
                 val person =
                     personopplysningGrunnlag.personer.find { it.aktør.aktivFødselsnummer() == aktør.aktivFødselsnummer() }
                 val forskøvedeVilkårResultaterMedSammeFom =
-                    vilkårResultatTidslinjeForPerson.tilPerioderIkkeNull().singleOrNull {
-                        it.fom == vedtaksperiode.fom
-                    }?.verdi
+                    vilkårResultatTidslinjeForPerson.klipp(vedtaksperiode.fom, vedtaksperiode.tom).tilPerioderIkkeNull()
+                        .singleOrNull {
+                            it.fom == vedtaksperiode.fom
+                        }?.verdi
                 if (person != null && forskøvedeVilkårResultaterMedSammeFom != null) {
                     Pair(person, forskøvedeVilkårResultaterMedSammeFom)
                 } else {
@@ -173,19 +208,21 @@ class BegrunnelserForPeriodeContext(
             }.toMap().filterValues { it.isNotEmpty() }
 
     private fun finnPersonerMedVilkårResultaterSomGjelderRettFørPeriode(): Map<Person, List<VilkårResultat>> =
-        personResultater.tilFørskjøvetVilkårResultatTidslinjeMap(personopplysningGrunnlag).mapNotNull { (aktør, tidsjlinje) ->
-            val person = personopplysningGrunnlag.personer.find { it.aktør.aktivFødselsnummer() == aktør.aktivFødselsnummer() }
-            val forskøvedeVilkårResultaterSlutterDagenFørVedtaksperiode =
-                tidsjlinje.tilPerioderIkkeNull().singleOrNull {
-                    it.tom?.plusDays(1) == vedtaksperiode.fom
-                }?.verdi
+        personResultater.tilFørskjøvetVilkårResultatTidslinjeMap(personopplysningGrunnlag)
+            .mapNotNull { (aktør, tidsjlinje) ->
+                val person =
+                    personopplysningGrunnlag.personer.find { it.aktør.aktivFødselsnummer() == aktør.aktivFødselsnummer() }
+                val forskøvedeVilkårResultaterSlutterDagenFørVedtaksperiode =
+                    tidsjlinje.tilPerioderIkkeNull().singleOrNull {
+                        it.tom?.plusDays(1) == vedtaksperiode.fom
+                    }?.verdi
 
-            if (person != null && forskøvedeVilkårResultaterSlutterDagenFørVedtaksperiode != null) {
-                Pair(person, forskøvedeVilkårResultaterSlutterDagenFørVedtaksperiode)
-            } else {
-                null
-            }
-        }.toMap().filterValues { it.isNotEmpty() }
+                if (person != null && forskøvedeVilkårResultaterSlutterDagenFørVedtaksperiode != null) {
+                    Pair(person, forskøvedeVilkårResultaterSlutterDagenFørVedtaksperiode)
+                } else {
+                    null
+                }
+            }.toMap().filterValues { it.isNotEmpty() }
 
     private fun Map<Person, List<VilkårResultat>>.filtrerPersonerUtenUtbetalingVedInnvilget(begrunnelseType: BegrunnelseType) =
         this.filterKeys {

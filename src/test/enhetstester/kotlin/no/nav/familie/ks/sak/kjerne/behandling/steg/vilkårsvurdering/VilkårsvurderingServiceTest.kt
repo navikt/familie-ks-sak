@@ -176,7 +176,9 @@ class VilkårsvurderingServiceTest {
                 rolle = emptyList(),
                 triggere = emptyList(),
                 utdypendeVilkårsvurderinger = emptyList(),
-                hjemler = emptyList()
+                hjemler = emptyList(),
+                endretUtbetalingsperiode = emptyList(),
+                endringsårsaker = emptyList()
             )
         )
 
@@ -190,7 +192,7 @@ class VilkårsvurderingServiceTest {
         val vilkårsbegrunnelser = vilkårsvurderingService.hentVilkårsbegrunnelser()
 
         // TODO: Endre denne testen når vi får lagt inn riktige Begrunnelser og EØSBegrunnelser
-        assertEquals(3, vilkårsbegrunnelser.size)
+        assertEquals(4, vilkårsbegrunnelser.size)
         assertEquals(0, vilkårsbegrunnelser[BegrunnelseType.AVSLAG]?.size)
         assertEquals(1, vilkårsbegrunnelser[BegrunnelseType.EØS_OPPHØR]?.size)
     }
