@@ -100,7 +100,7 @@ class TilbakekrevingService(
     fun sendOpprettTilbakekrevingRequest(behandling: Behandling) =
         tilbakekrevingKlient.opprettTilbakekrevingBehandling(lagOpprettTilbakekrevingRequest(behandling))
 
-    fun lagOpprettTilbakekrevingRequest(behandling: Behandling): OpprettTilbakekrevingRequest {
+    private fun lagOpprettTilbakekrevingRequest(behandling: Behandling): OpprettTilbakekrevingRequest {
         val behandlingId = behandling.id
         val personopplysningGrunnlag = personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(behandlingId)
         val søker = personopplysningGrunnlag.søker
