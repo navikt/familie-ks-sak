@@ -58,16 +58,8 @@ spec:
           cluster: dev-gcp
         - application: familie-ks-sak-frontend-lokal
           cluster: dev-gcp
-        - application: familie-ba-mottak
-          cluster: dev-fss
         - application: familie-prosessering
           cluster: dev-gcp
-        - application: familie-ba-skatteetaten-api
-          cluster: dev-gcp
-        - application: familie-ba-migrering
-          cluster: dev-gcp
-        - application: familie-ba-statistikk
-          cluster: dev-fss
         - application: bidrag-grunnlag-feature
           namespace: bidrag
           cluster: dev-gcp
@@ -83,15 +75,11 @@ spec:
           cluster: dev-gcp
         - application: familie-integrasjoner
           cluster: dev-fss
-        - application: familie-ba-infotrygd-feed
-          cluster: dev-fss
-        - application: familie-ba-infotrygd
+        - application: familie-ks-infotrygd
           cluster: dev-fss
         - application: familie-ef-sak
           cluster: dev-gcp
         - application: familie-tilbake
-          cluster: dev-gcp
-        - application: familie-ba-migrering
           cluster: dev-gcp
         - application: familie-oppdrag
           cluster: dev-fss

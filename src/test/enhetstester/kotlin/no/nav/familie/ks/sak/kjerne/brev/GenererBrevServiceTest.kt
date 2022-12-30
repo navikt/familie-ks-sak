@@ -23,6 +23,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.Vilkårsvu
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.Brevmal
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
 import no.nav.familie.ks.sak.kjerne.totrinnskontroll.TotrinnskontrollService
+import no.nav.familie.ks.sak.korrigertvedtak.KorrigertVedtakService
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -61,6 +62,9 @@ class GenererBrevServiceTest {
 
     @MockK
     private lateinit var vilkårsvurderingService: VilkårsvurderingService
+
+    @MockK
+    private lateinit var korrigertVedtakService: KorrigertVedtakService
 
     @InjectMockKs
     private lateinit var genererBrevService: GenererBrevService

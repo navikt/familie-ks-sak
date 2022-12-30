@@ -19,6 +19,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingType
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
 import no.nav.familie.ks.sak.kjerne.beregning.BeregningService
+import no.nav.familie.ks.sak.kjerne.endretutbetaling.EndretUtbetalingAndelService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Målform
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlagRepository
@@ -50,6 +51,9 @@ class RegistrerPersonGrunnlagStegTest : OppslagSpringRunnerTest() {
     private lateinit var arbeidsfordelingService: ArbeidsfordelingService
 
     @MockkBean
+    private lateinit var endretUtbetalingAndelService: EndretUtbetalingAndelService
+
+    @MockkBean
     private lateinit var beregningService: BeregningService
 
     @BeforeEach
@@ -57,6 +61,7 @@ class RegistrerPersonGrunnlagStegTest : OppslagSpringRunnerTest() {
         opprettSøkerFagsakOgBehandling()
         every { personOpplysningerService.hentPersonInfoMedRelasjonerOgRegisterinformasjon(any()) } returns lagPdlPersonInfo()
         every { arbeidsfordelingService.fastsettBehandledeEnhet(any()) } just runs
+        every { endretUtbetalingAndelService.kopierEndretUtbetalingAndelFraForrigeBehandling(any(), any()) } just runs
     }
 
     @Test
@@ -118,6 +123,12 @@ class RegistrerPersonGrunnlagStegTest : OppslagSpringRunnerTest() {
         verify(atLeast = 1) { arbeidsfordelingService.fastsettBehandledeEnhet(revurdering) }
         verify(atMost = 1) { personOpplysningerService.hentPersonInfoMedRelasjonerOgRegisterinformasjon(revurdering.fagsak.aktør) }
         verify(atMost = 1) { personOpplysningerService.hentPersonInfoMedRelasjonerOgRegisterinformasjon(barnAktør) }
+        verify(atMost = 1) {
+            endretUtbetalingAndelService.kopierEndretUtbetalingAndelFraForrigeBehandling(
+                any(),
+                any()
+            )
+        }
 
         val personopplysningGrunnlag =
             personopplysningGrunnlagRepository.findByBehandlingAndAktiv(revurdering.id).shouldNotBeNull()

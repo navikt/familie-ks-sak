@@ -4,6 +4,7 @@ import no.nav.familie.ks.sak.kjerne.brev.domene.maler.BrevDataDto
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.BrevDto
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.Brevmal
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.Hjemmeltekst
+import no.nav.familie.ks.sak.kjerne.brev.domene.maler.KorrigertVedtakData
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.brevperioder.BrevPeriodeDto
 
 interface VedtaksbrevDto : BrevDto {
@@ -32,5 +33,6 @@ data class FellesdataForVedtaksbrev(
     val søkerFødselsnummer: String,
     val perioder: List<BrevPeriodeDto>,
     val organisasjonsnummer: String? = null,
-    val gjelder: String? = null
+    val gjelder: String? = null,
+    val korrigertVedtakData: KorrigertVedtakData? = null
 )
