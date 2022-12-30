@@ -70,7 +70,8 @@ class BrevPeriodeService(
                     personResultater = vilkårsvurdering.personResultater.toList(),
                     andelTilkjentYtelserMedEndreteUtbetalinger = andelTilkjentYtelserMedEndreteUtbetalinger,
 
-                    uregistrerteBarn = søknadGrunnlagService.hentAktiv(behandlingId).hentUregistrerteBarn(),
+                    uregistrerteBarn = søknadGrunnlagService.finnAktiv(behandlingId)?.hentUregistrerteBarn()
+                        ?: emptyList(),
                     barnSomDødeIForrigePeriode = barnSomDødeIForrigePeriode
                 ).genererBrevPeriodeDto()
             }

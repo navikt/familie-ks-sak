@@ -26,6 +26,7 @@ import no.nav.familie.ks.sak.kjerne.brev.domene.maler.Etterbetaling
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.Førstegangsvedtak
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.Hjemmeltekst
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.KorrigertVedtakData
+import no.nav.familie.ks.sak.kjerne.brev.domene.maler.vedtaksbrev.VedtakEndring
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Målform
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
@@ -105,17 +106,24 @@ class GenererBrevService(
     fun hentVedtaksbrevData(vedtak: Vedtak): VedtaksbrevDto {
         val brevtype = hentVedtaksbrevmal(vedtak.behandling)
         val fellestdataForVedtaksbrev = lagDataForVedtaksbrev(vedtak)
+        val etterbetaling = simuleringService.hentEtterbetaling(vedtak.behandling.id)
+            .takeIf { it > BigDecimal.ZERO }?.run { formaterBeløp(this.toInt()) }
+            ?.let { Etterbetaling(it) }
 
         return when (brevtype) {
             Brevmal.VEDTAK_FØRSTEGANGSVEDTAK -> {
-                val etterbetaling = simuleringService.hentEtterbetaling(vedtak.behandling.id)
-
                 Førstegangsvedtak(
                     fellesdataForVedtaksbrev = fellestdataForVedtaksbrev,
-                    etterbetaling = etterbetaling.takeIf { it > BigDecimal.ZERO }?.run { formaterBeløp(this.toInt()) }
-                        ?.let { Etterbetaling(it) }
+                    etterbetaling = etterbetaling
                 )
             }
+            Brevmal.VEDTAK_ENDRING -> VedtakEndring(
+                fellesdataForVedtaksbrev = fellestdataForVedtaksbrev,
+                etterbetaling = etterbetaling,
+                erKlage = vedtak.behandling.erKlage(),
+                erFeilutbetalingPåBehandling = erFeilutbetalingPåBehandling(behandlingId = vedtak.behandling.id),
+                informasjonOmAarligKontroll = false // TODO EØS
+            )
 
             else -> throw Feil("Forsøker å hente vedtaksbrevdata for brevmal ${brevtype.visningsTekst}")
         }
@@ -198,6 +206,9 @@ class GenererBrevService(
             vedtakKorrigertHjemmelSkalMedIBrev = vedtakKorrigertHjemmelSkalMedIBrev
         )
     }
+
+    private fun erFeilutbetalingPåBehandling(behandlingId: Long): Boolean =
+        simuleringService.hentFeilutbetaling(behandlingId) > BigDecimal.ZERO
 
     private data class GrunnlagOgSignaturData(
         val grunnlag: PersonopplysningGrunnlag,
