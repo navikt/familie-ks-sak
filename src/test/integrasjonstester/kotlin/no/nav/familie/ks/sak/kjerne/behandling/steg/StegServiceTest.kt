@@ -414,6 +414,29 @@ class StegServiceTest : OppslagSpringRunnerTest() {
     }
 
     @Test
+    fun `utførStegEtterIverksettelseAutomatisk skal ikke opprette tilbakekreving task for revurdering med valg IGNORER_TILBAKEKREVING`() {
+        val taskSlot = slot<Task>()
+        behandling.behandlingStegTilstand.clear()
+        lagBehandlingStegTilstand(behandling, IVERKSETT_MOT_OPPDRAG, UTFØRT)
+        lagBehandlingStegTilstand(behandling, JOURNALFØR_VEDTAKSBREV, KLAR)
+        behandling.status = BehandlingStatus.IVERKSETTER_VEDTAK
+        lagreBehandling(behandling)
+        vedtakRepository.saveAndFlush(Vedtak(behandling = behandling, vedtaksdato = LocalDateTime.now()))
+        tilbakekrevingRepository.save(
+            Tilbakekreving(
+                behandling = behandling,
+                valg = Tilbakekrevingsvalg.IGNORER_TILBAKEKREVING,
+                begrunnelse = "begrunnelse",
+                tilbakekrevingsbehandlingId = null
+            )
+        )
+
+        assertDoesNotThrow { stegService.utførStegEtterIverksettelseAutomatisk(behandling.id) }
+        verify(exactly = 1) { taskService.save(capture(taskSlot)) }
+        assertEquals(taskSlot.captured.type, JournalførVedtaksbrevTask.TASK_STEP_TYPE)
+    }
+
+    @Test
     fun `utførSteg skal utføre TEKNISK_ENDRING behandling som ikke iverksetter og ikke sender brev til bruker`() {
         val aktør = lagreAktør(aktør = randomAktør())
         val fagsak = lagreFagsak(lagFagsak(aktør = aktør, status = FagsakStatus.LØPENDE))

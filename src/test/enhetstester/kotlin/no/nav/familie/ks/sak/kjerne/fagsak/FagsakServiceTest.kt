@@ -36,7 +36,7 @@ import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonRepository
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlagRepository
-import no.nav.familie.ks.sak.kjerne.tilbakekreving.TilbakekrevingBehandlingHentService
+import no.nav.familie.ks.sak.kjerne.tilbakekreving.TilbakekrevingsbehandlingHentService
 import no.nav.familie.prosessering.internal.TaskService
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
@@ -76,7 +76,7 @@ class FagsakServiceTest {
     private lateinit var taskService: TaskService
 
     @MockK
-    private lateinit var tilbakekrevingBehandlingHentService: TilbakekrevingBehandlingHentService
+    private lateinit var tilbakekrevingsbehandlingHentService: TilbakekrevingsbehandlingHentService
 
     @MockK
     private lateinit var vedtakRepository: VedtakRepository
@@ -274,7 +274,7 @@ class FagsakServiceTest {
         )
         every { behandlingRepository.findByFagsakAndAktiv(fagsak.id) } returns barnehagelisteBehandling
         every { vedtakRepository.findByBehandlingAndAktivOptional(any()) } returns mockk(relaxed = true)
-        every { tilbakekrevingBehandlingHentService.hentTilbakekrevingsbehandlinger(fagsak.id) } returns
+        every { tilbakekrevingsbehandlingHentService.hentTilbakekrevingsbehandlinger(fagsak.id) } returns
             listOf(
                 Behandling(
                     behandlingId = UUID.randomUUID(),

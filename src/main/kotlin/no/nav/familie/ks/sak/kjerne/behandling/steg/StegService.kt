@@ -197,7 +197,7 @@ class StegService(
                     """Tilbakekrevingsvalg er ${it.valg.name} for behandling $behandlingId.
                         Oppretter ikke tilbakekrevingsbehandling"""
                 )
-                return
+                return@let // tilbakekreving task blir ikke opprettet
             }
             taskService.save(SendOpprettTilbakekrevingBehandlingRequestTask.opprettTask(behandlingId))
         }

@@ -64,15 +64,15 @@ object FagsakMapper {
         vedtaksdato = vedtaksdato
     )
 
-    fun lagTilbakekrevingsbehandlingResponsDto(tilbakekrevingBehandling: no.nav.familie.kontrakter.felles.tilbakekreving.Behandling) =
+    fun lagTilbakekrevingsbehandlingResponsDto(tilbakekrevingsbehandling: no.nav.familie.kontrakter.felles.tilbakekreving.Behandling) =
         TilbakekrevingsbehandlingResponsDto(
-            behandlingId = tilbakekrevingBehandling.behandlingId,
-            opprettetTidspunkt = tilbakekrevingBehandling.opprettetTidspunkt,
-            aktiv = tilbakekrevingBehandling.aktiv,
-            årsak = tilbakekrevingBehandling.årsak,
-            type = tilbakekrevingBehandling.type,
-            status = tilbakekrevingBehandling.status,
-            resultat = tilbakekrevingBehandling.resultat,
-            vedtaksdato = tilbakekrevingBehandling.vedtaksdato
+            behandlingId = tilbakekrevingsbehandling.behandlingId,
+            opprettetTidspunkt = tilbakekrevingsbehandling.opprettetTidspunkt,
+            aktiv = tilbakekrevingsbehandling.aktiv,
+            årsak = tilbakekrevingsbehandling.årsak,
+            type = tilbakekrevingsbehandling.type,
+            status = tilbakekrevingsbehandling.status,
+            resultat = tilbakekrevingsbehandling.resultat,
+            vedtaksdato = tilbakekrevingsbehandling.vedtaksdato
         )
 }

@@ -5,7 +5,7 @@ import org.springframework.stereotype.Service
 
 // Opprettet denne for å unngå sirkular avhengihet
 @Service
-class TilbakekrevingBehandlingHentService(private val tilbakekrevingKlient: TilbakekrevingKlient) {
+class TilbakekrevingsbehandlingHentService(private val tilbakekrevingKlient: TilbakekrevingKlient) {
 
     fun hentTilbakekrevingsbehandlinger(fagsakId: Long) = tilbakekrevingKlient.hentTilbakekrevingsbehandlinger(fagsakId)
 }

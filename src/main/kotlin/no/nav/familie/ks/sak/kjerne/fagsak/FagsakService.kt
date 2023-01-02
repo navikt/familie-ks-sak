@@ -26,7 +26,7 @@ import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonRepository
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlagRepository
-import no.nav.familie.ks.sak.kjerne.tilbakekreving.TilbakekrevingBehandlingHentService
+import no.nav.familie.ks.sak.kjerne.tilbakekreving.TilbakekrevingsbehandlingHentService
 import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext
 import no.nav.familie.prosessering.internal.TaskService
 import org.slf4j.LoggerFactory
@@ -47,7 +47,7 @@ class FagsakService(
     private val behandlingRepository: BehandlingRepository,
     private val andelerTilkjentYtelseOgEndreteUtbetalingerService: AndelerTilkjentYtelseOgEndreteUtbetalingerService,
     private val taskService: TaskService,
-    private val tilbakekrevingBehandlingHentService: TilbakekrevingBehandlingHentService,
+    private val tilbakekrevingsbehandlingHentService: TilbakekrevingsbehandlingHentService,
     private val vedtakRepository: VedtakRepository
 ) {
 
@@ -107,7 +107,7 @@ class FagsakService(
     fun hentMinimalFagsak(fagsakId: Long): MinimalFagsakResponsDto {
         val fagsak = hentFagsak(fagsakId)
         val alleBehandlinger = behandlingRepository.finnBehandlinger(fagsakId)
-        val tilbakekrevingsbehandlinger = tilbakekrevingBehandlingHentService.hentTilbakekrevingsbehandlinger(fagsakId)
+        val tilbakekrevingsbehandlinger = tilbakekrevingsbehandlingHentService.hentTilbakekrevingsbehandlinger(fagsakId)
 
         val sistIverksatteBehandling = alleBehandlinger.filter { it.steg == BehandlingSteg.AVSLUTT_BEHANDLING }
             .maxByOrNull { it.opprettetTidspunkt }
