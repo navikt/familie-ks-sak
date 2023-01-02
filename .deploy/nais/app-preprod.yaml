@@ -60,6 +60,8 @@ spec:
           cluster: dev-gcp
         - application: familie-prosessering
           cluster: dev-gcp
+        - application: familie-klage
+          cluster: dev-gcp
         - application: bidrag-grunnlag-feature
           namespace: bidrag
           cluster: dev-gcp
