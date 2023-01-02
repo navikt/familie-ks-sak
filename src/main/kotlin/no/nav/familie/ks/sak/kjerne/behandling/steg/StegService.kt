@@ -192,14 +192,15 @@ class StegService(
 
         // opprett tilbakekreving task om det finnes en tilbakekrevingsvalg
         tilbakekrevingRepository.findByBehandlingId(behandlingId)?.let {
-            if (it.valg == Tilbakekrevingsvalg.IGNORER_TILBAKEKREVING) {
-                logger.info(
-                    """Tilbakekrevingsvalg er ${it.valg.name} for behandling $behandlingId.
-                        Oppretter ikke tilbakekrevingsbehandling"""
-                )
-                return@let // tilbakekreving task blir ikke opprettet
+            when (it.valg) {
+                Tilbakekrevingsvalg.IGNORER_TILBAKEKREVING -> {
+                    logger.info(
+                        """Tilbakekrevingsvalg er ${it.valg.name} for behandling $behandlingId.
+                            Oppretter ikke tilbakekrevingsbehandling"""
+                    )
+                }
+                else -> taskService.save(SendOpprettTilbakekrevingsbehandlingRequestTask.opprettTask(behandlingId))
             }
-            taskService.save(SendOpprettTilbakekrevingsbehandlingRequestTask.opprettTask(behandlingId))
         }
         when (behandling.steg) {
             JOURNALFØR_VEDTAKSBREV -> {
