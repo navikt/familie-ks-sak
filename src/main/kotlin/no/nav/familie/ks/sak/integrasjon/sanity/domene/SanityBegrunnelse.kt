@@ -3,6 +3,7 @@ package no.nav.familie.ks.sak.integrasjon.sanity.domene
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.UtdypendeVilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
+import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.Årsak
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
 import org.slf4j.Logger
@@ -17,7 +18,9 @@ data class SanityBegrunnelse(
     val rolle: List<VilkårRolle>,
     val utdypendeVilkårsvurderinger: List<UtdypendeVilkårsvurdering>,
     val triggere: List<Trigger>,
-    val hjemler: List<String>
+    val hjemler: List<String>,
+    val endringsårsaker: List<Årsak>,
+    val endretUtbetalingsperiode: List<EndretUtbetalingsperiodeTrigger>
 )
 
 enum class SanityBegrunnelseType {
@@ -57,6 +60,8 @@ data class SanityBegrunnelseDto(
     val vilkaar: List<String> = emptyList(),
     val rolle: List<String> = emptyList(),
     val utdypendeVilkaarsvurderinger: List<String> = emptyList(),
+    val endringsaarsaker: List<String> = emptyList(),
+    val endretUtbetalingsperiode: List<String> = emptyList(),
     val triggere: List<String> = emptyList(),
     val hjemler: List<String> = emptyList()
 ) {
@@ -77,7 +82,11 @@ data class SanityBegrunnelseDto(
                 )
             },
             triggere = triggere.mapNotNull { finnEnumverdi(it, Trigger.values(), apiNavn) },
-            hjemler = hjemler
+            hjemler = hjemler,
+            endringsårsaker = endringsaarsaker.mapNotNull { finnEnumverdi(it, Årsak.values(), apiNavn) },
+            endretUtbetalingsperiode = endretUtbetalingsperiode.mapNotNull {
+                finnEnumverdi(it, EndretUtbetalingsperiodeTrigger.values(), apiNavn)
+            }
         )
     }
 }
@@ -97,4 +106,8 @@ fun <T : Enum<T>> finnEnumverdi(verdi: String, enumverdier: Array<T>, apiNavn: S
 enum class VilkårRolle {
     SOKER,
     BARN
+}
+
+enum class EndretUtbetalingsperiodeTrigger {
+    ETTER_ENDRET_UTBETALINGSPERIODE
 }

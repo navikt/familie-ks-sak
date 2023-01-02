@@ -4,6 +4,7 @@ import io.micrometer.core.instrument.Counter
 import io.micrometer.core.instrument.Metrics
 import no.nav.familie.ks.sak.common.util.formaterIdent
 import no.nav.familie.ks.sak.common.util.tilKortString
+import no.nav.familie.ks.sak.common.util.tilddMMyyyy
 import no.nav.familie.ks.sak.config.BehandlerRolle
 import no.nav.familie.ks.sak.config.RolleConfig
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.domene.ArbeidsfordelingsEnhet
@@ -14,6 +15,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.Beslutning
 import no.nav.familie.ks.sak.kjerne.logg.domene.Logg
 import no.nav.familie.ks.sak.kjerne.logg.domene.LoggRepository
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
+import no.nav.familie.ks.sak.korrigertvedtak.KorrigertVedtak
 import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
@@ -278,8 +280,44 @@ class LoggService(
             Logg(
                 behandlingId = behandling.id,
                 type = LoggType.BARN_LAGT_TIL,
-                rolle = SikkerhetContext.hentRolletilgangFraSikkerhetscontext(rolleConfig, BehandlerRolle.SAKSBEHANDLER),
+                rolle = SikkerhetContext.hentRolletilgangFraSikkerhetscontext(
+                    rolleConfig,
+                    BehandlerRolle.SAKSBEHANDLER
+                ),
                 tekst = beskrivelse
+            )
+        )
+    }
+
+    fun opprettKorrigertVedtakLogg(
+        behandling: Behandling,
+        korrigertVedtak: KorrigertVedtak
+    ) {
+        val tekst = if (korrigertVedtak.aktiv) {
+            """
+            Vedtaksdato: ${korrigertVedtak.vedtaksdato.tilddMMyyyy()}
+            Begrunnelse: ${korrigertVedtak.begrunnelse ?: "Ingen begrunnelse"}
+            """.trimIndent()
+        } else {
+            ""
+        }
+
+        val tittel = if (korrigertVedtak.aktiv) {
+            "Vedtaket er korrigert etter § 35"
+        } else {
+            "Korrigering av vedtaket etter § 35 er fjernet"
+        }
+
+        lagreLogg(
+            Logg(
+                behandlingId = behandling.id,
+                type = LoggType.KORRIGERT_VEDTAK,
+                rolle = SikkerhetContext.hentRolletilgangFraSikkerhetscontext(
+                    rolleConfig,
+                    BehandlerRolle.SAKSBEHANDLER
+                ),
+                tittel = tittel,
+                tekst = tekst
             )
         )
     }

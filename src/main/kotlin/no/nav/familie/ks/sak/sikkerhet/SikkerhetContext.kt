@@ -31,7 +31,9 @@ object SikkerhetContext {
     fun hentSaksbehandlerEpost(): String =
         Result.runCatching { SpringTokenValidationContextHolder().tokenValidationContext }
             .fold(
-                onSuccess = { it.getClaims("azuread")?.get("preferred_username")?.toString() ?: SYSTEM_FORKORTELSE },
+                onSuccess = {
+                    it.getClaims("azuread")?.get("preferred_username")?.toString() ?: SYSTEM_FORKORTELSE
+                },
                 onFailure = { SYSTEM_FORKORTELSE }
             )
 
@@ -78,6 +80,9 @@ object SikkerhetContext {
             else -> BehandlerRolle.UKJENT
         }
     }
+
+    fun harInnloggetBrukerForvalterRolle(rolleConfig: RolleConfig): Boolean =
+        hentSaksbehandler() == SYSTEM_FORKORTELSE || hentGrupper().contains(rolleConfig.FORVALTER_ROLLE)
 
     private fun hentGrupper(): List<String> =
         Result.runCatching { SpringTokenValidationContextHolder().tokenValidationContext }

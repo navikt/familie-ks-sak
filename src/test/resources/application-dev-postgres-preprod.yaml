@@ -134,7 +134,7 @@ spring:
 AZURE_APP_WELL_KNOWN_URL: https://login.microsoftonline.com/navq.onmicrosoft.com/v2.0/.well-known/openid-configuration
 AZURE_OPENID_CONFIG_TOKEN_ENDPOINT: https://login.microsoftonline.com/navq.onmicrosoft.com/oauth2/v2.0/token
 
-SANITY_DATASET: "ks-test"
+SANITY_DATASET: "ks-brev"
 
 
 FAMILIE_KS_SAK_API_URL: http://localhost:8086/api
@@ -150,7 +150,7 @@ PDL_SCOPE: api://dev-fss.pdl.pdl-api/.default
 FAMILIE_OPPDRAG_API_URL: https://familie-oppdrag.dev.intern.nav.no/api
 FAMILIE_OPPDRAG_SCOPE: api://dev-fss.teamfamilie.familie-oppdrag/.default
 FAMILIE_BREV_API_URL: https://familie-brev.dev.intern.nav.no
-FAMILIE_TILBAKE_API_URL: https://familie-tilbake.dev.intern.nav.no
+FAMILIE_TILBAKE_API_URL: https://familie-tilbake.dev.intern.nav.no/api
 FAMILIE_TILBAKE_API_URL_SCOPE: api://dev-gcp.teamfamilie.familie-tilbake/.default
 
 FAMILIE_KLAGE_URL: https://familie-klage-backend.dev.intern.nav.no

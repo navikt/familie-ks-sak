@@ -25,6 +25,7 @@ import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.tilEndretUtbetalingA
 import no.nav.familie.ks.sak.kjerne.logg.LoggService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.StatsborgerskapService
+import no.nav.familie.ks.sak.kjerne.tilbakekreving.domene.TilbakekrevingRepository
 import no.nav.familie.ks.sak.kjerne.totrinnskontroll.TotrinnskontrollRepository
 import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext
 import org.slf4j.Logger
@@ -47,7 +48,8 @@ class BehandlingService(
     private val andelerTilkjentYtelseOgEndreteUtbetalingerService: AndelerTilkjentYtelseOgEndreteUtbetalingerService,
     private val vedtakRepository: VedtakRepository,
     private val vedtaksperiodeService: VedtaksperiodeService,
-    private val totrinnskontrollRepository: TotrinnskontrollRepository
+    private val totrinnskontrollRepository: TotrinnskontrollRepository,
+    private val tilbakekrevingRepository: TilbakekrevingRepository
 ) {
 
     fun hentBehandling(behandlingId: Long): Behandling = behandlingRepository.hentBehandling(behandlingId)
@@ -122,6 +124,8 @@ class BehandlingService(
             sisteVedtattBehandling = hentSisteBehandlingSomErVedtatt(behandling.fagsak.id)
         )
 
+        val tilbakekreving = tilbakekrevingRepository.findByBehandlingId(behandlingId)
+
         return BehandlingMapper.lagBehandlingRespons(
             behandling,
             arbeidsfordelingPåBehandling,
@@ -133,7 +137,8 @@ class BehandlingService(
             vedtak,
             totrinnskontroll,
             endreteUtbetalingerMedAndeler,
-            endringstidspunkt
+            endringstidspunkt,
+            tilbakekreving
         )
     }
 
