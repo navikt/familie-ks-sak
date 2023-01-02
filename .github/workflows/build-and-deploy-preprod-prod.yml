@@ -57,6 +57,7 @@ jobs:
         uses: nais/salsa@v0.6
         with:
           key: ${{ secrets.SALSA_KMS_KEY }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
 
   deploy-til-preprod:
     name: Deploy to dev-gcp
