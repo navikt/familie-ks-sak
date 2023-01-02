@@ -43,7 +43,7 @@ data class Tilbakekreving(
     val begrunnelse: String,
 
     @Column(name = "tilbakekrevingsbehandling_id")
-    val tilbakekrevingsbehandlingId: String?
+    var tilbakekrevingsbehandlingId: String?
 ) : BaseEntitet() {
 
     override fun hashCode() = id.hashCode()

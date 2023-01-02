@@ -7,6 +7,10 @@ import io.mockk.junit5.MockKExtension
 import io.mockk.mockk
 import no.nav.familie.kontrakter.felles.personopplysning.ADRESSEBESKYTTELSEGRADERING
 import no.nav.familie.kontrakter.felles.personopplysning.FORELDERBARNRELASJONROLLE
+import no.nav.familie.kontrakter.felles.tilbakekreving.Behandling
+import no.nav.familie.kontrakter.felles.tilbakekreving.Behandlingsresultatstype
+import no.nav.familie.kontrakter.felles.tilbakekreving.Behandlingsstatus
+import no.nav.familie.kontrakter.felles.tilbakekreving.Behandlingstype
 import no.nav.familie.kontrakter.felles.tilgangskontroll.Tilgang
 import no.nav.familie.ks.sak.api.dto.FagsakDeltagerRolle
 import no.nav.familie.ks.sak.api.dto.FagsakRequestDto
@@ -32,12 +36,15 @@ import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonRepository
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlagRepository
+import no.nav.familie.ks.sak.kjerne.tilbakekreving.TilbakekrevingsbehandlingHentService
 import no.nav.familie.prosessering.internal.TaskService
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
 import java.time.LocalDate
+import java.time.LocalDateTime
+import java.util.UUID
 
 @ExtendWith(MockKExtension::class)
 class FagsakServiceTest {
@@ -67,6 +74,9 @@ class FagsakServiceTest {
 
     @MockK
     private lateinit var taskService: TaskService
+
+    @MockK
+    private lateinit var tilbakekrevingsbehandlingHentService: TilbakekrevingsbehandlingHentService
 
     @MockK
     private lateinit var vedtakRepository: VedtakRepository
@@ -264,11 +274,25 @@ class FagsakServiceTest {
         )
         every { behandlingRepository.findByFagsakAndAktiv(fagsak.id) } returns barnehagelisteBehandling
         every { vedtakRepository.findByBehandlingAndAktivOptional(any()) } returns mockk(relaxed = true)
+        every { tilbakekrevingsbehandlingHentService.hentTilbakekrevingsbehandlinger(fagsak.id) } returns
+            listOf(
+                Behandling(
+                    behandlingId = UUID.randomUUID(),
+                    opprettetTidspunkt = LocalDateTime.now(),
+                    aktiv = true,
+                    årsak = null,
+                    type = Behandlingstype.TILBAKEKREVING,
+                    status = Behandlingsstatus.UTREDES,
+                    vedtaksdato = null,
+                    resultat = Behandlingsresultatstype.IKKE_FASTSATT
+                )
+            )
 
         val fagsakResponse = fagsakService.hentMinimalFagsak(fagsak.id)
 
         assertEquals(fagsak.id, fagsakResponse.id)
         assertEquals(2, fagsakResponse.behandlinger.size)
+        assertEquals(1, fagsakResponse.tilbakekrevingsbehandlinger.size)
     }
 
     @Test
