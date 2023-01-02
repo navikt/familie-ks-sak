@@ -54,6 +54,11 @@ class BehandlingService(
 
     fun hentBehandling(behandlingId: Long): Behandling = behandlingRepository.hentBehandling(behandlingId)
     fun hentAktivtBehandling(behandlingId: Long): Behandling = behandlingRepository.hentAktivBehandling(behandlingId)
+    fun finnAktivBehandlingPåFagsak(fagsakId: Long): Behandling? = behandlingRepository.findByFagsakAndAktiv(fagsakId)
+    fun erAktivBehandlingPåFagsak(fagsakId: Long): Boolean = finnAktivBehandlingPåFagsak(fagsakId) != null
+    fun finnÅpenBehandlingPåFagsak(fagsakId: Long): Behandling? = behandlingRepository.findByFagsakAndAktivAndOpen(fagsakId)
+    fun erÅpenBehandlingPåFagsak(fagsakId: Long): Boolean = finnÅpenBehandlingPåFagsak(fagsakId) != null
+    fun hentBehandlingerPåFagsak(fagsakId: Long): List<Behandling> = behandlingRepository.finnBehandlinger(fagsakId)
 
     fun hentSisteBehandlingSomErVedtatt(fagsakId: Long): Behandling? = behandlingRepository.finnBehandlinger(fagsakId)
         .filter { !it.erHenlagt() && it.status == BehandlingStatus.AVSLUTTET }
