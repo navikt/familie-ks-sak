@@ -6,7 +6,6 @@ import no.nav.familie.kontrakter.felles.tilbakekreving.Faktainfo
 import no.nav.familie.kontrakter.felles.tilbakekreving.FeilutbetaltePerioderDto
 import no.nav.familie.kontrakter.felles.tilbakekreving.ForhåndsvisVarselbrevRequest
 import no.nav.familie.kontrakter.felles.tilbakekreving.OpprettTilbakekrevingRequest
-import no.nav.familie.kontrakter.felles.tilbakekreving.Regelverk
 import no.nav.familie.kontrakter.felles.tilbakekreving.Tilbakekrevingsvalg
 import no.nav.familie.kontrakter.felles.tilbakekreving.Ytelsestype
 import no.nav.familie.ks.sak.api.dto.ForhåndsvisTilbakekrevingVarselbrevDto
@@ -15,7 +14,6 @@ import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.integrasjon.tilbakekreving.TilbakekrevingKlient
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.ArbeidsfordelingService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
-import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingKategori
 import no.nav.familie.ks.sak.kjerne.behandling.steg.simulering.SimuleringService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.simulering.hentTilbakekrevingsperioderISimulering
 import no.nav.familie.ks.sak.kjerne.behandling.steg.simulering.opprettVarsel
@@ -115,7 +113,7 @@ class TilbakekrevingService(
 
         return OpprettTilbakekrevingRequest(
             fagsystem = Fagsystem.KONT,
-            regelverk = if (behandling.kategori == BehandlingKategori.NASJONAL) Regelverk.NASJONAL else Regelverk.EØS,
+            regelverk = behandling.kategori.tilRegelverk(),
             ytelsestype = Ytelsestype.KONTANTSTØTTE,
             eksternFagsakId = behandling.fagsak.id.toString(),
             personIdent = søker.aktør.aktivFødselsnummer(),
