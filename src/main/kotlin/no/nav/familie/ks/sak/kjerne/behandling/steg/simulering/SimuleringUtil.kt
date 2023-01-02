@@ -4,6 +4,7 @@ import no.nav.familie.kontrakter.felles.simulering.PosteringType
 import no.nav.familie.kontrakter.felles.simulering.SimuleringMottaker
 import no.nav.familie.kontrakter.felles.simulering.SimulertPostering
 import no.nav.familie.kontrakter.felles.tilbakekreving.Periode
+import no.nav.familie.kontrakter.felles.tilbakekreving.Varsel
 import no.nav.familie.ks.sak.api.dto.SimuleringsPeriodeDto
 import no.nav.familie.ks.sak.api.dto.TilbakekrevingRequestDto
 import no.nav.familie.ks.sak.api.mapper.SimuleringMapper.tilSimuleringDto
@@ -157,3 +158,9 @@ fun hentTilbakekrevingsperioderISimulering(simulering: List<ØkonomiSimuleringMo
     tilbakekrevingsperioder.add(Periode(aktuellFom, aktuellTom))
     return tilbakekrevingsperioder
 }
+
+fun opprettVarsel(varselTekst: String, simulering: List<ØkonomiSimuleringMottaker>): Varsel = Varsel(
+    varseltekst = varselTekst,
+    sumFeilutbetaling = simulering.tilSimuleringDto().feilutbetaling,
+    perioder = hentTilbakekrevingsperioderISimulering(simulering)
+)
