@@ -7,8 +7,14 @@ import io.mockk.junit5.MockKExtension
 import io.mockk.slot
 import io.mockk.verify
 import no.nav.familie.kontrakter.felles.Fagsystem
+import no.nav.familie.kontrakter.felles.Språkkode
 import no.nav.familie.kontrakter.felles.simulering.PosteringType
+import no.nav.familie.kontrakter.felles.tilbakekreving.Behandlingstype
 import no.nav.familie.kontrakter.felles.tilbakekreving.ForhåndsvisVarselbrevRequest
+import no.nav.familie.kontrakter.felles.tilbakekreving.OpprettTilbakekrevingRequest
+import no.nav.familie.kontrakter.felles.tilbakekreving.Periode
+import no.nav.familie.kontrakter.felles.tilbakekreving.Regelverk
+import no.nav.familie.kontrakter.felles.tilbakekreving.Tilbakekrevingsvalg
 import no.nav.familie.kontrakter.felles.tilbakekreving.Ytelsestype
 import no.nav.familie.ks.sak.api.dto.ForhåndsvisTilbakekrevingVarselbrevDto
 import no.nav.familie.ks.sak.common.util.førsteDagIInneværendeMåned
@@ -25,16 +31,22 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.Vedtak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.VedtakRepository
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Målform
+import no.nav.familie.ks.sak.kjerne.tilbakekreving.domene.Tilbakekreving
 import no.nav.familie.ks.sak.kjerne.tilbakekreving.domene.TilbakekrevingRepository
+import no.nav.familie.ks.sak.kjerne.totrinnskontroll.TotrinnskontrollRepository
+import no.nav.familie.ks.sak.kjerne.totrinnskontroll.domene.Totrinnskontroll
 import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import java.math.BigDecimal
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.time.YearMonth
 
 @ExtendWith(MockKExtension::class)
@@ -50,6 +62,9 @@ internal class TilbakekrevingServiceTest {
     private lateinit var vedtakRepository: VedtakRepository
 
     @MockK
+    private lateinit var totrinnskontrollRepository: TotrinnskontrollRepository
+
+    @MockK
     private lateinit var personopplysningGrunnlagService: PersonopplysningGrunnlagService
 
     @MockK
@@ -63,7 +78,7 @@ internal class TilbakekrevingServiceTest {
 
     private val søker = randomFnr()
     private val behandling = lagBehandling()
-    private val vedtak = Vedtak(behandling = behandling)
+    private val vedtak = Vedtak(behandling = behandling, vedtaksdato = LocalDateTime.now())
     private val forhåndsvisVarselbrevRequestSlot = slot<ForhåndsvisVarselbrevRequest>()
     private val personopplysningGrunnlag = lagPersonopplysningGrunnlag(
         behandlingId = behandling.id,
@@ -97,16 +112,23 @@ internal class TilbakekrevingServiceTest {
         økonomiSimuleringPosteringer = listOf(førsteFeilPostering, andreFeilPostering, tredjeFeilPostering, ytelsePostering)
     )
 
-    @Test
-    fun `hentForhåndsvisningTilbakekrevingVarselBrev henter forhåndvisning av varselbrev med feilutbetalte perioder`() {
+    @BeforeEach
+    fun setup() {
         every { vedtakRepository.findByBehandlingAndAktivOptional(behandling.id) } returns vedtak
         every { personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(behandling.id) } returns personopplysningGrunnlag
         every { arbeidsfordelingService.hentArbeidsfordelingPåBehandling(behandling.id) } returns arbeidsfordeling
+        every { simuleringService.hentFeilutbetaling(behandling.id) } returns BigDecimal(16500)
+        every { simuleringService.hentSimuleringPåBehandling(behandling.id) } returns listOf(økonomiSimuleringMottaker)
+        every { tilbakekrevingKlient.opprettTilbakekrevingBehandling(any()) } returns "100001"
+        every { totrinnskontrollRepository.findByBehandlingAndAktiv(behandling.id) } returns
+            Totrinnskontroll(behandling = behandling, saksbehandler = "test", saksbehandlerId = "Z0000")
+    }
+
+    @Test
+    fun `hentForhåndsvisningTilbakekrevingVarselBrev henter forhåndvisning av varselbrev med feilutbetalte perioder`() {
         every {
             tilbakekrevingKlient.hentForhåndsvisningTilbakekrevingVarselbrev(capture(forhåndsvisVarselbrevRequestSlot))
         } returns ByteArray(10)
-        every { simuleringService.hentFeilutbetaling(behandling.id) } returns BigDecimal(16500)
-        every { simuleringService.hentSimuleringPåBehandling(behandling.id) } returns listOf(økonomiSimuleringMottaker)
 
         tilbakekrevingService.hentForhåndsvisningTilbakekrevingVarselBrev(
             behandling.id,
@@ -114,7 +136,6 @@ internal class TilbakekrevingServiceTest {
         )
         verify(exactly = 1) { vedtakRepository.findByBehandlingAndAktivOptional(behandling.id) }
         verify(exactly = 1) { personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(behandling.id) }
-        verify(exactly = 1) { arbeidsfordelingService.hentArbeidsfordelingPåBehandling(behandling.id) }
         verify(exactly = 1) { arbeidsfordelingService.hentArbeidsfordelingPåBehandling(behandling.id) }
         verify(exactly = 1) { tilbakekrevingKlient.hentForhåndsvisningTilbakekrevingVarselbrev(any()) }
         verify(exactly = 1) { simuleringService.hentFeilutbetaling(behandling.id) }
@@ -137,18 +158,90 @@ internal class TilbakekrevingServiceTest {
 
         val perioder = request.feilutbetaltePerioderDto.perioder
         assertTrue { perioder.size == 2 }
-        assertTrue {
-            perioder.any {
-                it.fom == YearMonth.of(2022, 1).førsteDagIInneværendeMåned() &&
-                    it.tom == YearMonth.of(2022, 2).atEndOfMonth()
-            }
-        }
-        assertTrue {
-            perioder.any {
-                it.fom == YearMonth.of(2022, 4).førsteDagIInneværendeMåned() &&
-                    it.tom == YearMonth.of(2022, 4).atEndOfMonth()
-            }
-        }
+        perioder.harPeriode(YearMonth.of(2022, 1), YearMonth.of(2022, 2))
+        perioder.harPeriode(YearMonth.of(2022, 4), YearMonth.of(2022, 4))
+    }
+
+    @Test
+    fun `sendOpprettTilbakekrevingRequest sender OpprettTilbakekreving request med varsel`() {
+        val requestSlot = slot<OpprettTilbakekrevingRequest>()
+        every { tilbakekrevingRepository.findByBehandlingId(behandling.id) } returns
+            lagTilbakekreving(Tilbakekrevingsvalg.OPPRETT_TILBAKEKREVING_MED_VARSEL, "test")
+
+        tilbakekrevingService.sendOpprettTilbakekrevingRequest(behandling)
+
+        verify(exactly = 1) { tilbakekrevingKlient.opprettTilbakekrevingBehandling(capture(requestSlot)) }
+        verify(exactly = 1) { vedtakRepository.findByBehandlingAndAktivOptional(behandling.id) }
+        verify(exactly = 1) { personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(behandling.id) }
+        verify(exactly = 1) { arbeidsfordelingService.hentArbeidsfordelingPåBehandling(behandling.id) }
+        verify(exactly = 1) { simuleringService.hentSimuleringPåBehandling(behandling.id) }
+        verify(exactly = 1) { totrinnskontrollRepository.findByBehandlingAndAktiv(behandling.id) }
+        verify(exactly = 1) { tilbakekrevingRepository.findByBehandlingId(behandling.id) }
+
+        val request = requestSlot.captured
+        assertEquals(Fagsystem.KONT, request.fagsystem)
+        assertEquals(Regelverk.NASJONAL, request.regelverk)
+        assertEquals(Ytelsestype.KONTANTSTØTTE, request.ytelsestype)
+        assertEquals(behandling.fagsak.id, request.eksternFagsakId.toLong())
+        assertEquals(søker, request.personIdent)
+        assertEquals(behandling.id, request.eksternId.toLong())
+        assertEquals(Behandlingstype.TILBAKEKREVING, request.behandlingstype)
+        assertFalse(request.manueltOpprettet)
+        assertEquals(Språkkode.NB.name, request.språkkode.name)
+        assertEquals(arbeidsfordeling.behandlendeEnhetId, request.enhetId)
+        assertEquals(arbeidsfordeling.behandlendeEnhetNavn, request.enhetsnavn)
+        assertEquals("Z0000", request.saksbehandlerIdent)
+        assertEquals(LocalDate.now(), request.revurderingsvedtaksdato)
+
+        assertNotNull(request.varsel)
+        val varsel = request.varsel
+        assertEquals("test", varsel!!.varseltekst)
+        assertEquals(BigDecimal("16500"), varsel.sumFeilutbetaling)
+        varsel.perioder.harPeriode(YearMonth.of(2022, 1), YearMonth.of(2022, 2))
+        varsel.perioder.harPeriode(YearMonth.of(2022, 4), YearMonth.of(2022, 4))
+
+        val faktainfo = request.faktainfo
+        assertEquals(Tilbakekrevingsvalg.OPPRETT_TILBAKEKREVING_MED_VARSEL, faktainfo.tilbakekrevingsvalg)
+        assertEquals(behandling.opprettetÅrsak.visningsnavn, faktainfo.revurderingsårsak)
+        assertEquals(behandling.resultat.displayName, faktainfo.revurderingsresultat)
+    }
+
+    @Test
+    fun `sendOpprettTilbakekrevingRequest sender OpprettTilbakekreving request uten varsel`() {
+        val requestSlot = slot<OpprettTilbakekrevingRequest>()
+        every { tilbakekrevingRepository.findByBehandlingId(behandling.id) } returns
+            lagTilbakekreving(Tilbakekrevingsvalg.OPPRETT_TILBAKEKREVING_UTEN_VARSEL)
+
+        tilbakekrevingService.sendOpprettTilbakekrevingRequest(behandling)
+
+        verify(exactly = 1) { tilbakekrevingKlient.opprettTilbakekrevingBehandling(capture(requestSlot)) }
+        verify(exactly = 1) { vedtakRepository.findByBehandlingAndAktivOptional(behandling.id) }
+        verify(exactly = 1) { personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(behandling.id) }
+        verify(exactly = 1) { arbeidsfordelingService.hentArbeidsfordelingPåBehandling(behandling.id) }
+        verify(exactly = 0) { simuleringService.hentSimuleringPåBehandling(behandling.id) }
+        verify(exactly = 1) { totrinnskontrollRepository.findByBehandlingAndAktiv(behandling.id) }
+        verify(exactly = 1) { tilbakekrevingRepository.findByBehandlingId(behandling.id) }
+
+        val request = requestSlot.captured
+        assertEquals(Fagsystem.KONT, request.fagsystem)
+        assertEquals(Regelverk.NASJONAL, request.regelverk)
+        assertEquals(Ytelsestype.KONTANTSTØTTE, request.ytelsestype)
+        assertEquals(behandling.fagsak.id, request.eksternFagsakId.toLong())
+        assertEquals(søker, request.personIdent)
+        assertEquals(behandling.id, request.eksternId.toLong())
+        assertEquals(Behandlingstype.TILBAKEKREVING, request.behandlingstype)
+        assertFalse(request.manueltOpprettet)
+        assertEquals(Språkkode.NB.name, request.språkkode.name)
+        assertEquals(arbeidsfordeling.behandlendeEnhetId, request.enhetId)
+        assertEquals(arbeidsfordeling.behandlendeEnhetNavn, request.enhetsnavn)
+        assertEquals("Z0000", request.saksbehandlerIdent)
+        assertEquals(LocalDate.now(), request.revurderingsvedtaksdato)
+        assertNull(request.varsel)
+
+        val faktainfo = request.faktainfo
+        assertEquals(Tilbakekrevingsvalg.OPPRETT_TILBAKEKREVING_UTEN_VARSEL, faktainfo.tilbakekrevingsvalg)
+        assertEquals(behandling.opprettetÅrsak.visningsnavn, faktainfo.revurderingsårsak)
+        assertEquals(behandling.resultat.displayName, faktainfo.revurderingsresultat)
     }
 
     private fun lagPostering(
@@ -164,4 +257,19 @@ internal class TilbakekrevingServiceTest {
         forfallsdato = LocalDate.now().plusMonths(5),
         posteringType = posteringType
     )
+
+    private fun lagTilbakekreving(valg: Tilbakekrevingsvalg, varseltekst: String? = null) = Tilbakekreving(
+        behandling = behandling,
+        valg = valg,
+        varsel = varseltekst,
+        begrunnelse = "test begrunnelse",
+        tilbakekrevingsbehandlingId = null
+    )
+
+    private fun List<Periode>.harPeriode(fom: YearMonth, tom: YearMonth) = assertTrue {
+        this.any {
+            it.fom == fom.førsteDagIInneværendeMåned() &&
+                it.tom == tom.atEndOfMonth()
+        }
+    }
 }

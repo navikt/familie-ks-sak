@@ -1,7 +1,10 @@
 package no.nav.familie.ks.sak.integrasjon.tilbakekreving
 
 import no.nav.familie.http.client.AbstractRestClient
+import no.nav.familie.kontrakter.felles.Fagsystem
+import no.nav.familie.kontrakter.felles.tilbakekreving.Behandling
 import no.nav.familie.kontrakter.felles.tilbakekreving.ForhåndsvisVarselbrevRequest
+import no.nav.familie.kontrakter.felles.tilbakekreving.OpprettTilbakekrevingRequest
 import no.nav.familie.ks.sak.integrasjon.kallEksternTjeneste
 import no.nav.familie.ks.sak.integrasjon.kallEksternTjenesteRessurs
 import no.nav.familie.ks.sak.integrasjon.økonomi.utbetalingsoppdrag.FAGSYSTEM
@@ -47,6 +50,28 @@ class TilbakekrevingKlient(
                 }
             )
         }
+    }
+
+    fun opprettTilbakekrevingBehandling(opprettTilbakekrevingRequest: OpprettTilbakekrevingRequest): String {
+        val uri = URI.create("$familieTilbakeUri/behandling/v1")
+
+        return kallEksternTjenesteRessurs(
+            tjeneste = "familie-tilbake",
+            uri = uri,
+            formål = "Oppretter tilbakekrevingsbehandling"
+        ) {
+            postForEntity(uri, opprettTilbakekrevingRequest)
+        }
+    }
+
+    fun hentTilbakekrevingsbehandlinger(fagsakId: Long): List<Behandling> {
+        val uri = URI.create("$familieTilbakeUri/fagsystem/${Fagsystem.KONT}/fagsak/$fagsakId/behandlinger/v1")
+
+        return kallEksternTjenesteRessurs(
+            tjeneste = "familie-tilbake",
+            uri = uri,
+            formål = "Henter tilbakekrevingsbehandlinger på fagsak"
+        ) { getForEntity(uri) }
     }
 }
 
