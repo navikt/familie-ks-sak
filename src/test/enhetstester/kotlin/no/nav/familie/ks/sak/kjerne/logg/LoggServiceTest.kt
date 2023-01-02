@@ -13,6 +13,7 @@ import no.nav.familie.ks.sak.config.RolleConfig
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.domene.ArbeidsfordelingsEnhet
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.domene.ArbeidsfordelingPåBehandling
+import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingKategori
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import no.nav.familie.ks.sak.kjerne.logg.domene.Logg
@@ -363,5 +364,28 @@ class LoggServiceTest {
 
         assertThat(lagretLogg.behandlingId, Is(behandling.id))
         assertThat(lagretLogg.type, Is(LoggType.SEND_TIL_BESLUTTER))
+    }
+
+    @Test
+    fun `opprettSendTilBeslutterLogg - skal lagre logg på at behandlingstema er endret`() {
+        val behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD)
+
+        every { loggRepository.save(any()) } returnsArgument 0
+
+        val forrigeKategori = BehandlingKategori.NASJONAL
+        val nyKategori = BehandlingKategori.EØS
+
+        val opprettetLogg = loggService.opprettEndretBehandlingstemaLogg(
+            behandling,
+            forrigeKategori,
+            nyKategori
+        )
+
+        assertThat(opprettetLogg.behandlingId, Is(behandling.id))
+        assertThat(opprettetLogg.type, Is(LoggType.BEHANDLINGSTEMA_ENDRET))
+        assertThat(
+            opprettetLogg.tekst,
+            Is(("Behandlingstema er manuelt endret fra $forrigeKategori ordinær til $nyKategori ordinær"))
+        )
     }
 }

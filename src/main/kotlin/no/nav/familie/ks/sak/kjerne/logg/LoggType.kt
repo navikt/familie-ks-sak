@@ -5,7 +5,7 @@ enum class LoggType(val visningsnavn: String, val tittel: String = visningsnavn)
     LIVSHENDELSE("Livshendelse"),
     BEHANDLENDE_ENHET_ENDRET("Behandlende enhet endret", "Endret enhet på behandling"),
     BEHANDLING_OPPRETTET("Behandling opprettet"),
-    BEHANDLINGSTYPE_ENDRET("Endret behandlingstype", "Endret behandlingstema"),
+    BEHANDLINGSTEMA_ENDRET("Endret behandlingstema", "Endret behandlingstema"),
     BARN_LAGT_TIL("Barn lagt til på behandling"),
     DOKUMENT_MOTTATT("Dokument ble mottatt"),
     SØKNAD_REGISTRERT("Søknaden ble registrert"),
