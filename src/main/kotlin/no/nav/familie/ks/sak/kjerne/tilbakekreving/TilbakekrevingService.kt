@@ -1,8 +1,13 @@
 package no.nav.familie.ks.sak.kjerne.tilbakekreving
 
 import no.nav.familie.kontrakter.felles.Fagsystem
+import no.nav.familie.kontrakter.felles.tilbakekreving.Behandlingstype
+import no.nav.familie.kontrakter.felles.tilbakekreving.Faktainfo
 import no.nav.familie.kontrakter.felles.tilbakekreving.FeilutbetaltePerioderDto
 import no.nav.familie.kontrakter.felles.tilbakekreving.ForhåndsvisVarselbrevRequest
+import no.nav.familie.kontrakter.felles.tilbakekreving.OpprettTilbakekrevingRequest
+import no.nav.familie.kontrakter.felles.tilbakekreving.Regelverk
+import no.nav.familie.kontrakter.felles.tilbakekreving.Tilbakekrevingsvalg
 import no.nav.familie.kontrakter.felles.tilbakekreving.Ytelsestype
 import no.nav.familie.ks.sak.api.dto.ForhåndsvisTilbakekrevingVarselbrevDto
 import no.nav.familie.ks.sak.api.dto.TilbakekrevingRequestDto
@@ -10,12 +15,15 @@ import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.integrasjon.tilbakekreving.TilbakekrevingKlient
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.ArbeidsfordelingService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
+import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingKategori
 import no.nav.familie.ks.sak.kjerne.behandling.steg.simulering.SimuleringService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.simulering.hentTilbakekrevingsperioderISimulering
+import no.nav.familie.ks.sak.kjerne.behandling.steg.simulering.opprettVarsel
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.VedtakRepository
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
 import no.nav.familie.ks.sak.kjerne.tilbakekreving.domene.Tilbakekreving
 import no.nav.familie.ks.sak.kjerne.tilbakekreving.domene.TilbakekrevingRepository
+import no.nav.familie.ks.sak.kjerne.totrinnskontroll.TotrinnskontrollRepository
 import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -25,6 +33,7 @@ class TilbakekrevingService(
     private val tilbakekrevingKlient: TilbakekrevingKlient,
     private val tilbakekrevingRepository: TilbakekrevingRepository,
     private val vedtakRepository: VedtakRepository,
+    private val totrinnskontrollRepository: TotrinnskontrollRepository,
     private val personopplysningGrunnlagService: PersonopplysningGrunnlagService,
     private val arbeidsfordelingService: ArbeidsfordelingService,
     private val simuleringService: SimuleringService
@@ -46,6 +55,15 @@ class TilbakekrevingService(
 
         eksisterendeTilbakekreving?.let { tilbakekrevingRepository.deleteById(it.id) }
         return tilbakekrevingRepository.save(tilbakekreving)
+    }
+
+    @Transactional
+    fun oppdaterTilbakekreving(tilbakekrevingsbehandlingId: String, behandlingId: Long) {
+        val tilbakekreving = tilbakekrevingRepository.findByBehandlingId(behandlingId)
+            ?: throw Feil("Fant ikke tilbakekreving for behandling $behandlingId")
+
+        tilbakekreving.tilbakekrevingsbehandlingId = tilbakekrevingsbehandlingId
+        tilbakekrevingRepository.save(tilbakekreving)
     }
 
     fun hentForhåndsvisningTilbakekrevingVarselBrev(
@@ -75,6 +93,52 @@ class TilbakekrevingService(
                 saksbehandlerIdent = SikkerhetContext.hentSaksbehandlerNavn(),
                 verge = null, // TODO kommer når verge er implementert
                 institusjon = null // Institusjon er alltid null for kontantstøtte
+            )
+        )
+    }
+
+    fun sendOpprettTilbakekrevingRequest(behandling: Behandling) =
+        tilbakekrevingKlient.opprettTilbakekrevingBehandling(lagOpprettTilbakekrevingRequest(behandling))
+
+    private fun lagOpprettTilbakekrevingRequest(behandling: Behandling): OpprettTilbakekrevingRequest {
+        val behandlingId = behandling.id
+        val personopplysningGrunnlag = personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(behandlingId)
+        val søker = personopplysningGrunnlag.søker
+        val arbeidsfordeling = arbeidsfordelingService.hentArbeidsfordelingPåBehandling(behandlingId)
+        val aktivtVedtak = vedtakRepository.findByBehandlingAndAktivOptional(behandlingId)
+            ?: throw Feil("Fant ikke aktivt vedtak på behandling $behandlingId")
+        val totrinnskontroll = totrinnskontrollRepository.findByBehandlingAndAktiv(behandlingId)
+        val revurderingVedtaksdato = aktivtVedtak.vedtaksdato?.toLocalDate()
+            ?: throw Feil("Finner ikke revurderingsvedtaksdato på vedtak ${aktivtVedtak.id} ")
+        val tilbakekreving = tilbakekrevingRepository.findByBehandlingId(behandling.id)
+            ?: throw Feil("Fant ikke tilbakekreving på behandling ${behandling.id}")
+
+        return OpprettTilbakekrevingRequest(
+            fagsystem = Fagsystem.KONT,
+            regelverk = if (behandling.kategori == BehandlingKategori.NASJONAL) Regelverk.NASJONAL else Regelverk.EØS,
+            ytelsestype = Ytelsestype.KONTANTSTØTTE,
+            eksternFagsakId = behandling.fagsak.id.toString(),
+            personIdent = søker.aktør.aktivFødselsnummer(),
+            eksternId = behandlingId.toString(),
+            behandlingstype = Behandlingstype.TILBAKEKREVING,
+            manueltOpprettet = false, // det er alltid false siden OpprettManueltTilbakekrevingRequest sendes for manuell opprettelse
+            språkkode = søker.målform.tilSpråkkode(),
+            enhetId = arbeidsfordeling.behandlendeEnhetId,
+            enhetsnavn = arbeidsfordeling.behandlendeEnhetNavn,
+            saksbehandlerIdent = totrinnskontroll?.saksbehandlerId ?: SikkerhetContext.hentSaksbehandler(),
+            varsel = if (tilbakekreving.valg == Tilbakekrevingsvalg.OPPRETT_TILBAKEKREVING_MED_VARSEL) {
+                opprettVarsel(
+                    varselTekst = checkNotNull(tilbakekreving.varsel),
+                    simulering = simuleringService.hentSimuleringPåBehandling(behandlingId)
+                )
+            } else null,
+            revurderingsvedtaksdato = revurderingVedtaksdato,
+            verge = null, // TODO kommer når verge er implementert
+            faktainfo = Faktainfo(
+                revurderingsårsak = behandling.opprettetÅrsak.visningsnavn,
+                revurderingsresultat = behandling.resultat.displayName,
+                tilbakekrevingsvalg = tilbakekreving.valg,
+                konsekvensForYtelser = emptySet()
             )
         )
     }

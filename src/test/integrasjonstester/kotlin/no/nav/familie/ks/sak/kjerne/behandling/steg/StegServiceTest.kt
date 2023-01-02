@@ -6,7 +6,9 @@ import io.mockk.just
 import io.mockk.mockk
 import io.mockk.mockkObject
 import io.mockk.runs
+import io.mockk.slot
 import io.mockk.verify
+import no.nav.familie.kontrakter.felles.tilbakekreving.Tilbakekrevingsvalg
 import no.nav.familie.ks.sak.OppslagSpringRunnerTest
 import no.nav.familie.ks.sak.api.dto.BarnMedOpplysningerDto
 import no.nav.familie.ks.sak.api.dto.BesluttVedtakDto
@@ -41,6 +43,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingStegStatus.TILBAKE
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingStegStatus.UTFØRT
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingStegStatus.VENTER
 import no.nav.familie.ks.sak.kjerne.behandling.steg.avsluttbehandling.AvsluttBehandlingSteg
+import no.nav.familie.ks.sak.kjerne.behandling.steg.journalførvedtaksbrev.JournalførVedtaksbrevTask
 import no.nav.familie.ks.sak.kjerne.behandling.steg.registrersøknad.RegistrereSøknadSteg
 import no.nav.familie.ks.sak.kjerne.behandling.steg.registrersøknad.SøknadGrunnlagService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.registrersøknad.domene.SøknadGrunnlag
@@ -50,7 +53,11 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.Vilkårsvu
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
 import no.nav.familie.ks.sak.kjerne.beregning.BeregningService
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.FagsakStatus
+import no.nav.familie.ks.sak.kjerne.tilbakekreving.domene.Tilbakekreving
+import no.nav.familie.ks.sak.kjerne.tilbakekreving.domene.TilbakekrevingRepository
 import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext
+import no.nav.familie.ks.sak.statistikk.saksstatistikk.SendBehandlinghendelseTilDvhTask
+import no.nav.familie.prosessering.domene.Task
 import no.nav.familie.prosessering.internal.TaskService
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -96,6 +103,9 @@ class StegServiceTest : OppslagSpringRunnerTest() {
 
     @Autowired
     private lateinit var vedtakRepository: VedtakRepository
+
+    @Autowired
+    private lateinit var tilbakekrevingRepository: TilbakekrevingRepository
 
     @BeforeEach
     fun setup() {
@@ -348,6 +358,7 @@ class StegServiceTest : OppslagSpringRunnerTest() {
 
     @Test
     fun `utførStegEtterIverksettelseAutomatisk skal utføre AVSLUTT_BEHANDLING steg automatisk`() {
+        val taskSlot = slot<Task>()
         behandling.behandlingStegTilstand.clear()
         lagBehandlingStegTilstand(behandling, JOURNALFØR_VEDTAKSBREV, UTFØRT)
         lagBehandlingStegTilstand(behandling, AVSLUTT_BEHANDLING, KLAR)
@@ -357,6 +368,8 @@ class StegServiceTest : OppslagSpringRunnerTest() {
         assertDoesNotThrow { stegService.utførStegEtterIverksettelseAutomatisk(behandling.id) }
 
         verify(exactly = 1) { avsluttBehandlingSteg.utførSteg(any()) }
+        verify(exactly = 1) { taskService.save(capture(taskSlot)) }
+        assertTrue { taskSlot.captured.type == SendBehandlinghendelseTilDvhTask.TASK_TYPE }
 
         val oppdatertBehandling = behandlingRepository.hentBehandling(behandling.id)
         assertBehandlingHarSteg(oppdatertBehandling, JOURNALFØR_VEDTAKSBREV, UTFØRT)
@@ -365,6 +378,7 @@ class StegServiceTest : OppslagSpringRunnerTest() {
 
     @Test
     fun `utførStegEtterIverksettelseAutomatisk skal opprette task for å utføre JOURNALFØR_VEDTAKSBREV steg automatisk`() {
+        val taskSlot = slot<Task>()
         behandling.behandlingStegTilstand.clear()
         lagBehandlingStegTilstand(behandling, IVERKSETT_MOT_OPPDRAG, UTFØRT)
         lagBehandlingStegTilstand(behandling, JOURNALFØR_VEDTAKSBREV, KLAR)
@@ -374,7 +388,52 @@ class StegServiceTest : OppslagSpringRunnerTest() {
 
         assertDoesNotThrow { stegService.utførStegEtterIverksettelseAutomatisk(behandling.id) }
 
-        verify(exactly = 1) { taskService.save(any()) }
+        verify(exactly = 1) { taskService.save(capture(taskSlot)) }
+        assertEquals(taskSlot.captured.type, JournalførVedtaksbrevTask.TASK_STEP_TYPE)
+    }
+
+    @Test
+    fun `utførStegEtterIverksettelseAutomatisk skal opprette tilbakekreving task for revurdering`() {
+        behandling.behandlingStegTilstand.clear()
+        lagBehandlingStegTilstand(behandling, IVERKSETT_MOT_OPPDRAG, UTFØRT)
+        lagBehandlingStegTilstand(behandling, JOURNALFØR_VEDTAKSBREV, KLAR)
+        behandling.status = BehandlingStatus.IVERKSETTER_VEDTAK
+        lagreBehandling(behandling)
+        vedtakRepository.saveAndFlush(Vedtak(behandling = behandling, vedtaksdato = LocalDateTime.now()))
+        tilbakekrevingRepository.save(
+            Tilbakekreving(
+                behandling = behandling,
+                valg = Tilbakekrevingsvalg.OPPRETT_TILBAKEKREVING_UTEN_VARSEL,
+                begrunnelse = "begrunnelse",
+                tilbakekrevingsbehandlingId = null
+            )
+        )
+
+        assertDoesNotThrow { stegService.utførStegEtterIverksettelseAutomatisk(behandling.id) }
+        verify(exactly = 2) { taskService.save(any()) } // en journalføring task og en tilbakekreving task
+    }
+
+    @Test
+    fun `utførStegEtterIverksettelseAutomatisk skal ikke opprette tilbakekreving task for revurdering med valg IGNORER_TILBAKEKREVING`() {
+        val taskSlot = slot<Task>()
+        behandling.behandlingStegTilstand.clear()
+        lagBehandlingStegTilstand(behandling, IVERKSETT_MOT_OPPDRAG, UTFØRT)
+        lagBehandlingStegTilstand(behandling, JOURNALFØR_VEDTAKSBREV, KLAR)
+        behandling.status = BehandlingStatus.IVERKSETTER_VEDTAK
+        lagreBehandling(behandling)
+        vedtakRepository.saveAndFlush(Vedtak(behandling = behandling, vedtaksdato = LocalDateTime.now()))
+        tilbakekrevingRepository.save(
+            Tilbakekreving(
+                behandling = behandling,
+                valg = Tilbakekrevingsvalg.IGNORER_TILBAKEKREVING,
+                begrunnelse = "begrunnelse",
+                tilbakekrevingsbehandlingId = null
+            )
+        )
+
+        assertDoesNotThrow { stegService.utførStegEtterIverksettelseAutomatisk(behandling.id) }
+        verify(exactly = 1) { taskService.save(capture(taskSlot)) }
+        assertEquals(taskSlot.captured.type, JournalførVedtaksbrevTask.TASK_STEP_TYPE)
     }
 
     @Test
