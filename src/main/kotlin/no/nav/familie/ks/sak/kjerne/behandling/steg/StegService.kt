@@ -16,7 +16,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg.JOURNALFØR_V
 import no.nav.familie.ks.sak.kjerne.behandling.steg.iverksettmotoppdrag.IverksettMotOppdragTask
 import no.nav.familie.ks.sak.kjerne.behandling.steg.journalførvedtaksbrev.JournalførVedtaksbrevTask
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.VedtakRepository
-import no.nav.familie.ks.sak.kjerne.tilbakekreving.SendOpprettTilbakekrevingBehandlingRequestTask
+import no.nav.familie.ks.sak.kjerne.tilbakekreving.SendOpprettTilbakekrevingsbehandlingRequestTask
 import no.nav.familie.ks.sak.kjerne.tilbakekreving.domene.TilbakekrevingRepository
 import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext
 import no.nav.familie.ks.sak.statistikk.saksstatistikk.SakStatistikkService
@@ -199,7 +199,7 @@ class StegService(
                 )
                 return@let // tilbakekreving task blir ikke opprettet
             }
-            taskService.save(SendOpprettTilbakekrevingBehandlingRequestTask.opprettTask(behandlingId))
+            taskService.save(SendOpprettTilbakekrevingsbehandlingRequestTask.opprettTask(behandlingId))
         }
         when (behandling.steg) {
             JOURNALFØR_VEDTAKSBREV -> {

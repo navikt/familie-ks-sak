@@ -10,11 +10,11 @@ import java.util.Properties
 
 @Service
 @TaskStepBeskrivelse(
-    taskStepType = SendOpprettTilbakekrevingBehandlingRequestTask.TASK_STEP_TYPE,
+    taskStepType = SendOpprettTilbakekrevingsbehandlingRequestTask.TASK_STEP_TYPE,
     beskrivelse = "Kaller familie-tilbake for å sende OpprettTilbakekreving request",
     maxAntallFeil = 3
 )
-class SendOpprettTilbakekrevingBehandlingRequestTask(
+class SendOpprettTilbakekrevingsbehandlingRequestTask(
     private val behandlingRepository: BehandlingRepository,
     private val tilbakekrevingService: TilbakekrevingService
 ) : AsyncTaskStep {
@@ -32,7 +32,7 @@ class SendOpprettTilbakekrevingBehandlingRequestTask(
 
     companion object {
         const val TASK_STEP_TYPE = "send.opprett.tilbakekrevingsbehandling.request"
-        private val logger = LoggerFactory.getLogger(SendOpprettTilbakekrevingBehandlingRequestTask::class.java)
+        private val logger = LoggerFactory.getLogger(SendOpprettTilbakekrevingsbehandlingRequestTask::class.java)
 
         fun opprettTask(behandlingId: Long) = Task(
             type = TASK_STEP_TYPE,
