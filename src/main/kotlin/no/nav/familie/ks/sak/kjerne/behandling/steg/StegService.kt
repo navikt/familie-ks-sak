@@ -1,5 +1,6 @@
 package no.nav.familie.ks.sak.kjerne.behandling.steg
 
+import no.nav.familie.kontrakter.felles.tilbakekreving.Tilbakekrevingsvalg
 import no.nav.familie.ks.sak.api.dto.BehandlingStegDto
 import no.nav.familie.ks.sak.api.dto.BesluttVedtakDto
 import no.nav.familie.ks.sak.common.exception.Feil
@@ -15,6 +16,8 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg.JOURNALFØR_V
 import no.nav.familie.ks.sak.kjerne.behandling.steg.iverksettmotoppdrag.IverksettMotOppdragTask
 import no.nav.familie.ks.sak.kjerne.behandling.steg.journalførvedtaksbrev.JournalførVedtaksbrevTask
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.VedtakRepository
+import no.nav.familie.ks.sak.kjerne.tilbakekreving.SendOpprettTilbakekrevingsbehandlingRequestTask
+import no.nav.familie.ks.sak.kjerne.tilbakekreving.domene.TilbakekrevingRepository
 import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext
 import no.nav.familie.ks.sak.statistikk.saksstatistikk.SakStatistikkService
 import no.nav.familie.prosessering.internal.TaskService
@@ -28,6 +31,7 @@ class StegService(
     private val steg: List<IBehandlingSteg>,
     private val behandlingRepository: BehandlingRepository,
     private val vedtakRepository: VedtakRepository,
+    private val tilbakekrevingRepository: TilbakekrevingRepository,
     private val sakStatistikkService: SakStatistikkService,
     private val taskService: TaskService
 ) {
@@ -185,6 +189,19 @@ class StegService(
     // Denne metoden kalles av HentStatusFraOppdragTask for å sende behandling videre etter OK status fra oppdrag er mottatt
     fun utførStegEtterIverksettelseAutomatisk(behandlingId: Long) {
         val behandling = behandlingRepository.hentAktivBehandling(behandlingId)
+
+        // opprett tilbakekreving task om det finnes en tilbakekrevingsvalg
+        tilbakekrevingRepository.findByBehandlingId(behandlingId)?.let {
+            when (it.valg) {
+                Tilbakekrevingsvalg.IGNORER_TILBAKEKREVING -> {
+                    logger.info(
+                        """Tilbakekrevingsvalg er ${it.valg.name} for behandling $behandlingId.
+                            Oppretter ikke tilbakekrevingsbehandling"""
+                    )
+                }
+                else -> taskService.save(SendOpprettTilbakekrevingsbehandlingRequestTask.opprettTask(behandlingId))
+            }
+        }
         when (behandling.steg) {
             JOURNALFØR_VEDTAKSBREV -> {
                 // JournalførVedtaksbrevTask -> DistribuerBrevTask -> AvsluttBehandlingTask for å avslutte behandling automatisk
