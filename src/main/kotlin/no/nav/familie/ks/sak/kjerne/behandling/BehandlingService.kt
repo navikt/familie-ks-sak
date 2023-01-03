@@ -12,6 +12,7 @@ import no.nav.familie.ks.sak.api.mapper.BehandlingMapper.lagPersonerMedAndelTilk
 import no.nav.familie.ks.sak.api.mapper.SøknadGrunnlagMapper.tilSøknadDto
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.ArbeidsfordelingService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
+import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingKategori
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat
@@ -33,6 +34,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 import java.math.BigInteger
 
 @Service
@@ -171,6 +173,22 @@ class BehandlingService(
 
     fun hentAktivtFødselsnummerForBehandlinger(behandlingIder: List<Long>): Map<Long, String> =
         behandlingRepository.finnAktivtFødselsnummerForBehandlinger(behandlingIder).associate { it.first to it.second }
+
+    @Transactional
+    fun endreBehandlingstemaPåBehandling(behandlingId: Long, overstyrtKategori: BehandlingKategori): Behandling {
+        val behandling = hentBehandling(behandlingId)
+
+        if (overstyrtKategori == behandling.kategori) return behandling
+
+        loggService.opprettEndretBehandlingstemaLogg(
+            behandling = behandling,
+            forrigeKategori = behandling.kategori,
+            nyKategori = overstyrtKategori,
+        )
+
+        behandling.kategori = overstyrtKategori
+        return oppdaterBehandling(behandling)
+    }
 
     companion object {
         private val logger: Logger = LoggerFactory.getLogger(BehandlingService::class.java)
