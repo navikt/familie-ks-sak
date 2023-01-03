@@ -367,7 +367,7 @@ class LoggServiceTest {
     }
 
     @Test
-    fun `opprettSendTilBeslutterLogg - skal lagre logg på at behandlingstema er endret`() {
+    fun `opprettEndretBehandlingstemaLogg - skal lagre logg på at behandlingstema er endret`() {
         val behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD)
 
         every { loggRepository.save(any()) } returnsArgument 0
