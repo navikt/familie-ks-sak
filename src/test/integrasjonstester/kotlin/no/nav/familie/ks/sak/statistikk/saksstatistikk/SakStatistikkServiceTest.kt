@@ -71,7 +71,7 @@ class SakStatistikkServiceTest : OppslagSpringRunnerTest() {
         assertEquals(behandling.resultat, tilstand.behandlingsResultat)
         assertEquals(behandling.type, tilstand.behandlingType)
 
-        //sjekk at datoer er konvertert riktig til offest
+        // sjekk at datoer er konvertert riktig til offest
         assertEquals(
             behandling.endretTidspunkt.truncatedTo(ChronoUnit.MILLIS),
             tilstand.funksjoneltTidspunkt.toLocalDateTime().truncatedTo(ChronoUnit.MILLIS)
