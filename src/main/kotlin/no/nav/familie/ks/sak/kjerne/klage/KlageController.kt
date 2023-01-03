@@ -24,14 +24,14 @@ class KlageController(
 ) {
 
     @PostMapping("/{fagsakId}/opprett-klagebehandling")
-    fun opprettKlage(@PathVariable fagsakId: Long, @RequestBody opprettKlageDto: OpprettKlageDto) {
+    fun opprettKlage(@PathVariable fagsakId: Long, @RequestBody opprettKlageDto: OpprettKlageDto): Ressurs<Unit> {
         tilgangService.validerTilgangTilHandlingOgFagsak(
             fagsakId = fagsakId,
             event = AuditLoggerEvent.CREATE,
             minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
             handling = "Vis og lagre vedtaksbrev"
         )
-        return klageService.opprettKlage(fagsakId, opprettKlageDto)
+        return Ressurs.success(klageService.opprettKlage(fagsakId, opprettKlageDto))
     }
 
     @GetMapping("/{fagsakId}/hent-klagebehandlinger")
