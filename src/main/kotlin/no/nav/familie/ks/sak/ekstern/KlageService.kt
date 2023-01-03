@@ -9,7 +9,7 @@ import no.nav.familie.kontrakter.felles.klage.Opprettet
 import no.nav.familie.ks.sak.api.dto.OpprettBehandlingDto
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.OpprettBehandlingService
-import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
+import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingKategori
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingType
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import no.nav.familie.ks.sak.kjerne.fagsak.FagsakService
@@ -19,7 +19,7 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
 @Service
-class EksternBehandlingService(
+class KlageService(
     private val behandlingService: BehandlingService,
     private val opprettBehandlingService: OpprettBehandlingService,
     private val fagsakService: FagsakService
@@ -39,22 +39,22 @@ class EksternBehandlingService(
     }
 
     @Transactional
-    fun opprettRevurderingKlage(behandlingId: Long?): OpprettRevurderingResponse {
-        if (behandlingId == null) return OpprettRevurderingResponse(IkkeOpprettet(IkkeOpprettetÅrsak.FEIL))
+    fun opprettRevurderingKlage(fagsakId: Long): OpprettRevurderingResponse {
+        val fagsak = fagsakService.hentFagsak(fagsakId)
 
-        val behandling = behandlingService.hentAktivtBehandling(behandlingId)
-
-        val resultat = utledKanOppretteRevurdering(behandling.fagsak)
+        val resultat = utledKanOppretteRevurdering(fagsak)
         return when (resultat) {
-            is KanOppretteRevurdering -> opprettRevurdering(behandling)
+            is KanOppretteRevurdering -> opprettRevurdering(fagsak)
             is KanIkkeOppretteRevurdering -> OpprettRevurderingResponse(IkkeOpprettet(resultat.årsak.ikkeOpprettetÅrsak))
         }
     }
 
-    private fun opprettRevurdering(behandling: Behandling) = try {
+    private fun opprettRevurdering(fagsak: Fagsak) = try {
+        val forrigeBehandling = behandlingService.hentSisteBehandlingSomErVedtatt(fagsakId = fagsak.id)
+
         val behandlingDto = OpprettBehandlingDto(
-            kategori = behandling.kategori,
-            søkersIdent = behandling.fagsak.aktør.aktivFødselsnummer(),
+            kategori = forrigeBehandling?.kategori ?: BehandlingKategori.NASJONAL,
+            søkersIdent = fagsak.aktør.aktivFødselsnummer(),
             behandlingType = BehandlingType.REVURDERING,
             behandlingÅrsak = BehandlingÅrsak.KLAGE
         )
@@ -62,8 +62,8 @@ class EksternBehandlingService(
         val revurdering = opprettBehandlingService.opprettBehandling(behandlingDto)
         OpprettRevurderingResponse(Opprettet(revurdering.id.toString()))
     } catch (e: Exception) {
-        logger.error("Feilet opprettelse av revurdering for behandling=$behandling, se secure logg for detaljer")
-        secureLogger.error("Feilet opprettelse av revurdering for behandling=$behandling", e)
+        logger.error("Feilet opprettelse av revurdering for fagsak=${fagsak.id}, se secure logg for detaljer")
+        secureLogger.error("Feilet opprettelse av revurdering for fagsak=$fagsak", e)
         OpprettRevurderingResponse(IkkeOpprettet(IkkeOpprettetÅrsak.FEIL, e.message))
     }
 

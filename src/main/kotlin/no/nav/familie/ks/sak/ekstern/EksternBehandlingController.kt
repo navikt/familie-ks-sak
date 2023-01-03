@@ -24,7 +24,7 @@ import org.springframework.web.bind.annotation.RestController
 @ProtectedWithClaims(issuer = "azuread")
 class EksternBehandlingController(
     private val tilgangService: TilgangService,
-    private val eksternBehandlingService: EksternBehandlingService
+    private val klageService: KlageService
 ) {
 
     @GetMapping("kan-opprette-revurdering-klage/{fagsakId}")
@@ -40,14 +40,14 @@ class EksternBehandlingController(
             throw Feil("Kallet utføres ikke av en autorisert klient")
         }
 
-        return Ressurs.success(eksternBehandlingService.kanOppretteRevurdering(fagsakId))
+        return Ressurs.success(klageService.kanOppretteRevurdering(fagsakId))
     }
 
-    @PostMapping("opprett-revurdering-klage/{behandlingId}")
-    fun opprettRevurderingKlage(@PathVariable behandlingId: Long): Ressurs<OpprettRevurderingResponse> {
-        tilgangService.validerTilgangTilHandlingOgFagsakForBehandling(
-            behandlingId = behandlingId,
-            handling = "Opprett revurdering fra klage på behandling=$behandlingId",
+    @PostMapping("opprett-revurdering-klage/{fagsakId}")
+    fun opprettRevurderingKlage(@PathVariable fagsakId: Long): Ressurs<OpprettRevurderingResponse> {
+        tilgangService.validerTilgangTilHandlingOgFagsak(
+            fagsakId = fagsakId,
+            handling = "Opprett revurdering fra klage på fagsak=$fagsakId",
             event = AuditLoggerEvent.CREATE,
             minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER
         )
@@ -55,6 +55,6 @@ class EksternBehandlingController(
         if (!SikkerhetContext.kallKommerFraKlage()) {
             throw Feil("Kallet utføres ikke av en autorisert klient")
         }
-        return Ressurs.success(eksternBehandlingService.opprettRevurderingKlage(behandlingId))
+        return Ressurs.success(klageService.opprettRevurderingKlage(fagsakId))
     }
 }
