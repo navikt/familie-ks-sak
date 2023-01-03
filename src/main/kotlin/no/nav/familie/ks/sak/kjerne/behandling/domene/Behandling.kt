@@ -1,6 +1,7 @@
 package no.nav.familie.ks.sak.kjerne.behandling.domene
 
 import no.nav.familie.kontrakter.felles.dokarkiv.Dokumenttype
+import no.nav.familie.kontrakter.felles.tilbakekreving.Regelverk
 import no.nav.familie.ks.sak.common.entitet.BaseEntitet
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingType.FØRSTEGANGSBEHANDLING
@@ -245,6 +246,11 @@ enum class BehandlingKategori(val visningsnavn: String, val nivå: Int) {
             EØS -> OppgaveBehandlingType.EØS
             NASJONAL -> OppgaveBehandlingType.NASJONAL
         }
+    }
+
+    fun tilRegelverk(): Regelverk = when (this) {
+        EØS -> Regelverk.EØS
+        NASJONAL -> Regelverk.NASJONAL
     }
 }
 
