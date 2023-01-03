@@ -1,5 +1,6 @@
 package no.nav.familie.ks.sak.kjerne.behandling
 
+import io.mockk.called
 import io.mockk.every
 import io.mockk.impl.annotations.InjectMockKs
 import io.mockk.impl.annotations.MockK
@@ -22,6 +23,7 @@ import no.nav.familie.ks.sak.data.lagPersonopplysningGrunnlag
 import no.nav.familie.ks.sak.data.randomAktør
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.ArbeidsfordelingService
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.domene.ArbeidsfordelingPåBehandling
+import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingKategori
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
@@ -109,8 +111,10 @@ class BehandlingServiceTest {
         )
         every { arbeidsfordelingService.manueltOppdaterBehandlendeEnhet(any(), any()) } just runs
         every { statsborgerskapService.hentLand(any()) } returns "Norge"
-        every { personopplysningGrunnlagService.finnAktivPersonopplysningGrunnlag(any()) } returns
-            lagPersonopplysningGrunnlag(behandlingId = behandling.id, søkerPersonIdent = søkersIdent)
+        every { personopplysningGrunnlagService.finnAktivPersonopplysningGrunnlag(any()) } returns lagPersonopplysningGrunnlag(
+            behandlingId = behandling.id,
+            søkerPersonIdent = søkersIdent
+        )
         every { vilkårsvurderingService.finnAktivVilkårsvurdering(any()) } returns null
         every { søknadGrunnlagService.finnAktiv(any()) } returns søknadsgrunnlagMockK
         mockkObject(SøknadGrunnlagMapper)
@@ -130,8 +134,9 @@ class BehandlingServiceTest {
         every { vedtaksperiodeService.hentUtvidetVedtaksperioderMedBegrunnelser(any()) } returns emptyList()
         every { vedtaksperiodeService.finnEndringstidspunktForBehandling(any(), any()) } returns TIDENES_MORGEN
 
-        every { andelTilkjentYtelseRepository.finnAndelerTilkjentYtelseForBehandling(behandling.id) } returns
-            listOf(lagAndelTilkjentYtelse(behandling = behandling))
+        every { andelTilkjentYtelseRepository.finnAndelerTilkjentYtelseForBehandling(behandling.id) } returns listOf(
+            lagAndelTilkjentYtelse(behandling = behandling)
+        )
         every {
             andelerTilkjentYtelseOgEndreteUtbetalingerService
                 .finnAndelerTilkjentYtelseMedEndreteUtbetalinger(behandling.id)
@@ -194,5 +199,51 @@ class BehandlingServiceTest {
         }
         verify(exactly = 1) { loggService.opprettVilkårsvurderingLogg(any(), any(), any()) }
         assertEquals(Behandlingsresultat.INNVILGET, oppdatertBehandling.resultat)
+    }
+
+    @Test
+    fun `oppdaterBehandlingstemaManuelt skal oppdatere kategori og opprette logg hvis overstyrt kategori er annerledes`() {
+        every {
+            loggService.opprettEndretBehandlingstemaLogg(
+                any(), BehandlingKategori.NASJONAL, BehandlingKategori.EØS
+            )
+        } returns mockk()
+
+        every { behandlingRepository.hentBehandling(behandling.id) } returns behandling
+        every { behandlingRepository.save(behandling) } returns behandling
+
+        val oppdatertBehandling =
+            behandlingService.endreBehandlingstemaPåBehandling(behandlingId = behandling.id, BehandlingKategori.EØS)
+
+        assertEquals(oppdatertBehandling.kategori, BehandlingKategori.EØS)
+
+        verify(exactly = 1) { behandlingRepository.hentBehandling(behandling.id) }
+        verify(exactly = 1) {
+            loggService.opprettEndretBehandlingstemaLogg(
+                any(), BehandlingKategori.NASJONAL, BehandlingKategori.EØS
+            )
+        }
+        verify(exactly = 1) { behandlingRepository.save(behandling) }
+    }
+
+    @Test
+    fun `oppdaterBehandlingstemaManuelt skal ikke oppdatere kategori og opprette logg hvis overstyrt kategori er lik`() {
+        every { behandlingRepository.hentBehandling(behandling.id) } returns behandling
+
+        val oppdatertBehandling =
+            behandlingService.endreBehandlingstemaPåBehandling(
+                behandlingId = behandling.id,
+                BehandlingKategori.NASJONAL
+            )
+
+        assertEquals(oppdatertBehandling.kategori, BehandlingKategori.NASJONAL)
+
+        verify(exactly = 1) { behandlingRepository.hentBehandling(behandling.id) }
+        verify {
+            loggService.opprettEndretBehandlingstemaLogg(
+                any(), BehandlingKategori.NASJONAL, BehandlingKategori.EØS
+            ) wasNot called
+        }
+        verify { behandlingRepository.save(behandling) wasNot called }
     }
 }

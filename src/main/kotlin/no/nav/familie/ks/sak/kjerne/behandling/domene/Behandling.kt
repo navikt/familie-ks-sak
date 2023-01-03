@@ -254,7 +254,7 @@ enum class BehandlingKategori(val visningsnavn: String, val nivå: Int) {
     }
 }
 
-fun List<BehandlingKategori>.finnHøyesteKategori(): BehandlingKategori? = this.maxByOrNull { it.nivå }
+fun List<BehandlingKategori>.finnHøyesteKategori(): BehandlingKategori = this.maxBy { it.nivå }
 
 enum class BehandlingStatus {
     OPPRETTET,
