@@ -10,6 +10,7 @@ import no.nav.familie.ks.sak.config.RolleConfig
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.domene.ArbeidsfordelingsEnhet
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.domene.ArbeidsfordelingPåBehandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
+import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingKategori
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Beslutning
 import no.nav.familie.ks.sak.kjerne.logg.domene.Logg
@@ -321,6 +322,23 @@ class LoggService(
             )
         )
     }
+
+    fun opprettEndretBehandlingstemaLogg(
+        behandling: Behandling,
+        forrigeKategori: BehandlingKategori,
+        nyKategori: BehandlingKategori
+    ) =
+        lagreLogg(
+            Logg(
+                behandlingId = behandling.id,
+                type = LoggType.BEHANDLINGSTEMA_ENDRET,
+                rolle = SikkerhetContext.hentRolletilgangFraSikkerhetscontext(
+                    rolleConfig,
+                    BehandlerRolle.SAKSBEHANDLER
+                ),
+                tekst = "Behandlingstema er manuelt endret fra $forrigeKategori ordinær til $nyKategori ordinær"
+            )
+        )
 
     companion object {
         private val logger = LoggerFactory.getLogger(LoggService::class.java)

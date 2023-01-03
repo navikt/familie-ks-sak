@@ -6,13 +6,17 @@ import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.common.tidslinje.TidslinjePeriodeMedDato
 import no.nav.familie.ks.sak.common.tidslinje.validerIngenOverlapp
 import no.nav.familie.ks.sak.common.util.TIDENES_ENDE
+import no.nav.familie.ks.sak.common.util.sisteDagIMåned
 import no.nav.familie.ks.sak.common.util.slåSammen
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
+import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingKategori
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
+import no.nav.familie.ks.sak.kjerne.behandling.domene.finnHøyesteKategori
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg
 import no.nav.familie.ks.sak.kjerne.behandling.steg.IBehandlingSteg
 import no.nav.familie.ks.sak.kjerne.behandling.steg.registrersøknad.SøknadGrunnlagService
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Regelverk
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.UtdypendeVilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
@@ -48,7 +52,41 @@ class VilkårsvurderingSteg(
 
         validerVilkårsvurdering(vilkårsvurdering, personopplysningGrunnlag, søknadDto, behandling)
 
+        settBehandlingstemaBasertPåVilkårsvurdering(behandling, vilkårsvurdering)
+
         beregningService.oppdaterTilkjentYtelsePåBehandling(behandling, personopplysningGrunnlag, vilkårsvurdering)
+    }
+
+    private fun settBehandlingstemaBasertPåVilkårsvurdering(
+        nåværendeBehandling: Behandling,
+        nåværendeVilkårsvurdering: Vilkårsvurdering
+    ) {
+        val nåværendeVilkårVurderesEtterEøs = nåværendeVilkårsvurdering.personResultater.flatMap { it.vilkårResultater }
+            .filter { it.behandlingId == nåværendeBehandling.id }
+            .any { it.vurderesEtter == Regelverk.EØS_FORORDNINGEN }
+
+        val kategoriForNåværendeBehandling =
+            if (nåværendeVilkårVurderesEtterEøs) BehandlingKategori.EØS else BehandlingKategori.NASJONAL
+
+        val forrigeVedtatteBehandling = behandlingService.hentSisteBehandlingSomErVedtatt(nåværendeBehandling.fagsak.id)
+
+        val kategoriFraForrigeVedtatteBehandling =
+            forrigeVedtatteBehandling?.let { forrigeBehandling ->
+
+                // Vi sjekker om vi har løpende EØS vilkårresultater fra forrige behandling
+                val harLøpendeEøsUtbetalingIForrigeVedtattBehandling =
+                    vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(forrigeBehandling.id)
+                        .personResultater.flatMap { it.vilkårResultater }
+                        .filter { (it.periodeTom ?: TIDENES_ENDE).isAfter(LocalDate.now().sisteDagIMåned()) }
+                        .any { it.vurderesEtter == Regelverk.EØS_FORORDNINGEN }
+
+                if (harLøpendeEøsUtbetalingIForrigeVedtattBehandling) BehandlingKategori.EØS else BehandlingKategori.NASJONAL
+            } ?: BehandlingKategori.NASJONAL
+
+        val kategoriSomSkalBrukes =
+            listOf(kategoriForNåværendeBehandling, kategoriFraForrigeVedtatteBehandling).finnHøyesteKategori()
+
+        behandlingService.endreBehandlingstemaPåBehandling(nåværendeBehandling.id, kategoriSomSkalBrukes)
     }
 
     fun validerVilkårsvurdering(

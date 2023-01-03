@@ -23,10 +23,12 @@ import no.nav.familie.ks.sak.data.lagVilkårResultaterForBarn
 import no.nav.familie.ks.sak.data.lagVilkårsvurderingMedSøkersVilkår
 import no.nav.familie.ks.sak.data.randomAktør
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
+import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingKategori
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.registrersøknad.SøknadGrunnlagService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.registrersøknad.domene.SøknadGrunnlag
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.PersonResultat
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Regelverk
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.UtdypendeVilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
@@ -421,6 +423,233 @@ class VilkårsvurderingStegTest {
         vilkårsvurderingForSøker.personResultater = setOf(søkerPersonResultat, barnPersonResultat)
 
         every { vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(behandling.id) } returns vilkårsvurderingForSøker
+        every { behandlingService.hentSisteBehandlingSomErVedtatt(behandling.fagsak.id) } returns null
+        every {
+            behandlingService.endreBehandlingstemaPåBehandling(
+                any(),
+                BehandlingKategori.NASJONAL
+            )
+        } returns behandling
+
+        vilkårsvurderingSteg.utførSteg(behandling.id)
+
+        verify(exactly = 1) { behandlingService.hentBehandling(behandling.id) }
+        verify(exactly = 1) { personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(any()) }
+        verify(exactly = 1) { vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(behandling.id) }
+        verify(exactly = 1) { søknadGrunnlagService.finnAktiv(behandling.id) }
+    }
+
+    @Test
+    fun `utførSteg - skal oppdatere behandlingstema med EØS hvis nåværende behandling inneholder vilkår vurdert etter EØS ordningen`() {
+        val vilkårsvurderingForSøker = Vilkårsvurdering(behandling = behandling)
+        val søkerPersonResultat = PersonResultat(vilkårsvurdering = vilkårsvurderingForSøker, aktør = søker)
+        val barnPersonResultat = PersonResultat(vilkårsvurdering = vilkårsvurderingForSøker, aktør = barn)
+
+        søkerPersonResultat.setSortedVilkårResultater(
+            setOf(
+                VilkårResultat(
+                    personResultat = søkerPersonResultat,
+                    vilkårType = Vilkår.BOSATT_I_RIKET,
+                    resultat = Resultat.OPPFYLT,
+                    periodeFom = LocalDate.of(2018, 12, 12),
+                    periodeTom = LocalDate.of(2022, 10, 12),
+                    vurderesEtter = Regelverk.EØS_FORORDNINGEN,
+                    begrunnelse = "",
+                    behandlingId = behandling.id
+                )
+            )
+        )
+        val barnFødselsDato = LocalDate.now().minusYears(2)
+        val vilkårResultaterForBarn = lagVilkårResultaterForBarn(
+            personResultat = barnPersonResultat,
+            barnFødselsdato = barnFødselsDato,
+            barnehageplassPerioder = listOf(
+                NullablePeriode(barnFødselsDato.plusYears(1), barnFødselsDato.plusYears(2)) to null
+            ),
+            behandlingId = behandling.id
+        )
+        barnPersonResultat.setSortedVilkårResultater(vilkårResultaterForBarn)
+        vilkårsvurderingForSøker.personResultater = setOf(søkerPersonResultat, barnPersonResultat)
+
+        every { vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(behandling.id) } returns vilkårsvurderingForSøker
+        every { behandlingService.hentSisteBehandlingSomErVedtatt(behandling.fagsak.id) } returns null
+        every { behandlingService.endreBehandlingstemaPåBehandling(any(), BehandlingKategori.EØS) } returns behandling
+
+        vilkårsvurderingSteg.utførSteg(behandling.id)
+
+        verify(exactly = 1) { behandlingService.hentBehandling(behandling.id) }
+        verify(exactly = 1) { personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(any()) }
+        verify(exactly = 1) { vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(behandling.id) }
+        verify(exactly = 1) { søknadGrunnlagService.finnAktiv(behandling.id) }
+        verify(exactly = 1) { behandlingService.endreBehandlingstemaPåBehandling(any(), BehandlingKategori.EØS) }
+    }
+
+    @Test
+    fun `utførSteg - skal oppdatere behandlingstema med EØS hvis forrige behandling inneholder løpende vilkår vurdert etter EØS ordningen`() {
+        val vilkårsvurderingForSøker = Vilkårsvurdering(behandling = behandling)
+        val søkerPersonResultat = PersonResultat(vilkårsvurdering = vilkårsvurderingForSøker, aktør = søker)
+        val barnPersonResultat = PersonResultat(vilkårsvurdering = vilkårsvurderingForSøker, aktør = barn)
+
+        søkerPersonResultat.setSortedVilkårResultater(
+            setOf(
+                VilkårResultat(
+                    personResultat = søkerPersonResultat,
+                    vilkårType = Vilkår.BOSATT_I_RIKET,
+                    resultat = Resultat.OPPFYLT,
+                    vurderesEtter = Regelverk.NASJONALE_REGLER,
+                    periodeFom = LocalDate.of(2018, 12, 12),
+                    periodeTom = LocalDate.of(2022, 10, 12),
+                    begrunnelse = "",
+                    behandlingId = behandling.id
+                )
+            )
+        )
+        val barnFødselsDato = LocalDate.now().minusYears(2)
+        val vilkårResultaterForBarn = lagVilkårResultaterForBarn(
+            personResultat = barnPersonResultat,
+            barnFødselsdato = barnFødselsDato,
+            barnehageplassPerioder = listOf(
+                NullablePeriode(barnFødselsDato.plusYears(1), barnFødselsDato.plusYears(2)) to null
+            ),
+            behandlingId = behandling.id
+        )
+        barnPersonResultat.setSortedVilkårResultater(vilkårResultaterForBarn)
+        vilkårsvurderingForSøker.personResultater = setOf(søkerPersonResultat, barnPersonResultat)
+
+        val forrigeBehandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD)
+        val forrigeVilkårsvurderingForSøker = Vilkårsvurdering(behandling = behandling)
+        val søkerPersonResultatIForrigeVilkårsvurdering =
+            PersonResultat(vilkårsvurdering = forrigeVilkårsvurderingForSøker, aktør = søker)
+        val barnPersonResultatIForrigeVilkårsvurdering =
+            PersonResultat(vilkårsvurdering = forrigeVilkårsvurderingForSøker, aktør = barn)
+
+        søkerPersonResultatIForrigeVilkårsvurdering.setSortedVilkårResultater(
+            setOf(
+                VilkårResultat(
+                    personResultat = søkerPersonResultatIForrigeVilkårsvurdering,
+                    vilkårType = Vilkår.BOSATT_I_RIKET,
+                    resultat = Resultat.OPPFYLT,
+                    periodeFom = LocalDate.of(2018, 12, 12),
+                    periodeTom = LocalDate.of(2099, 10, 12),
+                    vurderesEtter = Regelverk.EØS_FORORDNINGEN,
+                    begrunnelse = "",
+                    behandlingId = behandling.id
+                )
+            )
+        )
+
+        val barnIForrigeVilkårsvurderingFødselsDato = LocalDate.now().minusYears(2)
+        val vilkårResultaterForBarnIForrigeVilkårsvurdering = lagVilkårResultaterForBarn(
+            personResultat = barnPersonResultatIForrigeVilkårsvurdering,
+            barnFødselsdato = barnIForrigeVilkårsvurderingFødselsDato,
+            barnehageplassPerioder = listOf(
+                NullablePeriode(
+                    barnIForrigeVilkårsvurderingFødselsDato.plusYears(1),
+                    barnIForrigeVilkårsvurderingFødselsDato.plusYears(2)
+                ) to null
+            ),
+            behandlingId = forrigeBehandling.id
+        )
+        barnPersonResultatIForrigeVilkårsvurdering.setSortedVilkårResultater(
+            vilkårResultaterForBarnIForrigeVilkårsvurdering
+        )
+        forrigeVilkårsvurderingForSøker.personResultater =
+            setOf(søkerPersonResultatIForrigeVilkårsvurdering, barnPersonResultatIForrigeVilkårsvurdering)
+
+        every { vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(behandling.id) } returns vilkårsvurderingForSøker
+        every { vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(forrigeBehandling.id) } returns forrigeVilkårsvurderingForSøker
+        every { behandlingService.hentSisteBehandlingSomErVedtatt(behandling.fagsak.id) } returns forrigeBehandling
+        every { behandlingService.endreBehandlingstemaPåBehandling(any(), BehandlingKategori.EØS) } returns behandling
+
+        vilkårsvurderingSteg.utførSteg(behandling.id)
+
+        verify(exactly = 1) { behandlingService.hentBehandling(behandling.id) }
+        verify(exactly = 1) { personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(any()) }
+        verify(exactly = 1) { vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(behandling.id) }
+        verify(exactly = 1) { søknadGrunnlagService.finnAktiv(behandling.id) }
+    }
+
+    @Test
+    fun `utførSteg - skal ikke oppdatere behandlingstema med EØS hvis forrige behandling inneholder løpende vilkår vurdert etter EØS ordningen men som er utløpt`() {
+        val vilkårsvurderingForSøker = Vilkårsvurdering(behandling = behandling)
+        val søkerPersonResultat = PersonResultat(vilkårsvurdering = vilkårsvurderingForSøker, aktør = søker)
+        val barnPersonResultat = PersonResultat(vilkårsvurdering = vilkårsvurderingForSøker, aktør = barn)
+
+        søkerPersonResultat.setSortedVilkårResultater(
+            setOf(
+                VilkårResultat(
+                    personResultat = søkerPersonResultat,
+                    vilkårType = Vilkår.BOSATT_I_RIKET,
+                    resultat = Resultat.OPPFYLT,
+                    vurderesEtter = Regelverk.NASJONALE_REGLER,
+                    periodeFom = LocalDate.of(2018, 12, 12),
+                    periodeTom = LocalDate.of(2022, 10, 12),
+                    begrunnelse = "",
+                    behandlingId = behandling.id
+                )
+            )
+        )
+        val barnFødselsDato = LocalDate.now().minusYears(2)
+        val vilkårResultaterForBarn = lagVilkårResultaterForBarn(
+            personResultat = barnPersonResultat,
+            barnFødselsdato = barnFødselsDato,
+            barnehageplassPerioder = listOf(
+                NullablePeriode(barnFødselsDato.plusYears(1), barnFødselsDato.plusYears(2)) to null
+            ),
+            behandlingId = behandling.id
+        )
+        barnPersonResultat.setSortedVilkårResultater(vilkårResultaterForBarn)
+        vilkårsvurderingForSøker.personResultater = setOf(søkerPersonResultat, barnPersonResultat)
+
+        val forrigeBehandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD)
+        val forrigeVilkårsvurderingForSøker = Vilkårsvurdering(behandling = behandling)
+        val søkerPersonResultatIForrigeVilkårsvurdering =
+            PersonResultat(vilkårsvurdering = forrigeVilkårsvurderingForSøker, aktør = søker)
+        val barnPersonResultatIForrigeVilkårsvurdering =
+            PersonResultat(vilkårsvurdering = forrigeVilkårsvurderingForSøker, aktør = barn)
+
+        søkerPersonResultatIForrigeVilkårsvurdering.setSortedVilkårResultater(
+            setOf(
+                VilkårResultat(
+                    personResultat = søkerPersonResultatIForrigeVilkårsvurdering,
+                    vilkårType = Vilkår.BOSATT_I_RIKET,
+                    resultat = Resultat.OPPFYLT,
+                    periodeFom = LocalDate.of(2018, 12, 12),
+                    periodeTom = LocalDate.of(2019, 10, 12),
+                    vurderesEtter = Regelverk.EØS_FORORDNINGEN,
+                    begrunnelse = "",
+                    behandlingId = behandling.id
+                )
+            )
+        )
+
+        val barnIForrigeVilkårsvurderingFødselsDato = LocalDate.now().minusYears(2)
+        val vilkårResultaterForBarnIForrigeVilkårsvurdering = lagVilkårResultaterForBarn(
+            personResultat = barnPersonResultatIForrigeVilkårsvurdering,
+            barnFødselsdato = barnIForrigeVilkårsvurderingFødselsDato,
+            barnehageplassPerioder = listOf(
+                NullablePeriode(
+                    barnIForrigeVilkårsvurderingFødselsDato.plusYears(1),
+                    barnIForrigeVilkårsvurderingFødselsDato.plusYears(2)
+                ) to null
+            ),
+            behandlingId = forrigeBehandling.id
+        )
+        barnPersonResultatIForrigeVilkårsvurdering.setSortedVilkårResultater(
+            vilkårResultaterForBarnIForrigeVilkårsvurdering
+        )
+        forrigeVilkårsvurderingForSøker.personResultater =
+            setOf(søkerPersonResultatIForrigeVilkårsvurdering, barnPersonResultatIForrigeVilkårsvurdering)
+
+        every { vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(behandling.id) } returns vilkårsvurderingForSøker
+        every { vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(forrigeBehandling.id) } returns forrigeVilkårsvurderingForSøker
+        every { behandlingService.hentSisteBehandlingSomErVedtatt(behandling.fagsak.id) } returns forrigeBehandling
+        every {
+            behandlingService.endreBehandlingstemaPåBehandling(
+                any(),
+                BehandlingKategori.NASJONAL
+            )
+        } returns behandling
 
         vilkårsvurderingSteg.utførSteg(behandling.id)
 
