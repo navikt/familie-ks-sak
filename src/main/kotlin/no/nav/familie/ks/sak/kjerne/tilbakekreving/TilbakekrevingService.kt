@@ -100,7 +100,7 @@ class TilbakekrevingService(
     fun sendOpprettTilbakekrevingRequest(behandling: Behandling) =
         tilbakekrevingKlient.opprettTilbakekrevingBehandling(lagOpprettTilbakekrevingRequest(behandling))
 
-    fun opprettTilbakekrevingsbehandlingManuell(fagsakId: Long) {
+    fun opprettTilbakekrevingsbehandlingManuelt(fagsakId: Long) {
         val kanOpprettesRespons = tilbakekrevingKlient.kanTilbakekrevingsbehandlingOpprettesManuelt(fagsakId)
         if (!kanOpprettesRespons.kanBehandlingOpprettes) {
             throw FunksjonellFeil(

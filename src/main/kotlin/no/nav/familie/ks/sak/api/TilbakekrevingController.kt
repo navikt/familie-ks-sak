@@ -53,6 +53,6 @@ class TilbakekrevingController(
             minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
             handling = "opprette tilbakekrevingsbehandling manuelt"
         )
-        tilbakekrevingService.opprettTilbakekrevingsbehandlingManuell(fagsakIdDto.fagsakId)
+        tilbakekrevingService.opprettTilbakekrevingsbehandlingManuelt(fagsakIdDto.fagsakId)
     }
 }
