@@ -4,6 +4,7 @@ import no.nav.familie.kontrakter.felles.Ressurs
 import no.nav.familie.ks.sak.api.dto.BehandlingPåVentDto
 import no.nav.familie.ks.sak.api.dto.BehandlingResponsDto
 import no.nav.familie.ks.sak.api.dto.EndreBehandlendeEnhetDto
+import no.nav.familie.ks.sak.api.dto.EndreBehandlingstemaDto
 import no.nav.familie.ks.sak.api.dto.HenleggBehandlingDto
 import no.nav.familie.ks.sak.api.dto.LeggTilBarnDto
 import no.nav.familie.ks.sak.api.dto.OpprettBehandlingDto
@@ -187,5 +188,30 @@ class BehandlingController(
         )
         leggTilBarnService.leggTilBarn(behandlingId, leggTilBarnDto.barnIdent)
         return ResponseEntity.ok(Ressurs.success(behandlingService.lagBehandlingRespons(behandlingId = behandlingId)))
+    }
+
+    @PutMapping(path = ["/{behandlingId}/behandlingstema"], produces = [MediaType.APPLICATION_JSON_VALUE])
+    fun endreBehandlingstema(
+        @PathVariable behandlingId: Long,
+        @RequestBody endreBehandlingstemaDto: EndreBehandlingstemaDto
+    ): ResponseEntity<Ressurs<BehandlingResponsDto>> {
+        tilgangService.validerTilgangTilHandlingOgFagsakForBehandling(
+            behandlingId = behandlingId,
+            minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
+            event = AuditLoggerEvent.UPDATE,
+            handling = "Endre behandlingstema på behandling"
+        )
+
+        behandlingService.endreBehandlingstemaPåBehandling(
+            behandlingId = behandlingId,
+            overstyrtKategori = endreBehandlingstemaDto.behandlingKategori,
+        )
+
+        return ResponseEntity.ok(
+            Ressurs.success(
+                behandlingService
+                    .lagBehandlingRespons(behandlingId = behandlingId)
+            )
+        )
     }
 }
