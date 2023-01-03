@@ -45,7 +45,7 @@ class TilbakekrevingController(
         )
     }
 
-    @PostMapping(consumes = [MediaType.APPLICATION_JSON_VALUE])
+    @PostMapping("/manuell", consumes = [MediaType.APPLICATION_JSON_VALUE])
     fun opprettTilbakekrevingsbehandlingManuelt(@RequestBody fagsakIdDto: FagsakIdDto) {
         tilgangService.validerTilgangTilHandlingOgFagsak(
             fagsakId = fagsakIdDto.fagsakId,
