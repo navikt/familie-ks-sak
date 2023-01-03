@@ -16,6 +16,7 @@ import no.nav.familie.prosessering.internal.TaskService
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
+import java.time.temporal.ChronoUnit
 
 class SakStatistikkServiceTest : OppslagSpringRunnerTest() {
 
@@ -69,5 +70,11 @@ class SakStatistikkServiceTest : OppslagSpringRunnerTest() {
         assertEquals(true, tilstand.behandlingErManueltOpprettet)
         assertEquals(behandling.resultat, tilstand.behandlingsResultat)
         assertEquals(behandling.type, tilstand.behandlingType)
+
+        //sjekk at datoer er konvertert riktig til offest
+        assertEquals(
+            behandling.endretTidspunkt.truncatedTo(ChronoUnit.MILLIS),
+            tilstand.funksjoneltTidspunkt.toLocalDateTime().truncatedTo(ChronoUnit.MILLIS)
+        )
     }
 }
