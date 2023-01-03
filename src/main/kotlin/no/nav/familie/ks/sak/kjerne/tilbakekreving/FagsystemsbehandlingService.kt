@@ -27,10 +27,10 @@ class FagsystemsbehandlingService(
         logger.info("Henter behandling for behandlingId=${request.eksternId}")
         val behandling = behandlingService.hentBehandling(request.eksternId.toLong())
 
-        return lagRespons(request, behandling)
+        return lagHentFagsystembehandlingRespons(request, behandling)
     }
 
-    fun sendFagsystemsbehandling(
+    fun sendFagsystemsbehandlingRespons(
         respons: HentFagsystemsbehandlingRespons,
         key: String,
         behandlingId: String
@@ -38,15 +38,15 @@ class FagsystemsbehandlingService(
         kafkaProducer.sendFagsystemsbehandlingRespons(respons, key, behandlingId)
     }
 
-    private fun lagRespons(
+    private fun lagHentFagsystembehandlingRespons(
         request: HentFagsystemsbehandlingRequest,
         behandling: Behandling
     ): HentFagsystemsbehandlingRespons {
         val behandlingId = behandling.id
         val persongrunnlag = personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(behandlingId = behandlingId)
         val arbeidsfordeling = arbeidsfordelingService.hentArbeidsfordelingPåBehandling(behandlingId)
-        val aktivVedtak = vedtakService.hentAktivVedtakForBehandling(behandlingId)
-
+        val aktivVedtaksdato = vedtakService.hentAktivVedtakForBehandling(behandlingId).vedtaksdato?.toLocalDate()
+            ?: throw Feil("Finnes ikke vedtaksdato for behandling $behandlingId")
         val faktainfo = Faktainfo(
             revurderingsårsak = behandling.opprettetÅrsak.visningsnavn,
             revurderingsresultat = behandling.resultat.displayName,
@@ -62,8 +62,7 @@ class FagsystemsbehandlingService(
             språkkode = persongrunnlag.søker.målform.tilSpråkkode(),
             enhetId = arbeidsfordeling.behandlendeEnhetId,
             enhetsnavn = arbeidsfordeling.behandlendeEnhetNavn,
-            revurderingsvedtaksdato = aktivVedtak.vedtaksdato?.toLocalDate()
-                ?: throw Feil("Finnes ikke vedtaksdato for behandling $behandlingId"),
+            revurderingsvedtaksdato = aktivVedtaksdato,
             faktainfo = faktainfo,
             institusjon = null // alltid null for Kontantstøtte
         )

@@ -11,7 +11,6 @@ import org.springframework.context.annotation.Profile
 import org.springframework.kafka.annotation.KafkaListener
 import org.springframework.kafka.support.Acknowledgment
 import org.springframework.stereotype.Service
-import java.util.concurrent.CountDownLatch
 
 @Service
 @Profile("!integrasjonstest & !dev-postgres-preprod")
@@ -19,8 +18,6 @@ class HentFagsystemsbehandlingRequestConsumer(private val fagsystemsbehandlingSe
 
     private val logger = LoggerFactory.getLogger(this::class.java)
     private val secureLogger = LoggerFactory.getLogger("secureLogger")
-
-    var latch: CountDownLatch = CountDownLatch(1)
 
     @KafkaListener(
         id = "familie-ks-sak",
@@ -33,6 +30,7 @@ class HentFagsystemsbehandlingRequestConsumer(private val fagsystemsbehandlingSe
         val request = objectMapper.readValue(data, HentFagsystemsbehandlingRequest::class.java)
 
         if (request.ytelsestype != Ytelsestype.KONTANTSTØTTE) {
+            ack.acknowledge() // acknowledge slik at meldingen ikke leses av consumer igjen
             return
         }
         logger.info("HentFagsystemsbehandlingRequest er mottatt i kafka $consumerRecord med key $key")
@@ -48,8 +46,7 @@ class HentFagsystemsbehandlingRequestConsumer(private val fagsystemsbehandlingSe
             HentFagsystemsbehandlingRespons(feilMelding = e.message)
         }
         // Sender respons via kafka
-        fagsystemsbehandlingService.sendFagsystemsbehandling(fagsystemsbehandling, key, request.eksternId)
-        latch.countDown()
+        fagsystemsbehandlingService.sendFagsystemsbehandlingRespons(fagsystemsbehandling, key, request.eksternId)
         ack.acknowledge()
     }
 }
