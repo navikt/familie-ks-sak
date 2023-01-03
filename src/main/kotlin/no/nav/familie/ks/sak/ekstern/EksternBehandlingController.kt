@@ -24,7 +24,7 @@ import org.springframework.web.bind.annotation.RestController
 @ProtectedWithClaims(issuer = "azuread")
 class EksternBehandlingController(
     private val tilgangService: TilgangService,
-    private val klageService: KlageService
+    private val klageServiceEkstern: KlageServiceEkstern
 ) {
 
     @GetMapping("kan-opprette-revurdering-klage/{fagsakId}")
@@ -40,7 +40,7 @@ class EksternBehandlingController(
             throw Feil("Kallet utføres ikke av en autorisert klient")
         }
 
-        return Ressurs.success(klageService.kanOppretteRevurdering(fagsakId))
+        return Ressurs.success(klageServiceEkstern.kanOppretteRevurdering(fagsakId))
     }
 
     @PostMapping("opprett-revurdering-klage/{fagsakId}")
@@ -55,6 +55,6 @@ class EksternBehandlingController(
         if (!SikkerhetContext.kallKommerFraKlage()) {
             throw Feil("Kallet utføres ikke av en autorisert klient")
         }
-        return Ressurs.success(klageService.opprettRevurderingKlage(fagsakId))
+        return Ressurs.success(klageServiceEkstern.opprettRevurderingKlage(fagsakId))
     }
 }
