@@ -16,6 +16,7 @@ import no.nav.familie.ks.sak.api.mapper.SøknadGrunnlagMapper.tilSøknadDto
 import no.nav.familie.ks.sak.data.lagPdlPersonInfo
 import no.nav.familie.ks.sak.data.lagPersonopplysningGrunnlag
 import no.nav.familie.ks.sak.data.randomAktør
+import no.nav.familie.ks.sak.integrasjon.infotrygd.InfotrygdReplikaClient
 import no.nav.familie.ks.sak.integrasjon.pdl.PersonOpplysningerService
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.ArbeidsfordelingService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.registrersøknad.RegistrereSøknadSteg
@@ -52,6 +53,9 @@ class RegistrereSøknadStegTest : OppslagSpringRunnerTest() {
     @MockkBean(relaxed = true)
     private lateinit var personOpplysningerService: PersonOpplysningerService
 
+    @MockkBean(relaxed = true)
+    private lateinit var infotrygdReplikaClient: InfotrygdReplikaClient
+
     @MockkBean
     private lateinit var arbeidsfordelingService: ArbeidsfordelingService
 
@@ -72,6 +76,7 @@ class RegistrereSøknadStegTest : OppslagSpringRunnerTest() {
         // Mocker ut tjenester som kjører eksterne kall
         every { personOpplysningerService.hentPersonInfoMedRelasjonerOgRegisterinformasjon(any()) } returns lagPdlPersonInfo()
         every { arbeidsfordelingService.fastsettBehandledeEnhet(any()) } just runs
+        every { infotrygdReplikaClient.harKontantstøtteIInfotrygd(any()) } returns false
     }
 
     @Test
