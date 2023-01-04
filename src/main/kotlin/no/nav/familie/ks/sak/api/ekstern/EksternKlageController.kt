@@ -37,7 +37,7 @@ class EksternKlageController(
     fun kanOppretteRevurderingKlage(@PathVariable fagsakId: Long): Ressurs<KanOppretteRevurderingResponse> {
         tilgangService.validerTilgangTilHandlingOgFagsak(
             fagsakId = fagsakId,
-            handling = "Kan opprette revurdering på fagsak=$fagsakId",
+            handling = "Valider vi kan opprette revurdering med årsak klage på fagsak=$fagsakId",
             event = AuditLoggerEvent.CREATE,
             minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER
         )
@@ -53,7 +53,7 @@ class EksternKlageController(
     fun opprettRevurderingKlage(@PathVariable fagsakId: Long): Ressurs<OpprettRevurderingResponse> {
         tilgangService.validerTilgangTilHandlingOgFagsak(
             fagsakId = fagsakId,
-            handling = "Opprett revurdering fra klage på fagsak=$fagsakId",
+            handling = "Opprett revurdering med årask klage på fagsak=$fagsakId",
             event = AuditLoggerEvent.CREATE,
             minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER
         )
