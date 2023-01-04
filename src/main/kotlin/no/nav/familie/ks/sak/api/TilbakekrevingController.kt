@@ -1,11 +1,14 @@
 package no.nav.familie.ks.sak.api
 
 import no.nav.familie.kontrakter.felles.Ressurs
+import no.nav.familie.ks.sak.api.dto.FagsakIdDto
 import no.nav.familie.ks.sak.api.dto.ForhåndsvisTilbakekrevingVarselbrevDto
 import no.nav.familie.ks.sak.config.BehandlerRolle
 import no.nav.familie.ks.sak.kjerne.tilbakekreving.TilbakekrevingService
+import no.nav.familie.ks.sak.sikkerhet.AuditLoggerEvent
 import no.nav.familie.ks.sak.sikkerhet.TilgangService
 import no.nav.security.token.support.core.api.ProtectedWithClaims
+import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.PathVariable
@@ -40,5 +43,16 @@ class TilbakekrevingController(
                 )
             )
         )
+    }
+
+    @PostMapping("/manuell", consumes = [MediaType.APPLICATION_JSON_VALUE])
+    fun opprettTilbakekrevingsbehandlingManuelt(@RequestBody fagsakIdDto: FagsakIdDto) {
+        tilgangService.validerTilgangTilHandlingOgFagsak(
+            fagsakId = fagsakIdDto.fagsakId,
+            event = AuditLoggerEvent.CREATE,
+            minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
+            handling = "opprette tilbakekrevingsbehandling manuelt"
+        )
+        tilbakekrevingService.opprettTilbakekrevingsbehandlingManuelt(fagsakIdDto.fagsakId)
     }
 }

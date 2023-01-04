@@ -11,12 +11,16 @@ import no.nav.familie.kontrakter.felles.Språkkode
 import no.nav.familie.kontrakter.felles.simulering.PosteringType
 import no.nav.familie.kontrakter.felles.tilbakekreving.Behandlingstype
 import no.nav.familie.kontrakter.felles.tilbakekreving.ForhåndsvisVarselbrevRequest
+import no.nav.familie.kontrakter.felles.tilbakekreving.KanBehandlingOpprettesManueltRespons
+import no.nav.familie.kontrakter.felles.tilbakekreving.OpprettManueltTilbakekrevingRequest
 import no.nav.familie.kontrakter.felles.tilbakekreving.OpprettTilbakekrevingRequest
 import no.nav.familie.kontrakter.felles.tilbakekreving.Periode
 import no.nav.familie.kontrakter.felles.tilbakekreving.Regelverk
 import no.nav.familie.kontrakter.felles.tilbakekreving.Tilbakekrevingsvalg
 import no.nav.familie.kontrakter.felles.tilbakekreving.Ytelsestype
 import no.nav.familie.ks.sak.api.dto.ForhåndsvisTilbakekrevingVarselbrevDto
+import no.nav.familie.ks.sak.common.exception.Feil
+import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.common.util.førsteDagIInneværendeMåned
 import no.nav.familie.ks.sak.data.lagArbeidsfordelingPåBehandling
 import no.nav.familie.ks.sak.data.lagBehandling
@@ -43,6 +47,7 @@ import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
 import java.math.BigDecimal
 import java.time.LocalDate
@@ -242,6 +247,84 @@ internal class TilbakekrevingServiceTest {
         assertEquals(Tilbakekrevingsvalg.OPPRETT_TILBAKEKREVING_UTEN_VARSEL, faktainfo.tilbakekrevingsvalg)
         assertEquals(behandling.opprettetÅrsak.visningsnavn, faktainfo.revurderingsårsak)
         assertEquals(behandling.resultat.displayName, faktainfo.revurderingsresultat)
+    }
+
+    @Test
+    fun `opprettTilbakekrevingsbehandlingManuelt skal ikke opprette når kanBehandlingOpprettesManuelt returnerer med false respons`() {
+        every { tilbakekrevingKlient.kanTilbakekrevingsbehandlingOpprettesManuelt(behandling.fagsak.id) } returns
+            KanBehandlingOpprettesManueltRespons(kanBehandlingOpprettes = false, melding = "feilmelding")
+
+        val exception = assertThrows<FunksjonellFeil> {
+            tilbakekrevingService.opprettTilbakekrevingsbehandlingManuelt(behandling.fagsak.id)
+        }
+        assertEquals("Tilbakekrevingsbehandling manuelt kan ikke opprettes pga feilmelding", exception.melding)
+        assertEquals("feilmelding", exception.frontendFeilmelding)
+    }
+
+    @Test
+    fun `opprettTilbakekrevingsbehandlingManuelt skal ikke opprette når kanBehandlingOpprettesManuelt ikke returnerer referanse`() {
+        every { tilbakekrevingKlient.kanTilbakekrevingsbehandlingOpprettesManuelt(behandling.fagsak.id) } returns
+            KanBehandlingOpprettesManueltRespons(
+                kanBehandlingOpprettes = true,
+                melding = "Det er mulig å opprette behandling manuelt.",
+                kravgrunnlagsreferanse = null
+            )
+
+        val exception = assertThrows<Feil> {
+            tilbakekrevingService.opprettTilbakekrevingsbehandlingManuelt(behandling.fagsak.id)
+        }
+        assertEquals(
+            "Tilbakekrevingsbehandling kan opprettes, men har ikke kravgrunnlagsreferanse på respons-en",
+            exception.message
+        )
+    }
+
+    @Test
+    fun `opprettTilbakekrevingsbehandlingManuelt skal ikke opprette når kanBehandlingOpprettesManuelt returnerer med feil referanse`() {
+        val kravgrunnlagsreferanse = "123"
+        every { tilbakekrevingKlient.kanTilbakekrevingsbehandlingOpprettesManuelt(behandling.fagsak.id) } returns
+            KanBehandlingOpprettesManueltRespons(
+                kanBehandlingOpprettes = true,
+                melding = "Det er mulig å opprette behandling manuelt.",
+                kravgrunnlagsreferanse = kravgrunnlagsreferanse
+            )
+        every { vedtakRepository.findByBehandlingAndAktivOptional(kravgrunnlagsreferanse.toLong()) } returns null
+
+        val exception = assertThrows<FunksjonellFeil> {
+            tilbakekrevingService.opprettTilbakekrevingsbehandlingManuelt(behandling.fagsak.id)
+        }
+        assertEquals(
+            "Tilbakekrevingsbehandling kan ikke opprettes. " +
+                "Respons inneholder enten en referanse til en ukjent behandling " +
+                "eller behandling $kravgrunnlagsreferanse er ikke vedtatt",
+            exception.melding
+        )
+        assertEquals(
+            "Av tekniske årsaker så kan ikke tilbakekrevingsbehandling opprettes. " +
+                "Kontakt brukerstøtte for å rapportere feilen",
+            exception.frontendFeilmelding
+        )
+    }
+
+    @Test
+    fun `opprettTilbakekrevingsbehandlingManuelt skal opprette tilbakekrevingsbehandling`() {
+        val requestSlot = slot<OpprettManueltTilbakekrevingRequest>()
+        every { tilbakekrevingKlient.kanTilbakekrevingsbehandlingOpprettesManuelt(behandling.fagsak.id) } returns
+            KanBehandlingOpprettesManueltRespons(
+                kanBehandlingOpprettes = true,
+                melding = "Det er mulig å opprette behandling manuelt.",
+                kravgrunnlagsreferanse = behandling.id.toString()
+            )
+        every { tilbakekrevingKlient.opprettTilbakekrevingsbehandlingManuelt(any()) } returns ""
+
+        tilbakekrevingService.opprettTilbakekrevingsbehandlingManuelt(behandling.fagsak.id)
+
+        verify(exactly = 1) { tilbakekrevingKlient.opprettTilbakekrevingsbehandlingManuelt(capture(requestSlot)) }
+
+        val request = requestSlot.captured
+        assertEquals(behandling.id.toString(), request.eksternId)
+        assertEquals(behandling.fagsak.id.toString(), request.eksternFagsakId)
+        assertEquals(Ytelsestype.KONTANTSTØTTE, request.ytelsestype)
     }
 
     private fun lagPostering(

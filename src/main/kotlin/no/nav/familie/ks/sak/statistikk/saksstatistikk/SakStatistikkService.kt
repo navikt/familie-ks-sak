@@ -115,8 +115,7 @@ class SakStatistikkService(
 
     fun LocalDateTime.tilOffset(): OffsetDateTime {
         return OffsetDateTime.of(
-            this.toLocalDate(),
-            java.time.LocalTime.now(),
+            this,
             ZoneOffset.UTC
         )
     }
