@@ -23,6 +23,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.Vilkårsvu
 import no.nav.familie.ks.sak.kjerne.beregning.AndelerTilkjentYtelseOgEndreteUtbetalingerService
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelseRepository
 import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.tilEndretUtbetalingAndelDto
+import no.nav.familie.ks.sak.kjerne.fagsak.domene.Fagsak
 import no.nav.familie.ks.sak.kjerne.logg.LoggService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.StatsborgerskapService
@@ -56,10 +57,6 @@ class BehandlingService(
 
     fun hentBehandling(behandlingId: Long): Behandling = behandlingRepository.hentBehandling(behandlingId)
     fun hentAktivtBehandling(behandlingId: Long): Behandling = behandlingRepository.hentAktivBehandling(behandlingId)
-    fun finnAktivBehandlingPåFagsak(fagsakId: Long): Behandling? = behandlingRepository.findByFagsakAndAktiv(fagsakId)
-    fun erAktivBehandlingPåFagsak(fagsakId: Long): Boolean = finnAktivBehandlingPåFagsak(fagsakId) != null
-    fun finnÅpenBehandlingPåFagsak(fagsakId: Long): Behandling? = behandlingRepository.findByFagsakAndAktivAndOpen(fagsakId)
-    fun erÅpenBehandlingPåFagsak(fagsakId: Long): Boolean = finnÅpenBehandlingPåFagsak(fagsakId) != null
     fun hentBehandlingerPåFagsak(fagsakId: Long): List<Behandling> = behandlingRepository.finnBehandlinger(fagsakId)
 
     fun hentSisteBehandlingSomErVedtatt(fagsakId: Long): Behandling? = behandlingRepository.finnBehandlinger(fagsakId)
@@ -183,14 +180,20 @@ class BehandlingService(
         loggService.opprettEndretBehandlingstemaLogg(
             behandling = behandling,
             forrigeKategori = behandling.kategori,
-            nyKategori = overstyrtKategori,
+            nyKategori = overstyrtKategori
         )
 
         behandling.kategori = overstyrtKategori
         return oppdaterBehandling(behandling)
     }
 
+    fun hentFerdigstilteBehandlinger(fagsak: Fagsak): List<Behandling> {
+        return hentBehandlingerPåFagsak(fagsakId = fagsak.id)
+            .filter { it.erAvsluttet() && !it.erHenlagt() }
+    }
+
     companion object {
+
         private val logger: Logger = LoggerFactory.getLogger(BehandlingService::class.java)
     }
 }
