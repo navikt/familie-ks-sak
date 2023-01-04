@@ -135,12 +135,12 @@ class OpprettBehandlingService(
 
         val resultat = utledKanOppretteRevurdering(fagsak)
         return when (resultat) {
-            is KanOppretteRevurdering -> opprettRevurdering(fagsak, behandlingÅrsak)
+            is KanOppretteRevurdering -> opprettRevurderingKlage(fagsak, behandlingÅrsak)
             is KanIkkeOppretteRevurdering -> OpprettRevurderingResponse(IkkeOpprettet(resultat.årsak.ikkeOpprettetÅrsak))
         }
     }
 
-    private fun opprettRevurdering(fagsak: Fagsak, behandlingÅrsak: BehandlingÅrsak): OpprettRevurderingResponse {
+    private fun opprettRevurderingKlage(fagsak: Fagsak, behandlingÅrsak: BehandlingÅrsak): OpprettRevurderingResponse {
         return try {
             val forrigeBehandling = hentSisteBehandlingSomErVedtatt(fagsakId = fagsak.id)
 
