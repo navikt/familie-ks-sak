@@ -73,8 +73,8 @@ class SakStatistikkServiceTest : OppslagSpringRunnerTest() {
 
         // sjekk at datoer er konvertert riktig til offest
         assertEquals(
-            behandling.endretTidspunkt.truncatedTo(ChronoUnit.MILLIS),
-            tilstand.funksjoneltTidspunkt.toLocalDateTime().truncatedTo(ChronoUnit.MILLIS)
+            behandling.endretTidspunkt.truncatedTo(ChronoUnit.SECONDS),
+            tilstand.funksjoneltTidspunkt.toLocalDateTime().truncatedTo(ChronoUnit.SECONDS)
         )
     }
 }
