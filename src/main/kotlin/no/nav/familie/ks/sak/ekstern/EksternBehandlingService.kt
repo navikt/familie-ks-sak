@@ -19,7 +19,7 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
 @Service
-class EksternBehanldingService(
+class EksternBehandlingService(
     private val behandlingService: BehandlingService,
     private val opprettBehandlingService: OpprettBehandlingService,
     private val fagsakService: FagsakService
