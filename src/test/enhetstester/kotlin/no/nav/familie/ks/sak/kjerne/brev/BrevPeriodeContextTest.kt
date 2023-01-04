@@ -21,6 +21,7 @@ import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelserRespons
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.Vedtaksperiodetype
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.tilUtvidetVedtaksperiodeMedBegrunnelser
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.PersonResultat
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.UtdypendeVilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
@@ -97,6 +98,7 @@ class BrevPeriodeContextTest {
                 apiNavn = "innvilgetIkkeBarnehage",
                 sanityBegrunnelseType = SanityBegrunnelseType.STANDARD,
                 gjelderSoker = false,
+                gjelderAnnenForelder = true,
                 barnasFodselsdatoer = barnFødselsdato.tilKortString(),
                 antallBarn = 1,
                 maanedOgAarBegrunnelsenGjelderFor = null,
@@ -146,6 +148,7 @@ class BrevPeriodeContextTest {
                 apiNavn = "innvilgetDeltidBarnehage",
                 sanityBegrunnelseType = SanityBegrunnelseType.STANDARD,
                 gjelderSoker = false,
+                gjelderAnnenForelder = true,
                 barnasFodselsdatoer = barnFødselsdato.tilKortString(),
                 antallBarn = 1,
                 maanedOgAarBegrunnelsenGjelderFor = null,
@@ -201,6 +204,7 @@ class BrevPeriodeContextTest {
                 apiNavn = "innvilgetDeltidBarnehageAdopsjon",
                 sanityBegrunnelseType = SanityBegrunnelseType.STANDARD,
                 gjelderSoker = false,
+                gjelderAnnenForelder = true,
                 barnasFodselsdatoer = barnFødselsdato.tilKortString(),
                 antallBarn = 1,
                 maanedOgAarBegrunnelsenGjelderFor = null,
@@ -250,6 +254,7 @@ class BrevPeriodeContextTest {
                 apiNavn = "innvilgetIkkeBarnehageAdopsjon",
                 sanityBegrunnelseType = SanityBegrunnelseType.STANDARD,
                 gjelderSoker = false,
+                gjelderAnnenForelder = true,
                 barnasFodselsdatoer = barnFødselsdato.tilKortString(),
                 antallBarn = 1,
                 maanedOgAarBegrunnelsenGjelderFor = null,
@@ -299,6 +304,121 @@ class BrevPeriodeContextTest {
                 apiNavn = "etterEndretUtbetalingEtterbetalingTreMaanedTilbakeITid",
                 sanityBegrunnelseType = SanityBegrunnelseType.STANDARD,
                 gjelderSoker = false,
+                gjelderAnnenForelder = true,
+                barnasFodselsdatoer = barnFødselsdato.tilKortString(),
+                antallBarn = 1,
+                maanedOgAarBegrunnelsenGjelderFor = null,
+                maalform = "bokmaal",
+                belop = "7 500",
+                antallTimerBarnehageplass = "0",
+                soknadstidspunkt = "12.12.20"
+            ),
+            brevPeriodeDto?.begrunnelser?.single()
+        )
+    }
+
+    @Test
+    fun `genererBrevPeriodeDto skal gi true for gjelderAnnenForelder feltet dersom annen forelder ikke er vurdert i MedlemskapAnnenForelder vilkåret`() {
+        val barnFødselsdato = LocalDate.now().minusYears(2)
+
+        val personerIbehandling = listOf(
+            PersonIBehandling(
+                personType = PersonType.SØKER,
+                fødselsDato = LocalDate.now().minusYears(20),
+                overstyrendeVilkårResultater = emptyList()
+            ),
+            PersonIBehandling(
+                personType = PersonType.BARN,
+                fødselsDato = barnFødselsdato,
+                overstyrendeVilkårResultater = listOf(
+                    lagVilkårResultat(
+                        vilkårType = Vilkår.BARNETS_ALDER,
+                        periodeFom = barnFødselsdato.plusYears(1),
+                        periodeTom = barnFødselsdato.plusYears(2),
+                        utdypendeVilkårsvurderinger = listOf(UtdypendeVilkårsvurdering.ADOPSJON)
+                    ),
+                    lagVilkårResultat(
+                        vilkårType = Vilkår.MEDLEMSKAP_ANNEN_FORELDER,
+                        periodeFom = barnFødselsdato.plusYears(1),
+                        periodeTom = barnFødselsdato.plusYears(2),
+                        utdypendeVilkårsvurderinger = listOf(UtdypendeVilkårsvurdering.ADOPSJON),
+                        resultat = Resultat.OPPFYLT
+                    )
+                )
+            )
+        )
+
+        val brevPeriodeDto = lagBrevPeriodeContext(
+            personerIBehandling = personerIbehandling,
+            begrunnelser = listOf(Begrunnelse.ETTER_ENDRET_UTBETALING_ETTERBETALING),
+            vedtaksperiodeType = Vedtaksperiodetype.UTBETALING,
+            skalOppretteEndretUtbetalingAndeler = true
+        ).genererBrevPeriodeDto()
+
+        Assertions.assertEquals(
+            BegrunnelseDataDto(
+                vedtakBegrunnelseType = BegrunnelseType.ETTER_ENDRET_UTBETALING,
+                apiNavn = "etterEndretUtbetalingEtterbetalingTreMaanedTilbakeITid",
+                sanityBegrunnelseType = SanityBegrunnelseType.STANDARD,
+                gjelderSoker = false,
+                gjelderAnnenForelder = true,
+                barnasFodselsdatoer = barnFødselsdato.tilKortString(),
+                antallBarn = 1,
+                maanedOgAarBegrunnelsenGjelderFor = null,
+                maalform = "bokmaal",
+                belop = "7 500",
+                antallTimerBarnehageplass = "0",
+                soknadstidspunkt = "12.12.20"
+            ),
+            brevPeriodeDto?.begrunnelser?.single()
+        )
+    }
+
+    @Test
+    fun `genererBrevPeriodeDto skal gi false for gjelderAnnenForelder feltet dersom annen forelder ikke er vurdert i MedlemskapAnnenForelder vilkåret`() {
+        val barnFødselsdato = LocalDate.now().minusYears(2)
+
+        val personerIbehandling = listOf(
+            PersonIBehandling(
+                personType = PersonType.SØKER,
+                fødselsDato = LocalDate.now().minusYears(20),
+                overstyrendeVilkårResultater = emptyList()
+            ),
+            PersonIBehandling(
+                personType = PersonType.BARN,
+                fødselsDato = barnFødselsdato,
+                overstyrendeVilkårResultater = listOf(
+                    lagVilkårResultat(
+                        vilkårType = Vilkår.BARNETS_ALDER,
+                        periodeFom = barnFødselsdato.plusYears(1),
+                        periodeTom = barnFødselsdato.plusYears(2),
+                        utdypendeVilkårsvurderinger = listOf(UtdypendeVilkårsvurdering.ADOPSJON)
+                    ),
+                    lagVilkårResultat(
+                        vilkårType = Vilkår.MEDLEMSKAP_ANNEN_FORELDER,
+                        periodeFom = barnFødselsdato.plusYears(1),
+                        periodeTom = barnFødselsdato.plusYears(2),
+                        utdypendeVilkårsvurderinger = listOf(UtdypendeVilkårsvurdering.ADOPSJON),
+                        resultat = Resultat.IKKE_AKTUELT
+                    )
+                )
+            )
+        )
+
+        val brevPeriodeDto = lagBrevPeriodeContext(
+            personerIBehandling = personerIbehandling,
+            begrunnelser = listOf(Begrunnelse.ETTER_ENDRET_UTBETALING_ETTERBETALING),
+            vedtaksperiodeType = Vedtaksperiodetype.UTBETALING,
+            skalOppretteEndretUtbetalingAndeler = true
+        ).genererBrevPeriodeDto()
+
+        Assertions.assertEquals(
+            BegrunnelseDataDto(
+                vedtakBegrunnelseType = BegrunnelseType.ETTER_ENDRET_UTBETALING,
+                apiNavn = "etterEndretUtbetalingEtterbetalingTreMaanedTilbakeITid",
+                sanityBegrunnelseType = SanityBegrunnelseType.STANDARD,
+                gjelderSoker = false,
+                gjelderAnnenForelder = false,
                 barnasFodselsdatoer = barnFødselsdato.tilKortString(),
                 antallBarn = 1,
                 maanedOgAarBegrunnelsenGjelderFor = null,
