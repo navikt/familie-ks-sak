@@ -19,7 +19,7 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
 @Service
-class KlageServiceEkstern(
+class EksternBehanldingService(
     private val behandlingService: BehandlingService,
     private val opprettBehandlingService: OpprettBehandlingService,
     private val fagsakService: FagsakService
@@ -44,19 +44,19 @@ class KlageServiceEkstern(
 
         val resultat = utledKanOppretteRevurdering(fagsak)
         return when (resultat) {
-            is KanOppretteRevurdering -> opprettRevurdering(fagsak)
+            is KanOppretteRevurdering -> opprettRevurdering(fagsak, BehandlingÅrsak.KLAGE)
             is KanIkkeOppretteRevurdering -> OpprettRevurderingResponse(IkkeOpprettet(resultat.årsak.ikkeOpprettetÅrsak))
         }
     }
 
-    private fun opprettRevurdering(fagsak: Fagsak) = try {
+    private fun opprettRevurdering(fagsak: Fagsak, behandlingÅrsak: BehandlingÅrsak) = try {
         val forrigeBehandling = behandlingService.hentSisteBehandlingSomErVedtatt(fagsakId = fagsak.id)
 
         val behandlingDto = OpprettBehandlingDto(
             kategori = forrigeBehandling?.kategori ?: BehandlingKategori.NASJONAL,
             søkersIdent = fagsak.aktør.aktivFødselsnummer(),
             behandlingType = BehandlingType.REVURDERING,
-            behandlingÅrsak = BehandlingÅrsak.KLAGE
+            behandlingÅrsak = behandlingÅrsak
         )
 
         val revurdering = opprettBehandlingService.opprettBehandling(behandlingDto)
