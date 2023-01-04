@@ -88,8 +88,7 @@ class RegistrereSøknadSteg(
     }
 
     fun validerRegistrerSøknadSteg(registrerSøknadDto: RegistrerSøknadDto) {
-        // Valider at det ikke finnes løpende kontantstøtte for barna i infotrygd, gjøres kun i preprod siden replika mangler i prod
-        if (envService.erPreprod() && infotrygdReplikaClient.harKontantstøtteIInfotrygd(registrerSøknadDto.søknad.barnaMedOpplysninger)) {
+        if (infotrygdReplikaClient.harKontantstøtteIInfotrygd(registrerSøknadDto.søknad.barnaMedOpplysninger)) {
             throw FunksjonellFeil(
                 melding = "Kan ikke fortsette. Ett eller flere av barna har løpende kontantstøtte i infotrygd."
             )
