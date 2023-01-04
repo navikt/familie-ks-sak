@@ -50,7 +50,7 @@ data class BegrunnelseDataDto(
     override val sanityBegrunnelseType: SanityBegrunnelseType,
 
     val gjelderSoker: Boolean,
-    val gjelderAnnenForelder: Boolean,
+    val gjelderAndreForelder: Boolean,
     val barnasFodselsdatoer: String,
     val antallBarn: Int,
     val maanedOgAarBegrunnelsenGjelderFor: String? = null,

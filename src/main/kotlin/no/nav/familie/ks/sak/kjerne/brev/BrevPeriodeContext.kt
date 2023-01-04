@@ -305,8 +305,8 @@ class BrevPeriodeContext(
                     relevanteEndringsperioderForBegrunnelse.minOfOrNull { it.søknadstidspunkt!! }
 
                 val gjelderSøker = relevantePersoner.any { it.type == PersonType.SØKER }
-                val gjelderAnnenForelder = relevantePersoner.filter { it.type == PersonType.BARN }
-                    .any { it.erMedlemskapVurdertPåAnnenforelder() }
+                val gjelderAndreForelder = relevantePersoner.filter { it.type == PersonType.BARN }
+                    .any { it.erMedlemskapVurdertPåAndreforelder() }
 
                 val barnasFødselsdatoer = hentBarnasFødselsdagerForBegrunnelse(
                     gjelderSøker = gjelderSøker,
@@ -323,7 +323,7 @@ class BrevPeriodeContext(
 
                 BegrunnelseDataDto(
                     gjelderSoker = gjelderSøker,
-                    gjelderAnnenForelder = gjelderAnnenForelder,
+                    gjelderAndreForelder = gjelderAndreForelder,
                     barnasFodselsdatoer = barnasFødselsdatoer.tilBrevTekst(),
                     antallBarn = hentAntallBarnForBegrunnelse(
                         gjelderSøker = gjelderSøker,
@@ -360,7 +360,7 @@ class BrevPeriodeContext(
             ?.verdi?.antallTimer ?: BigDecimal.ZERO
     }
 
-    private fun Person.erMedlemskapVurdertPåAnnenforelder(): Boolean {
+    private fun Person.erMedlemskapVurdertPåAndreforelder(): Boolean {
         val forskjøvetMedlemskapPåAnnenForelderPeriodeSomErSamtidigSomVedtaksperiode =
             hentForskjøvedeVilkårResultaterSomErSamtidigSomVedtaksperiode()[this.aktør]
                 ?.get(Vilkår.MEDLEMSKAP_ANNEN_FORELDER)
