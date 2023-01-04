@@ -130,7 +130,7 @@ class OpprettBehandlingService(
     }
 
     @Transactional
-    fun prøvÅOppretteRevurdering(fagsakId: Long, behandlingÅrsak: BehandlingÅrsak): OpprettRevurderingResponse {
+    fun validerOgOpprettRevurderingKlage(fagsakId: Long, behandlingÅrsak: BehandlingÅrsak): OpprettRevurderingResponse {
         val fagsak = hentFagsak(fagsakId)
 
         val resultat = utledKanOppretteRevurdering(fagsak)

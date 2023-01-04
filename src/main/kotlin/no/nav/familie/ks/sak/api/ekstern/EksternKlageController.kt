@@ -61,7 +61,7 @@ class EksternKlageController(
         if (!SikkerhetContext.kallKommerFraKlage()) {
             throw Feil("Kallet utføres ikke av en autorisert klient")
         }
-        return Ressurs.success(opprettBehandlingService.prøvÅOppretteRevurdering(fagsakId, BehandlingÅrsak.KLAGE))
+        return Ressurs.success(opprettBehandlingService.validerOgOpprettRevurderingKlage(fagsakId, BehandlingÅrsak.KLAGE))
     }
 
     @GetMapping("fagsaker/{fagsakId}/vedtak")
