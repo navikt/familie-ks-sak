@@ -34,7 +34,7 @@ class EksternKlageController(
 ) {
 
     @GetMapping("fagsaker/{fagsakId}/kan-opprette-revurdering")
-    fun kanOppretteKlageRevurdering(@PathVariable fagsakId: Long): Ressurs<KanOppretteRevurderingResponse> {
+    fun kanOppretteRevurderingKlage(@PathVariable fagsakId: Long): Ressurs<KanOppretteRevurderingResponse> {
         tilgangService.validerTilgangTilHandlingOgFagsak(
             fagsakId = fagsakId,
             handling = "Kan opprette revurdering på fagsak=$fagsakId",
