@@ -33,7 +33,7 @@ class EksternKlageController(
     private val klageService: KlageService
 ) {
 
-    @GetMapping("fagsaker/{fagsakId}/kan-opprette-revurdering")
+    @GetMapping("fagsaker/{fagsakId}/kan-opprette-revurdering-klage")
     fun kanOppretteRevurderingKlage(@PathVariable fagsakId: Long): Ressurs<KanOppretteRevurderingResponse> {
         tilgangService.validerTilgangTilHandlingOgFagsak(
             fagsakId = fagsakId,
