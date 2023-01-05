@@ -366,11 +366,7 @@ class BrevPeriodeContext(
                 ?.get(Vilkår.MEDLEMSKAP_ANNEN_FORELDER)
                 ?.tilPerioderIkkeNull()
 
-        return forskjøvetMedlemskapPåAnnenForelderPeriodeSomErSamtidigSomVedtaksperiode?.any {
-            println("wtf ${it.verdi.vilkårType}, $it")
-
-            it.verdi.resultat == Resultat.OPPFYLT
-        }
+        return forskjøvetMedlemskapPåAnnenForelderPeriodeSomErSamtidigSomVedtaksperiode?.any { it.verdi.resultat == Resultat.OPPFYLT }
             ?: false
     }
 
