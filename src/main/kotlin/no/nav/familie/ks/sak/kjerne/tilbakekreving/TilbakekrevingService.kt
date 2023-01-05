@@ -5,12 +5,14 @@ import no.nav.familie.kontrakter.felles.tilbakekreving.Behandlingstype
 import no.nav.familie.kontrakter.felles.tilbakekreving.Faktainfo
 import no.nav.familie.kontrakter.felles.tilbakekreving.FeilutbetaltePerioderDto
 import no.nav.familie.kontrakter.felles.tilbakekreving.ForhåndsvisVarselbrevRequest
+import no.nav.familie.kontrakter.felles.tilbakekreving.OpprettManueltTilbakekrevingRequest
 import no.nav.familie.kontrakter.felles.tilbakekreving.OpprettTilbakekrevingRequest
 import no.nav.familie.kontrakter.felles.tilbakekreving.Tilbakekrevingsvalg
 import no.nav.familie.kontrakter.felles.tilbakekreving.Ytelsestype
 import no.nav.familie.ks.sak.api.dto.ForhåndsvisTilbakekrevingVarselbrevDto
 import no.nav.familie.ks.sak.api.dto.TilbakekrevingRequestDto
 import no.nav.familie.ks.sak.common.exception.Feil
+import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.integrasjon.tilbakekreving.TilbakekrevingKlient
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.ArbeidsfordelingService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
@@ -97,6 +99,33 @@ class TilbakekrevingService(
 
     fun sendOpprettTilbakekrevingRequest(behandling: Behandling) =
         tilbakekrevingKlient.opprettTilbakekrevingBehandling(lagOpprettTilbakekrevingRequest(behandling))
+
+    fun opprettTilbakekrevingsbehandlingManuelt(fagsakId: Long) {
+        val kanOpprettesRespons = tilbakekrevingKlient.kanTilbakekrevingsbehandlingOpprettesManuelt(fagsakId)
+        if (!kanOpprettesRespons.kanBehandlingOpprettes) {
+            throw FunksjonellFeil(
+                frontendFeilmelding = kanOpprettesRespons.melding,
+                melding = "Tilbakekrevingsbehandling manuelt kan ikke opprettes pga ${kanOpprettesRespons.melding}"
+            )
+        }
+        val behandlingId = kanOpprettesRespons.kravgrunnlagsreferanse?.toLong()
+            ?: throw Feil("Tilbakekrevingsbehandling kan opprettes, men har ikke kravgrunnlagsreferanse på respons-en")
+        val behandling = vedtakRepository.findByBehandlingAndAktivOptional(behandlingId)?.behandling
+            ?: throw FunksjonellFeil(
+                frontendFeilmelding = "Av tekniske årsaker så kan ikke tilbakekrevingsbehandling opprettes. " +
+                    "Kontakt brukerstøtte for å rapportere feilen",
+                melding = "Tilbakekrevingsbehandling kan ikke opprettes. " +
+                    "Respons inneholder enten en referanse til en ukjent behandling eller behandling $behandlingId er ikke vedtatt"
+            )
+
+        tilbakekrevingKlient.opprettTilbakekrevingsbehandlingManuelt(
+            OpprettManueltTilbakekrevingRequest(
+                eksternFagsakId = fagsakId.toString(),
+                eksternId = behandling.id.toString(),
+                ytelsestype = Ytelsestype.KONTANTSTØTTE
+            )
+        )
+    }
 
     private fun lagOpprettTilbakekrevingRequest(behandling: Behandling): OpprettTilbakekrevingRequest {
         val behandlingId = behandling.id

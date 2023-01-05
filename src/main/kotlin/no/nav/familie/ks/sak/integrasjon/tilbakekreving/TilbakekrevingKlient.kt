@@ -4,7 +4,10 @@ import no.nav.familie.http.client.AbstractRestClient
 import no.nav.familie.kontrakter.felles.Fagsystem
 import no.nav.familie.kontrakter.felles.tilbakekreving.Behandling
 import no.nav.familie.kontrakter.felles.tilbakekreving.ForhåndsvisVarselbrevRequest
+import no.nav.familie.kontrakter.felles.tilbakekreving.KanBehandlingOpprettesManueltRespons
+import no.nav.familie.kontrakter.felles.tilbakekreving.OpprettManueltTilbakekrevingRequest
 import no.nav.familie.kontrakter.felles.tilbakekreving.OpprettTilbakekrevingRequest
+import no.nav.familie.kontrakter.felles.tilbakekreving.Ytelsestype
 import no.nav.familie.ks.sak.integrasjon.kallEksternTjeneste
 import no.nav.familie.ks.sak.integrasjon.kallEksternTjenesteRessurs
 import no.nav.familie.ks.sak.integrasjon.økonomi.utbetalingsoppdrag.FAGSYSTEM
@@ -72,6 +75,28 @@ class TilbakekrevingKlient(
             uri = uri,
             formål = "Henter tilbakekrevingsbehandlinger på fagsak"
         ) { getForEntity(uri) }
+    }
+
+    fun kanTilbakekrevingsbehandlingOpprettesManuelt(fagsakId: Long): KanBehandlingOpprettesManueltRespons {
+        val uri = URI.create(
+            "$familieTilbakeUri/ytelsestype/${Ytelsestype.KONTANTSTØTTE}/fagsak/$fagsakId/kanBehandlingOpprettesManuelt/v1"
+        )
+
+        return kallEksternTjenesteRessurs(
+            tjeneste = "familie-tilbake",
+            uri = uri,
+            formål = "Sjekker om tilbakekrevingsbehandling kan opprettes manuelt"
+        ) { getForEntity(uri) }
+    }
+
+    fun opprettTilbakekrevingsbehandlingManuelt(request: OpprettManueltTilbakekrevingRequest): String {
+        val uri = URI.create("$familieTilbakeUri/behandling/manuelt/task/v1")
+
+        return kallEksternTjenesteRessurs(
+            tjeneste = "familie-tilbake",
+            uri = uri,
+            formål = "Oppretter tilbakekrevingsbehandling manuelt"
+        ) { postForEntity(uri, request) }
     }
 }
 
