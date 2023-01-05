@@ -25,6 +25,7 @@ import no.nav.familie.ks.sak.integrasjon.sanity.domene.Trigger
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.Vedtaksperiodetype
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.UtvidetVedtaksperiodeMedBegrunnelser
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.PersonResultat
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
 import no.nav.familie.ks.sak.kjerne.beregning.AndelTilkjentYtelseMedEndreteUtbetalinger
@@ -279,16 +280,17 @@ class BrevPeriodeContext(
                 nullableSanitybegrunnelse?.let { Pair(vedtakBegrunnelse.begrunnelse, it) }
             }.map { (begrunnelse, sanityBegrunnelse) ->
 
-                val relevantePersoner = when (begrunnelse.begrunnelseType) {
-                    BegrunnelseType.ETTER_ENDRET_UTBETALING -> begrunnelserForPeriodeContext.hentPersonerMedEndretUtbetalingerSomPasserMedVedtaksperiode(
-                        sanityBegrunnelse
-                    )
+                val relevantePersoner =
+                    when (begrunnelse.begrunnelseType) {
+                        BegrunnelseType.ETTER_ENDRET_UTBETALING -> begrunnelserForPeriodeContext.hentPersonerMedEndretUtbetalingerSomPasserMedVedtaksperiode(
+                            sanityBegrunnelse
+                        )
 
-                    else -> begrunnelserForPeriodeContext.hentPersonerMedVilkårResultaterSomPasserMedBegrunnelseOgPeriode(
-                        begrunnelse = begrunnelse,
-                        sanityBegrunnelse = sanityBegrunnelse
-                    )
-                }
+                        else -> begrunnelserForPeriodeContext.hentPersonerMedVilkårResultaterSomPasserMedBegrunnelseOgPeriode(
+                            begrunnelse = begrunnelse,
+                            sanityBegrunnelse = sanityBegrunnelse
+                        )
+                    }
 
                 val antallTimerBarnehageplass =
                     hentAntallTimerBarnehageplassTekst(relevantePersoner)
@@ -303,6 +305,8 @@ class BrevPeriodeContext(
                     relevanteEndringsperioderForBegrunnelse.minOfOrNull { it.søknadstidspunkt!! }
 
                 val gjelderSøker = relevantePersoner.any { it.type == PersonType.SØKER }
+                val gjelderAndreForelder = relevantePersoner.filter { it.type == PersonType.BARN }
+                    .any { it.erMedlemskapVurdertPåAndreforelder() }
 
                 val barnasFødselsdatoer = hentBarnasFødselsdagerForBegrunnelse(
                     gjelderSøker = gjelderSøker,
@@ -319,6 +323,7 @@ class BrevPeriodeContext(
 
                 BegrunnelseDataDto(
                     gjelderSoker = gjelderSøker,
+                    gjelderAndreForelder = gjelderAndreForelder,
                     barnasFodselsdatoer = barnasFødselsdatoer.tilBrevTekst(),
                     antallBarn = hentAntallBarnForBegrunnelse(
                         gjelderSøker = gjelderSøker,
@@ -353,6 +358,16 @@ class BrevPeriodeContext(
         return forskjøvetBarnehageplassPeriodeSomErSamtidigSomVedtaksperiode
             ?.singleOrNull() // Skal være maks ett barnehageresultat i periode, ellers burde vi ha splittet opp vedtaksperioden.
             ?.verdi?.antallTimer ?: BigDecimal.ZERO
+    }
+
+    private fun Person.erMedlemskapVurdertPåAndreforelder(): Boolean {
+        val forskjøvetMedlemskapPåAnnenForelderPeriodeSomErSamtidigSomVedtaksperiode =
+            hentForskjøvedeVilkårResultaterSomErSamtidigSomVedtaksperiode()[this.aktør]
+                ?.get(Vilkår.MEDLEMSKAP_ANNEN_FORELDER)
+                ?.tilPerioderIkkeNull()
+
+        return forskjøvetMedlemskapPåAnnenForelderPeriodeSomErSamtidigSomVedtaksperiode?.any { it.verdi.resultat == Resultat.OPPFYLT }
+            ?: false
     }
 
     private fun hentForskjøvedeVilkårResultater(): Map<Aktør, Map<Vilkår, Tidslinje<VilkårResultat>>> {
