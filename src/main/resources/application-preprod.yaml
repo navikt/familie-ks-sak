@@ -107,8 +107,8 @@ sentry.environment: preprod
 
 SANITY_DATASET: "ks-brev"
 
-PDL_URL: https://pdl-api-q1.dev-fss-pub.nais.io
-PDL_SCOPE: api://dev-fss.pdl.pdl-api-q1/.default
+PDL_URL: https://pdl-api.dev-fss-pub.nais.io
+PDL_SCOPE: api://dev-fss.pdl.pdl-api/.default
 
 FAMILIE_TILBAKE_API_URL_SCOPE: api://dev-gcp.teamfamilie.familie-tilbake/.default
 
