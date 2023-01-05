@@ -2,12 +2,17 @@ package no.nav.familie.ks.sak.kjerne.klage
 
 import brukVedtaksdatoFraKlageinstansHvisOversendt
 import no.nav.familie.kontrakter.felles.klage.Fagsystem
+import no.nav.familie.kontrakter.felles.klage.FagsystemType
+import no.nav.familie.kontrakter.felles.klage.FagsystemVedtak
 import no.nav.familie.kontrakter.felles.klage.KlagebehandlingDto
 import no.nav.familie.kontrakter.felles.klage.OpprettKlagebehandlingRequest
 import no.nav.familie.kontrakter.felles.klage.Stønadstype
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
+import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
+import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.VedtakService
 import no.nav.familie.ks.sak.kjerne.fagsak.FagsakService
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.Fagsak
 import no.nav.familie.ks.sak.kjerne.klage.dto.OpprettKlageDto
@@ -18,7 +23,10 @@ import java.time.LocalDate
 class KlageService(
     private val fagsakService: FagsakService,
     private val klageClient: KlageClient,
-    private val integrasjonClient: IntegrasjonClient
+    private val integrasjonClient: IntegrasjonClient,
+    private val behandlingService: BehandlingService,
+    private val vedtakService: VedtakService
+
 ) {
 
     fun opprettKlage(fagsakId: Long, opprettKlageDto: OpprettKlageDto) {
@@ -54,5 +62,28 @@ class KlageService(
             ?: throw Feil("Fikk ikke fagsakId=$fagsakId tilbake fra kallet til klage.")
 
         return klagerPåFagsak.map { it.brukVedtaksdatoFraKlageinstansHvisOversendt() }
+    }
+
+    fun hentFagsystemVedtak(fagsakId: Long): List<FagsystemVedtak> {
+        val fagsak = fagsakService.hentFagsak(fagsakId)
+        val behandlinger = behandlingService.hentFerdigstilteBehandlinger(fagsak)
+        val ferdigstilteKsBehandlinger = behandlinger.map { tilFagsystemVedtak(it) }
+
+        // TODO når vi har fått inn tilbakekreving
+        val vedtakTilbakekreving = emptyList<FagsystemVedtak>()
+
+        return ferdigstilteKsBehandlinger + vedtakTilbakekreving
+    }
+
+    private fun tilFagsystemVedtak(behandling: Behandling): FagsystemVedtak {
+        val vedtak = vedtakService.hentAktivVedtakForBehandling(behandling.id)
+
+        return FagsystemVedtak(
+            eksternBehandlingId = behandling.id.toString(),
+            behandlingstype = behandling.type.visningsnavn,
+            resultat = behandling.resultat.displayName,
+            vedtakstidspunkt = vedtak.vedtaksdato ?: error("Mangler vedtakstidspunkt for behandling=${behandling.id}"),
+            fagsystemType = FagsystemType.ORDNIÆR
+        )
     }
 }

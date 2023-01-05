@@ -1,5 +1,11 @@
 package no.nav.familie.ks.sak.kjerne.behandling
 
+import no.nav.familie.kontrakter.felles.klage.IkkeOpprettet
+import no.nav.familie.kontrakter.felles.klage.IkkeOpprettetÅrsak
+import no.nav.familie.kontrakter.felles.klage.KanIkkeOppretteRevurderingÅrsak
+import no.nav.familie.kontrakter.felles.klage.KanOppretteRevurderingResponse
+import no.nav.familie.kontrakter.felles.klage.OpprettRevurderingResponse
+import no.nav.familie.kontrakter.felles.klage.Opprettet
 import no.nav.familie.kontrakter.felles.oppgave.Oppgavetype
 import no.nav.familie.ks.sak.api.dto.OpprettBehandlingDto
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
@@ -10,9 +16,11 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingKategori
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingType
+import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg
 import no.nav.familie.ks.sak.kjerne.behandling.steg.StegService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.VedtakService
+import no.nav.familie.ks.sak.kjerne.fagsak.domene.Fagsak
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.FagsakRepository
 import no.nav.familie.ks.sak.kjerne.logg.LoggService
 import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
@@ -111,6 +119,58 @@ class OpprettBehandlingService(
         }
     }
 
+    @Transactional(readOnly = true)
+    fun kanOppretteRevurdering(fagsakId: Long): KanOppretteRevurderingResponse {
+        val fagsak = hentFagsak(fagsakId)
+        val resultat = utledKanOppretteRevurdering(fagsak)
+        return when (resultat) {
+            is KanOppretteRevurdering -> KanOppretteRevurderingResponse(true, null)
+            is KanIkkeOppretteRevurdering -> KanOppretteRevurderingResponse(false, resultat.årsak.kanIkkeOppretteRevurderingÅrsak)
+        }
+    }
+
+    @Transactional
+    fun validerOgOpprettRevurderingKlage(fagsakId: Long, behandlingÅrsak: BehandlingÅrsak): OpprettRevurderingResponse {
+        val fagsak = hentFagsak(fagsakId)
+
+        val resultat = utledKanOppretteRevurdering(fagsak)
+        return when (resultat) {
+            is KanOppretteRevurdering -> opprettRevurderingKlage(fagsak, behandlingÅrsak)
+            is KanIkkeOppretteRevurdering -> OpprettRevurderingResponse(IkkeOpprettet(resultat.årsak.ikkeOpprettetÅrsak))
+        }
+    }
+
+    private fun opprettRevurderingKlage(fagsak: Fagsak, behandlingÅrsak: BehandlingÅrsak): OpprettRevurderingResponse {
+        return try {
+            val forrigeBehandling = hentSisteBehandlingSomErVedtatt(fagsakId = fagsak.id)
+
+            val behandlingDto = OpprettBehandlingDto(
+                kategori = forrigeBehandling?.kategori ?: BehandlingKategori.NASJONAL,
+                søkersIdent = fagsak.aktør.aktivFødselsnummer(),
+                behandlingType = BehandlingType.REVURDERING,
+                behandlingÅrsak = behandlingÅrsak
+            )
+
+            val revurdering = opprettBehandling(behandlingDto)
+            OpprettRevurderingResponse(Opprettet(revurdering.id.toString()))
+        } catch (e: Exception) {
+            logger.error("Feilet opprettelse av revurdering for fagsak=${fagsak.id}, se secure logg for detaljer")
+            secureLogger.error("Feilet opprettelse av revurdering for fagsak=$fagsak", e)
+            OpprettRevurderingResponse(IkkeOpprettet(IkkeOpprettetÅrsak.FEIL, e.message))
+        }
+    }
+
+    private fun utledKanOppretteRevurdering(fagsak: Fagsak): KanOppretteRevurderingResultat {
+        val finnesÅpenBehandlingPåFagsak = erÅpenBehandlingPåFagsak(fagsak.id)
+        if (finnesÅpenBehandlingPåFagsak) {
+            return KanIkkeOppretteRevurdering(Årsak.ÅPEN_BEHANDLING)
+        }
+        if (!erAktivBehandlingPåFagsak(fagsak.id)) {
+            return KanIkkeOppretteRevurdering(Årsak.INGEN_BEHANDLING)
+        }
+        return KanOppretteRevurdering
+    }
+
     private fun lagreEllerOppdater(behandling: Behandling): Behandling {
         logger.info("${SikkerhetContext.hentSaksbehandlerNavn()} oppretter behandling $behandling")
         return behandlingRepository.save(behandling)
@@ -128,7 +188,30 @@ class OpprettBehandlingService(
     // andre tjenester bruker eventuelt BehandlingService istedet
     fun hentBehandling(behandlingId: Long): Behandling = behandlingRepository.hentBehandling(behandlingId)
 
+    private fun hentFagsak(fagsakId: Long) = fagsakRepository.finnFagsak(fagsakId)
+        ?: throw FunksjonellFeil("Fant ikke fagsak med ID=$fagsakId.")
+
+    fun finnAktivBehandlingPåFagsak(fagsakId: Long): Behandling? = behandlingRepository.findByFagsakAndAktiv(fagsakId)
+    fun erAktivBehandlingPåFagsak(fagsakId: Long): Boolean = finnAktivBehandlingPåFagsak(fagsakId) != null
+    fun finnÅpenBehandlingPåFagsak(fagsakId: Long): Behandling? = behandlingRepository.findByFagsakAndAktivAndOpen(fagsakId)
+    fun erÅpenBehandlingPåFagsak(fagsakId: Long): Boolean = finnÅpenBehandlingPåFagsak(fagsakId) != null
+
     companion object {
+
         private val logger: Logger = LoggerFactory.getLogger(OpprettBehandlingService::class.java)
+        private val secureLogger = LoggerFactory.getLogger("secureLogger")
     }
+}
+
+private sealed interface KanOppretteRevurderingResultat
+private object KanOppretteRevurdering : KanOppretteRevurderingResultat
+private data class KanIkkeOppretteRevurdering(val årsak: Årsak) : KanOppretteRevurderingResultat
+
+private enum class Årsak(
+    val ikkeOpprettetÅrsak: IkkeOpprettetÅrsak,
+    val kanIkkeOppretteRevurderingÅrsak: KanIkkeOppretteRevurderingÅrsak
+) {
+
+    ÅPEN_BEHANDLING(IkkeOpprettetÅrsak.ÅPEN_BEHANDLING, KanIkkeOppretteRevurderingÅrsak.ÅPEN_BEHANDLING),
+    INGEN_BEHANDLING(IkkeOpprettetÅrsak.INGEN_BEHANDLING, KanIkkeOppretteRevurderingÅrsak.INGEN_BEHANDLING),
 }
