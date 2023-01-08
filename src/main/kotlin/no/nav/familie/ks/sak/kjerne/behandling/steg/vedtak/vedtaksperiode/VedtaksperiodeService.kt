@@ -1,8 +1,11 @@
 package no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode
 
+import forskyvVilkårResultater
 import no.nav.familie.ks.sak.api.dto.BarnMedOpplysningerDto
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
+import no.nav.familie.ks.sak.common.tidslinje.tilTidslinje
+import no.nav.familie.ks.sak.common.tidslinje.utvidelser.tilPerioderIkkeNull
 import no.nav.familie.ks.sak.common.util.NullablePeriode
 import no.nav.familie.ks.sak.common.util.TIDENES_ENDE
 import no.nav.familie.ks.sak.common.util.TIDENES_MORGEN
@@ -24,6 +27,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.tilUtvidetVedtaksperiodeMedBegrunnelser
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.tilVedtaksbegrunnelseFritekst
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.utbetalingsperiodeMedBegrunnelser.UtbetalingsperiodeMedBegrunnelserService
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårsvurderingRepository
 import no.nav.familie.ks.sak.kjerne.beregning.AndelTilkjentYtelseMedEndreteUtbetalinger
@@ -122,6 +126,28 @@ class VedtaksperiodeService(
         }
     }
 
+    fun finnSisteVedtaksperiodeBegrunnelseVisningsdatoForBehandling(behandlingId: Long): LocalDate? {
+        val listeAvVilkårSomAlltidSkalKunneBegrunnes = listOf(Vilkår.BARNETS_ALDER, Vilkår.BARNEHAGEPLASS)
+
+        val vilkårsvurdering =
+            vilkårsvurderingRepository.finnAktivForBehandling(behandlingId = behandlingId) ?: return null
+
+        return vilkårsvurdering.personResultater.mapNotNull { personResultat ->
+
+            val vilkårResultaterForAktørSomAlltidSkalKunneBegrunnes =
+                personResultat.vilkårResultater.filter { listeAvVilkårSomAlltidSkalKunneBegrunnes.contains(it.vilkårType) }
+
+            val vilkårResultaterForAktørMapSomAlltidSkalKunneBegrunnes =
+                vilkårResultaterForAktørSomAlltidSkalKunneBegrunnes
+                    .groupByTo(mutableMapOf()) { it.vilkårType }
+                    .mapValues { it.value }
+
+            vilkårResultaterForAktørMapSomAlltidSkalKunneBegrunnes.flatMap { (vilkårType, vilkårResultater) ->
+                forskyvVilkårResultater(vilkårType, vilkårResultater).tilTidslinje().tilPerioderIkkeNull()
+            }.mapNotNull { it.tom }.maxOfOrNull { it }
+        }.maxOfOrNull { it }
+    }
+
     @Transactional
     fun oppdaterVedtakMedVedtaksperioder(vedtak: Vedtak, skalOverstyreFortsattInnvilget: Boolean = false) {
         vedtaksperiodeHentOgPersisterService.slettVedtaksperioderFor(vedtak)
@@ -181,12 +207,15 @@ class VedtaksperiodeService(
                 TIDENES_MORGEN
             }
 
-        return vedtaksperioderMedBegrunnelser.filter { (it.tom ?: TIDENES_ENDE).erSammeEllerEtter(endringstidspunkt) }
+        return vedtaksperioderMedBegrunnelser.filter {
+            (it.tom ?: TIDENES_ENDE).erSammeEllerEtter(endringstidspunkt)
+        }
     }
 
-    private fun hentSisteBehandlingSomErVedtatt(fagsakId: Long): Behandling? = behandlingRepository.finnBehandlinger(fagsakId)
-        .filter { !it.erHenlagt() && it.status == BehandlingStatus.AVSLUTTET }
-        .maxByOrNull { it.opprettetTidspunkt }
+    private fun hentSisteBehandlingSomErVedtatt(fagsakId: Long): Behandling? =
+        behandlingRepository.finnBehandlinger(fagsakId)
+            .filter { !it.erHenlagt() && it.status == BehandlingStatus.AVSLUTTET }
+            .maxByOrNull { it.opprettetTidspunkt }
 
     @Transactional
     fun genererVedtaksperiodeForOverstyrtEndringstidspunkt(
@@ -309,7 +338,9 @@ class VedtaksperiodeService(
             ?: error("Finner ikke vilkårsvurdering ved begrunning av vedtak")
 
         val endreteUtbetalinger =
-            andelerTilkjentYtelseOgEndreteUtbetalingerService.finnEndreteUtbetalingerMedAndelerTilkjentYtelse(behandling.id)
+            andelerTilkjentYtelseOgEndreteUtbetalingerService.finnEndreteUtbetalingerMedAndelerTilkjentYtelse(
+                behandling.id
+            )
                 .map { it.endretUtbetalingAndel }
 
         val sanityBegrunnelser = sanityService.hentSanityBegrunnelser()
@@ -378,9 +409,10 @@ class VedtaksperiodeService(
         val andelerTilkjentYtelseForForrigeBehandling = andelerTilkjentYtelseOgEndreteUtbetalingerService
             .finnAndelerTilkjentYtelseMedEndreteUtbetalinger(sisteVedtattBehandling.id)
 
-        val førsteEndringstidspunktFraAndelTilkjentYtelse = andelerTilkjentYtelseForBehandling.hentFørsteEndringstidspunkt(
-            forrigeAndelerTilkjentYtelse = andelerTilkjentYtelseForForrigeBehandling
-        ) ?: TIDENES_ENDE
+        val førsteEndringstidspunktFraAndelTilkjentYtelse =
+            andelerTilkjentYtelseForBehandling.hentFørsteEndringstidspunkt(
+                forrigeAndelerTilkjentYtelse = andelerTilkjentYtelseForForrigeBehandling
+            ) ?: TIDENES_ENDE
 
         // TODO EØS
 

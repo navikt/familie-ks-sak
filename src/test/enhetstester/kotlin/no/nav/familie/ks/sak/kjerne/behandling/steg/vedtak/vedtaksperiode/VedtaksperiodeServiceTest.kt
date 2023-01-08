@@ -26,6 +26,11 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.Vedtak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.VedtakRepository
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.VedtaksperiodeMedBegrunnelser
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.utbetalingsperiodeMedBegrunnelser.UtbetalingsperiodeMedBegrunnelserService
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.PersonResultat
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårsvurderingRepository
 import no.nav.familie.ks.sak.kjerne.beregning.AndelTilkjentYtelseMedEndreteUtbetalinger
 import no.nav.familie.ks.sak.kjerne.beregning.AndelerTilkjentYtelseOgEndreteUtbetalingerService
@@ -255,7 +260,9 @@ internal class VedtaksperiodeServiceTest {
             sats = 7500
         )
         every {
-            andelerTilkjentYtelseOgEndreteUtbetalingerService.finnAndelerTilkjentYtelseMedEndreteUtbetalinger(revurdering.id)
+            andelerTilkjentYtelseOgEndreteUtbetalingerService.finnAndelerTilkjentYtelseMedEndreteUtbetalinger(
+                revurdering.id
+            )
         } returns listOf(AndelTilkjentYtelseMedEndreteUtbetalinger(andelTilkjentYtelseForRevurdering, emptyList()))
 
         // Siden periode med fom=YearMonth.now().minusMonths(5), tom=YearMonth.now().minusMonths(4) er opphørt nå
@@ -314,7 +321,9 @@ internal class VedtaksperiodeServiceTest {
             sats = 3500
         )
         every {
-            andelerTilkjentYtelseOgEndreteUtbetalingerService.finnAndelerTilkjentYtelseMedEndreteUtbetalinger(revurdering.id)
+            andelerTilkjentYtelseOgEndreteUtbetalingerService.finnAndelerTilkjentYtelseMedEndreteUtbetalinger(
+                revurdering.id
+            )
         } returns listOf(
             AndelTilkjentYtelseMedEndreteUtbetalinger(andelTilkjentYtelseForRevurdering1, emptyList()),
             AndelTilkjentYtelseMedEndreteUtbetalinger(andelTilkjentYtelseForRevurdering2, emptyList())
@@ -328,5 +337,133 @@ internal class VedtaksperiodeServiceTest {
                 sisteVedtattBehandling = behandling
             )
         )
+    }
+
+    @Test
+    fun `finnSisteVedtaksperiodeBegrunnelseVisningsdatoForBehandling skal hente siste dato for visning av vedtaksperioder`() {
+        val vilkårsvurdering = Vilkårsvurdering(behandling = behandling)
+        val barnAktør = randomAktør()
+        val barnAktør2 = randomAktør()
+
+        val barnPersonResultat = PersonResultat(
+            vilkårsvurdering = vilkårsvurdering,
+            aktør = barnAktør
+        )
+
+        val barnPersonResultat2 = PersonResultat(
+            vilkårsvurdering = vilkårsvurdering,
+            aktør = barnAktør2
+        )
+
+        barnPersonResultat.setSortedVilkårResultater(
+            setOf(
+                VilkårResultat(
+                    personResultat = barnPersonResultat,
+                    vilkårType = Vilkår.BARNEHAGEPLASS,
+                    resultat = Resultat.OPPFYLT,
+                    periodeFom = LocalDate.of(2020, 12, 12),
+                    periodeTom = LocalDate.of(2022, 12, 12),
+                    begrunnelse = "",
+                    behandlingId = behandling.id
+                ),
+                VilkårResultat(
+                    personResultat = barnPersonResultat,
+                    vilkårType = Vilkår.BARNEHAGEPLASS,
+                    resultat = Resultat.OPPFYLT,
+                    periodeFom = LocalDate.of(2025, 12, 12),
+                    periodeTom = LocalDate.of(2026, 12, 12),
+                    begrunnelse = "",
+                    behandlingId = behandling.id
+                )
+            )
+        )
+        barnPersonResultat2.setSortedVilkårResultater(
+            setOf(
+                VilkårResultat(
+                    personResultat = barnPersonResultat2,
+                    vilkårType = Vilkår.BARNEHAGEPLASS,
+                    resultat = Resultat.OPPFYLT,
+                    periodeFom = LocalDate.of(2020, 12, 12),
+                    periodeTom = LocalDate.of(2022, 12, 12),
+                    begrunnelse = "",
+                    behandlingId = behandling.id
+                ),
+                VilkårResultat(
+                    personResultat = barnPersonResultat2,
+                    vilkårType = Vilkår.BARNEHAGEPLASS,
+                    resultat = Resultat.OPPFYLT,
+                    periodeFom = LocalDate.of(2025, 12, 12),
+                    periodeTom = LocalDate.of(2027, 12, 12),
+                    begrunnelse = "",
+                    behandlingId = behandling.id
+                )
+            )
+        )
+        vilkårsvurdering.personResultater = setOf(barnPersonResultat, barnPersonResultat2)
+
+        every { vilkårsvurderingRepository.finnAktivForBehandling(200) } returns vilkårsvurdering
+
+        val finnSisteVedtaksperiodeBegrunnelseVisningsdatoForBehandling =
+            vedtaksperiodeService.finnSisteVedtaksperiodeBegrunnelseVisningsdatoForBehandling(200)
+
+        assertThat(finnSisteVedtaksperiodeBegrunnelseVisningsdatoForBehandling, Is(LocalDate.of(2027, 11, 30)))
+
+        verify(exactly = 1) { vilkårsvurderingRepository.finnAktivForBehandling(200) }
+    }
+
+    @Test
+    fun `finnSisteVedtaksperiodeBegrunnelseVisningsdatoForBehandling skal returnere null hvis det ikke finnes vilkårsvurdering for behandling`() {
+        every { vilkårsvurderingRepository.finnAktivForBehandling(200) } returns null
+
+        val finnSisteVedtaksperiodeBegrunnelseVisningsdatoForBehandling =
+            vedtaksperiodeService.finnSisteVedtaksperiodeBegrunnelseVisningsdatoForBehandling(200)
+
+        assertThat(finnSisteVedtaksperiodeBegrunnelseVisningsdatoForBehandling, Is(nullValue()))
+
+        verify(exactly = 1) { vilkårsvurderingRepository.finnAktivForBehandling(200) }
+    }
+
+    @Test
+    fun `finnSisteVedtaksperiodeBegrunnelseVisningsdatoForBehandling skal returnere null hvis vilkårsvurderingen ikke inneholder noe vilkår som alltid skal vises`() {
+        val vilkårsvurdering = Vilkårsvurdering(behandling = behandling)
+        val barnAktør = randomAktør()
+
+        val personResultat = PersonResultat(
+            vilkårsvurdering = vilkårsvurdering,
+            aktør = barnAktør
+        )
+
+        personResultat.setSortedVilkårResultater(
+            setOf(
+                VilkårResultat(
+                    personResultat = personResultat,
+                    vilkårType = Vilkår.MEDLEMSKAP,
+                    resultat = Resultat.OPPFYLT,
+                    periodeFom = LocalDate.of(2020, 12, 12),
+                    periodeTom = LocalDate.of(2022, 12, 12),
+                    begrunnelse = "",
+                    behandlingId = behandling.id
+                ),
+                VilkårResultat(
+                    personResultat = personResultat,
+                    vilkårType = Vilkår.MEDLEMSKAP_ANNEN_FORELDER,
+                    resultat = Resultat.OPPFYLT,
+                    periodeFom = LocalDate.of(2025, 12, 12),
+                    periodeTom = LocalDate.of(2026, 12, 12),
+                    begrunnelse = "",
+                    behandlingId = behandling.id
+                )
+            )
+        )
+        vilkårsvurdering.personResultater = setOf(personResultat)
+
+        every { vilkårsvurderingRepository.finnAktivForBehandling(200) } returns vilkårsvurdering
+
+        val finnSisteVedtaksperiodeBegrunnelseVisningsdatoForBehandling =
+            vedtaksperiodeService.finnSisteVedtaksperiodeBegrunnelseVisningsdatoForBehandling(200)
+
+        assertThat(finnSisteVedtaksperiodeBegrunnelseVisningsdatoForBehandling, Is(nullValue()))
+
+        verify(exactly = 1) { vilkårsvurderingRepository.finnAktivForBehandling(200) }
     }
 }
