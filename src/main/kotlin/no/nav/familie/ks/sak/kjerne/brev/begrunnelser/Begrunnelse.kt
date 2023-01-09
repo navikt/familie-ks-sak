@@ -66,6 +66,10 @@ enum class Begrunnelse : IBegrunnelse {
         override val begrunnelseType = BegrunnelseType.INNVILGET
         override val sanityApiNavn = "innvilgetBosattINorge"
     },
+    INNVILGET_BOSATT_I_NORGE_SØKER {
+        override val begrunnelseType = BegrunnelseType.INNVILGET
+        override val sanityApiNavn = "innvilgetBosattINorgeSoker"
+    },
     INNVILGET_FORELDRENE_BOR_SAMMEN_ENDRET_MOTTAKER {
         override val begrunnelseType = BegrunnelseType.INNVILGET
         override val sanityApiNavn = "innvilgetForeldreneBorSammenEndretMottaker"
@@ -98,13 +102,25 @@ enum class Begrunnelse : IBegrunnelse {
         override val begrunnelseType = BegrunnelseType.INNVILGET
         override val sanityApiNavn = "innvilgetTredjelandsborgerLovligOppholdSamtidigBosattINorge"
     },
+    INNVILGET_TREDJELANDSBORGER_LOVLIG_OPPHOLD_SAMTIDIG_BOSATT_I_NORGE_SØKER {
+        override val begrunnelseType = BegrunnelseType.INNVILGET
+        override val sanityApiNavn = "innvilgetTredjelandsborgerLovligOppholdSamtidigBosattINorgeSoker"
+    },
     INNVILGET_TREDJELANDSBORGER_LOVLIG_OPPHOLD_FØR_BOSATT_I_NORGE {
         override val begrunnelseType = BegrunnelseType.INNVILGET
         override val sanityApiNavn = "innvilgetTredjelandsborgerLovligOppholdForBosattINorge"
     },
+    INNVILGET_TREDJELANDSBORGER_LOVLIG_OPPHOLD_FØR_BOSATT_I_NORGE_SØKER {
+        override val begrunnelseType = BegrunnelseType.INNVILGET
+        override val sanityApiNavn = "innvilgetTredjelandsborgerLovligOppholdForBosattINorgeSoker"
+    },
     INNVILGET_TREDJELANDSBORGER_BOSATT_FØR_LOVLIG_OPPHOLD_I_NORGE {
         override val begrunnelseType = BegrunnelseType.INNVILGET
         override val sanityApiNavn = "innvilgetTredjelandsborgerBosattForLovligOppholdINorge"
+    },
+    INNVILGET_TREDJELANDSBORGER_BOSATT_FØR_LOVLIG_OPPHOLD_I_NORGE_SØKER {
+        override val begrunnelseType = BegrunnelseType.INNVILGET
+        override val sanityApiNavn = "innvilgetTredjelandsborgerBosattForLovligOppholdINorgeSoker"
     },
     INNVILGET_VURDERING_BOR_FAST_HOS_SØKER {
         override val begrunnelseType = BegrunnelseType.INNVILGET
