@@ -43,7 +43,7 @@ fun UtvidetVedtaksperiodeMedBegrunnelser.tilUtvidetVedtaksperiodeMedBegrunnelser
         fom = this.fom,
         tom = this.tom,
         type = this.type,
-        begrunnelser = this.begrunnelser.map { it.tilRestVedtaksbegrunnelse(sanityBegrunnelser) },
+        begrunnelser = this.begrunnelser.map { it.tilVedtaksbegrunnelseDto(sanityBegrunnelser) },
         fritekster = this.fritekster,
         utbetalingsperiodeDetaljer = this.utbetalingsperiodeDetaljer.map { it.tilUtbetalingsperiodeDetaljDto() },
         gyldigeBegrunnelser = this.gyldigeBegrunnelser.map { it.enumnavnTilString() }
@@ -57,7 +57,7 @@ data class VedtaksbegrunnelseDto(
     val støtterFritekst: Boolean
 )
 
-fun Vedtaksbegrunnelse.tilRestVedtaksbegrunnelse(sanityBegrunnelser: List<SanityBegrunnelse>) = VedtaksbegrunnelseDto(
+fun Vedtaksbegrunnelse.tilVedtaksbegrunnelseDto(sanityBegrunnelser: List<SanityBegrunnelse>) = VedtaksbegrunnelseDto(
     begrunnelse = this.begrunnelse.enumnavnTilString(),
     begrunnelseType = this.begrunnelse.begrunnelseType,
     støtterFritekst = this.begrunnelse.støtterFritekst(sanityBegrunnelser),
