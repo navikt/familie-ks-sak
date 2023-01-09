@@ -77,6 +77,7 @@ class SakStatistikkService(
             saksnummer = behandling.fagsak.id,
             behandlingID = behandling.id,
             mottattTid = behandling.søknadMottattDato?.tilOffset(),
+            registrertTid = behandling.opprettetTidspunkt.tilOffset(),
             behandlingType = behandling.type,
             behandlingStatus = behandling.status,
             behandlingsResultat = behandling.resultat,
