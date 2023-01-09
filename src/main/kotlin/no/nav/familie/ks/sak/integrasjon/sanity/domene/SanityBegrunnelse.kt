@@ -20,7 +20,8 @@ data class SanityBegrunnelse(
     val triggere: List<Trigger>,
     val hjemler: List<String>,
     val endringsårsaker: List<Årsak>,
-    val endretUtbetalingsperiode: List<EndretUtbetalingsperiodeTrigger>
+    val endretUtbetalingsperiode: List<EndretUtbetalingsperiodeTrigger>,
+    val støtterFritekst: Boolean
 )
 
 enum class SanityBegrunnelseType {
@@ -63,7 +64,8 @@ data class SanityBegrunnelseDto(
     val endringsaarsaker: List<String> = emptyList(),
     val endretUtbetalingsperiode: List<String> = emptyList(),
     val triggere: List<String> = emptyList(),
-    val hjemler: List<String> = emptyList()
+    val hjemler: List<String> = emptyList(),
+    val stotterFritekst: Boolean?
 ) {
     fun tilSanityBegrunnelse(): SanityBegrunnelse {
         return SanityBegrunnelse(
@@ -86,7 +88,8 @@ data class SanityBegrunnelseDto(
             endringsårsaker = endringsaarsaker.mapNotNull { finnEnumverdi(it, Årsak.values(), apiNavn) },
             endretUtbetalingsperiode = endretUtbetalingsperiode.mapNotNull {
                 finnEnumverdi(it, EndretUtbetalingsperiodeTrigger.values(), apiNavn)
-            }
+            },
+            støtterFritekst = stotterFritekst ?: false
         )
     }
 }
