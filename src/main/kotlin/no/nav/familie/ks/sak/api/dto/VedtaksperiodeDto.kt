@@ -1,9 +1,11 @@
 package no.nav.familie.ks.sak.api.dto
 
+import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelse
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.Vedtaksperiodetype
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.UtvidetVedtaksperiodeMedBegrunnelser
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.Vedtaksbegrunnelse
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.BegrunnelseType
+import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.støtterFritekst
 import java.time.LocalDate
 
 data class VedtaksperiodeMedFriteksterDto(
@@ -35,13 +37,13 @@ data class UtvidetVedtaksperiodeMedBegrunnelserDto(
     val utbetalingsperiodeDetaljer: List<UtbetalingsperiodeDetaljDto> = emptyList()
 )
 
-fun UtvidetVedtaksperiodeMedBegrunnelser.tilUtvidetVedtaksperiodeMedBegrunnelserDto(): UtvidetVedtaksperiodeMedBegrunnelserDto {
+fun UtvidetVedtaksperiodeMedBegrunnelser.tilUtvidetVedtaksperiodeMedBegrunnelserDto(sanityBegrunnelser: List<SanityBegrunnelse>): UtvidetVedtaksperiodeMedBegrunnelserDto {
     return UtvidetVedtaksperiodeMedBegrunnelserDto(
         id = this.id,
         fom = this.fom,
         tom = this.tom,
         type = this.type,
-        begrunnelser = this.begrunnelser.map { it.tilRestVedtaksbegrunnelse() },
+        begrunnelser = this.begrunnelser.map { it.tilRestVedtaksbegrunnelse(sanityBegrunnelser) },
         fritekster = this.fritekster,
         utbetalingsperiodeDetaljer = this.utbetalingsperiodeDetaljer.map { it.tilUtbetalingsperiodeDetaljDto() },
         gyldigeBegrunnelser = this.gyldigeBegrunnelser.map { it.enumnavnTilString() }
@@ -51,11 +53,13 @@ fun UtvidetVedtaksperiodeMedBegrunnelser.tilUtvidetVedtaksperiodeMedBegrunnelser
 data class VedtaksbegrunnelseDto(
     val begrunnelse: String,
     val vedtakBegrunnelseSpesifikasjon: String,
-    val begrunnelseType: BegrunnelseType
+    val begrunnelseType: BegrunnelseType,
+    val støtterFritekst: Boolean
 )
 
-fun Vedtaksbegrunnelse.tilRestVedtaksbegrunnelse() = VedtaksbegrunnelseDto(
+fun Vedtaksbegrunnelse.tilRestVedtaksbegrunnelse(sanityBegrunnelser: List<SanityBegrunnelse>) = VedtaksbegrunnelseDto(
     begrunnelse = this.begrunnelse.enumnavnTilString(),
     begrunnelseType = this.begrunnelse.begrunnelseType,
+    støtterFritekst = this.begrunnelse.støtterFritekst(sanityBegrunnelser),
     vedtakBegrunnelseSpesifikasjon = this.begrunnelse.enumnavnTilString()
 )

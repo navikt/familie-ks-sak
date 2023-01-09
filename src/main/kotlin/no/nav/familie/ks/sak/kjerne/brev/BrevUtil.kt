@@ -190,13 +190,13 @@ private fun hentOrdinæreHjemler(
     finnesVedtaksperiodeMedFritekst: Boolean
 ): List<String> {
     if (opplysningspliktHjemlerSkalMedIBrev) {
+        // TODO: Finn ut hvilke hjemler som skal brukes om opplysningsplikt for kontantstøtte
         val hjemlerNårOpplysningspliktIkkeOppfylt = listOf("17", "18")
         hjemler.addAll(hjemlerNårOpplysningspliktIkkeOppfylt)
     }
 
     if (finnesVedtaksperiodeMedFritekst) {
-        throw FunksjonellFeil("Fritekst er ikke implementert enda.")
-        // TODO er det de samme hjemlene for fritekst i ba og ks? hjemler.addAll(hjemlerTilhørendeFritekst.map { it.toString() }.toSet())
+        // TODO: Finn ut hvilke hjemler som skal brukes for fritekst (hjemler.addAll(hjemlerTilhørendeFritekst.map { it.toString() }.toSet()))
     }
 
     return hjemler.map { it.toInt() }.sorted().map { it.toString() }
