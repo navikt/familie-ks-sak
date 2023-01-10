@@ -83,7 +83,8 @@ class KlageService(
             behandlingstype = behandling.type.visningsnavn,
             resultat = behandling.resultat.displayName,
             vedtakstidspunkt = vedtak.vedtaksdato ?: error("Mangler vedtakstidspunkt for behandling=${behandling.id}"),
-            fagsystemType = FagsystemType.ORDNIÆR
+            fagsystemType = FagsystemType.ORDNIÆR,
+            regelverk = behandling.kategori.tilRegelverk()
         )
     }
 }
