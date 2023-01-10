@@ -2,6 +2,7 @@ package no.nav.familie.ks.sak.kjerne.brev.begrunnelser
 
 import no.nav.familie.ks.sak.common.util.konverterEnumsTilString
 import no.nav.familie.ks.sak.common.util.konverterStringTilEnums
+import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelse
 import javax.persistence.AttributeConverter
 import javax.persistence.Converter
 
@@ -153,6 +154,9 @@ enum class Begrunnelse : IBegrunnelse {
 
     override fun enumnavnTilString() = this.name
 }
+
+fun Begrunnelse.støtterFritekst(sanityBegrunnelser: List<SanityBegrunnelse>) =
+    sanityBegrunnelser.first { it.apiNavn == this.sanityApiNavn }.støtterFritekst
 
 @Converter
 class StandardbegrunnelseListConverter :
