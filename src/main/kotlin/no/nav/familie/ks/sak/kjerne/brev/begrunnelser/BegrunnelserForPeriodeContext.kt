@@ -80,6 +80,8 @@ class BegrunnelserForPeriodeContext(
             sanityBegrunnelse
         )
 
+        if (sanityBegrunnelse.skalAlltidVises) return true
+
         return hentPersonerMedVilkårResultaterSomPasserMedBegrunnelseOgPeriode(this, sanityBegrunnelse).isNotEmpty()
     }
 

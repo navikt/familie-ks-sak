@@ -179,7 +179,8 @@ class VilkårsvurderingServiceTest {
                 hjemler = emptyList(),
                 endretUtbetalingsperiode = emptyList(),
                 endringsårsaker = emptyList(),
-                støtterFritekst = false
+                støtterFritekst = false,
+                skalAlltidVises = false
             )
         )
 
