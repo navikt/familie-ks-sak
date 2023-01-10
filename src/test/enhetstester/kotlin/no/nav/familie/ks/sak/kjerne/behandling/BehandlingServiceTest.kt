@@ -21,6 +21,7 @@ import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagFagsak
 import no.nav.familie.ks.sak.data.lagPersonopplysningGrunnlag
 import no.nav.familie.ks.sak.data.randomAktør
+import no.nav.familie.ks.sak.integrasjon.sanity.SanityService
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.ArbeidsfordelingService
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.domene.ArbeidsfordelingPåBehandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingKategori
@@ -91,6 +92,9 @@ class BehandlingServiceTest {
     @MockK
     private lateinit var tilbakekrevingRepository: TilbakekrevingRepository
 
+    @MockK
+    private lateinit var sanityService: SanityService
+
     @InjectMockKs
     private lateinit var behandlingService: BehandlingService
 
@@ -148,6 +152,7 @@ class BehandlingServiceTest {
         every { totrinnskontrollRepository.findByBehandlingAndAktiv(any()) } returns mockk(relaxed = true)
         every { tilbakekrevingRepository.findByBehandlingId(any()) } returns null
         every { vedtaksperiodeService.finnSisteVedtaksperiodeVisningsdatoForBehandling(any()) } returns null
+        every { sanityService.hentSanityBegrunnelser() } returns emptyList()
     }
 
     @Test
@@ -211,7 +216,9 @@ class BehandlingServiceTest {
     fun `oppdaterBehandlingstemaManuelt skal oppdatere kategori og opprette logg hvis overstyrt kategori er annerledes`() {
         every {
             loggService.opprettEndretBehandlingstemaLogg(
-                any(), BehandlingKategori.NASJONAL, BehandlingKategori.EØS
+                any(),
+                BehandlingKategori.NASJONAL,
+                BehandlingKategori.EØS
             )
         } returns mockk()
 
@@ -226,7 +233,9 @@ class BehandlingServiceTest {
         verify(exactly = 1) { behandlingRepository.hentBehandling(behandling.id) }
         verify(exactly = 1) {
             loggService.opprettEndretBehandlingstemaLogg(
-                any(), BehandlingKategori.NASJONAL, BehandlingKategori.EØS
+                any(),
+                BehandlingKategori.NASJONAL,
+                BehandlingKategori.EØS
             )
         }
         verify(exactly = 1) { behandlingRepository.save(behandling) }
@@ -247,7 +256,9 @@ class BehandlingServiceTest {
         verify(exactly = 1) { behandlingRepository.hentBehandling(behandling.id) }
         verify {
             loggService.opprettEndretBehandlingstemaLogg(
-                any(), BehandlingKategori.NASJONAL, BehandlingKategori.EØS
+                any(),
+                BehandlingKategori.NASJONAL,
+                BehandlingKategori.EØS
             ) wasNot called
         }
         verify { behandlingRepository.save(behandling) wasNot called }

@@ -178,7 +178,8 @@ class VilkårsvurderingServiceTest {
                 utdypendeVilkårsvurderinger = emptyList(),
                 hjemler = emptyList(),
                 endretUtbetalingsperiode = emptyList(),
-                endringsårsaker = emptyList()
+                endringsårsaker = emptyList(),
+                støtterFritekst = false
             )
         )
 

@@ -10,6 +10,7 @@ import no.nav.familie.ks.sak.api.mapper.BehandlingMapper
 import no.nav.familie.ks.sak.api.mapper.BehandlingMapper.lagPersonRespons
 import no.nav.familie.ks.sak.api.mapper.BehandlingMapper.lagPersonerMedAndelTilkjentYtelseRespons
 import no.nav.familie.ks.sak.api.mapper.SøknadGrunnlagMapper.tilSøknadDto
+import no.nav.familie.ks.sak.integrasjon.sanity.SanityService
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.ArbeidsfordelingService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingKategori
@@ -52,7 +53,8 @@ class BehandlingService(
     private val vedtakRepository: VedtakRepository,
     private val vedtaksperiodeService: VedtaksperiodeService,
     private val totrinnskontrollRepository: TotrinnskontrollRepository,
-    private val tilbakekrevingRepository: TilbakekrevingRepository
+    private val tilbakekrevingRepository: TilbakekrevingRepository,
+    private val sanityService: SanityService
 ) {
 
     fun hentBehandling(behandlingId: Long): Behandling = behandlingRepository.hentBehandling(behandlingId)
@@ -98,11 +100,17 @@ class BehandlingService(
             personopplysningGrunnlag?.let { andelTilkjentYtelseMedEndreteUtbetalinger.tilUtbetalingsperiodeResponsDto(it) }
                 ?: emptyList()
 
+        val sanityBegrunnelser = sanityService.hentSanityBegrunnelser()
+
         val vedtak = vedtakRepository.findByBehandlingAndAktivOptional(behandlingId)?.let {
             it.tilVedtakDto(
                 vedtaksperioderMedBegrunnelser = if (behandling.status != BehandlingStatus.AVSLUTTET) {
                     vedtaksperiodeService.hentUtvidetVedtaksperioderMedBegrunnelser(vedtak = it)
-                        .map { utvidetVedtaksPerioder -> utvidetVedtaksPerioder.tilUtvidetVedtaksperiodeMedBegrunnelserDto() }
+                        .map { utvidetVedtaksperiodeMedBegrunnelser ->
+                            utvidetVedtaksperiodeMedBegrunnelser.tilUtvidetVedtaksperiodeMedBegrunnelserDto(
+                                sanityBegrunnelser
+                            )
+                        }
                         .sortedBy { dto -> dto.fom }
                 } else {
                     emptyList()
