@@ -245,7 +245,8 @@ class BegrunnelserForPeriodeContextTest {
             hjemler = emptyList(),
             endretUtbetalingsperiode = emptyList(),
             endringsårsaker = emptyList(),
-            støtterFritekst = false
+            støtterFritekst = false,
+            skalAlltidVises = false
         )
         val personResultatBarn = PersonResultat(
             aktør = barnAktør,
@@ -312,7 +313,8 @@ class BegrunnelserForPeriodeContextTest {
                 hjemler = emptyList(),
                 endretUtbetalingsperiode = emptyList(),
                 endringsårsaker = emptyList(),
-                støtterFritekst = false
+                støtterFritekst = false,
+                skalAlltidVises = false
             ),
             SanityBegrunnelse(
                 apiNavn = Begrunnelse.INNVILGET_SØKER_OG_ELLER_BARN_HAR_OPPHOLDSTILLATELSE.sanityApiNavn,
@@ -325,7 +327,8 @@ class BegrunnelserForPeriodeContextTest {
                 hjemler = emptyList(),
                 endretUtbetalingsperiode = emptyList(),
                 endringsårsaker = emptyList(),
-                støtterFritekst = false
+                støtterFritekst = false,
+                skalAlltidVises = false
             ),
             SanityBegrunnelse(
                 apiNavn = Begrunnelse.INNVILGET_SØKER_OG_ELLER_BARN_BOSATT_I_RIKET.sanityApiNavn,
@@ -338,7 +341,8 @@ class BegrunnelserForPeriodeContextTest {
                 hjemler = emptyList(),
                 endretUtbetalingsperiode = emptyList(),
                 endringsårsaker = emptyList(),
-                støtterFritekst = false
+                støtterFritekst = false,
+                skalAlltidVises = false
             ),
             SanityBegrunnelse(
                 apiNavn = Begrunnelse.INNVILGET_SØKER_OG_ELLER_BARN_BOSATT_I_RIKET_OG_HAR_OPPHOLDSTILLATELSE.sanityApiNavn,
@@ -351,7 +355,8 @@ class BegrunnelserForPeriodeContextTest {
                 hjemler = emptyList(),
                 endretUtbetalingsperiode = emptyList(),
                 endringsårsaker = emptyList(),
-                støtterFritekst = false
+                støtterFritekst = false,
+                skalAlltidVises = false
             )
         )
         val personResultatBarn = PersonResultat(
@@ -421,7 +426,8 @@ class BegrunnelserForPeriodeContextTest {
                 hjemler = emptyList(),
                 endringsårsaker = emptyList(),
                 endretUtbetalingsperiode = emptyList(),
-                støtterFritekst = false
+                støtterFritekst = false,
+                skalAlltidVises = false
             )
         )
         val personResultatBarn = PersonResultat(
@@ -486,7 +492,8 @@ class BegrunnelserForPeriodeContextTest {
             hjemler = emptyList(),
             endretUtbetalingsperiode = emptyList(),
             endringsårsaker = emptyList(),
-            støtterFritekst = false
+            støtterFritekst = false,
+            skalAlltidVises = false
         ),
         SanityBegrunnelse(
             apiNavn = Begrunnelse.INNVILGET_IKKE_BARNEHAGE_ADOPSJON.sanityApiNavn,
@@ -499,7 +506,8 @@ class BegrunnelserForPeriodeContextTest {
             hjemler = emptyList(),
             endretUtbetalingsperiode = emptyList(),
             endringsårsaker = emptyList(),
-            støtterFritekst = false
+            støtterFritekst = false,
+            skalAlltidVises = false
         ),
         SanityBegrunnelse(
             apiNavn = Begrunnelse.INNVILGET_DELTID_BARNEHAGE.sanityApiNavn,
@@ -512,7 +520,8 @@ class BegrunnelserForPeriodeContextTest {
             hjemler = emptyList(),
             endretUtbetalingsperiode = emptyList(),
             endringsårsaker = emptyList(),
-            støtterFritekst = false
+            støtterFritekst = false,
+            skalAlltidVises = false
         ),
         SanityBegrunnelse(
             apiNavn = Begrunnelse.INNVILGET_DELTID_BARNEHAGE_ADOPSJON.sanityApiNavn,
@@ -525,7 +534,8 @@ class BegrunnelserForPeriodeContextTest {
             hjemler = emptyList(),
             endretUtbetalingsperiode = emptyList(),
             endringsårsaker = emptyList(),
-            støtterFritekst = false
+            støtterFritekst = false,
+            skalAlltidVises = false
         )
     )
 
