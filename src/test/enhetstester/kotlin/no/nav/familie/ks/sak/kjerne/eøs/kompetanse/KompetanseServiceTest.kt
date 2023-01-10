@@ -68,15 +68,22 @@ internal class KompetanseServiceTest {
         )
     }
 
-    // @Test
+    @Test
     fun `oppdaterKompetanse oppdatering som splitter kompetanse fulgt av sletting skal returnere til utgangspunktet`() {
+        // kompetanse med tre barn mellom 2022.01-2022.09, men andre verdiene er ikke satt enda
         val eksisterendeKompetanse = lagKompetanse(
             behandlingId = behandlingId,
             fom = YearMonth.of(2022, 1),
             tom = YearMonth.of(2022, 9),
-            barnAktører = setOf(barn1, barn2, barn3)
+            barnAktører = setOf(barn1, barn2, barn3),
+            annenForeldersAktivitetsland = null,
+            annenForeldersAktivitet = null,
+            barnetsBostedsland = null,
+            søkersAktivitetsland = null,
+            søkersAktivitet = null
         ).lagreTil(kompetanseRepository)
 
+        // oppdateringen for barn2 og barn3 for periode 2022.03-2022.04 med primærland
         val oppdateresKompetanse = lagKompetanse(
             behandlingId = behandlingId,
             fom = YearMonth.of(2022, 3),
@@ -117,6 +124,7 @@ internal class KompetanseServiceTest {
             hentetKompetanse = kompetanser[3]
         )
 
+        // Hvis SB fjener oppdateringen, retuneres det til eksisterde kompetanse
         val kompetanseSomSkalSlettes = kompetanseService.hentKompetanser(behandlingId)
             .first { it == oppdateresKompetanse }
         kompetanseService.slettKompetanse(kompetanseSomSkalSlettes.id)
