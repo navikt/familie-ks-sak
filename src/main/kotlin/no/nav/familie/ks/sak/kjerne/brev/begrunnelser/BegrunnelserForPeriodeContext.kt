@@ -76,10 +76,11 @@ class BegrunnelserForPeriodeContext(
     private fun Begrunnelse.triggesForVedtaksperiode(): Boolean {
         val sanityBegrunnelse = this.tilSanityBegrunnelse(sanityBegrunnelser) ?: return false
 
+        if (sanityBegrunnelse.skalAlltidVises) return true
+
         if (sanityBegrunnelse.endretUtbetalingsperiode.isNotEmpty()) return erEtterEndretPeriodeAvSammeÅrsak(
             sanityBegrunnelse
         )
-
         return hentPersonerMedVilkårResultaterSomPasserMedBegrunnelseOgPeriode(this, sanityBegrunnelse).isNotEmpty()
     }
 
