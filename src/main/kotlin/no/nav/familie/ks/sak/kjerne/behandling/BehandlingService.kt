@@ -124,7 +124,7 @@ class BehandlingService(
         )
 
         val sisteVedtaksperiodeVisningDato =
-            vedtaksperiodeService.finnSisteVedtaksperiodeBegrunnelseVisningsdatoForBehandling(behandling.id)
+            vedtaksperiodeService.finnSisteVedtaksperiodeVisningsdatoForBehandling(behandling.id)
 
         val tilbakekreving = tilbakekrevingRepository.findByBehandlingId(behandlingId)
 

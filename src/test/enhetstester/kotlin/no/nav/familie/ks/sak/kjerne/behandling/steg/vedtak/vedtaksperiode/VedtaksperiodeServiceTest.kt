@@ -340,7 +340,7 @@ internal class VedtaksperiodeServiceTest {
     }
 
     @Test
-    fun `finnSisteVedtaksperiodeBegrunnelseVisningsdatoForBehandling skal hente siste dato for visning av vedtaksperioder`() {
+    fun `finnSisteVedtaksperiodeVisningsdatoForBehandling skal hente siste dato for visning av vedtaksperioder`() {
         val vilkårsvurdering = Vilkårsvurdering(behandling = behandling)
         val barnAktør = randomAktør()
         val barnAktør2 = randomAktør()
@@ -403,28 +403,28 @@ internal class VedtaksperiodeServiceTest {
 
         every { vilkårsvurderingRepository.finnAktivForBehandling(200) } returns vilkårsvurdering
 
-        val finnSisteVedtaksperiodeBegrunnelseVisningsdatoForBehandling =
-            vedtaksperiodeService.finnSisteVedtaksperiodeBegrunnelseVisningsdatoForBehandling(200)
+        val finnSisteVedtaksperiodeVisningsdatoForBehandling =
+            vedtaksperiodeService.finnSisteVedtaksperiodeVisningsdatoForBehandling(200)
 
-        assertThat(finnSisteVedtaksperiodeBegrunnelseVisningsdatoForBehandling, Is(LocalDate.of(2027, 11, 30)))
+        assertThat(finnSisteVedtaksperiodeVisningsdatoForBehandling, Is(LocalDate.of(2027, 11, 30)))
 
         verify(exactly = 1) { vilkårsvurderingRepository.finnAktivForBehandling(200) }
     }
 
     @Test
-    fun `finnSisteVedtaksperiodeBegrunnelseVisningsdatoForBehandling skal returnere null hvis det ikke finnes vilkårsvurdering for behandling`() {
+    fun `finnSisteVedtaksperiodeVisningsdatoForBehandling skal returnere null hvis det ikke finnes vilkårsvurdering for behandling`() {
         every { vilkårsvurderingRepository.finnAktivForBehandling(200) } returns null
 
-        val finnSisteVedtaksperiodeBegrunnelseVisningsdatoForBehandling =
-            vedtaksperiodeService.finnSisteVedtaksperiodeBegrunnelseVisningsdatoForBehandling(200)
+        val finnSisteVedtaksperiodeVisningsdatoForBehandling =
+            vedtaksperiodeService.finnSisteVedtaksperiodeVisningsdatoForBehandling(200)
 
-        assertThat(finnSisteVedtaksperiodeBegrunnelseVisningsdatoForBehandling, Is(nullValue()))
+        assertThat(finnSisteVedtaksperiodeVisningsdatoForBehandling, Is(nullValue()))
 
         verify(exactly = 1) { vilkårsvurderingRepository.finnAktivForBehandling(200) }
     }
 
     @Test
-    fun `finnSisteVedtaksperiodeBegrunnelseVisningsdatoForBehandling skal returnere null hvis vilkårsvurderingen ikke inneholder noe vilkår som alltid skal vises`() {
+    fun `finnSisteVedtaksperiodeVisningsdatoForBehandling skal returnere null hvis vilkårsvurderingen ikke inneholder noe vilkår som alltid skal vises`() {
         val vilkårsvurdering = Vilkårsvurdering(behandling = behandling)
         val barnAktør = randomAktør()
 
@@ -459,10 +459,10 @@ internal class VedtaksperiodeServiceTest {
 
         every { vilkårsvurderingRepository.finnAktivForBehandling(200) } returns vilkårsvurdering
 
-        val finnSisteVedtaksperiodeBegrunnelseVisningsdatoForBehandling =
-            vedtaksperiodeService.finnSisteVedtaksperiodeBegrunnelseVisningsdatoForBehandling(200)
+        val finnSisteVedtaksperiodeVisningsdatoForBehandling =
+            vedtaksperiodeService.finnSisteVedtaksperiodeVisningsdatoForBehandling(200)
 
-        assertThat(finnSisteVedtaksperiodeBegrunnelseVisningsdatoForBehandling, Is(nullValue()))
+        assertThat(finnSisteVedtaksperiodeVisningsdatoForBehandling, Is(nullValue()))
 
         verify(exactly = 1) { vilkårsvurderingRepository.finnAktivForBehandling(200) }
     }

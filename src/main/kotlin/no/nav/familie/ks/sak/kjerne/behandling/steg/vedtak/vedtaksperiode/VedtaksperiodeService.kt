@@ -126,7 +126,7 @@ class VedtaksperiodeService(
         }
     }
 
-    fun finnSisteVedtaksperiodeBegrunnelseVisningsdatoForBehandling(behandlingId: Long): LocalDate? {
+    fun finnSisteVedtaksperiodeVisningsdatoForBehandling(behandlingId: Long): LocalDate? {
         val listeAvVilkårSomAlltidSkalKunneBegrunnes = listOf(Vilkår.BARNETS_ALDER, Vilkår.BARNEHAGEPLASS)
 
         val vilkårsvurdering =
