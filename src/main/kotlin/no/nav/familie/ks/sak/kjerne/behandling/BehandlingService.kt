@@ -131,6 +131,9 @@ class BehandlingService(
             sisteVedtattBehandling = hentSisteBehandlingSomErVedtatt(behandling.fagsak.id)
         )
 
+        val sisteVedtaksperiodeVisningDato =
+            vedtaksperiodeService.finnSisteVedtaksperiodeVisningsdatoForBehandling(behandling.id)
+
         val tilbakekreving = tilbakekrevingRepository.findByBehandlingId(behandlingId)
 
         return BehandlingMapper.lagBehandlingRespons(
@@ -145,7 +148,8 @@ class BehandlingService(
             totrinnskontroll,
             endreteUtbetalingerMedAndeler,
             endringstidspunkt,
-            tilbakekreving
+            tilbakekreving,
+            sisteVedtaksperiodeVisningDato
         )
     }
 

@@ -10,6 +10,7 @@ import no.nav.familie.kontrakter.felles.klage.Stønadstype
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
+import no.nav.familie.ks.sak.integrasjon.tilbakekreving.TilbakekrevingKlient
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.VedtakService
@@ -25,8 +26,8 @@ class KlageService(
     private val klageClient: KlageClient,
     private val integrasjonClient: IntegrasjonClient,
     private val behandlingService: BehandlingService,
-    private val vedtakService: VedtakService
-
+    private val vedtakService: VedtakService,
+    private val tilbakekrevingKlient: TilbakekrevingKlient
 ) {
 
     fun opprettKlage(fagsakId: Long, opprettKlageDto: OpprettKlageDto) {
@@ -67,12 +68,11 @@ class KlageService(
     fun hentFagsystemVedtak(fagsakId: Long): List<FagsystemVedtak> {
         val fagsak = fagsakService.hentFagsak(fagsakId)
         val behandlinger = behandlingService.hentFerdigstilteBehandlinger(fagsak)
-        val ferdigstilteKsBehandlinger = behandlinger.map { tilFagsystemVedtak(it) }
 
-        // TODO når vi har fått inn tilbakekreving
-        val vedtakTilbakekreving = emptyList<FagsystemVedtak>()
+        val ferdigstilteKsVedtak = behandlinger.map { tilFagsystemVedtak(it) }
+        val vedtakTilbakekreving = tilbakekrevingKlient.hentTilbakekrevingsvedtak(fagsakId)
 
-        return ferdigstilteKsBehandlinger + vedtakTilbakekreving
+        return ferdigstilteKsVedtak + vedtakTilbakekreving
     }
 
     private fun tilFagsystemVedtak(behandling: Behandling): FagsystemVedtak {
