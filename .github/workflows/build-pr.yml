@@ -29,7 +29,7 @@ jobs:
           ktlint_version: 0.43.2
   enhetstester:
     name: Enhetstester
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest-16-cores
     steps:
       - uses: "actions/checkout@v3"
       - uses: "gradle/wrapper-validation-action@v1"
@@ -46,7 +46,7 @@ jobs:
           ./gradlew test 
   integrasjonstester:
     name: Integrasjonstester
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest-16-cores
     steps:
       - uses: "actions/checkout@v3"
       - uses: "gradle/wrapper-validation-action@v1"
