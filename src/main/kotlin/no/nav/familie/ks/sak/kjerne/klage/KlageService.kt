@@ -69,10 +69,10 @@ class KlageService(
         val fagsak = fagsakService.hentFagsak(fagsakId)
         val behandlinger = behandlingService.hentFerdigstilteBehandlinger(fagsak)
 
-        val ferdigstilteKsBehandlinger = behandlinger.map { tilFagsystemVedtak(it) }
+        val ferdigstilteKsVedtak = behandlinger.map { tilFagsystemVedtak(it) }
         val vedtakTilbakekreving = tilbakekrevingKlient.hentTilbakekrevingsvedtak(fagsakId)
 
-        return ferdigstilteKsBehandlinger + vedtakTilbakekreving
+        return ferdigstilteKsVedtak + vedtakTilbakekreving
     }
 
     private fun tilFagsystemVedtak(behandling: Behandling): FagsystemVedtak {
