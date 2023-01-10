@@ -151,6 +151,7 @@ class BehandlingServiceTest {
         } returns emptyList()
         every { totrinnskontrollRepository.findByBehandlingAndAktiv(any()) } returns mockk(relaxed = true)
         every { tilbakekrevingRepository.findByBehandlingId(any()) } returns null
+        every { vedtaksperiodeService.finnSisteVedtaksperiodeVisningsdatoForBehandling(any()) } returns null
         every { sanityService.hentSanityBegrunnelser() } returns emptyList()
     }
 
@@ -167,6 +168,11 @@ class BehandlingServiceTest {
         verify(exactly = 1) { andelTilkjentYtelseRepository.finnAndelerTilkjentYtelseForBehandling(behandling.id) }
         verify(exactly = 1) { vedtaksperiodeService.finnEndringstidspunktForBehandling(behandling, null) }
         verify(exactly = 1) { tilbakekrevingRepository.findByBehandlingId(behandling.id) }
+        verify(exactly = 1) {
+            vedtaksperiodeService.finnSisteVedtaksperiodeVisningsdatoForBehandling(
+                behandling.id
+            )
+        }
 
         assertTrue { behandlingResponsDto.personer.isNotEmpty() }
         assertEquals(1, behandlingResponsDto.personer.size)

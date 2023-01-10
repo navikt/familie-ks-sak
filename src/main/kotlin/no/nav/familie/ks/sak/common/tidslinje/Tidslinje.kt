@@ -46,7 +46,7 @@ open class Tidslinje<T>(
 
     /**
      * Kalkulerer slutttidspunkt som en LocalDate.
-     * Funkjsonen returnerer den siste dagen som er med i tidslinja
+     * Funksjonen returnerer den siste dagen som er med i tidslinja
      * Om tidslinja er uendelig, kastes det et unntak
      */
     fun kalkulerSluttTidspunkt(): LocalDate {

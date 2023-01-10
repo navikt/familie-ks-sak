@@ -86,7 +86,7 @@ private fun tilVilkårResultaterMedInformasjonOmNestePeriode(vilkårResultater: 
         )
     } + VilkårResultaterMedInformasjonOmNestePeriode(vilkårResultater.last(), false)
 
-private fun MutableList<VilkårResultat>.fjernAvslagUtenPeriodeHvisDetFinsAndreVilkårResultat(): List<VilkårResultat> =
+fun MutableList<VilkårResultat>.fjernAvslagUtenPeriodeHvisDetFinsAndreVilkårResultat(): List<VilkårResultat> =
     if (this.any { !it.erAvslagUtenPeriode() }) this.filterNot { it.erAvslagUtenPeriode() } else this
 
 private fun alleVilkårOppfyltEllerNull(
