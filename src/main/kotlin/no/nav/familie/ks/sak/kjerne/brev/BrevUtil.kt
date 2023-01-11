@@ -187,7 +187,7 @@ private fun hentOrdinæreHjemler(
     opplysningspliktHjemlerSkalMedIBrev: Boolean
 ): List<String> {
     if (opplysningspliktHjemlerSkalMedIBrev) {
-        val hjemlerNårOpplysningspliktIkkeOppfylt = listOf("16")
+        val hjemlerNårOpplysningspliktIkkeOppfylt = listOf("13", "16")
         hjemler.addAll(hjemlerNårOpplysningspliktIkkeOppfylt)
     }
 
