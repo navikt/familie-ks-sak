@@ -112,11 +112,11 @@ internal class BisysServiceTest {
         )
 
         val utbetalinger = bisysService.hentUtbetalingsinfo(barnIdenter)
-        assertTrue { utbetalinger.infotrygdPeriode!!.isNotEmpty() }
-        assertTrue { utbetalinger.infotrygdPeriode!!.size == 2 }
+        assertTrue { utbetalinger.infotrygdPerioder.isNotEmpty() }
+        assertTrue { utbetalinger.infotrygdPerioder.size == 2 }
 
-        val utbetalingerFraKsSak = utbetalinger.ksSakPeriode
-        assertEquals(2, utbetalingerFraKsSak?.size)
+        val utbetalingerFraKsSak = utbetalinger.ksSakPerioder
+        assertEquals(2, utbetalingerFraKsSak.size)
         utbetalingerFraKsSak!!.assertUtbetaling(
             beløp = 7500,
             fomMåned = YearMonth.now().minusMonths(5),
@@ -128,7 +128,7 @@ internal class BisysServiceTest {
             tomMåned = YearMonth.now().plusMonths(3)
         )
 
-        val utbetalingerFraInfotrygd = utbetalinger.infotrygdPeriode
+        val utbetalingerFraInfotrygd = utbetalinger.infotrygdPerioder
         assertEquals(2, utbetalingerFraInfotrygd?.size)
         utbetalingerFraInfotrygd!!.assertInfotrygdUtbetaling(
             beløp = 7500,
@@ -149,12 +149,12 @@ internal class BisysServiceTest {
         } returns InnsynResponse(data = emptyList())
 
         val utbetalinger = bisysService.hentUtbetalingsinfo(barnIdenter)
-        assertTrue { utbetalinger.infotrygdPeriode.isNullOrEmpty() }
-        assertTrue { utbetalinger.ksSakPeriode!!.size == 2 }
+        assertTrue { utbetalinger.infotrygdPerioder.isNullOrEmpty() }
+        assertTrue { utbetalinger.ksSakPerioder.size == 2 }
 
-        val utbetalingerFraKsSak = utbetalinger.ksSakPeriode
-        assertEquals(2, utbetalingerFraKsSak?.size)
-        utbetalingerFraKsSak!!.assertUtbetaling(
+        val utbetalingerFraKsSak = utbetalinger.ksSakPerioder
+        assertEquals(2, utbetalingerFraKsSak.size)
+        utbetalingerFraKsSak.assertUtbetaling(
             beløp = 7500,
             fomMåned = YearMonth.now().minusMonths(5),
             tomMåned = YearMonth.now().minusMonths(3)

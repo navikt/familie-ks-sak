@@ -35,7 +35,7 @@ class InfotrygdReplikaClient(
         return harKontantstøtte
     }
 
-    fun hentKontantstøttePerioderFraInfotrygd(barnIdenter: List<String>): InnsynResponse {
+    fun hentKontantstøttePerioderFraInfotrygd(identer: List<String>): InnsynResponse {
         val requestURI = UriComponentsBuilder
             .fromUri(familieKsInfotrygdUri)
             .pathSegment("hentPerioderMedKontantstøtteIInfotrygd")
@@ -47,7 +47,7 @@ class InfotrygdReplikaClient(
             uri = requestURI,
             formål = "Henting av kontantstøtte perioder fra infotrygd"
         ) {
-            postForEntity(uri = requestURI, InnsynRequest(barn = barnIdenter.map { it }))
+            postForEntity(uri = requestURI, InnsynRequest(barn = identer.map { it }))
         }
         return infotrygdPerioder
     }

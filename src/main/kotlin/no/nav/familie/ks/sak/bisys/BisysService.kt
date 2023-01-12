@@ -54,7 +54,7 @@ class BisysService(
             )
         }
 
-        return BisysResponsDto(infotrygdPeriode = utbetalingsinfoFraInfotrygd, ksSakPeriode = utbetalingsinfoFraKsSak)
+        return BisysResponsDto(infotrygdPerioder = utbetalingsinfoFraInfotrygd, ksSakPerioder = utbetalingsinfoFraKsSak)
     }
 
     companion object {
