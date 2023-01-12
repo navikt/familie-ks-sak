@@ -59,6 +59,10 @@ import no.nav.familie.ks.sak.kjerne.beregning.domene.maksBeløp
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.Begrunnelse
 import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.EndretUtbetalingAndel
 import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.Årsak
+import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.AnnenForeldersAktivitet
+import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.Kompetanse
+import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.KompetanseResultat
+import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.SøkersAktivitet
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.Fagsak
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.FagsakStatus
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
@@ -754,4 +758,32 @@ fun lagVilkårsvurderingOppfylt(
     vilkårsvurdering.personResultater = personResultater
 
     return vilkårsvurdering
+}
+
+// EØS
+fun lagKompetanse(
+    behandlingId: Long = 0,
+    fom: YearMonth? = null,
+    tom: YearMonth? = null,
+    barnAktører: Set<Aktør> = emptySet(),
+    resultat: KompetanseResultat? = null,
+    annenForeldersAktivitetsland: String? = "DK",
+    annenForeldersAktivitet: AnnenForeldersAktivitet? = AnnenForeldersAktivitet.I_ARBEID,
+    barnetsBostedsland: String? = "NO",
+    søkersAktivitet: SøkersAktivitet? = SøkersAktivitet.ARBEIDER,
+    søkersAktivitetsland: String? = "SE"
+): Kompetanse {
+    val kompetanse = Kompetanse(
+        fom = fom,
+        tom = tom,
+        barnAktører = barnAktører,
+        resultat = resultat,
+        annenForeldersAktivitetsland = annenForeldersAktivitetsland,
+        annenForeldersAktivitet = annenForeldersAktivitet,
+        barnetsBostedsland = barnetsBostedsland,
+        søkersAktivitet = søkersAktivitet,
+        søkersAktivitetsland = søkersAktivitetsland
+    )
+    kompetanse.behandlingId = behandlingId
+    return kompetanse
 }

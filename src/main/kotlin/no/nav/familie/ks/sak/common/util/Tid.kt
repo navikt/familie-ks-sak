@@ -14,6 +14,8 @@ val nbLocale = Locale("nb", "Norway")
 
 val TIDENES_MORGEN = LocalDate.MIN
 val TIDENES_ENDE = LocalDate.MAX
+val MAX_MÅNED = LocalDate.MAX.toYearMonth()
+val MIN_MÅNED = LocalDate.MIN.toYearMonth()
 
 fun LocalDate.tilddMMyy() = this.format(DateTimeFormatter.ofPattern("ddMMyy", nbLocale))
 fun LocalDate.tilyyyyMMdd() = this.format(DateTimeFormatter.ofPattern("yyyy-MM-dd", nbLocale))
