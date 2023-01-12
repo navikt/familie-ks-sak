@@ -18,6 +18,7 @@ import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.domene.ArbeidsfordelingPåB
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.simulering.SimuleringService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.VedtakService
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.feilutbetaltvaluta.FeilutbetaltValutaService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.VedtaksperiodeService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.Brevmal
@@ -65,6 +66,9 @@ class GenererBrevServiceTest {
 
     @MockK
     private lateinit var korrigertVedtakService: KorrigertVedtakService
+
+    @MockK
+    private lateinit var feilutbetaltValutaService: FeilutbetaltValutaService
 
     @InjectMockKs
     private lateinit var genererBrevService: GenererBrevService
