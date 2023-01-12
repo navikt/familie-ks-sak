@@ -13,6 +13,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingKategori
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Beslutning
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.feilutbetaltvaluta.FeilutbetaltValuta
 import no.nav.familie.ks.sak.kjerne.logg.domene.Logg
 import no.nav.familie.ks.sak.kjerne.logg.domene.LoggRepository
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
@@ -337,6 +338,38 @@ class LoggService(
                     BehandlerRolle.SAKSBEHANDLER
                 ),
                 tekst = "Behandlingstema er manuelt endret fra $forrigeKategori ordinær til $nyKategori ordinær"
+            )
+        )
+
+    fun opprettFeilutbetaltValutaLagtTilLogg(feilutbetaltValuta: FeilutbetaltValuta) =
+        lagreLogg(
+            Logg(
+                behandlingId = feilutbetaltValuta.behandlingId,
+                type = LoggType.FEILUTBETALT_VALUTA_LAGT_TIL,
+                rolle = SikkerhetContext.hentRolletilgangFraSikkerhetscontext(
+                    rolleConfig,
+                    BehandlerRolle.SAKSBEHANDLER
+                ),
+                tekst = """
+                Periode: ${feilutbetaltValuta.fom.tilKortString()} - ${feilutbetaltValuta.tom.tilKortString()}
+                Beløp: ${feilutbetaltValuta.feilutbetaltBeløp} kr
+                """.trimIndent()
+            )
+        )
+
+    fun opprettFeilutbetaltValutaFjernetLogg(feilutbetaltValuta: FeilutbetaltValuta) =
+        lagreLogg(
+            Logg(
+                behandlingId = feilutbetaltValuta.behandlingId,
+                type = LoggType.FEILUTBETALT_VALUTA_FJERNET,
+                rolle = SikkerhetContext.hentRolletilgangFraSikkerhetscontext(
+                    rolleConfig,
+                    BehandlerRolle.SAKSBEHANDLER
+                ),
+                tekst = """
+                Periode: ${feilutbetaltValuta.fom.tilKortString()} - ${feilutbetaltValuta.tom.tilKortString()}
+                Beløp: ${feilutbetaltValuta.feilutbetaltBeløp} kr
+                """.trimIndent()
             )
         )
 
