@@ -2,6 +2,7 @@ package no.nav.familie.ks.sak.kjerne.behandling
 
 import no.nav.familie.ks.sak.api.dto.BehandlingResponsDto
 import no.nav.familie.ks.sak.api.dto.EndreBehandlendeEnhetDto
+import no.nav.familie.ks.sak.api.dto.tilFeilutbetaltValutaDto
 import no.nav.familie.ks.sak.api.dto.tilTotrinnskontrollDto
 import no.nav.familie.ks.sak.api.dto.tilUtbetalingsperiodeResponsDto
 import no.nav.familie.ks.sak.api.dto.tilUtvidetVedtaksperiodeMedBegrunnelserDto
@@ -19,6 +20,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.registrersøknad.SøknadGrunnlagService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.VedtakRepository
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.feilutbetaltvaluta.FeilutbetaltValutaService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.VedtaksperiodeService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
 import no.nav.familie.ks.sak.kjerne.beregning.AndelerTilkjentYtelseOgEndreteUtbetalingerService
@@ -54,7 +56,8 @@ class BehandlingService(
     private val vedtaksperiodeService: VedtaksperiodeService,
     private val totrinnskontrollRepository: TotrinnskontrollRepository,
     private val tilbakekrevingRepository: TilbakekrevingRepository,
-    private val sanityService: SanityService
+    private val sanityService: SanityService,
+    private val feilutbetaltValutaService: FeilutbetaltValutaService
 ) {
 
     fun hentBehandling(behandlingId: Long): Behandling = behandlingRepository.hentBehandling(behandlingId)
@@ -136,6 +139,10 @@ class BehandlingService(
 
         val tilbakekreving = tilbakekrevingRepository.findByBehandlingId(behandlingId)
 
+        val feilutbetalteValuta = feilutbetaltValutaService.hentAlleFeilutbetaltValutaForBehandling(behandlingId).map {
+            it.tilFeilutbetaltValutaDto()
+        }
+
         return BehandlingMapper.lagBehandlingRespons(
             behandling,
             arbeidsfordelingPåBehandling,
@@ -149,7 +156,8 @@ class BehandlingService(
             endreteUtbetalingerMedAndeler,
             endringstidspunkt,
             tilbakekreving,
-            sisteVedtaksperiodeVisningDato
+            sisteVedtaksperiodeVisningDato,
+            feilutbetalteValuta
         )
     }
 

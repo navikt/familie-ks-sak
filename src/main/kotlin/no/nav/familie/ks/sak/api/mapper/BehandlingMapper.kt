@@ -6,6 +6,7 @@ import no.nav.familie.ks.sak.api.dto.BehandlingPåVentResponsDto
 import no.nav.familie.ks.sak.api.dto.BehandlingResponsDto
 import no.nav.familie.ks.sak.api.dto.BehandlingStegTilstandResponsDto
 import no.nav.familie.ks.sak.api.dto.EndretUtbetalingAndelDto
+import no.nav.familie.ks.sak.api.dto.FeilutbetaltValutaDto
 import no.nav.familie.ks.sak.api.dto.PersonResponsDto
 import no.nav.familie.ks.sak.api.dto.PersonerMedAndelerResponsDto
 import no.nav.familie.ks.sak.api.dto.SøknadDto
@@ -44,7 +45,8 @@ object BehandlingMapper {
         endretUtbetalingAndeler: List<EndretUtbetalingAndelDto>,
         endringstidspunkt: LocalDate,
         tilbakekreving: Tilbakekreving?,
-        sisteVedtaksperiodeVisningDato: LocalDate?
+        sisteVedtaksperiodeVisningDato: LocalDate?,
+        feilutbetalteValuta: List<FeilutbetaltValutaDto>
     ) =
         BehandlingResponsDto(
             behandlingId = behandling.id,
@@ -78,7 +80,8 @@ object BehandlingMapper {
             endretUtbetalingAndeler = endretUtbetalingAndeler,
             endringstidspunkt = utledEndringstidpunkt(endringstidspunkt, behandling),
             tilbakekreving = tilbakekreving?.let { lagTilbakekrevingRespons(it) },
-            sisteVedtaksperiodeVisningDato = sisteVedtaksperiodeVisningDato
+            sisteVedtaksperiodeVisningDato = sisteVedtaksperiodeVisningDato,
+            feilutbetaltValuta = feilutbetalteValuta
         )
 
     private fun lagArbeidsfordelingRespons(arbeidsfordelingPåBehandling: ArbeidsfordelingPåBehandling) =
