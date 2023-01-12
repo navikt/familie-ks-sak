@@ -32,4 +32,3 @@ data class KsSakPeriode(
 )
 
 data class Barn(val beløp: Int, val ident: String)
-
