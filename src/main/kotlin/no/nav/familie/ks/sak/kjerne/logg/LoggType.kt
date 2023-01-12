@@ -25,5 +25,7 @@ enum class LoggType(val visningsnavn: String, val tittel: String = visningsnavn)
     BEHANDLIG_SATT_PÅ_VENT("Behandlingen er satt på vent"),
     BEHANDLIG_GJENOPPTATT("Behandling gjenopptatt"),
     VENTENDE_BEHANDLING_ENDRET("Behandlingen er oppdatert"),
-    KORRIGERT_VEDTAK("Behandlingen er korrigering av vedtak")
+    KORRIGERT_VEDTAK("Behandlingen er korrigering av vedtak"),
+    FEILUTBETALT_VALUTA_LAGT_TIL("Feilutbetalt valuta lagt til"),
+    FEILUTBETALT_VALUTA_FJERNET("Feilutbetalt valuta fjernet")
 }

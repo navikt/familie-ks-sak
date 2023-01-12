@@ -16,6 +16,7 @@ import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.domene.ArbeidsfordelingPåB
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingKategori
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.feilutbetaltvaluta.FeilutbetaltValuta
 import no.nav.familie.ks.sak.kjerne.logg.domene.Logg
 import no.nav.familie.ks.sak.kjerne.logg.domene.LoggRepository
 import org.hamcrest.MatcherAssert.assertThat
@@ -387,5 +388,55 @@ class LoggServiceTest {
             opprettetLogg.tekst,
             Is(("Behandlingstema er manuelt endret fra $forrigeKategori ordinær til $nyKategori ordinær"))
         )
+    }
+
+    @Test
+    fun `opprettFeilutbetaltValutaLagtTilLogg - skal lagre logg på at feilutbetaltValuta er lagt til behandling`() {
+        val feilutbetaltValuta = FeilutbetaltValuta(
+            behandlingId = 0,
+            fom = LocalDate.of(2020, 12, 12),
+            tom = LocalDate.of(2022, 12, 12),
+            id = 0,
+            feilutbetaltBeløp = 200
+        )
+
+        every { loggRepository.save(any()) } returnsArgument 0
+
+        val opprettetLoggOmFeilutbetaltValutaLagtTil = loggService.opprettFeilutbetaltValutaLagtTilLogg(
+            feilutbetaltValuta
+        )
+
+        assertThat(opprettetLoggOmFeilutbetaltValutaLagtTil.type, Is(LoggType.FEILUTBETALT_VALUTA_LAGT_TIL))
+        assertThat(
+            opprettetLoggOmFeilutbetaltValutaLagtTil.tekst,
+            Is(("Periode: 12.12.20 - 12.12.22\nBeløp: 200 kr"))
+        )
+
+        verify(exactly = 1) { loggRepository.save(opprettetLoggOmFeilutbetaltValutaLagtTil) }
+    }
+
+    @Test
+    fun `opprettFeilutbetaltValutaFjernetLogg - skal lagre logg på at feilutbetaltValuta er fjernet fra behandling`() {
+        val feilutbetaltValuta = FeilutbetaltValuta(
+            behandlingId = 0,
+            fom = LocalDate.of(2020, 12, 12),
+            tom = LocalDate.of(2022, 12, 12),
+            id = 0,
+            feilutbetaltBeløp = 200
+        )
+
+        every { loggRepository.save(any()) } returnsArgument 0
+
+        val opprettetLoggOmFeilutbetaltValutaFjernet = loggService.opprettFeilutbetaltValutaFjernetLogg(
+            feilutbetaltValuta
+        )
+
+        assertThat(opprettetLoggOmFeilutbetaltValutaFjernet.type, Is(LoggType.FEILUTBETALT_VALUTA_FJERNET))
+        assertThat(
+            opprettetLoggOmFeilutbetaltValutaFjernet.tekst,
+            Is(("Periode: 12.12.20 - 12.12.22\nBeløp: 200 kr"))
+        )
+
+        verify(exactly = 1) { loggRepository.save(opprettetLoggOmFeilutbetaltValutaFjernet) }
     }
 }
