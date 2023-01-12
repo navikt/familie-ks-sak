@@ -43,7 +43,8 @@ object BehandlingMapper {
         totrinnskontroll: TotrinnskontrollDto?,
         endretUtbetalingAndeler: List<EndretUtbetalingAndelDto>,
         endringstidspunkt: LocalDate,
-        tilbakekreving: Tilbakekreving?
+        tilbakekreving: Tilbakekreving?,
+        sisteVedtaksperiodeVisningDato: LocalDate?
     ) =
         BehandlingResponsDto(
             behandlingId = behandling.id,
@@ -76,7 +77,8 @@ object BehandlingMapper {
             totrinnskontroll = totrinnskontroll,
             endretUtbetalingAndeler = endretUtbetalingAndeler,
             endringstidspunkt = utledEndringstidpunkt(endringstidspunkt, behandling),
-            tilbakekreving = tilbakekreving?.let { lagTilbakekrevingRespons(it) }
+            tilbakekreving = tilbakekreving?.let { lagTilbakekrevingRespons(it) },
+            sisteVedtaksperiodeVisningDato = sisteVedtaksperiodeVisningDato
         )
 
     private fun lagArbeidsfordelingRespons(arbeidsfordelingPåBehandling: ArbeidsfordelingPåBehandling) =
