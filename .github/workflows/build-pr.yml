@@ -7,7 +7,7 @@ env:
 jobs:
   avslutt-andre-workflows-samme-branch:
     name: Avslutt andre workflows på samme branch
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest-8-cores
     permissions:
       actions: write
     steps:
@@ -17,7 +17,7 @@ jobs:
           access_token: ${{ github.token }}
   ktlint:
     name: Ktlint
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest-8-cores
     permissions:
       contents: read
     steps:

@@ -9,7 +9,7 @@ env:
 jobs:
   bygg-og-push-til-github:
     name: Bygg app/image, push til github
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest-8-cores
     steps:
       - uses: "actions/checkout@v3"
       - uses: "gradle/wrapper-validation-action@v1"
@@ -44,7 +44,7 @@ jobs:
   lag-salsa-proveniens:
     name: Lag salsa proveniens
     needs: bygg-og-push-til-github
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest-8-cores
     steps:
       - uses: actions/checkout@v3
 
@@ -62,7 +62,7 @@ jobs:
   deploy-til-preprod:
     name: Deploy to dev-gcp
     needs: bygg-og-push-til-github
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest-8-cores
     steps:
       - uses: actions/checkout@v3
       - uses: nais/deploy/actions/deploy@v1
@@ -74,7 +74,7 @@ jobs:
   deploy-til-prod:
     name: Deploy til prod-gcp
     needs: deploy-til-preprod
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest-8-cores
     steps:
       - uses: actions/checkout@v3
       - uses: nais/deploy/actions/deploy@v1
