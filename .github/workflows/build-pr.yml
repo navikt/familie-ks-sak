@@ -7,7 +7,7 @@ env:
 jobs:
   avslutt-andre-workflows-samme-branch:
     name: Avslutt andre workflows på samme branch
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest-8-cores
     permissions:
       actions: write
     steps:
@@ -17,7 +17,7 @@ jobs:
           access_token: ${{ github.token }}
   ktlint:
     name: Ktlint
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest-8-cores
     permissions:
       contents: read
     steps:
@@ -29,7 +29,7 @@ jobs:
           ktlint_version: 0.43.2
   enhetstester:
     name: Enhetstester
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest-8-cores
     steps:
       - uses: "actions/checkout@v3"
       - uses: "gradle/wrapper-validation-action@v1"
@@ -46,7 +46,7 @@ jobs:
           ./gradlew test 
   integrasjonstester:
     name: Integrasjonstester
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest-8-cores
     steps:
       - uses: "actions/checkout@v3"
       - uses: "gradle/wrapper-validation-action@v1"
