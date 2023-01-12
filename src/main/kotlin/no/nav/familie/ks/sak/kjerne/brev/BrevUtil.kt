@@ -94,7 +94,6 @@ fun hentVedtaksbrevtype(
 
 fun hentHjemmeltekst(
     sanitybegrunnelserBruktIBrev: List<SanityBegrunnelse>,
-    erFriteksterIPeriode: Boolean,
     opplysningspliktHjemlerSkalMedIBrev: Boolean = false,
     målform: Målform,
     vedtakKorrigertHjemmelSkalMedIBrev: Boolean = false
@@ -103,8 +102,7 @@ fun hentHjemmeltekst(
         hentOrdinæreHjemler(
             hjemler = sanitybegrunnelserBruktIBrev.flatMap { it.hjemler }
                 .toMutableSet(),
-            opplysningspliktHjemlerSkalMedIBrev = opplysningspliktHjemlerSkalMedIBrev,
-            finnesVedtaksperiodeMedFritekst = erFriteksterIPeriode
+            opplysningspliktHjemlerSkalMedIBrev = opplysningspliktHjemlerSkalMedIBrev
         )
 
     val forvaltningsloverHjemler = hentForvaltningsloverHjemler(vedtakKorrigertHjemmelSkalMedIBrev)
@@ -186,17 +184,11 @@ fun hjemlerTilHjemmeltekst(hjemler: List<String>, lovForHjemmel: String): String
 
 private fun hentOrdinæreHjemler(
     hjemler: MutableSet<String>,
-    opplysningspliktHjemlerSkalMedIBrev: Boolean,
-    finnesVedtaksperiodeMedFritekst: Boolean
+    opplysningspliktHjemlerSkalMedIBrev: Boolean
 ): List<String> {
     if (opplysningspliktHjemlerSkalMedIBrev) {
-        // TODO: Finn ut hvilke hjemler som skal brukes om opplysningsplikt for kontantstøtte
-        val hjemlerNårOpplysningspliktIkkeOppfylt = listOf("17", "18")
+        val hjemlerNårOpplysningspliktIkkeOppfylt = listOf("13", "16")
         hjemler.addAll(hjemlerNårOpplysningspliktIkkeOppfylt)
-    }
-
-    if (finnesVedtaksperiodeMedFritekst) {
-        // TODO: Finn ut hvilke hjemler som skal brukes for fritekst (hjemler.addAll(hjemlerTilhørendeFritekst.map { it.toString() }.toSet()))
     }
 
     return hjemler.map { it.toInt() }.sorted().map { it.toString() }

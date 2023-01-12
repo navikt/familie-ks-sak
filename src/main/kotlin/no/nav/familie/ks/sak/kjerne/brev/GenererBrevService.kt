@@ -117,6 +117,7 @@ class GenererBrevService(
                     etterbetaling = etterbetaling
                 )
             }
+
             Brevmal.VEDTAK_ENDRING -> VedtakEndring(
                 fellesdataForVedtaksbrev = fellestdataForVedtaksbrev,
                 etterbetaling = etterbetaling,
@@ -200,7 +201,6 @@ class GenererBrevService(
         return hentHjemmeltekst(
             opplysningspliktHjemlerSkalMedIBrev = opplysningspliktHjemlerSkalMedIBrev,
             målform = målform,
-            erFriteksterIPeriode = utvidetVedtaksperioderMedBegrunnelser.any { it.fritekster.isNotEmpty() },
             sanitybegrunnelserBruktIBrev = utvidetVedtaksperioderMedBegrunnelser.flatMap { it.begrunnelser }
                 .mapNotNull { it.begrunnelse.tilSanityBegrunnelse(sanityBegrunnelser) },
             vedtakKorrigertHjemmelSkalMedIBrev = vedtakKorrigertHjemmelSkalMedIBrev

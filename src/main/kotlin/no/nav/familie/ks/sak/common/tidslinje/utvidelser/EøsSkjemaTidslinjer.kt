@@ -1,0 +1,56 @@
+package no.nav.familie.ks.sak.common.tidslinje.utvidelser
+
+import no.nav.familie.ks.sak.common.tidslinje.Periode
+import no.nav.familie.ks.sak.common.tidslinje.Tidslinje
+import no.nav.familie.ks.sak.common.tidslinje.tilTidslinje
+import no.nav.familie.ks.sak.common.util.førsteDagIInneværendeMåned
+import no.nav.familie.ks.sak.common.util.sisteDagIInneværendeMåned
+import no.nav.familie.ks.sak.common.util.toYearMonth
+import no.nav.familie.ks.sak.kjerne.eøs.felles.domene.EøsSkjema
+import no.nav.familie.ks.sak.kjerne.eøs.felles.domene.utenBarn
+import no.nav.familie.ks.sak.kjerne.eøs.felles.domene.utenPeriode
+
+fun <T : EøsSkjema<T>> List<T>.tilTidslinje() = this.map {
+    Periode(
+        it.utenPeriode(),
+        it.fom?.førsteDagIInneværendeMåned(),
+        it.tom?.sisteDagIInneværendeMåned()
+    )
+}.tilTidslinje()
+
+fun <T : EøsSkjema<T>> T.tilTidslinje() = listOf(this).tilTidslinje()
+
+fun <T : EøsSkjema<T>> List<T>.slåSammen(): List<T> {
+    if (this.isEmpty()) return this
+
+    val eøsTidslinjer: Tidslinje<Set<T>> = this.map { it.tilTidslinje() }.kombiner { tidslinje ->
+        tidslinje.groupingBy { it.utenBarn() }.reduce { _, acc, skjema -> acc.leggSammenBarn(skjema) }.values.toSet()
+    }
+
+    val eøsTidslinjerSlåttSammenVertikalt = eøsTidslinjer.tilPerioderIkkeNull().flatMap { periode ->
+        periode.verdi.settFomOgTom(periode) ?: emptyList()
+    }
+    val eøsTidslinjerSlåttSammenHorizontalt = eøsTidslinjerSlåttSammenVertikalt
+        .groupBy { it.utenPeriode() }
+        .mapValues { (_, kompetanser) -> kompetanser.tilTidslinje().slåSammenLikePerioder() }
+        .mapValues { (_, tidslinje) -> tidslinje.tilPerioder() }
+        .values.flatten().mapNotNull { periode -> periode.verdi?.settFomOgTom(periode) }
+
+    return eøsTidslinjerSlåttSammenHorizontalt
+}
+
+private fun <T : EøsSkjema<T>> T.leggSammenBarn(skjema: T) = this.kopier(
+    fom = this.fom,
+    tom = this.tom,
+    barnAktører = this.barnAktører + skjema.barnAktører
+)
+
+fun <T : EøsSkjema<T>> Iterable<T>?.settFomOgTom(periode: Periode<*>) =
+    this?.map { skjema -> skjema.settFomOgTom(periode) }
+
+fun <T : EøsSkjema<T>> T.settFomOgTom(periode: Periode<*>) =
+    this.kopier(
+        fom = periode.fom?.toYearMonth(),
+        tom = periode.tom?.toYearMonth(),
+        barnAktører = this.barnAktører
+    )
