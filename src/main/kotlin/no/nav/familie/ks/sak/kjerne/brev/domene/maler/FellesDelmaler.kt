@@ -58,3 +58,12 @@ data class KorrigertVedtakData(
         flettefelt(datoKorrigertVedtak)
     )
 }
+
+data class FeilutbetaltValuta(
+    val perioderMedForMyeUtbetalt: Flettefelt
+) {
+
+    constructor(perioderMedForMyeUtbetalt: Set<String>) : this(
+        flettefelt(perioderMedForMyeUtbetalt.toList())
+    )
+}
