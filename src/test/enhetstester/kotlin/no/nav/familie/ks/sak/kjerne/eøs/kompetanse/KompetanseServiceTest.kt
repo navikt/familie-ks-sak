@@ -268,7 +268,7 @@ internal class KompetanseServiceTest {
     @Test
     fun `oppdaterKompetanse skal kunne lukke åpen kompetanse ved å sende inn identisk skjema med tom dato`() {
         // Åpen (tom dato er null) kompetanse med sekundærland for tre barn
-        val eksisterendeKompetanse = lagKompetanse(
+        lagKompetanse(
             behandlingId = behandlingId,
             fom = YearMonth.of(2022, 1),
             tom = null,
@@ -309,7 +309,7 @@ internal class KompetanseServiceTest {
     @Test
     fun `oppdaterKompetanse skal kunne forkorte tom dato ved å sende inn identisk skjema med tidligere tom dato`() {
         // Kompetanse med sekundærland for tre barn med tom dato
-        val eksisterendeKompetanse = lagKompetanse(
+        lagKompetanse(
             behandlingId = behandlingId,
             fom = YearMonth.of(2022, 1),
             tom = YearMonth.of(2022, 7),
@@ -350,7 +350,7 @@ internal class KompetanseServiceTest {
     @Test
     fun `oppdaterKompetanse skal opprette tomt skjema for barn som fjernes fra ellers uendret skjema`() {
         // Åpen (tom dato er null) kompetanse med sekundærland for tre barn
-        val eksisterendeKompetanse = lagKompetanse(
+        lagKompetanse(
             behandlingId = behandlingId,
             fom = YearMonth.of(2022, 1),
             tom = null,
