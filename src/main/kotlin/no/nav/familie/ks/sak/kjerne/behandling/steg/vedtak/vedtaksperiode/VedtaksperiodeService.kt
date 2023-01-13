@@ -143,7 +143,7 @@ class VedtaksperiodeService(
         return vilkårsvurdering.personResultater.mapNotNull { personResultat ->
 
             val vilkårResultaterForAktørSomAlltidSkalKunneBegrunnes =
-                personResultat.vilkårResultater.filter { listeAvVilkårSomAlltidSkalKunneBegrunnes.contains(it.vilkårType) }
+                personResultat.vilkårResultater.filter { listeAvVilkårSomAlltidSkalKunneBegrunnes.contains(it.vilkårType) && it.periodeFom != null }
 
             val vilkårResultaterForAktørMapSomAlltidSkalKunneBegrunnes =
                 vilkårResultaterForAktørSomAlltidSkalKunneBegrunnes
