@@ -6,7 +6,6 @@ import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
-import no.nav.familie.kontrakter.felles.Ressurs
 import no.nav.familie.ks.sak.api.dto.BisysDto
 import no.nav.familie.ks.sak.api.dto.BisysResponsDto
 import no.nav.familie.ks.sak.bisys.BisysService
@@ -54,7 +53,7 @@ class BisysController(private val bisysService: BisysService, private val tilgan
         consumes = [MediaType.APPLICATION_JSON_VALUE],
         produces = [MediaType.APPLICATION_JSON_VALUE]
     )
-    fun hentUtbetalingsinfo(@RequestBody bisysRequestDto: BisysDto): ResponseEntity<Ressurs<BisysResponsDto>> {
-        return ResponseEntity.ok(Ressurs.success(bisysService.hentUtbetalingsinfo(bisysRequestDto.barnIdenter)))
+    fun hentUtbetalingsinfo(@RequestBody bisysRequestDto: BisysDto): ResponseEntity<BisysResponsDto> {
+        return ResponseEntity.ok(bisysService.hentUtbetalingsinfo(bisysRequestDto.identer))
     }
 }

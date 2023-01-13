@@ -8,6 +8,7 @@ import io.mockk.mockk
 import io.mockk.verify
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.kjerne.logg.LoggService
+import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -23,6 +24,9 @@ class FeilutbetaltValutaServiceTest {
 
     @MockK
     private lateinit var loggService: LoggService
+
+    @MockK
+    private lateinit var personopplysningGrunnlagService: PersonopplysningGrunnlagService
 
     @InjectMockKs
     private lateinit var feilutbetaltValutaService: FeilutbetaltValutaService

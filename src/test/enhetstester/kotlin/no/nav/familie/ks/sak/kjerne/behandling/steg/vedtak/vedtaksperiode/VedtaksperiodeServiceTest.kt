@@ -202,7 +202,7 @@ internal class VedtaksperiodeServiceTest {
                 type = Vedtaksperiodetype.FORTSATT_INNVILGET
             )
 
-        every { vedtaksperiodeHentOgPersisterService.finnVedtaksperioderFor(1) } returns listOf(
+        every { vedtaksperiodeHentOgPersisterService.hentVedtaksperioderFor(1) } returns listOf(
             gammelVedtaksperiodeMedBegrunnelse
         )
         every { vedtaksperiodeHentOgPersisterService.lagre(capture(vedtaksperiodeMedBegrunnelseSlot)) } returnsArgument 0
@@ -216,14 +216,14 @@ internal class VedtaksperiodeServiceTest {
         assertThat(nyVedtaksperiodeMedBegrunnelse.fom, Is(LocalDate.of(2020, 12, 12)))
         assertThat(nyVedtaksperiodeMedBegrunnelse.tom, Is(LocalDate.of(2022, 12, 12)))
 
-        verify { vedtaksperiodeHentOgPersisterService.finnVedtaksperioderFor(1) }
+        verify { vedtaksperiodeHentOgPersisterService.hentVedtaksperioderFor(1) }
     }
 
     @Test
     fun `hentPersisterteVedtaksperioder skal returnere vedtaksperioder fra vedtaksperiodeHentOgPersisterService`() {
         val vedtak = Vedtak(1, behandling)
 
-        every { vedtaksperiodeHentOgPersisterService.finnVedtaksperioderFor(1) } returns listOf(mockk(), mockk())
+        every { vedtaksperiodeHentOgPersisterService.hentVedtaksperioderFor(1) } returns listOf(mockk(), mockk())
 
         val vedtaksperioder = vedtaksperiodeService.hentPersisterteVedtaksperioder(vedtak)
 

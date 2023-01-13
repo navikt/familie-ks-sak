@@ -1,7 +1,9 @@
 package no.nav.familie.ks.sak.bisys
 
+import no.nav.familie.ks.sak.api.dto.Barn
 import no.nav.familie.ks.sak.api.dto.BisysResponsDto
-import no.nav.familie.ks.sak.api.dto.UtbetalingsinfoDto
+import no.nav.familie.ks.sak.api.dto.InfotrygdPeriode
+import no.nav.familie.ks.sak.api.dto.KsSakPeriode
 import no.nav.familie.ks.sak.integrasjon.infotrygd.InfotrygdReplikaClient
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.beregning.AndelerTilkjentYtelseOgEndreteUtbetalingerService
@@ -19,45 +21,40 @@ class BisysService(
     private val infotrygdReplikaClient: InfotrygdReplikaClient
 ) {
 
-    fun hentUtbetalingsinfo(barnIdenter: List<String>): BisysResponsDto {
+    fun hentUtbetalingsinfo(identer: List<String>): BisysResponsDto {
         // hent fagsaker
-        val barnAktører = barnIdenter.map { personidentService.hentAktør(it) }
-        val fagsaker = barnAktører.map { fagsakService.hentFagsakerPåPerson(it) }.flatten()
+        val aktører = identer.map { personidentService.hentAktør(it) }
+        val fagsaker = aktører.map { fagsakService.hentFagsakerPåPerson(it) }.flatten()
 
         // hent siste vedtatt behandlinger fra fagsak
         val behandlinger = fagsaker.mapNotNull { behandlingService.hentSisteBehandlingSomErVedtatt(it.id) }
-
-        val utbetalinger = mutableMapOf<String, List<UtbetalingsinfoDto>>()
 
         // hent utbetalingsinfo from ks-sak for hver behandling
         val utbetalingsinfoFraKsSak = behandlinger.map { behandling ->
             val andeler =
                 andelerTilkjentYtelseOgEndreteUtbetalingerService.finnAndelerTilkjentYtelseMedEndreteUtbetalinger(behandling.id)
             andeler.filter { it.kalkulertUtbetalingsbeløp != 0 }.map {
-                it.aktør.aktivFødselsnummer() to UtbetalingsinfoDto(
+                KsSakPeriode(
                     fomMåned = it.stønadFom,
                     tomMåned = it.stønadTom,
-                    beløp = it.kalkulertUtbetalingsbeløp
+                    barn = Barn(ident = it.aktør.aktivFødselsnummer(), beløp = it.kalkulertUtbetalingsbeløp)
                 )
             }
         }.flatten()
 
         // hent utbetalingsinfo from infotrygd
-        val respons = infotrygdReplikaClient.hentKontantstøttePerioderFraInfotrygd(barnIdenter)
+        val respons = infotrygdReplikaClient.hentKontantstøttePerioderFraInfotrygd(identer)
         logger.info("Hentet ${respons.data.size} data fra infotrygd")
         val utbetalingsinfoFraInfotrygd = respons.data.map { stonad ->
-            val barn = stonad.barn.first { stonadBarn -> barnIdenter.any { it == stonadBarn.fnr.asString } }.fnr.asString
-            barn to UtbetalingsinfoDto(
+            InfotrygdPeriode(
                 fomMåned = checkNotNull(stonad.fom) { "fom kan ikke være null" },
                 tomMåned = stonad.tom,
-                beløp = checkNotNull(stonad.belop) { "beløp kan ikke være null" }
+                beløp = checkNotNull(stonad.belop) { "beløp kan ikke være null" },
+                barna = stonad.barn.map { it.fnr.asString }
             )
         }
 
-        (utbetalingsinfoFraKsSak + utbetalingsinfoFraInfotrygd).groupBy { it.first }.forEach { utbetalingsinfoPerBarn ->
-            utbetalinger[utbetalingsinfoPerBarn.key] = utbetalingsinfoPerBarn.value.map { it.second }
-        }
-        return BisysResponsDto(utbetalingsinfo = utbetalinger.toMap())
+        return BisysResponsDto(infotrygdPerioder = utbetalingsinfoFraInfotrygd, ksSakPerioder = utbetalingsinfoFraKsSak)
     }
 
     companion object {
