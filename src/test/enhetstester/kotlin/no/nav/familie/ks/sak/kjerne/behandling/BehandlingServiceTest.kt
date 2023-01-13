@@ -32,6 +32,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.registrersøknad.SøknadGrun
 import no.nav.familie.ks.sak.kjerne.behandling.steg.registrersøknad.domene.SøknadGrunnlag
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.Vedtak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.VedtakRepository
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.feilutbetaltvaluta.FeilutbetaltValutaService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.VedtaksperiodeService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
 import no.nav.familie.ks.sak.kjerne.beregning.AndelerTilkjentYtelseOgEndreteUtbetalingerService
@@ -95,6 +96,9 @@ class BehandlingServiceTest {
     @MockK
     private lateinit var sanityService: SanityService
 
+    @MockK
+    private lateinit var feilutbetaltValutaService: FeilutbetaltValutaService
+
     @InjectMockKs
     private lateinit var behandlingService: BehandlingService
 
@@ -152,6 +156,7 @@ class BehandlingServiceTest {
         every { totrinnskontrollRepository.findByBehandlingAndAktiv(any()) } returns mockk(relaxed = true)
         every { tilbakekrevingRepository.findByBehandlingId(any()) } returns null
         every { vedtaksperiodeService.finnSisteVedtaksperiodeVisningsdatoForBehandling(any()) } returns null
+        every { feilutbetaltValutaService.hentAlleFeilutbetaltValutaForBehandling(any()) } returns emptyList()
         every { sanityService.hentSanityBegrunnelser() } returns emptyList()
     }
 

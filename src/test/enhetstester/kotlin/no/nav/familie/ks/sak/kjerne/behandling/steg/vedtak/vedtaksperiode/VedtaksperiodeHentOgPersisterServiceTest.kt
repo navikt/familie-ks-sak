@@ -65,7 +65,7 @@ class VedtaksperiodeHentOgPersisterServiceTest {
     fun `finnVedtaksperioderFor - skal returnere vedtaksperioder for vedtak`() {
         every { vedtaksperiodeRepository.finnVedtaksperioderForVedtak(200) } returns listOf(mockk())
 
-        val vedtaksperioder = vedtaksperiodeHentOgPersisterService.finnVedtaksperioderFor(200)
+        val vedtaksperioder = vedtaksperiodeHentOgPersisterService.hentVedtaksperioderFor(200)
 
         assertThat(vedtaksperioder.size, Is(1))
     }
