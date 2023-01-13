@@ -4,7 +4,8 @@ import io.mockk.every
 import io.mockk.impl.annotations.InjectMockKs
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
-import no.nav.familie.ks.sak.api.dto.UtbetalingsinfoDto
+import no.nav.familie.ks.sak.api.dto.InfotrygdPeriode
+import no.nav.familie.ks.sak.api.dto.KsSakPeriode
 import no.nav.familie.ks.sak.data.lagAndelTilkjentYtelse
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagFagsak
@@ -111,11 +112,11 @@ internal class BisysServiceTest {
         )
 
         val utbetalinger = bisysService.hentUtbetalingsinfo(barnIdenter)
-        assertTrue { utbetalinger.utbetalingsinfo.isNotEmpty() }
-        assertTrue { utbetalinger.utbetalingsinfo.size == 2 }
+        assertTrue { utbetalinger.infotrygdPerioder.isNotEmpty() }
+        assertTrue { utbetalinger.infotrygdPerioder.size == 2 }
 
-        val utbetalingerFraKsSak = utbetalinger.utbetalingsinfo[barn1IKsSak]
-        assertEquals(2, utbetalingerFraKsSak?.size)
+        val utbetalingerFraKsSak = utbetalinger.ksSakPerioder
+        assertEquals(2, utbetalingerFraKsSak.size)
         utbetalingerFraKsSak!!.assertUtbetaling(
             beløp = 7500,
             fomMåned = YearMonth.now().minusMonths(5),
@@ -127,14 +128,14 @@ internal class BisysServiceTest {
             tomMåned = YearMonth.now().plusMonths(3)
         )
 
-        val utbetalingerFraInfotrygd = utbetalinger.utbetalingsinfo[barn2IInfotrygd]
+        val utbetalingerFraInfotrygd = utbetalinger.infotrygdPerioder
         assertEquals(2, utbetalingerFraInfotrygd?.size)
-        utbetalingerFraInfotrygd!!.assertUtbetaling(
+        utbetalingerFraInfotrygd!!.assertInfotrygdUtbetaling(
             beløp = 7500,
             fomMåned = YearMonth.now().minusMonths(5),
             tomMåned = YearMonth.now().plusMonths(3)
         )
-        utbetalingerFraInfotrygd.assertUtbetaling(
+        utbetalingerFraInfotrygd.assertInfotrygdUtbetaling(
             beløp = 4500,
             fomMåned = YearMonth.now().minusMonths(7),
             tomMåned = YearMonth.now().plusMonths(5)
@@ -148,12 +149,12 @@ internal class BisysServiceTest {
         } returns InnsynResponse(data = emptyList())
 
         val utbetalinger = bisysService.hentUtbetalingsinfo(barnIdenter)
-        assertTrue { utbetalinger.utbetalingsinfo.isNotEmpty() }
-        assertTrue { utbetalinger.utbetalingsinfo.size == 1 }
+        assertTrue { utbetalinger.infotrygdPerioder.isNullOrEmpty() }
+        assertTrue { utbetalinger.ksSakPerioder.size == 2 }
 
-        val utbetalingerFraKsSak = utbetalinger.utbetalingsinfo[barn1IKsSak]
-        assertEquals(2, utbetalingerFraKsSak?.size)
-        utbetalingerFraKsSak!!.assertUtbetaling(
+        val utbetalingerFraKsSak = utbetalinger.ksSakPerioder
+        assertEquals(2, utbetalingerFraKsSak.size)
+        utbetalingerFraKsSak.assertUtbetaling(
             beløp = 7500,
             fomMåned = YearMonth.now().minusMonths(5),
             tomMåned = YearMonth.now().minusMonths(3)
@@ -163,11 +164,18 @@ internal class BisysServiceTest {
             fomMåned = YearMonth.now().minusMonths(2),
             tomMåned = YearMonth.now().plusMonths(3)
         )
-
-        assertTrue { utbetalinger.utbetalingsinfo[barn2IInfotrygd] == null }
     }
 
-    private fun List<UtbetalingsinfoDto>.assertUtbetaling(beløp: Int, fomMåned: YearMonth, tomMåned: YearMonth) =
+    private fun List<KsSakPeriode>.assertUtbetaling(beløp: Int, fomMåned: YearMonth, tomMåned: YearMonth) =
+        assertTrue {
+            this.any {
+                it.barn.beløp == beløp &&
+                    it.fomMåned == fomMåned &&
+                    it.tomMåned == tomMåned
+            }
+        }
+
+    private fun List<InfotrygdPeriode>.assertInfotrygdUtbetaling(beløp: Int, fomMåned: YearMonth, tomMåned: YearMonth) =
         assertTrue {
             this.any {
                 it.beløp == beløp &&
