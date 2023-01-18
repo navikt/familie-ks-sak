@@ -2,11 +2,16 @@ package no.nav.familie.ks.sak.api
 
 import no.nav.familie.eksterne.kontrakter.VedtakDVH
 import no.nav.familie.kontrakter.felles.Ressurs
+import no.nav.familie.kontrakter.felles.Tema
 import no.nav.familie.kontrakter.felles.dokarkiv.Dokumenttype
 import no.nav.familie.kontrakter.felles.dokarkiv.v2.ArkiverDokumentRequest
 import no.nav.familie.kontrakter.felles.dokarkiv.v2.Dokument
 import no.nav.familie.kontrakter.felles.dokarkiv.v2.Filtype
+import no.nav.familie.kontrakter.felles.oppgave.IdentGruppe
+import no.nav.familie.kontrakter.felles.oppgave.OppgaveIdentV2
+import no.nav.familie.kontrakter.felles.oppgave.OpprettOppgaveRequest
 import no.nav.familie.ks.sak.api.dto.ManuellStartKonsistensavstemmingDto
+import no.nav.familie.ks.sak.api.dto.OpprettOppgaveDto
 import no.nav.familie.ks.sak.common.util.Periode
 import no.nav.familie.ks.sak.config.BehandlerRolle
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
@@ -14,12 +19,13 @@ import no.nav.familie.ks.sak.kjerne.avstemming.GrensesnittavstemmingTask
 import no.nav.familie.ks.sak.kjerne.avstemming.KonsistensavstemmingKjøreplanService
 import no.nav.familie.ks.sak.kjerne.avstemming.KonsistensavstemmingTask
 import no.nav.familie.ks.sak.kjerne.avstemming.domene.KonsistensavstemmingTaskDto
+import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
 import no.nav.familie.ks.sak.sikkerhet.TilgangService
 import no.nav.familie.ks.sak.statistikk.saksstatistikk.SakStatistikkService
 import no.nav.familie.ks.sak.statistikk.stønadsstatistikk.PubliserVedtakTask
 import no.nav.familie.ks.sak.statistikk.stønadsstatistikk.StønadsstatistikkService
 import no.nav.familie.prosessering.internal.TaskService
-import no.nav.security.token.support.core.api.ProtectedWithClaims
+import no.nav.security.token.support.core.api.Unprotected
 import org.slf4j.LoggerFactory
 import org.springframework.http.ResponseEntity
 import org.springframework.validation.annotation.Validated
@@ -29,10 +35,12 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
+import java.time.LocalDate
 
 @RestController
 @RequestMapping("/api/forvaltning/")
-@ProtectedWithClaims(issuer = "azuread")
+// @ProtectedWithClaims(issuer = "azuread")
+@Unprotected
 @Validated
 class ForvaltningController(
     private val tilgangService: TilgangService,
@@ -40,7 +48,8 @@ class ForvaltningController(
     private val sakStatistikkService: SakStatistikkService,
     private val stønadsstatistikkService: StønadsstatistikkService,
     private val taskService: TaskService,
-    private val konsistensavstemmingKjøreplanService: KonsistensavstemmingKjøreplanService
+    private val konsistensavstemmingKjøreplanService: KonsistensavstemmingKjøreplanService,
+    private val personidentService: PersonidentService
 ) {
 
     private val logger = LoggerFactory.getLogger(ForvaltningController::class.java)
@@ -64,6 +73,28 @@ class ForvaltningController(
         )
         val journalførDokumentResponse = integrasjonClient.journalførDokument(arkiverDokumentRequest)
         return ResponseEntity.ok(Ressurs.success(journalførDokumentResponse.journalpostId, "Dokument er Journalført"))
+    }
+
+    @PostMapping("/opprett-oppgave")
+    fun opprettOppgave(@RequestBody opprettOppgaveDto: OpprettOppgaveDto): ResponseEntity<Ressurs<String>> {
+        // hent aktørId fra fnr
+        val aktørId = personidentService.hentAktør(opprettOppgaveDto.fnr).aktørId
+        val opprettOppgaveRequest = OpprettOppgaveRequest(
+            ident = OppgaveIdentV2(ident = aktørId, gruppe = IdentGruppe.AKTOERID),
+            saksId = null,
+            tema = Tema.KON,
+            oppgavetype = opprettOppgaveDto.oppgavetype,
+            fristFerdigstillelse = LocalDate.now().plusDays(1),
+            beskrivelse = "Test",
+            enhetsnummer = opprettOppgaveDto.enhet,
+            // behandlingstema brukes ikke i kombinasjon med behandlingstype for kontantstøtte
+            behandlingstema = null,
+            // TODO - må diskuteres hva det kan være for KS-EØS
+            behandlingstype = null,
+            tilordnetRessurs = null
+        )
+        integrasjonClient.opprettOppgave(opprettOppgaveRequest)
+        return ResponseEntity.ok(Ressurs.success("Oppgave opprettet"))
     }
 
     @GetMapping("/dvh/sakstatistikk/send-alle-behandlinger-til-dvh")
