@@ -63,6 +63,7 @@ class VilkårsvurderingSteg(
             it.vilkårResultater.any { vilkårResultat -> vilkårResultat.vurderesEtter == Regelverk.EØS_FORORDNINGEN }
         }
         if (erNoenVilkårVurdertEtterEøsForordning) {
+            logger.info("Oppretter/Tilpasser kompetanse perioder for behandlingId=$behandlingId")
             kompetanseService.tilpassKompetanse(behandlingId)
         }
     }
