@@ -1,5 +1,7 @@
 package no.nav.familie.ks.sak.common.tidslinje
 
+import no.nav.familie.ks.sak.common.tidslinje.utvidelser.klipp
+import no.nav.familie.ks.sak.common.tidslinje.utvidelser.kombinerMed
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.mapper
 import java.time.DayOfWeek
 import java.time.LocalDate
@@ -129,3 +131,36 @@ open class Tidslinje<T>(
 
 fun <T> tomTidslinje(startsTidspunkt: LocalDate? = null, tidsEnhet: TidsEnhet = TidsEnhet.DAG): Tidslinje<T> =
     Tidslinje(startsTidspunkt = startsTidspunkt ?: PRAKTISK_TIDLIGSTE_DAG, emptyList(), tidsEnhet)
+
+fun <K, V, H, R> Map<K, Tidslinje<V>>.leftJoin(
+    høyreTidslinjer: Map<K, Tidslinje<H>>,
+    kombinator: (V?, H?) -> R?
+): Map<K, Tidslinje<R>> {
+    val venstreTidslinjer = this
+    val venstreNøkler = venstreTidslinjer.keys
+
+    return venstreNøkler.associateWith { nøkkel ->
+        val venstreTidslinje = venstreTidslinjer.getOrDefault(nøkkel, tomTidslinje())
+        val høyreTidslinje = høyreTidslinjer.getOrDefault(nøkkel, tomTidslinje())
+
+        venstreTidslinje.kombinerMed(høyreTidslinje, kombinator)
+    }
+}
+
+fun <K, V, H, R> Map<K, Tidslinje<V>>.outerJoin(
+    høyreTidslinjer: Map<K, Tidslinje<H>>,
+    kombinator: (V?, H?) -> R?
+): Map<K, Tidslinje<R>> {
+    val venstreTidslinjer = this
+    val alleNøkler = venstreTidslinjer.keys + høyreTidslinjer.keys
+
+    return alleNøkler.associateWith { nøkkel ->
+        val venstreTidslinje = venstreTidslinjer.getOrDefault(nøkkel, tomTidslinje())
+        val høyreTidslinje = høyreTidslinjer.getOrDefault(nøkkel, tomTidslinje())
+
+        venstreTidslinje.kombinerMed(høyreTidslinje, kombinator)
+    }
+}
+
+fun <T> Tidslinje<T>.beskjærEtter(tidslinje: Tidslinje<*>): Tidslinje<T> =
+    this.klipp(tidslinje.startsTidspunkt, tidslinje.kalkulerSluttTidspunkt())

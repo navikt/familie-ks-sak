@@ -104,6 +104,8 @@ class VilkårResultat(
         utdypendeVilkårsvurderinger.contains(UtdypendeVilkårsvurdering.ADOPSJON) &&
         resultat == Resultat.OPPFYLT
 
+    fun erOppfylt() = this.resultat == Resultat.OPPFYLT
+
     fun kopierMedNyPeriodeOgBehandling(fom: LocalDate?, tom: LocalDate?, behandlingId: Long): VilkårResultat {
         return VilkårResultat(
             personResultat = this.personResultat,
@@ -151,6 +153,10 @@ class VilkårResultat(
         utdypendeVilkårsvurderinger = this.utdypendeVilkårsvurderinger,
         antallTimer = this.antallTimer
     )
+
+    override fun toString(): String {
+        return """ VilkårResultat(id=$id,vilkårType=$vilkårType,periodeFom=$periodeFom,periodeTom=$periodeTom,resultat=$resultat,evalueringÅrsaker=$evalueringÅrsaker") """
+    }
 
     companion object {
 

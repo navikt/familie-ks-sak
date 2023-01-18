@@ -47,6 +47,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.AnnenVurdering
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.AnnenVurderingType
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.PersonResultat
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Regelverk
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.UtdypendeVilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
@@ -333,7 +334,8 @@ fun lagVilkårsvurderingMedSøkersVilkår(
     behandling: Behandling,
     resultat: Resultat,
     søkerPeriodeFom: LocalDate? = LocalDate.now().minusMonths(1),
-    søkerPeriodeTom: LocalDate? = LocalDate.now().plusYears(2)
+    søkerPeriodeTom: LocalDate? = LocalDate.now().plusYears(2),
+    regelverk: Regelverk = Regelverk.NASJONALE_REGLER
 ): Vilkårsvurdering {
     val vilkårsvurdering = Vilkårsvurdering(
         behandling = behandling
@@ -351,7 +353,8 @@ fun lagVilkårsvurderingMedSøkersVilkår(
                 periodeFom = søkerPeriodeFom,
                 periodeTom = søkerPeriodeTom,
                 begrunnelse = "",
-                behandlingId = behandling.id
+                behandlingId = behandling.id,
+                vurderesEtter = regelverk
             ),
             VilkårResultat(
                 personResultat = personResultat,
@@ -360,7 +363,8 @@ fun lagVilkårsvurderingMedSøkersVilkår(
                 periodeFom = søkerPeriodeFom,
                 periodeTom = søkerPeriodeTom,
                 begrunnelse = "",
-                behandlingId = behandling.id
+                behandlingId = behandling.id,
+                vurderesEtter = regelverk
             )
         )
     )
@@ -387,6 +391,7 @@ fun lagVilkårResultat(
     begrunnelse: String = "",
     behandlingId: Long = 0,
     utdypendeVilkårsvurderinger: List<UtdypendeVilkårsvurdering> = emptyList(),
+    regelverk: Regelverk = Regelverk.NASJONALE_REGLER,
     antallTimer: BigDecimal? = null
 ): VilkårResultat = VilkårResultat(
     id = id,
@@ -398,6 +403,7 @@ fun lagVilkårResultat(
     begrunnelse = begrunnelse,
     behandlingId = behandlingId,
     utdypendeVilkårsvurderinger = utdypendeVilkårsvurderinger,
+    vurderesEtter = regelverk,
     antallTimer = antallTimer
 )
 
@@ -405,7 +411,9 @@ fun lagVilkårResultaterForBarn(
     personResultat: PersonResultat,
     barnFødselsdato: LocalDate,
     barnehageplassPerioder: List<Pair<NullablePeriode, BigDecimal?>>,
-    behandlingId: Long
+    behandlingId: Long,
+    regelverk: Regelverk = Regelverk.NASJONALE_REGLER,
+    periodeTom: LocalDate? = null
 ): Set<VilkårResultat> {
     val vilkårResultaterForBarn = mutableSetOf<VilkårResultat>()
     Vilkår.hentVilkårFor(PersonType.BARN).forEach {
@@ -416,7 +424,8 @@ fun lagVilkårResultaterForBarn(
                     vilkårType = it,
                     periodeFom = barnFødselsdato.plusYears(1),
                     periodeTom = barnFødselsdato.plusYears(2),
-                    behandlingId = behandlingId
+                    behandlingId = behandlingId,
+                    regelverk = regelverk
                 )
             )
 
@@ -440,8 +449,9 @@ fun lagVilkårResultaterForBarn(
                     personResultat = personResultat,
                     vilkårType = it,
                     periodeFom = barnFødselsdato,
-                    periodeTom = null,
-                    behandlingId = behandlingId
+                    periodeTom = periodeTom,
+                    behandlingId = behandlingId,
+                    regelverk = regelverk
                 )
             )
         }

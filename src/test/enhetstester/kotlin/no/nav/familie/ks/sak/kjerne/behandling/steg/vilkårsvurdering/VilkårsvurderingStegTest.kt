@@ -35,6 +35,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vil
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.beregning.BeregningService
+import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.KompetanseService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -63,6 +64,9 @@ class VilkårsvurderingStegTest {
 
     @MockK
     private lateinit var beregningService: BeregningService
+
+    @MockK
+    private lateinit var kompetanseService: KompetanseService
 
     @InjectMockKs
     private lateinit var vilkårsvurderingSteg: VilkårsvurderingSteg
@@ -437,6 +441,7 @@ class VilkårsvurderingStegTest {
         verify(exactly = 1) { personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(any()) }
         verify(exactly = 1) { vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(behandling.id) }
         verify(exactly = 1) { søknadGrunnlagService.finnAktiv(behandling.id) }
+        verify(exactly = 0) { kompetanseService.tilpassKompetanse(behandling.id) }
     }
 
     @Test
@@ -474,6 +479,7 @@ class VilkårsvurderingStegTest {
         every { vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(behandling.id) } returns vilkårsvurderingForSøker
         every { behandlingService.hentSisteBehandlingSomErVedtatt(behandling.fagsak.id) } returns null
         every { behandlingService.endreBehandlingstemaPåBehandling(any(), BehandlingKategori.EØS) } returns behandling
+        every { kompetanseService.tilpassKompetanse(behandling.id) } just runs
 
         vilkårsvurderingSteg.utførSteg(behandling.id)
 
@@ -482,6 +488,7 @@ class VilkårsvurderingStegTest {
         verify(exactly = 1) { vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(behandling.id) }
         verify(exactly = 1) { søknadGrunnlagService.finnAktiv(behandling.id) }
         verify(exactly = 1) { behandlingService.endreBehandlingstemaPåBehandling(any(), BehandlingKategori.EØS) }
+        verify(exactly = 1) { kompetanseService.tilpassKompetanse(behandling.id) }
     }
 
     @Test
@@ -567,6 +574,9 @@ class VilkårsvurderingStegTest {
         verify(exactly = 1) { personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(any()) }
         verify(exactly = 1) { vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(behandling.id) }
         verify(exactly = 1) { søknadGrunnlagService.finnAktiv(behandling.id) }
+        verify(exactly = 1) { behandlingService.endreBehandlingstemaPåBehandling(any(), BehandlingKategori.EØS) }
+        // Siden nåværende vilkårvurdering vurderte etter NASJONALE REGLER, oppdaterer vi ikke kompetanse
+        verify(exactly = 0) { kompetanseService.tilpassKompetanse(behandling.id) }
     }
 
     @Test
@@ -657,5 +667,6 @@ class VilkårsvurderingStegTest {
         verify(exactly = 1) { personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(any()) }
         verify(exactly = 1) { vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(behandling.id) }
         verify(exactly = 1) { søknadGrunnlagService.finnAktiv(behandling.id) }
+        verify(exactly = 0) { kompetanseService.tilpassKompetanse(behandling.id) }
     }
 }

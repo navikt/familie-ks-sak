@@ -12,3 +12,5 @@ fun <T> Tidslinje<T>.filtrer(predicate: (T?) -> Boolean) =
             is Udefinert -> Udefinert()
         }
     }
+
+fun <T> Tidslinje<T>.filtrerIkkeNull(): Tidslinje<T> = filtrer { it != null }

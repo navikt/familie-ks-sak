@@ -74,10 +74,6 @@ class RegistrereSøknadSteg(
 
         vilkårsvurderingService.opprettVilkårsvurdering(behandling, forrigeBehandlingSomErVedtatt)
 
-        if (forrigeBehandlingSomErVedtatt != null) {
-            // TODO sette vilkårene til barna som er fjernet fra søknad til slik de var etter VilkårsvurderingService.opprettVilkårsvurdering()
-        }
-
         // Vi sletter vedtaksperioder og tilkjentytelse hvis de tidligere har blitt generert
         val vedtak = vedtakService.hentAktivVedtakForBehandling(behandlingId)
 

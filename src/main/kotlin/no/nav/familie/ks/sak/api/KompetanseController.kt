@@ -12,6 +12,7 @@ import no.nav.security.token.support.core.api.ProtectedWithClaims
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.validation.annotation.Validated
+import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
@@ -27,7 +28,8 @@ class KompetanseController(
     private val tilgangService: TilgangService,
     private val behandlingService: BehandlingService
 ) {
-    // Denne API-en brukes både for å legge til og oppdatere kompetanse
+    // Denne API-en brukes for å oppdatere kompetanse
+    // Kompetanse oppretter automatisk etter vilkårsvurdering steg når vilkår er vurdert etter EØS forordningen
     @PutMapping(path = ["{behandlingId}"], produces = [MediaType.APPLICATION_JSON_VALUE])
     fun oppdaterKompetanse(
         @PathVariable behandlingId: Long,
@@ -40,6 +42,23 @@ class KompetanseController(
             handling = "legge til kompetanse"
         )
         kompetanseService.oppdaterKompetanse(behandlingId, kompentanseDto)
+        return ResponseEntity.ok(Ressurs.success(behandlingService.lagBehandlingRespons(behandlingId)))
+    }
+
+    @DeleteMapping(path = ["{behandlingId}/{kompetanseId}"], produces = [MediaType.APPLICATION_JSON_VALUE])
+    fun slettKompetanse(
+        @PathVariable behandlingId: Long,
+        @PathVariable kompetanseId: Long
+    ): ResponseEntity<Ressurs<BehandlingResponsDto>> {
+        tilgangService.validerTilgangTilHandlingOgFagsakForBehandling(
+            behandlingId = behandlingId,
+            event = AuditLoggerEvent.DELETE,
+            minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
+            handling = "slette kompetanse"
+        )
+
+        kompetanseService.slettKompetanse(kompetanseId)
+
         return ResponseEntity.ok(Ressurs.success(behandlingService.lagBehandlingRespons(behandlingId)))
     }
 }
