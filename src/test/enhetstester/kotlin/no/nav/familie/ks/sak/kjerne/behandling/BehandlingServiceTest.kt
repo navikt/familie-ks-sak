@@ -37,6 +37,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.Vedtak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
 import no.nav.familie.ks.sak.kjerne.beregning.AndelerTilkjentYtelseOgEndreteUtbetalingerService
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelseRepository
+import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.KompetanseRepository
 import no.nav.familie.ks.sak.kjerne.logg.LoggService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.StatsborgerskapService
@@ -99,6 +100,9 @@ class BehandlingServiceTest {
     @MockK
     private lateinit var feilutbetaltValutaService: FeilutbetaltValutaService
 
+    @MockK
+    private lateinit var kompetanseRepository: KompetanseRepository
+
     @InjectMockKs
     private lateinit var behandlingService: BehandlingService
 
@@ -158,6 +162,7 @@ class BehandlingServiceTest {
         every { vedtaksperiodeService.finnSisteVedtaksperiodeVisningsdatoForBehandling(any()) } returns null
         every { feilutbetaltValutaService.hentAlleFeilutbetaltValutaForBehandling(any()) } returns emptyList()
         every { sanityService.hentSanityBegrunnelser() } returns emptyList()
+        every { kompetanseRepository.findByBehandlingId(any()) } returns emptyList()
     }
 
     @Test
@@ -178,6 +183,7 @@ class BehandlingServiceTest {
                 behandling.id
             )
         }
+        verify(exactly = 1) { kompetanseRepository.findByBehandlingId(behandling.id) }
 
         assertTrue { behandlingResponsDto.personer.isNotEmpty() }
         assertEquals(1, behandlingResponsDto.personer.size)
