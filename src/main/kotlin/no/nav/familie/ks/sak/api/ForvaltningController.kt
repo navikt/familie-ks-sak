@@ -76,21 +76,23 @@ class ForvaltningController(
 
     @PostMapping("/opprett-oppgave")
     fun opprettOppgave(@RequestBody opprettOppgaveDto: OpprettOppgaveDto): ResponseEntity<Ressurs<String>> {
-        // hent aktørId fra fnr
+        tilgangService.validerTilgangTilHandling(
+            minimumBehandlerRolle = BehandlerRolle.FORVALTER,
+            handling = "teste opprettelse av oppgave"
+        )
         val aktørId = personidentService.hentAktør(opprettOppgaveDto.fnr).aktørId
         val opprettOppgaveRequest = OpprettOppgaveRequest(
             ident = OppgaveIdentV2(ident = aktørId, gruppe = IdentGruppe.AKTOERID),
             saksId = null,
+            journalpostId = opprettOppgaveDto.journalpostId,
             tema = Tema.KON,
             oppgavetype = opprettOppgaveDto.oppgavetype,
             fristFerdigstillelse = LocalDate.now().plusDays(1),
-            beskrivelse = "Test",
+            beskrivelse = opprettOppgaveDto.beskrivelse,
             enhetsnummer = opprettOppgaveDto.enhet,
-            // behandlingstema brukes ikke i kombinasjon med behandlingstype for kontantstøtte
-            behandlingstema = null,
-            // TODO - må diskuteres hva det kan være for KS-EØS
-            behandlingstype = null,
-            tilordnetRessurs = null
+            behandlingstema = opprettOppgaveDto.behandlingstema,
+            behandlingstype = opprettOppgaveDto.behandlingstype,
+            tilordnetRessurs = opprettOppgaveDto.tilordnetRessurs
         )
         integrasjonClient.opprettOppgave(opprettOppgaveRequest)
         return ResponseEntity.ok(Ressurs.success("Oppgave opprettet"))
