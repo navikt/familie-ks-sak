@@ -202,7 +202,7 @@ enum class Brevmal(val erVedtaksbrev: Boolean, val apiNavn: String, val visnings
                 else -> throw Feil("Behandlingskategori er ikke satt fot $this")
             }
 
-            FORLENGET_SVARTIDSBREV -> manuellFrist ?: throw Feil("Ventefrist var ikke satt for $this")
+            FORLENGET_SVARTIDSBREV -> manuellFrist?.times(7) ?: throw Feil("Ventefrist var ikke satt for $this")
 
             else -> throw Feil("Ventefrist ikke definert for brevtype $this")
         }

@@ -41,8 +41,6 @@ class SettBehandlingPåVentService(
     fun oppdaterFrist(behandlingId: Long, frist: LocalDate) {
         val behandling = behandlingRepository.hentBehandling(behandlingId)
 
-        stegService.settBehandlingstegPåVent(behandling, frist) // oppdaterer fristen
-
         val gammelFrist = stegService.oppdaterBehandlingstegFrist(behandling, frist)
 
         loggService.opprettOppdaterVentingLogg(
