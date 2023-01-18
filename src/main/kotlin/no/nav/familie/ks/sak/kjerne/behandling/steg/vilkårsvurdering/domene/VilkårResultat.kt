@@ -106,6 +106,8 @@ class VilkårResultat(
 
     fun erOppfylt() = this.resultat == Resultat.OPPFYLT
 
+    fun erIkkeAktuelt() = this.resultat == Resultat.IKKE_AKTUELT
+
     fun kopierMedNyPeriodeOgBehandling(fom: LocalDate?, tom: LocalDate?, behandlingId: Long): VilkårResultat {
         return VilkårResultat(
             personResultat = this.personResultat,

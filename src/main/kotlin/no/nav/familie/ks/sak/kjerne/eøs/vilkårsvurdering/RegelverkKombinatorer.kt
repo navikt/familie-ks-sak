@@ -1,10 +1,8 @@
 package no.nav.familie.ks.sak.kjerne.eøs.vilkårsvurdering
 
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Regelverk
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
 import no.nav.familie.ks.sak.kjerne.eøs.vilkårsvurdering.RegelverkResultat.IKKE_FULLT_VURDERT
-import no.nav.familie.ks.sak.kjerne.eøs.vilkårsvurdering.RegelverkResultat.IKKE_OPPFYLT
 import no.nav.familie.ks.sak.kjerne.eøs.vilkårsvurdering.RegelverkResultat.OPPFYLT_BLANDET_REGELVERK
 import no.nav.familie.ks.sak.kjerne.eøs.vilkårsvurdering.RegelverkResultat.OPPFYLT_EØS_FORORDNINGEN
 import no.nav.familie.ks.sak.kjerne.eøs.vilkårsvurdering.RegelverkResultat.OPPFYLT_NASJONALE_REGLER
@@ -13,7 +11,7 @@ import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
 
 fun kombinerVilkårResultaterTilRegelverkResultat(
     personType: PersonType,
-    alleVilkårResultater: Iterable<VilkårRegelverkResultat>
+    alleVilkårResultater: Iterable<VilkårRegelverkResultat> // vilkår resultater som er OPPFYLT/IKKE_AKTUELT
 ): RegelverkResultat? {
     val vilkårer = Vilkår.hentVilkårFor(personType)
 
@@ -27,15 +25,11 @@ fun kombinerVilkårResultaterTilRegelverkResultat(
 
     val erAlleVilkårUtenResultat = alleVilkårResultater.all { it.resultat == null }
 
-    val erAlleVilkårOppfylt = alleVilkårResultater.all { it.resultat == Resultat.OPPFYLT } &&
-        alleVilkårResultater.map { it.vilkår }.distinct().containsAll(vilkårer)
-
-    val erEttEllerFlereVilkårIkkeOppfylt = alleVilkårResultater.any { it.resultat == Resultat.IKKE_OPPFYLT }
+    val erAlleVilkårOppfyltEllerIkkeAktuelt = alleVilkårResultater.map { it.vilkår }.distinct().containsAll(vilkårer)
 
     return when {
         erAlleVilkårUtenResultat -> null
-        erEttEllerFlereVilkårIkkeOppfylt -> IKKE_OPPFYLT
-        erAlleVilkårOppfylt -> when {
+        erAlleVilkårOppfyltEllerIkkeAktuelt -> when {
             alleEøsVilkårResultater.containsAll(regelverkVilkår) ->
                 OPPFYLT_EØS_FORORDNINGEN
             alleNasjonaleVilkårResultater.containsAll(regelverkVilkår) ->
