@@ -38,14 +38,10 @@ class SettBehandlingPåVentService(
     }
 
     @Transactional
-    fun oppdaterFrist(
-        behandlingId: Long,
-        frist: LocalDate
-    ) {
+    fun oppdaterFrist(behandlingId: Long, frist: LocalDate) {
         val behandling = behandlingRepository.hentBehandling(behandlingId)
 
-        val gammelFrist =
-            stegService.oppdaterBehandlingstegFrist(behandling, frist)
+        val gammelFrist = stegService.oppdaterBehandlingstegFrist(behandling, frist)
 
         loggService.opprettOppdaterVentingLogg(
             behandling = behandling,
