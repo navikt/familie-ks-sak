@@ -37,12 +37,12 @@ fun Collection<PersonResultat>.tilFørskjøvetVilkårResultatTidslinjeForPerson(
 
     val vilkårResultaterForAktør = personResultat?.vilkårResultater ?: emptyList()
 
-    val oppfyltVilkårResultaterForAktørMap = vilkårResultaterForAktør.filter { it.erOppfylt() }
+    val oppfyltVilkårResultaterForAktørMap = vilkårResultaterForAktør.filter { it.resultat == Resultat.OPPFYLT }
         .groupByTo(mutableMapOf()) { it.vilkårType }
         .mapValues { if (it.key == Vilkår.BOR_MED_SØKER) it.value.fjernAvslagUtenPeriodeHvisDetFinsAndreVilkårResultat() else it.value }
 
     val ikkeAktueltVilkårResultaterForAktør = vilkårResultaterForAktør
-        .filter { it.erIkkeAktuelt() }
+        .filter { it.resultat == Resultat.IKKE_AKTUELT }
         .map { it.vilkårType }.toSet()
 
     val forskjøvedeVilkårResultater = oppfyltVilkårResultaterForAktørMap.map { (vilkårType, vilkårResultater) ->
