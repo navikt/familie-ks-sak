@@ -3,9 +3,10 @@ package no.nav.familie.ks.sak.api.dto
 import io.swagger.v3.oas.annotations.media.Schema
 import no.nav.familie.ks.sak.common.exception.Feil
 import org.springframework.http.HttpStatus
+import java.time.LocalDate
 import java.time.YearMonth
 
-data class BisysDto(val identer: List<String>) {
+data class BisysDto(val fomMåned: LocalDate, val identer: List<String>) {
     init {
         if (identer.any { it.length != 11 }) {
             throw Feil("Ugyldig input. identerdenter må være 11 siffer", httpStatus = HttpStatus.BAD_REQUEST)
