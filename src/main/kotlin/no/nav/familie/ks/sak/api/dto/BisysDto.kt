@@ -6,7 +6,7 @@ import org.springframework.http.HttpStatus
 import java.time.LocalDate
 import java.time.YearMonth
 
-data class BisysDto(val fomMåned: LocalDate, val identer: List<String>) {
+data class BisysDto(val fom: LocalDate, val identer: List<String>) {
     init {
         if (identer.any { it.length != 11 }) {
             throw Feil("Ugyldig input. identerdenter må være 11 siffer", httpStatus = HttpStatus.BAD_REQUEST)
