@@ -1,6 +1,6 @@
 package no.nav.familie.ks.sak.kjerne.endretutbetaling
 
-import no.nav.familie.ks.sak.api.dto.EndretUtbetalingAndelDto
+import no.nav.familie.ks.sak.api.dto.EndretUtbetalingAndelRequestDto
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
 import no.nav.familie.ks.sak.kjerne.beregning.BeregningService
@@ -34,17 +34,17 @@ class EndretUtbetalingAndelService(
     fun oppdaterEndretUtbetalingAndelOgOppdaterTilkjentYtelse(
         behandling: Behandling,
         endretUtbetalingAndelId: Long,
-        endretUtbetalingAndelDto: EndretUtbetalingAndelDto
+        endretUtbetalingAndelRequestDto: EndretUtbetalingAndelRequestDto
     ) {
         val endretUtbetalingAndel = endretUtbetalingAndelRepository.getReferenceById(endretUtbetalingAndelId)
         val vilkårsvurdering = vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(behandling.id)
         val personopplysningGrunnlag =
             personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(behandling.id)
         val person =
-            personopplysningGrunnlag.personer.single { it.aktør.aktivFødselsnummer() == endretUtbetalingAndelDto.personIdent }
+            personopplysningGrunnlag.personer.single { it.aktør.aktivFødselsnummer() == endretUtbetalingAndelRequestDto.personIdent }
         val andelTilkjentYtelser = andelTilkjentYtelseRepository.finnAndelerTilkjentYtelseForBehandling(behandling.id)
 
-        endretUtbetalingAndel.fraEndretUtbetalingAndelDto(endretUtbetalingAndelDto, person)
+        endretUtbetalingAndel.fraEndretUtbetalingAndelDto(endretUtbetalingAndelRequestDto, person)
 
         val andreEndredeAndelerPåBehandling = hentEndredeUtbetalingAndeler(behandling.id)
             .filter { it.id != endretUtbetalingAndelId }

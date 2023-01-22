@@ -1,6 +1,7 @@
 package no.nav.familie.ks.sak.kjerne.endretutbetaling.domene
 
-import no.nav.familie.ks.sak.api.dto.EndretUtbetalingAndelDto
+import no.nav.familie.ks.sak.api.dto.EndretUtbetalingAndelRequestDto
+import no.nav.familie.ks.sak.api.dto.EndretUtbetalingAndelResponsDto
 import no.nav.familie.ks.sak.common.entitet.BaseEntitet
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.common.util.MånedPeriode
@@ -115,8 +116,8 @@ data class EndretUtbetalingAndel(
     fun erÅrsakDeltBosted() = this.årsak == Årsak.DELT_BOSTED
 }
 
-fun EndretUtbetalingAndelMedAndelerTilkjentYtelse.tilEndretUtbetalingAndelDto() =
-    EndretUtbetalingAndelDto(
+fun EndretUtbetalingAndelMedAndelerTilkjentYtelse.tilEndretUtbetalingAndelResponsDto() =
+    EndretUtbetalingAndelResponsDto(
         id = this.id,
         personIdent = this.aktivtFødselsnummer,
         prosent = this.prosent,
@@ -126,22 +127,23 @@ fun EndretUtbetalingAndelMedAndelerTilkjentYtelse.tilEndretUtbetalingAndelDto() 
         avtaletidspunktDeltBosted = this.avtaletidspunktDeltBosted,
         søknadstidspunkt = this.søknadstidspunkt,
         begrunnelse = this.begrunnelse,
-        erEksplisittAvslagPåSøknad = this.erEksplisittAvslagPåSøknad
+        erEksplisittAvslagPåSøknad = this.erEksplisittAvslagPåSøknad,
+        erTilknyttetAndeler = this.andelerTilkjentYtelse.isNotEmpty()
     )
 
 fun EndretUtbetalingAndel.fraEndretUtbetalingAndelDto(
-    endretUtbetalingAndelDto: EndretUtbetalingAndelDto,
+    endretUtbetalingAndelRequestDto: EndretUtbetalingAndelRequestDto,
     person: Person
 ): EndretUtbetalingAndel {
-    this.fom = endretUtbetalingAndelDto.fom
-    this.tom = endretUtbetalingAndelDto.tom
-    this.prosent = endretUtbetalingAndelDto.prosent ?: BigDecimal(0)
-    this.årsak = endretUtbetalingAndelDto.årsak
-    this.avtaletidspunktDeltBosted = endretUtbetalingAndelDto.avtaletidspunktDeltBosted
-    this.søknadstidspunkt = endretUtbetalingAndelDto.søknadstidspunkt
-    this.begrunnelse = endretUtbetalingAndelDto.begrunnelse
+    this.fom = endretUtbetalingAndelRequestDto.fom
+    this.tom = endretUtbetalingAndelRequestDto.tom
+    this.prosent = endretUtbetalingAndelRequestDto.prosent ?: BigDecimal(0)
+    this.årsak = endretUtbetalingAndelRequestDto.årsak
+    this.avtaletidspunktDeltBosted = endretUtbetalingAndelRequestDto.avtaletidspunktDeltBosted
+    this.søknadstidspunkt = endretUtbetalingAndelRequestDto.søknadstidspunkt
+    this.begrunnelse = endretUtbetalingAndelRequestDto.begrunnelse
     this.person = person
-    this.erEksplisittAvslagPåSøknad = endretUtbetalingAndelDto.erEksplisittAvslagPåSøknad
+    this.erEksplisittAvslagPåSøknad = endretUtbetalingAndelRequestDto.erEksplisittAvslagPåSøknad
 
     // Vi skal bare ha 1 mulig avslagebegrunnelse for endret utbetalingandel.
     // TODO: Endre til riktig avslagtekst når vi får dem inn.
