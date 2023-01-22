@@ -4,7 +4,9 @@ import io.mockk.every
 import io.mockk.impl.annotations.InjectMockKs
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
+import io.mockk.just
 import io.mockk.mockk
+import io.mockk.runs
 import io.mockk.slot
 import io.mockk.verify
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
@@ -13,6 +15,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.VedtakRepository
+import no.nav.familie.ks.sak.kjerne.logg.LoggService
 import no.nav.familie.ks.sak.kjerne.tilbakekreving.domene.TilbakekrevingRepository
 import no.nav.familie.ks.sak.statistikk.saksstatistikk.SakStatistikkService
 import no.nav.familie.prosessering.internal.TaskService
@@ -43,6 +46,9 @@ class StegServiceUnitTest {
     @MockK
     private lateinit var taskService: TaskService
 
+    @MockK
+    private lateinit var loggService: LoggService
+
     @InjectMockKs
     private lateinit var stegService: StegService
 
@@ -53,12 +59,15 @@ class StegServiceUnitTest {
         val behandlingSlot = slot<Behandling>()
 
         every { behandlingRepository.saveAndFlush(capture(behandlingSlot)) } returns mockk()
+        every { loggService.opprettOppdaterVentingLogg(any(), any(), any()) } just runs
 
         val frist = LocalDate.now().plusWeeks(1)
+        val årsak = VenteÅrsak.AVVENTER_DOKUMENTASJON
 
         stegService.settBehandlingstegPåVent(
             behandling,
-            frist
+            frist,
+            årsak
         )
 
         val behandling = behandlingSlot.captured
@@ -74,19 +83,23 @@ class StegServiceUnitTest {
         val behandlingSlot = slot<Behandling>()
 
         every { behandlingRepository.saveAndFlush(capture(behandlingSlot)) } returns mockk()
+        every { loggService.opprettOppdaterVentingLogg(any(), any(), any()) } just runs
 
         val frist = LocalDate.now().plusWeeks(1)
+        val årsak = VenteÅrsak.AVVENTER_DOKUMENTASJON
 
         stegService.settBehandlingstegPåVent(
             behandling,
-            frist
+            frist,
+            årsak
         )
 
         val nyFrist = LocalDate.now().plusMonths(1)
 
-        val gammelFrist = stegService.oppdaterBehandlingstegFrist(
+        val gammelFrist = stegService.oppdaterBehandlingstegFristOgÅrsak(
             behandling,
-            nyFrist
+            nyFrist,
+            årsak
         )
 
         val behandling = behandlingSlot.captured
@@ -102,23 +115,27 @@ class StegServiceUnitTest {
     @Test
     fun `oppdaterBehandlingstegTilstandPåVent - skal ikke oppdatere årsak og eller frist på behandlingstegtilstand når frist og årsak er uendret`() {
         every { behandlingRepository.saveAndFlush(any()) } returns mockk()
+        every { loggService.opprettOppdaterVentingLogg(any(), any(), any()) } just runs
 
         val frist = LocalDate.now().plusWeeks(1)
+        val årsak = VenteÅrsak.AVVENTER_DOKUMENTASJON
 
         stegService.settBehandlingstegPåVent(
             behandling,
-            frist
+            frist,
+            årsak
         )
 
         val funksjonellFeil = assertThrows<FunksjonellFeil> {
-            stegService.oppdaterBehandlingstegFrist(
+            stegService.oppdaterBehandlingstegFristOgÅrsak(
                 behandling,
-                frist
+                frist,
+                årsak
             )
         }
 
         assertEquals(
-            "Behandlingen er allerede satt på vent med frist $frist",
+            "Behandlingen er allerede satt på vent med frist $frist og årsak $årsak.",
             funksjonellFeil.message
         )
 

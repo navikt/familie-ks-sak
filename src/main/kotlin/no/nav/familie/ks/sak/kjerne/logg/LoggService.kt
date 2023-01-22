@@ -45,7 +45,10 @@ class LoggService(
             Logg(
                 behandlingId = behandling.id,
                 type = LoggType.AUTOVEDTAK_TIL_MANUELL_BEHANDLING,
-                rolle = SikkerhetContext.hentRolletilgangFraSikkerhetscontext(rolleConfig, BehandlerRolle.SAKSBEHANDLER),
+                rolle = SikkerhetContext.hentRolletilgangFraSikkerhetscontext(
+                    rolleConfig,
+                    BehandlerRolle.SAKSBEHANDLER
+                ),
                 tekst = tekst
             )
         )
@@ -110,7 +113,10 @@ class LoggService(
                 behandlingId = behandling.id,
                 type = LoggType.DOKUMENT_MOTTATT,
                 tittel = "Dokument mottatt ${mottattDato.toLocalDate().tilKortString()}",
-                rolle = SikkerhetContext.hentRolletilgangFraSikkerhetscontext(rolleConfig, BehandlerRolle.SAKSBEHANDLER),
+                rolle = SikkerhetContext.hentRolletilgangFraSikkerhetscontext(
+                    rolleConfig,
+                    BehandlerRolle.SAKSBEHANDLER
+                ),
                 tekst = tekst
             )
         )
@@ -121,27 +127,34 @@ class LoggService(
             Logg(
                 behandlingId = behandling.id,
                 type = LoggType.BEHANDLIG_SATT_PÅ_VENT,
-                rolle = SikkerhetContext.hentRolletilgangFraSikkerhetscontext(rolleConfig, BehandlerRolle.SAKSBEHANDLER),
+                rolle = SikkerhetContext.hentRolletilgangFraSikkerhetscontext(
+                    rolleConfig,
+                    BehandlerRolle.SAKSBEHANDLER
+                ),
                 tekst = "Årsak: $årsak"
             )
         )
     }
 
-    fun opprettOppdaterVentingLogg(behandling: Behandling, endretFrist: LocalDate?) {
+    fun opprettOppdaterVentingLogg(behandling: Behandling, endretFrist: LocalDate?, endretÅrsak: String?) {
         val tekst = when {
-            endretFrist != null ->
-                "Frist er endret til ${endretFrist.tilKortString()}"
-
+            endretFrist != null && endretÅrsak != null -> "Frist og årsak er endret til $endretÅrsak og ${endretFrist.tilKortString()}"
+            endretÅrsak != null -> "Årsak er endret til $endretÅrsak"
+            endretFrist != null -> "Frist er endret til ${endretFrist.tilKortString()}"
             else -> {
                 logger.info("Ingen endringer tilknyttet frist eller årsak på ventende behandling. Oppretter ikke logginnslag.")
                 return
             }
         }
+
         lagreLogg(
             Logg(
                 behandlingId = behandling.id,
                 type = LoggType.VENTENDE_BEHANDLING_ENDRET,
-                rolle = SikkerhetContext.hentRolletilgangFraSikkerhetscontext(rolleConfig, BehandlerRolle.SAKSBEHANDLER),
+                rolle = SikkerhetContext.hentRolletilgangFraSikkerhetscontext(
+                    rolleConfig,
+                    BehandlerRolle.SAKSBEHANDLER
+                ),
                 tekst = tekst
             )
         )
@@ -186,7 +199,10 @@ class LoggService(
                 behandlingId = behandling.id,
                 type = LoggType.VILKÅRSVURDERING,
                 tittel = tittel,
-                rolle = SikkerhetContext.hentRolletilgangFraSikkerhetscontext(rolleConfig, BehandlerRolle.SAKSBEHANDLER),
+                rolle = SikkerhetContext.hentRolletilgangFraSikkerhetscontext(
+                    rolleConfig,
+                    BehandlerRolle.SAKSBEHANDLER
+                ),
                 tekst = tekst
             )
         )
@@ -240,7 +256,10 @@ class LoggService(
             Logg(
                 behandlingId = behandling.id,
                 type = LoggType.HENLEGG_BEHANDLING,
-                rolle = SikkerhetContext.hentRolletilgangFraSikkerhetscontext(rolleConfig, BehandlerRolle.SAKSBEHANDLER),
+                rolle = SikkerhetContext.hentRolletilgangFraSikkerhetscontext(
+                    rolleConfig,
+                    BehandlerRolle.SAKSBEHANDLER
+                ),
                 tekst = "$årsak: $begrunnelse"
             )
         )

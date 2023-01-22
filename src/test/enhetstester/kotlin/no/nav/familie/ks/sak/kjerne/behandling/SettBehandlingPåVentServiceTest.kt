@@ -15,6 +15,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingStegStatus
 import no.nav.familie.ks.sak.kjerne.behandling.steg.StegService
+import no.nav.familie.ks.sak.kjerne.behandling.steg.VenteÅrsak
 import no.nav.familie.ks.sak.kjerne.logg.LoggService
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
@@ -44,18 +45,19 @@ class SettBehandlingPåVentServiceTest {
     @Test
     fun `settBehandlingPåVent - skal sette behandling på vent, oppdatere logg og forlenge frist på oppgave`() {
         every { behandlingRepository.hentBehandling(any()) } returns behandling
-        every { stegService.settBehandlingstegPåVent(any(), any()) } just runs
+        every { stegService.settBehandlingstegPåVent(any(), any(), VenteÅrsak.AVVENTER_DOKUMENTASJON) } just runs
         every { loggService.opprettSettPåVentLogg(any(), any()) } just runs
         every { oppgaveService.forlengFristÅpneOppgaverPåBehandling(any(), any()) } just runs
 
         val frist = LocalDate.now().plusWeeks(1)
         settBehandlingPåVentService.settBehandlingPåVent(
             behandling.id,
-            frist
+            frist,
+            VenteÅrsak.AVVENTER_DOKUMENTASJON
         )
 
         verify(exactly = 1) { behandlingRepository.hentBehandling(any()) }
-        verify(exactly = 1) { stegService.settBehandlingstegPåVent(any(), any()) }
+        verify(exactly = 1) { stegService.settBehandlingstegPåVent(any(), any(), VenteÅrsak.AVVENTER_DOKUMENTASJON) }
         verify(exactly = 1) { loggService.opprettSettPåVentLogg(any(), any()) }
         verify(exactly = 1) { oppgaveService.forlengFristÅpneOppgaverPåBehandling(any(), any()) }
     }
@@ -71,7 +73,8 @@ class SettBehandlingPåVentServiceTest {
         val funksjonellFeil = assertThrows<FunksjonellFeil> {
             settBehandlingPåVentService.settBehandlingPåVent(
                 behandling.id,
-                frist
+                frist,
+                VenteÅrsak.AVVENTER_DOKUMENTASJON
             )
         }
 
@@ -87,7 +90,8 @@ class SettBehandlingPåVentServiceTest {
         val funksjonellFeil = assertThrows<FunksjonellFeil> {
             settBehandlingPåVentService.settBehandlingPåVent(
                 behandling.id,
-                frist
+                frist,
+                VenteÅrsak.AVVENTER_DOKUMENTASJON
             )
         }
 
@@ -107,7 +111,8 @@ class SettBehandlingPåVentServiceTest {
         val funksjonellFeil = assertThrows<FunksjonellFeil> {
             settBehandlingPåVentService.settBehandlingPåVent(
                 behandling.id,
-                frist
+                frist,
+                VenteÅrsak.AVVENTER_DOKUMENTASJON
             )
         }
 
@@ -127,7 +132,8 @@ class SettBehandlingPåVentServiceTest {
         val funksjonellFeil = assertThrows<FunksjonellFeil> {
             settBehandlingPåVentService.settBehandlingPåVent(
                 behandling.id,
-                frist
+                frist,
+                VenteÅrsak.AVVENTER_DOKUMENTASJON
             )
         }
 
@@ -138,24 +144,35 @@ class SettBehandlingPåVentServiceTest {
     }
 
     @Test
-    fun `oppdaterBehandlingPåVent - skal oppdatere frist på ventende behandling, oppdatere logg og forlenge frist på oppgave`() {
+    fun `oppdaterBehandlingPåVent - skal oppdatere frist på ventende behandling, og forlenge frist på oppgave`() {
         val gammelFrist = LocalDate.now().plusWeeks(1)
         val frist = LocalDate.now().plusWeeks(2)
 
         every { behandlingRepository.hentBehandling(any()) } returns behandling
-        every { stegService.oppdaterBehandlingstegFrist(any(), any()) } returns gammelFrist
+        every {
+            stegService.oppdaterBehandlingstegFristOgÅrsak(
+                any(),
+                any(),
+                VenteÅrsak.AVVENTER_DOKUMENTASJON
+            )
+        } returns gammelFrist
 
-        every { loggService.opprettOppdaterVentingLogg(behandling, frist) } just runs
         every { oppgaveService.forlengFristÅpneOppgaverPåBehandling(any(), any()) } just runs
 
-        settBehandlingPåVentService.oppdaterFrist(
+        settBehandlingPåVentService.oppdaterFristOgÅrsak(
             behandling.id,
-            frist
+            frist,
+            VenteÅrsak.AVVENTER_DOKUMENTASJON
         )
 
         verify(exactly = 1) { behandlingRepository.hentBehandling(any()) }
-        verify(exactly = 1) { stegService.oppdaterBehandlingstegFrist(any(), any()) }
-        verify(exactly = 1) { loggService.opprettOppdaterVentingLogg(any(), any()) }
+        verify(exactly = 1) {
+            stegService.oppdaterBehandlingstegFristOgÅrsak(
+                any(),
+                any(),
+                VenteÅrsak.AVVENTER_DOKUMENTASJON
+            )
+        }
         verify(exactly = 1) { oppgaveService.forlengFristÅpneOppgaverPåBehandling(any(), any()) }
     }
 
