@@ -131,7 +131,7 @@ fun EndretUtbetalingAndelMedAndelerTilkjentYtelse.tilEndretUtbetalingAndelRespon
         erTilknyttetAndeler = this.andelerTilkjentYtelse.isNotEmpty()
     )
 
-fun EndretUtbetalingAndel.fraEndretUtbetalingAndelDto(
+fun EndretUtbetalingAndel.fraEndretUtbetalingAndelRequestDto(
     endretUtbetalingAndelRequestDto: EndretUtbetalingAndelRequestDto,
     person: Person
 ): EndretUtbetalingAndel {
