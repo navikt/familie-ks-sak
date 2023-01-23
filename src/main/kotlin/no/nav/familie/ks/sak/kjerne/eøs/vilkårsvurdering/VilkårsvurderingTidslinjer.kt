@@ -1,7 +1,6 @@
 package no.nav.familie.ks.sak.kjerne.eøs.vilkårsvurdering
 
 import no.nav.familie.ks.sak.common.tidslinje.beskjærEtter
-import no.nav.familie.ks.sak.common.tidslinje.tilTidslinje
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.kombiner
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.kombinerMed
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
@@ -32,7 +31,7 @@ class VilkårsvurderingTidslinjer(
 
     class SøkersTidslinjer(tidslinjer: VilkårsvurderingTidslinjer, aktør: Aktør) {
         val vilkårResultatTidslinjer = tidslinjer.vilkårResultaterTidslinjeMap[aktør] ?: emptyList()
-        val regelverkResultatTidslinje = vilkårResultatTidslinjer.map { it.tilTidslinje() }.kombiner {
+        val regelverkResultatTidslinje = vilkårResultatTidslinjer.kombiner {
             kombinerVilkårResultaterTilRegelverkResultat(PersonType.SØKER, it)
         }
     }
@@ -41,7 +40,7 @@ class VilkårsvurderingTidslinjer(
         private val søkersTidslinje = tidslinjer.søkersTidslinje
 
         val vilkårResultatTidslinjer = tidslinjer.vilkårResultaterTidslinjeMap[aktør] ?: emptyList()
-        val egetRegelverkResultatTidslinje = vilkårResultatTidslinjer.map { it.tilTidslinje() }.kombiner {
+        val egetRegelverkResultatTidslinje = vilkårResultatTidslinjer.kombiner {
             kombinerVilkårResultaterTilRegelverkResultat(PersonType.BARN, it)
         }
         val regelverkResultatTidslinje = egetRegelverkResultatTidslinje
