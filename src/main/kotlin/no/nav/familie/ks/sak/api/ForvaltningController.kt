@@ -2,11 +2,16 @@ package no.nav.familie.ks.sak.api
 
 import no.nav.familie.eksterne.kontrakter.VedtakDVH
 import no.nav.familie.kontrakter.felles.Ressurs
+import no.nav.familie.kontrakter.felles.Tema
 import no.nav.familie.kontrakter.felles.dokarkiv.Dokumenttype
 import no.nav.familie.kontrakter.felles.dokarkiv.v2.ArkiverDokumentRequest
 import no.nav.familie.kontrakter.felles.dokarkiv.v2.Dokument
 import no.nav.familie.kontrakter.felles.dokarkiv.v2.Filtype
+import no.nav.familie.kontrakter.felles.oppgave.IdentGruppe
+import no.nav.familie.kontrakter.felles.oppgave.OppgaveIdentV2
+import no.nav.familie.kontrakter.felles.oppgave.OpprettOppgaveRequest
 import no.nav.familie.ks.sak.api.dto.ManuellStartKonsistensavstemmingDto
+import no.nav.familie.ks.sak.api.dto.OpprettOppgaveDto
 import no.nav.familie.ks.sak.common.util.Periode
 import no.nav.familie.ks.sak.config.BehandlerRolle
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
@@ -14,6 +19,7 @@ import no.nav.familie.ks.sak.kjerne.avstemming.GrensesnittavstemmingTask
 import no.nav.familie.ks.sak.kjerne.avstemming.KonsistensavstemmingKjøreplanService
 import no.nav.familie.ks.sak.kjerne.avstemming.KonsistensavstemmingTask
 import no.nav.familie.ks.sak.kjerne.avstemming.domene.KonsistensavstemmingTaskDto
+import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
 import no.nav.familie.ks.sak.sikkerhet.TilgangService
 import no.nav.familie.ks.sak.statistikk.saksstatistikk.SakStatistikkService
 import no.nav.familie.ks.sak.statistikk.stønadsstatistikk.PubliserVedtakTask
@@ -29,6 +35,7 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
+import java.time.LocalDate
 
 @RestController
 @RequestMapping("/api/forvaltning/")
@@ -40,7 +47,8 @@ class ForvaltningController(
     private val sakStatistikkService: SakStatistikkService,
     private val stønadsstatistikkService: StønadsstatistikkService,
     private val taskService: TaskService,
-    private val konsistensavstemmingKjøreplanService: KonsistensavstemmingKjøreplanService
+    private val konsistensavstemmingKjøreplanService: KonsistensavstemmingKjøreplanService,
+    private val personidentService: PersonidentService
 ) {
 
     private val logger = LoggerFactory.getLogger(ForvaltningController::class.java)
@@ -64,6 +72,30 @@ class ForvaltningController(
         )
         val journalførDokumentResponse = integrasjonClient.journalførDokument(arkiverDokumentRequest)
         return ResponseEntity.ok(Ressurs.success(journalførDokumentResponse.journalpostId, "Dokument er Journalført"))
+    }
+
+    @PostMapping("/opprett-oppgave")
+    fun opprettOppgave(@RequestBody opprettOppgaveDto: OpprettOppgaveDto): ResponseEntity<Ressurs<String>> {
+        tilgangService.validerTilgangTilHandling(
+            minimumBehandlerRolle = BehandlerRolle.FORVALTER,
+            handling = "teste opprettelse av oppgave"
+        )
+        val aktørId = personidentService.hentAktør(opprettOppgaveDto.fnr).aktørId
+        val opprettOppgaveRequest = OpprettOppgaveRequest(
+            ident = OppgaveIdentV2(ident = aktørId, gruppe = IdentGruppe.AKTOERID),
+            saksId = null,
+            journalpostId = opprettOppgaveDto.journalpostId,
+            tema = Tema.KON,
+            oppgavetype = opprettOppgaveDto.oppgavetype,
+            fristFerdigstillelse = LocalDate.now().plusDays(1),
+            beskrivelse = opprettOppgaveDto.beskrivelse,
+            enhetsnummer = opprettOppgaveDto.enhet,
+            behandlingstema = opprettOppgaveDto.behandlingstema,
+            behandlingstype = opprettOppgaveDto.behandlingstype,
+            tilordnetRessurs = opprettOppgaveDto.tilordnetRessurs
+        )
+        integrasjonClient.opprettOppgave(opprettOppgaveRequest)
+        return ResponseEntity.ok(Ressurs.success("Oppgave opprettet"))
     }
 
     @GetMapping("/dvh/sakstatistikk/send-alle-behandlinger-til-dvh")

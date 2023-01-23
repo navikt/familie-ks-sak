@@ -27,6 +27,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.SettBehandlingPåVentService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingKategori
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
+import no.nav.familie.ks.sak.kjerne.behandling.steg.VenteÅrsak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.Brevmal
@@ -148,7 +149,13 @@ class BrevServiceTest {
             resultat = Resultat.IKKE_VURDERT
         )
 
-        every { settBehandlingPåVentService.settBehandlingPåVent(any(), any()) } just runs
+        every {
+            settBehandlingPåVentService.settBehandlingPåVent(
+                any(),
+                any(),
+                VenteÅrsak.AVVENTER_BEHANDLING
+            )
+        } just runs
 
         brevService.genererOgSendBrev(
             behandling.id,
@@ -205,7 +212,13 @@ class BrevServiceTest {
             resultat = Resultat.IKKE_VURDERT
         )
 
-        every { settBehandlingPåVentService.settBehandlingPåVent(any(), any()) } just runs
+        every {
+            settBehandlingPåVentService.settBehandlingPåVent(
+                any(),
+                any(),
+                VenteÅrsak.AVVENTER_BEHANDLING
+            )
+        } just runs
 
         brevService.genererOgSendBrev(
             behandling.id,
@@ -264,7 +277,13 @@ class BrevServiceTest {
             resultat = Resultat.IKKE_VURDERT
         )
 
-        every { settBehandlingPåVentService.settBehandlingPåVent(any(), any()) } just runs
+        every {
+            settBehandlingPåVentService.settBehandlingPåVent(
+                any(),
+                any(),
+                VenteÅrsak.AVVENTER_BEHANDLING
+            )
+        } just runs
 
         brevService.genererOgSendBrev(
             behandling.id,
@@ -331,7 +350,13 @@ class BrevServiceTest {
             resultat = Resultat.IKKE_VURDERT
         )
 
-        every { settBehandlingPåVentService.settBehandlingPåVent(any(), any()) } just runs
+        every {
+            settBehandlingPåVentService.settBehandlingPåVent(
+                any(),
+                any(),
+                VenteÅrsak.AVVENTER_BEHANDLING
+            )
+        } just runs
 
         brevService.genererOgSendBrev(
             behandling.id,
@@ -344,6 +369,12 @@ class BrevServiceTest {
             )
         )
 
-        verify(exactly = 1) { settBehandlingPåVentService.settBehandlingPåVent(any(), any()) }
+        verify(exactly = 1) {
+            settBehandlingPåVentService.settBehandlingPåVent(
+                any(),
+                any(),
+                VenteÅrsak.AVVENTER_BEHANDLING
+            )
+        }
     }
 }

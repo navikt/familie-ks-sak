@@ -276,7 +276,11 @@ class LoggServiceTest {
 
         every { loggRepository.save(capture(slot)) } returns mockk()
 
-        loggService.opprettOppdaterVentingLogg(behandling = behandling, endretFrist = nyFrist)
+        loggService.opprettOppdaterVentingLogg(
+            behandling = behandling,
+            endretFrist = nyFrist,
+            null
+        )
 
         verify(exactly = 1) { loggRepository.save(slot.captured) }
 

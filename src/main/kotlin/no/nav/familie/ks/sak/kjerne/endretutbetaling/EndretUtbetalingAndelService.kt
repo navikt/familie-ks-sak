@@ -1,6 +1,6 @@
 package no.nav.familie.ks.sak.kjerne.endretutbetaling
 
-import no.nav.familie.ks.sak.api.dto.EndretUtbetalingAndelDto
+import no.nav.familie.ks.sak.api.dto.EndretUtbetalingAndelRequestDto
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
 import no.nav.familie.ks.sak.kjerne.beregning.BeregningService
@@ -12,7 +12,7 @@ import no.nav.familie.ks.sak.kjerne.endretutbetaling.EndretUtbetalingAndelValida
 import no.nav.familie.ks.sak.kjerne.endretutbetaling.EndretUtbetalingAndelValidator.validerÅrsak
 import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.EndretUtbetalingAndel
 import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.EndretUtbetalingAndelRepository
-import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.fraEndretUtbetalingAndelDto
+import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.fraEndretUtbetalingAndelRequestDto
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -34,17 +34,17 @@ class EndretUtbetalingAndelService(
     fun oppdaterEndretUtbetalingAndelOgOppdaterTilkjentYtelse(
         behandling: Behandling,
         endretUtbetalingAndelId: Long,
-        endretUtbetalingAndelDto: EndretUtbetalingAndelDto
+        endretUtbetalingAndelRequestDto: EndretUtbetalingAndelRequestDto
     ) {
         val endretUtbetalingAndel = endretUtbetalingAndelRepository.getReferenceById(endretUtbetalingAndelId)
         val vilkårsvurdering = vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(behandling.id)
         val personopplysningGrunnlag =
             personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(behandling.id)
         val person =
-            personopplysningGrunnlag.personer.single { it.aktør.aktivFødselsnummer() == endretUtbetalingAndelDto.personIdent }
+            personopplysningGrunnlag.personer.single { it.aktør.aktivFødselsnummer() == endretUtbetalingAndelRequestDto.personIdent }
         val andelTilkjentYtelser = andelTilkjentYtelseRepository.finnAndelerTilkjentYtelseForBehandling(behandling.id)
 
-        endretUtbetalingAndel.fraEndretUtbetalingAndelDto(endretUtbetalingAndelDto, person)
+        endretUtbetalingAndel.fraEndretUtbetalingAndelRequestDto(endretUtbetalingAndelRequestDto, person)
 
         val andreEndredeAndelerPåBehandling = hentEndredeUtbetalingAndeler(behandling.id)
             .filter { it.id != endretUtbetalingAndelId }
