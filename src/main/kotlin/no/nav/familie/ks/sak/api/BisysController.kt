@@ -54,6 +54,6 @@ class BisysController(private val bisysService: BisysService, private val tilgan
         produces = [MediaType.APPLICATION_JSON_VALUE]
     )
     fun hentUtbetalingsinfo(@RequestBody bisysRequestDto: BisysDto): ResponseEntity<BisysResponsDto> {
-        return ResponseEntity.ok(bisysService.hentUtbetalingsinfo(bisysRequestDto.identer))
+        return ResponseEntity.ok(bisysService.hentUtbetalingsinfo(bisysRequestDto.fom, bisysRequestDto.identer))
     }
 }

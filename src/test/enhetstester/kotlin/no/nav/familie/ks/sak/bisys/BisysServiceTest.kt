@@ -26,6 +26,7 @@ import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import java.time.LocalDate
 import java.time.YearMonth
 
 @ExtendWith(MockKExtension::class)
@@ -111,7 +112,7 @@ internal class BisysServiceTest {
             )
         )
 
-        val utbetalinger = bisysService.hentUtbetalingsinfo(barnIdenter)
+        val utbetalinger = bisysService.hentUtbetalingsinfo(LocalDate.now().minusMonths(32), barnIdenter)
         assertTrue { utbetalinger.infotrygdPerioder.isNotEmpty() }
         assertTrue { utbetalinger.infotrygdPerioder.size == 2 }
 
@@ -148,7 +149,7 @@ internal class BisysServiceTest {
             infotrygdReplikaClient.hentKontantstøttePerioderFraInfotrygd(barnIdenter)
         } returns InnsynResponse(data = emptyList())
 
-        val utbetalinger = bisysService.hentUtbetalingsinfo(barnIdenter)
+        val utbetalinger = bisysService.hentUtbetalingsinfo(LocalDate.now().minusMonths(32), barnIdenter)
         assertTrue { utbetalinger.infotrygdPerioder.isNullOrEmpty() }
         assertTrue { utbetalinger.ksSakPerioder.size == 2 }
 
@@ -162,6 +163,55 @@ internal class BisysServiceTest {
         utbetalingerFraKsSak.assertUtbetaling(
             beløp = 4500,
             fomMåned = YearMonth.now().minusMonths(2),
+            tomMåned = YearMonth.now().plusMonths(3)
+        )
+    }
+
+    @Test
+    fun `hentUtbetalingsinfo skal hente utbetalingsinfo fra både ks-sak og infotrygd og filtrere på fomdato`() {
+        every {
+            infotrygdReplikaClient.hentKontantstøttePerioderFraInfotrygd(barnIdenter)
+        } returns InnsynResponse(
+            data = listOf(
+                StonadDto(
+                    fnr = Foedselsnummer(randomFnr()),
+                    fom = YearMonth.now().minusMonths(5),
+                    tom = YearMonth.now().plusMonths(3),
+                    belop = 7500,
+                    barn = listOf(BarnDto(fnr = Foedselsnummer(barn2IInfotrygd)))
+                ),
+                StonadDto(
+                    fnr = Foedselsnummer(randomFnr()),
+                    fom = YearMonth.now().minusMonths(10),
+                    tom = YearMonth.now().minusMonths(9),
+                    belop = 4500,
+                    barn = listOf(BarnDto(fnr = Foedselsnummer(barn2IInfotrygd)))
+                )
+            )
+        )
+
+        val utbetalinger = bisysService.hentUtbetalingsinfo(LocalDate.now().minusMonths(4), barnIdenter)
+        assertTrue { utbetalinger.infotrygdPerioder.isNotEmpty() }
+        assertTrue { utbetalinger.infotrygdPerioder.size == 1 }
+
+        val utbetalingerFraKsSak = utbetalinger.ksSakPerioder
+        assertEquals(2, utbetalingerFraKsSak.size)
+        utbetalingerFraKsSak!!.assertUtbetaling(
+            beløp = 7500,
+            fomMåned = YearMonth.now().minusMonths(5),
+            tomMåned = YearMonth.now().minusMonths(3)
+        )
+        utbetalingerFraKsSak.assertUtbetaling(
+            beløp = 4500,
+            fomMåned = YearMonth.now().minusMonths(2),
+            tomMåned = YearMonth.now().plusMonths(3)
+        )
+
+        val utbetalingerFraInfotrygd = utbetalinger.infotrygdPerioder
+        assertEquals(1, utbetalingerFraInfotrygd?.size)
+        utbetalingerFraInfotrygd!!.assertInfotrygdUtbetaling(
+            beløp = 7500,
+            fomMåned = YearMonth.now().minusMonths(5),
             tomMåned = YearMonth.now().plusMonths(3)
         )
     }
