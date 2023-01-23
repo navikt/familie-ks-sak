@@ -4,6 +4,8 @@ import no.nav.familie.ks.sak.api.dto.Barn
 import no.nav.familie.ks.sak.api.dto.BisysResponsDto
 import no.nav.familie.ks.sak.api.dto.InfotrygdPeriode
 import no.nav.familie.ks.sak.api.dto.KsSakPeriode
+import no.nav.familie.ks.sak.common.util.erSammeEllerFør
+import no.nav.familie.ks.sak.common.util.toLocalDate
 import no.nav.familie.ks.sak.integrasjon.infotrygd.InfotrygdReplikaClient
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.beregning.AndelerTilkjentYtelseOgEndreteUtbetalingerService
@@ -11,6 +13,7 @@ import no.nav.familie.ks.sak.kjerne.fagsak.FagsakService
 import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
+import java.time.LocalDate
 
 @Service
 class BisysService(
@@ -21,7 +24,7 @@ class BisysService(
     private val infotrygdReplikaClient: InfotrygdReplikaClient
 ) {
 
-    fun hentUtbetalingsinfo(identer: List<String>): BisysResponsDto {
+    fun hentUtbetalingsinfo(fom: LocalDate, identer: List<String>): BisysResponsDto {
         // hent fagsaker
         val aktører = identer.map { personidentService.hentAktør(it) }
         val fagsaker = aktører.map { fagsakService.hentFagsakerPåPerson(it) }.flatten()
@@ -33,19 +36,23 @@ class BisysService(
         val utbetalingsinfoFraKsSak = behandlinger.map { behandling ->
             val andeler =
                 andelerTilkjentYtelseOgEndreteUtbetalingerService.finnAndelerTilkjentYtelseMedEndreteUtbetalinger(behandling.id)
-            andeler.filter { it.kalkulertUtbetalingsbeløp != 0 }.map {
-                KsSakPeriode(
-                    fomMåned = it.stønadFom,
-                    tomMåned = it.stønadTom,
-                    barn = Barn(ident = it.aktør.aktivFødselsnummer(), beløp = it.kalkulertUtbetalingsbeløp)
-                )
-            }
+            andeler.filter { it.kalkulertUtbetalingsbeløp != 0 }
+                .filter { aty -> fom.erSammeEllerFør(aty.stønadTom.toLocalDate()) }
+                .map {
+                    KsSakPeriode(
+                        fomMåned = it.stønadFom,
+                        tomMåned = it.stønadTom,
+                        barn = Barn(ident = it.aktør.aktivFødselsnummer(), beløp = it.kalkulertUtbetalingsbeløp)
+                    )
+                }
         }.flatten()
 
         // hent utbetalingsinfo from infotrygd
         val respons = infotrygdReplikaClient.hentKontantstøttePerioderFraInfotrygd(identer)
         logger.info("Hentet ${respons.data.size} data fra infotrygd")
-        val utbetalingsinfoFraInfotrygd = respons.data.map { stonad ->
+        val utbetalingsinfoFraInfotrygd = respons.data.filter { stonad ->
+            fom.erSammeEllerFør(stonad.tom?.toLocalDate() ?: LocalDate.MAX) // manglende tom dato i infotrygd er løpende stønad
+        }.map { stonad ->
             InfotrygdPeriode(
                 fomMåned = checkNotNull(stonad.fom) { "fom kan ikke være null" },
                 tomMåned = stonad.tom,

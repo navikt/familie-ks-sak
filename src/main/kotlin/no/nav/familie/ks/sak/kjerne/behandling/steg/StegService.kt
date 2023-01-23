@@ -16,6 +16,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg.JOURNALFØR_V
 import no.nav.familie.ks.sak.kjerne.behandling.steg.iverksettmotoppdrag.IverksettMotOppdragTask
 import no.nav.familie.ks.sak.kjerne.behandling.steg.journalførvedtaksbrev.JournalførVedtaksbrevTask
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.VedtakRepository
+import no.nav.familie.ks.sak.kjerne.logg.LoggService
 import no.nav.familie.ks.sak.kjerne.tilbakekreving.SendOpprettTilbakekrevingsbehandlingRequestTask
 import no.nav.familie.ks.sak.kjerne.tilbakekreving.domene.TilbakekrevingRepository
 import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext
@@ -33,7 +34,8 @@ class StegService(
     private val vedtakRepository: VedtakRepository,
     private val tilbakekrevingRepository: TilbakekrevingRepository,
     private val sakStatistikkService: SakStatistikkService,
-    private val taskService: TaskService
+    private val taskService: TaskService,
+    private val loggService: LoggService
 ) {
 
     @Transactional
@@ -216,33 +218,47 @@ class StegService(
 
     fun settBehandlingstegPåVent(
         behandling: Behandling,
-        frist: LocalDate
+        frist: LocalDate,
+        årsak: VenteÅrsak
     ) {
         val behandlingStegTilstand = hentStegTilstandForBehandlingSteg(behandling, behandling.steg)
 
-        logger.info("Setter behandling ${behandling.id} på vent med frist $frist og årsak ${VenteÅrsak.AVVENTER_DOKUMENTASJON}")
+        loggService.opprettSettPåVentLogg(
+            behandling = behandling,
+            årsak = årsak.visningsnavn
+        )
+
+        logger.info("Setter behandling ${behandling.id} på vent med frist $frist og årsak $årsak")
 
         behandlingStegTilstand.frist = frist
-        behandlingStegTilstand.årsak = VenteÅrsak.AVVENTER_DOKUMENTASJON
+        behandlingStegTilstand.årsak = årsak
         behandlingStegTilstand.behandlingStegStatus = BehandlingStegStatus.VENTER
         behandlingRepository.saveAndFlush(behandling)
     }
 
-    fun oppdaterBehandlingstegFrist(
+    fun oppdaterBehandlingstegFristOgÅrsak(
         behandling: Behandling,
-        frist: LocalDate
+        frist: LocalDate,
+        årsak: VenteÅrsak
     ): LocalDate? {
         val behandlingStegTilstand = hentStegTilstandForBehandlingSteg(behandling, behandling.steg)
 
-        if (frist == behandlingStegTilstand.frist) {
-            throw FunksjonellFeil("Behandlingen er allerede satt på vent med frist $frist")
+        if (frist == behandlingStegTilstand.frist && årsak == behandlingStegTilstand.årsak) {
+            throw FunksjonellFeil("Behandlingen er allerede satt på vent med frist $frist og årsak $årsak.")
         }
 
-        logger.info("Oppdater ventende behandling ${behandling.id} med frist $frist")
+        loggService.opprettOppdaterVentingLogg(
+            behandling = behandling,
+            endretÅrsak = if (årsak != behandlingStegTilstand.årsak) årsak.visningsnavn else null,
+            endretFrist = if (frist != behandlingStegTilstand.frist) frist else null
+        )
+
+        logger.info("Oppdater ventende behandling ${behandling.id} med frist $frist og årsak $årsak")
 
         val gammelFrist = behandlingStegTilstand.frist
 
         behandlingStegTilstand.frist = frist
+        behandlingStegTilstand.årsak = årsak
         behandlingRepository.saveAndFlush(behandling)
 
         return gammelFrist

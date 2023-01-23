@@ -103,7 +103,8 @@ class BehandlingController(
         )
         settBehandlingPåVentService.settBehandlingPåVent(
             behandlingId,
-            behandlingPåVentDto.frist
+            behandlingPåVentDto.frist,
+            behandlingPåVentDto.årsak
         )
         return ResponseEntity.ok(Ressurs.success(behandlingService.lagBehandlingRespons(behandlingId = behandlingId)))
     }
@@ -117,9 +118,10 @@ class BehandlingController(
             minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
             handling = "oppdatere frist på ventende behandling"
         )
-        settBehandlingPåVentService.oppdaterFrist(
+        settBehandlingPåVentService.oppdaterFristOgÅrsak(
             behandlingId,
-            behandlingPåVentDto.frist
+            behandlingPåVentDto.frist,
+            behandlingPåVentDto.årsak
         )
         return ResponseEntity.ok(Ressurs.success(behandlingService.lagBehandlingRespons(behandlingId = behandlingId)))
     }

@@ -23,13 +23,11 @@ class SettBehandlingPåVentService(
 ) {
 
     @Transactional
-    fun settBehandlingPåVent(behandlingId: Long, frist: LocalDate) {
+    fun settBehandlingPåVent(behandlingId: Long, frist: LocalDate, årsak: VenteÅrsak) {
         val behandling = behandlingRepository.hentBehandling(behandlingId)
         validerBehandlingKanSettesPåVent(behandling, frist)
 
-        stegService.settBehandlingstegPåVent(behandling, frist)
-
-        loggService.opprettSettPåVentLogg(behandling, VenteÅrsak.AVVENTER_DOKUMENTASJON.visningsnavn)
+        stegService.settBehandlingstegPåVent(behandling, frist, årsak)
 
         oppgaveService.forlengFristÅpneOppgaverPåBehandling(
             behandlingId = behandling.id,
@@ -38,19 +36,10 @@ class SettBehandlingPåVentService(
     }
 
     @Transactional
-    fun oppdaterFrist(
-        behandlingId: Long,
-        frist: LocalDate
-    ) {
+    fun oppdaterFristOgÅrsak(behandlingId: Long, frist: LocalDate, årsak: VenteÅrsak) {
         val behandling = behandlingRepository.hentBehandling(behandlingId)
 
-        val gammelFrist =
-            stegService.oppdaterBehandlingstegFrist(behandling, frist)
-
-        loggService.opprettOppdaterVentingLogg(
-            behandling = behandling,
-            endretFrist = if (frist != gammelFrist) frist else null
-        )
+        val gammelFrist = stegService.oppdaterBehandlingstegFristOgÅrsak(behandling, frist, årsak)
 
         oppgaveService.forlengFristÅpneOppgaverPåBehandling(
             behandlingId = behandlingId,
