@@ -36,18 +36,18 @@ class KompetanseService(
     private val endretUtbetalingAndelTidslinjeService: EndretUtbetalingAndelTidslinjeService
 ) {
 
-    private val skjemaService = EøsSkjemaService(kompetanseRepository, kompetanseEndringsAbonnenter)
+    private val kompetanseSkjemaService = EøsSkjemaService(kompetanseRepository, kompetanseEndringsAbonnenter)
 
-    fun hentKompetanse(kompetanseId: Long) = skjemaService.hentMedId(kompetanseId)
+    fun hentKompetanse(kompetanseId: Long) = kompetanseSkjemaService.hentMedId(kompetanseId)
 
-    fun hentKompetanser(behandlingId: Long) = skjemaService.hentMedBehandlingId(behandlingId)
+    fun hentKompetanser(behandlingId: Long) = kompetanseSkjemaService.hentMedBehandlingId(behandlingId)
 
     @Transactional
     fun oppdaterKompetanse(behandlingId: Long, oppdateresKompetanseDto: KompetanseDto) {
         val barnAktører = oppdateresKompetanseDto.barnIdenter.map { personidentService.hentAktør(it) }
         val oppdateresKompetanse = oppdateresKompetanseDto.tilKompetanse(barnAktører)
 
-        skjemaService.endreSkjemaer(behandlingId, oppdateresKompetanse)
+        kompetanseSkjemaService.endreSkjemaer(behandlingId, oppdateresKompetanse)
     }
 
     // Oppretter kompetanse skjema i behandlingsresultat
@@ -55,22 +55,22 @@ class KompetanseService(
     // Tilpasser kompetanse skjema basert på endringer i vilkårsvurdering deretter
     @Transactional
     fun tilpassKompetanse(behandlingId: Long) {
-        val eksisterendeKompetanser = skjemaService.hentMedBehandlingId(behandlingId)
+        val eksisterendeKompetanser = kompetanseSkjemaService.hentMedBehandlingId(behandlingId)
         val barnasRegelverkResultatTidslinjer = hentBarnasRegelverkResultatTidslinjer(behandlingId)
-        val barnasHarEtterbetaling3ÅrTidslinjer =
-            endretUtbetalingAndelTidslinjeService.hentBarnasHarEtterbetaling3ÅrTidslinjer(behandlingId)
+        val barnasHarEtterbetaling3MånedTidslinjer =
+            endretUtbetalingAndelTidslinjeService.hentBarnasHarEtterbetaling3MånedTidslinjer(behandlingId)
 
         val oppdaterteKompetanser = tilpassKompetanserTilRegelverk(
             eksisterendeKompetanser,
             barnasRegelverkResultatTidslinjer,
-            barnasHarEtterbetaling3ÅrTidslinjer
+            barnasHarEtterbetaling3MånedTidslinjer
         ).medBehandlingId(behandlingId)
 
-        skjemaService.lagreDifferanseOgVarsleAbonnenter(behandlingId, eksisterendeKompetanser, oppdaterteKompetanser)
+        kompetanseSkjemaService.lagreDifferanseOgVarsleAbonnenter(behandlingId, eksisterendeKompetanser, oppdaterteKompetanser)
     }
 
     @Transactional
-    fun slettKompetanse(kompetanseId: Long) = skjemaService.slettSkjema(kompetanseId)
+    fun slettKompetanse(kompetanseId: Long) = kompetanseSkjemaService.slettSkjema(kompetanseId)
 
     private fun tilpassKompetanserTilRegelverk(
         eksisterendeKompetanser: Collection<Kompetanse>,

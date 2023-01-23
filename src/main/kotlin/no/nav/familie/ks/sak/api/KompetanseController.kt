@@ -39,7 +39,7 @@ class KompetanseController(
             behandlingId = behandlingId,
             event = AuditLoggerEvent.UPDATE,
             minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
-            handling = "legge til kompetanse"
+            handling = "oppdater kompetanse"
         )
         kompetanseService.oppdaterKompetanse(behandlingId, kompentanseDto)
         return ResponseEntity.ok(Ressurs.success(behandlingService.lagBehandlingRespons(behandlingId)))

@@ -16,7 +16,7 @@ import java.time.LocalDate
 @Service
 class EndretUtbetalingAndelTidslinjeService(private val endretUtbetalingAndelService: EndretUtbetalingAndelService) {
 
-    fun hentBarnasHarEtterbetaling3ÅrTidslinjer(behandlingId: Long) =
+    fun hentBarnasHarEtterbetaling3MånedTidslinjer(behandlingId: Long) =
         endretUtbetalingAndelService
             .hentEndredeUtbetalingAndeler(behandlingId)
             .tilBarnasHarEtterbetaling3MånedTidslinjer()
