@@ -1,6 +1,7 @@
 package no.nav.familie.ks.sak.kjerne.eøs.vilkårsvurdering
 
 import no.nav.familie.ks.sak.common.tidslinje.beskjærEtter
+import no.nav.familie.ks.sak.common.tidslinje.inneholder
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.kombiner
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.kombinerMed
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
@@ -47,5 +48,12 @@ class VilkårsvurderingTidslinjer(
             .kombinerMed(søkersTidslinje.regelverkResultatTidslinje) { barnetsResultat, søkersResultat ->
                 barnetsResultat.kombinerMed(søkersResultat)
             }.beskjærEtter(søkersTidslinje.regelverkResultatTidslinje)
+    }
+
+    fun harBlandetRegelverk(): Boolean {
+        return søkersTidslinje.regelverkResultatTidslinje.inneholder(RegelverkResultat.OPPFYLT_BLANDET_REGELVERK) ||
+            barnasTidslinjer().values.any {
+                it.egetRegelverkResultatTidslinje.inneholder(RegelverkResultat.OPPFYLT_BLANDET_REGELVERK)
+            }
     }
 }

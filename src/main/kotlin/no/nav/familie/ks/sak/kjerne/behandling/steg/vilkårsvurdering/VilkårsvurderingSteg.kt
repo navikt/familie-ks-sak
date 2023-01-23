@@ -24,6 +24,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vil
 import no.nav.familie.ks.sak.kjerne.beregning.BeregningService
 import no.nav.familie.ks.sak.kjerne.beregning.tilPeriodeResultater
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.KompetanseService
+import no.nav.familie.ks.sak.kjerne.eøs.vilkårsvurdering.VilkårsvurderingTidslinjer
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
 import org.slf4j.Logger
@@ -119,6 +120,7 @@ class VilkårsvurderingSteg(
         validerAtPerioderIBarnehageplassSamsvarerMedPeriodeIBarnetsAlderVilkår(vilkårsvurdering)
         validerAtDetIkkeFinnesMerEnn2EndringerISammeMånedIBarnehageplassVilkår(vilkårsvurdering)
         validerAtDatoErKorrektIBarnasVilkår(vilkårsvurdering, personopplysningGrunnlag.barna)
+        validerIkkeBlandetRegelverk(personopplysningGrunnlag, vilkårsvurdering)
     }
 
     private fun validerAtDetFinnesBarnIPersonopplysningsgrunnlaget(
@@ -243,6 +245,18 @@ class VilkårsvurderingSteg(
                         "Dette er ikke støttet enda. Ta kontakt med Team Familie."
                 )
             }
+        }
+    }
+
+    private fun validerIkkeBlandetRegelverk(
+        personopplysningGrunnlag: PersonopplysningGrunnlag,
+        vilkårsvurdering: Vilkårsvurdering
+    ) {
+        val vilkårsvurderingTidslinjer = VilkårsvurderingTidslinjer(vilkårsvurdering, personopplysningGrunnlag)
+        if (vilkårsvurderingTidslinjer.harBlandetRegelverk()) {
+            throw FunksjonellFeil(
+                melding = "Det er forskjellig regelverk for en eller flere perioder for søker eller barna"
+            )
         }
     }
 

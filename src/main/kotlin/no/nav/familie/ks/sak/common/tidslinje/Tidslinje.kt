@@ -3,6 +3,7 @@ package no.nav.familie.ks.sak.common.tidslinje
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.klipp
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.kombinerMed
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.mapper
+import no.nav.familie.ks.sak.common.tidslinje.utvidelser.tilPerioder
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.temporal.TemporalAdjusters
@@ -164,3 +165,5 @@ fun <K, V, H, R> Map<K, Tidslinje<V>>.outerJoin(
 
 fun <T> Tidslinje<T>.beskjærEtter(tidslinje: Tidslinje<*>): Tidslinje<T> =
     this.klipp(tidslinje.startsTidspunkt, tidslinje.kalkulerSluttTidspunkt())
+
+fun <T> Tidslinje<T>.inneholder(verdi: T): Boolean = this.tilPerioder().any { it.verdi == verdi }
