@@ -109,6 +109,8 @@ class VilkårsvurderingStegTest {
     @Test
     fun `utførSteg - skal kaste funksjonell feil hvis behandlingsårsak er DØDSFALL og det eksisterer vilkår lengre fram i tid enn søkers dødsdato`() {
         val behandling = behandling.copy(opprettetÅrsak = BehandlingÅrsak.DØDSFALL)
+        every { behandlingService.hentBehandling(behandling.id) } returns behandling
+
         val barn = randomAktør()
         val personopplysningGrunnlag = lagPersonopplysningGrunnlag(
             behandlingId = behandling.id,
