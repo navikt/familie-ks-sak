@@ -29,8 +29,6 @@ class SettBehandlingPåVentService(
 
         stegService.settBehandlingstegPåVent(behandling, frist, årsak)
 
-        loggService.opprettSettPåVentLogg(behandling, årsak.visningsnavn)
-
         oppgaveService.forlengFristÅpneOppgaverPåBehandling(
             behandlingId = behandling.id,
             forlengelse = Period.between(LocalDate.now(), frist)

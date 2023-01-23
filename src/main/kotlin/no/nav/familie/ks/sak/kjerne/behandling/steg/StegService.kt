@@ -223,10 +223,9 @@ class StegService(
     ) {
         val behandlingStegTilstand = hentStegTilstandForBehandlingSteg(behandling, behandling.steg)
 
-        loggService.opprettOppdaterVentingLogg(
+        loggService.opprettSettPåVentLogg(
             behandling = behandling,
-            endretÅrsak = if (årsak != behandlingStegTilstand.årsak) årsak.visningsnavn else null,
-            endretFrist = if (frist != behandlingStegTilstand.frist) frist else null
+            årsak = årsak.visningsnavn
         )
 
         logger.info("Setter behandling ${behandling.id} på vent med frist $frist og årsak $årsak")
@@ -247,6 +246,12 @@ class StegService(
         if (frist == behandlingStegTilstand.frist && årsak == behandlingStegTilstand.årsak) {
             throw FunksjonellFeil("Behandlingen er allerede satt på vent med frist $frist og årsak $årsak.")
         }
+
+        loggService.opprettOppdaterVentingLogg(
+            behandling = behandling,
+            endretÅrsak = if (årsak != behandlingStegTilstand.årsak) årsak.visningsnavn else null,
+            endretFrist = if (frist != behandlingStegTilstand.frist) frist else null
+        )
 
         logger.info("Oppdater ventende behandling ${behandling.id} med frist $frist og årsak $årsak")
 

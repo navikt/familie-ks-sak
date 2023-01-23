@@ -43,10 +43,9 @@ class SettBehandlingPåVentServiceTest {
     private val behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD)
 
     @Test
-    fun `settBehandlingPåVent - skal sette behandling på vent, oppdatere logg og forlenge frist på oppgave`() {
+    fun `settBehandlingPåVent - skal sette behandling på vent og forlenge frist på oppgave`() {
         every { behandlingRepository.hentBehandling(any()) } returns behandling
         every { stegService.settBehandlingstegPåVent(any(), any(), VenteÅrsak.AVVENTER_DOKUMENTASJON) } just runs
-        every { loggService.opprettSettPåVentLogg(any(), any()) } just runs
         every { oppgaveService.forlengFristÅpneOppgaverPåBehandling(any(), any()) } just runs
 
         val frist = LocalDate.now().plusWeeks(1)
@@ -58,7 +57,6 @@ class SettBehandlingPåVentServiceTest {
 
         verify(exactly = 1) { behandlingRepository.hentBehandling(any()) }
         verify(exactly = 1) { stegService.settBehandlingstegPåVent(any(), any(), VenteÅrsak.AVVENTER_DOKUMENTASJON) }
-        verify(exactly = 1) { loggService.opprettSettPåVentLogg(any(), any()) }
         verify(exactly = 1) { oppgaveService.forlengFristÅpneOppgaverPåBehandling(any(), any()) }
     }
 

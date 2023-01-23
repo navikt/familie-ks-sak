@@ -59,7 +59,7 @@ class StegServiceUnitTest {
         val behandlingSlot = slot<Behandling>()
 
         every { behandlingRepository.saveAndFlush(capture(behandlingSlot)) } returns mockk()
-        every { loggService.opprettOppdaterVentingLogg(any(), any(), any()) } just runs
+        every { loggService.opprettSettPåVentLogg(any(), any()) } just runs
 
         val frist = LocalDate.now().plusWeeks(1)
         val årsak = VenteÅrsak.AVVENTER_DOKUMENTASJON
@@ -83,6 +83,7 @@ class StegServiceUnitTest {
         val behandlingSlot = slot<Behandling>()
 
         every { behandlingRepository.saveAndFlush(capture(behandlingSlot)) } returns mockk()
+        every { loggService.opprettSettPåVentLogg(any(), any()) } just runs
         every { loggService.opprettOppdaterVentingLogg(any(), any(), any()) } just runs
 
         val frist = LocalDate.now().plusWeeks(1)
@@ -115,6 +116,7 @@ class StegServiceUnitTest {
     @Test
     fun `oppdaterBehandlingstegTilstandPåVent - skal ikke oppdatere årsak og eller frist på behandlingstegtilstand når frist og årsak er uendret`() {
         every { behandlingRepository.saveAndFlush(any()) } returns mockk()
+        every { loggService.opprettSettPåVentLogg(any(), any()) } just runs
         every { loggService.opprettOppdaterVentingLogg(any(), any(), any()) } just runs
 
         val frist = LocalDate.now().plusWeeks(1)
