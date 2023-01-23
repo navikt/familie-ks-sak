@@ -36,7 +36,7 @@ data class BehandlingResponsDto(
     val utbetalingsperioder: List<UtbetalingsperiodeResponsDto>,
     val personerMedAndelerTilkjentYtelse: List<PersonerMedAndelerResponsDto>,
     val vedtak: VedtakDto?,
-    val endretUtbetalingAndeler: List<EndretUtbetalingAndelDto>,
+    val endretUtbetalingAndeler: List<EndretUtbetalingAndelResponsDto>,
     val totrinnskontroll: TotrinnskontrollDto?,
     val endringstidspunkt: LocalDate?,
     val sisteVedtaksperiodeVisningDato: LocalDate?,

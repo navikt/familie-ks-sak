@@ -5,7 +5,7 @@ import no.nav.familie.ks.sak.api.dto.ArbeidsfordelingResponsDto
 import no.nav.familie.ks.sak.api.dto.BehandlingPåVentDto
 import no.nav.familie.ks.sak.api.dto.BehandlingResponsDto
 import no.nav.familie.ks.sak.api.dto.BehandlingStegTilstandResponsDto
-import no.nav.familie.ks.sak.api.dto.EndretUtbetalingAndelDto
+import no.nav.familie.ks.sak.api.dto.EndretUtbetalingAndelResponsDto
 import no.nav.familie.ks.sak.api.dto.FeilutbetaltValutaDto
 import no.nav.familie.ks.sak.api.dto.PersonResponsDto
 import no.nav.familie.ks.sak.api.dto.PersonerMedAndelerResponsDto
@@ -42,7 +42,7 @@ object BehandlingMapper {
         utbetalingsperioder: List<UtbetalingsperiodeResponsDto>,
         vedtak: VedtakDto?,
         totrinnskontroll: TotrinnskontrollDto?,
-        endretUtbetalingAndeler: List<EndretUtbetalingAndelDto>,
+        endretUtbetalingAndeler: List<EndretUtbetalingAndelResponsDto>,
         endringstidspunkt: LocalDate,
         tilbakekreving: Tilbakekreving?,
         sisteVedtaksperiodeVisningDato: LocalDate?,
