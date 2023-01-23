@@ -73,5 +73,6 @@ enum class BehandlingStegStatus(private val beskrivelse: String) {
 }
 
 enum class VenteÅrsak(val visningsnavn: String) {
-    AVVENTER_DOKUMENTASJON("Avventer dokumentasjon")
+    AVVENTER_DOKUMENTASJON("Avventer dokumentasjon"),
+    AVVENTER_BEHANDLING("Avventer behandling")
 }

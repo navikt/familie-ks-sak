@@ -2,7 +2,7 @@ package no.nav.familie.ks.sak.statistikk.saksstatistikk
 
 import no.nav.familie.eksterne.kontrakter.saksstatistikk.AktørDVH
 import no.nav.familie.kontrakter.felles.objectMapper
-import no.nav.familie.ks.sak.api.dto.BehandlingPåVentResponsDto
+import no.nav.familie.ks.sak.api.dto.BehandlingPåVentDto
 import no.nav.familie.ks.sak.integrasjon.pdl.PersonOpplysningerService
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.ArbeidsfordelingService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
@@ -71,7 +71,7 @@ class SakStatistikkService(
         val totrinnskontroll = totrinnskontrollService.finnAktivForBehandling(behandlingId)
         val behandlingPåVent =
             behandling.behandlingStegTilstand.singleOrNull { it.behandlingStegStatus == BehandlingStegStatus.VENTER }
-                ?.let { BehandlingPåVentResponsDto(it.frist!!, it.årsak!!) }
+                ?.let { BehandlingPåVentDto(it.frist!!, it.årsak!!) }
 
         return BehandlingStatistikkDto(
             saksnummer = behandling.fagsak.id,

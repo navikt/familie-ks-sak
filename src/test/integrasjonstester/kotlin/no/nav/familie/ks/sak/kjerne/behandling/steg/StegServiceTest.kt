@@ -206,7 +206,7 @@ class StegServiceTest : OppslagSpringRunnerTest() {
         assertDoesNotThrow { stegService.utførSteg(behandling.id, REGISTRERE_PERSONGRUNNLAG) }
         behandling = behandlingRepository.hentBehandling(behandling.id)
 
-        stegService.settBehandlingstegPåVent(behandling, LocalDate.now().plusMonths(2))
+        stegService.settBehandlingstegPåVent(behandling, LocalDate.now().plusMonths(2), VenteÅrsak.AVVENTER_BEHANDLING)
 
         behandling = behandlingRepository.hentBehandling(behandling.id)
         assertEquals(2, behandling.behandlingStegTilstand.size)

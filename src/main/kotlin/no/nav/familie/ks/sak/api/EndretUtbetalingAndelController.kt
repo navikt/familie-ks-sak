@@ -2,7 +2,7 @@ package no.nav.familie.ks.sak.api
 
 import no.nav.familie.kontrakter.felles.Ressurs
 import no.nav.familie.ks.sak.api.dto.BehandlingResponsDto
-import no.nav.familie.ks.sak.api.dto.EndretUtbetalingAndelDto
+import no.nav.familie.ks.sak.api.dto.EndretUtbetalingAndelRequestDto
 import no.nav.familie.ks.sak.config.BehandlerRolle
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.TilbakestillBehandlingService
@@ -35,7 +35,7 @@ class EndretUtbetalingAndelController(
     fun oppdaterEndretUtbetalingAndelOgOppdaterTilkjentYtelse(
         @PathVariable behandlingId: Long,
         @PathVariable endretUtbetalingAndelId: Long,
-        @RequestBody endretUtbetalingAndelDto: EndretUtbetalingAndelDto
+        @RequestBody endretUtbetalingAndelRequestDto: EndretUtbetalingAndelRequestDto
     ): ResponseEntity<Ressurs<BehandlingResponsDto>> {
         tilgangService.validerTilgangTilHandlingOgFagsakForBehandling(
             behandlingId = behandlingId,
@@ -49,7 +49,7 @@ class EndretUtbetalingAndelController(
         endretUtbetalingAndelService.oppdaterEndretUtbetalingAndelOgOppdaterTilkjentYtelse(
             behandling,
             endretUtbetalingAndelId,
-            endretUtbetalingAndelDto
+            endretUtbetalingAndelRequestDto
         )
 
         tilbakestillBehandlingService

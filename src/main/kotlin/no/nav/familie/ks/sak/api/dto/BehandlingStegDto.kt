@@ -52,9 +52,7 @@ data class BarnMedOpplysningerDto(
     val erFolkeregistrert: Boolean = true
 ) : BehandlingStegDto()
 
-data class BehandlingPåVentDto(val frist: LocalDate)
-
-data class BehandlingPåVentResponsDto(val frist: LocalDate, val årsak: VenteÅrsak)
+data class BehandlingPåVentDto(val frist: LocalDate, val årsak: VenteÅrsak)
 
 data class HenleggBehandlingDto(val årsak: HenleggÅrsak, val begrunnelse: String)
 
