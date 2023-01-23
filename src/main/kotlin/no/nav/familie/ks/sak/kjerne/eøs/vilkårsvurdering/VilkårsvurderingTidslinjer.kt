@@ -2,6 +2,7 @@ package no.nav.familie.ks.sak.kjerne.eøs.vilkårsvurdering
 
 import no.nav.familie.ks.sak.common.tidslinje.beskjærEtter
 import no.nav.familie.ks.sak.common.tidslinje.inneholder
+import no.nav.familie.ks.sak.common.tidslinje.tomTidslinje
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.kombiner
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.kombinerMed
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
@@ -31,7 +32,7 @@ class VilkårsvurderingTidslinjer(
     fun barnasTidslinjer(): Map<Aktør, BarnetsTidslinjer> = barnasTidslinjer.entries.associate { it.key to it.value }
 
     class SøkersTidslinjer(tidslinjer: VilkårsvurderingTidslinjer, aktør: Aktør) {
-        val vilkårResultatTidslinjer = tidslinjer.vilkårResultaterTidslinjeMap[aktør] ?: emptyList()
+        val vilkårResultatTidslinjer = tidslinjer.vilkårResultaterTidslinjeMap[aktør] ?: listOf(tomTidslinje())
         val regelverkResultatTidslinje = vilkårResultatTidslinjer.kombiner {
             kombinerVilkårResultaterTilRegelverkResultat(PersonType.SØKER, it)
         }
@@ -40,7 +41,7 @@ class VilkårsvurderingTidslinjer(
     class BarnetsTidslinjer(tidslinjer: VilkårsvurderingTidslinjer, aktør: Aktør) {
         private val søkersTidslinje = tidslinjer.søkersTidslinje
 
-        val vilkårResultatTidslinjer = tidslinjer.vilkårResultaterTidslinjeMap[aktør] ?: emptyList()
+        val vilkårResultatTidslinjer = tidslinjer.vilkårResultaterTidslinjeMap[aktør] ?: listOf(tomTidslinje())
         val egetRegelverkResultatTidslinje = vilkårResultatTidslinjer.kombiner {
             kombinerVilkårResultaterTilRegelverkResultat(PersonType.BARN, it)
         }

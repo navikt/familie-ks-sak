@@ -332,7 +332,7 @@ fun lagPerson(
 fun lagVilkårsvurderingMedSøkersVilkår(
     søkerAktør: Aktør,
     behandling: Behandling,
-    resultat: Resultat,
+    resultat: Resultat = Resultat.OPPFYLT,
     søkerPeriodeFom: LocalDate? = LocalDate.now().minusMonths(1),
     søkerPeriodeTom: LocalDate? = LocalDate.now().plusYears(2),
     regelverk: Regelverk = Regelverk.NASJONALE_REGLER

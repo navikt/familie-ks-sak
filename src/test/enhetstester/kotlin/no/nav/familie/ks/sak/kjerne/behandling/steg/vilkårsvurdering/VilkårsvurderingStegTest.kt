@@ -19,6 +19,7 @@ import no.nav.familie.ks.sak.common.util.NullablePeriode
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagFagsak
 import no.nav.familie.ks.sak.data.lagPersonopplysningGrunnlag
+import no.nav.familie.ks.sak.data.lagVilkårResultat
 import no.nav.familie.ks.sak.data.lagVilkårResultaterForBarn
 import no.nav.familie.ks.sak.data.lagVilkårsvurderingMedSøkersVilkår
 import no.nav.familie.ks.sak.data.randomAktør
@@ -76,7 +77,7 @@ class VilkårsvurderingStegTest {
 
     private val fagsak = lagFagsak(søker)
 
-    private val behandling = lagBehandling(fagsak, opprettetÅrsak = BehandlingÅrsak.DØDSFALL)
+    private val behandling = lagBehandling(fagsak, opprettetÅrsak = BehandlingÅrsak.SØKNAD)
 
     @BeforeEach
     fun init() {
@@ -107,6 +108,7 @@ class VilkårsvurderingStegTest {
 
     @Test
     fun `utførSteg - skal kaste funksjonell feil hvis behandlingsårsak er DØDSFALL og det eksisterer vilkår lengre fram i tid enn søkers dødsdato`() {
+        val behandling = behandling.copy(opprettetÅrsak = BehandlingÅrsak.DØDSFALL)
         val barn = randomAktør()
         val personopplysningGrunnlag = lagPersonopplysningGrunnlag(
             behandlingId = behandling.id,
@@ -281,8 +283,7 @@ class VilkårsvurderingStegTest {
     fun `utførSteg - skal kaste feil hvis barnehageplass perioder ikke dekker perioder i barnets alder vilkår`() {
         val vilkårsvurdering = lagVilkårsvurderingMedSøkersVilkår(
             søkerAktør = søker,
-            behandling = behandling,
-            resultat = Resultat.OPPFYLT
+            behandling = behandling
         )
         val søkerPersonResultat = vilkårsvurdering.personResultater.first()
 
@@ -316,8 +317,7 @@ class VilkårsvurderingStegTest {
     fun `utførSteg - skal kaste feil hvis barnehageplass perioder starter etter siste dato i barnets alder vilkår`() {
         val vilkårsvurdering = lagVilkårsvurderingMedSøkersVilkår(
             søkerAktør = søker,
-            behandling = behandling,
-            resultat = Resultat.OPPFYLT
+            behandling = behandling
         )
         val søkerPersonResultat = vilkårsvurdering.personResultater.first()
 
@@ -356,8 +356,7 @@ class VilkårsvurderingStegTest {
     fun `utførSteg - skal kaste feil hvis det finnes mer enn 2 barnehageplass vilkår i en måned`() {
         val vilkårsvurdering = lagVilkårsvurderingMedSøkersVilkår(
             søkerAktør = søker,
-            behandling = behandling,
-            resultat = Resultat.OPPFYLT
+            behandling = behandling
         )
         val søkerPersonResultat = vilkårsvurdering.personResultater.first()
 
@@ -391,6 +390,66 @@ class VilkårsvurderingStegTest {
         assertEquals(
             "Du har lagt inn flere enn 2 endringer i barnehagevilkåret i samme måned. " +
                 "Dette er ikke støttet enda. Ta kontakt med Team Familie.",
+            exception.message
+        )
+    }
+
+    @Test
+    fun `utførSteg - skal kaste feil når det er blanding av regelverk på vilkårene for barnet`() {
+        val vilkårsvurdering = Vilkårsvurdering(behandling = behandling)
+        val søkerPersonResultat = PersonResultat(vilkårsvurdering = vilkårsvurdering, aktør = søker)
+        // BOSATT I RIKET er vurdert etter både NASJONALE_REGLER og EØS_FORORDNINGEN
+        // mens MEDLEMSKAP er vurdert etter kun NASJONALE_REGLER
+        søkerPersonResultat.setSortedVilkårResultater(
+            setOf(
+                lagVilkårResultat(
+                    personResultat = søkerPersonResultat,
+                    vilkårType = Vilkår.BOSATT_I_RIKET,
+                    periodeFom = LocalDate.of(1987, 7, 31),
+                    periodeTom = LocalDate.of(2022, 12, 14),
+                    regelverk = Regelverk.NASJONALE_REGLER
+                ),
+                lagVilkårResultat(
+                    personResultat = søkerPersonResultat,
+                    vilkårType = Vilkår.BOSATT_I_RIKET,
+                    periodeFom = LocalDate.of(2022, 12, 15),
+                    periodeTom = null,
+                    regelverk = Regelverk.EØS_FORORDNINGEN
+                ),
+                lagVilkårResultat(
+                    personResultat = søkerPersonResultat,
+                    vilkårType = Vilkår.MEDLEMSKAP,
+                    periodeFom = LocalDate.of(1992, 7, 31),
+                    periodeTom = LocalDate.of(2022, 12, 14),
+                    regelverk = Regelverk.NASJONALE_REGLER
+                ),
+                lagVilkårResultat(
+                    personResultat = søkerPersonResultat,
+                    vilkårType = Vilkår.MEDLEMSKAP,
+                    periodeFom = LocalDate.of(2022, 12, 15),
+                    periodeTom = null,
+                    regelverk = Regelverk.NASJONALE_REGLER
+                )
+            )
+        )
+
+        val barnPersonResultat = PersonResultat(vilkårsvurdering = vilkårsvurdering, aktør = barn)
+        val barnFødselsDato = LocalDate.of(2021, 3, 17)
+        val vilkårResultaterForBarn = lagVilkårResultaterForBarn(
+            personResultat = barnPersonResultat,
+            barnFødselsdato = barnFødselsDato,
+            barnehageplassPerioder = listOf(NullablePeriode(fom = barnFødselsDato.plusYears(1), tom = null) to null),
+            regelverk = Regelverk.EØS_FORORDNINGEN,
+            behandlingId = behandling.id
+        )
+        barnPersonResultat.setSortedVilkårResultater(vilkårResultaterForBarn)
+        vilkårsvurdering.personResultater = setOf(søkerPersonResultat, barnPersonResultat)
+
+        every { vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(behandling.id) } returns vilkårsvurdering
+
+        val exception = assertThrows<FunksjonellFeil> { vilkårsvurderingSteg.utførSteg(behandling.id) }
+        assertEquals(
+            "Det er forskjellig regelverk for en eller flere perioder for søker eller barna",
             exception.message
         )
     }
