@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
-@RequestMapping("/api/kompetanse")
+@RequestMapping("/api/behandlinger")
 @ProtectedWithClaims(issuer = "azuread")
 @Validated
 class KompetanseController(
@@ -30,7 +30,7 @@ class KompetanseController(
 ) {
     // Denne API-en brukes for å oppdatere kompetanse
     // Kompetanse oppretter automatisk etter vilkårsvurdering steg når vilkår er vurdert etter EØS forordningen
-    @PutMapping(path = ["{behandlingId}"], produces = [MediaType.APPLICATION_JSON_VALUE])
+    @PutMapping(path = ["{behandlingId}/kompetanse"], produces = [MediaType.APPLICATION_JSON_VALUE])
     fun oppdaterKompetanse(
         @PathVariable behandlingId: Long,
         @RequestBody kompentanseDto: KompetanseDto
@@ -45,7 +45,10 @@ class KompetanseController(
         return ResponseEntity.ok(Ressurs.success(behandlingService.lagBehandlingRespons(behandlingId)))
     }
 
-    @DeleteMapping(path = ["{behandlingId}/{kompetanseId}"], produces = [MediaType.APPLICATION_JSON_VALUE])
+    @DeleteMapping(
+        path = ["behandlinger/{behandlingId}/kompetanse/{kompetanseId}"],
+        produces = [MediaType.APPLICATION_JSON_VALUE]
+    )
     fun slettKompetanse(
         @PathVariable behandlingId: Long,
         @PathVariable kompetanseId: Long
