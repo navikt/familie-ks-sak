@@ -1,5 +1,6 @@
 package no.nav.familie.ks.sak.kjerne.behandling
 
+import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg
 import no.nav.familie.ks.sak.kjerne.behandling.steg.StegService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.VedtaksperiodeHentOgPersisterService
@@ -11,7 +12,8 @@ import org.springframework.transaction.annotation.Transactional
 class TilbakestillBehandlingService(
     private val vedtaksperiodeHentOgPersisterService: VedtaksperiodeHentOgPersisterService,
     private val stegService: StegService,
-    private val tilbakekrevingRepository: TilbakekrevingRepository
+    private val tilbakekrevingRepository: TilbakekrevingRepository,
+    private val behandlingRepository: BehandlingRepository
 ) {
 
     @Transactional
@@ -31,7 +33,10 @@ class TilbakestillBehandlingService(
         // Sletter tilbakekreving
         tilbakekrevingRepository.findByBehandlingId(behandlingId)?.let { tilbakekrevingRepository.deleteById(it.id) }
 
-        // tilbakefører Behandling til gitt behandlingSteg
-        stegService.tilbakeførSteg(behandlingId, behandlingSteg)
+        // tilbakefører Behandling til gitt behandlingSteg kun når steget eksisterer
+        val behandling = behandlingRepository.hentAktivBehandling(behandlingId)
+        if (behandling.behandlingStegTilstand.any { it.behandlingSteg == behandlingSteg }) {
+            stegService.tilbakeførSteg(behandlingId, behandlingSteg)
+        }
     }
 }

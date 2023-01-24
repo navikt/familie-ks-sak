@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus
 import java.time.YearMonth
 
 data class KompetanseDto(
+    val id: Long, // brukes for å slette kompetanse
     val fom: YearMonth?,
     val tom: YearMonth?,
     val barnIdenter: List<String>,
@@ -47,7 +48,11 @@ data class KompetanseDto(
             )
         )
         if (annenForeldersAktivitetsland == null) {
-            antallUtfylteFelter += (annenForeldersAktivitet.let { if (it == AnnenForeldersAktivitet.INAKTIV || it == AnnenForeldersAktivitet.IKKE_AKTUELT) 1 else 0 })
+            antallUtfylteFelter += (
+                annenForeldersAktivitet.let {
+                    if (it == AnnenForeldersAktivitet.INAKTIV || it == AnnenForeldersAktivitet.IKKE_AKTUELT) 1 else 0
+                }
+                )
         }
         if (søkersAktivitetsland == null) {
             antallUtfylteFelter += (søkersAktivitet.let { if (it == SøkersAktivitet.INAKTIV) 1 else 0 })
@@ -69,6 +74,7 @@ fun KompetanseDto.tilKompetanse(barnAktører: List<Aktør>) = Kompetanse(
 )
 
 fun Kompetanse.tilKompetanseDto() = KompetanseDto(
+    id = this.id,
     fom = this.fom,
     tom = this.tom,
     barnIdenter = barnAktører.map { it.aktivFødselsnummer() },
@@ -78,4 +84,4 @@ fun Kompetanse.tilKompetanseDto() = KompetanseDto(
     annenForeldersAktivitetsland = this.annenForeldersAktivitetsland,
     barnetsBostedsland = this.barnetsBostedsland,
     resultat = this.resultat
-)
+).medUtfyltStatus()
