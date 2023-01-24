@@ -8,6 +8,7 @@ import no.nav.familie.ks.sak.common.util.TIDENES_MORGEN
 import no.nav.familie.ks.sak.common.util.erDagenFør
 import no.nav.familie.ks.sak.common.util.førsteDagIInneværendeMåned
 import no.nav.familie.ks.sak.common.util.sisteDagIMåned
+import no.nav.familie.ks.sak.common.util.tilYearMonth
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.PersonResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
@@ -53,7 +54,8 @@ fun Collection<PersonResultat>.tilFørskjøvetVilkårResultatTidslinjeForPerson(
 
 data class VilkårResultaterMedInformasjonOmNestePeriode(
     val vilkårResultat: VilkårResultat,
-    val slutterDagenFørNeste: Boolean
+    val slutterDagenFørNeste: Boolean,
+    val slutterPåSisteDagIMåneden: Boolean
 )
 
 fun forskyvVilkårResultater(
@@ -62,11 +64,19 @@ fun forskyvVilkårResultater(
 ): List<Periode<VilkårResultat>> = when (vilkårType) {
     Vilkår.BARNEHAGEPLASS -> vilkårResultater.forskyvBarnehageplassVilkår()
 
-    else -> tilVilkårResultaterMedInformasjonOmNestePeriode(vilkårResultater)
+    else -> tilVilkårResultaterMedInformasjonOmNestePeriode(
+        vilkårResultater.filter { it.erOppfylt() || it.erIkkeAktuelt() }.sortedBy { it.periodeFom }
+    )
         .map {
-            val forskjøvetTom = if (it.slutterDagenFørNeste) {
-                it.vilkårResultat.periodeTom?.plusDays(1)?.sisteDagIMåned()
-            } else it.vilkårResultat.periodeTom?.minusMonths(1)?.sisteDagIMåned()
+            val forskjøvetTom = when {
+                it.slutterDagenFørNeste -> {
+                    it.vilkårResultat.periodeTom?.plusDays(1)?.sisteDagIMåned()
+                }
+                it.slutterPåSisteDagIMåneden -> { // Hvis perioden slutter siste dag i måned, får man kontantstøtte i denne måneden
+                    it.vilkårResultat.periodeTom?.sisteDagIMåned()
+                }
+                else -> it.vilkårResultat.periodeTom?.minusMonths(1)?.sisteDagIMåned()
+            }
 
             Periode(
                 verdi = it.vilkårResultat,
@@ -79,12 +89,11 @@ fun forskyvVilkårResultater(
 private fun tilVilkårResultaterMedInformasjonOmNestePeriode(vilkårResultater: List<VilkårResultat>) =
     vilkårResultater.zipWithNext { denne, neste ->
         VilkårResultaterMedInformasjonOmNestePeriode(
-            denne,
-            denne.periodeTom?.erDagenFør(
-                neste.periodeFom
-            ) ?: false
+            vilkårResultat = denne,
+            slutterDagenFørNeste = denne.periodeTom?.erDagenFør(neste.periodeFom) ?: false,
+            slutterPåSisteDagIMåneden = denne.periodeTom == denne.periodeTom?.tilYearMonth()?.atEndOfMonth()
         )
-    } + VilkårResultaterMedInformasjonOmNestePeriode(vilkårResultater.last(), false)
+    } + VilkårResultaterMedInformasjonOmNestePeriode(vilkårResultater.last(), false, false)
 
 fun MutableList<VilkårResultat>.fjernAvslagUtenPeriodeHvisDetFinsAndreVilkårResultat(): List<VilkårResultat> =
     if (this.any { !it.erAvslagUtenPeriode() }) this.filterNot { it.erAvslagUtenPeriode() } else this
