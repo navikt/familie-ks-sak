@@ -495,6 +495,7 @@ class VilkårsvurderingStegTest {
                 BehandlingKategori.NASJONAL
             )
         } returns behandling
+        every { kompetanseService.hentKompetanser(behandling.id) } returns emptyList()
 
         vilkårsvurderingSteg.utførSteg(behandling.id)
 
@@ -628,6 +629,7 @@ class VilkårsvurderingStegTest {
         every { vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(forrigeBehandling.id) } returns forrigeVilkårsvurderingForSøker
         every { behandlingService.hentSisteBehandlingSomErVedtatt(behandling.fagsak.id) } returns forrigeBehandling
         every { behandlingService.endreBehandlingstemaPåBehandling(any(), BehandlingKategori.EØS) } returns behandling
+        every { kompetanseService.hentKompetanser(behandling.id) } returns emptyList()
 
         vilkårsvurderingSteg.utførSteg(behandling.id)
 
@@ -721,6 +723,7 @@ class VilkårsvurderingStegTest {
                 BehandlingKategori.NASJONAL
             )
         } returns behandling
+        every { kompetanseService.hentKompetanser(behandling.id) } returns emptyList()
 
         vilkårsvurderingSteg.utførSteg(behandling.id)
 

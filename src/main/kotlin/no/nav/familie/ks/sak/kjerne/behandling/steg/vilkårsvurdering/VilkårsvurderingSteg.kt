@@ -60,10 +60,12 @@ class VilkårsvurderingSteg(
         beregningService.oppdaterTilkjentYtelsePåBehandling(behandling, personopplysningGrunnlag, vilkårsvurdering)
 
         // sjekker og tilpasser kompetanse skjema når vilkårer er vurdert etter EØS forordingen
-        val erNoenVilkårVurdertEtterEøsForordning = vilkårsvurdering.personResultater.any {
+        // eller det ligger allerede en kompetanse
+        val finnesKompetanserEllerVilkårVurdertEtterEøs = vilkårsvurdering.personResultater.any {
             it.vilkårResultater.any { vilkårResultat -> vilkårResultat.vurderesEtter == Regelverk.EØS_FORORDNINGEN }
-        }
-        if (erNoenVilkårVurdertEtterEøsForordning) {
+        } || kompetanseService.hentKompetanser(behandlingId).isNotEmpty()
+
+        if (finnesKompetanserEllerVilkårVurdertEtterEøs) {
             logger.info("Oppretter/Tilpasser kompetanse perioder for behandlingId=$behandlingId")
             kompetanseService.tilpassKompetanse(behandlingId)
         }

@@ -103,10 +103,13 @@ class forskyvVilkårTest {
         val forskjøvedeVilkårResultater =
             forskyvVilkårResultater(Vilkår.BARNETS_ALDER, listOf(vilkårResultat1, vilkårResultat2))
 
-        Assertions.assertEquals(1, forskjøvedeVilkårResultater.size)
+        Assertions.assertEquals(2, forskjøvedeVilkårResultater.size)
 
-        Assertions.assertEquals(november.atDay(1), forskjøvedeVilkårResultater.single().fom)
-        Assertions.assertEquals(november.atEndOfMonth(), forskjøvedeVilkårResultater.single().tom)
+        Assertions.assertEquals(september.atDay(1), forskjøvedeVilkårResultater.first().fom)
+        Assertions.assertEquals(september.atEndOfMonth(), forskjøvedeVilkårResultater.first().tom)
+
+        Assertions.assertEquals(november.atDay(1), forskjøvedeVilkårResultater.last().fom)
+        Assertions.assertEquals(november.atEndOfMonth(), forskjøvedeVilkårResultater.last().tom)
     }
 
     @Test
