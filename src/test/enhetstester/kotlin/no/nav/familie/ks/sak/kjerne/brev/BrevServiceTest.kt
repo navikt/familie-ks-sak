@@ -27,7 +27,6 @@ import no.nav.familie.ks.sak.kjerne.behandling.SettBehandlingPåVentService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingKategori
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
-import no.nav.familie.ks.sak.kjerne.behandling.steg.VenteÅrsak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.Brevmal
@@ -153,7 +152,7 @@ class BrevServiceTest {
             settBehandlingPåVentService.settBehandlingPåVent(
                 any(),
                 any(),
-                VenteÅrsak.AVVENTER_BEHANDLING
+                any()
             )
         } just runs
 
@@ -216,7 +215,7 @@ class BrevServiceTest {
             settBehandlingPåVentService.settBehandlingPåVent(
                 any(),
                 any(),
-                VenteÅrsak.AVVENTER_BEHANDLING
+                any()
             )
         } just runs
 
@@ -281,7 +280,7 @@ class BrevServiceTest {
             settBehandlingPåVentService.settBehandlingPåVent(
                 any(),
                 any(),
-                VenteÅrsak.AVVENTER_BEHANDLING
+                any()
             )
         } just runs
 
@@ -354,7 +353,7 @@ class BrevServiceTest {
             settBehandlingPåVentService.settBehandlingPåVent(
                 any(),
                 any(),
-                VenteÅrsak.AVVENTER_BEHANDLING
+                any()
             )
         } just runs
 
@@ -373,7 +372,7 @@ class BrevServiceTest {
             settBehandlingPåVentService.settBehandlingPåVent(
                 any(),
                 any(),
-                VenteÅrsak.AVVENTER_BEHANDLING
+                any()
             )
         }
     }
