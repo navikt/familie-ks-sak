@@ -65,7 +65,7 @@ class VilkårsvurderingSteg(
             it.vilkårResultater.any { vilkårResultat -> vilkårResultat.vurderesEtter == Regelverk.EØS_FORORDNINGEN }
         } || kompetanseService.hentKompetanser(behandlingId).isNotEmpty()
 
-        if (finnesKompetanserEllerVilkårErVurdertEtterEøs) {
+        if (finnesKompetanserEllerVilkårVurdertEtterEøs) {
             logger.info("Oppretter/Tilpasser kompetanse perioder for behandlingId=$behandlingId")
             kompetanseService.tilpassKompetanse(behandlingId)
         }
@@ -91,7 +91,9 @@ class VilkårsvurderingSteg(
                 val harLøpendeEøsUtbetalingIForrigeVedtattBehandling =
                     vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(forrigeBehandling.id)
                         .personResultater.flatMap { it.vilkårResultater }
-                        .filter { (it.periodeTom ?: TIDENES_ENDE).isAfter(LocalDate.now().sisteDagIMåned()) }
+                        .filter {
+                            (it.periodeTom ?: TIDENES_ENDE).isAfter(LocalDate.now().sisteDagIMåned())
+                        }
                         .any { it.vurderesEtter == Regelverk.EØS_FORORDNINGEN }
 
                 if (harLøpendeEøsUtbetalingIForrigeVedtattBehandling) BehandlingKategori.EØS else BehandlingKategori.NASJONAL
