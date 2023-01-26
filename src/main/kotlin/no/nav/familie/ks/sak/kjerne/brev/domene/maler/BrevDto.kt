@@ -6,6 +6,7 @@ import no.nav.familie.kontrakter.felles.objectMapper
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.util.tilDagMånedÅr
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingKategori
+import no.nav.familie.ks.sak.kjerne.behandling.steg.VenteÅrsak
 import java.time.LocalDate
 
 interface BrevDto {
@@ -186,6 +187,13 @@ enum class Brevmal(val erVedtaksbrev: Boolean, val apiNavn: String, val visnings
             SVARTIDSBREV -> true
 
             else -> false
+        }
+
+    fun hentVenteÅrsak() =
+        when (this) {
+            SVARTIDSBREV, FORLENGET_SVARTIDSBREV -> VenteÅrsak.AVVENTER_BEHANDLING
+
+            else -> VenteÅrsak.AVVENTER_DOKUMENTASJON
         }
 
     fun ventefristDager(manuellFrist: Long? = null, behandlingKategori: BehandlingKategori?): Long =
