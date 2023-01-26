@@ -25,7 +25,9 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.Vedtak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
 import no.nav.familie.ks.sak.kjerne.beregning.AndelerTilkjentYtelseOgEndreteUtbetalingerService
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelseRepository
-import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.tilEndretUtbetalingAndelDto
+import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.KompetanseRepository
+import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.tilEndretUtbetalingAndelResponsDto
+
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.Fagsak
 import no.nav.familie.ks.sak.kjerne.logg.LoggService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
@@ -57,7 +59,8 @@ class BehandlingService(
     private val totrinnskontrollRepository: TotrinnskontrollRepository,
     private val tilbakekrevingRepository: TilbakekrevingRepository,
     private val sanityService: SanityService,
-    private val feilutbetaltValutaService: FeilutbetaltValutaService
+    private val feilutbetaltValutaService: FeilutbetaltValutaService,
+    private val kompetanseRepository: KompetanseRepository
 ) {
 
     fun hentBehandling(behandlingId: Long): Behandling = behandlingRepository.hentBehandling(behandlingId)
@@ -124,7 +127,7 @@ class BehandlingService(
 
         val endreteUtbetalingerMedAndeler = andelerTilkjentYtelseOgEndreteUtbetalingerService
             .finnEndreteUtbetalingerMedAndelerTilkjentYtelse(behandlingId)
-            .map { it.tilEndretUtbetalingAndelDto() }
+            .map { it.tilEndretUtbetalingAndelResponsDto() }
 
         val totrinnskontroll =
             totrinnskontrollRepository.findByBehandlingAndAktiv(behandlingId = behandling.id)?.tilTotrinnskontrollDto()
@@ -143,6 +146,8 @@ class BehandlingService(
             it.tilFeilutbetaltValutaDto()
         }
 
+        val kompetanser = kompetanseRepository.findByBehandlingId(behandlingId)
+
         return BehandlingMapper.lagBehandlingRespons(
             behandling,
             arbeidsfordelingPåBehandling,
@@ -157,7 +162,8 @@ class BehandlingService(
             endringstidspunkt,
             tilbakekreving,
             sisteVedtaksperiodeVisningDato,
-            feilutbetalteValuta
+            feilutbetalteValuta,
+            kompetanser
         )
     }
 

@@ -12,6 +12,7 @@ import no.nav.security.token.support.core.api.ProtectedWithClaims
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.validation.annotation.Validated
+import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
@@ -19,7 +20,7 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
-@RequestMapping("/api/kompetanse")
+@RequestMapping("/api/behandlinger")
 @ProtectedWithClaims(issuer = "azuread")
 @Validated
 class KompetanseController(
@@ -27,8 +28,9 @@ class KompetanseController(
     private val tilgangService: TilgangService,
     private val behandlingService: BehandlingService
 ) {
-    // Denne API-en brukes både for å legge til og oppdatere kompetanse
-    @PutMapping(path = ["{behandlingId}"], produces = [MediaType.APPLICATION_JSON_VALUE])
+    // Denne API-en brukes for å oppdatere kompetanse
+    // Kompetanse oppretter automatisk etter vilkårsvurdering steg når vilkår er vurdert etter EØS forordningen
+    @PutMapping(path = ["{behandlingId}/kompetanse"], produces = [MediaType.APPLICATION_JSON_VALUE])
     fun oppdaterKompetanse(
         @PathVariable behandlingId: Long,
         @RequestBody kompentanseDto: KompetanseDto
@@ -37,9 +39,29 @@ class KompetanseController(
             behandlingId = behandlingId,
             event = AuditLoggerEvent.UPDATE,
             minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
-            handling = "legge til kompetanse"
+            handling = "oppdater kompetanse"
         )
         kompetanseService.oppdaterKompetanse(behandlingId, kompentanseDto)
+        return ResponseEntity.ok(Ressurs.success(behandlingService.lagBehandlingRespons(behandlingId)))
+    }
+
+    @DeleteMapping(
+        path = ["behandlinger/{behandlingId}/kompetanse/{kompetanseId}"],
+        produces = [MediaType.APPLICATION_JSON_VALUE]
+    )
+    fun slettKompetanse(
+        @PathVariable behandlingId: Long,
+        @PathVariable kompetanseId: Long
+    ): ResponseEntity<Ressurs<BehandlingResponsDto>> {
+        tilgangService.validerTilgangTilHandlingOgFagsakForBehandling(
+            behandlingId = behandlingId,
+            event = AuditLoggerEvent.DELETE,
+            minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
+            handling = "slette kompetanse"
+        )
+
+        kompetanseService.slettKompetanse(kompetanseId)
+
         return ResponseEntity.ok(Ressurs.success(behandlingService.lagBehandlingRespons(behandlingId)))
     }
 }

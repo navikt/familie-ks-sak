@@ -23,6 +23,8 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vil
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.beregning.BeregningService
 import no.nav.familie.ks.sak.kjerne.beregning.tilPeriodeResultater
+import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.KompetanseService
+import no.nav.familie.ks.sak.kjerne.eøs.vilkårsvurdering.VilkårsvurderingTidslinjer
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
 import org.slf4j.Logger
@@ -37,7 +39,8 @@ class VilkårsvurderingSteg(
     private val behandlingService: BehandlingService,
     private val søknadGrunnlagService: SøknadGrunnlagService,
     private val vilkårsvurderingService: VilkårsvurderingService,
-    private val beregningService: BeregningService
+    private val beregningService: BeregningService,
+    private val kompetanseService: KompetanseService
 ) : IBehandlingSteg {
     override fun getBehandlingssteg(): BehandlingSteg = BehandlingSteg.VILKÅRSVURDERING
 
@@ -55,6 +58,15 @@ class VilkårsvurderingSteg(
         settBehandlingstemaBasertPåVilkårsvurdering(behandling, vilkårsvurdering)
 
         beregningService.oppdaterTilkjentYtelsePåBehandling(behandling, personopplysningGrunnlag, vilkårsvurdering)
+
+        // sjekker og tilpasser kompetanse skjema når vilkårer er vurdert etter EØS forordingen
+        val erNoenVilkårVurdertEtterEøsForordning = vilkårsvurdering.personResultater.any {
+            it.vilkårResultater.any { vilkårResultat -> vilkårResultat.vurderesEtter == Regelverk.EØS_FORORDNINGEN }
+        }
+        if (erNoenVilkårVurdertEtterEøsForordning) {
+            logger.info("Oppretter/Tilpasser kompetanse perioder for behandlingId=$behandlingId")
+            kompetanseService.tilpassKompetanse(behandlingId)
+        }
     }
 
     private fun settBehandlingstemaBasertPåVilkårsvurdering(
@@ -77,7 +89,9 @@ class VilkårsvurderingSteg(
                 val harLøpendeEøsUtbetalingIForrigeVedtattBehandling =
                     vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(forrigeBehandling.id)
                         .personResultater.flatMap { it.vilkårResultater }
-                        .filter { (it.periodeTom ?: TIDENES_ENDE).isAfter(LocalDate.now().sisteDagIMåned()) }
+                        .filter {
+                            (it.periodeTom ?: TIDENES_ENDE).isAfter(LocalDate.now().sisteDagIMåned())
+                        }
                         .any { it.vurderesEtter == Regelverk.EØS_FORORDNINGEN }
 
                 if (harLøpendeEøsUtbetalingIForrigeVedtattBehandling) BehandlingKategori.EØS else BehandlingKategori.NASJONAL
@@ -106,6 +120,7 @@ class VilkårsvurderingSteg(
         validerAtPerioderIBarnehageplassSamsvarerMedPeriodeIBarnetsAlderVilkår(vilkårsvurdering)
         validerAtDetIkkeFinnesMerEnn2EndringerISammeMånedIBarnehageplassVilkår(vilkårsvurdering)
         validerAtDatoErKorrektIBarnasVilkår(vilkårsvurdering, personopplysningGrunnlag.barna)
+        validerIkkeBlandetRegelverk(personopplysningGrunnlag, vilkårsvurdering)
     }
 
     private fun validerAtDetFinnesBarnIPersonopplysningsgrunnlaget(
@@ -230,6 +245,18 @@ class VilkårsvurderingSteg(
                         "Dette er ikke støttet enda. Ta kontakt med Team Familie."
                 )
             }
+        }
+    }
+
+    private fun validerIkkeBlandetRegelverk(
+        personopplysningGrunnlag: PersonopplysningGrunnlag,
+        vilkårsvurdering: Vilkårsvurdering
+    ) {
+        val vilkårsvurderingTidslinjer = VilkårsvurderingTidslinjer(vilkårsvurdering, personopplysningGrunnlag)
+        if (vilkårsvurderingTidslinjer.harBlandetRegelverk()) {
+            throw FunksjonellFeil(
+                melding = "Det er forskjellig regelverk for en eller flere perioder for søker eller barna"
+            )
         }
     }
 

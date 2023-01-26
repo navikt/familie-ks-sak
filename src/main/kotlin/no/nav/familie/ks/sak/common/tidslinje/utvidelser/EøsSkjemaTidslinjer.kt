@@ -7,8 +7,10 @@ import no.nav.familie.ks.sak.common.util.førsteDagIInneværendeMåned
 import no.nav.familie.ks.sak.common.util.sisteDagIInneværendeMåned
 import no.nav.familie.ks.sak.common.util.toYearMonth
 import no.nav.familie.ks.sak.kjerne.eøs.felles.domene.EøsSkjema
+import no.nav.familie.ks.sak.kjerne.eøs.felles.domene.EøsSkjemaEntitet
 import no.nav.familie.ks.sak.kjerne.eøs.felles.domene.utenBarn
 import no.nav.familie.ks.sak.kjerne.eøs.felles.domene.utenPeriode
+import no.nav.familie.ks.sak.kjerne.personident.Aktør
 
 fun <T : EøsSkjema<T>> List<T>.tilTidslinje() = this.map {
     Periode(
@@ -54,3 +56,34 @@ fun <T : EøsSkjema<T>> T.settFomOgTom(periode: Periode<*>) =
         tom = periode.tom?.toYearMonth(),
         barnAktører = this.barnAktører
     )
+
+fun <T : EøsSkjema<T>> Iterable<T>.tilSeparateTidslinjerForBarna(): Map<Aktør, Tidslinje<T>> {
+    val skjemaer = this
+    if (skjemaer.toList().isEmpty()) return emptyMap()
+
+    // Trekker ut alle barn aktørId som brukes i skjemaer
+    val alleBarnAktørIder = skjemaer.map { it.barnAktører }.reduce { akk, neste -> akk + neste }
+
+    return alleBarnAktørIder.associateWith { aktør ->
+        skjemaer.filter { it.barnAktører.contains(aktør) }
+            .map {
+                Periode(
+                    fom = it.fom?.førsteDagIInneværendeMåned(),
+                    tom = it.tom?.sisteDagIInneværendeMåned(),
+                    verdi = it.kopier(fom = null, tom = null, barnAktører = setOf(aktør))
+                )
+            }.tilTidslinje()
+    }
+}
+
+fun <T : EøsSkjemaEntitet<T>> Map<Aktør, Tidslinje<T>>.tilSkjemaer() =
+    this.flatMap { (aktør, tidslinjer) -> tidslinjer.tilSkjemaer(aktør) }.slåSammen()
+
+private fun <T : EøsSkjema<T>> Tidslinje<T>.tilSkjemaer(aktør: Aktør) =
+    this.tilPerioder().mapNotNull { periode ->
+        periode.verdi?.kopier(
+            fom = periode.fom?.toYearMonth(),
+            tom = periode.tom?.toYearMonth(),
+            barnAktører = setOf(aktør)
+        )
+    }

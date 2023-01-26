@@ -7,7 +7,7 @@ import no.nav.familie.ks.sak.kjerne.eøs.felles.domene.EøsSkjemaEntitet
 import no.nav.familie.ks.sak.kjerne.eøs.felles.domene.EøsSkjemaRepository
 import java.util.concurrent.atomic.AtomicLong
 
-fun <T : EøsSkjemaEntitet<T>> mockPeriodeBarnSkjemaRepository(): EøsSkjemaRepository<T> {
+fun <T : EøsSkjemaEntitet<T>> mockEøsSkjemaRepository(): EøsSkjemaRepository<T> {
     val minnebasertSkjemaRepository = MinnebasertSkjemaRepository<T>()
     val mockSkjemaRepository = mockk<EøsSkjemaRepository<T>>()
 

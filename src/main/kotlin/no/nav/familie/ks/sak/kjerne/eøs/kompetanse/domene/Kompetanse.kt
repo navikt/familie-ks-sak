@@ -98,7 +98,7 @@ data class Kompetanse(
         barnAktører.isNotEmpty()
 
     companion object {
-        val NULL = Kompetanse(fom = null, tom = null, barnAktører = emptySet())
+        val blankKompetanse = Kompetanse(fom = null, tom = null, barnAktører = emptySet())
     }
 }
 

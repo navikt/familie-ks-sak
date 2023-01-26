@@ -5,7 +5,7 @@ import no.nav.familie.ks.sak.api.dto.ArbeidsfordelingResponsDto
 import no.nav.familie.ks.sak.api.dto.BehandlingPåVentDto
 import no.nav.familie.ks.sak.api.dto.BehandlingResponsDto
 import no.nav.familie.ks.sak.api.dto.BehandlingStegTilstandResponsDto
-import no.nav.familie.ks.sak.api.dto.EndretUtbetalingAndelDto
+import no.nav.familie.ks.sak.api.dto.EndretUtbetalingAndelResponsDto
 import no.nav.familie.ks.sak.api.dto.FeilutbetaltValutaDto
 import no.nav.familie.ks.sak.api.dto.PersonResponsDto
 import no.nav.familie.ks.sak.api.dto.PersonerMedAndelerResponsDto
@@ -15,6 +15,7 @@ import no.nav.familie.ks.sak.api.dto.TotrinnskontrollDto
 import no.nav.familie.ks.sak.api.dto.UtbetalingsperiodeResponsDto
 import no.nav.familie.ks.sak.api.dto.VedtakDto
 import no.nav.familie.ks.sak.api.dto.YtelsePerioderDto
+import no.nav.familie.ks.sak.api.dto.tilKompetanseDto
 import no.nav.familie.ks.sak.api.mapper.RegisterHistorikkMapper.lagRegisterHistorikkResponsDto
 import no.nav.familie.ks.sak.common.util.TIDENES_ENDE
 import no.nav.familie.ks.sak.common.util.TIDENES_MORGEN
@@ -25,6 +26,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingStegStatus
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.PersonResultat
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.domene.slåSammenBack2BackAndelsperioderMedSammeBeløp
+import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.Kompetanse
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
 import no.nav.familie.ks.sak.kjerne.tilbakekreving.domene.Tilbakekreving
 import java.math.BigDecimal
@@ -42,11 +44,12 @@ object BehandlingMapper {
         utbetalingsperioder: List<UtbetalingsperiodeResponsDto>,
         vedtak: VedtakDto?,
         totrinnskontroll: TotrinnskontrollDto?,
-        endretUtbetalingAndeler: List<EndretUtbetalingAndelDto>,
+        endretUtbetalingAndeler: List<EndretUtbetalingAndelResponsDto>,
         endringstidspunkt: LocalDate,
         tilbakekreving: Tilbakekreving?,
         sisteVedtaksperiodeVisningDato: LocalDate?,
-        feilutbetalteValuta: List<FeilutbetaltValutaDto>
+        feilutbetalteValuta: List<FeilutbetaltValutaDto>,
+        kompetanser: List<Kompetanse>
     ) =
         BehandlingResponsDto(
             behandlingId = behandling.id,
@@ -81,7 +84,8 @@ object BehandlingMapper {
             endringstidspunkt = utledEndringstidpunkt(endringstidspunkt, behandling),
             tilbakekreving = tilbakekreving?.let { lagTilbakekrevingRespons(it) },
             sisteVedtaksperiodeVisningDato = sisteVedtaksperiodeVisningDato,
-            feilutbetaltValuta = feilutbetalteValuta
+            feilutbetaltValuta = feilutbetalteValuta,
+            kompetanser = kompetanser.map { it.tilKompetanseDto() }
         )
 
     private fun lagArbeidsfordelingRespons(arbeidsfordelingPåBehandling: ArbeidsfordelingPåBehandling) =
