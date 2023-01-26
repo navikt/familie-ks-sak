@@ -91,7 +91,8 @@ private fun tilVilkårResultaterMedInformasjonOmNestePeriode(vilkårResultater: 
         VilkårResultaterMedInformasjonOmNestePeriode(
             vilkårResultat = denne,
             slutterDagenFørNeste = denne.periodeTom?.erDagenFør(neste.periodeFom) ?: false,
-            slutterPåSisteDagIMåneden = denne.periodeTom == denne.periodeTom?.tilYearMonth()?.atEndOfMonth()
+            slutterPåSisteDagIMåneden = denne.periodeTom != null &&
+                denne.periodeTom == denne.periodeTom?.tilYearMonth()?.atEndOfMonth()
         )
     } + VilkårResultaterMedInformasjonOmNestePeriode(vilkårResultater.last(), false, false)
 
