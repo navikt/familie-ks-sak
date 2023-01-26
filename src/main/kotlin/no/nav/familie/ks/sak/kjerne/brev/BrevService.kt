@@ -21,7 +21,6 @@ import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.ArbeidsfordelingService
 import no.nav.familie.ks.sak.kjerne.behandling.SettBehandlingPåVentService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
-import no.nav.familie.ks.sak.kjerne.behandling.steg.VenteÅrsak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.AnnenVurderingType
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.Brevmal
@@ -153,7 +152,7 @@ class BrevService(
                             behandlingKategori = behandling.kategori
                         )
                     ),
-                årsak = VenteÅrsak.AVVENTER_BEHANDLING
+                årsak = manueltBrevDto.brevmal.hentVenteÅrsak()
             )
         }
     }
