@@ -61,7 +61,7 @@ class VilkårsvurderingSteg(
 
         // sjekker og tilpasser kompetanse skjema når vilkårer er vurdert etter EØS forordingen
         // eller det ligger allerede en kompetanse
-        val finnesKompetanserEllerVilkårErVurdertEtterEøs = vilkårsvurdering.personResultater.any {
+        val finnesKompetanserEllerVilkårVurdertEtterEøs = vilkårsvurdering.personResultater.any {
             it.vilkårResultater.any { vilkårResultat -> vilkårResultat.vurderesEtter == Regelverk.EØS_FORORDNINGEN }
         } || kompetanseService.hentKompetanser(behandlingId).isNotEmpty()
 
