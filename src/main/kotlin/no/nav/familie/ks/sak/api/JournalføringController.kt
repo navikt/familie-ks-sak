@@ -1,5 +1,6 @@
 package no.nav.familie.ks.sak.api
 
+import no.nav.familie.kontrakter.felles.PersonIdent
 import no.nav.familie.kontrakter.felles.Ressurs
 import no.nav.familie.kontrakter.felles.journalpost.Journalpost
 import no.nav.familie.ks.sak.api.dto.JournalføringRequestDto
@@ -29,8 +30,20 @@ class JournalføringController(
 ) {
 
     @GetMapping(path = ["/bruker/{brukerId}"])
-    fun hentJournalposterForBruker(@PathVariable brukerId: String): ResponseEntity<Ressurs<List<Journalpost>>> =
+    @Deprecated("Kan fjernes når frontend har byttet over til POST-endepunktet")
+    fun hentJournalposterForBrukerDeprecated(@PathVariable brukerId: String): ResponseEntity<Ressurs<List<Journalpost>>> =
         ResponseEntity.ok(Ressurs.success(innkommendeJournalføringService.hentJournalposterForBruker(brukerId)))
+
+    @PostMapping(path = ["/bruker"])
+    fun hentJournalposterForBruker(@RequestBody personIdentBody: PersonIdent): ResponseEntity<Ressurs<List<Journalpost>>> {
+        return ResponseEntity.ok(
+            Ressurs.success(
+                innkommendeJournalføringService.hentJournalposterForBruker(
+                    personIdentBody.ident
+                )
+            )
+        )
+    }
 
     @GetMapping("/{journalpostId}/dokument/{dokumentId}")
     fun hentDokumentIJournalpost(
