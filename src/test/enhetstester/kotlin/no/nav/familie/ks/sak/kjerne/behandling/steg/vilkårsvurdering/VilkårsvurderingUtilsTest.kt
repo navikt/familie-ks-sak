@@ -442,7 +442,7 @@ class VilkårsvurderingUtilsTest {
     }
 
     @Test
-    fun `validerAtDatoErKorrektIBarnasVilkår skal kaste feil når BARNETS_ALDER med adopsjon vilkår resulat har diff mellom fom,tom mer enn 1 år`() {
+    fun `validerAtDatoErKorrektIBarnasVilkår skal kaste feil når BARNETS_ALDER med adopsjon vilkår resulat har diff mellom fom,tom mer enn 1 år og 1 dag`() {
         val personResultatForBarn = PersonResultat(vilkårsvurdering = vilkårsvurdering, aktør = barn1)
         val vilkårResultaterForBarn = setOf(
             VilkårResultat(
