@@ -106,8 +106,6 @@ class BegrunnelserForPeriodeContext(
         begrunnelse: Begrunnelse,
         sanityBegrunnelse: SanityBegrunnelse
     ): Set<Person> {
-        println("begrunnelse: $begrunnelse")
-        println("sanityBegrunnelse: $sanityBegrunnelse")
 
         val hentVilkårResultaterSomOverlapperVedtaksperiode =
             hentVilkårResultaterSomOverlapperVedtaksperiode(begrunnelse)
