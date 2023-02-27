@@ -307,7 +307,7 @@ class forskyvBarnehageplassVilkårTest {
     }
 
     @Test
-    fun `forskyvBarnehageplassVilkår skal skyves en måned framover ved overgang fra periode med 33 timer eller mer`() {
+    fun `forskyvBarnehageplassVilkår skal ikke forskyves en måned framover ved overgang fra periode med 33 timer`() {
         val vilkårResultat1 = lagVilkårResultat(
             vilkårType = Vilkår.BARNEHAGEPLASS,
             periodeFom = august.atDay(14),
@@ -326,10 +326,10 @@ class forskyvBarnehageplassVilkårTest {
         Assertions.assertEquals(2, forskjøvedeVilkårResultater.size)
 
         Assertions.assertEquals(september.atDay(1), forskjøvedeVilkårResultater.first().fom)
-        Assertions.assertEquals(oktober.atEndOfMonth(), forskjøvedeVilkårResultater.first().tom)
+        Assertions.assertEquals(september.atEndOfMonth(), forskjøvedeVilkårResultater.first().tom)
         Assertions.assertEquals(BigDecimal.valueOf(33), forskjøvedeVilkårResultater.first().verdi.antallTimer)
 
-        Assertions.assertEquals(november.atDay(1), forskjøvedeVilkårResultater[1].fom)
+        Assertions.assertEquals(oktober.atDay(1), forskjøvedeVilkårResultater[1].fom)
         Assertions.assertEquals(november.atEndOfMonth(), forskjøvedeVilkårResultater[1].tom)
         Assertions.assertEquals(BigDecimal.valueOf(8), forskjøvedeVilkårResultater[1].verdi.antallTimer)
     }
