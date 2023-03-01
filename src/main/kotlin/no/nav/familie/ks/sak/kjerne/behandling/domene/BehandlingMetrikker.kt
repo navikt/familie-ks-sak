@@ -100,7 +100,7 @@ class BehandlingMetrikker(
             )
         }
 
-    @Scheduled(initialDelay = FEM_MINUTTER_VENTETID_FØR_OPPDATERING_FØRSTE_GANG, cron = "@daily")
+    @Scheduled(cron = "@daily")
     fun tellAlleBehandlinger() {
         if (!erLeader()) return
 
@@ -124,7 +124,6 @@ class BehandlingMetrikker(
     }
 
     companion object {
-        const val FEM_MINUTTER_VENTETID_FØR_OPPDATERING_FØRSTE_GANG: Long = 1000 * 60 * 5
         const val ÅR_MÅNED_TAG = "aar-maaned"
     }
 }
