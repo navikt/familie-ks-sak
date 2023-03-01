@@ -12,22 +12,25 @@ import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.statsborgers
 
 object RegisterHistorikkMapper {
 
-    fun lagRegisterHistorikkResponsDto(person: Person, landKodeOgLandNavn: Map<String, String>?) =
-        RegisterHistorikkResponsDto(
+    fun lagRegisterHistorikkResponsDto(
+        person: Person,
+        landKodeOgLandNavn: Map<String, String>?
+    ): RegisterHistorikkResponsDto {
+        val statsborgerskap = if (!landKodeOgLandNavn.isNullOrEmpty()) {
+            person.statsborgerskap.map { lagRegisterOpplysningDto(it, landKodeOgLandNavn) }
+        } else emptyList()
+
+        val dødsboadresse = person.dødsfall?.let { listOf(lagRegisterOpplysningDto(it)) } ?: emptyList()
+
+        return RegisterHistorikkResponsDto(
+            statsborgerskap = statsborgerskap,
+            dødsboadresse = dødsboadresse,
             hentetTidspunkt = person.personopplysningGrunnlag.opprettetTidspunkt,
             oppholdstillatelse = person.opphold.map { lagRegisterOpplysningDto(it) },
-            statsborgerskap = landKodeOgLandNavn?.let {
-                person.statsborgerskap.map { statsborgerskap ->
-                    lagRegisterOpplysningDto(
-                        statsborgerskap,
-                        landKodeOgLandNavn
-                    )
-                }
-            },
             bostedsadresse = person.bostedsadresser.map { lagRegisterOpplysningDto(it) },
-            sivilstand = person.sivilstander.map { lagRegisterOpplysningDto(it) },
-            dødsboadresse = person.dødsfall?.let { listOf(lagRegisterOpplysningDto(it)) } ?: emptyList()
+            sivilstand = person.sivilstander.map { lagRegisterOpplysningDto(it) }
         )
+    }
 
     private fun lagRegisterOpplysningDto(dødsfall: Dødsfall): RegisteropplysningResponsDto =
         RegisteropplysningResponsDto(
