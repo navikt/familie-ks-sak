@@ -4,6 +4,7 @@ import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.util.inneværendeMåned
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
+import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingMetrikker
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg
@@ -22,7 +23,8 @@ class AvsluttBehandlingSteg(
     private val behandlingService: BehandlingService,
     private val loggService: LoggService,
     private val beregningService: BeregningService,
-    private val fagsakService: FagsakService
+    private val fagsakService: FagsakService,
+    private val behandlingMetrikker: BehandlingMetrikker
 ) : IBehandlingSteg {
     override fun getBehandlingssteg(): BehandlingSteg = BehandlingSteg.AVSLUTT_BEHANDLING
 
@@ -36,6 +38,9 @@ class AvsluttBehandlingSteg(
 
         // opprett historikk innslag
         loggService.opprettAvsluttBehandlingLogg(behandling)
+
+        // oppdaterer behandling metrikker
+        behandlingMetrikker.oppdaterBehandlingMetrikker(behandling)
 
         // oppdater fagsak status
         if (behandling.resultat != Behandlingsresultat.AVSLÅTT) {
