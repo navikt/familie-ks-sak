@@ -24,6 +24,9 @@ class ArbeidsfordelingService(
     private val oppgaveService: OppgaveService,
     private val loggService: LoggService
 ) {
+    fun hentAlleBehandlingerPåEnhet(enhetId: String) =
+        arbeidsfordelingPåBehandlingRepository.hentAlleArbeidsfordelingPåBehandlingMedEnhet(enhetId)
+
     fun hentArbeidsfordelingPåBehandling(behandlingId: Long) =
         arbeidsfordelingPåBehandlingRepository.finnArbeidsfordelingPåBehandling(behandlingId)
             ?: error("Finner ikke tilknyttet arbeidsfordeling på behandling med id $behandlingId")

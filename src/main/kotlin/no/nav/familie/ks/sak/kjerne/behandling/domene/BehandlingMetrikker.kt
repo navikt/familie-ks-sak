@@ -9,14 +9,15 @@ import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.ArbeidsfordelingService
 import no.nav.familie.leader.LeaderClient
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
+import java.time.LocalDate
 import java.time.LocalDateTime
-import java.time.YearMonth
+import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
 
 @Component
 class BehandlingMetrikker(
     private val arbeidsfordelingService: ArbeidsfordelingService,
-    private val behandlingRepository: BehandlingRepository
+    private val behandlingRepository: BehandlingRepository,
 ) {
     private val enheter = listOf("2103", "4806", "4820", "4833", "4842", "4817", "4812")
 
@@ -105,18 +106,33 @@ class BehandlingMetrikker(
         if (!erLeader()) return
 
         val behandlinger = behandlingRepository.count()
+        val dagensDato = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
 
-        val rows = listOf(
+        val multiGaugeRows = mutableListOf(
             MultiGauge.Row.of(
                 Tags.of(
-                    ÅR_MÅNED_TAG,
-                    "${YearMonth.now().year}-${YearMonth.now().month}"
+                    ÅR_MÅNED_DAG,
+                    dagensDato
                 ),
                 behandlinger
             )
         )
 
-        antallBehandlingerTotalt.register(rows)
+        enheter.forEach { enhet ->
+            val behandlingerPåEnhet = arbeidsfordelingService.hentAlleBehandlingerPåEnhet(enhet)
+
+            multiGaugeRows.add(
+                MultiGauge.Row.of(
+                    Tags.of(
+                        "$enhet-$ÅR_MÅNED_DAG",
+                        dagensDato
+                    ),
+                    behandlingerPåEnhet.size
+                )
+            )
+        }
+
+        antallBehandlingerTotalt.register(multiGaugeRows)
     }
 
     private fun erLeader(): Boolean {
@@ -124,6 +140,6 @@ class BehandlingMetrikker(
     }
 
     companion object {
-        const val ÅR_MÅNED_TAG = "aar-maaned"
+        const val ÅR_MÅNED_DAG = "aar-maaned-dag"
     }
 }
