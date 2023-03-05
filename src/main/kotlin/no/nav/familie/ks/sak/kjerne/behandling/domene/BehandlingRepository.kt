@@ -20,21 +20,14 @@ interface BehandlingRepository : JpaRepository<Behandling, Long> {
     fun finnBehandlinger(fagsakId: Long): List<Behandling>
 
     @Query(
-        """SELECT b FROM Behandling b
-                           INNER JOIN ArbeidsfordelingPåBehandling apb on b.id = apb.behandlingId
-                        WHERE b.fagsak.id = :fagsakId AND ty.utbetalingsoppdrag IS NOT NULL"""
-    )
-    fun finnBehandlingerUnderEnhet(enhetId: Long): List<Behandling>
-
-    @Query(
         "SELECT b FROM Behandling b JOIN b.fagsak f WHERE f.id = :fagsakId AND f.arkivert = false " +
-                "AND b.aktiv = true "
+            "AND b.aktiv = true "
     )
     fun findByFagsakAndAktiv(fagsakId: Long): Behandling?
 
     @Query(
         "SELECT b FROM Behandling b JOIN b.fagsak f WHERE f.id = :fagsakId AND f.arkivert = false AND " +
-                "b.aktiv = true AND b.status <> 'AVSLUTTET'"
+            "b.aktiv = true AND b.status <> 'AVSLUTTET'"
     )
     fun findByFagsakAndAktivAndOpen(fagsakId: Long): Behandling?
 
