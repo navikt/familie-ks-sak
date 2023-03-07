@@ -124,7 +124,7 @@ class BehandlingMetrikker(
             multiGaugeRows.add(
                 MultiGauge.Row.of(
                     Tags.of(
-                        "$enhet-$ÅR_MÅNED_DAG",
+                        "$ÅR_MÅNED_DAG-$enhet",
                         dagensDato
                     ),
                     behandlingerPåEnhet.size
