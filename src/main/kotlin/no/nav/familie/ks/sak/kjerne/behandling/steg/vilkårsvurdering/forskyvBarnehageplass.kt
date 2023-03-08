@@ -64,13 +64,13 @@ private fun VilkårResultat?.hentGraderingsforskjellMellomDenneOgForrigePeriode(
         vilkårResultatForrigePeriode?.vilkårResultat?.let { hentProsentForAntallTimer(vilkårResultatForrigePeriode.vilkårResultat.antallTimer) }
             ?: BigDecimal.ZERO
     val graderingDennePerioden = this?.let { hentProsentForAntallTimer(this.antallTimer) } ?: BigDecimal.ZERO
-    val førstePeriode = vilkårResultatForrigePeriode == null
+    val erFørstePeriode = vilkårResultatForrigePeriode == null
 
     return when {
         graderingForrigePeriode > graderingDennePerioden && graderingDennePerioden == BigDecimal.ZERO -> Graderingsforskjell.ReduksjonGårTilIngenUtbetaling
         graderingForrigePeriode > graderingDennePerioden -> Graderingsforskjell.Reduksjon
 
-        graderingForrigePeriode < graderingDennePerioden && graderingForrigePeriode == BigDecimal.ZERO -> if (førstePeriode) Graderingsforskjell.ØkingGårFraIngenUtbetalingGrunnetIngenTidligerePerioder else Graderingsforskjell.ØkingGårFraIngenUtbetalingGrunnetFullBarnehageplass
+        graderingForrigePeriode < graderingDennePerioden && graderingForrigePeriode == BigDecimal.ZERO -> if (erFørstePeriode) Graderingsforskjell.IngenUtbetalingGrunnetFørsteperiodeTilØking else Graderingsforskjell.IngenUtbetalingGrunnetFullBarnehageplassTilØking
 
         graderingForrigePeriode < graderingDennePerioden -> Graderingsforskjell.Øking
 
@@ -79,12 +79,12 @@ private fun VilkårResultat?.hentGraderingsforskjellMellomDenneOgForrigePeriode(
 }
 
 enum class Graderingsforskjell {
-    ØkingGårFraIngenUtbetalingGrunnetFullBarnehageplass,
+    IngenUtbetalingGrunnetFullBarnehageplassTilØking,
     Øking,
     ReduksjonGårTilIngenUtbetaling,
     Reduksjon,
     Lik,
-    ØkingGårFraIngenUtbetalingGrunnetIngenTidligerePerioder
+    IngenUtbetalingGrunnetFørsteperiodeTilØking
 }
 
 data class BarnehageplassVilkårMedGraderingsforskjellMellomPerioder<NullableVilkårResultat : VilkårResultat?>(
@@ -108,11 +108,10 @@ private fun LocalDate?.tilForskøvetTomBasertPåGraderingsforskjell(
 ) = this?.let { tomDato ->
     when (graderingsforskjellMellomDenneOgNestePeriode) {
         Graderingsforskjell.Lik,
-        Graderingsforskjell.ØkingGårFraIngenUtbetalingGrunnetFullBarnehageplass,
+        Graderingsforskjell.IngenUtbetalingGrunnetFullBarnehageplassTilØking,
         Graderingsforskjell.Øking -> tomDato.sisteDagIMåned()
 
-        Graderingsforskjell.ØkingGårFraIngenUtbetalingGrunnetIngenTidligerePerioder -> tomDato.plusDays(1)
-            .sisteDagIMåned()
+        Graderingsforskjell.IngenUtbetalingGrunnetFørsteperiodeTilØking -> tomDato.plusDays(1).sisteDagIMåned()
 
         Graderingsforskjell.ReduksjonGårTilIngenUtbetaling,
         Graderingsforskjell.Reduksjon -> tomDato.plusDays(1).minusMonths(1).sisteDagIMåned()
@@ -126,10 +125,10 @@ private fun LocalDate?.tilForskøvetFomBasertPåGraderingsforskjell(
         Graderingsforskjell.Lik,
         Graderingsforskjell.Øking -> fomDato.minusDays(1).plusMonths(1)?.førsteDagIInneværendeMåned()
 
-        Graderingsforskjell.ØkingGårFraIngenUtbetalingGrunnetIngenTidligerePerioder -> fomDato.plusMonths(1)
+        Graderingsforskjell.IngenUtbetalingGrunnetFørsteperiodeTilØking -> fomDato.plusMonths(1)
             .førsteDagIInneværendeMåned()
 
-        Graderingsforskjell.ØkingGårFraIngenUtbetalingGrunnetFullBarnehageplass -> if (fomDato == fomDato.førsteDagIInneværendeMåned()) fomDato else fomDato.plusMonths(
+        Graderingsforskjell.IngenUtbetalingGrunnetFullBarnehageplassTilØking -> if (fomDato == fomDato.førsteDagIInneværendeMåned()) fomDato else fomDato.plusMonths(
             1
         ).førsteDagIInneværendeMåned()
 
