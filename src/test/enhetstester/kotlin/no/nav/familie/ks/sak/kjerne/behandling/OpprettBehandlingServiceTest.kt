@@ -17,6 +17,7 @@ import no.nav.familie.ks.sak.data.randomAktør
 import no.nav.familie.ks.sak.integrasjon.oppgave.OpprettOppgaveTask
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.ArbeidsfordelingService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingKategori
+import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingMetrikker
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingType
@@ -66,6 +67,9 @@ class OpprettBehandlingServiceTest {
     @MockK
     private lateinit var taskService: TaskService
 
+    @MockK
+    private lateinit var behandlingMetrikker: BehandlingMetrikker
+
     @InjectMockKs
     private lateinit var opprettBehandlingService: OpprettBehandlingService
 
@@ -96,6 +100,7 @@ class OpprettBehandlingServiceTest {
             LocalDate.now()
         )
         every { stegService.utførSteg(any(), any()) } returns Unit
+        every { behandlingMetrikker.tellNøkkelTallVedOpprettelseAvBehandling(behandling) } just runs
     }
 
     @Test
