@@ -13,6 +13,7 @@ import no.nav.familie.ks.sak.integrasjon.oppgave.OpprettOppgaveTask
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.ArbeidsfordelingService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingKategori
+import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingMetrikker
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingType
@@ -41,7 +42,8 @@ class OpprettBehandlingService(
     private val fagsakRepository: FagsakRepository,
     private val behandlingRepository: BehandlingRepository,
     private val taskService: TaskService,
-    private val stegService: StegService
+    private val stegService: StegService,
+    private val behandlingMetrikker: BehandlingMetrikker
 ) {
 
     @Transactional
@@ -116,6 +118,10 @@ class OpprettBehandlingService(
                 it,
                 sisteVedtattBehandling
             )
+
+            if (it.versjon == 0L) {
+                behandlingMetrikker.tellNøkkelTallVedOpprettelseAvBehandling(it)
+            }
         }
     }
 

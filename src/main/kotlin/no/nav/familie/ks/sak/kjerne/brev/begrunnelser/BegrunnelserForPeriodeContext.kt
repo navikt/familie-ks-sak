@@ -106,19 +106,35 @@ class BegrunnelserForPeriodeContext(
         begrunnelse: Begrunnelse,
         sanityBegrunnelse: SanityBegrunnelse
     ): Set<Person> {
-        val personerMedVilkårResultaterSomPasserVedtaksperioden: Map<Person, List<VilkårResultat>> =
+
+        val hentVilkårResultaterSomOverlapperVedtaksperiode =
             hentVilkårResultaterSomOverlapperVedtaksperiode(begrunnelse)
-                .filtrerPersonerUtenUtbetalingVedInnvilget(begrunnelse.begrunnelseType)
-                .filtrerPåVilkårType(sanityBegrunnelse.vilkår)
-                .filtrerPåTriggere(sanityBegrunnelse.triggere, sanityBegrunnelse.type)
-                .filtrerPåUtdypendeVilkårsvurdering(
-                    sanityBegrunnelse.utdypendeVilkårsvurderinger,
-                    sanityBegrunnelse.type
-                )
+
+        val filtrerPersonerUtenUtbetalingVedInnvilget = hentVilkårResultaterSomOverlapperVedtaksperiode
+            .filtrerPersonerUtenUtbetalingVedInnvilget(begrunnelse.begrunnelseType)
+
+        val filtrerPåVilkårType = filtrerPersonerUtenUtbetalingVedInnvilget
+            .filtrerPåVilkårType(sanityBegrunnelse.vilkår)
+
+        val filtrerPåTriggere = filtrerPåVilkårType
+            .filtrerPåTriggere(sanityBegrunnelse.triggere, sanityBegrunnelse.type)
+
+        val filtrerPåUtdypendeVilkårsvurdering = filtrerPåTriggere
+            .filtrerPåUtdypendeVilkårsvurdering(
+                sanityBegrunnelse.utdypendeVilkårsvurderinger,
+                sanityBegrunnelse.type
+            )
+
+        val filtrerPåVilkårResultaterSomPasserMedVedtaksperiodeDatoEllerSanityBegrunnelseType =
+            filtrerPåUtdypendeVilkårsvurdering
                 .filtrerPåVilkårResultaterSomPasserMedVedtaksperiodeDatoEllerSanityBegrunnelseType(
                     begrunnelse.finnVilkårResultatIderSomPasserMedVedtaksperiodeDato(),
                     sanityBegrunnelse.type
                 )
+
+        val personerMedVilkårResultaterSomPasserVedtaksperioden: Map<Person, List<VilkårResultat>> =
+            filtrerPåVilkårResultaterSomPasserMedVedtaksperiodeDatoEllerSanityBegrunnelseType
+
         return personerMedVilkårResultaterSomPasserVedtaksperioden.keys
     }
 

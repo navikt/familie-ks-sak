@@ -15,6 +15,7 @@ import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagInitieltTilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
+import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingMetrikker
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
@@ -45,6 +46,9 @@ internal class AvsluttBehandlingStegTest {
     @MockK
     private lateinit var fagsakService: FagsakService
 
+    @MockK
+    private lateinit var behandlingMetrikker: BehandlingMetrikker
+
     @InjectMockKs
     private lateinit var avsluttBehandlingSteg: AvsluttBehandlingSteg
 
@@ -57,6 +61,7 @@ internal class AvsluttBehandlingStegTest {
 
         every { behandlingService.hentBehandling(behandling.id) } returns behandling
         every { loggService.opprettAvsluttBehandlingLogg(behandling) } just runs
+        every { behandlingMetrikker.oppdaterBehandlingMetrikker(behandling) } just runs
     }
 
     @Test
