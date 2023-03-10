@@ -38,6 +38,7 @@ fun LocalDate.erSenereEnnInneværendeMåned(): Boolean = this.isAfter(LocalDate.
 
 fun inneværendeMåned(): YearMonth = LocalDate.now().toYearMonth()
 
+fun LocalDate.forrigeMåned(): YearMonth = this.toYearMonth().minusMonths(1)
 fun YearMonth.forrigeMåned(): YearMonth = this.minusMonths(1)
 fun YearMonth.nesteMåned(): YearMonth = this.plusMonths(1)
 

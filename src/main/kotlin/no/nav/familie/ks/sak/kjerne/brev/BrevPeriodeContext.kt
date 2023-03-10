@@ -2,6 +2,7 @@ package no.nav.familie.ks.sak.kjerne.brev
 
 import forskyvVilkårResultater
 import no.nav.familie.ks.sak.api.dto.BarnMedOpplysningerDto
+import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.tidslinje.Periode
 import no.nav.familie.ks.sak.common.tidslinje.Tidslinje
 import no.nav.familie.ks.sak.common.tidslinje.tilTidslinje
@@ -13,12 +14,14 @@ import no.nav.familie.ks.sak.common.util.TIDENES_MORGEN
 import no.nav.familie.ks.sak.common.util.erDagenFør
 import no.nav.familie.ks.sak.common.util.erSenereEnnInneværendeMåned
 import no.nav.familie.ks.sak.common.util.formaterBeløp
+import no.nav.familie.ks.sak.common.util.forrigeMåned
 import no.nav.familie.ks.sak.common.util.førsteDagIInneværendeMåned
 import no.nav.familie.ks.sak.common.util.overlapperHeltEllerDelvisMed
 import no.nav.familie.ks.sak.common.util.sisteDagIInneværendeMåned
 import no.nav.familie.ks.sak.common.util.slåSammen
 import no.nav.familie.ks.sak.common.util.tilDagMånedÅr
 import no.nav.familie.ks.sak.common.util.tilKortString
+import no.nav.familie.ks.sak.common.util.tilMånedÅr
 import no.nav.familie.ks.sak.common.util.tilYearMonth
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelse
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.Trigger
@@ -315,6 +318,14 @@ class BrevPeriodeContext(
                     begrunnelse = begrunnelse
                 )
 
+                val maanedOgAarBegrunnelsenGjelderFor = this.utvidetVedtaksperiodeMedBegrunnelser.fom?.let { fom ->
+                    hentMånedOgÅrForBegrunnelse(
+                        vedtaksperiodeType = this.utvidetVedtaksperiodeMedBegrunnelser.type,
+                        fom = fom,
+                        tom = this.utvidetVedtaksperiodeMedBegrunnelser.tom ?: TIDENES_ENDE
+                    )
+                }
+
                 validerBrevbegrunnelse(
                     gjelderSøker = gjelderSøker,
                     barnasFødselsdatoer = barnasFødselsdatoer,
@@ -331,7 +342,7 @@ class BrevPeriodeContext(
                         barnasFødselsdatoer = barnasFødselsdatoer,
                         begrunnelse = begrunnelse
                     ),
-                    maanedOgAarBegrunnelsenGjelderFor = this.hentFomTekst(),
+                    maanedOgAarBegrunnelsenGjelderFor = maanedOgAarBegrunnelsenGjelderFor,
                     maalform = persongrunnlag.søker.målform.tilSanityFormat(),
                     apiNavn = begrunnelse.sanityApiNavn,
                     belop = formaterBeløp(hentBeløp(begrunnelse)),
@@ -342,6 +353,25 @@ class BrevPeriodeContext(
                 )
             }
     }
+
+    private fun hentMånedOgÅrForBegrunnelse(vedtaksperiodeType: Vedtaksperiodetype, fom: LocalDate, tom: LocalDate) =
+        when (vedtaksperiodeType) {
+            Vedtaksperiodetype.AVSLAG ->
+                if (fom == TIDENES_MORGEN && tom == TIDENES_ENDE) {
+                    ""
+                } else if (tom == TIDENES_ENDE) {
+                    fom.tilMånedÅr()
+                } else {
+                    "${fom.tilMånedÅr()} til ${tom.tilMånedÅr()}"
+                }
+
+            else ->
+                if (fom == TIDENES_MORGEN) {
+                    throw Feil("Prøver å finne fom-dato for begrunnelse, men fikk \"TIDENES_MORGEN\".")
+                } else {
+                    fom.forrigeMåned().tilMånedÅr()
+                }
+        }
 
     private fun hentAntallTimerBarnehageplassTekst(personerMedVilkårSomPasserBegrunnelse: Set<Person>) =
         slåSammen(
