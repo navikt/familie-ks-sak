@@ -369,7 +369,7 @@ class BrevPeriodeContext(
                 if (fom == TIDENES_MORGEN) {
                     throw Feil("Prøver å finne fom-dato for begrunnelse, men fikk \"TIDENES_MORGEN\".")
                 } else {
-                    fom.forrigeMåned().tilMånedÅr()
+                    fom.tilMånedÅr()
                 }
         }
 
