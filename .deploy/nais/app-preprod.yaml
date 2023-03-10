@@ -102,6 +102,8 @@ spec:
       memory: 512Mi
       cpu: 500m
   ingresses:
+    - https://familie-ks-sak.dev.intern.nav.no # Deprecated
+    - https://familie-kontantstotte-sak.dev.intern.nav.no # Deprecated
     - https://familie-ks-sak.intern.dev.nav.no
     - https://familie-kontantstotte-sak.intern.dev.nav.no
   secureLogs:
