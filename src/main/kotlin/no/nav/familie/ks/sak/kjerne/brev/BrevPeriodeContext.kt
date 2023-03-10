@@ -124,6 +124,7 @@ class BrevPeriodeContext(
             begrunnelser = begrunnelserOgFritekster,
             brevPeriodeType = brevPeriodeType,
             antallBarn = barnIPeriode.size.toString(),
+
             barnasFodselsdager = barnIPeriode.tilBarnasFødselsdatoer(),
             antallBarnMedUtbetaling = barnMedUtbetaling.size.toString(),
             antallBarnMedNullutbetaling = barnMedNullutbetaling.size.toString(),
@@ -330,6 +331,7 @@ class BrevPeriodeContext(
                         barnasFødselsdatoer = barnasFødselsdatoer,
                         begrunnelse = begrunnelse
                     ),
+                    maanedOgAarBegrunnelsenGjelderFor = this.hentFomTekst(),
                     maalform = persongrunnlag.søker.målform.tilSanityFormat(),
                     apiNavn = begrunnelse.sanityApiNavn,
                     belop = formaterBeløp(hentBeløp(begrunnelse)),
