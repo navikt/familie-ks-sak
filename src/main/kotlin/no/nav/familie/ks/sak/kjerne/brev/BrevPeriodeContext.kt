@@ -14,7 +14,6 @@ import no.nav.familie.ks.sak.common.util.TIDENES_MORGEN
 import no.nav.familie.ks.sak.common.util.erDagenFør
 import no.nav.familie.ks.sak.common.util.erSenereEnnInneværendeMåned
 import no.nav.familie.ks.sak.common.util.formaterBeløp
-import no.nav.familie.ks.sak.common.util.forrigeMåned
 import no.nav.familie.ks.sak.common.util.førsteDagIInneværendeMåned
 import no.nav.familie.ks.sak.common.util.overlapperHeltEllerDelvisMed
 import no.nav.familie.ks.sak.common.util.sisteDagIInneværendeMåned
