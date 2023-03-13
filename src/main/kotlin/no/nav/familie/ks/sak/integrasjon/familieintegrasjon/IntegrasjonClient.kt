@@ -15,6 +15,7 @@ import no.nav.familie.kontrakter.felles.dokdist.Distribusjonstidspunkt
 import no.nav.familie.kontrakter.felles.dokdist.Distribusjonstype
 import no.nav.familie.kontrakter.felles.journalpost.Journalpost
 import no.nav.familie.kontrakter.felles.journalpost.JournalposterForBrukerRequest
+import no.nav.familie.kontrakter.felles.kodeverk.KodeverkDto
 import no.nav.familie.kontrakter.felles.navkontor.NavKontorEnhet
 import no.nav.familie.kontrakter.felles.oppgave.FinnOppgaveRequest
 import no.nav.familie.kontrakter.felles.oppgave.FinnOppgaveResponseDto
@@ -326,6 +327,19 @@ class IntegrasjonClient(
             tjeneste = "kodeverk",
             uri = uri,
             formål = "Hent landkoder for $landkode"
+        ) {
+            getForEntity(uri)
+        }
+    }
+
+    @Cacheable("alle-eøs-land", cacheManager = "kodeverkCache")
+    fun hentAlleEØSLand(): KodeverkDto {
+        val uri = URI.create("$integrasjonUri/kodeverk/landkoder/eea")
+
+        return kallEksternTjenesteRessurs(
+            tjeneste = "kodeverk",
+            uri = uri,
+            formål = "Hent EØS land"
         ) {
             getForEntity(uri)
         }
