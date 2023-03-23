@@ -40,6 +40,7 @@ dependencies {
     val navFoedselsnummerVersion = "1.0-SNAPSHOT.6"
     val prosesseringVersion = "1.20221110194901_e9e0d90"
     val restAssuredVersion = "5.3.0"
+    val kotlinxVersion = "1.6.4"
 
     // ---------- Spring ---------- \\
     implementation("org.springframework.boot:spring-boot-starter")
@@ -57,6 +58,7 @@ dependencies {
     // ---------- Kotlin ---------- \\
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinxVersion")
 
     // ---------- DB ---------- \\
     implementation("org.flywaydb:flyway-core")
