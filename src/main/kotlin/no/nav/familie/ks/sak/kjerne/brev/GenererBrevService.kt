@@ -28,6 +28,7 @@ import no.nav.familie.ks.sak.kjerne.brev.domene.maler.FeilutbetaltValuta
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.Førstegangsvedtak
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.Hjemmeltekst
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.KorrigertVedtakData
+import no.nav.familie.ks.sak.kjerne.brev.domene.maler.vedtaksbrev.Opphørt
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.vedtaksbrev.VedtakEndring
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Målform
@@ -107,31 +108,37 @@ class GenererBrevService(
     }
 
     fun hentVedtaksbrevData(vedtak: Vedtak): VedtaksbrevDto {
-        val brevtype = hentVedtaksbrevmal(vedtak.behandling)
-        val fellestdataForVedtaksbrev = lagDataForVedtaksbrev(vedtak)
-        val etterbetaling = simuleringService.hentEtterbetaling(vedtak.behandling.id)
+        val behandling = vedtak.behandling
+        val brevtype = hentVedtaksbrevmal(behandling)
+        val fellesdataForVedtaksbrev = lagDataForVedtaksbrev(vedtak)
+        val etterbetaling = simuleringService.hentEtterbetaling(behandling.id)
             .takeIf { it > BigDecimal.ZERO }?.run { formaterBeløp(this.toInt()) }
             ?.let { Etterbetaling(it) }
 
         return when (brevtype) {
             Brevmal.VEDTAK_FØRSTEGANGSVEDTAK -> {
                 Førstegangsvedtak(
-                    fellesdataForVedtaksbrev = fellestdataForVedtaksbrev,
+                    fellesdataForVedtaksbrev = fellesdataForVedtaksbrev,
                     etterbetaling = etterbetaling
                 )
             }
 
             Brevmal.VEDTAK_ENDRING -> VedtakEndring(
-                fellesdataForVedtaksbrev = fellestdataForVedtaksbrev,
+                fellesdataForVedtaksbrev = fellesdataForVedtaksbrev,
                 etterbetaling = etterbetaling,
-                erKlage = vedtak.behandling.erKlage(),
-                erFeilutbetalingPåBehandling = erFeilutbetalingPåBehandling(behandlingId = vedtak.behandling.id),
+                erKlage = behandling.erKlage(),
+                erFeilutbetalingPåBehandling = erFeilutbetalingPåBehandling(behandlingId = behandling.id),
                 informasjonOmAarligKontroll = vedtaksperiodeService.skalHaÅrligKontroll(vedtak),
-                feilutbetaltValuta = feilutbetaltValutaService.beskrivPerioderMedFeilutbetaltValuta(vedtak.behandling.id)
+                feilutbetaltValuta = feilutbetaltValutaService.beskrivPerioderMedFeilutbetaltValuta(behandling.id)
                     ?.let {
                         FeilutbetaltValuta(perioderMedForMyeUtbetalt = it)
                     }
 
+            )
+
+            Brevmal.VEDTAK_OPPHØRT -> Opphørt(
+                fellesdataForVedtaksbrev = fellesdataForVedtaksbrev,
+                erFeilutbetalingPåBehandling = erFeilutbetalingPåBehandling(behandlingId = behandling.id)
             )
 
             else -> throw Feil("Forsøker å hente vedtaksbrevdata for brevmal ${brevtype.visningsTekst}")
