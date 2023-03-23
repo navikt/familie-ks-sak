@@ -41,7 +41,8 @@ data class SanityBegrunnelserResponsDto(
 enum class Trigger {
     SATSENDRING,
     BARN_DØD,
-    DELTID_BARNEHAGEPLASS;
+    DELTID_BARNEHAGEPLASS,
+    GJELDER_FØRSTE_PERIODE;
 
     fun erOppfylt(vilkårResultater: List<VilkårResultat>, person: Person) = when (this) {
         DELTID_BARNEHAGEPLASS -> vilkårResultater.mapNotNull { it.antallTimer }.maxByOrNull { it }?.let {
@@ -51,6 +52,7 @@ enum class Trigger {
         } ?: false
 
         SATSENDRING -> false
+        GJELDER_FØRSTE_PERIODE -> false
         BARN_DØD -> person.erDød() && person.type == PersonType.BARN
     }
 }
