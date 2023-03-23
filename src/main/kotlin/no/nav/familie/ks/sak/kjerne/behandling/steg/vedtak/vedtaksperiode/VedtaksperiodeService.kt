@@ -1,6 +1,5 @@
 package no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode
 
-import forskyvVilkårResultater
 import no.nav.familie.ks.sak.api.dto.BarnMedOpplysningerDto
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
@@ -32,6 +31,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.utbeta
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårsvurderingRepository
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.forskyvVilkårResultater
 import no.nav.familie.ks.sak.kjerne.beregning.AndelTilkjentYtelseMedEndreteUtbetalinger
 import no.nav.familie.ks.sak.kjerne.beregning.AndelerTilkjentYtelseOgEndreteUtbetalingerService
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.Begrunnelse
@@ -353,8 +353,9 @@ class VedtaksperiodeService(
 
         val sanityBegrunnelser = sanityService.hentSanityBegrunnelser()
 
-        return utvidedeVedtaksperioderMedBegrunnelser.sorted()
-            .mapIndexed() { index, utvidetVedtaksperiodeMedBegrunnelser ->
+        return utvidedeVedtaksperioderMedBegrunnelser
+            .sortedBy { it.fom }
+            .mapIndexed { index, utvidetVedtaksperiodeMedBegrunnelser ->
 
                 utvidetVedtaksperiodeMedBegrunnelser.copy(
                     gyldigeBegrunnelser = BegrunnelserForPeriodeContext(

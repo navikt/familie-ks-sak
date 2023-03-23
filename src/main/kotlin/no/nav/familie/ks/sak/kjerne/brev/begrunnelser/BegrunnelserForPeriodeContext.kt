@@ -1,6 +1,5 @@
 package no.nav.familie.ks.sak.kjerne.brev.begrunnelser
 
-import forskyvVilkårResultater
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.klipp
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.tilPerioderIkkeNull
@@ -20,12 +19,13 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Per
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.UtdypendeVilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.forskyvVilkårResultater
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.tilFørskjøvetOppfylteVilkårResultatTidslinjeMap
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.tilFørskjøvetVilkårResultatTidslinjeMap
 import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.EndretUtbetalingAndel
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
-import tilFørskjøvetOppfylteVilkårResultatTidslinjeMap
-import tilFørskjøvetVilkårResultatTidslinjeMap
 
 class BegrunnelserForPeriodeContext(
     private val utvidetVedtaksperiodeMedBegrunnelser: UtvidetVedtaksperiodeMedBegrunnelser,
@@ -116,11 +116,14 @@ class BegrunnelserForPeriodeContext(
         sanityBegrunnelse: SanityBegrunnelse
     ): Set<Person> {
 
-        val erGjelderFørstePeriodeTrigger =
+        val erFørsteVedtaksperiodeOgBegrunnelseInneholderGjelderFørstePeriodeTrigger =
             erFørsteVedtaksperiode && sanityBegrunnelse.inneholderGjelderFørstePeriodeTrigger()
 
         val hentVilkårResultaterSomOverlapperVedtaksperiode =
-            hentVilkårResultaterSomOverlapperVedtaksperiode(begrunnelse, erGjelderFørstePeriodeTrigger)
+            hentVilkårResultaterSomOverlapperVedtaksperiode(
+                begrunnelse,
+                erFørsteVedtaksperiodeOgBegrunnelseInneholderGjelderFørstePeriodeTrigger
+            )
 
         val filtrerPersonerUtenUtbetalingVedInnvilget = hentVilkårResultaterSomOverlapperVedtaksperiode
             .filtrerPersonerUtenUtbetalingVedInnvilget(begrunnelse.begrunnelseType)
@@ -129,7 +132,11 @@ class BegrunnelserForPeriodeContext(
             .filtrerPåVilkårType(sanityBegrunnelse.vilkår)
 
         val filtrerPåTriggere = filtrerPåVilkårType
-            .filtrerPåTriggere(sanityBegrunnelse.triggere, sanityBegrunnelse.type, erGjelderFørstePeriodeTrigger)
+            .filtrerPåTriggere(
+                sanityBegrunnelse.triggere,
+                sanityBegrunnelse.type,
+                erFørsteVedtaksperiodeOgBegrunnelseInneholderGjelderFørstePeriodeTrigger
+            )
 
         val filtrerPåUtdypendeVilkårsvurdering = filtrerPåTriggere
             .filtrerPåUtdypendeVilkårsvurdering(
@@ -205,7 +212,7 @@ class BegrunnelserForPeriodeContext(
 
     private fun hentVilkårResultaterSomOverlapperVedtaksperiode(
         standardBegrunnelse: Begrunnelse,
-        erGjelderFørstePeriodeTrigger: Boolean
+        erFørsteVedtaksperiodeOgBegrunnelseInneholderGjelderFørstePeriodeTrigger: Boolean
     ) =
         when (standardBegrunnelse.begrunnelseType) {
             BegrunnelseType.REDUKSJON,
@@ -217,7 +224,7 @@ class BegrunnelserForPeriodeContext(
             BegrunnelseType.EØS_OPPHØR,
             BegrunnelseType.ETTER_ENDRET_UTBETALING,
             BegrunnelseType.OPPHØR -> {
-                if (erGjelderFørstePeriodeTrigger) finnPersonerMedVilkårResultatIFørsteVedtaksperiodeSomIkkeErOppfylt() else finnPersonerMedVilkårResultaterSomGjelderRettFørPeriode()
+                if (erFørsteVedtaksperiodeOgBegrunnelseInneholderGjelderFørstePeriodeTrigger) finnPersonerMedVilkårResultatIFørsteVedtaksperiodeSomIkkeErOppfylt() else finnPersonerMedVilkårResultaterSomGjelderRettFørPeriode()
             }
 
             BegrunnelseType.FORTSATT_INNVILGET -> throw Feil("FORTSATT_INNVILGET skal være filtrert bort.")
@@ -230,7 +237,7 @@ class BegrunnelserForPeriodeContext(
                 val person =
                     personopplysningGrunnlag.personer.find { it.aktør.aktivFødselsnummer() == aktør.aktivFødselsnummer() }
 
-                val forskøvedeVilkårResultaterMedSammeFom =
+                val forskøvedeVilkårResultaterSomIkkeErOppfyltEllerOppfyltRettEtterPeriode =
                     vilkårResultatTidslinjeForPerson.klipp(vedtaksperiode.fom, vedtaksperiode.tom).tilPerioderIkkeNull()
                         .filter { vilkårResultat ->
                             val vilkårResultatIkkeOppfyltForPeriode = vilkårResultat.verdi.any { !it.erOppfylt() }
@@ -240,8 +247,8 @@ class BegrunnelserForPeriodeContext(
                             vilkårResultatIkkeOppfyltForPeriode || vilkårResultatOppfyltRettEtterPeriode
                         }.flatMap { it.verdi }
 
-                if (person != null && forskøvedeVilkårResultaterMedSammeFom.isNotEmpty()) {
-                    Pair(person, forskøvedeVilkårResultaterMedSammeFom)
+                if (person != null && forskøvedeVilkårResultaterSomIkkeErOppfyltEllerOppfyltRettEtterPeriode.isNotEmpty()) {
+                    Pair(person, forskøvedeVilkårResultaterSomIkkeErOppfyltEllerOppfyltRettEtterPeriode)
                 } else {
                     null
                 }
@@ -297,10 +304,16 @@ class BegrunnelserForPeriodeContext(
     private fun Map<Person, List<VilkårResultat>>.filtrerPåTriggere(
         triggereFraSanity: List<Trigger>,
         sanityBegrunnelseType: SanityBegrunnelseType,
-        erGjelderFørstePeriodeTrigger: Boolean
+        erFørsteVedtaksperiodeOgBegrunnelseInneholderGjelderFørstePeriodeTrigger: Boolean
     ) = this.filter { (person, vilkårResultaterForPerson) ->
         val oppfylteTriggereIBehandling =
-            Trigger.values().filter { it.erOppfylt(vilkårResultaterForPerson, person, erGjelderFørstePeriodeTrigger) }
+            Trigger.values().filter {
+                it.erOppfylt(
+                    vilkårResultaterForPerson,
+                    person,
+                    erFørsteVedtaksperiodeOgBegrunnelseInneholderGjelderFørstePeriodeTrigger
+                )
+            }
 
         // Strengere logikk for Standardbegrunnelsene for innvilgelse
         if (sanityBegrunnelseType == SanityBegrunnelseType.STANDARD) {

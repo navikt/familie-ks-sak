@@ -55,7 +55,7 @@ class BrevPeriodeService(
             )
 
         return utvidetVedtaksperioderMedBegrunnelser
-            .sorted()
+            .sortedBy { it.fom }
             .mapIndexedNotNull { index, utvidetVedtaksperiodeMedBegrunnelser ->
                 val barnSomDødeIForrigePeriode = dødeBarnForrigePeriode(
                     ytelserForrigePeriode = andelTilkjentYtelserMedEndreteUtbetalinger.map { it.andel }

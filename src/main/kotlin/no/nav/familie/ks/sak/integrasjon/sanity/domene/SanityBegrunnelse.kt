@@ -44,7 +44,11 @@ enum class Trigger {
     DELTID_BARNEHAGEPLASS,
     GJELDER_FØRSTE_PERIODE;
 
-    fun erOppfylt(vilkårResultater: List<VilkårResultat>, person: Person, erGjelderFørstePeriodeTrigger: Boolean) =
+    fun erOppfylt(
+        vilkårResultater: List<VilkårResultat>,
+        person: Person,
+        erFørsteVedtaksperiodeOgBegrunnelseInneholderGjelderFørstePeriodeTrigger: Boolean
+    ) =
         when (this) {
             DELTID_BARNEHAGEPLASS -> vilkårResultater.mapNotNull { it.antallTimer }.maxByOrNull { it }?.let {
                 it in BigDecimal.valueOf(0.01)..BigDecimal.valueOf(
@@ -53,7 +57,7 @@ enum class Trigger {
             } ?: false
 
             SATSENDRING -> false
-            GJELDER_FØRSTE_PERIODE -> vilkårResultater.isNotEmpty() && erGjelderFørstePeriodeTrigger
+            GJELDER_FØRSTE_PERIODE -> vilkårResultater.isNotEmpty() && erFørsteVedtaksperiodeOgBegrunnelseInneholderGjelderFørstePeriodeTrigger
             BARN_DØD -> person.erDød() && person.type == PersonType.BARN
         }
 }

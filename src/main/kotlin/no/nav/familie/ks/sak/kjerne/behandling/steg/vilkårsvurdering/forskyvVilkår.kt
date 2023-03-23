@@ -1,3 +1,5 @@
+package no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering
+
 import no.nav.familie.ks.sak.common.tidslinje.Periode
 import no.nav.familie.ks.sak.common.tidslinje.Tidslinje
 import no.nav.familie.ks.sak.common.tidslinje.tilTidslinje
@@ -13,7 +15,6 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Per
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.forskyvBarnehageplassVilkår
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
@@ -101,9 +102,11 @@ fun forskyvVilkårResultater(
                 it.slutterDagenFørNeste -> {
                     it.vilkårResultat.periodeTom?.plusDays(1)?.sisteDagIMåned()
                 }
+
                 it.slutterPåSisteDagIMåneden -> { // Hvis perioden slutter siste dag i måned, får man kontantstøtte i denne måneden
                     it.vilkårResultat.periodeTom?.sisteDagIMåned()
                 }
+
                 else -> it.vilkårResultat.periodeTom?.minusMonths(1)?.sisteDagIMåned()
             }
 
