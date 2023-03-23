@@ -58,7 +58,8 @@ class BrevPeriodeContext(
     private val andelTilkjentYtelserMedEndreteUtbetalinger: List<AndelTilkjentYtelseMedEndreteUtbetalinger>,
 
     private val uregistrerteBarn: List<BarnMedOpplysningerDto>,
-    private val barnSomDødeIForrigePeriode: List<Person>
+    private val barnSomDødeIForrigePeriode: List<Person>,
+    private val erFørsteVedtaksperiode: Boolean
 ) {
 
     private val personerMedUtbetaling =
@@ -272,7 +273,8 @@ class BrevPeriodeContext(
         sanityBegrunnelser = sanityBegrunnelser,
         personopplysningGrunnlag = persongrunnlag,
         personResultater = personResultater,
-        endretUtbetalingsandeler = andelTilkjentYtelserMedEndreteUtbetalinger.flatMap { it.endreteUtbetalinger }
+        endretUtbetalingsandeler = andelTilkjentYtelserMedEndreteUtbetalinger.flatMap { it.endreteUtbetalinger },
+        erFørsteVedtaksperiode = erFørsteVedtaksperiode
     )
 
     fun hentBegrunnelseDtoer(): List<BegrunnelseDataDto> {

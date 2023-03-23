@@ -21,7 +21,7 @@ import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.containsInAnyOrder
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
-import tilFørskjøvetVilkårResultatTidslinjeMap
+import tilFørskjøvetOppfylteVilkårResultatTidslinjeMap
 import java.math.BigDecimal
 import java.time.LocalDate
 
@@ -553,7 +553,7 @@ class BegrunnelserForPeriodeContextTest {
     ): BegrunnelserForPeriodeContext {
         // Må forskyve personresultatene for å finne riktig dato for vedtaksperiode.
         val vedtaksperiodeStartsTidpunkt =
-            personResultater.tilFørskjøvetVilkårResultatTidslinjeMap(persongrunnlag)
+            personResultater.tilFørskjøvetOppfylteVilkårResultatTidslinjeMap(persongrunnlag)
                 .filterKeys { it.aktørId == aktørSomTriggerVedtaksperiode.aktørId }.values.first().startsTidspunkt
 
         val utvidetVedtaksperiodeMedBegrunnelser = UtvidetVedtaksperiodeMedBegrunnelser(
@@ -569,11 +569,12 @@ class BegrunnelserForPeriodeContextTest {
         )
 
         return BegrunnelserForPeriodeContext(
-            utvidetVedtaksperiodeMedBegrunnelser,
-            sanityBegrunnelser,
-            persongrunnlag,
-            personResultater,
-            emptyList()
+            utvidetVedtaksperiodeMedBegrunnelser = utvidetVedtaksperiodeMedBegrunnelser,
+            sanityBegrunnelser = sanityBegrunnelser,
+            personopplysningGrunnlag = persongrunnlag,
+            personResultater = personResultater,
+            endretUtbetalingsandeler = emptyList(),
+            erFørsteVedtaksperiode = false
         )
     }
 }

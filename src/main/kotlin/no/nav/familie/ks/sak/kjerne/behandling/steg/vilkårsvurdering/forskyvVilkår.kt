@@ -19,6 +19,14 @@ import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
 
+fun Collection<PersonResultat>.tilFørskjøvetOppfylteVilkårResultatTidslinjeMap(personopplysningGrunnlag: PersonopplysningGrunnlag): Map<Aktør, Tidslinje<List<VilkårResultat>>> =
+    personopplysningGrunnlag.personer.associate { person ->
+        Pair(
+            person.aktør,
+            this.tilFørskjøvetVilkårResultatTidslinjeDerVilkårErOppfyltForPerson(person)
+        )
+    }
+
 fun Collection<PersonResultat>.tilFørskjøvetVilkårResultatTidslinjeMap(personopplysningGrunnlag: PersonopplysningGrunnlag): Map<Aktør, Tidslinje<List<VilkårResultat>>> =
     personopplysningGrunnlag.personer.associate { person ->
         Pair(
@@ -27,11 +35,32 @@ fun Collection<PersonResultat>.tilFørskjøvetVilkårResultatTidslinjeMap(person
         )
     }
 
+fun Collection<PersonResultat>.tilFørskjøvetVilkårResultatTidslinjeForPerson(
+    person: Person
+): Tidslinje<List<VilkårResultat>> {
+    val personResultat = this.find { it.aktør == person.aktør }
+
+    val vilkårResultaterForAktør = personResultat?.vilkårResultater ?: emptyList()
+
+    val vilkårResultaterForAktørMap = vilkårResultaterForAktør
+        .groupByTo(mutableMapOf()) { it.vilkårType }
+        .mapValues { if (it.key == Vilkår.BOR_MED_SØKER) it.value.fjernAvslagUtenPeriodeHvisDetFinsAndreVilkårResultat() else it.value }
+
+    val forskjøvedeVilkårResultater = vilkårResultaterForAktørMap.map { (vilkårType, vilkårResultater) ->
+        forskyvVilkårResultater(vilkårType, vilkårResultater).tilTidslinje()
+    }
+
+    return forskjøvedeVilkårResultater
+        .kombiner { it.toList() }
+        .tilPerioderIkkeNull()
+        .tilTidslinje()
+}
+
 /***
  * Forskyver vilkårene til periodene de er oppfylt for.
  * Tar kun med periodene der alle vilkår er oppfylt.
  */
-fun Collection<PersonResultat>.tilFørskjøvetVilkårResultatTidslinjeForPerson(
+fun Collection<PersonResultat>.tilFørskjøvetVilkårResultatTidslinjeDerVilkårErOppfyltForPerson(
     person: Person
 ): Tidslinje<List<VilkårResultat>> {
     val personResultat = this.find { it.aktør == person.aktør }

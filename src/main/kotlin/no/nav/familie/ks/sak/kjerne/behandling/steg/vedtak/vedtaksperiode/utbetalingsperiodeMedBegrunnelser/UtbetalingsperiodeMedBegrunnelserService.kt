@@ -6,7 +6,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.Vilkårsvu
 import no.nav.familie.ks.sak.kjerne.beregning.AndelerTilkjentYtelseOgEndreteUtbetalingerService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
 import org.springframework.stereotype.Service
-import tilFørskjøvetVilkårResultatTidslinjeMap
+import tilFørskjøvetOppfylteVilkårResultatTidslinjeMap
 
 @Service
 class UtbetalingsperiodeMedBegrunnelserService(
@@ -27,7 +27,7 @@ class UtbetalingsperiodeMedBegrunnelserService(
             personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(behandlingId = vedtak.behandling.id)
 
         val forskjøvetVilkårResultatTidslinjeMap =
-            vilkårsvurdering.personResultater.tilFørskjøvetVilkårResultatTidslinjeMap(personopplysningGrunnlag)
+            vilkårsvurdering.personResultater.tilFørskjøvetOppfylteVilkårResultatTidslinjeMap(personopplysningGrunnlag)
 
         return hentPerioderMedUtbetaling(
             andelerTilkjentYtelse = andelerTilkjentYtelse,

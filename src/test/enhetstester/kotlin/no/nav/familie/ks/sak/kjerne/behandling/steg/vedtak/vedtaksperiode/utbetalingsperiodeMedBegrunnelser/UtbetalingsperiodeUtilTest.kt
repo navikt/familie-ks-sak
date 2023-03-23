@@ -21,7 +21,7 @@ import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
-import tilFørskjøvetVilkårResultatTidslinjeMap
+import tilFørskjøvetOppfylteVilkårResultatTidslinjeMap
 import java.time.LocalDate
 import java.time.YearMonth
 
@@ -105,7 +105,7 @@ internal class UtbetalingsperiodeUtilTest {
         val faktiskResultat = hentPerioderMedUtbetaling(
             listOf(andelPerson1MarsTilApril, andelPerson1MaiTilJuli, andelPerson2MarsTilJuli),
             vedtak,
-            personResultater.tilFørskjøvetVilkårResultatTidslinjeMap(personopplysningGrunnlag)
+            personResultater.tilFørskjøvetOppfylteVilkårResultatTidslinjeMap(personopplysningGrunnlag)
         )
 
         assertEquals(
@@ -185,7 +185,7 @@ internal class UtbetalingsperiodeUtilTest {
         val faktiskResultat = hentPerioderMedUtbetaling(
             listOf(andelPerson1MarsTilMai, andelPerson2MaiTilJuli),
             vedtak,
-            personResultater.tilFørskjøvetVilkårResultatTidslinjeMap(personopplysningGrunnlag)
+            personResultater.tilFørskjøvetOppfylteVilkårResultatTidslinjeMap(personopplysningGrunnlag)
         )
 
         assertEquals(

@@ -20,7 +20,7 @@ import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertDoesNotThrow
 import org.junit.jupiter.api.extension.ExtendWith
-import tilFørskjøvetVilkårResultatTidslinjeMap
+import tilFørskjøvetOppfylteVilkårResultatTidslinjeMap
 import java.time.YearMonth
 
 @ExtendWith(MockKExtension::class)
@@ -70,7 +70,7 @@ class UtbetalingsperiodeMedBegrunnelserServiceTest {
         personResultat.setSortedVilkårResultater(vilkårResultater.toSet())
 
         val førskjøvetVilkårResultatTidslinjeMap =
-            setOf(personResultat).tilFørskjøvetVilkårResultatTidslinjeMap(personopplysningGrunnlag)
+            setOf(personResultat).tilFørskjøvetOppfylteVilkårResultatTidslinjeMap(personopplysningGrunnlag)
 
         Assertions.assertEquals(1, førskjøvetVilkårResultatTidslinjeMap.size)
 
@@ -128,7 +128,7 @@ class UtbetalingsperiodeMedBegrunnelserServiceTest {
         }
 
         assertDoesNotThrow {
-            setOf(personResultat).tilFørskjøvetVilkårResultatTidslinjeMap(personopplysningGrunnlag)
+            setOf(personResultat).tilFørskjøvetOppfylteVilkårResultatTidslinjeMap(personopplysningGrunnlag)
         }
     }
 }

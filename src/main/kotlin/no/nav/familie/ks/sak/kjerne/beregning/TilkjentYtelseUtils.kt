@@ -24,7 +24,7 @@ import no.nav.familie.ks.sak.kjerne.beregning.domene.prosent
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
-import tilFørskjøvetVilkårResultatTidslinjeForPerson
+import tilFørskjøvetVilkårResultatTidslinjeDerVilkårErOppfyltForPerson
 import java.math.BigDecimal
 import java.math.RoundingMode
 import java.time.LocalDate
@@ -64,11 +64,13 @@ object TilkjentYtelseUtils {
         tilkjentYtelse: TilkjentYtelse
     ): List<AndelTilkjentYtelse> {
         val søkersVilkårResultaterForskjøvetTidslinje =
-            vilkårsvurdering.personResultater.tilFørskjøvetVilkårResultatTidslinjeForPerson(personopplysningGrunnlag.søker)
+            vilkårsvurdering.personResultater.tilFørskjøvetVilkårResultatTidslinjeDerVilkårErOppfyltForPerson(
+                personopplysningGrunnlag.søker
+            )
 
         return personopplysningGrunnlag.barna.flatMap { barn ->
             val barnetsVilkårResultaterForskjøvetTidslinje =
-                vilkårsvurdering.personResultater.tilFørskjøvetVilkårResultatTidslinjeForPerson(barn)
+                vilkårsvurdering.personResultater.tilFørskjøvetVilkårResultatTidslinjeDerVilkårErOppfyltForPerson(barn)
 
             val barnVilkårResultaterForskjøvetBådeBarnOgSøkerHarAlleOppfylt =
                 barnetsVilkårResultaterForskjøvetTidslinje.kombinerMed(søkersVilkårResultaterForskjøvetTidslinje) { barnPeriode, søkerPeriode ->

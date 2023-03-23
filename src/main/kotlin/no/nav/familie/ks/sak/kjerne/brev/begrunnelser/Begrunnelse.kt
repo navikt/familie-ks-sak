@@ -154,6 +154,10 @@ enum class Begrunnelse : IBegrunnelse {
     OPPHØR_FULLTIDSPLASS_I_BARNEHAGE {
         override val begrunnelseType = BegrunnelseType.OPPHØR
         override val sanityApiNavn = "opphorFulltidsplassIBarnehage"
+    },
+    OPPHØR_BRUKER_MELDER_FULLTIDSPLASS_I_BARNEHAGEN {
+        override val begrunnelseType = BegrunnelseType.OPPHØR
+        override val sanityApiNavn = "opphorBrukerMelderFulltidsplassIBarnehagen"
     };
 
     override fun enumnavnTilString() = this.name

@@ -353,18 +353,20 @@ class VedtaksperiodeService(
 
         val sanityBegrunnelser = sanityService.hentSanityBegrunnelser()
 
-        return utvidedeVedtaksperioderMedBegrunnelser.map { utvidetVedtaksperiodeMedBegrunnelser ->
+        return utvidedeVedtaksperioderMedBegrunnelser.sorted()
+            .mapIndexed() { index, utvidetVedtaksperiodeMedBegrunnelser ->
 
-            utvidetVedtaksperiodeMedBegrunnelser.copy(
-                gyldigeBegrunnelser = BegrunnelserForPeriodeContext(
-                    utvidetVedtaksperiodeMedBegrunnelser = utvidetVedtaksperiodeMedBegrunnelser,
-                    sanityBegrunnelser = sanityBegrunnelser,
-                    personopplysningGrunnlag = persongrunnlag,
-                    personResultater = vilkårsvurdering.personResultater.toList(),
-                    endretUtbetalingsandeler = endreteUtbetalinger
-                ).hentGyldigeBegrunnelserForVedtaksperiode()
-            )
-        }
+                utvidetVedtaksperiodeMedBegrunnelser.copy(
+                    gyldigeBegrunnelser = BegrunnelserForPeriodeContext(
+                        utvidetVedtaksperiodeMedBegrunnelser = utvidetVedtaksperiodeMedBegrunnelser,
+                        sanityBegrunnelser = sanityBegrunnelser,
+                        personopplysningGrunnlag = persongrunnlag,
+                        personResultater = vilkårsvurdering.personResultater.toList(),
+                        endretUtbetalingsandeler = endreteUtbetalinger,
+                        erFørsteVedtaksperiode = index == 0
+                    ).hentGyldigeBegrunnelserForVedtaksperiode()
+                )
+            }
     }
 
     fun hentOpphørsperioder(behandling: Behandling): List<Opphørsperiode> {

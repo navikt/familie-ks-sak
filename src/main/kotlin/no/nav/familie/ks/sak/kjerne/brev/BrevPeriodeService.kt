@@ -56,7 +56,7 @@ class BrevPeriodeService(
 
         return utvidetVedtaksperioderMedBegrunnelser
             .sorted()
-            .mapNotNull { utvidetVedtaksperiodeMedBegrunnelser ->
+            .mapIndexedNotNull { index, utvidetVedtaksperiodeMedBegrunnelser ->
                 val barnSomDødeIForrigePeriode = dødeBarnForrigePeriode(
                     ytelserForrigePeriode = andelTilkjentYtelserMedEndreteUtbetalinger.map { it.andel }
                         .filter { ytelseErFraForrigePeriode(it, utvidetVedtaksperiodeMedBegrunnelser) },
@@ -72,7 +72,8 @@ class BrevPeriodeService(
 
                     uregistrerteBarn = søknadGrunnlagService.finnAktiv(behandlingId)?.hentUregistrerteBarn()
                         ?: emptyList(),
-                    barnSomDødeIForrigePeriode = barnSomDødeIForrigePeriode
+                    barnSomDødeIForrigePeriode = barnSomDødeIForrigePeriode,
+                    erFørsteVedtaksperiode = index == 0
                 ).genererBrevPeriodeDto()
             }
     }
