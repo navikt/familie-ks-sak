@@ -1,6 +1,5 @@
 package no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode
 
-import forskyvVilkårResultater
 import no.nav.familie.ks.sak.api.dto.BarnMedOpplysningerDto
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
@@ -13,6 +12,7 @@ import no.nav.familie.ks.sak.common.util.erSammeEllerEtter
 import no.nav.familie.ks.sak.common.util.erSenereEnnInneværendeMåned
 import no.nav.familie.ks.sak.common.util.sisteDagIMåned
 import no.nav.familie.ks.sak.common.util.toLocalDate
+import no.nav.familie.ks.sak.common.util.toYearMonth
 import no.nav.familie.ks.sak.integrasjon.sanity.SanityService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingKategori
@@ -32,6 +32,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.utbeta
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårsvurderingRepository
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.forskyvVilkårResultater
 import no.nav.familie.ks.sak.kjerne.beregning.AndelTilkjentYtelseMedEndreteUtbetalinger
 import no.nav.familie.ks.sak.kjerne.beregning.AndelerTilkjentYtelseOgEndreteUtbetalingerService
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.Begrunnelse
@@ -353,18 +354,32 @@ class VedtaksperiodeService(
 
         val sanityBegrunnelser = sanityService.hentSanityBegrunnelser()
 
-        return utvidedeVedtaksperioderMedBegrunnelser.map { utvidetVedtaksperiodeMedBegrunnelser ->
+        val andelerTilkjentYtelse =
+            andelerTilkjentYtelseOgEndreteUtbetalingerService.finnAndelerTilkjentYtelseMedEndreteUtbetalinger(behandling.id)
+                .map { it.andel }
 
-            utvidetVedtaksperiodeMedBegrunnelser.copy(
-                gyldigeBegrunnelser = BegrunnelserForPeriodeContext(
-                    utvidetVedtaksperiodeMedBegrunnelser = utvidetVedtaksperiodeMedBegrunnelser,
-                    sanityBegrunnelser = sanityBegrunnelser,
-                    personopplysningGrunnlag = persongrunnlag,
-                    personResultater = vilkårsvurdering.personResultater.toList(),
-                    endretUtbetalingsandeler = endreteUtbetalinger
-                ).hentGyldigeBegrunnelserForVedtaksperiode()
-            )
-        }
+        return utvidedeVedtaksperioderMedBegrunnelser
+            .sortedBy { it.fom }
+            .mapNotNull { utvidetVedtaksperiodeMedBegrunnelser ->
+
+                val erFørsteVedtaksperiodePåFagsak =
+                    !andelerTilkjentYtelse.any {
+                        it.stønadFom.isBefore(
+                            utvidetVedtaksperiodeMedBegrunnelser.fom?.toYearMonth() ?: TIDENES_MORGEN.toYearMonth()
+                        )
+                    }
+
+                utvidetVedtaksperiodeMedBegrunnelser.copy(
+                    gyldigeBegrunnelser = BegrunnelserForPeriodeContext(
+                        utvidetVedtaksperiodeMedBegrunnelser = utvidetVedtaksperiodeMedBegrunnelser,
+                        sanityBegrunnelser = sanityBegrunnelser,
+                        personopplysningGrunnlag = persongrunnlag,
+                        personResultater = vilkårsvurdering.personResultater.toList(),
+                        endretUtbetalingsandeler = endreteUtbetalinger,
+                        erFørsteVedtaksperiode = erFørsteVedtaksperiodePåFagsak
+                    ).hentGyldigeBegrunnelserForVedtaksperiode()
+                )
+            }
     }
 
     fun hentOpphørsperioder(behandling: Behandling): List<Opphørsperiode> {
