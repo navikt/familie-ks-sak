@@ -39,6 +39,17 @@ fun Collection<PersonResultat>.tilFørskjøvetVilkårResultatTidslinjeMap(person
 fun Collection<PersonResultat>.tilFørskjøvetVilkårResultatTidslinjeForPerson(
     person: Person
 ): Tidslinje<List<VilkårResultat>> {
+    val forskjøvedeVilkårResultater = forskyvVilkårResultaterForPerson(person)
+
+    return forskjøvedeVilkårResultater
+        .kombiner { it.toList() }
+        .tilPerioderIkkeNull()
+        .tilTidslinje()
+}
+
+private fun Collection<PersonResultat>.forskyvVilkårResultaterForPerson(
+    person: Person
+): List<Tidslinje<VilkårResultat>> {
     val personResultat = this.find { it.aktør == person.aktør }
 
     val vilkårResultaterForAktør = personResultat?.vilkårResultater ?: emptyList()
@@ -50,11 +61,7 @@ fun Collection<PersonResultat>.tilFørskjøvetVilkårResultatTidslinjeForPerson(
     val forskjøvedeVilkårResultater = vilkårResultaterForAktørMap.map { (vilkårType, vilkårResultater) ->
         forskyvVilkårResultater(vilkårType, vilkårResultater).tilTidslinje()
     }
-
     return forskjøvedeVilkårResultater
-        .kombiner { it.toList() }
-        .tilPerioderIkkeNull()
-        .tilTidslinje()
 }
 
 /***
@@ -64,17 +71,7 @@ fun Collection<PersonResultat>.tilFørskjøvetVilkårResultatTidslinjeForPerson(
 fun Collection<PersonResultat>.tilFørskjøvetVilkårResultatTidslinjeDerVilkårErOppfyltForPerson(
     person: Person
 ): Tidslinje<List<VilkårResultat>> {
-    val personResultat = this.find { it.aktør == person.aktør }
-
-    val vilkårResultaterForAktør = personResultat?.vilkårResultater ?: emptyList()
-
-    val vilkårResultaterForAktørMap = vilkårResultaterForAktør
-        .groupByTo(mutableMapOf()) { it.vilkårType }
-        .mapValues { if (it.key == Vilkår.BOR_MED_SØKER) it.value.fjernAvslagUtenPeriodeHvisDetFinsAndreVilkårResultat() else it.value }
-
-    val forskjøvedeVilkårResultater = vilkårResultaterForAktørMap.map { (vilkårType, vilkårResultater) ->
-        forskyvVilkårResultater(vilkårType, vilkårResultater).tilTidslinje()
-    }
+    val forskjøvedeVilkårResultater = forskyvVilkårResultaterForPerson(person)
 
     return forskjøvedeVilkårResultater
         .kombiner { alleVilkårOppfyltEllerNull(it, person.type) }

@@ -171,10 +171,6 @@ enum class Begrunnelse : IBegrunnelse {
         override val begrunnelseType = BegrunnelseType.OPPHØR
         override val sanityApiNavn = "opphorBrukerMeldtFulltidsplassIBarnehageForstePeriode"
     },
-    OPPHØR_KOMMUNEN_MELDT_FULLTIDSPLASS_I_BARNEHAGE {
-        override val begrunnelseType = BegrunnelseType.OPPHØR
-        override val sanityApiNavn = "opphorKommunenMelderFulltidsplassIBarnehage"
-    },
     OPPHØR_KOMMUNEN_MELDT_FULLTIDSPLASS_I_BARNEHAGE_FØRSTE_PERIODE {
         override val begrunnelseType = BegrunnelseType.OPPHØR
         override val sanityApiNavn = "opphorKommunenMeldtFulltidsplassIBarnehageForstePeriode"
