@@ -12,6 +12,7 @@ import no.nav.familie.ks.sak.common.tidslinje.Udefinert
 import no.nav.familie.ks.sak.common.tidslinje.filtrerIkkeNull
 import no.nav.familie.ks.sak.common.tidslinje.inf
 import no.nav.familie.ks.sak.common.tidslinje.tilPeriodeVerdi
+import no.nav.familie.ks.sak.common.util.TIDENES_ENDE
 import java.time.LocalDate
 import java.time.temporal.ChronoUnit
 import kotlin.math.absoluteValue
@@ -374,13 +375,15 @@ fun <T> Tidslinje<T>.klipp(startsTidspunkt: LocalDate, sluttTidspunkt: LocalDate
     val foreldre = this.foreldre
 
     var resultat = if (sluttTidspunkt.isAfter(startsTidspunkt)) {
+        val sluttTidspunkt = if (sluttTidspunkt == TIDENES_ENDE) sluttTidspunkt else sluttTidspunkt.plusDays(1)
+
         val tidslinjeKlipp = Tidslinje(
             startsTidspunkt,
             listOf(
                 TidslinjePeriode(
                     true,
                     lengde = startsTidspunkt.until(
-                        sluttTidspunkt.plusDays(1),
+                        sluttTidspunkt,
                         mapper[this.tidsEnhet]
                     ).toInt()
                 )

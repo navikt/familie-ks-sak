@@ -1,6 +1,5 @@
 package no.nav.familie.ks.sak.kjerne.brev
 
-import forskyvVilkårResultater
 import no.nav.familie.ks.sak.api.dto.BarnMedOpplysningerDto
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.tidslinje.Periode
@@ -30,6 +29,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Per
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.forskyvVilkårResultater
 import no.nav.familie.ks.sak.kjerne.beregning.AndelTilkjentYtelseMedEndreteUtbetalinger
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.Begrunnelse
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.BegrunnelseDataDto
@@ -58,7 +58,8 @@ class BrevPeriodeContext(
     private val andelTilkjentYtelserMedEndreteUtbetalinger: List<AndelTilkjentYtelseMedEndreteUtbetalinger>,
 
     private val uregistrerteBarn: List<BarnMedOpplysningerDto>,
-    private val barnSomDødeIForrigePeriode: List<Person>
+    private val barnSomDødeIForrigePeriode: List<Person>,
+    private val erFørsteVedtaksperiode: Boolean
 ) {
 
     private val personerMedUtbetaling =
@@ -272,7 +273,8 @@ class BrevPeriodeContext(
         sanityBegrunnelser = sanityBegrunnelser,
         personopplysningGrunnlag = persongrunnlag,
         personResultater = personResultater,
-        endretUtbetalingsandeler = andelTilkjentYtelserMedEndreteUtbetalinger.flatMap { it.endreteUtbetalinger }
+        endretUtbetalingsandeler = andelTilkjentYtelserMedEndreteUtbetalinger.flatMap { it.endreteUtbetalinger },
+        erFørsteVedtaksperiode = erFørsteVedtaksperiode
     )
 
     fun hentBegrunnelseDtoer(): List<BegrunnelseDataDto> {
