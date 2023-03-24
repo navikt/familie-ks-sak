@@ -12,6 +12,7 @@ import no.nav.familie.ks.sak.common.util.erSammeEllerEtter
 import no.nav.familie.ks.sak.common.util.erSenereEnnInneværendeMåned
 import no.nav.familie.ks.sak.common.util.sisteDagIMåned
 import no.nav.familie.ks.sak.common.util.toLocalDate
+import no.nav.familie.ks.sak.common.util.toYearMonth
 import no.nav.familie.ks.sak.integrasjon.sanity.SanityService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingKategori
@@ -353,9 +354,20 @@ class VedtaksperiodeService(
 
         val sanityBegrunnelser = sanityService.hentSanityBegrunnelser()
 
+        val andelerTilkjentYtelse =
+            andelerTilkjentYtelseOgEndreteUtbetalingerService.finnAndelerTilkjentYtelseMedEndreteUtbetalinger(behandling.id)
+                .map { it.andel }
+
         return utvidedeVedtaksperioderMedBegrunnelser
             .sortedBy { it.fom }
             .mapIndexed { index, utvidetVedtaksperiodeMedBegrunnelser ->
+
+                val erFørsteVedtaksperiodePåFagsak =
+                    !andelerTilkjentYtelse.any {
+                        it.stønadFom.isBefore(
+                            utvidetVedtaksperiodeMedBegrunnelser.fom?.toYearMonth() ?: TIDENES_MORGEN.toYearMonth()
+                        )
+                    }
 
                 utvidetVedtaksperiodeMedBegrunnelser.copy(
                     gyldigeBegrunnelser = BegrunnelserForPeriodeContext(
@@ -364,7 +376,7 @@ class VedtaksperiodeService(
                         personopplysningGrunnlag = persongrunnlag,
                         personResultater = vilkårsvurdering.personResultater.toList(),
                         endretUtbetalingsandeler = endreteUtbetalinger,
-                        erFørsteVedtaksperiode = index == 0
+                        erFørsteVedtaksperiode = erFørsteVedtaksperiodePåFagsak
                     ).hentGyldigeBegrunnelserForVedtaksperiode()
                 )
             }
