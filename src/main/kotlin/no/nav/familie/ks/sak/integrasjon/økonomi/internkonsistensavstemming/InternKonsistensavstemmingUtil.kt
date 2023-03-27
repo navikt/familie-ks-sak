@@ -10,7 +10,6 @@ import no.nav.familie.ks.sak.common.tidslinje.utvidelser.tilPerioder
 import no.nav.familie.ks.sak.common.util.førsteDagIInneværendeMåned
 import no.nav.familie.ks.sak.common.util.sisteDagIMåned
 import no.nav.familie.ks.sak.common.util.slåSammen
-import no.nav.familie.ks.sak.common.util.toLocalDate
 import no.nav.familie.ks.sak.common.util.toYearMonth
 import no.nav.familie.ks.sak.integrasjon.secureLogger
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelse
@@ -65,8 +64,8 @@ private fun Utbetalingsperiode.erIngenPersonerMedTilsvarendeAndelITidsrommet(
         .groupBy { Pair(it.aktør, it.type) }
         .map { (_, andeler) -> andeler.tilBeløpstidslinje() }
 
-    return andelsTidslinjerPerPersonOgYtelsetype.all {
-        !this.harTilsvarendeAndelerForPersonOgYtelsetype(it)
+    return andelsTidslinjerPerPersonOgYtelsetype.none {
+        this.harTilsvarendeAndelerForPersonOgYtelsetype(it)
     }
 }
 
@@ -93,8 +92,8 @@ private fun Utbetalingsperiode.tilBeløpstidslinje() =
 private fun List<AndelTilkjentYtelse>.tilBeløpstidslinje() =
     this.map {
         Periode(
-            fom = it.stønadFom.toLocalDate().førsteDagIInneværendeMåned(),
-            tom = it.stønadTom.toLocalDate().sisteDagIMåned(),
+            fom = it.stønadFom.atDay(1),
+            tom = it.stønadTom.atEndOfMonth(),
             verdi = it.kalkulertUtbetalingsbeløp.toBigDecimal()
         )
     }.tilTidslinje()

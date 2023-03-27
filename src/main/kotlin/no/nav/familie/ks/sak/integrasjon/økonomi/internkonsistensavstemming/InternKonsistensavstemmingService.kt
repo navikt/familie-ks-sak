@@ -11,11 +11,10 @@ import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelseRepository
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.FagsakRepository
+import no.nav.familie.ks.sak.task.overstyrTaskMedNyCallId
 import no.nav.familie.log.IdUtils
-import no.nav.familie.log.mdc.MDCConstants
 import no.nav.familie.prosessering.internal.TaskService
 import org.slf4j.LoggerFactory
-import org.slf4j.MDC
 import org.springframework.stereotype.Service
 import java.time.LocalDateTime
 
@@ -99,20 +98,5 @@ class InternKonsistensavstemmingService(
 
     companion object {
         val logger = LoggerFactory.getLogger(this::class.java)!!
-
-        fun <T> overstyrTaskMedNyCallId(callId: String, body: () -> T): T {
-            val originalCallId = MDC.get(MDCConstants.MDC_CALL_ID) ?: null
-
-            return try {
-                MDC.put(MDCConstants.MDC_CALL_ID, callId)
-                body()
-            } finally {
-                if (originalCallId == null) {
-                    MDC.remove(MDCConstants.MDC_CALL_ID)
-                } else {
-                    MDC.put(MDCConstants.MDC_CALL_ID, originalCallId)
-                }
-            }
-        }
     }
 }
