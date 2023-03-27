@@ -64,6 +64,8 @@ spec:
         - application: bidrag-grunnlag
           namespace: bidrag
           cluster: prod-gcp
+        - application: familie-ef-sak
+          cluster: prod-gcp
     outbound:
       rules:
         - application: familie-brev
