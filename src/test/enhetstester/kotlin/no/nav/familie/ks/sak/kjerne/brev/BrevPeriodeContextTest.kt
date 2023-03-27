@@ -519,7 +519,8 @@ fun lagBrevPeriodeContext(
         andelTilkjentYtelserMedEndreteUtbetalinger = andelTilkjentYtelserMedEndreteUtbetalinger,
 
         uregistrerteBarn = emptyList(),
-        barnSomDødeIForrigePeriode = emptyList()
+        barnSomDødeIForrigePeriode = emptyList(),
+        erFørsteVedtaksperiode = false
     )
 }
 

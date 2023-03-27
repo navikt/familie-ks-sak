@@ -1,7 +1,9 @@
 package no.nav.familie.ks.sak.kjerne.brev
 
+import no.nav.familie.ks.sak.common.util.TIDENES_MORGEN
 import no.nav.familie.ks.sak.common.util.erDagenFør
 import no.nav.familie.ks.sak.common.util.sisteDagIInneværendeMåned
+import no.nav.familie.ks.sak.common.util.toYearMonth
 import no.nav.familie.ks.sak.integrasjon.sanity.SanityService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.registrersøknad.SøknadGrunnlagService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.VedtaksperiodeHentOgPersisterService
@@ -55,13 +57,20 @@ class BrevPeriodeService(
             )
 
         return utvidetVedtaksperioderMedBegrunnelser
-            .sorted()
+            .sortedBy { it.fom }
             .mapNotNull { utvidetVedtaksperiodeMedBegrunnelser ->
                 val barnSomDødeIForrigePeriode = dødeBarnForrigePeriode(
                     ytelserForrigePeriode = andelTilkjentYtelserMedEndreteUtbetalinger.map { it.andel }
                         .filter { ytelseErFraForrigePeriode(it, utvidetVedtaksperiodeMedBegrunnelser) },
                     barnIBehandling = personopplysningGrunnlag.personer.filter { it.type == PersonType.BARN }
                 )
+
+                val erFørsteVedtaksperiodePåFagsak =
+                    !andelTilkjentYtelserMedEndreteUtbetalinger.map { it.andel }.any {
+                        it.stønadFom.isBefore(
+                            utvidetVedtaksperiodeMedBegrunnelser.fom?.toYearMonth() ?: TIDENES_MORGEN.toYearMonth()
+                        )
+                    }
 
                 BrevPeriodeContext(
                     utvidetVedtaksperiodeMedBegrunnelser = utvidetVedtaksperiodeMedBegrunnelser,
@@ -72,7 +81,8 @@ class BrevPeriodeService(
 
                     uregistrerteBarn = søknadGrunnlagService.finnAktiv(behandlingId)?.hentUregistrerteBarn()
                         ?: emptyList(),
-                    barnSomDødeIForrigePeriode = barnSomDødeIForrigePeriode
+                    barnSomDødeIForrigePeriode = barnSomDødeIForrigePeriode,
+                    erFørsteVedtaksperiode = erFørsteVedtaksperiodePåFagsak
                 ).genererBrevPeriodeDto()
             }
     }

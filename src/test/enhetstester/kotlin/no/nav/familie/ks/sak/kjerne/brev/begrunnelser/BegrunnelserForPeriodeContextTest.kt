@@ -15,13 +15,13 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Per
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.UtdypendeVilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.tilFørskjøvetOppfylteVilkårResultatTidslinjeMap
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.containsInAnyOrder
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
-import tilFørskjøvetVilkårResultatTidslinjeMap
 import java.math.BigDecimal
 import java.time.LocalDate
 
@@ -553,7 +553,7 @@ class BegrunnelserForPeriodeContextTest {
     ): BegrunnelserForPeriodeContext {
         // Må forskyve personresultatene for å finne riktig dato for vedtaksperiode.
         val vedtaksperiodeStartsTidpunkt =
-            personResultater.tilFørskjøvetVilkårResultatTidslinjeMap(persongrunnlag)
+            personResultater.tilFørskjøvetOppfylteVilkårResultatTidslinjeMap(persongrunnlag)
                 .filterKeys { it.aktørId == aktørSomTriggerVedtaksperiode.aktørId }.values.first().startsTidspunkt
 
         val utvidetVedtaksperiodeMedBegrunnelser = UtvidetVedtaksperiodeMedBegrunnelser(
@@ -569,11 +569,12 @@ class BegrunnelserForPeriodeContextTest {
         )
 
         return BegrunnelserForPeriodeContext(
-            utvidetVedtaksperiodeMedBegrunnelser,
-            sanityBegrunnelser,
-            persongrunnlag,
-            personResultater,
-            emptyList()
+            utvidetVedtaksperiodeMedBegrunnelser = utvidetVedtaksperiodeMedBegrunnelser,
+            sanityBegrunnelser = sanityBegrunnelser,
+            personopplysningGrunnlag = persongrunnlag,
+            personResultater = personResultater,
+            endretUtbetalingsandeler = emptyList(),
+            erFørsteVedtaksperiode = false
         )
     }
 }

@@ -41,18 +41,25 @@ data class SanityBegrunnelserResponsDto(
 enum class Trigger {
     SATSENDRING,
     BARN_DØD,
-    DELTID_BARNEHAGEPLASS;
+    DELTID_BARNEHAGEPLASS,
+    GJELDER_FØRSTE_PERIODE;
 
-    fun erOppfylt(vilkårResultater: List<VilkårResultat>, person: Person) = when (this) {
-        DELTID_BARNEHAGEPLASS -> vilkårResultater.mapNotNull { it.antallTimer }.maxByOrNull { it }?.let {
-            it in BigDecimal.valueOf(0.01)..BigDecimal.valueOf(
-                32.99
-            )
-        } ?: false
+    fun erOppfylt(
+        vilkårResultater: List<VilkårResultat>,
+        person: Person,
+        erFørsteVedtaksperiodeOgBegrunnelseInneholderGjelderFørstePeriodeTrigger: Boolean
+    ) =
+        when (this) {
+            DELTID_BARNEHAGEPLASS -> vilkårResultater.mapNotNull { it.antallTimer }.maxByOrNull { it }?.let {
+                it in BigDecimal.valueOf(0.01)..BigDecimal.valueOf(
+                    32.99
+                )
+            } ?: false
 
-        SATSENDRING -> false
-        BARN_DØD -> person.erDød() && person.type == PersonType.BARN
-    }
+            SATSENDRING -> false
+            GJELDER_FØRSTE_PERIODE -> vilkårResultater.isNotEmpty() && erFørsteVedtaksperiodeOgBegrunnelseInneholderGjelderFørstePeriodeTrigger
+            BARN_DØD -> person.erDød() && person.type == PersonType.BARN
+        }
 }
 
 data class SanityBegrunnelseDto(
@@ -98,6 +105,8 @@ data class SanityBegrunnelseDto(
 }
 
 private val logger: Logger = LoggerFactory.getLogger(SanityBegrunnelseDto::class.java)
+
+fun SanityBegrunnelse.inneholderGjelderFørstePeriodeTrigger() = this.triggere.contains(Trigger.GJELDER_FØRSTE_PERIODE)
 
 fun <T : Enum<T>> finnEnumverdi(verdi: String, enumverdier: Array<T>, apiNavn: String?): T? {
     val enumverdi = enumverdier.firstOrNull { verdi == it.name }

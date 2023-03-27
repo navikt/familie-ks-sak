@@ -27,7 +27,7 @@ class TilbakekrevingKlient(
 ) : AbstractRestClient(restOperations, "tilbakreving") {
 
     fun harÅpenTilbakekrevingsbehandling(fagsakId: Long): Boolean {
-        val uri = URI.create("$familieTilbakeUri/fagsystem/$FAGSYSTEM/fagsak/$fagsakId/finnesApenBehandling/v1")
+        val uri = URI.create("$familieTilbakeUri/fagsystem/${Fagsystem.KONT}/fagsak/$fagsakId/finnesApenBehandling/v1")
 
         val finnesTilbakekrevingBehandlingsresponsDto: FinnesTilbakekrevingBehandlingsresponsDto = kallEksternTjenesteRessurs(
             tjeneste = "familie-tilbake",
