@@ -23,6 +23,7 @@ import no.nav.familie.ks.sak.common.util.tilMånedÅr
 import no.nav.familie.ks.sak.common.util.tilYearMonth
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelse
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.Trigger
+import no.nav.familie.ks.sak.integrasjon.sanity.domene.inneholderGjelderFørstePeriodeTrigger
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.Vedtaksperiodetype
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.UtvidetVedtaksperiodeMedBegrunnelser
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.PersonResultat
@@ -297,6 +298,10 @@ class BrevPeriodeContext(
                         )
                     }
 
+                val relevanteVilkårResultater = personResultater
+                    .filter { relevantePersoner.map { person -> person.aktør }.contains(it.aktør) }
+                    .flatMap { it.vilkårResultater }
+
                 val antallTimerBarnehageplass =
                     hentAntallTimerBarnehageplassTekst(relevantePersoner)
 
@@ -322,8 +327,10 @@ class BrevPeriodeContext(
                 val maanedOgAarBegrunnelsenGjelderFor = this.utvidetVedtaksperiodeMedBegrunnelser.fom?.let { fom ->
                     hentMånedOgÅrForBegrunnelse(
                         vedtaksperiodeType = this.utvidetVedtaksperiodeMedBegrunnelser.type,
-                        fom = fom,
-                        tom = this.utvidetVedtaksperiodeMedBegrunnelser.tom ?: TIDENES_ENDE
+                        sanityBegrunnelse = sanityBegrunnelse,
+                        relevanteVilkårResultater = relevanteVilkårResultater,
+                        tom = this.utvidetVedtaksperiodeMedBegrunnelser.tom ?: TIDENES_ENDE,
+                        fom = fom
                     )
                 }
 
@@ -355,9 +362,15 @@ class BrevPeriodeContext(
             }
     }
 
-    private fun hentMånedOgÅrForBegrunnelse(vedtaksperiodeType: Vedtaksperiodetype, fom: LocalDate, tom: LocalDate) =
-        when (vedtaksperiodeType) {
-            Vedtaksperiodetype.AVSLAG ->
+    private fun hentMånedOgÅrForBegrunnelse(
+        vedtaksperiodeType: Vedtaksperiodetype,
+        sanityBegrunnelse: SanityBegrunnelse,
+        relevanteVilkårResultater: List<VilkårResultat>,
+        fom: LocalDate,
+        tom: LocalDate,
+    ): String =
+        when {
+            vedtaksperiodeType == Vedtaksperiodetype.AVSLAG ->
                 if (fom == TIDENES_MORGEN && tom == TIDENES_ENDE) {
                     ""
                 } else if (tom == TIDENES_ENDE) {
@@ -366,13 +379,26 @@ class BrevPeriodeContext(
                     "${fom.tilMånedÅr()} til ${tom.tilMånedÅr()}"
                 }
 
-            else ->
-                if (fom == TIDENES_MORGEN) {
-                    throw Feil("Prøver å finne fom-dato for begrunnelse, men fikk \"TIDENES_MORGEN\".")
-                } else {
-                    fom.tilMånedÅr()
-                }
+            vedtaksperiodeType == Vedtaksperiodetype.OPPHØR && sanityBegrunnelse.inneholderGjelderFørstePeriodeTrigger() -> {
+                kastFeilHvisFomErUgyldig(fom)
+
+                relevanteVilkårResultater
+                    .filter { it.resultat == Resultat.IKKE_OPPFYLT }
+                    .minOf { it.periodeFom ?: fom }
+                    .tilMånedÅr()
+            }
+
+            else -> {
+                kastFeilHvisFomErUgyldig(fom)
+
+                fom.tilMånedÅr()
+            }
         }
+
+    private fun kastFeilHvisFomErUgyldig(fom: LocalDate) {
+        if (fom == TIDENES_MORGEN)
+            throw Feil("Prøver å finne fom-dato for begrunnelse, men fikk \"TIDENES_MORGEN\".")
+    }
 
     private fun hentAntallTimerBarnehageplassTekst(personerMedVilkårSomPasserBegrunnelse: Set<Person>) =
         slåSammen(
