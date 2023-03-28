@@ -9,7 +9,7 @@ plugins {
     id("org.jetbrains.kotlin.plugin.spring") version kotlinVersion
     id("org.jetbrains.kotlin.plugin.jpa") version kotlinVersion
     id("org.jetbrains.kotlin.plugin.allopen") version kotlinVersion
-
+}
 
 group = "no.nav"
 version = "0.0.1-SNAPSHOT"
