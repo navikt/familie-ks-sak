@@ -369,8 +369,8 @@ class BrevPeriodeContext(
         fom: LocalDate,
         tom: LocalDate,
     ): String =
-        when {
-            vedtaksperiodeType == Vedtaksperiodetype.AVSLAG ->
+        when (vedtaksperiodeType) {
+            Vedtaksperiodetype.AVSLAG ->
                 if (fom == TIDENES_MORGEN && tom == TIDENES_ENDE) {
                     ""
                 } else if (tom == TIDENES_ENDE) {
@@ -379,26 +379,34 @@ class BrevPeriodeContext(
                     "${fom.tilMånedÅr()} til ${tom.tilMånedÅr()}"
                 }
 
-            vedtaksperiodeType == Vedtaksperiodetype.OPPHØR && sanityBegrunnelse.inneholderGjelderFørstePeriodeTrigger() -> {
+            Vedtaksperiodetype.OPPHØR -> {
                 kastFeilHvisFomErUgyldig(fom)
-
-                relevanteVilkårResultater
-                    .filter {
-                        val vilkårResultatErIkkeOppfylt = it.resultat == Resultat.IKKE_OPPFYLT
-                        val vilkårResultatOverstiger33Timer = (it.antallTimer ?: BigDecimal(0)) >= BigDecimal(33)
-
-                        vilkårResultatOverstiger33Timer && vilkårResultatOverstiger33Timer
-                    }
-                    .minOf { it.periodeFom ?: fom }
-                    .tilMånedÅr()
+                if (sanityBegrunnelse.inneholderGjelderFørstePeriodeTrigger()) {
+                    hentTidligesteFomSomIkkeErOppfyltOgOverstiger33Timer(relevanteVilkårResultater, fom)
+                } else {
+                    fom.tilMånedÅr()
+                }
             }
 
-            else -> {
+            Vedtaksperiodetype.UTBETALING,
+            Vedtaksperiodetype.FORTSATT_INNVILGET -> {
                 kastFeilHvisFomErUgyldig(fom)
-
                 fom.tilMånedÅr()
             }
         }
+
+    private fun hentTidligesteFomSomIkkeErOppfyltOgOverstiger33Timer(
+        relevanteVilkårResultater: List<VilkårResultat>,
+        fom: LocalDate
+    ): String = relevanteVilkårResultater
+        .filter {
+            val vilkårResultatErIkkeOppfylt = it.resultat == Resultat.IKKE_OPPFYLT
+            val vilkårResultatOverstiger33Timer = (it.antallTimer ?: BigDecimal(0)) >= BigDecimal(33)
+
+            vilkårResultatErIkkeOppfylt && vilkårResultatOverstiger33Timer
+        }
+        .minOf { it.periodeFom ?: fom }
+        .tilMånedÅr()
 
     private fun kastFeilHvisFomErUgyldig(fom: LocalDate) {
         if (fom == TIDENES_MORGEN)
