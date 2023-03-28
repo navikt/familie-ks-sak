@@ -383,7 +383,12 @@ class BrevPeriodeContext(
                 kastFeilHvisFomErUgyldig(fom)
 
                 relevanteVilkårResultater
-                    .filter { it.resultat == Resultat.IKKE_OPPFYLT }
+                    .filter {
+                        val vilkårResultatErIkkeOppfylt = it.resultat == Resultat.IKKE_OPPFYLT
+                        val vilkårResultatOverstiger33Timer = (it.antallTimer ?: BigDecimal(0)) >= BigDecimal(33)
+
+                        vilkårResultatOverstiger33Timer && vilkårResultatOverstiger33Timer
+                    }
                     .minOf { it.periodeFom ?: fom }
                     .tilMånedÅr()
             }
