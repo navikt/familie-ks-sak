@@ -298,7 +298,7 @@ class BrevPeriodeContext(
                         )
                     }
 
-                val relevanteVilkårResultater = personResultater
+                val vilkårResultaterForRelevantePersoner = personResultater
                     .filter { relevantePersoner.map { person -> person.aktør }.contains(it.aktør) }
                     .flatMap { it.vilkårResultater }
 
@@ -328,7 +328,7 @@ class BrevPeriodeContext(
                     hentMånedOgÅrForBegrunnelse(
                         vedtaksperiodeType = this.utvidetVedtaksperiodeMedBegrunnelser.type,
                         sanityBegrunnelse = sanityBegrunnelse,
-                        relevanteVilkårResultater = relevanteVilkårResultater,
+                        vilkårResultaterForRelevantePersoner = vilkårResultaterForRelevantePersoner,
                         tom = this.utvidetVedtaksperiodeMedBegrunnelser.tom ?: TIDENES_ENDE,
                         fom = fom
                     )
@@ -365,7 +365,7 @@ class BrevPeriodeContext(
     private fun hentMånedOgÅrForBegrunnelse(
         vedtaksperiodeType: Vedtaksperiodetype,
         sanityBegrunnelse: SanityBegrunnelse,
-        relevanteVilkårResultater: List<VilkårResultat>,
+        vilkårResultaterForRelevantePersoner: List<VilkårResultat>,
         fom: LocalDate,
         tom: LocalDate,
     ): String =
@@ -382,7 +382,7 @@ class BrevPeriodeContext(
             Vedtaksperiodetype.OPPHØR -> {
                 kastFeilHvisFomErUgyldig(fom)
                 if (sanityBegrunnelse.inneholderGjelderFørstePeriodeTrigger()) {
-                    hentTidligesteFomSomIkkeErOppfyltOgOverstiger33Timer(relevanteVilkårResultater, fom)
+                    hentTidligesteFomSomIkkeErOppfyltOgOverstiger33Timer(vilkårResultaterForRelevantePersoner, fom)
                 } else {
                     fom.tilMånedÅr()
                 }
@@ -396,9 +396,9 @@ class BrevPeriodeContext(
         }
 
     private fun hentTidligesteFomSomIkkeErOppfyltOgOverstiger33Timer(
-        relevanteVilkårResultater: List<VilkårResultat>,
+        vilkårResultaterForRelevantePersoner: List<VilkårResultat>,
         fom: LocalDate
-    ): String = relevanteVilkårResultater
+    ): String = vilkårResultaterForRelevantePersoner
         .filter {
             val vilkårResultatErIkkeOppfylt = it.resultat == Resultat.IKKE_OPPFYLT
             val vilkårResultatOverstiger33Timer = (it.antallTimer ?: BigDecimal(0)) >= BigDecimal(33)
