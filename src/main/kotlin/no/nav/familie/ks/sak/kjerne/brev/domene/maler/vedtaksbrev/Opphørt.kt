@@ -40,7 +40,6 @@ data class Opphørt(
                     override val navn = flettefelt(fellesdataForVedtaksbrev.søkerNavn)
                     override val fodselsnummer = flettefelt(fellesdataForVedtaksbrev.søkerFødselsnummer)
                     override val brevOpprettetDato = flettefelt(LocalDate.now().tilDagMånedÅr())
-                    override val gjelder = flettefelt(fellesdataForVedtaksbrev.gjelder)
                 },
                 perioder = fellesdataForVedtaksbrev.perioder
             )
