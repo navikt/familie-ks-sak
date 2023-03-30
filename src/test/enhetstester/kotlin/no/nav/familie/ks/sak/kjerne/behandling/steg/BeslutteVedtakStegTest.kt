@@ -19,6 +19,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Beslutning
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.VedtakService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
+import no.nav.familie.ks.sak.kjerne.beregning.TilkjentYtelseValideringService
 import no.nav.familie.ks.sak.kjerne.brev.GenererBrevService
 import no.nav.familie.ks.sak.kjerne.logg.LoggService
 import no.nav.familie.ks.sak.kjerne.totrinnskontroll.TotrinnskontrollService
@@ -55,6 +56,9 @@ class BeslutteVedtakStegTest {
 
     @MockK
     private lateinit var genererBrevService: GenererBrevService
+
+    @MockK
+    private lateinit var tilkjentYtelseValideringService: TilkjentYtelseValideringService
 
     @InjectMockKs
     private lateinit var beslutteVedtakSteg: BeslutteVedtakSteg
@@ -155,6 +159,7 @@ class BeslutteVedtakStegTest {
                 emptyList()
             )
         } returns mockk(relaxed = true)
+        every { tilkjentYtelseValideringService.validerAtIngenUtbetalingerOverstiger100Prosent(any()) } just runs
 
         every { vedtakService.hentAktivVedtakForBehandling(any()) } returns mockk(relaxed = true)
         every { vedtakService.oppdaterVedtak(any()) } returns mockk()
@@ -173,5 +178,6 @@ class BeslutteVedtakStegTest {
         verify(exactly = 1) { genererBrevService.genererBrevForBehandling(any()) }
         verify(exactly = 1) { vedtakService.hentAktivVedtakForBehandling(any()) }
         verify(exactly = 1) { vedtakService.oppdaterVedtak(any()) }
+        verify(exactly = 1) { tilkjentYtelseValideringService.validerAtIngenUtbetalingerOverstiger100Prosent(any()) }
     }
 }
