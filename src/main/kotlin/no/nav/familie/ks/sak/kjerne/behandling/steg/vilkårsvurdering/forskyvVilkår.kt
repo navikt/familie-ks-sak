@@ -115,8 +115,10 @@ fun forskyvVilkårResultater(
         }.filter { (it.fom ?: TIDENES_MORGEN).isBefore(it.tom ?: TIDENES_ENDE) }
 }
 
-private fun tilVilkårResultaterMedInformasjonOmNestePeriode(vilkårResultater: List<VilkårResultat>) =
-    vilkårResultater.zipWithNext { denne, neste ->
+private fun tilVilkårResultaterMedInformasjonOmNestePeriode(vilkårResultater: List<VilkårResultat>): List<VilkårResultaterMedInformasjonOmNestePeriode> {
+    if (vilkårResultater.isEmpty()) return emptyList()
+
+    return vilkårResultater.zipWithNext { denne, neste ->
         VilkårResultaterMedInformasjonOmNestePeriode(
             vilkårResultat = denne,
             slutterDagenFørNeste = denne.periodeTom?.erDagenFør(neste.periodeFom) ?: false,
@@ -124,6 +126,7 @@ private fun tilVilkårResultaterMedInformasjonOmNestePeriode(vilkårResultater: 
                 denne.periodeTom == denne.periodeTom?.tilYearMonth()?.atEndOfMonth()
         )
     } + VilkårResultaterMedInformasjonOmNestePeriode(vilkårResultater.last(), false, false)
+}
 
 fun MutableList<VilkårResultat>.fjernAvslagUtenPeriodeHvisDetFinsAndreVilkårResultat(): List<VilkårResultat> =
     if (this.any { !it.erAvslagUtenPeriode() }) this.filterNot { it.erAvslagUtenPeriode() } else this
