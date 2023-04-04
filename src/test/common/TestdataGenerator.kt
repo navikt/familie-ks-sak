@@ -283,7 +283,7 @@ fun lagInitieltTilkjentYtelse(behandling: Behandling) =
 
 fun lagAndelTilkjentYtelse(
     tilkjentYtelse: TilkjentYtelse? = null,
-    behandling: Behandling,
+    behandling: Behandling = lagBehandling(),
     aktør: Aktør? = null,
     stønadFom: YearMonth = YearMonth.now().minusMonths(1),
     stønadTom: YearMonth = YearMonth.now().plusMonths(8),

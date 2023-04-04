@@ -217,6 +217,18 @@ class BehandlingService(
             .filter { it.erAvsluttet() && !it.erHenlagt() }
     }
 
+    fun hentSisteBehandlingSomErSendtTilØkonomiPerFagsak(fagsakIder: Set<Long>): List<Behandling> {
+        val behandlingerPåFagsakene = behandlingRepository.finnBehandlinger(fagsakIder)
+
+        return behandlingerPåFagsakene
+            .groupBy { it.fagsak.id }
+            .mapNotNull { (_, behandling) -> behandling.hentSisteSomErSentTilØkonomi() }
+    }
+
+    private fun List<Behandling>.hentSisteSomErSentTilØkonomi() =
+        filter { !it.erHenlagt() && (it.status == BehandlingStatus.AVSLUTTET || it.status == BehandlingStatus.IVERKSETTER_VEDTAK) }
+            .maxByOrNull { it.opprettetTidspunkt }
+
     companion object {
 
         private val logger: Logger = LoggerFactory.getLogger(BehandlingService::class.java)

@@ -115,7 +115,7 @@ class BehandlingServiceTest {
     @BeforeEach
     fun beforeEach() {
         every { behandlingRepository.hentBehandling(any()) } returns behandling
-        every { behandlingRepository.finnBehandlinger(any()) } returns emptyList()
+        every { behandlingRepository.finnBehandlinger(any<Long>()) } returns emptyList()
         every { arbeidsfordelingService.hentArbeidsfordelingPåBehandling(any()) } returns ArbeidsfordelingPåBehandling(
             behandlingId = behandling.id,
             behandlendeEnhetId = "enhet",
