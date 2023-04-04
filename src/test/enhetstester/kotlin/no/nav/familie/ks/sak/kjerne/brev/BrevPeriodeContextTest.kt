@@ -47,7 +47,7 @@ class BrevPeriodeContextTest {
 
     @Test
     fun `genererBrevPeriodeDto skal gi riktig output for innvilgetIkkeBarnehage-begrunnelse når alle vilkår er oppfylt`() {
-        val barnFødselsdato = LocalDate.now().minusYears(2)
+        val barnFødselsdato = LocalDate.of(2021, 3, 15)
 
         val personerIbehandling = listOf(
             PersonIBehandling(
@@ -113,7 +113,7 @@ class BrevPeriodeContextTest {
 
     @Test
     fun `genererBrevPeriodeDto skal gi riktig output for innvilgetDeltidBarnehage-begrunnelse ved 17 timer barnehageplass`() {
-        val barnFødselsdato = LocalDate.now().minusYears(2)
+        val barnFødselsdato = LocalDate.of(2021, 3, 15)
 
         val personerIbehandling = listOf(
             PersonIBehandling(
@@ -163,7 +163,7 @@ class BrevPeriodeContextTest {
 
     @Test
     fun `genererBrevPeriodeDto skal gi riktig output for innvilgetDeltidBarnehageAdopsjon ved 17 timer barnehageplass`() {
-        val barnFødselsdato = LocalDate.now().minusYears(2)
+        val barnFødselsdato = LocalDate.of(2021, 3, 15)
 
         val personerIbehandling = listOf(
             PersonIBehandling(
@@ -219,7 +219,7 @@ class BrevPeriodeContextTest {
 
     @Test
     fun `genererBrevPeriodeDto skal gi riktig output for innvilgetIkkeBarnehageAdopsjon`() {
-        val barnFødselsdato = LocalDate.now().minusYears(2)
+        val barnFødselsdato = LocalDate.of(2021, 3, 15)
 
         val personerIbehandling = listOf(
             PersonIBehandling(
@@ -269,7 +269,7 @@ class BrevPeriodeContextTest {
 
     @Test
     fun `genererBrevPeriodeDto skal gi riktig output for etterEndretUtbetalingEtterbetalingTreMaanedTilbakeITid dersom person har endretutbetalingandeler som matcher vedtaksperiode`() {
-        val barnFødselsdato = LocalDate.now().minusYears(2)
+        val barnFødselsdato = LocalDate.of(2021, 3, 15)
 
         val personerIbehandling = listOf(
             PersonIBehandling(
@@ -319,7 +319,7 @@ class BrevPeriodeContextTest {
 
     @Test
     fun `genererBrevPeriodeDto skal gi true for gjelderAnnenForelder feltet dersom annen forelder ikke er vurdert i MedlemskapAnnenForelder vilkåret`() {
-        val barnFødselsdato = LocalDate.now().minusYears(2)
+        val barnFødselsdato = LocalDate.of(2021, 3, 15)
 
         val personerIbehandling = listOf(
             PersonIBehandling(
@@ -376,7 +376,7 @@ class BrevPeriodeContextTest {
 
     @Test
     fun `genererBrevPeriodeDto skal gi false for gjelderAnnenForelder feltet dersom annen forelder ikke er vurdert i MedlemskapAnnenForelder vilkåret`() {
-        val barnFødselsdato = LocalDate.now().minusYears(2)
+        val barnFødselsdato = LocalDate.of(2021, 3, 15)
 
         val personerIbehandling = listOf(
             PersonIBehandling(
