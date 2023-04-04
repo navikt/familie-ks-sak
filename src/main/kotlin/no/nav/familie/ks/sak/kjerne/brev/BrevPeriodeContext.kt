@@ -23,6 +23,7 @@ import no.nav.familie.ks.sak.common.util.tilMånedÅr
 import no.nav.familie.ks.sak.common.util.tilYearMonth
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelse
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.Trigger
+import no.nav.familie.ks.sak.integrasjon.sanity.domene.inneholderGjelderFørstePeriodeTrigger
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.Vedtaksperiodetype
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.UtvidetVedtaksperiodeMedBegrunnelser
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.PersonResultat
@@ -297,6 +298,10 @@ class BrevPeriodeContext(
                         )
                     }
 
+                val vilkårResultaterForRelevantePersoner = personResultater
+                    .filter { relevantePersoner.map { person -> person.aktør }.contains(it.aktør) }
+                    .flatMap { it.vilkårResultater }
+
                 val antallTimerBarnehageplass =
                     hentAntallTimerBarnehageplassTekst(relevantePersoner)
 
@@ -322,8 +327,10 @@ class BrevPeriodeContext(
                 val maanedOgAarBegrunnelsenGjelderFor = this.utvidetVedtaksperiodeMedBegrunnelser.fom?.let { fom ->
                     hentMånedOgÅrForBegrunnelse(
                         vedtaksperiodeType = this.utvidetVedtaksperiodeMedBegrunnelser.type,
-                        fom = fom,
-                        tom = this.utvidetVedtaksperiodeMedBegrunnelser.tom ?: TIDENES_ENDE
+                        sanityBegrunnelse = sanityBegrunnelse,
+                        vilkårResultaterForRelevantePersoner = vilkårResultaterForRelevantePersoner,
+                        tom = this.utvidetVedtaksperiodeMedBegrunnelser.tom ?: TIDENES_ENDE,
+                        fom = fom
                     )
                 }
 
@@ -355,7 +362,13 @@ class BrevPeriodeContext(
             }
     }
 
-    private fun hentMånedOgÅrForBegrunnelse(vedtaksperiodeType: Vedtaksperiodetype, fom: LocalDate, tom: LocalDate) =
+    private fun hentMånedOgÅrForBegrunnelse(
+        vedtaksperiodeType: Vedtaksperiodetype,
+        sanityBegrunnelse: SanityBegrunnelse,
+        vilkårResultaterForRelevantePersoner: List<VilkårResultat>,
+        fom: LocalDate,
+        tom: LocalDate,
+    ): String =
         when (vedtaksperiodeType) {
             Vedtaksperiodetype.AVSLAG ->
                 if (fom == TIDENES_MORGEN && tom == TIDENES_ENDE) {
@@ -366,13 +379,39 @@ class BrevPeriodeContext(
                     "${fom.tilMånedÅr()} til ${tom.tilMånedÅr()}"
                 }
 
-            else ->
-                if (fom == TIDENES_MORGEN) {
-                    throw Feil("Prøver å finne fom-dato for begrunnelse, men fikk \"TIDENES_MORGEN\".")
+            Vedtaksperiodetype.OPPHØR -> {
+                kastFeilHvisFomErUgyldig(fom)
+                if (sanityBegrunnelse.inneholderGjelderFørstePeriodeTrigger()) {
+                    hentTidligesteFomSomIkkeErOppfyltOgOverstiger33Timer(vilkårResultaterForRelevantePersoner, fom)
                 } else {
                     fom.tilMånedÅr()
                 }
+            }
+
+            Vedtaksperiodetype.UTBETALING,
+            Vedtaksperiodetype.FORTSATT_INNVILGET -> {
+                kastFeilHvisFomErUgyldig(fom)
+                fom.tilMånedÅr()
+            }
         }
+
+    private fun hentTidligesteFomSomIkkeErOppfyltOgOverstiger33Timer(
+        vilkårResultaterForRelevantePersoner: List<VilkårResultat>,
+        fom: LocalDate
+    ): String = vilkårResultaterForRelevantePersoner
+        .filter {
+            val vilkårResultatErIkkeOppfylt = it.resultat == Resultat.IKKE_OPPFYLT
+            val vilkårResultatOverstiger33Timer = (it.antallTimer ?: BigDecimal(0)) >= BigDecimal(33)
+
+            vilkårResultatErIkkeOppfylt && vilkårResultatOverstiger33Timer
+        }
+        .minOf { it.periodeFom ?: fom }
+        .tilMånedÅr()
+
+    private fun kastFeilHvisFomErUgyldig(fom: LocalDate) {
+        if (fom == TIDENES_MORGEN)
+            throw Feil("Prøver å finne fom-dato for begrunnelse, men fikk \"TIDENES_MORGEN\".")
+    }
 
     private fun hentAntallTimerBarnehageplassTekst(personerMedVilkårSomPasserBegrunnelse: Set<Person>) =
         slåSammen(
