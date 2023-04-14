@@ -140,8 +140,6 @@ SANITY_DATASET: "ks-brev"
 FAMILIE_KS_SAK_API_URL: http://localhost:8086/api
 FAMILIE_KS_INFOTRYGD_API_URL: https://familie-ks-infotrygd.dev.intern.nav.no/api
 FAMILIE_KS_INFOTRYGD_SCOPE: api://dev-fss.teamfamilie.familie-ks-infotrygd/.default
-CREDENTIAL_USERNAME: not-a-real-srvuser
-CREDENTIAL_PASSWORD: not-a-real-pw
 
 FAMILIE_INTEGRASJONER_API_URL: https://familie-integrasjoner.dev.intern.nav.no/api
 FAMILIE_INTEGRASJONER_SCOPE: api://dev-fss.teamfamilie.familie-integrasjoner/.default
