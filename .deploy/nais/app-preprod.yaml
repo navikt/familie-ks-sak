@@ -89,7 +89,11 @@ spec:
           cluster: dev-gcp
       external:
         - host: xsrv1mh6.api.sanity.io
-        - host: pdl-api-q1.dev-fss-pub.nais.io
+        - host: pdl-api.dev-fss-pub.nais.io
+        - host: familie-integrasjoner.dev-fss-pub.nais.io
+        - host: familie-ks-infotrygd.dev-fss-pub.nais.io
+        - host: familie-oppdrag.dev-fss-pub.nais.io
+        - host: sdw-wsrest.ecb.europa.eu
   replicas:
     min: 2
     max: 4

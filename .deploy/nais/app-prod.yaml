@@ -83,6 +83,10 @@ spec:
       external:
         - host: xsrv1mh6.api.sanity.io
         - host: pdl-api.prod-fss-pub.nais.io
+        - host: familie-integrasjoner.prod-fss-pub.nais.io
+        - host: familie-ks-infotrygd.prod-fss-pub.nais.io
+        - host: familie-oppdrag.prod-fss-pub.nais.io
+        - host: sdw-wsrest.ecb.europa.eu
   replicas:
     min: 2
     max: 4
