@@ -147,6 +147,22 @@ enum class Begrunnelse : IBegrunnelse {
         override val begrunnelseType = BegrunnelseType.AVSLAG
         override val sanityApiNavn = "avslagBosattIRiket"
     },
+    AVSLAG_IKKE_MEDLEM_FOLKETRYGDEN_I_FEM_ÅR {
+        override val begrunnelseType = BegrunnelseType.AVSLAG
+        override val sanityApiNavn = "avslagIkkeMedlemFolketrygdenIFemAar"
+    },
+    AVSLAG_DEN_ANDRE_FORELDEREN_IKKE_MEDLEM_I_FEM_ÅR {
+        override val begrunnelseType = BegrunnelseType.AVSLAG
+        override val sanityApiNavn = "avslagDenAndreForelderenIkkeMedlemIFemAar"
+    },
+    AVSLAG_VURDERING_IKKE_MEDLEM_FOLKETRYGDEN_I_FEM_ÅR {
+        override val begrunnelseType = BegrunnelseType.AVSLAG
+        override val sanityApiNavn = "avslagVurderingIkkeMedlemFolketrygdenIFemAar"
+    },
+    AVSLAG_VURDERING_DEN_ANDRE_FORELDEREN_IKKE_MEDLEM_I_FEM_ÅR {
+        override val begrunnelseType = BegrunnelseType.AVSLAG
+        override val sanityApiNavn = "avslagVurderingDenAndreForelderenIkkeMedlemIFemAar"
+    },
     ETTER_ENDRET_UTBETALING_ETTERBETALING {
         override val begrunnelseType = BegrunnelseType.ETTER_ENDRET_UTBETALING
         override val sanityApiNavn = "etterEndretUtbetalingEtterbetalingTreMaanedTilbakeITid"
