@@ -139,14 +139,6 @@ enum class Begrunnelse : IBegrunnelse {
         override val begrunnelseType = BegrunnelseType.INNVILGET
         override val sanityApiNavn = "innvilgetErklaringOmMotregning"
     },
-    AVSLAG_UREGISTRERT_BARN {
-        override val begrunnelseType = BegrunnelseType.AVSLAG
-        override val sanityApiNavn = "avslagUregistrertBarn"
-    },
-    AVSLAG_BOSATT_I_RIKET {
-        override val begrunnelseType = BegrunnelseType.AVSLAG
-        override val sanityApiNavn = "avslagBosattIRiket"
-    },
     AVSLAG_IKKE_MEDLEM_FOLKETRYGDEN_I_FEM_ÅR {
         override val begrunnelseType = BegrunnelseType.AVSLAG
         override val sanityApiNavn = "avslagIkkeMedlemFolketrygdenIFemAar"
