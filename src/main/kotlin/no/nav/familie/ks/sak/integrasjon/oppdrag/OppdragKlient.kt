@@ -66,6 +66,18 @@ class OppdragKlient(
         }
     }
 
+    fun hentSisteUtbetalingsoppdragForFagsaker(
+        fagsakIder: Set<Long>
+    ): List<UtbetalingsoppdragMedBehandlingOgFagsak> {
+        val uri = URI.create("$familieOppdragUri/$FAGSYSTEM/fagsaker/siste-utbetalingsoppdrag")
+
+        return kallEksternTjenesteRessurs(
+            tjeneste = "familie-oppdrag",
+            uri = uri,
+            formål = "Hent utbetalingsoppdrag for fagsaker"
+        ) { postForEntity(uri = uri, payload = fagsakIder) }
+    }
+
     fun sendGrensesnittavstemmingTilOppdrag(fom: LocalDateTime, tom: LocalDateTime): String {
         val uri = URI.create("$familieOppdragUri/grensesnittavstemming")
         return kallEksternTjenesteRessurs(
@@ -156,3 +168,9 @@ class OppdragKlient(
         private const val FAGSYSTEM = "KS"
     }
 }
+
+data class UtbetalingsoppdragMedBehandlingOgFagsak(
+    val fagsakId: Long,
+    val behandlingId: Long,
+    val utbetalingsoppdrag: Utbetalingsoppdrag
+)

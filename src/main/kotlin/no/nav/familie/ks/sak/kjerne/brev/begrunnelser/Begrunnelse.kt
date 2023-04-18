@@ -143,13 +143,53 @@ enum class Begrunnelse : IBegrunnelse {
         override val begrunnelseType = BegrunnelseType.AVSLAG
         override val sanityApiNavn = "avslagUregistrertBarn"
     },
-    AVSLAG_BOSATT_I_RIKET {
+    AVSLAG_IKKE_MEDLEM_FOLKETRYGDEN_I_FEM_ÅR {
         override val begrunnelseType = BegrunnelseType.AVSLAG
-        override val sanityApiNavn = "avslagBosattIRiket"
+        override val sanityApiNavn = "avslagIkkeMedlemFolketrygdenIFemAar"
+    },
+    AVSLAG_DEN_ANDRE_FORELDEREN_IKKE_MEDLEM_I_FEM_ÅR {
+        override val begrunnelseType = BegrunnelseType.AVSLAG
+        override val sanityApiNavn = "avslagDenAndreForelderenIkkeMedlemIFemAar"
+    },
+    AVSLAG_VURDERING_IKKE_MEDLEM_FOLKETRYGDEN_I_FEM_ÅR {
+        override val begrunnelseType = BegrunnelseType.AVSLAG
+        override val sanityApiNavn = "avslagVurderingIkkeMedlemFolketrygdenIFemAar"
+    },
+    AVSLAG_VURDERING_DEN_ANDRE_FORELDEREN_IKKE_MEDLEM_I_FEM_ÅR {
+        override val begrunnelseType = BegrunnelseType.AVSLAG
+        override val sanityApiNavn = "avslagVurderingDenAndreForelderenIkkeMedlemIFemAar"
     },
     ETTER_ENDRET_UTBETALING_ETTERBETALING {
         override val begrunnelseType = BegrunnelseType.ETTER_ENDRET_UTBETALING
         override val sanityApiNavn = "etterEndretUtbetalingEtterbetalingTreMaanedTilbakeITid"
+    },
+    OPPHØR_FULLTIDSPLASS_I_BARNEHAGE {
+        override val begrunnelseType = BegrunnelseType.OPPHØR
+        override val sanityApiNavn = "opphorFulltidsplassIBarnehage"
+    },
+    OPPHØR_BRUKER_MELDER_FULLTIDSPLASS_I_BARNEHAGEN {
+        override val begrunnelseType = BegrunnelseType.OPPHØR
+        override val sanityApiNavn = "opphorBrukerMelderFulltidsplassIBarnehage"
+    },
+    OPPHØR_BRUKER_MELDER_FULLTIDSPLASS_I_BARNEHAGEN_FØRSTE_PERIODE {
+        override val begrunnelseType = BegrunnelseType.OPPHØR
+        override val sanityApiNavn = "opphorBrukerMelderFulltidsplassIBarnehagenForstePeriode"
+    },
+    OPPHØR_FULLTIDSPLASS_I_BARNEHAGEN_FØRSTE_PERIODE {
+        override val begrunnelseType = BegrunnelseType.OPPHØR
+        override val sanityApiNavn = "opphorFulltidsplassIBarnehagenForstePeriode"
+    },
+    OPPHØR_BRUKER_MELDT_FULLTIDSPLASS_I_BARNEHAGE_FØRSTE_PERIODE {
+        override val begrunnelseType = BegrunnelseType.OPPHØR
+        override val sanityApiNavn = "opphorBrukerMeldtFulltidsplassIBarnehageForstePeriode"
+    },
+    OPPHØR_KOMMUNEN_MELDT_FULLTIDSPLASS_I_BARNEHAGE {
+        override val begrunnelseType = BegrunnelseType.OPPHØR
+        override val sanityApiNavn = "opphorKommunenMelderFulltidsplassIBarnehage"
+    },
+    OPPHØR_KOMMUNEN_MELDT_FULLTIDSPLASS_I_BARNEHAGE_FØRSTE_PERIODE {
+        override val begrunnelseType = BegrunnelseType.OPPHØR
+        override val sanityApiNavn = "opphorKommunenMeldtFulltidsplassIBarnehageForstePeriode"
     };
 
     override fun enumnavnTilString() = this.name

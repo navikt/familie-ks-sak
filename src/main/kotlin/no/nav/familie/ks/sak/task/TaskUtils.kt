@@ -3,6 +3,8 @@ package no.nav.familie.ks.sak.task
 import no.nav.familie.ks.sak.common.util.erHverdag
 import no.nav.familie.ks.sak.common.util.erKlokkenMellom21Og06
 import no.nav.familie.ks.sak.common.util.kl06IdagEllerNesteDag
+import no.nav.familie.log.mdc.MDCConstants
+import org.slf4j.MDC
 import java.time.DayOfWeek
 import java.time.LocalDateTime
 import java.time.Month
@@ -41,4 +43,19 @@ fun nesteGyldigeTriggertidForBehandlingIHverdager(
     }
 
     return date
+}
+
+fun <T> overstyrTaskMedNyCallId(callId: String, body: () -> T): T {
+    val originalCallId = MDC.get(MDCConstants.MDC_CALL_ID) ?: null
+
+    return try {
+        MDC.put(MDCConstants.MDC_CALL_ID, callId)
+        body()
+    } finally {
+        if (originalCallId == null) {
+            MDC.remove(MDCConstants.MDC_CALL_ID)
+        } else {
+            MDC.put(MDCConstants.MDC_CALL_ID, originalCallId)
+        }
+    }
 }

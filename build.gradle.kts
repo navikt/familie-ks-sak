@@ -34,12 +34,13 @@ dependencies {
     val eksterneKontrakterBisysVersion = "2.0_20220609214258_f30c3ce"
     val fellesKontrakterVersion = "2.0_20230110150447_4edded8"
     val familieKontrakterSaksstatistikkVersion = "2.0_20220216121145_5a268ac"
-    val familieKontrakterStønadsstatistikkKsVersion = "2.0_20221123121611_ca933bd"
+    val familieKontrakterStønadsstatistikkKsVersion = "2.0_20230330120047_dfdd4f2"
     val familieKontrakterSkatteetatenVersion = "2.0_20210920094114_9c74239"
     val tokenValidationSpringVersion = "2.1.8"
     val navFoedselsnummerVersion = "1.0-SNAPSHOT.6"
     val prosesseringVersion = "1.20221110194901_e9e0d90"
     val restAssuredVersion = "5.3.0"
+    val kotlinxVersion = "1.6.4"
 
     // ---------- Spring ---------- \\
     implementation("org.springframework.boot:spring-boot-starter")
@@ -57,6 +58,7 @@ dependencies {
     // ---------- Kotlin ---------- \\
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinxVersion")
 
     // ---------- DB ---------- \\
     implementation("org.flywaydb:flyway-core")

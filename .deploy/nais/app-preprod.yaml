@@ -6,8 +6,6 @@ metadata:
   labels:
     team: teamfamilie
 spec:
-  envFrom:
-    - secret: familie-ks-sak
   image: {{image}}
   port: 8083
   leaderElection: true
@@ -48,7 +46,7 @@ spec:
           - id: "52fe1bef-224f-49df-a40a-29f92d4520f8"  # BESLUTTER_ROLLE
           - id: "c62e908a-cf20-4ad0-b7b3-3ff6ca4bf38b"  # teamfamilie-forvaltning
       replyURLs:
-        - "https://familie-kontantstotte-sak.dev.intern.nav.no/swagger-ui/oauth2-redirect.html"
+        - "https://familie-kontantstotte-sak.intern.dev.nav.no/swagger-ui/oauth2-redirect.html"
         - "http://localhost:8083/swagger-ui/oauth2-redirect.html"
       singlePageApplication: true
   accessPolicy:
@@ -71,6 +69,8 @@ spec:
         - application: ida
           namespace: traktor
           cluster: prod-fss
+        - application: familie-ef-sak
+          cluster: dev-gcp
     outbound:
       rules:
         - application: familie-brev
@@ -89,7 +89,11 @@ spec:
           cluster: dev-gcp
       external:
         - host: xsrv1mh6.api.sanity.io
-        - host: pdl-api-q1.dev-fss-pub.nais.io
+        - host: pdl-api.dev-fss-pub.nais.io
+        - host: familie-integrasjoner.dev-fss-pub.nais.io
+        - host: familie-ks-infotrygd.dev-fss-pub.nais.io
+        - host: familie-oppdrag.dev-fss-pub.nais.io
+        - host: sdw-wsrest.ecb.europa.eu
   replicas:
     min: 2
     max: 4
@@ -102,8 +106,8 @@ spec:
       memory: 512Mi
       cpu: 500m
   ingresses:
-    - https://familie-ks-sak.dev.intern.nav.no
-    - https://familie-kontantstotte-sak.dev.intern.nav.no
+    - https://familie-ks-sak.intern.dev.nav.no
+    - https://familie-kontantstotte-sak.intern.dev.nav.no
   secureLogs:
     enabled: true
   env:

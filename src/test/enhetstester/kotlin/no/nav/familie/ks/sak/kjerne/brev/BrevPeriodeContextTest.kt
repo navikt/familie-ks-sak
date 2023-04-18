@@ -47,7 +47,7 @@ class BrevPeriodeContextTest {
 
     @Test
     fun `genererBrevPeriodeDto skal gi riktig output for innvilgetIkkeBarnehage-begrunnelse når alle vilkår er oppfylt`() {
-        val barnFødselsdato = LocalDate.now().minusYears(2)
+        val barnFødselsdato = LocalDate.of(2021, 3, 15)
 
         val personerIbehandling = listOf(
             PersonIBehandling(
@@ -101,7 +101,7 @@ class BrevPeriodeContextTest {
                 gjelderAndreForelder = true,
                 barnasFodselsdatoer = barnFødselsdato.tilKortString(),
                 antallBarn = 1,
-                maanedOgAarBegrunnelsenGjelderFor = null,
+                maanedOgAarBegrunnelsenGjelderFor = "april 2022",
                 maalform = "bokmaal",
                 belop = "7 500",
                 antallTimerBarnehageplass = "0",
@@ -113,7 +113,7 @@ class BrevPeriodeContextTest {
 
     @Test
     fun `genererBrevPeriodeDto skal gi riktig output for innvilgetDeltidBarnehage-begrunnelse ved 17 timer barnehageplass`() {
-        val barnFødselsdato = LocalDate.now().minusYears(2)
+        val barnFødselsdato = LocalDate.of(2021, 3, 15)
 
         val personerIbehandling = listOf(
             PersonIBehandling(
@@ -151,7 +151,7 @@ class BrevPeriodeContextTest {
                 gjelderAndreForelder = true,
                 barnasFodselsdatoer = barnFødselsdato.tilKortString(),
                 antallBarn = 1,
-                maanedOgAarBegrunnelsenGjelderFor = null,
+                maanedOgAarBegrunnelsenGjelderFor = "april 2022",
                 maalform = "bokmaal",
                 belop = "3 000",
                 antallTimerBarnehageplass = "17",
@@ -163,7 +163,7 @@ class BrevPeriodeContextTest {
 
     @Test
     fun `genererBrevPeriodeDto skal gi riktig output for innvilgetDeltidBarnehageAdopsjon ved 17 timer barnehageplass`() {
-        val barnFødselsdato = LocalDate.now().minusYears(2)
+        val barnFødselsdato = LocalDate.of(2021, 3, 15)
 
         val personerIbehandling = listOf(
             PersonIBehandling(
@@ -207,7 +207,7 @@ class BrevPeriodeContextTest {
                 gjelderAndreForelder = true,
                 barnasFodselsdatoer = barnFødselsdato.tilKortString(),
                 antallBarn = 1,
-                maanedOgAarBegrunnelsenGjelderFor = null,
+                maanedOgAarBegrunnelsenGjelderFor = "april 2022",
                 maalform = "bokmaal",
                 belop = "3 000",
                 antallTimerBarnehageplass = "17",
@@ -219,7 +219,7 @@ class BrevPeriodeContextTest {
 
     @Test
     fun `genererBrevPeriodeDto skal gi riktig output for innvilgetIkkeBarnehageAdopsjon`() {
-        val barnFødselsdato = LocalDate.now().minusYears(2)
+        val barnFødselsdato = LocalDate.of(2021, 3, 15)
 
         val personerIbehandling = listOf(
             PersonIBehandling(
@@ -257,7 +257,7 @@ class BrevPeriodeContextTest {
                 gjelderAndreForelder = true,
                 barnasFodselsdatoer = barnFødselsdato.tilKortString(),
                 antallBarn = 1,
-                maanedOgAarBegrunnelsenGjelderFor = null,
+                maanedOgAarBegrunnelsenGjelderFor = "april 2022",
                 maalform = "bokmaal",
                 belop = "7 500",
                 antallTimerBarnehageplass = "0",
@@ -269,7 +269,7 @@ class BrevPeriodeContextTest {
 
     @Test
     fun `genererBrevPeriodeDto skal gi riktig output for etterEndretUtbetalingEtterbetalingTreMaanedTilbakeITid dersom person har endretutbetalingandeler som matcher vedtaksperiode`() {
-        val barnFødselsdato = LocalDate.now().minusYears(2)
+        val barnFødselsdato = LocalDate.of(2021, 3, 15)
 
         val personerIbehandling = listOf(
             PersonIBehandling(
@@ -307,7 +307,7 @@ class BrevPeriodeContextTest {
                 gjelderAndreForelder = true,
                 barnasFodselsdatoer = barnFødselsdato.tilKortString(),
                 antallBarn = 1,
-                maanedOgAarBegrunnelsenGjelderFor = null,
+                maanedOgAarBegrunnelsenGjelderFor = "april 2022",
                 maalform = "bokmaal",
                 belop = "7 500",
                 antallTimerBarnehageplass = "0",
@@ -319,7 +319,7 @@ class BrevPeriodeContextTest {
 
     @Test
     fun `genererBrevPeriodeDto skal gi true for gjelderAnnenForelder feltet dersom annen forelder ikke er vurdert i MedlemskapAnnenForelder vilkåret`() {
-        val barnFødselsdato = LocalDate.now().minusYears(2)
+        val barnFødselsdato = LocalDate.of(2021, 3, 15)
 
         val personerIbehandling = listOf(
             PersonIBehandling(
@@ -364,7 +364,7 @@ class BrevPeriodeContextTest {
                 gjelderAndreForelder = true,
                 barnasFodselsdatoer = barnFødselsdato.tilKortString(),
                 antallBarn = 1,
-                maanedOgAarBegrunnelsenGjelderFor = null,
+                maanedOgAarBegrunnelsenGjelderFor = "april 2022",
                 maalform = "bokmaal",
                 belop = "7 500",
                 antallTimerBarnehageplass = "0",
@@ -376,7 +376,7 @@ class BrevPeriodeContextTest {
 
     @Test
     fun `genererBrevPeriodeDto skal gi false for gjelderAnnenForelder feltet dersom annen forelder ikke er vurdert i MedlemskapAnnenForelder vilkåret`() {
-        val barnFødselsdato = LocalDate.now().minusYears(2)
+        val barnFødselsdato = LocalDate.of(2021, 3, 15)
 
         val personerIbehandling = listOf(
             PersonIBehandling(
@@ -421,7 +421,7 @@ class BrevPeriodeContextTest {
                 gjelderAndreForelder = false,
                 barnasFodselsdatoer = barnFødselsdato.tilKortString(),
                 antallBarn = 1,
-                maanedOgAarBegrunnelsenGjelderFor = null,
+                maanedOgAarBegrunnelsenGjelderFor = "april 2022",
                 maalform = "bokmaal",
                 belop = "7 500",
                 antallTimerBarnehageplass = "0",
@@ -519,7 +519,8 @@ fun lagBrevPeriodeContext(
         andelTilkjentYtelserMedEndreteUtbetalinger = andelTilkjentYtelserMedEndreteUtbetalinger,
 
         uregistrerteBarn = emptyList(),
-        barnSomDødeIForrigePeriode = emptyList()
+        barnSomDødeIForrigePeriode = emptyList(),
+        erFørsteVedtaksperiode = false
     )
 }
 

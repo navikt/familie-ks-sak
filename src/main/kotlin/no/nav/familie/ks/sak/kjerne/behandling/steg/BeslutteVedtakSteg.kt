@@ -14,6 +14,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.VedtakService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
+import no.nav.familie.ks.sak.kjerne.beregning.TilkjentYtelseValideringService
 import no.nav.familie.ks.sak.kjerne.brev.GenererBrevService
 import no.nav.familie.ks.sak.kjerne.logg.LoggService
 import no.nav.familie.ks.sak.kjerne.totrinnskontroll.TotrinnskontrollService
@@ -35,7 +36,8 @@ class BeslutteVedtakSteg(
     private val loggService: LoggService,
     private val vilkårsvurderingService: VilkårsvurderingService,
     private val featureToggleService: FeatureToggleService,
-    private val genererBrevService: GenererBrevService
+    private val genererBrevService: GenererBrevService,
+    private val tilkjentYtelseValideringService: TilkjentYtelseValideringService
 ) : IBehandlingSteg {
     override fun getBehandlingssteg(): BehandlingSteg = BehandlingSteg.BESLUTTE_VEDTAK
 
@@ -67,6 +69,8 @@ class BeslutteVedtakSteg(
         opprettTaskFerdigstillGodkjenneVedtak(behandling = behandling)
 
         if (besluttVedtakDto.beslutning.erGodkjent()) {
+
+            tilkjentYtelseValideringService.validerAtIngenUtbetalingerOverstiger100Prosent(behandling)
 
             // Oppdater vedtaksbrev med beslutter
             val vedtak = vedtakService.hentAktivVedtakForBehandling(behandlingId)

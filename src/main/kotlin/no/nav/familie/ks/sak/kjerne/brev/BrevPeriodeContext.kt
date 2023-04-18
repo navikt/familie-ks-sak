@@ -1,7 +1,7 @@
 package no.nav.familie.ks.sak.kjerne.brev
 
-import forskyvVilkårResultater
 import no.nav.familie.ks.sak.api.dto.BarnMedOpplysningerDto
+import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.tidslinje.Periode
 import no.nav.familie.ks.sak.common.tidslinje.Tidslinje
 import no.nav.familie.ks.sak.common.tidslinje.tilTidslinje
@@ -19,15 +19,18 @@ import no.nav.familie.ks.sak.common.util.sisteDagIInneværendeMåned
 import no.nav.familie.ks.sak.common.util.slåSammen
 import no.nav.familie.ks.sak.common.util.tilDagMånedÅr
 import no.nav.familie.ks.sak.common.util.tilKortString
+import no.nav.familie.ks.sak.common.util.tilMånedÅr
 import no.nav.familie.ks.sak.common.util.tilYearMonth
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelse
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.Trigger
+import no.nav.familie.ks.sak.integrasjon.sanity.domene.inneholderGjelderFørstePeriodeTrigger
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.Vedtaksperiodetype
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.UtvidetVedtaksperiodeMedBegrunnelser
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.PersonResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.forskyvVilkårResultater
 import no.nav.familie.ks.sak.kjerne.beregning.AndelTilkjentYtelseMedEndreteUtbetalinger
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.Begrunnelse
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.BegrunnelseDataDto
@@ -56,7 +59,8 @@ class BrevPeriodeContext(
     private val andelTilkjentYtelserMedEndreteUtbetalinger: List<AndelTilkjentYtelseMedEndreteUtbetalinger>,
 
     private val uregistrerteBarn: List<BarnMedOpplysningerDto>,
-    private val barnSomDødeIForrigePeriode: List<Person>
+    private val barnSomDødeIForrigePeriode: List<Person>,
+    private val erFørsteVedtaksperiode: Boolean
 ) {
 
     private val personerMedUtbetaling =
@@ -124,6 +128,7 @@ class BrevPeriodeContext(
             begrunnelser = begrunnelserOgFritekster,
             brevPeriodeType = brevPeriodeType,
             antallBarn = barnIPeriode.size.toString(),
+
             barnasFodselsdager = barnIPeriode.tilBarnasFødselsdatoer(),
             antallBarnMedUtbetaling = barnMedUtbetaling.size.toString(),
             antallBarnMedNullutbetaling = barnMedNullutbetaling.size.toString(),
@@ -269,7 +274,8 @@ class BrevPeriodeContext(
         sanityBegrunnelser = sanityBegrunnelser,
         personopplysningGrunnlag = persongrunnlag,
         personResultater = personResultater,
-        endretUtbetalingsandeler = andelTilkjentYtelserMedEndreteUtbetalinger.flatMap { it.endreteUtbetalinger }
+        endretUtbetalingsandeler = andelTilkjentYtelserMedEndreteUtbetalinger.flatMap { it.endreteUtbetalinger },
+        erFørsteVedtaksperiode = erFørsteVedtaksperiode
     )
 
     fun hentBegrunnelseDtoer(): List<BegrunnelseDataDto> {
@@ -291,6 +297,10 @@ class BrevPeriodeContext(
                             sanityBegrunnelse = sanityBegrunnelse
                         )
                     }
+
+                val vilkårResultaterForRelevantePersoner = personResultater
+                    .filter { relevantePersoner.map { person -> person.aktør }.contains(it.aktør) }
+                    .flatMap { it.vilkårResultater }
 
                 val antallTimerBarnehageplass =
                     hentAntallTimerBarnehageplassTekst(relevantePersoner)
@@ -314,6 +324,16 @@ class BrevPeriodeContext(
                     begrunnelse = begrunnelse
                 )
 
+                val maanedOgAarBegrunnelsenGjelderFor = this.utvidetVedtaksperiodeMedBegrunnelser.fom?.let { fom ->
+                    hentMånedOgÅrForBegrunnelse(
+                        vedtaksperiodeType = this.utvidetVedtaksperiodeMedBegrunnelser.type,
+                        sanityBegrunnelse = sanityBegrunnelse,
+                        vilkårResultaterForRelevantePersoner = vilkårResultaterForRelevantePersoner,
+                        tom = this.utvidetVedtaksperiodeMedBegrunnelser.tom ?: TIDENES_ENDE,
+                        fom = fom
+                    )
+                }
+
                 validerBrevbegrunnelse(
                     gjelderSøker = gjelderSøker,
                     barnasFødselsdatoer = barnasFødselsdatoer,
@@ -330,6 +350,7 @@ class BrevPeriodeContext(
                         barnasFødselsdatoer = barnasFødselsdatoer,
                         begrunnelse = begrunnelse
                     ),
+                    maanedOgAarBegrunnelsenGjelderFor = maanedOgAarBegrunnelsenGjelderFor,
                     maalform = persongrunnlag.søker.målform.tilSanityFormat(),
                     apiNavn = begrunnelse.sanityApiNavn,
                     belop = formaterBeløp(hentBeløp(begrunnelse)),
@@ -339,6 +360,57 @@ class BrevPeriodeContext(
                     sanityBegrunnelseType = sanityBegrunnelse.type
                 )
             }
+    }
+
+    private fun hentMånedOgÅrForBegrunnelse(
+        vedtaksperiodeType: Vedtaksperiodetype,
+        sanityBegrunnelse: SanityBegrunnelse,
+        vilkårResultaterForRelevantePersoner: List<VilkårResultat>,
+        fom: LocalDate,
+        tom: LocalDate,
+    ): String =
+        when (vedtaksperiodeType) {
+            Vedtaksperiodetype.AVSLAG ->
+                if (fom == TIDENES_MORGEN && tom == TIDENES_ENDE) {
+                    ""
+                } else if (tom == TIDENES_ENDE) {
+                    fom.tilMånedÅr()
+                } else {
+                    "${fom.tilMånedÅr()} til ${tom.tilMånedÅr()}"
+                }
+
+            Vedtaksperiodetype.OPPHØR -> {
+                kastFeilHvisFomErUgyldig(fom)
+                if (sanityBegrunnelse.inneholderGjelderFørstePeriodeTrigger()) {
+                    hentTidligesteFomSomIkkeErOppfyltOgOverstiger33Timer(vilkårResultaterForRelevantePersoner, fom)
+                } else {
+                    fom.tilMånedÅr()
+                }
+            }
+
+            Vedtaksperiodetype.UTBETALING,
+            Vedtaksperiodetype.FORTSATT_INNVILGET -> {
+                kastFeilHvisFomErUgyldig(fom)
+                fom.tilMånedÅr()
+            }
+        }
+
+    private fun hentTidligesteFomSomIkkeErOppfyltOgOverstiger33Timer(
+        vilkårResultaterForRelevantePersoner: List<VilkårResultat>,
+        fom: LocalDate
+    ): String = vilkårResultaterForRelevantePersoner
+        .filter {
+            val vilkårResultatErIkkeOppfylt = it.resultat == Resultat.IKKE_OPPFYLT
+            val vilkårResultatOverstiger33Timer = (it.antallTimer ?: BigDecimal(0)) >= BigDecimal(33)
+
+            vilkårResultatErIkkeOppfylt && vilkårResultatOverstiger33Timer
+        }
+        .minOf { it.periodeFom ?: fom }
+        .tilMånedÅr()
+
+    private fun kastFeilHvisFomErUgyldig(fom: LocalDate) {
+        if (fom == TIDENES_MORGEN)
+            throw Feil("Prøver å finne fom-dato for begrunnelse, men fikk \"TIDENES_MORGEN\".")
     }
 
     private fun hentAntallTimerBarnehageplassTekst(personerMedVilkårSomPasserBegrunnelse: Set<Person>) =

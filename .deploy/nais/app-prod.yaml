@@ -6,8 +6,6 @@ metadata:
   labels:
     team: teamfamilie
 spec:
-  envFrom:
-    - secret: familie-ks-sak
   image: {{image}}
   port: 8083
   leaderElection: true
@@ -64,6 +62,8 @@ spec:
         - application: bidrag-grunnlag
           namespace: bidrag
           cluster: prod-gcp
+        - application: familie-ef-sak
+          cluster: prod-gcp
     outbound:
       rules:
         - application: familie-brev
@@ -83,6 +83,10 @@ spec:
       external:
         - host: xsrv1mh6.api.sanity.io
         - host: pdl-api.prod-fss-pub.nais.io
+        - host: familie-integrasjoner.prod-fss-pub.nais.io
+        - host: familie-ks-infotrygd.prod-fss-pub.nais.io
+        - host: familie-oppdrag.prod-fss-pub.nais.io
+        - host: sdw-wsrest.ecb.europa.eu
   replicas:
     min: 2
     max: 4

@@ -27,20 +27,25 @@ interface FlettefelterForDokumentDto {
     val navn: Flettefelt
     val fodselsnummer: Flettefelt
     val brevOpprettetDato: Flettefelt
+    val gjelder: Flettefelt
+        get() = null
 }
 
 data class FlettefelterForDokumentDtoImpl(
     override val navn: Flettefelt,
     override val fodselsnummer: Flettefelt,
-    override val brevOpprettetDato: Flettefelt = flettefelt(LocalDate.now().tilDagMånedÅr())
+    override val brevOpprettetDato: Flettefelt = flettefelt(LocalDate.now().tilDagMånedÅr()),
+    override val gjelder: Flettefelt
 ) : FlettefelterForDokumentDto {
 
     constructor(
         navn: String,
-        fodselsnummer: String
+        fodselsnummer: String,
+        gjelder: String? = null
     ) : this(
         navn = flettefelt(navn),
-        fodselsnummer = flettefelt(fodselsnummer)
+        fodselsnummer = flettefelt(fodselsnummer),
+        gjelder = flettefelt(gjelder)
     )
 }
 
