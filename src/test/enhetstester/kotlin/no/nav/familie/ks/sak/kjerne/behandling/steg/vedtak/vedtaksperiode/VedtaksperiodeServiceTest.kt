@@ -109,7 +109,7 @@ internal class VedtaksperiodeServiceTest {
     @ParameterizedTest
     @EnumSource(
         value = Begrunnelse::class,
-        names = ["AVSLAG_UREGISTRERT_BARN", "AVSLAG_BOSATT_I_RIKET"]
+        names = ["AVSLAG_UREGISTRERT_BARN", "OPPHØR_FULLTIDSPLASS_I_BARNEHAGE"]
     )
     fun `oppdaterVedtaksperiodeMedBegrunnelser skal kaste feil dersom begrunnelse ikke er tillatt for vedtaksperiode type`(
         begrunnelse: Begrunnelse
