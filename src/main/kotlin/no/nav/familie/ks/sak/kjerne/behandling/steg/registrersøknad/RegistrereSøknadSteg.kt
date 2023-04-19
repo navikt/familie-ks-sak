@@ -89,9 +89,9 @@ class RegistrereSøknadSteg(
     fun validerRegistrerSøknadSteg(registrerSøknadDto: RegistrerSøknadDto) {
         validerAtIngenBarnFremstiltKravForFyller1ÅrSenereEnnInneværendeMåned(registrerSøknadDto.søknad.barnaMedOpplysninger)
 
-        if (infotrygdReplikaClient.harKontantstøtteIInfotrygd(registrerSøknadDto.søknad.barnaMedOpplysninger)) {
+        if (infotrygdReplikaClient.harKontantstøtteIInfotrygd(registrerSøknadDto.søknad.barnaMedOpplysninger) && !registrerSøknadDto.bekreftEndringerViaFrontend) {
             throw FunksjonellFeil(
-                melding = "Kan ikke fortsette. Ett eller flere av barna har løpende kontantstøtte i infotrygd."
+                melding = "Ett eller flere av barna har løpende kontantstøtte i infotrygd."
             )
         }
     }
