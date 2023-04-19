@@ -73,10 +73,12 @@ class SakStatistikkService(
             behandling.behandlingStegTilstand.singleOrNull { it.behandlingStegStatus == BehandlingStegStatus.VENTER }
                 ?.let { BehandlingPåVentDto(it.frist!!, it.årsak!!) }
 
+        val mottattTid = behandling.søknadMottattDato ?: behandling.opprettetTidspunkt
+
         return BehandlingStatistikkDto(
             saksnummer = behandling.fagsak.id,
             behandlingID = behandling.id,
-            mottattTid = behandling.søknadMottattDato?.tilOffset(),
+            mottattTid = mottattTid.tilOffset(),
             registrertTid = behandling.opprettetTidspunkt.tilOffset(),
             behandlingType = behandling.type,
             behandlingStatus = behandling.status,
