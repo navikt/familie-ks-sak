@@ -375,7 +375,7 @@ fun <T> Tidslinje<T>.klipp(startsTidspunkt: LocalDate, sluttTidspunkt: LocalDate
     val foreldre = this.foreldre
 
     var resultat = if (sluttTidspunkt.isAfter(startsTidspunkt)) {
-        val sluttTidspunkt = if (sluttTidspunkt == TIDENES_ENDE) sluttTidspunkt else sluttTidspunkt.plusDays(1)
+        val justertSluttTidspunkt = if (sluttTidspunkt == TIDENES_ENDE) sluttTidspunkt else sluttTidspunkt.plusDays(1)
 
         val tidslinjeKlipp = Tidslinje(
             startsTidspunkt,
@@ -383,7 +383,7 @@ fun <T> Tidslinje<T>.klipp(startsTidspunkt: LocalDate, sluttTidspunkt: LocalDate
                 TidslinjePeriode(
                     true,
                     lengde = startsTidspunkt.until(
-                        sluttTidspunkt,
+                        justertSluttTidspunkt,
                         mapper[this.tidsEnhet]
                     ).toInt()
                 )
