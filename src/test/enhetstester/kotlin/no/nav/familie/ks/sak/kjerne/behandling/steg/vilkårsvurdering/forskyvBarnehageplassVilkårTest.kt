@@ -521,7 +521,7 @@ class forskyvBarnehageplassVilkårTest {
     }
 
     @Test
-    fun `Scenario 7 fra rundskrivet - Slutt i barnehage skal forskyves riktig`() {
+    fun `Scenario 7 fra rundskrivet - Økt barnehageplass skal forskyves riktig`() {
         val vilkårResultater = listOf(
             lagVilkårResultat(
                 vilkårType = Vilkår.BARNEHAGEPLASS,
