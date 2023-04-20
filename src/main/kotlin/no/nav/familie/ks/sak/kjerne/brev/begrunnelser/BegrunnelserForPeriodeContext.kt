@@ -247,8 +247,8 @@ class BegrunnelserForPeriodeContext(
             }
         }.toMap()
 
-    private fun finnPersonerMedVilkårResultatIFørsteVedtaksperiodeSomIkkeErOppfylt(): Map<Person, List<VilkårResultat>> {
-        val mapNotNull = personResultater.tilFørskjøvetVilkårResultatTidslinjeMap(personopplysningGrunnlag)
+    private fun finnPersonerMedVilkårResultatIFørsteVedtaksperiodeSomIkkeErOppfylt(): Map<Person, List<VilkårResultat>> =
+        personResultater.tilFørskjøvetVilkårResultatTidslinjeMap(personopplysningGrunnlag)
             .mapNotNull { (aktør, vilkårResultatTidslinjeForPerson) ->
 
                 val person =
@@ -269,9 +269,7 @@ class BegrunnelserForPeriodeContext(
                 } else {
                     null
                 }
-            }
-        return mapNotNull.toMap().filterValues { it.isNotEmpty() }
-    }
+            }.toMap().filterValues { it.isNotEmpty() }
 
     private fun finnPersonerMedVilkårResultaterSomGjelderIPeriode(): Map<Person, List<VilkårResultat>> =
         personResultater.tilFørskjøvetOppfylteVilkårResultatTidslinjeMap(personopplysningGrunnlag)
