@@ -28,6 +28,7 @@ import no.nav.familie.ks.sak.kjerne.brev.domene.maler.FeilutbetaltValuta
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.Førstegangsvedtak
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.Hjemmeltekst
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.KorrigertVedtakData
+import no.nav.familie.ks.sak.kjerne.brev.domene.maler.vedtaksbrev.Avslag
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.vedtaksbrev.Opphørt
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.vedtaksbrev.VedtakEndring
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
@@ -122,6 +123,8 @@ class GenererBrevService(
                     etterbetaling = etterbetaling
                 )
             }
+
+            Brevmal.VEDTAK_AVSLAG -> Avslag(fellesdataForVedtaksbrev = fellesdataForVedtaksbrev)
 
             Brevmal.VEDTAK_ENDRING -> VedtakEndring(
                 fellesdataForVedtaksbrev = fellesdataForVedtaksbrev,
