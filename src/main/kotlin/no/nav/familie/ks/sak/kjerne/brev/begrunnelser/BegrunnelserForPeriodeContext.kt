@@ -16,6 +16,7 @@ import no.nav.familie.ks.sak.integrasjon.sanity.domene.inneholderGjelderFørsteP
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.Vedtaksperiodetype
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.UtvidetVedtaksperiodeMedBegrunnelser
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.PersonResultat
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.UtdypendeVilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
@@ -115,7 +116,6 @@ class BegrunnelserForPeriodeContext(
         begrunnelse: Begrunnelse,
         sanityBegrunnelse: SanityBegrunnelse
     ): Set<Person> {
-
         val erFørsteVedtaksperiodeOgBegrunnelseInneholderGjelderFørstePeriodeTrigger =
             erFørsteVedtaksperiode && sanityBegrunnelse.inneholderGjelderFørstePeriodeTrigger()
 
@@ -217,9 +217,10 @@ class BegrunnelserForPeriodeContext(
         when (standardBegrunnelse.begrunnelseType) {
             BegrunnelseType.REDUKSJON,
             BegrunnelseType.EØS_INNVILGET,
-            BegrunnelseType.AVSLAG,
             BegrunnelseType.ENDRET_UTBETALING,
             BegrunnelseType.INNVILGET -> finnPersonerMedVilkårResultaterSomGjelderIPeriode()
+
+            BegrunnelseType.AVSLAG -> finnPersonerSomHarIkkeOppfylteVilkårResultaterSomStarterSamtidigSomPeriode()
 
             BegrunnelseType.EØS_OPPHØR,
             BegrunnelseType.ETTER_ENDRET_UTBETALING,
@@ -229,6 +230,24 @@ class BegrunnelserForPeriodeContext(
 
             BegrunnelseType.FORTSATT_INNVILGET -> throw Feil("FORTSATT_INNVILGET skal være filtrert bort.")
         }
+
+    private fun finnPersonerSomHarIkkeOppfylteVilkårResultaterSomStarterSamtidigSomPeriode(): Map<Person, List<VilkårResultat>> =
+        personResultater.mapNotNull { personResultat ->
+            val person = personopplysningGrunnlag.personer.find { it.aktør == personResultat.aktør }
+
+            val vilkårResultater = personResultat.vilkårResultater
+            val ikkeOppfylteVilkårSomStarterISammePeriode = vilkårResultater
+                .filter { it.resultat == Resultat.IKKE_OPPFYLT }
+                .filter {
+                    (it.periodeFom ?: TIDENES_MORGEN).toYearMonth() == vedtaksperiode.fom.toYearMonth()
+                }
+
+            if (person != null && ikkeOppfylteVilkårSomStarterISammePeriode.isNotEmpty()) {
+                Pair(person, ikkeOppfylteVilkårSomStarterISammePeriode)
+            } else {
+                null
+            }
+        }.toMap()
 
     private fun finnPersonerMedVilkårResultatIFørsteVedtaksperiodeSomIkkeErOppfylt(): Map<Person, List<VilkårResultat>> =
         personResultater.tilFørskjøvetVilkårResultatTidslinjeMap(personopplysningGrunnlag)
