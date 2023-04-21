@@ -238,7 +238,9 @@ class BegrunnelserForPeriodeContext(
             val vilkårResultater = personResultat.vilkårResultater
             val ikkeOppfylteVilkårSomStarterISammePeriode = vilkårResultater
                 .filter { it.resultat == Resultat.IKKE_OPPFYLT }
-                .filter { it.periodeFom == vedtaksperiode.fom }
+                .filter {
+                    (it.periodeFom ?: TIDENES_MORGEN).toYearMonth() == vedtaksperiode.fom.toYearMonth()
+                }
 
             if (person != null && ikkeOppfylteVilkårSomStarterISammePeriode.isNotEmpty()) {
                 Pair(person, ikkeOppfylteVilkårSomStarterISammePeriode)
