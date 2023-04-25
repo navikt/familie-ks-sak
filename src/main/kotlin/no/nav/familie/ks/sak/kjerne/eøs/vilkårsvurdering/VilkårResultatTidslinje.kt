@@ -21,7 +21,9 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vil
  */
 fun Iterable<VilkårResultat>.tilVilkårRegelverkResultatTidslinje(): Tidslinje<VilkårRegelverkResultat> {
     val oppfyltEllerIkkeAktueltVilkårer = this.filter { it.erOppfylt() || it.erIkkeAktuelt() }
-    val back2backPerioderIMånedsskifteVilkårer = hentVilkårerMedBack2backPerioderIMånedsskifte(oppfyltEllerIkkeAktueltVilkårer)
+
+    val back2backPerioderIMånedsskifteVilkårer = hentVilkårerMedBack2backPerioderIMånedsskifte(this.toList())
+
     return oppfyltEllerIkkeAktueltVilkårer.map { it.tilPeriode(back2backPerioderIMånedsskifteVilkårer) }.tilTidslinje()
 }
 
