@@ -50,10 +50,12 @@ object TilkjentYtelseValidator {
         val tidslinjeMedAndeler = tilkjentYtelse.tilTidslinjeMedAndeler()
 
         tidslinjeMedAndeler.tilPerioder().forEach {
-            if (hentSøkersAndeler(it.verdi!!.toList(), søker).isNotEmpty()) {
+            val andeler = it.verdi?.toList() ?: emptyList()
+
+            if (hentSøkersAndeler(andeler, søker).isNotEmpty()) {
                 throw Feil("Feil i beregning. Søkers andeler må være tom")
             }
-            val barnasAndeler = hentBarnasAndeler(it.verdi.toList(), barna)
+            val barnasAndeler = hentBarnasAndeler(andeler, barna)
             barnasAndeler.forEach { (_, andeler) -> validerAtBeløpForPartStemmerMedSatser(andeler) }
         }
     }
