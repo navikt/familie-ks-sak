@@ -316,7 +316,9 @@ class BrevPeriodeContext(
 
                 val gjelderSøker = relevantePersoner.any { it.type == PersonType.SØKER }
                 val gjelderAndreForelder = relevantePersoner.filter { it.type == PersonType.BARN }
-                    .any { it.erMedlemskapVurdertPåAndreforelder() }
+                    .any {
+                        if (begrunnelse.begrunnelseType == BegrunnelseType.AVSLAG) it.erMedlemskapVurdertPåAndreforelderSamtidigSomAvslag() else it.erMedlemskapVurdertPåAndreforelder()
+                    }
 
                 val barnasFødselsdatoer = hentBarnasFødselsdagerForBegrunnelse(
                     gjelderSøker = gjelderSøker,
@@ -367,7 +369,7 @@ class BrevPeriodeContext(
         sanityBegrunnelse: SanityBegrunnelse,
         vilkårResultaterForRelevantePersoner: List<VilkårResultat>,
         fom: LocalDate,
-        tom: LocalDate,
+        tom: LocalDate
     ): String =
         when (vedtaksperiodeType) {
             Vedtaksperiodetype.AVSLAG ->
@@ -409,8 +411,9 @@ class BrevPeriodeContext(
         .tilMånedÅr()
 
     private fun kastFeilHvisFomErUgyldig(fom: LocalDate) {
-        if (fom == TIDENES_MORGEN)
+        if (fom == TIDENES_MORGEN) {
             throw Feil("Prøver å finne fom-dato for begrunnelse, men fikk \"TIDENES_MORGEN\".")
+        }
     }
 
     private fun hentAntallTimerBarnehageplassTekst(personerMedVilkårSomPasserBegrunnelse: Set<Person>) =
@@ -440,6 +443,15 @@ class BrevPeriodeContext(
 
         return forskjøvetMedlemskapPåAnnenForelderPeriodeSomErSamtidigSomVedtaksperiode?.any { it.verdi.resultat == Resultat.OPPFYLT }
             ?: false
+    }
+
+    private fun Person.erMedlemskapVurdertPåAndreforelderSamtidigSomAvslag(): Boolean {
+        val alleMedlemskapAnnenForelderVilkår = personResultater.flatMap { it.vilkårResultater }
+            .filter { it.vilkårType == Vilkår.MEDLEMSKAP_ANNEN_FORELDER }
+
+        return alleMedlemskapAnnenForelderVilkår.any {
+            it.periodeFom == utvidetVedtaksperiodeMedBegrunnelser.fom && it.resultat == Resultat.IKKE_OPPFYLT
+        }
     }
 
     private fun hentForskjøvedeVilkårResultater(): Map<Aktør, Map<Vilkår, Tidslinje<VilkårResultat>>> {
