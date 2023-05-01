@@ -136,6 +136,8 @@ class VilkårResultat(
 
     fun kopier(
         personResultat: PersonResultat? = this.personResultat,
+        periodeFom: LocalDate? = this.periodeFom,
+        resultat: Resultat = this.resultat,
         periodeTom: LocalDate? = this.periodeTom,
         begrunnelse: String = this.begrunnelse
 
@@ -143,8 +145,8 @@ class VilkårResultat(
         personResultat = personResultat ?: this.personResultat,
         erAutomatiskVurdert = this.erAutomatiskVurdert,
         vilkårType = this.vilkårType,
-        resultat = this.resultat,
-        periodeFom = this.periodeFom,
+        resultat = resultat,
+        periodeFom = periodeFom,
         periodeTom = periodeTom,
         begrunnelse = begrunnelse,
         behandlingId = this.behandlingId,

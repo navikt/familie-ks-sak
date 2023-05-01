@@ -8,6 +8,7 @@ import no.nav.familie.ks.sak.integrasjon.sanity.SanityService
 import no.nav.familie.ks.sak.integrasjon.secureLogger
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.PersonResultat
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårsvurderingRepository
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.BegrunnelseType
@@ -36,7 +37,8 @@ class VilkårsvurderingService(
 
         val aktivVilkårsvurdering = finnAktivVilkårsvurdering(behandling.id)
 
-        val personopplysningGrunnlag = personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(behandling.id)
+        val personopplysningGrunnlag =
+            personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(behandling.id)
 
         val initiellVilkårsvurdering = genererInitiellVilkårsvurdering(behandling, personopplysningGrunnlag)
 
@@ -141,6 +143,28 @@ class VilkårsvurderingService(
     fun oppdater(vilkårsvurdering: Vilkårsvurdering): Vilkårsvurdering {
         secureLogger.info("${SikkerhetContext.hentSaksbehandlerNavn()} oppdaterer vilkårsvurdering $vilkårsvurdering")
         return vilkårsvurderingRepository.save(vilkårsvurdering)
+    }
+
+    @Transactional
+    fun fyllUtVilkårsvurdering(behandlingId: Long) {
+        val vilkårsvurdering = vilkårsvurderingRepository.finnAktivForBehandling(behandlingId)
+
+        val persongrunnlag = personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(behandlingId)
+
+        vilkårsvurdering?.personResultater?.forEach { personResultat ->
+
+            val oppdaterteVilkår = personResultat.vilkårResultater.map { vilkårResultat ->
+                if (vilkårResultat.periodeFom == null || vilkårResultat.resultat != Resultat.OPPFYLT) {
+                    vilkårResultat.kopier(
+                        periodeFom = persongrunnlag.personer.find { it.aktør == personResultat.aktør }?.fødselsdato,
+                        resultat = Resultat.OPPFYLT
+                    )
+                } else vilkårResultat
+            }
+
+            personResultat.vilkårResultater.clear()
+            personResultat.vilkårResultater.addAll(oppdaterteVilkår)
+        }
     }
 
     private fun hentPersonResultatForPerson(
