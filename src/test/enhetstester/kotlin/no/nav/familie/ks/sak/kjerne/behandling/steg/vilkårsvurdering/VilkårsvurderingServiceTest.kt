@@ -1,5 +1,6 @@
 package no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering
 
+import org.hamcrest.CoreMatchers.`is` as Is
 import io.mockk.every
 import io.mockk.impl.annotations.InjectMockKs
 import io.mockk.impl.annotations.MockK
@@ -32,10 +33,10 @@ import org.hamcrest.Matchers.containsInAnyOrder
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
-import org.hamcrest.CoreMatchers.`is` as Is
 
 @ExtendWith(MockKExtension::class)
 class VilkårsvurderingServiceTest {
@@ -194,7 +195,7 @@ class VilkårsvurderingServiceTest {
         val vilkårsbegrunnelser = vilkårsvurderingService.hentVilkårsbegrunnelser()
 
         // TODO: Endre denne testen når vi får lagt inn riktige Begrunnelser og EØSBegrunnelser
-        assertEquals(5, vilkårsbegrunnelser.size)
+        assertEquals(6, vilkårsbegrunnelser.size)
         assertEquals(0, vilkårsbegrunnelser[BegrunnelseType.AVSLAG]?.size)
         assertEquals(1, vilkårsbegrunnelser[BegrunnelseType.EØS_OPPHØR]?.size)
     }

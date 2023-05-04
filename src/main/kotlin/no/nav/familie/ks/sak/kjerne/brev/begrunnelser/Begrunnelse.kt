@@ -190,8 +190,91 @@ enum class Begrunnelse : IBegrunnelse {
     OPPHØR_KOMMUNEN_MELDT_FULLTIDSPLASS_I_BARNEHAGE_FØRSTE_PERIODE {
         override val begrunnelseType = BegrunnelseType.OPPHØR
         override val sanityApiNavn = "opphorKommunenMeldtFulltidsplassIBarnehageForstePeriode"
-    };
-
+    },
+    REDUKSJON_BARN_FLYTTET_FRA_SOKER {
+        override val begrunnelseType = BegrunnelseType.REDUKSJON
+        override val sanityApiNavn = "reduksjonBarnFlyttetFraSoker"
+    },
+    REDUKSJON_TILDELT_BARNEHAGEPLASS {
+        override val begrunnelseType = BegrunnelseType.REDUKSJON
+        override val sanityApiNavn = "reduksjonTildeltBarnehageplass"
+    },
+    REDUKSJON_SOKER_OPPLYST_OM_BARNEHAGEPLASS {
+        override val begrunnelseType = BegrunnelseType.REDUKSJON
+        override val sanityApiNavn = "reduksjonSokerOpplystOmBarnehageplass"
+    },
+    REDUKSJON_KOMMUNEN_OPPLYST_OM_BARNEHAGEPLASS {
+        override val begrunnelseType = BegrunnelseType.REDUKSJON
+        override val sanityApiNavn = "reduksjonKommunenOpplystOmBarnehageplass"
+    },
+    REDUKSJON_BARN_FLYTTET_FRA_NORGE {
+        override val begrunnelseType = BegrunnelseType.REDUKSJON
+        override val sanityApiNavn = "reduksjonBarnFlyttetFraNorge"
+    },
+    REDUKSJON_BARN_DOD {
+        override val begrunnelseType = BegrunnelseType.REDUKSJON
+        override val sanityApiNavn = "reduksjonBarnDod"
+    },
+    REDUKSJON_AVTALE_OM_DELT_BOSTED_OPPHORT {
+        override val begrunnelseType = BegrunnelseType.REDUKSJON
+        override val sanityApiNavn = "reduksjonAvtaleOmDeltBostedOpphort"
+    },
+    REDUKSJON_HAR_IKKE_AVTALE_OM_DELT_BOSTED {
+        override val begrunnelseType = BegrunnelseType.REDUKSJON
+        override val sanityApiNavn = "reduksjonHarIkkeAvtaleOmDeltBosted"
+    },
+    REDUKSJON_AVTALE_OM_AT_BARNET_BOR_HOS_DEN_ANDRE_FORELDEREN {
+        override val begrunnelseType = BegrunnelseType.REDUKSJON
+        override val sanityApiNavn = "reduksjonAvtaleOmAtBarnetBorHOsDenAndreForelderen"
+    },
+    REDUKSJON_AVTALE_OM_DELT_BOSTED {
+        override val begrunnelseType = BegrunnelseType.REDUKSJON
+        override val sanityApiNavn = "reduksjonAvtaleOmDeltBosted"
+    },
+    REDUKSJON_FORELDRENE_IKKE_LENGER_ENIG_OM_AA_DELE_KONTANTSTOTTEN {
+        override val begrunnelseType = BegrunnelseType.REDUKSJON
+        override val sanityApiNavn = "reduksjonForeldreneIkkeLengerEnigOmAaDeleKontantstotten"
+    },
+    REDUKSJON_BARN_HAR_FYLT_TO_AAR {
+        override val begrunnelseType = BegrunnelseType.REDUKSJON
+        override val sanityApiNavn = "reduksjonBarnHarFyltToAar"
+    },
+    REDUKSJON_MOTTATT_KONTANTSTOTTE_I_11_MAANEDER {
+        override val begrunnelseType = BegrunnelseType.REDUKSJON
+        override val sanityApiNavn = "reduksjonMottattKontantstotteI11Maaneder"
+    },
+    REDUKSJON_BARN_BEGYNT_PAA_SKOLEN {
+        override val begrunnelseType = BegrunnelseType.REDUKSJON
+        override val sanityApiNavn = "reduksjonBarnBegyntPaaSkolen"
+    },
+    REDUKSJON_SATSENDRING {
+        override val begrunnelseType = BegrunnelseType.REDUKSJON
+        override val sanityApiNavn = "reduksjonSatsendring"
+    },
+    REDUKSJON_DEN_ANDRE_FORELDEREN_HAR_SOKT {
+        override val begrunnelseType = BegrunnelseType.REDUKSJON
+        override val sanityApiNavn = "reduksjonDenAndreForelderenHarSokt"
+    },
+    REDUKSJON_SOKER_BER_OM_STANS {
+        override val begrunnelseType = BegrunnelseType.REDUKSJON
+        override val sanityApiNavn = "reduksjonSokerBerOmStans"
+    },
+    REDUKSJON_IKKE_BOSATT_I_NORGE {
+        override val begrunnelseType = BegrunnelseType.REDUKSJON
+        override val sanityApiNavn = "reduksjonIkkeBosattINorge"
+    },
+    REDUKSJON_BARNET_BODDE_IKKE_FAST_HOS_SOKER {
+        override val begrunnelseType = BegrunnelseType.REDUKSJON
+        override val sanityApiNavn = "reduksjonBarnetBoddeIkkeFastHosSoker"
+    },
+    REDUKSJON_IKKE_OPPHOLDSTILLATELSE {
+        override val begrunnelseType = BegrunnelseType.REDUKSJON
+        override val sanityApiNavn = "reduksjonIkkeOppholdstillatelse"
+    },
+    REDUKSJON_DEN_ANDRE_FORELDEREN_HAR_FOTT_FRA_SAMME_TIDSROM {
+        override val begrunnelseType = BegrunnelseType.REDUKSJON
+        override val sanityApiNavn = "reduksjonDenAndreForelderenHarFottFraSammeTidsrom"
+    }, ;
     override fun enumnavnTilString() = this.name
 }
 
