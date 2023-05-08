@@ -159,6 +159,146 @@ enum class Begrunnelse : IBegrunnelse {
         override val begrunnelseType = BegrunnelseType.AVSLAG
         override val sanityApiNavn = "avslagVurderingDenAndreForelderenIkkeMedlemIFemAar"
     },
+    AVSLAG_FULLTIDSPLASS_I_BARNEHAGE {
+        override val begrunnelseType = BegrunnelseType.AVSLAG
+        override val sanityApiNavn = "avslagFulltidsplassIBarnehage"
+    },
+    AVSLAG_BRUKER_MELDER_FULLTIDSPLASS_I_BARNEHAGE {
+        override val begrunnelseType = BegrunnelseType.AVSLAG
+        override val sanityApiNavn = "avslagBrukerMelderFulltidsplassIBarnehage"
+    },
+    AVSLAG_KOMMUNEN_MELDER_FULLTIDSPLASS_I_BARNEHAGE {
+        override val begrunnelseType = BegrunnelseType.AVSLAG
+        override val sanityApiNavn = "avslagKommunenMelderFulltidsplassIBarnehage"
+    },
+    AVSLAG_BARN_OVER_TO_ÅR {
+        override val begrunnelseType = BegrunnelseType.AVSLAG
+        override val sanityApiNavn = "avslagBarnOverToAar"
+    },
+    AVSLAG_BEGYNT_PÅ_SKOLEN {
+        override val begrunnelseType = BegrunnelseType.AVSLAG
+        override val sanityApiNavn = "avslagBegyntPaaSkolen"
+    },
+    AVSLAG_MOTTATT_I_11_MÅNEDER {
+        override val begrunnelseType = BegrunnelseType.AVSLAG
+        override val sanityApiNavn = "avslagMottattI11Maaneder"
+    },
+    AVSLAG_FOSTERBARN {
+        override val begrunnelseType = BegrunnelseType.AVSLAG
+        override val sanityApiNavn = "avslagFosterbarn"
+    },
+    AVSLAG_INSTITUSJON {
+        override val begrunnelseType = BegrunnelseType.AVSLAG
+        override val sanityApiNavn = "avslagInstitusjon"
+    },
+    AVSLAG_FLYTTET_FRA_NORGE {
+        override val begrunnelseType = BegrunnelseType.AVSLAG
+        override val sanityApiNavn = "avslagFlyttetFraNorge"
+    },
+    AVSLAG_IKKE_BOSATT_I_NORGE {
+        override val begrunnelseType = BegrunnelseType.AVSLAG
+        override val sanityApiNavn = "avslagIkkeBosattINorge"
+    },
+    AVSLAG_VURDERING_IKKE_BOSATT_I_NORGE {
+        override val begrunnelseType = BegrunnelseType.AVSLAG
+        override val sanityApiNavn = "avslagVurderingIkkeBosattINorge"
+    },
+    AVSLAG_IKKE_OPPHOLDSTILLATELSE {
+        override val begrunnelseType = BegrunnelseType.AVSLAG
+        override val sanityApiNavn = "avslagIkkeOppholdstillatelse"
+    },
+    AVSLAG_IKKE_OPPHOLDSTILLATELSE_MER_ENN_TOLV_MÅNEDER {
+        override val begrunnelseType = BegrunnelseType.AVSLAG
+        override val sanityApiNavn = "avslagIkkeOppholdstillatelseMerEnnTolvMaaneder"
+    },
+    AVSLAG_OPPHOLD_UNDER_TOLV_MÅNEDER {
+        override val begrunnelseType = BegrunnelseType.AVSLAG
+        override val sanityApiNavn = "avslagOppholdUnderTolvMaaneder"
+    },
+    AVSLAG_VURDERING_OPPHOLD_UNDER_TOLV_MÅNEDER {
+        override val begrunnelseType = BegrunnelseType.AVSLAG
+        override val sanityApiNavn = "avslagVurderingOppholdUnderTolvMaaneder"
+    },
+    AVSLAG_BYTTE_AV_BARNEHAGE_I_SOMMERFERIEN {
+        override val begrunnelseType = BegrunnelseType.AVSLAG
+        override val sanityApiNavn = "avslagBytteAvBarnehageISommerferien"
+    },
+    AVSLAG_DEN_ANDRE_FORELDEREN_HAR_SØKT {
+        override val begrunnelseType = BegrunnelseType.AVSLAG
+        override val sanityApiNavn = "avslagDenAndreForelderenHarSokt"
+    },
+    AVSLAG_DEN_ANDRE_FORELDEREN_HAR_FÅTT_KONTANTSTØTTE {
+        override val begrunnelseType = BegrunnelseType.AVSLAG
+        override val sanityApiNavn = "avslagDenAndreForelderenHarFaattKontantstotte"
+    },
+    AVSLAG_DEN_ANDRE_FORELDEREN_MOTTAR_KONTANTSTØTTE {
+        override val begrunnelseType = BegrunnelseType.AVSLAG
+        override val sanityApiNavn = "avslagDenAndreForelderenMottarKontantstotte"
+    },
+    AVSLAG_UTENLANDSOPPHOLD_MER_ENN_TRE_MÅNEDER {
+        override val begrunnelseType = BegrunnelseType.AVSLAG
+        override val sanityApiNavn = "avslagUtenlandsoppholdMerEnnTreMaaneder"
+    },
+    AVSLAG_VURDERING_UTENLANDSOPPHOLD_MER_ENN_TRE_MÅNEDER {
+        override val begrunnelseType = BegrunnelseType.AVSLAG
+        override val sanityApiNavn = "avslagVurderingUtenlandsoppholdMerEnnTreMaaneder"
+    },
+    AVSLAG_BOR_IKKE_FAST_HOS_SØKER {
+        override val begrunnelseType = BegrunnelseType.AVSLAG
+        override val sanityApiNavn = "avslagBorIkkeFastHosSoker"
+    },
+    AVSLAG_VURDERING_BOR_IKKE_FAST_HOS_SØKER {
+        override val begrunnelseType = BegrunnelseType.AVSLAG
+        override val sanityApiNavn = "avslagVurderingBorIkkeFastHosSoker"
+    },
+    AVSLAG_ET_BARN_ER_DØD {
+        override val begrunnelseType = BegrunnelseType.AVSLAG
+        override val sanityApiNavn = "avslagEtBarnErDod"
+    },
+    AVSLAG_FLERE_BARN_ER_DØDE {
+        override val begrunnelseType = BegrunnelseType.AVSLAG
+        override val sanityApiNavn = "avslagFlereBarnErDode"
+    },
+    AVSLAG_IKKE_MEDLEM_FOLKETRYGDEN_ELLER_EØS_I_FEM_ÅR {
+        override val begrunnelseType = BegrunnelseType.AVSLAG
+        override val sanityApiNavn = "avslagIkkeMedlemFolketrygdenEllerEOSIFemAar"
+    },
+    AVSLAG_DEN_ANDRE_FORELDEREN_IKKE_MEDLEM_FOLKETRYGDEN_ELLER_EOS_I_FEM_ÅR {
+        override val begrunnelseType = BegrunnelseType.AVSLAG
+        override val sanityApiNavn = "avslagDenAndreForelderenIkkeMedlemFolketrygdenEllerEOSIFemAar"
+    },
+    AVSLAG_VURDERING_IKKE_MEDLEM_FOLKETRYGDEN_ELLER_EØS_I_FEM_ÅR {
+        override val begrunnelseType = BegrunnelseType.AVSLAG
+        override val sanityApiNavn = "avslagVurderingIkkeMedlemFolketrygdenEllerEOSIFemAar"
+    },
+    AVSLAG_VURDERING_DEN_ANDRE_FORELDEREN_IKKE_MEDLEM_FOLKETRYGDEN_ELLER_EOS_I_FEM_ÅR {
+        override val begrunnelseType = BegrunnelseType.AVSLAG
+        override val sanityApiNavn = "avslagVurderingDenAndreForelderenIkkeMedlemFolketrygdenEllerEOSIFemAar"
+    },
+    AVSLAG_IKKE_ENIG_OM_DELING {
+        override val begrunnelseType = BegrunnelseType.AVSLAG
+        override val sanityApiNavn = "avslagIkkeEnigOmDeling"
+    },
+    AVSLAG_IKKE_AVTALE_OM_DELT_BOSTED {
+        override val begrunnelseType = BegrunnelseType.AVSLAG
+        override val sanityApiNavn = "avslagIkkeAvtaleOmDeltBosted"
+    },
+    AVSLAG_AVTALE_OM_DELT_BOSTED_IKKE_GYLDIG {
+        override val begrunnelseType = BegrunnelseType.AVSLAG
+        override val sanityApiNavn = "avslagAvtaleOmDeltBostedIkkeGyldig"
+    },
+    AVSLAG_SØKER_FOR_SENT {
+        override val begrunnelseType = BegrunnelseType.AVSLAG
+        override val sanityApiNavn = "avslagSokerForSent"
+    },
+    AVSLAG_EKTEFELLE_ELLER_SAMBOERS_SÆRKULLSBARN {
+        override val begrunnelseType = BegrunnelseType.AVSLAG
+        override val sanityApiNavn = "avslagEktefelleEllerSamboerssearkullsbarn"
+    },
+    AVSLAG_OPPHOLDSRETT_EØS_BORGER {
+        override val begrunnelseType = BegrunnelseType.AVSLAG
+        override val sanityApiNavn = "avslagOppholdsrettEOSBorger"
+    },
     ETTER_ENDRET_UTBETALING_ETTERBETALING {
         override val begrunnelseType = BegrunnelseType.ETTER_ENDRET_UTBETALING
         override val sanityApiNavn = "etterEndretUtbetalingEtterbetalingTreMaanedTilbakeITid"
