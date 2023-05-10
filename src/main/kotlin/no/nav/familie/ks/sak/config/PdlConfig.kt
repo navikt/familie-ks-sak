@@ -39,6 +39,7 @@ class PdlConfig(@Value("\${PDL_URL}") pdlUrl: URI) {
                 contentType = MediaType.APPLICATION_JSON
                 accept = listOf(MediaType.APPLICATION_JSON)
                 add("Tema", Tema.KON.name)
+                add("behandlingsnummer", Tema.KON.behandlingsnummer)
             }
         }
     }

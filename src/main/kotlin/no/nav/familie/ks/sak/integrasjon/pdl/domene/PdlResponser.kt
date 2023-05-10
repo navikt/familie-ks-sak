@@ -12,11 +12,16 @@ import no.nav.familie.ks.sak.common.exception.PdlPersonKanIkkeBehandlesIFagsyste
 
 data class PdlBaseRespons<T>(
     val data: T,
-    val errors: List<PdlError>?
+    val errors: List<PdlError>?,
+    val extensions: PdlExtensions?
 ) {
 
     fun harFeil(): Boolean {
         return !errors.isNullOrEmpty()
+    }
+
+    fun harAdvarsel(): Boolean {
+        return !extensions?.warnings.isNullOrEmpty()
     }
 
     fun errorMessages(): String {
@@ -27,14 +32,16 @@ data class PdlBaseRespons<T>(
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class PdlError(
     val message: String,
-    val extensions: PdlExtensions?
+    val extensions: PdlErrorExtensions?
 )
 
-data class PdlExtensions(val code: String?) {
-
+data class PdlErrorExtensions(val code: String?) {
     fun notFound() = code == "not_found"
 }
 
+data class PdlExtensions(val warnings: List<PdlWarning>?)
+
+data class PdlWarning(val details: Any?, val id: String?, val message: String?, val query: String?)
 class PdlHentIdenterResponse(val pdlIdenter: PdlIdenter?)
 
 data class PdlIdenter(val identer: List<PdlIdent>)
