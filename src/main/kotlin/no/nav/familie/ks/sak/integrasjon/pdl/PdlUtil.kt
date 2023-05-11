@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory
 import java.time.LocalDate
 
 val secureLogger: Logger = LoggerFactory.getLogger("secureLogger")
+val logger: Logger = LoggerFactory.getLogger("PdlUtil")
 
 inline fun <reified DATA : Any, reified T : Any> feilsjekkOgReturnerData(
     ident: String?,
@@ -28,6 +29,11 @@ inline fun <reified DATA : Any, reified T : Any> feilsjekkOgReturnerData(
         }
         secureLogger.error("Feil ved henting av ${T::class} fra PDL: ${pdlRespons.errorMessages()}")
         throw PdlRequestException("Feil ved henting av ${T::class} fra PDL. Se secure logg for detaljer.")
+    }
+
+    if (pdlRespons.harAdvarsel()) {
+        logger.warn("Advarsel ved henting av ${T::class} fra PDL. Se securelogs for detaljer.")
+        secureLogger.warn("Advarsel ved henting av ${T::class} fra PDL: ${pdlRespons.extensions?.warnings}")
     }
 
     val data = dataMapper.invoke(pdlRespons.data)
