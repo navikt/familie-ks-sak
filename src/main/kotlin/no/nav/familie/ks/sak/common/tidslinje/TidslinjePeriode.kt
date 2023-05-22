@@ -62,7 +62,7 @@ data class TidslinjePeriode<T>(val periodeVerdi: PeriodeVerdi<T>, var lengde: In
             lengde = inf
         }
         if (lengde <= 0) {
-            throw java.lang.IllegalArgumentException("lengde må være strørre enn null.")
+            throw java.lang.IllegalArgumentException("lengde må være større enn null.")
         }
     }
 
