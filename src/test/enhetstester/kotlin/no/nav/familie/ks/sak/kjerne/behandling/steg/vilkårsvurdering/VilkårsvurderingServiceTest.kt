@@ -71,7 +71,7 @@ class VilkårsvurderingServiceTest {
         every { personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(any()) } returns lagPersonopplysningGrunnlag(
             behandlingId = behandling.id,
             søkerPersonIdent = søker.aktivFødselsnummer(),
-            barnasIdenter = listOf(barn1.aktivFødselsnummer(), barn2.aktivFødselsnummer())
+            barnasIdenter = listOf(barn1.aktivFødselsnummer(), barn2.aktivFødselsnummer()),
         )
         every { vilkårsvurderingRepository.save(capture(lagretVilkårsvurderingSlot)) } returns mockk()
 
@@ -84,7 +84,7 @@ class VilkårsvurderingServiceTest {
             lagretVilkårsvurdering.personResultater.find {
                 it.aktør.aktivFødselsnummer() === søker.aktivFødselsnummer()
             }?.vilkårResultater?.map { it.vilkårType },
-            containsInAnyOrder(Vilkår.BOSATT_I_RIKET, Vilkår.MEDLEMSKAP)
+            containsInAnyOrder(Vilkår.BOSATT_I_RIKET, Vilkår.MEDLEMSKAP),
         )
         assertThat(
             lagretVilkårsvurdering.personResultater.find {
@@ -95,8 +95,8 @@ class VilkårsvurderingServiceTest {
                 Vilkår.BARNEHAGEPLASS,
                 Vilkår.BOR_MED_SØKER,
                 Vilkår.MEDLEMSKAP_ANNEN_FORELDER,
-                Vilkår.BARNETS_ALDER
-            )
+                Vilkår.BARNETS_ALDER,
+            ),
         )
 
         // autoutfylling
@@ -146,12 +146,12 @@ class VilkårsvurderingServiceTest {
         every { vilkårsvurderingRepository.finnAktivForBehandling(any()) } returns lagVilkårsvurderingMedSøkersVilkår(
             søker,
             behandling,
-            Resultat.OPPFYLT
+            Resultat.OPPFYLT,
         )
         every { personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(any()) } returns lagPersonopplysningGrunnlag(
             behandlingId = behandling.id,
             søkerPersonIdent = søker.aktivFødselsnummer(),
-            barnasIdenter = listOf(barn1.aktivFødselsnummer(), barn2.aktivFødselsnummer())
+            barnasIdenter = listOf(barn1.aktivFødselsnummer(), barn2.aktivFødselsnummer()),
         )
         every { vilkårsvurderingRepository.saveAndFlush(capture(lagretDeaktivertVilkårsvurderingSlot)) } returns mockk()
         every { vilkårsvurderingRepository.save(capture(lagretVilkårsvurderingSlot)) } returns mockk()
@@ -180,21 +180,21 @@ class VilkårsvurderingServiceTest {
                 endretUtbetalingsperiode = emptyList(),
                 endringsårsaker = emptyList(),
                 støtterFritekst = false,
-                skalAlltidVises = false
-            )
+                skalAlltidVises = false,
+            ),
         )
 
         every { sanityService.hentSanityEØSBegrunnelser() } returns listOf(
             SanityEØSBegrunnelse(
                 EØSBegrunnelse.DUMMY.sanityApiNavn,
-                "navnISystem"
-            )
+                "navnISystem",
+            ),
         )
 
         val vilkårsbegrunnelser = vilkårsvurderingService.hentVilkårsbegrunnelser()
 
         // TODO: Endre denne testen når vi får lagt inn riktige Begrunnelser og EØSBegrunnelser
-        assertEquals(5, vilkårsbegrunnelser.size)
+        assertEquals(6, vilkårsbegrunnelser.size)
         assertEquals(0, vilkårsbegrunnelser[BegrunnelseType.AVSLAG]?.size)
         assertEquals(1, vilkårsbegrunnelser[BegrunnelseType.EØS_OPPHØR]?.size)
     }
