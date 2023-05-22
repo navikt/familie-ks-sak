@@ -43,9 +43,9 @@ fun List<AndelTilkjentYtelseMedEndreteUtbetalinger>.hentPerioderMedEndringerFra(
 
     return personerFraForrigeEllerDenneBehandlinger.associateWith { aktørId ->
         val tidslinjeForPerson = andelerTidslinje[aktørId]
-            ?: Tidslinje(startsTidspunkt = TIDENES_MORGEN, perioder = emptyList())
+            ?: Tidslinje(startsTidspunkt = TIDENES_MORGEN.plusDays(1), perioder = emptyList())
         val forrigeTidslinjeForPerson = forrigeAndelerTidslinje[aktørId]
-            ?: Tidslinje(startsTidspunkt = TIDENES_MORGEN, perioder = emptyList())
+            ?: Tidslinje(startsTidspunkt = TIDENES_MORGEN.plusDays(1), perioder = emptyList())
         val kombinertTidslinje = listOf(tidslinjeForPerson, forrigeTidslinjeForPerson).slåSammen()
 
         kombinertTidslinje.tilPerioderIkkeNull().mapNotNull { it.tilPeriodeMedEndringer() }.tilTidslinje()

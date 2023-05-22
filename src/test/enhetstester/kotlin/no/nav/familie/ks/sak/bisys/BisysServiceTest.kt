@@ -118,7 +118,7 @@ internal class BisysServiceTest {
 
         val utbetalingerFraKsSak = utbetalinger.ksSakPerioder
         assertEquals(2, utbetalingerFraKsSak.size)
-        utbetalingerFraKsSak!!.assertUtbetaling(
+        utbetalingerFraKsSak.assertUtbetaling(
             beløp = 7500,
             fomMåned = YearMonth.now().minusMonths(5),
             tomMåned = YearMonth.now().minusMonths(3)
@@ -130,8 +130,8 @@ internal class BisysServiceTest {
         )
 
         val utbetalingerFraInfotrygd = utbetalinger.infotrygdPerioder
-        assertEquals(2, utbetalingerFraInfotrygd?.size)
-        utbetalingerFraInfotrygd!!.assertInfotrygdUtbetaling(
+        assertEquals(2, utbetalingerFraInfotrygd.size)
+        utbetalingerFraInfotrygd.assertInfotrygdUtbetaling(
             beløp = 7500,
             fomMåned = YearMonth.now().minusMonths(5),
             tomMåned = YearMonth.now().plusMonths(3)
@@ -196,7 +196,7 @@ internal class BisysServiceTest {
 
         val utbetalingerFraKsSak = utbetalinger.ksSakPerioder
         assertEquals(2, utbetalingerFraKsSak.size)
-        utbetalingerFraKsSak!!.assertUtbetaling(
+        utbetalingerFraKsSak.assertUtbetaling(
             beløp = 7500,
             fomMåned = YearMonth.now().minusMonths(5),
             tomMåned = YearMonth.now().minusMonths(3)
@@ -208,8 +208,8 @@ internal class BisysServiceTest {
         )
 
         val utbetalingerFraInfotrygd = utbetalinger.infotrygdPerioder
-        assertEquals(1, utbetalingerFraInfotrygd?.size)
-        utbetalingerFraInfotrygd!!.assertInfotrygdUtbetaling(
+        assertEquals(1, utbetalingerFraInfotrygd.size)
+        utbetalingerFraInfotrygd.assertInfotrygdUtbetaling(
             beløp = 7500,
             fomMåned = YearMonth.now().minusMonths(5),
             tomMåned = YearMonth.now().plusMonths(3)
