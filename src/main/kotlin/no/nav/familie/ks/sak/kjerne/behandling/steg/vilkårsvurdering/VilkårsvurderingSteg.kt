@@ -198,7 +198,8 @@ class VilkårsvurderingSteg(
         personopplysningGrunnlag: PersonopplysningGrunnlag
     ) {
         vilkårsvurdering.personResultater.filter { !it.erSøkersResultater() }.forEach { personResultat ->
-            val person = personopplysningGrunnlag.personer.single { it.aktør == personResultat.aktør }
+            val person =
+                personopplysningGrunnlag.personer.single { it.aktør.aktivFødselsnummer() == personResultat.aktør.aktivFødselsnummer() }
 
             val barnehageplassVilkårResultater = personResultat.vilkårResultater.filter {
                 it.vilkårType == Vilkår.BARNEHAGEPLASS
