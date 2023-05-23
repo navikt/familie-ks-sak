@@ -17,7 +17,6 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg
 import no.nav.familie.ks.sak.kjerne.behandling.steg.IBehandlingSteg
 import no.nav.familie.ks.sak.kjerne.behandling.steg.registrersøknad.SøknadGrunnlagService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Regelverk
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.UtdypendeVilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
@@ -119,7 +118,10 @@ class VilkårsvurderingSteg(
             )
         }
         validerAtDetIkkeErOverlappMellomGradertBarnehageplassOgDeltBosted(vilkårsvurdering)
-        validerAtPerioderIBarnehageplassSamsvarerMedPeriodeIBarnetsAlderVilkår(vilkårsvurdering)
+        validerAtPerioderIBarnehageplassSamsvarerMedPeriodeIBarnetsAlderVilkår(
+            vilkårsvurdering,
+            personopplysningGrunnlag
+        )
         validerAtDetIkkeFinnesMerEnn2EndringerISammeMånedIBarnehageplassVilkår(vilkårsvurdering)
         validerAtDatoErKorrektIBarnasVilkår(vilkårsvurdering, personopplysningGrunnlag.barna)
         validerIkkeBlandetRegelverk(personopplysningGrunnlag, vilkårsvurdering)
@@ -192,9 +194,13 @@ class VilkårsvurderingSteg(
     }
 
     private fun validerAtPerioderIBarnehageplassSamsvarerMedPeriodeIBarnetsAlderVilkår(
-        vilkårsvurdering: Vilkårsvurdering
+        vilkårsvurdering: Vilkårsvurdering,
+        personopplysningGrunnlag: PersonopplysningGrunnlag
     ) {
         vilkårsvurdering.personResultater.filter { !it.erSøkersResultater() }.forEach { personResultat ->
+            val person =
+                personopplysningGrunnlag.personer.single { it.aktør.aktivFødselsnummer() == personResultat.aktør.aktivFødselsnummer() }
+
             val barnehageplassVilkårResultater = personResultat.vilkårResultater.filter {
                 it.vilkårType == Vilkår.BARNEHAGEPLASS
             }
@@ -206,15 +212,17 @@ class VilkårsvurderingSteg(
                 barnehageplassVilkårResultater.sortedWith(compareBy(nullsLast()) { it.periodeTom }).last().periodeTom
                     ?: TIDENES_ENDE
 
-            val barnetsAlderVilkårResultater = personResultat.vilkårResultater.filter {
-                it.vilkårType == Vilkår.BARNETS_ALDER && it.resultat == Resultat.OPPFYLT
-            }
+            val barnetsAlderVilkårResultater =
+                personResultat.vilkårResultater.filter { it.vilkårType == Vilkår.BARNETS_ALDER }
+
             val minFraOgMedDatoIBarnetsAlderVilkårResultater =
                 barnetsAlderVilkårResultater.sortedBy { it.periodeFom }.first().periodeFom
-                    ?: error("Mangler fom dato")
+                    ?: person.fødselsdato.plusYears(1)
+
             val maksTilOmMedDatoIBarnetsAlderVilkårResultater =
                 barnetsAlderVilkårResultater.sortedBy { it.periodeTom }.last().periodeTom
-                    ?: error("Mangler tom dato")
+                    ?: person.fødselsdato.plusYears(2)
+
             if (minFraOgMedDatoIBarnehageplassVilkårResultater.isAfter(minFraOgMedDatoIBarnetsAlderVilkårResultater) ||
                 maksTilOmMedDatoIBarnehageplassVilkårResultater.isBefore(maksTilOmMedDatoIBarnetsAlderVilkårResultater)
             ) {
