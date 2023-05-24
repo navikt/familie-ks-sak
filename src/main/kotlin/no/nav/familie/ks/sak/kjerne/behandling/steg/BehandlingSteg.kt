@@ -2,6 +2,7 @@ package no.nav.familie.ks.sak.kjerne.behandling.steg
 
 import no.nav.familie.ks.sak.config.BehandlerRolle
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
+import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak.SATSENDRING
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak.SØKNAD
@@ -12,6 +13,7 @@ enum class BehandlingSteg(
     val gyldigBehandlerRolle: List<BehandlerRolle> = listOf(BehandlerRolle.SAKSBEHANDLER),
     // default verdi er at steg er gyldig for alle behandling årsaker
     val gyldigForÅrsaker: List<BehandlingÅrsak> = BehandlingÅrsak.values().toList(),
+    val gyldigForResultater: List<Behandlingsresultat> = Behandlingsresultat.values().toList(),
     val tilknyttetBehandlingStatus: BehandlingStatus = BehandlingStatus.UTREDES
 ) {
     REGISTRERE_PERSONGRUNNLAG(
@@ -24,7 +26,8 @@ enum class BehandlingSteg(
     SIMULERING(
         sekvens = 5,
         gyldigBehandlerRolle = listOf(BehandlerRolle.SYSTEM, BehandlerRolle.SAKSBEHANDLER),
-        gyldigForÅrsaker = BehandlingÅrsak.values().filterNot { it == SATSENDRING }
+        gyldigForÅrsaker = BehandlingÅrsak.values().filterNot { it == SATSENDRING },
+        gyldigForResultater = Behandlingsresultat.values().filterNot { it == Behandlingsresultat.AVSLÅTT }
     ),
     VEDTAK(
         sekvens = 6,
