@@ -154,7 +154,8 @@ class StegService(
     ): BehandlingSteg {
         val nesteGyldigeStadier = BehandlingSteg.values().filter {
             it.sekvens > behandledeSteg.sekvens &&
-                behandling.opprettetÅrsak in it.gyldigForÅrsaker
+                behandling.opprettetÅrsak in it.gyldigForÅrsaker &&
+                behandling.resultat in it.gyldigForResultater
         }.sortedBy { it.sekvens }
         return when (behandledeSteg) {
             AVSLUTT_BEHANDLING -> throw Feil("Behandling ${behandling.id} er allerede avsluttet")
