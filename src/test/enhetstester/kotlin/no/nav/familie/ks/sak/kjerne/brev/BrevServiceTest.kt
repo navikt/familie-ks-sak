@@ -349,6 +349,12 @@ class BrevServiceTest {
             resultat = Resultat.IKKE_VURDERT
         )
 
+        every { vilkårsvurderingService.finnAktivVilkårsvurdering(any()) } returns lagVilkårsvurderingMedSøkersVilkår(
+            søkerAktør = søker,
+            behandling = behandling,
+            resultat = Resultat.IKKE_VURDERT
+        )
+
         every {
             settBehandlingPåVentService.settBehandlingPåVent(
                 any(),
