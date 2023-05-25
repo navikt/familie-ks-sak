@@ -51,7 +51,7 @@ jobs:
           credentials_json: ${{ secrets.SALSA_CREDENTIALS }}
 
       - name: Provenance, upload and sign attestation
-        uses: nais/salsa@v0.6
+        uses: nais/salsa@v0.12
         with:
           key: ${{ secrets.SALSA_KMS_KEY }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
