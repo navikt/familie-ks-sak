@@ -7,6 +7,7 @@ import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.integrasjon.sanity.SanityService
 import no.nav.familie.ks.sak.integrasjon.secureLogger
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.AnnenVurderingType
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.PersonResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
@@ -46,6 +47,11 @@ class VilkårsvurderingService(
             initiellVilkårsvurdering.kopierOverOppfylteOgIkkeAktuelleResultaterFraForrigeBehandling(
                 vilkårsvurderingForrigeBehandling = hentAktivVilkårsvurderingForBehandling(forrigeBehandlingSomErVedtatt.id)
             )
+        }
+
+        aktivVilkårsvurdering?.finnOpplysningspliktVilkår()?.let {
+            initiellVilkårsvurdering.personResultater.single { it.erSøkersResultater() }
+                .leggTilBlankAnnenVurdering(AnnenVurderingType.OPPLYSNINGSPLIKT)
         }
 
         initiellVilkårsvurdering.oppdaterMedDødsdatoer(
