@@ -60,7 +60,10 @@ internal class BehandlingsresultatUtilsTest {
             val ytelsePersonResultater =
                 YtelsePersonUtils.oppdaterYtelsePersonResultaterVedOpphør(ytelsePersonerMedResulater)
             val behandlingsresultat =
-                BehandlingsresultatUtils.utledBehandlingsresuiltatBasertPåYtelsePersonResulater(ytelsePersonResultater)
+                BehandlingsresultatUtils.utledBehandlingsresuiltatBasertPåYtelsePersonResulater(
+                    ytelsePersonResultater,
+                    false
+                )
             assertEquals(forventetResultat, behandlingsresultat)
         }
     }

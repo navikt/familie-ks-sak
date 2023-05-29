@@ -21,6 +21,7 @@ import no.nav.familie.ks.sak.common.util.tilDagMånedÅr
 import no.nav.familie.ks.sak.common.util.tilKortString
 import no.nav.familie.ks.sak.common.util.tilMånedÅr
 import no.nav.familie.ks.sak.common.util.tilYearMonth
+import no.nav.familie.ks.sak.common.util.toYearMonth
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelse
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.Trigger
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.inneholderGjelderFørstePeriodeTrigger
@@ -237,7 +238,8 @@ class BrevPeriodeContext(
     ) {
         if (!gjelderSøker && barnasFødselsdatoer.isEmpty() &&
             !sanityBegrunnelse.triggere.contains(Trigger.SATSENDRING) &&
-            begrunnelse != Begrunnelse.AVSLAG_UREGISTRERT_BARN
+            begrunnelse != Begrunnelse.AVSLAG_UREGISTRERT_BARN &&
+            begrunnelse != Begrunnelse.AVSLAG_SØKT_FOR_SENT_ENDRINGSPERIODE
         ) {
             throw IllegalStateException("Ingen personer på brevbegrunnelse $begrunnelse")
         }
@@ -494,7 +496,13 @@ private fun Begrunnelse.hentRelevanteEndringsperioderForBegrunnelse(
         endretUtbetalingAndeler.filter {
             it.periode.tom.sisteDagIInneværendeMåned()
                 ?.erDagenFør(vedtaksperiode.fom?.førsteDagIInneværendeMåned()) == true &&
-                sanityBegrunnelse.endringsårsaker.contains(it.årsak)
+                    sanityBegrunnelse.endringsårsaker.contains(it.årsak)
+        }
+    }
+
+    BegrunnelseType.AVSLAG -> {
+        endretUtbetalingAndeler.filter {
+            it.periode.fom == vedtaksperiode.fom?.toYearMonth()
         }
     }
 
