@@ -177,7 +177,7 @@ object BehandlingsresultatUtils {
 
             else -> throw Feil(
                 frontendFeilmelding = "Behandlingsresultatet du har fått på behandlingen er ikke støttet i løsningen enda. " +
-                        "Ta kontakt med Team familie om du er uenig i resultatet.",
+                    "Ta kontakt med Team familie om du er uenig i resultatet.",
                 message = "Kombiansjonen av behandlingsresultatene $ytelsePersonResultater er ikke støttet i løsningen."
             )
         }

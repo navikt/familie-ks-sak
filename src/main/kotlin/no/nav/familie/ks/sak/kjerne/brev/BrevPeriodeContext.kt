@@ -496,7 +496,7 @@ private fun Begrunnelse.hentRelevanteEndringsperioderForBegrunnelse(
         endretUtbetalingAndeler.filter {
             it.periode.tom.sisteDagIInneværendeMåned()
                 ?.erDagenFør(vedtaksperiode.fom?.førsteDagIInneværendeMåned()) == true &&
-                    sanityBegrunnelse.endringsårsaker.contains(it.årsak)
+                sanityBegrunnelse.endringsårsaker.contains(it.årsak)
         }
     }
 
