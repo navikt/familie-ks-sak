@@ -95,7 +95,7 @@ object BehandlingsresultatUtils {
         )
     }
 
-    fun utledBehandlingsresuiltatBasertPåYtelsePersonResulater(
+    fun utledBehandlingsresultatBasertPåYtelsePersonResulater(
         ytelsePersonResultater: Set<YtelsePersonResultat>,
         alleAndelerHar0IUtbetaling: Boolean
     ): Behandlingsresultat {

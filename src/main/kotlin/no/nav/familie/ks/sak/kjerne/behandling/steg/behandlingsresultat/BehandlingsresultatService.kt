@@ -74,7 +74,7 @@ class BehandlingsresultatService(
         val ytelsePersonResultater =
             YtelsePersonUtils.oppdaterYtelsePersonResultaterVedOpphør(ytelsePersonerMedResultat)
         val behandlingsresultat =
-            BehandlingsresultatUtils.utledBehandlingsresuiltatBasertPåYtelsePersonResulater(
+            BehandlingsresultatUtils.utledBehandlingsresultatBasertPåYtelsePersonResulater(
                 ytelsePersonResultater,
                 alleAndelerHar0IUtbetaling
             )
