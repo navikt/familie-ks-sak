@@ -67,7 +67,7 @@ class IntegrasjonClient(
             )
         }
 
-        return tilganger.firstOrNull { !it.harTilgang } ?: tilganger.first()
+        return tilganger.firstOrNull { !it.harTilgang } ?: tilganger.firstOrNull() ?: Tilgang(harTilgang = false)
     }
 
     fun ferdigstillOppgave(oppgaveId: Long) {
