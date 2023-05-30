@@ -95,7 +95,10 @@ object BehandlingsresultatUtils {
         )
     }
 
-    fun utledBehandlingsresuiltatBasertPåYtelsePersonResulater(ytelsePersonResultater: Set<YtelsePersonResultat>): Behandlingsresultat {
+    fun utledBehandlingsresultatBasertPåYtelsePersonResulater(
+        ytelsePersonResultater: Set<YtelsePersonResultat>,
+        alleAndelerHar0IUtbetaling: Boolean
+    ): Behandlingsresultat {
         // Alle Behandlinsresultatene er importert. Så trenger ikke å bruke Behandlingsresulat.FORTSATT_INNVILGET
         return when {
             // Innvilget
@@ -145,13 +148,32 @@ object BehandlingsresultatUtils {
             ytelsePersonResultater.matcherAltOgHarBådeEndretOgOpphørtResultat() -> ENDRET_OG_OPPHØRT
 
             // Avslått og Opphørt, Her trenger å matchhe OPPHØRT spesifikt fordi det kun kan ha FORTSATT_OPPHØRT også. Da får vi AVSLÅTT
-            ytelsePersonResultater.matcherAltOgHarOpphørtResultat(YtelsePersonResultat.AVSLÅTT, YtelsePersonResultat.OPPHØRT) -> AVSLÅTT_OG_OPPHØRT
+            ytelsePersonResultater.matcherAltOgHarOpphørtResultat(
+                YtelsePersonResultat.AVSLÅTT,
+                YtelsePersonResultat.OPPHØRT
+            ) -> AVSLÅTT_OG_OPPHØRT
 
             // Avslått og Endret
             ytelsePersonResultater.matcherAltOgHarEndretResultat(YtelsePersonResultat.AVSLÅTT) -> AVSLÅTT_OG_ENDRET
 
             // Avslått, Endret og Opphørt
             ytelsePersonResultater.matcherAltOgHarBådeEndretOgOpphørtResultat(YtelsePersonResultat.AVSLÅTT) -> AVSLÅTT_ENDRET_OG_OPPHØRT
+
+            // Disse to kombinasjonene er bare mulig å få dersom man har fått YtelsePersonResultat.Avslått gjennom av å avslå gjennom endret utbetalingsperioder.
+            // Dette må på plass siden uten den nye behandlingsresultat logikken, så vil man få INNVILGET,AVSLÅTT,OPPHØRT selvom man ikke har noe andeler som skal utbetales (burde vært bare avslått)
+            // Dette legges inn bare midlertidig inntil vi får på plass den nye behandlingsresultat logikken som finnes i familie-ba-sak.
+            // TODO: Overfør ny behandlingsresultat logikk til ks-sak
+            ytelsePersonResultater.eq(
+                YtelsePersonResultat.INNVILGET,
+                YtelsePersonResultat.AVSLÅTT,
+                YtelsePersonResultat.OPPHØRT
+            ) && alleAndelerHar0IUtbetaling -> AVSLÅTT
+
+            ytelsePersonResultater.eq(
+                YtelsePersonResultat.INNVILGET,
+                YtelsePersonResultat.AVSLÅTT,
+                YtelsePersonResultat.OPPHØRT
+            ) && !alleAndelerHar0IUtbetaling -> DELVIS_INNVILGET
 
             else -> throw Feil(
                 frontendFeilmelding = "Behandlingsresultatet du har fått på behandlingen er ikke støttet i løsningen enda. " +

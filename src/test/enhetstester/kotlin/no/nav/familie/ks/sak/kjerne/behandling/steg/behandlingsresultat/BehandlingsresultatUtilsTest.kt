@@ -47,7 +47,7 @@ internal class BehandlingsresultatUtilsTest {
     }
 
     @Test
-    fun `utledBehandlingsresuiltatBasertPåYtelsePersonResulater skal utlede behandlingsresultat og sjekke at det matcher forventet resulat`() {
+    fun `utledBehandlingsresultatBasertPåYtelsePersonResulater skal utlede behandlingsresultat og sjekke at det matcher forventet resulat`() {
         val testmappe = File("./src/test/resources/behandlingsresultat/")
         testmappe.listFiles()?.forEach { fil ->
             val testData = objectMapper.readValue(fil.readText(), BehandlingsresulatTestData::class.java)
@@ -60,7 +60,10 @@ internal class BehandlingsresultatUtilsTest {
             val ytelsePersonResultater =
                 YtelsePersonUtils.oppdaterYtelsePersonResultaterVedOpphør(ytelsePersonerMedResulater)
             val behandlingsresultat =
-                BehandlingsresultatUtils.utledBehandlingsresuiltatBasertPåYtelsePersonResulater(ytelsePersonResultater)
+                BehandlingsresultatUtils.utledBehandlingsresultatBasertPåYtelsePersonResulater(
+                    ytelsePersonResultater,
+                    false
+                )
             assertEquals(forventetResultat, behandlingsresultat)
         }
     }

@@ -59,6 +59,8 @@ class BehandlingsresultatService(
                 ?: emptyList()
         )
 
+        val alleAndelerHar0IUtbetaling = andelerMedEndringer.all { it.kalkulertUtbetalingsbeløp == 0 }
+
         YtelsePersonUtils.validerYtelsePersoner(ytelsePersonerMedResultat)
 
         secureLogger.info("Utledet YtelsePersonResultat på behandling $behandling: $ytelsePersonerMedResultat")
@@ -72,7 +74,10 @@ class BehandlingsresultatService(
         val ytelsePersonResultater =
             YtelsePersonUtils.oppdaterYtelsePersonResultaterVedOpphør(ytelsePersonerMedResultat)
         val behandlingsresultat =
-            BehandlingsresultatUtils.utledBehandlingsresuiltatBasertPåYtelsePersonResulater(ytelsePersonResultater)
+            BehandlingsresultatUtils.utledBehandlingsresultatBasertPåYtelsePersonResulater(
+                ytelsePersonResultater,
+                alleAndelerHar0IUtbetaling
+            )
 
         logger.info("Utledet behandlingsresulat på behandling er $behandling: $behandlingsresultat")
         secureLogger.info("Utledet behandlingsresulat på behandling er $behandling: $behandlingsresultat")
