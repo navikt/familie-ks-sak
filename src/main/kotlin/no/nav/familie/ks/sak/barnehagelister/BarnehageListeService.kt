@@ -13,7 +13,7 @@ class BarnehageListeService(val barnehagelisteMottattRepository: BarnehagelisteM
         barnehagelisteMottattRepository.save(barnehagelisteMottatt)
     }
 
-    fun erListenMottattTidligere(id: String): Boolean {
-        return barnehagelisteMottattRepository.existsBymeldingId(id)
+    fun erListenMottattTidligere(meldingId: String): Boolean {
+        return barnehagelisteMottattRepository.existsBymeldingId(meldingId)
     }
 }
