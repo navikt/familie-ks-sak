@@ -27,7 +27,7 @@ class KafkaConfig(
     @Value("\${KAFKA_BROKERS:localhost}") private val kafkaBrokers: String,
     @Value("\${KAFKA_TRUSTSTORE_PATH}") private val kafkaTruststorePath: String,
     @Value("\${KAFKA_CREDSTORE_PASSWORD}") private val kafkaCredstorePassword: String,
-    @Value("\${KAFKA_KEYSTORE_PATH}") private val kafkaKeystorePath: String
+    @Value("\${KAFKA_KEYSTORE_PATH}") private val kafkaKeystorePath: String,
 ) {
 
     @Bean
@@ -60,7 +60,7 @@ class KafkaConfig(
         ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG to StringSerializer::class.java,
         ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG to true, // Den sikrer rekkefølge
         ProducerConfig.ACKS_CONFIG to "all", // Den sikrer at data ikke mistes
-        ProducerConfig.CLIENT_ID_CONFIG to Applikasjon.FAMILIE_KS_SAK.name
+        ProducerConfig.CLIENT_ID_CONFIG to Applikasjon.FAMILIE_KS_SAK.name,
     ) + securityConfig()
 
     fun consumerConfigs() = mapOf(
@@ -71,7 +71,7 @@ class KafkaConfig(
         ConsumerConfig.CLIENT_ID_CONFIG to "consumer-familie-ks-sak-1",
         ConsumerConfig.AUTO_OFFSET_RESET_CONFIG to "latest",
         CommonClientConfigs.RETRIES_CONFIG to 10,
-        CommonClientConfigs.RETRY_BACKOFF_MS_CONFIG to 100
+        CommonClientConfigs.RETRY_BACKOFF_MS_CONFIG to 100,
     ) + securityConfig()
 
     private fun securityConfig() =
@@ -84,11 +84,12 @@ class KafkaConfig(
             SslConfigs.SSL_TRUSTSTORE_PASSWORD_CONFIG to kafkaCredstorePassword,
             SslConfigs.SSL_KEYSTORE_LOCATION_CONFIG to kafkaKeystorePath,
             SslConfigs.SSL_KEYSTORE_PASSWORD_CONFIG to kafkaCredstorePassword,
-            SslConfigs.SSL_KEY_PASSWORD_CONFIG to kafkaCredstorePassword
+            SslConfigs.SSL_KEY_PASSWORD_CONFIG to kafkaCredstorePassword,
         )
 
     companion object {
 
+        const val BARNEHAGELISTE_TOPIC = "alf.aapen-altinn-barnehageliste-mottatt"
         const val BEHANDLING_TOPIC = "teamfamilie.aapen-kontantstotte-saksstatistikk-behandling-v1"
         const val SISTE_TILSTAND_BEHANDLING_TOPIC = "teamfamilie.aapen-kontantstotte-saksstatistikk-siste-tilstand-behandling-v1"
         const val SAK_TOPIC = "teamfamilie.aapen-kontantstotte-saksstatistikk-sak-v1"
