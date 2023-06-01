@@ -30,7 +30,7 @@ class BarnehagelisteConsumer(val barnehageListeService: BarnehageListeService) {
 
         // Sjekk at vi ikke har mottat meldingen tidligere
         if (barnehageListeService.erListenMottattTidligere(key)) {
-            logger.info("Barnehageliste er med key $key er mottatt tidligere hopper over")
+            logger.info("Barnehageliste med key $key er mottatt tidligere. Hopper over")
             ack.acknowledge()
             return
         }
