@@ -18,7 +18,7 @@ class BarnehagelisteConsumer(val barnehageListeService: BarnehageListeService) {
     private val secureLogger = LoggerFactory.getLogger("secureLogger")
 
     @KafkaListener(
-        id = "familie-ks-sak",
+        id = "familie-ks-sak-barnehageliste",
         topics = [KafkaConfig.BARNEHAGELISTE_TOPIC],
         containerFactory = "concurrentKafkaListenerContainerFactory",
     )
