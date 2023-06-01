@@ -17,8 +17,8 @@ data class BarnehagelisteMottatt(
     val meldingId: String,
 
     @Column(name = "MELDING", nullable = true)
-    var melding: String,
+    val melding: String,
 
     @Column(name = "MOTTATT_TID", nullable = false)
-    var mottat_tid: LocalDateTime,
+    val mottatTid: LocalDateTime,
 )

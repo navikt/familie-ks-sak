@@ -70,11 +70,11 @@ class BarnehagelisteMottattRepositoryTest(
                        </skjema>
                     </melding>
                 """.trimIndent(),
-                mottat_tid = LocalDateTime.now(),
+                mottatTid = LocalDateTime.now(),
             ),
         )
 
-        assertTrue(barnehagelisteMottattRepository.existsBymeldingId("1234"))
+        assertTrue(barnehagelisteMottattRepository.existsByMeldingId("1234"))
 
         val barnehagelisterMottatt = barnehagelisteMottattRepository.findAll()
         assertNotNull(barnehagelisterMottatt)

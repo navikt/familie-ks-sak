@@ -14,6 +14,6 @@ class BarnehageListeService(val barnehagelisteMottattRepository: BarnehagelisteM
     }
 
     fun erListenMottattTidligere(meldingId: String): Boolean {
-        return barnehagelisteMottattRepository.existsBymeldingId(meldingId)
+        return barnehagelisteMottattRepository.existsByMeldingId(meldingId)
     }
 }

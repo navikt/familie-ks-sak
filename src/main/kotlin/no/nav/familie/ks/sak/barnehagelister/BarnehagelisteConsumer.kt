@@ -39,7 +39,7 @@ class BarnehagelisteConsumer(val barnehageListeService: BarnehageListeService) {
             BarnehagelisteMottatt(
                 meldingId = key,
                 melding = data,
-                mottat_tid = LocalDateTime.now(),
+                mottatTid = LocalDateTime.now(),
             ),
         )
         ack.acknowledge()
