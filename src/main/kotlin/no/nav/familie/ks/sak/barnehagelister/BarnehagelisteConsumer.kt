@@ -19,8 +19,9 @@ class BarnehagelisteConsumer(val barnehageListeService: BarnehageListeService) {
 
     @KafkaListener(
         id = "familie-ks-sak-barnehageliste",
+        groupId = "familie-ks-sak-barnehageliste-group",
         topics = [KafkaConfig.BARNEHAGELISTE_TOPIC],
-        containerFactory = "concurrentKafkaListenerContainerFactory",
+        containerFactory = "earliestConcurrentKafkaListenerContainerFactory",
     )
     fun listen(consumerRecord: ConsumerRecord<String, String>, ack: Acknowledgment) {
         val data: String = consumerRecord.value()

@@ -46,11 +46,25 @@ class KafkaConfig(
     }
 
     @Bean
+    fun earliestConsumerFactory(): ConsumerFactory<String, String> {
+        return DefaultKafkaConsumerFactory(consumerConfigsEarliest())
+    }
+
+    @Bean
     fun concurrentKafkaListenerContainerFactory(kafkaErrorHandler: KafkaErrorHandler): ConcurrentKafkaListenerContainerFactory<String, String> =
         ConcurrentKafkaListenerContainerFactory<String, String>().apply {
             setConcurrency(1)
             containerProperties.ackMode = ContainerProperties.AckMode.MANUAL
             consumerFactory = consumerFactory()
+            setCommonErrorHandler(kafkaErrorHandler)
+        }
+
+    @Bean
+    fun earliestConcurrentKafkaListenerContainerFactory(kafkaErrorHandler: KafkaErrorHandler): ConcurrentKafkaListenerContainerFactory<String, String> =
+        ConcurrentKafkaListenerContainerFactory<String, String>().apply {
+            setConcurrency(1)
+            containerProperties.ackMode = ContainerProperties.AckMode.MANUAL
+            consumerFactory = earliestConsumerFactory()
             setCommonErrorHandler(kafkaErrorHandler)
         }
 
@@ -70,6 +84,17 @@ class KafkaConfig(
         ConsumerConfig.GROUP_ID_CONFIG to "familie-ks-sak",
         ConsumerConfig.CLIENT_ID_CONFIG to "consumer-familie-ks-sak-1",
         ConsumerConfig.AUTO_OFFSET_RESET_CONFIG to "latest",
+        CommonClientConfigs.RETRIES_CONFIG to 10,
+        CommonClientConfigs.RETRY_BACKOFF_MS_CONFIG to 100,
+    ) + securityConfig()
+
+    fun consumerConfigsEarliest() = mapOf(
+        ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG to kafkaBrokers,
+        ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG to StringDeserializer::class.java,
+        ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG to StringDeserializer::class.java,
+        ConsumerConfig.GROUP_ID_CONFIG to "familie-ks-sak",
+        ConsumerConfig.CLIENT_ID_CONFIG to "consumer-familie-ks-sak-1",
+        ConsumerConfig.AUTO_OFFSET_RESET_CONFIG to "earliest",
         CommonClientConfigs.RETRIES_CONFIG to 10,
         CommonClientConfigs.RETRY_BACKOFF_MS_CONFIG to 100,
     ) + securityConfig()
