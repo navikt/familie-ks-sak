@@ -114,7 +114,7 @@ class VedtaksperiodeService(
 
     fun skalHaÅrligKontroll(vedtak: Vedtak): Boolean {
         return vedtak.behandling.kategori == BehandlingKategori.EØS &&
-                hentPersisterteVedtaksperioder(vedtak).any { it.tom?.erSenereEnnInneværendeMåned() != false }
+            hentPersisterteVedtaksperioder(vedtak).any { it.tom?.erSenereEnnInneværendeMåned() != false }
     }
 
     private fun validerEndretUtbetalingsbegrunnelse(
@@ -211,8 +211,8 @@ class VedtaksperiodeService(
     ) = utbetalingsperioder.filter { utbetalingsperiode ->
         avslagsperioder.none { avslagsperiode ->
             avslagsperiode.fom == utbetalingsperiode.fom &&
-                    avslagsperiode.tom == utbetalingsperiode.tom &&
-                    avslagsperiode.begrunnelser.isNotEmpty()
+                avslagsperiode.tom == utbetalingsperiode.tom &&
+                avslagsperiode.begrunnelser.isNotEmpty()
         }
     }
 
