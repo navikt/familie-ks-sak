@@ -135,7 +135,8 @@ class BegrunnelserForPeriodeContext(
             .filtrerPåTriggere(
                 sanityBegrunnelse.triggere,
                 sanityBegrunnelse.type,
-                erFørsteVedtaksperiodeOgBegrunnelseInneholderGjelderFørstePeriodeTrigger
+                erFørsteVedtaksperiodeOgBegrunnelseInneholderGjelderFørstePeriodeTrigger,
+                begrunnelse.begrunnelseType
             )
 
         val filtrerPåUtdypendeVilkårsvurdering = filtrerPåTriggere
@@ -293,11 +294,11 @@ class BegrunnelserForPeriodeContext(
 
     private fun finnPersonerMedVilkårResultaterSomGjelderRettFørPeriode(): Map<Person, List<VilkårResultat>> =
         personResultater.tilFørskjøvetOppfylteVilkårResultatTidslinjeMap(personopplysningGrunnlag)
-            .mapNotNull { (aktør, tidsjlinje) ->
+            .mapNotNull { (aktør, tidslinje) ->
                 val person =
                     personopplysningGrunnlag.personer.find { it.aktør.aktivFødselsnummer() == aktør.aktivFødselsnummer() }
                 val forskøvedeVilkårResultaterSlutterDagenFørVedtaksperiode =
-                    tidsjlinje.tilPerioderIkkeNull().singleOrNull {
+                    tidslinje.tilPerioderIkkeNull().singleOrNull {
                         it.tom?.plusDays(1) == vedtaksperiode.fom
                     }?.verdi
 
@@ -323,7 +324,8 @@ class BegrunnelserForPeriodeContext(
     private fun Map<Person, List<VilkårResultat>>.filtrerPåTriggere(
         triggereFraSanity: List<Trigger>,
         sanityBegrunnelseType: SanityBegrunnelseType,
-        erFørsteVedtaksperiodeOgBegrunnelseInneholderGjelderFørstePeriodeTrigger: Boolean
+        erFørsteVedtaksperiodeOgBegrunnelseInneholderGjelderFørstePeriodeTrigger: Boolean,
+        begrunnelseType: BegrunnelseType
     ) = this.filter { (person, vilkårResultaterForPerson) ->
         val oppfylteTriggereIBehandling =
             Trigger.values().filter {
@@ -335,7 +337,7 @@ class BegrunnelserForPeriodeContext(
             }
 
         // Strengere logikk for Standardbegrunnelsene for innvilgelse
-        if (sanityBegrunnelseType == SanityBegrunnelseType.STANDARD) {
+        if (sanityBegrunnelseType == SanityBegrunnelseType.STANDARD && begrunnelseType == BegrunnelseType.INNVILGET) {
             oppfylteTriggereIBehandling == triggereFraSanity
         } else {
             triggereFraSanity.all { oppfylteTriggereIBehandling.contains(it) }
