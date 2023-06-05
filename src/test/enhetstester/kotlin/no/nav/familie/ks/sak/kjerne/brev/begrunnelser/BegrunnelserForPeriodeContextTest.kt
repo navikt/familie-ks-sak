@@ -233,9 +233,9 @@ class BegrunnelserForPeriodeContextTest {
     }
 
     @Test
-    fun `hentGyldigeBegrunnelserForVedtaksperiode - skal returnere 1 begrunnelse av type Standard i tillegg til INNVILGET_BARN_UNDER_2_ÅR når vilkåret BARNETS_ALDER trigger vedtaksperioden`() {
+    fun `hentGyldigeBegrunnelserForVedtaksperiode - skal returnere 1 begrunnelse av type Standard i tillegg til INNVILGET_BOSATT_I_NORGE når vilkåret BOSATT_I_RIKET trigger vedtaksperioden`() {
         val barn1årSanityBegrunnelse = SanityBegrunnelse(
-            apiNavn = Begrunnelse.INNVILGET_BARN_UNDER_2_ÅR.sanityApiNavn,
+            apiNavn = Begrunnelse.INNVILGET_BOSATT_I_NORGE.sanityApiNavn,
             navnISystem = "Barn 1 år",
             type = SanityBegrunnelseType.TILLEGGSTEKST,
             vilkår = listOf(Vilkår.BARNETS_ALDER),
@@ -293,121 +293,8 @@ class BegrunnelserForPeriodeContextTest {
         assertThat(
             begrunnelser,
             containsInAnyOrder(
-                Begrunnelse.INNVILGET_BARN_UNDER_2_ÅR,
+                Begrunnelse.INNVILGET_BOSATT_I_NORGE,
                 Begrunnelse.INNVILGET_IKKE_BARNEHAGE
-            )
-        )
-    }
-
-    @Test
-    fun `hentGyldigeBegrunnelserForVedtaksperiode - skal returnere 1 begrunnelse av type Standard i tillegg til 3 begrunnelser som skal vises når BOSATT_I_RIKET trigger vedtaksperioden`() {
-        val bosattIRiketBegrunnelser = listOf(
-            SanityBegrunnelse(
-                apiNavn = Begrunnelse.INNVILGET_SØKER_OG_ELLER_BARN_BOSATT_I_RIKET.sanityApiNavn,
-                navnISystem = "Søker og eller barn bosatt i riket",
-                type = SanityBegrunnelseType.TILLEGGSTEKST,
-                vilkår = listOf(Vilkår.BOSATT_I_RIKET),
-                rolle = emptyList(),
-                triggere = emptyList(),
-                utdypendeVilkårsvurderinger = emptyList(),
-                hjemler = emptyList(),
-                endretUtbetalingsperiode = emptyList(),
-                endringsårsaker = emptyList(),
-                støtterFritekst = false,
-                skalAlltidVises = false
-            ),
-            SanityBegrunnelse(
-                apiNavn = Begrunnelse.INNVILGET_SØKER_OG_ELLER_BARN_HAR_OPPHOLDSTILLATELSE.sanityApiNavn,
-                navnISystem = "Søker og eller barn har oppholdstillatelse",
-                type = SanityBegrunnelseType.TILLEGGSTEKST,
-                vilkår = listOf(Vilkår.BOSATT_I_RIKET),
-                rolle = emptyList(),
-                triggere = emptyList(),
-                utdypendeVilkårsvurderinger = emptyList(),
-                hjemler = emptyList(),
-                endretUtbetalingsperiode = emptyList(),
-                endringsårsaker = emptyList(),
-                støtterFritekst = false,
-                skalAlltidVises = false
-            ),
-            SanityBegrunnelse(
-                apiNavn = Begrunnelse.INNVILGET_SØKER_OG_ELLER_BARN_BOSATT_I_RIKET.sanityApiNavn,
-                navnISystem = "Søker og eller barn bosatt i riket",
-                type = SanityBegrunnelseType.TILLEGGSTEKST,
-                vilkår = listOf(Vilkår.BOSATT_I_RIKET),
-                rolle = emptyList(),
-                triggere = emptyList(),
-                utdypendeVilkårsvurderinger = emptyList(),
-                hjemler = emptyList(),
-                endretUtbetalingsperiode = emptyList(),
-                endringsårsaker = emptyList(),
-                støtterFritekst = false,
-                skalAlltidVises = false
-            ),
-            SanityBegrunnelse(
-                apiNavn = Begrunnelse.INNVILGET_SØKER_OG_ELLER_BARN_BOSATT_I_RIKET_OG_HAR_OPPHOLDSTILLATELSE.sanityApiNavn,
-                navnISystem = "Søker og eller barn bosatt i riket og har oppholdstillatelse",
-                type = SanityBegrunnelseType.TILLEGGSTEKST,
-                vilkår = listOf(Vilkår.BOSATT_I_RIKET),
-                rolle = emptyList(),
-                triggere = emptyList(),
-                utdypendeVilkårsvurderinger = emptyList(),
-                hjemler = emptyList(),
-                endretUtbetalingsperiode = emptyList(),
-                endringsårsaker = emptyList(),
-                støtterFritekst = false,
-                skalAlltidVises = false
-            )
-        )
-        val personResultatBarn = PersonResultat(
-            aktør = barnAktør,
-            vilkårsvurdering = mockk(),
-            vilkårResultater = lagVilkårResultaterForVilkårTyper(
-                vilkårTyper = setOf(
-                    Vilkår.BARNEHAGEPLASS,
-                    Vilkår.BARNETS_ALDER,
-                    Vilkår.BOR_MED_SØKER,
-                    Vilkår.MEDLEMSKAP_ANNEN_FORELDER
-                ),
-                fom = vilkårOppfyltFom,
-                tom = vilkårOppfyltTom
-            )
-        )
-        personResultatBarn.vilkårResultater.add(
-            lagVilkårResultat(
-                vilkårType = Vilkår.BOSATT_I_RIKET,
-                periodeFom = vilkårOppfyltFom.plusDays(15),
-                periodeTom = vilkårOppfyltTom.minusDays(15)
-            )
-        )
-        val personResultatSøker = PersonResultat(
-            aktør = søkerAktør,
-            vilkårsvurdering = mockk(),
-            vilkårResultater = lagVilkårResultaterForVilkårTyper(
-                vilkårTyper = Vilkår.hentVilkårFor(PersonType.SØKER),
-                fom = vilkårOppfyltFom,
-                tom = vilkårOppfyltTom
-            )
-        )
-        val personResultater = listOf(
-            personResultatBarn,
-            personResultatSøker
-        )
-
-        val begrunnelser = lagFinnGyldigeBegrunnelserForPeriodeContext(
-            personResultater,
-            lagSanitybegrunnelser() + bosattIRiketBegrunnelser,
-            barnAktør
-        ).hentGyldigeBegrunnelserForVedtaksperiode()
-
-        assertEquals(4, begrunnelser.size)
-        assertThat(
-            begrunnelser,
-            containsInAnyOrder(
-                Begrunnelse.INNVILGET_IKKE_BARNEHAGE,
-                Begrunnelse.INNVILGET_SØKER_OG_ELLER_BARN_BOSATT_I_RIKET,
-                Begrunnelse.INNVILGET_SØKER_OG_ELLER_BARN_HAR_OPPHOLDSTILLATELSE,
-                Begrunnelse.INNVILGET_SØKER_OG_ELLER_BARN_BOSATT_I_RIKET_OG_HAR_OPPHOLDSTILLATELSE
             )
         )
     }
@@ -416,7 +303,7 @@ class BegrunnelserForPeriodeContextTest {
     fun `hentGyldigeBegrunnelserForVedtaksperiode - skal returnere 1 begrunnelse av type Standard i tillegg til 1 tilleggstekst som skal vises når BOSATT_I_RIKET for søker trigger vedtaksperioden`() {
         val bosattIRiketBegrunnelser = listOf(
             SanityBegrunnelse(
-                apiNavn = Begrunnelse.INNVILGET_SØKER_OG_ELLER_BARN_BOSATT_I_RIKET.sanityApiNavn,
+                apiNavn = Begrunnelse.INNVILGET_BOR_FAST_HOS_SØKER.sanityApiNavn,
                 navnISystem = "Søker og eller barn bosatt i riket",
                 type = SanityBegrunnelseType.TILLEGGSTEKST,
                 vilkår = listOf(Vilkår.BOSATT_I_RIKET),
@@ -475,7 +362,7 @@ class BegrunnelserForPeriodeContextTest {
             begrunnelser,
             containsInAnyOrder(
                 Begrunnelse.INNVILGET_IKKE_BARNEHAGE,
-                Begrunnelse.INNVILGET_SØKER_OG_ELLER_BARN_BOSATT_I_RIKET
+                Begrunnelse.INNVILGET_BOR_FAST_HOS_SØKER
             )
         )
     }
