@@ -113,7 +113,6 @@ class VedtaksperiodeService(
     }
 
     fun skalHaÅrligKontroll(vedtak: Vedtak): Boolean {
-
         return vedtak.behandling.kategori == BehandlingKategori.EØS &&
             hentPersisterteVedtaksperioder(vedtak).any { it.tom?.erSenereEnnInneværendeMåned() != false }
     }
@@ -192,12 +191,29 @@ class VedtaksperiodeService(
 
         val avslagsperioder = hentAvslagsperioderMedBegrunnelser(vedtak)
 
+        val utbetalingsperioderUtenOverlappMedAvslagsperioder =
+            filtrerUtUtbetalingsperioderMedSammeDatoSomAvslagsperioder(
+                utbetalingsperioder,
+                avslagsperioder
+            )
+
         return filtrerUtPerioderBasertPåEndringstidspunkt(
-            vedtaksperioderMedBegrunnelser = (utbetalingsperioder + opphørsperioder),
+            vedtaksperioderMedBegrunnelser = (utbetalingsperioderUtenOverlappMedAvslagsperioder + opphørsperioder),
             behandling = vedtak.behandling,
             gjelderFortsattInnvilget = gjelderFortsattInnvilget,
             manueltOverstyrtEndringstidspunkt = manueltOverstyrtEndringstidspunkt
         ) + avslagsperioder
+    }
+
+    private fun filtrerUtUtbetalingsperioderMedSammeDatoSomAvslagsperioder(
+        utbetalingsperioder: List<VedtaksperiodeMedBegrunnelser>,
+        avslagsperioder: List<VedtaksperiodeMedBegrunnelser>
+    ) = utbetalingsperioder.filter { utbetalingsperiode ->
+        avslagsperioder.none { avslagsperiode ->
+            avslagsperiode.fom == utbetalingsperiode.fom &&
+                avslagsperiode.tom == utbetalingsperiode.tom &&
+                avslagsperiode.begrunnelser.isNotEmpty()
+        }
     }
 
     fun filtrerUtPerioderBasertPåEndringstidspunkt(
