@@ -1,0 +1,35 @@
+{
+  "namespace": "no.nav.altinnkanal.avro",
+  "type": "record",
+  "name": "ReceivedMessage",
+  "fields": [
+    { "name": "callId", "type": "string", "default": "NONE" },
+    { "name": "archiveReference", "type": "string" },
+    { "name": "archiveTimeStamp", "type": "string" },
+    { "name": "serviceCode", "type": "string" },
+    { "name": "serviceEditionCode", "type": "string" },
+    { "name": "dataFormatId", "type": "string" },
+    { "name": "dataFormatVersion", "type": "string" },
+    { "name": "reportee", "type": "string" },
+    { "name": "xmlMessage", "type": "string" },
+    { "name": "metadata", "type": {
+      "type" : "map", "values": "string"
+      }
+    },
+    { "name": "attachments", "type": {
+      "type": "array",
+      "items": {
+        "type": "record",
+        "name": "Attachment",
+        "fields": [
+          { "name": "filename", "type": "string" },
+          { "name": "attachmentType", "type": "string" },
+          { "name": "attachmentTypeName", "type": "string" },
+          { "name": "encrypted", "type": "boolean", "default": false},
+          { "name": "dataBase64", "type": "string" }
+          ]
+        }
+      }
+    }
+  ]
+}
