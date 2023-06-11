@@ -37,7 +37,7 @@ internal class IntegrasjonServiceTest {
 
         every { aktør.aktivFødselsnummer() } returns aktørFnr
 
-        every { integrasjonClient.sjekkTilgangTilPersoner(listOf(aktørFnr)) } returns Tilgang(false, "test")
+        every { integrasjonClient.sjekkTilgangTilPersoner(any()) } returns listOf(Tilgang("1234567891234", false))
         every { pdlClient.hentAdressebeskyttelse(aktør) } returns listOf(Adressebeskyttelse(ADRESSEBESKYTTELSEGRADERING.STRENGT_FORTROLIG_UTLAND))
 
         val maskertPersonInfo = integrasjonService.hentMaskertPersonInfoVedManglendeTilgang(aktør)!!
@@ -47,7 +47,10 @@ internal class IntegrasjonServiceTest {
 
         assertThat(maskertPersonInfo.personIdent, Is("1234567891234"))
         assertThat(maskertPersonInfo.harTilgang, Is(false))
-        assertThat(maskertPersonInfo.adressebeskyttelseGradering, Is(ADRESSEBESKYTTELSEGRADERING.STRENGT_FORTROLIG_UTLAND))
+        assertThat(
+            maskertPersonInfo.adressebeskyttelseGradering,
+            Is(ADRESSEBESKYTTELSEGRADERING.STRENGT_FORTROLIG_UTLAND)
+        )
     }
 
     @Test
@@ -57,7 +60,7 @@ internal class IntegrasjonServiceTest {
 
         every { aktør.aktivFødselsnummer() } returns aktørFnr
 
-        every { integrasjonClient.sjekkTilgangTilPersoner(listOf(aktørFnr)) } returns Tilgang(true, "test")
+        every { integrasjonClient.sjekkTilgangTilPersoner(any()) } returns listOf(Tilgang("1234567891234", true))
 
         val maskertPersonInfo = integrasjonService.hentMaskertPersonInfoVedManglendeTilgang(aktør)
 
@@ -83,13 +86,20 @@ internal class IntegrasjonServiceTest {
     fun `sjekkTilgangTilPersoner skal sjekke om SB har tilgang til personidenter`() {
         val listeMedIdenter = listOf("Ident1", "Ident2")
 
-        every { integrasjonClient.sjekkTilgangTilPersoner(listeMedIdenter) } returns Tilgang(true, "test")
+        every { integrasjonClient.sjekkTilgangTilPersoner(listeMedIdenter) } returns listOf(
+            Tilgang(
+                "Ident1",
+                true,
+                "test"
+            ),
+            Tilgang("Ident2", true, "test")
+        )
 
         val tilgang = integrasjonService.sjekkTilgangTilPersoner(listeMedIdenter)
 
         verify(exactly = 1) { integrasjonClient.sjekkTilgangTilPersoner(listeMedIdenter) }
 
-        assertThat(tilgang.harTilgang, Is(true))
-        assertThat(tilgang.begrunnelse, Is("test"))
+        assertThat(tilgang.all { it.value.harTilgang }, Is(true))
+        assertThat(tilgang.all { it.value.begrunnelse == "test" }, Is(true))
     }
 }

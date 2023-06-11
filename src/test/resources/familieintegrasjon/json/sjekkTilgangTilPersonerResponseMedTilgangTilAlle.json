@@ -1,13 +1,16 @@
 [
   {
+    "personIdent": "ident1",
     "harTilgang": true,
     "begrunnelse": "Har tilgang"
   },
   {
+    "personIdent": "ident2",
     "harTilgang": true,
     "begrunnelse": "Har tilgang"
   },
   {
+    "personIdent": "ident3",
     "harTilgang": true,
     "begrunnelse": "Har tilgang"
   }

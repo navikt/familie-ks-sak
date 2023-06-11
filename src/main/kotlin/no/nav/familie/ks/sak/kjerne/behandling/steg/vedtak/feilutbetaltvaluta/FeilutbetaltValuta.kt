@@ -1,14 +1,14 @@
 package no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.feilutbetaltvaluta
 
+import jakarta.persistence.Column
+import jakarta.persistence.Entity
+import jakarta.persistence.GeneratedValue
+import jakarta.persistence.GenerationType
+import jakarta.persistence.Id
+import jakarta.persistence.SequenceGenerator
+import jakarta.persistence.Table
 import no.nav.familie.ks.sak.common.entitet.BaseEntitet
 import java.time.LocalDate
-import javax.persistence.Column
-import javax.persistence.Entity
-import javax.persistence.GeneratedValue
-import javax.persistence.GenerationType
-import javax.persistence.Id
-import javax.persistence.SequenceGenerator
-import javax.persistence.Table
 
 @Entity(name = "FeilutbetaltValuta")
 @Table(name = "FEILUTBETALT_VALUTA")

@@ -21,7 +21,7 @@ import no.nav.familie.ks.sak.data.lagFagsak
 import no.nav.familie.ks.sak.data.lagPersonopplysningGrunnlag
 import no.nav.familie.ks.sak.data.randomAktør
 import no.nav.familie.ks.sak.data.randomFnr
-import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
+import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonService
 import no.nav.familie.ks.sak.integrasjon.pdl.PersonOpplysningerService
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.ForelderBarnRelasjonInfo
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.PdlPersonInfo
@@ -52,7 +52,7 @@ class FagsakServiceTest {
     private lateinit var personidentService: PersonidentService
 
     @MockK
-    private lateinit var integrasjonClient: IntegrasjonClient
+    private lateinit var integrasjonService: IntegrasjonService
 
     @MockK
     private lateinit var personopplysningerService: PersonOpplysningerService
@@ -87,7 +87,7 @@ class FagsakServiceTest {
     @Test
     fun `hentFagsakDeltagere - skal returnere maskert deltaker dersom saksbehandler ikke har tilgang til aktør med bestemt personident`() {
         every { personidentService.hentAktør(any()) } returns randomAktør()
-        every { integrasjonClient.sjekkTilgangTilPersoner(any()) } returns Tilgang(false)
+        every { integrasjonService.sjekkTilgangTilPerson(any()) } returns Tilgang("test", false)
         every { personopplysningerService.hentAdressebeskyttelseSomSystembruker(any()) } returns ADRESSEBESKYTTELSEGRADERING.FORTROLIG
 
         val fagsakdeltakere = fagsakService.hentFagsakDeltagere(randomFnr())
@@ -107,7 +107,7 @@ class FagsakServiceTest {
         val barnIdenter = listOf(barnPersonident)
 
         every { personidentService.hentAktør(any()) } returns søkerAktør
-        every { integrasjonClient.sjekkTilgangTilPersoner(any()) } returns Tilgang(true)
+        every { integrasjonService.sjekkTilgangTilPerson(any()) } returns Tilgang("test", true)
         every { personopplysningerService.hentPersonInfoMedRelasjonerOgRegisterinformasjon(any()) } returns PdlPersonInfo(
             søkersFødselsdato,
             forelderBarnRelasjoner = setOf(ForelderBarnRelasjonInfo(barnAktør, FORELDERBARNRELASJONROLLE.BARN))
@@ -144,7 +144,7 @@ class FagsakServiceTest {
         val barnAktør = randomAktør(barnPersonident)
 
         every { personidentService.hentAktør(any()) } returns barnAktør
-        every { integrasjonClient.sjekkTilgangTilPersoner(any()) } returns Tilgang(true)
+        every { integrasjonService.sjekkTilgangTilPerson(any()) } returns Tilgang("test", true)
         every { personopplysningerService.hentPersonInfoMedRelasjonerOgRegisterinformasjon(any()) } returns PdlPersonInfo(
             barnFødselsdato,
             forelderBarnRelasjoner = setOf(ForelderBarnRelasjonInfo(søkerAktør, FORELDERBARNRELASJONROLLE.FAR))

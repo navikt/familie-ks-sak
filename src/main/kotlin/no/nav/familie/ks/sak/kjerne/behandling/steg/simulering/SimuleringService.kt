@@ -24,7 +24,7 @@ import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext
 import org.springframework.stereotype.Service
 import java.math.BigDecimal
 import java.time.LocalDate
-import javax.transaction.Transactional
+import jakarta.transaction.Transactional
 
 @Service
 class SimuleringService(

@@ -144,7 +144,7 @@ class TilgangService(
         personIdenter: List<String>
     ): Boolean {
         return harSaksbehandlerTilgang("validerTilgangTilPersoner", personIdenter) {
-            integrasjonService.sjekkTilgangTilPersoner(personIdenter).harTilgang
+            integrasjonService.sjekkTilgangTilPersoner(personIdenter).all { it.value.harTilgang }
         }
     }
 

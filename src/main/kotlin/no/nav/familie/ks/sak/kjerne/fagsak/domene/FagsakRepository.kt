@@ -1,12 +1,12 @@
 package no.nav.familie.ks.sak.kjerne.fagsak.domene
 
+import jakarta.persistence.LockModeType
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Lock
 import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.jpa.repository.Query
 import org.springframework.stereotype.Repository
-import javax.persistence.LockModeType
 
 @Repository
 interface FagsakRepository : JpaRepository<Fagsak, Long> {

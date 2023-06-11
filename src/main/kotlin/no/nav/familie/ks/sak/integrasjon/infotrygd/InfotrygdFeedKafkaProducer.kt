@@ -44,20 +44,18 @@ class InfotrygdFeedKafkaProducer(private val kafkaTemplate: KafkaTemplate<String
         val producerRecord = ProducerRecord(topic, key, melding)
 
         kafkaTemplate.send(producerRecord)
-            .addCallback(
-                {
-                    secureLogger.info(
-                        "Melding på topic $topic for $personIdent med $key er sendt. " +
+            .thenAccept {
+                secureLogger.info(
+                    "Melding på topic $topic for $personIdent med $key er sendt. " +
                             "Fikk offset ${it?.recordMetadata?.offset()}"
-                    )
-                },
-                {
-                    val feilmelding = "Melding på topic $topic kan ikke sendes for $personIdent med $key. " +
+                )
+            }
+            .exceptionally {
+                val feilmelding = "Melding på topic $topic kan ikke sendes for $personIdent med $key. " +
                         "Feiler med ${it.message}"
-                    secureLogger.warn(feilmelding)
-                    throw Feil(message = feilmelding)
-                }
-            )
+                secureLogger.warn(feilmelding)
+                throw Feil(message = feilmelding)
+            }
     }
 }
 

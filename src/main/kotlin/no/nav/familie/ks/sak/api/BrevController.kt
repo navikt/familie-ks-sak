@@ -1,5 +1,6 @@
 package no.nav.familie.ks.sak.api
 
+import jakarta.transaction.Transactional
 import no.nav.familie.kontrakter.felles.Ressurs
 import no.nav.familie.ks.sak.api.dto.BehandlingResponsDto
 import no.nav.familie.ks.sak.api.dto.ManueltBrevDto
@@ -22,7 +23,6 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
-import javax.transaction.Transactional
 
 @RestController
 @RequestMapping("/api/brev")

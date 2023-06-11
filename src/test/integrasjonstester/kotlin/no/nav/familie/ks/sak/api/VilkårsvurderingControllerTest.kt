@@ -81,7 +81,7 @@ class VilkårsvurderingControllerTest : OppslagSpringRunnerTest() {
         every { integrasjonClient.hentLand(any()) } returns "Norge"
 
         token = lokalTestToken(behandlerRolle = BehandlerRolle.BESLUTTER)
-        every { integrasjonClient.sjekkTilgangTilPersoner(any()) } returns Tilgang(true, "test")
+        every { integrasjonClient.sjekkTilgangTilPersoner(any()) } returns listOf(Tilgang("test", true))
     }
 
     @Test
@@ -136,16 +136,24 @@ class VilkårsvurderingControllerTest : OppslagSpringRunnerTest() {
         val behandlingForOppdatering = behandlingRepository.hentAktivBehandling(behandling.id)
         behandlingForOppdatering.behandlingStegTilstand.clear()
 
-        lagBehandlingStegTilstand(behandlingForOppdatering, BehandlingSteg.VILKÅRSVURDERING, BehandlingStegStatus.UTFØRT)
-        lagBehandlingStegTilstand(behandlingForOppdatering, BehandlingSteg.BEHANDLINGSRESULTAT, BehandlingStegStatus.UTFØRT)
+        lagBehandlingStegTilstand(
+            behandlingForOppdatering,
+            BehandlingSteg.VILKÅRSVURDERING,
+            BehandlingStegStatus.UTFØRT
+        )
+        lagBehandlingStegTilstand(
+            behandlingForOppdatering,
+            BehandlingSteg.BEHANDLINGSRESULTAT,
+            BehandlingStegStatus.UTFØRT
+        )
         lagBehandlingStegTilstand(behandlingForOppdatering, BehandlingSteg.SIMULERING, BehandlingStegStatus.UTFØRT)
         lagBehandlingStegTilstand(behandlingForOppdatering, BehandlingSteg.VEDTAK, BehandlingStegStatus.KLAR)
         lagreBehandling(behandlingForOppdatering)
 
         lagVedtakOgVedtaksperiode()
 
-        val bosattIRiketVilkår = vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(behandling.id)
-            .personResultater.find { it.aktør == søker }?.vilkårResultater?.find { it.vilkårType == Vilkår.BOSATT_I_RIKET }!!
+        val bosattIRiketVilkår =
+            vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(behandling.id).personResultater.find { it.aktør == søker }?.vilkårResultater?.find { it.vilkårType == Vilkår.BOSATT_I_RIKET }!!
 
         assertThat(bosattIRiketVilkår.periodeFom, Is(nullValue()))
 
@@ -192,8 +200,16 @@ class VilkårsvurderingControllerTest : OppslagSpringRunnerTest() {
 
         val oppdatertBehandling = behandlingRepository.hentAktivBehandling(behandlingForOppdatering.id)
         assertBehandlingHarStegOgStatus(oppdatertBehandling, BehandlingSteg.VILKÅRSVURDERING, BehandlingStegStatus.KLAR)
-        assertBehandlingHarStegOgStatus(oppdatertBehandling, BehandlingSteg.BEHANDLINGSRESULTAT, BehandlingStegStatus.TILBAKEFØRT)
-        assertBehandlingHarStegOgStatus(oppdatertBehandling, BehandlingSteg.SIMULERING, BehandlingStegStatus.TILBAKEFØRT)
+        assertBehandlingHarStegOgStatus(
+            oppdatertBehandling,
+            BehandlingSteg.BEHANDLINGSRESULTAT,
+            BehandlingStegStatus.TILBAKEFØRT
+        )
+        assertBehandlingHarStegOgStatus(
+            oppdatertBehandling,
+            BehandlingSteg.SIMULERING,
+            BehandlingStegStatus.TILBAKEFØRT
+        )
         assertBehandlingHarStegOgStatus(oppdatertBehandling, BehandlingSteg.VEDTAK, BehandlingStegStatus.TILBAKEFØRT)
     }
 
@@ -254,16 +270,23 @@ class VilkårsvurderingControllerTest : OppslagSpringRunnerTest() {
     fun `opprettNyttVilkår - skal opprette nytt vilkår og tilbakefører behandling til vilkårsvurdering steg`() {
         val behandlingForOppdatering = behandlingRepository.hentAktivBehandling(behandling.id)
         behandlingForOppdatering.behandlingStegTilstand.clear()
-        lagBehandlingStegTilstand(behandlingForOppdatering, BehandlingSteg.VILKÅRSVURDERING, BehandlingStegStatus.UTFØRT)
-        lagBehandlingStegTilstand(behandlingForOppdatering, BehandlingSteg.BEHANDLINGSRESULTAT, BehandlingStegStatus.UTFØRT)
+        lagBehandlingStegTilstand(
+            behandlingForOppdatering,
+            BehandlingSteg.VILKÅRSVURDERING,
+            BehandlingStegStatus.UTFØRT
+        )
+        lagBehandlingStegTilstand(
+            behandlingForOppdatering,
+            BehandlingSteg.BEHANDLINGSRESULTAT,
+            BehandlingStegStatus.UTFØRT
+        )
         lagBehandlingStegTilstand(behandlingForOppdatering, BehandlingSteg.SIMULERING, BehandlingStegStatus.UTFØRT)
         lagBehandlingStegTilstand(behandlingForOppdatering, BehandlingSteg.VEDTAK, BehandlingStegStatus.KLAR)
         lagreBehandling(behandlingForOppdatering)
 
         lagVedtakOgVedtaksperiode()
 
-        val request =
-            """
+        val request = """
                 {
                   "personIdent": "${søker.aktivFødselsnummer()}",
                    "vilkårType": "BOR_MED_SØKER"
@@ -289,8 +312,16 @@ class VilkårsvurderingControllerTest : OppslagSpringRunnerTest() {
 
         val oppdatertBehandling = behandlingRepository.hentAktivBehandling(behandlingForOppdatering.id)
         assertBehandlingHarStegOgStatus(oppdatertBehandling, BehandlingSteg.VILKÅRSVURDERING, BehandlingStegStatus.KLAR)
-        assertBehandlingHarStegOgStatus(oppdatertBehandling, BehandlingSteg.BEHANDLINGSRESULTAT, BehandlingStegStatus.TILBAKEFØRT)
-        assertBehandlingHarStegOgStatus(oppdatertBehandling, BehandlingSteg.SIMULERING, BehandlingStegStatus.TILBAKEFØRT)
+        assertBehandlingHarStegOgStatus(
+            oppdatertBehandling,
+            BehandlingSteg.BEHANDLINGSRESULTAT,
+            BehandlingStegStatus.TILBAKEFØRT
+        )
+        assertBehandlingHarStegOgStatus(
+            oppdatertBehandling,
+            BehandlingSteg.SIMULERING,
+            BehandlingStegStatus.TILBAKEFØRT
+        )
         assertBehandlingHarStegOgStatus(oppdatertBehandling, BehandlingSteg.VEDTAK, BehandlingStegStatus.TILBAKEFØRT)
     }
 
@@ -422,8 +453,7 @@ class VilkårsvurderingControllerTest : OppslagSpringRunnerTest() {
     ) =
         assertTrue(
             behandling.behandlingStegTilstand.any {
-                it.behandlingSteg == behandlingSteg &&
-                    it.behandlingStegStatus == behandlingStegStatus
+                it.behandlingSteg == behandlingSteg && it.behandlingStegStatus == behandlingStegStatus
             }
         )
 }

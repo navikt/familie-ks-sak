@@ -1,11 +1,11 @@
 package no.nav.familie.ks.sak.barnehagelister.domene
 
+import jakarta.persistence.Column
+import jakarta.persistence.Entity
+import jakarta.persistence.Id
+import jakarta.persistence.Table
 import java.time.LocalDateTime
 import java.util.UUID
-import javax.persistence.Column
-import javax.persistence.Entity
-import javax.persistence.Id
-import javax.persistence.Table
 
 @Entity(name = "BarnehagelisteMottatt")
 @Table(name = "BARNEHAGELISTE_MOTTATT")

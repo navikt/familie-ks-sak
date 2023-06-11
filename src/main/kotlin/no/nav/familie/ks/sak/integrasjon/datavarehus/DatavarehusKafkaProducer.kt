@@ -80,12 +80,8 @@ class DatavarehusKafkaProducer(private val kafkaTemplate: KafkaTemplate<String, 
                 "FagsakId: $fagsakId \n"
 
         kafkaTemplate.send(topic, key, melding)
-            .addCallback(
-                { log.info("Melding sendt på kafka. \n" + "Offset: ${it?.recordMetadata?.offset()} \n" + logMeldingMetadata) },
-                {
-                    throw Feil("Kafkamelding kan ikke sendes. \n" + logMeldingMetadata + "Feilmelding: \"${it.message}\"")
-                }
-            )
+            .thenAccept { log.info("Melding sendt på kafka. \n" + "Offset: ${it?.recordMetadata?.offset()} \n" + logMeldingMetadata) }
+            .exceptionally { throw Feil("Kafkamelding kan ikke sendes. \n" + logMeldingMetadata + "Feilmelding: \"${it.message}\"") }
     }
 }
 
