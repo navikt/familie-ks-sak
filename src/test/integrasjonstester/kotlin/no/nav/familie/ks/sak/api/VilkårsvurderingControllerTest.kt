@@ -292,7 +292,7 @@ class VilkårsvurderingControllerTest : OppslagSpringRunnerTest() {
                    "vilkårType": "BOR_MED_SØKER"
                   }
                 }
-            """.trimIndent()
+        """.trimIndent()
 
         Given {
             header("Authorization", "Bearer $token")

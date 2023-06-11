@@ -1,9 +1,6 @@
 package no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.arbeidsforhold
 
 import com.fasterxml.jackson.annotation.JsonIgnore
-import no.nav.familie.ks.sak.common.entitet.BaseEntitet
-import no.nav.familie.ks.sak.common.entitet.DatoIntervallEntitet
-import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
 import jakarta.persistence.Column
 import jakarta.persistence.Embedded
 import jakarta.persistence.Entity
@@ -14,6 +11,9 @@ import jakarta.persistence.JoinColumn
 import jakarta.persistence.ManyToOne
 import jakarta.persistence.SequenceGenerator
 import jakarta.persistence.Table
+import no.nav.familie.ks.sak.common.entitet.BaseEntitet
+import no.nav.familie.ks.sak.common.entitet.DatoIntervallEntitet
+import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
 
 @Entity(name = "GrArbeidsforhold")
 @Table(name = "PO_ARBEIDSFORHOLD")
