@@ -188,10 +188,9 @@ class BrevPeriodeContext(
             begrunnelse.begrunnelseType != BegrunnelseType.ENDRET_UTBETALING &&
             begrunnelse.begrunnelseType != BegrunnelseType.ETTER_ENDRET_UTBETALING -> {
             if (begrunnelse.begrunnelseType == BegrunnelseType.AVSLAG) {
-                persongrunnlag.personer
+                personerMedVilkårSomPasserBegrunnelse
                     .filter { it.type == PersonType.BARN }
-                    .map { it.fødselsdato } +
-                    uregistrerteBarn.mapNotNull { it.fødselsdato }
+                    .map { it.fødselsdato }
             } else {
                 (personerMedUtbetaling + personerMedVilkårSomPasserBegrunnelse).toSet()
                     .filter { it.type == PersonType.BARN }
