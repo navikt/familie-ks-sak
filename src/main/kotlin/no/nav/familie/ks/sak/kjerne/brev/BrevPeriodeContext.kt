@@ -206,7 +206,6 @@ class BrevPeriodeContext(
     }
 
     fun hentAntallBarnForBegrunnelse(
-        gjelderSøker: Boolean,
         barnasFødselsdatoer: List<LocalDate>,
         begrunnelse: Begrunnelse
     ): Int {
@@ -215,7 +214,6 @@ class BrevPeriodeContext(
 
         return when {
             erAvslagUregistrerteBarn -> uregistrerteBarn.size
-            gjelderSøker && begrunnelse.begrunnelseType == BegrunnelseType.AVSLAG -> 0
             else -> barnasFødselsdatoer.size
         }
     }
@@ -350,7 +348,6 @@ class BrevPeriodeContext(
                     gjelderAndreForelder = gjelderAndreForelder,
                     barnasFodselsdatoer = barnasFødselsdatoer.tilBrevTekst(),
                     antallBarn = hentAntallBarnForBegrunnelse(
-                        gjelderSøker = gjelderSøker,
                         barnasFødselsdatoer = barnasFødselsdatoer,
                         begrunnelse = begrunnelse
                     ),
