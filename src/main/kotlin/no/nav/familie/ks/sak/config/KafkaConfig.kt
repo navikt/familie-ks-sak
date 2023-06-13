@@ -96,7 +96,7 @@ class KafkaConfig(
             "specific.avro.reader" to true,
             ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG to StringDeserializer::class.java,
             ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG to KafkaAvroDeserializer::class.java,
-            ConsumerConfig.CLIENT_ID_CONFIG to "consumer-familie-baks-mottak-2",
+            ConsumerConfig.CLIENT_ID_CONFIG to "consumer-familie-ks-sak-2",
             ConsumerConfig.AUTO_OFFSET_RESET_CONFIG to "earliest",
         )
         return consumerConfigs.toMap()
