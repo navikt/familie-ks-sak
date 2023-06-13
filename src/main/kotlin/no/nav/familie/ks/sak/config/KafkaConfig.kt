@@ -1,5 +1,6 @@
 package no.nav.familie.ks.sak.config
 
+import io.confluent.kafka.serializers.KafkaAvroDeserializer
 import no.nav.familie.kontrakter.felles.Applikasjon
 import org.apache.kafka.clients.CommonClientConfigs
 import org.apache.kafka.clients.consumer.ConsumerConfig
@@ -51,6 +52,11 @@ class KafkaConfig(
     }
 
     @Bean
+    fun earliestConsumerFactoryAvro(): ConsumerFactory<String, String> {
+        return DefaultKafkaConsumerFactory(consumerConfigsEarliestAvro())
+    }
+
+    @Bean
     fun concurrentKafkaListenerContainerFactory(kafkaErrorHandler: KafkaErrorHandler): ConcurrentKafkaListenerContainerFactory<String, String> =
         ConcurrentKafkaListenerContainerFactory<String, String>().apply {
             setConcurrency(1)
@@ -67,6 +73,34 @@ class KafkaConfig(
             consumerFactory = earliestConsumerFactory()
             setCommonErrorHandler(kafkaErrorHandler)
         }
+
+    @Bean
+    fun earliestConcurrentKafkaListenerContainerFactoryAvro(kafkaErrorHandler: KafkaErrorHandler): ConcurrentKafkaListenerContainerFactory<String, String> =
+        ConcurrentKafkaListenerContainerFactory<String, String>().apply {
+            setConcurrency(1)
+            containerProperties.ackMode = ContainerProperties.AckMode.MANUAL
+            consumerFactory = earliestConsumerFactoryAvro()
+            setCommonErrorHandler(kafkaErrorHandler)
+        }
+
+    private fun consumerConfigsEarliestAvro(): Map<String, Any> {
+        val kafkaBrokers = System.getenv("KAFKA_BROKERS") ?: "http://localhost:9092"
+        val schemaRegisty = System.getenv("KAFKA_SCHEMA_REGISTRY") ?: "http://localhost:9093"
+        val schemaRegistryUser = System.getenv("KAFKA_SCHEMA_REGISTRY_USER") ?: "mangler i pod"
+        val schemaRegistryPassword = System.getenv("KAFKA_SCHEMA_REGISTRY_PASSWORD") ?: "mangler i pod"
+        val consumerConfigs = mutableMapOf(
+            ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG to kafkaBrokers,
+            "schema.registry.url" to schemaRegisty,
+            "basic.auth.credentials.source" to "USER_INFO",
+            "basic.auth.user.info" to "$schemaRegistryUser:$schemaRegistryPassword",
+            "specific.avro.reader" to true,
+            ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG to StringDeserializer::class.java,
+            ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG to KafkaAvroDeserializer::class.java,
+            ConsumerConfig.CLIENT_ID_CONFIG to "consumer-familie-baks-mottak-2",
+            ConsumerConfig.AUTO_OFFSET_RESET_CONFIG to "earliest",
+        )
+        return consumerConfigs.toMap()
+    }
 
     private fun producerConfigs() = mapOf(
         ProducerConfig.BOOTSTRAP_SERVERS_CONFIG to kafkaBrokers,
