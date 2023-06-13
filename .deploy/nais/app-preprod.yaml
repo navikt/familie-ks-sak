@@ -11,11 +11,11 @@ spec:
   leaderElection: true
   liveness:
     path: /internal/health/liveness
-    initialDelay: 30
+    initialDelay: 70
     failureThreshold: 10
   readiness:
     path: /internal/health/readyness
-    initialDelay: 30
+    initialDelay: 70
     failureThreshold: 10
   prometheus:
     enabled: true
@@ -102,7 +102,6 @@ spec:
   resources:
     limits:
       memory: 1024Mi
-      cpu: "1"
     requests:
       memory: 512Mi
       cpu: 500m
