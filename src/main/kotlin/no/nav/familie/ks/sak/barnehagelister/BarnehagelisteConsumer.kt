@@ -22,7 +22,6 @@ class BarnehagelisteConsumer(val barnehageListeService: BarnehageListeService) {
         id = "familie-ks-sak-barnehageliste",
         groupId = "familie-ks-sak-barnehageliste-group",
         topics = [KafkaConfig.BARNEHAGELISTE_TOPIC],
-        autoStartup = "false", // TODO: Fjern denne igjen når feilen er fikset
         containerFactory = "earliestConcurrentKafkaListenerContainerFactoryAvro",
     )
     fun listen(consumerRecord: ConsumerRecord<String, ReceivedMessage>, ack: Acknowledgment) {
