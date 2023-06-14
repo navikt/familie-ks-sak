@@ -99,7 +99,7 @@ class KafkaConfig(
             ConsumerConfig.CLIENT_ID_CONFIG to "consumer-familie-ks-sak-2",
             ConsumerConfig.AUTO_OFFSET_RESET_CONFIG to "earliest",
         )
-        return consumerConfigs.toMap()
+        return consumerConfigs.toMap() + securityConfig()
     }
 
     private fun producerConfigs() = mapOf(
