@@ -1,5 +1,6 @@
 package no.nav.familie.ks.sak.config
 
+import io.confluent.kafka.serializers.KafkaAvroDeserializer
 import no.nav.familie.kontrakter.felles.Applikasjon
 import org.apache.kafka.clients.CommonClientConfigs
 import org.apache.kafka.clients.consumer.ConsumerConfig
@@ -46,6 +47,16 @@ class KafkaConfig(
     }
 
     @Bean
+    fun earliestConsumerFactory(): ConsumerFactory<String, String> {
+        return DefaultKafkaConsumerFactory(consumerConfigsEarliest())
+    }
+
+    @Bean
+    fun earliestConsumerFactoryAvro(): ConsumerFactory<String, String> {
+        return DefaultKafkaConsumerFactory(consumerConfigsEarliestAvro())
+    }
+
+    @Bean
     fun concurrentKafkaListenerContainerFactory(kafkaErrorHandler: KafkaErrorHandler): ConcurrentKafkaListenerContainerFactory<String, String> =
         ConcurrentKafkaListenerContainerFactory<String, String>().apply {
             setConcurrency(1)
@@ -53,6 +64,43 @@ class KafkaConfig(
             consumerFactory = consumerFactory()
             setCommonErrorHandler(kafkaErrorHandler)
         }
+
+    @Bean
+    fun earliestConcurrentKafkaListenerContainerFactory(kafkaErrorHandler: KafkaErrorHandler): ConcurrentKafkaListenerContainerFactory<String, String> =
+        ConcurrentKafkaListenerContainerFactory<String, String>().apply {
+            setConcurrency(1)
+            containerProperties.ackMode = ContainerProperties.AckMode.MANUAL
+            consumerFactory = earliestConsumerFactory()
+            setCommonErrorHandler(kafkaErrorHandler)
+        }
+
+    @Bean
+    fun earliestConcurrentKafkaListenerContainerFactoryAvro(kafkaErrorHandler: KafkaErrorHandler): ConcurrentKafkaListenerContainerFactory<String, String> =
+        ConcurrentKafkaListenerContainerFactory<String, String>().apply {
+            setConcurrency(1)
+            containerProperties.ackMode = ContainerProperties.AckMode.MANUAL
+            consumerFactory = earliestConsumerFactoryAvro()
+            setCommonErrorHandler(kafkaErrorHandler)
+        }
+
+    private fun consumerConfigsEarliestAvro(): Map<String, Any> {
+        val kafkaBrokers = System.getenv("KAFKA_BROKERS") ?: "http://localhost:9092"
+        val schemaRegistry = System.getenv("KAFKA_SCHEMA_REGISTRY") ?: "http://localhost:9093"
+        val schemaRegistryUser = System.getenv("KAFKA_SCHEMA_REGISTRY_USER") ?: "mangler i pod"
+        val schemaRegistryPassword = System.getenv("KAFKA_SCHEMA_REGISTRY_PASSWORD") ?: "mangler i pod"
+        val consumerConfigs = mutableMapOf(
+            ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG to kafkaBrokers,
+            "schema.registry.url" to schemaRegistry,
+            "basic.auth.credentials.source" to "USER_INFO",
+            "basic.auth.user.info" to "$schemaRegistryUser:$schemaRegistryPassword",
+            "specific.avro.reader" to true,
+            ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG to StringDeserializer::class.java,
+            ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG to KafkaAvroDeserializer::class.java,
+            ConsumerConfig.CLIENT_ID_CONFIG to "consumer-familie-ks-sak-2",
+            ConsumerConfig.AUTO_OFFSET_RESET_CONFIG to "earliest",
+        )
+        return consumerConfigs.toMap() + securityConfig()
+    }
 
     private fun producerConfigs() = mapOf(
         ProducerConfig.BOOTSTRAP_SERVERS_CONFIG to kafkaBrokers,
@@ -70,6 +118,17 @@ class KafkaConfig(
         ConsumerConfig.GROUP_ID_CONFIG to "familie-ks-sak",
         ConsumerConfig.CLIENT_ID_CONFIG to "consumer-familie-ks-sak-1",
         ConsumerConfig.AUTO_OFFSET_RESET_CONFIG to "latest",
+        CommonClientConfigs.RETRIES_CONFIG to 10,
+        CommonClientConfigs.RETRY_BACKOFF_MS_CONFIG to 100,
+    ) + securityConfig()
+
+    fun consumerConfigsEarliest() = mapOf(
+        ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG to kafkaBrokers,
+        ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG to StringDeserializer::class.java,
+        ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG to StringDeserializer::class.java,
+        ConsumerConfig.GROUP_ID_CONFIG to "familie-ks-sak",
+        ConsumerConfig.CLIENT_ID_CONFIG to "consumer-familie-ks-sak-1",
+        ConsumerConfig.AUTO_OFFSET_RESET_CONFIG to "earliest",
         CommonClientConfigs.RETRIES_CONFIG to 10,
         CommonClientConfigs.RETRY_BACKOFF_MS_CONFIG to 100,
     ) + securityConfig()

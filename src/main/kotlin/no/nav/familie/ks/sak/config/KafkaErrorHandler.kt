@@ -26,7 +26,7 @@ class KafkaErrorHandler : CommonContainerStoppingErrorHandler() {
         e: Exception,
         records: List<ConsumerRecord<*, *>>,
         consumer: Consumer<*, *>,
-        container: MessageListenerContainer
+        container: MessageListenerContainer,
     ) {
         if (records.isEmpty()) {
             logger.error("Feil ved konsumering av melding. Ingen records. ${consumer.subscription()}", e)
@@ -60,7 +60,7 @@ class KafkaErrorHandler : CommonContainerStoppingErrorHandler() {
         records: List<ConsumerRecord<*, *>>,
         consumer: Consumer<*, *>,
         container: MessageListenerContainer,
-        topic: String
+        topic: String,
     ) {
         val now = System.currentTimeMillis()
         if (now - sisteFeil.getAndSet(now) > COUNTER_RESET_TID) {

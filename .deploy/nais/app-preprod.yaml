@@ -11,11 +11,11 @@ spec:
   leaderElection: true
   liveness:
     path: /internal/health/liveness
-    initialDelay: 30
+    initialDelay: 70
     failureThreshold: 10
   readiness:
     path: /internal/health/readyness
-    initialDelay: 30
+    initialDelay: 70
     failureThreshold: 10
   prometheus:
     enabled: true
@@ -88,6 +88,7 @@ spec:
         - application: familie-klage
           cluster: dev-gcp
       external:
+        - host: nav-dev-kafka-nav-dev.aivencloud.com
         - host: xsrv1mh6.api.sanity.io
         - host: pdl-api.dev-fss-pub.nais.io
         - host: familie-integrasjoner.dev-fss-pub.nais.io
@@ -100,10 +101,9 @@ spec:
     cpuThresholdPercentage: 50
   resources:
     limits:
-      memory: 1024Mi
-      cpu: "1"
+      memory: 2048Mi
     requests:
-      memory: 512Mi
+      memory: 1024Mi
       cpu: 500m
   ingresses:
     - https://familie-ks-sak.intern.dev.nav.no

@@ -1,5 +1,6 @@
 package no.nav.familie.ks.sak.barnehagelister
 
+import no.nav.altinnkanal.avro.ReceivedMessage
 import no.nav.familie.ks.sak.barnehagelister.domene.BarnehagelisteMottatt
 import no.nav.familie.ks.sak.config.KafkaConfig
 import org.apache.kafka.clients.consumer.ConsumerRecord
@@ -19,14 +20,13 @@ class BarnehagelisteConsumer(val barnehageListeService: BarnehageListeService) {
 
     @KafkaListener(
         id = "familie-ks-sak-barnehageliste",
+        groupId = "familie-ks-sak-barnehageliste-group",
         topics = [KafkaConfig.BARNEHAGELISTE_TOPIC],
-        containerFactory = "concurrentKafkaListenerContainerFactory",
-        autoStartup = "false", // TODO: Fjern denne igjen når feilen er fikset
+        containerFactory = "earliestConcurrentKafkaListenerContainerFactoryAvro",
     )
-    fun listen(consumerRecord: ConsumerRecord<String, String>, ack: Acknowledgment) {
-        val data: String = consumerRecord.value()
-        val key: String = consumerRecord.key()
-
+    fun listen(consumerRecord: ConsumerRecord<String, ReceivedMessage>, ack: Acknowledgment) {
+        val data: ReceivedMessage = consumerRecord.value()
+        val key: String = data.archiveReference
         logger.info("Barnehageliste mottatt på kafka med key $key")
 
         // Sjekk at vi ikke har mottat meldingen tidligere
@@ -39,7 +39,7 @@ class BarnehagelisteConsumer(val barnehageListeService: BarnehageListeService) {
         barnehageListeService.lagreBarnehageliste(
             BarnehagelisteMottatt(
                 meldingId = key,
-                melding = data,
+                melding = data.xmlMessage,
                 mottatTid = LocalDateTime.now(),
             ),
         )
