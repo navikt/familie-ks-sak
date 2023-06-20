@@ -120,6 +120,12 @@ class BrevServiceTest {
             behandlendeEnhetId = "1234"
         )
 
+        every { vilkårsvurderingService.finnAktivVilkårsvurdering(any()) } returns lagVilkårsvurderingMedSøkersVilkår(
+            søkerAktør = søker,
+            behandling = behandling,
+            resultat = Resultat.IKKE_VURDERT
+        )
+
         every { taskService.save(any()) } returns mockk()
 
         every { behandlingRepository.hentBehandling(behandlingId = behandling.id) } returns behandling
@@ -250,6 +256,12 @@ class BrevServiceTest {
             behandlendeEnhetId = "1234"
         )
 
+        every { vilkårsvurderingService.finnAktivVilkårsvurdering(any()) } returns lagVilkårsvurderingMedSøkersVilkår(
+            søkerAktør = søker,
+            behandling = behandling,
+            resultat = Resultat.IKKE_VURDERT
+        )
+
         every { taskService.save(any()) } returns mockk()
 
         every { behandlingRepository.hentBehandling(behandlingId = behandling.id) } returns behandling
@@ -293,7 +305,7 @@ class BrevServiceTest {
             )
         )
 
-        verify(exactly = 1) { vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(any()) }
+        verify(exactly = 1) { vilkårsvurderingService.finnAktivVilkårsvurdering(any()) }
     }
 
     @ParameterizedTest
@@ -344,6 +356,12 @@ class BrevServiceTest {
         every { journalføringRepository.save(any()) } returns mockk()
 
         every { vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(any()) } returns lagVilkårsvurderingMedSøkersVilkår(
+            søkerAktør = søker,
+            behandling = behandling,
+            resultat = Resultat.IKKE_VURDERT
+        )
+
+        every { vilkårsvurderingService.finnAktivVilkårsvurdering(any()) } returns lagVilkårsvurderingMedSøkersVilkår(
             søkerAktør = søker,
             behandling = behandling,
             resultat = Resultat.IKKE_VURDERT

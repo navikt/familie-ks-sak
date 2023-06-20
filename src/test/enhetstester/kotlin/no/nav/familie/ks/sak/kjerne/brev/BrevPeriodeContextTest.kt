@@ -268,56 +268,6 @@ class BrevPeriodeContextTest {
     }
 
     @Test
-    fun `genererBrevPeriodeDto skal gi riktig output for etterEndretUtbetalingEtterbetalingTreMaanedTilbakeITid dersom person har endretutbetalingandeler som matcher vedtaksperiode`() {
-        val barnFødselsdato = LocalDate.of(2021, 3, 15)
-
-        val personerIbehandling = listOf(
-            PersonIBehandling(
-                personType = PersonType.SØKER,
-                fødselsDato = LocalDate.now().minusYears(20),
-                overstyrendeVilkårResultater = emptyList()
-            ),
-            PersonIBehandling(
-                personType = PersonType.BARN,
-                fødselsDato = barnFødselsdato,
-                overstyrendeVilkårResultater = listOf(
-                    lagVilkårResultat(
-                        vilkårType = Vilkår.BARNETS_ALDER,
-                        periodeFom = barnFødselsdato.plusYears(1),
-                        periodeTom = barnFødselsdato.plusYears(2),
-                        utdypendeVilkårsvurderinger = listOf(UtdypendeVilkårsvurdering.ADOPSJON)
-                    )
-                )
-            )
-        )
-
-        val brevPeriodeDto = lagBrevPeriodeContext(
-            personerIBehandling = personerIbehandling,
-            begrunnelser = listOf(Begrunnelse.ETTER_ENDRET_UTBETALING_ETTERBETALING),
-            vedtaksperiodeType = Vedtaksperiodetype.UTBETALING,
-            skalOppretteEndretUtbetalingAndeler = true
-        ).genererBrevPeriodeDto()
-
-        Assertions.assertEquals(
-            BegrunnelseDataDto(
-                vedtakBegrunnelseType = BegrunnelseType.ETTER_ENDRET_UTBETALING,
-                apiNavn = "etterEndretUtbetalingEtterbetalingTreMaanedTilbakeITid",
-                sanityBegrunnelseType = SanityBegrunnelseType.STANDARD,
-                gjelderSoker = false,
-                gjelderAndreForelder = true,
-                barnasFodselsdatoer = barnFødselsdato.tilKortString(),
-                antallBarn = 1,
-                maanedOgAarBegrunnelsenGjelderFor = "april 2022",
-                maalform = "bokmaal",
-                belop = "7 500",
-                antallTimerBarnehageplass = "0",
-                soknadstidspunkt = "12.12.20"
-            ),
-            brevPeriodeDto?.begrunnelser?.single()
-        )
-    }
-
-    @Test
     fun `genererBrevPeriodeDto skal gi true for gjelderAnnenForelder feltet dersom annen forelder ikke er vurdert i MedlemskapAnnenForelder vilkåret`() {
         val barnFødselsdato = LocalDate.of(2021, 3, 15)
 
@@ -350,15 +300,15 @@ class BrevPeriodeContextTest {
 
         val brevPeriodeDto = lagBrevPeriodeContext(
             personerIBehandling = personerIbehandling,
-            begrunnelser = listOf(Begrunnelse.ETTER_ENDRET_UTBETALING_ETTERBETALING),
+            begrunnelser = listOf(Begrunnelse.INNVILGET_IKKE_BARNEHAGE_ADOPSJON),
             vedtaksperiodeType = Vedtaksperiodetype.UTBETALING,
             skalOppretteEndretUtbetalingAndeler = true
         ).genererBrevPeriodeDto()
 
         Assertions.assertEquals(
             BegrunnelseDataDto(
-                vedtakBegrunnelseType = BegrunnelseType.ETTER_ENDRET_UTBETALING,
-                apiNavn = "etterEndretUtbetalingEtterbetalingTreMaanedTilbakeITid",
+                vedtakBegrunnelseType = BegrunnelseType.INNVILGET,
+                apiNavn = Begrunnelse.INNVILGET_IKKE_BARNEHAGE_ADOPSJON.sanityApiNavn,
                 sanityBegrunnelseType = SanityBegrunnelseType.STANDARD,
                 gjelderSoker = false,
                 gjelderAndreForelder = true,
@@ -368,7 +318,7 @@ class BrevPeriodeContextTest {
                 maalform = "bokmaal",
                 belop = "7 500",
                 antallTimerBarnehageplass = "0",
-                soknadstidspunkt = "12.12.20"
+                soknadstidspunkt = ""
             ),
             brevPeriodeDto?.begrunnelser?.single()
         )
@@ -407,15 +357,15 @@ class BrevPeriodeContextTest {
 
         val brevPeriodeDto = lagBrevPeriodeContext(
             personerIBehandling = personerIbehandling,
-            begrunnelser = listOf(Begrunnelse.ETTER_ENDRET_UTBETALING_ETTERBETALING),
+            begrunnelser = listOf(Begrunnelse.INNVILGET_IKKE_BARNEHAGE_ADOPSJON),
             vedtaksperiodeType = Vedtaksperiodetype.UTBETALING,
             skalOppretteEndretUtbetalingAndeler = true
         ).genererBrevPeriodeDto()
 
         Assertions.assertEquals(
             BegrunnelseDataDto(
-                vedtakBegrunnelseType = BegrunnelseType.ETTER_ENDRET_UTBETALING,
-                apiNavn = "etterEndretUtbetalingEtterbetalingTreMaanedTilbakeITid",
+                vedtakBegrunnelseType = BegrunnelseType.INNVILGET,
+                apiNavn = Begrunnelse.INNVILGET_IKKE_BARNEHAGE_ADOPSJON.sanityApiNavn,
                 sanityBegrunnelseType = SanityBegrunnelseType.STANDARD,
                 gjelderSoker = false,
                 gjelderAndreForelder = false,
@@ -425,7 +375,7 @@ class BrevPeriodeContextTest {
                 maalform = "bokmaal",
                 belop = "7 500",
                 antallTimerBarnehageplass = "0",
-                soknadstidspunkt = "12.12.20"
+                soknadstidspunkt = ""
             ),
             brevPeriodeDto?.begrunnelser?.single()
         )

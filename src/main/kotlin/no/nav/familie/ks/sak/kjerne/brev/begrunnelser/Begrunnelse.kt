@@ -31,26 +31,6 @@ enum class Begrunnelse : IBegrunnelse {
         override val begrunnelseType = BegrunnelseType.INNVILGET
         override val sanityApiNavn = "innvilgetDeltidBarnehageAdopsjon"
     },
-    INNVILGET_BARN_UNDER_2_ÅR {
-        override val begrunnelseType = BegrunnelseType.INNVILGET
-        override val sanityApiNavn = "innvilgetBarnUnder2År"
-    },
-    INNVILGET_BARN_SLUTTET_I_BARNEHAGE {
-        override val begrunnelseType = BegrunnelseType.INNVILGET
-        override val sanityApiNavn = "innvilgetBarnSluttetIBarnehage"
-    },
-    INNVILGET_SØKER_OG_ELLER_BARN_BOSATT_I_RIKET {
-        override val begrunnelseType = BegrunnelseType.INNVILGET
-        override val sanityApiNavn = "innvilgetSøkerOgEllerBarnBosattIRiket"
-    },
-    INNVILGET_SØKER_OG_ELLER_BARN_HAR_OPPHOLDSTILLATELSE {
-        override val begrunnelseType = BegrunnelseType.INNVILGET
-        override val sanityApiNavn = "innvilgetSøkerOgEllerBarnHarOppholdstillatelse"
-    },
-    INNVILGET_SØKER_OG_ELLER_BARN_BOSATT_I_RIKET_OG_HAR_OPPHOLDSTILLATELSE {
-        override val begrunnelseType = BegrunnelseType.INNVILGET
-        override val sanityApiNavn = "innvilgetSøkerOgEllerBarnBosattIRiketOgHarOppholdstillatelse"
-    },
     INNVILGET_MÅNEDEN_ETTER_ETT_ÅR {
         override val begrunnelseType = BegrunnelseType.INNVILGET
         override val sanityApiNavn = "innvilgetMaanedenEtterEttAar"
@@ -111,17 +91,9 @@ enum class Begrunnelse : IBegrunnelse {
         override val begrunnelseType = BegrunnelseType.INNVILGET
         override val sanityApiNavn = "innvilgetTredjelandsborgerLovligOppholdForBosattINorge"
     },
-    INNVILGET_TREDJELANDSBORGER_LOVLIG_OPPHOLD_FØR_BOSATT_I_NORGE_SØKER {
-        override val begrunnelseType = BegrunnelseType.INNVILGET
-        override val sanityApiNavn = "innvilgetTredjelandsborgerLovligOppholdForBosattINorgeSoker"
-    },
     INNVILGET_TREDJELANDSBORGER_BOSATT_FØR_LOVLIG_OPPHOLD_I_NORGE {
         override val begrunnelseType = BegrunnelseType.INNVILGET
         override val sanityApiNavn = "innvilgetTredjelandsborgerBosattForLovligOppholdINorge"
-    },
-    INNVILGET_TREDJELANDSBORGER_BOSATT_FØR_LOVLIG_OPPHOLD_I_NORGE_SØKER {
-        override val begrunnelseType = BegrunnelseType.INNVILGET
-        override val sanityApiNavn = "innvilgetTredjelandsborgerBosattForLovligOppholdINorgeSoker"
     },
     INNVILGET_VURDERING_BOR_FAST_HOS_SØKER {
         override val begrunnelseType = BegrunnelseType.INNVILGET
@@ -299,9 +271,9 @@ enum class Begrunnelse : IBegrunnelse {
         override val begrunnelseType = BegrunnelseType.AVSLAG
         override val sanityApiNavn = "avslagOppholdsrettEOSBorger"
     },
-    ETTER_ENDRET_UTBETALING_ETTERBETALING {
-        override val begrunnelseType = BegrunnelseType.ETTER_ENDRET_UTBETALING
-        override val sanityApiNavn = "etterEndretUtbetalingEtterbetalingTreMaanedTilbakeITid"
+    AVSLAG_SØKT_FOR_SENT_ENDRINGSPERIODE {
+        override val begrunnelseType = BegrunnelseType.AVSLAG
+        override val sanityApiNavn = "avslagSokerForSentEndringsperiode"
     },
     OPPHØR_FULLTIDSPLASS_I_BARNEHAGE {
         override val begrunnelseType = BegrunnelseType.OPPHØR

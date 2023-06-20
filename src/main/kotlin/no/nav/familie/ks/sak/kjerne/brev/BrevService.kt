@@ -21,6 +21,7 @@ import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.ArbeidsfordelingService
 import no.nav.familie.ks.sak.kjerne.behandling.SettBehandlingPåVentService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
+import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.AnnenVurderingType
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.Brevmal
@@ -230,8 +231,17 @@ class BrevService(
     }
 
     private fun leggTilOpplysningspliktIVilkårsvurdering(behandling: Behandling) {
-        val vilkårsvurdering = vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(behandling.id)
+        val sisteVedtattBehandling by lazy { hentSisteBehandlingSomErVedtatt(behandling.fagsak.id) }
+
+        val vilkårsvurdering = vilkårsvurderingService.finnAktivVilkårsvurdering(behandling.id)
+            ?: vilkårsvurderingService.opprettVilkårsvurdering(behandling, sisteVedtattBehandling)
+
         vilkårsvurdering.personResultater.single { it.erSøkersResultater() }
             .leggTilBlankAnnenVurdering(AnnenVurderingType.OPPLYSNINGSPLIKT)
     }
+
+    private fun hentSisteBehandlingSomErVedtatt(fagsakId: Long): Behandling? =
+        behandlingRepository.finnBehandlinger(fagsakId)
+            .filter { !it.erHenlagt() && it.status == BehandlingStatus.AVSLUTTET }
+            .maxByOrNull { it.opprettetTidspunkt }
 }
