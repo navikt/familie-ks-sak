@@ -236,8 +236,7 @@ object YtelsePersonUtils {
                     perioderFjernet.any { it.verdi.kalkulertUtbetalingsbeløp > 0 }
 
                 when {
-                    erPeriodeMedEndretBeløp -> ENDRET_UTBETALING
-                    opphører -> IKKE_VURDERT
+                    opphører -> if (erPeriodeMedEndretBeløp) ENDRET_UTBETALING else IKKE_VURDERT
                     beløpRedusert || finnesReduksjonerTilbakeITidMedBeløp -> ENDRET_UTBETALING
                     finnesReduksjonerTilbakeITid -> ENDRET_UTEN_UTBETALING
                     else -> IKKE_VURDERT
