@@ -240,10 +240,10 @@ class BehandlingService(
 
         return behandlingerPåFagsakene
             .groupBy { it.fagsak.id }
-            .mapNotNull { (_, behandling) -> behandling.hentSisteBehandlingSomErAvsluttetEllerSendtTilØkonomi() }
+            .mapNotNull { (_, behandling) -> behandling.filtrerSisteBehandlingSomErAvsluttetEllerSendtTilØkonomi() }
     }
 
-    private fun List<Behandling>.hentSisteBehandlingSomErAvsluttetEllerSendtTilØkonomi() =
+    private fun List<Behandling>.filtrerSisteBehandlingSomErAvsluttetEllerSendtTilØkonomi() =
         filter { !it.erHenlagt() && (it.status == BehandlingStatus.AVSLUTTET || it.status == BehandlingStatus.IVERKSETTER_VEDTAK) }
             .maxByOrNull { it.opprettetTidspunkt }
 
