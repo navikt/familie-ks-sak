@@ -1,0 +1,12 @@
+{
+  "namespace": "no.nav.altinnkanal.avro",
+  "type": "record",
+  "name": "ExternalAttachment",
+  "fields": [
+    { "name": "batch", "type": "string" },
+    { "name": "serviceCode", "type": "string" },
+    { "name": "serviceEditionCode", "type": "string" },
+    { "name": "archiveReference", "type": "string" },
+    { "name": "callId", "type": "string", "default": "NONE" }
+  ]
+}

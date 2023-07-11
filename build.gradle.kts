@@ -9,6 +9,7 @@ plugins {
     id("org.jetbrains.kotlin.plugin.spring") version kotlinVersion
     id("org.jetbrains.kotlin.plugin.jpa") version kotlinVersion
     id("org.jetbrains.kotlin.plugin.allopen") version kotlinVersion
+    id("com.github.davidmc24.gradle.plugin.avro") version "1.5.0"
 }
 
 group = "no.nav"
@@ -17,6 +18,9 @@ java.sourceCompatibility = JavaVersion.VERSION_17
 
 repositories {
     mavenCentral()
+    maven {
+        url = uri("https://packages.confluent.io/maven")
+    }
     maven {
         url = uri("https://maven.pkg.github.com/navikt/familie-felles")
         credentials {
@@ -67,6 +71,10 @@ dependencies {
     // ---------- Apache ---------- \\
     implementation("org.apache.httpcomponents:httpclient:4.5.13")
     implementation("org.apache.httpcomponents:httpcore:4.4.15")
+
+    // ----------- AVRO ---------\\
+    implementation("org.apache.avro:avro:1.11.1")
+    implementation("io.confluent:kafka-avro-serializer:7.4.0")
 
     // ---------- NAV ---------- \\
     implementation("no.nav.familie.felles:sikkerhet:$navFellesVersion")
