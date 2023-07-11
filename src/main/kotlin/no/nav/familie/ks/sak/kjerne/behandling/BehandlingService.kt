@@ -18,6 +18,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingKategori
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat
+import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg
 import no.nav.familie.ks.sak.kjerne.behandling.steg.registrersøknad.SøknadGrunnlagService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.VedtakRepository
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.feilutbetaltvaluta.FeilutbetaltValutaService
@@ -196,6 +197,23 @@ class BehandlingService(
     fun hentAktivtFødselsnummerForBehandlinger(behandlingIder: List<Long>): Map<Long, String> =
         behandlingRepository.finnAktivtFødselsnummerForBehandlinger(behandlingIder).associate { it.first to it.second }
 
+    fun hentIverksatteBehandlinger(fagsakId: Long): List<Behandling> =
+        behandlingRepository.finnIverksatteBehandlinger(fagsakId = fagsakId)
+
+    /**
+     * Henter siste iverksatte behandling på fagsak
+     */
+    fun hentSisteBehandlingSomErIverksatt(fagsakId: Long): Behandling? {
+        val iverksatteBehandlinger = hentIverksatteBehandlinger(fagsakId)
+        return hentSisteBehandlingSomErIverksatt(iverksatteBehandlinger)
+    }
+
+    private fun hentSisteBehandlingSomErIverksatt(iverksatteBehandlinger: List<Behandling>): Behandling? {
+        return iverksatteBehandlinger
+            .filter { it.steg == BehandlingSteg.AVSLUTT_BEHANDLING }
+            .maxByOrNull { it.opprettetTidspunkt }
+    }
+
     @Transactional
     fun endreBehandlingstemaPåBehandling(behandlingId: Long, overstyrtKategori: BehandlingKategori): Behandling {
         val behandling = hentBehandling(behandlingId)
@@ -217,15 +235,15 @@ class BehandlingService(
             .filter { it.erAvsluttet() && !it.erHenlagt() }
     }
 
-    fun hentSisteBehandlingSomErSendtTilØkonomiPerFagsak(fagsakIder: Set<Long>): List<Behandling> {
+    fun hentSisteBehandlingSomErAvsluttetEllerSendtTilØkonomiPerFagsak(fagsakIder: Set<Long>): List<Behandling> {
         val behandlingerPåFagsakene = behandlingRepository.finnBehandlinger(fagsakIder)
 
         return behandlingerPåFagsakene
             .groupBy { it.fagsak.id }
-            .mapNotNull { (_, behandling) -> behandling.hentSisteSomErSentTilØkonomi() }
+            .mapNotNull { (_, behandling) -> behandling.filtrerSisteBehandlingSomErAvsluttetEllerSendtTilØkonomi() }
     }
 
-    private fun List<Behandling>.hentSisteSomErSentTilØkonomi() =
+    private fun List<Behandling>.filtrerSisteBehandlingSomErAvsluttetEllerSendtTilØkonomi() =
         filter { !it.erHenlagt() && (it.status == BehandlingStatus.AVSLUTTET || it.status == BehandlingStatus.IVERKSETTER_VEDTAK) }
             .maxByOrNull { it.opprettetTidspunkt }
 
