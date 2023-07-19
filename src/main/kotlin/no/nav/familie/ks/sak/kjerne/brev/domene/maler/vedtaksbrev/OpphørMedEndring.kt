@@ -25,28 +25,28 @@ data class OpphørMedEndring(
         etterbetaling: Etterbetaling? = null,
         erFeilutbetalingPåBehandling: Boolean
     ) :
-            this(
-                mal = mal,
-                data = OpphørMedEndringData(
-                    delmalData = OpphørMedEndringData.Delmaler(
-                        signaturVedtak = SignaturVedtak(
-                            enhet = fellesdataForVedtaksbrev.enhet,
-                            saksbehandler = fellesdataForVedtaksbrev.saksbehandler,
-                            beslutter = fellesdataForVedtaksbrev.beslutter
-                        ),
-                        etterbetaling = etterbetaling,
-                        hjemmeltekst = fellesdataForVedtaksbrev.hjemmeltekst,
-                        feilutbetaling = erFeilutbetalingPåBehandling,
-                        korrigertVedtak = fellesdataForVedtaksbrev.korrigertVedtakData
+        this(
+            mal = mal,
+            data = OpphørMedEndringData(
+                delmalData = OpphørMedEndringData.Delmaler(
+                    signaturVedtak = SignaturVedtak(
+                        enhet = fellesdataForVedtaksbrev.enhet,
+                        saksbehandler = fellesdataForVedtaksbrev.saksbehandler,
+                        beslutter = fellesdataForVedtaksbrev.beslutter
                     ),
-                    flettefelter = object : FlettefelterForDokumentDto {
-                        override val navn = flettefelt(fellesdataForVedtaksbrev.søkerNavn)
-                        override val fodselsnummer = flettefelt(fellesdataForVedtaksbrev.søkerFødselsnummer)
-                        override val brevOpprettetDato = flettefelt(LocalDate.now().tilDagMånedÅr())
-                    },
-                    perioder = fellesdataForVedtaksbrev.perioder
-                )
+                    etterbetaling = etterbetaling,
+                    hjemmeltekst = fellesdataForVedtaksbrev.hjemmeltekst,
+                    feilutbetaling = erFeilutbetalingPåBehandling,
+                    korrigertVedtak = fellesdataForVedtaksbrev.korrigertVedtakData
+                ),
+                flettefelter = object : FlettefelterForDokumentDto {
+                    override val navn = flettefelt(fellesdataForVedtaksbrev.søkerNavn)
+                    override val fodselsnummer = flettefelt(fellesdataForVedtaksbrev.søkerFødselsnummer)
+                    override val brevOpprettetDato = flettefelt(LocalDate.now().tilDagMånedÅr())
+                },
+                perioder = fellesdataForVedtaksbrev.perioder
             )
+        )
 }
 
 data class OpphørMedEndringData(
