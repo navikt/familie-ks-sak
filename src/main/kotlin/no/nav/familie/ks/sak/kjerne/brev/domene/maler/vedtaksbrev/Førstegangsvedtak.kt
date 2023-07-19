@@ -1,8 +1,14 @@
-package no.nav.familie.ks.sak.kjerne.brev.domene.maler
+package no.nav.familie.ks.sak.kjerne.brev.domene.maler.vedtaksbrev
 
 import no.nav.familie.ks.sak.kjerne.brev.domene.FellesdataForVedtaksbrev
 import no.nav.familie.ks.sak.kjerne.brev.domene.VedtaksbrevData
 import no.nav.familie.ks.sak.kjerne.brev.domene.VedtaksbrevDto
+import no.nav.familie.ks.sak.kjerne.brev.domene.maler.Brevmal
+import no.nav.familie.ks.sak.kjerne.brev.domene.maler.Etterbetaling
+import no.nav.familie.ks.sak.kjerne.brev.domene.maler.FlettefelterForDokumentDtoImpl
+import no.nav.familie.ks.sak.kjerne.brev.domene.maler.Hjemmeltekst
+import no.nav.familie.ks.sak.kjerne.brev.domene.maler.KorrigertVedtakData
+import no.nav.familie.ks.sak.kjerne.brev.domene.maler.SignaturVedtak
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.brevperioder.BrevPeriodeDto
 
 data class Førstegangsvedtak(
