@@ -145,7 +145,7 @@ internal class UtbetalingsoppdragGeneratorTest {
                 )
             ),
             AndelTilkjentYtelseForIverksetting.Factory,
-            forrigeTilkjentYtelse = forrigeTilkjentYtelse
+            forrigeTilkjentYtelseMedAndeler = forrigeTilkjentYtelse
         )
 
         val utbetalingsoppdrag = konvertTilUtbetalingsoppdrag(oppdatertTilkjentYtelse.utbetalingsoppdrag)
@@ -285,7 +285,7 @@ internal class UtbetalingsoppdragGeneratorTest {
                     tilkjentYtelse = tilkjentYtelseIAndreBehandling
                 ),
                 AndelTilkjentYtelseForIverksetting.Factory,
-                forrigeTilkjentYtelse = oppdatertTilkjentYtelseIFørsteBehandling
+                forrigeTilkjentYtelseMedAndeler = oppdatertTilkjentYtelseIFørsteBehandling
             )
 
         val utbetalingsoppdrag =
@@ -410,7 +410,7 @@ internal class UtbetalingsoppdragGeneratorTest {
                     tilkjentYtelse = tilkjentYtelseIAndreBehandling
                 ),
                 AndelTilkjentYtelseForIverksetting.Factory,
-                forrigeTilkjentYtelse = oppdatertTilkjentYtelseIFørsteBehandling
+                forrigeTilkjentYtelseMedAndeler = oppdatertTilkjentYtelseIFørsteBehandling
             )
 
         val utbetalingsoppdrag =
@@ -550,7 +550,7 @@ internal class UtbetalingsoppdragGeneratorTest {
                     erSimulering = true
                 ),
                 AndelTilkjentYtelseForIverksetting.Factory,
-                forrigeTilkjentYtelse = oppdatertTilkjentYtelseIFørsteBehandling
+                forrigeTilkjentYtelseMedAndeler = oppdatertTilkjentYtelseIFørsteBehandling
             )
 
         val utbetalingsoppdrag =

@@ -25,10 +25,11 @@ import no.nav.familie.ks.sak.kjerne.brev.domene.VedtaksbrevDto
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.Brevmal
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.Etterbetaling
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.FeilutbetaltValuta
-import no.nav.familie.ks.sak.kjerne.brev.domene.maler.Førstegangsvedtak
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.Hjemmeltekst
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.KorrigertVedtakData
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.vedtaksbrev.Avslag
+import no.nav.familie.ks.sak.kjerne.brev.domene.maler.vedtaksbrev.Førstegangsvedtak
+import no.nav.familie.ks.sak.kjerne.brev.domene.maler.vedtaksbrev.OpphørMedEndring
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.vedtaksbrev.Opphørt
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.vedtaksbrev.VedtakEndring
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
@@ -142,6 +143,12 @@ class GenererBrevService(
             Brevmal.VEDTAK_OPPHØRT -> Opphørt(
                 fellesdataForVedtaksbrev = fellesdataForVedtaksbrev,
                 erFeilutbetalingPåBehandling = erFeilutbetalingPåBehandling(behandlingId = behandling.id)
+            )
+
+            Brevmal.VEDTAK_OPPHØR_MED_ENDRING -> OpphørMedEndring(
+                fellesdataForVedtaksbrev = fellesdataForVedtaksbrev,
+                etterbetaling = etterbetaling,
+                erFeilutbetalingPåBehandling = erFeilutbetalingPåBehandling(behandlingId = behandling.id),
             )
 
             else -> throw Feil("Forsøker å hente vedtaksbrevdata for brevmal ${brevtype.visningsTekst}")
