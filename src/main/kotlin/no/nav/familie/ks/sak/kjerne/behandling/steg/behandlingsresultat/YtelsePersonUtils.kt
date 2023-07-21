@@ -38,7 +38,7 @@ object YtelsePersonUtils {
      */
     fun utledYtelsePersonerMedResultat(
         behandlingsresultatPersoner: List<BehandlingsresultatPerson>,
-        uregistrerteBarn: List<String> = emptyList()
+        uregistrerteBarn: List<String> = emptyList(),
     ): List<YtelsePerson> {
         val altOpphørt = behandlingsresultatPersoner.all { erYtelsenOpphørt(it.andeler) }
 
@@ -48,6 +48,11 @@ object YtelsePersonUtils {
 
             val tidslinjeForForrigeAndeler = forrigeAndeler.tilTidslinje()
             val tidslinjeForAndeler = andeler.tilTidslinje()
+
+            val erBeløpEndretTidslinje =
+                tidslinjeForAndeler.kombinerMed(tidslinjeForForrigeAndeler) { andel, andelForrigeBehandling ->
+                    andel != null && andelForrigeBehandling != null && andel.kalkulertUtbetalingsbeløp != andelForrigeBehandling.kalkulertUtbetalingsbeløp
+                }.tilPerioder().filtrerIkkeNull()
 
             val perioderLagtTil = tidslinjeForAndeler.kombinerMed(tidslinjeForForrigeAndeler) { verdi1, verdi2 ->
                 if (verdi2 == null) verdi1 else null
@@ -88,9 +93,10 @@ object YtelsePersonUtils {
 
             // 4. sjekk endring
             utledYtelsePersonResultatVedEndring(
-                behandlingsresultatPerson,
-                perioderLagtTil,
-                perioderFjernet
+                behandlingsresultatPerson = behandlingsresultatPerson,
+                perioderLagtTil = perioderLagtTil,
+                perioderFjernet = perioderFjernet,
+                erBeløpEndretTidslinje = erBeløpEndretTidslinje,
             ).let { if (it != IKKE_VURDERT) resultater.add(it) }
 
             ytelsePerson.copy(resultater = resultater, ytelseSlutt = ytelseSlutt)
@@ -100,7 +106,7 @@ object YtelsePersonUtils {
                 resultater = setOf(AVSLÅTT),
                 ytelseType = YtelseType.ORDINÆR_KONTANTSTØTTE,
                 ytelseSlutt = TIDENES_MORGEN.toYearMonth(),
-                kravOpprinnelse = listOf(KravOpprinnelse.INNEVÆRENDE)
+                kravOpprinnelse = listOf(KravOpprinnelse.INNEVÆRENDE),
             )
         }
     }
@@ -124,21 +130,22 @@ object YtelsePersonUtils {
 
     fun oppdaterYtelsePersonResultaterVedOpphør(ytelsePersoner: List<YtelsePerson>): Set<YtelsePersonResultat> {
         val resultater = ytelsePersoner.flatMap { it.resultater }.toMutableSet()
-        val erKunFremstilKravIDenneBehandling = ytelsePersoner.flatMap { it.kravOpprinnelse }.all { it == KravOpprinnelse.INNEVÆRENDE }
+        val erKunFremstilKravIDenneBehandling =
+            ytelsePersoner.flatMap { it.kravOpprinnelse }.all { it == KravOpprinnelse.INNEVÆRENDE }
 
         val kunFortsattOpphørt = resultater.all { it == FORTSATT_OPPHØRT }
         val erAvslått = resultater.all { it == AVSLÅTT }
 
-        val altOpphører = ytelsePersoner.all { it.ytelseSlutt != null && it.ytelseSlutt.erSammeEllerTidligere(inneværendeMåned()) }
+        val altOpphører =
+            ytelsePersoner.all { it.ytelseSlutt != null && it.ytelseSlutt.erSammeEllerTidligere(inneværendeMåned()) }
         val noeOpphørerPåTidligereBarn = ytelsePersoner.any {
             it.resultater.contains(OPPHØRT) && !it.kravOpprinnelse.contains(KravOpprinnelse.INNEVÆRENDE)
         }
         // alle barn har opphørt på samme dato, mao alle barn har samme ytelseSlutt og eller alle barn får avslått
-        val opphørPåSammeTid = altOpphører &&
-            (
-                ytelsePersoner.filter { it.resultater != setOf(AVSLÅTT) }
-                    .groupBy { it.ytelseSlutt }.size == 1 || erAvslått
-                )
+        val opphørPåSammeTid = altOpphører && (
+            ytelsePersoner.filter { it.resultater != setOf(AVSLÅTT) }
+                .groupBy { it.ytelseSlutt }.size == 1 || erAvslått
+            )
 
         // Hvis alt ikke er opphørt, kan ikke resultater ha Opphørt
         if (!altOpphører) resultater.remove(OPPHØRT)
@@ -157,35 +164,34 @@ object YtelsePersonUtils {
     private fun erYtelsenOpphørt(andeler: List<BehandlingsresultatAndelTilkjentYtelse>) =
         andeler.none { it.erLøpende(YearMonth.now()) }
 
-    private fun List<BehandlingsresultatAndelTilkjentYtelse>.tilTidslinje():
-        Tidslinje<BehandlingsresultatAndelTilkjentYtelse> = this.map {
-        Periode(
-            verdi = it,
-            fom = it.stønadFom.førsteDagIInneværendeMåned(),
-            tom = it.stønadTom.sisteDagIInneværendeMåned()
-        )
-    }.tilTidslinje()
+    private fun List<BehandlingsresultatAndelTilkjentYtelse>.tilTidslinje(): Tidslinje<BehandlingsresultatAndelTilkjentYtelse> =
+        this.map {
+            Periode(
+                verdi = it,
+                fom = it.stønadFom.førsteDagIInneværendeMåned(),
+                tom = it.stønadTom.sisteDagIInneværendeMåned(),
+            )
+        }.tilTidslinje()
 
     private fun avslagPåNyPerson(
         personSomSjekkes: YtelsePerson,
-        perioderLagtTil: List<Periode<BehandlingsresultatAndelTilkjentYtelse>>
-    ) = personSomSjekkes.kravOpprinnelse == listOf(KravOpprinnelse.INNEVÆRENDE) &&
-        perioderLagtTil.isEmpty()
+        perioderLagtTil: List<Periode<BehandlingsresultatAndelTilkjentYtelse>>,
+    ) = personSomSjekkes.kravOpprinnelse == listOf(KravOpprinnelse.INNEVÆRENDE) && perioderLagtTil.isEmpty()
 
     private fun finnesInnvilget(
         behandlingsresultatPerson: BehandlingsresultatPerson,
-        perioderLagtTil: List<Periode<BehandlingsresultatAndelTilkjentYtelse>>
-    ) = behandlingsresultatPerson.utledYtelsePerson().erFramstiltKravForIInneværendeBehandling() &&
-        (
-            perioderLagtTil.isNotEmpty() || andelerMedEndretBeløp(
-                behandlingsresultatPerson.forrigeAndeler,
-                behandlingsresultatPerson.andeler
-            ).any { it > 0 }
-            )
+        perioderLagtTil: List<Periode<BehandlingsresultatAndelTilkjentYtelse>>,
+    ) = behandlingsresultatPerson.utledYtelsePerson()
+        .erFramstiltKravForIInneværendeBehandling() && (
+        perioderLagtTil.isNotEmpty() || andelerMedEndretBeløp(
+            behandlingsresultatPerson.forrigeAndeler,
+            behandlingsresultatPerson.andeler,
+        ).any { it > 0 }
+        )
 
     private fun andelerMedEndretBeløp(
         forrigeAndeler: List<BehandlingsresultatAndelTilkjentYtelse>,
-        andeler: List<BehandlingsresultatAndelTilkjentYtelse>
+        andeler: List<BehandlingsresultatAndelTilkjentYtelse>,
     ): List<Int> = andeler.flatMap { andel ->
         val andelerFraForrigeBehandlingISammePeriode = forrigeAndeler.filter {
             it.periode.overlapperHeltEllerDelvisMed(andel.periode)
@@ -199,7 +205,8 @@ object YtelsePersonUtils {
     private fun utledYtelsePersonResultatVedEndring(
         behandlingsresultatPerson: BehandlingsresultatPerson,
         perioderLagtTil: List<Periode<BehandlingsresultatAndelTilkjentYtelse>>,
-        perioderFjernet: List<Periode<BehandlingsresultatAndelTilkjentYtelse>>
+        perioderFjernet: List<Periode<BehandlingsresultatAndelTilkjentYtelse>>,
+        erBeløpEndretTidslinje: List<Periode<Boolean>>,
     ): YtelsePersonResultat {
         val inneværendeMåned = YearMonth.now()
         val nesteMåned = inneværendeMåned.nesteMåned()
@@ -216,6 +223,8 @@ object YtelsePersonUtils {
 
         val opphører = stønadSlutt.isBefore(nesteMåned)
 
+        val erPeriodeMedEndretBeløp = erBeløpEndretTidslinje.any { it.verdi }
+
         return when {
             behandlingsresultatPerson.søktForPerson -> {
                 val beløpRedusert = (perioderLagtTil + perioderFjernet).isEmpty() &&
@@ -227,7 +236,7 @@ object YtelsePersonUtils {
                     perioderFjernet.any { it.verdi.kalkulertUtbetalingsbeløp > 0 }
 
                 when {
-                    opphører -> IKKE_VURDERT
+                    opphører -> if (erPeriodeMedEndretBeløp) ENDRET_UTBETALING else IKKE_VURDERT
                     beløpRedusert || finnesReduksjonerTilbakeITidMedBeløp -> ENDRET_UTBETALING
                     finnesReduksjonerTilbakeITid -> ENDRET_UTEN_UTBETALING
                     else -> IKKE_VURDERT
@@ -236,7 +245,7 @@ object YtelsePersonUtils {
             forrigeAndeler.isNotEmpty() -> {
                 val erAndelMedEndretBeløp = andelerMedEndretBeløp(
                     forrigeAndeler = behandlingsresultatPerson.forrigeAndeler,
-                    andeler = behandlingsresultatPerson.andeler
+                    andeler = behandlingsresultatPerson.andeler,
                 ).isNotEmpty()
 
                 val erPerioderLagtTil = erFramstiltKravForITidligereBehandling &&
