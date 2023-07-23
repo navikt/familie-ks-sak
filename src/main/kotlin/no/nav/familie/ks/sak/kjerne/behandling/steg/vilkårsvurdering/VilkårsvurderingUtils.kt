@@ -2,7 +2,6 @@ package no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering
 
 import no.nav.familie.ks.sak.api.dto.VedtakBegrunnelseTilknyttetVilkårResponseDto
 import no.nav.familie.ks.sak.api.dto.VilkårResultatDto
-import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.common.tidslinje.IkkeNullbarPeriode
 import no.nav.familie.ks.sak.common.tidslinje.Periode
@@ -260,7 +259,7 @@ fun finnTilOgMedDato(tilOgMed: LocalDate?, vilkårResultater: List<VilkårResult
 }
 
 fun validerAtDatoErKorrektIBarnasVilkår(vilkårsvurdering: Vilkårsvurdering, barna: List<Person>) {
-    val feil = mutableListOf<String>()
+    val funksjonelleFeil = mutableListOf<String>()
 
     barna.map { barn ->
         vilkårsvurdering.personResultater
@@ -270,13 +269,13 @@ fun validerAtDatoErKorrektIBarnasVilkår(vilkårsvurdering: Vilkårsvurdering, b
                 val fødselsdato = barn.fødselsdato.tilDagMånedÅr()
                 val vilkårType = vilkårResultat.vilkårType
                 if (vilkårResultat.resultat == Resultat.OPPFYLT && vilkårResultat.periodeFom == null) {
-                    feil.add("Vilkår $vilkårType for barn med fødselsdato $fødselsdato mangler fom dato.")
+                    funksjonelleFeil.add("Vilkår $vilkårType for barn med fødselsdato $fødselsdato mangler fom dato.")
                 }
                 if (vilkårResultat.periodeFom != null &&
                     vilkårType != Vilkår.MEDLEMSKAP_ANNEN_FORELDER &&
                     vilkårResultat.lagOgValiderPeriodeFraVilkår().fom.isBefore(barn.fødselsdato)
                 ) {
-                    feil.add(
+                    funksjonelleFeil.add(
                         "Vilkår $vilkårType for barn med fødselsdato $fødselsdato " +
                             "har fom dato før barnets fødselsdato."
                     )
@@ -288,13 +287,13 @@ fun validerAtDatoErKorrektIBarnasVilkår(vilkårsvurdering: Vilkårsvurdering, b
                     vilkårResultat.validerVilkår_BARNETS_ALDER(
                         vilkårResultat.lagOgValiderPeriodeFraVilkår(),
                         barn.fødselsdato
-                    )?.let { feil.add(it) }
+                    )?.let { funksjonelleFeil.add(it) }
                 }
             }
     }
 
-    if (feil.isNotEmpty()) {
-        throw Feil(feil.joinToString(separator = "\n"))
+    if (funksjonelleFeil.isNotEmpty()) {
+        throw FunksjonellFeil(funksjonelleFeil.joinToString(separator = "\n"))
     }
 }
 
