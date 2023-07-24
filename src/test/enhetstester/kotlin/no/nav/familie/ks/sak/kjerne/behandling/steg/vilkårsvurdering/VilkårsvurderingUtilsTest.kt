@@ -1,7 +1,7 @@
 package no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering
 
 import io.mockk.mockk
-import no.nav.familie.ks.sak.common.exception.Feil
+import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.common.util.tilDagMånedÅr
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagPerson
@@ -290,7 +290,7 @@ class VilkårsvurderingUtilsTest {
     }
 
     @Test
-    fun `validerAtDatoErKorrektIBarnasVilkår skal kaste feil når vilkår resulat er oppfylt men mangler fom`() {
+    fun `validerAtDatoErKorrektIBarnasVilkår skal kaste funksjonell feil når vilkår resulat er oppfylt men mangler fom`() {
         val fom = null
         val tom = LocalDate.now().plusMonths(7)
 
@@ -311,7 +311,12 @@ class VilkårsvurderingUtilsTest {
         vilkårsvurdering.personResultater = setOf(personResultatForBarn)
 
         val exception =
-            assertThrows<Feil> { validerAtDatoErKorrektIBarnasVilkår(vilkårsvurdering, barna = listOf(barnPerson)) }
+            assertThrows<FunksjonellFeil> {
+                validerAtDatoErKorrektIBarnasVilkår(
+                    vilkårsvurdering,
+                    barna = listOf(barnPerson)
+                )
+            }
         assertEquals(
             "Vilkår ${Vilkår.BOR_MED_SØKER} " +
                 "for barn med fødselsdato ${barnPerson.fødselsdato.tilDagMånedÅr()} mangler fom dato.",
@@ -320,7 +325,7 @@ class VilkårsvurderingUtilsTest {
     }
 
     @Test
-    fun `validerAtDatoErKorrektIBarnasVilkår skal kaste feil når vilkår resulat fom er før barnets fødselsdato`() {
+    fun `validerAtDatoErKorrektIBarnasVilkår skal kaste funksjonell feil når vilkår resulat fom er før barnets fødselsdato`() {
         val fom = barnPerson.fødselsdato.minusMonths(2)
         val tom = fom.plusMonths(5)
 
@@ -341,7 +346,12 @@ class VilkårsvurderingUtilsTest {
         vilkårsvurdering.personResultater = setOf(personResultatForBarn)
 
         val exception =
-            assertThrows<Feil> { validerAtDatoErKorrektIBarnasVilkår(vilkårsvurdering, barna = listOf(barnPerson)) }
+            assertThrows<FunksjonellFeil> {
+                validerAtDatoErKorrektIBarnasVilkår(
+                    vilkårsvurdering,
+                    barna = listOf(barnPerson)
+                )
+            }
         assertEquals(
             "Vilkår ${Vilkår.BOR_MED_SØKER} for barn med fødselsdato ${barnPerson.fødselsdato.tilDagMånedÅr()}" +
                 " har fom dato før barnets fødselsdato.",
@@ -372,7 +382,7 @@ class VilkårsvurderingUtilsTest {
     }
 
     @Test
-    fun `validerAtDatoErKorrektIBarnasVilkår skal kaste feil når BARNETS_ALDER vilkår resulat har fom etter barnets 1 år`() {
+    fun `validerAtDatoErKorrektIBarnasVilkår skal kaste funksjonell feil når BARNETS_ALDER vilkår resulat har fom etter barnets 1 år`() {
         val personResultatForBarn = PersonResultat(vilkårsvurdering = vilkårsvurdering, aktør = barn1)
         val vilkårResultaterForBarn = setOf(
             VilkårResultat(
@@ -390,12 +400,17 @@ class VilkårsvurderingUtilsTest {
         vilkårsvurdering.personResultater = setOf(personResultatForBarn)
 
         val exception =
-            assertThrows<Feil> { validerAtDatoErKorrektIBarnasVilkår(vilkårsvurdering, barna = listOf(barnPerson)) }
+            assertThrows<FunksjonellFeil> {
+                validerAtDatoErKorrektIBarnasVilkår(
+                    vilkårsvurdering,
+                    barna = listOf(barnPerson)
+                )
+            }
         assertEquals("F.o.m datoen må være lik barnets 1 års dag.", exception.message)
     }
 
     @Test
-    fun `validerAtDatoErKorrektIBarnasVilkår skal kaste feil når BARNETS_ALDER vilkår resulat har tom etter barnets 2 år`() {
+    fun `validerAtDatoErKorrektIBarnasVilkår skal kaste funksjonell feil når BARNETS_ALDER vilkår resulat har tom etter barnets 2 år`() {
         val personResultatForBarn = PersonResultat(vilkårsvurdering = vilkårsvurdering, aktør = barn1)
         val vilkårResultaterForBarn = setOf(
             VilkårResultat(
@@ -413,12 +428,17 @@ class VilkårsvurderingUtilsTest {
         vilkårsvurdering.personResultater = setOf(personResultatForBarn)
 
         val exception =
-            assertThrows<Feil> { validerAtDatoErKorrektIBarnasVilkår(vilkårsvurdering, barna = listOf(barnPerson)) }
+            assertThrows<FunksjonellFeil> {
+                validerAtDatoErKorrektIBarnasVilkår(
+                    vilkårsvurdering,
+                    barna = listOf(barnPerson)
+                )
+            }
         assertEquals("T.o.m datoen må være lik barnets 2 års dag.", exception.message)
     }
 
     @Test
-    fun `validerAtDatoErKorrektIBarnasVilkår skal kaste feil når BARNETS_ALDER med adopsjon vilkår resulat har tom etter barnets 6 år`() {
+    fun `validerAtDatoErKorrektIBarnasVilkår skal kaste funksjonell feil når BARNETS_ALDER med adopsjon vilkår resulat har tom etter barnets 6 år`() {
         val personResultatForBarn = PersonResultat(vilkårsvurdering = vilkårsvurdering, aktør = barn1)
         val vilkårResultaterForBarn = setOf(
             VilkårResultat(
@@ -437,12 +457,17 @@ class VilkårsvurderingUtilsTest {
         vilkårsvurdering.personResultater = setOf(personResultatForBarn)
 
         val exception =
-            assertThrows<Feil> { validerAtDatoErKorrektIBarnasVilkår(vilkårsvurdering, barna = listOf(barnPerson)) }
+            assertThrows<FunksjonellFeil> {
+                validerAtDatoErKorrektIBarnasVilkår(
+                    vilkårsvurdering,
+                    barna = listOf(barnPerson)
+                )
+            }
         assertEquals("Du kan ikke sette en t.o.m dato som er etter august året barnet fyller 6 år.", exception.message)
     }
 
     @Test
-    fun `validerAtDatoErKorrektIBarnasVilkår skal kaste feil når BARNETS_ALDER med adopsjon vilkår resulat har diff mellom fom,tom mer enn 1 år og 1 dag`() {
+    fun `validerAtDatoErKorrektIBarnasVilkår skal kaste funksjonell feil når BARNETS_ALDER med adopsjon vilkår resulat har diff mellom fom,tom mer enn 1 år og 1 dag`() {
         val personResultatForBarn = PersonResultat(vilkårsvurdering = vilkårsvurdering, aktør = barn1)
         val vilkårResultaterForBarn = setOf(
             VilkårResultat(
@@ -461,7 +486,12 @@ class VilkårsvurderingUtilsTest {
         vilkårsvurdering.personResultater = setOf(personResultatForBarn)
 
         val exception =
-            assertThrows<Feil> { validerAtDatoErKorrektIBarnasVilkår(vilkårsvurdering, barna = listOf(barnPerson)) }
+            assertThrows<FunksjonellFeil> {
+                validerAtDatoErKorrektIBarnasVilkår(
+                    vilkårsvurdering,
+                    barna = listOf(barnPerson)
+                )
+            }
         assertEquals("Differansen mellom f.o.m datoen og t.o.m datoen kan ikke være mer enn 1 år.", exception.message)
     }
 
