@@ -134,7 +134,8 @@ class EndretUtbetalingAndelService(
     @Transactional
     fun kopierEndretUtbetalingAndelFraForrigeBehandling(behandling: Behandling, forrigeBehandling: Behandling) =
         hentEndredeUtbetalingAndeler(forrigeBehandling.id).forEach {
-            val kopiertOverEndretUtbetalingAndel = it.copy(id = 0, behandlingId = behandling.id)
+            val kopiertOverEndretUtbetalingAndel =
+                it.copy(id = 0, behandlingId = behandling.id, erEksplisittAvslagPåSøknad = false)
             endretUtbetalingAndelRepository.save(kopiertOverEndretUtbetalingAndel)
         }
 }
