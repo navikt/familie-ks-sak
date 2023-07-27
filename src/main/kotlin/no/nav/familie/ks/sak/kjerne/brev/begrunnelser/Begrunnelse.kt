@@ -339,7 +339,7 @@ enum class Begrunnelse : IBegrunnelse {
         override val begrunnelseType = BegrunnelseType.OPPHØR
         override val sanityApiNavn = "opphorVurderingBorIkkeFastMedSoker"
     },
-    OPPHØR_ET_BARN_ER_DOD {
+    OPPHØR_ET_BARN_ER_DØD {
         override val begrunnelseType = BegrunnelseType.OPPHØR
         override val sanityApiNavn = "opphorEtBarnErDod"
     },
@@ -435,7 +435,7 @@ enum class Begrunnelse : IBegrunnelse {
         override val begrunnelseType = BegrunnelseType.OPPHØR
         override val sanityApiNavn = "opphorIkkeOppholdstillatelseMerEnn12Maaneder"
     },
-    OPPHØR_BEGGE_FORELDRENE_HAR_FOTT_KONTANTSTØTTE {
+    OPPHØR_BEGGE_FORELDRENE_HAR_FÅTT_KONTANTSTØTTE {
         override val begrunnelseType = BegrunnelseType.OPPHØR
         override val sanityApiNavn = "opphorBeggeForeldreneHarFottKontantstotte"
     },
