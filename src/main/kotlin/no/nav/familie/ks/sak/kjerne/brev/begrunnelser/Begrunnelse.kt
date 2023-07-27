@@ -275,33 +275,181 @@ enum class Begrunnelse : IBegrunnelse {
         override val begrunnelseType = BegrunnelseType.AVSLAG
         override val sanityApiNavn = "avslagSokerForSentEndringsperiode"
     },
+    OPPHØR_VURDERING_IKKE_MEDLEM_I_FOLKETRYGDEN_I_5_ÅR {
+        override val begrunnelseType = BegrunnelseType.OPPHØR
+        override val sanityApiNavn = "opphorVurderingIkkeMedlemIFolketrygdenI5Aar"
+    },
+    OPPHØR_SØKER_BER_OM_OPPHØR {
+        override val begrunnelseType = BegrunnelseType.OPPHØR
+        override val sanityApiNavn = "opphorSokerBerOmOpphor"
+    },
+    OPPHØR_VURDERING_HAR_OG_SKAL_OPPHOLDE_SEG_OVER_12_MÅNEDER {
+        override val begrunnelseType = BegrunnelseType.OPPHØR
+        override val sanityApiNavn = "opphorVurderingHarOgSkalOppholdeSegOver12Maaneder"
+    },
+    OPPHØR_VURDERING_ANNEN_FORELDER_IKKE_MEDLEM_FOLKETRYGDEN_I_5_ÅR {
+        override val begrunnelseType = BegrunnelseType.OPPHØR
+        override val sanityApiNavn = "opphorVurderingAnnenForelderIkkeMedlemFolketrygdenI5Aar"
+    },
     OPPHØR_FULLTIDSPLASS_I_BARNEHAGE {
         override val begrunnelseType = BegrunnelseType.OPPHØR
         override val sanityApiNavn = "opphorFulltidsplassIBarnehage"
-    },
-    OPPHØR_BRUKER_MELDER_FULLTIDSPLASS_I_BARNEHAGEN {
-        override val begrunnelseType = BegrunnelseType.OPPHØR
-        override val sanityApiNavn = "opphorBrukerMelderFulltidsplassIBarnehage"
     },
     OPPHØR_BRUKER_MELDER_FULLTIDSPLASS_I_BARNEHAGEN_FØRSTE_PERIODE {
         override val begrunnelseType = BegrunnelseType.OPPHØR
         override val sanityApiNavn = "opphorBrukerMelderFulltidsplassIBarnehagenForstePeriode"
     },
+    OPPHØR_BRUKER_MELDER_FULLTIDSPLASS_I_BARNEHAGE {
+        override val begrunnelseType = BegrunnelseType.OPPHØR
+        override val sanityApiNavn = "opphorBrukerMelderFulltidsplassIBarnehage"
+    },
+    OPPHØR_BEGYNT_PÅ_SKOLEN {
+        override val begrunnelseType = BegrunnelseType.OPPHØR
+        override val sanityApiNavn = "opphorBegyntPaaSkolen"
+    },
+    OPPHØR_ANNEN_FORELDER_IKKE_MEDLEM_FOLKETRYGDEN_I_5_ÅR {
+        override val begrunnelseType = BegrunnelseType.OPPHØR
+        override val sanityApiNavn = "opphorAnnenForelderIkkeMedlemFolketrygdenI5Aar"
+    },
+    OPPHØR_IKKE_MEDLEM_FOLKETRYGDEN_ELLER_EOS_I_5_ÅR {
+        override val begrunnelseType = BegrunnelseType.OPPHØR
+        override val sanityApiNavn = "opphorIkkeMedlemFolketrygdenEllerEosI5Aar"
+    },
+    OPPHØR_BARN_OVER_2_ÅR {
+        override val begrunnelseType = BegrunnelseType.OPPHØR
+        override val sanityApiNavn = "opphorBarnOver2Aar"
+    },
+    OPPHØR_IKKE_AVALE_OM_DELT_BOSTED {
+        override val begrunnelseType = BegrunnelseType.OPPHØR
+        override val sanityApiNavn = "opphorIkkeAvtaleOmDeltBosted"
+    },
+    OPPHØR_VURDERING_UTENLANDSOPPHOLD_MER_ENN_3_MÅNEDER_FRA_INNVILGELSE {
+        override val begrunnelseType = BegrunnelseType.OPPHØR
+        override val sanityApiNavn = "opphorVurderingUtenlandsoppholdMerEnn3MaanederFraInnvilgelse"
+    },
+    OPPHØR_IKKE_BOSATT_I_NORGE {
+        override val begrunnelseType = BegrunnelseType.OPPHØR
+        override val sanityApiNavn = "opphorIkkeBosattINorge"
+    },
+    OPPHØR_VURDERING_IKKE_BOSATT_I_NORGE {
+        override val begrunnelseType = BegrunnelseType.OPPHØR
+        override val sanityApiNavn = "opphorVurderingIkkeBosattINorge"
+    },
+    OPPHØR_VURDERING_BOR_IKKE_FAST_MED_SØKER {
+        override val begrunnelseType = BegrunnelseType.OPPHØR
+        override val sanityApiNavn = "opphorVurderingBorIkkeFastMedSoker"
+    },
+    OPPHØR_ET_BARN_ER_DØD {
+        override val begrunnelseType = BegrunnelseType.OPPHØR
+        override val sanityApiNavn = "opphorEtBarnErDod"
+    },
+    OPPHØR_IKKE_OPPHOLDSTILLATELSE {
+        override val begrunnelseType = BegrunnelseType.OPPHØR
+        override val sanityApiNavn = "opphorIkkeOppholdstillatelse"
+    },
+    OPPHØR_FOSTERHJEM {
+        override val begrunnelseType = BegrunnelseType.OPPHØR
+        override val sanityApiNavn = "opphorFosterhjem"
+    },
+    OPPHØR_INSTITUSJON {
+        override val begrunnelseType = BegrunnelseType.OPPHØR
+        override val sanityApiNavn = "opphorInstitusjon"
+    },
+    OPPHØR_HAR_OG_SKAL_OPPHOLDE_SEG_IKKE_OVER_12_MÅNEDER {
+        override val begrunnelseType = BegrunnelseType.OPPHØR
+        override val sanityApiNavn = "opphorHarOgSkalOppholdeSegIkkeOver12Maaneder"
+    },
+    OPPHØR_BARN_BODDE_IKKE_MED_SØKER {
+        override val begrunnelseType = BegrunnelseType.OPPHØR
+        override val sanityApiNavn = "opphorBarnBoddeIkkeMedSoker"
+    },
     OPPHØR_FULLTIDSPLASS_I_BARNEHAGEN_FØRSTE_PERIODE {
         override val begrunnelseType = BegrunnelseType.OPPHØR
         override val sanityApiNavn = "opphorFulltidsplassIBarnehagenForstePeriode"
+    },
+    OPPHØR_UTENLANDSOPPHOLD_MER_ENN_3_MÅNEDER {
+        override val begrunnelseType = BegrunnelseType.OPPHØR
+        override val sanityApiNavn = "opphorUtenlandsoppholdMerEnn3Maaneder"
+    },
+    OPPHØR_MOTTATT_I_11_MÅNEDER {
+        override val begrunnelseType = BegrunnelseType.OPPHØR
+        override val sanityApiNavn = "opphorMottattI11Maaneder"
+    },
+    OPPHØR_FLERE_BARN_ER_DØDE {
+        override val begrunnelseType = BegrunnelseType.OPPHØR
+        override val sanityApiNavn = "opphorFlereBarnErDode"
     },
     OPPHØR_BRUKER_MELDT_FULLTIDSPLASS_I_BARNEHAGE_FØRSTE_PERIODE {
         override val begrunnelseType = BegrunnelseType.OPPHØR
         override val sanityApiNavn = "opphorBrukerMeldtFulltidsplassIBarnehageForstePeriode"
     },
-    OPPHØR_KOMMUNEN_MELDT_FULLTIDSPLASS_I_BARNEHAGE {
+    OPPHØR_BYTTE_AV_BARNEHAGE_I_SOMMERFERIEN {
         override val begrunnelseType = BegrunnelseType.OPPHØR
-        override val sanityApiNavn = "opphorKommunenMelderFulltidsplassIBarnehage"
+        override val sanityApiNavn = "opphorBytteAvBarnehageISommerferien"
     },
     OPPHØR_KOMMUNEN_MELDT_FULLTIDSPLASS_I_BARNEHAGE_FØRSTE_PERIODE {
         override val begrunnelseType = BegrunnelseType.OPPHØR
         override val sanityApiNavn = "opphorKommunenMeldtFulltidsplassIBarnehageForstePeriode"
+    },
+    OPPHØR_KOMMUNEN_MELDER_FULLTIDSPLASS_I_BARNEHAGE {
+        override val begrunnelseType = BegrunnelseType.OPPHØR
+        override val sanityApiNavn = "opphorKommunenMelderFulltidsplassIBarnehage"
+    },
+    OPPHØR_UTENLANDSOPPHOLD_MER_ENN_3_MÅNEDER_FRA_INNVILGELSE {
+        override val begrunnelseType = BegrunnelseType.OPPHØR
+        override val sanityApiNavn = "opphorUtenlandsoppholdMerEnn3MaanederFraInnvilgelse"
+    },
+    OPPHØR_VURDERING_UTENLANDSOPPHOLD_MER_ENN_3_MÅNEDER {
+        override val begrunnelseType = BegrunnelseType.OPPHØR
+        override val sanityApiNavn = "opphorVurderingUtenlandsoppholdMerEnn3Maaneder"
+    },
+    OPPHØR_FORELDRENE_BOR_SAMMEN {
+        override val begrunnelseType = BegrunnelseType.OPPHØR
+        override val sanityApiNavn = "opphorForeldreneBorSammen"
+    },
+    OPPHØR_VURDERING_IKKE_MEDLEM_I_FOLKETRYGDEN_ELLER_EØS_I_5_AAR {
+        override val begrunnelseType = BegrunnelseType.OPPHØR
+        override val sanityApiNavn = "opphorVurderingIkkeMedlemIFolketrygdenEllerEosI5Aar"
+    },
+    OPPHØR_IKKE_OPPHOLDSTILLATELSE_EØS_BORGER {
+        override val begrunnelseType = BegrunnelseType.OPPHØR
+        override val sanityApiNavn = "opphorIkkeOppholdsrettEOSBorger"
+    },
+    OPPHØR_FRA_START_IKKE_BOSATT_I_NORGE {
+        override val begrunnelseType = BegrunnelseType.OPPHØR
+        override val sanityApiNavn = "opphorFraStartIkkeBosattINorge"
+    },
+    OPPHØR_FLYTTET_FRA_NORGE {
+        override val begrunnelseType = BegrunnelseType.OPPHØR
+        override val sanityApiNavn = "opphorFlyttetFraNorge"
+    },
+    OPPHØR_IKKE_MEDLEM_I_FOLKETRYGDEN_I_5_ÅR {
+        override val begrunnelseType = BegrunnelseType.OPPHØR
+        override val sanityApiNavn = "opphorIkkeMedlemIFolketrygdenI5Aar"
+    },
+    OPPHØR_IKKE_ENIG_OM_DELING {
+        override val begrunnelseType = BegrunnelseType.OPPHØR
+        override val sanityApiNavn = "opphorIkkeEnigOmDeling"
+    },
+    OPPHØR_IKKE_OPPHOLDSTILLATELSE_MER_ENN_12_MÅNEDER {
+        override val begrunnelseType = BegrunnelseType.OPPHØR
+        override val sanityApiNavn = "opphorIkkeOppholdstillatelseMerEnn12Maaneder"
+    },
+    OPPHØR_BEGGE_FORELDRENE_HAR_FÅTT_KONTANTSTØTTE {
+        override val begrunnelseType = BegrunnelseType.OPPHØR
+        override val sanityApiNavn = "opphorBeggeForeldreneHarFottKontantstotte"
+    },
+    OPPHØR_IKKE_OPPHOLDTILLATELSE {
+        override val begrunnelseType = BegrunnelseType.OPPHØR
+        override val sanityApiNavn = "opphorIkkeOppholdtillatelse"
+    },
+    OPPHØR_BOR_IKKE_FAST_HOS_SØKER {
+        override val begrunnelseType = BegrunnelseType.OPPHØR
+        override val sanityApiNavn = "opphorBorIkkeFastHosSoker"
+    },
+    OPPHØR_AVTALE_OM_DELT_BOSTED_IKKE_GYLDIG {
+        override val begrunnelseType = BegrunnelseType.OPPHØR
+        override val sanityApiNavn = "opphorAvtaleOmDeltBostedIkkeGyldig"
     },
     REDUKSJON_BARN_FLYTTET_FRA_SOKER {
         override val begrunnelseType = BegrunnelseType.REDUKSJON
