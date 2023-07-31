@@ -79,14 +79,6 @@ enum class Begrunnelse : IBegrunnelse {
         override val begrunnelseType = BegrunnelseType.INNVILGET
         override val sanityApiNavn = "innvilgetOppholdIEosLand"
     },
-    INNVILGET_TREDJELANDSBORGER_LOVLIG_OPPHOLD_SAMTIDIG_BOSATT_I_NORGE {
-        override val begrunnelseType = BegrunnelseType.INNVILGET
-        override val sanityApiNavn = "innvilgetTredjelandsborgerLovligOppholdSamtidigBosattINorge"
-    },
-    INNVILGET_TREDJELANDSBORGER_LOVLIG_OPPHOLD_SAMTIDIG_BOSATT_I_NORGE_SØKER {
-        override val begrunnelseType = BegrunnelseType.INNVILGET
-        override val sanityApiNavn = "innvilgetTredjelandsborgerLovligOppholdSamtidigBosattINorgeSoker"
-    },
     INNVILGET_TREDJELANDSBORGER_LOVLIG_OPPHOLD_FØR_BOSATT_I_NORGE {
         override val begrunnelseType = BegrunnelseType.INNVILGET
         override val sanityApiNavn = "innvilgetTredjelandsborgerLovligOppholdForBosattINorge"
