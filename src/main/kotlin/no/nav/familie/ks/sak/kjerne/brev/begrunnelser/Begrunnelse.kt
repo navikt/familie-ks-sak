@@ -95,6 +95,10 @@ enum class Begrunnelse : IBegrunnelse {
         override val begrunnelseType = BegrunnelseType.INNVILGET
         override val sanityApiNavn = "innvilgetTredjelandsborgerBosattForLovligOppholdINorge"
     },
+    INNVILGET_INNVANDRET_MED_LOVLIG_OPPHOLD_TREDJELANDSBORGER {
+        override val begrunnelseType = BegrunnelseType.INNVILGET
+        override val sanityApiNavn = "innvilgetInnvandretMedLovligOppholdTredjelandsborger"
+    },
     INNVILGET_VURDERING_BOR_FAST_HOS_SØKER {
         override val begrunnelseType = BegrunnelseType.INNVILGET
         override val sanityApiNavn = "innvilgetVurderingBorFastHosSoker"
