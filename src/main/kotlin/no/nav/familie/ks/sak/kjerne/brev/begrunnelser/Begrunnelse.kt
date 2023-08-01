@@ -79,14 +79,6 @@ enum class Begrunnelse : IBegrunnelse {
         override val begrunnelseType = BegrunnelseType.INNVILGET
         override val sanityApiNavn = "innvilgetOppholdIEosLand"
     },
-    INNVILGET_TREDJELANDSBORGER_LOVLIG_OPPHOLD_SAMTIDIG_BOSATT_I_NORGE {
-        override val begrunnelseType = BegrunnelseType.INNVILGET
-        override val sanityApiNavn = "innvilgetTredjelandsborgerLovligOppholdSamtidigBosattINorge"
-    },
-    INNVILGET_TREDJELANDSBORGER_LOVLIG_OPPHOLD_SAMTIDIG_BOSATT_I_NORGE_SØKER {
-        override val begrunnelseType = BegrunnelseType.INNVILGET
-        override val sanityApiNavn = "innvilgetTredjelandsborgerLovligOppholdSamtidigBosattINorgeSoker"
-    },
     INNVILGET_TREDJELANDSBORGER_LOVLIG_OPPHOLD_FØR_BOSATT_I_NORGE {
         override val begrunnelseType = BegrunnelseType.INNVILGET
         override val sanityApiNavn = "innvilgetTredjelandsborgerLovligOppholdForBosattINorge"
@@ -94,6 +86,10 @@ enum class Begrunnelse : IBegrunnelse {
     INNVILGET_TREDJELANDSBORGER_BOSATT_FØR_LOVLIG_OPPHOLD_I_NORGE {
         override val begrunnelseType = BegrunnelseType.INNVILGET
         override val sanityApiNavn = "innvilgetTredjelandsborgerBosattForLovligOppholdINorge"
+    },
+    INNVILGET_INNVANDRET_MED_LOVLIG_OPPHOLD_TREDJELANDSBORGER {
+        override val begrunnelseType = BegrunnelseType.INNVILGET
+        override val sanityApiNavn = "innvilgetInnvandretMedLovligOppholdTredjelandsborger"
     },
     INNVILGET_VURDERING_BOR_FAST_HOS_SØKER {
         override val begrunnelseType = BegrunnelseType.INNVILGET
