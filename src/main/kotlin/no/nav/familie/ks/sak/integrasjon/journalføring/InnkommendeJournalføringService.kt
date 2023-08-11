@@ -25,12 +25,15 @@ import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.OpprettBehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingKategori
+import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingSøknadsinfoService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingType
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
+import no.nav.familie.ks.sak.kjerne.behandling.domene.Søknadsinfo
 import no.nav.familie.ks.sak.kjerne.fagsak.FagsakService
 import no.nav.familie.ks.sak.kjerne.logg.LoggService
 import org.springframework.stereotype.Service
 import java.time.LocalDate
+import java.time.LocalDateTime
 import javax.transaction.Transactional
 
 @Service
@@ -40,7 +43,8 @@ class InnkommendeJournalføringService(
     private val opprettBehandlingService: OpprettBehandlingService,
     private val behandlingService: BehandlingService,
     private val journalføringRepository: JournalføringRepository,
-    private val loggService: LoggService
+    private val loggService: LoggService,
+    private val behandlingSøknadsinfoService: BehandlingSøknadsinfoService,
 ) {
 
     fun hentJournalposterForBruker(brukerId: String): List<Journalpost> = integrasjonClient.hentJournalposterForBruker(
@@ -48,10 +52,10 @@ class InnkommendeJournalføringService(
             antall = 1000,
             brukerId = Bruker(
                 id = brukerId,
-                type = BrukerIdType.FNR
+                type = BrukerIdType.FNR,
             ),
-            tema = listOf(Tema.KON)
-        )
+            tema = listOf(Tema.KON),
+        ),
     )
 
     fun hentJournalpost(journalpostId: String): Journalpost = integrasjonClient.hentJournalpost(journalpostId)
@@ -63,7 +67,7 @@ class InnkommendeJournalføringService(
     fun journalfør(
         request: JournalføringRequestDto,
         journalpostId: String,
-        oppgaveId: String
+        oppgaveId: String,
     ): String {
         val tilknyttedeBehandlingIder = request.tilknyttedeBehandlingIder.toMutableList()
 
@@ -74,7 +78,7 @@ class InnkommendeJournalføringService(
                 type = request.nyBehandlingstype,
                 årsak = request.nyBehandlingsårsak,
                 kategori = request.kategori,
-                søknadMottattDato = request.datoMottatt?.toLocalDate()
+                søknadMottattDato = request.datoMottatt?.toLocalDate(),
             )
 
             tilknyttedeBehandlingIder.add(nyBehandling.id.toString())
@@ -82,7 +86,7 @@ class InnkommendeJournalføringService(
 
         val (tilknyttetFagsak, behandlinger) = lagreJournalpostOgKnyttFagsakTilJournalpost(
             tilknyttedeBehandlingIder,
-            journalpostId
+            journalpostId,
         )
 
         oppdaterLogiskeVedlegg(request.dokumenter)
@@ -92,7 +96,7 @@ class InnkommendeJournalføringService(
             journalpostId = journalpostId,
             behandlendeEnhet = request.journalførendeEnhet,
             oppgaveId = oppgaveId,
-            behandlinger = behandlinger
+            behandlinger = behandlinger,
         )
 
         return tilknyttetFagsak.fagsakId ?: ""
@@ -104,7 +108,7 @@ class InnkommendeJournalføringService(
         type: BehandlingType,
         årsak: BehandlingÅrsak,
         kategori: BehandlingKategori? = null,
-        søknadMottattDato: LocalDate? = null
+        søknadMottattDato: LocalDate? = null,
     ): Behandling {
         fagsakService.hentEllerOpprettFagsak(FagsakRequestDto(personIdent))
 
@@ -114,7 +118,7 @@ class InnkommendeJournalføringService(
             behandlingType = type,
             behandlingÅrsak = årsak,
             saksbehandlerIdent = saksbehandlerIdent,
-            søknadMottattDato = søknadMottattDato
+            søknadMottattDato = søknadMottattDato,
         )
 
         return opprettBehandlingService.opprettBehandling(nyBehandlingDto)
@@ -122,19 +126,30 @@ class InnkommendeJournalføringService(
 
     private fun lagreJournalpostOgKnyttFagsakTilJournalpost(
         tilknyttedeBehandlingIder: List<String>,
-        journalpostId: String
+        journalpostId: String,
     ): Pair<Sak, List<Behandling>> {
         val behandlinger = tilknyttedeBehandlingIder.map { behandlingService.hentBehandling(it.toLong()) }
         val journalpost = hentJournalpost(journalpostId)
+        val erSøknad = journalpost.dokumenter?.any { it.brevkode == SØKNADSKODE_KONTANTSTØTTE } ?: false
 
         behandlinger.forEach {
             journalføringRepository.save(
                 DbJournalpost(
                     behandling = it,
                     journalpostId = journalpostId,
-                    type = DbJournalpostType.valueOf(journalpost.journalposttype.name)
-                )
+                    type = DbJournalpostType.valueOf(journalpost.journalposttype.name),
+                ),
             )
+            if (erSøknad) {
+                behandlingSøknadsinfoService.lagreNedSøknadsinfo(
+                    søknadsinfo = Søknadsinfo(
+                        mottattDato = journalpost.datoMottatt ?: LocalDateTime.now(),
+                        journalpostId = journalpostId,
+                        erDigital = journalpost.kanal == NAV_NO,
+                    ),
+                    behandling = it,
+                )
+            }
         }
 
         val fagsak = behandlinger.map { it.fagsak }.toSet().singleOrNull()
@@ -142,7 +157,7 @@ class InnkommendeJournalføringService(
         val tilknyttetFagsak = Sak(
             fagsakId = fagsak?.id?.toString(),
             fagsaksystem = fagsak?.let { Fagsystem.KONT.name },
-            sakstype = fagsak?.let { Sakstype.FAGSAK.type } ?: Sakstype.GENERELL_SAK.type
+            sakstype = fagsak?.let { Sakstype.FAGSAK.type } ?: Sakstype.GENERELL_SAK.type,
         )
 
         return Pair(tilknyttetFagsak, behandlinger)
@@ -171,7 +186,7 @@ class InnkommendeJournalføringService(
         journalpostId: String,
         behandlendeEnhet: String,
         oppgaveId: String,
-        behandlinger: List<Behandling>
+        behandlinger: List<Behandling>,
     ) {
         runCatching {
             secureLogger.info("Oppdaterer journalpost $journalpostId med $oppdaterJournalPostRequest")
@@ -184,7 +199,7 @@ class InnkommendeJournalføringService(
 
             integrasjonClient.ferdigstillJournalpost(
                 journalpostId = journalpostId,
-                journalførendeEnhet = behandlendeEnhet
+                journalførendeEnhet = behandlendeEnhet,
             )
 
             integrasjonClient.ferdigstillOppgave(oppgaveId = oppgaveId.toLong())
@@ -210,8 +225,14 @@ class InnkommendeJournalføringService(
             loggService.opprettMottattDokumentLogg(
                 behandling = it,
                 tekst = loggTekst,
-                mottattDato = journalpost.datoMottatt!!
+                mottattDato = journalpost.datoMottatt!!,
             )
         }
+    }
+
+    companion object {
+
+        private const val NAV_NO = "NAV_NO"
+        private const val SØKNADSKODE_KONTANTSTØTTE = "NAV 34-00.08"
     }
 }
