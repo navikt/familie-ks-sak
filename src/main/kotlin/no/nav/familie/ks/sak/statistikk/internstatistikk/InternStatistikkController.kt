@@ -1,5 +1,6 @@
 package no.nav.familie.ks.sak.statistikk.internstatistikk
 
+import io.swagger.v3.oas.annotations.media.Schema
 import no.nav.familie.kontrakter.felles.Ressurs
 import no.nav.familie.ks.sak.common.util.RessursUtils
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingSøknadsinfoService
@@ -25,9 +26,11 @@ class InternStatistikkController(
 
     @GetMapping(path = ["antallSoknader"], produces = [MediaType.APPLICATION_JSON_VALUE])
     fun hentSøknadsstatistikkForPeriode(
+        @Schema(description = "Default er første dag i forrige tertial-periode regnet fra dagens dato")
         @RequestParam
         @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
         fom: LocalDate?,
+        @Schema(description = "Default er siste dag i tertial-perioden regnet fra fom-dato")
         @RequestParam
         @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
         tom: LocalDate?,
