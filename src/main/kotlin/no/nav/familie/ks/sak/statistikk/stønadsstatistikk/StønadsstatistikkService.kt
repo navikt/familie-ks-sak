@@ -63,7 +63,7 @@ class StønadsstatistikkService(
         )
     }
 
-     fun Resultat.tilDatavarehusResultat(): no.nav.familie.eksterne.kontrakter.Resultat {
+    fun Resultat.tilDatavarehusResultat(): no.nav.familie.eksterne.kontrakter.Resultat {
         return no.nav.familie.eksterne.kontrakter.Resultat.valueOf(this.name)
     }
 
