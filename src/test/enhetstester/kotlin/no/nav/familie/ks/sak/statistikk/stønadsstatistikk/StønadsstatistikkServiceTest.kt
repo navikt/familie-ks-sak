@@ -10,12 +10,14 @@ import no.nav.familie.ks.sak.common.util.toYearMonth
 import no.nav.familie.ks.sak.data.lagAndelTilkjentYtelse
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagPersonopplysningGrunnlag
+import no.nav.familie.ks.sak.data.lagVilkårsvurderingOppfylt
 import no.nav.familie.ks.sak.data.randomFnr
 import no.nav.familie.ks.sak.integrasjon.pdl.PersonOpplysningerService
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.VedtakService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.Vedtak
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
 import no.nav.familie.ks.sak.kjerne.beregning.AndelTilkjentYtelseMedEndreteUtbetalinger
 import no.nav.familie.ks.sak.kjerne.beregning.AndelerTilkjentYtelseOgEndreteUtbetalingerService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
@@ -43,20 +45,25 @@ internal class StønadsstatistikkServiceTest {
     @MockK
     private lateinit var andelerTilkjentYtelseOgEndreteUtbetalingerService: AndelerTilkjentYtelseOgEndreteUtbetalingerService
 
+    @MockK
+    private lateinit var vilkårsvurderingService: VilkårsvurderingService
+
     @InjectMockKs
     private lateinit var stønadsstatistikkService: StønadsstatistikkService
 
     private val behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD)
-    private val søkerFnr = randomFnr()
+    private val søkerFnr = behandling.fagsak.aktør.aktivFødselsnummer()
     private val barnFnr = randomFnr()
     private val barn2Fnr = randomFnr()
 
     private val personopplysningGrunnlag =
-        lagPersonopplysningGrunnlag(behandling.id, søkerFnr, listOf(barnFnr, barn2Fnr)).also {
+        lagPersonopplysningGrunnlag(behandlingId = behandling.id, søkerPersonIdent = søkerFnr, barnasIdenter = listOf(barnFnr, barn2Fnr), søkerAktør = behandling.fagsak.aktør).also {
             it.personer.forEach { it.bostedsadresser = mutableListOf(mockk(), mockk()) }
         }
     private val barn1 = personopplysningGrunnlag.barna.first()
     private val barn2 = personopplysningGrunnlag.barna.last()
+
+    private val vilkårsVurdering = lagVilkårsvurderingOppfylt(personopplysningGrunnlag.personer, behandling, false)
 
     @Test
     fun `hentVedtakDVH skal kaste feil dersom vedtak ikke har noe dato satt`() {
@@ -68,6 +75,7 @@ internal class StønadsstatistikkServiceTest {
         every { personopplysningerService.hentLandkodeUtenlandskBostedsadresse(any()) } returns "DK"
         every { andelerTilkjentYtelseOgEndreteUtbetalingerService.finnAndelerTilkjentYtelseMedEndreteUtbetalinger(any()) } returns
             listOf(mockk())
+        every { vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(any()) } returns vilkårsVurdering
 
         val exception = assertThrows<IllegalStateException> {
             stønadsstatistikkService.hentVedtakDVH(1L)
@@ -77,7 +85,7 @@ internal class StønadsstatistikkServiceTest {
     }
 
     @Test
-    fun `hentVedtakDVH skal hente og generere VedtakDVH med riktige detaljer om utbetalinger`() {
+    fun `hentVedtakDVH skal hente og generere VedtakDVH med riktige detaljer om utbetalinger og at vilkårsresultater foreligger`() {
         val vedtak = Vedtak(behandling = behandling, vedtaksdato = LocalDateTime.now())
 
         val andelTilkjentYtelseBarn1 = AndelTilkjentYtelseMedEndreteUtbetalinger(
@@ -126,6 +134,7 @@ internal class StønadsstatistikkServiceTest {
         every { personopplysningerService.hentLandkodeUtenlandskBostedsadresse(any()) } returns "DK"
         every { andelerTilkjentYtelseOgEndreteUtbetalingerService.finnAndelerTilkjentYtelseMedEndreteUtbetalinger(any()) } returns
             andelerTilkjentYtelse
+        every { vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(any()) } returns vilkårsVurdering
 
         val vedtakDvh = stønadsstatistikkService.hentVedtakDVH(1L)
 
@@ -137,5 +146,7 @@ internal class StønadsstatistikkServiceTest {
             .forEach {
                 assertEquals(0, it.delingsprosentYtelse)
             }
+
+        assertEquals(true, vedtakDvh.vilkårResultater?.isNotEmpty())
     }
 }

@@ -11,6 +11,9 @@ import no.nav.familie.ks.sak.common.tidslinje.utvidelser.tilPerioderIkkeNull
 import no.nav.familie.ks.sak.integrasjon.pdl.PersonOpplysningerService
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.VedtakService
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
 import no.nav.familie.ks.sak.kjerne.beregning.AndelerTilkjentYtelseOgEndreteUtbetalingerService
 import no.nav.familie.ks.sak.kjerne.beregning.lagVertikalePerioder
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
@@ -26,14 +29,25 @@ class StønadsstatistikkService(
     private val personopplysningGrunnlagService: PersonopplysningGrunnlagService,
     private val personOpplysningerService: PersonOpplysningerService,
     private val vedtakService: VedtakService,
-    private val andelerTilkjentYtelseOgEndreteUtbetalingerService: AndelerTilkjentYtelseOgEndreteUtbetalingerService
+    private val andelerTilkjentYtelseOgEndreteUtbetalingerService: AndelerTilkjentYtelseOgEndreteUtbetalingerService,
+
+    private val vilkårsvurderingService: VilkårsvurderingService
 ) {
 
     fun hentVedtakDVH(behandlingId: Long): VedtakDVH {
         val behandling = behandlingService.hentBehandling(behandlingId)
-
         val vedtak = vedtakService.hentAktivVedtakForBehandling(behandlingId)
         val vedtaksdato = vedtak.vedtaksdato ?: error("Fant ikke vedtaksdato for behandling $behandlingId")
+        val aktørId = behandling.fagsak.aktør.aktørId
+        val vilkårsvurdering = vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(behandlingId)
+        val vilkårResultater = vilkårsvurdering.hentPersonResultaterTilAktør(aktørId)
+        val vilkårResultaterTilDVH = vilkårResultater.map { vkr ->
+            no.nav.familie.eksterne.kontrakter.VilkårResultat(
+                resultat = vkr.resultat.tilDatavarehusResultat(),
+                antallTimer = vkr.antallTimer,
+                vilkårType = vkr.vilkårType.tilDatavarehusVilkårType()
+            )
+        }
 
         return VedtakDVH(
             fagsakId = behandling.fagsak.id.toString(),
@@ -44,8 +58,17 @@ class StønadsstatistikkService(
             behandlingType = BehandlingType.valueOf(behandling.type.name),
             utbetalingsperioder = hentUtbetalingsperioder(behandlingId),
             funksjonellId = UUID.randomUUID().toString(),
-            behandlingÅrsak = BehandlingÅrsak.valueOf(behandling.opprettetÅrsak.name)
+            behandlingÅrsak = BehandlingÅrsak.valueOf(behandling.opprettetÅrsak.name),
+            vilkårResultater = vilkårResultaterTilDVH
         )
+    }
+
+     fun Resultat.tilDatavarehusResultat(): no.nav.familie.eksterne.kontrakter.Resultat {
+        return no.nav.familie.eksterne.kontrakter.Resultat.valueOf(this.name)
+    }
+
+    fun Vilkår.tilDatavarehusVilkårType(): no.nav.familie.eksterne.kontrakter.Vilkår {
+        return no.nav.familie.eksterne.kontrakter.Vilkår.valueOf(this.name)
     }
 
     private fun hentSøker(behandlingId: Long): PersonDVH {
