@@ -41,6 +41,7 @@ class VilkårsvurderingSteg(
     private val beregningService: BeregningService,
     private val kompetanseService: KompetanseService
 ) : IBehandlingSteg {
+
     override fun getBehandlingssteg(): BehandlingSteg = BehandlingSteg.VILKÅRSVURDERING
 
     override fun utførSteg(behandlingId: Long) {
@@ -176,13 +177,13 @@ class VilkårsvurderingSteg(
             it.vilkårResultater.filter { vilkårResultat ->
                 val gradertBarnehageplass =
                     vilkårResultat.antallTimer != null &&
-                        vilkårResultat.antallTimer > BigDecimal(0) &&
-                        vilkårResultat.vilkårType == Vilkår.BARNEHAGEPLASS
+                            vilkårResultat.antallTimer > BigDecimal(0) &&
+                            vilkårResultat.vilkårType == Vilkår.BARNEHAGEPLASS
 
                 val deltBosted =
                     vilkårResultat.utdypendeVilkårsvurderinger.contains(UtdypendeVilkårsvurdering.DELT_BOSTED)
 
-                gradertBarnehageplass || deltBosted
+                vilkårResultat.erOppfylt() && (gradertBarnehageplass || deltBosted)
             }.map { vilkårResultat ->
                 TidslinjePeriodeMedDato(
                     verdi = vilkårResultat,
@@ -228,17 +229,17 @@ class VilkårsvurderingSteg(
             ) {
                 throw FunksjonellFeil(
                     "Det mangler vurdering på vilkåret ${Vilkår.BARNEHAGEPLASS.beskrivelse}. " +
-                        "Hele eller deler av perioden der barnet er mellom 1 og 2 år er ikke vurdert."
+                            "Hele eller deler av perioden der barnet er mellom 1 og 2 år er ikke vurdert."
                 )
             }
             if (barnehageplassVilkårResultater.any {
-                it.periodeFom?.isAfter(maksTilOmMedDatoIBarnetsAlderVilkårResultater) == true
-            }
+                    it.periodeFom?.isAfter(maksTilOmMedDatoIBarnetsAlderVilkårResultater) == true
+                }
             ) {
                 throw FunksjonellFeil(
                     "Du har lagt til en periode på vilkåret ${Vilkår.BARNEHAGEPLASS.beskrivelse}" +
-                        " som starter etter at barnet har fylt 2 år eller startet på skolen. " +
-                        "Du må fjerne denne perioden for å kunne fortsette"
+                            " som starter etter at barnet har fylt 2 år eller startet på skolen. " +
+                            "Du må fjerne denne perioden for å kunne fortsette"
                 )
             }
         }
@@ -247,12 +248,12 @@ class VilkårsvurderingSteg(
     private fun validerAtDetIkkeFinnesMerEnn2EndringerISammeMånedIBarnehageplassVilkår(vilkårsvurdering: Vilkårsvurdering) {
         vilkårsvurdering.personResultater.filter { !it.erSøkersResultater() }.forEach { personResultat ->
             if (personResultat.tilPeriodeResultater().any { periodeResultat ->
-                periodeResultat.vilkårResultater.count { it.vilkårType == Vilkår.BARNEHAGEPLASS } > 2
-            }
+                    periodeResultat.vilkårResultater.count { it.vilkårType == Vilkår.BARNEHAGEPLASS } > 2
+                }
             ) {
                 throw FunksjonellFeil(
                     "Du har lagt inn flere enn 2 endringer i barnehagevilkåret i samme måned. " +
-                        "Dette er ikke støttet enda. Ta kontakt med Team Familie."
+                            "Dette er ikke støttet enda. Ta kontakt med Team Familie."
                 )
             }
         }
