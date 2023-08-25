@@ -133,7 +133,7 @@ internal class StønadsstatistikkServiceTest {
 
         vedtakDvh.utbetalingsperioder
             .flatMap { it.utbetalingsDetaljer.map { ud -> ud.person } }
-            .filter { it.personIdent != søkerFnr }
+            .filter {it.personIdent != søkerFnr }
             .forEach {
                 assertEquals(0, it.delingsprosentYtelse)
             }
