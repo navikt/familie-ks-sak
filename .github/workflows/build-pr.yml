@@ -33,7 +33,7 @@ jobs:
           GITHUB_USERNAME: x-access-token
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          ./gradlew ktlintCheck
+          ./gradlew ktlintCheck --info
   enhetstester:
     name: Enhetstester
     runs-on: ubuntu-latest-8-cores
