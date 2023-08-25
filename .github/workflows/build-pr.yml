@@ -33,6 +33,12 @@ jobs:
           GITHUB_USERNAME: x-access-token
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          echo "Install locales..."
+          sudo locale-gen nb_NO.UTF-8
+          echo "set locale"
+          sudo localectl set-locale LANG="nb_NO.UTF-8"
+          export LANG="nb_NO.UTF-8"
+          sudo update-locale
           echo "All languages..."
           locale -a
           echo "Actual locale"
