@@ -135,6 +135,7 @@ internal class StønadsstatistikkServiceTest {
         every { andelerTilkjentYtelseOgEndreteUtbetalingerService.finnAndelerTilkjentYtelseMedEndreteUtbetalinger(any()) } returns
             andelerTilkjentYtelse
         every { vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(any()) } returns vilkårsVurdering
+        every { persongrunnlagService.hentBarna(any()) } returns personopplysningGrunnlag.barna
 
         val vedtakDvh = stønadsstatistikkService.hentVedtakDVH(1L)
 

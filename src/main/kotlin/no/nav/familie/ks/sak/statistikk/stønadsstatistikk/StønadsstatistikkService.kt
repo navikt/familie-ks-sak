@@ -30,7 +30,6 @@ class StønadsstatistikkService(
     private val personOpplysningerService: PersonOpplysningerService,
     private val vedtakService: VedtakService,
     private val andelerTilkjentYtelseOgEndreteUtbetalingerService: AndelerTilkjentYtelseOgEndreteUtbetalingerService,
-
     private val vilkårsvurderingService: VilkårsvurderingService
 ) {
 
@@ -39,9 +38,13 @@ class StønadsstatistikkService(
         val vedtak = vedtakService.hentAktivVedtakForBehandling(behandlingId)
         val vedtaksdato = vedtak.vedtaksdato ?: error("Fant ikke vedtaksdato for behandling $behandlingId")
         val aktørId = behandling.fagsak.aktør.aktørId
+        val barna = personopplysningGrunnlagService.hentBarna(behandling.id)
+
         val vilkårsvurdering = vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(behandlingId)
-        val vilkårResultater = vilkårsvurdering.hentPersonResultaterTilAktør(aktørId)
-        val vilkårResultaterTilDVH = vilkårResultater.map { vkr ->
+        val vilkårResultaterForSøker = vilkårsvurdering.hentPersonResultaterTilAktør(aktørId)
+        val vilkårResultaterForAlleBarn = barna?.map { vilkårsvurdering.hentPersonResultaterTilAktør(it.aktør.aktørId) }?.flatten()
+        val alleVilkårResultater = vilkårResultaterForSøker + vilkårResultaterForAlleBarn.orEmpty()
+        val vilkårResultaterTilDVH = alleVilkårResultater.map { vkr ->
             no.nav.familie.eksterne.kontrakter.VilkårResultat(
                 resultat = vkr.resultat.tilDatavarehusResultat(),
                 antallTimer = vkr.antallTimer,
