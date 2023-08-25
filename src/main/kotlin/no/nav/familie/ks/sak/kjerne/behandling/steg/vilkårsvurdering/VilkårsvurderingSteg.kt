@@ -182,7 +182,7 @@ class VilkårsvurderingSteg(
                 val deltBosted =
                     vilkårResultat.utdypendeVilkårsvurderinger.contains(UtdypendeVilkårsvurdering.DELT_BOSTED)
 
-                gradertBarnehageplass || deltBosted
+                vilkårResultat.erOppfylt() && (gradertBarnehageplass || deltBosted)
             }.map { vilkårResultat ->
                 TidslinjePeriodeMedDato(
                     verdi = vilkårResultat,
