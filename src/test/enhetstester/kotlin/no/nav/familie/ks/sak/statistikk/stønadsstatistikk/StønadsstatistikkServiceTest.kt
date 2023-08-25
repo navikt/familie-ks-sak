@@ -152,6 +152,6 @@ internal class StønadsstatistikkServiceTest {
 
         assertEquals(true, vedtakDvh.vilkårResultater?.isNotEmpty())
 
-        assertTrue(vedtakDvh.vilkårResultater!!.any{it.vilkårType == Vilkår.BARNEHAGEPLASS })
+        assertTrue(vedtakDvh.vilkårResultater!!.any { it.vilkårType == Vilkår.BARNEHAGEPLASS })
     }
 }
