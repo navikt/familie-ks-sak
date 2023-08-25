@@ -10,6 +10,7 @@ plugins {
     id("org.jetbrains.kotlin.plugin.jpa") version kotlinVersion
     id("org.jetbrains.kotlin.plugin.allopen") version kotlinVersion
     id("com.github.davidmc24.gradle.plugin.avro") version "1.5.0"
+    id("org.jlleitschuh.gradle.ktlint") version "11.5.1"
 }
 
 group = "no.nav"
@@ -101,7 +102,7 @@ dependencies {
     implementation("io.sentry:sentry-logback:$sentryVersion")
     implementation("io.micrometer:micrometer-registry-prometheus")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.14.0")
-    implementation("com.pinterest:ktlint:0.47.1")
+    implementation("com.pinterest:ktlint:0.50.0")
     implementation("com.neovisionaries:nv-i18n:1.29")
 
     testImplementation("io.mockk:mockk:1.13.2")
