@@ -10,7 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import java.time.LocalDateTime
 
 class BarnehagelisteMottattRepositoryTest(
-    @Autowired private val barnehagelisteMottattRepository: BarnehagelisteMottattRepository,
+    @Autowired private val barnehagelisteMottattRepository: BarnehagelisteMottattRepository
 ) : OppslagSpringRunnerTest() {
 
     @Test
