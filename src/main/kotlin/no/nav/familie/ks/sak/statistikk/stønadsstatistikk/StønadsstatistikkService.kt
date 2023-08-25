@@ -48,6 +48,9 @@ class StønadsstatistikkService(
             no.nav.familie.eksterne.kontrakter.VilkårResultat(
                 resultat = vkr.resultat.tilDatavarehusResultat(),
                 antallTimer = vkr.antallTimer,
+                periodeFom = vkr.periodeFom,
+                periodeTom = vkr.periodeTom,
+                ident = vkr.personResultat?.aktør?.aktivFødselsnummer(),
                 vilkårType = vkr.vilkårType.tilDatavarehusVilkårType()
             )
         }
