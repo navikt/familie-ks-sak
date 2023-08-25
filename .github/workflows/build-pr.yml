@@ -33,6 +33,10 @@ jobs:
           GITHUB_USERNAME: x-access-token
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          echo "All languages..."
+          locale -a
+          echo "Actual locale"
+          locale
           ./gradlew ktlintCheck --info
   enhetstester:
     name: Enhetstester
