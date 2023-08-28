@@ -32,8 +32,8 @@ jobs:
           GITHUB_USERNAME: x-access-token
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          echo "KJØRER ls kommando"
-          ls /home/runner/work/familie-ks-sak/familie-ks-sak/src/test/enhetstester/kotlin/no/nav/familie/ks/sak/common/tidslinje/utvidelser/
+          echo "KJØRER env"
+          env
           ./gradlew ktlintCheck --stacktrace
   enhetstester:
     name: Enhetstester
