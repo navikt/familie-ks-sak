@@ -87,9 +87,9 @@ internal class StønadsstatistikkServiceTest {
                 stønadTom = barn1.fødselsdato.plusYears(3).toYearMonth(),
                 sats = 1054,
                 aktør = barn1.aktør,
-                periodeOffset = 1
+                periodeOffset = 1,
             ),
-            emptyList()
+            emptyList(),
         )
 
         val andelTilkjentYtelseBarn2PeriodeMed0Beløp = AndelTilkjentYtelseMedEndreteUtbetalinger(
@@ -98,9 +98,9 @@ internal class StønadsstatistikkServiceTest {
                 stønadFom = barn2.fødselsdato.førsteDagINesteMåned().toYearMonth(),
                 stønadTom = barn2.fødselsdato.plusYears(3).toYearMonth(),
                 sats = 0,
-                aktør = barn2.aktør
+                aktør = barn2.aktør,
             ),
-            emptyList()
+            emptyList(),
         )
 
         val andelTilkjentYtelseSøker = AndelTilkjentYtelseMedEndreteUtbetalinger(
@@ -109,15 +109,15 @@ internal class StønadsstatistikkServiceTest {
                 stønadFom = barn2.fødselsdato.førsteDagINesteMåned().toYearMonth(),
                 stønadTom = barn2.fødselsdato.plusYears(3).toYearMonth(),
                 sats = 50,
-                aktør = barn2.aktør
+                aktør = barn2.aktør,
             ),
-            emptyList()
+            emptyList(),
         )
 
         val andelerTilkjentYtelse = listOf(
             andelTilkjentYtelseBarn1,
             andelTilkjentYtelseBarn2PeriodeMed0Beløp,
-            andelTilkjentYtelseSøker
+            andelTilkjentYtelseSøker,
         )
 
         every { behandlingHentOgPersisterService.hentBehandling(any()) } returns behandling

@@ -20,5 +20,5 @@ abstract class AbstractEøsSkjemaUtfyltStatus<T> {
 enum class UtfyltStatus {
     IKKE_UTFYLT,
     UFULLSTENDIG,
-    OK
+    OK,
 }

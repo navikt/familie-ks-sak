@@ -35,7 +35,7 @@ class StegService(
     private val tilbakekrevingRepository: TilbakekrevingRepository,
     private val sakStatistikkService: SakStatistikkService,
     private val taskService: TaskService,
-    private val loggService: LoggService
+    private val loggService: LoggService,
 ) {
 
     @Transactional
@@ -52,7 +52,7 @@ class StegService(
                 // utleder nåværendeSteg status, den blir TILBAKEFØRT når beslutter underkjenner vedtaket ellers UTFØRT
                 behandlingStegTilstand.behandlingStegStatus = utledNåværendeBehandlingStegStatus(
                     behandlingSteg,
-                    behandlingStegDto
+                    behandlingStegDto,
                 )
                 // AVSLUTT_BEHANDLING er siste steg, der slipper man å hente neste steg
                 if (behandlingSteg != AVSLUTT_BEHANDLING) {
@@ -98,7 +98,7 @@ class StegService(
             BehandlingStegStatus.AVBRUTT, BehandlingStegStatus.TILBAKEFØRT ->
                 throw Feil(
                     "Kan ikke behandle behandling $behandlingId " +
-                        "med steg $behandlingSteg med status ${behandlingStegTilstand.behandlingStegStatus}"
+                        "med steg $behandlingSteg med status ${behandlingStegTilstand.behandlingStegStatus}",
                 )
         }
         // statistikk til datavarehus
@@ -130,7 +130,7 @@ class StegService(
         behandledeSteg.gyldigForÅrsaker.singleOrNull { it == behandling.opprettetÅrsak }
             ?: throw Feil(
                 "Steget ${behandledeSteg.name} er ikke gyldig for behandling ${behandling.id} " +
-                    "med opprettetÅrsak ${behandling.opprettetÅrsak}"
+                    "med opprettetÅrsak ${behandling.opprettetÅrsak}",
             )
 
         // valider om et tidligere steg i behandlingen har stegstatus KLAR
@@ -142,7 +142,7 @@ class StegService(
             throw Feil(
                 "Behandling ${behandling.id} har allerede et steg " +
                     "${stegKlarForBehandling.behandlingSteg.name}} som er klar for behandling. " +
-                    "Kan ikke behandle ${behandledeSteg.name}"
+                    "Kan ikke behandle ${behandledeSteg.name}",
             )
         }
     }
@@ -150,7 +150,7 @@ class StegService(
     fun hentNesteSteg(
         behandling: Behandling,
         behandledeSteg: BehandlingSteg,
-        behandlingStegDto: BehandlingStegDto?
+        behandlingStegDto: BehandlingStegDto?,
     ): BehandlingSteg {
         val nesteGyldigeStadier = BehandlingSteg.values().filter {
             it.sekvens > behandledeSteg.sekvens &&
@@ -203,7 +203,7 @@ class StegService(
                 Tilbakekrevingsvalg.IGNORER_TILBAKEKREVING -> {
                     logger.info(
                         """Tilbakekrevingsvalg er ${it.valg.name} for behandling $behandlingId.
-                            Oppretter ikke tilbakekrevingsbehandling"""
+                            Oppretter ikke tilbakekrevingsbehandling""",
                     )
                 }
                 else -> taskService.save(SendOpprettTilbakekrevingsbehandlingRequestTask.opprettTask(behandlingId))
@@ -228,13 +228,13 @@ class StegService(
     fun settBehandlingstegPåVent(
         behandling: Behandling,
         frist: LocalDate,
-        årsak: VenteÅrsak
+        årsak: VenteÅrsak,
     ) {
         val behandlingStegTilstand = hentStegTilstandForBehandlingSteg(behandling, behandling.steg)
 
         loggService.opprettSettPåVentLogg(
             behandling = behandling,
-            årsak = årsak.visningsnavn
+            årsak = årsak.visningsnavn,
         )
 
         logger.info("Setter behandling ${behandling.id} på vent med frist $frist og årsak $årsak")
@@ -248,7 +248,7 @@ class StegService(
     fun oppdaterBehandlingstegFristOgÅrsak(
         behandling: Behandling,
         frist: LocalDate,
-        årsak: VenteÅrsak
+        årsak: VenteÅrsak,
     ): LocalDate? {
         val behandlingStegTilstand = hentStegTilstandForBehandlingSteg(behandling, behandling.steg)
 
@@ -259,7 +259,7 @@ class StegService(
         loggService.opprettOppdaterVentingLogg(
             behandling = behandling,
             endretÅrsak = if (årsak != behandlingStegTilstand.årsak) årsak.visningsnavn else null,
-            endretFrist = if (frist != behandlingStegTilstand.frist) frist else null
+            endretFrist = if (frist != behandlingStegTilstand.frist) frist else null,
         )
 
         logger.info("Oppdater ventende behandling ${behandling.id} med frist $frist og årsak $årsak")
@@ -279,7 +279,7 @@ class StegService(
 
     private fun hentStegTilstandForBehandlingSteg(
         behandling: Behandling,
-        behandlingSteg: BehandlingSteg
+        behandlingSteg: BehandlingSteg,
     ): BehandlingStegTilstand =
         behandling.behandlingStegTilstand.singleOrNull { it.behandlingSteg == behandlingSteg }
             ?: throw Feil("$behandlingSteg finnes ikke i Behandling ${behandling.id}")
@@ -296,7 +296,7 @@ class StegService(
         val nyBehandlingStatus = behandling.steg.tilknyttetBehandlingStatus
         logger.info(
             "${SikkerhetContext.hentSaksbehandlerNavn()} endrer status på behandling ${behandling.id} " +
-                "fra ${behandling.status} til $nyBehandlingStatus"
+                "fra ${behandling.status} til $nyBehandlingStatus",
         )
         behandling.status = nyBehandlingStatus
         return behandling
@@ -304,7 +304,7 @@ class StegService(
 
     private fun utledNåværendeBehandlingStegStatus(
         behandlingSteg: BehandlingSteg,
-        behandlingStegDto: BehandlingStegDto? = null
+        behandlingStegDto: BehandlingStegDto? = null,
     ) = when (behandlingSteg) {
         BESLUTTE_VEDTAK -> {
             val beslutteVedtakDto = behandlingStegDto as BesluttVedtakDto

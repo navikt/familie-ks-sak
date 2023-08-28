@@ -52,7 +52,7 @@ class SettBehandlingPåVentServiceTest {
         settBehandlingPåVentService.settBehandlingPåVent(
             behandling.id,
             frist,
-            VenteÅrsak.AVVENTER_DOKUMENTASJON
+            VenteÅrsak.AVVENTER_DOKUMENTASJON,
         )
 
         verify(exactly = 1) { behandlingRepository.hentBehandling(any()) }
@@ -72,7 +72,7 @@ class SettBehandlingPåVentServiceTest {
             settBehandlingPåVentService.settBehandlingPåVent(
                 behandling.id,
                 frist,
-                VenteÅrsak.AVVENTER_DOKUMENTASJON
+                VenteÅrsak.AVVENTER_DOKUMENTASJON,
             )
         }
 
@@ -89,13 +89,13 @@ class SettBehandlingPåVentServiceTest {
             settBehandlingPåVentService.settBehandlingPåVent(
                 behandling.id,
                 frist,
-                VenteÅrsak.AVVENTER_DOKUMENTASJON
+                VenteÅrsak.AVVENTER_DOKUMENTASJON,
             )
         }
 
         assertEquals(
             "Frist for å vente på behandling ${behandling.id} er satt før dagens dato.",
-            funksjonellFeil.message
+            funksjonellFeil.message,
         )
     }
 
@@ -110,13 +110,13 @@ class SettBehandlingPåVentServiceTest {
             settBehandlingPåVentService.settBehandlingPåVent(
                 behandling.id,
                 frist,
-                VenteÅrsak.AVVENTER_DOKUMENTASJON
+                VenteÅrsak.AVVENTER_DOKUMENTASJON,
             )
         }
 
         assertEquals(
             "Behandling ${behandling.id} er avsluttet og kan ikke settes på vent.",
-            funksjonellFeil.message
+            funksjonellFeil.message,
         )
     }
 
@@ -131,13 +131,13 @@ class SettBehandlingPåVentServiceTest {
             settBehandlingPåVentService.settBehandlingPåVent(
                 behandling.id,
                 frist,
-                VenteÅrsak.AVVENTER_DOKUMENTASJON
+                VenteÅrsak.AVVENTER_DOKUMENTASJON,
             )
         }
 
         assertEquals(
             "Behandling ${behandling.id} er ikke aktiv og kan ikke settes på vent.",
-            funksjonellFeil.message
+            funksjonellFeil.message,
         )
     }
 
@@ -151,7 +151,7 @@ class SettBehandlingPåVentServiceTest {
             stegService.oppdaterBehandlingstegFristOgÅrsak(
                 any(),
                 any(),
-                VenteÅrsak.AVVENTER_DOKUMENTASJON
+                VenteÅrsak.AVVENTER_DOKUMENTASJON,
             )
         } returns gammelFrist
 
@@ -160,7 +160,7 @@ class SettBehandlingPåVentServiceTest {
         settBehandlingPåVentService.oppdaterFristOgÅrsak(
             behandling.id,
             frist,
-            VenteÅrsak.AVVENTER_DOKUMENTASJON
+            VenteÅrsak.AVVENTER_DOKUMENTASJON,
         )
 
         verify(exactly = 1) { behandlingRepository.hentBehandling(any()) }
@@ -168,7 +168,7 @@ class SettBehandlingPåVentServiceTest {
             stegService.oppdaterBehandlingstegFristOgÅrsak(
                 any(),
                 any(),
-                VenteÅrsak.AVVENTER_DOKUMENTASJON
+                VenteÅrsak.AVVENTER_DOKUMENTASJON,
             )
         }
         verify(exactly = 1) { oppgaveService.forlengFristÅpneOppgaverPåBehandling(any(), any()) }
@@ -184,7 +184,7 @@ class SettBehandlingPåVentServiceTest {
         every { oppgaveService.settFristÅpneOppgaverPåBehandlingTil(any(), any()) } just runs
 
         settBehandlingPåVentService.gjenopptaBehandlingPåVent(
-            behandling.id
+            behandling.id,
         )
 
         verify(exactly = 1) { behandlingRepository.hentBehandling(any()) }

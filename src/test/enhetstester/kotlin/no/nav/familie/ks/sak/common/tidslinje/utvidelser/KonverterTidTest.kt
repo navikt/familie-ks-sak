@@ -23,7 +23,7 @@ class KonverterTidTest {
 
         val tmp = listOf(
             TidslinjePeriode(1, dato1_start.until(dato1_slutt, ChronoUnit.DAYS).toInt() + 1),
-            TidslinjePeriode(2, dato2_start.until(dato2_slutt, ChronoUnit.DAYS).toInt() + 1)
+            TidslinjePeriode(2, dato2_start.until(dato2_slutt, ChronoUnit.DAYS).toInt() + 1),
         )
 
         val tidslinje = Tidslinje(dato1_start, tmp)
@@ -54,7 +54,7 @@ class KonverterTidTest {
             TidslinjePeriode(1, dato1_start.until(dato1_slutt, ChronoUnit.DAYS).toInt() + 1),
             TidslinjePeriode(2, dato2_start.until(dato2_slutt, ChronoUnit.DAYS).toInt() + 1),
             TidslinjePeriode(3, dato3_start.until(dato3_slutt, ChronoUnit.DAYS).toInt() + 1),
-            TidslinjePeriode(4, dato4_start.until(dato4_slutt, ChronoUnit.DAYS).toInt() + 1)
+            TidslinjePeriode(4, dato4_start.until(dato4_slutt, ChronoUnit.DAYS).toInt() + 1),
         )
 
         val tidslinje = Tidslinje(dato1_start, tmp)
@@ -85,7 +85,7 @@ class KonverterTidTest {
             TidslinjePeriode(1, dato1_start.until(dato1_slutt, ChronoUnit.DAYS).toInt() + 1),
             TidslinjePeriode(2, dato2_start.until(dato2_slutt, ChronoUnit.DAYS).toInt() + 1),
             TidslinjePeriode(3, dato3_start.until(dato3_slutt, ChronoUnit.DAYS).toInt() + 1),
-            TidslinjePeriode(4, dato4_start.until(dato4_slutt, ChronoUnit.DAYS).toInt() + 1)
+            TidslinjePeriode(4, dato4_start.until(dato4_slutt, ChronoUnit.DAYS).toInt() + 1),
         )
 
         val tidslinje = Tidslinje(dato1_start, tmp)
@@ -120,7 +120,7 @@ class KonverterTidTest {
             TidslinjePeriode(2, dato2_start.until(dato2_slutt, ChronoUnit.DAYS).toInt() + 1),
             TidslinjePeriode(3, dato3_start.until(dato3_slutt, ChronoUnit.DAYS).toInt() + 1),
             TidslinjePeriode(4, dato4_start.until(dato4_slutt, ChronoUnit.DAYS).toInt() + 1),
-            TidslinjePeriode(5, dato5_start.until(dato5_slutt, ChronoUnit.DAYS).toInt() + 1)
+            TidslinjePeriode(5, dato5_start.until(dato5_slutt, ChronoUnit.DAYS).toInt() + 1),
         )
 
         val tidslinje = Tidslinje(dato1_start, tmp)
@@ -155,7 +155,7 @@ class KonverterTidTest {
             TidslinjePeriode(2, dato2_start.until(dato2_slutt, ChronoUnit.DAYS).toInt() + 1),
             TidslinjePeriode(3, dato3_start.until(dato3_slutt, ChronoUnit.DAYS).toInt() + 1),
             TidslinjePeriode(4, dato4_start.until(dato4_slutt, ChronoUnit.DAYS).toInt() + 1),
-            TidslinjePeriode(5, dato5_start.until(dato5_slutt, ChronoUnit.DAYS).toInt() + 1)
+            TidslinjePeriode(5, dato5_start.until(dato5_slutt, ChronoUnit.DAYS).toInt() + 1),
         )
 
         val tidslinje = Tidslinje(dato1_start, tmp)
@@ -188,7 +188,7 @@ class KonverterTidTest {
             TidslinjePeriode(2.0, dato2_start.until(dato2_slutt, ChronoUnit.DAYS).toInt() + 1),
             TidslinjePeriode(3.0, dato3_start.until(dato3_slutt, ChronoUnit.DAYS).toInt() + 1),
             TidslinjePeriode(4.0, dato4_start.until(dato4_slutt, ChronoUnit.DAYS).toInt() + 1),
-            TidslinjePeriode(5.0, dato5_start.until(dato5_slutt, ChronoUnit.DAYS).toInt() + 1)
+            TidslinjePeriode(5.0, dato5_start.until(dato5_slutt, ChronoUnit.DAYS).toInt() + 1),
         )
 
         val tidslinje = Tidslinje(dato1_start, tmp)
@@ -293,10 +293,10 @@ class KonverterTidTest {
                 28.0,
                 29.0,
                 30.0,
-                31.0
+                31.0,
             ),
             LocalDate.of(2022, 1, 1),
-            TidsEnhet.DAG
+            TidsEnhet.DAG,
         )
 
         val tidslinjeMåned =
@@ -331,7 +331,7 @@ class KonverterTidTest {
             TidslinjePeriode(2.0, dato2_start.until(dato2_slutt, ChronoUnit.DAYS).toInt() + 1),
             TidslinjePeriode(3.0, dato3_start.until(dato3_slutt, ChronoUnit.DAYS).toInt() + 1),
             TidslinjePeriode(4.0, dato4_start.until(dato4_slutt, ChronoUnit.DAYS).toInt() + 1),
-            TidslinjePeriode(5.0, dato5_start.until(dato5_slutt, ChronoUnit.DAYS).toInt() + 1)
+            TidslinjePeriode(5.0, dato5_start.until(dato5_slutt, ChronoUnit.DAYS).toInt() + 1),
         )
 
         val tidslinje = Tidslinje(dato1_start, tmp)
@@ -350,7 +350,7 @@ class KonverterTidTest {
             5.0,
             5.0,
             5.0,
-            5.0
+            5.0,
         ) // Dette er sånn lista skulle vært, men siden Tidslinje slår sammen like blir det
         val correct: List<Double> = listOf(1.0, 2.0, 3.0, 4.0, 5.0)
 
@@ -381,7 +381,7 @@ class KonverterTidTest {
             TidslinjePeriode(false, dato2_start.until(dato2_slutt, ChronoUnit.DAYS).toInt() + 1),
             TidslinjePeriode(true, dato3_start.until(dato3_slutt, ChronoUnit.DAYS).toInt() + 1),
             TidslinjePeriode(true, dato4_start.until(dato4_slutt, ChronoUnit.DAYS).toInt() + 1),
-            TidslinjePeriode(false, dato5_start.until(dato5_slutt, ChronoUnit.DAYS).toInt() + 1)
+            TidslinjePeriode(false, dato5_start.until(dato5_slutt, ChronoUnit.DAYS).toInt() + 1),
         )
 
         val tidslinje = Tidslinje(dato1_start, tmp)
@@ -418,7 +418,7 @@ class KonverterTidTest {
             TidslinjePeriode(2.0, dato2_start.until(dato2_slutt, ChronoUnit.DAYS).toInt() + 1),
             TidslinjePeriode(3.0, dato3_start.until(dato3_slutt, ChronoUnit.DAYS).toInt() + 1),
             TidslinjePeriode(4.0, dato4_start.until(dato4_slutt, ChronoUnit.DAYS).toInt() + 1),
-            TidslinjePeriode(5.0, dato5_start.until(dato5_slutt, ChronoUnit.DAYS).toInt() + 1, true)
+            TidslinjePeriode(5.0, dato5_start.until(dato5_slutt, ChronoUnit.DAYS).toInt() + 1, true),
         )
 
         val tidslinje = Tidslinje(dato1_start, tmp)
@@ -436,7 +436,7 @@ class KonverterTidTest {
             3.0,
             4.0,
             5.0,
-            5.0
+            5.0,
         ) // Dette er sånn lista skulle vært, men siden Tidslinje slår sammen like blir det
         val correct: List<Double> = listOf(1.0, 2.0, 3.0, 4.0, 5.0)
 
@@ -461,7 +461,7 @@ class KonverterTidTest {
         val tmp = listOf(
             TidslinjePeriode(5.0, dato1_start.until(dato1_slutt, ChronoUnit.DAYS).toInt() + 1),
             TidslinjePeriode(7.0, dato2_start.until(dato2_slutt, ChronoUnit.DAYS).toInt() + 1),
-            TidslinjePeriode(15.0, dato3_start.until(dato3_slutt, ChronoUnit.DAYS).toInt() + 1)
+            TidslinjePeriode(15.0, dato3_start.until(dato3_slutt, ChronoUnit.DAYS).toInt() + 1),
         )
 
         val tidslinje = Tidslinje(dato1_start, tmp)
@@ -494,7 +494,7 @@ class KonverterTidTest {
         val tmp = listOf(
             TidslinjePeriode(5.0, dato1_start.until(dato1_slutt, ChronoUnit.DAYS).toInt() + 1),
             TidslinjePeriode(7.0, dato2_start.until(dato2_slutt, ChronoUnit.DAYS).toInt() + 1),
-            TidslinjePeriode(15.0, dato3_start.until(dato3_slutt, ChronoUnit.DAYS).toInt() + 1)
+            TidslinjePeriode(15.0, dato3_start.until(dato3_slutt, ChronoUnit.DAYS).toInt() + 1),
         )
 
         val tidslinje = Tidslinje(dato1_start, tmp)
@@ -528,7 +528,7 @@ class KonverterTidTest {
         val tmp = listOf(
             TidslinjePeriode(5.0, dato1_start.until(dato1_slutt, ChronoUnit.DAYS).toInt() + 1),
             TidslinjePeriode(7.0, dato2_start.until(dato2_slutt, ChronoUnit.DAYS).toInt() + 1),
-            TidslinjePeriode(15.0, dato3_start.until(dato3_slutt, ChronoUnit.DAYS).toInt() + 1, erUendelig = true)
+            TidslinjePeriode(15.0, dato3_start.until(dato3_slutt, ChronoUnit.DAYS).toInt() + 1, erUendelig = true),
         )
 
         val tidslinje = Tidslinje(dato1_start, tmp)
@@ -564,7 +564,7 @@ class KonverterTidTest {
         val tmp = listOf(
             TidslinjePeriode(5.0, dato1_start.until(dato1_slutt, ChronoUnit.DAYS).toInt() + 1),
             TidslinjePeriode(7.0, dato2_start.until(dato2_slutt, ChronoUnit.DAYS).toInt() + 1),
-            TidslinjePeriode(15.0, dato3_start.until(dato3_slutt, ChronoUnit.DAYS).toInt() + 1, erUendelig = true)
+            TidslinjePeriode(15.0, dato3_start.until(dato3_slutt, ChronoUnit.DAYS).toInt() + 1, erUendelig = true),
         )
 
         val tidslinje = Tidslinje(dato1_start, tmp)

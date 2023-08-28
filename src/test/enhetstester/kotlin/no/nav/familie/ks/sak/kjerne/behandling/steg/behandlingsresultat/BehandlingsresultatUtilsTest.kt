@@ -55,14 +55,14 @@ internal class BehandlingsresultatUtilsTest {
             println("Tester: ${testData.beskrivelse}, forventet resultat: $forventetResultat")
             val ytelsePersonerMedResulater = YtelsePersonUtils.utledYtelsePersonerMedResultat(
                 behandlingsresultatPersoner = testData.personer,
-                uregistrerteBarn = testData.uregistrerteBarn
+                uregistrerteBarn = testData.uregistrerteBarn,
             )
             val ytelsePersonResultater =
                 YtelsePersonUtils.oppdaterYtelsePersonResultaterVedOpphør(ytelsePersonerMedResulater)
             val behandlingsresultat =
                 BehandlingsresultatUtils.utledBehandlingsresultatBasertPåYtelsePersonResulater(
                     ytelsePersonResultater,
-                    false
+                    false,
                 )
             assertEquals(forventetResultat, behandlingsresultat)
         }
@@ -74,5 +74,5 @@ data class BehandlingsresulatTestData(
     val kommentar: String? = "",
     val personer: List<BehandlingsresultatPerson>,
     val uregistrerteBarn: List<String> = emptyList(),
-    val forventetResultat: Behandlingsresultat
+    val forventetResultat: Behandlingsresultat,
 )

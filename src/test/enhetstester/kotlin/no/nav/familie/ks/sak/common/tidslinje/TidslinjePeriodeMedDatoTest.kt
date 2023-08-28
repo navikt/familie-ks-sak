@@ -44,7 +44,7 @@ class TidslinjePeriodeMedDatoTest {
     fun `tilTidslinjePerioderMedDato - Skal kunne håndtere splitt i tidslinje`() {
         val tidslinjePerioderMedDato = listOf(
             TidslinjePeriodeMedDato("a", førsteJanuar, sisteDagIJanuar),
-            TidslinjePeriodeMedDato("c", førsteMars, sisteDagIMars)
+            TidslinjePeriodeMedDato("c", førsteMars, sisteDagIMars),
         ).tilTidslinje().tilTidslinjePerioderMedDato()
 
         Assertions.assertEquals(3, tidslinjePerioderMedDato.size)
@@ -70,7 +70,7 @@ class TidslinjePeriodeMedDatoTest {
         val tidslinjePerioderMedDato = listOf(
             TidslinjePeriodeMedDato("a", null, sisteDagIJanuar),
             TidslinjePeriodeMedDato("b", førsteFebruar, sisteDagIFebruar),
-            TidslinjePeriodeMedDato("c", førsteMars, null)
+            TidslinjePeriodeMedDato("c", førsteMars, null),
         ).tilTidslinje().tilTidslinjePerioderMedDato()
 
         Assertions.assertEquals(3, tidslinjePerioderMedDato.size)
@@ -96,7 +96,7 @@ class TidslinjePeriodeMedDatoTest {
         val tidslinjePerioderMedDato = listOf(
             TidslinjePeriodeMedDato("a", null, sisteDagIJanuar),
             TidslinjePeriodeMedDato("b", førsteFebruar, null),
-            TidslinjePeriodeMedDato("c", førsteMars, null)
+            TidslinjePeriodeMedDato("c", førsteMars, null),
         )
 
         Assertions.assertThrows(Exception::class.java) { tidslinjePerioderMedDato.tilTidslinje() }
@@ -107,7 +107,7 @@ class TidslinjePeriodeMedDatoTest {
         val tidslinjePerioderMedDato = listOf(
             TidslinjePeriodeMedDato("a", null, sisteDagIJanuar),
             TidslinjePeriodeMedDato("b", null, sisteDagIFebruar),
-            TidslinjePeriodeMedDato("c", førsteMars, null)
+            TidslinjePeriodeMedDato("c", førsteMars, null),
         )
 
         Assertions.assertThrows(Exception::class.java) { tidslinjePerioderMedDato.tilTidslinje() }
@@ -118,7 +118,7 @@ class TidslinjePeriodeMedDatoTest {
         val tidslinjePerioderMedDato = listOf(
             TidslinjePeriodeMedDato("a", null, sisteDagIJanuar),
             TidslinjePeriodeMedDato("b", førsteFebruar, sisteDagIMars),
-            TidslinjePeriodeMedDato("c", førsteMars, null)
+            TidslinjePeriodeMedDato("c", førsteMars, null),
         )
 
         Assertions.assertThrows(Exception::class.java) { tidslinjePerioderMedDato.tilTidslinje() }

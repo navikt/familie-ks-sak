@@ -33,7 +33,7 @@ import java.time.LocalDate
 import java.time.Month
 
 fun standardbegrunnelserTilNedtrekksmenytekster(
-    sanityBegrunnelser: List<SanityBegrunnelse>
+    sanityBegrunnelser: List<SanityBegrunnelse>,
 ) =
     Begrunnelse
         .values()
@@ -43,26 +43,26 @@ fun standardbegrunnelserTilNedtrekksmenytekster(
                 .flatMap { vedtakBegrunnelse ->
                     vedtakBegrunnelseTilRestVedtakBegrunnelseTilknyttetVilkår(
                         sanityBegrunnelser,
-                        vedtakBegrunnelse
+                        vedtakBegrunnelse,
                     )
                 }
         }
 
 fun eøsStandardbegrunnelserTilNedtrekksmenytekster(
-    sanityEØSBegrunnelser: List<SanityEØSBegrunnelse>
+    sanityEØSBegrunnelser: List<SanityEØSBegrunnelse>,
 ) = EØSBegrunnelse.values().groupBy { it.begrunnelseType }
     .mapValues { begrunnelseGruppe ->
         begrunnelseGruppe.value.flatMap { vedtakBegrunnelse ->
             eøsBegrunnelseTilRestVedtakBegrunnelseTilknyttetVilkår(
                 sanityEØSBegrunnelser,
-                vedtakBegrunnelse
+                vedtakBegrunnelse,
             )
         }
     }
 
 fun vedtakBegrunnelseTilRestVedtakBegrunnelseTilknyttetVilkår(
     sanityBegrunnelser: List<SanityBegrunnelse>,
-    vedtakBegrunnelse: Begrunnelse
+    vedtakBegrunnelse: Begrunnelse,
 ): List<VedtakBegrunnelseTilknyttetVilkårResponseDto> {
     val sanityBegrunnelse = vedtakBegrunnelse.tilSanityBegrunnelse(sanityBegrunnelser) ?: return emptyList()
     val visningsnavn = sanityBegrunnelse.navnISystem
@@ -72,15 +72,15 @@ fun vedtakBegrunnelseTilRestVedtakBegrunnelseTilknyttetVilkår(
             VedtakBegrunnelseTilknyttetVilkårResponseDto(
                 id = vedtakBegrunnelse,
                 navn = visningsnavn,
-                vilkår = null
-            )
+                vilkår = null,
+            ),
         )
     } else {
         sanityBegrunnelse.vilkår.map {
             VedtakBegrunnelseTilknyttetVilkårResponseDto(
                 id = vedtakBegrunnelse,
                 navn = visningsnavn,
-                vilkår = it
+                vilkår = it,
             )
         }
     }
@@ -88,7 +88,7 @@ fun vedtakBegrunnelseTilRestVedtakBegrunnelseTilknyttetVilkår(
 
 fun eøsBegrunnelseTilRestVedtakBegrunnelseTilknyttetVilkår(
     sanityEØSBegrunnelser: List<SanityEØSBegrunnelse>,
-    vedtakBegrunnelse: EØSBegrunnelse
+    vedtakBegrunnelse: EØSBegrunnelse,
 ): List<VedtakBegrunnelseTilknyttetVilkårResponseDto> {
     val eøsSanityBegrunnelse = vedtakBegrunnelse.tilSanityEØSBegrunnelse(sanityEØSBegrunnelser) ?: return emptyList()
 
@@ -96,8 +96,8 @@ fun eøsBegrunnelseTilRestVedtakBegrunnelseTilknyttetVilkår(
         VedtakBegrunnelseTilknyttetVilkårResponseDto(
             id = vedtakBegrunnelse,
             navn = eøsSanityBegrunnelse.navnISystem,
-            vilkår = null
-        )
+            vilkår = null,
+        ),
     )
 }
 
@@ -109,11 +109,11 @@ fun eøsBegrunnelseTilRestVedtakBegrunnelseTilknyttetVilkår(
  */
 fun endreVilkårResultat(
     eksisterendeVilkårResultater: List<VilkårResultat>,
-    endretVilkårResultatDto: VilkårResultatDto
+    endretVilkårResultatDto: VilkårResultatDto,
 ): List<VilkårResultat> {
     validerAvslagUtenPeriodeMedLøpende(
         eksisterendeVilkårResultater = eksisterendeVilkårResultater,
-        endretVilkårResultat = endretVilkårResultatDto
+        endretVilkårResultat = endretVilkårResultatDto,
     )
 
     val endretVilkårResultat =
@@ -128,7 +128,7 @@ fun endreVilkårResultat(
             tilpassVilkårForEndretVilkår(
                 endretVilkårResultatId = endretVilkårResultatDto.id,
                 eksisterendeVilkårResultat = it,
-                endretVilkårResultat = endretVilkårResultat
+                endretVilkårResultat = endretVilkårResultat,
             )
         }
 
@@ -144,7 +144,7 @@ fun opprettNyttVilkårResultat(personResultat: PersonResultat, vilkårType: Vilk
     if (harUvurdertePerioderForVilkårType(personResultat, vilkårType)) {
         throw FunksjonellFeil(
             melding = "Det finnes allerede uvurderte vilkår av samme vilkårType",
-            frontendFeilmelding = "Du må ferdigstille vilkårsvurderingen på en periode som allerede er påbegynt, før du kan legge til en ny periode"
+            frontendFeilmelding = "Du må ferdigstille vilkårsvurderingen på en periode som allerede er påbegynt, før du kan legge til en ny periode",
         )
     }
 
@@ -153,7 +153,7 @@ fun opprettNyttVilkårResultat(personResultat: PersonResultat, vilkårType: Vilk
         vilkårType = vilkårType,
         resultat = Resultat.IKKE_VURDERT,
         begrunnelse = "",
-        behandlingId = personResultat.vilkårsvurdering.behandling.id
+        behandlingId = personResultat.vilkårsvurdering.behandling.id,
     )
 }
 
@@ -165,7 +165,7 @@ fun opprettNyttVilkårResultat(personResultat: PersonResultat, vilkårType: Vilk
 fun tilpassVilkårForEndretVilkår(
     endretVilkårResultatId: Long,
     eksisterendeVilkårResultat: VilkårResultat,
-    endretVilkårResultat: VilkårResultat
+    endretVilkårResultat: VilkårResultat,
 ): List<VilkårResultat> {
     if (eksisterendeVilkårResultat.id == endretVilkårResultatId) {
         return listOf(endretVilkårResultat)
@@ -196,7 +196,7 @@ private fun harUvurdertePerioderForVilkårType(personResultat: PersonResultat, v
 
 private fun validerAvslagUtenPeriodeMedLøpende(
     eksisterendeVilkårResultater: List<VilkårResultat>,
-    endretVilkårResultat: VilkårResultatDto
+    endretVilkårResultat: VilkårResultatDto,
 ) {
     val filtrerteVilkårResultater =
         eksisterendeVilkårResultater.filter { it.vilkårType == endretVilkårResultat.vilkårType && it.id != endretVilkårResultat.id }
@@ -208,13 +208,13 @@ private fun validerAvslagUtenPeriodeMedLøpende(
         endretVilkårResultat.erAvslagUtenPeriode() && filtrerteVilkårResultater.any { it.resultat == Resultat.OPPFYLT && it.harFremtidigTom() } ->
             throw FunksjonellFeil(
                 "Finnes løpende oppfylt ved forsøk på å legge til avslag uten periode ",
-                "Du kan ikke legge til avslag uten datoer fordi det finnes oppfylt løpende periode på vilkåret."
+                "Du kan ikke legge til avslag uten datoer fordi det finnes oppfylt løpende periode på vilkåret.",
             )
 
         endretVilkårResultat.harFremtidigTom() && filtrerteVilkårResultater.any { it.erAvslagUtenPeriode() } ->
             throw FunksjonellFeil(
                 "Finnes avslag uten periode ved forsøk på å legge til løpende oppfylt",
-                "Du kan ikke legge til løpende periode fordi det er vurdert avslag uten datoer på vilkåret."
+                "Du kan ikke legge til løpende periode fordi det er vurdert avslag uten datoer på vilkåret.",
             )
     }
 }
@@ -224,13 +224,13 @@ fun List<VilkårResultat>.tilTidslinje(): Tidslinje<VilkårResultat> {
         Periode(
             verdi = it,
             fom = it.periodeFom,
-            tom = it.periodeTom
+            tom = it.periodeTom,
         )
     }.tilTidslinje()
 }
 
 private fun Periode<VilkårResultat>.tilVilkårResultatMedOppdatertPeriodeOgBehandlingsId(
-    nyBehandlingsId: Long
+    nyBehandlingsId: Long,
 ): VilkårResultat {
     val vilkårResultat = this.verdi
 
@@ -242,7 +242,7 @@ private fun Periode<VilkårResultat>.tilVilkårResultatMedOppdatertPeriodeOgBeha
         vilkårResultat.kopierMedNyPeriodeOgBehandling(
             fom = this.fom,
             tom = this.tom,
-            behandlingId = nyBehandlingsId
+            behandlingId = nyBehandlingsId,
         )
     }
 }
@@ -277,7 +277,7 @@ fun validerAtDatoErKorrektIBarnasVilkår(vilkårsvurdering: Vilkårsvurdering, b
                 ) {
                     funksjonelleFeil.add(
                         "Vilkår $vilkårType for barn med fødselsdato $fødselsdato " +
-                            "har fom dato før barnets fødselsdato."
+                            "har fom dato før barnets fødselsdato.",
                     )
                 }
                 if (vilkårResultat.periodeFom != null &&
@@ -286,7 +286,7 @@ fun validerAtDatoErKorrektIBarnasVilkår(vilkårsvurdering: Vilkårsvurdering, b
                 ) {
                     vilkårResultat.validerVilkår_BARNETS_ALDER(
                         vilkårResultat.lagOgValiderPeriodeFraVilkår(),
-                        barn.fødselsdato
+                        barn.fødselsdato,
                     )?.let { funksjonelleFeil.add(it) }
                 }
             }
@@ -313,7 +313,7 @@ private fun VilkårResultat.lagOgValiderPeriodeFraVilkår(): IkkeNullbarPeriode<
 
 private fun VilkårResultat.validerVilkår_BARNETS_ALDER(
     periode: IkkeNullbarPeriode<Long>,
-    barnFødselsdato: LocalDate
+    barnFødselsdato: LocalDate,
 ): String? = when {
     this.erAdopsjonOppfylt() &&
         periode.tom.isAfter(barnFødselsdato.plusYears(6).withMonth(Month.AUGUST.value).sisteDagIMåned()) ->
@@ -334,7 +334,7 @@ private fun VilkårResultat.validerVilkår_BARNETS_ALDER(
 
 fun genererInitiellVilkårsvurdering(
     behandling: Behandling,
-    personopplysningGrunnlag: PersonopplysningGrunnlag
+    personopplysningGrunnlag: PersonopplysningGrunnlag,
 ): Vilkårsvurdering {
     return Vilkårsvurdering(behandling = behandling).apply {
         personResultater = personopplysningGrunnlag.personer.map { person ->
@@ -353,7 +353,7 @@ fun genererInitiellVilkårsvurdering(
                         begrunnelse = "Vurdert og satt automatisk",
                         behandlingId = behandling.id,
                         periodeFom = person.fødselsdato.plusYears(1),
-                        periodeTom = person.fødselsdato.plusYears(2)
+                        periodeTom = person.fødselsdato.plusYears(2),
                     )
 
                     Vilkår.MEDLEMSKAP ->
@@ -364,7 +364,7 @@ fun genererInitiellVilkårsvurdering(
                             vilkårType = vilkår,
                             begrunnelse = "",
                             periodeFom = person.fødselsdato.plusYears(5),
-                            behandlingId = behandling.id
+                            behandlingId = behandling.id,
                         )
 
                     Vilkår.BARNEHAGEPLASS ->
@@ -375,7 +375,7 @@ fun genererInitiellVilkårsvurdering(
                             vilkårType = vilkår,
                             begrunnelse = "",
                             periodeFom = person.fødselsdato,
-                            behandlingId = behandling.id
+                            behandlingId = behandling.id,
                         )
 
                     else -> VilkårResultat(
@@ -385,7 +385,7 @@ fun genererInitiellVilkårsvurdering(
                         vilkårType = vilkår,
                         begrunnelse = "",
                         periodeFom = null,
-                        behandlingId = behandling.id
+                        behandlingId = behandling.id,
                     )
                 }
             }.toSortedSet(VilkårResultat.VilkårResultatComparator)
@@ -398,7 +398,7 @@ fun genererInitiellVilkårsvurdering(
 }
 
 fun Vilkårsvurdering.oppdaterMedDødsdatoer(
-    personopplysningGrunnlag: PersonopplysningGrunnlag
+    personopplysningGrunnlag: PersonopplysningGrunnlag,
 ) {
     this.personResultater.forEach { personResultat ->
         val dødsDato = personopplysningGrunnlag.personer.single { it.aktør == personResultat.aktør }.dødsfall?.dødsfallDato
@@ -417,14 +417,16 @@ fun Vilkårsvurdering.oppdaterMedDødsdatoer(
                         else -> it
                     }
                 }
-        } else personResultat.vilkårResultater
+        } else {
+            personResultat.vilkårResultater
+        }
 
         personResultat.setSortedVilkårResultater(vikårResultaterOppdatertMedDødsdato.toSet())
     }
 }
 
 fun Vilkårsvurdering.kopierOverOppfylteOgIkkeAktuelleResultaterFraForrigeBehandling(
-    vilkårsvurderingForrigeBehandling: Vilkårsvurdering
+    vilkårsvurderingForrigeBehandling: Vilkårsvurdering,
 ) {
     personResultater.forEach { initieltPersonResultat ->
         val personResultatForrigeBehandling =
@@ -438,7 +440,7 @@ fun Vilkårsvurdering.kopierOverOppfylteOgIkkeAktuelleResultaterFraForrigeBehand
             initieltPersonResultat.vilkårResultater
                 .overskrivMedGodkjenteVilkårResultaterFraForrigeBehandling(
                     vilkårResultaterFraForrigeBehandling = personResultatForrigeBehandling.vilkårResultater,
-                    nyttPersonResultat = initieltPersonResultat
+                    nyttPersonResultat = initieltPersonResultat,
                 )
         }
 
@@ -448,7 +450,7 @@ fun Vilkårsvurdering.kopierOverOppfylteOgIkkeAktuelleResultaterFraForrigeBehand
 
 private fun Collection<VilkårResultat>.overskrivMedGodkjenteVilkårResultaterFraForrigeBehandling(
     vilkårResultaterFraForrigeBehandling: Collection<VilkårResultat>,
-    nyttPersonResultat: PersonResultat
+    nyttPersonResultat: PersonResultat,
 ) = flatMap { initeltVilkårResultat ->
     val vilkårResultaterForrigeBehandlingSomViØnskerÅTaMed = vilkårResultaterFraForrigeBehandling
         .filter { it.vilkårType == initeltVilkårResultat.vilkårType }

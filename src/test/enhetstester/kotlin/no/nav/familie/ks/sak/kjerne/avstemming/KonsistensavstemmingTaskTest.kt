@@ -81,8 +81,8 @@ internal class KonsistensavstemmingTaskTest {
         payload = objectMapper.writeValueAsString(
             KonsistensavstemmingTaskDto(
                 kjøreplanId = 1,
-                initieltKjøreTidspunkt = LocalDateTime.now()
-            )
-        )
+                initieltKjøreTidspunkt = LocalDateTime.now(),
+            ),
+        ),
     )
 }

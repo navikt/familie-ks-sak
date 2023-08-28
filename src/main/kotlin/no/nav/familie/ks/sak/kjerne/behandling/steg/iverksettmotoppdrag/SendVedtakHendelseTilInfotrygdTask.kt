@@ -19,11 +19,11 @@ import java.util.Properties
 @Service
 @TaskStepBeskrivelse(
     taskStepType = SendVedtakHendelseTilInfotrygdTask.TASK_STEP_TYPE,
-    beskrivelse = "Send vedtak hendelse til Infotrygd feed."
+    beskrivelse = "Send vedtak hendelse til Infotrygd feed.",
 )
 class SendVedtakHendelseTilInfotrygdTask(
     private val kafkaProducer: KafkaProducer,
-    private val andelerTilkjentYtelseOgEndreteUtbetalingerService: AndelerTilkjentYtelseOgEndreteUtbetalingerService
+    private val andelerTilkjentYtelseOgEndreteUtbetalingerService: AndelerTilkjentYtelseOgEndreteUtbetalingerService,
 ) : AsyncTaskStep {
 
     override fun doTask(task: Task) {
@@ -34,8 +34,8 @@ class SendVedtakHendelseTilInfotrygdTask(
         kafkaProducer.sendVedtakHendelseTilInfotrygd(
             VedtakDto(
                 datoStartNyKS = førsteUtbetalingsdato,
-                fnrStoenadsmottaker = vedtakHendelseDto.fnrStoenadsmottaker
-            )
+                fnrStoenadsmottaker = vedtakHendelseDto.fnrStoenadsmottaker,
+            ),
         )
     }
 
@@ -67,7 +67,7 @@ class SendVedtakHendelseTilInfotrygdTask(
                 payload = objectMapper.writeValueAsString(VedtakHendelseDto(fnrStoenadsmottaker, behandlingId)),
                 properties = Properties().apply {
                     this["personIdent"] = fnrStoenadsmottaker
-                }
+                },
             )
         }
     }

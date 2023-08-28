@@ -11,7 +11,7 @@ import no.nav.familie.ks.sak.kjerne.eøs.felles.endringsabonnent.EøsSkjemaEndri
 // Her T kan være Kompetanse, Utenlandskbeløp eller Valutakurs
 class EøsSkjemaService<T : EøsSkjemaEntitet<T>>(
     private val skjemaRepository: EøsSkjemaRepository<T>,
-    val endringsabonnenter: List<EøsSkjemaEndringAbonnent<T>>
+    val endringsabonnenter: List<EøsSkjemaEndringAbonnent<T>>,
 ) {
 
     fun hentMedId(id: Long): T = skjemaRepository.getReferenceById(id)

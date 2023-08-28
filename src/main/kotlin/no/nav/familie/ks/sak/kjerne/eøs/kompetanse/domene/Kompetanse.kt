@@ -35,7 +35,7 @@ data class Kompetanse(
     @JoinTable(
         name = "AKTOER_TIL_KOMPETANSE",
         joinColumns = [JoinColumn(name = "fk_kompetanse_id")],
-        inverseJoinColumns = [JoinColumn(name = "fk_aktoer_id")]
+        inverseJoinColumns = [JoinColumn(name = "fk_aktoer_id")],
     )
     override val barnAktører: Set<Aktør> = emptySet(),
 
@@ -58,7 +58,7 @@ data class Kompetanse(
 
     @Enumerated(EnumType.STRING)
     @Column(name = "resultat")
-    val resultat: KompetanseResultat? = null
+    val resultat: KompetanseResultat? = null,
 ) : EøsSkjemaEntitet<Kompetanse>() {
 
     @Id
@@ -66,7 +66,7 @@ data class Kompetanse(
     @SequenceGenerator(
         name = "kompetanse_seq_generator",
         sequenceName = "kompetanse_seq",
-        allocationSize = 50
+        allocationSize = 50,
     )
     override var id: Long = 0
 
@@ -79,7 +79,7 @@ data class Kompetanse(
         annenForeldersAktivitet = null,
         annenForeldersAktivitetsland = null,
         barnetsBostedsland = null,
-        resultat = null
+        resultat = null,
     )
 
     override fun kopier(fom: YearMonth?, tom: YearMonth?, barnAktører: Set<Aktør>) =
@@ -116,7 +116,7 @@ enum class SøkersAktivitet {
     MOTTAR_UTBETALING_FRA_NAV_UNDER_OPPHOLD_I_UTLANDET,
     MOTTAR_UFØRETRYGD_FRA_NAV_UNDER_OPPHOLD_I_UTLANDET,
     MOTTAR_PENSJON_FRA_NAV_UNDER_OPPHOLD_I_UTLANDET,
-    INAKTIV
+    INAKTIV,
 }
 
 enum class AnnenForeldersAktivitet {
@@ -125,11 +125,11 @@ enum class AnnenForeldersAktivitet {
     FORSIKRET_I_BOSTEDSLAND,
     MOTTAR_PENSJON,
     INAKTIV,
-    IKKE_AKTUELT
+    IKKE_AKTUELT,
 }
 
 enum class KompetanseResultat {
     NORGE_ER_PRIMÆRLAND,
     NORGE_ER_SEKUNDÆRLAND,
-    TO_PRIMÆRLAND
+    TO_PRIMÆRLAND,
 }

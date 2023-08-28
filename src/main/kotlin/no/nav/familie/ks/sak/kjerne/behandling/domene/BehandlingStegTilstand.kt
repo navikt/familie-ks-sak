@@ -27,7 +27,7 @@ data class BehandlingStegTilstand(
     @SequenceGenerator(
         name = "behandling_steg_tilstand_seq_generator",
         sequenceName = "behandling_steg_tilstand_seq",
-        allocationSize = 50
+        allocationSize = 50,
     )
     val id: Long = 0,
 
@@ -49,7 +49,7 @@ data class BehandlingStegTilstand(
     var årsak: VenteÅrsak? = null,
 
     @Column(name = "frist")
-    var frist: LocalDate? = null
+    var frist: LocalDate? = null,
 ) : BaseEntitet() {
 
     override fun equals(other: Any?): Boolean {

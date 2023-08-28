@@ -103,11 +103,11 @@ class BeslutteVedtakStegTest {
 
         assertThat(
             funksjonellFeil.message,
-            Is("Årsak Korrigere vedtak med egen brevmal og toggle familie-ks-sak.behandling.korreksjon-vedtaksbrev false")
+            Is("Årsak Korrigere vedtak med egen brevmal og toggle familie-ks-sak.behandling.korreksjon-vedtaksbrev false"),
         )
         assertThat(
             funksjonellFeil.frontendFeilmelding,
-            Is("Du har ikke tilgang til å beslutte for denne behandlingen. Ta kontakt med teamet dersom dette ikke stemmer.")
+            Is("Du har ikke tilgang til å beslutte for denne behandlingen. Ta kontakt med teamet dersom dette ikke stemmer."),
         )
     }
 
@@ -121,7 +121,7 @@ class BeslutteVedtakStegTest {
                 any(),
                 any(),
                 besluttVedtakDto.beslutning,
-                emptyList()
+                emptyList(),
             )
         } returns mockk(relaxed = true)
         every { vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(any()) } returns mockk()
@@ -136,7 +136,7 @@ class BeslutteVedtakStegTest {
                 any(),
                 any(),
                 besluttVedtakDto.beslutning,
-                emptyList()
+                emptyList(),
             )
         }
         verify(exactly = 1) { loggService.opprettBeslutningOmVedtakLogg(any(), any(), any()) }
@@ -156,7 +156,7 @@ class BeslutteVedtakStegTest {
                 any(),
                 any(),
                 besluttVedtakDto.beslutning,
-                emptyList()
+                emptyList(),
             )
         } returns mockk(relaxed = true)
         every { tilkjentYtelseValideringService.validerAtIngenUtbetalingerOverstiger100Prosent(any()) } just runs
@@ -171,7 +171,7 @@ class BeslutteVedtakStegTest {
                 any(),
                 any(),
                 besluttVedtakDto.beslutning,
-                emptyList()
+                emptyList(),
             )
         }
         verify(exactly = 1) { loggService.opprettBeslutningOmVedtakLogg(any(), any(), any()) }

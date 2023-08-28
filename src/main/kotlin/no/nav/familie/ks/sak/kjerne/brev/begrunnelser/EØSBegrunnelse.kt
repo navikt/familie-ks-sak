@@ -5,7 +5,7 @@ enum class EØSBegrunnelse : IBegrunnelse {
     DUMMY {
         override val sanityApiNavn = "dummyApiNavn"
         override val begrunnelseType = BegrunnelseType.EØS_OPPHØR
-    };
+    }, ;
 
     override fun enumnavnTilString() = this.name
 }

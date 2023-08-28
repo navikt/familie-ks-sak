@@ -13,11 +13,11 @@ import org.springframework.stereotype.Service
 @TaskStepBeskrivelse(
     taskStepType = FerdigstillOppgaverTask.TASK_STEP_TYPE,
     beskrivelse = "Ferdigstill oppgaver i GOSYS for behandling",
-    maxAntallFeil = 3
+    maxAntallFeil = 3,
 )
 class FerdigstillOppgaverTask(
     private val oppgaveService: OppgaveService,
-    private val behandlingService: BehandlingService
+    private val behandlingService: BehandlingService,
 ) : AsyncTaskStep {
 
     override fun doTask(task: Task) {
@@ -26,7 +26,7 @@ class FerdigstillOppgaverTask(
 
         oppgaveService.ferdigstillOppgaver(
             behandling = behandling,
-            oppgavetype = ferdigstillOppgave.oppgavetype
+            oppgavetype = ferdigstillOppgave.oppgavetype,
         )
     }
 
@@ -39,9 +39,9 @@ class FerdigstillOppgaverTask(
                 payload = objectMapper.writeValueAsString(
                     FerdigstillOppgaveDto(
                         behandlingId = behandlingId,
-                        oppgavetype = oppgavetype
-                    )
-                )
+                        oppgavetype = oppgavetype,
+                    ),
+                ),
             )
         }
     }

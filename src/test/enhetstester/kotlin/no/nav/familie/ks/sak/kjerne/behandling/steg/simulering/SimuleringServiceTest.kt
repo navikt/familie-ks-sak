@@ -62,7 +62,7 @@ class SimuleringServiceTest {
     @ParameterizedTest
     @EnumSource(value = BehandlingStatus::class, names = ["IVERKSETTER_VEDTAK", "AVSLUTTET"])
     fun `oppdaterSimuleringPåBehandlingVedBehov - skal returnere eksisterende simulering dersom behandlingstatus er IVERKSETTER_VEDTAK eller AVSLUTTET`(
-        behandlingStatus: BehandlingStatus
+        behandlingStatus: BehandlingStatus,
     ) {
         val behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD).also { it.status = behandlingStatus }
         val eksisterendeSimulering = listOf(
@@ -74,10 +74,10 @@ class SimuleringServiceTest {
                         fom = LocalDate.now().minusMonths(2),
                         tom = LocalDate.now(),
                         beløp = BigDecimal.valueOf(7500),
-                        forfallsdato = LocalDate.now().plusMonths(5)
-                    )
-                )
-            )
+                        forfallsdato = LocalDate.now().plusMonths(5),
+                    ),
+                ),
+            ),
         )
 
         every { behandlingRepository.hentBehandling(behandling.id) } returns behandling
@@ -93,10 +93,10 @@ class SimuleringServiceTest {
     @EnumSource(
         value = BehandlingStatus::class,
         names = ["IVERKSETTER_VEDTAK", "AVSLUTTET"],
-        mode = EnumSource.Mode.EXCLUDE
+        mode = EnumSource.Mode.EXCLUDE,
     )
     fun `oppdaterSimuleringPåBehandlingVedBehov - skal returnere eksisterende simulering dersom behandlingstatus er ulik IVERKSETTER_VEDTAK og AVSLUTTET og simulering ikke er utdatert`(
-        behandlingStatus: BehandlingStatus
+        behandlingStatus: BehandlingStatus,
     ) {
         val behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD).also { it.status = behandlingStatus }
         val eksisterendeSimulering = listOf(
@@ -108,17 +108,17 @@ class SimuleringServiceTest {
                         fom = LocalDate.now().minusMonths(2),
                         tom = LocalDate.now(),
                         beløp = BigDecimal.valueOf(7500),
-                        forfallsdato = LocalDate.now().plusMonths(5)
+                        forfallsdato = LocalDate.now().plusMonths(5),
                     ),
                     lagØkonomiSimuleringPostering(
                         behandling = behandling,
                         fom = LocalDate.now().plusMonths(2),
                         tom = LocalDate.now().plusMonths(4),
                         beløp = BigDecimal.valueOf(7500),
-                        forfallsdato = LocalDate.now().plusMonths(5)
-                    )
-                )
-            )
+                        forfallsdato = LocalDate.now().plusMonths(5),
+                    ),
+                ),
+            ),
         )
 
         every { behandlingRepository.hentBehandling(behandling.id) } returns behandling
@@ -134,10 +134,10 @@ class SimuleringServiceTest {
     @EnumSource(
         value = BehandlingStatus::class,
         names = ["IVERKSETTER_VEDTAK", "AVSLUTTET"],
-        mode = EnumSource.Mode.EXCLUDE
+        mode = EnumSource.Mode.EXCLUDE,
     )
     fun `oppdaterSimuleringPåBehandlingVedBehov - skal returnere hente ny simulering dersom behandlingstatus er ulik IVERKSETTER_VEDTAK og AVSLUTTET og simulering ikke er hentet fra før`(
-        behandlingStatus: BehandlingStatus
+        behandlingStatus: BehandlingStatus,
     ) {
         val behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD).also { it.status = behandlingStatus }
         val nySimulering = listOf(
@@ -149,16 +149,16 @@ class SimuleringServiceTest {
                         fom = LocalDate.now().minusMonths(4),
                         tom = LocalDate.now().minusMonths(2),
                         beløp = BigDecimal.valueOf(7500),
-                        forfallsdato = LocalDate.now()
+                        forfallsdato = LocalDate.now(),
                     ),
                     lagSimulertPostering(
                         fom = LocalDate.now().minusMonths(2),
                         tom = LocalDate.now(),
                         beløp = BigDecimal.valueOf(7500),
-                        forfallsdato = LocalDate.now().plusMonths(2)
-                    )
-                )
-            )
+                        forfallsdato = LocalDate.now().plusMonths(2),
+                    ),
+                ),
+            ),
         )
 
         every { behandlingRepository.hentBehandling(behandling.id) } returns behandling
@@ -173,11 +173,11 @@ class SimuleringServiceTest {
                 any(),
                 any(),
                 any(),
-                any()
+                any(),
             )
         } returns lagTilkjentYtelse(
             utbetalingsoppdrag = lagUtbetalingsoppdrag(listOf(lagUtbetalingsperiode())),
-            behandling = behandling
+            behandling = behandling,
         )
         every { oppdragKlient.hentSimulering(any()) } returns DetaljertSimuleringResultat(simuleringMottaker = nySimulering)
         every { øknomiSimuleringMottakerRepository.deleteByBehandlingId(any()) } just runs

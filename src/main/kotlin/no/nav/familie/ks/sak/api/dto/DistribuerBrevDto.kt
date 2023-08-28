@@ -7,5 +7,5 @@ data class DistribuerBrevDto(
     val journalpostId: String,
     val personIdent: String,
     val brevmal: Brevmal,
-    val erManueltSendt: Boolean
+    val erManueltSendt: Boolean,
 )

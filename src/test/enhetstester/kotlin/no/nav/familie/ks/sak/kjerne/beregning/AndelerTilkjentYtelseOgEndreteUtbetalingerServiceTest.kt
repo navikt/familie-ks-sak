@@ -50,7 +50,7 @@ class AndelerTilkjentYtelseOgEndreteUtbetalingerServiceTest {
     val personopplysningGrunnlag = lagPersonopplysningGrunnlag(
         behandlingId = behandling.id,
         søkerPersonIdent = søker.aktivFødselsnummer(),
-        barnasIdenter = listOf(barn1.aktivFødselsnummer())
+        barnasIdenter = listOf(barn1.aktivFødselsnummer()),
     )
     private val søkerPerson = lagPerson(personopplysningGrunnlag, søker, PersonType.SØKER)
     val barnPerson = lagPerson(personopplysningGrunnlag, barn1, PersonType.BARN)
@@ -66,8 +66,8 @@ class AndelerTilkjentYtelseOgEndreteUtbetalingerServiceTest {
                     behandling = behandling,
                     aktør = søker,
                     stønadFom = fom,
-                    stønadTom = tom
-                )
+                    stønadTom = tom,
+                ),
             )
 
         every { endretUtbetalingAndelRepository.hentEndretUtbetalingerForBehandling(behandling.id) } returns
@@ -78,7 +78,7 @@ class AndelerTilkjentYtelseOgEndreteUtbetalingerServiceTest {
                     person = søkerPerson,
                     prosent = BigDecimal(100),
                     periodeFom = YearMonth.now().minusMonths(2),
-                    periodeTom = YearMonth.now().minusMonths(1)
+                    periodeTom = YearMonth.now().minusMonths(1),
                 ),
                 // ikke overlappende perioder, kommer ikke med andelTilkjentYtelse
                 lagEndretUtbetalingAndel(
@@ -86,8 +86,8 @@ class AndelerTilkjentYtelseOgEndreteUtbetalingerServiceTest {
                     person = søkerPerson,
                     prosent = BigDecimal(100),
                     periodeFom = YearMonth.now().minusMonths(10),
-                    periodeTom = YearMonth.now().minusMonths(9)
-                )
+                    periodeTom = YearMonth.now().minusMonths(9),
+                ),
             )
 
         val andeler =
@@ -117,14 +117,14 @@ class AndelerTilkjentYtelseOgEndreteUtbetalingerServiceTest {
                     behandling = behandling,
                     aktør = søker,
                     stønadFom = YearMonth.now().minusMonths(6),
-                    stønadTom = YearMonth.now().minusMonths(3)
+                    stønadTom = YearMonth.now().minusMonths(3),
                 ),
                 lagAndelTilkjentYtelse(
                     behandling = behandling,
                     aktør = søker,
                     stønadFom = YearMonth.now().minusMonths(2),
-                    stønadTom = YearMonth.now().plusMonths(5)
-                )
+                    stønadTom = YearMonth.now().plusMonths(5),
+                ),
             )
 
         every { endretUtbetalingAndelRepository.hentEndretUtbetalingerForBehandling(behandling.id) } returns
@@ -135,15 +135,15 @@ class AndelerTilkjentYtelseOgEndreteUtbetalingerServiceTest {
                     person = søkerPerson,
                     prosent = BigDecimal(100),
                     periodeFom = fom,
-                    periodeTom = tom
-                )
+                    periodeTom = tom,
+                ),
             )
         val personResultatForBarn1 = PersonResultat(vilkårsvurdering = vilkårsvurdering, aktør = barn1)
         val vilkårResultaterForBarn1 = lagVilkårResultaterForDeltBosted(
             personResultat = personResultatForBarn1,
             behandlingId = behandling.id,
             fom1 = fom.minusMonths(1).førsteDagIInneværendeMåned(),
-            tom1 = tom.sisteDagIInneværendeMåned()
+            tom1 = tom.sisteDagIInneværendeMåned(),
         )
         personResultatForBarn1.setSortedVilkårResultater(vilkårResultaterForBarn1)
         vilkårsvurdering.personResultater = setOf(personResultatForBarn1)

@@ -82,7 +82,7 @@ class VedtakServiceTest {
     @ParameterizedTest
     @EnumSource(value = BehandlingSteg::class, names = ["BESLUTTE_VEDTAK", "REGISTRERE_PERSONGRUNNLAG"])
     fun `opprettOgInitierNyttVedtakForBehandling - skal kopiere over vedtaksperioder dersom det eksisterer gammmelt vedtak og kopierOverVedtaksperioder er satt til true`(
-        behandlingSteg: BehandlingSteg
+        behandlingSteg: BehandlingSteg,
     ) {
         val behandling = mockk<Behandling>(relaxed = true)
         val eksisterendeVedtak = mockk<Vedtak>(relaxed = true)

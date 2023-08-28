@@ -30,7 +30,7 @@ data class ØkonomiSimuleringPostering(
     @SequenceGenerator(
         name = "okonomi_simulering_postering_seq_generator",
         sequenceName = "okonomi_simulering_postering_seq",
-        allocationSize = 50
+        allocationSize = 50,
     )
     val id: Long = 0,
 
@@ -65,7 +65,7 @@ data class ØkonomiSimuleringPostering(
     val forfallsdato: LocalDate,
 
     @Column(name = "uten_inntrekk", nullable = false)
-    val utenInntrekk: Boolean
+    val utenInntrekk: Boolean,
 ) : BaseEntitet() {
 
     override fun hashCode() = id.hashCode()

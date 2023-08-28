@@ -37,7 +37,7 @@ data class ManueltBrevDto(
     val enhet: Enhet? = null,
     val antallUkerSvarfrist: Int? = null,
     val barnasFødselsdager: List<LocalDate>? = null,
-    val behandlingKategori: BehandlingKategori? = null
+    val behandlingKategori: BehandlingKategori? = null,
 ) {
     fun enhetNavn(): String = this.enhet?.enhetNavn ?: error("Finner ikke enhetsnavn på manuell brevrequest")
 }
@@ -49,16 +49,16 @@ fun ManueltBrevDto.tilBrev() = when (this.brevmal) {
                 delmalData = InformasjonsbrevDeltBostedDataDto.DelmalData(
                     signatur = SignaturDelmal(
                         enhet = flettefelt(
-                            this.enhetNavn()
-                        )
-                    )
+                            this.enhetNavn(),
+                        ),
+                    ),
                 ),
                 flettefelter = InformasjonsbrevDeltBostedDataDto.FlettefelterDto(
                     navn = this.mottakerNavn,
                     fodselsnummer = this.mottakerIdent,
-                    barnMedDeltBostedAvtale = this.multiselectVerdier
-                )
-            )
+                    barnMedDeltBostedAvtale = this.multiselectVerdier,
+                ),
+            ),
         )
 
     Brevmal.INNHENTE_OPPLYSNINGER ->
@@ -68,9 +68,9 @@ fun ManueltBrevDto.tilBrev() = when (this.brevmal) {
                 flettefelter = InnhenteOpplysningerDataDto.FlettefelterDto(
                     navn = this.mottakerNavn,
                     fodselsnummer = this.mottakerIdent,
-                    dokumentliste = this.multiselectVerdier
-                )
-            )
+                    dokumentliste = this.multiselectVerdier,
+                ),
+            ),
         )
 
     Brevmal.HENLEGGE_TRUKKET_SØKNAD ->
@@ -79,9 +79,9 @@ fun ManueltBrevDto.tilBrev() = when (this.brevmal) {
                 delmalData = HenleggeTrukketSøknadDataDto.DelmalData(signatur = SignaturDelmal(enhet = this.enhetNavn())),
                 flettefelter = FlettefelterForDokumentDtoImpl(
                     navn = this.mottakerNavn,
-                    fodselsnummer = this.mottakerIdent
-                )
-            )
+                    fodselsnummer = this.mottakerIdent,
+                ),
+            ),
         )
 
     Brevmal.VARSEL_OM_REVURDERING ->
@@ -90,7 +90,7 @@ fun ManueltBrevDto.tilBrev() = when (this.brevmal) {
             navn = this.mottakerNavn,
             fødselsnummer = this.mottakerIdent,
             varselÅrsaker = this.multiselectVerdier,
-            enhet = this.enhetNavn()
+            enhet = this.enhetNavn(),
         )
 
     Brevmal.SVARTIDSBREV ->
@@ -103,7 +103,7 @@ fun ManueltBrevDto.tilBrev() = when (this.brevmal) {
                 throw Feil("Trenger å vite om behandling er EØS for å sende ut svartidsbrev.")
             } else {
                 this.behandlingKategori == BehandlingKategori.EØS
-            }
+            },
         )
 
     Brevmal.FORLENGET_SVARTIDSBREV ->
@@ -112,7 +112,7 @@ fun ManueltBrevDto.tilBrev() = when (this.brevmal) {
             fodselsnummer = this.mottakerIdent,
             enhetNavn = this.enhetNavn(),
             årsaker = this.multiselectVerdier,
-            antallUkerSvarfrist = this.antallUkerSvarfrist ?: throw Feil("Antall uker svarfrist er ikke satt")
+            antallUkerSvarfrist = this.antallUkerSvarfrist ?: throw Feil("Antall uker svarfrist er ikke satt"),
         )
 
     Brevmal.INFORMASJONSBREV_KAN_SØKE ->
@@ -120,7 +120,7 @@ fun ManueltBrevDto.tilBrev() = when (this.brevmal) {
             navn = this.mottakerNavn,
             fodselsnummer = this.mottakerIdent,
             enhet = this.enhetNavn(),
-            dokumentliste = this.multiselectVerdier
+            dokumentliste = this.multiselectVerdier,
         )
 
     Brevmal.VARSEL_OM_VEDTAK_ETTER_SØKNAD_I_SED ->
@@ -130,7 +130,7 @@ fun ManueltBrevDto.tilBrev() = when (this.brevmal) {
             fødselsnummer = this.mottakerIdent,
             enhet = this.enhetNavn(),
             varselÅrsaker = this.multiselectVerdier,
-            barnasFødselsdager = this.barnasFødselsdager.tilFormaterteFødselsdager()
+            barnasFødselsdager = this.barnasFødselsdager.tilFormaterteFødselsdager(),
         )
 
     Brevmal.VARSEL_OM_REVURDERING_FRA_NASJONAL_TIL_EØS ->
@@ -139,7 +139,7 @@ fun ManueltBrevDto.tilBrev() = when (this.brevmal) {
             navn = this.mottakerNavn,
             fødselsnummer = this.mottakerIdent,
             varselÅrsaker = this.multiselectVerdier,
-            enhet = this.enhetNavn()
+            enhet = this.enhetNavn(),
         )
 
     Brevmal.INNHENTE_OPPLYSNINGER_ETTER_SØKNAD_I_SED ->
@@ -149,7 +149,7 @@ fun ManueltBrevDto.tilBrev() = when (this.brevmal) {
             fødselsnummer = this.mottakerIdent,
             dokumentliste = this.multiselectVerdier,
             enhet = this.enhetNavn(),
-            barnasFødselsdager = this.barnasFødselsdager.tilFormaterteFødselsdager()
+            barnasFødselsdager = this.barnasFødselsdager.tilFormaterteFødselsdager(),
         )
 
     Brevmal.INFORMASJONSBREV_KAN_SØKE_EØS ->
@@ -157,7 +157,7 @@ fun ManueltBrevDto.tilBrev() = when (this.brevmal) {
             navn = this.mottakerNavn,
             fodselsnummer = this.mottakerIdent,
             enhet = this.enhetNavn(),
-            mal = Brevmal.INFORMASJONSBREV_KAN_SØKE_EØS
+            mal = Brevmal.INFORMASJONSBREV_KAN_SØKE_EØS,
         )
 
     Brevmal.VEDTAK_FØRSTEGANGSVEDTAK,
@@ -170,10 +170,11 @@ fun ManueltBrevDto.tilBrev() = when (this.brevmal) {
     Brevmal.VEDTAK_OPPHØR_DØDSFALL,
     Brevmal.AUTOVEDTAK_BARN_6_OG_18_ÅR_OG_SMÅBARNSTILLEGG,
     Brevmal.AUTOVEDTAK_NYFØDT_FØRSTE_BARN,
-    Brevmal.AUTOVEDTAK_NYFØDT_BARN_FRA_FØR -> throw Feil("Kan ikke mappe fra manuel brevrequest til ${this.brevmal}.")
+    Brevmal.AUTOVEDTAK_NYFØDT_BARN_FRA_FØR,
+    -> throw Feil("Kan ikke mappe fra manuel brevrequest til ${this.brevmal}.")
 }
 
 private fun List<LocalDate>?.tilFormaterteFødselsdager() = slåSammen(
     this?.map { it.tilKortString() }
-        ?: throw Feil("Fikk ikke med barna sine fødselsdager")
+        ?: throw Feil("Fikk ikke med barna sine fødselsdager"),
 )

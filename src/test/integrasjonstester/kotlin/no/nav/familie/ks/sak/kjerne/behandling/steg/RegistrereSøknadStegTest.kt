@@ -88,9 +88,9 @@ class RegistrereSøknadStegTest : OppslagSpringRunnerTest() {
             søkerMedOpplysninger = SøkerMedOpplysningerDto(ident = søker.aktivFødselsnummer()),
             barnaMedOpplysninger = listOf(
                 BarnMedOpplysningerDto(ident = barn1.aktivFødselsnummer(), fødselsdato = LocalDate.now().minusYears(1)),
-                BarnMedOpplysningerDto(ident = barn2.aktivFødselsnummer(), fødselsdato = LocalDate.now().minusYears(1))
+                BarnMedOpplysningerDto(ident = barn2.aktivFødselsnummer(), fødselsdato = LocalDate.now().minusYears(1)),
             ),
-            endringAvOpplysningerBegrunnelse = ""
+            endringAvOpplysningerBegrunnelse = "",
         )
 
         // Valider at aktivt personopplysningsgrunnlag kun inneholder søker
@@ -101,8 +101,8 @@ class RegistrereSøknadStegTest : OppslagSpringRunnerTest() {
             behandling.id,
             RegistrerSøknadDto(
                 søknadDto,
-                bekreftEndringerViaFrontend = true
-            )
+                bekreftEndringerViaFrontend = true,
+            ),
         )
 
         // Valider at lagret søknad stemmer med innsendt søknad
@@ -114,9 +114,9 @@ class RegistrereSøknadStegTest : OppslagSpringRunnerTest() {
             lagretSøknad.barnaMedOpplysninger.all {
                 it.ident in listOf(
                     barn1.aktivFødselsnummer(),
-                    barn2.aktivFødselsnummer()
+                    barn2.aktivFødselsnummer(),
                 )
-            }
+            },
         )
         assertEquals(2, lagretSøknad.barnaMedOpplysninger.size)
         assertEquals(søker.aktivFødselsnummer(), lagretSøknad.søkerMedOpplysninger.ident)
@@ -141,9 +141,9 @@ class RegistrereSøknadStegTest : OppslagSpringRunnerTest() {
         val søknadDto = SøknadDto(
             søkerMedOpplysninger = SøkerMedOpplysningerDto(ident = søker.aktivFødselsnummer()),
             barnaMedOpplysninger = listOf(
-                BarnMedOpplysningerDto(ident = barn1.aktivFødselsnummer(), fødselsdato = LocalDate.now().minusYears(1))
+                BarnMedOpplysningerDto(ident = barn1.aktivFødselsnummer(), fødselsdato = LocalDate.now().minusYears(1)),
             ),
-            endringAvOpplysningerBegrunnelse = ""
+            endringAvOpplysningerBegrunnelse = "",
         )
 
         registrereSøknadSteg.utførSteg(behandling.id, RegistrerSøknadDto(søknadDto, true))
@@ -152,9 +152,9 @@ class RegistrereSøknadStegTest : OppslagSpringRunnerTest() {
             søkerMedOpplysninger = SøkerMedOpplysningerDto(ident = søker.aktivFødselsnummer()),
             barnaMedOpplysninger = listOf(
                 BarnMedOpplysningerDto(ident = barn1.aktivFødselsnummer(), fødselsdato = LocalDate.now().minusYears(1)),
-                BarnMedOpplysningerDto(ident = barn2.aktivFødselsnummer(), fødselsdato = LocalDate.now().minusYears(1))
+                BarnMedOpplysningerDto(ident = barn2.aktivFødselsnummer(), fødselsdato = LocalDate.now().minusYears(1)),
             ),
-            endringAvOpplysningerBegrunnelse = ""
+            endringAvOpplysningerBegrunnelse = "",
         )
 
         registrereSøknadSteg.utførSteg(behandling.id, RegistrerSøknadDto(søknadDto2, true))
@@ -172,9 +172,9 @@ class RegistrereSøknadStegTest : OppslagSpringRunnerTest() {
         val søknadDto = SøknadDto(
             søkerMedOpplysninger = SøkerMedOpplysningerDto(ident = søker.aktivFødselsnummer()),
             barnaMedOpplysninger = listOf(
-                BarnMedOpplysningerDto(ident = barn1.aktivFødselsnummer(), fødselsdato = LocalDate.now().minusYears(1))
+                BarnMedOpplysningerDto(ident = barn1.aktivFødselsnummer(), fødselsdato = LocalDate.now().minusYears(1)),
             ),
-            endringAvOpplysningerBegrunnelse = ""
+            endringAvOpplysningerBegrunnelse = "",
         )
 
         søknadGrunnlagRepository.saveAndFlush(søknadDto.tilSøknadGrunnlag(behandling.id))
@@ -192,10 +192,10 @@ class RegistrereSøknadStegTest : OppslagSpringRunnerTest() {
             barnaMedOpplysninger = listOf(
                 BarnMedOpplysningerDto(
                     ident = barn1.aktivFødselsnummer(),
-                    fødselsdato = LocalDate.now().minusMonths(11)
-                )
+                    fødselsdato = LocalDate.now().minusMonths(11),
+                ),
             ),
-            endringAvOpplysningerBegrunnelse = ""
+            endringAvOpplysningerBegrunnelse = "",
         )
 
         assertThrows<Feil> {

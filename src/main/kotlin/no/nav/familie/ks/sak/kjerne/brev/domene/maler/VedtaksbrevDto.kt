@@ -21,7 +21,7 @@ interface VedtaksbrevData : BrevDataDto {
 enum class EndretUtbetalingBrevPeriodeType(val apiNavn: String) {
     ENDRET_UTBETALINGSPERIODE("endretUtbetalingsperiode"),
     ENDRET_UTBETALINGSPERIODE_DELVIS_UTBETALING("endretUtbetalingsperiodeDelvisUtbetaling"),
-    ENDRET_UTBETALINGSPERIODE_INGEN_UTBETALING("endretUtbetalingsperiodeIngenUtbetaling")
+    ENDRET_UTBETALINGSPERIODE_INGEN_UTBETALING("endretUtbetalingsperiodeIngenUtbetaling"),
 }
 
 data class FellesdataForVedtaksbrev(
@@ -34,5 +34,5 @@ data class FellesdataForVedtaksbrev(
     val perioder: List<BrevPeriodeDto>,
     val organisasjonsnummer: String? = null,
     val gjelder: String? = null,
-    val korrigertVedtakData: KorrigertVedtakData? = null
+    val korrigertVedtakData: KorrigertVedtakData? = null,
 )

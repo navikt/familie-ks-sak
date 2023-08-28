@@ -85,8 +85,8 @@ internal class HentStatusFraOppdragTaskTest {
                 fagsystem = FAGSYSTEM,
                 personIdent = behandling.fagsak.aktør.aktivFødselsnummer(),
                 behandlingsId = behandling.id,
-                vedtaksId = 1L
-            )
-        )
+                vedtaksId = 1L,
+            ),
+        ),
     )
 }

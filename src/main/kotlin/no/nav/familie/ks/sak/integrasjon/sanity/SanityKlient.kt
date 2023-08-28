@@ -15,7 +15,7 @@ import java.net.URLEncoder
 @Service
 class SanityKlient(
     @Value("\${SANITY_BASE_URL}") private val sanityBaseUrl: String,
-    restOperations: RestOperations
+    restOperations: RestOperations,
 ) :
     AbstractRestClient(restOperations, "sanity") {
     fun hentBegrunnelser(datasett: String = "ks-test"): List<SanityBegrunnelse> {
@@ -25,7 +25,7 @@ class SanityKlient(
             kallEksternTjeneste<SanityBegrunnelserResponsDto>(
                 tjeneste = "Sanity",
                 uri = uri,
-                formål = "Henter begrunnelser fra sanity"
+                formål = "Henter begrunnelser fra sanity",
             ) {
                 getForEntity(uri)
             }
@@ -39,7 +39,7 @@ class SanityKlient(
         val restSanityEØSBegrunnelser = kallEksternTjeneste<SanityEØSBegrunnelserResponsDto>(
             tjeneste = "Sanity",
             uri = uri,
-            formål = "Henter EØS-begrunnelser fra sanity"
+            formål = "Henter EØS-begrunnelser fra sanity",
         ) {
             getForEntity(uri)
         }

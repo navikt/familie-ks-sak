@@ -13,7 +13,7 @@ interface EøsSkjema<T : EøsSkjema<T>> {
     fun kopier(
         fom: YearMonth? = this.fom,
         tom: YearMonth? = this.tom,
-        barnAktører: Set<Aktør> = this.barnAktører.map { it.copy() }.toSet()
+        barnAktører: Set<Aktør> = this.barnAktører.map { it.copy() }.toSet(),
     ): T
 
     fun utenInnhold(): T
@@ -62,7 +62,7 @@ fun <T : EøsSkjema<T>> T.medOverlappendeBarnOgPeriode(skjema: T): T? {
     val snitt = this.kopier(
         fom = if (fom == MIN_MÅNED) null else fom,
         tom = if (tom == MAX_MÅNED) null else tom,
-        barnAktører = this.barnAktører.intersect(skjema.barnAktører)
+        barnAktører = this.barnAktører.intersect(skjema.barnAktører),
     )
 
     return if (snitt.harBarnOgPeriode()) snitt else null
@@ -72,19 +72,19 @@ fun <T : EøsSkjema<T>> T.trekkFra(skjema: T): List<T> {
     val gammeltSkjema = this
 
     val skjemaForFjernetBarn = gammeltSkjema.kopier(
-        barnAktører = gammeltSkjema.barnAktører.minus(skjema.barnAktører)
+        barnAktører = gammeltSkjema.barnAktører.minus(skjema.barnAktører),
     ).takeIf { it.barnAktører.isNotEmpty() }
 
     val skjemaForTidligerePerioder = gammeltSkjema.kopier(
         fom = gammeltSkjema.fom,
         tom = skjema.fom?.minusMonths(1),
-        barnAktører = skjema.barnAktører
+        barnAktører = skjema.barnAktører,
     ).takeIf { it.fom != null && checkNotNull(it.fom) <= it.tom }
 
     val skjemaForEtterfølgendePerioder = gammeltSkjema.kopier(
         fom = skjema.tom?.plusMonths(1),
         tom = gammeltSkjema.tom,
-        barnAktører = skjema.barnAktører
+        barnAktører = skjema.barnAktører,
     ).takeIf { it.fom != null && it.fom!! <= (it.tom ?: MAX_MÅNED) }
 
     return listOfNotNull(skjemaForFjernetBarn, skjemaForTidligerePerioder, skjemaForEtterfølgendePerioder)

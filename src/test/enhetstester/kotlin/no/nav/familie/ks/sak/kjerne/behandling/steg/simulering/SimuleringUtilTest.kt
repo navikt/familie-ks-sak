@@ -25,7 +25,7 @@ class SimuleringUtilTest {
         mottakerNummer: String? = randomFnr(),
         mottakerType: MottakerType = MottakerType.BRUKER,
         behandling: Behandling = mockk(relaxed = true),
-        økonomiSimuleringPostering: List<ØkonomiSimuleringPostering> = listOf(mockVedtakSimuleringPostering())
+        økonomiSimuleringPostering: List<ØkonomiSimuleringPostering> = listOf(mockVedtakSimuleringPostering()),
     ) = ØkonomiSimuleringMottaker(id, mottakerNummer, mottakerType, behandling, økonomiSimuleringPostering)
 
     private fun mockVedtakSimuleringPostering(
@@ -37,7 +37,7 @@ class SimuleringUtilTest {
         betalingType: BetalingType = BetalingType.DEBIT,
         posteringType: PosteringType = PosteringType.YTELSE,
         forfallsdato: LocalDate = LocalDate.now().minusMonths(1),
-        utenInntrekk: Boolean = false
+        utenInntrekk: Boolean = false,
     ) = ØkonomiSimuleringPostering(
         økonomiSimuleringMottaker = økonomiSimuleringMottaker,
         fagOmrådeKode = fagOmrådeKode,
@@ -47,7 +47,7 @@ class SimuleringUtilTest {
         beløp = beløp.toBigDecimal(),
         posteringType = posteringType,
         forfallsdato = forfallsdato,
-        utenInntrekk = utenInntrekk
+        utenInntrekk = utenInntrekk,
     )
 
     fun mockVedtakSimuleringPosteringer(
@@ -55,7 +55,7 @@ class SimuleringUtilTest {
         antallMåneder: Int = 1,
         beløp: Int = 5000,
         posteringstype: PosteringType = PosteringType.YTELSE,
-        betalingstype: BetalingType = if (beløp >= 0) BetalingType.DEBIT else BetalingType.KREDIT
+        betalingstype: BetalingType = if (beløp >= 0) BetalingType.DEBIT else BetalingType.KREDIT,
 
     ): List<ØkonomiSimuleringPostering> = MutableList(antallMåneder) { index ->
         ØkonomiSimuleringPostering(
@@ -67,7 +67,7 @@ class SimuleringUtilTest {
             beløp = beløp.toBigDecimal(),
             posteringType = posteringstype,
             forfallsdato = måned.plusMonths(index.toLong()).atEndOfMonth(),
-            utenInntrekk = false
+            utenInntrekk = false,
         )
     }
 
@@ -77,7 +77,7 @@ class SimuleringUtilTest {
             mockVedtakSimuleringPostering(beløp = 100, posteringType = PosteringType.YTELSE),
             mockVedtakSimuleringPostering(beløp = 100, posteringType = PosteringType.YTELSE),
             mockVedtakSimuleringPostering(beløp = -99, posteringType = PosteringType.YTELSE),
-            mockVedtakSimuleringPostering(beløp = -99, posteringType = PosteringType.YTELSE)
+            mockVedtakSimuleringPostering(beløp = -99, posteringType = PosteringType.YTELSE),
         )
 
         Assertions.assertEquals(BigDecimal.valueOf(200), hentNyttBeløpIPeriode(vedtaksimuleringPosteringer))
@@ -93,7 +93,7 @@ class SimuleringUtilTest {
             mockVedtakSimuleringPostering(beløp = -99, posteringType = PosteringType.YTELSE),
             mockVedtakSimuleringPostering(beløp = -99, posteringType = PosteringType.YTELSE),
             mockVedtakSimuleringPostering(beløp = 98, posteringType = PosteringType.FEILUTBETALING),
-            mockVedtakSimuleringPostering(beløp = 98, posteringType = PosteringType.FEILUTBETALING)
+            mockVedtakSimuleringPostering(beløp = 98, posteringType = PosteringType.FEILUTBETALING),
         )
 
         Assertions.assertEquals(BigDecimal.valueOf(4), hentNyttBeløpIPeriode(økonomiSimuleringPosteringer))
@@ -109,7 +109,7 @@ class SimuleringUtilTest {
             mockVedtakSimuleringPostering(beløp = -99, posteringType = PosteringType.YTELSE),
             mockVedtakSimuleringPostering(beløp = -99, posteringType = PosteringType.YTELSE),
             mockVedtakSimuleringPostering(beløp = 98, posteringType = PosteringType.FEILUTBETALING),
-            mockVedtakSimuleringPostering(beløp = -99, posteringType = PosteringType.FEILUTBETALING)
+            mockVedtakSimuleringPostering(beløp = -99, posteringType = PosteringType.FEILUTBETALING),
         )
 
         Assertions.assertEquals(BigDecimal.valueOf(200), hentNyttBeløpIPeriode(økonomiSimuleringPosteringer))
@@ -121,7 +121,7 @@ class SimuleringUtilTest {
         mockVedtakSimuleringPostering(beløp = -500, posteringType = PosteringType.FEILUTBETALING),
         mockVedtakSimuleringPostering(beløp = -2000, posteringType = PosteringType.YTELSE),
         mockVedtakSimuleringPostering(beløp = 3000, posteringType = PosteringType.YTELSE),
-        mockVedtakSimuleringPostering(beløp = -500, posteringType = PosteringType.YTELSE)
+        mockVedtakSimuleringPostering(beløp = -500, posteringType = PosteringType.YTELSE),
     )
 
     @Test
@@ -148,7 +148,7 @@ class SimuleringUtilTest {
             mockVedtakSimuleringPostering(beløp = 500, posteringType = PosteringType.FEILUTBETALING),
             mockVedtakSimuleringPostering(beløp = -2000, posteringType = PosteringType.YTELSE),
             mockVedtakSimuleringPostering(beløp = 3000, posteringType = PosteringType.YTELSE),
-            mockVedtakSimuleringPostering(beløp = -500, posteringType = PosteringType.YTELSE)
+            mockVedtakSimuleringPostering(beløp = -500, posteringType = PosteringType.YTELSE),
         )
 
         val økonomiSimuleringMottaker =
@@ -165,21 +165,21 @@ class SimuleringUtilTest {
             mockVedtakSimuleringPostering(
                 beløp = 100,
                 posteringType = PosteringType.YTELSE,
-                forfallsdato = LocalDate.now().plusDays(1)
+                forfallsdato = LocalDate.now().plusDays(1),
             ),
             mockVedtakSimuleringPostering(
                 beløp = 200,
                 posteringType = PosteringType.YTELSE,
-                forfallsdato = LocalDate.now().minusDays(1)
-            )
+                forfallsdato = LocalDate.now().minusDays(1),
+            ),
         )
 
         Assertions.assertEquals(
             BigDecimal.valueOf(200),
             hentEtterbetalingIPeriode(
                 vedtaksimuleringPosteringer,
-                LocalDate.now()
-            )
+                LocalDate.now(),
+            ),
         )
     }
 
@@ -189,35 +189,35 @@ class SimuleringUtilTest {
     - Revurdering reduserer ytelse fra kr 10 000 til kr 2 000, dvs kr 8 000 feilutbetalt
     - Revurdering øker ytelse fra kr 2 000 til kr 3 000, dvs feilutbetaling reduseres
     - Revurdering øker ytelse fra kr 3 000 tik kr 12 000, dvs feilutbetaling nulles ut, og etterbetaling skjer
- */
+     */
     @Test
     fun `ytelse på 10000 korrigert til 2000`() {
         val redusertYtelseTil2_000 = listOf(
             mockVedtakSimuleringPostering(
                 beløp = -10_000,
                 posteringType = PosteringType.YTELSE,
-                betalingType = BetalingType.KREDIT
+                betalingType = BetalingType.KREDIT,
             ), // Forrige
             mockVedtakSimuleringPostering(
                 beløp = 2_000,
                 posteringType = PosteringType.YTELSE,
-                betalingType = BetalingType.DEBIT
+                betalingType = BetalingType.DEBIT,
             ), // Ny
             mockVedtakSimuleringPostering(
                 beløp = 8_000,
                 posteringType = PosteringType.FEILUTBETALING,
-                betalingType = BetalingType.DEBIT
+                betalingType = BetalingType.DEBIT,
             ), // Feilutbetaling
             mockVedtakSimuleringPostering(
                 beløp = -8_000,
                 posteringType = PosteringType.MOTP,
-                betalingType = BetalingType.KREDIT
+                betalingType = BetalingType.KREDIT,
             ), // "Nuller ut" Feilutbetalingen
             mockVedtakSimuleringPostering(
                 beløp = 8_000,
                 posteringType = PosteringType.YTELSE,
-                betalingType = BetalingType.DEBIT
-            ) // "Nuller ut" forrige og ny
+                betalingType = BetalingType.DEBIT,
+            ), // "Nuller ut" forrige og ny
         )
 
         val økonomiSimuleringMottakere =
@@ -239,28 +239,28 @@ class SimuleringUtilTest {
             mockVedtakSimuleringPostering(
                 beløp = -2_000,
                 posteringType = PosteringType.YTELSE,
-                betalingType = BetalingType.KREDIT
+                betalingType = BetalingType.KREDIT,
             ),
             mockVedtakSimuleringPostering(
                 beløp = 3_000,
                 posteringType = PosteringType.YTELSE,
-                betalingType = BetalingType.DEBIT
+                betalingType = BetalingType.DEBIT,
             ),
             mockVedtakSimuleringPostering(
                 beløp = -1_000,
                 posteringType = PosteringType.FEILUTBETALING,
-                betalingType = BetalingType.KREDIT
+                betalingType = BetalingType.KREDIT,
             ), // Reduser feilutbetaling
             mockVedtakSimuleringPostering(
                 beløp = 1_000,
                 posteringType = PosteringType.MOTP,
-                betalingType = BetalingType.DEBIT
+                betalingType = BetalingType.DEBIT,
             ),
             mockVedtakSimuleringPostering(
                 beløp = -1_000,
                 posteringType = PosteringType.YTELSE,
-                betalingType = BetalingType.KREDIT
-            )
+                betalingType = BetalingType.KREDIT,
+            ),
         )
 
         val økonomiSimuleringMottakere =
@@ -282,28 +282,28 @@ class SimuleringUtilTest {
             mockVedtakSimuleringPostering(
                 beløp = -3_000,
                 posteringType = PosteringType.YTELSE,
-                betalingType = BetalingType.KREDIT
+                betalingType = BetalingType.KREDIT,
             ),
             mockVedtakSimuleringPostering(
                 beløp = 12_000,
                 posteringType = PosteringType.YTELSE,
-                betalingType = BetalingType.DEBIT
+                betalingType = BetalingType.DEBIT,
             ),
             mockVedtakSimuleringPostering(
                 beløp = -7_000,
                 posteringType = PosteringType.FEILUTBETALING,
-                betalingType = BetalingType.KREDIT
+                betalingType = BetalingType.KREDIT,
             ), // Reduser feilutb
             mockVedtakSimuleringPostering(
                 beløp = 7_000,
                 posteringType = PosteringType.MOTP,
-                betalingType = BetalingType.DEBIT
+                betalingType = BetalingType.DEBIT,
             ),
             mockVedtakSimuleringPostering(
                 beløp = -7_000,
                 posteringType = PosteringType.YTELSE,
-                betalingType = BetalingType.KREDIT
-            )
+                betalingType = BetalingType.KREDIT,
+            ),
         )
 
         val økonomiSimuleringMottakere =
@@ -325,7 +325,7 @@ class SimuleringUtilTest {
     18/11	17153	17153	17153	18195	18195	18195	18195	18195	18195
     22/11	17153	17153   17153   17257	17257	17257	17257   18195   18195
     23/11	17341	17341	17341	18382	18382	18382	18382	18382	18382	18382
-    */
+     */
 
     @Test
     fun `førstegangsbehandling 18 nov`() {

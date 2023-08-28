@@ -28,7 +28,7 @@ class OmregningTest {
             TidslinjePeriode(1, dato1_start.until(dato1_slutt, ChronoUnit.WEEKS).toInt() + 1),
             TidslinjePeriode(2, dato2_start.until(dato2_slutt, ChronoUnit.WEEKS).toInt() + 1),
             TidslinjePeriode(3, dato3_start.until(dato3_slutt, ChronoUnit.WEEKS).toInt() + 1),
-            TidslinjePeriode(4, dato4_start.until(dato4_slutt, ChronoUnit.WEEKS).toInt() + 1)
+            TidslinjePeriode(4, dato4_start.until(dato4_slutt, ChronoUnit.WEEKS).toInt() + 1),
         )
 
         val tidslinje = Tidslinje(dato1_start, tmp, tidsEnhet = TidsEnhet.UKE)
@@ -62,7 +62,7 @@ class OmregningTest {
             TidslinjePeriode(1, dato1_start.until(dato1_slutt, ChronoUnit.MONTHS).toInt() + 1),
             TidslinjePeriode(2, dato2_start.until(dato2_slutt, ChronoUnit.MONTHS).toInt() + 1),
             TidslinjePeriode(3, dato3_start.until(dato3_slutt, ChronoUnit.MONTHS).toInt() + 1),
-            TidslinjePeriode(4, dato4_start.until(dato4_slutt, ChronoUnit.MONTHS).toInt() + 1)
+            TidslinjePeriode(4, dato4_start.until(dato4_slutt, ChronoUnit.MONTHS).toInt() + 1),
         )
 
         val tidslinje = Tidslinje(dato1_start, tmp, tidsEnhet = TidsEnhet.MÅNED)
@@ -96,7 +96,7 @@ class OmregningTest {
             TidslinjePeriode(1, dato1_start.until(dato1_slutt, ChronoUnit.YEARS).toInt() + 1),
             TidslinjePeriode(2, dato2_start.until(dato2_slutt, ChronoUnit.YEARS).toInt() + 1),
             TidslinjePeriode(3, dato3_start.until(dato3_slutt, ChronoUnit.YEARS).toInt() + 1),
-            TidslinjePeriode(4, dato4_start.until(dato4_slutt, ChronoUnit.YEARS).toInt() + 1)
+            TidslinjePeriode(4, dato4_start.until(dato4_slutt, ChronoUnit.YEARS).toInt() + 1),
         )
 
         val tidslinje = Tidslinje(dato1_start, tidslinjePerioder, tidsEnhet = TidsEnhet.ÅR)

@@ -21,7 +21,7 @@ class KorrigertVedtak(
     @SequenceGenerator(
         name = "korrigert_vedtak_seq_generator",
         sequenceName = "korrigert_vedtak_seq",
-        allocationSize = 50
+        allocationSize = 50,
     )
     val id: Long = 0,
 
@@ -36,5 +36,5 @@ class KorrigertVedtak(
     val behandling: Behandling,
 
     @Column(name = "aktiv")
-    var aktiv: Boolean
+    var aktiv: Boolean,
 ) : BaseEntitet()

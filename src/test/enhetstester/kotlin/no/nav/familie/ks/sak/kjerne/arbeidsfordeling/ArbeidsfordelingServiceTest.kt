@@ -78,7 +78,7 @@ internal class ArbeidsfordelingServiceTest {
             assertThrows<IllegalStateException> {
                 arbeidsfordelingService.manueltOppdaterBehandlendeEnhet(
                     behandling,
-                    endreBehandlendeEnhetDto
+                    endreBehandlendeEnhetDto,
                 )
             }
 
@@ -97,7 +97,7 @@ internal class ArbeidsfordelingServiceTest {
             0,
             "testNavn",
             "testEnhet",
-            "testStatus"
+            "testStatus",
         )
         every {
             mockedArbeidsfordelingPåBehandling.copy(
@@ -105,7 +105,7 @@ internal class ArbeidsfordelingServiceTest {
                 0,
                 "testId",
                 "testNavn",
-                true
+                true,
             )
         } returns mockedArbeidsfordelingPåBehandlingEtterEndring
         every { arbeidsfordelingPåBehandlingRepository.save(mockedArbeidsfordelingPåBehandlingEtterEndring) } returns mockedArbeidsfordelingPåBehandlingEtterEndring

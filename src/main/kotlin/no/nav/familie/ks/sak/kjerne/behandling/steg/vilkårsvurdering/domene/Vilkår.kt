@@ -8,45 +8,46 @@ enum class Vilkår(
     val parterDetteGjelderFor: List<PersonType>,
     val ytelseType: YtelseType,
     val beskrivelse: String,
-    val harRegelverk: Boolean
+    val harRegelverk: Boolean,
 ) {
 
     BOSATT_I_RIKET(
         parterDetteGjelderFor = listOf(PersonType.SØKER, PersonType.BARN),
         ytelseType = YtelseType.ORDINÆR_KONTANTSTØTTE,
         beskrivelse = "Bosatt i riket",
-        harRegelverk = true
+        harRegelverk = true,
     ),
     MEDLEMSKAP(
         parterDetteGjelderFor = listOf(PersonType.SØKER),
         ytelseType = YtelseType.ORDINÆR_KONTANTSTØTTE,
         beskrivelse = "Medlemskap",
-        harRegelverk = true
+        harRegelverk = true,
     ),
     BARNEHAGEPLASS(
         parterDetteGjelderFor = listOf(PersonType.BARN),
         ytelseType = YtelseType.ORDINÆR_KONTANTSTØTTE,
         beskrivelse = "Barnehageplass",
-        harRegelverk = false
+        harRegelverk = false,
     ),
     MEDLEMSKAP_ANNEN_FORELDER(
         parterDetteGjelderFor = listOf(PersonType.BARN),
         ytelseType = YtelseType.ORDINÆR_KONTANTSTØTTE,
         beskrivelse = "Medlemskap annen forelder",
-        harRegelverk = true
+        harRegelverk = true,
     ),
     BOR_MED_SØKER(
         parterDetteGjelderFor = listOf(PersonType.BARN),
         ytelseType = YtelseType.ORDINÆR_KONTANTSTØTTE,
         beskrivelse = "Bor fast hos søker",
-        harRegelverk = true
+        harRegelverk = true,
     ),
     BARNETS_ALDER(
         parterDetteGjelderFor = listOf(PersonType.BARN),
         ytelseType = YtelseType.ORDINÆR_KONTANTSTØTTE,
         beskrivelse = "Mellom 1 og 2 år eller adoptert",
-        harRegelverk = false
-    );
+        harRegelverk = false,
+    ),
+    ;
 
     companion object {
 

@@ -48,7 +48,7 @@ internal class KompetanseServiceTest {
         kompetanseEndringsAbonnenter = emptyList(),
         personidentService = personidentService,
         vilkårsvurderingTidslinjeService = vilkårsvurderingTidslinjeService,
-        endretUtbetalingAndelTidslinjeService = endretUtbetalingAndelTidslinjeService
+        endretUtbetalingAndelTidslinjeService = endretUtbetalingAndelTidslinjeService,
     )
 
     private val søker = randomAktør()
@@ -76,7 +76,7 @@ internal class KompetanseServiceTest {
             fom = YearMonth.of(2022, 1),
             tom = YearMonth.of(2022, 8),
             resultat = KompetanseResultat.NORGE_ER_SEKUNDÆRLAND,
-            barnAktører = setOf(barn1)
+            barnAktører = setOf(barn1),
         ).lagreTil(kompetanseRepository)
 
         // oppdatering er bare reduksjon i periode 2022.03-2022.07
@@ -85,13 +85,13 @@ internal class KompetanseServiceTest {
             fom = YearMonth.of(2022, 3),
             tom = YearMonth.of(2022, 7),
             resultat = KompetanseResultat.NORGE_ER_SEKUNDÆRLAND,
-            barnAktører = setOf(barn1)
+            barnAktører = setOf(barn1),
         )
 
         kompetanseService.oppdaterKompetanse(behandlingId, oppdateresKompetanse.tilKompetanseDto())
         // Det forventer ingen endring når det bare er endring i periode
         assertThat(listOf(eksisterendeKompetanse)).containsExactlyInAnyOrderElementsOf(
-            kompetanseService.hentKompetanser(behandlingId)
+            kompetanseService.hentKompetanser(behandlingId),
         )
     }
 
@@ -107,7 +107,7 @@ internal class KompetanseServiceTest {
             annenForeldersAktivitet = null,
             barnetsBostedsland = null,
             søkersAktivitetsland = null,
-            søkersAktivitet = null
+            søkersAktivitet = null,
         ).lagreTil(kompetanseRepository)
 
         // oppdateringen for barn2 og barn3 for periode 2022.03-2022.04 med primærland
@@ -116,7 +116,7 @@ internal class KompetanseServiceTest {
             fom = YearMonth.of(2022, 3),
             tom = YearMonth.of(2022, 4),
             resultat = KompetanseResultat.NORGE_ER_PRIMÆRLAND,
-            barnAktører = setOf(barn2, barn3)
+            barnAktører = setOf(barn2, barn3),
         )
 
         kompetanseService.oppdaterKompetanse(behandlingId, oppdateresKompetanse.tilKompetanseDto())
@@ -129,26 +129,26 @@ internal class KompetanseServiceTest {
             fom = YearMonth.of(2022, 1),
             tom = YearMonth.of(2022, 2),
             barnAktører = setOf(barn1, barn2, barn3),
-            hentetKompetanse = kompetanser[0]
+            hentetKompetanse = kompetanser[0],
         )
         assertKompetanse(
             fom = YearMonth.of(2022, 3),
             tom = YearMonth.of(2022, 4),
             barnAktører = setOf(barn2, barn3),
             resultat = KompetanseResultat.NORGE_ER_PRIMÆRLAND,
-            hentetKompetanse = kompetanser[1]
+            hentetKompetanse = kompetanser[1],
         )
         assertKompetanse( // periode med null resultat for barn1 i denne perioden
             fom = YearMonth.of(2022, 3),
             tom = YearMonth.of(2022, 4),
             barnAktører = setOf(barn1),
-            hentetKompetanse = kompetanser[2]
+            hentetKompetanse = kompetanser[2],
         )
         assertKompetanse(
             fom = YearMonth.of(2022, 5),
             tom = YearMonth.of(2022, 9),
             barnAktører = setOf(barn1, barn2, barn3),
-            hentetKompetanse = kompetanser[3]
+            hentetKompetanse = kompetanser[3],
         )
 
         // Hvis SB fjener oppdateringen, retuneres det til eksisterde kompetanse
@@ -157,7 +157,7 @@ internal class KompetanseServiceTest {
         kompetanseService.slettKompetanse(kompetanseSomSkalSlettes.id)
 
         assertThat(listOf(eksisterendeKompetanse)).containsExactlyInAnyOrderElementsOf(
-            kompetanseService.hentKompetanser(behandlingId)
+            kompetanseService.hentKompetanser(behandlingId),
         )
     }
 
@@ -168,20 +168,20 @@ internal class KompetanseServiceTest {
             fom = YearMonth.of(2022, 1),
             tom = YearMonth.of(2022, 3),
             barnAktører = setOf(barn1),
-            resultat = KompetanseResultat.NORGE_ER_SEKUNDÆRLAND
+            resultat = KompetanseResultat.NORGE_ER_SEKUNDÆRLAND,
         )
         val eksisterendeKompetanse2 = lagKompetanse(
             behandlingId = behandlingId,
             fom = YearMonth.of(2022, 1),
             tom = YearMonth.of(2022, 9),
-            barnAktører = setOf(barn2, barn3)
+            barnAktører = setOf(barn2, barn3),
         )
         val eksisterendeKompetanse3 = lagKompetanse(
             behandlingId = behandlingId,
             fom = YearMonth.of(2022, 4),
             tom = YearMonth.of(2022, 7),
             barnAktører = setOf(barn1),
-            resultat = KompetanseResultat.NORGE_ER_SEKUNDÆRLAND
+            resultat = KompetanseResultat.NORGE_ER_SEKUNDÆRLAND,
         )
         listOf(eksisterendeKompetanse1, eksisterendeKompetanse2, eksisterendeKompetanse3).lagreTil(kompetanseRepository)
 
@@ -190,7 +190,7 @@ internal class KompetanseServiceTest {
             fom = YearMonth.of(2022, 1),
             tom = YearMonth.of(2022, 2),
             barnAktører = setOf(barn1),
-            resultat = KompetanseResultat.NORGE_ER_PRIMÆRLAND
+            resultat = KompetanseResultat.NORGE_ER_PRIMÆRLAND,
         )
         kompetanseService.oppdaterKompetanse(behandlingId, oppdateresKompetanse.tilKompetanseDto())
 
@@ -202,21 +202,21 @@ internal class KompetanseServiceTest {
             fom = YearMonth.of(2022, 1),
             tom = YearMonth.of(2022, 9),
             barnAktører = setOf(barn2, barn3),
-            hentetKompetanse = kompetanser[0]
+            hentetKompetanse = kompetanser[0],
         )
         assertKompetanse(
             fom = YearMonth.of(2022, 1),
             tom = YearMonth.of(2022, 2),
             barnAktører = setOf(barn1),
             resultat = KompetanseResultat.NORGE_ER_PRIMÆRLAND,
-            hentetKompetanse = kompetanser[1]
+            hentetKompetanse = kompetanser[1],
         )
         assertKompetanse(
             fom = YearMonth.of(2022, 3),
             tom = YearMonth.of(2022, 7),
             barnAktører = setOf(barn1),
             resultat = KompetanseResultat.NORGE_ER_SEKUNDÆRLAND,
-            hentetKompetanse = kompetanser[2]
+            hentetKompetanse = kompetanser[2],
         )
     }
 
@@ -227,20 +227,20 @@ internal class KompetanseServiceTest {
             fom = YearMonth.of(2022, 1),
             tom = YearMonth.of(2022, 3),
             barnAktører = setOf(barn1),
-            resultat = KompetanseResultat.NORGE_ER_SEKUNDÆRLAND
+            resultat = KompetanseResultat.NORGE_ER_SEKUNDÆRLAND,
         )
         val eksisterendeKompetanse2 = lagKompetanse(
             behandlingId = behandlingId,
             fom = YearMonth.of(2022, 1),
             tom = YearMonth.of(2022, 9),
-            barnAktører = setOf(barn2, barn3)
+            barnAktører = setOf(barn2, barn3),
         )
         val eksisterendeKompetanse3 = lagKompetanse(
             behandlingId = behandlingId,
             fom = YearMonth.of(2022, 4),
             tom = YearMonth.of(2022, 7),
             barnAktører = setOf(barn1),
-            resultat = KompetanseResultat.NORGE_ER_SEKUNDÆRLAND
+            resultat = KompetanseResultat.NORGE_ER_SEKUNDÆRLAND,
         )
         listOf(eksisterendeKompetanse1, eksisterendeKompetanse2, eksisterendeKompetanse3).lagreTil(kompetanseRepository)
 
@@ -249,7 +249,7 @@ internal class KompetanseServiceTest {
             fom = YearMonth.of(2022, 3),
             tom = YearMonth.of(2022, 5),
             barnAktører = setOf(barn1, barn2, barn3),
-            resultat = KompetanseResultat.NORGE_ER_PRIMÆRLAND
+            resultat = KompetanseResultat.NORGE_ER_PRIMÆRLAND,
         )
         kompetanseService.oppdaterKompetanse(behandlingId, oppdateresKompetanse.tilKompetanseDto())
 
@@ -262,33 +262,33 @@ internal class KompetanseServiceTest {
             tom = YearMonth.of(2022, 2),
             barnAktører = setOf(barn1),
             resultat = KompetanseResultat.NORGE_ER_SEKUNDÆRLAND,
-            hentetKompetanse = kompetanser[0]
+            hentetKompetanse = kompetanser[0],
         )
         assertKompetanse(
             fom = YearMonth.of(2022, 1),
             tom = YearMonth.of(2022, 2),
             barnAktører = setOf(barn2, barn3),
-            hentetKompetanse = kompetanser[1]
+            hentetKompetanse = kompetanser[1],
         )
         assertKompetanse(
             fom = YearMonth.of(2022, 3),
             tom = YearMonth.of(2022, 5),
             barnAktører = setOf(barn1, barn2, barn3),
             resultat = KompetanseResultat.NORGE_ER_PRIMÆRLAND,
-            hentetKompetanse = kompetanser[2]
+            hentetKompetanse = kompetanser[2],
         )
         assertKompetanse(
             fom = YearMonth.of(2022, 6),
             tom = YearMonth.of(2022, 7),
             barnAktører = setOf(barn1),
             resultat = KompetanseResultat.NORGE_ER_SEKUNDÆRLAND,
-            hentetKompetanse = kompetanser[3]
+            hentetKompetanse = kompetanser[3],
         )
         assertKompetanse(
             fom = YearMonth.of(2022, 6),
             tom = YearMonth.of(2022, 9),
             barnAktører = setOf(barn2, barn3),
-            hentetKompetanse = kompetanser[4]
+            hentetKompetanse = kompetanser[4],
         )
     }
 
@@ -300,7 +300,7 @@ internal class KompetanseServiceTest {
             fom = YearMonth.of(2022, 1),
             tom = null,
             barnAktører = setOf(barn1, barn2, barn3),
-            resultat = KompetanseResultat.NORGE_ER_SEKUNDÆRLAND
+            resultat = KompetanseResultat.NORGE_ER_SEKUNDÆRLAND,
         ).lagreTil(kompetanseRepository)
 
         // Endrer kun tom dato fra null til en gitt dato
@@ -309,7 +309,7 @@ internal class KompetanseServiceTest {
             fom = YearMonth.of(2022, 1),
             tom = YearMonth.of(2022, 3),
             barnAktører = setOf(barn1, barn2, barn3),
-            resultat = KompetanseResultat.NORGE_ER_SEKUNDÆRLAND
+            resultat = KompetanseResultat.NORGE_ER_SEKUNDÆRLAND,
         )
 
         kompetanseService.oppdaterKompetanse(behandlingId, oppdateresKompetanse.tilKompetanseDto())
@@ -323,13 +323,13 @@ internal class KompetanseServiceTest {
             tom = YearMonth.of(2022, 3),
             barnAktører = setOf(barn1, barn2, barn3),
             resultat = KompetanseResultat.NORGE_ER_SEKUNDÆRLAND,
-            hentetKompetanse = kompetanser[0]
+            hentetKompetanse = kompetanser[0],
         )
         assertKompetanse(
             fom = YearMonth.of(2022, 4),
             tom = null,
             barnAktører = setOf(barn1, barn2, barn3),
-            hentetKompetanse = kompetanser[1]
+            hentetKompetanse = kompetanser[1],
         )
     }
 
@@ -341,7 +341,7 @@ internal class KompetanseServiceTest {
             fom = YearMonth.of(2022, 1),
             tom = YearMonth.of(2022, 7),
             barnAktører = setOf(barn1, barn2, barn3),
-            resultat = KompetanseResultat.NORGE_ER_SEKUNDÆRLAND
+            resultat = KompetanseResultat.NORGE_ER_SEKUNDÆRLAND,
         ).lagreTil(kompetanseRepository)
 
         // Endrer kun tom dato til tidligere tidspunkt
@@ -350,7 +350,7 @@ internal class KompetanseServiceTest {
             fom = YearMonth.of(2022, 1),
             tom = YearMonth.of(2022, 3),
             barnAktører = setOf(barn1, barn2, barn3),
-            resultat = KompetanseResultat.NORGE_ER_SEKUNDÆRLAND
+            resultat = KompetanseResultat.NORGE_ER_SEKUNDÆRLAND,
         )
 
         kompetanseService.oppdaterKompetanse(behandlingId, oppdateresKompetanse.tilKompetanseDto())
@@ -364,13 +364,13 @@ internal class KompetanseServiceTest {
             tom = YearMonth.of(2022, 3),
             barnAktører = setOf(barn1, barn2, barn3),
             resultat = KompetanseResultat.NORGE_ER_SEKUNDÆRLAND,
-            hentetKompetanse = kompetanser[0]
+            hentetKompetanse = kompetanser[0],
         )
         assertKompetanse(
             fom = YearMonth.of(2022, 4),
             tom = YearMonth.of(2022, 7),
             barnAktører = setOf(barn1, barn2, barn3),
-            hentetKompetanse = kompetanser[1]
+            hentetKompetanse = kompetanser[1],
         )
     }
 
@@ -382,7 +382,7 @@ internal class KompetanseServiceTest {
             fom = YearMonth.of(2022, 1),
             tom = null,
             barnAktører = setOf(barn1, barn2, barn3),
-            resultat = KompetanseResultat.NORGE_ER_SEKUNDÆRLAND
+            resultat = KompetanseResultat.NORGE_ER_SEKUNDÆRLAND,
         ).lagreTil(kompetanseRepository)
 
         // Fjerner barn3 fra gjeldende skjema, ellers likt
@@ -391,7 +391,7 @@ internal class KompetanseServiceTest {
             fom = YearMonth.of(2022, 1),
             tom = null,
             barnAktører = setOf(barn1, barn2),
-            resultat = KompetanseResultat.NORGE_ER_SEKUNDÆRLAND
+            resultat = KompetanseResultat.NORGE_ER_SEKUNDÆRLAND,
         )
 
         kompetanseService.oppdaterKompetanse(behandlingId, oppdateresKompetanse.tilKompetanseDto())
@@ -404,14 +404,14 @@ internal class KompetanseServiceTest {
             fom = YearMonth.of(2022, 1),
             tom = null,
             barnAktører = setOf(barn3),
-            hentetKompetanse = kompetanser[0]
+            hentetKompetanse = kompetanser[0],
         )
         assertKompetanse(
             fom = YearMonth.of(2022, 1),
             tom = null,
             barnAktører = setOf(barn1, barn2),
             resultat = KompetanseResultat.NORGE_ER_SEKUNDÆRLAND,
-            hentetKompetanse = kompetanser[1]
+            hentetKompetanse = kompetanser[1],
         )
     }
 
@@ -423,7 +423,7 @@ internal class KompetanseServiceTest {
 
         val vilkårsvurdering = lagVilkårsvurdering(
             søkersperiode = Periode(fom, tom), // søkersperiode avslutter etter nå tidspunkt
-            barnasperioder = mapOf(barn1 to Pair(fom, tom), barn2 to Pair(fom, tomForBarn2)) // begge barnasperiode avslutter etter nå tidspunkt
+            barnasperioder = mapOf(barn1 to Pair(fom, tom), barn2 to Pair(fom, tomForBarn2)), // begge barnasperiode avslutter etter nå tidspunkt
         )
         val vilkårsvurderingTidslinjer = lagVilkårsvurderingTidslinjer(vilkårsvurdering)
 
@@ -439,7 +439,7 @@ internal class KompetanseServiceTest {
             fom = fom.plusMonths(1).toYearMonth(),
             tom = null,
             barnAktører = setOf(barn1, barn2),
-            hentetKompetanse = kompetanser[0]
+            hentetKompetanse = kompetanser[0],
         )
     }
 
@@ -453,8 +453,8 @@ internal class KompetanseServiceTest {
             søkersperiode = Periode(fom, tom), // søkersperiode avslutter etter nåtidspunkt
             barnasperioder = mapOf(
                 barn1 to Pair(fom, tom), // barnetsperiode avslutter etter nåtidspunkt
-                barn2 to Pair(fom, tomForBarn2) // barnetsperiode avslutter før nåtidspunkt
-            )
+                barn2 to Pair(fom, tomForBarn2), // barnetsperiode avslutter før nåtidspunkt
+            ),
         )
         val vilkårsvurderingTidslinjer = lagVilkårsvurderingTidslinjer(vilkårsvurdering)
 
@@ -470,13 +470,13 @@ internal class KompetanseServiceTest {
             fom = fom.plusMonths(1).toYearMonth(),
             tom = tomForBarn2.toYearMonth(),
             barnAktører = setOf(barn1, barn2),
-            hentetKompetanse = kompetanser[0]
+            hentetKompetanse = kompetanser[0],
         )
         assertKompetanse(
             fom = tomForBarn2.plusMonths(1).toYearMonth(),
             tom = null,
             barnAktører = setOf(barn1),
-            hentetKompetanse = kompetanser[1]
+            hentetKompetanse = kompetanser[1],
         )
     }
 
@@ -487,40 +487,40 @@ internal class KompetanseServiceTest {
             fom = YearMonth.of(2022, 1),
             tom = YearMonth.of(2022, 2),
             barnAktører = setOf(barn1),
-            resultat = KompetanseResultat.NORGE_ER_SEKUNDÆRLAND
+            resultat = KompetanseResultat.NORGE_ER_SEKUNDÆRLAND,
         )
         val eksisterendeKompetanse2 = lagKompetanse(
             behandlingId = behandlingId,
             fom = YearMonth.of(2022, 1),
             tom = YearMonth.of(2022, 2),
-            barnAktører = setOf(barn2, barn3)
+            barnAktører = setOf(barn2, barn3),
         )
         val eksisterendeKompetanse3 = lagKompetanse(
             behandlingId = behandlingId,
             fom = YearMonth.of(2022, 3),
             tom = YearMonth.of(2022, 5),
             barnAktører = setOf(barn1, barn2, barn3),
-            resultat = KompetanseResultat.NORGE_ER_PRIMÆRLAND
+            resultat = KompetanseResultat.NORGE_ER_PRIMÆRLAND,
         )
         val eksisterendeKompetanse4 = lagKompetanse(
             behandlingId = behandlingId,
             fom = YearMonth.of(2022, 6),
             tom = YearMonth.of(2022, 7),
             barnAktører = setOf(barn1),
-            resultat = KompetanseResultat.NORGE_ER_SEKUNDÆRLAND
+            resultat = KompetanseResultat.NORGE_ER_SEKUNDÆRLAND,
         )
         val eksisterendeKompetanse5 = lagKompetanse(
             behandlingId = behandlingId,
             fom = YearMonth.of(2022, 6),
             tom = YearMonth.of(2022, 9),
-            barnAktører = setOf(barn2, barn3)
+            barnAktører = setOf(barn2, barn3),
         )
         listOf(
             eksisterendeKompetanse1,
             eksisterendeKompetanse2,
             eksisterendeKompetanse3,
             eksisterendeKompetanse4,
-            eksisterendeKompetanse5
+            eksisterendeKompetanse5,
         ).lagreTil(kompetanseRepository)
 
         val fom = LocalDate.of(2022, 1, 1)
@@ -533,8 +533,8 @@ internal class KompetanseServiceTest {
             barnasperioder = mapOf(
                 barn1 to Pair(fom, tom), // barn1 periode 2022-01-2022-11
                 barn2 to Pair(fomForBarn2, tomForBarn2), // barn2 periode 2022-03-2022-06
-                barn3 to Pair(fom, null) // barn3 periode 2022-01-null
-            )
+                barn3 to Pair(fom, null), // barn3 periode 2022-01-null
+            ),
         )
         val vilkårsvurderingTidslinjer = lagVilkårsvurderingTidslinjer(vilkårsvurdering)
 
@@ -552,46 +552,46 @@ internal class KompetanseServiceTest {
             tom = YearMonth.of(2022, 2),
             barnAktører = setOf(barn1),
             resultat = KompetanseResultat.NORGE_ER_SEKUNDÆRLAND,
-            hentetKompetanse = kompetanser[0]
+            hentetKompetanse = kompetanser[0],
         )
         assertKompetanse(
             fom = YearMonth.of(2022, 3),
             tom = YearMonth.of(2022, 3),
             barnAktører = setOf(barn1),
             resultat = KompetanseResultat.NORGE_ER_PRIMÆRLAND,
-            hentetKompetanse = kompetanser[1]
+            hentetKompetanse = kompetanser[1],
         )
         assertKompetanse(
             fom = YearMonth.of(2022, 4),
             tom = YearMonth.of(2022, 5),
             barnAktører = setOf(barn1, barn2),
             resultat = KompetanseResultat.NORGE_ER_PRIMÆRLAND,
-            hentetKompetanse = kompetanser[2]
+            hentetKompetanse = kompetanser[2],
         )
         assertKompetanse(
             fom = YearMonth.of(2022, 6),
             tom = YearMonth.of(2022, 7),
             barnAktører = setOf(barn1),
             resultat = KompetanseResultat.NORGE_ER_SEKUNDÆRLAND,
-            hentetKompetanse = kompetanser[3]
+            hentetKompetanse = kompetanser[3],
         )
         assertKompetanse(
             fom = YearMonth.of(2022, 6),
             tom = YearMonth.of(2022, 6),
             barnAktører = setOf(barn2),
-            hentetKompetanse = kompetanser[4]
+            hentetKompetanse = kompetanser[4],
         )
         assertKompetanse(
             fom = YearMonth.of(2022, 8),
             tom = YearMonth.of(2022, 11),
             barnAktører = setOf(barn1),
-            hentetKompetanse = kompetanser[5]
+            hentetKompetanse = kompetanser[5],
         )
     }
 
     private fun lagVilkårsvurdering(
         søkersperiode: Periode,
-        barnasperioder: Map<Aktør, Pair<LocalDate?, LocalDate?>>
+        barnasperioder: Map<Aktør, Pair<LocalDate?, LocalDate?>>,
     ): Vilkårsvurdering {
         val vilkårsvurdering = lagVilkårsvurderingMedSøkersVilkår(
             søkerAktør = søker,
@@ -599,7 +599,7 @@ internal class KompetanseServiceTest {
             resultat = Resultat.OPPFYLT,
             søkerPeriodeFom = søkersperiode.fom,
             søkerPeriodeTom = søkersperiode.tom,
-            regelverk = Regelverk.EØS_FORORDNINGEN
+            regelverk = Regelverk.EØS_FORORDNINGEN,
         )
         val personResultaterForBarna = barnasperioder.map { (aktør, periode) ->
             val personResultat = PersonResultat(vilkårsvurdering = vilkårsvurdering, aktør = aktør)
@@ -610,7 +610,7 @@ internal class KompetanseServiceTest {
                     periodeFom = periode.first,
                     periodeTom = periode.second,
                     behandlingId = behandling.id,
-                    regelverk = Regelverk.EØS_FORORDNINGEN
+                    regelverk = Regelverk.EØS_FORORDNINGEN,
                 )
             }
             personResultat.setSortedVilkårResultater(vilkårResultater.toSet())
@@ -627,8 +627,8 @@ internal class KompetanseServiceTest {
                 søkerPersonIdent = søker.aktivFødselsnummer(),
                 søkerAktør = søker,
                 barnasIdenter = listOf(barn1.aktivFødselsnummer(), barn2.aktivFødselsnummer()),
-                barnAktør = listOf(barn1, barn2)
-            )
+                barnAktør = listOf(barn1, barn2),
+            ),
         )
 
     private fun assertKompetanse(
@@ -636,7 +636,7 @@ internal class KompetanseServiceTest {
         tom: YearMonth?,
         barnAktører: Set<Aktør>,
         resultat: KompetanseResultat? = null,
-        hentetKompetanse: Kompetanse
+        hentetKompetanse: Kompetanse,
     ) {
         assertThat(fom).isEqualTo(hentetKompetanse.fom)
         assertThat(tom).isEqualTo(hentetKompetanse.tom)

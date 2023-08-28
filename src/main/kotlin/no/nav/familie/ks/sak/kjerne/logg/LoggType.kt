@@ -18,7 +18,7 @@ enum class LoggType(val visningsnavn: String, val tittel: String = visningsnavn)
     BREV_IKKE_DISTRIBUERT("Brev ikke distribuert", "Brevet ble ikke distribuert fordi mottaker har ukjent adresse"),
     BREV_IKKE_DISTRIBUERT_UKJENT_DØDSBO(
         "Brev ikke distribuert. Ukjent dødsbo",
-        "Mottaker har ukjent dødsboadresse, og brevet blir ikke sendt før adressen er satt"
+        "Mottaker har ukjent dødsboadresse, og brevet blir ikke sendt før adressen er satt",
     ),
     FERDIGSTILLE_BEHANDLING("Ferdigstille behandling", "Ferdigstilt behandling"),
     HENLEGG_BEHANDLING("Henlegg behandling", "Behandlingen er henlagt"),
@@ -27,5 +27,5 @@ enum class LoggType(val visningsnavn: String, val tittel: String = visningsnavn)
     VENTENDE_BEHANDLING_ENDRET("Behandlingen er oppdatert"),
     KORRIGERT_VEDTAK("Behandlingen er korrigering av vedtak"),
     FEILUTBETALT_VALUTA_LAGT_TIL("Feilutbetalt valuta lagt til"),
-    FEILUTBETALT_VALUTA_FJERNET("Feilutbetalt valuta fjernet")
+    FEILUTBETALT_VALUTA_FJERNET("Feilutbetalt valuta fjernet"),
 }

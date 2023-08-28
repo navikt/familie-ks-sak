@@ -12,11 +12,11 @@ import org.springframework.stereotype.Service
 class UtbetalingsperiodeMedBegrunnelserService(
     private val vilkårsvurderingService: VilkårsvurderingService,
     private val andelerTilkjentYtelseOgEndreteUtbetalingerService: AndelerTilkjentYtelseOgEndreteUtbetalingerService,
-    private val personopplysningGrunnlagService: PersonopplysningGrunnlagService
+    private val personopplysningGrunnlagService: PersonopplysningGrunnlagService,
 ) {
     fun hentUtbetalingsperioder(
         vedtak: Vedtak,
-        opphørsperioder: List<VedtaksperiodeMedBegrunnelser>
+        opphørsperioder: List<VedtaksperiodeMedBegrunnelser>,
     ): List<VedtaksperiodeMedBegrunnelser> {
         val andelerTilkjentYtelse = andelerTilkjentYtelseOgEndreteUtbetalingerService
             .finnAndelerTilkjentYtelseMedEndreteUtbetalinger(vedtak.behandling.id)
@@ -32,7 +32,7 @@ class UtbetalingsperiodeMedBegrunnelserService(
         return hentPerioderMedUtbetaling(
             andelerTilkjentYtelse = andelerTilkjentYtelse,
             vedtak = vedtak,
-            forskjøvetVilkårResultatTidslinjeMap = forskjøvetVilkårResultatTidslinjeMap
+            forskjøvetVilkårResultatTidslinjeMap = forskjøvetVilkårResultatTidslinjeMap,
         )
     }
 }

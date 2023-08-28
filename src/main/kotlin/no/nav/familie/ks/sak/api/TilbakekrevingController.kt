@@ -23,25 +23,25 @@ import org.springframework.web.bind.annotation.RestController
 @Validated
 class TilbakekrevingController(
     private val tilgangService: TilgangService,
-    private val tilbakekrevingService: TilbakekrevingService
+    private val tilbakekrevingService: TilbakekrevingService,
 ) {
 
     @PostMapping("/{behandlingId}/forhåndsvis-tilbakekreving-varselbrev")
     fun hentForhåndsvisningVarselbrev(
         @PathVariable behandlingId: Long,
-        @RequestBody forhåndsvisTilbakekrevingVarselbrevDto: ForhåndsvisTilbakekrevingVarselbrevDto
+        @RequestBody forhåndsvisTilbakekrevingVarselbrevDto: ForhåndsvisTilbakekrevingVarselbrevDto,
     ): ResponseEntity<Ressurs<ByteArray>> {
         tilgangService.validerTilgangTilHandling(
             minimumBehandlerRolle = BehandlerRolle.VEILEDER,
-            handling = "hente forhåndsvisning av varselbrev for tilbakekreving"
+            handling = "hente forhåndsvisning av varselbrev for tilbakekreving",
         )
         return ResponseEntity.ok(
             Ressurs.success(
                 tilbakekrevingService.hentForhåndsvisningTilbakekrevingVarselBrev(
                     behandlingId,
-                    forhåndsvisTilbakekrevingVarselbrevDto
-                )
-            )
+                    forhåndsvisTilbakekrevingVarselbrevDto,
+                ),
+            ),
         )
     }
 
@@ -51,7 +51,7 @@ class TilbakekrevingController(
             fagsakId = fagsakIdDto.fagsakId,
             event = AuditLoggerEvent.CREATE,
             minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
-            handling = "opprette tilbakekrevingsbehandling manuelt"
+            handling = "opprette tilbakekrevingsbehandling manuelt",
         )
         tilbakekrevingService.opprettTilbakekrevingsbehandlingManuelt(fagsakIdDto.fagsakId)
     }

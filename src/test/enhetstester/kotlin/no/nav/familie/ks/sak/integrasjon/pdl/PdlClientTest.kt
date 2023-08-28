@@ -34,7 +34,7 @@ internal class PdlClientTest {
     fun `hentPerson skal hente enkel persondata fra PDL med ENKEL query`() {
         wiremockServerItem.stubFor(
             WireMock.post(WireMock.urlEqualTo("/${PdlConfig.PATH_GRAPHQL}"))
-                .willReturn(WireMock.okJson(readFile("pdlOkResponseEnkel.json")))
+                .willReturn(WireMock.okJson(readFile("pdlOkResponseEnkel.json"))),
         )
 
         val randomAktør = randomAktør()
@@ -49,7 +49,7 @@ internal class PdlClientTest {
     fun `hentPerson skal kaste exception når person ikke eksisterer i PDL`() {
         wiremockServerItem.stubFor(
             WireMock.post(WireMock.urlEqualTo("/${PdlConfig.PATH_GRAPHQL}"))
-                .willReturn(WireMock.okJson(readFile("pdlPersonIkkeFunnetResponse.json")))
+                .willReturn(WireMock.okJson(readFile("pdlPersonIkkeFunnetResponse.json"))),
         )
 
         val randomAktør = randomAktør()
@@ -60,7 +60,7 @@ internal class PdlClientTest {
 
         assertThat(
             feil.melding,
-            Is("Fant ikke person")
+            Is("Fant ikke person"),
         )
     }
 

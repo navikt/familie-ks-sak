@@ -11,5 +11,5 @@ data class OpprettBehandlingDto(
     val behandlingType: BehandlingType,
     val behandlingÅrsak: BehandlingÅrsak = BehandlingÅrsak.SØKNAD,
     val saksbehandlerIdent: String? = null,
-    val søknadMottattDato: LocalDate? = null
+    val søknadMottattDato: LocalDate? = null,
 )

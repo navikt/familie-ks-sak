@@ -13,7 +13,7 @@ object VilkårsvurderingMapper {
     fun lagPersonResultatRespons(personResultat: PersonResultat) = PersonResultatResponsDto(
         personIdent = personResultat.aktør.aktivFødselsnummer(),
         vilkårResultater = personResultat.vilkårResultater.map { lagVilkårResultatRespons(it) },
-        andreVurderinger = personResultat.andreVurderinger.map { lagAnnenVurderingRespons(it) }
+        andreVurderinger = personResultat.andreVurderinger.map { lagAnnenVurderingRespons(it) },
     )
 
     private fun lagVilkårResultatRespons(vilkårResultat: VilkårResultat) = VilkårResultatDto(
@@ -32,13 +32,13 @@ object VilkårsvurderingMapper {
         avslagBegrunnelser = vilkårResultat.begrunnelser,
         vurderesEtter = vilkårResultat.vurderesEtter,
         utdypendeVilkårsvurderinger = vilkårResultat.utdypendeVilkårsvurderinger,
-        antallTimer = vilkårResultat.antallTimer
+        antallTimer = vilkårResultat.antallTimer,
     )
 
     private fun lagAnnenVurderingRespons(annenVurdering: AnnenVurdering) = AnnenVurderingDto(
         id = annenVurdering.id,
         resultat = annenVurdering.resultat,
         type = annenVurdering.type,
-        begrunnelse = annenVurdering.begrunnelse
+        begrunnelse = annenVurdering.begrunnelse,
     )
 }

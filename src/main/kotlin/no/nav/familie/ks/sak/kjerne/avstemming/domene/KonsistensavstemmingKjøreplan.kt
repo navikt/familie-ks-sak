@@ -24,12 +24,12 @@ class KonsistensavstemmingKjøreplan(
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    var status: KjøreStatus = KjøreStatus.LEDIG
+    var status: KjøreStatus = KjøreStatus.LEDIG,
 )
 
 enum class KjøreStatus {
     FERDIG,
     BEHANDLER,
     LEDIG,
-    MANUELL // Brukes for å kjøre Konsistensavstemming manuelt
+    MANUELL, // Brukes for å kjøre Konsistensavstemming manuelt
 }

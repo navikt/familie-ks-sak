@@ -42,7 +42,7 @@ data class VedtaksperiodeMedBegrunnelser(
     @SequenceGenerator(
         name = "vedtaksperiode_seq_generator",
         sequenceName = "vedtaksperiode_seq",
-        allocationSize = 50
+        allocationSize = 50,
     )
     val id: Long = 0,
 
@@ -65,7 +65,7 @@ data class VedtaksperiodeMedBegrunnelser(
         fetch = FetchType.EAGER,
         mappedBy = "vedtaksperiodeMedBegrunnelser",
         cascade = [CascadeType.ALL],
-        orphanRemoval = true
+        orphanRemoval = true,
     )
     val begrunnelser: MutableSet<Vedtaksbegrunnelse> = mutableSetOf(),
 
@@ -74,9 +74,9 @@ data class VedtaksperiodeMedBegrunnelser(
         fetch = FetchType.EAGER,
         mappedBy = "vedtaksperiodeMedBegrunnelser",
         cascade = [CascadeType.ALL],
-        orphanRemoval = true
+        orphanRemoval = true,
     )
-    val fritekster: MutableList<VedtaksbegrunnelseFritekst> = mutableListOf()
+    val fritekster: MutableList<VedtaksbegrunnelseFritekst> = mutableListOf(),
 
 ) : BaseEntitet() {
 
@@ -100,7 +100,7 @@ data class VedtaksperiodeMedBegrunnelser(
 
     fun hentUtbetalingsperiodeDetaljer(
         andelerTilkjentYtelse: List<AndelTilkjentYtelseMedEndreteUtbetalinger>,
-        personopplysningGrunnlag: PersonopplysningGrunnlag
+        personopplysningGrunnlag: PersonopplysningGrunnlag,
     ): List<UtbetalingsperiodeDetalj> =
         if (this.type == Vedtaksperiodetype.UTBETALING ||
             this.type == Vedtaksperiodetype.FORTSATT_INNVILGET
@@ -117,7 +117,7 @@ data class VedtaksperiodeMedBegrunnelser(
 
             validerIkkeDelvisOverlappIAndelTilkjentYtelserOgVedtaksperiodeBegrunnelse(
                 andelTilkjentYtelserIPeriode,
-                personopplysningGrunnlag
+                personopplysningGrunnlag,
             )
 
             andelTilkjentYtelserIPeriode.lagUtbetalingsperiodeDetaljer(personopplysningGrunnlag)
@@ -127,7 +127,7 @@ data class VedtaksperiodeMedBegrunnelser(
 
     private fun validerIkkeDelvisOverlappIAndelTilkjentYtelserOgVedtaksperiodeBegrunnelse(
         andelTilkjentYtelserIPeriode: List<AndelTilkjentYtelseMedEndreteUtbetalinger>,
-        personopplysningGrunnlag: PersonopplysningGrunnlag
+        personopplysningGrunnlag: PersonopplysningGrunnlag,
     ) {
         val delvisOverlapp = andelTilkjentYtelserIPeriode.any {
             (this.fom ?: TIDENES_MORGEN).isBefore(it.stønadFom.førsteDagIInneværendeMåned()) || (

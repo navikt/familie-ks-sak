@@ -14,7 +14,7 @@ import java.time.ZoneOffset
 @Service
 @TaskStepBeskrivelse(
     taskStepType = SendSisteBehandlingstilstandTilDvhTask.TASK_TYPE,
-    beskrivelse = "Sending av behandling tilstand til datavarehus"
+    beskrivelse = "Sending av behandling tilstand til datavarehus",
 )
 class SendSisteBehandlingstilstandTilDvhTask(private val kafkaProducer: KafkaProducer) : AsyncTaskStep {
 
@@ -24,7 +24,7 @@ class SendSisteBehandlingstilstandTilDvhTask(private val kafkaProducer: KafkaPro
         log.info("SendSisteBehandlingstilstandTilDvhTask prosesserer med id=${task.id} og metadata ${task.metadata}")
         val behandlingStatistikkDto: BehandlingStatistikkDto = objectMapper.readValue(task.payload)
         kafkaProducer.sendSisteBehandlingsTilstand(
-            behandlingStatistikkDto.copy(tekniskTidspunkt = OffsetDateTime.now(ZoneOffset.UTC))
+            behandlingStatistikkDto.copy(tekniskTidspunkt = OffsetDateTime.now(ZoneOffset.UTC)),
         )
     }
 

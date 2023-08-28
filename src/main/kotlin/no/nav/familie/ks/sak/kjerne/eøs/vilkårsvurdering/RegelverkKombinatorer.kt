@@ -11,7 +11,7 @@ import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
 
 fun kombinerVilkårResultaterTilRegelverkResultat(
     personType: PersonType,
-    alleVilkårResultater: Iterable<VilkårRegelverkResultat> // vilkår resultater som er OPPFYLT/IKKE_AKTUELT
+    alleVilkårResultater: Iterable<VilkårRegelverkResultat>, // vilkår resultater som er OPPFYLT/IKKE_AKTUELT
 ): RegelverkResultat? {
     val vilkårer = Vilkår.hentVilkårFor(personType)
 

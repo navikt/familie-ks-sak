@@ -15,7 +15,7 @@ import org.springframework.data.relational.core.mapping.Table as JdbcTable
 @Profile("dev", "postgres", "integrasjonstest")
 class DatabaseCleanupService(
     private val entityManager: EntityManager,
-    private val relationalMappingContext: RelationalMappingContext
+    private val relationalMappingContext: RelationalMappingContext,
 ) {
 
     private val logger = LoggerFactory.getLogger(DatabaseCleanupService::class.java)

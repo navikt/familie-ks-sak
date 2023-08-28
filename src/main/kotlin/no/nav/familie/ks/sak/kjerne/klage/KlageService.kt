@@ -27,7 +27,7 @@ class KlageService(
     private val integrasjonClient: IntegrasjonClient,
     private val behandlingService: BehandlingService,
     private val vedtakService: VedtakService,
-    private val tilbakekrevingKlient: TilbakekrevingKlient
+    private val tilbakekrevingKlient: TilbakekrevingKlient,
 ) {
 
     fun opprettKlage(fagsakId: Long, opprettKlageDto: OpprettKlageDto) {
@@ -51,8 +51,8 @@ class KlageService(
                 eksternFagsakId = fagsak.id.toString(),
                 fagsystem = Fagsystem.KS,
                 klageMottatt = kravMottattDato,
-                behandlendeEnhet = enhetId
-            )
+                behandlendeEnhet = enhetId,
+            ),
         )
     }
 
@@ -84,7 +84,7 @@ class KlageService(
             resultat = behandling.resultat.displayName,
             vedtakstidspunkt = vedtak.vedtaksdato ?: error("Mangler vedtakstidspunkt for behandling=${behandling.id}"),
             fagsystemType = FagsystemType.ORDNIÆR,
-            regelverk = behandling.kategori.tilRegelverk()
+            regelverk = behandling.kategori.tilRegelverk(),
         )
     }
 }

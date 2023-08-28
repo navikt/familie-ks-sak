@@ -13,7 +13,7 @@ import no.nav.familie.ks.sak.common.exception.PdlPersonKanIkkeBehandlesIFagsyste
 data class PdlBaseRespons<T>(
     val data: T,
     val errors: List<PdlError>?,
-    val extensions: PdlExtensions?
+    val extensions: PdlExtensions?,
 ) {
 
     fun harFeil(): Boolean {
@@ -32,7 +32,7 @@ data class PdlBaseRespons<T>(
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class PdlError(
     val message: String,
-    val extensions: PdlErrorExtensions?
+    val extensions: PdlErrorExtensions?,
 )
 
 data class PdlErrorExtensions(val code: String?) {
@@ -49,7 +49,7 @@ data class PdlIdenter(val identer: List<PdlIdent>)
 data class PdlIdent(
     val ident: String,
     val historisk: Boolean,
-    val gruppe: String
+    val gruppe: String,
 )
 
 class PdlAdressebeskyttelseResponse(val person: PdlAdressebeskyttelsePerson?)
@@ -78,7 +78,7 @@ data class PdlPersonData(
     val opphold: List<Opphold> = emptyList(),
     val statsborgerskap: List<Statsborgerskap> = emptyList(),
     val doedsfall: List<Doedsfall> = emptyList(),
-    val kontaktinformasjonForDoedsbo: List<PdlKontaktinformasjonForDødsbo> = emptyList()
+    val kontaktinformasjonForDoedsbo: List<PdlKontaktinformasjonForDødsbo> = emptyList(),
 ) {
     fun validerOmPersonKanBehandlesIFagsystem() {
         if (foedsel.isEmpty()) throw PdlPersonKanIkkeBehandlesIFagsystem("mangler fødselsdato")
@@ -92,7 +92,7 @@ data class PdlPersonData(
 data class PdlFolkeregisteridentifikator(
     val identifikasjonsnummer: String?,
     val status: FolkeregisteridentifikatorStatus,
-    val type: FolkeregisteridentifikatorType?
+    val type: FolkeregisteridentifikatorType?,
 )
 
 enum class FolkeregisteridentifikatorStatus { I_BRUK, OPPHOERT }
@@ -105,7 +105,7 @@ data class PdlFødselsDato(val foedselsdato: String?)
 data class PdlNavn(
     val fornavn: String,
     val mellomnavn: String? = null,
-    val etternavn: String
+    val etternavn: String,
 ) {
 
     fun fulltNavn(): String {

@@ -61,9 +61,9 @@ class TilkjentYtelseValideringServiceTest {
         barnasIdenter = listOf(
             barn1.aktivFødselsnummer(),
             barn2.aktivFødselsnummer(),
-            barn3MedUtbetalinger.aktivFødselsnummer()
+            barn3MedUtbetalinger.aktivFødselsnummer(),
         ),
-        barnAktør = listOf(barn1, barn2, barn3MedUtbetalinger)
+        barnAktør = listOf(barn1, barn2, barn3MedUtbetalinger),
     )
 
     @BeforeEach
@@ -73,33 +73,33 @@ class TilkjentYtelseValideringServiceTest {
             totrinnskontrollService = totrinnskontrollService,
             personopplysningGrunnlagService = personopplysningGrunnlagService,
             personidentService = personidentService,
-            behandlingService = behandlingService
+            behandlingService = behandlingService,
         )
 
         every {
             beregningService.hentRelevanteTilkjentYtelserForBarn(
                 barnAktør = barn1,
-                fagsakId = any()
+                fagsakId = any(),
             )
         } answers { emptyList() }
         every {
             beregningService.hentRelevanteTilkjentYtelserForBarn(
                 barnAktør = barn2,
-                fagsakId = any()
+                fagsakId = any(),
             )
         } answers { emptyList() }
         every {
             beregningService.hentRelevanteTilkjentYtelserForBarn(
                 barnAktør = barn3MedUtbetalinger,
-                fagsakId = any()
+                fagsakId = any(),
             )
         } answers {
             listOf(
                 TilkjentYtelse(
                     behandling = behandling,
                     endretDato = LocalDate.now().minusYears(1),
-                    opprettetDato = LocalDate.now().minusYears(1)
-                )
+                    opprettetDato = LocalDate.now().minusYears(1),
+                ),
             )
         }
     }
@@ -111,9 +111,9 @@ class TilkjentYtelseValideringServiceTest {
                 behandling = behandling,
                 barna = listOf(
                     lagPerson(personopplysningGrunnlag, barn1, PersonType.BARN),
-                    lagPerson(personopplysningGrunnlag, barn2, PersonType.BARN)
-                )
-            )
+                    lagPerson(personopplysningGrunnlag, barn2, PersonType.BARN),
+                ),
+            ),
         )
     }
 
@@ -124,9 +124,9 @@ class TilkjentYtelseValideringServiceTest {
                 behandling = behandling,
                 barna = listOf(
                     lagPerson(personopplysningGrunnlag, barn1, PersonType.BARN),
-                    lagPerson(personopplysningGrunnlag, barn3MedUtbetalinger, PersonType.BARN)
-                )
-            )
+                    lagPerson(personopplysningGrunnlag, barn3MedUtbetalinger, PersonType.BARN),
+                ),
+            ),
         )
     }
 
@@ -142,16 +142,16 @@ class TilkjentYtelseValideringServiceTest {
                     aktør = barn1,
                     stønadFom = YearMonth.now().minusMonths(4),
                     stønadTom = YearMonth.now(),
-                    sats = 8000
+                    sats = 8000,
                 ),
                 lagAndelTilkjentYtelse(
                     behandling = behandling,
                     aktør = barn2,
                     stønadFom = YearMonth.now().minusMonths(4),
                     stønadTom = YearMonth.now(),
-                    sats = 8000
-                )
-            )
+                    sats = 8000,
+                ),
+            ),
         )
 
         val forrigeBehandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD)
@@ -166,16 +166,16 @@ class TilkjentYtelseValideringServiceTest {
                     aktør = barn1,
                     stønadFom = YearMonth.now().minusMonths(4),
                     stønadTom = YearMonth.now(),
-                    sats = 8000
+                    sats = 8000,
                 ),
                 lagAndelTilkjentYtelse(
                     behandling = behandling,
                     aktør = barn2,
                     stønadFom = YearMonth.now().minusMonths(4),
                     stønadTom = YearMonth.now(),
-                    sats = 7000
-                )
-            )
+                    sats = 7000,
+                ),
+            ),
         )
 
         every { beregningService.hentTilkjentYtelseForBehandling(behandlingId = behandling.id) } answers { tilkjentYtelse }
@@ -191,7 +191,7 @@ class TilkjentYtelseValideringServiceTest {
         assertTrue(aktørerMedUgyldigEtterbetalingsperiode.size == 1)
         assertEquals(
             barn2,
-            aktørerMedUgyldigEtterbetalingsperiode.single()
+            aktørerMedUgyldigEtterbetalingsperiode.single(),
         )
     }
 
@@ -207,16 +207,16 @@ class TilkjentYtelseValideringServiceTest {
                     aktør = barn1,
                     stønadFom = YearMonth.now().minusMonths(4),
                     stønadTom = YearMonth.now(),
-                    sats = 8000
+                    sats = 8000,
                 ).also { it.periodeOffset = 1 },
                 lagAndelTilkjentYtelse(
                     behandling = behandling,
                     aktør = barn2,
                     stønadFom = YearMonth.now().minusMonths(4),
                     stønadTom = YearMonth.now(),
-                    sats = 8000
-                ).also { it.periodeOffset = 1 }
-            )
+                    sats = 8000,
+                ).also { it.periodeOffset = 1 },
+            ),
         )
 
         every { beregningService.hentTilkjentYtelseForBehandling(behandlingId = behandling.id) } returns tilkjentYtelse
@@ -226,7 +226,7 @@ class TilkjentYtelseValideringServiceTest {
         }
         assertEquals(
             "Behandling ${behandling.id} har andel tilkjent ytelse med offset lik en annen andel i behandlingen.",
-            feil.message
+            feil.message,
         )
     }
 
@@ -242,23 +242,23 @@ class TilkjentYtelseValideringServiceTest {
                     aktør = barn1,
                     stønadFom = YearMonth.now().minusMonths(4),
                     stønadTom = YearMonth.now(),
-                    sats = 8000
+                    sats = 8000,
                 ).also { it.periodeOffset = 1 },
                 lagAndelTilkjentYtelse(
                     behandling = behandling,
                     aktør = barn2,
                     stønadFom = YearMonth.now().minusMonths(4),
                     stønadTom = YearMonth.now(),
-                    sats = 8000
-                ).also { it.periodeOffset = 2 }
-            )
+                    sats = 8000,
+                ).also { it.periodeOffset = 2 },
+            ),
         )
 
         every { beregningService.hentTilkjentYtelseForBehandling(behandlingId = behandling.id) } returns tilkjentYtelse
 
         assertDoesNotThrow {
             tilkjentYtelseValideringService.validerIngenAndelerTilkjentYtelseMedSammeOffsetIBehandling(
-                behandling.id
+                behandling.id,
             )
         }
     }
@@ -275,9 +275,9 @@ class TilkjentYtelseValideringServiceTest {
                     aktør = barn1,
                     stønadFom = YearMonth.now().minusMonths(4),
                     stønadTom = YearMonth.now(),
-                    sats = 8000
-                )
-            )
+                    sats = 8000,
+                ),
+            ),
         )
         val annenBehandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD)
 
@@ -291,16 +291,16 @@ class TilkjentYtelseValideringServiceTest {
                     aktør = barn1,
                     stønadFom = YearMonth.now().minusMonths(4),
                     stønadTom = YearMonth.now(),
-                    sats = 8000
-                )
-            )
+                    sats = 8000,
+                ),
+            ),
         )
 
         every { totrinnskontrollService.hentAktivForBehandling(behandling.id) } returns Totrinnskontroll(
             behandling = behandling,
             saksbehandler = "Test",
             saksbehandlerId = "1234",
-            godkjent = true
+            godkjent = true,
         )
 
         every { beregningService.hentTilkjentYtelseForBehandling(behandlingId = behandling.id) } returns tilkjentYtelse
@@ -313,15 +313,15 @@ class TilkjentYtelseValideringServiceTest {
 
         assertEquals(
             "Vi finner utbetalinger som overstiger 100% på hvert av barna: ${fnrTilFødselsdato(barn1.aktivFødselsnummer()).tilKortString()}",
-            utbetalingsikkerhetFeil.message
+            utbetalingsikkerhetFeil.message,
         )
         assertEquals(
             "Du kan ikke godkjenne dette vedtaket fordi det vil betales ut mer enn 100% for barn født ${
-            fnrTilFødselsdato(
-                barn1.aktivFødselsnummer()
-            ).tilKortString()
+                fnrTilFødselsdato(
+                    barn1.aktivFødselsnummer(),
+                ).tilKortString()
             }. Reduksjonsvedtak til annen person må være sendt til godkjenning før du kan gå videre.",
-            utbetalingsikkerhetFeil.frontendFeilmelding
+            utbetalingsikkerhetFeil.frontendFeilmelding,
         )
     }
 
@@ -337,9 +337,9 @@ class TilkjentYtelseValideringServiceTest {
                     aktør = barn1,
                     stønadFom = YearMonth.now().minusMonths(4),
                     stønadTom = YearMonth.now().minusMonths(2),
-                    sats = 8000
-                )
-            )
+                    sats = 8000,
+                ),
+            ),
         )
         val annenBehandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD)
 
@@ -353,16 +353,16 @@ class TilkjentYtelseValideringServiceTest {
                     aktør = barn1,
                     stønadFom = YearMonth.now().minusMonths(1),
                     stønadTom = YearMonth.now(),
-                    sats = 8000
-                )
-            )
+                    sats = 8000,
+                ),
+            ),
         )
 
         every { totrinnskontrollService.hentAktivForBehandling(behandling.id) } returns Totrinnskontroll(
             behandling = behandling,
             saksbehandler = "Test",
             saksbehandlerId = "1234",
-            godkjent = true
+            godkjent = true,
         )
 
         every { beregningService.hentTilkjentYtelseForBehandling(behandlingId = behandling.id) } returns tilkjentYtelse

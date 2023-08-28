@@ -21,7 +21,7 @@ val logger: Logger = LoggerFactory.getLogger("PdlUtil")
 inline fun <reified DATA : Any, reified T : Any> feilsjekkOgReturnerData(
     ident: String?,
     pdlRespons: PdlBaseRespons<DATA>,
-    dataMapper: (DATA) -> T?
+    dataMapper: (DATA) -> T?,
 ): T {
     if (pdlRespons.harFeil()) {
         if (pdlRespons.errors?.any { it.extensions?.notFound() == true } == true) {
@@ -48,7 +48,7 @@ inline fun <reified DATA : Any, reified T : Any> feilsjekkOgReturnerData(
 fun tilPersonInfo(
     pdlPersonData: PdlPersonData,
     forelderBarnRelasjoner: Set<ForelderBarnRelasjonInfo> = emptySet(),
-    maskertForelderBarnRelasjoner: Set<ForelderBarnRelasjonInfoMaskert> = emptySet()
+    maskertForelderBarnRelasjoner: Set<ForelderBarnRelasjonInfoMaskert> = emptySet(),
 ): PdlPersonInfo {
     return PdlPersonInfo(
         fødselsdato = LocalDate.parse(pdlPersonData.foedsel.first().foedselsdato),
@@ -62,7 +62,7 @@ fun tilPersonInfo(
         opphold = pdlPersonData.opphold,
         sivilstander = pdlPersonData.sivilstand,
         dødsfall = hentDødsfallDataFraListeMedDødsfall(pdlPersonData.doedsfall),
-        kontaktinformasjonForDoedsbo = pdlPersonData.kontaktinformasjonForDoedsbo.firstOrNull()
+        kontaktinformasjonForDoedsbo = pdlPersonData.kontaktinformasjonForDoedsbo.firstOrNull(),
     )
 }
 

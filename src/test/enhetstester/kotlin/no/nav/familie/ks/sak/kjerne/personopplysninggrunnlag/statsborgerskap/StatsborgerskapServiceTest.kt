@@ -54,7 +54,7 @@ class StatsborgerskapServiceTest {
         val statsborgerskap = lagStatsborgerskap("SWE")
         val statsborgerskapereMedMedlemskap = statsborgerskapService.hentStatsborgerskapMedMedlemskap(
             statsborgerskap,
-            lagPersonopplysningGrunnlag(111L, randomFnr()).søker
+            lagPersonopplysningGrunnlag(111L, randomFnr()).søker,
         )
         assertTrue { statsborgerskapereMedMedlemskap.isNotEmpty() }
         assertEquals(1, statsborgerskapereMedMedlemskap.size)
@@ -69,7 +69,7 @@ class StatsborgerskapServiceTest {
         val statsborgerskap = lagStatsborgerskap("POL")
         val statsborgerskapMedMedlemskap = statsborgerskapService.hentStatsborgerskapMedMedlemskap(
             statsborgerskap,
-            lagPersonopplysningGrunnlag(111L, randomFnr()).søker
+            lagPersonopplysningGrunnlag(111L, randomFnr()).søker,
         )
 
         assertEquals(Medlemskap.EØS, statsborgerskapMedMedlemskap.last().medlemskap)
@@ -82,12 +82,12 @@ class StatsborgerskapServiceTest {
             "GBR",
             gyldigFraOgMed = null,
             gyldigTilOgMed = null,
-            bekreftelsesdato = null
+            bekreftelsesdato = null,
         )
 
         val grStatsborgerskapUtenPeriode = statsborgerskapService.hentStatsborgerskapMedMedlemskap(
             statsborgerskap = statsborgerStorbritanniaUtenPeriode,
-            person = lagPerson(aktør = randomAktør())
+            person = lagPerson(aktør = randomAktør()),
         )
         assertEquals(1, grStatsborgerskapUtenPeriode.size)
         assertEquals(Medlemskap.TREDJELANDSBORGER, grStatsborgerskapUtenPeriode.single().medlemskap)
@@ -100,11 +100,11 @@ class StatsborgerskapServiceTest {
             "GBR",
             gyldigFraOgMed = LocalDate.of(2022, 3, 1),
             gyldigTilOgMed = LocalDate.now(),
-            bekreftelsesdato = null
+            bekreftelsesdato = null,
         )
         val grStatsborgerskapEtterBrexit = statsborgerskapService.hentStatsborgerskapMedMedlemskap(
             statsborgerskap = statsborgerStorbritanniaMedPeriodeEtterBrexit,
-            person = lagPerson(aktør = randomAktør())
+            person = lagPerson(aktør = randomAktør()),
         )
         assertEquals(1, grStatsborgerskapEtterBrexit.size)
         assertEquals(Medlemskap.TREDJELANDSBORGER, grStatsborgerskapEtterBrexit.single().medlemskap)
@@ -120,11 +120,11 @@ class StatsborgerskapServiceTest {
             "GBR",
             gyldigFraOgMed = datoFørBrexit,
             gyldigTilOgMed = datoEtterBrexit,
-            bekreftelsesdato = null
+            bekreftelsesdato = null,
         )
         val grStatsborgerskapUnderBrexit = statsborgerskapService.hentStatsborgerskapMedMedlemskap(
             statsborgerskap = statsborgerStorbritanniaMedPeriodeUnderBrexit,
-            person = lagPerson(aktør = randomAktør())
+            person = lagPerson(aktør = randomAktør()),
         )
         assertEquals(2, grStatsborgerskapUnderBrexit.size)
         assertEquals(datoFørBrexit, grStatsborgerskapUnderBrexit.first().gyldigPeriode?.fom)
@@ -132,7 +132,7 @@ class StatsborgerskapServiceTest {
         assertEquals(Medlemskap.EØS, grStatsborgerskapUnderBrexit.sortedBy { it.gyldigPeriode?.fom }.first().medlemskap)
         assertEquals(
             Medlemskap.TREDJELANDSBORGER,
-            grStatsborgerskapUnderBrexit.sortedBy { it.gyldigPeriode?.fom }.last().medlemskap
+            grStatsborgerskapUnderBrexit.sortedBy { it.gyldigPeriode?.fom }.last().medlemskap,
         )
     }
 
@@ -159,8 +159,8 @@ class StatsborgerskapServiceTest {
                 "POL" to listOf(betydningPolen),
                 "DEU" to listOf(betydningTyskland),
                 "DNK" to listOf(betydningDanmark),
-                "GBR" to listOf(betydningUK)
-            )
+                "GBR" to listOf(betydningUK),
+            ),
         )
     }
 }

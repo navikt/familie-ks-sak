@@ -26,7 +26,7 @@ class OppdaterVilkårsvurderingTest {
         val barnPersonIdent = randomFnr()
         val persongrunnlag = lagPersonopplysningGrunnlag(
             søkerPersonIdent = søkerPersonIdent,
-            barnasIdenter = listOf(barnPersonIdent)
+            barnasIdenter = listOf(barnPersonIdent),
         )
         val vilkårsvurderingForrigeBehandling =
             lagVilkårsvurderingOppfylt(personer = listOf(persongrunnlag.søker, persongrunnlag.barna.single()))
@@ -34,7 +34,7 @@ class OppdaterVilkårsvurderingTest {
             genererInitiellVilkårsvurdering(behandling = mockk(relaxed = true), personopplysningGrunnlag = persongrunnlag)
 
         initiellVilkårsvurdering.kopierOverOppfylteOgIkkeAktuelleResultaterFraForrigeBehandling(
-            vilkårsvurderingForrigeBehandling = vilkårsvurderingForrigeBehandling
+            vilkårsvurderingForrigeBehandling = vilkårsvurderingForrigeBehandling,
         )
 
         val søkerVilkårResultater =
@@ -49,14 +49,14 @@ class OppdaterVilkårsvurderingTest {
         Vilkår.hentVilkårFor(persongrunnlag.søker.type).forEach { vilkår ->
             Assertions.assertEquals(
                 Resultat.OPPFYLT,
-                søkerVilkårResultater.find { it.vilkårType == vilkår }?.resultat
+                søkerVilkårResultater.find { it.vilkårType == vilkår }?.resultat,
             )
         }
 
         Vilkår.hentVilkårFor(persongrunnlag.barna.single().type).forEach { vilkår ->
             Assertions.assertEquals(
                 Resultat.OPPFYLT,
-                barnVilkårResultater.find { it.vilkårType == vilkår }?.resultat
+                barnVilkårResultater.find { it.vilkårType == vilkår }?.resultat,
             )
         }
     }
@@ -65,20 +65,20 @@ class OppdaterVilkårsvurderingTest {
     fun `kopierOverOppfylteOgIkkeAktuelleResultaterFraForrigeBehandling skal legge til person på vilkårsvurdering`() {
         val søkerPersonIdent = randomFnr()
         val persongrunnlag1 = lagPersonopplysningGrunnlag(
-            søkerPersonIdent = søkerPersonIdent
+            søkerPersonIdent = søkerPersonIdent,
         )
         val vilkårsvurderingForrigeBehandling = lagVilkårsvurderingOppfylt(personer = listOf(persongrunnlag1.søker))
 
         val barnPersonIdent = randomFnr()
         val persongrunnlag2 = lagPersonopplysningGrunnlag(
             søkerPersonIdent = søkerPersonIdent,
-            barnasIdenter = listOf(barnPersonIdent)
+            barnasIdenter = listOf(barnPersonIdent),
         )
         val initiellVilkårsvurdering =
             genererInitiellVilkårsvurdering(behandling = mockk(relaxed = true), personopplysningGrunnlag = persongrunnlag2)
 
         initiellVilkårsvurdering.kopierOverOppfylteOgIkkeAktuelleResultaterFraForrigeBehandling(
-            vilkårsvurderingForrigeBehandling = vilkårsvurderingForrigeBehandling
+            vilkårsvurderingForrigeBehandling = vilkårsvurderingForrigeBehandling,
         )
 
         val søkerVilkårResultater =
@@ -92,7 +92,7 @@ class OppdaterVilkårsvurderingTest {
         Vilkår.hentVilkårFor(persongrunnlag2.søker.type).forEach { vilkår ->
             Assertions.assertEquals(
                 Resultat.OPPFYLT,
-                søkerVilkårResultater.find { it.vilkårType == vilkår }?.resultat
+                søkerVilkårResultater.find { it.vilkårType == vilkår }?.resultat,
             )
         }
 
@@ -104,7 +104,7 @@ class OppdaterVilkårsvurderingTest {
         Vilkår.hentVilkårFor(persongrunnlag2.barna.single().type).forEach { vilkår ->
             Assertions.assertEquals(
                 barnVilkårResultaterUendret.find { it.vilkårType == vilkår }?.resultat,
-                barnVilkårResultater.find { it.vilkårType == vilkår }?.resultat
+                barnVilkårResultater.find { it.vilkårType == vilkår }?.resultat,
             )
         }
     }
@@ -112,28 +112,28 @@ class OppdaterVilkårsvurderingTest {
     @Test
     fun `kopierOverOppfylteOgIkkeAktuelleResultaterFraForrigeBehandling skal fjerne person på vilkårsvurdering`() {
         val persongrunnlagRevurdering = lagPersonopplysningGrunnlag(
-            søkerPersonIdent = randomFnr()
+            søkerPersonIdent = randomFnr(),
         )
         val initiellVilkårsvurdering =
             genererInitiellVilkårsvurdering(
                 behandling = mockk(relaxed = true),
-                personopplysningGrunnlag = persongrunnlagRevurdering
+                personopplysningGrunnlag = persongrunnlagRevurdering,
             )
 
         val persongrunnlagForrigeBehandling = lagPersonopplysningGrunnlag(
             søkerPersonIdent = randomFnr(),
-            barnasIdenter = listOf(randomFnr())
+            barnasIdenter = listOf(randomFnr()),
         )
         val vilkårsvurderingForrigeBehandling =
             lagVilkårsvurderingOppfylt(
                 personer = listOf(
                     persongrunnlagForrigeBehandling.søker,
-                    persongrunnlagForrigeBehandling.barna.single()
-                )
+                    persongrunnlagForrigeBehandling.barna.single(),
+                ),
             )
 
         initiellVilkårsvurdering.kopierOverOppfylteOgIkkeAktuelleResultaterFraForrigeBehandling(
-            vilkårsvurderingForrigeBehandling = vilkårsvurderingForrigeBehandling
+            vilkårsvurderingForrigeBehandling = vilkårsvurderingForrigeBehandling,
         )
         Assertions.assertEquals(1, initiellVilkårsvurdering.personResultater.size)
     }
@@ -146,17 +146,17 @@ class OppdaterVilkårsvurderingTest {
 
         val persongrunnlag = lagPersonopplysningGrunnlag(
             behandlingId = nyBehandling.id,
-            søkerPersonIdent = søkerFnr
+            søkerPersonIdent = søkerFnr,
         )
         val initiellVilkårsvurdering = genererInitiellVilkårsvurdering(
             behandling = nyBehandling,
-            personopplysningGrunnlag = persongrunnlag
+            personopplysningGrunnlag = persongrunnlag,
         )
         val vilkårsvurderingForrigeBehandling = Vilkårsvurdering(behandling = forrigeBehandling)
         val personResultat =
             PersonResultat(
                 vilkårsvurdering = vilkårsvurderingForrigeBehandling,
-                aktør = persongrunnlag.søker.aktør
+                aktør = persongrunnlag.søker.aktør,
             )
         val bosattIRiketVilkårResultater =
             setOf(
@@ -165,14 +165,14 @@ class OppdaterVilkårsvurderingTest {
                     personResultat = personResultat,
                     resultat = Resultat.IKKE_OPPFYLT,
                     periodeFom = LocalDate.now().minusYears(2),
-                    periodeTom = LocalDate.now().minusYears(1)
-                )
+                    periodeTom = LocalDate.now().minusYears(1),
+                ),
             )
         personResultat.setSortedVilkårResultater(bosattIRiketVilkårResultater)
         vilkårsvurderingForrigeBehandling.personResultater = setOf(personResultat)
 
         initiellVilkårsvurdering.kopierOverOppfylteOgIkkeAktuelleResultaterFraForrigeBehandling(
-            vilkårsvurderingForrigeBehandling = vilkårsvurderingForrigeBehandling
+            vilkårsvurderingForrigeBehandling = vilkårsvurderingForrigeBehandling,
         )
 
         val nyInitBosattIRiketVilkår =
@@ -196,14 +196,14 @@ class OppdaterVilkårsvurderingTest {
                 behandling = nyBehandling,
                 personer = listOf(
                     lagPerson(personType = PersonType.SØKER, aktør = søkerAktørId),
-                    lagPerson(personType = PersonType.BARN, aktør = randomAktør())
-                )
+                    lagPerson(personType = PersonType.BARN, aktør = randomAktør()),
+                ),
             )
         val aktivMedBosattIRiketDelvisIkkeOppfylt = Vilkårsvurdering(behandling = forrigeBehandling)
         val personResultat =
             PersonResultat(
                 vilkårsvurdering = aktivMedBosattIRiketDelvisIkkeOppfylt,
-                aktør = søkerAktørId
+                aktør = søkerAktørId,
             )
         val bosattIRiketVilkårResultater = setOf(
             lagVilkårResultat(
@@ -211,28 +211,28 @@ class OppdaterVilkårsvurderingTest {
                 personResultat = personResultat,
                 resultat = Resultat.IKKE_OPPFYLT,
                 periodeFom = LocalDate.now().minusYears(2),
-                periodeTom = LocalDate.now().minusYears(1)
+                periodeTom = LocalDate.now().minusYears(1),
             ),
             lagVilkårResultat(
                 vilkårType = Vilkår.BOSATT_I_RIKET,
                 personResultat = personResultat,
                 resultat = Resultat.OPPFYLT,
                 periodeFom = LocalDate.now(),
-                periodeTom = LocalDate.now().plusYears(1)
+                periodeTom = LocalDate.now().plusYears(1),
             ),
             lagVilkårResultat(
                 vilkårType = Vilkår.BOSATT_I_RIKET,
                 personResultat = personResultat,
                 resultat = Resultat.IKKE_AKTUELT,
                 periodeFom = LocalDate.now().plusYears(2),
-                periodeTom = LocalDate.now().plusYears(3)
-            )
+                periodeTom = LocalDate.now().plusYears(3),
+            ),
         )
         personResultat.setSortedVilkårResultater(bosattIRiketVilkårResultater)
         aktivMedBosattIRiketDelvisIkkeOppfylt.personResultater = setOf(personResultat)
 
         initiellVilkårsvurdering.kopierOverOppfylteOgIkkeAktuelleResultaterFraForrigeBehandling(
-            vilkårsvurderingForrigeBehandling = aktivMedBosattIRiketDelvisIkkeOppfylt
+            vilkårsvurderingForrigeBehandling = aktivMedBosattIRiketDelvisIkkeOppfylt,
         )
 
         val nyInitBosattIRiketVilkår =
@@ -253,15 +253,15 @@ class OppdaterVilkårsvurderingTest {
                 behandling = nyBehandling,
                 personer = listOf(
                     lagPerson(personType = PersonType.SØKER, aktør = søkerAktørId),
-                    lagPerson(personType = PersonType.BARN, aktør = randomAktør())
-                )
+                    lagPerson(personType = PersonType.BARN, aktør = randomAktør()),
+                ),
             )
         val vilkårsvurderingForrigeBehandling = initiellVilkårsvurderingUtenAndreVurderinger.copy()
         vilkårsvurderingForrigeBehandling.personResultater.find { it.erSøkersResultater() }!!
             .leggTilBlankAnnenVurdering(AnnenVurderingType.OPPLYSNINGSPLIKT)
 
         initiellVilkårsvurderingUtenAndreVurderinger.kopierOverOppfylteOgIkkeAktuelleResultaterFraForrigeBehandling(
-            vilkårsvurderingForrigeBehandling = vilkårsvurderingForrigeBehandling
+            vilkårsvurderingForrigeBehandling = vilkårsvurderingForrigeBehandling,
         )
 
         val nyInitInnholderOpplysningspliktVilkår =

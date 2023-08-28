@@ -22,7 +22,7 @@ class Vedtaksbegrunnelse(
     @SequenceGenerator(
         name = "vedtaksbegrunnelse_seq_generator",
         sequenceName = "vedtaksbegrunnelse_seq",
-        allocationSize = 50
+        allocationSize = 50,
     )
     val id: Long = 0,
 
@@ -33,12 +33,12 @@ class Vedtaksbegrunnelse(
 
     @Enumerated(EnumType.STRING)
     @Column(name = "vedtak_begrunnelse_spesifikasjon", updatable = false)
-    val begrunnelse: Begrunnelse
+    val begrunnelse: Begrunnelse,
 ) {
 
     fun kopier(vedtaksperiodeMedBegrunnelser: VedtaksperiodeMedBegrunnelser): Vedtaksbegrunnelse = Vedtaksbegrunnelse(
         vedtaksperiodeMedBegrunnelser = vedtaksperiodeMedBegrunnelser,
-        begrunnelse = this.begrunnelse
+        begrunnelse = this.begrunnelse,
     )
 
     override fun toString(): String =

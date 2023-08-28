@@ -72,20 +72,20 @@ internal class BisysServiceTest {
             aktør = barn1Aktør,
             stønadFom = YearMonth.now().minusMonths(5),
             stønadTom = YearMonth.now().minusMonths(3),
-            sats = 7500
+            sats = 7500,
         )
         val andelerTilkjentYtelse2 = lagAndelTilkjentYtelse(
             behandling = behandling,
             aktør = barn1Aktør,
             stønadFom = YearMonth.now().minusMonths(2),
             stønadTom = YearMonth.now().plusMonths(3),
-            sats = 4500
+            sats = 4500,
         )
         every {
             andelerTilkjentYtelseOgEndreteUtbetalingerService.finnAndelerTilkjentYtelseMedEndreteUtbetalinger(behandling.id)
         } returns listOf(
             AndelTilkjentYtelseMedEndreteUtbetalinger(andelerTilkjentYtelse1, emptyList()),
-            AndelTilkjentYtelseMedEndreteUtbetalinger(andelerTilkjentYtelse2, emptyList())
+            AndelTilkjentYtelseMedEndreteUtbetalinger(andelerTilkjentYtelse2, emptyList()),
         )
     }
 
@@ -100,16 +100,16 @@ internal class BisysServiceTest {
                     fom = YearMonth.now().minusMonths(5),
                     tom = YearMonth.now().plusMonths(3),
                     belop = 7500,
-                    barn = listOf(BarnDto(fnr = Foedselsnummer(barn2IInfotrygd)))
+                    barn = listOf(BarnDto(fnr = Foedselsnummer(barn2IInfotrygd))),
                 ),
                 StonadDto(
                     fnr = Foedselsnummer(randomFnr()),
                     fom = YearMonth.now().minusMonths(7),
                     tom = YearMonth.now().plusMonths(5),
                     belop = 4500,
-                    barn = listOf(BarnDto(fnr = Foedselsnummer(barn2IInfotrygd)))
-                )
-            )
+                    barn = listOf(BarnDto(fnr = Foedselsnummer(barn2IInfotrygd))),
+                ),
+            ),
         )
 
         val utbetalinger = bisysService.hentUtbetalingsinfo(LocalDate.now().minusMonths(32), barnIdenter)
@@ -121,12 +121,12 @@ internal class BisysServiceTest {
         utbetalingerFraKsSak.assertUtbetaling(
             beløp = 7500,
             fomMåned = YearMonth.now().minusMonths(5),
-            tomMåned = YearMonth.now().minusMonths(3)
+            tomMåned = YearMonth.now().minusMonths(3),
         )
         utbetalingerFraKsSak.assertUtbetaling(
             beløp = 4500,
             fomMåned = YearMonth.now().minusMonths(2),
-            tomMåned = YearMonth.now().plusMonths(3)
+            tomMåned = YearMonth.now().plusMonths(3),
         )
 
         val utbetalingerFraInfotrygd = utbetalinger.infotrygdPerioder
@@ -134,12 +134,12 @@ internal class BisysServiceTest {
         utbetalingerFraInfotrygd.assertInfotrygdUtbetaling(
             beløp = 7500,
             fomMåned = YearMonth.now().minusMonths(5),
-            tomMåned = YearMonth.now().plusMonths(3)
+            tomMåned = YearMonth.now().plusMonths(3),
         )
         utbetalingerFraInfotrygd.assertInfotrygdUtbetaling(
             beløp = 4500,
             fomMåned = YearMonth.now().minusMonths(7),
-            tomMåned = YearMonth.now().plusMonths(5)
+            tomMåned = YearMonth.now().plusMonths(5),
         )
     }
 
@@ -158,12 +158,12 @@ internal class BisysServiceTest {
         utbetalingerFraKsSak.assertUtbetaling(
             beløp = 7500,
             fomMåned = YearMonth.now().minusMonths(5),
-            tomMåned = YearMonth.now().minusMonths(3)
+            tomMåned = YearMonth.now().minusMonths(3),
         )
         utbetalingerFraKsSak.assertUtbetaling(
             beløp = 4500,
             fomMåned = YearMonth.now().minusMonths(2),
-            tomMåned = YearMonth.now().plusMonths(3)
+            tomMåned = YearMonth.now().plusMonths(3),
         )
     }
 
@@ -178,16 +178,16 @@ internal class BisysServiceTest {
                     fom = YearMonth.now().minusMonths(5),
                     tom = YearMonth.now().plusMonths(3),
                     belop = 7500,
-                    barn = listOf(BarnDto(fnr = Foedselsnummer(barn2IInfotrygd)))
+                    barn = listOf(BarnDto(fnr = Foedselsnummer(barn2IInfotrygd))),
                 ),
                 StonadDto(
                     fnr = Foedselsnummer(randomFnr()),
                     fom = YearMonth.now().minusMonths(10),
                     tom = YearMonth.now().minusMonths(9),
                     belop = 4500,
-                    barn = listOf(BarnDto(fnr = Foedselsnummer(barn2IInfotrygd)))
-                )
-            )
+                    barn = listOf(BarnDto(fnr = Foedselsnummer(barn2IInfotrygd))),
+                ),
+            ),
         )
 
         val utbetalinger = bisysService.hentUtbetalingsinfo(LocalDate.now().minusMonths(4), barnIdenter)
@@ -199,12 +199,12 @@ internal class BisysServiceTest {
         utbetalingerFraKsSak.assertUtbetaling(
             beløp = 7500,
             fomMåned = YearMonth.now().minusMonths(5),
-            tomMåned = YearMonth.now().minusMonths(3)
+            tomMåned = YearMonth.now().minusMonths(3),
         )
         utbetalingerFraKsSak.assertUtbetaling(
             beløp = 4500,
             fomMåned = YearMonth.now().minusMonths(2),
-            tomMåned = YearMonth.now().plusMonths(3)
+            tomMåned = YearMonth.now().plusMonths(3),
         )
 
         val utbetalingerFraInfotrygd = utbetalinger.infotrygdPerioder
@@ -212,7 +212,7 @@ internal class BisysServiceTest {
         utbetalingerFraInfotrygd.assertInfotrygdUtbetaling(
             beløp = 7500,
             fomMåned = YearMonth.now().minusMonths(5),
-            tomMåned = YearMonth.now().plusMonths(3)
+            tomMåned = YearMonth.now().plusMonths(3),
         )
     }
 

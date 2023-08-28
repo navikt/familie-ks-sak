@@ -17,14 +17,14 @@ import java.net.URI
 @ConstructorBinding
 class FeatureToggleConfig(
     private val enabled: Boolean,
-    private val unleash: Unleash
+    private val unleash: Unleash,
 ) {
 
     @ConstructorBinding
     data class Unleash(
         val uri: URI,
         val cluster: String,
-        val applicationName: String
+        val applicationName: String,
     )
 
     @Bean
@@ -34,7 +34,7 @@ class FeatureToggleConfig(
         } else {
             logger.warn(
                 "Funksjonsbryter-funksjonalitet er skrudd AV. " +
-                    "Gir standardoppførsel for alle funksjonsbrytere, dvs 'false'"
+                    "Gir standardoppførsel for alle funksjonsbrytere, dvs 'false'",
             )
             lagDummyFeatureToggleService()
         }
@@ -48,7 +48,7 @@ class FeatureToggleConfig(
                 .build(),
             ByClusterStrategy(unleash.cluster),
             ByAnsvarligSaksbehandler(),
-            GradualRolloutRandomStrategy()
+            GradualRolloutRandomStrategy(),
         )
 
         return object : FeatureToggleService {

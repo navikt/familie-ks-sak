@@ -30,7 +30,7 @@ abstract class GrBostedsadresse(
     @SequenceGenerator(
         name = "po_bostedsadresse_seq_generator",
         sequenceName = "po_bostedsadresse_seq",
-        allocationSize = 50
+        allocationSize = 50,
     )
     open val id: Long = 0,
 
@@ -40,7 +40,7 @@ abstract class GrBostedsadresse(
     @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "fk_po_person_id")
-    open var person: Person? = null
+    open var person: Person? = null,
 ) : BaseEntitet() {
 
     abstract fun toSecureString(): String

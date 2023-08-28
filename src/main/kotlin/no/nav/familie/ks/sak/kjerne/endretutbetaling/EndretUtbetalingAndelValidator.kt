@@ -29,7 +29,7 @@ object EndretUtbetalingAndelValidator {
 
     fun validerPeriodeInnenforTilkjentYtelse(
         endretUtbetalingAndel: EndretUtbetalingAndel,
-        andelTilkjentYtelser: List<AndelTilkjentYtelse>
+        andelTilkjentYtelser: List<AndelTilkjentYtelse>,
     ) {
         endretUtbetalingAndel.validerUtfyltEndring()
 
@@ -60,18 +60,18 @@ object EndretUtbetalingAndelValidator {
             Årsak.DELT_BOSTED -> {
                 val deltBostedPerioder = finnDeltBostedPerioder(
                     person = endretUtbetalingAndel.person,
-                    vilkårsvurdering = vilkårsvurdering
+                    vilkårsvurdering = vilkårsvurdering,
                 )
                 validerDeltBosted(
                     endretUtbetalingAndel = endretUtbetalingAndel,
-                    deltBostedPerioder = deltBostedPerioder
+                    deltBostedPerioder = deltBostedPerioder,
                 )
             }
 
             Årsak.ETTERBETALING_3MND -> {
                 validerEtterbetaling3Måned(
                     endretUtbetalingAndel = endretUtbetalingAndel,
-                    kravDato = vilkårsvurdering?.behandling?.opprettetTidspunkt ?: LocalDateTime.now()
+                    kravDato = vilkårsvurdering?.behandling?.opprettetTidspunkt ?: LocalDateTime.now(),
                 )
             }
 
@@ -86,7 +86,7 @@ object EndretUtbetalingAndelValidator {
             throw FunksjonellFeil(
                 melding = "Det er opprettet instanser av EndretUtbetalingandel som ikke er fylt ut før navigering til neste steg.",
                 frontendFeilmelding = "Du har opprettet en eller flere endrede utbetalingsperioder " +
-                    "som er ufullstendig utfylt. Disse må enten fylles ut eller slettes før du kan gå videre."
+                    "som er ufullstendig utfylt. Disse må enten fylles ut eller slettes før du kan gå videre.",
             )
         }
     }
@@ -96,7 +96,7 @@ object EndretUtbetalingAndelValidator {
             throw FunksjonellFeil(
                 melding = "Det er opprettet instanser av EndretUtbetalingandel som ikke er tilknyttet noen andeler. " +
                     "De må enten lagres eller slettes av SB.",
-                frontendFeilmelding = "Du har endrede utbetalingsperioder. Bekreft, slett eller oppdater periodene i listen."
+                frontendFeilmelding = "Du har endrede utbetalingsperioder. Bekreft, slett eller oppdater periodene i listen.",
             )
         }
     }
@@ -145,7 +145,7 @@ object EndretUtbetalingAndelValidator {
 
     private fun validerDeltBosted(
         endretUtbetalingAndel: EndretUtbetalingAndel,
-        deltBostedPerioder: List<Periode<Long>>
+        deltBostedPerioder: List<Periode<Long>>,
     ) {
         val fom = endretUtbetalingAndel.fom
         val tom = endretUtbetalingAndel.tom
@@ -155,35 +155,35 @@ object EndretUtbetalingAndelValidator {
         val endringsperiode = MånedPeriode(fom, tom)
 
         if (!deltBostedPerioder.any {
-            endringsperiode.erMellom(
+                endringsperiode.erMellom(
                     MånedPeriode(
-                            fom = checkNotNull(it.fom).toYearMonth(),
-                            tom = checkNotNull(it.tom).toYearMonth()
-                        )
+                        fom = checkNotNull(it.fom).toYearMonth(),
+                        tom = checkNotNull(it.tom).toYearMonth(),
+                    ),
                 )
-        }
+            }
         ) {
             throw FunksjonellFeil(
                 melding = "Det finnes ingen delt bosted perioder i perioden det opprettes en endring med årsak delt bosted for.",
                 frontendFeilmelding = "Du har valgt årsaken 'delt bosted', " +
-                    "denne samstemmer ikke med vurderingene gjort på vilkårsvurderingssiden i perioden du har valgt."
+                    "denne samstemmer ikke med vurderingene gjort på vilkårsvurderingssiden i perioden du har valgt.",
             )
         }
     }
 
     private fun validerEtterbetaling3Måned(
         endretUtbetalingAndel: EndretUtbetalingAndel,
-        kravDato: LocalDateTime
+        kravDato: LocalDateTime,
     ) {
         if (endretUtbetalingAndel.prosent != BigDecimal.ZERO) {
             throw FunksjonellFeil(
-                "Du kan ikke sette årsak etterbetaling 3 måned når du har valgt at perioden skal utbetales."
+                "Du kan ikke sette årsak etterbetaling 3 måned når du har valgt at perioden skal utbetales.",
             )
         } else if (
             endretUtbetalingAndel.tom?.isAfter(kravDato.minusMonths(3).toLocalDate().toYearMonth()) == true
         ) {
             throw FunksjonellFeil(
-                "Du kan ikke stoppe etterbetaling for en periode som ikke strekker seg mer enn 3 måned tilbake i tid."
+                "Du kan ikke stoppe etterbetaling for en periode som ikke strekker seg mer enn 3 måned tilbake i tid.",
             )
         }
     }
@@ -213,19 +213,19 @@ object EndretUtbetalingAndelValidator {
 
     fun validerIngenOverlappendeEndring(
         endretUtbetalingAndel: EndretUtbetalingAndel,
-        eksisterendeEndringerPåBehandling: List<EndretUtbetalingAndel>
+        eksisterendeEndringerPåBehandling: List<EndretUtbetalingAndel>,
     ) {
         endretUtbetalingAndel.validerUtfyltEndring()
         if (eksisterendeEndringerPåBehandling.any
-            {
-                it.overlapperMed(endretUtbetalingAndel.periode) &&
-                    it.person == endretUtbetalingAndel.person &&
-                    it.årsak == endretUtbetalingAndel.årsak
-            }
+                {
+                    it.overlapperMed(endretUtbetalingAndel.periode) &&
+                        it.person == endretUtbetalingAndel.person &&
+                        it.årsak == endretUtbetalingAndel.årsak
+                }
         ) {
             throw FunksjonellFeil(
                 melding = "Perioden som blir forsøkt lagt til overlapper med eksisterende periode på person.",
-                frontendFeilmelding = "Perioden du forsøker å legge til overlapper med eksisterende periode på personen. Om dette er ønskelig må du først endre den eksisterende perioden."
+                frontendFeilmelding = "Perioden du forsøker å legge til overlapper med eksisterende periode på personen. Om dette er ønskelig må du først endre den eksisterende perioden.",
             )
         }
     }

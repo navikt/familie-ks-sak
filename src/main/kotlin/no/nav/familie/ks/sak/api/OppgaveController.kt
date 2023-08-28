@@ -36,13 +36,13 @@ class OppgaveController(
     private val personidentService: PersonidentService,
     private val fagsakService: FagsakService,
     private val integrasjonService: IntegrasjonService,
-    private val tilgangService: TilgangService
+    private val tilgangService: TilgangService,
 ) {
 
     @PostMapping(
         path = ["/hent-oppgaver"],
         consumes = [MediaType.APPLICATION_JSON_VALUE],
-        produces = [MediaType.APPLICATION_JSON_VALUE]
+        produces = [MediaType.APPLICATION_JSON_VALUE],
     )
     fun hentOppgaver(@RequestBody finnOppgaveDto: FinnOppgaveDto): ResponseEntity<Ressurs<FinnOppgaveResponseDto>> =
         try {
@@ -55,18 +55,18 @@ class OppgaveController(
     @PostMapping(path = ["/{oppgaveId}/fordel"], produces = [MediaType.APPLICATION_JSON_VALUE])
     fun fordelOppgave(
         @PathVariable oppgaveId: Long,
-        @RequestParam saksbehandler: String
+        @RequestParam saksbehandler: String,
     ): ResponseEntity<Ressurs<String>> {
         tilgangService.validerTilgangTilHandling(
             minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
-            handling = "Fordele oppgave"
+            handling = "Fordele oppgave",
         )
 
         val oppgaveIdFraRespons =
             oppgaveService.fordelOppgave(
                 oppgaveId = oppgaveId,
                 saksbehandler = saksbehandler,
-                overstyrFordeling = false
+                overstyrFordeling = false,
             )
 
         return ResponseEntity.ok().body(Ressurs.success(oppgaveIdFraRespons))
@@ -76,14 +76,14 @@ class OppgaveController(
     fun tilbakestillFordelingPåOppgave(@PathVariable oppgaveId: Long): ResponseEntity<Ressurs<Oppgave>> {
         tilgangService.validerTilgangTilHandling(
             minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
-            handling = "Tilbakestille fordeling på oppgave"
+            handling = "Tilbakestille fordeling på oppgave",
         )
 
         Result.runCatching {
             oppgaveService.tilbakestillFordelingPåOppgave(oppgaveId)
         }.fold(
             onSuccess = { return ResponseEntity.ok().body(Ressurs.Companion.success(it)) },
-            onFailure = { return illegalState("Feil ved tilbakestilling av tildeling på oppgave", it) }
+            onFailure = { return illegalState("Feil ved tilbakestilling av tildeling på oppgave", it) },
         )
     }
 
@@ -91,7 +91,7 @@ class OppgaveController(
     fun ferdigstillOppgave(@PathVariable oppgaveId: Long): ResponseEntity<Ressurs<String>> {
         tilgangService.validerTilgangTilHandling(
             minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
-            handling = "Ferdigstill oppgave"
+            handling = "Ferdigstill oppgave",
         )
 
         val oppgave = oppgaveService.hentOppgave(oppgaveId)
@@ -113,7 +113,7 @@ class OppgaveController(
                 personOpplysningerService.hentPersonInfoMedRelasjonerOgRegisterinformasjon(it)
                     .tilPersonInfoDto(it.aktivFødselsnummer())
             },
-            minimalFagsak = aktør?.let { fagsakService.finnMinimalFagsakForPerson(aktør.aktørId) }
+            minimalFagsak = aktør?.let { fagsakService.finnMinimalFagsakForPerson(aktør.aktørId) },
         )
 
         return ResponseEntity.ok(Ressurs.success(dataForManuellJournalføringDto))

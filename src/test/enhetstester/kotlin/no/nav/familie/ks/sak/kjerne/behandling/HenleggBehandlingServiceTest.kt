@@ -95,13 +95,13 @@ internal class HenleggBehandlingServiceTest {
             henleggBehandlingService.henleggBehandling(
                 behandlingId = behandlingId,
                 henleggÅrsak = HenleggÅrsak.SØKNAD_TRUKKET,
-                begrunnelse = ""
+                begrunnelse = "",
             )
         }
 
         assertEquals(
             "Behandling $behandlingId er allerede avsluttet. Kan ikke henlegge behandling.",
-            exception.message
+            exception.message,
         )
     }
 
@@ -113,14 +113,14 @@ internal class HenleggBehandlingServiceTest {
             henleggBehandlingService.henleggBehandling(
                 behandlingId = behandlingId,
                 henleggÅrsak = HenleggÅrsak.TEKNISK_VEDLIKEHOLD,
-                begrunnelse = ""
+                begrunnelse = "",
             )
         }
 
         assertEquals(
             "Teknisk vedlikehold henleggele er ikke påslått for " +
                 "${SikkerhetContext.hentSaksbehandlerNavn()}. Kan ikke henlegge behandling $behandlingId.",
-            exception.message
+            exception.message,
         )
     }
 
@@ -135,7 +135,7 @@ internal class HenleggBehandlingServiceTest {
             henleggBehandlingService.henleggBehandling(
                 behandlingId = tekniskEndringBehandling.id,
                 henleggÅrsak = HenleggÅrsak.TEKNISK_VEDLIKEHOLD,
-                begrunnelse = ""
+                begrunnelse = "",
             )
         }
 
@@ -143,7 +143,7 @@ internal class HenleggBehandlingServiceTest {
             "Du har ikke tilgang til å henlegge en behandling " +
                 "som er opprettet med årsak=${tekniskEndringBehandling.opprettetÅrsak.visningsnavn}. " +
                 "Ta kontakt med teamet dersom dette ikke stemmer.",
-            exception.message
+            exception.message,
         )
     }
 
@@ -152,8 +152,8 @@ internal class HenleggBehandlingServiceTest {
         behandling.behandlingStegTilstand.add(
             BehandlingStegTilstand(
                 behandlingSteg = BehandlingSteg.IVERKSETT_MOT_OPPDRAG,
-                behandling = behandling
-            )
+                behandling = behandling,
+            ),
         )
 
         every { behandlingRepository.hentBehandling(behandlingId) } returns behandling
@@ -162,14 +162,14 @@ internal class HenleggBehandlingServiceTest {
             henleggBehandlingService.henleggBehandling(
                 behandlingId = behandlingId,
                 henleggÅrsak = HenleggÅrsak.FEILAKTIG_OPPRETTET,
-                begrunnelse = ""
+                begrunnelse = "",
             )
         }
 
         assertEquals(
             "Behandling $behandlingId er på steg ${behandling.steg.visningsnavn()} " +
                 "og er da låst for alle andre type endringer. Kan ikke henlegge behandling.",
-            exception.message
+            exception.message,
         )
     }
 
@@ -178,8 +178,8 @@ internal class HenleggBehandlingServiceTest {
         behandling.behandlingStegTilstand.add(
             BehandlingStegTilstand(
                 behandlingSteg = BehandlingSteg.IVERKSETT_MOT_OPPDRAG,
-                behandling = behandling
-            )
+                behandling = behandling,
+            ),
         )
 
         every { behandlingRepository.hentBehandling(behandlingId) } returns behandling
@@ -188,7 +188,7 @@ internal class HenleggBehandlingServiceTest {
             henleggBehandlingService.henleggBehandling(
                 behandlingId = behandlingId,
                 henleggÅrsak = HenleggÅrsak.TEKNISK_VEDLIKEHOLD,
-                begrunnelse = ""
+                begrunnelse = "",
             )
         }
         verify(exactly = 1) { oppgaveService.hentOppgaverSomIkkeErFerdigstilt(behandling) }
@@ -196,7 +196,7 @@ internal class HenleggBehandlingServiceTest {
             loggService.opprettHenleggBehandlingLogg(
                 behandling,
                 HenleggÅrsak.TEKNISK_VEDLIKEHOLD.beskrivelse,
-                ""
+                "",
             )
         }
         verify(exactly = 0) { brevService.sendBrev(any(), any()) }
@@ -215,7 +215,7 @@ internal class HenleggBehandlingServiceTest {
             henleggBehandlingService.henleggBehandling(
                 behandlingId = behandlingId,
                 henleggÅrsak = HenleggÅrsak.SØKNAD_TRUKKET,
-                begrunnelse = ""
+                begrunnelse = "",
             )
         }
         verify(exactly = 1) { oppgaveService.hentOppgaverSomIkkeErFerdigstilt(behandling) }
@@ -223,7 +223,7 @@ internal class HenleggBehandlingServiceTest {
             loggService.opprettHenleggBehandlingLogg(
                 behandling,
                 HenleggÅrsak.SØKNAD_TRUKKET.beskrivelse,
-                ""
+                "",
             )
         }
         verify(exactly = 1) { brevService.genererOgSendBrev(any(), any()) }
@@ -251,7 +251,7 @@ internal class HenleggBehandlingServiceTest {
             henleggBehandlingService.henleggBehandling(
                 behandlingId = behandlingId,
                 henleggÅrsak = HenleggÅrsak.SØKNAD_TRUKKET,
-                begrunnelse = ""
+                begrunnelse = "",
             )
         }
         verify(exactly = 1) { oppgaveService.hentOppgaverSomIkkeErFerdigstilt(behandling) }
@@ -259,7 +259,7 @@ internal class HenleggBehandlingServiceTest {
             loggService.opprettHenleggBehandlingLogg(
                 behandling,
                 HenleggÅrsak.SØKNAD_TRUKKET.beskrivelse,
-                ""
+                "",
             )
         }
         verify(exactly = 1) { brevService.genererOgSendBrev(any(), any()) }

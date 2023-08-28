@@ -40,19 +40,19 @@ class UtbetalingsperiodeMedBegrunnelserServiceTest {
             lagPersonopplysningGrunnlag(
                 søkerAktør = søker,
                 behandlingId = behandling.id,
-                søkerPersonIdent = søker.aktivFødselsnummer()
+                søkerPersonIdent = søker.aktivFødselsnummer(),
             )
         val søkerPerson = lagPerson(personopplysningGrunnlag, søker, PersonType.SØKER)
 
         val vilkårsvurdering = lagVilkårsvurderingMedSøkersVilkår(
             søkerAktør = søkerPerson.aktør,
             behandling = behandling,
-            resultat = Resultat.OPPFYLT
+            resultat = Resultat.OPPFYLT,
         )
 
         val personResultat = PersonResultat(
             vilkårsvurdering = vilkårsvurdering,
-            aktør = søkerPerson.aktør
+            aktør = søkerPerson.aktør,
         )
         val vilkårResultater = Vilkår.hentVilkårFor(søkerPerson.type).map {
             VilkårResultat(
@@ -63,7 +63,7 @@ class UtbetalingsperiodeMedBegrunnelserServiceTest {
                 resultat = Resultat.OPPFYLT,
                 begrunnelse = "",
                 behandlingId = vilkårsvurdering.behandling.id,
-                utdypendeVilkårsvurderinger = emptyList()
+                utdypendeVilkårsvurderinger = emptyList(),
             )
         }
 
@@ -88,19 +88,19 @@ class UtbetalingsperiodeMedBegrunnelserServiceTest {
             lagPersonopplysningGrunnlag(
                 søkerAktør = søker,
                 behandlingId = behandling.id,
-                søkerPersonIdent = søker.aktivFødselsnummer()
+                søkerPersonIdent = søker.aktivFødselsnummer(),
             )
         val søkerPerson = lagPerson(personopplysningGrunnlag, søker, PersonType.SØKER)
 
         val vilkårsvurdering = lagVilkårsvurderingMedSøkersVilkår(
             søkerAktør = søkerPerson.aktør,
             behandling = behandling,
-            resultat = Resultat.OPPFYLT
+            resultat = Resultat.OPPFYLT,
         )
 
         val personResultat = PersonResultat(
             vilkårsvurdering = vilkårsvurdering,
-            aktør = søkerPerson.aktør
+            aktør = søkerPerson.aktør,
         ).also {
             it.setSortedVilkårResultater(
                 setOf(
@@ -111,7 +111,7 @@ class UtbetalingsperiodeMedBegrunnelserServiceTest {
                         vilkårType = Vilkår.BOR_MED_SØKER,
                         resultat = Resultat.OPPFYLT,
                         begrunnelse = "",
-                        behandlingId = vilkårsvurdering.behandling.id
+                        behandlingId = vilkårsvurdering.behandling.id,
                     ),
                     VilkårResultat(
                         personResultat = it,
@@ -121,9 +121,9 @@ class UtbetalingsperiodeMedBegrunnelserServiceTest {
                         resultat = Resultat.IKKE_OPPFYLT,
                         begrunnelse = "",
                         behandlingId = vilkårsvurdering.behandling.id,
-                        erEksplisittAvslagPåSøknad = true
-                    )
-                )
+                        erEksplisittAvslagPåSøknad = true,
+                    ),
+                ),
             )
         }
 

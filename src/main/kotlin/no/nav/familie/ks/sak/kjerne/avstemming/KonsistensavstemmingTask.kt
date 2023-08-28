@@ -18,12 +18,12 @@ import java.util.UUID
     taskStepType = KonsistensavstemmingTask.TASK_STEP_TYPE,
     beskrivelse = "Start Konsistensavstemming mot oppdrag",
     maxAntallFeil = 1,
-    settTilManuellOppfølgning = true
+    settTilManuellOppfølgning = true,
 )
 class KonsistensavstemmingTask(
     private val konsistensavstemmingKjøreplanService: KonsistensavstemmingKjøreplanService,
     private val avstemmingService: AvstemmingService,
-    private val behandlingService: BehandlingService
+    private val behandlingService: BehandlingService,
 ) : AsyncTaskStep {
 
     override fun doTask(task: Task) {
@@ -39,12 +39,12 @@ class KonsistensavstemmingTask(
 
         logger.info(
             "Konsistensavstemming med transaksjonId $transaksjonId ble initielt trigget " +
-                "${konsistensavstemmingTaskData.initieltKjøreTidspunkt}, men bruker $avstemmingstidspunkt som avstemmingsdato"
+                "${konsistensavstemmingTaskData.initieltKjøreTidspunkt}, men bruker $avstemmingstidspunkt som avstemmingsdato",
         )
         if (konsistensavstemmingKjøreplanService.harKjøreplanStatusFerdig(kjøreplanId)) {
             logger.info(
                 "Konsistensavstemmning er allerede kjørt for transaksjonsId=$transaksjonId og " +
-                    "kjøreplanId=$kjøreplanId"
+                    "kjøreplanId=$kjøreplanId",
             )
             return
         }
@@ -54,7 +54,7 @@ class KonsistensavstemmingTask(
 
         // henter relevante behandlinger med 1000 behandlingId per side
         var relevanteBehandlingSider = behandlingService.hentSisteIverksatteBehandlingerFraLøpendeFagsaker(
-            Pageable.ofSize(ANTALL_BEHANDLINGER)
+            Pageable.ofSize(ANTALL_BEHANDLINGER),
         )
         for (sideNummer in 1..relevanteBehandlingSider.totalPages) {
             relevanteBehandlingSider.content.chunked(500).forEach { behandlingChunk ->
@@ -67,7 +67,7 @@ class KonsistensavstemmingTask(
 
             // hent behandlinger fra neste side
             relevanteBehandlingSider = behandlingService.hentSisteIverksatteBehandlingerFraLøpendeFagsaker(
-                relevanteBehandlingSider.nextPageable()
+                relevanteBehandlingSider.nextPageable(),
             )
         }
 
@@ -85,7 +85,7 @@ class KonsistensavstemmingTask(
 
         fun opprettTask(konsistensavstemmingTaskDto: KonsistensavstemmingTaskDto) = Task(
             type = TASK_STEP_TYPE,
-            payload = objectMapper.writeValueAsString(konsistensavstemmingTaskDto)
+            payload = objectMapper.writeValueAsString(konsistensavstemmingTaskDto),
         )
     }
 }

@@ -24,8 +24,8 @@ class TilTidslinjePerioderMedLocalDateTest {
             listOf(
                 TidslinjePeriode(Verdi("a"), førsteJanuar.diffIDager(sisteDagIJanuar)),
                 TidslinjePeriode(Verdi("b"), førsteFebruar.diffIDager(sisteDagIFebruar)),
-                TidslinjePeriode(Verdi("c"), førsteMars.diffIDager(sisteDagIMars))
-            )
+                TidslinjePeriode(Verdi("c"), førsteMars.diffIDager(sisteDagIMars)),
+            ),
         )
 
         val tidslinjePerioderMedDato = tidslinje.tilTidslinjePerioderMedDato()
@@ -50,15 +50,15 @@ class TilTidslinjePerioderMedLocalDateTest {
         val tidslinje1 = Tidslinje(
             førsteJanuar,
             listOf(
-                TidslinjePeriode(Verdi("a"), førsteJanuar.diffIDager(sisteDagIMars))
-            )
+                TidslinjePeriode(Verdi("a"), førsteJanuar.diffIDager(sisteDagIMars)),
+            ),
         )
 
         val tidslinje2 = Tidslinje(
             førsteFebruar,
             listOf(
-                TidslinjePeriode(Verdi("b"), førsteFebruar.diffIDager(sisteDagIFebruar))
-            )
+                TidslinjePeriode(Verdi("b"), førsteFebruar.diffIDager(sisteDagIFebruar)),
+            ),
         )
 
         val tidslinjePerioderMedDato = tidslinje1.biFunksjon(tidslinje2) { a, b ->

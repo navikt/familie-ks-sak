@@ -35,24 +35,24 @@ object TilkjentYtelseUtils {
     fun beregnTilkjentYtelse(
         vilkårsvurdering: Vilkårsvurdering,
         personopplysningGrunnlag: PersonopplysningGrunnlag,
-        endretUtbetalingAndeler: List<EndretUtbetalingAndelMedAndelerTilkjentYtelse> = emptyList()
+        endretUtbetalingAndeler: List<EndretUtbetalingAndelMedAndelerTilkjentYtelse> = emptyList(),
     ): TilkjentYtelse {
         val tilkjentYtelse = TilkjentYtelse(
             behandling = vilkårsvurdering.behandling,
             opprettetDato = LocalDate.now(),
-            endretDato = LocalDate.now()
+            endretDato = LocalDate.now(),
         )
         val endretUtbetalingAndelerBarna = endretUtbetalingAndeler.filter { it.person?.type == PersonType.BARN }
 
         val andelerTilkjentYtelseBarnaUtenEndringer = beregnAndelerTilkjentYtelseForBarna(
             personopplysningGrunnlag = personopplysningGrunnlag,
             vilkårsvurdering = vilkårsvurdering,
-            tilkjentYtelse = tilkjentYtelse
+            tilkjentYtelse = tilkjentYtelse,
         )
 
         val andelerTilkjentYtelseBarnaMedAlleEndringer = oppdaterTilkjentYtelseMedEndretUtbetalingAndeler(
             andelTilkjentYtelserUtenEndringer = andelerTilkjentYtelseBarnaUtenEndringer,
-            endretUtbetalingAndeler = endretUtbetalingAndelerBarna
+            endretUtbetalingAndeler = endretUtbetalingAndelerBarna,
         )
         tilkjentYtelse.andelerTilkjentYtelse.addAll(andelerTilkjentYtelseBarnaMedAlleEndringer.map { it.andel })
         return tilkjentYtelse
@@ -61,11 +61,11 @@ object TilkjentYtelseUtils {
     fun beregnAndelerTilkjentYtelseForBarna(
         personopplysningGrunnlag: PersonopplysningGrunnlag,
         vilkårsvurdering: Vilkårsvurdering,
-        tilkjentYtelse: TilkjentYtelse
+        tilkjentYtelse: TilkjentYtelse,
     ): List<AndelTilkjentYtelse> {
         val søkersVilkårResultaterForskjøvetTidslinje =
             vilkårsvurdering.personResultater.tilFørskjøvetVilkårResultatTidslinjeDerVilkårErOppfyltForPerson(
-                personopplysningGrunnlag.søker
+                personopplysningGrunnlag.søker,
             )
 
         return personopplysningGrunnlag.barna.flatMap { barn ->
@@ -83,7 +83,7 @@ object TilkjentYtelseUtils {
                     vilkårResultaterPeriode.tilAndelTilkjentYtelse(
                         vilkårsvurdering = vilkårsvurdering,
                         tilkjentYtelse = tilkjentYtelse,
-                        barn = barn
+                        barn = barn,
                     )
                 }
         }
@@ -92,7 +92,7 @@ object TilkjentYtelseUtils {
     private fun Periode<List<VilkårResultat>>.tilAndelTilkjentYtelse(
         vilkårsvurdering: Vilkårsvurdering,
         tilkjentYtelse: TilkjentYtelse,
-        barn: Person
+        barn: Person,
     ): AndelTilkjentYtelse {
         val erDeltBosted = this.verdi.any {
             it.vilkårType == Vilkår.BOR_MED_SØKER &&
@@ -105,7 +105,7 @@ object TilkjentYtelseUtils {
             antallTimer = antallTimer?.setScale(2, RoundingMode.HALF_UP),
             erDeltBosted = erDeltBosted,
             stønadFom = fom!!.toYearMonth(),
-            stønadTom = tom!!.toYearMonth()
+            stønadTom = tom!!.toYearMonth(),
         )
 
         validerBeregnetPeriode(beløpsperiode = satsperiode, behandlingId = vilkårsvurdering.behandling.id)
@@ -122,7 +122,7 @@ object TilkjentYtelseUtils {
             nasjonaltPeriodebeløp = kalkulertUtbetalingsbeløp,
             type = YtelseType.ORDINÆR_KONTANTSTØTTE,
             sats = satsperiode.sats,
-            prosent = satsperiode.prosent
+            prosent = satsperiode.prosent,
         )
     }
 
@@ -130,14 +130,14 @@ object TilkjentYtelseUtils {
         if (beløpsperiode.fom.isAfter(beløpsperiode.tom)) {
             throw Feil(
                 "Feil i beregning for behandling $behandlingId," +
-                    "fom ${beløpsperiode.fom} kan ikke være større enn tom ${beløpsperiode.tom}"
+                    "fom ${beløpsperiode.fom} kan ikke være større enn tom ${beløpsperiode.tom}",
             )
         }
     }
 
     fun oppdaterTilkjentYtelseMedEndretUtbetalingAndeler(
         andelTilkjentYtelserUtenEndringer: List<AndelTilkjentYtelse>,
-        endretUtbetalingAndeler: List<EndretUtbetalingAndelMedAndelerTilkjentYtelse>
+        endretUtbetalingAndeler: List<EndretUtbetalingAndelMedAndelerTilkjentYtelse>,
     ): List<AndelTilkjentYtelseMedEndreteUtbetalinger> {
         if (endretUtbetalingAndeler.isEmpty()) {
             return andelTilkjentYtelserUtenEndringer.map { AndelTilkjentYtelseMedEndreteUtbetalinger.utenEndringer(it) }
@@ -156,7 +156,7 @@ object TilkjentYtelseUtils {
                 // Deler opp hver enkelt andel i perioder som hhv blir berørt av endringene og de som ikke berøres av de.
                 val (perioderMedEndring, perioderUtenEndring) = andelForPerson.stønadsPeriode()
                     .perioderMedOgUtenOverlapp(
-                        endringerForPerson.map { endringerForPerson -> endringerForPerson.periode }
+                        endringerForPerson.map { endringerForPerson -> endringerForPerson.periode },
                     )
 
                 // Legger til nye AndelTilkjentYtelse for perioder som er berørt av endringer.
@@ -172,28 +172,28 @@ object TilkjentYtelseUtils {
                             stønadFom = månedPeriodeEndret.fom,
                             stønadTom = månedPeriodeEndret.tom,
                             kalkulertUtbetalingsbeløp = nyttNasjonaltPeriodebeløp,
-                            nasjonaltPeriodebeløp = nyttNasjonaltPeriodebeløp
+                            nasjonaltPeriodebeløp = nyttNasjonaltPeriodebeløp,
                         )
 
                         andelTilkjentYtelse.medEndring(endretUtbetalingMedAndeler)
-                    }
+                    },
                 )
                 // Legger til nye AndelTilkjentYtelse for perioder som ikke berøres av endringer.
                 nyeAndelerForPerson.addAll(
                     perioderUtenEndring.map { månedPeriodeUendret ->
                         val andelTilkjentYtelse = andelForPerson.copy(
                             stønadFom = månedPeriodeUendret.fom,
-                            stønadTom = månedPeriodeUendret.tom
+                            stønadTom = månedPeriodeUendret.tom,
                         )
                         AndelTilkjentYtelseMedEndreteUtbetalinger.utenEndringer(andelTilkjentYtelse)
-                    }
+                    },
                 )
             }
 
             val nyeAndelerForPersonEtterSammenslåing =
                 slåSammenPerioderSomIkkeSkulleHaVærtSplittet(
                     andelerTilkjentYtelseMedEndreteUtbetalinger = nyeAndelerForPerson,
-                    skalAndelerSlåsSammen = ::skalAndelerSlåsSammen
+                    skalAndelerSlåsSammen = ::skalAndelerSlåsSammen,
                 )
 
             nyeAndelTilkjentYtelse.addAll(nyeAndelerForPersonEtterSammenslåing)
@@ -249,7 +249,7 @@ object TilkjentYtelseUtils {
 
     fun slåSammenPerioderSomIkkeSkulleHaVærtSplittet(
         andelerTilkjentYtelseMedEndreteUtbetalinger: MutableList<AndelTilkjentYtelseMedEndreteUtbetalinger>,
-        skalAndelerSlåsSammen: (førsteAndel: AndelTilkjentYtelseMedEndreteUtbetalinger, nesteAndel: AndelTilkjentYtelseMedEndreteUtbetalinger) -> Boolean
+        skalAndelerSlåsSammen: (førsteAndel: AndelTilkjentYtelseMedEndreteUtbetalinger, nesteAndel: AndelTilkjentYtelseMedEndreteUtbetalinger) -> Boolean,
     ): MutableList<AndelTilkjentYtelseMedEndreteUtbetalinger> {
         val sorterteAndeler = andelerTilkjentYtelseMedEndreteUtbetalinger.sortedBy { it.stønadFom }.toMutableList()
         var periodenViSerPå = sorterteAndeler.first()
@@ -284,10 +284,10 @@ object TilkjentYtelseUtils {
      */
     private fun skalAndelerSlåsSammen(
         førsteAndel: AndelTilkjentYtelseMedEndreteUtbetalinger,
-        nesteAndel: AndelTilkjentYtelseMedEndreteUtbetalinger
+        nesteAndel: AndelTilkjentYtelseMedEndreteUtbetalinger,
     ): Boolean =
         førsteAndel.stønadTom.sisteDagIInneværendeMåned()
             .erDagenFør(nesteAndel.stønadFom.førsteDagIInneværendeMåned()) && førsteAndel.prosent == BigDecimal(0) && nesteAndel.prosent == BigDecimal(
-            0
+            0,
         ) && førsteAndel.endreteUtbetalinger.isNotEmpty() && førsteAndel.endreteUtbetalinger.singleOrNull() == nesteAndel.endreteUtbetalinger.singleOrNull()
 }

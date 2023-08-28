@@ -18,12 +18,12 @@ internal class EøsSkjemaTidslinjerTest {
         val kompetanse1 = Kompetanse(
             fom = YearMonth.of(2437, 2),
             tom = YearMonth.of(2438, 6),
-            barnAktører = setOf(barn.aktør)
+            barnAktører = setOf(barn.aktør),
         )
         val kompetanse2 = Kompetanse(
             fom = YearMonth.of(2438, 7),
             tom = null,
-            barnAktører = setOf(barn.aktør)
+            barnAktører = setOf(barn.aktør),
         )
 
         val kompetanseTidslinje = listOf(kompetanse1, kompetanse2).tilTidslinje()

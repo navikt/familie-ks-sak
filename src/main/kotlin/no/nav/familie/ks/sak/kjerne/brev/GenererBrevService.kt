@@ -55,18 +55,18 @@ class GenererBrevService(
     private val arbeidsfordelingService: ArbeidsfordelingService,
     private val vilkårsvurderingService: VilkårsvurderingService,
     private val korrigertVedtakService: KorrigertVedtakService,
-    private val feilutbetaltValutaService: FeilutbetaltValutaService
+    private val feilutbetaltValutaService: FeilutbetaltValutaService,
 ) {
 
     fun genererManueltBrev(
         manueltBrevRequest: ManueltBrevDto,
-        erForhåndsvisning: Boolean = false
+        erForhåndsvisning: Boolean = false,
     ): ByteArray {
         try {
             val brev = manueltBrevRequest.tilBrev()
             return brevKlient.genererBrev(
                 målform = manueltBrevRequest.mottakerMålform.tilSanityFormat(),
-                brev = brev
+                brev = brev,
             )
         } catch (it: Exception) {
             if (it is Feil || it is FunksjonellFeil) {
@@ -76,7 +76,7 @@ class GenererBrevService(
                     message = "Klarte ikke generere brev for ${manueltBrevRequest.brevmal}. ${it.message}",
                     frontendFeilmelding = "${if (erForhåndsvisning) "Det har skjedd en feil" else "Det har skjedd en feil, og brevet er ikke sendt"}. Prøv igjen, og ta kontakt med brukerstøtte hvis problemet vedvarer.",
                     httpStatus = HttpStatus.INTERNAL_SERVER_ERROR,
-                    throwable = it
+                    throwable = it,
                 )
             }
         }
@@ -104,7 +104,7 @@ class GenererBrevService(
                 message = "Klarte ikke generere vedtaksbrev på behandling ${vedtak.behandling}: ${feil.message}",
                 frontendFeilmelding = "Det har skjedd en feil, og brevet er ikke sendt. Prøv igjen, og ta kontakt med brukerstøtte hvis problemet vedvarer.",
                 httpStatus = HttpStatus.INTERNAL_SERVER_ERROR,
-                throwable = feil
+                throwable = feil,
             )
         }
     }
@@ -121,7 +121,7 @@ class GenererBrevService(
             Brevmal.VEDTAK_FØRSTEGANGSVEDTAK -> {
                 Førstegangsvedtak(
                     fellesdataForVedtaksbrev = fellesdataForVedtaksbrev,
-                    etterbetaling = etterbetaling
+                    etterbetaling = etterbetaling,
                 )
             }
 
@@ -136,13 +136,13 @@ class GenererBrevService(
                 feilutbetaltValuta = feilutbetaltValutaService.beskrivPerioderMedFeilutbetaltValuta(behandling.id)
                     ?.let {
                         FeilutbetaltValuta(perioderMedForMyeUtbetalt = it)
-                    }
+                    },
 
             )
 
             Brevmal.VEDTAK_OPPHØRT -> Opphørt(
                 fellesdataForVedtaksbrev = fellesdataForVedtaksbrev,
-                erFeilutbetalingPåBehandling = erFeilutbetalingPåBehandling(behandlingId = behandling.id)
+                erFeilutbetalingPåBehandling = erFeilutbetalingPåBehandling(behandlingId = behandling.id),
             )
 
             Brevmal.VEDTAK_OPPHØR_MED_ENDRING -> OpphørMedEndring(
@@ -163,7 +163,7 @@ class GenererBrevService(
 
         if (utvidetVedtaksperioderMedBegrunnelser.isEmpty()) {
             throw FunksjonellFeil(
-                "Vedtaket mangler begrunnelser. Du må legge til begrunnelser for å generere vedtaksbrevet."
+                "Vedtaket mangler begrunnelser. Du må legge til begrunnelser for å generere vedtaksbrevet.",
             )
         }
 
@@ -179,7 +179,7 @@ class GenererBrevService(
             utvidetVedtaksperioderMedBegrunnelser = utvidetVedtaksperioderMedBegrunnelser,
             målform = personopplysningsgrunnlagOgSignaturData.grunnlag.søker.målform,
             sanityBegrunnelser = sanityService.hentSanityBegrunnelser(),
-            vedtakKorrigertHjemmelSkalMedIBrev = korrigertVedtak != null
+            vedtakKorrigertHjemmelSkalMedIBrev = korrigertVedtak != null,
         )
 
         return FellesdataForVedtaksbrev(
@@ -191,7 +191,7 @@ class GenererBrevService(
             søkerFødselsnummer = personopplysningsgrunnlagOgSignaturData.grunnlag.søker.aktør.aktivFødselsnummer(),
             perioder = brevPeriodeDtoer,
             gjelder = personopplysningsgrunnlagOgSignaturData.grunnlag.søker.navn,
-            korrigertVedtakData = korrigertVedtak?.let { KorrigertVedtakData(datoKorrigertVedtak = it.vedtaksdato.tilDagMånedÅr()) }
+            korrigertVedtakData = korrigertVedtak?.let { KorrigertVedtakData(datoKorrigertVedtak = it.vedtaksdato.tilDagMånedÅr()) },
         )
     }
 
@@ -206,7 +206,7 @@ class GenererBrevService(
             grunnlag = personopplysningGrunnlag,
             saksbehandler = totrinnskontroll?.saksbehandler ?: SikkerhetContext.hentSaksbehandlerNavn(),
             beslutter = totrinnskontroll?.beslutter ?: "Beslutter",
-            enhet = enhetNavn
+            enhet = enhetNavn,
         )
     }
 
@@ -215,7 +215,7 @@ class GenererBrevService(
         utvidetVedtaksperioderMedBegrunnelser: List<UtvidetVedtaksperiodeMedBegrunnelser>,
         målform: Målform,
         sanityBegrunnelser: List<SanityBegrunnelse>,
-        vedtakKorrigertHjemmelSkalMedIBrev: Boolean = false
+        vedtakKorrigertHjemmelSkalMedIBrev: Boolean = false,
     ): String {
         val vilkårsvurdering =
             vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(behandlingId = behandlingId)
@@ -228,7 +228,7 @@ class GenererBrevService(
             målform = målform,
             sanitybegrunnelserBruktIBrev = utvidetVedtaksperioderMedBegrunnelser.flatMap { it.begrunnelser }
                 .mapNotNull { it.begrunnelse.tilSanityBegrunnelse(sanityBegrunnelser) },
-            vedtakKorrigertHjemmelSkalMedIBrev = vedtakKorrigertHjemmelSkalMedIBrev
+            vedtakKorrigertHjemmelSkalMedIBrev = vedtakKorrigertHjemmelSkalMedIBrev,
         )
     }
 
@@ -239,6 +239,6 @@ class GenererBrevService(
         val grunnlag: PersonopplysningGrunnlag,
         val saksbehandler: String,
         val beslutter: String,
-        val enhet: String
+        val enhet: String,
     )
 }

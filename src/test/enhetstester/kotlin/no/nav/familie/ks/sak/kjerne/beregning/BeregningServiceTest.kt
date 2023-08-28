@@ -65,7 +65,7 @@ class BeregningServiceTest {
             lagPersonopplysningGrunnlag(
                 behandlngId,
                 søkerPersonIdent = randomFnr(),
-                barnasIdenter = listOf(randomFnr())
+                barnasIdenter = listOf(randomFnr()),
             )
 
         assertTrue { beregningService.finnBarnFraBehandlingMedTilkjentYtelse(behandlngId).isEmpty() }
@@ -80,7 +80,7 @@ class BeregningServiceTest {
             lagPersonopplysningGrunnlag(
                 behandling.id,
                 søkerPersonIdent = behandling.fagsak.aktør.aktivFødselsnummer(),
-                barnasIdenter = emptyList()
+                barnasIdenter = emptyList(),
             )
 
         assertTrue { beregningService.finnBarnFraBehandlingMedTilkjentYtelse(behandling.id).isEmpty() }
@@ -96,13 +96,13 @@ class BeregningServiceTest {
                 lagAndelTilkjentYtelse(
                     behandling = behandling,
                     tilkjentYtelse = tilkjentYtelse,
-                    aktør = behandling.fagsak.aktør
+                    aktør = behandling.fagsak.aktør,
                 ),
                 lagAndelTilkjentYtelse(
                     behandling = behandling,
                     tilkjentYtelse = tilkjentYtelse,
-                    aktør = barnAktør
-                )
+                    aktør = barnAktør,
+                ),
             )
         every { personopplysningGrunnlagRepository.hentByBehandlingAndAktiv(behandling.id) } returns
             lagPersonopplysningGrunnlag(
@@ -110,7 +110,7 @@ class BeregningServiceTest {
                 søkerPersonIdent = behandling.fagsak.aktør.aktivFødselsnummer(),
                 søkerAktør = behandling.fagsak.aktør,
                 barnasIdenter = listOf(barnAktør.aktivFødselsnummer()),
-                barnAktør = listOf(barnAktør)
+                barnAktør = listOf(barnAktør),
             )
         val barn = beregningService.finnBarnFraBehandlingMedTilkjentYtelse(behandling.id)
         assertTrue { barn.isNotEmpty() }
@@ -135,24 +135,24 @@ class BeregningServiceTest {
                     aktør = barnAktør,
                     stønadFom = YearMonth.now().minusMonths(4),
                     stønadTom = YearMonth.now().minusMonths(2),
-                    sats = 8000
-                )
-            )
+                    sats = 8000,
+                ),
+            ),
         )
 
         val personopplysningGrunnlag = lagPersonopplysningGrunnlag(
             behandlingTilGodkjenning.id,
             randomFnr(),
             listOf(barnAktør.aktivFødselsnummer()),
-            barnAktør = listOf(barnAktør)
+            barnAktør = listOf(barnAktør),
         )
         every { fagsakService.hentFagsakerPåPerson(barnAktør) } returns listOf(
             fagak,
-            annenFagsak
+            annenFagsak,
         )
 
         every { behandlingRepository.finnBehandlingerSendtTilGodkjenning(any()) } returns listOf(
-            behandlingTilGodkjenning
+            behandlingTilGodkjenning,
         )
 
         every { tilkjentYtelseRepository.hentTilkjentYtelseForBehandling(behandlingTilGodkjenning.id) } returns tilkjentYtelse
@@ -182,20 +182,20 @@ class BeregningServiceTest {
                     aktør = barnAktør,
                     stønadFom = YearMonth.now().minusMonths(4),
                     stønadTom = YearMonth.now().minusMonths(2),
-                    sats = 8000
-                )
-            )
+                    sats = 8000,
+                ),
+            ),
         )
 
         val personopplysningGrunnlag = lagPersonopplysningGrunnlag(
             godkjentBehandlingSomIkkeErIverksatt.id,
             randomFnr(),
             listOf(barnAktør.aktivFødselsnummer()),
-            barnAktør = listOf(barnAktør)
+            barnAktør = listOf(barnAktør),
         )
         every { fagsakService.hentFagsakerPåPerson(barnAktør) } returns listOf(
             fagak,
-            annenFagsak
+            annenFagsak,
         )
 
         every { behandlingRepository.finnBehandlingerSendtTilGodkjenning(fagsakId = annenFagsak.id) } returns emptyList()
@@ -205,7 +205,7 @@ class BeregningServiceTest {
         every { personopplysningGrunnlagRepository.findByBehandlingAndAktiv(godkjentBehandlingSomIkkeErIverksatt.id) } returns personopplysningGrunnlag
 
         every { behandlingRepository.finnBehandlingerSomHolderPåÅIverksettes(fagsakId = annenFagsak.id) } returns listOf(
-            godkjentBehandlingSomIkkeErIverksatt
+            godkjentBehandlingSomIkkeErIverksatt,
         )
 
         val relevanteTilkjenteYtelserForBarn = beregningService.hentRelevanteTilkjentYtelserForBarn(barnAktør, fagak.id)
@@ -220,7 +220,7 @@ class BeregningServiceTest {
         val annenFagsak = lagFagsak(barnAktør, 2)
         val iverksatteBehandlinger = lagBehandling(
             fagsak = annenFagsak,
-            opprettetÅrsak = BehandlingÅrsak.SØKNAD
+            opprettetÅrsak = BehandlingÅrsak.SØKNAD,
         ).also { it.status = BehandlingStatus.AVSLUTTET }
 
         val tilkjentYtelse = TilkjentYtelse(
@@ -233,20 +233,20 @@ class BeregningServiceTest {
                     aktør = barnAktør,
                     stønadFom = YearMonth.now().minusMonths(4),
                     stønadTom = YearMonth.now().minusMonths(2),
-                    sats = 8000
-                )
-            )
+                    sats = 8000,
+                ),
+            ),
         )
 
         val personopplysningGrunnlag = lagPersonopplysningGrunnlag(
             iverksatteBehandlinger.id,
             randomFnr(),
             listOf(barnAktør.aktivFødselsnummer()),
-            barnAktør = listOf(barnAktør)
+            barnAktør = listOf(barnAktør),
         )
         every { fagsakService.hentFagsakerPåPerson(barnAktør) } returns listOf(
             fagak,
-            annenFagsak
+            annenFagsak,
         )
 
         every { behandlingRepository.finnBehandlingerSendtTilGodkjenning(fagsakId = annenFagsak.id) } returns emptyList()
@@ -258,7 +258,7 @@ class BeregningServiceTest {
         every { behandlingRepository.finnBehandlingerSomHolderPåÅIverksettes(fagsakId = annenFagsak.id) } returns emptyList()
 
         every { behandlingRepository.finnIverksatteBehandlinger(fagsakId = annenFagsak.id) } returns listOf(
-            iverksatteBehandlinger
+            iverksatteBehandlinger,
         )
 
         val relevanteTilkjenteYtelserForBarn = beregningService.hentRelevanteTilkjentYtelserForBarn(barnAktør, fagak.id)
@@ -272,7 +272,7 @@ class BeregningServiceTest {
         val fagak = lagFagsak(barnAktør, 1)
 
         every { fagsakService.hentFagsakerPåPerson(barnAktør) } returns listOf(
-            fagak
+            fagak,
         )
 
         val relevanteTilkjenteYtelserForBarn = beregningService.hentRelevanteTilkjentYtelserForBarn(barnAktør, fagak.id)
@@ -283,7 +283,7 @@ class BeregningServiceTest {
     @Test
     fun `hentAndelerTilkjentYtelseMedUtbetalingerForBehandling - skal returnere liste av andel tilkjent ytelse som har utbetalinger`() {
         every { andelTilkjentYtelseRepository.finnAndelerTilkjentYtelseForBehandling(any()) } returns listOf(
-            lagAndelTilkjentYtelse(behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD), sats = 5000)
+            lagAndelTilkjentYtelse(behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD), sats = 5000),
         )
 
         val andelerTilkjentYtelseMedUtbetalingerForBehandling =
@@ -295,7 +295,7 @@ class BeregningServiceTest {
     @Test
     fun `hentAndelerTilkjentYtelseMedUtbetalingerForBehandling - skal returnere tom liste dersom ingen andeler tilkjent ytelse har utbetalinger`() {
         every { andelTilkjentYtelseRepository.finnAndelerTilkjentYtelseForBehandling(any()) } returns listOf(
-            lagAndelTilkjentYtelse(behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD), sats = 0)
+            lagAndelTilkjentYtelse(behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD), sats = 0),
         )
 
         val andelerTilkjentYtelseMedUtbetalingerForBehandling =
@@ -310,10 +310,10 @@ class BeregningServiceTest {
         every { behandlingRepository.finnByFagsakAndAvsluttet(any()) } returns listOf(behandling)
         every { tilkjentYtelseRepository.finnByBehandlingAndHasUtbetalingsoppdrag(any()) } returns lagTilkjentYtelse(
             mockk(),
-            mockk()
+            mockk(),
         ).also {
             it.andelerTilkjentYtelse.add(
-                lagAndelTilkjentYtelse(behandling = behandling, sats = 5000)
+                lagAndelTilkjentYtelse(behandling = behandling, sats = 5000),
             )
         }
 
@@ -328,10 +328,10 @@ class BeregningServiceTest {
         every { behandlingRepository.finnByFagsakAndAvsluttet(any()) } returns listOf(behandling)
         every { tilkjentYtelseRepository.finnByBehandlingAndHasUtbetalingsoppdrag(any()) } returns lagTilkjentYtelse(
             mockk(),
-            mockk()
+            mockk(),
         ).also {
             it.andelerTilkjentYtelse.add(
-                lagAndelTilkjentYtelse(behandling = behandling, sats = 0)
+                lagAndelTilkjentYtelse(behandling = behandling, sats = 0),
             )
         }
 
@@ -348,10 +348,10 @@ class BeregningServiceTest {
 
         every { tilkjentYtelseRepository.hentTilkjentYtelseForBehandling(any()) } returns lagTilkjentYtelse(
             mockk(),
-            mockk()
+            mockk(),
         ).also {
             it.andelerTilkjentYtelse.add(
-                andelTilkjentYtelse
+                andelTilkjentYtelse,
             )
         }
 
@@ -359,16 +359,16 @@ class BeregningServiceTest {
             listOf(
                 lagUtbetalingsperiode(
                     Opphør(
-                        opphørDato
-                    )
+                        opphørDato,
+                    ),
                 ),
-                lagUtbetalingsperiode(Opphør(opphørDato))
-            )
+                lagUtbetalingsperiode(Opphør(opphørDato)),
+            ),
         )
 
         val oppdatertTilkjentYtelse = beregningService.populerTilkjentYtelse(
             behandling,
-            utbetalingsoppdrag
+            utbetalingsoppdrag,
         )
         assertNull(oppdatertTilkjentYtelse.stønadFom)
         assertEquals(andelTilkjentYtelse.stønadTom, oppdatertTilkjentYtelse.stønadTom)
@@ -385,7 +385,7 @@ class BeregningServiceTest {
         every { andelTilkjentYtelseRepository.finnAndelerTilkjentYtelseForBehandling(behandling.id) } returns listOf(
             lagAndelTilkjentYtelse(behandling = behandling, sats = 5000, periodeOffset = 1),
             lagAndelTilkjentYtelse(behandling = behandling, sats = 5000, periodeOffset = 2),
-            lagAndelTilkjentYtelse(behandling = behandling, sats = 5000, periodeOffset = 3)
+            lagAndelTilkjentYtelse(behandling = behandling, sats = 5000, periodeOffset = 3),
 
         )
         val høyesteOffset = beregningService.hentSisteOffsetPåFagsak(behandling)

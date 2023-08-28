@@ -35,17 +35,17 @@ data class FlettefelterForDokumentDtoImpl(
     override val navn: Flettefelt,
     override val fodselsnummer: Flettefelt,
     override val brevOpprettetDato: Flettefelt = flettefelt(LocalDate.now().tilDagMånedÅr()),
-    override val gjelder: Flettefelt
+    override val gjelder: Flettefelt,
 ) : FlettefelterForDokumentDto {
 
     constructor(
         navn: String,
         fodselsnummer: String,
-        gjelder: String? = null
+        gjelder: String? = null,
     ) : this(
         navn = flettefelt(navn),
         fodselsnummer = flettefelt(fodselsnummer),
-        gjelder = flettefelt(gjelder)
+        gjelder = flettefelt(gjelder),
     )
 }
 
@@ -61,7 +61,7 @@ enum class Brevmal(val erVedtaksbrev: Boolean, val apiNavn: String, val visnings
     INNHENTE_OPPLYSNINGER_ETTER_SØKNAD_I_SED(
         false,
         "innhenteOpplysningerEtterSoknadISED",
-        "Innhente opplysninger etter søknad i SED"
+        "Innhente opplysninger etter søknad i SED",
     ),
 
     HENLEGGE_TRUKKET_SØKNAD(false, "henleggeTrukketSoknad", "Henlegge trukket søknad"),
@@ -69,12 +69,12 @@ enum class Brevmal(val erVedtaksbrev: Boolean, val apiNavn: String, val visnings
     VARSEL_OM_VEDTAK_ETTER_SØKNAD_I_SED(
         false,
         "varselOmVedtakEtterSoknadISED",
-        "Varsel om vedtak etter søknad i SED"
+        "Varsel om vedtak etter søknad i SED",
     ),
     VARSEL_OM_REVURDERING_FRA_NASJONAL_TIL_EØS(
         false,
         "varselOmRevurderingFraNasjonalTilEOS",
-        "Varsel om revurdering fra nasjonal til EØS"
+        "Varsel om revurdering fra nasjonal til EØS",
     ),
 
     SVARTIDSBREV(false, "svartidsbrev", "Svartidsbrev"),
@@ -95,10 +95,11 @@ enum class Brevmal(val erVedtaksbrev: Boolean, val apiNavn: String, val visnings
     AUTOVEDTAK_BARN_6_OG_18_ÅR_OG_SMÅBARNSTILLEGG(
         true,
         "autovedtakBarn6AarOg18AarOgSmaabarnstillegg",
-        "Autovedtak - Barn 6 og 18 år og småbarnstillegg"
+        "Autovedtak - Barn 6 og 18 år og småbarnstillegg",
     ),
     AUTOVEDTAK_NYFØDT_FØRSTE_BARN(true, "autovedtakNyfodtForsteBarn", "Autovedtak nyfødt - første barn"),
-    AUTOVEDTAK_NYFØDT_BARN_FRA_FØR(true, "autovedtakNyfodtBarnFraFor", "Autovedtak nyfødt - barn fra før");
+    AUTOVEDTAK_NYFØDT_BARN_FRA_FØR(true, "autovedtakNyfodtBarnFraFor", "Autovedtak nyfødt - barn fra før"),
+    ;
 
     fun skalGenerereForside(): Boolean =
         when (this) {
@@ -106,14 +107,16 @@ enum class Brevmal(val erVedtaksbrev: Boolean, val apiNavn: String, val visnings
             INNHENTE_OPPLYSNINGER_ETTER_SØKNAD_I_SED,
             VARSEL_OM_REVURDERING,
             VARSEL_OM_VEDTAK_ETTER_SØKNAD_I_SED,
-            VARSEL_OM_REVURDERING_FRA_NASJONAL_TIL_EØS -> true
+            VARSEL_OM_REVURDERING_FRA_NASJONAL_TIL_EØS,
+            -> true
 
             INFORMASJONSBREV_DELT_BOSTED,
             HENLEGGE_TRUKKET_SØKNAD,
             SVARTIDSBREV,
             FORLENGET_SVARTIDSBREV,
             INFORMASJONSBREV_KAN_SØKE,
-            INFORMASJONSBREV_KAN_SØKE_EØS -> false
+            INFORMASJONSBREV_KAN_SØKE_EØS,
+            -> false
 
             VEDTAK_FØRSTEGANGSVEDTAK,
             VEDTAK_ENDRING,
@@ -125,7 +128,8 @@ enum class Brevmal(val erVedtaksbrev: Boolean, val apiNavn: String, val visnings
             VEDTAK_OPPHØR_DØDSFALL,
             AUTOVEDTAK_BARN_6_OG_18_ÅR_OG_SMÅBARNSTILLEGG,
             AUTOVEDTAK_NYFØDT_FØRSTE_BARN,
-            AUTOVEDTAK_NYFØDT_BARN_FRA_FØR -> throw Feil("Ikke avgjort om $this skal generere forside")
+            AUTOVEDTAK_NYFØDT_BARN_FRA_FØR,
+            -> throw Feil("Ikke avgjort om $this skal generere forside")
         }
 
     fun tilFamilieKontrakterDokumentType(): Dokumenttype =
@@ -152,7 +156,8 @@ enum class Brevmal(val erVedtaksbrev: Boolean, val apiNavn: String, val visnings
             VEDTAK_OPPHØR_DØDSFALL,
             AUTOVEDTAK_BARN_6_OG_18_ÅR_OG_SMÅBARNSTILLEGG,
             AUTOVEDTAK_NYFØDT_FØRSTE_BARN,
-            AUTOVEDTAK_NYFØDT_BARN_FRA_FØR -> throw Feil("Ingen dokumenttype for $this")
+            AUTOVEDTAK_NYFØDT_BARN_FRA_FØR,
+            -> throw Feil("Ingen dokumenttype for $this")
         }
 
     val distribusjonstype: Distribusjonstype
@@ -189,7 +194,8 @@ enum class Brevmal(val erVedtaksbrev: Boolean, val apiNavn: String, val visnings
             INNHENTE_OPPLYSNINGER_ETTER_SØKNAD_I_SED,
             VARSEL_OM_REVURDERING_FRA_NASJONAL_TIL_EØS,
             VARSEL_OM_VEDTAK_ETTER_SØKNAD_I_SED,
-            SVARTIDSBREV -> true
+            SVARTIDSBREV,
+            -> true
 
             else -> false
         }
@@ -207,7 +213,8 @@ enum class Brevmal(val erVedtaksbrev: Boolean, val apiNavn: String, val visnings
             VARSEL_OM_REVURDERING,
             INNHENTE_OPPLYSNINGER_ETTER_SØKNAD_I_SED,
             VARSEL_OM_REVURDERING_FRA_NASJONAL_TIL_EØS,
-            VARSEL_OM_VEDTAK_ETTER_SØKNAD_I_SED -> 3 * 7
+            VARSEL_OM_VEDTAK_ETTER_SØKNAD_I_SED,
+            -> 3 * 7
 
             SVARTIDSBREV -> when (behandlingKategori) {
                 BehandlingKategori.EØS -> 30 * 3

@@ -25,7 +25,7 @@ data class GrOpphold(
     @SequenceGenerator(
         name = "po_opphold_seq_generator",
         sequenceName = "po_opphold_seq",
-        allocationSize = 50
+        allocationSize = 50,
     )
     val id: Long = 0,
 
@@ -38,7 +38,7 @@ data class GrOpphold(
     @JsonIgnore
     @ManyToOne(optional = false)
     @JoinColumn(name = "fk_po_person_id", nullable = false, updatable = false)
-    val person: Person
+    val person: Person,
 ) : BaseEntitet() {
 
     override fun equals(other: Any?): Boolean {
@@ -62,7 +62,7 @@ data class GrOpphold(
         fun fraOpphold(opphold: Opphold, person: Person) = GrOpphold(
             gyldigPeriode = DatoIntervallEntitet(fom = opphold.oppholdFra, tom = opphold.oppholdTil),
             type = opphold.type,
-            person = person
+            person = person,
         )
     }
 }

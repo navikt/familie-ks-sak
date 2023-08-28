@@ -33,7 +33,7 @@ data class TilkjentYtelse(
     @SequenceGenerator(
         name = "tilkjent_ytelse_seq_generator",
         sequenceName = "tilkjent_ytelse_seq",
-        allocationSize = 50
+        allocationSize = 50,
     )
     val id: Long = 0,
 
@@ -66,9 +66,9 @@ data class TilkjentYtelse(
         fetch = FetchType.EAGER,
         mappedBy = "tilkjentYtelse",
         cascade = [CascadeType.PERSIST, CascadeType.REFRESH, CascadeType.MERGE, CascadeType.REMOVE],
-        orphanRemoval = true
+        orphanRemoval = true,
     )
-    val andelerTilkjentYtelse: MutableSet<AndelTilkjentYtelse> = mutableSetOf()
+    val andelerTilkjentYtelse: MutableSet<AndelTilkjentYtelse> = mutableSetOf(),
 )
 
 fun TilkjentYtelse.tilTidslinjeMedAndeler(): Tidslinje<Collection<AndelTilkjentYtelse>> {
@@ -77,8 +77,8 @@ fun TilkjentYtelse.tilTidslinjeMedAndeler(): Tidslinje<Collection<AndelTilkjentY
             Periode(
                 verdi = it,
                 fom = it.stønadFom.førsteDagIInneværendeMåned(),
-                tom = it.stønadTom.sisteDagIInneværendeMåned()
-            )
+                tom = it.stønadTom.sisteDagIInneværendeMåned(),
+            ),
         ).tilTidslinje()
     }
     return tidslinjer.slåSammen()

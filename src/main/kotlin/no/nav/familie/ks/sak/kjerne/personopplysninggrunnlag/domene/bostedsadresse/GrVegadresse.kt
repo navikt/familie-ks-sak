@@ -33,7 +33,7 @@ data class GrVegadresse(
     val tilleggsnavn: String?,
 
     @Column(name = "postnummer")
-    val postnummer: String?
+    val postnummer: String?,
 
 ) : GrBostedsadresse() {
 
@@ -82,7 +82,7 @@ data class GrVegadresse(
                 adressenavn = vegadresse.adressenavn,
                 kommunenummer = vegadresse.kommunenummer,
                 tilleggsnavn = vegadresse.tilleggsnavn,
-                postnummer = vegadresse.postnummer
+                postnummer = vegadresse.postnummer,
             )
     }
 }

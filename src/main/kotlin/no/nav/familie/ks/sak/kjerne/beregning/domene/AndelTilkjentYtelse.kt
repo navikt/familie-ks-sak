@@ -34,7 +34,7 @@ data class AndelTilkjentYtelse(
     @SequenceGenerator(
         name = "andel_tilkjent_ytelse_seq_generator",
         sequenceName = "andel_tilkjent_ytelse_seq",
-        allocationSize = 50
+        allocationSize = 50,
     )
     val id: Long = 0,
 
@@ -74,7 +74,7 @@ data class AndelTilkjentYtelse(
     @JoinTable(
         name = "ANDEL_TIL_ENDRET_ANDEL",
         joinColumns = [JoinColumn(name = "fk_andel_tilkjent_ytelse_id")],
-        inverseJoinColumns = [JoinColumn(name = "fk_endret_utbetaling_andel_id")]
+        inverseJoinColumns = [JoinColumn(name = "fk_endret_utbetaling_andel_id")],
     )
     val endretUtbetalingAndeler: MutableList<EndretUtbetalingAndel> = mutableListOf(),
 
@@ -97,7 +97,7 @@ data class AndelTilkjentYtelse(
     val nasjonaltPeriodebeløp: Int?,
 
     @Column(name = "differanseberegnet_periodebelop")
-    val differanseberegnetPeriodebeløp: Int? = null
+    val differanseberegnetPeriodebeløp: Int? = null,
 
 ) : BaseEntitet() {
 
@@ -131,7 +131,7 @@ data class AndelTilkjentYtelse(
             stønadTom,
             aktør,
             nasjonaltPeriodebeløp,
-            differanseberegnetPeriodebeløp
+            differanseberegnetPeriodebeløp,
         )
     }
 
@@ -178,5 +178,5 @@ fun List<AndelTilkjentYtelse>.slåSammenBack2BackAndelsperioderMedSammeBeløp():
     }
 
 enum class YtelseType(val klassifisering: String) {
-    ORDINÆR_KONTANTSTØTTE("KS") // TODO verdien må avklares med økonomi
+    ORDINÆR_KONTANTSTØTTE("KS"), // TODO verdien må avklares med økonomi
 }

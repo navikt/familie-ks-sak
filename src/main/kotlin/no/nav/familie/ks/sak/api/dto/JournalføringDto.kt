@@ -17,7 +17,7 @@ data class JournalpostDokumentDto(
     val dokumentInfoId: String,
     val brevkode: String?,
     val logiskeVedlegg: List<LogiskVedlegg>?,
-    val eksisterendeLogiskeVedlegg: List<LogiskVedlegg>?
+    val eksisterendeLogiskeVedlegg: List<LogiskVedlegg>?,
 )
 
 data class JournalføringRequestDto(
@@ -33,7 +33,7 @@ data class JournalføringRequestDto(
     val navIdent: String,
     val nyBehandlingstype: BehandlingType,
     val nyBehandlingsårsak: BehandlingÅrsak,
-    val journalførendeEnhet: String
+    val journalførendeEnhet: String,
 )
 
 fun JournalføringRequestDto.tilOppdaterJournalpostRequestDto(sak: Sak) =
@@ -41,11 +41,11 @@ fun JournalføringRequestDto.tilOppdaterJournalpostRequestDto(sak: Sak) =
         avsenderMottaker = AvsenderMottaker(
             id = avsender.id,
             idType = if (avsender.id.isNotBlank()) BrukerIdType.FNR else null,
-            navn = avsender.navn
+            navn = avsender.navn,
         ),
         bruker = JournalpostBrukerDto(
             id = bruker.id,
-            navn = bruker.navn
+            navn = bruker.navn,
         ),
         sak = sak,
         tittel = journalpostTittel,
@@ -54,14 +54,14 @@ fun JournalføringRequestDto.tilOppdaterJournalpostRequestDto(sak: Sak) =
                 dokumentInfoId = it.dokumentInfoId,
                 tittel = it.dokumentTittel,
                 brevkode = it.brevkode,
-                dokumentstatus = Dokumentstatus.FERDIGSTILT
+                dokumentstatus = Dokumentstatus.FERDIGSTILT,
             )
-        }
+        },
     )
 
 data class NavnOgIdentDto(
     val navn: String,
-    val id: String
+    val id: String,
 )
 
 data class OppdaterJournalpostRequestDto(
@@ -70,13 +70,13 @@ data class OppdaterJournalpostRequestDto(
     val tema: Tema? = Tema.KON,
     val tittel: String? = null,
     val sak: Sak? = null,
-    val dokumenter: List<DokumentInfo>? = null
+    val dokumenter: List<DokumentInfo>? = null,
 )
 
 class JournalpostBrukerDto(
     val id: String,
     val idType: IdType? = IdType.FNR,
-    val navn: String
+    val navn: String,
 )
 
 enum class IdType {
@@ -85,5 +85,5 @@ enum class IdType {
 
 enum class Sakstype(val type: String) {
     FAGSAK("FAGSAK"),
-    GENERELL_SAK("GENERELL_SAK")
+    GENERELL_SAK("GENERELL_SAK"),
 }

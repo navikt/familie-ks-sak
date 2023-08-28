@@ -67,11 +67,15 @@ data class TidslinjePeriode<T>(val periodeVerdi: PeriodeVerdi<T>, var lengde: In
     }
 
     constructor(periodeVerdi: T?, lengde: Int, erUendelig: Boolean = false) : this(
-        if (periodeVerdi == null) Null() else Verdi(
-            periodeVerdi
-        ),
+        if (periodeVerdi == null) {
+            Null()
+        } else {
+            Verdi(
+                periodeVerdi,
+            )
+        },
         lengde,
-        erUendelig
+        erUendelig,
     )
 
     override fun toString(): String {

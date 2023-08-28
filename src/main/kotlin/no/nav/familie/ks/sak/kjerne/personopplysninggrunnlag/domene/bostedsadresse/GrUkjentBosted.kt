@@ -9,7 +9,7 @@ import javax.persistence.Entity
 @DiscriminatorValue("ukjentBosted")
 data class GrUkjentBosted(
     @Column(name = "bostedskommune")
-    val bostedskommune: String
+    val bostedskommune: String,
 
 ) : GrBostedsadresse() {
 

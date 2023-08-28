@@ -91,7 +91,7 @@ class RegistrerPersonGrunnlagStegTest : OppslagSpringRunnerTest() {
         every { beregningService.finnBarnFraBehandlingMedTilkjentYtelse(behandling.id) } returns listOf(barnAktør)
         every { personOpplysningerService.hentPersoninfoEnkel(any()) } returns lagPdlPersonInfo(
             enkelPersonInfo = true,
-            erBarn = true
+            erBarn = true,
         )
 
         val gammelPersonopplysningGrunnlag = lagPersonopplysningGrunnlag(
@@ -99,7 +99,7 @@ class RegistrerPersonGrunnlagStegTest : OppslagSpringRunnerTest() {
             søkerPersonIdent = behandling.fagsak.aktør.aktivFødselsnummer(),
             søkerAktør = behandling.fagsak.aktør,
             barnasIdenter = listOf(barnAktør.aktivFødselsnummer()),
-            barnAktør = listOf(barnAktør)
+            barnAktør = listOf(barnAktør),
         )
         personopplysningGrunnlagRepository.save(gammelPersonopplysningGrunnlag)
 
@@ -107,15 +107,15 @@ class RegistrerPersonGrunnlagStegTest : OppslagSpringRunnerTest() {
             behandling.also {
                 it.status = BehandlingStatus.AVSLUTTET
                 it.aktiv = false
-            }
+            },
         )
 
         val revurdering = behandlingRepository.saveAndFlush(
             lagBehandling(
                 fagsak = behandling.fagsak,
                 type = BehandlingType.REVURDERING,
-                opprettetÅrsak = BehandlingÅrsak.SØKNAD
-            )
+                opprettetÅrsak = BehandlingÅrsak.SØKNAD,
+            ),
         )
         assertDoesNotThrow { registrerPersonGrunnlagSteg.utførSteg(revurdering.id) }
 
@@ -126,7 +126,7 @@ class RegistrerPersonGrunnlagStegTest : OppslagSpringRunnerTest() {
         verify(atMost = 1) {
             endretUtbetalingAndelService.kopierEndretUtbetalingAndelFraForrigeBehandling(
                 any(),
-                any()
+                any(),
             )
         }
 
@@ -161,7 +161,7 @@ class RegistrerPersonGrunnlagStegTest : OppslagSpringRunnerTest() {
         every { beregningService.finnBarnFraBehandlingMedTilkjentYtelse(behandling.id) } returns listOf(barnAktør)
         every { personOpplysningerService.hentPersoninfoEnkel(any()) } returns lagPdlPersonInfo(
             enkelPersonInfo = true,
-            erBarn = true
+            erBarn = true,
         )
 
         val gammelPersonopplysningGrunnlag = lagPersonopplysningGrunnlag(
@@ -169,7 +169,7 @@ class RegistrerPersonGrunnlagStegTest : OppslagSpringRunnerTest() {
             søkerPersonIdent = behandling.fagsak.aktør.aktivFødselsnummer(),
             søkerAktør = behandling.fagsak.aktør,
             barnasIdenter = listOf(barnAktør.aktivFødselsnummer()),
-            barnAktør = listOf(barnAktør)
+            barnAktør = listOf(barnAktør),
         )
         personopplysningGrunnlagRepository.save(gammelPersonopplysningGrunnlag)
         vilkårsvurderingService.opprettVilkårsvurdering(behandling, null)
@@ -178,15 +178,15 @@ class RegistrerPersonGrunnlagStegTest : OppslagSpringRunnerTest() {
             behandling.also {
                 it.status = BehandlingStatus.AVSLUTTET
                 it.aktiv = false
-            }
+            },
         )
 
         val revurdering = behandlingRepository.saveAndFlush(
             lagBehandling(
                 fagsak = behandling.fagsak,
                 type = BehandlingType.REVURDERING,
-                opprettetÅrsak = BehandlingÅrsak.ÅRLIG_KONTROLL
-            )
+                opprettetÅrsak = BehandlingÅrsak.ÅRLIG_KONTROLL,
+            ),
         )
         assertDoesNotThrow { registrerPersonGrunnlagSteg.utførSteg(revurdering.id) }
 

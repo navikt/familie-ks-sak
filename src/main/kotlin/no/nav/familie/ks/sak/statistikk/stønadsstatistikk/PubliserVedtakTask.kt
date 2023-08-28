@@ -13,11 +13,11 @@ import java.util.Properties
 @TaskStepBeskrivelse(
     taskStepType = TASK_STEP_TYPE,
     beskrivelse = "Publiser vedtakDVH til kafka Aiven",
-    maxAntallFeil = 1
+    maxAntallFeil = 1,
 )
 class PubliserVedtakTask(
     val kafkaProducer: KafkaProducer,
-    val stønadsstatistikkService: StønadsstatistikkService
+    val stønadsstatistikkService: StønadsstatistikkService,
 ) : AsyncTaskStep {
 
     override fun doTask(task: Task) {
@@ -38,7 +38,7 @@ class PubliserVedtakTask(
                 properties = Properties().apply {
                     this["personIdent"] = personIdent
                     this["behandlingsId"] = behandlingsId.toString()
-                }
+                },
             )
         }
     }

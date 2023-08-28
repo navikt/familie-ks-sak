@@ -37,17 +37,16 @@ class VilkårsvurderingController(
     private val tilgangService: TilgangService,
     private val vilkårsvurderingService: VilkårsvurderingService,
     private val annenVurderingService: AnnenVurderingService,
-    private val tilbakestillBehandlingService: TilbakestillBehandlingService
+    private val tilbakestillBehandlingService: TilbakestillBehandlingService,
 ) {
 
     @PostMapping(path = ["/{behandlingId}"])
-    fun opprettNyttVilkår(@PathVariable behandlingId: Long, @RequestBody nyttVilkårDto: NyttVilkårDto):
-        ResponseEntity<Ressurs<BehandlingResponsDto>> {
+    fun opprettNyttVilkår(@PathVariable behandlingId: Long, @RequestBody nyttVilkårDto: NyttVilkårDto): ResponseEntity<Ressurs<BehandlingResponsDto>> {
         tilgangService.validerTilgangTilHandlingOgFagsakForBehandling(
             behandlingId = behandlingId,
             event = AuditLoggerEvent.CREATE,
             minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
-            handling = "nytt vilkår"
+            handling = "nytt vilkår",
         )
 
         vilkårsvurderingService.opprettNyttVilkårPåBehandling(behandlingId, nyttVilkårDto)
@@ -60,18 +59,18 @@ class VilkårsvurderingController(
     @PutMapping(path = ["/{behandlingId}"])
     fun endreVilkår(
         @PathVariable behandlingId: Long,
-        @RequestBody endreVilkårResultatDto: EndreVilkårResultatDto
+        @RequestBody endreVilkårResultatDto: EndreVilkårResultatDto,
     ): ResponseEntity<Ressurs<BehandlingResponsDto>> {
         tilgangService.validerTilgangTilHandlingOgFagsakForBehandling(
             behandlingId = behandlingId,
             event = AuditLoggerEvent.UPDATE,
             minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
-            handling = "endre vilkår"
+            handling = "endre vilkår",
         )
 
         vilkårsvurderingService.endreVilkårPåBehandling(
             behandlingId = behandlingId,
-            endreVilkårResultatDto = endreVilkårResultatDto
+            endreVilkårResultatDto = endreVilkårResultatDto,
         )
 
         tilbakestillBehandlingService.tilbakestillBehandlingTilVilkårsvurdering(behandlingId)
@@ -83,13 +82,13 @@ class VilkårsvurderingController(
     fun slettVilkår(
         @PathVariable behandlingId: Long,
         @PathVariable vilkaarId: Long,
-        @RequestBody personIdent: String
+        @RequestBody personIdent: String,
     ): ResponseEntity<Ressurs<BehandlingResponsDto>> {
         tilgangService.validerTilgangTilHandlingOgFagsakForBehandling(
             behandlingId = behandlingId,
             event = AuditLoggerEvent.DELETE,
             minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
-            handling = "slette eller nullstill vilkår"
+            handling = "slette eller nullstill vilkår",
         )
 
         val aktør = personidentService.hentAktør(personIdent)
@@ -97,7 +96,7 @@ class VilkårsvurderingController(
         vilkårsvurderingService.slettVilkårPåBehandling(
             behandlingId,
             vilkårId = vilkaarId,
-            aktør = aktør
+            aktør = aktør,
         )
 
         tilbakestillBehandlingService.tilbakestillBehandlingTilVilkårsvurdering(behandlingId)
@@ -113,17 +112,17 @@ class VilkårsvurderingController(
     @PutMapping(path = ["/{behandlingId}/annenvurdering"])
     fun endreAnnenVurdering(
         @PathVariable behandlingId: Long,
-        @RequestBody annenVurderingDto: AnnenVurderingDto
+        @RequestBody annenVurderingDto: AnnenVurderingDto,
     ): ResponseEntity<Ressurs<BehandlingResponsDto>> {
         tilgangService.validerTilgangTilHandlingOgFagsakForBehandling(
             behandlingId = behandlingId,
             event = AuditLoggerEvent.UPDATE,
             minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
-            handling = "endre på annen vurdering"
+            handling = "endre på annen vurdering",
         )
 
         annenVurderingService.endreAnnenVurdering(
-            annenVurderingDto = annenVurderingDto
+            annenVurderingDto = annenVurderingDto,
         )
 
         return ResponseEntity.ok(Ressurs.success(behandlingService.lagBehandlingRespons(behandlingId = behandlingId)))

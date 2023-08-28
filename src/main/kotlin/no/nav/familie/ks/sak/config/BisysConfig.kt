@@ -14,7 +14,7 @@ import javax.servlet.http.HttpServletResponse
 @Profile("!integrasjonstest")
 class BisysConfig(
     private val oidcUtil: OIDCUtil,
-    private val rolleConfig: RolleConfig
+    private val rolleConfig: RolleConfig,
 ) {
 
     @Bean
@@ -29,13 +29,13 @@ class BisysConfig(
                 erKallerBisys && !erBisysRequest -> {
                     response.sendError(
                         HttpServletResponse.SC_UNAUTHORIZED,
-                        "Bisys applikasjon kan ikke kalle andre tjenester"
+                        "Bisys applikasjon kan ikke kalle andre tjenester",
                     )
                 }
                 erBisysRequest && (!harForvalterRolle && !erKallerBisys) -> {
                     response.sendError(
                         HttpServletResponse.SC_UNAUTHORIZED,
-                        "Bisys tjeneste kan kun kalles av bisys eller innlogget bruker med FORVALTER rolle"
+                        "Bisys tjeneste kan kun kalles av bisys eller innlogget bruker med FORVALTER rolle",
                     )
                 }
                 erBisysRequest && (harForvalterRolle || erKallerBisys) -> filterChain.doFilter(request, response)

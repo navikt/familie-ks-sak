@@ -35,7 +35,7 @@ class VilkårResultat(
     @SequenceGenerator(
         name = "vilkar_resultat_seq_generator",
         sequenceName = "vilkar_resultat_seq",
-        allocationSize = 50
+        allocationSize = 50,
     )
     val id: Long = 0,
 
@@ -94,7 +94,7 @@ class VilkårResultat(
     var utdypendeVilkårsvurderinger: List<UtdypendeVilkårsvurdering> = emptyList(),
 
     @Column(name = "antall_timer")
-    val antallTimer: BigDecimal? = null
+    val antallTimer: BigDecimal? = null,
 ) : BaseEntitet() {
 
     fun erAvslagUtenPeriode() = erEksplisittAvslagPåSøknad == true && periodeFom == null && periodeTom == null
@@ -123,7 +123,7 @@ class VilkårResultat(
             erEksplisittAvslagPåSøknad = this.erEksplisittAvslagPåSøknad,
             vurderesEtter = this.vurderesEtter,
             utdypendeVilkårsvurderinger = this.utdypendeVilkårsvurderinger,
-            antallTimer = antallTimer
+            antallTimer = antallTimer,
         )
     }
 
@@ -139,7 +139,7 @@ class VilkårResultat(
         periodeFom: LocalDate? = this.periodeFom,
         resultat: Resultat = this.resultat,
         periodeTom: LocalDate? = this.periodeTom,
-        begrunnelse: String = this.begrunnelse
+        begrunnelse: String = this.begrunnelse,
 
     ) = VilkårResultat(
         personResultat = personResultat ?: this.personResultat,
@@ -155,7 +155,7 @@ class VilkårResultat(
         erEksplisittAvslagPåSøknad = this.erEksplisittAvslagPåSøknad,
         vurderesEtter = this.vurderesEtter,
         utdypendeVilkårsvurderinger = this.utdypendeVilkårsvurderinger,
-        antallTimer = this.antallTimer
+        antallTimer = this.antallTimer,
     )
 
     override fun toString(): String {

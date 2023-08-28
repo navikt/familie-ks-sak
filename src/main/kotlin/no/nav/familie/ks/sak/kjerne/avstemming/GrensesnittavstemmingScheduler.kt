@@ -34,7 +34,7 @@ class GrensesnittavstemmingScheduler(private val taskService: TaskService, priva
         val alleFerdigeGrensesnittavstemmingTasker = taskService.finnTasksMedStatus(
             status = listOf(Status.FERDIG),
             type = GrensesnittavstemmingTask.TASK_STEP_TYPE,
-            page = Pageable.unpaged()
+            page = Pageable.unpaged(),
         )
         // intielt fom, tom når det ikke finnes noen tasker
         var fom = LocalDate.now().minusDays(1).atStartOfDay()

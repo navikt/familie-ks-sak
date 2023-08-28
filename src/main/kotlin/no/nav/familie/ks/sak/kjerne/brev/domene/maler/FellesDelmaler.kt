@@ -4,7 +4,7 @@ import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext
 
 data class SignaturDelmal(
     val enhet: Flettefelt,
-    val saksbehandler: Flettefelt = flettefelt(SikkerhetContext.hentSaksbehandlerNavn())
+    val saksbehandler: Flettefelt = flettefelt(SikkerhetContext.hentSaksbehandlerNavn()),
 ) {
 
     constructor(enhet: String) : this(flettefelt(enhet))
@@ -13,57 +13,57 @@ data class SignaturDelmal(
 data class SignaturVedtak(
     val enhet: Flettefelt,
     val saksbehandler: Flettefelt,
-    val beslutter: Flettefelt
+    val beslutter: Flettefelt,
 ) {
 
     constructor(enhet: String, saksbehandler: String, beslutter: String) : this(
         flettefelt(enhet),
         flettefelt(saksbehandler),
-        flettefelt(beslutter)
+        flettefelt(beslutter),
     )
 }
 
 data class Etterbetaling(
-    val etterbetalingsbelop: Flettefelt
+    val etterbetalingsbelop: Flettefelt,
 ) {
 
     constructor(etterbetalingsbeløp: String) : this(
-        flettefelt(etterbetalingsbeløp)
+        flettefelt(etterbetalingsbeløp),
     )
 }
 
 data class Hjemmeltekst(
-    val hjemler: Flettefelt
+    val hjemler: Flettefelt,
 ) {
 
     constructor(hjemler: String) : this(
-        flettefelt(hjemler)
+        flettefelt(hjemler),
     )
 }
 
 data class AutoUnderskrift(
-    val enhet: Flettefelt
+    val enhet: Flettefelt,
 ) {
 
     constructor(enhet: String) : this(
-        flettefelt(enhet)
+        flettefelt(enhet),
     )
 }
 
 data class KorrigertVedtakData(
-    val datoKorrigertVedtak: Flettefelt
+    val datoKorrigertVedtak: Flettefelt,
 ) {
 
     constructor(datoKorrigertVedtak: String) : this(
-        flettefelt(datoKorrigertVedtak)
+        flettefelt(datoKorrigertVedtak),
     )
 }
 
 data class FeilutbetaltValuta(
-    val perioderMedForMyeUtbetalt: Flettefelt
+    val perioderMedForMyeUtbetalt: Flettefelt,
 ) {
 
     constructor(perioderMedForMyeUtbetalt: Set<String>) : this(
-        flettefelt(perioderMedForMyeUtbetalt.toList())
+        flettefelt(perioderMedForMyeUtbetalt.toList()),
     )
 }

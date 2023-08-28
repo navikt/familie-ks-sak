@@ -26,7 +26,7 @@ class IverksettMotOppdragSteg(
     private val tilkjentYtelseValideringService: TilkjentYtelseValideringService,
     private val utbetalingsoppdragService: UtbetalingsoppdragService,
     private val vedtakService: VedtakService,
-    private val taskService: TaskService
+    private val taskService: TaskService,
 ) : IBehandlingSteg {
     private val iverksattOppdrag = Metrics.counter("familie.ks.sak.oppdrag.iverksatt")
 
@@ -46,7 +46,7 @@ class IverksettMotOppdragSteg(
         utbetalingsoppdragService.oppdaterTilkjentYtelseMedUtbetalingsoppdragOgIverksett(
             vedtak = vedtak,
             saksbehandlerId = (behandlingStegDto as IverksettMotOppdragDto).saksbehandlerId,
-            andelTilkjentYtelseForUtbetalingsoppdragFactory = AndelTilkjentYtelseForIverksetting.Factory
+            andelTilkjentYtelseForUtbetalingsoppdragFactory = AndelTilkjentYtelseForIverksetting.Factory,
         )
         iverksattOppdrag.increment()
 
@@ -54,7 +54,7 @@ class IverksettMotOppdragSteg(
         val sisteBehandlingSomErVedtatt = behandlingService.hentSisteBehandlingSomErVedtatt(behandling.fagsak.id)
         if (sisteBehandlingSomErVedtatt == null) {
             taskService.save(
-                SendVedtakHendelseTilInfotrygdTask.opprettTask(behandling.fagsak.aktør.aktivFødselsnummer(), behandlingId)
+                SendVedtakHendelseTilInfotrygdTask.opprettTask(behandling.fagsak.aktør.aktivFødselsnummer(), behandlingId),
             )
         }
     }
@@ -64,14 +64,14 @@ class IverksettMotOppdragSteg(
             if (it.erUgyldig()) {
                 throw Feil(
                     message = "Totrinnskontroll($it) er ugyldig ved iverksetting",
-                    frontendFeilmelding = "Totrinnskontroll er ugyldig ved iverksetting"
+                    frontendFeilmelding = "Totrinnskontroll er ugyldig ved iverksetting",
                 )
             }
 
             if (!it.godkjent) {
                 throw Feil(
                     message = "Prøver å iverksette et underkjent vedtak",
-                    frontendFeilmelding = ""
+                    frontendFeilmelding = "",
                 )
             }
         }

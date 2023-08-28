@@ -94,12 +94,12 @@ class LoggServiceTest {
         val arbeidsFordelingEnhet = ArbeidsfordelingPåBehandling(
             behandlingId = behandling.id,
             behandlendeEnhetId = "fraEnhetId",
-            behandlendeEnhetNavn = "fraEnhetNavn"
+            behandlendeEnhetNavn = "fraEnhetNavn",
         )
 
         val aktivArbeidsfordelingenhet = ArbeidsfordelingsEnhet(
             enhetId = arbeidsFordelingEnhet.behandlendeEnhetId,
-            enhetNavn = arbeidsFordelingEnhet.behandlendeEnhetNavn
+            enhetNavn = arbeidsFordelingEnhet.behandlendeEnhetNavn,
         )
 
         every { loggRepository.save(capture(lagredeLogg)) } returns mockk()
@@ -109,7 +109,7 @@ class LoggServiceTest {
             aktivArbeidsfordelingenhet,
             arbeidsFordelingEnhet,
             true,
-            "testbegrunnelse"
+            "testbegrunnelse",
         )
 
         verify(exactly = 1) { loggRepository.save(lagredeLogg[0]) }
@@ -120,7 +120,7 @@ class LoggServiceTest {
         assertThat(lagretLoggManuellOppdatering.type, Is(LoggType.BEHANDLENDE_ENHET_ENDRET))
         assertThat(
             lagretLoggManuellOppdatering.tekst,
-            Is("Behandlende enhet manuelt endret fra fraEnhetId fraEnhetNavn til fraEnhetId fraEnhetNavn.\n\ntestbegrunnelse")
+            Is("Behandlende enhet manuelt endret fra fraEnhetId fraEnhetNavn til fraEnhetId fraEnhetNavn.\n\ntestbegrunnelse"),
         )
 
         loggService.opprettBehandlendeEnhetEndret(
@@ -128,7 +128,7 @@ class LoggServiceTest {
             aktivArbeidsfordelingenhet,
             arbeidsFordelingEnhet,
             false,
-            "testbegrunnelse"
+            "testbegrunnelse",
         )
 
         verify(exactly = 1) { loggRepository.save(lagredeLogg[1]) }
@@ -139,7 +139,7 @@ class LoggServiceTest {
         assertThat(lagretLoggIkkeManuellOppdatering.type, Is(LoggType.BEHANDLENDE_ENHET_ENDRET))
         assertThat(
             lagretLoggIkkeManuellOppdatering.tekst,
-            Is("Behandlende enhet automatisk endret fra fraEnhetId fraEnhetNavn til fraEnhetId fraEnhetNavn.\n\ntestbegrunnelse")
+            Is("Behandlende enhet automatisk endret fra fraEnhetId fraEnhetNavn til fraEnhetId fraEnhetNavn.\n\ntestbegrunnelse"),
         )
     }
 
@@ -218,7 +218,7 @@ class LoggServiceTest {
         loggService.opprettVilkårsvurderingLogg(
             behandling,
             Behandlingsresultat.IKKE_VURDERT,
-            Behandlingsresultat.INNVILGET
+            Behandlingsresultat.INNVILGET,
         )
 
         verify(exactly = 1) { loggRepository.save(slot.captured) }
@@ -251,8 +251,8 @@ class LoggServiceTest {
             lagretLogg.tekst,
             Is(
                 "Resultat gikk fra ${behandlingsforrigeResultat.displayName.lowercase()} " +
-                    "til ${behandlingsNyResultat.displayName.lowercase()}"
-            )
+                    "til ${behandlingsNyResultat.displayName.lowercase()}",
+            ),
         )
         assertThat(lagretLogg.tittel, Is("Vilkårsvurdering endret"))
     }
@@ -279,7 +279,7 @@ class LoggServiceTest {
         loggService.opprettOppdaterVentingLogg(
             behandling = behandling,
             endretFrist = nyFrist,
-            null
+            null,
         )
 
         verify(exactly = 1) { loggRepository.save(slot.captured) }
@@ -383,14 +383,14 @@ class LoggServiceTest {
         val opprettetLogg = loggService.opprettEndretBehandlingstemaLogg(
             behandling,
             forrigeKategori,
-            nyKategori
+            nyKategori,
         )
 
         assertThat(opprettetLogg.behandlingId, Is(behandling.id))
         assertThat(opprettetLogg.type, Is(LoggType.BEHANDLINGSTEMA_ENDRET))
         assertThat(
             opprettetLogg.tekst,
-            Is(("Behandlingstema er manuelt endret fra $forrigeKategori ordinær til $nyKategori ordinær"))
+            Is(("Behandlingstema er manuelt endret fra $forrigeKategori ordinær til $nyKategori ordinær")),
         )
     }
 
@@ -401,19 +401,19 @@ class LoggServiceTest {
             fom = LocalDate.of(2020, 12, 12),
             tom = LocalDate.of(2022, 12, 12),
             id = 0,
-            feilutbetaltBeløp = 200
+            feilutbetaltBeløp = 200,
         )
 
         every { loggRepository.save(any()) } returnsArgument 0
 
         val opprettetLoggOmFeilutbetaltValutaLagtTil = loggService.opprettFeilutbetaltValutaLagtTilLogg(
-            feilutbetaltValuta
+            feilutbetaltValuta,
         )
 
         assertThat(opprettetLoggOmFeilutbetaltValutaLagtTil.type, Is(LoggType.FEILUTBETALT_VALUTA_LAGT_TIL))
         assertThat(
             opprettetLoggOmFeilutbetaltValutaLagtTil.tekst,
-            Is(("Periode: 12.12.20 - 12.12.22\nBeløp: 200 kr"))
+            Is(("Periode: 12.12.20 - 12.12.22\nBeløp: 200 kr")),
         )
 
         verify(exactly = 1) { loggRepository.save(opprettetLoggOmFeilutbetaltValutaLagtTil) }
@@ -426,19 +426,19 @@ class LoggServiceTest {
             fom = LocalDate.of(2020, 12, 12),
             tom = LocalDate.of(2022, 12, 12),
             id = 0,
-            feilutbetaltBeløp = 200
+            feilutbetaltBeløp = 200,
         )
 
         every { loggRepository.save(any()) } returnsArgument 0
 
         val opprettetLoggOmFeilutbetaltValutaFjernet = loggService.opprettFeilutbetaltValutaFjernetLogg(
-            feilutbetaltValuta
+            feilutbetaltValuta,
         )
 
         assertThat(opprettetLoggOmFeilutbetaltValutaFjernet.type, Is(LoggType.FEILUTBETALT_VALUTA_FJERNET))
         assertThat(
             opprettetLoggOmFeilutbetaltValutaFjernet.tekst,
-            Is(("Periode: 12.12.20 - 12.12.22\nBeløp: 200 kr"))
+            Is(("Periode: 12.12.20 - 12.12.22\nBeløp: 200 kr")),
         )
 
         verify(exactly = 1) { loggRepository.save(opprettetLoggOmFeilutbetaltValutaFjernet) }

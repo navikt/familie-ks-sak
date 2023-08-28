@@ -21,7 +21,7 @@ data class InfotrygdPeriode(
     @Schema(implementation = String::class, example = "2022-12")
     val tomMåned: YearMonth?,
     val beløp: Int,
-    val barna: List<String>
+    val barna: List<String>,
 )
 
 data class KsSakPeriode(
@@ -29,7 +29,7 @@ data class KsSakPeriode(
     val fomMåned: YearMonth,
     @Schema(implementation = String::class, example = "2022-12")
     val tomMåned: YearMonth?,
-    val barn: Barn
+    val barn: Barn,
 )
 
 data class Barn(val beløp: Int, val ident: String)

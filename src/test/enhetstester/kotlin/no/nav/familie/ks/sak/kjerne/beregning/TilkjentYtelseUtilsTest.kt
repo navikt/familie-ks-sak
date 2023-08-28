@@ -46,7 +46,7 @@ internal class TilkjentYtelseUtilsTest {
         søkerPersonIdent = søker.aktivFødselsnummer(),
         barnasIdenter = listOf(barn1.aktivFødselsnummer()),
         søkerAktør = søker,
-        barnAktør = listOf(barn1)
+        barnAktør = listOf(barn1),
     )
     private val barnPerson = lagPerson(personopplysningGrunnlag, barn1, PersonType.BARN)
     private val søkerPerson = lagPerson(personopplysningGrunnlag, søker, PersonType.SØKER)
@@ -62,7 +62,7 @@ internal class TilkjentYtelseUtilsTest {
             behandling = behandling,
             resultat = Resultat.OPPFYLT,
             søkerPeriodeFom = LocalDate.of(1987, 1, 1),
-            søkerPeriodeTom = null
+            søkerPeriodeTom = null,
         )
     }
 
@@ -80,21 +80,21 @@ internal class TilkjentYtelseUtilsTest {
             personResultat = personResultatForBarn,
             barnFødselsdato = barnFødselsdato,
             barnehageplassPerioder = listOf(barnehagePlassPeriodeMedAntallTimer),
-            behandlingId = behandling.id
+            behandlingId = behandling.id,
         )
         personResultatForBarn.setSortedVilkårResultater(vilkårResultaterForBarn)
         vilkårsvurdering.personResultater += personResultatForBarn
 
         val tilkjentYtelse = TilkjentYtelseUtils.beregnTilkjentYtelse(
             vilkårsvurdering = vilkårsvurdering,
-            personopplysningGrunnlag = personopplysningGrunnlag
+            personopplysningGrunnlag = personopplysningGrunnlag,
         )
         assertTilkjentYtelse(tilkjentYtelse, 1)
         assertAndelTilkjentYtelse(
             andelTilkjentYtelse = tilkjentYtelse.andelerTilkjentYtelse.first(),
             prosent = BigDecimal(100),
             periodeFom = fom.plusMonths(1).førsteDagIInneværendeMåned(),
-            periodeTom = tom.minusMonths(1).sisteDagIMåned()
+            periodeTom = tom.minusMonths(1).sisteDagIMåned(),
         )
     }
 
@@ -111,21 +111,21 @@ internal class TilkjentYtelseUtilsTest {
             personResultat = personResultatForBarn,
             barnFødselsdato = barnFødselsdato,
             barnehageplassPerioder = listOf(barnehagePlassPeriodeMedAntallTimer),
-            behandlingId = behandling.id
+            behandlingId = behandling.id,
         )
         personResultatForBarn.setSortedVilkårResultater(vilkårResultaterForBarn)
         vilkårsvurdering.personResultater += personResultatForBarn
 
         val tilkjentYtelse = TilkjentYtelseUtils.beregnTilkjentYtelse(
             vilkårsvurdering = vilkårsvurdering,
-            personopplysningGrunnlag = personopplysningGrunnlag
+            personopplysningGrunnlag = personopplysningGrunnlag,
         )
         assertTilkjentYtelse(tilkjentYtelse, 1)
         assertAndelTilkjentYtelse(
             andelTilkjentYtelse = tilkjentYtelse.andelerTilkjentYtelse.first(),
             prosent = BigDecimal(80),
             periodeFom = fom.plusMonths(1).førsteDagIInneværendeMåned(),
-            periodeTom = tom.minusMonths(1).sisteDagIMåned()
+            periodeTom = tom.minusMonths(1).sisteDagIMåned(),
         )
     }
 
@@ -140,34 +140,34 @@ internal class TilkjentYtelseUtilsTest {
 
         val barnehagePlassPerioderMedAntallTimer = listOf(
             NullablePeriode(førstePeriodeFom, førstePeriodeTom) to BigDecimal(8),
-            NullablePeriode(andrePeriodeFom, andrePeriodeTom) to null
+            NullablePeriode(andrePeriodeFom, andrePeriodeTom) to null,
         )
 
         val vilkårResultaterForBarn = lagVilkårResultaterForBarn(
             personResultat = personResultatForBarn,
             barnFødselsdato = barnFødselsdato,
             barnehageplassPerioder = barnehagePlassPerioderMedAntallTimer,
-            behandlingId = behandling.id
+            behandlingId = behandling.id,
         )
         personResultatForBarn.setSortedVilkårResultater(vilkårResultaterForBarn)
         vilkårsvurdering.personResultater += personResultatForBarn
 
         val tilkjentYtelse = TilkjentYtelseUtils.beregnTilkjentYtelse(
             vilkårsvurdering = vilkårsvurdering,
-            personopplysningGrunnlag = personopplysningGrunnlag
+            personopplysningGrunnlag = personopplysningGrunnlag,
         )
         assertTilkjentYtelse(tilkjentYtelse, 2)
         assertAndelTilkjentYtelse(
             andelTilkjentYtelse = tilkjentYtelse.andelerTilkjentYtelse.first(),
             prosent = BigDecimal(80),
             periodeFom = førstePeriodeFom.plusMonths(1).førsteDagIInneværendeMåned(),
-            periodeTom = førstePeriodeTom.sisteDagIMåned()
+            periodeTom = førstePeriodeTom.sisteDagIMåned(),
         )
         assertAndelTilkjentYtelse(
             andelTilkjentYtelse = tilkjentYtelse.andelerTilkjentYtelse.last(),
             prosent = BigDecimal(100),
             periodeFom = andrePeriodeFom.plusMonths(1).førsteDagIInneværendeMåned(),
-            periodeTom = barnFødselsdato.plusYears(2).minusMonths(1).sisteDagIMåned()
+            periodeTom = barnFødselsdato.plusYears(2).minusMonths(1).sisteDagIMåned(),
         )
     }
 
@@ -182,34 +182,34 @@ internal class TilkjentYtelseUtilsTest {
 
         val barnehagePlassPerioderMedAntallTimer = listOf(
             NullablePeriode(førstePeriodeFom, førstePeriodeTom) to BigDecimal(8),
-            NullablePeriode(andrePeriodeFom, andrePeriodeTom) to BigDecimal(17)
+            NullablePeriode(andrePeriodeFom, andrePeriodeTom) to BigDecimal(17),
         )
 
         val vilkårResultaterForBarn = lagVilkårResultaterForBarn(
             personResultat = personResultatForBarn,
             barnFødselsdato = barnFødselsdato,
             barnehageplassPerioder = barnehagePlassPerioderMedAntallTimer,
-            behandlingId = behandling.id
+            behandlingId = behandling.id,
         )
         personResultatForBarn.setSortedVilkårResultater(vilkårResultaterForBarn)
         vilkårsvurdering.personResultater += personResultatForBarn
 
         val tilkjentYtelse = TilkjentYtelseUtils.beregnTilkjentYtelse(
             vilkårsvurdering = vilkårsvurdering,
-            personopplysningGrunnlag = personopplysningGrunnlag
+            personopplysningGrunnlag = personopplysningGrunnlag,
         )
         assertTilkjentYtelse(tilkjentYtelse, 2)
         assertAndelTilkjentYtelse(
             andelTilkjentYtelse = tilkjentYtelse.andelerTilkjentYtelse.first(),
             prosent = BigDecimal(80),
             periodeFom = førstePeriodeFom.plusMonths(1).førsteDagIInneværendeMåned(),
-            periodeTom = førstePeriodeTom.minusMonths(1).sisteDagIMåned()
+            periodeTom = førstePeriodeTom.minusMonths(1).sisteDagIMåned(),
         )
         assertAndelTilkjentYtelse(
             andelTilkjentYtelse = tilkjentYtelse.andelerTilkjentYtelse.last(),
             prosent = BigDecimal(40),
             periodeFom = andrePeriodeFom.førsteDagIInneværendeMåned(),
-            periodeTom = barnFødselsdato.plusYears(2).minusMonths(1).sisteDagIMåned()
+            periodeTom = barnFødselsdato.plusYears(2).minusMonths(1).sisteDagIMåned(),
         )
     }
 
@@ -224,34 +224,34 @@ internal class TilkjentYtelseUtilsTest {
 
         val barnehagePlassPerioderMedAntallTimer = listOf(
             NullablePeriode(førstePeriodeFom, førstePeriodeTom) to null,
-            NullablePeriode(andrePeriodeFom, andrePeriodeTom) to BigDecimal(8)
+            NullablePeriode(andrePeriodeFom, andrePeriodeTom) to BigDecimal(8),
         )
 
         val vilkårResultaterForBarn = lagVilkårResultaterForBarn(
             personResultat = personResultatForBarn,
             barnFødselsdato = barnFødselsdato,
             barnehageplassPerioder = barnehagePlassPerioderMedAntallTimer,
-            behandlingId = behandling.id
+            behandlingId = behandling.id,
         )
         personResultatForBarn.setSortedVilkårResultater(vilkårResultaterForBarn)
         vilkårsvurdering.personResultater += personResultatForBarn
 
         val tilkjentYtelse = TilkjentYtelseUtils.beregnTilkjentYtelse(
             vilkårsvurdering = vilkårsvurdering,
-            personopplysningGrunnlag = personopplysningGrunnlag
+            personopplysningGrunnlag = personopplysningGrunnlag,
         )
         assertTilkjentYtelse(tilkjentYtelse, 2)
         assertAndelTilkjentYtelse(
             andelTilkjentYtelse = tilkjentYtelse.andelerTilkjentYtelse.first(),
             prosent = BigDecimal(100),
             periodeFom = førstePeriodeFom.plusMonths(1).førsteDagIInneværendeMåned(),
-            periodeTom = førstePeriodeTom.minusMonths(1).sisteDagIMåned()
+            periodeTom = førstePeriodeTom.minusMonths(1).sisteDagIMåned(),
         )
         assertAndelTilkjentYtelse(
             andelTilkjentYtelse = tilkjentYtelse.andelerTilkjentYtelse.last(),
             prosent = BigDecimal(80),
             periodeFom = andrePeriodeFom.førsteDagIInneværendeMåned(),
-            periodeTom = barnFødselsdato.plusYears(2).minusMonths(1).sisteDagIMåned()
+            periodeTom = barnFødselsdato.plusYears(2).minusMonths(1).sisteDagIMåned(),
         )
     }
 
@@ -266,14 +266,14 @@ internal class TilkjentYtelseUtilsTest {
 
         // kan ikke legge til full barnehageplass her fordi det gir IKKE_OPPFYLT vilkår resultat
         val barnehagePlassPerioderMedAntallTimer = listOf(
-            NullablePeriode(førstePeriodeFom, førstePeriodeTom) to BigDecimal(8)
+            NullablePeriode(førstePeriodeFom, førstePeriodeTom) to BigDecimal(8),
         )
 
         val vilkårResultaterForBarn = lagVilkårResultaterForBarn(
             personResultat = personResultatForBarn,
             barnFødselsdato = barnFødselsdato,
             barnehageplassPerioder = barnehagePlassPerioderMedAntallTimer,
-            behandlingId = behandling.id
+            behandlingId = behandling.id,
         ).toMutableSet()
         // full barnehageplass vilkår
         val fullBarnehageplassVilkår = VilkårResultat(
@@ -284,7 +284,7 @@ internal class TilkjentYtelseUtilsTest {
             periodeTom = andrePeriodeTom,
             begrunnelse = "",
             behandlingId = behandling.id,
-            antallTimer = BigDecimal(33)
+            antallTimer = BigDecimal(33),
         )
         vilkårResultaterForBarn.add(fullBarnehageplassVilkår)
         personResultatForBarn.setSortedVilkårResultater(vilkårResultaterForBarn)
@@ -292,14 +292,14 @@ internal class TilkjentYtelseUtilsTest {
 
         val tilkjentYtelse = TilkjentYtelseUtils.beregnTilkjentYtelse(
             vilkårsvurdering = vilkårsvurdering,
-            personopplysningGrunnlag = personopplysningGrunnlag
+            personopplysningGrunnlag = personopplysningGrunnlag,
         )
         assertTilkjentYtelse(tilkjentYtelse, 1)
         assertAndelTilkjentYtelse(
             andelTilkjentYtelse = tilkjentYtelse.andelerTilkjentYtelse.first(),
             prosent = BigDecimal(80),
             periodeFom = førstePeriodeFom.plusMonths(1).førsteDagIInneværendeMåned(),
-            periodeTom = førstePeriodeTom.minusMonths(1).sisteDagIMåned()
+            periodeTom = førstePeriodeTom.minusMonths(1).sisteDagIMåned(),
         )
     }
 
@@ -314,14 +314,14 @@ internal class TilkjentYtelseUtilsTest {
 
         // kan ikke legge til full barnehageplass her fordi det gir IKKE_OPPFYLT vilkår resultat
         val barnehagePlassPerioderMedAntallTimer = listOf(
-            NullablePeriode(andrePeriodeFom, andrePeriodeTom) to BigDecimal(8)
+            NullablePeriode(andrePeriodeFom, andrePeriodeTom) to BigDecimal(8),
         )
 
         val vilkårResultaterForBarn = lagVilkårResultaterForBarn(
             personResultat = personResultatForBarn,
             barnFødselsdato = barnFødselsdato,
             barnehageplassPerioder = barnehagePlassPerioderMedAntallTimer,
-            behandlingId = behandling.id
+            behandlingId = behandling.id,
         ).toMutableSet()
         // full barnehageplass vilkår
         val fullBarnehageplassVilkår = VilkårResultat(
@@ -332,7 +332,7 @@ internal class TilkjentYtelseUtilsTest {
             periodeTom = førstePeriodeTom,
             begrunnelse = "",
             behandlingId = behandling.id,
-            antallTimer = BigDecimal(33)
+            antallTimer = BigDecimal(33),
         )
         vilkårResultaterForBarn.add(fullBarnehageplassVilkår)
         personResultatForBarn.setSortedVilkårResultater(vilkårResultaterForBarn)
@@ -340,14 +340,14 @@ internal class TilkjentYtelseUtilsTest {
 
         val tilkjentYtelse = TilkjentYtelseUtils.beregnTilkjentYtelse(
             vilkårsvurdering = vilkårsvurdering,
-            personopplysningGrunnlag = personopplysningGrunnlag
+            personopplysningGrunnlag = personopplysningGrunnlag,
         )
         assertTilkjentYtelse(tilkjentYtelse, 1)
         assertAndelTilkjentYtelse(
             andelTilkjentYtelse = tilkjentYtelse.andelerTilkjentYtelse.first(),
             prosent = BigDecimal(80),
             periodeFom = andrePeriodeFom.plusMonths(1).førsteDagIInneværendeMåned(),
-            periodeTom = barnFødselsdato.plusYears(2).minusMonths(1).sisteDagIMåned()
+            periodeTom = barnFødselsdato.plusYears(2).minusMonths(1).sisteDagIMåned(),
         )
     }
 
@@ -363,14 +363,14 @@ internal class TilkjentYtelseUtilsTest {
         // kan ikke legge til full barnehageplass her fordi det gir IKKE_OPPFYLT vilkår resultat
         val barnehagePlassPerioderMedAntallTimer = listOf(
             NullablePeriode(førstePeriodeFom, førstePeriodeTom) to BigDecimal(17),
-            NullablePeriode(andrePeriodeFom, andrePeriodeTom) to BigDecimal(8)
+            NullablePeriode(andrePeriodeFom, andrePeriodeTom) to BigDecimal(8),
         )
 
         val vilkårResultaterForBarn = lagVilkårResultaterForBarn(
             personResultat = personResultatForBarn,
             barnFødselsdato = barnFødselsdato,
             barnehageplassPerioder = barnehagePlassPerioderMedAntallTimer,
-            behandlingId = behandling.id
+            behandlingId = behandling.id,
         )
 
         personResultatForBarn.setSortedVilkårResultater(vilkårResultaterForBarn)
@@ -378,20 +378,20 @@ internal class TilkjentYtelseUtilsTest {
 
         val tilkjentYtelse = TilkjentYtelseUtils.beregnTilkjentYtelse(
             vilkårsvurdering = vilkårsvurdering,
-            personopplysningGrunnlag = personopplysningGrunnlag
+            personopplysningGrunnlag = personopplysningGrunnlag,
         )
         assertTilkjentYtelse(tilkjentYtelse, 2)
         assertAndelTilkjentYtelse(
             andelTilkjentYtelse = tilkjentYtelse.andelerTilkjentYtelse.first(),
             prosent = BigDecimal(40),
             periodeFom = førstePeriodeFom.plusMonths(1).førsteDagIInneværendeMåned(),
-            periodeTom = førstePeriodeTom.sisteDagIMåned()
+            periodeTom = førstePeriodeTom.sisteDagIMåned(),
         )
         assertAndelTilkjentYtelse(
             andelTilkjentYtelse = tilkjentYtelse.andelerTilkjentYtelse.last(),
             prosent = BigDecimal(80),
             periodeFom = andrePeriodeFom.plusMonths(1).førsteDagIInneværendeMåned(),
-            periodeTom = barnFødselsdato.plusYears(2).minusMonths(1).sisteDagIMåned()
+            periodeTom = barnFødselsdato.plusYears(2).minusMonths(1).sisteDagIMåned(),
         )
     }
 
@@ -407,14 +407,14 @@ internal class TilkjentYtelseUtilsTest {
         // kan ikke legge til full barnehageplass her fordi det gir IKKE_OPPFYLT vilkår resultat
         val barnehagePlassPerioderMedAntallTimer = listOf(
             NullablePeriode(førstePeriodeFom, førstePeriodeTom) to BigDecimal(17),
-            NullablePeriode(andrePeriodeFom, andrePeriodeTom) to BigDecimal(8)
+            NullablePeriode(andrePeriodeFom, andrePeriodeTom) to BigDecimal(8),
         )
 
         val vilkårResultaterForBarn = lagVilkårResultaterForBarn(
             personResultat = personResultatForBarn,
             barnFødselsdato = barnFødselsdato,
             barnehageplassPerioder = barnehagePlassPerioderMedAntallTimer,
-            behandlingId = behandling.id
+            behandlingId = behandling.id,
         )
 
         personResultatForBarn.setSortedVilkårResultater(vilkårResultaterForBarn)
@@ -422,20 +422,20 @@ internal class TilkjentYtelseUtilsTest {
 
         val tilkjentYtelse = TilkjentYtelseUtils.beregnTilkjentYtelse(
             vilkårsvurdering = vilkårsvurdering,
-            personopplysningGrunnlag = personopplysningGrunnlag
+            personopplysningGrunnlag = personopplysningGrunnlag,
         )
         assertTilkjentYtelse(tilkjentYtelse, 2)
         assertAndelTilkjentYtelse(
             andelTilkjentYtelse = tilkjentYtelse.andelerTilkjentYtelse.first(),
             prosent = BigDecimal(40),
             periodeFom = førstePeriodeFom.plusMonths(1).førsteDagIInneværendeMåned(),
-            periodeTom = førstePeriodeTom
+            periodeTom = førstePeriodeTom,
         )
         assertAndelTilkjentYtelse(
             andelTilkjentYtelse = tilkjentYtelse.andelerTilkjentYtelse.last(),
             prosent = BigDecimal(80),
             periodeFom = andrePeriodeFom,
-            periodeTom = barnFødselsdato.plusYears(2).minusMonths(1).sisteDagIMåned()
+            periodeTom = barnFødselsdato.plusYears(2).minusMonths(1).sisteDagIMåned(),
         )
     }
 
@@ -451,14 +451,14 @@ internal class TilkjentYtelseUtilsTest {
         // kan ikke legge til full barnehageplass her fordi det gir IKKE_OPPFYLT vilkår resultat
         val barnehagePlassPerioderMedAntallTimer = listOf(
             NullablePeriode(førstePeriodeFom, førstePeriodeTom) to BigDecimal(8),
-            NullablePeriode(andrePeriodeFom, andrePeriodeTom) to BigDecimal(17)
+            NullablePeriode(andrePeriodeFom, andrePeriodeTom) to BigDecimal(17),
         )
 
         val vilkårResultaterForBarn = lagVilkårResultaterForBarn(
             personResultat = personResultatForBarn,
             barnFødselsdato = barnFødselsdato,
             barnehageplassPerioder = barnehagePlassPerioderMedAntallTimer,
-            behandlingId = behandling.id
+            behandlingId = behandling.id,
         )
 
         personResultatForBarn.setSortedVilkårResultater(vilkårResultaterForBarn)
@@ -466,20 +466,20 @@ internal class TilkjentYtelseUtilsTest {
 
         val tilkjentYtelse = TilkjentYtelseUtils.beregnTilkjentYtelse(
             vilkårsvurdering = vilkårsvurdering,
-            personopplysningGrunnlag = personopplysningGrunnlag
+            personopplysningGrunnlag = personopplysningGrunnlag,
         )
         assertTilkjentYtelse(tilkjentYtelse, 2)
         assertAndelTilkjentYtelse(
             andelTilkjentYtelse = tilkjentYtelse.andelerTilkjentYtelse.first(),
             prosent = BigDecimal(80),
             periodeFom = førstePeriodeFom.plusMonths(1).førsteDagIInneværendeMåned(),
-            periodeTom = førstePeriodeTom.sisteDagIMåned()
+            periodeTom = førstePeriodeTom.sisteDagIMåned(),
         )
         assertAndelTilkjentYtelse(
             andelTilkjentYtelse = tilkjentYtelse.andelerTilkjentYtelse.last(),
             prosent = BigDecimal(40),
             periodeFom = andrePeriodeFom.førsteDagIInneværendeMåned(),
-            periodeTom = barnFødselsdato.plusYears(2).minusMonths(1).sisteDagIMåned()
+            periodeTom = barnFødselsdato.plusYears(2).minusMonths(1).sisteDagIMåned(),
         )
     }
 
@@ -493,8 +493,8 @@ internal class TilkjentYtelseUtilsTest {
                 stønadFom = fom,
                 stønadTom = tom,
                 aktør = søker,
-                behandling = behandling
-            )
+                behandling = behandling,
+            ),
         )
 
         val endretProsent = BigDecimal.ZERO
@@ -504,7 +504,7 @@ internal class TilkjentYtelseUtilsTest {
             person = søkerPerson,
             periodeFom = fom,
             periodeTom = tom,
-            prosent = BigDecimal.ZERO
+            prosent = BigDecimal.ZERO,
         )
 
         val endretUtbetalingAndelMedAndelerTilkjentYtelse =
@@ -512,7 +512,7 @@ internal class TilkjentYtelseUtilsTest {
 
         val andelerTilkjentYtelse = oppdaterTilkjentYtelseMedEndretUtbetalingAndeler(
             utbetalingsandeler,
-            listOf(endretUtbetalingAndelMedAndelerTilkjentYtelse)
+            listOf(endretUtbetalingAndelMedAndelerTilkjentYtelse),
         )
 
         assertEquals(1, andelerTilkjentYtelse.size)
@@ -533,14 +533,14 @@ internal class TilkjentYtelseUtilsTest {
                 stønadFom = fom1,
                 stønadTom = tom1,
                 aktør = søker,
-                behandling = behandling
+                behandling = behandling,
             ),
             lagAndelTilkjentYtelse(
                 stønadFom = fom2,
                 stønadTom = tom2,
                 aktør = søker,
-                behandling = behandling
-            )
+                behandling = behandling,
+            ),
         )
 
         val endretProsent = BigDecimal.ZERO
@@ -550,7 +550,7 @@ internal class TilkjentYtelseUtilsTest {
             person = søkerPerson,
             periodeFom = fom1,
             periodeTom = tom2,
-            prosent = BigDecimal.ZERO
+            prosent = BigDecimal.ZERO,
         )
 
         val endretUtbetalingAndelMedAndelerTilkjentYtelse1 =
@@ -560,7 +560,7 @@ internal class TilkjentYtelseUtilsTest {
             behandlingId = behandling.id,
             person = søkerPerson,
             periodeFom = tom2.nesteMåned(),
-            prosent = endretProsent
+            prosent = endretProsent,
         )
 
         val endretUtbetalingAndelMedAndelerTilkjentYtelse2 =
@@ -568,7 +568,7 @@ internal class TilkjentYtelseUtilsTest {
 
         val andelerTilkjentYtelse = oppdaterTilkjentYtelseMedEndretUtbetalingAndeler(
             utbetalingsandeler,
-            listOf(endretUtbetalingAndelMedAndelerTilkjentYtelse1, endretUtbetalingAndelMedAndelerTilkjentYtelse2)
+            listOf(endretUtbetalingAndelMedAndelerTilkjentYtelse1, endretUtbetalingAndelMedAndelerTilkjentYtelse2),
         )
 
         assertEquals(2, andelerTilkjentYtelse.size)
@@ -577,7 +577,7 @@ internal class TilkjentYtelseUtilsTest {
         andelerTilkjentYtelse.forEach {
             assertEquals(
                 endretUtbetalingAndel.id,
-                it.endreteUtbetalinger.single().id
+                it.endreteUtbetalinger.single().id,
             )
         }
     }
@@ -592,7 +592,7 @@ internal class TilkjentYtelseUtilsTest {
         andelTilkjentYtelse: AndelTilkjentYtelse,
         prosent: BigDecimal,
         periodeFom: LocalDate,
-        periodeTom: LocalDate
+        periodeTom: LocalDate,
     ) {
         assertEquals(barn1, andelTilkjentYtelse.aktør)
         assertEquals(YtelseType.ORDINÆR_KONTANTSTØTTE, andelTilkjentYtelse.type)

@@ -20,7 +20,7 @@ class TilgangService(
     private val integrasjonService: IntegrasjonService,
     private val personidentService: PersonidentService,
     private val cacheManager: CacheManager,
-    private val auditLogger: AuditLogger
+    private val auditLogger: AuditLogger,
 ) {
 
     /**
@@ -37,14 +37,14 @@ class TilgangService(
         ) {
             throw RolleTilgangskontrollFeil(
                 melding = "${SikkerhetContext.hentSaksbehandlerNavn()} " +
-                    "har ikke tilgang til å $handling. Krever $minimumBehandlerRolle"
+                    "har ikke tilgang til å $handling. Krever $minimumBehandlerRolle",
             )
         }
         val høyesteRolletilgang = SikkerhetContext.hentHøyesteRolletilgangForInnloggetBruker(rolleConfig)
         if (minimumBehandlerRolle.nivå > høyesteRolletilgang.nivå) {
             throw RolleTilgangskontrollFeil(
                 melding = "${SikkerhetContext.hentSaksbehandlerNavn()} med rolle $høyesteRolletilgang " +
-                    "har ikke tilgang til å $handling. Krever $minimumBehandlerRolle."
+                    "har ikke tilgang til å $handling. Krever $minimumBehandlerRolle.",
             )
         }
     }
@@ -60,14 +60,14 @@ class TilgangService(
         personIdenter: List<String>,
         event: AuditLoggerEvent,
         minimumBehandlerRolle: BehandlerRolle,
-        handling: String
+        handling: String,
     ) {
         validerTilgangTilHandling(minimumBehandlerRolle, handling)
         loggPersonoppslag(personIdenter, event)
         if (!harTilgangTilPersoner(personIdenter)) {
             throw RolleTilgangskontrollFeil(
                 melding = "Saksbehandler ${SikkerhetContext.hentSaksbehandler()} " +
-                    "har ikke tilgang til å behandle $personIdenter"
+                    "har ikke tilgang til å behandle $personIdenter",
             )
         }
     }
@@ -83,7 +83,7 @@ class TilgangService(
         behandlingId: Long,
         event: AuditLoggerEvent,
         minimumBehandlerRolle: BehandlerRolle,
-        handling: String
+        handling: String,
     ) {
         val fagsakId = behandlingRepository.hentBehandling(behandlingId).fagsak.id
         validerTilgangTilHandlingOgFagsak(fagsakId, event, minimumBehandlerRolle, handling)
@@ -100,7 +100,7 @@ class TilgangService(
         fagsakId: Long,
         event: AuditLoggerEvent,
         minimumBehandlerRolle: BehandlerRolle,
-        handling: String
+        handling: String,
     ) {
         validerTilgangTilHandling(minimumBehandlerRolle, handling)
         val harTilgang = harSaksbehandlerTilgang("validerTilgangTilFagsak", fagsakId) {
@@ -117,7 +117,7 @@ class TilgangService(
         if (!harTilgang) {
             throw RolleTilgangskontrollFeil(
                 melding = "Saksbehandler ${SikkerhetContext.hentSaksbehandler()} " +
-                    "har ikke tilgang til fagsak=$fagsakId."
+                    "har ikke tilgang til fagsak=$fagsakId.",
             )
         }
     }
@@ -133,7 +133,7 @@ class TilgangService(
         personIdent: String,
         event: AuditLoggerEvent,
         minimumBehandlerRolle: BehandlerRolle,
-        handling: String
+        handling: String,
     ) {
         val aktør = personidentService.hentOgLagreAktør(personIdent, true)
         val fagsakId = fagsakService.hentFagsakForPerson(aktør).id
@@ -141,7 +141,7 @@ class TilgangService(
     }
 
     private fun harTilgangTilPersoner(
-        personIdenter: List<String>
+        personIdenter: List<String>,
     ): Boolean {
         return harSaksbehandlerTilgang("validerTilgangTilPersoner", personIdenter) {
             integrasjonService.sjekkTilgangTilPersoner(personIdenter).harTilgang
@@ -157,7 +157,7 @@ class TilgangService(
     private fun loggPersonoppslag(
         personIdenter: List<String>,
         event: AuditLoggerEvent,
-        customKeyValue: CustomKeyValue? = null
+        customKeyValue: CustomKeyValue? = null,
     ) {
         personIdenter.forEach { auditLogger.log(Sporingsdata(event, it, customKeyValue)) }
     }

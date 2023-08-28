@@ -23,7 +23,7 @@ data class GrArbeidsforhold(
     @SequenceGenerator(
         name = "po_arbeidsforhold_seq_generator",
         sequenceName = "po_arbeidsforhold_seq",
-        allocationSize = 50
+        allocationSize = 50,
     )
     val id: Long = 0,
 
@@ -39,5 +39,5 @@ data class GrArbeidsforhold(
     @JsonIgnore
     @ManyToOne(optional = false)
     @JoinColumn(name = "fk_po_person_id", nullable = false, updatable = false)
-    val person: Person
+    val person: Person,
 ) : BaseEntitet()

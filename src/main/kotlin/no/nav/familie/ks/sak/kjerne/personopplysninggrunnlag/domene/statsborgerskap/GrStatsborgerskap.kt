@@ -29,7 +29,7 @@ data class GrStatsborgerskap(
     @SequenceGenerator(
         name = "po_statsborgerskap_seq_generator",
         sequenceName = "po_statsborgerskap_seq",
-        allocationSize = 50
+        allocationSize = 50,
     )
     val id: Long = 0,
 
@@ -46,7 +46,7 @@ data class GrStatsborgerskap(
     @JsonIgnore
     @ManyToOne(optional = false)
     @JoinColumn(name = "fk_po_person_id", nullable = false, updatable = false)
-    val person: Person
+    val person: Person,
 ) : BaseEntitet() {
 
     fun gjeldendeNå(): Boolean = gyldigPeriode?.erInnenfor(LocalDate.now()) ?: true
@@ -72,11 +72,11 @@ data class GrStatsborgerskap(
             GrStatsborgerskap(
                 gyldigPeriode = DatoIntervallEntitet(
                     fom = statsborgerskap.bekreftelsesdato ?: statsborgerskap.gyldigFraOgMed,
-                    tom = statsborgerskap.gyldigTilOgMed
+                    tom = statsborgerskap.gyldigTilOgMed,
                 ),
                 landkode = statsborgerskap.land,
                 medlemskap = medlemskap,
-                person = person
+                person = person,
             )
     }
 }

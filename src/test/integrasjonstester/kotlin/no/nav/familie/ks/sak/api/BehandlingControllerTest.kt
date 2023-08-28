@@ -42,8 +42,8 @@ class BehandlingControllerTest : OppslagSpringRunnerTest() {
             ArbeidsfordelingPåBehandling(
                 behandlingId = behandling.id,
                 behandlendeEnhetId = "test",
-                behandlendeEnhetNavn = "test"
-            )
+                behandlendeEnhetNavn = "test",
+            ),
         )
 
         every { integrasjonClient.hentLand(any()) } returns "Norge"
@@ -114,7 +114,7 @@ class BehandlingControllerTest : OppslagSpringRunnerTest() {
             50,
             "nyNavn",
             "nyEnhetNr",
-            "nyStatus"
+            "nyStatus",
         )
 
         Given {
@@ -137,7 +137,7 @@ class BehandlingControllerTest : OppslagSpringRunnerTest() {
 
         every { integrasjonClient.sjekkTilgangTilPersoner(listOf(fagsak.aktør.aktivFødselsnummer())) } returns Tilgang(
             true,
-            "test"
+            "test",
         )
 
         Given {
@@ -148,9 +148,9 @@ class BehandlingControllerTest : OppslagSpringRunnerTest() {
                     OpprettBehandlingDto(
                         søkersIdent = fagsak.aktør.aktivFødselsnummer(),
                         behandlingType = BehandlingType.FØRSTEGANGSBEHANDLING,
-                        kategori = BehandlingKategori.NASJONAL
-                    )
-                )
+                        kategori = BehandlingKategori.NASJONAL,
+                    ),
+                ),
             )
         } When {
             post(behandlingControllerUrl)
@@ -158,11 +158,11 @@ class BehandlingControllerTest : OppslagSpringRunnerTest() {
             body("status", Is("FUNKSJONELL_FEIL"))
             body(
                 "melding",
-                Is("Kan ikke lage ny behandling. Fagsaken har en aktiv behandling som ikke er ferdigstilt.")
+                Is("Kan ikke lage ny behandling. Fagsaken har en aktiv behandling som ikke er ferdigstilt."),
             )
             body(
                 "frontendFeilmelding",
-                Is("Kan ikke lage ny behandling. Fagsaken har en aktiv behandling som ikke er ferdigstilt.")
+                Is("Kan ikke lage ny behandling. Fagsaken har en aktiv behandling som ikke er ferdigstilt."),
             )
         }
     }

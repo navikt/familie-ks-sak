@@ -72,8 +72,8 @@ class VilkårsvurderingControllerTest : OppslagSpringRunnerTest() {
             ArbeidsfordelingPåBehandling(
                 behandlingId = behandling.id,
                 behandlendeEnhetId = "test",
-                behandlendeEnhetNavn = "test"
-            )
+                behandlendeEnhetNavn = "test",
+            ),
         )
         lagBehandlingStegTilstand(behandling, BehandlingSteg.VILKÅRSVURDERING, BehandlingStegStatus.KLAR)
         lagreBehandling(behandling)
@@ -125,7 +125,7 @@ class VilkårsvurderingControllerTest : OppslagSpringRunnerTest() {
         } Then {
             body(
                 "data.personResultater[0].vilkårResultater.find {it.vilkårType == 'BOSATT_I_RIKET'}.periodeFom",
-                Is("2022-10-06")
+                Is("2022-10-06"),
             )
             statusCode(HttpStatus.OK.value())
         }
@@ -183,7 +183,7 @@ class VilkårsvurderingControllerTest : OppslagSpringRunnerTest() {
         } Then {
             body(
                 "data.personResultater[0].vilkårResultater.find {it.vilkårType == 'BOSATT_I_RIKET'}.periodeFom",
-                Is("2022-10-06")
+                Is("2022-10-06"),
             )
             statusCode(HttpStatus.OK.value())
         }
@@ -219,7 +219,7 @@ class VilkårsvurderingControllerTest : OppslagSpringRunnerTest() {
             body("melding", Is("Det finnes allerede uvurderte vilkår av samme vilkårType"))
             body(
                 "frontendFeilmelding",
-                Is("Du må ferdigstille vilkårsvurderingen på en periode som allerede er påbegynt, før du kan legge til en ny periode")
+                Is("Du må ferdigstille vilkårsvurderingen på en periode som allerede er påbegynt, før du kan legge til en ny periode"),
             )
         }
     }
@@ -245,7 +245,7 @@ class VilkårsvurderingControllerTest : OppslagSpringRunnerTest() {
             body("data.personResultater[0].vilkårResultater.size()", Is(3))
             body(
                 "data.personResultater[0].vilkårResultater.find {it.vilkårType == 'BOR_MED_SØKER'}",
-                Is(notNullValue())
+                Is(notNullValue()),
             )
         }
     }
@@ -281,7 +281,7 @@ class VilkårsvurderingControllerTest : OppslagSpringRunnerTest() {
             body("data.personResultater[0].vilkårResultater.size()", Is(3))
             body(
                 "data.personResultater[0].vilkårResultater.find {it.vilkårType == 'BOR_MED_SØKER'}",
-                Is(notNullValue())
+                Is(notNullValue()),
             )
         }
 
@@ -337,7 +337,7 @@ class VilkårsvurderingControllerTest : OppslagSpringRunnerTest() {
         } Then {
             body(
                 "data.personResultater[0].vilkårResultater.find {it.vilkårType == 'BOSATT_I_RIKET'}.id",
-                Is(not(gammelVilkårId))
+                Is(not(gammelVilkårId)),
             )
             body("status", Is("SUKSESS"))
         }
@@ -376,8 +376,8 @@ class VilkårsvurderingControllerTest : OppslagSpringRunnerTest() {
         val annenVurdering = annenVurderingRepository.saveAndFlush(
             AnnenVurdering(
                 personResultat = personResultat!!,
-                type = AnnenVurderingType.OPPLYSNINGSPLIKT
-            )
+                type = AnnenVurderingType.OPPLYSNINGSPLIKT,
+            ),
         )
         val request =
             """
@@ -398,11 +398,11 @@ class VilkårsvurderingControllerTest : OppslagSpringRunnerTest() {
         } Then {
             body(
                 "data.personResultater[0].andreVurderinger[0].resultat",
-                Is(Resultat.OPPFYLT.name)
+                Is(Resultat.OPPFYLT.name),
             )
             body(
                 "data.personResultater[0].andreVurderinger[0].begrunnelse",
-                Is("Begrunnelse")
+                Is("Begrunnelse"),
             )
         }
     }
@@ -418,12 +418,12 @@ class VilkårsvurderingControllerTest : OppslagSpringRunnerTest() {
     private fun assertBehandlingHarStegOgStatus(
         behandling: Behandling,
         behandlingSteg: BehandlingSteg,
-        behandlingStegStatus: BehandlingStegStatus
+        behandlingStegStatus: BehandlingStegStatus,
     ) =
         assertTrue(
             behandling.behandlingStegTilstand.any {
                 it.behandlingSteg == behandlingSteg &&
                     it.behandlingStegStatus == behandlingStegStatus
-            }
+            },
         )
 }

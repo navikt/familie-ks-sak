@@ -5,14 +5,14 @@ import java.time.LocalDate
 
 data class ForlengetSvartidsbrevDto(
     override val mal: Brevmal = Brevmal.FORLENGET_SVARTIDSBREV,
-    override val data: ForlengetSvartidsbrevDataDto
+    override val data: ForlengetSvartidsbrevDataDto,
 ) : BrevDto {
     constructor(
         navn: String,
         fodselsnummer: String,
         enhetNavn: String,
         årsaker: List<String>,
-        antallUkerSvarfrist: Int
+        antallUkerSvarfrist: Int,
     ) : this(
         data = ForlengetSvartidsbrevDataDto(
             delmalData = ForlengetSvartidsbrevDataDto.DelmalData(signatur = SignaturDelmal(enhet = enhetNavn)),
@@ -20,25 +20,25 @@ data class ForlengetSvartidsbrevDto(
                 navn = flettefelt(navn),
                 fodselsnummer = flettefelt(fodselsnummer),
                 antallUkerSvarfrist = flettefelt(antallUkerSvarfrist.toString()),
-                aarsakerSvartidsbrev = flettefelt(årsaker)
-            )
-        )
+                aarsakerSvartidsbrev = flettefelt(årsaker),
+            ),
+        ),
     )
 }
 
 data class ForlengetSvartidsbrevDataDto(
     override val delmalData: DelmalData,
-    override val flettefelter: FlettefelterDto
+    override val flettefelter: FlettefelterDto,
 ) : BrevDataDto {
     data class FlettefelterDto(
         override val navn: Flettefelt,
         override val fodselsnummer: Flettefelt,
         override val brevOpprettetDato: Flettefelt = flettefelt(LocalDate.now().tilDagMånedÅr()),
         val antallUkerSvarfrist: Flettefelt,
-        val aarsakerSvartidsbrev: Flettefelt
+        val aarsakerSvartidsbrev: Flettefelt,
     ) : FlettefelterForDokumentDto
 
     data class DelmalData(
-        val signatur: SignaturDelmal
+        val signatur: SignaturDelmal,
     )
 }

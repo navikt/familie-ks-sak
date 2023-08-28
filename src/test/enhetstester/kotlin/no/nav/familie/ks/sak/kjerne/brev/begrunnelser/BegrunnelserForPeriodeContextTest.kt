@@ -33,7 +33,7 @@ class BegrunnelserForPeriodeContextTest {
         barnasIdenter = listOf(barnAktør.aktivFødselsnummer()),
         barnAktør = listOf(barnAktør),
         søkerPersonIdent = søkerAktør.aktivFødselsnummer(),
-        søkerAktør = søkerAktør
+        søkerAktør = søkerAktør,
     )
     private val vilkårOppfyltFom = LocalDate.now().minusMonths(8)
     private val vilkårOppfyltTom = LocalDate.now()
@@ -46,8 +46,8 @@ class BegrunnelserForPeriodeContextTest {
             vilkårResultater = lagVilkårResultaterForVilkårTyper(
                 vilkårTyper = Vilkår.hentVilkårFor(PersonType.BARN),
                 fom = vilkårOppfyltFom,
-                tom = vilkårOppfyltTom
-            )
+                tom = vilkårOppfyltTom,
+            ),
         )
         val personResultatSøker = PersonResultat(
             aktør = søkerAktør,
@@ -55,19 +55,19 @@ class BegrunnelserForPeriodeContextTest {
             vilkårResultater = lagVilkårResultaterForVilkårTyper(
                 vilkårTyper = Vilkår.hentVilkårFor(PersonType.SØKER),
                 fom = vilkårOppfyltFom,
-                tom = vilkårOppfyltTom
-            )
+                tom = vilkårOppfyltTom,
+            ),
         )
         val personResultater = listOf(
             personResultatBarn,
-            personResultatSøker
+            personResultatSøker,
         )
 
         val begrunnelser =
             lagFinnGyldigeBegrunnelserForPeriodeContext(
                 personResultater,
                 lagSanitybegrunnelser(),
-                barnAktør
+                barnAktør,
             ).hentGyldigeBegrunnelserForVedtaksperiode()
 
         assertEquals(1, begrunnelser.size)
@@ -84,9 +84,9 @@ class BegrunnelserForPeriodeContextTest {
                     vilkårType = Vilkår.BARNETS_ALDER,
                     periodeFom = vilkårOppfyltFom,
                     periodeTom = vilkårOppfyltTom,
-                    utdypendeVilkårsvurderinger = listOf(UtdypendeVilkårsvurdering.ADOPSJON)
-                )
-            )
+                    utdypendeVilkårsvurderinger = listOf(UtdypendeVilkårsvurdering.ADOPSJON),
+                ),
+            ),
         )
         personResultatBarn.vilkårResultater.addAll(
             lagVilkårResultaterForVilkårTyper(
@@ -94,11 +94,11 @@ class BegrunnelserForPeriodeContextTest {
                     Vilkår.BARNEHAGEPLASS,
                     Vilkår.BOR_MED_SØKER,
                     Vilkår.MEDLEMSKAP_ANNEN_FORELDER,
-                    Vilkår.BOSATT_I_RIKET
+                    Vilkår.BOSATT_I_RIKET,
                 ),
                 fom = vilkårOppfyltFom,
-                tom = vilkårOppfyltTom
-            )
+                tom = vilkårOppfyltTom,
+            ),
         )
         val personResultatSøker = PersonResultat(
             aktør = søkerAktør,
@@ -106,19 +106,19 @@ class BegrunnelserForPeriodeContextTest {
             vilkårResultater = lagVilkårResultaterForVilkårTyper(
                 vilkårTyper = Vilkår.hentVilkårFor(PersonType.SØKER),
                 fom = vilkårOppfyltFom,
-                tom = vilkårOppfyltTom
-            )
+                tom = vilkårOppfyltTom,
+            ),
         )
         val personResultater = listOf(
             personResultatBarn,
-            personResultatSøker
+            personResultatSøker,
         )
 
         val begrunnelser =
             lagFinnGyldigeBegrunnelserForPeriodeContext(
                 personResultater,
                 lagSanitybegrunnelser(),
-                barnAktør
+                barnAktør,
             ).hentGyldigeBegrunnelserForVedtaksperiode()
 
         assertEquals(1, begrunnelser.size)
@@ -135,9 +135,9 @@ class BegrunnelserForPeriodeContextTest {
                     vilkårType = Vilkår.BARNEHAGEPLASS,
                     periodeFom = vilkårOppfyltFom,
                     periodeTom = vilkårOppfyltTom,
-                    antallTimer = BigDecimal.valueOf(8)
-                )
-            )
+                    antallTimer = BigDecimal.valueOf(8),
+                ),
+            ),
         )
         personResultatBarn.vilkårResultater.addAll(
             lagVilkårResultaterForVilkårTyper(
@@ -145,11 +145,11 @@ class BegrunnelserForPeriodeContextTest {
                     Vilkår.BARNETS_ALDER,
                     Vilkår.BOR_MED_SØKER,
                     Vilkår.MEDLEMSKAP_ANNEN_FORELDER,
-                    Vilkår.BOSATT_I_RIKET
+                    Vilkår.BOSATT_I_RIKET,
                 ),
                 fom = vilkårOppfyltFom,
-                tom = vilkårOppfyltTom
-            )
+                tom = vilkårOppfyltTom,
+            ),
         )
         val personResultatSøker = PersonResultat(
             aktør = søkerAktør,
@@ -157,19 +157,19 @@ class BegrunnelserForPeriodeContextTest {
             vilkårResultater = lagVilkårResultaterForVilkårTyper(
                 vilkårTyper = Vilkår.hentVilkårFor(PersonType.SØKER),
                 fom = vilkårOppfyltFom,
-                tom = vilkårOppfyltTom
-            )
+                tom = vilkårOppfyltTom,
+            ),
         )
         val personResultater = listOf(
             personResultatBarn,
-            personResultatSøker
+            personResultatSøker,
         )
 
         val begrunnelser =
             lagFinnGyldigeBegrunnelserForPeriodeContext(
                 personResultater,
                 lagSanitybegrunnelser(),
-                barnAktør
+                barnAktør,
             ).hentGyldigeBegrunnelserForVedtaksperiode()
 
         assertEquals(1, begrunnelser.size)
@@ -186,26 +186,26 @@ class BegrunnelserForPeriodeContextTest {
                     vilkårType = Vilkår.BARNEHAGEPLASS,
                     periodeFom = vilkårOppfyltFom,
                     periodeTom = vilkårOppfyltTom,
-                    antallTimer = BigDecimal.valueOf(8)
+                    antallTimer = BigDecimal.valueOf(8),
                 ),
                 lagVilkårResultat(
                     vilkårType = Vilkår.BARNETS_ALDER,
                     periodeFom = vilkårOppfyltFom,
                     periodeTom = vilkårOppfyltTom,
-                    utdypendeVilkårsvurderinger = listOf(UtdypendeVilkårsvurdering.ADOPSJON)
-                )
-            )
+                    utdypendeVilkårsvurderinger = listOf(UtdypendeVilkårsvurdering.ADOPSJON),
+                ),
+            ),
         )
         personResultatBarn.vilkårResultater.addAll(
             lagVilkårResultaterForVilkårTyper(
                 setOf(
                     Vilkår.BOR_MED_SØKER,
                     Vilkår.MEDLEMSKAP_ANNEN_FORELDER,
-                    Vilkår.BOSATT_I_RIKET
+                    Vilkår.BOSATT_I_RIKET,
                 ),
                 fom = vilkårOppfyltFom,
-                tom = vilkårOppfyltTom
-            )
+                tom = vilkårOppfyltTom,
+            ),
         )
         val personResultatSøker = PersonResultat(
             aktør = søkerAktør,
@@ -213,19 +213,19 @@ class BegrunnelserForPeriodeContextTest {
             vilkårResultater = lagVilkårResultaterForVilkårTyper(
                 vilkårTyper = Vilkår.hentVilkårFor(PersonType.SØKER),
                 fom = vilkårOppfyltFom,
-                tom = vilkårOppfyltTom
-            )
+                tom = vilkårOppfyltTom,
+            ),
         )
         val personResultater = listOf(
             personResultatBarn,
-            personResultatSøker
+            personResultatSøker,
         )
 
         val begrunnelser =
             lagFinnGyldigeBegrunnelserForPeriodeContext(
                 personResultater,
                 lagSanitybegrunnelser(),
-                barnAktør
+                barnAktør,
             ).hentGyldigeBegrunnelserForVedtaksperiode()
 
         assertEquals(1, begrunnelser.size)
@@ -246,7 +246,7 @@ class BegrunnelserForPeriodeContextTest {
             endretUtbetalingsperiode = emptyList(),
             endringsårsaker = emptyList(),
             støtterFritekst = false,
-            skalAlltidVises = false
+            skalAlltidVises = false,
         )
         val personResultatBarn = PersonResultat(
             aktør = barnAktør,
@@ -256,18 +256,18 @@ class BegrunnelserForPeriodeContextTest {
                     Vilkår.BARNEHAGEPLASS,
                     Vilkår.BOSATT_I_RIKET,
                     Vilkår.BOR_MED_SØKER,
-                    Vilkår.MEDLEMSKAP_ANNEN_FORELDER
+                    Vilkår.MEDLEMSKAP_ANNEN_FORELDER,
                 ),
                 fom = vilkårOppfyltFom,
-                tom = vilkårOppfyltTom
-            )
+                tom = vilkårOppfyltTom,
+            ),
         )
         personResultatBarn.vilkårResultater.add(
             lagVilkårResultat(
                 vilkårType = Vilkår.BARNETS_ALDER,
                 periodeFom = vilkårOppfyltFom.plusDays(15),
-                periodeTom = vilkårOppfyltTom.minusDays(15)
-            )
+                periodeTom = vilkårOppfyltTom.minusDays(15),
+            ),
         )
         val personResultatSøker = PersonResultat(
             aktør = søkerAktør,
@@ -275,18 +275,18 @@ class BegrunnelserForPeriodeContextTest {
             vilkårResultater = lagVilkårResultaterForVilkårTyper(
                 vilkårTyper = Vilkår.hentVilkårFor(PersonType.SØKER),
                 fom = vilkårOppfyltFom,
-                tom = vilkårOppfyltTom
-            )
+                tom = vilkårOppfyltTom,
+            ),
         )
         val personResultater = listOf(
             personResultatBarn,
-            personResultatSøker
+            personResultatSøker,
         )
 
         val begrunnelser = lagFinnGyldigeBegrunnelserForPeriodeContext(
             personResultater,
             lagSanitybegrunnelser() + barn1årSanityBegrunnelse,
-            barnAktør
+            barnAktør,
         ).hentGyldigeBegrunnelserForVedtaksperiode()
 
         assertEquals(2, begrunnelser.size)
@@ -294,8 +294,8 @@ class BegrunnelserForPeriodeContextTest {
             begrunnelser,
             containsInAnyOrder(
                 Begrunnelse.INNVILGET_BOSATT_I_NORGE,
-                Begrunnelse.INNVILGET_IKKE_BARNEHAGE
-            )
+                Begrunnelse.INNVILGET_IKKE_BARNEHAGE,
+            ),
         )
     }
 
@@ -314,8 +314,8 @@ class BegrunnelserForPeriodeContextTest {
                 endringsårsaker = emptyList(),
                 endretUtbetalingsperiode = emptyList(),
                 støtterFritekst = false,
-                skalAlltidVises = false
-            )
+                skalAlltidVises = false,
+            ),
         )
         val personResultatBarn = PersonResultat(
             aktør = barnAktør,
@@ -323,8 +323,8 @@ class BegrunnelserForPeriodeContextTest {
             vilkårResultater = lagVilkårResultaterForVilkårTyper(
                 vilkårTyper = Vilkår.hentVilkårFor(PersonType.BARN),
                 fom = vilkårOppfyltFom,
-                tom = vilkårOppfyltTom
-            )
+                tom = vilkårOppfyltTom,
+            ),
         )
 
         val personResultatSøker = PersonResultat(
@@ -332,29 +332,29 @@ class BegrunnelserForPeriodeContextTest {
             vilkårsvurdering = mockk(),
             vilkårResultater = lagVilkårResultaterForVilkårTyper(
                 vilkårTyper = setOf(
-                    Vilkår.MEDLEMSKAP
+                    Vilkår.MEDLEMSKAP,
                 ),
                 fom = vilkårOppfyltFom,
-                tom = vilkårOppfyltTom
-            )
+                tom = vilkårOppfyltTom,
+            ),
         )
 
         personResultatSøker.vilkårResultater.add(
             lagVilkårResultat(
                 vilkårType = Vilkår.BOSATT_I_RIKET,
                 periodeFom = vilkårOppfyltFom.plusMonths(2),
-                periodeTom = vilkårOppfyltTom.minusDays(15)
-            )
+                periodeTom = vilkårOppfyltTom.minusDays(15),
+            ),
         )
         val personResultater = listOf(
             personResultatBarn,
-            personResultatSøker
+            personResultatSøker,
         )
 
         val begrunnelser = lagFinnGyldigeBegrunnelserForPeriodeContext(
             personResultater,
             lagSanitybegrunnelser() + bosattIRiketBegrunnelser,
-            søkerAktør
+            søkerAktør,
         ).hentGyldigeBegrunnelserForVedtaksperiode()
 
         assertEquals(2, begrunnelser.size)
@@ -362,8 +362,8 @@ class BegrunnelserForPeriodeContextTest {
             begrunnelser,
             containsInAnyOrder(
                 Begrunnelse.INNVILGET_IKKE_BARNEHAGE,
-                Begrunnelse.INNVILGET_BOR_FAST_HOS_SØKER
-            )
+                Begrunnelse.INNVILGET_BOR_FAST_HOS_SØKER,
+            ),
         )
     }
 
@@ -380,7 +380,7 @@ class BegrunnelserForPeriodeContextTest {
             endretUtbetalingsperiode = emptyList(),
             endringsårsaker = emptyList(),
             støtterFritekst = false,
-            skalAlltidVises = false
+            skalAlltidVises = false,
         ),
         SanityBegrunnelse(
             apiNavn = Begrunnelse.INNVILGET_IKKE_BARNEHAGE_ADOPSJON.sanityApiNavn,
@@ -394,7 +394,7 @@ class BegrunnelserForPeriodeContextTest {
             endretUtbetalingsperiode = emptyList(),
             endringsårsaker = emptyList(),
             støtterFritekst = false,
-            skalAlltidVises = false
+            skalAlltidVises = false,
         ),
         SanityBegrunnelse(
             apiNavn = Begrunnelse.INNVILGET_DELTID_BARNEHAGE.sanityApiNavn,
@@ -408,7 +408,7 @@ class BegrunnelserForPeriodeContextTest {
             endretUtbetalingsperiode = emptyList(),
             endringsårsaker = emptyList(),
             støtterFritekst = false,
-            skalAlltidVises = false
+            skalAlltidVises = false,
         ),
         SanityBegrunnelse(
             apiNavn = Begrunnelse.INNVILGET_DELTID_BARNEHAGE_ADOPSJON.sanityApiNavn,
@@ -422,21 +422,21 @@ class BegrunnelserForPeriodeContextTest {
             endretUtbetalingsperiode = emptyList(),
             endringsårsaker = emptyList(),
             støtterFritekst = false,
-            skalAlltidVises = false
-        )
+            skalAlltidVises = false,
+        ),
     )
 
     private fun lagVilkårResultaterForVilkårTyper(
         vilkårTyper: Set<Vilkår>,
         fom: LocalDate,
-        tom: LocalDate
+        tom: LocalDate,
     ): MutableSet<VilkårResultat> =
         vilkårTyper.map { lagVilkårResultat(vilkårType = it, periodeFom = fom, periodeTom = tom) }.toMutableSet()
 
     private fun lagFinnGyldigeBegrunnelserForPeriodeContext(
         personResultater: List<PersonResultat>,
         sanityBegrunnelser: List<SanityBegrunnelse>,
-        aktørSomTriggerVedtaksperiode: Aktør
+        aktørSomTriggerVedtaksperiode: Aktør,
     ): BegrunnelserForPeriodeContext {
         // Må forskyve personresultatene for å finne riktig dato for vedtaksperiode.
         val vedtaksperiodeStartsTidpunkt =
@@ -451,8 +451,8 @@ class BegrunnelserForPeriodeContextTest {
             begrunnelser = emptyList(),
             utbetalingsperiodeDetaljer = listOf(
                 lagUtbetalingsperiodeDetalj(person = lagPerson(aktør = søkerAktør, personType = PersonType.SØKER)),
-                lagUtbetalingsperiodeDetalj(person = lagPerson(aktør = barnAktør, personType = PersonType.BARN))
-            )
+                lagUtbetalingsperiodeDetalj(person = lagPerson(aktør = barnAktør, personType = PersonType.BARN)),
+            ),
         )
 
         return BegrunnelserForPeriodeContext(
@@ -461,7 +461,7 @@ class BegrunnelserForPeriodeContextTest {
             personopplysningGrunnlag = persongrunnlag,
             personResultater = personResultater,
             endretUtbetalingsandeler = emptyList(),
-            erFørsteVedtaksperiode = false
+            erFørsteVedtaksperiode = false,
         )
     }
 }

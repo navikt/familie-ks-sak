@@ -9,7 +9,7 @@ import java.time.LocalDate
 
 @Service
 class KonsistensavstemmingKjøreplanService(
-    private val konsistensavstemmingKjøreplanRepository: KonsistensavstemmingKjøreplanRepository
+    private val konsistensavstemmingKjøreplanRepository: KonsistensavstemmingKjøreplanRepository,
 ) {
 
     fun plukkLedigKjøreplanFor(dato: LocalDate): KonsistensavstemmingKjøreplan? {

@@ -12,7 +12,7 @@ data class SimuleringResponsDto(
     val tomDatoNestePeriode: LocalDate?,
     val forfallsdatoNestePeriode: LocalDate?,
     val tidSimuleringHentet: LocalDate?,
-    val tomSisteUtbetaling: LocalDate?
+    val tomSisteUtbetaling: LocalDate?,
 )
 
 data class SimuleringsPeriodeDto(
@@ -23,5 +23,5 @@ data class SimuleringsPeriodeDto(
     val tidligereUtbetalt: BigDecimal,
     val resultat: BigDecimal,
     val feilutbetaling: BigDecimal,
-    val etterbetaling: BigDecimal
+    val etterbetaling: BigDecimal,
 )

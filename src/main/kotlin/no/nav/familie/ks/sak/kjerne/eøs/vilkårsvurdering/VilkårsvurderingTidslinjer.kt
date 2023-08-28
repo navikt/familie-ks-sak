@@ -12,7 +12,7 @@ import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Personopplys
 
 class VilkårsvurderingTidslinjer(
     vilkårsvurdering: Vilkårsvurdering,
-    personopplysningGrunnlag: PersonopplysningGrunnlag
+    personopplysningGrunnlag: PersonopplysningGrunnlag,
 ) {
     private val barna: List<Aktør> = personopplysningGrunnlag.barna.map { it.aktør }
     private val søker: Aktør = personopplysningGrunnlag.søker.aktør

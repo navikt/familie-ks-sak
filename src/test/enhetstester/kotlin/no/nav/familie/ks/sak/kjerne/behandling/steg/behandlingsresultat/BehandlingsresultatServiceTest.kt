@@ -58,16 +58,16 @@ class BehandlingsresultatServiceTest {
                 EndretUtbetalingAndel(
                     behandlingId = behandling.id,
                     erEksplisittAvslagPåSøknad = false,
-                    person = it
+                    person = it,
                 ),
-                emptyList()
+                emptyList(),
             )
         }
 
         every { personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(behandling.id) } returns personopplysningGrunnlag
         every {
             andelerTilkjentYtelseOgEndreteUtbetalingerService.finnEndreteUtbetalingerMedAndelerTilkjentYtelse(
-                behandlingId = behandling.id
+                behandlingId = behandling.id,
             )
         } returns andelerMedEndringer
 
@@ -76,7 +76,7 @@ class BehandlingsresultatServiceTest {
             personerFremslitKravFor = emptyList(),
             forrigeAndelerMedEndringer = emptyList(),
             vilkårsvurdering = vilkårsvurdering,
-            andelerMedEndringer = emptyList()
+            andelerMedEndringer = emptyList(),
         )
 
         assertThat(behandlingsresulatPersoner.all { it.eksplisittAvslag }, Is(false))
@@ -94,16 +94,16 @@ class BehandlingsresultatServiceTest {
                 EndretUtbetalingAndel(
                     behandlingId = behandling.id,
                     erEksplisittAvslagPåSøknad = true,
-                    person = it
+                    person = it,
                 ),
-                emptyList()
+                emptyList(),
             )
         }
 
         every { personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(behandling.id) } returns personopplysningGrunnlag
         every {
             andelerTilkjentYtelseOgEndreteUtbetalingerService.finnEndreteUtbetalingerMedAndelerTilkjentYtelse(
-                behandlingId = behandling.id
+                behandlingId = behandling.id,
             )
         } returns andelerMedEndringer
 
@@ -112,7 +112,7 @@ class BehandlingsresultatServiceTest {
             personerFremslitKravFor = emptyList(),
             forrigeAndelerMedEndringer = emptyList(),
             vilkårsvurdering = vilkårsvurdering,
-            andelerMedEndringer = emptyList()
+            andelerMedEndringer = emptyList(),
         )
 
         assertThat(behandlingsresulatPersoner.all { it.eksplisittAvslag }, Is(true))
@@ -131,16 +131,16 @@ class BehandlingsresultatServiceTest {
                 EndretUtbetalingAndel(
                     behandlingId = behandling.id,
                     erEksplisittAvslagPåSøknad = false,
-                    person = it
+                    person = it,
                 ),
-                emptyList()
+                emptyList(),
             )
         }
 
         every { personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(behandling.id) } returns personopplysningGrunnlag
         every {
             andelerTilkjentYtelseOgEndreteUtbetalingerService.finnEndreteUtbetalingerMedAndelerTilkjentYtelse(
-                behandlingId = behandling.id
+                behandlingId = behandling.id,
             )
         } returns andelerMedEndringer
 
@@ -149,7 +149,7 @@ class BehandlingsresultatServiceTest {
             personerFremslitKravFor = emptyList(),
             forrigeAndelerMedEndringer = emptyList(),
             vilkårsvurdering = vilkårsvurdering,
-            andelerMedEndringer = emptyList()
+            andelerMedEndringer = emptyList(),
         )
 
         assertThat(behandlingsresulatPersoner.all { it.eksplisittAvslag }, Is(true))

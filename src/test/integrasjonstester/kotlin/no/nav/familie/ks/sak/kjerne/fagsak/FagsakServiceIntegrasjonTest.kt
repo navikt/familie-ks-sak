@@ -57,7 +57,7 @@ class FagsakServiceIntegrasjonTest : OppslagSpringRunnerTest() {
 
         opprettOgLagreAndeler(
             behandling = behandling,
-            offsetPåAndeler = listOf(1L)
+            offsetPåAndeler = listOf(1L),
         )
 
         val løpendeFagsaker = fagsakRepository.finnLøpendeFagsaker()
@@ -81,7 +81,7 @@ class FagsakServiceIntegrasjonTest : OppslagSpringRunnerTest() {
 
         opprettOgLagreAndeler(
             behandling = søkersBehandling,
-            offsetPåAndeler = listOf(1L)
+            offsetPåAndeler = listOf(1L),
         )
 
         val tilkjentYtelse = tilkjentYtelseRepository.hentTilkjentYtelseForBehandling(søkersBehandling.id)
@@ -97,7 +97,7 @@ class FagsakServiceIntegrasjonTest : OppslagSpringRunnerTest() {
     private fun opprettOgLagreAndeler(
         behandling: Behandling,
         offsetPåAndeler: List<Long> = emptyList(),
-        erIverksatt: Boolean = true
+        erIverksatt: Boolean = true,
     ): Behandling {
         val tilkjentYtelse = tilkjentYtelse(behandling = behandling, erIverksatt = erIverksatt)
         tilkjentYtelseRepository.save(tilkjentYtelse)
@@ -106,8 +106,8 @@ class FagsakServiceIntegrasjonTest : OppslagSpringRunnerTest() {
                 andelPåTilkjentYtelse(
                     tilkjentYtelse = tilkjentYtelse,
                     periodeOffset = it,
-                    aktør = behandling.fagsak.aktør
-                )
+                    aktør = behandling.fagsak.aktør,
+                ),
             )
         }
         return behandling
@@ -117,13 +117,13 @@ class FagsakServiceIntegrasjonTest : OppslagSpringRunnerTest() {
         behandling = behandling,
         opprettetDato = LocalDate.now(),
         endretDato = LocalDate.now(),
-        utbetalingsoppdrag = if (erIverksatt) "Skal ikke være null" else null
+        utbetalingsoppdrag = if (erIverksatt) "Skal ikke være null" else null,
     )
 
     private fun andelPåTilkjentYtelse(
         tilkjentYtelse: TilkjentYtelse,
         periodeOffset: Long,
-        aktør: Aktør = randomAktør()
+        aktør: Aktør = randomAktør(),
     ) = AndelTilkjentYtelse(
         aktør = aktør,
         behandlingId = tilkjentYtelse.behandling.id,
@@ -140,6 +140,6 @@ class FagsakServiceIntegrasjonTest : OppslagSpringRunnerTest() {
         periodeOffset = periodeOffset,
         forrigePeriodeOffset = null,
         sats = 1054,
-        prosent = BigDecimal(100)
+        prosent = BigDecimal(100),
     )
 }
