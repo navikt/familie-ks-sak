@@ -10,6 +10,7 @@ plugins {
     id("org.jetbrains.kotlin.plugin.jpa") version kotlinVersion
     id("org.jetbrains.kotlin.plugin.allopen") version kotlinVersion
     id("com.github.davidmc24.gradle.plugin.avro") version "1.5.0"
+    id("org.jlleitschuh.gradle.ktlint") version "11.5.1"
 }
 
 group = "no.nav"
