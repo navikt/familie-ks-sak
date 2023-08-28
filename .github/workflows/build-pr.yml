@@ -27,6 +27,7 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           reporter: github-check
           ktlint_version: 0.50.0
+          custom_rule_path: ~/.m2/repository/com/pinterest/ktlint/ktlint-ruleset-standard/0.50.0/ktlint-ruleset-standard-0.50.0.jar
   enhetstester:
     name: Enhetstester
     runs-on: ubuntu-latest-8-cores
