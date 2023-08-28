@@ -68,7 +68,7 @@ class StønadsstatistikkService(
 
         return utbetalingsPeriodeDetaljer.map {
             val andelerForPeriode = it.verdi
-            val sumUtbetalingsbeløp = andelerForPeriode.sumOf {andel -> andel.kalkulertUtbetalingsbeløp }
+            val sumUtbetalingsbeløp = andelerForPeriode.sumOf { andel -> andel.kalkulertUtbetalingsbeløp }
 
             UtbetalingsperiodeDVH(
                 hjemmel = "Ikke implementert",

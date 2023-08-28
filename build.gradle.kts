@@ -16,6 +16,9 @@ plugins {
 group = "no.nav"
 version = "0.0.1-SNAPSHOT"
 java.sourceCompatibility = JavaVersion.VERSION_17
+configure<org.jlleitschuh.gradle.ktlint.KtlintExtension> {
+    version.set("0.47.1")
+}
 
 repositories {
     mavenCentral()
@@ -102,7 +105,7 @@ dependencies {
     implementation("io.sentry:sentry-logback:$sentryVersion")
     implementation("io.micrometer:micrometer-registry-prometheus")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.14.0")
-    implementation("com.pinterest:ktlint:0.50.0")
+    implementation("com.pinterest:ktlint:0.47.1")
     implementation("com.neovisionaries:nv-i18n:1.29")
 
     testImplementation("io.mockk:mockk:1.13.2")
