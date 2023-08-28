@@ -30,9 +30,8 @@ jobs:
         env:
           GITHUB_USERNAME: x-access-token
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GRADLE_OPTS: "-Dfile.encoding=utf-8"
         run: |
-          ./gradlew ktlintCheck --info
+          ./gradlew ktlintCheck --stacktrace
   enhetstester:
     name: Enhetstester
     runs-on: ubuntu-latest-8-cores
