@@ -1,7 +1,7 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    val kotlinVersion = "1.7.10"
+    val kotlinVersion = "1.9.0"
     kotlin("jvm") version kotlinVersion
 
     id("org.springframework.boot") version "2.7.4"
@@ -10,16 +10,13 @@ plugins {
     id("org.jetbrains.kotlin.plugin.jpa") version kotlinVersion
     id("org.jetbrains.kotlin.plugin.allopen") version kotlinVersion
     id("com.github.davidmc24.gradle.plugin.avro") version "1.5.0"
-    id("org.jlleitschuh.gradle.ktlint") version "11.5.1"
 }
 
 group = "no.nav"
 version = "0.0.1-SNAPSHOT"
 java.sourceCompatibility = JavaVersion.VERSION_17
-configure<org.jlleitschuh.gradle.ktlint.KtlintExtension> {
-    version.set("0.47.1")
-    enableExperimentalRules.set(false)
-}
+
+val ktlint by configurations.creating
 
 repositories {
     mavenCentral()
@@ -106,7 +103,7 @@ dependencies {
     implementation("io.sentry:sentry-logback:$sentryVersion")
     implementation("io.micrometer:micrometer-registry-prometheus")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.14.0")
-    implementation("com.pinterest:ktlint:0.47.1")
+    // implementation("com.pinterest:ktlint:0.50.0")
     implementation("com.neovisionaries:nv-i18n:1.29")
 
     testImplementation("io.mockk:mockk:1.13.2")
@@ -122,6 +119,11 @@ dependencies {
     testImplementation("no.nav.security:token-validation-test-support:2.0.5")
     testImplementation("no.nav.security:token-validation-spring-test:$tokenValidationSpringVersion")
     testImplementation("nav-foedselsnummer:testutils:1.0-SNAPSHOT.6")
+    ktlint("com.pinterest:ktlint:0.50.0") {
+        attributes {
+            attribute(Bundling.BUNDLING_ATTRIBUTE, objects.named(Bundling.EXTERNAL))
+        }
+    }
 }
 
 sourceSets.getByName("test") {
@@ -145,6 +147,34 @@ tasks {
     bootJar {
         archiveFileName.set("familie-ks-sak.jar")
     }
+}
+
+val ktlintCheck by tasks.registering(JavaExec::class) {
+    group = LifecycleBasePlugin.VERIFICATION_GROUP
+    description = "Check Kotlin code style"
+    classpath = ktlint
+    mainClass.set("com.pinterest.ktlint.Main")
+    // see https://pinterest.github.io/ktlint/install/cli/#command-line-usage for more information
+    args(
+        "src/**/*.kt",
+    )
+}
+tasks.check {
+    dependsOn(ktlintCheck)
+}
+
+
+tasks.register<JavaExec>("ktlintFormat") {
+    group = LifecycleBasePlugin.VERIFICATION_GROUP
+    description = "Check Kotlin code style and format"
+    classpath = ktlint
+    mainClass.set("com.pinterest.ktlint.Main")
+    jvmArgs("--add-opens=java.base/java.lang=ALL-UNNAMED")
+    // see https://pinterest.github.io/ktlint/install/cli/#command-line-usage for more information
+    args(
+        "-F",
+        "src/**/*.kt",
+    )
 }
 
 allprojects {
