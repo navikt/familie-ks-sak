@@ -4,7 +4,6 @@ on:
     types: [ opened, synchronize, reopened, ready_for_review ]
 env:
   IMAGE: ghcr.io/navikt/familie-ks-sak:${{ github.sha }}
-  LC_CTYPE: "UTF-8"
 jobs:
   avslutt-andre-workflows-samme-branch:
     name: Avslutt andre workflows på samme branch
