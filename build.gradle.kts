@@ -18,6 +18,7 @@ version = "0.0.1-SNAPSHOT"
 java.sourceCompatibility = JavaVersion.VERSION_17
 configure<org.jlleitschuh.gradle.ktlint.KtlintExtension> {
     version.set("0.47.1")
+    enableExperimentalRules.set(false)
 }
 
 repositories {
