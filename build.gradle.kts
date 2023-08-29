@@ -1,7 +1,7 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    val kotlinVersion = "1.9.0"
+    val kotlinVersion = "1.9.10"
     kotlin("jvm") version kotlinVersion
 
     id("org.springframework.boot") version "2.7.4"
@@ -46,7 +46,7 @@ dependencies {
     val navFoedselsnummerVersion = "1.0-SNAPSHOT.6"
     val prosesseringVersion = "1.20221110194901_e9e0d90"
     val restAssuredVersion = "5.3.0"
-    val kotlinxVersion = "1.6.4"
+    val kotlinxVersion = "1.7.3"
 
     // ---------- Spring ---------- \\
     implementation("org.springframework.boot:spring-boot-starter")
