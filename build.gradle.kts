@@ -33,7 +33,7 @@ repositories {
 
 dependencies {
 
-    val springdocVersion = "1.6.15"
+    val springdocVersion = "2.2.0"
     val sentryVersion = "6.8.0"
     val navFellesVersion = "2.20230210162649_a258d57-SPRING_BOOT_3"
     val eksterneKontrakterBisysVersion = "2.0_20220609214258_f30c3ce"
@@ -57,8 +57,8 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-devtools")
     implementation("org.springframework.kafka:spring-kafka")
     implementation("org.springframework.retry:spring-retry")
-    implementation("org.springdoc:springdoc-openapi-ui:$springdocVersion")
-    implementation("org.springdoc:springdoc-openapi-kotlin:$springdocVersion")
+    implementation("org.springdoc:springdoc-openapi-starter-common:$springdocVersion")
+    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:$springdocVersion")
 
     // ---------- Kotlin ---------- \\
     implementation("org.jetbrains.kotlin:kotlin-reflect")
