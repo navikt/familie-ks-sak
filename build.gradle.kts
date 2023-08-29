@@ -35,15 +35,15 @@ dependencies {
 
     val springdocVersion = "2.2.0"
     val sentryVersion = "6.8.0"
-    val navFellesVersion = "2.20230210162649_a258d57-SPRING_BOOT_3"
+    val navFellesVersion = "2.20230825095715_3bcaf53"
     val eksterneKontrakterBisysVersion = "2.0_20220609214258_f30c3ce"
     val fellesKontrakterVersion = "3.0_20230605154245_3d182db"
     val familieKontrakterSaksstatistikkVersion = "2.0_20220216121145_5a268ac"
     val familieKontrakterStønadsstatistikkKsVersion = "2.0_20230825103733_1ac52c2"
     val familieKontrakterSkatteetatenVersion = "2.0_20210920094114_9c74239"
-    val tokenValidationSpringVersion = "3.0.8"
+    val tokenValidationSpringVersion = "3.1.4"
     val navFoedselsnummerVersion = "1.0-SNAPSHOT.6"
-    val prosesseringVersion = "2.20230322091650_fb0187e-SPRING_BOOT_3"
+    val prosesseringVersion = "2.20230807154047_d770f01"
     val restAssuredVersion = "5.3.0"
     val kotlinxVersion = "1.6.4"
 
