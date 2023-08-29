@@ -103,7 +103,6 @@ dependencies {
     implementation("io.sentry:sentry-logback:$sentryVersion")
     implementation("io.micrometer:micrometer-registry-prometheus")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.14.0")
-    // implementation("com.pinterest:ktlint:0.50.0")
     implementation("com.neovisionaries:nv-i18n:1.29")
 
     testImplementation("io.mockk:mockk:1.13.2")
@@ -159,10 +158,10 @@ val ktlintCheck by tasks.registering(JavaExec::class) {
         "src/**/*.kt",
     )
 }
+
 tasks.check {
     dependsOn(ktlintCheck)
 }
-
 
 tasks.register<JavaExec>("ktlintFormat") {
     group = LifecycleBasePlugin.VERIFICATION_GROUP
