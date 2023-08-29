@@ -21,6 +21,9 @@ spec:
     - team: teamfamilie
       application: familie-ks-kafka-manager
       access: read
+    - team: teamfamilie
+      application: familie-ef-personhendelse
+      access: read
     - team: dv-familie
       application: dvh-fambt-konsumer
       access: read

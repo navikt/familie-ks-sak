@@ -42,7 +42,7 @@ data class VedtaksperiodeMedBegrunnelser(
     @SequenceGenerator(
         name = "vedtaksperiode_seq_generator",
         sequenceName = "vedtaksperiode_seq",
-        allocationSize = 50
+        allocationSize = 50,
     )
     val id: Long = 0,
 
@@ -65,7 +65,7 @@ data class VedtaksperiodeMedBegrunnelser(
         fetch = FetchType.EAGER,
         mappedBy = "vedtaksperiodeMedBegrunnelser",
         cascade = [CascadeType.ALL],
-        orphanRemoval = true
+        orphanRemoval = true,
     )
     val begrunnelser: MutableSet<Vedtaksbegrunnelse> = mutableSetOf(),
 
@@ -74,9 +74,9 @@ data class VedtaksperiodeMedBegrunnelser(
         fetch = FetchType.EAGER,
         mappedBy = "vedtaksperiodeMedBegrunnelser",
         cascade = [CascadeType.ALL],
-        orphanRemoval = true
+        orphanRemoval = true,
     )
-    val fritekster: MutableList<VedtaksbegrunnelseFritekst> = mutableListOf()
+    val fritekster: MutableList<VedtaksbegrunnelseFritekst> = mutableListOf(),
 
 ) : BaseEntitet() {
 
@@ -100,11 +100,12 @@ data class VedtaksperiodeMedBegrunnelser(
 
     fun hentUtbetalingsperiodeDetaljer(
         andelerTilkjentYtelse: List<AndelTilkjentYtelseMedEndreteUtbetalinger>,
-        personopplysningGrunnlag: PersonopplysningGrunnlag
-    ): List<UtbetalingsperiodeDetalj> =
-        if (this.type == Vedtaksperiodetype.UTBETALING ||
-            this.type == Vedtaksperiodetype.FORTSATT_INNVILGET
-        ) {
+        personopplysningGrunnlag: PersonopplysningGrunnlag,
+    ): List<UtbetalingsperiodeDetalj> {
+        val erUtbetalingPeriode = this.type == Vedtaksperiodetype.UTBETALING
+        val erFortsattInnvilgetPeriode = this.type == Vedtaksperiodetype.FORTSATT_INNVILGET
+
+        return if (erUtbetalingPeriode || erFortsattInnvilgetPeriode) {
             val kombinertTidslinje = andelerTilkjentYtelse.tilKombinertTidslinjePerAktør()
 
             val vedtaksperiodeTidslinje = listOf(Periode(verdi = this, fom = this.fom, this.tom)).tilTidslinje()
@@ -115,19 +116,22 @@ data class VedtaksperiodeMedBegrunnelser(
             val andelTilkjentYtelserIPeriode =
                 tidslinjeMedAndelerIPeriode.tilPerioder().mapNotNull { it.verdi }.flatten()
 
-            validerIkkeDelvisOverlappIAndelTilkjentYtelserOgVedtaksperiodeBegrunnelse(
-                andelTilkjentYtelserIPeriode,
-                personopplysningGrunnlag
-            )
+            if (erUtbetalingPeriode) {
+                validerIkkeDelvisOverlappIAndelTilkjentYtelserOgVedtaksperiodeBegrunnelse(
+                    andelTilkjentYtelserIPeriode,
+                    personopplysningGrunnlag,
+                )
+            }
 
             andelTilkjentYtelserIPeriode.lagUtbetalingsperiodeDetaljer(personopplysningGrunnlag)
         } else {
             emptyList()
         }
+    }
 
     private fun validerIkkeDelvisOverlappIAndelTilkjentYtelserOgVedtaksperiodeBegrunnelse(
         andelTilkjentYtelserIPeriode: List<AndelTilkjentYtelseMedEndreteUtbetalinger>,
-        personopplysningGrunnlag: PersonopplysningGrunnlag
+        personopplysningGrunnlag: PersonopplysningGrunnlag,
     ) {
         val delvisOverlapp = andelTilkjentYtelserIPeriode.any {
             (this.fom ?: TIDENES_MORGEN).isBefore(it.stønadFom.førsteDagIInneværendeMåned()) || (

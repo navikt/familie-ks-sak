@@ -30,17 +30,17 @@ class UtbetalingsoppdragGenerator {
      *
      * @param[vedtakMedTilkjentYtelse] tilpasset objekt som inneholder tilkjentytelse,og andre nødvendige felter som trenges for å lage utbetalingsoppdrag
      * @param[andelTilkjentYtelseForUtbetalingsoppdragFactory] type factory bestemmer om AndelTilkjentYtelse muteres eller ikke. Avhengig om det er AndelTilkjentYtelseForIverksetting eller AndelTilkjentYtelseForSimulerin
-     * @param[forrigeTilkjentYtelse] forrige tilkjentYtelse
+     * @param[forrigeTilkjentYtelseMedAndeler] forrige tilkjentYtelse
      * @return oppdatert TilkjentYtelse som inneholder generert utbetalingsoppdrag
      */
     fun lagTilkjentYtelseMedUtbetalingsoppdrag(
         vedtakMedTilkjentYtelse: VedtakMedTilkjentYtelse,
         andelTilkjentYtelseForUtbetalingsoppdragFactory: AndelTilkjentYtelseForUtbetalingsoppdragFactory,
-        forrigeTilkjentYtelse: TilkjentYtelse? = null
+        forrigeTilkjentYtelseMedAndeler: TilkjentYtelse? = null
     ): TilkjentYtelse {
         val tilkjentYtelse = vedtakMedTilkjentYtelse.tilkjentYtelse
         val vedtak = vedtakMedTilkjentYtelse.vedtak
-        val erFørsteBehandlingPåFagsak = forrigeTilkjentYtelse == null
+        val erFørsteBehandlingPåFagsakSomSkalIverksettes = forrigeTilkjentYtelseMedAndeler == null
 
         // Filtrer kun andeler som kan sendes til oppdrag
         val andelerTilkjentYtelse = tilkjentYtelse.andelerTilkjentYtelse.filter { it.erAndelSomSkalSendesTilOppdrag() }
@@ -51,7 +51,7 @@ class UtbetalingsoppdragGenerator {
 
         // Filtrerer og grupperer forrige andeler basert på personIdent.
         val forrigeAndeler =
-            forrigeTilkjentYtelse?.andelerTilkjentYtelse?.filter { it.erAndelSomSkalSendesTilOppdrag() }
+            forrigeTilkjentYtelseMedAndeler?.andelerTilkjentYtelse?.filter { it.erAndelSomSkalSendesTilOppdrag() }
                 ?.pakkInnForUtbetaling(andelTilkjentYtelseForUtbetalingsoppdragFactory)
                 ?: emptyList()
 
@@ -86,7 +86,7 @@ class UtbetalingsoppdragGenerator {
             // lager utbetalingsperioder og oppdaterer andelerTilkjentYtelse
             val opprettelsePeriodeMedAndeler = lagUtbetalingsperioderForOpprettelse(
                 andeler = andelerTilOpprettelse,
-                erFørsteBehandlingPåFagsak = erFørsteBehandlingPåFagsak,
+                erFørsteBehandlingPåFagsak = erFørsteBehandlingPåFagsakSomSkalIverksettes,
                 vedtak = vedtak,
                 sisteOffsetIKjedeOversikt = vedtakMedTilkjentYtelse.sisteOffsetPerIdent,
                 sisteOffsetPåFagsak = vedtakMedTilkjentYtelse.sisteOffsetPåFagsak
@@ -106,7 +106,7 @@ class UtbetalingsoppdragGenerator {
         val opphøres = lagUtbetalingsperioderForOpphør(andeler = andelerTilOpphør, vedtak = vedtak)
 
         val aksjonskodePåOppdragsnivå =
-            if (erFørsteBehandlingPåFagsak) Utbetalingsoppdrag.KodeEndring.NY else Utbetalingsoppdrag.KodeEndring.ENDR
+            if (erFørsteBehandlingPåFagsakSomSkalIverksettes) Utbetalingsoppdrag.KodeEndring.NY else Utbetalingsoppdrag.KodeEndring.ENDR
         val utbetalingsoppdrag = Utbetalingsoppdrag(
             saksbehandlerId = vedtakMedTilkjentYtelse.saksbehandlerId,
             kodeEndring = aksjonskodePåOppdragsnivå,

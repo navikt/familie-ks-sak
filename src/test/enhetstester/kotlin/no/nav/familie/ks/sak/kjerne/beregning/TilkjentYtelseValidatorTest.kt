@@ -19,6 +19,7 @@ import no.nav.familie.ks.sak.kjerne.beregning.domene.maksBeløp
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertDoesNotThrow
 import org.junit.jupiter.api.assertThrows
 import java.time.LocalDateTime
 import java.time.YearMonth
@@ -27,6 +28,8 @@ internal class TilkjentYtelseValidatorTest {
 
     val søker = randomAktør()
     val barn = randomAktør("01012112345")
+    val barn2 = randomAktør("01012112346")
+
     val behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD)
     val personopplysningGrunnlag = lagPersonopplysningGrunnlag(
         behandlingId = behandling.id,
@@ -59,11 +62,34 @@ internal class TilkjentYtelseValidatorTest {
             validerAtTilkjentYtelseHarFornuftigePerioderOgBeløp(tilkjentYtelse, personopplysningGrunnlag)
         }
         val feilmelding =
-            "Kontantstøtte kan maks utbetales for 11 måneder. Du er i ferd med å utbetale mer enn dette. " +
+            "Kontantstøtte kan maks utbetales for 11 måneder. Du er i ferd med å utbetale mer enn dette for barn med fnr ${barn.aktivFødselsnummer()}. " +
                 "Kontroller datoene på vilkårene eller ta kontakt med team familie"
 
         assertEquals(feilmelding, exception.frontendFeilmelding)
         assertEquals(feilmelding, exception.message)
+    }
+
+    @Test
+    fun `validerAtTilkjentYtelseHarFornuftigePerioderOgBeløp skal ikke kaste feil når selvom utbetalingsperioden er over 11 måneder dersom det er fordelt på flere barn`() {
+        val andelTilkjentYtelse1 = lagAndelTilkjentYtelse(
+            tilkjentYtelse = tilkjentYtelse,
+            behandling = behandling,
+            aktør = barn,
+            stønadFom = YearMonth.now().minusMonths(10),
+            stønadTom = YearMonth.now().minusMonths(4)
+        )
+        val andelTilkjentYtelse2 = lagAndelTilkjentYtelse(
+            tilkjentYtelse = tilkjentYtelse,
+            behandling = behandling,
+            aktør = barn2,
+            stønadFom = YearMonth.now().minusMonths(3),
+            stønadTom = YearMonth.now().plusMonths(6)
+        )
+        tilkjentYtelse.andelerTilkjentYtelse.addAll(setOf(andelTilkjentYtelse1, andelTilkjentYtelse2))
+
+        assertDoesNotThrow {
+            validerAtTilkjentYtelseHarFornuftigePerioderOgBeløp(tilkjentYtelse, personopplysningGrunnlag)
+        }
     }
 
     @Test
