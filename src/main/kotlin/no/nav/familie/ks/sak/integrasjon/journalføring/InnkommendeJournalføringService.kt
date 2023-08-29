@@ -35,7 +35,6 @@ import no.nav.familie.ks.sak.kjerne.logg.LoggService
 import org.springframework.stereotype.Service
 import java.time.LocalDate
 import java.time.LocalDateTime
-import javax.transaction.Transactional
 
 @Service
 class InnkommendeJournalføringService(
