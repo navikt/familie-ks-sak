@@ -49,7 +49,7 @@ internal class IntegrasjonServiceTest {
         assertThat(maskertPersonInfo.harTilgang, Is(false))
         assertThat(
             maskertPersonInfo.adressebeskyttelseGradering,
-            Is(ADRESSEBESKYTTELSEGRADERING.STRENGT_FORTROLIG_UTLAND)
+            Is(ADRESSEBESKYTTELSEGRADERING.STRENGT_FORTROLIG_UTLAND),
         )
     }
 
@@ -90,9 +90,9 @@ internal class IntegrasjonServiceTest {
             Tilgang(
                 "Ident1",
                 true,
-                "test"
+                "test",
             ),
-            Tilgang("Ident2", true, "test")
+            Tilgang("Ident2", true, "test"),
         )
 
         val tilgang = integrasjonService.sjekkTilgangTilPersoner(listeMedIdenter)

@@ -22,7 +22,7 @@ class TidslinjeListeTest {
     private fun init(
         lst1: List<TidslinjePeriode<Boolean?>>,
         lst2: List<TidslinjePeriode<Boolean?>>,
-        lst3: List<TidslinjePeriode<Boolean?>>
+        lst3: List<TidslinjePeriode<Boolean?>>,
     ) {
         this.lst1 = lst1
         this.lst2 = lst2
@@ -34,7 +34,7 @@ class TidslinjeListeTest {
     private fun initUlikStartSlutt(
         lst1: List<TidslinjePeriode<Boolean?>>,
         lst2: List<TidslinjePeriode<Boolean?>>,
-        lst3: List<TidslinjePeriode<Boolean?>>
+        lst3: List<TidslinjePeriode<Boolean?>>,
     ) {
         this.lst1 = lst1
         this.lst2 = lst2
@@ -42,7 +42,7 @@ class TidslinjeListeTest {
         this.tidslinjeList = listOf(
             Tidslinje(LocalDate.now().minusDays(2), lst1),
             Tidslinje(LocalDate.now().plusDays(1), lst2),
-            Tidslinje(LocalDate.now(), lst3)
+            Tidslinje(LocalDate.now(), lst3),
         )
     }
 
@@ -51,11 +51,14 @@ class TidslinjeListeTest {
         init(
             listOf(TidslinjePeriode(true, 3, false), TidslinjePeriode(false, 1, false)),
             listOf(TidslinjePeriode(true, 1, false), TidslinjePeriode(true, 1, false)),
-            listOf(TidslinjePeriode(false, 1, false), TidslinjePeriode(true, 1, false))
+            listOf(TidslinjePeriode(false, 1, false), TidslinjePeriode(true, 1, false)),
         )
         val test = tidslinjeList.slåSammenLikeTidslinjer { el1, el2 ->
-            if (el1 is Udefinert || el2 is Udefinert) Udefinert()
-            else Verdi(el1.verdi!! && el2.verdi!!)
+            if (el1 is Udefinert || el2 is Udefinert) {
+                Udefinert()
+            } else {
+                Verdi(el1.verdi!! && el2.verdi!!)
+            }
         }
 
         val fakta = mutableListOf(false, true, nullVerdi)
@@ -63,7 +66,7 @@ class TidslinjeListeTest {
         Assertions.assertEquals(
             fakta,
             test.innhold.map { it.periodeVerdi.verdi }.toList(),
-            "klarte ikke å slå sammen flere lister"
+            "klarte ikke å slå sammen flere lister",
         )
     }
 
@@ -77,7 +80,7 @@ class TidslinjeListeTest {
         Assertions.assertEquals(
             fakta,
             tidslinjeTest.innhold.map { it.periodeVerdi.verdi }.toList(),
-            "klarte ikke håndtere lister med true og false"
+            "klarte ikke håndtere lister med true og false",
         )
     }
 
@@ -86,11 +89,14 @@ class TidslinjeListeTest {
         initUlikStartSlutt(
             listOf(TidslinjePeriode(true, 3, false), TidslinjePeriode(false, 1, false)),
             listOf(TidslinjePeriode(true, 2, false), TidslinjePeriode(true, 1, false)),
-            listOf(TidslinjePeriode(false, 2, false), TidslinjePeriode(true, 1, false))
+            listOf(TidslinjePeriode(false, 2, false), TidslinjePeriode(true, 1, false)),
         )
         val test = tidslinjeList.slåSammenLikeTidslinjer { el1, el2 ->
-            if (el1 is Udefinert || el2 is Udefinert) Udefinert()
-            else Verdi(el1.verdi!! && el2.verdi!!)
+            if (el1 is Udefinert || el2 is Udefinert) {
+                Udefinert()
+            } else {
+                Verdi(el1.verdi!! && el2.verdi!!)
+            }
         }
 
         val fakta = mutableListOf(nullVerdi, false, nullVerdi)
@@ -98,7 +104,7 @@ class TidslinjeListeTest {
         Assertions.assertEquals(
             fakta,
             test.innhold.map { it.periodeVerdi.verdi }.toList(),
-            "klarte ikke slå sammen tre lister av samme type med ulik start og slutt"
+            "klarte ikke slå sammen tre lister av samme type med ulik start og slutt",
         )
     }
 
@@ -114,8 +120,8 @@ class TidslinjeListeTest {
             start1,
             listOf(
                 TidslinjePeriode(true, start1.until(stopp1, ChronoUnit.DAYS).toInt() + 1),
-                TidslinjePeriode(false, start2.until(stopp2, ChronoUnit.DAYS).toInt() + 1)
-            )
+                TidslinjePeriode(false, start2.until(stopp2, ChronoUnit.DAYS).toInt() + 1),
+            ),
         )
 
         start1 = LocalDate.of(2022, 5, 1)
@@ -128,14 +134,17 @@ class TidslinjeListeTest {
             start1,
             listOf(
                 TidslinjePeriode(true, start1.until(stopp1, ChronoUnit.DAYS).toInt() + 1),
-                TidslinjePeriode(false, start2.until(stopp2, ChronoUnit.DAYS).toInt() + 1)
-            )
+                TidslinjePeriode(false, start2.until(stopp2, ChronoUnit.DAYS).toInt() + 1),
+            ),
         )
 
         val tidslinjeList: List<Tidslinje<Boolean>> = listOf(t1, t2)
         val result = tidslinjeList.slåSammenLikeTidslinjer { el1, el2 ->
-            if (el1 is Udefinert || el2 is Udefinert) Udefinert()
-            else Verdi(el1.verdi!! && el2.verdi!!)
+            if (el1 is Udefinert || el2 is Udefinert) {
+                Udefinert()
+            } else {
+                Verdi(el1.verdi!! && el2.verdi!!)
+            }
         }
         Assertions.assertEquals(LocalDate.of(2022, 5, 1), result.startsTidspunkt)
     }

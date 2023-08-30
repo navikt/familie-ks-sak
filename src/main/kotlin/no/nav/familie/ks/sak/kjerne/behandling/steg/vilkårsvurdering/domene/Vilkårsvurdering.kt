@@ -23,7 +23,7 @@ data class Vilkårsvurdering(
     @SequenceGenerator(
         name = "vilkaarsvurdering_seq_generator",
         sequenceName = "vilkaarsvurdering_seq",
-        allocationSize = 50
+        allocationSize = 50,
     )
     val id: Long = 0,
 
@@ -37,12 +37,12 @@ data class Vilkårsvurdering(
     @OneToMany(
         fetch = FetchType.EAGER,
         mappedBy = "vilkårsvurdering",
-        cascade = [CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH]
+        cascade = [CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH],
     )
     var personResultater: Set<PersonResultat> = setOf(),
 
     @Column(name = "ytelse_personer", columnDefinition = "text")
-    var ytelsePersoner: String? = null
+    var ytelsePersoner: String? = null,
 ) : BaseEntitet() {
 
     fun hentPersonResultaterTilAktør(aktørId: String): List<VilkårResultat> =

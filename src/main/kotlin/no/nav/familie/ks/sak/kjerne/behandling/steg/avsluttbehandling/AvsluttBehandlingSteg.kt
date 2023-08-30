@@ -24,7 +24,7 @@ class AvsluttBehandlingSteg(
     private val loggService: LoggService,
     private val beregningService: BeregningService,
     private val fagsakService: FagsakService,
-    private val behandlingMetrikker: BehandlingMetrikker
+    private val behandlingMetrikker: BehandlingMetrikker,
 ) : IBehandlingSteg {
     override fun getBehandlingssteg(): BehandlingSteg = BehandlingSteg.AVSLUTT_BEHANDLING
 

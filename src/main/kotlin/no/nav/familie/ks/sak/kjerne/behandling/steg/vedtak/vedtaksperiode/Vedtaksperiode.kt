@@ -11,7 +11,7 @@ import java.time.LocalDate
 @JsonSubTypes(
     JsonSubTypes.Type(value = Utbetalingsperiode::class, name = "UTBETALING"),
     JsonSubTypes.Type(value = Avslagsperiode::class, name = "AVSLAG"),
-    JsonSubTypes.Type(value = Opphørsperiode::class, name = "OPPHØR")
+    JsonSubTypes.Type(value = Opphørsperiode::class, name = "OPPHØR"),
 )
 interface Vedtaksperiode {
 
@@ -27,20 +27,20 @@ enum class Vedtaksperiodetype(val tillatteBegrunnelsestyper: List<BegrunnelseTyp
             BegrunnelseType.REDUKSJON,
             BegrunnelseType.FORTSATT_INNVILGET,
             BegrunnelseType.ETTER_ENDRET_UTBETALING,
-            BegrunnelseType.ENDRET_UTBETALING
-        )
+            BegrunnelseType.ENDRET_UTBETALING,
+        ),
     ),
     OPPHØR(listOf(BegrunnelseType.OPPHØR, BegrunnelseType.ETTER_ENDRET_UTBETALING)),
     AVSLAG(listOf(BegrunnelseType.AVSLAG)),
-    FORTSATT_INNVILGET(listOf(BegrunnelseType.FORTSATT_INNVILGET))
+    FORTSATT_INNVILGET(listOf(BegrunnelseType.FORTSATT_INNVILGET)),
 }
 
 fun Vedtaksperiode.tilVedtaksperiodeMedBegrunnelse(
-    vedtak: Vedtak
+    vedtak: Vedtak,
 ): VedtaksperiodeMedBegrunnelser =
     VedtaksperiodeMedBegrunnelser(
         fom = this.periodeFom,
         tom = this.periodeTom,
         vedtak = vedtak,
-        type = this.vedtaksperiodetype
+        type = this.vedtaksperiodetype,
     )

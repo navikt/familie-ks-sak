@@ -32,12 +32,12 @@ import java.util.Properties
 @TaskStepBeskrivelse(
     taskStepType = HentStatusFraOppdragTask.TASK_STEP_TYPE,
     beskrivelse = "Henter status fra oppdrag",
-    maxAntallFeil = 100
+    maxAntallFeil = 100,
 )
 class HentStatusFraOppdragTask(
     private val oppdragKlient: OppdragKlient,
     private val taskService: TaskService,
-    private val stegService: StegService
+    private val stegService: StegService,
 ) : AsyncTaskStep {
 
     override fun doTask(task: Task) {
@@ -51,7 +51,7 @@ class HentStatusFraOppdragTask(
         when (statusFraOppdrag) {
             OppdragStatus.LAGT_PÅ_KØ -> throw RekjørSenereException(
                 årsak = "Mottok ${statusFraOppdrag.name} fra oppdrag.",
-                triggerTid = nesteGyldigeTriggertidForBehandlingIHverdager(minutesToAdd = 15)
+                triggerTid = nesteGyldigeTriggertidForBehandlingIHverdager(minutesToAdd = 15),
             )
             OppdragStatus.KVITTERT_OK -> {
                 stegService.utførStegEtterIverksettelseAutomatisk(statusFraOppdragDto.behandlingsId)
@@ -78,7 +78,7 @@ class HentStatusFraOppdragTask(
                 fagsystem = FAGSYSTEM,
                 personIdent = behandling.fagsak.aktør.aktivFødselsnummer(),
                 behandlingsId = behandling.id,
-                vedtaksId = vedtakId
+                vedtaksId = vedtakId,
             )
             return Task(
                 type = TASK_STEP_TYPE,
@@ -87,7 +87,7 @@ class HentStatusFraOppdragTask(
                     this["personIdent"] = behandling.fagsak.aktør.aktivFødselsnummer()
                     this["behandlingsId"] = behandling.id.toString()
                     this["vedtakId"] = vedtakId.toString()
-                }
+                },
             )
         }
     }
@@ -98,7 +98,7 @@ internal data class HentStatusFraOppdragDto(
     // OppdragId trenger personIdent
     val personIdent: String,
     val behandlingsId: Long,
-    val vedtaksId: Long
+    val vedtaksId: Long,
 ) {
     val oppdragId get() = OppdragId(fagsystem, personIdent, behandlingsId.toString())
 }

@@ -12,7 +12,7 @@ enum class TidsEnhet {
     DAG,
     UKE,
     MÅNED,
-    ÅR
+    ÅR,
 }
 
 /**
@@ -27,7 +27,7 @@ enum class TidsEnhet {
 open class Tidslinje<T>(
     var startsTidspunkt: LocalDate,
     perioder: List<TidslinjePeriode<T>>,
-    var tidsEnhet: TidsEnhet = TidsEnhet.DAG
+    var tidsEnhet: TidsEnhet = TidsEnhet.DAG,
 ) {
 
     var innhold: List<TidslinjePeriode<T>> = emptyList()
@@ -77,15 +77,15 @@ open class Tidslinje<T>(
         return "StartTidspunkt: " + startsTidspunkt + " Tidsenhet: " + tidsEnhet +
             " Total lengde: " + innhold.sumOf { it.lengde } +
             " Perioder: " + innhold.mapIndexed { indeks, it ->
-            "(Verdi: " + it.periodeVerdi.verdi.toString() +
-                ", fom: " + startsTidspunkt.plus(innhold.take(indeks).sumOf { it.lengde }.toLong(), mapper[this.tidsEnhet]) +
-                ", tom:" + kalkulerSluttTidspunkt(
-                startsTidspunkt.plus(
-                    innhold.take(indeks).sumOf { it.lengde }.toLong() + it.lengde - 1,
-                    mapper[this.tidsEnhet]
-                )
-            ) + ")"
-        }
+                "(Verdi: " + it.periodeVerdi.verdi.toString() +
+                    ", fom: " + startsTidspunkt.plus(innhold.take(indeks).sumOf { it.lengde }.toLong(), mapper[this.tidsEnhet]) +
+                    ", tom:" + kalkulerSluttTidspunkt(
+                        startsTidspunkt.plus(
+                            innhold.take(indeks).sumOf { it.lengde }.toLong() + it.lengde - 1,
+                            mapper[this.tidsEnhet],
+                        ),
+                    ) + ")"
+            }
     }
 
     private fun lagInnholdBasertPåPeriodelengder(innhold: List<TidslinjePeriode<T>>): List<TidslinjePeriode<T>> {
@@ -105,7 +105,7 @@ open class Tidslinje<T>(
             val tidslinjePeriode = TidslinjePeriode(
                 periodeVerdi = innhold[i].periodeVerdi,
                 lengde = lengde,
-                erUendelig = false
+                erUendelig = false,
             )
             i = j
             arr.add(tidslinjePeriode)
@@ -135,7 +135,7 @@ fun <T> tomTidslinje(startsTidspunkt: LocalDate? = null, tidsEnhet: TidsEnhet = 
 
 fun <K, V, H, R> Map<K, Tidslinje<V>>.leftJoin(
     høyreTidslinjer: Map<K, Tidslinje<H>>,
-    kombinator: (V?, H?) -> R?
+    kombinator: (V?, H?) -> R?,
 ): Map<K, Tidslinje<R>> {
     val venstreTidslinjer = this
     val venstreNøkler = venstreTidslinjer.keys
@@ -150,7 +150,7 @@ fun <K, V, H, R> Map<K, Tidslinje<V>>.leftJoin(
 
 fun <K, V, H, R> Map<K, Tidslinje<V>>.outerJoin(
     høyreTidslinjer: Map<K, Tidslinje<H>>,
-    kombinator: (V?, H?) -> R?
+    kombinator: (V?, H?) -> R?,
 ): Map<K, Tidslinje<R>> {
     val venstreTidslinjer = this
     val alleNøkler = venstreTidslinjer.keys + høyreTidslinjer.keys

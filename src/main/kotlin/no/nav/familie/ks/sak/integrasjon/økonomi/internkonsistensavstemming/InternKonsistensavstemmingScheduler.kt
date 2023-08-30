@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component
 
 @Component
 class InternKonsistensavstemmingScheduler(
-    val taskService: TaskService
+    val taskService: TaskService,
 ) {
 
     @Scheduled(cron = "0 0 0 16 * *")

@@ -21,7 +21,7 @@ class BisysService(
     private val behandlingService: BehandlingService,
     private val personidentService: PersonidentService,
     private val andelerTilkjentYtelseOgEndreteUtbetalingerService: AndelerTilkjentYtelseOgEndreteUtbetalingerService,
-    private val infotrygdReplikaClient: InfotrygdReplikaClient
+    private val infotrygdReplikaClient: InfotrygdReplikaClient,
 ) {
 
     fun hentUtbetalingsinfo(fom: LocalDate, identer: List<String>): BisysResponsDto {
@@ -42,7 +42,7 @@ class BisysService(
                     KsSakPeriode(
                         fomMåned = it.stønadFom,
                         tomMåned = it.stønadTom,
-                        barn = Barn(ident = it.aktør.aktivFødselsnummer(), beløp = it.kalkulertUtbetalingsbeløp)
+                        barn = Barn(ident = it.aktør.aktivFødselsnummer(), beløp = it.kalkulertUtbetalingsbeløp),
                     )
                 }
         }.flatten()
@@ -57,7 +57,7 @@ class BisysService(
                 fomMåned = checkNotNull(stonad.fom) { "fom kan ikke være null" },
                 tomMåned = stonad.tom,
                 beløp = checkNotNull(stonad.belop) { "beløp kan ikke være null" },
-                barna = stonad.barn.map { it.fnr.asString }
+                barna = stonad.barn.map { it.fnr.asString },
             )
         }
 

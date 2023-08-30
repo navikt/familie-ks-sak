@@ -24,7 +24,7 @@ class FeatureToggleController(private val featureToggleService: FeatureToggleSer
             toggles.fold(mutableMapOf()) { acc, toggleId ->
                 acc[toggleId] = featureToggleService.isEnabled(toggleId)
                 acc
-            }
+            },
         )
     }
 }

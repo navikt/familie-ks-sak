@@ -28,7 +28,7 @@ class KafkaErrorHandlerTest {
                 RuntimeException("Feil i test"),
                 emptyList(),
                 consumer,
-                container
+                container,
             )
         }
         exceptionThrown.hasCauseExactlyInstanceOf(Exception::class.java)
@@ -46,7 +46,7 @@ class KafkaErrorHandlerTest {
                 RuntimeException("Feil i test"),
                 listOf(consumerRecord),
                 consumer,
-                container
+                container,
             )
         }
         exceptionThrown.hasCauseExactlyInstanceOf(Exception::class.java)

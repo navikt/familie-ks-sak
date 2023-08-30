@@ -12,7 +12,7 @@ import org.springframework.dao.DataIntegrityViolationException
 import java.time.LocalDate
 
 class KorrigertVedtakRepositoryTest(
-    @Autowired private val korrigertVedtakRepository: KorrigertVedtakRepository
+    @Autowired private val korrigertVedtakRepository: KorrigertVedtakRepository,
 ) : OppslagSpringRunnerTest() {
 
     @BeforeEach
@@ -22,13 +22,12 @@ class KorrigertVedtakRepositoryTest(
 
     @Test
     fun `finnAktivtKorrigertVedtakPåBehandling skal returnere null dersom det ikke eksisterer en aktiv korrigering av vedtak på behandling`() {
-
         val inaktivKorrigertVedtak = KorrigertVedtak(
             id = 10000001,
             vedtaksdato = LocalDate.now().minusDays(6),
             begrunnelse = "Test på inaktiv korrigering",
             behandling = behandling,
-            aktiv = false
+            aktiv = false,
         )
 
         korrigertVedtakRepository.saveAndFlush(inaktivKorrigertVedtak)
@@ -46,7 +45,7 @@ class KorrigertVedtakRepositoryTest(
             vedtaksdato = LocalDate.now().minusDays(6),
             begrunnelse = "Test på aktiv korrigering",
             behandling = behandling,
-            aktiv = true
+            aktiv = true,
         )
 
         korrigertVedtakRepository.saveAndFlush(aktivKorrigertVedtak)
@@ -56,7 +55,7 @@ class KorrigertVedtakRepositoryTest(
 
         Assertions.assertNotNull(
             eksisterendeKorrigertVedtak,
-            "Skal finnes aktiv korrigert vedtak på behandling"
+            "Skal finnes aktiv korrigert vedtak på behandling",
         )
     }
 
@@ -67,7 +66,7 @@ class KorrigertVedtakRepositoryTest(
             begrunnelse = "Test på aktiv korrigering",
             vedtaksdato = LocalDate.now().minusDays(6),
             behandling = behandling,
-            aktiv = true
+            aktiv = true,
         )
 
         val aktivKorrigertVedtak2 = KorrigertVedtak(
@@ -75,7 +74,7 @@ class KorrigertVedtakRepositoryTest(
             begrunnelse = "Test på aktiv korrigering",
             vedtaksdato = LocalDate.now().minusDays(3),
             behandling = behandling,
-            aktiv = true
+            aktiv = true,
         )
 
         korrigertVedtakRepository.saveAndFlush(aktivKorrigertVedtak1)

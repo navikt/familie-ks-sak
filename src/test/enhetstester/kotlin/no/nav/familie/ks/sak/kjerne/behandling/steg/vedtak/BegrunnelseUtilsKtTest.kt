@@ -28,18 +28,18 @@ internal class BegrunnelseUtilsKtTest {
         val barn1 = lagPerson(
             aktør = randomAktør(barn1Fnr),
             personType = PersonType.BARN,
-            fødselsdato = LocalDate.now().minusYears(2)
+            fødselsdato = LocalDate.now().minusYears(2),
         ).let { it.copy(dødsfall = lagDødsfall(dødsfallDato = dødsfallDatoBarn1, person = it)) }
 
         val barn2 = lagPerson(
             aktør = randomAktør(barn2Fnr),
             personType = PersonType.BARN,
-            fødselsdato = LocalDate.now().minusYears(2)
+            fødselsdato = LocalDate.now().minusYears(2),
         ).let { it.copy(dødsfall = lagDødsfall(dødsfallDato = dødsfallDatoBarn2, person = it)) }
 
         val barnIBehandling = listOf(
             barn1,
-            barn2
+            barn2,
         )
 
         var ytelserForrigePeriode =
@@ -48,11 +48,11 @@ internal class BegrunnelseUtilsKtTest {
                     behandling = behandling,
                     stønadFom = YearMonth.of(
                         dødsfallDatoBarn1.minusMonths(1).year,
-                        dødsfallDatoBarn1.minusMonths(1).month
+                        dødsfallDatoBarn1.minusMonths(1).month,
                     ),
                     stønadTom = YearMonth.of(dødsfallDatoBarn1.year, dødsfallDatoBarn1.month),
-                    aktør = barn1.aktør
-                )
+                    aktør = barn1.aktør,
+                ),
             )
 
         var dødeBarnForrigePeriode = dødeBarnForrigePeriode(ytelserForrigePeriode, barnIBehandling)
@@ -65,11 +65,11 @@ internal class BegrunnelseUtilsKtTest {
                     behandling = behandling,
                     stønadFom = YearMonth.of(
                         dødsfallDatoBarn1.minusMonths(1).year,
-                        dødsfallDatoBarn1.minusMonths(1).month
+                        dødsfallDatoBarn1.minusMonths(1).month,
                     ),
                     stønadTom = YearMonth.of(dødsfallDatoBarn2.year, dødsfallDatoBarn2.month),
-                    aktør = barn2.aktør
-                )
+                    aktør = barn2.aktør,
+                ),
             )
 
         dødeBarnForrigePeriode = dødeBarnForrigePeriode(ytelserForrigePeriode, barnIBehandling)

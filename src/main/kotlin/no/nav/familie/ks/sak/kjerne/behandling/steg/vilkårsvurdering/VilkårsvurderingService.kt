@@ -26,13 +26,13 @@ class VilkårsvurderingService(
     private val vilkårsvurderingRepository: VilkårsvurderingRepository,
     private val personopplysningGrunnlagService: PersonopplysningGrunnlagService,
     private val sanityService: SanityService,
-    private val personidentService: PersonidentService
+    private val personidentService: PersonidentService,
 ) {
 
     @Transactional
     fun opprettVilkårsvurdering(
         behandling: Behandling,
-        forrigeBehandlingSomErVedtatt: Behandling?
+        forrigeBehandlingSomErVedtatt: Behandling?,
     ): Vilkårsvurdering {
         logger.info("${SikkerhetContext.hentSaksbehandlerNavn()} oppretter vilkårsvurdering for behandling ${behandling.id}")
 
@@ -45,7 +45,7 @@ class VilkårsvurderingService(
 
         if (forrigeBehandlingSomErVedtatt != null) {
             initiellVilkårsvurdering.kopierOverOppfylteOgIkkeAktuelleResultaterFraForrigeBehandling(
-                vilkårsvurderingForrigeBehandling = hentAktivVilkårsvurderingForBehandling(forrigeBehandlingSomErVedtatt.id)
+                vilkårsvurderingForrigeBehandling = hentAktivVilkårsvurderingForBehandling(forrigeBehandlingSomErVedtatt.id),
             )
         }
 
@@ -55,7 +55,7 @@ class VilkårsvurderingService(
         }
 
         initiellVilkårsvurdering.oppdaterMedDødsdatoer(
-            personopplysningGrunnlag = personopplysningGrunnlag
+            personopplysningGrunnlag = personopplysningGrunnlag,
         )
 
         return lagreVilkårsvurdering(initiellVilkårsvurdering, aktivVilkårsvurdering)
@@ -63,7 +63,7 @@ class VilkårsvurderingService(
 
     private fun lagreVilkårsvurdering(
         vilkårsvurdering: Vilkårsvurdering,
-        aktivVilkårsvurdering: Vilkårsvurdering?
+        aktivVilkårsvurdering: Vilkårsvurdering?,
     ): Vilkårsvurdering {
         logger.info("${SikkerhetContext.hentSaksbehandlerNavn()} lagrer vilkårsvurdering $vilkårsvurdering")
         aktivVilkårsvurdering?.let { vilkårsvurderingRepository.saveAndFlush(it.also { it.aktiv = false }) }
@@ -76,13 +76,13 @@ class VilkårsvurderingService(
 
     fun hentVilkårsbegrunnelser(): Map<BegrunnelseType, List<VedtakBegrunnelseTilknyttetVilkårResponseDto>> =
         standardbegrunnelserTilNedtrekksmenytekster(sanityService.hentSanityBegrunnelser()) + eøsStandardbegrunnelserTilNedtrekksmenytekster(
-            sanityService.hentSanityEØSBegrunnelser()
+            sanityService.hentSanityEØSBegrunnelser(),
         )
 
     @Transactional
     fun endreVilkårPåBehandling(
         behandlingId: Long,
-        endreVilkårResultatDto: EndreVilkårResultatDto
+        endreVilkårResultatDto: EndreVilkårResultatDto,
     ) {
         val vilkårsvurdering = hentAktivVilkårsvurderingForBehandling(behandlingId)
         val personResultat =
@@ -124,7 +124,7 @@ class VilkårsvurderingService(
         val vilkårResultatSomSkalSlettes = eksisterendeVilkårResultater.find { it.id == vilkårId }
             ?: throw Feil(
                 message = "Prøver å slette et vilkår som ikke finnes",
-                frontendFeilmelding = "Vilkåret du prøver å slette finnes ikke i systemet."
+                frontendFeilmelding = "Vilkåret du prøver å slette finnes ikke i systemet.",
             )
 
         eksisterendeVilkårResultater.remove(vilkårResultatSomSkalSlettes)
@@ -163,9 +163,11 @@ class VilkårsvurderingService(
                 if (vilkårResultat.periodeFom == null || vilkårResultat.resultat != Resultat.OPPFYLT) {
                     vilkårResultat.kopier(
                         periodeFom = persongrunnlag.personer.find { it.aktør == personResultat.aktør }?.fødselsdato,
-                        resultat = Resultat.OPPFYLT
+                        resultat = Resultat.OPPFYLT,
                     )
-                } else vilkårResultat
+                } else {
+                    vilkårResultat
+                }
             }
 
             personResultat.vilkårResultater.clear()
@@ -175,13 +177,13 @@ class VilkårsvurderingService(
 
     private fun hentPersonResultatForPerson(
         personResultater: Set<PersonResultat>,
-        personIdent: String
+        personIdent: String,
     ): PersonResultat {
         val aktør = personidentService.hentAktør(personIdent)
 
         return personResultater.find { it.aktør == aktør } ?: throw Feil(
             message = "Fant ikke vilkårsvurdering for person",
-            frontendFeilmelding = "Fant ikke vilkårsvurdering for person med ident $personIdent"
+            frontendFeilmelding = "Fant ikke vilkårsvurdering for person med ident $personIdent",
         )
     }
 

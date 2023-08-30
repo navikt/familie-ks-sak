@@ -19,7 +19,7 @@ class SettBehandlingPåVentService(
     private val behandlingRepository: BehandlingRepository,
     private val stegService: StegService,
     private val loggService: LoggService,
-    private val oppgaveService: OppgaveService
+    private val oppgaveService: OppgaveService,
 ) {
 
     @Transactional
@@ -31,7 +31,7 @@ class SettBehandlingPåVentService(
 
         oppgaveService.forlengFristÅpneOppgaverPåBehandling(
             behandlingId = behandling.id,
-            forlengelse = Period.between(LocalDate.now(), frist)
+            forlengelse = Period.between(LocalDate.now(), frist),
         )
     }
 
@@ -43,7 +43,7 @@ class SettBehandlingPåVentService(
 
         oppgaveService.forlengFristÅpneOppgaverPåBehandling(
             behandlingId = behandlingId,
-            forlengelse = Period.between(gammelFrist, frist)
+            forlengelse = Period.between(gammelFrist, frist),
         )
     }
 
@@ -62,7 +62,7 @@ class SettBehandlingPåVentService(
 
         oppgaveService.settFristÅpneOppgaverPåBehandlingTil(
             behandlingId = behandlingId,
-            nyFrist = LocalDate.now().plusDays(1)
+            nyFrist = LocalDate.now().plusDays(1),
         )
     }
 
@@ -70,27 +70,27 @@ class SettBehandlingPåVentService(
         when {
             behandling.behandlingStegTilstand.any { it.behandlingStegStatus == BehandlingStegStatus.VENTER } -> {
                 throw FunksjonellFeil(
-                    melding = "Behandlingen er allerede satt på vent."
+                    melding = "Behandlingen er allerede satt på vent.",
                 )
             }
 
             frist.isBefore(LocalDate.now()) -> {
                 throw FunksjonellFeil(
                     melding = "Frist for å vente på behandling ${behandling.id} er satt før dagens dato.",
-                    frontendFeilmelding = "Fristen er satt før dagens dato."
+                    frontendFeilmelding = "Fristen er satt før dagens dato.",
                 )
             }
 
             behandling.status == BehandlingStatus.AVSLUTTET -> {
                 throw FunksjonellFeil(
                     melding = "Behandling ${behandling.id} er avsluttet og kan ikke settes på vent.",
-                    frontendFeilmelding = "Kan ikke sette en avsluttet behandling på vent."
+                    frontendFeilmelding = "Kan ikke sette en avsluttet behandling på vent.",
                 )
             }
 
             !behandling.aktiv -> {
                 throw FunksjonellFeil(
-                    "Behandling ${behandling.id} er ikke aktiv og kan ikke settes på vent."
+                    "Behandling ${behandling.id} er ikke aktiv og kan ikke settes på vent.",
                 )
             }
         }

@@ -33,7 +33,7 @@ class VedtakSteg(
     private val oppgaveService: OppgaveService,
     private val vedtakService: VedtakService,
     private val vedtaksperiodeService: VedtaksperiodeService,
-    private val genererBrevService: GenererBrevService
+    private val genererBrevService: GenererBrevService,
 ) : IBehandlingSteg {
     override fun getBehandlingssteg(): BehandlingSteg = BehandlingSteg.VEDTAK
 
@@ -50,7 +50,7 @@ class VedtakSteg(
         val godkjenneVedtakTask = OpprettOppgaveTask.opprettTask(
             behandlingId = behandling.id,
             oppgavetype = Oppgavetype.GodkjenneVedtak,
-            fristForFerdigstillelse = LocalDate.now()
+            fristForFerdigstillelse = LocalDate.now(),
         )
 
         taskService.save(godkjenneVedtakTask)
@@ -74,7 +74,7 @@ class VedtakSteg(
             it.type in listOf(
                 Oppgavetype.BehandleSak,
                 Oppgavetype.BehandleUnderkjentVedtak,
-                Oppgavetype.VurderLivshendelse
+                Oppgavetype.VurderLivshendelse,
             )
         }
 
@@ -98,7 +98,7 @@ class VedtakSteg(
             val utvidetVedtaksperioder = vedtaksperiodeService.hentUtvidetVedtaksperioderMedBegrunnelser(vedtak)
             utvidetVedtaksperioder.validerPerioderInneholderBegrunnelser(
                 behandlingId = behandling.id,
-                fagsakId = behandling.fagsak.id
+                fagsakId = behandling.fagsak.id,
             )
         }
     }

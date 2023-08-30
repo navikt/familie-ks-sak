@@ -53,25 +53,25 @@ class BrevPeriodeContextTest {
             PersonIBehandling(
                 personType = PersonType.SØKER,
                 fødselsDato = LocalDate.now().minusYears(20),
-                overstyrendeVilkårResultater = emptyList()
+                overstyrendeVilkårResultater = emptyList(),
             ),
             PersonIBehandling(
                 personType = PersonType.BARN,
                 fødselsDato = barnFødselsdato,
-                overstyrendeVilkårResultater = emptyList()
-            )
+                overstyrendeVilkårResultater = emptyList(),
+            ),
         )
 
         val brevPeriodeDto = lagBrevPeriodeContext(
             personerIBehandling = personerIbehandling,
             begrunnelser = listOf(Begrunnelse.INNVILGET_IKKE_BARNEHAGE),
             vedtaksperiodeType = Vedtaksperiodetype.UTBETALING,
-            skalOppretteEndretUtbetalingAndeler = false
+            skalOppretteEndretUtbetalingAndeler = false,
         ).genererBrevPeriodeDto()
 
         Assertions.assertEquals(
             listOf(barnFødselsdato.plusYears(1).førsteDagINesteMåned().tilDagMånedÅr()),
-            brevPeriodeDto?.fom
+            brevPeriodeDto?.fom,
         )
         Assertions.assertEquals(
             listOf(
@@ -79,9 +79,9 @@ class BrevPeriodeContextTest {
                     .plusYears(2)
                     .minusMonths(1)
                     .sisteDagIMåned()
-                    .tilDagMånedÅr() + " "
+                    .tilDagMånedÅr() + " ",
             ),
-            brevPeriodeDto?.tom
+            brevPeriodeDto?.tom,
         )
         Assertions.assertEquals(listOf("7 500"), brevPeriodeDto?.belop)
         Assertions.assertEquals(listOf("1"), brevPeriodeDto?.antallBarn)
@@ -105,9 +105,9 @@ class BrevPeriodeContextTest {
                 maalform = "bokmaal",
                 belop = "7 500",
                 antallTimerBarnehageplass = "0",
-                soknadstidspunkt = ""
+                soknadstidspunkt = "",
             ),
-            brevPeriodeDto?.begrunnelser?.single()
+            brevPeriodeDto?.begrunnelser?.single(),
         )
     }
 
@@ -119,7 +119,7 @@ class BrevPeriodeContextTest {
             PersonIBehandling(
                 personType = PersonType.SØKER,
                 fødselsDato = LocalDate.now().minusYears(20),
-                overstyrendeVilkårResultater = emptyList()
+                overstyrendeVilkårResultater = emptyList(),
             ),
             PersonIBehandling(
                 personType = PersonType.BARN,
@@ -129,17 +129,17 @@ class BrevPeriodeContextTest {
                         vilkårType = Vilkår.BARNEHAGEPLASS,
                         periodeFom = barnFødselsdato.plusYears(1),
                         periodeTom = barnFødselsdato.plusYears(2),
-                        antallTimer = BigDecimal.valueOf(17)
-                    )
-                )
-            )
+                        antallTimer = BigDecimal.valueOf(17),
+                    ),
+                ),
+            ),
         )
 
         val brevPeriodeDto = lagBrevPeriodeContext(
             personerIBehandling = personerIbehandling,
             begrunnelser = listOf(Begrunnelse.INNVILGET_DELTID_BARNEHAGE),
             vedtaksperiodeType = Vedtaksperiodetype.UTBETALING,
-            skalOppretteEndretUtbetalingAndeler = false
+            skalOppretteEndretUtbetalingAndeler = false,
         ).genererBrevPeriodeDto()
 
         Assertions.assertEquals(
@@ -155,9 +155,9 @@ class BrevPeriodeContextTest {
                 maalform = "bokmaal",
                 belop = "3 000",
                 antallTimerBarnehageplass = "17",
-                soknadstidspunkt = ""
+                soknadstidspunkt = "",
             ),
-            brevPeriodeDto?.begrunnelser?.single()
+            brevPeriodeDto?.begrunnelser?.single(),
         )
     }
 
@@ -169,7 +169,7 @@ class BrevPeriodeContextTest {
             PersonIBehandling(
                 personType = PersonType.SØKER,
                 fødselsDato = LocalDate.now().minusYears(20),
-                overstyrendeVilkårResultater = emptyList()
+                overstyrendeVilkårResultater = emptyList(),
             ),
             PersonIBehandling(
                 personType = PersonType.BARN,
@@ -179,23 +179,23 @@ class BrevPeriodeContextTest {
                         vilkårType = Vilkår.BARNEHAGEPLASS,
                         periodeFom = barnFødselsdato.plusYears(1),
                         periodeTom = barnFødselsdato.plusYears(2),
-                        antallTimer = BigDecimal.valueOf(17)
+                        antallTimer = BigDecimal.valueOf(17),
                     ),
                     lagVilkårResultat(
                         vilkårType = Vilkår.BARNETS_ALDER,
                         periodeFom = barnFødselsdato.plusYears(1),
                         periodeTom = barnFødselsdato.plusYears(2),
-                        utdypendeVilkårsvurderinger = listOf(UtdypendeVilkårsvurdering.ADOPSJON)
-                    )
-                )
-            )
+                        utdypendeVilkårsvurderinger = listOf(UtdypendeVilkårsvurdering.ADOPSJON),
+                    ),
+                ),
+            ),
         )
 
         val brevPeriodeDto = lagBrevPeriodeContext(
             personerIBehandling = personerIbehandling,
             begrunnelser = listOf(Begrunnelse.INNVILGET_DELTID_BARNEHAGE_ADOPSJON),
             vedtaksperiodeType = Vedtaksperiodetype.UTBETALING,
-            skalOppretteEndretUtbetalingAndeler = false
+            skalOppretteEndretUtbetalingAndeler = false,
         ).genererBrevPeriodeDto()
 
         Assertions.assertEquals(
@@ -211,9 +211,9 @@ class BrevPeriodeContextTest {
                 maalform = "bokmaal",
                 belop = "3 000",
                 antallTimerBarnehageplass = "17",
-                soknadstidspunkt = ""
+                soknadstidspunkt = "",
             ),
-            brevPeriodeDto?.begrunnelser?.single()
+            brevPeriodeDto?.begrunnelser?.single(),
         )
     }
 
@@ -225,7 +225,7 @@ class BrevPeriodeContextTest {
             PersonIBehandling(
                 personType = PersonType.SØKER,
                 fødselsDato = LocalDate.now().minusYears(20),
-                overstyrendeVilkårResultater = emptyList()
+                overstyrendeVilkårResultater = emptyList(),
             ),
             PersonIBehandling(
                 personType = PersonType.BARN,
@@ -235,17 +235,17 @@ class BrevPeriodeContextTest {
                         vilkårType = Vilkår.BARNETS_ALDER,
                         periodeFom = barnFødselsdato.plusYears(1),
                         periodeTom = barnFødselsdato.plusYears(2),
-                        utdypendeVilkårsvurderinger = listOf(UtdypendeVilkårsvurdering.ADOPSJON)
-                    )
-                )
-            )
+                        utdypendeVilkårsvurderinger = listOf(UtdypendeVilkårsvurdering.ADOPSJON),
+                    ),
+                ),
+            ),
         )
 
         val brevPeriodeDto = lagBrevPeriodeContext(
             personerIBehandling = personerIbehandling,
             begrunnelser = listOf(Begrunnelse.INNVILGET_IKKE_BARNEHAGE_ADOPSJON),
             vedtaksperiodeType = Vedtaksperiodetype.UTBETALING,
-            skalOppretteEndretUtbetalingAndeler = false
+            skalOppretteEndretUtbetalingAndeler = false,
         ).genererBrevPeriodeDto()
 
         Assertions.assertEquals(
@@ -261,9 +261,9 @@ class BrevPeriodeContextTest {
                 maalform = "bokmaal",
                 belop = "7 500",
                 antallTimerBarnehageplass = "0",
-                soknadstidspunkt = ""
+                soknadstidspunkt = "",
             ),
-            brevPeriodeDto?.begrunnelser?.single()
+            brevPeriodeDto?.begrunnelser?.single(),
         )
     }
 
@@ -275,7 +275,7 @@ class BrevPeriodeContextTest {
             PersonIBehandling(
                 personType = PersonType.SØKER,
                 fødselsDato = LocalDate.now().minusYears(20),
-                overstyrendeVilkårResultater = emptyList()
+                overstyrendeVilkårResultater = emptyList(),
             ),
             PersonIBehandling(
                 personType = PersonType.BARN,
@@ -285,24 +285,24 @@ class BrevPeriodeContextTest {
                         vilkårType = Vilkår.BARNETS_ALDER,
                         periodeFom = barnFødselsdato.plusYears(1),
                         periodeTom = barnFødselsdato.plusYears(2),
-                        utdypendeVilkårsvurderinger = listOf(UtdypendeVilkårsvurdering.ADOPSJON)
+                        utdypendeVilkårsvurderinger = listOf(UtdypendeVilkårsvurdering.ADOPSJON),
                     ),
                     lagVilkårResultat(
                         vilkårType = Vilkår.MEDLEMSKAP_ANNEN_FORELDER,
                         periodeFom = barnFødselsdato.plusYears(1),
                         periodeTom = barnFødselsdato.plusYears(2),
                         utdypendeVilkårsvurderinger = listOf(UtdypendeVilkårsvurdering.ADOPSJON),
-                        resultat = Resultat.OPPFYLT
-                    )
-                )
-            )
+                        resultat = Resultat.OPPFYLT,
+                    ),
+                ),
+            ),
         )
 
         val brevPeriodeDto = lagBrevPeriodeContext(
             personerIBehandling = personerIbehandling,
             begrunnelser = listOf(Begrunnelse.INNVILGET_IKKE_BARNEHAGE_ADOPSJON),
             vedtaksperiodeType = Vedtaksperiodetype.UTBETALING,
-            skalOppretteEndretUtbetalingAndeler = true
+            skalOppretteEndretUtbetalingAndeler = true,
         ).genererBrevPeriodeDto()
 
         Assertions.assertEquals(
@@ -318,9 +318,9 @@ class BrevPeriodeContextTest {
                 maalform = "bokmaal",
                 belop = "7 500",
                 antallTimerBarnehageplass = "0",
-                soknadstidspunkt = ""
+                soknadstidspunkt = "",
             ),
-            brevPeriodeDto?.begrunnelser?.single()
+            brevPeriodeDto?.begrunnelser?.single(),
         )
     }
 
@@ -332,7 +332,7 @@ class BrevPeriodeContextTest {
             PersonIBehandling(
                 personType = PersonType.SØKER,
                 fødselsDato = LocalDate.now().minusYears(20),
-                overstyrendeVilkårResultater = emptyList()
+                overstyrendeVilkårResultater = emptyList(),
             ),
             PersonIBehandling(
                 personType = PersonType.BARN,
@@ -342,24 +342,24 @@ class BrevPeriodeContextTest {
                         vilkårType = Vilkår.BARNETS_ALDER,
                         periodeFom = barnFødselsdato.plusYears(1),
                         periodeTom = barnFødselsdato.plusYears(2),
-                        utdypendeVilkårsvurderinger = listOf(UtdypendeVilkårsvurdering.ADOPSJON)
+                        utdypendeVilkårsvurderinger = listOf(UtdypendeVilkårsvurdering.ADOPSJON),
                     ),
                     lagVilkårResultat(
                         vilkårType = Vilkår.MEDLEMSKAP_ANNEN_FORELDER,
                         periodeFom = barnFødselsdato.plusYears(1),
                         periodeTom = barnFødselsdato.plusYears(2),
                         utdypendeVilkårsvurderinger = listOf(UtdypendeVilkårsvurdering.ADOPSJON),
-                        resultat = Resultat.IKKE_AKTUELT
-                    )
-                )
-            )
+                        resultat = Resultat.IKKE_AKTUELT,
+                    ),
+                ),
+            ),
         )
 
         val brevPeriodeDto = lagBrevPeriodeContext(
             personerIBehandling = personerIbehandling,
             begrunnelser = listOf(Begrunnelse.INNVILGET_IKKE_BARNEHAGE_ADOPSJON),
             vedtaksperiodeType = Vedtaksperiodetype.UTBETALING,
-            skalOppretteEndretUtbetalingAndeler = true
+            skalOppretteEndretUtbetalingAndeler = true,
         ).genererBrevPeriodeDto()
 
         Assertions.assertEquals(
@@ -375,9 +375,9 @@ class BrevPeriodeContextTest {
                 maalform = "bokmaal",
                 belop = "7 500",
                 antallTimerBarnehageplass = "0",
-                soknadstidspunkt = ""
+                soknadstidspunkt = "",
             ),
-            brevPeriodeDto?.begrunnelser?.single()
+            brevPeriodeDto?.begrunnelser?.single(),
         )
     }
 }
@@ -385,7 +385,7 @@ class BrevPeriodeContextTest {
 data class PersonIBehandling(
     val personType: PersonType,
     val fødselsDato: LocalDate,
-    val overstyrendeVilkårResultater: List<VilkårResultat>
+    val overstyrendeVilkårResultater: List<VilkårResultat>,
 )
 
 /***
@@ -400,13 +400,13 @@ fun lagBrevPeriodeContext(
     personerIBehandling: List<PersonIBehandling>,
     begrunnelser: List<Begrunnelse>,
     vedtaksperiodeType: Vedtaksperiodetype,
-    skalOppretteEndretUtbetalingAndeler: Boolean = false
+    skalOppretteEndretUtbetalingAndeler: Boolean = false,
 ): BrevPeriodeContext {
     val barnIBehandling = personerIBehandling.filter { it.personType == PersonType.BARN }
 
     val persongrunnlag = lagPersonopplysningGrunnlag(
         barnasIdenter = barnIBehandling.map { randomFnr() },
-        barnasFødselsdatoer = barnIBehandling.map { it.fødselsDato }
+        barnasFødselsdatoer = barnIBehandling.map { it.fødselsDato },
     )
 
     val barnPersonResultater = persongrunnlag
@@ -414,14 +414,14 @@ fun lagBrevPeriodeContext(
         .map { (person, personIBehandling) ->
             lagPersonResultat(
                 person = person,
-                overstyrendeVilkårResultater = personIBehandling.overstyrendeVilkårResultater
+                overstyrendeVilkårResultater = personIBehandling.overstyrendeVilkårResultater,
             )
         }
 
     val søkerPersonResultat = lagPersonResultat(
         person = persongrunnlag.søker,
         overstyrendeVilkårResultater = personerIBehandling.find { it.personType == PersonType.SØKER }?.overstyrendeVilkårResultater
-            ?: emptyList()
+            ?: emptyList(),
     )
 
     val personResultater = barnPersonResultater + søkerPersonResultat
@@ -432,28 +432,32 @@ fun lagBrevPeriodeContext(
     val andelerTilkjentYtelse = TilkjentYtelseUtils.beregnAndelerTilkjentYtelseForBarna(
         personopplysningGrunnlag = persongrunnlag,
         vilkårsvurdering = vilkårsvurdering,
-        tilkjentYtelse = mockk()
+        tilkjentYtelse = mockk(),
     )
 
     val vedtaksperiodeMedBegrunnelser = lagVedtaksperiodeMedBegrunnelser(
         fom = andelerTilkjentYtelse.first().stønadFom.førsteDagIInneværendeMåned(),
         tom = andelerTilkjentYtelse.first().stønadTom.sisteDagIInneværendeMåned(),
         begrunnelser = begrunnelser.map { lagVedtaksbegrunnelse(it) }.toMutableSet(),
-        type = vedtaksperiodeType
+        type = vedtaksperiodeType,
     )
 
-    val endretUtbetalingAndeler = if (skalOppretteEndretUtbetalingAndeler) persongrunnlag.barna.map {
-        EndretUtbetalingAndel(
-            behandlingId = 0,
-            person = it,
-            fom = YearMonth.of(2020, 12),
-            tom = vedtaksperiodeMedBegrunnelser.fom?.toYearMonth()?.minusMonths(1),
-            årsak = Årsak.ETTERBETALING_3MND,
-            prosent = BigDecimal(0),
-            begrunnelse = "Test formål",
-            søknadstidspunkt = LocalDate.of(2020, 12, 12)
-        )
-    } else emptyList()
+    val endretUtbetalingAndeler = if (skalOppretteEndretUtbetalingAndeler) {
+        persongrunnlag.barna.map {
+            EndretUtbetalingAndel(
+                behandlingId = 0,
+                person = it,
+                fom = YearMonth.of(2020, 12),
+                tom = vedtaksperiodeMedBegrunnelser.fom?.toYearMonth()?.minusMonths(1),
+                årsak = Årsak.ETTERBETALING_3MND,
+                prosent = BigDecimal(0),
+                begrunnelse = "Test formål",
+                søknadstidspunkt = LocalDate.of(2020, 12, 12),
+            )
+        }
+    } else {
+        emptyList()
+    }
 
     val andelTilkjentYtelserMedEndreteUtbetalinger =
         andelerTilkjentYtelse.map { AndelTilkjentYtelseMedEndreteUtbetalinger(it, endretUtbetalingAndeler) }
@@ -461,7 +465,7 @@ fun lagBrevPeriodeContext(
     return BrevPeriodeContext(
         utvidetVedtaksperiodeMedBegrunnelser = vedtaksperiodeMedBegrunnelser.tilUtvidetVedtaksperiodeMedBegrunnelser(
             persongrunnlag,
-            andelTilkjentYtelserMedEndreteUtbetalinger
+            andelTilkjentYtelserMedEndreteUtbetalinger,
         ),
         sanityBegrunnelser = lagSanityBegrunnelserFraDump(),
         persongrunnlag = persongrunnlag,
@@ -470,25 +474,25 @@ fun lagBrevPeriodeContext(
 
         uregistrerteBarn = emptyList(),
         barnSomDødeIForrigePeriode = emptyList(),
-        erFørsteVedtaksperiode = false
+        erFørsteVedtaksperiode = false,
     )
 }
 
 fun lagPersonResultat(
     person: Person,
-    overstyrendeVilkårResultater: List<VilkårResultat> = emptyList()
+    overstyrendeVilkårResultater: List<VilkårResultat> = emptyList(),
 ): PersonResultat {
     val personResultat = PersonResultat(
         vilkårsvurdering = mockk(relaxed = true),
-        aktør = person.aktør
+        aktør = person.aktør,
     )
 
     personResultat.setSortedVilkårResultater(
         lagVilkårResultater(
             person = person,
             overstyrendeVilkårResultater = overstyrendeVilkårResultater,
-            personResultat = personResultat
-        ).toSet()
+            personResultat = personResultat,
+        ).toSet(),
     )
 
     return personResultat
@@ -497,7 +501,7 @@ fun lagPersonResultat(
 fun lagVilkårResultater(
     person: Person,
     overstyrendeVilkårResultater: List<VilkårResultat> = emptyList(),
-    personResultat: PersonResultat
+    personResultat: PersonResultat,
 ): List<VilkårResultat> {
     val vilkårResultaterForBarn = Vilkår.hentVilkårFor(person.type)
         .filter { vilkår -> overstyrendeVilkårResultater.none { it.vilkårType == vilkår } }
@@ -508,7 +512,7 @@ fun lagVilkårResultater(
                 periodeFom = if (person.type == PersonType.SØKER) person.fødselsdato else person.fødselsdato.plusYears(1),
                 periodeTom = if (person.type == PersonType.SØKER) null else person.fødselsdato.plusYears(2),
                 behandlingId = 0L,
-                antallTimer = null
+                antallTimer = null,
             )
         }
     return vilkårResultaterForBarn + overstyrendeVilkårResultater
@@ -519,6 +523,6 @@ fun lagSanityBegrunnelserFraDump(): List<SanityBegrunnelse> {
 
     return objectMapper.readValue(
         fil.readText(),
-        SanityBegrunnelserResponsDto::class.java
+        SanityBegrunnelserResponsDto::class.java,
     ).result.map { it.tilSanityBegrunnelse() }
 }

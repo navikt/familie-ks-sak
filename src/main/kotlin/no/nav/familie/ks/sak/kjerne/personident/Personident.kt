@@ -31,7 +31,7 @@ data class Personident(
     var aktiv: Boolean = true,
 
     @Column(name = "gjelder_til", columnDefinition = "DATE")
-    var gjelderTil: LocalDateTime? = null
+    var gjelderTil: LocalDateTime? = null,
 
 ) : BaseEntitet() {
 

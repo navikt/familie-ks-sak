@@ -30,7 +30,7 @@ data class PdlPersonInfo(
     val opphold: List<Opphold>? = emptyList(),
     val statsborgerskap: List<Statsborgerskap>? = emptyList(),
     val dødsfall: DødsfallData? = null,
-    val kontaktinformasjonForDoedsbo: PdlKontaktinformasjonForDødsbo? = null
+    val kontaktinformasjonForDoedsbo: PdlKontaktinformasjonForDødsbo? = null,
 )
 
 fun List<Bostedsadresse>.filtrerUtKunNorskeBostedsadresser() =
@@ -41,7 +41,7 @@ data class ForelderBarnRelasjonInfo(
     val relasjonsrolle: FORELDERBARNRELASJONROLLE,
     val navn: String? = null,
     val fødselsdato: LocalDate? = null,
-    val adressebeskyttelseGradering: ADRESSEBESKYTTELSEGRADERING? = null
+    val adressebeskyttelseGradering: ADRESSEBESKYTTELSEGRADERING? = null,
 ) {
     override fun toString(): String {
         return "ForelderBarnRelasjon(personIdent=XXX, relasjonsrolle=$relasjonsrolle, navn=XXX, fødselsdato=$fødselsdato)"
@@ -54,13 +54,13 @@ data class ForelderBarnRelasjonInfo(
     fun harForelderRelasjon() = this.relasjonsrolle in listOf(
         FORELDERBARNRELASJONROLLE.FAR,
         FORELDERBARNRELASJONROLLE.MOR,
-        FORELDERBARNRELASJONROLLE.MEDMOR
+        FORELDERBARNRELASJONROLLE.MEDMOR,
     )
 }
 
 data class ForelderBarnRelasjonInfoMaskert(
     val relasjonsrolle: FORELDERBARNRELASJONROLLE,
-    val adressebeskyttelseGradering: ADRESSEBESKYTTELSEGRADERING
+    val adressebeskyttelseGradering: ADRESSEBESKYTTELSEGRADERING,
 ) {
     override fun toString(): String {
         return "ForelderBarnRelasjonMaskert(relasjonsrolle=$relasjonsrolle)"
@@ -69,18 +69,18 @@ data class ForelderBarnRelasjonInfoMaskert(
 
 data class DødsfallData(
     val erDød: Boolean,
-    val dødsdato: String?
+    val dødsdato: String?,
 )
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class PdlKontaktinformasjonForDødsbo(
-    val adresse: PdlKontaktinformasjonForDødsboAdresse
+    val adresse: PdlKontaktinformasjonForDødsboAdresse,
 )
 
 data class PdlKontaktinformasjonForDødsboAdresse(
     val adresselinje1: String,
     val poststedsnavn: String,
-    val postnummer: String
+    val postnummer: String,
 )
 
 class KjoennDeserializer : StdDeserializer<KJOENN>(KJOENN::class.java) {

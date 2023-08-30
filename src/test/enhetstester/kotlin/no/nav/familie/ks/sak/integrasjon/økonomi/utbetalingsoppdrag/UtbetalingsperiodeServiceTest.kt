@@ -56,7 +56,7 @@ internal class UtbetalingsperiodeServiceTest {
         every {
             beregningService.hentSisteOffsetPerIdent(
                 any(),
-                any()
+                any(),
             )
         } returns mockk()
         every { beregningService.hentSisteOffsetPåFagsak(any()) } returns mockk()
@@ -72,13 +72,13 @@ internal class UtbetalingsperiodeServiceTest {
             utbetalingsoppdragGenerator.lagTilkjentYtelseMedUtbetalingsoppdrag(
                 any(),
                 any(),
-                any()
+                any(),
             )
         } returns lagTilkjentYtelse(lagUtbetalingsoppdrag(emptyList()), behandling)
         utbetalingsoppdragService.oppdaterTilkjentYtelseMedUtbetalingsoppdragOgIverksett(
             vedtak,
             "",
-            AndelTilkjentYtelseForIverksetting.Factory
+            AndelTilkjentYtelseForIverksetting.Factory,
         )
         verify(exactly = 0) { oppdragKlient.iverksettOppdrag(any()) }
     }
@@ -89,13 +89,13 @@ internal class UtbetalingsperiodeServiceTest {
             utbetalingsoppdragGenerator.lagTilkjentYtelseMedUtbetalingsoppdrag(
                 any(),
                 any(),
-                any()
+                any(),
             )
         } returns lagTilkjentYtelse(lagUtbetalingsoppdrag(listOf(lagUtbetalingsperiode())), behandling)
         utbetalingsoppdragService.oppdaterTilkjentYtelseMedUtbetalingsoppdragOgIverksett(
             vedtak,
             "",
-            AndelTilkjentYtelseForIverksetting.Factory
+            AndelTilkjentYtelseForIverksetting.Factory,
         )
         verify(exactly = 1) { oppdragKlient.iverksettOppdrag(any()) }
     }

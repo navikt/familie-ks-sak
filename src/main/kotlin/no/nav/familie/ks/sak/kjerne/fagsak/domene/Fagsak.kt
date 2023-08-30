@@ -27,7 +27,7 @@ data class Fagsak(
     @JoinColumn(
         name = "fk_aktoer_id",
         nullable = false,
-        updatable = false
+        updatable = false,
     )
     val aktør: Aktør,
 
@@ -36,7 +36,7 @@ data class Fagsak(
     var status: FagsakStatus = FagsakStatus.OPPRETTET,
 
     @Column(name = "arkivert", nullable = false)
-    var arkivert: Boolean = false
+    var arkivert: Boolean = false,
 ) : BaseEntitet() {
 
     override fun hashCode(): Int {
@@ -62,5 +62,5 @@ data class Fagsak(
 enum class FagsakStatus {
     OPPRETTET,
     LØPENDE, // Har minst én behandling gjeldende for fremtidig utbetaling
-    AVSLUTTET
+    AVSLUTTET,
 }

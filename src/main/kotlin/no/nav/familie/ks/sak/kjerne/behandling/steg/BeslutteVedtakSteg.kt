@@ -37,7 +37,7 @@ class BeslutteVedtakSteg(
     private val vilkårsvurderingService: VilkårsvurderingService,
     private val featureToggleService: FeatureToggleService,
     private val genererBrevService: GenererBrevService,
-    private val tilkjentYtelseValideringService: TilkjentYtelseValideringService
+    private val tilkjentYtelseValideringService: TilkjentYtelseValideringService,
 ) : IBehandlingSteg {
     override fun getBehandlingssteg(): BehandlingSteg = BehandlingSteg.BESLUTTE_VEDTAK
 
@@ -55,21 +55,20 @@ class BeslutteVedtakSteg(
             beslutter = SikkerhetContext.hentSaksbehandlerNavn(),
             beslutterId = SikkerhetContext.hentSaksbehandler(),
             beslutning = besluttVedtakDto.beslutning,
-            kontrollerteSider = besluttVedtakDto.kontrollerteSider
+            kontrollerteSider = besluttVedtakDto.kontrollerteSider,
         )
 
         // opprett historikkinnslag
         loggService.opprettBeslutningOmVedtakLogg(
             behandling,
             besluttVedtakDto.beslutning,
-            behandlingStegDto.begrunnelse
+            behandlingStegDto.begrunnelse,
         )
 
         // ferdigstill GodkjenneVedtak oppgave
         opprettTaskFerdigstillGodkjenneVedtak(behandling = behandling)
 
         if (besluttVedtakDto.beslutning.erGodkjent()) {
-
             tilkjentYtelseValideringService.validerAtIngenUtbetalingerOverstiger100Prosent(behandling)
 
             // Oppdater vedtaksbrev med beslutter
@@ -89,14 +88,14 @@ class BeslutteVedtakSteg(
 
             vedtakService.opprettOgInitierNyttVedtakForBehandling(
                 behandling = behandling,
-                kopierVedtakBegrunnelser = true
+                kopierVedtakBegrunnelser = true,
             )
 
             val behandleUnderkjentVedtakTask = OpprettOppgaveTask.opprettTask(
                 behandlingId = behandling.id,
                 oppgavetype = Oppgavetype.BehandleUnderkjentVedtak,
                 tilordnetRessurs = totrinnskontroll.saksbehandlerId,
-                fristForFerdigstillelse = LocalDate.now()
+                fristForFerdigstillelse = LocalDate.now(),
             )
             taskService.save(behandleUnderkjentVedtakTask)
         }
@@ -116,7 +115,7 @@ class BeslutteVedtakSteg(
                     melding = "Årsak ${BehandlingÅrsak.KORREKSJON_VEDTAKSBREV.visningsnavn} og " +
                         "toggle ${FeatureToggleConfig.KAN_MANUELT_KORRIGERE_MED_VEDTAKSBREV} false",
                     frontendFeilmelding = "Du har ikke tilgang til å beslutte for denne behandlingen. " +
-                        "Ta kontakt med teamet dersom dette ikke stemmer."
+                        "Ta kontakt med teamet dersom dette ikke stemmer.",
                 )
         }
     }

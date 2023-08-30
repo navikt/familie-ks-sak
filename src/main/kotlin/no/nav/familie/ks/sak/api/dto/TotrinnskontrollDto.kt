@@ -7,12 +7,12 @@ data class TotrinnskontrollDto(
     val saksbehandler: String,
     val beslutter: String? = null,
     val godkjent: Boolean = false,
-    val opprettetTidspunkt: LocalDateTime
+    val opprettetTidspunkt: LocalDateTime,
 )
 
 fun Totrinnskontroll.tilTotrinnskontrollDto() = TotrinnskontrollDto(
     saksbehandler = this.saksbehandler,
     beslutter = this.beslutter,
     godkjent = this.godkjent,
-    opprettetTidspunkt = this.opprettetTidspunkt
+    opprettetTidspunkt = this.opprettetTidspunkt,
 )

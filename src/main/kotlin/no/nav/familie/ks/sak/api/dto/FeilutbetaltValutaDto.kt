@@ -7,7 +7,7 @@ data class FeilutbetaltValutaDto(
     val id: Long?,
     val fom: LocalDate,
     val tom: LocalDate,
-    val feilutbetaltBeløp: Int
+    val feilutbetaltBeløp: Int,
 )
 
 fun FeilutbetaltValuta.tilFeilutbetaltValutaDto(): FeilutbetaltValutaDto =
@@ -15,5 +15,5 @@ fun FeilutbetaltValuta.tilFeilutbetaltValutaDto(): FeilutbetaltValutaDto =
         id = id,
         fom = fom,
         tom = tom,
-        feilutbetaltBeløp = feilutbetaltBeløp
+        feilutbetaltBeløp = feilutbetaltBeløp,
     )

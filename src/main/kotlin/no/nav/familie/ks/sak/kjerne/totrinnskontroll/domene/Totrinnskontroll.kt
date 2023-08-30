@@ -23,7 +23,7 @@ data class Totrinnskontroll(
     @SequenceGenerator(
         name = "totrinnskontroll_seq_generator",
         sequenceName = "totrinnskontroll_seq",
-        allocationSize = 50
+        allocationSize = 50,
     )
     val id: Long = 0,
 
@@ -51,7 +51,7 @@ data class Totrinnskontroll(
 
     @Column(name = "kontrollerte_sider")
     @Convert(converter = StringListConverter::class)
-    var kontrollerteSider: List<String> = emptyList()
+    var kontrollerteSider: List<String> = emptyList(),
 ) : BaseEntitet() {
 
     fun erBesluttet() = beslutter != null

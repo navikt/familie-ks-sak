@@ -1,9 +1,8 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    val kotlinVersion = "1.8.22"
+    val kotlinVersion = "1.9.10"
     kotlin("jvm") version kotlinVersion
-
     id("org.springframework.boot") version "3.1.0"
     id("io.spring.dependency-management") version "1.0.13.RELEASE"
     id("org.jetbrains.kotlin.plugin.spring") version kotlinVersion
@@ -16,6 +15,7 @@ plugins {
 group = "no.nav"
 version = "0.0.1-SNAPSHOT"
 java.sourceCompatibility = JavaVersion.VERSION_17
+val ktlint by configurations.creating
 
 repositories {
     mavenCentral()
@@ -45,7 +45,7 @@ dependencies {
     val navFoedselsnummerVersion = "1.0-SNAPSHOT.6"
     val prosesseringVersion = "2.20230807154047_d770f01"
     val restAssuredVersion = "5.3.0"
-    val kotlinxVersion = "1.6.4"
+    val kotlinxVersion = "1.7.3"
 
     // ---------- Spring ---------- \\
     implementation("org.springframework.boot:spring-boot-starter")
@@ -102,8 +102,13 @@ dependencies {
     implementation("io.sentry:sentry-logback:$sentryVersion")
     implementation("io.micrometer:micrometer-registry-prometheus")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.14.0")
-    implementation("com.pinterest:ktlint:0.47.1")
     implementation("com.neovisionaries:nv-i18n:1.29")
+
+    ktlint("com.pinterest:ktlint:0.50.0") {
+        attributes {
+            attribute(Bundling.BUNDLING_ATTRIBUTE, objects.named(Bundling.EXTERNAL))
+        }
+    }
 
     testImplementation("io.mockk:mockk:1.13.2")
     testImplementation("com.ninja-squad:springmockk:3.1.1") {
@@ -141,6 +146,34 @@ tasks {
     bootJar {
         archiveFileName.set("familie-ks-sak.jar")
     }
+}
+
+val ktlintCheck by tasks.registering(JavaExec::class) {
+    group = LifecycleBasePlugin.VERIFICATION_GROUP
+    description = "Check Kotlin code style"
+    classpath = ktlint
+    mainClass.set("com.pinterest.ktlint.Main")
+    // see https://pinterest.github.io/ktlint/install/cli/#command-line-usage for more information
+    args(
+        "src/**/*.kt",
+    )
+}
+
+tasks.check {
+    dependsOn(ktlintCheck)
+}
+
+tasks.register<JavaExec>("ktlintFormat") {
+    group = LifecycleBasePlugin.VERIFICATION_GROUP
+    description = "Check Kotlin code style and format"
+    classpath = ktlint
+    mainClass.set("com.pinterest.ktlint.Main")
+    jvmArgs("--add-opens=java.base/java.lang=ALL-UNNAMED")
+    // see https://pinterest.github.io/ktlint/install/cli/#command-line-usage for more information
+    args(
+        "-F",
+        "src/**/*.kt",
+    )
 }
 
 allprojects {

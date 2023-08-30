@@ -5,54 +5,54 @@ import java.time.LocalDate
 
 data class SvartidsbrevDto(
     override val mal: Brevmal,
-    override val data: SvartidsbrevDataDto
+    override val data: SvartidsbrevDataDto,
 ) : BrevDto {
     constructor(
         navn: String,
         fodselsnummer: String,
         enhet: String,
         mal: Brevmal,
-        erEøsBehandling: Boolean
+        erEøsBehandling: Boolean,
     ) : this(
         mal = mal,
         data = SvartidsbrevDataDto(
             flettefelter = SvartidsbrevDataDto.FlettefelterDto(
                 navn = navn,
-                fodselsnummer = fodselsnummer
+                fodselsnummer = fodselsnummer,
             ),
             delmalData = SvartidsbrevDataDto.DelmalData(
                 signatur = SignaturDelmal(
-                    enhet = enhet
+                    enhet = enhet,
                 ),
-                kontonummer = erEøsBehandling
+                kontonummer = erEøsBehandling,
 
-            )
-        )
+            ),
+        ),
     )
 }
 
 data class SvartidsbrevDataDto(
     override val delmalData: DelmalData,
-    override val flettefelter: FlettefelterDto
+    override val flettefelter: FlettefelterDto,
 ) : BrevDataDto {
 
     data class FlettefelterDto(
         override val navn: Flettefelt,
         override val fodselsnummer: Flettefelt,
-        override val brevOpprettetDato: Flettefelt = flettefelt(LocalDate.now().tilDagMånedÅr())
+        override val brevOpprettetDato: Flettefelt = flettefelt(LocalDate.now().tilDagMånedÅr()),
     ) : FlettefelterForDokumentDto {
 
         constructor(
             navn: String,
-            fodselsnummer: String
+            fodselsnummer: String,
         ) : this(
             navn = flettefelt(navn),
-            fodselsnummer = flettefelt(fodselsnummer)
+            fodselsnummer = flettefelt(fodselsnummer),
         )
     }
 
     data class DelmalData(
         val signatur: SignaturDelmal,
-        val kontonummer: Boolean
+        val kontonummer: Boolean,
     )
 }

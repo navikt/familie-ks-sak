@@ -20,7 +20,7 @@ data class KompetanseDto(
     val annenForeldersAktivitetsland: String? = null,
     val barnetsBostedsland: String? = null,
     val resultat: KompetanseResultat? = null,
-    override val status: UtfyltStatus = UtfyltStatus.IKKE_UTFYLT
+    override val status: UtfyltStatus = UtfyltStatus.IKKE_UTFYLT,
 ) : AbstractEøsSkjemaUtfyltStatus<KompetanseDto>() {
     init {
         when {
@@ -44,8 +44,8 @@ data class KompetanseDto(
                 this.annenForeldersAktivitetsland,
                 this.resultat,
                 this.søkersAktivitet,
-                this.søkersAktivitetsland
-            )
+                this.søkersAktivitetsland,
+            ),
         )
         if (annenForeldersAktivitetsland == null) {
             antallUtfylteFelter += (
@@ -70,7 +70,7 @@ fun KompetanseDto.tilKompetanse(barnAktører: List<Aktør>) = Kompetanse(
     annenForeldersAktivitet = this.annenForeldersAktivitet,
     annenForeldersAktivitetsland = this.annenForeldersAktivitetsland,
     barnetsBostedsland = this.barnetsBostedsland,
-    resultat = this.resultat
+    resultat = this.resultat,
 )
 
 fun Kompetanse.tilKompetanseDto() = KompetanseDto(
@@ -83,5 +83,5 @@ fun Kompetanse.tilKompetanseDto() = KompetanseDto(
     annenForeldersAktivitet = this.annenForeldersAktivitet,
     annenForeldersAktivitetsland = this.annenForeldersAktivitetsland,
     barnetsBostedsland = this.barnetsBostedsland,
-    resultat = this.resultat
+    resultat = this.resultat,
 ).medUtfyltStatus()

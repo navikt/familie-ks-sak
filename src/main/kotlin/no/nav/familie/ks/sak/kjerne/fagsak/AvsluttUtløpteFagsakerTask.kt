@@ -13,7 +13,7 @@ import org.springframework.stereotype.Service
     taskStepType = AvsluttUtløpteFagsakerTask.TASK_STEP_TYPE,
     beskrivelse = "Oppdater fagsakstatus fra LØPENDE til AVSLUTTET på avsluttede fagsaker",
     maxAntallFeil = 3,
-    triggerTidVedFeilISekunder = 60
+    triggerTidVedFeilISekunder = 60,
 )
 class AvsluttUtløpteFagsakerTask(val fagsakService: FagsakService) : AsyncTaskStep {
 

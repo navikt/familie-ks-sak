@@ -19,23 +19,23 @@ import org.springframework.web.bind.annotation.RestController
 @ProtectedWithClaims(issuer = "azuread")
 class SimuleringController(
     private val simuleringService: SimuleringService,
-    private val tilgangService: TilgangService
+    private val tilgangService: TilgangService,
 ) {
 
     @GetMapping(path = ["/{behandlingId}/simulering"])
     fun hentSimulering(
-        @PathVariable behandlingId: Long
+        @PathVariable behandlingId: Long,
     ): ResponseEntity<Ressurs<SimuleringResponsDto>> {
         tilgangService.validerTilgangTilHandlingOgFagsakForBehandling(
             behandlingId = behandlingId,
             event = AuditLoggerEvent.ACCESS,
             minimumBehandlerRolle = BehandlerRolle.VEILEDER,
-            handling = "hente og/eller oppdatere simulering på behandling"
+            handling = "hente og/eller oppdatere simulering på behandling",
         )
         return ResponseEntity.ok(
             Ressurs.success(
-                simuleringService.oppdaterSimuleringPåBehandlingVedBehov(behandlingId).tilSimuleringDto()
-            )
+                simuleringService.oppdaterSimuleringPåBehandlingVedBehov(behandlingId).tilSimuleringDto(),
+            ),
         )
     }
 }

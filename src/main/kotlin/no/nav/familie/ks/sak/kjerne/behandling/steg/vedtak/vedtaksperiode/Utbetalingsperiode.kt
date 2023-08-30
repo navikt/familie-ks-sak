@@ -26,7 +26,7 @@ data class Utbetalingsperiode(
     val utbetalingsperiodeDetaljer: List<UtbetalingsperiodeDetalj>,
     val ytelseTyper: List<YtelseType>,
     val antallBarn: Int,
-    val utbetaltPerMnd: Int
+    val utbetaltPerMnd: Int,
 ) : Vedtaksperiode
 
 data class UtbetalingsperiodeDetalj(
@@ -34,12 +34,12 @@ data class UtbetalingsperiodeDetalj(
     val ytelseType: YtelseType,
     val utbetaltPerMnd: Int,
     val erPåvirketAvEndring: Boolean,
-    val prosent: BigDecimal
+    val prosent: BigDecimal,
 )
 
 fun mapTilUtbetalingsperioder(
     personopplysningGrunnlag: PersonopplysningGrunnlag,
-    andelerTilkjentYtelse: List<AndelTilkjentYtelseMedEndreteUtbetalinger>
+    andelerTilkjentYtelse: List<AndelTilkjentYtelseMedEndreteUtbetalinger>,
 ): List<Utbetalingsperiode> {
     val kombinertTidslinjePerAktør = andelerTilkjentYtelse.tilKombinertTidslinjePerAktør()
 
@@ -50,7 +50,7 @@ fun mapTilUtbetalingsperioder(
             ytelseTyper = it.verdi.map { andelTilkjentYtelse -> andelTilkjentYtelse.type },
             utbetaltPerMnd = it.verdi.sumOf { andelTilkjentYtelse -> andelTilkjentYtelse.kalkulertUtbetalingsbeløp },
             antallBarn = it.verdi.count { andel -> personopplysningGrunnlag.barna.any { barn -> barn.aktør == andel.aktør } },
-            utbetalingsperiodeDetaljer = it.verdi.lagUtbetalingsperiodeDetaljer(personopplysningGrunnlag)
+            utbetalingsperiodeDetaljer = it.verdi.lagUtbetalingsperiodeDetaljer(personopplysningGrunnlag),
         )
     }
 
@@ -61,16 +61,16 @@ private fun List<AndelTilkjentYtelseMedEndreteUtbetalinger>.tilTidslinje() = map
     Periode(
         it,
         it.stønadFom.førsteDagIInneværendeMåned(),
-        it.stønadTom.sisteDagIInneværendeMåned()
+        it.stønadTom.sisteDagIInneværendeMåned(),
     )
 }.tilTidslinje()
 
 internal fun Collection<AndelTilkjentYtelseMedEndreteUtbetalinger>.lagUtbetalingsperiodeDetaljer(
-    personopplysningGrunnlag: PersonopplysningGrunnlag
+    personopplysningGrunnlag: PersonopplysningGrunnlag,
 ): List<UtbetalingsperiodeDetalj> = this.map { andel ->
     val personForAndel =
         personopplysningGrunnlag.personer.find { person -> andel.aktør == person.aktør } ?: throw IllegalStateException(
-            "Fant ikke personopplysningsgrunnlag for andel"
+            "Fant ikke personopplysningsgrunnlag for andel",
         )
 
     UtbetalingsperiodeDetalj(
@@ -78,6 +78,6 @@ internal fun Collection<AndelTilkjentYtelseMedEndreteUtbetalinger>.lagUtbetaling
         ytelseType = andel.type,
         utbetaltPerMnd = andel.kalkulertUtbetalingsbeløp,
         erPåvirketAvEndring = andel.endreteUtbetalinger.isNotEmpty(),
-        prosent = andel.prosent
+        prosent = andel.prosent,
     )
 }

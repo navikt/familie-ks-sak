@@ -28,7 +28,7 @@ class OppgaveService(
     private val integrasjonClient: IntegrasjonClient,
     private val oppgaveRepository: OppgaveRepository,
     private val behandlingRepository: BehandlingRepository,
-    private val arbeidsfordelingPåBehandlingRepository: ArbeidsfordelingPåBehandlingRepository
+    private val arbeidsfordelingPåBehandlingRepository: ArbeidsfordelingPåBehandlingRepository,
 ) {
 
     fun opprettOppgave(
@@ -36,7 +36,7 @@ class OppgaveService(
         oppgavetype: Oppgavetype,
         fristForFerdigstillelse: LocalDate,
         tilordnetNavIdent: String? = null,
-        beskrivelse: String? = null
+        beskrivelse: String? = null,
     ): String {
         val behandling = behandlingRepository.hentBehandling(behandlingId)
         val eksisterendeIkkeFerdigstiltOppgave =
@@ -45,7 +45,7 @@ class OppgaveService(
             logger.warn(
                 "Fant eksisterende oppgave $eksisterendeIkkeFerdigstiltOppgave med " +
                     "samme oppgavetype $oppgavetype som ikke er ferdigstilt for behandling ${behandling.id}." +
-                    "Vi oppretter ikke ny oppgave, men gjenbruker eksisterende."
+                    "Vi oppretter ikke ny oppgave, men gjenbruker eksisterende.",
             )
             return eksisterendeIkkeFerdigstiltOppgave.gsakId
         }
@@ -68,7 +68,7 @@ class OppgaveService(
             behandlingstema = null,
             // TODO - må diskuteres hva det kan være for KS-EØS
             behandlingstype = behandling.kategori.tilOppgavebehandlingType().value,
-            tilordnetRessurs = tilordnetNavIdent
+            tilordnetRessurs = tilordnetNavIdent,
         )
         val opprettetOppgaveId = integrasjonClient.opprettOppgave(opprettOppgaveRequest).oppgaveId.toString()
 
@@ -85,7 +85,7 @@ class OppgaveService(
             if (!oppgave.tilordnetRessurs.isNullOrEmpty()) {
                 throw FunksjonellFeil(
                     melding = "Oppgaven er allerede fordelt",
-                    frontendFeilmelding = "Oppgaven er allerede fordelt til ${oppgave.tilordnetRessurs}"
+                    frontendFeilmelding = "Oppgaven er allerede fordelt til ${oppgave.tilordnetRessurs}",
                 )
             }
         }
@@ -186,7 +186,7 @@ class OppgaveService(
         return beskrivelse?.let { it + "\n" }
             ?: (
                 "----- Opprettet av familie-ks-sak ${
-                LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME)
+                    LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME)
                 } --- \n" +
                     "https://ks.intern.nav.no/fagsak/$fagsakId"
                 )

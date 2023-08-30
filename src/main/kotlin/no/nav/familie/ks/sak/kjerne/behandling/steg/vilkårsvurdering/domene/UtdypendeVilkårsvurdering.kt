@@ -23,7 +23,7 @@ enum class UtdypendeVilkårsvurdering {
     BARN_BOR_I_NORGE_MED_SØKER, // Bor med søker vilkår
     BARN_BOR_I_STORBRITANNIA_MED_SØKER, // Bor med søker vilkår
     BARN_BOR_I_STORBRITANNIA_MED_ANNEN_FORELDER, // Bor med søker vilkår
-    BARN_BOR_ALENE_I_ANNET_EØS_LAND // Bor med søker vilkår
+    BARN_BOR_ALENE_I_ANNET_EØS_LAND, // Bor med søker vilkår
 }
 
 @Converter

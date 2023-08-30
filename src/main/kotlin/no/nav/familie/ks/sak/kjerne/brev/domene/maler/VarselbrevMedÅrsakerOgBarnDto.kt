@@ -5,7 +5,7 @@ import java.time.LocalDate
 
 data class VarselbrevMedÅrsakerOgBarnDto(
     override val mal: Brevmal,
-    override val data: VarselbrevMedÅrsakerOgBarnDataDto
+    override val data: VarselbrevMedÅrsakerOgBarnDataDto,
 ) : BrevDto {
     constructor(
         mal: Brevmal,
@@ -13,7 +13,7 @@ data class VarselbrevMedÅrsakerOgBarnDto(
         fødselsnummer: String,
         enhet: String,
         varselÅrsaker: List<String>,
-        barnasFødselsdager: String
+        barnasFødselsdager: String,
     ) : this(
         mal = mal,
         data = VarselbrevMedÅrsakerOgBarnDataDto(
@@ -22,15 +22,15 @@ data class VarselbrevMedÅrsakerOgBarnDto(
                 navn = navn,
                 fodselsnummer = fødselsnummer,
                 varselÅrsaker = varselÅrsaker,
-                barnasFødselsdager = barnasFødselsdager
-            )
-        )
+                barnasFødselsdager = barnasFødselsdager,
+            ),
+        ),
     )
 }
 
 data class VarselbrevMedÅrsakerOgBarnDataDto(
     override val delmalData: DelmalData,
-    override val flettefelter: FlettefelterDto
+    override val flettefelter: FlettefelterDto,
 ) : BrevDataDto {
 
     data class FlettefelterDto(
@@ -38,23 +38,23 @@ data class VarselbrevMedÅrsakerOgBarnDataDto(
         override val fodselsnummer: Flettefelt,
         override val brevOpprettetDato: Flettefelt = flettefelt(LocalDate.now().tilDagMånedÅr()),
         val varselAarsaker: Flettefelt,
-        val barnasFodselsdatoer: Flettefelt
+        val barnasFodselsdatoer: Flettefelt,
     ) : FlettefelterForDokumentDto {
 
         constructor(
             navn: String,
             fodselsnummer: String,
             varselÅrsaker: List<String>,
-            barnasFødselsdager: String
+            barnasFødselsdager: String,
         ) : this(
             navn = flettefelt(navn),
             fodselsnummer = flettefelt(fodselsnummer),
             varselAarsaker = flettefelt(varselÅrsaker),
-            barnasFodselsdatoer = flettefelt(barnasFødselsdager)
+            barnasFodselsdatoer = flettefelt(barnasFødselsdager),
         )
     }
 
     data class DelmalData(
-        val signatur: SignaturDelmal
+        val signatur: SignaturDelmal,
     )
 }

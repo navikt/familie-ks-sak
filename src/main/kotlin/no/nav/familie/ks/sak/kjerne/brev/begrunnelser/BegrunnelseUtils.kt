@@ -16,7 +16,7 @@ import java.time.LocalDate
 private val logger = LoggerFactory.getLogger(Begrunnelse::class.java)
 
 fun Begrunnelse.tilSanityBegrunnelse(
-    sanityBegrunnelser: List<SanityBegrunnelse>
+    sanityBegrunnelser: List<SanityBegrunnelse>,
 ): SanityBegrunnelse? {
     val sanityBegrunnelse = sanityBegrunnelser.find { it.apiNavn == this.sanityApiNavn }
     if (sanityBegrunnelse == null) {
@@ -26,7 +26,7 @@ fun Begrunnelse.tilSanityBegrunnelse(
 }
 
 fun EØSBegrunnelse.tilSanityEØSBegrunnelse(
-    eøsSanityBegrunnelser: List<SanityEØSBegrunnelse>
+    eøsSanityBegrunnelser: List<SanityEØSBegrunnelse>,
 ): SanityEØSBegrunnelse? {
     val sanityBegrunnelse = eøsSanityBegrunnelser.find { it.apiNavn == this.sanityApiNavn }
     if (sanityBegrunnelse == null) {
@@ -36,28 +36,28 @@ fun EØSBegrunnelse.tilSanityEØSBegrunnelse(
 }
 
 fun Begrunnelse.tilVedtaksbegrunnelse(
-    vedtaksperiodeMedBegrunnelser: VedtaksperiodeMedBegrunnelser
+    vedtaksperiodeMedBegrunnelser: VedtaksperiodeMedBegrunnelser,
 ): Vedtaksbegrunnelse {
     if (!vedtaksperiodeMedBegrunnelser
-        .type
-        .tillatteBegrunnelsestyper
-        .contains(this.begrunnelseType)
+            .type
+            .tillatteBegrunnelsestyper
+            .contains(this.begrunnelseType)
     ) {
         throw Feil(
             "Begrunnelsestype ${this.begrunnelseType} passer ikke med " +
-                "typen '${vedtaksperiodeMedBegrunnelser.type}' som er satt på perioden."
+                "typen '${vedtaksperiodeMedBegrunnelser.type}' som er satt på perioden.",
         )
     }
 
     return Vedtaksbegrunnelse(
         vedtaksperiodeMedBegrunnelser = vedtaksperiodeMedBegrunnelser,
-        begrunnelse = this
+        begrunnelse = this,
     )
 }
 
 fun dødeBarnForrigePeriode(
     ytelserForrigePeriode: List<AndelTilkjentYtelse>,
-    barnIBehandling: List<Person>
+    barnIBehandling: List<Person>,
 ): List<Person> =
     barnIBehandling.filter { barn ->
         val ytelserForrigePeriodeForBarn = ytelserForrigePeriode.filter {

@@ -19,7 +19,7 @@ data class JournalførVedtaksbrevDTO(val vedtakId: Long, val task: Task) : Behan
 data class BesluttVedtakDto(
     val beslutning: Beslutning,
     val begrunnelse: String?,
-    val kontrollerteSider: List<String> = emptyList()
+    val kontrollerteSider: List<String> = emptyList(),
 ) : BehandlingStegDto()
 
 data class IverksettMotOppdragDto(val behandlingId: Long, val saksbehandlerId: String) : BehandlingStegDto()
@@ -27,7 +27,7 @@ data class IverksettMotOppdragDto(val behandlingId: Long, val saksbehandlerId: S
 data class SøknadDto(
     val søkerMedOpplysninger: SøkerMedOpplysningerDto,
     val barnaMedOpplysninger: List<BarnMedOpplysningerDto>,
-    val endringAvOpplysningerBegrunnelse: String
+    val endringAvOpplysningerBegrunnelse: String,
 )
 
 fun SøknadDto.writeValueAsString(): String = objectMapper.writeValueAsString(this)
@@ -35,12 +35,12 @@ fun SøknadDto.writeValueAsString(): String = objectMapper.writeValueAsString(th
 fun SøknadDto.tilSøknadGrunnlag(behandlingId: Long): SøknadGrunnlag =
     SøknadGrunnlag(
         behandlingId = behandlingId,
-        søknad = objectMapper.writeValueAsString(this)
+        søknad = objectMapper.writeValueAsString(this),
     )
 
 data class SøkerMedOpplysningerDto(
     val ident: String,
-    val målform: Målform = Målform.NB
+    val målform: Målform = Målform.NB,
 )
 
 data class BarnMedOpplysningerDto(
@@ -48,7 +48,7 @@ data class BarnMedOpplysningerDto(
     val navn: String = "",
     val fødselsdato: LocalDate? = null,
     val inkludertISøknaden: Boolean = true,
-    val erFolkeregistrert: Boolean = true
+    val erFolkeregistrert: Boolean = true,
 ) : BehandlingStegDto()
 
 data class BehandlingPåVentDto(val frist: LocalDate, val årsak: VenteÅrsak)
@@ -58,7 +58,8 @@ data class HenleggBehandlingDto(val årsak: HenleggÅrsak, val begrunnelse: Stri
 enum class HenleggÅrsak(val beskrivelse: String) {
     SØKNAD_TRUKKET("Søknad trukket"),
     FEILAKTIG_OPPRETTET("Behandling feilaktig opprettet"),
-    TEKNISK_VEDLIKEHOLD("Teknisk vedlikehold");
+    TEKNISK_VEDLIKEHOLD("Teknisk vedlikehold"),
+    ;
 
     fun tilBehandlingsresultat() = when (this) {
         FEILAKTIG_OPPRETTET -> Behandlingsresultat.HENLAGT_FEILAKTIG_OPPRETTET
@@ -71,5 +72,5 @@ data class TilbakekrevingRequestDto(
     val valg: Tilbakekrevingsvalg,
     val varsel: String? = null,
     val begrunnelse: String,
-    val tilbakekrevingsbehandlingId: String? = null
+    val tilbakekrevingsbehandlingId: String? = null,
 ) : BehandlingStegDto()

@@ -33,7 +33,7 @@ import org.springframework.web.bind.annotation.RestController
 class FagsakController(
     private val fagsakService: FagsakService,
     private val tilgangService: TilgangService,
-    private val tilbakekrevingService: TilbakekrevingService
+    private val tilbakekrevingService: TilbakekrevingService,
 ) {
 
     private val logger: Logger = LoggerFactory.getLogger(FagsakController::class.java)
@@ -53,7 +53,7 @@ class FagsakController(
             personIdenter = listOfNotNull(fagsakRequest.personIdent),
             minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
             event = AuditLoggerEvent.CREATE,
-            handling = "Opprett fagsak"
+            handling = "Opprett fagsak",
         )
 
         return ResponseEntity.ok().body(Ressurs.success(fagsakService.hentEllerOpprettFagsak(fagsakRequest)))
@@ -67,7 +67,7 @@ class FagsakController(
             fagsakId = fagsakId,
             minimumBehandlerRolle = BehandlerRolle.VEILEDER,
             event = AuditLoggerEvent.ACCESS,
-            handling = "Hent fagsak"
+            handling = "Hent fagsak",
         )
 
         return ResponseEntity.ok().body(Ressurs.success(fagsakService.hentMinimalFagsak(fagsakId)))
@@ -81,7 +81,7 @@ class FagsakController(
             personIdent = personIdent,
             minimumBehandlerRolle = BehandlerRolle.VEILEDER,
             event = AuditLoggerEvent.ACCESS,
-            handling = "Hent fagsak for person"
+            handling = "Hent fagsak for person",
         )
         val minimalFagsakForPerson = fagsakService.finnMinimalFagsakForPerson(personIdent)
 
@@ -92,14 +92,14 @@ class FagsakController(
 
     @GetMapping(
         path = ["/{fagsakId}/har-åpen-tilbakekrevingsbehandling"],
-        produces = [MediaType.APPLICATION_JSON_VALUE]
+        produces = [MediaType.APPLICATION_JSON_VALUE],
     )
     fun harÅpenTilbakekrevingsbehandling(@PathVariable fagsakId: Long): ResponseEntity<Ressurs<Boolean>> {
         tilgangService.validerTilgangTilHandlingOgFagsak(
             fagsakId = fagsakId,
             minimumBehandlerRolle = BehandlerRolle.VEILEDER,
             event = AuditLoggerEvent.ACCESS,
-            handling = "sjekke om saken har en åpen tilbakekrevingsbehandling"
+            handling = "sjekke om saken har en åpen tilbakekrevingsbehandling",
         )
 
         return ResponseEntity.ok(Ressurs.success(tilbakekrevingService.harÅpenTilbakekrevingsbehandling(fagsakId)))

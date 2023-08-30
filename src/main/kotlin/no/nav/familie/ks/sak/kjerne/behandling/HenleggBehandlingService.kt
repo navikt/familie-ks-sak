@@ -30,7 +30,7 @@ class HenleggBehandlingService(
     private val loggService: LoggService,
     private val fagsakService: FagsakService,
     private val sakStatistikkService: SakStatistikkService,
-    private val behandlingRepository: BehandlingRepository
+    private val behandlingRepository: BehandlingRepository,
 ) {
 
     @Transactional
@@ -44,8 +44,8 @@ class HenleggBehandlingService(
                 behandlingId = behandling.id,
                 manueltBrevDto = ManueltBrevDto(
                     brevmal = Brevmal.HENLEGGE_TRUKKET_SØKNAD,
-                    mottakerIdent = behandling.fagsak.aktør.aktivFødselsnummer()
-                )
+                    mottakerIdent = behandling.fagsak.aktør.aktivFødselsnummer(),
+                ),
             )
         }
 
@@ -58,7 +58,7 @@ class HenleggBehandlingService(
         loggService.opprettHenleggBehandlingLogg(
             behandling = behandling,
             årsak = henleggÅrsak.beskrivelse,
-            begrunnelse = begrunnelse
+            begrunnelse = begrunnelse,
         )
 
         // henlegg behandling steg
@@ -98,7 +98,7 @@ class HenleggBehandlingService(
                 featureToggleService.isNotEnabled(FeatureToggleConfig.TEKNISK_VEDLIKEHOLD_HENLEGGELSE) -> {
                 throw Feil(
                     "Teknisk vedlikehold henleggele er ikke påslått for " +
-                        "${SikkerhetContext.hentSaksbehandlerNavn()}. Kan ikke henlegge behandling $behandlingId."
+                        "${SikkerhetContext.hentSaksbehandlerNavn()}. Kan ikke henlegge behandling $behandlingId.",
                 )
             }
             behandling.erAvsluttet() -> {
@@ -108,14 +108,14 @@ class HenleggBehandlingService(
             henleggÅrsak != HenleggÅrsak.TEKNISK_VEDLIKEHOLD && !behandling.steg.kanStegBehandles() -> {
                 throw FunksjonellFeil(
                     "Behandling $behandlingId er på steg ${behandling.steg.visningsnavn()} " +
-                        "og er da låst for alle andre type endringer. Kan ikke henlegge behandling."
+                        "og er da låst for alle andre type endringer. Kan ikke henlegge behandling.",
                 )
             }
             behandling.erTekniskEndring() && featureToggleService.isNotEnabled(FeatureToggleConfig.TEKNISK_ENDRING) -> {
                 throw FunksjonellFeil(
                     "Du har ikke tilgang til å henlegge en behandling " +
                         "som er opprettet med årsak=${behandling.opprettetÅrsak.visningsnavn}. " +
-                        "Ta kontakt med teamet dersom dette ikke stemmer."
+                        "Ta kontakt med teamet dersom dette ikke stemmer.",
                 )
             }
         }

@@ -17,8 +17,8 @@ internal class YtelsePersonUtilsTest {
             YtelsePersonUtils.validerYtelsePersoner(
                 listOf(
                     lagYtelsePerson(setOf(YtelsePersonResultat.INNVILGET)),
-                    lagYtelsePerson(setOf(YtelsePersonResultat.IKKE_VURDERT))
-                )
+                    lagYtelsePerson(setOf(YtelsePersonResultat.IKKE_VURDERT)),
+                ),
             )
         }
         assertEquals("Minst én ytelseperson er ikke vurdert", exception.message)
@@ -30,8 +30,8 @@ internal class YtelsePersonUtilsTest {
             YtelsePersonUtils.validerYtelsePersoner(
                 listOf(
                     lagYtelsePerson(setOf(YtelsePersonResultat.INNVILGET)),
-                    lagYtelsePerson(resultater = setOf(YtelsePersonResultat.INNVILGET), ytelseSlutt = null)
-                )
+                    lagYtelsePerson(resultater = setOf(YtelsePersonResultat.INNVILGET), ytelseSlutt = null),
+                ),
             )
         }
         assertEquals("YtelseSlutt er ikke satt ved utledning av behandlingsresultat", exception.message)
@@ -45,14 +45,14 @@ internal class YtelsePersonUtilsTest {
                     lagYtelsePerson(setOf(YtelsePersonResultat.INNVILGET)),
                     lagYtelsePerson(
                         resultater = setOf(YtelsePersonResultat.OPPHØRT),
-                        ytelseSlutt = YearMonth.now().plusMonths(4)
-                    )
-                )
+                        ytelseSlutt = YearMonth.now().plusMonths(4),
+                    ),
+                ),
             )
         }
         assertEquals(
             "Minst én ytelseperson har fått opphør som resultat og ytelseSlutt etter inneværende måned",
-            exception.message
+            exception.message,
         )
     }
 
@@ -64,21 +64,21 @@ internal class YtelsePersonUtilsTest {
                     lagYtelsePerson(setOf(YtelsePersonResultat.INNVILGET)),
                     lagYtelsePerson(
                         resultater = setOf(YtelsePersonResultat.OPPHØRT),
-                        ytelseSlutt = YearMonth.now()
-                    )
-                )
+                        ytelseSlutt = YearMonth.now(),
+                    ),
+                ),
             )
         }
     }
 
     private fun lagYtelsePerson(
         resultater: Set<YtelsePersonResultat>,
-        ytelseSlutt: YearMonth? = YearMonth.now().plusMonths(3)
+        ytelseSlutt: YearMonth? = YearMonth.now().plusMonths(3),
     ) = YtelsePerson(
         aktør = randomAktør(),
         ytelseType = YtelseType.ORDINÆR_KONTANTSTØTTE,
         kravOpprinnelse = listOf(KravOpprinnelse.INNEVÆRENDE),
         resultater = resultater,
-        ytelseSlutt = ytelseSlutt
+        ytelseSlutt = ytelseSlutt,
     )
 }

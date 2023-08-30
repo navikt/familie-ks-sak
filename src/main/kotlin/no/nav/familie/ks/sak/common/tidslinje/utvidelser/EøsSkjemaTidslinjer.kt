@@ -16,7 +16,7 @@ fun <T : EøsSkjema<T>> List<T>.tilTidslinje() = this.map {
     Periode(
         it.utenPeriode(),
         it.fom?.førsteDagIInneværendeMåned(),
-        it.tom?.sisteDagIInneværendeMåned()
+        it.tom?.sisteDagIInneværendeMåned(),
     )
 }.tilTidslinje()
 
@@ -44,7 +44,7 @@ fun <T : EøsSkjema<T>> List<T>.slåSammen(): List<T> {
 private fun <T : EøsSkjema<T>> T.leggSammenBarn(skjema: T) = this.kopier(
     fom = this.fom,
     tom = this.tom,
-    barnAktører = this.barnAktører + skjema.barnAktører
+    barnAktører = this.barnAktører + skjema.barnAktører,
 )
 
 fun <T : EøsSkjema<T>> Iterable<T>?.settFomOgTom(periode: Periode<*>) =
@@ -54,7 +54,7 @@ fun <T : EøsSkjema<T>> T.settFomOgTom(periode: Periode<*>) =
     this.kopier(
         fom = periode.fom?.toYearMonth(),
         tom = periode.tom?.toYearMonth(),
-        barnAktører = this.barnAktører
+        barnAktører = this.barnAktører,
     )
 
 fun <T : EøsSkjema<T>> Iterable<T>.tilSeparateTidslinjerForBarna(): Map<Aktør, Tidslinje<T>> {
@@ -70,7 +70,7 @@ fun <T : EøsSkjema<T>> Iterable<T>.tilSeparateTidslinjerForBarna(): Map<Aktør,
                 Periode(
                     fom = it.fom?.førsteDagIInneværendeMåned(),
                     tom = it.tom?.sisteDagIInneværendeMåned(),
-                    verdi = it.kopier(fom = null, tom = null, barnAktører = setOf(aktør))
+                    verdi = it.kopier(fom = null, tom = null, barnAktører = setOf(aktør)),
                 )
             }.tilTidslinje()
     }
@@ -84,6 +84,6 @@ private fun <T : EøsSkjema<T>> Tidslinje<T>.tilSkjemaer(aktør: Aktør) =
         periode.verdi?.kopier(
             fom = periode.fom?.toYearMonth(),
             tom = periode.tom?.toYearMonth(),
-            barnAktører = setOf(aktør)
+            barnAktører = setOf(aktør),
         )
     }

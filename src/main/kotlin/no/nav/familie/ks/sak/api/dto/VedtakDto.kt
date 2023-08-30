@@ -7,12 +7,12 @@ data class VedtakDto(
     val aktiv: Boolean,
     val vedtaksdato: LocalDateTime?,
     val vedtaksperioderMedBegrunnelser: List<UtvidetVedtaksperiodeMedBegrunnelserDto>,
-    val id: Long
+    val id: Long,
 )
 
 fun Vedtak.tilVedtakDto(
     vedtaksperioderMedBegrunnelser: List<UtvidetVedtaksperiodeMedBegrunnelserDto>,
-    skalMinimeres: Boolean
+    skalMinimeres: Boolean,
 ) =
     VedtakDto(
         aktiv = this.aktiv,
@@ -24,5 +24,5 @@ fun Vedtak.tilVedtakDto(
                 .map { it.copy(gyldigeBegrunnelser = emptyList()) }
         } else {
             vedtaksperioderMedBegrunnelser
-        }
+        },
     )

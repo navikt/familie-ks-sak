@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import java.time.YearMonth
 
-class forskyvVilkårTest {
+class ForskyvVilkårTest {
 
     val august = YearMonth.of(2022, 8)
     val september = YearMonth.of(2022, 9)
@@ -18,12 +18,12 @@ class forskyvVilkårTest {
         val vilkårResultat1 = lagVilkårResultat(
             vilkårType = Vilkår.BARNETS_ALDER,
             periodeFom = august.atDay(15),
-            periodeTom = oktober.atDay(14)
+            periodeTom = oktober.atDay(14),
         )
         val vilkårResultat2 = lagVilkårResultat(
             vilkårType = Vilkår.BARNETS_ALDER,
             periodeFom = oktober.atDay(15),
-            periodeTom = desember.atDay(1)
+            periodeTom = desember.atDay(1),
         )
 
         val forskjøvedeVilkårResultater =
@@ -43,12 +43,12 @@ class forskyvVilkårTest {
         val vilkårResultat1 = lagVilkårResultat(
             vilkårType = Vilkår.BARNETS_ALDER,
             periodeFom = august.atDay(15),
-            periodeTom = oktober.atDay(13)
+            periodeTom = oktober.atDay(13),
         )
         val vilkårResultat2 = lagVilkårResultat(
             vilkårType = Vilkår.BARNETS_ALDER,
             periodeFom = oktober.atDay(15),
-            periodeTom = desember.atDay(1)
+            periodeTom = desember.atDay(1),
         )
 
         val forskjøvedeVilkårResultater =
@@ -68,12 +68,12 @@ class forskyvVilkårTest {
         val vilkårResultat1 = lagVilkårResultat(
             vilkårType = Vilkår.BARNETS_ALDER,
             periodeFom = august.atDay(15),
-            periodeTom = august.atEndOfMonth()
+            periodeTom = august.atEndOfMonth(),
         )
         val vilkårResultat2 = lagVilkårResultat(
             vilkårType = Vilkår.BARNETS_ALDER,
             periodeFom = september.atDay(1),
-            periodeTom = desember.atDay(1)
+            periodeTom = desember.atDay(1),
         )
 
         val forskjøvedeVilkårResultater =
@@ -93,12 +93,12 @@ class forskyvVilkårTest {
         val vilkårResultat1 = lagVilkårResultat(
             vilkårType = Vilkår.BARNETS_ALDER,
             periodeFom = august.atDay(15),
-            periodeTom = september.atEndOfMonth()
+            periodeTom = september.atEndOfMonth(),
         )
         val vilkårResultat2 = lagVilkårResultat(
             vilkårType = Vilkår.BARNETS_ALDER,
             periodeFom = oktober.atDay(2),
-            periodeTom = desember.atDay(1)
+            periodeTom = desember.atDay(1),
         )
 
         val forskjøvedeVilkårResultater =
@@ -118,7 +118,7 @@ class forskyvVilkårTest {
         val vilkårResultat1 = lagVilkårResultat(
             vilkårType = Vilkår.BARNETS_ALDER,
             periodeFom = august.atDay(15),
-            periodeTom = september.atEndOfMonth()
+            periodeTom = september.atEndOfMonth(),
         )
         val forskjøvedeVilkårResultater =
             forskyvVilkårResultater(Vilkår.BARNETS_ALDER, listOf(vilkårResultat1))

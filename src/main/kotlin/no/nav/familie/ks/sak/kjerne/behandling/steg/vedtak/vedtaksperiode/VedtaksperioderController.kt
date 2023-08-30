@@ -23,14 +23,14 @@ import org.springframework.web.bind.annotation.RestController
 class VedtaksperioderController(
     private val tilgangService: TilgangService,
     private val brevPeriodeService: BrevPeriodeService,
-    private val brevKlient: BrevKlient
+    private val brevKlient: BrevKlient,
 ) {
 
     @GetMapping("/{vedtaksperiodeId}/brevbegrunnelser")
     fun genererBegrunnelserForPeriode(@PathVariable vedtaksperiodeId: Long): ResponseEntity<Ressurs<List<String>>> {
         tilgangService.validerTilgangTilHandling(
             minimumBehandlerRolle = BehandlerRolle.VEILEDER,
-            handling = "Henter begrunnelsetekster"
+            handling = "Henter begrunnelsetekster",
         )
 
         val begrunnelser = brevPeriodeService.hentBegrunnelsesteksterForPeriode(vedtaksperiodeId).map {

@@ -15,13 +15,13 @@ import java.time.LocalDate
 
 data class Opphørt(
     override val mal: Brevmal,
-    override val data: OpphørtData
+    override val data: OpphørtData,
 ) : VedtaksbrevDto {
 
     constructor(
         mal: Brevmal = Brevmal.VEDTAK_OPPHØRT,
         fellesdataForVedtaksbrev: FellesdataForVedtaksbrev,
-        erFeilutbetalingPåBehandling: Boolean
+        erFeilutbetalingPåBehandling: Boolean,
     ) :
         this(
             mal = mal,
@@ -30,32 +30,32 @@ data class Opphørt(
                     signaturVedtak = SignaturVedtak(
                         enhet = fellesdataForVedtaksbrev.enhet,
                         saksbehandler = fellesdataForVedtaksbrev.saksbehandler,
-                        beslutter = fellesdataForVedtaksbrev.beslutter
+                        beslutter = fellesdataForVedtaksbrev.beslutter,
                     ),
                     hjemmeltekst = fellesdataForVedtaksbrev.hjemmeltekst,
                     feilutbetaling = erFeilutbetalingPåBehandling,
-                    korrigertVedtak = fellesdataForVedtaksbrev.korrigertVedtakData
+                    korrigertVedtak = fellesdataForVedtaksbrev.korrigertVedtakData,
                 ),
                 flettefelter = object : FlettefelterForDokumentDto {
                     override val navn = flettefelt(fellesdataForVedtaksbrev.søkerNavn)
                     override val fodselsnummer = flettefelt(fellesdataForVedtaksbrev.søkerFødselsnummer)
                     override val brevOpprettetDato = flettefelt(LocalDate.now().tilDagMånedÅr())
                 },
-                perioder = fellesdataForVedtaksbrev.perioder
-            )
+                perioder = fellesdataForVedtaksbrev.perioder,
+            ),
         )
 }
 
 data class OpphørtData(
     override val delmalData: Delmaler,
     override val flettefelter: FlettefelterForDokumentDto,
-    override val perioder: List<BrevPeriodeDto>
+    override val perioder: List<BrevPeriodeDto>,
 ) : VedtaksbrevData {
 
     data class Delmaler(
         val signaturVedtak: SignaturVedtak,
         val feilutbetaling: Boolean,
         val hjemmeltekst: Hjemmeltekst,
-        val korrigertVedtak: KorrigertVedtakData?
+        val korrigertVedtak: KorrigertVedtakData?,
     )
 }

@@ -20,7 +20,7 @@ class TidslinjeLengdeTest {
 
     private fun initSammeStartdato(
         lst1: List<TidslinjePeriode<Int?>>,
-        lst2: List<TidslinjePeriode<Int?>>
+        lst2: List<TidslinjePeriode<Int?>>,
     ) {
         this.lst1 = lst1
         this.lst2 = lst2
@@ -30,7 +30,7 @@ class TidslinjeLengdeTest {
 
     private fun initForskjelligStartdato(
         lst1: List<TidslinjePeriode<Int?>>,
-        lst2: List<TidslinjePeriode<Int?>>
+        lst2: List<TidslinjePeriode<Int?>>,
     ) {
         this.lst1 = lst1
         this.lst2 = lst2
@@ -42,13 +42,16 @@ class TidslinjeLengdeTest {
     fun `kan håndtere to tidslinjer med ulik slutt`() {
         initSammeStartdato(
             listOf(TidslinjePeriode(1, 3, false), TidslinjePeriode(2, 1, false)),
-            listOf(TidslinjePeriode(3, 1, false), TidslinjePeriode(4, 1, false))
+            listOf(TidslinjePeriode(3, 1, false), TidslinjePeriode(4, 1, false)),
         )
 
         // Her testes det med nullverdi lik -1 for bifunksjon, dvs hvis en av tidslinjene er null i en sammenligning vil den returnere null.
         val t3 = t1.biFunksjon(t2) { el1, el2 ->
-            if (el1 is Udefinert || el2 is Udefinert) Udefinert()
-            else Verdi(el1.verdi!! + el2.verdi!!)
+            if (el1 is Udefinert || el2 is Udefinert) {
+                Udefinert()
+            } else {
+                Verdi(el1.verdi!! + el2.verdi!!)
+            }
         }
 
         val lst3 = mutableListOf(4, 5, null)
@@ -56,12 +59,15 @@ class TidslinjeLengdeTest {
         Assertions.assertEquals(
             lst3,
             t3.innhold.map { it.periodeVerdi.verdi }.toList(),
-            "Kunne ikke addere to tidslinjer med ulik slutt"
+            "Kunne ikke addere to tidslinjer med ulik slutt",
         )
 
         val t4 = t1.biFunksjon(t2) { el1, el2 ->
-            if (el1 is Udefinert || el2 is Udefinert) Udefinert()
-            else Verdi(el1.verdi!! - el2.verdi!!)
+            if (el1 is Udefinert || el2 is Udefinert) {
+                Udefinert()
+            } else {
+                Verdi(el1.verdi!! - el2.verdi!!)
+            }
         }
 
         val lst4 = mutableListOf(-2, -3, null)
@@ -69,7 +75,7 @@ class TidslinjeLengdeTest {
         Assertions.assertEquals(
             lst4,
             t4.innhold.map { it.periodeVerdi.verdi }.toList(),
-            "Kunne ikke substrahere to tidslinjer med ulik slutt"
+            "Kunne ikke substrahere to tidslinjer med ulik slutt",
         )
     }
 
@@ -77,12 +83,15 @@ class TidslinjeLengdeTest {
     fun `kan håndtere to tidslinjer med ulik startdato`() {
         initForskjelligStartdato(
             listOf(TidslinjePeriode(1, 1, false), TidslinjePeriode(2, 1, false)),
-            listOf(TidslinjePeriode(10, 3, false), TidslinjePeriode(3, 1, false), TidslinjePeriode(4, 1, false))
+            listOf(TidslinjePeriode(10, 3, false), TidslinjePeriode(3, 1, false), TidslinjePeriode(4, 1, false)),
         )
 
         val t5 = t1.biFunksjon(t2) { el1, el2 ->
-            if (el1 is Udefinert || el2 is Udefinert) Udefinert()
-            else Verdi(el1.verdi!! + el2.verdi!!)
+            if (el1 is Udefinert || el2 is Udefinert) {
+                Udefinert()
+            } else {
+                Verdi(el1.verdi!! + el2.verdi!!)
+            }
         }
 
         val lst5 = mutableListOf(null, 4, 6)
@@ -90,12 +99,15 @@ class TidslinjeLengdeTest {
         Assertions.assertEquals(
             lst5,
             t5.innhold.map { it.periodeVerdi.verdi }.toList(),
-            "Kunne ikke addere to tidslinjer med ulik slutt"
+            "Kunne ikke addere to tidslinjer med ulik slutt",
         )
 
         val t6 = t1.biFunksjon(t2) { el1, el2 ->
-            if (el1 is Udefinert || el2 is Udefinert) Udefinert()
-            else Verdi(el1.verdi!! - el2.verdi!!)
+            if (el1 is Udefinert || el2 is Udefinert) {
+                Udefinert()
+            } else {
+                Verdi(el1.verdi!! - el2.verdi!!)
+            }
         }
 
         val lst6 = mutableListOf(null, -2)
@@ -103,7 +115,7 @@ class TidslinjeLengdeTest {
         Assertions.assertEquals(
             lst6,
             t6.innhold.map { it.periodeVerdi.verdi }.toList(),
-            "Kunne ikke substrahere to tidslinjer med ulik slutt"
+            "Kunne ikke substrahere to tidslinjer med ulik slutt",
         )
     }
 
@@ -111,12 +123,15 @@ class TidslinjeLengdeTest {
     fun `kan håndtere to tidslinjer med ulik start- OG sluttdato`() {
         initForskjelligStartdato(
             listOf(TidslinjePeriode(1, 1, false), TidslinjePeriode(2, 1, false), TidslinjePeriode(15, 4, false)),
-            listOf(TidslinjePeriode(10, 3, false), TidslinjePeriode(3, 1, false), TidslinjePeriode(4, 1, false))
+            listOf(TidslinjePeriode(10, 3, false), TidslinjePeriode(3, 1, false), TidslinjePeriode(4, 1, false)),
         )
 
         val t7 = t1.biFunksjon(t2) { el1, el2 ->
-            if (el1 is Udefinert || el2 is Udefinert) Udefinert()
-            else Verdi(el1.verdi!! + el2.verdi!!)
+            if (el1 is Udefinert || el2 is Udefinert) {
+                Udefinert()
+            } else {
+                Verdi(el1.verdi!! + el2.verdi!!)
+            }
         }
 
         val lst7 = mutableListOf(null, 4, 6, null)
@@ -124,12 +139,15 @@ class TidslinjeLengdeTest {
         Assertions.assertEquals(
             lst7,
             t7.innhold.map { it.periodeVerdi.verdi }.toList(),
-            "Kunne ikke addere to tidslinjer med ulik slutt"
+            "Kunne ikke addere to tidslinjer med ulik slutt",
         )
 
         val t8 = t1.biFunksjon(t2) { el1, el2 ->
-            if (el1 is Udefinert || el2 is Udefinert) Udefinert()
-            else Verdi(el1.verdi!! - el2.verdi!!)
+            if (el1 is Udefinert || el2 is Udefinert) {
+                Udefinert()
+            } else {
+                Verdi(el1.verdi!! - el2.verdi!!)
+            }
         }
 
         val lst8 = mutableListOf(null, -2, null)
@@ -137,7 +155,7 @@ class TidslinjeLengdeTest {
         Assertions.assertEquals(
             lst8,
             t8.innhold.map { it.periodeVerdi.verdi }.toList(),
-            "Kunne ikke substrahere to tidslinjer med ulik slutt"
+            "Kunne ikke substrahere to tidslinjer med ulik slutt",
         )
     }
 
@@ -145,13 +163,17 @@ class TidslinjeLengdeTest {
     fun `kan håndtere to tidslinjer med ulik start- OG sluttdato OG nullinput`() {
         initForskjelligStartdato(
             listOf(TidslinjePeriode(null, 1, false), TidslinjePeriode(2, 1, false), TidslinjePeriode(15, 4, false)),
-            listOf(TidslinjePeriode(10, 3, false), TidslinjePeriode(3, 1, false), TidslinjePeriode(null, 1, false))
+            listOf(TidslinjePeriode(10, 3, false), TidslinjePeriode(3, 1, false), TidslinjePeriode(null, 1, false)),
         )
 
         val t7 = t1.biFunksjon(t2) { el1, el2 ->
-            if (el1 is Udefinert || el2 is Udefinert) Udefinert()
-            else if (el1 is Null || el2 is Null) Null()
-            else Verdi(el1.verdi!! + el2.verdi!!)
+            if (el1 is Udefinert || el2 is Udefinert) {
+                Udefinert()
+            } else if (el1 is Null || el2 is Null) {
+                Null()
+            } else {
+                Verdi(el1.verdi!! + el2.verdi!!)
+            }
         }
 
         val lst7 = mutableListOf(null, null, null)
@@ -159,13 +181,17 @@ class TidslinjeLengdeTest {
         Assertions.assertEquals(
             lst7,
             t7.innhold.map { it.periodeVerdi.verdi }.toList(),
-            "Kunne ikke addere to tidslinjer med ulik slutt"
+            "Kunne ikke addere to tidslinjer med ulik slutt",
         )
 
         val t8 = t1.biFunksjon(t2) { el1, el2 ->
-            if (el1 is Udefinert || el2 is Udefinert) Udefinert()
-            else if (el1 is Null || el2 is Null) Null()
-            else Verdi(el1.verdi!! + el2.verdi!!)
+            if (el1 is Udefinert || el2 is Udefinert) {
+                Udefinert()
+            } else if (el1 is Null || el2 is Null) {
+                Null()
+            } else {
+                Verdi(el1.verdi!! + el2.verdi!!)
+            }
         }
 
         val lst8 = mutableListOf(null, null, null)
@@ -173,7 +199,7 @@ class TidslinjeLengdeTest {
         Assertions.assertEquals(
             lst8,
             t8.innhold.map { it.periodeVerdi.verdi }.toList(),
-            "Kunne ikke substrahere to tidslinjer med ulik slutt"
+            "Kunne ikke substrahere to tidslinjer med ulik slutt",
         )
     }
 
@@ -184,9 +210,9 @@ class TidslinjeLengdeTest {
             perioder = listOf(
                 TidslinjePeriode(1, 1, false),
                 TidslinjePeriode(2, 1, false),
-                TidslinjePeriode(15, 5, false)
+                TidslinjePeriode(15, 5, false),
             ),
-            tidsEnhet = TidsEnhet.MÅNED
+            tidsEnhet = TidsEnhet.MÅNED,
         )
 
         val t2 = Tidslinje(
@@ -194,14 +220,17 @@ class TidslinjeLengdeTest {
             perioder = listOf(
                 TidslinjePeriode(1, 1, false),
                 TidslinjePeriode(2, 1, false),
-                TidslinjePeriode(15, 4, false)
+                TidslinjePeriode(15, 4, false),
             ),
-            tidsEnhet = TidsEnhet.MÅNED
+            tidsEnhet = TidsEnhet.MÅNED,
         )
 
         val resultat = t1.biFunksjon(t2) { el1, el2 ->
-            if (el1 is Udefinert || el2 is Udefinert) Udefinert()
-            else Verdi(el1.verdi!! + el2.verdi!!)
+            if (el1 is Udefinert || el2 is Udefinert) {
+                Udefinert()
+            } else {
+                Verdi(el1.verdi!! + el2.verdi!!)
+            }
         }
 
         val fasit = mutableListOf(null, 16, 17, 30, null)
@@ -209,7 +238,7 @@ class TidslinjeLengdeTest {
         Assertions.assertEquals(
             fasit,
             resultat.innhold.map { it.periodeVerdi.verdi }.toList(),
-            "Kunne ikke addere to tidslinjer med ulik slutt på månedsnivå"
+            "Kunne ikke addere to tidslinjer med ulik slutt på månedsnivå",
         )
         Assertions.assertEquals(resultat.tidsEnhet, TidsEnhet.MÅNED)
         val endDate = LocalDate.now().plusMonths(6)
@@ -223,9 +252,9 @@ class TidslinjeLengdeTest {
             perioder = listOf(
                 TidslinjePeriode(1, 1, false),
                 TidslinjePeriode(2, 1, false),
-                TidslinjePeriode(15, 2, false)
+                TidslinjePeriode(15, 2, false),
             ),
-            tidsEnhet = TidsEnhet.MÅNED
+            tidsEnhet = TidsEnhet.MÅNED,
         )
 
         val t2 = Tidslinje(
@@ -233,14 +262,17 @@ class TidslinjeLengdeTest {
             perioder = listOf(
                 TidslinjePeriode(1, 1, false),
                 TidslinjePeriode(2, 1, false),
-                TidslinjePeriode(15, 11, false)
+                TidslinjePeriode(15, 11, false),
             ),
-            tidsEnhet = TidsEnhet.MÅNED
+            tidsEnhet = TidsEnhet.MÅNED,
         )
 
         val resultat = t1.biFunksjon(t2) { el1, el2 ->
-            if (el1 is Udefinert || el2 is Udefinert) Udefinert()
-            else Verdi(el1.verdi!! + el2.verdi!!)
+            if (el1 is Udefinert || el2 is Udefinert) {
+                Udefinert()
+            } else {
+                Verdi(el1.verdi!! + el2.verdi!!)
+            }
         }
 
         val fasit = mutableListOf(2, 4, 30, null)
@@ -248,7 +280,7 @@ class TidslinjeLengdeTest {
         Assertions.assertEquals(
             fasit,
             resultat.innhold.map { it.periodeVerdi.verdi }.toList(),
-            "Kunne ikke addere to tidslinjer med ulik slutt på månedsnivå"
+            "Kunne ikke addere to tidslinjer med ulik slutt på månedsnivå",
         )
         Assertions.assertEquals(resultat.tidsEnhet, TidsEnhet.MÅNED)
 

@@ -12,12 +12,12 @@ import no.nav.familie.ks.sak.kjerne.brev.domene.maler.brevperioder.BrevPeriodeDt
 
 data class Avslag(
     override val mal: Brevmal,
-    override val data: AvslagData
+    override val data: AvslagData,
 ) : VedtaksbrevDto {
 
     constructor(
         mal: Brevmal = Brevmal.VEDTAK_AVSLAG,
-        fellesdataForVedtaksbrev: FellesdataForVedtaksbrev
+        fellesdataForVedtaksbrev: FellesdataForVedtaksbrev,
     ) :
         this(
             mal = mal,
@@ -26,29 +26,29 @@ data class Avslag(
                     signaturVedtak = SignaturVedtak(
                         enhet = fellesdataForVedtaksbrev.enhet,
                         saksbehandler = fellesdataForVedtaksbrev.saksbehandler,
-                        beslutter = fellesdataForVedtaksbrev.beslutter
+                        beslutter = fellesdataForVedtaksbrev.beslutter,
                     ),
                     hjemmeltekst = fellesdataForVedtaksbrev.hjemmeltekst,
-                    korrigertVedtak = fellesdataForVedtaksbrev.korrigertVedtakData
+                    korrigertVedtak = fellesdataForVedtaksbrev.korrigertVedtakData,
                 ),
                 flettefelter = FlettefelterForDokumentDtoImpl(
                     navn = fellesdataForVedtaksbrev.søkerNavn,
-                    fodselsnummer = fellesdataForVedtaksbrev.søkerFødselsnummer
+                    fodselsnummer = fellesdataForVedtaksbrev.søkerFødselsnummer,
                 ),
-                perioder = fellesdataForVedtaksbrev.perioder
-            )
+                perioder = fellesdataForVedtaksbrev.perioder,
+            ),
         )
 }
 
 data class AvslagData(
     override val delmalData: Delmaler,
     override val flettefelter: FlettefelterForDokumentDtoImpl,
-    override val perioder: List<BrevPeriodeDto>
+    override val perioder: List<BrevPeriodeDto>,
 ) : VedtaksbrevData {
 
     data class Delmaler(
         val signaturVedtak: SignaturVedtak,
         val hjemmeltekst: Hjemmeltekst,
-        val korrigertVedtak: KorrigertVedtakData?
+        val korrigertVedtak: KorrigertVedtakData?,
     )
 }

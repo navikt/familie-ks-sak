@@ -31,12 +31,12 @@ class PersonopplysningGrunnlagService(
     private val personService: PersonService,
     private val arbeidsfordelingService: ArbeidsfordelingService,
     private val personidentService: PersonidentService,
-    private val loggService: LoggService
+    private val loggService: LoggService,
 ) {
 
     fun opprettPersonopplysningGrunnlag(
         behandling: Behandling,
-        sisteVedtattBehandling: Behandling?
+        sisteVedtattBehandling: Behandling?,
     ) {
         val søkersAktør = behandling.fagsak.aktør
         val barnasAktørFraSisteVedtattBehandling = when (behandling.type) {
@@ -53,7 +53,7 @@ class PersonopplysningGrunnlagService(
             aktør = søkersAktør,
             barnasAktør = barnasAktørFraSisteVedtattBehandling,
             behandling = behandling,
-            målform = målform
+            målform = målform,
         )
     }
 
@@ -61,7 +61,7 @@ class PersonopplysningGrunnlagService(
     fun oppdaterPersonopplysningGrunnlag(
         behandling: Behandling,
         forrigeBehandlingSomErVedtatt: Behandling?,
-        søknadDto: SøknadDto
+        søknadDto: SøknadDto,
     ): PersonopplysningGrunnlag {
         val eksisterendePersonopplysningGrunnlag =
             finnAktivPersonopplysningGrunnlag(behandling.id)
@@ -84,7 +84,7 @@ class PersonopplysningGrunnlagService(
             aktør = eksisterendePersonopplysningGrunnlag.søker.aktør,
             barnasAktør = barnAktører,
             behandling = behandling,
-            målform = søknadDto.søkerMedOpplysninger.målform
+            målform = søknadDto.søkerMedOpplysninger.målform,
         )
     }
 
@@ -122,7 +122,7 @@ class PersonopplysningGrunnlagService(
         aktør: Aktør,
         behandling: Behandling,
         målform: Målform,
-        barnasAktør: List<Aktør>
+        barnasAktør: List<Aktør>,
     ): PersonopplysningGrunnlag {
         val personopplysningGrunnlag = lagreOgDeaktiverGammel(PersonopplysningGrunnlag(behandlingId = behandling.id))
         val krevesEnkelPersonInfo = behandling.erSatsendring()
@@ -131,7 +131,7 @@ class PersonopplysningGrunnlagService(
             personopplysningGrunnlag = personopplysningGrunnlag,
             målform = målform,
             personType = PersonType.SØKER,
-            krevesEnkelPersonInfo = krevesEnkelPersonInfo
+            krevesEnkelPersonInfo = krevesEnkelPersonInfo,
         )
         personopplysningGrunnlag.personer.add(søker)
         val barna = barnasAktør.map {
@@ -140,7 +140,7 @@ class PersonopplysningGrunnlagService(
                 personopplysningGrunnlag = personopplysningGrunnlag,
                 målform = målform,
                 personType = PersonType.BARN,
-                krevesEnkelPersonInfo = krevesEnkelPersonInfo
+                krevesEnkelPersonInfo = krevesEnkelPersonInfo,
             )
         }
         personopplysningGrunnlag.personer.addAll(barna)
@@ -165,7 +165,7 @@ class PersonopplysningGrunnlagService(
             aktør = nåværendeGrunnlag.søker.aktør,
             barnasAktør = nåværendeGrunnlag.barna.map { it.aktør },
             behandling = behandling,
-            målform = nåværendeGrunnlag.søker.målform
+            målform = nåværendeGrunnlag.søker.målform,
         )
     }
 
@@ -179,7 +179,7 @@ class PersonopplysningGrunnlagService(
             throw FunksjonellFeil(
                 melding = "Forsøker å legge til barn som allerede finnes i " +
                     "personopplysningsgrunnlag id=${personopplysningGrunnlag.id}",
-                frontendFeilmelding = "Barn finnes allerede på behandling og er derfor ikke lagt til."
+                frontendFeilmelding = "Barn finnes allerede på behandling og er derfor ikke lagt til.",
             )
         }
 
@@ -187,7 +187,7 @@ class PersonopplysningGrunnlagService(
             aktør = personopplysningGrunnlag.søker.aktør,
             behandling = behandling,
             målform = personopplysningGrunnlag.søker.målform,
-            barnasAktør = inneværendeBarnasAktør.plus(nyttBarnAktør)
+            barnasAktør = inneværendeBarnasAktør.plus(nyttBarnAktør),
         )
 
         // la til historikkinnslag
@@ -195,11 +195,11 @@ class PersonopplysningGrunnlagService(
             ?.also { loggService.opprettBarnLagtTilLogg(behandling, it) } ?: run {
             secureLogger.info(
                 "Klarte ikke legge til barn med aktør $nyttBarnAktør " +
-                    "på personopplysningsgrunnlag id=${personopplysningGrunnlag.id}"
+                    "på personopplysningsgrunnlag id=${personopplysningGrunnlag.id}",
             )
             throw Feil(
                 "Nytt barn ikke lagt til i personopplysningsgrunnlag id=${personopplysningGrunnlag.id}. " +
-                    "Se securelog for mer informasjon."
+                    "Se securelog for mer informasjon.",
             )
         }
     }

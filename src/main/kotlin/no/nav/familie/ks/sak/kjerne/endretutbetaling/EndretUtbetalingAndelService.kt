@@ -25,7 +25,7 @@ class EndretUtbetalingAndelService(
     private val personopplysningGrunnlagService: PersonopplysningGrunnlagService,
     private val andelTilkjentYtelseRepository: AndelTilkjentYtelseRepository,
     private val vilkårsvurderingService: VilkårsvurderingService,
-    private val endretUtbetalingAndelOppdatertAbonnementer: List<EndretUtbetalingAndelerOppdatertAbonnent> = emptyList()
+    private val endretUtbetalingAndelOppdatertAbonnementer: List<EndretUtbetalingAndelerOppdatertAbonnent> = emptyList(),
 ) {
     fun hentEndredeUtbetalingAndeler(behandlingId: Long) =
         endretUtbetalingAndelRepository.hentEndretUtbetalingerForBehandling(behandlingId)
@@ -34,7 +34,7 @@ class EndretUtbetalingAndelService(
     fun oppdaterEndretUtbetalingAndelOgOppdaterTilkjentYtelse(
         behandling: Behandling,
         endretUtbetalingAndelId: Long,
-        endretUtbetalingAndelRequestDto: EndretUtbetalingAndelRequestDto
+        endretUtbetalingAndelRequestDto: EndretUtbetalingAndelRequestDto,
     ) {
         val endretUtbetalingAndel = endretUtbetalingAndelRepository.getReferenceById(endretUtbetalingAndelId)
         val vilkårsvurdering = vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(behandling.id)
@@ -52,13 +52,13 @@ class EndretUtbetalingAndelService(
         val gyldigTomEtterDagensDato = beregnGyldigTomIFremtiden(
             andreEndredeAndelerPåBehandling = andreEndredeAndelerPåBehandling,
             endretUtbetalingAndel = endretUtbetalingAndel,
-            andelTilkjentYtelser = andelTilkjentYtelser
+            andelTilkjentYtelser = andelTilkjentYtelser,
         )
 
         validerTomDato(
             tomDato = endretUtbetalingAndel.tom,
             gyldigTomEtterDagensDato = gyldigTomEtterDagensDato,
-            årsak = endretUtbetalingAndel.årsak
+            årsak = endretUtbetalingAndel.årsak,
         )
 
         if (endretUtbetalingAndel.tom == null) {
@@ -68,17 +68,17 @@ class EndretUtbetalingAndelService(
         validerÅrsak(
             årsak = endretUtbetalingAndel.årsak,
             endretUtbetalingAndel = endretUtbetalingAndel,
-            vilkårsvurdering = vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(behandlingId = behandling.id)
+            vilkårsvurdering = vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(behandlingId = behandling.id),
         )
 
         validerUtbetalingMotÅrsak(
             årsak = endretUtbetalingAndel.årsak,
-            skalUtbetales = endretUtbetalingAndel.prosent != BigDecimal(0)
+            skalUtbetales = endretUtbetalingAndel.prosent != BigDecimal(0),
         )
 
         validerIngenOverlappendeEndring(
             endretUtbetalingAndel = endretUtbetalingAndel,
-            eksisterendeEndringerPåBehandling = andreEndredeAndelerPåBehandling
+            eksisterendeEndringerPåBehandling = andreEndredeAndelerPåBehandling,
         )
 
         validerPeriodeInnenforTilkjentYtelse(endretUtbetalingAndel, andelTilkjentYtelser)
@@ -89,13 +89,13 @@ class EndretUtbetalingAndelService(
             behandling,
             personopplysningGrunnlag,
             vilkårsvurdering,
-            endretUtbetalingAndel
+            endretUtbetalingAndel,
         )
 
         endretUtbetalingAndelOppdatertAbonnementer.forEach {
             it.endretUtbetalingAndelerOppdatert(
                 behandlingId = behandling.id,
-                endretUtbetalingAndeler = andreEndredeAndelerPåBehandling + endretUtbetalingAndel
+                endretUtbetalingAndeler = andreEndredeAndelerPåBehandling + endretUtbetalingAndel,
             )
         }
     }
@@ -103,7 +103,7 @@ class EndretUtbetalingAndelService(
     @Transactional
     fun fjernEndretUtbetalingAndelOgOppdaterTilkjentYtelse(
         behandling: Behandling,
-        endretUtbetalingAndelId: Long
+        endretUtbetalingAndelId: Long,
     ) {
         endretUtbetalingAndelRepository.deleteById(endretUtbetalingAndelId)
 
@@ -115,20 +115,20 @@ class EndretUtbetalingAndelService(
         beregningService.oppdaterTilkjentYtelsePåBehandling(
             behandling,
             personopplysningGrunnlag,
-            vilkårsvurdering
+            vilkårsvurdering,
         )
 
         endretUtbetalingAndelOppdatertAbonnementer.forEach { abonnent ->
             abonnent.endretUtbetalingAndelerOppdatert(
                 behandlingId = behandling.id,
-                endretUtbetalingAndeler = endretUtbetalingAndelRepository.hentEndretUtbetalingerForBehandling(behandling.id)
+                endretUtbetalingAndeler = endretUtbetalingAndelRepository.hentEndretUtbetalingerForBehandling(behandling.id),
             )
         }
     }
 
     @Transactional
     fun opprettTomEndretUtbetalingAndel(
-        behandling: Behandling
+        behandling: Behandling,
     ) = endretUtbetalingAndelRepository.save(EndretUtbetalingAndel(behandlingId = behandling.id))
 
     @Transactional
@@ -143,6 +143,6 @@ class EndretUtbetalingAndelService(
 interface EndretUtbetalingAndelerOppdatertAbonnent {
     fun endretUtbetalingAndelerOppdatert(
         behandlingId: Long,
-        endretUtbetalingAndeler: List<EndretUtbetalingAndel>
+        endretUtbetalingAndeler: List<EndretUtbetalingAndel>,
     )
 }

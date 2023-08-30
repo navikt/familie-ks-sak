@@ -16,7 +16,7 @@ class RolleConfig(
     @Value("\${rolle.kode6}")
     val KODE6: String,
     @Value("\${rolle.kode7}")
-    val KODE7: String
+    val KODE7: String,
 )
 
 enum class BehandlerRolle(val nivå: Int) {
@@ -25,5 +25,5 @@ enum class BehandlerRolle(val nivå: Int) {
     SAKSBEHANDLER(3),
     FORVALTER(2),
     VEILEDER(1),
-    UKJENT(0)
+    UKJENT(0),
 }

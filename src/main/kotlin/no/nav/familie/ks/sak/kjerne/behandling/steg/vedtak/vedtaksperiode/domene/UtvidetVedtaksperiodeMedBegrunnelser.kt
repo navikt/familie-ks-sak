@@ -17,7 +17,7 @@ data class UtvidetVedtaksperiodeMedBegrunnelser(
     val eøsBegrunnelser: List<Unit> = emptyList(),
     val fritekster: List<String> = emptyList(),
     val gyldigeBegrunnelser: List<IBegrunnelse> = emptyList(),
-    val utbetalingsperiodeDetaljer: List<UtbetalingsperiodeDetalj> = emptyList()
+    val utbetalingsperiodeDetaljer: List<UtbetalingsperiodeDetalj> = emptyList(),
 ) : Comparable<UtvidetVedtaksperiodeMedBegrunnelser> {
 
     override fun compareTo(other: UtvidetVedtaksperiodeMedBegrunnelser): Int {
@@ -33,11 +33,11 @@ data class UtvidetVedtaksperiodeMedBegrunnelser(
 
 fun VedtaksperiodeMedBegrunnelser.tilUtvidetVedtaksperiodeMedBegrunnelser(
     personopplysningGrunnlag: PersonopplysningGrunnlag,
-    andelerTilkjentYtelse: List<AndelTilkjentYtelseMedEndreteUtbetalinger>
+    andelerTilkjentYtelse: List<AndelTilkjentYtelseMedEndreteUtbetalinger>,
 ): UtvidetVedtaksperiodeMedBegrunnelser {
     val utbetalingsperiodeDetaljer = hentUtbetalingsperiodeDetaljer(
         andelerTilkjentYtelse = andelerTilkjentYtelse,
-        personopplysningGrunnlag = personopplysningGrunnlag
+        personopplysningGrunnlag = personopplysningGrunnlag,
     )
 
     return UtvidetVedtaksperiodeMedBegrunnelser(
@@ -47,6 +47,6 @@ fun VedtaksperiodeMedBegrunnelser.tilUtvidetVedtaksperiodeMedBegrunnelser(
         type = this.type,
         begrunnelser = this.begrunnelser.toList(),
         fritekster = this.fritekster.sortedBy { it.id }.map { it.fritekst },
-        utbetalingsperiodeDetaljer = utbetalingsperiodeDetaljer
+        utbetalingsperiodeDetaljer = utbetalingsperiodeDetaljer,
     )
 }

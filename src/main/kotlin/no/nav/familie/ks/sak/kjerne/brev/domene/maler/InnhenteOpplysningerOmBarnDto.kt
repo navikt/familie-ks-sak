@@ -5,7 +5,7 @@ import java.time.LocalDate
 
 data class InnhenteOpplysningerOmBarnDto(
     override val mal: Brevmal,
-    override val data: InnhenteOpplysningerOmBarnDataDto
+    override val data: InnhenteOpplysningerOmBarnDataDto,
 ) : BrevDto {
     constructor(
         mal: Brevmal,
@@ -13,7 +13,7 @@ data class InnhenteOpplysningerOmBarnDto(
         fødselsnummer: String,
         barnasFødselsdager: String,
         enhet: String,
-        dokumentliste: List<String>
+        dokumentliste: List<String>,
     ) : this(
         mal = mal,
         data = InnhenteOpplysningerOmBarnDataDto(
@@ -22,15 +22,15 @@ data class InnhenteOpplysningerOmBarnDto(
                 navn = navn,
                 fodselsnummer = fødselsnummer,
                 barnasFødselsdager = barnasFødselsdager,
-                dokumentliste = dokumentliste
-            )
-        )
+                dokumentliste = dokumentliste,
+            ),
+        ),
     )
 }
 
 data class InnhenteOpplysningerOmBarnDataDto(
     override val delmalData: DelmalData,
-    override val flettefelter: FlettefelterDto
+    override val flettefelter: FlettefelterDto,
 ) : BrevDataDto {
 
     data class FlettefelterDto(
@@ -38,23 +38,23 @@ data class InnhenteOpplysningerOmBarnDataDto(
         override val fodselsnummer: Flettefelt,
         override val brevOpprettetDato: Flettefelt = flettefelt(LocalDate.now().tilDagMånedÅr()),
         val barnasFodselsdatoer: Flettefelt,
-        val dokumentliste: Flettefelt
+        val dokumentliste: Flettefelt,
     ) : FlettefelterForDokumentDto {
 
         constructor(
             navn: String,
             fodselsnummer: String,
             barnasFødselsdager: String,
-            dokumentliste: List<String>
+            dokumentliste: List<String>,
         ) : this(
             navn = flettefelt(navn),
             fodselsnummer = flettefelt(fodselsnummer),
             barnasFodselsdatoer = flettefelt(barnasFødselsdager),
-            dokumentliste = flettefelt(dokumentliste)
+            dokumentliste = flettefelt(dokumentliste),
         )
     }
 
     data class DelmalData(
-        val signatur: SignaturDelmal
+        val signatur: SignaturDelmal,
     )
 }

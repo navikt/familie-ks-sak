@@ -47,7 +47,7 @@ interface FagsakRepository : JpaRepository<Fagsak, Long> {
                              INNER JOIN tilkjent_ytelse ty ON b.id = ty.fk_behandling_id
                     WHERE b.opprettet_tid = silp.opprettet_tid AND ty.stonad_tom < DATE_TRUNC('month', NOW()));
                 """,
-        nativeQuery = true
+        nativeQuery = true,
     )
     fun finnFagsakerSomSkalAvsluttes(): List<Fagsak>
 }

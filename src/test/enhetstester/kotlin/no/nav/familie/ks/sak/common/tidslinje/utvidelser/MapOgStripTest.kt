@@ -9,13 +9,13 @@ import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
 
-class mapOgStripTest {
+class MapOgStripTest {
 
     private var lst1 = emptyList<TidslinjePeriode<Int>>()
     private var t1: Tidslinje<Int> = Tidslinje(LocalDate.now(), emptyList())
 
     private fun init(
-        lst1: List<TidslinjePeriode<Int>>
+        lst1: List<TidslinjePeriode<Int>>,
     ) {
         this.lst1 = lst1
         this.t1 = Tidslinje(LocalDate.now(), lst1)
@@ -28,8 +28,8 @@ class mapOgStripTest {
                 TidslinjePeriode(5, 1, false),
                 TidslinjePeriode(3, 1, false),
                 TidslinjePeriode(2, 1, false),
-                TidslinjePeriode(1, 1, false)
-            )
+                TidslinjePeriode(1, 1, false),
+            ),
         )
 
         val tidslinje = t1.map {
@@ -52,8 +52,8 @@ class mapOgStripTest {
                 TidslinjePeriode(5, 1, false),
                 TidslinjePeriode(null, 1, false),
                 TidslinjePeriode(2, 1, false),
-                TidslinjePeriode(Udefinert(), 1, false)
-            )
+                TidslinjePeriode(Udefinert(), 1, false),
+            ),
         )
 
         val tidslinje = t1.map {
@@ -76,8 +76,8 @@ class mapOgStripTest {
                 TidslinjePeriode(null, 1, false),
                 TidslinjePeriode(5, 1, false),
                 TidslinjePeriode(2, 1, false),
-                TidslinjePeriode(Udefinert(), 1, false)
-            )
+                TidslinjePeriode(Udefinert(), 1, false),
+            ),
         )
 
         val tidslinje = t1.trim(Udefinert(), Null())
@@ -95,8 +95,8 @@ class mapOgStripTest {
                 TidslinjePeriode(1, 1, false),
                 TidslinjePeriode(5, 1, false),
                 TidslinjePeriode(2, 1, false),
-                TidslinjePeriode(1, 1, false)
-            )
+                TidslinjePeriode(1, 1, false),
+            ),
         )
 
         val tidslinje = t1.trim(Verdi(1))

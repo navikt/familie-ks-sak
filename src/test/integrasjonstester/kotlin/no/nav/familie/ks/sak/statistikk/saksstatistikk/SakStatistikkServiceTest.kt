@@ -45,7 +45,7 @@ class SakStatistikkServiceTest : OppslagSpringRunnerTest() {
         stegService.utførSteg(behandling.id, BehandlingSteg.REGISTRERE_PERSONGRUNNLAG)
         assertEquals(
             1,
-            taskService.findAll().count { it.type == SendBehandlinghendelseTilDvhTask.TASK_TYPE }
+            taskService.findAll().count { it.type == SendBehandlinghendelseTilDvhTask.TASK_TYPE },
         )
     }
 
@@ -74,7 +74,7 @@ class SakStatistikkServiceTest : OppslagSpringRunnerTest() {
         // sjekk at datoer er konvertert riktig til offest
         assertEquals(
             behandling.endretTidspunkt.truncatedTo(ChronoUnit.SECONDS),
-            tilstand.funksjoneltTidspunkt.toLocalDateTime().truncatedTo(ChronoUnit.SECONDS)
+            tilstand.funksjoneltTidspunkt.toLocalDateTime().truncatedTo(ChronoUnit.SECONDS),
         )
     }
 }

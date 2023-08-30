@@ -22,13 +22,13 @@ class TotrinnskontrollService(private val totrinnskontrollRepository: Totrinnsko
     fun opprettTotrinnskontrollMedSaksbehandler(
         behandling: Behandling,
         saksbehandler: String = SikkerhetContext.hentSaksbehandlerNavn(),
-        saksbehandlerId: String = SikkerhetContext.hentSaksbehandler()
+        saksbehandlerId: String = SikkerhetContext.hentSaksbehandler(),
     ): Totrinnskontroll = lagreOgDeaktiverGammel(
         Totrinnskontroll(
             behandling = behandling,
             saksbehandler = saksbehandler,
-            saksbehandlerId = saksbehandlerId
-        )
+            saksbehandlerId = saksbehandlerId,
+        ),
     )
 
     fun besluttTotrinnskontroll(
@@ -36,7 +36,7 @@ class TotrinnskontrollService(private val totrinnskontrollRepository: Totrinnsko
         beslutter: String,
         beslutterId: String,
         beslutning: Beslutning,
-        kontrollerteSider: List<String> = emptyList()
+        kontrollerteSider: List<String> = emptyList(),
     ): Totrinnskontroll {
         val totrinnskontroll = hentAktivForBehandling(behandlingId)
 
@@ -48,7 +48,7 @@ class TotrinnskontrollService(private val totrinnskontrollRepository: Totrinnsko
         if (totrinnskontroll.erUgyldig()) {
             throw FunksjonellFeil(
                 melding = "Samme saksbehandler kan ikke foreslå og beslutte iverksetting på samme vedtak",
-                frontendFeilmelding = "Du kan ikke godkjenne ditt eget vedtak"
+                frontendFeilmelding = "Du kan ikke godkjenne ditt eget vedtak",
             )
         }
 

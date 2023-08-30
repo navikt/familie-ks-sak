@@ -22,16 +22,15 @@ class VedtaksperiodeUtilTest {
     @EnumSource(
         value = Vedtaksperiodetype::class,
         names = ["OPPHØR", "AVSLAG"],
-        mode = EnumSource.Mode.INCLUDE
+        mode = EnumSource.Mode.INCLUDE,
     )
     fun `validerVedtaksperiodeMedBegrunnelser - skal kaste FunksjonellFeil dersom det er fritekst uten stanadard begrunnelser i opphør eller avslag`(
-        vedtaksperiodetype: Vedtaksperiodetype
+        vedtaksperiodetype: Vedtaksperiodetype,
     ) {
-
         val vedtaksperiodeMedBegrunnelser = VedtaksperiodeMedBegrunnelser(
             vedtak = mockk(),
             type = vedtaksperiodetype,
-            fritekster = mutableListOf(mockk())
+            fritekster = mutableListOf(mockk()),
         )
 
         val funksjonellFeil = assertThrows<FunksjonellFeil> {
@@ -40,7 +39,7 @@ class VedtaksperiodeUtilTest {
 
         assertThat(
             funksjonellFeil.message,
-            Is("Fritekst kan kun brukes i kombinasjon med en eller flere begrunnelser. Legg først til en ny begrunnelse eller fjern friteksten(e).")
+            Is("Fritekst kan kun brukes i kombinasjon med en eller flere begrunnelser. Legg først til en ny begrunnelse eller fjern friteksten(e)."),
         )
     }
 
@@ -50,7 +49,7 @@ class VedtaksperiodeUtilTest {
             vedtak = mockk<Vedtak>().also { every { it.behandling.resultat } returns Behandlingsresultat.FORTSATT_INNVILGET },
             type = Vedtaksperiodetype.FORTSATT_INNVILGET,
             fritekster = mutableListOf(mockk()),
-            begrunnelser = mutableSetOf(mockk())
+            begrunnelser = mutableSetOf(mockk()),
         )
 
         val funksjonellFeil = assertThrows<FunksjonellFeil> {
@@ -59,7 +58,7 @@ class VedtaksperiodeUtilTest {
 
         assertThat(
             funksjonellFeil.message,
-            Is("Det ble sendt med både fritekst og begrunnelse. Vedtaket skal enten ha fritekst eller begrunnelse, men ikke begge deler.")
+            Is("Det ble sendt med både fritekst og begrunnelse. Vedtaket skal enten ha fritekst eller begrunnelse, men ikke begge deler."),
         )
     }
 }

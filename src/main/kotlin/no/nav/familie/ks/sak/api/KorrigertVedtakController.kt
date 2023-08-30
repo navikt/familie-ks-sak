@@ -27,19 +27,19 @@ import org.springframework.web.bind.annotation.RestController
 class KorrigertVedtakController(
     private val behandlingService: BehandlingService,
     private val korrigertVedtakService: KorrigertVedtakService,
-    private val tilgangService: TilgangService
+    private val tilgangService: TilgangService,
 ) {
 
     @PostMapping(path = ["/behandling/{behandlingId}"], produces = [MediaType.APPLICATION_JSON_VALUE])
     fun opprettKorrigertVedtakPåBehandling(
         @PathVariable behandlingId: Long,
-        @RequestBody korrigertVedtakDto: KorrigertVedtakDto
+        @RequestBody korrigertVedtakDto: KorrigertVedtakDto,
     ): ResponseEntity<Ressurs<BehandlingResponsDto>> {
         tilgangService.validerTilgangTilHandlingOgFagsakForBehandling(
             behandlingId = behandlingId,
             event = AuditLoggerEvent.CREATE,
             minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
-            handling = "Opprett korrigering på vedtak"
+            handling = "Opprett korrigering på vedtak",
         )
 
         val behandling = behandlingService.hentBehandling(behandlingId)
@@ -52,13 +52,13 @@ class KorrigertVedtakController(
 
     @PatchMapping(path = ["/behandling/{behandlingId}"], produces = [MediaType.APPLICATION_JSON_VALUE])
     fun settKorrigertVedtakTilInaktivPåBehandling(
-        @PathVariable behandlingId: Long
+        @PathVariable behandlingId: Long,
     ): ResponseEntity<Ressurs<BehandlingResponsDto>> {
         tilgangService.validerTilgangTilHandlingOgFagsakForBehandling(
             behandlingId = behandlingId,
             event = AuditLoggerEvent.UPDATE,
             minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
-            handling = "Sett korrigering på vedtak til inaktiv"
+            handling = "Sett korrigering på vedtak til inaktiv",
         )
 
         val behandling = behandlingService.hentBehandling(behandlingId)

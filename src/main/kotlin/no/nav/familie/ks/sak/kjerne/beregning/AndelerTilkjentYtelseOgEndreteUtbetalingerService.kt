@@ -22,7 +22,7 @@ import java.time.YearMonth
 class AndelerTilkjentYtelseOgEndreteUtbetalingerService(
     private val andelTilkjentYtelseRepository: AndelTilkjentYtelseRepository,
     private val endretUtbetalingAndelRepository: EndretUtbetalingAndelRepository,
-    private val vilkårsvurderingRepository: VilkårsvurderingRepository
+    private val vilkårsvurderingRepository: VilkårsvurderingRepository,
 ) {
 
     @Transactional
@@ -35,20 +35,20 @@ class AndelerTilkjentYtelseOgEndreteUtbetalingerService(
             endretUtbetalingAndelMedAndelTilkjentYtelse.utenAndelerVedValideringsfeil {
                 EndretUtbetalingAndelValidator.validerPeriodeInnenforTilkjentYtelse(
                     endretUtbetalingAndelMedAndelTilkjentYtelse.endretUtbetaling,
-                    endretUtbetalingAndelMedAndelTilkjentYtelse.andelerTilkjentYtelse
+                    endretUtbetalingAndelMedAndelTilkjentYtelse.andelerTilkjentYtelse,
                 )
             }.utenAndelerVedValideringsfeil {
                 EndretUtbetalingAndelValidator.validerÅrsak(
                     årsak = endretUtbetalingAndelMedAndelTilkjentYtelse.årsak,
                     endretUtbetalingAndel = endretUtbetalingAndelMedAndelTilkjentYtelse.endretUtbetaling,
-                    vilkårsvurdering = vilkårsvurderingRepository.finnAktivForBehandling(behandlingId)
+                    vilkårsvurdering = vilkårsvurderingRepository.finnAktivForBehandling(behandlingId),
                 )
             }
         }
 
     private fun lagKombinator(behandlingId: Long) = AndelTilkjentYtelseOgEndreteUtbetalingerKombinator(
         andelerTilkjentYtelse = andelTilkjentYtelseRepository.finnAndelerTilkjentYtelseForBehandling(behandlingId),
-        endretUtbetalingAndeler = endretUtbetalingAndelRepository.hentEndretUtbetalingerForBehandling(behandlingId)
+        endretUtbetalingAndeler = endretUtbetalingAndelRepository.hentEndretUtbetalingerForBehandling(behandlingId),
     )
 
     /**
@@ -57,7 +57,7 @@ class AndelerTilkjentYtelseOgEndreteUtbetalingerService(
      * Manglende andeler brukes et par steder som et signal om at noe er feil
      */
     private fun EndretUtbetalingAndelMedAndelerTilkjentYtelse.utenAndelerVedValideringsfeil(
-        validator: () -> Unit
+        validator: () -> Unit,
     ): EndretUtbetalingAndelMedAndelerTilkjentYtelse {
         return try {
             validator()
@@ -70,7 +70,7 @@ class AndelerTilkjentYtelseOgEndreteUtbetalingerService(
 
 private class AndelTilkjentYtelseOgEndreteUtbetalingerKombinator(
     private val andelerTilkjentYtelse: Collection<AndelTilkjentYtelse>,
-    private val endretUtbetalingAndeler: Collection<EndretUtbetalingAndel>
+    private val endretUtbetalingAndeler: Collection<EndretUtbetalingAndel>,
 ) {
     fun lagAndelerMedEndringer(): List<AndelTilkjentYtelseMedEndreteUtbetalinger> {
         return andelerTilkjentYtelse.map { lagAndelMedEndringer(it) }
@@ -94,7 +94,7 @@ private class AndelTilkjentYtelseOgEndreteUtbetalingerKombinator(
 
     private fun overlapper(
         andelTilkjentYtelse: AndelTilkjentYtelse,
-        endretUtbetalingAndel: EndretUtbetalingAndel
+        endretUtbetalingAndel: EndretUtbetalingAndel,
     ): Boolean {
         return andelTilkjentYtelse.aktør == endretUtbetalingAndel.person?.aktør &&
             endretUtbetalingAndel.fom != null && endretUtbetalingAndel.tom != null &&
@@ -104,7 +104,7 @@ private class AndelTilkjentYtelseOgEndreteUtbetalingerKombinator(
 
 data class AndelTilkjentYtelseMedEndreteUtbetalinger internal constructor(
     private val andelTilkjentYtelse: AndelTilkjentYtelse,
-    private val endreteUtbetalingerAndeler: List<EndretUtbetalingAndel>
+    private val endreteUtbetalingerAndeler: List<EndretUtbetalingAndel>,
 ) {
 
     val periodeOffset get() = andelTilkjentYtelse.periodeOffset
@@ -133,7 +133,7 @@ data class AndelTilkjentYtelseMedEndreteUtbetalinger internal constructor(
 
 data class EndretUtbetalingAndelMedAndelerTilkjentYtelse(
     val endretUtbetalingAndel: EndretUtbetalingAndel,
-    private val andeler: List<AndelTilkjentYtelse>
+    private val andeler: List<AndelTilkjentYtelse>,
 ) {
 
     fun overlapperMed(månedPeriode: MånedPeriode) = endretUtbetalingAndel.overlapperMed(månedPeriode)
@@ -162,10 +162,10 @@ data class EndretUtbetalingAndelMedAndelerTilkjentYtelse(
  * og viderefører den til den opprettede AndelTilkjentYtelseMedEndreteUtbetalinger
  */
 fun AndelTilkjentYtelse.medEndring(
-    endretUtbetalingAndelMedAndelerTilkjentYtelse: EndretUtbetalingAndelMedAndelerTilkjentYtelse
+    endretUtbetalingAndelMedAndelerTilkjentYtelse: EndretUtbetalingAndelMedAndelerTilkjentYtelse,
 ) = AndelTilkjentYtelseMedEndreteUtbetalinger(
     this,
-    listOf(endretUtbetalingAndelMedAndelerTilkjentYtelse.endretUtbetaling)
+    listOf(endretUtbetalingAndelMedAndelerTilkjentYtelse.endretUtbetaling),
 )
 
 fun List<AndelTilkjentYtelseMedEndreteUtbetalinger>.tilTidslinjer(): List<Tidslinje<AndelTilkjentYtelseMedEndreteUtbetalinger>> =
@@ -174,8 +174,8 @@ fun List<AndelTilkjentYtelseMedEndreteUtbetalinger>.tilTidslinjer(): List<Tidsli
             Periode(
                 verdi = it,
                 fom = it.stønadFom.førsteDagIInneværendeMåned(),
-                tom = it.stønadTom.sisteDagIInneværendeMåned()
-            )
+                tom = it.stønadTom.sisteDagIInneværendeMåned(),
+            ),
         ).tilTidslinje()
     }
 
@@ -195,6 +195,6 @@ fun List<AndelTilkjentYtelseMedEndreteUtbetalinger>.tilTidslinje() =
         Periode(
             it,
             it.stønadFom.førsteDagIInneværendeMåned(),
-            it.stønadTom.sisteDagIInneværendeMåned()
+            it.stønadTom.sisteDagIInneværendeMåned(),
         )
     }.tilTidslinje()
