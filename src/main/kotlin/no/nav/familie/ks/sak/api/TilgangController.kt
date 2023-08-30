@@ -27,7 +27,7 @@ class TilgangController(
     fun hentTilgangOgDiskresjonskode(@RequestBody tilgangRequestDTO: TilgangRequestDto): ResponseEntity<Ressurs<TilgangResponsDto>> {
         val aktør = personidentService.hentAktør(tilgangRequestDTO.brukerIdent)
         val adressebeskyttelse = personOpplysningerService.hentAdressebeskyttelseSomSystembruker(aktør)
-        val harTilgang = integrasjonService.sjekkTilgangTilPersoner(listOf(tilgangRequestDTO.brukerIdent)).harTilgang
+        val harTilgang = integrasjonService.sjekkTilgangTilPerson(tilgangRequestDTO.brukerIdent).harTilgang
 
         return ResponseEntity.ok(
             Ressurs.success(

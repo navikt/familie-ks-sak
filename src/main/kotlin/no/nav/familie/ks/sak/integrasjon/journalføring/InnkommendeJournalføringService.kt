@@ -1,5 +1,6 @@
 package no.nav.familie.ks.sak.integrasjon.journalføring
 
+import jakarta.transaction.Transactional
 import no.nav.familie.kontrakter.felles.BrukerIdType
 import no.nav.familie.kontrakter.felles.Fagsystem
 import no.nav.familie.kontrakter.felles.Tema
@@ -34,7 +35,6 @@ import no.nav.familie.ks.sak.kjerne.logg.LoggService
 import org.springframework.stereotype.Service
 import java.time.LocalDate
 import java.time.LocalDateTime
-import javax.transaction.Transactional
 
 @Service
 class InnkommendeJournalføringService(

@@ -1,10 +1,10 @@
 package no.nav.familie.ks.sak.kjerne.brev.begrunnelser
 
+import jakarta.persistence.AttributeConverter
+import jakarta.persistence.Converter
 import no.nav.familie.ks.sak.common.util.konverterEnumsTilString
 import no.nav.familie.ks.sak.common.util.konverterStringTilEnums
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelse
-import javax.persistence.AttributeConverter
-import javax.persistence.Converter
 
 interface IBegrunnelse {
 

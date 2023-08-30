@@ -28,23 +28,20 @@ class HentFagsystemsbehandlingResponsKafkaProducer(private val kafkaTemplate: Ka
     ) {
         val meldingIString: String = objectMapper.writeValueAsString(melding)
         kafkaTemplate.send(FAGSYSTEMSBEHANDLING_RESPONS_TBK_TOPIC, key, meldingIString)
-            .addCallback(
-                {
-                    logger.info(
-                        """Melding på topic $FAGSYSTEMSBEHANDLING_RESPONS_TBK_TOPIC for $behandlingId med $key er sendt. 
+            .thenAccept {
+                logger.info(
+                    """Melding på topic $FAGSYSTEMSBEHANDLING_RESPONS_TBK_TOPIC for $behandlingId med $key er sendt. 
                             Fikk offset ${it?.recordMetadata?.offset()}
                         """.trimMargin()
-                    )
-                },
-                {
-                    val feilmelding =
-                        """Melding på topic $FAGSYSTEMSBEHANDLING_RESPONS_TBK_TOPIC kan ikke sendes for $behandlingId 
+                )
+            }.exceptionally {
+                val feilmelding =
+                    """Melding på topic $FAGSYSTEMSBEHANDLING_RESPONS_TBK_TOPIC kan ikke sendes for $behandlingId 
                             med $key. Feiler med ${it.message}
                         """.trimMargin()
-                    logger.warn(feilmelding)
-                    throw Feil(message = feilmelding)
-                }
-            )
+                logger.warn(feilmelding)
+                throw Feil(message = feilmelding)
+            }
     }
 
     companion object {

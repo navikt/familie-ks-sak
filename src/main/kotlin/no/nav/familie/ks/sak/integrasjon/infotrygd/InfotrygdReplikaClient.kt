@@ -22,7 +22,7 @@ class InfotrygdReplikaClient(
     fun harKontantstøtteIInfotrygd(barnIGjeldendeBehandling: List<BarnMedOpplysningerDto>): Boolean {
         val harKontantstøtteIInfotrygdUri = UriComponentsBuilder
             .fromUri(familieKsInfotrygdUri)
-            .pathSegment("harLøpendeKontantstotteIInfotrygd")
+            .pathSegment("harLopendeKontantstotteIInfotrygd")
             .build()
             .toUri()
         val harKontantstøtte = kallEksternTjeneste<Boolean>(
@@ -38,7 +38,7 @@ class InfotrygdReplikaClient(
     fun hentKontantstøttePerioderFraInfotrygd(identer: List<String>): InnsynResponse {
         val requestURI = UriComponentsBuilder
             .fromUri(familieKsInfotrygdUri)
-            .pathSegment("hentPerioderMedKontantstøtteIInfotrygd")
+            .pathSegment("hentPerioderMedKontantstotteIInfotrygd")
             .build()
             .toUri()
 

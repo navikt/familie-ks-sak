@@ -1,6 +1,7 @@
 package no.nav.familie.ks.sak.kjerne.behandling.steg.simulering
 
 import io.micrometer.core.instrument.Metrics
+import jakarta.transaction.Transactional
 import no.nav.familie.kontrakter.felles.objectMapper
 import no.nav.familie.kontrakter.felles.oppdrag.Utbetalingsoppdrag
 import no.nav.familie.kontrakter.felles.simulering.DetaljertSimuleringResultat
@@ -24,7 +25,6 @@ import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext
 import org.springframework.stereotype.Service
 import java.math.BigDecimal
 import java.time.LocalDate
-import javax.transaction.Transactional
 
 @Service
 class SimuleringService(

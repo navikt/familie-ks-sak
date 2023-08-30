@@ -48,12 +48,12 @@ class IntegrasjonClient(
 
     val tilgangPersonUri = UriComponentsBuilder.fromUri(integrasjonUri).pathSegment(PATH_TILGANG_PERSON).build().toUri()
 
-    fun sjekkTilgangTilPersoner(personIdenter: List<String>): Tilgang {
+    fun sjekkTilgangTilPersoner(personIdenter: List<String>): List<Tilgang> {
         if (SikkerhetContext.erSystemKontekst()) {
-            return Tilgang(true, null)
+            return personIdenter.map { Tilgang(personIdent = it, harTilgang = true, begrunnelse = null) }
         }
 
-        val tilganger = kallEksternTjeneste<List<Tilgang>>(
+        return kallEksternTjeneste(
             tjeneste = "tilgangskontroll",
             uri = tilgangPersonUri,
             formål = "Sjekk tilgang til personer"
@@ -66,8 +66,6 @@ class IntegrasjonClient(
                 }
             )
         }
-
-        return tilganger.firstOrNull { !it.harTilgang } ?: tilganger.firstOrNull() ?: Tilgang(harTilgang = false)
     }
 
     fun ferdigstillOppgave(oppgaveId: Long) {

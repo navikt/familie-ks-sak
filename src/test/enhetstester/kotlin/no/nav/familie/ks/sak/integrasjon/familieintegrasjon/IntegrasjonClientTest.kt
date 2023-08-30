@@ -108,8 +108,8 @@ internal class IntegrasjonClientTest {
 
         val tilgangTilPersonIdent = integrasjonClient.sjekkTilgangTilPersoner(listOf("ident1", "ident2", "ident3"))
 
-        assertThat(tilgangTilPersonIdent.harTilgang, Is(true))
-        assertThat(tilgangTilPersonIdent.begrunnelse, Is("Har tilgang"))
+        assertThat(tilgangTilPersonIdent.all { it.harTilgang }, Is(true))
+        assertThat(tilgangTilPersonIdent.all { it.begrunnelse == "Har tilgang" }, Is(true))
     }
 
     @Test
@@ -124,8 +124,9 @@ internal class IntegrasjonClientTest {
 
         val tilgangTilPersonIdent = integrasjonClient.sjekkTilgangTilPersoner(listOf("ident1", "ident2", "ident3"))
 
-        assertThat(tilgangTilPersonIdent.harTilgang, Is(false))
-        assertThat(tilgangTilPersonIdent.begrunnelse, Is("Har ikke tilgang"))
+        assertThat(tilgangTilPersonIdent.all { it.harTilgang }, Is(false))
+        assertThat(tilgangTilPersonIdent.any { it.begrunnelse == "Har ikke tilgang" }, Is(true))
+        assertThat(tilgangTilPersonIdent.any { it.begrunnelse == "Har tilgang" }, Is(true))
     }
 
     @Test
@@ -237,7 +238,6 @@ internal class IntegrasjonClientTest {
 
     @Test
     fun `distribuerBrev skal en bestillingsid på at brevet at distribuert`() {
-
         wiremockServerItem.stubFor(
             WireMock.post(WireMock.urlEqualTo("/dist/v1"))
                 .willReturn(WireMock.okJson(readFile("distribuerBrevEnkelResponse.json")))

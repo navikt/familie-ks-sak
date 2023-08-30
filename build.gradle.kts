@@ -1,14 +1,15 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    val kotlinVersion = "1.7.10"
+    val kotlinVersion = "1.8.22"
     kotlin("jvm") version kotlinVersion
 
-    id("org.springframework.boot") version "2.7.4"
+    id("org.springframework.boot") version "3.1.0"
     id("io.spring.dependency-management") version "1.0.13.RELEASE"
     id("org.jetbrains.kotlin.plugin.spring") version kotlinVersion
     id("org.jetbrains.kotlin.plugin.jpa") version kotlinVersion
     id("org.jetbrains.kotlin.plugin.allopen") version kotlinVersion
+    id("org.jetbrains.kotlin.plugin.noarg") version kotlinVersion
     id("com.github.davidmc24.gradle.plugin.avro") version "1.5.0"
 }
 
@@ -32,17 +33,17 @@ repositories {
 
 dependencies {
 
-    val springdocVersion = "1.6.13"
+    val springdocVersion = "2.2.0"
     val sentryVersion = "6.8.0"
-    val navFellesVersion = "1.20220901103347_4819e55"
+    val navFellesVersion = "2.20230825095715_3bcaf53"
     val eksterneKontrakterBisysVersion = "2.0_20220609214258_f30c3ce"
-    val fellesKontrakterVersion = "3.0_20230509152247_36d24db"
+    val fellesKontrakterVersion = "3.0_20230605154245_3d182db"
     val familieKontrakterSaksstatistikkVersion = "2.0_20220216121145_5a268ac"
     val familieKontrakterStønadsstatistikkKsVersion = "2.0_20230825103733_1ac52c2"
     val familieKontrakterSkatteetatenVersion = "2.0_20210920094114_9c74239"
-    val tokenValidationSpringVersion = "2.1.8"
+    val tokenValidationSpringVersion = "3.1.3"
     val navFoedselsnummerVersion = "1.0-SNAPSHOT.6"
-    val prosesseringVersion = "1.20221110194901_e9e0d90"
+    val prosesseringVersion = "2.20230807154047_d770f01"
     val restAssuredVersion = "5.3.0"
     val kotlinxVersion = "1.6.4"
 
@@ -56,8 +57,8 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-devtools")
     implementation("org.springframework.kafka:spring-kafka")
     implementation("org.springframework.retry:spring-retry")
-    implementation("org.springdoc:springdoc-openapi-ui:$springdocVersion")
-    implementation("org.springdoc:springdoc-openapi-kotlin:$springdocVersion")
+    implementation("org.springdoc:springdoc-openapi-starter-common:$springdocVersion")
+    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:$springdocVersion")
 
     // ---------- Kotlin ---------- \\
     implementation("org.jetbrains.kotlin:kotlin-reflect")
@@ -109,7 +110,7 @@ dependencies {
         exclude(module = "mockito-core")
     }
     testImplementation("org.springframework.boot:spring-boot-starter-test")
-    testImplementation("org.springframework.cloud:spring-cloud-contract-wiremock:3.1.5")
+    testImplementation("org.springframework.cloud:spring-cloud-contract-wiremock:4.0.1")
     testImplementation("io.rest-assured:spring-mock-mvc:$restAssuredVersion")
     testImplementation("io.rest-assured:kotlin-extensions:$restAssuredVersion")
     testImplementation("org.testcontainers:postgresql:1.17.6")
