@@ -34,7 +34,7 @@ class SakStatistikkService(
     private val arbeidsfordelingService: ArbeidsfordelingService,
     private val fagsakService: FagsakService,
     private val personopplysningService: PersonOpplysningerService,
-    private val personopplysningGrunnlagService: PersonopplysningGrunnlagService
+    private val personopplysningGrunnlagService: PersonopplysningGrunnlagService,
 ) {
 
     fun opprettSendingAvBehandlingensTilstand(behandlingId: Long, behandlingSteg: BehandlingSteg) {
@@ -52,7 +52,7 @@ class SakStatistikkService(
         behandlingId: Long,
         behandlingTilstand: BehandlingStatistikkDto,
         hendelsesbeskrivelse: String,
-        type: String
+        type: String,
     ) {
         val task = Task(
             type = type,
@@ -60,7 +60,7 @@ class SakStatistikkService(
             Properties().apply {
                 setProperty("behandlingId", behandlingId.toString())
                 setProperty("beskrivelse", hendelsesbeskrivelse)
-            }
+            },
         )
         taskService.save(task)
     }
@@ -93,12 +93,12 @@ class SakStatistikkService(
                     frist = OffsetDateTime.of(
                         behandlingPåVent.frist,
                         java.time.LocalTime.now(),
-                        ZoneOffset.UTC
+                        ZoneOffset.UTC,
                     ),
-                    aarsak = it
+                    aarsak = it,
                 )
             },
-            behandlingOpprettetÅrsak = behandling.opprettetÅrsak
+            behandlingOpprettetÅrsak = behandling.opprettetÅrsak,
         )
     }
 
@@ -110,7 +110,7 @@ class SakStatistikkService(
                     tilstand.behandlingID,
                     tilstand,
                     "Sender siste tilstand på nytt",
-                    SendSisteBehandlingstilstandTilDvhTask.TASK_TYPE
+                    SendSisteBehandlingstilstandTilDvhTask.TASK_TYPE,
                 )
             }
         }
@@ -119,7 +119,7 @@ class SakStatistikkService(
     fun LocalDateTime.tilOffset(): OffsetDateTime {
         return OffsetDateTime.of(
             this,
-            ZoneOffset.UTC
+            ZoneOffset.UTC,
         )
     }
 
@@ -133,7 +133,7 @@ class SakStatistikkService(
                 ?.personer?.map {
                     AktørDVH(
                         it.aktør.aktørId.toLong(),
-                        it.type.name
+                        it.type.name,
                     )
                 } ?: emptyList()
         } else {
@@ -150,7 +150,7 @@ class SakStatistikkService(
             aktorer = aktørDVHer,
             sakStatus = fagsak.status.name,
             avsender = "familie-ks-sak",
-            bostedsland = hentLandkode(fagsak.aktør)
+            bostedsland = hentLandkode(fagsak.aktør),
         )
     }
 
@@ -161,7 +161,7 @@ class SakStatistikkService(
             "NO"
         } else {
             personopplysningService.hentLandkodeAlpha2UtenlandskBostedsadresse(
-                aktør
+                aktør,
             )
         }
     }

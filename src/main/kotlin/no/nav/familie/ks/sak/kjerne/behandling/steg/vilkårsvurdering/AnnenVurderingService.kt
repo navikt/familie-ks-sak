@@ -16,7 +16,7 @@ class AnnenVurderingService(private val annenVurderingRepository: AnnenVurdering
 
     @Transactional
     fun endreAnnenVurdering(
-        annenVurderingDto: AnnenVurderingDto
+        annenVurderingDto: AnnenVurderingDto,
     ) {
         hentAnnenVurderingThrows(annenVurderingId = annenVurderingDto.id).let {
             annenVurderingRepository.save(
@@ -24,7 +24,7 @@ class AnnenVurderingService(private val annenVurderingRepository: AnnenVurdering
                     it.resultat = annenVurderingDto.resultat
                     it.begrunnelse = annenVurderingDto.begrunnelse
                     it.type = annenVurderingDto.type
-                }
+                },
             )
         }
     }

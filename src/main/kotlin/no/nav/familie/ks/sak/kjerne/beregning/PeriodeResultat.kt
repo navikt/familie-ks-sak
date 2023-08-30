@@ -18,7 +18,7 @@ data class PeriodeResultat(
     val aktør: Aktør,
     val periodeFom: LocalDate?,
     val periodeTom: LocalDate?,
-    val vilkårResultater: Set<PeriodeVilkår>
+    val vilkårResultater: Set<PeriodeVilkår>,
 )
 
 data class PeriodeVilkår(
@@ -28,7 +28,7 @@ data class PeriodeVilkår(
     val utdypendeVilkårsvurderinger: List<UtdypendeVilkårsvurdering>,
     val antallTimer: BigDecimal? = null,
     val periodeFom: LocalDate?,
-    val periodeTom: LocalDate?
+    val periodeTom: LocalDate?,
 )
 
 fun PersonResultat.tilPeriodeResultater(): List<PeriodeResultat> {
@@ -38,8 +38,8 @@ fun PersonResultat.tilPeriodeResultater(): List<PeriodeResultat> {
                 Periode(
                     verdi = vilkårResultat,
                     fom = utledFomFraVilkårResultat(vilkårResultat),
-                    tom = utledTomFraVilkårResultat(vilkårResultat)
-                )
+                    tom = utledTomFraVilkårResultat(vilkårResultat),
+                ),
             ).tilTidslinje()
         }
     val kombinertTidslinjer = tidslinjer.slåSammen()
@@ -56,9 +56,9 @@ fun PersonResultat.tilPeriodeResultater(): List<PeriodeResultat> {
                     utdypendeVilkårsvurderinger = vilkårResultat.utdypendeVilkårsvurderinger,
                     antallTimer = vilkårResultat.antallTimer,
                     periodeFom = utledFomFraVilkårResultat(vilkårResultat),
-                    periodeTom = utledTomFraVilkårResultat(vilkårResultat)
+                    periodeTom = utledTomFraVilkårResultat(vilkårResultat),
                 )
-            }.toSet()
+            }.toSet(),
         )
     }
 }

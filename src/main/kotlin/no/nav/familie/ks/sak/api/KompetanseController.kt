@@ -26,20 +26,20 @@ import org.springframework.web.bind.annotation.RestController
 class KompetanseController(
     private val kompetanseService: KompetanseService,
     private val tilgangService: TilgangService,
-    private val behandlingService: BehandlingService
+    private val behandlingService: BehandlingService,
 ) {
     // Denne API-en brukes for å oppdatere kompetanse
     // Kompetanse oppretter automatisk etter vilkårsvurdering steg når vilkår er vurdert etter EØS forordningen
     @PutMapping(path = ["{behandlingId}/kompetanse"], produces = [MediaType.APPLICATION_JSON_VALUE])
     fun oppdaterKompetanse(
         @PathVariable behandlingId: Long,
-        @RequestBody kompentanseDto: KompetanseDto
+        @RequestBody kompentanseDto: KompetanseDto,
     ): ResponseEntity<Ressurs<BehandlingResponsDto>> {
         tilgangService.validerTilgangTilHandlingOgFagsakForBehandling(
             behandlingId = behandlingId,
             event = AuditLoggerEvent.UPDATE,
             minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
-            handling = "oppdater kompetanse"
+            handling = "oppdater kompetanse",
         )
         kompetanseService.oppdaterKompetanse(behandlingId, kompentanseDto)
         return ResponseEntity.ok(Ressurs.success(behandlingService.lagBehandlingRespons(behandlingId)))
@@ -47,17 +47,17 @@ class KompetanseController(
 
     @DeleteMapping(
         path = ["behandlinger/{behandlingId}/kompetanse/{kompetanseId}"],
-        produces = [MediaType.APPLICATION_JSON_VALUE]
+        produces = [MediaType.APPLICATION_JSON_VALUE],
     )
     fun slettKompetanse(
         @PathVariable behandlingId: Long,
-        @PathVariable kompetanseId: Long
+        @PathVariable kompetanseId: Long,
     ): ResponseEntity<Ressurs<BehandlingResponsDto>> {
         tilgangService.validerTilgangTilHandlingOgFagsakForBehandling(
             behandlingId = behandlingId,
             event = AuditLoggerEvent.DELETE,
             minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
-            handling = "slette kompetanse"
+            handling = "slette kompetanse",
         )
 
         kompetanseService.slettKompetanse(kompetanseId)

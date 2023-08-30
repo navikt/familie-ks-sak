@@ -33,7 +33,7 @@ class BeregningService(
     private val personopplysningGrunnlagRepository: PersonopplysningGrunnlagRepository,
     private val behandlingRepository: BehandlingRepository,
     private val andelerTilkjentYtelseOgEndreteUtbetalingerService: AndelerTilkjentYtelseOgEndreteUtbetalingerService,
-    private val fagsakService: FagsakService
+    private val fagsakService: FagsakService,
 ) {
 
     /**
@@ -57,7 +57,7 @@ class BeregningService(
         val iverksatteBehandlinger = behandlingRepository.finnByFagsakAndAvsluttet(fagsakId)
         return iverksatteBehandlinger.mapNotNull {
             tilkjentYtelseRepository.finnByBehandlingAndHasUtbetalingsoppdrag(
-                it.id
+                it.id,
             )?.takeIf { tilkjentYtelse ->
                 tilkjentYtelse.andelerTilkjentYtelse.any { aty -> aty.erAndelSomSkalSendesTilOppdrag() }
             }
@@ -71,7 +71,7 @@ class BeregningService(
         behandling: Behandling,
         personopplysningGrunnlag: PersonopplysningGrunnlag,
         vilkårsvurdering: Vilkårsvurdering,
-        endretUtbetalingAndel: EndretUtbetalingAndel? = null
+        endretUtbetalingAndel: EndretUtbetalingAndel? = null,
     ) {
         val endreteUtbetalingAndeler =
             andelerTilkjentYtelseOgEndreteUtbetalingerService.finnEndreteUtbetalingerMedAndelerTilkjentYtelse(behandling.id)
@@ -86,7 +86,7 @@ class BeregningService(
         val tilkjentYtelse = TilkjentYtelseUtils.beregnTilkjentYtelse(
             vilkårsvurdering,
             personopplysningGrunnlag,
-            endreteUtbetalingAndeler
+            endreteUtbetalingAndeler,
         )
 
         tilkjentYtelseRepository.save(tilkjentYtelse)
@@ -101,7 +101,7 @@ class BeregningService(
      */
     fun hentRelevanteTilkjentYtelserForBarn(
         barnAktør: Aktør,
-        fagsakId: Long
+        fagsakId: Long,
     ): List<TilkjentYtelse> {
         val andreFagsaker = fagsakService.hentFagsakerPåPerson(barnAktør)
             .filter { it.id != fagsakId }
@@ -127,7 +127,7 @@ class BeregningService(
     // Har ikke klart å identifisere at opphørFom på TilkjentYtelse faktisk brukes til noe, så mulig mye av logikken her kan fjernes, men har latt det være slik det er i BA inntil videre.
     fun populerTilkjentYtelse(
         behandling: Behandling,
-        utbetalingsoppdrag: Utbetalingsoppdrag
+        utbetalingsoppdrag: Utbetalingsoppdrag,
     ): TilkjentYtelse {
         val erRentOpphør =
             utbetalingsoppdrag.utbetalingsperiode.isNotEmpty() && utbetalingsoppdrag.utbetalingsperiode.all { it.opphør != null }
@@ -158,7 +158,7 @@ class BeregningService(
 
     fun hentSisteOffsetPerIdent(
         fagsakId: Long,
-        andelTilkjentYtelseForUtbetalingsoppdragFactory: AndelTilkjentYtelseForUtbetalingsoppdragFactory
+        andelTilkjentYtelseForUtbetalingsoppdragFactory: AndelTilkjentYtelseForUtbetalingsoppdragFactory,
     ): Map<String, Int> {
         val alleAndelerTilkjentYtelserIverksattMotØkonomi =
             hentTilkjentYtelseForBehandlingerIverksattMotØkonomi(fagsakId)
@@ -208,7 +208,7 @@ class BeregningService(
         val alleBarnISistIverksattBehandling = behandlingRepository.finnIverksatteBehandlinger(behandling.fagsak.id)
             .filter { it.steg == BehandlingSteg.AVSLUTT_BEHANDLING }.maxByOrNull { it.opprettetTidspunkt }?.let {
                 finnBarnFraBehandlingMedTilkjentYtelse(
-                    it.id
+                    it.id,
                 )
             }
             ?: emptyList()
@@ -225,10 +225,10 @@ class BeregningService(
 
     fun hentLøpendeAndelerTilkjentYtelseMedUtbetalingerForBehandlinger(
         behandlingIder: List<Long>,
-        avstemmingstidspunkt: LocalDateTime
+        avstemmingstidspunkt: LocalDateTime,
     ): List<AndelTilkjentYtelse> = andelTilkjentYtelseRepository.finnLøpendeAndelerTilkjentYtelseForBehandlinger(
         behandlingIder,
-        avstemmingstidspunkt.toLocalDate().toYearMonth()
+        avstemmingstidspunkt.toLocalDate().toYearMonth(),
     ).filter { it.erAndelSomSkalSendesTilOppdrag() }
 
     fun slettTilkjentYtelseForBehandling(behandling: Behandling) =

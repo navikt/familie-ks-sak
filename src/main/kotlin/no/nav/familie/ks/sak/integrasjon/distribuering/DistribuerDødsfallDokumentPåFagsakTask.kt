@@ -25,10 +25,10 @@ const val ANTALL_SEKUNDER_I_EN_UKE = 604800L
     // ~8 måneder dersom vi prøver én gang i uka.
     // Tasken skal stoppe etter 6 måneder, så om vi kommer hit har det skjedd noe galt.
     maxAntallFeil = 4 * 8,
-    settTilManuellOppfølgning = true
+    settTilManuellOppfølgning = true,
 )
 class DistribuerDødsfallBrevPåFagsakTask(
-    private val brevService: BrevService
+    private val brevService: BrevService,
 ) : AsyncTaskStep {
 
     override fun doTask(task: Task) {
@@ -48,7 +48,7 @@ class DistribuerDødsfallBrevPåFagsakTask(
                     journalpostId = journalpostId,
                     behandlingId = null,
                     loggBehandlerRolle = BehandlerRolle.SYSTEM,
-                    brevmal = brevmal
+                    brevmal = brevmal,
                 )
             } catch (e: Exception) {
                 if (e is RessursException && mottakerErDødUtenDødsboadresse(e)) {
@@ -69,9 +69,9 @@ class DistribuerDødsfallBrevPåFagsakTask(
                 payload = objectMapper.writeValueAsString(
                     DistribuerDødsfallBrevPåFagsakDTO(
                         journalpostId,
-                        brevmal
-                    )
-                )
+                        brevmal,
+                    ),
+                ),
             )
         }
 
@@ -82,5 +82,5 @@ class DistribuerDødsfallBrevPåFagsakTask(
 
 data class DistribuerDødsfallBrevPåFagsakDTO(
     val journalpostId: String,
-    val brevmal: Brevmal
+    val brevmal: Brevmal,
 )

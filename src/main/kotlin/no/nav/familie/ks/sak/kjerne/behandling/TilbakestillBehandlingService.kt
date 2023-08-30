@@ -13,7 +13,7 @@ class TilbakestillBehandlingService(
     private val vedtaksperiodeHentOgPersisterService: VedtaksperiodeHentOgPersisterService,
     private val stegService: StegService,
     private val tilbakekrevingRepository: TilbakekrevingRepository,
-    private val behandlingRepository: BehandlingRepository
+    private val behandlingRepository: BehandlingRepository,
 ) {
 
     @Transactional

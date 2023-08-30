@@ -19,7 +19,7 @@ data class PersonInfoDto(
     val forelderBarnRelasjonMaskert: List<ForelderBarnRelasjonInfoMaskertDto> = emptyList(),
     val kommunenummer: String = "ukjent",
     val dødsfallDato: String? = null,
-    val bostedsadresse: BostedsadresseDto? = null
+    val bostedsadresse: BostedsadresseDto? = null,
 )
 
 data class ForelderBarnRelasjonInfoDto(
@@ -27,17 +27,17 @@ data class ForelderBarnRelasjonInfoDto(
     val relasjonRolle: FORELDERBARNRELASJONROLLE,
     val navn: String,
     val fødselsdato: LocalDate?,
-    val adressebeskyttelseGradering: ADRESSEBESKYTTELSEGRADERING? = null
+    val adressebeskyttelseGradering: ADRESSEBESKYTTELSEGRADERING? = null,
 )
 
 data class ForelderBarnRelasjonInfoMaskertDto(
     val relasjonRolle: FORELDERBARNRELASJONROLLE,
-    val adressebeskyttelseGradering: ADRESSEBESKYTTELSEGRADERING
+    val adressebeskyttelseGradering: ADRESSEBESKYTTELSEGRADERING,
 )
 
 data class BostedsadresseDto(
     val adresse: String?,
-    val postnummer: String
+    val postnummer: String,
 )
 
 fun PdlPersonInfo.tilPersonInfoDto(personIdent: String): PersonInfoDto {
@@ -63,13 +63,13 @@ fun PdlPersonInfo.tilPersonInfoDto(personIdent: String): PersonInfoDto {
         forelderBarnRelasjon = this.forelderBarnRelasjoner.map { it.tilForelderBarnRelasjonInfoDto() },
         forelderBarnRelasjonMaskert = this.forelderBarnRelasjonerMaskert.map { it.tilForelderBarnRelasjonInfoMaskertDto() },
         kommunenummer = kommunenummer,
-        dødsfallDato = dødsfallDato
+        dødsfallDato = dødsfallDato,
     )
 }
 
 private fun ForelderBarnRelasjonInfoMaskert.tilForelderBarnRelasjonInfoMaskertDto() = ForelderBarnRelasjonInfoMaskertDto(
     relasjonRolle = this.relasjonsrolle,
-    adressebeskyttelseGradering = this.adressebeskyttelseGradering
+    adressebeskyttelseGradering = this.adressebeskyttelseGradering,
 )
 
 private fun ForelderBarnRelasjonInfo.tilForelderBarnRelasjonInfoDto() = ForelderBarnRelasjonInfoDto(
@@ -77,6 +77,6 @@ private fun ForelderBarnRelasjonInfo.tilForelderBarnRelasjonInfoDto() = Forelder
     relasjonRolle = this.relasjonsrolle,
     navn = this.navn ?: "",
     fødselsdato = this.fødselsdato,
-    adressebeskyttelseGradering = this.adressebeskyttelseGradering
+    adressebeskyttelseGradering = this.adressebeskyttelseGradering,
 
 )

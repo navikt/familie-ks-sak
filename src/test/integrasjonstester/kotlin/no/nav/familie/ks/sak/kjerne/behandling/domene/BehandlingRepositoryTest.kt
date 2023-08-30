@@ -135,17 +135,17 @@ class BehandlingRepositoryTest : OppslagSpringRunnerTest() {
     @ParameterizedTest
     @EnumSource(
         value = BehandlingStegStatus::class,
-        names = ["KLAR", "VENTER"]
+        names = ["KLAR", "VENTER"],
     )
     fun `finnBehandlingerSentTilGodkjenning - skal returnere alle behandlinger som står på steget BESLUTTE_VEDTAK og har status 'KLAR' eller 'VENTER'`(
-        behandlingStegStatus: BehandlingStegStatus
+        behandlingStegStatus: BehandlingStegStatus,
     ) {
         behandling.behandlingStegTilstand.add(
             BehandlingStegTilstand(
                 behandling = behandling,
                 behandlingSteg = BehandlingSteg.BESLUTTE_VEDTAK,
-                behandlingStegStatus = behandlingStegStatus
-            )
+                behandlingStegStatus = behandlingStegStatus,
+            ),
         )
         behandlingRepository.saveAndFlush(behandling)
         val behandlinger = behandlingRepository.finnBehandlingerSendtTilGodkjenning(fagsak.id)
@@ -157,17 +157,17 @@ class BehandlingRepositoryTest : OppslagSpringRunnerTest() {
     @EnumSource(
         value = BehandlingStegStatus::class,
         names = ["KLAR", "VENTER"],
-        mode = EnumSource.Mode.EXCLUDE
+        mode = EnumSource.Mode.EXCLUDE,
     )
     fun `finnBehandlingerSentTilGodkjenning - skal returnere tom liste når behandling står på steget BESLUTTE_VEDTAK og har status som ikke er 'KLAR' eller 'VENTER'`(
-        behandlingStegStatus: BehandlingStegStatus
+        behandlingStegStatus: BehandlingStegStatus,
     ) {
         behandling.behandlingStegTilstand.add(
             BehandlingStegTilstand(
                 behandling = behandling,
                 behandlingSteg = BehandlingSteg.BESLUTTE_VEDTAK,
-                behandlingStegStatus = behandlingStegStatus
-            )
+                behandlingStegStatus = behandlingStegStatus,
+            ),
         )
         behandlingRepository.saveAndFlush(behandling)
         val behandlinger = behandlingRepository.finnBehandlingerSendtTilGodkjenning(fagsak.id)

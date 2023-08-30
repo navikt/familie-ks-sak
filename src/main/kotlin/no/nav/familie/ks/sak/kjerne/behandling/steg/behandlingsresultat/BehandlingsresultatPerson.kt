@@ -13,7 +13,7 @@ data class BehandlingsresultatPerson(
     val søktForPerson: Boolean, // flagg som markerer om person er inkludert i utledning
     val eksplisittAvslag: Boolean = false,
     val forrigeAndeler: List<BehandlingsresultatAndelTilkjentYtelse> = emptyList(),
-    val andeler: List<BehandlingsresultatAndelTilkjentYtelse>
+    val andeler: List<BehandlingsresultatAndelTilkjentYtelse>,
 ) {
 
     /**
@@ -27,7 +27,7 @@ data class BehandlingsresultatPerson(
         return YtelsePerson(
             aktør = aktør,
             ytelseType = YtelseType.ORDINÆR_KONTANTSTØTTE,
-            kravOpprinnelse = utledKravOpprinnelser()
+            kravOpprinnelse = utledKravOpprinnelser(),
         )
     }
 
@@ -36,7 +36,7 @@ data class BehandlingsresultatPerson(
             forrigeAndeler.isNotEmpty() && !søktForPerson -> listOf(KravOpprinnelse.TIDLIGERE)
             forrigeAndeler.isNotEmpty() && søktForPerson -> listOf(
                 KravOpprinnelse.TIDLIGERE,
-                KravOpprinnelse.INNEVÆRENDE
+                KravOpprinnelse.INNEVÆRENDE,
             )
             else -> listOf(KravOpprinnelse.INNEVÆRENDE)
         }
@@ -54,7 +54,7 @@ data class BehandlingsresultatPerson(
 data class BehandlingsresultatAndelTilkjentYtelse(
     val stønadFom: YearMonth,
     val stønadTom: YearMonth,
-    val kalkulertUtbetalingsbeløp: Int
+    val kalkulertUtbetalingsbeløp: Int,
 ) {
 
     val periode get() = MånedPeriode(stønadFom, stønadTom)
@@ -64,7 +64,7 @@ data class BehandlingsresultatAndelTilkjentYtelse(
     fun sumForPeriode(): Int {
         val between = Period.between(
             stønadFom.førsteDagIInneværendeMåned(),
-            stønadTom.sisteDagIInneværendeMåned()
+            stønadTom.sisteDagIInneværendeMåned(),
         )
         val antallMåneder = (between.years * 12) + between.months
 

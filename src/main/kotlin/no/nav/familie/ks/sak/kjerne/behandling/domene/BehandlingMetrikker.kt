@@ -38,7 +38,7 @@ class BehandlingMetrikker(
                 "type",
                 it.name,
                 "beskrivelse",
-                it.displayName
+                it.displayName,
             )
         }
 
@@ -88,7 +88,7 @@ class BehandlingMetrikker(
                 "aarsak",
                 it.name,
                 "beskrivelse",
-                it.visningsnavn
+                it.visningsnavn,
             )
         }
 
@@ -97,7 +97,7 @@ class BehandlingMetrikker(
             Metrics.counter(
                 "behandlinger.ferdigstilt",
                 "enhet",
-                it
+                it,
             )
         }
 
@@ -112,10 +112,10 @@ class BehandlingMetrikker(
             MultiGauge.Row.of(
                 Tags.of(
                     ÅR_MÅNED_DAG,
-                    dagensDato
+                    dagensDato,
                 ),
-                behandlinger
-            )
+                behandlinger,
+            ),
         )
 
         enheter.forEach { enhet ->
@@ -125,10 +125,10 @@ class BehandlingMetrikker(
                 MultiGauge.Row.of(
                     Tags.of(
                         "$ÅR_MÅNED_DAG-$enhet",
-                        dagensDato
+                        dagensDato,
                     ),
-                    behandlingerPåEnhet.size
-                )
+                    behandlingerPåEnhet.size,
+                ),
             )
         }
 

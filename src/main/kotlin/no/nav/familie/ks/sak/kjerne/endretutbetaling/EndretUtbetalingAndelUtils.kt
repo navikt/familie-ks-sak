@@ -7,7 +7,7 @@ import java.time.YearMonth
 fun beregnGyldigTomIFremtiden(
     andreEndredeAndelerPåBehandling: List<EndretUtbetalingAndel>,
     endretUtbetalingAndel: EndretUtbetalingAndel,
-    andelTilkjentYtelser: List<AndelTilkjentYtelse>
+    andelTilkjentYtelser: List<AndelTilkjentYtelse>,
 ): YearMonth? {
     val førsteEndringEtterDenneEndringen = andreEndredeAndelerPåBehandling.filter {
         it.fom?.isAfter(endretUtbetalingAndel.fom) == true &&

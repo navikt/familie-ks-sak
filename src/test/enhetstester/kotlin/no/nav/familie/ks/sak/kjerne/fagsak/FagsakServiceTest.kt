@@ -110,7 +110,7 @@ class FagsakServiceTest {
         every { integrasjonService.sjekkTilgangTilPerson(any()) } returns Tilgang("test", true)
         every { personopplysningerService.hentPersonInfoMedRelasjonerOgRegisterinformasjon(any()) } returns PdlPersonInfo(
             søkersFødselsdato,
-            forelderBarnRelasjoner = setOf(ForelderBarnRelasjonInfo(barnAktør, FORELDERBARNRELASJONROLLE.BARN))
+            forelderBarnRelasjoner = setOf(ForelderBarnRelasjonInfo(barnAktør, FORELDERBARNRELASJONROLLE.BARN)),
         )
         every { personRepository.findByAktør(any()) } returns listOf(
             Person(
@@ -118,13 +118,13 @@ class FagsakServiceTest {
                 type = PersonType.SØKER,
                 fødselsdato = søkersFødselsdato,
                 kjønn = Kjønn.MANN,
-                personopplysningGrunnlag = lagPersonopplysningGrunnlag(1, søkerPersonident, barnIdenter)
-            )
+                personopplysningGrunnlag = lagPersonopplysningGrunnlag(1, søkerPersonident, barnIdenter),
+            ),
         )
         val fagsak = lagFagsak(søkerAktør)
         every { behandlingRepository.hentBehandling(any()) } returns lagBehandling(
             fagsak = fagsak,
-            opprettetÅrsak = BehandlingÅrsak.SØKNAD
+            opprettetÅrsak = BehandlingÅrsak.SØKNAD,
         )
         every { fagsakRepository.finnFagsakForAktør(any()) } returns fagsak
 
@@ -147,7 +147,7 @@ class FagsakServiceTest {
         every { integrasjonService.sjekkTilgangTilPerson(any()) } returns Tilgang("test", true)
         every { personopplysningerService.hentPersonInfoMedRelasjonerOgRegisterinformasjon(any()) } returns PdlPersonInfo(
             barnFødselsdato,
-            forelderBarnRelasjoner = setOf(ForelderBarnRelasjonInfo(søkerAktør, FORELDERBARNRELASJONROLLE.FAR))
+            forelderBarnRelasjoner = setOf(ForelderBarnRelasjonInfo(søkerAktør, FORELDERBARNRELASJONROLLE.FAR)),
         )
         every { personRepository.findByAktør(any()) } returns listOf(
             Person(
@@ -155,19 +155,19 @@ class FagsakServiceTest {
                 type = PersonType.BARN,
                 fødselsdato = barnFødselsdato,
                 kjønn = Kjønn.MANN,
-                personopplysningGrunnlag = lagPersonopplysningGrunnlag(1, barnPersonident, emptyList())
-            )
+                personopplysningGrunnlag = lagPersonopplysningGrunnlag(1, barnPersonident, emptyList()),
+            ),
         )
         val fagsak = lagFagsak(søkerAktør)
         every { behandlingRepository.hentBehandling(any()) } returns lagBehandling(
             fagsak = fagsak,
-            opprettetÅrsak = BehandlingÅrsak.SØKNAD
+            opprettetÅrsak = BehandlingÅrsak.SØKNAD,
         )
         every { personopplysningerService.hentPersoninfoEnkel(any()) } returns PdlPersonInfo(
             søkersFødselsdato,
             forelderBarnRelasjoner = setOf(
-                ForelderBarnRelasjonInfo(barnAktør, FORELDERBARNRELASJONROLLE.BARN)
-            )
+                ForelderBarnRelasjonInfo(barnAktør, FORELDERBARNRELASJONROLLE.BARN),
+            ),
         )
         every { fagsakRepository.finnFagsakForAktør(any()) } returns fagsak
 
@@ -192,7 +192,7 @@ class FagsakServiceTest {
         every { fagsakRepository.finnFagsakForAktør(aktør) } returns fagsak
         every { behandlingRepository.findByFagsakAndAktiv(fagsak.id) } returns lagBehandling(
             fagsak,
-            opprettetÅrsak = BehandlingÅrsak.SØKNAD
+            opprettetÅrsak = BehandlingÅrsak.SØKNAD,
         )
         every { andelerTilkjentYtelseOgEndreteUtbetalingerService.finnAndelerTilkjentYtelseMedEndreteUtbetalinger(any()) } returns emptyList()
         every { personopplysningGrunnlagRepository.hentByBehandlingAndAktiv(any()) } returns lagPersonopplysningGrunnlag()
@@ -243,18 +243,18 @@ class FagsakServiceTest {
                 fagsakService.hentEllerOpprettFagsak(
                     FagsakRequestDto(
                         personIdent = null,
-                        aktørId = null
-                    )
+                        aktørId = null,
+                    ),
                 )
             }
 
         assertEquals(
             "Hverken aktørid eller personident er satt på fagsak-requesten. Klarer ikke opprette eller hente fagsak.",
-            feil.message
+            feil.message,
         )
         assertEquals(
             "Fagsak er forsøkt opprettet uten ident. Dette er en systemfeil, vennligst ta kontakt med systemansvarlig.",
-            feil.frontendFeilmelding
+            feil.frontendFeilmelding,
         )
     }
 
@@ -268,9 +268,9 @@ class FagsakServiceTest {
         every { behandlingRepository.finnBehandlinger(fagsak.id) } returns listOf(
             lagBehandling(
                 fagsak,
-                opprettetÅrsak = BehandlingÅrsak.SØKNAD
+                opprettetÅrsak = BehandlingÅrsak.SØKNAD,
             ).apply { aktiv = false },
-            barnehagelisteBehandling
+            barnehagelisteBehandling,
         )
         every { behandlingRepository.findByFagsakAndAktiv(fagsak.id) } returns barnehagelisteBehandling
         every { vedtakRepository.findByBehandlingAndAktivOptional(any()) } returns mockk(relaxed = true)
@@ -284,8 +284,8 @@ class FagsakServiceTest {
                     type = Behandlingstype.TILBAKEKREVING,
                     status = Behandlingsstatus.UTREDES,
                     vedtaksdato = null,
-                    resultat = Behandlingsresultatstype.IKKE_FASTSATT
-                )
+                    resultat = Behandlingsresultatstype.IKKE_FASTSATT,
+                ),
             )
 
         val fagsakResponse = fagsakService.hentMinimalFagsak(fagsak.id)

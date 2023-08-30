@@ -19,7 +19,7 @@ class TidslinjeUendlighetTest {
 
     private fun init(
         lst1: List<TidslinjePeriode<Int>>,
-        lst2: List<TidslinjePeriode<Int>>
+        lst2: List<TidslinjePeriode<Int>>,
     ) {
         this.lst1 = lst1
         this.lst2 = lst2
@@ -31,7 +31,7 @@ class TidslinjeUendlighetTest {
     fun `kan legge sammen to tidslinjer, hvor den ene er uendelig`() {
         init(
             listOf(TidslinjePeriode(1, 1, false), TidslinjePeriode(2, inf, true)),
-            listOf(TidslinjePeriode(3, 1, false))
+            listOf(TidslinjePeriode(3, 1, false)),
         )
 
         var t3 = t1.biFunksjon(t2) { t1, t2 ->
@@ -49,14 +49,17 @@ class TidslinjeUendlighetTest {
                 TidslinjePeriode(4, 1, false),
                 TidslinjePeriode(5, 1, false),
                 TidslinjePeriode(6, 1, false),
-                TidslinjePeriode(7, inf, true)
+                TidslinjePeriode(7, inf, true),
             ),
-            listOf(TidslinjePeriode(3, 1, false))
+            listOf(TidslinjePeriode(3, 1, false)),
         )
 
         t3 = t1.biFunksjon(t2) { el1, el2 ->
-            if (el1 is Udefinert || el2 is Udefinert) Udefinert()
-            else Verdi(el1.verdi!! + el2.verdi!!)
+            if (el1 is Udefinert || el2 is Udefinert) {
+                Udefinert()
+            } else {
+                Verdi(el1.verdi!! + el2.verdi!!)
+            }
         }
 
         assertTrue { t3.innhold.size == 2 }
@@ -67,7 +70,7 @@ class TidslinjeUendlighetTest {
     fun `kan legge sammen uendelige tidslinjer`() {
         init(
             listOf(TidslinjePeriode(1, 1, false), TidslinjePeriode(2, inf, true)),
-            listOf(TidslinjePeriode(3, 1, true))
+            listOf(TidslinjePeriode(3, 1, true)),
         )
 
         var t3 = t1.biFunksjon(t2) { t1, t2 -> Verdi(t1.verdi!! + t2.verdi!!) }
@@ -82,7 +85,7 @@ class TidslinjeUendlighetTest {
 
         init(
             listOf(TidslinjePeriode(1, 1, true), TidslinjePeriode(2, inf, false)),
-            listOf(TidslinjePeriode(1, 1, true), TidslinjePeriode(3, 1, false))
+            listOf(TidslinjePeriode(1, 1, true), TidslinjePeriode(3, 1, false)),
         )
 
         t3 = t1.biFunksjon(t2) { t1, t2 -> Verdi(t1.verdi!! + t2.verdi!!) }
@@ -101,9 +104,9 @@ class TidslinjeUendlighetTest {
                 TidslinjePeriode(4, 1, false),
                 TidslinjePeriode(5, 1, false),
                 TidslinjePeriode(6, 1, false),
-                TidslinjePeriode(7, inf, true)
+                TidslinjePeriode(7, inf, true),
             ),
-            listOf(TidslinjePeriode(3, 1, false))
+            listOf(TidslinjePeriode(3, 1, false)),
         )
 
         assertTrue { t1.innhold.size == 3 }

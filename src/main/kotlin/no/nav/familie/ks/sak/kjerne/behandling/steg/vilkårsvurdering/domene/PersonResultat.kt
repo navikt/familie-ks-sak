@@ -28,7 +28,7 @@ class PersonResultat(
     @SequenceGenerator(
         name = "person_resultat_seq_generator",
         sequenceName = "person_resultat_seq",
-        allocationSize = 50
+        allocationSize = 50,
     )
     val id: Long = 0,
 
@@ -45,7 +45,7 @@ class PersonResultat(
         fetch = FetchType.EAGER,
         mappedBy = "personResultat",
         cascade = [CascadeType.ALL],
-        orphanRemoval = true
+        orphanRemoval = true,
     )
     val vilkårResultater: MutableSet<VilkårResultat> = sortedSetOf(VilkårResultatComparator),
 
@@ -53,9 +53,9 @@ class PersonResultat(
         fetch = FetchType.EAGER,
         mappedBy = "personResultat",
         cascade = [CascadeType.ALL],
-        orphanRemoval = true
+        orphanRemoval = true,
     )
-    val andreVurderinger: MutableSet<AnnenVurdering> = mutableSetOf()
+    val andreVurderinger: MutableSet<AnnenVurdering> = mutableSetOf(),
 ) : BaseEntitet() {
 
     fun setSortedVilkårResultater(nyeVilkårResultater: Set<VilkårResultat>) {
@@ -69,8 +69,8 @@ class PersonResultat(
         this.andreVurderinger.add(
             AnnenVurdering(
                 personResultat = this,
-                type = annenVurderingType
-            )
+                type = annenVurderingType,
+            ),
         )
     }
 
@@ -87,14 +87,16 @@ private fun Map<Vilkår, List<VilkårResultat>>.tilVilkårResultatTidslinjer() =
 
 private fun alleVilkårOppfyltEllerNull(
     vilkårResultater: Iterable<VilkårResultat?>,
-    vilkårForPerson: Set<Vilkår>
+    vilkårForPerson: Set<Vilkår>,
 ): List<VilkårResultat>? =
     if (erAlleVilkårForPersonOppfylt(vilkårForPerson, vilkårResultater)) {
         vilkårResultater.filterNotNull()
-    } else null
+    } else {
+        null
+    }
 
 private fun erAlleVilkårForPersonOppfylt(
     vilkårForPerson: Set<Vilkår>,
-    vilkårResultater: Iterable<VilkårResultat?>
+    vilkårResultater: Iterable<VilkårResultat?>,
 ) =
     vilkårForPerson.all { vilkår -> vilkårResultater.any { it?.resultat == Resultat.OPPFYLT && it.vilkårType == vilkår } }

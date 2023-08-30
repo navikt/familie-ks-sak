@@ -44,20 +44,20 @@ data class BehandlingResponsDto(
     val kompetanser: List<KompetanseDto>,
     val utenlandskePeriodebeløp: List<Any> = emptyList(), // TODO implementeres ved EØS
     val valutakurser: List<Any> = emptyList(), // TODO implementeres ved EØS
-    val feilutbetaltValuta: List<FeilutbetaltValutaDto> = emptyList()
+    val feilutbetaltValuta: List<FeilutbetaltValutaDto> = emptyList(),
 )
 
 data class BehandlingStegTilstandResponsDto(
     val behandlingSteg: BehandlingSteg,
     val behandlingStegStatus: BehandlingStegStatus,
     val årsak: VenteÅrsak?,
-    val frist: LocalDate?
+    val frist: LocalDate?,
 )
 
 data class ArbeidsfordelingResponsDto(
     val behandlendeEnhetId: String,
     val behandlendeEnhetNavn: String,
-    val manueltOverstyrt: Boolean = false
+    val manueltOverstyrt: Boolean = false,
 )
 
 data class PersonResponsDto(
@@ -68,7 +68,7 @@ data class PersonResponsDto(
     val kjønn: KJOENN,
     val registerhistorikk: RegisterHistorikkResponsDto? = null,
     val målform: Målform,
-    val dødsfallDato: LocalDate? = null
+    val dødsfallDato: LocalDate? = null,
 )
 
 data class RegisterHistorikkResponsDto(
@@ -77,13 +77,13 @@ data class RegisterHistorikkResponsDto(
     val oppholdstillatelse: List<RegisteropplysningResponsDto>? = emptyList(),
     val statsborgerskap: List<RegisteropplysningResponsDto>? = emptyList(),
     val bostedsadresse: List<RegisteropplysningResponsDto>? = emptyList(),
-    val dødsboadresse: List<RegisteropplysningResponsDto>? = emptyList()
+    val dødsboadresse: List<RegisteropplysningResponsDto>? = emptyList(),
 )
 
 data class RegisteropplysningResponsDto(
     val fom: LocalDate?,
     val tom: LocalDate?,
-    var verdi: String
+    var verdi: String,
 )
 
 data class PersonerMedAndelerResponsDto(
@@ -91,7 +91,7 @@ data class PersonerMedAndelerResponsDto(
     val beløp: Int,
     val stønadFom: YearMonth,
     val stønadTom: YearMonth,
-    val ytelsePerioder: List<YtelsePerioderDto>
+    val ytelsePerioder: List<YtelsePerioderDto>,
 )
 
 data class YtelsePerioderDto(
@@ -99,12 +99,12 @@ data class YtelsePerioderDto(
     val stønadFom: YearMonth,
     val stønadTom: YearMonth,
     val ytelseType: YtelseType,
-    val skalUtbetales: Boolean
+    val skalUtbetales: Boolean,
 )
 
 data class TilbakekrevingResponsDto(
     val valg: Tilbakekrevingsvalg,
     val varsel: String? = null,
     val begrunnelse: String,
-    val tilbakekrevingsbehandlingId: String? = null
+    val tilbakekrevingsbehandlingId: String? = null,
 )

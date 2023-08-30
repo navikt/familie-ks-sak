@@ -6,5 +6,5 @@ enum class SpringProfile(val navn: String) {
     Prod("prod"),
     Preprod("preprod"),
     Dev("dev"),
-    Postgres("postgres")
+    Postgres("postgres"),
 }

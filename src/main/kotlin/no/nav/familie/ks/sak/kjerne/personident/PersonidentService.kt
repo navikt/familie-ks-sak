@@ -11,7 +11,7 @@ import java.time.LocalDateTime
 class PersonidentService(
     private val personidentRepository: PersonidentRepository,
     private val aktørRepository: AktørRepository,
-    private val pdlClient: PdlClient
+    private val pdlClient: PdlClient,
 ) {
     private val secureLogger = LoggerFactory.getLogger("secureLogger")
 

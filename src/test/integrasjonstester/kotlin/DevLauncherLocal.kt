@@ -11,7 +11,7 @@ class DevLauncherLocal
 fun main(args: Array<String>) {
     System.setProperty(
         "spring.profiles.active",
-        "local, mock-pdl, mock-oauth, mock-oppgave, mock-integrasjoner, mock-økonomi"
+        "local, mock-pdl, mock-oauth, mock-oppgave, mock-integrasjoner, mock-økonomi",
     )
 
     SpringApplicationBuilder(ApplicationConfig::class.java)

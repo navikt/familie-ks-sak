@@ -31,7 +31,7 @@ class DatavarehusKafkaProducer(private val kafkaTemplate: KafkaTemplate<String, 
             key = request.behandlingID.toString(),
             request = request,
             behandlingId = behandlingId,
-            fagsakId = request.saksnummer.toString()
+            fagsakId = request.saksnummer.toString(),
         )
     }
 
@@ -41,7 +41,7 @@ class DatavarehusKafkaProducer(private val kafkaTemplate: KafkaTemplate<String, 
             key = vedtak.funksjonellId,
             request = vedtak,
             behandlingId = vedtak.behandlingsId,
-            fagsakId = vedtak.fagsakId
+            fagsakId = vedtak.fagsakId,
         )
     }
 
@@ -51,7 +51,7 @@ class DatavarehusKafkaProducer(private val kafkaTemplate: KafkaTemplate<String, 
             key = request.behandlingID.toString(),
             request = request,
             behandlingId = request.behandlingID.toString(),
-            fagsakId = request.saksnummer.toString()
+            fagsakId = request.saksnummer.toString(),
         )
     }
 
@@ -60,7 +60,7 @@ class DatavarehusKafkaProducer(private val kafkaTemplate: KafkaTemplate<String, 
             topic = KafkaConfig.SAK_TOPIC,
             key = sakStatistikkDto.funksjonellId,
             request = sakStatistikkDto,
-            fagsakId = sakStatistikkDto.sakId
+            fagsakId = sakStatistikkDto.sakId,
         )
     }
 
@@ -69,7 +69,7 @@ class DatavarehusKafkaProducer(private val kafkaTemplate: KafkaTemplate<String, 
         key: String,
         request: Any,
         behandlingId: String? = null,
-        fagsakId: String? = null
+        fagsakId: String? = null,
     ) {
         val melding = objectMapper.writeValueAsString(request)
 

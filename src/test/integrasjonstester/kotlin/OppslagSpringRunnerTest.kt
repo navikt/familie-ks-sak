@@ -160,13 +160,13 @@ abstract class OppslagSpringRunnerTest {
                 personopplysningGrunnlag = personopplysningGrunnlag,
                 fødselsdato = LocalDate.of(2019, 1, 1),
                 navn = "",
-                kjønn = Kjønn.KVINNE
+                kjønn = Kjønn.KVINNE,
             ).also { søker ->
                 søker.statsborgerskap =
                     mutableListOf(GrStatsborgerskap(landkode = "NOR", medlemskap = Medlemskap.NORDEN, person = søker))
                 søker.bostedsadresser = mutableListOf()
                 søker.sivilstander = mutableListOf(GrSivilstand(type = SIVILSTAND.GIFT, person = søker))
-            }
+            },
         )
 
         if (lagBarn) {
@@ -177,19 +177,19 @@ abstract class OppslagSpringRunnerTest {
                     personopplysningGrunnlag = personopplysningGrunnlag,
                     fødselsdato = LocalDate.of(2022, 1, 1),
                     navn = "",
-                    kjønn = Kjønn.KVINNE
+                    kjønn = Kjønn.KVINNE,
                 ).also { søker ->
                     søker.statsborgerskap =
                         mutableListOf(
                             GrStatsborgerskap(
                                 landkode = "NOR",
                                 medlemskap = Medlemskap.NORDEN,
-                                person = søker
-                            )
+                                person = søker,
+                            ),
                         )
                     søker.bostedsadresser = mutableListOf()
                     søker.sivilstander = mutableListOf(GrSivilstand(type = SIVILSTAND.GIFT, person = søker))
-                }
+                },
             )
         }
     }
@@ -202,7 +202,7 @@ abstract class OppslagSpringRunnerTest {
     protected fun lokalTestToken(
         issuerId: String = "azuread",
         subject: String = "subject1",
-        behandlerRolle: BehandlerRolle? = null
+        behandlerRolle: BehandlerRolle? = null,
     ): String {
         val behandlerRolleId = when (behandlerRolle) {
             BehandlerRolle.VEILEDER -> rolleConfig.VEILEDER_ROLLE
@@ -220,8 +220,8 @@ abstract class OppslagSpringRunnerTest {
                 JOSEObjectType.JWT.type,
                 listOf("familie-ks-sak-test"),
                 mapOf(Pair("NAVident", "test"), Pair("groups", listOf(behandlerRolleId))),
-                3600
-            )
+                3600,
+            ),
         ).serialize()
     }
 
@@ -241,8 +241,8 @@ abstract class OppslagSpringRunnerTest {
                     fødselsnummer = it.aktivFødselsnummer(),
                     aktør = it,
                     aktiv = true,
-                    gjelderTil = null
-                )
+                    gjelderTil = null,
+                ),
             )
         }
 
@@ -267,8 +267,8 @@ abstract class OppslagSpringRunnerTest {
                 behandling = behandling,
                 endretDato = LocalDate.now(),
                 opprettetDato = LocalDate.now(),
-                utbetalingsoppdrag = utbetalingsOppdrag
-            )
+                utbetalingsoppdrag = utbetalingsOppdrag,
+            ),
         )
     }
 

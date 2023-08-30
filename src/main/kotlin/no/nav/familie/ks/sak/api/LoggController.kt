@@ -24,19 +24,19 @@ class LoggController(private val loggService: LoggService, private val tilgangSe
     @GetMapping(path = ["/{behandlingId}"])
     fun hentLoggForBehandling(
         @PathVariable
-        behandlingId: Long
+        behandlingId: Long,
     ): ResponseEntity<Ressurs<List<Logg>>> {
         tilgangService.validerTilgangTilHandlingOgFagsakForBehandling(
             behandlingId = behandlingId,
             event = AuditLoggerEvent.ACCESS,
             minimumBehandlerRolle = BehandlerRolle.VEILEDER,
-            handling = "Hent logg"
+            handling = "Hent logg",
         )
 
         return Result.runCatching { loggService.hentLoggForBehandling(behandlingId) }
             .fold(
                 onSuccess = { ResponseEntity.ok(Ressurs.success(it)) },
-                onFailure = { badRequest("Henting av logg feilet", it) }
+                onFailure = { badRequest("Henting av logg feilet", it) },
             )
     }
 }

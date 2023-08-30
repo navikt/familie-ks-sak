@@ -45,13 +45,13 @@ internal class BrevUtilKtTest {
         val feil = assertThrows<FunksjonellFeil> {
             hentVedtaksbrevtype(
                 BehandlingType.FØRSTEGANGSBEHANDLING,
-                Behandlingsresultat.INNVILGET_ENDRET_OG_OPPHØRT
+                Behandlingsresultat.INNVILGET_ENDRET_OG_OPPHØRT,
             )
         }
 
         assertThat(
             feil.message,
-            Is("Brev ikke støttet for behandlingstype=FØRSTEGANGSBEHANDLING og behandlingsresultat=INNVILGET_ENDRET_OG_OPPHØRT")
+            Is("Brev ikke støttet for behandlingstype=FØRSTEGANGSBEHANDLING og behandlingsresultat=INNVILGET_ENDRET_OG_OPPHØRT"),
         )
     }
 
@@ -61,7 +61,7 @@ internal class BrevUtilKtTest {
 
         assertThat(
             brevmal,
-            Is(Brevmal.VEDTAK_FØRSTEGANGSVEDTAK)
+            Is(Brevmal.VEDTAK_FØRSTEGANGSVEDTAK),
         )
     }
 }

@@ -121,8 +121,8 @@ object YtelsePersonUtils {
         }
 
         if (ytelsePersoner.any {
-            it.resultater.contains(OPPHØRT) && it.ytelseSlutt?.isAfter(inneværendeMåned()) == true
-        }
+                it.resultater.contains(OPPHØRT) && it.ytelseSlutt?.isAfter(inneværendeMåned()) == true
+            }
         ) {
             throw Feil(message = "Minst én ytelseperson har fått opphør som resultat og ytelseSlutt etter inneværende måned")
         }

@@ -15,7 +15,7 @@ import java.util.UUID
 class AvstemmingService(
     private val oppdragKlient: OppdragKlient,
     private val behandlingService: BehandlingService,
-    private val beregningService: BeregningService
+    private val beregningService: BeregningService,
 ) {
 
     fun sendGrensesnittavstemming(fom: LocalDateTime, tom: LocalDateTime) {
@@ -30,7 +30,7 @@ class AvstemmingService(
     fun sendKonsistensavstemmingData(
         avstemmingstidspunkt: LocalDateTime,
         perioderTilAvstemming: List<PerioderForBehandling>,
-        transaksjonsId: UUID
+        transaksjonsId: UUID,
     ) {
         logger.info("Utfører Konsistensavstemming: Sender perioder for transaksjonsId $transaksjonsId")
         oppdragKlient.konsistensavstemOppdragData(avstemmingstidspunkt, perioderTilAvstemming, transaksjonsId)
@@ -43,14 +43,14 @@ class AvstemmingService(
 
     fun hentDataForKonsistensavstemming(
         avstemmingtidspunkt: LocalDateTime,
-        relevanteBehandlingIder: List<Long>
+        relevanteBehandlingIder: List<Long>,
     ): List<PerioderForBehandling> {
         val relevanteAndeler = beregningService.hentLøpendeAndelerTilkjentYtelseMedUtbetalingerForBehandlinger(
             relevanteBehandlingIder,
-            avstemmingtidspunkt
+            avstemmingtidspunkt,
         )
         val aktiveFødselsnummere = behandlingService.hentAktivtFødselsnummerForBehandlinger(
-            relevanteAndeler.mapNotNull { it.kildeBehandlingId }
+            relevanteAndeler.mapNotNull { it.kildeBehandlingId },
         )
         return relevanteAndeler.groupBy { it.kildeBehandlingId }
             .map { (kildeBehandlingId, andeler) ->
@@ -61,7 +61,7 @@ class AvstemmingService(
                         ?: error("Finnes ikke et aktivt fødselsnummer for behandling $kildeBehandlingId"),
                     perioder = andeler.map {
                         it.periodeOffset ?: error("Andel $it mangler periodeOffset")
-                    }.toSet()
+                    }.toSet(),
                 )
             }
     }

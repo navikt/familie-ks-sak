@@ -41,7 +41,7 @@ class BehandlingController(
     private val settBehandlingPåVentService: SettBehandlingPåVentService,
     private val henleggBehandlingService: HenleggBehandlingService,
     private val tilkjentYtelseValideringService: TilkjentYtelseValideringService,
-    private val leggTilBarnService: LeggTilBarnService
+    private val leggTilBarnService: LeggTilBarnService,
 ) {
 
     @PostMapping(produces = [MediaType.APPLICATION_JSON_VALUE])
@@ -50,7 +50,7 @@ class BehandlingController(
             personIdenter = listOf(opprettBehandlingDto.søkersIdent),
             minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
             event = AuditLoggerEvent.CREATE,
-            handling = "Opprett behandling"
+            handling = "Opprett behandling",
         )
         val behandling = opprettBehandlingService.opprettBehandling(opprettBehandlingDto)
         return ResponseEntity.ok(Ressurs.success(behandlingService.lagBehandlingRespons(behandlingId = behandling.id)))
@@ -62,7 +62,7 @@ class BehandlingController(
             behandlingId = behandlingId,
             minimumBehandlerRolle = BehandlerRolle.VEILEDER,
             event = AuditLoggerEvent.ACCESS,
-            handling = "Hent behandling"
+            handling = "Hent behandling",
         )
 
         return ResponseEntity.ok(Ressurs.success(behandlingService.lagBehandlingRespons(behandlingId = behandlingId)))
@@ -71,19 +71,19 @@ class BehandlingController(
     @PutMapping(path = ["/{behandlingId}/enhet"], produces = [MediaType.APPLICATION_JSON_VALUE])
     fun endreBehandlendeEnhet(
         @PathVariable behandlingId: Long,
-        @RequestBody endreBehandlendeEnhet: EndreBehandlendeEnhetDto
+        @RequestBody endreBehandlendeEnhet: EndreBehandlendeEnhetDto,
     ): ResponseEntity<Ressurs<BehandlingResponsDto>> {
         tilgangService.validerTilgangTilHandlingOgFagsakForBehandling(
             behandlingId = behandlingId,
             minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
             event = AuditLoggerEvent.UPDATE,
-            handling = "Endre behandlende enhet"
+            handling = "Endre behandlende enhet",
         )
 
         if (endreBehandlendeEnhet.begrunnelse.isBlank()) {
             throw FunksjonellFeil(
                 melding = "Begrunnelse kan ikke være tom",
-                frontendFeilmelding = "Du må skrive en begrunnelse for endring av enhet"
+                frontendFeilmelding = "Du må skrive en begrunnelse for endring av enhet",
             )
         }
 
@@ -95,16 +95,16 @@ class BehandlingController(
     @PostMapping("/{behandlingId}/sett-på-vent")
     fun settBehandlingPåVent(
         @PathVariable behandlingId: Long,
-        @RequestBody behandlingPåVentDto: BehandlingPåVentDto
+        @RequestBody behandlingPåVentDto: BehandlingPåVentDto,
     ): ResponseEntity<Ressurs<BehandlingResponsDto>> {
         tilgangService.validerTilgangTilHandling(
             minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
-            handling = "sette behandling på vent"
+            handling = "sette behandling på vent",
         )
         settBehandlingPåVentService.settBehandlingPåVent(
             behandlingId,
             behandlingPåVentDto.frist,
-            behandlingPåVentDto.årsak
+            behandlingPåVentDto.årsak,
         )
         return ResponseEntity.ok(Ressurs.success(behandlingService.lagBehandlingRespons(behandlingId = behandlingId)))
     }
@@ -112,27 +112,27 @@ class BehandlingController(
     @PutMapping("/{behandlingId}/sett-på-vent/oppdater")
     fun oppdaterPåVentFrist(
         @PathVariable behandlingId: Long,
-        @RequestBody behandlingPåVentDto: BehandlingPåVentDto
+        @RequestBody behandlingPåVentDto: BehandlingPåVentDto,
     ): ResponseEntity<Ressurs<BehandlingResponsDto>> {
         tilgangService.validerTilgangTilHandling(
             minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
-            handling = "oppdatere frist på ventende behandling"
+            handling = "oppdatere frist på ventende behandling",
         )
         settBehandlingPåVentService.oppdaterFristOgÅrsak(
             behandlingId,
             behandlingPåVentDto.frist,
-            behandlingPåVentDto.årsak
+            behandlingPåVentDto.årsak,
         )
         return ResponseEntity.ok(Ressurs.success(behandlingService.lagBehandlingRespons(behandlingId = behandlingId)))
     }
 
     @PutMapping("/{behandlingId}/sett-på-vent/gjenoppta")
     fun gjenopptaBehandlingPåVent(
-        @PathVariable behandlingId: Long
+        @PathVariable behandlingId: Long,
     ): ResponseEntity<Ressurs<BehandlingResponsDto>> {
         tilgangService.validerTilgangTilHandling(
             minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
-            handling = "gjenoppta behandling"
+            handling = "gjenoppta behandling",
         )
         settBehandlingPåVentService.gjenopptaBehandlingPåVent(behandlingId)
         return ResponseEntity.ok(Ressurs.success(behandlingService.lagBehandlingRespons(behandlingId = behandlingId)))
@@ -141,35 +141,35 @@ class BehandlingController(
     @PutMapping(path = ["/{behandlingId}/henlegg"], produces = [MediaType.APPLICATION_JSON_VALUE])
     fun henleggBehandling(
         @PathVariable behandlingId: Long,
-        @RequestBody henleggBehandlingDto: HenleggBehandlingDto
+        @RequestBody henleggBehandlingDto: HenleggBehandlingDto,
     ): ResponseEntity<Ressurs<BehandlingResponsDto>> {
         tilgangService.validerTilgangTilHandling(
             minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
-            handling = "henlegg behandling"
+            handling = "henlegg behandling",
         )
 
         henleggBehandlingService.henleggBehandling(
             behandlingId,
             henleggBehandlingDto.årsak,
-            henleggBehandlingDto.begrunnelse
+            henleggBehandlingDto.begrunnelse,
         )
         return ResponseEntity.ok(Ressurs.success(behandlingService.lagBehandlingRespons(behandlingId = behandlingId)))
     }
 
     @GetMapping(path = ["/{behandlingId}/personer-med-ugyldig-etterbetalingsperiode"])
     fun hentPersonerMedUgyldigEtterbetalingsperiode(
-        @PathVariable behandlingId: Long
+        @PathVariable behandlingId: Long,
     ): ResponseEntity<Ressurs<List<String>>> {
         tilgangService.validerTilgangTilHandlingOgFagsakForBehandling(
             behandlingId = behandlingId,
             event = AuditLoggerEvent.ACCESS,
             minimumBehandlerRolle = BehandlerRolle.VEILEDER,
-            handling = "hent gyldig etterbetaling"
+            handling = "hent gyldig etterbetaling",
         )
 
         val aktørerMedUgyldigEtterbetalingsperiode =
             tilkjentYtelseValideringService.finnAktørerMedUgyldigEtterbetalingsperiode(
-                behandlingId = behandlingId
+                behandlingId = behandlingId,
             )
         val personerMedUgyldigEtterbetalingsperiode =
             aktørerMedUgyldigEtterbetalingsperiode.map { it.aktivFødselsnummer() }
@@ -180,13 +180,13 @@ class BehandlingController(
     @PostMapping(path = ["/{behandlingId}/legg-til-barn"])
     fun leggTilBarn(
         @PathVariable behandlingId: Long,
-        @RequestBody leggTilBarnDto: LeggTilBarnDto
+        @RequestBody leggTilBarnDto: LeggTilBarnDto,
     ): ResponseEntity<Ressurs<BehandlingResponsDto>> {
         tilgangService.validerTilgangTilHandlingOgFagsakForBehandling(
             behandlingId = behandlingId,
             event = AuditLoggerEvent.UPDATE,
             minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
-            handling = "legge til barn"
+            handling = "legge til barn",
         )
         leggTilBarnService.leggTilBarn(behandlingId, leggTilBarnDto.barnIdent)
         return ResponseEntity.ok(Ressurs.success(behandlingService.lagBehandlingRespons(behandlingId = behandlingId)))
@@ -195,13 +195,13 @@ class BehandlingController(
     @PutMapping(path = ["/{behandlingId}/behandlingstema"], produces = [MediaType.APPLICATION_JSON_VALUE])
     fun endreBehandlingstema(
         @PathVariable behandlingId: Long,
-        @RequestBody endreBehandlingstemaDto: EndreBehandlingstemaDto
+        @RequestBody endreBehandlingstemaDto: EndreBehandlingstemaDto,
     ): ResponseEntity<Ressurs<BehandlingResponsDto>> {
         tilgangService.validerTilgangTilHandlingOgFagsakForBehandling(
             behandlingId = behandlingId,
             minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
             event = AuditLoggerEvent.UPDATE,
-            handling = "Endre behandlingstema på behandling"
+            handling = "Endre behandlingstema på behandling",
         )
 
         behandlingService.endreBehandlingstemaPåBehandling(
@@ -212,8 +212,8 @@ class BehandlingController(
         return ResponseEntity.ok(
             Ressurs.success(
                 behandlingService
-                    .lagBehandlingRespons(behandlingId = behandlingId)
-            )
+                    .lagBehandlingRespons(behandlingId = behandlingId),
+            ),
         )
     }
 }

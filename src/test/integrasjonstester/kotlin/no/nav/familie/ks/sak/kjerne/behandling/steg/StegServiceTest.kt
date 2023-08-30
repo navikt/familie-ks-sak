@@ -121,9 +121,9 @@ class StegServiceTest : OppslagSpringRunnerTest() {
                     søkerMedOpplysninger = SøkerMedOpplysningerDto("søkerIdent"),
                     barnaMedOpplysninger = listOf(
                         BarnMedOpplysningerDto(ident = "barn1"),
-                        BarnMedOpplysningerDto("barn2")
+                        BarnMedOpplysningerDto("barn2"),
                     ),
-                    "begrunnelse"
+                    "begrunnelse",
                 )
             }
 
@@ -164,8 +164,8 @@ class StegServiceTest : OppslagSpringRunnerTest() {
             lagBehandling(
                 fagsak = fagsak,
                 type = BehandlingType.REVURDERING,
-                opprettetÅrsak = BehandlingÅrsak.NYE_OPPLYSNINGER
-            )
+                opprettetÅrsak = BehandlingÅrsak.NYE_OPPLYSNINGER,
+            ),
         )
         lagreArbeidsfordeling(lagArbeidsfordelingPåBehandling(revurderingBehandling.id))
         assertBehandlingHarSteg(revurderingBehandling, REGISTRERE_PERSONGRUNNLAG, KLAR)
@@ -232,7 +232,7 @@ class StegServiceTest : OppslagSpringRunnerTest() {
         val exception = assertThrows<RuntimeException> { stegService.utførSteg(behandling.id, IVERKSETT_MOT_OPPDRAG) }
         assertEquals(
             "Steget ${IVERKSETT_MOT_OPPDRAG.name} kan ikke behandles for behandling ${behandling.id}",
-            exception.message
+            exception.message,
         )
     }
 
@@ -243,8 +243,8 @@ class StegServiceTest : OppslagSpringRunnerTest() {
             lagBehandling(
                 fagsak = fagsak,
                 type = BehandlingType.REVURDERING,
-                opprettetÅrsak = BehandlingÅrsak.SATSENDRING
-            )
+                opprettetÅrsak = BehandlingÅrsak.SATSENDRING,
+            ),
         )
         assertBehandlingHarSteg(revurderingBehandling, REGISTRERE_PERSONGRUNNLAG, KLAR)
         revurderingBehandling.leggTilNesteSteg(REGISTRERE_SØKNAD)
@@ -254,13 +254,13 @@ class StegServiceTest : OppslagSpringRunnerTest() {
             stegService.utførSteg(
                 revurderingBehandling.id,
                 REGISTRERE_SØKNAD,
-                lagRegistrerSøknadDto()
+                lagRegistrerSøknadDto(),
             )
         }
         assertEquals(
             "Steget ${REGISTRERE_SØKNAD.name} er ikke gyldig for behandling ${revurderingBehandling.id} " +
                 "med opprettetÅrsak ${revurderingBehandling.opprettetÅrsak}",
-            exception.message
+            exception.message,
         )
     }
 
@@ -273,14 +273,14 @@ class StegServiceTest : OppslagSpringRunnerTest() {
             stegService.utførSteg(
                 behandling.id,
                 REGISTRERE_SØKNAD,
-                lagRegistrerSøknadDto()
+                lagRegistrerSøknadDto(),
             )
         }
         assertEquals(
             "Behandling ${behandling.id} har allerede et steg " +
                 "${REGISTRERE_PERSONGRUNNLAG.name}} som er klar for behandling. " +
                 "Kan ikke behandle ${REGISTRERE_SØKNAD.name}",
-            exception.message
+            exception.message,
         )
     }
 
@@ -405,8 +405,8 @@ class StegServiceTest : OppslagSpringRunnerTest() {
                 behandling = behandling,
                 valg = Tilbakekrevingsvalg.OPPRETT_TILBAKEKREVING_UTEN_VARSEL,
                 begrunnelse = "begrunnelse",
-                tilbakekrevingsbehandlingId = null
-            )
+                tilbakekrevingsbehandlingId = null,
+            ),
         )
 
         assertDoesNotThrow { stegService.utførStegEtterIverksettelseAutomatisk(behandling.id) }
@@ -427,8 +427,8 @@ class StegServiceTest : OppslagSpringRunnerTest() {
                 behandling = behandling,
                 valg = Tilbakekrevingsvalg.IGNORER_TILBAKEKREVING,
                 begrunnelse = "begrunnelse",
-                tilbakekrevingsbehandlingId = null
-            )
+                tilbakekrevingsbehandlingId = null,
+            ),
         )
 
         assertDoesNotThrow { stegService.utførStegEtterIverksettelseAutomatisk(behandling.id) }
@@ -483,12 +483,12 @@ class StegServiceTest : OppslagSpringRunnerTest() {
     private fun assertBehandlingHarSteg(
         behandling: Behandling,
         behandlingSteg: BehandlingSteg,
-        behandlingStegStatus: BehandlingStegStatus
+        behandlingStegStatus: BehandlingStegStatus,
     ) =
         assertTrue(
             behandling.behandlingStegTilstand.any {
                 it.behandlingSteg == behandlingSteg &&
                     it.behandlingStegStatus == behandlingStegStatus
-            }
+            },
         )
 }

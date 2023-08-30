@@ -18,7 +18,7 @@ class TidslinjeEnkelTest {
 
     private fun init(
         lst1: List<TidslinjePeriode<Int>>,
-        lst2: List<TidslinjePeriode<Int>>
+        lst2: List<TidslinjePeriode<Int>>,
     ) {
         this.lst1 = lst1
         this.lst2 = lst2
@@ -30,7 +30,7 @@ class TidslinjeEnkelTest {
     fun `kan summere og substrahere to tidslinjer bestående av heltall`() {
         init(
             listOf(TidslinjePeriode(1, 1, false), TidslinjePeriode(2, 1, false)),
-            listOf(TidslinjePeriode(3, 1, false), TidslinjePeriode(4, 1, false))
+            listOf(TidslinjePeriode(3, 1, false), TidslinjePeriode(4, 1, false)),
         )
 
         var t3 = t1.biFunksjon(t2) { t1, t2 -> Verdi(t1.verdi!! + t2.verdi!!) }
@@ -53,7 +53,7 @@ class TidslinjeEnkelTest {
     fun `kan gange to tidslinjer bestående av heltall sammen`() {
         init(
             listOf(TidslinjePeriode(1, 1, false), TidslinjePeriode(2, 1, false)),
-            listOf(TidslinjePeriode(3, 1, false), TidslinjePeriode(4, 1, false))
+            listOf(TidslinjePeriode(3, 1, false), TidslinjePeriode(4, 1, false)),
         )
 
         val t3 = t1.biFunksjon(t2) { t1, t2 -> Verdi(t1.verdi!! * t2.verdi!!) }
@@ -70,7 +70,7 @@ class TidslinjeEnkelTest {
     fun `kan summere to tidslinjer med ulikt antall TidslinjePerioder`() {
         init(
             listOf(TidslinjePeriode(1, 2, false)),
-            listOf(TidslinjePeriode(3, 1, false), TidslinjePeriode(4, 1, false))
+            listOf(TidslinjePeriode(3, 1, false), TidslinjePeriode(4, 1, false)),
         )
 
         var t3 = t1.biFunksjon(t2) { t1, t2 -> Verdi(t1.verdi!! + t2.verdi!!) }
@@ -83,7 +83,7 @@ class TidslinjeEnkelTest {
         Assertions.assertEquals(
             lst3,
             t3.innhold.map { it.periodeVerdi.verdi }.toList(),
-            "Kunne ikke addere to tidslinjer med ulikt antall TidslinjePerioder: første sett"
+            "Kunne ikke addere to tidslinjer med ulikt antall TidslinjePerioder: første sett",
         )
 
         lst1 = listOf(TidslinjePeriode(1, 8, false))
@@ -101,7 +101,7 @@ class TidslinjeEnkelTest {
         Assertions.assertEquals(
             lst3,
             t3.innhold.map { it.periodeVerdi.verdi }.toList(),
-            "Kunne ikke addere to tidslinjer med ulikt antall TidslinjePerioder: andre sett"
+            "Kunne ikke addere to tidslinjer med ulikt antall TidslinjePerioder: andre sett",
         )
     }
 
@@ -111,7 +111,7 @@ class TidslinjeEnkelTest {
             TidslinjePeriode(1, 6, false),
             TidslinjePeriode(1, 6, false),
             TidslinjePeriode(1, 6, false),
-            TidslinjePeriode(1, 6, false)
+            TidslinjePeriode(1, 6, false),
         )
         val t1 = Tidslinje(LocalDate.now(), tidslinjePerioder)
         Assertions.assertEquals(1, t1.innhold.size)
@@ -142,12 +142,12 @@ class TidslinjeEnkelTest {
         val tidslinjePerioder1 = listOf(
             TidslinjePeriode(Beløp(2.0, "nok"), 1),
             TidslinjePeriode(Beløp(3.0, "nok"), 1),
-            TidslinjePeriode(Beløp(3.0, "nok"), 1)
+            TidslinjePeriode(Beløp(3.0, "nok"), 1),
         )
         val tidslinjePerioder2 = listOf(
             TidslinjePeriode(Beløp(2.0, "nok"), 1),
             TidslinjePeriode(Beløp(3.0, "nok"), 1),
-            TidslinjePeriode(Beløp(4.0, "nok"), 1)
+            TidslinjePeriode(Beløp(4.0, "nok"), 1),
         )
 
         val tidslinje1 = Tidslinje(LocalDate.now(), tidslinjePerioder1)
@@ -167,12 +167,12 @@ class TidslinjeEnkelTest {
         Assertions.assertEquals(
             verdierTidslinjePerioder1,
             tidslinje3.innhold.map { it.periodeVerdi.verdi!!.verdi }.toList(),
-            "Kunne ikke addere to tidslinjer"
+            "Kunne ikke addere to tidslinjer",
         )
     }
 }
 
 data class Beløp(
     val verdi: Double,
-    val valutaKode: String
+    val valutaKode: String,
 )

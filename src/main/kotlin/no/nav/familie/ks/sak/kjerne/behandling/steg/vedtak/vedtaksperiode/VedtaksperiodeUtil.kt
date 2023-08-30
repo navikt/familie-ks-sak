@@ -10,13 +10,13 @@ fun validerVedtaksperiodeMedBegrunnelser(vedtaksperiodeMedBegrunnelser: Vedtaksp
             "Fritekst kan kun brukes i kombinasjon med en eller flere begrunnelser. " + "Legg først til en ny begrunnelse eller fjern friteksten(e)."
         throw FunksjonellFeil(
             melding = fritekstUtenStandardbegrunnelserFeilmelding,
-            frontendFeilmelding = fritekstUtenStandardbegrunnelserFeilmelding
+            frontendFeilmelding = fritekstUtenStandardbegrunnelserFeilmelding,
         )
     }
 
     if (vedtaksperiodeMedBegrunnelser.vedtak.behandling.resultat == Behandlingsresultat.FORTSATT_INNVILGET && vedtaksperiodeMedBegrunnelser.harFriteksterOgStandardbegrunnelser()) {
         throw FunksjonellFeil(
-            "Det ble sendt med både fritekst og begrunnelse. " + "Vedtaket skal enten ha fritekst eller begrunnelse, men ikke begge deler."
+            "Det ble sendt med både fritekst og begrunnelse. " + "Vedtaket skal enten ha fritekst eller begrunnelse, men ikke begge deler.",
         )
     }
 }

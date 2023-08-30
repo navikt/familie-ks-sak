@@ -13,7 +13,7 @@ import java.util.Properties
 @Service
 @TaskStepBeskrivelse(
     taskStepType = SendStartBehandlingHendelseTilInfotrygdTask.TASK_STEP_TYPE,
-    beskrivelse = "Send startbehandling hendelse til Infotrygd feed."
+    beskrivelse = "Send startbehandling hendelse til Infotrygd feed.",
 )
 class SendStartBehandlingHendelseTilInfotrygdTask(private val kafkaProducer: KafkaProducer) : AsyncTaskStep {
     override fun doTask(task: Task) {
@@ -30,14 +30,14 @@ class SendStartBehandlingHendelseTilInfotrygdTask(private val kafkaProducer: Kaf
         fun opprettTask(aktørStønadsmottaker: Aktør): Task {
             secureLogger.info(
                 "Oppretter task for å sende StartBehandling for " +
-                    "${aktørStønadsmottaker.aktivFødselsnummer()} til Infotrygd."
+                    "${aktørStønadsmottaker.aktivFødselsnummer()} til Infotrygd.",
             )
             return Task(
                 type = TASK_STEP_TYPE,
                 payload = aktørStønadsmottaker.aktivFødselsnummer(),
                 properties = Properties().apply {
                     this["personIdent"] = aktørStønadsmottaker.aktivFødselsnummer()
-                }
+                },
             )
         }
     }

@@ -109,15 +109,15 @@ internal class VedtaksperiodeServiceTest {
     @ParameterizedTest
     @EnumSource(
         value = Begrunnelse::class,
-        names = ["AVSLAG_UREGISTRERT_BARN", "OPPHØR_FULLTIDSPLASS_I_BARNEHAGE"]
+        names = ["AVSLAG_UREGISTRERT_BARN", "OPPHØR_FULLTIDSPLASS_I_BARNEHAGE"],
     )
     fun `oppdaterVedtaksperiodeMedBegrunnelser skal kaste feil dersom begrunnelse ikke er tillatt for vedtaksperiode type`(
-        begrunnelse: Begrunnelse
+        begrunnelse: Begrunnelse,
     ) {
         val vedtaksperiodeMedBegrunnelse = VedtaksperiodeMedBegrunnelser(
             id = 0,
             vedtak = Vedtak(id = 0, behandling = behandling),
-            type = Vedtaksperiodetype.UTBETALING
+            type = Vedtaksperiodetype.UTBETALING,
         )
 
         val mocketPersonOpplysningGrunnlag = mockk<PersonopplysningGrunnlag>()
@@ -131,22 +131,22 @@ internal class VedtaksperiodeServiceTest {
 
         assertThat(
             feil.message,
-            Is("Begrunnelsestype ${begrunnelse.begrunnelseType} passer ikke med typen 'UTBETALING' som er satt på perioden.")
+            Is("Begrunnelsestype ${begrunnelse.begrunnelseType} passer ikke med typen 'UTBETALING' som er satt på perioden."),
         )
     }
 
     @ParameterizedTest
     @EnumSource(
         value = Begrunnelse::class,
-        names = ["INNVILGET_IKKE_BARNEHAGE", "INNVILGET_IKKE_BARNEHAGE_ADOPSJON", "INNVILGET_DELTID_BARNEHAGE"]
+        names = ["INNVILGET_IKKE_BARNEHAGE", "INNVILGET_IKKE_BARNEHAGE_ADOPSJON", "INNVILGET_DELTID_BARNEHAGE"],
     )
     fun `oppdaterVedtaksperiodeMedBegrunnelser skal oppdatere vedtaksperioder dersom begrunnelse er tillatt for vedtakstype`(
-        begrunnelse: Begrunnelse
+        begrunnelse: Begrunnelse,
     ) {
         val vedtaksperiodeMedBegrunnelse = VedtaksperiodeMedBegrunnelser(
             id = 0,
             vedtak = Vedtak(id = 0, behandling = behandling),
-            type = Vedtaksperiodetype.UTBETALING
+            type = Vedtaksperiodetype.UTBETALING,
         )
 
         val mocketPersonOpplysningGrunnlag = mockk<PersonopplysningGrunnlag>()
@@ -199,11 +199,11 @@ internal class VedtaksperiodeServiceTest {
                 vedtak = gammelVedtak,
                 fom = LocalDate.of(2020, 12, 12),
                 tom = LocalDate.of(2022, 12, 12),
-                type = Vedtaksperiodetype.FORTSATT_INNVILGET
+                type = Vedtaksperiodetype.FORTSATT_INNVILGET,
             )
 
         every { vedtaksperiodeHentOgPersisterService.hentVedtaksperioderFor(1) } returns listOf(
-            gammelVedtaksperiodeMedBegrunnelse
+            gammelVedtaksperiodeMedBegrunnelse,
         )
         every { vedtaksperiodeHentOgPersisterService.lagre(capture(vedtaksperiodeMedBegrunnelseSlot)) } returnsArgument 0
 
@@ -244,7 +244,7 @@ internal class VedtaksperiodeServiceTest {
             aktør = aktør,
             stønadFom = YearMonth.now().minusMonths(5),
             stønadTom = YearMonth.now().plusMonths(4),
-            sats = 7500
+            sats = 7500,
         )
         every {
             andelerTilkjentYtelseOgEndreteUtbetalingerService.finnAndelerTilkjentYtelseMedEndreteUtbetalinger(behandling.id)
@@ -257,11 +257,11 @@ internal class VedtaksperiodeServiceTest {
             aktør = aktør,
             stønadFom = YearMonth.now().minusMonths(3),
             stønadTom = YearMonth.now().plusMonths(4),
-            sats = 7500
+            sats = 7500,
         )
         every {
             andelerTilkjentYtelseOgEndreteUtbetalingerService.finnAndelerTilkjentYtelseMedEndreteUtbetalinger(
-                revurdering.id
+                revurdering.id,
             )
         } returns listOf(AndelTilkjentYtelseMedEndreteUtbetalinger(andelTilkjentYtelseForRevurdering, emptyList()))
 
@@ -270,8 +270,8 @@ internal class VedtaksperiodeServiceTest {
             YearMonth.now().minusMonths(5).førsteDagIInneværendeMåned(),
             vedtaksperiodeService.finnEndringstidspunktForBehandling(
                 behandling = revurdering,
-                sisteVedtattBehandling = behandling
-            )
+                sisteVedtattBehandling = behandling,
+            ),
         )
     }
 
@@ -286,7 +286,7 @@ internal class VedtaksperiodeServiceTest {
             aktør = aktør,
             stønadFom = periode1.fom,
             stønadTom = periode1.tom,
-            sats = 7500
+            sats = 7500,
         )
         val andelTilkjentYtelse2 = lagAndelTilkjentYtelse(
             tilkjentYtelse = lagInitieltTilkjentYtelse(behandling),
@@ -294,13 +294,13 @@ internal class VedtaksperiodeServiceTest {
             aktør = aktør,
             stønadFom = periode2.fom,
             stønadTom = periode2.tom,
-            sats = 7500
+            sats = 7500,
         )
         every {
             andelerTilkjentYtelseOgEndreteUtbetalingerService.finnAndelerTilkjentYtelseMedEndreteUtbetalinger(behandling.id)
         } returns listOf(
             AndelTilkjentYtelseMedEndreteUtbetalinger(andelTilkjentYtelse1, emptyList()),
-            AndelTilkjentYtelseMedEndreteUtbetalinger(andelTilkjentYtelse2, emptyList())
+            AndelTilkjentYtelseMedEndreteUtbetalinger(andelTilkjentYtelse2, emptyList()),
         )
 
         val revurdering = lagBehandling()
@@ -310,7 +310,7 @@ internal class VedtaksperiodeServiceTest {
             aktør = aktør,
             stønadFom = periode1.fom,
             stønadTom = periode1.tom,
-            sats = 7500
+            sats = 7500,
         )
         val andelTilkjentYtelseForRevurdering2 = lagAndelTilkjentYtelse(
             tilkjentYtelse = lagInitieltTilkjentYtelse(revurdering),
@@ -318,15 +318,15 @@ internal class VedtaksperiodeServiceTest {
             aktør = aktør,
             stønadFom = periode2.fom,
             stønadTom = periode2.tom,
-            sats = 3500
+            sats = 3500,
         )
         every {
             andelerTilkjentYtelseOgEndreteUtbetalingerService.finnAndelerTilkjentYtelseMedEndreteUtbetalinger(
-                revurdering.id
+                revurdering.id,
             )
         } returns listOf(
             AndelTilkjentYtelseMedEndreteUtbetalinger(andelTilkjentYtelseForRevurdering1, emptyList()),
-            AndelTilkjentYtelseMedEndreteUtbetalinger(andelTilkjentYtelseForRevurdering2, emptyList())
+            AndelTilkjentYtelseMedEndreteUtbetalinger(andelTilkjentYtelseForRevurdering2, emptyList()),
         )
 
         // endring i beløp på revurdering for periode2
@@ -334,8 +334,8 @@ internal class VedtaksperiodeServiceTest {
             periode2.fom.førsteDagIInneværendeMåned(),
             vedtaksperiodeService.finnEndringstidspunktForBehandling(
                 behandling = revurdering,
-                sisteVedtattBehandling = behandling
-            )
+                sisteVedtattBehandling = behandling,
+            ),
         )
     }
 
@@ -347,12 +347,12 @@ internal class VedtaksperiodeServiceTest {
 
         val barnPersonResultat = PersonResultat(
             vilkårsvurdering = vilkårsvurdering,
-            aktør = barnAktør
+            aktør = barnAktør,
         )
 
         val barnPersonResultat2 = PersonResultat(
             vilkårsvurdering = vilkårsvurdering,
-            aktør = barnAktør2
+            aktør = barnAktør2,
         )
 
         barnPersonResultat.setSortedVilkårResultater(
@@ -364,7 +364,7 @@ internal class VedtaksperiodeServiceTest {
                     periodeFom = LocalDate.of(2020, 12, 12),
                     periodeTom = LocalDate.of(2022, 12, 12),
                     begrunnelse = "",
-                    behandlingId = behandling.id
+                    behandlingId = behandling.id,
                 ),
                 VilkårResultat(
                     personResultat = barnPersonResultat,
@@ -373,9 +373,9 @@ internal class VedtaksperiodeServiceTest {
                     periodeFom = LocalDate.of(2025, 12, 12),
                     periodeTom = LocalDate.of(2026, 12, 12),
                     begrunnelse = "",
-                    behandlingId = behandling.id
-                )
-            )
+                    behandlingId = behandling.id,
+                ),
+            ),
         )
         barnPersonResultat2.setSortedVilkårResultater(
             setOf(
@@ -386,7 +386,7 @@ internal class VedtaksperiodeServiceTest {
                     periodeFom = LocalDate.of(2020, 12, 12),
                     periodeTom = LocalDate.of(2022, 12, 12),
                     begrunnelse = "",
-                    behandlingId = behandling.id
+                    behandlingId = behandling.id,
                 ),
                 VilkårResultat(
                     personResultat = barnPersonResultat2,
@@ -395,9 +395,9 @@ internal class VedtaksperiodeServiceTest {
                     periodeFom = LocalDate.of(2025, 12, 12),
                     periodeTom = LocalDate.of(2027, 12, 12),
                     begrunnelse = "",
-                    behandlingId = behandling.id
-                )
-            )
+                    behandlingId = behandling.id,
+                ),
+            ),
         )
         vilkårsvurdering.personResultater = setOf(barnPersonResultat, barnPersonResultat2)
 
@@ -430,7 +430,7 @@ internal class VedtaksperiodeServiceTest {
 
         val personResultat = PersonResultat(
             vilkårsvurdering = vilkårsvurdering,
-            aktør = barnAktør
+            aktør = barnAktør,
         )
 
         personResultat.setSortedVilkårResultater(
@@ -442,7 +442,7 @@ internal class VedtaksperiodeServiceTest {
                     periodeFom = LocalDate.of(2020, 12, 12),
                     periodeTom = LocalDate.of(2022, 12, 12),
                     begrunnelse = "",
-                    behandlingId = behandling.id
+                    behandlingId = behandling.id,
                 ),
                 VilkårResultat(
                     personResultat = personResultat,
@@ -451,9 +451,9 @@ internal class VedtaksperiodeServiceTest {
                     periodeFom = LocalDate.of(2025, 12, 12),
                     periodeTom = LocalDate.of(2026, 12, 12),
                     begrunnelse = "",
-                    behandlingId = behandling.id
-                )
-            )
+                    behandlingId = behandling.id,
+                ),
+            ),
         )
         vilkårsvurdering.personResultater = setOf(personResultat)
 

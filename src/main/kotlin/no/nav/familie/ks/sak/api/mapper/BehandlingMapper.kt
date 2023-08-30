@@ -49,7 +49,7 @@ object BehandlingMapper {
         tilbakekreving: Tilbakekreving?,
         sisteVedtaksperiodeVisningDato: LocalDate?,
         feilutbetalteValuta: List<FeilutbetaltValutaDto>,
-        kompetanser: List<Kompetanse>
+        kompetanser: List<Kompetanse>,
     ) =
         BehandlingResponsDto(
             behandlingId = behandling.id,
@@ -59,7 +59,7 @@ object BehandlingMapper {
                     it.behandlingSteg,
                     it.behandlingStegStatus,
                     it.årsak,
-                    it.frist
+                    it.frist,
                 )
             },
             status = behandling.status,
@@ -85,14 +85,14 @@ object BehandlingMapper {
             tilbakekreving = tilbakekreving?.let { lagTilbakekrevingRespons(it) },
             sisteVedtaksperiodeVisningDato = sisteVedtaksperiodeVisningDato,
             feilutbetaltValuta = feilutbetalteValuta,
-            kompetanser = kompetanser.map { it.tilKompetanseDto() }
+            kompetanser = kompetanser.map { it.tilKompetanseDto() },
         )
 
     private fun lagArbeidsfordelingRespons(arbeidsfordelingPåBehandling: ArbeidsfordelingPåBehandling) =
         ArbeidsfordelingResponsDto(
             behandlendeEnhetId = arbeidsfordelingPåBehandling.behandlendeEnhetId,
             behandlendeEnhetNavn = arbeidsfordelingPåBehandling.behandlendeEnhetNavn,
-            manueltOverstyrt = arbeidsfordelingPåBehandling.manueltOverstyrt
+            manueltOverstyrt = arbeidsfordelingPåBehandling.manueltOverstyrt,
         )
 
     fun lagPersonRespons(person: Person, landKodeOgLandNavn: Map<String, String>?) = PersonResponsDto(
@@ -103,12 +103,12 @@ object BehandlingMapper {
         kjønn = KJOENN.valueOf(person.kjønn.name),
         målform = person.målform,
         dødsfallDato = person.dødsfall?.dødsfallDato,
-        registerhistorikk = lagRegisterHistorikkResponsDto(person, landKodeOgLandNavn)
+        registerhistorikk = lagRegisterHistorikkResponsDto(person, landKodeOgLandNavn),
     )
 
     fun lagPersonerMedAndelTilkjentYtelseRespons(
         personer: Set<Person>,
-        andelerTilkjentYtelse: List<AndelTilkjentYtelse>
+        andelerTilkjentYtelse: List<AndelTilkjentYtelse>,
     ) =
         andelerTilkjentYtelse.groupBy { it.aktør }
             .map { andelerForPerson ->
@@ -130,15 +130,15 @@ object BehandlingMapper {
                             stønadFom = sammenslåttAndel.stønadFom,
                             stønadTom = sammenslåttAndel.stønadTom,
                             ytelseType = sammenslåttAndel.type,
-                            skalUtbetales = sammenslåttAndel.prosent > BigDecimal.ZERO
+                            skalUtbetales = sammenslåttAndel.prosent > BigDecimal.ZERO,
                         )
-                    }
+                    },
                 )
             }
 
     private fun utledEndringstidpunkt(
         endringstidspunkt: LocalDate,
-        behandling: Behandling
+        behandling: Behandling,
     ) = when {
         endringstidspunkt == TIDENES_MORGEN || endringstidspunkt == TIDENES_ENDE -> null
         behandling.overstyrtEndringstidspunkt != null -> behandling.overstyrtEndringstidspunkt
@@ -149,6 +149,6 @@ object BehandlingMapper {
         valg = tilbakekreving.valg,
         varsel = tilbakekreving.varsel,
         begrunnelse = tilbakekreving.begrunnelse,
-        tilbakekrevingsbehandlingId = tilbakekreving.tilbakekrevingsbehandlingId
+        tilbakekrevingsbehandlingId = tilbakekreving.tilbakekrevingsbehandlingId,
     )
 }

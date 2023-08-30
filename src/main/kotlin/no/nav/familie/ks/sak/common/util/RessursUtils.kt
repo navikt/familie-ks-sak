@@ -27,7 +27,7 @@ object RessursUtils {
         errorResponse(HttpStatus.INTERNAL_SERVER_ERROR, errorMessage, throwable)
 
     fun <T> funksjonellFeil(funksjonellFeil: FunksjonellFeil): ResponseEntity<Ressurs<T>> = funksjonellErrorResponse(
-        funksjonellFeil
+        funksjonellFeil,
     )
 
     fun <T> frontendFeil(feil: Feil, throwable: Throwable?): ResponseEntity<Ressurs<T>> =
@@ -38,20 +38,20 @@ object RessursUtils {
     fun <T> rolleTilgangResponse(rolleTilgangskontrollFeil: RolleTilgangskontrollFeil): ResponseEntity<Ressurs<T>> {
         secureLogger.warn(
             "En håndtert tilgangsfeil har oppstått - ${rolleTilgangskontrollFeil.frontendFeilmelding}",
-            rolleTilgangskontrollFeil
+            rolleTilgangskontrollFeil,
         )
         logger.warn("En håndtert tilgangsfeil har oppstått - ${rolleTilgangskontrollFeil.melding}")
         return ResponseEntity.status(HttpStatus.FORBIDDEN)
             .body(
                 Ressurs.ikkeTilgang<T>(rolleTilgangskontrollFeil.melding)
-                    .copy(frontendFeilmelding = rolleTilgangskontrollFeil.frontendFeilmelding.ifBlank { "Mangler tilgang" })
+                    .copy(frontendFeilmelding = rolleTilgangskontrollFeil.frontendFeilmelding.ifBlank { "Mangler tilgang" }),
             )
     }
 
     private fun <T> errorResponse(
         httpStatus: HttpStatus,
         errorMessage: String,
-        throwable: Throwable
+        throwable: Throwable,
     ): ResponseEntity<Ressurs<T>> {
         val className = "[${throwable::class.java.name}] "
 
@@ -63,7 +63,7 @@ object RessursUtils {
     }
 
     private fun <T> ikkeTilgangResponse(
-        errorMessage: String
+        errorMessage: String,
     ): ResponseEntity<Ressurs<T>> {
         secureLogger.warn("Saksbehandler har ikke tilgang: $errorMessage")
         logger.warn("Saksbehandler har ikke tilgang. Se securelogs for detaljer.")
@@ -76,7 +76,7 @@ object RessursUtils {
         secureLogger.info(
             "$className En håndtert feil har oppstått(${feil.httpStatus}): " +
                 "${feil.message}, ${feil.frontendFeilmelding}",
-            feil
+            feil,
         )
         logger.warn("$className En håndtert feil har oppstått(${feil.httpStatus}): ${feil.message} ", feil)
 
@@ -84,8 +84,8 @@ object RessursUtils {
         return ResponseEntity.status(feil.httpStatus).body(
             Ressurs.failure(
                 frontendFeilmelding = feil.frontendFeilmelding,
-                errorMessage = feil.message.toString()
-            )
+                errorMessage = feil.message.toString(),
+            ),
         )
     }
 
@@ -98,8 +98,8 @@ object RessursUtils {
         return ResponseEntity.status(funksjonellFeil.httpStatus).body(
             Ressurs.funksjonellFeil(
                 frontendFeilmelding = funksjonellFeil.frontendFeilmelding,
-                melding = funksjonellFeil.melding
-            )
+                melding = funksjonellFeil.melding,
+            ),
         )
     }
 }

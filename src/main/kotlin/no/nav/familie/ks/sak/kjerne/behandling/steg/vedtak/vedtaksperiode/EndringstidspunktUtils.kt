@@ -22,18 +22,18 @@ private data class AndelTilkjentYtelseDataForÅKalkulereEndring(
     val aktørId: AktørId,
     val kalkulertBeløp: Int,
     val endretUtbetalingÅrsaker: List<Årsak>,
-    val behandlingAlder: BehandlingAlder
+    val behandlingAlder: BehandlingAlder,
 )
 
 fun List<AndelTilkjentYtelseMedEndreteUtbetalinger>.hentFørsteEndringstidspunkt(
-    forrigeAndelerTilkjentYtelse: List<AndelTilkjentYtelseMedEndreteUtbetalinger>
+    forrigeAndelerTilkjentYtelse: List<AndelTilkjentYtelseMedEndreteUtbetalinger>,
 ): LocalDate? = this.hentPerioderMedEndringerFra(forrigeAndelerTilkjentYtelse)
     .mapNotNull { (_, tidslinjeMedDifferanserPåPerson) ->
         tidslinjeMedDifferanserPåPerson.tilPerioder().minOfOrNull { checkNotNull(it.fom) }
     }.minOfOrNull { it }
 
 fun List<AndelTilkjentYtelseMedEndreteUtbetalinger>.hentPerioderMedEndringerFra(
-    forrigeAndelerTilkjentYtelse: List<AndelTilkjentYtelseMedEndreteUtbetalinger>
+    forrigeAndelerTilkjentYtelse: List<AndelTilkjentYtelseMedEndreteUtbetalinger>,
 ): Map<AktørId, Tidslinje<Beløpsdifferanse>> {
     val andelerTidslinje = this.hentTidslinjerForPersoner(BehandlingAlder.NY)
     val forrigeAndelerTidslinje = forrigeAndelerTilkjentYtelse.hentTidslinjerForPersoner(BehandlingAlder.GAMMEL)
@@ -53,14 +53,14 @@ fun List<AndelTilkjentYtelseMedEndreteUtbetalinger>.hentPerioderMedEndringerFra(
 }
 
 private fun List<AndelTilkjentYtelseMedEndreteUtbetalinger>.hentTidslinjerForPersoner(
-    behandlingAlder: BehandlingAlder
+    behandlingAlder: BehandlingAlder,
 ): Map<String, Tidslinje<AndelTilkjentYtelseDataForÅKalkulereEndring>> =
     this.groupBy { it.aktør.aktørId }.map { (aktørId, andeler) ->
         aktørId to andeler.hentTidslinje(behandlingAlder)
     }.toMap()
 
 private fun List<AndelTilkjentYtelseMedEndreteUtbetalinger>.hentTidslinje(
-    behandlingAlder: BehandlingAlder
+    behandlingAlder: BehandlingAlder,
 ): Tidslinje<AndelTilkjentYtelseDataForÅKalkulereEndring> =
     this.map {
         Periode(
@@ -70,8 +70,8 @@ private fun List<AndelTilkjentYtelseMedEndreteUtbetalinger>.hentTidslinje(
                 aktørId = it.aktør.aktørId,
                 kalkulertBeløp = it.kalkulertUtbetalingsbeløp,
                 endretUtbetalingÅrsaker = it.endreteUtbetalinger.mapNotNull { endretUtbetalingAndel -> endretUtbetalingAndel.årsak },
-                behandlingAlder = behandlingAlder
-            )
+                behandlingAlder = behandlingAlder,
+            ),
         )
     }.tilTidslinje()
 

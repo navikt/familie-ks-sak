@@ -55,7 +55,7 @@ class ForvaltningController(
     private val konsistensavstemmingKjøreplanService: KonsistensavstemmingKjøreplanService,
     private val personidentService: PersonidentService,
     private val vilkårsvurderingService: VilkårsvurderingService,
-    private val environment: Environment
+    private val environment: Environment,
 ) {
 
     private val logger = LoggerFactory.getLogger(ForvaltningController::class.java)
@@ -64,7 +64,7 @@ class ForvaltningController(
     fun opprettJournalføringOppgave(@PathVariable fnr: String): ResponseEntity<Ressurs<String>> {
         tilgangService.validerTilgangTilHandling(
             minimumBehandlerRolle = BehandlerRolle.FORVALTER,
-            handling = "teste journalføring av innkommende søknad for opprettelse av journalføring oppgave"
+            handling = "teste journalføring av innkommende søknad for opprettelse av journalføring oppgave",
         )
         val arkiverDokumentRequest = ArkiverDokumentRequest(
             fnr = fnr,
@@ -73,9 +73,9 @@ class ForvaltningController(
                 Dokument(
                     dokument = ByteArray(10),
                     dokumenttype = Dokumenttype.KONTANTSTØTTE_SØKNAD,
-                    filtype = Filtype.PDFA
-                )
-            )
+                    filtype = Filtype.PDFA,
+                ),
+            ),
         )
         val journalførDokumentResponse = integrasjonClient.journalførDokument(arkiverDokumentRequest)
         return ResponseEntity.ok(Ressurs.success(journalførDokumentResponse.journalpostId, "Dokument er Journalført"))
@@ -85,7 +85,7 @@ class ForvaltningController(
     fun opprettOppgave(@RequestBody opprettOppgaveDto: OpprettOppgaveDto): ResponseEntity<Ressurs<String>> {
         tilgangService.validerTilgangTilHandling(
             minimumBehandlerRolle = BehandlerRolle.FORVALTER,
-            handling = "teste opprettelse av oppgave"
+            handling = "teste opprettelse av oppgave",
         )
         val aktørId = personidentService.hentAktør(opprettOppgaveDto.fnr).aktørId
         val opprettOppgaveRequest = OpprettOppgaveRequest(
@@ -99,7 +99,7 @@ class ForvaltningController(
             enhetsnummer = opprettOppgaveDto.enhet,
             behandlingstema = opprettOppgaveDto.behandlingstema,
             behandlingstype = opprettOppgaveDto.behandlingstype,
-            tilordnetRessurs = opprettOppgaveDto.tilordnetRessurs
+            tilordnetRessurs = opprettOppgaveDto.tilordnetRessurs,
         )
         integrasjonClient.opprettOppgave(opprettOppgaveRequest)
         return ResponseEntity.ok(Ressurs.success("Oppgave opprettet"))
@@ -109,7 +109,7 @@ class ForvaltningController(
     fun sendAlleBehandlingerTilDVH(): ResponseEntity<Ressurs<String>> {
         tilgangService.validerTilgangTilHandling(
             minimumBehandlerRolle = BehandlerRolle.FORVALTER,
-            handling = "teste sending av siste tilstand for alle behandlinger til DVH"
+            handling = "teste sending av siste tilstand for alle behandlinger til DVH",
         )
         sakStatistikkService.sendAlleBehandlingerTilDVH()
         return ResponseEntity.ok(Ressurs.success(":)", "Alle behandlinger er sendt"))
@@ -119,7 +119,7 @@ class ForvaltningController(
     fun hentVedtakDVH(@RequestBody(required = true) behandlinger: List<Long>): List<VedtakDVH> {
         tilgangService.validerTilgangTilHandling(
             minimumBehandlerRolle = BehandlerRolle.FORVALTER,
-            handling = "Hente Vedtak DVH"
+            handling = "Hente Vedtak DVH",
         )
 
         try {
@@ -134,7 +134,7 @@ class ForvaltningController(
     fun sendTilStønadsstatistikkManuell(@RequestBody(required = true) behandlinger: List<Long>) {
         tilgangService.validerTilgangTilHandling(
             minimumBehandlerRolle = BehandlerRolle.FORVALTER,
-            handling = "Sender vedtakDVH til stønadsstatistikk manuelt"
+            handling = "Sender vedtakDVH til stønadsstatistikk manuelt",
         )
 
         behandlinger.forEach {
@@ -148,21 +148,21 @@ class ForvaltningController(
     fun sendGrensesnittavstemmingManuell(@RequestBody(required = true) periode: Periode) {
         tilgangService.validerTilgangTilHandling(
             minimumBehandlerRolle = BehandlerRolle.FORVALTER,
-            handling = "Kjører grensesnittavstemming manuelt"
+            handling = "Kjører grensesnittavstemming manuelt",
         )
         taskService.save(
-            GrensesnittavstemmingTask.opprettTask(periode.fom.atStartOfDay(), periode.tom.atStartOfDay())
+            GrensesnittavstemmingTask.opprettTask(periode.fom.atStartOfDay(), periode.tom.atStartOfDay()),
         )
     }
 
     @PostMapping(path = ["/avstemming/send-konsistensavstemming-manuell"])
     fun sendKonsistensavstemmingManuell(
         @RequestBody(required = true)
-        manuellStartKonsistensavstemmingDto: ManuellStartKonsistensavstemmingDto
+        manuellStartKonsistensavstemmingDto: ManuellStartKonsistensavstemmingDto,
     ) {
         tilgangService.validerTilgangTilHandling(
             minimumBehandlerRolle = BehandlerRolle.FORVALTER,
-            handling = "Kjører konsistensavstemming manuelt"
+            handling = "Kjører konsistensavstemming manuelt",
         )
 
         val manuellKjøreplan = konsistensavstemmingKjøreplanService.leggTilManuellKjøreplan()
@@ -170,9 +170,9 @@ class ForvaltningController(
             KonsistensavstemmingTask.opprettTask(
                 KonsistensavstemmingTaskDto(
                     kjøreplanId = manuellKjøreplan.id,
-                    initieltKjøreTidspunkt = manuellStartKonsistensavstemmingDto.triggerTid
-                )
-            )
+                    initieltKjøreTidspunkt = manuellStartKonsistensavstemmingDto.triggerTid,
+                ),
+            ),
         )
     }
 
@@ -191,7 +191,7 @@ class ForvaltningController(
 
         tilgangService.validerTilgangTilHandling(
             minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
-            handling = "Fyll ut vilkårsvurderingen automatisk"
+            handling = "Fyll ut vilkårsvurderingen automatisk",
         )
 
         vilkårsvurderingService.fyllUtVilkårsvurdering(behandlingId)

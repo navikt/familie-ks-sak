@@ -18,19 +18,19 @@ import java.time.LocalDate
 data class Opphørsperiode(
     override val periodeFom: LocalDate,
     override val periodeTom: LocalDate?,
-    override val vedtaksperiodetype: Vedtaksperiodetype = Vedtaksperiodetype.OPPHØR
+    override val vedtaksperiodetype: Vedtaksperiodetype = Vedtaksperiodetype.OPPHØR,
 ) : Vedtaksperiode
 
 fun mapTilOpphørsperioder(
     forrigePersonopplysningGrunnlag: PersonopplysningGrunnlag? = null,
     forrigeAndelerTilkjentYtelse: List<AndelTilkjentYtelseMedEndreteUtbetalinger> = emptyList(),
     personopplysningGrunnlag: PersonopplysningGrunnlag,
-    andelerTilkjentYtelse: List<AndelTilkjentYtelseMedEndreteUtbetalinger>
+    andelerTilkjentYtelse: List<AndelTilkjentYtelseMedEndreteUtbetalinger>,
 ): List<Opphørsperiode> {
     val forrigeUtbetalingsperioder = if (forrigePersonopplysningGrunnlag != null) {
         mapTilUtbetalingsperioder(
             personopplysningGrunnlag = forrigePersonopplysningGrunnlag,
-            andelerTilkjentYtelse = forrigeAndelerTilkjentYtelse
+            andelerTilkjentYtelse = forrigeAndelerTilkjentYtelse,
         )
     } else {
         emptyList()
@@ -42,8 +42,8 @@ fun mapTilOpphørsperioder(
         listOf(
             Opphørsperiode(
                 periodeFom = forrigeUtbetalingsperioder.minOf { it.periodeFom },
-                periodeTom = forrigeUtbetalingsperioder.maxOf { it.periodeTom }
-            )
+                periodeTom = forrigeUtbetalingsperioder.maxOf { it.periodeTom },
+            ),
         )
     } else {
         if (utbetalingsperioder.isEmpty()) {
@@ -51,7 +51,7 @@ fun mapTilOpphørsperioder(
         } else {
             listOf(
                 finnOpphørsperioderMellomUtbetalingsperioder(utbetalingsperioder),
-                finnOpphørsperiodeEtterSisteUtbetalingsperiode(utbetalingsperioder)
+                finnOpphørsperiodeEtterSisteUtbetalingsperiode(utbetalingsperioder),
             ).flatten()
         }.sortedBy { it.periodeFom }
     }
@@ -66,8 +66,8 @@ fun slåSammenOpphørsperioder(alleOpphørsperioder: List<Opphørsperiode>): Lis
 
     return sortertOpphørsperioder.fold(
         mutableListOf(
-            sortertOpphørsperioder.first()
-        )
+            sortertOpphørsperioder.first(),
+        ),
     ) { acc: MutableList<Opphørsperiode>, nesteOpphørsperiode: Opphørsperiode ->
         val forrigeOpphørsperiode = acc.last()
         when {
@@ -76,8 +76,8 @@ fun slåSammenOpphørsperioder(alleOpphørsperioder: List<Opphørsperiode>): Lis
                     forrigeOpphørsperiode.copy(
                         periodeTom = maxOfOpphørsperiodeTom(
                             forrigeOpphørsperiode.periodeTom,
-                            nesteOpphørsperiode.periodeTom
-                        )
+                            nesteOpphørsperiode.periodeTom,
+                        ),
                     )
             }
 
@@ -103,8 +103,8 @@ private fun finnOpphørsperiodeEtterSisteUtbetalingsperiode(utbetalingsperioder:
             Opphørsperiode(
                 periodeFom = sisteUtbetalingsperiodeTom.nesteMåned().førsteDagIInneværendeMåned(),
                 periodeTom = null,
-                vedtaksperiodetype = Vedtaksperiodetype.OPPHØR
-            )
+                vedtaksperiodetype = Vedtaksperiodetype.OPPHØR,
+            ),
         )
     } else {
         emptyList()
@@ -112,9 +112,8 @@ private fun finnOpphørsperiodeEtterSisteUtbetalingsperiode(utbetalingsperioder:
 }
 
 private fun finnOpphørsperioderMellomUtbetalingsperioder(
-    utbetalingsperioder: List<Utbetalingsperiode>
+    utbetalingsperioder: List<Utbetalingsperiode>,
 ): List<Opphørsperiode> {
-
     val utbetalingsperioderTidslinje =
         utbetalingsperioder.map { Periode(it, it.periodeFom, it.periodeTom) }.tilTidslinje()
 
@@ -123,7 +122,7 @@ private fun finnOpphørsperioderMellomUtbetalingsperioder(
             Opphørsperiode(
                 periodeFom = it.fom.tilLocalDateEllerNull() ?: TIDENES_MORGEN,
                 periodeTom = it.tom.tilLocalDateEllerNull(),
-                vedtaksperiodetype = Vedtaksperiodetype.OPPHØR
+                vedtaksperiodetype = Vedtaksperiodetype.OPPHØR,
             )
         }
 }

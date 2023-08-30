@@ -6,7 +6,7 @@ import java.time.LocalDate
 
 data class KorrigertVedtakDto(
     val vedtaksdato: LocalDate,
-    val begrunnelse: String?
+    val begrunnelse: String?,
 )
 
 fun KorrigertVedtakDto.tilKorrigertVedtak(behandling: Behandling) =

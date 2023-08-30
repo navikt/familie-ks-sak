@@ -13,12 +13,12 @@ import no.nav.familie.ks.sak.kjerne.brev.domene.maler.brevperioder.BrevPeriodeDt
 
 data class Førstegangsvedtak(
     override val mal: Brevmal,
-    override val data: FørstegangsvedtakData
+    override val data: FørstegangsvedtakData,
 ) : VedtaksbrevDto {
 
     constructor(
         fellesdataForVedtaksbrev: FellesdataForVedtaksbrev,
-        etterbetaling: Etterbetaling?
+        etterbetaling: Etterbetaling?,
     ) :
         this(
             mal = Brevmal.VEDTAK_FØRSTEGANGSVEDTAK,
@@ -27,31 +27,31 @@ data class Førstegangsvedtak(
                     signaturVedtak = SignaturVedtak(
                         enhet = fellesdataForVedtaksbrev.enhet,
                         saksbehandler = fellesdataForVedtaksbrev.saksbehandler,
-                        beslutter = fellesdataForVedtaksbrev.beslutter
+                        beslutter = fellesdataForVedtaksbrev.beslutter,
                     ),
                     etterbetaling = etterbetaling,
                     hjemmeltekst = fellesdataForVedtaksbrev.hjemmeltekst,
-                    korrigertVedtak = fellesdataForVedtaksbrev.korrigertVedtakData
+                    korrigertVedtak = fellesdataForVedtaksbrev.korrigertVedtakData,
                 ),
                 flettefelter = FlettefelterForDokumentDtoImpl(
                     navn = fellesdataForVedtaksbrev.søkerNavn,
-                    fodselsnummer = fellesdataForVedtaksbrev.søkerFødselsnummer
+                    fodselsnummer = fellesdataForVedtaksbrev.søkerFødselsnummer,
                 ),
-                perioder = fellesdataForVedtaksbrev.perioder
-            )
+                perioder = fellesdataForVedtaksbrev.perioder,
+            ),
         )
 }
 
 data class FørstegangsvedtakData(
     override val delmalData: Delmaler,
     override val flettefelter: FlettefelterForDokumentDtoImpl,
-    override val perioder: List<BrevPeriodeDto>
+    override val perioder: List<BrevPeriodeDto>,
 ) : VedtaksbrevData {
 
     data class Delmaler(
         val signaturVedtak: SignaturVedtak,
         val etterbetaling: Etterbetaling?,
         val hjemmeltekst: Hjemmeltekst,
-        val korrigertVedtak: KorrigertVedtakData?
+        val korrigertVedtak: KorrigertVedtakData?,
     )
 }

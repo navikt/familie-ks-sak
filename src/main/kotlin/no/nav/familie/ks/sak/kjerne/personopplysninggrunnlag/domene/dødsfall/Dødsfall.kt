@@ -38,7 +38,7 @@ data class Dødsfall(
     val dødsfallPostnummer: String?,
 
     @Column(name = "doedsfall_poststed", nullable = true)
-    val dødsfallPoststed: String?
+    val dødsfallPoststed: String?,
 ) : BaseEntitet() {
     fun hentAdresseToString(): String {
         return """$dødsfallAdresse, $dødsfallPostnummer $dødsfallPoststed"""
@@ -48,7 +48,7 @@ data class Dødsfall(
         fun lagDødsfall(
             person: Person,
             pdlDødsfallDato: String?,
-            pdlDødsfallAdresse: PdlKontaktinformasjonForDødsboAdresse?
+            pdlDødsfallAdresse: PdlKontaktinformasjonForDødsboAdresse?,
         ): Dødsfall? {
             if (pdlDødsfallDato.isNullOrEmpty()) return null
             return Dødsfall(
@@ -56,7 +56,7 @@ data class Dødsfall(
                 dødsfallDato = LocalDate.parse(pdlDødsfallDato),
                 dødsfallAdresse = pdlDødsfallAdresse?.adresselinje1,
                 dødsfallPostnummer = pdlDødsfallAdresse?.postnummer,
-                dødsfallPoststed = pdlDødsfallAdresse?.poststedsnavn
+                dødsfallPoststed = pdlDødsfallAdresse?.poststedsnavn,
             )
         }
     }

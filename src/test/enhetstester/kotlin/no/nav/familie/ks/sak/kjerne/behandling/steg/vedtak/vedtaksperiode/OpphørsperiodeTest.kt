@@ -27,7 +27,7 @@ class OpphørsperiodeTest {
     val barn1 = fnrTilAktør(barn1Fnr)
 
     val vilkårsvurdering = Vilkårsvurdering(
-        behandling = behandling
+        behandling = behandling,
     )
 
     @Test
@@ -43,9 +43,9 @@ class OpphørsperiodeTest {
                 stønadFom = inneværendeMåned().minusYears(4),
                 stønadTom = periodeTomFørsteAndel,
                 sats = 1054,
-                aktør = barn1
+                aktør = barn1,
             ),
-            emptyList()
+            emptyList(),
         )
 
         val andel2Barn1 = AndelTilkjentYtelseMedEndreteUtbetalinger(
@@ -54,9 +54,9 @@ class OpphørsperiodeTest {
                 stønadFom = periodeFomAndreAndel,
                 stønadTom = periodeTomAndreAndel,
                 sats = 1054,
-                aktør = barn1
+                aktør = barn1,
             ),
-            emptyList()
+            emptyList(),
         )
 
         val andel3Barn1 = AndelTilkjentYtelseMedEndreteUtbetalinger(
@@ -65,14 +65,14 @@ class OpphørsperiodeTest {
                 stønadFom = periodeFomSisteAndel,
                 stønadTom = inneværendeMåned().plusMonths(12),
                 sats = 1054,
-                aktør = barn1
+                aktør = barn1,
             ),
-            emptyList()
+            emptyList(),
         )
 
         val opphørsperioder = mapTilOpphørsperioder(
             andelerTilkjentYtelse = listOf(andelBarn1, andel2Barn1, andel3Barn1),
-            personopplysningGrunnlag = personopplysningGrunnlag
+            personopplysningGrunnlag = personopplysningGrunnlag,
         )
 
         assertEquals(2, opphørsperioder.size)
@@ -91,14 +91,14 @@ class OpphørsperiodeTest {
                 stønadFom = inneværendeMåned().minusYears(4),
                 stønadTom = periodeTomFørsteAndel,
                 sats = 1054,
-                aktør = barn1
+                aktør = barn1,
             ),
-            emptyList()
+            emptyList(),
         )
 
         val opphørsperioder = mapTilOpphørsperioder(
             andelerTilkjentYtelse = listOf(andelBarn1),
-            personopplysningGrunnlag = personopplysningGrunnlag
+            personopplysningGrunnlag = personopplysningGrunnlag,
         )
 
         assertEquals(1, opphørsperioder.size)
@@ -115,14 +115,14 @@ class OpphørsperiodeTest {
                 stønadFom = inneværendeMåned().minusYears(4),
                 stønadTom = periodeTomFørsteAndel,
                 sats = 1054,
-                aktør = barn1
+                aktør = barn1,
             ),
-            emptyList()
+            emptyList(),
         )
 
         val opphørsperioder = mapTilOpphørsperioder(
             andelerTilkjentYtelse = listOf(andelBarn1),
-            personopplysningGrunnlag = personopplysningGrunnlag
+            personopplysningGrunnlag = personopplysningGrunnlag,
         )
 
         assertEquals(1, opphørsperioder.size)
@@ -137,12 +137,12 @@ class OpphørsperiodeTest {
         val toLikePerioder = listOf(
             Opphørsperiode(
                 periodeFom = periode12MånederFraInneværendeMåned,
-                periodeTom = inneværendeMåned().toLocalDate()
+                periodeTom = inneværendeMåned().toLocalDate(),
             ),
             Opphørsperiode(
                 periodeFom = periode12MånederFraInneværendeMåned,
-                periodeTom = inneværendeMåned().toLocalDate()
-            )
+                periodeTom = inneværendeMåned().toLocalDate(),
+            ),
         )
 
         assertEquals(1, slåSammenOpphørsperioder(toLikePerioder).size)
@@ -153,12 +153,12 @@ class OpphørsperiodeTest {
         val toPerioderMedUlikSluttdato = listOf(
             Opphørsperiode(
                 periodeFom = inneværendeMåned().minusMonths(12).toLocalDate(),
-                periodeTom = inneværendeMåned().toLocalDate()
+                periodeTom = inneværendeMåned().toLocalDate(),
             ),
             Opphørsperiode(
                 periodeFom = inneværendeMåned().minusMonths(12).toLocalDate(),
-                periodeTom = inneværendeMåned().nesteMåned().toLocalDate()
-            )
+                periodeTom = inneværendeMåned().nesteMåned().toLocalDate(),
+            ),
         )
         val enPeriodeMedSluttDatoNesteMåned = slåSammenOpphørsperioder(toPerioderMedUlikSluttdato)
 
@@ -171,19 +171,19 @@ class OpphørsperiodeTest {
         val toPerioderMedUlikStartdato = listOf(
             Opphørsperiode(
                 periodeFom = inneværendeMåned().minusMonths(12).toLocalDate(),
-                periodeTom = inneværendeMåned().toLocalDate()
+                periodeTom = inneværendeMåned().toLocalDate(),
             ),
             Opphørsperiode(
                 periodeFom = inneværendeMåned().minusMonths(13).toLocalDate(),
-                periodeTom = inneværendeMåned().toLocalDate()
-            )
+                periodeTom = inneværendeMåned().toLocalDate(),
+            ),
         )
         val enPeriodeMedStartDato13MånederTilbake = slåSammenOpphørsperioder(toPerioderMedUlikStartdato)
 
         assertEquals(1, enPeriodeMedStartDato13MånederTilbake.size)
         assertEquals(
             inneværendeMåned().minusMonths(13).toLocalDate(),
-            enPeriodeMedStartDato13MånederTilbake.first().periodeFom
+            enPeriodeMedStartDato13MånederTilbake.first().periodeFom,
         )
     }
 
@@ -194,12 +194,12 @@ class OpphørsperiodeTest {
         val toPerioderMedUlikStartdato = listOf(
             Opphørsperiode(
                 periodeFom = førsteOpphørsperiodeFom,
-                periodeTom = inneværendeMåned().minusMonths(2).toLocalDate()
+                periodeTom = inneværendeMåned().minusMonths(2).toLocalDate(),
             ),
             Opphørsperiode(
                 periodeFom = inneværendeMåned().minusMonths(6).toLocalDate(),
-                periodeTom = sisteOpphørsperiodeTom
-            )
+                periodeTom = sisteOpphørsperiodeTom,
+            ),
         )
         val enOpphørsperiodeMedFørsteFomOgSisteTom = slåSammenOpphørsperioder(toPerioderMedUlikStartdato)
 

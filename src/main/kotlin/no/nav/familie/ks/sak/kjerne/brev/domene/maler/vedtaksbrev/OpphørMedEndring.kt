@@ -16,14 +16,14 @@ import java.time.LocalDate
 
 data class OpphørMedEndring(
     override val mal: Brevmal,
-    override val data: OpphørMedEndringData
+    override val data: OpphørMedEndringData,
 ) : VedtaksbrevDto {
 
     constructor(
         mal: Brevmal = Brevmal.VEDTAK_OPPHØR_MED_ENDRING,
         fellesdataForVedtaksbrev: FellesdataForVedtaksbrev,
         etterbetaling: Etterbetaling? = null,
-        erFeilutbetalingPåBehandling: Boolean
+        erFeilutbetalingPåBehandling: Boolean,
     ) :
         this(
             mal = mal,
@@ -32,27 +32,27 @@ data class OpphørMedEndring(
                     signaturVedtak = SignaturVedtak(
                         enhet = fellesdataForVedtaksbrev.enhet,
                         saksbehandler = fellesdataForVedtaksbrev.saksbehandler,
-                        beslutter = fellesdataForVedtaksbrev.beslutter
+                        beslutter = fellesdataForVedtaksbrev.beslutter,
                     ),
                     etterbetaling = etterbetaling,
                     hjemmeltekst = fellesdataForVedtaksbrev.hjemmeltekst,
                     feilutbetaling = erFeilutbetalingPåBehandling,
-                    korrigertVedtak = fellesdataForVedtaksbrev.korrigertVedtakData
+                    korrigertVedtak = fellesdataForVedtaksbrev.korrigertVedtakData,
                 ),
                 flettefelter = object : FlettefelterForDokumentDto {
                     override val navn = flettefelt(fellesdataForVedtaksbrev.søkerNavn)
                     override val fodselsnummer = flettefelt(fellesdataForVedtaksbrev.søkerFødselsnummer)
                     override val brevOpprettetDato = flettefelt(LocalDate.now().tilDagMånedÅr())
                 },
-                perioder = fellesdataForVedtaksbrev.perioder
-            )
+                perioder = fellesdataForVedtaksbrev.perioder,
+            ),
         )
 }
 
 data class OpphørMedEndringData(
     override val delmalData: Delmaler,
     override val flettefelter: FlettefelterForDokumentDto,
-    override val perioder: List<BrevPeriodeDto>
+    override val perioder: List<BrevPeriodeDto>,
 ) : VedtaksbrevData {
 
     data class Delmaler(
@@ -60,6 +60,6 @@ data class OpphørMedEndringData(
         val feilutbetaling: Boolean,
         val etterbetaling: Etterbetaling?,
         val hjemmeltekst: Hjemmeltekst,
-        val korrigertVedtak: KorrigertVedtakData?
+        val korrigertVedtak: KorrigertVedtakData?,
     )
 }

@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
 
-class kombinerMedTest {
+class KombinerMedTest {
 
     private val førsteJanuar = LocalDate.of(2022, 1, 1)
     private val sisteDagIJanuar = LocalDate.of(2022, 1, 31)

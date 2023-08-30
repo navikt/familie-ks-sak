@@ -12,7 +12,7 @@ class LeggTilBarnService(
     private val behandlingService: BehandlingService,
     private val vilkårsvurderingService: VilkårsvurderingService,
     private val tilbakestillBehandlingService: TilbakestillBehandlingService,
-    private val beregningService: BeregningService
+    private val beregningService: BeregningService,
 ) {
 
     @Transactional
@@ -25,7 +25,7 @@ class LeggTilBarnService(
         // opprett vilkårsvurdering på nytt
         vilkårsvurderingService.opprettVilkårsvurdering(
             behandling = behandling,
-            forrigeBehandlingSomErVedtatt = behandlingService.hentSisteBehandlingSomErVedtatt(behandling.fagsak.id)
+            forrigeBehandlingSomErVedtatt = behandlingService.hentSisteBehandlingSomErVedtatt(behandling.fagsak.id),
         )
 
         // slett tilkjent ytelse og sett behandling steg til vilkårsvurdering

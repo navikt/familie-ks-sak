@@ -30,7 +30,7 @@ fun hentVedtaksbrevmal(behandling: Behandling): Brevmal {
 
 fun hentVedtaksbrevtype(
     behandlingType: BehandlingType,
-    behandlingsresultat: Behandlingsresultat
+    behandlingsresultat: Behandlingsresultat,
 ): Brevmal {
     val feilmeldingBehandlingTypeOgResultat =
         "Brev ikke støttet for behandlingstype=$behandlingType og behandlingsresultat=$behandlingsresultat"
@@ -45,13 +45,14 @@ fun hentVedtaksbrevtype(
                 Behandlingsresultat.INNVILGET,
                 Behandlingsresultat.INNVILGET_OG_OPPHØRT,
                 Behandlingsresultat.DELVIS_INNVILGET,
-                Behandlingsresultat.DELVIS_INNVILGET_OG_OPPHØRT -> Brevmal.VEDTAK_FØRSTEGANGSVEDTAK
+                Behandlingsresultat.DELVIS_INNVILGET_OG_OPPHØRT,
+                -> Brevmal.VEDTAK_FØRSTEGANGSVEDTAK
 
                 Behandlingsresultat.AVSLÅTT -> Brevmal.VEDTAK_AVSLAG
 
                 else -> throw FunksjonellFeil(
                     melding = feilmeldingBehandlingTypeOgResultat,
-                    frontendFeilmelding = frontendFeilmelding
+                    frontendFeilmelding = frontendFeilmelding,
                 )
             }
 
@@ -62,10 +63,12 @@ fun hentVedtaksbrevtype(
                 Behandlingsresultat.DELVIS_INNVILGET,
                 Behandlingsresultat.DELVIS_INNVILGET_OG_ENDRET,
                 Behandlingsresultat.AVSLÅTT_OG_ENDRET,
-                Behandlingsresultat.ENDRET_UTBETALING, Behandlingsresultat.ENDRET_UTEN_UTBETALING -> Brevmal.VEDTAK_ENDRING
+                Behandlingsresultat.ENDRET_UTBETALING, Behandlingsresultat.ENDRET_UTEN_UTBETALING,
+                -> Brevmal.VEDTAK_ENDRING
 
                 Behandlingsresultat.OPPHØRT,
-                Behandlingsresultat.FORTSATT_OPPHØRT -> Brevmal.VEDTAK_OPPHØRT
+                Behandlingsresultat.FORTSATT_OPPHØRT,
+                -> Brevmal.VEDTAK_OPPHØRT
 
                 Behandlingsresultat.INNVILGET_OG_OPPHØRT,
                 Behandlingsresultat.INNVILGET_ENDRET_OG_OPPHØRT,
@@ -73,7 +76,8 @@ fun hentVedtaksbrevtype(
                 Behandlingsresultat.DELVIS_INNVILGET_ENDRET_OG_OPPHØRT,
                 Behandlingsresultat.AVSLÅTT_OG_OPPHØRT,
                 Behandlingsresultat.AVSLÅTT_ENDRET_OG_OPPHØRT,
-                Behandlingsresultat.ENDRET_OG_OPPHØRT -> Brevmal.VEDTAK_OPPHØR_MED_ENDRING
+                Behandlingsresultat.ENDRET_OG_OPPHØRT,
+                -> Brevmal.VEDTAK_OPPHØR_MED_ENDRING
 
                 Behandlingsresultat.FORTSATT_INNVILGET -> Brevmal.VEDTAK_FORTSATT_INNVILGET
 
@@ -81,13 +85,13 @@ fun hentVedtaksbrevtype(
 
                 else -> throw FunksjonellFeil(
                     melding = feilmeldingBehandlingTypeOgResultat,
-                    frontendFeilmelding = frontendFeilmelding
+                    frontendFeilmelding = frontendFeilmelding,
                 )
             }
 
         else -> throw FunksjonellFeil(
             melding = feilmelidingBehandlingType,
-            frontendFeilmelding = frontendFeilmelding
+            frontendFeilmelding = frontendFeilmelding,
         )
     }
 }
@@ -96,13 +100,13 @@ fun hentHjemmeltekst(
     sanitybegrunnelserBruktIBrev: List<SanityBegrunnelse>,
     opplysningspliktHjemlerSkalMedIBrev: Boolean = false,
     målform: Målform,
-    vedtakKorrigertHjemmelSkalMedIBrev: Boolean = false
+    vedtakKorrigertHjemmelSkalMedIBrev: Boolean = false,
 ): String {
     val ordinæreHjemler =
         hentOrdinæreHjemler(
             hjemler = sanitybegrunnelserBruktIBrev.flatMap { it.hjemler }
                 .toMutableSet(),
-            opplysningspliktHjemlerSkalMedIBrev = opplysningspliktHjemlerSkalMedIBrev
+            opplysningspliktHjemlerSkalMedIBrev = opplysningspliktHjemlerSkalMedIBrev,
         )
 
     val forvaltningsloverHjemler = hentForvaltningsloverHjemler(vedtakKorrigertHjemmelSkalMedIBrev)
@@ -110,7 +114,7 @@ fun hentHjemmeltekst(
     val alleHjemlerForBegrunnelser = hentAlleTyperHjemler(
         ordinæreHjemler = ordinæreHjemler.distinct(),
         målform = målform,
-        hjemlerFraForvaltningsloven = forvaltningsloverHjemler
+        hjemlerFraForvaltningsloven = forvaltningsloverHjemler,
     )
 
     return slåSammenHjemlerAvUlikeTyper(alleHjemlerForBegrunnelser)
@@ -138,7 +142,7 @@ private fun slåSammenListeMedHjemler(hjemler: List<String>): String {
 private fun hentAlleTyperHjemler(
     ordinæreHjemler: List<String>,
     målform: Målform,
-    hjemlerFraForvaltningsloven: List<String>
+    hjemlerFraForvaltningsloven: List<String>,
 ): List<String> {
     val alleHjemlerForBegrunnelser = mutableListOf<String>()
 
@@ -146,29 +150,29 @@ private fun hentAlleTyperHjemler(
     if (ordinæreHjemler.isNotEmpty()) {
         alleHjemlerForBegrunnelser.add(
             "${
-            when (målform) {
-                Målform.NB -> "kontantstøtteloven"
-                Målform.NN -> "kontantstøttelova"
-            }
+                when (målform) {
+                    Målform.NB -> "kontantstøtteloven"
+                    Målform.NN -> "kontantstøttelova"
+                }
             } ${
-            hjemlerTilHjemmeltekst(
-                hjemler = ordinæreHjemler,
-                lovForHjemmel = "kontantstøtteloven"
-            )
-            }"
+                hjemlerTilHjemmeltekst(
+                    hjemler = ordinæreHjemler,
+                    lovForHjemmel = "kontantstøtteloven",
+                )
+            }",
         )
     }
 
     if (hjemlerFraForvaltningsloven.isNotEmpty()) {
         alleHjemlerForBegrunnelser.add(
             "${
-            when (målform) {
-                Målform.NB -> "forvaltningsloven"
-                Målform.NN -> "forvaltningslova"
-            }
+                when (målform) {
+                    Målform.NB -> "forvaltningsloven"
+                    Målform.NN -> "forvaltningslova"
+                }
             } ${
-            hjemlerTilHjemmeltekst(hjemler = hjemlerFraForvaltningsloven, lovForHjemmel = "forvaltningsloven")
-            }"
+                hjemlerTilHjemmeltekst(hjemler = hjemlerFraForvaltningsloven, lovForHjemmel = "forvaltningsloven")
+            }",
         )
     }
     return alleHjemlerForBegrunnelser
@@ -184,7 +188,7 @@ fun hjemlerTilHjemmeltekst(hjemler: List<String>, lovForHjemmel: String): String
 
 private fun hentOrdinæreHjemler(
     hjemler: MutableSet<String>,
-    opplysningspliktHjemlerSkalMedIBrev: Boolean
+    opplysningspliktHjemlerSkalMedIBrev: Boolean,
 ): List<String> {
     if (opplysningspliktHjemlerSkalMedIBrev) {
         val hjemlerNårOpplysningspliktIkkeOppfylt = listOf("13", "16")

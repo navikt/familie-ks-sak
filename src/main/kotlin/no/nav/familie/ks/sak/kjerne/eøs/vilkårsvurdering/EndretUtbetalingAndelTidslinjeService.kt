@@ -33,5 +33,5 @@ internal fun Iterable<EndretUtbetalingAndel>.tilBarnasHarEtterbetaling3MånedTid
 private fun <T> EndretUtbetalingAndel.tilPeriode(mapper: (EndretUtbetalingAndel) -> T) = Periode(
     fom = this.fom?.førsteDagIInneværendeMåned() ?: LocalDate.now(),
     tom = this.tom?.sisteDagIInneværendeMåned() ?: LocalDate.now(),
-    verdi = mapper(this)
+    verdi = mapper(this),
 )

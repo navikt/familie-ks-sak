@@ -13,7 +13,7 @@ fun <T, R, RESULTAT> TidslinjePeriode<T>.biFunksjon(
     operand: TidslinjePeriode<R>,
     lengde: Int,
     erUendelig: Boolean,
-    operator: (elem1: PeriodeVerdi<T>, elem2: PeriodeVerdi<R>) -> PeriodeVerdi<RESULTAT>
+    operator: (elem1: PeriodeVerdi<T>, elem2: PeriodeVerdi<R>) -> PeriodeVerdi<RESULTAT>,
 ): TidslinjePeriode<RESULTAT> {
     return TidslinjePeriode(operator(this.periodeVerdi, operand.periodeVerdi), lengde, erUendelig)
 }
@@ -28,7 +28,7 @@ fun <T> List<TidslinjePeriode<T>>.slåSammenLike(): List<TidslinjePeriode<T>> {
             acc.dropLast(1) + TidslinjePeriode(
                 periodeVerdi = sisteElementIAcc.periodeVerdi,
                 lengde = sisteElementIAcc.lengde + tidslinjePeriode.lengde,
-                erUendelig = sisteElementIAcc.erUendelig || tidslinjePeriode.erUendelig
+                erUendelig = sisteElementIAcc.erUendelig || tidslinjePeriode.erUendelig,
             )
         } else {
             acc + tidslinjePeriode

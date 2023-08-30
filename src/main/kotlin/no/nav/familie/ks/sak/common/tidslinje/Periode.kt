@@ -8,7 +8,7 @@ data class Periode<T>(
     // NB: Generiske klasser arver type fra "Any?", så verdi kan være null.
     val verdi: T,
     val fom: LocalDate?,
-    val tom: LocalDate?
+    val tom: LocalDate?,
 ) {
 
     fun tilTidslinjePeriodeMedDato() = TidslinjePeriodeMedDato(verdi, fom, tom)

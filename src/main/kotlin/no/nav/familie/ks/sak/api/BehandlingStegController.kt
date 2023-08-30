@@ -26,17 +26,17 @@ import org.springframework.web.bind.annotation.RestController
 class BehandlingStegController(
     private val tilgangService: TilgangService,
     private val stegService: StegService,
-    private val behandlingService: BehandlingService
+    private val behandlingService: BehandlingService,
 ) {
 
     @PostMapping(path = ["/registrer-søknad"], produces = [MediaType.APPLICATION_JSON_VALUE])
     fun registrereSøknadOgOppdaterPersongrunnlag(
         @PathVariable behandlingId: Long,
-        @RequestBody registerSøknadDto: RegistrerSøknadDto
+        @RequestBody registerSøknadDto: RegistrerSøknadDto,
     ): ResponseEntity<Ressurs<BehandlingResponsDto>> {
         tilgangService.validerTilgangTilHandling(
             minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
-            handling = "registrere søknad"
+            handling = "registrere søknad",
         )
 
         stegService.utførSteg(behandlingId, BehandlingSteg.REGISTRERE_SØKNAD, registerSøknadDto)
@@ -47,7 +47,7 @@ class BehandlingStegController(
     fun utførVilkårsvurdering(@PathVariable behandlingId: Long): ResponseEntity<Ressurs<BehandlingResponsDto>> {
         tilgangService.validerTilgangTilHandling(
             minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
-            handling = "utfør vilkårsvurdering"
+            handling = "utfør vilkårsvurdering",
         )
 
         stegService.utførSteg(behandlingId, BehandlingSteg.VILKÅRSVURDERING)
@@ -59,7 +59,7 @@ class BehandlingStegController(
     fun utledBehandlingsresultat(@PathVariable behandlingId: Long): ResponseEntity<Ressurs<BehandlingResponsDto>> {
         tilgangService.validerTilgangTilHandling(
             minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
-            handling = "vurdere behandlingsresultat"
+            handling = "vurdere behandlingsresultat",
         )
 
         stegService.utførSteg(behandlingId, BehandlingSteg.BEHANDLINGSRESULTAT)
@@ -69,11 +69,11 @@ class BehandlingStegController(
     @PostMapping(path = ["/simulering"])
     fun fullførSimulering(
         @PathVariable behandlingId: Long,
-        @RequestBody tilbakekrevingRequestDto: TilbakekrevingRequestDto?
+        @RequestBody tilbakekrevingRequestDto: TilbakekrevingRequestDto?,
     ): ResponseEntity<Ressurs<BehandlingResponsDto>> {
         tilgangService.validerTilgangTilHandling(
             minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
-            handling = "fullfør simulering"
+            handling = "fullfør simulering",
         )
 
         stegService.utførSteg(behandlingId, BehandlingSteg.SIMULERING, tilbakekrevingRequestDto)
@@ -83,11 +83,11 @@ class BehandlingStegController(
     @PostMapping(path = ["/foreslå-vedtak"], produces = [MediaType.APPLICATION_JSON_VALUE])
     fun foreslåVedtak(
         @PathVariable behandlingId: Long,
-        @RequestParam behandlendeEnhet: String
+        @RequestParam behandlendeEnhet: String,
     ): ResponseEntity<Ressurs<BehandlingResponsDto>> {
         tilgangService.validerTilgangTilHandling(
             minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
-            handling = "foreslå vedtak"
+            handling = "foreslå vedtak",
         )
 
         stegService.utførSteg(behandlingId, BehandlingSteg.VEDTAK)
@@ -97,11 +97,11 @@ class BehandlingStegController(
     @PostMapping(path = ["/beslutt-vedtak"], produces = [MediaType.APPLICATION_JSON_VALUE])
     fun besluttVedtak(
         @PathVariable behandlingId: Long,
-        @RequestBody besluttVedtakDto: BesluttVedtakDto
+        @RequestBody besluttVedtakDto: BesluttVedtakDto,
     ): ResponseEntity<Ressurs<BehandlingResponsDto>> {
         tilgangService.validerTilgangTilHandling(
             minimumBehandlerRolle = BehandlerRolle.BESLUTTER,
-            handling = "beslutt vedtak"
+            handling = "beslutt vedtak",
         )
 
         stegService.utførSteg(behandlingId, BehandlingSteg.BESLUTTE_VEDTAK, besluttVedtakDto)

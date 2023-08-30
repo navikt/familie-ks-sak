@@ -21,14 +21,14 @@ class IverksettMotOppdragTask(
     private val stegService: StegService,
     private val taskService: TaskService,
     private val vedtakService: VedtakService,
-    private val behandlingRepository: BehandlingRepository
+    private val behandlingRepository: BehandlingRepository,
 ) : AsyncTaskStep {
     override fun doTask(task: Task) {
         val iverksettingData = objectMapper.readValue(task.payload, IverksettMotOppdragDto::class.java)
         stegService.utførSteg(
             behandlingId = iverksettingData.behandlingId,
             behandlingSteg = BehandlingSteg.IVERKSETT_MOT_OPPDRAG,
-            behandlingStegDto = iverksettingData
+            behandlingStegDto = iverksettingData,
         )
     }
 
@@ -50,7 +50,7 @@ class IverksettMotOppdragTask(
                 this["personIdent"] = behandling.fagsak.aktør.aktivFødselsnummer()
                 this["behandlingsId"] = behandling.id.toString()
                 this["vedtakId"] = vedtakId.toString()
-            }
+            },
         )
     }
 }

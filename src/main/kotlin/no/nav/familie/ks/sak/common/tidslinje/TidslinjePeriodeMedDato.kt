@@ -6,17 +6,17 @@ import java.time.LocalDate
 data class TidslinjePeriodeMedDato<T>(
     val periodeVerdi: PeriodeVerdi<T>,
     val fom: Dato,
-    val tom: Dato
+    val tom: Dato,
 ) {
 
     constructor(
         verdi: T?,
         fom: LocalDate?,
-        tom: LocalDate?
+        tom: LocalDate?,
     ) : this(
         periodeVerdi = verdi?.let { Verdi(it) } ?: Null(),
         fom = Dato(fom ?: PRAKTISK_TIDLIGSTE_DAG),
-        tom = Dato(tom ?: PRAKTISK_SENESTE_DAG)
+        tom = Dato(tom ?: PRAKTISK_SENESTE_DAG),
     )
 
     class Dato(private val dato: LocalDate) : Comparable<Dato> {
@@ -41,7 +41,7 @@ fun <T> List<TidslinjePeriodeMedDato<T>>.tilTidslinje(): Tidslinje<T> {
     val perioder = this.tilTidslinjePerioder()
     return Tidslinje(
         startsTidspunkt = this.firstOrNull()?.fom?.tilDatoEllerPraktiskTidligsteDag() ?: PRAKTISK_TIDLIGSTE_DAG,
-        perioder = perioder
+        perioder = perioder,
     )
 }
 
@@ -52,14 +52,14 @@ private fun <T> List<TidslinjePeriodeMedDato<T>>.fyllInnTommePerioder(): List<Ti
         if (sisteElement == null) {
             periodeListeMedTommePerioder + periode
         } else if (sisteElement.tom.tilDatoEllerPraktiskSenesteDag() == periode.fom.tilDatoEllerPraktiskTidligsteDag()
-            .minusDays(1)
+                .minusDays(1)
         ) {
             periodeListeMedTommePerioder + periode
         } else {
             periodeListeMedTommePerioder + TidslinjePeriodeMedDato(
                 Udefinert(),
                 TidslinjePeriodeMedDato.Dato(sisteElement.tom.tilDatoEllerPraktiskSenesteDag().plusDays(1)),
-                TidslinjePeriodeMedDato.Dato(periode.fom.tilDatoEllerPraktiskTidligsteDag().minusDays(1))
+                TidslinjePeriodeMedDato.Dato(periode.fom.tilDatoEllerPraktiskTidligsteDag().minusDays(1)),
             ) + periode
         }
     }
@@ -75,7 +75,7 @@ private fun <T> List<TidslinjePeriodeMedDato<T>>.tilTidslinjePerioder(): List<Ti
             TidslinjePeriode(
                 periodeVerdi = it.periodeVerdi,
                 lengde = it.fom.tilDatoEllerPraktiskTidligsteDag().diffIDager(it.tom.tilDatoEllerPraktiskSenesteDag()),
-                erUendelig = it.tom.tilLocalDateEllerNull() == null
+                erUendelig = it.tom.tilLocalDateEllerNull() == null,
             )
         }
 }

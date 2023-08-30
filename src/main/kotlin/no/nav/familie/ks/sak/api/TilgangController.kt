@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.RestController
 class TilgangController(
     private val personOpplysningerService: PersonOpplysningerService,
     private val personidentService: PersonidentService,
-    private val integrasjonService: IntegrasjonService
+    private val integrasjonService: IntegrasjonService,
 ) {
 
     @PostMapping(path = ["/tilgang"], produces = [MediaType.APPLICATION_JSON_VALUE])
@@ -33,9 +33,9 @@ class TilgangController(
             Ressurs.success(
                 data = TilgangResponsDto(
                     saksbehandlerHarTilgang = harTilgang,
-                    adressebeskyttelsegradering = adressebeskyttelse
-                )
-            )
+                    adressebeskyttelsegradering = adressebeskyttelse,
+                ),
+            ),
         )
     }
 }

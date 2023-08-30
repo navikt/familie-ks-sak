@@ -83,19 +83,19 @@ class BrevServiceTest {
         ManueltBrevDto(
             brevmal = Brevmal.INNHENTE_OPPLYSNINGER,
             mottakerIdent = søker.aktivFødselsnummer(),
-            multiselectVerdier = listOf("Dokumentasjon som viser når barna kom til Norge.")
+            multiselectVerdier = listOf("Dokumentasjon som viser når barna kom til Norge."),
         )
 
     @Test
     fun `hentForhåndsvisningAvBrev - skal hente pdf i form av en ByteArray fra genererBrevService`() {
         every { personopplysningGrunnlagService.hentSøker(behandlingId = behandling.id) } returns lagPerson(
             lagPersonopplysningGrunnlag(behandlingId = behandling.id, søkerPersonIdent = søker.aktivFødselsnummer()),
-            søker
+            søker,
         )
         every { arbeidsfordelingService.hentArbeidsfordelingPåBehandling(behandlingId = behandling.id) } returns ArbeidsfordelingPåBehandling(
             behandlingId = behandling.id,
             behandlendeEnhetNavn = "Behandlende enhet",
-            behandlendeEnhetId = "1234"
+            behandlendeEnhetId = "1234",
         )
 
         every { genererBrevService.genererManueltBrev(any(), any()) } returns ByteArray(10)
@@ -107,23 +107,23 @@ class BrevServiceTest {
     @EnumSource(
         value = Brevmal::class,
         names = ["INNHENTE_OPPLYSNINGER", "INNHENTE_OPPLYSNINGER_ETTER_SØKNAD_I_SED", "VARSEL_OM_REVURDERING", "VARSEL_OM_VEDTAK_ETTER_SØKNAD_I_SED", "VARSEL_OM_REVURDERING_FRA_NASJONAL_TIL_EØS"],
-        mode = EnumSource.Mode.INCLUDE
+        mode = EnumSource.Mode.INCLUDE,
     )
     fun `genererOgSendBrev - skal journalføre brev med forside for brevmaler som tilsier det`(brevmal: Brevmal) {
         every { personopplysningGrunnlagService.hentSøker(behandlingId = behandling.id) } returns lagPerson(
             lagPersonopplysningGrunnlag(behandlingId = behandling.id, søkerPersonIdent = søker.aktivFødselsnummer()),
-            søker
+            søker,
         )
         every { arbeidsfordelingService.hentArbeidsfordelingPåBehandling(behandlingId = behandling.id) } returns ArbeidsfordelingPåBehandling(
             behandlingId = behandling.id,
             behandlendeEnhetNavn = "Behandlende enhet",
-            behandlendeEnhetId = "1234"
+            behandlendeEnhetId = "1234",
         )
 
         every { vilkårsvurderingService.finnAktivVilkårsvurdering(any()) } returns lagVilkårsvurderingMedSøkersVilkår(
             søkerAktør = søker,
             behandling = behandling,
-            resultat = Resultat.IKKE_VURDERT
+            resultat = Resultat.IKKE_VURDERT,
         )
 
         every { taskService.save(any()) } returns mockk()
@@ -142,7 +142,7 @@ class BrevServiceTest {
                 any(),
                 any(),
                 capture(førstesideSlot),
-                any()
+                any(),
             )
         } returns "0"
 
@@ -151,14 +151,14 @@ class BrevServiceTest {
         every { vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(any()) } returns lagVilkårsvurderingMedSøkersVilkår(
             søkerAktør = søker,
             behandling = behandling,
-            resultat = Resultat.IKKE_VURDERT
+            resultat = Resultat.IKKE_VURDERT,
         )
 
         every {
             settBehandlingPåVentService.settBehandlingPåVent(
                 any(),
                 any(),
-                any()
+                any(),
             )
         } just runs
 
@@ -167,8 +167,8 @@ class BrevServiceTest {
             ManueltBrevDto(
                 brevmal = brevmal,
                 mottakerIdent = søker.aktivFødselsnummer(),
-                barnasFødselsdager = emptyList()
-            )
+                barnasFødselsdager = emptyList(),
+            ),
         )
 
         førstesideSlot.captured.shouldNotBeNull()
@@ -178,17 +178,17 @@ class BrevServiceTest {
     @EnumSource(
         value = Brevmal::class,
         names = ["INFORMASJONSBREV_DELT_BOSTED", "HENLEGGE_TRUKKET_SØKNAD", "SVARTIDSBREV", "FORLENGET_SVARTIDSBREV", "INFORMASJONSBREV_KAN_SØKE", "INFORMASJONSBREV_KAN_SØKE_EØS"],
-        mode = EnumSource.Mode.INCLUDE
+        mode = EnumSource.Mode.INCLUDE,
     )
     fun `genererOgSendBrev - skal journalføre brev uten forside for brevmaler som tilsier det`(brevmal: Brevmal) {
         every { personopplysningGrunnlagService.hentSøker(behandlingId = behandling.id) } returns lagPerson(
             lagPersonopplysningGrunnlag(behandlingId = behandling.id, søkerPersonIdent = søker.aktivFødselsnummer()),
-            søker
+            søker,
         )
         every { arbeidsfordelingService.hentArbeidsfordelingPåBehandling(behandlingId = behandling.id) } returns ArbeidsfordelingPåBehandling(
             behandlingId = behandling.id,
             behandlendeEnhetNavn = "Behandlende enhet",
-            behandlendeEnhetId = "1234"
+            behandlendeEnhetId = "1234",
         )
 
         every { taskService.save(any()) } returns mockk()
@@ -205,7 +205,7 @@ class BrevServiceTest {
                 any(),
                 any(),
                 null,
-                any()
+                any(),
             )
         } returns "0"
 
@@ -214,14 +214,14 @@ class BrevServiceTest {
         every { vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(any()) } returns lagVilkårsvurderingMedSøkersVilkår(
             søkerAktør = søker,
             behandling = behandling,
-            resultat = Resultat.IKKE_VURDERT
+            resultat = Resultat.IKKE_VURDERT,
         )
 
         every {
             settBehandlingPåVentService.settBehandlingPåVent(
                 any(),
                 any(),
-                any()
+                any(),
             )
         } just runs
 
@@ -232,8 +232,8 @@ class BrevServiceTest {
                 mottakerIdent = søker.aktivFødselsnummer(),
                 barnasFødselsdager = emptyList(),
                 behandlingKategori = BehandlingKategori.NASJONAL,
-                antallUkerSvarfrist = 5
-            )
+                antallUkerSvarfrist = 5,
+            ),
         )
     }
 
@@ -241,25 +241,25 @@ class BrevServiceTest {
     @EnumSource(
         value = Brevmal::class,
         names = ["INNHENTE_OPPLYSNINGER", "VARSEL_OM_REVURDERING"],
-        mode = EnumSource.Mode.INCLUDE
+        mode = EnumSource.Mode.INCLUDE,
     )
     fun `genererOgSendBrev - skal journalføre brev og legge til AnnenVurdering for søker i vilkårsvurderingen for INNHENTE_OPPLYSNINGER og VARSEL_OM_REVURDERING`(
-        brevmal: Brevmal
+        brevmal: Brevmal,
     ) {
         every { personopplysningGrunnlagService.hentSøker(behandlingId = behandling.id) } returns lagPerson(
             lagPersonopplysningGrunnlag(behandlingId = behandling.id, søkerPersonIdent = søker.aktivFødselsnummer()),
-            søker
+            søker,
         )
         every { arbeidsfordelingService.hentArbeidsfordelingPåBehandling(behandlingId = behandling.id) } returns ArbeidsfordelingPåBehandling(
             behandlingId = behandling.id,
             behandlendeEnhetNavn = "Behandlende enhet",
-            behandlendeEnhetId = "1234"
+            behandlendeEnhetId = "1234",
         )
 
         every { vilkårsvurderingService.finnAktivVilkårsvurdering(any()) } returns lagVilkårsvurderingMedSøkersVilkår(
             søkerAktør = søker,
             behandling = behandling,
-            resultat = Resultat.IKKE_VURDERT
+            resultat = Resultat.IKKE_VURDERT,
         )
 
         every { taskService.save(any()) } returns mockk()
@@ -276,7 +276,7 @@ class BrevServiceTest {
                 any(),
                 any(),
                 any(),
-                any()
+                any(),
             )
         } returns "0"
 
@@ -285,14 +285,14 @@ class BrevServiceTest {
         every { vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(any()) } returns lagVilkårsvurderingMedSøkersVilkår(
             søkerAktør = søker,
             behandling = behandling,
-            resultat = Resultat.IKKE_VURDERT
+            resultat = Resultat.IKKE_VURDERT,
         )
 
         every {
             settBehandlingPåVentService.settBehandlingPåVent(
                 any(),
                 any(),
-                any()
+                any(),
             )
         } just runs
 
@@ -301,8 +301,8 @@ class BrevServiceTest {
             ManueltBrevDto(
                 brevmal = brevmal,
                 mottakerIdent = søker.aktivFødselsnummer(),
-                barnasFødselsdager = emptyList()
-            )
+                barnasFødselsdager = emptyList(),
+            ),
         )
 
         verify(exactly = 1) { vilkårsvurderingService.finnAktivVilkårsvurdering(any()) }
@@ -318,21 +318,21 @@ class BrevServiceTest {
             "INNHENTE_OPPLYSNINGER_ETTER_SØKNAD_I_SED",
             "VARSEL_OM_REVURDERING_FRA_NASJONAL_TIL_EØS",
             "VARSEL_OM_VEDTAK_ETTER_SØKNAD_I_SED",
-            "SVARTIDSBREV"
+            "SVARTIDSBREV",
         ],
-        mode = EnumSource.Mode.INCLUDE
+        mode = EnumSource.Mode.INCLUDE,
     )
     fun `genererOgSendBrev - skal journalføre brev og sette behandling på vent`(
-        brevmal: Brevmal
+        brevmal: Brevmal,
     ) {
         every { personopplysningGrunnlagService.hentSøker(behandlingId = behandling.id) } returns lagPerson(
             lagPersonopplysningGrunnlag(behandlingId = behandling.id, søkerPersonIdent = søker.aktivFødselsnummer()),
-            søker
+            søker,
         )
         every { arbeidsfordelingService.hentArbeidsfordelingPåBehandling(behandlingId = behandling.id) } returns ArbeidsfordelingPåBehandling(
             behandlingId = behandling.id,
             behandlendeEnhetNavn = "Behandlende enhet",
-            behandlendeEnhetId = "1234"
+            behandlendeEnhetId = "1234",
         )
 
         every { taskService.save(any()) } returns mockk()
@@ -349,7 +349,7 @@ class BrevServiceTest {
                 any(),
                 any(),
                 any(),
-                any()
+                any(),
             )
         } returns "0"
 
@@ -358,20 +358,20 @@ class BrevServiceTest {
         every { vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(any()) } returns lagVilkårsvurderingMedSøkersVilkår(
             søkerAktør = søker,
             behandling = behandling,
-            resultat = Resultat.IKKE_VURDERT
+            resultat = Resultat.IKKE_VURDERT,
         )
 
         every { vilkårsvurderingService.finnAktivVilkårsvurdering(any()) } returns lagVilkårsvurderingMedSøkersVilkår(
             søkerAktør = søker,
             behandling = behandling,
-            resultat = Resultat.IKKE_VURDERT
+            resultat = Resultat.IKKE_VURDERT,
         )
 
         every {
             settBehandlingPåVentService.settBehandlingPåVent(
                 any(),
                 any(),
-                any()
+                any(),
             )
         } just runs
 
@@ -382,15 +382,15 @@ class BrevServiceTest {
                 mottakerIdent = søker.aktivFødselsnummer(),
                 barnasFødselsdager = emptyList(),
                 behandlingKategori = BehandlingKategori.NASJONAL,
-                antallUkerSvarfrist = 5
-            )
+                antallUkerSvarfrist = 5,
+            ),
         )
 
         verify(exactly = 1) {
             settBehandlingPåVentService.settBehandlingPåVent(
                 any(),
                 any(),
-                any()
+                any(),
             )
         }
     }

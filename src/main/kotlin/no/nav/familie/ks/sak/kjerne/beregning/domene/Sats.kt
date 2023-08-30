@@ -10,7 +10,7 @@ data class Sats(
     val type: SatsType,
     val beløp: Int,
     val gyldigFom: LocalDate = LocalDate.MIN,
-    val gyldigTom: LocalDate = LocalDate.MAX
+    val gyldigTom: LocalDate = LocalDate.MAX,
 )
 
 enum class SatsType(val beskrivelse: String) {
@@ -37,7 +37,7 @@ fun hentGyldigSatsFor(antallTimer: BigDecimal?, erDeltBosted: Boolean, stønadFo
         sats = sats.beløp,
         fom = maxOf(sats.gyldigFom.toYearMonth(), stønadFom),
         tom = minOf(sats.gyldigTom.toYearMonth(), stønadTom),
-        prosent = prosent.toBigDecimal()
+        prosent = prosent.toBigDecimal(),
     )
 }
 

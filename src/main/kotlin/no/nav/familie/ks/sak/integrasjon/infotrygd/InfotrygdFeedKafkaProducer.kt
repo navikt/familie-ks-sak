@@ -26,7 +26,7 @@ class InfotrygdFeedKafkaProducer(private val kafkaTemplate: KafkaTemplate<String
         sendKafkamelding(
             personIdent = startBehandlingDto.fnrStoenadsmottaker,
             key = UUID.randomUUID().toString(),
-            request = startBehandlingDto
+            request = startBehandlingDto,
         )
     }
 
@@ -34,7 +34,7 @@ class InfotrygdFeedKafkaProducer(private val kafkaTemplate: KafkaTemplate<String
         sendKafkamelding(
             personIdent = vedtakDto.fnrStoenadsmottaker,
             key = UUID.randomUUID().toString(),
-            request = vedtakDto
+            request = vedtakDto,
         )
     }
 
@@ -47,7 +47,7 @@ class InfotrygdFeedKafkaProducer(private val kafkaTemplate: KafkaTemplate<String
             .thenAccept {
                 secureLogger.info(
                     "Melding på topic $topic for $personIdent med $key er sendt. " +
-                        "Fikk offset ${it?.recordMetadata?.offset()}"
+                        "Fikk offset ${it?.recordMetadata?.offset()}",
                 )
             }
             .exceptionally {
@@ -65,13 +65,13 @@ class DummyInfotrygdFeedKafkaProducer : KafkaProducer {
 
     override fun sendStartBehandlingHendelseTilInfotrygd(startBehandlingDto: StartBehandlingDto) {
         secureLogger.info(
-            "Skipper sending av saksstatistikk for ${startBehandlingDto.fnrStoenadsmottaker} fordi kafka ikke er enablet"
+            "Skipper sending av saksstatistikk for ${startBehandlingDto.fnrStoenadsmottaker} fordi kafka ikke er enablet",
         )
     }
 
     override fun sendVedtakHendelseTilInfotrygd(vedtakDto: VedtakDto) {
         secureLogger.info(
-            "Skipper sending av saksstatistikk for ${vedtakDto.fnrStoenadsmottaker} fordi kafka ikke er enablet"
+            "Skipper sending av saksstatistikk for ${vedtakDto.fnrStoenadsmottaker} fordi kafka ikke er enablet",
         )
     }
 

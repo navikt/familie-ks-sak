@@ -18,10 +18,10 @@ interface AndelTilkjentYtelseRepository : JpaRepository<AndelTilkjentYtelse, Lon
 
     @Query(
         value = """ SELECT aty FROM AndelTilkjentYtelse aty WHERE aty.behandlingId IN :behandlingIder AND 
-            aty.stønadTom >= :avstemmingstidspunkt """
+            aty.stønadTom >= :avstemmingstidspunkt """,
     )
     fun finnLøpendeAndelerTilkjentYtelseForBehandlinger(
         behandlingIder: List<Long>,
-        avstemmingstidspunkt: YearMonth
+        avstemmingstidspunkt: YearMonth,
     ): List<AndelTilkjentYtelse>
 }

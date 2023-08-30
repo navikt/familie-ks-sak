@@ -14,7 +14,7 @@ import java.time.LocalDate
 fun Utbetalingsoppdrag.valider(
     behandlingsresultat: Behandlingsresultat,
     behandlingskategori: BehandlingKategori,
-    andelerTilkjentYtelse: List<AndelTilkjentYtelse>
+    andelerTilkjentYtelse: List<AndelTilkjentYtelse>,
 ) {
     if (this.utbetalingsperiode.isNotEmpty() && behandlingsresultat == Behandlingsresultat.FORTSATT_INNVILGET) {
         throw FunksjonellFeil("Behandling har resultat fortsatt innvilget, men det finnes utbetalingsperioder som ifølge systemet skal endres. $KONTAKT_TEAMET_SUFFIX")
@@ -23,7 +23,7 @@ fun Utbetalingsoppdrag.valider(
     ) {
         throw FunksjonellFeil(
             "Utbetalingsoppdraget inneholder ingen utbetalingsperioder " +
-                "og det er grunn til å tro at denne ikke bør simuleres eller iverksettes. $KONTAKT_TEAMET_SUFFIX"
+                "og det er grunn til å tro at denne ikke bør simuleres eller iverksettes. $KONTAKT_TEAMET_SUFFIX",
         )
     }
 }
@@ -47,6 +47,6 @@ fun Utbetalingsoppdrag.harLøpendeUtbetaling() =
 
 private fun kanHaNullutbetaling(
     behandlingskategori: BehandlingKategori,
-    andelerTilkjentYtelse: List<AndelTilkjentYtelse>
+    andelerTilkjentYtelse: List<AndelTilkjentYtelse>,
 ) = behandlingskategori == BehandlingKategori.EØS &&
     andelerTilkjentYtelse.any { it.erAndelSomharNullutbetaling() }

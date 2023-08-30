@@ -176,6 +176,6 @@ internal class GrensesnittavstemmingSchedulerTest {
 
     private fun lagTask(fom: LocalDate, tom: LocalDate) = Task(
         type = GrensesnittavstemmingTask.TASK_STEP_TYPE,
-        payload = objectMapper.writeValueAsString(GrensesnittavstemmingTaskDto(fom.atStartOfDay(), tom.atStartOfDay()))
+        payload = objectMapper.writeValueAsString(GrensesnittavstemmingTaskDto(fom.atStartOfDay(), tom.atStartOfDay())),
     )
 }

@@ -24,7 +24,7 @@ data class Tilbakekreving(
     @SequenceGenerator(
         name = "tilbakekreving_seq_generator",
         sequenceName = "tilbakekreving_seq",
-        allocationSize = 50
+        allocationSize = 50,
     )
     val id: Long = 0,
 
@@ -43,7 +43,7 @@ data class Tilbakekreving(
     val begrunnelse: String,
 
     @Column(name = "tilbakekrevingsbehandling_id")
-    var tilbakekrevingsbehandlingId: String?
+    var tilbakekrevingsbehandlingId: String?,
 ) : BaseEntitet() {
 
     override fun hashCode() = id.hashCode()
