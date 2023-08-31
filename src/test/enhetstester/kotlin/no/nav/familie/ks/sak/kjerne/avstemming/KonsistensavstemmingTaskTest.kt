@@ -18,7 +18,6 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
-import java.math.BigInteger
 import java.time.LocalDateTime
 
 @ExtendWith(MockKExtension::class)
