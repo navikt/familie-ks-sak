@@ -41,7 +41,7 @@ object SimuleringMapper {
             tomDatoNestePeriode = nestePeriode?.tom,
             forfallsdatoNestePeriode = nestePeriode?.forfallsdato,
             tidSimuleringHentet = tidSimuleringHentet,
-            tomSisteUtbetaling = tomSisteUtbetaling
+            tomSisteUtbetaling = tomSisteUtbetaling,
         )
     }
 
@@ -69,7 +69,7 @@ object SimuleringMapper {
                 tidligereUtbetalt = hentTidligereUtbetaltIPeriode(posteringListe),
                 resultat = hentResultatIPeriode(posteringListe),
                 feilutbetaling = hentPositivFeilbetalingIPeriode(posteringListe),
-                etterbetaling = hentEtterbetalingIPeriode(posteringListe, tidSimuleringHentet)
+                etterbetaling = hentEtterbetalingIPeriode(posteringListe, tidSimuleringHentet),
             )
         }
     }

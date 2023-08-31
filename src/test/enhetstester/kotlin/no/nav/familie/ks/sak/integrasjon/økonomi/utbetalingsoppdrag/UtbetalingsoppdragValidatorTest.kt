@@ -24,20 +24,21 @@ internal class UtbetalingsoppdragValidatorTest {
 
         val funksjonellFeil = assertThrows<FunksjonellFeil> {
             utbetalingsoppdrag.valider(
-                behandlingsresultat = Behandlingsresultat.INNVILGET, behandlingskategori = BehandlingKategori.NASJONAL,
+                behandlingsresultat = Behandlingsresultat.INNVILGET,
+                behandlingskategori = BehandlingKategori.NASJONAL,
                 andelerTilkjentYtelse = listOf(
                     lagAndelTilkjentYtelse(
                         stønadFom = inneværendeMåned().minusYears(4),
                         stønadTom = inneværendeMåned(),
-                        behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD)
-                    )
-                )
+                        behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD),
+                    ),
+                ),
             )
         }
 
         assertThat(
             funksjonellFeil.message,
-            Is("Utbetalingsoppdraget inneholder ingen utbetalingsperioder og det er grunn til å tro at denne ikke bør simuleres eller iverksettes. Kontakt teamet for hjelp.")
+            Is("Utbetalingsoppdraget inneholder ingen utbetalingsperioder og det er grunn til å tro at denne ikke bør simuleres eller iverksettes. Kontakt teamet for hjelp."),
         )
     }
 
@@ -52,15 +53,15 @@ internal class UtbetalingsoppdragValidatorTest {
                     lagAndelTilkjentYtelse(
                         stønadFom = inneværendeMåned().minusYears(4),
                         stønadTom = inneværendeMåned(),
-                        behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD)
-                    )
-                )
+                        behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD),
+                    ),
+                ),
             )
         }
 
         assertThat(
             funksjonellFeil.message,
-            Is("Utbetalingsoppdraget inneholder ingen utbetalingsperioder og det er grunn til å tro at denne ikke bør simuleres eller iverksettes. Kontakt teamet for hjelp.")
+            Is("Utbetalingsoppdraget inneholder ingen utbetalingsperioder og det er grunn til å tro at denne ikke bør simuleres eller iverksettes. Kontakt teamet for hjelp."),
         )
     }
 
@@ -71,6 +72,6 @@ internal class UtbetalingsoppdragValidatorTest {
         aktoer = UUID.randomUUID().toString(),
         saksbehandlerId = "",
         avstemmingTidspunkt = LocalDateTime.now(),
-        utbetalingsperiode = utbetalingsperioder
+        utbetalingsperiode = utbetalingsperioder,
     )
 }

@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service
 @Service
 class VilkårsvurderingTidslinjeService(
     private val vilkårsvurderingRepository: VilkårsvurderingRepository,
-    private val personopplysningGrunnlagRepository: PersonopplysningGrunnlagRepository
+    private val personopplysningGrunnlagRepository: PersonopplysningGrunnlagRepository,
 ) {
 
     fun lagVilkårsvurderingTidslinjer(behandlingId: Long): VilkårsvurderingTidslinjer {

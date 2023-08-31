@@ -15,11 +15,11 @@ import org.springframework.stereotype.Service
     taskStepType = PubliserSaksstatistikkTask.TASK_STEP_TYPE,
     beskrivelse = "Send fagsakdata til datavarehus",
     maxAntallFeil = 3,
-    triggerTidVedFeilISekunder = 60
+    triggerTidVedFeilISekunder = 60,
 )
 class PubliserSaksstatistikkTask(
     val sakStatistikkService: SakStatistikkService,
-    val kafkaProducer: KafkaProducer
+    val kafkaProducer: KafkaProducer,
 ) : AsyncTaskStep {
 
     override fun doTask(task: Task) {

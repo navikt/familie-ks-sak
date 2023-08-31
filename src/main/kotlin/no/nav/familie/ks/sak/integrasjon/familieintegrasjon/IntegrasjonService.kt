@@ -25,7 +25,7 @@ class IntegrasjonService(private val integrasjonClient: IntegrasjonClient, priva
             PersonInfoDto(
                 personIdent = aktør.aktivFødselsnummer(),
                 adressebeskyttelseGradering = adressebeskyttelse,
-                harTilgang = false
+                harTilgang = false,
             )
         } else {
             null

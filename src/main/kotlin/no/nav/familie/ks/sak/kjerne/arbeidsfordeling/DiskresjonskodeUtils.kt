@@ -10,7 +10,7 @@ fun finnPersonMedStrengesteAdressebeskyttelse(personer: List<Pair<String, ADRESS
         null,
         fun(
             person: Pair<String, ADRESSEBESKYTTELSEGRADERING?>?,
-            neste: Pair<String, ADRESSEBESKYTTELSEGRADERING?>
+            neste: Pair<String, ADRESSEBESKYTTELSEGRADERING?>,
         ): Pair<String, ADRESSEBESKYTTELSEGRADERING?>? {
             return when {
                 person?.second == STRENGT_FORTROLIG -> person
@@ -21,6 +21,6 @@ fun finnPersonMedStrengesteAdressebeskyttelse(personer: List<Pair<String, ADRESS
                 neste.second == FORTROLIG -> neste
                 else -> null
             }
-        }
+        },
     )?.first
 }

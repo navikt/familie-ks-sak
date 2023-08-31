@@ -33,7 +33,7 @@ class SimuleringService(
     private val beregningService: BeregningService,
     private val øknomiSimuleringMottakerRepository: ØkonomiSimuleringMottakerRepository,
     private val vedtakRepository: VedtakRepository,
-    private val behandlingRepository: BehandlingRepository
+    private val behandlingRepository: BehandlingRepository,
 ) {
     private val simulert = Metrics.counter("familie.ks.sak.oppdrag.simulert")
 
@@ -95,7 +95,7 @@ class SimuleringService(
             vedtak = vedtak,
             saksbehandlerId = SikkerhetContext.hentSaksbehandler(),
             andelTilkjentYtelseForUtbetalingsoppdragFactory = AndelTilkjentYtelseForSimulering.Factory,
-            erSimulering = true
+            erSimulering = true,
         )
 
         val utbetalingsoppdrag =
@@ -117,7 +117,7 @@ class SimuleringService(
 
     private fun lagreSimuleringPåBehandling(
         simuleringMottakere: List<SimuleringMottaker>,
-        beahndling: Behandling
+        beahndling: Behandling,
     ): List<ØkonomiSimuleringMottaker> {
         val vedtakSimuleringMottakere = simuleringMottakere.map { it.tilBehandlingSimuleringMottaker(beahndling) }
         return øknomiSimuleringMottakerRepository.saveAll(vedtakSimuleringMottakere)

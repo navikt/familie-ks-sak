@@ -23,20 +23,20 @@ class UtbetalingsoppdragService(
     private val beregningService: BeregningService,
     private val tilkjentYtelseValideringService: TilkjentYtelseValideringService,
     private val utbetalingsoppdragGenerator: UtbetalingsoppdragGenerator,
-    private val behandlingService: BehandlingService
+    private val behandlingService: BehandlingService,
 ) {
     private val sammeOppdragSendtKonflikt = Metrics.counter("familie.ks.sak.samme.oppdrag.sendt.konflikt")
 
     fun oppdaterTilkjentYtelseMedUtbetalingsoppdragOgIverksett(
         vedtak: Vedtak,
         saksbehandlerId: String,
-        andelTilkjentYtelseForUtbetalingsoppdragFactory: AndelTilkjentYtelseForUtbetalingsoppdragFactory
+        andelTilkjentYtelseForUtbetalingsoppdragFactory: AndelTilkjentYtelseForUtbetalingsoppdragFactory,
     ): TilkjentYtelse {
         val oppdatertBehandling = vedtak.behandling
         val tilkjentYtelse = genererUtbetalingsoppdragOgOppdaterTilkjentYtelse(
             vedtak,
             saksbehandlerId,
-            andelTilkjentYtelseForUtbetalingsoppdragFactory
+            andelTilkjentYtelseForUtbetalingsoppdragFactory,
         )
         val utbetalingsoppdrag =
             objectMapper.readValue(tilkjentYtelse.utbetalingsoppdrag, Utbetalingsoppdrag::class.java)
@@ -79,7 +79,7 @@ class UtbetalingsoppdragService(
         vedtak: Vedtak,
         saksbehandlerId: String,
         andelTilkjentYtelseForUtbetalingsoppdragFactory: AndelTilkjentYtelseForUtbetalingsoppdragFactory,
-        erSimulering: Boolean = false
+        erSimulering: Boolean = false,
     ): TilkjentYtelse {
         val behandlingId = vedtak.behandling.id
         val behandling = vedtak.behandling
@@ -92,7 +92,7 @@ class UtbetalingsoppdragService(
 
         val sisteOffsetPerIdent = beregningService.hentSisteOffsetPerIdent(
             behandling.fagsak.id,
-            andelTilkjentYtelseForUtbetalingsoppdragFactory
+            andelTilkjentYtelseForUtbetalingsoppdragFactory,
         )
         val sisteOffsetPåFagsak = beregningService.hentSisteOffsetPåFagsak(behandling)
 
@@ -102,13 +102,13 @@ class UtbetalingsoppdragService(
             saksbehandlerId = saksbehandlerId,
             sisteOffsetPerIdent = sisteOffsetPerIdent,
             sisteOffsetPåFagsak = sisteOffsetPåFagsak,
-            erSimulering = erSimulering
+            erSimulering = erSimulering,
         )
 
         return utbetalingsoppdragGenerator.lagTilkjentYtelseMedUtbetalingsoppdrag(
             vedtakMedTilkjentYtelse = vedtakMedTilkjentYtelse,
             forrigeTilkjentYtelseMedAndeler = forrigeTilkjentYtelseMedAndeler,
-            andelTilkjentYtelseForUtbetalingsoppdragFactory = andelTilkjentYtelseForUtbetalingsoppdragFactory
+            andelTilkjentYtelseForUtbetalingsoppdragFactory = andelTilkjentYtelseForUtbetalingsoppdragFactory,
         )
     }
 

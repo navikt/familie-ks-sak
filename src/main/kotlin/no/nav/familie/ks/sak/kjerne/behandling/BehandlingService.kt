@@ -60,7 +60,7 @@ class BehandlingService(
     private val tilbakekrevingRepository: TilbakekrevingRepository,
     private val sanityService: SanityService,
     private val feilutbetaltValutaService: FeilutbetaltValutaService,
-    private val kompetanseRepository: KompetanseRepository
+    private val kompetanseRepository: KompetanseRepository,
 ) {
 
     fun hentBehandling(behandlingId: Long): Behandling = behandlingRepository.hentBehandling(behandlingId)
@@ -94,7 +94,7 @@ class BehandlingService(
             personopplysningGrunnlag?.let {
                 lagPersonerMedAndelTilkjentYtelseRespons(
                     it.personer,
-                    andelerTilkjentYtelse
+                    andelerTilkjentYtelse,
                 )
             }
                 ?: emptyList()
@@ -114,14 +114,14 @@ class BehandlingService(
                     vedtaksperiodeService.hentUtvidetVedtaksperioderMedBegrunnelser(vedtak = it)
                         .map { utvidetVedtaksperiodeMedBegrunnelser ->
                             utvidetVedtaksperiodeMedBegrunnelser.tilUtvidetVedtaksperiodeMedBegrunnelserDto(
-                                sanityBegrunnelser
+                                sanityBegrunnelser,
                             )
                         }
                         .sortedBy { dto -> dto.fom }
                 } else {
                     emptyList()
                 },
-                skalMinimeres = behandling.status != BehandlingStatus.UTREDES
+                skalMinimeres = behandling.status != BehandlingStatus.UTREDES,
             )
         }
 
@@ -134,7 +134,7 @@ class BehandlingService(
 
         val endringstidspunkt = vedtaksperiodeService.finnEndringstidspunktForBehandling(
             behandling = behandling,
-            sisteVedtattBehandling = hentSisteBehandlingSomErVedtatt(behandling.fagsak.id)
+            sisteVedtattBehandling = hentSisteBehandlingSomErVedtatt(behandling.fagsak.id),
         )
 
         val sisteVedtaksperiodeVisningDato =
@@ -163,7 +163,7 @@ class BehandlingService(
             tilbakekreving,
             sisteVedtaksperiodeVisningDato,
             feilutbetalteValuta,
-            kompetanser
+            kompetanser,
         )
     }
 
@@ -174,12 +174,12 @@ class BehandlingService(
         val behandling = hentBehandling(behandlingId)
         logger.info(
             "${SikkerhetContext.hentSaksbehandlerNavn()} endrer resultat på behandling $behandlingId " +
-                "fra ${behandling.resultat} til $nyUtledetBehandlingsresultat"
+                "fra ${behandling.resultat} til $nyUtledetBehandlingsresultat",
         )
         loggService.opprettVilkårsvurderingLogg(
             behandling = behandling,
             behandlingsForrigeResultat = behandling.resultat,
-            behandlingsNyResultat = nyUtledetBehandlingsresultat
+            behandlingsNyResultat = nyUtledetBehandlingsresultat,
         )
         behandling.resultat = nyUtledetBehandlingsresultat
         return oppdaterBehandling(behandling)
@@ -223,7 +223,7 @@ class BehandlingService(
         loggService.opprettEndretBehandlingstemaLogg(
             behandling = behandling,
             forrigeKategori = behandling.kategori,
-            nyKategori = overstyrtKategori
+            nyKategori = overstyrtKategori,
         )
 
         behandling.kategori = overstyrtKategori

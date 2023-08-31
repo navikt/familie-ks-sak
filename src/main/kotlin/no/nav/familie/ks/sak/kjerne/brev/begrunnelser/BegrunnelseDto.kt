@@ -5,7 +5,7 @@ import no.nav.familie.eksterne.kontrakter.SøkersAktivitet
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelseType
 
 sealed class BegrunnelseDto(
-    open val type: BrevBegrunnelseType
+    open val type: BrevBegrunnelseType,
 ) : Comparable<BegrunnelseDto> {
 
     override fun compareTo(other: BegrunnelseDto): Int {
@@ -34,14 +34,14 @@ sealed class BegrunnelseDto(
 enum class BrevBegrunnelseType {
     BEGRUNNELSE,
     EØS_BEGRUNNELSE,
-    FRITEKST
+    FRITEKST,
 }
 
 sealed class BegrunnelseDtoMedData(
     open val apiNavn: String,
     open val vedtakBegrunnelseType: BegrunnelseType,
     open val sanityBegrunnelseType: SanityBegrunnelseType,
-    type: BrevBegrunnelseType
+    type: BrevBegrunnelseType,
 ) : BegrunnelseDto(type)
 
 data class BegrunnelseDataDto(
@@ -57,16 +57,16 @@ data class BegrunnelseDataDto(
     val maalform: String,
     val belop: String,
     val antallTimerBarnehageplass: String,
-    val soknadstidspunkt: String
+    val soknadstidspunkt: String,
 ) : BegrunnelseDtoMedData(
     apiNavn = apiNavn,
     type = BrevBegrunnelseType.BEGRUNNELSE,
     vedtakBegrunnelseType = vedtakBegrunnelseType,
-    sanityBegrunnelseType = sanityBegrunnelseType
+    sanityBegrunnelseType = sanityBegrunnelseType,
 )
 
 data class FritekstBegrunnelseDto(
-    val fritekst: String
+    val fritekst: String,
 ) : BegrunnelseDto(type = BrevBegrunnelseType.FRITEKST)
 
 data class EØSBegrunnelseDataDto(
@@ -81,10 +81,10 @@ data class EØSBegrunnelseDataDto(
     val antallBarn: Int,
     val maalform: String,
     val sokersAktivitet: SøkersAktivitet,
-    val sokersAktivitetsland: String?
+    val sokersAktivitetsland: String?,
 ) : BegrunnelseDtoMedData(
     type = BrevBegrunnelseType.EØS_BEGRUNNELSE,
     apiNavn = apiNavn,
     vedtakBegrunnelseType = vedtakBegrunnelseType,
-    sanityBegrunnelseType = sanityBegrunnelseType
+    sanityBegrunnelseType = sanityBegrunnelseType,
 )

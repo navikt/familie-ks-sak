@@ -26,40 +26,40 @@ import org.springframework.web.bind.annotation.RestController
 @Validated
 class JournalføringController(
     private val innkommendeJournalføringService: InnkommendeJournalføringService,
-    private val tilgangService: TilgangService
+    private val tilgangService: TilgangService,
 ) {
     @PostMapping(path = ["/bruker"])
     fun hentJournalposterForBruker(@RequestBody personIdentBody: PersonIdent): ResponseEntity<Ressurs<List<Journalpost>>> {
         return ResponseEntity.ok(
             Ressurs.success(
                 innkommendeJournalføringService.hentJournalposterForBruker(
-                    personIdentBody.ident
-                )
-            )
+                    personIdentBody.ident,
+                ),
+            ),
         )
     }
 
     @GetMapping("/{journalpostId}/dokument/{dokumentId}")
     fun hentDokumentIJournalpost(
         @PathVariable journalpostId: String,
-        @PathVariable dokumentId: String
+        @PathVariable dokumentId: String,
     ): ResponseEntity<Ressurs<ByteArray>> =
         ResponseEntity.ok(
             Ressurs.success(
                 innkommendeJournalføringService.hentDokumentIJournalpost(
                     journalpostId,
-                    dokumentId
-                )
-            )
+                    dokumentId,
+                ),
+            ),
         )
 
     @GetMapping(
         path = ["/{journalpostId}/dokument/{dokumentId}/pdf"],
-        produces = [MediaType.APPLICATION_PDF_VALUE]
+        produces = [MediaType.APPLICATION_PDF_VALUE],
     )
     fun hentDokumentIJournalpostSomPdf(
         @PathVariable journalpostId: String,
-        @PathVariable dokumentId: String
+        @PathVariable dokumentId: String,
     ): ResponseEntity<ByteArray> =
         ResponseEntity.ok(innkommendeJournalføringService.hentDokumentIJournalpost(journalpostId, dokumentId))
 
@@ -68,11 +68,11 @@ class JournalføringController(
         @PathVariable journalpostId: String,
         @PathVariable oppgaveId: String,
         @RequestBody @Valid
-        request: JournalføringRequestDto
+        request: JournalføringRequestDto,
     ): ResponseEntity<Ressurs<String>> {
         tilgangService.validerTilgangTilHandling(
             minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
-            handling = "journalføring"
+            handling = "journalføring",
         )
 
         if (request.dokumenter.any { it.dokumentTittel.isNullOrBlank() }) {

@@ -70,7 +70,7 @@ class TilgangServiceTest {
         BehandlerRolle.VEILEDER.name,
         BehandlerRolle.FORVALTER.name,
         KODE6 = "kode6",
-        KODE7 = "kode7"
+        KODE7 = "kode7",
     )
     private val auditLogger = AuditLogger("familie-ks-sak")
     private lateinit var tilgangService: TilgangService
@@ -81,7 +81,7 @@ class TilgangServiceTest {
     private val personopplysningGrunnlag = lagPersonopplysningGrunnlag(
         behandlingId = behandling.id,
         søkerPersonIdent = aktør.aktivFødselsnummer(),
-        barnasIdenter = emptyList()
+        barnasIdenter = emptyList(),
     )
     private val defaultHandling = "gjøre handling"
 
@@ -95,7 +95,7 @@ class TilgangServiceTest {
             rolleConfig = rolleConfig,
             cacheManager = cacheManager,
             auditLogger = auditLogger,
-            personidentService = personidentService
+            personidentService = personidentService,
         )
     }
 
@@ -124,7 +124,7 @@ class TilgangServiceTest {
     @ParameterizedTest
     @EnumSource(value = BehandlerRolle::class, names = ["SAKSBEHANDLER", "VEILEDER"])
     internal fun `skal kaste RolleTilgangskontrollFeil dersom saksbehandler eller veileder forsøker å gjøre handling som krever BESLUTTER-rolle`(
-        behandlerRolle: BehandlerRolle
+        behandlerRolle: BehandlerRolle,
     ) {
         mockBrukerContext(groups = listOf(behandlerRolle.name))
 
@@ -133,7 +133,7 @@ class TilgangServiceTest {
         }
         assertEquals(
             "A med rolle $behandlerRolle har ikke tilgang til å $defaultHandling. Krever ${BehandlerRolle.BESLUTTER}.",
-            rolleTilgangskontrollFeil.melding
+            rolleTilgangskontrollFeil.melding,
         )
     }
 
@@ -146,7 +146,7 @@ class TilgangServiceTest {
         }
         assertEquals(
             "A med rolle ${BehandlerRolle.VEILEDER} har ikke tilgang til å $defaultHandling. Krever ${BehandlerRolle.SAKSBEHANDLER}.",
-            rolleTilgangskontrollFeil.melding
+            rolleTilgangskontrollFeil.melding,
         )
     }
 
@@ -159,7 +159,7 @@ class TilgangServiceTest {
         }
         assertEquals(
             "A med rolle UKJENT har ikke tilgang til å $defaultHandling. Krever ${BehandlerRolle.VEILEDER}.",
-            rolleTilgangskontrollFeil.melding
+            rolleTilgangskontrollFeil.melding,
         )
     }
 
@@ -172,7 +172,7 @@ class TilgangServiceTest {
     @ParameterizedTest
     @EnumSource(value = BehandlerRolle::class, names = ["SAKSBEHANDLER", "BESLUTTER"])
     internal fun `skal ikke kaste RolleTilgangskontrollFeil dersom saksbehandler eller beslutter forsøker å gjøre handling som krever SAKSBEHANDLER-rolle`(
-        behandlerRolle: BehandlerRolle
+        behandlerRolle: BehandlerRolle,
     ) {
         mockBrukerContext(groups = listOf(behandlerRolle.name))
         tilgangService.validerTilgangTilHandling(BehandlerRolle.SAKSBEHANDLER, "")
@@ -181,7 +181,7 @@ class TilgangServiceTest {
     @ParameterizedTest
     @EnumSource(value = BehandlerRolle::class, names = ["BESLUTTER", "SAKSBEHANDLER", "VEILEDER"])
     internal fun `skal ikke kaste RolleTilgangskontrollFeil dersom saksbehandler beslutter eller veileder forsøker å gjøre handling som krever VEILEDER-rolle`(
-        behandlerRolle: BehandlerRolle
+        behandlerRolle: BehandlerRolle,
     ) {
         mockBrukerContext(groups = listOf(behandlerRolle.name))
         tilgangService.validerTilgangTilHandling(BehandlerRolle.VEILEDER, "")
@@ -192,8 +192,8 @@ class TilgangServiceTest {
         every { mockIntegrasjonService.sjekkTilgangTilPersoner(any()) } returns mapOf(
             Pair(
                 aktør.aktivFødselsnummer(),
-                Tilgang(aktør.aktivFødselsnummer(), false)
-            )
+                Tilgang(aktør.aktivFødselsnummer(), false),
+            ),
         )
 
         val personIdenter = listOf(aktør.aktivFødselsnummer())
@@ -203,12 +203,12 @@ class TilgangServiceTest {
                 personIdenter,
                 AuditLoggerEvent.ACCESS,
                 BehandlerRolle.SAKSBEHANDLER,
-                ""
+                "",
             )
         }
         assertEquals(
             "Saksbehandler A har ikke tilgang til å behandle $personIdenter",
-            rolleTilgangskontrollFeil.melding
+            rolleTilgangskontrollFeil.melding,
         )
     }
 
@@ -217,15 +217,15 @@ class TilgangServiceTest {
         every { mockIntegrasjonService.sjekkTilgangTilPersoner(any()) } returns mapOf(
             Pair(
                 aktør.aktivFødselsnummer(),
-                Tilgang(aktør.aktivFødselsnummer(), true)
-            )
+                Tilgang(aktør.aktivFødselsnummer(), true),
+            ),
         )
 
         tilgangService.validerTilgangTilHandlingOgPersoner(
             listOf(aktør.aktivFødselsnummer()),
             AuditLoggerEvent.ACCESS,
             BehandlerRolle.SAKSBEHANDLER,
-            ""
+            "",
         )
     }
 
@@ -234,8 +234,8 @@ class TilgangServiceTest {
         every { mockIntegrasjonService.sjekkTilgangTilPersoner(any()) } returns mapOf(
             Pair(
                 aktør.aktivFødselsnummer(),
-                Tilgang(aktør.aktivFødselsnummer(), false)
-            )
+                Tilgang(aktør.aktivFødselsnummer(), false),
+            ),
         )
 
         val rolleTilgangskontrollFeil = assertThrows<RolleTilgangskontrollFeil> {
@@ -243,12 +243,12 @@ class TilgangServiceTest {
                 behandling.id,
                 AuditLoggerEvent.ACCESS,
                 BehandlerRolle.SAKSBEHANDLER,
-                "hente behandling"
+                "hente behandling",
             )
         }
         assertEquals(
             "Saksbehandler A har ikke tilgang til fagsak=${fagsak.id}.",
-            rolleTilgangskontrollFeil.melding
+            rolleTilgangskontrollFeil.melding,
         )
     }
 
@@ -257,15 +257,15 @@ class TilgangServiceTest {
         every { mockIntegrasjonService.sjekkTilgangTilPersoner(any()) } returns mapOf(
             Pair(
                 aktør.aktivFødselsnummer(),
-                Tilgang(aktør.aktivFødselsnummer(), true)
-            )
+                Tilgang(aktør.aktivFødselsnummer(), true),
+            ),
         )
 
         tilgangService.validerTilgangTilHandlingOgFagsakForBehandling(
             behandling.id,
             AuditLoggerEvent.ACCESS,
             BehandlerRolle.SAKSBEHANDLER,
-            "hente behandling"
+            "hente behandling",
         )
     }
 
@@ -274,8 +274,8 @@ class TilgangServiceTest {
         every { mockIntegrasjonService.sjekkTilgangTilPersoner(any()) } returns mapOf(
             Pair(
                 aktør.aktivFødselsnummer(),
-                Tilgang(aktør.aktivFødselsnummer(), true)
-            )
+                Tilgang(aktør.aktivFødselsnummer(), true),
+            ),
         )
 
         mockBrukerContext("A", groups = listOf(BehandlerRolle.SAKSBEHANDLER.name))
@@ -285,13 +285,13 @@ class TilgangServiceTest {
             listOf(ident),
             AuditLoggerEvent.ACCESS,
             BehandlerRolle.SAKSBEHANDLER,
-            ""
+            "",
         )
         tilgangService.validerTilgangTilHandlingOgPersoner(
             listOf(ident),
             AuditLoggerEvent.ACCESS,
             BehandlerRolle.SAKSBEHANDLER,
-            ""
+            "",
         )
         verify(exactly = 1) {
             mockIntegrasjonService.sjekkTilgangTilPersoner(any())
@@ -303,8 +303,8 @@ class TilgangServiceTest {
         every { mockIntegrasjonService.sjekkTilgangTilPersoner(any()) } returns mapOf(
             Pair(
                 aktør.aktivFødselsnummer(),
-                Tilgang(aktør.aktivFødselsnummer(), true)
-            )
+                Tilgang(aktør.aktivFødselsnummer(), true),
+            ),
         )
 
         val roller = listOf(BehandlerRolle.SAKSBEHANDLER.name)
@@ -316,14 +316,14 @@ class TilgangServiceTest {
             listOf(ident),
             AuditLoggerEvent.ACCESS,
             BehandlerRolle.SAKSBEHANDLER,
-            ""
+            "",
         )
         mockBrukerContext("B", roller)
         tilgangService.validerTilgangTilHandlingOgPersoner(
             listOf(ident),
             AuditLoggerEvent.ACCESS,
             BehandlerRolle.SAKSBEHANDLER,
-            ""
+            "",
         )
 
         verify(exactly = 2) {
@@ -336,8 +336,8 @@ class TilgangServiceTest {
         every { mockIntegrasjonService.sjekkTilgangTilPersoner(any()) } returns mapOf(
             Pair(
                 aktør.aktivFødselsnummer(),
-                Tilgang(aktør.aktivFødselsnummer(), true)
-            )
+                Tilgang(aktør.aktivFødselsnummer(), true),
+            ),
         )
 
         mockBrukerContext("A", listOf(BehandlerRolle.SAKSBEHANDLER.name))
@@ -346,13 +346,13 @@ class TilgangServiceTest {
             behandling.id,
             AuditLoggerEvent.ACCESS,
             BehandlerRolle.SAKSBEHANDLER,
-            ""
+            "",
         )
         tilgangService.validerTilgangTilHandlingOgFagsakForBehandling(
             behandling.id,
             AuditLoggerEvent.ACCESS,
             BehandlerRolle.SAKSBEHANDLER,
-            ""
+            "",
         )
 
         verify(exactly = 1) {
@@ -365,8 +365,8 @@ class TilgangServiceTest {
         every { mockIntegrasjonService.sjekkTilgangTilPersoner(any()) } returns mapOf(
             Pair(
                 aktør.aktivFødselsnummer(),
-                Tilgang(aktør.aktivFødselsnummer(), true)
-            )
+                Tilgang(aktør.aktivFødselsnummer(), true),
+            ),
         )
 
         val roller = listOf(BehandlerRolle.SAKSBEHANDLER.name)
@@ -376,14 +376,14 @@ class TilgangServiceTest {
             behandling.id,
             AuditLoggerEvent.ACCESS,
             BehandlerRolle.SAKSBEHANDLER,
-            ""
+            "",
         )
         mockBrukerContext("B", roller)
         tilgangService.validerTilgangTilHandlingOgFagsakForBehandling(
             behandling.id,
             AuditLoggerEvent.ACCESS,
             BehandlerRolle.SAKSBEHANDLER,
-            ""
+            "",
         )
 
         verify(exactly = 2) {
@@ -396,8 +396,8 @@ class TilgangServiceTest {
         every { mockIntegrasjonService.sjekkTilgangTilPersoner(any()) } returns mapOf(
             Pair(
                 aktør.aktivFødselsnummer(),
-                Tilgang(aktør.aktivFødselsnummer(), false)
-            )
+                Tilgang(aktør.aktivFødselsnummer(), false),
+            ),
         )
 
         val rolleTilgangskontrollFeil = assertThrows<RolleTilgangskontrollFeil> {
@@ -405,7 +405,7 @@ class TilgangServiceTest {
                 fagsak.id,
                 AuditLoggerEvent.ACCESS,
                 BehandlerRolle.SAKSBEHANDLER,
-                "hente behandling"
+                "hente behandling",
             )
         }
         assertEquals("Saksbehandler A har ikke tilgang til fagsak=${fagsak.id}.", rolleTilgangskontrollFeil.melding)
@@ -416,15 +416,15 @@ class TilgangServiceTest {
         every { mockIntegrasjonService.sjekkTilgangTilPersoner(any()) } returns mapOf(
             Pair(
                 aktør.aktivFødselsnummer(),
-                Tilgang(aktør.aktivFødselsnummer(), true)
-            )
+                Tilgang(aktør.aktivFødselsnummer(), true),
+            ),
         )
 
         tilgangService.validerTilgangTilHandlingOgFagsak(
             fagsak.id,
             AuditLoggerEvent.ACCESS,
             BehandlerRolle.SAKSBEHANDLER,
-            "hente behandling"
+            "hente behandling",
         )
     }
 
@@ -433,8 +433,8 @@ class TilgangServiceTest {
         every { mockIntegrasjonService.sjekkTilgangTilPersoner(any()) } returns mapOf(
             Pair(
                 aktør.aktivFødselsnummer(),
-                Tilgang(aktør.aktivFødselsnummer(), true)
-            )
+                Tilgang(aktør.aktivFødselsnummer(), true),
+            ),
         )
 
         mockBrukerContext("A", listOf(BehandlerRolle.SAKSBEHANDLER.name))
@@ -443,13 +443,13 @@ class TilgangServiceTest {
             fagsak.id,
             AuditLoggerEvent.ACCESS,
             BehandlerRolle.SAKSBEHANDLER,
-            ""
+            "",
         )
         tilgangService.validerTilgangTilHandlingOgFagsak(
             fagsak.id,
             AuditLoggerEvent.ACCESS,
             BehandlerRolle.SAKSBEHANDLER,
-            ""
+            "",
         )
 
         verify(exactly = 1) {
@@ -462,8 +462,8 @@ class TilgangServiceTest {
         every { mockIntegrasjonService.sjekkTilgangTilPersoner(any()) } returns mapOf(
             Pair(
                 aktør.aktivFødselsnummer(),
-                Tilgang(aktør.aktivFødselsnummer(), true)
-            )
+                Tilgang(aktør.aktivFødselsnummer(), true),
+            ),
         )
 
         val roller = listOf(BehandlerRolle.SAKSBEHANDLER.name)
@@ -473,14 +473,14 @@ class TilgangServiceTest {
             fagsak.id,
             AuditLoggerEvent.ACCESS,
             BehandlerRolle.SAKSBEHANDLER,
-            ""
+            "",
         )
         mockBrukerContext("B", roller)
         tilgangService.validerTilgangTilHandlingOgFagsak(
             fagsak.id,
             AuditLoggerEvent.ACCESS,
             BehandlerRolle.SAKSBEHANDLER,
-            ""
+            "",
         )
 
         verify(exactly = 2) {
@@ -494,8 +494,8 @@ class TilgangServiceTest {
         every { mockIntegrasjonService.sjekkTilgangTilPersoner(any()) } returns mapOf(
             Pair(
                 aktør.aktivFødselsnummer(),
-                Tilgang(aktør.aktivFødselsnummer(), false)
-            )
+                Tilgang(aktør.aktivFødselsnummer(), false),
+            ),
         )
         every { personidentService.hentOgLagreAktør("12345678910", any()) } returns aktør
         every { mockFagsakService.hentFagsakForPerson(aktør) } returns fagsak
@@ -505,7 +505,7 @@ class TilgangServiceTest {
                 "12345678910",
                 AuditLoggerEvent.ACCESS,
                 BehandlerRolle.SAKSBEHANDLER,
-                "hente behandling"
+                "hente behandling",
             )
         }
         assertEquals("Saksbehandler A har ikke tilgang til fagsak=${fagsak.id}.", rolleTilgangskontrollFeil.melding)
@@ -517,8 +517,8 @@ class TilgangServiceTest {
         every { mockIntegrasjonService.sjekkTilgangTilPersoner(any()) } returns mapOf(
             Pair(
                 aktør.aktivFødselsnummer(),
-                Tilgang(aktør.aktivFødselsnummer(), true)
-            )
+                Tilgang(aktør.aktivFødselsnummer(), true),
+            ),
         )
         every { personidentService.hentOgLagreAktør("12345678910", any()) } returns aktør
         every { mockFagsakService.hentFagsakForPerson(aktør) } returns fagsak
@@ -527,7 +527,7 @@ class TilgangServiceTest {
             "12345678910",
             AuditLoggerEvent.ACCESS,
             BehandlerRolle.SAKSBEHANDLER,
-            "hente behandling"
+            "hente behandling",
         )
     }
 
@@ -546,9 +546,9 @@ class TilgangServiceTest {
                                 Personident(
                                     fødselsnummer = "65434563721",
                                     aktiv = true,
-                                    aktør = Aktør("6543456372112", mutableSetOf())
-                                )
-                            )
+                                    aktør = Aktør("6543456372112", mutableSetOf()),
+                                ),
+                            ),
                         ),
                         type = PersonType.SØKER,
                         fødselsdato = LocalDate.now(),
@@ -556,8 +556,8 @@ class TilgangServiceTest {
                         personopplysningGrunnlag = PersonopplysningGrunnlag(
                             behandlingId = behandling.id,
                             personer = mutableSetOf(),
-                            aktiv = true
-                        )
+                            aktiv = true,
+                        ),
                     ),
                     Person(
                         aktør = Aktør(
@@ -566,9 +566,9 @@ class TilgangServiceTest {
                                 Personident(
                                     fødselsnummer = "12345678910",
                                     aktiv = true,
-                                    aktør = Aktør("1234567891012", mutableSetOf())
-                                )
-                            )
+                                    aktør = Aktør("1234567891012", mutableSetOf()),
+                                ),
+                            ),
                         ),
                         type = PersonType.BARN,
                         fødselsdato = LocalDate.now(),
@@ -576,37 +576,37 @@ class TilgangServiceTest {
                         personopplysningGrunnlag = PersonopplysningGrunnlag(
                             behandlingId = behandling.id,
                             personer = mutableSetOf(),
-                            aktiv = true
-                        )
-                    )
-                )
-            )
+                            aktiv = true,
+                        ),
+                    ),
+                ),
+            ),
         )
         every {
             mockIntegrasjonService.sjekkTilgangTilPersoner(
                 listOf(
                     "65434563721",
-                    "12345678910"
-                )
+                    "12345678910",
+                ),
             )
         }.returns(
             mapOf(
                 Pair(
                     "65434563721",
-                    Tilgang("65434563721", false)
+                    Tilgang("65434563721", false),
                 ),
                 Pair(
                     "12345678910",
-                    Tilgang("12345678910", false)
-                )
-            )
+                    Tilgang("12345678910", false),
+                ),
+            ),
         )
         assertThrows<RolleTilgangskontrollFeil> {
             tilgangService.validerTilgangTilHandlingOgFagsak(
                 fagsak.id,
                 AuditLoggerEvent.ACCESS,
                 BehandlerRolle.SAKSBEHANDLER,
-                ""
+                "",
             )
         }
     }

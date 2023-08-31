@@ -15,7 +15,7 @@ import java.util.Properties
 @TaskStepBeskrivelse(
     taskStepType = GrensesnittavstemmingTask.TASK_STEP_TYPE,
     beskrivelse = "Grensesnittavstemming mot oppdrag",
-    maxAntallFeil = 3
+    maxAntallFeil = 3,
 )
 class GrensesnittavstemmingTask(private val avstemmingService: AvstemmingService) : AsyncTaskStep {
 
@@ -35,7 +35,7 @@ class GrensesnittavstemmingTask(private val avstemmingService: AvstemmingService
             properties = Properties().apply { // la til denne i properties slik at de kan vises i familie-prosessering
                 this["fom"] = fom.toString()
                 this["tom"] = tom.toString()
-            }
+            },
         )
 
         private val logger: Logger = LoggerFactory.getLogger(GrensesnittavstemmingTask::class.java)

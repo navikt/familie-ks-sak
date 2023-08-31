@@ -75,7 +75,7 @@ class ApplicationConfig {
         RetryOAuth2HttpClient(
             RestTemplateBuilder()
                 .setConnectTimeout(Duration.of(2, ChronoUnit.SECONDS))
-                .setReadTimeout(Duration.of(4, ChronoUnit.SECONDS))
+                .setReadTimeout(Duration.of(4, ChronoUnit.SECONDS)),
         )
 
     @Bean
@@ -84,8 +84,8 @@ class ApplicationConfig {
             listOf(
                 StringHttpMessageConverter(StandardCharsets.UTF_8),
                 ByteArrayHttpMessageConverter(),
-                MappingJackson2HttpMessageConverter(objectMapper)
-            )
+                MappingJackson2HttpMessageConverter(objectMapper),
+            ),
         )
     }
 

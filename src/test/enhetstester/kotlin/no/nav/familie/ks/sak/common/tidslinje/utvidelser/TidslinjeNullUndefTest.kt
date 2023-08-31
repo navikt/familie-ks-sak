@@ -21,7 +21,7 @@ class TidslinjeNullUndefTest {
 
     private fun init(
         lst1: List<TidslinjePeriode<Int>>,
-        lst2: List<TidslinjePeriode<Int>>
+        lst2: List<TidslinjePeriode<Int>>,
     ) {
         this.lst1 = lst1
         this.lst2 = lst2
@@ -36,15 +36,19 @@ class TidslinjeNullUndefTest {
                 TidslinjePeriode(1, 1, false),
                 TidslinjePeriode(null, 1, false),
                 TidslinjePeriode(1, 1, false),
-                TidslinjePeriode(2, 2, false)
+                TidslinjePeriode(2, 2, false),
             ),
-            listOf(TidslinjePeriode(3, 1, false), TidslinjePeriode(1, 1, false), TidslinjePeriode(1, 1, false))
+            listOf(TidslinjePeriode(3, 1, false), TidslinjePeriode(1, 1, false), TidslinjePeriode(1, 1, false)),
         )
 
         val testTidslinje = t1.biFunksjon(t2) { t1, t2 ->
-            if (t1 is Udefinert || t2 is Udefinert) Udefinert()
-            else if (t1 is Null || t2 is Null) Null()
-            else Verdi(t1.verdi!! + t2.verdi!!)
+            if (t1 is Udefinert || t2 is Udefinert) {
+                Udefinert()
+            } else if (t1 is Null || t2 is Null) {
+                Null()
+            } else {
+                Verdi(t1.verdi!! + t2.verdi!!)
+            }
         }
 
         val fakta = mutableListOf(4, null, 2, null)
@@ -52,7 +56,7 @@ class TidslinjeNullUndefTest {
         Assertions.assertEquals(
             fakta,
             testTidslinje.innhold.map { it.periodeVerdi.verdi }.toList(),
-            "klarte ikke legge sammen listene"
+            "klarte ikke legge sammen listene",
         )
         Assertions.assertInstanceOf(Udefinert::class.java, testTidslinje.innhold.last().periodeVerdi)
         Assertions.assertInstanceOf(Null::class.java, testTidslinje.innhold[1].periodeVerdi)
@@ -62,13 +66,17 @@ class TidslinjeNullUndefTest {
     fun `kan legge sammen tidslinjer av samme lengde med null-verdier`() {
         init(
             listOf(TidslinjePeriode(Udefinert(), 3, false), TidslinjePeriode(2, 1, false), TidslinjePeriode(99, inf, true)),
-            listOf(TidslinjePeriode(3, 2, false), TidslinjePeriode(1, 1, false), TidslinjePeriode(1, 1, false))
+            listOf(TidslinjePeriode(3, 2, false), TidslinjePeriode(1, 1, false), TidslinjePeriode(1, 1, false)),
         )
 
         val testTidslinje = t1.biFunksjon(t2) { t1, t2 ->
-            if (t1 is Null || t2 is Null) Null()
-            else if (t1 is Udefinert || t2 is Udefinert) Udefinert()
-            else Verdi(t1.verdi!! + t2.verdi!!)
+            if (t1 is Null || t2 is Null) {
+                Null()
+            } else if (t1 is Udefinert || t2 is Udefinert) {
+                Udefinert()
+            } else {
+                Verdi(t1.verdi!! + t2.verdi!!)
+            }
         }
 
         val fakta = mutableListOf(null, 3, null)
@@ -76,7 +84,7 @@ class TidslinjeNullUndefTest {
         Assertions.assertEquals(
             fakta,
             testTidslinje.innhold.map { it.periodeVerdi.verdi }.toList(),
-            "K"
+            "K",
         )
         Assertions.assertInstanceOf(Udefinert::class.java, testTidslinje.innhold.last().periodeVerdi)
         Assertions.assertInstanceOf(Udefinert::class.java, testTidslinje.innhold.first().periodeVerdi)

@@ -18,9 +18,9 @@ class SnittOgKlippTest {
             perioder = listOf(
                 TidslinjePeriode(periodeVerdi = 1, lengde = 1, erUendelig = false),
                 TidslinjePeriode(periodeVerdi = 2, lengde = 1, erUendelig = false),
-                TidslinjePeriode(periodeVerdi = 15, lengde = 2, erUendelig = false)
+                TidslinjePeriode(periodeVerdi = 15, lengde = 2, erUendelig = false),
             ),
-            tidsEnhet = TidsEnhet.MÅNED
+            tidsEnhet = TidsEnhet.MÅNED,
         )
 
         val tidslinje2 = Tidslinje(
@@ -28,14 +28,17 @@ class SnittOgKlippTest {
             perioder = listOf(
                 TidslinjePeriode(periodeVerdi = 1, lengde = 1, erUendelig = false),
                 TidslinjePeriode(periodeVerdi = 2, lengde = 1, erUendelig = false),
-                TidslinjePeriode(periodeVerdi = 15, lengde = 11, erUendelig = false)
+                TidslinjePeriode(periodeVerdi = 15, lengde = 11, erUendelig = false),
             ),
-            tidsEnhet = TidsEnhet.MÅNED
+            tidsEnhet = TidsEnhet.MÅNED,
         )
 
         val resultat = tidslinje1.biFunksjonSnitt(tidslinje2) { el1, el2 ->
-            if (el1 is Udefinert || el2 is Udefinert) Udefinert()
-            else Verdi(el1.verdi!! + el2.verdi!!)
+            if (el1 is Udefinert || el2 is Udefinert) {
+                Udefinert()
+            } else {
+                Verdi(el1.verdi!! + el2.verdi!!)
+            }
         }
 
         val fasit = mutableListOf(2, 4, 30)
@@ -43,7 +46,7 @@ class SnittOgKlippTest {
         Assertions.assertEquals(
             fasit,
             resultat.innhold.map { it.periodeVerdi.verdi }.toList(),
-            "Kunne ikke addere to tidslinjer med ulik slutt på månedsnivå"
+            "Kunne ikke addere to tidslinjer med ulik slutt på månedsnivå",
         )
         Assertions.assertEquals(resultat.tidsEnhet, TidsEnhet.MÅNED)
 
@@ -58,9 +61,9 @@ class SnittOgKlippTest {
             perioder = listOf(
                 TidslinjePeriode(periodeVerdi = 1, lengde = 1, erUendelig = false),
                 TidslinjePeriode(periodeVerdi = 2, lengde = 1, erUendelig = false),
-                TidslinjePeriode(periodeVerdi = 15, lengde = 11, erUendelig = false)
+                TidslinjePeriode(periodeVerdi = 15, lengde = 11, erUendelig = false),
             ),
-            tidsEnhet = TidsEnhet.MÅNED
+            tidsEnhet = TidsEnhet.MÅNED,
         )
 
         var startDato = LocalDate.of(2022, 3, 1)
@@ -79,9 +82,9 @@ class SnittOgKlippTest {
             perioder = listOf(
                 TidslinjePeriode(periodeVerdi = 1, lengde = 1, erUendelig = false),
                 TidslinjePeriode(periodeVerdi = 2, lengde = 1, erUendelig = false),
-                TidslinjePeriode(periodeVerdi = 15, lengde = 11, erUendelig = false)
+                TidslinjePeriode(periodeVerdi = 15, lengde = 11, erUendelig = false),
             ),
-            tidsEnhet = TidsEnhet.MÅNED
+            tidsEnhet = TidsEnhet.MÅNED,
         )
 
         startDato = LocalDate.of(2022, 2, 3)

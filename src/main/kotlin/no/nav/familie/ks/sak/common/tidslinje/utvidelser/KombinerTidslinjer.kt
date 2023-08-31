@@ -33,7 +33,7 @@ fun <T> Collection<Tidslinje<T>>.slåSammen(): Tidslinje<Collection<T>> {
 }
 
 fun <I, R> Collection<Tidslinje<I>>.kombiner(
-    listeKombinator: (Iterable<I>) -> R
+    listeKombinator: (Iterable<I>) -> R,
 ): Tidslinje<R> = this.slåSammen().map {
     when (it) {
         is Verdi -> {

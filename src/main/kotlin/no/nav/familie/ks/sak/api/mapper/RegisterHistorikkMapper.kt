@@ -14,11 +14,13 @@ object RegisterHistorikkMapper {
 
     fun lagRegisterHistorikkResponsDto(
         person: Person,
-        landKodeOgLandNavn: Map<String, String>?
+        landKodeOgLandNavn: Map<String, String>?,
     ): RegisterHistorikkResponsDto {
         val statsborgerskap = if (!landKodeOgLandNavn.isNullOrEmpty()) {
             person.statsborgerskap.map { lagRegisterOpplysningDto(it, landKodeOgLandNavn) }
-        } else emptyList()
+        } else {
+            emptyList()
+        }
 
         val dødsboadresse = person.dødsfall?.let { listOf(lagRegisterOpplysningDto(it)) } ?: emptyList()
 
@@ -28,7 +30,7 @@ object RegisterHistorikkMapper {
             hentetTidspunkt = person.personopplysningGrunnlag.opprettetTidspunkt,
             oppholdstillatelse = person.opphold.map { lagRegisterOpplysningDto(it) },
             bostedsadresse = person.bostedsadresser.map { lagRegisterOpplysningDto(it) },
-            sivilstand = person.sivilstander.map { lagRegisterOpplysningDto(it) }
+            sivilstand = person.sivilstander.map { lagRegisterOpplysningDto(it) },
         )
     }
 
@@ -36,21 +38,21 @@ object RegisterHistorikkMapper {
         RegisteropplysningResponsDto(
             fom = dødsfall.dødsfallDato,
             tom = null,
-            verdi = dødsfall.dødsfallAdresse?.let { dødsfall.hentAdresseToString() } ?: "-"
+            verdi = dødsfall.dødsfallAdresse?.let { dødsfall.hentAdresseToString() } ?: "-",
         )
 
     private fun lagRegisterOpplysningDto(sivilstand: GrSivilstand) =
         RegisteropplysningResponsDto(
             fom = sivilstand.fom,
             tom = null,
-            verdi = sivilstand.type.name.replace('_', ' ').storForbokstav()
+            verdi = sivilstand.type.name.replace('_', ' ').storForbokstav(),
         )
 
     private fun lagRegisterOpplysningDto(bostedsAdresse: GrBostedsadresse) =
         RegisteropplysningResponsDto(
             fom = bostedsAdresse.periode?.fom,
             tom = bostedsAdresse.periode?.tom,
-            verdi = bostedsAdresse.tilFrontendString()
+            verdi = bostedsAdresse.tilFrontendString(),
         )
 
     private fun lagRegisterOpplysningDto(statsborgerskap: GrStatsborgerskap, landKodeOgLandNavn: Map<String, String>): RegisteropplysningResponsDto {
@@ -65,7 +67,7 @@ object RegisterHistorikkMapper {
         return RegisteropplysningResponsDto(
             fom = statsborgerskap.gyldigPeriode?.fom,
             tom = statsborgerskap.gyldigPeriode?.tom,
-            verdi = verdi
+            verdi = verdi,
         )
     }
 
@@ -73,6 +75,6 @@ object RegisterHistorikkMapper {
         RegisteropplysningResponsDto(
             fom = opphold.gyldigPeriode?.fom,
             tom = opphold.gyldigPeriode?.tom,
-            verdi = opphold.type.name.replace('_', ' ').storForbokstav()
+            verdi = opphold.type.name.replace('_', ' ').storForbokstav(),
         )
 }

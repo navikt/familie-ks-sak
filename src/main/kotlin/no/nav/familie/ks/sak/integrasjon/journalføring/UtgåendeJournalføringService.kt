@@ -25,7 +25,7 @@ class UtgåendeJournalføringService(private val integrasjonClient: IntegrasjonC
         brev: List<Dokument>,
         vedlegg: List<Dokument> = emptyList(),
         førsteside: Førsteside? = null,
-        behandlingId: Long? = null
+        behandlingId: Long? = null,
     ): String {
         if (journalførendeEnhet == DEFAULT_JOURNALFØRENDE_ENHET) {
             logger.warn("Informasjon om enhet mangler på bruker og er satt til fallback-verdi, $DEFAULT_JOURNALFØRENDE_ENHET")
@@ -43,8 +43,8 @@ class UtgåendeJournalføringService(private val integrasjonClient: IntegrasjonC
                     fagsakId = fagsakId.toString(),
                     journalførendeEnhet = journalførendeEnhet,
                     førsteside = førsteside,
-                    eksternReferanseId = eksternReferanseId
-                )
+                    eksternReferanseId = eksternReferanseId,
+                ),
             )
 
             if (!journalpost.ferdigstilt) {
@@ -57,7 +57,7 @@ class UtgåendeJournalføringService(private val integrasjonClient: IntegrasjonC
                 HttpStatus.CONFLICT -> {
                     logger.warn(
                         "Klarte ikke journalføre dokument på fagsak=$fagsakId fordi det allerede finnes en journalpost " +
-                            "med eksternReferanseId=$eksternReferanseId. Bruker eksisterende journalpost."
+                            "med eksternReferanseId=$eksternReferanseId. Bruker eksisterende journalpost.",
                     )
                     hentEksisterendeJournalpost(eksternReferanseId, fnr)
                 }
@@ -71,13 +71,13 @@ class UtgåendeJournalføringService(private val integrasjonClient: IntegrasjonC
 
     private fun hentEksisterendeJournalpost(
         eksternReferanseId: String,
-        fnr: String
+        fnr: String,
     ): String =
         integrasjonClient.hentJournalposterForBruker(
             JournalposterForBrukerRequest(
                 brukerId = Bruker(id = fnr, type = BrukerIdType.FNR),
-                antall = 50
-            )
+                antall = 50,
+            ),
         ).single { it.eksternReferanseId == eksternReferanseId }.journalpostId
 
     private fun genererEksternReferanseIdForJournalpost(fagsakId: Long, behandlingId: Long?) =

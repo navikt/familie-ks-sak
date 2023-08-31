@@ -12,7 +12,7 @@ import java.util.Properties
 @TaskStepBeskrivelse(
     taskStepType = AvsluttBehandlingTask.TASK_STEP_TYPE,
     beskrivelse = "Avslutt behandling",
-    maxAntallFeil = 3
+    maxAntallFeil = 3,
 )
 class AvsluttBehandlingTask(private val stegService: StegService) : AsyncTaskStep {
 
@@ -31,7 +31,7 @@ class AvsluttBehandlingTask(private val stegService: StegService) : AsyncTaskSte
             properties = Properties().apply {
                 this["personIdent"] = søkerIdent
                 this["behandlingsId"] = behandlingId.toString()
-            }
+            },
         )
     }
 }

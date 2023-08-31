@@ -13,7 +13,7 @@ import org.springframework.transaction.annotation.Transactional
 class FeilutbetaltValutaService(
     private val feilutbetaltValutaRepository: FeilutbetaltValutaRepository,
     private val loggService: LoggService,
-    private val personopplysningGrunnlagService: PersonopplysningGrunnlagService
+    private val personopplysningGrunnlagService: PersonopplysningGrunnlagService,
 ) {
 
     fun hentFeilutbetaltValuta(id: Long): FeilutbetaltValuta =
@@ -25,7 +25,7 @@ class FeilutbetaltValutaService(
         val lagretFeilutbetaltValuta = feilutbetaltValutaRepository.save(feilutbetaltValuta)
 
         loggService.opprettFeilutbetaltValutaLagtTilLogg(
-            feilutbetaltValuta = lagretFeilutbetaltValuta
+            feilutbetaltValuta = lagretFeilutbetaltValuta,
         )
 
         return lagretFeilutbetaltValuta

@@ -17,13 +17,13 @@ import java.math.BigDecimal
 import java.time.LocalDate
 
 fun filterBortIrrelevanteVedtakSimuleringPosteringer(
-    økonomiSimuleringMottakere: List<ØkonomiSimuleringMottaker>
+    økonomiSimuleringMottakere: List<ØkonomiSimuleringMottaker>,
 ): List<ØkonomiSimuleringMottaker> = økonomiSimuleringMottakere.map {
     it.copy(
         økonomiSimuleringPostering = it.økonomiSimuleringPostering.filter { postering ->
             postering.posteringType == PosteringType.FEILUTBETALING ||
                 postering.posteringType == PosteringType.YTELSE
-        }
+        },
     )
 }
 
@@ -66,7 +66,7 @@ fun hentResultatIPeriode(periode: List<ØkonomiSimuleringPostering>): BigDecimal
 
 fun hentEtterbetalingIPeriode(
     periode: List<ØkonomiSimuleringPostering>,
-    tidSimuleringHentet: LocalDate?
+    tidSimuleringHentet: LocalDate?,
 ): BigDecimal {
     val periodeHarPositivFeilutbetaling =
         periode.any { it.posteringType == PosteringType.FEILUTBETALING && it.beløp > BigDecimal.ZERO }
@@ -88,7 +88,7 @@ fun hentEtterbetalingIPeriode(
 
 fun hentTotalEtterbetaling(
     simuleringPerioder: List<SimuleringsPeriodeDto>,
-    fomDatoNestePeriode: LocalDate?
+    fomDatoNestePeriode: LocalDate?,
 ): BigDecimal {
     return simuleringPerioder.filter {
         (fomDatoNestePeriode == null || it.fom < fomDatoNestePeriode)
@@ -97,7 +97,7 @@ fun hentTotalEtterbetaling(
 
 fun hentTotalFeilutbetaling(
     simuleringPerioder: List<SimuleringsPeriodeDto>,
-    fomDatoNestePeriode: LocalDate?
+    fomDatoNestePeriode: LocalDate?,
 ): BigDecimal {
     return simuleringPerioder
         .filter { fomDatoNestePeriode == null || it.fom < fomDatoNestePeriode }
@@ -108,7 +108,7 @@ fun SimuleringMottaker.tilBehandlingSimuleringMottaker(behandling: Behandling): 
     val behandlingSimuleringMottaker = ØkonomiSimuleringMottaker(
         mottakerNummer = this.mottakerNummer,
         mottakerType = this.mottakerType,
-        behandling = behandling
+        behandling = behandling,
     )
 
     behandlingSimuleringMottaker.økonomiSimuleringPostering = this.simulertPostering.map {
@@ -128,14 +128,14 @@ fun SimulertPostering.tilVedtakSimuleringPostering(økonomiSimuleringMottaker: �
         posteringType = this.posteringType,
         forfallsdato = this.forfallsdato,
         utenInntrekk = this.utenInntrekk,
-        økonomiSimuleringMottaker = økonomiSimuleringMottaker
+        økonomiSimuleringMottaker = økonomiSimuleringMottaker,
     )
 
 fun validerTilbakekrevingData(tilbakekrevingRequestDto: TilbakekrevingRequestDto?, feilutbetaling: BigDecimal) {
     if (feilutbetaling == BigDecimal.ZERO && tilbakekrevingRequestDto != null) {
         throw FunksjonellFeil(
             "Simuleringen har ikke en feilutbetaling, men tilbakekrevingDto var ikke null",
-            frontendFeilmelding = "Du kan ikke opprette en tilbakekreving når det ikke er en feilutbetaling."
+            frontendFeilmelding = "Du kan ikke opprette en tilbakekreving når det ikke er en feilutbetaling.",
         )
     }
 }
@@ -162,5 +162,5 @@ fun hentTilbakekrevingsperioderISimulering(simulering: List<ØkonomiSimuleringMo
 fun opprettVarsel(varselTekst: String, simulering: List<ØkonomiSimuleringMottaker>): Varsel = Varsel(
     varseltekst = varselTekst,
     sumFeilutbetaling = simulering.tilSimuleringDto().feilutbetaling,
-    perioder = hentTilbakekrevingsperioderISimulering(simulering)
+    perioder = hentTilbakekrevingsperioderISimulering(simulering),
 )

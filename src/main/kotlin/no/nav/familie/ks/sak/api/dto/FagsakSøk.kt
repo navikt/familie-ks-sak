@@ -6,13 +6,13 @@ import no.nav.familie.ks.sak.kjerne.fagsak.domene.FagsakStatus
 
 data class SøkParamDto(
     val personIdent: String,
-    val barnasIdenter: List<String> = emptyList()
+    val barnasIdenter: List<String> = emptyList(),
 )
 
 enum class FagsakDeltagerRolle {
     BARN,
     FORELDER,
-    UKJENT
+    UKJENT,
 }
 
 data class FagsakDeltagerResponsDto(
@@ -23,7 +23,7 @@ data class FagsakDeltagerResponsDto(
     val fagsakId: Long? = null,
     val fagsakStatus: FagsakStatus? = null,
     val adressebeskyttelseGradering: ADRESSEBESKYTTELSEGRADERING? = null,
-    val harTilgang: Boolean = true
+    val harTilgang: Boolean = true,
 ) {
 
     override fun toString(): String {

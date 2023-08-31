@@ -25,7 +25,7 @@ internal class LoggRepositoryTest : OppslagSpringRunnerTest() {
             behandlingId = behandling.id,
             type = LoggType.BEHANDLING_OPPRETTET,
             tittel = "${behandling.type.visningsnavn} opprettet",
-            rolle = BehandlerRolle.SYSTEM
+            rolle = BehandlerRolle.SYSTEM,
         )
 
         loggRepository.saveAndFlush(logg)

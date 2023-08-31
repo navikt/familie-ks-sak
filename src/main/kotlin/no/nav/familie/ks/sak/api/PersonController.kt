@@ -33,13 +33,13 @@ class PersonController(
     val personopplysningGrunnlagService: PersonopplysningGrunnlagService,
     val integrasjonService: IntegrasjonService,
     val tilgangService: TilgangService,
-    val behandlingService: BehandlingService
+    val behandlingService: BehandlingService,
 ) {
 
     @GetMapping
     fun hentPerson(
         @RequestHeader personIdent: String,
-        @RequestBody personIdentBody: PersonIdent?
+        @RequestBody personIdentBody: PersonIdent?,
     ): ResponseEntity<Ressurs<PersonInfoDto>> {
         val aktør = personidentService.hentAktør(personIdent)
         val personinfo = integrasjonService.hentMaskertPersonInfoVedManglendeTilgang(aktør)
@@ -51,7 +51,7 @@ class PersonController(
     @GetMapping(path = ["/enkel"])
     fun hentPersonEnkel(
         @RequestHeader personIdent: String,
-        @RequestBody personIdentBody: PersonIdent?
+        @RequestBody personIdentBody: PersonIdent?,
     ): ResponseEntity<Ressurs<PersonInfoDto>> {
         val aktør = personidentService.hentAktør(personIdent)
         val personinfo = integrasjonService.hentMaskertPersonInfoVedManglendeTilgang(aktør)
@@ -66,7 +66,7 @@ class PersonController(
             behandlingId = behandlingId,
             minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
             event = AuditLoggerEvent.UPDATE,
-            handling = "Oppdater registeropplysninger på behandling"
+            handling = "Oppdater registeropplysninger på behandling",
         )
 
         val behandling = behandlingService.hentBehandling(behandlingId)
@@ -74,7 +74,7 @@ class PersonController(
         personopplysningGrunnlagService.oppdaterRegisteropplysningerPåBehandling(behandling)
 
         return ResponseEntity.ok(
-            Ressurs.success(behandlingService.lagBehandlingRespons(behandlingId = behandling.id))
+            Ressurs.success(behandlingService.lagBehandlingRespons(behandlingId = behandling.id)),
         )
     }
 }

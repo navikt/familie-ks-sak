@@ -77,6 +77,6 @@ internal class SimuleringStegTest {
     private fun lagTilbakekrevingDto() = TilbakekrevingRequestDto(
         valg = Tilbakekrevingsvalg.OPPRETT_TILBAKEKREVING_MED_VARSEL,
         varsel = "Opprett en tilbakekreving",
-        begrunnelse = "Test begrunnelse"
+        begrunnelse = "Test begrunnelse",
     )
 }

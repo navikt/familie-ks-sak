@@ -76,7 +76,7 @@ class VedtakStegTest {
     @ParameterizedTest
     @EnumSource(value = BehandlingStegStatus::class, names = ["VENTER", "KLAR"])
     fun `utførSteg skal kaste feil dersom det er flere enn 1 steg i behandlingen som har status VENTER eller KLAR`(
-        behandlingStegStatus: BehandlingStegStatus
+        behandlingStegStatus: BehandlingStegStatus,
     ) {
         val mocketBehandling = mockk<Behandling>()
         val mocketStegTilstand = mockk<BehandlingStegTilstand>()

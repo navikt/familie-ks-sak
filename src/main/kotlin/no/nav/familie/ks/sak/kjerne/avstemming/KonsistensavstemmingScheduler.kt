@@ -19,7 +19,7 @@ import java.util.UUID
 class KonsistensavstemmingScheduler(
     private val envService: EnvService,
     private val konsistensavstemmingKjøreplanService: KonsistensavstemmingKjøreplanService,
-    private val taskService: TaskService
+    private val taskService: TaskService,
 ) {
 
     @Scheduled(cron = "\${CRON_KONSISTENS_AVSTEMMING}")
@@ -36,8 +36,8 @@ class KonsistensavstemmingScheduler(
 
         taskService.save(
             KonsistensavstemmingTask.opprettTask(
-                KonsistensavstemmingTaskDto(kjøreplanId = kjøreplan.id, initieltKjøreTidspunkt = LocalDateTime.now())
-            )
+                KonsistensavstemmingTaskDto(kjøreplanId = kjøreplan.id, initieltKjøreTidspunkt = LocalDateTime.now()),
+            ),
         )
         logger.info("Stopper KonsistensavstemmingScheduler..")
         MDC.clear() // rydder opp MDC

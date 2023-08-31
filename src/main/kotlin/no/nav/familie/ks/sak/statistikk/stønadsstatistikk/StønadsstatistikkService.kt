@@ -30,7 +30,7 @@ class StønadsstatistikkService(
     private val personOpplysningerService: PersonOpplysningerService,
     private val vedtakService: VedtakService,
     private val andelerTilkjentYtelseOgEndreteUtbetalingerService: AndelerTilkjentYtelseOgEndreteUtbetalingerService,
-    private val vilkårsvurderingService: VilkårsvurderingService
+    private val vilkårsvurderingService: VilkårsvurderingService,
 ) {
 
     fun hentVedtakDVH(behandlingId: Long): VedtakDVH {
@@ -51,7 +51,7 @@ class StønadsstatistikkService(
                 periodeFom = vkr.periodeFom,
                 periodeTom = vkr.periodeTom,
                 ident = vkr.personResultat?.aktør?.aktivFødselsnummer(),
-                vilkårType = vkr.vilkårType.tilDatavarehusVilkårType()
+                vilkårType = vkr.vilkårType.tilDatavarehusVilkårType(),
             )
         }
 
@@ -65,7 +65,7 @@ class StønadsstatistikkService(
             utbetalingsperioder = hentUtbetalingsperioder(behandlingId),
             funksjonellId = UUID.randomUUID().toString(),
             behandlingÅrsak = BehandlingÅrsak.valueOf(behandling.opprettetÅrsak.name),
-            vilkårResultater = vilkårResultaterTilDVH
+            vilkårResultater = vilkårResultaterTilDVH,
         )
     }
 
@@ -86,7 +86,7 @@ class StønadsstatistikkService(
     private fun hentUtbetalingsperioder(behandlingId: Long): List<UtbetalingsperiodeDVH> {
         val andelerTilkjentYtelse =
             andelerTilkjentYtelseOgEndreteUtbetalingerService.finnAndelerTilkjentYtelseMedEndreteUtbetalinger(
-                behandlingId
+                behandlingId,
             )
         val behandling = behandlingService.hentBehandling(behandlingId)
         val persongrunnlag = personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(behandlingId)
@@ -109,13 +109,13 @@ class StønadsstatistikkService(
                         UtbetalingsDetaljDVH(
                             person = lagPersonDVH(
                                 persongrunnlag.personer.first { person -> andel.aktør == person.aktør },
-                                andel.prosent.intValueExact()
+                                andel.prosent.intValueExact(),
                             ),
                             klassekode = andel.type.klassifisering,
                             utbetaltPrMnd = andel.kalkulertUtbetalingsbeløp,
-                            delytelseId = behandling.fagsak.id.toString() + andel.periodeOffset
+                            delytelseId = behandling.fagsak.id.toString() + andel.periodeOffset,
                         )
-                    }
+                    },
             )
         }
     }
@@ -126,7 +126,7 @@ class StønadsstatistikkService(
             statsborgerskap = hentStatsborgerskap(person),
             bostedsland = hentLandkode(person),
             delingsprosentYtelse = if (delingsProsentYtelse == 50) delingsProsentYtelse else 0,
-            personIdent = person.aktør.aktivFødselsnummer()
+            personIdent = person.aktør.aktivFødselsnummer(),
         )
 
     private fun hentStatsborgerskap(person: Person): List<String> =

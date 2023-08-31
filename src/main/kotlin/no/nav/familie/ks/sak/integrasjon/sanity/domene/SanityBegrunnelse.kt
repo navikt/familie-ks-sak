@@ -22,37 +22,38 @@ data class SanityBegrunnelse(
     val endringsårsaker: List<Årsak>,
     val endretUtbetalingsperiode: List<EndretUtbetalingsperiodeTrigger>,
     val støtterFritekst: Boolean,
-    val skalAlltidVises: Boolean
+    val skalAlltidVises: Boolean,
 )
 
 enum class SanityBegrunnelseType {
     STANDARD,
     TILLEGGSTEKST,
-    ENDRINGSPERIODE
+    ENDRINGSPERIODE,
 }
 
 data class SanityBegrunnelserResponsDto(
     val ms: Int,
     val query: String,
     val result: List<SanityBegrunnelseDto>,
-    val endringsaarsaker: List<String>? = emptyList()
+    val endringsaarsaker: List<String>? = emptyList(),
 )
 
 enum class Trigger {
     SATSENDRING,
     BARN_DØD,
     DELTID_BARNEHAGEPLASS,
-    GJELDER_FØRSTE_PERIODE;
+    GJELDER_FØRSTE_PERIODE,
+    ;
 
     fun erOppfylt(
         vilkårResultater: List<VilkårResultat>,
         person: Person,
-        erFørsteVedtaksperiodeOgBegrunnelseInneholderGjelderFørstePeriodeTrigger: Boolean
+        erFørsteVedtaksperiodeOgBegrunnelseInneholderGjelderFørstePeriodeTrigger: Boolean,
     ) =
         when (this) {
             DELTID_BARNEHAGEPLASS -> vilkårResultater.mapNotNull { it.antallTimer }.maxByOrNull { it }?.let {
                 it in BigDecimal.valueOf(0.01)..BigDecimal.valueOf(
-                    32.99
+                    32.99,
                 )
             } ?: false
 
@@ -74,7 +75,7 @@ data class SanityBegrunnelseDto(
     val triggere: List<String> = emptyList(),
     val hjemler: List<String> = emptyList(),
     val stotterFritekst: Boolean?,
-    val skalAlltidVises: Boolean?
+    val skalAlltidVises: Boolean?,
 ) {
     fun tilSanityBegrunnelse(): SanityBegrunnelse {
         return SanityBegrunnelse(
@@ -89,7 +90,7 @@ data class SanityBegrunnelseDto(
                 finnEnumverdi(
                     it,
                     UtdypendeVilkårsvurdering.values(),
-                    apiNavn
+                    apiNavn,
                 )
             },
             triggere = triggere.mapNotNull { finnEnumverdi(it, Trigger.values(), apiNavn) },
@@ -99,7 +100,7 @@ data class SanityBegrunnelseDto(
                 finnEnumverdi(it, EndretUtbetalingsperiodeTrigger.values(), apiNavn)
             },
             støtterFritekst = stotterFritekst ?: false,
-            skalAlltidVises = skalAlltidVises ?: false
+            skalAlltidVises = skalAlltidVises ?: false,
         )
     }
 }
@@ -112,7 +113,7 @@ fun <T : Enum<T>> finnEnumverdi(verdi: String, enumverdier: Array<T>, apiNavn: S
     val enumverdi = enumverdier.firstOrNull { verdi == it.name }
     if (enumverdi == null) {
         logger.error(
-            "$verdi på begrunnelsen $apiNavn er ikke blant verdiene til enumen ${enumverdier.javaClass.simpleName}"
+            "$verdi på begrunnelsen $apiNavn er ikke blant verdiene til enumen ${enumverdier.javaClass.simpleName}",
         )
     }
     return enumverdi
@@ -120,9 +121,9 @@ fun <T : Enum<T>> finnEnumverdi(verdi: String, enumverdier: Array<T>, apiNavn: S
 
 enum class VilkårRolle {
     SOKER,
-    BARN
+    BARN,
 }
 
 enum class EndretUtbetalingsperiodeTrigger {
-    ETTER_ENDRET_UTBETALINGSPERIODE
+    ETTER_ENDRET_UTBETALINGSPERIODE,
 }

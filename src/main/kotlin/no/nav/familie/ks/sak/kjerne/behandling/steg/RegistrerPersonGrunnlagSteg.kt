@@ -16,7 +16,7 @@ class RegistrerPersonGrunnlagSteg(
     private val behandlingRepository: BehandlingRepository,
     private val personopplysningGrunnlagService: PersonopplysningGrunnlagService,
     private val vilkårsvurderingService: VilkårsvurderingService,
-    private val endretUtbetalingAndelService: EndretUtbetalingAndelService
+    private val endretUtbetalingAndelService: EndretUtbetalingAndelService,
 ) : IBehandlingSteg {
     override fun getBehandlingssteg(): BehandlingSteg = BehandlingSteg.REGISTRERE_PERSONGRUNNLAG
 
@@ -36,7 +36,7 @@ class RegistrerPersonGrunnlagSteg(
         if (sisteVedtattBehandling != null) {
             endretUtbetalingAndelService.kopierEndretUtbetalingAndelFraForrigeBehandling(
                 behandling,
-                sisteVedtattBehandling
+                sisteVedtattBehandling,
             )
         }
     }

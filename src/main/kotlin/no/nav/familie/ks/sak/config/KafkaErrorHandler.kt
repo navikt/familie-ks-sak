@@ -35,13 +35,13 @@ class KafkaErrorHandler : CommonContainerStoppingErrorHandler() {
                 records,
                 consumer,
                 container,
-                "Ukjent topic"
+                "Ukjent topic",
             )
         } else {
             records.first().run {
                 logger.error(
                     "Feil ved konsumering av melding fra ${this.topic()}. id ${this.key()}, " +
-                        "offset: ${this.offset()}, partition: ${this.partition()}"
+                        "offset: ${this.offset()}, partition: ${this.partition()}",
                 )
                 secureLogger.error("${this.topic()} - Problemer med prosessering av $records", e)
                 scheduleRestart(
@@ -49,7 +49,7 @@ class KafkaErrorHandler : CommonContainerStoppingErrorHandler() {
                     records,
                     consumer,
                     container,
-                    this.topic()
+                    this.topic(),
                 )
             }
         }
@@ -83,7 +83,7 @@ class KafkaErrorHandler : CommonContainerStoppingErrorHandler() {
             Exception("Sjekk securelogs for mer info - ${e::class.java.simpleName}"),
             records,
             consumer,
-            container
+            container,
         )
     }
 

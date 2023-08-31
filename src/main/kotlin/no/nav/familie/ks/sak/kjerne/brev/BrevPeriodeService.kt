@@ -27,7 +27,7 @@ class BrevPeriodeService(
     val personopplysningGrunnlagService: PersonopplysningGrunnlagService,
     val søknadGrunnlagService: SøknadGrunnlagService,
     val vedtaksperiodeHentOgPersisterService: VedtaksperiodeHentOgPersisterService,
-    val vedtaksperiodeService: VedtaksperiodeService
+    val vedtaksperiodeService: VedtaksperiodeService,
 
 ) {
 
@@ -43,7 +43,7 @@ class BrevPeriodeService(
 
     fun hentBrevPeriodeDtoer(
         utvidetVedtaksperioderMedBegrunnelser: List<UtvidetVedtaksperiodeMedBegrunnelser>,
-        behandlingId: Long
+        behandlingId: Long,
     ): List<BrevPeriodeDto> {
         val sanityBegrunnelser = sanityService.hentSanityBegrunnelser()
         val personopplysningGrunnlag =
@@ -53,7 +53,7 @@ class BrevPeriodeService(
 
         val andelTilkjentYtelserMedEndreteUtbetalinger =
             andelerTilkjentYtelseOgEndreteUtbetalingerService.finnAndelerTilkjentYtelseMedEndreteUtbetalinger(
-                behandlingId
+                behandlingId,
             )
 
         return utvidetVedtaksperioderMedBegrunnelser
@@ -62,13 +62,13 @@ class BrevPeriodeService(
                 val barnSomDødeIForrigePeriode = dødeBarnForrigePeriode(
                     ytelserForrigePeriode = andelTilkjentYtelserMedEndreteUtbetalinger.map { it.andel }
                         .filter { ytelseErFraForrigePeriode(it, utvidetVedtaksperiodeMedBegrunnelser) },
-                    barnIBehandling = personopplysningGrunnlag.personer.filter { it.type == PersonType.BARN }
+                    barnIBehandling = personopplysningGrunnlag.personer.filter { it.type == PersonType.BARN },
                 )
 
                 val erFørsteVedtaksperiodePåFagsak =
                     !andelTilkjentYtelserMedEndreteUtbetalinger.map { it.andel }.any {
                         it.stønadFom.isBefore(
-                            utvidetVedtaksperiodeMedBegrunnelser.fom?.toYearMonth() ?: TIDENES_MORGEN.toYearMonth()
+                            utvidetVedtaksperiodeMedBegrunnelser.fom?.toYearMonth() ?: TIDENES_MORGEN.toYearMonth(),
                         )
                     }
 
@@ -82,7 +82,7 @@ class BrevPeriodeService(
                     uregistrerteBarn = søknadGrunnlagService.finnAktiv(behandlingId)?.hentUregistrerteBarn()
                         ?: emptyList(),
                     barnSomDødeIForrigePeriode = barnSomDødeIForrigePeriode,
-                    erFørsteVedtaksperiode = erFørsteVedtaksperiodePåFagsak
+                    erFørsteVedtaksperiode = erFørsteVedtaksperiodePåFagsak,
                 ).genererBrevPeriodeDto()
             }
     }
@@ -90,5 +90,5 @@ class BrevPeriodeService(
 
 fun ytelseErFraForrigePeriode(
     ytelse: AndelTilkjentYtelse,
-    utvidetVedtaksperiodeMedBegrunnelser: UtvidetVedtaksperiodeMedBegrunnelser
+    utvidetVedtaksperiodeMedBegrunnelser: UtvidetVedtaksperiodeMedBegrunnelser,
 ) = ytelse.stønadTom.sisteDagIInneværendeMåned().erDagenFør(utvidetVedtaksperiodeMedBegrunnelser.fom)

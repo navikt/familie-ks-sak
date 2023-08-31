@@ -16,7 +16,7 @@ class BrevEndretUtbetalingAndel(
     val fom: YearMonth?,
     val tom: YearMonth?,
     val årsak: Årsak?,
-    val prosent: BigDecimal?
+    val prosent: BigDecimal?,
 ) {
     fun månedPeriode() = MånedPeriode(fom!!, tom!!)
 
@@ -28,8 +28,8 @@ class BrevEndretUtbetalingAndel(
         return MånedPeriode(this.fom!!, this.tom!!).overlapperHeltEllerDelvisMed(
             MånedPeriode(
                 nullableMånedPeriode.fom,
-                nullableMånedPeriode.tom ?: TIDENES_ENDE.toYearMonth()
-            )
+                nullableMånedPeriode.tom ?: TIDENES_ENDE.toYearMonth(),
+            ),
         )
     }
 }
@@ -42,12 +42,12 @@ fun EndretUtbetalingAndel.tilBrevEndretUtbetalingAndel(): BrevEndretUtbetalingAn
         tom = this.tom!!,
         aktørId = this.person?.aktør?.aktørId ?: throw Feil(
             "Finner ikke aktørId på endretUtbetalingsandel ${this.id} " +
-                "ved konvertering til brevEndretUtbetalingAndel"
+                "ved konvertering til brevEndretUtbetalingAndel",
         ),
         årsak = this.årsak ?: throw Feil(
             "Har ikke årsak på endretUtbetalingsandel ${this.id} " +
-                "ved konvertering til brevEndretUtbetalingAndel"
+                "ved konvertering til brevEndretUtbetalingAndel",
         ),
-        prosent = this.prosent
+        prosent = this.prosent,
     )
 }

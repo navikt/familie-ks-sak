@@ -45,7 +45,7 @@ internal class UtbetalingsoppdragGeneratorTest {
                 lagAndelTilkjentYtelse(tilkjentYtelse, behandling, aktør, årMåned("2019-04"), årMåned("2023-03")),
                 lagAndelTilkjentYtelse(tilkjentYtelse, behandling, aktør, årMåned("2026-05"), årMåned("2027-06")),
                 lagAndelTilkjentYtelse(tilkjentYtelse, behandling, aktør2, årMåned("2019-03"), årMåned("2037-02")),
-                lagAndelTilkjentYtelse(tilkjentYtelse, behandling, aktør2, årMåned("2037-05"), årMåned("2050-02"))
+                lagAndelTilkjentYtelse(tilkjentYtelse, behandling, aktør2, årMåned("2037-05"), årMåned("2050-02")),
             )
 
         tilkjentYtelse.andelerTilkjentYtelse.addAll(andelTilkjentYtelser)
@@ -53,9 +53,9 @@ internal class UtbetalingsoppdragGeneratorTest {
         val oppdatertTilkjentYtelse = utbetalingsoppdragGenerator.lagTilkjentYtelseMedUtbetalingsoppdrag(
             lagVedtakMedTilkjentYtelse(
                 vedtak = vedtak,
-                tilkjentYtelse = tilkjentYtelse
+                tilkjentYtelse = tilkjentYtelse,
             ),
-            AndelTilkjentYtelseForIverksetting.Factory
+            AndelTilkjentYtelseForIverksetting.Factory,
         )
 
         val utbetalingsoppdrag = konvertTilUtbetalingsoppdrag(oppdatertTilkjentYtelse.utbetalingsoppdrag)
@@ -65,7 +65,7 @@ internal class UtbetalingsoppdragGeneratorTest {
         assertThat(utbetalingsoppdrag.utbetalingsperiode.all { it.sats == BigDecimal(7500) }, Is(true))
         assertThat(
             utbetalingsoppdrag.utbetalingsperiode.all { it.utbetalesTil == behandling.fagsak.aktør.aktivFødselsnummer() },
-            Is(true)
+            Is(true),
         )
 
         assertThat(utbetalingsoppdrag.utbetalingsperiode[0].vedtakdatoFom, Is(dato("2019-04-01")))
@@ -112,7 +112,7 @@ internal class UtbetalingsoppdragGeneratorTest {
                     aktør = aktør,
                     stønadFom = førsteDatoKjede1,
                     stønadTom = årMåned("2023-03"),
-                    periodeOffset = 0
+                    periodeOffset = 0,
                 ),
                 lagAndelTilkjentYtelse(
                     tilkjentYtelse = forrigeTilkjentYtelse,
@@ -120,7 +120,7 @@ internal class UtbetalingsoppdragGeneratorTest {
                     aktør = aktør,
                     stønadFom = årMåned("2026-05"),
                     stønadTom = årMåned("2027-06"),
-                    periodeOffset = 1
+                    periodeOffset = 1,
                 ),
                 lagAndelTilkjentYtelse(
                     tilkjentYtelse = forrigeTilkjentYtelse,
@@ -128,8 +128,8 @@ internal class UtbetalingsoppdragGeneratorTest {
                     aktør = aktør2,
                     stønadFom = førsteDatoKjede2,
                     stønadTom = årMåned("2037-02"),
-                    periodeOffset = 2
-                )
+                    periodeOffset = 2,
+                ),
             )
 
         forrigeTilkjentYtelse.andelerTilkjentYtelse.addAll(andelTilkjentYtelser)
@@ -140,12 +140,12 @@ internal class UtbetalingsoppdragGeneratorTest {
                 tilkjentYtelse = TilkjentYtelse(behandling = behandling, opprettetDato = tidNå, endretDato = tidNå),
                 sisteOffsetPerIdent = ØkonomiUtils.gjeldendeForrigeOffsetForKjede(
                     ØkonomiUtils.kjedeinndelteAndeler(
-                        andelTilkjentYtelser.forIverksetting()
-                    )
-                )
+                        andelTilkjentYtelser.forIverksetting(),
+                    ),
+                ),
             ),
             AndelTilkjentYtelseForIverksetting.Factory,
-            forrigeTilkjentYtelseMedAndeler = forrigeTilkjentYtelse
+            forrigeTilkjentYtelseMedAndeler = forrigeTilkjentYtelse,
         )
 
         val utbetalingsoppdrag = konvertTilUtbetalingsoppdrag(oppdatertTilkjentYtelse.utbetalingsoppdrag)
@@ -154,7 +154,7 @@ internal class UtbetalingsoppdragGeneratorTest {
         assertThat(utbetalingsoppdrag.utbetalingsperiode.all { it.sats == BigDecimal(7500) }, Is(true))
         assertThat(
             utbetalingsoppdrag.utbetalingsperiode.all { it.utbetalesTil == behandling.fagsak.aktør.aktivFødselsnummer() },
-            Is(true)
+            Is(true),
         )
 
         assertThat(utbetalingsoppdrag.utbetalingsperiode[0].vedtakdatoFom, Is(dato("2026-05-01")))
@@ -163,7 +163,7 @@ internal class UtbetalingsoppdragGeneratorTest {
         assertThat(utbetalingsoppdrag.utbetalingsperiode[0].forrigePeriodeId, Is(nullValue()))
         assertThat(
             utbetalingsoppdrag.utbetalingsperiode[0].opphør?.opphørDatoFom,
-            Is(førsteDatoKjede1.førsteDagIInneværendeMåned())
+            Is(førsteDatoKjede1.førsteDagIInneværendeMåned()),
         )
 
         assertThat(utbetalingsoppdrag.utbetalingsperiode[1].vedtakdatoFom, Is(dato("2019-03-01")))
@@ -172,7 +172,7 @@ internal class UtbetalingsoppdragGeneratorTest {
         assertThat(utbetalingsoppdrag.utbetalingsperiode[1].forrigePeriodeId, Is(nullValue()))
         assertThat(
             utbetalingsoppdrag.utbetalingsperiode[1].opphør?.opphørDatoFom,
-            Is(førsteDatoKjede2.førsteDagIInneværendeMåned())
+            Is(førsteDatoKjede2.førsteDagIInneværendeMåned()),
         )
     }
 
@@ -204,7 +204,7 @@ internal class UtbetalingsoppdragGeneratorTest {
                     aktør = aktør,
                     stønadFom = årMåned("2020-01"),
                     stønadTom = årMåned("2029-12"),
-                    periodeOffset = 0
+                    periodeOffset = 0,
                 ),
                 lagAndelTilkjentYtelse(
                     tilkjentYtelse = tilkjentYtelseIFørsteBehandling,
@@ -212,7 +212,7 @@ internal class UtbetalingsoppdragGeneratorTest {
                     aktør = aktør,
                     stønadFom = fomDatoSomEndres,
                     stønadTom = årMåned("2034-12"),
-                    periodeOffset = 1
+                    periodeOffset = 1,
                 ),
                 lagAndelTilkjentYtelse(
                     tilkjentYtelse = tilkjentYtelseIFørsteBehandling,
@@ -220,8 +220,8 @@ internal class UtbetalingsoppdragGeneratorTest {
                     aktør = aktør,
                     stønadFom = årMåned("2037-01"),
                     stønadTom = årMåned("2039-12"),
-                    periodeOffset = 2
-                )
+                    periodeOffset = 2,
+                ),
             )
 
         tilkjentYtelseIFørsteBehandling.andelerTilkjentYtelse.addAll(andelTilkjentYtelserIFørsteBehandling)
@@ -230,9 +230,9 @@ internal class UtbetalingsoppdragGeneratorTest {
             utbetalingsoppdragGenerator.lagTilkjentYtelseMedUtbetalingsoppdrag(
                 lagVedtakMedTilkjentYtelse(
                     vedtak = vedtak,
-                    tilkjentYtelse = tilkjentYtelseIFørsteBehandling
+                    tilkjentYtelse = tilkjentYtelseIFørsteBehandling,
                 ),
-                AndelTilkjentYtelseForIverksetting.Factory
+                AndelTilkjentYtelseForIverksetting.Factory,
             )
 
         val andreBehandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD, fagsak = fagsak)
@@ -249,7 +249,7 @@ internal class UtbetalingsoppdragGeneratorTest {
                     aktør = aktør,
                     stønadFom = årMåned("2020-01"),
                     stønadTom = årMåned("2029-12"),
-                    periodeOffset = 0
+                    periodeOffset = 0,
                 ),
                 lagAndelTilkjentYtelse(
                     tilkjentYtelse = tilkjentYtelseIAndreBehandling,
@@ -257,7 +257,7 @@ internal class UtbetalingsoppdragGeneratorTest {
                     aktør = aktør,
                     stønadFom = årMåned("2034-01"),
                     stønadTom = årMåned("2034-12"),
-                    periodeOffset = 3
+                    periodeOffset = 3,
                 ),
                 lagAndelTilkjentYtelse(
                     tilkjentYtelse = tilkjentYtelseIAndreBehandling,
@@ -265,8 +265,8 @@ internal class UtbetalingsoppdragGeneratorTest {
                     aktør = aktør,
                     stønadFom = årMåned("2037-01"),
                     stønadTom = årMåned("2039-12"),
-                    periodeOffset = 4
-                )
+                    periodeOffset = 4,
+                ),
             )
 
         tilkjentYtelseIAndreBehandling.andelerTilkjentYtelse.addAll(andelTilkjentYtelserIAndreBehandling)
@@ -278,14 +278,14 @@ internal class UtbetalingsoppdragGeneratorTest {
                     vedtak = andreVedtak,
                     sisteOffsetPerIdent = ØkonomiUtils.gjeldendeForrigeOffsetForKjede(
                         ØkonomiUtils.kjedeinndelteAndeler(
-                            andelTilkjentYtelserIFørsteBehandling.forIverksetting()
-                        )
+                            andelTilkjentYtelserIFørsteBehandling.forIverksetting(),
+                        ),
                     ),
                     sisteOffsetPåFagsak = sisteOffsetPåFagsak,
-                    tilkjentYtelse = tilkjentYtelseIAndreBehandling
+                    tilkjentYtelse = tilkjentYtelseIAndreBehandling,
                 ),
                 AndelTilkjentYtelseForIverksetting.Factory,
-                forrigeTilkjentYtelseMedAndeler = oppdatertTilkjentYtelseIFørsteBehandling
+                forrigeTilkjentYtelseMedAndeler = oppdatertTilkjentYtelseIFørsteBehandling,
             )
 
         val utbetalingsoppdrag =
@@ -295,7 +295,7 @@ internal class UtbetalingsoppdragGeneratorTest {
         assertThat(utbetalingsoppdrag.utbetalingsperiode.all { it.sats == BigDecimal(7500) }, Is(true))
         assertThat(
             utbetalingsoppdrag.utbetalingsperiode.all { it.utbetalesTil == førsteBehandling.fagsak.aktør.aktivFødselsnummer() },
-            Is(true)
+            Is(true),
         )
         assertThat(utbetalingsoppdrag.kodeEndring, Is(Utbetalingsoppdrag.KodeEndring.ENDR))
         assertThat(utbetalingsoppdrag.utbetalingsperiode.count { it.opphør != null }, Is(1))
@@ -343,7 +343,7 @@ internal class UtbetalingsoppdragGeneratorTest {
                     aktør = aktør,
                     stønadFom = årMåned("2020-01"),
                     stønadTom = årMåned("2029-12"),
-                    periodeOffset = 0
+                    periodeOffset = 0,
                 ),
                 lagAndelTilkjentYtelse(
                     tilkjentYtelse = tilkjentYtelseIFørsteBehandling,
@@ -351,8 +351,8 @@ internal class UtbetalingsoppdragGeneratorTest {
                     aktør = aktør,
                     stønadFom = årMåned("2033-01"),
                     stønadTom = årMåned("2034-12"),
-                    periodeOffset = 1
-                )
+                    periodeOffset = 1,
+                ),
             )
 
         tilkjentYtelseIFørsteBehandling.andelerTilkjentYtelse.addAll(andelTilkjentYtelserIFørsteBehandling)
@@ -362,9 +362,9 @@ internal class UtbetalingsoppdragGeneratorTest {
             utbetalingsoppdragGenerator.lagTilkjentYtelseMedUtbetalingsoppdrag(
                 lagVedtakMedTilkjentYtelse(
                     vedtak = vedtak,
-                    tilkjentYtelse = tilkjentYtelseIFørsteBehandling
+                    tilkjentYtelse = tilkjentYtelseIFørsteBehandling,
                 ),
-                AndelTilkjentYtelseForIverksetting.Factory
+                AndelTilkjentYtelseForIverksetting.Factory,
             )
 
         val andreBehandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD, fagsak = fagsak)
@@ -382,7 +382,7 @@ internal class UtbetalingsoppdragGeneratorTest {
                     aktør = nyAktør,
                     stønadFom = årMåned("2022-01"),
                     stønadTom = årMåned("2034-12"),
-                    periodeOffset = 2
+                    periodeOffset = 2,
                 ),
                 lagAndelTilkjentYtelse(
                     tilkjentYtelse = tilkjentYtelseIAndreBehandling,
@@ -390,8 +390,8 @@ internal class UtbetalingsoppdragGeneratorTest {
                     aktør = nyAktør,
                     stønadFom = årMåned("2037-01"),
                     stønadTom = årMåned("2039-12"),
-                    periodeOffset = 3
-                )
+                    periodeOffset = 3,
+                ),
             )
 
         tilkjentYtelseIAndreBehandling.andelerTilkjentYtelse.addAll(andelTilkjentYtelserIAndreBehandling)
@@ -403,14 +403,14 @@ internal class UtbetalingsoppdragGeneratorTest {
                     vedtak = andreVedtak,
                     sisteOffsetPerIdent = ØkonomiUtils.gjeldendeForrigeOffsetForKjede(
                         ØkonomiUtils.kjedeinndelteAndeler(
-                            andelTilkjentYtelserIFørsteBehandling.forIverksetting()
-                        )
+                            andelTilkjentYtelserIFørsteBehandling.forIverksetting(),
+                        ),
                     ),
                     sisteOffsetPåFagsak = sisteOffsetPåFagsak,
-                    tilkjentYtelse = tilkjentYtelseIAndreBehandling
+                    tilkjentYtelse = tilkjentYtelseIAndreBehandling,
                 ),
                 AndelTilkjentYtelseForIverksetting.Factory,
-                forrigeTilkjentYtelseMedAndeler = oppdatertTilkjentYtelseIFørsteBehandling
+                forrigeTilkjentYtelseMedAndeler = oppdatertTilkjentYtelseIFørsteBehandling,
             )
 
         val utbetalingsoppdrag =
@@ -420,7 +420,7 @@ internal class UtbetalingsoppdragGeneratorTest {
         assertThat(utbetalingsoppdrag.utbetalingsperiode.all { it.sats == BigDecimal(7500) }, Is(true))
         assertThat(
             utbetalingsoppdrag.utbetalingsperiode.all { it.utbetalesTil == førsteBehandling.fagsak.aktør.aktivFødselsnummer() },
-            Is(true)
+            Is(true),
         )
         assertThat(utbetalingsoppdrag.kodeEndring, Is(Utbetalingsoppdrag.KodeEndring.ENDR))
         assertThat(utbetalingsoppdrag.utbetalingsperiode.count { it.opphør != null }, Is(1))
@@ -468,7 +468,7 @@ internal class UtbetalingsoppdragGeneratorTest {
                     aktør = aktør,
                     stønadFom = årMåned("2020-01"),
                     stønadTom = årMåned("2029-12"),
-                    periodeOffset = 0
+                    periodeOffset = 0,
                 ),
                 lagAndelTilkjentYtelse(
                     tilkjentYtelse = tilkjentYtelseIFørsteBehandling,
@@ -476,7 +476,7 @@ internal class UtbetalingsoppdragGeneratorTest {
                     aktør = aktør,
                     stønadFom = årMåned("2030-01"),
                     stønadTom = årMåned("2034-12"),
-                    periodeOffset = 1
+                    periodeOffset = 1,
                 ),
                 lagAndelTilkjentYtelse(
                     tilkjentYtelse = tilkjentYtelseIFørsteBehandling,
@@ -484,8 +484,8 @@ internal class UtbetalingsoppdragGeneratorTest {
                     aktør = aktør,
                     stønadFom = årMåned("2035-01"),
                     stønadTom = årMåned("2039-12"),
-                    periodeOffset = 2
-                )
+                    periodeOffset = 2,
+                ),
             )
 
         tilkjentYtelseIFørsteBehandling.andelerTilkjentYtelse.addAll(andelTilkjentYtelserIFørsteBehandling)
@@ -494,9 +494,9 @@ internal class UtbetalingsoppdragGeneratorTest {
             utbetalingsoppdragGenerator.lagTilkjentYtelseMedUtbetalingsoppdrag(
                 lagVedtakMedTilkjentYtelse(
                     vedtak = vedtak,
-                    tilkjentYtelse = tilkjentYtelseIFørsteBehandling
+                    tilkjentYtelse = tilkjentYtelseIFørsteBehandling,
                 ),
-                AndelTilkjentYtelseForIverksetting.Factory
+                AndelTilkjentYtelseForIverksetting.Factory,
             )
 
         val andreBehandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD, fagsak = fagsak)
@@ -513,7 +513,7 @@ internal class UtbetalingsoppdragGeneratorTest {
                     aktør = aktør,
                     stønadFom = årMåned("2020-01"),
                     stønadTom = årMåned("2029-12"),
-                    periodeOffset = 0
+                    periodeOffset = 0,
                 ),
                 lagAndelTilkjentYtelse(
                     tilkjentYtelse = tilkjentYtelseIAndreBehandling,
@@ -521,7 +521,7 @@ internal class UtbetalingsoppdragGeneratorTest {
                     aktør = aktør,
                     stønadFom = årMåned("2030-01"),
                     stønadTom = årMåned("2034-12"),
-                    periodeOffset = 3
+                    periodeOffset = 3,
                 ),
                 lagAndelTilkjentYtelse(
                     tilkjentYtelse = tilkjentYtelseIAndreBehandling,
@@ -529,8 +529,8 @@ internal class UtbetalingsoppdragGeneratorTest {
                     aktør = aktør,
                     stønadFom = årMåned("2035-01"),
                     stønadTom = årMåned("2039-12"),
-                    periodeOffset = 4
-                )
+                    periodeOffset = 4,
+                ),
             )
 
         tilkjentYtelseIAndreBehandling.andelerTilkjentYtelse.addAll(andelTilkjentYtelserIAndreBehandling)
@@ -542,15 +542,15 @@ internal class UtbetalingsoppdragGeneratorTest {
                     vedtak = andreVedtak,
                     sisteOffsetPerIdent = ØkonomiUtils.gjeldendeForrigeOffsetForKjede(
                         ØkonomiUtils.kjedeinndelteAndeler(
-                            andelTilkjentYtelserIFørsteBehandling.forIverksetting()
-                        )
+                            andelTilkjentYtelserIFørsteBehandling.forIverksetting(),
+                        ),
                     ),
                     sisteOffsetPåFagsak = sisteOffsetPåFagsak,
                     tilkjentYtelse = tilkjentYtelseIAndreBehandling,
-                    erSimulering = true
+                    erSimulering = true,
                 ),
                 AndelTilkjentYtelseForIverksetting.Factory,
-                forrigeTilkjentYtelseMedAndeler = oppdatertTilkjentYtelseIFørsteBehandling
+                forrigeTilkjentYtelseMedAndeler = oppdatertTilkjentYtelseIFørsteBehandling,
             )
 
         val utbetalingsoppdrag =
@@ -560,7 +560,7 @@ internal class UtbetalingsoppdragGeneratorTest {
         assertThat(utbetalingsoppdrag.utbetalingsperiode.all { it.sats == BigDecimal(7500) }, Is(true))
         assertThat(
             utbetalingsoppdrag.utbetalingsperiode.all { it.utbetalesTil == førsteBehandling.fagsak.aktør.aktivFødselsnummer() },
-            Is(true)
+            Is(true),
         )
         assertThat(utbetalingsoppdrag.kodeEndring, Is(Utbetalingsoppdrag.KodeEndring.ENDR))
         assertThat(utbetalingsoppdrag.utbetalingsperiode.count { it.opphør != null }, Is(1))
@@ -592,14 +592,14 @@ internal class UtbetalingsoppdragGeneratorTest {
         tilkjentYtelse: TilkjentYtelse,
         sisteOffsetPerIdent: Map<String, Int> = emptyMap(),
         sisteOffsetPåFagsak: Int? = null,
-        erSimulering: Boolean = false
+        erSimulering: Boolean = false,
     ) = VedtakMedTilkjentYtelse(
         tilkjentYtelse = tilkjentYtelse,
         vedtak = vedtak,
         saksbehandlerId = "saksbehandler",
         sisteOffsetPerIdent = sisteOffsetPerIdent,
         sisteOffsetPåFagsak = sisteOffsetPåFagsak,
-        erSimulering = erSimulering
+        erSimulering = erSimulering,
     )
 
     private fun konvertTilUtbetalingsoppdrag(utbetalingsoppdragIString: String?) =

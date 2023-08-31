@@ -33,7 +33,7 @@ class KompetanseService(
     kompetanseEndringsAbonnenter: List<EøsSkjemaEndringAbonnent<Kompetanse>>,
     private val personidentService: PersonidentService,
     private val vilkårsvurderingTidslinjeService: VilkårsvurderingTidslinjeService,
-    private val endretUtbetalingAndelTidslinjeService: EndretUtbetalingAndelTidslinjeService
+    private val endretUtbetalingAndelTidslinjeService: EndretUtbetalingAndelTidslinjeService,
 ) {
 
     private val kompetanseSkjemaService = EøsSkjemaService(kompetanseRepository, kompetanseEndringsAbonnenter)
@@ -63,7 +63,7 @@ class KompetanseService(
         val oppdaterteKompetanser = tilpassKompetanserTilRegelverk(
             eksisterendeKompetanser,
             barnasRegelverkResultatTidslinjer,
-            barnasHarEtterbetaling3MånedTidslinjer
+            barnasHarEtterbetaling3MånedTidslinjer,
         ).medBehandlingId(behandlingId)
 
         kompetanseSkjemaService.lagreDifferanseOgVarsleAbonnenter(behandlingId, eksisterendeKompetanser, oppdaterteKompetanser)
@@ -75,7 +75,7 @@ class KompetanseService(
     private fun tilpassKompetanserTilRegelverk(
         eksisterendeKompetanser: Collection<Kompetanse>,
         barnaRegelverkTidslinjer: Map<Aktør, Tidslinje<RegelverkResultat>>,
-        barnasHarEtterbetaling3MånedTidslinjer: Map<Aktør, Tidslinje<Boolean>>
+        barnasHarEtterbetaling3MånedTidslinjer: Map<Aktør, Tidslinje<Boolean>>,
     ): List<Kompetanse> {
         val barnasEøsRegelverkTidslinjer = barnaRegelverkTidslinjer.tilBarnasEøsRegelverkTidslinjer()
             .leftJoin(barnasHarEtterbetaling3MånedTidslinjer) { regelverk, harEtterbetaling3Måned ->

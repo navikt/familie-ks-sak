@@ -23,7 +23,7 @@ class TidslinjeHierarkiTest {
     private fun init(
         lst1: List<TidslinjePeriode<Int>>,
         lst2: List<TidslinjePeriode<Int>>,
-        lst3: List<TidslinjePeriode<Int>>
+        lst3: List<TidslinjePeriode<Int>>,
     ) {
         this.lst1 = lst1
         this.lst2 = lst2
@@ -38,7 +38,7 @@ class TidslinjeHierarkiTest {
         init(
             listOf(TidslinjePeriode(5, 1, false), TidslinjePeriode(3, 1, false)),
             listOf(TidslinjePeriode(2, 1, false), TidslinjePeriode(1, 1, false)),
-            listOf(TidslinjePeriode(3, 1, false), TidslinjePeriode(2, 1, false))
+            listOf(TidslinjePeriode(3, 1, false), TidslinjePeriode(2, 1, false)),
         )
         var tidslinjeListe = listOf(t1, t2, t3)
         val t4 =
@@ -52,9 +52,13 @@ class TidslinjeHierarkiTest {
         tidslinjeListe = listOf(t4, t5)
 
         val t6 = tidslinjeListe.slåSammenLikeTidslinjer { t1, t2 ->
-            if (t1 is Udefinert || t2 is Udefinert) Udefinert()
-            else if (t1 is Null || t2 is Null) Null()
-            else Verdi(t1.verdi!! + t2.verdi!!)
+            if (t1 is Udefinert || t2 is Udefinert) {
+                Udefinert()
+            } else if (t1 is Null || t2 is Null) {
+                Null()
+            } else {
+                Verdi(t1.verdi!! + t2.verdi!!)
+            }
         }
 
         Assertions.assertEquals(2, t6.foreldre.size)
@@ -67,7 +71,7 @@ class TidslinjeHierarkiTest {
         init(
             listOf(TidslinjePeriode(5, 1, false), TidslinjePeriode(3, 1, false)),
             listOf(TidslinjePeriode(2, 1, false), TidslinjePeriode(1, 1, false)),
-            listOf(TidslinjePeriode(3, 1, false), TidslinjePeriode(2, 1, false))
+            listOf(TidslinjePeriode(3, 1, false), TidslinjePeriode(2, 1, false)),
         )
         val t5 = t1.biFunksjon(t2) { t1, t2 -> if (t1 is Null || t2 is Null) Null() else Verdi(t1.verdi!! - t2.verdi!!) }
         t5.fjernForeldre()
@@ -80,7 +84,7 @@ class TidslinjeHierarkiTest {
         init(
             listOf(TidslinjePeriode(5, 1, false), TidslinjePeriode(3, 1, false)),
             listOf(TidslinjePeriode(2, 1, false), TidslinjePeriode(1, 1, false)),
-            listOf(TidslinjePeriode(3, 1, false), TidslinjePeriode(2, 1, false))
+            listOf(TidslinjePeriode(3, 1, false), TidslinjePeriode(2, 1, false)),
         )
         val t5 = t1.biFunksjon(t2) { t1, t2 -> if (t1 is Null || t2 is Null) Null() else Verdi(t1.verdi!! - t2.verdi!!) }
 

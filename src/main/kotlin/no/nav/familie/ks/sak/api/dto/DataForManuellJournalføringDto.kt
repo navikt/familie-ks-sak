@@ -7,5 +7,5 @@ data class DataForManuellJournalføringDto(
     val oppgave: Oppgave,
     val person: PersonInfoDto?,
     val journalpost: Journalpost?,
-    val minimalFagsak: MinimalFagsakResponsDto?
+    val minimalFagsak: MinimalFagsakResponsDto?,
 )

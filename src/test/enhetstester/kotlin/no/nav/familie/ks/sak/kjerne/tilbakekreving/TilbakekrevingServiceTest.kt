@@ -87,34 +87,34 @@ internal class TilbakekrevingServiceTest {
     private val forhåndsvisVarselbrevRequestSlot = slot<ForhåndsvisVarselbrevRequest>()
     private val personopplysningGrunnlag = lagPersonopplysningGrunnlag(
         behandlingId = behandling.id,
-        søkerPersonIdent = søker
+        søkerPersonIdent = søker,
     )
     private val arbeidsfordeling = lagArbeidsfordelingPåBehandling(behandlingId = behandling.id)
     private val førsteFeilPostering = lagPostering(
         YearMonth.of(2022, 1),
         YearMonth.of(2022, 1),
-        BigDecimal("7500")
+        BigDecimal("7500"),
     )
 
     private val andreFeilPostering = lagPostering(
         YearMonth.of(2022, 2),
         YearMonth.of(2022, 2),
-        BigDecimal("4500")
+        BigDecimal("4500"),
     )
     private val tredjeFeilPostering = lagPostering(
         YearMonth.of(2022, 4),
         YearMonth.of(2022, 4),
-        BigDecimal("4500")
+        BigDecimal("4500"),
     )
     private val ytelsePostering = lagPostering(
         YearMonth.of(2022, 5),
         YearMonth.of(2022, 5),
         BigDecimal("4500"),
-        PosteringType.YTELSE
+        PosteringType.YTELSE,
     )
     private val økonomiSimuleringMottaker = lagØkonomiSimuleringMottaker(
         behandling = behandling,
-        økonomiSimuleringPosteringer = listOf(førsteFeilPostering, andreFeilPostering, tredjeFeilPostering, ytelsePostering)
+        økonomiSimuleringPosteringer = listOf(førsteFeilPostering, andreFeilPostering, tredjeFeilPostering, ytelsePostering),
     )
 
     @BeforeEach
@@ -137,7 +137,7 @@ internal class TilbakekrevingServiceTest {
 
         tilbakekrevingService.hentForhåndsvisningTilbakekrevingVarselBrev(
             behandling.id,
-            ForhåndsvisTilbakekrevingVarselbrevDto("fritekst")
+            ForhåndsvisTilbakekrevingVarselbrevDto("fritekst"),
         )
         verify(exactly = 1) { vedtakRepository.findByBehandlingAndAktivOptional(behandling.id) }
         verify(exactly = 1) { personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(behandling.id) }
@@ -267,7 +267,7 @@ internal class TilbakekrevingServiceTest {
             KanBehandlingOpprettesManueltRespons(
                 kanBehandlingOpprettes = true,
                 melding = "Det er mulig å opprette behandling manuelt.",
-                kravgrunnlagsreferanse = null
+                kravgrunnlagsreferanse = null,
             )
 
         val exception = assertThrows<Feil> {
@@ -275,7 +275,7 @@ internal class TilbakekrevingServiceTest {
         }
         assertEquals(
             "Tilbakekrevingsbehandling kan opprettes, men har ikke kravgrunnlagsreferanse på respons-en",
-            exception.message
+            exception.message,
         )
     }
 
@@ -286,7 +286,7 @@ internal class TilbakekrevingServiceTest {
             KanBehandlingOpprettesManueltRespons(
                 kanBehandlingOpprettes = true,
                 melding = "Det er mulig å opprette behandling manuelt.",
-                kravgrunnlagsreferanse = kravgrunnlagsreferanse
+                kravgrunnlagsreferanse = kravgrunnlagsreferanse,
             )
         every { vedtakRepository.findByBehandlingAndAktivOptional(kravgrunnlagsreferanse.toLong()) } returns null
 
@@ -297,12 +297,12 @@ internal class TilbakekrevingServiceTest {
             "Tilbakekrevingsbehandling kan ikke opprettes. " +
                 "Respons inneholder enten en referanse til en ukjent behandling " +
                 "eller behandling $kravgrunnlagsreferanse er ikke vedtatt",
-            exception.melding
+            exception.melding,
         )
         assertEquals(
             "Av tekniske årsaker så kan ikke tilbakekrevingsbehandling opprettes. " +
                 "Kontakt brukerstøtte for å rapportere feilen",
-            exception.frontendFeilmelding
+            exception.frontendFeilmelding,
         )
     }
 
@@ -313,7 +313,7 @@ internal class TilbakekrevingServiceTest {
             KanBehandlingOpprettesManueltRespons(
                 kanBehandlingOpprettes = true,
                 melding = "Det er mulig å opprette behandling manuelt.",
-                kravgrunnlagsreferanse = behandling.id.toString()
+                kravgrunnlagsreferanse = behandling.id.toString(),
             )
         every { tilbakekrevingKlient.opprettTilbakekrevingsbehandlingManuelt(any()) } returns ""
 
@@ -331,14 +331,14 @@ internal class TilbakekrevingServiceTest {
         fom: YearMonth,
         tom: YearMonth,
         beløp: BigDecimal,
-        posteringType: PosteringType = PosteringType.FEILUTBETALING
+        posteringType: PosteringType = PosteringType.FEILUTBETALING,
     ) = lagØkonomiSimuleringPostering(
         behandling = behandling,
         fom = fom.førsteDagIInneværendeMåned(),
         tom = tom.atEndOfMonth(),
         beløp = beløp,
         forfallsdato = LocalDate.now().plusMonths(5),
-        posteringType = posteringType
+        posteringType = posteringType,
     )
 
     private fun lagTilbakekreving(valg: Tilbakekrevingsvalg, varseltekst: String? = null) = Tilbakekreving(
@@ -346,7 +346,7 @@ internal class TilbakekrevingServiceTest {
         valg = valg,
         varsel = varseltekst,
         begrunnelse = "test begrunnelse",
-        tilbakekrevingsbehandlingId = null
+        tilbakekrevingsbehandlingId = null,
     )
 
     private fun List<Periode>.harPeriode(fom: YearMonth, tom: YearMonth) = assertTrue {

@@ -36,13 +36,13 @@ class SøknadGrunnlagServiceTest {
         val nySøknadGrunnlag = SøknadGrunnlag(
             behandlingId = 0,
             aktiv = true,
-            søknad = ""
+            søknad = "",
         )
 
         val gammelSøknadGrunnlag = SøknadGrunnlag(
             behandlingId = 0,
             aktiv = true,
-            søknad = ""
+            søknad = "",
         )
 
         every { søknadGrunnlagRepository.finnAktiv(any()) } returns gammelSøknadGrunnlag
@@ -60,7 +60,7 @@ class SøknadGrunnlagServiceTest {
         val søknadGrunnlag = SøknadGrunnlag(
             behandlingId = 0,
             aktiv = true,
-            søknad = ""
+            søknad = "",
         )
         every { søknadGrunnlagRepository.finnAktiv(any()) } returns søknadGrunnlag
 
@@ -83,7 +83,7 @@ class SøknadGrunnlagServiceTest {
         val søknadGrunnlag = SøknadGrunnlag(
             behandlingId = 0,
             aktiv = true,
-            søknad = ""
+            søknad = "",
         )
         every { søknadGrunnlagRepository.finnAktiv(any()) } returns søknadGrunnlag
 

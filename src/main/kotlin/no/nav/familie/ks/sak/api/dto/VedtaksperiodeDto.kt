@@ -9,21 +9,21 @@ import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.støtterFritekst
 import java.time.LocalDate
 
 data class VedtaksperiodeMedFriteksterDto(
-    val fritekster: List<String> = emptyList()
+    val fritekster: List<String> = emptyList(),
 )
 
 data class VedtaksperiodeMedBegrunnelserDto(
-    val begrunnelser: List<String>
+    val begrunnelser: List<String>,
 )
 
 data class GenererVedtaksperioderForOverstyrtEndringstidspunktDto(
     val behandlingId: Long,
-    val overstyrtEndringstidspunkt: LocalDate
+    val overstyrtEndringstidspunkt: LocalDate,
 )
 
 data class GenererFortsattInnvilgetVedtaksperioderDto(
     val skalGenererePerioderForFortsattInnvilget: Boolean,
-    val behandlingId: Long
+    val behandlingId: Long,
 )
 
 data class UtvidetVedtaksperiodeMedBegrunnelserDto(
@@ -34,7 +34,7 @@ data class UtvidetVedtaksperiodeMedBegrunnelserDto(
     val begrunnelser: List<VedtaksbegrunnelseDto>,
     val fritekster: List<String> = emptyList(),
     val gyldigeBegrunnelser: List<String>,
-    val utbetalingsperiodeDetaljer: List<UtbetalingsperiodeDetaljDto> = emptyList()
+    val utbetalingsperiodeDetaljer: List<UtbetalingsperiodeDetaljDto> = emptyList(),
 )
 
 fun UtvidetVedtaksperiodeMedBegrunnelser.tilUtvidetVedtaksperiodeMedBegrunnelserDto(sanityBegrunnelser: List<SanityBegrunnelse>): UtvidetVedtaksperiodeMedBegrunnelserDto {
@@ -46,7 +46,7 @@ fun UtvidetVedtaksperiodeMedBegrunnelser.tilUtvidetVedtaksperiodeMedBegrunnelser
         begrunnelser = this.begrunnelser.map { it.tilVedtaksbegrunnelseDto(sanityBegrunnelser) },
         fritekster = this.fritekster,
         utbetalingsperiodeDetaljer = this.utbetalingsperiodeDetaljer.map { it.tilUtbetalingsperiodeDetaljDto() },
-        gyldigeBegrunnelser = this.gyldigeBegrunnelser.map { it.enumnavnTilString() }
+        gyldigeBegrunnelser = this.gyldigeBegrunnelser.map { it.enumnavnTilString() },
     )
 }
 
@@ -54,12 +54,12 @@ data class VedtaksbegrunnelseDto(
     val begrunnelse: String,
     val vedtakBegrunnelseSpesifikasjon: String,
     val begrunnelseType: BegrunnelseType,
-    val støtterFritekst: Boolean
+    val støtterFritekst: Boolean,
 )
 
 fun Vedtaksbegrunnelse.tilVedtaksbegrunnelseDto(sanityBegrunnelser: List<SanityBegrunnelse>) = VedtaksbegrunnelseDto(
     begrunnelse = this.begrunnelse.enumnavnTilString(),
     begrunnelseType = this.begrunnelse.begrunnelseType,
     støtterFritekst = this.begrunnelse.støtterFritekst(sanityBegrunnelser),
-    vedtakBegrunnelseSpesifikasjon = this.begrunnelse.enumnavnTilString()
+    vedtakBegrunnelseSpesifikasjon = this.begrunnelse.enumnavnTilString(),
 )

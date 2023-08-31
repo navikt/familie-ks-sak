@@ -29,7 +29,7 @@ object TilkjentYtelseValidator {
 
     fun validerAtTilkjentYtelseHarFornuftigePerioderOgBeløp(
         tilkjentYtelse: TilkjentYtelse,
-        personopplysningGrunnlag: PersonopplysningGrunnlag
+        personopplysningGrunnlag: PersonopplysningGrunnlag,
     ) {
         val søker = personopplysningGrunnlag.søker
         val barna = personopplysningGrunnlag.barna
@@ -64,7 +64,7 @@ object TilkjentYtelseValidator {
 
     private fun hentSøkersAndeler(
         andeler: List<AndelTilkjentYtelse>,
-        søker: Person
+        søker: Person,
     ) = andeler.filter { it.aktør == søker.aktør }
 
     private fun hentBarnasAndeler(andeler: List<AndelTilkjentYtelse>, barna: List<Person>) = barna.map { barn ->
@@ -87,14 +87,14 @@ object TilkjentYtelseValidator {
             andeler.size > maksAntallAndeler -> {
                 throw UtbetalingsikkerhetFeil(
                     melding = "$feilmelding: Tillatte andeler = $maksAntallAndeler, faktiske andeler = ${andeler.size}.",
-                    frontendFeilmelding = frontendFeilmelding
+                    frontendFeilmelding = frontendFeilmelding,
                 )
             }
 
             totalbeløp > maksTotalBeløp -> {
                 throw UtbetalingsikkerhetFeil(
                     melding = "$feilmelding: Tillatt totalbeløp = $maksTotalBeløp, faktiske totalbeløp = $totalbeløp.",
-                    frontendFeilmelding = frontendFeilmelding
+                    frontendFeilmelding = frontendFeilmelding,
                 )
             }
         }
@@ -103,7 +103,7 @@ object TilkjentYtelseValidator {
     fun validerAtBarnIkkeFårFlereUtbetalingerSammePeriode(
         tilkjentYtelseForBehandling: TilkjentYtelse,
         barnMedAndreRelevanteTilkjentYtelser: List<Pair<Person, List<TilkjentYtelse>>>,
-        personopplysningGrunnlag: PersonopplysningGrunnlag
+        personopplysningGrunnlag: PersonopplysningGrunnlag,
     ) {
         val barna = personopplysningGrunnlag.barna.sortedBy { it.fødselsdato }
 
@@ -119,7 +119,7 @@ object TilkjentYtelseValidator {
 
             if (erOverlappAvAndeler(
                     andeler = andeler,
-                    andelerFraAndreBehandlinger = barnsAndelerFraAndreBehandlinger
+                    andelerFraAndreBehandlinger = barnsAndelerFraAndreBehandlinger,
                 )
             ) {
                 barnMedUtbetalingsikkerhetFeil.add(barn)
@@ -128,18 +128,18 @@ object TilkjentYtelseValidator {
         if (barnMedUtbetalingsikkerhetFeil.isNotEmpty()) {
             throw UtbetalingsikkerhetFeil(
                 melding = "Vi finner utbetalinger som overstiger 100% på hvert av barna: ${
-                barnMedUtbetalingsikkerhetFeil.map { it.fødselsdato }.tilBrevTekst()
+                    barnMedUtbetalingsikkerhetFeil.map { it.fødselsdato }.tilBrevTekst()
                 }",
                 frontendFeilmelding = "Du kan ikke godkjenne dette vedtaket fordi det vil betales ut mer enn 100% for barn født ${
-                barnMedUtbetalingsikkerhetFeil.map { it.fødselsdato }.tilBrevTekst()
-                }. Reduksjonsvedtak til annen person må være sendt til godkjenning før du kan gå videre."
+                    barnMedUtbetalingsikkerhetFeil.map { it.fødselsdato }.tilBrevTekst()
+                }. Reduksjonsvedtak til annen person må være sendt til godkjenning før du kan gå videre.",
             )
         }
     }
 
     private fun erOverlappAvAndeler(
         andeler: List<AndelTilkjentYtelse>,
-        andelerFraAndreBehandlinger: List<AndelTilkjentYtelse>
+        andelerFraAndreBehandlinger: List<AndelTilkjentYtelse>,
     ): Boolean {
         return andeler.any { andelTilkjentYtelse ->
             andelerFraAndreBehandlinger.any {
@@ -152,7 +152,7 @@ object TilkjentYtelseValidator {
     fun finnAktørIderMedUgyldigEtterbetalingsperiode(
         forrigeAndelerTilkjentYtelse: List<AndelTilkjentYtelse>?,
         andelerTilkjentYtelse: List<AndelTilkjentYtelse>,
-        kravDato: LocalDateTime
+        kravDato: LocalDateTime,
     ): List<String> {
         val gyldigEtterbetalingFom = hentGyldigEtterbetalingFom(kravDato)
 
@@ -168,7 +168,7 @@ object TilkjentYtelseValidator {
                 val etterbetalingErUgyldig = erUgyldigEtterbetalingPåPerson(
                     forrigeAndelerTilkjentYtelseForPerson,
                     andelerTilkjentYtelseForPerson,
-                    gyldigEtterbetalingFom
+                    gyldigEtterbetalingFom,
                 )
 
                 if (etterbetalingErUgyldig) {
@@ -183,7 +183,7 @@ object TilkjentYtelseValidator {
 
     private fun hentAktørIderForDenneOgForrigeBehandling(
         andelerTilkjentYtelse: List<AndelTilkjentYtelse>,
-        forrigeAndelerTilkjentYtelse: List<AndelTilkjentYtelse>?
+        forrigeAndelerTilkjentYtelse: List<AndelTilkjentYtelse>?,
     ): Set<String> {
         val aktørIderFraAndeler = andelerTilkjentYtelse.map { it.aktør.aktørId }
         val aktøerIderFraForrigeAndeler = forrigeAndelerTilkjentYtelse?.map { it.aktør.aktørId } ?: emptyList()
@@ -193,7 +193,7 @@ object TilkjentYtelseValidator {
     private fun erUgyldigEtterbetalingPåPerson(
         forrigeAndelerForPerson: List<AndelTilkjentYtelse>?,
         andelerForPerson: List<AndelTilkjentYtelse>,
-        gyldigEtterbetalingFom: YearMonth?
+        gyldigEtterbetalingFom: YearMonth?,
     ): Boolean {
         return YtelseType.values().any { ytelseType ->
             val forrigeAndelerForPersonOgType = forrigeAndelerForPerson?.filter { it.type == ytelseType } ?: emptyList()
@@ -203,7 +203,7 @@ object TilkjentYtelseValidator {
                 Periode(
                     it,
                     it.stønadFom.toLocalDate(),
-                    it.stønadTom.toLocalDate()
+                    it.stønadTom.toLocalDate(),
                 )
             }.tilTidslinje()
             val andelerTidslinje =
@@ -214,7 +214,7 @@ object TilkjentYtelseValidator {
                 erAndelMedØktBeløpFørDato(
                     forrigeAndeler = forrigeAndelerForPersonOgType,
                     andeler = andelerForPersonOgType,
-                    måned = gyldigEtterbetalingFom
+                    måned = gyldigEtterbetalingFom,
                 )
 
             val segmenterLagtTil =
@@ -237,7 +237,7 @@ object TilkjentYtelseValidator {
     private fun erAndelMedØktBeløpFørDato(
         forrigeAndeler: List<AndelTilkjentYtelse>?,
         andeler: List<AndelTilkjentYtelse>,
-        måned: YearMonth?
+        måned: YearMonth?,
     ): Boolean = andeler
         .filter { it.stønadFom < måned }
         .any { andel ->

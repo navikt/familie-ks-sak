@@ -12,11 +12,11 @@ import java.util.Properties
 @TaskStepBeskrivelse(
     taskStepType = SendOpprettTilbakekrevingsbehandlingRequestTask.TASK_STEP_TYPE,
     beskrivelse = "Kaller familie-tilbake for å sende OpprettTilbakekreving request",
-    maxAntallFeil = 3
+    maxAntallFeil = 3,
 )
 class SendOpprettTilbakekrevingsbehandlingRequestTask(
     private val behandlingRepository: BehandlingRepository,
-    private val tilbakekrevingService: TilbakekrevingService
+    private val tilbakekrevingService: TilbakekrevingService,
 ) : AsyncTaskStep {
 
     override fun doTask(task: Task) {
@@ -37,7 +37,7 @@ class SendOpprettTilbakekrevingsbehandlingRequestTask(
         fun opprettTask(behandlingId: Long) = Task(
             type = TASK_STEP_TYPE,
             payload = behandlingId.toString(),
-            properties = Properties().apply { this["behandlingsId"] = behandlingId.toString() }
+            properties = Properties().apply { this["behandlingsId"] = behandlingId.toString() },
         )
     }
 }

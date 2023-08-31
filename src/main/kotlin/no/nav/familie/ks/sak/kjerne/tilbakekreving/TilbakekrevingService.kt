@@ -36,7 +36,7 @@ class TilbakekrevingService(
     private val totrinnskontrollRepository: TotrinnskontrollRepository,
     private val personopplysningGrunnlagService: PersonopplysningGrunnlagService,
     private val arbeidsfordelingService: ArbeidsfordelingService,
-    private val simuleringService: SimuleringService
+    private val simuleringService: SimuleringService,
 ) {
 
     fun harÅpenTilbakekrevingsbehandling(fagsakId: Long): Boolean =
@@ -50,7 +50,7 @@ class TilbakekrevingService(
             behandling = behandling,
             valg = tilbakekrevingRequestDto.valg,
             varsel = tilbakekrevingRequestDto.varsel,
-            tilbakekrevingsbehandlingId = eksisterendeTilbakekreving?.tilbakekrevingsbehandlingId
+            tilbakekrevingsbehandlingId = eksisterendeTilbakekreving?.tilbakekrevingsbehandlingId,
         )
 
         eksisterendeTilbakekreving?.let { tilbakekrevingRepository.deleteById(it.id) }
@@ -68,10 +68,10 @@ class TilbakekrevingService(
 
     fun hentForhåndsvisningTilbakekrevingVarselBrev(
         behandlingId: Long,
-        forhåndsvisTilbakekrevingVarselbrevDto: ForhåndsvisTilbakekrevingVarselbrevDto
+        forhåndsvisTilbakekrevingVarselbrevDto: ForhåndsvisTilbakekrevingVarselbrevDto,
     ): ByteArray {
         val vedtak = vedtakRepository.findByBehandlingAndAktivOptional(behandlingId) ?: throw Feil(
-            "Fant ikke vedtak for behandling $behandlingId ved forhåndsvisning av varselbrev for tilbakekreving."
+            "Fant ikke vedtak for behandling $behandlingId ved forhåndsvisning av varselbrev for tilbakekreving.",
         )
         val personopplysningGrunnlag = personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(behandlingId)
         val søker = personopplysningGrunnlag.søker
@@ -85,15 +85,15 @@ class TilbakekrevingService(
                 språkkode = søker.målform.tilSpråkkode(),
                 feilutbetaltePerioderDto = FeilutbetaltePerioderDto(
                     sumFeilutbetaling = simuleringService.hentFeilutbetaling(behandlingId).longValueExact(),
-                    perioder = hentTilbakekrevingsperioderISimulering(simuleringService.hentSimuleringPåBehandling(behandlingId))
+                    perioder = hentTilbakekrevingsperioderISimulering(simuleringService.hentSimuleringPåBehandling(behandlingId)),
                 ),
                 fagsystem = Fagsystem.KONT, // for ks vil fagsystem alltid være KONT,
                 eksternFagsakId = vedtak.behandling.fagsak.id.toString(),
                 ident = søker.aktør.aktivFødselsnummer(),
                 saksbehandlerIdent = SikkerhetContext.hentSaksbehandlerNavn(),
                 verge = null, // TODO kommer når verge er implementert
-                institusjon = null // Institusjon er alltid null for kontantstøtte
-            )
+                institusjon = null, // Institusjon er alltid null for kontantstøtte
+            ),
         )
     }
 
@@ -105,7 +105,7 @@ class TilbakekrevingService(
         if (!kanOpprettesRespons.kanBehandlingOpprettes) {
             throw FunksjonellFeil(
                 frontendFeilmelding = kanOpprettesRespons.melding,
-                melding = "Tilbakekrevingsbehandling manuelt kan ikke opprettes pga ${kanOpprettesRespons.melding}"
+                melding = "Tilbakekrevingsbehandling manuelt kan ikke opprettes pga ${kanOpprettesRespons.melding}",
             )
         }
         val behandlingId = kanOpprettesRespons.kravgrunnlagsreferanse?.toLong()
@@ -115,15 +115,15 @@ class TilbakekrevingService(
                 frontendFeilmelding = "Av tekniske årsaker så kan ikke tilbakekrevingsbehandling opprettes. " +
                     "Kontakt brukerstøtte for å rapportere feilen",
                 melding = "Tilbakekrevingsbehandling kan ikke opprettes. " +
-                    "Respons inneholder enten en referanse til en ukjent behandling eller behandling $behandlingId er ikke vedtatt"
+                    "Respons inneholder enten en referanse til en ukjent behandling eller behandling $behandlingId er ikke vedtatt",
             )
 
         tilbakekrevingKlient.opprettTilbakekrevingsbehandlingManuelt(
             OpprettManueltTilbakekrevingRequest(
                 eksternFagsakId = fagsakId.toString(),
                 eksternId = behandling.id.toString(),
-                ytelsestype = Ytelsestype.KONTANTSTØTTE
-            )
+                ytelsestype = Ytelsestype.KONTANTSTØTTE,
+            ),
         )
     }
 
@@ -156,17 +156,19 @@ class TilbakekrevingService(
             varsel = if (tilbakekreving.valg == Tilbakekrevingsvalg.OPPRETT_TILBAKEKREVING_MED_VARSEL) {
                 opprettVarsel(
                     varselTekst = checkNotNull(tilbakekreving.varsel),
-                    simulering = simuleringService.hentSimuleringPåBehandling(behandlingId)
+                    simulering = simuleringService.hentSimuleringPåBehandling(behandlingId),
                 )
-            } else null,
+            } else {
+                null
+            },
             revurderingsvedtaksdato = revurderingVedtaksdato,
             verge = null, // TODO kommer når verge er implementert
             faktainfo = Faktainfo(
                 revurderingsårsak = behandling.opprettetÅrsak.visningsnavn,
                 revurderingsresultat = behandling.resultat.displayName,
                 tilbakekrevingsvalg = tilbakekreving.valg,
-                konsekvensForYtelser = emptySet()
-            )
+                konsekvensForYtelser = emptySet(),
+            ),
         )
     }
 }

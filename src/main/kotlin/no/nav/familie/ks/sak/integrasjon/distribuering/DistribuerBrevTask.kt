@@ -19,12 +19,12 @@ import java.util.Properties
 @TaskStepBeskrivelse(
     taskStepType = DistribuerBrevTask.TASK_STEP_TYPE,
     beskrivelse = "Send dokument til Dokdist",
-    maxAntallFeil = 3
+    maxAntallFeil = 3,
 )
 class DistribuerBrevTask(
     private val behandlingService: BehandlingService,
     private val brevService: BrevService,
-    private val taskService: TaskService
+    private val taskService: TaskService,
 ) : AsyncTaskStep {
 
     override fun doTask(task: Task) {
@@ -35,7 +35,7 @@ class DistribuerBrevTask(
                 journalpostId = distribuerBrevDto.journalpostId,
                 behandlingId = distribuerBrevDto.behandlingId,
                 loggBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
-                brevmal = distribuerBrevDto.brevmal
+                brevmal = distribuerBrevDto.brevmal,
             )
         } else if (!distribuerBrevDto.erManueltSendt && distribuerBrevDto.brevmal.erVedtaksbrev &&
             distribuerBrevDto.behandlingId != null
@@ -44,7 +44,7 @@ class DistribuerBrevTask(
                 journalpostId = distribuerBrevDto.journalpostId,
                 behandlingId = distribuerBrevDto.behandlingId,
                 loggBehandlerRolle = BehandlerRolle.SYSTEM,
-                brevmal = distribuerBrevDto.brevmal
+                brevmal = distribuerBrevDto.brevmal,
             )
 
             val behandling = behandlingService.hentBehandling(distribuerBrevDto.behandlingId)
@@ -52,13 +52,13 @@ class DistribuerBrevTask(
 
             val avsluttBehandlingTask = AvsluttBehandlingTask.opprettTask(
                 søkerIdent = søkerIdent,
-                behandlingId = behandling.id
+                behandlingId = behandling.id,
             )
             taskService.save(avsluttBehandlingTask)
         } else {
             throw Feil(
                 "erManueltSendt=${distribuerBrevDto.erManueltSendt} " +
-                    "ikke støttet for brev=${distribuerBrevDto.brevmal.visningsTekst}"
+                    "ikke støttet for brev=${distribuerBrevDto.brevmal.visningsTekst}",
             )
         }
     }
@@ -67,14 +67,14 @@ class DistribuerBrevTask(
 
         fun opprettDistribuerBrevTask(
             distribuerBrevDTO: DistribuerBrevDto,
-            properties: Properties
+            properties: Properties,
         ): Task {
             return Task(
                 type = TASK_STEP_TYPE,
                 payload = objectMapper.writeValueAsString(distribuerBrevDTO),
-                properties = properties
+                properties = properties,
             ).copy(
-                triggerTid = nesteGyldigeTriggertidForBehandlingIHverdager()
+                triggerTid = nesteGyldigeTriggertidForBehandlingIHverdager(),
             )
         }
 

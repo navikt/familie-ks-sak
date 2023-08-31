@@ -59,7 +59,7 @@ class SøknadGrunnlagRepositoryTest : OppslagSpringRunnerTest() {
         val søknadDto = SøknadDto(
             SøkerMedOpplysningerDto(ident = søker.aktivFødselsnummer()),
             barna.map { BarnMedOpplysningerDto(ident = it.aktivFødselsnummer()) },
-            endringAvOpplysningerBegrunnelse = ""
+            endringAvOpplysningerBegrunnelse = "",
         )
         søknadGrunnlagRepository.saveAndFlush(søknadDto.tilSøknadGrunnlag(behandlingId).also { it.aktiv = aktiv })
 

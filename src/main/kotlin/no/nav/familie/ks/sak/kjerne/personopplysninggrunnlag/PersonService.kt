@@ -17,7 +17,7 @@ import org.springframework.stereotype.Service
 @Service
 class PersonService(
     private val personOpplysningerService: PersonOpplysningerService,
-    private val statsborgerskapService: StatsborgerskapService
+    private val statsborgerskapService: StatsborgerskapService,
 ) {
 
     fun lagPerson(
@@ -25,7 +25,7 @@ class PersonService(
         personopplysningGrunnlag: PersonopplysningGrunnlag,
         målform: Målform,
         personType: PersonType,
-        krevesEnkelPersonInfo: Boolean
+        krevesEnkelPersonInfo: Boolean,
     ): Person {
         val personinfo = if (krevesEnkelPersonInfo) {
             personOpplysningerService.hentPersoninfoEnkel(aktør)
@@ -39,7 +39,7 @@ class PersonService(
             aktør = aktør,
             navn = personinfo.navn ?: "",
             kjønn = personinfo.kjønn?.let { Kjønn.valueOf(it.name) } ?: Kjønn.UKJENT,
-            målform = målform
+            målform = målform,
         ).also { person ->
             person.opphold = personinfo.opphold?.map { GrOpphold.fraOpphold(it, person) }?.toMutableList()
                 ?: mutableListOf()
@@ -49,7 +49,7 @@ class PersonService(
             person.dødsfall = Dødsfall.lagDødsfall(
                 person = person,
                 pdlDødsfallDato = personinfo.dødsfall?.dødsdato,
-                pdlDødsfallAdresse = personinfo.kontaktinformasjonForDoedsbo?.adresse
+                pdlDødsfallAdresse = personinfo.kontaktinformasjonForDoedsbo?.adresse,
             )
             person.statsborgerskap = personinfo.statsborgerskap?.flatMap {
                 statsborgerskapService.hentStatsborgerskapMedMedlemskap(it, person)
