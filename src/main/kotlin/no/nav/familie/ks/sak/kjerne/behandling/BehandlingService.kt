@@ -191,7 +191,7 @@ class BehandlingService(
         oppdaterBehandling(behandling)
     }
 
-    fun hentSisteIverksatteBehandlingerFraLøpendeFagsaker(page: Pageable): Page<BigInteger> =
+    fun hentSisteIverksatteBehandlingerFraLøpendeFagsaker(page: Pageable): Page<Long> =
         behandlingRepository.finnSisteIverksatteBehandlingFraLøpendeFagsaker(page)
 
     fun hentAktivtFødselsnummerForBehandlinger(behandlingIder: List<Long>): Map<Long, String> =

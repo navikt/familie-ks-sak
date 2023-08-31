@@ -56,9 +56,9 @@ internal class KonsistensavstemmingTaskTest {
 
     @Test
     fun `doTask skal utføre task for 25000 løpende behandlinger`() {
-        val behandlingIder = (1..4999).map { it.toBigInteger() }
+        val behandlingIder = (1..4999).map { it.toLong() }
 
-        val page = mockk<Page<BigInteger>>()
+        val page = mockk<Page<Long>>()
         val pageable = mockk<Pageable>()
         val nrOfPages = 5
         every { page.totalPages } returns nrOfPages

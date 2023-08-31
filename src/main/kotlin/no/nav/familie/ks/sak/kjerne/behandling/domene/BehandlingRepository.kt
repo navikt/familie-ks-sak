@@ -92,7 +92,7 @@ interface BehandlingRepository : JpaRepository<Behandling, Long> {
 
         nativeQuery = true,
     )
-    fun finnSisteIverksatteBehandlingFraLøpendeFagsaker(page: Pageable): Page<BigInteger>
+    fun finnSisteIverksatteBehandlingFraLøpendeFagsaker(page: Pageable): Page<Long>
 
     @Query(
         """ SELECT new kotlin.Pair(b.id, p.fødselsnummer) from Behandling b 
