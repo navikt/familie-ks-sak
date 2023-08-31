@@ -4,7 +4,6 @@ import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
-import java.math.BigInteger
 
 interface BehandlingRepository : JpaRepository<Behandling, Long> {
 
@@ -92,7 +91,7 @@ interface BehandlingRepository : JpaRepository<Behandling, Long> {
 
         nativeQuery = true,
     )
-    fun finnSisteIverksatteBehandlingFraLøpendeFagsaker(page: Pageable): Page<BigInteger>
+    fun finnSisteIverksatteBehandlingFraLøpendeFagsaker(page: Pageable): Page<Long>
 
     @Query(
         """ SELECT new kotlin.Pair(b.id, p.fødselsnummer) from Behandling b 

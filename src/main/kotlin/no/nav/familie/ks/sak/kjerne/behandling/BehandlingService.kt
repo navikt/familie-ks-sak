@@ -41,7 +41,6 @@ import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import java.math.BigInteger
 
 @Service
 class BehandlingService(
@@ -191,7 +190,7 @@ class BehandlingService(
         oppdaterBehandling(behandling)
     }
 
-    fun hentSisteIverksatteBehandlingerFraLøpendeFagsaker(page: Pageable): Page<BigInteger> =
+    fun hentSisteIverksatteBehandlingerFraLøpendeFagsaker(page: Pageable): Page<Long> =
         behandlingRepository.finnSisteIverksatteBehandlingFraLøpendeFagsaker(page)
 
     fun hentAktivtFødselsnummerForBehandlinger(behandlingIder: List<Long>): Map<Long, String> =
