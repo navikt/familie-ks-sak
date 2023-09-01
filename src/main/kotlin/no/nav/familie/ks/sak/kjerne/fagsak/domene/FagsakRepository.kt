@@ -1,12 +1,12 @@
 package no.nav.familie.ks.sak.kjerne.fagsak.domene
 
+import jakarta.persistence.LockModeType
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Lock
 import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.jpa.repository.Query
 import org.springframework.stereotype.Repository
-import javax.persistence.LockModeType
 
 @Repository
 interface FagsakRepository : JpaRepository<Fagsak, Long> {
@@ -47,7 +47,7 @@ interface FagsakRepository : JpaRepository<Fagsak, Long> {
                              INNER JOIN tilkjent_ytelse ty ON b.id = ty.fk_behandling_id
                     WHERE b.opprettet_tid = silp.opprettet_tid AND ty.stonad_tom < DATE_TRUNC('month', NOW()));
                 """,
-        nativeQuery = true
+        nativeQuery = true,
     )
     fun finnFagsakerSomSkalAvsluttes(): List<Fagsak>
 }

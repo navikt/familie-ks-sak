@@ -39,7 +39,7 @@ class VilkårsvurderingSteg(
     private val søknadGrunnlagService: SøknadGrunnlagService,
     private val vilkårsvurderingService: VilkårsvurderingService,
     private val beregningService: BeregningService,
-    private val kompetanseService: KompetanseService
+    private val kompetanseService: KompetanseService,
 ) : IBehandlingSteg {
     override fun getBehandlingssteg(): BehandlingSteg = BehandlingSteg.VILKÅRSVURDERING
 
@@ -72,7 +72,7 @@ class VilkårsvurderingSteg(
 
     private fun settBehandlingstemaBasertPåVilkårsvurdering(
         nåværendeBehandling: Behandling,
-        nåværendeVilkårsvurdering: Vilkårsvurdering
+        nåværendeVilkårsvurdering: Vilkårsvurdering,
     ) {
         val nåværendeVilkårVurderesEtterEøs = nåværendeVilkårsvurdering.personResultater.flatMap { it.vilkårResultater }
             .filter { it.behandlingId == nåværendeBehandling.id }
@@ -108,19 +108,19 @@ class VilkårsvurderingSteg(
         vilkårsvurdering: Vilkårsvurdering,
         personopplysningGrunnlag: PersonopplysningGrunnlag,
         søknadGrunnlagDto: SøknadDto?,
-        behandling: Behandling
+        behandling: Behandling,
     ) {
         validerAtDetFinnesBarnIPersonopplysningsgrunnlaget(personopplysningGrunnlag, søknadGrunnlagDto, behandling)
         if (behandling.opprettetÅrsak == BehandlingÅrsak.DØDSFALL) {
             validerAtIngenVilkårErSattEtterSøkersDød(
                 personopplysningGrunnlag = personopplysningGrunnlag,
-                vilkårsvurdering = vilkårsvurdering
+                vilkårsvurdering = vilkårsvurdering,
             )
         }
         validerAtDetIkkeErOverlappMellomGradertBarnehageplassOgDeltBosted(vilkårsvurdering)
         validerAtPerioderIBarnehageplassSamsvarerMedPeriodeIBarnetsAlderVilkår(
             vilkårsvurdering,
-            personopplysningGrunnlag
+            personopplysningGrunnlag,
         )
         validerAtDetIkkeFinnesMerEnn2EndringerISammeMånedIBarnehageplassVilkår(vilkårsvurdering)
         validerAtDatoErKorrektIBarnasVilkår(vilkårsvurdering, personopplysningGrunnlag.barna)
@@ -130,7 +130,7 @@ class VilkårsvurderingSteg(
     private fun validerAtDetFinnesBarnIPersonopplysningsgrunnlaget(
         personopplysningGrunnlag: PersonopplysningGrunnlag,
         søknadGrunnlagDto: SøknadDto?,
-        behandling: Behandling
+        behandling: Behandling,
     ) {
         val barna = personopplysningGrunnlag.barna
         val uregistrerteBarn = søknadGrunnlagDto?.barnaMedOpplysninger?.filter {
@@ -140,14 +140,14 @@ class VilkårsvurderingSteg(
         if (barna.isEmpty() && uregistrerteBarn.isEmpty()) {
             throw FunksjonellFeil(
                 melding = "Ingen barn i personopplysningsgrunnlag ved validering av vilkårsvurdering på behandling ${behandling.id}",
-                frontendFeilmelding = "Barn må legges til for å gjennomføre vilkårsvurdering."
+                frontendFeilmelding = "Barn må legges til for å gjennomføre vilkårsvurdering.",
             )
         }
     }
 
     private fun validerAtIngenVilkårErSattEtterSøkersDød(
         personopplysningGrunnlag: PersonopplysningGrunnlag,
-        vilkårsvurdering: Vilkårsvurdering
+        vilkårsvurdering: Vilkårsvurdering,
     ) {
         val vilkårResultaterSøker =
             vilkårsvurdering.hentPersonResultaterTilAktør(personopplysningGrunnlag.søker.aktør.aktørId)
@@ -165,8 +165,8 @@ class VilkårsvurderingSteg(
         if (vilkårSomEnderEtterSøkersDød.isNotEmpty()) {
             throw FunksjonellFeil(
                 "Ved behandlingsårsak \"Dødsfall\" må vilkårene på søker avsluttes " + "senest dagen søker døde, men " + slåSammen(
-                    vilkårSomEnderEtterSøkersDød.map { "\"" + it.beskrivelse + "\"" }
-                ) + " vilkåret til søker slutter etter søkers død."
+                    vilkårSomEnderEtterSøkersDød.map { "\"" + it.beskrivelse + "\"" },
+                ) + " vilkåret til søker slutter etter søkers død.",
             )
         }
     }
@@ -182,12 +182,12 @@ class VilkårsvurderingSteg(
                 val deltBosted =
                     vilkårResultat.utdypendeVilkårsvurderinger.contains(UtdypendeVilkårsvurdering.DELT_BOSTED)
 
-                gradertBarnehageplass || deltBosted
+                vilkårResultat.erOppfylt() && (gradertBarnehageplass || deltBosted)
             }.map { vilkårResultat ->
                 TidslinjePeriodeMedDato(
                     verdi = vilkårResultat,
                     fom = vilkårResultat.periodeFom,
-                    tom = vilkårResultat.periodeTom
+                    tom = vilkårResultat.periodeTom,
                 )
             }.validerIngenOverlapp("Det er lagt inn gradert barnehageplass og delt bosted for samme periode.")
         }
@@ -195,7 +195,7 @@ class VilkårsvurderingSteg(
 
     private fun validerAtPerioderIBarnehageplassSamsvarerMedPeriodeIBarnetsAlderVilkår(
         vilkårsvurdering: Vilkårsvurdering,
-        personopplysningGrunnlag: PersonopplysningGrunnlag
+        personopplysningGrunnlag: PersonopplysningGrunnlag,
     ) {
         vilkårsvurdering.personResultater.filter { !it.erSøkersResultater() }.forEach { personResultat ->
             val person =
@@ -228,17 +228,17 @@ class VilkårsvurderingSteg(
             ) {
                 throw FunksjonellFeil(
                     "Det mangler vurdering på vilkåret ${Vilkår.BARNEHAGEPLASS.beskrivelse}. " +
-                        "Hele eller deler av perioden der barnet er mellom 1 og 2 år er ikke vurdert."
+                        "Hele eller deler av perioden der barnet er mellom 1 og 2 år er ikke vurdert.",
                 )
             }
             if (barnehageplassVilkårResultater.any {
-                it.periodeFom?.isAfter(maksTilOmMedDatoIBarnetsAlderVilkårResultater) == true
-            }
+                    it.periodeFom?.isAfter(maksTilOmMedDatoIBarnetsAlderVilkårResultater) == true
+                }
             ) {
                 throw FunksjonellFeil(
                     "Du har lagt til en periode på vilkåret ${Vilkår.BARNEHAGEPLASS.beskrivelse}" +
                         " som starter etter at barnet har fylt 2 år eller startet på skolen. " +
-                        "Du må fjerne denne perioden for å kunne fortsette"
+                        "Du må fjerne denne perioden for å kunne fortsette",
                 )
             }
         }
@@ -247,12 +247,12 @@ class VilkårsvurderingSteg(
     private fun validerAtDetIkkeFinnesMerEnn2EndringerISammeMånedIBarnehageplassVilkår(vilkårsvurdering: Vilkårsvurdering) {
         vilkårsvurdering.personResultater.filter { !it.erSøkersResultater() }.forEach { personResultat ->
             if (personResultat.tilPeriodeResultater().any { periodeResultat ->
-                periodeResultat.vilkårResultater.count { it.vilkårType == Vilkår.BARNEHAGEPLASS } > 2
-            }
+                    periodeResultat.vilkårResultater.count { it.vilkårType == Vilkår.BARNEHAGEPLASS } > 2
+                }
             ) {
                 throw FunksjonellFeil(
                     "Du har lagt inn flere enn 2 endringer i barnehagevilkåret i samme måned. " +
-                        "Dette er ikke støttet enda. Ta kontakt med Team Familie."
+                        "Dette er ikke støttet enda. Ta kontakt med Team Familie.",
                 )
             }
         }
@@ -260,12 +260,12 @@ class VilkårsvurderingSteg(
 
     private fun validerIkkeBlandetRegelverk(
         personopplysningGrunnlag: PersonopplysningGrunnlag,
-        vilkårsvurdering: Vilkårsvurdering
+        vilkårsvurdering: Vilkårsvurdering,
     ) {
         val vilkårsvurderingTidslinjer = VilkårsvurderingTidslinjer(vilkårsvurdering, personopplysningGrunnlag)
         if (vilkårsvurderingTidslinjer.harBlandetRegelverk()) {
             throw FunksjonellFeil(
-                melding = "Det er forskjellig regelverk for en eller flere perioder for søker eller barna"
+                melding = "Det er forskjellig regelverk for en eller flere perioder for søker eller barna",
             )
         }
     }

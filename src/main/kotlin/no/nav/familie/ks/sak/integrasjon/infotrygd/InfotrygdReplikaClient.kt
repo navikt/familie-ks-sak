@@ -16,19 +16,19 @@ import java.time.YearMonth
 @Component
 class InfotrygdReplikaClient(
     @Value("\${FAMILIE_KS_INFOTRYGD_API_URL}") private val familieKsInfotrygdUri: URI,
-    @Qualifier("azure") restOperations: RestOperations
+    @Qualifier("azure") restOperations: RestOperations,
 ) : AbstractRestClient(restOperations, "familie-ba-infotrygd") {
 
     fun harKontantstøtteIInfotrygd(barnIGjeldendeBehandling: List<BarnMedOpplysningerDto>): Boolean {
         val harKontantstøtteIInfotrygdUri = UriComponentsBuilder
             .fromUri(familieKsInfotrygdUri)
-            .pathSegment("harLøpendeKontantstotteIInfotrygd")
+            .pathSegment("harLopendeKontantstotteIInfotrygd")
             .build()
             .toUri()
         val harKontantstøtte = kallEksternTjeneste<Boolean>(
             tjeneste = "harKontantstøtteIInfotrygd",
             uri = harKontantstøtteIInfotrygdUri,
-            formål = "Sjekk om noen av personene i denne behandlingen har løpende kontantstøtte i infotrygd"
+            formål = "Sjekk om noen av personene i denne behandlingen har løpende kontantstøtte i infotrygd",
         ) {
             postForEntity(uri = harKontantstøtteIInfotrygdUri, barnIGjeldendeBehandling.tilInnsynsRequest())
         }
@@ -38,14 +38,14 @@ class InfotrygdReplikaClient(
     fun hentKontantstøttePerioderFraInfotrygd(identer: List<String>): InnsynResponse {
         val requestURI = UriComponentsBuilder
             .fromUri(familieKsInfotrygdUri)
-            .pathSegment("hentPerioderMedKontantstøtteIInfotrygd")
+            .pathSegment("hentPerioderMedKontantstotteIInfotrygd")
             .build()
             .toUri()
 
         val infotrygdPerioder = kallEksternTjeneste<InnsynResponse>(
             tjeneste = "hentPerioderMedKontantstøtteIInfotrygd",
             uri = requestURI,
-            formål = "Henting av kontantstøtte perioder fra infotrygd"
+            formål = "Henting av kontantstøtte perioder fra infotrygd",
         ) {
             postForEntity(uri = requestURI, InnsynRequest(barn = identer.map { it }))
         }
@@ -66,7 +66,7 @@ data class StonadDto(
     val fom: YearMonth?,
     val tom: YearMonth?,
     val belop: Int?,
-    val barn: List<BarnDto>
+    val barn: List<BarnDto>,
 )
 
 data class BarnDto(val fnr: Foedselsnummer)

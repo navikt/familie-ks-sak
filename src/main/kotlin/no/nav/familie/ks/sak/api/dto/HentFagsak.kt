@@ -15,7 +15,7 @@ import java.util.UUID
 
 data class FagsakRequestDto(
     val personIdent: String?,
-    val aktørId: String? = null
+    val aktørId: String? = null,
 )
 
 data class MinimalFagsakResponsDto(
@@ -27,7 +27,7 @@ data class MinimalFagsakResponsDto(
     val løpendeKategori: BehandlingKategori?,
     val behandlinger: List<MinimalBehandlingResponsDto> = emptyList(),
     val tilbakekrevingsbehandlinger: List<TilbakekrevingsbehandlingResponsDto> = emptyList(),
-    val gjeldendeUtbetalingsperioder: List<UtbetalingsperiodeResponsDto> = emptyList()
+    val gjeldendeUtbetalingsperioder: List<UtbetalingsperiodeResponsDto> = emptyList(),
 )
 
 data class MinimalBehandlingResponsDto(
@@ -39,7 +39,7 @@ data class MinimalBehandlingResponsDto(
     val type: BehandlingType,
     val status: BehandlingStatus,
     val resultat: Behandlingsresultat,
-    val vedtaksdato: LocalDateTime?
+    val vedtaksdato: LocalDateTime?,
 )
 
 data class TilbakekrevingsbehandlingResponsDto(
@@ -50,5 +50,5 @@ data class TilbakekrevingsbehandlingResponsDto(
     val type: Behandlingstype,
     val status: Behandlingsstatus,
     val resultat: Behandlingsresultatstype?,
-    val vedtaksdato: LocalDateTime?
+    val vedtaksdato: LocalDateTime?,
 )

@@ -81,13 +81,13 @@ class TotrinnskontrollServiceTest {
                 200,
                 "beslutter",
                 "beslutterId",
-                Beslutning.GODKJENT
+                Beslutning.GODKJENT,
             )
         }
 
         assertThat(
             funksjonellFeil.message,
-            Is("Samme saksbehandler kan ikke foreslå og beslutte iverksetting på samme vedtak")
+            Is("Samme saksbehandler kan ikke foreslå og beslutte iverksetting på samme vedtak"),
         )
         assertThat(funksjonellFeil.frontendFeilmelding, Is("Du kan ikke godkjenne ditt eget vedtak"))
     }
@@ -104,7 +104,7 @@ class TotrinnskontrollServiceTest {
             200,
             "beslutter",
             "beslutterId",
-            Beslutning.GODKJENT
+            Beslutning.GODKJENT,
         )
 
         verify(exactly = 1) { mocketTotrinnskontroll.erUgyldig() }

@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service
 @Service
 class TilbakekrevingsbehandlingHentService(
     private val tilbakekrevingKlient: TilbakekrevingKlient,
-    private val tilbakekrevingRepository: TilbakekrevingRepository
+    private val tilbakekrevingRepository: TilbakekrevingRepository,
 ) {
 
     fun hentTilbakekrevingsbehandlinger(fagsakId: Long) = tilbakekrevingKlient.hentTilbakekrevingsbehandlinger(fagsakId)

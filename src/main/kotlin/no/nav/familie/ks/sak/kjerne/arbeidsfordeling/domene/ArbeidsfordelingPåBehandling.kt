@@ -1,12 +1,12 @@
 package no.nav.familie.ks.sak.kjerne.arbeidsfordeling.domene
 
-import javax.persistence.Column
-import javax.persistence.Entity
-import javax.persistence.GeneratedValue
-import javax.persistence.GenerationType
-import javax.persistence.Id
-import javax.persistence.SequenceGenerator
-import javax.persistence.Table
+import jakarta.persistence.Column
+import jakarta.persistence.Entity
+import jakarta.persistence.GeneratedValue
+import jakarta.persistence.GenerationType
+import jakarta.persistence.Id
+import jakarta.persistence.SequenceGenerator
+import jakarta.persistence.Table
 
 @Entity(name = "ArbeidsfordelingPåBehandling")
 @Table(name = "ARBEIDSFORDELING_PA_BEHANDLING")
@@ -16,7 +16,7 @@ data class ArbeidsfordelingPåBehandling(
     @SequenceGenerator(
         name = "arbeidsfordeling_pa_behandling_seq_generator",
         sequenceName = "arbeidsfordeling_pa_behandling_seq",
-        allocationSize = 50
+        allocationSize = 50,
     )
     val id: Long = 0,
 
@@ -30,7 +30,7 @@ data class ArbeidsfordelingPåBehandling(
     var behandlendeEnhetNavn: String,
 
     @Column(name = "manuelt_overstyrt", nullable = false)
-    var manueltOverstyrt: Boolean = false
+    var manueltOverstyrt: Boolean = false,
 ) {
     override fun toString(): String {
         return "ArbeidsfordelingPåBehandling(id=$id, manueltOverstyrt=$manueltOverstyrt)"

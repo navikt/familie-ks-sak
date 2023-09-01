@@ -1,5 +1,6 @@
 package no.nav.familie.ks.sak.sikkerhet
 
+import jakarta.servlet.http.HttpServletRequest
 import no.nav.familie.log.mdc.MDCConstants
 import org.slf4j.LoggerFactory
 import org.slf4j.MDC
@@ -7,7 +8,6 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
 import org.springframework.web.context.request.RequestContextHolder
 import org.springframework.web.context.request.ServletRequestAttributes
-import javax.servlet.http.HttpServletRequest
 
 /**
  * [custom1], [custom2], [custom3] brukes for å logge ekstra felter, eks fagsak, behandling,
@@ -19,14 +19,14 @@ data class Sporingsdata(
     val personIdent: String,
     val custom1: CustomKeyValue? = null,
     val custom2: CustomKeyValue? = null,
-    val custom3: CustomKeyValue? = null
+    val custom3: CustomKeyValue? = null,
 )
 
 enum class AuditLoggerEvent(val type: String) {
     CREATE("create"),
     UPDATE("update"),
     DELETE("delete"),
-    ACCESS("access")
+    ACCESS("access"),
 }
 
 data class CustomKeyValue(val key: String, val value: String)
@@ -57,7 +57,7 @@ class AuditLogger(@Value("\${NAIS_APP_NAME}") private val applicationName: Strin
     private fun createAuditLogString(data: Sporingsdata, request: HttpServletRequest): String {
         val timestamp = System.currentTimeMillis()
         val name = "Saksbehandling"
-        return "CEF:0|$applicationName|auditLog|1.0|audit:${data.event.type}|$name|INFO|end=$timestamp " +
+        return "CEF:0|Familie|$applicationName|1.0|audit:${data.event.type}|$name|INFO|end=$timestamp " +
             "suid=${SikkerhetContext.hentSaksbehandler()} " +
             "duid=${data.personIdent} " +
             "sproc=${getCallId()} " +
@@ -70,7 +70,7 @@ class AuditLogger(@Value("\${NAIS_APP_NAME}") private val applicationName: Strin
         return listOfNotNull(
             data.custom1?.let { "cs3Label=${it.key} cs3=${it.value}" },
             data.custom2?.let { "cs5Label=${it.key} cs5=${it.value}" },
-            data.custom3?.let { "cs6Label=${it.key} cs6=${it.value}" }
+            data.custom3?.let { "cs6Label=${it.key} cs6=${it.value}" },
         )
             .joinToString(" ")
     }

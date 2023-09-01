@@ -1,17 +1,17 @@
 package no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene
 
+import jakarta.persistence.Column
+import jakarta.persistence.Entity
+import jakarta.persistence.EnumType
+import jakarta.persistence.Enumerated
+import jakarta.persistence.GeneratedValue
+import jakarta.persistence.GenerationType
+import jakarta.persistence.Id
+import jakarta.persistence.JoinColumn
+import jakarta.persistence.ManyToOne
+import jakarta.persistence.SequenceGenerator
+import jakarta.persistence.Table
 import no.nav.familie.ks.sak.common.entitet.BaseEntitet
-import javax.persistence.Column
-import javax.persistence.Entity
-import javax.persistence.EnumType
-import javax.persistence.Enumerated
-import javax.persistence.GeneratedValue
-import javax.persistence.GenerationType
-import javax.persistence.Id
-import javax.persistence.JoinColumn
-import javax.persistence.ManyToOne
-import javax.persistence.SequenceGenerator
-import javax.persistence.Table
 
 @Entity(name = "AnnenVurdering")
 @Table(name = "annen_vurdering")
@@ -21,7 +21,7 @@ class AnnenVurdering(
     @SequenceGenerator(
         name = "annen_vurdering_seq_generator",
         sequenceName = "annen_vurdering_seq",
-        allocationSize = 50
+        allocationSize = 50,
     )
     val id: Long = 0,
 
@@ -38,9 +38,9 @@ class AnnenVurdering(
     var type: AnnenVurderingType,
 
     @Column(name = "begrunnelse")
-    var begrunnelse: String? = null
+    var begrunnelse: String? = null,
 ) : BaseEntitet()
 
 enum class AnnenVurderingType {
-    OPPLYSNINGSPLIKT
+    OPPLYSNINGSPLIKT,
 }

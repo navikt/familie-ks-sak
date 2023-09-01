@@ -60,7 +60,7 @@ class IverksettMotOppdragStegTest {
             saksbehandler = "SB1",
             beslutter = "SB1",
             saksbehandlerId = "1234",
-            godkjent = true
+            godkjent = true,
         )
 
         every { behandlingService.hentBehandling(any()) } returns mocketBehandling
@@ -80,7 +80,7 @@ class IverksettMotOppdragStegTest {
             behandling = mocketBehandling,
             saksbehandler = "Test",
             saksbehandlerId = "1234",
-            godkjent = false
+            godkjent = false,
         )
 
         every { behandlingService.hentBehandling(200) } returns mocketBehandling
@@ -99,7 +99,7 @@ class IverksettMotOppdragStegTest {
             behandling = mocketBehandling,
             saksbehandler = "Test",
             saksbehandlerId = "1234",
-            godkjent = true
+            godkjent = true,
         )
 
         every { behandlingService.hentBehandling(200) } returns mocketBehandling
@@ -117,7 +117,7 @@ class IverksettMotOppdragStegTest {
         verify(exactly = 1) { behandlingService.hentBehandling(any()) }
         verify(exactly = 1) {
             tilkjentYtelseValideringService.validerAtIngenUtbetalingerOverstiger100Prosent(
-                mocketBehandling
+                mocketBehandling,
             )
         }
         verify(exactly = 1) { totrinnskontrollService.hentAktivForBehandling(any()) }

@@ -73,7 +73,7 @@ internal class AvsluttBehandlingStegTest {
         val exception = assertThrows<Feil> { avsluttBehandlingSteg.utførSteg(behandling.id) }
         assertEquals(
             "Prøver å ferdigstille behandling ${behandling.id}, men status er ${behandling.status}",
-            exception.message
+            exception.message,
         )
     }
 
@@ -84,8 +84,8 @@ internal class AvsluttBehandlingStegTest {
                 lagAndelTilkjentYtelse(
                     tilkjentYtelse = it,
                     behandling = behandling,
-                    stønadTom = YearMonth.now().plusMonths(2)
-                )
+                    stønadTom = YearMonth.now().plusMonths(2),
+                ),
             )
         }
         every { beregningService.hentTilkjentYtelseForBehandling(behandling.id) } returns tilkjentYtelse
@@ -108,8 +108,8 @@ internal class AvsluttBehandlingStegTest {
                 lagAndelTilkjentYtelse(
                     tilkjentYtelse = it,
                     behandling = behandling,
-                    stønadTom = YearMonth.now().minusMonths(1)
-                )
+                    stønadTom = YearMonth.now().minusMonths(1),
+                ),
             )
         }
         every { beregningService.hentTilkjentYtelseForBehandling(behandling.id) } returns tilkjentYtelse

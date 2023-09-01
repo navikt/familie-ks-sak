@@ -9,22 +9,19 @@ import io.getunleash.util.UnleashConfig
 import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext
 import org.slf4j.LoggerFactory
 import org.springframework.boot.context.properties.ConfigurationProperties
-import org.springframework.boot.context.properties.ConstructorBinding
 import org.springframework.context.annotation.Bean
 import java.net.URI
 
 @ConfigurationProperties("funksjonsbrytere")
-@ConstructorBinding
 class FeatureToggleConfig(
     private val enabled: Boolean,
-    private val unleash: Unleash
+    private val unleash: Unleash,
 ) {
 
-    @ConstructorBinding
     data class Unleash(
         val uri: URI,
         val cluster: String,
-        val applicationName: String
+        val applicationName: String,
     )
 
     @Bean
@@ -34,7 +31,7 @@ class FeatureToggleConfig(
         } else {
             logger.warn(
                 "Funksjonsbryter-funksjonalitet er skrudd AV. " +
-                    "Gir standardoppførsel for alle funksjonsbrytere, dvs 'false'"
+                    "Gir standardoppførsel for alle funksjonsbrytere, dvs 'false'",
             )
             lagDummyFeatureToggleService()
         }
@@ -48,7 +45,7 @@ class FeatureToggleConfig(
                 .build(),
             ByClusterStrategy(unleash.cluster),
             ByAnsvarligSaksbehandler(),
-            GradualRolloutRandomStrategy()
+            GradualRolloutRandomStrategy(),
         )
 
         return object : FeatureToggleService {

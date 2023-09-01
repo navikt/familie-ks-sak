@@ -1,12 +1,12 @@
 package no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.bostedsadresse
 
+import jakarta.persistence.Column
+import jakarta.persistence.DiscriminatorValue
+import jakarta.persistence.Entity
 import no.nav.familie.kontrakter.felles.personopplysning.Vegadresse
 import no.nav.familie.ks.sak.common.util.nullableTilString
 import no.nav.familie.ks.sak.common.util.storForbokstav
 import java.util.Objects
-import javax.persistence.Column
-import javax.persistence.DiscriminatorValue
-import javax.persistence.Entity
 
 @Entity(name = "GrVegadresse")
 @DiscriminatorValue("Vegadresse")
@@ -33,7 +33,7 @@ data class GrVegadresse(
     val tilleggsnavn: String?,
 
     @Column(name = "postnummer")
-    val postnummer: String?
+    val postnummer: String?,
 
 ) : GrBostedsadresse() {
 
@@ -82,7 +82,7 @@ data class GrVegadresse(
                 adressenavn = vegadresse.adressenavn,
                 kommunenummer = vegadresse.kommunenummer,
                 tilleggsnavn = vegadresse.tilleggsnavn,
-                postnummer = vegadresse.postnummer
+                postnummer = vegadresse.postnummer,
             )
     }
 }

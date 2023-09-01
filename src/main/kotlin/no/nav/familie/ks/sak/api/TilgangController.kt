@@ -20,22 +20,22 @@ import org.springframework.web.bind.annotation.RestController
 class TilgangController(
     private val personOpplysningerService: PersonOpplysningerService,
     private val personidentService: PersonidentService,
-    private val integrasjonService: IntegrasjonService
+    private val integrasjonService: IntegrasjonService,
 ) {
 
     @PostMapping(path = ["/tilgang"], produces = [MediaType.APPLICATION_JSON_VALUE])
     fun hentTilgangOgDiskresjonskode(@RequestBody tilgangRequestDTO: TilgangRequestDto): ResponseEntity<Ressurs<TilgangResponsDto>> {
         val aktør = personidentService.hentAktør(tilgangRequestDTO.brukerIdent)
         val adressebeskyttelse = personOpplysningerService.hentAdressebeskyttelseSomSystembruker(aktør)
-        val harTilgang = integrasjonService.sjekkTilgangTilPersoner(listOf(tilgangRequestDTO.brukerIdent)).harTilgang
+        val harTilgang = integrasjonService.sjekkTilgangTilPerson(tilgangRequestDTO.brukerIdent).harTilgang
 
         return ResponseEntity.ok(
             Ressurs.success(
                 data = TilgangResponsDto(
                     saksbehandlerHarTilgang = harTilgang,
-                    adressebeskyttelsegradering = adressebeskyttelse
-                )
-            )
+                    adressebeskyttelsegradering = adressebeskyttelse,
+                ),
+            ),
         )
     }
 }

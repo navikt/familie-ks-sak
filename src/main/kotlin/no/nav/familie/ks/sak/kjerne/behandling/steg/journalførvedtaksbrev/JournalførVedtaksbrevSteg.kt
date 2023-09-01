@@ -30,7 +30,7 @@ class JournalførVedtaksbrevSteg(
     private val arbeidsfordelingService: ArbeidsfordelingService,
     private val utgåendeJournalføringService: UtgåendeJournalføringService,
     private val taskService: TaskService,
-    private val fagsakService: FagsakService
+    private val fagsakService: FagsakService,
 ) : IBehandlingSteg {
     override fun getBehandlingssteg(): BehandlingSteg = BehandlingSteg.JOURNALFØR_VEDTAKSBREV
 
@@ -47,7 +47,7 @@ class JournalførVedtaksbrevSteg(
             fnr = fagsak.aktør.aktivFødselsnummer(),
             fagsakId = fagsak.id,
             vedtak = vedtak,
-            journalførendeEnhet = behandlendeEnhet
+            journalførendeEnhet = behandlendeEnhet,
         )
 
         val distributerTilSøkerTask = DistribuerBrevTask.opprettDistribuerBrevTask(
@@ -56,9 +56,9 @@ class JournalførVedtaksbrevSteg(
                 behandlingId = vedtak.behandling.id,
                 journalpostId = journalpostId,
                 brevmal = hentBrevmal(vedtak.behandling),
-                erManueltSendt = false
+                erManueltSendt = false,
             ),
-            properties = journalførVedtaksbrevDTO.task.metadata
+            properties = journalførVedtaksbrevDTO.task.metadata,
         )
         taskService.save(distributerTilSøkerTask)
     }
@@ -67,7 +67,7 @@ class JournalførVedtaksbrevSteg(
         fnr: String,
         fagsakId: Long,
         vedtak: Vedtak,
-        journalførendeEnhet: String
+        journalførendeEnhet: String,
     ): String {
         val vedleggPdf = hentVedlegg(KONTANTSTØTTE_VEDTAK_VEDLEGG_FILNAVN)
 
@@ -76,14 +76,14 @@ class JournalførVedtaksbrevSteg(
                 vedtak.stønadBrevPdf!!,
                 filtype = Filtype.PDFA,
                 dokumenttype = vedtak.behandling.resultat.tilDokumenttype(),
-                tittel = hentOverstyrtDokumenttittel(vedtak.behandling)
-            )
+                tittel = hentOverstyrtDokumenttittel(vedtak.behandling),
+            ),
         )
 
         logger.info(
             "Journalfører vedtaksbrev for behandling ${vedtak.behandling.id} med tittel ${
-            hentOverstyrtDokumenttittel(vedtak.behandling)
-            }"
+                hentOverstyrtDokumenttittel(vedtak.behandling)
+            }",
         )
 
         val vedlegg = listOf(
@@ -91,8 +91,8 @@ class JournalførVedtaksbrevSteg(
                 vedleggPdf,
                 filtype = Filtype.PDFA,
                 dokumenttype = Dokumenttype.BARNETRYGD_VEDLEGG,
-                tittel = KONTANTSTØTTE_VEDTAK_VEDLEGG_TITTEL
-            )
+                tittel = KONTANTSTØTTE_VEDTAK_VEDLEGG_TITTEL,
+            ),
         )
 
         return utgåendeJournalføringService.journalførDokument(
@@ -101,7 +101,7 @@ class JournalførVedtaksbrevSteg(
             journalførendeEnhet = journalførendeEnhet,
             brev = brev,
             vedlegg = vedlegg,
-            behandlingId = vedtak.behandling.id
+            behandlingId = vedtak.behandling.id,
         )
     }
 
@@ -112,7 +112,8 @@ class JournalførVedtaksbrevSteg(
                 Behandlingsresultat.INNVILGET_OG_ENDRET,
                 Behandlingsresultat.INNVILGET_OG_OPPHØRT,
                 Behandlingsresultat.DELVIS_INNVILGET_OG_OPPHØRT,
-                Behandlingsresultat.ENDRET_OG_OPPHØRT -> "Vedtak om endret barnetrygd"
+                Behandlingsresultat.ENDRET_OG_OPPHØRT,
+                -> "Vedtak om endret barnetrygd"
 
                 Behandlingsresultat.FORTSATT_INNVILGET -> "Vedtak om fortsatt barnetrygd"
                 else -> null

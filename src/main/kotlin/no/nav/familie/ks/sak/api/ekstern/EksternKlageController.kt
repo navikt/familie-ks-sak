@@ -24,13 +24,13 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 @RequestMapping(
     path = ["/api/ekstern"],
-    produces = [MediaType.APPLICATION_JSON_VALUE]
+    produces = [MediaType.APPLICATION_JSON_VALUE],
 )
 @ProtectedWithClaims(issuer = "azuread")
 class EksternKlageController(
     private val tilgangService: TilgangService,
     private val opprettBehandlingService: OpprettBehandlingService,
-    private val klageService: KlageService
+    private val klageService: KlageService,
 ) {
 
     @GetMapping("fagsaker/{fagsakId}/kan-opprette-revurdering-klage")
@@ -39,7 +39,7 @@ class EksternKlageController(
             fagsakId = fagsakId,
             handling = "Valider vi kan opprette revurdering med årsak klage på fagsak=$fagsakId",
             event = AuditLoggerEvent.CREATE,
-            minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER
+            minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
         )
 
         if (!SikkerhetContext.kallKommerFraKlage()) {
@@ -55,7 +55,7 @@ class EksternKlageController(
             fagsakId = fagsakId,
             handling = "Opprett revurdering med årask klage på fagsak=$fagsakId",
             event = AuditLoggerEvent.CREATE,
-            minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER
+            minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
         )
 
         if (!SikkerhetContext.kallKommerFraKlage()) {
@@ -72,7 +72,7 @@ class EksternKlageController(
                 fagsakId = fagsakId,
                 handling = "Kan hente vedtak på fagsak=$fagsakId",
                 event = AuditLoggerEvent.ACCESS,
-                minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER
+                minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
             )
         }
 

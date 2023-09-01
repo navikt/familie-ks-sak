@@ -16,17 +16,17 @@ import java.time.LocalDateTime
 data class PersonResultatResponsDto(
     val personIdent: String,
     val vilkårResultater: List<VilkårResultatDto>,
-    val andreVurderinger: List<AnnenVurderingDto>
+    val andreVurderinger: List<AnnenVurderingDto>,
 )
 
 data class EndreVilkårResultatDto(
     val personIdent: String,
-    val endretVilkårResultat: VilkårResultatDto
+    val endretVilkårResultat: VilkårResultatDto,
 )
 
 data class NyttVilkårDto(
     val personIdent: String,
-    val vilkårType: Vilkår
+    val vilkårType: Vilkår,
 )
 
 data class VilkårResultatDto(
@@ -45,14 +45,14 @@ data class VilkårResultatDto(
     val avslagBegrunnelser: List<Begrunnelse>? = emptyList(),
     val vurderesEtter: Regelverk? = null,
     val antallTimer: BigDecimal? = null,
-    val utdypendeVilkårsvurderinger: List<UtdypendeVilkårsvurdering> = emptyList()
+    val utdypendeVilkårsvurderinger: List<UtdypendeVilkårsvurdering> = emptyList(),
 ) {
 
     fun erAvslagUtenPeriode() = erEksplisittAvslagPåSøknad == true && periodeFom == null && periodeTom == null
     fun harFremtidigTom() = periodeTom?.isAfter(LocalDate.now().sisteDagIMåned()) ?: true
 
     fun tilVilkårResultat(
-        vilkårResultat: VilkårResultat
+        vilkårResultat: VilkårResultat,
     ): VilkårResultat {
         return VilkårResultat(
             periodeFom = periodeFom,
@@ -68,7 +68,7 @@ data class VilkårResultatDto(
             personResultat = vilkårResultat.personResultat,
             vilkårType = vilkårResultat.vilkårType,
             // antallTimer kan ikke være 0
-            antallTimer = if (antallTimer == BigDecimal(0)) null else antallTimer
+            antallTimer = if (antallTimer == BigDecimal(0)) null else antallTimer,
         )
     }
 }
@@ -77,11 +77,11 @@ data class AnnenVurderingDto(
     val id: Long,
     val resultat: Resultat,
     val type: AnnenVurderingType,
-    val begrunnelse: String?
+    val begrunnelse: String?,
 )
 
 data class VedtakBegrunnelseTilknyttetVilkårResponseDto(
     val id: IBegrunnelse,
     val navn: String,
-    val vilkår: Vilkår?
+    val vilkår: Vilkår?,
 )

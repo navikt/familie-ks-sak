@@ -95,7 +95,7 @@ class PersonidentServiceTest {
         // Validerer at aktør lagres før og etter at personIdent er lagt til. Noe greier med index issues.
         verify(exactly = 2) {
             aktørRepository.saveAndFlush(
-                withArg { assertEquals(pdlAktør.aktørId, it.aktørId) }
+                withArg { assertEquals(pdlAktør.aktørId, it.aktørId) },
             )
         }
 

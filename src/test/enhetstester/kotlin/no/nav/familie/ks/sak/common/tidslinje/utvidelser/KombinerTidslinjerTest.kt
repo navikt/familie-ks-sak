@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
 
-class kombinerTidslinjerTest {
+class KombinerTidslinjerTest {
 
     private val førsteJanuar = LocalDate.of(2022, 1, 1)
     private val sisteDagIJanuar = LocalDate.of(2022, 1, 31)
@@ -30,8 +30,8 @@ class kombinerTidslinjerTest {
             TidslinjePeriodeMedDato<String>(
                 Null(),
                 TidslinjePeriodeMedDato.Dato(førsteMai),
-                TidslinjePeriodeMedDato.Dato(sisteDagIMai)
-            )
+                TidslinjePeriodeMedDato.Dato(sisteDagIMai),
+            ),
         ).tilTidslinje()
 
         val kombinerteTidslinjerPerioder =

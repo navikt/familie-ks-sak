@@ -22,7 +22,7 @@ class JournalførVedtaksbrevTask(private val stegService: StegService) : AsyncTa
         stegService.utførSteg(
             behandlingId = behandlingId,
             behandlingSteg = BehandlingSteg.JOURNALFØR_VEDTAKSBREV,
-            behandlingStegDto = JournalførVedtaksbrevDTO(vedtakId = vedtakId, task = task)
+            behandlingStegDto = JournalførVedtaksbrevDTO(vedtakId = vedtakId, task = task),
         )
     }
 
@@ -36,7 +36,7 @@ class JournalførVedtaksbrevTask(private val stegService: StegService) : AsyncTa
                 this["personIdent"] = behandling.fagsak.aktør.aktivFødselsnummer()
                 this["behandlingsId"] = behandling.id.toString()
                 this["vedtakId"] = vedtakId.toString()
-            }
+            },
         )
     }
 }

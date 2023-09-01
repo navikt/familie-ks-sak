@@ -1,15 +1,15 @@
 package no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.bostedsadresse
 
+import jakarta.persistence.Column
+import jakarta.persistence.DiscriminatorValue
+import jakarta.persistence.Entity
 import no.nav.familie.kontrakter.felles.personopplysning.UkjentBosted
-import javax.persistence.Column
-import javax.persistence.DiscriminatorValue
-import javax.persistence.Entity
 
 @Entity(name = "GrUkjentBosted")
 @DiscriminatorValue("ukjentBosted")
 data class GrUkjentBosted(
     @Column(name = "bostedskommune")
-    val bostedskommune: String
+    val bostedskommune: String,
 
 ) : GrBostedsadresse() {
 

@@ -30,17 +30,17 @@ class UtbetalingsoppdragGenerator {
      *
      * @param[vedtakMedTilkjentYtelse] tilpasset objekt som inneholder tilkjentytelse,og andre nødvendige felter som trenges for å lage utbetalingsoppdrag
      * @param[andelTilkjentYtelseForUtbetalingsoppdragFactory] type factory bestemmer om AndelTilkjentYtelse muteres eller ikke. Avhengig om det er AndelTilkjentYtelseForIverksetting eller AndelTilkjentYtelseForSimulerin
-     * @param[forrigeTilkjentYtelse] forrige tilkjentYtelse
+     * @param[forrigeTilkjentYtelseMedAndeler] forrige tilkjentYtelse
      * @return oppdatert TilkjentYtelse som inneholder generert utbetalingsoppdrag
      */
     fun lagTilkjentYtelseMedUtbetalingsoppdrag(
         vedtakMedTilkjentYtelse: VedtakMedTilkjentYtelse,
         andelTilkjentYtelseForUtbetalingsoppdragFactory: AndelTilkjentYtelseForUtbetalingsoppdragFactory,
-        forrigeTilkjentYtelse: TilkjentYtelse? = null
+        forrigeTilkjentYtelseMedAndeler: TilkjentYtelse? = null,
     ): TilkjentYtelse {
         val tilkjentYtelse = vedtakMedTilkjentYtelse.tilkjentYtelse
         val vedtak = vedtakMedTilkjentYtelse.vedtak
-        val erFørsteBehandlingPåFagsak = forrigeTilkjentYtelse == null
+        val erFørsteBehandlingPåFagsakSomSkalIverksettes = forrigeTilkjentYtelseMedAndeler == null
 
         // Filtrer kun andeler som kan sendes til oppdrag
         val andelerTilkjentYtelse = tilkjentYtelse.andelerTilkjentYtelse.filter { it.erAndelSomSkalSendesTilOppdrag() }
@@ -51,7 +51,7 @@ class UtbetalingsoppdragGenerator {
 
         // Filtrerer og grupperer forrige andeler basert på personIdent.
         val forrigeAndeler =
-            forrigeTilkjentYtelse?.andelerTilkjentYtelse?.filter { it.erAndelSomSkalSendesTilOppdrag() }
+            forrigeTilkjentYtelseMedAndeler?.andelerTilkjentYtelse?.filter { it.erAndelSomSkalSendesTilOppdrag() }
                 ?.pakkInnForUtbetaling(andelTilkjentYtelseForUtbetalingsoppdragFactory)
                 ?: emptyList()
 
@@ -77,7 +77,7 @@ class UtbetalingsoppdragGenerator {
         if (andelerTilkjentYtelse.isNotEmpty() && forrigeAndeler.isNotEmpty()) {
             ØkonomiUtils.oppdaterBeståendeAndelerMedOffset(
                 oppdaterteKjeder = kjedeinndelteAndeler(andelerTilkjentYtelse),
-                forrigeKjeder = kjedeinndelteAndeler(forrigeAndeler)
+                forrigeKjeder = kjedeinndelteAndeler(forrigeAndeler),
             )
         }
 
@@ -86,10 +86,10 @@ class UtbetalingsoppdragGenerator {
             // lager utbetalingsperioder og oppdaterer andelerTilkjentYtelse
             val opprettelsePeriodeMedAndeler = lagUtbetalingsperioderForOpprettelse(
                 andeler = andelerTilOpprettelse,
-                erFørsteBehandlingPåFagsak = erFørsteBehandlingPåFagsak,
+                erFørsteBehandlingPåFagsak = erFørsteBehandlingPåFagsakSomSkalIverksettes,
                 vedtak = vedtak,
                 sisteOffsetIKjedeOversikt = vedtakMedTilkjentYtelse.sisteOffsetPerIdent,
-                sisteOffsetPåFagsak = vedtakMedTilkjentYtelse.sisteOffsetPåFagsak
+                sisteOffsetPåFagsak = vedtakMedTilkjentYtelse.sisteOffsetPåFagsak,
             )
 
             opprettelsePeriodeMedAndeler.second
@@ -100,20 +100,20 @@ class UtbetalingsoppdragGenerator {
         // Finner ut andeler som er opphørt
         val andelerTilOpphør = andelerTilOpphørMedDato(
             forrigeKjeder,
-            sisteBeståendeAndelIHverKjede
+            sisteBeståendeAndelIHverKjede,
         )
 
         val opphøres = lagUtbetalingsperioderForOpphør(andeler = andelerTilOpphør, vedtak = vedtak)
 
         val aksjonskodePåOppdragsnivå =
-            if (erFørsteBehandlingPåFagsak) Utbetalingsoppdrag.KodeEndring.NY else Utbetalingsoppdrag.KodeEndring.ENDR
+            if (erFørsteBehandlingPåFagsakSomSkalIverksettes) Utbetalingsoppdrag.KodeEndring.NY else Utbetalingsoppdrag.KodeEndring.ENDR
         val utbetalingsoppdrag = Utbetalingsoppdrag(
             saksbehandlerId = vedtakMedTilkjentYtelse.saksbehandlerId,
             kodeEndring = aksjonskodePåOppdragsnivå,
             fagSystem = FAGSYSTEM,
             saksnummer = vedtak.behandling.fagsak.id.toString(),
             aktoer = vedtak.behandling.fagsak.aktør.aktivFødselsnummer(),
-            utbetalingsperiode = listOf(opphøres, opprettes).flatten()
+            utbetalingsperiode = listOf(opphøres, opprettes).flatten(),
         )
 
         // valider utbetalingsoppdrag
@@ -124,30 +124,30 @@ class UtbetalingsoppdragGenerator {
                 behandlingsresultat = vedtak.behandling.resultat,
                 behandlingskategori = vedtak.behandling.kategori,
                 // her må vi sende alle andeler slik at det valideres for nullutbetalinger også
-                andelerTilkjentYtelse = tilkjentYtelse.andelerTilkjentYtelse.toList()
+                andelerTilkjentYtelse = tilkjentYtelse.andelerTilkjentYtelse.toList(),
             )
         }
 
         // oppdater tilkjentYtlese med andelerTilkjentYTelser og utbetalingsoppdrag
         return tilkjentYtelse.copy(
             behandling = vedtak.behandling,
-            utbetalingsoppdrag = objectMapper.writeValueAsString(utbetalingsoppdrag)
+            utbetalingsoppdrag = objectMapper.writeValueAsString(utbetalingsoppdrag),
         )
     }
 
     private fun lagUtbetalingsperioderForOpphør(
         andeler: List<Pair<AndelTilkjentYtelseForUtbetalingsoppdrag, YearMonth>>,
-        vedtak: Vedtak
+        vedtak: Vedtak,
     ): List<Utbetalingsperiode> =
         andeler.map { (sisteAndelIKjede, opphørKjedeFom) ->
             UtbetalingsperiodeMal(
                 vedtak = vedtak,
-                erEndringPåEksisterendePeriode = true
+                erEndringPåEksisterendePeriode = true,
             ).lagPeriodeFraAndel(
                 andel = sisteAndelIKjede,
                 periodeIdOffset = sisteAndelIKjede.periodeOffset!!.toInt(),
                 forrigePeriodeIdOffset = sisteAndelIKjede.forrigePeriodeOffset?.toInt(),
-                opphørKjedeFom = opphørKjedeFom
+                opphørKjedeFom = opphørKjedeFom,
             )
         }
 
@@ -156,7 +156,7 @@ class UtbetalingsoppdragGenerator {
         vedtak: Vedtak,
         erFørsteBehandlingPåFagsak: Boolean,
         sisteOffsetIKjedeOversikt: Map<String, Int>,
-        sisteOffsetPåFagsak: Int? = null
+        sisteOffsetPåFagsak: Int? = null,
     ): Pair<List<AndelTilkjentYtelseForUtbetalingsoppdrag>, List<Utbetalingsperiode>> {
         var offset = if (!erFørsteBehandlingPåFagsak) {
             sisteOffsetPåFagsak?.plus(1)
@@ -175,7 +175,7 @@ class UtbetalingsoppdragGenerator {
                 kjede.sortedBy { it.stønadFom }.mapIndexed { index, andel ->
                     val forrigeOffset = if (index == 0) forrigeOffsetIKjede else offset - 1
                     UtbetalingsperiodeMal(
-                        vedtak = vedtak
+                        vedtak = vedtak,
                     ).lagPeriodeFraAndel(andel, offset, forrigeOffset).also {
                         andel.periodeOffset = offset.toLong()
                         andel.forrigePeriodeOffset = forrigeOffset?.toLong()
@@ -194,7 +194,7 @@ abstract class AndelTilkjentYtelseForUtbetalingsoppdragFactory {
 }
 
 fun Collection<AndelTilkjentYtelse>.pakkInnForUtbetaling(
-    andelTilkjentYtelseForUtbetalingsoppdragFactory: AndelTilkjentYtelseForUtbetalingsoppdragFactory
+    andelTilkjentYtelseForUtbetalingsoppdragFactory: AndelTilkjentYtelseForUtbetalingsoppdragFactory,
 ) = andelTilkjentYtelseForUtbetalingsoppdragFactory.pakkInnForUtbetaling(this)
 
 abstract class AndelTilkjentYtelseForUtbetalingsoppdrag(private val andelTilkjentYtelse: AndelTilkjentYtelse) {
@@ -223,7 +223,7 @@ abstract class AndelTilkjentYtelseForUtbetalingsoppdrag(private val andelTilkjen
 }
 
 class AndelTilkjentYtelseForIverksetting(
-    private val andelTilkjentYtelse: AndelTilkjentYtelse
+    private val andelTilkjentYtelse: AndelTilkjentYtelse,
 ) : AndelTilkjentYtelseForUtbetalingsoppdrag(andelTilkjentYtelse) {
 
     override var periodeOffset: Long?
@@ -251,7 +251,7 @@ class AndelTilkjentYtelseForIverksetting(
 }
 
 class AndelTilkjentYtelseForSimulering(
-    andelTilkjentYtelse: AndelTilkjentYtelse
+    andelTilkjentYtelse: AndelTilkjentYtelse,
 ) : AndelTilkjentYtelseForUtbetalingsoppdrag(andelTilkjentYtelse) {
 
     override var periodeOffset: Long? = andelTilkjentYtelse.periodeOffset

@@ -40,7 +40,7 @@ class AnnenVurderingServiceTest {
             AnnenVurderingDto(404L, Resultat.OPPFYLT, AnnenVurderingType.OPPLYSNINGSPLIKT, "Begrunnelse")
         val funksjonellFeil = assertThrows<FunksjonellFeil> {
             annenVurderingService.endreAnnenVurdering(
-                annenVurderingDto
+                annenVurderingDto,
             )
         }
 
@@ -54,11 +54,11 @@ class AnnenVurderingServiceTest {
             200L,
             PersonResultat(
                 vilkårsvurdering = Vilkårsvurdering(behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD)),
-                aktør = randomAktør()
+                aktør = randomAktør(),
             ),
             type = AnnenVurderingType.OPPLYSNINGSPLIKT,
             resultat = Resultat.IKKE_VURDERT,
-            begrunnelse = null
+            begrunnelse = null,
         )
         every { annenVurderingRepository.findById(any()) } returns Optional.of(eksisterendeAnnenVurdering)
         every { annenVurderingRepository.save(capture(endretAnnenVurderingSlot)) } returns mockk()
@@ -67,7 +67,7 @@ class AnnenVurderingServiceTest {
             AnnenVurderingDto(200L, Resultat.OPPFYLT, AnnenVurderingType.OPPLYSNINGSPLIKT, "Begrunnelse")
 
         annenVurderingService.endreAnnenVurdering(
-            annenVurderingDto
+            annenVurderingDto,
         )
 
         val endretAnnenVurdering = endretAnnenVurderingSlot.captured

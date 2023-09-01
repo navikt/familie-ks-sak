@@ -41,12 +41,12 @@ internal class SendVedtakHendelseTilInfotrygdTaskTest {
         val andelTilkjentYtelse1 = lagAndelTilkjentYtelse(
             behandling = behandling,
             stønadFom = YearMonth.now().minusMonths(5),
-            stønadTom = YearMonth.now().minusMonths(3)
+            stønadTom = YearMonth.now().minusMonths(3),
         )
         val andelTilkjentYtelse2 = lagAndelTilkjentYtelse(
             behandling = behandling,
             stønadFom = YearMonth.now().minusMonths(6),
-            stønadTom = YearMonth.now().minusMonths(2)
+            stønadTom = YearMonth.now().minusMonths(2),
         )
 
         val vedtakDtoSlot = slot<VedtakDto>()
@@ -56,15 +56,15 @@ internal class SendVedtakHendelseTilInfotrygdTaskTest {
             andelerTilkjentYtelseOgEndreteUtbetalingerService.finnAndelerTilkjentYtelseMedEndreteUtbetalinger(behandling.id)
         } returns listOf(
             AndelTilkjentYtelseMedEndreteUtbetalinger(andelTilkjentYtelse1, emptyList()),
-            AndelTilkjentYtelseMedEndreteUtbetalinger(andelTilkjentYtelse2, emptyList())
+            AndelTilkjentYtelseMedEndreteUtbetalinger(andelTilkjentYtelse2, emptyList()),
         )
 
         assertDoesNotThrow {
             sendVedtakHendelseTilInfotrygdTask.doTask(
                 SendVedtakHendelseTilInfotrygdTask.opprettTask(
                     fnrStoenadsmottaker = behandling.fagsak.aktør.aktivFødselsnummer(),
-                    behandlingId = behandling.id
-                )
+                    behandlingId = behandling.id,
+                ),
             )
         }
         verify(atLeast = 1) { kafkaProducer.sendVedtakHendelseTilInfotrygd(any()) }

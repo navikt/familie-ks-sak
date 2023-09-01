@@ -18,18 +18,18 @@ data class UtbetalingsperiodeResponsDto(
     val antallBarn: Int,
     val utbetaltPerMnd: Int,
     val utbetalingsperiodeDetaljer: List<UtbetalingsperiodeDetaljDto>,
-    val vedtaksperiodetype: Vedtaksperiodetype = Vedtaksperiodetype.UTBETALING
+    val vedtaksperiodetype: Vedtaksperiodetype = Vedtaksperiodetype.UTBETALING,
 )
 
 data class UtbetalingsperiodeDetaljDto(
     val person: PersonResponsDto,
     val utbetaltPerMnd: Int,
     val erPåvirketAvEndring: Boolean,
-    val prosent: BigDecimal
+    val prosent: BigDecimal,
 )
 
 fun List<AndelTilkjentYtelseMedEndreteUtbetalinger>.tilUtbetalingsperiodeResponsDto(
-    personopplysningGrunnlag: PersonopplysningGrunnlag
+    personopplysningGrunnlag: PersonopplysningGrunnlag,
 ): List<UtbetalingsperiodeResponsDto> {
     if (this.isEmpty()) return emptyList()
     return this.lagVertikalePerioder().tilPerioder().filtrerIkkeNull().map {
@@ -42,13 +42,13 @@ fun List<AndelTilkjentYtelseMedEndreteUtbetalinger>.tilUtbetalingsperiodeRespons
             antallBarn = andelerForPeriode.count { andel ->
                 personopplysningGrunnlag.barna.any { barn -> barn.aktør == andel.aktør }
             },
-            utbetalingsperiodeDetaljer = andelerForPeriode.tilUtbetalingsperiodeDetaljDto(personopplysningGrunnlag)
+            utbetalingsperiodeDetaljer = andelerForPeriode.tilUtbetalingsperiodeDetaljDto(personopplysningGrunnlag),
         )
     }
 }
 
 private fun Collection<AndelTilkjentYtelseMedEndreteUtbetalinger>.tilUtbetalingsperiodeDetaljDto(
-    personopplysningGrunnlag: PersonopplysningGrunnlag
+    personopplysningGrunnlag: PersonopplysningGrunnlag,
 ): List<UtbetalingsperiodeDetaljDto> =
     this.map { andel ->
         val personForAndel = personopplysningGrunnlag.personer.find { person -> andel.aktør == person.aktør }
@@ -58,7 +58,7 @@ private fun Collection<AndelTilkjentYtelseMedEndreteUtbetalinger>.tilUtbetalings
             person = BehandlingMapper.lagPersonRespons(personForAndel, emptyMap()),
             utbetaltPerMnd = andel.kalkulertUtbetalingsbeløp,
             erPåvirketAvEndring = andel.endreteUtbetalinger.isNotEmpty(),
-            prosent = andel.prosent
+            prosent = andel.prosent,
         )
     }
 
@@ -66,5 +66,5 @@ fun UtbetalingsperiodeDetalj.tilUtbetalingsperiodeDetaljDto() = Utbetalingsperio
     person = BehandlingMapper.lagPersonRespons(this.person, emptyMap()),
     utbetaltPerMnd = this.utbetaltPerMnd,
     erPåvirketAvEndring = this.erPåvirketAvEndring,
-    prosent = this.prosent
+    prosent = this.prosent,
 )

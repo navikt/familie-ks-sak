@@ -21,7 +21,7 @@ object FagsakMapper {
         rolle: FagsakDeltagerRolle,
         fagsak: Fagsak? = null,
         adressebeskyttelseGradering: ADRESSEBESKYTTELSEGRADERING? = null,
-        harTilgang: Boolean = true
+        harTilgang: Boolean = true,
     ): FagsakDeltagerResponsDto = FagsakDeltagerResponsDto(
         navn = personInfo?.navn,
         ident = ident,
@@ -30,7 +30,7 @@ object FagsakMapper {
         fagsakId = fagsak?.id,
         fagsakStatus = fagsak?.status,
         adressebeskyttelseGradering = adressebeskyttelseGradering,
-        harTilgang = harTilgang
+        harTilgang = harTilgang,
     )
 
     fun lagMinimalFagsakResponsDto(
@@ -38,7 +38,7 @@ object FagsakMapper {
         aktivtBehandling: Behandling? = null,
         behandlinger: List<MinimalBehandlingResponsDto> = emptyList(),
         tilbakekrevingsbehandlinger: List<TilbakekrevingsbehandlingResponsDto> = emptyList(),
-        gjeldendeUtbetalingsperioder: List<UtbetalingsperiodeResponsDto> = emptyList()
+        gjeldendeUtbetalingsperioder: List<UtbetalingsperiodeResponsDto> = emptyList(),
     ): MinimalFagsakResponsDto =
         MinimalFagsakResponsDto(
             opprettetTidspunkt = fagsak.opprettetTidspunkt,
@@ -49,7 +49,7 @@ object FagsakMapper {
             løpendeKategori = aktivtBehandling?.kategori,
             behandlinger = behandlinger,
             tilbakekrevingsbehandlinger = tilbakekrevingsbehandlinger,
-            gjeldendeUtbetalingsperioder = gjeldendeUtbetalingsperioder
+            gjeldendeUtbetalingsperioder = gjeldendeUtbetalingsperioder,
         )
 
     fun lagBehandlingResponsDto(behandling: Behandling, vedtaksdato: LocalDateTime?) = MinimalBehandlingResponsDto(
@@ -61,7 +61,7 @@ object FagsakMapper {
         type = behandling.type,
         status = behandling.status,
         resultat = behandling.resultat,
-        vedtaksdato = vedtaksdato
+        vedtaksdato = vedtaksdato,
     )
 
     fun lagTilbakekrevingsbehandlingResponsDto(tilbakekrevingsbehandling: no.nav.familie.kontrakter.felles.tilbakekreving.Behandling) =
@@ -73,6 +73,6 @@ object FagsakMapper {
             type = tilbakekrevingsbehandling.type,
             status = tilbakekrevingsbehandling.status,
             resultat = tilbakekrevingsbehandling.resultat,
-            vedtaksdato = tilbakekrevingsbehandling.vedtaksdato
+            vedtaksdato = tilbakekrevingsbehandling.vedtaksdato,
         )
 }

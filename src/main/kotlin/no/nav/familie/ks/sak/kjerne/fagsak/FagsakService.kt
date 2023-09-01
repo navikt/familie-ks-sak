@@ -12,7 +12,7 @@ import no.nav.familie.ks.sak.api.mapper.FagsakMapper.lagMinimalFagsakResponsDto
 import no.nav.familie.ks.sak.api.mapper.FagsakMapper.lagTilbakekrevingsbehandlingResponsDto
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
-import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
+import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonService
 import no.nav.familie.ks.sak.integrasjon.pdl.PersonOpplysningerService
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.PdlPersonInfo
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
@@ -39,7 +39,7 @@ import java.time.Period
 @Service
 class FagsakService(
     private val personidentService: PersonidentService,
-    private val integrasjonClient: IntegrasjonClient,
+    private val integrasjonService: IntegrasjonService,
     private val personopplysningerService: PersonOpplysningerService,
     private val personopplysningGrunnlagRepository: PersonopplysningGrunnlagRepository,
     private val fagsakRepository: FagsakRepository,
@@ -48,7 +48,7 @@ class FagsakService(
     private val andelerTilkjentYtelseOgEndreteUtbetalingerService: AndelerTilkjentYtelseOgEndreteUtbetalingerService,
     private val taskService: TaskService,
     private val tilbakekrevingsbehandlingHentService: TilbakekrevingsbehandlingHentService,
-    private val vedtakRepository: VedtakRepository
+    private val vedtakRepository: VedtakRepository,
 ) {
 
     private val antallFagsakerOpprettetFraManuell =
@@ -78,8 +78,8 @@ class FagsakService(
                     ident = aktør.aktivFødselsnummer(),
                     // Vi setter rollen til Ukjent når det ikke er barn
                     rolle = if (erBarn) FagsakDeltagerRolle.BARN else FagsakDeltagerRolle.UKJENT,
-                    fagsak = fagsakForBarn
-                )
+                    fagsak = fagsakForBarn,
+                ),
             )
         }
 
@@ -95,7 +95,7 @@ class FagsakService(
         val personident = fagsakRequest.personIdent ?: fagsakRequest.aktørId ?: throw Feil(
             "Hverken aktørid eller personident er satt på fagsak-requesten. Klarer ikke opprette eller hente fagsak.",
             "Fagsak er forsøkt opprettet uten ident. Dette er en systemfeil, vennligst ta kontakt med systemansvarlig.",
-            HttpStatus.BAD_REQUEST
+            HttpStatus.BAD_REQUEST,
         )
 
         val aktør = personidentService.hentOgLagreAktør(personident, true)
@@ -127,11 +127,11 @@ class FagsakService(
             behandlinger = alleBehandlinger.map {
                 lagBehandlingResponsDto(
                     behandling = it,
-                    vedtaksdato = vedtakRepository.findByBehandlingAndAktivOptional(it.id)?.vedtaksdato
+                    vedtaksdato = vedtakRepository.findByBehandlingAndAktivOptional(it.id)?.vedtaksdato,
                 )
             },
             tilbakekrevingsbehandlinger = tilbakekrevingsbehandlinger.map { lagTilbakekrevingsbehandlingResponsDto(it) },
-            gjeldendeUtbetalingsperioder = gjeldendeUtbetalingsperioder ?: emptyList()
+            gjeldendeUtbetalingsperioder = gjeldendeUtbetalingsperioder ?: emptyList(),
         )
     }
 
@@ -158,7 +158,7 @@ class FagsakService(
     fun oppdaterStatus(fagsak: Fagsak, nyStatus: FagsakStatus): Fagsak {
         logger.info(
             "${SikkerhetContext.hentSaksbehandlerNavn()} endrer status på fagsak ${fagsak.id} fra ${fagsak.status}" +
-                " til $nyStatus"
+                " til $nyStatus",
         )
         fagsak.status = nyStatus
         return lagre(fagsak)
@@ -166,7 +166,7 @@ class FagsakService(
 
     private fun hentForelderdeltagereFraBehandling(
         aktør: Aktør,
-        personInfoMedRelasjoner: PdlPersonInfo
+        personInfoMedRelasjoner: PdlPersonInfo,
     ): List<FagsakDeltagerResponsDto> {
         val assosierteFagsakDeltagerMap = mutableMapOf<Long, FagsakDeltagerResponsDto>()
         personRepository.findByAktør(aktør).filter { it.personopplysningGrunnlag.aktiv }.forEach { person ->
@@ -179,7 +179,7 @@ class FagsakService(
                     personInfo = personInfoMedRelasjoner,
                     ident = fagsak.aktør.aktivFødselsnummer(),
                     rolle = FagsakDeltagerRolle.FORELDER,
-                    fagsak = behandling.fagsak
+                    fagsak = behandling.fagsak,
                 )
 
                 else -> { // søkparam(aktør) er ikke søkers aktør, da hentes her forelder til søkparam(aktør)
@@ -189,7 +189,7 @@ class FagsakService(
                             personopplysningerService.hentPersoninfoEnkel(fagsak.aktør),
                             fagsak.aktør.aktivFødselsnummer(),
                             FagsakDeltagerRolle.FORELDER,
-                            fagsak
+                            fagsak,
                         )
                 }
             }
@@ -200,7 +200,7 @@ class FagsakService(
 
     private fun leggTilForeldreDeltagerSomIkkeHarBehandling(
         personInfoMedRelasjoner: PdlPersonInfo,
-        assosierteFagsakDeltagere: MutableList<FagsakDeltagerResponsDto>
+        assosierteFagsakDeltagere: MutableList<FagsakDeltagerResponsDto>,
     ) {
         personInfoMedRelasjoner.forelderBarnRelasjoner.filter { it.harForelderRelasjon() }.forEach { relasjon ->
             if (assosierteFagsakDeltagere.none { it.ident == relasjon.aktør.aktivFødselsnummer() }) {
@@ -215,8 +215,8 @@ class FagsakService(
                                 personInfo = forelderInfo,
                                 ident = relasjon.aktør.aktivFødselsnummer(),
                                 rolle = FagsakDeltagerRolle.FORELDER,
-                                fagsak = fagsak
-                            )
+                                fagsak = fagsak,
+                            ),
                         )
                     }
                 }
@@ -225,7 +225,7 @@ class FagsakService(
     }
 
     private fun hentMaskertFagsakdeltakerVedManglendeTilgang(aktør: Aktør): FagsakDeltagerResponsDto? {
-        val harTilgang = integrasjonClient.sjekkTilgangTilPersoner(listOf(aktør.aktivFødselsnummer())).harTilgang
+        val harTilgang = integrasjonService.sjekkTilgangTilPerson(aktør.aktivFødselsnummer()).harTilgang
 
         return when {
             !harTilgang -> {
@@ -234,7 +234,7 @@ class FagsakService(
                 lagFagsakDeltagerResponsDto(
                     rolle = FagsakDeltagerRolle.UKJENT,
                     adressebeskyttelseGradering = adressebeskyttelse,
-                    harTilgang = false
+                    harTilgang = false,
                 )
             }
 
@@ -246,7 +246,7 @@ class FagsakService(
 
     fun hentFagsak(fagsakId: Long): Fagsak = fagsakRepository.finnFagsak(fagsakId) ?: throw FunksjonellFeil(
         melding = "Finner ikke fagsak med id $fagsakId",
-        frontendFeilmelding = "Finner ikke fagsak med id $fagsakId"
+        frontendFeilmelding = "Finner ikke fagsak med id $fagsakId",
     )
 
     fun finnFagsakForPerson(aktør: Aktør): Fagsak? = fagsakRepository.finnFagsakForAktør(aktør)

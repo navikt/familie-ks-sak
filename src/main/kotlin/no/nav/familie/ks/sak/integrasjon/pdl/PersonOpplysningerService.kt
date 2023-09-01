@@ -6,7 +6,7 @@ import no.nav.familie.kontrakter.felles.personopplysning.FORELDERBARNRELASJONROL
 import no.nav.familie.kontrakter.felles.personopplysning.Statsborgerskap
 import no.nav.familie.ks.sak.common.exception.PdlPersonKanIkkeBehandlesIFagsystem
 import no.nav.familie.ks.sak.config.PersonInfoQuery
-import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
+import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonService
 import no.nav.familie.ks.sak.integrasjon.logger
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.ForelderBarnRelasjonInfo
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.ForelderBarnRelasjonInfoMaskert
@@ -19,8 +19,8 @@ import org.springframework.stereotype.Service
 @Service
 class PersonOpplysningerService(
     private val pdlClient: PdlClient,
-    private val integrasjonClient: IntegrasjonClient,
-    private val personidentService: PersonidentService
+    private val integrasjonService: IntegrasjonService,
+    private val personidentService: PersonidentService,
 ) {
 
     fun hentPersonInfoMedRelasjonerOgRegisterinformasjon(aktør: Aktør): PdlPersonInfo {
@@ -30,16 +30,16 @@ class PersonOpplysningerService(
                 relasjon.relatertPersonsIdent?.let { ident ->
                     ForelderBarnRelasjonInfo(
                         aktør = personidentService.hentAktør(ident),
-                        relasjonsrolle = relasjon.relatertPersonsRolle
+                        relasjonsrolle = relasjon.relatertPersonsRolle,
                     )
                 }
             }.toSet()
 
         val identerMedAdressebeskyttelse = mutableSetOf<Pair<Aktør, FORELDERBARNRELASJONROLLE>>()
         val forelderBarnRelasjonerMedAdressebeskyttelseGradering = forelderBarnRelasjoner.mapNotNull { forelderBarnRelasjon ->
-            val harTilgang = integrasjonClient.sjekkTilgangTilPersoner(
-                listOf(forelderBarnRelasjon.aktør.aktivFødselsnummer())
-            ).harTilgang
+            val harTilgang =
+                integrasjonService.sjekkTilgangTilPerson(forelderBarnRelasjon.aktør.aktivFødselsnummer()).harTilgang
+
             if (harTilgang) {
                 try {
                     // henter alle aktive forelder barn relasjoner med adressebeskyttelse gradering
@@ -50,13 +50,13 @@ class PersonOpplysningerService(
                         relasjonsrolle = forelderBarnRelasjon.relasjonsrolle,
                         fødselsdato = relasjonData.fødselsdato,
                         navn = relasjonData.navn,
-                        adressebeskyttelseGradering = relasjonData.adressebeskyttelseGradering
+                        adressebeskyttelseGradering = relasjonData.adressebeskyttelseGradering,
                     )
                 } catch (pdlPersonKanIkkeBehandlesIFagsystem: PdlPersonKanIkkeBehandlesIFagsystem) {
                     logger.warn("Ignorerer relasjon: ${pdlPersonKanIkkeBehandlesIFagsystem.årsak}")
                     secureLogger.warn(
                         "Ignorerer relasjon ${forelderBarnRelasjon.aktør.aktivFødselsnummer()} " +
-                            "til ${aktør.aktivFødselsnummer()}: ${pdlPersonKanIkkeBehandlesIFagsystem.årsak}"
+                            "til ${aktør.aktivFødselsnummer()}: ${pdlPersonKanIkkeBehandlesIFagsystem.årsak}",
                     )
                     null
                 }
@@ -69,14 +69,14 @@ class PersonOpplysningerService(
         val forelderBarnRelasjonMaskert = identerMedAdressebeskyttelse.map {
             ForelderBarnRelasjonInfoMaskert(
                 relasjonsrolle = it.second,
-                adressebeskyttelseGradering = hentAdressebeskyttelseSomSystembruker(it.first)
+                adressebeskyttelseGradering = hentAdressebeskyttelseSomSystembruker(it.first),
             )
         }.toSet()
 
         return tilPersonInfo(
             pdlPersonData,
             forelderBarnRelasjonerMedAdressebeskyttelseGradering,
-            forelderBarnRelasjonMaskert
+            forelderBarnRelasjonMaskert,
         )
     }
 

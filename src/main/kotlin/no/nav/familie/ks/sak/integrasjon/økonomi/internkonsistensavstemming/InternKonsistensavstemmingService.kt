@@ -24,7 +24,7 @@ class InternKonsistensavstemmingService(
     val behandlingService: BehandlingService,
     val andelTilkjentYtelseRepository: AndelTilkjentYtelseRepository,
     val fagsakRepository: FagsakRepository,
-    val taskService: TaskService
+    val taskService: TaskService,
 ) {
     fun validerLikUtbetalingIAndeleneOgUtbetalingsoppdragetPåAlleFagsaker(maksAntallTasker: Int = Int.MAX_VALUE) {
         val fagsakerSomIkkeErArkivert = fagsakRepository
@@ -64,7 +64,7 @@ class InternKonsistensavstemmingService(
             logger.error(
                 "Tilkjent ytelse og utbetalingsoppdraget som er lagret i familie-oppdrag er inkonsistent" +
                     "\nSe secure logs for mer detaljer." +
-                    "\nDette gjelder fagsakene $fagsakerMedFeil"
+                    "\nDette gjelder fagsakene $fagsakerMedFeil",
             )
         }
     }
@@ -89,7 +89,7 @@ class InternKonsistensavstemmingService(
     }
 
     private fun hentFagsakTilAndelerISisteBehandlingSendtTilØkonomiMap(fagsaker: Set<Long>): Map<Long, List<AndelTilkjentYtelse>> {
-        val behandlinger = behandlingService.hentSisteBehandlingSomErSendtTilØkonomiPerFagsak(fagsaker)
+        val behandlinger = behandlingService.hentSisteBehandlingSomErAvsluttetEllerSendtTilØkonomiPerFagsak(fagsaker)
 
         return andelTilkjentYtelseRepository.finnAndelerTilkjentYtelseForBehandlinger(behandlinger.map { it.id })
             .groupBy { it.behandlingId }

@@ -11,11 +11,11 @@ spec:
   leaderElection: true
   liveness:
     path: /internal/health/liveness
-    initialDelay: 70
+    initialDelay: 35
     failureThreshold: 10
   readiness:
     path: /internal/health/readyness
-    initialDelay: 70
+    initialDelay: 35
     failureThreshold: 10
   prometheus:
     enabled: true
@@ -97,8 +97,7 @@ spec:
         - host: sdw-wsrest.ecb.europa.eu
   replicas:
     min: 2
-    max: 4
-    cpuThresholdPercentage: 50
+    max: 2
   resources:
     limits:
       memory: 2048Mi

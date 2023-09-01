@@ -1,0 +1,28 @@
+{
+  "beskrivelse": "RV: SB har motatt nye opplysninger om ett barn. Vi opphører alle måneder utenom én som endres til 60% utelse.",
+  "personer": [
+    {
+      "aktør": {
+        "fødselsnummer": "20492159388",
+        "aktørId": "2045385506683"
+      },
+      "søktForPerson": true,
+      "eksplisittAvslått": false,
+      "forrigeAndeler": [
+        {
+          "stønadFom": "2022-10",
+          "stønadTom": "2023-08",
+          "kalkulertUtbetalingsbeløp": 7500
+        }
+      ],
+      "andeler": [
+        {
+          "stønadFom": "2022-10",
+          "stønadTom": "2022-10",
+          "kalkulertUtbetalingsbeløp": 4500
+        }
+      ]
+    }
+  ],
+  "forventetResultat": "ENDRET_OG_OPPHØRT"
+}

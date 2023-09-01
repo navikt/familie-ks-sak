@@ -1,16 +1,16 @@
 package no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene
 
+import jakarta.persistence.CascadeType
+import jakarta.persistence.Column
+import jakarta.persistence.Entity
+import jakarta.persistence.FetchType
+import jakarta.persistence.GeneratedValue
+import jakarta.persistence.GenerationType
+import jakarta.persistence.Id
+import jakarta.persistence.OneToMany
+import jakarta.persistence.SequenceGenerator
+import jakarta.persistence.Table
 import no.nav.familie.ks.sak.common.entitet.BaseEntitet
-import javax.persistence.CascadeType
-import javax.persistence.Column
-import javax.persistence.Entity
-import javax.persistence.FetchType
-import javax.persistence.GeneratedValue
-import javax.persistence.GenerationType
-import javax.persistence.Id
-import javax.persistence.OneToMany
-import javax.persistence.SequenceGenerator
-import javax.persistence.Table
 
 @Entity
 @Table(name = "GR_PERSONOPPLYSNINGER")
@@ -20,7 +20,7 @@ data class PersonopplysningGrunnlag(
     @SequenceGenerator(
         name = "GR_PERSONOPPLYSNINGER_SEQ_GENERATOR",
         sequenceName = "GR_PERSONOPPLYSNINGER_SEQ",
-        allocationSize = 50
+        allocationSize = 50,
     )
     val id: Long = 0,
 
@@ -30,12 +30,12 @@ data class PersonopplysningGrunnlag(
     @OneToMany(
         fetch = FetchType.EAGER,
         mappedBy = "personopplysningGrunnlag",
-        cascade = [CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH]
+        cascade = [CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH],
     )
     val personer: MutableSet<Person> = mutableSetOf(),
 
     @Column(name = "aktiv", nullable = false)
-    var aktiv: Boolean = true
+    var aktiv: Boolean = true,
 
 ) : BaseEntitet() {
 

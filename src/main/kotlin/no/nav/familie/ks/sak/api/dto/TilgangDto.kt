@@ -6,5 +6,5 @@ data class TilgangRequestDto(val brukerIdent: String)
 
 data class TilgangResponsDto(
     val saksbehandlerHarTilgang: Boolean,
-    val adressebeskyttelsegradering: ADRESSEBESKYTTELSEGRADERING
+    val adressebeskyttelsegradering: ADRESSEBESKYTTELSEGRADERING,
 )

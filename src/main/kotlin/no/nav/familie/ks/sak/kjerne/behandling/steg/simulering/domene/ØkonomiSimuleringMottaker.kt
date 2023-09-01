@@ -1,22 +1,22 @@
 package no.nav.familie.ks.sak.kjerne.behandling.steg.simulering.domene
 
+import jakarta.persistence.CascadeType
+import jakarta.persistence.Column
+import jakarta.persistence.Entity
+import jakarta.persistence.EnumType
+import jakarta.persistence.Enumerated
+import jakarta.persistence.FetchType
+import jakarta.persistence.GeneratedValue
+import jakarta.persistence.GenerationType
+import jakarta.persistence.Id
+import jakarta.persistence.JoinColumn
+import jakarta.persistence.ManyToOne
+import jakarta.persistence.OneToMany
+import jakarta.persistence.SequenceGenerator
+import jakarta.persistence.Table
 import no.nav.familie.kontrakter.felles.simulering.MottakerType
 import no.nav.familie.ks.sak.common.entitet.BaseEntitet
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
-import javax.persistence.CascadeType
-import javax.persistence.Column
-import javax.persistence.Entity
-import javax.persistence.EnumType
-import javax.persistence.Enumerated
-import javax.persistence.FetchType
-import javax.persistence.GeneratedValue
-import javax.persistence.GenerationType
-import javax.persistence.Id
-import javax.persistence.JoinColumn
-import javax.persistence.ManyToOne
-import javax.persistence.OneToMany
-import javax.persistence.SequenceGenerator
-import javax.persistence.Table
 
 @Entity(name = "OkonomiSimuleringMottaker")
 @Table(name = "OKONOMI_SIMULERING_MOTTAKER")
@@ -26,7 +26,7 @@ data class ØkonomiSimuleringMottaker(
     @SequenceGenerator(
         name = "okonomi_simulering_mottaker_seq_generator",
         sequenceName = "okonomi_simulering_mottaker_seq",
-        allocationSize = 50
+        allocationSize = 50,
     )
     val id: Long = 0,
 
@@ -45,9 +45,9 @@ data class ØkonomiSimuleringMottaker(
         mappedBy = "økonomiSimuleringMottaker",
         cascade = [CascadeType.ALL],
         fetch = FetchType.EAGER,
-        orphanRemoval = true
+        orphanRemoval = true,
     )
-    var økonomiSimuleringPostering: List<ØkonomiSimuleringPostering> = emptyList()
+    var økonomiSimuleringPostering: List<ØkonomiSimuleringPostering> = emptyList(),
 ) : BaseEntitet() {
 
     override fun hashCode() = id.hashCode()

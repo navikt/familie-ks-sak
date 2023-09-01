@@ -13,7 +13,7 @@ class TidslinjeInitTest {
     private val tidslinjeSomStreng = "tttttfftftfftftff"
     private val mapper = mapOf(
         't' to true,
-        'f' to false
+        'f' to false,
     )
 
     @Test
@@ -22,14 +22,14 @@ class TidslinjeInitTest {
             tidslinjeSomStreng,
             LocalDate.now(),
             mapper,
-            TidsEnhet.MÅNED
+            TidsEnhet.MÅNED,
         )
 
         assertTrue { tidslinje.innhold.size == 10 }
         assertTrue { tidslinje.innhold[0].periodeVerdi.verdi!! }
         Assertions.assertEquals(
             listOf(true, false, true, false, true, false, true, false, true, false),
-            tidslinje.innhold.map { it.periodeVerdi.verdi }.toList()
+            tidslinje.innhold.map { it.periodeVerdi.verdi }.toList(),
         )
     }
 
@@ -39,7 +39,7 @@ class TidslinjeInitTest {
             "ttttttttt",
             LocalDate.now(),
             mapper,
-            TidsEnhet.MÅNED
+            TidsEnhet.MÅNED,
         )
 
         assertTrue { tidslinje.innhold.size == 1 }
@@ -52,13 +52,13 @@ class TidslinjeInitTest {
         val tidslinje = Tidslinje.lagTidslinjeFraListe(
             tidslinjeSomStreng.toList(),
             LocalDate.now(),
-            TidsEnhet.MÅNED
+            TidsEnhet.MÅNED,
         )
 
         assertTrue { tidslinje.innhold.size == 10 }
         Assertions.assertEquals(
             listOf('t', 'f', 't', 'f', 't', 'f', 't', 'f', 't', 'f'),
-            tidslinje.innhold.map { it.periodeVerdi.verdi }.toList()
+            tidslinje.innhold.map { it.periodeVerdi.verdi }.toList(),
         )
     }
 
@@ -69,7 +69,7 @@ class TidslinjeInitTest {
                 "tttttttttdisse karakterene støttes ikke",
                 LocalDate.now(),
                 mapper,
-                TidsEnhet.MÅNED
+                TidsEnhet.MÅNED,
             )
         }
     }

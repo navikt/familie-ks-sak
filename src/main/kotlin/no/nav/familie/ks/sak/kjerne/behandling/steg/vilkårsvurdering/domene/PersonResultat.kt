@@ -1,24 +1,24 @@
 package no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene
 
 import com.fasterxml.jackson.annotation.JsonIgnore
+import jakarta.persistence.CascadeType
+import jakarta.persistence.Entity
+import jakarta.persistence.FetchType
+import jakarta.persistence.GeneratedValue
+import jakarta.persistence.GenerationType
+import jakarta.persistence.Id
+import jakarta.persistence.JoinColumn
+import jakarta.persistence.ManyToOne
+import jakarta.persistence.OneToMany
+import jakarta.persistence.OneToOne
+import jakarta.persistence.SequenceGenerator
+import jakarta.persistence.Table
 import no.nav.familie.ks.sak.common.entitet.BaseEntitet
 import no.nav.familie.ks.sak.common.tidslinje.Periode
 import no.nav.familie.ks.sak.common.tidslinje.tilTidslinje
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat.Companion.VilkårResultatComparator
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
-import javax.persistence.CascadeType
-import javax.persistence.Entity
-import javax.persistence.FetchType
-import javax.persistence.GeneratedValue
-import javax.persistence.GenerationType
-import javax.persistence.Id
-import javax.persistence.JoinColumn
-import javax.persistence.ManyToOne
-import javax.persistence.OneToMany
-import javax.persistence.OneToOne
-import javax.persistence.SequenceGenerator
-import javax.persistence.Table
 
 @Entity(name = "PersonResultat")
 @Table(name = "person_resultat")
@@ -28,7 +28,7 @@ class PersonResultat(
     @SequenceGenerator(
         name = "person_resultat_seq_generator",
         sequenceName = "person_resultat_seq",
-        allocationSize = 50
+        allocationSize = 50,
     )
     val id: Long = 0,
 
@@ -45,7 +45,7 @@ class PersonResultat(
         fetch = FetchType.EAGER,
         mappedBy = "personResultat",
         cascade = [CascadeType.ALL],
-        orphanRemoval = true
+        orphanRemoval = true,
     )
     val vilkårResultater: MutableSet<VilkårResultat> = sortedSetOf(VilkårResultatComparator),
 
@@ -53,9 +53,9 @@ class PersonResultat(
         fetch = FetchType.EAGER,
         mappedBy = "personResultat",
         cascade = [CascadeType.ALL],
-        orphanRemoval = true
+        orphanRemoval = true,
     )
-    val andreVurderinger: MutableSet<AnnenVurdering> = mutableSetOf()
+    val andreVurderinger: MutableSet<AnnenVurdering> = mutableSetOf(),
 ) : BaseEntitet() {
 
     fun setSortedVilkårResultater(nyeVilkårResultater: Set<VilkårResultat>) {
@@ -69,8 +69,8 @@ class PersonResultat(
         this.andreVurderinger.add(
             AnnenVurdering(
                 personResultat = this,
-                type = annenVurderingType
-            )
+                type = annenVurderingType,
+            ),
         )
     }
 
@@ -87,14 +87,16 @@ private fun Map<Vilkår, List<VilkårResultat>>.tilVilkårResultatTidslinjer() =
 
 private fun alleVilkårOppfyltEllerNull(
     vilkårResultater: Iterable<VilkårResultat?>,
-    vilkårForPerson: Set<Vilkår>
+    vilkårForPerson: Set<Vilkår>,
 ): List<VilkårResultat>? =
     if (erAlleVilkårForPersonOppfylt(vilkårForPerson, vilkårResultater)) {
         vilkårResultater.filterNotNull()
-    } else null
+    } else {
+        null
+    }
 
 private fun erAlleVilkårForPersonOppfylt(
     vilkårForPerson: Set<Vilkår>,
-    vilkårResultater: Iterable<VilkårResultat?>
+    vilkårResultater: Iterable<VilkårResultat?>,
 ) =
     vilkårForPerson.all { vilkår -> vilkårResultater.any { it?.resultat == Resultat.OPPFYLT && it.vilkårType == vilkår } }

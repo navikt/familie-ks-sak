@@ -42,8 +42,8 @@ class BehandlingControllerTest : OppslagSpringRunnerTest() {
             ArbeidsfordelingPåBehandling(
                 behandlingId = behandling.id,
                 behandlendeEnhetId = "test",
-                behandlendeEnhetNavn = "test"
-            )
+                behandlendeEnhetNavn = "test",
+            ),
         )
 
         every { integrasjonClient.hentLand(any()) } returns "Norge"
@@ -74,7 +74,7 @@ class BehandlingControllerTest : OppslagSpringRunnerTest() {
     @Test
     fun `hentBehandling - skal returnere BehandlingResponsDto og 200 OK dersom behandling finnes`() {
         val token = lokalTestToken(behandlerRolle = BehandlerRolle.BESLUTTER)
-        every { integrasjonClient.sjekkTilgangTilPersoner(any()) } returns Tilgang(true, "test")
+        every { integrasjonClient.sjekkTilgangTilPersoner(any()) } returns listOf(Tilgang("test", true))
 
         Given {
             header("Authorization", "Bearer $token")
@@ -91,7 +91,7 @@ class BehandlingControllerTest : OppslagSpringRunnerTest() {
     fun `endreBehandlendeEnhet - skal kaste FunksjonellFeil hvis begrunnelse er tom`() {
         val token = lokalTestToken(behandlerRolle = BehandlerRolle.BESLUTTER)
 
-        every { integrasjonClient.sjekkTilgangTilPersoner(any()) } returns Tilgang(true, "test")
+        every { integrasjonClient.sjekkTilgangTilPersoner(any()) } returns listOf(Tilgang("test", true))
 
         Given {
             header("Authorization", "Bearer $token")
@@ -109,12 +109,12 @@ class BehandlingControllerTest : OppslagSpringRunnerTest() {
     @Test
     fun `endreBehandlendeEnhet - skal returnere behandling med endret enhet`() {
         val token = lokalTestToken(behandlerRolle = BehandlerRolle.BESLUTTER)
-        every { integrasjonClient.sjekkTilgangTilPersoner(any()) } returns Tilgang(true, "test")
+        every { integrasjonClient.sjekkTilgangTilPersoner(any()) } returns listOf(Tilgang("test", true))
         every { integrasjonClient.hentNavKontorEnhet("50") } returns NavKontorEnhet(
             50,
             "nyNavn",
             "nyEnhetNr",
-            "nyStatus"
+            "nyStatus",
         )
 
         Given {
@@ -135,10 +135,7 @@ class BehandlingControllerTest : OppslagSpringRunnerTest() {
     fun `opprettBehandling - skal kaste funksjonell feil hvis fagsak allerede har en aktiv behandling som ikke er ferdigstilt`() {
         val token = lokalTestToken(behandlerRolle = BehandlerRolle.BESLUTTER)
 
-        every { integrasjonClient.sjekkTilgangTilPersoner(listOf(fagsak.aktør.aktivFødselsnummer())) } returns Tilgang(
-            true,
-            "test"
-        )
+        every { integrasjonClient.sjekkTilgangTilPersoner(any()) } returns listOf(Tilgang("test", true))
 
         Given {
             header("Authorization", "Bearer $token")
@@ -148,9 +145,9 @@ class BehandlingControllerTest : OppslagSpringRunnerTest() {
                     OpprettBehandlingDto(
                         søkersIdent = fagsak.aktør.aktivFødselsnummer(),
                         behandlingType = BehandlingType.FØRSTEGANGSBEHANDLING,
-                        kategori = BehandlingKategori.NASJONAL
-                    )
-                )
+                        kategori = BehandlingKategori.NASJONAL,
+                    ),
+                ),
             )
         } When {
             post(behandlingControllerUrl)
@@ -158,11 +155,11 @@ class BehandlingControllerTest : OppslagSpringRunnerTest() {
             body("status", Is("FUNKSJONELL_FEIL"))
             body(
                 "melding",
-                Is("Kan ikke lage ny behandling. Fagsaken har en aktiv behandling som ikke er ferdigstilt.")
+                Is("Kan ikke lage ny behandling. Fagsaken har en aktiv behandling som ikke er ferdigstilt."),
             )
             body(
                 "frontendFeilmelding",
-                Is("Kan ikke lage ny behandling. Fagsaken har en aktiv behandling som ikke er ferdigstilt.")
+                Is("Kan ikke lage ny behandling. Fagsaken har en aktiv behandling som ikke er ferdigstilt."),
             )
         }
     }

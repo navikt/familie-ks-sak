@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service
 @Service
 class VedtakService(
     private val vedtakRepository: VedtakRepository,
-    private val vedtaksperiodeService: VedtaksperiodeService
+    private val vedtaksperiodeService: VedtaksperiodeService,
 ) {
 
     fun hentVedtak(vedtakId: Long): Vedtak = vedtakRepository.hentVedtak(vedtakId)
@@ -36,7 +36,7 @@ class VedtakService(
         if (kopierVedtakBegrunnelser && deaktivertVedtak != null) {
             vedtaksperiodeService.kopierOverVedtaksperioder(
                 deaktivertVedtak = deaktivertVedtak,
-                aktivtVedtak = nyttVedtak
+                aktivtVedtak = nyttVedtak,
             )
         }
 

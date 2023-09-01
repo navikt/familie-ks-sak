@@ -81,22 +81,22 @@ class GenererBrevServiceTest {
             brevmal = Brevmal.INNHENTE_OPPLYSNINGER,
             mottakerIdent = søker.aktivFødselsnummer(),
             multiselectVerdier = listOf("Dokumentasjon som viser når barna kom til Norge."),
-            enhet = Enhet("id", "id")
+            enhet = Enhet("id", "id"),
         )
 
     @ParameterizedTest
     @EnumSource(
         value = Brevmal::class,
         names = ["VEDTAK_FØRSTEGANGSVEDTAK", "VEDTAK_ENDRING", "VEDTAK_OPPHØRT", "VEDTAK_OPPHØR_MED_ENDRING", "VEDTAK_AVSLAG", "VEDTAK_FORTSATT_INNVILGET", "VEDTAK_KORREKSJON_VEDTAKSBREV", "VEDTAK_OPPHØR_DØDSFALL", "AUTOVEDTAK_BARN_6_OG_18_ÅR_OG_SMÅBARNSTILLEGG", "AUTOVEDTAK_NYFØDT_FØRSTE_BARN", "AUTOVEDTAK_NYFØDT_BARN_FRA_FØR"],
-        mode = EnumSource.Mode.INCLUDE
+        mode = EnumSource.Mode.INCLUDE,
     )
     fun `genererManueltBrev - skal ikke journalføre brev for brevmaler som ikke kan sendes manuelt`(brevmal: Brevmal) {
         val feil = assertThrows<Feil> {
             genererBrevService.genererManueltBrev(
                 ManueltBrevDto(
                     brevmal = brevmal,
-                    mottakerIdent = søker.aktivFødselsnummer()
-                )
+                    mottakerIdent = søker.aktivFødselsnummer(),
+                ),
             )
         }
         assertEquals("Kan ikke mappe fra manuel brevrequest til $brevmal.", feil.message)
@@ -106,12 +106,12 @@ class GenererBrevServiceTest {
     fun `hentForhåndsvisningAvBrev - skal kaste feil dersom kall mot 'familie-brev' feiler`() {
         every { personopplysningGrunnlagService.hentSøker(behandlingId = behandling.id) } returns lagPerson(
             lagPersonopplysningGrunnlag(behandlingId = behandling.id, søkerPersonIdent = søker.aktivFødselsnummer()),
-            søker
+            søker,
         )
         every { arbeidsfordelingService.hentArbeidsfordelingPåBehandling(behandlingId = behandling.id) } returns ArbeidsfordelingPåBehandling(
             behandlingId = behandling.id,
             behandlendeEnhetNavn = "Behandlende enhet",
-            behandlendeEnhetId = "1234"
+            behandlendeEnhetId = "1234",
         )
 
         every {
@@ -122,11 +122,11 @@ class GenererBrevServiceTest {
             assertThrows<Feil> { genererBrevService.genererManueltBrev(manueltBrevDto, true) }
         assertEquals(
             "Klarte ikke generere brev for ${manueltBrevDto.brevmal}. Kall mot familie-brev feilet",
-            feil.message
+            feil.message,
         )
         assertEquals(
             "Det har skjedd en feil. Prøv igjen, og ta kontakt med brukerstøtte hvis problemet vedvarer.",
-            feil.frontendFeilmelding
+            feil.frontendFeilmelding,
         )
     }
 }

@@ -22,7 +22,7 @@ class ArbeidsfordelingService(
     private val integrasjonClient: IntegrasjonClient,
     private val personOpplysningerService: PersonOpplysningerService,
     private val oppgaveService: OppgaveService,
-    private val loggService: LoggService
+    private val loggService: LoggService,
 ) {
     fun hentAlleBehandlingerPåEnhet(enhetId: String) =
         arbeidsfordelingPåBehandlingRepository.hentAlleArbeidsfordelingPåBehandlingMedEnhet(enhetId)
@@ -39,7 +39,7 @@ class ArbeidsfordelingService(
         val oppdatertArbeidsfordelingPåBehandling = if (behandling.erSatsendring()) {
             aktivArbeidsfordelingPåBehandling ?: fastsettBehandledeEnhetPåSatsendringsbehandling(
                 behandling,
-                sisteVedtattBehandling
+                sisteVedtattBehandling,
             )
         } else {
             when (aktivArbeidsfordelingPåBehandling) {
@@ -47,8 +47,8 @@ class ArbeidsfordelingService(
                     ArbeidsfordelingPåBehandling(
                         behandlingId = behandling.id,
                         behandlendeEnhetId = arbeidsfordelingsEnhet.enhetId,
-                        behandlendeEnhetNavn = arbeidsfordelingsEnhet.enhetNavn
-                    )
+                        behandlendeEnhetNavn = arbeidsfordelingsEnhet.enhetNavn,
+                    ),
                 )
                 else -> {
                     if (!aktivArbeidsfordelingPåBehandling.manueltOverstyrt &&
@@ -68,7 +68,7 @@ class ArbeidsfordelingService(
             behandling = behandling,
             aktivArbeidsfordelingEnhet = arbeidsfordelingsEnhet,
             oppdatertArbeidsfordelingPåBehandling = oppdatertArbeidsfordelingPåBehandling,
-            manuellOppdatering = false
+            manuellOppdatering = false,
         )
     }
 
@@ -77,15 +77,15 @@ class ArbeidsfordelingService(
 
         val aktivArbeidsfordelingsEnhet = ArbeidsfordelingsEnhet(
             enhetId = aktivArbeidsfordelingPåBehandling.behandlendeEnhetId,
-            enhetNavn = aktivArbeidsfordelingPåBehandling.behandlendeEnhetNavn
+            enhetNavn = aktivArbeidsfordelingPåBehandling.behandlendeEnhetNavn,
         )
 
         val oppdatertArbeidsfordelingPåBehandling = arbeidsfordelingPåBehandlingRepository.save(
             aktivArbeidsfordelingPåBehandling.copy(
                 behandlendeEnhetId = endreBehandlendeEnhet.enhetId,
                 behandlendeEnhetNavn = integrasjonClient.hentNavKontorEnhet(endreBehandlendeEnhet.enhetId).navn,
-                manueltOverstyrt = true
-            )
+                manueltOverstyrt = true,
+            ),
         )
 
         settBehandlendeEnhet(
@@ -93,7 +93,7 @@ class ArbeidsfordelingService(
             aktivArbeidsfordelingEnhet = aktivArbeidsfordelingsEnhet,
             oppdatertArbeidsfordelingPåBehandling = oppdatertArbeidsfordelingPåBehandling,
             manuellOppdatering = true,
-            begrunnelse = endreBehandlendeEnhet.begrunnelse
+            begrunnelse = endreBehandlendeEnhet.begrunnelse,
         )
     }
 
@@ -113,7 +113,7 @@ class ArbeidsfordelingService(
 
     private fun fastsettBehandledeEnhetPåSatsendringsbehandling(
         behandling: Behandling,
-        sisteVedtattBehandling: Behandling?
+        sisteVedtattBehandling: Behandling?,
     ): ArbeidsfordelingPåBehandling {
         return if (sisteVedtattBehandling != null) {
             val forrigeVedtattBehandlingArbeidsfordelingsenhet =
@@ -123,8 +123,8 @@ class ArbeidsfordelingService(
                 forrigeVedtattBehandlingArbeidsfordelingsenhet?.copy(behandlingId = behandling.id)
                     ?: throw Feil(
                         "Finner ikke arbeidsfordelingsenhet på " +
-                            "forrige vedtatt behandling på satsendringsbehandling"
-                    )
+                            "forrige vedtatt behandling på satsendringsbehandling",
+                    ),
             )
         } else {
             throw Feil("Klarte ikke å fastsette arbeidsfordelingsenhet på satsendringsbehandling.")
@@ -136,16 +136,16 @@ class ArbeidsfordelingService(
         aktivArbeidsfordelingEnhet: ArbeidsfordelingsEnhet,
         oppdatertArbeidsfordelingPåBehandling: ArbeidsfordelingPåBehandling,
         manuellOppdatering: Boolean,
-        begrunnelse: String = ""
+        begrunnelse: String = "",
     ) {
         val oppdateringstype = if (manuellOppdatering) "manuelt" else "automatisk"
         logger.info(
             "Fastsatt behandlende enhet $oppdateringstype på behandling ${behandling.id}: " +
-                "$oppdatertArbeidsfordelingPåBehandling"
+                "$oppdatertArbeidsfordelingPåBehandling",
         )
         secureLogger.info(
             "Fastsatt behandlende enhet oppdateringstype på behandling ${behandling.id}: " +
-                oppdatertArbeidsfordelingPåBehandling.toSecureString()
+                oppdatertArbeidsfordelingPåBehandling.toSecureString(),
         )
 
         if (aktivArbeidsfordelingEnhet.enhetId != oppdatertArbeidsfordelingPåBehandling.behandlendeEnhetId
@@ -155,12 +155,12 @@ class ArbeidsfordelingService(
                 fraEnhet = aktivArbeidsfordelingEnhet,
                 tilEnhet = oppdatertArbeidsfordelingPåBehandling,
                 manuellOppdatering = manuellOppdatering,
-                begrunnelse = begrunnelse
+                begrunnelse = begrunnelse,
             )
 
             oppgaveService.endreTilordnetEnhetPåOppgaverForBehandling(
                 behandling,
-                oppdatertArbeidsfordelingPåBehandling.behandlendeEnhetId
+                oppdatertArbeidsfordelingPåBehandling.behandlendeEnhetId,
             )
         }
     }

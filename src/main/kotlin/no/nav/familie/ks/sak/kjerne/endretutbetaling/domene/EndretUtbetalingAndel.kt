@@ -1,5 +1,17 @@
 package no.nav.familie.ks.sak.kjerne.endretutbetaling.domene
 
+import jakarta.persistence.Column
+import jakarta.persistence.Convert
+import jakarta.persistence.Entity
+import jakarta.persistence.EnumType
+import jakarta.persistence.Enumerated
+import jakarta.persistence.GeneratedValue
+import jakarta.persistence.GenerationType
+import jakarta.persistence.Id
+import jakarta.persistence.JoinColumn
+import jakarta.persistence.ManyToOne
+import jakarta.persistence.SequenceGenerator
+import jakarta.persistence.Table
 import no.nav.familie.ks.sak.api.dto.EndretUtbetalingAndelRequestDto
 import no.nav.familie.ks.sak.api.dto.EndretUtbetalingAndelResponsDto
 import no.nav.familie.ks.sak.common.entitet.BaseEntitet
@@ -14,18 +26,6 @@ import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
 import java.math.BigDecimal
 import java.time.LocalDate
 import java.time.YearMonth
-import javax.persistence.Column
-import javax.persistence.Convert
-import javax.persistence.Entity
-import javax.persistence.EnumType
-import javax.persistence.Enumerated
-import javax.persistence.GeneratedValue
-import javax.persistence.GenerationType
-import javax.persistence.Id
-import javax.persistence.JoinColumn
-import javax.persistence.ManyToOne
-import javax.persistence.SequenceGenerator
-import javax.persistence.Table
 
 @Entity(name = "EndretUtbetalingAndel")
 @Table(name = "ENDRET_UTBETALING_ANDEL")
@@ -35,7 +35,7 @@ data class EndretUtbetalingAndel(
     @SequenceGenerator(
         name = "endret_utbetaling_andel_seq_generator",
         sequenceName = "endret_utbetaling_andel_seq",
-        allocationSize = 50
+        allocationSize = 50,
     )
     val id: Long = 0,
 
@@ -75,7 +75,7 @@ data class EndretUtbetalingAndel(
     var begrunnelser: List<Begrunnelse> = emptyList(),
 
     @Column(name = "er_eksplisitt_avslag_paa_soknad")
-    var erEksplisittAvslagPåSøknad: Boolean? = null
+    var erEksplisittAvslagPåSøknad: Boolean? = null,
 ) : BaseEntitet() {
 
     fun overlapperMed(periode: MånedPeriode) = periode.overlapperHeltEllerDelvisMed(this.periode)
@@ -93,7 +93,7 @@ data class EndretUtbetalingAndel(
                 fom,
                 tom,
                 årsak,
-                søknadstidspunkt
+                søknadstidspunkt,
             ).any { it == null } || (begrunnelse?.isEmpty() == true)
         ) {
             val feilmelding =
@@ -104,7 +104,7 @@ data class EndretUtbetalingAndel(
         if (checkNotNull(fom) > checkNotNull(tom)) {
             throw FunksjonellFeil(
                 melding = "fom må være lik eller komme før tom",
-                frontendFeilmelding = "Du kan ikke sette en f.o.m. dato som er etter t.o.m. dato"
+                frontendFeilmelding = "Du kan ikke sette en f.o.m. dato som er etter t.o.m. dato",
             )
         }
 
@@ -128,12 +128,12 @@ fun EndretUtbetalingAndelMedAndelerTilkjentYtelse.tilEndretUtbetalingAndelRespon
         søknadstidspunkt = this.søknadstidspunkt,
         begrunnelse = this.begrunnelse,
         erEksplisittAvslagPåSøknad = this.erEksplisittAvslagPåSøknad,
-        erTilknyttetAndeler = this.andelerTilkjentYtelse.isNotEmpty()
+        erTilknyttetAndeler = this.andelerTilkjentYtelse.isNotEmpty(),
     )
 
 fun EndretUtbetalingAndel.fraEndretUtbetalingAndelRequestDto(
     endretUtbetalingAndelRequestDto: EndretUtbetalingAndelRequestDto,
-    person: Person
+    person: Person,
 ): EndretUtbetalingAndel {
     this.fom = endretUtbetalingAndelRequestDto.fom
     this.tom = endretUtbetalingAndelRequestDto.tom
@@ -153,5 +153,5 @@ enum class Årsak(val visningsnavn: String) {
     DELT_BOSTED("Delt bosted"),
     ETTERBETALING_3MND("Etterbetaling 3 måneder"),
     ENDRE_MOTTAKER("Foreldrene bor sammen, endret mottaker"),
-    ALLEREDE_UTBETALT("Allerede utbetalt")
+    ALLEREDE_UTBETALT("Allerede utbetalt"),
 }

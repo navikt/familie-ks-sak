@@ -1,18 +1,18 @@
 package no.nav.familie.ks.sak.kjerne.logg.domene
 
+import jakarta.persistence.Column
+import jakarta.persistence.Entity
+import jakarta.persistence.EnumType
+import jakarta.persistence.Enumerated
+import jakarta.persistence.GeneratedValue
+import jakarta.persistence.GenerationType
+import jakarta.persistence.Id
+import jakarta.persistence.SequenceGenerator
+import jakarta.persistence.Table
 import no.nav.familie.ks.sak.config.BehandlerRolle
 import no.nav.familie.ks.sak.kjerne.logg.LoggType
 import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext
 import java.time.LocalDateTime
-import javax.persistence.Column
-import javax.persistence.Entity
-import javax.persistence.EnumType
-import javax.persistence.Enumerated
-import javax.persistence.GeneratedValue
-import javax.persistence.GenerationType
-import javax.persistence.Id
-import javax.persistence.SequenceGenerator
-import javax.persistence.Table
 
 @Entity(name = "Logg")
 @Table(name = "logg")
@@ -46,7 +46,7 @@ data class Logg(
      * Feltet støtter markdown frontend.
      */
     @Column(name = "tekst")
-    val tekst: String = ""
+    val tekst: String = "",
 ) {
 
     constructor(behandlingId: Long, type: LoggType, rolle: BehandlerRolle, tekst: String = "") : this(
@@ -54,6 +54,6 @@ data class Logg(
         type = type,
         tittel = type.tittel,
         rolle = rolle,
-        tekst = tekst
+        tekst = tekst,
     )
 }

@@ -1,6 +1,18 @@
 package no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene
 
 import com.fasterxml.jackson.annotation.JsonIgnore
+import jakarta.persistence.Column
+import jakarta.persistence.Convert
+import jakarta.persistence.Entity
+import jakarta.persistence.EnumType
+import jakarta.persistence.Enumerated
+import jakarta.persistence.GeneratedValue
+import jakarta.persistence.GenerationType
+import jakarta.persistence.Id
+import jakarta.persistence.JoinColumn
+import jakarta.persistence.ManyToOne
+import jakarta.persistence.SequenceGenerator
+import jakarta.persistence.Table
 import no.nav.familie.ks.sak.common.entitet.BaseEntitet
 import no.nav.familie.ks.sak.common.tidslinje.Periode
 import no.nav.familie.ks.sak.common.util.StringListConverter
@@ -13,18 +25,6 @@ import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.StandardbegrunnelseListCon
 import org.hibernate.annotations.Immutable
 import java.math.BigDecimal
 import java.time.LocalDate
-import javax.persistence.Column
-import javax.persistence.Convert
-import javax.persistence.Entity
-import javax.persistence.EnumType
-import javax.persistence.Enumerated
-import javax.persistence.GeneratedValue
-import javax.persistence.GenerationType
-import javax.persistence.Id
-import javax.persistence.JoinColumn
-import javax.persistence.ManyToOne
-import javax.persistence.SequenceGenerator
-import javax.persistence.Table
 
 @Entity(name = "VilkårResultat")
 @Table(name = "vilkar_resultat")
@@ -35,7 +35,7 @@ class VilkårResultat(
     @SequenceGenerator(
         name = "vilkar_resultat_seq_generator",
         sequenceName = "vilkar_resultat_seq",
-        allocationSize = 50
+        allocationSize = 50,
     )
     val id: Long = 0,
 
@@ -94,7 +94,7 @@ class VilkårResultat(
     var utdypendeVilkårsvurderinger: List<UtdypendeVilkårsvurdering> = emptyList(),
 
     @Column(name = "antall_timer")
-    val antallTimer: BigDecimal? = null
+    val antallTimer: BigDecimal? = null,
 ) : BaseEntitet() {
 
     fun erAvslagUtenPeriode() = erEksplisittAvslagPåSøknad == true && periodeFom == null && periodeTom == null
@@ -123,7 +123,7 @@ class VilkårResultat(
             erEksplisittAvslagPåSøknad = this.erEksplisittAvslagPåSøknad,
             vurderesEtter = this.vurderesEtter,
             utdypendeVilkårsvurderinger = this.utdypendeVilkårsvurderinger,
-            antallTimer = antallTimer
+            antallTimer = antallTimer,
         )
     }
 
@@ -139,7 +139,7 @@ class VilkårResultat(
         periodeFom: LocalDate? = this.periodeFom,
         resultat: Resultat = this.resultat,
         periodeTom: LocalDate? = this.periodeTom,
-        begrunnelse: String = this.begrunnelse
+        begrunnelse: String = this.begrunnelse,
 
     ) = VilkårResultat(
         personResultat = personResultat ?: this.personResultat,
@@ -155,7 +155,7 @@ class VilkårResultat(
         erEksplisittAvslagPåSøknad = this.erEksplisittAvslagPåSøknad,
         vurderesEtter = this.vurderesEtter,
         utdypendeVilkårsvurderinger = this.utdypendeVilkårsvurderinger,
-        antallTimer = this.antallTimer
+        antallTimer = this.antallTimer,
     )
 
     override fun toString(): String {

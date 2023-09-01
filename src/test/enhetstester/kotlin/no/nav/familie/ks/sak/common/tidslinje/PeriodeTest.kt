@@ -43,7 +43,7 @@ class PeriodeTest {
         val tidslinjeA = listOf(Periode("a", førsteJanuar, sisteDagIMars)).tilTidslinje()
         val tidslinjeB = listOf(
             Periode("b", førsteJanuar, sisteDagIJanuar),
-            Periode("b", førsteMars, sisteDagIMars)
+            Periode("b", førsteMars, sisteDagIMars),
         ).tilTidslinje()
 
         val periode = tidslinjeA.kombinerMed(tidslinjeB) { v1, v2 -> if (v2 == null) v1 else null }.tilPerioder().filtrerIkkeNull()
@@ -71,7 +71,7 @@ class PeriodeTest {
     fun `tilPerioder - Skal kunne håndtere splitt i tidslinje`() {
         val perioder = listOf(
             Periode("a", førsteJanuar, sisteDagIJanuar),
-            Periode("c", førsteMars, sisteDagIMars)
+            Periode("c", førsteMars, sisteDagIMars),
         ).tilTidslinje().tilPerioder()
 
         Assertions.assertEquals(3, perioder.size)
@@ -94,7 +94,7 @@ class PeriodeTest {
         val perioder = listOf(
             Periode("a", null, sisteDagIJanuar),
             Periode("b", førsteFebruar, sisteDagIFebruar),
-            Periode("c", førsteMars, null)
+            Periode("c", førsteMars, null),
         ).tilTidslinje().tilPerioder()
 
         Assertions.assertEquals(3, perioder.size)
@@ -117,7 +117,7 @@ class PeriodeTest {
         val perioder = listOf(
             Periode("a", null, sisteDagIJanuar),
             Periode("b", førsteFebruar, null),
-            Periode("c", førsteMars, null)
+            Periode("c", førsteMars, null),
         )
 
         Assertions.assertThrows(Exception::class.java) { perioder.tilTidslinje() }
@@ -128,7 +128,7 @@ class PeriodeTest {
         val perioder = listOf(
             Periode("a", null, sisteDagIJanuar),
             Periode("b", null, sisteDagIFebruar),
-            Periode("c", førsteMars, null)
+            Periode("c", førsteMars, null),
         )
 
         Assertions.assertThrows(Exception::class.java) { perioder.tilTidslinje() }
@@ -139,7 +139,7 @@ class PeriodeTest {
         val perioder = listOf(
             Periode("a", null, sisteDagIJanuar),
             Periode("b", førsteFebruar, sisteDagIMars),
-            Periode("c", førsteMars, null)
+            Periode("c", førsteMars, null),
         )
 
         Assertions.assertThrows(Exception::class.java) { perioder.tilTidslinje() }

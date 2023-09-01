@@ -14,7 +14,7 @@ import org.springframework.stereotype.Service
 class SimuleringSteg(
     private val behandlingService: BehandlingService,
     private val simuleringService: SimuleringService,
-    private val tilbakekrevingService: TilbakekrevingService
+    private val tilbakekrevingService: TilbakekrevingService,
 ) : IBehandlingSteg {
     override fun getBehandlingssteg(): BehandlingSteg = BehandlingSteg.SIMULERING
 

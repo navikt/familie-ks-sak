@@ -20,7 +20,7 @@ class FagsystemsbehandlingService(
     private val arbeidsfordelingService: ArbeidsfordelingService,
     private val vedtakService: VedtakService,
     private val tilbakekrevingsbehandlingHentService: TilbakekrevingsbehandlingHentService,
-    private val kafkaProducer: KafkaProducer
+    private val kafkaProducer: KafkaProducer,
 ) {
 
     fun hentFagsystemsbehandling(request: HentFagsystemsbehandlingRequest): HentFagsystemsbehandlingRespons {
@@ -33,14 +33,14 @@ class FagsystemsbehandlingService(
     fun sendFagsystemsbehandlingRespons(
         respons: HentFagsystemsbehandlingRespons,
         key: String,
-        behandlingId: String
+        behandlingId: String,
     ) {
         kafkaProducer.sendFagsystemsbehandlingRespons(respons, key, behandlingId)
     }
 
     private fun lagHentFagsystembehandlingRespons(
         request: HentFagsystemsbehandlingRequest,
-        behandling: Behandling
+        behandling: Behandling,
     ): HentFagsystemsbehandlingRespons {
         val behandlingId = behandling.id
         val persongrunnlag = personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(behandlingId = behandlingId)
@@ -50,7 +50,7 @@ class FagsystemsbehandlingService(
         val faktainfo = Faktainfo(
             revurderingsårsak = behandling.opprettetÅrsak.visningsnavn,
             revurderingsresultat = behandling.resultat.displayName,
-            tilbakekrevingsvalg = tilbakekrevingsbehandlingHentService.hentTilbakekreving(behandlingId).valg
+            tilbakekrevingsvalg = tilbakekrevingsbehandlingHentService.hentTilbakekreving(behandlingId).valg,
         )
 
         val hentFagsystemsbehandling = HentFagsystemsbehandling(
@@ -64,7 +64,7 @@ class FagsystemsbehandlingService(
             enhetsnavn = arbeidsfordeling.behandlendeEnhetNavn,
             revurderingsvedtaksdato = aktivVedtaksdato,
             faktainfo = faktainfo,
-            institusjon = null // alltid null for Kontantstøtte
+            institusjon = null, // alltid null for Kontantstøtte
         )
 
         return HentFagsystemsbehandlingRespons(hentFagsystemsbehandling = hentFagsystemsbehandling)

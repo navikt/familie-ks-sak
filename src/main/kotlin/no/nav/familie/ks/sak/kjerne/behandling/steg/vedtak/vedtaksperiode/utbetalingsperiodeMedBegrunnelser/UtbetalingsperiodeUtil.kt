@@ -26,9 +26,8 @@ import no.nav.familie.ks.sak.kjerne.personident.Aktør
 fun hentPerioderMedUtbetaling(
     andelerTilkjentYtelse: List<AndelTilkjentYtelseMedEndreteUtbetalinger>,
     vedtak: Vedtak,
-    forskjøvetVilkårResultatTidslinjeMap: Map<Aktør, Tidslinje<List<VilkårResultat>>>
+    forskjøvetVilkårResultatTidslinjeMap: Map<Aktør, Tidslinje<List<VilkårResultat>>>,
 ): List<VedtaksperiodeMedBegrunnelser> {
-
     val splittkriterierForVedtaksperiodeTidslinje = forskjøvetVilkårResultatTidslinjeMap
         .tilSplittkriterierForVedtaksperiodeTidslinjer().kombiner { it.toMap() }
 
@@ -47,7 +46,7 @@ fun hentPerioderMedUtbetaling(
                 fom = it.fom?.førsteDagIInneværendeMåned(),
                 tom = it.tom?.sisteDagIMåned(),
                 vedtak = vedtak,
-                type = Vedtaksperiodetype.UTBETALING
+                type = Vedtaksperiodetype.UTBETALING,
             )
         }
 }
@@ -63,11 +62,10 @@ private fun List<AndelTilkjentYtelseMedEndreteUtbetalinger>.tilTidslinje(): Tids
 
 private data class SplittkriterierForVedtaksperiode(
     val utdypendeVilkårsvurderinger: Set<UtdypendeVilkårsvurdering>,
-    val regelverk: Regelverk?
+    val regelverk: Regelverk?,
 )
 
-private fun Map<Aktør, Tidslinje<List<VilkårResultat>>>.tilSplittkriterierForVedtaksperiodeTidslinjer():
-    List<Tidslinje<Pair<Aktør, SplittkriterierForVedtaksperiode>>> =
+private fun Map<Aktør, Tidslinje<List<VilkårResultat>>>.tilSplittkriterierForVedtaksperiodeTidslinjer(): List<Tidslinje<Pair<Aktør, SplittkriterierForVedtaksperiode>>> =
 
     this.map { (aktør, vilkårsvurderingTidslinje) ->
         vilkårsvurderingTidslinje.tilPerioder().filtrerIkkeNull().map { vilkårResultater ->
@@ -78,12 +76,12 @@ private fun Map<Aktør, Tidslinje<List<VilkårResultat>>>.tilSplittkriterierForV
                         aktør,
                         SplittkriterierForVedtaksperiode(
                             utdypendeVilkårsvurderinger = utdypendeVilkårsvurderinger,
-                            regelverk = hentRegelverkPersonErVurdertEtterIPeriode(it)
-                        )
+                            regelverk = hentRegelverkPersonErVurdertEtterIPeriode(it),
+                        ),
                     )
                 },
                 fom = vilkårResultater.fom,
-                tom = vilkårResultater.tom
+                tom = vilkårResultater.tom,
             )
         }.tilTidslinje()
     }

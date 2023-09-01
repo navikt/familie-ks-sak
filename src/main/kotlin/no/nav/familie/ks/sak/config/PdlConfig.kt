@@ -48,5 +48,5 @@ class PdlConfig(@Value("\${PDL_URL}") pdlUrl: URI) {
 enum class PersonInfoQuery(val query: String) {
     ENKEL(PdlConfig.hentEnkelPersonQuery),
     MED_RELASJONER_OG_REGISTERINFORMASJON(PdlConfig.hentPersonMedRelasjonOgRegisterInformasjonQuery),
-    NAVN_OG_ADRESSE(PdlConfig.hentPersonMedNavnOgAdresseQuery)
+    NAVN_OG_ADRESSE(PdlConfig.hentPersonMedNavnOgAdresseQuery),
 }

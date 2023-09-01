@@ -14,7 +14,7 @@ interface KafkaProducer {
     fun sendFagsystemsbehandlingRespons(
         melding: HentFagsystemsbehandlingRespons,
         key: String,
-        behandlingId: String
+        behandlingId: String,
     )
 }
 
@@ -24,27 +24,24 @@ class HentFagsystemsbehandlingResponsKafkaProducer(private val kafkaTemplate: Ka
     override fun sendFagsystemsbehandlingRespons(
         melding: HentFagsystemsbehandlingRespons,
         key: String,
-        behandlingId: String
+        behandlingId: String,
     ) {
         val meldingIString: String = objectMapper.writeValueAsString(melding)
         kafkaTemplate.send(FAGSYSTEMSBEHANDLING_RESPONS_TBK_TOPIC, key, meldingIString)
-            .addCallback(
-                {
-                    logger.info(
-                        """Melding på topic $FAGSYSTEMSBEHANDLING_RESPONS_TBK_TOPIC for $behandlingId med $key er sendt. 
+            .thenAccept {
+                logger.info(
+                    """Melding på topic $FAGSYSTEMSBEHANDLING_RESPONS_TBK_TOPIC for $behandlingId med $key er sendt. 
                             Fikk offset ${it?.recordMetadata?.offset()}
-                        """.trimMargin()
-                    )
-                },
-                {
-                    val feilmelding =
-                        """Melding på topic $FAGSYSTEMSBEHANDLING_RESPONS_TBK_TOPIC kan ikke sendes for $behandlingId 
+                    """.trimMargin(),
+                )
+            }.exceptionally {
+                val feilmelding =
+                    """Melding på topic $FAGSYSTEMSBEHANDLING_RESPONS_TBK_TOPIC kan ikke sendes for $behandlingId 
                             med $key. Feiler med ${it.message}
-                        """.trimMargin()
-                    logger.warn(feilmelding)
-                    throw Feil(message = feilmelding)
-                }
-            )
+                    """.trimMargin()
+                logger.warn(feilmelding)
+                throw Feil(message = feilmelding)
+            }
     }
 
     companion object {
@@ -58,7 +55,7 @@ class DummyHentFagsystemsbehandlingResponsKafkaProducer : KafkaProducer {
     override fun sendFagsystemsbehandlingRespons(
         melding: HentFagsystemsbehandlingRespons,
         key: String,
-        behandlingId: String
+        behandlingId: String,
     ) {
         logger.info("Skipper sending av fagsystemsbehandling respons for $behandlingId fordi kafka ikke er enablet")
     }

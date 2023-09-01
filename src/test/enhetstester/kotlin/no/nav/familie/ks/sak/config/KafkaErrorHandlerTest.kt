@@ -23,32 +23,36 @@ class KafkaErrorHandlerTest {
 
     @Test
     fun `handle skal stoppe container hvis man mottar feil med en tom liste med records`() {
-        Assertions.assertThatThrownBy {
+        val exceptionThrown = Assertions.assertThatThrownBy {
             errorHandler.handleRemaining(
                 RuntimeException("Feil i test"),
                 emptyList(),
                 consumer,
-                container
+                container,
             )
         }
-            .hasMessageNotContaining("Feil i test")
-            .hasMessageContaining("Sjekk securelogs for mer info")
-            .hasCauseExactlyInstanceOf(Exception::class.java)
+        exceptionThrown.hasCauseExactlyInstanceOf(Exception::class.java)
+
+        val cause = exceptionThrown.cause()
+
+        cause.hasMessageNotContaining("Feil i test").hasMessageContaining("Sjekk securelogs for mer info")
     }
 
     @Test
     fun `handle skal stoppe container hvis man mottar feil med en liste med records`() {
         val consumerRecord = ConsumerRecord("topic", 1, 1, 1, "record")
-        Assertions.assertThatThrownBy {
+        val exceptionThrown = Assertions.assertThatThrownBy {
             errorHandler.handleRemaining(
                 RuntimeException("Feil i test"),
                 listOf(consumerRecord),
                 consumer,
-                container
+                container,
             )
         }
-            .hasMessageNotContaining("Feil i test")
-            .hasMessageContaining("Sjekk securelogs for mer info")
-            .hasCauseExactlyInstanceOf(Exception::class.java)
+        exceptionThrown.hasCauseExactlyInstanceOf(Exception::class.java)
+
+        val cause = exceptionThrown.cause()
+
+        cause.hasMessageNotContaining("Feil i test").hasMessageContaining("Sjekk securelogs for mer info")
     }
 }

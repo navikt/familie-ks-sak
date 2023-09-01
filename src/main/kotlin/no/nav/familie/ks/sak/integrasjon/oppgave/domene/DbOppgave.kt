@@ -1,19 +1,19 @@
 package no.nav.familie.ks.sak.integrasjon.oppgave.domene
 
+import jakarta.persistence.Column
+import jakarta.persistence.Entity
+import jakarta.persistence.EnumType
+import jakarta.persistence.Enumerated
+import jakarta.persistence.GeneratedValue
+import jakarta.persistence.GenerationType
+import jakarta.persistence.Id
+import jakarta.persistence.JoinColumn
+import jakarta.persistence.ManyToOne
+import jakarta.persistence.SequenceGenerator
+import jakarta.persistence.Table
 import no.nav.familie.kontrakter.felles.oppgave.Oppgavetype
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import java.time.LocalDateTime
-import javax.persistence.Column
-import javax.persistence.Entity
-import javax.persistence.EnumType
-import javax.persistence.Enumerated
-import javax.persistence.GeneratedValue
-import javax.persistence.GenerationType
-import javax.persistence.Id
-import javax.persistence.JoinColumn
-import javax.persistence.ManyToOne
-import javax.persistence.SequenceGenerator
-import javax.persistence.Table
 
 @Entity(name = "Oppgave")
 @Table(name = "OPPGAVE")
@@ -38,7 +38,7 @@ data class DbOppgave(
     val opprettetTidspunkt: LocalDateTime = LocalDateTime.now(),
 
     @Column(name = "ferdigstilt", nullable = false, updatable = true)
-    var erFerdigstilt: Boolean = false
+    var erFerdigstilt: Boolean = false,
 ) {
     override fun toString(): String {
         return "Oppgave(" +

@@ -47,7 +47,9 @@ class EndretUtbetalingAndelServiceTest {
         val nyBehandling = lagBehandling()
 
         every { endretUtbetalingAndelRepository.hentEndretUtbetalingerForBehandling(gammelBehandling.id) } returns listOf(
-            mockk(relaxed = true), mockk(relaxed = true), mockk(relaxed = true)
+            mockk(relaxed = true),
+            mockk(relaxed = true),
+            mockk(relaxed = true),
         )
         every { endretUtbetalingAndelRepository.save(any()) } returns mockk()
 

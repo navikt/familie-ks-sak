@@ -4,5 +4,5 @@ enum class Resultat {
     OPPFYLT,
     IKKE_AKTUELT,
     IKKE_OPPFYLT,
-    IKKE_VURDERT;
+    IKKE_VURDERT,
 }

@@ -23,7 +23,7 @@ class BehandlingsresultatSteg(
     private val behandlingsresultatService: BehandlingsresultatService,
     private val simuleringService: SimuleringService,
     private val vedtakRepository: VedtakRepository,
-    private val vedtaksperiodeService: VedtaksperiodeService
+    private val vedtaksperiodeService: VedtaksperiodeService,
 ) : IBehandlingSteg {
     override fun getBehandlingssteg(): BehandlingSteg = BehandlingSteg.BEHANDLINGSRESULTAT
 
@@ -40,7 +40,7 @@ class BehandlingsresultatSteg(
         BehandlingsresultatUtils.validerAtBehandlingsresultatKanUtføres(
             personopplysningGrunnlag,
             tilkjentYtelse,
-            endretUtbetalingMedAndeler
+            endretUtbetalingMedAndeler,
         )
 
         val resultat = behandlingsresultatService.utledBehandlingsresultat(behandling)
@@ -53,8 +53,8 @@ class BehandlingsresultatSteg(
             behandlingService.nullstillEndringstidspunkt(behandlingId)
             vedtaksperiodeService.oppdaterVedtakMedVedtaksperioder(
                 vedtak = vedtakRepository.findByBehandlingAndAktiv(
-                    behandlingId = behandling.id
-                )
+                    behandlingId = behandling.id,
+                ),
             )
         }
         simuleringService.oppdaterSimuleringPåBehandling(behandlingId)

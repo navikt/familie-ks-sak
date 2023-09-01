@@ -18,6 +18,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingKategori
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat
+import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg
 import no.nav.familie.ks.sak.kjerne.behandling.steg.registrersøknad.SøknadGrunnlagService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.VedtakRepository
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.feilutbetaltvaluta.FeilutbetaltValutaService
@@ -40,7 +41,6 @@ import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import java.math.BigInteger
 
 @Service
 class BehandlingService(
@@ -59,7 +59,7 @@ class BehandlingService(
     private val tilbakekrevingRepository: TilbakekrevingRepository,
     private val sanityService: SanityService,
     private val feilutbetaltValutaService: FeilutbetaltValutaService,
-    private val kompetanseRepository: KompetanseRepository
+    private val kompetanseRepository: KompetanseRepository,
 ) {
 
     fun hentBehandling(behandlingId: Long): Behandling = behandlingRepository.hentBehandling(behandlingId)
@@ -93,7 +93,7 @@ class BehandlingService(
             personopplysningGrunnlag?.let {
                 lagPersonerMedAndelTilkjentYtelseRespons(
                     it.personer,
-                    andelerTilkjentYtelse
+                    andelerTilkjentYtelse,
                 )
             }
                 ?: emptyList()
@@ -113,14 +113,14 @@ class BehandlingService(
                     vedtaksperiodeService.hentUtvidetVedtaksperioderMedBegrunnelser(vedtak = it)
                         .map { utvidetVedtaksperiodeMedBegrunnelser ->
                             utvidetVedtaksperiodeMedBegrunnelser.tilUtvidetVedtaksperiodeMedBegrunnelserDto(
-                                sanityBegrunnelser
+                                sanityBegrunnelser,
                             )
                         }
                         .sortedBy { dto -> dto.fom }
                 } else {
                     emptyList()
                 },
-                skalMinimeres = behandling.status != BehandlingStatus.UTREDES
+                skalMinimeres = behandling.status != BehandlingStatus.UTREDES,
             )
         }
 
@@ -133,7 +133,7 @@ class BehandlingService(
 
         val endringstidspunkt = vedtaksperiodeService.finnEndringstidspunktForBehandling(
             behandling = behandling,
-            sisteVedtattBehandling = hentSisteBehandlingSomErVedtatt(behandling.fagsak.id)
+            sisteVedtattBehandling = hentSisteBehandlingSomErVedtatt(behandling.fagsak.id),
         )
 
         val sisteVedtaksperiodeVisningDato =
@@ -162,7 +162,7 @@ class BehandlingService(
             tilbakekreving,
             sisteVedtaksperiodeVisningDato,
             feilutbetalteValuta,
-            kompetanser
+            kompetanser,
         )
     }
 
@@ -173,12 +173,12 @@ class BehandlingService(
         val behandling = hentBehandling(behandlingId)
         logger.info(
             "${SikkerhetContext.hentSaksbehandlerNavn()} endrer resultat på behandling $behandlingId " +
-                "fra ${behandling.resultat} til $nyUtledetBehandlingsresultat"
+                "fra ${behandling.resultat} til $nyUtledetBehandlingsresultat",
         )
         loggService.opprettVilkårsvurderingLogg(
             behandling = behandling,
             behandlingsForrigeResultat = behandling.resultat,
-            behandlingsNyResultat = nyUtledetBehandlingsresultat
+            behandlingsNyResultat = nyUtledetBehandlingsresultat,
         )
         behandling.resultat = nyUtledetBehandlingsresultat
         return oppdaterBehandling(behandling)
@@ -190,11 +190,28 @@ class BehandlingService(
         oppdaterBehandling(behandling)
     }
 
-    fun hentSisteIverksatteBehandlingerFraLøpendeFagsaker(page: Pageable): Page<BigInteger> =
+    fun hentSisteIverksatteBehandlingerFraLøpendeFagsaker(page: Pageable): Page<Long> =
         behandlingRepository.finnSisteIverksatteBehandlingFraLøpendeFagsaker(page)
 
     fun hentAktivtFødselsnummerForBehandlinger(behandlingIder: List<Long>): Map<Long, String> =
         behandlingRepository.finnAktivtFødselsnummerForBehandlinger(behandlingIder).associate { it.first to it.second }
+
+    fun hentIverksatteBehandlinger(fagsakId: Long): List<Behandling> =
+        behandlingRepository.finnIverksatteBehandlinger(fagsakId = fagsakId)
+
+    /**
+     * Henter siste iverksatte behandling på fagsak
+     */
+    fun hentSisteBehandlingSomErIverksatt(fagsakId: Long): Behandling? {
+        val iverksatteBehandlinger = hentIverksatteBehandlinger(fagsakId)
+        return hentSisteBehandlingSomErIverksatt(iverksatteBehandlinger)
+    }
+
+    private fun hentSisteBehandlingSomErIverksatt(iverksatteBehandlinger: List<Behandling>): Behandling? {
+        return iverksatteBehandlinger
+            .filter { it.steg == BehandlingSteg.AVSLUTT_BEHANDLING }
+            .maxByOrNull { it.opprettetTidspunkt }
+    }
 
     @Transactional
     fun endreBehandlingstemaPåBehandling(behandlingId: Long, overstyrtKategori: BehandlingKategori): Behandling {
@@ -205,7 +222,7 @@ class BehandlingService(
         loggService.opprettEndretBehandlingstemaLogg(
             behandling = behandling,
             forrigeKategori = behandling.kategori,
-            nyKategori = overstyrtKategori
+            nyKategori = overstyrtKategori,
         )
 
         behandling.kategori = overstyrtKategori
@@ -217,15 +234,15 @@ class BehandlingService(
             .filter { it.erAvsluttet() && !it.erHenlagt() }
     }
 
-    fun hentSisteBehandlingSomErSendtTilØkonomiPerFagsak(fagsakIder: Set<Long>): List<Behandling> {
+    fun hentSisteBehandlingSomErAvsluttetEllerSendtTilØkonomiPerFagsak(fagsakIder: Set<Long>): List<Behandling> {
         val behandlingerPåFagsakene = behandlingRepository.finnBehandlinger(fagsakIder)
 
         return behandlingerPåFagsakene
             .groupBy { it.fagsak.id }
-            .mapNotNull { (_, behandling) -> behandling.hentSisteSomErSentTilØkonomi() }
+            .mapNotNull { (_, behandling) -> behandling.filtrerSisteBehandlingSomErAvsluttetEllerSendtTilØkonomi() }
     }
 
-    private fun List<Behandling>.hentSisteSomErSentTilØkonomi() =
+    private fun List<Behandling>.filtrerSisteBehandlingSomErAvsluttetEllerSendtTilØkonomi() =
         filter { !it.erHenlagt() && (it.status == BehandlingStatus.AVSLUTTET || it.status == BehandlingStatus.IVERKSETTER_VEDTAK) }
             .maxByOrNull { it.opprettetTidspunkt }
 

@@ -37,7 +37,7 @@ object BehandlingsresultatUtils {
     fun validerAtBehandlingsresultatKanUtføres(
         personopplysningGrunnlag: PersonopplysningGrunnlag,
         tilkjentYtelse: TilkjentYtelse,
-        endretUtbetalingMedAndeler: List<EndretUtbetalingAndelMedAndelerTilkjentYtelse>
+        endretUtbetalingMedAndeler: List<EndretUtbetalingAndelMedAndelerTilkjentYtelse>,
     ) {
         // valider TilkjentYtelse
         TilkjentYtelseValidator.validerAtTilkjentYtelseHarFornuftigePerioderOgBeløp(tilkjentYtelse, personopplysningGrunnlag)
@@ -67,7 +67,7 @@ object BehandlingsresultatUtils {
         personerFremstiltKravFor: List<Aktør>,
         andelerMedEndringer: List<AndelTilkjentYtelseMedEndreteUtbetalinger>,
         forrigeAndelerMedEndringer: List<AndelTilkjentYtelseMedEndreteUtbetalinger>,
-        erEksplisittAvslag: Boolean
+        erEksplisittAvslag: Boolean,
     ): BehandlingsresultatPerson {
         val aktør = person.aktør
 
@@ -80,7 +80,7 @@ object BehandlingsresultatUtils {
                     BehandlingsresultatAndelTilkjentYtelse(
                         stønadFom = andelTilkjentYtelse.stønadFom,
                         stønadTom = andelTilkjentYtelse.stønadTom,
-                        kalkulertUtbetalingsbeløp = andelTilkjentYtelse.kalkulertUtbetalingsbeløp
+                        kalkulertUtbetalingsbeløp = andelTilkjentYtelse.kalkulertUtbetalingsbeløp,
                     )
                 },
             andeler = andelerMedEndringer.filter { it.aktør == aktør }
@@ -88,16 +88,16 @@ object BehandlingsresultatUtils {
                     BehandlingsresultatAndelTilkjentYtelse(
                         stønadFom = andelTilkjentYtelse.stønadFom,
                         stønadTom = andelTilkjentYtelse.stønadTom,
-                        kalkulertUtbetalingsbeløp = andelTilkjentYtelse.kalkulertUtbetalingsbeløp
+                        kalkulertUtbetalingsbeløp = andelTilkjentYtelse.kalkulertUtbetalingsbeløp,
                     )
                 },
-            eksplisittAvslag = erEksplisittAvslag
+            eksplisittAvslag = erEksplisittAvslag,
         )
     }
 
     fun utledBehandlingsresultatBasertPåYtelsePersonResulater(
         ytelsePersonResultater: Set<YtelsePersonResultat>,
-        alleAndelerHar0IUtbetaling: Boolean
+        alleAndelerHar0IUtbetaling: Boolean,
     ): Behandlingsresultat {
         // Alle Behandlinsresultatene er importert. Så trenger ikke å bruke Behandlingsresulat.FORTSATT_INNVILGET
         return when {
@@ -115,7 +115,7 @@ object BehandlingsresultatUtils {
             ytelsePersonResultater.eq(YtelsePersonResultat.ENDRET_UTEN_UTBETALING) -> ENDRET_UTEN_UTBETALING
             ytelsePersonResultater.eq(
                 YtelsePersonResultat.ENDRET_UTBETALING,
-                YtelsePersonResultat.ENDRET_UTEN_UTBETALING
+                YtelsePersonResultat.ENDRET_UTEN_UTBETALING,
             ) -> ENDRET_UTBETALING
 
             // Avslått
@@ -150,7 +150,7 @@ object BehandlingsresultatUtils {
             // Avslått og Opphørt, Her trenger å matchhe OPPHØRT spesifikt fordi det kun kan ha FORTSATT_OPPHØRT også. Da får vi AVSLÅTT
             ytelsePersonResultater.matcherAltOgHarOpphørtResultat(
                 YtelsePersonResultat.AVSLÅTT,
-                YtelsePersonResultat.OPPHØRT
+                YtelsePersonResultat.OPPHØRT,
             ) -> AVSLÅTT_OG_OPPHØRT
 
             // Avslått og Endret
@@ -166,19 +166,19 @@ object BehandlingsresultatUtils {
             ytelsePersonResultater.eq(
                 YtelsePersonResultat.INNVILGET,
                 YtelsePersonResultat.AVSLÅTT,
-                YtelsePersonResultat.OPPHØRT
+                YtelsePersonResultat.OPPHØRT,
             ) && alleAndelerHar0IUtbetaling -> AVSLÅTT
 
             ytelsePersonResultater.eq(
                 YtelsePersonResultat.INNVILGET,
                 YtelsePersonResultat.AVSLÅTT,
-                YtelsePersonResultat.OPPHØRT
+                YtelsePersonResultat.OPPHØRT,
             ) && !alleAndelerHar0IUtbetaling -> DELVIS_INNVILGET
 
             else -> throw Feil(
                 frontendFeilmelding = "Behandlingsresultatet du har fått på behandlingen er ikke støttet i løsningen enda. " +
                     "Ta kontakt med Team familie om du er uenig i resultatet.",
-                message = "Kombiansjonen av behandlingsresultatene $ytelsePersonResultater er ikke støttet i løsningen."
+                message = "Kombiansjonen av behandlingsresultatene $ytelsePersonResultater er ikke støttet i løsningen.",
             )
         }
     }

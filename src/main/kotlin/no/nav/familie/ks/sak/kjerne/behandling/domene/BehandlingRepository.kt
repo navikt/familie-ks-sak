@@ -4,7 +4,6 @@ import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
-import java.math.BigInteger
 
 interface BehandlingRepository : JpaRepository<Behandling, Long> {
 
@@ -12,7 +11,7 @@ interface BehandlingRepository : JpaRepository<Behandling, Long> {
     fun hentBehandling(behandlingId: Long): Behandling
 
     @Query(
-        "SELECT b FROM Behandling b JOIN b.fagsak f WHERE f.arkivert = false AND b.id=:behandlingId AND b.aktiv = true "
+        "SELECT b FROM Behandling b JOIN b.fagsak f WHERE f.arkivert = false AND b.id=:behandlingId AND b.aktiv = true ",
     )
     fun hentAktivBehandling(behandlingId: Long): Behandling
 
@@ -24,20 +23,20 @@ interface BehandlingRepository : JpaRepository<Behandling, Long> {
 
     @Query(
         "SELECT b FROM Behandling b JOIN b.fagsak f WHERE f.id = :fagsakId AND f.arkivert = false " +
-            "AND b.aktiv = true "
+            "AND b.aktiv = true ",
     )
     fun findByFagsakAndAktiv(fagsakId: Long): Behandling?
 
     @Query(
         "SELECT b FROM Behandling b JOIN b.fagsak f WHERE f.id = :fagsakId AND f.arkivert = false AND " +
-            "b.aktiv = true AND b.status <> 'AVSLUTTET'"
+            "b.aktiv = true AND b.status <> 'AVSLUTTET'",
     )
     fun findByFagsakAndAktivAndOpen(fagsakId: Long): Behandling?
 
     @Query(
         """SELECT b FROM Behandling b
                            INNER JOIN TilkjentYtelse ty on b.id = ty.behandling.id
-                        WHERE b.fagsak.id = :fagsakId AND ty.utbetalingsoppdrag IS NOT NULL"""
+                        WHERE b.fagsak.id = :fagsakId AND ty.utbetalingsoppdrag IS NOT NULL""",
     )
     fun finnIverksatteBehandlinger(fagsakId: Long): List<Behandling>
 
@@ -45,7 +44,7 @@ interface BehandlingRepository : JpaRepository<Behandling, Long> {
         """
             select b from Behandling b
                             where b.fagsak.id = :fagsakId and b.status = 'IVERKSETTER_VEDTAK'
-        """
+        """,
     )
     fun finnBehandlingerSomHolderPåÅIverksettes(fagsakId: Long): List<Behandling>
 
@@ -54,7 +53,7 @@ interface BehandlingRepository : JpaRepository<Behandling, Long> {
                            inner join BehandlingStegTilstand bst on b.id = bst.behandling.id
                         where b.fagsak.id = :fagsakId AND bst.behandlingSteg = 'BESLUTTE_VEDTAK' 
                         AND bst.behandlingStegStatus IN (no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingStegStatus.KLAR, 
-            no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingStegStatus.VENTER)"""
+            no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingStegStatus.VENTER)""",
     )
     fun finnBehandlingerSendtTilGodkjenning(fagsakId: Long): List<Behandling>
 
@@ -90,16 +89,16 @@ interface BehandlingRepository : JpaRepository<Behandling, Long> {
                             ON b.fk_fagsak_id = silp.fagsakid 
                         WHERE b.opprettet_tid = silp.opprettet_tid""",
 
-        nativeQuery = true
+        nativeQuery = true,
     )
-    fun finnSisteIverksatteBehandlingFraLøpendeFagsaker(page: Pageable): Page<BigInteger>
+    fun finnSisteIverksatteBehandlingFraLøpendeFagsaker(page: Pageable): Page<Long>
 
     @Query(
         """ SELECT new kotlin.Pair(b.id, p.fødselsnummer) from Behandling b 
                 INNER JOIN Fagsak f ON f.id = b.fagsak.id 
                 INNER JOIN Aktør a on f.aktør.aktørId = a.aktørId 
                 INNER JOIN Personident p on p.aktør.aktørId = a.aktørId 
-            where b.id in (:behandlingIder) AND p.aktiv=true AND f.status = 'LØPENDE' """
+            where b.id in (:behandlingIder) AND p.aktiv=true AND f.status = 'LØPENDE' """,
     )
     fun finnAktivtFødselsnummerForBehandlinger(behandlingIder: List<Long>): List<Pair<Long, String>>
 }

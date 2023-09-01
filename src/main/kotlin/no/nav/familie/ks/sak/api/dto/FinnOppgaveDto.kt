@@ -24,7 +24,7 @@ data class FinnOppgaveDto(
     val aktivFomDato: LocalDate?,
     val aktivTomDato: LocalDate?,
     val limit: Long?,
-    val offset: Long?
+    val offset: Long?,
 ) {
 
     fun tilFinnOppgaveRequest(): FinnOppgaveRequest = FinnOppgaveRequest(
@@ -44,6 +44,6 @@ data class FinnOppgaveDto(
         aktivFomDato = this.aktivFomDato,
         aktivTomDato = this.aktivTomDato,
         limit = this.limit,
-        offset = this.offset
+        offset = this.offset,
     )
 }

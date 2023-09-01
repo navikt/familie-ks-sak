@@ -24,7 +24,7 @@ fun Collection<PersonResultat>.tilFørskjøvetOppfylteVilkårResultatTidslinjeMa
     personopplysningGrunnlag.personer.associate { person ->
         Pair(
             person.aktør,
-            this.tilFørskjøvetVilkårResultatTidslinjeDerVilkårErOppfyltForPerson(person)
+            this.tilFørskjøvetVilkårResultatTidslinjeDerVilkårErOppfyltForPerson(person),
         )
     }
 
@@ -32,12 +32,12 @@ fun Collection<PersonResultat>.tilFørskjøvetVilkårResultatTidslinjeMap(person
     personopplysningGrunnlag.personer.associate { person ->
         Pair(
             person.aktør,
-            this.tilFørskjøvetVilkårResultatTidslinjeForPerson(person)
+            this.tilFørskjøvetVilkårResultatTidslinjeForPerson(person),
         )
     }
 
 fun Collection<PersonResultat>.tilFørskjøvetVilkårResultatTidslinjeForPerson(
-    person: Person
+    person: Person,
 ): Tidslinje<List<VilkårResultat>> {
     val forskjøvedeVilkårResultater = forskyvVilkårResultaterForPerson(person)
 
@@ -48,7 +48,7 @@ fun Collection<PersonResultat>.tilFørskjøvetVilkårResultatTidslinjeForPerson(
 }
 
 private fun Collection<PersonResultat>.forskyvVilkårResultaterForPerson(
-    person: Person
+    person: Person,
 ): List<Tidslinje<VilkårResultat>> {
     val personResultat = this.find { it.aktør == person.aktør }
 
@@ -69,7 +69,7 @@ private fun Collection<PersonResultat>.forskyvVilkårResultaterForPerson(
  * Tar kun med periodene der alle vilkår er oppfylt.
  */
 fun Collection<PersonResultat>.tilFørskjøvetVilkårResultatTidslinjeDerVilkårErOppfyltForPerson(
-    person: Person
+    person: Person,
 ): Tidslinje<List<VilkårResultat>> {
     val forskjøvedeVilkårResultater = forskyvVilkårResultaterForPerson(person)
 
@@ -82,17 +82,17 @@ fun Collection<PersonResultat>.tilFørskjøvetVilkårResultatTidslinjeDerVilkår
 data class VilkårResultaterMedInformasjonOmNestePeriode(
     val vilkårResultat: VilkårResultat,
     val slutterDagenFørNeste: Boolean,
-    val slutterPåSisteDagIMåneden: Boolean
+    val slutterPåSisteDagIMåneden: Boolean,
 )
 
 fun forskyvVilkårResultater(
     vilkårType: Vilkår,
-    vilkårResultater: List<VilkårResultat>
+    vilkårResultater: List<VilkårResultat>,
 ): List<Periode<VilkårResultat>> = when (vilkårType) {
     Vilkår.BARNEHAGEPLASS -> vilkårResultater.forskyvBarnehageplassVilkår()
 
     else -> tilVilkårResultaterMedInformasjonOmNestePeriode(
-        vilkårResultater.filter { it.erOppfylt() || it.erIkkeAktuelt() }.sortedBy { it.periodeFom }
+        vilkårResultater.filter { it.erOppfylt() || it.erIkkeAktuelt() }.sortedBy { it.periodeFom },
     )
         .map {
             val forskjøvetTom = when {
@@ -110,7 +110,7 @@ fun forskyvVilkårResultater(
             Periode(
                 verdi = it.vilkårResultat,
                 fom = it.vilkårResultat.periodeFom?.plusMonths(1)?.førsteDagIInneværendeMåned(),
-                tom = forskjøvetTom
+                tom = forskjøvetTom,
             )
         }.filter { (it.fom ?: TIDENES_MORGEN).isBefore(it.tom ?: TIDENES_ENDE) }
 }
@@ -123,7 +123,7 @@ private fun tilVilkårResultaterMedInformasjonOmNestePeriode(vilkårResultater: 
             vilkårResultat = denne,
             slutterDagenFørNeste = denne.periodeTom?.erDagenFør(neste.periodeFom) ?: false,
             slutterPåSisteDagIMåneden = denne.periodeTom != null &&
-                denne.periodeTom == denne.periodeTom?.tilYearMonth()?.atEndOfMonth()
+                denne.periodeTom == denne.periodeTom?.tilYearMonth()?.atEndOfMonth(),
         )
     } + VilkårResultaterMedInformasjonOmNestePeriode(vilkårResultater.last(), false, false)
 }
@@ -133,18 +133,20 @@ fun MutableList<VilkårResultat>.fjernAvslagUtenPeriodeHvisDetFinsAndreVilkårRe
 
 private fun alleVilkårOppfyltEllerNull(
     vilkårResultater: Iterable<VilkårResultat?>,
-    personType: PersonType
+    personType: PersonType,
 ): List<VilkårResultat>? {
     val vilkårForPerson = Vilkår.hentVilkårFor(personType)
 
     return if (erAlleVilkårForPersonEntenOppfyltEllerIkkeAktuelt(vilkårForPerson, vilkårResultater)) {
         vilkårResultater.filterNotNull()
-    } else null
+    } else {
+        null
+    }
 }
 
 private fun erAlleVilkårForPersonEntenOppfyltEllerIkkeAktuelt(
     vilkårForPerson: Set<Vilkår>,
-    vilkårResultater: Iterable<VilkårResultat?>
+    vilkårResultater: Iterable<VilkårResultat?>,
 ) = vilkårForPerson.all { vilkår ->
     vilkårResultater.any {
         val erOppfyltEllerIkkeAktuelt = it?.resultat == Resultat.OPPFYLT || it?.resultat == Resultat.IKKE_AKTUELT

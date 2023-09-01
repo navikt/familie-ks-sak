@@ -1,5 +1,19 @@
 package no.nav.familie.ks.sak.kjerne.behandling.domene
 
+import jakarta.persistence.CascadeType
+import jakarta.persistence.Column
+import jakarta.persistence.Entity
+import jakarta.persistence.EnumType
+import jakarta.persistence.Enumerated
+import jakarta.persistence.FetchType
+import jakarta.persistence.GeneratedValue
+import jakarta.persistence.GenerationType
+import jakarta.persistence.Id
+import jakarta.persistence.JoinColumn
+import jakarta.persistence.ManyToOne
+import jakarta.persistence.OneToMany
+import jakarta.persistence.SequenceGenerator
+import jakarta.persistence.Table
 import no.nav.familie.kontrakter.felles.Regelverk
 import no.nav.familie.kontrakter.felles.dokarkiv.Dokumenttype
 import no.nav.familie.ks.sak.common.entitet.BaseEntitet
@@ -16,20 +30,6 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingStegStatus
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.Fagsak
 import java.time.LocalDate
 import java.time.LocalDateTime
-import javax.persistence.CascadeType
-import javax.persistence.Column
-import javax.persistence.Entity
-import javax.persistence.EnumType
-import javax.persistence.Enumerated
-import javax.persistence.FetchType
-import javax.persistence.GeneratedValue
-import javax.persistence.GenerationType
-import javax.persistence.Id
-import javax.persistence.JoinColumn
-import javax.persistence.ManyToOne
-import javax.persistence.OneToMany
-import javax.persistence.SequenceGenerator
-import javax.persistence.Table
 import no.nav.familie.kontrakter.felles.oppgave.Behandlingstype as OppgaveBehandlingType
 
 @Entity(name = "Behandling")
@@ -73,7 +73,7 @@ data class Behandling(
     @Column(name = "soknad_mottatt_dato")
     var søknadMottattDato: LocalDateTime? = null,
 
-    var overstyrtEndringstidspunkt: LocalDate? = null
+    var overstyrtEndringstidspunkt: LocalDate? = null,
 
 ) : BaseEntitet() {
 
@@ -108,8 +108,8 @@ data class Behandling(
         behandlingStegTilstand.add(
             BehandlingStegTilstand(
                 behandling = this,
-                behandlingSteg = BehandlingSteg.REGISTRERE_PERSONGRUNNLAG
-            )
+                behandlingSteg = BehandlingSteg.REGISTRERE_PERSONGRUNNLAG,
+            ),
         )
         return this
     }
@@ -118,8 +118,8 @@ data class Behandling(
         behandlingStegTilstand.add(
             BehandlingStegTilstand(
                 behandling = this,
-                behandlingSteg = behandlingSteg
-            )
+                behandlingSteg = behandlingSteg,
+            ),
         )
         return this
     }
@@ -173,7 +173,7 @@ enum class Behandlingsresultat(val displayName: String, val gyldigeBehandlingsty
     DELVIS_INNVILGET_OG_ENDRET(displayName = "Delvis innvilget og endret", listOf(REVURDERING, TEKNISK_ENDRING)),
     DELVIS_INNVILGET_ENDRET_OG_OPPHØRT(
         displayName = "Delvis innvilget, endret og opphørt",
-        listOf(REVURDERING, TEKNISK_ENDRING)
+        listOf(REVURDERING, TEKNISK_ENDRING),
     ),
 
     AVSLÅTT(displayName = "Avslått", BehandlingType.values().toList()),
@@ -194,7 +194,8 @@ enum class Behandlingsresultat(val displayName: String, val gyldigeBehandlingsty
     HENLAGT_SØKNAD_TRUKKET(displayName = "Henlagt søknad trukket", BehandlingType.values().toList()),
     HENLAGT_TEKNISK_VEDLIKEHOLD(displayName = "Henlagt teknisk vedlikehold", BehandlingType.values().toList()),
 
-    IKKE_VURDERT(displayName = "Ikke vurdert", emptyList());
+    IKKE_VURDERT(displayName = "Ikke vurdert", emptyList()),
+    ;
 
     fun kanIkkeSendesTilOppdrag(): Boolean =
         this in listOf(FORTSATT_INNVILGET, AVSLÅTT, FORTSATT_OPPHØRT, ENDRET_UTEN_UTBETALING)
@@ -220,11 +221,12 @@ enum class BehandlingÅrsak(val visningsnavn: String, val gyldigeBehandlingstype
     KLAGE("Klage", listOf(REVURDERING)),
     TEKNISK_ENDRING(
         "Teknisk endring",
-        listOf(BehandlingType.TEKNISK_ENDRING)
+        listOf(BehandlingType.TEKNISK_ENDRING),
     ), // Brukes i tilfeller ved systemfeil og vi ønsker å iverksette mot OS på nytt
     KORREKSJON_VEDTAKSBREV("Korrigere vedtak med egen brevmal", listOf(REVURDERING)),
     SATSENDRING("Satsendring", listOf(REVURDERING)),
-    BARNEHAGELISTE("Barnehageliste", listOf(REVURDERING));
+    BARNEHAGELISTE("Barnehageliste", listOf(REVURDERING)),
+    ;
 
     fun årsakSomKanEndreBehandlingKategori(): Boolean =
         this == SØKNAD || this == ÅRLIG_KONTROLL || this == NYE_OPPLYSNINGER ||
@@ -234,12 +236,13 @@ enum class BehandlingÅrsak(val visningsnavn: String, val gyldigeBehandlingstype
 enum class BehandlingType(val visningsnavn: String) {
     FØRSTEGANGSBEHANDLING("Førstegangsbehandling"),
     REVURDERING("Revurdering"),
-    TEKNISK_ENDRING("Teknisk endring")
+    TEKNISK_ENDRING("Teknisk endring"),
 }
 
 enum class BehandlingKategori(val visningsnavn: String, val nivå: Int) {
     EØS("EØS", 2),
-    NASJONAL("Nasjonal", 1);
+    NASJONAL("Nasjonal", 1),
+    ;
 
     fun tilOppgavebehandlingType(): OppgaveBehandlingType {
         return when (this) {
@@ -261,7 +264,8 @@ enum class BehandlingStatus {
     UTREDES,
     FATTER_VEDTAK,
     IVERKSETTER_VEDTAK,
-    AVSLUTTET;
+    AVSLUTTET,
+    ;
 
     fun erLåstMenIkkeAvsluttet() = this == FATTER_VEDTAK || this == IVERKSETTER_VEDTAK
 
@@ -272,7 +276,8 @@ fun initStatus(): BehandlingStatus = BehandlingStatus.UTREDES
 
 enum class Beslutning {
     GODKJENT,
-    UNDERKJENT;
+    UNDERKJENT,
+    ;
 
     fun erGodkjent() = this == GODKJENT
 }

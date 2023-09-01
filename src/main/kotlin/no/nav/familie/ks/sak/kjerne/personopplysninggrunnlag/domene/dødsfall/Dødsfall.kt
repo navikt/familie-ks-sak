@@ -1,19 +1,19 @@
 package no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.dødsfall
 
 import com.fasterxml.jackson.annotation.JsonIgnore
+import jakarta.persistence.Column
+import jakarta.persistence.Entity
+import jakarta.persistence.GeneratedValue
+import jakarta.persistence.GenerationType
+import jakarta.persistence.Id
+import jakarta.persistence.JoinColumn
+import jakarta.persistence.OneToOne
+import jakarta.persistence.SequenceGenerator
+import jakarta.persistence.Table
 import no.nav.familie.ks.sak.common.entitet.BaseEntitet
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.PdlKontaktinformasjonForDødsboAdresse
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
 import java.time.LocalDate
-import javax.persistence.Column
-import javax.persistence.Entity
-import javax.persistence.GeneratedValue
-import javax.persistence.GenerationType
-import javax.persistence.Id
-import javax.persistence.JoinColumn
-import javax.persistence.OneToOne
-import javax.persistence.SequenceGenerator
-import javax.persistence.Table
 
 @Entity(name = "Dødsfall")
 @Table(name = "po_doedsfall")
@@ -38,7 +38,7 @@ data class Dødsfall(
     val dødsfallPostnummer: String?,
 
     @Column(name = "doedsfall_poststed", nullable = true)
-    val dødsfallPoststed: String?
+    val dødsfallPoststed: String?,
 ) : BaseEntitet() {
     fun hentAdresseToString(): String {
         return """$dødsfallAdresse, $dødsfallPostnummer $dødsfallPoststed"""
@@ -48,7 +48,7 @@ data class Dødsfall(
         fun lagDødsfall(
             person: Person,
             pdlDødsfallDato: String?,
-            pdlDødsfallAdresse: PdlKontaktinformasjonForDødsboAdresse?
+            pdlDødsfallAdresse: PdlKontaktinformasjonForDødsboAdresse?,
         ): Dødsfall? {
             if (pdlDødsfallDato.isNullOrEmpty()) return null
             return Dødsfall(
@@ -56,7 +56,7 @@ data class Dødsfall(
                 dødsfallDato = LocalDate.parse(pdlDødsfallDato),
                 dødsfallAdresse = pdlDødsfallAdresse?.adresselinje1,
                 dødsfallPostnummer = pdlDødsfallAdresse?.postnummer,
-                dødsfallPoststed = pdlDødsfallAdresse?.poststedsnavn
+                dødsfallPoststed = pdlDødsfallAdresse?.poststedsnavn,
             )
         }
     }

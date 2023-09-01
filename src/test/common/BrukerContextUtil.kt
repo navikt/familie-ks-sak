@@ -2,6 +2,7 @@ package no.nav.familie.ks.sak.data
 
 import io.mockk.every
 import io.mockk.mockk
+import jakarta.servlet.http.HttpServletRequest
 import no.nav.security.token.support.core.context.TokenValidationContext
 import no.nav.security.token.support.core.jwt.JwtTokenClaims
 import no.nav.security.token.support.spring.SpringTokenValidationContextHolder
@@ -10,7 +11,6 @@ import org.springframework.web.context.request.RequestAttributes
 import org.springframework.web.context.request.RequestContextHolder
 import org.springframework.web.context.request.ServletRequestAttributes
 import java.util.UUID
-import javax.servlet.http.HttpServletRequest
 
 object BrukerContextUtil {
 
@@ -21,7 +21,7 @@ object BrukerContextUtil {
     fun mockBrukerContext(
         preferredUsername: String = "A",
         groups: List<String> = emptyList(),
-        servletRequest: HttpServletRequest = MockHttpServletRequest()
+        servletRequest: HttpServletRequest = MockHttpServletRequest(),
     ) {
         val tokenValidationContext = mockk<TokenValidationContext>()
         val jwtTokenClaims = mockk<JwtTokenClaims>()
@@ -30,7 +30,7 @@ object BrukerContextUtil {
         requestAttributes.setAttribute(
             SpringTokenValidationContextHolder::class.java.name,
             tokenValidationContext,
-            RequestAttributes.SCOPE_REQUEST
+            RequestAttributes.SCOPE_REQUEST,
         )
         every { tokenValidationContext.getClaims("azuread") } returns jwtTokenClaims
         every { jwtTokenClaims.get("preferred_username") } returns preferredUsername

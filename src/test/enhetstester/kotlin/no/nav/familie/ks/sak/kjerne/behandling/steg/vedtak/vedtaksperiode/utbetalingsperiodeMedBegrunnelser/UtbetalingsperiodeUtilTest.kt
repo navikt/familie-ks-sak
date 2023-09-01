@@ -51,9 +51,9 @@ internal class UtbetalingsperiodeUtilTest {
                 stønadFom = mars2020,
                 stønadTom = april2020,
                 sats = 1000,
-                aktør = person1
+                aktør = person1,
             ),
-            emptyList()
+            emptyList(),
         )
 
         val andelPerson1MaiTilJuli = AndelTilkjentYtelseMedEndreteUtbetalinger(
@@ -62,9 +62,9 @@ internal class UtbetalingsperiodeUtilTest {
                 stønadFom = mai2020,
                 stønadTom = juli2020,
                 sats = 1000,
-                aktør = person1
+                aktør = person1,
             ),
-            emptyList()
+            emptyList(),
         )
 
         val andelPerson2MarsTilJuli = AndelTilkjentYtelseMedEndreteUtbetalinger(
@@ -73,9 +73,9 @@ internal class UtbetalingsperiodeUtilTest {
                 stønadFom = mars2020,
                 stønadTom = juli2020,
                 sats = 1000,
-                aktør = person2
+                aktør = person2,
             ),
-            emptyList()
+            emptyList(),
         )
 
         val forventetResultat = listOf(
@@ -84,38 +84,38 @@ internal class UtbetalingsperiodeUtilTest {
                 fom = mars2020.førsteDagIInneværendeMåned(),
                 tom = april2020.sisteDagIInneværendeMåned(),
                 type = Vedtaksperiodetype.UTBETALING,
-                begrunnelser = mutableSetOf()
+                begrunnelser = mutableSetOf(),
             ),
             lagVedtaksperiodeMedBegrunnelser(
                 vedtak = vedtak,
                 fom = mai2020.førsteDagIInneværendeMåned(),
                 tom = juli2020.sisteDagIInneværendeMåned(),
                 type = Vedtaksperiodetype.UTBETALING,
-                begrunnelser = mutableSetOf()
-            )
+                begrunnelser = mutableSetOf(),
+            ),
         )
 
         val vilkårsvurdering = Vilkårsvurdering(behandling = behandling)
 
         val personResultater = setOf(
             vilkårsvurdering.lagGodkjentPersonResultatForBarn(person1),
-            vilkårsvurdering.lagGodkjentPersonResultatForBarn(person2)
+            vilkårsvurdering.lagGodkjentPersonResultatForBarn(person2),
         )
 
         val faktiskResultat = hentPerioderMedUtbetaling(
             listOf(andelPerson1MarsTilApril, andelPerson1MaiTilJuli, andelPerson2MarsTilJuli),
             vedtak,
-            personResultater.tilFørskjøvetOppfylteVilkårResultatTidslinjeMap(personopplysningGrunnlag)
+            personResultater.tilFørskjøvetOppfylteVilkårResultatTidslinjeMap(personopplysningGrunnlag),
         )
 
         assertEquals(
             forventetResultat.map { Periode(it, it.fom ?: TIDENES_MORGEN, it.tom ?: TIDENES_ENDE) },
-            faktiskResultat.map { Periode(it, it.fom ?: TIDENES_MORGEN, it.tom ?: TIDENES_ENDE) }
+            faktiskResultat.map { Periode(it, it.fom ?: TIDENES_MORGEN, it.tom ?: TIDENES_ENDE) },
         )
 
         assertEquals(
             forventetResultat.map { it.type }.toSet(),
-            faktiskResultat.map { it.type }.toSet()
+            faktiskResultat.map { it.type }.toSet(),
         )
     }
 
@@ -135,9 +135,9 @@ internal class UtbetalingsperiodeUtilTest {
                 stønadFom = mars2020,
                 stønadTom = mai2020,
                 sats = 1000,
-                aktør = person1
+                aktør = person1,
             ),
-            emptyList()
+            emptyList(),
         )
 
         val andelPerson2MaiTilJuli = AndelTilkjentYtelseMedEndreteUtbetalinger(
@@ -146,9 +146,9 @@ internal class UtbetalingsperiodeUtilTest {
                 stønadFom = mai2020,
                 stønadTom = juli2020,
                 sats = 1000,
-                aktør = person2
+                aktør = person2,
             ),
-            emptyList()
+            emptyList(),
         )
 
         val forventetResultat = listOf(
@@ -157,45 +157,45 @@ internal class UtbetalingsperiodeUtilTest {
                 fom = mars2020.førsteDagIInneværendeMåned(),
                 tom = april2020.sisteDagIInneværendeMåned(),
                 type = Vedtaksperiodetype.UTBETALING,
-                begrunnelser = mutableSetOf()
+                begrunnelser = mutableSetOf(),
             ),
             lagVedtaksperiodeMedBegrunnelser(
                 vedtak = vedtak,
                 fom = mai2020.førsteDagIInneværendeMåned(),
                 tom = mai2020.sisteDagIInneværendeMåned(),
                 type = Vedtaksperiodetype.UTBETALING,
-                begrunnelser = mutableSetOf()
+                begrunnelser = mutableSetOf(),
             ),
             lagVedtaksperiodeMedBegrunnelser(
                 vedtak = vedtak,
                 fom = juni2020.førsteDagIInneværendeMåned(),
                 tom = juli2020.sisteDagIInneværendeMåned(),
                 type = Vedtaksperiodetype.UTBETALING,
-                begrunnelser = mutableSetOf()
-            )
+                begrunnelser = mutableSetOf(),
+            ),
         )
 
         val vilkårsvurdering = Vilkårsvurdering(behandling = behandling)
 
         val personResultater = setOf(
             vilkårsvurdering.lagGodkjentPersonResultatForBarn(person1),
-            vilkårsvurdering.lagGodkjentPersonResultatForBarn(person2)
+            vilkårsvurdering.lagGodkjentPersonResultatForBarn(person2),
         )
 
         val faktiskResultat = hentPerioderMedUtbetaling(
             listOf(andelPerson1MarsTilMai, andelPerson2MaiTilJuli),
             vedtak,
-            personResultater.tilFørskjøvetOppfylteVilkårResultatTidslinjeMap(personopplysningGrunnlag)
+            personResultater.tilFørskjøvetOppfylteVilkårResultatTidslinjeMap(personopplysningGrunnlag),
         )
 
         assertEquals(
             forventetResultat.map { Periode(it, it.fom ?: TIDENES_MORGEN, it.tom ?: TIDENES_ENDE) },
-            faktiskResultat.map { Periode(it, it.fom ?: TIDENES_MORGEN, it.tom ?: TIDENES_ENDE) }
+            faktiskResultat.map { Periode(it, it.fom ?: TIDENES_MORGEN, it.tom ?: TIDENES_ENDE) },
         )
 
         assertEquals(
             forventetResultat.map { it.type }.toSet(),
-            faktiskResultat.map { it.type }.toSet()
+            faktiskResultat.map { it.type }.toSet(),
         )
     }
 
@@ -206,6 +206,6 @@ internal class UtbetalingsperiodeUtilTest {
         periodeFom = LocalDate.now().minusYears(1),
         periodeTom = LocalDate.now().plusYears(2),
         lagFullstendigVilkårResultat = true,
-        personType = PersonType.BARN
+        personType = PersonType.BARN,
     )
 }

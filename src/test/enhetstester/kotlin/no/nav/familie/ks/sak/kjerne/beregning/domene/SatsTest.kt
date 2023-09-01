@@ -17,7 +17,7 @@ internal class SatsTest {
             antallTimer = null,
             erDeltBosted = false,
             stønadFom = stønadFom,
-            stønadTom = stønadTom
+            stønadTom = stønadTom,
         )
 
         assertSatsPeriode(BigDecimal(100), satsPeriode)
@@ -29,7 +29,7 @@ internal class SatsTest {
             antallTimer = BigDecimal(8.99),
             erDeltBosted = false,
             stønadFom = stønadFom,
-            stønadTom = stønadTom
+            stønadTom = stønadTom,
         )
         assertSatsPeriode(BigDecimal(80), satsPeriode)
     }
@@ -40,7 +40,7 @@ internal class SatsTest {
             antallTimer = BigDecimal(13.55),
             erDeltBosted = false,
             stønadFom = stønadFom,
-            stønadTom = stønadTom
+            stønadTom = stønadTom,
         )
         assertSatsPeriode(BigDecimal(60), satsPeriode)
     }
@@ -51,7 +51,7 @@ internal class SatsTest {
             antallTimer = BigDecimal(22),
             erDeltBosted = false,
             stønadFom = stønadFom,
-            stønadTom = stønadTom
+            stønadTom = stønadTom,
         )
         assertSatsPeriode(BigDecimal(40), satsPeriode)
     }
@@ -62,7 +62,7 @@ internal class SatsTest {
             antallTimer = BigDecimal(32.85),
             erDeltBosted = false,
             stønadFom = stønadFom,
-            stønadTom = stønadTom
+            stønadTom = stønadTom,
         )
         assertSatsPeriode(BigDecimal(20), satsPeriode)
     }
@@ -73,7 +73,7 @@ internal class SatsTest {
             antallTimer = BigDecimal(35),
             erDeltBosted = false,
             stønadFom = stønadFom,
-            stønadTom = stønadTom
+            stønadTom = stønadTom,
         )
         assertSatsPeriode(BigDecimal(0), satsPeriode)
     }
@@ -84,7 +84,7 @@ internal class SatsTest {
             antallTimer = null,
             erDeltBosted = true,
             stønadFom = stønadFom,
-            stønadTom = stønadTom
+            stønadTom = stønadTom,
         )
         assertSatsPeriode(BigDecimal(50), satsPeriode)
     }

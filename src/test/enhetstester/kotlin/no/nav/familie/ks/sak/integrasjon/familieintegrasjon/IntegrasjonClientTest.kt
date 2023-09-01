@@ -40,7 +40,7 @@ internal class IntegrasjonClientTest {
     fun `hentOppgaver skal returnere en liste av oppgaver basert på request og tema`() {
         wiremockServerItem.stubFor(
             WireMock.post(WireMock.urlEqualTo("/oppgave/v4"))
-                .willReturn(WireMock.okJson(readFile("hentOppgaverEnkelKONResponse.json")))
+                .willReturn(WireMock.okJson(readFile("hentOppgaverEnkelKONResponse.json"))),
         )
 
         val oppgaver = integrasjonClient.hentOppgaver(FinnOppgaveRequest(Tema.KON))
@@ -55,7 +55,7 @@ internal class IntegrasjonClientTest {
     fun `hentBehandlendeEnhet skal hente enhet fra familie-integrasjon`() {
         wiremockServerItem.stubFor(
             WireMock.post(WireMock.urlEqualTo("/arbeidsfordeling/enhet/KON"))
-                .willReturn(WireMock.okJson(readFile("hentBehandlendeEnhetEnkelResponse.json")))
+                .willReturn(WireMock.okJson(readFile("hentBehandlendeEnhetEnkelResponse.json"))),
         )
 
         val behandlendeEnheter = integrasjonClient.hentBehandlendeEnheter("testident")
@@ -69,7 +69,7 @@ internal class IntegrasjonClientTest {
     fun `hentNavKontorEnhet skal hente enhet fra familie-integrasjon`() {
         wiremockServerItem.stubFor(
             WireMock.get(WireMock.urlEqualTo("/arbeidsfordeling/nav-kontor/200"))
-                .willReturn(WireMock.okJson(readFile("hentEnhetEnkelResponse.json")))
+                .willReturn(WireMock.okJson(readFile("hentEnhetEnkelResponse.json"))),
         )
 
         val navKontorEnhet = integrasjonClient.hentNavKontorEnhet("200")
@@ -84,7 +84,7 @@ internal class IntegrasjonClientTest {
     fun `finnOppgaveMedId skal hente oppgave med spesifikt id fra familie-integrasjon`() {
         wiremockServerItem.stubFor(
             WireMock.get(WireMock.urlEqualTo("/oppgave/200"))
-                .willReturn(WireMock.okJson(readFile("finnOppgaveMedIdEnkelResponse.json")))
+                .willReturn(WireMock.okJson(readFile("finnOppgaveMedIdEnkelResponse.json"))),
         )
 
         val oppgave = integrasjonClient.finnOppgaveMedId(200)
@@ -100,7 +100,7 @@ internal class IntegrasjonClientTest {
     fun `sjekkTilgangTilPersoner skal returnere Tilgang med true hvis SB har tilgang til alle personidenter`() {
         wiremockServerItem.stubFor(
             WireMock.post(WireMock.urlEqualTo("/tilgang/v2/personer"))
-                .willReturn(WireMock.okJson(readFile("sjekkTilgangTilPersonerResponseMedTilgangTilAlle.json")))
+                .willReturn(WireMock.okJson(readFile("sjekkTilgangTilPersonerResponseMedTilgangTilAlle.json"))),
         )
 
         mockkObject(SikkerhetContext)
@@ -108,15 +108,15 @@ internal class IntegrasjonClientTest {
 
         val tilgangTilPersonIdent = integrasjonClient.sjekkTilgangTilPersoner(listOf("ident1", "ident2", "ident3"))
 
-        assertThat(tilgangTilPersonIdent.harTilgang, Is(true))
-        assertThat(tilgangTilPersonIdent.begrunnelse, Is("Har tilgang"))
+        assertThat(tilgangTilPersonIdent.all { it.harTilgang }, Is(true))
+        assertThat(tilgangTilPersonIdent.all { it.begrunnelse == "Har tilgang" }, Is(true))
     }
 
     @Test
     fun `sjekkTilgangTilPersoner skal returnere Tilgang med false hvis SB ikke har tilgang til alle personidenter`() {
         wiremockServerItem.stubFor(
             WireMock.post(WireMock.urlEqualTo("/tilgang/v2/personer"))
-                .willReturn(WireMock.okJson(readFile("sjekkTilgangTilPersonerResponseMedIkkeTilgangTilAlle.json")))
+                .willReturn(WireMock.okJson(readFile("sjekkTilgangTilPersonerResponseMedIkkeTilgangTilAlle.json"))),
         )
 
         mockkObject(SikkerhetContext)
@@ -124,8 +124,9 @@ internal class IntegrasjonClientTest {
 
         val tilgangTilPersonIdent = integrasjonClient.sjekkTilgangTilPersoner(listOf("ident1", "ident2", "ident3"))
 
-        assertThat(tilgangTilPersonIdent.harTilgang, Is(false))
-        assertThat(tilgangTilPersonIdent.begrunnelse, Is("Har ikke tilgang"))
+        assertThat(tilgangTilPersonIdent.all { it.harTilgang }, Is(false))
+        assertThat(tilgangTilPersonIdent.any { it.begrunnelse == "Har ikke tilgang" }, Is(true))
+        assertThat(tilgangTilPersonIdent.any { it.begrunnelse == "Har tilgang" }, Is(true))
     }
 
     @Test
@@ -134,7 +135,7 @@ internal class IntegrasjonClientTest {
 
         wiremockServerItem.stubFor(
             WireMock.post(WireMock.urlEqualTo("/oppgave/200/fordel?saksbehandler=$saksbehandler"))
-                .willReturn(WireMock.okJson(readFile("fordelOppgaveEnkelResponse.json")))
+                .willReturn(WireMock.okJson(readFile("fordelOppgaveEnkelResponse.json"))),
         )
 
         val fordeltOppgave = integrasjonClient.fordelOppgave(200, saksbehandler)
@@ -148,7 +149,7 @@ internal class IntegrasjonClientTest {
 
         wiremockServerItem.stubFor(
             WireMock.patch(WireMock.urlEqualTo("/oppgave/200/enhet/testenhet?fjernMappeFraOppgave=true"))
-                .willReturn(WireMock.okJson(readFile("fordelOppgaveEnkelResponse.json")))
+                .willReturn(WireMock.okJson(readFile("fordelOppgaveEnkelResponse.json"))),
         )
 
         val fordeltOppgave = integrasjonClient.tilordneEnhetForOppgave(200, nyEnhet)
@@ -162,7 +163,7 @@ internal class IntegrasjonClientTest {
 
         wiremockServerItem.stubFor(
             WireMock.post(WireMock.urlEqualTo("/arkiv/dokument/testid/logiskVedlegg"))
-                .willReturn(WireMock.okJson(readFile("logiskVedleggEnkelResponse.json")))
+                .willReturn(WireMock.okJson(readFile("logiskVedleggEnkelResponse.json"))),
         )
 
         val fordeltOppgave = integrasjonClient.leggTilLogiskVedlegg(request, "testid")
@@ -174,7 +175,7 @@ internal class IntegrasjonClientTest {
     fun `slettLogiskVedlegg skal returnere id på vedlegg som ble slettet til`() {
         wiremockServerItem.stubFor(
             WireMock.delete(WireMock.urlEqualTo("/arkiv/dokument/testDokumentId/logiskVedlegg/testId"))
-                .willReturn(WireMock.okJson(readFile("logiskVedleggEnkelResponse.json")))
+                .willReturn(WireMock.okJson(readFile("logiskVedleggEnkelResponse.json"))),
         )
 
         val fordeltOppgave = integrasjonClient.slettLogiskVedlegg("testId", "testDokumentId")
@@ -188,7 +189,7 @@ internal class IntegrasjonClientTest {
 
         wiremockServerItem.stubFor(
             WireMock.put(WireMock.urlEqualTo("/arkiv/v2/testJournalpostId"))
-                .willReturn(WireMock.okJson(readFile("oppdaterJournalpostEnkelResponse.json")))
+                .willReturn(WireMock.okJson(readFile("oppdaterJournalpostEnkelResponse.json"))),
         )
 
         val fordeltOppgave = integrasjonClient.oppdaterJournalpost(request, "testJournalpostId")
@@ -200,7 +201,7 @@ internal class IntegrasjonClientTest {
     fun `ferdigstillJournalpost skal sette journalpost til ferdigstilt`() {
         wiremockServerItem.stubFor(
             WireMock.put(WireMock.urlEqualTo("/arkiv/v2/testJournalPost/ferdigstill?journalfoerendeEnhet=testEnhet"))
-                .willReturn(WireMock.okJson(readFile("logiskVedleggEnkelResponse.json")))
+                .willReturn(WireMock.okJson(readFile("logiskVedleggEnkelResponse.json"))),
         )
 
         integrasjonClient.ferdigstillJournalpost("testJournalPost", "testEnhet")
@@ -212,7 +213,7 @@ internal class IntegrasjonClientTest {
 
         wiremockServerItem.stubFor(
             WireMock.post(WireMock.urlEqualTo("/arkiv/v4"))
-                .willReturn(WireMock.okJson(readFile("journalførDokumentEnkelResponse.json")))
+                .willReturn(WireMock.okJson(readFile("journalførDokumentEnkelResponse.json"))),
         )
 
         val arkiverDokumentResponse = integrasjonClient.journalførDokument(request)
@@ -227,7 +228,7 @@ internal class IntegrasjonClientTest {
 
         wiremockServerItem.stubFor(
             WireMock.get(WireMock.urlEqualTo("/kodeverk/landkoder/$landKode"))
-                .willReturn(WireMock.okJson(readFile("hentLandEnkelResponse.json")))
+                .willReturn(WireMock.okJson(readFile("hentLandEnkelResponse.json"))),
         )
 
         val hentLandKodeRespons = integrasjonClient.hentLand(landKode)
@@ -237,10 +238,9 @@ internal class IntegrasjonClientTest {
 
     @Test
     fun `distribuerBrev skal en bestillingsid på at brevet at distribuert`() {
-
         wiremockServerItem.stubFor(
             WireMock.post(WireMock.urlEqualTo("/dist/v1"))
-                .willReturn(WireMock.okJson(readFile("distribuerBrevEnkelResponse.json")))
+                .willReturn(WireMock.okJson(readFile("distribuerBrevEnkelResponse.json"))),
         )
 
         val bestillingId = integrasjonClient.distribuerBrev("testId", Distribusjonstype.VEDTAK)

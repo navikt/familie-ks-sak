@@ -36,22 +36,22 @@ class BisysController(private val bisysService: BisysService, private val tilgan
                 content = [
                     Content(
                         mediaType = "application/json",
-                        array = (ArraySchema(schema = Schema(implementation = BisysResponsDto::class)))
-                    )
-                ]
+                        array = (ArraySchema(schema = Schema(implementation = BisysResponsDto::class))),
+                    ),
+                ],
             ),
             ApiResponse(
                 responseCode = "400",
                 description = "Ugyldig input. barnIdenter må være 11 siffer",
-                content = [Content()]
+                content = [Content()],
             ),
-            ApiResponse(responseCode = "500", description = "Uventet feil", content = [Content()])
-        ]
+            ApiResponse(responseCode = "500", description = "Uventet feil", content = [Content()]),
+        ],
     )
     @PostMapping(
         path = ["/hent-utbetalingsinfo"],
         consumes = [MediaType.APPLICATION_JSON_VALUE],
-        produces = [MediaType.APPLICATION_JSON_VALUE]
+        produces = [MediaType.APPLICATION_JSON_VALUE],
     )
     fun hentUtbetalingsinfo(@RequestBody bisysRequestDto: BisysDto): ResponseEntity<BisysResponsDto> {
         return ResponseEntity.ok(bisysService.hentUtbetalingsinfo(bisysRequestDto.fom, bisysRequestDto.identer))

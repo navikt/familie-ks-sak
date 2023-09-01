@@ -1,24 +1,24 @@
 package no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene
 
+import jakarta.persistence.Column
+import jakarta.persistence.Convert
+import jakarta.persistence.Entity
+import jakarta.persistence.EnumType
+import jakarta.persistence.Enumerated
+import jakarta.persistence.FetchType
+import jakarta.persistence.GeneratedValue
+import jakarta.persistence.GenerationType
+import jakarta.persistence.Id
+import jakarta.persistence.JoinColumn
+import jakarta.persistence.JoinTable
+import jakarta.persistence.ManyToMany
+import jakarta.persistence.SequenceGenerator
+import jakarta.persistence.Table
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.util.YearMonthConverter
 import no.nav.familie.ks.sak.kjerne.eøs.felles.domene.EøsSkjemaEntitet
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import java.time.YearMonth
-import javax.persistence.Column
-import javax.persistence.Convert
-import javax.persistence.Entity
-import javax.persistence.EnumType
-import javax.persistence.Enumerated
-import javax.persistence.FetchType
-import javax.persistence.GeneratedValue
-import javax.persistence.GenerationType
-import javax.persistence.Id
-import javax.persistence.JoinColumn
-import javax.persistence.JoinTable
-import javax.persistence.ManyToMany
-import javax.persistence.SequenceGenerator
-import javax.persistence.Table
 
 @Entity(name = "Kompetanse")
 @Table(name = "KOMPETANSE")
@@ -35,7 +35,7 @@ data class Kompetanse(
     @JoinTable(
         name = "AKTOER_TIL_KOMPETANSE",
         joinColumns = [JoinColumn(name = "fk_kompetanse_id")],
-        inverseJoinColumns = [JoinColumn(name = "fk_aktoer_id")]
+        inverseJoinColumns = [JoinColumn(name = "fk_aktoer_id")],
     )
     override val barnAktører: Set<Aktør> = emptySet(),
 
@@ -58,7 +58,7 @@ data class Kompetanse(
 
     @Enumerated(EnumType.STRING)
     @Column(name = "resultat")
-    val resultat: KompetanseResultat? = null
+    val resultat: KompetanseResultat? = null,
 ) : EøsSkjemaEntitet<Kompetanse>() {
 
     @Id
@@ -66,7 +66,7 @@ data class Kompetanse(
     @SequenceGenerator(
         name = "kompetanse_seq_generator",
         sequenceName = "kompetanse_seq",
-        allocationSize = 50
+        allocationSize = 50,
     )
     override var id: Long = 0
 
@@ -79,7 +79,7 @@ data class Kompetanse(
         annenForeldersAktivitet = null,
         annenForeldersAktivitetsland = null,
         barnetsBostedsland = null,
-        resultat = null
+        resultat = null,
     )
 
     override fun kopier(fom: YearMonth?, tom: YearMonth?, barnAktører: Set<Aktør>) =
@@ -116,7 +116,7 @@ enum class SøkersAktivitet {
     MOTTAR_UTBETALING_FRA_NAV_UNDER_OPPHOLD_I_UTLANDET,
     MOTTAR_UFØRETRYGD_FRA_NAV_UNDER_OPPHOLD_I_UTLANDET,
     MOTTAR_PENSJON_FRA_NAV_UNDER_OPPHOLD_I_UTLANDET,
-    INAKTIV
+    INAKTIV,
 }
 
 enum class AnnenForeldersAktivitet {
@@ -125,11 +125,11 @@ enum class AnnenForeldersAktivitet {
     FORSIKRET_I_BOSTEDSLAND,
     MOTTAR_PENSJON,
     INAKTIV,
-    IKKE_AKTUELT
+    IKKE_AKTUELT,
 }
 
 enum class KompetanseResultat {
     NORGE_ER_PRIMÆRLAND,
     NORGE_ER_SEKUNDÆRLAND,
-    TO_PRIMÆRLAND
+    TO_PRIMÆRLAND,
 }

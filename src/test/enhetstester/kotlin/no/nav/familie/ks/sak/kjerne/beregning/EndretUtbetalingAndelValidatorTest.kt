@@ -34,7 +34,7 @@ class EndretUtbetalingAndelValidatorTest {
     val personopplysningGrunnlag = lagPersonopplysningGrunnlag(
         behandlingId = behandling.id,
         søkerPersonIdent = søker.aktivFødselsnummer(),
-        barnasIdenter = listOf(barn1.aktivFødselsnummer())
+        barnasIdenter = listOf(barn1.aktivFødselsnummer()),
     )
     private val søkerPerson = lagPerson(personopplysningGrunnlag, søker, PersonType.SØKER)
     private val barnPerson = lagPerson(personopplysningGrunnlag, barn1, PersonType.BARN)
@@ -46,20 +46,20 @@ class EndretUtbetalingAndelValidatorTest {
             behandling = behandling,
             aktør = søker,
             stønadFom = YearMonth.now().minusMonths(1),
-            stønadTom = YearMonth.now().plusMonths(5)
+            stønadTom = YearMonth.now().plusMonths(5),
         )
         val endretUtbetalingAndel = lagEndretUtbetalingAndel(
             behandlingId = behandling.id,
             person = søkerPerson,
             prosent = BigDecimal(50),
             periodeFom = YearMonth.now().minusMonths(1),
-            periodeTom = YearMonth.now().plusMonths(7)
+            periodeTom = YearMonth.now().plusMonths(7),
         )
 
         val exception = assertThrows<FunksjonellFeil> {
             EndretUtbetalingAndelValidator.validerPeriodeInnenforTilkjentYtelse(
                 endretUtbetalingAndel,
-                listOf(andelTilkjentYtelse)
+                listOf(andelTilkjentYtelse),
             )
         }
         assertFeilMeldingerNårEndretUtbetalingPerioderIkkeInnenforTyPerioder(exception)
@@ -71,20 +71,20 @@ class EndretUtbetalingAndelValidatorTest {
             behandling = behandling,
             aktør = søker,
             stønadFom = YearMonth.now().minusMonths(1),
-            stønadTom = YearMonth.now().plusMonths(5)
+            stønadTom = YearMonth.now().plusMonths(5),
         )
         val endretUtbetalingAndel = lagEndretUtbetalingAndel(
             behandlingId = behandling.id,
             person = søkerPerson,
             prosent = BigDecimal(50),
             periodeFom = YearMonth.now().minusMonths(2),
-            periodeTom = YearMonth.now().plusMonths(5)
+            periodeTom = YearMonth.now().plusMonths(5),
         )
 
         val exception = assertThrows<FunksjonellFeil> {
             EndretUtbetalingAndelValidator.validerPeriodeInnenforTilkjentYtelse(
                 endretUtbetalingAndel,
-                listOf(andelTilkjentYtelse)
+                listOf(andelTilkjentYtelse),
             )
         }
         assertFeilMeldingerNårEndretUtbetalingPerioderIkkeInnenforTyPerioder(exception)
@@ -96,20 +96,20 @@ class EndretUtbetalingAndelValidatorTest {
             behandling = behandling,
             aktør = barn1,
             stønadFom = YearMonth.now().minusMonths(1),
-            stønadTom = YearMonth.now().plusMonths(5)
+            stønadTom = YearMonth.now().plusMonths(5),
         )
         val endretUtbetalingAndel = lagEndretUtbetalingAndel(
             behandlingId = behandling.id,
             person = søkerPerson,
             prosent = BigDecimal(50),
             periodeFom = YearMonth.now().minusMonths(1),
-            periodeTom = YearMonth.now().plusMonths(5)
+            periodeTom = YearMonth.now().plusMonths(5),
         )
 
         val exception = assertThrows<FunksjonellFeil> {
             EndretUtbetalingAndelValidator.validerPeriodeInnenforTilkjentYtelse(
                 endretUtbetalingAndel,
-                listOf(andelTilkjentYtelse)
+                listOf(andelTilkjentYtelse),
             )
         }
         assertFeilMeldingerNårEndretUtbetalingPerioderIkkeInnenforTyPerioder(exception)
@@ -121,20 +121,20 @@ class EndretUtbetalingAndelValidatorTest {
             behandling = behandling,
             aktør = søker,
             stønadFom = YearMonth.now().minusMonths(2),
-            stønadTom = YearMonth.now().plusMonths(5)
+            stønadTom = YearMonth.now().plusMonths(5),
         )
         val endretUtbetalingAndel = lagEndretUtbetalingAndel(
             behandlingId = behandling.id,
             person = søkerPerson,
             prosent = BigDecimal(50),
             periodeFom = YearMonth.now().minusMonths(1),
-            periodeTom = YearMonth.now().plusMonths(4)
+            periodeTom = YearMonth.now().plusMonths(4),
         )
 
         assertDoesNotThrow {
             EndretUtbetalingAndelValidator.validerPeriodeInnenforTilkjentYtelse(
                 endretUtbetalingAndel,
-                listOf(andelTilkjentYtelse)
+                listOf(andelTilkjentYtelse),
             )
         }
     }
@@ -149,14 +149,14 @@ class EndretUtbetalingAndelValidatorTest {
             personResultat = personResultatForBarn,
             behandlingId = behandling.id,
             fom1 = fom,
-            tom1 = tom
+            tom1 = tom,
         )
         personResultatForBarn.setSortedVilkårResultater(vilkårResultaterForBarn)
         vilkårsvurdering.personResultater = setOf(personResultatForBarn)
 
         val deltBostedPerioder = EndretUtbetalingAndelValidator.finnDeltBostedPerioder(
             person = barnPerson,
-            vilkårsvurdering = vilkårsvurdering
+            vilkårsvurdering = vilkårsvurdering,
         )
 
         assertTrue(deltBostedPerioder.size == 1)
@@ -179,7 +179,7 @@ class EndretUtbetalingAndelValidatorTest {
             fom1 = fom1,
             tom1 = tom1,
             fom2 = fom2,
-            tom2 = tom2
+            tom2 = tom2,
         )
 
         personResultatForBarn.setSortedVilkårResultater(vilkårResultaterForBarn)
@@ -187,7 +187,7 @@ class EndretUtbetalingAndelValidatorTest {
 
         val deltBostedPerioder = EndretUtbetalingAndelValidator.finnDeltBostedPerioder(
             person = barnPerson,
-            vilkårsvurdering = vilkårsvurdering
+            vilkårsvurdering = vilkårsvurdering,
         )
 
         assertTrue(deltBostedPerioder.size == 2)
@@ -213,13 +213,13 @@ class EndretUtbetalingAndelValidatorTest {
             fom1 = fomBarn1,
             tom1 = LocalDate.now().minusMonths(1).sisteDagIMåned(),
             fom2 = LocalDate.now().førsteDagIInneværendeMåned(),
-            tom2 = tomBarn1
+            tom2 = tomBarn1,
         )
         val vilkårResultaterForBarn2 = lagVilkårResultaterForDeltBosted(
             personResultat = personResultatForBarn2,
             behandlingId = behandling.id,
             fom1 = fomBarn2,
-            tom1 = fomBarn1 // sammenhengde periode med første barn vilkår resultat
+            tom1 = fomBarn1, // sammenhengde periode med første barn vilkår resultat
         )
 
         personResultatForBarn1.setSortedVilkårResultater(vilkårResultaterForBarn1)
@@ -229,7 +229,7 @@ class EndretUtbetalingAndelValidatorTest {
 
         val deltBostedPerioder = EndretUtbetalingAndelValidator.finnDeltBostedPerioder(
             person = søkerPerson,
-            vilkårsvurdering = vilkårsvurdering
+            vilkårsvurdering = vilkårsvurdering,
         )
 
         assertTrue(deltBostedPerioder.size == 1)
@@ -253,13 +253,13 @@ class EndretUtbetalingAndelValidatorTest {
             fom1 = fomBarn1,
             tom1 = LocalDate.now().minusMonths(1).sisteDagIMåned(),
             fom2 = LocalDate.now().førsteDagIInneværendeMåned(),
-            tom2 = tomBarn1
+            tom2 = tomBarn1,
         )
         val vilkårResultaterForBarn2 = lagVilkårResultaterForDeltBosted(
             personResultat = personResultatForBarn2,
             behandlingId = behandling.id,
             fom1 = fomBarn2,
-            tom1 = tomBarn1 // overlapper med første barn vilkårresultat
+            tom1 = tomBarn1, // overlapper med første barn vilkårresultat
         )
 
         personResultatForBarn1.setSortedVilkårResultater(vilkårResultaterForBarn1)
@@ -269,7 +269,7 @@ class EndretUtbetalingAndelValidatorTest {
 
         val deltBostedPerioder = EndretUtbetalingAndelValidator.finnDeltBostedPerioder(
             person = søkerPerson,
-            vilkårsvurdering = vilkårsvurdering
+            vilkårsvurdering = vilkårsvurdering,
         )
 
         assertTrue(deltBostedPerioder.size == 1)
@@ -287,7 +287,7 @@ class EndretUtbetalingAndelValidatorTest {
             personResultat = personResultatForBarn,
             behandlingId = behandling.id,
             fom1 = fom,
-            tom1 = tom
+            tom1 = tom,
         )
         personResultatForBarn.setSortedVilkårResultater(vilkårResultaterForBarn)
         vilkårsvurdering.personResultater = setOf(personResultatForBarn)
@@ -296,7 +296,7 @@ class EndretUtbetalingAndelValidatorTest {
             behandlingId = behandling.id,
             person = barnPerson,
             periodeFom = YearMonth.now().minusMonths(10),
-            periodeTom = YearMonth.now().minusMonths(8)
+            periodeTom = YearMonth.now().minusMonths(8),
         )
 
         val exception = assertThrows<FunksjonellFeil> {
@@ -305,12 +305,12 @@ class EndretUtbetalingAndelValidatorTest {
 
         assertEquals(
             "Det finnes ingen delt bosted perioder i perioden det opprettes en endring med årsak delt bosted for.",
-            exception.message
+            exception.message,
         )
         assertEquals(
             "Du har valgt årsaken 'delt bosted', " +
                 "denne samstemmer ikke med vurderingene gjort på vilkårsvurderingssiden i perioden du har valgt.",
-            exception.frontendFeilmelding
+            exception.frontendFeilmelding,
         )
     }
 
@@ -324,7 +324,7 @@ class EndretUtbetalingAndelValidatorTest {
             personResultat = personResultatForBarn,
             behandlingId = behandling.id,
             fom1 = fom,
-            tom1 = tom
+            tom1 = tom,
         )
         personResultatForBarn.setSortedVilkårResultater(vilkårResultaterForBarn)
         vilkårsvurdering.personResultater = setOf(personResultatForBarn)
@@ -333,7 +333,7 @@ class EndretUtbetalingAndelValidatorTest {
             behandlingId = behandling.id,
             person = barnPerson,
             periodeFom = YearMonth.now().minusMonths(3),
-            periodeTom = YearMonth.now().minusMonths(2)
+            periodeTom = YearMonth.now().minusMonths(2),
         )
 
         assertDoesNotThrow {
@@ -348,7 +348,7 @@ class EndretUtbetalingAndelValidatorTest {
             person = barnPerson,
             periodeFom = YearMonth.now().minusMonths(3),
             periodeTom = YearMonth.now().minusMonths(2),
-            prosent = BigDecimal(100)
+            prosent = BigDecimal(100),
         )
         val exception = assertThrows<FunksjonellFeil> {
             EndretUtbetalingAndelValidator.validerÅrsak(Årsak.ETTERBETALING_3MND, endretUtbetalingAndel, null)
@@ -356,7 +356,7 @@ class EndretUtbetalingAndelValidatorTest {
 
         assertEquals(
             "Du kan ikke sette årsak etterbetaling 3 måned når du har valgt at perioden skal utbetales.",
-            exception.message
+            exception.message,
         )
     }
 
@@ -367,7 +367,7 @@ class EndretUtbetalingAndelValidatorTest {
             person = barnPerson,
             periodeFom = YearMonth.now().minusMonths(1),
             periodeTom = YearMonth.now().plusMonths(2),
-            prosent = BigDecimal.ZERO
+            prosent = BigDecimal.ZERO,
         )
         val exception = assertThrows<FunksjonellFeil> {
             EndretUtbetalingAndelValidator.validerÅrsak(Årsak.ETTERBETALING_3MND, endretUtbetalingAndel, null)
@@ -375,7 +375,7 @@ class EndretUtbetalingAndelValidatorTest {
 
         assertEquals(
             "Du kan ikke stoppe etterbetaling for en periode som ikke strekker seg mer enn 3 måned tilbake i tid.",
-            exception.message
+            exception.message,
         )
     }
 
@@ -386,7 +386,7 @@ class EndretUtbetalingAndelValidatorTest {
             person = barnPerson,
             periodeFom = YearMonth.now().minusMonths(5),
             periodeTom = YearMonth.now().minusMonths(4),
-            prosent = BigDecimal.ZERO
+            prosent = BigDecimal.ZERO,
         )
         assertDoesNotThrow {
             EndretUtbetalingAndelValidator.validerÅrsak(Årsak.ETTERBETALING_3MND, endretUtbetalingAndel, null)
@@ -400,7 +400,7 @@ class EndretUtbetalingAndelValidatorTest {
             person = barnPerson,
             periodeFom = YearMonth.now().minusMonths(5),
             periodeTom = YearMonth.now().minusMonths(4),
-            prosent = BigDecimal.ZERO
+            prosent = BigDecimal.ZERO,
         )
         assertDoesNotThrow {
             EndretUtbetalingAndelValidator.validerAtAlleOpprettedeEndringerErUtfylt(listOf(endretUtbetalingAndel))
@@ -414,7 +414,7 @@ class EndretUtbetalingAndelValidatorTest {
             person = barnPerson,
             periodeFom = YearMonth.now().minusMonths(5),
             periodeTom = YearMonth.now().minusMonths(4),
-            prosent = null
+            prosent = null,
         )
         val exception = assertThrows<FunksjonellFeil> {
             EndretUtbetalingAndelValidator.validerAtAlleOpprettedeEndringerErUtfylt(listOf(endretUtbetalingAndel))
@@ -422,12 +422,12 @@ class EndretUtbetalingAndelValidatorTest {
         assertEquals(
             "Det er opprettet instanser av EndretUtbetalingandel som ikke er fylt ut " +
                 "før navigering til neste steg.",
-            exception.message
+            exception.message,
         )
         assertEquals(
             "Du har opprettet en eller flere endrede utbetalingsperioder " +
                 "som er ufullstendig utfylt. Disse må enten fylles ut eller slettes før du kan gå videre.",
-            exception.frontendFeilmelding
+            exception.frontendFeilmelding,
         )
     }
 
@@ -438,7 +438,7 @@ class EndretUtbetalingAndelValidatorTest {
             person = barnPerson,
             periodeFom = YearMonth.now().minusMonths(5),
             periodeTom = YearMonth.now().minusMonths(4),
-            prosent = BigDecimal.ZERO
+            prosent = BigDecimal.ZERO,
         )
         val andelerTilkjentYtelse = listOf(lagAndelTilkjentYtelse(behandling = behandling))
         val endretUtbetalingAndelMedAndelerTilkjentYtelse =
@@ -456,7 +456,7 @@ class EndretUtbetalingAndelValidatorTest {
             person = barnPerson,
             periodeFom = YearMonth.now().minusMonths(5),
             periodeTom = YearMonth.now().minusMonths(4),
-            prosent = BigDecimal.ZERO
+            prosent = BigDecimal.ZERO,
         )
         val endretUtbetalingAndelMedAndelerTilkjentYtelse =
             EndretUtbetalingAndelMedAndelerTilkjentYtelse(endretUtbetalingAndel, emptyList())
@@ -468,23 +468,23 @@ class EndretUtbetalingAndelValidatorTest {
         assertEquals(
             "Det er opprettet instanser av EndretUtbetalingandel som ikke er tilknyttet noen andeler. " +
                 "De må enten lagres eller slettes av SB.",
-            exception.message
+            exception.message,
         )
         assertEquals(
             "Du har endrede utbetalingsperioder. Bekreft, slett eller oppdater periodene i listen.",
-            exception.frontendFeilmelding
+            exception.frontendFeilmelding,
         )
     }
 
     private fun assertFeilMeldingerNårEndretUtbetalingPerioderIkkeInnenforTyPerioder(exception: FunksjonellFeil) {
         assertEquals(
             "Det er ingen tilkjent ytelse for personen det blir forsøkt lagt til en endret periode for.",
-            exception.message
+            exception.message,
         )
         assertEquals(
             "Du har valgt en periode der det ikke finnes tilkjent ytelse for valgt person " +
                 "i hele eller deler av perioden.",
-            exception.frontendFeilmelding
+            exception.frontendFeilmelding,
         )
     }
 }

@@ -1,19 +1,19 @@
 package no.nav.familie.ks.sak.kjerne.totrinnskontroll.domene
 
+import jakarta.persistence.Column
+import jakarta.persistence.Convert
+import jakarta.persistence.Entity
+import jakarta.persistence.GeneratedValue
+import jakarta.persistence.GenerationType
+import jakarta.persistence.Id
+import jakarta.persistence.JoinColumn
+import jakarta.persistence.ManyToOne
+import jakarta.persistence.SequenceGenerator
+import jakarta.persistence.Table
 import no.nav.familie.ks.sak.common.entitet.BaseEntitet
 import no.nav.familie.ks.sak.common.util.StringListConverter
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext
-import javax.persistence.Column
-import javax.persistence.Convert
-import javax.persistence.Entity
-import javax.persistence.GeneratedValue
-import javax.persistence.GenerationType
-import javax.persistence.Id
-import javax.persistence.JoinColumn
-import javax.persistence.ManyToOne
-import javax.persistence.SequenceGenerator
-import javax.persistence.Table
 
 @Entity(name = "Totrinnskontroll")
 @Table(name = "TOTRINNSKONTROLL")
@@ -23,7 +23,7 @@ data class Totrinnskontroll(
     @SequenceGenerator(
         name = "totrinnskontroll_seq_generator",
         sequenceName = "totrinnskontroll_seq",
-        allocationSize = 50
+        allocationSize = 50,
     )
     val id: Long = 0,
 
@@ -51,7 +51,7 @@ data class Totrinnskontroll(
 
     @Column(name = "kontrollerte_sider")
     @Convert(converter = StringListConverter::class)
-    var kontrollerteSider: List<String> = emptyList()
+    var kontrollerteSider: List<String> = emptyList(),
 ) : BaseEntitet() {
 
     fun erBesluttet() = beslutter != null

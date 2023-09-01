@@ -21,10 +21,10 @@ data class BehandlingStatistikkDto(
     val ansvarligEnhet: String,
     val ansvarligSaksbehandler: String,
     val ansvarligBeslutter: String?,
-    val behandlingOpprettetÅrsak: BehandlingÅrsak?
+    val behandlingOpprettetÅrsak: BehandlingÅrsak?,
 )
 
 data class SattPåVent(
     val frist: OffsetDateTime,
-    val aarsak: String
+    val aarsak: String,
 )

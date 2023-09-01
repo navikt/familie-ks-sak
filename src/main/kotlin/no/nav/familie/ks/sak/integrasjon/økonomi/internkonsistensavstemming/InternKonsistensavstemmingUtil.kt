@@ -18,7 +18,7 @@ import java.math.BigDecimal
 fun erForskjellMellomAndelerOgOppdrag(
     andeler: List<AndelTilkjentYtelse>,
     utbetalingsoppdrag: Utbetalingsoppdrag?,
-    fagsakId: Long
+    fagsakId: Long,
 ): Boolean {
     val utbetalingsperioder =
         utbetalingsoppdrag?.utbetalingsperiode
@@ -29,36 +29,36 @@ fun erForskjellMellomAndelerOgOppdrag(
         hentForskjellIAndelerOgUtbetalingsoppdrag(utbetalingsperioder, andeler)
 
     when (forskjellMellomAndeleneOgUtbetalingsoppdraget) {
-        is UTBETALINGSPERIODER_UTEN_TILSVARENDE_ANDEL -> secureLogger.info(
+        is UtbetalingsperioderUtenTilsvarendeAndel -> secureLogger.info(
             "Fagsak $fagsakId har sendt utbetalingsperiode(r) til økonomi som ikke har tilsvarende andel tilkjent ytelse." +
                 "\nDet er differanse i perioden(e) ${forskjellMellomAndeleneOgUtbetalingsoppdraget.utbetalingsperioder.tilTidStrenger()}." +
                 "\n\nSiste utbetalingsoppdrag som er sendt til familie-øknonomi på fagsaken er:" +
-                "\n$utbetalingsoppdrag"
+                "\n$utbetalingsoppdrag",
         )
 
-        is INGEN_FORSKJELL -> Unit
+        is IngenForskjell -> Unit
     }
 
-    return forskjellMellomAndeleneOgUtbetalingsoppdraget !is INGEN_FORSKJELL
+    return forskjellMellomAndeleneOgUtbetalingsoppdraget !is IngenForskjell
 }
 
 private fun hentForskjellIAndelerOgUtbetalingsoppdrag(
     utbetalingsperioder: List<Utbetalingsperiode>,
-    andeler: List<AndelTilkjentYtelse>
+    andeler: List<AndelTilkjentYtelse>,
 ): AndelOgOppdragForskjell {
     val utbetalingsperioderUtenTilsvarendeAndel = utbetalingsperioder.filter {
         it.erIngenPersonerMedTilsvarendeAndelITidsrommet(andeler)
     }
 
     return if (utbetalingsperioderUtenTilsvarendeAndel.isEmpty()) {
-        INGEN_FORSKJELL
+        IngenForskjell
     } else {
-        UTBETALINGSPERIODER_UTEN_TILSVARENDE_ANDEL(utbetalingsperioderUtenTilsvarendeAndel)
+        UtbetalingsperioderUtenTilsvarendeAndel(utbetalingsperioderUtenTilsvarendeAndel)
     }
 }
 
 private fun Utbetalingsperiode.erIngenPersonerMedTilsvarendeAndelITidsrommet(
-    andeler: List<AndelTilkjentYtelse>
+    andeler: List<AndelTilkjentYtelse>,
 ): Boolean {
     val andelsTidslinjerPerPersonOgYtelsetype = andeler
         .groupBy { Pair(it.aktør, it.type) }
@@ -70,7 +70,7 @@ private fun Utbetalingsperiode.erIngenPersonerMedTilsvarendeAndelITidsrommet(
 }
 
 private fun Utbetalingsperiode.harTilsvarendeAndelerForPersonOgYtelsetype(
-    andelerTidslinjeForEnPersonOgYtelsetype: Tidslinje<BigDecimal>
+    andelerTidslinjeForEnPersonOgYtelsetype: Tidslinje<BigDecimal>,
 ): Boolean {
     val erAndelLikUtbetalingTidslinje = this.tilBeløpstidslinje()
         .kombinerMed(andelerTidslinjeForEnPersonOgYtelsetype) { utbetalingsperiode, andel ->
@@ -85,8 +85,8 @@ private fun Utbetalingsperiode.tilBeløpstidslinje() =
         Periode(
             fom = this.vedtakdatoFom.førsteDagIInneværendeMåned(),
             tom = this.vedtakdatoTom.sisteDagIMåned(),
-            verdi = this.sats
-        )
+            verdi = this.sats,
+        ),
     ).tilTidslinje()
 
 private fun List<AndelTilkjentYtelse>.tilBeløpstidslinje() =
@@ -94,7 +94,7 @@ private fun List<AndelTilkjentYtelse>.tilBeløpstidslinje() =
         Periode(
             fom = it.stønadFom.atDay(1),
             tom = it.stønadTom.atEndOfMonth(),
-            verdi = it.kalkulertUtbetalingsbeløp.toBigDecimal()
+            verdi = it.kalkulertUtbetalingsbeløp.toBigDecimal(),
         )
     }.tilTidslinje()
 
@@ -103,7 +103,7 @@ private fun List<Utbetalingsperiode>.tilTidStrenger() =
 
 private sealed interface AndelOgOppdragForskjell
 
-private data class UTBETALINGSPERIODER_UTEN_TILSVARENDE_ANDEL(val utbetalingsperioder: List<Utbetalingsperiode>) :
+private data class UtbetalingsperioderUtenTilsvarendeAndel(val utbetalingsperioder: List<Utbetalingsperiode>) :
     AndelOgOppdragForskjell
 
-private object INGEN_FORSKJELL : AndelOgOppdragForskjell
+private object IngenForskjell : AndelOgOppdragForskjell

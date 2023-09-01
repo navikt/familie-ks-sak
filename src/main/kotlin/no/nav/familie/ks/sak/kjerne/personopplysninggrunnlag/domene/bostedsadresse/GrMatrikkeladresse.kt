@@ -1,10 +1,10 @@
 package no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.bostedsadresse
 
+import jakarta.persistence.Column
+import jakarta.persistence.DiscriminatorValue
+import jakarta.persistence.Entity
 import no.nav.familie.kontrakter.felles.personopplysning.Matrikkeladresse
 import java.util.Objects
-import javax.persistence.Column
-import javax.persistence.DiscriminatorValue
-import javax.persistence.Entity
 
 @Entity(name = "GrMatrikkeladresse")
 @DiscriminatorValue("Matrikkeladresse")
@@ -22,7 +22,7 @@ data class GrMatrikkeladresse(
     val postnummer: String?,
 
     @Column(name = "kommunenummer")
-    val kommunenummer: String?
+    val kommunenummer: String?,
 
 ) : GrBostedsadresse() {
 
@@ -57,7 +57,7 @@ data class GrMatrikkeladresse(
                 bruksenhetsnummer = matrikkeladresse.bruksenhetsnummer,
                 tilleggsnavn = matrikkeladresse.tilleggsnavn,
                 postnummer = matrikkeladresse.postnummer,
-                kommunenummer = matrikkeladresse.kommunenummer
+                kommunenummer = matrikkeladresse.kommunenummer,
             )
     }
 }

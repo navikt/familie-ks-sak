@@ -1,19 +1,19 @@
 package no.nav.familie.ks.sak.kjerne.fagsak.domene
 
+import jakarta.persistence.Column
+import jakarta.persistence.Entity
+import jakarta.persistence.EnumType
+import jakarta.persistence.Enumerated
+import jakarta.persistence.GeneratedValue
+import jakarta.persistence.GenerationType
+import jakarta.persistence.Id
+import jakarta.persistence.JoinColumn
+import jakarta.persistence.OneToOne
+import jakarta.persistence.SequenceGenerator
+import jakarta.persistence.Table
 import no.nav.familie.ks.sak.common.entitet.BaseEntitet
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import java.util.Objects
-import javax.persistence.Column
-import javax.persistence.Entity
-import javax.persistence.EnumType
-import javax.persistence.Enumerated
-import javax.persistence.GeneratedValue
-import javax.persistence.GenerationType
-import javax.persistence.Id
-import javax.persistence.JoinColumn
-import javax.persistence.OneToOne
-import javax.persistence.SequenceGenerator
-import javax.persistence.Table
 
 @Entity(name = "Fagsak")
 @Table(name = "FAGSAK")
@@ -27,7 +27,7 @@ data class Fagsak(
     @JoinColumn(
         name = "fk_aktoer_id",
         nullable = false,
-        updatable = false
+        updatable = false,
     )
     val aktør: Aktør,
 
@@ -36,7 +36,7 @@ data class Fagsak(
     var status: FagsakStatus = FagsakStatus.OPPRETTET,
 
     @Column(name = "arkivert", nullable = false)
-    var arkivert: Boolean = false
+    var arkivert: Boolean = false,
 ) : BaseEntitet() {
 
     override fun hashCode(): Int {
@@ -62,5 +62,5 @@ data class Fagsak(
 enum class FagsakStatus {
     OPPRETTET,
     LØPENDE, // Har minst én behandling gjeldende for fremtidig utbetaling
-    AVSLUTTET
+    AVSLUTTET,
 }

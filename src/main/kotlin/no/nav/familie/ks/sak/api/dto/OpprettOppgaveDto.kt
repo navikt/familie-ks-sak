@@ -10,5 +10,5 @@ data class OpprettOppgaveDto(
     val journalpostId: String?,
     val behandlingstema: String?,
     val behandlingstype: String?,
-    val tilordnetRessurs: String?
+    val tilordnetRessurs: String?,
 )

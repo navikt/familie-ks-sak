@@ -8,7 +8,7 @@ interface PersonRepository : JpaRepository<Person, Long> {
 
     @Query(
         "SELECT p FROM Person p" +
-            " WHERE p.aktør = :aktør"
+            " WHERE p.aktør = :aktør",
     )
     fun findByAktør(aktør: Aktør): List<Person>
 }

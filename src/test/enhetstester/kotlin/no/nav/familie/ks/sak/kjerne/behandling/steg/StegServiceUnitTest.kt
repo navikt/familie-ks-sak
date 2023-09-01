@@ -67,7 +67,7 @@ class StegServiceUnitTest {
         stegService.settBehandlingstegPåVent(
             behandling,
             frist,
-            årsak
+            årsak,
         )
 
         val behandling = behandlingSlot.captured
@@ -92,7 +92,7 @@ class StegServiceUnitTest {
         stegService.settBehandlingstegPåVent(
             behandling,
             frist,
-            årsak
+            årsak,
         )
 
         val nyFrist = LocalDate.now().plusMonths(1)
@@ -100,7 +100,7 @@ class StegServiceUnitTest {
         val gammelFrist = stegService.oppdaterBehandlingstegFristOgÅrsak(
             behandling,
             nyFrist,
-            årsak
+            årsak,
         )
 
         val behandling = behandlingSlot.captured
@@ -125,20 +125,20 @@ class StegServiceUnitTest {
         stegService.settBehandlingstegPåVent(
             behandling,
             frist,
-            årsak
+            årsak,
         )
 
         val funksjonellFeil = assertThrows<FunksjonellFeil> {
             stegService.oppdaterBehandlingstegFristOgÅrsak(
                 behandling,
                 frist,
-                årsak
+                årsak,
             )
         }
 
         assertEquals(
             "Behandlingen er allerede satt på vent med frist $frist og årsak $årsak.",
-            funksjonellFeil.message
+            funksjonellFeil.message,
         )
 
         verify(exactly = 1) { behandlingRepository.saveAndFlush(any()) }

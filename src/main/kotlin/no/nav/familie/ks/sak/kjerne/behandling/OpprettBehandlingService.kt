@@ -43,7 +43,7 @@ class OpprettBehandlingService(
     private val behandlingRepository: BehandlingRepository,
     private val taskService: TaskService,
     private val stegService: StegService,
-    private val behandlingMetrikker: BehandlingMetrikker
+    private val behandlingMetrikker: BehandlingMetrikker,
 ) {
 
     @Transactional
@@ -51,7 +51,7 @@ class OpprettBehandlingService(
         val aktør = personidentService.hentAktør(opprettBehandlingRequest.søkersIdent)
         val fagsak = fagsakRepository.finnFagsakForAktør(aktør)
             ?: throw FunksjonellFeil(
-                melding = "Kan ikke lage behandling på person uten tilknyttet fagsak."
+                melding = "Kan ikke lage behandling på person uten tilknyttet fagsak.",
             )
 
         val aktivBehandling = behandlingRepository.findByFagsakAndAktiv(fagsak.id)
@@ -60,7 +60,7 @@ class OpprettBehandlingService(
         // Kan ikke opprette en behandling når det allerede finnes en behandling som ikke er avsluttet
         if (aktivBehandling != null && aktivBehandling.status != BehandlingStatus.AVSLUTTET) {
             throw FunksjonellFeil(
-                melding = "Kan ikke lage ny behandling. Fagsaken har en aktiv behandling som ikke er ferdigstilt."
+                melding = "Kan ikke lage ny behandling. Fagsaken har en aktiv behandling som ikke er ferdigstilt.",
             )
         }
 
@@ -68,21 +68,21 @@ class OpprettBehandlingService(
             overstyrtKategori = opprettBehandlingRequest.kategori,
             behandlingType = opprettBehandlingRequest.behandlingType,
             behandlingÅrsak = opprettBehandlingRequest.behandlingÅrsak,
-            kategoriFraLøpendeBehandling = BehandlingKategori.NASJONAL // TODO EØS implementeres etter vilkårsvurdering
+            kategoriFraLøpendeBehandling = BehandlingKategori.NASJONAL, // TODO EØS implementeres etter vilkårsvurdering
         )
         val behandling = Behandling(
             fagsak = fagsak,
             type = opprettBehandlingRequest.behandlingType,
             opprettetÅrsak = opprettBehandlingRequest.behandlingÅrsak,
             kategori = behandlingKategori,
-            søknadMottattDato = opprettBehandlingRequest.søknadMottattDato?.atStartOfDay()
+            søknadMottattDato = opprettBehandlingRequest.søknadMottattDato?.atStartOfDay(),
         ).initBehandlingStegTilstand() // oppretter behandling med initielt steg Registrer Persongrunnlag
 
         behandling.validerBehandlingstype(sisteVedtattBehandling)
         val lagretBehandling = lagreNyOgDeaktiverGammelBehandling(
             nyBehandling = behandling,
             aktivBehandling = aktivBehandling,
-            sisteVedtattBehandling = sisteVedtattBehandling
+            sisteVedtattBehandling = sisteVedtattBehandling,
         )
         vedtakService.opprettOgInitierNyttVedtakForBehandling(lagretBehandling) // initierer vedtak
         loggService.opprettBehandlingLogg(lagretBehandling) // lag historikkinnslag
@@ -93,8 +93,8 @@ class OpprettBehandlingService(
                     behandlingId = lagretBehandling.id,
                     oppgavetype = Oppgavetype.BehandleSak,
                     fristForFerdigstillelse = LocalDate.now(),
-                    tilordnetRessurs = opprettBehandlingRequest.saksbehandlerIdent
-                )
+                    tilordnetRessurs = opprettBehandlingRequest.saksbehandlerIdent,
+                ),
             )
         }
         // Utfør Registrer Persongrunnlag steg
@@ -110,13 +110,13 @@ class OpprettBehandlingService(
     private fun lagreNyOgDeaktiverGammelBehandling(
         nyBehandling: Behandling,
         aktivBehandling: Behandling?,
-        sisteVedtattBehandling: Behandling?
+        sisteVedtattBehandling: Behandling?,
     ): Behandling {
         aktivBehandling?.let { behandlingRepository.saveAndFlush(aktivBehandling.also { it.aktiv = false }) }
         return lagreEllerOppdater(nyBehandling).also {
             arbeidsfordelingService.fastsettBehandledeEnhet(
                 it,
-                sisteVedtattBehandling
+                sisteVedtattBehandling,
             )
 
             if (it.versjon == 0L) {
@@ -154,7 +154,7 @@ class OpprettBehandlingService(
                 kategori = forrigeBehandling?.kategori ?: BehandlingKategori.NASJONAL,
                 søkersIdent = fagsak.aktør.aktivFødselsnummer(),
                 behandlingType = BehandlingType.REVURDERING,
-                behandlingÅrsak = behandlingÅrsak
+                behandlingÅrsak = behandlingÅrsak,
             )
 
             val revurdering = opprettBehandling(behandlingDto)
@@ -215,7 +215,7 @@ private data class KanIkkeOppretteRevurdering(val årsak: Årsak) : KanOppretteR
 
 private enum class Årsak(
     val ikkeOpprettetÅrsak: IkkeOpprettetÅrsak,
-    val kanIkkeOppretteRevurderingÅrsak: KanIkkeOppretteRevurderingÅrsak
+    val kanIkkeOppretteRevurderingÅrsak: KanIkkeOppretteRevurderingÅrsak,
 ) {
 
     ÅPEN_BEHANDLING(IkkeOpprettetÅrsak.ÅPEN_BEHANDLING, KanIkkeOppretteRevurderingÅrsak.ÅPEN_BEHANDLING),

@@ -1,9 +1,9 @@
 package no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene
 
+import jakarta.persistence.AttributeConverter
+import jakarta.persistence.Converter
 import no.nav.familie.ks.sak.common.util.konverterEnumsTilString
 import no.nav.familie.ks.sak.common.util.konverterStringTilEnums
-import javax.persistence.AttributeConverter
-import javax.persistence.Converter
 
 enum class UtdypendeVilkårsvurdering {
     VURDERING_ANNET_GRUNNLAG,
@@ -23,7 +23,7 @@ enum class UtdypendeVilkårsvurdering {
     BARN_BOR_I_NORGE_MED_SØKER, // Bor med søker vilkår
     BARN_BOR_I_STORBRITANNIA_MED_SØKER, // Bor med søker vilkår
     BARN_BOR_I_STORBRITANNIA_MED_ANNEN_FORELDER, // Bor med søker vilkår
-    BARN_BOR_ALENE_I_ANNET_EØS_LAND // Bor med søker vilkår
+    BARN_BOR_ALENE_I_ANNET_EØS_LAND, // Bor med søker vilkår
 }
 
 @Converter

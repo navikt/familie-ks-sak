@@ -27,7 +27,7 @@ class BehandlingsresultatService(
     private val vilkårsvurderingService: VilkårsvurderingService,
     private val søknadGrunnlagService: SøknadGrunnlagService,
     private val personidentService: PersonidentService,
-    private val personopplysningGrunnlagService: PersonopplysningGrunnlagService
+    private val personopplysningGrunnlagService: PersonopplysningGrunnlagService,
 ) {
 
     fun utledBehandlingsresultat(behandling: Behandling): Behandlingsresultat {
@@ -49,14 +49,14 @@ class BehandlingsresultatService(
             personerFremstiltKravFor,
             andelerMedEndringer,
             forrigeAndelerMedEndringer,
-            vilkårsvurdering
+            vilkårsvurdering,
         )
         secureLogger.info("Behandlingsresultatpersoner: ${behandlingsresultatPersoner.convertDataClassToJson()}")
 
         val ytelsePersonerMedResultat = YtelsePersonUtils.utledYtelsePersonerMedResultat(
             behandlingsresultatPersoner = behandlingsresultatPersoner,
             uregistrerteBarn = søknadGrunnlagService.finnAktiv(behandling.id)?.hentUregistrerteBarn()?.map { it.ident }
-                ?: emptyList()
+                ?: emptyList(),
         )
 
         val alleAndelerHar0IUtbetaling = andelerMedEndringer.all { it.kalkulertUtbetalingsbeløp == 0 }
@@ -68,7 +68,7 @@ class BehandlingsresultatService(
         vilkårsvurderingService.oppdater(
             vilkårsvurdering.also {
                 it.ytelsePersoner = ytelsePersonerMedResultat.writeValueAsString()
-            }
+            },
         )
 
         val ytelsePersonResultater =
@@ -76,7 +76,7 @@ class BehandlingsresultatService(
         val behandlingsresultat =
             BehandlingsresultatUtils.utledBehandlingsresultatBasertPåYtelsePersonResulater(
                 ytelsePersonResultater,
-                alleAndelerHar0IUtbetaling
+                alleAndelerHar0IUtbetaling,
             )
 
         logger.info("Utledet behandlingsresulat på behandling er $behandling: $behandlingsresultat")
@@ -90,7 +90,7 @@ class BehandlingsresultatService(
         personerFremslitKravFor: List<Aktør>,
         andelerMedEndringer: List<AndelTilkjentYtelseMedEndreteUtbetalinger>,
         forrigeAndelerMedEndringer: List<AndelTilkjentYtelseMedEndreteUtbetalinger>,
-        vilkårsvurdering: Vilkårsvurdering
+        vilkårsvurdering: Vilkårsvurdering,
     ) =
         personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(behandling.id)
             .personer.filter { it.type == PersonType.BARN }.map {
@@ -100,7 +100,7 @@ class BehandlingsresultatService(
 
                 val harEksplisittAvslagIEndreteUtbetalinger =
                     andelerTilkjentYtelseOgEndreteUtbetalingerService.finnEndreteUtbetalingerMedAndelerTilkjentYtelse(
-                        behandling.id
+                        behandling.id,
                     ).any { endretUtbetalingAndel ->
                         endretUtbetalingAndel.erEksplisittAvslagPåSøknad == true && endretUtbetalingAndel.person?.aktør == it.aktør
                     }
@@ -110,7 +110,7 @@ class BehandlingsresultatService(
                     personerFremstiltKravFor = personerFremslitKravFor,
                     andelerMedEndringer = andelerMedEndringer,
                     forrigeAndelerMedEndringer = forrigeAndelerMedEndringer,
-                    erEksplisittAvslag = harEksplisittAvslagIVilkårsvurderingen || harEksplisittAvslagIEndreteUtbetalinger
+                    erEksplisittAvslag = harEksplisittAvslagIVilkårsvurderingen || harEksplisittAvslagIEndreteUtbetalinger,
                 )
             }
 
@@ -120,7 +120,9 @@ class BehandlingsresultatService(
             søknadGrunnlagService.hentAktiv(behandling.id).tilSøknadDto()
                 .barnaMedOpplysninger.filter { it.inkludertISøknaden && it.erFolkeregistrert }
                 .map { personidentService.hentAktør(it.ident) }
-        } else emptyList()
+        } else {
+            emptyList()
+        }
         // barn som allerede finnes i behandling
         val barnSomErLagtTil = personopplysningGrunnlagService.hentBarna(behandling.id)?.map { it.aktør }
             ?: throw Feil("Barn finnes ikke for behandling ${behandling.id}")

@@ -1,6 +1,20 @@
 package no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene
 
 import com.fasterxml.jackson.annotation.JsonIgnore
+import jakarta.persistence.CascadeType
+import jakarta.persistence.Column
+import jakarta.persistence.Entity
+import jakarta.persistence.EnumType
+import jakarta.persistence.Enumerated
+import jakarta.persistence.FetchType
+import jakarta.persistence.GeneratedValue
+import jakarta.persistence.GenerationType
+import jakarta.persistence.Id
+import jakarta.persistence.JoinColumn
+import jakarta.persistence.ManyToOne
+import jakarta.persistence.OneToMany
+import jakarta.persistence.SequenceGenerator
+import jakarta.persistence.Table
 import no.nav.familie.ks.sak.common.entitet.BaseEntitet
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.tidslinje.Periode
@@ -19,20 +33,6 @@ import no.nav.familie.ks.sak.kjerne.beregning.AndelTilkjentYtelseMedEndreteUtbet
 import no.nav.familie.ks.sak.kjerne.beregning.tilKombinertTidslinjePerAktør
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
 import java.time.LocalDate
-import javax.persistence.CascadeType
-import javax.persistence.Column
-import javax.persistence.Entity
-import javax.persistence.EnumType
-import javax.persistence.Enumerated
-import javax.persistence.FetchType
-import javax.persistence.GeneratedValue
-import javax.persistence.GenerationType
-import javax.persistence.Id
-import javax.persistence.JoinColumn
-import javax.persistence.ManyToOne
-import javax.persistence.OneToMany
-import javax.persistence.SequenceGenerator
-import javax.persistence.Table
 
 @Entity(name = "Vedtaksperiode")
 @Table(name = "VEDTAKSPERIODE")
@@ -42,7 +42,7 @@ data class VedtaksperiodeMedBegrunnelser(
     @SequenceGenerator(
         name = "vedtaksperiode_seq_generator",
         sequenceName = "vedtaksperiode_seq",
-        allocationSize = 50
+        allocationSize = 50,
     )
     val id: Long = 0,
 
@@ -65,7 +65,7 @@ data class VedtaksperiodeMedBegrunnelser(
         fetch = FetchType.EAGER,
         mappedBy = "vedtaksperiodeMedBegrunnelser",
         cascade = [CascadeType.ALL],
-        orphanRemoval = true
+        orphanRemoval = true,
     )
     val begrunnelser: MutableSet<Vedtaksbegrunnelse> = mutableSetOf(),
 
@@ -74,9 +74,9 @@ data class VedtaksperiodeMedBegrunnelser(
         fetch = FetchType.EAGER,
         mappedBy = "vedtaksperiodeMedBegrunnelser",
         cascade = [CascadeType.ALL],
-        orphanRemoval = true
+        orphanRemoval = true,
     )
-    val fritekster: MutableList<VedtaksbegrunnelseFritekst> = mutableListOf()
+    val fritekster: MutableList<VedtaksbegrunnelseFritekst> = mutableListOf(),
 
 ) : BaseEntitet() {
 
@@ -100,11 +100,12 @@ data class VedtaksperiodeMedBegrunnelser(
 
     fun hentUtbetalingsperiodeDetaljer(
         andelerTilkjentYtelse: List<AndelTilkjentYtelseMedEndreteUtbetalinger>,
-        personopplysningGrunnlag: PersonopplysningGrunnlag
-    ): List<UtbetalingsperiodeDetalj> =
-        if (this.type == Vedtaksperiodetype.UTBETALING ||
-            this.type == Vedtaksperiodetype.FORTSATT_INNVILGET
-        ) {
+        personopplysningGrunnlag: PersonopplysningGrunnlag,
+    ): List<UtbetalingsperiodeDetalj> {
+        val erUtbetalingPeriode = this.type == Vedtaksperiodetype.UTBETALING
+        val erFortsattInnvilgetPeriode = this.type == Vedtaksperiodetype.FORTSATT_INNVILGET
+
+        return if (erUtbetalingPeriode || erFortsattInnvilgetPeriode) {
             val kombinertTidslinje = andelerTilkjentYtelse.tilKombinertTidslinjePerAktør()
 
             val vedtaksperiodeTidslinje = listOf(Periode(verdi = this, fom = this.fom, this.tom)).tilTidslinje()
@@ -115,19 +116,22 @@ data class VedtaksperiodeMedBegrunnelser(
             val andelTilkjentYtelserIPeriode =
                 tidslinjeMedAndelerIPeriode.tilPerioder().mapNotNull { it.verdi }.flatten()
 
-            validerIkkeDelvisOverlappIAndelTilkjentYtelserOgVedtaksperiodeBegrunnelse(
-                andelTilkjentYtelserIPeriode,
-                personopplysningGrunnlag
-            )
+            if (erUtbetalingPeriode) {
+                validerIkkeDelvisOverlappIAndelTilkjentYtelserOgVedtaksperiodeBegrunnelse(
+                    andelTilkjentYtelserIPeriode,
+                    personopplysningGrunnlag,
+                )
+            }
 
             andelTilkjentYtelserIPeriode.lagUtbetalingsperiodeDetaljer(personopplysningGrunnlag)
         } else {
             emptyList()
         }
+    }
 
     private fun validerIkkeDelvisOverlappIAndelTilkjentYtelserOgVedtaksperiodeBegrunnelse(
         andelTilkjentYtelserIPeriode: List<AndelTilkjentYtelseMedEndreteUtbetalinger>,
-        personopplysningGrunnlag: PersonopplysningGrunnlag
+        personopplysningGrunnlag: PersonopplysningGrunnlag,
     ) {
         val delvisOverlapp = andelTilkjentYtelserIPeriode.any {
             (this.fom ?: TIDENES_MORGEN).isBefore(it.stønadFom.førsteDagIInneværendeMåned()) || (

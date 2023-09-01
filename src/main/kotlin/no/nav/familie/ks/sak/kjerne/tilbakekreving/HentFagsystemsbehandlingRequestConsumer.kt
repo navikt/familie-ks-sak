@@ -22,7 +22,7 @@ class HentFagsystemsbehandlingRequestConsumer(private val fagsystemsbehandlingSe
     @KafkaListener(
         id = "familie-ks-sak",
         topics = [KafkaConfig.FAGSYSTEMSBEHANDLING_REQUEST_TBK_TOPIC],
-        containerFactory = "concurrentKafkaListenerContainerFactory"
+        containerFactory = "concurrentKafkaListenerContainerFactory",
     )
     fun listen(consumerRecord: ConsumerRecord<String, String>, ack: Acknowledgment) {
         val data: String = consumerRecord.value()
@@ -41,7 +41,7 @@ class HentFagsystemsbehandlingRequestConsumer(private val fagsystemsbehandlingSe
         } catch (e: Exception) {
             logger.warn(
                 "Noe gikk galt mens sender HentFagsystemsbehandlingRespons for behandling=${request.eksternId}. " +
-                    "Feiler med ${e.message}"
+                    "Feiler med ${e.message}",
             )
             HentFagsystemsbehandlingRespons(feilMelding = e.message)
         }

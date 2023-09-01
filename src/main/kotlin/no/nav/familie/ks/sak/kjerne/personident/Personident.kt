@@ -1,16 +1,16 @@
 package no.nav.familie.ks.sak.kjerne.personident
 
 import com.fasterxml.jackson.annotation.JsonIgnore
+import jakarta.persistence.Column
+import jakarta.persistence.Entity
+import jakarta.persistence.Id
+import jakarta.persistence.JoinColumn
+import jakarta.persistence.ManyToOne
+import jakarta.persistence.Table
+import jakarta.validation.constraints.Pattern
 import no.nav.familie.ks.sak.common.entitet.BaseEntitet
 import java.time.LocalDateTime
 import java.util.Objects
-import javax.persistence.Column
-import javax.persistence.Entity
-import javax.persistence.Id
-import javax.persistence.JoinColumn
-import javax.persistence.ManyToOne
-import javax.persistence.Table
-import javax.validation.constraints.Pattern
 
 @Entity(name = "Personident")
 @Table(name = "PERSONIDENT")
@@ -31,7 +31,7 @@ data class Personident(
     var aktiv: Boolean = true,
 
     @Column(name = "gjelder_til", columnDefinition = "DATE")
-    var gjelderTil: LocalDateTime? = null
+    var gjelderTil: LocalDateTime? = null,
 
 ) : BaseEntitet() {
 

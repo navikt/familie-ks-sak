@@ -1,5 +1,6 @@
 package no.nav.familie.ks.sak.api
 
+import jakarta.transaction.Transactional
 import no.nav.familie.kontrakter.felles.Ressurs
 import no.nav.familie.ks.sak.api.dto.BehandlingResponsDto
 import no.nav.familie.ks.sak.api.dto.ManueltBrevDto
@@ -22,7 +23,6 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
-import javax.transaction.Transactional
 
 @RestController
 @RequestMapping("/api/brev")
@@ -33,50 +33,50 @@ class BrevController(
     private val genererBrevService: GenererBrevService,
     private val tilgangService: TilgangService,
     private val behandlingService: BehandlingService,
-    private val vedtakService: VedtakService
+    private val vedtakService: VedtakService,
 ) {
 
     @PostMapping(path = ["/forhåndsvis-brev/{behandlingId}"])
     fun hentForhåndsvisning(
         @PathVariable behandlingId: Long,
-        @RequestBody manueltBrevDto: ManueltBrevDto
+        @RequestBody manueltBrevDto: ManueltBrevDto,
     ): Ressurs<ByteArray> {
         logger.info(
             "${SikkerhetContext.hentSaksbehandlerNavn()} henter forhåndsvisning av brev " +
-                "for mal: ${manueltBrevDto.brevmal}"
+                "for mal: ${manueltBrevDto.brevmal}",
         )
         tilgangService.validerTilgangTilHandlingOgFagsakForBehandling(
             behandlingId = behandlingId,
             event = AuditLoggerEvent.ACCESS,
             minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
-            handling = "hente forhåndsvisning brev"
+            handling = "hente forhåndsvisning brev",
         )
 
         return brevService.hentForhåndsvisningAvBrev(
             behandlingId = behandlingId,
-            manueltBrevDto = manueltBrevDto
+            manueltBrevDto = manueltBrevDto,
         ).let { Ressurs.success(it) }
     }
 
     @PostMapping(path = ["/send-brev/{behandlingId}"])
     fun sendBrev(
         @PathVariable behandlingId: Long,
-        @RequestBody manueltBrevDto: ManueltBrevDto
+        @RequestBody manueltBrevDto: ManueltBrevDto,
     ): ResponseEntity<Ressurs<BehandlingResponsDto>> {
         logger.info("${SikkerhetContext.hentSaksbehandlerNavn()} genererer og sender brev: ${manueltBrevDto.brevmal}")
         tilgangService.validerTilgangTilHandlingOgFagsakForBehandling(
             behandlingId = behandlingId,
             event = AuditLoggerEvent.UPDATE,
             minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
-            handling = "sende brev"
+            handling = "sende brev",
         )
 
         brevService.genererOgSendBrev(behandlingId = behandlingId, manueltBrevDto = manueltBrevDto)
 
         return ResponseEntity.ok(
             Ressurs.success(
-                behandlingService.lagBehandlingRespons(behandlingId = behandlingId)
-            )
+                behandlingService.lagBehandlingRespons(behandlingId = behandlingId),
+            ),
         )
     }
 
@@ -88,7 +88,7 @@ class BrevController(
             behandlingId = behandlingId,
             event = AuditLoggerEvent.ACCESS,
             minimumBehandlerRolle = BehandlerRolle.VEILEDER,
-            handling = "hent vedtaksbrev"
+            handling = "hent vedtaksbrev",
         )
 
         val vedtaksbrev = vedtakService.hentAktivVedtakForBehandling(behandlingId).stønadBrevPdf
@@ -106,7 +106,7 @@ class BrevController(
             behandlingId = behandlingId,
             event = AuditLoggerEvent.CREATE,
             minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
-            handling = "Vis og lagre vedtaksbrev"
+            handling = "Vis og lagre vedtaksbrev",
         )
 
         val generertPdf = genererBrevService.genererBrevForBehandling(behandlingId)

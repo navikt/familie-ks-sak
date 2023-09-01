@@ -1,13 +1,13 @@
 package no.nav.familie.ks.sak.config
 
+import jakarta.persistence.EntityManager
+import jakarta.persistence.Table
+import jakarta.transaction.Transactional
 import org.slf4j.LoggerFactory
 import org.springframework.context.annotation.Profile
 import org.springframework.data.relational.core.mapping.RelationalMappingContext
 import org.springframework.data.relational.core.sql.IdentifierProcessing
 import org.springframework.stereotype.Service
-import javax.persistence.EntityManager
-import javax.persistence.Table
-import javax.transaction.Transactional
 import kotlin.reflect.full.findAnnotation
 import org.springframework.data.relational.core.mapping.Table as JdbcTable
 
@@ -15,7 +15,7 @@ import org.springframework.data.relational.core.mapping.Table as JdbcTable
 @Profile("dev", "postgres", "integrasjonstest")
 class DatabaseCleanupService(
     private val entityManager: EntityManager,
-    private val relationalMappingContext: RelationalMappingContext
+    private val relationalMappingContext: RelationalMappingContext,
 ) {
 
     private val logger = LoggerFactory.getLogger(DatabaseCleanupService::class.java)
