@@ -77,7 +77,7 @@ class BeregningService(
             andelerTilkjentYtelseOgEndreteUtbetalingerService.finnEndreteUtbetalingerMedAndelerTilkjentYtelse(behandling.id)
                 .filter {
                     when {
-                        endretUtbetalingAndel != null -> it.id == endretUtbetalingAndel.id
+                        endretUtbetalingAndel != null -> it.id == endretUtbetalingAndel.id || it.andelerTilkjentYtelse.isNotEmpty()
                         else -> it.andelerTilkjentYtelse.isNotEmpty()
                     }
                 }
