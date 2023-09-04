@@ -3,13 +3,13 @@ on:
   push:
     branches:
       - 'main'
-env:
-  IMAGE: ghcr.io/navikt/familie-ks-sak:${{ github.sha }}
-  IMAGE_LATEST: ghcr.io/navikt/familie-ks-sak:latest
 jobs:
   bygg-og-push-til-github:
     name: Bygg app/image, push til github
     runs-on: ubuntu-latest-8-cores
+    permissions:
+      contents: "read"
+      id-token: "write"
     steps:
       - uses: "actions/checkout@v3"
       - uses: "gradle/wrapper-validation-action@v1"
@@ -25,21 +25,18 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: ./gradlew clean build
 
-      - name: Bygg Docker image
-        run: |
-          docker build -t $IMAGE .
-
-      - name: Login to GitHub Container Registry
-        uses: docker/login-action@465a07811f14bebb1938fbed4728c6a1ff8901fc
+      - uses: nais/docker-build-push@v0
+        id: docker-push
         with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          team: teamfamilie
+          tag: latest
+          push_image: true
+          dockerfile: Dockerfile
+          docker_context: .
+          project_id: ${{ vars.NAIS_MANAGEMENT_PROJECT_ID }}
+          identity_provider: ${{ secrets.NAIS_WORKLOAD_IDENTITY_PROVIDER }}
 
-      - name: Push Docker image med versjonstag
-        run: docker push ${IMAGE}
-      - name: Skriv ut docker-taggen
-        run: echo 'Docker-tag er ${{ github.sha }} ' >> $GITHUB_STEP_SUMMARY
+        run: echo 'Docker-tag er ${{ secrets.NAIS_WORKLOAD_IDENTITY_PROVIDER }} ' >> $GITHUB_STEP_SUMMARY
 
   lag-salsa-proveniens:
     name: Lag salsa proveniens
@@ -63,6 +60,9 @@ jobs:
     name: Deploy to dev-gcp
     needs: bygg-og-push-til-github
     runs-on: ubuntu-latest-8-cores
+    permissions:
+      contents: "read"
+      id-token: "write"
     steps:
       - uses: actions/checkout@v3
       - uses: nais/deploy/actions/deploy@v1
@@ -70,11 +70,15 @@ jobs:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: dev-gcp
           RESOURCE: .deploy/nais/app-preprod.yaml
+          IMAGE: ${{ needs.bygg-og-push-til-github.outputs.image }}
 
   deploy-til-prod:
     name: Deploy til prod-gcp
     needs: deploy-til-preprod
     runs-on: ubuntu-latest-8-cores
+    permissions:
+      contents: "read"
+      id-token: "write"
     steps:
       - uses: actions/checkout@v3
       - uses: nais/deploy/actions/deploy@v1
@@ -82,3 +86,4 @@ jobs:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: prod-gcp
           RESOURCE: .deploy/nais/app-prod.yaml
+          IMAGE: ${{ needs.bygg-og-push-til-github.outputs.image }}
