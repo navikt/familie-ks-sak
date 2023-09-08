@@ -48,7 +48,7 @@ jobs:
     needs: bygg-og-push-til-github
     runs-on: ubuntu-latest-8-cores
     permissions:
-      packages: write
+      packages: read
     steps:
       - uses: actions/checkout@v3
 
