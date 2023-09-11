@@ -11,6 +11,9 @@ plugins {
     id("org.jetbrains.kotlin.plugin.allopen") version kotlinVersion
     id("org.jetbrains.kotlin.plugin.noarg") version kotlinVersion
     id("com.github.davidmc24.gradle.plugin.avro") version "1.5.0"
+
+    // ------------- SLSA -------------- //
+    id("org.cyclonedx.bom") version "1.7.4"
 }
 
 group = "no.nav"
@@ -97,9 +100,6 @@ dependencies {
     implementation("no.nav.familie:prosessering-core:$prosesseringVersion")
     implementation("nav-foedselsnummer:core:$navFoedselsnummerVersion")
 
-    // ------------- SLSA -------------- //
-    implementation("org.cyclonedx.bom:1.7.4")
-    
     implementation("com.papertrailapp:logback-syslog4j:1.0.0")
     implementation("io.getunleash:unleash-client-java:6.1.0")
     implementation("io.sentry:sentry-spring-boot-starter:$sentryVersion")
