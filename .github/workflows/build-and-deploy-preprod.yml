@@ -31,12 +31,13 @@ jobs:
         id: docker-push
         with:
           team: teamfamilie
-          tag: latest
           push_image: true
           dockerfile: Dockerfile
           docker_context: .
           project_id: ${{ vars.NAIS_MANAGEMENT_PROJECT_ID }}
           identity_provider: ${{ secrets.NAIS_WORKLOAD_IDENTITY_PROVIDER }}
+    outputs:
+      image: ${{ steps.docker-push.outputs.image }}
 
   deploy-til-preprod:
     name: Deploy to dev-gcp
@@ -49,4 +50,4 @@ jobs:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: dev-gcp
           RESOURCE: .deploy/nais/app-preprod.yaml
-          IMAGE: ${{ steps.docker-push.outputs.image }}
+          IMAGE: ${{ needs.bygg-og-push-til-github.outputs.image }}
