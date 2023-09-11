@@ -97,6 +97,9 @@ dependencies {
     implementation("no.nav.familie:prosessering-core:$prosesseringVersion")
     implementation("nav-foedselsnummer:core:$navFoedselsnummerVersion")
 
+    // ------------- SLSA -------------- //
+    implementation("org.cyclonedx.bom:1.7.4")
+    
     implementation("com.papertrailapp:logback-syslog4j:1.0.0")
     implementation("io.getunleash:unleash-client-java:6.1.0")
     implementation("io.sentry:sentry-spring-boot-starter:$sentryVersion")

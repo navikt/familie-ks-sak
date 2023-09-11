@@ -25,9 +25,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: ./gradlew clean build
 
-      - name: Bygg Docker image
-        run: |
-          docker build -t $IMAGE .
+      - name: Generate and output SBOM
+        run: ./gradlew cyclonedxBom
 
       - uses: nais/docker-build-push@v0
         id: docker-push
@@ -37,6 +36,7 @@ jobs:
           push_image: true
           dockerfile: Dockerfile
           docker_context: .
+          byosbom: build/reports/bom.json
           project_id: ${{ vars.NAIS_MANAGEMENT_PROJECT_ID }}
           identity_provider: ${{ secrets.NAIS_WORKLOAD_IDENTITY_PROVIDER }}
     outputs:
