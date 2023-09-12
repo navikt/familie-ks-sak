@@ -271,6 +271,10 @@ enum class Begrunnelse : IBegrunnelse {
         override val begrunnelseType = BegrunnelseType.AVSLAG
         override val sanityApiNavn = "avslagSokerForSentEndringsperiode"
     },
+    AVSLAG_MOTTAR_FULLE_FORELDREPENGER {
+        override val begrunnelseType = BegrunnelseType.AVSLAG
+        override val sanityApiNavn = "avslagMottarFulleForeldrepenger"
+    },
     OPPHØR_VURDERING_IKKE_MEDLEM_I_FOLKETRYGDEN_I_5_ÅR {
         override val begrunnelseType = BegrunnelseType.OPPHØR
         override val sanityApiNavn = "opphorVurderingIkkeMedlemIFolketrygdenI5Aar"
