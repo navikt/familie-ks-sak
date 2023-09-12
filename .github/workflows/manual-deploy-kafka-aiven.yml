@@ -8,7 +8,7 @@ jobs:
     runs-on: ubuntu-latest-8-cores
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Deploy dvh_vedtak_topic til dev
         uses: nais/deploy/actions/deploy@v1
