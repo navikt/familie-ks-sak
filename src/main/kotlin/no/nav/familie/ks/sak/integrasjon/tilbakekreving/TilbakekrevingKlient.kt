@@ -111,8 +111,6 @@ class TilbakekrevingKlient(
     }
 }
 
-fun encodePath(path: String): String {
-    return UriUtils.encodePath(path, "UTF-8")
-}
+fun encodePath(path: String) = UriUtils.encodePath(path, "UTF-8")
 
 data class FinnesTilbakekrevingBehandlingsresponsDto(val finnesÅpenBehandling: Boolean)
