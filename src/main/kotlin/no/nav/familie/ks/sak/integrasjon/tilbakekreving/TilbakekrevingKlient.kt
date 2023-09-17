@@ -17,6 +17,7 @@ import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
 import org.springframework.stereotype.Service
 import org.springframework.web.client.RestOperations
+import org.springframework.web.util.UriUtils
 import java.net.URI
 
 @Service
@@ -79,7 +80,7 @@ class TilbakekrevingKlient(
 
     fun kanTilbakekrevingsbehandlingOpprettesManuelt(fagsakId: Long): KanBehandlingOpprettesManueltRespons {
         val uri = URI.create(
-            "$familieTilbakeUri/ytelsestype/${Ytelsestype.KONTANTSTØTTE}/fagsak/$fagsakId/kanBehandlingOpprettesManuelt/v1",
+            encodePath("$familieTilbakeUri/ytelsestype/${Ytelsestype.KONTANTSTØTTE}/fagsak/$fagsakId/kanBehandlingOpprettesManuelt/v1"),
         )
 
         return kallEksternTjenesteRessurs(
@@ -100,7 +101,7 @@ class TilbakekrevingKlient(
     }
 
     fun hentTilbakekrevingsvedtak(fagsakId: Long): List<FagsystemVedtak> {
-        val uri = URI.create("$familieTilbakeUri/fagsystem/${Fagsystem.KONT}/fagsak/$fagsakId/vedtak/v1")
+        val uri = URI.create(encodePath("$familieTilbakeUri/fagsystem/${Fagsystem.KONT}/fagsak/$fagsakId/vedtak/v1"))
 
         return kallEksternTjenesteRessurs(
             tjeneste = "familie-tilbake",
@@ -108,6 +109,10 @@ class TilbakekrevingKlient(
             formål = "Henter tilbakekrevingsvedtak på fagsak",
         ) { getForEntity(uri) }
     }
+}
+
+fun encodePath(path: String): String {
+    return UriUtils.encodePath(path, "UTF-8")
 }
 
 data class FinnesTilbakekrevingBehandlingsresponsDto(val finnesÅpenBehandling: Boolean)
