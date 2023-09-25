@@ -10,8 +10,11 @@ import no.nav.familie.kontrakter.felles.dokarkiv.v2.Filtype
 import no.nav.familie.kontrakter.felles.oppgave.IdentGruppe
 import no.nav.familie.kontrakter.felles.oppgave.OppgaveIdentV2
 import no.nav.familie.kontrakter.felles.oppgave.OpprettOppgaveRequest
+import no.nav.familie.ks.sak.api.dto.BarnehagebarnDto
+import no.nav.familie.ks.sak.api.dto.BarnehagebarnRequestParams
 import no.nav.familie.ks.sak.api.dto.ManuellStartKonsistensavstemmingDto
 import no.nav.familie.ks.sak.api.dto.OpprettOppgaveDto
+import no.nav.familie.ks.sak.barnehagelister.BarnehageListeService
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.util.Periode
 import no.nav.familie.ks.sak.config.BehandlerRolle
@@ -31,6 +34,8 @@ import no.nav.familie.prosessering.internal.TaskService
 import no.nav.security.token.support.core.api.ProtectedWithClaims
 import org.slf4j.LoggerFactory
 import org.springframework.core.env.Environment
+import org.springframework.data.domain.Page
+import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.GetMapping
@@ -41,6 +46,7 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import java.time.LocalDate
+import java.util.*
 
 @RestController
 @RequestMapping("/api/forvaltning/")
@@ -55,6 +61,7 @@ class ForvaltningController(
     private val konsistensavstemmingKjøreplanService: KonsistensavstemmingKjøreplanService,
     private val personidentService: PersonidentService,
     private val vilkårsvurderingService: VilkårsvurderingService,
+    private val barnehageListeService: BarnehageListeService,
     private val environment: Environment,
 ) {
 
@@ -197,5 +204,67 @@ class ForvaltningController(
         vilkårsvurderingService.fyllUtVilkårsvurdering(behandlingId)
 
         return ResponseEntity.ok(Ressurs.success("Oppdaterte vilkårsvurdering"))
+    }
+
+    @GetMapping("/barnehageliste/lesOgArkiver/{uuid}")
+    fun lesOgArkiverBarnehageliste(@PathVariable uuid: String): ResponseEntity<Ressurs<String>> {
+        tilgangService.validerTilgangTilHandling(
+            minimumBehandlerRolle = BehandlerRolle.FORVALTER,
+            handling = "teste lesing og arkivering av barnehageliste",
+        )
+        barnehageListeService.lesOgArkiver(UUID.fromString(uuid))
+        return ResponseEntity.ok(Ressurs.success(":)", "Barnehagliste lest og arkivert"))
+    }
+
+    @GetMapping("/barnehageliste/hentUarkvierteBarnehagelisteUuider")
+    fun hentUarkvierteBarnehagelisteUuider(): ResponseEntity<Ressurs<List<String>>> {
+        tilgangService.validerTilgangTilHandling(
+            minimumBehandlerRolle = BehandlerRolle.FORVALTER,
+            handling = "hente ut liste av uarkiverte barnehageliste uuid",
+        )
+        var uuidList = barnehageListeService.hentUarkvierteBarnehagelisteUuider()
+        return ResponseEntity.ok(Ressurs.success(uuidList, "OK"))
+    }
+
+    /* data class BarnehagebarnDto(
+        val antallTreffTotalt: Int,
+        val barnehagebarn: List<Barnehagebarn>,
+    ) */
+
+    /* @PostMapping(
+        path = ["/barnehageliste/hentAlleBarnehagebarn"],
+        consumes = [MediaType.APPLICATION_JSON_VALUE],
+        produces = [MediaType.APPLICATION_JSON_VALUE],
+    )
+    fun hentAlleBarnehagebarn(): ResponseEntity<Ressurs<BarnehagebarnDto>> {
+        tilgangService.validerTilgangTilHandling(
+            minimumBehandlerRolle = BehandlerRolle.FORVALTER,
+            handling = "hente ut alle barnehagebarn",
+        )
+        var alleBarnehagebarn = barnehageListeService.hentAlleBarnehagebarn()
+        var barnehagebarnDTO = BarnehagebarnDto(
+            antallTreffTotalt = alleBarnehagebarn.size,
+            barnehagebarn = alleBarnehagebarn,
+        )
+
+        return ResponseEntity.ok(Ressurs.success(barnehagebarnDTO, "OK"))
+    } */
+
+    /* Seperate Controller ? */
+
+    @PostMapping(
+        path = ["/barnehageliste/hentAlleBarnehagebarnPage"],
+        consumes = [MediaType.APPLICATION_JSON_VALUE],
+        produces = [MediaType.APPLICATION_JSON_VALUE],
+    )
+    fun hentAlleBarnehagebarnPage(@RequestBody(required = true) barnehagebarnRequestParams: BarnehagebarnRequestParams): ResponseEntity<Ressurs<Page<BarnehagebarnDto>>> {
+        tilgangService.validerTilgangTilHandling(
+            minimumBehandlerRolle = BehandlerRolle.FORVALTER,
+            handling = "hente ut alle barnehagebarn",
+        )
+
+        val alleBarnehagebarnPage = barnehageListeService.hentAlleBarnehagebarnPage(barnehagebarnRequestParams)
+
+        return ResponseEntity.ok(Ressurs.success(alleBarnehagebarnPage, "OK"))
     }
 }
