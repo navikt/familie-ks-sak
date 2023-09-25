@@ -7,10 +7,9 @@ import com.fasterxml.jackson.dataformat.xml.XmlMapper
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import jakarta.transaction.Transactional
-import no.nav.familie.ks.sak.api.dto.BarnehagebarnDto
 import no.nav.familie.ks.sak.api.dto.BarnehagebarnRequestParams
 import no.nav.familie.ks.sak.barnehagelister.domene.Barnehagebarn
-import no.nav.familie.ks.sak.barnehagelister.domene.BarnehagebarnMedBehandlingRepository
+import no.nav.familie.ks.sak.barnehagelister.domene.BarnehagebarnDtoInterface
 import no.nav.familie.ks.sak.barnehagelister.domene.BarnehagebarnRepository
 import no.nav.familie.ks.sak.barnehagelister.domene.BarnehagelisteMottatt
 import no.nav.familie.ks.sak.barnehagelister.domene.BarnehagelisteMottattArkiv
@@ -20,6 +19,7 @@ import no.nav.familie.ks.sak.barnehagelister.domene.Melding
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
+import org.springframework.data.domain.Sort
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import java.util.*
@@ -29,7 +29,6 @@ class BarnehageListeService(
     val barnehagelisteMottattRepository: BarnehagelisteMottattRepository,
     val barnehagebarnRepository: BarnehagebarnRepository,
     val barnehagelisteMottattArkivRepository: BarnehagelisteMottattArkivRepository,
-    val barnehagebarnMedBehandlingRepository: BarnehagebarnMedBehandlingRepository,
 ) {
 
     private val xmlDeserializer = XmlMapper(
@@ -84,23 +83,33 @@ class BarnehageListeService(
         return barnehagelisteMottattRepository.findAllIds()
     }
 
-    fun hentAlleBarnehagebarn(): List<Barnehagebarn> {
-        return barnehagebarnRepository.findAll()
-    }
-
-    // fun hentAlleBarnehagebarnPage(barnehagebarnRequestParams: BarnehagebarnRequestParams): Page<Barnehagebarn> {
-    fun hentAlleBarnehagebarnPage(barnehagebarnRequestParams: BarnehagebarnRequestParams): Page<BarnehagebarnDto> {
-        /* var sort = Sort.by("endretTidspunkt").descending()
+    fun hentAlleBarnehagebarnPage(barnehagebarnRequestParams: BarnehagebarnRequestParams): Page<BarnehagebarnDtoInterface> {
+        var sort = Sort.by(getCorrectSortBy("endretTidspunkt")).descending()
         if (barnehagebarnRequestParams.sortBy != null) {
             if (barnehagebarnRequestParams.sortAsc) {
-                sort = Sort.by(barnehagebarnRequestParams.sortBy).ascending()
+                sort = Sort.by(getCorrectSortBy(barnehagebarnRequestParams.sortBy)).ascending()
             } else {
-                sort = Sort.by(barnehagebarnRequestParams.sortBy).descending()
+                sort = Sort.by(getCorrectSortBy(barnehagebarnRequestParams.sortBy)).descending()
             }
-        } */
-        val pageable: Pageable = PageRequest.of(barnehagebarnRequestParams.offset ?: 0, barnehagebarnRequestParams.limit ?: 50) // sort
+        }
+        val pageable: Pageable = PageRequest.of(barnehagebarnRequestParams.offset ?: 0, barnehagebarnRequestParams.limit ?: 50, sort) // sort
 
-        // return barnehagebarnRepository.findAll(pageable)
-        return barnehagebarnMedBehandlingRepository.hentData(barnehagebarnRequestParams.toSql(), barnehagebarnRequestParams.toCountSql(), pageable)
+        if (!barnehagebarnRequestParams.ident.isNullOrEmpty()) {
+            return barnehagebarnRepository.findBarnehagebarnByIdent(barnehagebarnRequestParams.ident, pageable)
+        } else if (!barnehagebarnRequestParams.kommuneNavn.isNullOrEmpty()) {
+            return barnehagebarnRepository.findBarnehagebarnByKommuneNavn(barnehagebarnRequestParams.kommuneNavn, pageable)
+        } else {
+            return barnehagebarnRepository.findBarnehagebarn(pageable)
+        }
+    }
+
+    private fun getCorrectSortBy(sortBy: String): String {
+        return when (sortBy.lowercase()) {
+            "endrettidspunkt" -> "endret_tid"
+            "kommunenavn" -> "kommune_navn"
+            "kommunenr" -> "kommune_nr"
+            "antalltimeribarnehage" -> "antall_timer_i_barnehage"
+            else -> sortBy
+        }
     }
 }

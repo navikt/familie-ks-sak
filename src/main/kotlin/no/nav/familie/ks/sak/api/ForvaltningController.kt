@@ -10,11 +10,11 @@ import no.nav.familie.kontrakter.felles.dokarkiv.v2.Filtype
 import no.nav.familie.kontrakter.felles.oppgave.IdentGruppe
 import no.nav.familie.kontrakter.felles.oppgave.OppgaveIdentV2
 import no.nav.familie.kontrakter.felles.oppgave.OpprettOppgaveRequest
-import no.nav.familie.ks.sak.api.dto.BarnehagebarnDto
 import no.nav.familie.ks.sak.api.dto.BarnehagebarnRequestParams
 import no.nav.familie.ks.sak.api.dto.ManuellStartKonsistensavstemmingDto
 import no.nav.familie.ks.sak.api.dto.OpprettOppgaveDto
 import no.nav.familie.ks.sak.barnehagelister.BarnehageListeService
+import no.nav.familie.ks.sak.barnehagelister.domene.BarnehagebarnDtoInterface
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.util.Periode
 import no.nav.familie.ks.sak.config.BehandlerRolle
@@ -257,7 +257,7 @@ class ForvaltningController(
         consumes = [MediaType.APPLICATION_JSON_VALUE],
         produces = [MediaType.APPLICATION_JSON_VALUE],
     )
-    fun hentAlleBarnehagebarnPage(@RequestBody(required = true) barnehagebarnRequestParams: BarnehagebarnRequestParams): ResponseEntity<Ressurs<Page<BarnehagebarnDto>>> {
+    fun hentAlleBarnehagebarnPage(@RequestBody(required = true) barnehagebarnRequestParams: BarnehagebarnRequestParams): ResponseEntity<Ressurs<Page<BarnehagebarnDtoInterface>>> {
         tilgangService.validerTilgangTilHandling(
             minimumBehandlerRolle = BehandlerRolle.FORVALTER,
             handling = "hente ut alle barnehagebarn",
