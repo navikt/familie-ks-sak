@@ -226,32 +226,6 @@ class ForvaltningController(
         return ResponseEntity.ok(Ressurs.success(uuidList, "OK"))
     }
 
-    /* data class BarnehagebarnDto(
-        val antallTreffTotalt: Int,
-        val barnehagebarn: List<Barnehagebarn>,
-    ) */
-
-    /* @PostMapping(
-        path = ["/barnehageliste/hentAlleBarnehagebarn"],
-        consumes = [MediaType.APPLICATION_JSON_VALUE],
-        produces = [MediaType.APPLICATION_JSON_VALUE],
-    )
-    fun hentAlleBarnehagebarn(): ResponseEntity<Ressurs<BarnehagebarnDto>> {
-        tilgangService.validerTilgangTilHandling(
-            minimumBehandlerRolle = BehandlerRolle.FORVALTER,
-            handling = "hente ut alle barnehagebarn",
-        )
-        var alleBarnehagebarn = barnehageListeService.hentAlleBarnehagebarn()
-        var barnehagebarnDTO = BarnehagebarnDto(
-            antallTreffTotalt = alleBarnehagebarn.size,
-            barnehagebarn = alleBarnehagebarn,
-        )
-
-        return ResponseEntity.ok(Ressurs.success(barnehagebarnDTO, "OK"))
-    } */
-
-    /* Seperate Controller ? */
-
     @PostMapping(
         path = ["/barnehageliste/hentAlleBarnehagebarnPage"],
         consumes = [MediaType.APPLICATION_JSON_VALUE],
