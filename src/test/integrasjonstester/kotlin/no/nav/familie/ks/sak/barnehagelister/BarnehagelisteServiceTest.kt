@@ -75,7 +75,7 @@ class BarnehagelisteServiceTest(
 
     @Test
     fun `test lagring av entiteter fra XML melding`() {
-        var barnehagelisteMottatt = BarnehagelisteMottatt(
+        val barnehagelisteMottatt = BarnehagelisteMottatt(
             melding = barnehagelisteXml,
             meldingId = "testId",
             mottatTid = LocalDateTime.now(),
@@ -83,7 +83,7 @@ class BarnehagelisteServiceTest(
         barnehageListeService.lagreBarnehagelisteMottatt(barnehagelisteMottatt)
         assertNotNull(barnehageListeService.hentUarkvierteBarnehagelisteUuider())
         barnehageListeService.lesOgArkiver(barnehagelisteMottatt.id)
-        var barnehagebarn = barnehageListeService.hentBarnehagebarn("123456789")
+        val barnehagebarn = barnehageListeService.hentBarnehagebarn("123456789")
         assertNotNull(barnehagebarn)
         assertEquals("Oslo", barnehagebarn.kommuneNavn)
         assertEquals("0301", barnehagebarn.kommuneNr)
@@ -96,7 +96,7 @@ class BarnehagelisteServiceTest(
 
     @Test
     fun `test parsing av barnehageliste melding XML til DTO`() {
-        var melding = barnehageListeService.lesBarnehagelisteMottattMeldingXml(barnehagelisteXml)
+        val melding = barnehageListeService.lesBarnehagelisteMottattMeldingXml(barnehagelisteXml)
         assertNotNull(melding)
         assertEquals("Oslo", melding.skjema.listeopplysninger.kommuneNavn)
         assertEquals("0301", melding.skjema.listeopplysninger.kommuneNr)

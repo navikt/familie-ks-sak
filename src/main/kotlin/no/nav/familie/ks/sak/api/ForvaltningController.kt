@@ -222,7 +222,7 @@ class ForvaltningController(
             minimumBehandlerRolle = BehandlerRolle.FORVALTER,
             handling = "hente ut liste av uarkiverte barnehageliste uuid",
         )
-        var uuidList = barnehageListeService.hentUarkvierteBarnehagelisteUuider()
+        val uuidList = barnehageListeService.hentUarkvierteBarnehagelisteUuider()
         return ResponseEntity.ok(Ressurs.success(uuidList, "OK"))
     }
 

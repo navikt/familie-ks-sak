@@ -20,7 +20,6 @@ import no.nav.familie.ks.sak.barnehagelister.domene.Melding
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
-import org.springframework.data.domain.Sort
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import java.util.*
@@ -53,10 +52,10 @@ class BarnehageListeService(
 
     @Transactional
     fun lesOgArkiver(uuid: UUID) {
-        var barnehagelisteMottatt = barnehagelisteMottattRepository.findByIdOrNull(uuid)
+        val barnehagelisteMottatt = barnehagelisteMottattRepository.findByIdOrNull(uuid)
 
         if (barnehagelisteMottatt != null) {
-            val barnehagelisteMelding = lesBarnehagelisteMottattMeldingXml(barnehagelisteMottatt?.melding)
+            val barnehagelisteMelding = lesBarnehagelisteMottattMeldingXml(barnehagelisteMottatt.melding)
             val barnehagelister = barnehagelisteMelding.skjema.barnInfolinjer.map { it ->
                 it.tilBarnehagelisteEntitet(kommuneNavn = barnehagelisteMelding.skjema.listeopplysninger.kommuneNavn, kommuneNr = barnehagelisteMelding.skjema.listeopplysninger.kommuneNr)
             }
