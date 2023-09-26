@@ -80,7 +80,7 @@ class BarnehagelisteServiceTest(
             meldingId = "testId",
             mottatTid = LocalDateTime.now(),
         )
-        barnehageListeService.lagreBarnehagelisteMottatt(barnehagelisteMottatt)
+        barnehageListeService.lagreBarnehagelisteMottattOgOpprettTaskForLesing(barnehagelisteMottatt)
         assertNotNull(barnehageListeService.hentUarkvierteBarnehagelisteUuider())
         barnehageListeService.lesOgArkiver(barnehagelisteMottatt.id)
         val barnehagebarn = barnehageListeService.hentBarnehagebarn("123456789")
