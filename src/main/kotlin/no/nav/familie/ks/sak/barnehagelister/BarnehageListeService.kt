@@ -16,6 +16,7 @@ import no.nav.familie.ks.sak.barnehagelister.domene.BarnehagelisteMottattArkiv
 import no.nav.familie.ks.sak.barnehagelister.domene.BarnehagelisteMottattArkivRepository
 import no.nav.familie.ks.sak.barnehagelister.domene.BarnehagelisteMottattRepository
 import no.nav.familie.ks.sak.barnehagelister.domene.Melding
+import no.nav.familie.prosessering.internal.TaskService
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
@@ -28,6 +29,7 @@ import java.util.*
 class BarnehageListeService(
     val barnehagelisteMottattRepository: BarnehagelisteMottattRepository,
     val barnehagebarnRepository: BarnehagebarnRepository,
+    val taskService: TaskService,
     val barnehagelisteMottattArkivRepository: BarnehagelisteMottattArkivRepository,
 ) {
 
@@ -41,12 +43,21 @@ class BarnehageListeService(
         .registerModule(JavaTimeModule())
 
     @Transactional
-    fun lagreBarnehagelisteMottatt(barnehagelisteMottatt: BarnehagelisteMottatt) {
-        barnehagelisteMottattRepository.save(barnehagelisteMottatt)
+    fun lagreBarnehagelisteMottattOgOpprettTaskForLesing(barnehagelisteMottatt: BarnehagelisteMottatt): BarnehagelisteMottatt {
+        val barnehagelisteMottatt = barnehagelisteMottattRepository.save(barnehagelisteMottatt)
+        taskService.save(
+            LesOgArkiverBarnehagelisteTask.opprettTask(
+                barnehagelisteId = barnehagelisteMottatt.id,
+                arkivreferanse = barnehagelisteMottatt.meldingId
+            )
+        )
+        return barnehagelisteMottatt
     }
 
     fun erListenMottattTidligere(meldingId: String): Boolean {
-        return barnehagelisteMottattRepository.existsByMeldingId(meldingId) || barnehagelisteMottattArkivRepository.existsByMeldingId(meldingId)
+        return barnehagelisteMottattRepository.existsByMeldingId(meldingId) || barnehagelisteMottattArkivRepository.existsByMeldingId(
+            meldingId
+        )
     }
 
     @Transactional
@@ -56,7 +67,10 @@ class BarnehageListeService(
         if (barnehagelisteMottatt != null) {
             val barnehagelisteMelding = lesBarnehagelisteMottattMeldingXml(barnehagelisteMottatt.melding)
             val barnehagelister = barnehagelisteMelding.skjema.barnInfolinjer.map { it ->
-                it.tilBarnehagelisteEntitet(kommuneNavn = barnehagelisteMelding.skjema.listeopplysninger.kommuneNavn, kommuneNr = barnehagelisteMelding.skjema.listeopplysninger.kommuneNr)
+                it.tilBarnehagelisteEntitet(
+                    kommuneNavn = barnehagelisteMelding.skjema.listeopplysninger.kommuneNavn,
+                    kommuneNr = barnehagelisteMelding.skjema.listeopplysninger.kommuneNr
+                )
             }
             barnehagebarnRepository.saveAll(barnehagelister)
             barnehagelisteMottattArkivRepository.save(
@@ -92,12 +106,16 @@ class BarnehageListeService(
                 sort = Sort.by(getCorrectSortBy(barnehagebarnRequestParams.sortBy)).descending()
             }
         }
-        val pageable: Pageable = PageRequest.of(barnehagebarnRequestParams.offset ?: 0, barnehagebarnRequestParams.limit ?: 50, sort) // sort
+        val pageable: Pageable =
+            PageRequest.of(barnehagebarnRequestParams.offset ?: 0, barnehagebarnRequestParams.limit ?: 50, sort) // sort
 
         if (!barnehagebarnRequestParams.ident.isNullOrEmpty()) {
             return barnehagebarnRepository.findBarnehagebarnByIdent(barnehagebarnRequestParams.ident, pageable)
         } else if (!barnehagebarnRequestParams.kommuneNavn.isNullOrEmpty()) {
-            return barnehagebarnRepository.findBarnehagebarnByKommuneNavn(barnehagebarnRequestParams.kommuneNavn, pageable)
+            return barnehagebarnRepository.findBarnehagebarnByKommuneNavn(
+                barnehagebarnRequestParams.kommuneNavn,
+                pageable
+            )
         } else {
             return barnehagebarnRepository.findBarnehagebarn(pageable)
         }
