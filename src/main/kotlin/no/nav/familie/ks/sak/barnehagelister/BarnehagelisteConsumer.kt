@@ -36,7 +36,7 @@ class BarnehagelisteConsumer(val barnehageListeService: BarnehageListeService) {
             return
         }
 
-        barnehageListeService.lagreBarnehageliste(
+        barnehageListeService.lagreBarnehagelisteMottatt(
             BarnehagelisteMottatt(
                 meldingId = key,
                 melding = data.xmlMessage,
