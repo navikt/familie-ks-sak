@@ -93,7 +93,7 @@ class BarnehageListeService(
         return barnehagebarnRepository.findByIdent(ident)
     }
 
-    fun hentUarkvierteBarnehagelisteUuider(): List<String> {
+    fun hentUarkiverteBarnehagelisteUuider(): List<String> {
         return barnehagelisteMottattRepository.findAllIds()
     }
 
