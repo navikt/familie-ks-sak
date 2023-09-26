@@ -48,15 +48,15 @@ class BarnehageListeService(
         taskService.save(
             LesOgArkiverBarnehagelisteTask.opprettTask(
                 barnehagelisteId = barnehagelisteMottatt.id,
-                arkivreferanse = barnehagelisteMottatt.meldingId
-            )
+                arkivreferanse = barnehagelisteMottatt.meldingId,
+            ),
         )
         return barnehagelisteMottatt
     }
 
     fun erListenMottattTidligere(meldingId: String): Boolean {
         return barnehagelisteMottattRepository.existsByMeldingId(meldingId) || barnehagelisteMottattArkivRepository.existsByMeldingId(
-            meldingId
+            meldingId,
         )
     }
 
@@ -69,7 +69,7 @@ class BarnehageListeService(
             val barnehagelister = barnehagelisteMelding.skjema.barnInfolinjer.map { it ->
                 it.tilBarnehagelisteEntitet(
                     kommuneNavn = barnehagelisteMelding.skjema.listeopplysninger.kommuneNavn,
-                    kommuneNr = barnehagelisteMelding.skjema.listeopplysninger.kommuneNr
+                    kommuneNr = barnehagelisteMelding.skjema.listeopplysninger.kommuneNr,
                 )
             }
             barnehagebarnRepository.saveAll(barnehagelister)
@@ -114,7 +114,7 @@ class BarnehageListeService(
         } else if (!barnehagebarnRequestParams.kommuneNavn.isNullOrEmpty()) {
             return barnehagebarnRepository.findBarnehagebarnByKommuneNavn(
                 barnehagebarnRequestParams.kommuneNavn,
-                pageable
+                pageable,
             )
         } else {
             return barnehagebarnRepository.findBarnehagebarn(pageable)
