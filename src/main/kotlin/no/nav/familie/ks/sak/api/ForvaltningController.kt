@@ -217,12 +217,12 @@ class ForvaltningController(
     }
 
     @GetMapping("/barnehageliste/hentUarkvierteBarnehagelisteUuider")
-    fun hentUarkvierteBarnehagelisteUuider(): ResponseEntity<Ressurs<List<String>>> {
+    fun hentUarkiverteBarnehagelisteUuider(): ResponseEntity<Ressurs<List<String>>> {
         tilgangService.validerTilgangTilHandling(
             minimumBehandlerRolle = BehandlerRolle.FORVALTER,
             handling = "hente ut liste av uarkiverte barnehageliste uuid",
         )
-        val uuidList = barnehageListeService.hentUarkvierteBarnehagelisteUuider()
+        val uuidList = barnehageListeService.hentUarkiverteBarnehagelisteUuider()
         return ResponseEntity.ok(Ressurs.success(uuidList, "OK"))
     }
 
