@@ -70,6 +70,7 @@ class BarnehageListeService(
                 it.tilBarnehagelisteEntitet(
                     kommuneNavn = barnehagelisteMelding.skjema.listeopplysninger.kommuneNavn,
                     kommuneNr = barnehagelisteMelding.skjema.listeopplysninger.kommuneNr,
+                    arkivReferanse = barnehagelisteMottatt.meldingId,
                 )
             }
             barnehagebarnRepository.saveAll(barnehagelister)
@@ -98,7 +99,17 @@ class BarnehageListeService(
     }
 
     fun hentAlleBarnehagebarnPage(barnehagebarnRequestParams: BarnehagebarnRequestParams): Page<BarnehagebarnDtoInterface> {
-        var sort = Sort.by(getCorrectSortBy("endretTidspunkt")).descending()
+        var sort = Sort.by(getCorrectSortBy("kommuneNavn")).descending()
+        var fagsakstatuser =
+            if (barnehagebarnRequestParams.kunLøpendeFagsak) {
+                listOf("LØPENDE", "OPPRETTET")
+            } else {
+                listOf(
+                    "LØPENDE",
+                    "OPPRETTET",
+                    "AVSLUTTET",
+                )
+            }
         if (barnehagebarnRequestParams.sortBy != null) {
             if (barnehagebarnRequestParams.sortAsc) {
                 sort = Sort.by(getCorrectSortBy(barnehagebarnRequestParams.sortBy)).ascending()
@@ -110,14 +121,19 @@ class BarnehageListeService(
             PageRequest.of(barnehagebarnRequestParams.offset ?: 0, barnehagebarnRequestParams.limit ?: 50, sort) // sort
 
         if (!barnehagebarnRequestParams.ident.isNullOrEmpty()) {
-            return barnehagebarnRepository.findBarnehagebarnByIdent(barnehagebarnRequestParams.ident, pageable)
+            return barnehagebarnRepository.findBarnehagebarnByIdent(
+                fagsakStatuser = fagsakstatuser,
+                ident = barnehagebarnRequestParams.ident,
+                pageable = pageable,
+            )
         } else if (!barnehagebarnRequestParams.kommuneNavn.isNullOrEmpty()) {
             return barnehagebarnRepository.findBarnehagebarnByKommuneNavn(
+                fagsakStatuser = fagsakstatuser,
                 barnehagebarnRequestParams.kommuneNavn,
                 pageable,
             )
         } else {
-            return barnehagebarnRepository.findBarnehagebarn(pageable)
+            return barnehagebarnRepository.findBarnehagebarn(fagsakStatuser = fagsakstatuser, pageable = pageable)
         }
     }
 

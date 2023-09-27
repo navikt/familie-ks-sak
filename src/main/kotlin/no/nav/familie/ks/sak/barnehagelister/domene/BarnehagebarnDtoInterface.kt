@@ -12,7 +12,7 @@ interface BarnehagebarnDtoInterface {
     fun getEndringstype(): String
     fun getKommuneNavn(): String
     fun getKommuneNr(): String
-    fun getEndretTidspunkt(): String
     fun getBehandlingId(): Long
     fun getFagsakId(): Long
+    fun getFagsakstatus(): String
 }
