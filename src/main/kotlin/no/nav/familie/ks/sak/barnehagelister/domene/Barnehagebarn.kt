@@ -28,4 +28,6 @@ data class Barnehagebarn(
     var kommuneNavn: String,
     @Column(name = "KOMMUNE_NR", nullable = false, updatable = false)
     var kommuneNr: String,
+    @Column(name = "ARKIV_REFERANSE", nullable = false, updatable = false)
+    var arkivReferanse: String
 ) : BaseEntitet()
