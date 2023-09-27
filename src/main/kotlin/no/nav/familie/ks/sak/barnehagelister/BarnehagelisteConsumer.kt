@@ -36,13 +36,14 @@ class BarnehagelisteConsumer(val barnehageListeService: BarnehageListeService) {
             return
         }
 
-        barnehageListeService.lagreBarnehagelisteMottatt(
+        barnehageListeService.lagreBarnehagelisteMottattOgOpprettTaskForLesing(
             BarnehagelisteMottatt(
                 meldingId = key,
                 melding = data.xmlMessage,
                 mottatTid = LocalDateTime.now(),
             ),
         )
+
         ack.acknowledge()
     }
 }
