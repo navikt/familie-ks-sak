@@ -98,7 +98,7 @@ class BarnehageListeService(
                 listOf(
                     "LØPENDE",
                     "OPPRETTET",
-                    "AVSLUTTET"
+                    "AVSLUTTET",
                 )
             }
         if (barnehagebarnRequestParams.sortBy != null) {
