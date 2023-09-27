@@ -32,7 +32,7 @@ data class BarnInfolinje(
     var endringstype: String,
 ) {
 
-    fun tilBarnehagelisteEntitet(kommuneNavn: String, kommuneNr: String): Barnehagebarn {
+    fun tilBarnehagelisteEntitet(kommuneNavn: String, kommuneNr: String, arkivReferanse: String): Barnehagebarn {
         return Barnehagebarn(
             ident = this.barn.fodselsnummer,
             fom = this.startdato,
@@ -41,6 +41,7 @@ data class BarnInfolinje(
             endringstype = this.endringstype,
             kommuneNavn = kommuneNavn,
             kommuneNr = kommuneNr,
+            arkivReferanse = arkivReferanse,
         )
     }
 }

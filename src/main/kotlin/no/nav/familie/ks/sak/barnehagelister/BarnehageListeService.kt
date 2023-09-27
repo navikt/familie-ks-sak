@@ -56,7 +56,11 @@ class BarnehageListeService(
         if (barnehagelisteMottatt != null) {
             val barnehagelisteMelding = lesBarnehagelisteMottattMeldingXml(barnehagelisteMottatt.melding)
             val barnehagelister = barnehagelisteMelding.skjema.barnInfolinjer.map { it ->
-                it.tilBarnehagelisteEntitet(kommuneNavn = barnehagelisteMelding.skjema.listeopplysninger.kommuneNavn, kommuneNr = barnehagelisteMelding.skjema.listeopplysninger.kommuneNr)
+                it.tilBarnehagelisteEntitet(
+                    kommuneNavn = barnehagelisteMelding.skjema.listeopplysninger.kommuneNavn,
+                    kommuneNr = barnehagelisteMelding.skjema.listeopplysninger.kommuneNr,
+                    arkivReferanse = barnehagelisteMottatt.meldingId,
+                )
             }
             barnehagebarnRepository.saveAll(barnehagelister)
             barnehagelisteMottattArkivRepository.save(

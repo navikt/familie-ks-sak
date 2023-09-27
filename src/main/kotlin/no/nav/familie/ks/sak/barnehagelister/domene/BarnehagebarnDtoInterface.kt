@@ -15,4 +15,5 @@ interface BarnehagebarnDtoInterface {
     fun getEndretTidspunkt(): String
     fun getBehandlingId(): Long
     fun getFagsakId(): Long
+    fun getFagsakstatus(): String
 }
