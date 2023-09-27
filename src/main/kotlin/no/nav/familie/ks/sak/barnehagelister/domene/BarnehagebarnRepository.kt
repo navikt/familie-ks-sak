@@ -13,7 +13,7 @@ interface BarnehagebarnRepository : JpaRepository<Barnehagebarn, UUID> { // , Jp
         """
             SELECT CAST(bb.id as text) as id, bb.ident as ident, bb.fom as fom, bb.tom as tom, bb.antall_timer_i_barnehage as antallTimerIBarnehage, 
             bb.endringstype as endringstype, bb.kommune_navn as kommuneNavn, bb.kommune_nr as kommuneNr, bb.endret_tid as endretTidspunkt,
-            b.id as behandlingId, f.id as fagsakId
+            b.id as behandlingId, f.id as fagsakId, f.status as fagsakstatus
             FROM barnehagebarn bb
             INNER JOIN personident p ON bb.ident = p.foedselsnummer AND p.aktiv = true
             INNER JOIN po_person pp ON p.fk_aktoer_id = pp.fk_aktoer_id
@@ -28,7 +28,7 @@ interface BarnehagebarnRepository : JpaRepository<Barnehagebarn, UUID> { // , Jp
         """
             SELECT CAST(bb.id as text) as id, bb.ident as ident, bb.fom as fom, bb.tom as tom, bb.antall_timer_i_barnehage as antallTimerIBarnehage, 
             bb.endringstype as endringstype, bb.kommune_navn as kommuneNavn, bb.kommune_nr as kommuneNr, bb.endret_tid as endretTidspunkt,
-            b.id as behandlingId, f.id as fagsakId
+            b.id as behandlingId, f.id as fagsakId, f.status as fagsakstatus
             FROM barnehagebarn bb
             INNER JOIN personident p ON bb.ident = p.foedselsnummer AND p.aktiv = true
             INNER JOIN po_person pp ON p.fk_aktoer_id = pp.fk_aktoer_id
@@ -43,7 +43,7 @@ interface BarnehagebarnRepository : JpaRepository<Barnehagebarn, UUID> { // , Jp
         """
             SELECT CAST(bb.id as text) as id, bb.ident as ident, bb.fom as fom, bb.tom as tom, bb.antall_timer_i_barnehage as antallTimerIBarnehage, 
             bb.endringstype as endringstype, bb.kommune_navn as kommuneNavn, bb.kommune_nr as kommuneNr, bb.endret_tid as endretTidspunkt,
-            b.id as behandlingId, f.id as fagsakId
+            b.id as behandlingId, f.id as fagsakId, f.status as fagsakstatus
             FROM barnehagebarn bb
             INNER JOIN personident p ON bb.ident = p.foedselsnummer AND p.aktiv = true
             INNER JOIN po_person pp ON p.fk_aktoer_id = pp.fk_aktoer_id
@@ -58,7 +58,7 @@ interface BarnehagebarnRepository : JpaRepository<Barnehagebarn, UUID> { // , Jp
         """
             SELECT CAST(bb.id as text) as id, bb.ident as ident, bb.fom as fom, bb.tom as tom, bb.antall_timer_i_barnehage as antallTimerIBarnehage, 
             bb.endringstype as endringstype, bb.kommune_navn as kommuneNavn, bb.kommune_nr as kommuneNr, bb.endret_tid as endretTidspunkt,
-            b.id as behandlingId, f.id as fagsakId
+            b.id as behandlingId, f.id as fagsakId, f.status as fagsakstatus
             FROM barnehagebarn bb
             INNER JOIN personident p ON bb.ident = p.foedselsnummer AND p.aktiv = true
             INNER JOIN po_person pp ON p.fk_aktoer_id = pp.fk_aktoer_id
