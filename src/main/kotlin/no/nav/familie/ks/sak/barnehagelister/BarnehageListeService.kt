@@ -47,7 +47,7 @@ class BarnehageListeService(
 
     fun erListenMottattTidligere(meldingId: String): Boolean {
         return barnehagelisteMottattRepository.existsByMeldingId(meldingId) || barnehagelisteMottattArkivRepository.existsByMeldingId(
-            meldingId
+            meldingId,
         )
     }
 
@@ -113,7 +113,7 @@ class BarnehageListeService(
             return barnehagebarnRepository.findBarnehagebarnByKommuneNavn(
                 fagsakStatus = fagsakstatus,
                 barnehagebarnRequestParams.kommuneNavn,
-                pageable
+                pageable,
             )
         } else {
             return barnehagebarnRepository.findBarnehagebarn(fagsakStatus = fagsakstatus, pageable = pageable)
