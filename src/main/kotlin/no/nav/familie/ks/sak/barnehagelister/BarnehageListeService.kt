@@ -46,7 +46,9 @@ class BarnehageListeService(
     }
 
     fun erListenMottattTidligere(meldingId: String): Boolean {
-        return barnehagelisteMottattRepository.existsByMeldingId(meldingId) || barnehagelisteMottattArkivRepository.existsByMeldingId(meldingId)
+        return barnehagelisteMottattRepository.existsByMeldingId(meldingId) || barnehagelisteMottattArkivRepository.existsByMeldingId(
+            meldingId,
+        )
     }
 
     @Transactional
@@ -88,7 +90,9 @@ class BarnehageListeService(
     }
 
     fun hentAlleBarnehagebarnPage(barnehagebarnRequestParams: BarnehagebarnRequestParams): Page<BarnehagebarnDtoInterface> {
-        var sort = Sort.by(getCorrectSortBy("endretTidspunkt")).descending()
+        var sort = Sort.by(getCorrectSortBy("kommuneNavn")).descending()
+        var fagsakstatus =
+            if (barnehagebarnRequestParams.kunLøpendeFagsak) "LØPENDE,OPPRETTET" else "LØPENDE,OPPRETTET,AVSLUTTET"
         if (barnehagebarnRequestParams.sortBy != null) {
             if (barnehagebarnRequestParams.sortAsc) {
                 sort = Sort.by(getCorrectSortBy(barnehagebarnRequestParams.sortBy)).ascending()
@@ -96,14 +100,23 @@ class BarnehageListeService(
                 sort = Sort.by(getCorrectSortBy(barnehagebarnRequestParams.sortBy)).descending()
             }
         }
-        val pageable: Pageable = PageRequest.of(barnehagebarnRequestParams.offset ?: 0, barnehagebarnRequestParams.limit ?: 50, sort) // sort
+        val pageable: Pageable =
+            PageRequest.of(barnehagebarnRequestParams.offset ?: 0, barnehagebarnRequestParams.limit ?: 50, sort) // sort
 
         if (!barnehagebarnRequestParams.ident.isNullOrEmpty()) {
-            return barnehagebarnRepository.findBarnehagebarnByIdent(barnehagebarnRequestParams.ident, pageable)
+            return barnehagebarnRepository.findBarnehagebarnByIdent(
+                fagsakStatus = fagsakstatus,
+                ident = barnehagebarnRequestParams.ident,
+                pageable = pageable,
+            )
         } else if (!barnehagebarnRequestParams.kommuneNavn.isNullOrEmpty()) {
-            return barnehagebarnRepository.findBarnehagebarnByKommuneNavn(barnehagebarnRequestParams.kommuneNavn, pageable)
+            return barnehagebarnRepository.findBarnehagebarnByKommuneNavn(
+                fagsakStatus = fagsakstatus,
+                barnehagebarnRequestParams.kommuneNavn,
+                pageable,
+            )
         } else {
-            return barnehagebarnRepository.findBarnehagebarn(pageable)
+            return barnehagebarnRepository.findBarnehagebarn(fagsakStatus = fagsakstatus, pageable = pageable)
         }
     }
 
