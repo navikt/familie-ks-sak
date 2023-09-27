@@ -91,8 +91,16 @@ class BarnehageListeService(
 
     fun hentAlleBarnehagebarnPage(barnehagebarnRequestParams: BarnehagebarnRequestParams): Page<BarnehagebarnDtoInterface> {
         var sort = Sort.by(getCorrectSortBy("kommuneNavn")).descending()
-        var fagsakstatus =
-            if (barnehagebarnRequestParams.kunLøpendeFagsak) "LØPENDE,OPPRETTET" else "LØPENDE,OPPRETTET,AVSLUTTET"
+        var fagsakstatuser =
+            if (barnehagebarnRequestParams.kunLøpendeFagsak) {
+                listOf("LØPENDE", "OPPRETTET")
+            } else {
+                listOf(
+                    "LØPENDE",
+                    "OPPRETTET",
+                    "AVSLUTTET"
+                )
+            }
         if (barnehagebarnRequestParams.sortBy != null) {
             if (barnehagebarnRequestParams.sortAsc) {
                 sort = Sort.by(getCorrectSortBy(barnehagebarnRequestParams.sortBy)).ascending()
@@ -105,18 +113,18 @@ class BarnehageListeService(
 
         if (!barnehagebarnRequestParams.ident.isNullOrEmpty()) {
             return barnehagebarnRepository.findBarnehagebarnByIdent(
-                fagsakStatus = fagsakstatus,
+                fagsakStatuser = fagsakstatuser,
                 ident = barnehagebarnRequestParams.ident,
                 pageable = pageable,
             )
         } else if (!barnehagebarnRequestParams.kommuneNavn.isNullOrEmpty()) {
             return barnehagebarnRepository.findBarnehagebarnByKommuneNavn(
-                fagsakStatus = fagsakstatus,
+                fagsakStatuser = fagsakstatuser,
                 barnehagebarnRequestParams.kommuneNavn,
                 pageable,
             )
         } else {
-            return barnehagebarnRepository.findBarnehagebarn(fagsakStatus = fagsakstatus, pageable = pageable)
+            return barnehagebarnRepository.findBarnehagebarn(fagsakStatuser = fagsakstatuser, pageable = pageable)
         }
     }
 
