@@ -19,10 +19,11 @@ interface BarnehagebarnRepository : JpaRepository<Barnehagebarn, UUID> { // , Jp
             INNER JOIN po_person pp ON p.fk_aktoer_id = pp.fk_aktoer_id
             INNER JOIN gr_personopplysninger go ON pp.fk_gr_personopplysninger_id = go.id
             INNER JOIN behandling b ON go.fk_behandling_id = b.id AND b.aktiv = true
-            INNER JOIN fagsak f ON b.fk_fagsak_id = f.id AND f.arkivert = false""",
+            INNER JOIN fagsak f ON b.fk_fagsak_id = f.id AND f.arkivert = false
+            AND f.status IN :fagsakStatus""",
         nativeQuery = true,
     )
-    fun findBarnehagebarn(pageable: Pageable): Page<BarnehagebarnDtoInterface>
+    fun findBarnehagebarn(fagsakStatus: String, pageable: Pageable): Page<BarnehagebarnDtoInterface>
 
     @Query(
         """
@@ -34,10 +35,16 @@ interface BarnehagebarnRepository : JpaRepository<Barnehagebarn, UUID> { // , Jp
             INNER JOIN po_person pp ON p.fk_aktoer_id = pp.fk_aktoer_id
             INNER JOIN gr_personopplysninger go ON pp.fk_gr_personopplysninger_id = go.id
             INNER JOIN behandling b ON go.fk_behandling_id = b.id AND b.aktiv = true
-            INNER JOIN fagsak f ON b.fk_fagsak_id = f.id AND f.arkivert = false WHERE bb.ident = :ident""",
+            INNER JOIN fagsak f ON b.fk_fagsak_id = f.id AND f.arkivert = false WHERE bb.ident = :ident
+            AND f.status IN :fagsakStatus
+            """,
         nativeQuery = true,
     )
-    fun findBarnehagebarnByIdent(ident: String, pageable: Pageable): Page<BarnehagebarnDtoInterface>
+    fun findBarnehagebarnByIdent(
+        fagsakStatus: String,
+        ident: String,
+        pageable: Pageable,
+    ): Page<BarnehagebarnDtoInterface>
 
     @Query(
         """
@@ -49,10 +56,15 @@ interface BarnehagebarnRepository : JpaRepository<Barnehagebarn, UUID> { // , Jp
             INNER JOIN po_person pp ON p.fk_aktoer_id = pp.fk_aktoer_id
             INNER JOIN gr_personopplysninger go ON pp.fk_gr_personopplysninger_id = go.id
             INNER JOIN behandling b ON go.fk_behandling_id = b.id AND b.aktiv = true
-            INNER JOIN fagsak f ON b.fk_fagsak_id = f.id AND f.arkivert = false WHERE bb.kommune_navn = :kommuneNavn""",
+            INNER JOIN fagsak f ON b.fk_fagsak_id = f.id AND f.arkivert = false WHERE bb.kommune_navn = :kommuneNavn
+            AND f.status IN :fagsakStatus""",
         nativeQuery = true,
     )
-    fun findBarnehagebarnByKommuneNavn(kommuneNavn: String, pageable: Pageable): Page<BarnehagebarnDtoInterface>
+    fun findBarnehagebarnByKommuneNavn(
+        fagsakStatus: String,
+        kommuneNavn: String,
+        pageable: Pageable,
+    ): Page<BarnehagebarnDtoInterface>
 
     @Query(
         """
