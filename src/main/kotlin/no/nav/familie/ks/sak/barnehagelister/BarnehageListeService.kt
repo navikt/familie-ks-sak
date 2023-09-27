@@ -90,7 +90,7 @@ class BarnehageListeService(
     }
 
     fun hentAlleBarnehagebarnPage(barnehagebarnRequestParams: BarnehagebarnRequestParams): Page<BarnehagebarnDtoInterface> {
-        var sort = Sort.by(getCorrectSortBy("endretTidspunkt")).descending()
+        var sort = Sort.by(getCorrectSortBy("kommuneNavn")).descending()
         var fagsakstatus =
             if (barnehagebarnRequestParams.kunLøpendeFagsak) "LØPENDE,OPPRETTET" else "LØPENDE,OPPRETTET,AVSLUTTET"
         if (barnehagebarnRequestParams.sortBy != null) {
