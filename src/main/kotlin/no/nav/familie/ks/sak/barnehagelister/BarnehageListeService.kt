@@ -93,7 +93,7 @@ class BarnehageListeService(
         var sort = Sort.by(getCorrectSortBy("kommuneNavn")).descending()
         var fagsakstatuser =
             if (barnehagebarnRequestParams.kunLøpendeFagsak) {
-                listOf("LØPENDE", "OPPRETTET")
+                listOf("LØPENDE")
             } else {
                 listOf(
                     "LØPENDE",
