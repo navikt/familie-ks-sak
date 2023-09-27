@@ -16,6 +16,7 @@ import no.nav.familie.ks.sak.barnehagelister.domene.BarnehagelisteMottattArkiv
 import no.nav.familie.ks.sak.barnehagelister.domene.BarnehagelisteMottattArkivRepository
 import no.nav.familie.ks.sak.barnehagelister.domene.BarnehagelisteMottattRepository
 import no.nav.familie.ks.sak.barnehagelister.domene.Melding
+import no.nav.familie.prosessering.internal.TaskService
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
@@ -28,6 +29,7 @@ import java.util.*
 class BarnehageListeService(
     val barnehagelisteMottattRepository: BarnehagelisteMottattRepository,
     val barnehagebarnRepository: BarnehagebarnRepository,
+    val taskService: TaskService,
     val barnehagelisteMottattArkivRepository: BarnehagelisteMottattArkivRepository,
 ) {
 
@@ -41,8 +43,15 @@ class BarnehageListeService(
         .registerModule(JavaTimeModule())
 
     @Transactional
-    fun lagreBarnehagelisteMottatt(barnehagelisteMottatt: BarnehagelisteMottatt) {
-        barnehagelisteMottattRepository.save(barnehagelisteMottatt)
+    fun lagreBarnehagelisteMottattOgOpprettTaskForLesing(barnehagelisteMottatt: BarnehagelisteMottatt): BarnehagelisteMottatt {
+        val barnehagelisteMottatt = barnehagelisteMottattRepository.save(barnehagelisteMottatt)
+        taskService.save(
+            LesOgArkiverBarnehagelisteTask.opprettTask(
+                barnehagelisteId = barnehagelisteMottatt.id,
+                arkivreferanse = barnehagelisteMottatt.meldingId,
+            ),
+        )
+        return barnehagelisteMottatt
     }
 
     fun erListenMottattTidligere(meldingId: String): Boolean {
@@ -85,7 +94,7 @@ class BarnehageListeService(
         return barnehagebarnRepository.findByIdent(ident)
     }
 
-    fun hentUarkvierteBarnehagelisteUuider(): List<String> {
+    fun hentUarkiverteBarnehagelisteUuider(): List<String> {
         return barnehagelisteMottattRepository.findAllIds()
     }
 
