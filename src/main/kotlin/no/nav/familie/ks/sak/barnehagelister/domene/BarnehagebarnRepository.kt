@@ -12,8 +12,8 @@ interface BarnehagebarnRepository : JpaRepository<Barnehagebarn, UUID> { // , Jp
     @Query(
         """
             SELECT DISTINCT bb.ident as ident, bb.fom as fom, bb.tom as tom, bb.antall_timer_i_barnehage as antallTimerIBarnehage, 
-            bb.endringstype as endringstype, bb.kommune_navn as kommuneNavn, bb.kommune_nr as kommuneNr, bb.endret_tid as endretTidspunkt,
-            b.id as behandlingId, f.id as fagsakId, f.status as fagsakstatus
+            bb.endringstype as endringstype, bb.kommune_navn as kommuneNavn, bb.kommune_nr as kommuneNr,
+            f.id as fagsakId, f.status as fagsakstatus
             FROM barnehagebarn bb
             INNER JOIN personident p ON bb.ident = p.foedselsnummer AND p.aktiv = true
             INNER JOIN po_person pp ON p.fk_aktoer_id = pp.fk_aktoer_id
@@ -29,7 +29,7 @@ interface BarnehagebarnRepository : JpaRepository<Barnehagebarn, UUID> { // , Jp
         """
             SELECT DISTINCT bb.ident as ident, bb.fom as fom, bb.tom as tom, bb.antall_timer_i_barnehage as antallTimerIBarnehage, 
             bb.endringstype as endringstype, bb.kommune_navn as kommuneNavn, bb.kommune_nr as kommuneNr,
-            b.id as behandlingId, f.id as fagsakId, f.status as fagsakstatus
+            f.id as fagsakId, f.status as fagsakstatus
             FROM barnehagebarn bb
             INNER JOIN personident p ON bb.ident = p.foedselsnummer AND p.aktiv = true
             INNER JOIN po_person pp ON p.fk_aktoer_id = pp.fk_aktoer_id
@@ -50,7 +50,7 @@ interface BarnehagebarnRepository : JpaRepository<Barnehagebarn, UUID> { // , Jp
         """
             SELECT DISTINCT bb.ident as ident, bb.fom as fom, bb.tom as tom, bb.antall_timer_i_barnehage as antallTimerIBarnehage, 
             bb.endringstype as endringstype, bb.kommune_navn as kommuneNavn, bb.kommune_nr as kommuneNr,
-            b.id as behandlingId, f.id as fagsakId, f.status as fagsakstatus
+            f.id as fagsakId, f.status as fagsakstatus
             FROM barnehagebarn bb
             INNER JOIN personident p ON bb.ident = p.foedselsnummer AND p.aktiv = true
             INNER JOIN po_person pp ON p.fk_aktoer_id = pp.fk_aktoer_id
@@ -62,6 +62,62 @@ interface BarnehagebarnRepository : JpaRepository<Barnehagebarn, UUID> { // , Jp
     )
     fun findBarnehagebarnByKommuneNavn(
         fagsakStatuser: List<String>,
+        kommuneNavn: String,
+        pageable: Pageable,
+    ): Page<BarnehagebarnDtoInterface>
+
+    @Query(
+        """
+           SELECT distinct bb.ident as ident, bb.fom as fom, bb.tom as tom, bb.antall_timer_i_barnehage as antallTimerIBarnehage,
+                bb.endringstype as endringstype, bb.kommune_navn as kommuneNavn, bb.kommune_nr as kommuneNr,
+                f.id as fagsakId, f.status as fagsakstatus
+            FROM barnehagebarn bb
+         left outer JOIN personident p ON bb.ident = p.foedselsnummer
+         left outer JOIN po_person pp ON p.fk_aktoer_id = pp.fk_aktoer_id
+         left outer JOIN gr_personopplysninger go ON pp.fk_gr_personopplysninger_id = go.id
+         LEFT outer join  behandling b ON go.fk_behandling_id = b.id AND b.aktiv = true
+         Left outer join fagsak f ON b.fk_fagsak_id = f.id and f.arkivert = false""",
+        nativeQuery = true,
+    )
+    fun findAlleBarnehagebarnUavhengigAvFagsak(
+        pageable: Pageable,
+    ): Page<BarnehagebarnDtoInterface>
+
+    @Query(
+        """
+            SELECT distinct bb.ident as ident, bb.fom as fom, bb.tom as tom, bb.antall_timer_i_barnehage as antallTimerIBarnehage,
+                bb.endringstype as endringstype, bb.kommune_navn as kommuneNavn, bb.kommune_nr as kommuneNr,
+                f.id as fagsakId, f.status as fagsakstatus
+            FROM barnehagebarn bb
+         left outer JOIN personident p ON bb.ident = p.foedselsnummer
+         left outer JOIN po_person pp ON p.fk_aktoer_id = pp.fk_aktoer_id
+         left outer JOIN gr_personopplysninger go ON pp.fk_gr_personopplysninger_id = go.id
+         LEFT outer join  behandling b ON go.fk_behandling_id = b.id AND b.aktiv = true
+         Left outer join fagsak f ON b.fk_fagsak_id = f.id and f.arkivert = false 
+         WHERE bb.ident = :ident
+            """,
+        nativeQuery = true,
+    )
+    fun findBarnehagebarnByIdentUavhengigAvFagsak(
+        ident: String,
+        pageable: Pageable,
+    ): Page<BarnehagebarnDtoInterface>
+
+    @Query(
+        """
+            SELECT distinct bb.ident as ident, bb.fom as fom, bb.tom as tom, bb.antall_timer_i_barnehage as antallTimerIBarnehage,
+                bb.endringstype as endringstype, bb.kommune_navn as kommuneNavn, bb.kommune_nr as kommuneNr,
+                f.id as fagsakId, f.status as fagsakstatus
+        FROM barnehagebarn bb
+         left outer JOIN personident p ON bb.ident = p.foedselsnummer
+         left outer JOIN po_person pp ON p.fk_aktoer_id = pp.fk_aktoer_id
+         left outer JOIN gr_personopplysninger go ON pp.fk_gr_personopplysninger_id = go.id
+         LEFT outer join  behandling b ON go.fk_behandling_id = b.id AND b.aktiv = true
+         Left outer join fagsak f ON b.fk_fagsak_id = f.id and f.arkivert = false 
+         WHERE bb.kommune_navn = :kommuneNavn""",
+        nativeQuery = true,
+    )
+    fun findBarnehagebarnByKommuneNavnUavhengigAvFagsak(
         kommuneNavn: String,
         pageable: Pageable,
     ): Page<BarnehagebarnDtoInterface>

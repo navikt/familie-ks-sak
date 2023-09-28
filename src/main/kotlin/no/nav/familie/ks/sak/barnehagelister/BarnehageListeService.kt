@@ -118,22 +118,40 @@ class BarnehageListeService(
             }
         }
         val pageable: Pageable =
-            PageRequest.of(barnehagebarnRequestParams.offset ?: 0, barnehagebarnRequestParams.limit ?: 50, sort) // sort
+            PageRequest.of(barnehagebarnRequestParams.offset, barnehagebarnRequestParams.limit, sort)
 
         if (!barnehagebarnRequestParams.ident.isNullOrEmpty()) {
-            return barnehagebarnRepository.findBarnehagebarnByIdent(
-                fagsakStatuser = fagsakstatuser,
-                ident = barnehagebarnRequestParams.ident,
-                pageable = pageable,
-            )
+            if (barnehagebarnRequestParams.kunLøpendeFagsak) {
+                return barnehagebarnRepository.findBarnehagebarnByIdent(
+                    fagsakStatuser = fagsakstatuser,
+                    ident = barnehagebarnRequestParams.ident,
+                    pageable = pageable,
+                )
+            } else {
+                return barnehagebarnRepository.findBarnehagebarnByIdentUavhengigAvFagsak(
+                    ident = barnehagebarnRequestParams.ident,
+                    pageable = pageable,
+                )
+            }
         } else if (!barnehagebarnRequestParams.kommuneNavn.isNullOrEmpty()) {
-            return barnehagebarnRepository.findBarnehagebarnByKommuneNavn(
-                fagsakStatuser = fagsakstatuser,
-                barnehagebarnRequestParams.kommuneNavn,
-                pageable,
-            )
+            if (barnehagebarnRequestParams.kunLøpendeFagsak) {
+                return barnehagebarnRepository.findBarnehagebarnByKommuneNavn(
+                    fagsakStatuser = fagsakstatuser,
+                    barnehagebarnRequestParams.kommuneNavn,
+                    pageable,
+                )
+            } else {
+                return barnehagebarnRepository.findBarnehagebarnByKommuneNavnUavhengigAvFagsak(
+                    barnehagebarnRequestParams.kommuneNavn,
+                    pageable,
+                )
+            }
         } else {
-            return barnehagebarnRepository.findBarnehagebarn(fagsakStatuser = fagsakstatuser, pageable = pageable)
+            if (barnehagebarnRequestParams.kunLøpendeFagsak) {
+                return barnehagebarnRepository.findBarnehagebarn(fagsakStatuser = fagsakstatuser, pageable = pageable)
+            } else {
+                return barnehagebarnRepository.findAlleBarnehagebarnUavhengigAvFagsak(pageable = pageable)
+            }
         }
     }
 
