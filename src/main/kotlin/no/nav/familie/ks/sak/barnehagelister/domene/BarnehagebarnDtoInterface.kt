@@ -3,8 +3,6 @@ package no.nav.familie.ks.sak.barnehagelister.domene
 import java.time.LocalDate
 
 interface BarnehagebarnDtoInterface {
-
-    fun getId(): String
     fun getIdent(): String
     fun getFom(): LocalDate
     fun getTom(): LocalDate
