@@ -11,5 +11,5 @@ interface BarnehagebarnDtoInterface {
     fun getKommuneNavn(): String
     fun getKommuneNr(): String
     fun getFagsakId(): Long?
-    fun getFagsakstatus(): String
+    fun getFagsakstatus(): String?
 }
