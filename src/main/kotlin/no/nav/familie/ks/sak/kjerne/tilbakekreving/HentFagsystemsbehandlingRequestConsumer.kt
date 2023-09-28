@@ -41,7 +41,7 @@ class HentFagsystemsbehandlingRequestConsumer(private val fagsystemsbehandlingSe
                 } catch (e: Exception) {
                     logger.warn(
                         "Noe gikk galt mens sender HentFagsystemsbehandlingRespons for behandling=${request.eksternId}. " +
-                                "Feiler med ${e.message}",
+                            "Feiler med ${e.message}",
                     )
                     HentFagsystemsbehandlingRespons(feilMelding = e.message)
                 }
