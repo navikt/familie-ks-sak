@@ -5,8 +5,10 @@ import no.nav.familie.kontrakter.felles.tilbakekreving.HentFagsystemsbehandlingR
 import no.nav.familie.kontrakter.felles.tilbakekreving.HentFagsystemsbehandlingRespons
 import no.nav.familie.kontrakter.felles.tilbakekreving.Ytelsestype
 import no.nav.familie.ks.sak.config.KafkaConfig
+import no.nav.familie.log.mdc.MDCConstants
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.slf4j.LoggerFactory
+import org.slf4j.MDC
 import org.springframework.context.annotation.Profile
 import org.springframework.kafka.annotation.KafkaListener
 import org.springframework.kafka.support.Acknowledgment
@@ -25,28 +27,44 @@ class HentFagsystemsbehandlingRequestConsumer(private val fagsystemsbehandlingSe
         containerFactory = "concurrentKafkaListenerContainerFactory",
     )
     fun listen(consumerRecord: ConsumerRecord<String, String>, ack: Acknowledgment) {
-        val data: String = consumerRecord.value()
         val key: String = consumerRecord.key()
-        val request = objectMapper.readValue(data, HentFagsystemsbehandlingRequest::class.java)
+        kjørMedCallId(key) {
+            val data: String = consumerRecord.value()
+            val request = objectMapper.readValue(data, HentFagsystemsbehandlingRequest::class.java)
 
-        if (request.ytelsestype != Ytelsestype.KONTANTSTØTTE) {
-            ack.acknowledge() // acknowledge slik at meldingen ikke leses av consumer igjen
-            return
-        }
-        logger.info("HentFagsystemsbehandlingRequest er mottatt i kafka $consumerRecord med key $key")
-        secureLogger.info("HentFagsystemsbehandlingRequest er mottatt i kafka $consumerRecord med key $key")
+            if (request.ytelsestype == Ytelsestype.KONTANTSTØTTE) {
+                logger.info("HentFagsystemsbehandlingRequest er mottatt i kafka $consumerRecord med key $key")
+                secureLogger.info("HentFagsystemsbehandlingRequest er mottatt i kafka $consumerRecord med key $key")
 
-        val fagsystemsbehandling = try {
-            fagsystemsbehandlingService.hentFagsystemsbehandling(request)
-        } catch (e: Exception) {
-            logger.warn(
-                "Noe gikk galt mens sender HentFagsystemsbehandlingRespons for behandling=${request.eksternId}. " +
-                    "Feiler med ${e.message}",
-            )
-            HentFagsystemsbehandlingRespons(feilMelding = e.message)
+                val fagsystemsbehandling = try {
+                    fagsystemsbehandlingService.hentFagsystemsbehandling(request)
+                } catch (e: Exception) {
+                    logger.warn(
+                        "Noe gikk galt mens sender HentFagsystemsbehandlingRespons for behandling=${request.eksternId}. " +
+                                "Feiler med ${e.message}",
+                    )
+                    HentFagsystemsbehandlingRespons(feilMelding = e.message)
+                }
+                // Sender respons via kafka
+                fagsystemsbehandlingService.sendFagsystemsbehandlingRespons(fagsystemsbehandling, key, request.eksternId)
+            }
+
+            ack.acknowledge()
         }
-        // Sender respons via kafka
-        fagsystemsbehandlingService.sendFagsystemsbehandlingRespons(fagsystemsbehandling, key, request.eksternId)
-        ack.acknowledge()
+    }
+}
+
+fun <T> kjørMedCallId(callId: String, body: () -> T): T {
+    val originalCallId = MDC.get(MDCConstants.MDC_CALL_ID) ?: null
+
+    return try {
+        MDC.put(MDCConstants.MDC_CALL_ID, callId)
+        body()
+    } finally {
+        if (originalCallId == null) {
+            MDC.remove(MDCConstants.MDC_CALL_ID)
+        } else {
+            MDC.put(MDCConstants.MDC_CALL_ID, originalCallId)
+        }
     }
 }

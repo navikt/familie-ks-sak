@@ -15,5 +15,4 @@ class TilbakekrevingsbehandlingHentService(
     fun hentTilbakekrevingsbehandlinger(fagsakId: Long) = tilbakekrevingKlient.hentTilbakekrevingsbehandlinger(fagsakId)
 
     fun hentTilbakekreving(behandlingId: Long) = tilbakekrevingRepository.findByBehandlingId(behandlingId)
-        ?: throw Feil("Finnes ikke tilbakekreving for behandling $behandlingId")
 }
