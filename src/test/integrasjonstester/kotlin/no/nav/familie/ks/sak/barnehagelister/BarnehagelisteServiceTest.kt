@@ -1,11 +1,13 @@
 package no.nav.familie.ks.sak.no.nav.familie.ks.sak.barnehagelister
 
+import com.ninjasquad.springmockk.MockkBean
+import io.mockk.every
 import no.nav.familie.ks.sak.OppslagSpringRunnerTest
+import no.nav.familie.ks.sak.api.dto.BarnehagebarnRequestParams
 import no.nav.familie.ks.sak.barnehagelister.BarnehageListeService
 import no.nav.familie.ks.sak.barnehagelister.domene.BarnehagelisteMottatt
-import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertNotNull
-import org.junit.jupiter.api.Assertions.assertNull
+import no.nav.familie.ks.sak.integrasjon.infotrygd.InfotrygdReplikaClient
+import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import java.time.LocalDate
@@ -14,6 +16,9 @@ import java.time.LocalDateTime
 class BarnehagelisteServiceTest(
     @Autowired private val barnehageListeService: BarnehageListeService,
 ) : OppslagSpringRunnerTest() {
+
+    @MockkBean(relaxed = true)
+    private lateinit var infotrygdReplikaClient: InfotrygdReplikaClient
 
     var barnehagelisteXml =
         """
@@ -92,6 +97,29 @@ class BarnehagelisteServiceTest(
         assertEquals("barnStartet", barnehagebarn.endringstype)
         assertEquals(LocalDate.parse("2023-09-06"), barnehagebarn.fom)
         assertNull(barnehagebarn.tom)
+    }
+
+    @Test
+    fun `test at henting av data kombinert med data fra infotrygd fungerer`() {
+        every { infotrygdReplikaClient.hentAlleBarnasIdenterForLøpendeFagsaker() } returns listOf("123456789")
+
+        val barnehagelisteMottatt = BarnehagelisteMottatt(
+            melding = barnehagelisteXml,
+            meldingId = "testId",
+            mottatTid = LocalDateTime.now(),
+        )
+        barnehageListeService.lagreBarnehagelisteMottattOgOpprettTaskForLesing(barnehagelisteMottatt)
+        assertNotNull(barnehageListeService.hentUarkiverteBarnehagelisteUuider())
+        barnehageListeService.lesOgArkiver(barnehagelisteMottatt.id)
+
+        val barnehagebarn = barnehageListeService.hentAlleBarnehagebarnInfotrygd(
+            BarnehagebarnRequestParams(
+                kommuneNavn = "Oslo",
+                kunLøpendeFagsak = false,
+                ident = null,
+            )
+        )
+        assertTrue(barnehagebarn.totalElements == 1L)
     }
 
     @Test

@@ -114,14 +114,17 @@ class BarnehageListeService(
                     ident = barnehagebarnRequestParams.ident,
                     barna = barna,
                     pageable = pageable
-                )
+                ).map { BarnehagebarnInfotrygdDto.fraBarnehageBarinInterfaceTilDto(it, true) }
             } else {
-                val resultat = barnehagebarnRepository.findBarnehagebarnByIdentInfotrygdUavhengigAvFagsak(
+                return barnehagebarnRepository.findBarnehagebarnByIdentInfotrygdUavhengigAvFagsak(
                     ident = barnehagebarnRequestParams.ident,
                     pageable = pageable
-                )
-
-                return resultat.map { if (barneMap.contains(it.ident)) it.copy(harFagsak = true) else it }
+                ).map {
+                    BarnehagebarnInfotrygdDto.fraBarnehageBarinInterfaceTilDto(
+                        it,
+                        barneMap.contains(it.getIdent())
+                    )
+                }
             }
         } else if (!barnehagebarnRequestParams.kommuneNavn.isNullOrEmpty()) {
             if (barnehagebarnRequestParams.kunLøpendeFagsak) {
@@ -129,22 +132,29 @@ class BarnehageListeService(
                     kommuneNavn = barnehagebarnRequestParams.kommuneNavn,
                     barna = barna,
                     pageable = pageable
-                )
+                ).map { BarnehagebarnInfotrygdDto.fraBarnehageBarinInterfaceTilDto(it, true) }
             } else {
-                val resultat = barnehagebarnRepository.findBarnehagebarnByKommuneNavnInfotrygdUavhengigAvFagsak(
+                return barnehagebarnRepository.findBarnehagebarnByKommuneNavnInfotrygdUavhengigAvFagsak(
                     kommuneNavn = barnehagebarnRequestParams.kommuneNavn,
                     pageable = pageable
-                )
-
-                val oppdatertResultat =
-                    resultat.map { if (barneMap.contains(it.ident)) it.copy(harFagsak = true) else it }
-                return oppdatertResultat
+                ).map {
+                    BarnehagebarnInfotrygdDto.fraBarnehageBarinInterfaceTilDto(
+                        it,
+                        barneMap.contains(it.getIdent())
+                    )
+                }
             }
         } else {
             if (barnehagebarnRequestParams.kunLøpendeFagsak) {
                 return barnehagebarnRepository.findBarnehagebarnInfotrygd(barna = barna, pageable = pageable)
+                    .map { BarnehagebarnInfotrygdDto.fraBarnehageBarinInterfaceTilDto(it, true) }
             } else {
-                return barnehagebarnRepository.findBarnehagebarnInfotrygdUavhengigAvFagsak(pageable = pageable)
+                return barnehagebarnRepository.findBarnehagebarnInfotrygdUavhengigAvFagsak(pageable = pageable).map {
+                    BarnehagebarnInfotrygdDto.fraBarnehageBarinInterfaceTilDto(
+                        it,
+                        barneMap.contains(it.getIdent())
+                    )
+                }
             }
         }
     }

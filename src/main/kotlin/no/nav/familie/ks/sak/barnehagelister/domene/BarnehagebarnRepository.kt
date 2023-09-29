@@ -125,7 +125,7 @@ interface BarnehagebarnRepository : JpaRepository<Barnehagebarn, UUID> { // , Jp
     @Query(
         """
             SELECT DISTINCT bb.ident as ident, bb.fom as fom, bb.tom as tom, bb.antall_timer_i_barnehage as antallTimerIBarnehage, 
-            bb.endringstype as endringstype, bb.kommune_navn as kommuneNavn, bb.kommune_nr as kommuneNr,
+            bb.endringstype as endringstype, bb.kommune_navn as kommuneNavn, bb.kommune_nr as kommuneNr
             FROM barnehagebarn bb
             where bb.ident in (:barna) AND bb.kommune_navn = :kommuneNavn""",
         nativeQuery = true,
@@ -134,12 +134,12 @@ interface BarnehagebarnRepository : JpaRepository<Barnehagebarn, UUID> { // , Jp
         kommuneNavn: String,
         barna: List<String>,
         pageable: Pageable,
-    ): Page<BarnehagebarnInfotrygdDto>
+    ): Page<BarnehagebarnInfotrygdDtoInterface>
 
     @Query(
         """
             SELECT DISTINCT bb.ident as ident, bb.fom as fom, bb.tom as tom, bb.antall_timer_i_barnehage as antallTimerIBarnehage, 
-            bb.endringstype as endringstype, bb.kommune_navn as kommuneNavn, bb.kommune_nr as kommuneNr,
+            bb.endringstype as endringstype, bb.kommune_navn as kommuneNavn, bb.kommune_nr as kommuneNr
             FROM barnehagebarn bb
             WHERE bb.kommune_navn = :kommuneNavn""",
         nativeQuery = true,
@@ -147,12 +147,12 @@ interface BarnehagebarnRepository : JpaRepository<Barnehagebarn, UUID> { // , Jp
     fun findBarnehagebarnByKommuneNavnInfotrygdUavhengigAvFagsak(
         kommuneNavn: String,
         pageable: Pageable,
-    ): Page<BarnehagebarnInfotrygdDto>
+    ): Page<BarnehagebarnInfotrygdDtoInterface>
 
     @Query(
         """
             SELECT DISTINCT bb.ident as ident, bb.fom as fom, bb.tom as tom, bb.antall_timer_i_barnehage as antallTimerIBarnehage, 
-            bb.endringstype as endringstype, bb.kommune_navn as kommuneNavn, bb.kommune_nr as kommuneNr,
+            bb.endringstype as endringstype, bb.kommune_navn as kommuneNavn, bb.kommune_nr as kommuneNr
             FROM barnehagebarn bb
             where bb.ident in (:barna) AND bb.ident = :ident""",
         nativeQuery = true,
@@ -161,12 +161,12 @@ interface BarnehagebarnRepository : JpaRepository<Barnehagebarn, UUID> { // , Jp
         ident: String,
         barna: List<String>,
         pageable: Pageable,
-    ): Page<BarnehagebarnInfotrygdDto>
+    ): Page<BarnehagebarnInfotrygdDtoInterface>
 
     @Query(
         """
             SELECT DISTINCT bb.ident as ident, bb.fom as fom, bb.tom as tom, bb.antall_timer_i_barnehage as antallTimerIBarnehage, 
-            bb.endringstype as endringstype, bb.kommune_navn as kommuneNavn, bb.kommune_nr as kommuneNr,
+            bb.endringstype as endringstype, bb.kommune_navn as kommuneNavn, bb.kommune_nr as kommuneNr
             FROM barnehagebarn bb
             WHERE bb.kommune_navn = :ident""",
         nativeQuery = true,
@@ -174,12 +174,12 @@ interface BarnehagebarnRepository : JpaRepository<Barnehagebarn, UUID> { // , Jp
     fun findBarnehagebarnByIdentInfotrygdUavhengigAvFagsak(
         ident: String,
         pageable: Pageable,
-    ): Page<BarnehagebarnInfotrygdDto>
+    ): Page<BarnehagebarnInfotrygdDtoInterface>
 
     @Query(
         """
             SELECT DISTINCT bb.ident as ident, bb.fom as fom, bb.tom as tom, bb.antall_timer_i_barnehage as antallTimerIBarnehage, 
-            bb.endringstype as endringstype, bb.kommune_navn as kommuneNavn, bb.kommune_nr as kommuneNr,
+            bb.endringstype as endringstype, bb.kommune_navn as kommuneNavn, bb.kommune_nr as kommuneNr
             FROM barnehagebarn bb
             where bb.ident in (:barna)""",
         nativeQuery = true,
@@ -187,16 +187,16 @@ interface BarnehagebarnRepository : JpaRepository<Barnehagebarn, UUID> { // , Jp
     fun findBarnehagebarnInfotrygd(
         barna: List<String>,
         pageable: Pageable,
-    ): Page<BarnehagebarnInfotrygdDto>
+    ): Page<BarnehagebarnInfotrygdDtoInterface>
 
     @Query(
         """
             SELECT DISTINCT bb.ident as ident, bb.fom as fom, bb.tom as tom, bb.antall_timer_i_barnehage as antallTimerIBarnehage, 
-            bb.endringstype as endringstype, bb.kommune_navn as kommuneNavn, bb.kommune_nr as kommuneNr,
+            bb.endringstype as endringstype, bb.kommune_navn as kommuneNavn, bb.kommune_nr as kommuneNr
             FROM barnehagebarn bb""",
         nativeQuery = true,
     )
     fun findBarnehagebarnInfotrygdUavhengigAvFagsak(
         pageable: Pageable,
-    ): Page<BarnehagebarnInfotrygdDto>
+    ): Page<BarnehagebarnInfotrygdDtoInterface>
 }

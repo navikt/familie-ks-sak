@@ -11,4 +11,23 @@ data class BarnehagebarnInfotrygdDto(
     val kommuneNavn: String,
     val kommuneNr: String,
     val harFagsak: Boolean,
-)
+) {
+
+    companion object {
+        fun fraBarnehageBarinInterfaceTilDto(
+            barnehagebarnInfotrygdDtoInterface: BarnehagebarnInfotrygdDtoInterface,
+            harFagsak: Boolean,
+        ): BarnehagebarnInfotrygdDto {
+            return BarnehagebarnInfotrygdDto(
+                ident = barnehagebarnInfotrygdDtoInterface.getIdent(),
+                fom = barnehagebarnInfotrygdDtoInterface.getFom(),
+                tom = barnehagebarnInfotrygdDtoInterface.getTom(),
+                antallTimerIBarnehage = barnehagebarnInfotrygdDtoInterface.getAntallTimerIBarnehage(),
+                endringstype = barnehagebarnInfotrygdDtoInterface.getEndringstype(),
+                kommuneNavn = barnehagebarnInfotrygdDtoInterface.getKommuneNavn(),
+                kommuneNr = barnehagebarnInfotrygdDtoInterface.getKommuneNr(),
+                harFagsak = harFagsak,
+            )
+        }
+    }
+}
