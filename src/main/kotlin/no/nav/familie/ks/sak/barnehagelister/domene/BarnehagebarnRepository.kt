@@ -121,4 +121,82 @@ interface BarnehagebarnRepository : JpaRepository<Barnehagebarn, UUID> { // , Jp
         kommuneNavn: String,
         pageable: Pageable,
     ): Page<BarnehagebarnDtoInterface>
+
+    @Query(
+        """
+            SELECT DISTINCT bb.ident as ident, bb.fom as fom, bb.tom as tom, bb.antall_timer_i_barnehage as antallTimerIBarnehage, 
+            bb.endringstype as endringstype, bb.kommune_navn as kommuneNavn, bb.kommune_nr as kommuneNr,
+            FROM barnehagebarn bb
+            where bb.ident in (:barna) AND bb.kommune_navn = :kommuneNavn""",
+        nativeQuery = true,
+    )
+    fun findBarnehagebarnByKommuneNavnInfotrygd(
+        kommuneNavn: String,
+        barna: List<String>,
+        pageable: Pageable,
+    ): Page<BarnehagebarnInfotrygdDto>
+
+    @Query(
+        """
+            SELECT DISTINCT bb.ident as ident, bb.fom as fom, bb.tom as tom, bb.antall_timer_i_barnehage as antallTimerIBarnehage, 
+            bb.endringstype as endringstype, bb.kommune_navn as kommuneNavn, bb.kommune_nr as kommuneNr,
+            FROM barnehagebarn bb
+            WHERE bb.kommune_navn = :kommuneNavn""",
+        nativeQuery = true,
+    )
+    fun findBarnehagebarnByKommuneNavnInfotrygdUavhengigAvFagsak(
+        kommuneNavn: String,
+        pageable: Pageable,
+    ): Page<BarnehagebarnInfotrygdDto>
+
+    @Query(
+        """
+            SELECT DISTINCT bb.ident as ident, bb.fom as fom, bb.tom as tom, bb.antall_timer_i_barnehage as antallTimerIBarnehage, 
+            bb.endringstype as endringstype, bb.kommune_navn as kommuneNavn, bb.kommune_nr as kommuneNr,
+            FROM barnehagebarn bb
+            where bb.ident in (:barna) AND bb.ident = :ident""",
+        nativeQuery = true,
+    )
+    fun findBarnehagebarnByIdentInfotrygd(
+        ident: String,
+        barna: List<String>,
+        pageable: Pageable,
+    ): Page<BarnehagebarnInfotrygdDto>
+
+    @Query(
+        """
+            SELECT DISTINCT bb.ident as ident, bb.fom as fom, bb.tom as tom, bb.antall_timer_i_barnehage as antallTimerIBarnehage, 
+            bb.endringstype as endringstype, bb.kommune_navn as kommuneNavn, bb.kommune_nr as kommuneNr,
+            FROM barnehagebarn bb
+            WHERE bb.kommune_navn = :ident""",
+        nativeQuery = true,
+    )
+    fun findBarnehagebarnByIdentInfotrygdUavhengigAvFagsak(
+        ident: String,
+        pageable: Pageable,
+    ): Page<BarnehagebarnInfotrygdDto>
+
+    @Query(
+        """
+            SELECT DISTINCT bb.ident as ident, bb.fom as fom, bb.tom as tom, bb.antall_timer_i_barnehage as antallTimerIBarnehage, 
+            bb.endringstype as endringstype, bb.kommune_navn as kommuneNavn, bb.kommune_nr as kommuneNr,
+            FROM barnehagebarn bb
+            where bb.ident in (:barna)""",
+        nativeQuery = true,
+    )
+    fun findBarnehagebarnInfotrygd(
+        barna: List<String>,
+        pageable: Pageable,
+    ): Page<BarnehagebarnInfotrygdDto>
+
+    @Query(
+        """
+            SELECT DISTINCT bb.ident as ident, bb.fom as fom, bb.tom as tom, bb.antall_timer_i_barnehage as antallTimerIBarnehage, 
+            bb.endringstype as endringstype, bb.kommune_navn as kommuneNavn, bb.kommune_nr as kommuneNr,
+            FROM barnehagebarn bb""",
+        nativeQuery = true,
+    )
+    fun findBarnehagebarnInfotrygdUavhengigAvFagsak(
+        pageable: Pageable,
+    ): Page<BarnehagebarnInfotrygdDto>
 }

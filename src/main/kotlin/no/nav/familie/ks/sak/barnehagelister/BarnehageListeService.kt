@@ -8,14 +8,8 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import jakarta.transaction.Transactional
 import no.nav.familie.ks.sak.api.dto.BarnehagebarnRequestParams
-import no.nav.familie.ks.sak.barnehagelister.domene.Barnehagebarn
-import no.nav.familie.ks.sak.barnehagelister.domene.BarnehagebarnDtoInterface
-import no.nav.familie.ks.sak.barnehagelister.domene.BarnehagebarnRepository
-import no.nav.familie.ks.sak.barnehagelister.domene.BarnehagelisteMottatt
-import no.nav.familie.ks.sak.barnehagelister.domene.BarnehagelisteMottattArkiv
-import no.nav.familie.ks.sak.barnehagelister.domene.BarnehagelisteMottattArkivRepository
-import no.nav.familie.ks.sak.barnehagelister.domene.BarnehagelisteMottattRepository
-import no.nav.familie.ks.sak.barnehagelister.domene.Melding
+import no.nav.familie.ks.sak.barnehagelister.domene.*
+import no.nav.familie.ks.sak.integrasjon.infotrygd.InfotrygdReplikaClient
 import no.nav.familie.prosessering.internal.TaskService
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
@@ -31,6 +25,7 @@ class BarnehageListeService(
     val barnehagebarnRepository: BarnehagebarnRepository,
     val taskService: TaskService,
     val barnehagelisteMottattArkivRepository: BarnehagelisteMottattArkivRepository,
+    val infotrygdReplikaClient: InfotrygdReplikaClient,
 ) {
 
     private val xmlDeserializer = XmlMapper(
@@ -98,24 +93,70 @@ class BarnehageListeService(
         return barnehagelisteMottattRepository.findAllIds()
     }
 
+    fun hentAlleBarnehagebarnInfotrygd(barnehagebarnRequestParams: BarnehagebarnRequestParams): Page<BarnehagebarnInfotrygdDto> {
+        var sort = Sort.by(getCorrectSortBy("kommuneNavn")).descending()
+
+        if (barnehagebarnRequestParams.sortAsc) {
+            sort = Sort.by(getCorrectSortBy(barnehagebarnRequestParams.sortBy)).ascending()
+        } else {
+            sort = Sort.by(getCorrectSortBy(barnehagebarnRequestParams.sortBy)).descending()
+        }
+
+        val pageable: Pageable =
+            PageRequest.of(barnehagebarnRequestParams.offset, barnehagebarnRequestParams.limit, sort)
+
+        val barna = infotrygdReplikaClient.hentAlleBarnasIdenterForLøpendeFagsaker()
+        val barneMap = barna.map { it to it }.toMap()
+
+        if (!barnehagebarnRequestParams.ident.isNullOrEmpty()) {
+            if (barnehagebarnRequestParams.kunLøpendeFagsak) {
+                return barnehagebarnRepository.findBarnehagebarnByIdentInfotrygd(
+                    ident = barnehagebarnRequestParams.ident,
+                    barna = barna,
+                    pageable = pageable
+                )
+            } else {
+                val resultat = barnehagebarnRepository.findBarnehagebarnByIdentInfotrygdUavhengigAvFagsak(
+                    ident = barnehagebarnRequestParams.ident,
+                    pageable = pageable
+                )
+
+                return resultat.map { if (barneMap.contains(it.ident)) it.copy(harFagsak = true) else it }
+            }
+        } else if (!barnehagebarnRequestParams.kommuneNavn.isNullOrEmpty()) {
+            if (barnehagebarnRequestParams.kunLøpendeFagsak) {
+                return barnehagebarnRepository.findBarnehagebarnByKommuneNavnInfotrygd(
+                    kommuneNavn = barnehagebarnRequestParams.kommuneNavn,
+                    barna = barna,
+                    pageable = pageable
+                )
+            } else {
+                val resultat = barnehagebarnRepository.findBarnehagebarnByKommuneNavnInfotrygdUavhengigAvFagsak(
+                    kommuneNavn = barnehagebarnRequestParams.kommuneNavn,
+                    pageable = pageable
+                )
+
+                val oppdatertResultat =
+                    resultat.map { if (barneMap.contains(it.ident)) it.copy(harFagsak = true) else it }
+                return oppdatertResultat
+            }
+        } else {
+            if (barnehagebarnRequestParams.kunLøpendeFagsak) {
+                return barnehagebarnRepository.findBarnehagebarnInfotrygd(barna = barna, pageable = pageable)
+            } else {
+                return barnehagebarnRepository.findBarnehagebarnInfotrygdUavhengigAvFagsak(pageable = pageable)
+            }
+        }
+    }
+
     fun hentAlleBarnehagebarnPage(barnehagebarnRequestParams: BarnehagebarnRequestParams): Page<BarnehagebarnDtoInterface> {
         var sort = Sort.by(getCorrectSortBy("kommuneNavn")).descending()
-        var fagsakstatuser =
-            if (barnehagebarnRequestParams.kunLøpendeFagsak) {
-                listOf("LØPENDE")
-            } else {
-                listOf(
-                    "LØPENDE",
-                    "OPPRETTET",
-                    "AVSLUTTET",
-                )
-            }
-        if (barnehagebarnRequestParams.sortBy != null) {
-            if (barnehagebarnRequestParams.sortAsc) {
-                sort = Sort.by(getCorrectSortBy(barnehagebarnRequestParams.sortBy)).ascending()
-            } else {
-                sort = Sort.by(getCorrectSortBy(barnehagebarnRequestParams.sortBy)).descending()
-            }
+        var fagsakstatuser = listOf("LØPENDE")
+
+        if (barnehagebarnRequestParams.sortAsc) {
+            sort = Sort.by(getCorrectSortBy(barnehagebarnRequestParams.sortBy)).ascending()
+        } else {
+            sort = Sort.by(getCorrectSortBy(barnehagebarnRequestParams.sortBy)).descending()
         }
         val pageable: Pageable =
             PageRequest.of(barnehagebarnRequestParams.offset, barnehagebarnRequestParams.limit, sort)
