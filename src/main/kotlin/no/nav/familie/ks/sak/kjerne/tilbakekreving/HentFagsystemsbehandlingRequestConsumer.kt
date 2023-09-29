@@ -5,10 +5,9 @@ import no.nav.familie.kontrakter.felles.tilbakekreving.HentFagsystemsbehandlingR
 import no.nav.familie.kontrakter.felles.tilbakekreving.HentFagsystemsbehandlingRespons
 import no.nav.familie.kontrakter.felles.tilbakekreving.Ytelsestype
 import no.nav.familie.ks.sak.config.KafkaConfig
-import no.nav.familie.log.mdc.MDCConstants
+import no.nav.familie.log.mdc.kjørMedCallId
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.slf4j.LoggerFactory
-import org.slf4j.MDC
 import org.springframework.context.annotation.Profile
 import org.springframework.kafka.annotation.KafkaListener
 import org.springframework.kafka.support.Acknowledgment
@@ -50,21 +49,6 @@ class HentFagsystemsbehandlingRequestConsumer(private val fagsystemsbehandlingSe
             }
 
             ack.acknowledge()
-        }
-    }
-}
-
-fun <T> kjørMedCallId(callId: String, body: () -> T): T {
-    val originalCallId = MDC.get(MDCConstants.MDC_CALL_ID) ?: null
-
-    return try {
-        MDC.put(MDCConstants.MDC_CALL_ID, callId)
-        body()
-    } finally {
-        if (originalCallId == null) {
-            MDC.remove(MDCConstants.MDC_CALL_ID)
-        } else {
-            MDC.put(MDCConstants.MDC_CALL_ID, originalCallId)
         }
     }
 }
