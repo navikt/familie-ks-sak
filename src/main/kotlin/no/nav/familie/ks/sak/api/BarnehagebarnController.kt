@@ -41,7 +41,7 @@ class BarnehagebarnController(
     }
 
     @PostMapping(
-        path = ["/barnehagebarnlisteInfotrygd"],
+        path = ["/barnehagebarnInfotrygdliste"],
         consumes = [MediaType.APPLICATION_JSON_VALUE],
         produces = [MediaType.APPLICATION_JSON_VALUE],
     )
