@@ -7,7 +7,10 @@ import no.nav.familie.ks.sak.api.dto.BarnehagebarnRequestParams
 import no.nav.familie.ks.sak.barnehagelister.BarnehageListeService
 import no.nav.familie.ks.sak.barnehagelister.domene.BarnehagelisteMottatt
 import no.nav.familie.ks.sak.integrasjon.infotrygd.InfotrygdReplikaClient
-import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNotNull
+import org.junit.jupiter.api.Assertions.assertNull
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import java.time.LocalDate
@@ -117,7 +120,7 @@ class BarnehagelisteServiceTest(
                 kommuneNavn = "Oslo",
                 kunLøpendeFagsak = false,
                 ident = null,
-            )
+            ),
         )
         assertTrue(barnehagebarn.totalElements == 1L)
     }

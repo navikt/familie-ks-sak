@@ -8,7 +8,15 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import jakarta.transaction.Transactional
 import no.nav.familie.ks.sak.api.dto.BarnehagebarnRequestParams
-import no.nav.familie.ks.sak.barnehagelister.domene.*
+import no.nav.familie.ks.sak.barnehagelister.domene.Barnehagebarn
+import no.nav.familie.ks.sak.barnehagelister.domene.BarnehagebarnDtoInterface
+import no.nav.familie.ks.sak.barnehagelister.domene.BarnehagebarnInfotrygdDto
+import no.nav.familie.ks.sak.barnehagelister.domene.BarnehagebarnRepository
+import no.nav.familie.ks.sak.barnehagelister.domene.BarnehagelisteMottatt
+import no.nav.familie.ks.sak.barnehagelister.domene.BarnehagelisteMottattArkiv
+import no.nav.familie.ks.sak.barnehagelister.domene.BarnehagelisteMottattArkivRepository
+import no.nav.familie.ks.sak.barnehagelister.domene.BarnehagelisteMottattRepository
+import no.nav.familie.ks.sak.barnehagelister.domene.Melding
 import no.nav.familie.ks.sak.integrasjon.infotrygd.InfotrygdReplikaClient
 import no.nav.familie.prosessering.internal.TaskService
 import org.springframework.data.domain.Page
@@ -113,16 +121,16 @@ class BarnehageListeService(
                 return barnehagebarnRepository.findBarnehagebarnByIdentInfotrygd(
                     ident = barnehagebarnRequestParams.ident,
                     barna = barna,
-                    pageable = pageable
+                    pageable = pageable,
                 ).map { BarnehagebarnInfotrygdDto.fraBarnehageBarinInterfaceTilDto(it, true) }
             } else {
                 return barnehagebarnRepository.findBarnehagebarnByIdentInfotrygdUavhengigAvFagsak(
                     ident = barnehagebarnRequestParams.ident,
-                    pageable = pageable
+                    pageable = pageable,
                 ).map {
                     BarnehagebarnInfotrygdDto.fraBarnehageBarinInterfaceTilDto(
                         it,
-                        barneMap.contains(it.getIdent())
+                        barneMap.contains(it.getIdent()),
                     )
                 }
             }
@@ -131,16 +139,16 @@ class BarnehageListeService(
                 return barnehagebarnRepository.findBarnehagebarnByKommuneNavnInfotrygd(
                     kommuneNavn = barnehagebarnRequestParams.kommuneNavn,
                     barna = barna,
-                    pageable = pageable
+                    pageable = pageable,
                 ).map { BarnehagebarnInfotrygdDto.fraBarnehageBarinInterfaceTilDto(it, true) }
             } else {
                 return barnehagebarnRepository.findBarnehagebarnByKommuneNavnInfotrygdUavhengigAvFagsak(
                     kommuneNavn = barnehagebarnRequestParams.kommuneNavn,
-                    pageable = pageable
+                    pageable = pageable,
                 ).map {
                     BarnehagebarnInfotrygdDto.fraBarnehageBarinInterfaceTilDto(
                         it,
-                        barneMap.contains(it.getIdent())
+                        barneMap.contains(it.getIdent()),
                     )
                 }
             }
@@ -152,7 +160,7 @@ class BarnehageListeService(
                 return barnehagebarnRepository.findBarnehagebarnInfotrygdUavhengigAvFagsak(pageable = pageable).map {
                     BarnehagebarnInfotrygdDto.fraBarnehageBarinInterfaceTilDto(
                         it,
-                        barneMap.contains(it.getIdent())
+                        barneMap.contains(it.getIdent()),
                     )
                 }
             }
