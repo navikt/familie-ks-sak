@@ -77,6 +77,47 @@ class BarnehagelisteServiceTest(
             <ns2:avtaltOppholdstidTimer>47.5</ns2:avtaltOppholdstidTimer>
             <ns2:startdato>2023-09-06</ns2:startdato>
         </ns2:barnInfolinje>
+        <ns2:barnInfolinje>
+            <ns2:endringstype>barnStartet</ns2:endringstype>
+            <ns2:barn>
+                <ns2:navn>navnesen navn</ns2:navn>
+                <ns2:fodselsnummer>123456780</ns2:fodselsnummer>
+                <ns2:adresse>
+                    <ns2:gateOgNummer>gate og nummer</ns2:gateOgNummer>
+                    <ns2:postnummer>0655</ns2:postnummer>
+                    <ns2:poststed>OSLO</ns2:poststed>
+                </ns2:adresse>
+            </ns2:barn>
+            <ns2:forelder>
+                <ns2:navn>navnesen navn</ns2:navn>
+                <ns2:fodselsnummer>123456789</ns2:fodselsnummer>
+                <ns2:adresse>
+                    <ns2:gateOgNummer>gate og nummer</ns2:gateOgNummer>
+                    <ns2:postnummer>0655</ns2:postnummer>
+                    <ns2:poststed>OSLO</ns2:poststed>
+                </ns2:adresse>
+            </ns2:forelder>
+            <ns2:forelder>
+                <ns2:navn>navnesen navn</ns2:navn>
+                <ns2:fodselsnummer>123456789</ns2:fodselsnummer>
+                <ns2:adresse>
+                    <ns2:gateOgNummer>gate og nummer</ns2:gateOgNummer>
+                    <ns2:postnummer>0655</ns2:postnummer>
+                    <ns2:poststed>OSLO</ns2:poststed>
+                </ns2:adresse>
+            </ns2:forelder>
+            <ns2:barnehage>
+                <ns2:navn>navnesen navn</ns2:navn>
+                <ns2:organisasjonsnummer>0123412523</ns2:organisasjonsnummer>
+                <ns2:adresse>
+                    <ns2:gateOgNummer>gate og nummer</ns2:gateOgNummer>
+                    <ns2:postnummer>0655</ns2:postnummer>
+                    <ns2:poststed>OSLO</ns2:poststed>
+                </ns2:adresse>
+            </ns2:barnehage>
+            <ns2:avtaltOppholdstidTimer>47.5</ns2:avtaltOppholdstidTimer>
+            <ns2:startdato>2023-09-06</ns2:startdato>
+        </ns2:barnInfolinje>
         </ns2:skjema>
         </ns2:melding>
         """
@@ -103,7 +144,7 @@ class BarnehagelisteServiceTest(
     }
 
     @Test
-    fun `test at henting av data kombinert med data fra infotrygd fungerer`() {
+    fun `test at henting av filtrerte data fra infotrygd og kommunenavn fungerer`() {
         every { infotrygdReplikaClient.hentAlleBarnasIdenterForLøpendeFagsaker() } returns listOf("123456789")
 
         val barnehagelisteMottatt = BarnehagelisteMottatt(
@@ -122,7 +163,59 @@ class BarnehagelisteServiceTest(
                 ident = null,
             ),
         )
-        assertTrue(barnehagebarn.totalElements == 1L)
+        assertNull(barnehagebarn.find { it.kommuneNavn != "Oslo" })
+    }
+
+    @Test
+    fun `test at harFagsak settes riktig basert på data fra infotrygd`() {
+        // infotryg statisk liste.
+        every { infotrygdReplikaClient.hentAlleBarnasIdenterForLøpendeFagsaker() } returns listOf("123456789")
+
+        val barnehagelisteMottatt = BarnehagelisteMottatt(
+            melding = barnehagelisteXml,
+            meldingId = "testId",
+            mottatTid = LocalDateTime.now(),
+        )
+        barnehageListeService.lagreBarnehagelisteMottattOgOpprettTaskForLesing(barnehagelisteMottatt)
+        assertNotNull(barnehageListeService.hentUarkiverteBarnehagelisteUuider())
+        barnehageListeService.lesOgArkiver(barnehagelisteMottatt.id)
+
+        val barnehagebarn = barnehageListeService.hentAlleBarnehagebarnInfotrygd(
+            BarnehagebarnRequestParams(
+                kommuneNavn = null,
+                kunLøpendeFagsak = false,
+                ident = null,
+            ),
+        )
+        assertTrue(barnehagebarn.totalElements == 2L)
+
+        // test at vi setter flagget riktig for både barn med løpende fagsak og barn uten løpende fagsak
+        assertTrue(barnehagebarn.find { it.ident == "123456789" }?.harFagsak!!.equals(true))
+        assertTrue(barnehagebarn.find { it.ident == "123456780" }?.harFagsak!!.equals(false))
+    }
+
+    @Test
+    fun `test at vi filtrerer bort barn som ikke har løpende sak i infotrygd`() {
+        // infotryg statisk liste.
+        every { infotrygdReplikaClient.hentAlleBarnasIdenterForLøpendeFagsaker() } returns listOf("123456789")
+
+        val barnehagelisteMottatt = BarnehagelisteMottatt(
+            melding = barnehagelisteXml,
+            meldingId = "testId",
+            mottatTid = LocalDateTime.now(),
+        )
+        barnehageListeService.lagreBarnehagelisteMottattOgOpprettTaskForLesing(barnehagelisteMottatt)
+        assertNotNull(barnehageListeService.hentUarkiverteBarnehagelisteUuider())
+        barnehageListeService.lesOgArkiver(barnehagelisteMottatt.id)
+
+        val barnehagebarn = barnehageListeService.hentAlleBarnehagebarnInfotrygd(
+            BarnehagebarnRequestParams(
+                kommuneNavn = null,
+                kunLøpendeFagsak = true,
+                ident = null,
+            ),
+        )
+        assertNotNull(barnehagebarn.find { it.ident == "123456789" })
     }
 
     @Test
@@ -131,7 +224,7 @@ class BarnehagelisteServiceTest(
         assertNotNull(melding)
         assertEquals("Oslo", melding.skjema.listeopplysninger.kommuneNavn)
         assertEquals("0301", melding.skjema.listeopplysninger.kommuneNr)
-        assertEquals(1, melding.skjema.barnInfolinjer.size)
+        assertEquals(2, melding.skjema.barnInfolinjer.size)
         assertEquals("123456789", melding.skjema.barnInfolinjer.get(0).barn.fodselsnummer)
         assertEquals(47.5, melding.skjema.barnInfolinjer.get(0).avtaltOppholdstidTimer)
         assertEquals("barnStartet", melding.skjema.barnInfolinjer.get(0).endringstype)
