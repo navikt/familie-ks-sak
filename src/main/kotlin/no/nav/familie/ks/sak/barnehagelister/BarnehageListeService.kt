@@ -25,7 +25,7 @@ import org.springframework.data.domain.Pageable
 import org.springframework.data.domain.Sort
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
-import java.util.*
+import java.util.UUID
 
 @Service
 class BarnehageListeService(
@@ -102,12 +102,10 @@ class BarnehageListeService(
     }
 
     fun hentAlleBarnehagebarnInfotrygd(barnehagebarnRequestParams: BarnehagebarnRequestParams): Page<BarnehagebarnInfotrygdDto> {
-        var sort = Sort.by(getCorrectSortBy("kommuneNavn")).descending()
-
-        if (barnehagebarnRequestParams.sortAsc) {
-            sort = Sort.by(getCorrectSortBy(barnehagebarnRequestParams.sortBy)).ascending()
+        val sort = if (barnehagebarnRequestParams.sortAsc) {
+            Sort.by(getCorrectSortBy(barnehagebarnRequestParams.sortBy)).ascending()
         } else {
-            sort = Sort.by(getCorrectSortBy(barnehagebarnRequestParams.sortBy)).descending()
+            Sort.by(getCorrectSortBy(barnehagebarnRequestParams.sortBy)).descending()
         }
 
         val pageable: Pageable =
@@ -122,13 +120,13 @@ class BarnehageListeService(
                     ident = barnehagebarnRequestParams.ident,
                     barna = barna,
                     pageable = pageable,
-                ).map { BarnehagebarnInfotrygdDto.fraBarnehageBarinInterfaceTilDto(it, true) }
+                ).map { BarnehagebarnInfotrygdDto.fraBarnehageBarnInterfaceTilDto(it, true) }
             } else {
                 return barnehagebarnRepository.findBarnehagebarnByIdentInfotrygdUavhengigAvFagsak(
                     ident = barnehagebarnRequestParams.ident,
                     pageable = pageable,
                 ).map {
-                    BarnehagebarnInfotrygdDto.fraBarnehageBarinInterfaceTilDto(
+                    BarnehagebarnInfotrygdDto.fraBarnehageBarnInterfaceTilDto(
                         it,
                         barneMap.contains(it.getIdent()),
                     )
@@ -140,13 +138,13 @@ class BarnehageListeService(
                     kommuneNavn = barnehagebarnRequestParams.kommuneNavn,
                     barna = barna,
                     pageable = pageable,
-                ).map { BarnehagebarnInfotrygdDto.fraBarnehageBarinInterfaceTilDto(it, true) }
+                ).map { BarnehagebarnInfotrygdDto.fraBarnehageBarnInterfaceTilDto(it, true) }
             } else {
                 return barnehagebarnRepository.findBarnehagebarnByKommuneNavnInfotrygdUavhengigAvFagsak(
                     kommuneNavn = barnehagebarnRequestParams.kommuneNavn,
                     pageable = pageable,
                 ).map {
-                    BarnehagebarnInfotrygdDto.fraBarnehageBarinInterfaceTilDto(
+                    BarnehagebarnInfotrygdDto.fraBarnehageBarnInterfaceTilDto(
                         it,
                         barneMap.contains(it.getIdent()),
                     )
@@ -155,10 +153,10 @@ class BarnehageListeService(
         } else {
             if (barnehagebarnRequestParams.kunLøpendeFagsak) {
                 return barnehagebarnRepository.findBarnehagebarnInfotrygd(barna = barna, pageable = pageable)
-                    .map { BarnehagebarnInfotrygdDto.fraBarnehageBarinInterfaceTilDto(it, true) }
+                    .map { BarnehagebarnInfotrygdDto.fraBarnehageBarnInterfaceTilDto(it, true) }
             } else {
                 return barnehagebarnRepository.findBarnehagebarnInfotrygdUavhengigAvFagsak(pageable = pageable).map {
-                    BarnehagebarnInfotrygdDto.fraBarnehageBarinInterfaceTilDto(
+                    BarnehagebarnInfotrygdDto.fraBarnehageBarnInterfaceTilDto(
                         it,
                         barneMap.contains(it.getIdent()),
                     )
@@ -168,13 +166,12 @@ class BarnehageListeService(
     }
 
     fun hentAlleBarnehagebarnPage(barnehagebarnRequestParams: BarnehagebarnRequestParams): Page<BarnehagebarnDtoInterface> {
-        var sort = Sort.by(getCorrectSortBy("kommuneNavn")).descending()
         var fagsakstatuser = listOf("LØPENDE")
 
-        if (barnehagebarnRequestParams.sortAsc) {
-            sort = Sort.by(getCorrectSortBy(barnehagebarnRequestParams.sortBy)).ascending()
+        var sort = if (barnehagebarnRequestParams.sortAsc) {
+            Sort.by(getCorrectSortBy(barnehagebarnRequestParams.sortBy)).ascending()
         } else {
-            sort = Sort.by(getCorrectSortBy(barnehagebarnRequestParams.sortBy)).descending()
+            Sort.by(getCorrectSortBy(barnehagebarnRequestParams.sortBy)).descending()
         }
         val pageable: Pageable =
             PageRequest.of(barnehagebarnRequestParams.offset, barnehagebarnRequestParams.limit, sort)

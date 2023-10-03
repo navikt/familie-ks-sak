@@ -168,7 +168,7 @@ class BarnehagelisteServiceTest(
 
     @Test
     fun `test at harFagsak settes riktig basert på data fra infotrygd`() {
-        // infotryg statisk liste.
+        // infotrygd nesten statisk statisk liste :)
         every { infotrygdReplikaClient.hentAlleBarnasIdenterForLøpendeFagsaker() } returns listOf("123456789")
 
         val barnehagelisteMottatt = BarnehagelisteMottatt(

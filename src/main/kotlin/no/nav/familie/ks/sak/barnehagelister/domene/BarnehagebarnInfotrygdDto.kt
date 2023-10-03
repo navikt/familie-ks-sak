@@ -14,7 +14,7 @@ data class BarnehagebarnInfotrygdDto(
 ) {
 
     companion object {
-        fun fraBarnehageBarinInterfaceTilDto(
+        fun fraBarnehageBarnInterfaceTilDto(
             barnehagebarnInfotrygdDtoInterface: BarnehagebarnInfotrygdDtoInterface,
             harFagsak: Boolean,
         ): BarnehagebarnInfotrygdDto {
