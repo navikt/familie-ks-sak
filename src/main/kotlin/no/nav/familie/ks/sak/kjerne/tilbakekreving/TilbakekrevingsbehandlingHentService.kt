@@ -1,6 +1,5 @@
 package no.nav.familie.ks.sak.kjerne.tilbakekreving
 
-import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.integrasjon.tilbakekreving.TilbakekrevingKlient
 import no.nav.familie.ks.sak.kjerne.tilbakekreving.domene.TilbakekrevingRepository
 import org.springframework.stereotype.Service
@@ -15,5 +14,4 @@ class TilbakekrevingsbehandlingHentService(
     fun hentTilbakekrevingsbehandlinger(fagsakId: Long) = tilbakekrevingKlient.hentTilbakekrevingsbehandlinger(fagsakId)
 
     fun hentTilbakekreving(behandlingId: Long) = tilbakekrevingRepository.findByBehandlingId(behandlingId)
-        ?: throw Feil("Finnes ikke tilbakekreving for behandling $behandlingId")
 }

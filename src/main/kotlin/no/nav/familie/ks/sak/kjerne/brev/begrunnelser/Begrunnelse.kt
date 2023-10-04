@@ -451,6 +451,14 @@ enum class Begrunnelse : IBegrunnelse {
         override val begrunnelseType = BegrunnelseType.OPPHØR
         override val sanityApiNavn = "opphorAvtaleOmDeltBostedIkkeGyldig"
     },
+    OPPHØR_DELT_BOSTED_BRUKER_MELDER_OM_DELTIDSPLASS {
+        override val begrunnelseType = BegrunnelseType.OPPHØR
+        override val sanityApiNavn = "opphorDeltBostedBrukerMelderOmDeltidsplass"
+    },
+    OPPHØR_DELT_BOSTED_KOMMUNEN_MELDER_OM_DELTIDSPLASS {
+        override val begrunnelseType = BegrunnelseType.OPPHØR
+        override val sanityApiNavn = "opphorDeltBostedKommunenMelderOmDeltidsplass"
+    },
     REDUKSJON_BARN_FLYTTET_FRA_SOKER {
         override val begrunnelseType = BegrunnelseType.REDUKSJON
         override val sanityApiNavn = "reduksjonBarnFlyttetFraSoker"
@@ -535,6 +543,7 @@ enum class Begrunnelse : IBegrunnelse {
         override val begrunnelseType = BegrunnelseType.REDUKSJON
         override val sanityApiNavn = "reduksjonDenAndreForelderenHarFottFraSammeTidsrom"
     }, ;
+
     override fun enumnavnTilString() = this.name
 }
 
