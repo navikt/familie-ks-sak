@@ -1,11 +1,16 @@
 package no.nav.familie.ks.sak.no.nav.familie.ks.sak.barnehagelister
 
+import com.ninjasquad.springmockk.MockkBean
+import io.mockk.every
 import no.nav.familie.ks.sak.OppslagSpringRunnerTest
+import no.nav.familie.ks.sak.api.dto.BarnehagebarnRequestParams
 import no.nav.familie.ks.sak.barnehagelister.BarnehageListeService
 import no.nav.familie.ks.sak.barnehagelister.domene.BarnehagelisteMottatt
+import no.nav.familie.ks.sak.integrasjon.infotrygd.InfotrygdReplikaClient
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertNull
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import java.time.LocalDate
@@ -14,6 +19,9 @@ import java.time.LocalDateTime
 class BarnehagelisteServiceTest(
     @Autowired private val barnehageListeService: BarnehageListeService,
 ) : OppslagSpringRunnerTest() {
+
+    @MockkBean(relaxed = true)
+    private lateinit var infotrygdReplikaClient: InfotrygdReplikaClient
 
     var barnehagelisteXml =
         """
@@ -33,6 +41,47 @@ class BarnehagelisteServiceTest(
             <ns2:barn>
                 <ns2:navn>navnesen navn</ns2:navn>
                 <ns2:fodselsnummer>123456789</ns2:fodselsnummer>
+                <ns2:adresse>
+                    <ns2:gateOgNummer>gate og nummer</ns2:gateOgNummer>
+                    <ns2:postnummer>0655</ns2:postnummer>
+                    <ns2:poststed>OSLO</ns2:poststed>
+                </ns2:adresse>
+            </ns2:barn>
+            <ns2:forelder>
+                <ns2:navn>navnesen navn</ns2:navn>
+                <ns2:fodselsnummer>123456789</ns2:fodselsnummer>
+                <ns2:adresse>
+                    <ns2:gateOgNummer>gate og nummer</ns2:gateOgNummer>
+                    <ns2:postnummer>0655</ns2:postnummer>
+                    <ns2:poststed>OSLO</ns2:poststed>
+                </ns2:adresse>
+            </ns2:forelder>
+            <ns2:forelder>
+                <ns2:navn>navnesen navn</ns2:navn>
+                <ns2:fodselsnummer>123456789</ns2:fodselsnummer>
+                <ns2:adresse>
+                    <ns2:gateOgNummer>gate og nummer</ns2:gateOgNummer>
+                    <ns2:postnummer>0655</ns2:postnummer>
+                    <ns2:poststed>OSLO</ns2:poststed>
+                </ns2:adresse>
+            </ns2:forelder>
+            <ns2:barnehage>
+                <ns2:navn>navnesen navn</ns2:navn>
+                <ns2:organisasjonsnummer>0123412523</ns2:organisasjonsnummer>
+                <ns2:adresse>
+                    <ns2:gateOgNummer>gate og nummer</ns2:gateOgNummer>
+                    <ns2:postnummer>0655</ns2:postnummer>
+                    <ns2:poststed>OSLO</ns2:poststed>
+                </ns2:adresse>
+            </ns2:barnehage>
+            <ns2:avtaltOppholdstidTimer>47.5</ns2:avtaltOppholdstidTimer>
+            <ns2:startdato>2023-09-06</ns2:startdato>
+        </ns2:barnInfolinje>
+        <ns2:barnInfolinje>
+            <ns2:endringstype>barnStartet</ns2:endringstype>
+            <ns2:barn>
+                <ns2:navn>navnesen navn</ns2:navn>
+                <ns2:fodselsnummer>123456780</ns2:fodselsnummer>
                 <ns2:adresse>
                     <ns2:gateOgNummer>gate og nummer</ns2:gateOgNummer>
                     <ns2:postnummer>0655</ns2:postnummer>
@@ -95,12 +144,87 @@ class BarnehagelisteServiceTest(
     }
 
     @Test
+    fun `test at henting av filtrerte data fra infotrygd og kommunenavn fungerer`() {
+        every { infotrygdReplikaClient.hentAlleBarnasIdenterForLøpendeFagsaker() } returns listOf("123456789")
+
+        val barnehagelisteMottatt = BarnehagelisteMottatt(
+            melding = barnehagelisteXml,
+            meldingId = "testId",
+            mottatTid = LocalDateTime.now(),
+        )
+        barnehageListeService.lagreBarnehagelisteMottattOgOpprettTaskForLesing(barnehagelisteMottatt)
+        assertNotNull(barnehageListeService.hentUarkiverteBarnehagelisteUuider())
+        barnehageListeService.lesOgArkiver(barnehagelisteMottatt.id)
+
+        val barnehagebarn = barnehageListeService.hentAlleBarnehagebarnInfotrygd(
+            BarnehagebarnRequestParams(
+                kommuneNavn = "Oslo",
+                kunLøpendeFagsak = false,
+                ident = null,
+            ),
+        )
+        assertNull(barnehagebarn.find { it.kommuneNavn != "Oslo" })
+    }
+
+    @Test
+    fun `test at harFagsak settes riktig basert på data fra infotrygd`() {
+        // infotrygd nesten statisk statisk liste :)
+        every { infotrygdReplikaClient.hentAlleBarnasIdenterForLøpendeFagsaker() } returns listOf("123456789")
+
+        val barnehagelisteMottatt = BarnehagelisteMottatt(
+            melding = barnehagelisteXml,
+            meldingId = "testId",
+            mottatTid = LocalDateTime.now(),
+        )
+        barnehageListeService.lagreBarnehagelisteMottattOgOpprettTaskForLesing(barnehagelisteMottatt)
+        assertNotNull(barnehageListeService.hentUarkiverteBarnehagelisteUuider())
+        barnehageListeService.lesOgArkiver(barnehagelisteMottatt.id)
+
+        val barnehagebarn = barnehageListeService.hentAlleBarnehagebarnInfotrygd(
+            BarnehagebarnRequestParams(
+                kommuneNavn = null,
+                kunLøpendeFagsak = false,
+                ident = null,
+            ),
+        )
+        assertTrue(barnehagebarn.totalElements == 2L)
+
+        // test at vi setter flagget riktig for både barn med løpende fagsak og barn uten løpende fagsak
+        assertTrue(barnehagebarn.find { it.ident == "123456789" }?.harFagsak!!.equals(true))
+        assertTrue(barnehagebarn.find { it.ident == "123456780" }?.harFagsak!!.equals(false))
+    }
+
+    @Test
+    fun `test at vi filtrerer bort barn som ikke har løpende sak i infotrygd`() {
+        // infotryg statisk liste.
+        every { infotrygdReplikaClient.hentAlleBarnasIdenterForLøpendeFagsaker() } returns listOf("123456789")
+
+        val barnehagelisteMottatt = BarnehagelisteMottatt(
+            melding = barnehagelisteXml,
+            meldingId = "testId",
+            mottatTid = LocalDateTime.now(),
+        )
+        barnehageListeService.lagreBarnehagelisteMottattOgOpprettTaskForLesing(barnehagelisteMottatt)
+        assertNotNull(barnehageListeService.hentUarkiverteBarnehagelisteUuider())
+        barnehageListeService.lesOgArkiver(barnehagelisteMottatt.id)
+
+        val barnehagebarn = barnehageListeService.hentAlleBarnehagebarnInfotrygd(
+            BarnehagebarnRequestParams(
+                kommuneNavn = null,
+                kunLøpendeFagsak = true,
+                ident = null,
+            ),
+        )
+        assertNotNull(barnehagebarn.find { it.ident == "123456789" })
+    }
+
+    @Test
     fun `test parsing av barnehageliste melding XML til DTO`() {
         val melding = barnehageListeService.lesBarnehagelisteMottattMeldingXml(barnehagelisteXml)
         assertNotNull(melding)
         assertEquals("Oslo", melding.skjema.listeopplysninger.kommuneNavn)
         assertEquals("0301", melding.skjema.listeopplysninger.kommuneNr)
-        assertEquals(1, melding.skjema.barnInfolinjer.size)
+        assertEquals(2, melding.skjema.barnInfolinjer.size)
         assertEquals("123456789", melding.skjema.barnInfolinjer.get(0).barn.fodselsnummer)
         assertEquals(47.5, melding.skjema.barnInfolinjer.get(0).avtaltOppholdstidTimer)
         assertEquals("barnStartet", melding.skjema.barnInfolinjer.get(0).endringstype)
