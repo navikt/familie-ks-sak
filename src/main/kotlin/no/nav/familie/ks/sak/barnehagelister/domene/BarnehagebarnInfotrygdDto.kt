@@ -1,6 +1,7 @@
 package no.nav.familie.ks.sak.barnehagelister.domene
 
 import java.time.LocalDate
+import java.time.LocalDateTime
 
 data class BarnehagebarnInfotrygdDto(
     val ident: String,
@@ -11,6 +12,7 @@ data class BarnehagebarnInfotrygdDto(
     val kommuneNavn: String,
     val kommuneNr: String,
     val harFagsak: Boolean,
+    val endretTid: LocalDateTime,
 ) {
 
     companion object {
@@ -27,6 +29,7 @@ data class BarnehagebarnInfotrygdDto(
                 kommuneNavn = barnehagebarnInfotrygdDtoInterface.getKommuneNavn(),
                 kommuneNr = barnehagebarnInfotrygdDtoInterface.getKommuneNr(),
                 harFagsak = harFagsak,
+                endretTid = barnehagebarnInfotrygdDtoInterface.getEndretTid(),
             )
         }
     }
