@@ -161,7 +161,7 @@ class BarnehagelisteServiceTest(
                 kommuneNavn = "Oslo",
                 kunLøpendeFagsak = false,
                 ident = null,
-                limit = 1
+                limit = 1,
             ),
         )
         assertNull(barnehagebarn.find { it.kommuneNavn != "Oslo" })
