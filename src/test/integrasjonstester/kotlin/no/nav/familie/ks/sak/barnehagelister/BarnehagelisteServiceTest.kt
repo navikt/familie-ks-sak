@@ -169,7 +169,6 @@ class BarnehagelisteServiceTest(
 
     @Test
     fun `test at harFagsak settes riktig basert på data fra infotrygd`() {
-        // infotrygd nesten statisk statisk liste :)
         every { infotrygdReplikaClient.hentAlleBarnasIdenterForLøpendeFagsaker() } returns listOf("123456789")
 
         val barnehagelisteMottatt = BarnehagelisteMottatt(
@@ -198,7 +197,6 @@ class BarnehagelisteServiceTest(
 
     @Test
     fun `test at vi filtrerer bort barn som ikke har løpende sak i infotrygd`() {
-        // infotryg statisk liste.
         every { infotrygdReplikaClient.hentAlleBarnasIdenterForLøpendeFagsaker() } returns listOf("123456789")
 
         val barnehagelisteMottatt = BarnehagelisteMottatt(
@@ -223,7 +221,6 @@ class BarnehagelisteServiceTest(
 
     @Test
     fun `test at join mot fagsak og at count som brukes i pagable fungerer`() {
-        // infotryg statisk liste.
         every { infotrygdReplikaClient.hentAlleBarnasIdenterForLøpendeFagsaker() } returns listOf("123456789")
 
         val barnehagelisteMottatt = BarnehagelisteMottatt(
