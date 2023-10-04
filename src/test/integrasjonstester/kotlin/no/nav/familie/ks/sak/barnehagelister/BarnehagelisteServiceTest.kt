@@ -161,6 +161,7 @@ class BarnehagelisteServiceTest(
                 kommuneNavn = "Oslo",
                 kunLøpendeFagsak = false,
                 ident = null,
+                limit = 1
             ),
         )
         assertNull(barnehagebarn.find { it.kommuneNavn != "Oslo" })
@@ -185,6 +186,7 @@ class BarnehagelisteServiceTest(
                 kommuneNavn = null,
                 kunLøpendeFagsak = false,
                 ident = null,
+                limit = 2,
             ),
         )
         assertTrue(barnehagebarn.totalElements == 2L)
@@ -213,9 +215,35 @@ class BarnehagelisteServiceTest(
                 kommuneNavn = null,
                 kunLøpendeFagsak = true,
                 ident = null,
+                limit = 2,
             ),
         )
         assertNotNull(barnehagebarn.find { it.ident == "123456789" })
+    }
+
+    @Test
+    fun `test at join mot fagsak og at count som brukes i pagable fungerer`() {
+        // infotryg statisk liste.
+        every { infotrygdReplikaClient.hentAlleBarnasIdenterForLøpendeFagsaker() } returns listOf("123456789")
+
+        val barnehagelisteMottatt = BarnehagelisteMottatt(
+            melding = barnehagelisteXml,
+            meldingId = "testId",
+            mottatTid = LocalDateTime.now(),
+        )
+        barnehageListeService.lagreBarnehagelisteMottattOgOpprettTaskForLesing(barnehagelisteMottatt)
+        assertNotNull(barnehageListeService.hentUarkiverteBarnehagelisteUuider())
+        barnehageListeService.lesOgArkiver(barnehagelisteMottatt.id)
+
+        val barnehagebarn = barnehageListeService.hentAlleBarnehagebarnPage(
+            BarnehagebarnRequestParams(
+                kommuneNavn = null,
+                kunLøpendeFagsak = false,
+                ident = null,
+                limit = 2,
+            ),
+        )
+        assertNotNull(barnehagebarn.find { it.getIdent() == "123456789" })
     }
 
     @Test
