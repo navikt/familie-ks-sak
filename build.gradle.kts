@@ -48,7 +48,7 @@ dependencies {
     val tokenValidationSpringVersion = "3.1.3"
     val navFoedselsnummerVersion = "1.0-SNAPSHOT.6"
     val prosesseringVersion = "2.20230928100816_3cbdfc5"
-    val restAssuredVersion = "5.3.0"
+    val restAssuredVersion = "5.3.2"
     val kotlinxVersion = "1.7.3"
 
     // ---------- Spring ---------- \\
