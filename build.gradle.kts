@@ -130,7 +130,7 @@ dependencies {
     testImplementation("io.rest-assured:spring-mock-mvc:$restAssuredVersion")
     testImplementation("io.rest-assured:kotlin-extensions:$restAssuredVersion")
     testImplementation("org.testcontainers:postgresql:1.17.6")
-    testImplementation("no.nav.security:mock-oauth2-server:0.5.6")
+    testImplementation("no.nav.security:mock-oauth2-server:2.0.1")
     testImplementation("no.nav.security:token-validation-test-support:2.0.5")
     testImplementation("no.nav.security:token-validation-spring-test:$tokenValidationSpringVersion")
     testImplementation("nav-foedselsnummer:testutils:1.0-SNAPSHOT.6")
