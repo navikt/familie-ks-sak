@@ -5,12 +5,12 @@ plugins {
     kotlin("jvm") version kotlinVersion
 
     id("org.springframework.boot") version "3.1.4"
-    id("io.spring.dependency-management") version "1.0.13.RELEASE"
+    id("io.spring.dependency-management") version "1.1.3"
     id("org.jetbrains.kotlin.plugin.spring") version kotlinVersion
     id("org.jetbrains.kotlin.plugin.jpa") version kotlinVersion
     id("org.jetbrains.kotlin.plugin.allopen") version kotlinVersion
     id("org.jetbrains.kotlin.plugin.noarg") version kotlinVersion
-    id("com.github.davidmc24.gradle.plugin.avro") version "1.5.0"
+    id("com.github.davidmc24.gradle.plugin.avro") version "1.8.0"
 
     // ------------- SLSA -------------- //
     id("org.cyclonedx.bom") version "1.7.4"
@@ -45,14 +45,14 @@ repositories {
 dependencies {
 
     val springdocVersion = "2.2.0"
-    val sentryVersion = "6.8.0"
+    val sentryVersion = "6.30.0"
     val navFellesVersion = "2.20230928165350_3e5b5e9"
     val eksterneKontrakterBisysVersion = "2.0_20220609214258_f30c3ce"
     val fellesKontrakterVersion = "3.0_20230921075936_3adfc44"
     val familieKontrakterSaksstatistikkVersion = "2.0_20220216121145_5a268ac"
     val familieKontrakterStønadsstatistikkKsVersion = "2.0_20230825103733_1ac52c2"
     val familieKontrakterSkatteetatenVersion = "2.0_20210920094114_9c74239"
-    val tokenValidationSpringVersion = "3.1.3"
+    val tokenValidationSpringVersion = "3.1.7"
     val navFoedselsnummerVersion = "1.0-SNAPSHOT.6"
     val prosesseringVersion = "2.20230928100816_3cbdfc5"
     val restAssuredVersion = "5.3.2"
@@ -82,11 +82,11 @@ dependencies {
 
     // ---------- Apache ---------- \\
     implementation("org.apache.httpcomponents:httpclient:4.5.14")
-    implementation("org.apache.httpcomponents:httpcore:4.4.15")
+    implementation("org.apache.httpcomponents:httpcore:4.4.16")
 
     // ----------- AVRO ---------\\
-    implementation("org.apache.avro:avro:1.11.1")
-    implementation("io.confluent:kafka-avro-serializer:7.4.0")
+    implementation("org.apache.avro:avro:1.11.3")
+    implementation("io.confluent:kafka-avro-serializer:7.5.0")
     implementation("org.eclipse.jetty:jetty-server")
 
     // ---------- NAV ---------- \\
@@ -113,7 +113,7 @@ dependencies {
     implementation("io.sentry:sentry-spring-boot-starter:$sentryVersion")
     implementation("io.sentry:sentry-logback:$sentryVersion")
     implementation("io.micrometer:micrometer-registry-prometheus")
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.14.0")
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.15.2")
     implementation("com.neovisionaries:nv-i18n:1.29")
     ktlint("com.pinterest:ktlint:0.50.0") {
         attributes {
@@ -121,15 +121,15 @@ dependencies {
         }
     }
 
-    testImplementation("io.mockk:mockk:1.13.2")
+    testImplementation("io.mockk:mockk:1.13.8")
     testImplementation("com.ninja-squad:springmockk:3.1.1") {
         exclude(module = "mockito-core")
     }
     testImplementation("org.springframework.boot:spring-boot-starter-test")
-    testImplementation("org.springframework.cloud:spring-cloud-contract-wiremock:4.0.1")
+    testImplementation("org.springframework.cloud:spring-cloud-contract-wiremock:4.0.4")
     testImplementation("io.rest-assured:spring-mock-mvc:$restAssuredVersion")
     testImplementation("io.rest-assured:kotlin-extensions:$restAssuredVersion")
-    testImplementation("org.testcontainers:postgresql:1.17.6")
+    testImplementation("org.testcontainers:postgresql:1.19.1")
     testImplementation("no.nav.security:mock-oauth2-server:0.5.6")
     testImplementation("no.nav.security:token-validation-test-support:2.0.5")
     testImplementation("no.nav.security:token-validation-spring-test:$tokenValidationSpringVersion")
