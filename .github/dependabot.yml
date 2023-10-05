@@ -14,11 +14,6 @@ updates:
     open-pull-requests-limit: 10
     registries:
       - familie-felles
-  - package-ecosystem: github-actions
-    directory: "/"
-    schedule:
-      interval: daily
-    open-pull-requests-limit: 10
     groups:
       minor-and-patch-dependencies:
         patterns:
@@ -31,3 +26,8 @@ updates:
           - "*"
         update-types:
           - "major"
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: daily
+    open-pull-requests-limit: 10
