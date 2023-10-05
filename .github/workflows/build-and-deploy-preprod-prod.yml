@@ -14,7 +14,7 @@ jobs:
       contents: read
       id-token: write
     steps:
-      - uses: "actions/checkout@v3"
+      - uses: "actions/checkout@v4"
       - uses: "gradle/wrapper-validation-action@v1"
       - uses: "actions/setup-java@v3"
         with:
@@ -50,7 +50,7 @@ jobs:
     needs: bygg-og-push-til-github
     runs-on: ubuntu-latest-8-cores
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: nais/deploy/actions/deploy@v1
         env:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
@@ -63,7 +63,7 @@ jobs:
     needs: bygg-og-push-til-github
     runs-on: ubuntu-latest-8-cores
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: nais/deploy/actions/deploy@v1
         env:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
