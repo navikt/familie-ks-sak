@@ -109,7 +109,7 @@ dependencies {
     implementation("nav-foedselsnummer:core:$navFoedselsnummerVersion")
 
     implementation("com.papertrailapp:logback-syslog4j:1.0.0")
-    implementation("io.getunleash:unleash-client-java:6.1.0")
+    implementation("io.getunleash:unleash-client-java:8.3.1")
     implementation("io.sentry:sentry-spring-boot-starter:$sentryVersion")
     implementation("io.sentry:sentry-logback:$sentryVersion")
     implementation("io.micrometer:micrometer-registry-prometheus")
@@ -122,7 +122,7 @@ dependencies {
     }
 
     testImplementation("io.mockk:mockk:1.13.2")
-    testImplementation("com.ninja-squad:springmockk:3.1.1") {
+    testImplementation("com.ninja-squad:springmockk:4.0.2") {
         exclude(module = "mockito-core")
     }
     testImplementation("org.springframework.boot:spring-boot-starter-test")
@@ -130,7 +130,7 @@ dependencies {
     testImplementation("io.rest-assured:spring-mock-mvc:$restAssuredVersion")
     testImplementation("io.rest-assured:kotlin-extensions:$restAssuredVersion")
     testImplementation("org.testcontainers:postgresql:1.17.6")
-    testImplementation("no.nav.security:mock-oauth2-server:0.5.6")
+    testImplementation("no.nav.security:mock-oauth2-server:2.0.1")
     testImplementation("no.nav.security:token-validation-test-support:2.0.5")
     testImplementation("no.nav.security:token-validation-spring-test:$tokenValidationSpringVersion")
     testImplementation("nav-foedselsnummer:testutils:1.0-SNAPSHOT.6")
