@@ -16,6 +16,13 @@ plugins {
     id("org.cyclonedx.bom") version "1.7.4"
 }
 
+configurations {
+    implementation.configure {
+        exclude(module = "spring-boot-starter-tomcat")
+        exclude("org.apache.tomcat")
+    }
+}
+
 group = "no.nav"
 version = "0.0.1-SNAPSHOT"
 java.sourceCompatibility = JavaVersion.VERSION_17
@@ -80,6 +87,7 @@ dependencies {
     // ----------- AVRO ---------\\
     implementation("org.apache.avro:avro:1.11.1")
     implementation("io.confluent:kafka-avro-serializer:7.4.0")
+    implementation("org.eclipse.jetty:jetty-server")
 
     // ---------- NAV ---------- \\
     implementation("no.nav.familie.felles:sikkerhet:$navFellesVersion")
