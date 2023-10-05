@@ -4,7 +4,7 @@ plugins {
     val kotlinVersion = "1.9.10"
     kotlin("jvm") version kotlinVersion
 
-    id("org.springframework.boot") version "3.1.0"
+    id("org.springframework.boot") version "3.1.4"
     id("io.spring.dependency-management") version "1.0.13.RELEASE"
     id("org.jetbrains.kotlin.plugin.spring") version kotlinVersion
     id("org.jetbrains.kotlin.plugin.jpa") version kotlinVersion
@@ -14,6 +14,13 @@ plugins {
 
     // ------------- SLSA -------------- //
     id("org.cyclonedx.bom") version "1.7.4"
+}
+
+configurations {
+    implementation.configure {
+        exclude(module = "spring-boot-starter-tomcat")
+        exclude("org.apache.tomcat")
+    }
 }
 
 group = "no.nav"
@@ -80,6 +87,7 @@ dependencies {
     // ----------- AVRO ---------\\
     implementation("org.apache.avro:avro:1.11.1")
     implementation("io.confluent:kafka-avro-serializer:7.4.0")
+    implementation("org.eclipse.jetty:jetty-server")
 
     // ---------- NAV ---------- \\
     implementation("no.nav.familie.felles:sikkerhet:$navFellesVersion")
