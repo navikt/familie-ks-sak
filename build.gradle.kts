@@ -49,7 +49,7 @@ dependencies {
     val navFellesVersion = "2.20230928165350_3e5b5e9"
     val eksterneKontrakterBisysVersion = "2.0_20220609214258_f30c3ce"
     val fellesKontrakterVersion = "3.0_20230921075936_3adfc44"
-    val familieKontrakterSaksstatistikkVersion = "2.0_20220216121145_5a268ac"
+    val familieKontrakterSaksstatistikkVersion = "2.0_20230214104704_706e9c0"
     val familieKontrakterStønadsstatistikkKsVersion = "2.0_20230825103733_1ac52c2"
     val familieKontrakterSkatteetatenVersion = "2.0_20210920094114_9c74239"
     val tokenValidationSpringVersion = "3.1.7"
