@@ -74,7 +74,7 @@ dependencies {
     implementation("org.postgresql:postgresql:42.6.0")
 
     // ---------- Apache ---------- \\
-    implementation("org.apache.httpcomponents:httpclient:4.5.13")
+    implementation("org.apache.httpcomponents:httpclient:4.5.14")
     implementation("org.apache.httpcomponents:httpcore:4.4.15")
 
     // ----------- AVRO ---------\\
