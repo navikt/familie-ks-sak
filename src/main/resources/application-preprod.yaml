@@ -105,6 +105,8 @@ logging:
     root: INFO
 sentry.environment: preprod
 
+prosessering.rolle: "928636f4-fd0d-4149-978e-a6fb68bb19de"
+
 SANITY_DATASET: "ks-brev"
 
 PDL_URL: https://pdl-api.dev-fss-pub.nais.io
