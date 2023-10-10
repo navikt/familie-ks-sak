@@ -10,7 +10,7 @@ plugins {
     id("org.jetbrains.kotlin.plugin.jpa") version kotlinVersion
     id("org.jetbrains.kotlin.plugin.allopen") version kotlinVersion
     id("org.jetbrains.kotlin.plugin.noarg") version kotlinVersion
-    id("com.github.davidmc24.gradle.plugin.avro") version "1.8.0"
+    id("com.github.davidmc24.gradle.plugin.avro") version "1.9.0"
 
     // ------------- SLSA -------------- //
     id("org.cyclonedx.bom") version "1.7.4"
