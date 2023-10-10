@@ -34,7 +34,7 @@ repositories {
         url = uri("https://packages.confluent.io/maven")
     }
     maven {
-        url = uri("https://maven.pkg.github.com/navikt/familie-felles")
+        url = uri("https://maven.pkg.github.com/navikt/maven-release")
         credentials {
             username = System.getenv("GITHUB_USERNAME")
             password = System.getenv("GITHUB_TOKEN")
@@ -54,7 +54,7 @@ dependencies {
     val familieKontrakterSkatteetatenVersion = "2.0_20230214104704_706e9c0"
     val tokenValidationSpringVersion = "3.1.7"
     val navFoedselsnummerVersion = "1.0-SNAPSHOT.6"
-    val prosesseringVersion = "2.20231005144526_f184554"
+    val prosesseringVersion = "2.20231006130620_9b45ded"
     val restAssuredVersion = "5.3.2"
     val kotlinxVersion = "1.7.3"
 
@@ -109,7 +109,7 @@ dependencies {
     implementation("nav-foedselsnummer:core:$navFoedselsnummerVersion")
 
     implementation("com.papertrailapp:logback-syslog4j:1.0.0")
-    implementation("io.getunleash:unleash-client-java:6.1.0")
+    implementation("io.getunleash:unleash-client-java:8.3.1")
     implementation("io.sentry:sentry-spring-boot-starter:$sentryVersion")
     implementation("io.sentry:sentry-logback:$sentryVersion")
     implementation("io.micrometer:micrometer-registry-prometheus")
@@ -122,7 +122,7 @@ dependencies {
     }
 
     testImplementation("io.mockk:mockk:1.13.8")
-    testImplementation("com.ninja-squad:springmockk:3.1.1") {
+    testImplementation("com.ninja-squad:springmockk:4.0.2") {
         exclude(module = "mockito-core")
     }
     testImplementation("org.springframework.boot:spring-boot-starter-test")
