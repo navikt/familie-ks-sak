@@ -34,7 +34,7 @@ repositories {
         url = uri("https://packages.confluent.io/maven")
     }
     maven {
-        url = uri("https://maven.pkg.github.com/navikt/familie-felles")
+        url = uri("https://maven.pkg.github.com/navikt/maven-release")
         credentials {
             username = System.getenv("GITHUB_USERNAME")
             password = System.getenv("GITHUB_TOKEN")
@@ -54,7 +54,7 @@ dependencies {
     val familieKontrakterSkatteetatenVersion = "2.0_20230214104704_706e9c0"
     val tokenValidationSpringVersion = "3.1.7"
     val navFoedselsnummerVersion = "1.0-SNAPSHOT.6"
-    val prosesseringVersion = "2.20231005144526_f184554"
+    val prosesseringVersion = "2.20231006130620_9b45ded"
     val restAssuredVersion = "5.3.2"
     val kotlinxVersion = "1.7.3"
 
