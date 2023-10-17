@@ -28,7 +28,6 @@ class BehandlingStegController(
     private val stegService: StegService,
     private val behandlingService: BehandlingService,
 ) {
-
     @PostMapping(path = ["/registrer-søknad"], produces = [MediaType.APPLICATION_JSON_VALUE])
     fun registrereSøknadOgOppdaterPersongrunnlag(
         @PathVariable behandlingId: Long,
@@ -44,7 +43,9 @@ class BehandlingStegController(
     }
 
     @PostMapping(path = ["/vilkårsvurdering"])
-    fun utførVilkårsvurdering(@PathVariable behandlingId: Long): ResponseEntity<Ressurs<BehandlingResponsDto>> {
+    fun utførVilkårsvurdering(
+        @PathVariable behandlingId: Long,
+    ): ResponseEntity<Ressurs<BehandlingResponsDto>> {
         tilgangService.validerTilgangTilHandling(
             minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
             handling = "utfør vilkårsvurdering",
@@ -56,7 +57,9 @@ class BehandlingStegController(
     }
 
     @PostMapping(path = ["/behandlingsresultat"])
-    fun utledBehandlingsresultat(@PathVariable behandlingId: Long): ResponseEntity<Ressurs<BehandlingResponsDto>> {
+    fun utledBehandlingsresultat(
+        @PathVariable behandlingId: Long,
+    ): ResponseEntity<Ressurs<BehandlingResponsDto>> {
         tilgangService.validerTilgangTilHandling(
             minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
             handling = "vurdere behandlingsresultat",

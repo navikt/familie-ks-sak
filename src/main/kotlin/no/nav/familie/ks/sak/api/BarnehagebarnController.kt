@@ -25,13 +25,14 @@ class BarnehagebarnController(
     private val barnehageListeService: BarnehageListeService,
     private val tilgangService: TilgangService,
 ) {
-
     @PostMapping(
         path = ["/barnehagebarnliste"],
         consumes = [MediaType.APPLICATION_JSON_VALUE],
         produces = [MediaType.APPLICATION_JSON_VALUE],
     )
-    fun hentAlleBarnehagebarnPage(@RequestBody(required = true) barnehagebarnRequestParams: BarnehagebarnRequestParams): ResponseEntity<Ressurs<Page<BarnehagebarnDtoInterface>>> {
+    fun hentAlleBarnehagebarnPage(
+        @RequestBody(required = true) barnehagebarnRequestParams: BarnehagebarnRequestParams,
+    ): ResponseEntity<Ressurs<Page<BarnehagebarnDtoInterface>>> {
         tilgangService.validerTilgangTilHandling(
             minimumBehandlerRolle = BehandlerRolle.VEILEDER,
             handling = "hente ut alle barnehagebarn",
@@ -45,7 +46,9 @@ class BarnehagebarnController(
         consumes = [MediaType.APPLICATION_JSON_VALUE],
         produces = [MediaType.APPLICATION_JSON_VALUE],
     )
-    fun hentAlleBarnehagebarnInfotrygdPage(@RequestBody(required = true) barnehagebarnRequestParams: BarnehagebarnRequestParams): ResponseEntity<Ressurs<Page<BarnehagebarnInfotrygdDto>>> {
+    fun hentAlleBarnehagebarnInfotrygdPage(
+        @RequestBody(required = true) barnehagebarnRequestParams: BarnehagebarnRequestParams,
+    ): ResponseEntity<Ressurs<Page<BarnehagebarnInfotrygdDto>>> {
         tilgangService.validerTilgangTilHandling(
             minimumBehandlerRolle = BehandlerRolle.VEILEDER,
             handling = "hente ut alle barnehagebarn",

@@ -33,21 +33,21 @@ class PersonopplysningGrunnlagService(
     private val personidentService: PersonidentService,
     private val loggService: LoggService,
 ) {
-
     fun opprettPersonopplysningGrunnlag(
         behandling: Behandling,
         sisteVedtattBehandling: Behandling?,
     ) {
         val søkersAktør = behandling.fagsak.aktør
-        val barnasAktørFraSisteVedtattBehandling = when (behandling.type) {
-            BehandlingType.FØRSTEGANGSBEHANDLING -> emptyList()
-            BehandlingType.REVURDERING, BehandlingType.TEKNISK_ENDRING -> {
-                if (sisteVedtattBehandling == null) {
-                    throw Feil("Kan ikke behandle ${behandling.type} uten minst en vedtatt behandling")
+        val barnasAktørFraSisteVedtattBehandling =
+            when (behandling.type) {
+                BehandlingType.FØRSTEGANGSBEHANDLING -> emptyList()
+                BehandlingType.REVURDERING, BehandlingType.TEKNISK_ENDRING -> {
+                    if (sisteVedtattBehandling == null) {
+                        throw Feil("Kan ikke behandle ${behandling.type} uten minst en vedtatt behandling")
+                    }
+                    beregningService.finnBarnFraBehandlingMedTilkjentYtelse(sisteVedtattBehandling.id)
                 }
-                beregningService.finnBarnFraBehandlingMedTilkjentYtelse(sisteVedtattBehandling.id)
             }
-        }
         val målform = sisteVedtattBehandling?.let { hentSøkersMålform(behandlingId = it.id) } ?: Målform.NB
         lagreSøkerOgBarnINyttGrunnlag(
             aktør = søkersAktør,
@@ -67,18 +67,20 @@ class PersonopplysningGrunnlagService(
             finnAktivPersonopplysningGrunnlag(behandling.id)
                 ?: throw Feil("Det finnes ikke noe aktivt personopplysningsgrunnlag for ${behandling.id}")
 
-        val valgteBarnAktører = søknadDto.barnaMedOpplysninger.filter { it.inkludertISøknaden }
-            .map { personidentService.hentOgLagreAktør(it.ident, true) }
+        val valgteBarnAktører =
+            søknadDto.barnaMedOpplysninger.filter { it.inkludertISøknaden }
+                .map { personidentService.hentOgLagreAktør(it.ident, true) }
 
-        val barnAktører = when {
-            forrigeBehandlingSomErVedtatt != null -> {
-                // Dersom det finnes en tidligere vedtatt behandling MÅ alle barna som har tilkjent ytelse være med i ny behandling.
-                val barnAktørerMedTilkjentYtelse = finnBarnMedTilkjentYtelseIBehandling(forrigeBehandlingSomErVedtatt)
-                barnAktørerMedTilkjentYtelse.union(valgteBarnAktører).toList()
+        val barnAktører =
+            when {
+                forrigeBehandlingSomErVedtatt != null -> {
+                    // Dersom det finnes en tidligere vedtatt behandling MÅ alle barna som har tilkjent ytelse være med i ny behandling.
+                    val barnAktørerMedTilkjentYtelse = finnBarnMedTilkjentYtelseIBehandling(forrigeBehandlingSomErVedtatt)
+                    barnAktørerMedTilkjentYtelse.union(valgteBarnAktører).toList()
+                }
+
+                else -> valgteBarnAktører
             }
-
-            else -> valgteBarnAktører
-        }
 
         return lagreSøkerOgBarnINyttGrunnlag(
             aktør = eksisterendePersonopplysningGrunnlag.søker.aktør,
@@ -93,11 +95,9 @@ class PersonopplysningGrunnlagService(
             andelTilkjentYtelseRepository.finnAndelerTilkjentYtelseForBehandlingOgBarn(behandling.id, it).isNotEmpty()
         } ?: emptyList()
 
-    fun hentSøker(behandlingId: Long): Person? =
-        personopplysningGrunnlagRepository.findByBehandlingAndAktiv(behandlingId)?.søker
+    fun hentSøker(behandlingId: Long): Person? = personopplysningGrunnlagRepository.findByBehandlingAndAktiv(behandlingId)?.søker
 
-    fun hentBarna(behandlingId: Long): List<Person>? =
-        personopplysningGrunnlagRepository.findByBehandlingAndAktiv(behandlingId)?.barna
+    fun hentBarna(behandlingId: Long): List<Person>? = personopplysningGrunnlagRepository.findByBehandlingAndAktiv(behandlingId)?.barna
 
     fun hentSøkersMålform(behandlingId: Long) = hentSøker(behandlingId)?.målform ?: Målform.NB
 
@@ -126,23 +126,25 @@ class PersonopplysningGrunnlagService(
     ): PersonopplysningGrunnlag {
         val personopplysningGrunnlag = lagreOgDeaktiverGammel(PersonopplysningGrunnlag(behandlingId = behandling.id))
         val krevesEnkelPersonInfo = behandling.erSatsendring()
-        val søker = personService.lagPerson(
-            aktør = aktør,
-            personopplysningGrunnlag = personopplysningGrunnlag,
-            målform = målform,
-            personType = PersonType.SØKER,
-            krevesEnkelPersonInfo = krevesEnkelPersonInfo,
-        )
-        personopplysningGrunnlag.personer.add(søker)
-        val barna = barnasAktør.map {
+        val søker =
             personService.lagPerson(
-                aktør = it,
+                aktør = aktør,
                 personopplysningGrunnlag = personopplysningGrunnlag,
                 målform = målform,
-                personType = PersonType.BARN,
+                personType = PersonType.SØKER,
                 krevesEnkelPersonInfo = krevesEnkelPersonInfo,
             )
-        }
+        personopplysningGrunnlag.personer.add(søker)
+        val barna =
+            barnasAktør.map {
+                personService.lagPerson(
+                    aktør = it,
+                    personopplysningGrunnlag = personopplysningGrunnlag,
+                    målform = målform,
+                    personType = PersonType.BARN,
+                    krevesEnkelPersonInfo = krevesEnkelPersonInfo,
+                )
+            }
         personopplysningGrunnlag.personer.addAll(barna)
 
         return personopplysningGrunnlagRepository.save(personopplysningGrunnlag).also {
@@ -169,7 +171,10 @@ class PersonopplysningGrunnlagService(
         )
     }
 
-    fun leggTilBarnIPersonopplysningGrunnlagOgOpprettLogg(behandling: Behandling, nyttBarnIdent: String) {
+    fun leggTilBarnIPersonopplysningGrunnlagOgOpprettLogg(
+        behandling: Behandling,
+        nyttBarnIdent: String,
+    ) {
         val nyttBarnAktør = personidentService.hentOgLagreAktør(nyttBarnIdent, true)
 
         val personopplysningGrunnlag = hentAktivPersonopplysningGrunnlagThrows(behandling.id)
@@ -177,18 +182,20 @@ class PersonopplysningGrunnlagService(
 
         if (inneværendeBarnasAktør.any { it == nyttBarnAktør }) {
             throw FunksjonellFeil(
-                melding = "Forsøker å legge til barn som allerede finnes i " +
-                    "personopplysningsgrunnlag id=${personopplysningGrunnlag.id}",
+                melding =
+                    "Forsøker å legge til barn som allerede finnes i " +
+                        "personopplysningsgrunnlag id=${personopplysningGrunnlag.id}",
                 frontendFeilmelding = "Barn finnes allerede på behandling og er derfor ikke lagt til.",
             )
         }
 
-        val oppdatertPersonopplysningGrunnlag = lagreSøkerOgBarnINyttGrunnlag(
-            aktør = personopplysningGrunnlag.søker.aktør,
-            behandling = behandling,
-            målform = personopplysningGrunnlag.søker.målform,
-            barnasAktør = inneværendeBarnasAktør.plus(nyttBarnAktør),
-        )
+        val oppdatertPersonopplysningGrunnlag =
+            lagreSøkerOgBarnINyttGrunnlag(
+                aktør = personopplysningGrunnlag.søker.aktør,
+                behandling = behandling,
+                målform = personopplysningGrunnlag.søker.målform,
+                barnasAktør = inneværendeBarnasAktør.plus(nyttBarnAktør),
+            )
 
         // la til historikkinnslag
         oppdatertPersonopplysningGrunnlag.barna.singleOrNull { nyttBarnAktør == it.aktør }

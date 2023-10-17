@@ -18,7 +18,6 @@ import java.net.URI
 import org.hamcrest.CoreMatchers.`is` as Is
 
 internal class PdlClientTest {
-
     private val restOperations: RestOperations = RestTemplateBuilder().build()
     private lateinit var pdlClient: PdlClient
     private lateinit var wiremockServerItem: WireMockServer
@@ -54,9 +53,10 @@ internal class PdlClientTest {
 
         val randomAktør = randomAktør()
 
-        val feil = assertThrows<PdlNotFoundException> {
-            pdlClient.hentPerson(randomAktør, PersonInfoQuery.ENKEL)
-        }
+        val feil =
+            assertThrows<PdlNotFoundException> {
+                pdlClient.hentPerson(randomAktør, PersonInfoQuery.ENKEL)
+            }
 
         assertThat(
             feil.melding,

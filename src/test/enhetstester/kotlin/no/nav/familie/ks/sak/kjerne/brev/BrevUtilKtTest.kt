@@ -13,7 +13,6 @@ import org.junit.jupiter.api.assertThrows
 import org.hamcrest.CoreMatchers.`is` as Is
 
 internal class BrevUtilKtTest {
-
     @Test
     fun `hentBrevmal skal returnere VEDTAK_OPPHØR_DØDSFALL dersom opprettetÅrsak er DØDSFALL`() {
         val behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.DØDSFALL)
@@ -42,12 +41,13 @@ internal class BrevUtilKtTest {
 
     @Test
     fun `hentVedtaksbrevtype skal kaste feil dersom brev ikke er støttet for kombinasjonen av behandlingstype og behandlingsresultat`() {
-        val feil = assertThrows<FunksjonellFeil> {
-            hentVedtaksbrevtype(
-                BehandlingType.FØRSTEGANGSBEHANDLING,
-                Behandlingsresultat.INNVILGET_ENDRET_OG_OPPHØRT,
-            )
-        }
+        val feil =
+            assertThrows<FunksjonellFeil> {
+                hentVedtaksbrevtype(
+                    BehandlingType.FØRSTEGANGSBEHANDLING,
+                    Behandlingsresultat.INNVILGET_ENDRET_OG_OPPHØRT,
+                )
+            }
 
         assertThat(
             feil.message,

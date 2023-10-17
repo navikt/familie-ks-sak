@@ -11,7 +11,6 @@ import org.springframework.stereotype.Service
 class SanityService(
     private val cachedSanityKlient: CachedSanityKlient,
 ) {
-
     @Retryable(
         value = [Exception::class],
         maxAttempts = 3,
@@ -24,6 +23,5 @@ class SanityService(
         maxAttempts = 3,
         backoff = Backoff(delayExpression = RETRY_BACKOFF_5000MS),
     )
-    fun hentSanityEØSBegrunnelser(): List<SanityEØSBegrunnelse> =
-        cachedSanityKlient.hentEØSBegrunnelserCached()
+    fun hentSanityEØSBegrunnelser(): List<SanityEØSBegrunnelse> = cachedSanityKlient.hentEØSBegrunnelserCached()
 }

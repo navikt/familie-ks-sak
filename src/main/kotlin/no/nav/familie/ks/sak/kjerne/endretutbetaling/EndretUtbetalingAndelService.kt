@@ -27,8 +27,7 @@ class EndretUtbetalingAndelService(
     private val vilkårsvurderingService: VilkårsvurderingService,
     private val endretUtbetalingAndelOppdatertAbonnementer: List<EndretUtbetalingAndelerOppdatertAbonnent> = emptyList(),
 ) {
-    fun hentEndredeUtbetalingAndeler(behandlingId: Long) =
-        endretUtbetalingAndelRepository.hentEndretUtbetalingerForBehandling(behandlingId)
+    fun hentEndredeUtbetalingAndeler(behandlingId: Long) = endretUtbetalingAndelRepository.hentEndretUtbetalingerForBehandling(behandlingId)
 
     @Transactional
     fun oppdaterEndretUtbetalingAndelOgOppdaterTilkjentYtelse(
@@ -46,14 +45,16 @@ class EndretUtbetalingAndelService(
 
         endretUtbetalingAndel.fraEndretUtbetalingAndelRequestDto(endretUtbetalingAndelRequestDto, person)
 
-        val andreEndredeAndelerPåBehandling = hentEndredeUtbetalingAndeler(behandling.id)
-            .filter { it.id != endretUtbetalingAndelId }
+        val andreEndredeAndelerPåBehandling =
+            hentEndredeUtbetalingAndeler(behandling.id)
+                .filter { it.id != endretUtbetalingAndelId }
 
-        val gyldigTomEtterDagensDato = beregnGyldigTomIFremtiden(
-            andreEndredeAndelerPåBehandling = andreEndredeAndelerPåBehandling,
-            endretUtbetalingAndel = endretUtbetalingAndel,
-            andelTilkjentYtelser = andelTilkjentYtelser,
-        )
+        val gyldigTomEtterDagensDato =
+            beregnGyldigTomIFremtiden(
+                andreEndredeAndelerPåBehandling = andreEndredeAndelerPåBehandling,
+                endretUtbetalingAndel = endretUtbetalingAndel,
+                andelTilkjentYtelser = andelTilkjentYtelser,
+            )
 
         validerTomDato(
             tomDato = endretUtbetalingAndel.tom,
@@ -127,17 +128,18 @@ class EndretUtbetalingAndelService(
     }
 
     @Transactional
-    fun opprettTomEndretUtbetalingAndel(
-        behandling: Behandling,
-    ) = endretUtbetalingAndelRepository.save(EndretUtbetalingAndel(behandlingId = behandling.id))
+    fun opprettTomEndretUtbetalingAndel(behandling: Behandling) =
+        endretUtbetalingAndelRepository.save(EndretUtbetalingAndel(behandlingId = behandling.id))
 
     @Transactional
-    fun kopierEndretUtbetalingAndelFraForrigeBehandling(behandling: Behandling, forrigeBehandling: Behandling) =
-        hentEndredeUtbetalingAndeler(forrigeBehandling.id).forEach {
-            val kopiertOverEndretUtbetalingAndel =
-                it.copy(id = 0, behandlingId = behandling.id, erEksplisittAvslagPåSøknad = false)
-            endretUtbetalingAndelRepository.save(kopiertOverEndretUtbetalingAndel)
-        }
+    fun kopierEndretUtbetalingAndelFraForrigeBehandling(
+        behandling: Behandling,
+        forrigeBehandling: Behandling,
+    ) = hentEndredeUtbetalingAndeler(forrigeBehandling.id).forEach {
+        val kopiertOverEndretUtbetalingAndel =
+            it.copy(id = 0, behandlingId = behandling.id, erEksplisittAvslagPåSøknad = false)
+        endretUtbetalingAndelRepository.save(kopiertOverEndretUtbetalingAndel)
+    }
 }
 
 interface EndretUtbetalingAndelerOppdatertAbonnent {

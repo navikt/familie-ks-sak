@@ -47,11 +47,12 @@ class VedtakSteg(
         loggService.opprettSendTilBeslutterLogg(behandling.id)
         totrinnskontrollService.opprettTotrinnskontrollMedSaksbehandler(behandling)
 
-        val godkjenneVedtakTask = OpprettOppgaveTask.opprettTask(
-            behandlingId = behandling.id,
-            oppgavetype = Oppgavetype.GodkjenneVedtak,
-            fristForFerdigstillelse = LocalDate.now(),
-        )
+        val godkjenneVedtakTask =
+            OpprettOppgaveTask.opprettTask(
+                behandlingId = behandling.id,
+                oppgavetype = Oppgavetype.GodkjenneVedtak,
+                fristForFerdigstillelse = LocalDate.now(),
+            )
 
         taskService.save(godkjenneVedtakTask)
 
@@ -70,13 +71,15 @@ class VedtakSteg(
 
     private fun opprettFerdigstillOppgaveTasker(behandling: Behandling) {
         val oppgaver = oppgaveService.hentOppgaverSomIkkeErFerdigstilt(behandling)
-        val relevanteOppgave = oppgaver.filter {
-            it.type in listOf(
-                Oppgavetype.BehandleSak,
-                Oppgavetype.BehandleUnderkjentVedtak,
-                Oppgavetype.VurderLivshendelse,
-            )
-        }
+        val relevanteOppgave =
+            oppgaver.filter {
+                it.type in
+                    listOf(
+                        Oppgavetype.BehandleSak,
+                        Oppgavetype.BehandleUnderkjentVedtak,
+                        Oppgavetype.VurderLivshendelse,
+                    )
+            }
 
         relevanteOppgave.forEach {
             val ferdigstillOppgaverTask = FerdigstillOppgaverTask.opprettTask(behandling.id, it.type)
@@ -89,7 +92,10 @@ class VedtakSteg(
             throw Feil("Behandlingen er henlagt og dermed så kan ikke vedtak foreslås.")
         }
 
-        if (behandling.behandlingStegTilstand.count { it.behandlingStegStatus == BehandlingStegStatus.VENTER || it.behandlingStegStatus == BehandlingStegStatus.KLAR } > 1) {
+        if (behandling.behandlingStegTilstand.count {
+                it.behandlingStegStatus == BehandlingStegStatus.VENTER || it.behandlingStegStatus == BehandlingStegStatus.KLAR
+            } > 1
+        ) {
             throw Feil("Behandlingen har mer enn ett ikke fullført steg.")
         }
 

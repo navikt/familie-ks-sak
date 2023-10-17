@@ -10,13 +10,10 @@ import org.junit.jupiter.api.Test
 import java.time.LocalDate
 
 class MapOgStripTest {
-
     private var lst1 = emptyList<TidslinjePeriode<Int>>()
     private var t1: Tidslinje<Int> = Tidslinje(LocalDate.now(), emptyList())
 
-    private fun init(
-        lst1: List<TidslinjePeriode<Int>>,
-    ) {
+    private fun init(lst1: List<TidslinjePeriode<Int>>) {
         this.lst1 = lst1
         this.t1 = Tidslinje(LocalDate.now(), lst1)
     }
@@ -32,13 +29,14 @@ class MapOgStripTest {
             ),
         )
 
-        val tidslinje = t1.map {
-            if (it.verdi!! > 1) {
-                Verdi(true)
-            } else {
-                Verdi(false)
+        val tidslinje =
+            t1.map {
+                if (it.verdi!! > 1) {
+                    Verdi(true)
+                } else {
+                    Verdi(false)
+                }
             }
-        }
 
         val korrekt = listOf(true, false)
 
@@ -56,13 +54,14 @@ class MapOgStripTest {
             ),
         )
 
-        val tidslinje = t1.map {
-            when (it) {
-                is Null -> Verdi(1)
-                is Udefinert -> Verdi(2)
-                else -> Verdi(3)
+        val tidslinje =
+            t1.map {
+                when (it) {
+                    is Null -> Verdi(1)
+                    is Udefinert -> Verdi(2)
+                    else -> Verdi(3)
+                }
             }
-        }
 
         val korrekt = listOf(3, 1, 3, 2)
 

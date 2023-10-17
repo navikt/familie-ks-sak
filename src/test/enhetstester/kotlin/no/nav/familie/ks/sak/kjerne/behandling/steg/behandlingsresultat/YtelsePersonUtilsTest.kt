@@ -10,46 +10,48 @@ import org.junit.jupiter.api.assertThrows
 import java.time.YearMonth
 
 internal class YtelsePersonUtilsTest {
-
     @Test
     fun `validerYtelsePersoner skal kaste feil hvis resultaten til en av ytelse personene ikke er vurdert`() {
-        val exception = assertThrows<Feil> {
-            YtelsePersonUtils.validerYtelsePersoner(
-                listOf(
-                    lagYtelsePerson(setOf(YtelsePersonResultat.INNVILGET)),
-                    lagYtelsePerson(setOf(YtelsePersonResultat.IKKE_VURDERT)),
-                ),
-            )
-        }
+        val exception =
+            assertThrows<Feil> {
+                YtelsePersonUtils.validerYtelsePersoner(
+                    listOf(
+                        lagYtelsePerson(setOf(YtelsePersonResultat.INNVILGET)),
+                        lagYtelsePerson(setOf(YtelsePersonResultat.IKKE_VURDERT)),
+                    ),
+                )
+            }
         assertEquals("Minst én ytelseperson er ikke vurdert", exception.message)
     }
 
     @Test
     fun `validerYtelsePersoner skal kaste feil hvis en av ytelse personene ikke får ytelse slutt`() {
-        val exception = assertThrows<Feil> {
-            YtelsePersonUtils.validerYtelsePersoner(
-                listOf(
-                    lagYtelsePerson(setOf(YtelsePersonResultat.INNVILGET)),
-                    lagYtelsePerson(resultater = setOf(YtelsePersonResultat.INNVILGET), ytelseSlutt = null),
-                ),
-            )
-        }
+        val exception =
+            assertThrows<Feil> {
+                YtelsePersonUtils.validerYtelsePersoner(
+                    listOf(
+                        lagYtelsePerson(setOf(YtelsePersonResultat.INNVILGET)),
+                        lagYtelsePerson(resultater = setOf(YtelsePersonResultat.INNVILGET), ytelseSlutt = null),
+                    ),
+                )
+            }
         assertEquals("YtelseSlutt er ikke satt ved utledning av behandlingsresultat", exception.message)
     }
 
     @Test
     fun `validerYtelsePersoner skal kaste feil når ytelse slutter etter inneværende måned ved OPPHØR`() {
-        val exception = assertThrows<Feil> {
-            YtelsePersonUtils.validerYtelsePersoner(
-                listOf(
-                    lagYtelsePerson(setOf(YtelsePersonResultat.INNVILGET)),
-                    lagYtelsePerson(
-                        resultater = setOf(YtelsePersonResultat.OPPHØRT),
-                        ytelseSlutt = YearMonth.now().plusMonths(4),
+        val exception =
+            assertThrows<Feil> {
+                YtelsePersonUtils.validerYtelsePersoner(
+                    listOf(
+                        lagYtelsePerson(setOf(YtelsePersonResultat.INNVILGET)),
+                        lagYtelsePerson(
+                            resultater = setOf(YtelsePersonResultat.OPPHØRT),
+                            ytelseSlutt = YearMonth.now().plusMonths(4),
+                        ),
                     ),
-                ),
-            )
-        }
+                )
+            }
         assertEquals(
             "Minst én ytelseperson har fått opphør som resultat og ytelseSlutt etter inneværende måned",
             exception.message,

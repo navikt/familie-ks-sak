@@ -15,7 +15,6 @@ data class Skjema(
     @JacksonXmlProperty(localName = "barnInfolinje")
     @JacksonXmlElementWrapper(useWrapping = false)
     var barnInfolinjer: List<BarnInfolinje>,
-
     @JacksonXmlProperty(localName = "listeopplysninger")
     var listeopplysninger: Listeopplysninger,
 )
@@ -24,6 +23,7 @@ data class Listeopplysninger(
     var kommuneNavn: String,
     var kommuneNr: String,
 )
+
 data class BarnInfolinje(
     var avtaltOppholdstidTimer: Double,
     var startdato: LocalDate,
@@ -31,8 +31,11 @@ data class BarnInfolinje(
     var barn: Barn,
     var endringstype: String,
 ) {
-
-    fun tilBarnehagelisteEntitet(kommuneNavn: String, kommuneNr: String, arkivReferanse: String): Barnehagebarn {
+    fun tilBarnehagelisteEntitet(
+        kommuneNavn: String,
+        kommuneNr: String,
+        arkivReferanse: String,
+    ): Barnehagebarn {
         return Barnehagebarn(
             ident = this.barn.fodselsnummer,
             fom = this.startdato,
@@ -45,6 +48,7 @@ data class BarnInfolinje(
         )
     }
 }
+
 data class Barn(
     var fodselsnummer: String,
 )

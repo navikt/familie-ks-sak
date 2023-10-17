@@ -17,7 +17,6 @@ import java.time.ZoneOffset
     beskrivelse = "Sending av behandlinghendelse til datavarehus",
 )
 class SendBehandlinghendelseTilDvhTask(private val kafkaProducer: KafkaProducer) : AsyncTaskStep {
-
     private val log = LoggerFactory.getLogger(this::class.java)
 
     override fun doTask(task: Task) {
@@ -30,7 +29,6 @@ class SendBehandlinghendelseTilDvhTask(private val kafkaProducer: KafkaProducer)
     }
 
     companion object {
-
         const val TASK_TYPE = "dvh.send.behandlinghendelse"
     }
 }

@@ -12,13 +12,11 @@ data class BrevPeriodeDto(
     val barnasFodselsdager: Flettefelt,
     val begrunnelser: List<BegrunnelseDto>,
     val type: Flettefelt,
-
     val antallBarnMedUtbetaling: Flettefelt,
     val antallBarnMedNullutbetaling: Flettefelt,
     val fodselsdagerBarnMedUtbetaling: Flettefelt,
     val fodselsdagerBarnMedNullutbetaling: Flettefelt,
 ) {
-
     constructor(
         fom: String,
         tom: String,

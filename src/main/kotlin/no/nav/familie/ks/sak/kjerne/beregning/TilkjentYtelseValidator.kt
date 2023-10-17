@@ -26,7 +26,6 @@ import java.time.Period
 import java.time.YearMonth
 
 object TilkjentYtelseValidator {
-
     fun validerAtTilkjentYtelseHarFornuftigePerioderOgBeløp(
         tilkjentYtelse: TilkjentYtelse,
         personopplysningGrunnlag: PersonopplysningGrunnlag,
@@ -67,7 +66,10 @@ object TilkjentYtelseValidator {
         søker: Person,
     ) = andeler.filter { it.aktør == søker.aktør }
 
-    private fun hentBarnasAndeler(andeler: List<AndelTilkjentYtelse>, barna: List<Person>) = barna.map { barn ->
+    private fun hentBarnasAndeler(
+        andeler: List<AndelTilkjentYtelse>,
+        barna: List<Person>,
+    ) = barna.map { barn ->
         barn to andeler.filter { it.aktør == barn.aktør }
     }
 
@@ -165,11 +167,12 @@ object TilkjentYtelseValidator {
                 val forrigeAndelerTilkjentYtelseForPerson =
                     forrigeAndelerTilkjentYtelse?.filter { it.aktør.aktørId == aktørId }
 
-                val etterbetalingErUgyldig = erUgyldigEtterbetalingPåPerson(
-                    forrigeAndelerTilkjentYtelseForPerson,
-                    andelerTilkjentYtelseForPerson,
-                    gyldigEtterbetalingFom,
-                )
+                val etterbetalingErUgyldig =
+                    erUgyldigEtterbetalingPåPerson(
+                        forrigeAndelerTilkjentYtelseForPerson,
+                        andelerTilkjentYtelseForPerson,
+                        gyldigEtterbetalingFom,
+                    )
 
                 if (etterbetalingErUgyldig) {
                     aktørId
@@ -199,13 +202,14 @@ object TilkjentYtelseValidator {
             val forrigeAndelerForPersonOgType = forrigeAndelerForPerson?.filter { it.type == ytelseType } ?: emptyList()
             val andelerForPersonOgType = andelerForPerson.filter { it.type == ytelseType }
 
-            val forrigeAndelerTidslinje = forrigeAndelerForPersonOgType.map {
-                Periode(
-                    it,
-                    it.stønadFom.toLocalDate(),
-                    it.stønadTom.toLocalDate(),
-                )
-            }.tilTidslinje()
+            val forrigeAndelerTidslinje =
+                forrigeAndelerForPersonOgType.map {
+                    Periode(
+                        it,
+                        it.stønadFom.toLocalDate(),
+                        it.stønadTom.toLocalDate(),
+                    )
+                }.tilTidslinje()
             val andelerTidslinje =
                 andelerForPersonOgType.map { Periode(it, it.stønadFom.toLocalDate(), it.stønadTom.toLocalDate()) }
                     .tilTidslinje()
@@ -238,12 +242,13 @@ object TilkjentYtelseValidator {
         forrigeAndeler: List<AndelTilkjentYtelse>?,
         andeler: List<AndelTilkjentYtelse>,
         måned: YearMonth?,
-    ): Boolean = andeler
-        .filter { it.stønadFom < måned }
-        .any { andel ->
-            forrigeAndeler?.any {
-                it.periode.overlapperHeltEllerDelvisMed(andel.periode) &&
-                    it.kalkulertUtbetalingsbeløp < andel.kalkulertUtbetalingsbeløp
-            } ?: false
-        }
+    ): Boolean =
+        andeler
+            .filter { it.stønadFom < måned }
+            .any { andel ->
+                forrigeAndeler?.any {
+                    it.periode.overlapperHeltEllerDelvisMed(andel.periode) &&
+                        it.kalkulertUtbetalingsbeløp < andel.kalkulertUtbetalingsbeløp
+                } ?: false
+            }
 }

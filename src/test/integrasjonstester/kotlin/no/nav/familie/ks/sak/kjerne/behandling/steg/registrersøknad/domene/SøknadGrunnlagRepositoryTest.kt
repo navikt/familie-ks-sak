@@ -17,7 +17,6 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.hamcrest.CoreMatchers.`is` as Is
 
 class SøknadGrunnlagRepositoryTest : OppslagSpringRunnerTest() {
-
     @Autowired
     private lateinit var søknadGrunnlagRepository: SøknadGrunnlagRepository
 
@@ -55,12 +54,17 @@ class SøknadGrunnlagRepositoryTest : OppslagSpringRunnerTest() {
         assertEquals(3, søknadsGrunnlag.size)
     }
 
-    fun lagreSøknadGrunnlag(behandlingId: Long, barna: List<Aktør>, aktiv: Boolean = false): SøknadDto {
-        val søknadDto = SøknadDto(
-            SøkerMedOpplysningerDto(ident = søker.aktivFødselsnummer()),
-            barna.map { BarnMedOpplysningerDto(ident = it.aktivFødselsnummer()) },
-            endringAvOpplysningerBegrunnelse = "",
-        )
+    fun lagreSøknadGrunnlag(
+        behandlingId: Long,
+        barna: List<Aktør>,
+        aktiv: Boolean = false,
+    ): SøknadDto {
+        val søknadDto =
+            SøknadDto(
+                SøkerMedOpplysningerDto(ident = søker.aktivFødselsnummer()),
+                barna.map { BarnMedOpplysningerDto(ident = it.aktivFødselsnummer()) },
+                endringAvOpplysningerBegrunnelse = "",
+            )
         søknadGrunnlagRepository.saveAndFlush(søknadDto.tilSøknadGrunnlag(behandlingId).also { it.aktiv = aktiv })
 
         return søknadDto

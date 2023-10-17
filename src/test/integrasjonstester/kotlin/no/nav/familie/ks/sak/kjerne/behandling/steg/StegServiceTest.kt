@@ -70,7 +70,6 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 
 class StegServiceTest : OppslagSpringRunnerTest() {
-
     @Autowired
     private lateinit var stegService: StegService
 
@@ -114,36 +113,39 @@ class StegServiceTest : OppslagSpringRunnerTest() {
         opprettPersonopplysningGrunnlagOgPersonForBehandling(behandlingId = behandling.id, lagBarn = true)
         opprettVilkårsvurdering(søker, behandling, Resultat.IKKE_VURDERT)
 
-        every { søknadGrunnlagService.hentAktiv(behandling.id) } returns mockk<SøknadGrunnlag>(relaxed = true).also {
-            mockkObject(SøknadGrunnlagMapper)
-            with(SøknadGrunnlagMapper) {
-                every { it.tilSøknadDto() } returns SøknadDto(
-                    søkerMedOpplysninger = SøkerMedOpplysningerDto("søkerIdent"),
-                    barnaMedOpplysninger = listOf(
-                        BarnMedOpplysningerDto(ident = "barn1"),
-                        BarnMedOpplysningerDto("barn2"),
-                    ),
-                    "begrunnelse",
-                )
+        every { søknadGrunnlagService.hentAktiv(behandling.id) } returns
+            mockk<SøknadGrunnlag>(relaxed = true).also {
+                mockkObject(SøknadGrunnlagMapper)
+                with(SøknadGrunnlagMapper) {
+                    every { it.tilSøknadDto() } returns
+                        SøknadDto(
+                            søkerMedOpplysninger = SøkerMedOpplysningerDto("søkerIdent"),
+                            barnaMedOpplysninger =
+                                listOf(
+                                    BarnMedOpplysningerDto(ident = "barn1"),
+                                    BarnMedOpplysningerDto("barn2"),
+                                ),
+                            "begrunnelse",
+                        )
+                }
+
+                every { registerPersonGrunnlagSteg.utførSteg(any()) } just runs
+                every { registerPersonGrunnlagSteg.getBehandlingssteg() } answers { callOriginal() }
+
+                every { registrerSøknadSteg.utførSteg(any()) } just runs
+                every { registrerSøknadSteg.getBehandlingssteg() } answers { callOriginal() }
+
+                every { vilkårsvurderingSteg.utførSteg(any()) } just runs
+                every { vilkårsvurderingSteg.getBehandlingssteg() } answers { callOriginal() }
+
+                every { beslutteVedtakSteg.getBehandlingssteg() } answers { callOriginal() }
+                every { beslutteVedtakSteg.utførSteg(any(), any()) } just runs
+
+                every { avsluttBehandlingSteg.getBehandlingssteg() } answers { callOriginal() }
+                every { avsluttBehandlingSteg.utførSteg(any()) } just runs
+
+                every { taskService.save(any()) } returns mockk()
             }
-
-            every { registerPersonGrunnlagSteg.utførSteg(any()) } just runs
-            every { registerPersonGrunnlagSteg.getBehandlingssteg() } answers { callOriginal() }
-
-            every { registrerSøknadSteg.utførSteg(any()) } just runs
-            every { registrerSøknadSteg.getBehandlingssteg() } answers { callOriginal() }
-
-            every { vilkårsvurderingSteg.utførSteg(any()) } just runs
-            every { vilkårsvurderingSteg.getBehandlingssteg() } answers { callOriginal() }
-
-            every { beslutteVedtakSteg.getBehandlingssteg() } answers { callOriginal() }
-            every { beslutteVedtakSteg.utførSteg(any(), any()) } just runs
-
-            every { avsluttBehandlingSteg.getBehandlingssteg() } answers { callOriginal() }
-            every { avsluttBehandlingSteg.utførSteg(any()) } just runs
-
-            every { taskService.save(any()) } returns mockk()
-        }
     }
 
     @Test
@@ -160,13 +162,14 @@ class StegServiceTest : OppslagSpringRunnerTest() {
     @Test
     fun `utførSteg skal utføre REGISTRER_PERSONGRUNNLAG og sette neste steg til VILKÅRSVURDERING for revurdering`() {
         lagreBehandling(behandling.also { it.aktiv = false })
-        var revurderingBehandling = lagreBehandling(
-            lagBehandling(
-                fagsak = fagsak,
-                type = BehandlingType.REVURDERING,
-                opprettetÅrsak = BehandlingÅrsak.NYE_OPPLYSNINGER,
-            ),
-        )
+        var revurderingBehandling =
+            lagreBehandling(
+                lagBehandling(
+                    fagsak = fagsak,
+                    type = BehandlingType.REVURDERING,
+                    opprettetÅrsak = BehandlingÅrsak.NYE_OPPLYSNINGER,
+                ),
+            )
         lagreArbeidsfordeling(lagArbeidsfordelingPåBehandling(revurderingBehandling.id))
         assertBehandlingHarSteg(revurderingBehandling, REGISTRERE_PERSONGRUNNLAG, KLAR)
         assertDoesNotThrow { stegService.utførSteg(revurderingBehandling.id, REGISTRERE_PERSONGRUNNLAG) }
@@ -239,24 +242,26 @@ class StegServiceTest : OppslagSpringRunnerTest() {
     @Test
     fun `utførSteg skal ikke utføre REGISTRERE_SØKNAD for behandling med årsak SATSENDRING`() {
         lagreBehandling(behandling.also { it.aktiv = false })
-        val revurderingBehandling = lagreBehandling(
-            lagBehandling(
-                fagsak = fagsak,
-                type = BehandlingType.REVURDERING,
-                opprettetÅrsak = BehandlingÅrsak.SATSENDRING,
-            ),
-        )
+        val revurderingBehandling =
+            lagreBehandling(
+                lagBehandling(
+                    fagsak = fagsak,
+                    type = BehandlingType.REVURDERING,
+                    opprettetÅrsak = BehandlingÅrsak.SATSENDRING,
+                ),
+            )
         assertBehandlingHarSteg(revurderingBehandling, REGISTRERE_PERSONGRUNNLAG, KLAR)
         revurderingBehandling.leggTilNesteSteg(REGISTRERE_SØKNAD)
         lagreBehandling(revurderingBehandling)
 
-        val exception = assertThrows<RuntimeException> {
-            stegService.utførSteg(
-                revurderingBehandling.id,
-                REGISTRERE_SØKNAD,
-                lagRegistrerSøknadDto(),
-            )
-        }
+        val exception =
+            assertThrows<RuntimeException> {
+                stegService.utførSteg(
+                    revurderingBehandling.id,
+                    REGISTRERE_SØKNAD,
+                    lagRegistrerSøknadDto(),
+                )
+            }
         assertEquals(
             "Steget ${REGISTRERE_SØKNAD.name} er ikke gyldig for behandling ${revurderingBehandling.id} " +
                 "med opprettetÅrsak ${revurderingBehandling.opprettetÅrsak}",
@@ -269,13 +274,14 @@ class StegServiceTest : OppslagSpringRunnerTest() {
         behandling.leggTilNesteSteg(REGISTRERE_SØKNAD)
         lagreBehandling(behandling)
 
-        val exception = assertThrows<RuntimeException> {
-            stegService.utførSteg(
-                behandling.id,
-                REGISTRERE_SØKNAD,
-                lagRegistrerSøknadDto(),
-            )
-        }
+        val exception =
+            assertThrows<RuntimeException> {
+                stegService.utførSteg(
+                    behandling.id,
+                    REGISTRERE_SØKNAD,
+                    lagRegistrerSøknadDto(),
+                )
+            }
         assertEquals(
             "Behandling ${behandling.id} har allerede et steg " +
                 "${REGISTRERE_PERSONGRUNNLAG.name}} som er klar for behandling. " +
@@ -484,11 +490,10 @@ class StegServiceTest : OppslagSpringRunnerTest() {
         behandling: Behandling,
         behandlingSteg: BehandlingSteg,
         behandlingStegStatus: BehandlingStegStatus,
-    ) =
-        assertTrue(
-            behandling.behandlingStegTilstand.any {
-                it.behandlingSteg == behandlingSteg &&
-                    it.behandlingStegStatus == behandlingStegStatus
-            },
-        )
+    ) = assertTrue(
+        behandling.behandlingStegTilstand.any {
+            it.behandlingSteg == behandlingSteg &&
+                it.behandlingStegStatus == behandlingStegStatus
+        },
+    )
 }

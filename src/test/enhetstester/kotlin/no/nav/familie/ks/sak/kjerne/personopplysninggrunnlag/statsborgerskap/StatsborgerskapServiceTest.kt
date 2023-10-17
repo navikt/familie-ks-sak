@@ -28,7 +28,6 @@ import java.time.Month
 
 @ExtendWith(MockKExtension::class)
 class StatsborgerskapServiceTest {
-
     @MockK
     private lateinit var integrasjonClient: IntegrasjonClient
 
@@ -52,10 +51,11 @@ class StatsborgerskapServiceTest {
     @Test
     fun `hentStatsborgerskapMedMedlemskap skal hente statsborgerskap for en nordisk statsborger`() {
         val statsborgerskap = lagStatsborgerskap("SWE")
-        val statsborgerskapereMedMedlemskap = statsborgerskapService.hentStatsborgerskapMedMedlemskap(
-            statsborgerskap,
-            lagPersonopplysningGrunnlag(111L, randomFnr()).søker,
-        )
+        val statsborgerskapereMedMedlemskap =
+            statsborgerskapService.hentStatsborgerskapMedMedlemskap(
+                statsborgerskap,
+                lagPersonopplysningGrunnlag(111L, randomFnr()).søker,
+            )
         assertTrue { statsborgerskapereMedMedlemskap.isNotEmpty() }
         assertEquals(1, statsborgerskapereMedMedlemskap.size)
 
@@ -67,10 +67,11 @@ class StatsborgerskapServiceTest {
     @Test
     fun `hentStatsborgerskapMedMedlemskap skal hente statsborgerskap for en eøs statsborger`() {
         val statsborgerskap = lagStatsborgerskap("POL")
-        val statsborgerskapMedMedlemskap = statsborgerskapService.hentStatsborgerskapMedMedlemskap(
-            statsborgerskap,
-            lagPersonopplysningGrunnlag(111L, randomFnr()).søker,
-        )
+        val statsborgerskapMedMedlemskap =
+            statsborgerskapService.hentStatsborgerskapMedMedlemskap(
+                statsborgerskap,
+                lagPersonopplysningGrunnlag(111L, randomFnr()).søker,
+            )
 
         assertEquals(Medlemskap.EØS, statsborgerskapMedMedlemskap.last().medlemskap)
         assertEquals("POL", statsborgerskapMedMedlemskap.last().landkode)
@@ -78,17 +79,19 @@ class StatsborgerskapServiceTest {
 
     @Test
     fun `hentStatsborgerskapMedMedlemskap skal evaluere britiske statsborgere med ukjent periode som tredjelandsborgere`() {
-        val statsborgerStorbritanniaUtenPeriode = Statsborgerskap(
-            "GBR",
-            gyldigFraOgMed = null,
-            gyldigTilOgMed = null,
-            bekreftelsesdato = null,
-        )
+        val statsborgerStorbritanniaUtenPeriode =
+            Statsborgerskap(
+                "GBR",
+                gyldigFraOgMed = null,
+                gyldigTilOgMed = null,
+                bekreftelsesdato = null,
+            )
 
-        val grStatsborgerskapUtenPeriode = statsborgerskapService.hentStatsborgerskapMedMedlemskap(
-            statsborgerskap = statsborgerStorbritanniaUtenPeriode,
-            person = lagPerson(aktør = randomAktør()),
-        )
+        val grStatsborgerskapUtenPeriode =
+            statsborgerskapService.hentStatsborgerskapMedMedlemskap(
+                statsborgerskap = statsborgerStorbritanniaUtenPeriode,
+                person = lagPerson(aktør = randomAktør()),
+            )
         assertEquals(1, grStatsborgerskapUtenPeriode.size)
         assertEquals(Medlemskap.TREDJELANDSBORGER, grStatsborgerskapUtenPeriode.single().medlemskap)
         assertTrue(grStatsborgerskapUtenPeriode.single().gjeldendeNå())
@@ -96,16 +99,18 @@ class StatsborgerskapServiceTest {
 
     @Test
     fun `hentStatsborgerskapMedMedlemskap skal evaluere britiske statsborgere etter brexit som tredjelandsborgere`() {
-        val statsborgerStorbritanniaMedPeriodeEtterBrexit = Statsborgerskap(
-            "GBR",
-            gyldigFraOgMed = LocalDate.of(2022, 3, 1),
-            gyldigTilOgMed = LocalDate.now(),
-            bekreftelsesdato = null,
-        )
-        val grStatsborgerskapEtterBrexit = statsborgerskapService.hentStatsborgerskapMedMedlemskap(
-            statsborgerskap = statsborgerStorbritanniaMedPeriodeEtterBrexit,
-            person = lagPerson(aktør = randomAktør()),
-        )
+        val statsborgerStorbritanniaMedPeriodeEtterBrexit =
+            Statsborgerskap(
+                "GBR",
+                gyldigFraOgMed = LocalDate.of(2022, 3, 1),
+                gyldigTilOgMed = LocalDate.now(),
+                bekreftelsesdato = null,
+            )
+        val grStatsborgerskapEtterBrexit =
+            statsborgerskapService.hentStatsborgerskapMedMedlemskap(
+                statsborgerskap = statsborgerStorbritanniaMedPeriodeEtterBrexit,
+                person = lagPerson(aktør = randomAktør()),
+            )
         assertEquals(1, grStatsborgerskapEtterBrexit.size)
         assertEquals(Medlemskap.TREDJELANDSBORGER, grStatsborgerskapEtterBrexit.single().medlemskap)
         assertTrue(grStatsborgerskapEtterBrexit.single().gjeldendeNå())
@@ -116,16 +121,18 @@ class StatsborgerskapServiceTest {
         val datoFørBrexit = LocalDate.of(1989, 3, 1)
         val datoEtterBrexit = LocalDate.of(2020, 5, 1)
 
-        val statsborgerStorbritanniaMedPeriodeUnderBrexit = Statsborgerskap(
-            "GBR",
-            gyldigFraOgMed = datoFørBrexit,
-            gyldigTilOgMed = datoEtterBrexit,
-            bekreftelsesdato = null,
-        )
-        val grStatsborgerskapUnderBrexit = statsborgerskapService.hentStatsborgerskapMedMedlemskap(
-            statsborgerskap = statsborgerStorbritanniaMedPeriodeUnderBrexit,
-            person = lagPerson(aktør = randomAktør()),
-        )
+        val statsborgerStorbritanniaMedPeriodeUnderBrexit =
+            Statsborgerskap(
+                "GBR",
+                gyldigFraOgMed = datoFørBrexit,
+                gyldigTilOgMed = datoEtterBrexit,
+                bekreftelsesdato = null,
+            )
+        val grStatsborgerskapUnderBrexit =
+            statsborgerskapService.hentStatsborgerskapMedMedlemskap(
+                statsborgerskap = statsborgerStorbritanniaMedPeriodeUnderBrexit,
+                person = lagPerson(aktør = randomAktør()),
+            )
         assertEquals(2, grStatsborgerskapUnderBrexit.size)
         assertEquals(datoFørBrexit, grStatsborgerskapUnderBrexit.first().gyldigPeriode?.fom)
         assertEquals(LocalDate.of(2009, Month.DECEMBER, 31), grStatsborgerskapUnderBrexit.first().gyldigPeriode?.tom)
@@ -155,12 +162,13 @@ class StatsborgerskapServiceTest {
         val betydningUK = BetydningDto(FOM_1900, TOM_2010, mapOf(KodeverkSpråk.BOKMÅL.kode to beskrivelseUK))
 
         return KodeverkDto(
-            betydninger = mapOf(
-                "POL" to listOf(betydningPolen),
-                "DEU" to listOf(betydningTyskland),
-                "DNK" to listOf(betydningDanmark),
-                "GBR" to listOf(betydningUK),
-            ),
+            betydninger =
+                mapOf(
+                    "POL" to listOf(betydningPolen),
+                    "DEU" to listOf(betydningTyskland),
+                    "DNK" to listOf(betydningDanmark),
+                    "GBR" to listOf(betydningUK),
+                ),
         )
     }
 }

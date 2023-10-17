@@ -25,15 +25,15 @@ class TilbakekrevingKlient(
     @Value("\${FAMILIE_TILBAKE_API_URL}") private val familieTilbakeUri: URI,
     @Qualifier("azure") restOperations: RestOperations,
 ) : AbstractRestClient(restOperations, "tilbakreving") {
-
     fun harÅpenTilbakekrevingsbehandling(fagsakId: Long): Boolean {
         val uri = URI.create("$familieTilbakeUri/fagsystem/${Fagsystem.KONT}/fagsak/$fagsakId/finnesApenBehandling/v1")
 
-        val finnesTilbakekrevingBehandlingsresponsDto: FinnesTilbakekrevingBehandlingsresponsDto = kallEksternTjenesteRessurs(
-            tjeneste = "familie-tilbake",
-            uri = uri,
-            formål = "Sjekker om en fagsak har åpen tilbakekrevingsbehandling",
-        ) { getForEntity(uri) }
+        val finnesTilbakekrevingBehandlingsresponsDto: FinnesTilbakekrevingBehandlingsresponsDto =
+            kallEksternTjenesteRessurs(
+                tjeneste = "familie-tilbake",
+                uri = uri,
+                formål = "Sjekker om en fagsak har åpen tilbakekrevingsbehandling",
+            ) { getForEntity(uri) }
 
         return finnesTilbakekrevingBehandlingsresponsDto.finnesÅpenBehandling
     }
@@ -49,9 +49,10 @@ class TilbakekrevingKlient(
             postForEntity(
                 uri = uri,
                 payload = forhåndsvisVarselbrevRequest,
-                httpHeaders = HttpHeaders().apply {
-                    accept = listOf(MediaType.APPLICATION_PDF)
-                },
+                httpHeaders =
+                    HttpHeaders().apply {
+                        accept = listOf(MediaType.APPLICATION_PDF)
+                    },
             )
         }
     }
@@ -79,9 +80,10 @@ class TilbakekrevingKlient(
     }
 
     fun kanTilbakekrevingsbehandlingOpprettesManuelt(fagsakId: Long): KanBehandlingOpprettesManueltRespons {
-        val uri = URI.create(
-            encodePath("$familieTilbakeUri/ytelsestype/${Ytelsestype.KONTANTSTØTTE}/fagsak/$fagsakId/kanBehandlingOpprettesManuelt/v1"),
-        )
+        val uri =
+            URI.create(
+                encodePath("$familieTilbakeUri/ytelsestype/${Ytelsestype.KONTANTSTØTTE}/fagsak/$fagsakId/kanBehandlingOpprettesManuelt/v1"),
+            )
 
         return kallEksternTjenesteRessurs(
             tjeneste = "familie-tilbake",

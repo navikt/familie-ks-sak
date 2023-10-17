@@ -36,18 +36,22 @@ class SanityKlient(
     fun hentEØSBegrunnelser(datasett: String = "ks-test"): List<SanityEØSBegrunnelse> {
         val uri = lagHentUri(datasett, hentEØSBegrunnelser)
 
-        val restSanityEØSBegrunnelser = kallEksternTjeneste<SanityEØSBegrunnelserResponsDto>(
-            tjeneste = "Sanity",
-            uri = uri,
-            formål = "Henter EØS-begrunnelser fra sanity",
-        ) {
-            getForEntity(uri)
-        }
+        val restSanityEØSBegrunnelser =
+            kallEksternTjeneste<SanityEØSBegrunnelserResponsDto>(
+                tjeneste = "Sanity",
+                uri = uri,
+                formål = "Henter EØS-begrunnelser fra sanity",
+            ) {
+                getForEntity(uri)
+            }
 
         return restSanityEØSBegrunnelser.result.map { it.tilSanityEØSBegrunnelse() }
     }
 
-    private fun lagHentUri(datasett: String, query: String): URI {
+    private fun lagHentUri(
+        datasett: String,
+        query: String,
+    ): URI {
         val hentQuery = URLEncoder.encode(query, "utf-8")
         return URI.create("$sanityBaseUrl/$datasett?query=$hentQuery")
     }

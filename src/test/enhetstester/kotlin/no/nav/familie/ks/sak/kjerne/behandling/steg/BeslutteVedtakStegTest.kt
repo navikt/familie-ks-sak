@@ -74,9 +74,10 @@ class BeslutteVedtakStegTest {
 
     @Test
     fun `utførSteg skal kaste FunksjonellFeil dersom behandlingen er satt til IVERKSETTER_VEDTAK `() {
-        every { behandlingService.hentBehandling(200) } returns lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD).apply {
-            status = BehandlingStatus.IVERKSETTER_VEDTAK
-        }
+        every { behandlingService.hentBehandling(200) } returns
+            lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD).apply {
+                status = BehandlingStatus.IVERKSETTER_VEDTAK
+            }
 
         val funksjonellFeil = assertThrows<FunksjonellFeil> { beslutteVedtakSteg.utførSteg(200, mockk()) }
 
@@ -85,9 +86,10 @@ class BeslutteVedtakStegTest {
 
     @Test
     fun `utførSteg skal kaste FunksjonellFeil dersom behandlingen er satt til AVSLUTTET `() {
-        every { behandlingService.hentBehandling(200) } returns lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD).apply {
-            status = BehandlingStatus.AVSLUTTET
-        }
+        every { behandlingService.hentBehandling(200) } returns
+            lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD).apply {
+                status = BehandlingStatus.AVSLUTTET
+            }
 
         val funksjonellFeil = assertThrows<FunksjonellFeil> { beslutteVedtakSteg.utførSteg(200, mockk()) }
 

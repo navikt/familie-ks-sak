@@ -36,30 +36,32 @@ internal class OppdragKlientTest {
                 .willReturn(WireMock.okJson(readFile("hentSimulering.json"))),
         )
 
-        val simulering = oppdragKlient.hentSimulering(
-            Utbetalingsoppdrag(
-                kodeEndring = Utbetalingsoppdrag.KodeEndring.NY,
-                fagSystem = "KS",
-                saksnummer = "1234",
-                aktoer = "12345678910",
-                saksbehandlerId = "Z12345",
-                avstemmingTidspunkt = LocalDateTime.now(),
-                utbetalingsperiode = listOf(
-                    Utbetalingsperiode(
-                        erEndringPåEksisterendePeriode = false,
-                        periodeId = 1,
-                        datoForVedtak = LocalDate.now(),
-                        klassifisering = "klassifisering",
-                        vedtakdatoFom = LocalDate.of(2021, 1, 1),
-                        vedtakdatoTom = LocalDate.of(2021, 5, 31),
-                        sats = BigDecimal.valueOf(7500),
-                        satsType = Utbetalingsperiode.SatsType.MND,
-                        utbetalesTil = "12345678910",
-                        behandlingId = 1,
-                    ),
+        val simulering =
+            oppdragKlient.hentSimulering(
+                Utbetalingsoppdrag(
+                    kodeEndring = Utbetalingsoppdrag.KodeEndring.NY,
+                    fagSystem = "KS",
+                    saksnummer = "1234",
+                    aktoer = "12345678910",
+                    saksbehandlerId = "Z12345",
+                    avstemmingTidspunkt = LocalDateTime.now(),
+                    utbetalingsperiode =
+                        listOf(
+                            Utbetalingsperiode(
+                                erEndringPåEksisterendePeriode = false,
+                                periodeId = 1,
+                                datoForVedtak = LocalDate.now(),
+                                klassifisering = "klassifisering",
+                                vedtakdatoFom = LocalDate.of(2021, 1, 1),
+                                vedtakdatoTom = LocalDate.of(2021, 5, 31),
+                                sats = BigDecimal.valueOf(7500),
+                                satsType = Utbetalingsperiode.SatsType.MND,
+                                utbetalesTil = "12345678910",
+                                behandlingId = 1,
+                            ),
+                        ),
                 ),
-            ),
-        )
+            )
 
         assertThat(simulering.simuleringMottaker.size, Is(1))
     }

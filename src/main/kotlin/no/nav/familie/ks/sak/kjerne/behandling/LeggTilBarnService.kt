@@ -14,9 +14,11 @@ class LeggTilBarnService(
     private val tilbakestillBehandlingService: TilbakestillBehandlingService,
     private val beregningService: BeregningService,
 ) {
-
     @Transactional
-    fun leggTilBarn(behandlingId: Long, nyttBarnIdent: String) {
+    fun leggTilBarn(
+        behandlingId: Long,
+        nyttBarnIdent: String,
+    ) {
         val behandling = behandlingService.hentAktivtBehandling(behandlingId)
 
         // oppdater personopplysninggrunnlag med nytt barn og opprett historikkinnslag

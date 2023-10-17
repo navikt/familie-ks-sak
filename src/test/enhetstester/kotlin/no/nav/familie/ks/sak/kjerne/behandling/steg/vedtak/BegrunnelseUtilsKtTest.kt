@@ -14,7 +14,6 @@ import java.time.LocalDate
 import java.time.YearMonth
 
 internal class BegrunnelseUtilsKtTest {
-
     @Test
     fun `dødeBarnForrigePeriode() skal returnere barn som døde i forrige periode og som er tilknyttet ytelsen`() {
         val behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD)
@@ -25,31 +24,35 @@ internal class BegrunnelseUtilsKtTest {
         val dødsfallDatoBarn1 = LocalDate.of(2022, 5, 12)
         val dødsfallDatoBarn2 = LocalDate.of(2022, 7, 2)
 
-        val barn1 = lagPerson(
-            aktør = randomAktør(barn1Fnr),
-            personType = PersonType.BARN,
-            fødselsdato = LocalDate.now().minusYears(2),
-        ).let { it.copy(dødsfall = lagDødsfall(dødsfallDato = dødsfallDatoBarn1, person = it)) }
+        val barn1 =
+            lagPerson(
+                aktør = randomAktør(barn1Fnr),
+                personType = PersonType.BARN,
+                fødselsdato = LocalDate.now().minusYears(2),
+            ).let { it.copy(dødsfall = lagDødsfall(dødsfallDato = dødsfallDatoBarn1, person = it)) }
 
-        val barn2 = lagPerson(
-            aktør = randomAktør(barn2Fnr),
-            personType = PersonType.BARN,
-            fødselsdato = LocalDate.now().minusYears(2),
-        ).let { it.copy(dødsfall = lagDødsfall(dødsfallDato = dødsfallDatoBarn2, person = it)) }
+        val barn2 =
+            lagPerson(
+                aktør = randomAktør(barn2Fnr),
+                personType = PersonType.BARN,
+                fødselsdato = LocalDate.now().minusYears(2),
+            ).let { it.copy(dødsfall = lagDødsfall(dødsfallDato = dødsfallDatoBarn2, person = it)) }
 
-        val barnIBehandling = listOf(
-            barn1,
-            barn2,
-        )
+        val barnIBehandling =
+            listOf(
+                barn1,
+                barn2,
+            )
 
         var ytelserForrigePeriode =
             listOf(
                 lagAndelTilkjentYtelse(
                     behandling = behandling,
-                    stønadFom = YearMonth.of(
-                        dødsfallDatoBarn1.minusMonths(1).year,
-                        dødsfallDatoBarn1.minusMonths(1).month,
-                    ),
+                    stønadFom =
+                        YearMonth.of(
+                            dødsfallDatoBarn1.minusMonths(1).year,
+                            dødsfallDatoBarn1.minusMonths(1).month,
+                        ),
                     stønadTom = YearMonth.of(dødsfallDatoBarn1.year, dødsfallDatoBarn1.month),
                     aktør = barn1.aktør,
                 ),
@@ -63,10 +66,11 @@ internal class BegrunnelseUtilsKtTest {
             listOf(
                 lagAndelTilkjentYtelse(
                     behandling = behandling,
-                    stønadFom = YearMonth.of(
-                        dødsfallDatoBarn1.minusMonths(1).year,
-                        dødsfallDatoBarn1.minusMonths(1).month,
-                    ),
+                    stønadFom =
+                        YearMonth.of(
+                            dødsfallDatoBarn1.minusMonths(1).year,
+                            dødsfallDatoBarn1.minusMonths(1).month,
+                        ),
                     stønadTom = YearMonth.of(dødsfallDatoBarn2.year, dødsfallDatoBarn2.month),
                     aktør = barn2.aktør,
                 ),

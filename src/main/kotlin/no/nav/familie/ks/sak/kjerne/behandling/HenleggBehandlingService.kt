@@ -32,9 +32,12 @@ class HenleggBehandlingService(
     private val sakStatistikkService: SakStatistikkService,
     private val behandlingRepository: BehandlingRepository,
 ) {
-
     @Transactional
-    fun henleggBehandling(behandlingId: Long, henleggÅrsak: HenleggÅrsak, begrunnelse: String) {
+    fun henleggBehandling(
+        behandlingId: Long,
+        henleggÅrsak: HenleggÅrsak,
+        begrunnelse: String,
+    ) {
         val behandling = behandlingRepository.hentBehandling(behandlingId)
         validerOmBehandlingKanHenlegges(behandling, henleggÅrsak)
 
@@ -42,10 +45,11 @@ class HenleggBehandlingService(
         if (henleggÅrsak == HenleggÅrsak.SØKNAD_TRUKKET) {
             brevService.genererOgSendBrev(
                 behandlingId = behandling.id,
-                manueltBrevDto = ManueltBrevDto(
-                    brevmal = Brevmal.HENLEGGE_TRUKKET_SØKNAD,
-                    mottakerIdent = behandling.fagsak.aktør.aktivFødselsnummer(),
-                ),
+                manueltBrevDto =
+                    ManueltBrevDto(
+                        brevmal = Brevmal.HENLEGGE_TRUKKET_SØKNAD,
+                        mottakerIdent = behandling.fagsak.aktør.aktivFødselsnummer(),
+                    ),
             )
         }
 
@@ -91,7 +95,10 @@ class HenleggBehandlingService(
         // trenger ikke å kalle eksplisitt save fordi behandling objekt er mutert og ha @Transactional
     }
 
-    private fun validerOmBehandlingKanHenlegges(behandling: Behandling, henleggÅrsak: HenleggÅrsak) {
+    private fun validerOmBehandlingKanHenlegges(
+        behandling: Behandling,
+        henleggÅrsak: HenleggÅrsak,
+    ) {
         val behandlingId = behandling.id
         when {
             HenleggÅrsak.TEKNISK_VEDLIKEHOLD == henleggÅrsak &&

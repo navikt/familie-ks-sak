@@ -17,7 +17,6 @@ class DatabaseCleanupService(
     private val entityManager: EntityManager,
     private val relationalMappingContext: RelationalMappingContext,
 ) {
-
     private val logger = LoggerFactory.getLogger(DatabaseCleanupService::class.java)
 
     private var tableNames: List<String>? = null

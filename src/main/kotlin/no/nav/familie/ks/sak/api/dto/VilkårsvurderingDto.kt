@@ -47,13 +47,11 @@ data class VilkårResultatDto(
     val antallTimer: BigDecimal? = null,
     val utdypendeVilkårsvurderinger: List<UtdypendeVilkårsvurdering> = emptyList(),
 ) {
-
     fun erAvslagUtenPeriode() = erEksplisittAvslagPåSøknad == true && periodeFom == null && periodeTom == null
+
     fun harFremtidigTom() = periodeTom?.isAfter(LocalDate.now().sisteDagIMåned()) ?: true
 
-    fun tilVilkårResultat(
-        vilkårResultat: VilkårResultat,
-    ): VilkårResultat {
+    fun tilVilkårResultat(vilkårResultat: VilkårResultat): VilkårResultat {
         return VilkårResultat(
             periodeFom = periodeFom,
             periodeTom = periodeTom,

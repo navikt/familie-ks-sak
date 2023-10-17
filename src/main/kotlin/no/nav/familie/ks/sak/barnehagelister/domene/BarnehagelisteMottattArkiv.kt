@@ -13,13 +13,10 @@ import java.util.UUID
 data class BarnehagelisteMottattArkiv(
     @Id
     val id: UUID,
-
     @Column(name = "MELDING_ID", nullable = false, updatable = false, unique = true)
     val meldingId: String,
-
     @Column(name = "MELDING", nullable = true)
     val melding: String,
-
     @Column(name = "MOTTATT_TID", nullable = false)
     val mottatTid: LocalDateTime,
 ) : BaseEntitet()

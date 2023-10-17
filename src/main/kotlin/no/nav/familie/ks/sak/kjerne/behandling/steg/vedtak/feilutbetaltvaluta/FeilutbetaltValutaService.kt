@@ -15,7 +15,6 @@ class FeilutbetaltValutaService(
     private val loggService: LoggService,
     private val personopplysningGrunnlagService: PersonopplysningGrunnlagService,
 ) {
-
     fun hentFeilutbetaltValuta(id: Long): FeilutbetaltValuta =
         feilutbetaltValutaRepository.finnFeilutbetaltValuta(id)
             ?: throw Feil("Finner ikke feilutbetalt valuta med id=$id")
@@ -42,7 +41,10 @@ class FeilutbetaltValutaService(
         feilutbetaltValutaRepository.finnFeilutbetalteValutaForBehandling(behandlingId = behandlingId)
 
     @Transactional
-    fun oppdaterFeilutbetaltValuta(oppdatertFeilutbetaltValuta: FeilutbetaltValutaDto, id: Long): FeilutbetaltValuta {
+    fun oppdaterFeilutbetaltValuta(
+        oppdatertFeilutbetaltValuta: FeilutbetaltValutaDto,
+        id: Long,
+    ): FeilutbetaltValuta {
         val feilutbetaltValuta = hentFeilutbetaltValuta(id)
 
         feilutbetaltValuta.fom = oppdatertFeilutbetaltValuta.fom

@@ -22,7 +22,6 @@ import java.math.BigDecimal
 import java.time.LocalDate
 
 class FagsakServiceIntegrasjonTest : OppslagSpringRunnerTest() {
-
     @Autowired
     private lateinit var fagsakService: FagsakService
 
@@ -113,7 +112,10 @@ class FagsakServiceIntegrasjonTest : OppslagSpringRunnerTest() {
         return behandling
     }
 
-    private fun tilkjentYtelse(behandling: Behandling, erIverksatt: Boolean) = TilkjentYtelse(
+    private fun tilkjentYtelse(
+        behandling: Behandling,
+        erIverksatt: Boolean,
+    ) = TilkjentYtelse(
         behandling = behandling,
         opprettetDato = LocalDate.now(),
         endretDato = LocalDate.now(),
@@ -130,12 +132,14 @@ class FagsakServiceIntegrasjonTest : OppslagSpringRunnerTest() {
         tilkjentYtelse = tilkjentYtelse,
         kalkulertUtbetalingsbeløp = 1054,
         nasjonaltPeriodebeløp = 1054,
-        stønadFom = LocalDate.now()
-            .minusMonths(12)
-            .toYearMonth(),
-        stønadTom = LocalDate.now()
-            .plusMonths(12)
-            .toYearMonth(),
+        stønadFom =
+            LocalDate.now()
+                .minusMonths(12)
+                .toYearMonth(),
+        stønadTom =
+            LocalDate.now()
+                .plusMonths(12)
+                .toYearMonth(),
         type = YtelseType.ORDINÆR_KONTANTSTØTTE,
         periodeOffset = periodeOffset,
         forrigePeriodeOffset = null,

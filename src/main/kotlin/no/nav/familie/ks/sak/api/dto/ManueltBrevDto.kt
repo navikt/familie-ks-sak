@@ -42,139 +42,151 @@ data class ManueltBrevDto(
     fun enhetNavn(): String = this.enhet?.enhetNavn ?: error("Finner ikke enhetsnavn på manuell brevrequest")
 }
 
-fun ManueltBrevDto.tilBrev() = when (this.brevmal) {
-    Brevmal.INFORMASJONSBREV_DELT_BOSTED ->
-        InformasjonsbrevDeltBostedBrevDto(
-            data = InformasjonsbrevDeltBostedDataDto(
-                delmalData = InformasjonsbrevDeltBostedDataDto.DelmalData(
-                    signatur = SignaturDelmal(
-                        enhet = flettefelt(
-                            this.enhetNavn(),
-                        ),
+fun ManueltBrevDto.tilBrev() =
+    when (this.brevmal) {
+        Brevmal.INFORMASJONSBREV_DELT_BOSTED ->
+            InformasjonsbrevDeltBostedBrevDto(
+                data =
+                    InformasjonsbrevDeltBostedDataDto(
+                        delmalData =
+                            InformasjonsbrevDeltBostedDataDto.DelmalData(
+                                signatur =
+                                    SignaturDelmal(
+                                        enhet =
+                                            flettefelt(
+                                                this.enhetNavn(),
+                                            ),
+                                    ),
+                            ),
+                        flettefelter =
+                            InformasjonsbrevDeltBostedDataDto.FlettefelterDto(
+                                navn = this.mottakerNavn,
+                                fodselsnummer = this.mottakerIdent,
+                                barnMedDeltBostedAvtale = this.multiselectVerdier,
+                            ),
                     ),
-                ),
-                flettefelter = InformasjonsbrevDeltBostedDataDto.FlettefelterDto(
-                    navn = this.mottakerNavn,
-                    fodselsnummer = this.mottakerIdent,
-                    barnMedDeltBostedAvtale = this.multiselectVerdier,
-                ),
-            ),
-        )
+            )
 
-    Brevmal.INNHENTE_OPPLYSNINGER ->
-        InnhenteOpplysningerBrevDto(
-            data = InnhenteOpplysningerDataDto(
-                delmalData = InnhenteOpplysningerDataDto.DelmalData(signatur = SignaturDelmal(enhet = this.enhetNavn())),
-                flettefelter = InnhenteOpplysningerDataDto.FlettefelterDto(
-                    navn = this.mottakerNavn,
-                    fodselsnummer = this.mottakerIdent,
-                    dokumentliste = this.multiselectVerdier,
-                ),
-            ),
-        )
+        Brevmal.INNHENTE_OPPLYSNINGER ->
+            InnhenteOpplysningerBrevDto(
+                data =
+                    InnhenteOpplysningerDataDto(
+                        delmalData = InnhenteOpplysningerDataDto.DelmalData(signatur = SignaturDelmal(enhet = this.enhetNavn())),
+                        flettefelter =
+                            InnhenteOpplysningerDataDto.FlettefelterDto(
+                                navn = this.mottakerNavn,
+                                fodselsnummer = this.mottakerIdent,
+                                dokumentliste = this.multiselectVerdier,
+                            ),
+                    ),
+            )
 
-    Brevmal.HENLEGGE_TRUKKET_SØKNAD ->
-        HenleggeTrukketSøknadBrevDto(
-            data = HenleggeTrukketSøknadDataDto(
-                delmalData = HenleggeTrukketSøknadDataDto.DelmalData(signatur = SignaturDelmal(enhet = this.enhetNavn())),
-                flettefelter = FlettefelterForDokumentDtoImpl(
-                    navn = this.mottakerNavn,
-                    fodselsnummer = this.mottakerIdent,
-                ),
-            ),
-        )
+        Brevmal.HENLEGGE_TRUKKET_SØKNAD ->
+            HenleggeTrukketSøknadBrevDto(
+                data =
+                    HenleggeTrukketSøknadDataDto(
+                        delmalData = HenleggeTrukketSøknadDataDto.DelmalData(signatur = SignaturDelmal(enhet = this.enhetNavn())),
+                        flettefelter =
+                            FlettefelterForDokumentDtoImpl(
+                                navn = this.mottakerNavn,
+                                fodselsnummer = this.mottakerIdent,
+                            ),
+                    ),
+            )
 
-    Brevmal.VARSEL_OM_REVURDERING ->
-        VarselbrevMedÅrsakerDto(
-            mal = Brevmal.VARSEL_OM_REVURDERING,
-            navn = this.mottakerNavn,
-            fødselsnummer = this.mottakerIdent,
-            varselÅrsaker = this.multiselectVerdier,
-            enhet = this.enhetNavn(),
-        )
+        Brevmal.VARSEL_OM_REVURDERING ->
+            VarselbrevMedÅrsakerDto(
+                mal = Brevmal.VARSEL_OM_REVURDERING,
+                navn = this.mottakerNavn,
+                fødselsnummer = this.mottakerIdent,
+                varselÅrsaker = this.multiselectVerdier,
+                enhet = this.enhetNavn(),
+            )
 
-    Brevmal.SVARTIDSBREV ->
-        SvartidsbrevDto(
-            navn = this.mottakerNavn,
-            fodselsnummer = this.mottakerIdent,
-            enhet = this.enhetNavn(),
-            mal = Brevmal.SVARTIDSBREV,
-            erEøsBehandling = if (this.behandlingKategori == null) {
-                throw Feil("Trenger å vite om behandling er EØS for å sende ut svartidsbrev.")
-            } else {
-                this.behandlingKategori == BehandlingKategori.EØS
-            },
-        )
+        Brevmal.SVARTIDSBREV ->
+            SvartidsbrevDto(
+                navn = this.mottakerNavn,
+                fodselsnummer = this.mottakerIdent,
+                enhet = this.enhetNavn(),
+                mal = Brevmal.SVARTIDSBREV,
+                erEøsBehandling =
+                    if (this.behandlingKategori == null) {
+                        throw Feil("Trenger å vite om behandling er EØS for å sende ut svartidsbrev.")
+                    } else {
+                        this.behandlingKategori == BehandlingKategori.EØS
+                    },
+            )
 
-    Brevmal.FORLENGET_SVARTIDSBREV ->
-        ForlengetSvartidsbrevDto(
-            navn = this.mottakerNavn,
-            fodselsnummer = this.mottakerIdent,
-            enhetNavn = this.enhetNavn(),
-            årsaker = this.multiselectVerdier,
-            antallUkerSvarfrist = this.antallUkerSvarfrist ?: throw Feil("Antall uker svarfrist er ikke satt"),
-        )
+        Brevmal.FORLENGET_SVARTIDSBREV ->
+            ForlengetSvartidsbrevDto(
+                navn = this.mottakerNavn,
+                fodselsnummer = this.mottakerIdent,
+                enhetNavn = this.enhetNavn(),
+                årsaker = this.multiselectVerdier,
+                antallUkerSvarfrist = this.antallUkerSvarfrist ?: throw Feil("Antall uker svarfrist er ikke satt"),
+            )
 
-    Brevmal.INFORMASJONSBREV_KAN_SØKE ->
-        InformasjonsbrevKanSøkeDto(
-            navn = this.mottakerNavn,
-            fodselsnummer = this.mottakerIdent,
-            enhet = this.enhetNavn(),
-            dokumentliste = this.multiselectVerdier,
-        )
+        Brevmal.INFORMASJONSBREV_KAN_SØKE ->
+            InformasjonsbrevKanSøkeDto(
+                navn = this.mottakerNavn,
+                fodselsnummer = this.mottakerIdent,
+                enhet = this.enhetNavn(),
+                dokumentliste = this.multiselectVerdier,
+            )
 
-    Brevmal.VARSEL_OM_VEDTAK_ETTER_SØKNAD_I_SED ->
-        VarselbrevMedÅrsakerOgBarnDto(
-            mal = Brevmal.VARSEL_OM_VEDTAK_ETTER_SØKNAD_I_SED,
-            navn = this.mottakerNavn,
-            fødselsnummer = this.mottakerIdent,
-            enhet = this.enhetNavn(),
-            varselÅrsaker = this.multiselectVerdier,
-            barnasFødselsdager = this.barnasFødselsdager.tilFormaterteFødselsdager(),
-        )
+        Brevmal.VARSEL_OM_VEDTAK_ETTER_SØKNAD_I_SED ->
+            VarselbrevMedÅrsakerOgBarnDto(
+                mal = Brevmal.VARSEL_OM_VEDTAK_ETTER_SØKNAD_I_SED,
+                navn = this.mottakerNavn,
+                fødselsnummer = this.mottakerIdent,
+                enhet = this.enhetNavn(),
+                varselÅrsaker = this.multiselectVerdier,
+                barnasFødselsdager = this.barnasFødselsdager.tilFormaterteFødselsdager(),
+            )
 
-    Brevmal.VARSEL_OM_REVURDERING_FRA_NASJONAL_TIL_EØS ->
-        VarselbrevMedÅrsakerDto(
-            mal = Brevmal.VARSEL_OM_REVURDERING_FRA_NASJONAL_TIL_EØS,
-            navn = this.mottakerNavn,
-            fødselsnummer = this.mottakerIdent,
-            varselÅrsaker = this.multiselectVerdier,
-            enhet = this.enhetNavn(),
-        )
+        Brevmal.VARSEL_OM_REVURDERING_FRA_NASJONAL_TIL_EØS ->
+            VarselbrevMedÅrsakerDto(
+                mal = Brevmal.VARSEL_OM_REVURDERING_FRA_NASJONAL_TIL_EØS,
+                navn = this.mottakerNavn,
+                fødselsnummer = this.mottakerIdent,
+                varselÅrsaker = this.multiselectVerdier,
+                enhet = this.enhetNavn(),
+            )
 
-    Brevmal.INNHENTE_OPPLYSNINGER_ETTER_SØKNAD_I_SED ->
-        InnhenteOpplysningerOmBarnDto(
-            mal = Brevmal.INNHENTE_OPPLYSNINGER_ETTER_SØKNAD_I_SED,
-            navn = this.mottakerNavn,
-            fødselsnummer = this.mottakerIdent,
-            dokumentliste = this.multiselectVerdier,
-            enhet = this.enhetNavn(),
-            barnasFødselsdager = this.barnasFødselsdager.tilFormaterteFødselsdager(),
-        )
+        Brevmal.INNHENTE_OPPLYSNINGER_ETTER_SØKNAD_I_SED ->
+            InnhenteOpplysningerOmBarnDto(
+                mal = Brevmal.INNHENTE_OPPLYSNINGER_ETTER_SØKNAD_I_SED,
+                navn = this.mottakerNavn,
+                fødselsnummer = this.mottakerIdent,
+                dokumentliste = this.multiselectVerdier,
+                enhet = this.enhetNavn(),
+                barnasFødselsdager = this.barnasFødselsdager.tilFormaterteFødselsdager(),
+            )
 
-    Brevmal.INFORMASJONSBREV_KAN_SØKE_EØS ->
-        EnkeltInformasjonsbrevDto(
-            navn = this.mottakerNavn,
-            fodselsnummer = this.mottakerIdent,
-            enhet = this.enhetNavn(),
-            mal = Brevmal.INFORMASJONSBREV_KAN_SØKE_EØS,
-        )
+        Brevmal.INFORMASJONSBREV_KAN_SØKE_EØS ->
+            EnkeltInformasjonsbrevDto(
+                navn = this.mottakerNavn,
+                fodselsnummer = this.mottakerIdent,
+                enhet = this.enhetNavn(),
+                mal = Brevmal.INFORMASJONSBREV_KAN_SØKE_EØS,
+            )
 
-    Brevmal.VEDTAK_FØRSTEGANGSVEDTAK,
-    Brevmal.VEDTAK_ENDRING,
-    Brevmal.VEDTAK_OPPHØRT,
-    Brevmal.VEDTAK_OPPHØR_MED_ENDRING,
-    Brevmal.VEDTAK_AVSLAG,
-    Brevmal.VEDTAK_FORTSATT_INNVILGET,
-    Brevmal.VEDTAK_KORREKSJON_VEDTAKSBREV,
-    Brevmal.VEDTAK_OPPHØR_DØDSFALL,
-    Brevmal.AUTOVEDTAK_BARN_6_OG_18_ÅR_OG_SMÅBARNSTILLEGG,
-    Brevmal.AUTOVEDTAK_NYFØDT_FØRSTE_BARN,
-    Brevmal.AUTOVEDTAK_NYFØDT_BARN_FRA_FØR,
-    -> throw Feil("Kan ikke mappe fra manuel brevrequest til ${this.brevmal}.")
-}
+        Brevmal.VEDTAK_FØRSTEGANGSVEDTAK,
+        Brevmal.VEDTAK_ENDRING,
+        Brevmal.VEDTAK_OPPHØRT,
+        Brevmal.VEDTAK_OPPHØR_MED_ENDRING,
+        Brevmal.VEDTAK_AVSLAG,
+        Brevmal.VEDTAK_FORTSATT_INNVILGET,
+        Brevmal.VEDTAK_KORREKSJON_VEDTAKSBREV,
+        Brevmal.VEDTAK_OPPHØR_DØDSFALL,
+        Brevmal.AUTOVEDTAK_BARN_6_OG_18_ÅR_OG_SMÅBARNSTILLEGG,
+        Brevmal.AUTOVEDTAK_NYFØDT_FØRSTE_BARN,
+        Brevmal.AUTOVEDTAK_NYFØDT_BARN_FRA_FØR,
+        -> throw Feil("Kan ikke mappe fra manuel brevrequest til ${this.brevmal}.")
+    }
 
-private fun List<LocalDate>?.tilFormaterteFødselsdager() = slåSammen(
-    this?.map { it.tilKortString() }
-        ?: throw Feil("Fikk ikke med barna sine fødselsdager"),
-)
+private fun List<LocalDate>?.tilFormaterteFødselsdager() =
+    slåSammen(
+        this?.map { it.tilKortString() }
+            ?: throw Feil("Fikk ikke med barna sine fødselsdager"),
+    )

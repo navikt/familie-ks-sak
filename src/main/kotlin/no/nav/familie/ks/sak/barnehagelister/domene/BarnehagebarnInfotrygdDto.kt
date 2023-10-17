@@ -14,7 +14,6 @@ data class BarnehagebarnInfotrygdDto(
     val harFagsak: Boolean,
     val endretTid: LocalDateTime,
 ) {
-
     companion object {
         fun fraBarnehageBarnInterfaceTilDto(
             barnehagebarnInfotrygdDtoInterface: BarnehagebarnInfotrygdDtoInterface,

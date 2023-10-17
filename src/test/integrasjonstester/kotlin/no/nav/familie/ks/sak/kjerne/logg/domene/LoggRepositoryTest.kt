@@ -10,7 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.hamcrest.CoreMatchers.`is` as Is
 
 internal class LoggRepositoryTest : OppslagSpringRunnerTest() {
-
     @Autowired
     private lateinit var loggRepository: LoggRepository
 
@@ -21,12 +20,13 @@ internal class LoggRepositoryTest : OppslagSpringRunnerTest() {
 
     @Test
     fun `hentLoggForBehandling - skal returnere logg som er lagret for behandling`() {
-        val logg = Logg(
-            behandlingId = behandling.id,
-            type = LoggType.BEHANDLING_OPPRETTET,
-            tittel = "${behandling.type.visningsnavn} opprettet",
-            rolle = BehandlerRolle.SYSTEM,
-        )
+        val logg =
+            Logg(
+                behandlingId = behandling.id,
+                type = LoggType.BEHANDLING_OPPRETTET,
+                tittel = "${behandling.type.visningsnavn} opprettet",
+                rolle = BehandlerRolle.SYSTEM,
+            )
 
         loggRepository.saveAndFlush(logg)
 

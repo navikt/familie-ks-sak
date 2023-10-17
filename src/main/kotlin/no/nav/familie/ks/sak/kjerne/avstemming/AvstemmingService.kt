@@ -17,12 +17,17 @@ class AvstemmingService(
     private val behandlingService: BehandlingService,
     private val beregningService: BeregningService,
 ) {
-
-    fun sendGrensesnittavstemming(fom: LocalDateTime, tom: LocalDateTime) {
+    fun sendGrensesnittavstemming(
+        fom: LocalDateTime,
+        tom: LocalDateTime,
+    ) {
         oppdragKlient.sendGrensesnittavstemmingTilOppdrag(fom, tom)
     }
 
-    fun sendKonsistensavstemmingStartMelding(avstemmingstidspunkt: LocalDateTime, transaksjonsId: UUID) {
+    fun sendKonsistensavstemmingStartMelding(
+        avstemmingstidspunkt: LocalDateTime,
+        transaksjonsId: UUID,
+    ) {
         logger.info("Utfører Konsistensavstemming: Sender start melding for transaksjonsId $transaksjonsId")
         oppdragKlient.konsistensavstemOppdragStart(avstemmingstidspunkt, transaksjonsId)
     }
@@ -36,7 +41,10 @@ class AvstemmingService(
         oppdragKlient.konsistensavstemOppdragData(avstemmingstidspunkt, perioderTilAvstemming, transaksjonsId)
     }
 
-    fun sendKonsistensavstemmingAvsluttMelding(avstemmingstidspunkt: LocalDateTime, transaksjonsId: UUID) {
+    fun sendKonsistensavstemmingAvsluttMelding(
+        avstemmingstidspunkt: LocalDateTime,
+        transaksjonsId: UUID,
+    ) {
         logger.info("Utfører Konsistensavstemming: Sender avslutt melding for transaksjonsId $transaksjonsId")
         oppdragKlient.konsistensavstemOppdragAvslutt(avstemmingstidspunkt, transaksjonsId)
     }
@@ -45,23 +53,27 @@ class AvstemmingService(
         avstemmingtidspunkt: LocalDateTime,
         relevanteBehandlingIder: List<Long>,
     ): List<PerioderForBehandling> {
-        val relevanteAndeler = beregningService.hentLøpendeAndelerTilkjentYtelseMedUtbetalingerForBehandlinger(
-            relevanteBehandlingIder,
-            avstemmingtidspunkt,
-        )
-        val aktiveFødselsnummere = behandlingService.hentAktivtFødselsnummerForBehandlinger(
-            relevanteAndeler.mapNotNull { it.kildeBehandlingId },
-        )
+        val relevanteAndeler =
+            beregningService.hentLøpendeAndelerTilkjentYtelseMedUtbetalingerForBehandlinger(
+                relevanteBehandlingIder,
+                avstemmingtidspunkt,
+            )
+        val aktiveFødselsnummere =
+            behandlingService.hentAktivtFødselsnummerForBehandlinger(
+                relevanteAndeler.mapNotNull { it.kildeBehandlingId },
+            )
         return relevanteAndeler.groupBy { it.kildeBehandlingId }
             .map { (kildeBehandlingId, andeler) ->
                 if (kildeBehandlingId == null) secureLogger.warn("Finner ikke behandlingsId for andeler=$andeler")
                 PerioderForBehandling(
                     behandlingId = kildeBehandlingId.toString(),
-                    aktivFødselsnummer = aktiveFødselsnummere[kildeBehandlingId]
-                        ?: error("Finnes ikke et aktivt fødselsnummer for behandling $kildeBehandlingId"),
-                    perioder = andeler.map {
-                        it.periodeOffset ?: error("Andel $it mangler periodeOffset")
-                    }.toSet(),
+                    aktivFødselsnummer =
+                        aktiveFødselsnummere[kildeBehandlingId]
+                            ?: error("Finnes ikke et aktivt fødselsnummer for behandling $kildeBehandlingId"),
+                    perioder =
+                        andeler.map {
+                            it.periodeOffset ?: error("Andel $it mangler periodeOffset")
+                        }.toSet(),
                 )
             }
     }

@@ -7,7 +7,6 @@ import org.junit.jupiter.api.Test
 import java.time.LocalDate
 
 class KombinerMedTest {
-
     private val førsteJanuar = LocalDate.of(2022, 1, 1)
     private val sisteDagIJanuar = LocalDate.of(2022, 1, 31)
     private val førsteFebruar = LocalDate.of(2022, 2, 1)
@@ -28,9 +27,10 @@ class KombinerMedTest {
         val tidslinjeB =
             listOf(Periode(2, førsteFebruar, sisteDagIFebruar), Periode(2, førsteApril, sisteDagIApril)).tilTidslinje()
 
-        val perioder = tidslinjeA.kombinerMed(tidslinjeB) { verdiFraTidslinjeA, verdiFraTidslinjeB ->
-            (verdiFraTidslinjeA ?: 0) + (verdiFraTidslinjeB ?: 0)
-        }.tilPerioder()
+        val perioder =
+            tidslinjeA.kombinerMed(tidslinjeB) { verdiFraTidslinjeA, verdiFraTidslinjeB ->
+                (verdiFraTidslinjeA ?: 0) + (verdiFraTidslinjeB ?: 0)
+            }.tilPerioder()
 
         Assertions.assertEquals(4, perioder.size)
 
@@ -61,9 +61,10 @@ class KombinerMedTest {
         val tidslinjeA = listOf(Periode(1, førsteJanuar, sisteDagIJanuar)).tilTidslinje()
         val tidslinjeB = listOf(Periode(2, førsteMars, sisteDagIMars)).tilTidslinje()
 
-        val perioder = tidslinjeA.kombinerMed(tidslinjeB) { verdiFraTidslinjeA, verdiFraTidslinjeB ->
-            (verdiFraTidslinjeA ?: 0) + (verdiFraTidslinjeB ?: 0)
-        }.tilPerioder()
+        val perioder =
+            tidslinjeA.kombinerMed(tidslinjeB) { verdiFraTidslinjeA, verdiFraTidslinjeB ->
+                (verdiFraTidslinjeA ?: 0) + (verdiFraTidslinjeB ?: 0)
+            }.tilPerioder()
 
         Assertions.assertEquals(3, perioder.size)
 

@@ -47,11 +47,12 @@ class AndelerTilkjentYtelseOgEndreteUtbetalingerServiceTest {
     private val barn1 = randomAktør()
 
     val behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD)
-    val personopplysningGrunnlag = lagPersonopplysningGrunnlag(
-        behandlingId = behandling.id,
-        søkerPersonIdent = søker.aktivFødselsnummer(),
-        barnasIdenter = listOf(barn1.aktivFødselsnummer()),
-    )
+    val personopplysningGrunnlag =
+        lagPersonopplysningGrunnlag(
+            behandlingId = behandling.id,
+            søkerPersonIdent = søker.aktivFødselsnummer(),
+            barnasIdenter = listOf(barn1.aktivFødselsnummer()),
+        )
     private val søkerPerson = lagPerson(personopplysningGrunnlag, søker, PersonType.SØKER)
     val barnPerson = lagPerson(personopplysningGrunnlag, barn1, PersonType.BARN)
     val vilkårsvurdering = Vilkårsvurdering(behandling = behandling)
@@ -139,12 +140,13 @@ class AndelerTilkjentYtelseOgEndreteUtbetalingerServiceTest {
                 ),
             )
         val personResultatForBarn1 = PersonResultat(vilkårsvurdering = vilkårsvurdering, aktør = barn1)
-        val vilkårResultaterForBarn1 = lagVilkårResultaterForDeltBosted(
-            personResultat = personResultatForBarn1,
-            behandlingId = behandling.id,
-            fom1 = fom.minusMonths(1).førsteDagIInneværendeMåned(),
-            tom1 = tom.sisteDagIInneværendeMåned(),
-        )
+        val vilkårResultaterForBarn1 =
+            lagVilkårResultaterForDeltBosted(
+                personResultat = personResultatForBarn1,
+                behandlingId = behandling.id,
+                fom1 = fom.minusMonths(1).førsteDagIInneværendeMåned(),
+                tom1 = tom.sisteDagIInneværendeMåned(),
+            )
         personResultatForBarn1.setSortedVilkårResultater(vilkårResultaterForBarn1)
         vilkårsvurdering.personResultater = setOf(personResultatForBarn1)
 

@@ -17,7 +17,6 @@ data class Opphørt(
     override val mal: Brevmal,
     override val data: OpphørtData,
 ) : VedtaksbrevDto {
-
     constructor(
         mal: Brevmal = Brevmal.VEDTAK_OPPHØRT,
         fellesdataForVedtaksbrev: FellesdataForVedtaksbrev,
@@ -25,24 +24,28 @@ data class Opphørt(
     ) :
         this(
             mal = mal,
-            data = OpphørtData(
-                delmalData = OpphørtData.Delmaler(
-                    signaturVedtak = SignaturVedtak(
-                        enhet = fellesdataForVedtaksbrev.enhet,
-                        saksbehandler = fellesdataForVedtaksbrev.saksbehandler,
-                        beslutter = fellesdataForVedtaksbrev.beslutter,
-                    ),
-                    hjemmeltekst = fellesdataForVedtaksbrev.hjemmeltekst,
-                    feilutbetaling = erFeilutbetalingPåBehandling,
-                    korrigertVedtak = fellesdataForVedtaksbrev.korrigertVedtakData,
+            data =
+                OpphørtData(
+                    delmalData =
+                        OpphørtData.Delmaler(
+                            signaturVedtak =
+                                SignaturVedtak(
+                                    enhet = fellesdataForVedtaksbrev.enhet,
+                                    saksbehandler = fellesdataForVedtaksbrev.saksbehandler,
+                                    beslutter = fellesdataForVedtaksbrev.beslutter,
+                                ),
+                            hjemmeltekst = fellesdataForVedtaksbrev.hjemmeltekst,
+                            feilutbetaling = erFeilutbetalingPåBehandling,
+                            korrigertVedtak = fellesdataForVedtaksbrev.korrigertVedtakData,
+                        ),
+                    flettefelter =
+                        object : FlettefelterForDokumentDto {
+                            override val navn = flettefelt(fellesdataForVedtaksbrev.søkerNavn)
+                            override val fodselsnummer = flettefelt(fellesdataForVedtaksbrev.søkerFødselsnummer)
+                            override val brevOpprettetDato = flettefelt(LocalDate.now().tilDagMånedÅr())
+                        },
+                    perioder = fellesdataForVedtaksbrev.perioder,
                 ),
-                flettefelter = object : FlettefelterForDokumentDto {
-                    override val navn = flettefelt(fellesdataForVedtaksbrev.søkerNavn)
-                    override val fodselsnummer = flettefelt(fellesdataForVedtaksbrev.søkerFødselsnummer)
-                    override val brevOpprettetDato = flettefelt(LocalDate.now().tilDagMånedÅr())
-                },
-                perioder = fellesdataForVedtaksbrev.perioder,
-            ),
         )
 }
 
@@ -51,7 +54,6 @@ data class OpphørtData(
     override val flettefelter: FlettefelterForDokumentDto,
     override val perioder: List<BrevPeriodeDto>,
 ) : VedtaksbrevData {
-
     data class Delmaler(
         val signaturVedtak: SignaturVedtak,
         val feilutbetaling: Boolean,

@@ -60,9 +60,10 @@ class VilkårsvurderingSteg(
 
         // sjekker og tilpasser kompetanse skjema når vilkårer er vurdert etter EØS forordingen
         // eller det ligger allerede en kompetanse
-        val finnesKompetanserEllerVilkårVurdertEtterEøs = vilkårsvurdering.personResultater.any {
-            it.vilkårResultater.any { vilkårResultat -> vilkårResultat.vurderesEtter == Regelverk.EØS_FORORDNINGEN }
-        } || kompetanseService.hentKompetanser(behandlingId).isNotEmpty()
+        val finnesKompetanserEllerVilkårVurdertEtterEøs =
+            vilkårsvurdering.personResultater.any {
+                it.vilkårResultater.any { vilkårResultat -> vilkårResultat.vurderesEtter == Regelverk.EØS_FORORDNINGEN }
+            } || kompetanseService.hentKompetanser(behandlingId).isNotEmpty()
 
         if (finnesKompetanserEllerVilkårVurdertEtterEøs) {
             logger.info("Oppretter/Tilpasser kompetanse perioder for behandlingId=$behandlingId")
@@ -74,9 +75,10 @@ class VilkårsvurderingSteg(
         nåværendeBehandling: Behandling,
         nåværendeVilkårsvurdering: Vilkårsvurdering,
     ) {
-        val nåværendeVilkårVurderesEtterEøs = nåværendeVilkårsvurdering.personResultater.flatMap { it.vilkårResultater }
-            .filter { it.behandlingId == nåværendeBehandling.id }
-            .any { it.vurderesEtter == Regelverk.EØS_FORORDNINGEN }
+        val nåværendeVilkårVurderesEtterEøs =
+            nåværendeVilkårsvurdering.personResultater.flatMap { it.vilkårResultater }
+                .filter { it.behandlingId == nåværendeBehandling.id }
+                .any { it.vurderesEtter == Regelverk.EØS_FORORDNINGEN }
 
         val kategoriForNåværendeBehandling =
             if (nåværendeVilkårVurderesEtterEøs) BehandlingKategori.EØS else BehandlingKategori.NASJONAL
@@ -133,9 +135,10 @@ class VilkårsvurderingSteg(
         behandling: Behandling,
     ) {
         val barna = personopplysningGrunnlag.barna
-        val uregistrerteBarn = søknadGrunnlagDto?.barnaMedOpplysninger?.filter {
-            !it.erFolkeregistrert && it.inkludertISøknaden
-        } ?: emptyList()
+        val uregistrerteBarn =
+            søknadGrunnlagDto?.barnaMedOpplysninger?.filter {
+                !it.erFolkeregistrert && it.inkludertISøknaden
+            } ?: emptyList()
 
         if (barna.isEmpty() && uregistrerteBarn.isEmpty()) {
             throw FunksjonellFeil(
@@ -164,9 +167,11 @@ class VilkårsvurderingSteg(
 
         if (vilkårSomEnderEtterSøkersDød.isNotEmpty()) {
             throw FunksjonellFeil(
-                "Ved behandlingsårsak \"Dødsfall\" må vilkårene på søker avsluttes " + "senest dagen søker døde, men " + slåSammen(
-                    vilkårSomEnderEtterSøkersDød.map { "\"" + it.beskrivelse + "\"" },
-                ) + " vilkåret til søker slutter etter søkers død.",
+                "Ved behandlingsårsak \"Dødsfall\" må vilkårene på søker avsluttes " + "senest dagen søker døde, men " +
+                    slåSammen(
+                        vilkårSomEnderEtterSøkersDød.map { "\"" + it.beskrivelse + "\"" },
+                    ) +
+                    " vilkåret til søker slutter etter søkers død.",
             )
         }
     }
@@ -201,9 +206,10 @@ class VilkårsvurderingSteg(
             val person =
                 personopplysningGrunnlag.personer.single { it.aktør.aktivFødselsnummer() == personResultat.aktør.aktivFødselsnummer() }
 
-            val barnehageplassVilkårResultater = personResultat.vilkårResultater.filter {
-                it.vilkårType == Vilkår.BARNEHAGEPLASS
-            }
+            val barnehageplassVilkårResultater =
+                personResultat.vilkårResultater.filter {
+                    it.vilkårType == Vilkår.BARNEHAGEPLASS
+                }
 
             val minFraOgMedDatoIBarnehageplassVilkårResultater =
                 barnehageplassVilkårResultater.sortedBy { it.periodeFom }.first().periodeFom
@@ -271,7 +277,6 @@ class VilkårsvurderingSteg(
     }
 
     companion object {
-
         private val logger: Logger = LoggerFactory.getLogger(VilkårsvurderingSteg::class.java)
     }
 }

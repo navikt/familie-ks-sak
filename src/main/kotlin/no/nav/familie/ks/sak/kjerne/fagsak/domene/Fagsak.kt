@@ -22,7 +22,6 @@ data class Fagsak(
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "fagsak_seq_generator")
     @SequenceGenerator(name = "fagsak_seq_generator", sequenceName = "fagsak_seq", allocationSize = 50)
     val id: Long = 0,
-
     @OneToOne(optional = false)
     @JoinColumn(
         name = "fk_aktoer_id",
@@ -30,15 +29,12 @@ data class Fagsak(
         updatable = false,
     )
     val aktør: Aktør,
-
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
     var status: FagsakStatus = FagsakStatus.OPPRETTET,
-
     @Column(name = "arkivert", nullable = false)
     var arkivert: Boolean = false,
 ) : BaseEntitet() {
-
     override fun hashCode(): Int {
         return Objects.hashCode(id)
     }

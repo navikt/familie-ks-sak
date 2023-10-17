@@ -25,7 +25,6 @@ class SendVedtakHendelseTilInfotrygdTask(
     private val kafkaProducer: KafkaProducer,
     private val andelerTilkjentYtelseOgEndreteUtbetalingerService: AndelerTilkjentYtelseOgEndreteUtbetalingerService,
 ) : AsyncTaskStep {
-
     override fun doTask(task: Task) {
         val vedtakHendelseDto = objectMapper.readValue(task.payload, VedtakHendelseDto::class.java)
         logger.info("Sender Vedtak hendelse for behandling=${vedtakHendelseDto.behandlingId} via Kafka")
@@ -40,13 +39,15 @@ class SendVedtakHendelseTilInfotrygdTask(
     }
 
     private fun finnFørsteUtbetalingsdato(behandlingId: Long): LocalDate {
-        val andelerMedEndringer = andelerTilkjentYtelseOgEndreteUtbetalingerService
-            .finnAndelerTilkjentYtelseMedEndreteUtbetalinger(behandlingId)
+        val andelerMedEndringer =
+            andelerTilkjentYtelseOgEndreteUtbetalingerService
+                .finnAndelerTilkjentYtelseMedEndreteUtbetalinger(behandlingId)
 
         return when {
             andelerMedEndringer.isNotEmpty() -> {
-                val førsteUtbetalingsperiode = andelerMedEndringer.lagVertikalePerioder().tilPerioder().filtrerIkkeNull()
-                    .sortedWith(compareBy({ it.fom }, { it.tom })).first()
+                val førsteUtbetalingsperiode =
+                    andelerMedEndringer.lagVertikalePerioder().tilPerioder().filtrerIkkeNull()
+                        .sortedWith(compareBy({ it.fom }, { it.tom })).first()
                 checkNotNull(førsteUtbetalingsperiode.fom)
             }
             else -> {
@@ -56,18 +57,21 @@ class SendVedtakHendelseTilInfotrygdTask(
     }
 
     companion object {
-
         const val TASK_STEP_TYPE = "sendVedtakHendelseTilInfotrygdFeed"
         private val logger = LoggerFactory.getLogger(this::class.java)
 
-        fun opprettTask(fnrStoenadsmottaker: String, behandlingId: Long): Task {
+        fun opprettTask(
+            fnrStoenadsmottaker: String,
+            behandlingId: Long,
+        ): Task {
             logger.info("Oppretter task for å sende vedtak hendelse for behandling=$behandlingId til Infotrygd.")
             return Task(
                 type = TASK_STEP_TYPE,
                 payload = objectMapper.writeValueAsString(VedtakHendelseDto(fnrStoenadsmottaker, behandlingId)),
-                properties = Properties().apply {
-                    this["personIdent"] = fnrStoenadsmottaker
-                },
+                properties =
+                    Properties().apply {
+                        this["personIdent"] = fnrStoenadsmottaker
+                    },
             )
         }
     }

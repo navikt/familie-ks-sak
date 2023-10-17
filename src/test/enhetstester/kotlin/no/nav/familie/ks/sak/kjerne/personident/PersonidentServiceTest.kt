@@ -19,7 +19,6 @@ import org.junit.jupiter.api.extension.ExtendWith
 
 @ExtendWith(MockKExtension::class)
 class PersonidentServiceTest {
-
     @MockK
     private lateinit var personidentRepository: PersonidentRepository
 

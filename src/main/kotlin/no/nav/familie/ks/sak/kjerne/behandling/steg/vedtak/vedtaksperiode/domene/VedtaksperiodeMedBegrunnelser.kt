@@ -45,22 +45,17 @@ data class VedtaksperiodeMedBegrunnelser(
         allocationSize = 50,
     )
     val id: Long = 0,
-
     @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "fk_vedtak_id")
     val vedtak: Vedtak,
-
     @Column(name = "fom", updatable = false)
     val fom: LocalDate? = null,
-
     @Column(name = "tom", updatable = false)
     val tom: LocalDate? = null,
-
     @Column(name = "type", updatable = false)
     @Enumerated(EnumType.STRING)
     val type: Vedtaksperiodetype,
-
     @OneToMany(
         fetch = FetchType.EAGER,
         mappedBy = "vedtaksperiodeMedBegrunnelser",
@@ -68,7 +63,6 @@ data class VedtaksperiodeMedBegrunnelser(
         orphanRemoval = true,
     )
     val begrunnelser: MutableSet<Vedtaksbegrunnelse> = mutableSetOf(),
-
     // Bruker list for å bevare rekkefølgen som settes frontend.
     @OneToMany(
         fetch = FetchType.EAGER,
@@ -77,9 +71,7 @@ data class VedtaksperiodeMedBegrunnelser(
         orphanRemoval = true,
     )
     val fritekster: MutableList<VedtaksbegrunnelseFritekst> = mutableListOf(),
-
 ) : BaseEntitet() {
-
     fun settBegrunnelser(nyeBegrunnelser: List<Vedtaksbegrunnelse>) =
         begrunnelser.apply {
             clear()
@@ -95,8 +87,7 @@ data class VedtaksperiodeMedBegrunnelser(
     fun harFriteksterUtenStandardbegrunnelser(): Boolean =
         (type == Vedtaksperiodetype.OPPHØR || type == Vedtaksperiodetype.AVSLAG) && fritekster.isNotEmpty() && begrunnelser.isEmpty()
 
-    fun harFriteksterOgStandardbegrunnelser(): Boolean =
-        fritekster.isNotEmpty() && begrunnelser.isNotEmpty()
+    fun harFriteksterOgStandardbegrunnelser(): Boolean = fritekster.isNotEmpty() && begrunnelser.isNotEmpty()
 
     fun hentUtbetalingsperiodeDetaljer(
         andelerTilkjentYtelse: List<AndelTilkjentYtelseMedEndreteUtbetalinger>,
@@ -111,7 +102,9 @@ data class VedtaksperiodeMedBegrunnelser(
             val vedtaksperiodeTidslinje = listOf(Periode(verdi = this, fom = this.fom, this.tom)).tilTidslinje()
 
             val tidslinjeMedAndelerIPeriode =
-                kombinertTidslinje.kombinerMed(vedtaksperiodeTidslinje) { andelTilkjentYtelseIPeriode, vedtaksPeriode -> if (vedtaksPeriode != null) andelTilkjentYtelseIPeriode else null }
+                kombinertTidslinje.kombinerMed(
+                    vedtaksperiodeTidslinje,
+                ) { andelTilkjentYtelseIPeriode, vedtaksPeriode -> if (vedtaksPeriode != null) andelTilkjentYtelseIPeriode else null }
 
             val andelTilkjentYtelserIPeriode =
                 tidslinjeMedAndelerIPeriode.tilPerioder().mapNotNull { it.verdi }.flatten()
@@ -133,14 +126,15 @@ data class VedtaksperiodeMedBegrunnelser(
         andelTilkjentYtelserIPeriode: List<AndelTilkjentYtelseMedEndreteUtbetalinger>,
         personopplysningGrunnlag: PersonopplysningGrunnlag,
     ) {
-        val delvisOverlapp = andelTilkjentYtelserIPeriode.any {
-            (this.fom ?: TIDENES_MORGEN).isBefore(it.stønadFom.førsteDagIInneværendeMåned()) || (
-                (
-                    this.tom
-                        ?: TIDENES_ENDE
+        val delvisOverlapp =
+            andelTilkjentYtelserIPeriode.any {
+                (this.fom ?: TIDENES_MORGEN).isBefore(it.stønadFom.førsteDagIInneværendeMåned()) || (
+                    (
+                        this.tom
+                            ?: TIDENES_ENDE
                     ).isAfter(it.stønadTom.sisteDagIInneværendeMåned())
                 )
-        }
+            }
 
         if (delvisOverlapp) {
             throw Feil("Andel overlapper vedtaksperiode kun delvis for behandling ${personopplysningGrunnlag.behandlingId}")

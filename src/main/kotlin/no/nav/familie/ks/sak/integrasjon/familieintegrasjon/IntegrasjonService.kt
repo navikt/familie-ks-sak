@@ -10,7 +10,6 @@ import org.springframework.stereotype.Service
 
 @Service
 class IntegrasjonService(private val integrasjonClient: IntegrasjonClient, private val pdlClient: PdlClient) {
-
     fun sjekkTilgangTilPerson(personIdent: String): Tilgang {
         return sjekkTilgangTilPersoner(listOf(personIdent)).values.single()
     }

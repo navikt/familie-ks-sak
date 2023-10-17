@@ -18,7 +18,6 @@ import java.util.Properties
     maxAntallFeil = 3,
 )
 class GrensesnittavstemmingTask(private val avstemmingService: AvstemmingService) : AsyncTaskStep {
-
     override fun doTask(task: Task) {
         val taskData = objectMapper.readValue(task.payload, GrensesnittavstemmingTaskDto::class.java)
         logger.info("Kjører $TASK_STEP_TYPE for fom=${taskData.fom}, tom=${taskData.tom}")
@@ -26,16 +25,19 @@ class GrensesnittavstemmingTask(private val avstemmingService: AvstemmingService
     }
 
     companion object {
-
         const val TASK_STEP_TYPE = "grensesnittavstemming"
 
-        fun opprettTask(fom: LocalDateTime, tom: LocalDateTime) = Task(
+        fun opprettTask(
+            fom: LocalDateTime,
+            tom: LocalDateTime,
+        ) = Task(
             type = TASK_STEP_TYPE,
             payload = objectMapper.writeValueAsString(GrensesnittavstemmingTaskDto(fom, tom)),
-            properties = Properties().apply { // la til denne i properties slik at de kan vises i familie-prosessering
-                this["fom"] = fom.toString()
-                this["tom"] = tom.toString()
-            },
+            properties =
+                Properties().apply { // la til denne i properties slik at de kan vises i familie-prosessering
+                    this["fom"] = fom.toString()
+                    this["tom"] = tom.toString()
+                },
         )
 
         private val logger: Logger = LoggerFactory.getLogger(GrensesnittavstemmingTask::class.java)

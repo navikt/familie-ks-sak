@@ -30,28 +30,22 @@ data class BehandlingStegTilstand(
         allocationSize = 50,
     )
     val id: Long = 0,
-
     @ManyToOne(optional = false)
     @JoinColumn(name = "fk_behandling_id", nullable = false, updatable = false)
     @JsonIgnore
     val behandling: Behandling,
-
     @Enumerated(EnumType.STRING)
     @Column(name = "behandling_steg", nullable = false)
     val behandlingSteg: BehandlingSteg,
-
     @Enumerated(EnumType.STRING)
     @Column(name = "behandling_steg_status", nullable = false)
     var behandlingStegStatus: BehandlingStegStatus = BehandlingStegStatus.KLAR,
-
     @Enumerated(EnumType.STRING)
     @Column(name = "aarsak")
     var årsak: VenteÅrsak? = null,
-
     @Column(name = "frist")
     var frist: LocalDate? = null,
 ) : BaseEntitet() {
-
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false

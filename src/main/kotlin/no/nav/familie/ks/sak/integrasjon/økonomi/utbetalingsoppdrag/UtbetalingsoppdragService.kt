@@ -33,11 +33,12 @@ class UtbetalingsoppdragService(
         andelTilkjentYtelseForUtbetalingsoppdragFactory: AndelTilkjentYtelseForUtbetalingsoppdragFactory,
     ): TilkjentYtelse {
         val oppdatertBehandling = vedtak.behandling
-        val tilkjentYtelse = genererUtbetalingsoppdragOgOppdaterTilkjentYtelse(
-            vedtak,
-            saksbehandlerId,
-            andelTilkjentYtelseForUtbetalingsoppdragFactory,
-        )
+        val tilkjentYtelse =
+            genererUtbetalingsoppdragOgOppdaterTilkjentYtelse(
+                vedtak,
+                saksbehandlerId,
+                andelTilkjentYtelseForUtbetalingsoppdragFactory,
+            )
         val utbetalingsoppdrag =
             objectMapper.readValue(tilkjentYtelse.utbetalingsoppdrag, Utbetalingsoppdrag::class.java)
 
@@ -51,7 +52,10 @@ class UtbetalingsoppdragService(
         return tilkjentYtelse
     }
 
-    private fun iverksettOppdrag(utbetalingsoppdrag: Utbetalingsoppdrag, behandlingId: Long) {
+    private fun iverksettOppdrag(
+        utbetalingsoppdrag: Utbetalingsoppdrag,
+        behandlingId: Long,
+    ) {
         if (utbetalingsoppdrag.utbetalingsperiode.isEmpty()) {
             logger.warn("Iverksetter ikke noe mot oppdrag. Ingen utbetalingsperioder. behandlingId=$behandlingId")
             return
@@ -71,8 +75,7 @@ class UtbetalingsoppdragService(
         }
     }
 
-    fun hentStatus(oppdragId: OppdragId): OppdragStatus =
-        oppdragKlient.hentStatus(oppdragId)
+    fun hentStatus(oppdragId: OppdragId): OppdragStatus = oppdragKlient.hentStatus(oppdragId)
 
     @Transactional
     fun genererUtbetalingsoppdragOgOppdaterTilkjentYtelse(
@@ -90,20 +93,22 @@ class UtbetalingsoppdragService(
         val forrigeTilkjentYtelseMedAndeler =
             forrigeBehandlingSomErIverksatt?.let { beregningService.hentTilkjentYtelseForBehandling(it.id) }
 
-        val sisteOffsetPerIdent = beregningService.hentSisteOffsetPerIdent(
-            behandling.fagsak.id,
-            andelTilkjentYtelseForUtbetalingsoppdragFactory,
-        )
+        val sisteOffsetPerIdent =
+            beregningService.hentSisteOffsetPerIdent(
+                behandling.fagsak.id,
+                andelTilkjentYtelseForUtbetalingsoppdragFactory,
+            )
         val sisteOffsetPåFagsak = beregningService.hentSisteOffsetPåFagsak(behandling)
 
-        val vedtakMedTilkjentYtelse = VedtakMedTilkjentYtelse(
-            tilkjentYtelse = tilkjentYtelse,
-            vedtak = vedtak,
-            saksbehandlerId = saksbehandlerId,
-            sisteOffsetPerIdent = sisteOffsetPerIdent,
-            sisteOffsetPåFagsak = sisteOffsetPåFagsak,
-            erSimulering = erSimulering,
-        )
+        val vedtakMedTilkjentYtelse =
+            VedtakMedTilkjentYtelse(
+                tilkjentYtelse = tilkjentYtelse,
+                vedtak = vedtak,
+                saksbehandlerId = saksbehandlerId,
+                sisteOffsetPerIdent = sisteOffsetPerIdent,
+                sisteOffsetPåFagsak = sisteOffsetPåFagsak,
+                erSimulering = erSimulering,
+            )
 
         return utbetalingsoppdragGenerator.lagTilkjentYtelseMedUtbetalingsoppdrag(
             vedtakMedTilkjentYtelse = vedtakMedTilkjentYtelse,

@@ -9,7 +9,6 @@ import org.junit.jupiter.api.Test
 import java.time.LocalDate
 
 class TidslinjeEnkelTest {
-
     private var lst1 = emptyList<TidslinjePeriode<Int>>()
     private var lst2 = emptyList<TidslinjePeriode<Int>>()
 
@@ -107,12 +106,13 @@ class TidslinjeEnkelTest {
 
     @Test
     fun `Ved initsialisering av tidlinjer vil påfølgende TidslinjePerioder med lik verdi slått sammen`() {
-        val tidslinjePerioder = listOf(
-            TidslinjePeriode(1, 6, false),
-            TidslinjePeriode(1, 6, false),
-            TidslinjePeriode(1, 6, false),
-            TidslinjePeriode(1, 6, false),
-        )
+        val tidslinjePerioder =
+            listOf(
+                TidslinjePeriode(1, 6, false),
+                TidslinjePeriode(1, 6, false),
+                TidslinjePeriode(1, 6, false),
+                TidslinjePeriode(1, 6, false),
+            )
         val t1 = Tidslinje(LocalDate.now(), tidslinjePerioder)
         Assertions.assertEquals(1, t1.innhold.size)
         Assertions.assertEquals(1, t1.innhold[0].periodeVerdi.verdi)
@@ -139,16 +139,18 @@ class TidslinjeEnkelTest {
 
     @Test
     fun `kan bruke objekter som verdier i tidslinjene`() {
-        val tidslinjePerioder1 = listOf(
-            TidslinjePeriode(Beløp(2.0, "nok"), 1),
-            TidslinjePeriode(Beløp(3.0, "nok"), 1),
-            TidslinjePeriode(Beløp(3.0, "nok"), 1),
-        )
-        val tidslinjePerioder2 = listOf(
-            TidslinjePeriode(Beløp(2.0, "nok"), 1),
-            TidslinjePeriode(Beløp(3.0, "nok"), 1),
-            TidslinjePeriode(Beløp(4.0, "nok"), 1),
-        )
+        val tidslinjePerioder1 =
+            listOf(
+                TidslinjePeriode(Beløp(2.0, "nok"), 1),
+                TidslinjePeriode(Beløp(3.0, "nok"), 1),
+                TidslinjePeriode(Beløp(3.0, "nok"), 1),
+            )
+        val tidslinjePerioder2 =
+            listOf(
+                TidslinjePeriode(Beløp(2.0, "nok"), 1),
+                TidslinjePeriode(Beløp(3.0, "nok"), 1),
+                TidslinjePeriode(Beløp(4.0, "nok"), 1),
+            )
 
         val tidslinje1 = Tidslinje(LocalDate.now(), tidslinjePerioder1)
 

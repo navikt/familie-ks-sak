@@ -25,21 +25,23 @@ class VedtaksperioderController(
     private val brevPeriodeService: BrevPeriodeService,
     private val brevKlient: BrevKlient,
 ) {
-
     @GetMapping("/{vedtaksperiodeId}/brevbegrunnelser")
-    fun genererBegrunnelserForPeriode(@PathVariable vedtaksperiodeId: Long): ResponseEntity<Ressurs<List<String>>> {
+    fun genererBegrunnelserForPeriode(
+        @PathVariable vedtaksperiodeId: Long,
+    ): ResponseEntity<Ressurs<List<String>>> {
         tilgangService.validerTilgangTilHandling(
             minimumBehandlerRolle = BehandlerRolle.VEILEDER,
             handling = "Henter begrunnelsetekster",
         )
 
-        val begrunnelser = brevPeriodeService.hentBegrunnelsesteksterForPeriode(vedtaksperiodeId).map {
-            when (it) {
-                is FritekstBegrunnelseDto -> it.fritekst
-                is BegrunnelseDataDto -> brevKlient.hentBegrunnelsestekst(it)
-                is EØSBegrunnelseDataDto -> brevKlient.hentBegrunnelsestekst(it)
+        val begrunnelser =
+            brevPeriodeService.hentBegrunnelsesteksterForPeriode(vedtaksperiodeId).map {
+                when (it) {
+                    is FritekstBegrunnelseDto -> it.fritekst
+                    is BegrunnelseDataDto -> brevKlient.hentBegrunnelsestekst(it)
+                    is EØSBegrunnelseDataDto -> brevKlient.hentBegrunnelsestekst(it)
+                }
             }
-        }
 
         return ResponseEntity.ok(Ressurs.Companion.success(begrunnelser))
     }

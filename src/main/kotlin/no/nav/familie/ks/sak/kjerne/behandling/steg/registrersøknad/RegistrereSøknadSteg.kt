@@ -41,7 +41,10 @@ class RegistrereSøknadSteg(
     override fun getBehandlingssteg(): BehandlingSteg = BehandlingSteg.REGISTRERE_SØKNAD
 
     @Transactional
-    override fun utførSteg(behandlingId: Long, behandlingStegDto: BehandlingStegDto) {
+    override fun utførSteg(
+        behandlingId: Long,
+        behandlingStegDto: BehandlingStegDto,
+    ) {
         logger.info("Utfører steg ${getBehandlingssteg().name} for behandling $behandlingId")
         val registrerSøknadDto = behandlingStegDto as RegistrerSøknadDto
 
@@ -112,7 +115,6 @@ class RegistrereSøknadSteg(
     }
 
     companion object {
-
         private val logger: Logger = LoggerFactory.getLogger(RegistrereSøknadSteg::class.java)
         private val secureLogger = LoggerFactory.getLogger("secureLogger")
     }

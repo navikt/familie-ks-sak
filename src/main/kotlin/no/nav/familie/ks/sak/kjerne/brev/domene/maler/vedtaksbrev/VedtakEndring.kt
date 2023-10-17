@@ -20,7 +20,6 @@ data class VedtakEndring(
     override val mal: Brevmal,
     override val data: EndringVedtakData,
 ) : VedtaksbrevDto {
-
     constructor(
         mal: Brevmal = Brevmal.VEDTAK_ENDRING,
         fellesdataForVedtaksbrev: FellesdataForVedtaksbrev,
@@ -32,29 +31,33 @@ data class VedtakEndring(
     ) :
         this(
             mal = mal,
-            data = EndringVedtakData(
-                delmalData = EndringVedtakData.Delmaler(
-                    signaturVedtak = SignaturVedtak(
-                        enhet = fellesdataForVedtaksbrev.enhet,
-                        saksbehandler = fellesdataForVedtaksbrev.saksbehandler,
-                        beslutter = fellesdataForVedtaksbrev.beslutter,
-                    ),
-                    etterbetaling = etterbetaling,
-                    hjemmeltekst = fellesdataForVedtaksbrev.hjemmeltekst,
-                    klage = erKlage,
-                    feilutbetaling = erFeilutbetalingPåBehandling,
-                    korrigertVedtak = fellesdataForVedtaksbrev.korrigertVedtakData,
-                    informasjonOmAarligKontroll = informasjonOmAarligKontroll,
-                    feilutbetaltKontantstotte = feilutbetaltValuta != null,
+            data =
+                EndringVedtakData(
+                    delmalData =
+                        EndringVedtakData.Delmaler(
+                            signaturVedtak =
+                                SignaturVedtak(
+                                    enhet = fellesdataForVedtaksbrev.enhet,
+                                    saksbehandler = fellesdataForVedtaksbrev.saksbehandler,
+                                    beslutter = fellesdataForVedtaksbrev.beslutter,
+                                ),
+                            etterbetaling = etterbetaling,
+                            hjemmeltekst = fellesdataForVedtaksbrev.hjemmeltekst,
+                            klage = erKlage,
+                            feilutbetaling = erFeilutbetalingPåBehandling,
+                            korrigertVedtak = fellesdataForVedtaksbrev.korrigertVedtakData,
+                            informasjonOmAarligKontroll = informasjonOmAarligKontroll,
+                            feilutbetaltKontantstotte = feilutbetaltValuta != null,
+                        ),
+                    flettefelter =
+                        object : FlettefelterForDokumentDto {
+                            val perioderMedForMyeUtbetalt: Flettefelt = feilutbetaltValuta?.perioderMedForMyeUtbetalt
+                            override val navn = flettefelt(fellesdataForVedtaksbrev.søkerNavn)
+                            override val fodselsnummer = flettefelt(fellesdataForVedtaksbrev.søkerFødselsnummer)
+                            override val brevOpprettetDato = flettefelt(LocalDate.now().tilDagMånedÅr())
+                        },
+                    perioder = fellesdataForVedtaksbrev.perioder,
                 ),
-                flettefelter = object : FlettefelterForDokumentDto {
-                    val perioderMedForMyeUtbetalt: Flettefelt = feilutbetaltValuta?.perioderMedForMyeUtbetalt
-                    override val navn = flettefelt(fellesdataForVedtaksbrev.søkerNavn)
-                    override val fodselsnummer = flettefelt(fellesdataForVedtaksbrev.søkerFødselsnummer)
-                    override val brevOpprettetDato = flettefelt(LocalDate.now().tilDagMånedÅr())
-                },
-                perioder = fellesdataForVedtaksbrev.perioder,
-            ),
         )
 }
 
@@ -63,7 +66,6 @@ data class EndringVedtakData(
     override val flettefelter: FlettefelterForDokumentDto,
     override val perioder: List<BrevPeriodeDto>,
 ) : VedtaksbrevData {
-
     data class Delmaler(
         val signaturVedtak: SignaturVedtak,
         val etterbetaling: Etterbetaling?,

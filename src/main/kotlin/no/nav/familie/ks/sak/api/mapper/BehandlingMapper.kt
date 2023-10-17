@@ -33,7 +33,6 @@ import java.math.BigDecimal
 import java.time.LocalDate
 
 object BehandlingMapper {
-
     fun lagBehandlingRespons(
         behandling: Behandling,
         arbeidsfordelingPåBehandling: ArbeidsfordelingPåBehandling,
@@ -50,11 +49,11 @@ object BehandlingMapper {
         sisteVedtaksperiodeVisningDato: LocalDate?,
         feilutbetalteValuta: List<FeilutbetaltValutaDto>,
         kompetanser: List<Kompetanse>,
-    ) =
-        BehandlingResponsDto(
-            behandlingId = behandling.id,
-            steg = behandling.steg,
-            stegTilstand = behandling.behandlingStegTilstand.map {
+    ) = BehandlingResponsDto(
+        behandlingId = behandling.id,
+        steg = behandling.steg,
+        stegTilstand =
+            behandling.behandlingStegTilstand.map {
                 BehandlingStegTilstandResponsDto(
                     it.behandlingSteg,
                     it.behandlingStegStatus,
@@ -62,31 +61,33 @@ object BehandlingMapper {
                     it.frist,
                 )
             },
-            status = behandling.status,
-            resultat = behandling.resultat,
-            type = behandling.type,
-            kategori = behandling.kategori,
-            årsak = behandling.opprettetÅrsak,
-            opprettetTidspunkt = behandling.opprettetTidspunkt,
-            endretAv = behandling.endretAv,
-            arbeidsfordelingPåBehandling = lagArbeidsfordelingRespons(arbeidsfordelingPåBehandling),
-            søknadsgrunnlag = søknadsgrunnlag,
-            personer = personer,
-            personResultater = personResultater?.map { VilkårsvurderingMapper.lagPersonResultatRespons(it) }
+        status = behandling.status,
+        resultat = behandling.resultat,
+        type = behandling.type,
+        kategori = behandling.kategori,
+        årsak = behandling.opprettetÅrsak,
+        opprettetTidspunkt = behandling.opprettetTidspunkt,
+        endretAv = behandling.endretAv,
+        arbeidsfordelingPåBehandling = lagArbeidsfordelingRespons(arbeidsfordelingPåBehandling),
+        søknadsgrunnlag = søknadsgrunnlag,
+        personer = personer,
+        personResultater =
+            personResultater?.map { VilkårsvurderingMapper.lagPersonResultatRespons(it) }
                 ?: emptyList(),
-            behandlingPåVent = behandling.behandlingStegTilstand.singleOrNull { it.behandlingStegStatus == BehandlingStegStatus.VENTER }
+        behandlingPåVent =
+            behandling.behandlingStegTilstand.singleOrNull { it.behandlingStegStatus == BehandlingStegStatus.VENTER }
                 ?.let { BehandlingPåVentDto(it.frist!!, it.årsak!!) },
-            personerMedAndelerTilkjentYtelse = personerMedAndelerTilkjentYtelse,
-            utbetalingsperioder = utbetalingsperioder,
-            vedtak = vedtak,
-            totrinnskontroll = totrinnskontroll,
-            endretUtbetalingAndeler = endretUtbetalingAndeler,
-            endringstidspunkt = utledEndringstidpunkt(endringstidspunkt, behandling),
-            tilbakekreving = tilbakekreving?.let { lagTilbakekrevingRespons(it) },
-            sisteVedtaksperiodeVisningDato = sisteVedtaksperiodeVisningDato,
-            feilutbetaltValuta = feilutbetalteValuta,
-            kompetanser = kompetanser.map { it.tilKompetanseDto() },
-        )
+        personerMedAndelerTilkjentYtelse = personerMedAndelerTilkjentYtelse,
+        utbetalingsperioder = utbetalingsperioder,
+        vedtak = vedtak,
+        totrinnskontroll = totrinnskontroll,
+        endretUtbetalingAndeler = endretUtbetalingAndeler,
+        endringstidspunkt = utledEndringstidpunkt(endringstidspunkt, behandling),
+        tilbakekreving = tilbakekreving?.let { lagTilbakekrevingRespons(it) },
+        sisteVedtaksperiodeVisningDato = sisteVedtaksperiodeVisningDato,
+        feilutbetaltValuta = feilutbetalteValuta,
+        kompetanser = kompetanser.map { it.tilKompetanseDto() },
+    )
 
     private fun lagArbeidsfordelingRespons(arbeidsfordelingPåBehandling: ArbeidsfordelingPåBehandling) =
         ArbeidsfordelingResponsDto(
@@ -95,7 +96,10 @@ object BehandlingMapper {
             manueltOverstyrt = arbeidsfordelingPåBehandling.manueltOverstyrt,
         )
 
-    fun lagPersonRespons(person: Person, landKodeOgLandNavn: Map<String, String>?) = PersonResponsDto(
+    fun lagPersonRespons(
+        person: Person,
+        landKodeOgLandNavn: Map<String, String>?,
+    ) = PersonResponsDto(
         type = person.type,
         fødselsdato = person.fødselsdato,
         personIdent = person.aktør.aktivFødselsnummer(),
@@ -109,22 +113,25 @@ object BehandlingMapper {
     fun lagPersonerMedAndelTilkjentYtelseRespons(
         personer: Set<Person>,
         andelerTilkjentYtelse: List<AndelTilkjentYtelse>,
-    ) =
-        andelerTilkjentYtelse.groupBy { it.aktør }
-            .map { andelerForPerson ->
-                val aktør = andelerForPerson.key
-                val andeler = andelerForPerson.value
+    ) = andelerTilkjentYtelse.groupBy { it.aktør }
+        .map { andelerForPerson ->
+            val aktør = andelerForPerson.key
+            val andeler = andelerForPerson.value
 
-                val sammenslåtteAndeler = andeler.groupBy { it.type }
+            val sammenslåtteAndeler =
+                andeler.groupBy { it.type }
                     .flatMap { it.value.slåSammenBack2BackAndelsperioderMedSammeBeløp() }
-                PersonerMedAndelerResponsDto(
-                    personIdent = personer.find { person -> person.aktør == aktør }?.aktør?.aktivFødselsnummer(),
-                    beløp = sammenslåtteAndeler.sumOf { it.kalkulertUtbetalingsbeløp },
-                    stønadFom = sammenslåtteAndeler.minOfOrNull { it.stønadFom }
+            PersonerMedAndelerResponsDto(
+                personIdent = personer.find { person -> person.aktør == aktør }?.aktør?.aktivFødselsnummer(),
+                beløp = sammenslåtteAndeler.sumOf { it.kalkulertUtbetalingsbeløp },
+                stønadFom =
+                    sammenslåtteAndeler.minOfOrNull { it.stønadFom }
                         ?: LocalDate.MIN.toYearMonth(),
-                    stønadTom = sammenslåtteAndeler.maxOfOrNull { it.stønadTom }
+                stønadTom =
+                    sammenslåtteAndeler.maxOfOrNull { it.stønadTom }
                         ?: LocalDate.MAX.toYearMonth(),
-                    ytelsePerioder = sammenslåtteAndeler.map { sammenslåttAndel ->
+                ytelsePerioder =
+                    sammenslåtteAndeler.map { sammenslåttAndel ->
                         YtelsePerioderDto(
                             beløp = sammenslåttAndel.kalkulertUtbetalingsbeløp,
                             stønadFom = sammenslåttAndel.stønadFom,
@@ -133,8 +140,8 @@ object BehandlingMapper {
                             skalUtbetales = sammenslåttAndel.prosent > BigDecimal.ZERO,
                         )
                     },
-                )
-            }
+            )
+        }
 
     private fun utledEndringstidpunkt(
         endringstidspunkt: LocalDate,
@@ -145,10 +152,11 @@ object BehandlingMapper {
         else -> endringstidspunkt
     }
 
-    private fun lagTilbakekrevingRespons(tilbakekreving: Tilbakekreving) = TilbakekrevingResponsDto(
-        valg = tilbakekreving.valg,
-        varsel = tilbakekreving.varsel,
-        begrunnelse = tilbakekreving.begrunnelse,
-        tilbakekrevingsbehandlingId = tilbakekreving.tilbakekrevingsbehandlingId,
-    )
+    private fun lagTilbakekrevingRespons(tilbakekreving: Tilbakekreving) =
+        TilbakekrevingResponsDto(
+            valg = tilbakekreving.valg,
+            varsel = tilbakekreving.varsel,
+            begrunnelse = tilbakekreving.begrunnelse,
+            tilbakekrevingsbehandlingId = tilbakekreving.tilbakekrevingsbehandlingId,
+        )
 }

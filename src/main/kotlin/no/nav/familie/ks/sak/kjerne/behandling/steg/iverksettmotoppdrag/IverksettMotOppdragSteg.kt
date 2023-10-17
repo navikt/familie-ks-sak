@@ -33,7 +33,10 @@ class IverksettMotOppdragSteg(
     override fun getBehandlingssteg(): BehandlingSteg = BehandlingSteg.IVERKSETT_MOT_OPPDRAG
 
     @Transactional
-    override fun utførSteg(behandlingId: Long, behandlingStegDto: BehandlingStegDto) {
+    override fun utførSteg(
+        behandlingId: Long,
+        behandlingStegDto: BehandlingStegDto,
+    ) {
         logger.info("Utfører steg ${getBehandlingssteg().name} for behandling $behandlingId")
 
         val behandling = behandlingService.hentBehandling(behandlingId)

@@ -17,12 +17,13 @@ import java.time.LocalDate
 import java.time.temporal.ChronoUnit
 import kotlin.math.absoluteValue
 
-val mapper = mapOf(
-    TidsEnhet.ÅR to ChronoUnit.YEARS,
-    TidsEnhet.MÅNED to ChronoUnit.MONTHS,
-    TidsEnhet.UKE to ChronoUnit.WEEKS,
-    TidsEnhet.DAG to ChronoUnit.DAYS,
-)
+val mapper =
+    mapOf(
+        TidsEnhet.ÅR to ChronoUnit.YEARS,
+        TidsEnhet.MÅNED to ChronoUnit.MONTHS,
+        TidsEnhet.UKE to ChronoUnit.WEEKS,
+        TidsEnhet.DAG to ChronoUnit.DAYS,
+    )
 
 fun <T, R, RESULTAT> List<Tidslinje<T>>.join(
     operand: Tidslinje<R>,
@@ -104,13 +105,14 @@ private fun <T, R> konverterTilSammeLengde(
 
     if (kopi1.kalkulerSluttTidspunkt() != kopi2.kalkulerSluttTidspunkt()) {
         if (kopi1.innhold.isNotEmpty() && kopi1.innhold.last().erUendelig) {
-            kopi2.innhold = kopi2.innhold + listOf(
-                TidslinjePeriode(
-                    periodeVerdi = udefinert2,
-                    lengde = inf,
-                    erUendelig = true,
-                ),
-            )
+            kopi2.innhold = kopi2.innhold +
+                listOf(
+                    TidslinjePeriode(
+                        periodeVerdi = udefinert2,
+                        lengde = inf,
+                        erUendelig = true,
+                    ),
+                )
             return Pair(kopi1, kopi2)
         } else if (kopi2.innhold.isNotEmpty() && kopi2.innhold.last().erUendelig) {
             kopi1.innhold = kopi1.innhold + listOf(TidslinjePeriode(periodeVerdi = udefinert1, lengde = inf, erUendelig = true))
@@ -118,25 +120,27 @@ private fun <T, R> konverterTilSammeLengde(
         }
 
         if (kopi1.kalkulerSluttTidspunkt() < kopi2.kalkulerSluttTidspunkt()) {
-            tidsenhetForskjell = kopi1
-                .kalkulerSluttTidspunkt()
-                .until(
-                    kopi2.kalkulerSluttTidspunkt().plusDays(1),
-                    mapper[kopi1.tidsEnhet],
-                )
-                .toInt()
-                .absoluteValue
+            tidsenhetForskjell =
+                kopi1
+                    .kalkulerSluttTidspunkt()
+                    .until(
+                        kopi2.kalkulerSluttTidspunkt().plusDays(1),
+                        mapper[kopi1.tidsEnhet],
+                    )
+                    .toInt()
+                    .absoluteValue
             kopi1.innhold = kopi1.innhold + listOf(TidslinjePeriode(udefinert1, tidsenhetForskjell, false))
         } else if (kopi2.kalkulerSluttTidspunkt() < kopi1.kalkulerSluttTidspunkt()) {
-            tidsenhetForskjell = kopi1
-                .kalkulerSluttTidspunkt()
-                .plusDays(1)
-                .until(
-                    kopi2.kalkulerSluttTidspunkt(),
-                    mapper[kopi1.tidsEnhet],
-                )
-                .toInt()
-                .absoluteValue
+            tidsenhetForskjell =
+                kopi1
+                    .kalkulerSluttTidspunkt()
+                    .plusDays(1)
+                    .until(
+                        kopi2.kalkulerSluttTidspunkt(),
+                        mapper[kopi1.tidsEnhet],
+                    )
+                    .toInt()
+                    .absoluteValue
             kopi2.innhold = kopi2.innhold + listOf(TidslinjePeriode(udefinert2, tidsenhetForskjell, false))
         }
     }
@@ -362,7 +366,10 @@ fun <T> Tidslinje<T>.splittPåMåned(): MutableList<List<TidslinjePeriode<T>>> {
     return listeAvMåneder
 }
 
-private fun <R> klippeOperator(status1: PeriodeVerdi<R>, status2: PeriodeVerdi<Boolean>): PeriodeVerdi<R> {
+private fun <R> klippeOperator(
+    status1: PeriodeVerdi<R>,
+    status2: PeriodeVerdi<Boolean>,
+): PeriodeVerdi<R> {
     return if (status1 is Udefinert || status2 is Udefinert) {
         Udefinert()
     } else if (status1 is Null || status2 is Null) {
@@ -376,34 +383,40 @@ private fun <R> klippeOperator(status1: PeriodeVerdi<R>, status2: PeriodeVerdi<B
     }
 }
 
-fun <T> Tidslinje<T>.klipp(startsTidspunkt: LocalDate, sluttTidspunkt: LocalDate): Tidslinje<T> {
+fun <T> Tidslinje<T>.klipp(
+    startsTidspunkt: LocalDate,
+    sluttTidspunkt: LocalDate,
+): Tidslinje<T> {
     val foreldre = this.foreldre
 
-    var resultat = if (sluttTidspunkt.isAfter(startsTidspunkt)) {
-        val justertSluttTidspunkt = if (sluttTidspunkt == TIDENES_ENDE) sluttTidspunkt else sluttTidspunkt.plusDays(1)
+    var resultat =
+        if (sluttTidspunkt.isAfter(startsTidspunkt)) {
+            val justertSluttTidspunkt = if (sluttTidspunkt == TIDENES_ENDE) sluttTidspunkt else sluttTidspunkt.plusDays(1)
 
-        val tidslinjeKlipp = Tidslinje(
-            startsTidspunkt,
-            listOf(
-                TidslinjePeriode(
-                    true,
-                    lengde = startsTidspunkt.until(
-                        justertSluttTidspunkt,
-                        mapper[this.tidsEnhet],
-                    ).toInt(),
-                ),
-            ),
-            this.tidsEnhet,
-        )
-        this.biFunksjon(tidslinjeKlipp) { status1, status2 ->
-            klippeOperator(
-                status1,
-                status2,
-            )
-        }.fjernForeldre()
-    } else {
-        Tidslinje(startsTidspunkt, emptyList(), this.tidsEnhet)
-    }
+            val tidslinjeKlipp =
+                Tidslinje(
+                    startsTidspunkt,
+                    listOf(
+                        TidslinjePeriode(
+                            true,
+                            lengde =
+                                startsTidspunkt.until(
+                                    justertSluttTidspunkt,
+                                    mapper[this.tidsEnhet],
+                                ).toInt(),
+                        ),
+                    ),
+                    this.tidsEnhet,
+                )
+            this.biFunksjon(tidslinjeKlipp) { status1, status2 ->
+                klippeOperator(
+                    status1,
+                    status2,
+                )
+            }.fjernForeldre()
+        } else {
+            Tidslinje(startsTidspunkt, emptyList(), this.tidsEnhet)
+        }
 
     resultat = resultat.trim(Udefinert())
 
@@ -493,21 +506,23 @@ fun <T, R, RESULTAT> Tidslinje<T>.biFunksjon(
         while (lengde1 > 0 && lengde2 > 0) {
             if (lengde1 < lengde2) {
                 lengde2 -= lengde1
-                tmpTidslinjePeriode = tidslinjePeriode1.biFunksjon(
-                    operand = tidslinjePeriode2,
-                    lengde = lengde1,
-                    erUendelig = false,
-                    operator = kombineringsfunksjon,
-                )
+                tmpTidslinjePeriode =
+                    tidslinjePeriode1.biFunksjon(
+                        operand = tidslinjePeriode2,
+                        lengde = lengde1,
+                        erUendelig = false,
+                        operator = kombineringsfunksjon,
+                    )
                 lengde1 = 0
             } else {
                 lengde1 -= lengde2
-                tmpTidslinjePeriode = tidslinjePeriode1.biFunksjon(
-                    operand = tidslinjePeriode2,
-                    lengde = lengde2,
-                    erUendelig = false,
-                    operator = kombineringsfunksjon,
-                )
+                tmpTidslinjePeriode =
+                    tidslinjePeriode1.biFunksjon(
+                        operand = tidslinjePeriode2,
+                        lengde = lengde2,
+                        erUendelig = false,
+                        operator = kombineringsfunksjon,
+                    )
                 lengde2 = 0
             }
             lst.add(tmpTidslinjePeriode)
@@ -581,10 +596,15 @@ fun <R> Tidslinje.Companion.lagTidslinjeFraStreng(
  * Periodene i den resulterende tidslinja vil ha lengder angitt i dager.
  * Tidslinja starter på [startsTidspunkt] og behandler [nullVerdi] som nullverdi.
  */
-fun <R> Tidslinje.Companion.lagTidslinjeFraListe(innhold: List<R?>, startDato: LocalDate, tidsEnhet: TidsEnhet): Tidslinje<R> {
-    val perioder = innhold.map {
-        TidslinjePeriode(it, 1, false)
-    }
+fun <R> Tidslinje.Companion.lagTidslinjeFraListe(
+    innhold: List<R?>,
+    startDato: LocalDate,
+    tidsEnhet: TidsEnhet,
+): Tidslinje<R> {
+    val perioder =
+        innhold.map {
+            TidslinjePeriode(it, 1, false)
+        }
 
     return Tidslinje(startDato, perioder, tidsEnhet = tidsEnhet)
 }
@@ -593,7 +613,9 @@ fun <R> Tidslinje.Companion.lagTidslinjeFraListe(innhold: List<R?>, startDato: L
  * Slår sammen en liste av tidslinjer med samme type ved å ta i bruk reduce. [operator] bestemmer regelen som skal brukes
  * når man slår sammen to liste-elementer. [nullVerdi] må sendes inn fordi denne trengs av binærOperator.
  */
-fun <T> List<Tidslinje<T>>.slåSammenLikeTidslinjer(operator: (elem1: PeriodeVerdi<T>, elem2: PeriodeVerdi<T>) -> PeriodeVerdi<T>): Tidslinje<T> {
+fun <T> List<Tidslinje<T>>.slåSammenLikeTidslinjer(
+    operator: (elem1: PeriodeVerdi<T>, elem2: PeriodeVerdi<T>) -> PeriodeVerdi<T>,
+): Tidslinje<T> {
     if (this.isEmpty()) {
         throw java.lang.IllegalArgumentException("Lista kan ikke være tom")
     }
@@ -618,8 +640,7 @@ fun <T> Tidslinje<T>.fjernForeldre(): Tidslinje<T> {
     return this
 }
 
-fun <T> Tidslinje<T>.hentVerdier(): List<T?> =
-    this.innhold.slåSammenLike().map { it.periodeVerdi.verdi }
+fun <T> Tidslinje<T>.hentVerdier(): List<T?> = this.innhold.slåSammenLike().map { it.periodeVerdi.verdi }
 
 /**
  * Summerer opp tiden for hver periode og legger inn i en TidslinjePeriodeMedDato
@@ -645,39 +666,45 @@ fun <T> Tidslinje<T>.hentVerdier(): List<T?> =
  *
  */
 fun <T> Tidslinje<T>.tilTidslinjePerioderMedDato(): List<TidslinjePeriodeMedDato<T>> {
-    val (tidslinjePeriodeMedLocalDateListe, _) = this.innhold.fold(Pair(emptyList<TidslinjePeriodeMedDato<T>>(), 0L)) { (
-        tidslinjePeriodeMedLocalDateListe: List<TidslinjePeriodeMedDato<T>>,
-        tidFraStarttidspunktFom: Long,
-    ),
-                                                                                                                        tidslinjePeriode,
-        ->
-        val tidFraStarttidspunktTilNesteFom = tidFraStarttidspunktFom + tidslinjePeriode.lengde
+    val (tidslinjePeriodeMedLocalDateListe, _) =
+        this.innhold.fold(Pair(emptyList<TidslinjePeriodeMedDato<T>>(), 0L)) { (
+            tidslinjePeriodeMedLocalDateListe: List<TidslinjePeriodeMedDato<T>>,
+            tidFraStarttidspunktFom: Long,
+        ),
+                                                                               tidslinjePeriode,
+            ->
+            val tidFraStarttidspunktTilNesteFom = tidFraStarttidspunktFom + tidslinjePeriode.lengde
 
-        Pair(
-            tidslinjePeriodeMedLocalDateListe + TidslinjePeriodeMedDato(
-                periodeVerdi = tidslinjePeriode.periodeVerdi,
-                fom = TidslinjePeriodeMedDato.Dato(this.startsTidspunkt.leggTil(tidsEnhet, tidFraStarttidspunktFom)),
-                tom = if (tidslinjePeriode.erUendelig) {
-                    TidslinjePeriodeMedDato.Dato(PRAKTISK_SENESTE_DAG)
-                } else {
-                    TidslinjePeriodeMedDato.Dato(
-                        this.startsTidspunkt.leggTil(tidsEnhet, tidFraStarttidspunktTilNesteFom).minusDays(1),
-                    )
-                },
-
-            ),
-            tidFraStarttidspunktTilNesteFom,
-        )
-    }
+            Pair(
+                tidslinjePeriodeMedLocalDateListe +
+                    TidslinjePeriodeMedDato(
+                        periodeVerdi = tidslinjePeriode.periodeVerdi,
+                        fom = TidslinjePeriodeMedDato.Dato(this.startsTidspunkt.leggTil(tidsEnhet, tidFraStarttidspunktFom)),
+                        tom =
+                            if (tidslinjePeriode.erUendelig) {
+                                TidslinjePeriodeMedDato.Dato(PRAKTISK_SENESTE_DAG)
+                            } else {
+                                TidslinjePeriodeMedDato.Dato(
+                                    this.startsTidspunkt.leggTil(tidsEnhet, tidFraStarttidspunktTilNesteFom).minusDays(1),
+                                )
+                            },
+                    ),
+                tidFraStarttidspunktTilNesteFom,
+            )
+        }
     return tidslinjePeriodeMedLocalDateListe
 }
 
-private fun LocalDate.leggTil(tidsEnhet: TidsEnhet, antall: Long): LocalDate = when (tidsEnhet) {
-    TidsEnhet.DAG -> this.plusDays(antall)
-    TidsEnhet.UKE -> this.plusWeeks(antall)
-    TidsEnhet.MÅNED -> this.plusMonths(antall)
-    TidsEnhet.ÅR -> this.plusYears(antall)
-}
+private fun LocalDate.leggTil(
+    tidsEnhet: TidsEnhet,
+    antall: Long,
+): LocalDate =
+    when (tidsEnhet) {
+        TidsEnhet.DAG -> this.plusDays(antall)
+        TidsEnhet.UKE -> this.plusWeeks(antall)
+        TidsEnhet.MÅNED -> this.plusMonths(antall)
+        TidsEnhet.ÅR -> this.plusYears(antall)
+    }
 
 fun <T, R, RESULTAT> Tidslinje<T>.kombinerMed(
     annen: Tidslinje<R>,
@@ -690,6 +717,7 @@ fun <T, R, RESULTAT> Tidslinje<T>.kombinerMed(
 }
 
 fun <T> Tidslinje<T>.tilPerioder(): List<Periode<T?>> = this.tilTidslinjePerioderMedDato().map { it.tilPeriode() }
+
 fun <T> Tidslinje<T>.tilPerioderIkkeNull(): List<Periode<T & Any>> = this.tilPerioder().filtrerIkkeNull()
 
 fun <T> Tidslinje<T>.slåSammenLikePerioder(): Tidslinje<T> =

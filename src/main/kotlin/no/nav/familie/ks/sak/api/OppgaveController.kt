@@ -38,13 +38,14 @@ class OppgaveController(
     private val integrasjonService: IntegrasjonService,
     private val tilgangService: TilgangService,
 ) {
-
     @PostMapping(
         path = ["/hent-oppgaver"],
         consumes = [MediaType.APPLICATION_JSON_VALUE],
         produces = [MediaType.APPLICATION_JSON_VALUE],
     )
-    fun hentOppgaver(@RequestBody finnOppgaveDto: FinnOppgaveDto): ResponseEntity<Ressurs<FinnOppgaveResponseDto>> =
+    fun hentOppgaver(
+        @RequestBody finnOppgaveDto: FinnOppgaveDto,
+    ): ResponseEntity<Ressurs<FinnOppgaveResponseDto>> =
         try {
             val oppgaver = oppgaveService.hentOppgaver(finnOppgaveDto.tilFinnOppgaveRequest())
             ResponseEntity.ok().body(Ressurs.success(oppgaver, "Finn oppgaver OK"))
@@ -73,7 +74,9 @@ class OppgaveController(
     }
 
     @PostMapping(path = ["/{oppgaveId}/tilbakestill"], produces = [MediaType.APPLICATION_JSON_VALUE])
-    fun tilbakestillFordelingPåOppgave(@PathVariable oppgaveId: Long): ResponseEntity<Ressurs<Oppgave>> {
+    fun tilbakestillFordelingPåOppgave(
+        @PathVariable oppgaveId: Long,
+    ): ResponseEntity<Ressurs<Oppgave>> {
         tilgangService.validerTilgangTilHandling(
             minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
             handling = "Tilbakestille fordeling på oppgave",
@@ -88,7 +91,9 @@ class OppgaveController(
     }
 
     @GetMapping("/{oppgaveId}/ferdigstill")
-    fun ferdigstillOppgave(@PathVariable oppgaveId: Long): ResponseEntity<Ressurs<String>> {
+    fun ferdigstillOppgave(
+        @PathVariable oppgaveId: Long,
+    ): ResponseEntity<Ressurs<String>> {
         tilgangService.validerTilgangTilHandling(
             minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
             handling = "Ferdigstill oppgave",
@@ -101,20 +106,24 @@ class OppgaveController(
     }
 
     @GetMapping(path = ["/{oppgaveId}"], produces = [MediaType.APPLICATION_JSON_VALUE])
-    fun hentDataForManuellJournalføring(@PathVariable oppgaveId: Long): ResponseEntity<Ressurs<DataForManuellJournalføringDto>> {
+    fun hentDataForManuellJournalføring(
+        @PathVariable oppgaveId: Long,
+    ): ResponseEntity<Ressurs<DataForManuellJournalføringDto>> {
         val oppgave = oppgaveService.hentOppgave(oppgaveId)
         val aktør = oppgave.aktoerId?.let { personidentService.hentAktør(it) }
         val journalpost = oppgave.journalpostId?.let { integrasjonService.hentJournalpost(it) }
 
-        val dataForManuellJournalføringDto = DataForManuellJournalføringDto(
-            oppgave = oppgave,
-            journalpost = journalpost,
-            person = aktør?.let {
-                personOpplysningerService.hentPersonInfoMedRelasjonerOgRegisterinformasjon(it)
-                    .tilPersonInfoDto(it.aktivFødselsnummer())
-            },
-            minimalFagsak = aktør?.let { fagsakService.finnMinimalFagsakForPerson(aktør.aktørId) },
-        )
+        val dataForManuellJournalføringDto =
+            DataForManuellJournalføringDto(
+                oppgave = oppgave,
+                journalpost = journalpost,
+                person =
+                    aktør?.let {
+                        personOpplysningerService.hentPersonInfoMedRelasjonerOgRegisterinformasjon(it)
+                            .tilPersonInfoDto(it.aktivFødselsnummer())
+                    },
+                minimalFagsak = aktør?.let { fagsakService.finnMinimalFagsakForPerson(aktør.aktørId) },
+            )
 
         return ResponseEntity.ok(Ressurs.success(dataForManuellJournalføringDto))
     }

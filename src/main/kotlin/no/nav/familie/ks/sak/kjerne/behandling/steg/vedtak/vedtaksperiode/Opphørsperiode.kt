@@ -27,34 +27,36 @@ fun mapTilOpphørsperioder(
     personopplysningGrunnlag: PersonopplysningGrunnlag,
     andelerTilkjentYtelse: List<AndelTilkjentYtelseMedEndreteUtbetalinger>,
 ): List<Opphørsperiode> {
-    val forrigeUtbetalingsperioder = if (forrigePersonopplysningGrunnlag != null) {
-        mapTilUtbetalingsperioder(
-            personopplysningGrunnlag = forrigePersonopplysningGrunnlag,
-            andelerTilkjentYtelse = forrigeAndelerTilkjentYtelse,
-        )
-    } else {
-        emptyList()
-    }
+    val forrigeUtbetalingsperioder =
+        if (forrigePersonopplysningGrunnlag != null) {
+            mapTilUtbetalingsperioder(
+                personopplysningGrunnlag = forrigePersonopplysningGrunnlag,
+                andelerTilkjentYtelse = forrigeAndelerTilkjentYtelse,
+            )
+        } else {
+            emptyList()
+        }
     val utbetalingsperioder =
         mapTilUtbetalingsperioder(personopplysningGrunnlag, andelerTilkjentYtelse)
 
-    val alleOpphørsperioder = if (forrigeUtbetalingsperioder.isNotEmpty() && utbetalingsperioder.isEmpty()) {
-        listOf(
-            Opphørsperiode(
-                periodeFom = forrigeUtbetalingsperioder.minOf { it.periodeFom },
-                periodeTom = forrigeUtbetalingsperioder.maxOf { it.periodeTom },
-            ),
-        )
-    } else {
-        if (utbetalingsperioder.isEmpty()) {
-            emptyList()
-        } else {
+    val alleOpphørsperioder =
+        if (forrigeUtbetalingsperioder.isNotEmpty() && utbetalingsperioder.isEmpty()) {
             listOf(
-                finnOpphørsperioderMellomUtbetalingsperioder(utbetalingsperioder),
-                finnOpphørsperiodeEtterSisteUtbetalingsperiode(utbetalingsperioder),
-            ).flatten()
-        }.sortedBy { it.periodeFom }
-    }
+                Opphørsperiode(
+                    periodeFom = forrigeUtbetalingsperioder.minOf { it.periodeFom },
+                    periodeTom = forrigeUtbetalingsperioder.maxOf { it.periodeTom },
+                ),
+            )
+        } else {
+            if (utbetalingsperioder.isEmpty()) {
+                emptyList()
+            } else {
+                listOf(
+                    finnOpphørsperioderMellomUtbetalingsperioder(utbetalingsperioder),
+                    finnOpphørsperiodeEtterSisteUtbetalingsperiode(utbetalingsperioder),
+                ).flatten()
+            }.sortedBy { it.periodeFom }
+        }
 
     return slåSammenOpphørsperioder(alleOpphørsperioder)
 }
@@ -74,10 +76,11 @@ fun slåSammenOpphørsperioder(alleOpphørsperioder: List<Opphørsperiode>): Lis
             nesteOpphørsperiode.periodeFom.erSammeEllerFør(forrigeOpphørsperiode.periodeTom ?: TIDENES_ENDE) -> {
                 acc[acc.lastIndex] =
                     forrigeOpphørsperiode.copy(
-                        periodeTom = maxOfOpphørsperiodeTom(
-                            forrigeOpphørsperiode.periodeTom,
-                            nesteOpphørsperiode.periodeTom,
-                        ),
+                        periodeTom =
+                            maxOfOpphørsperiodeTom(
+                                forrigeOpphørsperiode.periodeTom,
+                                nesteOpphørsperiode.periodeTom,
+                            ),
                     )
             }
 
@@ -90,7 +93,10 @@ fun slåSammenOpphørsperioder(alleOpphørsperioder: List<Opphørsperiode>): Lis
     }
 }
 
-private fun maxOfOpphørsperiodeTom(a: LocalDate?, b: LocalDate?): LocalDate? {
+private fun maxOfOpphørsperiodeTom(
+    a: LocalDate?,
+    b: LocalDate?,
+): LocalDate? {
     return if (a != null && b != null) maxOf(a, b) else null
 }
 
@@ -111,9 +117,7 @@ private fun finnOpphørsperiodeEtterSisteUtbetalingsperiode(utbetalingsperioder:
     }
 }
 
-private fun finnOpphørsperioderMellomUtbetalingsperioder(
-    utbetalingsperioder: List<Utbetalingsperiode>,
-): List<Opphørsperiode> {
+private fun finnOpphørsperioderMellomUtbetalingsperioder(utbetalingsperioder: List<Utbetalingsperiode>): List<Opphørsperiode> {
     val utbetalingsperioderTidslinje =
         utbetalingsperioder.map { Periode(it, it.periodeFom, it.periodeTom) }.tilTidslinje()
 

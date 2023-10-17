@@ -23,16 +23,22 @@ private val sats = Sats(type = SatsType.KS, beløp = 7500, gyldigFom = LocalDate
 
 fun maksBeløp() = sats.beløp
 
-fun hentGyldigSatsFor(antallTimer: BigDecimal?, erDeltBosted: Boolean, stønadFom: YearMonth, stønadTom: YearMonth): SatsPeriode {
-    val prosent = when {
-        erDeltBosted -> 50
-        antallTimer == null -> 100
-        antallTimer in BigDecimal(0.00)..BigDecimal(8.99) -> 80
-        antallTimer in BigDecimal(9.00)..BigDecimal(16.99) -> 60
-        antallTimer in BigDecimal(17.00)..BigDecimal(24.99) -> 40
-        antallTimer in BigDecimal(25.00)..BigDecimal(32.99) -> 20
-        else -> 0
-    }
+fun hentGyldigSatsFor(
+    antallTimer: BigDecimal?,
+    erDeltBosted: Boolean,
+    stønadFom: YearMonth,
+    stønadTom: YearMonth,
+): SatsPeriode {
+    val prosent =
+        when {
+            erDeltBosted -> 50
+            antallTimer == null -> 100
+            antallTimer in BigDecimal(0.00)..BigDecimal(8.99) -> 80
+            antallTimer in BigDecimal(9.00)..BigDecimal(16.99) -> 60
+            antallTimer in BigDecimal(17.00)..BigDecimal(24.99) -> 40
+            antallTimer in BigDecimal(25.00)..BigDecimal(32.99) -> 20
+            else -> 0
+        }
     return SatsPeriode(
         sats = sats.beløp,
         fom = maxOf(sats.gyldigFom.toYearMonth(), stønadFom),
@@ -44,5 +50,4 @@ fun hentGyldigSatsFor(antallTimer: BigDecimal?, erDeltBosted: Boolean, stønadFo
 fun hentProsentForAntallTimer(antallTimer: BigDecimal?): BigDecimal =
     hentGyldigSatsFor(antallTimer, false, sats.gyldigFom.toYearMonth(), sats.gyldigTom.toYearMonth()).prosent
 
-fun Int.prosent(prosent: BigDecimal) =
-    this.toBigDecimal().times(prosent).divide(BigDecimal(100)).setScale(0, RoundingMode.HALF_UP).toInt()
+fun Int.prosent(prosent: BigDecimal) = this.toBigDecimal().times(prosent).divide(BigDecimal(100)).setScale(0, RoundingMode.HALF_UP).toInt()

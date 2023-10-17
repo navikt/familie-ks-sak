@@ -24,19 +24,15 @@ class AnnenVurdering(
         allocationSize = 50,
     )
     val id: Long = 0,
-
     @ManyToOne
     @JoinColumn(name = "fk_person_resultat_id")
     var personResultat: PersonResultat,
-
     @Enumerated(EnumType.STRING)
     @Column(name = "resultat")
     var resultat: Resultat = Resultat.IKKE_VURDERT,
-
     @Enumerated(EnumType.STRING)
     @Column(name = "type")
     var type: AnnenVurderingType,
-
     @Column(name = "begrunnelse")
     var begrunnelse: String? = null,
 ) : BaseEntitet()

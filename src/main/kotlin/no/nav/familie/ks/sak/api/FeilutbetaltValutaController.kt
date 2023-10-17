@@ -95,7 +95,9 @@ class FeilutbetaltValutaController(
     }
 
     @GetMapping(path = ["/behandlinger/{behandlingId}"], produces = [MediaType.APPLICATION_JSON_VALUE])
-    fun hentAlleFeilutbetaltValutaForBehandling(@PathVariable behandlingId: Long): ResponseEntity<Ressurs<List<FeilutbetaltValutaDto>?>> {
+    fun hentAlleFeilutbetaltValutaForBehandling(
+        @PathVariable behandlingId: Long,
+    ): ResponseEntity<Ressurs<List<FeilutbetaltValutaDto>?>> {
         tilgangService.validerTilgangTilHandling(
             minimumBehandlerRolle = BehandlerRolle.VEILEDER,
             handling = "henter alle feilutbetalt valuta for behandling",

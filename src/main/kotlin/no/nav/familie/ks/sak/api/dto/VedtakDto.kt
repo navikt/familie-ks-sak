@@ -13,16 +13,16 @@ data class VedtakDto(
 fun Vedtak.tilVedtakDto(
     vedtaksperioderMedBegrunnelser: List<UtvidetVedtaksperiodeMedBegrunnelserDto>,
     skalMinimeres: Boolean,
-) =
-    VedtakDto(
-        aktiv = this.aktiv,
-        vedtaksdato = this.vedtaksdato,
-        id = this.id,
-        vedtaksperioderMedBegrunnelser = if (skalMinimeres) {
+) = VedtakDto(
+    aktiv = this.aktiv,
+    vedtaksdato = this.vedtaksdato,
+    id = this.id,
+    vedtaksperioderMedBegrunnelser =
+        if (skalMinimeres) {
             vedtaksperioderMedBegrunnelser
                 .filter { it.begrunnelser.isNotEmpty() }
                 .map { it.copy(gyldigeBegrunnelser = emptyList()) }
         } else {
             vedtaksperioderMedBegrunnelser
         },
-    )
+)

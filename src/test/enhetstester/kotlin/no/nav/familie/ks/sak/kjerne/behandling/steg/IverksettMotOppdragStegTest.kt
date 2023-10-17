@@ -28,7 +28,6 @@ import org.hamcrest.CoreMatchers.`is` as Is
 
 @ExtendWith(MockKExtension::class)
 class IverksettMotOppdragStegTest {
-
     @MockK
     private lateinit var behandlingService: BehandlingService
 
@@ -55,13 +54,14 @@ class IverksettMotOppdragStegTest {
     @Test
     fun `utførSteg skal kaste feil dersom totrinnskontroll er ugyldig `() {
         val mocketBehandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD)
-        val mocketTotrinnskontroll = Totrinnskontroll(
-            behandling = mocketBehandling,
-            saksbehandler = "SB1",
-            beslutter = "SB1",
-            saksbehandlerId = "1234",
-            godkjent = true,
-        )
+        val mocketTotrinnskontroll =
+            Totrinnskontroll(
+                behandling = mocketBehandling,
+                saksbehandler = "SB1",
+                beslutter = "SB1",
+                saksbehandlerId = "1234",
+                godkjent = true,
+            )
 
         every { behandlingService.hentBehandling(any()) } returns mocketBehandling
         every { tilkjentYtelseValideringService.validerAtIngenUtbetalingerOverstiger100Prosent(mocketBehandling) } just runs
@@ -76,12 +76,13 @@ class IverksettMotOppdragStegTest {
     @Test
     fun `utførSteg skal kaste feil dersom totrinnskontroll ikke er godkjent`() {
         val mocketBehandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD)
-        val mocketTotrinnskontroll = Totrinnskontroll(
-            behandling = mocketBehandling,
-            saksbehandler = "Test",
-            saksbehandlerId = "1234",
-            godkjent = false,
-        )
+        val mocketTotrinnskontroll =
+            Totrinnskontroll(
+                behandling = mocketBehandling,
+                saksbehandler = "Test",
+                saksbehandlerId = "1234",
+                godkjent = false,
+            )
 
         every { behandlingService.hentBehandling(200) } returns mocketBehandling
         every { tilkjentYtelseValideringService.validerAtIngenUtbetalingerOverstiger100Prosent(mocketBehandling) } just runs
@@ -95,12 +96,13 @@ class IverksettMotOppdragStegTest {
     @Test
     fun `utførSteg skal lage utbetalingsoppdrag hvis totrinnskontroll er gyldig og godkjent`() {
         val mocketBehandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD)
-        val mocketTotrinnskontroll = Totrinnskontroll(
-            behandling = mocketBehandling,
-            saksbehandler = "Test",
-            saksbehandlerId = "1234",
-            godkjent = true,
-        )
+        val mocketTotrinnskontroll =
+            Totrinnskontroll(
+                behandling = mocketBehandling,
+                saksbehandler = "Test",
+                saksbehandlerId = "1234",
+                godkjent = true,
+            )
 
         every { behandlingService.hentBehandling(200) } returns mocketBehandling
         every { tilkjentYtelseValideringService.validerAtIngenUtbetalingerOverstiger100Prosent(mocketBehandling) } just runs

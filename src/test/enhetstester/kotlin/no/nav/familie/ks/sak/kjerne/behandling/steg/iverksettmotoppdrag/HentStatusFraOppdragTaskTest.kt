@@ -30,7 +30,6 @@ import org.junit.jupiter.api.extension.ExtendWith
 
 @ExtendWith(MockKExtension::class)
 internal class HentStatusFraOppdragTaskTest {
-
     @MockK
     private lateinit var oppdragKlient: OppdragKlient
 
@@ -78,15 +77,17 @@ internal class HentStatusFraOppdragTaskTest {
         verify(exactly = 1) { stegService.utførStegEtterIverksettelseAutomatisk(behandling.id) }
     }
 
-    private fun lagTask() = Task(
-        type = HentStatusFraOppdragTask.TASK_STEP_TYPE,
-        payload = objectMapper.writeValueAsString(
-            HentStatusFraOppdragDto(
-                fagsystem = FAGSYSTEM,
-                personIdent = behandling.fagsak.aktør.aktivFødselsnummer(),
-                behandlingsId = behandling.id,
-                vedtaksId = 1L,
-            ),
-        ),
-    )
+    private fun lagTask() =
+        Task(
+            type = HentStatusFraOppdragTask.TASK_STEP_TYPE,
+            payload =
+                objectMapper.writeValueAsString(
+                    HentStatusFraOppdragDto(
+                        fagsystem = FAGSYSTEM,
+                        personIdent = behandling.fagsak.aktør.aktivFødselsnummer(),
+                        behandlingsId = behandling.id,
+                        vedtaksId = 1L,
+                    ),
+                ),
+        )
 }

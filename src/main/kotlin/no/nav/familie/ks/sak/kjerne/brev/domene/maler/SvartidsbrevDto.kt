@@ -15,19 +15,22 @@ data class SvartidsbrevDto(
         erEøsBehandling: Boolean,
     ) : this(
         mal = mal,
-        data = SvartidsbrevDataDto(
-            flettefelter = SvartidsbrevDataDto.FlettefelterDto(
-                navn = navn,
-                fodselsnummer = fodselsnummer,
+        data =
+            SvartidsbrevDataDto(
+                flettefelter =
+                    SvartidsbrevDataDto.FlettefelterDto(
+                        navn = navn,
+                        fodselsnummer = fodselsnummer,
+                    ),
+                delmalData =
+                    SvartidsbrevDataDto.DelmalData(
+                        signatur =
+                            SignaturDelmal(
+                                enhet = enhet,
+                            ),
+                        kontonummer = erEøsBehandling,
+                    ),
             ),
-            delmalData = SvartidsbrevDataDto.DelmalData(
-                signatur = SignaturDelmal(
-                    enhet = enhet,
-                ),
-                kontonummer = erEøsBehandling,
-
-            ),
-        ),
     )
 }
 
@@ -35,13 +38,11 @@ data class SvartidsbrevDataDto(
     override val delmalData: DelmalData,
     override val flettefelter: FlettefelterDto,
 ) : BrevDataDto {
-
     data class FlettefelterDto(
         override val navn: Flettefelt,
         override val fodselsnummer: Flettefelt,
         override val brevOpprettetDato: Flettefelt = flettefelt(LocalDate.now().tilDagMånedÅr()),
     ) : FlettefelterForDokumentDto {
-
         constructor(
             navn: String,
             fodselsnummer: String,

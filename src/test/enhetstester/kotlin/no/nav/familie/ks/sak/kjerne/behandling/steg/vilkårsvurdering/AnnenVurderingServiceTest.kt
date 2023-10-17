@@ -25,7 +25,6 @@ import java.util.Optional
 
 @ExtendWith(MockKExtension::class)
 class AnnenVurderingServiceTest {
-
     @MockK
     private lateinit var annenVurderingRepository: AnnenVurderingRepository
 
@@ -38,11 +37,12 @@ class AnnenVurderingServiceTest {
 
         val annenVurderingDto =
             AnnenVurderingDto(404L, Resultat.OPPFYLT, AnnenVurderingType.OPPLYSNINGSPLIKT, "Begrunnelse")
-        val funksjonellFeil = assertThrows<FunksjonellFeil> {
-            annenVurderingService.endreAnnenVurdering(
-                annenVurderingDto,
-            )
-        }
+        val funksjonellFeil =
+            assertThrows<FunksjonellFeil> {
+                annenVurderingService.endreAnnenVurdering(
+                    annenVurderingDto,
+                )
+            }
 
         assertEquals("Annen vurdering med id ${annenVurderingDto.id} finnes ikke i db", funksjonellFeil.message)
     }
@@ -50,16 +50,17 @@ class AnnenVurderingServiceTest {
     @Test
     fun `endreAnnenVurdering - endre AnnenVurdering med forespurt id`() {
         val endretAnnenVurderingSlot = slot<AnnenVurdering>()
-        val eksisterendeAnnenVurdering = AnnenVurdering(
-            200L,
-            PersonResultat(
-                vilkårsvurdering = Vilkårsvurdering(behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD)),
-                aktør = randomAktør(),
-            ),
-            type = AnnenVurderingType.OPPLYSNINGSPLIKT,
-            resultat = Resultat.IKKE_VURDERT,
-            begrunnelse = null,
-        )
+        val eksisterendeAnnenVurdering =
+            AnnenVurdering(
+                200L,
+                PersonResultat(
+                    vilkårsvurdering = Vilkårsvurdering(behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD)),
+                    aktør = randomAktør(),
+                ),
+                type = AnnenVurderingType.OPPLYSNINGSPLIKT,
+                resultat = Resultat.IKKE_VURDERT,
+                begrunnelse = null,
+            )
         every { annenVurderingRepository.findById(any()) } returns Optional.of(eksisterendeAnnenVurdering)
         every { annenVurderingRepository.save(capture(endretAnnenVurderingSlot)) } returns mockk()
 

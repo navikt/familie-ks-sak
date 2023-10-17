@@ -25,11 +25,12 @@ fun <T> List<TidslinjePeriode<T>>.slåSammenLike(): List<TidslinjePeriode<T>> {
         if (sisteElementIAcc == null) {
             listOf(tidslinjePeriode)
         } else if (sisteElementIAcc.periodeVerdi == tidslinjePeriode.periodeVerdi) {
-            acc.dropLast(1) + TidslinjePeriode(
-                periodeVerdi = sisteElementIAcc.periodeVerdi,
-                lengde = sisteElementIAcc.lengde + tidslinjePeriode.lengde,
-                erUendelig = sisteElementIAcc.erUendelig || tidslinjePeriode.erUendelig,
-            )
+            acc.dropLast(1) +
+                TidslinjePeriode(
+                    periodeVerdi = sisteElementIAcc.periodeVerdi,
+                    lengde = sisteElementIAcc.lengde + tidslinjePeriode.lengde,
+                    erUendelig = sisteElementIAcc.erUendelig || tidslinjePeriode.erUendelig,
+                )
         } else {
             acc + tidslinjePeriode
         }

@@ -25,7 +25,6 @@ import org.springframework.http.HttpStatus
 import org.hamcrest.CoreMatchers.`is` as Is
 
 class BehandlingControllerTest : OppslagSpringRunnerTest() {
-
     @Autowired
     private lateinit var arbeidsfordelingPåBehandlingRepository: ArbeidsfordelingPåBehandlingRepository
 
@@ -110,12 +109,13 @@ class BehandlingControllerTest : OppslagSpringRunnerTest() {
     fun `endreBehandlendeEnhet - skal returnere behandling med endret enhet`() {
         val token = lokalTestToken(behandlerRolle = BehandlerRolle.BESLUTTER)
         every { integrasjonClient.sjekkTilgangTilPersoner(any()) } returns listOf(Tilgang("test", true))
-        every { integrasjonClient.hentNavKontorEnhet("50") } returns NavKontorEnhet(
-            50,
-            "nyNavn",
-            "nyEnhetNr",
-            "nyStatus",
-        )
+        every { integrasjonClient.hentNavKontorEnhet("50") } returns
+            NavKontorEnhet(
+                50,
+                "nyNavn",
+                "nyEnhetNr",
+                "nyStatus",
+            )
 
         Given {
             header("Authorization", "Bearer $token")

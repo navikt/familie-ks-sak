@@ -37,7 +37,6 @@ import java.time.LocalDate
 
 @ExtendWith(MockKExtension::class)
 class SimuleringServiceTest {
-
     @MockK
     private lateinit var oppdragKlient: OppdragKlient
 
@@ -65,20 +64,22 @@ class SimuleringServiceTest {
         behandlingStatus: BehandlingStatus,
     ) {
         val behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD).also { it.status = behandlingStatus }
-        val eksisterendeSimulering = listOf(
-            lagØkonomiSimuleringMottaker(
-                behandling = behandling,
-                økonomiSimuleringPosteringer = listOf(
-                    lagØkonomiSimuleringPostering(
-                        behandling = behandling,
-                        fom = LocalDate.now().minusMonths(2),
-                        tom = LocalDate.now(),
-                        beløp = BigDecimal.valueOf(7500),
-                        forfallsdato = LocalDate.now().plusMonths(5),
-                    ),
+        val eksisterendeSimulering =
+            listOf(
+                lagØkonomiSimuleringMottaker(
+                    behandling = behandling,
+                    økonomiSimuleringPosteringer =
+                        listOf(
+                            lagØkonomiSimuleringPostering(
+                                behandling = behandling,
+                                fom = LocalDate.now().minusMonths(2),
+                                tom = LocalDate.now(),
+                                beløp = BigDecimal.valueOf(7500),
+                                forfallsdato = LocalDate.now().plusMonths(5),
+                            ),
+                        ),
                 ),
-            ),
-        )
+            )
 
         every { behandlingRepository.hentBehandling(behandling.id) } returns behandling
         every { øknomiSimuleringMottakerRepository.findByBehandlingId(behandling.id) } returns eksisterendeSimulering
@@ -99,27 +100,29 @@ class SimuleringServiceTest {
         behandlingStatus: BehandlingStatus,
     ) {
         val behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD).also { it.status = behandlingStatus }
-        val eksisterendeSimulering = listOf(
-            lagØkonomiSimuleringMottaker(
-                behandling = behandling,
-                økonomiSimuleringPosteringer = listOf(
-                    lagØkonomiSimuleringPostering(
-                        behandling = behandling,
-                        fom = LocalDate.now().minusMonths(2),
-                        tom = LocalDate.now(),
-                        beløp = BigDecimal.valueOf(7500),
-                        forfallsdato = LocalDate.now().plusMonths(5),
-                    ),
-                    lagØkonomiSimuleringPostering(
-                        behandling = behandling,
-                        fom = LocalDate.now().plusMonths(2),
-                        tom = LocalDate.now().plusMonths(4),
-                        beløp = BigDecimal.valueOf(7500),
-                        forfallsdato = LocalDate.now().plusMonths(5),
-                    ),
+        val eksisterendeSimulering =
+            listOf(
+                lagØkonomiSimuleringMottaker(
+                    behandling = behandling,
+                    økonomiSimuleringPosteringer =
+                        listOf(
+                            lagØkonomiSimuleringPostering(
+                                behandling = behandling,
+                                fom = LocalDate.now().minusMonths(2),
+                                tom = LocalDate.now(),
+                                beløp = BigDecimal.valueOf(7500),
+                                forfallsdato = LocalDate.now().plusMonths(5),
+                            ),
+                            lagØkonomiSimuleringPostering(
+                                behandling = behandling,
+                                fom = LocalDate.now().plusMonths(2),
+                                tom = LocalDate.now().plusMonths(4),
+                                beløp = BigDecimal.valueOf(7500),
+                                forfallsdato = LocalDate.now().plusMonths(5),
+                            ),
+                        ),
                 ),
-            ),
-        )
+            )
 
         every { behandlingRepository.hentBehandling(behandling.id) } returns behandling
         every { øknomiSimuleringMottakerRepository.findByBehandlingId(behandling.id) } returns eksisterendeSimulering
@@ -140,26 +143,28 @@ class SimuleringServiceTest {
         behandlingStatus: BehandlingStatus,
     ) {
         val behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD).also { it.status = behandlingStatus }
-        val nySimulering = listOf(
-            SimuleringMottaker(
-                mottakerType = MottakerType.BRUKER,
-                mottakerNummer = "",
-                simulertPostering = listOf(
-                    lagSimulertPostering(
-                        fom = LocalDate.now().minusMonths(4),
-                        tom = LocalDate.now().minusMonths(2),
-                        beløp = BigDecimal.valueOf(7500),
-                        forfallsdato = LocalDate.now(),
-                    ),
-                    lagSimulertPostering(
-                        fom = LocalDate.now().minusMonths(2),
-                        tom = LocalDate.now(),
-                        beløp = BigDecimal.valueOf(7500),
-                        forfallsdato = LocalDate.now().plusMonths(2),
-                    ),
+        val nySimulering =
+            listOf(
+                SimuleringMottaker(
+                    mottakerType = MottakerType.BRUKER,
+                    mottakerNummer = "",
+                    simulertPostering =
+                        listOf(
+                            lagSimulertPostering(
+                                fom = LocalDate.now().minusMonths(4),
+                                tom = LocalDate.now().minusMonths(2),
+                                beløp = BigDecimal.valueOf(7500),
+                                forfallsdato = LocalDate.now(),
+                            ),
+                            lagSimulertPostering(
+                                fom = LocalDate.now().minusMonths(2),
+                                tom = LocalDate.now(),
+                                beløp = BigDecimal.valueOf(7500),
+                                forfallsdato = LocalDate.now().plusMonths(2),
+                            ),
+                        ),
                 ),
-            ),
-        )
+            )
 
         every { behandlingRepository.hentBehandling(behandling.id) } returns behandling
 
@@ -175,10 +180,11 @@ class SimuleringServiceTest {
                 any(),
                 any(),
             )
-        } returns lagTilkjentYtelse(
-            utbetalingsoppdrag = lagUtbetalingsoppdrag(listOf(lagUtbetalingsperiode())),
-            behandling = behandling,
-        )
+        } returns
+            lagTilkjentYtelse(
+                utbetalingsoppdrag = lagUtbetalingsoppdrag(listOf(lagUtbetalingsperiode())),
+                behandling = behandling,
+            )
         every { oppdragKlient.hentSimulering(any()) } returns DetaljertSimuleringResultat(simuleringMottaker = nySimulering)
         every { øknomiSimuleringMottakerRepository.deleteByBehandlingId(any()) } just runs
         every { øknomiSimuleringMottakerRepository.saveAll(any<List<ØkonomiSimuleringMottaker>>()) } returns mockk()

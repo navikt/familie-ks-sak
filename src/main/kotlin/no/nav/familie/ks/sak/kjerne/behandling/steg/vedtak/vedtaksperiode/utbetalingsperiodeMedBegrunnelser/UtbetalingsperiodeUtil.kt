@@ -28,16 +28,18 @@ fun hentPerioderMedUtbetaling(
     vedtak: Vedtak,
     forskjøvetVilkårResultatTidslinjeMap: Map<Aktør, Tidslinje<List<VilkårResultat>>>,
 ): List<VedtaksperiodeMedBegrunnelser> {
-    val splittkriterierForVedtaksperiodeTidslinje = forskjøvetVilkårResultatTidslinjeMap
-        .tilSplittkriterierForVedtaksperiodeTidslinjer().kombiner { it.toMap() }
+    val splittkriterierForVedtaksperiodeTidslinje =
+        forskjøvetVilkårResultatTidslinjeMap
+            .tilSplittkriterierForVedtaksperiodeTidslinjer().kombiner { it.toMap() }
 
-    val andeltilkjentYtelserSplittetPåKriterier = andelerTilkjentYtelse
-        .tilTidslinjerPerPerson().values
-        .slåSammen()
-        .filtrer { !it.isNullOrEmpty() }
-        .kombinerMed(splittkriterierForVedtaksperiodeTidslinje) { andelerTilkjentYtelseIPeriode, splittkriterierPerPerson ->
-            andelerTilkjentYtelseIPeriode?.let { Pair(andelerTilkjentYtelseIPeriode, splittkriterierPerPerson) }
-        }
+    val andeltilkjentYtelserSplittetPåKriterier =
+        andelerTilkjentYtelse
+            .tilTidslinjerPerPerson().values
+            .slåSammen()
+            .filtrer { !it.isNullOrEmpty() }
+            .kombinerMed(splittkriterierForVedtaksperiodeTidslinje) { andelerTilkjentYtelseIPeriode, splittkriterierPerPerson ->
+                andelerTilkjentYtelseIPeriode?.let { Pair(andelerTilkjentYtelseIPeriode, splittkriterierPerPerson) }
+            }
 
     return andeltilkjentYtelserSplittetPåKriterier
         .tilPerioderIkkeNull()
@@ -70,16 +72,17 @@ private fun Map<Aktør, Tidslinje<List<VilkårResultat>>>.tilSplittkriterierForV
     this.map { (aktør, vilkårsvurderingTidslinje) ->
         vilkårsvurderingTidslinje.tilPerioder().filtrerIkkeNull().map { vilkårResultater ->
             Periode(
-                verdi = vilkårResultater.verdi.let {
-                    val utdypendeVilkårsvurderinger = hentSetAvVilkårsVurderinger(it)
-                    Pair(
-                        aktør,
-                        SplittkriterierForVedtaksperiode(
-                            utdypendeVilkårsvurderinger = utdypendeVilkårsvurderinger,
-                            regelverk = hentRegelverkPersonErVurdertEtterIPeriode(it),
-                        ),
-                    )
-                },
+                verdi =
+                    vilkårResultater.verdi.let {
+                        val utdypendeVilkårsvurderinger = hentSetAvVilkårsVurderinger(it)
+                        Pair(
+                            aktør,
+                            SplittkriterierForVedtaksperiode(
+                                utdypendeVilkårsvurderinger = utdypendeVilkårsvurderinger,
+                                regelverk = hentRegelverkPersonErVurdertEtterIPeriode(it),
+                            ),
+                        )
+                    },
                 fom = vilkårResultater.fom,
                 tom = vilkårResultater.tom,
             )

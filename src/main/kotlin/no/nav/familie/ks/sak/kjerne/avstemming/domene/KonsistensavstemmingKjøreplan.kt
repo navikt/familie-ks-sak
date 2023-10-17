@@ -18,10 +18,8 @@ class KonsistensavstemmingKjøreplan(
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "konsistensavstemming_kjoreplan_seq")
     @SequenceGenerator(name = "konsistensavstemming_kjoreplan_seq")
     val id: Long = 0,
-
     @Column(name = "kjoredato", nullable = false)
     val kjøredato: LocalDate,
-
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     var status: KjøreStatus = KjøreStatus.LEDIG,

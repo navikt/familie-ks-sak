@@ -21,7 +21,6 @@ import org.hamcrest.CoreMatchers.`is` as Is
 
 @ExtendWith(MockKExtension::class)
 internal class UtgåendeJournalføringServiceTest {
-
     @MockK
     private lateinit var integrasjonClient: IntegrasjonClient
 
@@ -36,13 +35,14 @@ internal class UtgåendeJournalføringServiceTest {
 
         every { integrasjonClient.journalførDokument(any()) } returns mocketResponse
 
-        val feil = assertThrows<Feil> {
-            utgåendeJournalføringService.journalførDokument(
-                fagsakId = fagsakId,
-                fnr = fnr,
-                brev = emptyList(),
-            )
-        }
+        val feil =
+            assertThrows<Feil> {
+                utgåendeJournalføringService.journalførDokument(
+                    fagsakId = fagsakId,
+                    fnr = fnr,
+                    brev = emptyList(),
+                )
+            }
 
         assertThat(feil.message, Is("Klarte ikke ferdigstille journalpost med id testId"))
 
@@ -57,11 +57,12 @@ internal class UtgåendeJournalføringServiceTest {
 
         every { integrasjonClient.journalførDokument(any()) } returns mocketResponse
 
-        val journalpostId = utgåendeJournalføringService.journalførDokument(
-            fagsakId = fagsakId,
-            fnr = fnr,
-            brev = emptyList(),
-        )
+        val journalpostId =
+            utgåendeJournalføringService.journalførDokument(
+                fagsakId = fagsakId,
+                fnr = fnr,
+                brev = emptyList(),
+            )
 
         assertThat(journalpostId, Is("testId"))
 
@@ -74,19 +75,21 @@ internal class UtgåendeJournalføringServiceTest {
         val fnr = randomFnr()
         val fagsakId = 1L
 
-        every { integrasjonClient.journalførDokument(any()) } throws RessursException(
-            mockk(),
-            mockk(),
-            HttpStatus.CONFLICT,
-        )
+        every { integrasjonClient.journalførDokument(any()) } throws
+            RessursException(
+                mockk(),
+                mockk(),
+                HttpStatus.CONFLICT,
+            )
         every { integrasjonClient.hentJournalposterForBruker(any()) } returns listOf(mocketEksisterendeJournalpost)
         every { mocketEksisterendeJournalpost.eksternReferanseId } returns "1_null_null"
 
-        val journalpostId = utgåendeJournalføringService.journalførDokument(
-            fagsakId = fagsakId,
-            fnr = fnr,
-            brev = emptyList(),
-        )
+        val journalpostId =
+            utgåendeJournalføringService.journalførDokument(
+                fagsakId = fagsakId,
+                fnr = fnr,
+                brev = emptyList(),
+            )
 
         assertThat(journalpostId, Is(mocketEksisterendeJournalpost.journalpostId))
 

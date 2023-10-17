@@ -10,9 +10,10 @@ class DevLauncherPostgresPreprod
 
 fun main(args: Array<String>) {
     System.setProperty("spring.profiles.active", "dev-postgres-preprod")
-    val springBuilder = SpringApplicationBuilder(ApplicationConfig::class.java).profiles(
-        "mock-økonomi",
-    )
+    val springBuilder =
+        SpringApplicationBuilder(ApplicationConfig::class.java).profiles(
+            "mock-økonomi",
+        )
 
     if (args.contains("--dbcontainer")) {
         springBuilder.initializers(DbContainerInitializer())

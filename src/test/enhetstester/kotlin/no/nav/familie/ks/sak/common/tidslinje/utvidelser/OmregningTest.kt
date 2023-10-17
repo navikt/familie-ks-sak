@@ -9,7 +9,6 @@ import java.time.LocalDate
 import java.time.temporal.ChronoUnit
 
 class OmregningTest {
-
     @Test
     fun `kan omgjøre fra uke til dag`() {
         val dato1_start = LocalDate.of(2022, 7, 4)
@@ -24,12 +23,13 @@ class OmregningTest {
         val dato4_start = LocalDate.of(2022, 7, 25)
         val dato4_slutt = LocalDate.of(2022, 7, 31)
 
-        val tmp = listOf(
-            TidslinjePeriode(1, dato1_start.until(dato1_slutt, ChronoUnit.WEEKS).toInt() + 1),
-            TidslinjePeriode(2, dato2_start.until(dato2_slutt, ChronoUnit.WEEKS).toInt() + 1),
-            TidslinjePeriode(3, dato3_start.until(dato3_slutt, ChronoUnit.WEEKS).toInt() + 1),
-            TidslinjePeriode(4, dato4_start.until(dato4_slutt, ChronoUnit.WEEKS).toInt() + 1),
-        )
+        val tmp =
+            listOf(
+                TidslinjePeriode(1, dato1_start.until(dato1_slutt, ChronoUnit.WEEKS).toInt() + 1),
+                TidslinjePeriode(2, dato2_start.until(dato2_slutt, ChronoUnit.WEEKS).toInt() + 1),
+                TidslinjePeriode(3, dato3_start.until(dato3_slutt, ChronoUnit.WEEKS).toInt() + 1),
+                TidslinjePeriode(4, dato4_start.until(dato4_slutt, ChronoUnit.WEEKS).toInt() + 1),
+            )
 
         val tidslinje = Tidslinje(dato1_start, tmp, tidsEnhet = TidsEnhet.UKE)
 
@@ -58,12 +58,13 @@ class OmregningTest {
         val dato4_start = LocalDate.of(2022, 10, 1)
         val dato4_slutt = LocalDate.of(2022, 10, 31)
 
-        val tmp = listOf(
-            TidslinjePeriode(1, dato1_start.until(dato1_slutt, ChronoUnit.MONTHS).toInt() + 1),
-            TidslinjePeriode(2, dato2_start.until(dato2_slutt, ChronoUnit.MONTHS).toInt() + 1),
-            TidslinjePeriode(3, dato3_start.until(dato3_slutt, ChronoUnit.MONTHS).toInt() + 1),
-            TidslinjePeriode(4, dato4_start.until(dato4_slutt, ChronoUnit.MONTHS).toInt() + 1),
-        )
+        val tmp =
+            listOf(
+                TidslinjePeriode(1, dato1_start.until(dato1_slutt, ChronoUnit.MONTHS).toInt() + 1),
+                TidslinjePeriode(2, dato2_start.until(dato2_slutt, ChronoUnit.MONTHS).toInt() + 1),
+                TidslinjePeriode(3, dato3_start.until(dato3_slutt, ChronoUnit.MONTHS).toInt() + 1),
+                TidslinjePeriode(4, dato4_start.until(dato4_slutt, ChronoUnit.MONTHS).toInt() + 1),
+            )
 
         val tidslinje = Tidslinje(dato1_start, tmp, tidsEnhet = TidsEnhet.MÅNED)
 
@@ -92,12 +93,13 @@ class OmregningTest {
         val dato4_start = LocalDate.of(2026, 1, 1)
         val dato4_slutt = LocalDate.of(2026, 12, 31)
 
-        val tidslinjePerioder = listOf(
-            TidslinjePeriode(1, dato1_start.until(dato1_slutt, ChronoUnit.YEARS).toInt() + 1),
-            TidslinjePeriode(2, dato2_start.until(dato2_slutt, ChronoUnit.YEARS).toInt() + 1),
-            TidslinjePeriode(3, dato3_start.until(dato3_slutt, ChronoUnit.YEARS).toInt() + 1),
-            TidslinjePeriode(4, dato4_start.until(dato4_slutt, ChronoUnit.YEARS).toInt() + 1),
-        )
+        val tidslinjePerioder =
+            listOf(
+                TidslinjePeriode(1, dato1_start.until(dato1_slutt, ChronoUnit.YEARS).toInt() + 1),
+                TidslinjePeriode(2, dato2_start.until(dato2_slutt, ChronoUnit.YEARS).toInt() + 1),
+                TidslinjePeriode(3, dato3_start.until(dato3_slutt, ChronoUnit.YEARS).toInt() + 1),
+                TidslinjePeriode(4, dato4_start.until(dato4_slutt, ChronoUnit.YEARS).toInt() + 1),
+            )
 
         val tidslinje = Tidslinje(dato1_start, tidslinjePerioder, tidsEnhet = TidsEnhet.ÅR)
 

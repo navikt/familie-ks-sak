@@ -29,35 +29,39 @@ class BehandlingsresultatService(
     private val personidentService: PersonidentService,
     private val personopplysningGrunnlagService: PersonopplysningGrunnlagService,
 ) {
-
     fun utledBehandlingsresultat(behandling: Behandling): Behandlingsresultat {
         val forrigeBehandling = behandlingService.hentSisteBehandlingSomErVedtatt(behandling.fagsak.id)
 
-        val andelerMedEndringer = andelerTilkjentYtelseOgEndreteUtbetalingerService
-            .finnAndelerTilkjentYtelseMedEndreteUtbetalinger(behandling.id)
+        val andelerMedEndringer =
+            andelerTilkjentYtelseOgEndreteUtbetalingerService
+                .finnAndelerTilkjentYtelseMedEndreteUtbetalinger(behandling.id)
 
-        val forrigeAndelerMedEndringer = forrigeBehandling?.let {
-            andelerTilkjentYtelseOgEndreteUtbetalingerService.finnAndelerTilkjentYtelseMedEndreteUtbetalinger(it.id)
-        } ?: emptyList()
+        val forrigeAndelerMedEndringer =
+            forrigeBehandling?.let {
+                andelerTilkjentYtelseOgEndreteUtbetalingerService.finnAndelerTilkjentYtelseMedEndreteUtbetalinger(it.id)
+            } ?: emptyList()
 
         val vilkårsvurdering = vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(behandling.id)
 
         val personerFremstiltKravFor = hentBarna(behandling)
 
-        val behandlingsresultatPersoner = lagBehandlingsresulatPersoner(
-            behandling,
-            personerFremstiltKravFor,
-            andelerMedEndringer,
-            forrigeAndelerMedEndringer,
-            vilkårsvurdering,
-        )
+        val behandlingsresultatPersoner =
+            lagBehandlingsresulatPersoner(
+                behandling,
+                personerFremstiltKravFor,
+                andelerMedEndringer,
+                forrigeAndelerMedEndringer,
+                vilkårsvurdering,
+            )
         secureLogger.info("Behandlingsresultatpersoner: ${behandlingsresultatPersoner.convertDataClassToJson()}")
 
-        val ytelsePersonerMedResultat = YtelsePersonUtils.utledYtelsePersonerMedResultat(
-            behandlingsresultatPersoner = behandlingsresultatPersoner,
-            uregistrerteBarn = søknadGrunnlagService.finnAktiv(behandling.id)?.hentUregistrerteBarn()?.map { it.ident }
-                ?: emptyList(),
-        )
+        val ytelsePersonerMedResultat =
+            YtelsePersonUtils.utledYtelsePersonerMedResultat(
+                behandlingsresultatPersoner = behandlingsresultatPersoner,
+                uregistrerteBarn =
+                    søknadGrunnlagService.finnAktiv(behandling.id)?.hentUregistrerteBarn()?.map { it.ident }
+                        ?: emptyList(),
+            )
 
         val alleAndelerHar0IUtbetaling = andelerMedEndringer.all { it.kalkulertUtbetalingsbeløp == 0 }
 
@@ -91,41 +95,42 @@ class BehandlingsresultatService(
         andelerMedEndringer: List<AndelTilkjentYtelseMedEndreteUtbetalinger>,
         forrigeAndelerMedEndringer: List<AndelTilkjentYtelseMedEndreteUtbetalinger>,
         vilkårsvurdering: Vilkårsvurdering,
-    ) =
-        personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(behandling.id)
-            .personer.filter { it.type == PersonType.BARN }.map {
-                val harEksplisittAvslagIVilkårsvurderingen =
-                    vilkårsvurdering.personResultater.find { personResultat -> personResultat.aktør == it.aktør }
-                        ?.harEksplisittAvslag() ?: false
+    ) = personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(behandling.id)
+        .personer.filter { it.type == PersonType.BARN }.map {
+            val harEksplisittAvslagIVilkårsvurderingen =
+                vilkårsvurdering.personResultater.find { personResultat -> personResultat.aktør == it.aktør }
+                    ?.harEksplisittAvslag() ?: false
 
-                val harEksplisittAvslagIEndreteUtbetalinger =
-                    andelerTilkjentYtelseOgEndreteUtbetalingerService.finnEndreteUtbetalingerMedAndelerTilkjentYtelse(
-                        behandling.id,
-                    ).any { endretUtbetalingAndel ->
-                        endretUtbetalingAndel.erEksplisittAvslagPåSøknad == true && endretUtbetalingAndel.person?.aktør == it.aktør
-                    }
+            val harEksplisittAvslagIEndreteUtbetalinger =
+                andelerTilkjentYtelseOgEndreteUtbetalingerService.finnEndreteUtbetalingerMedAndelerTilkjentYtelse(
+                    behandling.id,
+                ).any { endretUtbetalingAndel ->
+                    endretUtbetalingAndel.erEksplisittAvslagPåSøknad == true && endretUtbetalingAndel.person?.aktør == it.aktør
+                }
 
-                BehandlingsresultatUtils.utledBehandlingsresultatDataForPerson(
-                    person = it,
-                    personerFremstiltKravFor = personerFremslitKravFor,
-                    andelerMedEndringer = andelerMedEndringer,
-                    forrigeAndelerMedEndringer = forrigeAndelerMedEndringer,
-                    erEksplisittAvslag = harEksplisittAvslagIVilkårsvurderingen || harEksplisittAvslagIEndreteUtbetalinger,
-                )
-            }
+            BehandlingsresultatUtils.utledBehandlingsresultatDataForPerson(
+                person = it,
+                personerFremstiltKravFor = personerFremslitKravFor,
+                andelerMedEndringer = andelerMedEndringer,
+                forrigeAndelerMedEndringer = forrigeAndelerMedEndringer,
+                erEksplisittAvslag = harEksplisittAvslagIVilkårsvurderingen || harEksplisittAvslagIEndreteUtbetalinger,
+            )
+        }
 
     private fun hentBarna(behandling: Behandling): List<Aktør> {
         // Søknad kan ha flere barn som er inkludert i søknaden og folkeregistert, men ikke i behandling
-        val barnFraSøknad = if (behandling.erSøknad()) {
-            søknadGrunnlagService.hentAktiv(behandling.id).tilSøknadDto()
-                .barnaMedOpplysninger.filter { it.inkludertISøknaden && it.erFolkeregistrert }
-                .map { personidentService.hentAktør(it.ident) }
-        } else {
-            emptyList()
-        }
+        val barnFraSøknad =
+            if (behandling.erSøknad()) {
+                søknadGrunnlagService.hentAktiv(behandling.id).tilSøknadDto()
+                    .barnaMedOpplysninger.filter { it.inkludertISøknaden && it.erFolkeregistrert }
+                    .map { personidentService.hentAktør(it.ident) }
+            } else {
+                emptyList()
+            }
         // barn som allerede finnes i behandling
-        val barnSomErLagtTil = personopplysningGrunnlagService.hentBarna(behandling.id)?.map { it.aktør }
-            ?: throw Feil("Barn finnes ikke for behandling ${behandling.id}")
+        val barnSomErLagtTil =
+            personopplysningGrunnlagService.hentBarna(behandling.id)?.map { it.aktør }
+                ?: throw Feil("Barn finnes ikke for behandling ${behandling.id}")
 
         return (barnFraSøknad + barnSomErLagtTil).distinctBy { it.aktørId }
     }
@@ -133,7 +138,6 @@ class BehandlingsresultatService(
     private fun List<YtelsePerson>.writeValueAsString(): String = objectMapper.writeValueAsString(this)
 
     companion object {
-
         private val logger: Logger = LoggerFactory.getLogger(BehandlingsresultatService::class.java)
         private val secureLogger: Logger = LoggerFactory.getLogger("secureLogger")
     }

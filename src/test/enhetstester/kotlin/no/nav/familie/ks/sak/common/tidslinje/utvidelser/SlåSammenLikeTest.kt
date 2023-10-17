@@ -8,7 +8,6 @@ import org.junit.jupiter.api.Test
 import java.time.LocalDate
 
 class SlåSammenLikeTest {
-
     private val førsteJanuar = LocalDate.of(2022, 1, 1)
     private val sisteDagIJanuar = LocalDate.of(2022, 1, 31)
     private val sisteDagIMars = LocalDate.of(2022, 3, 31)

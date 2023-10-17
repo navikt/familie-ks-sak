@@ -21,7 +21,6 @@ class PubliserSaksstatistikkTask(
     val sakStatistikkService: SakStatistikkService,
     val kafkaProducer: KafkaProducer,
 ) : AsyncTaskStep {
-
     override fun doTask(task: Task) {
         val fagsakId = task.payload.toLong()
 
@@ -32,7 +31,6 @@ class PubliserSaksstatistikkTask(
     }
 
     companion object {
-
         fun lagTask(fagsakId: Long) = Task(type = TASK_STEP_TYPE, payload = objectMapper.writeValueAsString(fagsakId))
 
         const val TASK_STEP_TYPE = "publiserSaksstatistikk"

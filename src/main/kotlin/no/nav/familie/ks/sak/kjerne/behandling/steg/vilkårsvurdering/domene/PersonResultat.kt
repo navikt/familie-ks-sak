@@ -31,16 +31,13 @@ class PersonResultat(
         allocationSize = 50,
     )
     val id: Long = 0,
-
     @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "fk_vilkaarsvurdering_id", nullable = false, updatable = false)
     var vilkårsvurdering: Vilkårsvurdering,
-
     @OneToOne(optional = false)
     @JoinColumn(name = "fk_aktoer_id", nullable = false, updatable = false)
     val aktør: Aktør,
-
     @OneToMany(
         fetch = FetchType.EAGER,
         mappedBy = "personResultat",
@@ -48,7 +45,6 @@ class PersonResultat(
         orphanRemoval = true,
     )
     val vilkårResultater: MutableSet<VilkårResultat> = sortedSetOf(VilkårResultatComparator),
-
     @OneToMany(
         fetch = FetchType.EAGER,
         mappedBy = "personResultat",
@@ -57,7 +53,6 @@ class PersonResultat(
     )
     val andreVurderinger: MutableSet<AnnenVurdering> = mutableSetOf(),
 ) : BaseEntitet() {
-
     fun setSortedVilkårResultater(nyeVilkårResultater: Set<VilkårResultat>) {
         vilkårResultater.clear()
         vilkårResultater.addAll(nyeVilkårResultater.toSortedSet(VilkårResultatComparator))
@@ -98,5 +93,4 @@ private fun alleVilkårOppfyltEllerNull(
 private fun erAlleVilkårForPersonOppfylt(
     vilkårForPerson: Set<Vilkår>,
     vilkårResultater: Iterable<VilkårResultat?>,
-) =
-    vilkårForPerson.all { vilkår -> vilkårResultater.any { it?.resultat == Resultat.OPPFYLT && it.vilkårType == vilkår } }
+) = vilkårForPerson.all { vilkår -> vilkårResultater.any { it?.resultat == Resultat.OPPFYLT && it.vilkårType == vilkår } }

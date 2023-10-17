@@ -10,10 +10,10 @@ class VilkårsvurderingTidslinjeService(
     private val vilkårsvurderingRepository: VilkårsvurderingRepository,
     private val personopplysningGrunnlagRepository: PersonopplysningGrunnlagRepository,
 ) {
-
     fun lagVilkårsvurderingTidslinjer(behandlingId: Long): VilkårsvurderingTidslinjer {
-        val vilkårsvurdering = vilkårsvurderingRepository.finnAktivForBehandling(behandlingId)
-            ?: throw Feil("Finnes ikke aktiv vilkårsvurdering for behandlingId=$behandlingId")
+        val vilkårsvurdering =
+            vilkårsvurderingRepository.finnAktivForBehandling(behandlingId)
+                ?: throw Feil("Finnes ikke aktiv vilkårsvurdering for behandlingId=$behandlingId")
         val personopplysningGrunnlag = personopplysningGrunnlagRepository.hentByBehandlingAndAktiv(behandlingId)
 
         return VilkårsvurderingTidslinjer(vilkårsvurdering, personopplysningGrunnlag)

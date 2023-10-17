@@ -44,30 +44,31 @@ import java.time.LocalDate
 import java.time.YearMonth
 
 class BrevPeriodeContextTest {
-
     @Test
     fun `genererBrevPeriodeDto skal gi riktig output for innvilgetIkkeBarnehage-begrunnelse når alle vilkår er oppfylt`() {
         val barnFødselsdato = LocalDate.of(2021, 3, 15)
 
-        val personerIbehandling = listOf(
-            PersonIBehandling(
-                personType = PersonType.SØKER,
-                fødselsDato = LocalDate.now().minusYears(20),
-                overstyrendeVilkårResultater = emptyList(),
-            ),
-            PersonIBehandling(
-                personType = PersonType.BARN,
-                fødselsDato = barnFødselsdato,
-                overstyrendeVilkårResultater = emptyList(),
-            ),
-        )
+        val personerIbehandling =
+            listOf(
+                PersonIBehandling(
+                    personType = PersonType.SØKER,
+                    fødselsDato = LocalDate.now().minusYears(20),
+                    overstyrendeVilkårResultater = emptyList(),
+                ),
+                PersonIBehandling(
+                    personType = PersonType.BARN,
+                    fødselsDato = barnFødselsdato,
+                    overstyrendeVilkårResultater = emptyList(),
+                ),
+            )
 
-        val brevPeriodeDto = lagBrevPeriodeContext(
-            personerIBehandling = personerIbehandling,
-            begrunnelser = listOf(Begrunnelse.INNVILGET_IKKE_BARNEHAGE),
-            vedtaksperiodeType = Vedtaksperiodetype.UTBETALING,
-            skalOppretteEndretUtbetalingAndeler = false,
-        ).genererBrevPeriodeDto()
+        val brevPeriodeDto =
+            lagBrevPeriodeContext(
+                personerIBehandling = personerIbehandling,
+                begrunnelser = listOf(Begrunnelse.INNVILGET_IKKE_BARNEHAGE),
+                vedtaksperiodeType = Vedtaksperiodetype.UTBETALING,
+                skalOppretteEndretUtbetalingAndeler = false,
+            ).genererBrevPeriodeDto()
 
         Assertions.assertEquals(
             listOf(barnFødselsdato.plusYears(1).førsteDagINesteMåned().tilDagMånedÅr()),
@@ -75,11 +76,13 @@ class BrevPeriodeContextTest {
         )
         Assertions.assertEquals(
             listOf(
-                "til " + barnFødselsdato
-                    .plusYears(2)
-                    .minusMonths(1)
-                    .sisteDagIMåned()
-                    .tilDagMånedÅr() + " ",
+                "til " +
+                    barnFødselsdato
+                        .plusYears(2)
+                        .minusMonths(1)
+                        .sisteDagIMåned()
+                        .tilDagMånedÅr() +
+                    " ",
             ),
             brevPeriodeDto?.tom,
         )
@@ -115,32 +118,35 @@ class BrevPeriodeContextTest {
     fun `genererBrevPeriodeDto skal gi riktig output for innvilgetDeltidBarnehage-begrunnelse ved 17 timer barnehageplass`() {
         val barnFødselsdato = LocalDate.of(2021, 3, 15)
 
-        val personerIbehandling = listOf(
-            PersonIBehandling(
-                personType = PersonType.SØKER,
-                fødselsDato = LocalDate.now().minusYears(20),
-                overstyrendeVilkårResultater = emptyList(),
-            ),
-            PersonIBehandling(
-                personType = PersonType.BARN,
-                fødselsDato = barnFødselsdato,
-                overstyrendeVilkårResultater = listOf(
-                    lagVilkårResultat(
-                        vilkårType = Vilkår.BARNEHAGEPLASS,
-                        periodeFom = barnFødselsdato.plusYears(1),
-                        periodeTom = barnFødselsdato.plusYears(2),
-                        antallTimer = BigDecimal.valueOf(17),
-                    ),
+        val personerIbehandling =
+            listOf(
+                PersonIBehandling(
+                    personType = PersonType.SØKER,
+                    fødselsDato = LocalDate.now().minusYears(20),
+                    overstyrendeVilkårResultater = emptyList(),
                 ),
-            ),
-        )
+                PersonIBehandling(
+                    personType = PersonType.BARN,
+                    fødselsDato = barnFødselsdato,
+                    overstyrendeVilkårResultater =
+                        listOf(
+                            lagVilkårResultat(
+                                vilkårType = Vilkår.BARNEHAGEPLASS,
+                                periodeFom = barnFødselsdato.plusYears(1),
+                                periodeTom = barnFødselsdato.plusYears(2),
+                                antallTimer = BigDecimal.valueOf(17),
+                            ),
+                        ),
+                ),
+            )
 
-        val brevPeriodeDto = lagBrevPeriodeContext(
-            personerIBehandling = personerIbehandling,
-            begrunnelser = listOf(Begrunnelse.INNVILGET_DELTID_BARNEHAGE),
-            vedtaksperiodeType = Vedtaksperiodetype.UTBETALING,
-            skalOppretteEndretUtbetalingAndeler = false,
-        ).genererBrevPeriodeDto()
+        val brevPeriodeDto =
+            lagBrevPeriodeContext(
+                personerIBehandling = personerIbehandling,
+                begrunnelser = listOf(Begrunnelse.INNVILGET_DELTID_BARNEHAGE),
+                vedtaksperiodeType = Vedtaksperiodetype.UTBETALING,
+                skalOppretteEndretUtbetalingAndeler = false,
+            ).genererBrevPeriodeDto()
 
         Assertions.assertEquals(
             BegrunnelseDataDto(
@@ -165,38 +171,41 @@ class BrevPeriodeContextTest {
     fun `genererBrevPeriodeDto skal gi riktig output for innvilgetDeltidBarnehageAdopsjon ved 17 timer barnehageplass`() {
         val barnFødselsdato = LocalDate.of(2021, 3, 15)
 
-        val personerIbehandling = listOf(
-            PersonIBehandling(
-                personType = PersonType.SØKER,
-                fødselsDato = LocalDate.now().minusYears(20),
-                overstyrendeVilkårResultater = emptyList(),
-            ),
-            PersonIBehandling(
-                personType = PersonType.BARN,
-                fødselsDato = barnFødselsdato,
-                overstyrendeVilkårResultater = listOf(
-                    lagVilkårResultat(
-                        vilkårType = Vilkår.BARNEHAGEPLASS,
-                        periodeFom = barnFødselsdato.plusYears(1),
-                        periodeTom = barnFødselsdato.plusYears(2),
-                        antallTimer = BigDecimal.valueOf(17),
-                    ),
-                    lagVilkårResultat(
-                        vilkårType = Vilkår.BARNETS_ALDER,
-                        periodeFom = barnFødselsdato.plusYears(1),
-                        periodeTom = barnFødselsdato.plusYears(2),
-                        utdypendeVilkårsvurderinger = listOf(UtdypendeVilkårsvurdering.ADOPSJON),
-                    ),
+        val personerIbehandling =
+            listOf(
+                PersonIBehandling(
+                    personType = PersonType.SØKER,
+                    fødselsDato = LocalDate.now().minusYears(20),
+                    overstyrendeVilkårResultater = emptyList(),
                 ),
-            ),
-        )
+                PersonIBehandling(
+                    personType = PersonType.BARN,
+                    fødselsDato = barnFødselsdato,
+                    overstyrendeVilkårResultater =
+                        listOf(
+                            lagVilkårResultat(
+                                vilkårType = Vilkår.BARNEHAGEPLASS,
+                                periodeFom = barnFødselsdato.plusYears(1),
+                                periodeTom = barnFødselsdato.plusYears(2),
+                                antallTimer = BigDecimal.valueOf(17),
+                            ),
+                            lagVilkårResultat(
+                                vilkårType = Vilkår.BARNETS_ALDER,
+                                periodeFom = barnFødselsdato.plusYears(1),
+                                periodeTom = barnFødselsdato.plusYears(2),
+                                utdypendeVilkårsvurderinger = listOf(UtdypendeVilkårsvurdering.ADOPSJON),
+                            ),
+                        ),
+                ),
+            )
 
-        val brevPeriodeDto = lagBrevPeriodeContext(
-            personerIBehandling = personerIbehandling,
-            begrunnelser = listOf(Begrunnelse.INNVILGET_DELTID_BARNEHAGE_ADOPSJON),
-            vedtaksperiodeType = Vedtaksperiodetype.UTBETALING,
-            skalOppretteEndretUtbetalingAndeler = false,
-        ).genererBrevPeriodeDto()
+        val brevPeriodeDto =
+            lagBrevPeriodeContext(
+                personerIBehandling = personerIbehandling,
+                begrunnelser = listOf(Begrunnelse.INNVILGET_DELTID_BARNEHAGE_ADOPSJON),
+                vedtaksperiodeType = Vedtaksperiodetype.UTBETALING,
+                skalOppretteEndretUtbetalingAndeler = false,
+            ).genererBrevPeriodeDto()
 
         Assertions.assertEquals(
             BegrunnelseDataDto(
@@ -221,32 +230,35 @@ class BrevPeriodeContextTest {
     fun `genererBrevPeriodeDto skal gi riktig output for innvilgetIkkeBarnehageAdopsjon`() {
         val barnFødselsdato = LocalDate.of(2021, 3, 15)
 
-        val personerIbehandling = listOf(
-            PersonIBehandling(
-                personType = PersonType.SØKER,
-                fødselsDato = LocalDate.now().minusYears(20),
-                overstyrendeVilkårResultater = emptyList(),
-            ),
-            PersonIBehandling(
-                personType = PersonType.BARN,
-                fødselsDato = barnFødselsdato,
-                overstyrendeVilkårResultater = listOf(
-                    lagVilkårResultat(
-                        vilkårType = Vilkår.BARNETS_ALDER,
-                        periodeFom = barnFødselsdato.plusYears(1),
-                        periodeTom = barnFødselsdato.plusYears(2),
-                        utdypendeVilkårsvurderinger = listOf(UtdypendeVilkårsvurdering.ADOPSJON),
-                    ),
+        val personerIbehandling =
+            listOf(
+                PersonIBehandling(
+                    personType = PersonType.SØKER,
+                    fødselsDato = LocalDate.now().minusYears(20),
+                    overstyrendeVilkårResultater = emptyList(),
                 ),
-            ),
-        )
+                PersonIBehandling(
+                    personType = PersonType.BARN,
+                    fødselsDato = barnFødselsdato,
+                    overstyrendeVilkårResultater =
+                        listOf(
+                            lagVilkårResultat(
+                                vilkårType = Vilkår.BARNETS_ALDER,
+                                periodeFom = barnFødselsdato.plusYears(1),
+                                periodeTom = barnFødselsdato.plusYears(2),
+                                utdypendeVilkårsvurderinger = listOf(UtdypendeVilkårsvurdering.ADOPSJON),
+                            ),
+                        ),
+                ),
+            )
 
-        val brevPeriodeDto = lagBrevPeriodeContext(
-            personerIBehandling = personerIbehandling,
-            begrunnelser = listOf(Begrunnelse.INNVILGET_IKKE_BARNEHAGE_ADOPSJON),
-            vedtaksperiodeType = Vedtaksperiodetype.UTBETALING,
-            skalOppretteEndretUtbetalingAndeler = false,
-        ).genererBrevPeriodeDto()
+        val brevPeriodeDto =
+            lagBrevPeriodeContext(
+                personerIBehandling = personerIbehandling,
+                begrunnelser = listOf(Begrunnelse.INNVILGET_IKKE_BARNEHAGE_ADOPSJON),
+                vedtaksperiodeType = Vedtaksperiodetype.UTBETALING,
+                skalOppretteEndretUtbetalingAndeler = false,
+            ).genererBrevPeriodeDto()
 
         Assertions.assertEquals(
             BegrunnelseDataDto(
@@ -271,39 +283,42 @@ class BrevPeriodeContextTest {
     fun `genererBrevPeriodeDto skal gi true for gjelderAnnenForelder feltet dersom annen forelder ikke er vurdert i MedlemskapAnnenForelder vilkåret`() {
         val barnFødselsdato = LocalDate.of(2021, 3, 15)
 
-        val personerIbehandling = listOf(
-            PersonIBehandling(
-                personType = PersonType.SØKER,
-                fødselsDato = LocalDate.now().minusYears(20),
-                overstyrendeVilkårResultater = emptyList(),
-            ),
-            PersonIBehandling(
-                personType = PersonType.BARN,
-                fødselsDato = barnFødselsdato,
-                overstyrendeVilkårResultater = listOf(
-                    lagVilkårResultat(
-                        vilkårType = Vilkår.BARNETS_ALDER,
-                        periodeFom = barnFødselsdato.plusYears(1),
-                        periodeTom = barnFødselsdato.plusYears(2),
-                        utdypendeVilkårsvurderinger = listOf(UtdypendeVilkårsvurdering.ADOPSJON),
-                    ),
-                    lagVilkårResultat(
-                        vilkårType = Vilkår.MEDLEMSKAP_ANNEN_FORELDER,
-                        periodeFom = barnFødselsdato.plusYears(1),
-                        periodeTom = barnFødselsdato.plusYears(2),
-                        utdypendeVilkårsvurderinger = listOf(UtdypendeVilkårsvurdering.ADOPSJON),
-                        resultat = Resultat.OPPFYLT,
-                    ),
+        val personerIbehandling =
+            listOf(
+                PersonIBehandling(
+                    personType = PersonType.SØKER,
+                    fødselsDato = LocalDate.now().minusYears(20),
+                    overstyrendeVilkårResultater = emptyList(),
                 ),
-            ),
-        )
+                PersonIBehandling(
+                    personType = PersonType.BARN,
+                    fødselsDato = barnFødselsdato,
+                    overstyrendeVilkårResultater =
+                        listOf(
+                            lagVilkårResultat(
+                                vilkårType = Vilkår.BARNETS_ALDER,
+                                periodeFom = barnFødselsdato.plusYears(1),
+                                periodeTom = barnFødselsdato.plusYears(2),
+                                utdypendeVilkårsvurderinger = listOf(UtdypendeVilkårsvurdering.ADOPSJON),
+                            ),
+                            lagVilkårResultat(
+                                vilkårType = Vilkår.MEDLEMSKAP_ANNEN_FORELDER,
+                                periodeFom = barnFødselsdato.plusYears(1),
+                                periodeTom = barnFødselsdato.plusYears(2),
+                                utdypendeVilkårsvurderinger = listOf(UtdypendeVilkårsvurdering.ADOPSJON),
+                                resultat = Resultat.OPPFYLT,
+                            ),
+                        ),
+                ),
+            )
 
-        val brevPeriodeDto = lagBrevPeriodeContext(
-            personerIBehandling = personerIbehandling,
-            begrunnelser = listOf(Begrunnelse.INNVILGET_IKKE_BARNEHAGE_ADOPSJON),
-            vedtaksperiodeType = Vedtaksperiodetype.UTBETALING,
-            skalOppretteEndretUtbetalingAndeler = true,
-        ).genererBrevPeriodeDto()
+        val brevPeriodeDto =
+            lagBrevPeriodeContext(
+                personerIBehandling = personerIbehandling,
+                begrunnelser = listOf(Begrunnelse.INNVILGET_IKKE_BARNEHAGE_ADOPSJON),
+                vedtaksperiodeType = Vedtaksperiodetype.UTBETALING,
+                skalOppretteEndretUtbetalingAndeler = true,
+            ).genererBrevPeriodeDto()
 
         Assertions.assertEquals(
             BegrunnelseDataDto(
@@ -328,39 +343,42 @@ class BrevPeriodeContextTest {
     fun `genererBrevPeriodeDto skal gi false for gjelderAnnenForelder feltet dersom annen forelder ikke er vurdert i MedlemskapAnnenForelder vilkåret`() {
         val barnFødselsdato = LocalDate.of(2021, 3, 15)
 
-        val personerIbehandling = listOf(
-            PersonIBehandling(
-                personType = PersonType.SØKER,
-                fødselsDato = LocalDate.now().minusYears(20),
-                overstyrendeVilkårResultater = emptyList(),
-            ),
-            PersonIBehandling(
-                personType = PersonType.BARN,
-                fødselsDato = barnFødselsdato,
-                overstyrendeVilkårResultater = listOf(
-                    lagVilkårResultat(
-                        vilkårType = Vilkår.BARNETS_ALDER,
-                        periodeFom = barnFødselsdato.plusYears(1),
-                        periodeTom = barnFødselsdato.plusYears(2),
-                        utdypendeVilkårsvurderinger = listOf(UtdypendeVilkårsvurdering.ADOPSJON),
-                    ),
-                    lagVilkårResultat(
-                        vilkårType = Vilkår.MEDLEMSKAP_ANNEN_FORELDER,
-                        periodeFom = barnFødselsdato.plusYears(1),
-                        periodeTom = barnFødselsdato.plusYears(2),
-                        utdypendeVilkårsvurderinger = listOf(UtdypendeVilkårsvurdering.ADOPSJON),
-                        resultat = Resultat.IKKE_AKTUELT,
-                    ),
+        val personerIbehandling =
+            listOf(
+                PersonIBehandling(
+                    personType = PersonType.SØKER,
+                    fødselsDato = LocalDate.now().minusYears(20),
+                    overstyrendeVilkårResultater = emptyList(),
                 ),
-            ),
-        )
+                PersonIBehandling(
+                    personType = PersonType.BARN,
+                    fødselsDato = barnFødselsdato,
+                    overstyrendeVilkårResultater =
+                        listOf(
+                            lagVilkårResultat(
+                                vilkårType = Vilkår.BARNETS_ALDER,
+                                periodeFom = barnFødselsdato.plusYears(1),
+                                periodeTom = barnFødselsdato.plusYears(2),
+                                utdypendeVilkårsvurderinger = listOf(UtdypendeVilkårsvurdering.ADOPSJON),
+                            ),
+                            lagVilkårResultat(
+                                vilkårType = Vilkår.MEDLEMSKAP_ANNEN_FORELDER,
+                                periodeFom = barnFødselsdato.plusYears(1),
+                                periodeTom = barnFødselsdato.plusYears(2),
+                                utdypendeVilkårsvurderinger = listOf(UtdypendeVilkårsvurdering.ADOPSJON),
+                                resultat = Resultat.IKKE_AKTUELT,
+                            ),
+                        ),
+                ),
+            )
 
-        val brevPeriodeDto = lagBrevPeriodeContext(
-            personerIBehandling = personerIbehandling,
-            begrunnelser = listOf(Begrunnelse.INNVILGET_IKKE_BARNEHAGE_ADOPSJON),
-            vedtaksperiodeType = Vedtaksperiodetype.UTBETALING,
-            skalOppretteEndretUtbetalingAndeler = true,
-        ).genererBrevPeriodeDto()
+        val brevPeriodeDto =
+            lagBrevPeriodeContext(
+                personerIBehandling = personerIbehandling,
+                begrunnelser = listOf(Begrunnelse.INNVILGET_IKKE_BARNEHAGE_ADOPSJON),
+                vedtaksperiodeType = Vedtaksperiodetype.UTBETALING,
+                skalOppretteEndretUtbetalingAndeler = true,
+            ).genererBrevPeriodeDto()
 
         Assertions.assertEquals(
             BegrunnelseDataDto(
@@ -404,74 +422,81 @@ fun lagBrevPeriodeContext(
 ): BrevPeriodeContext {
     val barnIBehandling = personerIBehandling.filter { it.personType == PersonType.BARN }
 
-    val persongrunnlag = lagPersonopplysningGrunnlag(
-        barnasIdenter = barnIBehandling.map { randomFnr() },
-        barnasFødselsdatoer = barnIBehandling.map { it.fødselsDato },
-    )
+    val persongrunnlag =
+        lagPersonopplysningGrunnlag(
+            barnasIdenter = barnIBehandling.map { randomFnr() },
+            barnasFødselsdatoer = barnIBehandling.map { it.fødselsDato },
+        )
 
-    val barnPersonResultater = persongrunnlag
-        .barna.zip(barnIBehandling)
-        .map { (person, personIBehandling) ->
-            lagPersonResultat(
-                person = person,
-                overstyrendeVilkårResultater = personIBehandling.overstyrendeVilkårResultater,
-            )
-        }
+    val barnPersonResultater =
+        persongrunnlag
+            .barna.zip(barnIBehandling)
+            .map { (person, personIBehandling) ->
+                lagPersonResultat(
+                    person = person,
+                    overstyrendeVilkårResultater = personIBehandling.overstyrendeVilkårResultater,
+                )
+            }
 
-    val søkerPersonResultat = lagPersonResultat(
-        person = persongrunnlag.søker,
-        overstyrendeVilkårResultater = personerIBehandling.find { it.personType == PersonType.SØKER }?.overstyrendeVilkårResultater
-            ?: emptyList(),
-    )
+    val søkerPersonResultat =
+        lagPersonResultat(
+            person = persongrunnlag.søker,
+            overstyrendeVilkårResultater =
+                personerIBehandling.find { it.personType == PersonType.SØKER }?.overstyrendeVilkårResultater
+                    ?: emptyList(),
+        )
 
     val personResultater = barnPersonResultater + søkerPersonResultat
 
     val vilkårsvurdering = mockk<Vilkårsvurdering>(relaxed = true)
     every { vilkårsvurdering.personResultater } returns personResultater.toSet()
 
-    val andelerTilkjentYtelse = TilkjentYtelseUtils.beregnAndelerTilkjentYtelseForBarna(
-        personopplysningGrunnlag = persongrunnlag,
-        vilkårsvurdering = vilkårsvurdering,
-        tilkjentYtelse = mockk(),
-    )
+    val andelerTilkjentYtelse =
+        TilkjentYtelseUtils.beregnAndelerTilkjentYtelseForBarna(
+            personopplysningGrunnlag = persongrunnlag,
+            vilkårsvurdering = vilkårsvurdering,
+            tilkjentYtelse = mockk(),
+        )
 
-    val vedtaksperiodeMedBegrunnelser = lagVedtaksperiodeMedBegrunnelser(
-        fom = andelerTilkjentYtelse.first().stønadFom.førsteDagIInneværendeMåned(),
-        tom = andelerTilkjentYtelse.first().stønadTom.sisteDagIInneværendeMåned(),
-        begrunnelser = begrunnelser.map { lagVedtaksbegrunnelse(it) }.toMutableSet(),
-        type = vedtaksperiodeType,
-    )
+    val vedtaksperiodeMedBegrunnelser =
+        lagVedtaksperiodeMedBegrunnelser(
+            fom = andelerTilkjentYtelse.first().stønadFom.førsteDagIInneværendeMåned(),
+            tom = andelerTilkjentYtelse.first().stønadTom.sisteDagIInneværendeMåned(),
+            begrunnelser = begrunnelser.map { lagVedtaksbegrunnelse(it) }.toMutableSet(),
+            type = vedtaksperiodeType,
+        )
 
-    val endretUtbetalingAndeler = if (skalOppretteEndretUtbetalingAndeler) {
-        persongrunnlag.barna.map {
-            EndretUtbetalingAndel(
-                behandlingId = 0,
-                person = it,
-                fom = YearMonth.of(2020, 12),
-                tom = vedtaksperiodeMedBegrunnelser.fom?.toYearMonth()?.minusMonths(1),
-                årsak = Årsak.ETTERBETALING_3MND,
-                prosent = BigDecimal(0),
-                begrunnelse = "Test formål",
-                søknadstidspunkt = LocalDate.of(2020, 12, 12),
-            )
+    val endretUtbetalingAndeler =
+        if (skalOppretteEndretUtbetalingAndeler) {
+            persongrunnlag.barna.map {
+                EndretUtbetalingAndel(
+                    behandlingId = 0,
+                    person = it,
+                    fom = YearMonth.of(2020, 12),
+                    tom = vedtaksperiodeMedBegrunnelser.fom?.toYearMonth()?.minusMonths(1),
+                    årsak = Årsak.ETTERBETALING_3MND,
+                    prosent = BigDecimal(0),
+                    begrunnelse = "Test formål",
+                    søknadstidspunkt = LocalDate.of(2020, 12, 12),
+                )
+            }
+        } else {
+            emptyList()
         }
-    } else {
-        emptyList()
-    }
 
     val andelTilkjentYtelserMedEndreteUtbetalinger =
         andelerTilkjentYtelse.map { AndelTilkjentYtelseMedEndreteUtbetalinger(it, endretUtbetalingAndeler) }
 
     return BrevPeriodeContext(
-        utvidetVedtaksperiodeMedBegrunnelser = vedtaksperiodeMedBegrunnelser.tilUtvidetVedtaksperiodeMedBegrunnelser(
-            persongrunnlag,
-            andelTilkjentYtelserMedEndreteUtbetalinger,
-        ),
+        utvidetVedtaksperiodeMedBegrunnelser =
+            vedtaksperiodeMedBegrunnelser.tilUtvidetVedtaksperiodeMedBegrunnelser(
+                persongrunnlag,
+                andelTilkjentYtelserMedEndreteUtbetalinger,
+            ),
         sanityBegrunnelser = lagSanityBegrunnelserFraDump(),
         persongrunnlag = persongrunnlag,
         personResultater = personResultater,
         andelTilkjentYtelserMedEndreteUtbetalinger = andelTilkjentYtelserMedEndreteUtbetalinger,
-
         uregistrerteBarn = emptyList(),
         barnSomDødeIForrigePeriode = emptyList(),
         erFørsteVedtaksperiode = false,
@@ -482,10 +507,11 @@ fun lagPersonResultat(
     person: Person,
     overstyrendeVilkårResultater: List<VilkårResultat> = emptyList(),
 ): PersonResultat {
-    val personResultat = PersonResultat(
-        vilkårsvurdering = mockk(relaxed = true),
-        aktør = person.aktør,
-    )
+    val personResultat =
+        PersonResultat(
+            vilkårsvurdering = mockk(relaxed = true),
+            aktør = person.aktør,
+        )
 
     personResultat.setSortedVilkårResultater(
         lagVilkårResultater(
@@ -503,18 +529,19 @@ fun lagVilkårResultater(
     overstyrendeVilkårResultater: List<VilkårResultat> = emptyList(),
     personResultat: PersonResultat,
 ): List<VilkårResultat> {
-    val vilkårResultaterForBarn = Vilkår.hentVilkårFor(person.type)
-        .filter { vilkår -> overstyrendeVilkårResultater.none { it.vilkårType == vilkår } }
-        .map {
-            lagVilkårResultat(
-                personResultat = personResultat,
-                vilkårType = it,
-                periodeFom = if (person.type == PersonType.SØKER) person.fødselsdato else person.fødselsdato.plusYears(1),
-                periodeTom = if (person.type == PersonType.SØKER) null else person.fødselsdato.plusYears(2),
-                behandlingId = 0L,
-                antallTimer = null,
-            )
-        }
+    val vilkårResultaterForBarn =
+        Vilkår.hentVilkårFor(person.type)
+            .filter { vilkår -> overstyrendeVilkårResultater.none { it.vilkårType == vilkår } }
+            .map {
+                lagVilkårResultat(
+                    personResultat = personResultat,
+                    vilkårType = it,
+                    periodeFom = if (person.type == PersonType.SØKER) person.fødselsdato else person.fødselsdato.plusYears(1),
+                    periodeTom = if (person.type == PersonType.SØKER) null else person.fødselsdato.plusYears(2),
+                    behandlingId = 0L,
+                    antallTimer = null,
+                )
+            }
     return vilkårResultaterForBarn + overstyrendeVilkårResultater
 }
 

@@ -28,9 +28,7 @@ class BrevPeriodeService(
     val søknadGrunnlagService: SøknadGrunnlagService,
     val vedtaksperiodeHentOgPersisterService: VedtaksperiodeHentOgPersisterService,
     val vedtaksperiodeService: VedtaksperiodeService,
-
 ) {
-
     fun hentBegrunnelsesteksterForPeriode(vedtaksperiodeId: Long): List<BegrunnelseDto> {
         val behandlingId = vedtaksperiodeHentOgPersisterService.hentVedtaksperiodeThrows(vedtaksperiodeId).vedtak.behandling.id
 
@@ -48,8 +46,9 @@ class BrevPeriodeService(
         val sanityBegrunnelser = sanityService.hentSanityBegrunnelser()
         val personopplysningGrunnlag =
             personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(behandlingId)
-        val vilkårsvurdering = vilkårsvurderingRepository.finnAktivForBehandling(behandlingId)
-            ?: error("Finner ikke vilkårsvurdering ved begrunning av vedtak")
+        val vilkårsvurdering =
+            vilkårsvurderingRepository.finnAktivForBehandling(behandlingId)
+                ?: error("Finner ikke vilkårsvurdering ved begrunning av vedtak")
 
         val andelTilkjentYtelserMedEndreteUtbetalinger =
             andelerTilkjentYtelseOgEndreteUtbetalingerService.finnAndelerTilkjentYtelseMedEndreteUtbetalinger(
@@ -59,11 +58,13 @@ class BrevPeriodeService(
         return utvidetVedtaksperioderMedBegrunnelser
             .sortedBy { it.fom }
             .mapNotNull { utvidetVedtaksperiodeMedBegrunnelser ->
-                val barnSomDødeIForrigePeriode = dødeBarnForrigePeriode(
-                    ytelserForrigePeriode = andelTilkjentYtelserMedEndreteUtbetalinger.map { it.andel }
-                        .filter { ytelseErFraForrigePeriode(it, utvidetVedtaksperiodeMedBegrunnelser) },
-                    barnIBehandling = personopplysningGrunnlag.personer.filter { it.type == PersonType.BARN },
-                )
+                val barnSomDødeIForrigePeriode =
+                    dødeBarnForrigePeriode(
+                        ytelserForrigePeriode =
+                            andelTilkjentYtelserMedEndreteUtbetalinger.map { it.andel }
+                                .filter { ytelseErFraForrigePeriode(it, utvidetVedtaksperiodeMedBegrunnelser) },
+                        barnIBehandling = personopplysningGrunnlag.personer.filter { it.type == PersonType.BARN },
+                    )
 
                 val erFørsteVedtaksperiodePåFagsak =
                     !andelTilkjentYtelserMedEndreteUtbetalinger.map { it.andel }.any {
@@ -78,9 +79,9 @@ class BrevPeriodeService(
                     persongrunnlag = personopplysningGrunnlag,
                     personResultater = vilkårsvurdering.personResultater.toList(),
                     andelTilkjentYtelserMedEndreteUtbetalinger = andelTilkjentYtelserMedEndreteUtbetalinger,
-
-                    uregistrerteBarn = søknadGrunnlagService.finnAktiv(behandlingId)?.hentUregistrerteBarn()
-                        ?: emptyList(),
+                    uregistrerteBarn =
+                        søknadGrunnlagService.finnAktiv(behandlingId)?.hentUregistrerteBarn()
+                            ?: emptyList(),
                     barnSomDødeIForrigePeriode = barnSomDødeIForrigePeriode,
                     erFørsteVedtaksperiode = erFørsteVedtaksperiodePåFagsak,
                 ).genererBrevPeriodeDto()

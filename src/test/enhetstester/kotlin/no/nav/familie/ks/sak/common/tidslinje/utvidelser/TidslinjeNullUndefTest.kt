@@ -12,7 +12,6 @@ import org.junit.jupiter.api.Test
 import java.time.LocalDate
 
 class TidslinjeNullUndefTest {
-
     private var lst1 = emptyList<TidslinjePeriode<Int>>()
     private var lst2 = emptyList<TidslinjePeriode<Int>>()
 
@@ -41,15 +40,16 @@ class TidslinjeNullUndefTest {
             listOf(TidslinjePeriode(3, 1, false), TidslinjePeriode(1, 1, false), TidslinjePeriode(1, 1, false)),
         )
 
-        val testTidslinje = t1.biFunksjon(t2) { t1, t2 ->
-            if (t1 is Udefinert || t2 is Udefinert) {
-                Udefinert()
-            } else if (t1 is Null || t2 is Null) {
-                Null()
-            } else {
-                Verdi(t1.verdi!! + t2.verdi!!)
+        val testTidslinje =
+            t1.biFunksjon(t2) { t1, t2 ->
+                if (t1 is Udefinert || t2 is Udefinert) {
+                    Udefinert()
+                } else if (t1 is Null || t2 is Null) {
+                    Null()
+                } else {
+                    Verdi(t1.verdi!! + t2.verdi!!)
+                }
             }
-        }
 
         val fakta = mutableListOf(4, null, 2, null)
 
@@ -69,15 +69,16 @@ class TidslinjeNullUndefTest {
             listOf(TidslinjePeriode(3, 2, false), TidslinjePeriode(1, 1, false), TidslinjePeriode(1, 1, false)),
         )
 
-        val testTidslinje = t1.biFunksjon(t2) { t1, t2 ->
-            if (t1 is Null || t2 is Null) {
-                Null()
-            } else if (t1 is Udefinert || t2 is Udefinert) {
-                Udefinert()
-            } else {
-                Verdi(t1.verdi!! + t2.verdi!!)
+        val testTidslinje =
+            t1.biFunksjon(t2) { t1, t2 ->
+                if (t1 is Null || t2 is Null) {
+                    Null()
+                } else if (t1 is Udefinert || t2 is Udefinert) {
+                    Udefinert()
+                } else {
+                    Verdi(t1.verdi!! + t2.verdi!!)
+                }
             }
-        }
 
         val fakta = mutableListOf(null, 3, null)
 

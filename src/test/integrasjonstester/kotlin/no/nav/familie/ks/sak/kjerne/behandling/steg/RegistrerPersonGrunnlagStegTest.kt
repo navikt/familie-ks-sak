@@ -31,7 +31,6 @@ import org.junit.jupiter.api.assertDoesNotThrow
 import org.springframework.beans.factory.annotation.Autowired
 
 class RegistrerPersonGrunnlagStegTest : OppslagSpringRunnerTest() {
-
     @Autowired
     private lateinit var registrerPersonGrunnlagSteg: RegistrerPersonGrunnlagSteg
 
@@ -89,18 +88,20 @@ class RegistrerPersonGrunnlagStegTest : OppslagSpringRunnerTest() {
     fun `utførSteg skal utføre REGISTRERE_PERSONGRUNNLAG steg for Revurdering med opprettet årsak søknad`() {
         val barnAktør = lagreAktør(randomAktør())
         every { beregningService.finnBarnFraBehandlingMedTilkjentYtelse(behandling.id) } returns listOf(barnAktør)
-        every { personOpplysningerService.hentPersoninfoEnkel(any()) } returns lagPdlPersonInfo(
-            enkelPersonInfo = true,
-            erBarn = true,
-        )
+        every { personOpplysningerService.hentPersoninfoEnkel(any()) } returns
+            lagPdlPersonInfo(
+                enkelPersonInfo = true,
+                erBarn = true,
+            )
 
-        val gammelPersonopplysningGrunnlag = lagPersonopplysningGrunnlag(
-            behandlingId = behandling.id,
-            søkerPersonIdent = behandling.fagsak.aktør.aktivFødselsnummer(),
-            søkerAktør = behandling.fagsak.aktør,
-            barnasIdenter = listOf(barnAktør.aktivFødselsnummer()),
-            barnAktør = listOf(barnAktør),
-        )
+        val gammelPersonopplysningGrunnlag =
+            lagPersonopplysningGrunnlag(
+                behandlingId = behandling.id,
+                søkerPersonIdent = behandling.fagsak.aktør.aktivFødselsnummer(),
+                søkerAktør = behandling.fagsak.aktør,
+                barnasIdenter = listOf(barnAktør.aktivFødselsnummer()),
+                barnAktør = listOf(barnAktør),
+            )
         personopplysningGrunnlagRepository.save(gammelPersonopplysningGrunnlag)
 
         lagreBehandling(
@@ -110,13 +111,14 @@ class RegistrerPersonGrunnlagStegTest : OppslagSpringRunnerTest() {
             },
         )
 
-        val revurdering = behandlingRepository.saveAndFlush(
-            lagBehandling(
-                fagsak = behandling.fagsak,
-                type = BehandlingType.REVURDERING,
-                opprettetÅrsak = BehandlingÅrsak.SØKNAD,
-            ),
-        )
+        val revurdering =
+            behandlingRepository.saveAndFlush(
+                lagBehandling(
+                    fagsak = behandling.fagsak,
+                    type = BehandlingType.REVURDERING,
+                    opprettetÅrsak = BehandlingÅrsak.SØKNAD,
+                ),
+            )
         assertDoesNotThrow { registrerPersonGrunnlagSteg.utførSteg(revurdering.id) }
 
         verify(atLeast = 1) { beregningService.finnBarnFraBehandlingMedTilkjentYtelse(behandling.id) }
@@ -159,18 +161,20 @@ class RegistrerPersonGrunnlagStegTest : OppslagSpringRunnerTest() {
     fun `utførSteg skal utføre REGISTRERE_PERSONGRUNNLAG steg for Revurdering med opprettet årsak ÅRLIG_KONTROLL`() {
         val barnAktør = lagreAktør(randomAktør())
         every { beregningService.finnBarnFraBehandlingMedTilkjentYtelse(behandling.id) } returns listOf(barnAktør)
-        every { personOpplysningerService.hentPersoninfoEnkel(any()) } returns lagPdlPersonInfo(
-            enkelPersonInfo = true,
-            erBarn = true,
-        )
+        every { personOpplysningerService.hentPersoninfoEnkel(any()) } returns
+            lagPdlPersonInfo(
+                enkelPersonInfo = true,
+                erBarn = true,
+            )
 
-        val gammelPersonopplysningGrunnlag = lagPersonopplysningGrunnlag(
-            behandlingId = behandling.id,
-            søkerPersonIdent = behandling.fagsak.aktør.aktivFødselsnummer(),
-            søkerAktør = behandling.fagsak.aktør,
-            barnasIdenter = listOf(barnAktør.aktivFødselsnummer()),
-            barnAktør = listOf(barnAktør),
-        )
+        val gammelPersonopplysningGrunnlag =
+            lagPersonopplysningGrunnlag(
+                behandlingId = behandling.id,
+                søkerPersonIdent = behandling.fagsak.aktør.aktivFødselsnummer(),
+                søkerAktør = behandling.fagsak.aktør,
+                barnasIdenter = listOf(barnAktør.aktivFødselsnummer()),
+                barnAktør = listOf(barnAktør),
+            )
         personopplysningGrunnlagRepository.save(gammelPersonopplysningGrunnlag)
         vilkårsvurderingService.opprettVilkårsvurdering(behandling, null)
 
@@ -181,13 +185,14 @@ class RegistrerPersonGrunnlagStegTest : OppslagSpringRunnerTest() {
             },
         )
 
-        val revurdering = behandlingRepository.saveAndFlush(
-            lagBehandling(
-                fagsak = behandling.fagsak,
-                type = BehandlingType.REVURDERING,
-                opprettetÅrsak = BehandlingÅrsak.ÅRLIG_KONTROLL,
-            ),
-        )
+        val revurdering =
+            behandlingRepository.saveAndFlush(
+                lagBehandling(
+                    fagsak = behandling.fagsak,
+                    type = BehandlingType.REVURDERING,
+                    opprettetÅrsak = BehandlingÅrsak.ÅRLIG_KONTROLL,
+                ),
+            )
         assertDoesNotThrow { registrerPersonGrunnlagSteg.utførSteg(revurdering.id) }
 
         verify(atLeast = 1) { beregningService.finnBarnFraBehandlingMedTilkjentYtelse(behandling.id) }

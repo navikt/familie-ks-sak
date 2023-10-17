@@ -29,14 +29,19 @@ class KlageService(
     private val vedtakService: VedtakService,
     private val tilbakekrevingKlient: TilbakekrevingKlient,
 ) {
-
-    fun opprettKlage(fagsakId: Long, opprettKlageDto: OpprettKlageDto) {
+    fun opprettKlage(
+        fagsakId: Long,
+        opprettKlageDto: OpprettKlageDto,
+    ) {
         val fagsak = fagsakService.hentFagsak(fagsakId)
 
         opprettKlage(fagsak, opprettKlageDto.kravMottattDato)
     }
 
-    fun opprettKlage(fagsak: Fagsak, kravMottattDato: LocalDate) {
+    fun opprettKlage(
+        fagsak: Fagsak,
+        kravMottattDato: LocalDate,
+    ) {
         if (kravMottattDato.isAfter(LocalDate.now())) {
             throw FunksjonellFeil("Kan ikke opprette klage med krav mottatt frem i tid")
         }
@@ -59,8 +64,9 @@ class KlageService(
     fun hentKlagebehandlingerPåFagsak(fagsakId: Long): List<KlagebehandlingDto> {
         val klagebehandligerPerFagsak = klageClient.hentKlagebehandlinger(setOf(fagsakId))
 
-        val klagerPåFagsak = klagebehandligerPerFagsak[fagsakId]
-            ?: throw Feil("Fikk ikke fagsakId=$fagsakId tilbake fra kallet til klage.")
+        val klagerPåFagsak =
+            klagebehandligerPerFagsak[fagsakId]
+                ?: throw Feil("Fikk ikke fagsakId=$fagsakId tilbake fra kallet til klage.")
 
         return klagerPåFagsak.map { it.brukVedtaksdatoFraKlageinstansHvisOversendt() }
     }

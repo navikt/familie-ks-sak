@@ -3,7 +3,6 @@ package no.nav.familie.ks.sak.common.tidslinje
 const val inf = 1_000_000_000
 
 sealed class PeriodeVerdi<T>(protected val _verdi: T?) {
-
     override operator fun equals(other: Any?): Boolean {
         if (other !is PeriodeVerdi<*>) return false
         if (other._verdi == this._verdi) return true
@@ -20,7 +19,6 @@ sealed class PeriodeVerdi<T>(protected val _verdi: T?) {
 class Verdi<T>(override val verdi: T & Any) : PeriodeVerdi<T>(verdi)
 
 class Udefinert<T> : PeriodeVerdi<T>(null) {
-
     override fun equals(other: Any?): Boolean {
         return other is Udefinert<*>
     }
@@ -33,7 +31,6 @@ class Udefinert<T> : PeriodeVerdi<T>(null) {
 }
 
 class Null<T> : PeriodeVerdi<T>(null) {
-
     override fun equals(other: Any?): Boolean {
         return other is Null<*>
     }
@@ -53,7 +50,6 @@ class Null<T> : PeriodeVerdi<T>(null) {
  * hva verdien skal være (et hull i tidslinja). En verdi er no.nav.familie.ks.sak.common.tidslinje.Null når vi vet at det ikke finnes en verdi i dette tidsrommet.
  */
 data class TidslinjePeriode<T>(val periodeVerdi: PeriodeVerdi<T>, var lengde: Int, var erUendelig: Boolean = false) {
-
     init {
         if (lengde >= inf) {
             erUendelig = true

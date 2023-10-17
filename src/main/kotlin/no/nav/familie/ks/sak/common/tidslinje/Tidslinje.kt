@@ -29,7 +29,6 @@ open class Tidslinje<T>(
     perioder: List<TidslinjePeriode<T>>,
     var tidsEnhet: TidsEnhet = TidsEnhet.DAG,
 ) {
-
     var innhold: List<TidslinjePeriode<T>> = emptyList()
         set(verdi) {
             field = this.lagInnholdBasertPåPeriodelengder(verdi)
@@ -39,12 +38,13 @@ open class Tidslinje<T>(
 
     init {
         this.innhold = perioder
-        startsTidspunkt = when (tidsEnhet) {
-            TidsEnhet.ÅR -> startsTidspunkt.withDayOfYear(1)
-            TidsEnhet.MÅNED -> startsTidspunkt.withDayOfMonth(1)
-            TidsEnhet.UKE -> startsTidspunkt.with(DayOfWeek.MONDAY)
-            TidsEnhet.DAG -> startsTidspunkt
-        }
+        startsTidspunkt =
+            when (tidsEnhet) {
+                TidsEnhet.ÅR -> startsTidspunkt.withDayOfYear(1)
+                TidsEnhet.MÅNED -> startsTidspunkt.withDayOfMonth(1)
+                TidsEnhet.UKE -> startsTidspunkt.with(DayOfWeek.MONDAY)
+                TidsEnhet.DAG -> startsTidspunkt
+            }
     }
 
     /**
@@ -76,15 +76,18 @@ open class Tidslinje<T>(
     override fun toString(): String {
         return "StartTidspunkt: " + startsTidspunkt + " Tidsenhet: " + tidsEnhet +
             " Total lengde: " + innhold.sumOf { it.lengde } +
-            " Perioder: " + innhold.mapIndexed { indeks, it ->
+            " Perioder: " +
+            innhold.mapIndexed { indeks, it ->
                 "(Verdi: " + it.periodeVerdi.verdi.toString() +
                     ", fom: " + startsTidspunkt.plus(innhold.take(indeks).sumOf { it.lengde }.toLong(), mapper[this.tidsEnhet]) +
-                    ", tom:" + kalkulerSluttTidspunkt(
+                    ", tom:" +
+                    kalkulerSluttTidspunkt(
                         startsTidspunkt.plus(
                             innhold.take(indeks).sumOf { it.lengde }.toLong() + it.lengde - 1,
                             mapper[this.tidsEnhet],
                         ),
-                    ) + ")"
+                    ) +
+                    ")"
             }
     }
 
@@ -102,11 +105,12 @@ open class Tidslinje<T>(
                 if (j >= innhold.size) break
             }
 
-            val tidslinjePeriode = TidslinjePeriode(
-                periodeVerdi = innhold[i].periodeVerdi,
-                lengde = lengde,
-                erUendelig = false,
-            )
+            val tidslinjePeriode =
+                TidslinjePeriode(
+                    periodeVerdi = innhold[i].periodeVerdi,
+                    lengde = lengde,
+                    erUendelig = false,
+                )
             i = j
             arr.add(tidslinjePeriode)
             if (tidslinjePeriode.erUendelig) return arr.toList()
@@ -130,8 +134,10 @@ open class Tidslinje<T>(
     companion object
 }
 
-fun <T> tomTidslinje(startsTidspunkt: LocalDate? = null, tidsEnhet: TidsEnhet = TidsEnhet.DAG): Tidslinje<T> =
-    Tidslinje(startsTidspunkt = startsTidspunkt ?: PRAKTISK_TIDLIGSTE_DAG, emptyList(), tidsEnhet)
+fun <T> tomTidslinje(
+    startsTidspunkt: LocalDate? = null,
+    tidsEnhet: TidsEnhet = TidsEnhet.DAG,
+): Tidslinje<T> = Tidslinje(startsTidspunkt = startsTidspunkt ?: PRAKTISK_TIDLIGSTE_DAG, emptyList(), tidsEnhet)
 
 fun <K, V, H, R> Map<K, Tidslinje<V>>.leftJoin(
     høyreTidslinjer: Map<K, Tidslinje<H>>,

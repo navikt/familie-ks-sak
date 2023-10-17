@@ -38,25 +38,28 @@ data class JournalføringRequestDto(
 
 fun JournalføringRequestDto.tilOppdaterJournalpostRequestDto(sak: Sak) =
     OppdaterJournalpostRequestDto(
-        avsenderMottaker = AvsenderMottaker(
-            id = avsender.id,
-            idType = if (avsender.id.isNotBlank()) BrukerIdType.FNR else null,
-            navn = avsender.navn,
-        ),
-        bruker = JournalpostBrukerDto(
-            id = bruker.id,
-            navn = bruker.navn,
-        ),
+        avsenderMottaker =
+            AvsenderMottaker(
+                id = avsender.id,
+                idType = if (avsender.id.isNotBlank()) BrukerIdType.FNR else null,
+                navn = avsender.navn,
+            ),
+        bruker =
+            JournalpostBrukerDto(
+                id = bruker.id,
+                navn = bruker.navn,
+            ),
         sak = sak,
         tittel = journalpostTittel,
-        dokumenter = dokumenter.map {
-            DokumentInfo(
-                dokumentInfoId = it.dokumentInfoId,
-                tittel = it.dokumentTittel,
-                brevkode = it.brevkode,
-                dokumentstatus = Dokumentstatus.FERDIGSTILT,
-            )
-        },
+        dokumenter =
+            dokumenter.map {
+                DokumentInfo(
+                    dokumentInfoId = it.dokumentInfoId,
+                    tittel = it.dokumentTittel,
+                    brevkode = it.brevkode,
+                    dokumentstatus = Dokumentstatus.FERDIGSTILT,
+                )
+            },
     )
 
 data class NavnOgIdentDto(
@@ -80,7 +83,9 @@ class JournalpostBrukerDto(
 )
 
 enum class IdType {
-    FNR, ORGNR, AKTOERID
+    FNR,
+    ORGNR,
+    AKTOERID,
 }
 
 enum class Sakstype(val type: String) {

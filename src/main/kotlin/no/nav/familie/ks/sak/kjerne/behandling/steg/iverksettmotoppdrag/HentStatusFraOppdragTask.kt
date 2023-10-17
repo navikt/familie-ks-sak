@@ -39,7 +39,6 @@ class HentStatusFraOppdragTask(
     private val taskService: TaskService,
     private val stegService: StegService,
 ) : AsyncTaskStep {
-
     override fun doTask(task: Task) {
         val statusFraOppdragDto = objectMapper.readValue(task.payload, HentStatusFraOppdragDto::class.java)
         val oppdragId = statusFraOppdragDto.oppdragId
@@ -69,25 +68,29 @@ class HentStatusFraOppdragTask(
     }
 
     companion object {
-
         const val TASK_STEP_TYPE = "hentStatusFraOppdrag"
         private val logger: Logger = LoggerFactory.getLogger(HentStatusFraOppdragTask::class.java)
 
-        fun opprettTask(behandling: Behandling, vedtakId: Long): Task {
-            val statusFraOppdragDto = HentStatusFraOppdragDto(
-                fagsystem = FAGSYSTEM,
-                personIdent = behandling.fagsak.aktør.aktivFødselsnummer(),
-                behandlingsId = behandling.id,
-                vedtaksId = vedtakId,
-            )
+        fun opprettTask(
+            behandling: Behandling,
+            vedtakId: Long,
+        ): Task {
+            val statusFraOppdragDto =
+                HentStatusFraOppdragDto(
+                    fagsystem = FAGSYSTEM,
+                    personIdent = behandling.fagsak.aktør.aktivFødselsnummer(),
+                    behandlingsId = behandling.id,
+                    vedtaksId = vedtakId,
+                )
             return Task(
                 type = TASK_STEP_TYPE,
                 payload = objectMapper.writeValueAsString(statusFraOppdragDto),
-                properties = Properties().apply {
-                    this["personIdent"] = behandling.fagsak.aktør.aktivFødselsnummer()
-                    this["behandlingsId"] = behandling.id.toString()
-                    this["vedtakId"] = vedtakId.toString()
-                },
+                properties =
+                    Properties().apply {
+                        this["personIdent"] = behandling.fagsak.aktør.aktivFødselsnummer()
+                        this["behandlingsId"] = behandling.id.toString()
+                        this["vedtakId"] = vedtakId.toString()
+                    },
             )
         }
     }

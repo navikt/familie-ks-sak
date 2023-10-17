@@ -22,7 +22,6 @@ import org.hamcrest.CoreMatchers.`is` as Is
 
 @ExtendWith(MockKExtension::class)
 class EndretUtbetalingAndelServiceTest {
-
     @MockK
     private lateinit var endretUtbetalingAndelRepository: EndretUtbetalingAndelRepository
 
@@ -46,11 +45,12 @@ class EndretUtbetalingAndelServiceTest {
         val gammelBehandling = lagBehandling()
         val nyBehandling = lagBehandling()
 
-        every { endretUtbetalingAndelRepository.hentEndretUtbetalingerForBehandling(gammelBehandling.id) } returns listOf(
-            mockk(relaxed = true),
-            mockk(relaxed = true),
-            mockk(relaxed = true),
-        )
+        every { endretUtbetalingAndelRepository.hentEndretUtbetalingerForBehandling(gammelBehandling.id) } returns
+            listOf(
+                mockk(relaxed = true),
+                mockk(relaxed = true),
+                mockk(relaxed = true),
+            )
         every { endretUtbetalingAndelRepository.save(any()) } returns mockk()
 
         endretUtbetalingAndelService.kopierEndretUtbetalingAndelFraForrigeBehandling(nyBehandling, gammelBehandling)

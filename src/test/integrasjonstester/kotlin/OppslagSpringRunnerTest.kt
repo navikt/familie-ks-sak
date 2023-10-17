@@ -65,7 +65,6 @@ import java.time.LocalDate
 @EnableMockOAuth2Server
 @Tag("integrationTest")
 abstract class OppslagSpringRunnerTest {
-
     private val listAppender = initLoggingEventListAppender()
     protected var loggingEvents: MutableList<ILoggingEvent> = listAppender.list
 
@@ -143,14 +142,20 @@ abstract class OppslagSpringRunnerTest {
         resetWiremockServers()
     }
 
-    fun opprettSøkerFagsakOgBehandling(søker: Aktør = randomAktør(), barn: Aktør = randomAktør()) {
+    fun opprettSøkerFagsakOgBehandling(
+        søker: Aktør = randomAktør(),
+        barn: Aktør = randomAktør(),
+    ) {
         this.søker = lagreAktør(søker)
         this.barn = lagreAktør(barn)
         fagsak = lagreFagsak(lagFagsak(aktør = søker, status = FagsakStatus.LØPENDE))
         behandling = lagreBehandling(lagBehandling(fagsak = fagsak, opprettetÅrsak = BehandlingÅrsak.SØKNAD))
     }
 
-    fun opprettPersonopplysningGrunnlagOgPersonForBehandling(behandlingId: Long, lagBarn: Boolean = false) {
+    fun opprettPersonopplysningGrunnlagOgPersonForBehandling(
+        behandlingId: Long,
+        lagBarn: Boolean = false,
+    ) {
         personopplysningGrunnlag = lagrePersonopplysningGrunnlag(PersonopplysningGrunnlag(behandlingId = behandlingId))
 
         lagrePerson(
@@ -194,7 +199,11 @@ abstract class OppslagSpringRunnerTest {
         }
     }
 
-    fun opprettVilkårsvurdering(aktør: Aktør, behandling: Behandling, resultat: Resultat) {
+    fun opprettVilkårsvurdering(
+        aktør: Aktør,
+        behandling: Behandling,
+        resultat: Resultat,
+    ) {
         val vilkårsvurdering = lagVilkårsvurderingMedSøkersVilkår(aktør, behandling, resultat)
         vilkårsvurderingRepository.saveAndFlush(vilkårsvurdering)
     }
@@ -204,12 +213,13 @@ abstract class OppslagSpringRunnerTest {
         subject: String = "subject1",
         behandlerRolle: BehandlerRolle? = null,
     ): String {
-        val behandlerRolleId = when (behandlerRolle) {
-            BehandlerRolle.VEILEDER -> rolleConfig.VEILEDER_ROLLE
-            BehandlerRolle.SAKSBEHANDLER -> rolleConfig.SAKSBEHANDLER_ROLLE
-            BehandlerRolle.BESLUTTER -> rolleConfig.BESLUTTER_ROLLE
-            else -> ""
-        }
+        val behandlerRolleId =
+            when (behandlerRolle) {
+                BehandlerRolle.VEILEDER -> rolleConfig.VEILEDER_ROLLE
+                BehandlerRolle.SAKSBEHANDLER -> rolleConfig.SAKSBEHANDLER_ROLLE
+                BehandlerRolle.BESLUTTER -> rolleConfig.BESLUTTER_ROLLE
+                else -> ""
+            }
 
         return mockOAuth2Server.issueToken(
             issuerId,
@@ -246,30 +256,29 @@ abstract class OppslagSpringRunnerTest {
             )
         }
 
-    fun lagrePerson(person: Person): Person =
-        personRepository.saveAndFlush(person)
+    fun lagrePerson(person: Person): Person = personRepository.saveAndFlush(person)
 
     fun lagrePersonopplysningGrunnlag(personopplysningGrunnlag: PersonopplysningGrunnlag): PersonopplysningGrunnlag =
         personopplysningGrunnlagRepository.saveAndFlush(personopplysningGrunnlag)
 
     fun lagreFagsak(fagsak: Fagsak): Fagsak = fagsakRepository.saveAndFlush(fagsak)
 
-    fun lagreBehandling(behandling: Behandling): Behandling =
-        behandlingRepository.saveAndFlush(behandling)
+    fun lagreBehandling(behandling: Behandling): Behandling = behandlingRepository.saveAndFlush(behandling)
 
     fun lagreArbeidsfordeling(arbeidsfordelingPåBehandling: ArbeidsfordelingPåBehandling) {
         arbeidsfordelingPåBehandlingRepository.saveAndFlush(arbeidsfordelingPåBehandling)
     }
 
     fun lagTilkjentYtelse(utbetalingsOppdrag: String?) {
-        tilkjentYtelse = tilkjentYtelseRepository.saveAndFlush(
-            TilkjentYtelse(
-                behandling = behandling,
-                endretDato = LocalDate.now(),
-                opprettetDato = LocalDate.now(),
-                utbetalingsoppdrag = utbetalingsOppdrag,
-            ),
-        )
+        tilkjentYtelse =
+            tilkjentYtelseRepository.saveAndFlush(
+                TilkjentYtelse(
+                    behandling = behandling,
+                    endretDato = LocalDate.now(),
+                    opprettetDato = LocalDate.now(),
+                    utbetalingsoppdrag = utbetalingsOppdrag,
+                ),
+            )
     }
 
     fun lagVedtak() {
@@ -277,7 +286,6 @@ abstract class OppslagSpringRunnerTest {
     }
 
     companion object {
-        protected fun initLoggingEventListAppender(): ListAppender<ILoggingEvent> =
-            ListAppender<ILoggingEvent>().apply { start() }
+        protected fun initLoggingEventListAppender(): ListAppender<ILoggingEvent> = ListAppender<ILoggingEvent>().apply { start() }
     }
 }

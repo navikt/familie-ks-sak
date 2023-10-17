@@ -37,22 +37,23 @@ data class KompetanseDto(
     }
 
     override fun medUtfyltStatus(): KompetanseDto {
-        var antallUtfylteFelter = finnAntallUtfylt(
-            listOf(
-                this.annenForeldersAktivitet,
-                this.barnetsBostedsland,
-                this.annenForeldersAktivitetsland,
-                this.resultat,
-                this.søkersAktivitet,
-                this.søkersAktivitetsland,
-            ),
-        )
+        var antallUtfylteFelter =
+            finnAntallUtfylt(
+                listOf(
+                    this.annenForeldersAktivitet,
+                    this.barnetsBostedsland,
+                    this.annenForeldersAktivitetsland,
+                    this.resultat,
+                    this.søkersAktivitet,
+                    this.søkersAktivitetsland,
+                ),
+            )
         if (annenForeldersAktivitetsland == null) {
             antallUtfylteFelter += (
                 annenForeldersAktivitet.let {
                     if (it == AnnenForeldersAktivitet.INAKTIV || it == AnnenForeldersAktivitet.IKKE_AKTUELT) 1 else 0
                 }
-                )
+            )
         }
         if (søkersAktivitetsland == null) {
             antallUtfylteFelter += (søkersAktivitet.let { if (it == SøkersAktivitet.INAKTIV) 1 else 0 })
@@ -61,27 +62,29 @@ data class KompetanseDto(
     }
 }
 
-fun KompetanseDto.tilKompetanse(barnAktører: List<Aktør>) = Kompetanse(
-    fom = this.fom,
-    tom = this.tom,
-    barnAktører = barnAktører.toSet(),
-    søkersAktivitet = this.søkersAktivitet,
-    søkersAktivitetsland = this.søkersAktivitetsland,
-    annenForeldersAktivitet = this.annenForeldersAktivitet,
-    annenForeldersAktivitetsland = this.annenForeldersAktivitetsland,
-    barnetsBostedsland = this.barnetsBostedsland,
-    resultat = this.resultat,
-)
+fun KompetanseDto.tilKompetanse(barnAktører: List<Aktør>) =
+    Kompetanse(
+        fom = this.fom,
+        tom = this.tom,
+        barnAktører = barnAktører.toSet(),
+        søkersAktivitet = this.søkersAktivitet,
+        søkersAktivitetsland = this.søkersAktivitetsland,
+        annenForeldersAktivitet = this.annenForeldersAktivitet,
+        annenForeldersAktivitetsland = this.annenForeldersAktivitetsland,
+        barnetsBostedsland = this.barnetsBostedsland,
+        resultat = this.resultat,
+    )
 
-fun Kompetanse.tilKompetanseDto() = KompetanseDto(
-    id = this.id,
-    fom = this.fom,
-    tom = this.tom,
-    barnIdenter = barnAktører.map { it.aktivFødselsnummer() },
-    søkersAktivitet = this.søkersAktivitet,
-    søkersAktivitetsland = this.søkersAktivitetsland,
-    annenForeldersAktivitet = this.annenForeldersAktivitet,
-    annenForeldersAktivitetsland = this.annenForeldersAktivitetsland,
-    barnetsBostedsland = this.barnetsBostedsland,
-    resultat = this.resultat,
-).medUtfyltStatus()
+fun Kompetanse.tilKompetanseDto() =
+    KompetanseDto(
+        id = this.id,
+        fom = this.fom,
+        tom = this.tom,
+        barnIdenter = barnAktører.map { it.aktivFødselsnummer() },
+        søkersAktivitet = this.søkersAktivitet,
+        søkersAktivitetsland = this.søkersAktivitetsland,
+        annenForeldersAktivitet = this.annenForeldersAktivitet,
+        annenForeldersAktivitetsland = this.annenForeldersAktivitetsland,
+        barnetsBostedsland = this.barnetsBostedsland,
+        resultat = this.resultat,
+    ).medUtfyltStatus()

@@ -4,15 +4,15 @@ import no.nav.familie.ks.sak.integrasjon.økonomi.utbetalingsoppdrag.AndelTilkje
 import java.time.YearMonth
 
 object ØkonomiUtils {
-
     /**
      * Deler andeler inn i gruppene de skal kjedes i. Utbetalingsperioder kobles i kjeder per person
      *
      * @param[andelerForInndeling] andeler som skal sorteres i grupper for kjeding
      * @return ident med kjedegruppe.
      */
-    fun kjedeinndelteAndeler(andelerForInndeling: List<AndelTilkjentYtelseForUtbetalingsoppdrag>): Map<String, List<AndelTilkjentYtelseForUtbetalingsoppdrag>> =
-        andelerForInndeling.groupBy { it.aktør.aktivFødselsnummer() }
+    fun kjedeinndelteAndeler(
+        andelerForInndeling: List<AndelTilkjentYtelseForUtbetalingsoppdrag>,
+    ): Map<String, List<AndelTilkjentYtelseForUtbetalingsoppdrag>> = andelerForInndeling.groupBy { it.aktør.aktivFødselsnummer() }
 
     /**
      * Finn alle presidenter i forrige og oppdatert liste. Presidentene er identifikatorn for hver kjede.
@@ -25,8 +25,7 @@ object ØkonomiUtils {
     fun sisteAndelPerKjede(
         forrigeKjeder: Map<String, List<AndelTilkjentYtelseForUtbetalingsoppdrag>>,
         oppdaterteKjeder: Map<String, List<AndelTilkjentYtelseForUtbetalingsoppdrag>>,
-    ): Map<String, AndelTilkjentYtelseForUtbetalingsoppdrag?> =
-        forrigeKjeder.keys.union(oppdaterteKjeder.keys).associateWith { null }
+    ): Map<String, AndelTilkjentYtelseForUtbetalingsoppdrag?> = forrigeKjeder.keys.union(oppdaterteKjeder.keys).associateWith { null }
 
     /**
      * Lager oversikt over siste andel i hver kjede som finnes uten endring i oppdatert tilstand.
@@ -126,8 +125,9 @@ object ØkonomiUtils {
                         oppdatertKjede = oppdatertKjede,
                     )
                 beståendeFraForrige?.forEach { bestående ->
-                    val beståendeIOppdatert = oppdatertKjede.find { it.erTilsvarendeForUtbetaling(bestående) }
-                        ?: error("Kan ikke finne andel fra utledet bestående andeler i oppdatert tilstand.")
+                    val beståendeIOppdatert =
+                        oppdatertKjede.find { it.erTilsvarendeForUtbetaling(bestående) }
+                            ?: error("Kan ikke finne andel fra utledet bestående andeler i oppdatert tilstand.")
 
                     beståendeIOppdatert.periodeOffset = bestående.periodeOffset
                     beståendeIOppdatert.forrigePeriodeOffset = bestående.forrigePeriodeOffset
@@ -137,13 +137,15 @@ object ØkonomiUtils {
         return oppdaterteKjeder
     }
 
-    fun gjeldendeForrigeOffsetForKjede(andelerFraForrigeBehandling: Map<String, List<AndelTilkjentYtelseForUtbetalingsoppdrag>>): Map<String, Int> =
+    fun gjeldendeForrigeOffsetForKjede(
+        andelerFraForrigeBehandling: Map<String, List<AndelTilkjentYtelseForUtbetalingsoppdrag>>,
+    ): Map<String, Int> =
         andelerFraForrigeBehandling.map { (personIdent, forrigeKjede) ->
             personIdent to (
                 forrigeKjede.filter { it.kalkulertUtbetalingsbeløp > 0 }
                     .maxByOrNull { andel -> andel.periodeOffset!! }?.periodeOffset?.toInt()
                     ?: throw IllegalStateException("Andel i kjede skal ha offset")
-                )
+            )
         }.toMap()
 
     private fun beståendeAndelerIKjede(
@@ -161,30 +163,38 @@ object ØkonomiUtils {
         }
     }
 
-    private fun Set<AndelTilkjentYtelseForUtbetalingsoppdrag>.snittAndeler(other: Set<AndelTilkjentYtelseForUtbetalingsoppdrag>): Set<AndelTilkjentYtelseForUtbetalingsoppdrag> {
+    private fun Set<AndelTilkjentYtelseForUtbetalingsoppdrag>.snittAndeler(
+        other: Set<AndelTilkjentYtelseForUtbetalingsoppdrag>,
+    ): Set<AndelTilkjentYtelseForUtbetalingsoppdrag> {
         val andelerKunIDenne = this.subtractAndeler(other)
         return this.subtractAndeler(andelerKunIDenne)
     }
 
-    private fun Set<AndelTilkjentYtelseForUtbetalingsoppdrag>.subtractAndeler(other: Set<AndelTilkjentYtelseForUtbetalingsoppdrag>): Set<AndelTilkjentYtelseForUtbetalingsoppdrag> {
+    private fun Set<AndelTilkjentYtelseForUtbetalingsoppdrag>.subtractAndeler(
+        other: Set<AndelTilkjentYtelseForUtbetalingsoppdrag>,
+    ): Set<AndelTilkjentYtelseForUtbetalingsoppdrag> {
         return this.filter { a ->
             other.none { b -> a.erTilsvarendeForUtbetaling(b) }
         }.toSet()
     }
 
-    private fun Set<AndelTilkjentYtelseForUtbetalingsoppdrag>.disjunkteAndeler(other: Set<AndelTilkjentYtelseForUtbetalingsoppdrag>): Set<AndelTilkjentYtelseForUtbetalingsoppdrag> {
+    private fun Set<AndelTilkjentYtelseForUtbetalingsoppdrag>.disjunkteAndeler(
+        other: Set<AndelTilkjentYtelseForUtbetalingsoppdrag>,
+    ): Set<AndelTilkjentYtelseForUtbetalingsoppdrag> {
         val andelerKunIDenne = this.subtractAndeler(other)
         val andelerKunIAnnen = other.subtractAndeler(this)
         return andelerKunIDenne.union(andelerKunIAnnen)
     }
 
-    private fun AndelTilkjentYtelseForUtbetalingsoppdrag.erTilsvarendeForUtbetaling(other: AndelTilkjentYtelseForUtbetalingsoppdrag): Boolean {
+    private fun AndelTilkjentYtelseForUtbetalingsoppdrag.erTilsvarendeForUtbetaling(
+        other: AndelTilkjentYtelseForUtbetalingsoppdrag,
+    ): Boolean {
         return (
             this.aktør == other.aktør &&
                 this.stønadFom == other.stønadFom &&
                 this.stønadTom == other.stønadTom &&
                 this.kalkulertUtbetalingsbeløp == other.kalkulertUtbetalingsbeløp &&
                 this.type == other.type
-            )
+        )
     }
 }

@@ -18,7 +18,6 @@ import org.junit.jupiter.api.extension.ExtendWith
 
 @ExtendWith(MockKExtension::class)
 class FerdigstillOppgaverTaskTest {
-
     @MockK
     private lateinit var oppgaveService: OppgaveService
 

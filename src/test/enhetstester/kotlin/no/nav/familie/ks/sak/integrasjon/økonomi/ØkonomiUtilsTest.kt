@@ -22,30 +22,31 @@ import org.hamcrest.CoreMatchers.`is` as Is
 
 @ExtendWith(MockKExtension::class)
 internal class ØkonomiUtilsTest {
-
     @Test
     fun `kjedeinndelteAndeler skal returnere siste før første berørte andel i kjede`() {
         val behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD)
         val aktør = fnrTilAktør(randomFnr())
         val aktør2 = fnrTilAktør(randomFnr())
 
-        val kjederBehandling1 = kjedeinndelteAndeler(
-            listOf(
-                lagAndelTilkjentYtelse(null, behandling, aktør, årMåned("2019-04"), årMåned("2020-01")),
-                lagAndelTilkjentYtelse(null, behandling, aktør, årMåned("2022-01"), årMåned("2023-01")),
-                lagAndelTilkjentYtelse(null, behandling, aktør2, årMåned("2019-04"), årMåned("2020-01")),
-                lagAndelTilkjentYtelse(null, behandling, aktør2, årMåned("2022-01"), årMåned("2023-01")),
-            ).forIverksetting(),
-        )
+        val kjederBehandling1 =
+            kjedeinndelteAndeler(
+                listOf(
+                    lagAndelTilkjentYtelse(null, behandling, aktør, årMåned("2019-04"), årMåned("2020-01")),
+                    lagAndelTilkjentYtelse(null, behandling, aktør, årMåned("2022-01"), årMåned("2023-01")),
+                    lagAndelTilkjentYtelse(null, behandling, aktør2, årMåned("2019-04"), årMåned("2020-01")),
+                    lagAndelTilkjentYtelse(null, behandling, aktør2, årMåned("2022-01"), årMåned("2023-01")),
+                ).forIverksetting(),
+            )
 
-        val kjederBehandling2 = kjedeinndelteAndeler(
-            listOf(
-                lagAndelTilkjentYtelse(null, behandling, aktør, årMåned("2019-04"), årMåned("2020-01")),
-                lagAndelTilkjentYtelse(null, behandling, aktør, årMåned("2022-01"), årMåned("2022-10")),
-                lagAndelTilkjentYtelse(null, behandling, aktør2, årMåned("2019-04"), årMåned("2020-01")),
-                lagAndelTilkjentYtelse(null, behandling, aktør2, årMåned("2022-01"), årMåned("2023-01")),
-            ).forIverksetting(),
-        )
+        val kjederBehandling2 =
+            kjedeinndelteAndeler(
+                listOf(
+                    lagAndelTilkjentYtelse(null, behandling, aktør, årMåned("2019-04"), årMåned("2020-01")),
+                    lagAndelTilkjentYtelse(null, behandling, aktør, årMåned("2022-01"), årMåned("2022-10")),
+                    lagAndelTilkjentYtelse(null, behandling, aktør2, årMåned("2019-04"), årMåned("2020-01")),
+                    lagAndelTilkjentYtelse(null, behandling, aktør2, årMåned("2022-01"), årMåned("2023-01")),
+                ).forIverksetting(),
+            )
 
         val sisteBeståendePerKjede =
             sisteBeståendeAndelPerKjede(forrigeKjeder = kjederBehandling1, oppdaterteKjeder = kjederBehandling2)
@@ -59,19 +60,21 @@ internal class ØkonomiUtilsTest {
         val behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD)
         val aktør = fnrTilAktør(randomFnr())
 
-        val kjederBehandling1 = kjedeinndelteAndeler(
-            listOf(
-                lagAndelTilkjentYtelse(null, behandling, aktør, årMåned("2019-04"), årMåned("2020-01")),
-                lagAndelTilkjentYtelse(null, behandling, aktør, årMåned("2022-01"), årMåned("2023-01")),
-            ).forIverksetting(),
-        )
+        val kjederBehandling1 =
+            kjedeinndelteAndeler(
+                listOf(
+                    lagAndelTilkjentYtelse(null, behandling, aktør, årMåned("2019-04"), årMåned("2020-01")),
+                    lagAndelTilkjentYtelse(null, behandling, aktør, årMåned("2022-01"), årMåned("2023-01")),
+                ).forIverksetting(),
+            )
 
-        val kjederBehandling2 = kjedeinndelteAndeler(
-            listOf(
-                lagAndelTilkjentYtelse(null, behandling, aktør, årMåned("2018-04"), årMåned("2020-01")),
-                lagAndelTilkjentYtelse(null, behandling, aktør, årMåned("2022-01"), årMåned("2023-01")),
-            ).forIverksetting(),
-        )
+        val kjederBehandling2 =
+            kjedeinndelteAndeler(
+                listOf(
+                    lagAndelTilkjentYtelse(null, behandling, aktør, årMåned("2018-04"), årMåned("2020-01")),
+                    lagAndelTilkjentYtelse(null, behandling, aktør, årMåned("2022-01"), årMåned("2023-01")),
+                ).forIverksetting(),
+            )
 
         val sisteBeståendePerKjede =
             sisteBeståendeAndelPerKjede(forrigeKjeder = kjederBehandling1, oppdaterteKjeder = kjederBehandling2)
@@ -84,12 +87,13 @@ internal class ØkonomiUtilsTest {
         val behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD)
         val aktør = fnrTilAktør(randomFnr())
 
-        val kjederBehandling = kjedeinndelteAndeler(
-            listOf(
-                lagAndelTilkjentYtelse(null, behandling, aktør, årMåned("2023-10"), årMåned("2025-01")),
-                lagAndelTilkjentYtelse(null, behandling, aktør, årMåned("2027-10"), årMåned("2028-01")),
-            ).forIverksetting(),
-        )
+        val kjederBehandling =
+            kjedeinndelteAndeler(
+                listOf(
+                    lagAndelTilkjentYtelse(null, behandling, aktør, årMåned("2023-10"), årMåned("2025-01")),
+                    lagAndelTilkjentYtelse(null, behandling, aktør, årMåned("2027-10"), årMåned("2028-01")),
+                ).forIverksetting(),
+            )
 
         val sisteBeståendePerKjede =
             sisteBeståendeAndelPerKjede(forrigeKjeder = emptyMap(), oppdaterteKjeder = kjederBehandling)
@@ -105,21 +109,23 @@ internal class ØkonomiUtilsTest {
         val datoSomSkalOppdateres = "2022-01"
         val datoSomErOppdatert = "2021-01"
 
-        val kjederBehandling = kjedeinndelteAndeler(
-            listOf(
-                lagAndelTilkjentYtelse(null, behandling, aktør, årMåned("2019-04"), årMåned("2020-01")),
-                lagAndelTilkjentYtelse(null, behandling, aktør, årMåned(datoSomSkalOppdateres), årMåned("2023-01")),
-                lagAndelTilkjentYtelse(null, behandling, aktør, årMåned("2025-04"), årMåned("2026-01")),
-            ).forIverksetting(),
-        )
+        val kjederBehandling =
+            kjedeinndelteAndeler(
+                listOf(
+                    lagAndelTilkjentYtelse(null, behandling, aktør, årMåned("2019-04"), årMåned("2020-01")),
+                    lagAndelTilkjentYtelse(null, behandling, aktør, årMåned(datoSomSkalOppdateres), årMåned("2023-01")),
+                    lagAndelTilkjentYtelse(null, behandling, aktør, årMåned("2025-04"), årMåned("2026-01")),
+                ).forIverksetting(),
+            )
 
-        val kjederBehandling2 = kjedeinndelteAndeler(
-            listOf(
-                lagAndelTilkjentYtelse(null, behandling, aktør, årMåned("2019-04"), årMåned("2020-01")),
-                lagAndelTilkjentYtelse(null, behandling, aktør, årMåned(datoSomErOppdatert), årMåned("2023-01")),
-                lagAndelTilkjentYtelse(null, behandling, aktør, årMåned("2025-04"), årMåned("2026-01")),
-            ).forIverksetting(),
-        )
+        val kjederBehandling2 =
+            kjedeinndelteAndeler(
+                listOf(
+                    lagAndelTilkjentYtelse(null, behandling, aktør, årMåned("2019-04"), årMåned("2020-01")),
+                    lagAndelTilkjentYtelse(null, behandling, aktør, årMåned(datoSomErOppdatert), årMåned("2023-01")),
+                    lagAndelTilkjentYtelse(null, behandling, aktør, årMåned("2025-04"), årMåned("2026-01")),
+                ).forIverksetting(),
+            )
 
         val sisteBeståendePerKjede =
             sisteBeståendeAndelPerKjede(forrigeKjeder = kjederBehandling, oppdaterteKjeder = kjederBehandling2)
@@ -141,21 +147,23 @@ internal class ØkonomiUtilsTest {
         val datoSomSkalOppdateres = "2022-01"
         val datoSomErOppdatert = "2021-01"
 
-        val kjederBehandling = kjedeinndelteAndeler(
-            listOf(
-                lagAndelTilkjentYtelse(null, behandling, aktør, årMåned("2019-04"), årMåned("2020-01")),
-                lagAndelTilkjentYtelse(null, behandling, aktør, årMåned(datoSomSkalOppdateres), årMåned("2023-01")),
-                lagAndelTilkjentYtelse(null, behandling, aktør, årMåned("2025-04"), årMåned("2026-01")),
-            ).forIverksetting(),
-        )
+        val kjederBehandling =
+            kjedeinndelteAndeler(
+                listOf(
+                    lagAndelTilkjentYtelse(null, behandling, aktør, årMåned("2019-04"), årMåned("2020-01")),
+                    lagAndelTilkjentYtelse(null, behandling, aktør, årMåned(datoSomSkalOppdateres), årMåned("2023-01")),
+                    lagAndelTilkjentYtelse(null, behandling, aktør, årMåned("2025-04"), årMåned("2026-01")),
+                ).forIverksetting(),
+            )
 
-        val kjederBehandling2 = kjedeinndelteAndeler(
-            listOf(
-                lagAndelTilkjentYtelse(null, behandling, aktør, årMåned("2019-04"), årMåned("2020-01")),
-                lagAndelTilkjentYtelse(null, behandling, aktør, årMåned(datoSomErOppdatert), årMåned("2023-01")),
-                lagAndelTilkjentYtelse(null, behandling, aktør, årMåned("2025-04"), årMåned("2026-01")),
-            ).forIverksetting(),
-        )
+        val kjederBehandling2 =
+            kjedeinndelteAndeler(
+                listOf(
+                    lagAndelTilkjentYtelse(null, behandling, aktør, årMåned("2019-04"), årMåned("2020-01")),
+                    lagAndelTilkjentYtelse(null, behandling, aktør, årMåned(datoSomErOppdatert), årMåned("2023-01")),
+                    lagAndelTilkjentYtelse(null, behandling, aktør, årMåned("2025-04"), årMåned("2026-01")),
+                ).forIverksetting(),
+            )
 
         val sisteBeståendePerKjede =
             sisteBeståendeAndelPerKjede(forrigeKjeder = kjederBehandling, oppdaterteKjeder = kjederBehandling2)
@@ -176,35 +184,37 @@ internal class ØkonomiUtilsTest {
         val aktør = fnrTilAktør(randomFnr())
         val aktør2 = fnrTilAktør(randomFnr())
 
-        val kjederBehandling = kjedeinndelteAndeler(
-            listOf(
-                lagAndelTilkjentYtelse(
-                    null,
-                    behandling,
-                    aktør,
-                    årMåned("2019-04"),
-                    årMåned("2020-01"),
-                    periodeOffset = 1,
-                    forrigePeriodeOffset = 0,
-                ),
-                lagAndelTilkjentYtelse(
-                    null,
-                    behandling,
-                    aktør2,
-                    årMåned("2019-04"),
-                    årMåned("2020-01"),
-                    periodeOffset = 3,
-                    forrigePeriodeOffset = 2,
-                ),
-            ).forIverksetting(),
-        )
+        val kjederBehandling =
+            kjedeinndelteAndeler(
+                listOf(
+                    lagAndelTilkjentYtelse(
+                        null,
+                        behandling,
+                        aktør,
+                        årMåned("2019-04"),
+                        årMåned("2020-01"),
+                        periodeOffset = 1,
+                        forrigePeriodeOffset = 0,
+                    ),
+                    lagAndelTilkjentYtelse(
+                        null,
+                        behandling,
+                        aktør2,
+                        årMåned("2019-04"),
+                        årMåned("2020-01"),
+                        periodeOffset = 3,
+                        forrigePeriodeOffset = 2,
+                    ),
+                ).forIverksetting(),
+            )
 
-        val kjederBehandling2 = kjedeinndelteAndeler(
-            listOf(
-                lagAndelTilkjentYtelse(null, behandling, aktør, årMåned("2019-04"), årMåned("2020-01")),
-                lagAndelTilkjentYtelse(null, behandling, aktør2, årMåned("2019-12"), årMåned("2020-01")),
-            ).forIverksetting(),
-        )
+        val kjederBehandling2 =
+            kjedeinndelteAndeler(
+                listOf(
+                    lagAndelTilkjentYtelse(null, behandling, aktør, årMåned("2019-04"), årMåned("2020-01")),
+                    lagAndelTilkjentYtelse(null, behandling, aktør2, årMåned("2019-12"), årMåned("2020-01")),
+                ).forIverksetting(),
+            )
 
         val oppdaterteBeståendeAndeler =
             oppdaterBeståendeAndelerMedOffset(
@@ -224,6 +234,5 @@ internal class ØkonomiUtilsTest {
         )
     }
 
-    private fun Collection<AndelTilkjentYtelse>.forIverksetting() =
-        AndelTilkjentYtelseForIverksetting.Factory.pakkInnForUtbetaling(this)
+    private fun Collection<AndelTilkjentYtelse>.forIverksetting() = AndelTilkjentYtelseForIverksetting.Factory.pakkInnForUtbetaling(this)
 }

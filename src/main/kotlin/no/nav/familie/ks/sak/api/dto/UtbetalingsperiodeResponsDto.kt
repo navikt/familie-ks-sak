@@ -39,9 +39,10 @@ fun List<AndelTilkjentYtelseMedEndreteUtbetalinger>.tilUtbetalingsperiodeRespons
             periodeFom = checkNotNull(it.fom),
             periodeTom = checkNotNull(it.tom),
             utbetaltPerMnd = sumUtbetalingsbeløp,
-            antallBarn = andelerForPeriode.count { andel ->
-                personopplysningGrunnlag.barna.any { barn -> barn.aktør == andel.aktør }
-            },
+            antallBarn =
+                andelerForPeriode.count { andel ->
+                    personopplysningGrunnlag.barna.any { barn -> barn.aktør == andel.aktør }
+                },
             utbetalingsperiodeDetaljer = andelerForPeriode.tilUtbetalingsperiodeDetaljDto(personopplysningGrunnlag),
         )
     }
@@ -51,8 +52,9 @@ private fun Collection<AndelTilkjentYtelseMedEndreteUtbetalinger>.tilUtbetalings
     personopplysningGrunnlag: PersonopplysningGrunnlag,
 ): List<UtbetalingsperiodeDetaljDto> =
     this.map { andel ->
-        val personForAndel = personopplysningGrunnlag.personer.find { person -> andel.aktør == person.aktør }
-            ?: throw Feil("Fant ikke personopplysningsgrunnlag for andel")
+        val personForAndel =
+            personopplysningGrunnlag.personer.find { person -> andel.aktør == person.aktør }
+                ?: throw Feil("Fant ikke personopplysningsgrunnlag for andel")
 
         UtbetalingsperiodeDetaljDto(
             person = BehandlingMapper.lagPersonRespons(personForAndel, emptyMap()),
@@ -62,9 +64,10 @@ private fun Collection<AndelTilkjentYtelseMedEndreteUtbetalinger>.tilUtbetalings
         )
     }
 
-fun UtbetalingsperiodeDetalj.tilUtbetalingsperiodeDetaljDto() = UtbetalingsperiodeDetaljDto(
-    person = BehandlingMapper.lagPersonRespons(this.person, emptyMap()),
-    utbetaltPerMnd = this.utbetaltPerMnd,
-    erPåvirketAvEndring = this.erPåvirketAvEndring,
-    prosent = this.prosent,
-)
+fun UtbetalingsperiodeDetalj.tilUtbetalingsperiodeDetaljDto() =
+    UtbetalingsperiodeDetaljDto(
+        person = BehandlingMapper.lagPersonRespons(this.person, emptyMap()),
+        utbetaltPerMnd = this.utbetaltPerMnd,
+        erPåvirketAvEndring = this.erPåvirketAvEndring,
+        prosent = this.prosent,
+    )

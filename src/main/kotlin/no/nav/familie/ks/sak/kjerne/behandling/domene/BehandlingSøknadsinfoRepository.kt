@@ -5,7 +5,6 @@ import org.springframework.data.jpa.repository.Query
 import java.time.LocalDateTime
 
 interface BehandlingSøknadsinfoRepository : JpaRepository<BehandlingSøknadsinfo, Long> {
-
     @Query(
         """
             SELECT COUNT(*) AS totalt,
@@ -19,11 +18,13 @@ interface BehandlingSøknadsinfoRepository : JpaRepository<BehandlingSøknadsinf
     """,
         nativeQuery = true,
     )
-    fun hentAntallSøknaderIPeriode(fomDato: LocalDateTime, tomDato: LocalDateTime): AntallSøknader
+    fun hentAntallSøknaderIPeriode(
+        fomDato: LocalDateTime,
+        tomDato: LocalDateTime,
+    ): AntallSøknader
 }
 
 interface AntallSøknader {
-
     val totalt: Int
     val digitalt: Int?
     val papir: Int?

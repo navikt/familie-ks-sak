@@ -13,7 +13,6 @@ import org.springframework.transaction.annotation.Transactional
 import org.hamcrest.CoreMatchers.`is` as Is
 
 class VedtaksperiodeRepositoryTest : OppslagSpringRunnerTest() {
-
     @Autowired
     private lateinit var vedtaksperiodeRepository: VedtaksperiodeRepository
 

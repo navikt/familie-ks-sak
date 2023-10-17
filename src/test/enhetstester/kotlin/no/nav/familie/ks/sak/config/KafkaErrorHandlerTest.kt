@@ -23,14 +23,15 @@ class KafkaErrorHandlerTest {
 
     @Test
     fun `handle skal stoppe container hvis man mottar feil med en tom liste med records`() {
-        val exceptionThrown = Assertions.assertThatThrownBy {
-            errorHandler.handleRemaining(
-                RuntimeException("Feil i test"),
-                emptyList(),
-                consumer,
-                container,
-            )
-        }
+        val exceptionThrown =
+            Assertions.assertThatThrownBy {
+                errorHandler.handleRemaining(
+                    RuntimeException("Feil i test"),
+                    emptyList(),
+                    consumer,
+                    container,
+                )
+            }
         exceptionThrown.hasCauseExactlyInstanceOf(Exception::class.java)
 
         val cause = exceptionThrown.cause()
@@ -41,14 +42,15 @@ class KafkaErrorHandlerTest {
     @Test
     fun `handle skal stoppe container hvis man mottar feil med en liste med records`() {
         val consumerRecord = ConsumerRecord("topic", 1, 1, 1, "record")
-        val exceptionThrown = Assertions.assertThatThrownBy {
-            errorHandler.handleRemaining(
-                RuntimeException("Feil i test"),
-                listOf(consumerRecord),
-                consumer,
-                container,
-            )
-        }
+        val exceptionThrown =
+            Assertions.assertThatThrownBy {
+                errorHandler.handleRemaining(
+                    RuntimeException("Feil i test"),
+                    listOf(consumerRecord),
+                    consumer,
+                    container,
+                )
+            }
         exceptionThrown.hasCauseExactlyInstanceOf(Exception::class.java)
 
         val cause = exceptionThrown.cause()

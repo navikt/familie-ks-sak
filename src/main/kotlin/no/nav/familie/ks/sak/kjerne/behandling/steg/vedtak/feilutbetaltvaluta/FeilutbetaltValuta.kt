@@ -21,7 +21,6 @@ data class FeilutbetaltValuta(
     var tom: LocalDate,
     @Column(name = "feilutbetalt_beloep", nullable = false)
     var feilutbetaltBeløp: Int,
-
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "feilutbetalt_valuta_seq_generator")
     @SequenceGenerator(

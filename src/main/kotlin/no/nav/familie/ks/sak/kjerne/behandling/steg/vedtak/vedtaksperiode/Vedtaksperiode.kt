@@ -14,7 +14,6 @@ import java.time.LocalDate
     JsonSubTypes.Type(value = Opphørsperiode::class, name = "OPPHØR"),
 )
 interface Vedtaksperiode {
-
     val periodeFom: LocalDate?
     val periodeTom: LocalDate?
     val vedtaksperiodetype: Vedtaksperiodetype
@@ -35,9 +34,7 @@ enum class Vedtaksperiodetype(val tillatteBegrunnelsestyper: List<BegrunnelseTyp
     FORTSATT_INNVILGET(listOf(BegrunnelseType.FORTSATT_INNVILGET)),
 }
 
-fun Vedtaksperiode.tilVedtaksperiodeMedBegrunnelse(
-    vedtak: Vedtak,
-): VedtaksperiodeMedBegrunnelser =
+fun Vedtaksperiode.tilVedtaksperiodeMedBegrunnelse(vedtak: Vedtak): VedtaksperiodeMedBegrunnelser =
     VedtaksperiodeMedBegrunnelser(
         fom = this.periodeFom,
         tom = this.periodeTom,

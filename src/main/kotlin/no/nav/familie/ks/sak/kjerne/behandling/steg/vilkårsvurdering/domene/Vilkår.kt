@@ -10,7 +10,6 @@ enum class Vilkår(
     val beskrivelse: String,
     val harRegelverk: Boolean,
 ) {
-
     BOSATT_I_RIKET(
         parterDetteGjelderFor = listOf(PersonType.SØKER, PersonType.BARN),
         ytelseType = YtelseType.ORDINÆR_KONTANTSTØTTE,
@@ -50,9 +49,7 @@ enum class Vilkår(
     ;
 
     companion object {
-
-        fun hentVilkårFor(personType: PersonType): Set<Vilkår> =
-            values().filter { personType in it.parterDetteGjelderFor }.toSet()
+        fun hentVilkårFor(personType: PersonType): Set<Vilkår> = values().filter { personType in it.parterDetteGjelderFor }.toSet()
     }
 
     fun defaultRegelverk(behandlingKategori: BehandlingKategori): Regelverk? {

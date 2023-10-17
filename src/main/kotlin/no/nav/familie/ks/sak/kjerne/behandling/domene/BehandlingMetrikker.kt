@@ -67,8 +67,7 @@ class BehandlingMetrikker(
         behandlingstid.record(dagerSidenOpprettet.toDouble())
     }
 
-    private fun tellBehandlingsresultatTypeMetrikk(behandling: Behandling) =
-        antallBehandlingsresultat[behandling.resultat]?.increment()
+    private fun tellBehandlingsresultatTypeMetrikk(behandling: Behandling) = antallBehandlingsresultat[behandling.resultat]?.increment()
 
     private fun initBehandlingTypeMetrikker(): Map<BehandlingType, Counter> =
         BehandlingType.values().associateWith {
@@ -108,15 +107,16 @@ class BehandlingMetrikker(
         val behandlinger = behandlingRepository.count()
         val dagensDato = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
 
-        val multiGaugeRows = mutableListOf(
-            MultiGauge.Row.of(
-                Tags.of(
-                    ÅR_MÅNED_DAG,
-                    dagensDato,
+        val multiGaugeRows =
+            mutableListOf(
+                MultiGauge.Row.of(
+                    Tags.of(
+                        ÅR_MÅNED_DAG,
+                        dagensDato,
+                    ),
+                    behandlinger,
                 ),
-                behandlinger,
-            ),
-        )
+            )
 
         enheter.forEach { enhet ->
             val behandlingerPåEnhet = arbeidsfordelingService.hentAlleBehandlingerPåEnhet(enhet)

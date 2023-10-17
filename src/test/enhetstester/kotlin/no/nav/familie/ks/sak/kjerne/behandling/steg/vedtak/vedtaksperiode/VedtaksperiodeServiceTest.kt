@@ -52,7 +52,6 @@ import org.hamcrest.CoreMatchers.`is` as Is
 
 @ExtendWith(MockKExtension::class)
 internal class VedtaksperiodeServiceTest {
-
     @MockK
     private lateinit var behandlingRepository: BehandlingRepository
 
@@ -114,20 +113,22 @@ internal class VedtaksperiodeServiceTest {
     fun `oppdaterVedtaksperiodeMedBegrunnelser skal kaste feil dersom begrunnelse ikke er tillatt for vedtaksperiode type`(
         begrunnelse: Begrunnelse,
     ) {
-        val vedtaksperiodeMedBegrunnelse = VedtaksperiodeMedBegrunnelser(
-            id = 0,
-            vedtak = Vedtak(id = 0, behandling = behandling),
-            type = Vedtaksperiodetype.UTBETALING,
-        )
+        val vedtaksperiodeMedBegrunnelse =
+            VedtaksperiodeMedBegrunnelser(
+                id = 0,
+                vedtak = Vedtak(id = 0, behandling = behandling),
+                type = Vedtaksperiodetype.UTBETALING,
+            )
 
         val mocketPersonOpplysningGrunnlag = mockk<PersonopplysningGrunnlag>()
 
         every { personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(behandling.id) } returns mocketPersonOpplysningGrunnlag
         every { vedtaksperiodeHentOgPersisterService.hentVedtaksperiodeThrows(any()) } returns vedtaksperiodeMedBegrunnelse
 
-        val feil = assertThrows<Feil> {
-            vedtaksperiodeService.oppdaterVedtaksperiodeMedBegrunnelser(1, listOf(begrunnelse))
-        }
+        val feil =
+            assertThrows<Feil> {
+                vedtaksperiodeService.oppdaterVedtaksperiodeMedBegrunnelser(1, listOf(begrunnelse))
+            }
 
         assertThat(
             feil.message,
@@ -143,11 +144,12 @@ internal class VedtaksperiodeServiceTest {
     fun `oppdaterVedtaksperiodeMedBegrunnelser skal oppdatere vedtaksperioder dersom begrunnelse er tillatt for vedtakstype`(
         begrunnelse: Begrunnelse,
     ) {
-        val vedtaksperiodeMedBegrunnelse = VedtaksperiodeMedBegrunnelser(
-            id = 0,
-            vedtak = Vedtak(id = 0, behandling = behandling),
-            type = Vedtaksperiodetype.UTBETALING,
-        )
+        val vedtaksperiodeMedBegrunnelse =
+            VedtaksperiodeMedBegrunnelser(
+                id = 0,
+                vedtak = Vedtak(id = 0, behandling = behandling),
+                type = Vedtaksperiodetype.UTBETALING,
+            )
 
         val mocketPersonOpplysningGrunnlag = mockk<PersonopplysningGrunnlag>()
 
@@ -202,9 +204,10 @@ internal class VedtaksperiodeServiceTest {
                 type = Vedtaksperiodetype.FORTSATT_INNVILGET,
             )
 
-        every { vedtaksperiodeHentOgPersisterService.hentVedtaksperioderFor(1) } returns listOf(
-            gammelVedtaksperiodeMedBegrunnelse,
-        )
+        every { vedtaksperiodeHentOgPersisterService.hentVedtaksperioderFor(1) } returns
+            listOf(
+                gammelVedtaksperiodeMedBegrunnelse,
+            )
         every { vedtaksperiodeHentOgPersisterService.lagre(capture(vedtaksperiodeMedBegrunnelseSlot)) } returnsArgument 0
 
         vedtaksperiodeService.kopierOverVedtaksperioder(gammelVedtak, nyttVedtak)
@@ -238,27 +241,29 @@ internal class VedtaksperiodeServiceTest {
     @Test
     fun `finnEndringstidspunktForBehandling finner endringstidspunkt for revurdering`() {
         val aktør = randomAktør()
-        val andelTilkjentYtelse = lagAndelTilkjentYtelse(
-            tilkjentYtelse = lagInitieltTilkjentYtelse(behandling),
-            behandling = behandling,
-            aktør = aktør,
-            stønadFom = YearMonth.now().minusMonths(5),
-            stønadTom = YearMonth.now().plusMonths(4),
-            sats = 7500,
-        )
+        val andelTilkjentYtelse =
+            lagAndelTilkjentYtelse(
+                tilkjentYtelse = lagInitieltTilkjentYtelse(behandling),
+                behandling = behandling,
+                aktør = aktør,
+                stønadFom = YearMonth.now().minusMonths(5),
+                stønadTom = YearMonth.now().plusMonths(4),
+                sats = 7500,
+            )
         every {
             andelerTilkjentYtelseOgEndreteUtbetalingerService.finnAndelerTilkjentYtelseMedEndreteUtbetalinger(behandling.id)
         } returns listOf(AndelTilkjentYtelseMedEndreteUtbetalinger(andelTilkjentYtelse, emptyList()))
 
         val revurdering = lagBehandling()
-        val andelTilkjentYtelseForRevurdering = lagAndelTilkjentYtelse(
-            tilkjentYtelse = lagInitieltTilkjentYtelse(revurdering),
-            behandling = revurdering,
-            aktør = aktør,
-            stønadFom = YearMonth.now().minusMonths(3),
-            stønadTom = YearMonth.now().plusMonths(4),
-            sats = 7500,
-        )
+        val andelTilkjentYtelseForRevurdering =
+            lagAndelTilkjentYtelse(
+                tilkjentYtelse = lagInitieltTilkjentYtelse(revurdering),
+                behandling = revurdering,
+                aktør = aktør,
+                stønadFom = YearMonth.now().minusMonths(3),
+                stønadTom = YearMonth.now().plusMonths(4),
+                sats = 7500,
+            )
         every {
             andelerTilkjentYtelseOgEndreteUtbetalingerService.finnAndelerTilkjentYtelseMedEndreteUtbetalinger(
                 revurdering.id,
@@ -280,54 +285,60 @@ internal class VedtaksperiodeServiceTest {
         val aktør = randomAktør()
         val periode1 = MånedPeriode(YearMonth.now().minusMonths(5), YearMonth.now().minusMonths(3))
         val periode2 = MånedPeriode(YearMonth.now().minusMonths(1), YearMonth.now().plusMonths(4))
-        val andelTilkjentYtelse1 = lagAndelTilkjentYtelse(
-            tilkjentYtelse = lagInitieltTilkjentYtelse(behandling),
-            behandling = behandling,
-            aktør = aktør,
-            stønadFom = periode1.fom,
-            stønadTom = periode1.tom,
-            sats = 7500,
-        )
-        val andelTilkjentYtelse2 = lagAndelTilkjentYtelse(
-            tilkjentYtelse = lagInitieltTilkjentYtelse(behandling),
-            behandling = behandling,
-            aktør = aktør,
-            stønadFom = periode2.fom,
-            stønadTom = periode2.tom,
-            sats = 7500,
-        )
+        val andelTilkjentYtelse1 =
+            lagAndelTilkjentYtelse(
+                tilkjentYtelse = lagInitieltTilkjentYtelse(behandling),
+                behandling = behandling,
+                aktør = aktør,
+                stønadFom = periode1.fom,
+                stønadTom = periode1.tom,
+                sats = 7500,
+            )
+        val andelTilkjentYtelse2 =
+            lagAndelTilkjentYtelse(
+                tilkjentYtelse = lagInitieltTilkjentYtelse(behandling),
+                behandling = behandling,
+                aktør = aktør,
+                stønadFom = periode2.fom,
+                stønadTom = periode2.tom,
+                sats = 7500,
+            )
         every {
             andelerTilkjentYtelseOgEndreteUtbetalingerService.finnAndelerTilkjentYtelseMedEndreteUtbetalinger(behandling.id)
-        } returns listOf(
-            AndelTilkjentYtelseMedEndreteUtbetalinger(andelTilkjentYtelse1, emptyList()),
-            AndelTilkjentYtelseMedEndreteUtbetalinger(andelTilkjentYtelse2, emptyList()),
-        )
+        } returns
+            listOf(
+                AndelTilkjentYtelseMedEndreteUtbetalinger(andelTilkjentYtelse1, emptyList()),
+                AndelTilkjentYtelseMedEndreteUtbetalinger(andelTilkjentYtelse2, emptyList()),
+            )
 
         val revurdering = lagBehandling()
-        val andelTilkjentYtelseForRevurdering1 = lagAndelTilkjentYtelse(
-            tilkjentYtelse = lagInitieltTilkjentYtelse(revurdering),
-            behandling = revurdering,
-            aktør = aktør,
-            stønadFom = periode1.fom,
-            stønadTom = periode1.tom,
-            sats = 7500,
-        )
-        val andelTilkjentYtelseForRevurdering2 = lagAndelTilkjentYtelse(
-            tilkjentYtelse = lagInitieltTilkjentYtelse(revurdering),
-            behandling = revurdering,
-            aktør = aktør,
-            stønadFom = periode2.fom,
-            stønadTom = periode2.tom,
-            sats = 3500,
-        )
+        val andelTilkjentYtelseForRevurdering1 =
+            lagAndelTilkjentYtelse(
+                tilkjentYtelse = lagInitieltTilkjentYtelse(revurdering),
+                behandling = revurdering,
+                aktør = aktør,
+                stønadFom = periode1.fom,
+                stønadTom = periode1.tom,
+                sats = 7500,
+            )
+        val andelTilkjentYtelseForRevurdering2 =
+            lagAndelTilkjentYtelse(
+                tilkjentYtelse = lagInitieltTilkjentYtelse(revurdering),
+                behandling = revurdering,
+                aktør = aktør,
+                stønadFom = periode2.fom,
+                stønadTom = periode2.tom,
+                sats = 3500,
+            )
         every {
             andelerTilkjentYtelseOgEndreteUtbetalingerService.finnAndelerTilkjentYtelseMedEndreteUtbetalinger(
                 revurdering.id,
             )
-        } returns listOf(
-            AndelTilkjentYtelseMedEndreteUtbetalinger(andelTilkjentYtelseForRevurdering1, emptyList()),
-            AndelTilkjentYtelseMedEndreteUtbetalinger(andelTilkjentYtelseForRevurdering2, emptyList()),
-        )
+        } returns
+            listOf(
+                AndelTilkjentYtelseMedEndreteUtbetalinger(andelTilkjentYtelseForRevurdering1, emptyList()),
+                AndelTilkjentYtelseMedEndreteUtbetalinger(andelTilkjentYtelseForRevurdering2, emptyList()),
+            )
 
         // endring i beløp på revurdering for periode2
         assertEquals(
@@ -345,15 +356,17 @@ internal class VedtaksperiodeServiceTest {
         val barnAktør = randomAktør()
         val barnAktør2 = randomAktør()
 
-        val barnPersonResultat = PersonResultat(
-            vilkårsvurdering = vilkårsvurdering,
-            aktør = barnAktør,
-        )
+        val barnPersonResultat =
+            PersonResultat(
+                vilkårsvurdering = vilkårsvurdering,
+                aktør = barnAktør,
+            )
 
-        val barnPersonResultat2 = PersonResultat(
-            vilkårsvurdering = vilkårsvurdering,
-            aktør = barnAktør2,
-        )
+        val barnPersonResultat2 =
+            PersonResultat(
+                vilkårsvurdering = vilkårsvurdering,
+                aktør = barnAktør2,
+            )
 
         barnPersonResultat.setSortedVilkårResultater(
             setOf(
@@ -428,10 +441,11 @@ internal class VedtaksperiodeServiceTest {
         val vilkårsvurdering = Vilkårsvurdering(behandling = behandling)
         val barnAktør = randomAktør()
 
-        val personResultat = PersonResultat(
-            vilkårsvurdering = vilkårsvurdering,
-            aktør = barnAktør,
-        )
+        val personResultat =
+            PersonResultat(
+                vilkårsvurdering = vilkårsvurdering,
+                aktør = barnAktør,
+            )
 
         personResultat.setSortedVilkårResultater(
             setOf(

@@ -27,7 +27,6 @@ import org.hamcrest.CoreMatchers.`is` as Is
 
 @ExtendWith(MockKExtension::class)
 internal class UtbetalingsoppdragGeneratorTest {
-
     private val utbetalingsoppdragGenerator = UtbetalingsoppdragGenerator()
 
     @Test
@@ -50,13 +49,14 @@ internal class UtbetalingsoppdragGeneratorTest {
 
         tilkjentYtelse.andelerTilkjentYtelse.addAll(andelTilkjentYtelser)
 
-        val oppdatertTilkjentYtelse = utbetalingsoppdragGenerator.lagTilkjentYtelseMedUtbetalingsoppdrag(
-            lagVedtakMedTilkjentYtelse(
-                vedtak = vedtak,
-                tilkjentYtelse = tilkjentYtelse,
-            ),
-            AndelTilkjentYtelseForIverksetting.Factory,
-        )
+        val oppdatertTilkjentYtelse =
+            utbetalingsoppdragGenerator.lagTilkjentYtelseMedUtbetalingsoppdrag(
+                lagVedtakMedTilkjentYtelse(
+                    vedtak = vedtak,
+                    tilkjentYtelse = tilkjentYtelse,
+                ),
+                AndelTilkjentYtelseForIverksetting.Factory,
+            )
 
         val utbetalingsoppdrag = konvertTilUtbetalingsoppdrag(oppdatertTilkjentYtelse.utbetalingsoppdrag)
 
@@ -134,19 +134,21 @@ internal class UtbetalingsoppdragGeneratorTest {
 
         forrigeTilkjentYtelse.andelerTilkjentYtelse.addAll(andelTilkjentYtelser)
 
-        val oppdatertTilkjentYtelse = utbetalingsoppdragGenerator.lagTilkjentYtelseMedUtbetalingsoppdrag(
-            lagVedtakMedTilkjentYtelse(
-                vedtak = vedtak,
-                tilkjentYtelse = TilkjentYtelse(behandling = behandling, opprettetDato = tidNå, endretDato = tidNå),
-                sisteOffsetPerIdent = ØkonomiUtils.gjeldendeForrigeOffsetForKjede(
-                    ØkonomiUtils.kjedeinndelteAndeler(
-                        andelTilkjentYtelser.forIverksetting(),
-                    ),
+        val oppdatertTilkjentYtelse =
+            utbetalingsoppdragGenerator.lagTilkjentYtelseMedUtbetalingsoppdrag(
+                lagVedtakMedTilkjentYtelse(
+                    vedtak = vedtak,
+                    tilkjentYtelse = TilkjentYtelse(behandling = behandling, opprettetDato = tidNå, endretDato = tidNå),
+                    sisteOffsetPerIdent =
+                        ØkonomiUtils.gjeldendeForrigeOffsetForKjede(
+                            ØkonomiUtils.kjedeinndelteAndeler(
+                                andelTilkjentYtelser.forIverksetting(),
+                            ),
+                        ),
                 ),
-            ),
-            AndelTilkjentYtelseForIverksetting.Factory,
-            forrigeTilkjentYtelseMedAndeler = forrigeTilkjentYtelse,
-        )
+                AndelTilkjentYtelseForIverksetting.Factory,
+                forrigeTilkjentYtelseMedAndeler = forrigeTilkjentYtelse,
+            )
 
         val utbetalingsoppdrag = konvertTilUtbetalingsoppdrag(oppdatertTilkjentYtelse.utbetalingsoppdrag)
 
@@ -183,11 +185,12 @@ internal class UtbetalingsoppdragGeneratorTest {
         val aktør = fnrTilAktør(randomFnr())
         val fagsak = lagFagsak(aktør)
 
-        val førsteBehandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD, fagsak = fagsak).also {
-            it.behandlingStegTilstand.forEach { behandlingSteg ->
-                behandlingSteg.behandlingStegStatus = BehandlingStegStatus.UTFØRT
+        val førsteBehandling =
+            lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD, fagsak = fagsak).also {
+                it.behandlingStegTilstand.forEach { behandlingSteg ->
+                    behandlingSteg.behandlingStegStatus = BehandlingStegStatus.UTFØRT
+                }
             }
-        }
 
         val vedtak = Vedtak(behandling = førsteBehandling)
 
@@ -276,11 +279,12 @@ internal class UtbetalingsoppdragGeneratorTest {
             utbetalingsoppdragGenerator.lagTilkjentYtelseMedUtbetalingsoppdrag(
                 lagVedtakMedTilkjentYtelse(
                     vedtak = andreVedtak,
-                    sisteOffsetPerIdent = ØkonomiUtils.gjeldendeForrigeOffsetForKjede(
-                        ØkonomiUtils.kjedeinndelteAndeler(
-                            andelTilkjentYtelserIFørsteBehandling.forIverksetting(),
+                    sisteOffsetPerIdent =
+                        ØkonomiUtils.gjeldendeForrigeOffsetForKjede(
+                            ØkonomiUtils.kjedeinndelteAndeler(
+                                andelTilkjentYtelserIFørsteBehandling.forIverksetting(),
+                            ),
                         ),
-                    ),
                     sisteOffsetPåFagsak = sisteOffsetPåFagsak,
                     tilkjentYtelse = tilkjentYtelseIAndreBehandling,
                 ),
@@ -324,11 +328,12 @@ internal class UtbetalingsoppdragGeneratorTest {
         val aktør = fnrTilAktør(randomFnr())
         val fagsak = lagFagsak(aktør)
 
-        val førsteBehandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD, fagsak = fagsak).also {
-            it.behandlingStegTilstand.forEach { behandlingSteg ->
-                behandlingSteg.behandlingStegStatus = BehandlingStegStatus.UTFØRT
+        val førsteBehandling =
+            lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD, fagsak = fagsak).also {
+                it.behandlingStegTilstand.forEach { behandlingSteg ->
+                    behandlingSteg.behandlingStegStatus = BehandlingStegStatus.UTFØRT
+                }
             }
-        }
 
         val vedtak = Vedtak(behandling = førsteBehandling)
 
@@ -401,11 +406,12 @@ internal class UtbetalingsoppdragGeneratorTest {
             utbetalingsoppdragGenerator.lagTilkjentYtelseMedUtbetalingsoppdrag(
                 lagVedtakMedTilkjentYtelse(
                     vedtak = andreVedtak,
-                    sisteOffsetPerIdent = ØkonomiUtils.gjeldendeForrigeOffsetForKjede(
-                        ØkonomiUtils.kjedeinndelteAndeler(
-                            andelTilkjentYtelserIFørsteBehandling.forIverksetting(),
+                    sisteOffsetPerIdent =
+                        ØkonomiUtils.gjeldendeForrigeOffsetForKjede(
+                            ØkonomiUtils.kjedeinndelteAndeler(
+                                andelTilkjentYtelserIFørsteBehandling.forIverksetting(),
+                            ),
                         ),
-                    ),
                     sisteOffsetPåFagsak = sisteOffsetPåFagsak,
                     tilkjentYtelse = tilkjentYtelseIAndreBehandling,
                 ),
@@ -449,11 +455,12 @@ internal class UtbetalingsoppdragGeneratorTest {
         val aktør = fnrTilAktør(randomFnr())
         val fagsak = lagFagsak(aktør)
 
-        val førsteBehandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD, fagsak = fagsak).also {
-            it.behandlingStegTilstand.forEach { behandlingSteg ->
-                behandlingSteg.behandlingStegStatus = BehandlingStegStatus.UTFØRT
+        val førsteBehandling =
+            lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD, fagsak = fagsak).also {
+                it.behandlingStegTilstand.forEach { behandlingSteg ->
+                    behandlingSteg.behandlingStegStatus = BehandlingStegStatus.UTFØRT
+                }
             }
-        }
 
         val vedtak = Vedtak(behandling = førsteBehandling)
 
@@ -540,11 +547,12 @@ internal class UtbetalingsoppdragGeneratorTest {
             utbetalingsoppdragGenerator.lagTilkjentYtelseMedUtbetalingsoppdrag(
                 lagVedtakMedTilkjentYtelse(
                     vedtak = andreVedtak,
-                    sisteOffsetPerIdent = ØkonomiUtils.gjeldendeForrigeOffsetForKjede(
-                        ØkonomiUtils.kjedeinndelteAndeler(
-                            andelTilkjentYtelserIFørsteBehandling.forIverksetting(),
+                    sisteOffsetPerIdent =
+                        ØkonomiUtils.gjeldendeForrigeOffsetForKjede(
+                            ØkonomiUtils.kjedeinndelteAndeler(
+                                andelTilkjentYtelserIFørsteBehandling.forIverksetting(),
+                            ),
                         ),
-                    ),
                     sisteOffsetPåFagsak = sisteOffsetPåFagsak,
                     tilkjentYtelse = tilkjentYtelseIAndreBehandling,
                     erSimulering = true,
@@ -606,5 +614,4 @@ internal class UtbetalingsoppdragGeneratorTest {
         objectMapper.readValue(utbetalingsoppdragIString, Utbetalingsoppdrag::class.java)
 }
 
-fun Collection<AndelTilkjentYtelse>.forIverksetting() =
-    AndelTilkjentYtelseForIverksetting.Factory.pakkInnForUtbetaling(this)
+fun Collection<AndelTilkjentYtelse>.forIverksetting() = AndelTilkjentYtelseForIverksetting.Factory.pakkInnForUtbetaling(this)

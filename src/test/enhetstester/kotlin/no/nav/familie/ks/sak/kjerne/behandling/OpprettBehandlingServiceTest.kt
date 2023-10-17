@@ -82,10 +82,11 @@ class OpprettBehandlingServiceTest {
     fun beforeEach() {
         every { personidentService.hentAktør(any()) } returns søker
         every { fagsakRepository.finnFagsakForAktør(søker) } returns fagsak
-        every { behandlingRepository.findByFagsakAndAktiv(fagsak.id) } returns behandling.copy(
-            status = BehandlingStatus.AVSLUTTET,
-            aktiv = true,
-        )
+        every { behandlingRepository.findByFagsakAndAktiv(fagsak.id) } returns
+            behandling.copy(
+                status = BehandlingStatus.AVSLUTTET,
+                aktiv = true,
+            )
         every { behandlingRepository.hentBehandling(any()) } returns behandling
         every { behandlingRepository.finnBehandlinger(fagsak.id) } returns emptyList()
         every { behandlingRepository.saveAndFlush(any()) } returns behandling
@@ -94,24 +95,26 @@ class OpprettBehandlingServiceTest {
 
         every { vedtakService.opprettOgInitierNyttVedtakForBehandling(any()) } just runs
         every { loggService.opprettBehandlingLogg(any()) } just runs
-        every { taskService.save(any()) } returns OpprettOppgaveTask.opprettTask(
-            behandling.id,
-            Oppgavetype.BehandleSak,
-            LocalDate.now(),
-        )
+        every { taskService.save(any()) } returns
+            OpprettOppgaveTask.opprettTask(
+                behandling.id,
+                Oppgavetype.BehandleSak,
+                LocalDate.now(),
+            )
         every { stegService.utførSteg(any(), any()) } returns Unit
         every { behandlingMetrikker.tellNøkkelTallVedOpprettelseAvBehandling(behandling) } just runs
     }
 
     @Test
     fun `opprettBehandling - skal opprette behandling når det finnes en fagsak tilknyttet søker og det ikke allerede eksisterer en aktiv behandling som ikke er avsluttet`() {
-        val opprettetBehandling = opprettBehandlingService.opprettBehandling(
-            OpprettBehandlingDto(
-                søkersIdent = søkersIdent,
-                behandlingType = BehandlingType.FØRSTEGANGSBEHANDLING,
-                kategori = BehandlingKategori.NASJONAL,
-            ),
-        )
+        val opprettetBehandling =
+            opprettBehandlingService.opprettBehandling(
+                OpprettBehandlingDto(
+                    søkersIdent = søkersIdent,
+                    behandlingType = BehandlingType.FØRSTEGANGSBEHANDLING,
+                    kategori = BehandlingKategori.NASJONAL,
+                ),
+            )
 
         // Validerer at tidligere aktiv behandling blir satt til inaktiv
         verify {
@@ -146,15 +149,16 @@ class OpprettBehandlingServiceTest {
     fun `opprettBehandling - skal kaste feil dersom det ikke finnes noen fagsak tilknyttet søker`() {
         every { fagsakRepository.finnFagsakForAktør(søker) } returns null
 
-        val funksjonellFeil = assertThrows<FunksjonellFeil> {
-            opprettBehandlingService.opprettBehandling(
-                OpprettBehandlingDto(
-                    søkersIdent = søkersIdent,
-                    behandlingType = BehandlingType.FØRSTEGANGSBEHANDLING,
-                    kategori = BehandlingKategori.NASJONAL,
-                ),
-            )
-        }
+        val funksjonellFeil =
+            assertThrows<FunksjonellFeil> {
+                opprettBehandlingService.opprettBehandling(
+                    OpprettBehandlingDto(
+                        søkersIdent = søkersIdent,
+                        behandlingType = BehandlingType.FØRSTEGANGSBEHANDLING,
+                        kategori = BehandlingKategori.NASJONAL,
+                    ),
+                )
+            }
 
         assertEquals("Kan ikke lage behandling på person uten tilknyttet fagsak.", funksjonellFeil.melding)
     }
@@ -167,20 +171,22 @@ class OpprettBehandlingServiceTest {
     fun `opprettBehandling - skal kaste feil dersom det allerede finnes en aktiv behandling som ikke er avsluttet`(
         behandlingStatus: BehandlingStatus,
     ) {
-        every { behandlingRepository.findByFagsakAndAktiv(fagsak.id) } returns behandling.copy(
-            aktiv = true,
-            status = behandlingStatus,
-        )
-
-        val funksjonellFeil = assertThrows<FunksjonellFeil> {
-            opprettBehandlingService.opprettBehandling(
-                OpprettBehandlingDto(
-                    søkersIdent = søkersIdent,
-                    behandlingType = BehandlingType.FØRSTEGANGSBEHANDLING,
-                    kategori = BehandlingKategori.NASJONAL,
-                ),
+        every { behandlingRepository.findByFagsakAndAktiv(fagsak.id) } returns
+            behandling.copy(
+                aktiv = true,
+                status = behandlingStatus,
             )
-        }
+
+        val funksjonellFeil =
+            assertThrows<FunksjonellFeil> {
+                opprettBehandlingService.opprettBehandling(
+                    OpprettBehandlingDto(
+                        søkersIdent = søkersIdent,
+                        behandlingType = BehandlingType.FØRSTEGANGSBEHANDLING,
+                        kategori = BehandlingKategori.NASJONAL,
+                    ),
+                )
+            }
 
         assertEquals(
             "Kan ikke lage ny behandling. Fagsaken har en aktiv behandling som ikke er ferdigstilt.",
@@ -196,14 +202,15 @@ class OpprettBehandlingServiceTest {
     fun `opprettBehandling - skal kaste feil dersom behandlingkategori ikke er satt og behandlingstype er FØRSTEGANGSBEHANDLING eller REVURDERING og behandlingsårsak er SØKNAD`(
         behandlingType: BehandlingType,
     ) {
-        val funksjonellFeil = assertThrows<FunksjonellFeil> {
-            opprettBehandlingService.opprettBehandling(
-                OpprettBehandlingDto(
-                    søkersIdent = søkersIdent,
-                    behandlingType = behandlingType,
-                ),
-            )
-        }
+        val funksjonellFeil =
+            assertThrows<FunksjonellFeil> {
+                opprettBehandlingService.opprettBehandling(
+                    OpprettBehandlingDto(
+                        søkersIdent = søkersIdent,
+                        behandlingType = behandlingType,
+                    ),
+                )
+            }
         assertEquals(
             "Behandling med type ${behandlingType.visningsnavn} og årsak Søknad krever behandlingskategori",
             funksjonellFeil.melding,
@@ -218,15 +225,16 @@ class OpprettBehandlingServiceTest {
     fun `opprettBehandling - skal kaste feil dersom behandlingType er TEKNISK_ENDRING og behandlingÅrsak ikke samsvarer`(
         behandlingÅrsak: BehandlingÅrsak,
     ) {
-        val funksjonellFeil = assertThrows<Feil> {
-            opprettBehandlingService.opprettBehandling(
-                OpprettBehandlingDto(
-                    søkersIdent = søkersIdent,
-                    behandlingType = BehandlingType.TEKNISK_ENDRING,
-                    behandlingÅrsak = behandlingÅrsak,
-                ),
-            )
-        }
+        val funksjonellFeil =
+            assertThrows<Feil> {
+                opprettBehandlingService.opprettBehandling(
+                    OpprettBehandlingDto(
+                        søkersIdent = søkersIdent,
+                        behandlingType = BehandlingType.TEKNISK_ENDRING,
+                        behandlingÅrsak = behandlingÅrsak,
+                    ),
+                )
+            }
         assertEquals(
             "Behandling med TEKNISK_ENDRING og årsak $behandlingÅrsak samsvarer ikke.",
             funksjonellFeil.message,
@@ -241,29 +249,31 @@ class OpprettBehandlingServiceTest {
     fun `opprettBehandling - skal kaste feil dersom behandlingType er TEKNISK_ENDRING eller FØRSTEGANGSBEHANDLING og behandlingÅrsak ikke samsvarer`(
         behandlingÅrsak: BehandlingÅrsak,
     ) {
-        var funksjonellFeil = assertThrows<Feil> {
-            opprettBehandlingService.opprettBehandling(
-                OpprettBehandlingDto(
-                    søkersIdent = søkersIdent,
-                    behandlingType = BehandlingType.TEKNISK_ENDRING,
-                    behandlingÅrsak = behandlingÅrsak,
-                ),
-            )
-        }
+        var funksjonellFeil =
+            assertThrows<Feil> {
+                opprettBehandlingService.opprettBehandling(
+                    OpprettBehandlingDto(
+                        søkersIdent = søkersIdent,
+                        behandlingType = BehandlingType.TEKNISK_ENDRING,
+                        behandlingÅrsak = behandlingÅrsak,
+                    ),
+                )
+            }
         assertEquals(
             "Behandling med TEKNISK_ENDRING og årsak $behandlingÅrsak samsvarer ikke.",
             funksjonellFeil.message,
         )
 
-        funksjonellFeil = assertThrows {
-            opprettBehandlingService.opprettBehandling(
-                OpprettBehandlingDto(
-                    søkersIdent = søkersIdent,
-                    behandlingType = BehandlingType.FØRSTEGANGSBEHANDLING,
-                    behandlingÅrsak = behandlingÅrsak,
-                ),
-            )
-        }
+        funksjonellFeil =
+            assertThrows {
+                opprettBehandlingService.opprettBehandling(
+                    OpprettBehandlingDto(
+                        søkersIdent = søkersIdent,
+                        behandlingType = BehandlingType.FØRSTEGANGSBEHANDLING,
+                        behandlingÅrsak = behandlingÅrsak,
+                    ),
+                )
+            }
         assertEquals(
             "Behandling med FØRSTEGANGSBEHANDLING og årsak $behandlingÅrsak samsvarer ikke.",
             funksjonellFeil.message,
@@ -278,15 +288,16 @@ class OpprettBehandlingServiceTest {
     fun `opprettBehandling - skal kaste feil dersom behandlingType er FØRSTEGANGSBEHANDLING eller REVURDERING og behandlingÅrsak er TEKNISK_ENDRING`(
         behandlingType: BehandlingType,
     ) {
-        val funksjonellFeil = assertThrows<Feil> {
-            opprettBehandlingService.opprettBehandling(
-                OpprettBehandlingDto(
-                    søkersIdent = søkersIdent,
-                    behandlingType = behandlingType,
-                    behandlingÅrsak = BehandlingÅrsak.TEKNISK_ENDRING,
-                ),
-            )
-        }
+        val funksjonellFeil =
+            assertThrows<Feil> {
+                opprettBehandlingService.opprettBehandling(
+                    OpprettBehandlingDto(
+                        søkersIdent = søkersIdent,
+                        behandlingType = behandlingType,
+                        behandlingÅrsak = BehandlingÅrsak.TEKNISK_ENDRING,
+                    ),
+                )
+            }
         assertEquals(
             "Behandling med $behandlingType og årsak TEKNISK_ENDRING samsvarer ikke.",
             funksjonellFeil.message,
@@ -295,21 +306,23 @@ class OpprettBehandlingServiceTest {
 
     @Test
     fun `opprettBehandling - skal kaste feil dersom behandlingType er REVURDERING og det ikke finnes noen avsluttede vedtatte behandlinger på fagsaken til søker`() {
-        every { behandlingRepository.finnBehandlinger(fagsak.id) } returns listOf(
-            lagBehandling(
-                fagsak,
-                opprettetÅrsak = BehandlingÅrsak.SØKNAD,
-            ).copy(status = BehandlingStatus.UTREDES),
-        )
-        val funksjonellFeil = assertThrows<Feil> {
-            opprettBehandlingService.opprettBehandling(
-                OpprettBehandlingDto(
-                    søkersIdent = søkersIdent,
-                    behandlingType = BehandlingType.REVURDERING,
-                    behandlingÅrsak = BehandlingÅrsak.BARNEHAGELISTE,
-                ),
+        every { behandlingRepository.finnBehandlinger(fagsak.id) } returns
+            listOf(
+                lagBehandling(
+                    fagsak,
+                    opprettetÅrsak = BehandlingÅrsak.SØKNAD,
+                ).copy(status = BehandlingStatus.UTREDES),
             )
-        }
+        val funksjonellFeil =
+            assertThrows<Feil> {
+                opprettBehandlingService.opprettBehandling(
+                    OpprettBehandlingDto(
+                        søkersIdent = søkersIdent,
+                        behandlingType = BehandlingType.REVURDERING,
+                        behandlingÅrsak = BehandlingÅrsak.BARNEHAGELISTE,
+                    ),
+                )
+            }
         assertEquals(
             "Kan ikke opprette revurdering på $fagsak uten noen andre behandlinger som er vedtatt.",
             funksjonellFeil.message,

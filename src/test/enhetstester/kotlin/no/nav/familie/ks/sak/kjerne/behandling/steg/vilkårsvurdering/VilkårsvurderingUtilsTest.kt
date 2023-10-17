@@ -26,7 +26,6 @@ import java.time.LocalDate
 import java.time.Month
 
 class VilkårsvurderingUtilsTest {
-
     private val januar = LocalDate.of(2022, 1, 1)
     private val april = LocalDate.of(2022, 4, 1)
     private val august = LocalDate.of(2022, 8, 1)
@@ -36,13 +35,14 @@ class VilkårsvurderingUtilsTest {
     private val barn1 = randomAktør()
 
     private val behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD)
-    private val personopplysningGrunnlag = lagPersonopplysningGrunnlag(
-        behandlingId = behandling.id,
-        søkerPersonIdent = søker.aktivFødselsnummer(),
-        barnasIdenter = listOf(barn1.aktivFødselsnummer()),
-        søkerAktør = søker,
-        barnAktør = listOf(barn1),
-    )
+    private val personopplysningGrunnlag =
+        lagPersonopplysningGrunnlag(
+            behandlingId = behandling.id,
+            søkerPersonIdent = søker.aktivFødselsnummer(),
+            barnasIdenter = listOf(barn1.aktivFødselsnummer()),
+            søkerAktør = søker,
+            barnAktør = listOf(barn1),
+        )
 
     private val barnPerson = lagPerson(personopplysningGrunnlag, barn1, PersonType.BARN)
     private val vilkårsvurdering = Vilkårsvurdering(behandling = behandling)
@@ -66,11 +66,12 @@ class VilkårsvurderingUtilsTest {
                 periodeTom = august.minusDays(1),
             )
 
-        val resultat = tilpassVilkårForEndretVilkår(
-            endretVilkårResultatId = vilkårResultat2.id,
-            eksisterendeVilkårResultat = vilkårResultat1,
-            endretVilkårResultat = vilkårResultat2,
-        )
+        val resultat =
+            tilpassVilkårForEndretVilkår(
+                endretVilkårResultatId = vilkårResultat2.id,
+                eksisterendeVilkårResultat = vilkårResultat1,
+                endretVilkårResultat = vilkårResultat2,
+            )
 
         assertEquals(januar, resultat[0].periodeFom)
         assertEquals(april.minusDays(1), resultat[0].periodeTom)
@@ -103,11 +104,12 @@ class VilkårsvurderingUtilsTest {
                 periodeTom = desember.minusDays(1),
             )
 
-        val resultat = tilpassVilkårForEndretVilkår(
-            endretVilkårResultatId = vilkårResultat2.id,
-            eksisterendeVilkårResultat = vilkårResultat1,
-            endretVilkårResultat = vilkårResultat2,
-        )
+        val resultat =
+            tilpassVilkårForEndretVilkår(
+                endretVilkårResultatId = vilkårResultat2.id,
+                eksisterendeVilkårResultat = vilkårResultat1,
+                endretVilkårResultat = vilkårResultat2,
+            )
 
         assertEquals(1, resultat.size)
 
@@ -138,11 +140,12 @@ class VilkårsvurderingUtilsTest {
                 periodeTom = august.minusDays(1),
             )
 
-        val resultat = tilpassVilkårForEndretVilkår(
-            endretVilkårResultatId = vilkårResultat2.id,
-            eksisterendeVilkårResultat = vilkårResultat1,
-            endretVilkårResultat = vilkårResultat2,
-        )
+        val resultat =
+            tilpassVilkårForEndretVilkår(
+                endretVilkårResultatId = vilkårResultat2.id,
+                eksisterendeVilkårResultat = vilkårResultat1,
+                endretVilkårResultat = vilkårResultat2,
+            )
 
         assertEquals(1, resultat.size)
 
@@ -173,11 +176,12 @@ class VilkårsvurderingUtilsTest {
                 periodeTom = desember.minusDays(1),
             )
 
-        val resultat = tilpassVilkårForEndretVilkår(
-            endretVilkårResultatId = vilkårResultat2.id,
-            eksisterendeVilkårResultat = vilkårResultat1,
-            endretVilkårResultat = vilkårResultat2,
-        )
+        val resultat =
+            tilpassVilkårForEndretVilkår(
+                endretVilkårResultatId = vilkårResultat2.id,
+                eksisterendeVilkårResultat = vilkårResultat1,
+                endretVilkårResultat = vilkårResultat2,
+            )
 
         assertEquals(1, resultat.size)
 
@@ -208,11 +212,12 @@ class VilkårsvurderingUtilsTest {
                 periodeTom = desember.minusDays(1),
             )
 
-        val resultat = tilpassVilkårForEndretVilkår(
-            endretVilkårResultatId = vilkårResultat2.id,
-            eksisterendeVilkårResultat = vilkårResultat1,
-            endretVilkårResultat = vilkårResultat2,
-        )
+        val resultat =
+            tilpassVilkårForEndretVilkår(
+                endretVilkårResultatId = vilkårResultat2.id,
+                eksisterendeVilkårResultat = vilkårResultat1,
+                endretVilkårResultat = vilkårResultat2,
+            )
 
         assertEquals(0, resultat.size)
     }
@@ -236,11 +241,12 @@ class VilkårsvurderingUtilsTest {
                 periodeTom = desember.minusDays(1),
             )
 
-        val resultat = tilpassVilkårForEndretVilkår(
-            endretVilkårResultatId = vilkårResultat2.id,
-            eksisterendeVilkårResultat = vilkårResultat1,
-            endretVilkårResultat = vilkårResultat2,
-        )
+        val resultat =
+            tilpassVilkårForEndretVilkår(
+                endretVilkårResultatId = vilkårResultat2.id,
+                eksisterendeVilkårResultat = vilkårResultat1,
+                endretVilkårResultat = vilkårResultat2,
+            )
 
         assertEquals(1, resultat.size)
 
@@ -273,11 +279,12 @@ class VilkårsvurderingUtilsTest {
                 vilkårType = Vilkår.BOSATT_I_RIKET,
             )
 
-        val resultat = tilpassVilkårForEndretVilkår(
-            endretVilkårResultatId = vilkårResultat2.id,
-            eksisterendeVilkårResultat = vilkårResultat1,
-            endretVilkårResultat = vilkårResultat2,
-        )
+        val resultat =
+            tilpassVilkårForEndretVilkår(
+                endretVilkårResultatId = vilkårResultat2.id,
+                eksisterendeVilkårResultat = vilkårResultat1,
+                endretVilkårResultat = vilkårResultat2,
+            )
 
         assertEquals(1, resultat.size)
 
@@ -295,18 +302,19 @@ class VilkårsvurderingUtilsTest {
         val tom = LocalDate.now().plusMonths(7)
 
         val personResultatForBarn = PersonResultat(vilkårsvurdering = vilkårsvurdering, aktør = barn1)
-        val vilkårResultaterForBarn = setOf(
-            VilkårResultat(
-                id = 0,
-                personResultat = personResultatForBarn,
-                vilkårType = Vilkår.BOR_MED_SØKER,
-                resultat = Resultat.OPPFYLT,
-                periodeFom = fom,
-                periodeTom = tom,
-                begrunnelse = "begrunnelse",
-                behandlingId = behandling.id,
-            ),
-        )
+        val vilkårResultaterForBarn =
+            setOf(
+                VilkårResultat(
+                    id = 0,
+                    personResultat = personResultatForBarn,
+                    vilkårType = Vilkår.BOR_MED_SØKER,
+                    resultat = Resultat.OPPFYLT,
+                    periodeFom = fom,
+                    periodeTom = tom,
+                    begrunnelse = "begrunnelse",
+                    behandlingId = behandling.id,
+                ),
+            )
         personResultatForBarn.setSortedVilkårResultater(vilkårResultaterForBarn)
         vilkårsvurdering.personResultater = setOf(personResultatForBarn)
 
@@ -330,18 +338,19 @@ class VilkårsvurderingUtilsTest {
         val tom = fom.plusMonths(5)
 
         val personResultatForBarn = PersonResultat(vilkårsvurdering = vilkårsvurdering, aktør = barn1)
-        val vilkårResultaterForBarn = setOf(
-            VilkårResultat(
-                id = 0,
-                personResultat = personResultatForBarn,
-                vilkårType = Vilkår.BOR_MED_SØKER,
-                resultat = Resultat.OPPFYLT,
-                periodeFom = fom,
-                periodeTom = tom,
-                begrunnelse = "begrunnelse",
-                behandlingId = behandling.id,
-            ),
-        )
+        val vilkårResultaterForBarn =
+            setOf(
+                VilkårResultat(
+                    id = 0,
+                    personResultat = personResultatForBarn,
+                    vilkårType = Vilkår.BOR_MED_SØKER,
+                    resultat = Resultat.OPPFYLT,
+                    periodeFom = fom,
+                    periodeTom = tom,
+                    begrunnelse = "begrunnelse",
+                    behandlingId = behandling.id,
+                ),
+            )
         personResultatForBarn.setSortedVilkårResultater(vilkårResultaterForBarn)
         vilkårsvurdering.personResultater = setOf(personResultatForBarn)
 
@@ -362,19 +371,20 @@ class VilkårsvurderingUtilsTest {
     @Test
     fun `validerAtDatoErKorrektIBarnasVilkår skal ikke kaste feil når vilkår resulat mangler fom, tom med eksplisitt avslag`() {
         val personResultatForBarn = PersonResultat(vilkårsvurdering = vilkårsvurdering, aktør = barn1)
-        val vilkårResultaterForBarn = setOf(
-            VilkårResultat(
-                id = 0,
-                personResultat = personResultatForBarn,
-                vilkårType = Vilkår.BOR_MED_SØKER,
-                resultat = Resultat.IKKE_VURDERT,
-                periodeFom = null,
-                periodeTom = null,
-                begrunnelse = "begrunnelse",
-                behandlingId = behandling.id,
-                erEksplisittAvslagPåSøknad = true,
-            ),
-        )
+        val vilkårResultaterForBarn =
+            setOf(
+                VilkårResultat(
+                    id = 0,
+                    personResultat = personResultatForBarn,
+                    vilkårType = Vilkår.BOR_MED_SØKER,
+                    resultat = Resultat.IKKE_VURDERT,
+                    periodeFom = null,
+                    periodeTom = null,
+                    begrunnelse = "begrunnelse",
+                    behandlingId = behandling.id,
+                    erEksplisittAvslagPåSøknad = true,
+                ),
+            )
         personResultatForBarn.setSortedVilkårResultater(vilkårResultaterForBarn)
         vilkårsvurdering.personResultater = setOf(personResultatForBarn)
 
@@ -384,18 +394,19 @@ class VilkårsvurderingUtilsTest {
     @Test
     fun `validerAtDatoErKorrektIBarnasVilkår skal kaste funksjonell feil når BARNETS_ALDER vilkår resulat har fom etter barnets 1 år`() {
         val personResultatForBarn = PersonResultat(vilkårsvurdering = vilkårsvurdering, aktør = barn1)
-        val vilkårResultaterForBarn = setOf(
-            VilkårResultat(
-                id = 0,
-                personResultat = personResultatForBarn,
-                vilkårType = Vilkår.BARNETS_ALDER,
-                resultat = Resultat.OPPFYLT,
-                periodeFom = barnPerson.fødselsdato.plusMonths(13),
-                periodeTom = barnPerson.fødselsdato.plusYears(2),
-                begrunnelse = "begrunnelse",
-                behandlingId = behandling.id,
-            ),
-        )
+        val vilkårResultaterForBarn =
+            setOf(
+                VilkårResultat(
+                    id = 0,
+                    personResultat = personResultatForBarn,
+                    vilkårType = Vilkår.BARNETS_ALDER,
+                    resultat = Resultat.OPPFYLT,
+                    periodeFom = barnPerson.fødselsdato.plusMonths(13),
+                    periodeTom = barnPerson.fødselsdato.plusYears(2),
+                    begrunnelse = "begrunnelse",
+                    behandlingId = behandling.id,
+                ),
+            )
         personResultatForBarn.setSortedVilkårResultater(vilkårResultaterForBarn)
         vilkårsvurdering.personResultater = setOf(personResultatForBarn)
 
@@ -412,18 +423,19 @@ class VilkårsvurderingUtilsTest {
     @Test
     fun `validerAtDatoErKorrektIBarnasVilkår skal kaste funksjonell feil når BARNETS_ALDER vilkår resulat har tom etter barnets 2 år`() {
         val personResultatForBarn = PersonResultat(vilkårsvurdering = vilkårsvurdering, aktør = barn1)
-        val vilkårResultaterForBarn = setOf(
-            VilkårResultat(
-                id = 0,
-                personResultat = personResultatForBarn,
-                vilkårType = Vilkår.BARNETS_ALDER,
-                resultat = Resultat.OPPFYLT,
-                periodeFom = barnPerson.fødselsdato.plusYears(1),
-                periodeTom = barnPerson.fødselsdato.plusYears(2).plusMonths(2),
-                begrunnelse = "begrunnelse",
-                behandlingId = behandling.id,
-            ),
-        )
+        val vilkårResultaterForBarn =
+            setOf(
+                VilkårResultat(
+                    id = 0,
+                    personResultat = personResultatForBarn,
+                    vilkårType = Vilkår.BARNETS_ALDER,
+                    resultat = Resultat.OPPFYLT,
+                    periodeFom = barnPerson.fødselsdato.plusYears(1),
+                    periodeTom = barnPerson.fødselsdato.plusYears(2).plusMonths(2),
+                    begrunnelse = "begrunnelse",
+                    behandlingId = behandling.id,
+                ),
+            )
         personResultatForBarn.setSortedVilkårResultater(vilkårResultaterForBarn)
         vilkårsvurdering.personResultater = setOf(personResultatForBarn)
 
@@ -440,19 +452,20 @@ class VilkårsvurderingUtilsTest {
     @Test
     fun `validerAtDatoErKorrektIBarnasVilkår skal kaste funksjonell feil når BARNETS_ALDER med adopsjon vilkår resulat har tom etter barnets 6 år`() {
         val personResultatForBarn = PersonResultat(vilkårsvurdering = vilkårsvurdering, aktør = barn1)
-        val vilkårResultaterForBarn = setOf(
-            VilkårResultat(
-                id = 0,
-                personResultat = personResultatForBarn,
-                vilkårType = Vilkår.BARNETS_ALDER,
-                resultat = Resultat.OPPFYLT,
-                periodeFom = barnPerson.fødselsdato.plusYears(3),
-                periodeTom = barnPerson.fødselsdato.plusYears(6).withMonth(Month.AUGUST.value).plusMonths(2),
-                begrunnelse = "begrunnelse",
-                behandlingId = behandling.id,
-                utdypendeVilkårsvurderinger = listOf(UtdypendeVilkårsvurdering.ADOPSJON),
-            ),
-        )
+        val vilkårResultaterForBarn =
+            setOf(
+                VilkårResultat(
+                    id = 0,
+                    personResultat = personResultatForBarn,
+                    vilkårType = Vilkår.BARNETS_ALDER,
+                    resultat = Resultat.OPPFYLT,
+                    periodeFom = barnPerson.fødselsdato.plusYears(3),
+                    periodeTom = barnPerson.fødselsdato.plusYears(6).withMonth(Month.AUGUST.value).plusMonths(2),
+                    begrunnelse = "begrunnelse",
+                    behandlingId = behandling.id,
+                    utdypendeVilkårsvurderinger = listOf(UtdypendeVilkårsvurdering.ADOPSJON),
+                ),
+            )
         personResultatForBarn.setSortedVilkårResultater(vilkårResultaterForBarn)
         vilkårsvurdering.personResultater = setOf(personResultatForBarn)
 
@@ -469,19 +482,20 @@ class VilkårsvurderingUtilsTest {
     @Test
     fun `validerAtDatoErKorrektIBarnasVilkår skal kaste funksjonell feil når BARNETS_ALDER med adopsjon vilkår resulat har diff mellom fom,tom mer enn 1 år og 1 dag`() {
         val personResultatForBarn = PersonResultat(vilkårsvurdering = vilkårsvurdering, aktør = barn1)
-        val vilkårResultaterForBarn = setOf(
-            VilkårResultat(
-                id = 0,
-                personResultat = personResultatForBarn,
-                vilkårType = Vilkår.BARNETS_ALDER,
-                resultat = Resultat.OPPFYLT,
-                periodeFom = barnPerson.fødselsdato.plusYears(3),
-                periodeTom = barnPerson.fødselsdato.plusYears(6).withMonth(Month.AUGUST.value),
-                begrunnelse = "begrunnelse",
-                behandlingId = behandling.id,
-                utdypendeVilkårsvurderinger = listOf(UtdypendeVilkårsvurdering.ADOPSJON),
-            ),
-        )
+        val vilkårResultaterForBarn =
+            setOf(
+                VilkårResultat(
+                    id = 0,
+                    personResultat = personResultatForBarn,
+                    vilkårType = Vilkår.BARNETS_ALDER,
+                    resultat = Resultat.OPPFYLT,
+                    periodeFom = barnPerson.fødselsdato.plusYears(3),
+                    periodeTom = barnPerson.fødselsdato.plusYears(6).withMonth(Month.AUGUST.value),
+                    begrunnelse = "begrunnelse",
+                    behandlingId = behandling.id,
+                    utdypendeVilkårsvurderinger = listOf(UtdypendeVilkårsvurdering.ADOPSJON),
+                ),
+            )
         personResultatForBarn.setSortedVilkårResultater(vilkårResultaterForBarn)
         vilkårsvurdering.personResultater = setOf(personResultatForBarn)
 
@@ -500,19 +514,20 @@ class VilkårsvurderingUtilsTest {
         val tom = barnPerson.fødselsdato.plusYears(6).withMonth(Month.AUGUST.value)
         val fom = tom.minusMonths(5)
         val personResultatForBarn = PersonResultat(vilkårsvurdering = vilkårsvurdering, aktør = barn1)
-        val vilkårResultaterForBarn = setOf(
-            VilkårResultat(
-                id = 0,
-                personResultat = personResultatForBarn,
-                vilkårType = Vilkår.BARNETS_ALDER,
-                resultat = Resultat.OPPFYLT,
-                periodeFom = fom,
-                periodeTom = tom,
-                begrunnelse = "begrunnelse",
-                behandlingId = behandling.id,
-                utdypendeVilkårsvurderinger = listOf(UtdypendeVilkårsvurdering.ADOPSJON),
-            ),
-        )
+        val vilkårResultaterForBarn =
+            setOf(
+                VilkårResultat(
+                    id = 0,
+                    personResultat = personResultatForBarn,
+                    vilkårType = Vilkår.BARNETS_ALDER,
+                    resultat = Resultat.OPPFYLT,
+                    periodeFom = fom,
+                    periodeTom = tom,
+                    begrunnelse = "begrunnelse",
+                    behandlingId = behandling.id,
+                    utdypendeVilkårsvurderinger = listOf(UtdypendeVilkårsvurdering.ADOPSJON),
+                ),
+            )
         personResultatForBarn.setSortedVilkårResultater(vilkårResultaterForBarn)
         vilkårsvurdering.personResultater = setOf(personResultatForBarn)
 
@@ -523,18 +538,19 @@ class VilkårsvurderingUtilsTest {
     fun `validerAtDatoErKorrektIBarnasVilkår skal ikke kaste feil når MEDLEMSKAP_ANNEN_FORELDER har fom før barnets fødselsdato`() {
         val fom = barnPerson.fødselsdato.minusYears(10)
         val personResultatForBarn = PersonResultat(vilkårsvurdering = vilkårsvurdering, aktør = barn1)
-        val vilkårResultaterForBarn = setOf(
-            VilkårResultat(
-                id = 0,
-                personResultat = personResultatForBarn,
-                vilkårType = Vilkår.MEDLEMSKAP_ANNEN_FORELDER,
-                resultat = Resultat.OPPFYLT,
-                periodeFom = fom,
-                begrunnelse = "begrunnelse",
-                behandlingId = behandling.id,
-                utdypendeVilkårsvurderinger = listOf(UtdypendeVilkårsvurdering.ADOPSJON),
-            ),
-        )
+        val vilkårResultaterForBarn =
+            setOf(
+                VilkårResultat(
+                    id = 0,
+                    personResultat = personResultatForBarn,
+                    vilkårType = Vilkår.MEDLEMSKAP_ANNEN_FORELDER,
+                    resultat = Resultat.OPPFYLT,
+                    periodeFom = fom,
+                    begrunnelse = "begrunnelse",
+                    behandlingId = behandling.id,
+                    utdypendeVilkårsvurderinger = listOf(UtdypendeVilkårsvurdering.ADOPSJON),
+                ),
+            )
         personResultatForBarn.setSortedVilkårResultater(vilkårResultaterForBarn)
         vilkårsvurdering.personResultater = setOf(personResultatForBarn)
 
@@ -553,12 +569,13 @@ class VilkårsvurderingUtilsTest {
         val dødsdatoBarn1 = LocalDate.of(2023, 1, 2)
         val dødsdatoBarn2 = LocalDate.of(2023, 8, 2)
 
-        val persongrunnlag = lagPersonopplysningGrunnlag(
-            søkerPersonIdent = søkerPersonIdent,
-            barnasIdenter = listOf(personIdentBarn1, personIdentBarn2),
-            barnasFødselsdatoer = listOf(fødselsDatoBarn1, fødselsDatoBarn2),
-            barnasDødsfallDatoer = listOf(dødsdatoBarn1, dødsdatoBarn2),
-        )
+        val persongrunnlag =
+            lagPersonopplysningGrunnlag(
+                søkerPersonIdent = søkerPersonIdent,
+                barnasIdenter = listOf(personIdentBarn1, personIdentBarn2),
+                barnasFødselsdatoer = listOf(fødselsDatoBarn1, fødselsDatoBarn2),
+                barnasDødsfallDatoer = listOf(dødsdatoBarn1, dødsdatoBarn2),
+            )
 
         val vilkårsvurdering = lagVilkårsvurderingOppfylt(personer = persongrunnlag.personer)
 

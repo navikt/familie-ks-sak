@@ -22,7 +22,6 @@ class TilgangService(
     private val cacheManager: CacheManager,
     private val auditLogger: AuditLogger,
 ) {
-
     /**
      * Sjekk om saksbehandler har tilgang til å gjøre en gitt handling.
      *
@@ -30,21 +29,26 @@ class TilgangService(
      * @param handling kort beskrivelse for handlingen. Eksempel: 'endre vilkår', 'oppprette behandling'.
      * Handlingen kommer til saksbehandler så det er viktig at denne gir mening.
      */
-    fun validerTilgangTilHandling(minimumBehandlerRolle: BehandlerRolle, handling: String) {
+    fun validerTilgangTilHandling(
+        minimumBehandlerRolle: BehandlerRolle,
+        handling: String,
+    ) {
         // Hvis minimumBehandlerRolle er forvalter, må innlogget bruker ha FORVALTER rolle
         if (minimumBehandlerRolle == BehandlerRolle.FORVALTER &&
             !SikkerhetContext.harInnloggetBrukerForvalterRolle(rolleConfig)
         ) {
             throw RolleTilgangskontrollFeil(
-                melding = "${SikkerhetContext.hentSaksbehandlerNavn()} " +
-                    "har ikke tilgang til å $handling. Krever $minimumBehandlerRolle",
+                melding =
+                    "${SikkerhetContext.hentSaksbehandlerNavn()} " +
+                        "har ikke tilgang til å $handling. Krever $minimumBehandlerRolle",
             )
         }
         val høyesteRolletilgang = SikkerhetContext.hentHøyesteRolletilgangForInnloggetBruker(rolleConfig)
         if (minimumBehandlerRolle.nivå > høyesteRolletilgang.nivå) {
             throw RolleTilgangskontrollFeil(
-                melding = "${SikkerhetContext.hentSaksbehandlerNavn()} med rolle $høyesteRolletilgang " +
-                    "har ikke tilgang til å $handling. Krever $minimumBehandlerRolle.",
+                melding =
+                    "${SikkerhetContext.hentSaksbehandlerNavn()} med rolle $høyesteRolletilgang " +
+                        "har ikke tilgang til å $handling. Krever $minimumBehandlerRolle.",
             )
         }
     }
@@ -66,8 +70,9 @@ class TilgangService(
         loggPersonoppslag(personIdenter, event)
         if (!harTilgangTilPersoner(personIdenter)) {
             throw RolleTilgangskontrollFeil(
-                melding = "Saksbehandler ${SikkerhetContext.hentSaksbehandler()} " +
-                    "har ikke tilgang til å behandle $personIdenter",
+                melding =
+                    "Saksbehandler ${SikkerhetContext.hentSaksbehandler()} " +
+                        "har ikke tilgang til å behandle $personIdenter",
             )
         }
     }
@@ -103,21 +108,24 @@ class TilgangService(
         handling: String,
     ) {
         validerTilgangTilHandling(minimumBehandlerRolle, handling)
-        val harTilgang = harSaksbehandlerTilgang("validerTilgangTilFagsak", fagsakId) {
-            val aktør = fagsakService.hentFagsak(fagsakId).aktør
-            val behandlinger = behandlingRepository.finnBehandlinger(fagsakId)
-            val personIdenterIFagsak = behandlinger.flatMap { behandling ->
-                val personopplysningGrunnlag =
-                    personopplysningGrunnlagRepository.findByBehandlingAndAktiv(behandling.id)
-                personopplysningGrunnlag?.personer?.map { person -> person.aktør.aktivFødselsnummer() } ?: emptyList()
-            }.distinct().ifEmpty { listOf(aktør.aktivFødselsnummer()) }
-            loggPersonoppslag(personIdenterIFagsak, event, CustomKeyValue("fagsak", fagsakId.toString()))
-            harTilgangTilPersoner(personIdenterIFagsak)
-        }
+        val harTilgang =
+            harSaksbehandlerTilgang("validerTilgangTilFagsak", fagsakId) {
+                val aktør = fagsakService.hentFagsak(fagsakId).aktør
+                val behandlinger = behandlingRepository.finnBehandlinger(fagsakId)
+                val personIdenterIFagsak =
+                    behandlinger.flatMap { behandling ->
+                        val personopplysningGrunnlag =
+                            personopplysningGrunnlagRepository.findByBehandlingAndAktiv(behandling.id)
+                        personopplysningGrunnlag?.personer?.map { person -> person.aktør.aktivFødselsnummer() } ?: emptyList()
+                    }.distinct().ifEmpty { listOf(aktør.aktivFødselsnummer()) }
+                loggPersonoppslag(personIdenterIFagsak, event, CustomKeyValue("fagsak", fagsakId.toString()))
+                harTilgangTilPersoner(personIdenterIFagsak)
+            }
         if (!harTilgang) {
             throw RolleTilgangskontrollFeil(
-                melding = "Saksbehandler ${SikkerhetContext.hentSaksbehandler()} " +
-                    "har ikke tilgang til fagsak=$fagsakId.",
+                melding =
+                    "Saksbehandler ${SikkerhetContext.hentSaksbehandler()} " +
+                        "har ikke tilgang til fagsak=$fagsakId.",
             )
         }
     }
@@ -140,9 +148,7 @@ class TilgangService(
         validerTilgangTilHandlingOgFagsak(fagsakId, event, minimumBehandlerRolle, handling)
     }
 
-    private fun harTilgangTilPersoner(
-        personIdenter: List<String>,
-    ): Boolean {
+    private fun harTilgangTilPersoner(personIdenter: List<String>): Boolean {
         return harSaksbehandlerTilgang("validerTilgangTilPersoner", personIdenter) {
             integrasjonService.sjekkTilgangTilPersoner(personIdenter).all { it.value.harTilgang }
         }
@@ -168,7 +174,11 @@ class TilgangService(
      * @param cacheName navnet på cachen
      * @param verdi verdiet som man ønsket å hente cache for, eks behandlingId, eller personIdent
      */
-    private fun <T> harSaksbehandlerTilgang(cacheName: String, verdi: T, hentVerdi: () -> Boolean): Boolean {
+    private fun <T> harSaksbehandlerTilgang(
+        cacheName: String,
+        verdi: T,
+        hentVerdi: () -> Boolean,
+    ): Boolean {
         if (SikkerhetContext.erSystemKontekst()) return true
 
         val cache = cacheManager.getCache(cacheName) ?: error("Finner ikke cache=$cacheName")

@@ -30,7 +30,6 @@ class OppgaveService(
     private val behandlingRepository: BehandlingRepository,
     private val arbeidsfordelingPåBehandlingRepository: ArbeidsfordelingPåBehandlingRepository,
 ) {
-
     fun opprettOppgave(
         behandlingId: Long,
         oppgavetype: Oppgavetype,
@@ -56,20 +55,21 @@ class OppgaveService(
             logger.warn("Fant ikke behandlende enhet på behandling ${behandling.id} ved opprettelse av $oppgavetype-oppgave.")
         }
 
-        val opprettOppgaveRequest = OpprettOppgaveRequest(
-            ident = OppgaveIdentV2(ident = behandling.fagsak.aktør.aktørId, gruppe = IdentGruppe.AKTOERID),
-            saksId = behandling.fagsak.id.toString(),
-            tema = Tema.KON,
-            oppgavetype = oppgavetype,
-            fristFerdigstillelse = fristForFerdigstillelse,
-            beskrivelse = lagOppgaveTekst(behandling.fagsak.id, beskrivelse),
-            enhetsnummer = arbeidsfordelingsenhet?.behandlendeEnhetId,
-            // behandlingstema brukes ikke i kombinasjon med behandlingstype for kontantstøtte
-            behandlingstema = null,
-            // TODO - må diskuteres hva det kan være for KS-EØS
-            behandlingstype = behandling.kategori.tilOppgavebehandlingType().value,
-            tilordnetRessurs = tilordnetNavIdent,
-        )
+        val opprettOppgaveRequest =
+            OpprettOppgaveRequest(
+                ident = OppgaveIdentV2(ident = behandling.fagsak.aktør.aktørId, gruppe = IdentGruppe.AKTOERID),
+                saksId = behandling.fagsak.id.toString(),
+                tema = Tema.KON,
+                oppgavetype = oppgavetype,
+                fristFerdigstillelse = fristForFerdigstillelse,
+                beskrivelse = lagOppgaveTekst(behandling.fagsak.id, beskrivelse),
+                enhetsnummer = arbeidsfordelingsenhet?.behandlendeEnhetId,
+                // behandlingstema brukes ikke i kombinasjon med behandlingstype for kontantstøtte
+                behandlingstema = null,
+                // TODO - må diskuteres hva det kan være for KS-EØS
+                behandlingstype = behandling.kategori.tilOppgavebehandlingType().value,
+                tilordnetRessurs = tilordnetNavIdent,
+            )
         val opprettetOppgaveId = integrasjonClient.opprettOppgave(opprettOppgaveRequest).oppgaveId.toString()
 
         val oppgave = DbOppgave(gsakId = opprettetOppgaveId, behandling = behandling, type = oppgavetype)
@@ -78,7 +78,11 @@ class OppgaveService(
         return opprettetOppgaveId
     }
 
-    fun fordelOppgave(oppgaveId: Long, saksbehandler: String, overstyrFordeling: Boolean = false): String {
+    fun fordelOppgave(
+        oppgaveId: Long,
+        saksbehandler: String,
+        overstyrFordeling: Boolean = false,
+    ): String {
         if (!overstyrFordeling) {
             val oppgave = integrasjonClient.finnOppgaveMedId(oppgaveId)
 
@@ -93,7 +97,10 @@ class OppgaveService(
         return integrasjonClient.fordelOppgave(oppgaveId, saksbehandler).oppgaveId.toString()
     }
 
-    fun ferdigstillOppgaver(behandling: Behandling, oppgavetype: Oppgavetype) {
+    fun ferdigstillOppgaver(
+        behandling: Behandling,
+        oppgavetype: Oppgavetype,
+    ) {
         val oppgaverSomSkalFerdigstilles =
             oppgaveRepository.finnOppgaverSomSkalFerdigstilles(oppgavetype, behandling)
 
@@ -116,8 +123,7 @@ class OppgaveService(
 
     fun hentOppgave(oppgaveId: Long): Oppgave = integrasjonClient.finnOppgaveMedId(oppgaveId)
 
-    fun hentOppgaver(finnOppgaveRequest: FinnOppgaveRequest): FinnOppgaveResponseDto =
-        integrasjonClient.hentOppgaver(finnOppgaveRequest)
+    fun hentOppgaver(finnOppgaveRequest: FinnOppgaveRequest): FinnOppgaveResponseDto = integrasjonClient.hentOppgaver(finnOppgaveRequest)
 
     fun hentOppgaverSomIkkeErFerdigstilt(behandling: Behandling): List<DbOppgave> =
         oppgaveRepository.findByBehandlingAndIkkeFerdigstilt(behandling)
@@ -128,7 +134,10 @@ class OppgaveService(
         integrasjonClient.ferdigstillOppgave(oppgaveId)
     }
 
-    fun forlengFristÅpneOppgaverPåBehandling(behandlingId: Long, forlengelse: Period) {
+    fun forlengFristÅpneOppgaverPåBehandling(
+        behandlingId: Long,
+        forlengelse: Period,
+    ) {
         val dbOppgaver = oppgaveRepository.findByBehandlingIdAndIkkeFerdigstilt(behandlingId)
 
         dbOppgaver.forEach { dbOppgave ->
@@ -154,7 +163,10 @@ class OppgaveService(
         }
     }
 
-    fun settFristÅpneOppgaverPåBehandlingTil(behandlingId: Long, nyFrist: LocalDate) {
+    fun settFristÅpneOppgaverPåBehandlingTil(
+        behandlingId: Long,
+        nyFrist: LocalDate,
+    ) {
         val dbOppgaver = oppgaveRepository.findByBehandlingIdAndIkkeFerdigstilt(behandlingId)
 
         dbOppgaver.forEach { dbOppgave ->
@@ -174,7 +186,10 @@ class OppgaveService(
         }
     }
 
-    fun endreTilordnetEnhetPåOppgaverForBehandling(behandling: Behandling, nyEnhet: String) {
+    fun endreTilordnetEnhetPåOppgaverForBehandling(
+        behandling: Behandling,
+        nyEnhet: String,
+    ) {
         hentOppgaverSomIkkeErFerdigstilt(behandling).forEach { dbOppgave ->
             val oppgave = hentOppgave(dbOppgave.gsakId.toLong())
             logger.info("Oppdaterer enhet fra ${oppgave.tildeltEnhetsnr} til $nyEnhet på oppgave ${oppgave.id}")
@@ -182,14 +197,17 @@ class OppgaveService(
         }
     }
 
-    private fun lagOppgaveTekst(fagsakId: Long, beskrivelse: String? = null): String {
+    private fun lagOppgaveTekst(
+        fagsakId: Long,
+        beskrivelse: String? = null,
+    ): String {
         return beskrivelse?.let { it + "\n" }
             ?: (
                 "----- Opprettet av familie-ks-sak ${
                     LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME)
                 } --- \n" +
                     "https://ks.intern.nav.no/fagsak/$fagsakId"
-                )
+            )
     }
 
     companion object {

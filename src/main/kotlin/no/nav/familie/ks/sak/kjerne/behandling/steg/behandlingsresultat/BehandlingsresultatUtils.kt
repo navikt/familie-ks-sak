@@ -33,7 +33,6 @@ import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
 
 object BehandlingsresultatUtils {
-
     fun validerAtBehandlingsresultatKanUtføres(
         personopplysningGrunnlag: PersonopplysningGrunnlag,
         tilkjentYtelse: TilkjentYtelse,
@@ -47,16 +46,21 @@ object BehandlingsresultatUtils {
         validerAtEndringerErTilknyttetAndelTilkjentYtelse(endretUtbetalingMedAndeler)
     }
 
-    fun validerUtledetBehandlingsresultat(behandling: Behandling, behandlingsresultat: Behandlingsresultat) {
+    fun validerUtledetBehandlingsresultat(
+        behandling: Behandling,
+        behandlingsresultat: Behandlingsresultat,
+    ) {
         when {
             behandling.type !in behandlingsresultat.gyldigeBehandlingstyper -> {
-                val feilmelding = "Behandlingsresultatet ${behandlingsresultat.displayName.lowercase()} " +
-                    "er ugyldig i kombinasjon med behandlingstype '${behandling.type.visningsnavn}'."
+                val feilmelding =
+                    "Behandlingsresultatet ${behandlingsresultat.displayName.lowercase()} " +
+                        "er ugyldig i kombinasjon med behandlingstype '${behandling.type.visningsnavn}'."
                 throw FunksjonellFeil(frontendFeilmelding = feilmelding, melding = feilmelding)
             }
             behandlingsresultat.erAvslått() && behandling.erKlage() -> {
-                val feilmelding = "Behandlingsårsak ${behandling.opprettetÅrsak.visningsnavn.lowercase()} " +
-                    "er ugyldig i kombinasjon med resultat '${behandlingsresultat.displayName.lowercase()}'."
+                val feilmelding =
+                    "Behandlingsårsak ${behandling.opprettetÅrsak.visningsnavn.lowercase()} " +
+                        "er ugyldig i kombinasjon med resultat '${behandlingsresultat.displayName.lowercase()}'."
                 throw FunksjonellFeil(frontendFeilmelding = feilmelding, melding = feilmelding)
             }
         }
@@ -75,22 +79,23 @@ object BehandlingsresultatUtils {
             aktør = aktør,
             søktForPerson = personerFremstiltKravFor.contains(aktør),
             forrigeAndeler =
-            forrigeAndelerMedEndringer.filter { it.aktør == aktør }
-                .map { andelTilkjentYtelse ->
-                    BehandlingsresultatAndelTilkjentYtelse(
-                        stønadFom = andelTilkjentYtelse.stønadFom,
-                        stønadTom = andelTilkjentYtelse.stønadTom,
-                        kalkulertUtbetalingsbeløp = andelTilkjentYtelse.kalkulertUtbetalingsbeløp,
-                    )
-                },
-            andeler = andelerMedEndringer.filter { it.aktør == aktør }
-                .map { andelTilkjentYtelse ->
-                    BehandlingsresultatAndelTilkjentYtelse(
-                        stønadFom = andelTilkjentYtelse.stønadFom,
-                        stønadTom = andelTilkjentYtelse.stønadTom,
-                        kalkulertUtbetalingsbeløp = andelTilkjentYtelse.kalkulertUtbetalingsbeløp,
-                    )
-                },
+                forrigeAndelerMedEndringer.filter { it.aktør == aktør }
+                    .map { andelTilkjentYtelse ->
+                        BehandlingsresultatAndelTilkjentYtelse(
+                            stønadFom = andelTilkjentYtelse.stønadFom,
+                            stønadTom = andelTilkjentYtelse.stønadTom,
+                            kalkulertUtbetalingsbeløp = andelTilkjentYtelse.kalkulertUtbetalingsbeløp,
+                        )
+                    },
+            andeler =
+                andelerMedEndringer.filter { it.aktør == aktør }
+                    .map { andelTilkjentYtelse ->
+                        BehandlingsresultatAndelTilkjentYtelse(
+                            stønadFom = andelTilkjentYtelse.stønadFom,
+                            stønadTom = andelTilkjentYtelse.stønadTom,
+                            kalkulertUtbetalingsbeløp = andelTilkjentYtelse.kalkulertUtbetalingsbeløp,
+                        )
+                    },
             eksplisittAvslag = erEksplisittAvslag,
         )
     }
@@ -142,7 +147,9 @@ object BehandlingsresultatUtils {
             ytelsePersonResultater.matcherAltOgHarEndretResultat(delvisInnvilgetKombinasjoner) -> DELVIS_INNVILGET_OG_ENDRET
 
             // Delvis Innvilget og Endret
-            ytelsePersonResultater.matcherAltOgHarBådeEndretOgOpphørtResultat(delvisInnvilgetKombinasjoner) -> DELVIS_INNVILGET_ENDRET_OG_OPPHØRT
+            ytelsePersonResultater.matcherAltOgHarBådeEndretOgOpphørtResultat(
+                delvisInnvilgetKombinasjoner,
+            ) -> DELVIS_INNVILGET_ENDRET_OG_OPPHØRT
 
             // Endret og Opphørt
             ytelsePersonResultater.matcherAltOgHarBådeEndretOgOpphørtResultat() -> ENDRET_OG_OPPHØRT
@@ -176,8 +183,9 @@ object BehandlingsresultatUtils {
             ) && !alleAndelerHar0IUtbetaling -> DELVIS_INNVILGET
 
             else -> throw Feil(
-                frontendFeilmelding = "Behandlingsresultatet du har fått på behandlingen er ikke støttet i løsningen enda. " +
-                    "Ta kontakt med Team familie om du er uenig i resultatet.",
+                frontendFeilmelding =
+                    "Behandlingsresultatet du har fått på behandlingen er ikke støttet i løsningen enda. " +
+                        "Ta kontakt med Team familie om du er uenig i resultatet.",
                 message = "Kombiansjonen av behandlingsresultatene $ytelsePersonResultater er ikke støttet i løsningen.",
             )
         }
@@ -187,9 +195,10 @@ object BehandlingsresultatUtils {
         this == ytelsePersonResultat.toSet()
 
     private fun Set<YtelsePersonResultat>.matcherAltOgHarBådeEndretOgOpphørtResultat(vararg andreElementer: Any): Boolean {
-        val endretResultat = this.singleOrNull {
-            it == YtelsePersonResultat.ENDRET_UTBETALING || it == YtelsePersonResultat.ENDRET_UTEN_UTBETALING
-        } ?: return false
+        val endretResultat =
+            this.singleOrNull {
+                it == YtelsePersonResultat.ENDRET_UTBETALING || it == YtelsePersonResultat.ENDRET_UTEN_UTBETALING
+            } ?: return false
 
         val opphørtResultat = this.intersect(setOf(YtelsePersonResultat.OPPHØRT, YtelsePersonResultat.FORTSATT_OPPHØRT))
 
@@ -197,9 +206,10 @@ object BehandlingsresultatUtils {
     }
 
     private fun Set<YtelsePersonResultat>.matcherAltOgHarEndretResultat(vararg andreElementer: Any): Boolean {
-        val endretResultat = this.singleOrNull {
-            it == YtelsePersonResultat.ENDRET_UTBETALING || it == YtelsePersonResultat.ENDRET_UTEN_UTBETALING
-        } ?: return false
+        val endretResultat =
+            this.singleOrNull {
+                it == YtelsePersonResultat.ENDRET_UTBETALING || it == YtelsePersonResultat.ENDRET_UTEN_UTBETALING
+            } ?: return false
         return this == setOf(endretResultat) + andreElementer.toSet()
     }
 

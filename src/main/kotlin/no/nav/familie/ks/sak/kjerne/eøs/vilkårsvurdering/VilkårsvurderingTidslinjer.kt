@@ -19,10 +19,12 @@ class VilkårsvurderingTidslinjer(
 
     private val aktørTilPersonResultater = vilkårsvurdering.personResultater.associateBy { it.aktør }
 
-    private val vilkårResultaterTidslinjeMap = aktørTilPersonResultater.entries.associate { (aktør, personResultat) ->
-        aktør to personResultat.vilkårResultater.groupBy { it.vilkårType }
-            .map { it.value.tilVilkårRegelverkResultatTidslinje() }
-    }
+    private val vilkårResultaterTidslinjeMap =
+        aktørTilPersonResultater.entries.associate { (aktør, personResultat) ->
+            aktør to
+                personResultat.vilkårResultater.groupBy { it.vilkårType }
+                    .map { it.value.tilVilkårRegelverkResultatTidslinje() }
+        }
 
     private val søkersTidslinje: SøkersTidslinjer = SøkersTidslinjer(this, søker)
 
@@ -33,22 +35,25 @@ class VilkårsvurderingTidslinjer(
 
     class SøkersTidslinjer(tidslinjer: VilkårsvurderingTidslinjer, aktør: Aktør) {
         val vilkårResultatTidslinjer = tidslinjer.vilkårResultaterTidslinjeMap[aktør] ?: listOf(tomTidslinje())
-        val regelverkResultatTidslinje = vilkårResultatTidslinjer.kombiner {
-            kombinerVilkårResultaterTilRegelverkResultat(PersonType.SØKER, it)
-        }
+        val regelverkResultatTidslinje =
+            vilkårResultatTidslinjer.kombiner {
+                kombinerVilkårResultaterTilRegelverkResultat(PersonType.SØKER, it)
+            }
     }
 
     class BarnetsTidslinjer(tidslinjer: VilkårsvurderingTidslinjer, aktør: Aktør) {
         private val søkersTidslinje = tidslinjer.søkersTidslinje
 
         val vilkårResultatTidslinjer = tidslinjer.vilkårResultaterTidslinjeMap[aktør] ?: listOf(tomTidslinje())
-        val egetRegelverkResultatTidslinje = vilkårResultatTidslinjer.kombiner {
-            kombinerVilkårResultaterTilRegelverkResultat(PersonType.BARN, it)
-        }
-        val regelverkResultatTidslinje = egetRegelverkResultatTidslinje
-            .kombinerMed(søkersTidslinje.regelverkResultatTidslinje) { barnetsResultat, søkersResultat ->
-                barnetsResultat.kombinerMed(søkersResultat)
-            }.beskjærEtter(søkersTidslinje.regelverkResultatTidslinje)
+        val egetRegelverkResultatTidslinje =
+            vilkårResultatTidslinjer.kombiner {
+                kombinerVilkårResultaterTilRegelverkResultat(PersonType.BARN, it)
+            }
+        val regelverkResultatTidslinje =
+            egetRegelverkResultatTidslinje
+                .kombinerMed(søkersTidslinje.regelverkResultatTidslinje) { barnetsResultat, søkersResultat ->
+                    barnetsResultat.kombinerMed(søkersResultat)
+                }.beskjærEtter(søkersTidslinje.regelverkResultatTidslinje)
     }
 
     fun harBlandetRegelverk(): Boolean {

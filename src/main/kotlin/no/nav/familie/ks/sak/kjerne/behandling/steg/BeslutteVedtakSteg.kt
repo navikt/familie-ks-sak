@@ -42,7 +42,10 @@ class BeslutteVedtakSteg(
     override fun getBehandlingssteg(): BehandlingSteg = BehandlingSteg.BESLUTTE_VEDTAK
 
     @Transactional
-    override fun utførSteg(behandlingId: Long, behandlingStegDto: BehandlingStegDto) {
+    override fun utførSteg(
+        behandlingId: Long,
+        behandlingStegDto: BehandlingStegDto,
+    ) {
         logger.info("Utfører steg ${getBehandlingssteg().name} for behandling $behandlingId")
         val behandling = behandlingService.hentBehandling(behandlingId)
 
@@ -50,13 +53,14 @@ class BeslutteVedtakSteg(
 
         val besluttVedtakDto = behandlingStegDto as BesluttVedtakDto
 
-        val totrinnskontroll = totrinnskontrollService.besluttTotrinnskontroll(
-            behandlingId = behandling.id,
-            beslutter = SikkerhetContext.hentSaksbehandlerNavn(),
-            beslutterId = SikkerhetContext.hentSaksbehandler(),
-            beslutning = besluttVedtakDto.beslutning,
-            kontrollerteSider = besluttVedtakDto.kontrollerteSider,
-        )
+        val totrinnskontroll =
+            totrinnskontrollService.besluttTotrinnskontroll(
+                behandlingId = behandling.id,
+                beslutter = SikkerhetContext.hentSaksbehandlerNavn(),
+                beslutterId = SikkerhetContext.hentSaksbehandler(),
+                beslutning = besluttVedtakDto.beslutning,
+                kontrollerteSider = besluttVedtakDto.kontrollerteSider,
+            )
 
         // opprett historikkinnslag
         loggService.opprettBeslutningOmVedtakLogg(
@@ -91,12 +95,13 @@ class BeslutteVedtakSteg(
                 kopierVedtakBegrunnelser = true,
             )
 
-            val behandleUnderkjentVedtakTask = OpprettOppgaveTask.opprettTask(
-                behandlingId = behandling.id,
-                oppgavetype = Oppgavetype.BehandleUnderkjentVedtak,
-                tilordnetRessurs = totrinnskontroll.saksbehandlerId,
-                fristForFerdigstillelse = LocalDate.now(),
-            )
+            val behandleUnderkjentVedtakTask =
+                OpprettOppgaveTask.opprettTask(
+                    behandlingId = behandling.id,
+                    oppgavetype = Oppgavetype.BehandleUnderkjentVedtak,
+                    tilordnetRessurs = totrinnskontroll.saksbehandlerId,
+                    fristForFerdigstillelse = LocalDate.now(),
+                )
             taskService.save(behandleUnderkjentVedtakTask)
         }
     }
@@ -112,10 +117,12 @@ class BeslutteVedtakSteg(
             behandling.opprettetÅrsak == BehandlingÅrsak.KORREKSJON_VEDTAKSBREV &&
                 !featureToggleService.isEnabled(FeatureToggleConfig.KAN_MANUELT_KORRIGERE_MED_VEDTAKSBREV) ->
                 throw FunksjonellFeil(
-                    melding = "Årsak ${BehandlingÅrsak.KORREKSJON_VEDTAKSBREV.visningsnavn} og " +
-                        "toggle ${FeatureToggleConfig.KAN_MANUELT_KORRIGERE_MED_VEDTAKSBREV} false",
-                    frontendFeilmelding = "Du har ikke tilgang til å beslutte for denne behandlingen. " +
-                        "Ta kontakt med teamet dersom dette ikke stemmer.",
+                    melding =
+                        "Årsak ${BehandlingÅrsak.KORREKSJON_VEDTAKSBREV.visningsnavn} og " +
+                            "toggle ${FeatureToggleConfig.KAN_MANUELT_KORRIGERE_MED_VEDTAKSBREV} false",
+                    frontendFeilmelding =
+                        "Du har ikke tilgang til å beslutte for denne behandlingen. " +
+                            "Ta kontakt med teamet dersom dette ikke stemmer.",
                 )
         }
     }

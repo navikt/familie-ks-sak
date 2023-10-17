@@ -21,7 +21,6 @@ import org.hamcrest.CoreMatchers.`is` as Is
 
 @ExtendWith(MockKExtension::class)
 class SøknadGrunnlagServiceTest {
-
     @MockK
     private lateinit var søknadGrunnlagRepository: SøknadGrunnlagRepository
 
@@ -33,17 +32,19 @@ class SøknadGrunnlagServiceTest {
         val deaktivertSøknadSlot = slot<SøknadGrunnlag>()
         val nySøknadSlot = slot<SøknadGrunnlag>()
 
-        val nySøknadGrunnlag = SøknadGrunnlag(
-            behandlingId = 0,
-            aktiv = true,
-            søknad = "",
-        )
+        val nySøknadGrunnlag =
+            SøknadGrunnlag(
+                behandlingId = 0,
+                aktiv = true,
+                søknad = "",
+            )
 
-        val gammelSøknadGrunnlag = SøknadGrunnlag(
-            behandlingId = 0,
-            aktiv = true,
-            søknad = "",
-        )
+        val gammelSøknadGrunnlag =
+            SøknadGrunnlag(
+                behandlingId = 0,
+                aktiv = true,
+                søknad = "",
+            )
 
         every { søknadGrunnlagRepository.finnAktiv(any()) } returns gammelSøknadGrunnlag
         every { søknadGrunnlagRepository.saveAndFlush(capture(deaktivertSøknadSlot)) } returns mockk()
@@ -57,11 +58,12 @@ class SøknadGrunnlagServiceTest {
 
     @Test
     fun `finnAktiv - skal hente aktiv søknad tilknyttet behandlingId når den finnes`() {
-        val søknadGrunnlag = SøknadGrunnlag(
-            behandlingId = 0,
-            aktiv = true,
-            søknad = "",
-        )
+        val søknadGrunnlag =
+            SøknadGrunnlag(
+                behandlingId = 0,
+                aktiv = true,
+                søknad = "",
+            )
         every { søknadGrunnlagRepository.finnAktiv(any()) } returns søknadGrunnlag
 
         val aktivSøknad = søknadGrunnlagService.finnAktiv(0L)
@@ -80,11 +82,12 @@ class SøknadGrunnlagServiceTest {
 
     @Test
     fun `hentAktiv - skal hente aktiv søknad tilknyttet behandlingId når den finnes`() {
-        val søknadGrunnlag = SøknadGrunnlag(
-            behandlingId = 0,
-            aktiv = true,
-            søknad = "",
-        )
+        val søknadGrunnlag =
+            SøknadGrunnlag(
+                behandlingId = 0,
+                aktiv = true,
+                søknad = "",
+            )
         every { søknadGrunnlagRepository.finnAktiv(any()) } returns søknadGrunnlag
 
         val aktivSøknad = søknadGrunnlagService.hentAktiv(0L)
@@ -96,9 +99,10 @@ class SøknadGrunnlagServiceTest {
     fun `hentAktiv - skal kaste feil dersom søknad tilknyttet behandlingId ikke finnes`() {
         every { søknadGrunnlagRepository.finnAktiv(0L) } returns null
 
-        val feil = assertThrows<Feil> {
-            søknadGrunnlagService.hentAktiv(0L)
-        }
+        val feil =
+            assertThrows<Feil> {
+                søknadGrunnlagService.hentAktiv(0L)
+            }
 
         assertThat(feil.message, Is("Fant ikke aktiv søknadsgrunnlag for behandling 0."))
     }

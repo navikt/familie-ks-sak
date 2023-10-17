@@ -64,50 +64,56 @@ class ForvaltningController(
     private val barnehageListeService: BarnehageListeService,
     private val environment: Environment,
 ) {
-
     private val logger = LoggerFactory.getLogger(ForvaltningController::class.java)
 
     @PostMapping("/journalfør-søknad/{fnr}")
-    fun opprettJournalføringOppgave(@PathVariable fnr: String): ResponseEntity<Ressurs<String>> {
+    fun opprettJournalføringOppgave(
+        @PathVariable fnr: String,
+    ): ResponseEntity<Ressurs<String>> {
         tilgangService.validerTilgangTilHandling(
             minimumBehandlerRolle = BehandlerRolle.FORVALTER,
             handling = "teste journalføring av innkommende søknad for opprettelse av journalføring oppgave",
         )
-        val arkiverDokumentRequest = ArkiverDokumentRequest(
-            fnr = fnr,
-            forsøkFerdigstill = false,
-            hoveddokumentvarianter = listOf(
-                Dokument(
-                    dokument = ByteArray(10),
-                    dokumenttype = Dokumenttype.KONTANTSTØTTE_SØKNAD,
-                    filtype = Filtype.PDFA,
-                ),
-            ),
-        )
+        val arkiverDokumentRequest =
+            ArkiverDokumentRequest(
+                fnr = fnr,
+                forsøkFerdigstill = false,
+                hoveddokumentvarianter =
+                    listOf(
+                        Dokument(
+                            dokument = ByteArray(10),
+                            dokumenttype = Dokumenttype.KONTANTSTØTTE_SØKNAD,
+                            filtype = Filtype.PDFA,
+                        ),
+                    ),
+            )
         val journalførDokumentResponse = integrasjonClient.journalførDokument(arkiverDokumentRequest)
         return ResponseEntity.ok(Ressurs.success(journalførDokumentResponse.journalpostId, "Dokument er Journalført"))
     }
 
     @PostMapping("/opprett-oppgave")
-    fun opprettOppgave(@RequestBody opprettOppgaveDto: OpprettOppgaveDto): ResponseEntity<Ressurs<String>> {
+    fun opprettOppgave(
+        @RequestBody opprettOppgaveDto: OpprettOppgaveDto,
+    ): ResponseEntity<Ressurs<String>> {
         tilgangService.validerTilgangTilHandling(
             minimumBehandlerRolle = BehandlerRolle.FORVALTER,
             handling = "teste opprettelse av oppgave",
         )
         val aktørId = personidentService.hentAktør(opprettOppgaveDto.fnr).aktørId
-        val opprettOppgaveRequest = OpprettOppgaveRequest(
-            ident = OppgaveIdentV2(ident = aktørId, gruppe = IdentGruppe.AKTOERID),
-            saksId = null,
-            journalpostId = opprettOppgaveDto.journalpostId,
-            tema = Tema.KON,
-            oppgavetype = opprettOppgaveDto.oppgavetype,
-            fristFerdigstillelse = LocalDate.now().plusDays(1),
-            beskrivelse = opprettOppgaveDto.beskrivelse,
-            enhetsnummer = opprettOppgaveDto.enhet,
-            behandlingstema = opprettOppgaveDto.behandlingstema,
-            behandlingstype = opprettOppgaveDto.behandlingstype,
-            tilordnetRessurs = opprettOppgaveDto.tilordnetRessurs,
-        )
+        val opprettOppgaveRequest =
+            OpprettOppgaveRequest(
+                ident = OppgaveIdentV2(ident = aktørId, gruppe = IdentGruppe.AKTOERID),
+                saksId = null,
+                journalpostId = opprettOppgaveDto.journalpostId,
+                tema = Tema.KON,
+                oppgavetype = opprettOppgaveDto.oppgavetype,
+                fristFerdigstillelse = LocalDate.now().plusDays(1),
+                beskrivelse = opprettOppgaveDto.beskrivelse,
+                enhetsnummer = opprettOppgaveDto.enhet,
+                behandlingstema = opprettOppgaveDto.behandlingstema,
+                behandlingstype = opprettOppgaveDto.behandlingstype,
+                tilordnetRessurs = opprettOppgaveDto.tilordnetRessurs,
+            )
         integrasjonClient.opprettOppgave(opprettOppgaveRequest)
         return ResponseEntity.ok(Ressurs.success("Oppgave opprettet"))
     }
@@ -123,7 +129,9 @@ class ForvaltningController(
     }
 
     @PostMapping(path = ["/dvh/stønadsstatistikk/vedtak"])
-    fun hentVedtakDVH(@RequestBody(required = true) behandlinger: List<Long>): List<VedtakDVH> {
+    fun hentVedtakDVH(
+        @RequestBody(required = true) behandlinger: List<Long>,
+    ): List<VedtakDVH> {
         tilgangService.validerTilgangTilHandling(
             minimumBehandlerRolle = BehandlerRolle.FORVALTER,
             handling = "Hente Vedtak DVH",
@@ -138,7 +146,9 @@ class ForvaltningController(
     }
 
     @PostMapping(path = ["/dvh/stønadsstatistikk/send-til-dvh-manuell"])
-    fun sendTilStønadsstatistikkManuell(@RequestBody(required = true) behandlinger: List<Long>) {
+    fun sendTilStønadsstatistikkManuell(
+        @RequestBody(required = true) behandlinger: List<Long>,
+    ) {
         tilgangService.validerTilgangTilHandling(
             minimumBehandlerRolle = BehandlerRolle.FORVALTER,
             handling = "Sender vedtakDVH til stønadsstatistikk manuelt",
@@ -152,7 +162,9 @@ class ForvaltningController(
     }
 
     @PostMapping(path = ["/avstemming/send-grensesnittavstemming-manuell"])
-    fun sendGrensesnittavstemmingManuell(@RequestBody(required = true) periode: Periode) {
+    fun sendGrensesnittavstemmingManuell(
+        @RequestBody(required = true) periode: Periode,
+    ) {
         tilgangService.validerTilgangTilHandling(
             minimumBehandlerRolle = BehandlerRolle.FORVALTER,
             handling = "Kjører grensesnittavstemming manuelt",
@@ -184,7 +196,9 @@ class ForvaltningController(
     }
 
     @PutMapping(path = ["/{behandlingId}/fyll-ut-vilkarsvurdering"])
-    fun fyllUtVilkårsvurdering(@PathVariable behandlingId: Long): ResponseEntity<Ressurs<String>> {
+    fun fyllUtVilkårsvurdering(
+        @PathVariable behandlingId: Long,
+    ): ResponseEntity<Ressurs<String>> {
         val activeProfiles = environment.activeProfiles.map { it.trim() }.toSet()
         val erProd = SpringProfile.Prod.navn in activeProfiles
         val erDevPostgresPreprod = SpringProfile.DevPostgresPreprod.navn in activeProfiles
@@ -207,7 +221,9 @@ class ForvaltningController(
     }
 
     @GetMapping("/barnehageliste/lesOgArkiver/{uuid}")
-    fun lesOgArkiverBarnehageliste(@PathVariable uuid: String): ResponseEntity<Ressurs<String>> {
+    fun lesOgArkiverBarnehageliste(
+        @PathVariable uuid: String,
+    ): ResponseEntity<Ressurs<String>> {
         tilgangService.validerTilgangTilHandling(
             minimumBehandlerRolle = BehandlerRolle.FORVALTER,
             handling = "teste lesing og arkivering av barnehageliste",
@@ -231,7 +247,9 @@ class ForvaltningController(
         consumes = [MediaType.APPLICATION_JSON_VALUE],
         produces = [MediaType.APPLICATION_JSON_VALUE],
     )
-    fun hentAlleBarnehagebarnPage(@RequestBody(required = true) barnehagebarnRequestParams: BarnehagebarnRequestParams): ResponseEntity<Ressurs<Page<BarnehagebarnDtoInterface>>> {
+    fun hentAlleBarnehagebarnPage(
+        @RequestBody(required = true) barnehagebarnRequestParams: BarnehagebarnRequestParams,
+    ): ResponseEntity<Ressurs<Page<BarnehagebarnDtoInterface>>> {
         tilgangService.validerTilgangTilHandling(
             minimumBehandlerRolle = BehandlerRolle.FORVALTER,
             handling = "hente ut alle barnehagebarn",

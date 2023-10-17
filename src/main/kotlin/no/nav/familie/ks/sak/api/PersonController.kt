@@ -35,16 +35,16 @@ class PersonController(
     val tilgangService: TilgangService,
     val behandlingService: BehandlingService,
 ) {
-
     @GetMapping
     fun hentPerson(
         @RequestHeader personIdent: String,
         @RequestBody personIdentBody: PersonIdent?,
     ): ResponseEntity<Ressurs<PersonInfoDto>> {
         val aktør = personidentService.hentAktør(personIdent)
-        val personinfo = integrasjonService.hentMaskertPersonInfoVedManglendeTilgang(aktør)
-            ?: personOpplysningerService.hentPersonInfoMedRelasjonerOgRegisterinformasjon(aktør)
-                .tilPersonInfoDto(personIdent)
+        val personinfo =
+            integrasjonService.hentMaskertPersonInfoVedManglendeTilgang(aktør)
+                ?: personOpplysningerService.hentPersonInfoMedRelasjonerOgRegisterinformasjon(aktør)
+                    .tilPersonInfoDto(personIdent)
         return ResponseEntity.ok(Ressurs.success(personinfo))
     }
 
@@ -54,14 +54,17 @@ class PersonController(
         @RequestBody personIdentBody: PersonIdent?,
     ): ResponseEntity<Ressurs<PersonInfoDto>> {
         val aktør = personidentService.hentAktør(personIdent)
-        val personinfo = integrasjonService.hentMaskertPersonInfoVedManglendeTilgang(aktør)
-            ?: personOpplysningerService.hentPersoninfoEnkel(aktør)
-                .tilPersonInfoDto(personIdent)
+        val personinfo =
+            integrasjonService.hentMaskertPersonInfoVedManglendeTilgang(aktør)
+                ?: personOpplysningerService.hentPersoninfoEnkel(aktør)
+                    .tilPersonInfoDto(personIdent)
         return ResponseEntity.ok(Ressurs.success(personinfo))
     }
 
     @GetMapping(path = ["/oppdater-registeropplysninger/{behandlingId}"])
-    fun hentOgOppdaterRegisteropplysningerPåBehandling(@PathVariable behandlingId: Long): ResponseEntity<Ressurs<BehandlingResponsDto>> {
+    fun hentOgOppdaterRegisteropplysningerPåBehandling(
+        @PathVariable behandlingId: Long,
+    ): ResponseEntity<Ressurs<BehandlingResponsDto>> {
         tilgangService.validerTilgangTilHandlingOgFagsakForBehandling(
             behandlingId = behandlingId,
             minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,

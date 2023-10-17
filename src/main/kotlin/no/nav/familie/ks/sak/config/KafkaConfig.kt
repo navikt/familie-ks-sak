@@ -30,7 +30,6 @@ class KafkaConfig(
     @Value("\${KAFKA_CREDSTORE_PASSWORD}") private val kafkaCredstorePassword: String,
     @Value("\${KAFKA_KEYSTORE_PATH}") private val kafkaKeystorePath: String,
 ) {
-
     @Bean
     fun producerFactory(): ProducerFactory<String, String> {
         return DefaultKafkaProducerFactory(producerConfigs())
@@ -57,7 +56,9 @@ class KafkaConfig(
     }
 
     @Bean
-    fun concurrentKafkaListenerContainerFactory(kafkaErrorHandler: KafkaErrorHandler): ConcurrentKafkaListenerContainerFactory<String, String> =
+    fun concurrentKafkaListenerContainerFactory(
+        kafkaErrorHandler: KafkaErrorHandler,
+    ): ConcurrentKafkaListenerContainerFactory<String, String> =
         ConcurrentKafkaListenerContainerFactory<String, String>().apply {
             setConcurrency(1)
             containerProperties.ackMode = ContainerProperties.AckMode.MANUAL
@@ -66,7 +67,9 @@ class KafkaConfig(
         }
 
     @Bean
-    fun earliestConcurrentKafkaListenerContainerFactory(kafkaErrorHandler: KafkaErrorHandler): ConcurrentKafkaListenerContainerFactory<String, String> =
+    fun earliestConcurrentKafkaListenerContainerFactory(
+        kafkaErrorHandler: KafkaErrorHandler,
+    ): ConcurrentKafkaListenerContainerFactory<String, String> =
         ConcurrentKafkaListenerContainerFactory<String, String>().apply {
             setConcurrency(1)
             containerProperties.ackMode = ContainerProperties.AckMode.MANUAL
@@ -75,7 +78,9 @@ class KafkaConfig(
         }
 
     @Bean
-    fun earliestConcurrentKafkaListenerContainerFactoryAvro(kafkaErrorHandler: KafkaErrorHandler): ConcurrentKafkaListenerContainerFactory<String, String> =
+    fun earliestConcurrentKafkaListenerContainerFactoryAvro(
+        kafkaErrorHandler: KafkaErrorHandler,
+    ): ConcurrentKafkaListenerContainerFactory<String, String> =
         ConcurrentKafkaListenerContainerFactory<String, String>().apply {
             setConcurrency(1)
             containerProperties.ackMode = ContainerProperties.AckMode.MANUAL
@@ -88,50 +93,54 @@ class KafkaConfig(
         val schemaRegistry = System.getenv("KAFKA_SCHEMA_REGISTRY") ?: "http://localhost:9093"
         val schemaRegistryUser = System.getenv("KAFKA_SCHEMA_REGISTRY_USER") ?: "mangler i pod"
         val schemaRegistryPassword = System.getenv("KAFKA_SCHEMA_REGISTRY_PASSWORD") ?: "mangler i pod"
-        val consumerConfigs = mutableMapOf(
-            ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG to kafkaBrokers,
-            "schema.registry.url" to schemaRegistry,
-            "basic.auth.credentials.source" to "USER_INFO",
-            "basic.auth.user.info" to "$schemaRegistryUser:$schemaRegistryPassword",
-            "specific.avro.reader" to true,
-            ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG to StringDeserializer::class.java,
-            ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG to KafkaAvroDeserializer::class.java,
-            ConsumerConfig.CLIENT_ID_CONFIG to "consumer-familie-ks-sak-2",
-            ConsumerConfig.AUTO_OFFSET_RESET_CONFIG to "earliest",
-        )
+        val consumerConfigs =
+            mutableMapOf(
+                ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG to kafkaBrokers,
+                "schema.registry.url" to schemaRegistry,
+                "basic.auth.credentials.source" to "USER_INFO",
+                "basic.auth.user.info" to "$schemaRegistryUser:$schemaRegistryPassword",
+                "specific.avro.reader" to true,
+                ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG to StringDeserializer::class.java,
+                ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG to KafkaAvroDeserializer::class.java,
+                ConsumerConfig.CLIENT_ID_CONFIG to "consumer-familie-ks-sak-2",
+                ConsumerConfig.AUTO_OFFSET_RESET_CONFIG to "earliest",
+            )
         return consumerConfigs.toMap() + securityConfig()
     }
 
-    private fun producerConfigs() = mapOf(
-        ProducerConfig.BOOTSTRAP_SERVERS_CONFIG to kafkaBrokers,
-        ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG to StringSerializer::class.java,
-        ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG to StringSerializer::class.java,
-        ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG to true, // Den sikrer rekkefølge
-        ProducerConfig.ACKS_CONFIG to "all", // Den sikrer at data ikke mistes
-        ProducerConfig.CLIENT_ID_CONFIG to Applikasjon.FAMILIE_KS_SAK.name,
-    ) + securityConfig()
+    private fun producerConfigs() =
+        mapOf(
+            ProducerConfig.BOOTSTRAP_SERVERS_CONFIG to kafkaBrokers,
+            ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG to StringSerializer::class.java,
+            ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG to StringSerializer::class.java,
+            ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG to true, // Den sikrer rekkefølge
+            ProducerConfig.ACKS_CONFIG to "all", // Den sikrer at data ikke mistes
+            ProducerConfig.CLIENT_ID_CONFIG to Applikasjon.FAMILIE_KS_SAK.name,
+        ) + securityConfig()
 
-    fun consumerConfigs() = mapOf(
-        ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG to kafkaBrokers,
-        ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG to StringDeserializer::class.java,
-        ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG to StringDeserializer::class.java,
-        ConsumerConfig.GROUP_ID_CONFIG to "familie-ks-sak",
-        ConsumerConfig.CLIENT_ID_CONFIG to "consumer-familie-ks-sak-1",
-        ConsumerConfig.AUTO_OFFSET_RESET_CONFIG to "latest",
-        CommonClientConfigs.RETRIES_CONFIG to 10,
-        CommonClientConfigs.RETRY_BACKOFF_MS_CONFIG to 100,
-    ) + securityConfig()
+    fun consumerConfigs() =
+        mapOf(
+            ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG to kafkaBrokers,
+            ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG to StringDeserializer::class.java,
+            ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG to StringDeserializer::class.java,
+            ConsumerConfig.GROUP_ID_CONFIG to "familie-ks-sak",
+            ConsumerConfig.CLIENT_ID_CONFIG to "consumer-familie-ks-sak-1",
+            ConsumerConfig.AUTO_OFFSET_RESET_CONFIG to "latest",
+            CommonClientConfigs.RETRIES_CONFIG to 10,
+            CommonClientConfigs.RETRY_BACKOFF_MS_CONFIG to 100,
+        ) + securityConfig()
 
-    fun consumerConfigsEarliest() = mapOf(
-        ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG to kafkaBrokers,
-        ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG to StringDeserializer::class.java,
-        ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG to StringDeserializer::class.java,
-        ConsumerConfig.GROUP_ID_CONFIG to "familie-ks-sak",
-        ConsumerConfig.CLIENT_ID_CONFIG to "consumer-familie-ks-sak-1",
-        ConsumerConfig.AUTO_OFFSET_RESET_CONFIG to "earliest",
-        CommonClientConfigs.RETRIES_CONFIG to 10,
-        CommonClientConfigs.RETRY_BACKOFF_MS_CONFIG to 100,
-    ) + securityConfig()
+    fun consumerConfigsEarliest() =
+        mapOf(
+            ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG to kafkaBrokers,
+            ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG to StringDeserializer::class.java,
+            ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG to StringDeserializer::class.java,
+            ConsumerConfig.GROUP_ID_CONFIG to "familie-ks-sak",
+            ConsumerConfig.CLIENT_ID_CONFIG to "consumer-familie-ks-sak-1",
+            ConsumerConfig.AUTO_OFFSET_RESET_CONFIG to "earliest",
+            CommonClientConfigs.RETRIES_CONFIG to 10,
+            CommonClientConfigs.RETRY_BACKOFF_MS_CONFIG to 100,
+        ) + securityConfig()
 
     private fun securityConfig() =
         mapOf(
@@ -147,7 +156,6 @@ class KafkaConfig(
         )
 
     companion object {
-
         const val BARNEHAGELISTE_TOPIC = "alf.aapen-altinn-barnehageliste-mottatt"
         const val BEHANDLING_TOPIC = "teamfamilie.aapen-kontantstotte-saksstatistikk-behandling-v1"
         const val SISTE_TILSTAND_BEHANDLING_TOPIC = "teamfamilie.aapen-kontantstotte-saksstatistikk-siste-tilstand-behandling-v1"

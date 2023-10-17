@@ -49,18 +49,18 @@ enum class Trigger {
         vilkårResultater: List<VilkårResultat>,
         person: Person,
         erFørsteVedtaksperiodeOgBegrunnelseInneholderGjelderFørstePeriodeTrigger: Boolean,
-    ) =
-        when (this) {
-            DELTID_BARNEHAGEPLASS -> vilkårResultater.mapNotNull { it.antallTimer }.maxByOrNull { it }?.let {
+    ) = when (this) {
+        DELTID_BARNEHAGEPLASS ->
+            vilkårResultater.mapNotNull { it.antallTimer }.maxByOrNull { it }?.let {
                 it in BigDecimal.valueOf(0.01)..BigDecimal.valueOf(
                     32.99,
                 )
             } ?: false
 
-            SATSENDRING -> false
-            GJELDER_FØRSTE_PERIODE -> vilkårResultater.isNotEmpty() && erFørsteVedtaksperiodeOgBegrunnelseInneholderGjelderFørstePeriodeTrigger
-            BARN_DØD -> person.erDød() && person.type == PersonType.BARN
-        }
+        SATSENDRING -> false
+        GJELDER_FØRSTE_PERIODE -> vilkårResultater.isNotEmpty() && erFørsteVedtaksperiodeOgBegrunnelseInneholderGjelderFørstePeriodeTrigger
+        BARN_DØD -> person.erDød() && person.type == PersonType.BARN
+    }
 }
 
 data class SanityBegrunnelseDto(
@@ -82,23 +82,26 @@ data class SanityBegrunnelseDto(
             apiNavn = apiNavn,
             navnISystem = navnISystem,
             type = finnEnumverdi(type, SanityBegrunnelseType.values(), apiNavn) ?: SanityBegrunnelseType.TILLEGGSTEKST,
-            vilkår = vilkaar.mapNotNull {
-                finnEnumverdi(it, Vilkår.values(), apiNavn)
-            },
+            vilkår =
+                vilkaar.mapNotNull {
+                    finnEnumverdi(it, Vilkår.values(), apiNavn)
+                },
             rolle = rolle.mapNotNull { finnEnumverdi(it, VilkårRolle.values(), apiNavn) },
-            utdypendeVilkårsvurderinger = utdypendeVilkaarsvurderinger.mapNotNull {
-                finnEnumverdi(
-                    it,
-                    UtdypendeVilkårsvurdering.values(),
-                    apiNavn,
-                )
-            },
+            utdypendeVilkårsvurderinger =
+                utdypendeVilkaarsvurderinger.mapNotNull {
+                    finnEnumverdi(
+                        it,
+                        UtdypendeVilkårsvurdering.values(),
+                        apiNavn,
+                    )
+                },
             triggere = triggere.mapNotNull { finnEnumverdi(it, Trigger.values(), apiNavn) },
             hjemler = hjemler,
             endringsårsaker = endringsaarsaker.mapNotNull { finnEnumverdi(it, Årsak.values(), apiNavn) },
-            endretUtbetalingsperiode = endretUtbetalingsperiode.mapNotNull {
-                finnEnumverdi(it, EndretUtbetalingsperiodeTrigger.values(), apiNavn)
-            },
+            endretUtbetalingsperiode =
+                endretUtbetalingsperiode.mapNotNull {
+                    finnEnumverdi(it, EndretUtbetalingsperiodeTrigger.values(), apiNavn)
+                },
             støtterFritekst = stotterFritekst ?: false,
             skalAlltidVises = skalAlltidVises ?: false,
         )
@@ -109,7 +112,11 @@ private val logger: Logger = LoggerFactory.getLogger(SanityBegrunnelseDto::class
 
 fun SanityBegrunnelse.inneholderGjelderFørstePeriodeTrigger() = this.triggere.contains(Trigger.GJELDER_FØRSTE_PERIODE)
 
-fun <T : Enum<T>> finnEnumverdi(verdi: String, enumverdier: Array<T>, apiNavn: String?): T? {
+fun <T : Enum<T>> finnEnumverdi(
+    verdi: String,
+    enumverdier: Array<T>,
+    apiNavn: String?,
+): T? {
     val enumverdi = enumverdier.firstOrNull { verdi == it.name }
     if (enumverdi == null) {
         logger.error(

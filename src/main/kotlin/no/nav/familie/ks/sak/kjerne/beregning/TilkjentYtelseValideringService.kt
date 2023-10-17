@@ -32,12 +32,13 @@ class TilkjentYtelseValideringService(
             val personopplysningGrunnlag =
                 personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(behandlingId = behandling.id)
 
-            val barnMedAndreRelevanteTilkjentYtelser = personopplysningGrunnlag.barna.map {
-                Pair(
-                    it,
-                    beregningService.hentRelevanteTilkjentYtelserForBarn(it.aktør, behandling.fagsak.id),
-                )
-            }
+            val barnMedAndreRelevanteTilkjentYtelser =
+                personopplysningGrunnlag.barna.map {
+                    Pair(
+                        it,
+                        beregningService.hentRelevanteTilkjentYtelserForBarn(it.aktør, behandling.fagsak.id),
+                    )
+                }
 
             validerAtBarnIkkeFårFlereUtbetalingerSammePeriode(
                 tilkjentYtelseForBehandling = tilkjentYtelse,
@@ -62,31 +63,34 @@ class TilkjentYtelseValideringService(
         return periodeOffsetForAndeler.size != periodeOffsetForAndeler.distinct().size
     }
 
-    fun kontantstøtteLøperForAnnenForelder(behandling: Behandling, barna: List<Person>): Boolean {
+    fun kontantstøtteLøperForAnnenForelder(
+        behandling: Behandling,
+        barna: List<Person>,
+    ): Boolean {
         return barna.any {
             beregningService.hentRelevanteTilkjentYtelserForBarn(barnAktør = it.aktør, fagsakId = behandling.fagsak.id)
                 .isNotEmpty()
         }
     }
 
-    fun finnAktørerMedUgyldigEtterbetalingsperiode(
-        behandlingId: Long,
-    ): List<Aktør> {
+    fun finnAktørerMedUgyldigEtterbetalingsperiode(behandlingId: Long): List<Aktør> {
         val tilkjentYtelse = beregningService.hentTilkjentYtelseForBehandling(behandlingId = behandlingId)
 
         val forrigeBehandling =
             behandlingService.hentSisteBehandlingSomErVedtatt(
                 fagsakId = behandlingService.hentBehandling(behandlingId).fagsak.id,
             )
-        val forrigeAndelerTilkjentYtelse = forrigeBehandling?.let {
-            beregningService.hentTilkjentYtelseForBehandling(behandlingId = it.id)
-        }?.andelerTilkjentYtelse?.toList()
+        val forrigeAndelerTilkjentYtelse =
+            forrigeBehandling?.let {
+                beregningService.hentTilkjentYtelseForBehandling(behandlingId = it.id)
+            }?.andelerTilkjentYtelse?.toList()
 
-        val aktørIderMedUgyldigEtterbetaling = finnAktørIderMedUgyldigEtterbetalingsperiode(
-            forrigeAndelerTilkjentYtelse = forrigeAndelerTilkjentYtelse,
-            andelerTilkjentYtelse = tilkjentYtelse.andelerTilkjentYtelse.toList(),
-            kravDato = tilkjentYtelse.behandling.opprettetTidspunkt,
-        )
+        val aktørIderMedUgyldigEtterbetaling =
+            finnAktørIderMedUgyldigEtterbetalingsperiode(
+                forrigeAndelerTilkjentYtelse = forrigeAndelerTilkjentYtelse,
+                andelerTilkjentYtelse = tilkjentYtelse.andelerTilkjentYtelse.toList(),
+                kravDato = tilkjentYtelse.behandling.opprettetTidspunkt,
+            )
 
         return aktørIderMedUgyldigEtterbetaling.map { aktørId -> personidentService.hentAktør(identEllerAktørId = aktørId) }
     }

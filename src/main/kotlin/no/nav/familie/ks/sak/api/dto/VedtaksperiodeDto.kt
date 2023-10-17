@@ -37,7 +37,9 @@ data class UtvidetVedtaksperiodeMedBegrunnelserDto(
     val utbetalingsperiodeDetaljer: List<UtbetalingsperiodeDetaljDto> = emptyList(),
 )
 
-fun UtvidetVedtaksperiodeMedBegrunnelser.tilUtvidetVedtaksperiodeMedBegrunnelserDto(sanityBegrunnelser: List<SanityBegrunnelse>): UtvidetVedtaksperiodeMedBegrunnelserDto {
+fun UtvidetVedtaksperiodeMedBegrunnelser.tilUtvidetVedtaksperiodeMedBegrunnelserDto(
+    sanityBegrunnelser: List<SanityBegrunnelse>,
+): UtvidetVedtaksperiodeMedBegrunnelserDto {
     return UtvidetVedtaksperiodeMedBegrunnelserDto(
         id = this.id,
         fom = this.fom,
@@ -57,9 +59,10 @@ data class VedtaksbegrunnelseDto(
     val støtterFritekst: Boolean,
 )
 
-fun Vedtaksbegrunnelse.tilVedtaksbegrunnelseDto(sanityBegrunnelser: List<SanityBegrunnelse>) = VedtaksbegrunnelseDto(
-    begrunnelse = this.begrunnelse.enumnavnTilString(),
-    begrunnelseType = this.begrunnelse.begrunnelseType,
-    støtterFritekst = this.begrunnelse.støtterFritekst(sanityBegrunnelser),
-    vedtakBegrunnelseSpesifikasjon = this.begrunnelse.enumnavnTilString(),
-)
+fun Vedtaksbegrunnelse.tilVedtaksbegrunnelseDto(sanityBegrunnelser: List<SanityBegrunnelse>) =
+    VedtaksbegrunnelseDto(
+        begrunnelse = this.begrunnelse.enumnavnTilString(),
+        begrunnelseType = this.begrunnelse.begrunnelseType,
+        støtterFritekst = this.begrunnelse.støtterFritekst(sanityBegrunnelser),
+        vedtakBegrunnelseSpesifikasjon = this.begrunnelse.enumnavnTilString(),
+    )
