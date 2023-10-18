@@ -293,7 +293,7 @@ fun validerAtDatoErKorrektIBarnasVilkår(
                     vilkårResultat.erEksplisittAvslagPåSøknad != true &&
                     vilkårResultat.vilkårType == Vilkår.BARNETS_ALDER
                 ) {
-                    vilkårResultat.validerVilkår_BARNETS_ALDER(
+                    vilkårResultat.validerVilkårBarnetsAlder(
                         vilkårResultat.lagOgValiderPeriodeFraVilkår(),
                         barn.fødselsdato,
                     )?.let { funksjonelleFeil.add(it) }
@@ -321,7 +321,7 @@ private fun VilkårResultat.lagOgValiderPeriodeFraVilkår(): IkkeNullbarPeriode<
         }
     }
 
-private fun VilkårResultat.validerVilkår_BARNETS_ALDER(
+private fun VilkårResultat.validerVilkårBarnetsAlder(
     periode: IkkeNullbarPeriode<Long>,
     barnFødselsdato: LocalDate,
 ): String? =

@@ -383,7 +383,7 @@ class SimuleringUtilTest {
 
     @Test
     fun `revurdering 23 nov`() {
-        val revurdering_23_nov =
+        val revurdering23nov =
             // Forrige ytelse
             mockVedtakSimuleringPosteringer(YearMonth.of(2021, 2), 3, -17_153, PosteringType.YTELSE) +
                 mockVedtakSimuleringPosteringer(YearMonth.of(2021, 5), 4, -17_257, PosteringType.YTELSE) +
@@ -399,7 +399,7 @@ class SimuleringUtilTest {
                 mockVedtakSimuleringPosteringer(YearMonth.of(2021, 5), 4, 938, PosteringType.MOTP)
 
         val økonomiSimuleringMottakere =
-            listOf(mockØkonomiSimuleringMottaker(økonomiSimuleringPostering = revurdering_23_nov))
+            listOf(mockØkonomiSimuleringMottaker(økonomiSimuleringPostering = revurdering23nov))
         val simuleringsperioder = økonomiSimuleringMottakere.tilSimuleringsPerioder()
         val oppsummering = økonomiSimuleringMottakere.tilSimuleringDto()
 
