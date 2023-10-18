@@ -142,7 +142,8 @@ internal class KompetanseServiceTest {
             resultat = KompetanseResultat.NORGE_ER_PRIMÆRLAND,
             hentetKompetanse = kompetanser[1],
         )
-        assertKompetanse( // periode med null resultat for barn1 i denne perioden
+        assertKompetanse(
+            // periode med null resultat for barn1 i denne perioden
             fom = YearMonth.of(2022, 3),
             tom = YearMonth.of(2022, 4),
             barnAktører = setOf(barn1),
@@ -439,12 +440,14 @@ internal class KompetanseServiceTest {
 
         val vilkårsvurdering =
             lagVilkårsvurdering(
-                søkersperiode = Periode(fom, tom), // søkersperiode avslutter etter nå tidspunkt
+                // søkersperiode avslutter etter nå tidspunkt
+                søkersperiode = Periode(fom, tom),
                 barnasperioder =
                     mapOf(
                         barn1 to Pair(fom, tom),
                         barn2 to Pair(fom, tomForBarn2),
-                    ), // begge barnasperiode avslutter etter nå tidspunkt
+                    ),
+                // begge barnasperiode avslutter etter nå tidspunkt
             )
         val vilkårsvurderingTidslinjer = lagVilkårsvurderingTidslinjer(vilkårsvurdering)
 
@@ -472,11 +475,14 @@ internal class KompetanseServiceTest {
 
         val vilkårsvurdering =
             lagVilkårsvurdering(
-                søkersperiode = Periode(fom, tom), // søkersperiode avslutter etter nåtidspunkt
+                // søkersperiode avslutter etter nåtidspunkt
+                søkersperiode = Periode(fom, tom),
                 barnasperioder =
                     mapOf(
-                        barn1 to Pair(fom, tom), // barnetsperiode avslutter etter nåtidspunkt
-                        barn2 to Pair(fom, tomForBarn2), // barnetsperiode avslutter før nåtidspunkt
+                        // barnetsperiode avslutter etter nåtidspunkt
+                        barn1 to Pair(fom, tom),
+                        // barnetsperiode avslutter før nåtidspunkt
+                        barn2 to Pair(fom, tomForBarn2),
                     ),
             )
         val vilkårsvurderingTidslinjer = lagVilkårsvurderingTidslinjer(vilkårsvurdering)
@@ -558,12 +564,16 @@ internal class KompetanseServiceTest {
 
         val vilkårsvurdering =
             lagVilkårsvurdering(
-                søkersperiode = Periode(fom, tom), // søkersperiode 2022-01-2022-11
+                // søkersperiode 2022-01-2022-11
+                søkersperiode = Periode(fom, tom),
                 barnasperioder =
                     mapOf(
-                        barn1 to Pair(fom, tom), // barn1 periode 2022-01-2022-11
-                        barn2 to Pair(fomForBarn2, tomForBarn2), // barn2 periode 2022-03-2022-06
-                        barn3 to Pair(fom, null), // barn3 periode 2022-01-null
+                        // barn1 periode 2022-01-2022-11
+                        barn1 to Pair(fom, tom),
+                        // barn2 periode 2022-03-2022-06
+                        barn2 to Pair(fomForBarn2, tomForBarn2),
+                        // barn3 periode 2022-01-null
+                        barn3 to Pair(fom, null),
                     ),
             )
         val vilkårsvurderingTidslinjer = lagVilkårsvurderingTidslinjer(vilkårsvurdering)

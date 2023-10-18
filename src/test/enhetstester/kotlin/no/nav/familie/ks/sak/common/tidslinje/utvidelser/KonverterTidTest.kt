@@ -1,10 +1,10 @@
 package no.nav.familie.ks.sak.common.tidslinje.utvidelser
 
+import no.nav.familie.ks.sak.common.tidslinje.INF
 import no.nav.familie.ks.sak.common.tidslinje.TidsEnhet
 import no.nav.familie.ks.sak.common.tidslinje.Tidslinje
 import no.nav.familie.ks.sak.common.tidslinje.TidslinjePeriode
 import no.nav.familie.ks.sak.common.tidslinje.Verdi
-import no.nav.familie.ks.sak.common.tidslinje.inf
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
@@ -454,7 +454,7 @@ class KonverterTidTest {
 
         Assertions.assertEquals(correct, tidslinjeMåned.innhold.map { it.periodeVerdi.verdi }.toList())
         Assertions.assertEquals(1, tidslinjeMåned.innhold[3].lengde)
-        assertTrue { inf <= tidslinjeMåned.innhold[4].lengde }
+        assertTrue { INF <= tidslinjeMåned.innhold[4].lengde }
         Assertions.assertEquals(correctBeforeTidslinje, splittPåMåned.map { it.maxBy { periode -> periode.lengde }.periodeVerdi.verdi })
         assertTrue(tidslinjeMåned.innhold.last().erUendelig)
     }

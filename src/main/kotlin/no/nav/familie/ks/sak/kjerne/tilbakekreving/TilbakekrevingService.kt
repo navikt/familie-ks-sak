@@ -96,12 +96,15 @@ class TilbakekrevingService(
                             sumFeilutbetaling = simuleringService.hentFeilutbetaling(behandlingId).longValueExact(),
                             perioder = hentTilbakekrevingsperioderISimulering(simuleringService.hentSimuleringPåBehandling(behandlingId)),
                         ),
-                    fagsystem = Fagsystem.KONT, // for ks vil fagsystem alltid være KONT,
+                    // for ks vil fagsystem alltid være KONT,
+                    fagsystem = Fagsystem.KONT,
                     eksternFagsakId = vedtak.behandling.fagsak.id.toString(),
                     ident = søker.aktør.aktivFødselsnummer(),
                     saksbehandlerIdent = SikkerhetContext.hentSaksbehandlerNavn(),
-                    verge = null, // TODO kommer når verge er implementert
-                    institusjon = null, // Institusjon er alltid null for kontantstøtte
+                    // TODO kommer når verge er implementert
+                    verge = null,
+                    // Institusjon er alltid null for kontantstøtte
+                    institusjon = null,
                 ),
         )
     }
@@ -164,7 +167,8 @@ class TilbakekrevingService(
             personIdent = søker.aktør.aktivFødselsnummer(),
             eksternId = behandlingId.toString(),
             behandlingstype = Behandlingstype.TILBAKEKREVING,
-            manueltOpprettet = false, // det er alltid false siden OpprettManueltTilbakekrevingRequest sendes for manuell opprettelse
+            // det er alltid false siden OpprettManueltTilbakekrevingRequest sendes for manuell opprettelse
+            manueltOpprettet = false,
             språkkode = søker.målform.tilSpråkkode(),
             enhetId = arbeidsfordeling.behandlendeEnhetId,
             enhetsnavn = arbeidsfordeling.behandlendeEnhetNavn,
@@ -179,7 +183,8 @@ class TilbakekrevingService(
                     null
                 },
             revurderingsvedtaksdato = revurderingVedtaksdato,
-            verge = null, // TODO kommer når verge er implementert
+            // TODO kommer når verge er implementert
+            verge = null,
             faktainfo =
                 Faktainfo(
                     revurderingsårsak = behandling.opprettetÅrsak.visningsnavn,

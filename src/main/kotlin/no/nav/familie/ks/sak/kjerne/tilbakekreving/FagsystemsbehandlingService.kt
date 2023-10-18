@@ -66,7 +66,8 @@ class FagsystemsbehandlingService(
                 enhetsnavn = arbeidsfordeling.behandlendeEnhetNavn,
                 revurderingsvedtaksdato = aktivVedtaksdato,
                 faktainfo = faktainfo,
-                institusjon = null, // alltid null for Kontantstøtte
+                // alltid null for Kontantstøtte
+                institusjon = null,
             )
 
         return HentFagsystemsbehandlingRespons(hentFagsystemsbehandling = hentFagsystemsbehandling)

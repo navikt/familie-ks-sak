@@ -90,7 +90,8 @@ class SakStatistikkService(
             ansvarligEnhet = ansvarligEnhet,
             ansvarligBeslutter = totrinnskontroll?.beslutterId,
             ansvarligSaksbehandler = totrinnskontroll?.saksbehandlerId ?: behandling.endretAv,
-            behandlingErManueltOpprettet = true, // TODO er alltid det frem til vi kobler på søknadsdialogen
+            // TODO er alltid det frem til vi kobler på søknadsdialogen
+            behandlingErManueltOpprettet = true,
             funksjoneltTidspunkt = behandling.endretTidspunkt.tilOffset(),
             sattPaaVent =
                 behandlingPåVent?.årsak?.name?.let {

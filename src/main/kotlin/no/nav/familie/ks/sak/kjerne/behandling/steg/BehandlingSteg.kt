@@ -39,7 +39,8 @@ enum class BehandlingSteg(
         gyldigBehandlerRolle = listOf(BehandlerRolle.SYSTEM, BehandlerRolle.BESLUTTER),
         gyldigForÅrsaker =
             BehandlingÅrsak.values()
-                .filterNot { it == SATSENDRING }, // steg er gyldig for alle behandling årsaker bortsett fra SATSENDRING
+                // steg er gyldig for alle behandling årsaker bortsett fra SATSENDRING
+                .filterNot { it == SATSENDRING },
         tilknyttetBehandlingStatus = BehandlingStatus.FATTER_VEDTAK,
     ),
     IVERKSETT_MOT_OPPDRAG(

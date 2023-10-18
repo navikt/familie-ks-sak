@@ -107,7 +107,8 @@ object YtelsePersonUtils {
         } +
             uregistrerteBarn.map {
                 YtelsePerson(
-                    aktør = Aktør(RandomStringUtils.randomNumeric(13)), // Aktør med dummy aktørId
+                    // Aktør med dummy aktørId
+                    aktør = Aktør(RandomStringUtils.randomNumeric(13)),
                     resultater = setOf(AVSLÅTT),
                     ytelseType = YtelseType.ORDINÆR_KONTANTSTØTTE,
                     ytelseSlutt = TIDENES_MORGEN.toYearMonth(),

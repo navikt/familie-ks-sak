@@ -113,7 +113,8 @@ fun fnrTilAktør(
 fun lagPersonopplysningGrunnlag(
     behandlingId: Long = 0L,
     søkerPersonIdent: String = randomFnr(),
-    barnasIdenter: List<String> = emptyList(), // FGB med register søknad steg har ikke barnasidenter
+    // FGB med register søknad steg har ikke barnasidenter
+    barnasIdenter: List<String> = emptyList(),
     barnasFødselsdatoer: List<LocalDate> = barnasIdenter.map { fnrTilFødselsdato(it) },
     barnasDødsfallDatoer: List<LocalDate?> = barnasIdenter.map { null },
     søkerAktør: Aktør =

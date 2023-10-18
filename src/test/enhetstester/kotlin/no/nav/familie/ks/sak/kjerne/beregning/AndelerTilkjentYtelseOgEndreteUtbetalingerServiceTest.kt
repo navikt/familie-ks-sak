@@ -113,7 +113,8 @@ class AndelerTilkjentYtelseOgEndreteUtbetalingerServiceTest {
         val fom = YearMonth.now().minusMonths(6)
         val tom = YearMonth.now().plusMonths(5)
         every { andelTilkjentYtelseRepository.finnAndelerTilkjentYtelseForBehandling(behandling.id) } returns
-            listOf( // begge 2 er overlappende perioder og følger med
+            listOf(
+                // begge 2 er overlappende perioder og følger med
                 lagAndelTilkjentYtelse(
                     behandling = behandling,
                     aktør = søker,

@@ -1,11 +1,11 @@
 package no.nav.familie.ks.sak.common.tidslinje.utvidelser
 
+import no.nav.familie.ks.sak.common.tidslinje.INF
 import no.nav.familie.ks.sak.common.tidslinje.Null
 import no.nav.familie.ks.sak.common.tidslinje.Tidslinje
 import no.nav.familie.ks.sak.common.tidslinje.TidslinjePeriode
 import no.nav.familie.ks.sak.common.tidslinje.Udefinert
 import no.nav.familie.ks.sak.common.tidslinje.Verdi
-import no.nav.familie.ks.sak.common.tidslinje.inf
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
@@ -65,7 +65,7 @@ class TidslinjeNullUndefTest {
     @Test
     fun `kan legge sammen tidslinjer av samme lengde med null-verdier`() {
         init(
-            listOf(TidslinjePeriode(Udefinert(), 3, false), TidslinjePeriode(2, 1, false), TidslinjePeriode(99, inf, true)),
+            listOf(TidslinjePeriode(Udefinert(), 3, false), TidslinjePeriode(2, 1, false), TidslinjePeriode(99, INF, true)),
             listOf(TidslinjePeriode(3, 2, false), TidslinjePeriode(1, 1, false), TidslinjePeriode(1, 1, false)),
         )
 

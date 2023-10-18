@@ -10,7 +10,8 @@ import org.springframework.http.HttpStatus
 import java.time.YearMonth
 
 data class KompetanseDto(
-    val id: Long, // brukes for å slette kompetanse
+    // brukes for å slette kompetanse
+    val id: Long,
     val fom: YearMonth?,
     val tom: YearMonth?,
     val barnIdenter: List<String>,

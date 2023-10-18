@@ -310,7 +310,8 @@ class VilkårsvurderingStegTest {
                     listOf(
                         NullablePeriode(
                             LocalDate.of(2021, 4, 1),
-                            LocalDate.of(2021, 8, 31), // stopper før barnets blir 2 år
+                            // stopper før barnets blir 2 år
+                            LocalDate.of(2021, 8, 31),
                         ) to BigDecimal(10),
                     ),
                 behandlingId = behandling.id,
@@ -349,7 +350,8 @@ class VilkårsvurderingStegTest {
                             LocalDate.of(2021, 4, 1),
                             LocalDate.of(2022, 4, 1),
                         ) to null,
-                        NullablePeriode( // periode starter etter barnets 2 års dato
+                        NullablePeriode(
+                            // periode starter etter barnets 2 års dato
                             LocalDate.of(2022, 4, 2),
                             LocalDate.of(2022, 8, 31),
                         ) to BigDecimal(30),

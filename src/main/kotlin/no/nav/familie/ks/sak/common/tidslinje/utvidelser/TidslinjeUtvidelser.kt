@@ -1,5 +1,6 @@
 package no.nav.familie.ks.sak.common.tidslinje.utvidelser
 
+import no.nav.familie.ks.sak.common.tidslinje.INF
 import no.nav.familie.ks.sak.common.tidslinje.Null
 import no.nav.familie.ks.sak.common.tidslinje.PRAKTISK_SENESTE_DAG
 import no.nav.familie.ks.sak.common.tidslinje.Periode
@@ -10,7 +11,6 @@ import no.nav.familie.ks.sak.common.tidslinje.TidslinjePeriode
 import no.nav.familie.ks.sak.common.tidslinje.TidslinjePeriodeMedDato
 import no.nav.familie.ks.sak.common.tidslinje.Udefinert
 import no.nav.familie.ks.sak.common.tidslinje.filtrerIkkeNull
-import no.nav.familie.ks.sak.common.tidslinje.inf
 import no.nav.familie.ks.sak.common.tidslinje.tilPeriodeVerdi
 import no.nav.familie.ks.sak.common.util.TIDENES_ENDE
 import java.time.LocalDate
@@ -109,13 +109,13 @@ private fun <T, R> konverterTilSammeLengde(
                 listOf(
                     TidslinjePeriode(
                         periodeVerdi = udefinert2,
-                        lengde = inf,
+                        lengde = INF,
                         erUendelig = true,
                     ),
                 )
             return Pair(kopi1, kopi2)
         } else if (kopi2.innhold.isNotEmpty() && kopi2.innhold.last().erUendelig) {
-            kopi1.innhold = kopi1.innhold + listOf(TidslinjePeriode(periodeVerdi = udefinert1, lengde = inf, erUendelig = true))
+            kopi1.innhold = kopi1.innhold + listOf(TidslinjePeriode(periodeVerdi = udefinert1, lengde = INF, erUendelig = true))
             return Pair(kopi1, kopi2)
         }
 
@@ -290,7 +290,7 @@ fun <T> Tidslinje<T>.konverterTilMåned(
         if (vindu[antallMndBakoverITid].last().erUendelig) { // dersom inneværende måned er uendelig, må man beregne verdien dersom vinduet kun dekker den uendelige periodeVerdien.
             val listeMedUendeligPeriodeVerdier =
                 (0..antallMndBakoverITid + antallMndFremoverITid).map { listOf(vindu[antallMndBakoverITid].last()) }
-            perioder.add(TidslinjePeriode(operator(dato, listeMedUendeligPeriodeVerdier), inf, true))
+            perioder.add(TidslinjePeriode(operator(dato, listeMedUendeligPeriodeVerdier), INF, true))
         }
     }
 
@@ -492,7 +492,7 @@ fun <T, R, RESULTAT> Tidslinje<T>.biFunksjon(
             lst.add(
                 tidslinjePeriode1.biFunksjon(
                     operand = tidslinjePeriode2,
-                    lengde = inf,
+                    lengde = INF,
                     erUendelig = true,
                     operator = kombineringsfunksjon,
                 ),

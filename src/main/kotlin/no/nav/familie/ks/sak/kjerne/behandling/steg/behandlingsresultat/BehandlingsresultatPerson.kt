@@ -10,7 +10,8 @@ import java.time.YearMonth
 
 data class BehandlingsresultatPerson(
     val aktør: Aktør,
-    val søktForPerson: Boolean, // flagg som markerer om person er inkludert i utledning
+    // flagg som markerer om person er inkludert i utledning
+    val søktForPerson: Boolean,
     val eksplisittAvslag: Boolean = false,
     val forrigeAndeler: List<BehandlingsresultatAndelTilkjentYtelse> = emptyList(),
     val andeler: List<BehandlingsresultatAndelTilkjentYtelse>,

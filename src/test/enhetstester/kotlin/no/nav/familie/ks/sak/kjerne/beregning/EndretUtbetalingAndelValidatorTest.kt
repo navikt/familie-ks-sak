@@ -236,7 +236,8 @@ class EndretUtbetalingAndelValidatorTest {
                 personResultat = personResultatForBarn2,
                 behandlingId = behandling.id,
                 fom1 = fomBarn2,
-                tom1 = fomBarn1, // sammenhengde periode med første barn vilkår resultat
+                // sammenhengde periode med første barn vilkår resultat
+                tom1 = fomBarn1,
             )
 
         personResultatForBarn1.setSortedVilkårResultater(vilkårResultaterForBarn1)
@@ -279,7 +280,8 @@ class EndretUtbetalingAndelValidatorTest {
                 personResultat = personResultatForBarn2,
                 behandlingId = behandling.id,
                 fom1 = fomBarn2,
-                tom1 = tomBarn1, // overlapper med første barn vilkårresultat
+                // overlapper med første barn vilkårresultat
+                tom1 = tomBarn1,
             )
 
         personResultatForBarn1.setSortedVilkårResultater(vilkårResultaterForBarn1)

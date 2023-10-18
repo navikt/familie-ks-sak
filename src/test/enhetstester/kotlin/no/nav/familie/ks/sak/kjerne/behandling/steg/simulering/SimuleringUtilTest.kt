@@ -203,27 +203,32 @@ class SimuleringUtilTest {
                     beløp = -10000,
                     posteringType = PosteringType.YTELSE,
                     betalingType = BetalingType.KREDIT,
-                ), // Forrige
+                ),
+                // Forrige
                 mockVedtakSimuleringPostering(
                     beløp = 2000,
                     posteringType = PosteringType.YTELSE,
                     betalingType = BetalingType.DEBIT,
-                ), // Ny
+                ),
+                // Ny
                 mockVedtakSimuleringPostering(
                     beløp = 8000,
                     posteringType = PosteringType.FEILUTBETALING,
                     betalingType = BetalingType.DEBIT,
-                ), // Feilutbetaling
+                ),
+                // Feilutbetaling
                 mockVedtakSimuleringPostering(
                     beløp = -8000,
                     posteringType = PosteringType.MOTP,
                     betalingType = BetalingType.KREDIT,
-                ), // "Nuller ut" Feilutbetalingen
+                ),
+                // "Nuller ut" Feilutbetalingen
                 mockVedtakSimuleringPostering(
                     beløp = 8000,
                     posteringType = PosteringType.YTELSE,
                     betalingType = BetalingType.DEBIT,
-                ), // "Nuller ut" forrige og ny
+                ),
+                // "Nuller ut" forrige og ny
             )
 
         val økonomiSimuleringMottakere =
@@ -257,7 +262,8 @@ class SimuleringUtilTest {
                     beløp = -1000,
                     posteringType = PosteringType.FEILUTBETALING,
                     betalingType = BetalingType.KREDIT,
-                ), // Reduser feilutbetaling
+                ),
+                // Reduser feilutbetaling
                 mockVedtakSimuleringPostering(
                     beløp = 1000,
                     posteringType = PosteringType.MOTP,
@@ -301,7 +307,8 @@ class SimuleringUtilTest {
                     beløp = -7000,
                     posteringType = PosteringType.FEILUTBETALING,
                     betalingType = BetalingType.KREDIT,
-                ), // Reduser feilutb
+                ),
+                // Reduser feilutb
                 mockVedtakSimuleringPostering(
                     beløp = 7000,
                     posteringType = PosteringType.MOTP,
