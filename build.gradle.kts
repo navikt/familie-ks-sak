@@ -45,7 +45,7 @@ repositories {
 dependencies {
 
     val springdocVersion = "2.2.0"
-    val sentryVersion = "6.30.0"
+    val sentryVersion = "6.32.0"
     val navFellesVersion = "2.20230928165350_3e5b5e9"
     val eksterneKontrakterBisysVersion = "2.0_20230214104704_706e9c0"
     val fellesKontrakterVersion = "3.0_20230921075936_3adfc44"
@@ -109,11 +109,11 @@ dependencies {
     implementation("nav-foedselsnummer:core:$navFoedselsnummerVersion")
 
     implementation("com.papertrailapp:logback-syslog4j:1.0.0")
-    implementation("io.getunleash:unleash-client-java:8.3.1")
+    implementation("io.getunleash:unleash-client-java:8.4.0")
     implementation("io.sentry:sentry-spring-boot-starter:$sentryVersion")
     implementation("io.sentry:sentry-logback:$sentryVersion")
     implementation("io.micrometer:micrometer-registry-prometheus")
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.15.2")
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.15.3")
     implementation("com.neovisionaries:nv-i18n:1.29")
     ktlint("com.pinterest.ktlint:ktlint-cli:1.0.1") {
         attributes {
