@@ -176,19 +176,17 @@ internal class PersonopplysningGrunnlagServiceTest {
             lagPerson(
                 personopplysningGrunnlag = nyttPersonopplysningGrunnlag,
                 aktør = søker,
+            ) andThen
+            lagPerson(
+                personopplysningGrunnlag = nyttPersonopplysningGrunnlag,
+                aktør = barn2,
+                personType = PersonType.BARN,
+            ) andThen
+            lagPerson(
+                personopplysningGrunnlag = nyttPersonopplysningGrunnlag,
+                aktør = barn3,
+                personType = PersonType.BARN,
             )
-        andThen
-        lagPerson(
-            personopplysningGrunnlag = nyttPersonopplysningGrunnlag,
-            aktør = barn2,
-            personType = PersonType.BARN,
-        )
-        andThen
-        lagPerson(
-            personopplysningGrunnlag = nyttPersonopplysningGrunnlag,
-            aktør = barn3,
-            personType = PersonType.BARN,
-        )
         every { personopplysningGrunnlagRepository.saveAndFlush(capture(deaktivertPersonopplysningGrunnlagSlot)) } returnsArgument 0
         every { personopplysningGrunnlagRepository.save(any()) } returnsArgument 0
         val lagretPersonopplysningsgrunnlag =
@@ -256,25 +254,22 @@ internal class PersonopplysningGrunnlagServiceTest {
             lagPerson(
                 personopplysningGrunnlag = nyttPersonopplysningGrunnlag,
                 aktør = søker,
+            ) andThen
+            lagPerson(
+                personopplysningGrunnlag = nyttPersonopplysningGrunnlag,
+                aktør = barn1,
+                personType = PersonType.BARN,
+            ) andThen
+            lagPerson(
+                personopplysningGrunnlag = nyttPersonopplysningGrunnlag,
+                aktør = barn2,
+                personType = PersonType.BARN,
+            ) andThen
+            lagPerson(
+                personopplysningGrunnlag = nyttPersonopplysningGrunnlag,
+                aktør = barn3,
+                personType = PersonType.BARN,
             )
-        andThen
-        lagPerson(
-            personopplysningGrunnlag = nyttPersonopplysningGrunnlag,
-            aktør = barn1,
-            personType = PersonType.BARN,
-        )
-        andThen
-        lagPerson(
-            personopplysningGrunnlag = nyttPersonopplysningGrunnlag,
-            aktør = barn2,
-            personType = PersonType.BARN,
-        )
-        andThen
-        lagPerson(
-            personopplysningGrunnlag = nyttPersonopplysningGrunnlag,
-            aktør = barn3,
-            personType = PersonType.BARN,
-        )
         every { personopplysningGrunnlagRepository.saveAndFlush(capture(deaktivertPersonopplysningGrunnlagSlot)) } returnsArgument 0
         every { personopplysningGrunnlagRepository.save(any()) } returnsArgument 0
         val lagretPersonopplysningGrunnlag =
