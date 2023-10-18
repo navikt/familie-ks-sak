@@ -11,7 +11,6 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 
 class PersonidentRepositoryTest : OppslagSpringRunnerTest() {
-
     @Autowired
     private lateinit var personidentRepository: PersonidentRepository
 

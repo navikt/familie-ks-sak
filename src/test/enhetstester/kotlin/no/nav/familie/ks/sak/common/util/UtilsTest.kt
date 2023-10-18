@@ -5,7 +5,6 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 
 internal class UtilsTest {
-
     @Test
     fun `konverterEnumsTilString - skal konvertere liste av enum verdier til semikolon-separert string`() {
         val enums: List<Vilkår> = listOf(Vilkår.MEDLEMSKAP, Vilkår.BARNEHAGEPLASS, Vilkår.BOR_MED_SØKER)

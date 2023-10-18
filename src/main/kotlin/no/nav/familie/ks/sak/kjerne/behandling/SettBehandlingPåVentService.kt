@@ -21,9 +21,12 @@ class SettBehandlingPåVentService(
     private val loggService: LoggService,
     private val oppgaveService: OppgaveService,
 ) {
-
     @Transactional
-    fun settBehandlingPåVent(behandlingId: Long, frist: LocalDate, årsak: VenteÅrsak) {
+    fun settBehandlingPåVent(
+        behandlingId: Long,
+        frist: LocalDate,
+        årsak: VenteÅrsak,
+    ) {
         val behandling = behandlingRepository.hentBehandling(behandlingId)
         validerBehandlingKanSettesPåVent(behandling, frist)
 
@@ -36,7 +39,11 @@ class SettBehandlingPåVentService(
     }
 
     @Transactional
-    fun oppdaterFristOgÅrsak(behandlingId: Long, frist: LocalDate, årsak: VenteÅrsak) {
+    fun oppdaterFristOgÅrsak(
+        behandlingId: Long,
+        frist: LocalDate,
+        årsak: VenteÅrsak,
+    ) {
         val behandling = behandlingRepository.hentBehandling(behandlingId)
 
         val gammelFrist = stegService.oppdaterBehandlingstegFristOgÅrsak(behandling, frist, årsak)
@@ -66,7 +73,10 @@ class SettBehandlingPåVentService(
         )
     }
 
-    private fun validerBehandlingKanSettesPåVent(behandling: Behandling, frist: LocalDate) {
+    private fun validerBehandlingKanSettesPåVent(
+        behandling: Behandling,
+        frist: LocalDate,
+    ) {
         when {
             behandling.behandlingStegTilstand.any { it.behandlingStegStatus == BehandlingStegStatus.VENTER } -> {
                 throw FunksjonellFeil(

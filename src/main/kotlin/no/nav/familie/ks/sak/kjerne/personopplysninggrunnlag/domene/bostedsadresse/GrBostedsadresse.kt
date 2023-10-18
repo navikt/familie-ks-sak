@@ -33,26 +33,27 @@ abstract class GrBostedsadresse(
         allocationSize = 50,
     )
     open val id: Long = 0,
-
     @Embedded
     open var periode: DatoIntervallEntitet? = null,
-
     @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "fk_po_person_id")
     open var person: Person? = null,
 ) : BaseEntitet() {
-
     abstract fun toSecureString(): String
 
     abstract fun tilFrontendString(): String
 
     companion object {
-        fun fraBostedsadresse(bostedsadresse: Bostedsadresse, person: Person): GrBostedsadresse {
-            val mappetAdresse = bostedsadresse.vegadresse?.let { GrVegadresse.fraVegadresse(it) }
-                ?: bostedsadresse.matrikkeladresse?.let { GrMatrikkeladresse.fraMatrikkeladresse(it) }
-                ?: bostedsadresse.ukjentBosted?.let { GrUkjentBosted.fraUkjentBosted(it) }
-                ?: throw Feil("Vegadresse, matrikkeladresse og ukjent bosted har verdi null ved mapping fra bostedadresse")
+        fun fraBostedsadresse(
+            bostedsadresse: Bostedsadresse,
+            person: Person,
+        ): GrBostedsadresse {
+            val mappetAdresse =
+                bostedsadresse.vegadresse?.let { GrVegadresse.fraVegadresse(it) }
+                    ?: bostedsadresse.matrikkeladresse?.let { GrMatrikkeladresse.fraMatrikkeladresse(it) }
+                    ?: bostedsadresse.ukjentBosted?.let { GrUkjentBosted.fraUkjentBosted(it) }
+                    ?: throw Feil("Vegadresse, matrikkeladresse og ukjent bosted har verdi null ved mapping fra bostedadresse")
 
             return mappetAdresse.also {
                 it.person = person

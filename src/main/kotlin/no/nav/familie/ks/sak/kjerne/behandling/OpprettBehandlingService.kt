@@ -45,14 +45,14 @@ class OpprettBehandlingService(
     private val stegService: StegService,
     private val behandlingMetrikker: BehandlingMetrikker,
 ) {
-
     @Transactional
     fun opprettBehandling(opprettBehandlingRequest: OpprettBehandlingDto): Behandling {
         val aktør = personidentService.hentAktør(opprettBehandlingRequest.søkersIdent)
-        val fagsak = fagsakRepository.finnFagsakForAktør(aktør)
-            ?: throw FunksjonellFeil(
-                melding = "Kan ikke lage behandling på person uten tilknyttet fagsak.",
-            )
+        val fagsak =
+            fagsakRepository.finnFagsakForAktør(aktør)
+                ?: throw FunksjonellFeil(
+                    melding = "Kan ikke lage behandling på person uten tilknyttet fagsak.",
+                )
 
         val aktivBehandling = behandlingRepository.findByFagsakAndAktiv(fagsak.id)
         val sisteVedtattBehandling = hentSisteBehandlingSomErVedtatt(fagsak.id)
@@ -64,26 +64,30 @@ class OpprettBehandlingService(
             )
         }
 
-        val behandlingKategori = bestemKategoriVedOpprettelse(
-            overstyrtKategori = opprettBehandlingRequest.kategori,
-            behandlingType = opprettBehandlingRequest.behandlingType,
-            behandlingÅrsak = opprettBehandlingRequest.behandlingÅrsak,
-            kategoriFraLøpendeBehandling = BehandlingKategori.NASJONAL, // TODO EØS implementeres etter vilkårsvurdering
-        )
-        val behandling = Behandling(
-            fagsak = fagsak,
-            type = opprettBehandlingRequest.behandlingType,
-            opprettetÅrsak = opprettBehandlingRequest.behandlingÅrsak,
-            kategori = behandlingKategori,
-            søknadMottattDato = opprettBehandlingRequest.søknadMottattDato?.atStartOfDay(),
-        ).initBehandlingStegTilstand() // oppretter behandling med initielt steg Registrer Persongrunnlag
+        val behandlingKategori =
+            bestemKategoriVedOpprettelse(
+                overstyrtKategori = opprettBehandlingRequest.kategori,
+                behandlingType = opprettBehandlingRequest.behandlingType,
+                behandlingÅrsak = opprettBehandlingRequest.behandlingÅrsak,
+                // TODO EØS implementeres etter vilkårsvurdering
+                kategoriFraLøpendeBehandling = BehandlingKategori.NASJONAL,
+            )
+        val behandling =
+            Behandling(
+                fagsak = fagsak,
+                type = opprettBehandlingRequest.behandlingType,
+                opprettetÅrsak = opprettBehandlingRequest.behandlingÅrsak,
+                kategori = behandlingKategori,
+                søknadMottattDato = opprettBehandlingRequest.søknadMottattDato?.atStartOfDay(),
+            ).initBehandlingStegTilstand() // oppretter behandling med initielt steg Registrer Persongrunnlag
 
         behandling.validerBehandlingstype(sisteVedtattBehandling)
-        val lagretBehandling = lagreNyOgDeaktiverGammelBehandling(
-            nyBehandling = behandling,
-            aktivBehandling = aktivBehandling,
-            sisteVedtattBehandling = sisteVedtattBehandling,
-        )
+        val lagretBehandling =
+            lagreNyOgDeaktiverGammelBehandling(
+                nyBehandling = behandling,
+                aktivBehandling = aktivBehandling,
+                sisteVedtattBehandling = sisteVedtattBehandling,
+            )
         vedtakService.opprettOgInitierNyttVedtakForBehandling(lagretBehandling) // initierer vedtak
         loggService.opprettBehandlingLogg(lagretBehandling) // lag historikkinnslag
         // Oppretter BehandleSak oppgave via task. Ruller tasken tilbake, hvis behandling opprettelse feiler
@@ -136,7 +140,10 @@ class OpprettBehandlingService(
     }
 
     @Transactional
-    fun validerOgOpprettRevurderingKlage(fagsakId: Long, behandlingÅrsak: BehandlingÅrsak): OpprettRevurderingResponse {
+    fun validerOgOpprettRevurderingKlage(
+        fagsakId: Long,
+        behandlingÅrsak: BehandlingÅrsak,
+    ): OpprettRevurderingResponse {
         val fagsak = hentFagsak(fagsakId)
 
         val resultat = utledKanOppretteRevurdering(fagsak)
@@ -146,16 +153,20 @@ class OpprettBehandlingService(
         }
     }
 
-    private fun opprettRevurderingKlage(fagsak: Fagsak, behandlingÅrsak: BehandlingÅrsak): OpprettRevurderingResponse {
+    private fun opprettRevurderingKlage(
+        fagsak: Fagsak,
+        behandlingÅrsak: BehandlingÅrsak,
+    ): OpprettRevurderingResponse {
         return try {
             val forrigeBehandling = hentSisteBehandlingSomErVedtatt(fagsakId = fagsak.id)
 
-            val behandlingDto = OpprettBehandlingDto(
-                kategori = forrigeBehandling?.kategori ?: BehandlingKategori.NASJONAL,
-                søkersIdent = fagsak.aktør.aktivFødselsnummer(),
-                behandlingType = BehandlingType.REVURDERING,
-                behandlingÅrsak = behandlingÅrsak,
-            )
+            val behandlingDto =
+                OpprettBehandlingDto(
+                    kategori = forrigeBehandling?.kategori ?: BehandlingKategori.NASJONAL,
+                    søkersIdent = fagsak.aktør.aktivFødselsnummer(),
+                    behandlingType = BehandlingType.REVURDERING,
+                    behandlingÅrsak = behandlingÅrsak,
+                )
 
             val revurdering = opprettBehandling(behandlingDto)
             OpprettRevurderingResponse(Opprettet(revurdering.id.toString()))
@@ -194,30 +205,34 @@ class OpprettBehandlingService(
     // andre tjenester bruker eventuelt BehandlingService istedet
     fun hentBehandling(behandlingId: Long): Behandling = behandlingRepository.hentBehandling(behandlingId)
 
-    private fun hentFagsak(fagsakId: Long) = fagsakRepository.finnFagsak(fagsakId)
-        ?: throw FunksjonellFeil("Fant ikke fagsak med ID=$fagsakId.")
+    private fun hentFagsak(fagsakId: Long) =
+        fagsakRepository.finnFagsak(fagsakId)
+            ?: throw FunksjonellFeil("Fant ikke fagsak med ID=$fagsakId.")
 
     fun finnAktivBehandlingPåFagsak(fagsakId: Long): Behandling? = behandlingRepository.findByFagsakAndAktiv(fagsakId)
+
     fun erAktivBehandlingPåFagsak(fagsakId: Long): Boolean = finnAktivBehandlingPåFagsak(fagsakId) != null
+
     fun finnÅpenBehandlingPåFagsak(fagsakId: Long): Behandling? = behandlingRepository.findByFagsakAndAktivAndOpen(fagsakId)
+
     fun erÅpenBehandlingPåFagsak(fagsakId: Long): Boolean = finnÅpenBehandlingPåFagsak(fagsakId) != null
 
     companion object {
-
         private val logger: Logger = LoggerFactory.getLogger(OpprettBehandlingService::class.java)
         private val secureLogger = LoggerFactory.getLogger("secureLogger")
     }
 }
 
 private sealed interface KanOppretteRevurderingResultat
+
 private object KanOppretteRevurdering : KanOppretteRevurderingResultat
+
 private data class KanIkkeOppretteRevurdering(val årsak: Årsak) : KanOppretteRevurderingResultat
 
 private enum class Årsak(
     val ikkeOpprettetÅrsak: IkkeOpprettetÅrsak,
     val kanIkkeOppretteRevurderingÅrsak: KanIkkeOppretteRevurderingÅrsak,
 ) {
-
     ÅPEN_BEHANDLING(IkkeOpprettetÅrsak.ÅPEN_BEHANDLING, KanIkkeOppretteRevurderingÅrsak.ÅPEN_BEHANDLING),
     INGEN_BEHANDLING(IkkeOpprettetÅrsak.INGEN_BEHANDLING, KanIkkeOppretteRevurderingÅrsak.INGEN_BEHANDLING),
 }

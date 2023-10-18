@@ -50,7 +50,6 @@ class FagsakService(
     private val tilbakekrevingsbehandlingHentService: TilbakekrevingsbehandlingHentService,
     private val vedtakRepository: VedtakRepository,
 ) {
-
     private val antallFagsakerOpprettetFraManuell =
         Metrics.counter("familie.ks.sak.fagsak.opprettet", "saksbehandling", "manuell")
 
@@ -92,11 +91,12 @@ class FagsakService(
 
     @Transactional
     fun hentEllerOpprettFagsak(fagsakRequest: FagsakRequestDto): MinimalFagsakResponsDto {
-        val personident = fagsakRequest.personIdent ?: fagsakRequest.aktørId ?: throw Feil(
-            "Hverken aktørid eller personident er satt på fagsak-requesten. Klarer ikke opprette eller hente fagsak.",
-            "Fagsak er forsøkt opprettet uten ident. Dette er en systemfeil, vennligst ta kontakt med systemansvarlig.",
-            HttpStatus.BAD_REQUEST,
-        )
+        val personident =
+            fagsakRequest.personIdent ?: fagsakRequest.aktørId ?: throw Feil(
+                "Hverken aktørid eller personident er satt på fagsak-requesten. Klarer ikke opprette eller hente fagsak.",
+                "Fagsak er forsøkt opprettet uten ident. Dette er en systemfeil, vennligst ta kontakt med systemansvarlig.",
+                HttpStatus.BAD_REQUEST,
+            )
 
         val aktør = personidentService.hentOgLagreAktør(personident, true)
         val fagsak = fagsakRepository.finnFagsakForAktør(aktør) ?: lagre(Fagsak(aktør = aktør))
@@ -109,27 +109,30 @@ class FagsakService(
         val alleBehandlinger = behandlingRepository.finnBehandlinger(fagsakId)
         val tilbakekrevingsbehandlinger = tilbakekrevingsbehandlingHentService.hentTilbakekrevingsbehandlinger(fagsakId)
 
-        val sistIverksatteBehandling = alleBehandlinger.filter { it.steg == BehandlingSteg.AVSLUTT_BEHANDLING }
-            .maxByOrNull { it.opprettetTidspunkt }
+        val sistIverksatteBehandling =
+            alleBehandlinger.filter { it.steg == BehandlingSteg.AVSLUTT_BEHANDLING }
+                .maxByOrNull { it.opprettetTidspunkt }
 
-        val gjeldendeUtbetalingsperioder = sistIverksatteBehandling?.let {
-            val personopplysningGrunnlag =
-                personopplysningGrunnlagRepository.hentByBehandlingAndAktiv(it.id)
-            val andeler =
-                andelerTilkjentYtelseOgEndreteUtbetalingerService.finnAndelerTilkjentYtelseMedEndreteUtbetalinger(it.id)
+        val gjeldendeUtbetalingsperioder =
+            sistIverksatteBehandling?.let {
+                val personopplysningGrunnlag =
+                    personopplysningGrunnlagRepository.hentByBehandlingAndAktiv(it.id)
+                val andeler =
+                    andelerTilkjentYtelseOgEndreteUtbetalingerService.finnAndelerTilkjentYtelseMedEndreteUtbetalinger(it.id)
 
-            andeler.tilUtbetalingsperiodeResponsDto(personopplysningGrunnlag)
-        }
+                andeler.tilUtbetalingsperiodeResponsDto(personopplysningGrunnlag)
+            }
 
         return lagMinimalFagsakResponsDto(
             fagsak = fagsak,
             aktivtBehandling = behandlingRepository.findByFagsakAndAktiv(fagsakId),
-            behandlinger = alleBehandlinger.map {
-                lagBehandlingResponsDto(
-                    behandling = it,
-                    vedtaksdato = vedtakRepository.findByBehandlingAndAktivOptional(it.id)?.vedtaksdato,
-                )
-            },
+            behandlinger =
+                alleBehandlinger.map {
+                    lagBehandlingResponsDto(
+                        behandling = it,
+                        vedtaksdato = vedtakRepository.findByBehandlingAndAktivOptional(it.id)?.vedtaksdato,
+                    )
+                },
             tilbakekrevingsbehandlinger = tilbakekrevingsbehandlinger.map { lagTilbakekrevingsbehandlingResponsDto(it) },
             gjeldendeUtbetalingsperioder = gjeldendeUtbetalingsperioder ?: emptyList(),
         )
@@ -155,7 +158,10 @@ class FagsakService(
             .map { oppdaterStatus(it, FagsakStatus.AVSLUTTET) }
             .size
 
-    fun oppdaterStatus(fagsak: Fagsak, nyStatus: FagsakStatus): Fagsak {
+    fun oppdaterStatus(
+        fagsak: Fagsak,
+        nyStatus: FagsakStatus,
+    ): Fagsak {
         logger.info(
             "${SikkerhetContext.hentSaksbehandlerNavn()} endrer status på fagsak ${fagsak.id} fra ${fagsak.status}" +
                 " til $nyStatus",
@@ -173,26 +179,28 @@ class FagsakService(
             val behandling = behandlingRepository.hentBehandling(person.personopplysningGrunnlag.behandlingId)
             val fagsak = behandling.fagsak // Behandling opprettet alltid med søker aktør
             if (assosierteFagsakDeltagerMap.containsKey(fagsak.id)) return@forEach
-            val fagsakDeltagerRespons: FagsakDeltagerResponsDto = when {
-                // når søkparam er samme som aktør til behandlingen
-                fagsak.aktør == aktør -> lagFagsakDeltagerResponsDto(
-                    personInfo = personInfoMedRelasjoner,
-                    ident = fagsak.aktør.aktivFødselsnummer(),
-                    rolle = FagsakDeltagerRolle.FORELDER,
-                    fagsak = behandling.fagsak,
-                )
-
-                else -> { // søkparam(aktør) er ikke søkers aktør, da hentes her forelder til søkparam(aktør)
-                    val maskertForelder = hentMaskertFagsakdeltakerVedManglendeTilgang(fagsak.aktør)
-                    maskertForelder?.copy(rolle = FagsakDeltagerRolle.FORELDER)
-                        ?: lagFagsakDeltagerResponsDto(
-                            personopplysningerService.hentPersoninfoEnkel(fagsak.aktør),
-                            fagsak.aktør.aktivFødselsnummer(),
-                            FagsakDeltagerRolle.FORELDER,
-                            fagsak,
+            val fagsakDeltagerRespons: FagsakDeltagerResponsDto =
+                when {
+                    // når søkparam er samme som aktør til behandlingen
+                    fagsak.aktør == aktør ->
+                        lagFagsakDeltagerResponsDto(
+                            personInfo = personInfoMedRelasjoner,
+                            ident = fagsak.aktør.aktivFødselsnummer(),
+                            rolle = FagsakDeltagerRolle.FORELDER,
+                            fagsak = behandling.fagsak,
                         )
+
+                    else -> { // søkparam(aktør) er ikke søkers aktør, da hentes her forelder til søkparam(aktør)
+                        val maskertForelder = hentMaskertFagsakdeltakerVedManglendeTilgang(fagsak.aktør)
+                        maskertForelder?.copy(rolle = FagsakDeltagerRolle.FORELDER)
+                            ?: lagFagsakDeltagerResponsDto(
+                                personopplysningerService.hentPersoninfoEnkel(fagsak.aktør),
+                                fagsak.aktør.aktivFødselsnummer(),
+                                FagsakDeltagerRolle.FORELDER,
+                                fagsak,
+                            )
+                    }
                 }
-            }
             assosierteFagsakDeltagerMap[fagsak.id] = fagsakDeltagerRespons
         }
         return assosierteFagsakDeltagerMap.values.toList()
@@ -244,15 +252,15 @@ class FagsakService(
         }
     }
 
-    fun hentFagsak(fagsakId: Long): Fagsak = fagsakRepository.finnFagsak(fagsakId) ?: throw FunksjonellFeil(
-        melding = "Finner ikke fagsak med id $fagsakId",
-        frontendFeilmelding = "Finner ikke fagsak med id $fagsakId",
-    )
+    fun hentFagsak(fagsakId: Long): Fagsak =
+        fagsakRepository.finnFagsak(fagsakId) ?: throw FunksjonellFeil(
+            melding = "Finner ikke fagsak med id $fagsakId",
+            frontendFeilmelding = "Finner ikke fagsak med id $fagsakId",
+        )
 
     fun finnFagsakForPerson(aktør: Aktør): Fagsak? = fagsakRepository.finnFagsakForAktør(aktør)
 
-    fun hentFagsakForPerson(aktør: Aktør): Fagsak =
-        finnFagsakForPerson(aktør) ?: throw Feil("Fant ikke fagsak på person")
+    fun hentFagsakForPerson(aktør: Aktør): Fagsak = finnFagsakForPerson(aktør) ?: throw Feil("Fant ikke fagsak på person")
 
     fun hentFagsakerPåPerson(aktør: Aktør): List<Fagsak> {
         val versjonerAvBarn = personRepository.findByAktør(aktør)

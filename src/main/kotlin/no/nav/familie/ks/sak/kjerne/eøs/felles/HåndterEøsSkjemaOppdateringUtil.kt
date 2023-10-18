@@ -22,21 +22,24 @@ fun <T : EøsSkjemaEntitet<T>> T.lagBlankSkjemaEllerNull(skjemaer: List<T>): T? 
     // a) Henter skjema der
     // 1. tom dato går fra null til en verdi eller tom dato er satt til en tidligere dato,
     // 2. Andre feltene bortsett fra tom dato er lik
-    val skjemaetDerTomForkortes = skjemaer.singleOrNull { skjema ->
-        skjema.tomBlirForkortetEllerLukketAv(oppdatering) && skjema.erLikBortsettFraTom(oppdatering)
-    }
+    val skjemaetDerTomForkortes =
+        skjemaer.singleOrNull { skjema ->
+            skjema.tomBlirForkortetEllerLukketAv(oppdatering) && skjema.erLikBortsettFraTom(oppdatering)
+        }
     // b) Henter skjema der
     // 1. barn er fjernet fra skjema
     // 2. Andre feltene bortsett fra antall barnAktør er lik
-    val skjemaetDerBarnFjernes = skjemaer.singleOrNull { skjema ->
-        oppdatering.manglerBarn(skjema) && skjema.erLikBortsettFraBarn(oppdatering)
-    }
+    val skjemaetDerBarnFjernes =
+        skjemaer.singleOrNull { skjema ->
+            oppdatering.manglerBarn(skjema) && skjema.erLikBortsettFraBarn(oppdatering)
+        }
     // c) Henter skjema der både punkt a og punkt b gjelder
-    val skjemaetDerTomForkortesOgBarnFjernes = skjemaer.singleOrNull { skjema ->
-        skjema.tomBlirForkortetEllerLukketAv(oppdatering) &&
-            oppdatering.manglerBarn(skjema) &&
-            skjema.erLikBortsettFraBarnOgTom(oppdatering)
-    }
+    val skjemaetDerTomForkortesOgBarnFjernes =
+        skjemaer.singleOrNull { skjema ->
+            skjema.tomBlirForkortetEllerLukketAv(oppdatering) &&
+                oppdatering.manglerBarn(skjema) &&
+                skjema.erLikBortsettFraBarnOgTom(oppdatering)
+        }
 
     return when {
         // oppretter et nytt blank skjema
@@ -55,12 +58,18 @@ fun <T : EøsSkjemaEntitet<T>> T.lagBlankSkjemaEllerNull(skjemaer: List<T>): T? 
     }
 }
 
-fun <T : EøsSkjema<T>> oppdaterSkjemaer(skjemaer: List<T>, oppdatering: T): List<T> {
-    val førsteSkjemaSomOppdateres = skjemaer
-        .filter { it.medOverlappendeBarnOgPeriode(oppdatering) != null } // Må overlappe i periode og barn
-        .filter { it.bareInnhold() != oppdatering.bareInnhold() } // Må være en endring i selve innholdet i skjemaet. d.v.s oppdaterer ingenting når det bare er endringer i periode
-        .firstOrNull()
-        ?: return skjemaer // hvis ingenting overlapper/har ingen endring i innholdet, returnerer eksisterende skjemaer
+fun <T : EøsSkjema<T>> oppdaterSkjemaer(
+    skjemaer: List<T>,
+    oppdatering: T,
+): List<T> {
+    val førsteSkjemaSomOppdateres =
+        skjemaer
+            .filter { it.medOverlappendeBarnOgPeriode(oppdatering) != null } // Må overlappe i periode og barn
+            .filter {
+                it.bareInnhold() != oppdatering.bareInnhold()
+            } // Må være en endring i selve innholdet i skjemaet. d.v.s oppdaterer ingenting når det bare er endringer i periode
+            .firstOrNull()
+            ?: return skjemaer // hvis ingenting overlapper/har ingen endring i innholdet, returnerer eksisterende skjemaer
 
     // oppdatertSkjema har innholdet fra oppdateringen, samt felles barn og perioder
     val oppdatertSkjema = checkNotNull(oppdatering.medOverlappendeBarnOgPeriode(førsteSkjemaSomOppdateres))
@@ -69,11 +78,12 @@ fun <T : EøsSkjema<T>> oppdaterSkjemaer(skjemaer: List<T>, oppdatering: T): Lis
     // dvs det originale innholdet "utenfor" overlappende barn og periode
     val førsteSkjemaFratrukketOppdatering = førsteSkjemaSomOppdateres.trekkFra(oppdatertSkjema)
 
-    val oppdaterteSkjemaer = skjemaer
-        .minus(førsteSkjemaSomOppdateres)
-        .plus(oppdatertSkjema)
-        .plus(førsteSkjemaFratrukketOppdatering)
-        .slåSammen()
+    val oppdaterteSkjemaer =
+        skjemaer
+            .minus(førsteSkjemaSomOppdateres)
+            .plus(oppdatertSkjema)
+            .plus(førsteSkjemaFratrukketOppdatering)
+            .slåSammen()
 
     return oppdaterSkjemaer(oppdaterteSkjemaer, oppdatering)
 }

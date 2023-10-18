@@ -51,11 +51,13 @@ data class ForelderBarnRelasjonInfo(
         return "ForelderBarnRelasjon(personIdent=${aktør.aktivFødselsnummer()}, relasjonsrolle=$relasjonsrolle, navn=XXX, fødselsdato=$fødselsdato)"
     }
 
-    fun harForelderRelasjon() = this.relasjonsrolle in listOf(
-        FORELDERBARNRELASJONROLLE.FAR,
-        FORELDERBARNRELASJONROLLE.MOR,
-        FORELDERBARNRELASJONROLLE.MEDMOR,
-    )
+    fun harForelderRelasjon() =
+        this.relasjonsrolle in
+            listOf(
+                FORELDERBARNRELASJONROLLE.FAR,
+                FORELDERBARNRELASJONROLLE.MOR,
+                FORELDERBARNRELASJONROLLE.MEDMOR,
+            )
 }
 
 data class ForelderBarnRelasjonInfoMaskert(
@@ -84,7 +86,10 @@ data class PdlKontaktinformasjonForDødsboAdresse(
 )
 
 class KjoennDeserializer : StdDeserializer<KJOENN>(KJOENN::class.java) {
-    override fun deserialize(jp: JsonParser?, p1: DeserializationContext?): KJOENN {
+    override fun deserialize(
+        jp: JsonParser?,
+        p1: DeserializationContext?,
+    ): KJOENN {
         val node: JsonNode = jp!!.codec.readTree(jp)
         return when (val kjønn = node.asText()) {
             "M" -> KJOENN.MANN

@@ -11,7 +11,6 @@ import org.junit.jupiter.api.Test
 import java.time.LocalDate
 
 class TidslinjeHierarkiTest {
-
     private var lst1 = emptyList<TidslinjePeriode<Int>>()
     private var lst2 = emptyList<TidslinjePeriode<Int>>()
     private var lst3 = emptyList<TidslinjePeriode<Int>>()
@@ -51,15 +50,16 @@ class TidslinjeHierarkiTest {
 
         tidslinjeListe = listOf(t4, t5)
 
-        val t6 = tidslinjeListe.slåSammenLikeTidslinjer { t1, t2 ->
-            if (t1 is Udefinert || t2 is Udefinert) {
-                Udefinert()
-            } else if (t1 is Null || t2 is Null) {
-                Null()
-            } else {
-                Verdi(t1.verdi!! + t2.verdi!!)
+        val t6 =
+            tidslinjeListe.slåSammenLikeTidslinjer { t1, t2 ->
+                if (t1 is Udefinert || t2 is Udefinert) {
+                    Udefinert()
+                } else if (t1 is Null || t2 is Null) {
+                    Null()
+                } else {
+                    Verdi(t1.verdi!! + t2.verdi!!)
+                }
             }
-        }
 
         Assertions.assertEquals(2, t6.foreldre.size)
         Assertions.assertEquals(t4.foreldre, t6.foreldre[0].foreldre)

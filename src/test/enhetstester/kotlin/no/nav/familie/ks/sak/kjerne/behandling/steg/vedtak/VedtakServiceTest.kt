@@ -24,7 +24,6 @@ import org.hamcrest.CoreMatchers.`is` as Is
 
 @ExtendWith(MockKExtension::class)
 class VedtakServiceTest {
-
     @MockK
     private lateinit var vedtakRepository: VedtakRepository
 
@@ -46,7 +45,9 @@ class VedtakServiceTest {
 
     @ParameterizedTest
     @EnumSource(value = BehandlingSteg::class, names = ["BESLUTTE_VEDTAK", "REGISTRERE_PERSONGRUNNLAG"], mode = EnumSource.Mode.EXCLUDE)
-    fun `opprettOgInitierNyttVedtakForBehandling - skal kaste feil hvis steg ikke er BESLUTTE_VEDTAK eller REGISTRERE_PERSONGRUNNLAG`(behandlingSteg: BehandlingSteg) {
+    fun `opprettOgInitierNyttVedtakForBehandling - skal kaste feil hvis steg ikke er BESLUTTE_VEDTAK eller REGISTRERE_PERSONGRUNNLAG`(
+        behandlingSteg: BehandlingSteg,
+    ) {
         val behandling = mockk<Behandling>()
         every { behandling.steg } returns behandlingSteg
 
@@ -57,7 +58,9 @@ class VedtakServiceTest {
 
     @ParameterizedTest
     @EnumSource(value = BehandlingSteg::class, names = ["BESLUTTE_VEDTAK", "REGISTRERE_PERSONGRUNNLAG"])
-    fun `opprettOgInitierNyttVedtakForBehandling - skal lagre ny vedtak og deaktivere gamle hvis steg er BESLUTTE_VEDTAK eller REGISTRERE_PERSONGRUNNLAG`(behandlingSteg: BehandlingSteg) {
+    fun `opprettOgInitierNyttVedtakForBehandling - skal lagre ny vedtak og deaktivere gamle hvis steg er BESLUTTE_VEDTAK eller REGISTRERE_PERSONGRUNNLAG`(
+        behandlingSteg: BehandlingSteg,
+    ) {
         val behandling = mockk<Behandling>(relaxed = true)
         val eksisterendeVedtak = mockk<Vedtak>(relaxed = true)
         val slot = slot<Vedtak>()

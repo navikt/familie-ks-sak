@@ -54,7 +54,6 @@ import org.junit.jupiter.api.extension.ExtendWith
 
 @ExtendWith(MockKExtension::class)
 class BehandlingServiceTest {
-
     @MockK
     private lateinit var behandlingRepository: BehandlingRepository
 
@@ -116,29 +115,33 @@ class BehandlingServiceTest {
     fun beforeEach() {
         every { behandlingRepository.hentBehandling(any()) } returns behandling
         every { behandlingRepository.finnBehandlinger(any<Long>()) } returns emptyList()
-        every { arbeidsfordelingService.hentArbeidsfordelingPåBehandling(any()) } returns ArbeidsfordelingPåBehandling(
-            behandlingId = behandling.id,
-            behandlendeEnhetId = "enhet",
-            behandlendeEnhetNavn = "enhetNavn",
-        )
+        every { arbeidsfordelingService.hentArbeidsfordelingPåBehandling(any()) } returns
+            ArbeidsfordelingPåBehandling(
+                behandlingId = behandling.id,
+                behandlendeEnhetId = "enhet",
+                behandlendeEnhetNavn = "enhetNavn",
+            )
         every { arbeidsfordelingService.manueltOppdaterBehandlendeEnhet(any(), any()) } just runs
         every { statsborgerskapService.hentLand(any()) } returns "Norge"
-        every { personopplysningGrunnlagService.finnAktivPersonopplysningGrunnlag(any()) } returns lagPersonopplysningGrunnlag(
-            behandlingId = behandling.id,
-            søkerPersonIdent = søkersIdent,
-        )
+        every { personopplysningGrunnlagService.finnAktivPersonopplysningGrunnlag(any()) } returns
+            lagPersonopplysningGrunnlag(
+                behandlingId = behandling.id,
+                søkerPersonIdent = søkersIdent,
+            )
         every { vilkårsvurderingService.finnAktivVilkårsvurdering(any()) } returns null
         every { søknadGrunnlagService.finnAktiv(any()) } returns søknadsgrunnlagMockK
         mockkObject(SøknadGrunnlagMapper)
         with(SøknadGrunnlagMapper) {
-            every { søknadsgrunnlagMockK.tilSøknadDto() } returns SøknadDto(
-                søkerMedOpplysninger = SøkerMedOpplysningerDto("søkerIdent"),
-                barnaMedOpplysninger = listOf(
-                    BarnMedOpplysningerDto(ident = "barn1"),
-                    BarnMedOpplysningerDto("barn2"),
-                ),
-                "begrunnelse",
-            )
+            every { søknadsgrunnlagMockK.tilSøknadDto() } returns
+                SøknadDto(
+                    søkerMedOpplysninger = SøkerMedOpplysningerDto("søkerIdent"),
+                    barnaMedOpplysninger =
+                        listOf(
+                            BarnMedOpplysningerDto(ident = "barn1"),
+                            BarnMedOpplysningerDto("barn2"),
+                        ),
+                    "begrunnelse",
+                )
         }
 
         every { vedtakRepository.findByBehandlingAndAktivOptional(any()) } returns Vedtak(behandling = behandling)
@@ -146,9 +149,10 @@ class BehandlingServiceTest {
         every { vedtaksperiodeService.hentUtvidetVedtaksperioderMedBegrunnelser(any()) } returns emptyList()
         every { vedtaksperiodeService.finnEndringstidspunktForBehandling(any(), any()) } returns TIDENES_MORGEN
 
-        every { andelTilkjentYtelseRepository.finnAndelerTilkjentYtelseForBehandling(behandling.id) } returns listOf(
-            lagAndelTilkjentYtelse(behandling = behandling),
-        )
+        every { andelTilkjentYtelseRepository.finnAndelerTilkjentYtelseForBehandling(behandling.id) } returns
+            listOf(
+                lagAndelTilkjentYtelse(behandling = behandling),
+            )
         every {
             andelerTilkjentYtelseOgEndreteUtbetalingerService
                 .finnAndelerTilkjentYtelseMedEndreteUtbetalinger(behandling.id)
@@ -216,9 +220,10 @@ class BehandlingServiceTest {
         } just runs
         every { behandlingRepository.save(any()) } returns behandling.copy(resultat = Behandlingsresultat.INNVILGET)
 
-        val oppdatertBehandling = assertDoesNotThrow {
-            behandlingService.oppdaterBehandlingsresultat(behandling.id, Behandlingsresultat.INNVILGET)
-        }
+        val oppdatertBehandling =
+            assertDoesNotThrow {
+                behandlingService.oppdaterBehandlingsresultat(behandling.id, Behandlingsresultat.INNVILGET)
+            }
         verify(exactly = 1) { loggService.opprettVilkårsvurderingLogg(any(), any(), any()) }
         assertEquals(Behandlingsresultat.INNVILGET, oppdatertBehandling.resultat)
     }

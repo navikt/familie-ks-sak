@@ -11,9 +11,7 @@ import org.springframework.stereotype.Service
 
 @Service
 class TotrinnskontrollService(private val totrinnskontrollRepository: TotrinnskontrollRepository) {
-
-    fun finnAktivForBehandling(behandlingId: Long): Totrinnskontroll? =
-        totrinnskontrollRepository.findByBehandlingAndAktiv(behandlingId)
+    fun finnAktivForBehandling(behandlingId: Long): Totrinnskontroll? = totrinnskontrollRepository.findByBehandlingAndAktiv(behandlingId)
 
     fun hentAktivForBehandling(behandlingId: Long): Totrinnskontroll =
         totrinnskontrollRepository.findByBehandlingAndAktiv(behandlingId)
@@ -23,13 +21,14 @@ class TotrinnskontrollService(private val totrinnskontrollRepository: Totrinnsko
         behandling: Behandling,
         saksbehandler: String = SikkerhetContext.hentSaksbehandlerNavn(),
         saksbehandlerId: String = SikkerhetContext.hentSaksbehandler(),
-    ): Totrinnskontroll = lagreOgDeaktiverGammel(
-        Totrinnskontroll(
-            behandling = behandling,
-            saksbehandler = saksbehandler,
-            saksbehandlerId = saksbehandlerId,
-        ),
-    )
+    ): Totrinnskontroll =
+        lagreOgDeaktiverGammel(
+            Totrinnskontroll(
+                behandling = behandling,
+                saksbehandler = saksbehandler,
+                saksbehandlerId = saksbehandlerId,
+            ),
+        )
 
     fun besluttTotrinnskontroll(
         behandlingId: Long,
@@ -69,7 +68,6 @@ class TotrinnskontrollService(private val totrinnskontrollRepository: Totrinnsko
     }
 
     companion object {
-
         private val logger = LoggerFactory.getLogger(TotrinnskontrollService::class.java)
     }
 }

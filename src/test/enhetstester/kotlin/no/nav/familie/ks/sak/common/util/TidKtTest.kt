@@ -13,7 +13,6 @@ import java.time.YearMonth
 import org.hamcrest.CoreMatchers.`is` as Is
 
 internal class TidKtTest {
-
     @Test
     fun `LocalDate tilddMMyy() skal formatere dato til ddMMyy format`() {
         val localDate = LocalDate.of(2020, 12, 16)

@@ -15,7 +15,6 @@ class TilbakestillBehandlingService(
     private val tilbakekrevingRepository: TilbakekrevingRepository,
     private val behandlingRepository: BehandlingRepository,
 ) {
-
     @Transactional
     fun tilbakestillBehandlingTilVilkårsvurdering(behandlingId: Long) {
         resettBehandlingTilTidligereSteg(behandlingId, BehandlingSteg.VILKÅRSVURDERING)
@@ -26,7 +25,10 @@ class TilbakestillBehandlingService(
         resettBehandlingTilTidligereSteg(behandlingId, BehandlingSteg.BEHANDLINGSRESULTAT)
     }
 
-    private fun resettBehandlingTilTidligereSteg(behandlingId: Long, behandlingSteg: BehandlingSteg) {
+    private fun resettBehandlingTilTidligereSteg(
+        behandlingId: Long,
+        behandlingSteg: BehandlingSteg,
+    ) {
         // Sletter vedtaksperioder
         vedtaksperiodeHentOgPersisterService.slettVedtaksperioderFor(behandlingId)
 

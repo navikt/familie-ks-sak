@@ -35,26 +35,29 @@ class PdlClient(
     pdlConfig: PdlConfig,
     @Qualifier("azureClientCredential") val restTemplate: RestOperations,
 ) : AbstractPingableRestClient(restTemplate, "pdl.personinfo") {
-
     private val pdlUri = pdlConfig.pdlUri
 
     override val pingUri: URI get() = pdlUri
 
     @Cacheable("identer", cacheManager = "shortCache")
-    fun hentIdenter(personIdent: String, historikk: Boolean): List<PdlIdent> {
+    fun hentIdenter(
+        personIdent: String,
+        historikk: Boolean,
+    ): List<PdlIdent> {
         val pdlPersonRequest = lagPdlPersonRequest(personIdent, hentIdenterQuery)
 
-        val pdlRespons: PdlBaseRespons<PdlHentIdenterResponse> = kallEksternTjeneste(
-            tjeneste = "pdl",
-            uri = pdlUri,
-            formål = "Hent identer",
-        ) {
-            postForEntity(
-                pdlUri,
-                pdlPersonRequest,
-                httpHeaders(),
-            )
-        }
+        val pdlRespons: PdlBaseRespons<PdlHentIdenterResponse> =
+            kallEksternTjeneste(
+                tjeneste = "pdl",
+                uri = pdlUri,
+                formål = "Hent identer",
+            ) {
+                postForEntity(
+                    pdlUri,
+                    pdlPersonRequest,
+                    httpHeaders(),
+                )
+            }
 
         val pdlIdenter = feilsjekkOgReturnerData(ident = personIdent, pdlRespons = pdlRespons) { it.pdlIdenter }
         return if (historikk) pdlIdenter.identer.map { it } else pdlIdenter.identer.filter { !it.historisk }.map { it }
@@ -63,13 +66,14 @@ class PdlClient(
     @Cacheable("adressebeskyttelse", cacheManager = "shortCache")
     fun hentAdressebeskyttelse(aktør: Aktør): List<Adressebeskyttelse> {
         val pdlPersonRequest = lagPdlPersonRequest(aktør.aktivFødselsnummer(), hentAdressebeskyttelseQuery)
-        val pdlRespons: PdlBaseRespons<PdlAdressebeskyttelseResponse> = kallEksternTjeneste(
-            tjeneste = "pdl",
-            uri = pdlUri,
-            formål = "Hent adressebeskyttelse",
-        ) {
-            postForEntity(pdlUri, pdlPersonRequest, httpHeaders())
-        }
+        val pdlRespons: PdlBaseRespons<PdlAdressebeskyttelseResponse> =
+            kallEksternTjeneste(
+                tjeneste = "pdl",
+                uri = pdlUri,
+                formål = "Hent adressebeskyttelse",
+            ) {
+                postForEntity(pdlUri, pdlPersonRequest, httpHeaders())
+            }
 
         return feilsjekkOgReturnerData(ident = aktør.aktivFødselsnummer(), pdlRespons = pdlRespons) {
             it.person?.adressebeskyttelse
@@ -77,20 +81,24 @@ class PdlClient(
     }
 
     @Cacheable("personopplysninger", cacheManager = "shortCache")
-    fun hentPerson(aktør: Aktør, personInfoQuery: PersonInfoQuery): PdlPersonData {
+    fun hentPerson(
+        aktør: Aktør,
+        personInfoQuery: PersonInfoQuery,
+    ): PdlPersonData {
         val pdlPersonRequest = lagPdlPersonRequest(aktør.aktivFødselsnummer(), personInfoQuery.query)
 
-        val pdlRespons: PdlBaseRespons<PdlHentPersonResponse> = kallEksternTjeneste(
-            tjeneste = "pdl",
-            uri = pdlUri,
-            formål = "Hent person med query ${personInfoQuery.name}",
-        ) {
-            postForEntity(
-                pdlUri,
-                pdlPersonRequest,
-                httpHeaders(),
-            )
-        }
+        val pdlRespons: PdlBaseRespons<PdlHentPersonResponse> =
+            kallEksternTjeneste(
+                tjeneste = "pdl",
+                uri = pdlUri,
+                formål = "Hent person med query ${personInfoQuery.name}",
+            ) {
+                postForEntity(
+                    pdlUri,
+                    pdlPersonRequest,
+                    httpHeaders(),
+                )
+            }
         return feilsjekkOgReturnerData(ident = aktør.aktivFødselsnummer(), pdlRespons = pdlRespons) { pdlPerson ->
             pdlPerson.person?.validerOmPersonKanBehandlesIFagsystem() ?: throw PdlNotFoundException()
             pdlPerson.person
@@ -98,16 +106,18 @@ class PdlClient(
     }
 
     fun hentStatsborgerskapUtenHistorikk(aktør: Aktør): List<Statsborgerskap> {
-        val pdlPersonRequest = PdlPersonRequest(
-            variables = PdlPersonRequestVariables(aktør.aktivFødselsnummer()),
-            query = hentStatsborgerskapUtenHistorikkQuery,
-        )
+        val pdlPersonRequest =
+            PdlPersonRequest(
+                variables = PdlPersonRequestVariables(aktør.aktivFødselsnummer()),
+                query = hentStatsborgerskapUtenHistorikkQuery,
+            )
 
-        val pdlResponse: PdlBaseRespons<PdlStatsborgerskapResponse> = kallEksternTjeneste(
-            tjeneste = "pdl",
-            uri = pdlUri,
-            formål = "Hent statsborgerskap uten historikk",
-        ) { postForEntity(pdlUri, pdlPersonRequest, httpHeaders()) }
+        val pdlResponse: PdlBaseRespons<PdlStatsborgerskapResponse> =
+            kallEksternTjeneste(
+                tjeneste = "pdl",
+                uri = pdlUri,
+                formål = "Hent statsborgerskap uten historikk",
+            ) { postForEntity(pdlUri, pdlPersonRequest, httpHeaders()) }
 
         return feilsjekkOgReturnerData(
             ident = aktør.aktivFødselsnummer(),
@@ -118,28 +128,34 @@ class PdlClient(
     }
 
     fun hentUtenlandskBostedsadresse(aktør: Aktør): PdlUtenlandskAdresssePersonUtenlandskAdresse? {
-        val pdlPersonRequest = PdlPersonRequest(
-            variables = PdlPersonRequestVariables(aktør.aktivFødselsnummer()),
-            query = hentBostedsadresseUtenlandskQuery,
-        )
-        val pdlResponse: PdlBaseRespons<PdlUtenlandskAdressseResponse> = kallEksternTjeneste(
-            tjeneste = "pdl",
-            uri = pdlUri,
-            formål = "Hent utenlandsk bostedsadresse",
-        ) {
-            postForEntity(pdlUri, pdlPersonRequest, httpHeaders())
-        }
+        val pdlPersonRequest =
+            PdlPersonRequest(
+                variables = PdlPersonRequestVariables(aktør.aktivFødselsnummer()),
+                query = hentBostedsadresseUtenlandskQuery,
+            )
+        val pdlResponse: PdlBaseRespons<PdlUtenlandskAdressseResponse> =
+            kallEksternTjeneste(
+                tjeneste = "pdl",
+                uri = pdlUri,
+                formål = "Hent utenlandsk bostedsadresse",
+            ) {
+                postForEntity(pdlUri, pdlPersonRequest, httpHeaders())
+            }
 
-        val bostedsadresser = feilsjekkOgReturnerData(
-            ident = aktør.aktivFødselsnummer(),
-            pdlRespons = pdlResponse,
-        ) {
-            it.person!!.bostedsadresse
-        }
+        val bostedsadresser =
+            feilsjekkOgReturnerData(
+                ident = aktør.aktivFødselsnummer(),
+                pdlRespons = pdlResponse,
+            ) {
+                it.person!!.bostedsadresse
+            }
         return bostedsadresser.firstOrNull { bostedsadresse -> bostedsadresse.utenlandskAdresse != null }?.utenlandskAdresse
     }
 
-    private fun lagPdlPersonRequest(aktivFødselsnummer: String, query: String) = PdlPersonRequest(
+    private fun lagPdlPersonRequest(
+        aktivFødselsnummer: String,
+        query: String,
+    ) = PdlPersonRequest(
         variables = PdlPersonRequestVariables(aktivFødselsnummer),
         query = query,
     )

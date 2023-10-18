@@ -24,7 +24,6 @@ import java.net.URI
 import org.hamcrest.CoreMatchers.`is` as Is
 
 internal class IntegrasjonClientTest {
-
     private val restOperations: RestOperations = RestTemplateBuilder().build()
     private lateinit var integrasjonClient: IntegrasjonClient
     private lateinit var wiremockServerItem: WireMockServer

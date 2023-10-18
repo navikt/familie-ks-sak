@@ -30,20 +30,16 @@ data class GrSivilstand(
         allocationSize = 50,
     )
     val id: Long = 0,
-
     @Column(name = "fom")
     val fom: LocalDate? = null,
-
     @Enumerated(EnumType.STRING)
     @Column(name = "type", nullable = false)
     val type: SIVILSTAND,
-
     @JsonIgnore
     @ManyToOne(optional = false)
     @JoinColumn(name = "fk_po_person_id", nullable = false, updatable = false)
     val person: Person,
 ) : BaseEntitet() {
-
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
@@ -54,17 +50,19 @@ data class GrSivilstand(
             fom != other.fom ||
                 type != other.type ||
                 person != other.person
-            )
+        )
     }
 
     override fun hashCode() = Objects.hash(fom, type, person)
 
     companion object {
-        fun fraSivilstand(sivilstand: Sivilstand, person: Person) =
-            GrSivilstand(
-                fom = sivilstand.gyldigFraOgMed,
-                type = sivilstand.type,
-                person = person,
-            )
+        fun fraSivilstand(
+            sivilstand: Sivilstand,
+            person: Person,
+        ) = GrSivilstand(
+            fom = sivilstand.gyldigFraOgMed,
+            type = sivilstand.type,
+            person = person,
+        )
     }
 }

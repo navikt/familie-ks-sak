@@ -37,39 +37,29 @@ data class AndelTilkjentYtelse(
         allocationSize = 50,
     )
     val id: Long = 0,
-
     @Column(name = "fk_behandling_id", nullable = false, updatable = false)
     val behandlingId: Long,
-
     @ManyToOne(cascade = [CascadeType.MERGE])
     @JoinColumn(name = "tilkjent_ytelse_id", nullable = false, updatable = false)
     var tilkjentYtelse: TilkjentYtelse,
-
     @OneToOne(optional = false)
     @JoinColumn(name = "fk_aktoer_id", nullable = false, updatable = false)
     val aktør: Aktør,
-
     @Column(name = "kalkulert_utbetalingsbelop", nullable = false)
     val kalkulertUtbetalingsbeløp: Int,
-
     @Column(name = "stonad_fom", nullable = false, columnDefinition = "DATE")
     @Convert(converter = YearMonthConverter::class)
     val stønadFom: YearMonth,
-
     @Column(name = "stonad_tom", nullable = false, columnDefinition = "DATE")
     @Convert(converter = YearMonthConverter::class)
     val stønadTom: YearMonth,
-
     @Enumerated(EnumType.STRING)
     @Column(name = "type", nullable = false)
     val type: YtelseType,
-
     @Column(name = "sats", nullable = false)
     val sats: Int,
-
     @Column(name = "prosent", nullable = false)
     val prosent: BigDecimal,
-
     @ManyToMany(cascade = [CascadeType.PERSIST, CascadeType.REMOVE], fetch = FetchType.EAGER)
     @JoinTable(
         name = "ANDEL_TIL_ENDRET_ANDEL",
@@ -77,30 +67,23 @@ data class AndelTilkjentYtelse(
         inverseJoinColumns = [JoinColumn(name = "fk_endret_utbetaling_andel_id")],
     )
     val endretUtbetalingAndeler: MutableList<EndretUtbetalingAndel> = mutableListOf(),
-
     // kildeBehandlingId, periodeOffset og forrigePeriodeOffset trengs kun i forbindelse med
     // iverksetting/konsistensavstemming, og settes først ved generering av selve oppdraget mot økonomi.
-
     // Samme informasjon finnes i utbetalingsoppdraget på hver enkelt sak, men for å gjøre operasjonene mer forståelig
     // og enklere å jobbe med har vi valgt å trekke det ut hit.
-
+    // Brukes til å finne hvilke behandlinger som skal konsistensavstemmes
     @Column(name = "kilde_behandling_id")
-    var kildeBehandlingId: Long? = null, // Brukes til å finne hvilke behandlinger som skal konsistensavstemmes
-
+    var kildeBehandlingId: Long? = null,
+    // Brukes for å koble seg på tidligere kjeder sendt til økonomi
     @Column(name = "periode_offset")
-    var periodeOffset: Long? = null, // Brukes for å koble seg på tidligere kjeder sendt til økonomi
-
+    var periodeOffset: Long? = null,
     @Column(name = "forrige_periode_offset")
     var forrigePeriodeOffset: Long? = null,
-
     @Column(name = "nasjonalt_periodebelop")
     val nasjonaltPeriodebeløp: Int?,
-
     @Column(name = "differanseberegnet_periodebelop")
     val differanseberegnetPeriodebeløp: Int? = null,
-
 ) : BaseEntitet() {
-
     val periode get() = MånedPeriode(stønadFom, stønadTom)
 
     override fun equals(other: Any?): Boolean {
@@ -157,9 +140,10 @@ data class AndelTilkjentYtelse(
 
     fun erAndelSomSkalSendesTilOppdrag(): Boolean = this.kalkulertUtbetalingsbeløp != 0
 
-    fun erAndelSomharNullutbetaling() = this.kalkulertUtbetalingsbeløp == 0 &&
-        this.differanseberegnetPeriodebeløp != null &&
-        this.differanseberegnetPeriodebeløp <= 0
+    fun erAndelSomharNullutbetaling() =
+        this.kalkulertUtbetalingsbeløp == 0 &&
+            this.differanseberegnetPeriodebeløp != null &&
+            this.differanseberegnetPeriodebeløp <= 0
 }
 
 fun List<AndelTilkjentYtelse>.slåSammenBack2BackAndelsperioderMedSammeBeløp(): List<AndelTilkjentYtelse> =

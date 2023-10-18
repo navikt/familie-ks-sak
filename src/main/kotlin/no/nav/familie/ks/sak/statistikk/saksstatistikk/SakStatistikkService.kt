@@ -36,13 +36,16 @@ class SakStatistikkService(
     private val personopplysningService: PersonOpplysningerService,
     private val personopplysningGrunnlagService: PersonopplysningGrunnlagService,
 ) {
-
-    fun opprettSendingAvBehandlingensTilstand(behandlingId: Long, behandlingSteg: BehandlingSteg) {
+    fun opprettSendingAvBehandlingensTilstand(
+        behandlingId: Long,
+        behandlingSteg: BehandlingSteg,
+    ) {
         val behandlingStegTilstand =
             behandlingRepository.hentBehandling(behandlingId).behandlingStegTilstand.singleOrNull { it.behandlingSteg == behandlingSteg }
-        val hendelsesbeskrivelse = "Ny behandlingsstegstilstand " +
-            "${behandlingStegTilstand?.behandlingSteg}:${behandlingStegTilstand?.behandlingStegStatus} " +
-            "for behandling $behandlingId"
+        val hendelsesbeskrivelse =
+            "Ny behandlingsstegstilstand " +
+                "${behandlingStegTilstand?.behandlingSteg}:${behandlingStegTilstand?.behandlingStegStatus} " +
+                "for behandling $behandlingId"
 
         val tilstand = hentBehandlingensTilstand(behandlingId)
         opprettProsessTask(behandlingId, tilstand, hendelsesbeskrivelse, SendBehandlinghendelseTilDvhTask.TASK_TYPE)
@@ -54,14 +57,15 @@ class SakStatistikkService(
         hendelsesbeskrivelse: String,
         type: String,
     ) {
-        val task = Task(
-            type = type,
-            payload = objectMapper.writeValueAsString(behandlingTilstand),
-            Properties().apply {
-                setProperty("behandlingId", behandlingId.toString())
-                setProperty("beskrivelse", hendelsesbeskrivelse)
-            },
-        )
+        val task =
+            Task(
+                type = type,
+                payload = objectMapper.writeValueAsString(behandlingTilstand),
+                Properties().apply {
+                    setProperty("behandlingId", behandlingId.toString())
+                    setProperty("beskrivelse", hendelsesbeskrivelse)
+                },
+            )
         taskService.save(task)
     }
 
@@ -86,18 +90,21 @@ class SakStatistikkService(
             ansvarligEnhet = ansvarligEnhet,
             ansvarligBeslutter = totrinnskontroll?.beslutterId,
             ansvarligSaksbehandler = totrinnskontroll?.saksbehandlerId ?: behandling.endretAv,
-            behandlingErManueltOpprettet = true, // TODO er alltid det frem til vi kobler på søknadsdialogen
+            // TODO er alltid det frem til vi kobler på søknadsdialogen
+            behandlingErManueltOpprettet = true,
             funksjoneltTidspunkt = behandling.endretTidspunkt.tilOffset(),
-            sattPaaVent = behandlingPåVent?.årsak?.name?.let {
-                SattPåVent(
-                    frist = OffsetDateTime.of(
-                        behandlingPåVent.frist,
-                        java.time.LocalTime.now(),
-                        ZoneOffset.UTC,
-                    ),
-                    aarsak = it,
-                )
-            },
+            sattPaaVent =
+                behandlingPåVent?.årsak?.name?.let {
+                    SattPåVent(
+                        frist =
+                            OffsetDateTime.of(
+                                behandlingPåVent.frist,
+                                java.time.LocalTime.now(),
+                                ZoneOffset.UTC,
+                            ),
+                        aarsak = it,
+                    )
+                },
             behandlingOpprettetÅrsak = behandling.opprettetÅrsak,
         )
     }
@@ -127,18 +134,19 @@ class SakStatistikkService(
         val fagsak = fagsakService.hentFagsak(fagsakId)
         val aktivBehandling = behandlingRepository.findByFagsakAndAktiv(fagsakId = fagsak.id)
 
-        val aktørDVHer = if (aktivBehandling != null) {
-            personopplysningGrunnlagService
-                .finnAktivPersonopplysningGrunnlag(behandlingId = aktivBehandling.id)
-                ?.personer?.map {
-                    AktørDVH(
-                        it.aktør.aktørId.toLong(),
-                        it.type.name,
-                    )
-                } ?: emptyList()
-        } else {
-            listOf(AktørDVH(fagsak.aktør.aktørId.toLong(), PersonType.SØKER.name))
-        }
+        val aktørDVHer =
+            if (aktivBehandling != null) {
+                personopplysningGrunnlagService
+                    .finnAktivPersonopplysningGrunnlag(behandlingId = aktivBehandling.id)
+                    ?.personer?.map {
+                        AktørDVH(
+                            it.aktør.aktørId.toLong(),
+                            it.type.name,
+                        )
+                    } ?: emptyList()
+            } else {
+                listOf(AktørDVH(fagsak.aktør.aktørId.toLong(), PersonType.SØKER.name))
+            }
 
         return SakStatistikkDto(
             funksjonellTid = ZonedDateTime.now(),

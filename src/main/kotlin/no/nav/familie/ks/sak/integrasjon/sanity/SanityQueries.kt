@@ -1,7 +1,7 @@
 package no.nav.familie.ks.sak.integrasjon.sanity
 
-const val hentBegrunnelser =
+const val HENT_BEGRUNNELSER =
     "*[_type == \"ksBegrunnelse\" && tema != \"EØS_PRIMÆRLAND\" && tema != \"EØS_SEKUNDÆRLAND\" && apiNavn != null && navnISystem != null]"
 
-const val hentEØSBegrunnelser =
+const val HENT_EØS_BEGRUNNELSER =
     "*[_type == \"ksBegrunnelse\" && tema == \"EØS_PRIMÆRLAND\" && tema == \"EØS_SEKUNDÆRLAND\" && apiNavn != null && navnISystem != null]"

@@ -45,7 +45,6 @@ class IntegrasjonClient(
     @Value("\${FAMILIE_INTEGRASJONER_API_URL}") private val integrasjonUri: URI,
     @Qualifier("azure") restOperations: RestOperations,
 ) : AbstractRestClient(restOperations, "integrasjon") {
-
     val tilgangPersonUri = UriComponentsBuilder.fromUri(integrasjonUri).pathSegment(PATH_TILGANG_PERSON).build().toUri()
 
     fun sjekkTilgangTilPersoner(personIdenter: List<String>): List<Tilgang> {
@@ -80,13 +79,17 @@ class IntegrasjonClient(
         }
     }
 
-    fun fordelOppgave(oppgaveId: Long, saksbehandler: String?): OppgaveResponse {
+    fun fordelOppgave(
+        oppgaveId: Long,
+        saksbehandler: String?,
+    ): OppgaveResponse {
         val baseUri = URI.create("$integrasjonUri/oppgave/$oppgaveId/fordel")
-        val uri = if (saksbehandler == null) {
-            baseUri
-        } else {
-            UriComponentsBuilder.fromUri(baseUri).queryParam("saksbehandler", saksbehandler).build().toUri()
-        }
+        val uri =
+            if (saksbehandler == null) {
+                baseUri
+            } else {
+                UriComponentsBuilder.fromUri(baseUri).queryParam("saksbehandler", saksbehandler).build().toUri()
+            }
 
         return kallEksternTjenesteRessurs(
             tjeneste = "oppgave",
@@ -100,10 +103,14 @@ class IntegrasjonClient(
         }
     }
 
-    fun tilordneEnhetForOppgave(oppgaveId: Long, nyEnhet: String): OppgaveResponse {
+    fun tilordneEnhetForOppgave(
+        oppgaveId: Long,
+        nyEnhet: String,
+    ): OppgaveResponse {
         val baseUri = URI.create("$integrasjonUri/oppgave/$oppgaveId/enhet/$nyEnhet")
-        val uri = UriComponentsBuilder.fromUri(baseUri).queryParam("fjernMappeFraOppgave", true).build()
-            .toUri() // fjerner alltid mappe fra Kontantstøtte siden hver enhet har sin mappestruktur
+        val uri =
+            UriComponentsBuilder.fromUri(baseUri).queryParam("fjernMappeFraOppgave", true).build()
+                .toUri() // fjerner alltid mappe fra Kontantstøtte siden hver enhet har sin mappestruktur
 
         return kallEksternTjenesteRessurs(
             tjeneste = "oppgave",
@@ -179,7 +186,10 @@ class IntegrasjonClient(
         }
     }
 
-    fun hentDokumentIJournalpost(dokumentId: String, journalpostId: String): ByteArray {
+    fun hentDokumentIJournalpost(
+        dokumentId: String,
+        journalpostId: String,
+    ): ByteArray {
         val uri = URI.create("$integrasjonUri/journalpost/hentdokument/$journalpostId/$dokumentId")
 
         return kallEksternTjenesteRessurs(
@@ -193,10 +203,11 @@ class IntegrasjonClient(
 
     @Cacheable("behandlendeEnhet", cacheManager = "shortCache")
     fun hentBehandlendeEnheter(ident: String): List<ArbeidsfordelingsEnhet> {
-        val uri = UriComponentsBuilder
-            .fromUri(integrasjonUri)
-            .pathSegment("arbeidsfordeling", "enhet", Tema.KON.name)
-            .build().toUri()
+        val uri =
+            UriComponentsBuilder
+                .fromUri(integrasjonUri)
+                .pathSegment("arbeidsfordeling", "enhet", Tema.KON.name)
+                .build().toUri()
 
         return kallEksternTjenesteRessurs(
             tjeneste = "arbeidsfordeling",
@@ -236,7 +247,10 @@ class IntegrasjonClient(
         }
     }
 
-    fun oppdaterOppgave(oppgaveId: Long, oppdatertOppgave: Oppgave) {
+    fun oppdaterOppgave(
+        oppgaveId: Long,
+        oppdatertOppgave: Oppgave,
+    ) {
         val uri = URI.create("$integrasjonUri/oppgave/$oppgaveId/oppdater")
 
         kallEksternTjenesteUtenRespons(
@@ -248,7 +262,10 @@ class IntegrasjonClient(
         }
     }
 
-    fun leggTilLogiskVedlegg(request: LogiskVedleggRequest, dokumentinfoId: String): LogiskVedleggResponse {
+    fun leggTilLogiskVedlegg(
+        request: LogiskVedleggRequest,
+        dokumentinfoId: String,
+    ): LogiskVedleggResponse {
         val uri = URI.create("$integrasjonUri/arkiv/dokument/$dokumentinfoId/logiskVedlegg")
 
         return kallEksternTjenesteRessurs(
@@ -260,7 +277,10 @@ class IntegrasjonClient(
         }
     }
 
-    fun slettLogiskVedlegg(logiskVedleggId: String, dokumentinfoId: String): LogiskVedleggResponse {
+    fun slettLogiskVedlegg(
+        logiskVedleggId: String,
+        dokumentinfoId: String,
+    ): LogiskVedleggResponse {
         val uri = URI.create("$integrasjonUri/arkiv/dokument/$dokumentinfoId/logiskVedlegg/$logiskVedleggId")
         return kallEksternTjenesteRessurs(
             tjeneste = "dokarkiv",
@@ -286,7 +306,10 @@ class IntegrasjonClient(
         }
     }
 
-    fun ferdigstillJournalpost(journalpostId: String, journalførendeEnhet: String) {
+    fun ferdigstillJournalpost(
+        journalpostId: String,
+        journalførendeEnhet: String,
+    ) {
         val uri =
             URI.create("$integrasjonUri/arkiv/v2/$journalpostId/ferdigstill?journalfoerendeEnhet=$journalførendeEnhet")
 
@@ -343,34 +366,40 @@ class IntegrasjonClient(
         }
     }
 
-    fun distribuerBrev(journalpostId: String, distribusjonstype: Distribusjonstype): String {
+    fun distribuerBrev(
+        journalpostId: String,
+        distribusjonstype: Distribusjonstype,
+    ): String {
         val uri = URI.create("$integrasjonUri/dist/v1")
 
-        val journalpostRequest = DistribuerJournalpostRequest(
-            journalpostId = journalpostId,
-            bestillendeFagsystem = Fagsystem.KONT,
-            dokumentProdApp = "FAMILIE_KS_SAK",
-            distribusjonstidspunkt = Distribusjonstidspunkt.KJERNETID,
-            distribusjonstype = distribusjonstype,
-        )
+        val journalpostRequest =
+            DistribuerJournalpostRequest(
+                journalpostId = journalpostId,
+                bestillendeFagsystem = Fagsystem.KONT,
+                dokumentProdApp = "FAMILIE_KS_SAK",
+                distribusjonstidspunkt = Distribusjonstidspunkt.KJERNETID,
+                distribusjonstype = distribusjonstype,
+            )
 
-        val bestillingId: String = kallEksternTjenesteRessurs(
-            tjeneste = "dokdist",
-            uri = uri,
-            formål = "Distribuer brev",
-        ) {
-            postForEntity(uri, journalpostRequest, HttpHeaders().medContentTypeJsonUTF8())
-        }
+        val bestillingId: String =
+            kallEksternTjenesteRessurs(
+                tjeneste = "dokdist",
+                uri = uri,
+                formål = "Distribuer brev",
+            ) {
+                postForEntity(uri, journalpostRequest, HttpHeaders().medContentTypeJsonUTF8())
+            }
 
         return bestillingId
     }
 
     @Cacheable("behandlendeEnhetForPersonMedRelasjon", cacheManager = "shortCache")
     fun hentBehandlendeEnhetForPersonIdentMedRelasjoner(ident: String): ArbeidsfordelingsEnhet {
-        val uri = UriComponentsBuilder
-            .fromUri(integrasjonUri)
-            .pathSegment("arbeidsfordeling", "enhet", Tema.KON.name, "med-relasjoner")
-            .build().toUri()
+        val uri =
+            UriComponentsBuilder
+                .fromUri(integrasjonUri)
+                .pathSegment("arbeidsfordeling", "enhet", Tema.KON.name, "med-relasjoner")
+                .build().toUri()
 
         return kallEksternTjenesteRessurs<List<ArbeidsfordelingsEnhet>>(
             tjeneste = "arbeidsfordeling",
@@ -382,7 +411,6 @@ class IntegrasjonClient(
     }
 
     companion object {
-
         const val RETRY_BACKOFF_5000MS = "\${retry.backoff.delay:5000}"
         private const val PATH_TILGANG_PERSON = "tilgang/v2/personer"
         private const val HEADER_NAV_TEMA = "Nav-Tema"

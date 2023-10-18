@@ -10,20 +10,18 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.VenteÅrsak
 import java.time.LocalDate
 
 interface BrevDto {
-
     val mal: Brevmal
     val data: BrevDataDto
 }
 
 interface BrevDataDto {
-
     val delmalData: Any
     val flettefelter: FlettefelterForDokumentDto
+
     fun toBrevString(): String = objectMapper.writeValueAsString(this)
 }
 
 interface FlettefelterForDokumentDto {
-
     val navn: Flettefelt
     val fodselsnummer: Flettefelt
     val brevOpprettetDato: Flettefelt
@@ -37,7 +35,6 @@ data class FlettefelterForDokumentDtoImpl(
     override val brevOpprettetDato: Flettefelt = flettefelt(LocalDate.now().tilDagMånedÅr()),
     override val gjelder: Flettefelt,
 ) : FlettefelterForDokumentDto {
-
     constructor(
         navn: String,
         fodselsnummer: String,
@@ -161,30 +158,31 @@ enum class Brevmal(val erVedtaksbrev: Boolean, val apiNavn: String, val visnings
         }
 
     val distribusjonstype: Distribusjonstype
-        get() = when (this) {
-            INFORMASJONSBREV_DELT_BOSTED -> Distribusjonstype.VIKTIG
-            INNHENTE_OPPLYSNINGER -> Distribusjonstype.VIKTIG
-            INNHENTE_OPPLYSNINGER_ETTER_SØKNAD_I_SED -> Distribusjonstype.VIKTIG
-            HENLEGGE_TRUKKET_SØKNAD -> Distribusjonstype.ANNET
-            VARSEL_OM_REVURDERING -> Distribusjonstype.VIKTIG
-            VARSEL_OM_VEDTAK_ETTER_SØKNAD_I_SED -> Distribusjonstype.VIKTIG
-            VARSEL_OM_REVURDERING_FRA_NASJONAL_TIL_EØS -> Distribusjonstype.VIKTIG
-            SVARTIDSBREV -> Distribusjonstype.ANNET
-            FORLENGET_SVARTIDSBREV -> Distribusjonstype.ANNET
-            INFORMASJONSBREV_KAN_SØKE -> Distribusjonstype.ANNET
-            INFORMASJONSBREV_KAN_SØKE_EØS -> Distribusjonstype.ANNET
-            VEDTAK_FØRSTEGANGSVEDTAK -> Distribusjonstype.VEDTAK
-            VEDTAK_ENDRING -> Distribusjonstype.VEDTAK
-            VEDTAK_OPPHØRT -> Distribusjonstype.VEDTAK
-            VEDTAK_OPPHØR_MED_ENDRING -> Distribusjonstype.VEDTAK
-            VEDTAK_AVSLAG -> Distribusjonstype.VEDTAK
-            VEDTAK_FORTSATT_INNVILGET -> Distribusjonstype.VEDTAK
-            VEDTAK_KORREKSJON_VEDTAKSBREV -> Distribusjonstype.VEDTAK
-            VEDTAK_OPPHØR_DØDSFALL -> Distribusjonstype.VEDTAK
-            AUTOVEDTAK_BARN_6_OG_18_ÅR_OG_SMÅBARNSTILLEGG -> Distribusjonstype.VEDTAK
-            AUTOVEDTAK_NYFØDT_FØRSTE_BARN -> Distribusjonstype.VEDTAK
-            AUTOVEDTAK_NYFØDT_BARN_FRA_FØR -> Distribusjonstype.VEDTAK
-        }
+        get() =
+            when (this) {
+                INFORMASJONSBREV_DELT_BOSTED -> Distribusjonstype.VIKTIG
+                INNHENTE_OPPLYSNINGER -> Distribusjonstype.VIKTIG
+                INNHENTE_OPPLYSNINGER_ETTER_SØKNAD_I_SED -> Distribusjonstype.VIKTIG
+                HENLEGGE_TRUKKET_SØKNAD -> Distribusjonstype.ANNET
+                VARSEL_OM_REVURDERING -> Distribusjonstype.VIKTIG
+                VARSEL_OM_VEDTAK_ETTER_SØKNAD_I_SED -> Distribusjonstype.VIKTIG
+                VARSEL_OM_REVURDERING_FRA_NASJONAL_TIL_EØS -> Distribusjonstype.VIKTIG
+                SVARTIDSBREV -> Distribusjonstype.ANNET
+                FORLENGET_SVARTIDSBREV -> Distribusjonstype.ANNET
+                INFORMASJONSBREV_KAN_SØKE -> Distribusjonstype.ANNET
+                INFORMASJONSBREV_KAN_SØKE_EØS -> Distribusjonstype.ANNET
+                VEDTAK_FØRSTEGANGSVEDTAK -> Distribusjonstype.VEDTAK
+                VEDTAK_ENDRING -> Distribusjonstype.VEDTAK
+                VEDTAK_OPPHØRT -> Distribusjonstype.VEDTAK
+                VEDTAK_OPPHØR_MED_ENDRING -> Distribusjonstype.VEDTAK
+                VEDTAK_AVSLAG -> Distribusjonstype.VEDTAK
+                VEDTAK_FORTSATT_INNVILGET -> Distribusjonstype.VEDTAK
+                VEDTAK_KORREKSJON_VEDTAKSBREV -> Distribusjonstype.VEDTAK
+                VEDTAK_OPPHØR_DØDSFALL -> Distribusjonstype.VEDTAK
+                AUTOVEDTAK_BARN_6_OG_18_ÅR_OG_SMÅBARNSTILLEGG -> Distribusjonstype.VEDTAK
+                AUTOVEDTAK_NYFØDT_FØRSTE_BARN -> Distribusjonstype.VEDTAK
+                AUTOVEDTAK_NYFØDT_BARN_FRA_FØR -> Distribusjonstype.VEDTAK
+            }
 
     fun setterBehandlingPåVent(): Boolean =
         when (this) {
@@ -207,7 +205,10 @@ enum class Brevmal(val erVedtaksbrev: Boolean, val apiNavn: String, val visnings
             else -> VenteÅrsak.AVVENTER_DOKUMENTASJON
         }
 
-    fun ventefristDager(manuellFrist: Long? = null, behandlingKategori: BehandlingKategori?): Long =
+    fun ventefristDager(
+        manuellFrist: Long? = null,
+        behandlingKategori: BehandlingKategori?,
+    ): Long =
         when (this) {
             INNHENTE_OPPLYSNINGER,
             VARSEL_OM_REVURDERING,
@@ -216,11 +217,12 @@ enum class Brevmal(val erVedtaksbrev: Boolean, val apiNavn: String, val visnings
             VARSEL_OM_VEDTAK_ETTER_SØKNAD_I_SED,
             -> 3 * 7
 
-            SVARTIDSBREV -> when (behandlingKategori) {
-                BehandlingKategori.EØS -> 30 * 3
-                BehandlingKategori.NASJONAL -> 3 * 7
-                else -> throw Feil("Behandlingskategori er ikke satt fot $this")
-            }
+            SVARTIDSBREV ->
+                when (behandlingKategori) {
+                    BehandlingKategori.EØS -> 30 * 3
+                    BehandlingKategori.NASJONAL -> 3 * 7
+                    else -> throw Feil("Behandlingskategori er ikke satt fot $this")
+                }
 
             FORLENGET_SVARTIDSBREV -> manuellFrist?.times(7) ?: throw Feil("Ventefrist var ikke satt for $this")
 
@@ -229,4 +231,5 @@ enum class Brevmal(val erVedtaksbrev: Boolean, val apiNavn: String, val visnings
 }
 
 fun flettefelt(flettefeltData: String?): Flettefelt = if (flettefeltData != null) listOf(flettefeltData) else null
+
 fun flettefelt(flettefeltData: List<String>): Flettefelt = flettefeltData

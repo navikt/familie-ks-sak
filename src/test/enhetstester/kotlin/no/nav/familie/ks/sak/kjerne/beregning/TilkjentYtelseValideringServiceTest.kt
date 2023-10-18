@@ -55,26 +55,29 @@ class TilkjentYtelseValideringServiceTest {
     private val barn2 = randomAktør()
     private val barn3MedUtbetalinger = randomAktør()
     private val behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD)
-    private val personopplysningGrunnlag = lagPersonopplysningGrunnlag(
-        behandling.id,
-        randomFnr(),
-        barnasIdenter = listOf(
-            barn1.aktivFødselsnummer(),
-            barn2.aktivFødselsnummer(),
-            barn3MedUtbetalinger.aktivFødselsnummer(),
-        ),
-        barnAktør = listOf(barn1, barn2, barn3MedUtbetalinger),
-    )
+    private val personopplysningGrunnlag =
+        lagPersonopplysningGrunnlag(
+            behandling.id,
+            randomFnr(),
+            barnasIdenter =
+                listOf(
+                    barn1.aktivFødselsnummer(),
+                    barn2.aktivFødselsnummer(),
+                    barn3MedUtbetalinger.aktivFødselsnummer(),
+                ),
+            barnAktør = listOf(barn1, barn2, barn3MedUtbetalinger),
+        )
 
     @BeforeEach
     fun setUp() {
-        tilkjentYtelseValideringService = TilkjentYtelseValideringService(
-            beregningService = beregningService,
-            totrinnskontrollService = totrinnskontrollService,
-            personopplysningGrunnlagService = personopplysningGrunnlagService,
-            personidentService = personidentService,
-            behandlingService = behandlingService,
-        )
+        tilkjentYtelseValideringService =
+            TilkjentYtelseValideringService(
+                beregningService = beregningService,
+                totrinnskontrollService = totrinnskontrollService,
+                personopplysningGrunnlagService = personopplysningGrunnlagService,
+                personidentService = personidentService,
+                behandlingService = behandlingService,
+            )
 
         every {
             beregningService.hentRelevanteTilkjentYtelserForBarn(
@@ -109,10 +112,11 @@ class TilkjentYtelseValideringServiceTest {
         assertFalse(
             tilkjentYtelseValideringService.kontantstøtteLøperForAnnenForelder(
                 behandling = behandling,
-                barna = listOf(
-                    lagPerson(personopplysningGrunnlag, barn1, PersonType.BARN),
-                    lagPerson(personopplysningGrunnlag, barn2, PersonType.BARN),
-                ),
+                barna =
+                    listOf(
+                        lagPerson(personopplysningGrunnlag, barn1, PersonType.BARN),
+                        lagPerson(personopplysningGrunnlag, barn2, PersonType.BARN),
+                    ),
             ),
         )
     }
@@ -122,61 +126,66 @@ class TilkjentYtelseValideringServiceTest {
         assertTrue(
             tilkjentYtelseValideringService.kontantstøtteLøperForAnnenForelder(
                 behandling = behandling,
-                barna = listOf(
-                    lagPerson(personopplysningGrunnlag, barn1, PersonType.BARN),
-                    lagPerson(personopplysningGrunnlag, barn3MedUtbetalinger, PersonType.BARN),
-                ),
+                barna =
+                    listOf(
+                        lagPerson(personopplysningGrunnlag, barn1, PersonType.BARN),
+                        lagPerson(personopplysningGrunnlag, barn3MedUtbetalinger, PersonType.BARN),
+                    ),
             ),
         )
     }
 
     @Test
     fun `finnAktørerMedUgyldigEtterbetalingsperiode - skal returnere liste med personer som har etterbetaling som er mer enn 3 mnd tilbake i tid`() {
-        val tilkjentYtelse = TilkjentYtelse(
-            behandling = behandling,
-            opprettetDato = LocalDate.now(),
-            endretDato = LocalDate.now(),
-            andelerTilkjentYtelse = mutableSetOf(
-                lagAndelTilkjentYtelse(
-                    behandling = behandling,
-                    aktør = barn1,
-                    stønadFom = YearMonth.now().minusMonths(4),
-                    stønadTom = YearMonth.now(),
-                    sats = 8000,
-                ),
-                lagAndelTilkjentYtelse(
-                    behandling = behandling,
-                    aktør = barn2,
-                    stønadFom = YearMonth.now().minusMonths(4),
-                    stønadTom = YearMonth.now(),
-                    sats = 8000,
-                ),
-            ),
-        )
+        val tilkjentYtelse =
+            TilkjentYtelse(
+                behandling = behandling,
+                opprettetDato = LocalDate.now(),
+                endretDato = LocalDate.now(),
+                andelerTilkjentYtelse =
+                    mutableSetOf(
+                        lagAndelTilkjentYtelse(
+                            behandling = behandling,
+                            aktør = barn1,
+                            stønadFom = YearMonth.now().minusMonths(4),
+                            stønadTom = YearMonth.now(),
+                            sats = 8000,
+                        ),
+                        lagAndelTilkjentYtelse(
+                            behandling = behandling,
+                            aktør = barn2,
+                            stønadFom = YearMonth.now().minusMonths(4),
+                            stønadTom = YearMonth.now(),
+                            sats = 8000,
+                        ),
+                    ),
+            )
 
         val forrigeBehandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD)
 
-        val forrigeTilkjentYtelse = TilkjentYtelse(
-            behandling = forrigeBehandling,
-            opprettetDato = LocalDate.now(),
-            endretDato = LocalDate.now(),
-            andelerTilkjentYtelse = mutableSetOf(
-                lagAndelTilkjentYtelse(
-                    behandling = behandling,
-                    aktør = barn1,
-                    stønadFom = YearMonth.now().minusMonths(4),
-                    stønadTom = YearMonth.now(),
-                    sats = 8000,
-                ),
-                lagAndelTilkjentYtelse(
-                    behandling = behandling,
-                    aktør = barn2,
-                    stønadFom = YearMonth.now().minusMonths(4),
-                    stønadTom = YearMonth.now(),
-                    sats = 7000,
-                ),
-            ),
-        )
+        val forrigeTilkjentYtelse =
+            TilkjentYtelse(
+                behandling = forrigeBehandling,
+                opprettetDato = LocalDate.now(),
+                endretDato = LocalDate.now(),
+                andelerTilkjentYtelse =
+                    mutableSetOf(
+                        lagAndelTilkjentYtelse(
+                            behandling = behandling,
+                            aktør = barn1,
+                            stønadFom = YearMonth.now().minusMonths(4),
+                            stønadTom = YearMonth.now(),
+                            sats = 8000,
+                        ),
+                        lagAndelTilkjentYtelse(
+                            behandling = behandling,
+                            aktør = barn2,
+                            stønadFom = YearMonth.now().minusMonths(4),
+                            stønadTom = YearMonth.now(),
+                            sats = 7000,
+                        ),
+                    ),
+            )
 
         every { beregningService.hentTilkjentYtelseForBehandling(behandlingId = behandling.id) } answers { tilkjentYtelse }
         every { behandlingService.hentBehandling(behandlingId = behandling.id) } answers { behandling }
@@ -197,33 +206,36 @@ class TilkjentYtelseValideringServiceTest {
 
     @Test
     fun `validerIngenAndelerTilkjentYtelseMedSammeOffsetIBehandling - skal kaste feil dersom det finnes andeler med samme offset i behandling`() {
-        val tilkjentYtelse = TilkjentYtelse(
-            behandling = behandling,
-            opprettetDato = LocalDate.now(),
-            endretDato = LocalDate.now(),
-            andelerTilkjentYtelse = mutableSetOf(
-                lagAndelTilkjentYtelse(
-                    behandling = behandling,
-                    aktør = barn1,
-                    stønadFom = YearMonth.now().minusMonths(4),
-                    stønadTom = YearMonth.now(),
-                    sats = 8000,
-                ).also { it.periodeOffset = 1 },
-                lagAndelTilkjentYtelse(
-                    behandling = behandling,
-                    aktør = barn2,
-                    stønadFom = YearMonth.now().minusMonths(4),
-                    stønadTom = YearMonth.now(),
-                    sats = 8000,
-                ).also { it.periodeOffset = 1 },
-            ),
-        )
+        val tilkjentYtelse =
+            TilkjentYtelse(
+                behandling = behandling,
+                opprettetDato = LocalDate.now(),
+                endretDato = LocalDate.now(),
+                andelerTilkjentYtelse =
+                    mutableSetOf(
+                        lagAndelTilkjentYtelse(
+                            behandling = behandling,
+                            aktør = barn1,
+                            stønadFom = YearMonth.now().minusMonths(4),
+                            stønadTom = YearMonth.now(),
+                            sats = 8000,
+                        ).also { it.periodeOffset = 1 },
+                        lagAndelTilkjentYtelse(
+                            behandling = behandling,
+                            aktør = barn2,
+                            stønadFom = YearMonth.now().minusMonths(4),
+                            stønadTom = YearMonth.now(),
+                            sats = 8000,
+                        ).also { it.periodeOffset = 1 },
+                    ),
+            )
 
         every { beregningService.hentTilkjentYtelseForBehandling(behandlingId = behandling.id) } returns tilkjentYtelse
 
-        val feil = assertThrows<Feil> {
-            tilkjentYtelseValideringService.validerIngenAndelerTilkjentYtelseMedSammeOffsetIBehandling(behandling.id)
-        }
+        val feil =
+            assertThrows<Feil> {
+                tilkjentYtelseValideringService.validerIngenAndelerTilkjentYtelseMedSammeOffsetIBehandling(behandling.id)
+            }
         assertEquals(
             "Behandling ${behandling.id} har andel tilkjent ytelse med offset lik en annen andel i behandlingen.",
             feil.message,
@@ -232,27 +244,29 @@ class TilkjentYtelseValideringServiceTest {
 
     @Test
     fun `validerIngenAndelerTilkjentYtelseMedSammeOffsetIBehandling - skal ikke kaste feil dersom det ikke finnes andeler med samme offset i behandling`() {
-        val tilkjentYtelse = TilkjentYtelse(
-            behandling = behandling,
-            opprettetDato = LocalDate.now(),
-            endretDato = LocalDate.now(),
-            andelerTilkjentYtelse = mutableSetOf(
-                lagAndelTilkjentYtelse(
-                    behandling = behandling,
-                    aktør = barn1,
-                    stønadFom = YearMonth.now().minusMonths(4),
-                    stønadTom = YearMonth.now(),
-                    sats = 8000,
-                ).also { it.periodeOffset = 1 },
-                lagAndelTilkjentYtelse(
-                    behandling = behandling,
-                    aktør = barn2,
-                    stønadFom = YearMonth.now().minusMonths(4),
-                    stønadTom = YearMonth.now(),
-                    sats = 8000,
-                ).also { it.periodeOffset = 2 },
-            ),
-        )
+        val tilkjentYtelse =
+            TilkjentYtelse(
+                behandling = behandling,
+                opprettetDato = LocalDate.now(),
+                endretDato = LocalDate.now(),
+                andelerTilkjentYtelse =
+                    mutableSetOf(
+                        lagAndelTilkjentYtelse(
+                            behandling = behandling,
+                            aktør = barn1,
+                            stønadFom = YearMonth.now().minusMonths(4),
+                            stønadTom = YearMonth.now(),
+                            sats = 8000,
+                        ).also { it.periodeOffset = 1 },
+                        lagAndelTilkjentYtelse(
+                            behandling = behandling,
+                            aktør = barn2,
+                            stønadFom = YearMonth.now().minusMonths(4),
+                            stønadTom = YearMonth.now(),
+                            sats = 8000,
+                        ).also { it.periodeOffset = 2 },
+                    ),
+            )
 
         every { beregningService.hentTilkjentYtelseForBehandling(behandlingId = behandling.id) } returns tilkjentYtelse
 
@@ -265,54 +279,64 @@ class TilkjentYtelseValideringServiceTest {
 
     @Test
     fun `validerAtIngenUtbetalingerOverstiger100Prosent - skal kaste feil dersom barn får flere utbetalinger i samme periode`() {
-        val tilkjentYtelse = TilkjentYtelse(
-            behandling = behandling,
-            opprettetDato = LocalDate.now(),
-            endretDato = LocalDate.now(),
-            andelerTilkjentYtelse = mutableSetOf(
-                lagAndelTilkjentYtelse(
-                    behandling = behandling,
-                    aktør = barn1,
-                    stønadFom = YearMonth.now().minusMonths(4),
-                    stønadTom = YearMonth.now(),
-                    sats = 8000,
-                ),
-            ),
-        )
+        val tilkjentYtelse =
+            TilkjentYtelse(
+                behandling = behandling,
+                opprettetDato = LocalDate.now(),
+                endretDato = LocalDate.now(),
+                andelerTilkjentYtelse =
+                    mutableSetOf(
+                        lagAndelTilkjentYtelse(
+                            behandling = behandling,
+                            aktør = barn1,
+                            stønadFom = YearMonth.now().minusMonths(4),
+                            stønadTom = YearMonth.now(),
+                            sats = 8000,
+                        ),
+                    ),
+            )
         val annenBehandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD)
 
-        val annenTilkjentYtelse = TilkjentYtelse(
-            behandling = annenBehandling,
-            opprettetDato = LocalDate.now(),
-            endretDato = LocalDate.now(),
-            andelerTilkjentYtelse = mutableSetOf(
-                lagAndelTilkjentYtelse(
-                    behandling = annenBehandling,
-                    aktør = barn1,
-                    stønadFom = YearMonth.now().minusMonths(4),
-                    stønadTom = YearMonth.now(),
-                    sats = 8000,
-                ),
-            ),
-        )
+        val annenTilkjentYtelse =
+            TilkjentYtelse(
+                behandling = annenBehandling,
+                opprettetDato = LocalDate.now(),
+                endretDato = LocalDate.now(),
+                andelerTilkjentYtelse =
+                    mutableSetOf(
+                        lagAndelTilkjentYtelse(
+                            behandling = annenBehandling,
+                            aktør = barn1,
+                            stønadFom = YearMonth.now().minusMonths(4),
+                            stønadTom = YearMonth.now(),
+                            sats = 8000,
+                        ),
+                    ),
+            )
 
-        every { totrinnskontrollService.hentAktivForBehandling(behandling.id) } returns Totrinnskontroll(
-            behandling = behandling,
-            saksbehandler = "Test",
-            saksbehandlerId = "1234",
-            godkjent = true,
-        )
+        every { totrinnskontrollService.hentAktivForBehandling(behandling.id) } returns
+            Totrinnskontroll(
+                behandling = behandling,
+                saksbehandler = "Test",
+                saksbehandlerId = "1234",
+                godkjent = true,
+            )
 
         every { beregningService.hentTilkjentYtelseForBehandling(behandlingId = behandling.id) } returns tilkjentYtelse
-        every { personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(behandlingId = behandling.id) } returns personopplysningGrunnlag
+        every {
+            personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(behandlingId = behandling.id)
+        } returns personopplysningGrunnlag
         every { beregningService.hentRelevanteTilkjentYtelserForBarn(any(), any()) } returns listOf(annenTilkjentYtelse)
 
-        val utbetalingsikkerhetFeil = assertThrows<UtbetalingsikkerhetFeil> {
-            tilkjentYtelseValideringService.validerAtIngenUtbetalingerOverstiger100Prosent(behandling)
-        }
+        val utbetalingsikkerhetFeil =
+            assertThrows<UtbetalingsikkerhetFeil> {
+                tilkjentYtelseValideringService.validerAtIngenUtbetalingerOverstiger100Prosent(behandling)
+            }
 
         assertEquals(
-            "Vi finner utbetalinger som overstiger 100% på hvert av barna: ${fnrTilFødselsdato(barn1.aktivFødselsnummer()).tilKortString()}",
+            "Vi finner utbetalinger som overstiger 100% på hvert av barna: ${fnrTilFødselsdato(
+                barn1.aktivFødselsnummer(),
+            ).tilKortString()}",
             utbetalingsikkerhetFeil.message,
         )
         assertEquals(
@@ -327,46 +351,53 @@ class TilkjentYtelseValideringServiceTest {
 
     @Test
     fun `validerAtIngenUtbetalingerOverstiger100Prosent - skal ikke kaste feil dersom barn ikke har utbetalinger i samme periode`() {
-        val tilkjentYtelse = TilkjentYtelse(
-            behandling = behandling,
-            opprettetDato = LocalDate.now(),
-            endretDato = LocalDate.now(),
-            andelerTilkjentYtelse = mutableSetOf(
-                lagAndelTilkjentYtelse(
-                    behandling = behandling,
-                    aktør = barn1,
-                    stønadFom = YearMonth.now().minusMonths(4),
-                    stønadTom = YearMonth.now().minusMonths(2),
-                    sats = 8000,
-                ),
-            ),
-        )
+        val tilkjentYtelse =
+            TilkjentYtelse(
+                behandling = behandling,
+                opprettetDato = LocalDate.now(),
+                endretDato = LocalDate.now(),
+                andelerTilkjentYtelse =
+                    mutableSetOf(
+                        lagAndelTilkjentYtelse(
+                            behandling = behandling,
+                            aktør = barn1,
+                            stønadFom = YearMonth.now().minusMonths(4),
+                            stønadTom = YearMonth.now().minusMonths(2),
+                            sats = 8000,
+                        ),
+                    ),
+            )
         val annenBehandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD)
 
-        val annenTilkjentYtelse = TilkjentYtelse(
-            behandling = annenBehandling,
-            opprettetDato = LocalDate.now(),
-            endretDato = LocalDate.now(),
-            andelerTilkjentYtelse = mutableSetOf(
-                lagAndelTilkjentYtelse(
-                    behandling = annenBehandling,
-                    aktør = barn1,
-                    stønadFom = YearMonth.now().minusMonths(1),
-                    stønadTom = YearMonth.now(),
-                    sats = 8000,
-                ),
-            ),
-        )
+        val annenTilkjentYtelse =
+            TilkjentYtelse(
+                behandling = annenBehandling,
+                opprettetDato = LocalDate.now(),
+                endretDato = LocalDate.now(),
+                andelerTilkjentYtelse =
+                    mutableSetOf(
+                        lagAndelTilkjentYtelse(
+                            behandling = annenBehandling,
+                            aktør = barn1,
+                            stønadFom = YearMonth.now().minusMonths(1),
+                            stønadTom = YearMonth.now(),
+                            sats = 8000,
+                        ),
+                    ),
+            )
 
-        every { totrinnskontrollService.hentAktivForBehandling(behandling.id) } returns Totrinnskontroll(
-            behandling = behandling,
-            saksbehandler = "Test",
-            saksbehandlerId = "1234",
-            godkjent = true,
-        )
+        every { totrinnskontrollService.hentAktivForBehandling(behandling.id) } returns
+            Totrinnskontroll(
+                behandling = behandling,
+                saksbehandler = "Test",
+                saksbehandlerId = "1234",
+                godkjent = true,
+            )
 
         every { beregningService.hentTilkjentYtelseForBehandling(behandlingId = behandling.id) } returns tilkjentYtelse
-        every { personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(behandlingId = behandling.id) } returns personopplysningGrunnlag
+        every {
+            personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(behandlingId = behandling.id)
+        } returns personopplysningGrunnlag
         every { beregningService.hentRelevanteTilkjentYtelserForBarn(any(), any()) } returns listOf(annenTilkjentYtelse)
 
         assertDoesNotThrow {

@@ -12,13 +12,10 @@ import java.util.UUID
 data class BarnehagelisteMottatt(
     @Id
     val id: UUID = UUID.randomUUID(),
-
     @Column(name = "MELDING_ID", nullable = false, updatable = false, unique = true)
     val meldingId: String,
-
     @Column(name = "MELDING", nullable = true)
     val melding: String,
-
     @Column(name = "MOTTATT_TID", nullable = false)
     val mottatTid: LocalDateTime,
 )

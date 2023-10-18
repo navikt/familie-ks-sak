@@ -35,7 +35,6 @@ class KompetanseService(
     private val vilkårsvurderingTidslinjeService: VilkårsvurderingTidslinjeService,
     private val endretUtbetalingAndelTidslinjeService: EndretUtbetalingAndelTidslinjeService,
 ) {
-
     private val kompetanseSkjemaService = EøsSkjemaService(kompetanseRepository, kompetanseEndringsAbonnenter)
 
     fun hentKompetanse(kompetanseId: Long) = kompetanseSkjemaService.hentMedId(kompetanseId)
@@ -43,7 +42,10 @@ class KompetanseService(
     fun hentKompetanser(behandlingId: Long) = kompetanseSkjemaService.hentMedBehandlingId(behandlingId)
 
     @Transactional
-    fun oppdaterKompetanse(behandlingId: Long, oppdateresKompetanseDto: KompetanseDto) {
+    fun oppdaterKompetanse(
+        behandlingId: Long,
+        oppdateresKompetanseDto: KompetanseDto,
+    ) {
         val barnAktører = oppdateresKompetanseDto.barnIdenter.map { personidentService.hentAktør(it) }
         val oppdateresKompetanse = oppdateresKompetanseDto.tilKompetanse(barnAktører)
 
@@ -60,11 +62,12 @@ class KompetanseService(
         val barnasHarEtterbetaling3MånedTidslinjer =
             endretUtbetalingAndelTidslinjeService.hentBarnasHarEtterbetaling3MånedTidslinjer(behandlingId)
 
-        val oppdaterteKompetanser = tilpassKompetanserTilRegelverk(
-            eksisterendeKompetanser,
-            barnasRegelverkResultatTidslinjer,
-            barnasHarEtterbetaling3MånedTidslinjer,
-        ).medBehandlingId(behandlingId)
+        val oppdaterteKompetanser =
+            tilpassKompetanserTilRegelverk(
+                eksisterendeKompetanser,
+                barnasRegelverkResultatTidslinjer,
+                barnasHarEtterbetaling3MånedTidslinjer,
+            ).medBehandlingId(behandlingId)
 
         kompetanseSkjemaService.lagreDifferanseOgVarsleAbonnenter(behandlingId, eksisterendeKompetanser, oppdaterteKompetanser)
     }
@@ -77,13 +80,14 @@ class KompetanseService(
         barnaRegelverkTidslinjer: Map<Aktør, Tidslinje<RegelverkResultat>>,
         barnasHarEtterbetaling3MånedTidslinjer: Map<Aktør, Tidslinje<Boolean>>,
     ): List<Kompetanse> {
-        val barnasEøsRegelverkTidslinjer = barnaRegelverkTidslinjer.tilBarnasEøsRegelverkTidslinjer()
-            .leftJoin(barnasHarEtterbetaling3MånedTidslinjer) { regelverk, harEtterbetaling3Måned ->
-                when (harEtterbetaling3Måned) {
-                    true -> null // ta bort regelverk hvis barnet har etterbetaling 3 måned
-                    else -> regelverk
+        val barnasEøsRegelverkTidslinjer =
+            barnaRegelverkTidslinjer.tilBarnasEøsRegelverkTidslinjer()
+                .leftJoin(barnasHarEtterbetaling3MånedTidslinjer) { regelverk, harEtterbetaling3Måned ->
+                    when (harEtterbetaling3Måned) {
+                        true -> null // ta bort regelverk hvis barnet har etterbetaling 3 måned
+                        else -> regelverk
+                    }
                 }
-            }
 
         return eksisterendeKompetanser.tilSeparateTidslinjerForBarna()
             .outerJoin(barnasEøsRegelverkTidslinjer) { kompetanse, regelverk ->

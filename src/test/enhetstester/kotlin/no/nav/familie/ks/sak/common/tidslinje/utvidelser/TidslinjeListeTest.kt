@@ -10,7 +10,6 @@ import java.time.LocalDate
 import java.time.temporal.ChronoUnit
 
 class TidslinjeListeTest {
-
     private var lst1 = emptyList<TidslinjePeriode<Boolean?>>()
     private var lst2 = emptyList<TidslinjePeriode<Boolean?>>()
     private var lst3 = emptyList<TidslinjePeriode<Boolean?>>()
@@ -39,11 +38,12 @@ class TidslinjeListeTest {
         this.lst1 = lst1
         this.lst2 = lst2
         this.lst3 = lst3
-        this.tidslinjeList = listOf(
-            Tidslinje(LocalDate.now().minusDays(2), lst1),
-            Tidslinje(LocalDate.now().plusDays(1), lst2),
-            Tidslinje(LocalDate.now(), lst3),
-        )
+        this.tidslinjeList =
+            listOf(
+                Tidslinje(LocalDate.now().minusDays(2), lst1),
+                Tidslinje(LocalDate.now().plusDays(1), lst2),
+                Tidslinje(LocalDate.now(), lst3),
+            )
     }
 
     @Test
@@ -53,13 +53,14 @@ class TidslinjeListeTest {
             listOf(TidslinjePeriode(true, 1, false), TidslinjePeriode(true, 1, false)),
             listOf(TidslinjePeriode(false, 1, false), TidslinjePeriode(true, 1, false)),
         )
-        val test = tidslinjeList.slåSammenLikeTidslinjer { el1, el2 ->
-            if (el1 is Udefinert || el2 is Udefinert) {
-                Udefinert()
-            } else {
-                Verdi(el1.verdi!! && el2.verdi!!)
+        val test =
+            tidslinjeList.slåSammenLikeTidslinjer { el1, el2 ->
+                if (el1 is Udefinert || el2 is Udefinert) {
+                    Udefinert()
+                } else {
+                    Verdi(el1.verdi!! && el2.verdi!!)
+                }
             }
-        }
 
         val fakta = mutableListOf(false, true, nullVerdi)
 
@@ -91,13 +92,14 @@ class TidslinjeListeTest {
             listOf(TidslinjePeriode(true, 2, false), TidslinjePeriode(true, 1, false)),
             listOf(TidslinjePeriode(false, 2, false), TidslinjePeriode(true, 1, false)),
         )
-        val test = tidslinjeList.slåSammenLikeTidslinjer { el1, el2 ->
-            if (el1 is Udefinert || el2 is Udefinert) {
-                Udefinert()
-            } else {
-                Verdi(el1.verdi!! && el2.verdi!!)
+        val test =
+            tidslinjeList.slåSammenLikeTidslinjer { el1, el2 ->
+                if (el1 is Udefinert || el2 is Udefinert) {
+                    Udefinert()
+                } else {
+                    Verdi(el1.verdi!! && el2.verdi!!)
+                }
             }
-        }
 
         val fakta = mutableListOf(nullVerdi, false, nullVerdi)
 
@@ -116,13 +118,14 @@ class TidslinjeListeTest {
         var start2 = LocalDate.of(2022, 8, 1)
         var stopp2 = LocalDate.of(2022, 9, 30)
 
-        val t1 = Tidslinje(
-            start1,
-            listOf(
-                TidslinjePeriode(true, start1.until(stopp1, ChronoUnit.DAYS).toInt() + 1),
-                TidslinjePeriode(false, start2.until(stopp2, ChronoUnit.DAYS).toInt() + 1),
-            ),
-        )
+        val t1 =
+            Tidslinje(
+                start1,
+                listOf(
+                    TidslinjePeriode(true, start1.until(stopp1, ChronoUnit.DAYS).toInt() + 1),
+                    TidslinjePeriode(false, start2.until(stopp2, ChronoUnit.DAYS).toInt() + 1),
+                ),
+            )
 
         start1 = LocalDate.of(2022, 5, 1)
         stopp1 = LocalDate.of(2022, 6, 30)
@@ -130,22 +133,24 @@ class TidslinjeListeTest {
         start2 = LocalDate.of(2022, 7, 1)
         stopp2 = LocalDate.of(2022, 8, 31)
 
-        val t2 = Tidslinje(
-            start1,
-            listOf(
-                TidslinjePeriode(true, start1.until(stopp1, ChronoUnit.DAYS).toInt() + 1),
-                TidslinjePeriode(false, start2.until(stopp2, ChronoUnit.DAYS).toInt() + 1),
-            ),
-        )
+        val t2 =
+            Tidslinje(
+                start1,
+                listOf(
+                    TidslinjePeriode(true, start1.until(stopp1, ChronoUnit.DAYS).toInt() + 1),
+                    TidslinjePeriode(false, start2.until(stopp2, ChronoUnit.DAYS).toInt() + 1),
+                ),
+            )
 
         val tidslinjeList: List<Tidslinje<Boolean>> = listOf(t1, t2)
-        val result = tidslinjeList.slåSammenLikeTidslinjer { el1, el2 ->
-            if (el1 is Udefinert || el2 is Udefinert) {
-                Udefinert()
-            } else {
-                Verdi(el1.verdi!! && el2.verdi!!)
+        val result =
+            tidslinjeList.slåSammenLikeTidslinjer { el1, el2 ->
+                if (el1 is Udefinert || el2 is Udefinert) {
+                    Udefinert()
+                } else {
+                    Verdi(el1.verdi!! && el2.verdi!!)
+                }
             }
-        }
         Assertions.assertEquals(LocalDate.of(2022, 5, 1), result.startsTidspunkt)
     }
 }

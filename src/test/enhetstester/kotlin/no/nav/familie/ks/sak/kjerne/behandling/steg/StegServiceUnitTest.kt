@@ -27,7 +27,6 @@ import java.time.LocalDate
 
 @ExtendWith(MockKExtension::class)
 class StegServiceUnitTest {
-
     @MockK
     private lateinit var steg: List<IBehandlingSteg>
 
@@ -97,11 +96,12 @@ class StegServiceUnitTest {
 
         val nyFrist = LocalDate.now().plusMonths(1)
 
-        val gammelFrist = stegService.oppdaterBehandlingstegFristOgÅrsak(
-            behandling,
-            nyFrist,
-            årsak,
-        )
+        val gammelFrist =
+            stegService.oppdaterBehandlingstegFristOgÅrsak(
+                behandling,
+                nyFrist,
+                årsak,
+            )
 
         val behandling = behandlingSlot.captured
         val behandlingStegTilstand = behandling.behandlingStegTilstand.single { it.behandlingSteg == behandling.steg }
@@ -128,13 +128,14 @@ class StegServiceUnitTest {
             årsak,
         )
 
-        val funksjonellFeil = assertThrows<FunksjonellFeil> {
-            stegService.oppdaterBehandlingstegFristOgÅrsak(
-                behandling,
-                frist,
-                årsak,
-            )
-        }
+        val funksjonellFeil =
+            assertThrows<FunksjonellFeil> {
+                stegService.oppdaterBehandlingstegFristOgÅrsak(
+                    behandling,
+                    frist,
+                    årsak,
+                )
+            }
 
         assertEquals(
             "Behandlingen er allerede satt på vent med frist $frist og årsak $årsak.",

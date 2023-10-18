@@ -10,19 +10,25 @@ import java.time.LocalTime
 class BehandlingSøknadsinfoService(
     private val behandlingSøknadsinfoRepository: BehandlingSøknadsinfoRepository,
 ) {
-
     @Transactional
-    fun lagreNedSøknadsinfo(søknadsinfo: Søknadsinfo, behandling: Behandling) {
-        val behandlingSøknadsinfo = BehandlingSøknadsinfo(
-            behandling = behandling,
-            mottattDato = søknadsinfo.mottattDato,
-            journalpostId = søknadsinfo.journalpostId,
-            erDigital = søknadsinfo.erDigital,
-        )
+    fun lagreNedSøknadsinfo(
+        søknadsinfo: Søknadsinfo,
+        behandling: Behandling,
+    ) {
+        val behandlingSøknadsinfo =
+            BehandlingSøknadsinfo(
+                behandling = behandling,
+                mottattDato = søknadsinfo.mottattDato,
+                journalpostId = søknadsinfo.journalpostId,
+                erDigital = søknadsinfo.erDigital,
+            )
         behandlingSøknadsinfoRepository.save(behandlingSøknadsinfo)
     }
 
-    fun hentSøknadsstatistikk(fom: LocalDate, tom: LocalDate): SøknadsstatistikkForPeriode =
+    fun hentSøknadsstatistikk(
+        fom: LocalDate,
+        tom: LocalDate,
+    ): SøknadsstatistikkForPeriode =
         behandlingSøknadsinfoRepository.hentAntallSøknaderIPeriode(fom.atStartOfDay(), tom.atTime(LocalTime.MAX))
             .let {
                 SøknadsstatistikkForPeriode(

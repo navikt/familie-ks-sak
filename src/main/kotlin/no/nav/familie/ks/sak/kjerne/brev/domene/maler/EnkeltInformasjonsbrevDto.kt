@@ -7,7 +7,6 @@ data class EnkeltInformasjonsbrevDto(
     override val mal: Brevmal,
     override val data: EnkeltInformasjonsbrevDataDto,
 ) : BrevDto {
-
     constructor(
         navn: String,
         fodselsnummer: String,
@@ -15,17 +14,20 @@ data class EnkeltInformasjonsbrevDto(
         mal: Brevmal,
     ) : this(
         mal = mal,
-        data = EnkeltInformasjonsbrevDataDto(
-            flettefelter = EnkeltInformasjonsbrevDataDto.FlettefelterDto(
-                navn = navn,
-                fodselsnummer = fodselsnummer,
+        data =
+            EnkeltInformasjonsbrevDataDto(
+                flettefelter =
+                    EnkeltInformasjonsbrevDataDto.FlettefelterDto(
+                        navn = navn,
+                        fodselsnummer = fodselsnummer,
+                    ),
+                delmalData =
+                    EnkeltInformasjonsbrevDataDto.DelmalData(
+                        SignaturDelmal(
+                            enhet = enhet,
+                        ),
+                    ),
             ),
-            delmalData = EnkeltInformasjonsbrevDataDto.DelmalData(
-                SignaturDelmal(
-                    enhet = enhet,
-                ),
-            ),
-        ),
     )
 }
 
@@ -33,13 +35,11 @@ data class EnkeltInformasjonsbrevDataDto(
     override val delmalData: DelmalData,
     override val flettefelter: FlettefelterDto,
 ) : BrevDataDto {
-
     data class FlettefelterDto(
         override val navn: Flettefelt,
         override val fodselsnummer: Flettefelt,
         override val brevOpprettetDato: Flettefelt = flettefelt(LocalDate.now().tilDagMånedÅr()),
     ) : FlettefelterForDokumentDto {
-
         constructor(
             navn: String,
             fodselsnummer: String,

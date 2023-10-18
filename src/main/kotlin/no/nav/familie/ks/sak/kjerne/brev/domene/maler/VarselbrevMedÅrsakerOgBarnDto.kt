@@ -16,15 +16,17 @@ data class VarselbrevMedÅrsakerOgBarnDto(
         barnasFødselsdager: String,
     ) : this(
         mal = mal,
-        data = VarselbrevMedÅrsakerOgBarnDataDto(
-            delmalData = VarselbrevMedÅrsakerOgBarnDataDto.DelmalData(signatur = SignaturDelmal(enhet = enhet)),
-            flettefelter = VarselbrevMedÅrsakerOgBarnDataDto.FlettefelterDto(
-                navn = navn,
-                fodselsnummer = fødselsnummer,
-                varselÅrsaker = varselÅrsaker,
-                barnasFødselsdager = barnasFødselsdager,
+        data =
+            VarselbrevMedÅrsakerOgBarnDataDto(
+                delmalData = VarselbrevMedÅrsakerOgBarnDataDto.DelmalData(signatur = SignaturDelmal(enhet = enhet)),
+                flettefelter =
+                    VarselbrevMedÅrsakerOgBarnDataDto.FlettefelterDto(
+                        navn = navn,
+                        fodselsnummer = fødselsnummer,
+                        varselÅrsaker = varselÅrsaker,
+                        barnasFødselsdager = barnasFødselsdager,
+                    ),
             ),
-        ),
     )
 }
 
@@ -32,7 +34,6 @@ data class VarselbrevMedÅrsakerOgBarnDataDto(
     override val delmalData: DelmalData,
     override val flettefelter: FlettefelterDto,
 ) : BrevDataDto {
-
     data class FlettefelterDto(
         override val navn: Flettefelt,
         override val fodselsnummer: Flettefelt,
@@ -40,7 +41,6 @@ data class VarselbrevMedÅrsakerOgBarnDataDto(
         val varselAarsaker: Flettefelt,
         val barnasFodselsdatoer: Flettefelt,
     ) : FlettefelterForDokumentDto {
-
         constructor(
             navn: String,
             fodselsnummer: String,

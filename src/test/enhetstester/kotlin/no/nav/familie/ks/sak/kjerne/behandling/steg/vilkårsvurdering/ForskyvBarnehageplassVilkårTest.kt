@@ -12,7 +12,6 @@ import java.time.YearMonth
 import org.hamcrest.CoreMatchers.`is` as Is
 
 class ForskyvBarnehageplassVilkårTest {
-
     private val januar = YearMonth.of(2022, 1)
     private val februar = YearMonth.of(2022, 2)
     private val mars = YearMonth.of(2022, 3)
@@ -27,18 +26,20 @@ class ForskyvBarnehageplassVilkårTest {
     // Eksempel i src/test/resources/barnehageplassscenarioer
     @Test
     fun `Scenario 1 - Barn går fra ingen barnehageplass til deltids barnehageplass`() {
-        val vilkårResultat1 = lagVilkårResultat(
-            vilkårType = Vilkår.BARNEHAGEPLASS,
-            periodeFom = august.atDay(15),
-            periodeTom = oktober.atDay(14),
-            antallTimer = null,
-        )
-        val vilkårResultat2 = lagVilkårResultat(
-            vilkårType = Vilkår.BARNEHAGEPLASS,
-            periodeFom = oktober.atDay(15),
-            periodeTom = desember.atDay(1),
-            antallTimer = BigDecimal.valueOf(8),
-        )
+        val vilkårResultat1 =
+            lagVilkårResultat(
+                vilkårType = Vilkår.BARNEHAGEPLASS,
+                periodeFom = august.atDay(15),
+                periodeTom = oktober.atDay(14),
+                antallTimer = null,
+            )
+        val vilkårResultat2 =
+            lagVilkårResultat(
+                vilkårType = Vilkår.BARNEHAGEPLASS,
+                periodeFom = oktober.atDay(15),
+                periodeTom = desember.atDay(1),
+                antallTimer = BigDecimal.valueOf(8),
+            )
 
         val forskjøvedeVilkårResultater = listOf(vilkårResultat1, vilkårResultat2).forskyvBarnehageplassVilkår()
 
@@ -54,18 +55,20 @@ class ForskyvBarnehageplassVilkårTest {
     // Eksempel i src/test/resources/barnehageplassscenarioer
     @Test
     fun `Scenario 2 - Barn går fra deltids barnehageplass til ingen barnehageplass`() {
-        val vilkårResultat1 = lagVilkårResultat(
-            vilkårType = Vilkår.BARNEHAGEPLASS,
-            periodeFom = august.atDay(15),
-            periodeTom = oktober.atDay(14),
-            antallTimer = BigDecimal.valueOf(8),
-        )
-        val vilkårResultat2 = lagVilkårResultat(
-            vilkårType = Vilkår.BARNEHAGEPLASS,
-            periodeFom = oktober.atDay(15),
-            periodeTom = desember.atDay(1),
-            antallTimer = null,
-        )
+        val vilkårResultat1 =
+            lagVilkårResultat(
+                vilkårType = Vilkår.BARNEHAGEPLASS,
+                periodeFom = august.atDay(15),
+                periodeTom = oktober.atDay(14),
+                antallTimer = BigDecimal.valueOf(8),
+            )
+        val vilkårResultat2 =
+            lagVilkårResultat(
+                vilkårType = Vilkår.BARNEHAGEPLASS,
+                periodeFom = oktober.atDay(15),
+                periodeTom = desember.atDay(1),
+                antallTimer = null,
+            )
 
         val forskjøvedeVilkårResultater = listOf(vilkårResultat1, vilkårResultat2).forskyvBarnehageplassVilkår()
 
@@ -81,18 +84,20 @@ class ForskyvBarnehageplassVilkårTest {
     // Eksempel i src/test/resources/barnehageplassscenarioer
     @Test
     fun `Scenario 3,0 - Barnet går fra deltids barnehageplass til økt barnehageplass i månedsskifte`() {
-        val vilkårResultat1 = lagVilkårResultat(
-            vilkårType = Vilkår.BARNEHAGEPLASS,
-            periodeFom = august.atDay(14),
-            periodeTom = september.atEndOfMonth(),
-            antallTimer = BigDecimal.valueOf(8),
-        )
-        val vilkårResultat2 = lagVilkårResultat(
-            vilkårType = Vilkår.BARNEHAGEPLASS,
-            periodeFom = oktober.atDay(1),
-            periodeTom = desember.atDay(1),
-            antallTimer = BigDecimal.valueOf(17),
-        )
+        val vilkårResultat1 =
+            lagVilkårResultat(
+                vilkårType = Vilkår.BARNEHAGEPLASS,
+                periodeFom = august.atDay(14),
+                periodeTom = september.atEndOfMonth(),
+                antallTimer = BigDecimal.valueOf(8),
+            )
+        val vilkårResultat2 =
+            lagVilkårResultat(
+                vilkårType = Vilkår.BARNEHAGEPLASS,
+                periodeFom = oktober.atDay(1),
+                periodeTom = desember.atDay(1),
+                antallTimer = BigDecimal.valueOf(17),
+            )
 
         val forskjøvedeVilkårResultater = listOf(vilkårResultat1, vilkårResultat2).forskyvBarnehageplassVilkår()
 
@@ -108,18 +113,20 @@ class ForskyvBarnehageplassVilkårTest {
     // Eksempel i src/test/resources/barnehageplassscenarioer
     @Test
     fun `Scenario 3,5 - Barnet går fra fulltids barnehageplass til deltids barnehageplass`() {
-        val vilkårResultat1 = lagVilkårResultat(
-            vilkårType = Vilkår.BARNEHAGEPLASS,
-            periodeFom = august.atDay(14),
-            periodeTom = oktober.atDay(14),
-            antallTimer = BigDecimal.valueOf(33),
-        )
-        val vilkårResultat2 = lagVilkårResultat(
-            vilkårType = Vilkår.BARNEHAGEPLASS,
-            periodeFom = oktober.atDay(15),
-            periodeTom = desember.atDay(1),
-            antallTimer = BigDecimal.valueOf(17),
-        )
+        val vilkårResultat1 =
+            lagVilkårResultat(
+                vilkårType = Vilkår.BARNEHAGEPLASS,
+                periodeFom = august.atDay(14),
+                periodeTom = oktober.atDay(14),
+                antallTimer = BigDecimal.valueOf(33),
+            )
+        val vilkårResultat2 =
+            lagVilkårResultat(
+                vilkårType = Vilkår.BARNEHAGEPLASS,
+                periodeFom = oktober.atDay(15),
+                periodeTom = desember.atDay(1),
+                antallTimer = BigDecimal.valueOf(17),
+            )
 
         val forskjøvedeVilkårResultater = listOf(vilkårResultat1, vilkårResultat2).forskyvBarnehageplassVilkår()
 
@@ -135,18 +142,20 @@ class ForskyvBarnehageplassVilkårTest {
     // Eksempel i src/test/resources/barnehageplassscenarioer
     @Test
     fun `Spesialhåndtering 1 - Barnet slutter i barnehage siste dag i september, skal ha full KS fra oktober`() {
-        val vilkårResultat1 = lagVilkårResultat(
-            vilkårType = Vilkår.BARNEHAGEPLASS,
-            periodeFom = august.atDay(14),
-            periodeTom = september.atEndOfMonth(),
-            antallTimer = BigDecimal.valueOf(17),
-        )
-        val vilkårResultat2 = lagVilkårResultat(
-            vilkårType = Vilkår.BARNEHAGEPLASS,
-            periodeFom = oktober.atDay(1),
-            periodeTom = desember.atDay(1),
-            antallTimer = null,
-        )
+        val vilkårResultat1 =
+            lagVilkårResultat(
+                vilkårType = Vilkår.BARNEHAGEPLASS,
+                periodeFom = august.atDay(14),
+                periodeTom = september.atEndOfMonth(),
+                antallTimer = BigDecimal.valueOf(17),
+            )
+        val vilkårResultat2 =
+            lagVilkårResultat(
+                vilkårType = Vilkår.BARNEHAGEPLASS,
+                periodeFom = oktober.atDay(1),
+                periodeTom = desember.atDay(1),
+                antallTimer = null,
+            )
 
         val forskjøvedeVilkårResultater = listOf(vilkårResultat1, vilkårResultat2).forskyvBarnehageplassVilkår()
 
@@ -162,18 +171,20 @@ class ForskyvBarnehageplassVilkårTest {
     // Eksempel i src/test/resources/barnehageplassscenarioer
     @Test
     fun `Spesialhåndtering 2 - Barnet reduserer barnehageplass i slutten av september, skal ha mer KS fra oktober`() {
-        val vilkårResultat1 = lagVilkårResultat(
-            vilkårType = Vilkår.BARNEHAGEPLASS,
-            periodeFom = august.atDay(14),
-            periodeTom = september.atEndOfMonth(),
-            antallTimer = BigDecimal.valueOf(17),
-        )
-        val vilkårResultat2 = lagVilkårResultat(
-            vilkårType = Vilkår.BARNEHAGEPLASS,
-            periodeFom = oktober.atDay(1),
-            periodeTom = desember.atDay(1),
-            antallTimer = BigDecimal.valueOf(8),
-        )
+        val vilkårResultat1 =
+            lagVilkårResultat(
+                vilkårType = Vilkår.BARNEHAGEPLASS,
+                periodeFom = august.atDay(14),
+                periodeTom = september.atEndOfMonth(),
+                antallTimer = BigDecimal.valueOf(17),
+            )
+        val vilkårResultat2 =
+            lagVilkårResultat(
+                vilkårType = Vilkår.BARNEHAGEPLASS,
+                periodeFom = oktober.atDay(1),
+                periodeTom = desember.atDay(1),
+                antallTimer = BigDecimal.valueOf(8),
+            )
 
         val forskjøvedeVilkårResultater = listOf(vilkårResultat1, vilkårResultat2).forskyvBarnehageplassVilkår()
 
@@ -189,18 +200,20 @@ class ForskyvBarnehageplassVilkårTest {
     // Eksempel i src/test/resources/barnehageplassscenarioer
     @Test
     fun `Scenario 5 - Barnet går fra deltids barnehageplass til full barnehageplass`() {
-        val vilkårResultat1 = lagVilkårResultat(
-            vilkårType = Vilkår.BARNEHAGEPLASS,
-            periodeFom = august.atDay(14),
-            periodeTom = oktober.atDay(13),
-            antallTimer = BigDecimal.valueOf(8),
-        )
-        val vilkårResultat2 = lagVilkårResultat(
-            vilkårType = Vilkår.BARNEHAGEPLASS,
-            periodeFom = oktober.atDay(14),
-            periodeTom = desember.atDay(1),
-            antallTimer = BigDecimal.valueOf(33),
-        )
+        val vilkårResultat1 =
+            lagVilkårResultat(
+                vilkårType = Vilkår.BARNEHAGEPLASS,
+                periodeFom = august.atDay(14),
+                periodeTom = oktober.atDay(13),
+                antallTimer = BigDecimal.valueOf(8),
+            )
+        val vilkårResultat2 =
+            lagVilkårResultat(
+                vilkårType = Vilkår.BARNEHAGEPLASS,
+                periodeFom = oktober.atDay(14),
+                periodeTom = desember.atDay(1),
+                antallTimer = BigDecimal.valueOf(33),
+            )
 
         val forskjøvedeVilkårResultater = listOf(vilkårResultat1, vilkårResultat2).forskyvBarnehageplassVilkår()
 
@@ -216,18 +229,20 @@ class ForskyvBarnehageplassVilkårTest {
     // Eksempel i src/test/resources/barnehageplassscenarioer
     @Test
     fun `Scenario 6 - Barnet går fra full barnehageplass til deltids barnehageplass`() {
-        val vilkårResultat1 = lagVilkårResultat(
-            vilkårType = Vilkår.BARNEHAGEPLASS,
-            periodeFom = august.atDay(14),
-            periodeTom = oktober.atDay(13),
-            antallTimer = BigDecimal.valueOf(33),
-        )
-        val vilkårResultat2 = lagVilkårResultat(
-            vilkårType = Vilkår.BARNEHAGEPLASS,
-            periodeFom = oktober.atDay(14),
-            periodeTom = desember.atDay(1),
-            antallTimer = BigDecimal.valueOf(8),
-        )
+        val vilkårResultat1 =
+            lagVilkårResultat(
+                vilkårType = Vilkår.BARNEHAGEPLASS,
+                periodeFom = august.atDay(14),
+                periodeTom = oktober.atDay(13),
+                antallTimer = BigDecimal.valueOf(33),
+            )
+        val vilkårResultat2 =
+            lagVilkårResultat(
+                vilkårType = Vilkår.BARNEHAGEPLASS,
+                periodeFom = oktober.atDay(14),
+                periodeTom = desember.atDay(1),
+                antallTimer = BigDecimal.valueOf(8),
+            )
 
         val forskjøvedeVilkårResultater = listOf(vilkårResultat1, vilkårResultat2).forskyvBarnehageplassVilkår()
 
@@ -243,26 +258,27 @@ class ForskyvBarnehageplassVilkårTest {
     // Eksempel i src/test/resources/barnehageplassscenarioer
     @Test
     fun `Scenario 7,1 - forskyvBarnehageplassVilkår skal støtte flere perioder i en måned`() {
-        val vilkårResultater = listOf(
-            lagVilkårResultat(
-                vilkårType = Vilkår.BARNEHAGEPLASS,
-                periodeFom = januar.atEndOfMonth(),
-                periodeTom = februar.atDay(12),
-                antallTimer = BigDecimal.valueOf(8),
-            ),
-            lagVilkårResultat(
-                vilkårType = Vilkår.BARNEHAGEPLASS,
-                periodeFom = februar.atDay(13),
-                periodeTom = februar.atDay(23),
-                antallTimer = BigDecimal.valueOf(32),
-            ),
-            lagVilkårResultat(
-                vilkårType = Vilkår.BARNEHAGEPLASS,
-                periodeFom = februar.atDay(24),
-                periodeTom = mars.atDay(1),
-                antallTimer = BigDecimal.valueOf(8),
-            ),
-        )
+        val vilkårResultater =
+            listOf(
+                lagVilkårResultat(
+                    vilkårType = Vilkår.BARNEHAGEPLASS,
+                    periodeFom = januar.atEndOfMonth(),
+                    periodeTom = februar.atDay(12),
+                    antallTimer = BigDecimal.valueOf(8),
+                ),
+                lagVilkårResultat(
+                    vilkårType = Vilkår.BARNEHAGEPLASS,
+                    periodeFom = februar.atDay(13),
+                    periodeTom = februar.atDay(23),
+                    antallTimer = BigDecimal.valueOf(32),
+                ),
+                lagVilkårResultat(
+                    vilkårType = Vilkår.BARNEHAGEPLASS,
+                    periodeFom = februar.atDay(24),
+                    periodeTom = mars.atDay(1),
+                    antallTimer = BigDecimal.valueOf(8),
+                ),
+            )
 
         val forskjøvedeVilkårResultater = vilkårResultater.forskyvBarnehageplassVilkår()
 
@@ -276,26 +292,27 @@ class ForskyvBarnehageplassVilkårTest {
     // Eksempel i src/test/resources/barnehageplassscenarioer
     @Test
     fun `Scenario 7,2 - forskyvBarnehageplassVilkår skal støtte flere perioder i en måned`() {
-        val vilkårResultater = listOf(
-            lagVilkårResultat(
-                vilkårType = Vilkår.BARNEHAGEPLASS,
-                periodeFom = januar.atEndOfMonth(),
-                periodeTom = februar.atDay(12),
-                antallTimer = BigDecimal.valueOf(32),
-            ),
-            lagVilkårResultat(
-                vilkårType = Vilkår.BARNEHAGEPLASS,
-                periodeFom = februar.atDay(13),
-                periodeTom = februar.atDay(23),
-                antallTimer = BigDecimal.valueOf(8),
-            ),
-            lagVilkårResultat(
-                vilkårType = Vilkår.BARNEHAGEPLASS,
-                periodeFom = februar.atDay(24),
-                periodeTom = april.atDay(1),
-                antallTimer = BigDecimal.valueOf(16),
-            ),
-        )
+        val vilkårResultater =
+            listOf(
+                lagVilkårResultat(
+                    vilkårType = Vilkår.BARNEHAGEPLASS,
+                    periodeFom = januar.atEndOfMonth(),
+                    periodeTom = februar.atDay(12),
+                    antallTimer = BigDecimal.valueOf(32),
+                ),
+                lagVilkårResultat(
+                    vilkårType = Vilkår.BARNEHAGEPLASS,
+                    periodeFom = februar.atDay(13),
+                    periodeTom = februar.atDay(23),
+                    antallTimer = BigDecimal.valueOf(8),
+                ),
+                lagVilkårResultat(
+                    vilkårType = Vilkår.BARNEHAGEPLASS,
+                    periodeFom = februar.atDay(24),
+                    periodeTom = april.atDay(1),
+                    antallTimer = BigDecimal.valueOf(16),
+                ),
+            )
 
         val forskjøvedeVilkårResultater = vilkårResultater.forskyvBarnehageplassVilkår()
 
@@ -312,35 +329,37 @@ class ForskyvBarnehageplassVilkårTest {
 
     @Test
     fun `Scenario 1 fra rundskrivet - Endring i KS skjer fra og med samme måned som en økning i barnehageplass`() {
-        val vilkårResultaterForBarn1 = listOf(
-            lagVilkårResultat(
-                vilkårType = Vilkår.BARNEHAGEPLASS,
-                periodeFom = juli.atEndOfMonth(),
-                periodeTom = september.atEndOfMonth(),
-                antallTimer = BigDecimal.valueOf(17),
-            ),
-            lagVilkårResultat(
-                vilkårType = Vilkår.BARNEHAGEPLASS,
-                periodeFom = oktober.atDay(1),
-                periodeTom = desember.atEndOfMonth(),
-                antallTimer = BigDecimal.valueOf(35),
-            ),
-        )
+        val vilkårResultaterForBarn1 =
+            listOf(
+                lagVilkårResultat(
+                    vilkårType = Vilkår.BARNEHAGEPLASS,
+                    periodeFom = juli.atEndOfMonth(),
+                    periodeTom = september.atEndOfMonth(),
+                    antallTimer = BigDecimal.valueOf(17),
+                ),
+                lagVilkårResultat(
+                    vilkårType = Vilkår.BARNEHAGEPLASS,
+                    periodeFom = oktober.atDay(1),
+                    periodeTom = desember.atEndOfMonth(),
+                    antallTimer = BigDecimal.valueOf(35),
+                ),
+            )
 
-        val vilkårResultaterForBarn2 = listOf(
-            lagVilkårResultat(
-                vilkårType = Vilkår.BARNEHAGEPLASS,
-                periodeFom = juli.atEndOfMonth(),
-                periodeTom = oktober.atDay(15),
-                antallTimer = BigDecimal.valueOf(24),
-            ),
-            lagVilkårResultat(
-                vilkårType = Vilkår.BARNEHAGEPLASS,
-                periodeFom = oktober.atDay(16),
-                periodeTom = desember.atEndOfMonth(),
-                antallTimer = BigDecimal.valueOf(40),
-            ),
-        )
+        val vilkårResultaterForBarn2 =
+            listOf(
+                lagVilkårResultat(
+                    vilkårType = Vilkår.BARNEHAGEPLASS,
+                    periodeFom = juli.atEndOfMonth(),
+                    periodeTom = oktober.atDay(15),
+                    antallTimer = BigDecimal.valueOf(24),
+                ),
+                lagVilkårResultat(
+                    vilkårType = Vilkår.BARNEHAGEPLASS,
+                    periodeFom = oktober.atDay(16),
+                    periodeTom = desember.atEndOfMonth(),
+                    antallTimer = BigDecimal.valueOf(40),
+                ),
+            )
 
         val forskjøvedeVilkårResultaterForBarn1 = vilkårResultaterForBarn1.forskyvBarnehageplassVilkår()
 
@@ -367,14 +386,15 @@ class ForskyvBarnehageplassVilkårTest {
 
     @Test
     fun `Scenario 2 fra rundskrivet - Kontantstøtte ytes fra og med måneden etter at vilkårene er oppfylt`() {
-        val vilkårResultater = listOf(
-            lagVilkårResultat(
-                vilkårType = Vilkår.BARNEHAGEPLASS,
-                periodeFom = september.atDay(1),
-                periodeTom = desember.atEndOfMonth(),
-                antallTimer = BigDecimal.valueOf(15),
-            ),
-        )
+        val vilkårResultater =
+            listOf(
+                lagVilkårResultat(
+                    vilkårType = Vilkår.BARNEHAGEPLASS,
+                    periodeFom = september.atDay(1),
+                    periodeTom = desember.atEndOfMonth(),
+                    antallTimer = BigDecimal.valueOf(15),
+                ),
+            )
 
         val forskjøvedeVilkårResultater = vilkårResultater.forskyvBarnehageplassVilkår()
 
@@ -386,20 +406,21 @@ class ForskyvBarnehageplassVilkårTest {
 
     @Test
     fun `Scenario 3 fra rundskrivet - Kontantstøtte opphører fra og med måneden retten til støtte opphører`() {
-        val vilkårResultater = listOf(
-            lagVilkårResultat(
-                vilkårType = Vilkår.BARNEHAGEPLASS,
-                periodeFom = juli.atDay(1),
-                periodeTom = september.atEndOfMonth(),
-                antallTimer = null,
-            ),
-            lagVilkårResultat(
-                vilkårType = Vilkår.BARNEHAGEPLASS,
-                periodeFom = oktober.atDay(1),
-                periodeTom = desember.atEndOfMonth(),
-                antallTimer = BigDecimal(8),
-            ),
-        )
+        val vilkårResultater =
+            listOf(
+                lagVilkårResultat(
+                    vilkårType = Vilkår.BARNEHAGEPLASS,
+                    periodeFom = juli.atDay(1),
+                    periodeTom = september.atEndOfMonth(),
+                    antallTimer = null,
+                ),
+                lagVilkårResultat(
+                    vilkårType = Vilkår.BARNEHAGEPLASS,
+                    periodeFom = oktober.atDay(1),
+                    periodeTom = desember.atEndOfMonth(),
+                    antallTimer = BigDecimal(8),
+                ),
+            )
 
         val forskjøvedeVilkårResultater = vilkårResultater.forskyvBarnehageplassVilkår()
 
@@ -415,20 +436,21 @@ class ForskyvBarnehageplassVilkårTest {
 
     @Test
     fun `Scenario 4 fra rundskrivet - Kontantstøtte ytes fra og med måneden etter at barnet sluttet i barnehagen`() {
-        val vilkårResultater = listOf(
-            lagVilkårResultat(
-                vilkårType = Vilkår.BARNEHAGEPLASS,
-                periodeFom = juli.atDay(1),
-                periodeTom = september.atEndOfMonth(),
-                antallTimer = BigDecimal.valueOf(25),
-            ),
-            lagVilkårResultat(
-                vilkårType = Vilkår.BARNEHAGEPLASS,
-                periodeFom = oktober.atDay(1),
-                periodeTom = desember.atEndOfMonth(),
-                antallTimer = null,
-            ),
-        )
+        val vilkårResultater =
+            listOf(
+                lagVilkårResultat(
+                    vilkårType = Vilkår.BARNEHAGEPLASS,
+                    periodeFom = juli.atDay(1),
+                    periodeTom = september.atEndOfMonth(),
+                    antallTimer = BigDecimal.valueOf(25),
+                ),
+                lagVilkårResultat(
+                    vilkårType = Vilkår.BARNEHAGEPLASS,
+                    periodeFom = oktober.atDay(1),
+                    periodeTom = desember.atEndOfMonth(),
+                    antallTimer = null,
+                ),
+            )
 
         val forskjøvedeVilkårResultater = vilkårResultater.forskyvBarnehageplassVilkår()
 
@@ -444,26 +466,27 @@ class ForskyvBarnehageplassVilkårTest {
 
     @Test
     fun `Scenario 5 fra rundskrivet - Reduksjon av barnehageplass skal forskyves riktig`() {
-        val vilkårResultater = listOf(
-            lagVilkårResultat(
-                vilkårType = Vilkår.BARNEHAGEPLASS,
-                periodeFom = januar.atDay(1),
-                periodeTom = august.atEndOfMonth(),
-                antallTimer = null,
-            ),
-            lagVilkårResultat(
-                vilkårType = Vilkår.BARNEHAGEPLASS,
-                periodeFom = september.atDay(1),
-                periodeTom = september.atEndOfMonth(),
-                antallTimer = BigDecimal.valueOf(33),
-            ),
-            lagVilkårResultat(
-                vilkårType = Vilkår.BARNEHAGEPLASS,
-                periodeFom = oktober.atDay(1),
-                periodeTom = desember.atEndOfMonth(),
-                antallTimer = BigDecimal.valueOf(15),
-            ),
-        )
+        val vilkårResultater =
+            listOf(
+                lagVilkårResultat(
+                    vilkårType = Vilkår.BARNEHAGEPLASS,
+                    periodeFom = januar.atDay(1),
+                    periodeTom = august.atEndOfMonth(),
+                    antallTimer = null,
+                ),
+                lagVilkårResultat(
+                    vilkårType = Vilkår.BARNEHAGEPLASS,
+                    periodeFom = september.atDay(1),
+                    periodeTom = september.atEndOfMonth(),
+                    antallTimer = BigDecimal.valueOf(33),
+                ),
+                lagVilkårResultat(
+                    vilkårType = Vilkår.BARNEHAGEPLASS,
+                    periodeFom = oktober.atDay(1),
+                    periodeTom = desember.atEndOfMonth(),
+                    antallTimer = BigDecimal.valueOf(15),
+                ),
+            )
 
         val forskjøvedeVilkårResultater = vilkårResultater.forskyvBarnehageplassVilkår()
 
@@ -483,26 +506,27 @@ class ForskyvBarnehageplassVilkårTest {
 
     @Test
     fun `Scenario 6 fra rundskrivet - Slutt i barnehage skal forskyves riktig`() {
-        val vilkårResultater = listOf(
-            lagVilkårResultat(
-                vilkårType = Vilkår.BARNEHAGEPLASS,
-                periodeFom = januar.atDay(1),
-                periodeTom = august.atEndOfMonth(),
-                antallTimer = null,
-            ),
-            lagVilkårResultat(
-                vilkårType = Vilkår.BARNEHAGEPLASS,
-                periodeFom = september.atDay(1),
-                periodeTom = september.atEndOfMonth(),
-                antallTimer = BigDecimal.valueOf(33),
-            ),
-            lagVilkårResultat(
-                vilkårType = Vilkår.BARNEHAGEPLASS,
-                periodeFom = oktober.atDay(1),
-                periodeTom = desember.atEndOfMonth(),
-                antallTimer = null,
-            ),
-        )
+        val vilkårResultater =
+            listOf(
+                lagVilkårResultat(
+                    vilkårType = Vilkår.BARNEHAGEPLASS,
+                    periodeFom = januar.atDay(1),
+                    periodeTom = august.atEndOfMonth(),
+                    antallTimer = null,
+                ),
+                lagVilkårResultat(
+                    vilkårType = Vilkår.BARNEHAGEPLASS,
+                    periodeFom = september.atDay(1),
+                    periodeTom = september.atEndOfMonth(),
+                    antallTimer = BigDecimal.valueOf(33),
+                ),
+                lagVilkårResultat(
+                    vilkårType = Vilkår.BARNEHAGEPLASS,
+                    periodeFom = oktober.atDay(1),
+                    periodeTom = desember.atEndOfMonth(),
+                    antallTimer = null,
+                ),
+            )
 
         val forskjøvedeVilkårResultater = vilkårResultater.forskyvBarnehageplassVilkår()
 
@@ -522,26 +546,27 @@ class ForskyvBarnehageplassVilkårTest {
 
     @Test
     fun `Scenario 7 fra rundskrivet - Økt barnehageplass skal forskyves riktig`() {
-        val vilkårResultater = listOf(
-            lagVilkårResultat(
-                vilkårType = Vilkår.BARNEHAGEPLASS,
-                periodeFom = januar.atDay(1),
-                periodeTom = august.atEndOfMonth(),
-                antallTimer = null,
-            ),
-            lagVilkårResultat(
-                vilkårType = Vilkår.BARNEHAGEPLASS,
-                periodeFom = september.atDay(1),
-                periodeTom = september.atEndOfMonth(),
-                antallTimer = BigDecimal.valueOf(8),
-            ),
-            lagVilkårResultat(
-                vilkårType = Vilkår.BARNEHAGEPLASS,
-                periodeFom = oktober.atDay(1),
-                periodeTom = desember.atEndOfMonth(),
-                antallTimer = BigDecimal.valueOf(15),
-            ),
-        )
+        val vilkårResultater =
+            listOf(
+                lagVilkårResultat(
+                    vilkårType = Vilkår.BARNEHAGEPLASS,
+                    periodeFom = januar.atDay(1),
+                    periodeTom = august.atEndOfMonth(),
+                    antallTimer = null,
+                ),
+                lagVilkårResultat(
+                    vilkårType = Vilkår.BARNEHAGEPLASS,
+                    periodeFom = september.atDay(1),
+                    periodeTom = september.atEndOfMonth(),
+                    antallTimer = BigDecimal.valueOf(8),
+                ),
+                lagVilkårResultat(
+                    vilkårType = Vilkår.BARNEHAGEPLASS,
+                    periodeFom = oktober.atDay(1),
+                    periodeTom = desember.atEndOfMonth(),
+                    antallTimer = BigDecimal.valueOf(15),
+                ),
+            )
 
         val forskjøvedeVilkårResultater = vilkårResultater.forskyvBarnehageplassVilkår()
 
@@ -561,18 +586,20 @@ class ForskyvBarnehageplassVilkårTest {
 
     @Test
     fun `forskyvBarnehageplassVilkår skal ikke forskyves ved overgang til periode med 33 timer eller mer`() {
-        val vilkårResultat1 = lagVilkårResultat(
-            vilkårType = Vilkår.BARNEHAGEPLASS,
-            periodeFom = august.atDay(14),
-            periodeTom = oktober.atEndOfMonth(),
-            antallTimer = BigDecimal.valueOf(8),
-        )
-        val vilkårResultat2 = lagVilkårResultat(
-            vilkårType = Vilkår.BARNEHAGEPLASS,
-            periodeFom = november.atDay(1),
-            periodeTom = desember.atDay(1),
-            antallTimer = BigDecimal.valueOf(33),
-        )
+        val vilkårResultat1 =
+            lagVilkårResultat(
+                vilkårType = Vilkår.BARNEHAGEPLASS,
+                periodeFom = august.atDay(14),
+                periodeTom = oktober.atEndOfMonth(),
+                antallTimer = BigDecimal.valueOf(8),
+            )
+        val vilkårResultat2 =
+            lagVilkårResultat(
+                vilkårType = Vilkår.BARNEHAGEPLASS,
+                periodeFom = november.atDay(1),
+                periodeTom = desember.atDay(1),
+                antallTimer = BigDecimal.valueOf(33),
+            )
 
         val forskjøvedeVilkårResultater = listOf(vilkårResultat1, vilkårResultat2).forskyvBarnehageplassVilkår()
 
@@ -589,18 +616,20 @@ class ForskyvBarnehageplassVilkårTest {
 
     @Test
     fun `Skal forskyve riktig ved opphold av barnehageplass`() {
-        val vilkårResultat1 = lagVilkårResultat(
-            vilkårType = Vilkår.BARNEHAGEPLASS,
-            periodeFom = LocalDate.of(2022, 1, 14),
-            periodeTom = LocalDate.of(2022, 2, 13),
-            antallTimer = BigDecimal.valueOf(8),
-        )
-        val vilkårResultat2 = lagVilkårResultat(
-            vilkårType = Vilkår.BARNEHAGEPLASS,
-            periodeFom = LocalDate.of(2022, 2, 15),
-            periodeTom = LocalDate.of(2022, 4, 14),
-            antallTimer = BigDecimal.valueOf(16),
-        )
+        val vilkårResultat1 =
+            lagVilkårResultat(
+                vilkårType = Vilkår.BARNEHAGEPLASS,
+                periodeFom = LocalDate.of(2022, 1, 14),
+                periodeTom = LocalDate.of(2022, 2, 13),
+                antallTimer = BigDecimal.valueOf(8),
+            )
+        val vilkårResultat2 =
+            lagVilkårResultat(
+                vilkårType = Vilkår.BARNEHAGEPLASS,
+                periodeFom = LocalDate.of(2022, 2, 15),
+                periodeTom = LocalDate.of(2022, 4, 14),
+                antallTimer = BigDecimal.valueOf(16),
+            )
 
         val forskjøvedeVilkårResultater = listOf(vilkårResultat1, vilkårResultat2).forskyvBarnehageplassVilkår()
 

@@ -21,7 +21,6 @@ import org.hamcrest.CoreMatchers.`is` as Is
 
 @ExtendWith(MockKExtension::class)
 internal class KorrigertVedtakServiceTest {
-
     @MockK
     private lateinit var korrigertVedtakRepository: KorrigertVedtakRepository
 
@@ -115,11 +114,10 @@ internal class KorrigertVedtakServiceTest {
         vedtaksdato: LocalDate = LocalDate.now().minusDays(6),
         begrunnelse: String? = null,
         aktiv: Boolean = true,
-    ) =
-        KorrigertVedtak(
-            behandling = behandling,
-            vedtaksdato = vedtaksdato,
-            begrunnelse = begrunnelse,
-            aktiv = aktiv,
-        )
+    ) = KorrigertVedtak(
+        behandling = behandling,
+        vedtaksdato = vedtaksdato,
+        begrunnelse = begrunnelse,
+        aktiv = aktiv,
+    )
 }

@@ -34,7 +34,10 @@ class JournalførVedtaksbrevSteg(
 ) : IBehandlingSteg {
     override fun getBehandlingssteg(): BehandlingSteg = BehandlingSteg.JOURNALFØR_VEDTAKSBREV
 
-    override fun utførSteg(behandlingId: Long, behandlingStegDto: BehandlingStegDto) {
+    override fun utførSteg(
+        behandlingId: Long,
+        behandlingStegDto: BehandlingStegDto,
+    ) {
         logger.info("Utfører steg ${getBehandlingssteg().name} for behandling $behandlingId")
         val journalførVedtaksbrevDTO = behandlingStegDto as JournalførVedtaksbrevDTO
 
@@ -43,23 +46,26 @@ class JournalførVedtaksbrevSteg(
 
         val behandlendeEnhet = arbeidsfordelingService.hentArbeidsfordelingPåBehandling(behandlingId).behandlendeEnhetId
 
-        val journalpostId = journalførVedtaksbrev(
-            fnr = fagsak.aktør.aktivFødselsnummer(),
-            fagsakId = fagsak.id,
-            vedtak = vedtak,
-            journalførendeEnhet = behandlendeEnhet,
-        )
+        val journalpostId =
+            journalførVedtaksbrev(
+                fnr = fagsak.aktør.aktivFødselsnummer(),
+                fagsakId = fagsak.id,
+                vedtak = vedtak,
+                journalførendeEnhet = behandlendeEnhet,
+            )
 
-        val distributerTilSøkerTask = DistribuerBrevTask.opprettDistribuerBrevTask(
-            distribuerBrevDTO = DistribuerBrevDto(
-                personIdent = fagsak.aktør.aktivFødselsnummer(),
-                behandlingId = vedtak.behandling.id,
-                journalpostId = journalpostId,
-                brevmal = hentBrevmal(vedtak.behandling),
-                erManueltSendt = false,
-            ),
-            properties = journalførVedtaksbrevDTO.task.metadata,
-        )
+        val distributerTilSøkerTask =
+            DistribuerBrevTask.opprettDistribuerBrevTask(
+                distribuerBrevDTO =
+                    DistribuerBrevDto(
+                        personIdent = fagsak.aktør.aktivFødselsnummer(),
+                        behandlingId = vedtak.behandling.id,
+                        journalpostId = journalpostId,
+                        brevmal = hentBrevmal(vedtak.behandling),
+                        erManueltSendt = false,
+                    ),
+                properties = journalførVedtaksbrevDTO.task.metadata,
+            )
         taskService.save(distributerTilSøkerTask)
     }
 
@@ -71,14 +77,15 @@ class JournalførVedtaksbrevSteg(
     ): String {
         val vedleggPdf = hentVedlegg(KONTANTSTØTTE_VEDTAK_VEDLEGG_FILNAVN)
 
-        val brev = listOf(
-            Dokument(
-                vedtak.stønadBrevPdf!!,
-                filtype = Filtype.PDFA,
-                dokumenttype = vedtak.behandling.resultat.tilDokumenttype(),
-                tittel = hentOverstyrtDokumenttittel(vedtak.behandling),
-            ),
-        )
+        val brev =
+            listOf(
+                Dokument(
+                    vedtak.stønadBrevPdf!!,
+                    filtype = Filtype.PDFA,
+                    dokumenttype = vedtak.behandling.resultat.tilDokumenttype(),
+                    tittel = hentOverstyrtDokumenttittel(vedtak.behandling),
+                ),
+            )
 
         logger.info(
             "Journalfører vedtaksbrev for behandling ${vedtak.behandling.id} med tittel ${
@@ -86,14 +93,15 @@ class JournalførVedtaksbrevSteg(
             }",
         )
 
-        val vedlegg = listOf(
-            Dokument(
-                vedleggPdf,
-                filtype = Filtype.PDFA,
-                dokumenttype = Dokumenttype.BARNETRYGD_VEDLEGG,
-                tittel = KONTANTSTØTTE_VEDTAK_VEDLEGG_TITTEL,
-            ),
-        )
+        val vedlegg =
+            listOf(
+                Dokument(
+                    vedleggPdf,
+                    filtype = Filtype.PDFA,
+                    dokumenttype = Dokumenttype.BARNETRYGD_VEDLEGG,
+                    tittel = KONTANTSTØTTE_VEDTAK_VEDLEGG_TITTEL,
+                ),
+            )
 
         return utgåendeJournalføringService.journalførDokument(
             fnr = fnr,
@@ -130,8 +138,9 @@ class JournalførVedtaksbrevSteg(
         const val KONTANTSTØTTE_VEDTAK_VEDLEGG_TITTEL = "Stønadsmottakerens rettigheter og plikter (Kontantstøtte)"
 
         private fun hentVedlegg(vedleggsnavn: String): ByteArray {
-            val inputStream = this::class.java.classLoader.getResourceAsStream("dokumenter/$vedleggsnavn")
-                ?: error("Klarte ikke hente vedlegg $vedleggsnavn")
+            val inputStream =
+                this::class.java.classLoader.getResourceAsStream("dokumenter/$vedleggsnavn")
+                    ?: error("Klarte ikke hente vedlegg $vedleggsnavn")
 
             return inputStream.readAllBytes()
         }

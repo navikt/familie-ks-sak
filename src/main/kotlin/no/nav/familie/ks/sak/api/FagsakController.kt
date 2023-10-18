@@ -35,18 +35,21 @@ class FagsakController(
     private val tilgangService: TilgangService,
     private val tilbakekrevingService: TilbakekrevingService,
 ) {
-
     private val logger: Logger = LoggerFactory.getLogger(FagsakController::class.java)
 
     @PostMapping(path = ["/sok"])
-    fun søkFagsak(@RequestBody søkParam: SøkParamDto): ResponseEntity<Ressurs<List<FagsakDeltagerResponsDto>>> {
+    fun søkFagsak(
+        @RequestBody søkParam: SøkParamDto,
+    ): ResponseEntity<Ressurs<List<FagsakDeltagerResponsDto>>> {
         logger.info("${SikkerhetContext.hentSaksbehandlerNavn()} søker fagsak")
         val fagsakDeltagere = fagsakService.hentFagsakDeltagere(søkParam.personIdent)
         return ResponseEntity.ok().body(Ressurs.success(fagsakDeltagere))
     }
 
     @PostMapping(produces = [MediaType.APPLICATION_JSON_VALUE])
-    fun hentEllerOpprettFagsak(@RequestBody fagsakRequest: FagsakRequestDto): ResponseEntity<Ressurs<MinimalFagsakResponsDto>> {
+    fun hentEllerOpprettFagsak(
+        @RequestBody fagsakRequest: FagsakRequestDto,
+    ): ResponseEntity<Ressurs<MinimalFagsakResponsDto>> {
         logger.info("${SikkerhetContext.hentSaksbehandlerNavn()} henter eller oppretter ny fagsak")
 
         tilgangService.validerTilgangTilHandlingOgPersoner(
@@ -60,7 +63,9 @@ class FagsakController(
     }
 
     @GetMapping(path = ["/minimal/{fagsakId}"], produces = [MediaType.APPLICATION_JSON_VALUE])
-    fun hentMinimalFagsak(@PathVariable fagsakId: Long): ResponseEntity<Ressurs<MinimalFagsakResponsDto>> {
+    fun hentMinimalFagsak(
+        @PathVariable fagsakId: Long,
+    ): ResponseEntity<Ressurs<MinimalFagsakResponsDto>> {
         logger.info("${SikkerhetContext.hentSaksbehandlerNavn()} henter minimal fagsak med id $fagsakId")
 
         tilgangService.validerTilgangTilHandlingOgFagsak(
@@ -74,7 +79,9 @@ class FagsakController(
     }
 
     @PostMapping(path = ["/hent-fagsak-paa-person"], produces = [MediaType.APPLICATION_JSON_VALUE])
-    fun hentMinimalFagsakForPerson(@RequestBody request: PersonIdent): ResponseEntity<Ressurs<MinimalFagsakResponsDto>> {
+    fun hentMinimalFagsakForPerson(
+        @RequestBody request: PersonIdent,
+    ): ResponseEntity<Ressurs<MinimalFagsakResponsDto>> {
         val personIdent = request.ident
 
         tilgangService.validerTilgangTilHandlingOgFagsakForPerson(
@@ -94,7 +101,9 @@ class FagsakController(
         path = ["/{fagsakId}/har-åpen-tilbakekrevingsbehandling"],
         produces = [MediaType.APPLICATION_JSON_VALUE],
     )
-    fun harÅpenTilbakekrevingsbehandling(@PathVariable fagsakId: Long): ResponseEntity<Ressurs<Boolean>> {
+    fun harÅpenTilbakekrevingsbehandling(
+        @PathVariable fagsakId: Long,
+    ): ResponseEntity<Ressurs<Boolean>> {
         tilgangService.validerTilgangTilHandlingOgFagsak(
             fagsakId = fagsakId,
             minimumBehandlerRolle = BehandlerRolle.VEILEDER,

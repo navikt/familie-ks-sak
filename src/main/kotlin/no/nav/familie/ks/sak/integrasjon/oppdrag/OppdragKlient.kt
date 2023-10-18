@@ -26,7 +26,6 @@ class OppdragKlient(
     private val familieOppdragUri: String,
     @Qualifier("azure") restOperations: RestOperations,
 ) : AbstractRestClient(restOperations, "økonomi_kontantstøtte") {
-
     fun iverksettOppdrag(utbetalingsoppdrag: Utbetalingsoppdrag): String {
         val uri = URI.create("$familieOppdragUri/oppdrag")
         return kallEksternTjenesteRessurs(
@@ -66,9 +65,7 @@ class OppdragKlient(
         }
     }
 
-    fun hentSisteUtbetalingsoppdragForFagsaker(
-        fagsakIder: Set<Long>,
-    ): List<UtbetalingsoppdragMedBehandlingOgFagsak> {
+    fun hentSisteUtbetalingsoppdragForFagsaker(fagsakIder: Set<Long>): List<UtbetalingsoppdragMedBehandlingOgFagsak> {
         val uri = URI.create("$familieOppdragUri/$FAGSYSTEM/fagsaker/siste-utbetalingsoppdrag")
 
         return kallEksternTjenesteRessurs(
@@ -78,7 +75,10 @@ class OppdragKlient(
         ) { postForEntity(uri = uri, payload = fagsakIder) }
     }
 
-    fun sendGrensesnittavstemmingTilOppdrag(fom: LocalDateTime, tom: LocalDateTime): String {
+    fun sendGrensesnittavstemmingTilOppdrag(
+        fom: LocalDateTime,
+        tom: LocalDateTime,
+    ): String {
         val uri = URI.create("$familieOppdragUri/grensesnittavstemming")
         return kallEksternTjenesteRessurs(
             tjeneste = "familie-oppdrag",
@@ -93,10 +93,11 @@ class OppdragKlient(
         avstemmingsdato: LocalDateTime,
         transaksjonsId: UUID,
     ): String {
-        val uri = URI.create(
-            "$familieOppdragUri/v2/konsistensavstemming" +
-                "?sendStartmelding=true&sendAvsluttmelding=false&transaksjonsId=$transaksjonsId",
-        )
+        val uri =
+            URI.create(
+                "$familieOppdragUri/v2/konsistensavstemming" +
+                    "?sendStartmelding=true&sendAvsluttmelding=false&transaksjonsId=$transaksjonsId",
+            )
 
         return kallEksternTjenesteRessurs(
             tjeneste = "familie-oppdrag",
@@ -119,10 +120,11 @@ class OppdragKlient(
         perioderTilAvstemming: List<PerioderForBehandling>,
         transaksjonsId: UUID,
     ): String {
-        val uri = URI.create(
-            "$familieOppdragUri/v2/konsistensavstemming" +
-                "?sendStartmelding=false&sendAvsluttmelding=false&transaksjonsId=$transaksjonsId",
-        )
+        val uri =
+            URI.create(
+                "$familieOppdragUri/v2/konsistensavstemming" +
+                    "?sendStartmelding=false&sendAvsluttmelding=false&transaksjonsId=$transaksjonsId",
+            )
 
         return kallEksternTjenesteRessurs(
             tjeneste = "familie-oppdrag",
@@ -144,10 +146,11 @@ class OppdragKlient(
         avstemmingsdato: LocalDateTime,
         transaksjonsId: UUID,
     ): String {
-        val uri = URI.create(
-            "$familieOppdragUri/v2/konsistensavstemming" +
-                "?sendStartmelding=false&sendAvsluttmelding=true&transaksjonsId=$transaksjonsId",
-        )
+        val uri =
+            URI.create(
+                "$familieOppdragUri/v2/konsistensavstemming" +
+                    "?sendStartmelding=false&sendAvsluttmelding=true&transaksjonsId=$transaksjonsId",
+            )
         return kallEksternTjenesteRessurs(
             tjeneste = "familie-oppdrag",
             uri = uri,

@@ -14,7 +14,6 @@ import no.nav.familie.ks.sak.kjerne.fagsak.domene.Fagsak
 import java.time.LocalDateTime
 
 object FagsakMapper {
-
     fun lagFagsakDeltagerResponsDto(
         personInfo: PdlPersonInfo? = null,
         ident: String = "",
@@ -22,16 +21,17 @@ object FagsakMapper {
         fagsak: Fagsak? = null,
         adressebeskyttelseGradering: ADRESSEBESKYTTELSEGRADERING? = null,
         harTilgang: Boolean = true,
-    ): FagsakDeltagerResponsDto = FagsakDeltagerResponsDto(
-        navn = personInfo?.navn,
-        ident = ident,
-        rolle = rolle,
-        kjønn = personInfo?.kjønn,
-        fagsakId = fagsak?.id,
-        fagsakStatus = fagsak?.status,
-        adressebeskyttelseGradering = adressebeskyttelseGradering,
-        harTilgang = harTilgang,
-    )
+    ): FagsakDeltagerResponsDto =
+        FagsakDeltagerResponsDto(
+            navn = personInfo?.navn,
+            ident = ident,
+            rolle = rolle,
+            kjønn = personInfo?.kjønn,
+            fagsakId = fagsak?.id,
+            fagsakStatus = fagsak?.status,
+            adressebeskyttelseGradering = adressebeskyttelseGradering,
+            harTilgang = harTilgang,
+        )
 
     fun lagMinimalFagsakResponsDto(
         fagsak: Fagsak,
@@ -52,7 +52,10 @@ object FagsakMapper {
             gjeldendeUtbetalingsperioder = gjeldendeUtbetalingsperioder,
         )
 
-    fun lagBehandlingResponsDto(behandling: Behandling, vedtaksdato: LocalDateTime?) = MinimalBehandlingResponsDto(
+    fun lagBehandlingResponsDto(
+        behandling: Behandling,
+        vedtaksdato: LocalDateTime?,
+    ) = MinimalBehandlingResponsDto(
         behandlingId = behandling.id,
         opprettetTidspunkt = behandling.opprettetTidspunkt,
         kategori = behandling.kategori,

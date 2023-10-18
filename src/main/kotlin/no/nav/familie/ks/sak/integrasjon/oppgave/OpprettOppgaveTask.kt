@@ -16,20 +16,19 @@ import java.time.LocalDate
     maxAntallFeil = 3,
 )
 class OpprettOppgaveTask(private val oppgaveService: OppgaveService) : AsyncTaskStep {
-
     override fun doTask(task: Task) {
         val opprettOppgaveTaskDTO = objectMapper.readValue(task.payload, OpprettOppgaveTaskDTO::class.java)
-        task.metadata["oppgaveId"] = oppgaveService.opprettOppgave(
-            behandlingId = opprettOppgaveTaskDTO.behandlingId,
-            oppgavetype = opprettOppgaveTaskDTO.oppgavetype,
-            fristForFerdigstillelse = opprettOppgaveTaskDTO.fristForFerdigstillelse,
-            tilordnetNavIdent = opprettOppgaveTaskDTO.tilordnetRessurs,
-            beskrivelse = opprettOppgaveTaskDTO.beskrivelse,
-        )
+        task.metadata["oppgaveId"] =
+            oppgaveService.opprettOppgave(
+                behandlingId = opprettOppgaveTaskDTO.behandlingId,
+                oppgavetype = opprettOppgaveTaskDTO.oppgavetype,
+                fristForFerdigstillelse = opprettOppgaveTaskDTO.fristForFerdigstillelse,
+                tilordnetNavIdent = opprettOppgaveTaskDTO.tilordnetRessurs,
+                beskrivelse = opprettOppgaveTaskDTO.beskrivelse,
+            )
     }
 
     companion object {
-
         const val TASK_STEP_TYPE = "opprettOppgaveTask"
 
         fun opprettTask(
@@ -41,15 +40,16 @@ class OpprettOppgaveTask(private val oppgaveService: OppgaveService) : AsyncTask
         ): Task {
             return Task(
                 type = TASK_STEP_TYPE,
-                payload = objectMapper.writeValueAsString(
-                    OpprettOppgaveTaskDTO(
-                        behandlingId,
-                        oppgavetype,
-                        fristForFerdigstillelse,
-                        tilordnetRessurs,
-                        beskrivelse,
+                payload =
+                    objectMapper.writeValueAsString(
+                        OpprettOppgaveTaskDTO(
+                            behandlingId,
+                            oppgavetype,
+                            fristForFerdigstillelse,
+                            tilordnetRessurs,
+                            beskrivelse,
+                        ),
                     ),
-                ),
             )
         }
     }

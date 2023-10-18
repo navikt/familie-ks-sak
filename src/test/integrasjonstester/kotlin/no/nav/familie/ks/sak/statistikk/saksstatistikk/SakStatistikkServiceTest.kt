@@ -19,7 +19,6 @@ import org.springframework.beans.factory.annotation.Autowired
 import java.time.temporal.ChronoUnit
 
 class SakStatistikkServiceTest : OppslagSpringRunnerTest() {
-
     @Autowired
     private lateinit var taskService: TaskService
 

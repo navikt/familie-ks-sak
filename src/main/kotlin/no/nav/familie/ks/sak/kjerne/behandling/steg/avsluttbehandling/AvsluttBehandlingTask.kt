@@ -15,23 +15,26 @@ import java.util.Properties
     maxAntallFeil = 3,
 )
 class AvsluttBehandlingTask(private val stegService: StegService) : AsyncTaskStep {
-
     override fun doTask(task: Task) {
         val behandlingId = task.payload.toLong()
         stegService.utførSteg(behandlingId, BehandlingSteg.AVSLUTT_BEHANDLING)
     }
 
     companion object {
-
         const val TASK_STEP_TYPE = "avsluttBehandling"
 
-        fun opprettTask(søkerIdent: String, behandlingId: Long): Task = Task(
-            type = TASK_STEP_TYPE,
-            payload = behandlingId.toString(),
-            properties = Properties().apply {
-                this["personIdent"] = søkerIdent
-                this["behandlingsId"] = behandlingId.toString()
-            },
-        )
+        fun opprettTask(
+            søkerIdent: String,
+            behandlingId: Long,
+        ): Task =
+            Task(
+                type = TASK_STEP_TYPE,
+                payload = behandlingId.toString(),
+                properties =
+                    Properties().apply {
+                        this["personIdent"] = søkerIdent
+                        this["behandlingsId"] = behandlingId.toString()
+                    },
+            )
     }
 }

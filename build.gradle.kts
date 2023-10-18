@@ -115,7 +115,7 @@ dependencies {
     implementation("io.micrometer:micrometer-registry-prometheus")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.15.2")
     implementation("com.neovisionaries:nv-i18n:1.29")
-    ktlint("com.pinterest:ktlint:0.50.0") {
+    ktlint("com.pinterest.ktlint:ktlint-cli:1.0.1") {
         attributes {
             attribute(Bundling.BUNDLING_ATTRIBUTE, objects.named(Bundling.EXTERNAL))
         }

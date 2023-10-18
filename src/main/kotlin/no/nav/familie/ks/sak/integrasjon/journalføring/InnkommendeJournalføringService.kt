@@ -46,22 +46,25 @@ class InnkommendeJournalføringService(
     private val loggService: LoggService,
     private val behandlingSøknadsinfoService: BehandlingSøknadsinfoService,
 ) {
-
-    fun hentJournalposterForBruker(brukerId: String): List<Journalpost> = integrasjonClient.hentJournalposterForBruker(
-        JournalposterForBrukerRequest(
-            antall = 1000,
-            brukerId = Bruker(
-                id = brukerId,
-                type = BrukerIdType.FNR,
+    fun hentJournalposterForBruker(brukerId: String): List<Journalpost> =
+        integrasjonClient.hentJournalposterForBruker(
+            JournalposterForBrukerRequest(
+                antall = 1000,
+                brukerId =
+                    Bruker(
+                        id = brukerId,
+                        type = BrukerIdType.FNR,
+                    ),
+                tema = listOf(Tema.KON),
             ),
-            tema = listOf(Tema.KON),
-        ),
-    )
+        )
 
     fun hentJournalpost(journalpostId: String): Journalpost = integrasjonClient.hentJournalpost(journalpostId)
 
-    fun hentDokumentIJournalpost(journalpostId: String, dokumentId: String): ByteArray =
-        integrasjonClient.hentDokumentIJournalpost(dokumentId, journalpostId)
+    fun hentDokumentIJournalpost(
+        journalpostId: String,
+        dokumentId: String,
+    ): ByteArray = integrasjonClient.hentDokumentIJournalpost(dokumentId, journalpostId)
 
     @Transactional
     fun journalfør(
@@ -72,22 +75,24 @@ class InnkommendeJournalføringService(
         val tilknyttedeBehandlingIder = request.tilknyttedeBehandlingIder.toMutableList()
 
         if (request.opprettOgKnyttTilNyBehandling) {
-            val nyBehandling = opprettBehandlingOgEvtFagsakForJournalføring(
-                personIdent = request.bruker.id,
-                saksbehandlerIdent = request.navIdent,
-                type = request.nyBehandlingstype,
-                årsak = request.nyBehandlingsårsak,
-                kategori = request.kategori,
-                søknadMottattDato = request.datoMottatt?.toLocalDate(),
-            )
+            val nyBehandling =
+                opprettBehandlingOgEvtFagsakForJournalføring(
+                    personIdent = request.bruker.id,
+                    saksbehandlerIdent = request.navIdent,
+                    type = request.nyBehandlingstype,
+                    årsak = request.nyBehandlingsårsak,
+                    kategori = request.kategori,
+                    søknadMottattDato = request.datoMottatt?.toLocalDate(),
+                )
 
             tilknyttedeBehandlingIder.add(nyBehandling.id.toString())
         }
 
-        val (tilknyttetFagsak, behandlinger) = lagreJournalpostOgKnyttFagsakTilJournalpost(
-            tilknyttedeBehandlingIder,
-            journalpostId,
-        )
+        val (tilknyttetFagsak, behandlinger) =
+            lagreJournalpostOgKnyttFagsakTilJournalpost(
+                tilknyttedeBehandlingIder,
+                journalpostId,
+            )
 
         oppdaterLogiskeVedlegg(request.dokumenter)
 
@@ -112,14 +117,15 @@ class InnkommendeJournalføringService(
     ): Behandling {
         fagsakService.hentEllerOpprettFagsak(FagsakRequestDto(personIdent))
 
-        val nyBehandlingDto = OpprettBehandlingDto(
-            kategori = kategori,
-            søkersIdent = personIdent,
-            behandlingType = type,
-            behandlingÅrsak = årsak,
-            saksbehandlerIdent = saksbehandlerIdent,
-            søknadMottattDato = søknadMottattDato,
-        )
+        val nyBehandlingDto =
+            OpprettBehandlingDto(
+                kategori = kategori,
+                søkersIdent = personIdent,
+                behandlingType = type,
+                behandlingÅrsak = årsak,
+                saksbehandlerIdent = saksbehandlerIdent,
+                søknadMottattDato = søknadMottattDato,
+            )
 
         return opprettBehandlingService.opprettBehandling(nyBehandlingDto)
     }
@@ -142,11 +148,12 @@ class InnkommendeJournalføringService(
             )
             if (erSøknad) {
                 behandlingSøknadsinfoService.lagreNedSøknadsinfo(
-                    søknadsinfo = Søknadsinfo(
-                        mottattDato = journalpost.datoMottatt ?: LocalDateTime.now(),
-                        journalpostId = journalpostId,
-                        erDigital = journalpost.kanal == NAV_NO,
-                    ),
+                    søknadsinfo =
+                        Søknadsinfo(
+                            mottattDato = journalpost.datoMottatt ?: LocalDateTime.now(),
+                            journalpostId = journalpostId,
+                            erDigital = journalpost.kanal == NAV_NO,
+                        ),
                     behandling = it,
                 )
             }
@@ -154,11 +161,12 @@ class InnkommendeJournalføringService(
 
         val fagsak = behandlinger.map { it.fagsak }.toSet().singleOrNull()
 
-        val tilknyttetFagsak = Sak(
-            fagsakId = fagsak?.id?.toString(),
-            fagsaksystem = fagsak?.let { Fagsystem.KONT.name },
-            sakstype = fagsak?.let { Sakstype.FAGSAK.type } ?: Sakstype.GENERELL_SAK.type,
-        )
+        val tilknyttetFagsak =
+            Sak(
+                fagsakId = fagsak?.id?.toString(),
+                fagsaksystem = fagsak?.let { Fagsystem.KONT.name },
+                sakstype = fagsak?.let { Sakstype.FAGSAK.type } ?: Sakstype.GENERELL_SAK.type,
+            )
 
         return Pair(tilknyttetFagsak, behandlinger)
     }
@@ -214,12 +222,16 @@ class InnkommendeJournalføringService(
         }
     }
 
-    private fun opprettLoggPåDokumenter(journalpostId: String, behandlinger: List<Behandling>) {
+    private fun opprettLoggPåDokumenter(
+        journalpostId: String,
+        behandlinger: List<Behandling>,
+    ) {
         val journalpost = hentJournalpost(journalpostId)
 
-        val loggTekst = journalpost.dokumenter?.fold("") { loggTekst, dokumentInfo ->
-            loggTekst + "${dokumentInfo.tittel}" + dokumentInfo.logiskeVedlegg?.fold("") { logiskeVedleggTekst, logiskVedlegg -> logiskeVedleggTekst + "\n\u2002\u2002${logiskVedlegg.tittel}" } + "\n"
-        } ?: ""
+        val loggTekst =
+            journalpost.dokumenter?.fold("") { loggTekst, dokumentInfo ->
+                loggTekst + "${dokumentInfo.tittel}" + dokumentInfo.logiskeVedlegg?.fold("") { logiskeVedleggTekst, logiskVedlegg -> logiskeVedleggTekst + "\n\u2002\u2002${logiskVedlegg.tittel}" } + "\n"
+            } ?: ""
 
         behandlinger.forEach {
             loggService.opprettMottattDokumentLogg(
@@ -231,7 +243,6 @@ class InnkommendeJournalføringService(
     }
 
     companion object {
-
         private const val NAV_NO = "NAV_NO"
         private const val SØKNADSKODE_KONTANTSTØTTE = "NAV 34-00.08"
     }

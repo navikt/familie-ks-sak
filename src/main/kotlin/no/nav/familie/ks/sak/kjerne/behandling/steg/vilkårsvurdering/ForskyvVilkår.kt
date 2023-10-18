@@ -20,7 +20,9 @@ import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
 
-fun Collection<PersonResultat>.tilFørskjøvetOppfylteVilkårResultatTidslinjeMap(personopplysningGrunnlag: PersonopplysningGrunnlag): Map<Aktør, Tidslinje<List<VilkårResultat>>> =
+fun Collection<PersonResultat>.tilFørskjøvetOppfylteVilkårResultatTidslinjeMap(
+    personopplysningGrunnlag: PersonopplysningGrunnlag,
+): Map<Aktør, Tidslinje<List<VilkårResultat>>> =
     personopplysningGrunnlag.personer.associate { person ->
         Pair(
             person.aktør,
@@ -28,7 +30,9 @@ fun Collection<PersonResultat>.tilFørskjøvetOppfylteVilkårResultatTidslinjeMa
         )
     }
 
-fun Collection<PersonResultat>.tilFørskjøvetVilkårResultatTidslinjeMap(personopplysningGrunnlag: PersonopplysningGrunnlag): Map<Aktør, Tidslinje<List<VilkårResultat>>> =
+fun Collection<PersonResultat>.tilFørskjøvetVilkårResultatTidslinjeMap(
+    personopplysningGrunnlag: PersonopplysningGrunnlag,
+): Map<Aktør, Tidslinje<List<VilkårResultat>>> =
     personopplysningGrunnlag.personer.associate { person ->
         Pair(
             person.aktør,
@@ -36,9 +40,7 @@ fun Collection<PersonResultat>.tilFørskjøvetVilkårResultatTidslinjeMap(person
         )
     }
 
-fun Collection<PersonResultat>.tilFørskjøvetVilkårResultatTidslinjeForPerson(
-    person: Person,
-): Tidslinje<List<VilkårResultat>> {
+fun Collection<PersonResultat>.tilFørskjøvetVilkårResultatTidslinjeForPerson(person: Person): Tidslinje<List<VilkårResultat>> {
     val forskjøvedeVilkårResultater = forskyvVilkårResultaterForPerson(person)
 
     return forskjøvedeVilkårResultater
@@ -47,20 +49,20 @@ fun Collection<PersonResultat>.tilFørskjøvetVilkårResultatTidslinjeForPerson(
         .tilTidslinje()
 }
 
-private fun Collection<PersonResultat>.forskyvVilkårResultaterForPerson(
-    person: Person,
-): List<Tidslinje<VilkårResultat>> {
+private fun Collection<PersonResultat>.forskyvVilkårResultaterForPerson(person: Person): List<Tidslinje<VilkårResultat>> {
     val personResultat = this.find { it.aktør == person.aktør }
 
     val vilkårResultaterForAktør = personResultat?.vilkårResultater ?: emptyList()
 
-    val vilkårResultaterForAktørMap = vilkårResultaterForAktør
-        .groupByTo(mutableMapOf()) { it.vilkårType }
-        .mapValues { if (it.key == Vilkår.BOR_MED_SØKER) it.value.fjernAvslagUtenPeriodeHvisDetFinsAndreVilkårResultat() else it.value }
+    val vilkårResultaterForAktørMap =
+        vilkårResultaterForAktør
+            .groupByTo(mutableMapOf()) { it.vilkårType }
+            .mapValues { if (it.key == Vilkår.BOR_MED_SØKER) it.value.fjernAvslagUtenPeriodeHvisDetFinsAndreVilkårResultat() else it.value }
 
-    val forskjøvedeVilkårResultater = vilkårResultaterForAktørMap.map { (vilkårType, vilkårResultater) ->
-        forskyvVilkårResultater(vilkårType, vilkårResultater).tilTidslinje()
-    }
+    val forskjøvedeVilkårResultater =
+        vilkårResultaterForAktørMap.map { (vilkårType, vilkårResultater) ->
+            forskyvVilkårResultater(vilkårType, vilkårResultater).tilTidslinje()
+        }
     return forskjøvedeVilkårResultater
 }
 
@@ -88,42 +90,48 @@ data class VilkårResultaterMedInformasjonOmNestePeriode(
 fun forskyvVilkårResultater(
     vilkårType: Vilkår,
     vilkårResultater: List<VilkårResultat>,
-): List<Periode<VilkårResultat>> = when (vilkårType) {
-    Vilkår.BARNEHAGEPLASS -> vilkårResultater.forskyvBarnehageplassVilkår()
+): List<Periode<VilkårResultat>> =
+    when (vilkårType) {
+        Vilkår.BARNEHAGEPLASS -> vilkårResultater.forskyvBarnehageplassVilkår()
 
-    else -> tilVilkårResultaterMedInformasjonOmNestePeriode(
-        vilkårResultater.filter { it.erOppfylt() || it.erIkkeAktuelt() }.sortedBy { it.periodeFom },
-    )
-        .map {
-            val forskjøvetTom = when {
-                it.slutterDagenFørNeste -> {
-                    it.vilkårResultat.periodeTom?.plusDays(1)?.sisteDagIMåned()
-                }
-
-                it.slutterPåSisteDagIMåneden -> { // Hvis perioden slutter siste dag i måned, får man kontantstøtte i denne måneden
-                    it.vilkårResultat.periodeTom?.sisteDagIMåned()
-                }
-
-                else -> it.vilkårResultat.periodeTom?.minusMonths(1)?.sisteDagIMåned()
-            }
-
-            Periode(
-                verdi = it.vilkårResultat,
-                fom = it.vilkårResultat.periodeFom?.plusMonths(1)?.førsteDagIInneværendeMåned(),
-                tom = forskjøvetTom,
+        else ->
+            tilVilkårResultaterMedInformasjonOmNestePeriode(
+                vilkårResultater.filter { it.erOppfylt() || it.erIkkeAktuelt() }.sortedBy { it.periodeFom },
             )
-        }.filter { (it.fom ?: TIDENES_MORGEN).isBefore(it.tom ?: TIDENES_ENDE) }
-}
+                .map {
+                    val forskjøvetTom =
+                        when {
+                            it.slutterDagenFørNeste -> {
+                                it.vilkårResultat.periodeTom?.plusDays(1)?.sisteDagIMåned()
+                            }
 
-private fun tilVilkårResultaterMedInformasjonOmNestePeriode(vilkårResultater: List<VilkårResultat>): List<VilkårResultaterMedInformasjonOmNestePeriode> {
+                            it.slutterPåSisteDagIMåneden -> { // Hvis perioden slutter siste dag i måned, får man kontantstøtte i denne måneden
+                                it.vilkårResultat.periodeTom?.sisteDagIMåned()
+                            }
+
+                            else -> it.vilkårResultat.periodeTom?.minusMonths(1)?.sisteDagIMåned()
+                        }
+
+                    Periode(
+                        verdi = it.vilkårResultat,
+                        fom = it.vilkårResultat.periodeFom?.plusMonths(1)?.førsteDagIInneværendeMåned(),
+                        tom = forskjøvetTom,
+                    )
+                }.filter { (it.fom ?: TIDENES_MORGEN).isBefore(it.tom ?: TIDENES_ENDE) }
+    }
+
+private fun tilVilkårResultaterMedInformasjonOmNestePeriode(
+    vilkårResultater: List<VilkårResultat>,
+): List<VilkårResultaterMedInformasjonOmNestePeriode> {
     if (vilkårResultater.isEmpty()) return emptyList()
 
     return vilkårResultater.zipWithNext { denne, neste ->
         VilkårResultaterMedInformasjonOmNestePeriode(
             vilkårResultat = denne,
             slutterDagenFørNeste = denne.periodeTom?.erDagenFør(neste.periodeFom) ?: false,
-            slutterPåSisteDagIMåneden = denne.periodeTom != null &&
-                denne.periodeTom == denne.periodeTom?.tilYearMonth()?.atEndOfMonth(),
+            slutterPåSisteDagIMåneden =
+                denne.periodeTom != null &&
+                    denne.periodeTom == denne.periodeTom?.tilYearMonth()?.atEndOfMonth(),
         )
     } + VilkårResultaterMedInformasjonOmNestePeriode(vilkårResultater.last(), false, false)
 }

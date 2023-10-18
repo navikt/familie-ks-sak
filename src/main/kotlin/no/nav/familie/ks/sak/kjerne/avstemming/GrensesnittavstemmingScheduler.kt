@@ -20,7 +20,6 @@ import java.util.UUID
 
 @Service
 class GrensesnittavstemmingScheduler(private val taskService: TaskService, private val envService: EnvService) {
-
     @Scheduled(cron = "\${CRON_GRENSESNITT_AVSTEMMING}")
     fun utfør() {
         MDC.put(MDCConstants.MDC_CALL_ID, UUID.randomUUID().toString())
@@ -31,11 +30,12 @@ class GrensesnittavstemmingScheduler(private val taskService: TaskService, priva
             return
         }
         logger.info("Finner siste kjørte ${GrensesnittavstemmingTask.TASK_STEP_TYPE}")
-        val alleFerdigeGrensesnittavstemmingTasker = taskService.finnTasksMedStatus(
-            status = listOf(Status.FERDIG),
-            type = GrensesnittavstemmingTask.TASK_STEP_TYPE,
-            page = Pageable.unpaged(),
-        )
+        val alleFerdigeGrensesnittavstemmingTasker =
+            taskService.finnTasksMedStatus(
+                status = listOf(Status.FERDIG),
+                type = GrensesnittavstemmingTask.TASK_STEP_TYPE,
+                page = Pageable.unpaged(),
+            )
         // intielt fom, tom når det ikke finnes noen tasker
         var fom = LocalDate.now().minusDays(1).atStartOfDay()
         var tom = LocalDate.now().atStartOfDay()

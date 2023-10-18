@@ -17,7 +17,6 @@ class FeatureToggleConfig(
     private val enabled: Boolean,
     private val unleash: Unleash,
 ) {
-
     data class Unleash(
         val uri: URI,
         val cluster: String,
@@ -37,40 +36,42 @@ class FeatureToggleConfig(
         }
 
     private fun lagUnleashFeatureToggleService(): FeatureToggleService {
-        val defaultUnleash = DefaultUnleash(
-            UnleashConfig.builder()
-                .appName(unleash.applicationName)
-                .unleashAPI(unleash.uri)
-                .unleashContextProvider(lagUnleashContextProvider())
-                .build(),
-            ByClusterStrategy(unleash.cluster),
-            ByAnsvarligSaksbehandler(),
-            GradualRolloutRandomStrategy(),
-        )
+        val defaultUnleash =
+            DefaultUnleash(
+                UnleashConfig.builder()
+                    .appName(unleash.applicationName)
+                    .unleashAPI(unleash.uri)
+                    .unleashContextProvider(lagUnleashContextProvider())
+                    .build(),
+                ByClusterStrategy(unleash.cluster),
+                ByAnsvarligSaksbehandler(),
+                GradualRolloutRandomStrategy(),
+            )
 
         return object : FeatureToggleService {
-            override fun isEnabled(toggleId: String, defaultValue: Boolean): Boolean {
+            override fun isEnabled(
+                toggleId: String,
+                defaultValue: Boolean,
+            ): Boolean {
                 return defaultUnleash.isEnabled(toggleId, defaultValue)
             }
         }
     }
 
-    private fun lagUnleashContextProvider(): UnleashContextProvider = UnleashContextProvider {
-        UnleashContext.builder()
-            .appName(unleash.applicationName)
-            .build()
-    }
+    private fun lagUnleashContextProvider(): UnleashContextProvider =
+        UnleashContextProvider {
+            UnleashContext.builder()
+                .appName(unleash.applicationName)
+                .build()
+        }
 
     class ByClusterStrategy(private val clusterName: String) : Strategy {
-
-        override fun isEnabled(parameters: MutableMap<String, String>): Boolean =
-            parameters["cluster"]?.contains(clusterName) ?: false
+        override fun isEnabled(parameters: MutableMap<String, String>): Boolean = parameters["cluster"]?.contains(clusterName) ?: false
 
         override fun getName(): String = "byCluster"
     }
 
     class ByAnsvarligSaksbehandler : Strategy {
-
         override fun isEnabled(parameters: MutableMap<String, String>): Boolean =
             parameters["saksbehandler"]?.contains(SikkerhetContext.hentSaksbehandlerEpost()) ?: false
 
@@ -79,7 +80,10 @@ class FeatureToggleConfig(
 
     private fun lagDummyFeatureToggleService(): FeatureToggleService {
         return object : FeatureToggleService {
-            override fun isEnabled(toggleId: String, defaultValue: Boolean): Boolean {
+            override fun isEnabled(
+                toggleId: String,
+                defaultValue: Boolean,
+            ): Boolean {
                 return false
             }
         }
@@ -95,12 +99,14 @@ class FeatureToggleConfig(
 }
 
 interface FeatureToggleService {
-
     fun isEnabled(toggleId: String): Boolean {
         return isEnabled(toggleId, false)
     }
 
     fun isNotEnabled(toggleId: String) = !isEnabled(toggleId)
 
-    fun isEnabled(toggleId: String, defaultValue: Boolean): Boolean
+    fun isEnabled(
+        toggleId: String,
+        defaultValue: Boolean,
+    ): Boolean
 }

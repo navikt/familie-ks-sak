@@ -21,7 +21,6 @@ class SwaggerConfig(
     @Value("\${API_SCOPE}")
     val apiScope: String,
 ) {
-
     @Bean
     fun kontantstøtteApi(): OpenAPI {
         return OpenAPI().info(Info().title("Kontantstøtte API").version("v1"))

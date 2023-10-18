@@ -13,7 +13,6 @@ import java.time.LocalDate
 
 @Service
 class StatsborgerskapService(val integrasjonClient: IntegrasjonClient) {
-
     fun hentLand(landkode: String): String = integrasjonClient.hentLand(landkode)
 
     fun hentStatsborgerskapMedMedlemskap(
@@ -23,10 +22,11 @@ class StatsborgerskapService(val integrasjonClient: IntegrasjonClient) {
         if (statsborgerskap.iNordiskLand()) {
             return listOf(
                 GrStatsborgerskap(
-                    gyldigPeriode = DatoIntervallEntitet(
-                        fom = statsborgerskap.hentFom(),
-                        tom = statsborgerskap.gyldigTilOgMed,
-                    ),
+                    gyldigPeriode =
+                        DatoIntervallEntitet(
+                            fom = statsborgerskap.hentFom(),
+                            tom = statsborgerskap.gyldigTilOgMed,
+                        ),
                     landkode = statsborgerskap.land,
                     medlemskap = Medlemskap.NORDEN,
                     person = person,
@@ -43,16 +43,18 @@ class StatsborgerskapService(val integrasjonClient: IntegrasjonClient) {
             val idag = LocalDate.now()
             listOf(
                 GrStatsborgerskap(
-                    gyldigPeriode = DatoIntervallEntitet(
-                        fom = idag,
-                        tom = null,
-                    ),
+                    gyldigPeriode =
+                        DatoIntervallEntitet(
+                            fom = idag,
+                            tom = null,
+                        ),
                     landkode = statsborgerskap.land,
-                    medlemskap = finnMedlemskap(
-                        statsborgerskap = statsborgerskap,
-                        eøsMedlemskapsperioderForValgtLand = eøsMedlemskapsPerioderForValgtLand,
-                        gyldigFraOgMed = idag,
-                    ),
+                    medlemskap =
+                        finnMedlemskap(
+                            statsborgerskap = statsborgerskap,
+                            eøsMedlemskapsperioderForValgtLand = eøsMedlemskapsPerioderForValgtLand,
+                            gyldigFraOgMed = idag,
+                        ),
                     person = person,
                 ),
             )
@@ -62,16 +64,18 @@ class StatsborgerskapService(val integrasjonClient: IntegrasjonClient) {
                 statsborgerFra = datoFra,
                 statsborgerTil = statsborgerskap.gyldigTilOgMed,
             ).fold(emptyList()) { medlemskapsperioder, periode ->
-                val medlemskapsperiode = GrStatsborgerskap(
-                    gyldigPeriode = periode,
-                    landkode = statsborgerskap.land,
-                    medlemskap = finnMedlemskap(
-                        statsborgerskap = statsborgerskap,
-                        eøsMedlemskapsperioderForValgtLand = eøsMedlemskapsPerioderForValgtLand,
-                        gyldigFraOgMed = periode.fom,
-                    ),
-                    person = person,
-                )
+                val medlemskapsperiode =
+                    GrStatsborgerskap(
+                        gyldigPeriode = periode,
+                        landkode = statsborgerskap.land,
+                        medlemskap =
+                            finnMedlemskap(
+                                statsborgerskap = statsborgerskap,
+                                eøsMedlemskapsperioderForValgtLand = eøsMedlemskapsPerioderForValgtLand,
+                                gyldigFraOgMed = periode.fom,
+                            ),
+                        person = person,
+                    )
                 medlemskapsperioder + listOf(medlemskapsperiode)
             }
         }
@@ -82,19 +86,21 @@ class StatsborgerskapService(val integrasjonClient: IntegrasjonClient) {
         statsborgerFra: LocalDate?,
         statsborgerTil: LocalDate?,
     ): List<DatoIntervallEntitet> {
-        val datoerMedlemskapEndrerSeg = medlemskapsperioderForValgtLand.flatMap {
-            listOf(
-                it.gyldigFra,
-                it.gyldigTil.plusDays(1),
-            )
-        }
-
-        val endringsdatoerUnderStatsborgerskapsperioden = datoerMedlemskapEndrerSeg
-            .filter { datoForEndringIMedlemskap ->
-                erInnenforDatoerSomBetegnerUendelighetIKodeverk(datoForEndringIMedlemskap)
-            }.filter { datoForEndringIMedlemskap ->
-                erInnenforDatoerForStatsborgerskapet(datoForEndringIMedlemskap, statsborgerFra, statsborgerTil)
+        val datoerMedlemskapEndrerSeg =
+            medlemskapsperioderForValgtLand.flatMap {
+                listOf(
+                    it.gyldigFra,
+                    it.gyldigTil.plusDays(1),
+                )
             }
+
+        val endringsdatoerUnderStatsborgerskapsperioden =
+            datoerMedlemskapEndrerSeg
+                .filter { datoForEndringIMedlemskap ->
+                    erInnenforDatoerSomBetegnerUendelighetIKodeverk(datoForEndringIMedlemskap)
+                }.filter { datoForEndringIMedlemskap ->
+                    erInnenforDatoerForStatsborgerskapet(datoForEndringIMedlemskap, statsborgerFra, statsborgerTil)
+                }
 
         val datoerMedlemskapEllerStatsborgerskapEndrerSeg =
             listOf(statsborgerFra) + endringsdatoerUnderStatsborgerskapsperioden + listOf(statsborgerTil)
@@ -130,9 +136,8 @@ class StatsborgerskapService(val integrasjonClient: IntegrasjonClient) {
         dato: LocalDate,
         statsborgerFra: LocalDate?,
         statsborgerTil: LocalDate?,
-    ) =
-        (statsborgerFra == null || dato.isAfter(statsborgerFra)) &&
-            (statsborgerTil == null || dato.isBefore(statsborgerTil))
+    ) = (statsborgerFra == null || dato.isAfter(statsborgerFra)) &&
+        (statsborgerTil == null || dato.isBefore(statsborgerTil))
 
     private fun hentDatointervallerMedSluttdatoFørNesteStarter(intervaller: List<List<LocalDate?>>): List<DatoIntervallEntitet> {
         return intervaller.mapIndexed { index, endringsdatoPar ->
@@ -151,7 +156,6 @@ class StatsborgerskapService(val integrasjonClient: IntegrasjonClient) {
     }
 
     companion object {
-
         const val LANDKODE_UKJENT = "XUK"
         const val LANDKODE_STATSLØS = "XXX"
         val TIDLIGSTE_DATO_I_KODEVERK: LocalDate = LocalDate.parse("1900-01-02")

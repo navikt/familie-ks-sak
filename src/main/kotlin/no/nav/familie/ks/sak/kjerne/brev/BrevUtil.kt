@@ -36,8 +36,9 @@ fun hentVedtaksbrevtype(
         "Brev ikke støttet for behandlingstype=$behandlingType og behandlingsresultat=$behandlingsresultat"
     val feilmelidingBehandlingType =
         "Brev ikke støttet for behandlingstype=$behandlingType"
-    val frontendFeilmelding = "Vi finner ikke vedtaksbrev som matcher med behandlingen og resultatet du har fått. " +
-        "Ta kontakt med Team familie slik at vi kan se nærmere på saken."
+    val frontendFeilmelding =
+        "Vi finner ikke vedtaksbrev som matcher med behandlingen og resultatet du har fått. " +
+            "Ta kontakt med Team familie slik at vi kan se nærmere på saken."
 
     return when (behandlingType) {
         BehandlingType.FØRSTEGANGSBEHANDLING ->
@@ -104,18 +105,20 @@ fun hentHjemmeltekst(
 ): String {
     val ordinæreHjemler =
         hentOrdinæreHjemler(
-            hjemler = sanitybegrunnelserBruktIBrev.flatMap { it.hjemler }
-                .toMutableSet(),
+            hjemler =
+                sanitybegrunnelserBruktIBrev.flatMap { it.hjemler }
+                    .toMutableSet(),
             opplysningspliktHjemlerSkalMedIBrev = opplysningspliktHjemlerSkalMedIBrev,
         )
 
     val forvaltningsloverHjemler = hentForvaltningsloverHjemler(vedtakKorrigertHjemmelSkalMedIBrev)
 
-    val alleHjemlerForBegrunnelser = hentAlleTyperHjemler(
-        ordinæreHjemler = ordinæreHjemler.distinct(),
-        målform = målform,
-        hjemlerFraForvaltningsloven = forvaltningsloverHjemler,
-    )
+    val alleHjemlerForBegrunnelser =
+        hentAlleTyperHjemler(
+            ordinæreHjemler = ordinæreHjemler.distinct(),
+            målform = målform,
+            hjemlerFraForvaltningsloven = forvaltningsloverHjemler,
+        )
 
     return slåSammenHjemlerAvUlikeTyper(alleHjemlerForBegrunnelser)
 }
@@ -123,11 +126,14 @@ fun hentHjemmeltekst(
 fun hentForvaltningsloverHjemler(vedtakKorrigertHjemmelSkalMedIBrev: Boolean): List<String> =
     if (vedtakKorrigertHjemmelSkalMedIBrev) listOf("35") else emptyList()
 
-private fun slåSammenHjemlerAvUlikeTyper(hjemler: List<String>) = when (hjemler.size) {
-    0 -> throw FunksjonellFeil("Ingen hjemler var knyttet til begrunnelsen(e) som er valgt. Du må velge minst én begrunnelse som er knyttet til en hjemmel.")
-    1 -> hjemler.single()
-    else -> slåSammenListeMedHjemler(hjemler)
-}
+private fun slåSammenHjemlerAvUlikeTyper(hjemler: List<String>) =
+    when (hjemler.size) {
+        0 -> throw FunksjonellFeil(
+            "Ingen hjemler var knyttet til begrunnelsen(e) som er valgt. Du må velge minst én begrunnelse som er knyttet til en hjemmel.",
+        )
+        1 -> hjemler.single()
+        else -> slåSammenListeMedHjemler(hjemler)
+    }
 
 private fun slåSammenListeMedHjemler(hjemler: List<String>): String {
     return hjemler.reduceIndexed { index, acc, s ->
@@ -178,9 +184,14 @@ private fun hentAlleTyperHjemler(
     return alleHjemlerForBegrunnelser
 }
 
-fun hjemlerTilHjemmeltekst(hjemler: List<String>, lovForHjemmel: String): String {
+fun hjemlerTilHjemmeltekst(
+    hjemler: List<String>,
+    lovForHjemmel: String,
+): String {
     return when (hjemler.size) {
-        0 -> throw Feil("Kan ikke lage hjemmeltekst for $lovForHjemmel når ingen begrunnelser har hjemler fra $lovForHjemmel knyttet til seg.")
+        0 -> throw Feil(
+            "Kan ikke lage hjemmeltekst for $lovForHjemmel når ingen begrunnelser har hjemler fra $lovForHjemmel knyttet til seg.",
+        )
         1 -> "§ ${hjemler[0]}"
         else -> "§§ ${slåSammen(hjemler)}"
     }

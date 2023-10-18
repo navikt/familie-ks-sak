@@ -47,13 +47,18 @@ class BrevService(
     private val settBehandlingPåVentService: SettBehandlingPåVentService,
     private val genererBrevService: GenererBrevService,
 ) {
-
-    fun hentForhåndsvisningAvBrev(behandlingId: Long, manueltBrevDto: ManueltBrevDto): ByteArray {
+    fun hentForhåndsvisningAvBrev(
+        behandlingId: Long,
+        manueltBrevDto: ManueltBrevDto,
+    ): ByteArray {
         val manueltBrevDtoMedMottakerData = utvidManueltBrevDtoMedEnhetOgMottaker(behandlingId, manueltBrevDto)
         return genererBrevService.genererManueltBrev(manueltBrevDtoMedMottakerData, true)
     }
 
-    fun genererOgSendBrev(behandlingId: Long, manueltBrevDto: ManueltBrevDto) {
+    fun genererOgSendBrev(
+        behandlingId: Long,
+        manueltBrevDto: ManueltBrevDto,
+    ) {
         val manueltBrevDtoMedMottakerData = utvidManueltBrevDtoMedEnhetOgMottaker(behandlingId, manueltBrevDto)
         sendBrev(behandlingId, manueltBrevDtoMedMottakerData)
     }
@@ -66,46 +71,54 @@ class BrevService(
         val arbeidsfordelingPåBehandling = arbeidsfordelingService.hentArbeidsfordelingPåBehandling(behandlingId)
 
         return manueltBrevDto.copy(
-            enhet = Enhet(
-                enhetNavn = arbeidsfordelingPåBehandling.behandlendeEnhetNavn,
-                enhetId = arbeidsfordelingPåBehandling.behandlendeEnhetId,
-            ),
+            enhet =
+                Enhet(
+                    enhetNavn = arbeidsfordelingPåBehandling.behandlendeEnhetNavn,
+                    enhetId = arbeidsfordelingPåBehandling.behandlendeEnhetId,
+                ),
             mottakerMålform = mottakerPerson?.målform ?: manueltBrevDto.mottakerMålform,
             mottakerNavn = mottakerPerson?.navn ?: manueltBrevDto.mottakerNavn,
         )
     }
 
     @Transactional
-    fun sendBrev(behandlingId: Long, manueltBrevDto: ManueltBrevDto) {
+    fun sendBrev(
+        behandlingId: Long,
+        manueltBrevDto: ManueltBrevDto,
+    ) {
         val behandling = behandlingRepository.hentBehandling(behandlingId)
 
         val generertBrev = genererBrevService.genererManueltBrev(manueltBrevDto, false)
 
-        val førsteside = if (manueltBrevDto.brevmal.skalGenerereForside()) {
-            Førsteside(
-                språkkode = manueltBrevDto.mottakerMålform.tilSpråkkode(),
-                navSkjemaId = "NAV 34-00.07",
-                overskriftstittel = "Ettersendelse til søknad om kontantstøtte til småbarnsforeldre NAV 34-00.07",
-            )
-        } else {
-            null
-        }
+        val førsteside =
+            if (manueltBrevDto.brevmal.skalGenerereForside()) {
+                Førsteside(
+                    språkkode = manueltBrevDto.mottakerMålform.tilSpråkkode(),
+                    navSkjemaId = "NAV 34-00.07",
+                    overskriftstittel = "Ettersendelse til søknad om kontantstøtte til småbarnsforeldre NAV 34-00.07",
+                )
+            } else {
+                null
+            }
 
-        val journalpostId = utgåendeJournalføringService.journalførDokument(
-            fnr = behandling.fagsak.aktør.aktivFødselsnummer(),
-            fagsakId = behandling.fagsak.id,
-            behandlingId = behandlingId,
-            journalførendeEnhet = manueltBrevDto.enhet?.enhetId
-                ?: DEFAULT_JOURNALFØRENDE_ENHET,
-            brev = listOf(
-                Dokument(
-                    dokument = generertBrev,
-                    filtype = Filtype.PDFA,
-                    dokumenttype = manueltBrevDto.brevmal.tilFamilieKontrakterDokumentType(),
-                ),
-            ),
-            førsteside = førsteside,
-        )
+        val journalpostId =
+            utgåendeJournalføringService.journalførDokument(
+                fnr = behandling.fagsak.aktør.aktivFødselsnummer(),
+                fagsakId = behandling.fagsak.id,
+                behandlingId = behandlingId,
+                journalførendeEnhet =
+                    manueltBrevDto.enhet?.enhetId
+                        ?: DEFAULT_JOURNALFØRENDE_ENHET,
+                brev =
+                    listOf(
+                        Dokument(
+                            dokument = generertBrev,
+                            filtype = Filtype.PDFA,
+                            dokumenttype = manueltBrevDto.brevmal.tilFamilieKontrakterDokumentType(),
+                        ),
+                    ),
+                førsteside = førsteside,
+            )
 
         journalføringRepository.save(
             DbJournalpost(
@@ -116,28 +129,30 @@ class BrevService(
         )
 
         if ((
-            manueltBrevDto.brevmal == Brevmal.INNHENTE_OPPLYSNINGER ||
-                manueltBrevDto.brevmal == Brevmal.VARSEL_OM_REVURDERING
+                manueltBrevDto.brevmal == Brevmal.INNHENTE_OPPLYSNINGER ||
+                    manueltBrevDto.brevmal == Brevmal.VARSEL_OM_REVURDERING
             )
         ) {
             leggTilOpplysningspliktIVilkårsvurdering(behandling)
         }
 
         DistribuerBrevTask.opprettDistribuerBrevTask(
-            distribuerBrevDTO = DistribuerBrevDto(
-                personIdent = manueltBrevDto.mottakerIdent,
-                behandlingId = behandling.id,
-                journalpostId = journalpostId,
-                brevmal = manueltBrevDto.brevmal,
-                erManueltSendt = true,
-            ),
-            properties = Properties().apply {
-                this["fagsakIdent"] = behandling.fagsak.aktør.aktivFødselsnummer()
-                this["mottakerIdent"] = manueltBrevDto.mottakerIdent
-                this["journalpostId"] = journalpostId
-                this["behandlingId"] = behandling.id.toString()
-                this["fagsakId"] = behandling.fagsak.id.toString()
-            },
+            distribuerBrevDTO =
+                DistribuerBrevDto(
+                    personIdent = manueltBrevDto.mottakerIdent,
+                    behandlingId = behandling.id,
+                    journalpostId = journalpostId,
+                    brevmal = manueltBrevDto.brevmal,
+                    erManueltSendt = true,
+                ),
+            properties =
+                Properties().apply {
+                    this["fagsakIdent"] = behandling.fagsak.aktør.aktivFødselsnummer()
+                    this["mottakerIdent"] = manueltBrevDto.mottakerIdent
+                    this["journalpostId"] = journalpostId
+                    this["behandlingId"] = behandling.id.toString()
+                    this["fagsakId"] = behandling.fagsak.id.toString()
+                },
         ).also {
             taskService.save(it)
         }
@@ -146,13 +161,14 @@ class BrevService(
         ) {
             settBehandlingPåVentService.settBehandlingPåVent(
                 behandlingId = behandlingId,
-                frist = LocalDate.now()
-                    .plusDays(
-                        manueltBrevDto.brevmal.ventefristDager(
-                            manuellFrist = manueltBrevDto.antallUkerSvarfrist?.toLong(),
-                            behandlingKategori = behandling.kategori,
+                frist =
+                    LocalDate.now()
+                        .plusDays(
+                            manueltBrevDto.brevmal.ventefristDager(
+                                manuellFrist = manueltBrevDto.antallUkerSvarfrist?.toLong(),
+                                behandlingKategori = behandling.kategori,
+                            ),
                         ),
-                    ),
                 årsak = manueltBrevDto.brevmal.hentVenteÅrsak(),
             )
         }
@@ -211,7 +227,9 @@ class BrevService(
 
         taskService.save(task)
 
-        logger.info("Klarte ikke å distribuere brev for journalpostId $journalpostId på behandling $behandlingId. Bruker har ukjent dødsboadresse.")
+        logger.info(
+            "Klarte ikke å distribuere brev for journalpostId $journalpostId på behandling $behandlingId. Bruker har ukjent dødsboadresse.",
+        )
         loggService.opprettBrevIkkeDistribuertUkjentDødsboadresseLogg(
             behandlingId = behandlingId,
             brevnavn = brevmal.visningsTekst,
@@ -223,7 +241,9 @@ class BrevService(
         behandlingId: Long,
         brevMal: Brevmal,
     ) {
-        logger.info("Klarte ikke å distribuere brev for journalpostId $journalpostId på behandling $behandlingId. Bruker har ukjent adresse.")
+        logger.info(
+            "Klarte ikke å distribuere brev for journalpostId $journalpostId på behandling $behandlingId. Bruker har ukjent adresse.",
+        )
         loggService.opprettBrevIkkeDistribuertUkjentAdresseLogg(
             behandlingId = behandlingId,
             brevnavn = brevMal.visningsTekst,
@@ -233,8 +253,9 @@ class BrevService(
     private fun leggTilOpplysningspliktIVilkårsvurdering(behandling: Behandling) {
         val sisteVedtattBehandling by lazy { hentSisteBehandlingSomErVedtatt(behandling.fagsak.id) }
 
-        val vilkårsvurdering = vilkårsvurderingService.finnAktivVilkårsvurdering(behandling.id)
-            ?: vilkårsvurderingService.opprettVilkårsvurdering(behandling, sisteVedtattBehandling)
+        val vilkårsvurdering =
+            vilkårsvurderingService.finnAktivVilkårsvurdering(behandling.id)
+                ?: vilkårsvurderingService.opprettVilkårsvurdering(behandling, sisteVedtattBehandling)
 
         vilkårsvurdering.personResultater.single { it.erSøkersResultater() }
             .leggTilBlankAnnenVurdering(AnnenVurderingType.OPPLYSNINGSPLIKT)

@@ -10,9 +10,7 @@ import no.nav.familie.kontrakter.felles.personopplysning.UkjentBosted
 data class GrUkjentBosted(
     @Column(name = "bostedskommune")
     val bostedskommune: String,
-
 ) : GrBostedsadresse() {
-
     override fun toSecureString(): String = """UkjentadresseDao(bostedskommune=$bostedskommune""".trimMargin()
 
     override fun tilFrontendString() = """Ukjent adresse, kommune $bostedskommune""".trimMargin()
@@ -20,8 +18,6 @@ data class GrUkjentBosted(
     override fun toString(): String = "UkjentBostedAdresse(detaljer skjult)"
 
     companion object {
-
-        fun fraUkjentBosted(ukjentBosted: UkjentBosted): GrUkjentBosted =
-            GrUkjentBosted(bostedskommune = ukjentBosted.bostedskommune)
+        fun fraUkjentBosted(ukjentBosted: UkjentBosted): GrUkjentBosted = GrUkjentBosted(bostedskommune = ukjentBosted.bostedskommune)
     }
 }

@@ -15,14 +15,16 @@ data class VarselbrevMedÅrsakerDto(
         enhet: String,
     ) : this(
         mal = mal,
-        data = VarselOmRevurderingDataDto(
-            delmalData = VarselOmRevurderingDataDto.DelmalData(signatur = SignaturDelmal(enhet = enhet)),
-            flettefelter = VarselOmRevurderingDataDto.FlettefelterDto(
-                navn = navn,
-                fodselsnummer = fødselsnummer,
-                varselÅrsaker = varselÅrsaker,
+        data =
+            VarselOmRevurderingDataDto(
+                delmalData = VarselOmRevurderingDataDto.DelmalData(signatur = SignaturDelmal(enhet = enhet)),
+                flettefelter =
+                    VarselOmRevurderingDataDto.FlettefelterDto(
+                        navn = navn,
+                        fodselsnummer = fødselsnummer,
+                        varselÅrsaker = varselÅrsaker,
+                    ),
             ),
-        ),
     )
 }
 
@@ -30,14 +32,12 @@ data class VarselOmRevurderingDataDto(
     override val delmalData: DelmalData,
     override val flettefelter: FlettefelterDto,
 ) : BrevDataDto {
-
     data class FlettefelterDto(
         override val navn: Flettefelt,
         override val fodselsnummer: Flettefelt,
         override val brevOpprettetDato: Flettefelt = flettefelt(LocalDate.now().tilDagMånedÅr()),
         val varselAarsaker: Flettefelt,
     ) : FlettefelterForDokumentDto {
-
         constructor(
             navn: String,
             fodselsnummer: String,

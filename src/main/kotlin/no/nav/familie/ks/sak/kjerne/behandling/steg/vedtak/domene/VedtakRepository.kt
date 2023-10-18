@@ -4,7 +4,6 @@ import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
 
 interface VedtakRepository : JpaRepository<Vedtak, Long> {
-
     @Query(value = "SELECT v FROM Vedtak v WHERE v.id = :vedtakId")
     fun hentVedtak(vedtakId: Long): Vedtak
 

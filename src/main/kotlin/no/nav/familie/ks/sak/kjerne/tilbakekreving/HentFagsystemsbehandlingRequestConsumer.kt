@@ -16,7 +16,6 @@ import org.springframework.stereotype.Service
 @Service
 @Profile("!integrasjonstest & !dev-postgres-preprod")
 class HentFagsystemsbehandlingRequestConsumer(private val fagsystemsbehandlingService: FagsystemsbehandlingService) {
-
     private val logger = LoggerFactory.getLogger(this::class.java)
     private val secureLogger = LoggerFactory.getLogger("secureLogger")
 
@@ -25,7 +24,10 @@ class HentFagsystemsbehandlingRequestConsumer(private val fagsystemsbehandlingSe
         topics = [KafkaConfig.FAGSYSTEMSBEHANDLING_REQUEST_TBK_TOPIC],
         containerFactory = "concurrentKafkaListenerContainerFactory",
     )
-    fun listen(consumerRecord: ConsumerRecord<String, String>, ack: Acknowledgment) {
+    fun listen(
+        consumerRecord: ConsumerRecord<String, String>,
+        ack: Acknowledgment,
+    ) {
         val key: String = consumerRecord.key()
         kjørMedCallId(key) {
             val data: String = consumerRecord.value()
@@ -35,15 +37,16 @@ class HentFagsystemsbehandlingRequestConsumer(private val fagsystemsbehandlingSe
                 logger.info("HentFagsystemsbehandlingRequest er mottatt i kafka $consumerRecord med key $key")
                 secureLogger.info("HentFagsystemsbehandlingRequest er mottatt i kafka $consumerRecord med key $key")
 
-                val fagsystemsbehandling = try {
-                    fagsystemsbehandlingService.hentFagsystemsbehandling(request)
-                } catch (e: Exception) {
-                    logger.warn(
-                        "Noe gikk galt mens sender HentFagsystemsbehandlingRespons for behandling=${request.eksternId}. " +
-                            "Feiler med ${e.message}",
-                    )
-                    HentFagsystemsbehandlingRespons(feilMelding = e.message)
-                }
+                val fagsystemsbehandling =
+                    try {
+                        fagsystemsbehandlingService.hentFagsystemsbehandling(request)
+                    } catch (e: Exception) {
+                        logger.warn(
+                            "Noe gikk galt mens sender HentFagsystemsbehandlingRespons for behandling=${request.eksternId}. " +
+                                "Feiler med ${e.message}",
+                        )
+                        HentFagsystemsbehandlingRespons(feilMelding = e.message)
+                    }
                 // Sender respons via kafka
                 fagsystemsbehandlingService.sendFagsystemsbehandlingRespons(fagsystemsbehandling, key, request.eksternId)
             }

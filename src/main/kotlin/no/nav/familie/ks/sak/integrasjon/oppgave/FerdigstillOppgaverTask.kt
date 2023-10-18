@@ -19,7 +19,6 @@ class FerdigstillOppgaverTask(
     private val oppgaveService: OppgaveService,
     private val behandlingService: BehandlingService,
 ) : AsyncTaskStep {
-
     override fun doTask(task: Task) {
         val ferdigstillOppgave = objectMapper.readValue(task.payload, FerdigstillOppgaveDto::class.java)
         val behandling = behandlingService.hentBehandling(ferdigstillOppgave.behandlingId)
@@ -33,15 +32,19 @@ class FerdigstillOppgaverTask(
     companion object {
         const val TASK_STEP_TYPE = "ferdigstillOppgaveTask"
 
-        fun opprettTask(behandlingId: Long, oppgavetype: Oppgavetype): Task {
+        fun opprettTask(
+            behandlingId: Long,
+            oppgavetype: Oppgavetype,
+        ): Task {
             return Task(
                 type = TASK_STEP_TYPE,
-                payload = objectMapper.writeValueAsString(
-                    FerdigstillOppgaveDto(
-                        behandlingId = behandlingId,
-                        oppgavetype = oppgavetype,
+                payload =
+                    objectMapper.writeValueAsString(
+                        FerdigstillOppgaveDto(
+                            behandlingId = behandlingId,
+                            oppgavetype = oppgavetype,
+                        ),
                     ),
-                ),
             )
         }
     }

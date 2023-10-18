@@ -35,15 +35,15 @@ class BarnehageListeService(
     val barnehagelisteMottattArkivRepository: BarnehagelisteMottattArkivRepository,
     val infotrygdReplikaClient: InfotrygdReplikaClient,
 ) {
-
-    private val xmlDeserializer = XmlMapper(
-        JacksonXmlModule().apply {
-            setDefaultUseWrapper(false)
-        },
-    ).registerKotlinModule()
-        .configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true)
-        .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-        .registerModule(JavaTimeModule())
+    private val xmlDeserializer =
+        XmlMapper(
+            JacksonXmlModule().apply {
+                setDefaultUseWrapper(false)
+            },
+        ).registerKotlinModule()
+            .configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true)
+            .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+            .registerModule(JavaTimeModule())
 
     @Transactional
     fun lagreBarnehagelisteMottattOgOpprettTaskForLesing(barnehagelisteMottatt: BarnehagelisteMottatt): BarnehagelisteMottatt {
@@ -58,9 +58,10 @@ class BarnehageListeService(
     }
 
     fun erListenMottattTidligere(meldingId: String): Boolean {
-        return barnehagelisteMottattRepository.existsByMeldingId(meldingId) || barnehagelisteMottattArkivRepository.existsByMeldingId(
-            meldingId,
-        )
+        return barnehagelisteMottattRepository.existsByMeldingId(meldingId) ||
+            barnehagelisteMottattArkivRepository.existsByMeldingId(
+                meldingId,
+            )
     }
 
     @Transactional
@@ -69,13 +70,14 @@ class BarnehageListeService(
 
         if (barnehagelisteMottatt != null) {
             val barnehagelisteMelding = lesBarnehagelisteMottattMeldingXml(barnehagelisteMottatt.melding)
-            val barnehagelister = barnehagelisteMelding.skjema.barnInfolinjer.map { it ->
-                it.tilBarnehagelisteEntitet(
-                    kommuneNavn = barnehagelisteMelding.skjema.listeopplysninger.kommuneNavn,
-                    kommuneNr = barnehagelisteMelding.skjema.listeopplysninger.kommuneNr,
-                    arkivReferanse = barnehagelisteMottatt.meldingId,
-                )
-            }
+            val barnehagelister =
+                barnehagelisteMelding.skjema.barnInfolinjer.map { it ->
+                    it.tilBarnehagelisteEntitet(
+                        kommuneNavn = barnehagelisteMelding.skjema.listeopplysninger.kommuneNavn,
+                        kommuneNr = barnehagelisteMelding.skjema.listeopplysninger.kommuneNr,
+                        arkivReferanse = barnehagelisteMottatt.meldingId,
+                    )
+                }
             barnehagebarnRepository.saveAll(barnehagelister)
             barnehagelisteMottattArkivRepository.save(
                 BarnehagelisteMottattArkiv(
@@ -102,11 +104,12 @@ class BarnehageListeService(
     }
 
     fun hentAlleBarnehagebarnInfotrygd(barnehagebarnRequestParams: BarnehagebarnRequestParams): Page<BarnehagebarnInfotrygdDto> {
-        val sort = if (barnehagebarnRequestParams.sortAsc) {
-            Sort.by(getCorrectSortBy(barnehagebarnRequestParams.sortBy)).ascending()
-        } else {
-            Sort.by(getCorrectSortBy(barnehagebarnRequestParams.sortBy)).descending()
-        }
+        val sort =
+            if (barnehagebarnRequestParams.sortAsc) {
+                Sort.by(getCorrectSortBy(barnehagebarnRequestParams.sortBy)).ascending()
+            } else {
+                Sort.by(getCorrectSortBy(barnehagebarnRequestParams.sortBy)).descending()
+            }
 
         val pageable: Pageable =
             PageRequest.of(barnehagebarnRequestParams.offset, barnehagebarnRequestParams.limit, sort)
@@ -168,11 +171,12 @@ class BarnehageListeService(
     fun hentAlleBarnehagebarnPage(barnehagebarnRequestParams: BarnehagebarnRequestParams): Page<BarnehagebarnDtoInterface> {
         var fagsakstatuser = listOf("LØPENDE")
 
-        var sort = if (barnehagebarnRequestParams.sortAsc) {
-            Sort.by(getCorrectSortBy(barnehagebarnRequestParams.sortBy)).ascending()
-        } else {
-            Sort.by(getCorrectSortBy(barnehagebarnRequestParams.sortBy)).descending()
-        }
+        var sort =
+            if (barnehagebarnRequestParams.sortAsc) {
+                Sort.by(getCorrectSortBy(barnehagebarnRequestParams.sortBy)).ascending()
+            } else {
+                Sort.by(getCorrectSortBy(barnehagebarnRequestParams.sortBy)).descending()
+            }
         val pageable: Pageable =
             PageRequest.of(barnehagebarnRequestParams.offset, barnehagebarnRequestParams.limit, sort)
 

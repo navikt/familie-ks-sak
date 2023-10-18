@@ -14,22 +14,24 @@ class VedtakService(
     private val vedtakRepository: VedtakRepository,
     private val vedtaksperiodeService: VedtaksperiodeService,
 ) {
-
     fun hentVedtak(vedtakId: Long): Vedtak = vedtakRepository.hentVedtak(vedtakId)
 
     fun hentAktivVedtakForBehandling(behandlingId: Long): Vedtak =
         vedtakRepository.findByBehandlingAndAktivOptional(behandlingId)
             ?: throw Feil("Fant ikke aktiv vedtak for behandling $behandlingId")
 
-    fun oppdaterVedtak(vedtak: Vedtak) =
-        vedtakRepository.saveAndFlush(vedtak)
+    fun oppdaterVedtak(vedtak: Vedtak) = vedtakRepository.saveAndFlush(vedtak)
 
-    fun opprettOgInitierNyttVedtakForBehandling(behandling: Behandling, kopierVedtakBegrunnelser: Boolean = false) {
+    fun opprettOgInitierNyttVedtakForBehandling(
+        behandling: Behandling,
+        kopierVedtakBegrunnelser: Boolean = false,
+    ) {
         behandling.steg.takeUnless { it !== BehandlingSteg.BESLUTTE_VEDTAK && it !== BehandlingSteg.REGISTRERE_PERSONGRUNNLAG }
             ?: throw Feil("Forsøker å initiere vedtak på steg ${behandling.steg}")
 
-        val deaktivertVedtak = vedtakRepository.findByBehandlingAndAktivOptional(behandlingId = behandling.id)
-            ?.let { vedtakRepository.saveAndFlush(it.also { it.aktiv = false }) }
+        val deaktivertVedtak =
+            vedtakRepository.findByBehandlingAndAktivOptional(behandlingId = behandling.id)
+                ?.let { vedtakRepository.saveAndFlush(it.also { it.aktiv = false }) }
 
         val nyttVedtak = Vedtak(behandling = behandling)
 
@@ -44,7 +46,6 @@ class VedtakService(
     }
 
     companion object {
-
         private val logger = LoggerFactory.getLogger(VedtakService::class.java)
     }
 }

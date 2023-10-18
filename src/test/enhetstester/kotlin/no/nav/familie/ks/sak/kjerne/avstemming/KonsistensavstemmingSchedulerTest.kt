@@ -21,7 +21,6 @@ import java.time.LocalDate
 
 @ExtendWith(MockKExtension::class)
 internal class KonsistensavstemmingSchedulerTest {
-
     @MockK
     private lateinit var envService: EnvService
 

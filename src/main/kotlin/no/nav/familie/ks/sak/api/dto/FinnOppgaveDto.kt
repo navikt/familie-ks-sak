@@ -26,24 +26,24 @@ data class FinnOppgaveDto(
     val limit: Long?,
     val offset: Long?,
 ) {
-
-    fun tilFinnOppgaveRequest(): FinnOppgaveRequest = FinnOppgaveRequest(
-        tema = Tema.KON,
-        behandlingstema = Behandlingstema.values().find { it.value == this.behandlingstema },
-        behandlingstype = Behandlingstype.values().find { it.value == this.behandlingstype },
-        oppgavetype = Oppgavetype.values().find { it.value == this.oppgavetype },
-        enhet = this.enhet,
-        saksbehandler = this.saksbehandler,
-        journalpostId = this.journalpostId,
-        tildeltRessurs = this.tildeltRessurs,
-        tilordnetRessurs = this.tilordnetRessurs,
-        opprettetFomTidspunkt = this.opprettetFomTidspunkt,
-        opprettetTomTidspunkt = this.opprettetTomTidspunkt,
-        fristFomDato = this.fristFomDato,
-        fristTomDato = this.fristTomDato,
-        aktivFomDato = this.aktivFomDato,
-        aktivTomDato = this.aktivTomDato,
-        limit = this.limit,
-        offset = this.offset,
-    )
+    fun tilFinnOppgaveRequest(): FinnOppgaveRequest =
+        FinnOppgaveRequest(
+            tema = Tema.KON,
+            behandlingstema = Behandlingstema.values().find { it.value == this.behandlingstema },
+            behandlingstype = Behandlingstype.values().find { it.value == this.behandlingstype },
+            oppgavetype = Oppgavetype.values().find { it.value == this.oppgavetype },
+            enhet = this.enhet,
+            saksbehandler = this.saksbehandler,
+            journalpostId = this.journalpostId,
+            tildeltRessurs = this.tildeltRessurs,
+            tilordnetRessurs = this.tilordnetRessurs,
+            opprettetFomTidspunkt = this.opprettetFomTidspunkt,
+            opprettetTomTidspunkt = this.opprettetTomTidspunkt,
+            fristFomDato = this.fristFomDato,
+            fristTomDato = this.fristTomDato,
+            aktivFomDato = this.aktivFomDato,
+            aktivTomDato = this.aktivTomDato,
+            limit = this.limit,
+            offset = this.offset,
+        )
 }

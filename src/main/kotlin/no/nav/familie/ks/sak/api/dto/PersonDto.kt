@@ -44,13 +44,14 @@ fun PdlPersonInfo.tilPersonInfoDto(personIdent: String): PersonInfoDto {
     val bostedsadresse =
         this.bostedsadresser.filter { it.angittFlyttedato != null }.maxByOrNull { it.angittFlyttedato!! }
 
-    val kommunenummer = when {
-        bostedsadresse == null -> null
-        bostedsadresse.vegadresse != null -> bostedsadresse.vegadresse?.kommunenummer
-        bostedsadresse.matrikkeladresse != null -> bostedsadresse.matrikkeladresse?.kommunenummer
-        bostedsadresse.ukjentBosted != null -> null
-        else -> null
-    } ?: "ukjent"
+    val kommunenummer =
+        when {
+            bostedsadresse == null -> null
+            bostedsadresse.vegadresse != null -> bostedsadresse.vegadresse?.kommunenummer
+            bostedsadresse.matrikkeladresse != null -> bostedsadresse.matrikkeladresse?.kommunenummer
+            bostedsadresse.ukjentBosted != null -> null
+            else -> null
+        } ?: "ukjent"
 
     val dødsfallDato = if (this.dødsfall != null && this.dødsfall.erDød) this.dødsfall.dødsdato else null
 
@@ -67,16 +68,17 @@ fun PdlPersonInfo.tilPersonInfoDto(personIdent: String): PersonInfoDto {
     )
 }
 
-private fun ForelderBarnRelasjonInfoMaskert.tilForelderBarnRelasjonInfoMaskertDto() = ForelderBarnRelasjonInfoMaskertDto(
-    relasjonRolle = this.relasjonsrolle,
-    adressebeskyttelseGradering = this.adressebeskyttelseGradering,
-)
+private fun ForelderBarnRelasjonInfoMaskert.tilForelderBarnRelasjonInfoMaskertDto() =
+    ForelderBarnRelasjonInfoMaskertDto(
+        relasjonRolle = this.relasjonsrolle,
+        adressebeskyttelseGradering = this.adressebeskyttelseGradering,
+    )
 
-private fun ForelderBarnRelasjonInfo.tilForelderBarnRelasjonInfoDto() = ForelderBarnRelasjonInfoDto(
-    personIdent = this.aktør.aktivFødselsnummer(),
-    relasjonRolle = this.relasjonsrolle,
-    navn = this.navn ?: "",
-    fødselsdato = this.fødselsdato,
-    adressebeskyttelseGradering = this.adressebeskyttelseGradering,
-
-)
+private fun ForelderBarnRelasjonInfo.tilForelderBarnRelasjonInfoDto() =
+    ForelderBarnRelasjonInfoDto(
+        personIdent = this.aktør.aktivFødselsnummer(),
+        relasjonRolle = this.relasjonsrolle,
+        navn = this.navn ?: "",
+        fødselsdato = this.fødselsdato,
+        adressebeskyttelseGradering = this.adressebeskyttelseGradering,
+    )

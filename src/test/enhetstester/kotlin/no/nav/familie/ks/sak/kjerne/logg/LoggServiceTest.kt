@@ -28,7 +28,6 @@ import org.hamcrest.CoreMatchers.`is` as Is
 
 @ExtendWith(MockKExtension::class)
 class LoggServiceTest {
-
     @MockK
     private lateinit var rolleConfig: RolleConfig
 
@@ -91,16 +90,18 @@ class LoggServiceTest {
         val behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD)
         val lagredeLogg = mutableListOf<Logg>()
 
-        val arbeidsFordelingEnhet = ArbeidsfordelingPåBehandling(
-            behandlingId = behandling.id,
-            behandlendeEnhetId = "fraEnhetId",
-            behandlendeEnhetNavn = "fraEnhetNavn",
-        )
+        val arbeidsFordelingEnhet =
+            ArbeidsfordelingPåBehandling(
+                behandlingId = behandling.id,
+                behandlendeEnhetId = "fraEnhetId",
+                behandlendeEnhetNavn = "fraEnhetNavn",
+            )
 
-        val aktivArbeidsfordelingenhet = ArbeidsfordelingsEnhet(
-            enhetId = arbeidsFordelingEnhet.behandlendeEnhetId,
-            enhetNavn = arbeidsFordelingEnhet.behandlendeEnhetNavn,
-        )
+        val aktivArbeidsfordelingenhet =
+            ArbeidsfordelingsEnhet(
+                enhetId = arbeidsFordelingEnhet.behandlendeEnhetId,
+                enhetNavn = arbeidsFordelingEnhet.behandlendeEnhetNavn,
+            )
 
         every { loggRepository.save(capture(lagredeLogg)) } returns mockk()
 
@@ -380,11 +381,12 @@ class LoggServiceTest {
         val forrigeKategori = BehandlingKategori.NASJONAL
         val nyKategori = BehandlingKategori.EØS
 
-        val opprettetLogg = loggService.opprettEndretBehandlingstemaLogg(
-            behandling,
-            forrigeKategori,
-            nyKategori,
-        )
+        val opprettetLogg =
+            loggService.opprettEndretBehandlingstemaLogg(
+                behandling,
+                forrigeKategori,
+                nyKategori,
+            )
 
         assertThat(opprettetLogg.behandlingId, Is(behandling.id))
         assertThat(opprettetLogg.type, Is(LoggType.BEHANDLINGSTEMA_ENDRET))
@@ -396,19 +398,21 @@ class LoggServiceTest {
 
     @Test
     fun `opprettFeilutbetaltValutaLagtTilLogg - skal lagre logg på at feilutbetaltValuta er lagt til behandling`() {
-        val feilutbetaltValuta = FeilutbetaltValuta(
-            behandlingId = 0,
-            fom = LocalDate.of(2020, 12, 12),
-            tom = LocalDate.of(2022, 12, 12),
-            id = 0,
-            feilutbetaltBeløp = 200,
-        )
+        val feilutbetaltValuta =
+            FeilutbetaltValuta(
+                behandlingId = 0,
+                fom = LocalDate.of(2020, 12, 12),
+                tom = LocalDate.of(2022, 12, 12),
+                id = 0,
+                feilutbetaltBeløp = 200,
+            )
 
         every { loggRepository.save(any()) } returnsArgument 0
 
-        val opprettetLoggOmFeilutbetaltValutaLagtTil = loggService.opprettFeilutbetaltValutaLagtTilLogg(
-            feilutbetaltValuta,
-        )
+        val opprettetLoggOmFeilutbetaltValutaLagtTil =
+            loggService.opprettFeilutbetaltValutaLagtTilLogg(
+                feilutbetaltValuta,
+            )
 
         assertThat(opprettetLoggOmFeilutbetaltValutaLagtTil.type, Is(LoggType.FEILUTBETALT_VALUTA_LAGT_TIL))
         assertThat(
@@ -421,19 +425,21 @@ class LoggServiceTest {
 
     @Test
     fun `opprettFeilutbetaltValutaFjernetLogg - skal lagre logg på at feilutbetaltValuta er fjernet fra behandling`() {
-        val feilutbetaltValuta = FeilutbetaltValuta(
-            behandlingId = 0,
-            fom = LocalDate.of(2020, 12, 12),
-            tom = LocalDate.of(2022, 12, 12),
-            id = 0,
-            feilutbetaltBeløp = 200,
-        )
+        val feilutbetaltValuta =
+            FeilutbetaltValuta(
+                behandlingId = 0,
+                fom = LocalDate.of(2020, 12, 12),
+                tom = LocalDate.of(2022, 12, 12),
+                id = 0,
+                feilutbetaltBeløp = 200,
+            )
 
         every { loggRepository.save(any()) } returnsArgument 0
 
-        val opprettetLoggOmFeilutbetaltValutaFjernet = loggService.opprettFeilutbetaltValutaFjernetLogg(
-            feilutbetaltValuta,
-        )
+        val opprettetLoggOmFeilutbetaltValutaFjernet =
+            loggService.opprettFeilutbetaltValutaFjernetLogg(
+                feilutbetaltValuta,
+            )
 
         assertThat(opprettetLoggOmFeilutbetaltValutaFjernet.type, Is(LoggType.FEILUTBETALT_VALUTA_FJERNET))
         assertThat(

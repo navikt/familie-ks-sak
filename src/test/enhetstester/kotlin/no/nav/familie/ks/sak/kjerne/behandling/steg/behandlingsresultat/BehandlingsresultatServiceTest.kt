@@ -24,7 +24,6 @@ import org.hamcrest.CoreMatchers.`is` as Is
 
 @ExtendWith(MockKExtension::class)
 class BehandlingsresultatServiceTest {
-
     @MockK
     private lateinit var behandlingService: BehandlingService
 
@@ -53,16 +52,17 @@ class BehandlingsresultatServiceTest {
             lagPersonopplysningGrunnlag(behandlingId = behandling.id, barnasIdenter = listOf(randomFnr(), randomFnr()))
         val vilkårsvurdering = lagVilkårsvurderingOppfylt(personopplysningGrunnlag.personer)
 
-        val andelerMedEndringer = personopplysningGrunnlag.personer.map {
-            EndretUtbetalingAndelMedAndelerTilkjentYtelse(
-                EndretUtbetalingAndel(
-                    behandlingId = behandling.id,
-                    erEksplisittAvslagPåSøknad = false,
-                    person = it,
-                ),
-                emptyList(),
-            )
-        }
+        val andelerMedEndringer =
+            personopplysningGrunnlag.personer.map {
+                EndretUtbetalingAndelMedAndelerTilkjentYtelse(
+                    EndretUtbetalingAndel(
+                        behandlingId = behandling.id,
+                        erEksplisittAvslagPåSøknad = false,
+                        person = it,
+                    ),
+                    emptyList(),
+                )
+            }
 
         every { personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(behandling.id) } returns personopplysningGrunnlag
         every {
@@ -71,13 +71,14 @@ class BehandlingsresultatServiceTest {
             )
         } returns andelerMedEndringer
 
-        val behandlingsresulatPersoner = behandlingsresultatService.lagBehandlingsresulatPersoner(
-            behandling = behandling,
-            personerFremslitKravFor = emptyList(),
-            forrigeAndelerMedEndringer = emptyList(),
-            vilkårsvurdering = vilkårsvurdering,
-            andelerMedEndringer = emptyList(),
-        )
+        val behandlingsresulatPersoner =
+            behandlingsresultatService.lagBehandlingsresulatPersoner(
+                behandling = behandling,
+                personerFremslitKravFor = emptyList(),
+                forrigeAndelerMedEndringer = emptyList(),
+                vilkårsvurdering = vilkårsvurdering,
+                andelerMedEndringer = emptyList(),
+            )
 
         assertThat(behandlingsresulatPersoner.all { it.eksplisittAvslag }, Is(false))
     }
@@ -89,16 +90,17 @@ class BehandlingsresultatServiceTest {
             lagPersonopplysningGrunnlag(behandlingId = behandling.id, barnasIdenter = listOf(randomFnr(), randomFnr()))
         val vilkårsvurdering = lagVilkårsvurderingOppfylt(personopplysningGrunnlag.personer)
 
-        val andelerMedEndringer = personopplysningGrunnlag.personer.map {
-            EndretUtbetalingAndelMedAndelerTilkjentYtelse(
-                EndretUtbetalingAndel(
-                    behandlingId = behandling.id,
-                    erEksplisittAvslagPåSøknad = true,
-                    person = it,
-                ),
-                emptyList(),
-            )
-        }
+        val andelerMedEndringer =
+            personopplysningGrunnlag.personer.map {
+                EndretUtbetalingAndelMedAndelerTilkjentYtelse(
+                    EndretUtbetalingAndel(
+                        behandlingId = behandling.id,
+                        erEksplisittAvslagPåSøknad = true,
+                        person = it,
+                    ),
+                    emptyList(),
+                )
+            }
 
         every { personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(behandling.id) } returns personopplysningGrunnlag
         every {
@@ -107,13 +109,14 @@ class BehandlingsresultatServiceTest {
             )
         } returns andelerMedEndringer
 
-        val behandlingsresulatPersoner = behandlingsresultatService.lagBehandlingsresulatPersoner(
-            behandling = behandling,
-            personerFremslitKravFor = emptyList(),
-            forrigeAndelerMedEndringer = emptyList(),
-            vilkårsvurdering = vilkårsvurdering,
-            andelerMedEndringer = emptyList(),
-        )
+        val behandlingsresulatPersoner =
+            behandlingsresultatService.lagBehandlingsresulatPersoner(
+                behandling = behandling,
+                personerFremslitKravFor = emptyList(),
+                forrigeAndelerMedEndringer = emptyList(),
+                vilkårsvurdering = vilkårsvurdering,
+                andelerMedEndringer = emptyList(),
+            )
 
         assertThat(behandlingsresulatPersoner.all { it.eksplisittAvslag }, Is(true))
     }
@@ -126,16 +129,17 @@ class BehandlingsresultatServiceTest {
         val vilkårsvurdering =
             lagVilkårsvurderingOppfylt(personer = personopplysningGrunnlag.personer, erEksplisittAvslagPåSøknad = true)
 
-        val andelerMedEndringer = personopplysningGrunnlag.personer.map {
-            EndretUtbetalingAndelMedAndelerTilkjentYtelse(
-                EndretUtbetalingAndel(
-                    behandlingId = behandling.id,
-                    erEksplisittAvslagPåSøknad = false,
-                    person = it,
-                ),
-                emptyList(),
-            )
-        }
+        val andelerMedEndringer =
+            personopplysningGrunnlag.personer.map {
+                EndretUtbetalingAndelMedAndelerTilkjentYtelse(
+                    EndretUtbetalingAndel(
+                        behandlingId = behandling.id,
+                        erEksplisittAvslagPåSøknad = false,
+                        person = it,
+                    ),
+                    emptyList(),
+                )
+            }
 
         every { personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(behandling.id) } returns personopplysningGrunnlag
         every {
@@ -144,13 +148,14 @@ class BehandlingsresultatServiceTest {
             )
         } returns andelerMedEndringer
 
-        val behandlingsresulatPersoner = behandlingsresultatService.lagBehandlingsresulatPersoner(
-            behandling = behandling,
-            personerFremslitKravFor = emptyList(),
-            forrigeAndelerMedEndringer = emptyList(),
-            vilkårsvurdering = vilkårsvurdering,
-            andelerMedEndringer = emptyList(),
-        )
+        val behandlingsresulatPersoner =
+            behandlingsresultatService.lagBehandlingsresulatPersoner(
+                behandling = behandling,
+                personerFremslitKravFor = emptyList(),
+                forrigeAndelerMedEndringer = emptyList(),
+                vilkårsvurdering = vilkårsvurdering,
+                andelerMedEndringer = emptyList(),
+            )
 
         assertThat(behandlingsresulatPersoner.all { it.eksplisittAvslag }, Is(true))
     }

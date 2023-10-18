@@ -7,26 +7,29 @@ import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelseType
 sealed class BegrunnelseDto(
     open val type: BrevBegrunnelseType,
 ) : Comparable<BegrunnelseDto> {
-
     override fun compareTo(other: BegrunnelseDto): Int {
         return when (this) {
             is FritekstBegrunnelseDto -> Int.MAX_VALUE
-            is BegrunnelseDtoMedData -> when (other) {
-                is FritekstBegrunnelseDto -> this.vedtakBegrunnelseType.sorteringsrekkefølge
-                is BegrunnelseDtoMedData -> when (this.sanityBegrunnelseType) {
-                    SanityBegrunnelseType.STANDARD -> if (other.sanityBegrunnelseType == SanityBegrunnelseType.STANDARD) {
-                        this.vedtakBegrunnelseType.sorteringsrekkefølge - other.vedtakBegrunnelseType.sorteringsrekkefølge
-                    } else {
-                        -Int.MAX_VALUE
-                    }
+            is BegrunnelseDtoMedData ->
+                when (other) {
+                    is FritekstBegrunnelseDto -> this.vedtakBegrunnelseType.sorteringsrekkefølge
+                    is BegrunnelseDtoMedData ->
+                        when (this.sanityBegrunnelseType) {
+                            SanityBegrunnelseType.STANDARD ->
+                                if (other.sanityBegrunnelseType == SanityBegrunnelseType.STANDARD) {
+                                    this.vedtakBegrunnelseType.sorteringsrekkefølge - other.vedtakBegrunnelseType.sorteringsrekkefølge
+                                } else {
+                                    -Int.MAX_VALUE
+                                }
 
-                    else -> if (other.sanityBegrunnelseType == SanityBegrunnelseType.STANDARD) {
-                        Int.MAX_VALUE
-                    } else {
-                        this.vedtakBegrunnelseType.sorteringsrekkefølge - other.vedtakBegrunnelseType.sorteringsrekkefølge
-                    }
+                            else ->
+                                if (other.sanityBegrunnelseType == SanityBegrunnelseType.STANDARD) {
+                                    Int.MAX_VALUE
+                                } else {
+                                    this.vedtakBegrunnelseType.sorteringsrekkefølge - other.vedtakBegrunnelseType.sorteringsrekkefølge
+                                }
+                        }
                 }
-            }
         }
     }
 }
@@ -48,7 +51,6 @@ data class BegrunnelseDataDto(
     override val vedtakBegrunnelseType: BegrunnelseType,
     override val apiNavn: String,
     override val sanityBegrunnelseType: SanityBegrunnelseType,
-
     val gjelderSoker: Boolean,
     val gjelderAndreForelder: Boolean,
     val barnasFodselsdatoer: String,
@@ -59,11 +61,11 @@ data class BegrunnelseDataDto(
     val antallTimerBarnehageplass: String,
     val soknadstidspunkt: String,
 ) : BegrunnelseDtoMedData(
-    apiNavn = apiNavn,
-    type = BrevBegrunnelseType.BEGRUNNELSE,
-    vedtakBegrunnelseType = vedtakBegrunnelseType,
-    sanityBegrunnelseType = sanityBegrunnelseType,
-)
+        apiNavn = apiNavn,
+        type = BrevBegrunnelseType.BEGRUNNELSE,
+        vedtakBegrunnelseType = vedtakBegrunnelseType,
+        sanityBegrunnelseType = sanityBegrunnelseType,
+    )
 
 data class FritekstBegrunnelseDto(
     val fritekst: String,
@@ -73,7 +75,6 @@ data class EØSBegrunnelseDataDto(
     override val vedtakBegrunnelseType: BegrunnelseType,
     override val apiNavn: String,
     override val sanityBegrunnelseType: SanityBegrunnelseType,
-
     val annenForeldersAktivitet: AnnenForeldersAktivitet,
     val annenForeldersAktivitetsland: String?,
     val barnetsBostedsland: String,
@@ -83,8 +84,8 @@ data class EØSBegrunnelseDataDto(
     val sokersAktivitet: SøkersAktivitet,
     val sokersAktivitetsland: String?,
 ) : BegrunnelseDtoMedData(
-    type = BrevBegrunnelseType.EØS_BEGRUNNELSE,
-    apiNavn = apiNavn,
-    vedtakBegrunnelseType = vedtakBegrunnelseType,
-    sanityBegrunnelseType = sanityBegrunnelseType,
-)
+        type = BrevBegrunnelseType.EØS_BEGRUNNELSE,
+        apiNavn = apiNavn,
+        vedtakBegrunnelseType = vedtakBegrunnelseType,
+        sanityBegrunnelseType = sanityBegrunnelseType,
+    )

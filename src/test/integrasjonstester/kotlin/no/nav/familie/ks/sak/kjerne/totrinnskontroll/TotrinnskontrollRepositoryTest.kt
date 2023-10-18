@@ -11,7 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.hamcrest.CoreMatchers.`is` as Is
 
 class TotrinnskontrollRepositoryTest : OppslagSpringRunnerTest() {
-
     @Autowired
     private lateinit var totrinnskontrollRepository: TotrinnskontrollRepository
 

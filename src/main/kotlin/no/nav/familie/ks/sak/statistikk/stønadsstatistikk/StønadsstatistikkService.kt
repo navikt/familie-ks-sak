@@ -32,7 +32,6 @@ class StønadsstatistikkService(
     private val andelerTilkjentYtelseOgEndreteUtbetalingerService: AndelerTilkjentYtelseOgEndreteUtbetalingerService,
     private val vilkårsvurderingService: VilkårsvurderingService,
 ) {
-
     fun hentVedtakDVH(behandlingId: Long): VedtakDVH {
         val behandling = behandlingService.hentBehandling(behandlingId)
         val vedtak = vedtakService.hentAktivVedtakForBehandling(behandlingId)
@@ -44,16 +43,17 @@ class StønadsstatistikkService(
         val vilkårResultaterForSøker = vilkårsvurdering.hentPersonResultaterTilAktør(aktørId)
         val vilkårResultaterForAlleBarn = barna?.map { vilkårsvurdering.hentPersonResultaterTilAktør(it.aktør.aktørId) }?.flatten()
         val alleVilkårResultater = vilkårResultaterForSøker + vilkårResultaterForAlleBarn.orEmpty()
-        val vilkårResultaterTilDVH = alleVilkårResultater.map { vkr ->
-            no.nav.familie.eksterne.kontrakter.VilkårResultat(
-                resultat = vkr.resultat.tilDatavarehusResultat(),
-                antallTimer = vkr.antallTimer,
-                periodeFom = vkr.periodeFom,
-                periodeTom = vkr.periodeTom,
-                ident = vkr.personResultat?.aktør?.aktivFødselsnummer(),
-                vilkårType = vkr.vilkårType.tilDatavarehusVilkårType(),
-            )
-        }
+        val vilkårResultaterTilDVH =
+            alleVilkårResultater.map { vkr ->
+                no.nav.familie.eksterne.kontrakter.VilkårResultat(
+                    resultat = vkr.resultat.tilDatavarehusResultat(),
+                    antallTimer = vkr.antallTimer,
+                    periodeFom = vkr.periodeFom,
+                    periodeTom = vkr.periodeTom,
+                    ident = vkr.personResultat?.aktør?.aktivFødselsnummer(),
+                    vilkårType = vkr.vilkårType.tilDatavarehusVilkårType(),
+                )
+            }
 
         return VedtakDVH(
             fagsakId = behandling.fagsak.id.toString(),
@@ -104,23 +104,28 @@ class StønadsstatistikkService(
                 stønadFom = it.fom!!,
                 stønadTom = it.tom!!,
                 utbetaltPerMnd = sumUtbetalingsbeløp,
-                utbetalingsDetaljer = andelerForPeriode.filter { andel -> andel.erAndelSomSkalSendesTilOppdrag() }
-                    .map { andel ->
-                        UtbetalingsDetaljDVH(
-                            person = lagPersonDVH(
-                                persongrunnlag.personer.first { person -> andel.aktør == person.aktør },
-                                andel.prosent.intValueExact(),
-                            ),
-                            klassekode = andel.type.klassifisering,
-                            utbetaltPrMnd = andel.kalkulertUtbetalingsbeløp,
-                            delytelseId = behandling.fagsak.id.toString() + andel.periodeOffset,
-                        )
-                    },
+                utbetalingsDetaljer =
+                    andelerForPeriode.filter { andel -> andel.erAndelSomSkalSendesTilOppdrag() }
+                        .map { andel ->
+                            UtbetalingsDetaljDVH(
+                                person =
+                                    lagPersonDVH(
+                                        persongrunnlag.personer.first { person -> andel.aktør == person.aktør },
+                                        andel.prosent.intValueExact(),
+                                    ),
+                                klassekode = andel.type.klassifisering,
+                                utbetaltPrMnd = andel.kalkulertUtbetalingsbeløp,
+                                delytelseId = behandling.fagsak.id.toString() + andel.periodeOffset,
+                            )
+                        },
             )
         }
     }
 
-    private fun lagPersonDVH(person: Person, delingsProsentYtelse: Int = 0): PersonDVH =
+    private fun lagPersonDVH(
+        person: Person,
+        delingsProsentYtelse: Int = 0,
+    ): PersonDVH =
         PersonDVH(
             rolle = person.type.name,
             statsborgerskap = hentStatsborgerskap(person),

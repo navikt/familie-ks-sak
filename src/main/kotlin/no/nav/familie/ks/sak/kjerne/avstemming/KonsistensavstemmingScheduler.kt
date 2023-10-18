@@ -21,7 +21,6 @@ class KonsistensavstemmingScheduler(
     private val konsistensavstemmingKjøreplanService: KonsistensavstemmingKjøreplanService,
     private val taskService: TaskService,
 ) {
-
     @Scheduled(cron = "\${CRON_KONSISTENS_AVSTEMMING}")
     @Transactional
     fun utfør() {

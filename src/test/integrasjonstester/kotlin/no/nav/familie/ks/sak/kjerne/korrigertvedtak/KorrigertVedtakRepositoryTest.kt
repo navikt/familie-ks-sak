@@ -14,7 +14,6 @@ import java.time.LocalDate
 class KorrigertVedtakRepositoryTest(
     @Autowired private val korrigertVedtakRepository: KorrigertVedtakRepository,
 ) : OppslagSpringRunnerTest() {
-
     @BeforeEach
     fun beforeEach() {
         opprettSøkerFagsakOgBehandling()
@@ -22,13 +21,14 @@ class KorrigertVedtakRepositoryTest(
 
     @Test
     fun `finnAktivtKorrigertVedtakPåBehandling skal returnere null dersom det ikke eksisterer en aktiv korrigering av vedtak på behandling`() {
-        val inaktivKorrigertVedtak = KorrigertVedtak(
-            id = 10000001,
-            vedtaksdato = LocalDate.now().minusDays(6),
-            begrunnelse = "Test på inaktiv korrigering",
-            behandling = behandling,
-            aktiv = false,
-        )
+        val inaktivKorrigertVedtak =
+            KorrigertVedtak(
+                id = 10000001,
+                vedtaksdato = LocalDate.now().minusDays(6),
+                begrunnelse = "Test på inaktiv korrigering",
+                behandling = behandling,
+                aktiv = false,
+            )
 
         korrigertVedtakRepository.saveAndFlush(inaktivKorrigertVedtak)
 
@@ -40,13 +40,14 @@ class KorrigertVedtakRepositoryTest(
 
     @Test
     fun `finnAktivtKorrigertVedtakPåBehandling skal returnere aktiv korrigert vedtak når det eksisterer en aktiv korrigering av vedtak på behandling`() {
-        val aktivKorrigertVedtak = KorrigertVedtak(
-            id = 10000001,
-            vedtaksdato = LocalDate.now().minusDays(6),
-            begrunnelse = "Test på aktiv korrigering",
-            behandling = behandling,
-            aktiv = true,
-        )
+        val aktivKorrigertVedtak =
+            KorrigertVedtak(
+                id = 10000001,
+                vedtaksdato = LocalDate.now().minusDays(6),
+                begrunnelse = "Test på aktiv korrigering",
+                behandling = behandling,
+                aktiv = true,
+            )
 
         korrigertVedtakRepository.saveAndFlush(aktivKorrigertVedtak)
 
@@ -61,21 +62,23 @@ class KorrigertVedtakRepositoryTest(
 
     @Test
     fun `Det skal kastes DataIntegrityViolationException dersom det forsøkes å lagre aktivt korrigert vedtak når det allerede finnes en`() {
-        val aktivKorrigertVedtak1 = KorrigertVedtak(
-            id = 10000007,
-            begrunnelse = "Test på aktiv korrigering",
-            vedtaksdato = LocalDate.now().minusDays(6),
-            behandling = behandling,
-            aktiv = true,
-        )
+        val aktivKorrigertVedtak1 =
+            KorrigertVedtak(
+                id = 10000007,
+                begrunnelse = "Test på aktiv korrigering",
+                vedtaksdato = LocalDate.now().minusDays(6),
+                behandling = behandling,
+                aktiv = true,
+            )
 
-        val aktivKorrigertVedtak2 = KorrigertVedtak(
-            id = 10000008,
-            begrunnelse = "Test på aktiv korrigering",
-            vedtaksdato = LocalDate.now().minusDays(3),
-            behandling = behandling,
-            aktiv = true,
-        )
+        val aktivKorrigertVedtak2 =
+            KorrigertVedtak(
+                id = 10000008,
+                begrunnelse = "Test på aktiv korrigering",
+                vedtaksdato = LocalDate.now().minusDays(3),
+                behandling = behandling,
+                aktiv = true,
+            )
 
         korrigertVedtakRepository.saveAndFlush(aktivKorrigertVedtak1)
 

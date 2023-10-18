@@ -17,7 +17,6 @@ import java.io.StringWriter
 
 @ControllerAdvice
 class ApiExceptionHandler {
-
     private val logger = LoggerFactory.getLogger(ApiExceptionHandler::class.java)
     private val secureLogger = LoggerFactory.getLogger("secureLogger")
 
@@ -89,13 +88,22 @@ class ApiExceptionHandler {
         }
 
         secureLogger.info("$feil")
-        logger.info("Feil ekstern tjeneste: path:${feil.eksternTjenesteFeil.path} status:${feil.eksternTjenesteFeil.status} exception:${feil.eksternTjenesteFeil.exception}")
+        logger.info(
+            "Feil ekstern tjeneste: path:${feil.eksternTjenesteFeil.path} status:${feil.eksternTjenesteFeil.status} exception:${feil.eksternTjenesteFeil.exception}",
+        )
 
         return ResponseEntity.status(feil.eksternTjenesteFeil.status).body(feil.eksternTjenesteFeil)
     }
 
     @ExceptionHandler(MethodArgumentNotValidException::class)
     fun handleInputValideringFeil(valideringFeil: MethodArgumentNotValidException): ResponseEntity<Ressurs<Nothing>> {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Ressurs.failure(valideringFeil.bindingResult.fieldErrors.map { fieldError -> fieldError.defaultMessage }.joinToString(" ,")))
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+            Ressurs.failure(
+                valideringFeil.bindingResult.fieldErrors.map {
+                        fieldError ->
+                    fieldError.defaultMessage
+                }.joinToString(" ,"),
+            ),
+        )
     }
 }

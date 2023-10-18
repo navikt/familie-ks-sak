@@ -39,7 +39,6 @@ import org.springframework.http.MediaType
 import org.hamcrest.CoreMatchers.`is` as Is
 
 class VilkårsvurderingControllerTest : OppslagSpringRunnerTest() {
-
     @Autowired
     private lateinit var arbeidsfordelingPåBehandlingRepository: ArbeidsfordelingPåBehandlingRepository
 
@@ -86,34 +85,35 @@ class VilkårsvurderingControllerTest : OppslagSpringRunnerTest() {
 
     @Test
     fun `endreVilkår - skal returnere endrede vilkår`() {
-        val bosattIRiketVilkår = vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(behandling.id)
-            .personResultater.find { it.aktør == søker }?.vilkårResultater?.find { it.vilkårType == Vilkår.BOSATT_I_RIKET }!!
+        val bosattIRiketVilkår =
+            vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(behandling.id)
+                .personResultater.find { it.aktør == søker }?.vilkårResultater?.find { it.vilkårType == Vilkår.BOSATT_I_RIKET }!!
 
         assertThat(bosattIRiketVilkår.periodeFom, Is(nullValue()))
 
         val request =
             """
-                {
-                  "personIdent": "${søker.aktivFødselsnummer()}",
-                  "endretVilkårResultat": {
-                    "begrunnelse": "ftg",
-                    "behandlingId": ${behandling.id.toInt()},
-                    "endretAv": "Z994151",
-                    "endretTidspunkt": "2022-10-10T08:28:21.776",
-                    "erAutomatiskVurdert": true,
-                    "erVurdert": false,
-                    "id": ${bosattIRiketVilkår.id},
-                    "periodeFom": "2022-10-06",
-                    "resultat": "OPPFYLT",
-                    "erEksplisittAvslagPåSøknad": false,
-                    "avslagBegrunnelser": [],
-                    "vilkårType": "BOSATT_I_RIKET",
-                    "vurderesEtter": "NASJONALE_REGLER",
-                    "utdypendeVilkårsvurderinger": [
-                      "VURDERING_ANNET_GRUNNLAG"
-                    ]
-                  }
-                }
+            {
+              "personIdent": "${søker.aktivFødselsnummer()}",
+              "endretVilkårResultat": {
+                "begrunnelse": "ftg",
+                "behandlingId": ${behandling.id.toInt()},
+                "endretAv": "Z994151",
+                "endretTidspunkt": "2022-10-10T08:28:21.776",
+                "erAutomatiskVurdert": true,
+                "erVurdert": false,
+                "id": ${bosattIRiketVilkår.id},
+                "periodeFom": "2022-10-06",
+                "resultat": "OPPFYLT",
+                "erEksplisittAvslagPåSøknad": false,
+                "avslagBegrunnelser": [],
+                "vilkårType": "BOSATT_I_RIKET",
+                "vurderesEtter": "NASJONALE_REGLER",
+                "utdypendeVilkårsvurderinger": [
+                  "VURDERING_ANNET_GRUNNLAG"
+                ]
+              }
+            }
             """.trimIndent()
 
         Given {
@@ -153,33 +153,35 @@ class VilkårsvurderingControllerTest : OppslagSpringRunnerTest() {
         lagVedtakOgVedtaksperiode()
 
         val bosattIRiketVilkår =
-            vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(behandling.id).personResultater.find { it.aktør == søker }?.vilkårResultater?.find { it.vilkårType == Vilkår.BOSATT_I_RIKET }!!
+            vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(behandling.id).personResultater.find {
+                it.aktør == søker
+            }?.vilkårResultater?.find { it.vilkårType == Vilkår.BOSATT_I_RIKET }!!
 
         assertThat(bosattIRiketVilkår.periodeFom, Is(nullValue()))
 
         val request =
             """
-                {
-                  "personIdent": "${søker.aktivFødselsnummer()}",
-                  "endretVilkårResultat": {
-                    "begrunnelse": "ftg",
-                    "behandlingId": ${behandling.id.toInt()},
-                    "endretAv": "Z994151",
-                    "endretTidspunkt": "2022-10-10T08:28:21.776",
-                    "erAutomatiskVurdert": true,
-                    "erVurdert": false,
-                    "id": ${bosattIRiketVilkår.id},
-                    "periodeFom": "2022-10-06",
-                    "resultat": "OPPFYLT",
-                    "erEksplisittAvslagPåSøknad": false,
-                    "avslagBegrunnelser": [],
-                    "vilkårType": "BOSATT_I_RIKET",
-                    "vurderesEtter": "NASJONALE_REGLER",
-                    "utdypendeVilkårsvurderinger": [
-                      "VURDERING_ANNET_GRUNNLAG"
-                    ]
-                  }
-                }
+            {
+              "personIdent": "${søker.aktivFødselsnummer()}",
+              "endretVilkårResultat": {
+                "begrunnelse": "ftg",
+                "behandlingId": ${behandling.id.toInt()},
+                "endretAv": "Z994151",
+                "endretTidspunkt": "2022-10-10T08:28:21.776",
+                "erAutomatiskVurdert": true,
+                "erVurdert": false,
+                "id": ${bosattIRiketVilkår.id},
+                "periodeFom": "2022-10-06",
+                "resultat": "OPPFYLT",
+                "erEksplisittAvslagPåSøknad": false,
+                "avslagBegrunnelser": [],
+                "vilkårType": "BOSATT_I_RIKET",
+                "vurderesEtter": "NASJONALE_REGLER",
+                "utdypendeVilkårsvurderinger": [
+                  "VURDERING_ANNET_GRUNNLAG"
+                ]
+              }
+            }
             """.trimIndent()
 
         Given {
@@ -217,11 +219,11 @@ class VilkårsvurderingControllerTest : OppslagSpringRunnerTest() {
     fun `opprettNyttVilkår - skal kaste feil dersom det eksisterer uvurdert vilkår av samme type`() {
         val request =
             """
-                {
-                  "personIdent": "${søker.aktivFødselsnummer()}",
-                  "vilkårType": "BOSATT_I_RIKET"
-                  }
-                }
+            {
+              "personIdent": "${søker.aktivFødselsnummer()}",
+              "vilkårType": "BOSATT_I_RIKET"
+              }
+            }
             """.trimIndent()
 
         Given {
@@ -244,11 +246,11 @@ class VilkårsvurderingControllerTest : OppslagSpringRunnerTest() {
     fun `opprettNyttVilkår - skal opprette nytt vilkår dersom det ikke eksisterer uvurdert vilkår av samme type på person`() {
         val request =
             """
-                {
-                  "personIdent": "${søker.aktivFødselsnummer()}",
-                   "vilkårType": "BOR_MED_SØKER"
-                  }
-                }
+            {
+              "personIdent": "${søker.aktivFødselsnummer()}",
+               "vilkårType": "BOR_MED_SØKER"
+              }
+            }
             """.trimIndent()
 
         Given {
@@ -286,13 +288,14 @@ class VilkårsvurderingControllerTest : OppslagSpringRunnerTest() {
 
         lagVedtakOgVedtaksperiode()
 
-        val request = """
-                {
-                  "personIdent": "${søker.aktivFødselsnummer()}",
-                   "vilkårType": "BOR_MED_SØKER"
-                  }
-                }
-        """.trimIndent()
+        val request =
+            """
+            {
+              "personIdent": "${søker.aktivFødselsnummer()}",
+               "vilkårType": "BOR_MED_SØKER"
+              }
+            }
+            """.trimIndent()
 
         Given {
             header("Authorization", "Bearer $token")
@@ -349,8 +352,9 @@ class VilkårsvurderingControllerTest : OppslagSpringRunnerTest() {
 
     @Test
     fun `slettVilkår - skal lage nytt initiell vilkår av samme type dersom det bare finnes en ved sletting`() {
-        val bosattIRiketVilkår = vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(behandling.id)
-            .personResultater.find { it.aktør == søker }?.vilkårResultater?.find { it.vilkårType == Vilkår.BOSATT_I_RIKET }!!
+        val bosattIRiketVilkår =
+            vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(behandling.id)
+                .personResultater.find { it.aktør == søker }?.vilkårResultater?.find { it.vilkårType == Vilkår.BOSATT_I_RIKET }!!
 
         val gammelVilkårId = bosattIRiketVilkår.id
 
@@ -379,13 +383,13 @@ class VilkårsvurderingControllerTest : OppslagSpringRunnerTest() {
         val token = lokalTestToken(behandlerRolle = BehandlerRolle.SAKSBEHANDLER)
         val request =
             """
-                {
-                    "id": 404,
-                    "resultat": "OPPFYLT",
-                    "type": "OPPLYSNINGSPLIKT",
-                    "begrunnelse": "Begrunnelse"
-                  }
-                }
+            {
+                "id": 404,
+                "resultat": "OPPFYLT",
+                "type": "OPPLYSNINGSPLIKT",
+                "begrunnelse": "Begrunnelse"
+              }
+            }
             """.trimIndent()
         Given {
             header("Authorization", "Bearer $token")
@@ -402,23 +406,25 @@ class VilkårsvurderingControllerTest : OppslagSpringRunnerTest() {
     @Test
     fun `endreAnnenVurdering - skal oppdatere eksisterende annen vurdering`() {
         val token = lokalTestToken(behandlerRolle = BehandlerRolle.SAKSBEHANDLER)
-        val personResultat = vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(behandling.id)
-            .personResultater.find { it.aktør == søker }
-        val annenVurdering = annenVurderingRepository.saveAndFlush(
-            AnnenVurdering(
-                personResultat = personResultat!!,
-                type = AnnenVurderingType.OPPLYSNINGSPLIKT,
-            ),
-        )
+        val personResultat =
+            vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(behandling.id)
+                .personResultater.find { it.aktør == søker }
+        val annenVurdering =
+            annenVurderingRepository.saveAndFlush(
+                AnnenVurdering(
+                    personResultat = personResultat!!,
+                    type = AnnenVurderingType.OPPLYSNINGSPLIKT,
+                ),
+            )
         val request =
             """
-                {
-                    "id": ${annenVurdering.id},
-                    "resultat": "OPPFYLT",
-                    "type": "OPPLYSNINGSPLIKT",
-                    "begrunnelse": "Begrunnelse"
-                  }
-                }
+            {
+                "id": ${annenVurdering.id},
+                "resultat": "OPPFYLT",
+                "type": "OPPLYSNINGSPLIKT",
+                "begrunnelse": "Begrunnelse"
+              }
+            }
             """.trimIndent()
         Given {
             header("Authorization", "Bearer $token")
@@ -450,10 +456,9 @@ class VilkårsvurderingControllerTest : OppslagSpringRunnerTest() {
         behandling: Behandling,
         behandlingSteg: BehandlingSteg,
         behandlingStegStatus: BehandlingStegStatus,
-    ) =
-        assertTrue(
-            behandling.behandlingStegTilstand.any {
-                it.behandlingSteg == behandlingSteg && it.behandlingStegStatus == behandlingStegStatus
-            },
-        )
+    ) = assertTrue(
+        behandling.behandlingStegTilstand.any {
+            it.behandlingSteg == behandlingSteg && it.behandlingStegStatus == behandlingStegStatus
+        },
+    )
 }

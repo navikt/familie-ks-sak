@@ -19,7 +19,6 @@ import java.time.LocalDateTime
 class BarnehagelisteServiceTest(
     @Autowired private val barnehageListeService: BarnehageListeService,
 ) : OppslagSpringRunnerTest() {
-
     @MockkBean(relaxed = true)
     private lateinit var infotrygdReplikaClient: InfotrygdReplikaClient
 
@@ -124,11 +123,12 @@ class BarnehagelisteServiceTest(
 
     @Test
     fun `test lagring av entiteter fra XML melding`() {
-        val barnehagelisteMottatt = BarnehagelisteMottatt(
-            melding = barnehagelisteXml,
-            meldingId = "testId",
-            mottatTid = LocalDateTime.now(),
-        )
+        val barnehagelisteMottatt =
+            BarnehagelisteMottatt(
+                melding = barnehagelisteXml,
+                meldingId = "testId",
+                mottatTid = LocalDateTime.now(),
+            )
         barnehageListeService.lagreBarnehagelisteMottattOgOpprettTaskForLesing(barnehagelisteMottatt)
         assertNotNull(barnehageListeService.hentUarkiverteBarnehagelisteUuider())
         barnehageListeService.lesOgArkiver(barnehagelisteMottatt.id)
@@ -147,23 +147,25 @@ class BarnehagelisteServiceTest(
     fun `test at henting av filtrerte data fra infotrygd og kommunenavn fungerer`() {
         every { infotrygdReplikaClient.hentAlleBarnasIdenterForLøpendeFagsaker() } returns listOf("123456789")
 
-        val barnehagelisteMottatt = BarnehagelisteMottatt(
-            melding = barnehagelisteXml,
-            meldingId = "testId",
-            mottatTid = LocalDateTime.now(),
-        )
+        val barnehagelisteMottatt =
+            BarnehagelisteMottatt(
+                melding = barnehagelisteXml,
+                meldingId = "testId",
+                mottatTid = LocalDateTime.now(),
+            )
         barnehageListeService.lagreBarnehagelisteMottattOgOpprettTaskForLesing(barnehagelisteMottatt)
         assertNotNull(barnehageListeService.hentUarkiverteBarnehagelisteUuider())
         barnehageListeService.lesOgArkiver(barnehagelisteMottatt.id)
 
-        val barnehagebarn = barnehageListeService.hentAlleBarnehagebarnInfotrygd(
-            BarnehagebarnRequestParams(
-                kommuneNavn = "Oslo",
-                kunLøpendeFagsak = false,
-                ident = null,
-                limit = 1,
-            ),
-        )
+        val barnehagebarn =
+            barnehageListeService.hentAlleBarnehagebarnInfotrygd(
+                BarnehagebarnRequestParams(
+                    kommuneNavn = "Oslo",
+                    kunLøpendeFagsak = false,
+                    ident = null,
+                    limit = 1,
+                ),
+            )
         assertNull(barnehagebarn.find { it.kommuneNavn != "Oslo" })
     }
 
@@ -171,23 +173,25 @@ class BarnehagelisteServiceTest(
     fun `test at harFagsak settes riktig basert på data fra infotrygd`() {
         every { infotrygdReplikaClient.hentAlleBarnasIdenterForLøpendeFagsaker() } returns listOf("123456789")
 
-        val barnehagelisteMottatt = BarnehagelisteMottatt(
-            melding = barnehagelisteXml,
-            meldingId = "testId",
-            mottatTid = LocalDateTime.now(),
-        )
+        val barnehagelisteMottatt =
+            BarnehagelisteMottatt(
+                melding = barnehagelisteXml,
+                meldingId = "testId",
+                mottatTid = LocalDateTime.now(),
+            )
         barnehageListeService.lagreBarnehagelisteMottattOgOpprettTaskForLesing(barnehagelisteMottatt)
         assertNotNull(barnehageListeService.hentUarkiverteBarnehagelisteUuider())
         barnehageListeService.lesOgArkiver(barnehagelisteMottatt.id)
 
-        val barnehagebarn = barnehageListeService.hentAlleBarnehagebarnInfotrygd(
-            BarnehagebarnRequestParams(
-                kommuneNavn = null,
-                kunLøpendeFagsak = false,
-                ident = null,
-                limit = 2,
-            ),
-        )
+        val barnehagebarn =
+            barnehageListeService.hentAlleBarnehagebarnInfotrygd(
+                BarnehagebarnRequestParams(
+                    kommuneNavn = null,
+                    kunLøpendeFagsak = false,
+                    ident = null,
+                    limit = 2,
+                ),
+            )
         assertTrue(barnehagebarn.totalElements == 2L)
 
         // test at vi setter flagget riktig for både barn med løpende fagsak og barn uten løpende fagsak
@@ -199,23 +203,25 @@ class BarnehagelisteServiceTest(
     fun `test at vi filtrerer bort barn som ikke har løpende sak i infotrygd`() {
         every { infotrygdReplikaClient.hentAlleBarnasIdenterForLøpendeFagsaker() } returns listOf("123456789")
 
-        val barnehagelisteMottatt = BarnehagelisteMottatt(
-            melding = barnehagelisteXml,
-            meldingId = "testId",
-            mottatTid = LocalDateTime.now(),
-        )
+        val barnehagelisteMottatt =
+            BarnehagelisteMottatt(
+                melding = barnehagelisteXml,
+                meldingId = "testId",
+                mottatTid = LocalDateTime.now(),
+            )
         barnehageListeService.lagreBarnehagelisteMottattOgOpprettTaskForLesing(barnehagelisteMottatt)
         assertNotNull(barnehageListeService.hentUarkiverteBarnehagelisteUuider())
         barnehageListeService.lesOgArkiver(barnehagelisteMottatt.id)
 
-        val barnehagebarn = barnehageListeService.hentAlleBarnehagebarnInfotrygd(
-            BarnehagebarnRequestParams(
-                kommuneNavn = null,
-                kunLøpendeFagsak = true,
-                ident = null,
-                limit = 2,
-            ),
-        )
+        val barnehagebarn =
+            barnehageListeService.hentAlleBarnehagebarnInfotrygd(
+                BarnehagebarnRequestParams(
+                    kommuneNavn = null,
+                    kunLøpendeFagsak = true,
+                    ident = null,
+                    limit = 2,
+                ),
+            )
         assertNotNull(barnehagebarn.find { it.ident == "123456789" })
     }
 
@@ -223,23 +229,25 @@ class BarnehagelisteServiceTest(
     fun `test at join mot fagsak og at count som brukes i pagable fungerer`() {
         every { infotrygdReplikaClient.hentAlleBarnasIdenterForLøpendeFagsaker() } returns listOf("123456789")
 
-        val barnehagelisteMottatt = BarnehagelisteMottatt(
-            melding = barnehagelisteXml,
-            meldingId = "testId",
-            mottatTid = LocalDateTime.now(),
-        )
+        val barnehagelisteMottatt =
+            BarnehagelisteMottatt(
+                melding = barnehagelisteXml,
+                meldingId = "testId",
+                mottatTid = LocalDateTime.now(),
+            )
         barnehageListeService.lagreBarnehagelisteMottattOgOpprettTaskForLesing(barnehagelisteMottatt)
         assertNotNull(barnehageListeService.hentUarkiverteBarnehagelisteUuider())
         barnehageListeService.lesOgArkiver(barnehagelisteMottatt.id)
 
-        val barnehagebarn = barnehageListeService.hentAlleBarnehagebarnPage(
-            BarnehagebarnRequestParams(
-                kommuneNavn = null,
-                kunLøpendeFagsak = false,
-                ident = null,
-                limit = 2,
-            ),
-        )
+        val barnehagebarn =
+            barnehageListeService.hentAlleBarnehagebarnPage(
+                BarnehagebarnRequestParams(
+                    kommuneNavn = null,
+                    kunLøpendeFagsak = false,
+                    ident = null,
+                    limit = 2,
+                ),
+            )
         assertNotNull(barnehagebarn.find { it.getIdent() == "123456789" })
     }
 

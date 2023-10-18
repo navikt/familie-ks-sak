@@ -22,7 +22,6 @@ import java.time.LocalDateTime
 
 @ExtendWith(MockKExtension::class)
 internal class KonsistensavstemmingTaskTest {
-
     @MockK
     private lateinit var konsistensavstemmingKjøreplanService: KonsistensavstemmingKjøreplanService
 
@@ -75,13 +74,15 @@ internal class KonsistensavstemmingTaskTest {
         verify(exactly = 1) { konsistensavstemmingKjøreplanService.lagreNyStatus(any<Long>(), any()) }
     }
 
-    private fun lagTask() = Task(
-        type = KonsistensavstemmingTask.TASK_STEP_TYPE,
-        payload = objectMapper.writeValueAsString(
-            KonsistensavstemmingTaskDto(
-                kjøreplanId = 1,
-                initieltKjøreTidspunkt = LocalDateTime.now(),
-            ),
-        ),
-    )
+    private fun lagTask() =
+        Task(
+            type = KonsistensavstemmingTask.TASK_STEP_TYPE,
+            payload =
+                objectMapper.writeValueAsString(
+                    KonsistensavstemmingTaskDto(
+                        kjøreplanId = 1,
+                        initieltKjøreTidspunkt = LocalDateTime.now(),
+                    ),
+                ),
+        )
 }

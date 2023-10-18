@@ -61,14 +61,16 @@ class BehandlingService(
     private val feilutbetaltValutaService: FeilutbetaltValutaService,
     private val kompetanseRepository: KompetanseRepository,
 ) {
-
     fun hentBehandling(behandlingId: Long): Behandling = behandlingRepository.hentBehandling(behandlingId)
+
     fun hentAktivtBehandling(behandlingId: Long): Behandling = behandlingRepository.hentAktivBehandling(behandlingId)
+
     fun hentBehandlingerPåFagsak(fagsakId: Long): List<Behandling> = behandlingRepository.finnBehandlinger(fagsakId)
 
-    fun hentSisteBehandlingSomErVedtatt(fagsakId: Long): Behandling? = behandlingRepository.finnBehandlinger(fagsakId)
-        .filter { !it.erHenlagt() && it.status == BehandlingStatus.AVSLUTTET }
-        .maxByOrNull { it.opprettetTidspunkt }
+    fun hentSisteBehandlingSomErVedtatt(fagsakId: Long): Behandling? =
+        behandlingRepository.finnBehandlinger(fagsakId)
+            .filter { !it.erHenlagt() && it.status == BehandlingStatus.AVSLUTTET }
+            .maxByOrNull { it.opprettetTidspunkt }
 
     fun oppdaterBehandling(behandling: Behandling): Behandling {
         logger.info("${SikkerhetContext.hentSaksbehandlerNavn()} oppdaterer behandling $behandling")
@@ -80,8 +82,9 @@ class BehandlingService(
         val arbeidsfordelingPåBehandling = arbeidsfordelingService.hentArbeidsfordelingPåBehandling(behandlingId)
         val personopplysningGrunnlag = personopplysningGrunnlagService.finnAktivPersonopplysningGrunnlag(behandlingId)
         val personer = personopplysningGrunnlag?.personer?.toList() ?: emptyList()
-        val landKodeOgLandNavn = personer.flatMap { it.statsborgerskap }.toSet()
-            .associate { it.landkode to statsborgerskapService.hentLand(it.landkode) }
+        val landKodeOgLandNavn =
+            personer.flatMap { it.statsborgerskap }.toSet()
+                .associate { it.landkode to statsborgerskapService.hentLand(it.landkode) }
         val personResponser = personer.map { lagPersonRespons(it, landKodeOgLandNavn) }
 
         val søknadsgrunnlag = søknadGrunnlagService.finnAktiv(behandlingId)?.tilSøknadDto()
@@ -98,8 +101,9 @@ class BehandlingService(
             }
                 ?: emptyList()
 
-        val andelTilkjentYtelseMedEndreteUtbetalinger = andelerTilkjentYtelseOgEndreteUtbetalingerService
-            .finnAndelerTilkjentYtelseMedEndreteUtbetalinger(behandlingId)
+        val andelTilkjentYtelseMedEndreteUtbetalinger =
+            andelerTilkjentYtelseOgEndreteUtbetalingerService
+                .finnAndelerTilkjentYtelseMedEndreteUtbetalinger(behandlingId)
 
         val utbetalingsperioder =
             personopplysningGrunnlag?.let { andelTilkjentYtelseMedEndreteUtbetalinger.tilUtbetalingsperiodeResponsDto(it) }
@@ -107,43 +111,48 @@ class BehandlingService(
 
         val sanityBegrunnelser = sanityService.hentSanityBegrunnelser()
 
-        val vedtak = vedtakRepository.findByBehandlingAndAktivOptional(behandlingId)?.let {
-            it.tilVedtakDto(
-                vedtaksperioderMedBegrunnelser = if (behandling.status != BehandlingStatus.AVSLUTTET) {
-                    vedtaksperiodeService.hentUtvidetVedtaksperioderMedBegrunnelser(vedtak = it)
-                        .map { utvidetVedtaksperiodeMedBegrunnelser ->
-                            utvidetVedtaksperiodeMedBegrunnelser.tilUtvidetVedtaksperiodeMedBegrunnelserDto(
-                                sanityBegrunnelser,
-                            )
-                        }
-                        .sortedBy { dto -> dto.fom }
-                } else {
-                    emptyList()
-                },
-                skalMinimeres = behandling.status != BehandlingStatus.UTREDES,
-            )
-        }
+        val vedtak =
+            vedtakRepository.findByBehandlingAndAktivOptional(behandlingId)?.let {
+                it.tilVedtakDto(
+                    vedtaksperioderMedBegrunnelser =
+                        if (behandling.status != BehandlingStatus.AVSLUTTET) {
+                            vedtaksperiodeService.hentUtvidetVedtaksperioderMedBegrunnelser(vedtak = it)
+                                .map { utvidetVedtaksperiodeMedBegrunnelser ->
+                                    utvidetVedtaksperiodeMedBegrunnelser.tilUtvidetVedtaksperiodeMedBegrunnelserDto(
+                                        sanityBegrunnelser,
+                                    )
+                                }
+                                .sortedBy { dto -> dto.fom }
+                        } else {
+                            emptyList()
+                        },
+                    skalMinimeres = behandling.status != BehandlingStatus.UTREDES,
+                )
+            }
 
-        val endreteUtbetalingerMedAndeler = andelerTilkjentYtelseOgEndreteUtbetalingerService
-            .finnEndreteUtbetalingerMedAndelerTilkjentYtelse(behandlingId)
-            .map { it.tilEndretUtbetalingAndelResponsDto() }
+        val endreteUtbetalingerMedAndeler =
+            andelerTilkjentYtelseOgEndreteUtbetalingerService
+                .finnEndreteUtbetalingerMedAndelerTilkjentYtelse(behandlingId)
+                .map { it.tilEndretUtbetalingAndelResponsDto() }
 
         val totrinnskontroll =
             totrinnskontrollRepository.findByBehandlingAndAktiv(behandlingId = behandling.id)?.tilTotrinnskontrollDto()
 
-        val endringstidspunkt = vedtaksperiodeService.finnEndringstidspunktForBehandling(
-            behandling = behandling,
-            sisteVedtattBehandling = hentSisteBehandlingSomErVedtatt(behandling.fagsak.id),
-        )
+        val endringstidspunkt =
+            vedtaksperiodeService.finnEndringstidspunktForBehandling(
+                behandling = behandling,
+                sisteVedtattBehandling = hentSisteBehandlingSomErVedtatt(behandling.fagsak.id),
+            )
 
         val sisteVedtaksperiodeVisningDato =
             vedtaksperiodeService.finnSisteVedtaksperiodeVisningsdatoForBehandling(behandling.id)
 
         val tilbakekreving = tilbakekrevingRepository.findByBehandlingId(behandlingId)
 
-        val feilutbetalteValuta = feilutbetaltValutaService.hentAlleFeilutbetaltValutaForBehandling(behandlingId).map {
-            it.tilFeilutbetaltValutaDto()
-        }
+        val feilutbetalteValuta =
+            feilutbetaltValutaService.hentAlleFeilutbetaltValutaForBehandling(behandlingId).map {
+                it.tilFeilutbetaltValutaDto()
+            }
 
         val kompetanser = kompetanseRepository.findByBehandlingId(behandlingId)
 
@@ -166,10 +175,15 @@ class BehandlingService(
         )
     }
 
-    fun oppdaterBehandlendeEnhet(behandlingId: Long, endreBehandlendeEnhet: EndreBehandlendeEnhetDto) =
-        arbeidsfordelingService.manueltOppdaterBehandlendeEnhet(hentBehandling(behandlingId), endreBehandlendeEnhet)
+    fun oppdaterBehandlendeEnhet(
+        behandlingId: Long,
+        endreBehandlendeEnhet: EndreBehandlendeEnhetDto,
+    ) = arbeidsfordelingService.manueltOppdaterBehandlendeEnhet(hentBehandling(behandlingId), endreBehandlendeEnhet)
 
-    fun oppdaterBehandlingsresultat(behandlingId: Long, nyUtledetBehandlingsresultat: Behandlingsresultat): Behandling {
+    fun oppdaterBehandlingsresultat(
+        behandlingId: Long,
+        nyUtledetBehandlingsresultat: Behandlingsresultat,
+    ): Behandling {
         val behandling = hentBehandling(behandlingId)
         logger.info(
             "${SikkerhetContext.hentSaksbehandlerNavn()} endrer resultat på behandling $behandlingId " +
@@ -196,8 +210,7 @@ class BehandlingService(
     fun hentAktivtFødselsnummerForBehandlinger(behandlingIder: List<Long>): Map<Long, String> =
         behandlingRepository.finnAktivtFødselsnummerForBehandlinger(behandlingIder).associate { it.first to it.second }
 
-    fun hentIverksatteBehandlinger(fagsakId: Long): List<Behandling> =
-        behandlingRepository.finnIverksatteBehandlinger(fagsakId = fagsakId)
+    fun hentIverksatteBehandlinger(fagsakId: Long): List<Behandling> = behandlingRepository.finnIverksatteBehandlinger(fagsakId = fagsakId)
 
     /**
      * Henter siste iverksatte behandling på fagsak
@@ -214,7 +227,10 @@ class BehandlingService(
     }
 
     @Transactional
-    fun endreBehandlingstemaPåBehandling(behandlingId: Long, overstyrtKategori: BehandlingKategori): Behandling {
+    fun endreBehandlingstemaPåBehandling(
+        behandlingId: Long,
+        overstyrtKategori: BehandlingKategori,
+    ): Behandling {
         val behandling = hentBehandling(behandlingId)
 
         if (overstyrtKategori == behandling.kategori) return behandling
@@ -247,7 +263,6 @@ class BehandlingService(
             .maxByOrNull { it.opprettetTidspunkt }
 
     companion object {
-
         private val logger: Logger = LoggerFactory.getLogger(BehandlingService::class.java)
     }
 }

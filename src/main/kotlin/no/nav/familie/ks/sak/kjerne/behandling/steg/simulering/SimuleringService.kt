@@ -73,8 +73,9 @@ class SimuleringService(
     }
 
     fun oppdaterSimuleringPåBehandling(behandling: Behandling): List<ØkonomiSimuleringMottaker> {
-        val aktivtVedtak = vedtakRepository.findByBehandlingAndAktivOptional(behandling.id)
-            ?: throw Feil("Fant ikke aktivt vedtak på behandling${behandling.id}")
+        val aktivtVedtak =
+            vedtakRepository.findByBehandlingAndAktivOptional(behandling.id)
+                ?: throw Feil("Fant ikke aktivt vedtak på behandling${behandling.id}")
 
         val simulering: List<SimuleringMottaker> =
             hentSimuleringFraFamilieOppdrag(vedtak = aktivtVedtak)?.simuleringMottaker ?: emptyList()
@@ -91,12 +92,13 @@ class SimuleringService(
             return null
         }
 
-        val tilkjentYtelse = utbetalingsoppdragService.genererUtbetalingsoppdragOgOppdaterTilkjentYtelse(
-            vedtak = vedtak,
-            saksbehandlerId = SikkerhetContext.hentSaksbehandler(),
-            andelTilkjentYtelseForUtbetalingsoppdragFactory = AndelTilkjentYtelseForSimulering.Factory,
-            erSimulering = true,
-        )
+        val tilkjentYtelse =
+            utbetalingsoppdragService.genererUtbetalingsoppdragOgOppdaterTilkjentYtelse(
+                vedtak = vedtak,
+                saksbehandlerId = SikkerhetContext.hentSaksbehandler(),
+                andelTilkjentYtelseForUtbetalingsoppdragFactory = AndelTilkjentYtelseForSimulering.Factory,
+                erSimulering = true,
+            )
 
         val utbetalingsoppdrag =
             objectMapper.readValue(tilkjentYtelse.utbetalingsoppdrag, Utbetalingsoppdrag::class.java)
@@ -113,7 +115,7 @@ class SimuleringService(
                 simulering.forfallsdatoNestePeriode != null &&
                     simulering.tidSimuleringHentet < simulering.forfallsdatoNestePeriode &&
                     LocalDate.now() > simulering.forfallsdatoNestePeriode
-                )
+            )
 
     private fun lagreSimuleringPåBehandling(
         simuleringMottakere: List<SimuleringMottaker>,
@@ -123,6 +125,5 @@ class SimuleringService(
         return øknomiSimuleringMottakerRepository.saveAll(vedtakSimuleringMottakere)
     }
 
-    private fun slettSimuleringPåBehandling(behandlingId: Long) =
-        øknomiSimuleringMottakerRepository.deleteByBehandlingId(behandlingId)
+    private fun slettSimuleringPåBehandling(behandlingId: Long) = øknomiSimuleringMottakerRepository.deleteByBehandlingId(behandlingId)
 }

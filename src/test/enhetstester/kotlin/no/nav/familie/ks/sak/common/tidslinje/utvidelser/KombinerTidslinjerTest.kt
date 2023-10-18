@@ -9,7 +9,6 @@ import org.junit.jupiter.api.Test
 import java.time.LocalDate
 
 class KombinerTidslinjerTest {
-
     private val førsteJanuar = LocalDate.of(2022, 1, 1)
     private val sisteDagIJanuar = LocalDate.of(2022, 1, 31)
     private val førsteFebruar = LocalDate.of(2022, 2, 1)
@@ -26,13 +25,14 @@ class KombinerTidslinjerTest {
         val tidslinjeA = listOf(TidslinjePeriodeMedDato("a", førsteJanuar, sisteDagIJanuar)).tilTidslinje()
         val tidslinjeB = listOf(TidslinjePeriodeMedDato("b", førsteJanuar, sisteDagIFebruar)).tilTidslinje()
         val tidslinjeC = listOf(TidslinjePeriodeMedDato("c", førsteJanuar, sisteDagIMars)).tilTidslinje()
-        val nullTidlisline = listOf(
-            TidslinjePeriodeMedDato<String>(
-                Null(),
-                TidslinjePeriodeMedDato.Dato(førsteMai),
-                TidslinjePeriodeMedDato.Dato(sisteDagIMai),
-            ),
-        ).tilTidslinje()
+        val nullTidlisline =
+            listOf(
+                TidslinjePeriodeMedDato<String>(
+                    Null(),
+                    TidslinjePeriodeMedDato.Dato(førsteMai),
+                    TidslinjePeriodeMedDato.Dato(sisteDagIMai),
+                ),
+            ).tilTidslinje()
 
         val kombinerteTidslinjerPerioder =
             listOf(tidslinjeA, tidslinjeB, tidslinjeC, nullTidlisline).slåSammen().tilTidslinjePerioderMedDato()

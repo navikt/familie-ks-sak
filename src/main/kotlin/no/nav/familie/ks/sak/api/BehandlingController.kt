@@ -43,9 +43,10 @@ class BehandlingController(
     private val tilkjentYtelseValideringService: TilkjentYtelseValideringService,
     private val leggTilBarnService: LeggTilBarnService,
 ) {
-
     @PostMapping(produces = [MediaType.APPLICATION_JSON_VALUE])
-    fun opprettBehandling(@RequestBody opprettBehandlingDto: OpprettBehandlingDto): ResponseEntity<Ressurs<BehandlingResponsDto>> {
+    fun opprettBehandling(
+        @RequestBody opprettBehandlingDto: OpprettBehandlingDto,
+    ): ResponseEntity<Ressurs<BehandlingResponsDto>> {
         tilgangService.validerTilgangTilHandlingOgPersoner(
             personIdenter = listOf(opprettBehandlingDto.søkersIdent),
             minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
@@ -57,7 +58,9 @@ class BehandlingController(
     }
 
     @GetMapping(path = ["/{behandlingId}"], produces = [MediaType.APPLICATION_JSON_VALUE])
-    fun hentBehandling(@PathVariable behandlingId: Long): ResponseEntity<Ressurs<BehandlingResponsDto>> {
+    fun hentBehandling(
+        @PathVariable behandlingId: Long,
+    ): ResponseEntity<Ressurs<BehandlingResponsDto>> {
         tilgangService.validerTilgangTilHandlingOgFagsakForBehandling(
             behandlingId = behandlingId,
             minimumBehandlerRolle = BehandlerRolle.VEILEDER,

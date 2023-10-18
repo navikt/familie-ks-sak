@@ -6,7 +6,6 @@ import org.springframework.data.jpa.repository.Query
 import java.time.YearMonth
 
 interface AndelTilkjentYtelseRepository : JpaRepository<AndelTilkjentYtelse, Long> {
-
     @Query(value = "SELECT aty FROM AndelTilkjentYtelse aty WHERE aty.behandlingId IN :behandlingIder")
     fun finnAndelerTilkjentYtelseForBehandlinger(behandlingIder: List<Long>): List<AndelTilkjentYtelse>
 
@@ -14,7 +13,10 @@ interface AndelTilkjentYtelseRepository : JpaRepository<AndelTilkjentYtelse, Lon
     fun finnAndelerTilkjentYtelseForBehandling(behandlingId: Long): List<AndelTilkjentYtelse>
 
     @Query(value = "SELECT aty FROM AndelTilkjentYtelse aty WHERE aty.behandlingId = :behandlingId AND aty.aktør = :barnAktør")
-    fun finnAndelerTilkjentYtelseForBehandlingOgBarn(behandlingId: Long, barnAktør: Aktør): List<AndelTilkjentYtelse>
+    fun finnAndelerTilkjentYtelseForBehandlingOgBarn(
+        behandlingId: Long,
+        barnAktør: Aktør,
+    ): List<AndelTilkjentYtelse>
 
     @Query(
         value = """ SELECT aty FROM AndelTilkjentYtelse aty WHERE aty.behandlingId IN :behandlingIder AND 

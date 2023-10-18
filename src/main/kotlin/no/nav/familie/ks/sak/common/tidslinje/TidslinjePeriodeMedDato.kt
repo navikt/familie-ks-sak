@@ -8,7 +8,6 @@ data class TidslinjePeriodeMedDato<T>(
     val fom: Dato,
     val tom: Dato,
 ) {
-
     constructor(
         verdi: T?,
         fom: LocalDate?,
@@ -20,7 +19,6 @@ data class TidslinjePeriodeMedDato<T>(
     )
 
     class Dato(private val dato: LocalDate) : Comparable<Dato> {
-
         fun tilLocalDateEllerNull(): LocalDate? {
             return if (this.dato == PRAKTISK_TIDLIGSTE_DAG || this.dato == PRAKTISK_SENESTE_DAG) {
                 null
@@ -51,16 +49,19 @@ private fun <T> List<TidslinjePeriodeMedDato<T>>.fyllInnTommePerioder(): List<Ti
 
         if (sisteElement == null) {
             periodeListeMedTommePerioder + periode
-        } else if (sisteElement.tom.tilDatoEllerPraktiskSenesteDag() == periode.fom.tilDatoEllerPraktiskTidligsteDag()
+        } else if (sisteElement.tom.tilDatoEllerPraktiskSenesteDag() ==
+            periode.fom.tilDatoEllerPraktiskTidligsteDag()
                 .minusDays(1)
         ) {
             periodeListeMedTommePerioder + periode
         } else {
-            periodeListeMedTommePerioder + TidslinjePeriodeMedDato(
-                Udefinert(),
-                TidslinjePeriodeMedDato.Dato(sisteElement.tom.tilDatoEllerPraktiskSenesteDag().plusDays(1)),
-                TidslinjePeriodeMedDato.Dato(periode.fom.tilDatoEllerPraktiskTidligsteDag().minusDays(1)),
-            ) + periode
+            periodeListeMedTommePerioder +
+                TidslinjePeriodeMedDato(
+                    Udefinert(),
+                    TidslinjePeriodeMedDato.Dato(sisteElement.tom.tilDatoEllerPraktiskSenesteDag().plusDays(1)),
+                    TidslinjePeriodeMedDato.Dato(periode.fom.tilDatoEllerPraktiskTidligsteDag().minusDays(1)),
+                ) +
+                periode
         }
     }
 }

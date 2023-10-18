@@ -8,6 +8,7 @@ import no.nav.familie.kontrakter.felles.personopplysning.ADRESSEBESKYTTELSEGRADE
 fun finnPersonMedStrengesteAdressebeskyttelse(personer: List<Pair<String, ADRESSEBESKYTTELSEGRADERING?>>): String? {
     return personer.fold(
         null,
+        @Suppress("ktlint:standard:blank-line-before-declaration")
         fun(
             person: Pair<String, ADRESSEBESKYTTELSEGRADERING?>?,
             neste: Pair<String, ADRESSEBESKYTTELSEGRADERING?>,

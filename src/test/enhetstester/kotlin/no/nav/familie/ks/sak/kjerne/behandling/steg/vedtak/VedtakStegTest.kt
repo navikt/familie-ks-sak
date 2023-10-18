@@ -31,7 +31,6 @@ import org.hamcrest.CoreMatchers.`is` as Is
 
 @ExtendWith(MockKExtension::class)
 class VedtakStegTest {
-
     @MockK
     private lateinit var behandlingService: BehandlingService
 
@@ -66,9 +65,10 @@ class VedtakStegTest {
         every { mocketBehandling.erHenlagt() } returns true
         every { behandlingService.hentBehandling(200) } returns mocketBehandling
 
-        val feil = assertThrows<Feil> {
-            vedtakSteg.utførSteg(200)
-        }
+        val feil =
+            assertThrows<Feil> {
+                vedtakSteg.utførSteg(200)
+            }
 
         assertThat(feil.message, Is("Behandlingen er henlagt og dermed så kan ikke vedtak foreslås."))
     }
@@ -88,9 +88,10 @@ class VedtakStegTest {
         every { mocketBehandling.behandlingStegTilstand } returns mutableSetOf(mocketStegTilstand, mocketStegTilstand2)
         every { behandlingService.hentBehandling(200) } returns mocketBehandling
 
-        val feil = assertThrows<Feil> {
-            vedtakSteg.utførSteg(200)
-        }
+        val feil =
+            assertThrows<Feil> {
+                vedtakSteg.utførSteg(200)
+            }
 
         assertThat(feil.message, Is("Behandlingen har mer enn ett ikke fullført steg."))
     }

@@ -18,8 +18,9 @@ class UtbetalingsperiodeMedBegrunnelserService(
         vedtak: Vedtak,
         opphørsperioder: List<VedtaksperiodeMedBegrunnelser>,
     ): List<VedtaksperiodeMedBegrunnelser> {
-        val andelerTilkjentYtelse = andelerTilkjentYtelseOgEndreteUtbetalingerService
-            .finnAndelerTilkjentYtelseMedEndreteUtbetalinger(vedtak.behandling.id)
+        val andelerTilkjentYtelse =
+            andelerTilkjentYtelseOgEndreteUtbetalingerService
+                .finnAndelerTilkjentYtelseMedEndreteUtbetalinger(vedtak.behandling.id)
 
         val vilkårsvurdering =
             vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(behandlingId = vedtak.behandling.id)

@@ -6,7 +6,6 @@ import java.time.LocalDateTime
 import org.hamcrest.CoreMatchers.`is` as Is
 
 internal class TaskUtilsKtTest {
-
     @Test
     fun `nesteGyldigeTriggertidForBehandlingIHverdager skal returnere neste triggertid basert på nåværende tid`() {
         val tid = LocalDateTime.of(2022, 10, 24, 0, 0)

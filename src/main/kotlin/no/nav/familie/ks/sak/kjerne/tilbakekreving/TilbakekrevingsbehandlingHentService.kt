@@ -10,7 +10,6 @@ class TilbakekrevingsbehandlingHentService(
     private val tilbakekrevingKlient: TilbakekrevingKlient,
     private val tilbakekrevingRepository: TilbakekrevingRepository,
 ) {
-
     fun hentTilbakekrevingsbehandlinger(fagsakId: Long) = tilbakekrevingKlient.hentTilbakekrevingsbehandlinger(fagsakId)
 
     fun hentTilbakekreving(behandlingId: Long) = tilbakekrevingRepository.findByBehandlingId(behandlingId)

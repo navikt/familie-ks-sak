@@ -25,7 +25,6 @@ import java.time.YearMonth
 
 @ExtendWith(MockKExtension::class)
 class UtbetalingsperiodeMedBegrunnelserServiceTest {
-
     private val mars2020 = YearMonth.of(2020, 3)
     private val april2020 = YearMonth.of(2020, 4)
     private val mai2020 = YearMonth.of(2020, 5)
@@ -44,28 +43,31 @@ class UtbetalingsperiodeMedBegrunnelserServiceTest {
             )
         val søkerPerson = lagPerson(personopplysningGrunnlag, søker, PersonType.SØKER)
 
-        val vilkårsvurdering = lagVilkårsvurderingMedSøkersVilkår(
-            søkerAktør = søkerPerson.aktør,
-            behandling = behandling,
-            resultat = Resultat.OPPFYLT,
-        )
-
-        val personResultat = PersonResultat(
-            vilkårsvurdering = vilkårsvurdering,
-            aktør = søkerPerson.aktør,
-        )
-        val vilkårResultater = Vilkår.hentVilkårFor(søkerPerson.type).map {
-            VilkårResultat(
-                personResultat = personResultat,
-                periodeFom = mars2020.førsteDagIInneværendeMåned(),
-                periodeTom = juni2020.sisteDagIInneværendeMåned(),
-                vilkårType = it,
+        val vilkårsvurdering =
+            lagVilkårsvurderingMedSøkersVilkår(
+                søkerAktør = søkerPerson.aktør,
+                behandling = behandling,
                 resultat = Resultat.OPPFYLT,
-                begrunnelse = "",
-                behandlingId = vilkårsvurdering.behandling.id,
-                utdypendeVilkårsvurderinger = emptyList(),
             )
-        }
+
+        val personResultat =
+            PersonResultat(
+                vilkårsvurdering = vilkårsvurdering,
+                aktør = søkerPerson.aktør,
+            )
+        val vilkårResultater =
+            Vilkår.hentVilkårFor(søkerPerson.type).map {
+                VilkårResultat(
+                    personResultat = personResultat,
+                    periodeFom = mars2020.førsteDagIInneværendeMåned(),
+                    periodeTom = juni2020.sisteDagIInneværendeMåned(),
+                    vilkårType = it,
+                    resultat = Resultat.OPPFYLT,
+                    begrunnelse = "",
+                    behandlingId = vilkårsvurdering.behandling.id,
+                    utdypendeVilkårsvurderinger = emptyList(),
+                )
+            }
 
         personResultat.setSortedVilkårResultater(vilkårResultater.toSet())
 
@@ -92,40 +94,42 @@ class UtbetalingsperiodeMedBegrunnelserServiceTest {
             )
         val søkerPerson = lagPerson(personopplysningGrunnlag, søker, PersonType.SØKER)
 
-        val vilkårsvurdering = lagVilkårsvurderingMedSøkersVilkår(
-            søkerAktør = søkerPerson.aktør,
-            behandling = behandling,
-            resultat = Resultat.OPPFYLT,
-        )
-
-        val personResultat = PersonResultat(
-            vilkårsvurdering = vilkårsvurdering,
-            aktør = søkerPerson.aktør,
-        ).also {
-            it.setSortedVilkårResultater(
-                setOf(
-                    VilkårResultat(
-                        personResultat = it,
-                        periodeFom = mars2020.førsteDagIInneværendeMåned(),
-                        periodeTom = null,
-                        vilkårType = Vilkår.BOR_MED_SØKER,
-                        resultat = Resultat.OPPFYLT,
-                        begrunnelse = "",
-                        behandlingId = vilkårsvurdering.behandling.id,
-                    ),
-                    VilkårResultat(
-                        personResultat = it,
-                        periodeFom = null,
-                        periodeTom = null,
-                        vilkårType = Vilkår.BOR_MED_SØKER,
-                        resultat = Resultat.IKKE_OPPFYLT,
-                        begrunnelse = "",
-                        behandlingId = vilkårsvurdering.behandling.id,
-                        erEksplisittAvslagPåSøknad = true,
-                    ),
-                ),
+        val vilkårsvurdering =
+            lagVilkårsvurderingMedSøkersVilkår(
+                søkerAktør = søkerPerson.aktør,
+                behandling = behandling,
+                resultat = Resultat.OPPFYLT,
             )
-        }
+
+        val personResultat =
+            PersonResultat(
+                vilkårsvurdering = vilkårsvurdering,
+                aktør = søkerPerson.aktør,
+            ).also {
+                it.setSortedVilkårResultater(
+                    setOf(
+                        VilkårResultat(
+                            personResultat = it,
+                            periodeFom = mars2020.førsteDagIInneværendeMåned(),
+                            periodeTom = null,
+                            vilkårType = Vilkår.BOR_MED_SØKER,
+                            resultat = Resultat.OPPFYLT,
+                            begrunnelse = "",
+                            behandlingId = vilkårsvurdering.behandling.id,
+                        ),
+                        VilkårResultat(
+                            personResultat = it,
+                            periodeFom = null,
+                            periodeTom = null,
+                            vilkårType = Vilkår.BOR_MED_SØKER,
+                            resultat = Resultat.IKKE_OPPFYLT,
+                            begrunnelse = "",
+                            behandlingId = vilkårsvurdering.behandling.id,
+                            erEksplisittAvslagPåSøknad = true,
+                        ),
+                    ),
+                )
+            }
 
         assertDoesNotThrow {
             setOf(personResultat).tilFørskjøvetOppfylteVilkårResultatTidslinjeMap(personopplysningGrunnlag)

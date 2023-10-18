@@ -10,9 +10,10 @@ data class TotrinnskontrollDto(
     val opprettetTidspunkt: LocalDateTime,
 )
 
-fun Totrinnskontroll.tilTotrinnskontrollDto() = TotrinnskontrollDto(
-    saksbehandler = this.saksbehandler,
-    beslutter = this.beslutter,
-    godkjent = this.godkjent,
-    opprettetTidspunkt = this.opprettetTidspunkt,
-)
+fun Totrinnskontroll.tilTotrinnskontrollDto() =
+    TotrinnskontrollDto(
+        saksbehandler = this.saksbehandler,
+        beslutter = this.beslutter,
+        godkjent = this.godkjent,
+        opprettetTidspunkt = this.opprettetTidspunkt,
+    )

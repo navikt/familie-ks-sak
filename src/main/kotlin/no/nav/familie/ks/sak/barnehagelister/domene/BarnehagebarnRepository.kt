@@ -24,7 +24,10 @@ interface BarnehagebarnRepository : JpaRepository<Barnehagebarn, UUID> { // , Jp
             GROUP BY bb.ident, bb.fom, bb.tom, bb.antall_timer_i_barnehage, bb.endringstype, bb.kommune_navn, bb.kommune_nr, f.id, f.status""",
         nativeQuery = true,
     )
-    fun findBarnehagebarn(fagsakStatuser: List<String>, pageable: Pageable): Page<BarnehagebarnDtoInterface>
+    fun findBarnehagebarn(
+        fagsakStatuser: List<String>,
+        pageable: Pageable,
+    ): Page<BarnehagebarnDtoInterface>
 
     @Query(
         """
@@ -82,9 +85,7 @@ interface BarnehagebarnRepository : JpaRepository<Barnehagebarn, UUID> { // , Jp
             GROUP BY bb.ident, bb.fom, bb.tom, bb.antall_timer_i_barnehage, bb.endringstype, bb.kommune_navn, bb.kommune_nr, f.id, f.status""",
         nativeQuery = true,
     )
-    fun findAlleBarnehagebarnUavhengigAvFagsak(
-        pageable: Pageable,
-    ): Page<BarnehagebarnDtoInterface>
+    fun findAlleBarnehagebarnUavhengigAvFagsak(pageable: Pageable): Page<BarnehagebarnDtoInterface>
 
     @Query(
         """
@@ -177,7 +178,6 @@ interface BarnehagebarnRepository : JpaRepository<Barnehagebarn, UUID> { // , Jp
             FROM barnehagebarn bb
             WHERE bb.kommune_navn = :ident
             GROUP BY bb.ident, bb.fom, bb.tom, bb.antall_timer_i_barnehage, bb.endringstype, bb.kommune_navn, bb.kommune_nr""",
-
         nativeQuery = true,
     )
     fun findBarnehagebarnByIdentInfotrygdUavhengigAvFagsak(
@@ -207,7 +207,5 @@ interface BarnehagebarnRepository : JpaRepository<Barnehagebarn, UUID> { // , Jp
             GROUP BY bb.ident, bb.fom, bb.tom, bb.antall_timer_i_barnehage, bb.endringstype, bb.kommune_navn, bb.kommune_nr """,
         nativeQuery = true,
     )
-    fun findBarnehagebarnInfotrygdUavhengigAvFagsak(
-        pageable: Pageable,
-    ): Page<BarnehagebarnInfotrygdDtoInterface>
+    fun findBarnehagebarnInfotrygdUavhengigAvFagsak(pageable: Pageable): Page<BarnehagebarnInfotrygdDtoInterface>
 }

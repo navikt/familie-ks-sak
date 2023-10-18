@@ -9,7 +9,6 @@ import org.junit.jupiter.api.Test
 import java.time.LocalDate
 
 class TilTidslinjePerioderMedLocalDateTest {
-
     private val førsteJanuar = LocalDate.of(2022, 1, 1)
     private val sisteDagIJanuar = LocalDate.of(2022, 1, 31)
     private val førsteFebruar = LocalDate.of(2022, 2, 1)
@@ -19,14 +18,15 @@ class TilTidslinjePerioderMedLocalDateTest {
 
     @Test
     fun `Skal gi ut liste med perioder med riktig tom og fom gitt starttidspunkt og lengde på periodene`() {
-        val tidslinje = Tidslinje(
-            førsteJanuar,
-            listOf(
-                TidslinjePeriode(Verdi("a"), førsteJanuar.diffIDager(sisteDagIJanuar)),
-                TidslinjePeriode(Verdi("b"), førsteFebruar.diffIDager(sisteDagIFebruar)),
-                TidslinjePeriode(Verdi("c"), førsteMars.diffIDager(sisteDagIMars)),
-            ),
-        )
+        val tidslinje =
+            Tidslinje(
+                førsteJanuar,
+                listOf(
+                    TidslinjePeriode(Verdi("a"), førsteJanuar.diffIDager(sisteDagIJanuar)),
+                    TidslinjePeriode(Verdi("b"), førsteFebruar.diffIDager(sisteDagIFebruar)),
+                    TidslinjePeriode(Verdi("c"), førsteMars.diffIDager(sisteDagIMars)),
+                ),
+            )
 
         val tidslinjePerioderMedDato = tidslinje.tilTidslinjePerioderMedDato()
 
@@ -47,27 +47,30 @@ class TilTidslinjePerioderMedLocalDateTest {
 
     @Test
     fun `Skal gi ut riktige datoer etter manipulering på tidslinjene`() {
-        val tidslinje1 = Tidslinje(
-            førsteJanuar,
-            listOf(
-                TidslinjePeriode(Verdi("a"), førsteJanuar.diffIDager(sisteDagIMars)),
-            ),
-        )
+        val tidslinje1 =
+            Tidslinje(
+                førsteJanuar,
+                listOf(
+                    TidslinjePeriode(Verdi("a"), førsteJanuar.diffIDager(sisteDagIMars)),
+                ),
+            )
 
-        val tidslinje2 = Tidslinje(
-            førsteFebruar,
-            listOf(
-                TidslinjePeriode(Verdi("b"), førsteFebruar.diffIDager(sisteDagIFebruar)),
-            ),
-        )
+        val tidslinje2 =
+            Tidslinje(
+                førsteFebruar,
+                listOf(
+                    TidslinjePeriode(Verdi("b"), førsteFebruar.diffIDager(sisteDagIFebruar)),
+                ),
+            )
 
-        val tidslinjePerioderMedDato = tidslinje1.biFunksjon(tidslinje2) { a, b ->
-            if (b is Verdi) {
-                b
-            } else {
-                a
-            }
-        }.tilTidslinjePerioderMedDato()
+        val tidslinjePerioderMedDato =
+            tidslinje1.biFunksjon(tidslinje2) { a, b ->
+                if (b is Verdi) {
+                    b
+                } else {
+                    a
+                }
+            }.tilTidslinjePerioderMedDato()
 
         Assertions.assertEquals(3, tidslinjePerioderMedDato.size)
 

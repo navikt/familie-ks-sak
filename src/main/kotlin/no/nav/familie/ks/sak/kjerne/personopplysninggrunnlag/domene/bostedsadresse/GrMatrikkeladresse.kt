@@ -11,21 +11,15 @@ import java.util.Objects
 data class GrMatrikkeladresse(
     @Column(name = "matrikkel_id")
     val matrikkelId: Long?,
-
     @Column(name = "bruksenhetsnummer")
     val bruksenhetsnummer: String?,
-
     @Column(name = "tilleggsnavn")
     val tilleggsnavn: String?,
-
     @Column(name = "postnummer")
     val postnummer: String?,
-
     @Column(name = "kommunenummer")
     val kommunenummer: String?,
-
 ) : GrBostedsadresse() {
-
     override fun toSecureString(): String =
         """MatrikkeladresseDao(matrikkelId=$matrikkelId,bruksenhetsnummer=$bruksenhetsnummer,
             tilleggsnavn=$tilleggsnavn, postnummer=$postnummer,kommunenummer=$kommunenummer
@@ -33,8 +27,7 @@ data class GrMatrikkeladresse(
 
     override fun toString(): String = "Matrikkeladresse(detaljer skjult)"
 
-    override fun tilFrontendString() =
-        """Matrikkel $matrikkelId, bruksenhet $bruksenhetsnummer, postnummer $postnummer""".trimMargin()
+    override fun tilFrontendString() = """Matrikkel $matrikkelId, bruksenhet $bruksenhetsnummer, postnummer $postnummer""".trimMargin()
 
     override fun equals(other: Any?): Boolean {
         if (other == null || javaClass != other.javaClass) {
@@ -50,7 +43,6 @@ data class GrMatrikkeladresse(
     override fun hashCode(): Int = Objects.hash(matrikkelId)
 
     companion object {
-
         fun fraMatrikkeladresse(matrikkeladresse: Matrikkeladresse): GrMatrikkeladresse =
             GrMatrikkeladresse(
                 matrikkelId = matrikkeladresse.matrikkelId,

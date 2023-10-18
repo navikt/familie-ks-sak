@@ -38,16 +38,15 @@ fun <T : EøsSkjemaEntitet<T>> mockEøsSkjemaRepository(): EøsSkjemaRepository<
 }
 
 private class MinnebasertSkjemaRepository<T> where T : EøsSkjemaEntitet<T> {
-
     private val løpenummer = AtomicLong()
+
     private fun AtomicLong.neste() = this.addAndGet(1)
 
     private val skjemaer = mutableMapOf<Long, T>()
 
     fun hentSkjemaer(behandlingId: Long): List<T> = skjemaer.values.filter { it.behandlingId == behandlingId }
 
-    fun hentSkjema(skjemaId: Long): T =
-        skjemaer[skjemaId] ?: throw IllegalArgumentException("Finner ikke skjema for id $skjemaId")
+    fun hentSkjema(skjemaId: Long): T = skjemaer[skjemaId] ?: throw IllegalArgumentException("Finner ikke skjema for id $skjemaId")
 
     fun save(skjemaer: Iterable<T>) = skjemaer.map { save(it) }
 
@@ -65,8 +64,6 @@ private class MinnebasertSkjemaRepository<T> where T : EøsSkjemaEntitet<T> {
     fun deleteAll() = skjemaer.clear()
 }
 
-fun <T : EøsSkjemaEntitet<T>> T.lagreTil(eøsSkjemaRepository: EøsSkjemaRepository<T>): T =
-    eøsSkjemaRepository.saveAll(listOf(this)).first()
+fun <T : EøsSkjemaEntitet<T>> T.lagreTil(eøsSkjemaRepository: EøsSkjemaRepository<T>): T = eøsSkjemaRepository.saveAll(listOf(this)).first()
 
-fun <T : EøsSkjemaEntitet<T>> List<T>.lagreTil(eøsSkjemaRepository: EøsSkjemaRepository<T>): T =
-    eøsSkjemaRepository.saveAll(this).first()
+fun <T : EøsSkjemaEntitet<T>> List<T>.lagreTil(eøsSkjemaRepository: EøsSkjemaRepository<T>): T = eøsSkjemaRepository.saveAll(this).first()

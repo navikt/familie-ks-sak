@@ -37,9 +37,12 @@ class StegService(
     private val taskService: TaskService,
     private val loggService: LoggService,
 ) {
-
     @Transactional
-    fun utførSteg(behandlingId: Long, behandlingSteg: BehandlingSteg, behandlingStegDto: BehandlingStegDto? = null) {
+    fun utførSteg(
+        behandlingId: Long,
+        behandlingSteg: BehandlingSteg,
+        behandlingStegDto: BehandlingStegDto? = null,
+    ) {
         val behandling = behandlingRepository.hentAktivBehandling(behandlingId)
         val behandlingStegTilstand = hentStegTilstandForBehandlingSteg(behandling, behandlingSteg)
 
@@ -50,10 +53,11 @@ class StegService(
                 behandlingStegDto?.let { hentStegInstans(behandlingSteg).utførSteg(behandlingId, it) }
                     ?: hentStegInstans(behandlingSteg).utførSteg(behandlingId)
                 // utleder nåværendeSteg status, den blir TILBAKEFØRT når beslutter underkjenner vedtaket ellers UTFØRT
-                behandlingStegTilstand.behandlingStegStatus = utledNåværendeBehandlingStegStatus(
-                    behandlingSteg,
-                    behandlingStegDto,
-                )
+                behandlingStegTilstand.behandlingStegStatus =
+                    utledNåværendeBehandlingStegStatus(
+                        behandlingSteg,
+                        behandlingStegDto,
+                    )
                 // AVSLUTT_BEHANDLING er siste steg, der slipper man å hente neste steg
                 if (behandlingSteg != AVSLUTT_BEHANDLING) {
                     // Henter neste steg basert på sekvens og årsak
@@ -106,7 +110,10 @@ class StegService(
     }
 
     @Transactional
-    fun tilbakeførSteg(behandlingId: Long, behandlingSteg: BehandlingSteg) {
+    fun tilbakeførSteg(
+        behandlingId: Long,
+        behandlingSteg: BehandlingSteg,
+    ) {
         val behandling = behandlingRepository.hentAktivBehandling(behandlingId)
         val behandlingStegTilstand = hentStegTilstandForBehandlingSteg(behandling, behandlingSteg)
         if (behandlingStegTilstand.behandlingStegStatus == BehandlingStegStatus.KLAR) { // steget er allerede tilbakeført
@@ -121,7 +128,10 @@ class StegService(
         behandlingRepository.saveAndFlush(oppdaterBehandlingStatus(behandling))
     }
 
-    private fun valider(behandling: Behandling, behandledeSteg: BehandlingSteg) {
+    private fun valider(
+        behandling: Behandling,
+        behandledeSteg: BehandlingSteg,
+    ) {
         // valider om steget kan behandles av saksbehandler eller beslutter
         if (!behandledeSteg.kanStegBehandles() && !SikkerhetContext.erSystemKontekst()) {
             throw Feil("Steget ${behandledeSteg.name} kan ikke behandles for behandling ${behandling.id}")
@@ -134,10 +144,11 @@ class StegService(
             )
 
         // valider om et tidligere steg i behandlingen har stegstatus KLAR
-        val stegKlarForBehandling = behandling.behandlingStegTilstand.singleOrNull {
-            it.behandlingSteg.sekvens < behandledeSteg.sekvens &&
-                it.behandlingStegStatus == BehandlingStegStatus.KLAR
-        }
+        val stegKlarForBehandling =
+            behandling.behandlingStegTilstand.singleOrNull {
+                it.behandlingSteg.sekvens < behandledeSteg.sekvens &&
+                    it.behandlingStegStatus == BehandlingStegStatus.KLAR
+            }
         if (stegKlarForBehandling != null) {
             throw Feil(
                 "Behandling ${behandling.id} har allerede et steg " +
@@ -152,11 +163,12 @@ class StegService(
         behandledeSteg: BehandlingSteg,
         behandlingStegDto: BehandlingStegDto?,
     ): BehandlingSteg {
-        val nesteGyldigeStadier = BehandlingSteg.values().filter {
-            it.sekvens > behandledeSteg.sekvens &&
-                behandling.opprettetÅrsak in it.gyldigForÅrsaker &&
-                behandling.resultat in it.gyldigForResultater
-        }.sortedBy { it.sekvens }
+        val nesteGyldigeStadier =
+            BehandlingSteg.values().filter {
+                it.sekvens > behandledeSteg.sekvens &&
+                    behandling.opprettetÅrsak in it.gyldigForÅrsaker &&
+                    behandling.resultat in it.gyldigForResultater
+            }.sortedBy { it.sekvens }
         return when (behandledeSteg) {
             AVSLUTT_BEHANDLING -> throw Feil("Behandling ${behandling.id} er allerede avsluttet")
             BESLUTTE_VEDTAK -> {

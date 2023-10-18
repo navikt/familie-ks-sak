@@ -20,7 +20,6 @@ import org.springframework.web.bind.annotation.RestController
 @ProtectedWithClaims(issuer = "azuread")
 @Validated
 class LoggController(private val loggService: LoggService, private val tilgangService: TilgangService) {
-
     @GetMapping(path = ["/{behandlingId}"])
     fun hentLoggForBehandling(
         @PathVariable

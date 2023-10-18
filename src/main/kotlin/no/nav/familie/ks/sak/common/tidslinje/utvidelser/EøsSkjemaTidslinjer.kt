@@ -12,43 +12,47 @@ import no.nav.familie.ks.sak.kjerne.eøs.felles.domene.utenBarn
 import no.nav.familie.ks.sak.kjerne.eøs.felles.domene.utenPeriode
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
 
-fun <T : EøsSkjema<T>> List<T>.tilTidslinje() = this.map {
-    Periode(
-        it.utenPeriode(),
-        it.fom?.førsteDagIInneværendeMåned(),
-        it.tom?.sisteDagIInneværendeMåned(),
-    )
-}.tilTidslinje()
+fun <T : EøsSkjema<T>> List<T>.tilTidslinje() =
+    this.map {
+        Periode(
+            it.utenPeriode(),
+            it.fom?.førsteDagIInneværendeMåned(),
+            it.tom?.sisteDagIInneværendeMåned(),
+        )
+    }.tilTidslinje()
 
 fun <T : EøsSkjema<T>> T.tilTidslinje() = listOf(this).tilTidslinje()
 
 fun <T : EøsSkjema<T>> List<T>.slåSammen(): List<T> {
     if (this.isEmpty()) return this
 
-    val eøsTidslinjer: Tidslinje<Set<T>> = this.map { it.tilTidslinje() }.kombiner { tidslinje ->
-        tidslinje.groupingBy { it.utenBarn() }.reduce { _, acc, skjema -> acc.leggSammenBarn(skjema) }.values.toSet()
-    }
+    val eøsTidslinjer: Tidslinje<Set<T>> =
+        this.map { it.tilTidslinje() }.kombiner { tidslinje ->
+            tidslinje.groupingBy { it.utenBarn() }.reduce { _, acc, skjema -> acc.leggSammenBarn(skjema) }.values.toSet()
+        }
 
-    val eøsTidslinjerSlåttSammenVertikalt = eøsTidslinjer.tilPerioderIkkeNull().flatMap { periode ->
-        periode.verdi.settFomOgTom(periode) ?: emptyList()
-    }
-    val eøsTidslinjerSlåttSammenHorizontalt = eøsTidslinjerSlåttSammenVertikalt
-        .groupBy { it.utenPeriode() }
-        .mapValues { (_, kompetanser) -> kompetanser.tilTidslinje().slåSammenLikePerioder() }
-        .mapValues { (_, tidslinje) -> tidslinje.tilPerioder() }
-        .values.flatten().mapNotNull { periode -> periode.verdi?.settFomOgTom(periode) }
+    val eøsTidslinjerSlåttSammenVertikalt =
+        eøsTidslinjer.tilPerioderIkkeNull().flatMap { periode ->
+            periode.verdi.settFomOgTom(periode) ?: emptyList()
+        }
+    val eøsTidslinjerSlåttSammenHorizontalt =
+        eøsTidslinjerSlåttSammenVertikalt
+            .groupBy { it.utenPeriode() }
+            .mapValues { (_, kompetanser) -> kompetanser.tilTidslinje().slåSammenLikePerioder() }
+            .mapValues { (_, tidslinje) -> tidslinje.tilPerioder() }
+            .values.flatten().mapNotNull { periode -> periode.verdi?.settFomOgTom(periode) }
 
     return eøsTidslinjerSlåttSammenHorizontalt
 }
 
-private fun <T : EøsSkjema<T>> T.leggSammenBarn(skjema: T) = this.kopier(
-    fom = this.fom,
-    tom = this.tom,
-    barnAktører = this.barnAktører + skjema.barnAktører,
-)
+private fun <T : EøsSkjema<T>> T.leggSammenBarn(skjema: T) =
+    this.kopier(
+        fom = this.fom,
+        tom = this.tom,
+        barnAktører = this.barnAktører + skjema.barnAktører,
+    )
 
-fun <T : EøsSkjema<T>> Iterable<T>?.settFomOgTom(periode: Periode<*>) =
-    this?.map { skjema -> skjema.settFomOgTom(periode) }
+fun <T : EøsSkjema<T>> Iterable<T>?.settFomOgTom(periode: Periode<*>) = this?.map { skjema -> skjema.settFomOgTom(periode) }
 
 fun <T : EøsSkjema<T>> T.settFomOgTom(periode: Periode<*>) =
     this.kopier(

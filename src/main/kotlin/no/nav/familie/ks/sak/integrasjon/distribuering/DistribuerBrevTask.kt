@@ -26,7 +26,6 @@ class DistribuerBrevTask(
     private val brevService: BrevService,
     private val taskService: TaskService,
 ) : AsyncTaskStep {
-
     override fun doTask(task: Task) {
         val distribuerBrevDto = objectMapper.readValue(task.payload, DistribuerBrevDto::class.java)
 
@@ -50,10 +49,11 @@ class DistribuerBrevTask(
             val behandling = behandlingService.hentBehandling(distribuerBrevDto.behandlingId)
             val søkerIdent = behandling.fagsak.aktør.aktivFødselsnummer()
 
-            val avsluttBehandlingTask = AvsluttBehandlingTask.opprettTask(
-                søkerIdent = søkerIdent,
-                behandlingId = behandling.id,
-            )
+            val avsluttBehandlingTask =
+                AvsluttBehandlingTask.opprettTask(
+                    søkerIdent = søkerIdent,
+                    behandlingId = behandling.id,
+                )
             taskService.save(avsluttBehandlingTask)
         } else {
             throw Feil(
@@ -64,7 +64,6 @@ class DistribuerBrevTask(
     }
 
     companion object {
-
         fun opprettDistribuerBrevTask(
             distribuerBrevDTO: DistribuerBrevDto,
             properties: Properties,

@@ -1,16 +1,15 @@
 package no.nav.familie.ks.sak.common.tidslinje.utvidelser
 
+import no.nav.familie.ks.sak.common.tidslinje.INF
 import no.nav.familie.ks.sak.common.tidslinje.Tidslinje
 import no.nav.familie.ks.sak.common.tidslinje.TidslinjePeriode
 import no.nav.familie.ks.sak.common.tidslinje.Udefinert
 import no.nav.familie.ks.sak.common.tidslinje.Verdi
-import no.nav.familie.ks.sak.common.tidslinje.inf
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
 
 class TidslinjeUendlighetTest {
-
     private var lst1 = emptyList<TidslinjePeriode<Int>>()
     private var lst2 = emptyList<TidslinjePeriode<Int>>()
 
@@ -30,13 +29,14 @@ class TidslinjeUendlighetTest {
     @Test
     fun `kan legge sammen to tidslinjer, hvor den ene er uendelig`() {
         init(
-            listOf(TidslinjePeriode(1, 1, false), TidslinjePeriode(2, inf, true)),
+            listOf(TidslinjePeriode(1, 1, false), TidslinjePeriode(2, INF, true)),
             listOf(TidslinjePeriode(3, 1, false)),
         )
 
-        var t3 = t1.biFunksjon(t2) { t1, t2 ->
-            if (t1 is Udefinert || t2 is Udefinert) Udefinert() else Verdi(t1.verdi!! + t2.verdi!!)
-        }
+        var t3 =
+            t1.biFunksjon(t2) { t1, t2 ->
+                if (t1 is Udefinert || t2 is Udefinert) Udefinert() else Verdi(t1.verdi!! + t2.verdi!!)
+            }
 
         assertTrue { t3.innhold.size == 2 }
         assertTrue { t3.innhold.last().erUendelig }
@@ -49,18 +49,19 @@ class TidslinjeUendlighetTest {
                 TidslinjePeriode(4, 1, false),
                 TidslinjePeriode(5, 1, false),
                 TidslinjePeriode(6, 1, false),
-                TidslinjePeriode(7, inf, true),
+                TidslinjePeriode(7, INF, true),
             ),
             listOf(TidslinjePeriode(3, 1, false)),
         )
 
-        t3 = t1.biFunksjon(t2) { el1, el2 ->
-            if (el1 is Udefinert || el2 is Udefinert) {
-                Udefinert()
-            } else {
-                Verdi(el1.verdi!! + el2.verdi!!)
+        t3 =
+            t1.biFunksjon(t2) { el1, el2 ->
+                if (el1 is Udefinert || el2 is Udefinert) {
+                    Udefinert()
+                } else {
+                    Verdi(el1.verdi!! + el2.verdi!!)
+                }
             }
-        }
 
         assertTrue { t3.innhold.size == 2 }
         assertTrue { t3.innhold.last().erUendelig }
@@ -69,7 +70,7 @@ class TidslinjeUendlighetTest {
     @Test
     fun `kan legge sammen uendelige tidslinjer`() {
         init(
-            listOf(TidslinjePeriode(1, 1, false), TidslinjePeriode(2, inf, true)),
+            listOf(TidslinjePeriode(1, 1, false), TidslinjePeriode(2, INF, true)),
             listOf(TidslinjePeriode(3, 1, true)),
         )
 
@@ -84,7 +85,7 @@ class TidslinjeUendlighetTest {
         assertTrue { t4.innhold.last().erUendelig }
 
         init(
-            listOf(TidslinjePeriode(1, 1, true), TidslinjePeriode(2, inf, false)),
+            listOf(TidslinjePeriode(1, 1, true), TidslinjePeriode(2, INF, false)),
             listOf(TidslinjePeriode(1, 1, true), TidslinjePeriode(3, 1, false)),
         )
 
@@ -104,7 +105,7 @@ class TidslinjeUendlighetTest {
                 TidslinjePeriode(4, 1, false),
                 TidslinjePeriode(5, 1, false),
                 TidslinjePeriode(6, 1, false),
-                TidslinjePeriode(7, inf, true),
+                TidslinjePeriode(7, INF, true),
             ),
             listOf(TidslinjePeriode(3, 1, false)),
         )
@@ -112,9 +113,10 @@ class TidslinjeUendlighetTest {
         assertTrue { t1.innhold.size == 3 }
         assertTrue { t1.innhold.last().erUendelig }
 
-        val t3 = t1.biFunksjon(t2) { t1, t2 ->
-            if (t1 is Udefinert || t2 is Udefinert) Udefinert() else Verdi(t1.verdi!! + t2.verdi!!)
-        }
+        val t3 =
+            t1.biFunksjon(t2) { t1, t2 ->
+                if (t1 is Udefinert || t2 is Udefinert) Udefinert() else Verdi(t1.verdi!! + t2.verdi!!)
+            }
 
         assertTrue { t3.innhold.size == 2 }
         assertTrue { t3.innhold.last().erUendelig }

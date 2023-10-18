@@ -28,7 +28,6 @@ class VilkårsvurderingService(
     private val sanityService: SanityService,
     private val personidentService: PersonidentService,
 ) {
-
     @Transactional
     fun opprettVilkårsvurdering(
         behandling: Behandling,
@@ -71,13 +70,13 @@ class VilkårsvurderingService(
         return vilkårsvurderingRepository.save(vilkårsvurdering)
     }
 
-    fun finnAktivVilkårsvurdering(behandlingId: Long): Vilkårsvurdering? =
-        vilkårsvurderingRepository.finnAktivForBehandling(behandlingId)
+    fun finnAktivVilkårsvurdering(behandlingId: Long): Vilkårsvurdering? = vilkårsvurderingRepository.finnAktivForBehandling(behandlingId)
 
     fun hentVilkårsbegrunnelser(): Map<BegrunnelseType, List<VedtakBegrunnelseTilknyttetVilkårResponseDto>> =
-        standardbegrunnelserTilNedtrekksmenytekster(sanityService.hentSanityBegrunnelser()) + eøsStandardbegrunnelserTilNedtrekksmenytekster(
-            sanityService.hentSanityEØSBegrunnelser(),
-        )
+        standardbegrunnelserTilNedtrekksmenytekster(sanityService.hentSanityBegrunnelser()) +
+            eøsStandardbegrunnelserTilNedtrekksmenytekster(
+                sanityService.hentSanityEØSBegrunnelser(),
+            )
 
     @Transactional
     fun endreVilkårPåBehandling(
@@ -99,7 +98,10 @@ class VilkårsvurderingService(
     }
 
     @Transactional
-    fun opprettNyttVilkårPåBehandling(behandlingId: Long, nyttVilkårDto: NyttVilkårDto) {
+    fun opprettNyttVilkårPåBehandling(
+        behandlingId: Long,
+        nyttVilkårDto: NyttVilkårDto,
+    ) {
         val vilkårsvurdering = hentAktivVilkårsvurderingForBehandling(behandlingId)
         val personResultat =
             hentPersonResultatForPerson(vilkårsvurdering.personResultater, nyttVilkårDto.personIdent)
@@ -113,7 +115,11 @@ class VilkårsvurderingService(
     }
 
     @Transactional
-    fun slettVilkårPåBehandling(behandlingId: Long, vilkårId: Long, aktør: Aktør) {
+    fun slettVilkårPåBehandling(
+        behandlingId: Long,
+        vilkårId: Long,
+        aktør: Aktør,
+    ) {
         val vilkårsvurdering = hentAktivVilkårsvurderingForBehandling(behandlingId)
 
         val personResultat =
@@ -121,16 +127,18 @@ class VilkårsvurderingService(
 
         val eksisterendeVilkårResultater = personResultat.vilkårResultater
 
-        val vilkårResultatSomSkalSlettes = eksisterendeVilkårResultater.find { it.id == vilkårId }
-            ?: throw Feil(
-                message = "Prøver å slette et vilkår som ikke finnes",
-                frontendFeilmelding = "Vilkåret du prøver å slette finnes ikke i systemet.",
-            )
+        val vilkårResultatSomSkalSlettes =
+            eksisterendeVilkårResultater.find { it.id == vilkårId }
+                ?: throw Feil(
+                    message = "Prøver å slette et vilkår som ikke finnes",
+                    frontendFeilmelding = "Vilkåret du prøver å slette finnes ikke i systemet.",
+                )
 
         eksisterendeVilkårResultater.remove(vilkårResultatSomSkalSlettes)
 
-        val perioderMedSammeVilkårType = eksisterendeVilkårResultater
-            .filter { it.vilkårType == vilkårResultatSomSkalSlettes.vilkårType && it.id != vilkårResultatSomSkalSlettes.id }
+        val perioderMedSammeVilkårType =
+            eksisterendeVilkårResultater
+                .filter { it.vilkårType == vilkårResultatSomSkalSlettes.vilkårType && it.id != vilkårResultatSomSkalSlettes.id }
 
         // Vi oppretter initiell vilkår dersom det ikke finnes flere av samme type.
         if (perioderMedSammeVilkårType.isEmpty()) {
@@ -159,16 +167,17 @@ class VilkårsvurderingService(
 
         vilkårsvurdering?.personResultater?.forEach { personResultat ->
 
-            val oppdaterteVilkår = personResultat.vilkårResultater.map { vilkårResultat ->
-                if (vilkårResultat.periodeFom == null || vilkårResultat.resultat != Resultat.OPPFYLT) {
-                    vilkårResultat.kopier(
-                        periodeFom = persongrunnlag.personer.find { it.aktør == personResultat.aktør }?.fødselsdato,
-                        resultat = Resultat.OPPFYLT,
-                    )
-                } else {
-                    vilkårResultat
+            val oppdaterteVilkår =
+                personResultat.vilkårResultater.map { vilkårResultat ->
+                    if (vilkårResultat.periodeFom == null || vilkårResultat.resultat != Resultat.OPPFYLT) {
+                        vilkårResultat.kopier(
+                            periodeFom = persongrunnlag.personer.find { it.aktør == personResultat.aktør }?.fødselsdato,
+                            resultat = Resultat.OPPFYLT,
+                        )
+                    } else {
+                        vilkårResultat
+                    }
                 }
-            }
 
             personResultat.vilkårResultater.clear()
             personResultat.vilkårResultater.addAll(oppdaterteVilkår)
@@ -188,7 +197,6 @@ class VilkårsvurderingService(
     }
 
     companion object {
-
         val logger = LoggerFactory.getLogger(VilkårsvurderingService::class.java)
     }
 }
