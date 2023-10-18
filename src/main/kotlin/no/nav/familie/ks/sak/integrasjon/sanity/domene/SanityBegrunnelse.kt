@@ -52,6 +52,7 @@ enum class Trigger {
     ) = when (this) {
         DELTID_BARNEHAGEPLASS ->
             vilkårResultater.mapNotNull { it.antallTimer }.maxByOrNull { it }?.let {
+                @Suppress("ktlint:standard:multiline-expression-wrapping")
                 it in BigDecimal.valueOf(0.01)..BigDecimal.valueOf(
                     32.99,
                 )
