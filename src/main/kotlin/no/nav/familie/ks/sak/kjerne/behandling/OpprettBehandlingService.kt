@@ -223,6 +223,7 @@ class OpprettBehandlingService(
 }
 
 private sealed interface KanOppretteRevurderingResultat
+
 private object KanOppretteRevurdering : KanOppretteRevurderingResultat
 
 private data class KanIkkeOppretteRevurdering(val årsak: Årsak) : KanOppretteRevurderingResultat
