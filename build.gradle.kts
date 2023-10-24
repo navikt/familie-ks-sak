@@ -54,7 +54,7 @@ dependencies {
     val familieKontrakterSkatteetatenVersion = "2.0_20230214104704_706e9c0"
     val tokenValidationSpringVersion = "3.1.7"
     val navFoedselsnummerVersion = "1.0-SNAPSHOT.6"
-    val prosesseringVersion = "2.20231006130620_9b45ded"
+    val prosesseringVersion = "2.20231024124045_4a3b147"
     val restAssuredVersion = "5.3.2"
     val kotlinxVersion = "1.7.3"
 
