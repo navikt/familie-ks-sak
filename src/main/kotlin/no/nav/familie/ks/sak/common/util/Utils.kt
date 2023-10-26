@@ -9,6 +9,12 @@ fun Any?.nullableTilString() = this?.toString() ?: ""
 
 fun String.storForbokstav() = this.lowercase().replaceFirstChar { it.uppercase() }
 
+fun String.storForbokstavIAlleNavn() =
+    this.split(" ")
+        .joinToString(" ") { navn ->
+            navn.split("-").joinToString("-") { it.storForbokstav() }
+        }.trimEnd()
+
 inline fun <reified T : Enum<T>> konverterEnumsTilString(liste: List<T>) = liste.joinToString(separator = ";")
 
 inline fun <reified T : Enum<T>> konverterStringTilEnums(string: String?): List<T> =

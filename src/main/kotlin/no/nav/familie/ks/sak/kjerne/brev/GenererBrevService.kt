@@ -5,7 +5,9 @@ import no.nav.familie.ks.sak.api.dto.tilBrev
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.common.util.formaterBeløp
+import no.nav.familie.ks.sak.common.util.storForbokstavIAlleNavn
 import no.nav.familie.ks.sak.common.util.tilDagMånedÅr
+import no.nav.familie.ks.sak.common.util.tilMånedÅr
 import no.nav.familie.ks.sak.integrasjon.sanity.SanityService
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelse
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.ArbeidsfordelingService
@@ -15,6 +17,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.simulering.SimuleringService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.VedtakService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.Vedtak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.feilutbetaltvaluta.FeilutbetaltValutaService
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.Opphørsperiode
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.VedtaksperiodeService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.UtvidetVedtaksperiodeMedBegrunnelser
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
@@ -23,10 +26,13 @@ import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.tilSanityBegrunnelse
 import no.nav.familie.ks.sak.kjerne.brev.domene.FellesdataForVedtaksbrev
 import no.nav.familie.ks.sak.kjerne.brev.domene.VedtaksbrevDto
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.Brevmal
+import no.nav.familie.ks.sak.kjerne.brev.domene.maler.Dødsfall
+import no.nav.familie.ks.sak.kjerne.brev.domene.maler.DødsfallData
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.Etterbetaling
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.FeilutbetaltValuta
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.Hjemmeltekst
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.KorrigertVedtakData
+import no.nav.familie.ks.sak.kjerne.brev.domene.maler.SignaturVedtak
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.vedtaksbrev.Avslag
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.vedtaksbrev.Førstegangsvedtak
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.vedtaksbrev.OpphørMedEndring
@@ -91,7 +97,7 @@ class GenererBrevService(
             val målform = personopplysningGrunnlagService.hentSøkersMålform(vedtak.behandling.id)
             val vedtaksbrev =
                 when (vedtak.behandling.opprettetÅrsak) {
-                    BehandlingÅrsak.DØDSFALL -> TODO() // brevService.hentDødsfallbrevData(vedtak)
+                    BehandlingÅrsak.DØDSFALL -> hentDødsfallbrevData(vedtak)
                     BehandlingÅrsak.KORREKSJON_VEDTAKSBREV -> TODO() // brevService.hentKorreksjonbrevData(vedtak)
                     else -> hentVedtaksbrevData(vedtak)
                 }
@@ -237,6 +243,47 @@ class GenererBrevService(
             vedtakKorrigertHjemmelSkalMedIBrev = vedtakKorrigertHjemmelSkalMedIBrev,
         )
     }
+
+    fun hentDødsfallbrevData(vedtak: Vedtak) =
+        hentGrunnlagOgSignaturData(vedtak).let { data ->
+            Dødsfall(
+                data =
+                    DødsfallData(
+                        delmalData =
+                            DødsfallData.DelmalData(
+                                signaturVedtak =
+                                    SignaturVedtak(
+                                        enhet = data.enhet,
+                                        saksbehandler = data.saksbehandler,
+                                        beslutter = data.beslutter,
+                                    ),
+                            ),
+                        flettefelter =
+                            DødsfallData.Flettefelter(
+                                navn = data.grunnlag.søker.navn,
+                                fodselsnummer = data.grunnlag.søker.aktør.aktivFødselsnummer(),
+                                // Selv om det er feil å anta at alle navn er på dette formatet er det ønskelig å skrive
+                                // det slik, da uppercase kan oppleves som skrikende i et brev som skal være skånsomt
+                                navnAvdode = data.grunnlag.søker.navn.storForbokstavIAlleNavn(),
+                                virkningstidspunkt =
+                                    hentVirkningstidspunkt(
+                                        opphørsperioder = vedtaksperiodeService.hentOpphørsperioder(vedtak.behandling),
+                                        behandlingId = vedtak.behandling.id,
+                                    ),
+                            ),
+                    ),
+            )
+        }
+
+    private fun hentVirkningstidspunkt(
+        opphørsperioder: List<Opphørsperiode>,
+        behandlingId: Long,
+    ) = (
+        opphørsperioder
+            .maxOfOrNull { it.periodeFom }
+            ?.tilMånedÅr()
+            ?: throw Feil("Fant ikke opphørdato ved generering av dødsfallbrev på behandling $behandlingId")
+    )
 
     private fun erFeilutbetalingPåBehandling(behandlingId: Long): Boolean =
         simuleringService.hentFeilutbetaling(behandlingId) > BigDecimal.ZERO
