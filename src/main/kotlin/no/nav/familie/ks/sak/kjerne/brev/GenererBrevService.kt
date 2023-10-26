@@ -247,35 +247,44 @@ class GenererBrevService(
     fun hentDødsfallbrevData(vedtak: Vedtak) =
         hentGrunnlagOgSignaturData(vedtak).let { data ->
             Dødsfall(
-                data = DødsfallData(
-                    delmalData = DødsfallData.DelmalData(
-                        signaturVedtak = SignaturVedtak(
-                            enhet = data.enhet,
-                            saksbehandler = data.saksbehandler,
-                            beslutter = data.beslutter,
-                        ),
+                data =
+                    DødsfallData(
+                        delmalData =
+                            DødsfallData.DelmalData(
+                                signaturVedtak =
+                                    SignaturVedtak(
+                                        enhet = data.enhet,
+                                        saksbehandler = data.saksbehandler,
+                                        beslutter = data.beslutter,
+                                    ),
+                            ),
+                        flettefelter =
+                            DødsfallData.Flettefelter(
+                                navn = data.grunnlag.søker.navn,
+                                fodselsnummer = data.grunnlag.søker.aktør.aktivFødselsnummer(),
+                                // Selv om det er feil å anta at alle navn er på dette formatet er det ønskelig å skrive
+                                // det slik, da uppercase kan oppleves som skrikende i et brev som skal være skånsomt
+                                navnAvdode = data.grunnlag.søker.navn.storForbokstavIAlleNavn(),
+                                virkningstidspunkt =
+                                    hentVirkningstidspunkt(
+                                        opphørsperioder = vedtaksperiodeService.hentOpphørsperioder(vedtak.behandling),
+                                        behandlingId = vedtak.behandling.id,
+                                    ),
+                            ),
                     ),
-                    flettefelter = DødsfallData.Flettefelter(
-                        navn = data.grunnlag.søker.navn,
-                        fodselsnummer = data.grunnlag.søker.aktør.aktivFødselsnummer(),
-                        // Selv om det er feil å anta at alle navn er på dette formatet er det ønskelig å skrive
-                        // det slik, da uppercase kan oppleves som skrikende i et brev som skal være skånsomt
-                        navnAvdode = data.grunnlag.søker.navn.storForbokstavIAlleNavn(),
-                        virkningstidspunkt = hentVirkningstidspunkt(
-                            opphørsperioder = vedtaksperiodeService.hentOpphørsperioder(vedtak.behandling),
-                            behandlingId = vedtak.behandling.id,
-                        ),
-                    ),
-                ),
             )
         }
 
-    private fun hentVirkningstidspunkt(opphørsperioder: List<Opphørsperiode>, behandlingId: Long) = (
+    private fun hentVirkningstidspunkt(
+        opphørsperioder: List<Opphørsperiode>,
+        behandlingId: Long,
+    ) = (
         opphørsperioder
             .maxOfOrNull { it.periodeFom }
             ?.tilMånedÅr()
             ?: throw Feil("Fant ikke opphørdato ved generering av dødsfallbrev på behandling $behandlingId")
-        )
+    )
+
     private fun erFeilutbetalingPåBehandling(behandlingId: Long): Boolean =
         simuleringService.hentFeilutbetaling(behandlingId) > BigDecimal.ZERO
 

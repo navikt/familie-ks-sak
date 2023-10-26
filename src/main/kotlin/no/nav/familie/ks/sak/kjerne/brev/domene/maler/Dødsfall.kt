@@ -12,7 +12,6 @@ data class DødsfallData(
     override val delmalData: DelmalData,
     override val flettefelter: Flettefelter,
 ) : BrevDataDto {
-
     data class Flettefelter(
         override val navn: Flettefelt,
         override val fodselsnummer: Flettefelt,
@@ -20,7 +19,6 @@ data class DødsfallData(
         val virkningstidspunkt: Flettefelt,
         val navnAvdode: Flettefelt,
     ) : FlettefelterForDokumentDto {
-
         constructor(
             navn: String,
             fodselsnummer: String,

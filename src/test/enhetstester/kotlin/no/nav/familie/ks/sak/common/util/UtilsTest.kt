@@ -18,4 +18,8 @@ internal class UtilsTest {
         val enums = konverterStringTilEnums<Vilkår>(enumString)
         assertEquals(listOf(Vilkår.MEDLEMSKAP, Vilkår.BARNEHAGEPLASS, Vilkår.BOR_MED_SØKER), enums)
     }
+
+    @Test
+    fun `Navn i uppercase med mellomrom og bindestrek blir formatert korrekt`() =
+        assertEquals("Hense-Ravnen Hopp", "HENSE-RAVNEN HOPP".storForbokstavIAlleNavn())
 }
