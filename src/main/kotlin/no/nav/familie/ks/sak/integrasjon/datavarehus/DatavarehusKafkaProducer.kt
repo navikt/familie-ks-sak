@@ -12,20 +12,27 @@ import org.springframework.kafka.core.KafkaTemplate
 import org.springframework.stereotype.Service
 
 interface KafkaProducer {
+    fun sendBehandlingsTilstand(
+        behandlingId: String,
+        request: BehandlingStatistikkDto,
+    )
 
-    fun sendBehandlingsTilstand(behandlingId: String, request: BehandlingStatistikkDto)
     fun sendSisteBehandlingsTilstand(request: BehandlingStatistikkDto)
+
     fun sendMessageForTopicVedtak(vedtak: VedtakDVH)
+
     fun sendMessageForTopicSak(sakStatistikkDto: SakStatistikkDto)
 }
 
 @Service
 @Profile("!integrasjonstest & !dev-postgres-preprod")
 class DatavarehusKafkaProducer(private val kafkaTemplate: KafkaTemplate<String, String>) : KafkaProducer {
-
     private val log = LoggerFactory.getLogger(this::class.java)
 
-    override fun sendBehandlingsTilstand(behandlingId: String, request: BehandlingStatistikkDto) {
+    override fun sendBehandlingsTilstand(
+        behandlingId: String,
+        request: BehandlingStatistikkDto,
+    ) {
         sendKafkamelding(
             topic = KafkaConfig.BEHANDLING_TOPIC,
             key = request.behandlingID.toString(),
@@ -88,8 +95,10 @@ class DatavarehusKafkaProducer(private val kafkaTemplate: KafkaTemplate<String, 
 @Service
 @Profile("postgres", "integrasjonstest", "dev-postgres-preprod")
 class DummyDatavarehusKafkaProducer : KafkaProducer {
-
-    override fun sendBehandlingsTilstand(behandlingId: String, request: BehandlingStatistikkDto) {
+    override fun sendBehandlingsTilstand(
+        behandlingId: String,
+        request: BehandlingStatistikkDto,
+    ) {
         log.info("Skipper sending av saksstatistikk for behandling $behandlingId fordi kafka ikke er enablet")
     }
 
@@ -106,7 +115,6 @@ class DummyDatavarehusKafkaProducer : KafkaProducer {
     }
 
     companion object {
-
         private val log = LoggerFactory.getLogger(DummyDatavarehusKafkaProducer::class.java)
     }
 }

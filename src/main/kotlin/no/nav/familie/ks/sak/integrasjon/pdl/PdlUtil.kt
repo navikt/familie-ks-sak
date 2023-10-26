@@ -66,8 +66,9 @@ fun tilPersonInfo(
     )
 }
 
-fun List<Adressebeskyttelse>.tilAdressebeskyttelse() = this.firstOrNull()?.gradering
-    ?: ADRESSEBESKYTTELSEGRADERING.UGRADERT
+fun List<Adressebeskyttelse>.tilAdressebeskyttelse() =
+    this.firstOrNull()?.gradering
+        ?: ADRESSEBESKYTTELSEGRADERING.UGRADERT
 
 private fun hentDødsfallDataFraListeMedDødsfall(doedsfall: List<Doedsfall>): DødsfallData? {
     val dødsdato = doedsfall.filter { it.doedsdato != null }.map { it.doedsdato }.firstOrNull()

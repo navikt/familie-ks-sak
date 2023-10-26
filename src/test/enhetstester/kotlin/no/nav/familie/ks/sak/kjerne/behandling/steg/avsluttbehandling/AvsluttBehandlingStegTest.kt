@@ -33,7 +33,6 @@ import java.time.YearMonth
 
 @ExtendWith(MockKExtension::class)
 internal class AvsluttBehandlingStegTest {
-
     @MockK
     private lateinit var behandlingService: BehandlingService
 
@@ -56,8 +55,9 @@ internal class AvsluttBehandlingStegTest {
 
     @BeforeEach
     fun init() {
-        behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD)
-            .also { it.status = BehandlingStatus.IVERKSETTER_VEDTAK }
+        behandling =
+            lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD)
+                .also { it.status = BehandlingStatus.IVERKSETTER_VEDTAK }
 
         every { behandlingService.hentBehandling(behandling.id) } returns behandling
         every { loggService.opprettAvsluttBehandlingLogg(behandling) } just runs
@@ -79,15 +79,16 @@ internal class AvsluttBehandlingStegTest {
 
     @Test
     fun `utførSteg skal avslutte behandling og oppdatere fagsak status til løpende når behandling har løpende utbetaling`() {
-        val tilkjentYtelse = lagInitieltTilkjentYtelse(behandling).also {
-            it.andelerTilkjentYtelse.add(
-                lagAndelTilkjentYtelse(
-                    tilkjentYtelse = it,
-                    behandling = behandling,
-                    stønadTom = YearMonth.now().plusMonths(2),
-                ),
-            )
-        }
+        val tilkjentYtelse =
+            lagInitieltTilkjentYtelse(behandling).also {
+                it.andelerTilkjentYtelse.add(
+                    lagAndelTilkjentYtelse(
+                        tilkjentYtelse = it,
+                        behandling = behandling,
+                        stønadTom = YearMonth.now().plusMonths(2),
+                    ),
+                )
+            }
         every { beregningService.hentTilkjentYtelseForBehandling(behandling.id) } returns tilkjentYtelse
         val fagsakStausSlot = slot<FagsakStatus>()
         every { fagsakService.oppdaterStatus(behandling.fagsak, capture(fagsakStausSlot)) } returns mockk()
@@ -103,15 +104,16 @@ internal class AvsluttBehandlingStegTest {
 
     @Test
     fun `utførSteg skal avslutte behandling og oppdatere fagsak status til avsluttet når behandling ikke har løpende utbetaling`() {
-        val tilkjentYtelse = lagInitieltTilkjentYtelse(behandling).also {
-            it.andelerTilkjentYtelse.add(
-                lagAndelTilkjentYtelse(
-                    tilkjentYtelse = it,
-                    behandling = behandling,
-                    stønadTom = YearMonth.now().minusMonths(1),
-                ),
-            )
-        }
+        val tilkjentYtelse =
+            lagInitieltTilkjentYtelse(behandling).also {
+                it.andelerTilkjentYtelse.add(
+                    lagAndelTilkjentYtelse(
+                        tilkjentYtelse = it,
+                        behandling = behandling,
+                        stønadTom = YearMonth.now().minusMonths(1),
+                    ),
+                )
+            }
         every { beregningService.hentTilkjentYtelseForBehandling(behandling.id) } returns tilkjentYtelse
         val fagsakStausSlot = slot<FagsakStatus>()
         every { fagsakService.oppdaterStatus(behandling.fagsak, capture(fagsakStausSlot)) } returns mockk()

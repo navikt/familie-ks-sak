@@ -23,7 +23,6 @@ class SendStartBehandlingHendelseTilInfotrygdTask(private val kafkaProducer: Kaf
     }
 
     companion object {
-
         const val TASK_STEP_TYPE = "sendStartBehandlingHendelseTilInfotrygd"
         private val secureLogger = LoggerFactory.getLogger("secureLogger")
 
@@ -35,9 +34,10 @@ class SendStartBehandlingHendelseTilInfotrygdTask(private val kafkaProducer: Kaf
             return Task(
                 type = TASK_STEP_TYPE,
                 payload = aktørStønadsmottaker.aktivFødselsnummer(),
-                properties = Properties().apply {
-                    this["personIdent"] = aktørStønadsmottaker.aktivFødselsnummer()
-                },
+                properties =
+                    Properties().apply {
+                        this["personIdent"] = aktørStønadsmottaker.aktivFødselsnummer()
+                    },
             )
         }
     }

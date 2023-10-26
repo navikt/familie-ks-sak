@@ -13,7 +13,6 @@ class IntegrasjonException(
     uri: URI? = null,
     ident: String? = null,
 ) : RuntimeException(msg, throwable) {
-
     init {
         val message = if (throwable is RestClientResponseException) throwable.responseBodyAsString else ""
 
@@ -22,7 +21,6 @@ class IntegrasjonException(
     }
 
     companion object {
-
         private val logger = LoggerFactory.getLogger(IntegrasjonException::class.java)
         private val secureLogger = LoggerFactory.getLogger("secureLogger")
     }

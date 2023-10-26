@@ -13,12 +13,14 @@ class EøsSkjemaService<T : EøsSkjemaEntitet<T>>(
     private val skjemaRepository: EøsSkjemaRepository<T>,
     val endringsabonnenter: List<EøsSkjemaEndringAbonnent<T>>,
 ) {
-
     fun hentMedId(id: Long): T = skjemaRepository.getReferenceById(id)
 
     fun hentMedBehandlingId(behandlingId: Long) = skjemaRepository.findByBehandlingId(behandlingId)
 
-    fun endreSkjemaer(behandlingId: Long, oppdatering: T) {
+    fun endreSkjemaer(
+        behandlingId: Long,
+        oppdatering: T,
+    ) {
         val skjemaer = hentMedBehandlingId(behandlingId)
         // Oppdatering kan medføre opprettelse av et nytt blank skjema, ellers oppdatering skal lagres
         val oppdatertSkjema = oppdatering.lagBlankSkjemaEllerNull(skjemaer) ?: oppdatering
@@ -34,16 +36,21 @@ class EøsSkjemaService<T : EøsSkjemaEntitet<T>>(
         val eksisterendeSkjemaer = hentMedBehandlingId(behandlingId)
         val blanktSkjema = skjemaTilSletting.utenInnhold()
 
-        val oppdaterteKompetanser = eksisterendeSkjemaer
-            .minus(skjemaTilSletting)
-            .plus(blanktSkjema)
-            .slåSammen()
-            .medBehandlingId(behandlingId)
+        val oppdaterteKompetanser =
+            eksisterendeSkjemaer
+                .minus(skjemaTilSletting)
+                .plus(blanktSkjema)
+                .slåSammen()
+                .medBehandlingId(behandlingId)
 
         lagreDifferanseOgVarsleAbonnenter(behandlingId, eksisterendeSkjemaer, oppdaterteKompetanser)
     }
 
-    fun lagreDifferanseOgVarsleAbonnenter(behandlingId: Long, eksisterende: List<T>, oppdaterte: List<T>) {
+    fun lagreDifferanseOgVarsleAbonnenter(
+        behandlingId: Long,
+        eksisterende: List<T>,
+        oppdaterte: List<T>,
+    ) {
         val skalSlettes = eksisterende - oppdaterte
         val skalLagres = oppdaterte - eksisterende
 

@@ -21,7 +21,6 @@ class SimuleringController(
     private val simuleringService: SimuleringService,
     private val tilgangService: TilgangService,
 ) {
-
     @GetMapping(path = ["/{behandlingId}/simulering"])
     fun hentSimulering(
         @PathVariable behandlingId: Long,

@@ -10,6 +10,7 @@ import java.net.URI
 
 val logger = LoggerFactory.getLogger("eksternTjenesteKaller")
 val secureLogger = LoggerFactory.getLogger("secureLogger")
+
 inline fun <reified Data> kallEksternTjeneste(
     tjeneste: String,
     uri: URI,
@@ -112,11 +113,12 @@ private fun opprettIntegrasjonsException(
     exception: Exception,
     formål: String,
 ): IntegrasjonException {
-    val melding = if (exception is RessursException) {
-        exception.ressurs.melding
-    } else {
-        exception.message
-    }
+    val melding =
+        if (exception is RessursException) {
+            exception.ressurs.melding
+        } else {
+            exception.message
+        }
     return IntegrasjonException(
         msg = "${lagEksternKallPreMelding(tjeneste, uri)} Kall mot \"$tjeneste\" feilet. Formål: $formål. Feilmelding: $melding",
         uri = uri,

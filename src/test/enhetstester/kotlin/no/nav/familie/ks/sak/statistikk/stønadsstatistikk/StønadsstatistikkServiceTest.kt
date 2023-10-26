@@ -31,7 +31,6 @@ import java.time.LocalDateTime
 
 @ExtendWith(MockKExtension::class)
 internal class StønadsstatistikkServiceTest {
-
     @MockK(relaxed = true)
     private lateinit var behandlingHentOgPersisterService: BehandlingService
 
@@ -59,7 +58,12 @@ internal class StønadsstatistikkServiceTest {
     private val barn2Fnr = randomFnr()
 
     private val personopplysningGrunnlag =
-        lagPersonopplysningGrunnlag(behandlingId = behandling.id, søkerPersonIdent = søkerFnr, barnasIdenter = listOf(barnFnr, barn2Fnr), søkerAktør = behandling.fagsak.aktør).also {
+        lagPersonopplysningGrunnlag(
+            behandlingId = behandling.id,
+            søkerPersonIdent = søkerFnr,
+            barnasIdenter = listOf(barnFnr, barn2Fnr),
+            søkerAktør = behandling.fagsak.aktør,
+        ).also {
             it.personer.forEach { it.bostedsadresser = mutableListOf(mockk(), mockk()) }
         }
     private val barn1 = personopplysningGrunnlag.barna.first()
@@ -79,9 +83,10 @@ internal class StønadsstatistikkServiceTest {
             listOf(mockk())
         every { vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(any()) } returns vilkårsVurdering
 
-        val exception = assertThrows<IllegalStateException> {
-            stønadsstatistikkService.hentVedtakDVH(1L)
-        }
+        val exception =
+            assertThrows<IllegalStateException> {
+                stønadsstatistikkService.hentVedtakDVH(1L)
+            }
 
         assertEquals(exception.message, "Fant ikke vedtaksdato for behandling 1")
     }
@@ -90,45 +95,49 @@ internal class StønadsstatistikkServiceTest {
     fun `hentVedtakDVH skal hente og generere VedtakDVH med riktige detaljer om utbetalinger og at vilkårsresultater foreligger`() {
         val vedtak = Vedtak(behandling = behandling, vedtaksdato = LocalDateTime.now())
 
-        val andelTilkjentYtelseBarn1 = AndelTilkjentYtelseMedEndreteUtbetalinger(
-            lagAndelTilkjentYtelse(
-                behandling = behandling,
-                stønadFom = barn1.fødselsdato.førsteDagINesteMåned().toYearMonth(),
-                stønadTom = barn1.fødselsdato.plusYears(3).toYearMonth(),
-                sats = 1054,
-                aktør = barn1.aktør,
-                periodeOffset = 1,
-            ),
-            emptyList(),
-        )
+        val andelTilkjentYtelseBarn1 =
+            AndelTilkjentYtelseMedEndreteUtbetalinger(
+                lagAndelTilkjentYtelse(
+                    behandling = behandling,
+                    stønadFom = barn1.fødselsdato.førsteDagINesteMåned().toYearMonth(),
+                    stønadTom = barn1.fødselsdato.plusYears(3).toYearMonth(),
+                    sats = 1054,
+                    aktør = barn1.aktør,
+                    periodeOffset = 1,
+                ),
+                emptyList(),
+            )
 
-        val andelTilkjentYtelseBarn2PeriodeMed0Beløp = AndelTilkjentYtelseMedEndreteUtbetalinger(
-            lagAndelTilkjentYtelse(
-                behandling = behandling,
-                stønadFom = barn2.fødselsdato.førsteDagINesteMåned().toYearMonth(),
-                stønadTom = barn2.fødselsdato.plusYears(3).toYearMonth(),
-                sats = 0,
-                aktør = barn2.aktør,
-            ),
-            emptyList(),
-        )
+        val andelTilkjentYtelseBarn2PeriodeMed0Beløp =
+            AndelTilkjentYtelseMedEndreteUtbetalinger(
+                lagAndelTilkjentYtelse(
+                    behandling = behandling,
+                    stønadFom = barn2.fødselsdato.førsteDagINesteMåned().toYearMonth(),
+                    stønadTom = barn2.fødselsdato.plusYears(3).toYearMonth(),
+                    sats = 0,
+                    aktør = barn2.aktør,
+                ),
+                emptyList(),
+            )
 
-        val andelTilkjentYtelseSøker = AndelTilkjentYtelseMedEndreteUtbetalinger(
-            lagAndelTilkjentYtelse(
-                behandling = behandling,
-                stønadFom = barn2.fødselsdato.førsteDagINesteMåned().toYearMonth(),
-                stønadTom = barn2.fødselsdato.plusYears(3).toYearMonth(),
-                sats = 50,
-                aktør = barn2.aktør,
-            ),
-            emptyList(),
-        )
+        val andelTilkjentYtelseSøker =
+            AndelTilkjentYtelseMedEndreteUtbetalinger(
+                lagAndelTilkjentYtelse(
+                    behandling = behandling,
+                    stønadFom = barn2.fødselsdato.førsteDagINesteMåned().toYearMonth(),
+                    stønadTom = barn2.fødselsdato.plusYears(3).toYearMonth(),
+                    sats = 50,
+                    aktør = barn2.aktør,
+                ),
+                emptyList(),
+            )
 
-        val andelerTilkjentYtelse = listOf(
-            andelTilkjentYtelseBarn1,
-            andelTilkjentYtelseBarn2PeriodeMed0Beløp,
-            andelTilkjentYtelseSøker,
-        )
+        val andelerTilkjentYtelse =
+            listOf(
+                andelTilkjentYtelseBarn1,
+                andelTilkjentYtelseBarn2PeriodeMed0Beløp,
+                andelTilkjentYtelseSøker,
+            )
 
         every { behandlingHentOgPersisterService.hentBehandling(any()) } returns behandling
         every { persongrunnlagService.hentAktivPersonopplysningGrunnlagThrows(any()) } returns personopplysningGrunnlag

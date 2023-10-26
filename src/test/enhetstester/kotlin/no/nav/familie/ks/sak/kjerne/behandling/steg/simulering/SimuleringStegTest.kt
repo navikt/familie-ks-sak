@@ -22,7 +22,6 @@ import java.math.BigDecimal
 
 @ExtendWith(MockKExtension::class)
 internal class SimuleringStegTest {
-
     @MockK
     private lateinit var behandlingService: BehandlingService
 
@@ -67,16 +66,18 @@ internal class SimuleringStegTest {
         every { tilbakekrevingService.harÅpenTilbakekrevingsbehandling(revurderingsbehandling.fagsak.id) } returns false
         every { simuleringService.hentFeilutbetaling(revurderingsbehandling.id) } returns BigDecimal.ZERO
 
-        val exception = assertThrows<FunksjonellFeil> {
-            simuleringSteg.utførSteg(revurderingsbehandling.id, lagTilbakekrevingDto())
-        }
+        val exception =
+            assertThrows<FunksjonellFeil> {
+                simuleringSteg.utførSteg(revurderingsbehandling.id, lagTilbakekrevingDto())
+            }
         assertEquals("Simuleringen har ikke en feilutbetaling, men tilbakekrevingDto var ikke null", exception.message)
         assertEquals("Du kan ikke opprette en tilbakekreving når det ikke er en feilutbetaling.", exception.frontendFeilmelding)
     }
 
-    private fun lagTilbakekrevingDto() = TilbakekrevingRequestDto(
-        valg = Tilbakekrevingsvalg.OPPRETT_TILBAKEKREVING_MED_VARSEL,
-        varsel = "Opprett en tilbakekreving",
-        begrunnelse = "Test begrunnelse",
-    )
+    private fun lagTilbakekrevingDto() =
+        TilbakekrevingRequestDto(
+            valg = Tilbakekrevingsvalg.OPPRETT_TILBAKEKREVING_MED_VARSEL,
+            varsel = "Opprett en tilbakekreving",
+            begrunnelse = "Test begrunnelse",
+        )
 }

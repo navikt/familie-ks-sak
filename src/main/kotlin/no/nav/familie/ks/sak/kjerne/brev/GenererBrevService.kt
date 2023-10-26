@@ -63,7 +63,6 @@ class GenererBrevService(
     private val korrigertVedtakService: KorrigertVedtakService,
     private val feilutbetaltValutaService: FeilutbetaltValutaService,
 ) {
-
     fun genererManueltBrev(
         manueltBrevRequest: ManueltBrevDto,
         erForhåndsvisning: Boolean = false,
@@ -119,9 +118,10 @@ class GenererBrevService(
         val behandling = vedtak.behandling
         val brevtype = hentVedtaksbrevmal(behandling)
         val fellesdataForVedtaksbrev = lagDataForVedtaksbrev(vedtak)
-        val etterbetaling = simuleringService.hentEtterbetaling(behandling.id)
-            .takeIf { it > BigDecimal.ZERO }?.run { formaterBeløp(this.toInt()) }
-            ?.let { Etterbetaling(it) }
+        val etterbetaling =
+            simuleringService.hentEtterbetaling(behandling.id)
+                .takeIf { it > BigDecimal.ZERO }?.run { formaterBeløp(this.toInt()) }
+                ?.let { Etterbetaling(it) }
 
         return when (brevtype) {
             Brevmal.VEDTAK_FØRSTEGANGSVEDTAK -> {
@@ -133,29 +133,32 @@ class GenererBrevService(
 
             Brevmal.VEDTAK_AVSLAG -> Avslag(fellesdataForVedtaksbrev = fellesdataForVedtaksbrev)
 
-            Brevmal.VEDTAK_ENDRING -> VedtakEndring(
-                fellesdataForVedtaksbrev = fellesdataForVedtaksbrev,
-                etterbetaling = etterbetaling,
-                erKlage = behandling.erKlage(),
-                erFeilutbetalingPåBehandling = erFeilutbetalingPåBehandling(behandlingId = behandling.id),
-                informasjonOmAarligKontroll = vedtaksperiodeService.skalHaÅrligKontroll(vedtak),
-                feilutbetaltValuta = feilutbetaltValutaService.beskrivPerioderMedFeilutbetaltValuta(behandling.id)
-                    ?.let {
-                        FeilutbetaltValuta(perioderMedForMyeUtbetalt = it)
-                    },
+            Brevmal.VEDTAK_ENDRING ->
+                VedtakEndring(
+                    fellesdataForVedtaksbrev = fellesdataForVedtaksbrev,
+                    etterbetaling = etterbetaling,
+                    erKlage = behandling.erKlage(),
+                    erFeilutbetalingPåBehandling = erFeilutbetalingPåBehandling(behandlingId = behandling.id),
+                    informasjonOmAarligKontroll = vedtaksperiodeService.skalHaÅrligKontroll(vedtak),
+                    feilutbetaltValuta =
+                        feilutbetaltValutaService.beskrivPerioderMedFeilutbetaltValuta(behandling.id)
+                            ?.let {
+                                FeilutbetaltValuta(perioderMedForMyeUtbetalt = it)
+                            },
+                )
 
-            )
+            Brevmal.VEDTAK_OPPHØRT ->
+                Opphørt(
+                    fellesdataForVedtaksbrev = fellesdataForVedtaksbrev,
+                    erFeilutbetalingPåBehandling = erFeilutbetalingPåBehandling(behandlingId = behandling.id),
+                )
 
-            Brevmal.VEDTAK_OPPHØRT -> Opphørt(
-                fellesdataForVedtaksbrev = fellesdataForVedtaksbrev,
-                erFeilutbetalingPåBehandling = erFeilutbetalingPåBehandling(behandlingId = behandling.id),
-            )
-
-            Brevmal.VEDTAK_OPPHØR_MED_ENDRING -> OpphørMedEndring(
-                fellesdataForVedtaksbrev = fellesdataForVedtaksbrev,
-                etterbetaling = etterbetaling,
-                erFeilutbetalingPåBehandling = erFeilutbetalingPåBehandling(behandlingId = behandling.id),
-            )
+            Brevmal.VEDTAK_OPPHØR_MED_ENDRING ->
+                OpphørMedEndring(
+                    fellesdataForVedtaksbrev = fellesdataForVedtaksbrev,
+                    etterbetaling = etterbetaling,
+                    erFeilutbetalingPåBehandling = erFeilutbetalingPåBehandling(behandlingId = behandling.id),
+                )
 
             else -> throw Feil("Forsøker å hente vedtaksbrevdata for brevmal ${brevtype.visningsTekst}")
         }
@@ -175,18 +178,20 @@ class GenererBrevService(
 
         val personopplysningsgrunnlagOgSignaturData = hentGrunnlagOgSignaturData(vedtak)
 
-        val brevPeriodeDtoer = brevPeriodeService
-            .hentBrevPeriodeDtoer(utvidetVedtaksperioderMedBegrunnelser, vedtak.behandling.id)
+        val brevPeriodeDtoer =
+            brevPeriodeService
+                .hentBrevPeriodeDtoer(utvidetVedtaksperioderMedBegrunnelser, vedtak.behandling.id)
 
         val korrigertVedtak = korrigertVedtakService.finnAktivtKorrigertVedtakPåBehandling(vedtak.behandling.id)
 
-        val hjemler = hentHjemler(
-            behandlingId = vedtak.behandling.id,
-            utvidetVedtaksperioderMedBegrunnelser = utvidetVedtaksperioderMedBegrunnelser,
-            målform = personopplysningsgrunnlagOgSignaturData.grunnlag.søker.målform,
-            sanityBegrunnelser = sanityService.hentSanityBegrunnelser(),
-            vedtakKorrigertHjemmelSkalMedIBrev = korrigertVedtak != null,
-        )
+        val hjemler =
+            hentHjemler(
+                behandlingId = vedtak.behandling.id,
+                utvidetVedtaksperioderMedBegrunnelser = utvidetVedtaksperioderMedBegrunnelser,
+                målform = personopplysningsgrunnlagOgSignaturData.grunnlag.søker.målform,
+                sanityBegrunnelser = sanityService.hentSanityBegrunnelser(),
+                vedtakKorrigertHjemmelSkalMedIBrev = korrigertVedtak != null,
+            )
 
         return FellesdataForVedtaksbrev(
             enhet = personopplysningsgrunnlagOgSignaturData.enhet,
@@ -232,8 +237,9 @@ class GenererBrevService(
         return hentHjemmeltekst(
             opplysningspliktHjemlerSkalMedIBrev = opplysningspliktHjemlerSkalMedIBrev,
             målform = målform,
-            sanitybegrunnelserBruktIBrev = utvidetVedtaksperioderMedBegrunnelser.flatMap { it.begrunnelser }
-                .mapNotNull { it.begrunnelse.tilSanityBegrunnelse(sanityBegrunnelser) },
+            sanitybegrunnelserBruktIBrev =
+                utvidetVedtaksperioderMedBegrunnelser.flatMap { it.begrunnelser }
+                    .mapNotNull { it.begrunnelse.tilSanityBegrunnelse(sanityBegrunnelser) },
             vedtakKorrigertHjemmelSkalMedIBrev = vedtakKorrigertHjemmelSkalMedIBrev,
         )
     }

@@ -23,8 +23,10 @@ class BisysService(
     private val andelerTilkjentYtelseOgEndreteUtbetalingerService: AndelerTilkjentYtelseOgEndreteUtbetalingerService,
     private val infotrygdReplikaClient: InfotrygdReplikaClient,
 ) {
-
-    fun hentUtbetalingsinfo(fom: LocalDate, identer: List<String>): BisysResponsDto {
+    fun hentUtbetalingsinfo(
+        fom: LocalDate,
+        identer: List<String>,
+    ): BisysResponsDto {
         // hent fagsaker
         val aktører = identer.map { personidentService.hentAktør(it) }
         val fagsaker = aktører.map { fagsakService.hentFagsakerPåPerson(it) }.flatten()
@@ -33,33 +35,35 @@ class BisysService(
         val behandlinger = fagsaker.mapNotNull { behandlingService.hentSisteBehandlingSomErVedtatt(it.id) }
 
         // hent utbetalingsinfo from ks-sak for hver behandling
-        val utbetalingsinfoFraKsSak = behandlinger.map { behandling ->
-            val andeler =
-                andelerTilkjentYtelseOgEndreteUtbetalingerService.finnAndelerTilkjentYtelseMedEndreteUtbetalinger(behandling.id)
-            andeler.filter { it.kalkulertUtbetalingsbeløp != 0 }
-                .filter { aty -> fom.erSammeEllerFør(aty.stønadTom.toLocalDate()) }
-                .map {
-                    KsSakPeriode(
-                        fomMåned = it.stønadFom,
-                        tomMåned = it.stønadTom,
-                        barn = Barn(ident = it.aktør.aktivFødselsnummer(), beløp = it.kalkulertUtbetalingsbeløp),
-                    )
-                }
-        }.flatten()
+        val utbetalingsinfoFraKsSak =
+            behandlinger.map { behandling ->
+                val andeler =
+                    andelerTilkjentYtelseOgEndreteUtbetalingerService.finnAndelerTilkjentYtelseMedEndreteUtbetalinger(behandling.id)
+                andeler.filter { it.kalkulertUtbetalingsbeløp != 0 }
+                    .filter { aty -> fom.erSammeEllerFør(aty.stønadTom.toLocalDate()) }
+                    .map {
+                        KsSakPeriode(
+                            fomMåned = it.stønadFom,
+                            tomMåned = it.stønadTom,
+                            barn = Barn(ident = it.aktør.aktivFødselsnummer(), beløp = it.kalkulertUtbetalingsbeløp),
+                        )
+                    }
+            }.flatten()
 
         // hent utbetalingsinfo from infotrygd
         val respons = infotrygdReplikaClient.hentKontantstøttePerioderFraInfotrygd(identer)
         logger.info("Hentet ${respons.data.size} data fra infotrygd")
-        val utbetalingsinfoFraInfotrygd = respons.data.filter { stonad ->
-            fom.erSammeEllerFør(stonad.tom?.toLocalDate() ?: LocalDate.MAX) // manglende tom dato i infotrygd er løpende stønad
-        }.map { stonad ->
-            InfotrygdPeriode(
-                fomMåned = checkNotNull(stonad.fom) { "fom kan ikke være null" },
-                tomMåned = stonad.tom,
-                beløp = checkNotNull(stonad.belop) { "beløp kan ikke være null" },
-                barna = stonad.barn.map { it.fnr.asString },
-            )
-        }
+        val utbetalingsinfoFraInfotrygd =
+            respons.data.filter { stonad ->
+                fom.erSammeEllerFør(stonad.tom?.toLocalDate() ?: LocalDate.MAX) // manglende tom dato i infotrygd er løpende stønad
+            }.map { stonad ->
+                InfotrygdPeriode(
+                    fomMåned = checkNotNull(stonad.fom) { "fom kan ikke være null" },
+                    tomMåned = stonad.tom,
+                    beløp = checkNotNull(stonad.belop) { "beløp kan ikke være null" },
+                    barna = stonad.barn.map { it.fnr.asString },
+                )
+            }
 
         return BisysResponsDto(infotrygdPerioder = utbetalingsinfoFraInfotrygd, ksSakPerioder = utbetalingsinfoFraKsSak)
     }

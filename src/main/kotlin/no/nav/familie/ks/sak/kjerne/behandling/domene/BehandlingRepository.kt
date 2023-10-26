@@ -6,7 +6,6 @@ import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
 
 interface BehandlingRepository : JpaRepository<Behandling, Long> {
-
     @Query(value = "SELECT b FROM Behandling b WHERE b.id = :behandlingId")
     fun hentBehandling(behandlingId: Long): Behandling
 
@@ -74,7 +73,6 @@ interface BehandlingRepository : JpaRepository<Behandling, Long> {
         SELECT b.id FROM sisteiverksattebehandlingfraløpendefagsak silp JOIN behandling b 
             ON b.fk_fagsak_id = silp.fagsakid 
         WHERE b.opprettet_tid = silp.opprettet_tid""",
-
         countQuery = """WITH sisteiverksattebehandlingfraløpendefagsak AS (
                             SELECT f.id AS fagsakid, MAX(b.opprettet_tid) AS opprettet_tid
                             FROM behandling b
@@ -88,7 +86,6 @@ interface BehandlingRepository : JpaRepository<Behandling, Long> {
                         SELECT count(b.id) FROM sisteiverksattebehandlingfraløpendefagsak silp JOIN behandling b 
                             ON b.fk_fagsak_id = silp.fagsakid 
                         WHERE b.opprettet_tid = silp.opprettet_tid""",
-
         nativeQuery = true,
     )
     fun finnSisteIverksatteBehandlingFraLøpendeFagsaker(page: Pageable): Page<Long>

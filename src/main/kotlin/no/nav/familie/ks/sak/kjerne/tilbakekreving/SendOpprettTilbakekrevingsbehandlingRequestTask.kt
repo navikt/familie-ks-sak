@@ -18,7 +18,6 @@ class SendOpprettTilbakekrevingsbehandlingRequestTask(
     private val behandlingRepository: BehandlingRepository,
     private val tilbakekrevingService: TilbakekrevingService,
 ) : AsyncTaskStep {
-
     override fun doTask(task: Task) {
         val behandlingId = task.payload.toLong()
         val behandling = behandlingRepository.hentBehandling(behandlingId)
@@ -34,10 +33,11 @@ class SendOpprettTilbakekrevingsbehandlingRequestTask(
         const val TASK_STEP_TYPE = "send.opprett.tilbakekrevingsbehandling.request"
         private val logger = LoggerFactory.getLogger(SendOpprettTilbakekrevingsbehandlingRequestTask::class.java)
 
-        fun opprettTask(behandlingId: Long) = Task(
-            type = TASK_STEP_TYPE,
-            payload = behandlingId.toString(),
-            properties = Properties().apply { this["behandlingsId"] = behandlingId.toString() },
-        )
+        fun opprettTask(behandlingId: Long) =
+            Task(
+                type = TASK_STEP_TYPE,
+                payload = behandlingId.toString(),
+                properties = Properties().apply { this["behandlingsId"] = behandlingId.toString() },
+            )
     }
 }

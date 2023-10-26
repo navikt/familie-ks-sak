@@ -15,10 +15,14 @@ class PersonidentService(
 ) {
     private val secureLogger = LoggerFactory.getLogger("secureLogger")
 
-    fun hentOgLagreAktør(personIdentEllerAktørId: String, skalLagre: Boolean): Aktør {
+    fun hentOgLagreAktør(
+        personIdentEllerAktørId: String,
+        skalLagre: Boolean,
+    ): Aktør {
         // hent Aktør hvis det allerede er lagret
-        val aktør = personidentRepository.findByFødselsnummerOrNull(personIdentEllerAktørId)?.aktør
-            ?: aktørRepository.findByAktørId(personIdentEllerAktørId)
+        val aktør =
+            personidentRepository.findByFødselsnummerOrNull(personIdentEllerAktørId)?.aktør
+                ?: aktørRepository.findByAktørId(personIdentEllerAktørId)
 
         aktør?.let { return it }
 
@@ -45,7 +49,11 @@ class PersonidentService(
         return aktør
     }
 
-    private fun opprettPersonIdent(aktør: Aktør, fødselsnummer: String, skalLagre: Boolean = true): Aktør {
+    private fun opprettPersonIdent(
+        aktør: Aktør,
+        fødselsnummer: String,
+        skalLagre: Boolean = true,
+    ): Aktør {
         secureLogger.info("Oppretter personIdent. aktørIdStr=${aktør.aktørId} fødselsnummer=$fødselsnummer skal lagre=$skalLagre")
 
         if (aktør.personidenter.none { it.fødselsnummer == fødselsnummer && it.aktiv }) {
@@ -63,17 +71,25 @@ class PersonidentService(
         return aktør
     }
 
-    private fun opprettAktørIdOgPersonident(aktørIdStr: String, fødselsnummer: String, kanLagre: Boolean): Aktør {
+    private fun opprettAktørIdOgPersonident(
+        aktørIdStr: String,
+        fødselsnummer: String,
+        kanLagre: Boolean,
+    ): Aktør {
         secureLogger.info("Oppretter aktør og personIdent. aktørIdStr=$aktørIdStr fødselsnummer=$fødselsnummer skal lagre=$kanLagre")
 
-        val aktør = Aktør(aktørId = aktørIdStr).apply {
-            personidenter.add(Personident(fødselsnummer = fødselsnummer, aktør = this))
-        }
+        val aktør =
+            Aktør(aktørId = aktørIdStr).apply {
+                personidenter.add(Personident(fødselsnummer = fødselsnummer, aktør = this))
+            }
 
         return if (kanLagre) aktørRepository.saveAndFlush(aktør) else aktør
     }
 
-    fun hentIdenter(personIdent: String, historikk: Boolean): List<PdlIdent> = pdlClient.hentIdenter(personIdent, historikk)
+    fun hentIdenter(
+        personIdent: String,
+        historikk: Boolean,
+    ): List<PdlIdent> = pdlClient.hentIdenter(personIdent, historikk)
 
     private fun filtrerAktivtFødselsnummer(pdlIdenter: List<PdlIdent>) =
         pdlIdenter.singleOrNull { it.gruppe == "FOLKEREGISTERIDENT" }?.ident

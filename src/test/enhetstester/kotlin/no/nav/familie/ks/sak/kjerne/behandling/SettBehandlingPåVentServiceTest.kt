@@ -68,13 +68,14 @@ class SettBehandlingPåVentServiceTest {
 
         val frist = LocalDate.now().plusWeeks(1)
 
-        val funksjonellFeil = assertThrows<FunksjonellFeil> {
-            settBehandlingPåVentService.settBehandlingPåVent(
-                behandling.id,
-                frist,
-                VenteÅrsak.AVVENTER_DOKUMENTASJON,
-            )
-        }
+        val funksjonellFeil =
+            assertThrows<FunksjonellFeil> {
+                settBehandlingPåVentService.settBehandlingPåVent(
+                    behandling.id,
+                    frist,
+                    VenteÅrsak.AVVENTER_DOKUMENTASJON,
+                )
+            }
 
         assertEquals("Behandlingen er allerede satt på vent.", funksjonellFeil.message)
     }
@@ -85,13 +86,14 @@ class SettBehandlingPåVentServiceTest {
 
         val frist = LocalDate.now().minusWeeks(1)
 
-        val funksjonellFeil = assertThrows<FunksjonellFeil> {
-            settBehandlingPåVentService.settBehandlingPåVent(
-                behandling.id,
-                frist,
-                VenteÅrsak.AVVENTER_DOKUMENTASJON,
-            )
-        }
+        val funksjonellFeil =
+            assertThrows<FunksjonellFeil> {
+                settBehandlingPåVentService.settBehandlingPåVent(
+                    behandling.id,
+                    frist,
+                    VenteÅrsak.AVVENTER_DOKUMENTASJON,
+                )
+            }
 
         assertEquals(
             "Frist for å vente på behandling ${behandling.id} er satt før dagens dato.",
@@ -106,13 +108,14 @@ class SettBehandlingPåVentServiceTest {
 
         val frist = LocalDate.now().plusWeeks(1)
 
-        val funksjonellFeil = assertThrows<FunksjonellFeil> {
-            settBehandlingPåVentService.settBehandlingPåVent(
-                behandling.id,
-                frist,
-                VenteÅrsak.AVVENTER_DOKUMENTASJON,
-            )
-        }
+        val funksjonellFeil =
+            assertThrows<FunksjonellFeil> {
+                settBehandlingPåVentService.settBehandlingPåVent(
+                    behandling.id,
+                    frist,
+                    VenteÅrsak.AVVENTER_DOKUMENTASJON,
+                )
+            }
 
         assertEquals(
             "Behandling ${behandling.id} er avsluttet og kan ikke settes på vent.",
@@ -127,13 +130,14 @@ class SettBehandlingPåVentServiceTest {
 
         val frist = LocalDate.now().plusWeeks(1)
 
-        val funksjonellFeil = assertThrows<FunksjonellFeil> {
-            settBehandlingPåVentService.settBehandlingPåVent(
-                behandling.id,
-                frist,
-                VenteÅrsak.AVVENTER_DOKUMENTASJON,
-            )
-        }
+        val funksjonellFeil =
+            assertThrows<FunksjonellFeil> {
+                settBehandlingPåVentService.settBehandlingPåVent(
+                    behandling.id,
+                    frist,
+                    VenteÅrsak.AVVENTER_DOKUMENTASJON,
+                )
+            }
 
         assertEquals(
             "Behandling ${behandling.id} er ikke aktiv og kan ikke settes på vent.",

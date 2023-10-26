@@ -30,7 +30,6 @@ const val ANTALL_SEKUNDER_I_EN_UKE = 604800L
 class DistribuerDødsfallBrevPåFagsakTask(
     private val brevService: BrevService,
 ) : AsyncTaskStep {
-
     override fun doTask(task: Task) {
         val distribuerDødsfallBrevPåFagsakTask =
             objectMapper.readValue(task.payload, DistribuerDødsfallBrevPåFagsakDTO::class.java)
@@ -52,7 +51,9 @@ class DistribuerDødsfallBrevPåFagsakTask(
                 )
             } catch (e: Exception) {
                 if (e is RessursException && mottakerErDødUtenDødsboadresse(e)) {
-                    logger.info("Klarte ikke å distribuere \"${brevmal.visningsTekst}\" på journalpost $journalpostId. Prøver igjen om 7 dager.")
+                    logger.info(
+                        "Klarte ikke å distribuere \"${brevmal.visningsTekst}\" på journalpost $journalpostId. Prøver igjen om 7 dager.",
+                    )
                     throw e
                 } else {
                     Sentry.captureException(e)
@@ -63,15 +64,19 @@ class DistribuerDødsfallBrevPåFagsakTask(
     }
 
     companion object {
-        fun opprettTask(journalpostId: String, brevmal: Brevmal): Task {
+        fun opprettTask(
+            journalpostId: String,
+            brevmal: Brevmal,
+        ): Task {
             return Task(
                 type = TASK_STEP_TYPE,
-                payload = objectMapper.writeValueAsString(
-                    DistribuerDødsfallBrevPåFagsakDTO(
-                        journalpostId,
-                        brevmal,
+                payload =
+                    objectMapper.writeValueAsString(
+                        DistribuerDødsfallBrevPåFagsakDTO(
+                            journalpostId,
+                            brevmal,
+                        ),
                     ),
-                ),
             )
         }
 

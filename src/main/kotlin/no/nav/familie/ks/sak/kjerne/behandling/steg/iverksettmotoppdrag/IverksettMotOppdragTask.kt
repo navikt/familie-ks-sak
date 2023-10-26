@@ -43,14 +43,19 @@ class IverksettMotOppdragTask(
     companion object {
         const val TASK_STEP_TYPE = "iverksettMotOppdrag"
 
-        fun opprettTask(behandling: Behandling, vedtakId: Long, saksbehandlerId: String) = Task(
+        fun opprettTask(
+            behandling: Behandling,
+            vedtakId: Long,
+            saksbehandlerId: String,
+        ) = Task(
             type = TASK_STEP_TYPE,
             payload = objectMapper.writeValueAsString(IverksettMotOppdragDto(behandling.id, saksbehandlerId)),
-            properties = Properties().apply {
-                this["personIdent"] = behandling.fagsak.aktør.aktivFødselsnummer()
-                this["behandlingsId"] = behandling.id.toString()
-                this["vedtakId"] = vedtakId.toString()
-            },
+            properties =
+                Properties().apply {
+                    this["personIdent"] = behandling.fagsak.aktør.aktivFødselsnummer()
+                    this["behandlingsId"] = behandling.id.toString()
+                    this["vedtakId"] = vedtakId.toString()
+                },
         )
     }
 }

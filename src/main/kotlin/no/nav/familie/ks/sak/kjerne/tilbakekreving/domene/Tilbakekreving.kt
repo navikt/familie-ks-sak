@@ -27,25 +27,19 @@ data class Tilbakekreving(
         allocationSize = 50,
     )
     val id: Long = 0,
-
     @OneToOne(optional = false)
     @JoinColumn(name = "fk_behandling_id", nullable = false, updatable = false, unique = true)
     val behandling: Behandling,
-
     @Enumerated(EnumType.STRING)
     @Column(name = "valg")
     val valg: Tilbakekrevingsvalg,
-
     @Column(name = "varsel")
     val varsel: String? = null,
-
     @Column(name = "begrunnelse")
     val begrunnelse: String,
-
     @Column(name = "tilbakekrevingsbehandling_id")
     var tilbakekrevingsbehandlingId: String?,
 ) : BaseEntitet() {
-
     override fun hashCode() = id.hashCode()
 
     override fun equals(other: Any?): Boolean {

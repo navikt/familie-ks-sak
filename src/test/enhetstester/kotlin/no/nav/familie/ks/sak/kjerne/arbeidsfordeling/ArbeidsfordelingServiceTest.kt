@@ -25,7 +25,6 @@ import org.hamcrest.CoreMatchers.`is` as Is
 
 @ExtendWith(MockKExtension::class)
 internal class ArbeidsfordelingServiceTest {
-
     @MockK
     private lateinit var arbeidsfordelingPåBehandlingRepository: ArbeidsfordelingPåBehandlingRepository
 
@@ -93,12 +92,13 @@ internal class ArbeidsfordelingServiceTest {
         val mockedArbeidsfordelingPåBehandlingEtterEndring = mockk<ArbeidsfordelingPåBehandling>(relaxed = true)
 
         every { arbeidsfordelingPåBehandlingRepository.finnArbeidsfordelingPåBehandling(behandling.id) } returns mockedArbeidsfordelingPåBehandling
-        every { integrasjonClient.hentNavKontorEnhet("testId") } returns NavKontorEnhet(
-            0,
-            "testNavn",
-            "testEnhet",
-            "testStatus",
-        )
+        every { integrasjonClient.hentNavKontorEnhet("testId") } returns
+            NavKontorEnhet(
+                0,
+                "testNavn",
+                "testEnhet",
+                "testStatus",
+            )
         every {
             mockedArbeidsfordelingPåBehandling.copy(
                 0,
@@ -108,7 +108,9 @@ internal class ArbeidsfordelingServiceTest {
                 true,
             )
         } returns mockedArbeidsfordelingPåBehandlingEtterEndring
-        every { arbeidsfordelingPåBehandlingRepository.save(mockedArbeidsfordelingPåBehandlingEtterEndring) } returns mockedArbeidsfordelingPåBehandlingEtterEndring
+        every {
+            arbeidsfordelingPåBehandlingRepository.save(mockedArbeidsfordelingPåBehandlingEtterEndring)
+        } returns mockedArbeidsfordelingPåBehandlingEtterEndring
 
         arbeidsfordelingService.manueltOppdaterBehandlendeEnhet(behandling, endreBehandlendeEnhetDto)
 

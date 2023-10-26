@@ -8,13 +8,11 @@ import no.nav.familie.ks.sak.kjerne.brev.domene.maler.KorrigertVedtakData
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.brevperioder.BrevPeriodeDto
 
 interface VedtaksbrevDto : BrevDto {
-
     override val mal: Brevmal
     override val data: VedtaksbrevData
 }
 
 interface VedtaksbrevData : BrevDataDto {
-
     val perioder: List<BrevPeriodeDto>
 }
 

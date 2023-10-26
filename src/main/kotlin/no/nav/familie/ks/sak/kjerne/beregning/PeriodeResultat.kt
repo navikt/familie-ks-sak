@@ -32,33 +32,35 @@ data class PeriodeVilkår(
 )
 
 fun PersonResultat.tilPeriodeResultater(): List<PeriodeResultat> {
-    val tidslinjer = this.vilkårResultater.filter { !it.erAvslagUtenPeriode() }
-        .map { vilkårResultat ->
-            listOf(
-                Periode(
-                    verdi = vilkårResultat,
-                    fom = utledFomFraVilkårResultat(vilkårResultat),
-                    tom = utledTomFraVilkårResultat(vilkårResultat),
-                ),
-            ).tilTidslinje()
-        }
+    val tidslinjer =
+        this.vilkårResultater.filter { !it.erAvslagUtenPeriode() }
+            .map { vilkårResultat ->
+                listOf(
+                    Periode(
+                        verdi = vilkårResultat,
+                        fom = utledFomFraVilkårResultat(vilkårResultat),
+                        tom = utledTomFraVilkårResultat(vilkårResultat),
+                    ),
+                ).tilTidslinje()
+            }
     val kombinertTidslinjer = tidslinjer.slåSammen()
     return kombinertTidslinjer.tilPerioder().map { periode ->
         PeriodeResultat(
             aktør = aktør,
             periodeFom = periode.fom,
             periodeTom = periode.tom,
-            vilkårResultater = periode.verdi!!.map { vilkårResultat ->
-                PeriodeVilkår(
-                    vilkårType = vilkårResultat.vilkårType,
-                    resultat = vilkårResultat.resultat,
-                    begrunnelse = vilkårResultat.begrunnelse,
-                    utdypendeVilkårsvurderinger = vilkårResultat.utdypendeVilkårsvurderinger,
-                    antallTimer = vilkårResultat.antallTimer,
-                    periodeFom = utledFomFraVilkårResultat(vilkårResultat),
-                    periodeTom = utledTomFraVilkårResultat(vilkårResultat),
-                )
-            }.toSet(),
+            vilkårResultater =
+                periode.verdi!!.map { vilkårResultat ->
+                    PeriodeVilkår(
+                        vilkårType = vilkårResultat.vilkårType,
+                        resultat = vilkårResultat.resultat,
+                        begrunnelse = vilkårResultat.begrunnelse,
+                        utdypendeVilkårsvurderinger = vilkårResultat.utdypendeVilkårsvurderinger,
+                        antallTimer = vilkårResultat.antallTimer,
+                        periodeFom = utledFomFraVilkårResultat(vilkårResultat),
+                        periodeTom = utledTomFraVilkårResultat(vilkårResultat),
+                    )
+                }.toSet(),
         )
     }
 }

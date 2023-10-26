@@ -22,19 +22,21 @@ class TilgangController(
     private val personidentService: PersonidentService,
     private val integrasjonService: IntegrasjonService,
 ) {
-
     @PostMapping(path = ["/tilgang"], produces = [MediaType.APPLICATION_JSON_VALUE])
-    fun hentTilgangOgDiskresjonskode(@RequestBody tilgangRequestDTO: TilgangRequestDto): ResponseEntity<Ressurs<TilgangResponsDto>> {
+    fun hentTilgangOgDiskresjonskode(
+        @RequestBody tilgangRequestDTO: TilgangRequestDto,
+    ): ResponseEntity<Ressurs<TilgangResponsDto>> {
         val aktør = personidentService.hentAktør(tilgangRequestDTO.brukerIdent)
         val adressebeskyttelse = personOpplysningerService.hentAdressebeskyttelseSomSystembruker(aktør)
         val harTilgang = integrasjonService.sjekkTilgangTilPerson(tilgangRequestDTO.brukerIdent).harTilgang
 
         return ResponseEntity.ok(
             Ressurs.success(
-                data = TilgangResponsDto(
-                    saksbehandlerHarTilgang = harTilgang,
-                    adressebeskyttelsegradering = adressebeskyttelse,
-                ),
+                data =
+                    TilgangResponsDto(
+                        saksbehandlerHarTilgang = harTilgang,
+                        adressebeskyttelsegradering = adressebeskyttelse,
+                    ),
             ),
         )
     }

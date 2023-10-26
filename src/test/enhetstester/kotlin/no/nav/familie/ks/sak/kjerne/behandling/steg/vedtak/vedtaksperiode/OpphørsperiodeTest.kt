@@ -26,9 +26,10 @@ class OpphørsperiodeTest {
     val søker = fnrTilAktør(søkerFnr)
     val barn1 = fnrTilAktør(barn1Fnr)
 
-    val vilkårsvurdering = Vilkårsvurdering(
-        behandling = behandling,
-    )
+    val vilkårsvurdering =
+        Vilkårsvurdering(
+            behandling = behandling,
+        )
 
     @Test
     fun `mapTilOpphørsperioder skal utlede opphørsperiode mellom oppfylte perioder`() {
@@ -37,43 +38,47 @@ class OpphørsperiodeTest {
         val periodeTomAndreAndel = inneværendeMåned().minusMonths(10)
         val periodeFomSisteAndel = inneværendeMåned().minusMonths(4)
 
-        val andelBarn1 = AndelTilkjentYtelseMedEndreteUtbetalinger(
-            lagAndelTilkjentYtelse(
-                behandling = behandling,
-                stønadFom = inneværendeMåned().minusYears(4),
-                stønadTom = periodeTomFørsteAndel,
-                sats = 1054,
-                aktør = barn1,
-            ),
-            emptyList(),
-        )
+        val andelBarn1 =
+            AndelTilkjentYtelseMedEndreteUtbetalinger(
+                lagAndelTilkjentYtelse(
+                    behandling = behandling,
+                    stønadFom = inneværendeMåned().minusYears(4),
+                    stønadTom = periodeTomFørsteAndel,
+                    sats = 1054,
+                    aktør = barn1,
+                ),
+                emptyList(),
+            )
 
-        val andel2Barn1 = AndelTilkjentYtelseMedEndreteUtbetalinger(
-            lagAndelTilkjentYtelse(
-                behandling = behandling,
-                stønadFom = periodeFomAndreAndel,
-                stønadTom = periodeTomAndreAndel,
-                sats = 1054,
-                aktør = barn1,
-            ),
-            emptyList(),
-        )
+        val andel2Barn1 =
+            AndelTilkjentYtelseMedEndreteUtbetalinger(
+                lagAndelTilkjentYtelse(
+                    behandling = behandling,
+                    stønadFom = periodeFomAndreAndel,
+                    stønadTom = periodeTomAndreAndel,
+                    sats = 1054,
+                    aktør = barn1,
+                ),
+                emptyList(),
+            )
 
-        val andel3Barn1 = AndelTilkjentYtelseMedEndreteUtbetalinger(
-            lagAndelTilkjentYtelse(
-                behandling = behandling,
-                stønadFom = periodeFomSisteAndel,
-                stønadTom = inneværendeMåned().plusMonths(12),
-                sats = 1054,
-                aktør = barn1,
-            ),
-            emptyList(),
-        )
+        val andel3Barn1 =
+            AndelTilkjentYtelseMedEndreteUtbetalinger(
+                lagAndelTilkjentYtelse(
+                    behandling = behandling,
+                    stønadFom = periodeFomSisteAndel,
+                    stønadTom = inneværendeMåned().plusMonths(12),
+                    sats = 1054,
+                    aktør = barn1,
+                ),
+                emptyList(),
+            )
 
-        val opphørsperioder = mapTilOpphørsperioder(
-            andelerTilkjentYtelse = listOf(andelBarn1, andel2Barn1, andel3Barn1),
-            personopplysningGrunnlag = personopplysningGrunnlag,
-        )
+        val opphørsperioder =
+            mapTilOpphørsperioder(
+                andelerTilkjentYtelse = listOf(andelBarn1, andel2Barn1, andel3Barn1),
+                personopplysningGrunnlag = personopplysningGrunnlag,
+            )
 
         assertEquals(2, opphørsperioder.size)
         assertEquals(periodeTomFørsteAndel.nesteMåned(), opphørsperioder[0].periodeFom.toYearMonth())
@@ -85,21 +90,23 @@ class OpphørsperiodeTest {
     @Test
     fun `mapTilOpphørsperioder skal utlede opphørsperiode når siste utbetalingsperiode er før neste måned`() {
         val periodeTomFørsteAndel = inneværendeMåned().minusYears(1)
-        val andelBarn1 = AndelTilkjentYtelseMedEndreteUtbetalinger(
-            lagAndelTilkjentYtelse(
-                behandling = behandling,
-                stønadFom = inneværendeMåned().minusYears(4),
-                stønadTom = periodeTomFørsteAndel,
-                sats = 1054,
-                aktør = barn1,
-            ),
-            emptyList(),
-        )
+        val andelBarn1 =
+            AndelTilkjentYtelseMedEndreteUtbetalinger(
+                lagAndelTilkjentYtelse(
+                    behandling = behandling,
+                    stønadFom = inneværendeMåned().minusYears(4),
+                    stønadTom = periodeTomFørsteAndel,
+                    sats = 1054,
+                    aktør = barn1,
+                ),
+                emptyList(),
+            )
 
-        val opphørsperioder = mapTilOpphørsperioder(
-            andelerTilkjentYtelse = listOf(andelBarn1),
-            personopplysningGrunnlag = personopplysningGrunnlag,
-        )
+        val opphørsperioder =
+            mapTilOpphørsperioder(
+                andelerTilkjentYtelse = listOf(andelBarn1),
+                personopplysningGrunnlag = personopplysningGrunnlag,
+            )
 
         assertEquals(1, opphørsperioder.size)
         assertEquals(periodeTomFørsteAndel.nesteMåned(), opphørsperioder[0].periodeFom.toYearMonth())
@@ -109,21 +116,23 @@ class OpphørsperiodeTest {
     @Test
     fun `mapTilOpphørsperioder skal utlede opphørsperiode fra neste måned når siste utbetalingsperiode er inneværende måned`() {
         val periodeTomFørsteAndel = inneværendeMåned()
-        val andelBarn1 = AndelTilkjentYtelseMedEndreteUtbetalinger(
-            lagAndelTilkjentYtelse(
-                behandling = behandling,
-                stønadFom = inneværendeMåned().minusYears(4),
-                stønadTom = periodeTomFørsteAndel,
-                sats = 1054,
-                aktør = barn1,
-            ),
-            emptyList(),
-        )
+        val andelBarn1 =
+            AndelTilkjentYtelseMedEndreteUtbetalinger(
+                lagAndelTilkjentYtelse(
+                    behandling = behandling,
+                    stønadFom = inneværendeMåned().minusYears(4),
+                    stønadTom = periodeTomFørsteAndel,
+                    sats = 1054,
+                    aktør = barn1,
+                ),
+                emptyList(),
+            )
 
-        val opphørsperioder = mapTilOpphørsperioder(
-            andelerTilkjentYtelse = listOf(andelBarn1),
-            personopplysningGrunnlag = personopplysningGrunnlag,
-        )
+        val opphørsperioder =
+            mapTilOpphørsperioder(
+                andelerTilkjentYtelse = listOf(andelBarn1),
+                personopplysningGrunnlag = personopplysningGrunnlag,
+            )
 
         assertEquals(1, opphørsperioder.size)
         assertEquals(periodeTomFørsteAndel.nesteMåned(), opphørsperioder[0].periodeFom.toYearMonth())
@@ -134,32 +143,34 @@ class OpphørsperiodeTest {
     fun `mapTilOpphørsperioder skal slå sammen to like opphørsperioder`() {
         val periode12MånederFraInneværendeMåned = inneværendeMåned().minusMonths(12).toLocalDate()
 
-        val toLikePerioder = listOf(
-            Opphørsperiode(
-                periodeFom = periode12MånederFraInneværendeMåned,
-                periodeTom = inneværendeMåned().toLocalDate(),
-            ),
-            Opphørsperiode(
-                periodeFom = periode12MånederFraInneværendeMåned,
-                periodeTom = inneværendeMåned().toLocalDate(),
-            ),
-        )
+        val toLikePerioder =
+            listOf(
+                Opphørsperiode(
+                    periodeFom = periode12MånederFraInneværendeMåned,
+                    periodeTom = inneværendeMåned().toLocalDate(),
+                ),
+                Opphørsperiode(
+                    periodeFom = periode12MånederFraInneværendeMåned,
+                    periodeTom = inneværendeMåned().toLocalDate(),
+                ),
+            )
 
         assertEquals(1, slåSammenOpphørsperioder(toLikePerioder).size)
     }
 
     @Test
     fun `mapTilOpphørsperioder skal slå sammen to opphørsperioder med ulik sluttdato`() {
-        val toPerioderMedUlikSluttdato = listOf(
-            Opphørsperiode(
-                periodeFom = inneværendeMåned().minusMonths(12).toLocalDate(),
-                periodeTom = inneværendeMåned().toLocalDate(),
-            ),
-            Opphørsperiode(
-                periodeFom = inneværendeMåned().minusMonths(12).toLocalDate(),
-                periodeTom = inneværendeMåned().nesteMåned().toLocalDate(),
-            ),
-        )
+        val toPerioderMedUlikSluttdato =
+            listOf(
+                Opphørsperiode(
+                    periodeFom = inneværendeMåned().minusMonths(12).toLocalDate(),
+                    periodeTom = inneværendeMåned().toLocalDate(),
+                ),
+                Opphørsperiode(
+                    periodeFom = inneværendeMåned().minusMonths(12).toLocalDate(),
+                    periodeTom = inneværendeMåned().nesteMåned().toLocalDate(),
+                ),
+            )
         val enPeriodeMedSluttDatoNesteMåned = slåSammenOpphørsperioder(toPerioderMedUlikSluttdato)
 
         assertEquals(1, enPeriodeMedSluttDatoNesteMåned.size)
@@ -168,16 +179,17 @@ class OpphørsperiodeTest {
 
     @Test
     fun `mapTilOpphørsperioder skal slå sammen to opphørsperioder med ulik startdato`() {
-        val toPerioderMedUlikStartdato = listOf(
-            Opphørsperiode(
-                periodeFom = inneværendeMåned().minusMonths(12).toLocalDate(),
-                periodeTom = inneværendeMåned().toLocalDate(),
-            ),
-            Opphørsperiode(
-                periodeFom = inneværendeMåned().minusMonths(13).toLocalDate(),
-                periodeTom = inneværendeMåned().toLocalDate(),
-            ),
-        )
+        val toPerioderMedUlikStartdato =
+            listOf(
+                Opphørsperiode(
+                    periodeFom = inneværendeMåned().minusMonths(12).toLocalDate(),
+                    periodeTom = inneværendeMåned().toLocalDate(),
+                ),
+                Opphørsperiode(
+                    periodeFom = inneværendeMåned().minusMonths(13).toLocalDate(),
+                    periodeTom = inneværendeMåned().toLocalDate(),
+                ),
+            )
         val enPeriodeMedStartDato13MånederTilbake = slåSammenOpphørsperioder(toPerioderMedUlikStartdato)
 
         assertEquals(1, enPeriodeMedStartDato13MånederTilbake.size)
@@ -191,16 +203,17 @@ class OpphørsperiodeTest {
     fun `mapTilOpphørsperioder skal slå sammen to opphørsperioder som overlapper`() {
         val førsteOpphørsperiodeFom = inneværendeMåned().minusMonths(12).toLocalDate()
         val sisteOpphørsperiodeTom = inneværendeMåned().plusMonths(1).toLocalDate()
-        val toPerioderMedUlikStartdato = listOf(
-            Opphørsperiode(
-                periodeFom = førsteOpphørsperiodeFom,
-                periodeTom = inneværendeMåned().minusMonths(2).toLocalDate(),
-            ),
-            Opphørsperiode(
-                periodeFom = inneværendeMåned().minusMonths(6).toLocalDate(),
-                periodeTom = sisteOpphørsperiodeTom,
-            ),
-        )
+        val toPerioderMedUlikStartdato =
+            listOf(
+                Opphørsperiode(
+                    periodeFom = førsteOpphørsperiodeFom,
+                    periodeTom = inneværendeMåned().minusMonths(2).toLocalDate(),
+                ),
+                Opphørsperiode(
+                    periodeFom = inneværendeMåned().minusMonths(6).toLocalDate(),
+                    periodeTom = sisteOpphørsperiodeTom,
+                ),
+            )
         val enOpphørsperiodeMedFørsteFomOgSisteTom = slåSammenOpphørsperioder(toPerioderMedUlikStartdato)
 
         assertEquals(1, enOpphørsperiodeMedFørsteFomOgSisteTom.size)

@@ -27,7 +27,6 @@ import java.time.YearMonth
 @Entity(name = "TilkjentYtelse")
 @Table(name = "TILKJENT_YTELSE")
 data class TilkjentYtelse(
-
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "tilkjent_ytelse_seq_generator")
     @SequenceGenerator(
@@ -36,32 +35,24 @@ data class TilkjentYtelse(
         allocationSize = 50,
     )
     val id: Long = 0,
-
     @OneToOne(optional = false)
     @JoinColumn(name = "fk_behandling_id", nullable = false, updatable = false)
     val behandling: Behandling,
-
     @Column(name = "stonad_fom", nullable = true, columnDefinition = "DATE")
     @Convert(converter = YearMonthConverter::class)
     var stønadFom: YearMonth? = null,
-
     @Column(name = "stonad_tom", nullable = true, columnDefinition = "DATE")
     @Convert(converter = YearMonthConverter::class)
     var stønadTom: YearMonth? = null,
-
     @Column(name = "opphor_fom", nullable = true, columnDefinition = "DATE")
     @Convert(converter = YearMonthConverter::class)
     var opphørFom: YearMonth? = null,
-
     @Column(name = "opprettet_dato", nullable = false)
     val opprettetDato: LocalDate,
-
     @Column(name = "endret_dato", nullable = false)
     var endretDato: LocalDate,
-
     @Column(name = "utbetalingsoppdrag", columnDefinition = "TEXT")
     var utbetalingsoppdrag: String? = null,
-
     @OneToMany(
         fetch = FetchType.EAGER,
         mappedBy = "tilkjentYtelse",
@@ -72,14 +63,15 @@ data class TilkjentYtelse(
 )
 
 fun TilkjentYtelse.tilTidslinjeMedAndeler(): Tidslinje<Collection<AndelTilkjentYtelse>> {
-    val tidslinjer = andelerTilkjentYtelse.map {
-        listOf(
-            Periode(
-                verdi = it,
-                fom = it.stønadFom.førsteDagIInneværendeMåned(),
-                tom = it.stønadTom.sisteDagIInneværendeMåned(),
-            ),
-        ).tilTidslinje()
-    }
+    val tidslinjer =
+        andelerTilkjentYtelse.map {
+            listOf(
+                Periode(
+                    verdi = it,
+                    fom = it.stønadFom.førsteDagIInneværendeMåned(),
+                    tom = it.stønadTom.sisteDagIInneværendeMåned(),
+                ),
+            ).tilTidslinje()
+        }
     return tidslinjer.slåSammen()
 }

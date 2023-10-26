@@ -12,36 +12,38 @@ fun <T> Collection<Tidslinje<T>>.slåSammen(): Tidslinje<Collection<T>> {
     return this.fold(tomTidslinje(startsTidspunkt = minsteTidspunkt)) { sammenlagt, neste ->
         sammenlagt.biFunksjon(neste) { periodeVerdiFraSammenlagt, periodeVerdiFraNeste ->
             when (periodeVerdiFraSammenlagt) {
-                is Verdi -> when (periodeVerdiFraNeste) {
-                    is Verdi -> Verdi(periodeVerdiFraSammenlagt.verdi + periodeVerdiFraNeste.verdi)
-                    else -> periodeVerdiFraSammenlagt
-                }
+                is Verdi ->
+                    when (periodeVerdiFraNeste) {
+                        is Verdi -> Verdi(periodeVerdiFraSammenlagt.verdi + periodeVerdiFraNeste.verdi)
+                        else -> periodeVerdiFraSammenlagt
+                    }
 
-                is Null -> when (periodeVerdiFraNeste) {
-                    is Verdi -> Verdi(listOf(periodeVerdiFraNeste.verdi))
-                    else -> Null()
-                }
+                is Null ->
+                    when (periodeVerdiFraNeste) {
+                        is Verdi -> Verdi(listOf(periodeVerdiFraNeste.verdi))
+                        else -> Null()
+                    }
 
-                is Udefinert -> when (periodeVerdiFraNeste) {
-                    is Verdi -> Verdi(listOf(periodeVerdiFraNeste.verdi))
-                    is Null -> Null()
-                    is Udefinert -> Udefinert()
-                }
+                is Udefinert ->
+                    when (periodeVerdiFraNeste) {
+                        is Verdi -> Verdi(listOf(periodeVerdiFraNeste.verdi))
+                        is Null -> Null()
+                        is Udefinert -> Udefinert()
+                    }
             }
         }
     }
 }
 
-fun <I, R> Collection<Tidslinje<I>>.kombiner(
-    listeKombinator: (Iterable<I>) -> R,
-): Tidslinje<R> = this.slåSammen().map {
-    when (it) {
-        is Verdi -> {
-            val resultat = listeKombinator(it.verdi)
-            if (resultat != null) Verdi(resultat) else Null()
-        }
+fun <I, R> Collection<Tidslinje<I>>.kombiner(listeKombinator: (Iterable<I>) -> R): Tidslinje<R> =
+    this.slåSammen().map {
+        when (it) {
+            is Verdi -> {
+                val resultat = listeKombinator(it.verdi)
+                if (resultat != null) Verdi(resultat) else Null()
+            }
 
-        is Null -> Null()
-        is Udefinert -> Udefinert()
+            is Null -> Null()
+            is Udefinert -> Udefinert()
+        }
     }
-}

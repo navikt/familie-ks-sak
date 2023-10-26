@@ -11,7 +11,6 @@ open class Feil(
     open val httpStatus: HttpStatus = HttpStatus.OK,
     open val throwable: Throwable? = null,
     override val cause: Throwable? = throwable,
-
 ) : RuntimeException(message)
 
 open class FunksjonellFeil(
@@ -29,11 +28,11 @@ class UtbetalingsikkerhetFeil(
     override val throwable: Throwable? = null,
     override val cause: Throwable? = throwable,
 ) : FunksjonellFeil(
-    melding,
-    frontendFeilmelding,
-    httpStatus,
-    throwable,
-)
+        melding,
+        frontendFeilmelding,
+        httpStatus,
+        throwable,
+    )
 
 class RolleTilgangskontrollFeil(
     melding: String,
@@ -42,14 +41,16 @@ class RolleTilgangskontrollFeil(
     override val throwable: Throwable? = null,
     override val cause: Throwable? = throwable,
 ) : FunksjonellFeil(
-    melding,
-    frontendFeilmelding,
-    httpStatus,
-    throwable,
-)
+        melding,
+        frontendFeilmelding,
+        httpStatus,
+        throwable,
+    )
 
 class PdlRequestException(message: String) : Feil(message)
+
 class PdlNotFoundException : FunksjonellFeil("Fant ikke person")
+
 class PdlPersonKanIkkeBehandlesIFagsystem(val årsak: String) :
     FunksjonellFeil("Person kan ikke behandles i fagsystem: $årsak")
 
@@ -71,7 +72,6 @@ open class EksternTjenesteFeilException(
     val request: Any?,
     val throwable: Throwable? = null,
 ) : RuntimeException(melding, throwable) {
-
     init {
         eksternTjenesteFeil.melding = melding
     }
@@ -82,7 +82,7 @@ open class EksternTjenesteFeilException(
             |   eksternTjeneste=$eksternTjenesteFeil
             |   request=$request
             |   throwable=$throwable)
-        """.trimMargin()
+            """.trimMargin()
     }
 }
 

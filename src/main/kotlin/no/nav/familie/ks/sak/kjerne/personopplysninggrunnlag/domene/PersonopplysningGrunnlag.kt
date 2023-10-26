@@ -23,22 +23,17 @@ data class PersonopplysningGrunnlag(
         allocationSize = 50,
     )
     val id: Long = 0,
-
     @Column(name = "fk_behandling_id", updatable = false, nullable = false)
     val behandlingId: Long,
-
     @OneToMany(
         fetch = FetchType.EAGER,
         mappedBy = "personopplysningGrunnlag",
         cascade = [CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH],
     )
     val personer: MutableSet<Person> = mutableSetOf(),
-
     @Column(name = "aktiv", nullable = false)
     var aktiv: Boolean = true,
-
 ) : BaseEntitet() {
-
     override fun toString(): String {
         return "PersonopplysningGrunnlagEntitet{id=$id,personer=$personer,aktiv=$aktiv}"
     }
@@ -46,6 +41,7 @@ data class PersonopplysningGrunnlag(
     val barna: List<Person> get() = personer.filter { it.type == PersonType.BARN }
 
     val søker: Person
-        get() = personer.singleOrNull { it.type == PersonType.SØKER }
-            ?: error("Persongrunnlag mangler søker eller det finnes flere personer i grunnlaget med type=SØKER")
+        get() =
+            personer.singleOrNull { it.type == PersonType.SØKER }
+                ?: error("Persongrunnlag mangler søker eller det finnes flere personer i grunnlaget med type=SØKER")
 }

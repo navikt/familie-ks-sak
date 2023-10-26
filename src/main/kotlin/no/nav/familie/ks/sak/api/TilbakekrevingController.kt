@@ -25,7 +25,6 @@ class TilbakekrevingController(
     private val tilgangService: TilgangService,
     private val tilbakekrevingService: TilbakekrevingService,
 ) {
-
     @PostMapping("/{behandlingId}/forhåndsvis-tilbakekreving-varselbrev")
     fun hentForhåndsvisningVarselbrev(
         @PathVariable behandlingId: Long,
@@ -46,7 +45,9 @@ class TilbakekrevingController(
     }
 
     @PostMapping("/manuell", consumes = [MediaType.APPLICATION_JSON_VALUE])
-    fun opprettTilbakekrevingsbehandlingManuelt(@RequestBody fagsakIdDto: FagsakIdDto) {
+    fun opprettTilbakekrevingsbehandlingManuelt(
+        @RequestBody fagsakIdDto: FagsakIdDto,
+    ) {
         tilgangService.validerTilgangTilHandlingOgFagsak(
             fagsakId = fagsakIdDto.fagsakId,
             event = AuditLoggerEvent.CREATE,

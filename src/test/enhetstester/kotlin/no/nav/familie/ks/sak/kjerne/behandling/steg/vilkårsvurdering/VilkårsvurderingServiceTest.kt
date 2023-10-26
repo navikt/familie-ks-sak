@@ -39,7 +39,6 @@ import org.hamcrest.CoreMatchers.`is` as Is
 
 @ExtendWith(MockKExtension::class)
 class VilkårsvurderingServiceTest {
-
     @MockK
     private lateinit var vilkårsvurderingRepository: VilkårsvurderingRepository
 
@@ -68,11 +67,12 @@ class VilkårsvurderingServiceTest {
 
         val lagretVilkårsvurderingSlot = slot<Vilkårsvurdering>()
         every { vilkårsvurderingRepository.finnAktivForBehandling(any()) } returns null
-        every { personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(any()) } returns lagPersonopplysningGrunnlag(
-            behandlingId = behandling.id,
-            søkerPersonIdent = søker.aktivFødselsnummer(),
-            barnasIdenter = listOf(barn1.aktivFødselsnummer(), barn2.aktivFødselsnummer()),
-        )
+        every { personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(any()) } returns
+            lagPersonopplysningGrunnlag(
+                behandlingId = behandling.id,
+                søkerPersonIdent = søker.aktivFødselsnummer(),
+                barnasIdenter = listOf(barn1.aktivFødselsnummer(), barn2.aktivFødselsnummer()),
+            )
         every { vilkårsvurderingRepository.save(capture(lagretVilkårsvurderingSlot)) } returns mockk()
 
         vilkårsvurderingService.opprettVilkårsvurdering(behandling, null)
@@ -100,8 +100,9 @@ class VilkårsvurderingServiceTest {
         )
 
         // autoutfylling
-        val barnetsAlderVilkårer = lagretVilkårsvurdering.personResultater.filter { !it.erSøkersResultater() }
-            .flatMap { it.vilkårResultater.filter { it.vilkårType == Vilkår.BARNETS_ALDER } }
+        val barnetsAlderVilkårer =
+            lagretVilkårsvurdering.personResultater.filter { !it.erSøkersResultater() }
+                .flatMap { it.vilkårResultater.filter { it.vilkårType == Vilkår.BARNETS_ALDER } }
 
         val barnehageVilkårer =
             lagretVilkårsvurdering.personResultater.filter { !it.erSøkersResultater() }
@@ -132,8 +133,9 @@ class VilkårsvurderingServiceTest {
         }
         assertTrue { barnehageVilkårer.any { it.periodeFom == barn2FødselsDato } }
 
-        val medlemskapVilkår = lagretVilkårsvurdering.personResultater.single { it.erSøkersResultater() }
-            .vilkårResultater.single { it.vilkårType == Vilkår.MEDLEMSKAP }
+        val medlemskapVilkår =
+            lagretVilkårsvurdering.personResultater.single { it.erSøkersResultater() }
+                .vilkårResultater.single { it.vilkårType == Vilkår.MEDLEMSKAP }
         assertEquals(fnrTilFødselsdato(søker.aktivFødselsnummer()).plusYears(5), medlemskapVilkår.periodeFom)
     }
 
@@ -143,16 +145,18 @@ class VilkårsvurderingServiceTest {
         val barn2 = randomAktør()
         val lagretDeaktivertVilkårsvurderingSlot = slot<Vilkårsvurdering>()
         val lagretVilkårsvurderingSlot = slot<Vilkårsvurdering>()
-        every { vilkårsvurderingRepository.finnAktivForBehandling(any()) } returns lagVilkårsvurderingMedSøkersVilkår(
-            søker,
-            behandling,
-            Resultat.OPPFYLT,
-        )
-        every { personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(any()) } returns lagPersonopplysningGrunnlag(
-            behandlingId = behandling.id,
-            søkerPersonIdent = søker.aktivFødselsnummer(),
-            barnasIdenter = listOf(barn1.aktivFødselsnummer(), barn2.aktivFødselsnummer()),
-        )
+        every { vilkårsvurderingRepository.finnAktivForBehandling(any()) } returns
+            lagVilkårsvurderingMedSøkersVilkår(
+                søker,
+                behandling,
+                Resultat.OPPFYLT,
+            )
+        every { personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(any()) } returns
+            lagPersonopplysningGrunnlag(
+                behandlingId = behandling.id,
+                søkerPersonIdent = søker.aktivFødselsnummer(),
+                barnasIdenter = listOf(barn1.aktivFødselsnummer(), barn2.aktivFødselsnummer()),
+            )
         every { vilkårsvurderingRepository.saveAndFlush(capture(lagretDeaktivertVilkårsvurderingSlot)) } returns mockk()
         every { vilkårsvurderingRepository.save(capture(lagretVilkårsvurderingSlot)) } returns mockk()
 
@@ -167,29 +171,31 @@ class VilkårsvurderingServiceTest {
 
     @Test
     fun `hentVilkårsbegrunnelser - skal returnere et map med begrunnelsestyper mappet mot liste av begrunnelser`() {
-        every { sanityService.hentSanityBegrunnelser() } returns listOf(
-            SanityBegrunnelse(
-                Begrunnelse.INNVILGET_IKKE_BARNEHAGE.sanityApiNavn,
-                "innvilgetIkkeBarnehage",
-                SanityBegrunnelseType.STANDARD,
-                Vilkår.values().toList(),
-                rolle = emptyList(),
-                triggere = emptyList(),
-                utdypendeVilkårsvurderinger = emptyList(),
-                hjemler = emptyList(),
-                endretUtbetalingsperiode = emptyList(),
-                endringsårsaker = emptyList(),
-                støtterFritekst = false,
-                skalAlltidVises = false,
-            ),
-        )
+        every { sanityService.hentSanityBegrunnelser() } returns
+            listOf(
+                SanityBegrunnelse(
+                    Begrunnelse.INNVILGET_IKKE_BARNEHAGE.sanityApiNavn,
+                    "innvilgetIkkeBarnehage",
+                    SanityBegrunnelseType.STANDARD,
+                    Vilkår.values().toList(),
+                    rolle = emptyList(),
+                    triggere = emptyList(),
+                    utdypendeVilkårsvurderinger = emptyList(),
+                    hjemler = emptyList(),
+                    endretUtbetalingsperiode = emptyList(),
+                    endringsårsaker = emptyList(),
+                    støtterFritekst = false,
+                    skalAlltidVises = false,
+                ),
+            )
 
-        every { sanityService.hentSanityEØSBegrunnelser() } returns listOf(
-            SanityEØSBegrunnelse(
-                EØSBegrunnelse.DUMMY.sanityApiNavn,
-                "navnISystem",
-            ),
-        )
+        every { sanityService.hentSanityEØSBegrunnelser() } returns
+            listOf(
+                SanityEØSBegrunnelse(
+                    EØSBegrunnelse.DUMMY.sanityApiNavn,
+                    "navnISystem",
+                ),
+            )
 
         val vilkårsbegrunnelser = vilkårsvurderingService.hentVilkårsbegrunnelser()
 
@@ -203,9 +209,10 @@ class VilkårsvurderingServiceTest {
     fun `hentAktivVilkårsvurderingForBehandling - skal kaste feil hvis aktiv vilkårsvurdering for behandling ikke eksisterer`() {
         every { vilkårsvurderingRepository.finnAktivForBehandling(404) } returns null
 
-        val feil = assertThrows<Feil> {
-            vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(404)
-        }
+        val feil =
+            assertThrows<Feil> {
+                vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(404)
+            }
 
         assertThat(feil.message, Is("Fant ikke vilkårsvurdering knyttet til behandling=404"))
     }
@@ -228,9 +235,10 @@ class VilkårsvurderingServiceTest {
         every { personidentService.hentAktør(any()) } returns søker
         every { vilkårsvurderingRepository.finnAktivForBehandling(200) } returns vilkårsvurdering
 
-        val feil = assertThrows<Feil> {
-            vilkårsvurderingService.slettVilkårPåBehandling(200, 404, søker)
-        }
+        val feil =
+            assertThrows<Feil> {
+                vilkårsvurderingService.slettVilkårPåBehandling(200, 404, søker)
+            }
 
         assertThat(feil.message, Is("Prøver å slette et vilkår som ikke finnes"))
         assertThat(feil.frontendFeilmelding, Is("Vilkåret du prøver å slette finnes ikke i systemet."))

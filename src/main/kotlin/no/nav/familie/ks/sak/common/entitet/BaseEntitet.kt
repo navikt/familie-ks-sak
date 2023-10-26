@@ -15,7 +15,6 @@ import java.time.LocalDateTime
  */
 @MappedSuperclass
 abstract class BaseEntitet : Serializable {
-
     // The properties have to be open because when a subclass is lazy class, hibernate needs to override the accessor
     // to intercept its behavior. If they are final, hibernate will complain, and it can also cause potential bugs.
     // See: https://stackoverflow.com/questions/55958667/kotlin-inheritance-and-jpa

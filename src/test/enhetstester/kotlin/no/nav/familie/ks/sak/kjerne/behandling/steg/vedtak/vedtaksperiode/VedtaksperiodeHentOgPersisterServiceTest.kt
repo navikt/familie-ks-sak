@@ -20,7 +20,6 @@ import org.hamcrest.CoreMatchers.`is` as Is
 
 @ExtendWith(MockKExtension::class)
 class VedtaksperiodeHentOgPersisterServiceTest {
-
     @MockK
     private lateinit var vedtaksperiodeRepository: VedtaksperiodeRepository
 
@@ -34,9 +33,10 @@ class VedtaksperiodeHentOgPersisterServiceTest {
     fun `hentVedtaksperiodeThrows - skal kaste feil dersom det ikke finnes noe vedtaksperiode med gitt id`() {
         every { vedtaksperiodeRepository.finnVedtaksperiode(404) } returns null
 
-        val exception = assertThrows<RuntimeException> {
-            vedtaksperiodeHentOgPersisterService.hentVedtaksperiodeThrows(404)
-        }
+        val exception =
+            assertThrows<RuntimeException> {
+                vedtaksperiodeHentOgPersisterService.hentVedtaksperiodeThrows(404)
+            }
 
         assertThat(exception.message, Is("Fant ingen vedtaksperiode med id 404"))
     }

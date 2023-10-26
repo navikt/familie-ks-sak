@@ -18,27 +18,41 @@ val MAX_MÅNED = LocalDate.MAX.toYearMonth()
 val MIN_MÅNED = LocalDate.MIN.toYearMonth()
 
 fun LocalDate.tilddMMyy() = this.format(DateTimeFormatter.ofPattern("ddMMyy", nbLocale))
+
 fun LocalDate.tilyyyyMMdd() = this.format(DateTimeFormatter.ofPattern("yyyy-MM-dd", nbLocale))
+
 fun LocalDate.tilKortString() = this.format(DateTimeFormatter.ofPattern("dd.MM.yy", nbLocale))
+
 fun LocalDate.tilddMMyyyy() = this.format(DateTimeFormatter.ofPattern("dd.MM.yyyy", nbLocale))
+
 fun LocalDate.tilDagMånedÅr() = this.format(DateTimeFormatter.ofPattern("d. MMMM yyyy", nbLocale))
+
 fun LocalDate.tilMånedÅr() = this.format(DateTimeFormatter.ofPattern("MMMM yyyy", nbLocale))
+
 fun LocalDate.tilYearMonth() = YearMonth.from(this)
+
 fun LocalDate.sisteDagIMåned(): LocalDate = YearMonth.from(this).atEndOfMonth()
+
 fun YearMonth.tilKortString() = this.format(DateTimeFormatter.ofPattern("MM.yy", nbLocale))
+
 fun YearMonth.tilMånedÅr() = this.format(DateTimeFormatter.ofPattern("MMMM yyyy", nbLocale))
+
 fun YearMonth.toLocalDate() = LocalDate.of(this.year, this.month, 1)
 
 fun LocalDate.toYearMonth() = YearMonth.from(this)
+
 fun YearMonth.førsteDagIInneværendeMåned() = this.atDay(1)
+
 fun YearMonth.sisteDagIInneværendeMåned() = this.atEndOfMonth()
 
 fun YearMonth.erSammeEllerTidligere(toCompare: YearMonth): Boolean = this.isBefore(toCompare) || this == toCompare
+
 fun LocalDate.erSenereEnnInneværendeMåned(): Boolean = this.isAfter(LocalDate.now().sisteDagIMåned())
 
 fun inneværendeMåned(): YearMonth = LocalDate.now().toYearMonth()
 
 fun YearMonth.forrigeMåned(): YearMonth = this.minusMonths(1)
+
 fun YearMonth.nesteMåned(): YearMonth = this.plusMonths(1)
 
 fun LocalDate.erDagenFør(other: LocalDate?) = other != null && this.plusDays(1).equals(other)
@@ -46,9 +60,12 @@ fun LocalDate.erDagenFør(other: LocalDate?) = other != null && this.plusDays(1)
 data class Periode(val fom: LocalDate, val tom: LocalDate)
 
 fun LocalDate.erSammeEllerFør(toCompare: LocalDate): Boolean = this.isBefore(toCompare) || this == toCompare
+
 fun LocalDate.erSammeEllerEtter(toCompare: LocalDate): Boolean = this.isAfter(toCompare) || this == toCompare
-fun LocalDate.erMellom(toCompare: Periode): Boolean = this.erSammeEllerEtter(toCompare.fom) &&
-    this.erSammeEllerEtter(toCompare.tom)
+
+fun LocalDate.erMellom(toCompare: Periode): Boolean =
+    this.erSammeEllerEtter(toCompare.fom) &&
+        this.erSammeEllerEtter(toCompare.tom)
 
 fun LocalDate.førsteDagIInneværendeMåned() = this.withDayOfMonth(1)
 
@@ -67,19 +84,21 @@ data class NullablePeriode(val fom: LocalDate?, val tom: LocalDate?)
 data class NullableMånedPeriode(val fom: YearMonth?, val tom: YearMonth?)
 
 fun MånedPeriode.inkluderer(yearMonth: YearMonth) = yearMonth >= this.fom && yearMonth <= this.tom
+
 fun MånedPeriode.overlapperHeltEllerDelvisMed(annenPeriode: MånedPeriode) =
     this.inkluderer(annenPeriode.fom) ||
         this.inkluderer(annenPeriode.tom) ||
         annenPeriode.inkluderer(this.fom) ||
         annenPeriode.inkluderer(this.tom)
 
-fun MånedPeriode.erMellom(annenPeriode: MånedPeriode) =
-    annenPeriode.inkluderer(this.fom) && annenPeriode.inkluderer(this.tom)
+fun MånedPeriode.erMellom(annenPeriode: MånedPeriode) = annenPeriode.inkluderer(this.fom) && annenPeriode.inkluderer(this.tom)
 
 fun LocalDate.førsteDagINesteMåned() = this.plusMonths(1).withDayOfMonth(1)
 
-fun erBack2BackIMånedsskifte(tilOgMed: LocalDate?, fraOgMed: LocalDate?): Boolean =
-    tilOgMed?.erDagenFør(fraOgMed) == true && tilOgMed.toYearMonth() != fraOgMed?.toYearMonth()
+fun erBack2BackIMånedsskifte(
+    tilOgMed: LocalDate?,
+    fraOgMed: LocalDate?,
+): Boolean = tilOgMed?.erDagenFør(fraOgMed) == true && tilOgMed.toYearMonth() != fraOgMed?.toYearMonth()
 
 fun DatoIntervallEntitet.erInnenfor(dato: LocalDate): Boolean =
     when {
@@ -102,8 +121,9 @@ fun kl06IdagEllerNesteDag(date: LocalDateTime = LocalDateTime.now()): LocalDateT
     }
 }
 
-fun LocalDate.erHelligdag() = this.dayOfMonth == 1 && this.month == Month.JANUARY ||
-    this.dayOfMonth == 1 && this.month == Month.MAY ||
-    this.dayOfMonth == 17 && this.month == Month.MAY ||
-    this.dayOfMonth == 25 && this.month == Month.DECEMBER ||
-    this.dayOfMonth == 26 && this.month == Month.DECEMBER
+fun LocalDate.erHelligdag() =
+    this.dayOfMonth == 1 && this.month == Month.JANUARY ||
+        this.dayOfMonth == 1 && this.month == Month.MAY ||
+        this.dayOfMonth == 17 && this.month == Month.MAY ||
+        this.dayOfMonth == 25 && this.month == Month.DECEMBER ||
+        this.dayOfMonth == 26 && this.month == Month.DECEMBER

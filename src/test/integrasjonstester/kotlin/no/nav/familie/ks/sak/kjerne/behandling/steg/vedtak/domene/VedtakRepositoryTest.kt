@@ -12,7 +12,6 @@ import org.springframework.dao.EmptyResultDataAccessException
 import org.hamcrest.CoreMatchers.`is` as Is
 
 internal class VedtakRepositoryTest : OppslagSpringRunnerTest() {
-
     @Autowired
     private lateinit var vedtakRepository: VedtakRepository
 

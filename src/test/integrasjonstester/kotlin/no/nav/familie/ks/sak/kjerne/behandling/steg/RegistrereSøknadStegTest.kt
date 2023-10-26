@@ -37,7 +37,6 @@ import org.springframework.beans.factory.annotation.Autowired
 import java.time.LocalDate
 
 class RegistrereSøknadStegTest : OppslagSpringRunnerTest() {
-
     @Autowired
     private lateinit var registrereSøknadSteg: RegistrereSøknadSteg
 
@@ -84,14 +83,16 @@ class RegistrereSøknadStegTest : OppslagSpringRunnerTest() {
 
     @Test
     fun `utførSteg - skal opprette SøknadGrunnlag og oppdatere personopplysningsgrunnlag for FGB`() {
-        val søknadDto = SøknadDto(
-            søkerMedOpplysninger = SøkerMedOpplysningerDto(ident = søker.aktivFødselsnummer()),
-            barnaMedOpplysninger = listOf(
-                BarnMedOpplysningerDto(ident = barn1.aktivFødselsnummer(), fødselsdato = LocalDate.now().minusYears(1)),
-                BarnMedOpplysningerDto(ident = barn2.aktivFødselsnummer(), fødselsdato = LocalDate.now().minusYears(1)),
-            ),
-            endringAvOpplysningerBegrunnelse = "",
-        )
+        val søknadDto =
+            SøknadDto(
+                søkerMedOpplysninger = SøkerMedOpplysningerDto(ident = søker.aktivFødselsnummer()),
+                barnaMedOpplysninger =
+                    listOf(
+                        BarnMedOpplysningerDto(ident = barn1.aktivFødselsnummer(), fødselsdato = LocalDate.now().minusYears(1)),
+                        BarnMedOpplysningerDto(ident = barn2.aktivFødselsnummer(), fødselsdato = LocalDate.now().minusYears(1)),
+                    ),
+                endringAvOpplysningerBegrunnelse = "",
+            )
 
         // Valider at aktivt personopplysningsgrunnlag kun inneholder søker
         val personopplysningGrunnlagFørSteg = personopplysningGrunnlagRepository.hentByBehandlingAndAktiv(behandling.id)
@@ -112,10 +113,11 @@ class RegistrereSøknadStegTest : OppslagSpringRunnerTest() {
         val lagretSøknad = søknadGrunnlag.tilSøknadDto()
         assertTrue(
             lagretSøknad.barnaMedOpplysninger.all {
-                it.ident in listOf(
-                    barn1.aktivFødselsnummer(),
-                    barn2.aktivFødselsnummer(),
-                )
+                it.ident in
+                    listOf(
+                        barn1.aktivFødselsnummer(),
+                        barn2.aktivFødselsnummer(),
+                    )
             },
         )
         assertEquals(2, lagretSøknad.barnaMedOpplysninger.size)
@@ -138,24 +140,28 @@ class RegistrereSøknadStegTest : OppslagSpringRunnerTest() {
 
     @Test
     fun `utførSteg - skal deaktivere eksisterende SøknadGrunnlag dersom det finnes fra før av og deretter opprette et nytt`() {
-        val søknadDto = SøknadDto(
-            søkerMedOpplysninger = SøkerMedOpplysningerDto(ident = søker.aktivFødselsnummer()),
-            barnaMedOpplysninger = listOf(
-                BarnMedOpplysningerDto(ident = barn1.aktivFødselsnummer(), fødselsdato = LocalDate.now().minusYears(1)),
-            ),
-            endringAvOpplysningerBegrunnelse = "",
-        )
+        val søknadDto =
+            SøknadDto(
+                søkerMedOpplysninger = SøkerMedOpplysningerDto(ident = søker.aktivFødselsnummer()),
+                barnaMedOpplysninger =
+                    listOf(
+                        BarnMedOpplysningerDto(ident = barn1.aktivFødselsnummer(), fødselsdato = LocalDate.now().minusYears(1)),
+                    ),
+                endringAvOpplysningerBegrunnelse = "",
+            )
 
         registrereSøknadSteg.utførSteg(behandling.id, RegistrerSøknadDto(søknadDto, true))
 
-        val søknadDto2 = SøknadDto(
-            søkerMedOpplysninger = SøkerMedOpplysningerDto(ident = søker.aktivFødselsnummer()),
-            barnaMedOpplysninger = listOf(
-                BarnMedOpplysningerDto(ident = barn1.aktivFødselsnummer(), fødselsdato = LocalDate.now().minusYears(1)),
-                BarnMedOpplysningerDto(ident = barn2.aktivFødselsnummer(), fødselsdato = LocalDate.now().minusYears(1)),
-            ),
-            endringAvOpplysningerBegrunnelse = "",
-        )
+        val søknadDto2 =
+            SøknadDto(
+                søkerMedOpplysninger = SøkerMedOpplysningerDto(ident = søker.aktivFødselsnummer()),
+                barnaMedOpplysninger =
+                    listOf(
+                        BarnMedOpplysningerDto(ident = barn1.aktivFødselsnummer(), fødselsdato = LocalDate.now().minusYears(1)),
+                        BarnMedOpplysningerDto(ident = barn2.aktivFødselsnummer(), fødselsdato = LocalDate.now().minusYears(1)),
+                    ),
+                endringAvOpplysningerBegrunnelse = "",
+            )
 
         registrereSøknadSteg.utførSteg(behandling.id, RegistrerSøknadDto(søknadDto2, true))
 
@@ -169,13 +175,15 @@ class RegistrereSøknadStegTest : OppslagSpringRunnerTest() {
 
     @Test
     fun `utførSteg - skal ikke utføre noen endringer dersom det allerede finnes en identisk søknad`() {
-        val søknadDto = SøknadDto(
-            søkerMedOpplysninger = SøkerMedOpplysningerDto(ident = søker.aktivFødselsnummer()),
-            barnaMedOpplysninger = listOf(
-                BarnMedOpplysningerDto(ident = barn1.aktivFødselsnummer(), fødselsdato = LocalDate.now().minusYears(1)),
-            ),
-            endringAvOpplysningerBegrunnelse = "",
-        )
+        val søknadDto =
+            SøknadDto(
+                søkerMedOpplysninger = SøkerMedOpplysningerDto(ident = søker.aktivFødselsnummer()),
+                barnaMedOpplysninger =
+                    listOf(
+                        BarnMedOpplysningerDto(ident = barn1.aktivFødselsnummer(), fødselsdato = LocalDate.now().minusYears(1)),
+                    ),
+                endringAvOpplysningerBegrunnelse = "",
+            )
 
         søknadGrunnlagRepository.saveAndFlush(søknadDto.tilSøknadGrunnlag(behandling.id))
 
@@ -187,16 +195,18 @@ class RegistrereSøknadStegTest : OppslagSpringRunnerTest() {
 
     @Test
     fun `utførSteg - skal kaste feil dersom barn fyller 1 år senere enn inneværende måned`() {
-        val søknadDto = SøknadDto(
-            søkerMedOpplysninger = SøkerMedOpplysningerDto(ident = søker.aktivFødselsnummer()),
-            barnaMedOpplysninger = listOf(
-                BarnMedOpplysningerDto(
-                    ident = barn1.aktivFødselsnummer(),
-                    fødselsdato = LocalDate.now().minusMonths(11),
-                ),
-            ),
-            endringAvOpplysningerBegrunnelse = "",
-        )
+        val søknadDto =
+            SøknadDto(
+                søkerMedOpplysninger = SøkerMedOpplysningerDto(ident = søker.aktivFødselsnummer()),
+                barnaMedOpplysninger =
+                    listOf(
+                        BarnMedOpplysningerDto(
+                            ident = barn1.aktivFødselsnummer(),
+                            fødselsdato = LocalDate.now().minusMonths(11),
+                        ),
+                    ),
+                endringAvOpplysningerBegrunnelse = "",
+            )
 
         assertThrows<Feil> {
             registrereSøknadSteg.utførSteg(behandling.id, RegistrerSøknadDto(søknadDto, false))

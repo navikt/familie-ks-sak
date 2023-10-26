@@ -39,9 +39,11 @@ class VilkårsvurderingController(
     private val annenVurderingService: AnnenVurderingService,
     private val tilbakestillBehandlingService: TilbakestillBehandlingService,
 ) {
-
     @PostMapping(path = ["/{behandlingId}"])
-    fun opprettNyttVilkår(@PathVariable behandlingId: Long, @RequestBody nyttVilkårDto: NyttVilkårDto): ResponseEntity<Ressurs<BehandlingResponsDto>> {
+    fun opprettNyttVilkår(
+        @PathVariable behandlingId: Long,
+        @RequestBody nyttVilkårDto: NyttVilkårDto,
+    ): ResponseEntity<Ressurs<BehandlingResponsDto>> {
         tilgangService.validerTilgangTilHandlingOgFagsakForBehandling(
             behandlingId = behandlingId,
             event = AuditLoggerEvent.CREATE,

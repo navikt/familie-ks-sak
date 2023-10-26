@@ -24,7 +24,6 @@ import java.time.YearMonth
 
 @ExtendWith(MockKExtension::class)
 internal class SendVedtakHendelseTilInfotrygdTaskTest {
-
     @MockK
     private lateinit var kafkaProducer: KafkaProducer
 
@@ -38,26 +37,29 @@ internal class SendVedtakHendelseTilInfotrygdTaskTest {
 
     @Test
     fun `doTask skal sende vedtak hendelse til kafka`() {
-        val andelTilkjentYtelse1 = lagAndelTilkjentYtelse(
-            behandling = behandling,
-            stønadFom = YearMonth.now().minusMonths(5),
-            stønadTom = YearMonth.now().minusMonths(3),
-        )
-        val andelTilkjentYtelse2 = lagAndelTilkjentYtelse(
-            behandling = behandling,
-            stønadFom = YearMonth.now().minusMonths(6),
-            stønadTom = YearMonth.now().minusMonths(2),
-        )
+        val andelTilkjentYtelse1 =
+            lagAndelTilkjentYtelse(
+                behandling = behandling,
+                stønadFom = YearMonth.now().minusMonths(5),
+                stønadTom = YearMonth.now().minusMonths(3),
+            )
+        val andelTilkjentYtelse2 =
+            lagAndelTilkjentYtelse(
+                behandling = behandling,
+                stønadFom = YearMonth.now().minusMonths(6),
+                stønadTom = YearMonth.now().minusMonths(2),
+            )
 
         val vedtakDtoSlot = slot<VedtakDto>()
 
         every { kafkaProducer.sendVedtakHendelseTilInfotrygd(capture(vedtakDtoSlot)) } just runs
         every {
             andelerTilkjentYtelseOgEndreteUtbetalingerService.finnAndelerTilkjentYtelseMedEndreteUtbetalinger(behandling.id)
-        } returns listOf(
-            AndelTilkjentYtelseMedEndreteUtbetalinger(andelTilkjentYtelse1, emptyList()),
-            AndelTilkjentYtelseMedEndreteUtbetalinger(andelTilkjentYtelse2, emptyList()),
-        )
+        } returns
+            listOf(
+                AndelTilkjentYtelseMedEndreteUtbetalinger(andelTilkjentYtelse1, emptyList()),
+                AndelTilkjentYtelseMedEndreteUtbetalinger(andelTilkjentYtelse2, emptyList()),
+            )
 
         assertDoesNotThrow {
             sendVedtakHendelseTilInfotrygdTask.doTask(

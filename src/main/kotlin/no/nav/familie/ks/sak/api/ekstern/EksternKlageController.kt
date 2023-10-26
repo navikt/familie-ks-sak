@@ -32,9 +32,10 @@ class EksternKlageController(
     private val opprettBehandlingService: OpprettBehandlingService,
     private val klageService: KlageService,
 ) {
-
     @GetMapping("fagsaker/{fagsakId}/kan-opprette-revurdering-klage")
-    fun kanOppretteRevurderingKlage(@PathVariable fagsakId: Long): Ressurs<KanOppretteRevurderingResponse> {
+    fun kanOppretteRevurderingKlage(
+        @PathVariable fagsakId: Long,
+    ): Ressurs<KanOppretteRevurderingResponse> {
         tilgangService.validerTilgangTilHandlingOgFagsak(
             fagsakId = fagsakId,
             handling = "Valider vi kan opprette revurdering med årsak klage på fagsak=$fagsakId",
@@ -50,7 +51,9 @@ class EksternKlageController(
     }
 
     @PostMapping("fagsaker/{fagsakId}/opprett-revurdering-klage/")
-    fun opprettRevurderingKlage(@PathVariable fagsakId: Long): Ressurs<OpprettRevurderingResponse> {
+    fun opprettRevurderingKlage(
+        @PathVariable fagsakId: Long,
+    ): Ressurs<OpprettRevurderingResponse> {
         tilgangService.validerTilgangTilHandlingOgFagsak(
             fagsakId = fagsakId,
             handling = "Opprett revurdering med årask klage på fagsak=$fagsakId",
@@ -66,7 +69,9 @@ class EksternKlageController(
 
     @GetMapping("fagsaker/{fagsakId}/vedtak")
     @ProtectedWithClaims(issuer = "azuread")
-    fun hentVedtak(@PathVariable fagsakId: Long): Ressurs<List<FagsystemVedtak>> {
+    fun hentVedtak(
+        @PathVariable fagsakId: Long,
+    ): Ressurs<List<FagsystemVedtak>> {
         if (!SikkerhetContext.erMaskinTilMaskinToken()) {
             tilgangService.validerTilgangTilHandlingOgFagsak(
                 fagsakId = fagsakId,

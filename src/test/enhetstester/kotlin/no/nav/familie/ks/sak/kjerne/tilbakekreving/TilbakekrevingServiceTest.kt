@@ -56,7 +56,6 @@ import java.time.YearMonth
 
 @ExtendWith(MockKExtension::class)
 internal class TilbakekrevingServiceTest {
-
     @MockK
     private lateinit var tilbakekrevingKlient: TilbakekrevingKlient
 
@@ -85,37 +84,43 @@ internal class TilbakekrevingServiceTest {
     private val behandling = lagBehandling()
     private val vedtak = Vedtak(behandling = behandling, vedtaksdato = LocalDateTime.now())
     private val forhåndsvisVarselbrevRequestSlot = slot<ForhåndsvisVarselbrevRequest>()
-    private val personopplysningGrunnlag = lagPersonopplysningGrunnlag(
-        behandlingId = behandling.id,
-        søkerPersonIdent = søker,
-    )
+    private val personopplysningGrunnlag =
+        lagPersonopplysningGrunnlag(
+            behandlingId = behandling.id,
+            søkerPersonIdent = søker,
+        )
     private val arbeidsfordeling = lagArbeidsfordelingPåBehandling(behandlingId = behandling.id)
-    private val førsteFeilPostering = lagPostering(
-        YearMonth.of(2022, 1),
-        YearMonth.of(2022, 1),
-        BigDecimal("7500"),
-    )
+    private val førsteFeilPostering =
+        lagPostering(
+            YearMonth.of(2022, 1),
+            YearMonth.of(2022, 1),
+            BigDecimal("7500"),
+        )
 
-    private val andreFeilPostering = lagPostering(
-        YearMonth.of(2022, 2),
-        YearMonth.of(2022, 2),
-        BigDecimal("4500"),
-    )
-    private val tredjeFeilPostering = lagPostering(
-        YearMonth.of(2022, 4),
-        YearMonth.of(2022, 4),
-        BigDecimal("4500"),
-    )
-    private val ytelsePostering = lagPostering(
-        YearMonth.of(2022, 5),
-        YearMonth.of(2022, 5),
-        BigDecimal("4500"),
-        PosteringType.YTELSE,
-    )
-    private val økonomiSimuleringMottaker = lagØkonomiSimuleringMottaker(
-        behandling = behandling,
-        økonomiSimuleringPosteringer = listOf(førsteFeilPostering, andreFeilPostering, tredjeFeilPostering, ytelsePostering),
-    )
+    private val andreFeilPostering =
+        lagPostering(
+            YearMonth.of(2022, 2),
+            YearMonth.of(2022, 2),
+            BigDecimal("4500"),
+        )
+    private val tredjeFeilPostering =
+        lagPostering(
+            YearMonth.of(2022, 4),
+            YearMonth.of(2022, 4),
+            BigDecimal("4500"),
+        )
+    private val ytelsePostering =
+        lagPostering(
+            YearMonth.of(2022, 5),
+            YearMonth.of(2022, 5),
+            BigDecimal("4500"),
+            PosteringType.YTELSE,
+        )
+    private val økonomiSimuleringMottaker =
+        lagØkonomiSimuleringMottaker(
+            behandling = behandling,
+            økonomiSimuleringPosteringer = listOf(førsteFeilPostering, andreFeilPostering, tredjeFeilPostering, ytelsePostering),
+        )
 
     @BeforeEach
     fun setup() {
@@ -254,9 +259,10 @@ internal class TilbakekrevingServiceTest {
         every { tilbakekrevingKlient.kanTilbakekrevingsbehandlingOpprettesManuelt(behandling.fagsak.id) } returns
             KanBehandlingOpprettesManueltRespons(kanBehandlingOpprettes = false, melding = "feilmelding")
 
-        val exception = assertThrows<FunksjonellFeil> {
-            tilbakekrevingService.opprettTilbakekrevingsbehandlingManuelt(behandling.fagsak.id)
-        }
+        val exception =
+            assertThrows<FunksjonellFeil> {
+                tilbakekrevingService.opprettTilbakekrevingsbehandlingManuelt(behandling.fagsak.id)
+            }
         assertEquals("Tilbakekrevingsbehandling manuelt kan ikke opprettes pga feilmelding", exception.melding)
         assertEquals("feilmelding", exception.frontendFeilmelding)
     }
@@ -270,9 +276,10 @@ internal class TilbakekrevingServiceTest {
                 kravgrunnlagsreferanse = null,
             )
 
-        val exception = assertThrows<Feil> {
-            tilbakekrevingService.opprettTilbakekrevingsbehandlingManuelt(behandling.fagsak.id)
-        }
+        val exception =
+            assertThrows<Feil> {
+                tilbakekrevingService.opprettTilbakekrevingsbehandlingManuelt(behandling.fagsak.id)
+            }
         assertEquals(
             "Tilbakekrevingsbehandling kan opprettes, men har ikke kravgrunnlagsreferanse på respons-en",
             exception.message,
@@ -290,9 +297,10 @@ internal class TilbakekrevingServiceTest {
             )
         every { vedtakRepository.findByBehandlingAndAktivOptional(kravgrunnlagsreferanse.toLong()) } returns null
 
-        val exception = assertThrows<FunksjonellFeil> {
-            tilbakekrevingService.opprettTilbakekrevingsbehandlingManuelt(behandling.fagsak.id)
-        }
+        val exception =
+            assertThrows<FunksjonellFeil> {
+                tilbakekrevingService.opprettTilbakekrevingsbehandlingManuelt(behandling.fagsak.id)
+            }
         assertEquals(
             "Tilbakekrevingsbehandling kan ikke opprettes. " +
                 "Respons inneholder enten en referanse til en ukjent behandling " +
@@ -341,7 +349,10 @@ internal class TilbakekrevingServiceTest {
         posteringType = posteringType,
     )
 
-    private fun lagTilbakekreving(valg: Tilbakekrevingsvalg, varseltekst: String? = null) = Tilbakekreving(
+    private fun lagTilbakekreving(
+        valg: Tilbakekrevingsvalg,
+        varseltekst: String? = null,
+    ) = Tilbakekreving(
         behandling = behandling,
         valg = valg,
         varsel = varseltekst,
@@ -349,7 +360,10 @@ internal class TilbakekrevingServiceTest {
         tilbakekrevingsbehandlingId = null,
     )
 
-    private fun List<Periode>.harPeriode(fom: YearMonth, tom: YearMonth) = assertTrue {
+    private fun List<Periode>.harPeriode(
+        fom: YearMonth,
+        tom: YearMonth,
+    ) = assertTrue {
         this.any {
             it.fom == fom.førsteDagIInneværendeMåned() &&
                 it.tom == tom.atEndOfMonth()

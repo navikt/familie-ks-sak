@@ -29,11 +29,12 @@ fun Iterable<VilkårResultat>.tilVilkårRegelverkResultatTidslinje(): Tidslinje<
 
 fun VilkårResultat.tilPeriode(vilkårerMedBack2BackPerioder: List<Long>): Periode<VilkårRegelverkResultat> =
     Periode(
-        fom = if (vilkårerMedBack2BackPerioder.contains(this.id)) {
-            periodeFom?.førsteDagIInneværendeMåned()
-        } else {
-            periodeFom?.førsteDagINesteMåned()
-        },
+        fom =
+            if (vilkårerMedBack2BackPerioder.contains(this.id)) {
+                periodeFom?.førsteDagIInneværendeMåned()
+            } else {
+                periodeFom?.førsteDagINesteMåned()
+            },
         tom = periodeTom?.sisteDagIMåned(),
         verdi = VilkårRegelverkResultat(vilkårType, this.tilRegelverkResultat()),
     )

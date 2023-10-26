@@ -8,7 +8,6 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 
 class TidslinjePeriodeTest {
-
     @Test
     fun `to TidslinjePerioder kan summeres og substraheres`() {
         val p1 = TidslinjePeriode(1, 2, false)

@@ -15,6 +15,7 @@ data class BisysDto(val fom: LocalDate, val identer: List<String>) {
 }
 
 data class BisysResponsDto(val infotrygdPerioder: List<InfotrygdPeriode>, val ksSakPerioder: List<KsSakPeriode>)
+
 data class InfotrygdPeriode(
     @Schema(implementation = String::class, example = "2022-12")
     val fomMåned: YearMonth,

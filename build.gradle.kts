@@ -4,16 +4,23 @@ plugins {
     val kotlinVersion = "1.9.10"
     kotlin("jvm") version kotlinVersion
 
-    id("org.springframework.boot") version "3.1.0"
-    id("io.spring.dependency-management") version "1.0.13.RELEASE"
+    id("org.springframework.boot") version "3.1.5"
+    id("io.spring.dependency-management") version "1.1.3"
     id("org.jetbrains.kotlin.plugin.spring") version kotlinVersion
     id("org.jetbrains.kotlin.plugin.jpa") version kotlinVersion
     id("org.jetbrains.kotlin.plugin.allopen") version kotlinVersion
     id("org.jetbrains.kotlin.plugin.noarg") version kotlinVersion
-    id("com.github.davidmc24.gradle.plugin.avro") version "1.5.0"
+    id("com.github.davidmc24.gradle.plugin.avro") version "1.9.1"
 
     // ------------- SLSA -------------- //
     id("org.cyclonedx.bom") version "1.7.4"
+}
+
+configurations {
+    implementation.configure {
+        exclude(module = "spring-boot-starter-tomcat")
+        exclude("org.apache.tomcat")
+    }
 }
 
 group = "no.nav"
@@ -27,7 +34,7 @@ repositories {
         url = uri("https://packages.confluent.io/maven")
     }
     maven {
-        url = uri("https://maven.pkg.github.com/navikt/familie-felles")
+        url = uri("https://maven.pkg.github.com/navikt/maven-release")
         credentials {
             username = System.getenv("GITHUB_USERNAME")
             password = System.getenv("GITHUB_TOKEN")
@@ -38,17 +45,17 @@ repositories {
 dependencies {
 
     val springdocVersion = "2.2.0"
-    val sentryVersion = "6.8.0"
-    val navFellesVersion = "2.20230928165350_3e5b5e9"
-    val eksterneKontrakterBisysVersion = "2.0_20220609214258_f30c3ce"
-    val fellesKontrakterVersion = "3.0_20230605154245_3d182db"
-    val familieKontrakterSaksstatistikkVersion = "2.0_20220216121145_5a268ac"
+    val sentryVersion = "6.32.0"
+    val navFellesVersion = "2.20231019123322_0a3df34"
+    val eksterneKontrakterBisysVersion = "2.0_20230214104704_706e9c0"
+    val fellesKontrakterVersion = "3.0_20231019125348_8bd6d02"
+    val familieKontrakterSaksstatistikkVersion = "2.0_20230214104704_706e9c0"
     val familieKontrakterStønadsstatistikkKsVersion = "2.0_20230825103733_1ac52c2"
-    val familieKontrakterSkatteetatenVersion = "2.0_20210920094114_9c74239"
-    val tokenValidationSpringVersion = "3.1.3"
+    val familieKontrakterSkatteetatenVersion = "2.0_20230214104704_706e9c0"
+    val tokenValidationSpringVersion = "3.1.7"
     val navFoedselsnummerVersion = "1.0-SNAPSHOT.6"
-    val prosesseringVersion = "2.20230807154047_d770f01"
-    val restAssuredVersion = "5.3.0"
+    val prosesseringVersion = "2.20231006130620_9b45ded"
+    val restAssuredVersion = "5.3.2"
     val kotlinxVersion = "1.7.3"
 
     // ---------- Spring ---------- \\
@@ -71,15 +78,16 @@ dependencies {
 
     // ---------- DB ---------- \\
     implementation("org.flywaydb:flyway-core")
-    implementation("org.postgresql:postgresql:42.5.1")
+    implementation("org.postgresql:postgresql:42.6.0")
 
     // ---------- Apache ---------- \\
-    implementation("org.apache.httpcomponents:httpclient:4.5.13")
-    implementation("org.apache.httpcomponents:httpcore:4.4.15")
+    implementation("org.apache.httpcomponents:httpclient:4.5.14")
+    implementation("org.apache.httpcomponents:httpcore:4.4.16")
 
     // ----------- AVRO ---------\\
-    implementation("org.apache.avro:avro:1.11.1")
-    implementation("io.confluent:kafka-avro-serializer:7.4.0")
+    implementation("org.apache.avro:avro:1.11.3")
+    implementation("io.confluent:kafka-avro-serializer:7.5.1")
+    implementation("org.eclipse.jetty:jetty-server")
 
     // ---------- NAV ---------- \\
     implementation("no.nav.familie.felles:sikkerhet:$navFellesVersion")
@@ -101,28 +109,28 @@ dependencies {
     implementation("nav-foedselsnummer:core:$navFoedselsnummerVersion")
 
     implementation("com.papertrailapp:logback-syslog4j:1.0.0")
-    implementation("io.getunleash:unleash-client-java:6.1.0")
+    implementation("io.getunleash:unleash-client-java:8.4.0")
     implementation("io.sentry:sentry-spring-boot-starter:$sentryVersion")
     implementation("io.sentry:sentry-logback:$sentryVersion")
     implementation("io.micrometer:micrometer-registry-prometheus")
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.14.0")
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.15.3")
     implementation("com.neovisionaries:nv-i18n:1.29")
-    ktlint("com.pinterest:ktlint:0.50.0") {
+    ktlint("com.pinterest.ktlint:ktlint-cli:1.0.1") {
         attributes {
             attribute(Bundling.BUNDLING_ATTRIBUTE, objects.named(Bundling.EXTERNAL))
         }
     }
 
-    testImplementation("io.mockk:mockk:1.13.2")
-    testImplementation("com.ninja-squad:springmockk:3.1.1") {
+    testImplementation("io.mockk:mockk:1.13.8")
+    testImplementation("com.ninja-squad:springmockk:4.0.2") {
         exclude(module = "mockito-core")
     }
     testImplementation("org.springframework.boot:spring-boot-starter-test")
-    testImplementation("org.springframework.cloud:spring-cloud-contract-wiremock:4.0.1")
+    testImplementation("org.springframework.cloud:spring-cloud-contract-wiremock:4.0.4")
     testImplementation("io.rest-assured:spring-mock-mvc:$restAssuredVersion")
     testImplementation("io.rest-assured:kotlin-extensions:$restAssuredVersion")
-    testImplementation("org.testcontainers:postgresql:1.17.6")
-    testImplementation("no.nav.security:mock-oauth2-server:0.5.6")
+    testImplementation("org.testcontainers:postgresql:1.19.1")
+    testImplementation("no.nav.security:mock-oauth2-server:2.0.1")
     testImplementation("no.nav.security:token-validation-test-support:2.0.5")
     testImplementation("no.nav.security:token-validation-spring-test:$tokenValidationSpringVersion")
     testImplementation("nav-foedselsnummer:testutils:1.0-SNAPSHOT.6")

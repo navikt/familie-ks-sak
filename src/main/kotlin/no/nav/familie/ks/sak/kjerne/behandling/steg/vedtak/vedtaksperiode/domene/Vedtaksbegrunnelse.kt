@@ -25,22 +25,19 @@ class Vedtaksbegrunnelse(
         allocationSize = 50,
     )
     val id: Long = 0,
-
     @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "fk_vedtaksperiode_id", nullable = false, updatable = false)
     val vedtaksperiodeMedBegrunnelser: VedtaksperiodeMedBegrunnelser,
-
     @Enumerated(EnumType.STRING)
     @Column(name = "vedtak_begrunnelse_spesifikasjon", updatable = false)
     val begrunnelse: Begrunnelse,
 ) {
+    fun kopier(vedtaksperiodeMedBegrunnelser: VedtaksperiodeMedBegrunnelser): Vedtaksbegrunnelse =
+        Vedtaksbegrunnelse(
+            vedtaksperiodeMedBegrunnelser = vedtaksperiodeMedBegrunnelser,
+            begrunnelse = this.begrunnelse,
+        )
 
-    fun kopier(vedtaksperiodeMedBegrunnelser: VedtaksperiodeMedBegrunnelser): Vedtaksbegrunnelse = Vedtaksbegrunnelse(
-        vedtaksperiodeMedBegrunnelser = vedtaksperiodeMedBegrunnelser,
-        begrunnelse = this.begrunnelse,
-    )
-
-    override fun toString(): String =
-        "Vedtaksbegrunnelse(id=$id, standardbegrunnelse=$begrunnelse)"
+    override fun toString(): String = "Vedtaksbegrunnelse(id=$id, standardbegrunnelse=$begrunnelse)"
 }

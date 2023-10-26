@@ -13,7 +13,6 @@ import org.springframework.web.context.request.ServletRequestAttributes
 import java.util.UUID
 
 object BrukerContextUtil {
-
     fun clearBrukerContext() {
         RequestContextHolder.resetRequestAttributes()
     }

@@ -18,7 +18,10 @@ class SimuleringSteg(
 ) : IBehandlingSteg {
     override fun getBehandlingssteg(): BehandlingSteg = BehandlingSteg.SIMULERING
 
-    override fun utførSteg(behandlingId: Long, behandlingStegDto: BehandlingStegDto) {
+    override fun utførSteg(
+        behandlingId: Long,
+        behandlingStegDto: BehandlingStegDto,
+    ) {
         logger.info("Utfører steg ${getBehandlingssteg().name} for behandling $behandlingId med tilbakekreving")
         val behandling = behandlingService.hentBehandling(behandlingId)
         if (tilbakekrevingService.harÅpenTilbakekrevingsbehandling(behandling.fagsak.id)) {

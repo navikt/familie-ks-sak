@@ -17,16 +17,16 @@ import java.math.BigDecimal
 import java.time.YearMonth
 
 class EndretUtbetalingAndelTest {
-
     val søker = randomAktør()
     private val barn1 = randomAktør()
 
     val behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD)
-    val personopplysningGrunnlag = lagPersonopplysningGrunnlag(
-        behandlingId = behandling.id,
-        søkerPersonIdent = søker.aktivFødselsnummer(),
-        barnasIdenter = listOf(barn1.aktivFødselsnummer()),
-    )
+    val personopplysningGrunnlag =
+        lagPersonopplysningGrunnlag(
+            behandlingId = behandling.id,
+            søkerPersonIdent = søker.aktivFødselsnummer(),
+            barnasIdenter = listOf(barn1.aktivFødselsnummer()),
+        )
     val person = lagPerson(personopplysningGrunnlag, søker, PersonType.SØKER)
 
     @Test
@@ -42,13 +42,15 @@ class EndretUtbetalingAndelTest {
 
     @Test
     fun `validerUtfyltEndring skal kaste feil når EndretUtbetalingAndel ikke har prosent fylt ut`() {
-        val endretUtbetalingAndel = lagEndretUtbetalingAndel(
-            behandlingId = behandling.id,
-            person = person,
-        )
-        val exception = assertThrows<RuntimeException> {
-            endretUtbetalingAndel.validerUtfyltEndring()
-        }
+        val endretUtbetalingAndel =
+            lagEndretUtbetalingAndel(
+                behandlingId = behandling.id,
+                person = person,
+            )
+        val exception =
+            assertThrows<RuntimeException> {
+                endretUtbetalingAndel.validerUtfyltEndring()
+            }
         assertEquals(
             "Person, prosent, fom, tom, årsak, begrunnese og søknadstidspunkt skal være utfylt: $endretUtbetalingAndel",
             exception.message,
@@ -57,32 +59,36 @@ class EndretUtbetalingAndelTest {
 
     @Test
     fun `validerUtfyltEndring skal kaste feil når EndretUtbetalingAndel har feil fom, tom`() {
-        val endretUtbetalingAndel = lagEndretUtbetalingAndel(
-            behandlingId = behandling.id,
-            person = person,
-            prosent = BigDecimal(50),
-            periodeFom = YearMonth.now(),
-            periodeTom = YearMonth.now().minusYears(1),
-        )
-        val exception = assertThrows<FunksjonellFeil> {
-            endretUtbetalingAndel.validerUtfyltEndring()
-        }
+        val endretUtbetalingAndel =
+            lagEndretUtbetalingAndel(
+                behandlingId = behandling.id,
+                person = person,
+                prosent = BigDecimal(50),
+                periodeFom = YearMonth.now(),
+                periodeTom = YearMonth.now().minusYears(1),
+            )
+        val exception =
+            assertThrows<FunksjonellFeil> {
+                endretUtbetalingAndel.validerUtfyltEndring()
+            }
         assertEquals("fom må være lik eller komme før tom", exception.message)
         assertEquals("Du kan ikke sette en f.o.m. dato som er etter t.o.m. dato", exception.frontendFeilmelding)
     }
 
     @Test
     fun `validerUtfyltEndring skal kaste feil når EndretUtbetalingAndel har årsak Delt Bosted, men avtaletidspunktDeltBosted er ikke fylt ut`() {
-        val endretUtbetalingAndel = lagEndretUtbetalingAndel(
-            behandlingId = behandling.id,
-            person = person,
-            prosent = BigDecimal(50),
-            årsak = Årsak.DELT_BOSTED,
-            avtaletidspunktDeltBosted = null,
-        )
-        val exception = assertThrows<FunksjonellFeil> {
-            endretUtbetalingAndel.validerUtfyltEndring()
-        }
+        val endretUtbetalingAndel =
+            lagEndretUtbetalingAndel(
+                behandlingId = behandling.id,
+                person = person,
+                prosent = BigDecimal(50),
+                årsak = Årsak.DELT_BOSTED,
+                avtaletidspunktDeltBosted = null,
+            )
+        val exception =
+            assertThrows<FunksjonellFeil> {
+                endretUtbetalingAndel.validerUtfyltEndring()
+            }
         assertEquals(
             "Avtaletidspunkt skal være utfylt når årsak er delt bosted: $endretUtbetalingAndel",
             exception.message,

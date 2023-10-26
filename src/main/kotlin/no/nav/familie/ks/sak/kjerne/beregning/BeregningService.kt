@@ -35,7 +35,6 @@ class BeregningService(
     private val andelerTilkjentYtelseOgEndreteUtbetalingerService: AndelerTilkjentYtelseOgEndreteUtbetalingerService,
     private val fagsakService: FagsakService,
 ) {
-
     /**
      * Henter alle barn på behandlingen som har minst en periode med tilkjentytelse.
      */
@@ -46,8 +45,7 @@ class BeregningService(
             .filter { andelerTilkjentYtelse.any { aty -> aty.aktør == it } }
     }
 
-    fun hentTilkjentYtelseForBehandling(behandlingId: Long) =
-        tilkjentYtelseRepository.hentTilkjentYtelseForBehandling(behandlingId)
+    fun hentTilkjentYtelseForBehandling(behandlingId: Long) = tilkjentYtelseRepository.hentTilkjentYtelseForBehandling(behandlingId)
 
     fun hentAndelerTilkjentYtelseMedUtbetalingerForBehandling(behandlingId: Long): List<AndelTilkjentYtelse> =
         andelTilkjentYtelseRepository.finnAndelerTilkjentYtelseForBehandling(behandlingId)
@@ -64,8 +62,7 @@ class BeregningService(
         }
     }
 
-    fun lagreTilkjentYtelseMedOppdaterteAndeler(tilkjentYtelse: TilkjentYtelse) =
-        tilkjentYtelseRepository.save(tilkjentYtelse)
+    fun lagreTilkjentYtelseMedOppdaterteAndeler(tilkjentYtelse: TilkjentYtelse) = tilkjentYtelseRepository.save(tilkjentYtelse)
 
     fun oppdaterTilkjentYtelsePåBehandling(
         behandling: Behandling,
@@ -83,11 +80,12 @@ class BeregningService(
                 }
         slettTilkjentYtelseForBehandling(behandling)
 
-        val tilkjentYtelse = TilkjentYtelseUtils.beregnTilkjentYtelse(
-            vilkårsvurdering,
-            personopplysningGrunnlag,
-            endreteUtbetalingAndeler,
-        )
+        val tilkjentYtelse =
+            TilkjentYtelseUtils.beregnTilkjentYtelse(
+                vilkårsvurdering,
+                personopplysningGrunnlag,
+                endreteUtbetalingAndeler,
+            )
 
         tilkjentYtelseRepository.save(tilkjentYtelse)
     }
@@ -103,8 +101,9 @@ class BeregningService(
         barnAktør: Aktør,
         fagsakId: Long,
     ): List<TilkjentYtelse> {
-        val andreFagsaker = fagsakService.hentFagsakerPåPerson(barnAktør)
-            .filter { it.id != fagsakId }
+        val andreFagsaker =
+            fagsakService.hentFagsakerPåPerson(barnAktør)
+                .filter { it.id != fagsakId }
 
         return andreFagsaker.mapNotNull { fagsak ->
 
@@ -187,8 +186,9 @@ class BeregningService(
      * Henter alle barn på behandlingen som har minst en periode med tilkjentytelse som ikke er endret til null i utbetaling.
      */
     fun finnAlleBarnFraBehandlingMedPerioderSomSkalUtbetales(behandlingId: Long): List<Aktør> {
-        val andelerMedEndringer = andelerTilkjentYtelseOgEndreteUtbetalingerService
-            .finnAndelerTilkjentYtelseMedEndreteUtbetalinger(behandlingId)
+        val andelerMedEndringer =
+            andelerTilkjentYtelseOgEndreteUtbetalingerService
+                .finnAndelerTilkjentYtelseMedEndreteUtbetalinger(behandlingId)
 
         return personopplysningGrunnlagRepository.hentByBehandlingAndAktiv(behandlingId).barna.map { it.aktør }
             .filter { aktør ->
@@ -205,13 +205,14 @@ class BeregningService(
 
         val alleBarnISisteBehanlding = finnBarnFraBehandlingMedTilkjentYtelse(behandling.id)
 
-        val alleBarnISistIverksattBehandling = behandlingRepository.finnIverksatteBehandlinger(behandling.fagsak.id)
-            .filter { it.steg == BehandlingSteg.AVSLUTT_BEHANDLING }.maxByOrNull { it.opprettetTidspunkt }?.let {
-                finnBarnFraBehandlingMedTilkjentYtelse(
-                    it.id,
-                )
-            }
-            ?: emptyList()
+        val alleBarnISistIverksattBehandling =
+            behandlingRepository.finnIverksatteBehandlinger(behandling.fagsak.id)
+                .filter { it.steg == BehandlingSteg.AVSLUTT_BEHANDLING }.maxByOrNull { it.opprettetTidspunkt }?.let {
+                    finnBarnFraBehandlingMedTilkjentYtelse(
+                        it.id,
+                    )
+                }
+                ?: emptyList()
 
         val nyeBarnISisteBehandling = alleBarnISisteBehanlding.minus(alleBarnISistIverksattBehandling.toSet())
 
@@ -226,11 +227,11 @@ class BeregningService(
     fun hentLøpendeAndelerTilkjentYtelseMedUtbetalingerForBehandlinger(
         behandlingIder: List<Long>,
         avstemmingstidspunkt: LocalDateTime,
-    ): List<AndelTilkjentYtelse> = andelTilkjentYtelseRepository.finnLøpendeAndelerTilkjentYtelseForBehandlinger(
-        behandlingIder,
-        avstemmingstidspunkt.toLocalDate().toYearMonth(),
-    ).filter { it.erAndelSomSkalSendesTilOppdrag() }
+    ): List<AndelTilkjentYtelse> =
+        andelTilkjentYtelseRepository.finnLøpendeAndelerTilkjentYtelseForBehandlinger(
+            behandlingIder,
+            avstemmingstidspunkt.toLocalDate().toYearMonth(),
+        ).filter { it.erAndelSomSkalSendesTilOppdrag() }
 
-    fun slettTilkjentYtelseForBehandling(behandling: Behandling) =
-        tilkjentYtelseRepository.slettTilkjentYtelseForBehandling(behandling)
+    fun slettTilkjentYtelseForBehandling(behandling: Behandling) = tilkjentYtelseRepository.slettTilkjentYtelseForBehandling(behandling)
 }

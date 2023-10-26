@@ -20,7 +20,6 @@ import org.hamcrest.CoreMatchers.`is` as Is
 
 @ExtendWith(MockKExtension::class)
 class TotrinnskontrollServiceTest {
-
     @MockK
     private lateinit var totrinnskontrollRepository: TotrinnskontrollRepository
 
@@ -51,9 +50,10 @@ class TotrinnskontrollServiceTest {
     fun `hentAktivForBehandling skal kaste feil dersom det ikke eksisterer aktiv totrinnskontroll for behandling`() {
         every { totrinnskontrollRepository.findByBehandlingAndAktiv(404) } returns null
 
-        val feil = assertThrows<Feil> {
-            totrinnskontrollService.hentAktivForBehandling(404)
-        }
+        val feil =
+            assertThrows<Feil> {
+                totrinnskontrollService.hentAktivForBehandling(404)
+            }
 
         assertThat(feil.message, Is("Fant ikke aktiv totrinnskontroll for behandling 404"))
     }
@@ -76,14 +76,15 @@ class TotrinnskontrollServiceTest {
         every { mocketTotrinnskontroll.erUgyldig() } returns true
         every { totrinnskontrollRepository.findByBehandlingAndAktiv(200) } returns mocketTotrinnskontroll
 
-        val funksjonellFeil = assertThrows<FunksjonellFeil> {
-            totrinnskontrollService.besluttTotrinnskontroll(
-                200,
-                "beslutter",
-                "beslutterId",
-                Beslutning.GODKJENT,
-            )
-        }
+        val funksjonellFeil =
+            assertThrows<FunksjonellFeil> {
+                totrinnskontrollService.besluttTotrinnskontroll(
+                    200,
+                    "beslutter",
+                    "beslutterId",
+                    Beslutning.GODKJENT,
+                )
+            }
 
         assertThat(
             funksjonellFeil.message,
@@ -117,7 +118,9 @@ class TotrinnskontrollServiceTest {
         val mocketNyTotrinnskontroll = mockk<Totrinnskontroll>(relaxed = true)
         val mocketEksisterendeTotrinnskontroll = mockk<Totrinnskontroll>(relaxed = true)
 
-        every { totrinnskontrollRepository.findByBehandlingAndAktiv(mocketNyTotrinnskontroll.behandling.id) } returns mocketEksisterendeTotrinnskontroll
+        every {
+            totrinnskontrollRepository.findByBehandlingAndAktiv(mocketNyTotrinnskontroll.behandling.id)
+        } returns mocketEksisterendeTotrinnskontroll
         every { totrinnskontrollRepository.save(mocketNyTotrinnskontroll) } returns mocketNyTotrinnskontroll
         every { totrinnskontrollRepository.saveAndFlush(mocketEksisterendeTotrinnskontroll) } returns mocketEksisterendeTotrinnskontroll
         every { mocketEksisterendeTotrinnskontroll.id } returns 200

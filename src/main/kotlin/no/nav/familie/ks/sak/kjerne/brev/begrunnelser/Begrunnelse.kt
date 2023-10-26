@@ -7,7 +7,6 @@ import no.nav.familie.ks.sak.common.util.konverterStringTilEnums
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelse
 
 interface IBegrunnelse {
-
     val sanityApiNavn: String
     val begrunnelseType: BegrunnelseType
 
@@ -553,15 +552,12 @@ fun Begrunnelse.støtterFritekst(sanityBegrunnelser: List<SanityBegrunnelse>) =
 @Converter
 class StandardbegrunnelseListConverter :
     AttributeConverter<List<Begrunnelse>, String> {
+    override fun convertToDatabaseColumn(begrunnelser: List<Begrunnelse>) = konverterEnumsTilString(begrunnelser)
 
-    override fun convertToDatabaseColumn(begrunnelser: List<Begrunnelse>) =
-        konverterEnumsTilString(begrunnelser)
-
-    override fun convertToEntityAttribute(string: String?): List<Begrunnelse> =
-        konverterStringTilEnums(string)
+    override fun convertToEntityAttribute(string: String?): List<Begrunnelse> = konverterStringTilEnums(string)
 }
 
-val endretUtbetalingsperiodeBegrunnelser: List<Begrunnelse> = listOf(
-
-    // TODO: Legg til begrunnelser
-)
+val endretUtbetalingsperiodeBegrunnelser: List<Begrunnelse> =
+    listOf(
+        // TODO: Legg til begrunnelser
+    )

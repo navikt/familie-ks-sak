@@ -22,21 +22,16 @@ data class Dødsfall(
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "po_doedsfall_seq_generator")
     @SequenceGenerator(name = "po_doedsfall_seq_generator", sequenceName = "po_doedsfall_seq", allocationSize = 50)
     val id: Long = 0,
-
     @JsonIgnore
     @OneToOne
     @JoinColumn(name = "fk_po_person_id", referencedColumnName = "id", nullable = false)
     val person: Person,
-
     @Column(name = "doedsfall_dato", nullable = false)
     val dødsfallDato: LocalDate,
-
     @Column(name = "doedsfall_adresse", nullable = true)
     val dødsfallAdresse: String?,
-
     @Column(name = "doedsfall_postnummer", nullable = true)
     val dødsfallPostnummer: String?,
-
     @Column(name = "doedsfall_poststed", nullable = true)
     val dødsfallPoststed: String?,
 ) : BaseEntitet() {

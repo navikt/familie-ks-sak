@@ -32,23 +32,18 @@ data class GrStatsborgerskap(
         allocationSize = 50,
     )
     val id: Long = 0,
-
     @Embedded
     val gyldigPeriode: DatoIntervallEntitet? = null,
-
     @Column(name = "landkode", nullable = false)
     val landkode: String,
-
     @Enumerated(EnumType.STRING)
     @Column(name = "medlemskap", nullable = false)
     val medlemskap: Medlemskap = Medlemskap.UKJENT,
-
     @JsonIgnore
     @ManyToOne(optional = false)
     @JoinColumn(name = "fk_po_person_id", nullable = false, updatable = false)
     val person: Person,
 ) : BaseEntitet() {
-
     fun gjeldendeNå(): Boolean = gyldigPeriode?.erInnenfor(LocalDate.now()) ?: true
 
     override fun equals(other: Any?): Boolean {
@@ -68,16 +63,20 @@ data class GrStatsborgerskap(
     }
 
     companion object {
-        fun fraStatsborgerskap(statsborgerskap: Statsborgerskap, medlemskap: Medlemskap, person: Person) =
-            GrStatsborgerskap(
-                gyldigPeriode = DatoIntervallEntitet(
+        fun fraStatsborgerskap(
+            statsborgerskap: Statsborgerskap,
+            medlemskap: Medlemskap,
+            person: Person,
+        ) = GrStatsborgerskap(
+            gyldigPeriode =
+                DatoIntervallEntitet(
                     fom = statsborgerskap.bekreftelsesdato ?: statsborgerskap.gyldigFraOgMed,
                     tom = statsborgerskap.gyldigTilOgMed,
                 ),
-                landkode = statsborgerskap.land,
-                medlemskap = medlemskap,
-                person = person,
-            )
+            landkode = statsborgerskap.land,
+            medlemskap = medlemskap,
+            person = person,
+        )
     }
 }
 

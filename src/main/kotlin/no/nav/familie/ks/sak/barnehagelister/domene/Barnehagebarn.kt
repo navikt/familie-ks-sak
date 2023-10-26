@@ -6,7 +6,7 @@ import jakarta.persistence.Id
 import jakarta.persistence.Table
 import no.nav.familie.ks.sak.common.entitet.BaseEntitet
 import java.time.LocalDate
-import java.util.*
+import java.util.UUID
 
 @Entity(name = "Barnehagebarn")
 @Table(name = "BARNEHAGEBARN")

@@ -12,7 +12,6 @@ class VedtaksperiodeHentOgPersisterService(
     private val vedtaksperiodeRepository: VedtaksperiodeRepository,
     private val vedtakRepository: VedtakRepository,
 ) {
-
     fun hentVedtaksperiodeThrows(vedtaksperiodeId: Long): VedtaksperiodeMedBegrunnelser =
         vedtaksperiodeRepository.finnVedtaksperiode(vedtaksperiodeId)
             ?: throw Feil(
@@ -32,8 +31,7 @@ class VedtaksperiodeHentOgPersisterService(
         return vedtaksperiodeRepository.saveAll(vedtaksperiodeMedBegrunnelser)
     }
 
-    fun slettVedtaksperioderFor(vedtak: Vedtak) =
-        vedtaksperiodeRepository.slettVedtaksperioderForVedtak(vedtak)
+    fun slettVedtaksperioderFor(vedtak: Vedtak) = vedtaksperiodeRepository.slettVedtaksperioderForVedtak(vedtak)
 
     fun slettVedtaksperioderFor(behandlingId: Long) =
         vedtakRepository.findByBehandlingAndAktivOptional(behandlingId)?.let {

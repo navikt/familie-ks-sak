@@ -19,7 +19,6 @@ class PersonService(
     private val personOpplysningerService: PersonOpplysningerService,
     private val statsborgerskapService: StatsborgerskapService,
 ) {
-
     fun lagPerson(
         aktør: Aktør,
         personopplysningGrunnlag: PersonopplysningGrunnlag,
@@ -27,11 +26,12 @@ class PersonService(
         personType: PersonType,
         krevesEnkelPersonInfo: Boolean,
     ): Person {
-        val personinfo = if (krevesEnkelPersonInfo) {
-            personOpplysningerService.hentPersoninfoEnkel(aktør)
-        } else {
-            personOpplysningerService.hentPersonInfoMedRelasjonerOgRegisterinformasjon(aktør)
-        }
+        val personinfo =
+            if (krevesEnkelPersonInfo) {
+                personOpplysningerService.hentPersoninfoEnkel(aktør)
+            } else {
+                personOpplysningerService.hentPersonInfoMedRelasjonerOgRegisterinformasjon(aktør)
+            }
         return Person(
             type = personType,
             personopplysningGrunnlag = personopplysningGrunnlag,
@@ -43,14 +43,16 @@ class PersonService(
         ).also { person ->
             person.opphold = personinfo.opphold?.map { GrOpphold.fraOpphold(it, person) }?.toMutableList()
                 ?: mutableListOf()
-            person.bostedsadresser = personinfo.bostedsadresser.filtrerUtKunNorskeBostedsadresser()
-                .map { GrBostedsadresse.fraBostedsadresse(it, person) }.toMutableList()
+            person.bostedsadresser =
+                personinfo.bostedsadresser.filtrerUtKunNorskeBostedsadresser()
+                    .map { GrBostedsadresse.fraBostedsadresse(it, person) }.toMutableList()
             person.sivilstander = personinfo.sivilstander.map { GrSivilstand.fraSivilstand(it, person) }.toMutableList()
-            person.dødsfall = Dødsfall.lagDødsfall(
-                person = person,
-                pdlDødsfallDato = personinfo.dødsfall?.dødsdato,
-                pdlDødsfallAdresse = personinfo.kontaktinformasjonForDoedsbo?.adresse,
-            )
+            person.dødsfall =
+                Dødsfall.lagDødsfall(
+                    person = person,
+                    pdlDødsfallDato = personinfo.dødsfall?.dødsdato,
+                    pdlDødsfallAdresse = personinfo.kontaktinformasjonForDoedsbo?.adresse,
+                )
             person.statsborgerskap = personinfo.statsborgerskap?.flatMap {
                 statsborgerskapService.hentStatsborgerskapMedMedlemskap(it, person)
             }?.sortedBy { it.gyldigPeriode?.fom }?.toMutableList() ?: mutableListOf()

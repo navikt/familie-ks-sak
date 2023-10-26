@@ -39,44 +39,32 @@ data class Behandling(
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "behandling_seq_generator")
     @SequenceGenerator(name = "behandling_seq_generator", sequenceName = "behandling_seq", allocationSize = 50)
     val id: Long = 0,
-
     @ManyToOne(optional = false)
     @JoinColumn(name = "fk_fagsak_id", nullable = false, updatable = false)
     val fagsak: Fagsak,
-
     @Enumerated(EnumType.STRING)
     @Column(name = "resultat", nullable = false)
     var resultat: Behandlingsresultat = IKKE_VURDERT,
-
     @Enumerated(EnumType.STRING)
     @Column(name = "behandling_type", nullable = false)
     val type: BehandlingType,
-
     @Enumerated(EnumType.STRING)
     @Column(name = "opprettet_aarsak", nullable = false)
     val opprettetÅrsak: BehandlingÅrsak,
-
     @Enumerated(EnumType.STRING)
     @Column(name = "kategori", nullable = false, updatable = true)
     var kategori: BehandlingKategori,
-
     @OneToMany(mappedBy = "behandling", cascade = [CascadeType.ALL], fetch = FetchType.EAGER, orphanRemoval = true)
     val behandlingStegTilstand: MutableSet<BehandlingStegTilstand> = mutableSetOf(),
-
     @Column(name = "aktiv", nullable = false)
     var aktiv: Boolean = true,
-
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
     var status: BehandlingStatus = initStatus(),
-
     @Column(name = "soknad_mottatt_dato")
     var søknadMottattDato: LocalDateTime? = null,
-
     var overstyrtEndringstidspunkt: LocalDate? = null,
-
 ) : BaseEntitet() {
-
     override fun toString(): String {
         return "Behandling(" +
             "id=$id, " +
@@ -98,11 +86,12 @@ data class Behandling(
     }
 
     val steg: BehandlingSteg
-        get() = behandlingStegTilstand.singleOrNull {
-            it.behandlingStegStatus == BehandlingStegStatus.KLAR
-        }?.behandlingSteg
-            ?: behandlingStegTilstand.filter { it.behandlingStegStatus != BehandlingStegStatus.TILBAKEFØRT }
-                .maxBy { it.behandlingSteg.sekvens }.behandlingSteg
+        get() =
+            behandlingStegTilstand.singleOrNull {
+                it.behandlingStegStatus == BehandlingStegStatus.KLAR
+            }?.behandlingSteg
+                ?: behandlingStegTilstand.filter { it.behandlingStegStatus != BehandlingStegStatus.TILBAKEFØRT }
+                    .maxBy { it.behandlingSteg.sekvens }.behandlingSteg
 
     fun initBehandlingStegTilstand(): Behandling {
         behandlingStegTilstand.add(
@@ -136,8 +125,7 @@ data class Behandling(
         }
     }
 
-    fun erHenlagt() =
-        resultat in listOf(HENLAGT_FEILAKTIG_OPPRETTET, HENLAGT_SØKNAD_TRUKKET, HENLAGT_TEKNISK_VEDLIKEHOLD)
+    fun erHenlagt() = resultat in listOf(HENLAGT_FEILAKTIG_OPPRETTET, HENLAGT_SØKNAD_TRUKKET, HENLAGT_TEKNISK_VEDLIKEHOLD)
 
     fun erVedtatt() = status == BehandlingStatus.AVSLUTTET && !erHenlagt()
 
@@ -161,7 +149,6 @@ data class Behandling(
  * @displayName benyttes for visning av resultat
  */
 enum class Behandlingsresultat(val displayName: String, val gyldigeBehandlingstyper: List<BehandlingType>) {
-
     // Søknad
     INNVILGET(displayName = "Innvilget", BehandlingType.values().toList()),
     INNVILGET_OG_OPPHØRT(displayName = "Innvilget og opphørt", BehandlingType.values().toList()),
@@ -197,23 +184,22 @@ enum class Behandlingsresultat(val displayName: String, val gyldigeBehandlingsty
     IKKE_VURDERT(displayName = "Ikke vurdert", emptyList()),
     ;
 
-    fun kanIkkeSendesTilOppdrag(): Boolean =
-        this in listOf(FORTSATT_INNVILGET, AVSLÅTT, FORTSATT_OPPHØRT, ENDRET_UTEN_UTBETALING)
+    fun kanIkkeSendesTilOppdrag(): Boolean = this in listOf(FORTSATT_INNVILGET, AVSLÅTT, FORTSATT_OPPHØRT, ENDRET_UTEN_UTBETALING)
 
     fun erAvslått(): Boolean = this in listOf(AVSLÅTT, AVSLÅTT_OG_OPPHØRT, AVSLÅTT_OG_ENDRET, AVSLÅTT_ENDRET_OG_OPPHØRT)
 }
 
-fun Behandlingsresultat.tilDokumenttype() = when (this) {
-    Behandlingsresultat.AVSLÅTT -> Dokumenttype.KONTANTSTØTTE_VEDTAK_AVSLAG
-    Behandlingsresultat.OPPHØRT -> Dokumenttype.KONTANTSTØTTE_OPPHØR
-    else -> Dokumenttype.KONTANTSTØTTE_VEDTAK_INNVILGELSE
-}
+fun Behandlingsresultat.tilDokumenttype() =
+    when (this) {
+        Behandlingsresultat.AVSLÅTT -> Dokumenttype.KONTANTSTØTTE_VEDTAK_AVSLAG
+        Behandlingsresultat.OPPHØRT -> Dokumenttype.KONTANTSTØTTE_OPPHØR
+        else -> Dokumenttype.KONTANTSTØTTE_VEDTAK_INNVILGELSE
+    }
 
 /**
  * Årsak er knyttet til en behandling og sier noe om hvorfor behandling ble opprettet.
  */
 enum class BehandlingÅrsak(val visningsnavn: String, val gyldigeBehandlingstyper: List<BehandlingType>) {
-
     SØKNAD("Søknad", listOf(FØRSTEGANGSBEHANDLING, REVURDERING)),
     ÅRLIG_KONTROLL("Årsak kontroll", listOf(REVURDERING)),
     DØDSFALL("Dødsfall", listOf(REVURDERING)),
@@ -251,10 +237,11 @@ enum class BehandlingKategori(val visningsnavn: String, val nivå: Int) {
         }
     }
 
-    fun tilRegelverk(): Regelverk = when (this) {
-        EØS -> Regelverk.EØS
-        NASJONAL -> Regelverk.NASJONAL
-    }
+    fun tilRegelverk(): Regelverk =
+        when (this) {
+            EØS -> Regelverk.EØS
+            NASJONAL -> Regelverk.NASJONAL
+        }
 }
 
 fun List<BehandlingKategori>.finnHøyesteKategori(): BehandlingKategori = this.maxBy { it.nivå }

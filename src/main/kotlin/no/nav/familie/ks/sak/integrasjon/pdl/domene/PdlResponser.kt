@@ -15,7 +15,6 @@ data class PdlBaseRespons<T>(
     val errors: List<PdlError>?,
     val extensions: PdlExtensions?,
 ) {
-
     fun harFeil(): Boolean {
         return !errors.isNullOrEmpty()
     }
@@ -42,6 +41,7 @@ data class PdlErrorExtensions(val code: String?) {
 data class PdlExtensions(val warnings: List<PdlWarning>?)
 
 data class PdlWarning(val details: Any?, val id: String?, val message: String?, val query: String?)
+
 class PdlHentIdenterResponse(val pdlIdenter: PdlIdenter?)
 
 data class PdlIdenter(val identer: List<PdlIdent>)
@@ -53,11 +53,17 @@ data class PdlIdent(
 )
 
 class PdlAdressebeskyttelseResponse(val person: PdlAdressebeskyttelsePerson?)
+
 class PdlAdressebeskyttelsePerson(val adressebeskyttelse: List<Adressebeskyttelse>)
+
 class PdlStatsborgerskapResponse(val person: PdlStatsborgerskapPerson?)
+
 class PdlStatsborgerskapPerson(val statsborgerskap: List<Statsborgerskap>)
+
 class PdlUtenlandskAdressseResponse(val person: PdlUtenlandskAdresssePerson?)
+
 class PdlUtenlandskAdresssePerson(val bostedsadresse: List<PdlUtenlandskAdresssePersonBostedsadresse>)
+
 class PdlUtenlandskAdresssePersonBostedsadresse(val utenlandskAdresse: PdlUtenlandskAdresssePersonUtenlandskAdresse?)
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -96,6 +102,7 @@ data class PdlFolkeregisteridentifikator(
 )
 
 enum class FolkeregisteridentifikatorStatus { I_BRUK, OPPHOERT }
+
 enum class FolkeregisteridentifikatorType { FNR, DNR }
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -107,7 +114,6 @@ data class PdlNavn(
     val mellomnavn: String? = null,
     val etternavn: String,
 ) {
-
     fun fulltNavn(): String {
         return when (mellomnavn) {
             null -> "$fornavn $etternavn"

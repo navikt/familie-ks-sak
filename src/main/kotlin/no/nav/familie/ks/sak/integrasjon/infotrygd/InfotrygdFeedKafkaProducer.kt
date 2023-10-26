@@ -14,6 +14,7 @@ import java.util.UUID
 
 interface KafkaProducer {
     fun sendStartBehandlingHendelseTilInfotrygd(startBehandlingDto: StartBehandlingDto)
+
     fun sendVedtakHendelseTilInfotrygd(vedtakDto: VedtakDto)
 }
 
@@ -38,7 +39,11 @@ class InfotrygdFeedKafkaProducer(private val kafkaTemplate: KafkaTemplate<String
         )
     }
 
-    private fun sendKafkamelding(personIdent: String, key: String, request: Any) {
+    private fun sendKafkamelding(
+        personIdent: String,
+        key: String,
+        request: Any,
+    ) {
         val topic = KafkaConfig.KONTANTSTØTTE_FEED_TOPIC
         val melding = objectMapper.writeValueAsString(request)
         val producerRecord = ProducerRecord(topic, key, melding)
@@ -51,8 +56,9 @@ class InfotrygdFeedKafkaProducer(private val kafkaTemplate: KafkaTemplate<String
                 )
             }
             .exceptionally {
-                val feilmelding = "Melding på topic $topic kan ikke sendes for $personIdent med $key. " +
-                    "Feiler med ${it.message}"
+                val feilmelding =
+                    "Melding på topic $topic kan ikke sendes for $personIdent med $key. " +
+                        "Feiler med ${it.message}"
                 secureLogger.warn(feilmelding)
                 throw Feil(message = feilmelding)
             }
@@ -62,7 +68,6 @@ class InfotrygdFeedKafkaProducer(private val kafkaTemplate: KafkaTemplate<String
 @Service
 @Profile("postgres", "integrasjonstest", "dev-postgres-preprod")
 class DummyInfotrygdFeedKafkaProducer : KafkaProducer {
-
     override fun sendStartBehandlingHendelseTilInfotrygd(startBehandlingDto: StartBehandlingDto) {
         secureLogger.info(
             "Skipper sending av saksstatistikk for ${startBehandlingDto.fnrStoenadsmottaker} fordi kafka ikke er enablet",
@@ -76,7 +81,6 @@ class DummyInfotrygdFeedKafkaProducer : KafkaProducer {
     }
 
     companion object {
-
         private val secureLogger = LoggerFactory.getLogger("secureLogger")
     }
 }

@@ -14,7 +14,6 @@ import java.time.LocalDateTime
 @Service
 @Profile("!integrasjonstest & !dev-postgres-preprod")
 class BarnehagelisteConsumer(val barnehageListeService: BarnehageListeService) {
-
     private val logger = LoggerFactory.getLogger(this::class.java)
     private val secureLogger = LoggerFactory.getLogger("secureLogger")
 
@@ -24,7 +23,10 @@ class BarnehagelisteConsumer(val barnehageListeService: BarnehageListeService) {
         topics = [KafkaConfig.BARNEHAGELISTE_TOPIC],
         containerFactory = "earliestConcurrentKafkaListenerContainerFactoryAvro",
     )
-    fun listen(consumerRecord: ConsumerRecord<String, ReceivedMessage>, ack: Acknowledgment) {
+    fun listen(
+        consumerRecord: ConsumerRecord<String, ReceivedMessage>,
+        ack: Acknowledgment,
+    ) {
         val data: ReceivedMessage = consumerRecord.value()
         val key: String = data.archiveReference
         logger.info("Barnehageliste mottatt på kafka med key $key")

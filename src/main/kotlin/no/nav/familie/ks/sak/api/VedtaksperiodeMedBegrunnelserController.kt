@@ -34,7 +34,6 @@ class VedtaksperiodeMedBegrunnelserController(
     private val vedtakService: VedtakService,
     private val tilgangService: TilgangService,
 ) {
-
     @PutMapping("/begrunnelser/{vedtaksperiodeId}")
     fun oppdaterVedtaksperiodeMedBegrunnelser(
         @PathVariable vedtaksperiodeId: Long,
@@ -45,19 +44,22 @@ class VedtaksperiodeMedBegrunnelserController(
             handling = "oppdatere vedtaksperiode med begrunnelser",
         )
 
-        val begrunnelser = vedtaksperiodeMedBegrunnelserDto.begrunnelser.mapNotNull {
-            konverterTilEnumverdi<Begrunnelse>(it)
-        }
+        val begrunnelser =
+            vedtaksperiodeMedBegrunnelserDto.begrunnelser.mapNotNull {
+                konverterTilEnumverdi<Begrunnelse>(it)
+            }
 
-        val eøsBegrunnelser = vedtaksperiodeMedBegrunnelserDto.begrunnelser.mapNotNull {
-            konverterTilEnumverdi<EØSBegrunnelse>(it)
-        }
+        val eøsBegrunnelser =
+            vedtaksperiodeMedBegrunnelserDto.begrunnelser.mapNotNull {
+                konverterTilEnumverdi<EØSBegrunnelse>(it)
+            }
 
-        val vedtak = vedtaksperiodeService.oppdaterVedtaksperiodeMedBegrunnelser(
-            vedtaksperiodeId = vedtaksperiodeId,
-            begrunnelserFraFrontend = begrunnelser,
-            eøsBegrunnelserFraFrontend = eøsBegrunnelser,
-        )
+        val vedtak =
+            vedtaksperiodeService.oppdaterVedtaksperiodeMedBegrunnelser(
+                vedtaksperiodeId = vedtaksperiodeId,
+                begrunnelserFraFrontend = begrunnelser,
+                eøsBegrunnelserFraFrontend = eøsBegrunnelser,
+            )
 
         return ResponseEntity.ok(Ressurs.success(behandlingService.lagBehandlingRespons(behandlingId = vedtak.behandling.id)))
     }
@@ -72,10 +74,11 @@ class VedtaksperiodeMedBegrunnelserController(
             handling = "oppdatere vedtaksperiode med fritekster",
         )
 
-        val vedtak = vedtaksperiodeService.oppdaterVedtaksperiodeMedFritekster(
-            vedtaksperiodeId,
-            vedtaksperiodeMedFriteksterDto.fritekster,
-        )
+        val vedtak =
+            vedtaksperiodeService.oppdaterVedtaksperiodeMedFritekster(
+                vedtaksperiodeId,
+                vedtaksperiodeMedFriteksterDto.fritekster,
+            )
 
         return ResponseEntity.ok(Ressurs.success(behandlingService.lagBehandlingRespons(behandlingId = vedtak.behandling.id)))
     }
@@ -94,7 +97,11 @@ class VedtaksperiodeMedBegrunnelserController(
             genererVedtaksperioderForOverstyrtEndringstidspunktDto.overstyrtEndringstidspunkt,
         )
 
-        return ResponseEntity.ok(Ressurs.success(behandlingService.lagBehandlingRespons(behandlingId = genererVedtaksperioderForOverstyrtEndringstidspunktDto.behandlingId)))
+        return ResponseEntity.ok(
+            Ressurs.success(
+                behandlingService.lagBehandlingRespons(behandlingId = genererVedtaksperioderForOverstyrtEndringstidspunktDto.behandlingId),
+            ),
+        )
     }
 
     /*

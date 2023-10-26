@@ -15,9 +15,7 @@ import java.time.LocalDate
 
 private val logger = LoggerFactory.getLogger(Begrunnelse::class.java)
 
-fun Begrunnelse.tilSanityBegrunnelse(
-    sanityBegrunnelser: List<SanityBegrunnelse>,
-): SanityBegrunnelse? {
+fun Begrunnelse.tilSanityBegrunnelse(sanityBegrunnelser: List<SanityBegrunnelse>): SanityBegrunnelse? {
     val sanityBegrunnelse = sanityBegrunnelser.find { it.apiNavn == this.sanityApiNavn }
     if (sanityBegrunnelse == null) {
         logger.warn("Finner ikke begrunnelse med apinavn '${this.sanityApiNavn}' på '${this.name}' i Sanity")
@@ -25,9 +23,7 @@ fun Begrunnelse.tilSanityBegrunnelse(
     return sanityBegrunnelse
 }
 
-fun EØSBegrunnelse.tilSanityEØSBegrunnelse(
-    eøsSanityBegrunnelser: List<SanityEØSBegrunnelse>,
-): SanityEØSBegrunnelse? {
+fun EØSBegrunnelse.tilSanityEØSBegrunnelse(eøsSanityBegrunnelser: List<SanityEØSBegrunnelse>): SanityEØSBegrunnelse? {
     val sanityBegrunnelse = eøsSanityBegrunnelser.find { it.apiNavn == this.sanityApiNavn }
     if (sanityBegrunnelse == null) {
         logger.warn("Finner ikke begrunnelse med apinavn '${this.sanityApiNavn}' på '${this.name}' i Sanity")
@@ -35,9 +31,7 @@ fun EØSBegrunnelse.tilSanityEØSBegrunnelse(
     return sanityBegrunnelse
 }
 
-fun Begrunnelse.tilVedtaksbegrunnelse(
-    vedtaksperiodeMedBegrunnelser: VedtaksperiodeMedBegrunnelser,
-): Vedtaksbegrunnelse {
+fun Begrunnelse.tilVedtaksbegrunnelse(vedtaksperiodeMedBegrunnelser: VedtaksperiodeMedBegrunnelser): Vedtaksbegrunnelse {
     if (!vedtaksperiodeMedBegrunnelser
             .type
             .tillatteBegrunnelsestyper
@@ -60,9 +54,10 @@ fun dødeBarnForrigePeriode(
     barnIBehandling: List<Person>,
 ): List<Person> =
     barnIBehandling.filter { barn ->
-        val ytelserForrigePeriodeForBarn = ytelserForrigePeriode.filter {
-            it.aktør == barn.aktør
-        }
+        val ytelserForrigePeriodeForBarn =
+            ytelserForrigePeriode.filter {
+                it.aktør == barn.aktør
+            }
         var barnDødeForrigePeriode = false
         if (barn.erDød() && ytelserForrigePeriodeForBarn.isNotEmpty()) {
             val fom =

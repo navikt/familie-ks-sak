@@ -22,7 +22,6 @@ import java.time.LocalDate
 
 @ExtendWith(MockKExtension::class)
 internal class GrensesnittavstemmingSchedulerTest {
-
     @MockK
     private lateinit var taskService: TaskService
 
@@ -174,7 +173,10 @@ internal class GrensesnittavstemmingSchedulerTest {
         assertEquals(LocalDate.of(2022, 12, 27).atStartOfDay(), taskData.tom)
     }
 
-    private fun lagTask(fom: LocalDate, tom: LocalDate) = Task(
+    private fun lagTask(
+        fom: LocalDate,
+        tom: LocalDate,
+    ) = Task(
         type = GrensesnittavstemmingTask.TASK_STEP_TYPE,
         payload = objectMapper.writeValueAsString(GrensesnittavstemmingTaskDto(fom.atStartOfDay(), tom.atStartOfDay())),
     )

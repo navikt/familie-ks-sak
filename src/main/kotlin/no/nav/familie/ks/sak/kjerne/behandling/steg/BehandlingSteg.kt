@@ -37,8 +37,10 @@ enum class BehandlingSteg(
     BESLUTTE_VEDTAK(
         sekvens = 7,
         gyldigBehandlerRolle = listOf(BehandlerRolle.SYSTEM, BehandlerRolle.BESLUTTER),
-        gyldigForÅrsaker = BehandlingÅrsak.values()
-            .filterNot { it == SATSENDRING }, // steg er gyldig for alle behandling årsaker bortsett fra SATSENDRING
+        gyldigForÅrsaker =
+            BehandlingÅrsak.values()
+                // steg er gyldig for alle behandling årsaker bortsett fra SATSENDRING
+                .filterNot { it == SATSENDRING },
         tilknyttetBehandlingStatus = BehandlingStatus.FATTER_VEDTAK,
     ),
     IVERKSETT_MOT_OPPDRAG(
@@ -59,13 +61,13 @@ enum class BehandlingSteg(
     ),
     ;
 
-    fun kanStegBehandles(): Boolean = this.gyldigBehandlerRolle.any {
-        it == BehandlerRolle.SAKSBEHANDLER ||
-            it == BehandlerRolle.BESLUTTER
-    }
+    fun kanStegBehandles(): Boolean =
+        this.gyldigBehandlerRolle.any {
+            it == BehandlerRolle.SAKSBEHANDLER ||
+                it == BehandlerRolle.BESLUTTER
+        }
 
-    fun visningsnavn(): String =
-        this.name.replace('_', ' ').lowercase().replaceFirstChar { it.uppercase() }
+    fun visningsnavn(): String = this.name.replace('_', ' ').lowercase().replaceFirstChar { it.uppercase() }
 }
 
 enum class BehandlingStegStatus(private val beskrivelse: String) {

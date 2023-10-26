@@ -24,7 +24,6 @@ class AndelerTilkjentYtelseOgEndreteUtbetalingerService(
     private val endretUtbetalingAndelRepository: EndretUtbetalingAndelRepository,
     private val vilkårsvurderingRepository: VilkårsvurderingRepository,
 ) {
-
     @Transactional
     fun finnAndelerTilkjentYtelseMedEndreteUtbetalinger(behandlingId: Long): List<AndelTilkjentYtelseMedEndreteUtbetalinger> =
         lagKombinator(behandlingId).lagAndelerMedEndringer()
@@ -46,10 +45,11 @@ class AndelerTilkjentYtelseOgEndreteUtbetalingerService(
             }
         }
 
-    private fun lagKombinator(behandlingId: Long) = AndelTilkjentYtelseOgEndreteUtbetalingerKombinator(
-        andelerTilkjentYtelse = andelTilkjentYtelseRepository.finnAndelerTilkjentYtelseForBehandling(behandlingId),
-        endretUtbetalingAndeler = endretUtbetalingAndelRepository.hentEndretUtbetalingerForBehandling(behandlingId),
-    )
+    private fun lagKombinator(behandlingId: Long) =
+        AndelTilkjentYtelseOgEndreteUtbetalingerKombinator(
+            andelerTilkjentYtelse = andelTilkjentYtelseRepository.finnAndelerTilkjentYtelseForBehandling(behandlingId),
+            endretUtbetalingAndeler = endretUtbetalingAndelRepository.hentEndretUtbetalingerForBehandling(behandlingId),
+        )
 
     /**
      * Fjerner andelene hvis det funksjonen som sendes inn kaster en exception
@@ -106,14 +106,16 @@ data class AndelTilkjentYtelseMedEndreteUtbetalinger internal constructor(
     private val andelTilkjentYtelse: AndelTilkjentYtelse,
     private val endreteUtbetalingerAndeler: List<EndretUtbetalingAndel>,
 ) {
-
     val periodeOffset get() = andelTilkjentYtelse.periodeOffset
     val sats get() = andelTilkjentYtelse.sats
     val type get() = andelTilkjentYtelse.type
     val kalkulertUtbetalingsbeløp get() = andelTilkjentYtelse.kalkulertUtbetalingsbeløp
     val aktør get() = andelTilkjentYtelse.aktør
+
     fun erAndelSomSkalSendesTilOppdrag() = andelTilkjentYtelse.erAndelSomSkalSendesTilOppdrag()
+
     fun overlapperPeriode(månedPeriode: MånedPeriode) = andelTilkjentYtelse.overlapperPeriode(månedPeriode)
+
     fun medTom(tom: YearMonth): AndelTilkjentYtelseMedEndreteUtbetalinger =
         AndelTilkjentYtelseMedEndreteUtbetalinger(andelTilkjentYtelse.copy(stønadTom = tom), endreteUtbetalinger)
 
@@ -124,7 +126,6 @@ data class AndelTilkjentYtelseMedEndreteUtbetalinger internal constructor(
     val endreteUtbetalinger get() = endreteUtbetalingerAndeler
 
     companion object {
-
         fun utenEndringer(andelTilkjentYtelse: AndelTilkjentYtelse): AndelTilkjentYtelseMedEndreteUtbetalinger {
             return AndelTilkjentYtelseMedEndreteUtbetalinger(andelTilkjentYtelse, emptyList())
         }
@@ -135,8 +136,8 @@ data class EndretUtbetalingAndelMedAndelerTilkjentYtelse(
     val endretUtbetalingAndel: EndretUtbetalingAndel,
     private val andeler: List<AndelTilkjentYtelse>,
 ) {
-
     fun overlapperMed(månedPeriode: MånedPeriode) = endretUtbetalingAndel.overlapperMed(månedPeriode)
+
     fun årsakErDeltBosted() = endretUtbetalingAndel.erÅrsakDeltBosted()
 
     val periode get() = endretUtbetalingAndel.periode
@@ -161,12 +162,11 @@ data class EndretUtbetalingAndelMedAndelerTilkjentYtelse(
  * Utnytter at <endretUtbetalingAndelMedAndelerTilkjentYtelse> vet om funksjonsbryteren <brukFrikobleteAndelerOgEndringer> er satt
  * og viderefører den til den opprettede AndelTilkjentYtelseMedEndreteUtbetalinger
  */
-fun AndelTilkjentYtelse.medEndring(
-    endretUtbetalingAndelMedAndelerTilkjentYtelse: EndretUtbetalingAndelMedAndelerTilkjentYtelse,
-) = AndelTilkjentYtelseMedEndreteUtbetalinger(
-    this,
-    listOf(endretUtbetalingAndelMedAndelerTilkjentYtelse.endretUtbetaling),
-)
+fun AndelTilkjentYtelse.medEndring(endretUtbetalingAndelMedAndelerTilkjentYtelse: EndretUtbetalingAndelMedAndelerTilkjentYtelse) =
+    AndelTilkjentYtelseMedEndreteUtbetalinger(
+        this,
+        listOf(endretUtbetalingAndelMedAndelerTilkjentYtelse.endretUtbetaling),
+    )
 
 fun List<AndelTilkjentYtelseMedEndreteUtbetalinger>.tilTidslinjer(): List<Tidslinje<AndelTilkjentYtelseMedEndreteUtbetalinger>> =
     this.map {

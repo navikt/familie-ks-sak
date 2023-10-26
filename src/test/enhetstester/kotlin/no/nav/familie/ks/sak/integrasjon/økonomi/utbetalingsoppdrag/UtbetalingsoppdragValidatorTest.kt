@@ -17,61 +17,69 @@ import java.util.UUID
 import org.hamcrest.CoreMatchers.`is` as Is
 
 internal class UtbetalingsoppdragValidatorTest {
-
     @Test
     fun `valider skal kaste feil dersom nasjonalt utbetalingsoppdrag ikke har utbetalingsperiode`() {
         val utbetalingsoppdrag = lagUtbetalingsoppdrag()
 
-        val funksjonellFeil = assertThrows<FunksjonellFeil> {
-            utbetalingsoppdrag.valider(
-                behandlingsresultat = Behandlingsresultat.INNVILGET,
-                behandlingskategori = BehandlingKategori.NASJONAL,
-                andelerTilkjentYtelse = listOf(
-                    lagAndelTilkjentYtelse(
-                        stønadFom = inneværendeMåned().minusYears(4),
-                        stønadTom = inneværendeMåned(),
-                        behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD),
-                    ),
-                ),
-            )
-        }
+        val funksjonellFeil =
+            assertThrows<FunksjonellFeil> {
+                utbetalingsoppdrag.valider(
+                    behandlingsresultat = Behandlingsresultat.INNVILGET,
+                    behandlingskategori = BehandlingKategori.NASJONAL,
+                    andelerTilkjentYtelse =
+                        listOf(
+                            lagAndelTilkjentYtelse(
+                                stønadFom = inneværendeMåned().minusYears(4),
+                                stønadTom = inneværendeMåned(),
+                                behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD),
+                            ),
+                        ),
+                )
+            }
 
         assertThat(
             funksjonellFeil.message,
-            Is("Utbetalingsoppdraget inneholder ingen utbetalingsperioder og det er grunn til å tro at denne ikke bør simuleres eller iverksettes. Kontakt teamet for hjelp."),
+            Is(
+                "Utbetalingsoppdraget inneholder ingen utbetalingsperioder og det er grunn til å tro at denne ikke bør simuleres eller iverksettes. Kontakt teamet for hjelp.",
+            ),
         )
     }
 
     @Test
     fun `valider skal kaste feil dersom innvilget EØS-utbetalingsoppdrag hvor Norge er Primærland mangler utbetalingsperiode`() {
         val utbetalingsoppdrag = lagUtbetalingsoppdrag()
-        val funksjonellFeil = assertThrows<FunksjonellFeil> {
-            utbetalingsoppdrag.valider(
-                behandlingsresultat = Behandlingsresultat.INNVILGET,
-                behandlingskategori = BehandlingKategori.EØS,
-                andelerTilkjentYtelse = listOf(
-                    lagAndelTilkjentYtelse(
-                        stønadFom = inneværendeMåned().minusYears(4),
-                        stønadTom = inneværendeMåned(),
-                        behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD),
-                    ),
-                ),
-            )
-        }
+        val funksjonellFeil =
+            assertThrows<FunksjonellFeil> {
+                utbetalingsoppdrag.valider(
+                    behandlingsresultat = Behandlingsresultat.INNVILGET,
+                    behandlingskategori = BehandlingKategori.EØS,
+                    andelerTilkjentYtelse =
+                        listOf(
+                            lagAndelTilkjentYtelse(
+                                stønadFom = inneværendeMåned().minusYears(4),
+                                stønadTom = inneværendeMåned(),
+                                behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD),
+                            ),
+                        ),
+                )
+            }
 
         assertThat(
             funksjonellFeil.message,
-            Is("Utbetalingsoppdraget inneholder ingen utbetalingsperioder og det er grunn til å tro at denne ikke bør simuleres eller iverksettes. Kontakt teamet for hjelp."),
+            Is(
+                "Utbetalingsoppdraget inneholder ingen utbetalingsperioder og det er grunn til å tro at denne ikke bør simuleres eller iverksettes. Kontakt teamet for hjelp.",
+            ),
         )
     }
 
-    private fun lagUtbetalingsoppdrag(utbetalingsperioder: List<Utbetalingsperiode> = emptyList()) = Utbetalingsoppdrag(
-        kodeEndring = Utbetalingsoppdrag.KodeEndring.NY,
-        fagSystem = FAGSYSTEM,
-        saksnummer = "",
-        aktoer = UUID.randomUUID().toString(),
-        saksbehandlerId = "",
-        avstemmingTidspunkt = LocalDateTime.now(),
-        utbetalingsperiode = utbetalingsperioder,
-    )
+    private fun lagUtbetalingsoppdrag(utbetalingsperioder: List<Utbetalingsperiode> = emptyList()) =
+        Utbetalingsoppdrag(
+            kodeEndring = Utbetalingsoppdrag.KodeEndring.NY,
+            fagSystem = FAGSYSTEM,
+            saksnummer = "",
+            aktoer = UUID.randomUUID().toString(),
+            saksbehandlerId = "",
+            avstemmingTidspunkt = LocalDateTime.now(),
+            utbetalingsperiode = utbetalingsperioder,
+        )
 }

@@ -17,7 +17,9 @@ fun Utbetalingsoppdrag.valider(
     andelerTilkjentYtelse: List<AndelTilkjentYtelse>,
 ) {
     if (this.utbetalingsperiode.isNotEmpty() && behandlingsresultat == Behandlingsresultat.FORTSATT_INNVILGET) {
-        throw FunksjonellFeil("Behandling har resultat fortsatt innvilget, men det finnes utbetalingsperioder som ifølge systemet skal endres. $KONTAKT_TEAMET_SUFFIX")
+        throw FunksjonellFeil(
+            "Behandling har resultat fortsatt innvilget, men det finnes utbetalingsperioder som ifølge systemet skal endres. $KONTAKT_TEAMET_SUFFIX",
+        )
     } else if (this.utbetalingsperiode.isEmpty() &&
         !kanHaNullutbetaling(behandlingskategori, andelerTilkjentYtelse)
     ) {

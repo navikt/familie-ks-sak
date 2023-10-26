@@ -8,10 +8,14 @@ import org.springframework.stereotype.Service
 
 // Brukte @Lazy annotering for å unngå sirkular avhengighet
 @Service
-class KompetanseSkjemaEndretService(@Lazy private val tilbakestillBehandlingService: TilbakestillBehandlingService) :
+class KompetanseSkjemaEndretService(
+    @Lazy private val tilbakestillBehandlingService: TilbakestillBehandlingService,
+) :
     EøsSkjemaEndringAbonnent<Kompetanse> {
-
-    override fun skjemaerEndret(behandlingId: Long, endretTil: List<Kompetanse>) {
+    override fun skjemaerEndret(
+        behandlingId: Long,
+        endretTil: List<Kompetanse>,
+    ) {
         tilbakestillBehandlingService.tilbakestillBehandlingTilBehandlingsresultat(behandlingId)
     }
 }

@@ -10,7 +10,6 @@ import org.springframework.stereotype.Repository
 
 @Repository
 interface FagsakRepository : JpaRepository<Fagsak, Long> {
-
     @Lock(LockModeType.PESSIMISTIC_FORCE_INCREMENT)
     fun save(fagsak: Fagsak): Fagsak
 

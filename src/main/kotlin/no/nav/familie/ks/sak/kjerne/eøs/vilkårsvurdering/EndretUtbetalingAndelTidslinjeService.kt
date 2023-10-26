@@ -15,7 +15,6 @@ import java.time.LocalDate
 
 @Service
 class EndretUtbetalingAndelTidslinjeService(private val endretUtbetalingAndelService: EndretUtbetalingAndelService) {
-
     fun hentBarnasHarEtterbetaling3MånedTidslinjer(behandlingId: Long) =
         endretUtbetalingAndelService
             .hentEndredeUtbetalingAndeler(behandlingId)
@@ -30,8 +29,9 @@ internal fun Iterable<EndretUtbetalingAndel>.tilBarnasHarEtterbetaling3MånedTid
         .mapValues { (_, endringer) -> endringer.map { it.tilPeriode { true } }.tilTidslinje() }
 }
 
-private fun <T> EndretUtbetalingAndel.tilPeriode(mapper: (EndretUtbetalingAndel) -> T) = Periode(
-    fom = this.fom?.førsteDagIInneværendeMåned() ?: LocalDate.now(),
-    tom = this.tom?.sisteDagIInneværendeMåned() ?: LocalDate.now(),
-    verdi = mapper(this),
-)
+private fun <T> EndretUtbetalingAndel.tilPeriode(mapper: (EndretUtbetalingAndel) -> T) =
+    Periode(
+        fom = this.fom?.førsteDagIInneværendeMåned() ?: LocalDate.now(),
+        tom = this.tom?.sisteDagIInneværendeMåned() ?: LocalDate.now(),
+        verdi = mapper(this),
+    )

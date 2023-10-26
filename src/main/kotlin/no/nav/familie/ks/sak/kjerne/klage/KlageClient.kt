@@ -18,12 +18,12 @@ class KlageClient(
     @Qualifier("azure") restOperations: RestOperations,
     @Value("\${FAMILIE_KLAGE_URL}") private val familieKlageUri: URI,
 ) : AbstractRestClient(restOperations, "integrasjon") {
-
     fun opprettKlage(opprettKlagebehandlingRequest: OpprettKlagebehandlingRequest) {
-        val uri = UriComponentsBuilder
-            .fromUri(familieKlageUri)
-            .pathSegment("api/ekstern/behandling/opprett")
-            .build().toUri()
+        val uri =
+            UriComponentsBuilder
+                .fromUri(familieKlageUri)
+                .pathSegment("api/ekstern/behandling/opprett")
+                .build().toUri()
 
         return kallEksternTjenesteUtenRespons<Unit>(
             tjeneste = "klage",
@@ -35,11 +35,12 @@ class KlageClient(
     }
 
     fun hentKlagebehandlinger(eksternIder: Set<Long>): Map<Long, List<KlagebehandlingDto>> {
-        val uri = UriComponentsBuilder
-            .fromUri(familieKlageUri)
-            .pathSegment("api/ekstern/behandling/${Fagsystem.KS}")
-            .queryParam("eksternFagsakId", eksternIder.joinToString(","))
-            .build().toUri()
+        val uri =
+            UriComponentsBuilder
+                .fromUri(familieKlageUri)
+                .pathSegment("api/ekstern/behandling/${Fagsystem.KS}")
+                .queryParam("eksternFagsakId", eksternIder.joinToString(","))
+                .build().toUri()
 
         return kallEksternTjenesteRessurs(
             tjeneste = "klage",

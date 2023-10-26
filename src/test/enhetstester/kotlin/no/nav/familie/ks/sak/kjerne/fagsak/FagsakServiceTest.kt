@@ -108,24 +108,27 @@ class FagsakServiceTest {
 
         every { personidentService.hentAktør(any()) } returns søkerAktør
         every { integrasjonService.sjekkTilgangTilPerson(any()) } returns Tilgang("test", true)
-        every { personopplysningerService.hentPersonInfoMedRelasjonerOgRegisterinformasjon(any()) } returns PdlPersonInfo(
-            søkersFødselsdato,
-            forelderBarnRelasjoner = setOf(ForelderBarnRelasjonInfo(barnAktør, FORELDERBARNRELASJONROLLE.BARN)),
-        )
-        every { personRepository.findByAktør(any()) } returns listOf(
-            Person(
-                aktør = søkerAktør,
-                type = PersonType.SØKER,
-                fødselsdato = søkersFødselsdato,
-                kjønn = Kjønn.MANN,
-                personopplysningGrunnlag = lagPersonopplysningGrunnlag(1, søkerPersonident, barnIdenter),
-            ),
-        )
+        every { personopplysningerService.hentPersonInfoMedRelasjonerOgRegisterinformasjon(any()) } returns
+            PdlPersonInfo(
+                søkersFødselsdato,
+                forelderBarnRelasjoner = setOf(ForelderBarnRelasjonInfo(barnAktør, FORELDERBARNRELASJONROLLE.BARN)),
+            )
+        every { personRepository.findByAktør(any()) } returns
+            listOf(
+                Person(
+                    aktør = søkerAktør,
+                    type = PersonType.SØKER,
+                    fødselsdato = søkersFødselsdato,
+                    kjønn = Kjønn.MANN,
+                    personopplysningGrunnlag = lagPersonopplysningGrunnlag(1, søkerPersonident, barnIdenter),
+                ),
+            )
         val fagsak = lagFagsak(søkerAktør)
-        every { behandlingRepository.hentBehandling(any()) } returns lagBehandling(
-            fagsak = fagsak,
-            opprettetÅrsak = BehandlingÅrsak.SØKNAD,
-        )
+        every { behandlingRepository.hentBehandling(any()) } returns
+            lagBehandling(
+                fagsak = fagsak,
+                opprettetÅrsak = BehandlingÅrsak.SØKNAD,
+            )
         every { fagsakRepository.finnFagsakForAktør(any()) } returns fagsak
 
         val fagsakdeltakere = fagsakService.hentFagsakDeltagere(søkerPersonident)
@@ -145,30 +148,35 @@ class FagsakServiceTest {
 
         every { personidentService.hentAktør(any()) } returns barnAktør
         every { integrasjonService.sjekkTilgangTilPerson(any()) } returns Tilgang("test", true)
-        every { personopplysningerService.hentPersonInfoMedRelasjonerOgRegisterinformasjon(any()) } returns PdlPersonInfo(
-            barnFødselsdato,
-            forelderBarnRelasjoner = setOf(ForelderBarnRelasjonInfo(søkerAktør, FORELDERBARNRELASJONROLLE.FAR)),
-        )
-        every { personRepository.findByAktør(any()) } returns listOf(
-            Person(
-                aktør = barnAktør,
-                type = PersonType.BARN,
-                fødselsdato = barnFødselsdato,
-                kjønn = Kjønn.MANN,
-                personopplysningGrunnlag = lagPersonopplysningGrunnlag(1, barnPersonident, emptyList()),
-            ),
-        )
+        every { personopplysningerService.hentPersonInfoMedRelasjonerOgRegisterinformasjon(any()) } returns
+            PdlPersonInfo(
+                barnFødselsdato,
+                forelderBarnRelasjoner = setOf(ForelderBarnRelasjonInfo(søkerAktør, FORELDERBARNRELASJONROLLE.FAR)),
+            )
+        every { personRepository.findByAktør(any()) } returns
+            listOf(
+                Person(
+                    aktør = barnAktør,
+                    type = PersonType.BARN,
+                    fødselsdato = barnFødselsdato,
+                    kjønn = Kjønn.MANN,
+                    personopplysningGrunnlag = lagPersonopplysningGrunnlag(1, barnPersonident, emptyList()),
+                ),
+            )
         val fagsak = lagFagsak(søkerAktør)
-        every { behandlingRepository.hentBehandling(any()) } returns lagBehandling(
-            fagsak = fagsak,
-            opprettetÅrsak = BehandlingÅrsak.SØKNAD,
-        )
-        every { personopplysningerService.hentPersoninfoEnkel(any()) } returns PdlPersonInfo(
-            søkersFødselsdato,
-            forelderBarnRelasjoner = setOf(
-                ForelderBarnRelasjonInfo(barnAktør, FORELDERBARNRELASJONROLLE.BARN),
-            ),
-        )
+        every { behandlingRepository.hentBehandling(any()) } returns
+            lagBehandling(
+                fagsak = fagsak,
+                opprettetÅrsak = BehandlingÅrsak.SØKNAD,
+            )
+        every { personopplysningerService.hentPersoninfoEnkel(any()) } returns
+            PdlPersonInfo(
+                søkersFødselsdato,
+                forelderBarnRelasjoner =
+                    setOf(
+                        ForelderBarnRelasjonInfo(barnAktør, FORELDERBARNRELASJONROLLE.BARN),
+                    ),
+            )
         every { fagsakRepository.finnFagsakForAktør(any()) } returns fagsak
 
         val fagsakdeltakere = fagsakService.hentFagsakDeltagere(søkerPersonident)
@@ -190,10 +198,11 @@ class FagsakServiceTest {
         every { personidentService.hentOgLagreAktør(aktør.aktørId, true) } returns aktør
         every { personidentService.hentOgLagreAktør(fødselsnummer, true) } returns aktør
         every { fagsakRepository.finnFagsakForAktør(aktør) } returns fagsak
-        every { behandlingRepository.findByFagsakAndAktiv(fagsak.id) } returns lagBehandling(
-            fagsak,
-            opprettetÅrsak = BehandlingÅrsak.SØKNAD,
-        )
+        every { behandlingRepository.findByFagsakAndAktiv(fagsak.id) } returns
+            lagBehandling(
+                fagsak,
+                opprettetÅrsak = BehandlingÅrsak.SØKNAD,
+            )
         every { andelerTilkjentYtelseOgEndreteUtbetalingerService.finnAndelerTilkjentYtelseMedEndreteUtbetalinger(any()) } returns emptyList()
         every { personopplysningGrunnlagRepository.hentByBehandlingAndAktiv(any()) } returns lagPersonopplysningGrunnlag()
 
@@ -265,13 +274,14 @@ class FagsakServiceTest {
             lagBehandling(fagsak, opprettetÅrsak = BehandlingÅrsak.BARNEHAGELISTE).apply { aktiv = true }
 
         every { fagsakRepository.finnFagsak(any()) } returns fagsak
-        every { behandlingRepository.finnBehandlinger(fagsak.id) } returns listOf(
-            lagBehandling(
-                fagsak,
-                opprettetÅrsak = BehandlingÅrsak.SØKNAD,
-            ).apply { aktiv = false },
-            barnehagelisteBehandling,
-        )
+        every { behandlingRepository.finnBehandlinger(fagsak.id) } returns
+            listOf(
+                lagBehandling(
+                    fagsak,
+                    opprettetÅrsak = BehandlingÅrsak.SØKNAD,
+                ).apply { aktiv = false },
+                barnehagelisteBehandling,
+            )
         every { behandlingRepository.findByFagsakAndAktiv(fagsak.id) } returns barnehagelisteBehandling
         every { vedtakRepository.findByBehandlingAndAktivOptional(any()) } returns mockk(relaxed = true)
         every { tilbakekrevingsbehandlingHentService.hentTilbakekrevingsbehandlinger(fagsak.id) } returns

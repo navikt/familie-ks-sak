@@ -17,7 +17,6 @@ import org.hamcrest.CoreMatchers.`is` as Is
 
 @ExtendWith(MockKExtension::class)
 class VedtaksperiodeUtilTest {
-
     @ParameterizedTest
     @EnumSource(
         value = Vedtaksperiodetype::class,
@@ -27,34 +26,40 @@ class VedtaksperiodeUtilTest {
     fun `validerVedtaksperiodeMedBegrunnelser - skal kaste FunksjonellFeil dersom det er fritekst uten stanadard begrunnelser i opphør eller avslag`(
         vedtaksperiodetype: Vedtaksperiodetype,
     ) {
-        val vedtaksperiodeMedBegrunnelser = VedtaksperiodeMedBegrunnelser(
-            vedtak = mockk(),
-            type = vedtaksperiodetype,
-            fritekster = mutableListOf(mockk()),
-        )
+        val vedtaksperiodeMedBegrunnelser =
+            VedtaksperiodeMedBegrunnelser(
+                vedtak = mockk(),
+                type = vedtaksperiodetype,
+                fritekster = mutableListOf(mockk()),
+            )
 
-        val funksjonellFeil = assertThrows<FunksjonellFeil> {
-            validerVedtaksperiodeMedBegrunnelser(vedtaksperiodeMedBegrunnelser)
-        }
+        val funksjonellFeil =
+            assertThrows<FunksjonellFeil> {
+                validerVedtaksperiodeMedBegrunnelser(vedtaksperiodeMedBegrunnelser)
+            }
 
         assertThat(
             funksjonellFeil.message,
-            Is("Fritekst kan kun brukes i kombinasjon med en eller flere begrunnelser. Legg først til en ny begrunnelse eller fjern friteksten(e)."),
+            Is(
+                "Fritekst kan kun brukes i kombinasjon med en eller flere begrunnelser. Legg først til en ny begrunnelse eller fjern friteksten(e).",
+            ),
         )
     }
 
     @Test
     fun `validerVedtaksperiodeMedBegrunnelser - skal kaste FunksjonellFeil dersom det eksisterer både fritekst og begrunnelser`() {
-        val vedtaksperiodeMedBegrunnelser = VedtaksperiodeMedBegrunnelser(
-            vedtak = mockk<Vedtak>().also { every { it.behandling.resultat } returns Behandlingsresultat.FORTSATT_INNVILGET },
-            type = Vedtaksperiodetype.FORTSATT_INNVILGET,
-            fritekster = mutableListOf(mockk()),
-            begrunnelser = mutableSetOf(mockk()),
-        )
+        val vedtaksperiodeMedBegrunnelser =
+            VedtaksperiodeMedBegrunnelser(
+                vedtak = mockk<Vedtak>().also { every { it.behandling.resultat } returns Behandlingsresultat.FORTSATT_INNVILGET },
+                type = Vedtaksperiodetype.FORTSATT_INNVILGET,
+                fritekster = mutableListOf(mockk()),
+                begrunnelser = mutableSetOf(mockk()),
+            )
 
-        val funksjonellFeil = assertThrows<FunksjonellFeil> {
-            validerVedtaksperiodeMedBegrunnelser(vedtaksperiodeMedBegrunnelser)
-        }
+        val funksjonellFeil =
+            assertThrows<FunksjonellFeil> {
+                validerVedtaksperiodeMedBegrunnelser(vedtaksperiodeMedBegrunnelser)
+            }
 
         assertThat(
             funksjonellFeil.message,

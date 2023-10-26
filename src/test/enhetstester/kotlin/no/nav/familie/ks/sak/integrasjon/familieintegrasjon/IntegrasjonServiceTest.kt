@@ -20,7 +20,6 @@ import org.hamcrest.CoreMatchers.`is` as Is
 
 @ExtendWith(MockKExtension::class)
 internal class IntegrasjonServiceTest {
-
     @MockK
     private lateinit var integrasjonClient: IntegrasjonClient
 
@@ -86,14 +85,15 @@ internal class IntegrasjonServiceTest {
     fun `sjekkTilgangTilPersoner skal sjekke om SB har tilgang til personidenter`() {
         val listeMedIdenter = listOf("Ident1", "Ident2")
 
-        every { integrasjonClient.sjekkTilgangTilPersoner(listeMedIdenter) } returns listOf(
-            Tilgang(
-                "Ident1",
-                true,
-                "test",
-            ),
-            Tilgang("Ident2", true, "test"),
-        )
+        every { integrasjonClient.sjekkTilgangTilPersoner(listeMedIdenter) } returns
+            listOf(
+                Tilgang(
+                    "Ident1",
+                    true,
+                    "test",
+                ),
+                Tilgang("Ident2", true, "test"),
+            )
 
         val tilgang = integrasjonService.sjekkTilgangTilPersoner(listeMedIdenter)
 

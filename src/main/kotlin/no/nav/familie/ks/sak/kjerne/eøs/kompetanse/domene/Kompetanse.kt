@@ -26,11 +26,9 @@ data class Kompetanse(
     @Column(name = "fom", columnDefinition = "DATE")
     @Convert(converter = YearMonthConverter::class)
     override val fom: YearMonth?,
-
     @Column(name = "tom", columnDefinition = "DATE")
     @Convert(converter = YearMonthConverter::class)
     override val tom: YearMonth?,
-
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
         name = "AKTOER_TIL_KOMPETANSE",
@@ -38,29 +36,22 @@ data class Kompetanse(
         inverseJoinColumns = [JoinColumn(name = "fk_aktoer_id")],
     )
     override val barnAktører: Set<Aktør> = emptySet(),
-
     @Enumerated(EnumType.STRING)
     @Column(name = "soekers_aktivitet")
     val søkersAktivitet: SøkersAktivitet? = null,
-
     @Enumerated(EnumType.STRING)
     @Column(name = "annen_forelderes_aktivitet")
     val annenForeldersAktivitet: AnnenForeldersAktivitet? = null,
-
     @Column(name = "annen_forelderes_aktivitetsland")
     val annenForeldersAktivitetsland: String? = null,
-
     @Column(name = "sokers_aktivitetsland")
     val søkersAktivitetsland: String? = null,
-
     @Column(name = "barnets_bostedsland")
     val barnetsBostedsland: String? = null,
-
     @Enumerated(EnumType.STRING)
     @Column(name = "resultat")
     val resultat: KompetanseResultat? = null,
 ) : EøsSkjemaEntitet<Kompetanse>() {
-
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "kompetanse_seq_generator")
     @SequenceGenerator(
@@ -73,17 +64,21 @@ data class Kompetanse(
     @Column(name = "fk_behandling_id", updatable = false, nullable = false)
     override var behandlingId: Long = 0
 
-    override fun utenInnhold() = this.copy(
-        søkersAktivitet = null,
-        søkersAktivitetsland = null,
-        annenForeldersAktivitet = null,
-        annenForeldersAktivitetsland = null,
-        barnetsBostedsland = null,
-        resultat = null,
-    )
+    override fun utenInnhold() =
+        this.copy(
+            søkersAktivitet = null,
+            søkersAktivitetsland = null,
+            annenForeldersAktivitet = null,
+            annenForeldersAktivitetsland = null,
+            barnetsBostedsland = null,
+            resultat = null,
+        )
 
-    override fun kopier(fom: YearMonth?, tom: YearMonth?, barnAktører: Set<Aktør>) =
-        copy(fom = fom, tom = tom, barnAktører = barnAktører)
+    override fun kopier(
+        fom: YearMonth?,
+        tom: YearMonth?,
+        barnAktører: Set<Aktør>,
+    ) = copy(fom = fom, tom = tom, barnAktører = barnAktører)
 
     fun validerFelterErSatt() {
         if (!erFelterSatt()) {
@@ -91,11 +86,12 @@ data class Kompetanse(
         }
     }
 
-    fun erFelterSatt() = søkersAktivitet != null &&
-        annenForeldersAktivitet != null &&
-        barnetsBostedsland != null &&
-        resultat != null &&
-        barnAktører.isNotEmpty()
+    fun erFelterSatt() =
+        søkersAktivitet != null &&
+            annenForeldersAktivitet != null &&
+            barnetsBostedsland != null &&
+            resultat != null &&
+            barnAktører.isNotEmpty()
 
     companion object {
         val blankKompetanse = Kompetanse(fom = null, tom = null, barnAktører = emptySet())

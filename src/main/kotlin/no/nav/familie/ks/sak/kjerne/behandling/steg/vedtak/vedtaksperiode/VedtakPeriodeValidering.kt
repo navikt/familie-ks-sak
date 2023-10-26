@@ -32,7 +32,9 @@ private fun UtvidetVedtaksperiodeMedBegrunnelser.validerMinstEnEndretUtbetalingb
         this.begrunnelser.any { it.begrunnelse.begrunnelseType == BegrunnelseType.ENDRET_UTBETALING }
 
     if (erMuligÅVelgeEndretUtbetalingBegrunnelse && !erValgtEndretUtbetalingBegrunnelse) {
-        logger.warn("Vedtaksperioden ${this.fom?.tilKortString() ?: ""} - ${this.tom?.tilKortString() ?: ""} mangler endretubetalingsbegrunnelse. Fagsak: $fagsakId, behandling: $behandlingId")
+        logger.warn(
+            "Vedtaksperioden ${this.fom?.tilKortString() ?: ""} - ${this.tom?.tilKortString() ?: ""} mangler endretubetalingsbegrunnelse. Fagsak: $fagsakId, behandling: $behandlingId",
+        )
     }
 }
 
@@ -46,7 +48,9 @@ private fun UtvidetVedtaksperiodeMedBegrunnelser.validerMinstEnInnvilgetbegrunne
         this.begrunnelser.any { it.begrunnelse.begrunnelseType == BegrunnelseType.INNVILGET }
 
     if (erMuligÅVelgeInnvilgetBegrunnelse && !erValgtInnvilgetBegrunnelse) {
-        logger.warn("Vedtaksperioden ${this.fom?.tilKortString() ?: ""} - ${this.tom?.tilKortString() ?: ""} mangler innvilgelsebegrunnelse. Fagsak: $fagsakId, behandling: $behandlingId")
+        logger.warn(
+            "Vedtaksperioden ${this.fom?.tilKortString() ?: ""} - ${this.tom?.tilKortString() ?: ""} mangler innvilgelsebegrunnelse. Fagsak: $fagsakId, behandling: $behandlingId",
+        )
     }
 }
 
@@ -60,7 +64,9 @@ private fun UtvidetVedtaksperiodeMedBegrunnelser.validerMinstEnReduksjonsbegrunn
         this.begrunnelser.any { it.begrunnelse.begrunnelseType == BegrunnelseType.REDUKSJON }
 
     if (erMuligÅVelgeReduksjonBegrunnelse && !erValgtReduksjonBegrunnelse) {
-        logger.warn("Vedtaksperioden ${this.fom?.tilKortString() ?: ""} - ${this.tom?.tilKortString() ?: ""} mangler reduksjonsbegrunnelse. Fagsak: $fagsakId, behandling: $behandlingId")
+        logger.warn(
+            "Vedtaksperioden ${this.fom?.tilKortString() ?: ""} - ${this.tom?.tilKortString() ?: ""} mangler reduksjonsbegrunnelse. Fagsak: $fagsakId, behandling: $behandlingId",
+        )
     }
 }
 
@@ -69,7 +75,9 @@ private fun UtvidetVedtaksperiodeMedBegrunnelser.validerMinstEnBegrunnelseValgt(
     fagsakId: Long,
 ) {
     if (this.begrunnelser.isEmpty()) {
-        logger.warn("Vedtaksperioden ${this.fom?.tilKortString() ?: ""} - ${this.tom?.tilKortString() ?: ""} har ingen begrunnelser knyttet til seg. Fagsak: $fagsakId, behandling: $behandlingId")
+        logger.warn(
+            "Vedtaksperioden ${this.fom?.tilKortString() ?: ""} - ${this.tom?.tilKortString() ?: ""} har ingen begrunnelser knyttet til seg. Fagsak: $fagsakId, behandling: $behandlingId",
+        )
     }
 }
 

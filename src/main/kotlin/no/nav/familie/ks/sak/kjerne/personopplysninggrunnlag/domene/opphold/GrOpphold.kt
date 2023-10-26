@@ -28,19 +28,15 @@ data class GrOpphold(
         allocationSize = 50,
     )
     val id: Long = 0,
-
     @Embedded
     val gyldigPeriode: DatoIntervallEntitet? = null,
-
     @Column(name = "type", nullable = false)
     val type: OPPHOLDSTILLATELSE,
-
     @JsonIgnore
     @ManyToOne(optional = false)
     @JoinColumn(name = "fk_po_person_id", nullable = false, updatable = false)
     val person: Person,
 ) : BaseEntitet() {
-
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
@@ -58,8 +54,10 @@ data class GrOpphold(
     }
 
     companion object {
-
-        fun fraOpphold(opphold: Opphold, person: Person) = GrOpphold(
+        fun fraOpphold(
+            opphold: Opphold,
+            person: Person,
+        ) = GrOpphold(
             gyldigPeriode = DatoIntervallEntitet(fom = opphold.oppholdFra, tom = opphold.oppholdTil),
             type = opphold.type,
             person = person,

@@ -16,16 +16,15 @@ import org.springframework.stereotype.Service
     triggerTidVedFeilISekunder = 60,
 )
 class AvsluttUtløpteFagsakerTask(val fagsakService: FagsakService) : AsyncTaskStep {
-
     override fun doTask(task: Task) {
         val antallOppdaterte = fagsakService.finnOgAvsluttFagsakerSomSkalAvsluttes()
         logger.info("Oppdatert status på $antallOppdaterte fagsaker til ${FagsakStatus.AVSLUTTET.name}")
     }
 
     companion object {
-
         const val TASK_STEP_TYPE = "avsluttUtløpteFagsaker"
         private val logger: Logger = LoggerFactory.getLogger(this::class.java)
+
         fun lagTask() = Task(type = this.TASK_STEP_TYPE, payload = "")
     }
 }

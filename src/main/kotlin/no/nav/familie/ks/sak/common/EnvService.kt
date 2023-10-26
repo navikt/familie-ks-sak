@@ -5,7 +5,6 @@ import org.springframework.stereotype.Service
 
 @Service
 class EnvService(private val environment: Environment) {
-
     fun erProd(): Boolean = environment.activeProfiles.any { it == "prod" }
 
     fun erPreprod(): Boolean = environment.activeProfiles.any { it == "preprod" }

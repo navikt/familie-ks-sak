@@ -19,20 +19,23 @@ fun List<VilkårResultat>.forskyvBarnehageplassVilkår(): List<Periode<VilkårRe
         .map {
             Periode(
                 verdi = it.vilkårResultat,
-                fom = it.vilkårResultat.periodeFom
-                    .tilForskøvetFomBasertPåGraderingsforskjell(it.graderingsforskjellMellomDenneOgForrigePeriode),
-                tom = it.vilkårResultat.periodeTom
-                    .tilForskøvetTomBasertPåGraderingsforskjell(it.graderingsforskjellMellomDenneOgNestePeriode),
+                fom =
+                    it.vilkårResultat.periodeFom
+                        .tilForskøvetFomBasertPåGraderingsforskjell(it.graderingsforskjellMellomDenneOgForrigePeriode),
+                tom =
+                    it.vilkårResultat.periodeTom
+                        .tilForskøvetTomBasertPåGraderingsforskjell(it.graderingsforskjellMellomDenneOgNestePeriode),
             )
         }.filter { (it.fom ?: TIDENES_MORGEN).isBefore(it.tom ?: TIDENES_ENDE) }
         .filtrerBortOverlappendePerioderMedMinstGradering()
 }
 
 private fun List<VilkårResultat>.tilBarnehageplassVilkårMedGraderingsforskjellMellomPerioder(): List<BarnehageplassVilkårMedGraderingsforskjellMellomPerioder<VilkårResultat>> {
-    val vilkårResultatListeMedNullverdierForHullITidslinje: List<VilkårResultat?> = this
-        .tilTidslinje()
-        .tilPerioder()
-        .map { it.verdi }
+    val vilkårResultatListeMedNullverdierForHullITidslinje: List<VilkårResultat?> =
+        this
+            .tilTidslinje()
+            .tilPerioder()
+            .map { it.verdi }
 
     return vilkårResultatListeMedNullverdierForHullITidslinje
         .fold(emptyList()) { acc: List<BarnehageplassVilkårMedGraderingsforskjellMellomPerioder<VilkårResultat?>>, vilkårResultat ->
@@ -45,15 +48,17 @@ private fun List<VilkårResultat>.tilBarnehageplassVilkårMedGraderingsforskjell
                 if (vilkårResultatIForrigePeriode == null) {
                     acc
                 } else {
-                    acc.dropLast(1) + vilkårResultatIForrigePeriode
-                        .copy(graderingsforskjellMellomDenneOgNestePeriode = graderingsforskjellMellomDenneOgForrigePeriode)
+                    acc.dropLast(1) +
+                        vilkårResultatIForrigePeriode
+                            .copy(graderingsforskjellMellomDenneOgNestePeriode = graderingsforskjellMellomDenneOgForrigePeriode)
                 }
 
-            accMedForrigeOppdatert + BarnehageplassVilkårMedGraderingsforskjellMellomPerioder(
-                vilkårResultat = vilkårResultat,
-                graderingsforskjellMellomDenneOgForrigePeriode = graderingsforskjellMellomDenneOgForrigePeriode,
-                graderingsforskjellMellomDenneOgNestePeriode = Graderingsforskjell.ReduksjonGårTilIngenUtbetaling,
-            )
+            accMedForrigeOppdatert +
+                BarnehageplassVilkårMedGraderingsforskjellMellomPerioder(
+                    vilkårResultat = vilkårResultat,
+                    graderingsforskjellMellomDenneOgForrigePeriode = graderingsforskjellMellomDenneOgForrigePeriode,
+                    graderingsforskjellMellomDenneOgNestePeriode = Graderingsforskjell.ReduksjonGårTilIngenUtbetaling,
+                )
         }.filtrerBortNullverdier()
 }
 
@@ -109,40 +114,39 @@ private fun List<Periode<VilkårResultat>>.filtrerBortOverlappendePerioderMedMin
         .kombiner { vilkårResultater -> vilkårResultater.maxByOrNull { it.antallTimer ?: BigDecimal.ZERO } }
         .tilPerioderIkkeNull()
 
-private fun LocalDate?.tilForskøvetTomBasertPåGraderingsforskjell(
-    graderingsforskjellMellomDenneOgNestePeriode: Graderingsforskjell,
-) = this?.let { tomDato ->
-    when (graderingsforskjellMellomDenneOgNestePeriode) {
-        Graderingsforskjell.Lik,
-        Graderingsforskjell.IngenUtbetalingGrunnetFullBarnehageplassTilØking,
-        Graderingsforskjell.ØkingGrunnetSluttIBarnehage,
-        Graderingsforskjell.Øking,
-        -> tomDato.sisteDagIMåned()
+private fun LocalDate?.tilForskøvetTomBasertPåGraderingsforskjell(graderingsforskjellMellomDenneOgNestePeriode: Graderingsforskjell) =
+    this?.let { tomDato ->
+        when (graderingsforskjellMellomDenneOgNestePeriode) {
+            Graderingsforskjell.Lik,
+            Graderingsforskjell.IngenUtbetalingGrunnetFullBarnehageplassTilØking,
+            Graderingsforskjell.ØkingGrunnetSluttIBarnehage,
+            Graderingsforskjell.Øking,
+            -> tomDato.sisteDagIMåned()
 
-        Graderingsforskjell.IngenUtbetalingGrunnetFørsteperiodeTilØking -> tomDato.plusDays(1).sisteDagIMåned()
+            Graderingsforskjell.IngenUtbetalingGrunnetFørsteperiodeTilØking -> tomDato.plusDays(1).sisteDagIMåned()
 
-        Graderingsforskjell.ReduksjonGårTilIngenUtbetaling,
-        Graderingsforskjell.Reduksjon,
-        -> tomDato.plusDays(1).minusMonths(1).sisteDagIMåned()
+            Graderingsforskjell.ReduksjonGårTilIngenUtbetaling,
+            Graderingsforskjell.Reduksjon,
+            -> tomDato.plusDays(1).minusMonths(1).sisteDagIMåned()
+        }
     }
-}
 
-private fun LocalDate?.tilForskøvetFomBasertPåGraderingsforskjell(
-    graderingsforskjellMellomDenneOgForrigePeriode: Graderingsforskjell,
-) = this?.let { fomDato ->
-    when (graderingsforskjellMellomDenneOgForrigePeriode) {
-        Graderingsforskjell.Lik,
-        Graderingsforskjell.ØkingGrunnetSluttIBarnehage,
-        Graderingsforskjell.Øking,
-        -> fomDato.minusDays(1).plusMonths(1)?.førsteDagIInneværendeMåned()
+private fun LocalDate?.tilForskøvetFomBasertPåGraderingsforskjell(graderingsforskjellMellomDenneOgForrigePeriode: Graderingsforskjell) =
+    this?.let { fomDato ->
+        when (graderingsforskjellMellomDenneOgForrigePeriode) {
+            Graderingsforskjell.Lik,
+            Graderingsforskjell.ØkingGrunnetSluttIBarnehage,
+            Graderingsforskjell.Øking,
+            -> fomDato.minusDays(1).plusMonths(1)?.førsteDagIInneværendeMåned()
 
-        Graderingsforskjell.IngenUtbetalingGrunnetFullBarnehageplassTilØking,
-        Graderingsforskjell.IngenUtbetalingGrunnetFørsteperiodeTilØking,
-        -> fomDato.plusMonths(1)
-            .førsteDagIInneværendeMåned()
+            Graderingsforskjell.IngenUtbetalingGrunnetFullBarnehageplassTilØking,
+            Graderingsforskjell.IngenUtbetalingGrunnetFørsteperiodeTilØking,
+            ->
+                fomDato.plusMonths(1)
+                    .førsteDagIInneværendeMåned()
 
-        Graderingsforskjell.ReduksjonGårTilIngenUtbetaling,
-        Graderingsforskjell.Reduksjon,
-        -> fomDato.førsteDagIInneværendeMåned()
+            Graderingsforskjell.ReduksjonGårTilIngenUtbetaling,
+            Graderingsforskjell.Reduksjon,
+            -> fomDato.førsteDagIInneværendeMåned()
+        }
     }
-}

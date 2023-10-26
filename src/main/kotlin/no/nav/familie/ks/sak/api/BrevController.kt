@@ -35,7 +35,6 @@ class BrevController(
     private val behandlingService: BehandlingService,
     private val vedtakService: VedtakService,
 ) {
-
     @PostMapping(path = ["/forhåndsvis-brev/{behandlingId}"])
     fun hentForhåndsvisning(
         @PathVariable behandlingId: Long,
@@ -81,7 +80,9 @@ class BrevController(
     }
 
     @GetMapping(path = ["/forhåndsvis-vedtaksbrev/{behandlingId}"])
-    fun hentVedtaksbrev(@PathVariable behandlingId: Long): Ressurs<ByteArray> {
+    fun hentVedtaksbrev(
+        @PathVariable behandlingId: Long,
+    ): Ressurs<ByteArray> {
         logger.info("${SikkerhetContext.hentSaksbehandlerNavn()} henter vedtaksbrev")
 
         tilgangService.validerTilgangTilHandlingOgFagsakForBehandling(
@@ -91,15 +92,18 @@ class BrevController(
             handling = "hent vedtaksbrev",
         )
 
-        val vedtaksbrev = vedtakService.hentAktivVedtakForBehandling(behandlingId).stønadBrevPdf
-            ?: throw Feil("Klarte ikke finne vedtaksbrev for behandling med id $behandlingId")
+        val vedtaksbrev =
+            vedtakService.hentAktivVedtakForBehandling(behandlingId).stønadBrevPdf
+                ?: throw Feil("Klarte ikke finne vedtaksbrev for behandling med id $behandlingId")
 
         return Ressurs.success(vedtaksbrev)
     }
 
     @Transactional
     @PostMapping(path = ["forhåndsvis-og-lagre-vedtaksbrev/{behandlingId}"])
-    fun genererOgLagreVedtaksbrev(@PathVariable behandlingId: Long): Ressurs<ByteArray> {
+    fun genererOgLagreVedtaksbrev(
+        @PathVariable behandlingId: Long,
+    ): Ressurs<ByteArray> {
         logger.info("${SikkerhetContext.hentSaksbehandlerNavn()} henter vedtaksbrev")
 
         tilgangService.validerTilgangTilHandlingOgFagsakForBehandling(
@@ -118,7 +122,6 @@ class BrevController(
     }
 
     companion object {
-
         private val logger = LoggerFactory.getLogger(BrevController::class.java)
     }
 }

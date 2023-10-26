@@ -5,7 +5,6 @@ import jakarta.persistence.Converter
 
 @Converter
 class StringListConverter : AttributeConverter<List<String>, String> {
-
     override fun convertToDatabaseColumn(stringList: List<String>): String {
         return stringList.joinToString(separator = SPLIT_CHAR)
     }
@@ -15,7 +14,6 @@ class StringListConverter : AttributeConverter<List<String>, String> {
     }
 
     companion object {
-
         private const val SPLIT_CHAR = ";"
     }
 }

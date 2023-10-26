@@ -61,11 +61,12 @@ enum class HenleggÅrsak(val beskrivelse: String) {
     TEKNISK_VEDLIKEHOLD("Teknisk vedlikehold"),
     ;
 
-    fun tilBehandlingsresultat() = when (this) {
-        FEILAKTIG_OPPRETTET -> Behandlingsresultat.HENLAGT_FEILAKTIG_OPPRETTET
-        SØKNAD_TRUKKET -> Behandlingsresultat.HENLAGT_SØKNAD_TRUKKET
-        TEKNISK_VEDLIKEHOLD -> Behandlingsresultat.HENLAGT_TEKNISK_VEDLIKEHOLD
-    }
+    fun tilBehandlingsresultat() =
+        when (this) {
+            FEILAKTIG_OPPRETTET -> Behandlingsresultat.HENLAGT_FEILAKTIG_OPPRETTET
+            SØKNAD_TRUKKET -> Behandlingsresultat.HENLAGT_SØKNAD_TRUKKET
+            TEKNISK_VEDLIKEHOLD -> Behandlingsresultat.HENLAGT_TEKNISK_VEDLIKEHOLD
+        }
 }
 
 data class TilbakekrevingRequestDto(

@@ -27,10 +27,11 @@ private data class AndelTilkjentYtelseDataForÅKalkulereEndring(
 
 fun List<AndelTilkjentYtelseMedEndreteUtbetalinger>.hentFørsteEndringstidspunkt(
     forrigeAndelerTilkjentYtelse: List<AndelTilkjentYtelseMedEndreteUtbetalinger>,
-): LocalDate? = this.hentPerioderMedEndringerFra(forrigeAndelerTilkjentYtelse)
-    .mapNotNull { (_, tidslinjeMedDifferanserPåPerson) ->
-        tidslinjeMedDifferanserPåPerson.tilPerioder().minOfOrNull { checkNotNull(it.fom) }
-    }.minOfOrNull { it }
+): LocalDate? =
+    this.hentPerioderMedEndringerFra(forrigeAndelerTilkjentYtelse)
+        .mapNotNull { (_, tidslinjeMedDifferanserPåPerson) ->
+            tidslinjeMedDifferanserPåPerson.tilPerioder().minOfOrNull { checkNotNull(it.fom) }
+        }.minOfOrNull { it }
 
 fun List<AndelTilkjentYtelseMedEndreteUtbetalinger>.hentPerioderMedEndringerFra(
     forrigeAndelerTilkjentYtelse: List<AndelTilkjentYtelseMedEndreteUtbetalinger>,
@@ -42,10 +43,12 @@ fun List<AndelTilkjentYtelseMedEndreteUtbetalinger>.hentPerioderMedEndringerFra(
         (this.map { it.aktør.aktørId } + forrigeAndelerTilkjentYtelse.map { it.aktør.aktørId }).toSet()
 
     return personerFraForrigeEllerDenneBehandlinger.associateWith { aktørId ->
-        val tidslinjeForPerson = andelerTidslinje[aktørId]
-            ?: Tidslinje(startsTidspunkt = TIDENES_MORGEN.plusDays(1), perioder = emptyList())
-        val forrigeTidslinjeForPerson = forrigeAndelerTidslinje[aktørId]
-            ?: Tidslinje(startsTidspunkt = TIDENES_MORGEN.plusDays(1), perioder = emptyList())
+        val tidslinjeForPerson =
+            andelerTidslinje[aktørId]
+                ?: Tidslinje(startsTidspunkt = TIDENES_MORGEN.plusDays(1), perioder = emptyList())
+        val forrigeTidslinjeForPerson =
+            forrigeAndelerTidslinje[aktørId]
+                ?: Tidslinje(startsTidspunkt = TIDENES_MORGEN.plusDays(1), perioder = emptyList())
         val kombinertTidslinje = listOf(tidslinjeForPerson, forrigeTidslinjeForPerson).slåSammen()
 
         kombinertTidslinje.tilPerioderIkkeNull().mapNotNull { it.tilPeriodeMedEndringer() }.tilTidslinje()
@@ -66,12 +69,13 @@ private fun List<AndelTilkjentYtelseMedEndreteUtbetalinger>.hentTidslinje(
         Periode(
             fom = it.stønadFom.førsteDagIInneværendeMåned(),
             tom = it.stønadTom.sisteDagIInneværendeMåned(),
-            verdi = AndelTilkjentYtelseDataForÅKalkulereEndring(
-                aktørId = it.aktør.aktørId,
-                kalkulertBeløp = it.kalkulertUtbetalingsbeløp,
-                endretUtbetalingÅrsaker = it.endreteUtbetalinger.mapNotNull { endretUtbetalingAndel -> endretUtbetalingAndel.årsak },
-                behandlingAlder = behandlingAlder,
-            ),
+            verdi =
+                AndelTilkjentYtelseDataForÅKalkulereEndring(
+                    aktørId = it.aktør.aktørId,
+                    kalkulertBeløp = it.kalkulertUtbetalingsbeløp,
+                    endretUtbetalingÅrsaker = it.endreteUtbetalinger.mapNotNull { endretUtbetalingAndel -> endretUtbetalingAndel.årsak },
+                    behandlingAlder = behandlingAlder,
+                ),
         )
     }.tilTidslinje()
 
@@ -97,7 +101,9 @@ private fun erEndringPåPersonISegment(nyOgGammelDataPåBrukerIPerioden: Collect
     return nyttBeløp != gammeltBeløp || nyEndretUtbetalingÅrsaker != gammelEndretUtbetalingÅrsaker
 }
 
-private fun hentBeløpsendringPåPersonIPeriode(nyOgGammelDataPåBrukerISegmentet: Collection<AndelTilkjentYtelseDataForÅKalkulereEndring>): Int {
+private fun hentBeløpsendringPåPersonIPeriode(
+    nyOgGammelDataPåBrukerISegmentet: Collection<AndelTilkjentYtelseDataForÅKalkulereEndring>,
+): Int {
     val nyttBeløp = nyOgGammelDataPåBrukerISegmentet.finnKalkulertBeløp(BehandlingAlder.NY) ?: 0
     val gammeltBeløp = nyOgGammelDataPåBrukerISegmentet.finnKalkulertBeløp(BehandlingAlder.GAMMEL) ?: 0
 

@@ -11,7 +11,6 @@ import org.junit.jupiter.api.Test
 import java.time.LocalDate
 
 class TidslinjeLengdeTest {
-
     private var lst1 = emptyList<TidslinjePeriode<Int?>>()
     private var lst2 = emptyList<TidslinjePeriode<Int?>>()
 
@@ -46,13 +45,14 @@ class TidslinjeLengdeTest {
         )
 
         // Her testes det med nullverdi lik -1 for bifunksjon, dvs hvis en av tidslinjene er null i en sammenligning vil den returnere null.
-        val t3 = t1.biFunksjon(t2) { el1, el2 ->
-            if (el1 is Udefinert || el2 is Udefinert) {
-                Udefinert()
-            } else {
-                Verdi(el1.verdi!! + el2.verdi!!)
+        val t3 =
+            t1.biFunksjon(t2) { el1, el2 ->
+                if (el1 is Udefinert || el2 is Udefinert) {
+                    Udefinert()
+                } else {
+                    Verdi(el1.verdi!! + el2.verdi!!)
+                }
             }
-        }
 
         val lst3 = mutableListOf(4, 5, null)
 
@@ -62,13 +62,14 @@ class TidslinjeLengdeTest {
             "Kunne ikke addere to tidslinjer med ulik slutt",
         )
 
-        val t4 = t1.biFunksjon(t2) { el1, el2 ->
-            if (el1 is Udefinert || el2 is Udefinert) {
-                Udefinert()
-            } else {
-                Verdi(el1.verdi!! - el2.verdi!!)
+        val t4 =
+            t1.biFunksjon(t2) { el1, el2 ->
+                if (el1 is Udefinert || el2 is Udefinert) {
+                    Udefinert()
+                } else {
+                    Verdi(el1.verdi!! - el2.verdi!!)
+                }
             }
-        }
 
         val lst4 = mutableListOf(-2, -3, null)
 
@@ -86,13 +87,14 @@ class TidslinjeLengdeTest {
             listOf(TidslinjePeriode(10, 3, false), TidslinjePeriode(3, 1, false), TidslinjePeriode(4, 1, false)),
         )
 
-        val t5 = t1.biFunksjon(t2) { el1, el2 ->
-            if (el1 is Udefinert || el2 is Udefinert) {
-                Udefinert()
-            } else {
-                Verdi(el1.verdi!! + el2.verdi!!)
+        val t5 =
+            t1.biFunksjon(t2) { el1, el2 ->
+                if (el1 is Udefinert || el2 is Udefinert) {
+                    Udefinert()
+                } else {
+                    Verdi(el1.verdi!! + el2.verdi!!)
+                }
             }
-        }
 
         val lst5 = mutableListOf(null, 4, 6)
 
@@ -102,13 +104,14 @@ class TidslinjeLengdeTest {
             "Kunne ikke addere to tidslinjer med ulik slutt",
         )
 
-        val t6 = t1.biFunksjon(t2) { el1, el2 ->
-            if (el1 is Udefinert || el2 is Udefinert) {
-                Udefinert()
-            } else {
-                Verdi(el1.verdi!! - el2.verdi!!)
+        val t6 =
+            t1.biFunksjon(t2) { el1, el2 ->
+                if (el1 is Udefinert || el2 is Udefinert) {
+                    Udefinert()
+                } else {
+                    Verdi(el1.verdi!! - el2.verdi!!)
+                }
             }
-        }
 
         val lst6 = mutableListOf(null, -2)
 
@@ -126,13 +129,14 @@ class TidslinjeLengdeTest {
             listOf(TidslinjePeriode(10, 3, false), TidslinjePeriode(3, 1, false), TidslinjePeriode(4, 1, false)),
         )
 
-        val t7 = t1.biFunksjon(t2) { el1, el2 ->
-            if (el1 is Udefinert || el2 is Udefinert) {
-                Udefinert()
-            } else {
-                Verdi(el1.verdi!! + el2.verdi!!)
+        val t7 =
+            t1.biFunksjon(t2) { el1, el2 ->
+                if (el1 is Udefinert || el2 is Udefinert) {
+                    Udefinert()
+                } else {
+                    Verdi(el1.verdi!! + el2.verdi!!)
+                }
             }
-        }
 
         val lst7 = mutableListOf(null, 4, 6, null)
 
@@ -142,13 +146,14 @@ class TidslinjeLengdeTest {
             "Kunne ikke addere to tidslinjer med ulik slutt",
         )
 
-        val t8 = t1.biFunksjon(t2) { el1, el2 ->
-            if (el1 is Udefinert || el2 is Udefinert) {
-                Udefinert()
-            } else {
-                Verdi(el1.verdi!! - el2.verdi!!)
+        val t8 =
+            t1.biFunksjon(t2) { el1, el2 ->
+                if (el1 is Udefinert || el2 is Udefinert) {
+                    Udefinert()
+                } else {
+                    Verdi(el1.verdi!! - el2.verdi!!)
+                }
             }
-        }
 
         val lst8 = mutableListOf(null, -2, null)
 
@@ -166,15 +171,16 @@ class TidslinjeLengdeTest {
             listOf(TidslinjePeriode(10, 3, false), TidslinjePeriode(3, 1, false), TidslinjePeriode(null, 1, false)),
         )
 
-        val t7 = t1.biFunksjon(t2) { el1, el2 ->
-            if (el1 is Udefinert || el2 is Udefinert) {
-                Udefinert()
-            } else if (el1 is Null || el2 is Null) {
-                Null()
-            } else {
-                Verdi(el1.verdi!! + el2.verdi!!)
+        val t7 =
+            t1.biFunksjon(t2) { el1, el2 ->
+                if (el1 is Udefinert || el2 is Udefinert) {
+                    Udefinert()
+                } else if (el1 is Null || el2 is Null) {
+                    Null()
+                } else {
+                    Verdi(el1.verdi!! + el2.verdi!!)
+                }
             }
-        }
 
         val lst7 = mutableListOf(null, null, null)
 
@@ -184,15 +190,16 @@ class TidslinjeLengdeTest {
             "Kunne ikke addere to tidslinjer med ulik slutt",
         )
 
-        val t8 = t1.biFunksjon(t2) { el1, el2 ->
-            if (el1 is Udefinert || el2 is Udefinert) {
-                Udefinert()
-            } else if (el1 is Null || el2 is Null) {
-                Null()
-            } else {
-                Verdi(el1.verdi!! + el2.verdi!!)
+        val t8 =
+            t1.biFunksjon(t2) { el1, el2 ->
+                if (el1 is Udefinert || el2 is Udefinert) {
+                    Udefinert()
+                } else if (el1 is Null || el2 is Null) {
+                    Null()
+                } else {
+                    Verdi(el1.verdi!! + el2.verdi!!)
+                }
             }
-        }
 
         val lst8 = mutableListOf(null, null, null)
 
@@ -205,33 +212,38 @@ class TidslinjeLengdeTest {
 
     @Test
     fun `kan håndtere to tidslinjer med ulik start- og sluttdato på månedsnivå`() {
-        val t1 = Tidslinje(
-            startsTidspunkt = LocalDate.now(),
-            perioder = listOf(
-                TidslinjePeriode(1, 1, false),
-                TidslinjePeriode(2, 1, false),
-                TidslinjePeriode(15, 5, false),
-            ),
-            tidsEnhet = TidsEnhet.MÅNED,
-        )
+        val t1 =
+            Tidslinje(
+                startsTidspunkt = LocalDate.now(),
+                perioder =
+                    listOf(
+                        TidslinjePeriode(1, 1, false),
+                        TidslinjePeriode(2, 1, false),
+                        TidslinjePeriode(15, 5, false),
+                    ),
+                tidsEnhet = TidsEnhet.MÅNED,
+            )
 
-        val t2 = Tidslinje(
-            startsTidspunkt = LocalDate.now().minusMonths(2),
-            perioder = listOf(
-                TidslinjePeriode(1, 1, false),
-                TidslinjePeriode(2, 1, false),
-                TidslinjePeriode(15, 4, false),
-            ),
-            tidsEnhet = TidsEnhet.MÅNED,
-        )
+        val t2 =
+            Tidslinje(
+                startsTidspunkt = LocalDate.now().minusMonths(2),
+                perioder =
+                    listOf(
+                        TidslinjePeriode(1, 1, false),
+                        TidslinjePeriode(2, 1, false),
+                        TidslinjePeriode(15, 4, false),
+                    ),
+                tidsEnhet = TidsEnhet.MÅNED,
+            )
 
-        val resultat = t1.biFunksjon(t2) { el1, el2 ->
-            if (el1 is Udefinert || el2 is Udefinert) {
-                Udefinert()
-            } else {
-                Verdi(el1.verdi!! + el2.verdi!!)
+        val resultat =
+            t1.biFunksjon(t2) { el1, el2 ->
+                if (el1 is Udefinert || el2 is Udefinert) {
+                    Udefinert()
+                } else {
+                    Verdi(el1.verdi!! + el2.verdi!!)
+                }
             }
-        }
 
         val fasit = mutableListOf(null, 16, 17, 30, null)
 
@@ -247,33 +259,38 @@ class TidslinjeLengdeTest {
 
     @Test
     fun `kan håndtere to tidslinjer på mpnednivå med ulik start og sluttidspunkt`() {
-        val t1 = Tidslinje(
-            startsTidspunkt = LocalDate.of(2022, 2, 1),
-            perioder = listOf(
-                TidslinjePeriode(1, 1, false),
-                TidslinjePeriode(2, 1, false),
-                TidslinjePeriode(15, 2, false),
-            ),
-            tidsEnhet = TidsEnhet.MÅNED,
-        )
+        val t1 =
+            Tidslinje(
+                startsTidspunkt = LocalDate.of(2022, 2, 1),
+                perioder =
+                    listOf(
+                        TidslinjePeriode(1, 1, false),
+                        TidslinjePeriode(2, 1, false),
+                        TidslinjePeriode(15, 2, false),
+                    ),
+                tidsEnhet = TidsEnhet.MÅNED,
+            )
 
-        val t2 = Tidslinje(
-            startsTidspunkt = LocalDate.of(2022, 2, 1),
-            perioder = listOf(
-                TidslinjePeriode(1, 1, false),
-                TidslinjePeriode(2, 1, false),
-                TidslinjePeriode(15, 11, false),
-            ),
-            tidsEnhet = TidsEnhet.MÅNED,
-        )
+        val t2 =
+            Tidslinje(
+                startsTidspunkt = LocalDate.of(2022, 2, 1),
+                perioder =
+                    listOf(
+                        TidslinjePeriode(1, 1, false),
+                        TidslinjePeriode(2, 1, false),
+                        TidslinjePeriode(15, 11, false),
+                    ),
+                tidsEnhet = TidsEnhet.MÅNED,
+            )
 
-        val resultat = t1.biFunksjon(t2) { el1, el2 ->
-            if (el1 is Udefinert || el2 is Udefinert) {
-                Udefinert()
-            } else {
-                Verdi(el1.verdi!! + el2.verdi!!)
+        val resultat =
+            t1.biFunksjon(t2) { el1, el2 ->
+                if (el1 is Udefinert || el2 is Udefinert) {
+                    Udefinert()
+                } else {
+                    Verdi(el1.verdi!! + el2.verdi!!)
+                }
             }
-        }
 
         val fasit = mutableListOf(2, 4, 30, null)
 

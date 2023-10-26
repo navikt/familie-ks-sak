@@ -18,38 +18,60 @@ class InfotrygdReplikaClient(
     @Value("\${FAMILIE_KS_INFOTRYGD_API_URL}") private val familieKsInfotrygdUri: URI,
     @Qualifier("azure") restOperations: RestOperations,
 ) : AbstractRestClient(restOperations, "familie-ba-infotrygd") {
-
     fun harKontantstøtteIInfotrygd(barnIGjeldendeBehandling: List<BarnMedOpplysningerDto>): Boolean {
-        val harKontantstøtteIInfotrygdUri = UriComponentsBuilder
-            .fromUri(familieKsInfotrygdUri)
-            .pathSegment("harLopendeKontantstotteIInfotrygd")
-            .build()
-            .toUri()
-        val harKontantstøtte = kallEksternTjeneste<Boolean>(
-            tjeneste = "harKontantstøtteIInfotrygd",
-            uri = harKontantstøtteIInfotrygdUri,
-            formål = "Sjekk om noen av personene i denne behandlingen har løpende kontantstøtte i infotrygd",
-        ) {
-            postForEntity(uri = harKontantstøtteIInfotrygdUri, barnIGjeldendeBehandling.tilInnsynsRequest())
-        }
+        val harKontantstøtteIInfotrygdUri =
+            UriComponentsBuilder
+                .fromUri(familieKsInfotrygdUri)
+                .pathSegment("harLopendeKontantstotteIInfotrygd")
+                .build()
+                .toUri()
+        val harKontantstøtte =
+            kallEksternTjeneste<Boolean>(
+                tjeneste = "harKontantstøtteIInfotrygd",
+                uri = harKontantstøtteIInfotrygdUri,
+                formål = "Sjekk om noen av personene i denne behandlingen har løpende kontantstøtte i infotrygd",
+            ) {
+                postForEntity(uri = harKontantstøtteIInfotrygdUri, barnIGjeldendeBehandling.tilInnsynsRequest())
+            }
         return harKontantstøtte
     }
 
     fun hentKontantstøttePerioderFraInfotrygd(identer: List<String>): InnsynResponse {
-        val requestURI = UriComponentsBuilder
-            .fromUri(familieKsInfotrygdUri)
-            .pathSegment("hentPerioderMedKontantstotteIInfotrygd")
-            .build()
-            .toUri()
+        val requestURI =
+            UriComponentsBuilder
+                .fromUri(familieKsInfotrygdUri)
+                .pathSegment("hentPerioderMedKontantstotteIInfotrygd")
+                .build()
+                .toUri()
 
-        val infotrygdPerioder = kallEksternTjeneste<InnsynResponse>(
-            tjeneste = "hentPerioderMedKontantstøtteIInfotrygd",
-            uri = requestURI,
-            formål = "Henting av kontantstøtte perioder fra infotrygd",
-        ) {
-            postForEntity(uri = requestURI, InnsynRequest(barn = identer.map { it }))
-        }
+        val infotrygdPerioder =
+            kallEksternTjeneste<InnsynResponse>(
+                tjeneste = "hentPerioderMedKontantstøtteIInfotrygd",
+                uri = requestURI,
+                formål = "Henting av kontantstøtte perioder fra infotrygd",
+            ) {
+                postForEntity(uri = requestURI, InnsynRequest(barn = identer.map { it }))
+            }
         return infotrygdPerioder
+    }
+
+    fun hentAlleBarnasIdenterForLøpendeFagsaker(): List<String> {
+        val requestURI =
+            UriComponentsBuilder
+                .fromUri(familieKsInfotrygdUri)
+                .pathSegment("hentidentertilbarnmedlopendesaker")
+                .build()
+                .toUri()
+
+        val barnMedLøpendeFagsak =
+            kallEksternTjeneste<List<String>>(
+                tjeneste = "hentidentertilbarnmedlopendesaker",
+                uri = requestURI,
+                formål = "Henter alle barnas identer for løpende fagsaker",
+            ) {
+                getForEntity(uri = requestURI)
+            }
+        return barnMedLøpendeFagsak
     }
 
     fun List<BarnMedOpplysningerDto>.tilInnsynsRequest(): InnsynRequest {
@@ -71,7 +93,9 @@ data class StonadDto(
 
 data class BarnDto(val fnr: Foedselsnummer)
 
-data class Foedselsnummer(@get:JsonValue val asString: String) {
+data class Foedselsnummer(
+    @get:JsonValue val asString: String,
+) {
     companion object {}
 
     init {

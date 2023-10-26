@@ -23,7 +23,6 @@ import java.time.LocalDate
 class InternStatistikkController(
     private val behandlingSøknadsinfoService: BehandlingSøknadsinfoService,
 ) {
-
     @GetMapping(path = ["antallSoknader"], produces = [MediaType.APPLICATION_JSON_VALUE])
     fun hentSøknadsstatistikkForPeriode(
         @Schema(description = "Default er første dag i forrige tertial-periode regnet fra dagens dato")

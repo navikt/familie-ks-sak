@@ -23,9 +23,11 @@ class KlageController(
     private val tilgangService: TilgangService,
     private val klageService: KlageService,
 ) {
-
     @PostMapping("/{fagsakId}/opprett-klagebehandling")
-    fun opprettKlage(@PathVariable fagsakId: Long, @RequestBody opprettKlageDto: OpprettKlageDto): Ressurs<Unit> {
+    fun opprettKlage(
+        @PathVariable fagsakId: Long,
+        @RequestBody opprettKlageDto: OpprettKlageDto,
+    ): Ressurs<Unit> {
         tilgangService.validerTilgangTilHandlingOgFagsak(
             fagsakId = fagsakId,
             event = AuditLoggerEvent.CREATE,
@@ -36,7 +38,9 @@ class KlageController(
     }
 
     @GetMapping("/{fagsakId}/hent-klagebehandlinger")
-    fun hentKlagebehandlinger(@PathVariable fagsakId: Long): Ressurs<List<KlagebehandlingDto>> {
+    fun hentKlagebehandlinger(
+        @PathVariable fagsakId: Long,
+    ): Ressurs<List<KlagebehandlingDto>> {
         tilgangService.validerTilgangTilHandlingOgFagsak(
             fagsakId = fagsakId,
             event = AuditLoggerEvent.ACCESS,

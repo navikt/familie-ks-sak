@@ -91,28 +91,31 @@ class GenererBrevServiceTest {
         mode = EnumSource.Mode.INCLUDE,
     )
     fun `genererManueltBrev - skal ikke journalføre brev for brevmaler som ikke kan sendes manuelt`(brevmal: Brevmal) {
-        val feil = assertThrows<Feil> {
-            genererBrevService.genererManueltBrev(
-                ManueltBrevDto(
-                    brevmal = brevmal,
-                    mottakerIdent = søker.aktivFødselsnummer(),
-                ),
-            )
-        }
+        val feil =
+            assertThrows<Feil> {
+                genererBrevService.genererManueltBrev(
+                    ManueltBrevDto(
+                        brevmal = brevmal,
+                        mottakerIdent = søker.aktivFødselsnummer(),
+                    ),
+                )
+            }
         assertEquals("Kan ikke mappe fra manuel brevrequest til $brevmal.", feil.message)
     }
 
     @Test
     fun `hentForhåndsvisningAvBrev - skal kaste feil dersom kall mot 'familie-brev' feiler`() {
-        every { personopplysningGrunnlagService.hentSøker(behandlingId = behandling.id) } returns lagPerson(
-            lagPersonopplysningGrunnlag(behandlingId = behandling.id, søkerPersonIdent = søker.aktivFødselsnummer()),
-            søker,
-        )
-        every { arbeidsfordelingService.hentArbeidsfordelingPåBehandling(behandlingId = behandling.id) } returns ArbeidsfordelingPåBehandling(
-            behandlingId = behandling.id,
-            behandlendeEnhetNavn = "Behandlende enhet",
-            behandlendeEnhetId = "1234",
-        )
+        every { personopplysningGrunnlagService.hentSøker(behandlingId = behandling.id) } returns
+            lagPerson(
+                lagPersonopplysningGrunnlag(behandlingId = behandling.id, søkerPersonIdent = søker.aktivFødselsnummer()),
+                søker,
+            )
+        every { arbeidsfordelingService.hentArbeidsfordelingPåBehandling(behandlingId = behandling.id) } returns
+            ArbeidsfordelingPåBehandling(
+                behandlingId = behandling.id,
+                behandlendeEnhetNavn = "Behandlende enhet",
+                behandlendeEnhetId = "1234",
+            )
 
         every {
             brevKlient.genererBrev(any(), any())

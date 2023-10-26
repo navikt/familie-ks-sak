@@ -7,7 +7,6 @@ import org.junit.jupiter.api.Test
 import java.time.LocalDate
 
 class TidslinjePeriodeMedDatoTest {
-
     private val førsteJanuar = LocalDate.of(2022, 1, 1)
     private val sisteDagIJanuar = LocalDate.of(2022, 1, 31)
     private val førsteFebruar = LocalDate.of(2022, 2, 1)
@@ -20,13 +19,14 @@ class TidslinjePeriodeMedDatoTest {
         val tidslinjeA = listOf(TidslinjePeriodeMedDato("a", førsteJanuar, sisteDagIMars)).tilTidslinje()
         val tidslinjeB = listOf(TidslinjePeriodeMedDato("b", førsteFebruar, sisteDagIFebruar)).tilTidslinje()
 
-        val tidslinjePerioderMedDato = tidslinjeA.biFunksjon(tidslinjeB) { a, b ->
-            if (b is Verdi) {
-                b
-            } else {
-                a
-            }
-        }.tilTidslinjePerioderMedDato()
+        val tidslinjePerioderMedDato =
+            tidslinjeA.biFunksjon(tidslinjeB) { a, b ->
+                if (b is Verdi) {
+                    b
+                } else {
+                    a
+                }
+            }.tilTidslinjePerioderMedDato()
 
         Assertions.assertEquals(3, tidslinjePerioderMedDato.size)
 
@@ -42,10 +42,11 @@ class TidslinjePeriodeMedDatoTest {
 
     @Test
     fun `tilTidslinjePerioderMedDato - Skal kunne håndtere splitt i tidslinje`() {
-        val tidslinjePerioderMedDato = listOf(
-            TidslinjePeriodeMedDato("a", førsteJanuar, sisteDagIJanuar),
-            TidslinjePeriodeMedDato("c", førsteMars, sisteDagIMars),
-        ).tilTidslinje().tilTidslinjePerioderMedDato()
+        val tidslinjePerioderMedDato =
+            listOf(
+                TidslinjePeriodeMedDato("a", førsteJanuar, sisteDagIJanuar),
+                TidslinjePeriodeMedDato("c", førsteMars, sisteDagIMars),
+            ).tilTidslinje().tilTidslinjePerioderMedDato()
 
         Assertions.assertEquals(3, tidslinjePerioderMedDato.size)
 
@@ -67,11 +68,12 @@ class TidslinjePeriodeMedDatoTest {
 
     @Test
     fun `tilTidslinjePerioderMedDato - Skal kunne håndtere nullverdier i starten og slutten av tidslinje`() {
-        val tidslinjePerioderMedDato = listOf(
-            TidslinjePeriodeMedDato("a", null, sisteDagIJanuar),
-            TidslinjePeriodeMedDato("b", førsteFebruar, sisteDagIFebruar),
-            TidslinjePeriodeMedDato("c", førsteMars, null),
-        ).tilTidslinje().tilTidslinjePerioderMedDato()
+        val tidslinjePerioderMedDato =
+            listOf(
+                TidslinjePeriodeMedDato("a", null, sisteDagIJanuar),
+                TidslinjePeriodeMedDato("b", førsteFebruar, sisteDagIFebruar),
+                TidslinjePeriodeMedDato("c", førsteMars, null),
+            ).tilTidslinje().tilTidslinjePerioderMedDato()
 
         Assertions.assertEquals(3, tidslinjePerioderMedDato.size)
 
@@ -93,33 +95,36 @@ class TidslinjePeriodeMedDatoTest {
 
     @Test
     fun `tilTidslinje - Skal kaste feil dersom det er flere tom-datoer med nullverdi`() {
-        val tidslinjePerioderMedDato = listOf(
-            TidslinjePeriodeMedDato("a", null, sisteDagIJanuar),
-            TidslinjePeriodeMedDato("b", førsteFebruar, null),
-            TidslinjePeriodeMedDato("c", førsteMars, null),
-        )
+        val tidslinjePerioderMedDato =
+            listOf(
+                TidslinjePeriodeMedDato("a", null, sisteDagIJanuar),
+                TidslinjePeriodeMedDato("b", førsteFebruar, null),
+                TidslinjePeriodeMedDato("c", førsteMars, null),
+            )
 
         Assertions.assertThrows(Exception::class.java) { tidslinjePerioderMedDato.tilTidslinje() }
     }
 
     @Test
     fun `tilTidslinje - Skal kaste feil dersom det er flere fom-datoer med nullverdi`() {
-        val tidslinjePerioderMedDato = listOf(
-            TidslinjePeriodeMedDato("a", null, sisteDagIJanuar),
-            TidslinjePeriodeMedDato("b", null, sisteDagIFebruar),
-            TidslinjePeriodeMedDato("c", førsteMars, null),
-        )
+        val tidslinjePerioderMedDato =
+            listOf(
+                TidslinjePeriodeMedDato("a", null, sisteDagIJanuar),
+                TidslinjePeriodeMedDato("b", null, sisteDagIFebruar),
+                TidslinjePeriodeMedDato("c", førsteMars, null),
+            )
 
         Assertions.assertThrows(Exception::class.java) { tidslinjePerioderMedDato.tilTidslinje() }
     }
 
     @Test
     fun `tilTidslinje - Skal kaste feil om det er overlapp i periodene`() {
-        val tidslinjePerioderMedDato = listOf(
-            TidslinjePeriodeMedDato("a", null, sisteDagIJanuar),
-            TidslinjePeriodeMedDato("b", førsteFebruar, sisteDagIMars),
-            TidslinjePeriodeMedDato("c", førsteMars, null),
-        )
+        val tidslinjePerioderMedDato =
+            listOf(
+                TidslinjePeriodeMedDato("a", null, sisteDagIJanuar),
+                TidslinjePeriodeMedDato("b", førsteFebruar, sisteDagIMars),
+                TidslinjePeriodeMedDato("c", førsteMars, null),
+            )
 
         Assertions.assertThrows(Exception::class.java) { tidslinjePerioderMedDato.tilTidslinje() }
     }

@@ -25,7 +25,6 @@ class KonsistensavstemmingTask(
     private val avstemmingService: AvstemmingService,
     private val behandlingService: BehandlingService,
 ) : AsyncTaskStep {
-
     override fun doTask(task: Task) {
         val konsistensavstemmingTaskData = objectMapper.readValue(task.payload, KonsistensavstemmingTaskDto::class.java)
         val avstemmingstidspunkt = LocalDateTime.now()
@@ -53,9 +52,10 @@ class KonsistensavstemmingTask(
         avstemmingService.sendKonsistensavstemmingStartMelding(avstemmingstidspunkt, transaksjonId)
 
         // henter relevante behandlinger med 1000 behandlingId per side
-        var relevanteBehandlingSider = behandlingService.hentSisteIverksatteBehandlingerFraLøpendeFagsaker(
-            Pageable.ofSize(ANTALL_BEHANDLINGER),
-        )
+        var relevanteBehandlingSider =
+            behandlingService.hentSisteIverksatteBehandlingerFraLøpendeFagsaker(
+                Pageable.ofSize(ANTALL_BEHANDLINGER),
+            )
         for (sideNummer in 1..relevanteBehandlingSider.totalPages) {
             relevanteBehandlingSider.content.chunked(500).forEach { behandlingChunk ->
                 val behandlingIder = behandlingChunk.map { it.toLong() }
@@ -66,9 +66,10 @@ class KonsistensavstemmingTask(
             }
 
             // hent behandlinger fra neste side
-            relevanteBehandlingSider = behandlingService.hentSisteIverksatteBehandlingerFraLøpendeFagsaker(
-                relevanteBehandlingSider.nextPageable(),
-            )
+            relevanteBehandlingSider =
+                behandlingService.hentSisteIverksatteBehandlingerFraLøpendeFagsaker(
+                    relevanteBehandlingSider.nextPageable(),
+                )
         }
 
         // Send konsistensavstemming avslutt melding til oppdrag
@@ -83,9 +84,10 @@ class KonsistensavstemmingTask(
         const val ANTALL_BEHANDLINGER = 5000
         private val logger = LoggerFactory.getLogger(KonsistensavstemmingTask::class.java)
 
-        fun opprettTask(konsistensavstemmingTaskDto: KonsistensavstemmingTaskDto) = Task(
-            type = TASK_STEP_TYPE,
-            payload = objectMapper.writeValueAsString(konsistensavstemmingTaskDto),
-        )
+        fun opprettTask(konsistensavstemmingTaskDto: KonsistensavstemmingTaskDto) =
+            Task(
+                type = TASK_STEP_TYPE,
+                payload = objectMapper.writeValueAsString(konsistensavstemmingTaskDto),
+            )
     }
 }

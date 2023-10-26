@@ -34,8 +34,9 @@ class BehandlingsresultatSteg(
         val personopplysningGrunnlag =
             personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(behandlingId)
         val tilkjentYtelse = beregningService.hentTilkjentYtelseForBehandling(behandlingId)
-        val endretUtbetalingMedAndeler = andelerTilkjentYtelseOgEndreteUtbetalingerService
-            .finnEndreteUtbetalingerMedAndelerTilkjentYtelse(behandlingId)
+        val endretUtbetalingMedAndeler =
+            andelerTilkjentYtelseOgEndreteUtbetalingerService
+                .finnEndreteUtbetalingerMedAndelerTilkjentYtelse(behandlingId)
 
         BehandlingsresultatUtils.validerAtBehandlingsresultatKanUtføres(
             personopplysningGrunnlag,
@@ -52,9 +53,10 @@ class BehandlingsresultatSteg(
         if (behandlingMedOppdatertResultat.skalSendeVedtaksbrev()) {
             behandlingService.nullstillEndringstidspunkt(behandlingId)
             vedtaksperiodeService.oppdaterVedtakMedVedtaksperioder(
-                vedtak = vedtakRepository.findByBehandlingAndAktiv(
-                    behandlingId = behandling.id,
-                ),
+                vedtak =
+                    vedtakRepository.findByBehandlingAndAktiv(
+                        behandlingId = behandling.id,
+                    ),
             )
         }
         simuleringService.oppdaterSimuleringPåBehandling(behandlingId)

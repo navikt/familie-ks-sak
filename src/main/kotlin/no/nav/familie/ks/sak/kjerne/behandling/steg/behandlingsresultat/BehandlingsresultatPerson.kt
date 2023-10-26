@@ -10,12 +10,12 @@ import java.time.YearMonth
 
 data class BehandlingsresultatPerson(
     val aktør: Aktør,
-    val søktForPerson: Boolean, // flagg som markerer om person er inkludert i utledning
+    // flagg som markerer om person er inkludert i utledning
+    val søktForPerson: Boolean,
     val eksplisittAvslag: Boolean = false,
     val forrigeAndeler: List<BehandlingsresultatAndelTilkjentYtelse> = emptyList(),
     val andeler: List<BehandlingsresultatAndelTilkjentYtelse>,
 ) {
-
     /**
      * Utleder krav for personer framstilt nå og/eller tidligere.
      * Disse populeres med behandlingens utfall for enkeltpersonene (YtelsePerson),
@@ -34,10 +34,11 @@ data class BehandlingsresultatPerson(
     private fun utledKravOpprinnelser(): List<KravOpprinnelse> {
         return when {
             forrigeAndeler.isNotEmpty() && !søktForPerson -> listOf(KravOpprinnelse.TIDLIGERE)
-            forrigeAndeler.isNotEmpty() && søktForPerson -> listOf(
-                KravOpprinnelse.TIDLIGERE,
-                KravOpprinnelse.INNEVÆRENDE,
-            )
+            forrigeAndeler.isNotEmpty() && søktForPerson ->
+                listOf(
+                    KravOpprinnelse.TIDLIGERE,
+                    KravOpprinnelse.INNEVÆRENDE,
+                )
             else -> listOf(KravOpprinnelse.INNEVÆRENDE)
         }
     }
@@ -56,16 +57,16 @@ data class BehandlingsresultatAndelTilkjentYtelse(
     val stønadTom: YearMonth,
     val kalkulertUtbetalingsbeløp: Int,
 ) {
-
     val periode get() = MånedPeriode(stønadFom, stønadTom)
 
     fun erLøpende(inneværendeMåned: YearMonth): Boolean = this.stønadTom > inneværendeMåned
 
     fun sumForPeriode(): Int {
-        val between = Period.between(
-            stønadFom.førsteDagIInneværendeMåned(),
-            stønadTom.sisteDagIInneværendeMåned(),
-        )
+        val between =
+            Period.between(
+                stønadFom.førsteDagIInneværendeMåned(),
+                stønadTom.sisteDagIInneværendeMåned(),
+            )
         val antallMåneder = (between.years * 12) + between.months
 
         return antallMåneder * kalkulertUtbetalingsbeløp

@@ -26,25 +26,20 @@ data class Vilkårsvurdering(
         allocationSize = 50,
     )
     val id: Long = 0,
-
     @ManyToOne(optional = false)
     @JoinColumn(name = "fk_behandling_id", nullable = false, updatable = false)
     val behandling: Behandling,
-
     @Column(name = "aktiv", nullable = false)
     var aktiv: Boolean = true,
-
     @OneToMany(
         fetch = FetchType.EAGER,
         mappedBy = "vilkårsvurdering",
         cascade = [CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH],
     )
     var personResultater: Set<PersonResultat> = setOf(),
-
     @Column(name = "ytelse_personer", columnDefinition = "text")
     var ytelsePersoner: String? = null,
 ) : BaseEntitet() {
-
     fun hentPersonResultaterTilAktør(aktørId: String): List<VilkårResultat> =
         personResultater.find { it.aktør.aktørId == aktørId }?.vilkårResultater?.toList()
             ?: throw IllegalStateException("Fant ikke personresultat for $aktørId")

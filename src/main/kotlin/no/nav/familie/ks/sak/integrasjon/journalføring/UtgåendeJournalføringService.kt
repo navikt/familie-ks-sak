@@ -17,7 +17,6 @@ import org.springframework.stereotype.Service
 
 @Service
 class UtgåendeJournalføringService(private val integrasjonClient: IntegrasjonClient) {
-
     fun journalførDokument(
         fnr: String,
         fagsakId: Long,
@@ -33,38 +32,40 @@ class UtgåendeJournalføringService(private val integrasjonClient: IntegrasjonC
 
         val eksternReferanseId = genererEksternReferanseIdForJournalpost(fagsakId, behandlingId)
 
-        val journalpostId = try {
-            val journalpost = integrasjonClient.journalførDokument(
-                ArkiverDokumentRequest(
-                    fnr = fnr,
-                    forsøkFerdigstill = true,
-                    hoveddokumentvarianter = brev,
-                    vedleggsdokumenter = vedlegg,
-                    fagsakId = fagsakId.toString(),
-                    journalførendeEnhet = journalførendeEnhet,
-                    førsteside = førsteside,
-                    eksternReferanseId = eksternReferanseId,
-                ),
-            )
-
-            if (!journalpost.ferdigstilt) {
-                throw Feil("Klarte ikke ferdigstille journalpost med id ${journalpost.journalpostId}")
-            }
-
-            journalpost.journalpostId
-        } catch (ressursException: RessursException) {
-            when (ressursException.httpStatus) {
-                HttpStatus.CONFLICT -> {
-                    logger.warn(
-                        "Klarte ikke journalføre dokument på fagsak=$fagsakId fordi det allerede finnes en journalpost " +
-                            "med eksternReferanseId=$eksternReferanseId. Bruker eksisterende journalpost.",
+        val journalpostId =
+            try {
+                val journalpost =
+                    integrasjonClient.journalførDokument(
+                        ArkiverDokumentRequest(
+                            fnr = fnr,
+                            forsøkFerdigstill = true,
+                            hoveddokumentvarianter = brev,
+                            vedleggsdokumenter = vedlegg,
+                            fagsakId = fagsakId.toString(),
+                            journalførendeEnhet = journalførendeEnhet,
+                            førsteside = førsteside,
+                            eksternReferanseId = eksternReferanseId,
+                        ),
                     )
-                    hentEksisterendeJournalpost(eksternReferanseId, fnr)
+
+                if (!journalpost.ferdigstilt) {
+                    throw Feil("Klarte ikke ferdigstille journalpost med id ${journalpost.journalpostId}")
                 }
 
-                else -> throw ressursException
+                journalpost.journalpostId
+            } catch (ressursException: RessursException) {
+                when (ressursException.httpStatus) {
+                    HttpStatus.CONFLICT -> {
+                        logger.warn(
+                            "Klarte ikke journalføre dokument på fagsak=$fagsakId fordi det allerede finnes en journalpost " +
+                                "med eksternReferanseId=$eksternReferanseId. Bruker eksisterende journalpost.",
+                        )
+                        hentEksisterendeJournalpost(eksternReferanseId, fnr)
+                    }
+
+                    else -> throw ressursException
+                }
             }
-        }
 
         return journalpostId
     }
@@ -80,8 +81,10 @@ class UtgåendeJournalføringService(private val integrasjonClient: IntegrasjonC
             ),
         ).single { it.eksternReferanseId == eksternReferanseId }.journalpostId
 
-    private fun genererEksternReferanseIdForJournalpost(fagsakId: Long, behandlingId: Long?) =
-        "${fagsakId}_${behandlingId}_${MDC.get(MDCConstants.MDC_CALL_ID)}"
+    private fun genererEksternReferanseIdForJournalpost(
+        fagsakId: Long,
+        behandlingId: Long?,
+    ) = "${fagsakId}_${behandlingId}_${MDC.get(MDCConstants.MDC_CALL_ID)}"
 
     companion object {
         const val DEFAULT_JOURNALFØRENDE_ENHET = "9999"

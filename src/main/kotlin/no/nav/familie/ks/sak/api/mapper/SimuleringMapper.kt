@@ -16,7 +16,6 @@ import java.math.BigDecimal
 import java.time.LocalDate
 
 object SimuleringMapper {
-
     fun List<ØkonomiSimuleringMottaker>.tilSimuleringDto(): SimuleringResponsDto {
         val perioder = this.tilSimuleringsPerioder()
         val tidSimuleringHentet = this.firstOrNull()?.opprettetTidspunkt?.toLocalDate()
@@ -35,8 +34,9 @@ object SimuleringMapper {
             perioder = perioder,
             fomDatoNestePeriode = nestePeriode?.fom,
             etterbetaling = hentTotalEtterbetaling(perioder, nestePeriode?.fom),
-            feilutbetaling = hentTotalFeilutbetaling(perioder, nestePeriode?.fom)
-                .let { if (it < BigDecimal.ZERO) BigDecimal.ZERO else it },
+            feilutbetaling =
+                hentTotalFeilutbetaling(perioder, nestePeriode?.fom)
+                    .let { if (it < BigDecimal.ZERO) BigDecimal.ZERO else it },
             fom = perioder.minOfOrNull { it.fom },
             tomDatoNestePeriode = nestePeriode?.tom,
             forfallsdatoNestePeriode = nestePeriode?.forfallsdato,

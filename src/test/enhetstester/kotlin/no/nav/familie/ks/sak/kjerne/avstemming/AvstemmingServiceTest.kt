@@ -19,7 +19,6 @@ import java.time.LocalDateTime
 
 @ExtendWith(MockKExtension::class)
 internal class AvstemmingServiceTest {
-
     @MockK
     private lateinit var oppdragKlient: OppdragKlient
 
@@ -41,9 +40,10 @@ internal class AvstemmingServiceTest {
         every { behandlingService.hentAktivtFødselsnummerForBehandlinger(any()) } returns
             mapOf(behandling.id to behandling.fagsak.aktør.aktivFødselsnummer())
 
-        val perioderForBehandling = assertDoesNotThrow {
-            avstemmingService.hentDataForKonsistensavstemming(LocalDateTime.now(), listOf(behandling.id))
-        }
+        val perioderForBehandling =
+            assertDoesNotThrow {
+                avstemmingService.hentDataForKonsistensavstemming(LocalDateTime.now(), listOf(behandling.id))
+            }
         assertTrue { perioderForBehandling.size == 1 }
 
         val periodeForBehandling = perioderForBehandling[0]

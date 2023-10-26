@@ -19,7 +19,6 @@ data class UtvidetVedtaksperiodeMedBegrunnelser(
     val gyldigeBegrunnelser: List<IBegrunnelse> = emptyList(),
     val utbetalingsperiodeDetaljer: List<UtbetalingsperiodeDetalj> = emptyList(),
 ) : Comparable<UtvidetVedtaksperiodeMedBegrunnelser> {
-
     override fun compareTo(other: UtvidetVedtaksperiodeMedBegrunnelser): Int {
         return if (this.type == Vedtaksperiodetype.AVSLAG) {
             1
@@ -35,10 +34,11 @@ fun VedtaksperiodeMedBegrunnelser.tilUtvidetVedtaksperiodeMedBegrunnelser(
     personopplysningGrunnlag: PersonopplysningGrunnlag,
     andelerTilkjentYtelse: List<AndelTilkjentYtelseMedEndreteUtbetalinger>,
 ): UtvidetVedtaksperiodeMedBegrunnelser {
-    val utbetalingsperiodeDetaljer = hentUtbetalingsperiodeDetaljer(
-        andelerTilkjentYtelse = andelerTilkjentYtelse,
-        personopplysningGrunnlag = personopplysningGrunnlag,
-    )
+    val utbetalingsperiodeDetaljer =
+        hentUtbetalingsperiodeDetaljer(
+            andelerTilkjentYtelse = andelerTilkjentYtelse,
+            personopplysningGrunnlag = personopplysningGrunnlag,
+        )
 
     return UtvidetVedtaksperiodeMedBegrunnelser(
         id = this.id,

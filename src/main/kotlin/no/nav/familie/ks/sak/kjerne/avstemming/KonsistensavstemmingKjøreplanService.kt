@@ -11,18 +11,23 @@ import java.time.LocalDate
 class KonsistensavstemmingKjøreplanService(
     private val konsistensavstemmingKjøreplanRepository: KonsistensavstemmingKjøreplanRepository,
 ) {
-
     fun plukkLedigKjøreplanFor(dato: LocalDate): KonsistensavstemmingKjøreplan? {
         val kjøreplan = konsistensavstemmingKjøreplanRepository.findByKjøredatoAndLedig(dato)
         return kjøreplan?.also { lagreNyStatus(kjøreplan, KjøreStatus.BEHANDLER) }
     }
 
-    fun lagreNyStatus(kjøreplan: KonsistensavstemmingKjøreplan, status: KjøreStatus) {
+    fun lagreNyStatus(
+        kjøreplan: KonsistensavstemmingKjøreplan,
+        status: KjøreStatus,
+    ) {
         kjøreplan.status = status
         konsistensavstemmingKjøreplanRepository.saveAndFlush(kjøreplan)
     }
 
-    fun lagreNyStatus(kjøreplanId: Long, status: KjøreStatus) {
+    fun lagreNyStatus(
+        kjøreplanId: Long,
+        status: KjøreStatus,
+    ) {
         val kjøreplan = konsistensavstemmingKjøreplanRepository.getReferenceById(kjøreplanId)
         kjøreplan.status = status
         konsistensavstemmingKjøreplanRepository.saveAndFlush(kjøreplan)

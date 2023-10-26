@@ -18,7 +18,6 @@ import org.hamcrest.CoreMatchers.`is` as Is
 
 @ExtendWith(MockKExtension::class)
 class FeilutbetaltValutaServiceTest {
-
     @MockK
     private lateinit var feilutbetaltValutaRepository: FeilutbetaltValutaRepository
 
@@ -63,13 +62,14 @@ class FeilutbetaltValutaServiceTest {
 
     @Test
     fun `leggTilFeilutbetaltValuta - skal lagre feilutbetaltValuta og lagre logg på det`() {
-        val feilutbetaltValuta = FeilutbetaltValuta(
-            behandlingId = 0,
-            fom = LocalDate.of(2020, 12, 12),
-            tom = LocalDate.of(2022, 12, 12),
-            feilutbetaltBeløp = 0,
-            id = 0,
-        )
+        val feilutbetaltValuta =
+            FeilutbetaltValuta(
+                behandlingId = 0,
+                fom = LocalDate.of(2020, 12, 12),
+                tom = LocalDate.of(2022, 12, 12),
+                feilutbetaltBeløp = 0,
+                id = 0,
+            )
 
         every { feilutbetaltValutaRepository.save(any()) } returnsArgument 0
         every { loggService.opprettFeilutbetaltValutaLagtTilLogg(feilutbetaltValuta) } returns mockk()

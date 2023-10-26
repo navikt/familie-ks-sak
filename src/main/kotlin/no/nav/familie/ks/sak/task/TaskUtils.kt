@@ -22,17 +22,18 @@ fun nesteGyldigeTriggertidForBehandlingIHverdager(
 ): LocalDateTime {
     var date = triggerTid.plusMinutes(minutesToAdd)
 
-    date = when {
-        erKlokkenMellom21Og06(date.toLocalTime()) && date.plusDays(1).erHverdag() -> {
-            kl06IdagEllerNesteDag(date)
+    date =
+        when {
+            erKlokkenMellom21Og06(date.toLocalTime()) && date.plusDays(1).erHverdag() -> {
+                kl06IdagEllerNesteDag(date)
+            }
+            erKlokkenMellom21Og06(date.toLocalTime()) && !date.erHverdag() -> {
+                date.with(TemporalAdjusters.next(DayOfWeek.MONDAY)).withHour(6)
+            }
+            else -> {
+                date
+            }
         }
-        erKlokkenMellom21Og06(date.toLocalTime()) && !date.erHverdag() -> {
-            date.with(TemporalAdjusters.next(DayOfWeek.MONDAY)).withHour(6)
-        }
-        else -> {
-            date
-        }
-    }
 
     when {
         date.dayOfMonth == 1 && date.month == Month.JANUARY -> date = date.plusDays(1)
@@ -45,7 +46,10 @@ fun nesteGyldigeTriggertidForBehandlingIHverdager(
     return date
 }
 
-fun <T> overstyrTaskMedNyCallId(callId: String, body: () -> T): T {
+fun <T> overstyrTaskMedNyCallId(
+    callId: String,
+    body: () -> T,
+): T {
     val originalCallId = MDC.get(MDCConstants.MDC_CALL_ID) ?: null
 
     return try {

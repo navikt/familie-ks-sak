@@ -26,13 +26,15 @@ fun formaterBeløp(beløp: Int): String = NumberFormat.getNumberInstance(nbLocal
 
 fun Int.avrundetHeltallAvProsent(prosent: BigDecimal) = this.toBigDecimal().avrundetHeltallAvProsent(prosent)
 
-fun BigDecimal.avrundetHeltallAvProsent(prosent: BigDecimal) = this.times(prosent)
-    .divide(100.toBigDecimal()).setScale(0, RoundingMode.HALF_UP)
-    .toInt()
+fun BigDecimal.avrundetHeltallAvProsent(prosent: BigDecimal) =
+    this.times(prosent)
+        .divide(100.toBigDecimal()).setScale(0, RoundingMode.HALF_UP)
+        .toInt()
 
 fun er11Siffer(ident: String): Boolean = ident.all { it.isDigit() } && ident.length == 11
 
-fun formaterIdent(ident: String): String = when {
-    er11Siffer(ident) -> "${ident.substring(0, 6)} ${ident.substring(6)}"
-    else -> ident
-}
+fun formaterIdent(ident: String): String =
+    when {
+        er11Siffer(ident) -> "${ident.substring(0, 6)} ${ident.substring(6)}"
+        else -> ident
+    }
