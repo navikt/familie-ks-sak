@@ -86,7 +86,7 @@ dependencies {
 
     // ----------- AVRO ---------\\
     implementation("org.apache.avro:avro:1.11.3")
-    implementation("io.confluent:kafka-avro-serializer:7.5.1")
+    implementation("io.confluent:kafka-avro-serializer:7.5.2")
     implementation("org.eclipse.jetty:jetty-server")
 
     // ---------- NAV ---------- \\
