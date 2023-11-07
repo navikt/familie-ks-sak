@@ -5,7 +5,7 @@ import no.nav.familie.ks.sak.api.dto.ManueltBrevDto
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.config.FeatureToggleConfig
-import no.nav.familie.ks.sak.config.FeatureToggleService
+import no.nav.familie.ks.sak.config.featureToggle.UnleashNextMedContextService
 import no.nav.familie.ks.sak.integrasjon.oppgave.OppgaveService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
@@ -24,7 +24,7 @@ import org.springframework.transaction.annotation.Transactional
 @Service
 class HenleggBehandlingService(
     private val stegService: StegService,
-    private val featureToggleService: FeatureToggleService,
+    private val unleashService: UnleashNextMedContextService,
     private val brevService: BrevService,
     private val oppgaveService: OppgaveService,
     private val loggService: LoggService,
@@ -102,7 +102,7 @@ class HenleggBehandlingService(
         val behandlingId = behandling.id
         when {
             HenleggÅrsak.TEKNISK_VEDLIKEHOLD == henleggÅrsak &&
-                featureToggleService.isNotEnabled(FeatureToggleConfig.TEKNISK_VEDLIKEHOLD_HENLEGGELSE) -> {
+                !unleashService.isEnabled(FeatureToggleConfig.TEKNISK_VEDLIKEHOLD_HENLEGGELSE) -> {
                 throw Feil(
                     "Teknisk vedlikehold henleggele er ikke påslått for " +
                         "${SikkerhetContext.hentSaksbehandlerNavn()}. Kan ikke henlegge behandling $behandlingId.",
@@ -118,7 +118,8 @@ class HenleggBehandlingService(
                         "og er da låst for alle andre type endringer. Kan ikke henlegge behandling.",
                 )
             }
-            behandling.erTekniskEndring() && featureToggleService.isNotEnabled(FeatureToggleConfig.TEKNISK_ENDRING) -> {
+
+            behandling.erTekniskEndring() && !unleashService.isEnabled(FeatureToggleConfig.TEKNISK_ENDRING) -> {
                 throw FunksjonellFeil(
                     "Du har ikke tilgang til å henlegge en behandling " +
                         "som er opprettet med årsak=${behandling.opprettetÅrsak.visningsnavn}. " +

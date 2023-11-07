@@ -1,4 +1,4 @@
-package no.nav.familie.ba.sak.integrasjoner.økonomi.internkonsistensavstemming
+package no.nav.familie.ks.sak.integrasjoner.økonomi.internkonsistensavstemming
 
 import no.nav.familie.kontrakter.felles.oppdrag.Utbetalingsoppdrag
 import no.nav.familie.kontrakter.felles.oppdrag.Utbetalingsperiode
