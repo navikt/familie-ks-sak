@@ -1,7 +1,7 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    val kotlinVersion = "1.9.10"
+    val kotlinVersion = "1.9.20"
     kotlin("jvm") version kotlinVersion
 
     id("org.springframework.boot") version "3.1.5"
@@ -52,7 +52,7 @@ dependencies {
     val familieKontrakterSaksstatistikkVersion = "2.0_20230214104704_706e9c0"
     val familieKontrakterStønadsstatistikkKsVersion = "2.0_20230825103733_1ac52c2"
     val familieKontrakterSkatteetatenVersion = "2.0_20230214104704_706e9c0"
-    val tokenValidationSpringVersion = "3.1.7"
+    val tokenValidationSpringVersion = "3.1.8"
     val navFoedselsnummerVersion = "1.0-SNAPSHOT.6"
     val prosesseringVersion = "2.20231006130620_9b45ded"
     val restAssuredVersion = "5.3.2"
@@ -86,7 +86,7 @@ dependencies {
 
     // ----------- AVRO ---------\\
     implementation("org.apache.avro:avro:1.11.3")
-    implementation("io.confluent:kafka-avro-serializer:7.5.1")
+    implementation("io.confluent:kafka-avro-serializer:7.5.2")
     implementation("org.eclipse.jetty:jetty-server")
 
     // ---------- NAV ---------- \\
