@@ -45,8 +45,8 @@ repositories {
 dependencies {
 
     val springdocVersion = "2.2.0"
-    val sentryVersion = "6.32.0"
-    val navFellesVersion = "2.20231019123322_0a3df34"
+    val sentryVersion = "6.33.1"
+    val navFellesVersion = "2.20231023162434_fa320ce"
     val eksterneKontrakterBisysVersion = "2.0_20230214104704_706e9c0"
     val fellesKontrakterVersion = "3.0_20231101161029_4d64011"
     val familieKontrakterSaksstatistikkVersion = "2.0_20230214104704_706e9c0"
@@ -54,7 +54,7 @@ dependencies {
     val familieKontrakterSkatteetatenVersion = "2.0_20230214104704_706e9c0"
     val tokenValidationSpringVersion = "3.1.8"
     val navFoedselsnummerVersion = "1.0-SNAPSHOT.6"
-    val prosesseringVersion = "2.20231006130620_9b45ded"
+    val prosesseringVersion = "2.20231026103714_2f17845"
     val restAssuredVersion = "5.3.2"
     val kotlinxVersion = "1.7.3"
 
