@@ -1,7 +1,7 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    val kotlinVersion = "1.9.10"
+    val kotlinVersion = "1.9.20"
     kotlin("jvm") version kotlinVersion
 
     id("org.springframework.boot") version "3.1.5"
@@ -45,16 +45,16 @@ repositories {
 dependencies {
 
     val springdocVersion = "2.2.0"
-    val sentryVersion = "6.32.0"
+    val sentryVersion = "6.33.1"
     val navFellesVersion = "2.20231023162434_fa320ce"
     val eksterneKontrakterBisysVersion = "2.0_20230214104704_706e9c0"
-    val fellesKontrakterVersion = "3.0_20231019125348_8bd6d02"
+    val fellesKontrakterVersion = "3.0_20231101161029_4d64011"
     val familieKontrakterSaksstatistikkVersion = "2.0_20230214104704_706e9c0"
     val familieKontrakterStønadsstatistikkKsVersion = "2.0_20230825103733_1ac52c2"
     val familieKontrakterSkatteetatenVersion = "2.0_20230214104704_706e9c0"
-    val tokenValidationSpringVersion = "3.1.7"
+    val tokenValidationSpringVersion = "3.1.8"
     val navFoedselsnummerVersion = "1.0-SNAPSHOT.6"
-    val prosesseringVersion = "2.20231006130620_9b45ded"
+    val prosesseringVersion = "2.20231026103714_2f17845"
     val restAssuredVersion = "5.3.2"
     val kotlinxVersion = "1.7.3"
 
@@ -86,7 +86,7 @@ dependencies {
 
     // ----------- AVRO ---------\\
     implementation("org.apache.avro:avro:1.11.3")
-    implementation("io.confluent:kafka-avro-serializer:7.5.1")
+    implementation("io.confluent:kafka-avro-serializer:7.5.2")
     implementation("org.eclipse.jetty:jetty-server")
 
     // ---------- NAV ---------- \\

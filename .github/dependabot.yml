@@ -15,12 +15,16 @@ updates:
     registries:
       - familie-felles
     groups:
-      minor-and-patch-dependencies:
+      patch-dependencies:
+        patterns:
+          - "*"
+        update-types:
+          - "patch"
+      minor-dependencies:
         patterns:
           - "*"
         update-types:
           - "minor"
-          - "patch"
       major-dependencies:
         patterns:
           - "*"
