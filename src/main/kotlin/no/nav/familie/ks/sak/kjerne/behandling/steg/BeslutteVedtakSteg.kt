@@ -5,7 +5,7 @@ import no.nav.familie.ks.sak.api.dto.BehandlingStegDto
 import no.nav.familie.ks.sak.api.dto.BesluttVedtakDto
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.config.FeatureToggleConfig
-import no.nav.familie.ks.sak.config.FeatureToggleService
+import no.nav.familie.ks.sak.config.featureToggle.UnleashNextMedContextService
 import no.nav.familie.ks.sak.integrasjon.oppgave.FerdigstillOppgaverTask
 import no.nav.familie.ks.sak.integrasjon.oppgave.OpprettOppgaveTask
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
@@ -35,7 +35,7 @@ class BeslutteVedtakSteg(
     private val taskService: TaskService,
     private val loggService: LoggService,
     private val vilkårsvurderingService: VilkårsvurderingService,
-    private val featureToggleService: FeatureToggleService,
+    private val unleashService: UnleashNextMedContextService,
     private val genererBrevService: GenererBrevService,
     private val tilkjentYtelseValideringService: TilkjentYtelseValideringService,
 ) : IBehandlingSteg {
@@ -115,7 +115,7 @@ class BeslutteVedtakSteg(
                 throw FunksjonellFeil("Behandlingen er allerede avsluttet")
 
             behandling.opprettetÅrsak == BehandlingÅrsak.KORREKSJON_VEDTAKSBREV &&
-                !featureToggleService.isEnabled(FeatureToggleConfig.KAN_MANUELT_KORRIGERE_MED_VEDTAKSBREV) ->
+                !unleashService.isEnabled(FeatureToggleConfig.KAN_MANUELT_KORRIGERE_MED_VEDTAKSBREV) ->
                 throw FunksjonellFeil(
                     melding =
                         "Årsak ${BehandlingÅrsak.KORREKSJON_VEDTAKSBREV.visningsnavn} og " +

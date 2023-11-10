@@ -4,9 +4,9 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
-import no.nav.familie.ba.sak.integrasjoner.økonomi.internkonsistensavstemming.erForskjellMellomAndelerOgOppdrag
 import no.nav.familie.kontrakter.felles.oppdrag.Utbetalingsoppdrag
 import no.nav.familie.ks.sak.integrasjon.oppdrag.OppdragKlient
+import no.nav.familie.ks.sak.integrasjoner.økonomi.internkonsistensavstemming.erForskjellMellomAndelerOgOppdrag
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelseRepository

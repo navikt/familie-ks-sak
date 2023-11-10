@@ -2,7 +2,7 @@ package no.nav.familie.ks.sak.api
 
 import no.nav.familie.kontrakter.felles.Ressurs
 import no.nav.familie.ks.sak.common.util.RessursUtils
-import no.nav.familie.ks.sak.config.FeatureToggleService
+import no.nav.familie.ks.sak.config.featureToggle.UnleashNextMedContextService
 import no.nav.security.token.support.core.api.ProtectedWithClaims
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
@@ -16,14 +16,16 @@ import org.springframework.web.bind.annotation.RestController
 @RequestMapping("/api/featuretoggles")
 @ProtectedWithClaims(issuer = "azuread")
 @Validated
-class FeatureToggleController(private val featureToggleService: FeatureToggleService) {
+class FeatureToggleController(
+    private val unleashNextMedContextService: UnleashNextMedContextService,
+) {
     @PostMapping(produces = [MediaType.APPLICATION_JSON_VALUE])
     fun hentToggles(
         @RequestBody toggles: List<String>,
     ): ResponseEntity<Ressurs<Map<String, Boolean>>> {
         return RessursUtils.ok(
             toggles.fold(mutableMapOf()) { acc, toggleId ->
-                acc[toggleId] = featureToggleService.isEnabled(toggleId)
+                acc[toggleId] = unleashNextMedContextService.isEnabled(toggleId)
                 acc
             },
         )

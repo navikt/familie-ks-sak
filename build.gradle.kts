@@ -92,6 +92,7 @@ dependencies {
     // ---------- NAV ---------- \\
     implementation("no.nav.familie.felles:sikkerhet:$navFellesVersion")
     implementation("no.nav.familie.felles:log:$navFellesVersion")
+    implementation("no.nav.familie.felles:unleash:$navFellesVersion")
     implementation("no.nav.familie.felles:leader:$navFellesVersion")
     implementation("no.nav.familie.felles:http-client:$navFellesVersion")
     implementation("no.nav.familie.felles:modell:$navFellesVersion")

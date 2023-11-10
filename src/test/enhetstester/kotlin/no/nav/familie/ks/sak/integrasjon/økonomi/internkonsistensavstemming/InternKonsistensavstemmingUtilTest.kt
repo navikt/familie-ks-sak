@@ -1,12 +1,12 @@
 package no.nav.familie.ks.sak.integrasjon.økonomi.internkonsistensavstemming
 
 import com.fasterxml.jackson.module.kotlin.readValue
-import no.nav.familie.ba.sak.integrasjoner.økonomi.internkonsistensavstemming.erForskjellMellomAndelerOgOppdrag
 import no.nav.familie.kontrakter.felles.objectMapper
 import no.nav.familie.kontrakter.felles.oppdrag.Utbetalingsoppdrag
 import no.nav.familie.ks.sak.data.lagAndelTilkjentYtelse
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.randomAktør
+import no.nav.familie.ks.sak.integrasjoner.økonomi.internkonsistensavstemming.erForskjellMellomAndelerOgOppdrag
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
