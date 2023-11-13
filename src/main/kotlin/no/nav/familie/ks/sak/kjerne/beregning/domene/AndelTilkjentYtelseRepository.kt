@@ -18,6 +18,9 @@ interface AndelTilkjentYtelseRepository : JpaRepository<AndelTilkjentYtelse, Lon
         barnAktør: Aktør,
     ): List<AndelTilkjentYtelse>
 
+    @Query(value = "SELECT aty from AndelTilkjentYtelse aty WHERE aty.aktør = :aktør")
+    fun finnAndelerTilkjentYtelseForAktør(aktør: Aktør): List<AndelTilkjentYtelse>
+
     @Query(
         value = """ SELECT aty FROM AndelTilkjentYtelse aty WHERE aty.behandlingId IN :behandlingIder AND 
             aty.stønadTom >= :avstemmingstidspunkt """,
