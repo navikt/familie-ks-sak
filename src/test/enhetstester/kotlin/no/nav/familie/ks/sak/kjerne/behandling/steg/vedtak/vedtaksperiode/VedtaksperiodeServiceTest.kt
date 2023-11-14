@@ -17,13 +17,17 @@ import no.nav.familie.ks.sak.data.lagAndelTilkjentYtelse
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagInitieltTilkjentYtelse
 import no.nav.familie.ks.sak.data.randomAktør
+import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
 import no.nav.familie.ks.sak.integrasjon.sanity.SanityService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
+import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingKategori
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.registrersøknad.SøknadGrunnlagService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.Vedtak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.VedtakRepository
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.refusjonEøs.RefusjonEøs
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.refusjonEøs.RefusjonEøsRepository
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.VedtaksperiodeMedBegrunnelser
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.utbetalingsperiodeMedBegrunnelser.UtbetalingsperiodeMedBegrunnelserService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.PersonResultat
@@ -36,6 +40,7 @@ import no.nav.familie.ks.sak.kjerne.beregning.AndelTilkjentYtelseMedEndreteUtbet
 import no.nav.familie.ks.sak.kjerne.beregning.AndelerTilkjentYtelseOgEndreteUtbetalingerService
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.Begrunnelse
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
+import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Målform
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
 import org.hamcrest.CoreMatchers.nullValue
 import org.hamcrest.MatcherAssert.assertThat
@@ -78,6 +83,12 @@ internal class VedtaksperiodeServiceTest {
 
     @MockK
     private lateinit var andelerTilkjentYtelseOgEndreteUtbetalingerService: AndelerTilkjentYtelseOgEndreteUtbetalingerService
+
+    @MockK
+    private lateinit var integrasjonClient: IntegrasjonClient
+
+    @MockK
+    private lateinit var refusjonEøsRepository: RefusjonEøsRepository
 
     @InjectMockKs
     private lateinit var vedtaksperiodeService: VedtaksperiodeService
@@ -479,5 +490,73 @@ internal class VedtaksperiodeServiceTest {
         assertThat(finnSisteVedtaksperiodeVisningsdatoForBehandling, Is(nullValue()))
 
         verify(exactly = 1) { vilkårsvurderingRepository.finnAktivForBehandling(200) }
+    }
+
+    @Test
+    fun `skal beskrive perioder med eøs refusjoner for behandlinger med avklarte refusjon eøs`() {
+        every { personopplysningGrunnlagService.hentSøkersMålform(any()) } returns Målform.NB
+        every { integrasjonClient.hentLandkoderISO2() } returns mapOf(Pair("NO", "NORGE"))
+        every { refusjonEøsRepository.finnRefusjonEøsForBehandling(any()) } returns emptyList()
+
+        val behandling = lagBehandling(kategori = BehandlingKategori.EØS)
+
+        assertThat(
+            vedtaksperiodeService.beskrivPerioderMedRefusjonEøs(
+                behandling = behandling,
+                avklart = true,
+            ),
+            Is(nullValue()),
+        )
+
+        every { refusjonEøsRepository.finnRefusjonEøsForBehandling(any()) } returns
+            listOf(
+                RefusjonEøs(
+                    behandlingId = 1L,
+                    fom = LocalDate.of(2020, 1, 1),
+                    tom = LocalDate.of(2022, 1, 1),
+                    refusjonsbeløp = 200,
+                    land = "NO",
+                    refusjonAvklart = true,
+                ),
+            )
+
+        val perioder = vedtaksperiodeService.beskrivPerioderMedRefusjonEøs(behandling = behandling, avklart = true)
+
+        assertThat(perioder?.size, Is(1))
+        assertThat(perioder?.single(), Is("Fra januar 2020 til januar 2022 blir etterbetaling på 200 kroner per måned utbetalt til myndighetene i Norge."))
+    }
+
+    @Test
+    fun `skal beskrive perioder med eøs refusjoner for behandlinger med uavklarte refusjon eøs`() {
+        every { personopplysningGrunnlagService.hentSøkersMålform(any()) } returns Målform.NB
+        every { integrasjonClient.hentLandkoderISO2() } returns mapOf(Pair("NO", "NORGE"))
+        every { refusjonEøsRepository.finnRefusjonEøsForBehandling(any()) } returns emptyList()
+
+        val behandling = lagBehandling(kategori = BehandlingKategori.EØS)
+
+        assertThat(
+            vedtaksperiodeService.beskrivPerioderMedRefusjonEøs(
+                behandling = behandling,
+                avklart = false,
+            ),
+            Is(nullValue()),
+        )
+
+        every { refusjonEøsRepository.finnRefusjonEøsForBehandling(any()) } returns
+            listOf(
+                RefusjonEøs(
+                    behandlingId = 1L,
+                    fom = LocalDate.of(2020, 1, 1),
+                    tom = LocalDate.of(2022, 1, 1),
+                    refusjonsbeløp = 200,
+                    land = "NO",
+                    refusjonAvklart = false,
+                ),
+            )
+
+        val perioder = vedtaksperiodeService.beskrivPerioderMedRefusjonEøs(behandling = behandling, avklart = false)
+
+        assertThat(perioder?.size, Is(1))
+        assertThat(perioder?.single(), Is(("Fra januar 2020 til januar 2022 blir ikke etterbetaling på 200 kroner per måned utbetalt nå siden det er utbetalt barnetrygd i Norge.")))
     }
 }

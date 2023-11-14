@@ -128,6 +128,8 @@ class GenererBrevService(
                 Førstegangsvedtak(
                     fellesdataForVedtaksbrev = fellesdataForVedtaksbrev,
                     etterbetaling = etterbetaling,
+                    refusjonEosAvklart = brevPeriodeService.beskrivPerioderMedAvklartRefusjonEøs(vedtak),
+                    refusjonEosUavklart = brevPeriodeService.beskrivPerioderMedUavklartRefusjonEøs(vedtak),
                 )
             }
 
@@ -145,6 +147,8 @@ class GenererBrevService(
                             ?.let {
                                 FeilutbetaltValuta(perioderMedForMyeUtbetalt = it)
                             },
+                    refusjonEosAvklart = brevPeriodeService.beskrivPerioderMedAvklartRefusjonEøs(vedtak),
+                    refusjonEosUavklart = brevPeriodeService.beskrivPerioderMedUavklartRefusjonEøs(vedtak),
                 )
 
             Brevmal.VEDTAK_OPPHØRT ->
@@ -158,6 +162,8 @@ class GenererBrevService(
                     fellesdataForVedtaksbrev = fellesdataForVedtaksbrev,
                     etterbetaling = etterbetaling,
                     erFeilutbetalingPåBehandling = erFeilutbetalingPåBehandling(behandlingId = behandling.id),
+                    refusjonEosAvklart = brevPeriodeService.beskrivPerioderMedAvklartRefusjonEøs(vedtak),
+                    refusjonEosUavklart = brevPeriodeService.beskrivPerioderMedUavklartRefusjonEøs(vedtak),
                 )
 
             else -> throw Feil("Forsøker å hente vedtaksbrevdata for brevmal ${brevtype.visningsTekst}")
