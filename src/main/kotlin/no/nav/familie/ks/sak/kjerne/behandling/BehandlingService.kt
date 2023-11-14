@@ -22,6 +22,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg
 import no.nav.familie.ks.sak.kjerne.behandling.steg.registrersøknad.SøknadGrunnlagService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.VedtakRepository
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.feilutbetaltvaluta.FeilutbetaltValutaService
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.refusjonEøs.RefusjonEøsService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.VedtaksperiodeService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
 import no.nav.familie.ks.sak.kjerne.beregning.AndelerTilkjentYtelseOgEndreteUtbetalingerService
@@ -60,7 +61,9 @@ class BehandlingService(
     private val sanityService: SanityService,
     private val feilutbetaltValutaService: FeilutbetaltValutaService,
     private val kompetanseRepository: KompetanseRepository,
+    private val refusjonEøsService: RefusjonEøsService
 ) {
+
     fun hentBehandling(behandlingId: Long): Behandling = behandlingRepository.hentBehandling(behandlingId)
 
     fun hentAktivtBehandling(behandlingId: Long): Behandling = behandlingRepository.hentAktivBehandling(behandlingId)
@@ -115,17 +118,17 @@ class BehandlingService(
             vedtakRepository.findByBehandlingAndAktivOptional(behandlingId)?.let {
                 it.tilVedtakDto(
                     vedtaksperioderMedBegrunnelser =
-                        if (behandling.status != BehandlingStatus.AVSLUTTET) {
-                            vedtaksperiodeService.hentUtvidetVedtaksperioderMedBegrunnelser(vedtak = it)
-                                .map { utvidetVedtaksperiodeMedBegrunnelser ->
-                                    utvidetVedtaksperiodeMedBegrunnelser.tilUtvidetVedtaksperiodeMedBegrunnelserDto(
-                                        sanityBegrunnelser,
-                                    )
-                                }
-                                .sortedBy { dto -> dto.fom }
-                        } else {
-                            emptyList()
-                        },
+                    if (behandling.status != BehandlingStatus.AVSLUTTET) {
+                        vedtaksperiodeService.hentUtvidetVedtaksperioderMedBegrunnelser(vedtak = it)
+                            .map { utvidetVedtaksperiodeMedBegrunnelser ->
+                                utvidetVedtaksperiodeMedBegrunnelser.tilUtvidetVedtaksperiodeMedBegrunnelserDto(
+                                    sanityBegrunnelser,
+                                )
+                            }
+                            .sortedBy { dto -> dto.fom }
+                    } else {
+                        emptyList()
+                    },
                     skalMinimeres = behandling.status != BehandlingStatus.UTREDES,
                 )
             }
@@ -156,6 +159,8 @@ class BehandlingService(
 
         val kompetanser = kompetanseRepository.findByBehandlingId(behandlingId)
 
+        val refusjonEøs = refusjonEøsService.hentRefusjonEøsPerioder(behandlingId)
+
         return BehandlingMapper.lagBehandlingRespons(
             behandling,
             arbeidsfordelingPåBehandling,
@@ -172,6 +177,7 @@ class BehandlingService(
             sisteVedtaksperiodeVisningDato,
             feilutbetalteValuta,
             kompetanser,
+            refusjonEøs,
         )
     }
 
@@ -187,7 +193,7 @@ class BehandlingService(
         val behandling = hentBehandling(behandlingId)
         logger.info(
             "${SikkerhetContext.hentSaksbehandlerNavn()} endrer resultat på behandling $behandlingId " +
-                "fra ${behandling.resultat} til $nyUtledetBehandlingsresultat",
+                    "fra ${behandling.resultat} til $nyUtledetBehandlingsresultat",
         )
         loggService.opprettVilkårsvurderingLogg(
             behandling = behandling,
@@ -210,7 +216,8 @@ class BehandlingService(
     fun hentAktivtFødselsnummerForBehandlinger(behandlingIder: List<Long>): Map<Long, String> =
         behandlingRepository.finnAktivtFødselsnummerForBehandlinger(behandlingIder).associate { it.first to it.second }
 
-    fun hentIverksatteBehandlinger(fagsakId: Long): List<Behandling> = behandlingRepository.finnIverksatteBehandlinger(fagsakId = fagsakId)
+    fun hentIverksatteBehandlinger(fagsakId: Long): List<Behandling> =
+        behandlingRepository.finnIverksatteBehandlinger(fagsakId = fagsakId)
 
     /**
      * Henter siste iverksatte behandling på fagsak
@@ -263,6 +270,7 @@ class BehandlingService(
             .maxByOrNull { it.opprettetTidspunkt }
 
     companion object {
+
         private val logger: Logger = LoggerFactory.getLogger(BehandlingService::class.java)
     }
 }

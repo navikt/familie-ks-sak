@@ -47,6 +47,7 @@ data class BehandlingResponsDto(
     // TODO implementeres ved EØS
     val valutakurser: List<Any> = emptyList(),
     val feilutbetaltValuta: List<FeilutbetaltValutaDto> = emptyList(),
+    val refusjonEøs: List<RefusjonEøsDto> = emptyList(),
 )
 
 data class BehandlingStegTilstandResponsDto(
