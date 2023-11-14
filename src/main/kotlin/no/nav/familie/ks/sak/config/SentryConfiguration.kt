@@ -18,7 +18,7 @@ class SentryConfiguration(
 ) {
     init {
         Sentry.init { options ->
-            options.dsn = if (enabled) dsn else "" // Tom streng betryr at Sentry er disabled
+            options.dsn = if (enabled) dsn else "" // Tom streng betyr at Sentry er disabled
             options.environment = environment
             options.beforeSend = SentryOptions.BeforeSendCallback { event, _ ->
                 Sentry.configureScope { scope ->
