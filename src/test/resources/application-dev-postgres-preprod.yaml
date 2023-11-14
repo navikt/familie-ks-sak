@@ -168,6 +168,5 @@ rolle:
   kode6: "5ef775f2-61f8-4283-bf3d-8d03f428aa14" # 0000-GA-Strengt_Fortrolig_Adresse
   kode7: "ea930b6b-9397-44d9-b9e6-f4cf527a632a" # 0000-GA-Fortrolig_Adresse
 
-FAMILIE_BA_INFOTRYGD_API_URL: http://localhost:28085
 CRON_GRENSESNITT_AVSTEMMING: "0 0/3 * ? * MON-FRI"
 CRON_KONSISTENS_AVSTEMMING: "0 0/10 * ? * MON-FRI"
