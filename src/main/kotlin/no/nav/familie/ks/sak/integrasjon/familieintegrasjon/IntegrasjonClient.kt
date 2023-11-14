@@ -410,7 +410,7 @@ class IntegrasjonClient(
         }.single()
     }
 
-    @Cacheable("landkoder-ISO_3166-1_alfa-2", cacheManager = "dailyCache")
+    @Cacheable("landkoder-ISO_3166-1_alfa-2", cacheManager = "kodeverkCache")
     fun hentLandkoderISO2(): Map<String, String> {
         val uri = URI.create("$integrasjonUri/kodeverk/landkoderISO2")
 
