@@ -11,6 +11,8 @@ import no.nav.familie.ks.sak.kjerne.brev.domene.maler.Flettefelt
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.FlettefelterForDokumentDto
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.Hjemmeltekst
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.KorrigertVedtakData
+import no.nav.familie.ks.sak.kjerne.brev.domene.maler.RefusjonEøsAvklart
+import no.nav.familie.ks.sak.kjerne.brev.domene.maler.RefusjonEøsUavklart
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.SignaturVedtak
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.brevperioder.BrevPeriodeDto
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.flettefelt
@@ -28,6 +30,8 @@ data class VedtakEndring(
         erKlage: Boolean,
         informasjonOmAarligKontroll: Boolean,
         feilutbetaltValuta: FeilutbetaltValuta? = null,
+        refusjonEosAvklart: RefusjonEøsAvklart? = null,
+        refusjonEosUavklart: RefusjonEøsUavklart? = null,
     ) :
         this(
             mal = mal,
@@ -48,6 +52,8 @@ data class VedtakEndring(
                             korrigertVedtak = fellesdataForVedtaksbrev.korrigertVedtakData,
                             informasjonOmAarligKontroll = informasjonOmAarligKontroll,
                             feilutbetaltKontantstotte = feilutbetaltValuta != null,
+                            refusjonEosAvklart = refusjonEosAvklart,
+                            refusjonEosUavklart = refusjonEosUavklart,
                         ),
                     flettefelter =
                         object : FlettefelterForDokumentDto {
@@ -75,5 +81,7 @@ data class EndringVedtakData(
         val korrigertVedtak: KorrigertVedtakData?,
         val informasjonOmAarligKontroll: Boolean,
         val feilutbetaltKontantstotte: Boolean,
+        val refusjonEosAvklart: RefusjonEøsAvklart?,
+        val refusjonEosUavklart: RefusjonEøsUavklart?,
     )
 }

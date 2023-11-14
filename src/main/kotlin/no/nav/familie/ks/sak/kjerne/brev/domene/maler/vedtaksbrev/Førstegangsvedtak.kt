@@ -8,6 +8,8 @@ import no.nav.familie.ks.sak.kjerne.brev.domene.maler.Etterbetaling
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.FlettefelterForDokumentDtoImpl
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.Hjemmeltekst
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.KorrigertVedtakData
+import no.nav.familie.ks.sak.kjerne.brev.domene.maler.RefusjonEøsAvklart
+import no.nav.familie.ks.sak.kjerne.brev.domene.maler.RefusjonEøsUavklart
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.SignaturVedtak
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.brevperioder.BrevPeriodeDto
 
@@ -18,6 +20,8 @@ data class Førstegangsvedtak(
     constructor(
         fellesdataForVedtaksbrev: FellesdataForVedtaksbrev,
         etterbetaling: Etterbetaling?,
+        refusjonEosAvklart: RefusjonEøsAvklart? = null,
+        refusjonEosUavklart: RefusjonEøsUavklart? = null,
     ) :
         this(
             mal = Brevmal.VEDTAK_FØRSTEGANGSVEDTAK,
@@ -34,6 +38,8 @@ data class Førstegangsvedtak(
                             etterbetaling = etterbetaling,
                             hjemmeltekst = fellesdataForVedtaksbrev.hjemmeltekst,
                             korrigertVedtak = fellesdataForVedtaksbrev.korrigertVedtakData,
+                            refusjonEosAvklart = refusjonEosAvklart,
+                            refusjonEosUavklart = refusjonEosUavklart,
                         ),
                     flettefelter =
                         FlettefelterForDokumentDtoImpl(
@@ -54,6 +60,8 @@ data class FørstegangsvedtakData(
         val signaturVedtak: SignaturVedtak,
         val etterbetaling: Etterbetaling?,
         val hjemmeltekst: Hjemmeltekst,
+        val refusjonEosAvklart: RefusjonEøsAvklart?,
+        val refusjonEosUavklart: RefusjonEøsUavklart?,
         val korrigertVedtak: KorrigertVedtakData?,
     )
 }
