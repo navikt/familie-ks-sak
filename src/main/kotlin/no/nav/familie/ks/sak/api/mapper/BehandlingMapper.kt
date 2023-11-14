@@ -34,7 +34,6 @@ import java.math.BigDecimal
 import java.time.LocalDate
 
 object BehandlingMapper {
-
     fun lagBehandlingRespons(
         behandling: Behandling,
         arbeidsfordelingPåBehandling: ArbeidsfordelingPåBehandling,
@@ -56,14 +55,14 @@ object BehandlingMapper {
         behandlingId = behandling.id,
         steg = behandling.steg,
         stegTilstand =
-        behandling.behandlingStegTilstand.map {
-            BehandlingStegTilstandResponsDto(
-                it.behandlingSteg,
-                it.behandlingStegStatus,
-                it.årsak,
-                it.frist,
-            )
-        },
+            behandling.behandlingStegTilstand.map {
+                BehandlingStegTilstandResponsDto(
+                    it.behandlingSteg,
+                    it.behandlingStegStatus,
+                    it.årsak,
+                    it.frist,
+                )
+            },
         status = behandling.status,
         resultat = behandling.resultat,
         type = behandling.type,
@@ -75,11 +74,11 @@ object BehandlingMapper {
         søknadsgrunnlag = søknadsgrunnlag,
         personer = personer,
         personResultater =
-        personResultater?.map { VilkårsvurderingMapper.lagPersonResultatRespons(it) }
-            ?: emptyList(),
+            personResultater?.map { VilkårsvurderingMapper.lagPersonResultatRespons(it) }
+                ?: emptyList(),
         behandlingPåVent =
-        behandling.behandlingStegTilstand.singleOrNull { it.behandlingStegStatus == BehandlingStegStatus.VENTER }
-            ?.let { BehandlingPåVentDto(it.frist!!, it.årsak!!) },
+            behandling.behandlingStegTilstand.singleOrNull { it.behandlingStegStatus == BehandlingStegStatus.VENTER }
+                ?.let { BehandlingPåVentDto(it.frist!!, it.årsak!!) },
         personerMedAndelerTilkjentYtelse = personerMedAndelerTilkjentYtelse,
         utbetalingsperioder = utbetalingsperioder,
         vedtak = vedtak,
@@ -129,21 +128,21 @@ object BehandlingMapper {
                 personIdent = personer.find { person -> person.aktør == aktør }?.aktør?.aktivFødselsnummer(),
                 beløp = sammenslåtteAndeler.sumOf { it.kalkulertUtbetalingsbeløp },
                 stønadFom =
-                sammenslåtteAndeler.minOfOrNull { it.stønadFom }
-                    ?: LocalDate.MIN.toYearMonth(),
+                    sammenslåtteAndeler.minOfOrNull { it.stønadFom }
+                        ?: LocalDate.MIN.toYearMonth(),
                 stønadTom =
-                sammenslåtteAndeler.maxOfOrNull { it.stønadTom }
-                    ?: LocalDate.MAX.toYearMonth(),
+                    sammenslåtteAndeler.maxOfOrNull { it.stønadTom }
+                        ?: LocalDate.MAX.toYearMonth(),
                 ytelsePerioder =
-                sammenslåtteAndeler.map { sammenslåttAndel ->
-                    YtelsePerioderDto(
-                        beløp = sammenslåttAndel.kalkulertUtbetalingsbeløp,
-                        stønadFom = sammenslåttAndel.stønadFom,
-                        stønadTom = sammenslåttAndel.stønadTom,
-                        ytelseType = sammenslåttAndel.type,
-                        skalUtbetales = sammenslåttAndel.prosent > BigDecimal.ZERO,
-                    )
-                },
+                    sammenslåtteAndeler.map { sammenslåttAndel ->
+                        YtelsePerioderDto(
+                            beløp = sammenslåttAndel.kalkulertUtbetalingsbeløp,
+                            stønadFom = sammenslåttAndel.stønadFom,
+                            stønadTom = sammenslåttAndel.stønadTom,
+                            ytelseType = sammenslåttAndel.type,
+                            skalUtbetales = sammenslåttAndel.prosent > BigDecimal.ZERO,
+                        )
+                    },
             )
         }
 

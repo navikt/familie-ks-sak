@@ -61,9 +61,8 @@ class BehandlingService(
     private val sanityService: SanityService,
     private val feilutbetaltValutaService: FeilutbetaltValutaService,
     private val kompetanseRepository: KompetanseRepository,
-    private val refusjonEøsService: RefusjonEøsService
+    private val refusjonEøsService: RefusjonEøsService,
 ) {
-
     fun hentBehandling(behandlingId: Long): Behandling = behandlingRepository.hentBehandling(behandlingId)
 
     fun hentAktivtBehandling(behandlingId: Long): Behandling = behandlingRepository.hentAktivBehandling(behandlingId)
@@ -118,17 +117,17 @@ class BehandlingService(
             vedtakRepository.findByBehandlingAndAktivOptional(behandlingId)?.let {
                 it.tilVedtakDto(
                     vedtaksperioderMedBegrunnelser =
-                    if (behandling.status != BehandlingStatus.AVSLUTTET) {
-                        vedtaksperiodeService.hentUtvidetVedtaksperioderMedBegrunnelser(vedtak = it)
-                            .map { utvidetVedtaksperiodeMedBegrunnelser ->
-                                utvidetVedtaksperiodeMedBegrunnelser.tilUtvidetVedtaksperiodeMedBegrunnelserDto(
-                                    sanityBegrunnelser,
-                                )
-                            }
-                            .sortedBy { dto -> dto.fom }
-                    } else {
-                        emptyList()
-                    },
+                        if (behandling.status != BehandlingStatus.AVSLUTTET) {
+                            vedtaksperiodeService.hentUtvidetVedtaksperioderMedBegrunnelser(vedtak = it)
+                                .map { utvidetVedtaksperiodeMedBegrunnelser ->
+                                    utvidetVedtaksperiodeMedBegrunnelser.tilUtvidetVedtaksperiodeMedBegrunnelserDto(
+                                        sanityBegrunnelser,
+                                    )
+                                }
+                                .sortedBy { dto -> dto.fom }
+                        } else {
+                            emptyList()
+                        },
                     skalMinimeres = behandling.status != BehandlingStatus.UTREDES,
                 )
             }
@@ -193,7 +192,7 @@ class BehandlingService(
         val behandling = hentBehandling(behandlingId)
         logger.info(
             "${SikkerhetContext.hentSaksbehandlerNavn()} endrer resultat på behandling $behandlingId " +
-                    "fra ${behandling.resultat} til $nyUtledetBehandlingsresultat",
+                "fra ${behandling.resultat} til $nyUtledetBehandlingsresultat",
         )
         loggService.opprettVilkårsvurderingLogg(
             behandling = behandling,
@@ -270,7 +269,6 @@ class BehandlingService(
             .maxByOrNull { it.opprettetTidspunkt }
 
     companion object {
-
         private val logger: Logger = LoggerFactory.getLogger(BehandlingService::class.java)
     }
 }
