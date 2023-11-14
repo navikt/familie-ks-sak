@@ -15,8 +15,8 @@ import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonService
 import no.nav.familie.ks.sak.integrasjon.pdl.PersonOpplysningerService
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.PdlPersonInfo
-import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
+import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.VedtakRepository
 import no.nav.familie.ks.sak.kjerne.beregning.AndelerTilkjentYtelseOgEndreteUtbetalingerService
@@ -53,7 +53,6 @@ class FagsakService(
     private val tilbakekrevingsbehandlingHentService: TilbakekrevingsbehandlingHentService,
     private val vedtakRepository: VedtakRepository,
     private val andelerTilkjentYtelseRepository: AndelTilkjentYtelseRepository,
-    private val behandlingService: BehandlingService,
 ) {
     private val antallFagsakerOpprettetFraManuell =
         Metrics.counter("familie.ks.sak.fagsak.opprettet", "saksbehandling", "manuell")
@@ -296,12 +295,17 @@ class FagsakService(
         val behandlingerMedLøpendeAndeler =
             løpendeAndeler
                 .map { it.behandlingId }.toSet()
-                .map { behandlingService.hentBehandling(behandlingId = it) }
+                .map { behandlingRepository.hentBehandling(behandlingId = it) }
 
-        val behandlingerSomErSisteIverksattePåFagsak = behandlingerMedLøpendeAndeler.filter { behandlingService.hentSisteBehandlingSomErVedtatt(it.fagsak.id) == it }
+        val behandlingerSomErSisteIverksattePåFagsak = behandlingerMedLøpendeAndeler.filter { hentSisteBehandlingSomErVedtattPåFagsak(it.fagsak.id) == it }
 
         return behandlingerSomErSisteIverksattePåFagsak.map { it.fagsak }
     }
+
+    private fun hentSisteBehandlingSomErVedtattPåFagsak(fagsakId: Long) =
+        behandlingRepository.finnBehandlinger(fagsakId)
+            .filter { !it.erHenlagt() && it.status == BehandlingStatus.AVSLUTTET }
+            .maxByOrNull { it.opprettetTidspunkt }
 
     companion object {
         private val logger = LoggerFactory.getLogger(FagsakService::class.java)
