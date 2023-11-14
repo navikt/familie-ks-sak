@@ -104,7 +104,6 @@ dependencies {
     implementation("no.nav.familie.eksterne.kontrakter:bisys:$eksterneKontrakterBisysVersion")
     implementation("no.nav.familie.eksterne.kontrakter:stonadsstatistikk-ks:$familieKontrakterStønadsstatistikkKsVersion")
     implementation("no.nav.familie.eksterne.kontrakter:saksstatistikk:$familieKontrakterSaksstatistikkVersion")
-    implementation("no.nav.familie.eksterne.kontrakter:skatteetaten:$familieKontrakterSkatteetatenVersion")
     implementation("no.nav.security:token-client-spring:$tokenValidationSpringVersion")
     implementation("no.nav.familie:prosessering-core:$prosesseringVersion")
     implementation("nav-foedselsnummer:core:$navFoedselsnummerVersion")
