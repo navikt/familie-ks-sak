@@ -11,8 +11,11 @@ import no.nav.familie.ks.sak.common.util.TIDENES_MORGEN
 import no.nav.familie.ks.sak.common.util.erSammeEllerEtter
 import no.nav.familie.ks.sak.common.util.erSenereEnnInneværendeMåned
 import no.nav.familie.ks.sak.common.util.sisteDagIMåned
+import no.nav.familie.ks.sak.common.util.storForbokstav
+import no.nav.familie.ks.sak.common.util.tilMånedÅr
 import no.nav.familie.ks.sak.common.util.toLocalDate
 import no.nav.familie.ks.sak.common.util.toYearMonth
+import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
 import no.nav.familie.ks.sak.integrasjon.sanity.SanityService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingKategori
@@ -23,6 +26,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg
 import no.nav.familie.ks.sak.kjerne.behandling.steg.registrersøknad.SøknadGrunnlagService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.Vedtak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.VedtakRepository
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.refusjonEøs.RefusjonEøsRepository
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.UtvidetVedtaksperiodeMedBegrunnelser
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.Vedtaksbegrunnelse
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.VedtaksperiodeMedBegrunnelser
@@ -41,6 +45,7 @@ import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.BegrunnelserForPeriodeCont
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.EØSBegrunnelse
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.tilVedtaksbegrunnelse
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
+import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Målform
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -57,6 +62,8 @@ class VedtaksperiodeService(
     private val søknadGrunnlagService: SøknadGrunnlagService,
     private val utbetalingsperiodeMedBegrunnelserService: UtbetalingsperiodeMedBegrunnelserService,
     private val andelerTilkjentYtelseOgEndreteUtbetalingerService: AndelerTilkjentYtelseOgEndreteUtbetalingerService,
+    private val integrasjonClient: IntegrasjonClient,
+    private val refusjonEøsRepository: RefusjonEøsRepository,
 ) {
     fun oppdaterVedtaksperiodeMedFritekster(
         vedtaksperiodeId: Long,
@@ -552,6 +559,40 @@ class VedtaksperiodeService(
             }.toMutableList()
 
         return avslagsperioder
+    }
+
+    fun beskrivPerioderMedRefusjonEøs(
+        behandling: Behandling,
+        avklart: Boolean,
+    ): Set<String>? {
+        val målform = personopplysningGrunnlagService.hentSøkersMålform(behandlingId = behandling.id)
+        val landkoderISO2 = integrasjonClient.hentLandkoderISO2()
+
+        return refusjonEøsRepository.finnRefusjonEøsForBehandling(behandling.id)
+            .filter { it.refusjonAvklart == avklart }.map {
+                val (fom, tom) = it.fom.tilMånedÅr() to it.tom.tilMånedÅr()
+                val land =
+                    landkoderISO2[it.land]?.storForbokstav() ?: throw Feil("Fant ikke navn for landkode ${it.land}")
+                val beløp = it.refusjonsbeløp
+
+                when (målform) {
+                    Målform.NN -> {
+                        if (avklart) {
+                            "Frå $fom til $tom blir etterbetaling på $beløp kroner per måned utbetalt til myndighetene i $land."
+                        } else {
+                            "Frå $fom til $tom blir ikkje etterbetaling på $beløp kroner per månad utbetalt no sidan det er utbetalt barnetrygd i $land."
+                        }
+                    }
+
+                    else -> {
+                        if (avklart) {
+                            "Fra $fom til $tom blir etterbetaling på $beløp kroner per måned utbetalt til myndighetene i $land."
+                        } else {
+                            "Fra $fom til $tom blir ikke etterbetaling på $beløp kroner per måned utbetalt nå siden det er utbetalt barnetrygd i $land."
+                        }
+                    }
+                }
+            }.toSet().takeIf { it.isNotEmpty() }
     }
 
     private fun lagVedtaksPeriodeMedBegrunnelser(
