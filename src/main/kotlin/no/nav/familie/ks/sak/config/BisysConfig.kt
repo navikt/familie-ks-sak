@@ -24,8 +24,13 @@ class BisysConfig(
                 response: HttpServletResponse,
                 filterChain: FilterChain,
             ) {
-                val clientNavn = oidcUtil.getClaim("azp_name")
-                val erKallerBisys = clientNavn.contains("bidrag")
+                val clientNavn: String? =
+                    try {
+                        oidcUtil.getClaim("azp_name")
+                    } catch (throwable: Throwable) {
+                        null
+                    }
+                val erKallerBisys = clientNavn?.contains("bidrag") ?: false
                 val harForvalterRolle = SikkerhetContext.harInnloggetBrukerForvalterRolle(rolleConfig)
                 val erBisysRequest = request.requestURI.startsWith("/api/bisys")
 
