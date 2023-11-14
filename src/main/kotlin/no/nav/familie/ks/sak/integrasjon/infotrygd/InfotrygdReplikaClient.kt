@@ -17,7 +17,7 @@ import java.time.YearMonth
 class InfotrygdReplikaClient(
     @Value("\${FAMILIE_KS_INFOTRYGD_API_URL}") private val familieKsInfotrygdUri: URI,
     @Qualifier("azure") restOperations: RestOperations,
-) : AbstractRestClient(restOperations, "familie-ba-infotrygd") {
+) : AbstractRestClient(restOperations, "familie-ks-infotrygd") {
     fun harKontantstøtteIInfotrygd(barnIGjeldendeBehandling: List<BarnMedOpplysningerDto>): Boolean {
         val harKontantstøtteIInfotrygdUri =
             UriComponentsBuilder
