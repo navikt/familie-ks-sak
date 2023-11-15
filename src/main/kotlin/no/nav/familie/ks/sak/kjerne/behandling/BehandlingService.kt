@@ -22,6 +22,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg
 import no.nav.familie.ks.sak.kjerne.behandling.steg.registrersøknad.SøknadGrunnlagService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.VedtakRepository
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.feilutbetaltvaluta.FeilutbetaltValutaService
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.refusjonEøs.RefusjonEøsService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.VedtaksperiodeService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
 import no.nav.familie.ks.sak.kjerne.beregning.AndelerTilkjentYtelseOgEndreteUtbetalingerService
@@ -60,6 +61,7 @@ class BehandlingService(
     private val sanityService: SanityService,
     private val feilutbetaltValutaService: FeilutbetaltValutaService,
     private val kompetanseRepository: KompetanseRepository,
+    private val refusjonEøsService: RefusjonEøsService,
 ) {
     fun hentBehandling(behandlingId: Long): Behandling = behandlingRepository.hentBehandling(behandlingId)
 
@@ -156,6 +158,8 @@ class BehandlingService(
 
         val kompetanser = kompetanseRepository.findByBehandlingId(behandlingId)
 
+        val refusjonEøs = refusjonEøsService.hentRefusjonEøsPerioder(behandlingId)
+
         return BehandlingMapper.lagBehandlingRespons(
             behandling,
             arbeidsfordelingPåBehandling,
@@ -172,6 +176,7 @@ class BehandlingService(
             sisteVedtaksperiodeVisningDato,
             feilutbetalteValuta,
             kompetanser,
+            refusjonEøs,
         )
     }
 
@@ -210,7 +215,8 @@ class BehandlingService(
     fun hentAktivtFødselsnummerForBehandlinger(behandlingIder: List<Long>): Map<Long, String> =
         behandlingRepository.finnAktivtFødselsnummerForBehandlinger(behandlingIder).associate { it.first to it.second }
 
-    fun hentIverksatteBehandlinger(fagsakId: Long): List<Behandling> = behandlingRepository.finnIverksatteBehandlinger(fagsakId = fagsakId)
+    fun hentIverksatteBehandlinger(fagsakId: Long): List<Behandling> =
+        behandlingRepository.finnIverksatteBehandlinger(fagsakId = fagsakId)
 
     /**
      * Henter siste iverksatte behandling på fagsak
