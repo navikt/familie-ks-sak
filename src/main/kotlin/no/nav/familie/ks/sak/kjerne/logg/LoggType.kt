@@ -28,4 +28,6 @@ enum class LoggType(val visningsnavn: String, val tittel: String = visningsnavn)
     KORRIGERT_VEDTAK("Behandlingen er korrigering av vedtak"),
     FEILUTBETALT_VALUTA_LAGT_TIL("Feilutbetalt valuta lagt til"),
     FEILUTBETALT_VALUTA_FJERNET("Feilutbetalt valuta fjernet"),
+    REFUSJON_EØS_LAGT_TIL("Refusjon EØS lagt til"),
+    REFUSJON_EØS_FJERNET("Refusjon EØS fjernet"),
 }

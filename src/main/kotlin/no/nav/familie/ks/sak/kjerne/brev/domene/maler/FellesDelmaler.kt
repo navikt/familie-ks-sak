@@ -60,3 +60,19 @@ data class FeilutbetaltValuta(
         flettefelt(perioderMedForMyeUtbetalt.toList()),
     )
 }
+
+data class RefusjonEøsAvklart(
+    val perioderMedRefusjonEosAvklart: Flettefelt,
+) {
+    constructor(perioderMedRefusjonEøsAvklart: Set<String>) : this(
+        flettefelt(perioderMedRefusjonEøsAvklart.toList()),
+    )
+}
+
+data class RefusjonEøsUavklart(
+    val perioderMedRefusjonEosUavklart: Flettefelt,
+) {
+    constructor(perioderMedRefusjonEøsUavklart: Set<String>) : this(
+        flettefelt(perioderMedRefusjonEøsUavklart.toList()),
+    )
+}

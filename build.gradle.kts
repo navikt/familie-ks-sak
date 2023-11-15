@@ -5,7 +5,7 @@ plugins {
     kotlin("jvm") version kotlinVersion
 
     id("org.springframework.boot") version "3.1.5"
-    id("io.spring.dependency-management") version "1.1.3"
+    id("io.spring.dependency-management") version "1.1.4"
     id("org.jetbrains.kotlin.plugin.spring") version kotlinVersion
     id("org.jetbrains.kotlin.plugin.jpa") version kotlinVersion
     id("org.jetbrains.kotlin.plugin.allopen") version kotlinVersion
@@ -104,7 +104,6 @@ dependencies {
     implementation("no.nav.familie.eksterne.kontrakter:bisys:$eksterneKontrakterBisysVersion")
     implementation("no.nav.familie.eksterne.kontrakter:stonadsstatistikk-ks:$familieKontrakterStønadsstatistikkKsVersion")
     implementation("no.nav.familie.eksterne.kontrakter:saksstatistikk:$familieKontrakterSaksstatistikkVersion")
-    implementation("no.nav.familie.eksterne.kontrakter:skatteetaten:$familieKontrakterSkatteetatenVersion")
     implementation("no.nav.security:token-client-spring:$tokenValidationSpringVersion")
     implementation("no.nav.familie:prosessering-core:$prosesseringVersion")
     implementation("nav-foedselsnummer:core:$navFoedselsnummerVersion")

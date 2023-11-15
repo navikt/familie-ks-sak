@@ -9,6 +9,7 @@ import no.nav.familie.ks.sak.api.dto.EndretUtbetalingAndelResponsDto
 import no.nav.familie.ks.sak.api.dto.FeilutbetaltValutaDto
 import no.nav.familie.ks.sak.api.dto.PersonResponsDto
 import no.nav.familie.ks.sak.api.dto.PersonerMedAndelerResponsDto
+import no.nav.familie.ks.sak.api.dto.RefusjonEøsDto
 import no.nav.familie.ks.sak.api.dto.SøknadDto
 import no.nav.familie.ks.sak.api.dto.TilbakekrevingResponsDto
 import no.nav.familie.ks.sak.api.dto.TotrinnskontrollDto
@@ -49,6 +50,7 @@ object BehandlingMapper {
         sisteVedtaksperiodeVisningDato: LocalDate?,
         feilutbetalteValuta: List<FeilutbetaltValutaDto>,
         kompetanser: List<Kompetanse>,
+        refusjonEøs: List<RefusjonEøsDto>,
     ) = BehandlingResponsDto(
         behandlingId = behandling.id,
         steg = behandling.steg,
@@ -87,6 +89,7 @@ object BehandlingMapper {
         sisteVedtaksperiodeVisningDato = sisteVedtaksperiodeVisningDato,
         feilutbetaltValuta = feilutbetalteValuta,
         kompetanser = kompetanser.map { it.tilKompetanseDto() },
+        refusjonEøs = refusjonEøs,
     )
 
     private fun lagArbeidsfordelingRespons(arbeidsfordelingPåBehandling: ArbeidsfordelingPåBehandling) =

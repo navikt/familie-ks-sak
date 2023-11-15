@@ -410,6 +410,19 @@ class IntegrasjonClient(
         }.single()
     }
 
+    @Cacheable("landkoder-ISO_3166-1_alfa-2", cacheManager = "kodeverkCache")
+    fun hentLandkoderISO2(): Map<String, String> {
+        val uri = URI.create("$integrasjonUri/kodeverk/landkoderISO2")
+
+        return kallEksternTjenesteRessurs(
+            tjeneste = "kodeverk",
+            uri = uri,
+            formål = "Hent landkoderISO2",
+        ) {
+            getForEntity(uri)
+        }
+    }
+
     companion object {
         const val RETRY_BACKOFF_5000MS = "\${retry.backoff.delay:5000}"
         private const val PATH_TILGANG_PERSON = "tilgang/v2/personer"

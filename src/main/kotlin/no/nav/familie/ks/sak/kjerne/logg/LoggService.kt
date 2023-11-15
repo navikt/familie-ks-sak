@@ -14,6 +14,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingKategori
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Beslutning
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.feilutbetaltvaluta.FeilutbetaltValuta
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.refusjonEøs.RefusjonEøs
 import no.nav.familie.ks.sak.kjerne.logg.domene.Logg
 import no.nav.familie.ks.sak.kjerne.logg.domene.LoggRepository
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
@@ -442,6 +443,42 @@ class LoggService(
                     """
                     Periode: ${feilutbetaltValuta.fom.tilKortString()} - ${feilutbetaltValuta.tom.tilKortString()}
                     Beløp: ${feilutbetaltValuta.feilutbetaltBeløp} kr
+                    """.trimIndent(),
+            ),
+        )
+
+    fun loggRefusjonEøsPeriodeLagtTil(refusjonEøs: RefusjonEøs) =
+        lagreLogg(
+            Logg(
+                behandlingId = refusjonEøs.behandlingId,
+                type = LoggType.REFUSJON_EØS_LAGT_TIL,
+                rolle =
+                    SikkerhetContext.hentRolletilgangFraSikkerhetscontext(
+                        rolleConfig,
+                        BehandlerRolle.SAKSBEHANDLER,
+                    ),
+                tekst =
+                    """
+                    Periode: ${refusjonEøs.fom.tilKortString()} - ${refusjonEøs.tom.tilKortString()}
+                    Beløp: ${refusjonEøs.refusjonsbeløp} kr/mnd
+                    """.trimIndent(),
+            ),
+        )
+
+    fun loggRefusjonEøsPeriodeFjernet(refusjonEøs: RefusjonEøs) =
+        lagreLogg(
+            Logg(
+                behandlingId = refusjonEøs.behandlingId,
+                type = LoggType.REFUSJON_EØS_FJERNET,
+                rolle =
+                    SikkerhetContext.hentRolletilgangFraSikkerhetscontext(
+                        rolleConfig,
+                        BehandlerRolle.SAKSBEHANDLER,
+                    ),
+                tekst =
+                    """
+                    Periode: ${refusjonEøs.fom.tilKortString()} - ${refusjonEøs.tom.tilKortString()}
+                    Beløp: ${refusjonEøs.refusjonsbeløp} kr/mnd
                     """.trimIndent(),
             ),
         )

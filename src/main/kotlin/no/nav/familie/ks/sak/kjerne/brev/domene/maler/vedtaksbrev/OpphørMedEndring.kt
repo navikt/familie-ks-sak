@@ -9,6 +9,8 @@ import no.nav.familie.ks.sak.kjerne.brev.domene.maler.Etterbetaling
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.FlettefelterForDokumentDto
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.Hjemmeltekst
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.KorrigertVedtakData
+import no.nav.familie.ks.sak.kjerne.brev.domene.maler.RefusjonEøsAvklart
+import no.nav.familie.ks.sak.kjerne.brev.domene.maler.RefusjonEøsUavklart
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.SignaturVedtak
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.brevperioder.BrevPeriodeDto
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.flettefelt
@@ -23,6 +25,8 @@ data class OpphørMedEndring(
         fellesdataForVedtaksbrev: FellesdataForVedtaksbrev,
         etterbetaling: Etterbetaling? = null,
         erFeilutbetalingPåBehandling: Boolean,
+        refusjonEosAvklart: RefusjonEøsAvklart? = null,
+        refusjonEosUavklart: RefusjonEøsUavklart? = null,
     ) :
         this(
             mal = mal,
@@ -40,6 +44,8 @@ data class OpphørMedEndring(
                             hjemmeltekst = fellesdataForVedtaksbrev.hjemmeltekst,
                             feilutbetaling = erFeilutbetalingPåBehandling,
                             korrigertVedtak = fellesdataForVedtaksbrev.korrigertVedtakData,
+                            refusjonEosAvklart = refusjonEosAvklart,
+                            refusjonEosUavklart = refusjonEosUavklart,
                         ),
                     flettefelter =
                         object : FlettefelterForDokumentDto {
@@ -63,5 +69,7 @@ data class OpphørMedEndringData(
         val etterbetaling: Etterbetaling?,
         val hjemmeltekst: Hjemmeltekst,
         val korrigertVedtak: KorrigertVedtakData?,
+        val refusjonEosAvklart: RefusjonEøsAvklart?,
+        val refusjonEosUavklart: RefusjonEøsUavklart?,
     )
 }
