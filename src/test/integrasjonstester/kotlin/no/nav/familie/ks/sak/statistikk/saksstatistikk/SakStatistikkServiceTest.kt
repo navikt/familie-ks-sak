@@ -10,6 +10,7 @@ import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.domene.ArbeidsfordelingPåB
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg
 import no.nav.familie.ks.sak.kjerne.behandling.steg.RegistrerPersonGrunnlagSteg
 import no.nav.familie.ks.sak.kjerne.behandling.steg.StegService
+import no.nav.familie.ks.sak.kjerne.fagsak.domene.FagsakStatus
 import no.nav.familie.ks.sak.statistikk.saksstatistikk.SakStatistikkService
 import no.nav.familie.ks.sak.statistikk.saksstatistikk.SendBehandlinghendelseTilDvhTask
 import no.nav.familie.prosessering.internal.TaskService
@@ -38,7 +39,7 @@ class SakStatistikkServiceTest : OppslagSpringRunnerTest() {
     fun `opprettSendingAvBehandlingensTilstand skal generere melding om ny tilstand til DVH`() {
         every { registerPersonGrunnlagSteg.utførSteg(any()) } just runs
         every { registerPersonGrunnlagSteg.getBehandlingssteg() } answers { callOriginal() }
-        opprettSøkerFagsakOgBehandling()
+        opprettSøkerFagsakOgBehandling(fagsakStatus = FagsakStatus.LØPENDE)
         lagreArbeidsfordeling(lagArbeidsfordelingPåBehandling(behandlingId = behandling.id))
         opprettPersonopplysningGrunnlagOgPersonForBehandling(behandlingId = behandling.id, lagBarn = true)
         stegService.utførSteg(behandling.id, BehandlingSteg.REGISTRERE_PERSONGRUNNLAG)
@@ -50,7 +51,7 @@ class SakStatistikkServiceTest : OppslagSpringRunnerTest() {
 
     @Test
     fun `hentBehandlingensTilstand skal utlede behandlingtilstand på behandling som utredes`() {
-        opprettSøkerFagsakOgBehandling()
+        opprettSøkerFagsakOgBehandling(fagsakStatus = FagsakStatus.LØPENDE)
         every { registerPersonGrunnlagSteg.utførSteg(any()) } just runs
         every { registerPersonGrunnlagSteg.getBehandlingssteg() } answers { callOriginal() }
         lagreArbeidsfordeling(lagArbeidsfordelingPåBehandling(behandlingId = behandling.id))

@@ -1,6 +1,7 @@
 package no.nav.familie.ks.sak.kjerne.korrigertvedtak
 
 import no.nav.familie.ks.sak.OppslagSpringRunnerTest
+import no.nav.familie.ks.sak.kjerne.fagsak.domene.FagsakStatus
 import no.nav.familie.ks.sak.korrigertvedtak.KorrigertVedtak
 import no.nav.familie.ks.sak.korrigertvedtak.KorrigertVedtakRepository
 import org.junit.jupiter.api.Assertions
@@ -16,7 +17,7 @@ class KorrigertVedtakRepositoryTest(
 ) : OppslagSpringRunnerTest() {
     @BeforeEach
     fun beforeEach() {
-        opprettSøkerFagsakOgBehandling()
+        opprettSøkerFagsakOgBehandling(fagsakStatus = FagsakStatus.LØPENDE)
     }
 
     @Test

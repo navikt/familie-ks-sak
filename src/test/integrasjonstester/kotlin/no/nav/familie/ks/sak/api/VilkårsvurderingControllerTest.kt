@@ -26,6 +26,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Ann
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.AnnenVurderingType
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
+import no.nav.familie.ks.sak.kjerne.fagsak.domene.FagsakStatus
 import org.hamcrest.CoreMatchers.not
 import org.hamcrest.CoreMatchers.notNullValue
 import org.hamcrest.CoreMatchers.nullValue
@@ -64,7 +65,7 @@ class VilkårsvurderingControllerTest : OppslagSpringRunnerTest() {
     @BeforeEach
     fun setup() {
         RestAssured.port = port
-        opprettSøkerFagsakOgBehandling()
+        opprettSøkerFagsakOgBehandling(fagsakStatus = FagsakStatus.LØPENDE)
         opprettPersonopplysningGrunnlagOgPersonForBehandling(behandling.id)
         vilkårsvurderingService.opprettVilkårsvurdering(behandling, null)
         arbeidsfordelingPåBehandlingRepository.save(

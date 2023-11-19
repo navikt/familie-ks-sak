@@ -16,9 +16,12 @@ import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonService
 import no.nav.familie.ks.sak.integrasjon.pdl.PersonOpplysningerService
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.PdlPersonInfo
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
+import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.VedtakRepository
 import no.nav.familie.ks.sak.kjerne.beregning.AndelerTilkjentYtelseOgEndreteUtbetalingerService
+import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelseRepository
+import no.nav.familie.ks.sak.kjerne.beregning.domene.YtelseType
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.Fagsak
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.FagsakRepository
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.FagsakStatus
@@ -49,6 +52,7 @@ class FagsakService(
     private val taskService: TaskService,
     private val tilbakekrevingsbehandlingHentService: TilbakekrevingsbehandlingHentService,
     private val vedtakRepository: VedtakRepository,
+    private val andelerTilkjentYtelseRepository: AndelTilkjentYtelseRepository,
 ) {
     private val antallFagsakerOpprettetFraManuell =
         Metrics.counter("familie.ks.sak.fagsak.opprettet", "saksbehandling", "manuell")
@@ -264,12 +268,45 @@ class FagsakService(
 
     fun hentFagsakerPåPerson(aktør: Aktør): List<Fagsak> {
         val versjonerAvBarn = personRepository.findByAktør(aktør)
+
         return versjonerAvBarn.map {
             it.personopplysningGrunnlag.behandlingId
         }.map {
             behandlingRepository.hentBehandling(it).fagsak
         }.distinct()
     }
+
+    fun finnAlleFagsakerHvorAktørErSøkerEllerMottarLøpendeKontantstøtte(aktør: Aktør): List<Fagsak> {
+        val alleLøpendeFagsakerPåAktør = hentFagsakerPåPerson(aktør).filter { it.status == FagsakStatus.LØPENDE }
+
+        val fagsakerHvorAktørHarLøpendeOrdinærKontantstøtte = finnAlleFagsakerHvorAktørHarLøpendeKontantstøtte(aktør = aktør)
+
+        return (alleLøpendeFagsakerPåAktør + fagsakerHvorAktørHarLøpendeOrdinærKontantstøtte).distinct()
+    }
+
+    fun finnAlleFagsakerHvorAktørHarLøpendeKontantstøtte(
+        aktør: Aktør,
+    ): List<Fagsak> {
+        val ordinæreAndelerPåAktør =
+            andelerTilkjentYtelseRepository.finnAndelerTilkjentYtelseForAktør(aktør = aktør)
+                .filter { it.type == YtelseType.ORDINÆR_KONTANTSTØTTE }
+
+        val løpendeAndeler = ordinæreAndelerPåAktør.filter { it.erLøpende() }
+
+        val behandlingerMedLøpendeAndeler =
+            løpendeAndeler
+                .map { it.behandlingId }.toSet()
+                .map { behandlingRepository.hentBehandling(behandlingId = it) }
+
+        val behandlingerSomErSisteVedtattePåFagsak = behandlingerMedLøpendeAndeler.filter { hentSisteBehandlingSomErVedtattPåFagsak(it.fagsak.id) == it }
+
+        return behandlingerSomErSisteVedtattePåFagsak.map { it.fagsak }
+    }
+
+    private fun hentSisteBehandlingSomErVedtattPåFagsak(fagsakId: Long) =
+        behandlingRepository.finnBehandlinger(fagsakId)
+            .filter { !it.erHenlagt() && it.status == BehandlingStatus.AVSLUTTET }
+            .maxByOrNull { it.opprettetTidspunkt }
 
     companion object {
         private val logger = LoggerFactory.getLogger(FagsakService::class.java)

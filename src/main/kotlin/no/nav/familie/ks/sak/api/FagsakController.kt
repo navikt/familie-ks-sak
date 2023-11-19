@@ -8,6 +8,7 @@ import no.nav.familie.ks.sak.api.dto.MinimalFagsakResponsDto
 import no.nav.familie.ks.sak.api.dto.SøkParamDto
 import no.nav.familie.ks.sak.config.BehandlerRolle
 import no.nav.familie.ks.sak.kjerne.fagsak.FagsakService
+import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
 import no.nav.familie.ks.sak.kjerne.tilbakekreving.TilbakekrevingService
 import no.nav.familie.ks.sak.sikkerhet.AuditLoggerEvent
 import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext
@@ -34,6 +35,7 @@ class FagsakController(
     private val fagsakService: FagsakService,
     private val tilgangService: TilgangService,
     private val tilbakekrevingService: TilbakekrevingService,
+    private val personidentService: PersonidentService,
 ) {
     private val logger: Logger = LoggerFactory.getLogger(FagsakController::class.java)
 
@@ -113,4 +115,35 @@ class FagsakController(
 
         return ResponseEntity.ok(Ressurs.success(tilbakekrevingService.harÅpenTilbakekrevingsbehandling(fagsakId)))
     }
+
+    @PostMapping(path = ["/sok/fagsaker-hvor-person-er-deltaker"])
+    fun søkFagsakerHvorPersonErDeltaker(
+        @RequestBody request: RestSøkFagsakRequest,
+    ): ResponseEntity<Ressurs<List<RestFagsakIdOgTilknyttetAktørId>>> {
+        tilgangService.validerTilgangTilHandlingOgFagsakForPerson(
+            personIdent = request.personIdent,
+            event = AuditLoggerEvent.ACCESS,
+            minimumBehandlerRolle = BehandlerRolle.SYSTEM,
+            handling = "Søk fagsaker hvor person er deltaker",
+        )
+
+        val aktør = personidentService.hentAktør(request.personIdent)
+
+        val fagsakerHvorAktørErSøkerEllerMottarLøpendeKontantstøtte =
+            fagsakService.finnAlleFagsakerHvorAktørErSøkerEllerMottarLøpendeKontantstøtte(aktør)
+
+        val fagsakIdOgTilknyttetAktørId =
+            fagsakerHvorAktørErSøkerEllerMottarLøpendeKontantstøtte.map {
+                RestFagsakIdOgTilknyttetAktørId(aktørId = it.aktør.aktørId, fagsakId = it.id)
+            }
+
+        return ResponseEntity.ok().body(Ressurs.success(fagsakIdOgTilknyttetAktørId))
+    }
 }
+
+data class RestSøkFagsakRequest(val personIdent: String)
+
+data class RestFagsakIdOgTilknyttetAktørId(
+    val aktørId: String,
+    val fagsakId: Long,
+)
