@@ -13,6 +13,7 @@ fun main(args: Array<String>) {
     val springBuilder =
         SpringApplicationBuilder(ApplicationConfig::class.java).profiles(
             "mock-økonomi",
+            "mock-infotrygd-replika",
         )
 
     if (args.contains("--dbcontainer")) {

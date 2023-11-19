@@ -13,7 +13,7 @@ plugins {
     id("com.github.davidmc24.gradle.plugin.avro") version "1.9.1"
 
     // ------------- SLSA -------------- //
-    id("org.cyclonedx.bom") version "1.7.4"
+    id("org.cyclonedx.bom") version "1.8.1"
 }
 
 configurations {
@@ -129,7 +129,7 @@ dependencies {
     testImplementation("org.springframework.cloud:spring-cloud-contract-wiremock:4.0.4")
     testImplementation("io.rest-assured:spring-mock-mvc:$restAssuredVersion")
     testImplementation("io.rest-assured:kotlin-extensions:$restAssuredVersion")
-    testImplementation("org.testcontainers:postgresql:1.19.1")
+    testImplementation("org.testcontainers:postgresql:1.19.2")
     testImplementation("no.nav.security:mock-oauth2-server:2.0.1")
     testImplementation("no.nav.security:token-validation-test-support:2.0.5")
     testImplementation("no.nav.security:token-validation-spring-test:$tokenValidationSpringVersion")
