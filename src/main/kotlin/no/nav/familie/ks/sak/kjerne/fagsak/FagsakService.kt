@@ -298,9 +298,9 @@ class FagsakService(
                 .map { it.behandlingId }.toSet()
                 .map { behandlingRepository.hentBehandling(behandlingId = it) }
 
-        val behandlingerSomErSisteIverksattePåFagsak = behandlingerMedLøpendeAndeler.filter { hentSisteBehandlingSomErVedtattPåFagsak(it.fagsak.id) == it }
+        val behandlingerSomErSisteVedtattePåFagsak = behandlingerMedLøpendeAndeler.filter { hentSisteBehandlingSomErVedtattPåFagsak(it.fagsak.id) == it }
 
-        return behandlingerSomErSisteIverksattePåFagsak.map { it.fagsak }
+        return behandlingerSomErSisteVedtattePåFagsak.map { it.fagsak }
     }
 
     private fun hentSisteBehandlingSomErVedtattPåFagsak(fagsakId: Long) =
