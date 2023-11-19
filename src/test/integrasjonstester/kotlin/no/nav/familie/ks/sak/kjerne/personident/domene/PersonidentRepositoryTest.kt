@@ -2,6 +2,7 @@ package no.nav.familie.ks.sak.kjerne.personident.domene
 
 import no.nav.familie.ks.sak.OppslagSpringRunnerTest
 import no.nav.familie.ks.sak.data.randomFnr
+import no.nav.familie.ks.sak.kjerne.fagsak.domene.FagsakStatus
 import no.nav.familie.ks.sak.kjerne.personident.PersonidentRepository
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
@@ -16,7 +17,7 @@ class PersonidentRepositoryTest : OppslagSpringRunnerTest() {
 
     @BeforeEach
     fun beforeEach() {
-        opprettSøkerFagsakOgBehandling()
+        opprettSøkerFagsakOgBehandling(fagsakStatus = FagsakStatus.LØPENDE)
     }
 
     @Test

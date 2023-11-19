@@ -3,6 +3,7 @@ package no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene
 import no.nav.familie.ks.sak.OppslagSpringRunnerTest
 import no.nav.familie.ks.sak.data.randomAktør
 import no.nav.familie.ks.sak.data.shouldNotBeNull
+import no.nav.familie.ks.sak.kjerne.fagsak.domene.FagsakStatus
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.BeforeEach
@@ -15,7 +16,7 @@ internal class VilkårsvurderingRepositoryTest : OppslagSpringRunnerTest() {
 
     @BeforeEach
     fun beforeEach() {
-        opprettSøkerFagsakOgBehandling(randomAktør())
+        opprettSøkerFagsakOgBehandling(randomAktør(), fagsakStatus = FagsakStatus.LØPENDE)
     }
 
     @Test

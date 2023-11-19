@@ -20,6 +20,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
 import no.nav.familie.ks.sak.kjerne.beregning.BeregningService
 import no.nav.familie.ks.sak.kjerne.endretutbetaling.EndretUtbetalingAndelService
+import no.nav.familie.ks.sak.kjerne.fagsak.domene.FagsakStatus
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Målform
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlagRepository
@@ -57,7 +58,7 @@ class RegistrerPersonGrunnlagStegTest : OppslagSpringRunnerTest() {
 
     @BeforeEach
     fun init() {
-        opprettSøkerFagsakOgBehandling()
+        opprettSøkerFagsakOgBehandling(fagsakStatus = FagsakStatus.LØPENDE)
         every { personOpplysningerService.hentPersonInfoMedRelasjonerOgRegisterinformasjon(any()) } returns lagPdlPersonInfo()
         every { arbeidsfordelingService.fastsettBehandledeEnhet(any()) } just runs
         every { endretUtbetalingAndelService.kopierEndretUtbetalingAndelFraForrigeBehandling(any(), any()) } just runs

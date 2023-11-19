@@ -6,6 +6,7 @@ import no.nav.familie.ks.sak.api.dto.SøkerMedOpplysningerDto
 import no.nav.familie.ks.sak.api.dto.SøknadDto
 import no.nav.familie.ks.sak.api.dto.tilSøknadGrunnlag
 import no.nav.familie.ks.sak.data.randomAktør
+import no.nav.familie.ks.sak.kjerne.fagsak.domene.FagsakStatus
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -22,7 +23,7 @@ class SøknadGrunnlagRepositoryTest : OppslagSpringRunnerTest() {
 
     @BeforeEach
     fun beforeEach() {
-        opprettSøkerFagsakOgBehandling()
+        opprettSøkerFagsakOgBehandling(fagsakStatus = FagsakStatus.LØPENDE)
     }
 
     @Test

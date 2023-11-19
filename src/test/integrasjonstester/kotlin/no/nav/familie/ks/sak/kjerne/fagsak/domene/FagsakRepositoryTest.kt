@@ -15,7 +15,7 @@ internal class FagsakRepositoryTest : OppslagSpringRunnerTest() {
 
     @BeforeEach
     fun beforeEach() {
-        opprettSøkerFagsakOgBehandling()
+        opprettSøkerFagsakOgBehandling(fagsakStatus = FagsakStatus.LØPENDE)
     }
 
     @Test

@@ -18,6 +18,7 @@ import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.domene.ArbeidsfordelingPåB
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.domene.ArbeidsfordelingPåBehandlingRepository
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingKategori
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingType
+import no.nav.familie.ks.sak.kjerne.fagsak.domene.FagsakStatus
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -36,7 +37,7 @@ class BehandlingControllerTest : OppslagSpringRunnerTest() {
     @BeforeEach
     fun setup() {
         RestAssured.port = port
-        opprettSøkerFagsakOgBehandling()
+        opprettSøkerFagsakOgBehandling(fagsakStatus = FagsakStatus.LØPENDE)
         arbeidsfordelingPåBehandlingRepository.save(
             ArbeidsfordelingPåBehandling(
                 behandlingId = behandling.id,

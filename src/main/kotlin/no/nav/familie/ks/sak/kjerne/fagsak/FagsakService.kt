@@ -268,6 +268,7 @@ class FagsakService(
 
     fun hentFagsakerPåPerson(aktør: Aktør): List<Fagsak> {
         val versjonerAvBarn = personRepository.findByAktør(aktør)
+
         return versjonerAvBarn.map {
             it.personopplysningGrunnlag.behandlingId
         }.map {

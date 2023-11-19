@@ -3,6 +3,7 @@ package no.nav.familie.ks.sak.kjerne.personident.domene
 import no.nav.familie.ks.sak.OppslagSpringRunnerTest
 import no.nav.familie.ks.sak.data.randomAktør
 import no.nav.familie.ks.sak.data.randomAktørId
+import no.nav.familie.ks.sak.kjerne.fagsak.domene.FagsakStatus
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import no.nav.familie.ks.sak.kjerne.personident.AktørRepository
 import org.junit.jupiter.api.Assertions.assertNotNull
@@ -17,7 +18,7 @@ class AktørRepositoryTest : OppslagSpringRunnerTest() {
 
     @BeforeEach
     fun beforeEach() {
-        opprettSøkerFagsakOgBehandling()
+        opprettSøkerFagsakOgBehandling(fagsakStatus = FagsakStatus.LØPENDE)
     }
 
     @Test

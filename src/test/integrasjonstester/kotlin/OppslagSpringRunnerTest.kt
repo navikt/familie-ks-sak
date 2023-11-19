@@ -145,10 +145,11 @@ abstract class OppslagSpringRunnerTest {
     fun opprettSøkerFagsakOgBehandling(
         søker: Aktør = randomAktør(),
         barn: Aktør = randomAktør(),
+        fagsakStatus: FagsakStatus,
     ) {
         this.søker = lagreAktør(søker)
         this.barn = lagreAktør(barn)
-        fagsak = lagreFagsak(lagFagsak(aktør = søker, status = FagsakStatus.LØPENDE))
+        fagsak = lagreFagsak(lagFagsak(aktør = søker, status = fagsakStatus))
         behandling = lagreBehandling(lagBehandling(fagsak = fagsak, opprettetÅrsak = BehandlingÅrsak.SØKNAD))
     }
 

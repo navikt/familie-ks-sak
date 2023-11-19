@@ -1,6 +1,7 @@
 package no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene
 
 import no.nav.familie.ks.sak.OppslagSpringRunnerTest
+import no.nav.familie.ks.sak.kjerne.fagsak.domene.FagsakStatus
 import org.hamcrest.CoreMatchers.nullValue
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.containsInAnyOrder
@@ -17,7 +18,7 @@ internal class VedtakRepositoryTest : OppslagSpringRunnerTest() {
 
     @BeforeEach
     fun beforeEach() {
-        opprettSøkerFagsakOgBehandling()
+        opprettSøkerFagsakOgBehandling(fagsakStatus = FagsakStatus.LØPENDE)
     }
 
     @Test
