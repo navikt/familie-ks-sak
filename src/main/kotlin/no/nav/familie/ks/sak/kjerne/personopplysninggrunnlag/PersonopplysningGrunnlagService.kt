@@ -68,7 +68,7 @@ class PersonopplysningGrunnlagService(
                 ?: throw Feil("Det finnes ikke noe aktivt personopplysningsgrunnlag for ${behandling.id}")
 
         val valgteBarnAktører =
-            søknadDto.barnaMedOpplysninger.filter { it.inkludertISøknaden }
+            søknadDto.barnaMedOpplysninger.filter { it.inkludertISøknaden && it.erFolkeregistrert }
                 .map { personidentService.hentOgLagreAktør(it.ident, true) }
 
         val barnAktører =
