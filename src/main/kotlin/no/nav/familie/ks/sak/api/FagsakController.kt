@@ -120,8 +120,8 @@ class FagsakController(
     fun søkFagsakerHvorPersonErDeltaker(
         @RequestBody request: RestSøkFagsakRequest,
     ): ResponseEntity<Ressurs<List<RestFagsakIdOgTilknyttetAktørId>>> {
-        tilgangService.validerTilgangTilHandlingOgFagsakForPerson(
-            personIdent = request.personIdent,
+        tilgangService.validerTilgangTilHandlingOgPersoner(
+            personIdenter = listOf(request.personIdent),
             event = AuditLoggerEvent.ACCESS,
             minimumBehandlerRolle = BehandlerRolle.SYSTEM,
             handling = "Søk fagsaker hvor person er deltaker",
