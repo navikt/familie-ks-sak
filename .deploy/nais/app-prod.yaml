@@ -67,6 +67,8 @@ spec:
           cluster: prod-gcp
         - application: familie-ef-sak
           cluster: prod-gcp
+        - application: familie-baks-mottak
+          cluster: prod-gcp
     outbound:
       rules:
         - application: familie-brev
