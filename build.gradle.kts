@@ -52,7 +52,7 @@ dependencies {
     val familieKontrakterSaksstatistikkVersion = "2.0_20230214104704_706e9c0"
     val familieKontrakterStønadsstatistikkKsVersion = "2.0_20230825103733_1ac52c2"
     val familieKontrakterSkatteetatenVersion = "2.0_20230214104704_706e9c0"
-    val tokenValidationSpringVersion = "3.1.8"
+    val tokenValidationSpringVersion = "3.1.9"
     val navFoedselsnummerVersion = "1.0-SNAPSHOT.6"
     val prosesseringVersion = "2.20231026103714_2f17845"
     val restAssuredVersion = "5.3.2"
@@ -129,7 +129,7 @@ dependencies {
     testImplementation("org.springframework.cloud:spring-cloud-contract-wiremock:4.0.4")
     testImplementation("io.rest-assured:spring-mock-mvc:$restAssuredVersion")
     testImplementation("io.rest-assured:kotlin-extensions:$restAssuredVersion")
-    testImplementation("org.testcontainers:postgresql:1.19.2")
+    testImplementation("org.testcontainers:postgresql:1.19.3")
     testImplementation("no.nav.security:mock-oauth2-server:2.0.1")
     testImplementation("no.nav.security:token-validation-test-support:2.0.5")
     testImplementation("no.nav.security:token-validation-spring-test:$tokenValidationSpringVersion")
