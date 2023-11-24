@@ -60,9 +60,11 @@ import no.nav.familie.ks.sak.kjerne.beregning.domene.maksBeløp
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.Begrunnelse
 import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.EndretUtbetalingAndel
 import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.Årsak
+import no.nav.familie.ks.sak.kjerne.eøs.differanseberegning.domene.Intervall
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.Kompetanse
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.KompetanseAktivitet
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.KompetanseResultat
+import no.nav.familie.ks.sak.kjerne.eøs.utenlandskperiodebeløp.domene.UtenlandskPeriodebeløp
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.Fagsak
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.FagsakStatus
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
@@ -857,3 +859,22 @@ fun lagKompetanse(
     kompetanse.behandlingId = behandlingId
     return kompetanse
 }
+
+fun lagUtenlandskPeriodebeløp(
+    behandlingId: Long = lagBehandling().id,
+    fom: YearMonth? = null,
+    tom: YearMonth? = null,
+    barnAktører: Set<Aktør> = emptySet(),
+    beløp: BigDecimal? = null,
+    valutakode: String? = null,
+    intervall: Intervall? = null,
+    utbetalingsland: String = "",
+) = UtenlandskPeriodebeløp(
+    fom = fom,
+    tom = tom,
+    barnAktører = barnAktører,
+    valutakode = valutakode,
+    beløp = beløp,
+    intervall = intervall,
+    utbetalingsland = utbetalingsland,
+).also { it.behandlingId = behandlingId }
