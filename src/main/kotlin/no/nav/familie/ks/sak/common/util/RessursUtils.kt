@@ -41,11 +41,11 @@ object RessursUtils {
     fun <T> ok(data: T): ResponseEntity<Ressurs<T>> = ResponseEntity.ok(Ressurs.success(data))
 
     fun <T> rolleTilgangResponse(rolleTilgangskontrollFeil: RolleTilgangskontrollFeil): ResponseEntity<Ressurs<T>> {
-        secureLogger.warn(
+        secureLogger.error(
             "En håndtert tilgangsfeil har oppstått - ${rolleTilgangskontrollFeil.frontendFeilmelding}",
             rolleTilgangskontrollFeil,
         )
-        logger.warn("En håndtert tilgangsfeil har oppstått - ${rolleTilgangskontrollFeil.melding}")
+        logger.error("En håndtert tilgangsfeil har oppstått - ${rolleTilgangskontrollFeil.melding}")
         return ResponseEntity.status(HttpStatus.FORBIDDEN)
             .body(
                 Ressurs.ikkeTilgang<T>(rolleTilgangskontrollFeil.melding)
