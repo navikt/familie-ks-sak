@@ -79,12 +79,12 @@ object RessursUtils {
     ): ResponseEntity<Ressurs<T>> {
         val className = if (throwable != null) "[${throwable::class.java.name}] " else ""
 
-        secureLogger.info(
+        secureLogger.error(
             "$className En håndtert feil har oppstått(${feil.httpStatus}): " +
                 "${feil.message}, ${feil.frontendFeilmelding}",
             feil,
         )
-        logger.warn("$className En håndtert feil har oppstått(${feil.httpStatus}): ${feil.message} ", feil)
+        logger.error("$className En håndtert feil har oppstått(${feil.httpStatus}): ${feil.message} ", feil)
 
         Sentry.captureException(feil)
         return ResponseEntity.status(feil.httpStatus).body(
