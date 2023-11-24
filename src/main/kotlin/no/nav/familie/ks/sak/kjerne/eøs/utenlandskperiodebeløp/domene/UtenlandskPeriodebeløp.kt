@@ -139,12 +139,3 @@ fun UtenlandskPeriodebeløp.tilIUtenlandskPeriodebeløp(): IUtenlandskPeriodebel
         )
     }
 }
-// TODO tilTidslinje
-// fun List<UtfyltUtenlandskPeriodebeløp>.tilTidslinje() =
-//    this.map {
-//        Periode(
-//            fraOgMed = it.fom.tilTidspunkt(),
-//            tilOgMed = it.tom?.tilTidspunkt() ?: MånedTidspunkt.uendeligLengeTil(),
-//            innhold = it,
-//        )
-//    }.tilTidslinje()
