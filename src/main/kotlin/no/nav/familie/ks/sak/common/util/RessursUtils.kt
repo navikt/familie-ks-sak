@@ -60,8 +60,8 @@ object RessursUtils {
     ): ResponseEntity<Ressurs<T>> {
         val className = "[${throwable::class.java.name}] "
 
-        secureLogger.warn("$className En feil har oppstått: $errorMessage", throwable)
-        logger.warn("$className En feil har oppstått. Se securelogs for detaljer.")
+        secureLogger.error("$className En feil har oppstått: $errorMessage", throwable)
+        logger.error("$className En feil har oppstått. Se securelogs for detaljer.")
 
         Sentry.captureException(throwable)
         return ResponseEntity.status(httpStatus).body(Ressurs.failure(errorMessage))
