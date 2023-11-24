@@ -71,6 +71,7 @@ import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import no.nav.familie.ks.sak.kjerne.personident.Personident
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Kjønn
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Medlemskap
+import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Målform
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
@@ -201,13 +202,30 @@ fun lagFagsak(
     status: FagsakStatus = FagsakStatus.OPPRETTET,
 ) = Fagsak(aktør = aktør, id = id, status = status)
 
+private var gjeldendeVedtakId: Long = abs(Random.nextLong(10000000))
 private var gjeldendeBehandlingId: Long = abs(Random.nextLong(10000000))
-
+private var gjeldendePersonId: Long = abs(Random.nextLong(10000000))
+private var gjeldendeUtvidetVedtaksperiodeId: Long = abs(Random.nextLong(10000000))
 private const val ID_INKREMENT = 50
+
+fun nesteVedtakId(): Long {
+    gjeldendeVedtakId += ID_INKREMENT
+    return gjeldendeVedtakId
+}
 
 fun nesteBehandlingId(): Long {
     gjeldendeBehandlingId += ID_INKREMENT
     return gjeldendeBehandlingId
+}
+
+fun nestePersonId(): Long {
+    gjeldendePersonId += ID_INKREMENT
+    return gjeldendePersonId
+}
+
+fun nesteUtvidetVedtaksperiodeId(): Long {
+    gjeldendeUtvidetVedtaksperiodeId += ID_INKREMENT
+    return gjeldendeUtvidetVedtaksperiodeId
 }
 
 fun lagBehandling(
@@ -354,6 +372,26 @@ fun lagPerson(
 
     return person
 }
+
+fun tilfeldigPerson(
+    fødselsdato: LocalDate = LocalDate.now(),
+    personType: PersonType = PersonType.BARN,
+    kjønn: Kjønn = Kjønn.MANN,
+    aktør: Aktør = randomAktør(),
+    personId: Long = nestePersonId(),
+    dødsfall: Dødsfall? = null,
+) =
+    Person(
+        id = personId,
+        aktør = aktør,
+        fødselsdato = fødselsdato,
+        type = personType,
+        personopplysningGrunnlag = PersonopplysningGrunnlag(behandlingId = 0),
+        navn = "",
+        kjønn = kjønn,
+        målform = Målform.NB,
+        dødsfall = dødsfall,
+    ).apply { sivilstander = mutableListOf(GrSivilstand(type = SIVILSTAND.UGIFT, person = this)) }
 
 fun lagVilkårsvurderingMedSøkersVilkår(
     søkerAktør: Aktør,
