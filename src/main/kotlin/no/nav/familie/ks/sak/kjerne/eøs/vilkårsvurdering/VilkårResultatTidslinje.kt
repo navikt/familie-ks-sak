@@ -36,7 +36,7 @@ fun VilkårResultat.tilPeriode(vilkårerMedBack2BackPerioder: List<Long>): Perio
                 periodeFom?.førsteDagINesteMåned()
             },
         tom = periodeTom?.sisteDagIMåned(),
-        verdi = VilkårRegelverkResultat(vilkårType, this.tilRegelverkResultat()),
+        verdi = VilkårRegelverkResultat(vilkårType, this.tilRegelverkResultat(), utdypendeVilkårsvurderinger = this.utdypendeVilkårsvurderinger),
     )
 
 fun hentVilkårerMedBack2backPerioderIMånedsskifte(vilkårResultater: List<VilkårResultat>): List<Long> {

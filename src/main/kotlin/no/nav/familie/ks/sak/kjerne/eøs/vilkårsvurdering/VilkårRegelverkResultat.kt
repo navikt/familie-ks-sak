@@ -2,6 +2,7 @@ package no.nav.familie.ks.sak.kjerne.eøs.vilkårsvurdering
 
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Regelverk
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.UtdypendeVilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
 import no.nav.familie.ks.sak.kjerne.eøs.vilkårsvurdering.RegelverkResultat.IKKE_FULLT_VURDERT
@@ -14,6 +15,7 @@ import no.nav.familie.ks.sak.kjerne.eøs.vilkårsvurdering.RegelverkResultat.OPP
 data class VilkårRegelverkResultat(
     val vilkår: Vilkår,
     val regelverkResultat: RegelverkResultat,
+    val utdypendeVilkårsvurderinger: List<UtdypendeVilkårsvurdering> = emptyList(),
 ) {
     val resultat get() = regelverkResultat.resultat
     val regelverk get() = regelverkResultat.regelverk
@@ -23,6 +25,7 @@ fun VilkårRegelverkResultat.medRegelverk(regelverk: Regelverk) =
     VilkårRegelverkResultat(
         this.vilkår,
         RegelverkResultat.values().first { it.regelverk == regelverk && it.resultat == this.resultat },
+        this.utdypendeVilkårsvurderinger,
     )
 
 enum class RegelverkResultat(val regelverk: Regelverk?, val resultat: Resultat?) {
