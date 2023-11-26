@@ -60,10 +60,9 @@ import no.nav.familie.ks.sak.kjerne.beregning.domene.maksBeløp
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.Begrunnelse
 import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.EndretUtbetalingAndel
 import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.Årsak
-import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.AnnenForeldersAktivitet
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.Kompetanse
+import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.KompetanseAktivitet
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.KompetanseResultat
-import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.SøkersAktivitet
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.Fagsak
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.FagsakStatus
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
@@ -361,6 +360,7 @@ fun lagVilkårsvurderingMedSøkersVilkår(
     søkerPeriodeFom: LocalDate? = LocalDate.now().minusMonths(1),
     søkerPeriodeTom: LocalDate? = LocalDate.now().plusYears(2),
     regelverk: Regelverk = Regelverk.NASJONALE_REGLER,
+    utdypendeVilkårsvurderinger: List<UtdypendeVilkårsvurdering> = emptyList(),
 ): Vilkårsvurdering {
     val vilkårsvurdering =
         Vilkårsvurdering(
@@ -382,6 +382,7 @@ fun lagVilkårsvurderingMedSøkersVilkår(
                 begrunnelse = "",
                 behandlingId = behandling.id,
                 vurderesEtter = regelverk,
+                utdypendeVilkårsvurderinger = utdypendeVilkårsvurderinger,
             ),
             VilkårResultat(
                 personResultat = personResultat,
@@ -392,6 +393,7 @@ fun lagVilkårsvurderingMedSøkersVilkår(
                 begrunnelse = "",
                 behandlingId = behandling.id,
                 vurderesEtter = regelverk,
+                utdypendeVilkårsvurderinger = utdypendeVilkårsvurderinger,
             ),
         ),
     )
@@ -835,9 +837,9 @@ fun lagKompetanse(
     barnAktører: Set<Aktør> = emptySet(),
     resultat: KompetanseResultat? = null,
     annenForeldersAktivitetsland: String? = "DK",
-    annenForeldersAktivitet: AnnenForeldersAktivitet? = AnnenForeldersAktivitet.I_ARBEID,
+    annenForeldersAktivitet: KompetanseAktivitet? = KompetanseAktivitet.I_ARBEID,
     barnetsBostedsland: String? = "NO",
-    søkersAktivitet: SøkersAktivitet? = SøkersAktivitet.ARBEIDER,
+    søkersAktivitet: KompetanseAktivitet? = KompetanseAktivitet.ARBEIDER,
     søkersAktivitetsland: String? = "SE",
 ): Kompetanse {
     val kompetanse =
