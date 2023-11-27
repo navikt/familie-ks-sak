@@ -118,4 +118,47 @@ internal class VilkårsvurderingTidslinjeServiceTest {
 
         assertThat(faktiskTidslinje.innhold, Is(emptyList()))
     }
+
+    @Test
+    fun `skal gi false i perioder som er gyldige men som ikke har utdypende vilkårsvurdering ANNEN_FORELDER_OMFATTET_AV_NORSK_LOVGIVNING`() {
+        val søker = lagPerson(personType = PersonType.SØKER, aktør = randomAktør())
+        val barn = lagPerson(personType = PersonType.BARN, aktør = randomAktør())
+        val fagsak = Fagsak(aktør = søker.aktør)
+        val behandling = lagBehandling(fagsak = fagsak, kategori = BehandlingKategori.EØS)
+
+        val vilkårsvurdering =
+            lagVilkårsvurderingMedSøkersVilkår(
+                søkerAktør = søker.aktør,
+                behandling = behandling,
+                resultat = Resultat.OPPFYLT,
+                søkerPeriodeFom = LocalDate.of(2023, 1, 2),
+                søkerPeriodeTom = LocalDate.of(2023, 3, 4),
+            )
+
+        every { personopplysningGrunnlagRepository.hentByBehandlingAndAktiv(behandlingId = behandling.id) } returns
+                lagPersonopplysningGrunnlag(
+                    behandlingId = behandling.id,
+                    søkerPersonIdent = søker.aktør.aktivFødselsnummer(),
+                    barnasIdenter = listOf(barn.aktør.aktivFødselsnummer()),
+                    søkerAktør = søker.aktør,
+                )
+
+        every { vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(behandlingId = behandling.id) } returns vilkårsvurdering
+
+        val faktiskTidslinje =
+            vilkårsvurderingTidslinjeService.hentAnnenForelderOmfattetAvNorskLovgivningTidslinje(
+                behandlingId = behandling.id,
+            )
+
+        val forventetTidslinje =
+            listOf(
+                Periode(
+                    verdi = false,
+                    fom = LocalDate.of(2023, 2, 1),
+                    tom = LocalDate.of(2023, 3, 31),
+                ),
+            ).tilTidslinje()
+
+        assertThat(faktiskTidslinje, Is(forventetTidslinje))
+    }
 }

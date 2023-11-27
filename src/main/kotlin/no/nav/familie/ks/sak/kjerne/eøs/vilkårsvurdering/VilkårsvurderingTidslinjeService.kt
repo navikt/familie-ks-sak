@@ -38,9 +38,10 @@ class VilkårsvurderingTidslinjeService(
                 .personResultater
         val søkerPersonresultater = personResultater.single { it.aktør == søker.aktør }
 
-        val erAnnenForelderOmfattetAvNorskLovgivingTidslinje =
+        val erAnnenForelderOmfattetAvNorskLovgivingTidslinjeMedKunPerioderSomStrekkerSegOver1MånedTidslinje =
             søkerPersonresultater.vilkårResultater
                 .filter { it.vilkårType === Vilkår.BOSATT_I_RIKET && it.erOppfylt() }
+                .filter { it.periodeFom?.month != it.periodeTom?.month }
                 .map {
                     Periode(
                         it.utdypendeVilkårsvurderinger.contains(UtdypendeVilkårsvurdering.ANNEN_FORELDER_OMFATTET_AV_NORSK_LOVGIVNING),
@@ -50,11 +51,10 @@ class VilkårsvurderingTidslinjeService(
                 }
                 .tilTidslinje()
 
-        val erAnnenForelderOmfattetAvNorskLovgivingTidslinjeMedKunPerioderSomStrekkerSegOver1Måned = erAnnenForelderOmfattetAvNorskLovgivingTidslinje.tilPerioder().filter { it.fom?.month != it.tom?.month }
-        val erAnnenForelderOmfattetAvNorskLovgivingTidslinjeMedKunPerioderSomStrekkerSegOver1MånedForskyvet = erAnnenForelderOmfattetAvNorskLovgivingTidslinjeMedKunPerioderSomStrekkerSegOver1Måned.map { it.copy(fom = it.fom?.plusMonths(1)?.førsteDagIInneværendeMåned()) }
+        val erAnnenForelderOmfattetAvNorskLovgivingTidslinjeMedKunPerioderSomStrekkerSegOver1MånedForskyvetTidslinje = erAnnenForelderOmfattetAvNorskLovgivingTidslinjeMedKunPerioderSomStrekkerSegOver1MånedTidslinje.tilPerioder().map { it.copy(fom = it.fom?.plusMonths(1)?.førsteDagIInneværendeMåned()) }
+            .filtrerIkkeNull()
+            .tilTidslinje()
 
-        val filtrerIkkeNull = erAnnenForelderOmfattetAvNorskLovgivingTidslinjeMedKunPerioderSomStrekkerSegOver1MånedForskyvet.filtrerIkkeNull().tilTidslinje()
-
-        return filtrerIkkeNull
+        return erAnnenForelderOmfattetAvNorskLovgivingTidslinjeMedKunPerioderSomStrekkerSegOver1MånedForskyvetTidslinje
     }
 }
