@@ -18,6 +18,7 @@ import no.nav.familie.ks.sak.api.dto.VedtakDto
 import no.nav.familie.ks.sak.api.dto.YtelsePerioderDto
 import no.nav.familie.ks.sak.api.dto.tilKompetanseDto
 import no.nav.familie.ks.sak.api.dto.tilUtenlandskPeriodebeløpDto
+import no.nav.familie.ks.sak.api.dto.tilValutakursDto
 import no.nav.familie.ks.sak.api.mapper.RegisterHistorikkMapper.lagRegisterHistorikkResponsDto
 import no.nav.familie.ks.sak.common.util.TIDENES_ENDE
 import no.nav.familie.ks.sak.common.util.TIDENES_MORGEN
@@ -30,6 +31,7 @@ import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.domene.slåSammenBack2BackAndelsperioderMedSammeBeløp
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.Kompetanse
 import no.nav.familie.ks.sak.kjerne.eøs.utenlandskperiodebeløp.domene.UtenlandskPeriodebeløp
+import no.nav.familie.ks.sak.kjerne.eøs.valutakurs.domene.Valutakurs
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
 import no.nav.familie.ks.sak.kjerne.tilbakekreving.domene.Tilbakekreving
 import java.math.BigDecimal
@@ -54,6 +56,7 @@ object BehandlingMapper {
         kompetanser: List<Kompetanse>,
         refusjonEøs: List<RefusjonEøsDto>,
         utenlandskePeriodebeløp: List<UtenlandskPeriodebeløp>,
+        valutakurser: List<Valutakurs>,
     ) = BehandlingResponsDto(
         behandlingId = behandling.id,
         steg = behandling.steg,
@@ -93,6 +96,7 @@ object BehandlingMapper {
         feilutbetaltValuta = feilutbetalteValuta,
         kompetanser = kompetanser.map { it.tilKompetanseDto() },
         utenlandskePeriodebeløp = utenlandskePeriodebeløp.map { it.tilUtenlandskPeriodebeløpDto() },
+        valutakurser = valutakurser.map { it.tilValutakursDto() },
         refusjonEøs = refusjonEøs,
     )
 
