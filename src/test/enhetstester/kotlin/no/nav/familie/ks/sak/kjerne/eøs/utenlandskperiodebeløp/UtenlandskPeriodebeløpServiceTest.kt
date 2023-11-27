@@ -2,8 +2,6 @@ package no.nav.familie.ks.sak.kjerne.eøs.utenlandskperiodebeløp
 
 import io.mockk.every
 import io.mockk.mockk
-import no.nav.familie.ba.sak.kjerne.eøs.utenlandskperiodebeløp.jan
-import no.nav.familie.ba.sak.kjerne.tidslinje.util.KompetanseBuilder
 import no.nav.familie.ks.sak.common.util.førsteDagIInneværendeMåned
 import no.nav.familie.ks.sak.data.tilfeldigPerson
 import no.nav.familie.ks.sak.kjerne.eøs.differanseberegning.domene.Intervall
@@ -12,6 +10,7 @@ import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.KompetanseRepository
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.mockEøsSkjemaRepository
 import no.nav.familie.ks.sak.kjerne.eøs.utenlandskperiodebeløp.domene.UtenlandskPeriodebeløp
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
+import no.nav.familie.ks.sak.kjerne.tidslinje.util.KompetanseBuilder
 import no.nav.familie.ks.sak.kjerne.util.UtenlandskPeriodebeløpBuilder
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Assertions.assertEquals

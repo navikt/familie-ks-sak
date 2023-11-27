@@ -58,8 +58,6 @@ class UtenlandskPeriodebeløpControllerTest {
             }
 
         assertThat(faktiskeFelterMedFeil).hasSize(1).containsAll(forventedeFelterMedFeil)
-
-        println(faktiskeFelterMedFeil)
     }
 
     @Test

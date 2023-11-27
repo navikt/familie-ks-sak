@@ -1,8 +1,7 @@
-package no.nav.familie.ba.sak.kjerne.eøs.utenlandskperiodebeløp
+package no.nav.familie.ks.sak.kjerne.eøs.utenlandskperiodebeløp
 
-import no.nav.familie.ba.sak.kjerne.tidslinje.util.KompetanseBuilder
 import no.nav.familie.ks.sak.data.tilfeldigPerson
-import no.nav.familie.ks.sak.kjerne.eøs.utenlandskperiodebeløp.tilpassUtenlandskePeriodebeløpTilKompetanser
+import no.nav.familie.ks.sak.kjerne.tidslinje.util.KompetanseBuilder
 import no.nav.familie.ks.sak.kjerne.util.UtenlandskPeriodebeløpBuilder
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test

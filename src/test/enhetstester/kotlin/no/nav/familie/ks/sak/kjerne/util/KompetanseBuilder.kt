@@ -1,4 +1,4 @@
-package no.nav.familie.ba.sak.kjerne.tidslinje.util
+package no.nav.familie.ks.sak.kjerne.tidslinje.util
 
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.Kompetanse
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.KompetanseResultat

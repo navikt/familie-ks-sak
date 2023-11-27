@@ -22,7 +22,8 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
-@RequestMapping("/api/differanseberegning/utenlandskperidebeløp")
+// TODO slett /api/differanseberegning/utenlandskperidebeløp når frontend er oppdatert
+@RequestMapping("/api/differanseberegning/utenlandskperidebeløp", "/api/differanseberegning/utenlandskperiodebeløp")
 @ProtectedWithClaims(issuer = "azuread")
 @Validated
 class UtenlandskPeriodebeløpController(
@@ -67,7 +68,7 @@ class UtenlandskPeriodebeløpController(
         tilgangService.validerTilgangTilHandlingOgFagsakForBehandling(
             behandlingId = behandlingId,
             minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
-            event = AuditLoggerEvent.UPDATE,
+            event = AuditLoggerEvent.DELETE,
             handling = "Sletter utenlandsk periodebeløp",
         )
 
