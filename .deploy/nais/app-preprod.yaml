@@ -99,7 +99,7 @@ spec:
         - host: familie-integrasjoner.dev-fss-pub.nais.io
         - host: familie-ks-infotrygd.dev-fss-pub.nais.io
         - host: familie-oppdrag.dev-fss-pub.nais.io
-        - host: sdw-wsrest.ecb.europa.eu
+        - host: data-api.ecb.europa.eu
         - host: teamfamilie-unleash-api.nav.cloud.nais.io
   replicas:
     min: 2
