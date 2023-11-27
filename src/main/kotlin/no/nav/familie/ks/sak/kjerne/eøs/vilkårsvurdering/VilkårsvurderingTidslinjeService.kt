@@ -51,9 +51,10 @@ class VilkårsvurderingTidslinjeService(
                 }
                 .tilTidslinje()
 
-        val erAnnenForelderOmfattetAvNorskLovgivingTidslinjeMedKunPerioderSomStrekkerSegOver1MånedForskyvetTidslinje = erAnnenForelderOmfattetAvNorskLovgivingTidslinjeMedKunPerioderSomStrekkerSegOver1MånedTidslinje.tilPerioder().map { it.copy(fom = it.fom?.plusMonths(1)?.førsteDagIInneværendeMåned()) }
-            .filtrerIkkeNull()
-            .tilTidslinje()
+        val erAnnenForelderOmfattetAvNorskLovgivingTidslinjeMedKunPerioderSomStrekkerSegOver1MånedForskyvetTidslinje =
+            erAnnenForelderOmfattetAvNorskLovgivingTidslinjeMedKunPerioderSomStrekkerSegOver1MånedTidslinje.tilPerioder().map { it.copy(fom = it.fom?.plusMonths(1)?.førsteDagIInneværendeMåned()) }
+                .filtrerIkkeNull()
+                .tilTidslinje()
 
         return erAnnenForelderOmfattetAvNorskLovgivingTidslinjeMedKunPerioderSomStrekkerSegOver1MånedForskyvetTidslinje
     }

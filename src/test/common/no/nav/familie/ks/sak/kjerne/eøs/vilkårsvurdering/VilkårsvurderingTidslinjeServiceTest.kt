@@ -136,12 +136,12 @@ internal class VilkårsvurderingTidslinjeServiceTest {
             )
 
         every { personopplysningGrunnlagRepository.hentByBehandlingAndAktiv(behandlingId = behandling.id) } returns
-                lagPersonopplysningGrunnlag(
-                    behandlingId = behandling.id,
-                    søkerPersonIdent = søker.aktør.aktivFødselsnummer(),
-                    barnasIdenter = listOf(barn.aktør.aktivFødselsnummer()),
-                    søkerAktør = søker.aktør,
-                )
+            lagPersonopplysningGrunnlag(
+                behandlingId = behandling.id,
+                søkerPersonIdent = søker.aktør.aktivFødselsnummer(),
+                barnasIdenter = listOf(barn.aktør.aktivFødselsnummer()),
+                søkerAktør = søker.aktør,
+            )
 
         every { vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(behandlingId = behandling.id) } returns vilkårsvurdering
 
