@@ -4,6 +4,7 @@ import io.mockk.every
 import io.mockk.junit5.MockKExtension
 import io.mockk.mockk
 import no.nav.familie.ks.sak.api.dto.tilKompetanseDto
+import no.nav.familie.ks.sak.common.tidslinje.tomTidslinje
 import no.nav.familie.ks.sak.common.util.Periode
 import no.nav.familie.ks.sak.common.util.førsteDagIInneværendeMåned
 import no.nav.familie.ks.sak.common.util.sisteDagIMåned
@@ -434,6 +435,8 @@ internal class KompetanseServiceTest {
 
     @Test
     fun `tilpassKompetanse skal opprette kompetanseskjema med ingen sluttdato når regelverk-tidslinjer fortsetter etter nåtidspunktet`() {
+        every { vilkårsvurderingTidslinjeService.hentAnnenForelderOmfattetAvNorskLovgivningTidslinje(any()) } returns tomTidslinje()
+
         val fom = LocalDate.now().minusMonths(3).førsteDagIInneværendeMåned()
         val tom = fom.plusMonths(10).sisteDagIMåned()
         val tomForBarn2 = fom.plusMonths(6).sisteDagIMåned()
@@ -469,6 +472,8 @@ internal class KompetanseServiceTest {
 
     @Test
     fun `tilpassKompetanse skal opprette kompetanse med sluttdato når et av barnets regelverk-tidslinjer avsluttes før nåtidspunktet`() {
+        every { vilkårsvurderingTidslinjeService.hentAnnenForelderOmfattetAvNorskLovgivningTidslinje(any()) } returns tomTidslinje()
+
         val fom = LocalDate.now().minusMonths(6).førsteDagIInneværendeMåned()
         val tom = fom.plusMonths(10).sisteDagIMåned()
         val tomForBarn2 = fom.plusMonths(2).sisteDagIMåned()
@@ -511,6 +516,8 @@ internal class KompetanseServiceTest {
 
     @Test
     fun `tilpassKompetanse skal tilpasse kompetanser til endrede regelverk-tidslinjer`() {
+        every { vilkårsvurderingTidslinjeService.hentAnnenForelderOmfattetAvNorskLovgivningTidslinje(any()) } returns tomTidslinje()
+
         val eksisterendeKompetanse1 =
             lagKompetanse(
                 behandlingId = behandlingId,

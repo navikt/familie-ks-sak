@@ -9,6 +9,7 @@ import no.nav.familie.ks.sak.common.tidslinje.outerJoin
 import no.nav.familie.ks.sak.common.tidslinje.tilTidslinje
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.filtrer
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.filtrerIkkeNull
+import no.nav.familie.ks.sak.common.tidslinje.utvidelser.kombinerMed
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.tilPerioderIkkeNull
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.tilSeparateTidslinjerForBarna
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.tilSkjemaer
@@ -61,12 +62,15 @@ class KompetanseService(
         val barnasRegelverkResultatTidslinjer = hentBarnasRegelverkResultatTidslinjer(behandlingId)
         val barnasHarEtterbetaling3MånedTidslinjer =
             endretUtbetalingAndelTidslinjeService.hentBarnasHarEtterbetaling3MånedTidslinjer(behandlingId)
+        val annenForelderOmfattetAvNorskLovgivningTidslinje =
+            vilkårsvurderingTidslinjeService.hentAnnenForelderOmfattetAvNorskLovgivningTidslinje(behandlingId = behandlingId)
 
         val oppdaterteKompetanser =
             tilpassKompetanserTilRegelverk(
                 eksisterendeKompetanser,
                 barnasRegelverkResultatTidslinjer,
                 barnasHarEtterbetaling3MånedTidslinjer,
+                annenForelderOmfattetAvNorskLovgivningTidslinje,
             ).medBehandlingId(behandlingId)
 
         kompetanseSkjemaService.lagreDifferanseOgVarsleAbonnenter(behandlingId, eksisterendeKompetanser, oppdaterteKompetanser)
@@ -79,6 +83,7 @@ class KompetanseService(
         eksisterendeKompetanser: Collection<Kompetanse>,
         barnaRegelverkTidslinjer: Map<Aktør, Tidslinje<RegelverkResultat>>,
         barnasHarEtterbetaling3MånedTidslinjer: Map<Aktør, Tidslinje<Boolean>>,
+        annenForelderOmfattetAvNorskLovgivningTidslinje: Tidslinje<Boolean>,
     ): List<Kompetanse> {
         val barnasEøsRegelverkTidslinjer =
             barnaRegelverkTidslinjer.tilBarnasEøsRegelverkTidslinjer()
@@ -92,6 +97,10 @@ class KompetanseService(
         return eksisterendeKompetanser.tilSeparateTidslinjerForBarna()
             .outerJoin(barnasEøsRegelverkTidslinjer) { kompetanse, regelverk ->
                 regelverk?.let { kompetanse ?: Kompetanse.blankKompetanse }
+            }.mapValues { (_, value) ->
+                value.kombinerMed(annenForelderOmfattetAvNorskLovgivningTidslinje) { kompetanse, annenForelderOmfattet ->
+                    kompetanse?.copy(erAnnenForelderOmfattetAvNorskLovgivning = annenForelderOmfattet ?: false)
+                }
             }.tilSkjemaer()
     }
 

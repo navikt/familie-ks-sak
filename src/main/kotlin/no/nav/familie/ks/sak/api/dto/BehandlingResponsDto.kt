@@ -42,8 +42,7 @@ data class BehandlingResponsDto(
     val sisteVedtaksperiodeVisningDato: LocalDate?,
     val tilbakekreving: TilbakekrevingResponsDto?,
     val kompetanser: List<KompetanseDto>,
-    // TODO implementeres ved EØS
-    val utenlandskePeriodebeløp: List<Any> = emptyList(),
+    val utenlandskePeriodebeløp: List<UtenlandskPeriodebeløpDto>,
     // TODO implementeres ved EØS
     val valutakurser: List<Any> = emptyList(),
     val feilutbetaltValuta: List<FeilutbetaltValutaDto> = emptyList(),
