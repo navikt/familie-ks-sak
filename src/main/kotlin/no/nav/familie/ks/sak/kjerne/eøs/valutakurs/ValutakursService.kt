@@ -1,0 +1,43 @@
+package no.nav.familie.ks.sak.kjerne.eøs.valutakurs
+
+import no.nav.familie.ks.sak.kjerne.eøs.felles.EøsSkjemaService
+import no.nav.familie.ks.sak.kjerne.eøs.felles.domene.EøsSkjemaRepository
+import no.nav.familie.ks.sak.kjerne.eøs.felles.endringsabonnent.EøsSkjemaEndringAbonnent
+import no.nav.familie.ks.sak.kjerne.eøs.valutakurs.domene.Valutakurs
+import org.springframework.stereotype.Service
+
+@Service
+class ValutakursService(
+    valutakursRepository: EøsSkjemaRepository<Valutakurs>,
+    endringsabonnenter: List<EøsSkjemaEndringAbonnent<Valutakurs>>,
+) {
+    val skjemaService =
+        EøsSkjemaService(
+            valutakursRepository,
+            endringsabonnenter,
+        )
+
+    fun hentValutakurs(valutakursId: Long): Valutakurs = skjemaService.hentMedId(valutakursId)
+
+    fun hentValutakurser(behandlingId: Long) =
+        skjemaService.hentMedBehandlingId(behandlingId)
+
+    fun oppdaterValutakurs(
+        behandlingId: Long,
+        valutakurs: Valutakurs,
+    ) =
+        skjemaService.endreSkjemaer(behandlingId, valutakurs)
+
+    fun slettValutakurs(
+        behandlingId: Long,
+        valutakursId: Long,
+    ) =
+        skjemaService.slettSkjema(valutakursId)
+
+//    @Transactional
+//    fun kopierOgErstattValutakurser(
+//        fraBehandlingId: Long,
+//        tilBehandlingId: Long,
+//    ) =
+//        skjemaService.kopierOgErstattSkjemaer(fraBehandlingId, tilBehandlingId)
+}
