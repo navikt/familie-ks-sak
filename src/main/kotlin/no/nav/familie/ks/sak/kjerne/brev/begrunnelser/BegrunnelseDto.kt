@@ -1,8 +1,7 @@
 package no.nav.familie.ks.sak.kjerne.brev.begrunnelser
 
-import no.nav.familie.eksterne.kontrakter.AnnenForeldersAktivitet
-import no.nav.familie.eksterne.kontrakter.SøkersAktivitet
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelseType
+import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.KompetanseAktivitet
 
 sealed class BegrunnelseDto(
     open val type: BrevBegrunnelseType,
@@ -75,13 +74,13 @@ data class EØSBegrunnelseDataDto(
     override val vedtakBegrunnelseType: BegrunnelseType,
     override val apiNavn: String,
     override val sanityBegrunnelseType: SanityBegrunnelseType,
-    val annenForeldersAktivitet: AnnenForeldersAktivitet,
+    val annenForeldersAktivitet: KompetanseAktivitet,
     val annenForeldersAktivitetsland: String?,
     val barnetsBostedsland: String,
     val barnasFodselsdatoer: String,
     val antallBarn: Int,
     val maalform: String,
-    val sokersAktivitet: SøkersAktivitet,
+    val sokersAktivitet: KompetanseAktivitet,
     val sokersAktivitetsland: String?,
 ) : BegrunnelseDtoMedData(
         type = BrevBegrunnelseType.EØS_BEGRUNNELSE,

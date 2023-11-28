@@ -1,10 +1,9 @@
 package no.nav.familie.ks.sak.api.dto
 
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
-import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.AnnenForeldersAktivitet
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.Kompetanse
+import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.KompetanseAktivitet
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.KompetanseResultat
-import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.SøkersAktivitet
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import org.springframework.http.HttpStatus
 import java.time.YearMonth
@@ -15,13 +14,14 @@ data class KompetanseDto(
     val fom: YearMonth?,
     val tom: YearMonth?,
     val barnIdenter: List<String>,
-    val søkersAktivitet: SøkersAktivitet? = null,
+    val søkersAktivitet: KompetanseAktivitet? = null,
     val søkersAktivitetsland: String? = null,
-    val annenForeldersAktivitet: AnnenForeldersAktivitet? = null,
+    val annenForeldersAktivitet: KompetanseAktivitet? = null,
     val annenForeldersAktivitetsland: String? = null,
     val barnetsBostedsland: String? = null,
     val resultat: KompetanseResultat? = null,
     override val status: UtfyltStatus = UtfyltStatus.IKKE_UTFYLT,
+    val erAnnenForelderOmfattetAvNorskLovgivning: Boolean? = false,
 ) : AbstractEøsSkjemaUtfyltStatus<KompetanseDto>() {
     init {
         when {
@@ -51,13 +51,20 @@ data class KompetanseDto(
             )
         if (annenForeldersAktivitetsland == null) {
             antallUtfylteFelter += (
-                annenForeldersAktivitet.let {
-                    if (it == AnnenForeldersAktivitet.INAKTIV || it == AnnenForeldersAktivitet.IKKE_AKTUELT) 1 else 0
+                if (annenForeldersAktivitet in
+                    listOf(
+                        KompetanseAktivitet.INAKTIV,
+                        KompetanseAktivitet.IKKE_AKTUELT,
+                    )
+                ) {
+                    1
+                } else {
+                    0
                 }
             )
         }
         if (søkersAktivitetsland == null) {
-            antallUtfylteFelter += (søkersAktivitet.let { if (it == SøkersAktivitet.INAKTIV) 1 else 0 })
+            antallUtfylteFelter += (if (søkersAktivitet == KompetanseAktivitet.INAKTIV) 1 else 0)
         }
         return this.copy(status = utfyltStatus(antallUtfylteFelter, 6))
     }
@@ -74,6 +81,7 @@ fun KompetanseDto.tilKompetanse(barnAktører: List<Aktør>) =
         annenForeldersAktivitetsland = this.annenForeldersAktivitetsland,
         barnetsBostedsland = this.barnetsBostedsland,
         resultat = this.resultat,
+        erAnnenForelderOmfattetAvNorskLovgivning = this.erAnnenForelderOmfattetAvNorskLovgivning,
     )
 
 fun Kompetanse.tilKompetanseDto() =
@@ -88,4 +96,5 @@ fun Kompetanse.tilKompetanseDto() =
         annenForeldersAktivitetsland = this.annenForeldersAktivitetsland,
         barnetsBostedsland = this.barnetsBostedsland,
         resultat = this.resultat,
+        erAnnenForelderOmfattetAvNorskLovgivning = this.erAnnenForelderOmfattetAvNorskLovgivning,
     ).medUtfyltStatus()
