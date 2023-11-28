@@ -4,7 +4,7 @@ plugins {
     val kotlinVersion = "1.9.21"
     kotlin("jvm") version kotlinVersion
 
-    id("org.springframework.boot") version "3.1.5"
+    id("org.springframework.boot") version "3.2.0"
     id("io.spring.dependency-management") version "1.1.4"
     id("org.jetbrains.kotlin.plugin.spring") version kotlinVersion
     id("org.jetbrains.kotlin.plugin.jpa") version kotlinVersion
@@ -46,7 +46,7 @@ dependencies {
 
     val springdocVersion = "2.2.0"
     val sentryVersion = "6.34.0"
-    val navFellesVersion = "2.20231023162434_fa320ce"
+    val navFellesVersion = "2.20231127151337_d516257"
     val eksterneKontrakterBisysVersion = "2.0_20230214104704_706e9c0"
     val fellesKontrakterVersion = "3.0_20231122081318_2e4ddec"
     val familieKontrakterSaksstatistikkVersion = "2.0_20230214104704_706e9c0"
