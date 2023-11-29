@@ -7,12 +7,12 @@ data class InformasjonsbrevKanSøkeDto(
     override val mal: Brevmal = Brevmal.INFORMASJONSBREV_KAN_SØKE,
     override val data: InformasjonsbrevKanSøkeDataDto,
 ) : BrevDto {
-    constructor(navn: String, fodselsnummer: String, dokumentliste: List<String>, enhet: String) : this(
+    constructor(navn: String, fodselsnummer: String, dokumentliste: List<String>, enhet: String, saksbehandlerNavn: String) : this(
         data =
             InformasjonsbrevKanSøkeDataDto(
                 delmalData =
                     InformasjonsbrevKanSøkeDataDto.DelmalData(
-                        signatur = SignaturDelmal(enhet),
+                        signatur = SignaturDelmal(enhet, saksbehandlerNavn),
                     ),
                 flettefelter =
                     InformasjonsbrevKanSøkeDataDto.FlettefelterDto(

@@ -13,6 +13,7 @@ data class SvartidsbrevDto(
         enhet: String,
         mal: Brevmal,
         erEøsBehandling: Boolean,
+        saksbehandlerNavn: String,
     ) : this(
         mal = mal,
         data =
@@ -27,6 +28,7 @@ data class SvartidsbrevDto(
                         signatur =
                             SignaturDelmal(
                                 enhet = enhet,
+                                saksbehandlerNavn = saksbehandlerNavn,
                             ),
                         kontonummer = erEøsBehandling,
                     ),

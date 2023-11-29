@@ -60,6 +60,11 @@ enum class Brevmal(val erVedtaksbrev: Boolean, val apiNavn: String, val visnings
         "innhenteOpplysningerEtterSoknadISED",
         "Innhente opplysninger etter søknad i SED",
     ),
+    INNHENTE_OPPLYSNINGER_OG_INFORMASJON_OM_AT_ANNEN_FORELDER_MED_SELVSTENDIG_RETT_HAR_SØKT(
+        erVedtaksbrev = false,
+        apiNavn = "innhentingOgInfoAnnenForelderMedSelvstendigRettSokt",
+        visningsTekst = "Innhente opplysninger og informasjon om at annen forelder med selvstendig rett har søkt",
+    ),
 
     HENLEGGE_TRUKKET_SØKNAD(false, "henleggeTrukketSoknad", "Henlegge trukket søknad"),
     VARSEL_OM_REVURDERING(false, "varselOmRevurdering", "Varsel om revurdering"),
@@ -72,6 +77,11 @@ enum class Brevmal(val erVedtaksbrev: Boolean, val apiNavn: String, val visnings
         false,
         "varselOmRevurderingFraNasjonalTilEOS",
         "Varsel om revurdering fra nasjonal til EØS",
+    ),
+    VARSEL_ANNEN_FORELDER_MED_SELVSTENDIG_RETT_SØKT(
+        false,
+        "varselAnnenForelderMedSelvstendigRettSoekt",
+        "Varsel annen forelder med selvstendig rett søkt",
     ),
 
     SVARTIDSBREV(false, "svartidsbrev", "Svartidsbrev"),
@@ -102,9 +112,12 @@ enum class Brevmal(val erVedtaksbrev: Boolean, val apiNavn: String, val visnings
         when (this) {
             INNHENTE_OPPLYSNINGER,
             INNHENTE_OPPLYSNINGER_ETTER_SØKNAD_I_SED,
+            INNHENTE_OPPLYSNINGER_OG_INFORMASJON_OM_AT_ANNEN_FORELDER_MED_SELVSTENDIG_RETT_HAR_SØKT,
             VARSEL_OM_REVURDERING,
             VARSEL_OM_VEDTAK_ETTER_SØKNAD_I_SED,
             VARSEL_OM_REVURDERING_FRA_NASJONAL_TIL_EØS,
+            VARSEL_ANNEN_FORELDER_MED_SELVSTENDIG_RETT_SØKT,
+
             -> true
 
             INFORMASJONSBREV_DELT_BOSTED,
@@ -139,9 +152,11 @@ enum class Brevmal(val erVedtaksbrev: Boolean, val apiNavn: String, val visnings
             FORLENGET_SVARTIDSBREV -> Dokumenttype.KONTANTSTØTTE_FORLENGET_SVARTIDSBREV
             INFORMASJONSBREV_KAN_SØKE -> Dokumenttype.KONTANTSTØTTE_INFORMASJONSBREV_KAN_SØKE
             INNHENTE_OPPLYSNINGER_ETTER_SØKNAD_I_SED -> Dokumenttype.KONTANTSTØTTE_INNHENTE_OPPLYSNINGER_ETTER_SØKNAD_I_SED
+            INNHENTE_OPPLYSNINGER_OG_INFORMASJON_OM_AT_ANNEN_FORELDER_MED_SELVSTENDIG_RETT_HAR_SØKT -> Dokumenttype.KONTANTSTØTTE_INNHENTE_OPPLYSNINGER_OG_INFORMASJON_OM_AT_ANNEN_FORELDER_MED_SELVSTENDIG_RETT_HAR_SØKT
             VARSEL_OM_VEDTAK_ETTER_SØKNAD_I_SED -> Dokumenttype.KONTANTSTØTTE_VARSEL_OM_VEDTAK_ETTER_SØKNAD_I_SED
             VARSEL_OM_REVURDERING_FRA_NASJONAL_TIL_EØS -> Dokumenttype.KONTANTSTØTTE_VARSEL_OM_REVURDERING_FRA_NASJONAL_TIL_EØS
             INFORMASJONSBREV_KAN_SØKE_EØS -> Dokumenttype.KONTANTSTØTTE_INFORMASJONSBREV_KAN_SØKE_EØS
+            VARSEL_ANNEN_FORELDER_MED_SELVSTENDIG_RETT_SØKT -> Dokumenttype.KONTANTSTØTTE_VARSEL_ANNEN_FORELDER_MED_SELVSTENDIG_RETT_SØKT
 
             VEDTAK_ENDRING,
             VEDTAK_OPPHØRT,
@@ -166,6 +181,8 @@ enum class Brevmal(val erVedtaksbrev: Boolean, val apiNavn: String, val visnings
                 HENLEGGE_TRUKKET_SØKNAD -> Distribusjonstype.ANNET
                 VARSEL_OM_REVURDERING -> Distribusjonstype.VIKTIG
                 VARSEL_OM_VEDTAK_ETTER_SØKNAD_I_SED -> Distribusjonstype.VIKTIG
+                VARSEL_ANNEN_FORELDER_MED_SELVSTENDIG_RETT_SØKT -> Distribusjonstype.VIKTIG
+                INNHENTE_OPPLYSNINGER_OG_INFORMASJON_OM_AT_ANNEN_FORELDER_MED_SELVSTENDIG_RETT_HAR_SØKT -> Distribusjonstype.VIKTIG
                 VARSEL_OM_REVURDERING_FRA_NASJONAL_TIL_EØS -> Distribusjonstype.VIKTIG
                 SVARTIDSBREV -> Distribusjonstype.ANNET
                 FORLENGET_SVARTIDSBREV -> Distribusjonstype.ANNET
