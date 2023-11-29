@@ -1,5 +1,6 @@
 package no.nav.familie.ks.sak.kjerne.eøs.utenlandskperiodebeløp
 
+import no.nav.familie.ks.sak.kjerne.eøs.felles.BehandlingId
 import no.nav.familie.ks.sak.kjerne.eøs.felles.EøsSkjemaService
 import no.nav.familie.ks.sak.kjerne.eøs.felles.domene.EøsSkjemaRepository
 import no.nav.familie.ks.sak.kjerne.eøs.felles.endringsabonnent.EøsSkjemaEndringAbonnent
@@ -17,17 +18,17 @@ class UtenlandskPeriodebeløpService(
             endringsabonnenter,
         )
 
-    fun hentUtenlandskePeriodebeløp(behandlingId: Long) =
+    fun hentUtenlandskePeriodebeløp(behandlingId: BehandlingId) =
         skjemaService.hentMedBehandlingId(behandlingId)
 
     fun oppdaterUtenlandskPeriodebeløp(
-        behandlingId: Long,
+        behandlingId: BehandlingId,
         utenlandskPeriodebeløp: UtenlandskPeriodebeløp,
     ) =
         skjemaService.endreSkjemaer(behandlingId, utenlandskPeriodebeløp)
 
     fun slettUtenlandskPeriodebeløp(
-        behandlingId: Long,
+        behandlingId: BehandlingId,
         utenlandskPeriodebeløpId: Long,
     ) =
         skjemaService.slettSkjema(utenlandskPeriodebeløpId)

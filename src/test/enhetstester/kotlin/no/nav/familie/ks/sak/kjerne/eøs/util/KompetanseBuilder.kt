@@ -1,5 +1,6 @@
 package no.nav.familie.ks.sak.kjerne.eøs.util
 
+import no.nav.familie.ks.sak.kjerne.eøs.felles.BehandlingId
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.Kompetanse
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.KompetanseResultat
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
@@ -9,7 +10,7 @@ val tomKompetanse = Kompetanse(null, null, emptySet())
 
 class KompetanseBuilder(
     startMåned: YearMonth,
-    behandlingId: Long = 1,
+    behandlingId: BehandlingId = BehandlingId(1L),
 ) : SkjemaBuilder<Kompetanse, KompetanseBuilder>(startMåned, behandlingId) {
     fun medKompetanse(
         k: String,

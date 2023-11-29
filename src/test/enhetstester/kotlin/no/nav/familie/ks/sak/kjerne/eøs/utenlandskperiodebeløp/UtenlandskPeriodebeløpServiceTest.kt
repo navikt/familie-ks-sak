@@ -5,6 +5,7 @@ import io.mockk.mockk
 import no.nav.familie.ks.sak.common.util.førsteDagIInneværendeMåned
 import no.nav.familie.ks.sak.data.tilfeldigPerson
 import no.nav.familie.ks.sak.kjerne.eøs.differanseberegning.domene.Intervall
+import no.nav.familie.ks.sak.kjerne.eøs.felles.BehandlingId
 import no.nav.familie.ks.sak.kjerne.eøs.felles.domene.EøsSkjemaRepository
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.KompetanseRepository
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.mockEøsSkjemaRepository
@@ -44,7 +45,7 @@ internal class UtenlandskPeriodebeløpServiceTest {
 
     @Test
     fun `skal tilpasse utenlandsk periodebeløp til endrede kompetanser`() {
-        val behandlingId = 10L
+        val behandlingId = BehandlingId(10L)
 
         val barn1 = tilfeldigPerson(personType = PersonType.BARN, fødselsdato = jan(2020).førsteDagIInneværendeMåned())
         val barn2 = tilfeldigPerson(personType = PersonType.BARN, fødselsdato = jan(2020).førsteDagIInneværendeMåned())
@@ -61,7 +62,7 @@ internal class UtenlandskPeriodebeløpServiceTest {
                 .medKompetanse("--   ----", barn2, barn3, annenForeldersAktivitetsland = "N")
                 .byggKompetanser()
 
-        every { kompetanseRepository.findByBehandlingId(behandlingId) } returns kompetanser
+        every { kompetanseRepository.findByBehandlingId(behandlingId.id) } returns kompetanser
 
         tilpassUtenlandskePeriodebeløpTilKompetanserService
             .tilpassUtenlandskPeriodebeløpTilKompetanser(behandlingId)
@@ -78,7 +79,7 @@ internal class UtenlandskPeriodebeløpServiceTest {
 
     @Test
     fun `Slette et utenlandskPeriodebeløp-skjema skal resultere i et skjema uten innhold, men som fortsatt har utbetalingsland`() {
-        val behandlingId = 10L
+        val behandlingId = BehandlingId(10L)
 
         val barn1 = tilfeldigPerson(personType = PersonType.BARN, fødselsdato = jan(2020).førsteDagIInneværendeMåned())
 
@@ -104,7 +105,7 @@ internal class UtenlandskPeriodebeløpServiceTest {
 
     @Test
     fun `Skal kunne lukke åpen utenlandskPeriodebeløp-skjema ved å sende inn identisk skjema med satt tom-dato`() {
-        val behandlingId = 10L
+        val behandlingId = BehandlingId(10L)
 
         val barn1 = tilfeldigPerson(personType = PersonType.BARN, fødselsdato = jan(2020).førsteDagIInneværendeMåned())
 

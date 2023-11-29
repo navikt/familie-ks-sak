@@ -7,6 +7,7 @@ import no.nav.familie.ks.sak.api.dto.tilValutakurs
 import no.nav.familie.ks.sak.config.BehandlerRolle
 import no.nav.familie.ks.sak.integrasjon.ecb.ECBService
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
+import no.nav.familie.ks.sak.kjerne.eøs.felles.BehandlingId
 import no.nav.familie.ks.sak.kjerne.eøs.valutakurs.domene.Valutakurs
 import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
 import no.nav.familie.ks.sak.sikkerhet.AuditLoggerEvent
@@ -54,7 +55,7 @@ class ValutakursController(
                 oppdaterValutakursMedKursFraECB(valutakursDto, valutakursDto.tilValutakurs(barnAktører = barnAktører))
             }
 
-        valutakursService.oppdaterValutakurs(behandlingId, valutaKurs)
+        valutakursService.oppdaterValutakurs(BehandlingId(behandlingId), valutaKurs)
 
         return ResponseEntity.ok(Ressurs.success(behandlingService.lagBehandlingRespons(behandlingId = behandlingId)))
     }
@@ -70,7 +71,7 @@ class ValutakursController(
             event = AuditLoggerEvent.DELETE,
             handling = "Sletter valutakurs",
         )
-        valutakursService.slettValutakurs(behandlingId, valutakursId)
+        valutakursService.slettValutakurs(BehandlingId(behandlingId), valutakursId)
 
         return ResponseEntity.ok(Ressurs.success(behandlingService.lagBehandlingRespons(behandlingId = behandlingId)))
     }

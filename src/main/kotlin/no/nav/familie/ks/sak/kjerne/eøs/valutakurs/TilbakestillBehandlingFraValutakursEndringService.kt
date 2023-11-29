@@ -1,6 +1,7 @@
 package no.nav.familie.ks.sak.kjerne.eøs.valutakurs
 
 import no.nav.familie.ks.sak.kjerne.behandling.TilbakestillBehandlingService
+import no.nav.familie.ks.sak.kjerne.eøs.felles.BehandlingId
 import no.nav.familie.ks.sak.kjerne.eøs.felles.endringsabonnent.EøsSkjemaEndringAbonnent
 import no.nav.familie.ks.sak.kjerne.eøs.valutakurs.domene.Valutakurs
 import org.springframework.context.annotation.Lazy
@@ -11,10 +12,10 @@ class TilbakestillBehandlingFraValutakursEndringService(
     @Lazy private val tilbakestillBehandlingTilBehandlingsresultatService: TilbakestillBehandlingService,
 ) : EøsSkjemaEndringAbonnent<Valutakurs> {
     override fun skjemaerEndret(
-        behandlingId: Long,
+        behandlingId: BehandlingId,
         endretTil: List<Valutakurs>,
     ) {
         tilbakestillBehandlingTilBehandlingsresultatService
-            .tilbakestillBehandlingTilBehandlingsresultat(behandlingId)
+            .tilbakestillBehandlingTilBehandlingsresultat(behandlingId.id)
     }
 }

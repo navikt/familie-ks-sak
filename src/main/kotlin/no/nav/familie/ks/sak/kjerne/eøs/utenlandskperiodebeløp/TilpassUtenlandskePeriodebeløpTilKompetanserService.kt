@@ -5,6 +5,7 @@ import no.nav.familie.ks.sak.common.tidslinje.outerJoin
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.filtrer
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.tilSeparateTidslinjerForBarna
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.tilSkjemaer
+import no.nav.familie.ks.sak.kjerne.eøs.felles.BehandlingId
 import no.nav.familie.ks.sak.kjerne.eøs.felles.EøsSkjemaService
 import no.nav.familie.ks.sak.kjerne.eøs.felles.domene.EøsSkjemaRepository
 import no.nav.familie.ks.sak.kjerne.eøs.felles.domene.medBehandlingId
@@ -29,22 +30,22 @@ class TilpassUtenlandskePeriodebeløpTilKompetanserService(
         )
 
     @Transactional
-    fun tilpassUtenlandskPeriodebeløpTilKompetanser(behandlingId: Long) {
-        val gjeldendeKompetanser = kompetanseRepository.findByBehandlingId(behandlingId)
+    fun tilpassUtenlandskPeriodebeløpTilKompetanser(behandlingId: BehandlingId) {
+        val gjeldendeKompetanser = kompetanseRepository.findByBehandlingId(behandlingId.id)
 
         tilpassUtenlandskPeriodebeløpTilKompetanser(behandlingId, gjeldendeKompetanser)
     }
 
     @Transactional
     override fun skjemaerEndret(
-        behandlingId: Long,
+        behandlingId: BehandlingId,
         endretTil: List<Kompetanse>,
     ) {
         tilpassUtenlandskPeriodebeløpTilKompetanser(behandlingId, endretTil)
     }
 
     private fun tilpassUtenlandskPeriodebeløpTilKompetanser(
-        behandlingId: Long,
+        behandlingId: BehandlingId,
         gjeldendeKompetanser: List<Kompetanse>,
     ) {
         val forrigeUtenlandskePeriodebeløp = skjemaService.hentMedBehandlingId(behandlingId)

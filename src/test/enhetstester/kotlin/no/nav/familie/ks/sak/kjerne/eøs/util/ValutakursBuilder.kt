@@ -1,12 +1,13 @@
 package no.nav.familie.ks.sak.kjerne.eøs.util
 
+import no.nav.familie.ks.sak.kjerne.eøs.felles.BehandlingId
 import no.nav.familie.ks.sak.kjerne.eøs.valutakurs.domene.Valutakurs
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
 import java.time.YearMonth
 
 class ValutakursBuilder(
     startMåned: YearMonth,
-    behandlingId: Long = 1,
+    behandlingId: BehandlingId = BehandlingId(1L),
 ) : SkjemaBuilder<Valutakurs, ValutakursBuilder>(startMåned, behandlingId) {
     fun medKurs(
         k: String,

@@ -4,6 +4,7 @@ import io.mockk.every
 import io.mockk.mockk
 import no.nav.familie.ks.sak.common.util.førsteDagIInneværendeMåned
 import no.nav.familie.ks.sak.data.tilfeldigPerson
+import no.nav.familie.ks.sak.kjerne.eøs.felles.BehandlingId
 import no.nav.familie.ks.sak.kjerne.eøs.felles.domene.EøsSkjemaRepository
 import no.nav.familie.ks.sak.kjerne.eøs.felles.domene.medBehandlingId
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.mockEøsSkjemaRepository
@@ -47,7 +48,7 @@ internal class ValutakursServiceTest {
 
     @Test
     fun `skal tilpasse utenlandsk periodebeløp til endrede kompetanser`() {
-        val behandlingId = 10L
+        val behandlingId = BehandlingId(10L)
 
         val barn1 = tilfeldigPerson(personType = PersonType.BARN, fødselsdato = jan(2020).førsteDagIInneværendeMåned())
         val barn2 = tilfeldigPerson(personType = PersonType.BARN, fødselsdato = jan(2020).førsteDagIInneværendeMåned())
@@ -62,7 +63,7 @@ internal class ValutakursServiceTest {
                 .medBeløp("  777777777", "EUR", "N", barn1)
                 .bygg()
 
-        every { utenlandskPeriodebeløpRepository.findByBehandlingId(behandlingId) } returns utenlandskePeriodebeløp
+        every { utenlandskPeriodebeløpRepository.findByBehandlingId(behandlingId.id) } returns utenlandskePeriodebeløp
 
         tilpassValutakurserTilUtenlandskePeriodebeløpService.tilpassValutakursTilUtenlandskPeriodebeløp(behandlingId)
 
@@ -80,7 +81,7 @@ internal class ValutakursServiceTest {
 
     @Test
     fun `slette et valutakurs-skjema skal resultere i et skjema uten innhold, men som fortsatt har valutakoden`() {
-        val behandlingId = 10L
+        val behandlingId = BehandlingId(10L)
 
         val lagretValutakurs =
             valutakursRepository.saveAll(
@@ -111,7 +112,7 @@ internal class ValutakursServiceTest {
 
     @Test
     fun `skal kunne lukke åpen valutakurs ved å sende inn identisk skjema med til-og-med-dato`() {
-        val behandlingId = 10L
+        val behandlingId = BehandlingId(10L)
         val barn1 = tilfeldigPerson(personType = PersonType.BARN)
 
         // Åpen (til-og-med er null) valutakurs for ett barn

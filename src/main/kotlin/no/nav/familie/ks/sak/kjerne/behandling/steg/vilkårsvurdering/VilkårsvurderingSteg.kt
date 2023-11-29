@@ -22,6 +22,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vil
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.beregning.BeregningService
 import no.nav.familie.ks.sak.kjerne.beregning.tilPeriodeResultater
+import no.nav.familie.ks.sak.kjerne.eøs.felles.BehandlingId
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.KompetanseService
 import no.nav.familie.ks.sak.kjerne.eøs.vilkårsvurdering.VilkårsvurderingTidslinjer
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
@@ -63,11 +64,11 @@ class VilkårsvurderingSteg(
         val finnesKompetanserEllerVilkårVurdertEtterEøs =
             vilkårsvurdering.personResultater.any {
                 it.vilkårResultater.any { vilkårResultat -> vilkårResultat.vurderesEtter == Regelverk.EØS_FORORDNINGEN }
-            } || kompetanseService.hentKompetanser(behandlingId).isNotEmpty()
+            } || kompetanseService.hentKompetanser(BehandlingId(behandlingId)).isNotEmpty()
 
         if (finnesKompetanserEllerVilkårVurdertEtterEøs) {
             logger.info("Oppretter/Tilpasser kompetanse perioder for behandlingId=$behandlingId")
-            kompetanseService.tilpassKompetanse(behandlingId)
+            kompetanseService.tilpassKompetanse(BehandlingId(behandlingId))
         }
     }
 

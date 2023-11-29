@@ -3,6 +3,7 @@ package no.nav.familie.ks.sak.kjerne.eøs.valutakurs
 import no.nav.familie.ks.sak.common.tidslinje.outerJoin
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.tilSeparateTidslinjerForBarna
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.tilSkjemaer
+import no.nav.familie.ks.sak.kjerne.eøs.felles.BehandlingId
 import no.nav.familie.ks.sak.kjerne.eøs.felles.EøsSkjemaService
 import no.nav.familie.ks.sak.kjerne.eøs.felles.domene.EøsSkjemaRepository
 import no.nav.familie.ks.sak.kjerne.eøs.felles.domene.medBehandlingId
@@ -25,22 +26,22 @@ class TilpassValutakurserTilUtenlandskePeriodebeløpService(
         )
 
     @Transactional
-    fun tilpassValutakursTilUtenlandskPeriodebeløp(behandlingId: Long) {
-        val gjeldendeUtenlandskePeriodebeløp = utenlandskPeriodebeløpRepository.findByBehandlingId(behandlingId)
+    fun tilpassValutakursTilUtenlandskPeriodebeløp(behandlingId: BehandlingId) {
+        val gjeldendeUtenlandskePeriodebeløp = utenlandskPeriodebeløpRepository.findByBehandlingId(behandlingId.id)
 
         tilpassValutakursTilUtenlandskPeriodebeløp(behandlingId, gjeldendeUtenlandskePeriodebeløp)
     }
 
     @Transactional
     override fun skjemaerEndret(
-        behandlingId: Long,
+        behandlingId: BehandlingId,
         endretTil: List<UtenlandskPeriodebeløp>,
     ) {
         tilpassValutakursTilUtenlandskPeriodebeløp(behandlingId, endretTil)
     }
 
     private fun tilpassValutakursTilUtenlandskPeriodebeløp(
-        behandlingId: Long,
+        behandlingId: BehandlingId,
         gjeldendeUtenlandskePeriodebeløp: List<UtenlandskPeriodebeløp>,
     ) {
         val forrigeValutakurser = skjemaService.hentMedBehandlingId(behandlingId)

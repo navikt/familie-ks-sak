@@ -1,5 +1,6 @@
 package no.nav.familie.ks.sak.kjerne.eøs.valutakurs
 
+import no.nav.familie.ks.sak.kjerne.eøs.felles.BehandlingId
 import no.nav.familie.ks.sak.kjerne.eøs.felles.EøsSkjemaService
 import no.nav.familie.ks.sak.kjerne.eøs.felles.domene.EøsSkjemaRepository
 import no.nav.familie.ks.sak.kjerne.eøs.felles.endringsabonnent.EøsSkjemaEndringAbonnent
@@ -19,17 +20,17 @@ class ValutakursService(
 
     fun hentValutakurs(valutakursId: Long): Valutakurs = skjemaService.hentMedId(valutakursId)
 
-    fun hentValutakurser(behandlingId: Long) =
+    fun hentValutakurser(behandlingId: BehandlingId) =
         skjemaService.hentMedBehandlingId(behandlingId)
 
     fun oppdaterValutakurs(
-        behandlingId: Long,
+        behandlingId: BehandlingId,
         valutakurs: Valutakurs,
     ) =
         skjemaService.endreSkjemaer(behandlingId, valutakurs)
 
     fun slettValutakurs(
-        behandlingId: Long,
+        behandlingId: BehandlingId,
         valutakursId: Long,
     ) =
         skjemaService.slettSkjema(valutakursId)

@@ -21,6 +21,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Reg
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
+import no.nav.familie.ks.sak.kjerne.eøs.felles.BehandlingId
 import no.nav.familie.ks.sak.kjerne.eøs.felles.domene.EøsSkjemaRepository
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.Kompetanse
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.KompetanseResultat
@@ -57,14 +58,14 @@ internal class KompetanseServiceTest {
     private val barn2 = randomAktør()
     private val barn3 = randomAktør()
     private val behandling = lagBehandling(kategori = BehandlingKategori.EØS)
-    private val behandlingId = behandling.id
+    private val behandlingId = BehandlingId(behandling.id)
 
     @BeforeEach
     fun init() {
         every { personidentService.hentAktør(barn1.aktivFødselsnummer()) } returns barn1
         every { personidentService.hentAktør(barn2.aktivFødselsnummer()) } returns barn2
         every { personidentService.hentAktør(barn3.aktivFødselsnummer()) } returns barn3
-        every { endretUtbetalingAndelTidslinjeService.hentBarnasHarEtterbetaling3MånedTidslinjer(behandlingId) } returns
+        every { endretUtbetalingAndelTidslinjeService.hentBarnasHarEtterbetaling3MånedTidslinjer(behandlingId.id) } returns
             emptyMap()
         kompetanseRepository.deleteAll()
     }
@@ -74,7 +75,7 @@ internal class KompetanseServiceTest {
         // 2022.01-2022.08 for barn1 med resultat  NORGE_ER_SEKUNDÆRLAND
         val eksisterendeKompetanse =
             lagKompetanse(
-                behandlingId = behandlingId,
+                behandlingId = behandlingId.id,
                 fom = YearMonth.of(2022, 1),
                 tom = YearMonth.of(2022, 8),
                 resultat = KompetanseResultat.NORGE_ER_SEKUNDÆRLAND,
@@ -84,7 +85,7 @@ internal class KompetanseServiceTest {
         // oppdatering er bare reduksjon i periode 2022.03-2022.07
         val oppdateresKompetanse =
             lagKompetanse(
-                behandlingId = behandlingId,
+                behandlingId = behandlingId.id,
                 fom = YearMonth.of(2022, 3),
                 tom = YearMonth.of(2022, 7),
                 resultat = KompetanseResultat.NORGE_ER_SEKUNDÆRLAND,
@@ -103,7 +104,7 @@ internal class KompetanseServiceTest {
         // kompetanse med tre barn mellom 2022.01-2022.09, men andre verdiene er ikke satt enda
         val eksisterendeKompetanse =
             lagKompetanse(
-                behandlingId = behandlingId,
+                behandlingId = behandlingId.id,
                 fom = YearMonth.of(2022, 1),
                 tom = YearMonth.of(2022, 9),
                 barnAktører = setOf(barn1, barn2, barn3),
@@ -117,7 +118,7 @@ internal class KompetanseServiceTest {
         // oppdateringen for barn2 og barn3 for periode 2022.03-2022.04 med primærland
         val oppdateresKompetanse =
             lagKompetanse(
-                behandlingId = behandlingId,
+                behandlingId = behandlingId.id,
                 fom = YearMonth.of(2022, 3),
                 tom = YearMonth.of(2022, 4),
                 resultat = KompetanseResultat.NORGE_ER_PRIMÆRLAND,
@@ -172,7 +173,7 @@ internal class KompetanseServiceTest {
     fun `oppdatering som endrer deler av en kompetanse, skal resultarere i en splitt`() {
         val eksisterendeKompetanse1 =
             lagKompetanse(
-                behandlingId = behandlingId,
+                behandlingId = behandlingId.id,
                 fom = YearMonth.of(2022, 1),
                 tom = YearMonth.of(2022, 3),
                 barnAktører = setOf(barn1),
@@ -180,14 +181,14 @@ internal class KompetanseServiceTest {
             )
         val eksisterendeKompetanse2 =
             lagKompetanse(
-                behandlingId = behandlingId,
+                behandlingId = behandlingId.id,
                 fom = YearMonth.of(2022, 1),
                 tom = YearMonth.of(2022, 9),
                 barnAktører = setOf(barn2, barn3),
             )
         val eksisterendeKompetanse3 =
             lagKompetanse(
-                behandlingId = behandlingId,
+                behandlingId = behandlingId.id,
                 fom = YearMonth.of(2022, 4),
                 tom = YearMonth.of(2022, 7),
                 barnAktører = setOf(barn1),
@@ -197,7 +198,7 @@ internal class KompetanseServiceTest {
 
         val oppdateresKompetanse =
             lagKompetanse(
-                behandlingId = behandlingId,
+                behandlingId = behandlingId.id,
                 fom = YearMonth.of(2022, 1),
                 tom = YearMonth.of(2022, 2),
                 barnAktører = setOf(barn1),
@@ -235,7 +236,7 @@ internal class KompetanseServiceTest {
     fun `oppdaterKompetanse skal kunne sende inn oppdatering som overlapper flere kompetanser`() {
         val eksisterendeKompetanse1 =
             lagKompetanse(
-                behandlingId = behandlingId,
+                behandlingId = behandlingId.id,
                 fom = YearMonth.of(2022, 1),
                 tom = YearMonth.of(2022, 3),
                 barnAktører = setOf(barn1),
@@ -243,14 +244,14 @@ internal class KompetanseServiceTest {
             )
         val eksisterendeKompetanse2 =
             lagKompetanse(
-                behandlingId = behandlingId,
+                behandlingId = behandlingId.id,
                 fom = YearMonth.of(2022, 1),
                 tom = YearMonth.of(2022, 9),
                 barnAktører = setOf(barn2, barn3),
             )
         val eksisterendeKompetanse3 =
             lagKompetanse(
-                behandlingId = behandlingId,
+                behandlingId = behandlingId.id,
                 fom = YearMonth.of(2022, 4),
                 tom = YearMonth.of(2022, 7),
                 barnAktører = setOf(barn1),
@@ -260,7 +261,7 @@ internal class KompetanseServiceTest {
 
         val oppdateresKompetanse =
             lagKompetanse(
-                behandlingId = behandlingId,
+                behandlingId = behandlingId.id,
                 fom = YearMonth.of(2022, 3),
                 tom = YearMonth.of(2022, 5),
                 barnAktører = setOf(barn1, barn2, barn3),
@@ -311,7 +312,7 @@ internal class KompetanseServiceTest {
     fun `oppdaterKompetanse skal kunne lukke åpen kompetanse ved å sende inn identisk skjema med tom dato`() {
         // Åpen (tom dato er null) kompetanse med sekundærland for tre barn
         lagKompetanse(
-            behandlingId = behandlingId,
+            behandlingId = behandlingId.id,
             fom = YearMonth.of(2022, 1),
             tom = null,
             barnAktører = setOf(barn1, barn2, barn3),
@@ -321,7 +322,7 @@ internal class KompetanseServiceTest {
         // Endrer kun tom dato fra null til en gitt dato
         val oppdateresKompetanse =
             lagKompetanse(
-                behandlingId = behandlingId,
+                behandlingId = behandlingId.id,
                 fom = YearMonth.of(2022, 1),
                 tom = YearMonth.of(2022, 3),
                 barnAktører = setOf(barn1, barn2, barn3),
@@ -353,7 +354,7 @@ internal class KompetanseServiceTest {
     fun `oppdaterKompetanse skal kunne forkorte tom dato ved å sende inn identisk skjema med tidligere tom dato`() {
         // Kompetanse med sekundærland for tre barn med tom dato
         lagKompetanse(
-            behandlingId = behandlingId,
+            behandlingId = behandlingId.id,
             fom = YearMonth.of(2022, 1),
             tom = YearMonth.of(2022, 7),
             barnAktører = setOf(barn1, barn2, barn3),
@@ -363,7 +364,7 @@ internal class KompetanseServiceTest {
         // Endrer kun tom dato til tidligere tidspunkt
         val oppdateresKompetanse =
             lagKompetanse(
-                behandlingId = behandlingId,
+                behandlingId = behandlingId.id,
                 fom = YearMonth.of(2022, 1),
                 tom = YearMonth.of(2022, 3),
                 barnAktører = setOf(barn1, barn2, barn3),
@@ -395,7 +396,7 @@ internal class KompetanseServiceTest {
     fun `oppdaterKompetanse skal opprette tomt skjema for barn som fjernes fra ellers uendret skjema`() {
         // Åpen (tom dato er null) kompetanse med sekundærland for tre barn
         lagKompetanse(
-            behandlingId = behandlingId,
+            behandlingId = behandlingId.id,
             fom = YearMonth.of(2022, 1),
             tom = null,
             barnAktører = setOf(barn1, barn2, barn3),
@@ -405,7 +406,7 @@ internal class KompetanseServiceTest {
         // Fjerner barn3 fra gjeldende skjema, ellers likt
         val oppdateresKompetanse =
             lagKompetanse(
-                behandlingId = behandlingId,
+                behandlingId = behandlingId.id,
                 fom = YearMonth.of(2022, 1),
                 tom = null,
                 barnAktører = setOf(barn1, barn2),
@@ -454,7 +455,7 @@ internal class KompetanseServiceTest {
             )
         val vilkårsvurderingTidslinjer = lagVilkårsvurderingTidslinjer(vilkårsvurdering)
 
-        every { vilkårsvurderingTidslinjeService.lagVilkårsvurderingTidslinjer(behandlingId) } returns vilkårsvurderingTidslinjer
+        every { vilkårsvurderingTidslinjeService.lagVilkårsvurderingTidslinjer(behandlingId.id) } returns vilkårsvurderingTidslinjer
 
         kompetanseService.tilpassKompetanse(behandlingId)
 
@@ -492,7 +493,7 @@ internal class KompetanseServiceTest {
             )
         val vilkårsvurderingTidslinjer = lagVilkårsvurderingTidslinjer(vilkårsvurdering)
 
-        every { vilkårsvurderingTidslinjeService.lagVilkårsvurderingTidslinjer(behandlingId) } returns vilkårsvurderingTidslinjer
+        every { vilkårsvurderingTidslinjeService.lagVilkårsvurderingTidslinjer(behandlingId.id) } returns vilkårsvurderingTidslinjer
 
         kompetanseService.tilpassKompetanse(behandlingId)
 
@@ -520,7 +521,7 @@ internal class KompetanseServiceTest {
 
         val eksisterendeKompetanse1 =
             lagKompetanse(
-                behandlingId = behandlingId,
+                behandlingId = behandlingId.id,
                 fom = YearMonth.of(2022, 1),
                 tom = YearMonth.of(2022, 2),
                 barnAktører = setOf(barn1),
@@ -528,14 +529,14 @@ internal class KompetanseServiceTest {
             )
         val eksisterendeKompetanse2 =
             lagKompetanse(
-                behandlingId = behandlingId,
+                behandlingId = behandlingId.id,
                 fom = YearMonth.of(2022, 1),
                 tom = YearMonth.of(2022, 2),
                 barnAktører = setOf(barn2, barn3),
             )
         val eksisterendeKompetanse3 =
             lagKompetanse(
-                behandlingId = behandlingId,
+                behandlingId = behandlingId.id,
                 fom = YearMonth.of(2022, 3),
                 tom = YearMonth.of(2022, 5),
                 barnAktører = setOf(barn1, barn2, barn3),
@@ -543,7 +544,7 @@ internal class KompetanseServiceTest {
             )
         val eksisterendeKompetanse4 =
             lagKompetanse(
-                behandlingId = behandlingId,
+                behandlingId = behandlingId.id,
                 fom = YearMonth.of(2022, 6),
                 tom = YearMonth.of(2022, 7),
                 barnAktører = setOf(barn1),
@@ -551,7 +552,7 @@ internal class KompetanseServiceTest {
             )
         val eksisterendeKompetanse5 =
             lagKompetanse(
-                behandlingId = behandlingId,
+                behandlingId = behandlingId.id,
                 fom = YearMonth.of(2022, 6),
                 tom = YearMonth.of(2022, 9),
                 barnAktører = setOf(barn2, barn3),
@@ -585,7 +586,7 @@ internal class KompetanseServiceTest {
             )
         val vilkårsvurderingTidslinjer = lagVilkårsvurderingTidslinjer(vilkårsvurdering)
 
-        every { vilkårsvurderingTidslinjeService.lagVilkårsvurderingTidslinjer(behandlingId) } returns
+        every { vilkårsvurderingTidslinjeService.lagVilkårsvurderingTidslinjer(behandlingId.id) } returns
             vilkårsvurderingTidslinjer
 
         kompetanseService.tilpassKompetanse(behandlingId)
@@ -674,7 +675,7 @@ internal class KompetanseServiceTest {
             vilkårsvurdering = vilkårsvurdering,
             personopplysningGrunnlag =
                 lagPersonopplysningGrunnlag(
-                    behandlingId = behandlingId,
+                    behandlingId = behandlingId.id,
                     søkerPersonIdent = søker.aktivFødselsnummer(),
                     søkerAktør = søker,
                     barnasIdenter = listOf(barn1.aktivFødselsnummer(), barn2.aktivFødselsnummer()),
