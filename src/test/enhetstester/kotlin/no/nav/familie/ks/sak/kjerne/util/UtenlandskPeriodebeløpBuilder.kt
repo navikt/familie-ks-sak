@@ -7,8 +7,8 @@ import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
 import java.time.YearMonth
 
 class UtenlandskPeriodebeløpBuilder(
-    private val startMåned: YearMonth,
-    private val behandlingId: Long = 1,
+    startMåned: YearMonth,
+    behandlingId: Long = 1,
 ) : SkjemaBuilder<UtenlandskPeriodebeløp, UtenlandskPeriodebeløpBuilder>(startMåned, behandlingId) {
     fun medBeløp(
         k: String,
