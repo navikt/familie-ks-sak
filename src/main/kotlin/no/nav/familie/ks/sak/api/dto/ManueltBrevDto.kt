@@ -25,6 +25,11 @@ import no.nav.familie.ks.sak.kjerne.brev.domene.maler.flettefelt
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Målform
 import java.time.LocalDate
 
+interface Person {
+    val navn: String
+    val fødselsnummer: String
+}
+
 data class ManueltBrevDto(
     val brevmal: Brevmal,
     val multiselectVerdier: List<String> = emptyList(),
@@ -42,7 +47,7 @@ data class ManueltBrevDto(
     fun enhetNavn(): String = this.enhet?.enhetNavn ?: error("Finner ikke enhetsnavn på manuell brevrequest")
 }
 
-fun ManueltBrevDto.tilBrev() =
+fun ManueltBrevDto.tilBrev(saksbehandlerNavn: String) =
     when (this.brevmal) {
         Brevmal.INFORMASJONSBREV_DELT_BOSTED ->
             InformasjonsbrevDeltBostedBrevDto(
@@ -71,7 +76,7 @@ fun ManueltBrevDto.tilBrev() =
             InnhenteOpplysningerBrevDto(
                 data =
                     InnhenteOpplysningerDataDto(
-                        delmalData = InnhenteOpplysningerDataDto.DelmalData(signatur = SignaturDelmal(enhet = this.enhetNavn())),
+                        delmalData = InnhenteOpplysningerDataDto.DelmalData(signatur = SignaturDelmal(enhet = this.enhetNavn(), saksbehandlerNavn = saksbehandlerNavn)),
                         flettefelter =
                             InnhenteOpplysningerDataDto.FlettefelterDto(
                                 navn = this.mottakerNavn,
@@ -85,7 +90,7 @@ fun ManueltBrevDto.tilBrev() =
             HenleggeTrukketSøknadBrevDto(
                 data =
                     HenleggeTrukketSøknadDataDto(
-                        delmalData = HenleggeTrukketSøknadDataDto.DelmalData(signatur = SignaturDelmal(enhet = this.enhetNavn())),
+                        delmalData = HenleggeTrukketSøknadDataDto.DelmalData(signatur = SignaturDelmal(enhet = this.enhetNavn(), saksbehandlerNavn = saksbehandlerNavn)),
                         flettefelter =
                             FlettefelterForDokumentDtoImpl(
                                 navn = this.mottakerNavn,
@@ -101,6 +106,7 @@ fun ManueltBrevDto.tilBrev() =
                 fødselsnummer = this.mottakerIdent,
                 varselÅrsaker = this.multiselectVerdier,
                 enhet = this.enhetNavn(),
+                saksbehandlerNavn = saksbehandlerNavn,
             )
 
         Brevmal.SVARTIDSBREV ->
@@ -115,6 +121,7 @@ fun ManueltBrevDto.tilBrev() =
                     } else {
                         this.behandlingKategori == BehandlingKategori.EØS
                     },
+                saksbehandlerNavn = saksbehandlerNavn,
             )
 
         Brevmal.FORLENGET_SVARTIDSBREV ->
@@ -124,6 +131,7 @@ fun ManueltBrevDto.tilBrev() =
                 enhetNavn = this.enhetNavn(),
                 årsaker = this.multiselectVerdier,
                 antallUkerSvarfrist = this.antallUkerSvarfrist ?: throw Feil("Antall uker svarfrist er ikke satt"),
+                saksbehandlerNavn = saksbehandlerNavn,
             )
 
         Brevmal.INFORMASJONSBREV_KAN_SØKE ->
@@ -132,6 +140,18 @@ fun ManueltBrevDto.tilBrev() =
                 fodselsnummer = this.mottakerIdent,
                 enhet = this.enhetNavn(),
                 dokumentliste = this.multiselectVerdier,
+                saksbehandlerNavn = saksbehandlerNavn,
+            )
+
+        Brevmal.INNHENTE_OPPLYSNINGER_OG_INFORMASJON_OM_AT_ANNEN_FORELDER_MED_SELVSTENDIG_RETT_HAR_SØKT ->
+            InnhenteOpplysningerOmBarnDto(
+                mal = Brevmal.INNHENTE_OPPLYSNINGER_OG_INFORMASJON_OM_AT_ANNEN_FORELDER_MED_SELVSTENDIG_RETT_HAR_SØKT,
+                navn = this.mottakerNavn,
+                fødselsnummer = this.mottakerIdent,
+                dokumentliste = this.multiselectVerdier,
+                enhet = this.enhetNavn(),
+                barnasFødselsdager = this.barnasFødselsdager.tilFormaterteFødselsdager(),
+                saksbehandlerNavn = saksbehandlerNavn,
             )
 
         Brevmal.VARSEL_OM_VEDTAK_ETTER_SØKNAD_I_SED ->
@@ -142,6 +162,18 @@ fun ManueltBrevDto.tilBrev() =
                 enhet = this.enhetNavn(),
                 varselÅrsaker = this.multiselectVerdier,
                 barnasFødselsdager = this.barnasFødselsdager.tilFormaterteFødselsdager(),
+                saksbehandlerNavn = saksbehandlerNavn,
+            )
+
+        Brevmal.VARSEL_ANNEN_FORELDER_MED_SELVSTENDIG_RETT_SØKT ->
+            VarselbrevMedÅrsakerOgBarnDto(
+                mal = Brevmal.VARSEL_ANNEN_FORELDER_MED_SELVSTENDIG_RETT_SØKT,
+                navn = this.mottakerNavn,
+                fødselsnummer = mottakerIdent,
+                varselÅrsaker = this.multiselectVerdier,
+                barnasFødselsdager = this.barnasFødselsdager.tilFormaterteFødselsdager(),
+                enhet = this.enhetNavn(),
+                saksbehandlerNavn = saksbehandlerNavn,
             )
 
         Brevmal.VARSEL_OM_REVURDERING_FRA_NASJONAL_TIL_EØS ->
@@ -151,6 +183,7 @@ fun ManueltBrevDto.tilBrev() =
                 fødselsnummer = this.mottakerIdent,
                 varselÅrsaker = this.multiselectVerdier,
                 enhet = this.enhetNavn(),
+                saksbehandlerNavn = saksbehandlerNavn,
             )
 
         Brevmal.INNHENTE_OPPLYSNINGER_ETTER_SØKNAD_I_SED ->
@@ -161,6 +194,7 @@ fun ManueltBrevDto.tilBrev() =
                 dokumentliste = this.multiselectVerdier,
                 enhet = this.enhetNavn(),
                 barnasFødselsdager = this.barnasFødselsdager.tilFormaterteFødselsdager(),
+                saksbehandlerNavn = saksbehandlerNavn,
             )
 
         Brevmal.INFORMASJONSBREV_KAN_SØKE_EØS ->
@@ -169,6 +203,7 @@ fun ManueltBrevDto.tilBrev() =
                 fodselsnummer = this.mottakerIdent,
                 enhet = this.enhetNavn(),
                 mal = Brevmal.INFORMASJONSBREV_KAN_SØKE_EØS,
+                saksbehandlerNavn = saksbehandlerNavn,
             )
 
         Brevmal.VEDTAK_FØRSTEGANGSVEDTAK,

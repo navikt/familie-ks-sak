@@ -25,6 +25,7 @@ import no.nav.familie.ks.sak.kjerne.brev.domene.maler.Brevmal
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
 import no.nav.familie.ks.sak.kjerne.totrinnskontroll.TotrinnskontrollService
 import no.nav.familie.ks.sak.korrigertvedtak.KorrigertVedtakService
+import no.nav.familie.ks.sak.sikkerhet.SaksbehandlerContext
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -70,6 +71,9 @@ class GenererBrevServiceTest {
     @MockK
     private lateinit var feilutbetaltValutaService: FeilutbetaltValutaService
 
+    @MockK
+    private lateinit var saksbehandlerContext: SaksbehandlerContext
+
     @InjectMockKs
     private lateinit var genererBrevService: GenererBrevService
 
@@ -91,6 +95,8 @@ class GenererBrevServiceTest {
         mode = EnumSource.Mode.INCLUDE,
     )
     fun `genererManueltBrev - skal ikke journalføre brev for brevmaler som ikke kan sendes manuelt`(brevmal: Brevmal) {
+        every { saksbehandlerContext.hentSaksbehandlerSignaturTilBrev() } returns "test"
+
         val feil =
             assertThrows<Feil> {
                 genererBrevService.genererManueltBrev(
@@ -116,6 +122,8 @@ class GenererBrevServiceTest {
                 behandlendeEnhetNavn = "Behandlende enhet",
                 behandlendeEnhetId = "1234",
             )
+
+        every { saksbehandlerContext.hentSaksbehandlerSignaturTilBrev() } returns "test"
 
         every {
             brevKlient.genererBrev(any(), any())

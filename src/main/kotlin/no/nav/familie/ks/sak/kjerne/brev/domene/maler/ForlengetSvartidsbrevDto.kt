@@ -13,10 +13,18 @@ data class ForlengetSvartidsbrevDto(
         enhetNavn: String,
         årsaker: List<String>,
         antallUkerSvarfrist: Int,
+        saksbehandlerNavn: String,
     ) : this(
         data =
             ForlengetSvartidsbrevDataDto(
-                delmalData = ForlengetSvartidsbrevDataDto.DelmalData(signatur = SignaturDelmal(enhet = enhetNavn)),
+                delmalData =
+                    ForlengetSvartidsbrevDataDto.DelmalData(
+                        signatur =
+                            SignaturDelmal(
+                                enhet = enhetNavn,
+                                saksbehandlerNavn = saksbehandlerNavn,
+                            ),
+                    ),
                 flettefelter =
                     ForlengetSvartidsbrevDataDto.FlettefelterDto(
                         navn = flettefelt(navn),
