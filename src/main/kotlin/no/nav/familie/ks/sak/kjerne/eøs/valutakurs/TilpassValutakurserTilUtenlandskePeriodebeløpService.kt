@@ -5,9 +5,9 @@ import no.nav.familie.ks.sak.common.tidslinje.utvidelser.tilSeparateTidslinjerFo
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.tilSkjemaer
 import no.nav.familie.ks.sak.kjerne.eøs.felles.EøsSkjemaService
 import no.nav.familie.ks.sak.kjerne.eøs.felles.domene.EøsSkjemaRepository
+import no.nav.familie.ks.sak.kjerne.eøs.felles.domene.medBehandlingId
 import no.nav.familie.ks.sak.kjerne.eøs.felles.endringsabonnent.EøsSkjemaEndringAbonnent
 import no.nav.familie.ks.sak.kjerne.eøs.utenlandskperiodebeløp.domene.UtenlandskPeriodebeløp
-import no.nav.familie.ks.sak.kjerne.eøs.utenlandskperiodebeløp.medBehandlingId
 import no.nav.familie.ks.sak.kjerne.eøs.valutakurs.domene.Valutakurs
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional

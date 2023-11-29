@@ -6,8 +6,8 @@ import no.nav.familie.ks.sak.common.tidslinje.utvidelser.filtrer
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.tilSeparateTidslinjerForBarna
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.tilSkjemaer
 import no.nav.familie.ks.sak.kjerne.eøs.felles.EøsSkjemaService
-import no.nav.familie.ks.sak.kjerne.eøs.felles.domene.EøsSkjemaEntitet
 import no.nav.familie.ks.sak.kjerne.eøs.felles.domene.EøsSkjemaRepository
+import no.nav.familie.ks.sak.kjerne.eøs.felles.domene.medBehandlingId
 import no.nav.familie.ks.sak.kjerne.eøs.felles.endringsabonnent.EøsSkjemaEndringAbonnent
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.Kompetanse
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.KompetanseResultat
@@ -58,7 +58,7 @@ class TilpassUtenlandskePeriodebeløpTilKompetanserService(
         skjemaService.lagreDifferanseOgVarsleAbonnenter(
             behandlingId,
             forrigeUtenlandskePeriodebeløp,
-            oppdaterteUtenlandskPeriodebeløp.toList(),
+            oppdaterteUtenlandskPeriodebeløp,
         )
     }
 }
@@ -66,7 +66,7 @@ class TilpassUtenlandskePeriodebeløpTilKompetanserService(
 internal fun tilpassUtenlandskePeriodebeløpTilKompetanser(
     forrigeUtenlandskePeriodebeløp: Iterable<UtenlandskPeriodebeløp>,
     gjeldendeKompetanser: Iterable<Kompetanse>,
-): Collection<UtenlandskPeriodebeløp> {
+): List<UtenlandskPeriodebeløp> {
     val barnasKompetanseTidslinjer =
         gjeldendeKompetanser.tilSeparateTidslinjerForBarna()
             .filtrerSekundærland()
@@ -85,8 +85,3 @@ internal fun tilpassUtenlandskePeriodebeløpTilKompetanser(
 
 fun Map<Aktør, Tidslinje<Kompetanse>>.filtrerSekundærland() =
     this.mapValues { (_, tidslinje) -> tidslinje.filtrer { it?.resultat == KompetanseResultat.NORGE_ER_SEKUNDÆRLAND } }
-
-fun <T : EøsSkjemaEntitet<T>> Collection<T>.medBehandlingId(behandlingId: Long): Collection<T> {
-    this.forEach { it.behandlingId = behandlingId }
-    return this
-}
