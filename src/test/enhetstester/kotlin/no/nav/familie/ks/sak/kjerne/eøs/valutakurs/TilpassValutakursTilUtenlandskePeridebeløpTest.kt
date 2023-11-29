@@ -2,8 +2,8 @@ package no.nav.familie.ks.sak.kjerne.eøs.valutakurs
 
 import no.nav.familie.ks.sak.data.tilfeldigPerson
 import no.nav.familie.ks.sak.kjerne.eøs.utenlandskperiodebeløp.jan
-import no.nav.familie.ks.sak.kjerne.util.UtenlandskPeriodebeløpBuilder
-import no.nav.familie.ks.sak.kjerne.util.ValutakursBuilder
+import no.nav.familie.ks.sak.kjerne.eøs.util.UtenlandskPeriodebeløpBuilder
+import no.nav.familie.ks.sak.kjerne.eøs.util.ValutakursBuilder
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
@@ -15,24 +15,24 @@ import org.junit.jupiter.api.Test
  * '<siffer>': Skjema har oppgitt kurs og valutakode
  */
 class TilpassValutakursTilUtenlandskePeridebeløpTest {
-    val jan2020 = jan(2020)
-    val barn1 = tilfeldigPerson()
-    val barn2 = tilfeldigPerson()
-    val barn3 = tilfeldigPerson()
+    private val jan2020 = jan(2020)
+    private val barn1 = tilfeldigPerson()
+    private val barn2 = tilfeldigPerson()
+    private val barn3 = tilfeldigPerson()
 
     @Test
     fun `test tilpasning av valutakurser mot kompleks endring av utenlandsk valutabeløp`() {
         val gjeldendeValutakurser =
             ValutakursBuilder(jan2020)
                 .medKurs("--3456789-----", "EUR", barn1, barn2)
-                .bygg().toList()
+                .bygg()
 
         val utenlandskePeriodebeløp =
             UtenlandskPeriodebeløpBuilder(jan2020)
                 .medBeløp("2222 --333-", "EUR", "N", barn1)
                 .medBeløp("2223333444 ", "SEK", "N", barn2)
                 .medBeløp("-$$$- -23- ", "DKK", "N", barn3)
-                .bygg().toList()
+                .bygg()
 
         val forventedeValutakurser =
             ValutakursBuilder(jan2020)
@@ -40,7 +40,7 @@ class TilpassValutakursTilUtenlandskePeridebeløpTest {
                 .medKurs("$$$$$$$$$$ ", "SEK", barn2)
                 .medKurs("-$$$-  $$- ", "DKK", barn3)
                 .medKurs("      -    ", "DKK", barn1, barn3)
-                .bygg().toList()
+                .bygg()
 
         val faktiskeValutakurser =
             tilpassValutakurserTilUtenlandskePeriodebeløp(gjeldendeValutakurser, utenlandskePeriodebeløp)
@@ -55,17 +55,17 @@ class TilpassValutakursTilUtenlandskePeridebeløpTest {
         val gjeldendeValutakurser =
             ValutakursBuilder(jan2020)
                 .medKurs("333333", "EUR", barn1)
-                .bygg().toList()
+                .bygg()
 
         val utenlandskePeriodebeløp =
             UtenlandskPeriodebeløpBuilder(jan2020)
                 .medBeløp("222222", "DKK", "DK", barn1)
-                .bygg().toList()
+                .bygg()
 
         val forventedeValutakurser =
             ValutakursBuilder(jan2020)
                 .medKurs("$$$$$$", "DKK", barn1)
-                .bygg().toList()
+                .bygg()
 
         val faktiskeValutakurser =
             tilpassValutakurserTilUtenlandskePeriodebeløp(gjeldendeValutakurser, utenlandskePeriodebeløp)

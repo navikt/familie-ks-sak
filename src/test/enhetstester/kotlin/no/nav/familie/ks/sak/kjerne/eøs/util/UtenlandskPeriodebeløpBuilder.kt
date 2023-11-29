@@ -1,4 +1,4 @@
-package no.nav.familie.ks.sak.kjerne.util
+package no.nav.familie.ks.sak.kjerne.eøs.util
 
 import no.nav.familie.ks.sak.api.dto.tilKalkulertMånedligBeløp
 import no.nav.familie.ks.sak.kjerne.eøs.differanseberegning.domene.Intervall

@@ -9,11 +9,11 @@ import no.nav.familie.ks.sak.kjerne.eøs.felles.domene.medBehandlingId
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.mockEøsSkjemaRepository
 import no.nav.familie.ks.sak.kjerne.eøs.utenlandskperiodebeløp.UtenlandskPeriodebeløpRepository
 import no.nav.familie.ks.sak.kjerne.eøs.utenlandskperiodebeløp.jan
+import no.nav.familie.ks.sak.kjerne.eøs.util.UtenlandskPeriodebeløpBuilder
+import no.nav.familie.ks.sak.kjerne.eøs.util.ValutakursBuilder
 import no.nav.familie.ks.sak.kjerne.eøs.valutakurs.domene.Valutakurs
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
-import no.nav.familie.ks.sak.kjerne.util.UtenlandskPeriodebeløpBuilder
-import no.nav.familie.ks.sak.kjerne.util.ValutakursBuilder
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNull
@@ -24,16 +24,16 @@ import java.time.LocalDate
 import java.time.YearMonth
 
 internal class ValutakursServiceTest {
-    val valutakursRepository: EøsSkjemaRepository<Valutakurs> = mockEøsSkjemaRepository()
-    val utenlandskPeriodebeløpRepository: UtenlandskPeriodebeløpRepository = mockk()
+    private val valutakursRepository: EøsSkjemaRepository<Valutakurs> = mockEøsSkjemaRepository()
+    private val utenlandskPeriodebeløpRepository: UtenlandskPeriodebeløpRepository = mockk()
 
-    val valutakursService =
+    private val valutakursService =
         ValutakursService(
             valutakursRepository,
             emptyList(),
         )
 
-    val tilpassValutakurserTilUtenlandskePeriodebeløpService =
+    private val tilpassValutakurserTilUtenlandskePeriodebeløpService =
         TilpassValutakurserTilUtenlandskePeriodebeløpService(
             valutakursRepository,
             utenlandskPeriodebeløpRepository,
@@ -62,7 +62,7 @@ internal class ValutakursServiceTest {
                 .medBeløp("  777777777", "EUR", "N", barn1)
                 .bygg()
 
-        every { utenlandskPeriodebeløpRepository.findByBehandlingId(behandlingId) } returns utenlandskePeriodebeløp.toList()
+        every { utenlandskPeriodebeløpRepository.findByBehandlingId(behandlingId) } returns utenlandskePeriodebeløp
 
         tilpassValutakurserTilUtenlandskePeriodebeløpService.tilpassValutakursTilUtenlandskPeriodebeløp(behandlingId)
 

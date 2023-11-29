@@ -9,9 +9,9 @@ import no.nav.familie.ks.sak.kjerne.eøs.felles.domene.EøsSkjemaRepository
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.KompetanseRepository
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.mockEøsSkjemaRepository
 import no.nav.familie.ks.sak.kjerne.eøs.utenlandskperiodebeløp.domene.UtenlandskPeriodebeløp
+import no.nav.familie.ks.sak.kjerne.eøs.util.KompetanseBuilder
+import no.nav.familie.ks.sak.kjerne.eøs.util.UtenlandskPeriodebeløpBuilder
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
-import no.nav.familie.ks.sak.kjerne.tidslinje.util.KompetanseBuilder
-import no.nav.familie.ks.sak.kjerne.util.UtenlandskPeriodebeløpBuilder
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
@@ -20,17 +20,17 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
 internal class UtenlandskPeriodebeløpServiceTest {
-    val utenlandskPeriodebeløpRepository: EøsSkjemaRepository<UtenlandskPeriodebeløp> =
+    private val utenlandskPeriodebeløpRepository: EøsSkjemaRepository<UtenlandskPeriodebeløp> =
         mockEøsSkjemaRepository()
-    val kompetanseRepository: KompetanseRepository = mockk()
+    private val kompetanseRepository: KompetanseRepository = mockk()
 
-    val utenlandskPeriodebeløpService =
+    private val utenlandskPeriodebeløpService =
         UtenlandskPeriodebeløpService(
             utenlandskPeriodebeløpRepository,
             emptyList(),
         )
 
-    val tilpassUtenlandskePeriodebeløpTilKompetanserService =
+    private val tilpassUtenlandskePeriodebeløpTilKompetanserService =
         TilpassUtenlandskePeriodebeløpTilKompetanserService(
             utenlandskPeriodebeløpRepository,
             emptyList(),
@@ -61,7 +61,7 @@ internal class UtenlandskPeriodebeløpServiceTest {
                 .medKompetanse("--   ----", barn2, barn3, annenForeldersAktivitetsland = "N")
                 .byggKompetanser()
 
-        every { kompetanseRepository.findByBehandlingId(behandlingId) } returns kompetanser.toList()
+        every { kompetanseRepository.findByBehandlingId(behandlingId) } returns kompetanser
 
         tilpassUtenlandskePeriodebeløpTilKompetanserService
             .tilpassUtenlandskPeriodebeløpTilKompetanser(behandlingId)

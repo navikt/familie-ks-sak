@@ -1,4 +1,4 @@
-package no.nav.familie.ks.sak.kjerne.util
+package no.nav.familie.ks.sak.kjerne.eøs.util
 
 import no.nav.familie.ks.sak.kjerne.eøs.valutakurs.domene.Valutakurs
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person

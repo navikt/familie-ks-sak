@@ -1,4 +1,4 @@
-package no.nav.familie.ks.sak.kjerne.util
+package no.nav.familie.ks.sak.kjerne.eøs.util
 
 import no.nav.familie.ks.sak.common.tidslinje.filtrerIkkeNull
 import no.nav.familie.ks.sak.common.tidslinje.util.tilTidslinje
@@ -47,7 +47,7 @@ abstract class SkjemaBuilder<S, B>(
         return this as B
     }
 
-    fun bygg(): Collection<S> =
+    fun bygg(): List<S> =
         skjemaer
             .map { skjema -> skjema.also { it.behandlingId = behandlingId } }
 
