@@ -13,11 +13,19 @@ data class VarselbrevMedÅrsakerDto(
         fødselsnummer: String,
         varselÅrsaker: List<String>,
         enhet: String,
+        saksbehandlerNavn: String,
     ) : this(
         mal = mal,
         data =
             VarselOmRevurderingDataDto(
-                delmalData = VarselOmRevurderingDataDto.DelmalData(signatur = SignaturDelmal(enhet = enhet)),
+                delmalData =
+                    VarselOmRevurderingDataDto.DelmalData(
+                        signatur =
+                            SignaturDelmal(
+                                enhet = enhet,
+                                saksbehandlerNavn = saksbehandlerNavn,
+                            ),
+                    ),
                 flettefelter =
                     VarselOmRevurderingDataDto.FlettefelterDto(
                         navn = navn,
