@@ -114,7 +114,7 @@ class RegistrereSøknadStegTest : OppslagSpringRunnerTest() {
         val lagretSøknad = søknadGrunnlag.tilSøknadDto()
         assertTrue(
             lagretSøknad.barnaMedOpplysninger.all {
-                it.ident in
+                it.personnummer in
                     listOf(
                         barn1.aktivFødselsnummer(),
                         barn2.aktivFødselsnummer(),
