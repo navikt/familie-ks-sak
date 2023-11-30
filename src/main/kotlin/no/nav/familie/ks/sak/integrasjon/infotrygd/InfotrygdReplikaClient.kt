@@ -75,7 +75,7 @@ class InfotrygdReplikaClient(
     }
 
     fun List<BarnMedOpplysningerDto>.tilInnsynsRequest(): InnsynRequest {
-        return InnsynRequest(barn = this.map { it.ident })
+        return InnsynRequest(barn = this.mapNotNull { it.personnummer })
     }
 }
 

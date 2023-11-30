@@ -102,13 +102,13 @@ class RegistrereSøknadSteg(
     private fun validerAtIngenBarnFremstiltKravForFyller1ÅrSenereEnnInneværendeMåned(barnaMedOpplysninger: List<BarnMedOpplysningerDto>) {
         val sisteDagIInneværendeMåned = YearMonth.now().sisteDagIInneværendeMåned()
         barnaMedOpplysninger.filter { it.inkludertISøknaden }.forEach { barn ->
-            val barnFødselsdato = barn.fødselsdato ?: throw Feil("Fant ikke fødselsdato på barn ${barn.ident}.")
+            val barnFødselsdato = barn.fødselsdato ?: throw Feil("Fant ikke fødselsdato på barn ${barn.personnummer ?: "uten ident"}.")
             val datoBarnFyller1År = barnFødselsdato.plusYears(1)
 
             if (datoBarnFyller1År > sisteDagIInneværendeMåned) {
                 throw Feil(
                     message = "Det er ikke mulig å behandle barn som fyller 1 år senere enn inneværende måned.",
-                    frontendFeilmelding = "Det er søkt for tidlig for barn ${barn.ident}. Søknaden kan tidligst behandles ${datoBarnFyller1År.tilMånedÅr()}.",
+                    frontendFeilmelding = "Det er søkt for tidlig for barn ${barn.personnummer ?: "uten ident"}. Søknaden kan tidligst behandles ${datoBarnFyller1År.tilMånedÅr()}.",
                 )
             }
         }

@@ -59,7 +59,7 @@ class BehandlingsresultatService(
             YtelsePersonUtils.utledYtelsePersonerMedResultat(
                 behandlingsresultatPersoner = behandlingsresultatPersoner,
                 uregistrerteBarn =
-                    søknadGrunnlagService.finnAktiv(behandling.id)?.hentUregistrerteBarn()?.map { it.ident }
+                    søknadGrunnlagService.finnAktiv(behandling.id)?.hentUregistrerteBarn()?.mapNotNull { it.personnummer }
                         ?: emptyList(),
             )
 
@@ -123,7 +123,8 @@ class BehandlingsresultatService(
             if (behandling.erSøknad()) {
                 søknadGrunnlagService.hentAktiv(behandling.id).tilSøknadDto()
                     .barnaMedOpplysninger.filter { it.inkludertISøknaden && it.erFolkeregistrert }
-                    .map { personidentService.hentAktør(it.ident) }
+                    .mapNotNull { it.personnummer }
+                    .map { personidentService.hentAktør(it) }
             } else {
                 emptyList()
             }
