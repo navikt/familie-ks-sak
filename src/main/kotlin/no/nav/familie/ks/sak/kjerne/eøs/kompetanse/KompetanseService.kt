@@ -2,6 +2,7 @@ package no.nav.familie.ks.sak.kjerne.eøs.kompetanse
 
 import no.nav.familie.ks.sak.api.dto.KompetanseDto
 import no.nav.familie.ks.sak.api.dto.tilKompetanse
+import no.nav.familie.ks.sak.common.BehandlingId
 import no.nav.familie.ks.sak.common.tidslinje.Periode
 import no.nav.familie.ks.sak.common.tidslinje.Tidslinje
 import no.nav.familie.ks.sak.common.tidslinje.leftJoin
@@ -9,6 +10,7 @@ import no.nav.familie.ks.sak.common.tidslinje.outerJoin
 import no.nav.familie.ks.sak.common.tidslinje.tilTidslinje
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.filtrer
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.filtrerIkkeNull
+import no.nav.familie.ks.sak.common.tidslinje.utvidelser.kombinerMed
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.tilPerioderIkkeNull
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.tilSeparateTidslinjerForBarna
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.tilSkjemaer
@@ -39,11 +41,11 @@ class KompetanseService(
 
     fun hentKompetanse(kompetanseId: Long) = kompetanseSkjemaService.hentMedId(kompetanseId)
 
-    fun hentKompetanser(behandlingId: Long) = kompetanseSkjemaService.hentMedBehandlingId(behandlingId)
+    fun hentKompetanser(behandlingId: BehandlingId) = kompetanseSkjemaService.hentMedBehandlingId(behandlingId)
 
     @Transactional
     fun oppdaterKompetanse(
-        behandlingId: Long,
+        behandlingId: BehandlingId,
         oppdateresKompetanseDto: KompetanseDto,
     ) {
         val barnAktører = oppdateresKompetanseDto.barnIdenter.map { personidentService.hentAktør(it) }
@@ -56,17 +58,20 @@ class KompetanseService(
     // når vilkårer er vurdert etter EØS forordningen i vilkårsvurdering for det første gang
     // Tilpasser kompetanse skjema basert på endringer i vilkårsvurdering deretter
     @Transactional
-    fun tilpassKompetanse(behandlingId: Long) {
+    fun tilpassKompetanse(behandlingId: BehandlingId) {
         val eksisterendeKompetanser = kompetanseSkjemaService.hentMedBehandlingId(behandlingId)
         val barnasRegelverkResultatTidslinjer = hentBarnasRegelverkResultatTidslinjer(behandlingId)
         val barnasHarEtterbetaling3MånedTidslinjer =
-            endretUtbetalingAndelTidslinjeService.hentBarnasHarEtterbetaling3MånedTidslinjer(behandlingId)
+            endretUtbetalingAndelTidslinjeService.hentBarnasHarEtterbetaling3MånedTidslinjer(behandlingId.id)
+        val annenForelderOmfattetAvNorskLovgivningTidslinje =
+            vilkårsvurderingTidslinjeService.hentAnnenForelderOmfattetAvNorskLovgivningTidslinje(behandlingId = behandlingId.id)
 
         val oppdaterteKompetanser =
             tilpassKompetanserTilRegelverk(
                 eksisterendeKompetanser,
                 barnasRegelverkResultatTidslinjer,
                 barnasHarEtterbetaling3MånedTidslinjer,
+                annenForelderOmfattetAvNorskLovgivningTidslinje,
             ).medBehandlingId(behandlingId)
 
         kompetanseSkjemaService.lagreDifferanseOgVarsleAbonnenter(behandlingId, eksisterendeKompetanser, oppdaterteKompetanser)
@@ -79,6 +84,7 @@ class KompetanseService(
         eksisterendeKompetanser: Collection<Kompetanse>,
         barnaRegelverkTidslinjer: Map<Aktør, Tidslinje<RegelverkResultat>>,
         barnasHarEtterbetaling3MånedTidslinjer: Map<Aktør, Tidslinje<Boolean>>,
+        annenForelderOmfattetAvNorskLovgivningTidslinje: Tidslinje<Boolean>,
     ): List<Kompetanse> {
         val barnasEøsRegelverkTidslinjer =
             barnaRegelverkTidslinjer.tilBarnasEøsRegelverkTidslinjer()
@@ -92,11 +98,15 @@ class KompetanseService(
         return eksisterendeKompetanser.tilSeparateTidslinjerForBarna()
             .outerJoin(barnasEøsRegelverkTidslinjer) { kompetanse, regelverk ->
                 regelverk?.let { kompetanse ?: Kompetanse.blankKompetanse }
+            }.mapValues { (_, value) ->
+                value.kombinerMed(annenForelderOmfattetAvNorskLovgivningTidslinje) { kompetanse, annenForelderOmfattet ->
+                    kompetanse?.copy(erAnnenForelderOmfattetAvNorskLovgivning = annenForelderOmfattet ?: false)
+                }
             }.tilSkjemaer()
     }
 
-    private fun hentBarnasRegelverkResultatTidslinjer(behandlingId: Long): Map<Aktør, Tidslinje<RegelverkResultat>> =
-        vilkårsvurderingTidslinjeService.lagVilkårsvurderingTidslinjer(behandlingId).barnasTidslinjer()
+    private fun hentBarnasRegelverkResultatTidslinjer(behandlingId: BehandlingId): Map<Aktør, Tidslinje<RegelverkResultat>> =
+        vilkårsvurderingTidslinjeService.lagVilkårsvurderingTidslinjer(behandlingId.id).barnasTidslinjer()
             .mapValues { (_, tidslinjer) ->
                 tidslinjer.regelverkResultatTidslinje
             }

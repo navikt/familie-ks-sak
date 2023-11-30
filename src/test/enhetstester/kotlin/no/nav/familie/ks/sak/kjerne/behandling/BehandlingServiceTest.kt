@@ -39,6 +39,8 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.Vilkårsvu
 import no.nav.familie.ks.sak.kjerne.beregning.AndelerTilkjentYtelseOgEndreteUtbetalingerService
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelseRepository
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.KompetanseRepository
+import no.nav.familie.ks.sak.kjerne.eøs.utenlandskperiodebeløp.UtenlandskPeriodebeløpRepository
+import no.nav.familie.ks.sak.kjerne.eøs.valutakurs.ValutakursRepository
 import no.nav.familie.ks.sak.kjerne.logg.LoggService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.StatsborgerskapService
@@ -106,6 +108,12 @@ class BehandlingServiceTest {
     @MockK
     private lateinit var refusjonEøsService: RefusjonEøsService
 
+    @MockK
+    private lateinit var utenlandskPeriodebeløpRepository: UtenlandskPeriodebeløpRepository
+
+    @MockK
+    private lateinit var valutakursRepository: ValutakursRepository
+
     @InjectMockKs
     private lateinit var behandlingService: BehandlingService
 
@@ -172,6 +180,8 @@ class BehandlingServiceTest {
         every { sanityService.hentSanityBegrunnelser() } returns emptyList()
         every { kompetanseRepository.findByBehandlingId(any()) } returns emptyList()
         every { refusjonEøsService.hentRefusjonEøsPerioder(any()) } returns emptyList()
+        every { utenlandskPeriodebeløpRepository.findByBehandlingId(behandling.id) } returns emptyList()
+        every { valutakursRepository.findByBehandlingId(behandling.id) } returns emptyList()
     }
 
     @Test

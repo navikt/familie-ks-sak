@@ -43,6 +43,7 @@ import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Målform
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
 import no.nav.familie.ks.sak.kjerne.totrinnskontroll.TotrinnskontrollService
 import no.nav.familie.ks.sak.korrigertvedtak.KorrigertVedtakService
+import no.nav.familie.ks.sak.sikkerhet.SaksbehandlerContext
 import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
@@ -62,13 +63,14 @@ class GenererBrevService(
     private val vilkårsvurderingService: VilkårsvurderingService,
     private val korrigertVedtakService: KorrigertVedtakService,
     private val feilutbetaltValutaService: FeilutbetaltValutaService,
+    private val saksbehandlerContext: SaksbehandlerContext,
 ) {
     fun genererManueltBrev(
         manueltBrevRequest: ManueltBrevDto,
         erForhåndsvisning: Boolean = false,
     ): ByteArray {
         try {
-            val brev = manueltBrevRequest.tilBrev()
+            val brev = manueltBrevRequest.tilBrev(saksbehandlerContext.hentSaksbehandlerSignaturTilBrev())
             return brevKlient.genererBrev(
                 målform = manueltBrevRequest.mottakerMålform.tilSanityFormat(),
                 brev = brev,

@@ -19,6 +19,7 @@ import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.util.Periode
 import no.nav.familie.ks.sak.config.BehandlerRolle
 import no.nav.familie.ks.sak.config.SpringProfile
+import no.nav.familie.ks.sak.integrasjon.ecb.ECBService
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
 import no.nav.familie.ks.sak.kjerne.avstemming.GrensesnittavstemmingTask
 import no.nav.familie.ks.sak.kjerne.avstemming.KonsistensavstemmingKjøreplanService
@@ -44,7 +45,9 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
+import java.math.BigDecimal
 import java.time.LocalDate
 import java.util.UUID
 
@@ -63,6 +66,7 @@ class ForvaltningController(
     private val vilkårsvurderingService: VilkårsvurderingService,
     private val barnehageListeService: BarnehageListeService,
     private val environment: Environment,
+    private val ecbService: ECBService,
 ) {
     private val logger = LoggerFactory.getLogger(ForvaltningController::class.java)
 
@@ -258,5 +262,17 @@ class ForvaltningController(
         val alleBarnehagebarnPage = barnehageListeService.hentAlleBarnehagebarnPage(barnehagebarnRequestParams)
 
         return ResponseEntity.ok(Ressurs.success(alleBarnehagebarnPage, "OK"))
+    }
+
+    @GetMapping("/hentValutakurs/")
+    fun hentValutakurs(
+        @RequestParam valuta: String,
+        @RequestParam dato: LocalDate,
+    ): ResponseEntity<BigDecimal> {
+        tilgangService.validerTilgangTilHandling(
+            minimumBehandlerRolle = BehandlerRolle.FORVALTER,
+            handling = "hentValutakurs",
+        )
+        return ResponseEntity.ok(ecbService.hentValutakurs(valuta, dato))
     }
 }

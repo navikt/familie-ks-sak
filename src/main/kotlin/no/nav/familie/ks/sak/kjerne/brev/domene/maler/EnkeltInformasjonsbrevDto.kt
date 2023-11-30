@@ -12,6 +12,7 @@ data class EnkeltInformasjonsbrevDto(
         fodselsnummer: String,
         enhet: String,
         mal: Brevmal,
+        saksbehandlerNavn: String,
     ) : this(
         mal = mal,
         data =
@@ -25,6 +26,7 @@ data class EnkeltInformasjonsbrevDto(
                     EnkeltInformasjonsbrevDataDto.DelmalData(
                         SignaturDelmal(
                             enhet = enhet,
+                            saksbehandlerNavn = saksbehandlerNavn,
                         ),
                     ),
             ),

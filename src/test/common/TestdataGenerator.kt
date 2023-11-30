@@ -60,16 +60,19 @@ import no.nav.familie.ks.sak.kjerne.beregning.domene.maksBeløp
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.Begrunnelse
 import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.EndretUtbetalingAndel
 import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.Årsak
-import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.AnnenForeldersAktivitet
+import no.nav.familie.ks.sak.kjerne.eøs.differanseberegning.domene.Intervall
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.Kompetanse
+import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.KompetanseAktivitet
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.KompetanseResultat
-import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.SøkersAktivitet
+import no.nav.familie.ks.sak.kjerne.eøs.utenlandskperiodebeløp.domene.UtenlandskPeriodebeløp
+import no.nav.familie.ks.sak.kjerne.eøs.valutakurs.domene.Valutakurs
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.Fagsak
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.FagsakStatus
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import no.nav.familie.ks.sak.kjerne.personident.Personident
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Kjønn
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Medlemskap
+import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Målform
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
@@ -200,13 +203,30 @@ fun lagFagsak(
     status: FagsakStatus = FagsakStatus.OPPRETTET,
 ) = Fagsak(aktør = aktør, id = id, status = status)
 
+private var gjeldendeVedtakId: Long = abs(Random.nextLong(10000000))
 private var gjeldendeBehandlingId: Long = abs(Random.nextLong(10000000))
-
+private var gjeldendePersonId: Long = abs(Random.nextLong(10000000))
+private var gjeldendeUtvidetVedtaksperiodeId: Long = abs(Random.nextLong(10000000))
 private const val ID_INKREMENT = 50
+
+fun nesteVedtakId(): Long {
+    gjeldendeVedtakId += ID_INKREMENT
+    return gjeldendeVedtakId
+}
 
 fun nesteBehandlingId(): Long {
     gjeldendeBehandlingId += ID_INKREMENT
     return gjeldendeBehandlingId
+}
+
+fun nestePersonId(): Long {
+    gjeldendePersonId += ID_INKREMENT
+    return gjeldendePersonId
+}
+
+fun nesteUtvidetVedtaksperiodeId(): Long {
+    gjeldendeUtvidetVedtaksperiodeId += ID_INKREMENT
+    return gjeldendeUtvidetVedtaksperiodeId
 }
 
 fun lagBehandling(
@@ -354,6 +374,26 @@ fun lagPerson(
     return person
 }
 
+fun tilfeldigPerson(
+    fødselsdato: LocalDate = LocalDate.now(),
+    personType: PersonType = PersonType.BARN,
+    kjønn: Kjønn = Kjønn.MANN,
+    aktør: Aktør = randomAktør(),
+    personId: Long = nestePersonId(),
+    dødsfall: Dødsfall? = null,
+) =
+    Person(
+        id = personId,
+        aktør = aktør,
+        fødselsdato = fødselsdato,
+        type = personType,
+        personopplysningGrunnlag = PersonopplysningGrunnlag(behandlingId = 0),
+        navn = "",
+        kjønn = kjønn,
+        målform = Målform.NB,
+        dødsfall = dødsfall,
+    ).apply { sivilstander = mutableListOf(GrSivilstand(type = SIVILSTAND.UGIFT, person = this)) }
+
 fun lagVilkårsvurderingMedSøkersVilkår(
     søkerAktør: Aktør,
     behandling: Behandling,
@@ -361,6 +401,7 @@ fun lagVilkårsvurderingMedSøkersVilkår(
     søkerPeriodeFom: LocalDate? = LocalDate.now().minusMonths(1),
     søkerPeriodeTom: LocalDate? = LocalDate.now().plusYears(2),
     regelverk: Regelverk = Regelverk.NASJONALE_REGLER,
+    utdypendeVilkårsvurderinger: List<UtdypendeVilkårsvurdering> = emptyList(),
 ): Vilkårsvurdering {
     val vilkårsvurdering =
         Vilkårsvurdering(
@@ -382,6 +423,7 @@ fun lagVilkårsvurderingMedSøkersVilkår(
                 begrunnelse = "",
                 behandlingId = behandling.id,
                 vurderesEtter = regelverk,
+                utdypendeVilkårsvurderinger = utdypendeVilkårsvurderinger,
             ),
             VilkårResultat(
                 personResultat = personResultat,
@@ -392,6 +434,7 @@ fun lagVilkårsvurderingMedSøkersVilkår(
                 begrunnelse = "",
                 behandlingId = behandling.id,
                 vurderesEtter = regelverk,
+                utdypendeVilkårsvurderinger = utdypendeVilkårsvurderinger,
             ),
         ),
     )
@@ -835,9 +878,9 @@ fun lagKompetanse(
     barnAktører: Set<Aktør> = emptySet(),
     resultat: KompetanseResultat? = null,
     annenForeldersAktivitetsland: String? = "DK",
-    annenForeldersAktivitet: AnnenForeldersAktivitet? = AnnenForeldersAktivitet.I_ARBEID,
+    annenForeldersAktivitet: KompetanseAktivitet? = KompetanseAktivitet.I_ARBEID,
     barnetsBostedsland: String? = "NO",
-    søkersAktivitet: SøkersAktivitet? = SøkersAktivitet.ARBEIDER,
+    søkersAktivitet: KompetanseAktivitet? = KompetanseAktivitet.ARBEIDER,
     søkersAktivitetsland: String? = "SE",
 ): Kompetanse {
     val kompetanse =
@@ -855,3 +898,39 @@ fun lagKompetanse(
     kompetanse.behandlingId = behandlingId
     return kompetanse
 }
+
+fun lagUtenlandskPeriodebeløp(
+    behandlingId: Long = lagBehandling().id,
+    fom: YearMonth? = null,
+    tom: YearMonth? = null,
+    barnAktører: Set<Aktør> = emptySet(),
+    beløp: BigDecimal? = null,
+    valutakode: String? = null,
+    intervall: Intervall? = null,
+    utbetalingsland: String = "",
+) = UtenlandskPeriodebeløp(
+    fom = fom,
+    tom = tom,
+    barnAktører = barnAktører,
+    valutakode = valutakode,
+    beløp = beløp,
+    intervall = intervall,
+    utbetalingsland = utbetalingsland,
+).also { it.behandlingId = behandlingId }
+
+fun lagValutakurs(
+    behandlingId: Long = lagBehandling().id,
+    fom: YearMonth? = null,
+    tom: YearMonth? = null,
+    barnAktører: Set<Aktør> = emptySet(),
+    valutakursdato: LocalDate? = null,
+    valutakode: String? = null,
+    kurs: BigDecimal? = null,
+) = Valutakurs(
+    fom = fom,
+    tom = tom,
+    barnAktører = barnAktører,
+    valutakursdato = valutakursdato,
+    valutakode = valutakode,
+    kurs = kurs,
+).also { it.behandlingId = behandlingId }

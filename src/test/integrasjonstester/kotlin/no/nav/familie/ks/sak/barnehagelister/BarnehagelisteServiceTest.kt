@@ -22,8 +22,9 @@ class BarnehagelisteServiceTest(
     @MockkBean(relaxed = true)
     private lateinit var infotrygdReplikaClient: InfotrygdReplikaClient
 
-    var barnehagelisteXml =
-        """
+    companion object {
+        var barnehagelisteXml =
+            """
         <ns2:melding xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:seres="http://seres.no/xsd/forvaltningsdata" 
         xmlns:ns1="http://seres.no/xsd/NAV/Barnehagelister_M/2017" xmlns:ns2="http://seres.no/xsd/NAV/Barnehagelister_M/201806" 
         xmlns:my="http://schemas.microsoft.com/office/infopath/2003/myXSD/2017-02-17T12:45:52" xmlns:xd="http://schemas.microsoft.com/office/infopath/2003">
@@ -120,6 +121,7 @@ class BarnehagelisteServiceTest(
         </ns2:skjema>
         </ns2:melding>
         """
+    }
 
     @Test
     fun `test lagring av entiteter fra XML melding`() {
