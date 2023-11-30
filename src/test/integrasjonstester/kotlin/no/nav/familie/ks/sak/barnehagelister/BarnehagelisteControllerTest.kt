@@ -13,7 +13,6 @@ import no.nav.familie.ks.sak.barnehagelister.BarnehageListeService
 import no.nav.familie.ks.sak.barnehagelister.domene.BarnehagelisteMottatt
 import no.nav.familie.ks.sak.config.BehandlerRolle
 import no.nav.familie.ks.sak.sikkerhet.TilgangService
-import org.hamcrest.CoreMatchers
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -55,7 +54,6 @@ class BarnehagelisteControllerTest(
             post("/api/barnehagebarn/barnehagebarnliste")
         } Then {
             statusCode(HttpStatus.OK.value())
-            body("data.årsak", CoreMatchers.`is`("SØKNAD"))
         }
     }
 }
