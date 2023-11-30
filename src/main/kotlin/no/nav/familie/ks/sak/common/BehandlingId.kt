@@ -1,4 +1,4 @@
-package no.nav.familie.ks.sak.kjerne.eøs.felles
+package no.nav.familie.ks.sak.common
 
 data class BehandlingId(
     val id: Long,

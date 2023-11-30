@@ -2,9 +2,9 @@ package no.nav.familie.ks.sak.kjerne.eøs.valutakurs
 
 import io.mockk.every
 import io.mockk.mockk
+import no.nav.familie.ks.sak.common.BehandlingId
 import no.nav.familie.ks.sak.common.util.førsteDagIInneværendeMåned
 import no.nav.familie.ks.sak.data.tilfeldigPerson
-import no.nav.familie.ks.sak.kjerne.eøs.felles.BehandlingId
 import no.nav.familie.ks.sak.kjerne.eøs.felles.domene.EøsSkjemaRepository
 import no.nav.familie.ks.sak.kjerne.eøs.felles.domene.medBehandlingId
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.mockEøsSkjemaRepository

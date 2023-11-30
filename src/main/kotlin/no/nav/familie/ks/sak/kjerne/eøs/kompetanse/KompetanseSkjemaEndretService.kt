@@ -1,7 +1,7 @@
 package no.nav.familie.ks.sak.kjerne.eøs.kompetanse
 
+import no.nav.familie.ks.sak.common.BehandlingId
 import no.nav.familie.ks.sak.kjerne.behandling.TilbakestillBehandlingService
-import no.nav.familie.ks.sak.kjerne.eøs.felles.BehandlingId
 import no.nav.familie.ks.sak.kjerne.eøs.felles.endringsabonnent.EøsSkjemaEndringAbonnent
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.Kompetanse
 import org.springframework.context.annotation.Lazy

@@ -1,8 +1,8 @@
 package no.nav.familie.ks.sak.kjerne.eøs.util
 
 import no.nav.familie.ks.sak.api.dto.tilKalkulertMånedligBeløp
+import no.nav.familie.ks.sak.common.BehandlingId
 import no.nav.familie.ks.sak.kjerne.eøs.differanseberegning.domene.Intervall
-import no.nav.familie.ks.sak.kjerne.eøs.felles.BehandlingId
 import no.nav.familie.ks.sak.kjerne.eøs.utenlandskperiodebeløp.domene.UtenlandskPeriodebeløp
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
 import java.time.YearMonth

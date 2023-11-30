@@ -1,6 +1,6 @@
 package no.nav.familie.ks.sak.kjerne.eøs.util
 
-import no.nav.familie.ks.sak.kjerne.eøs.felles.BehandlingId
+import no.nav.familie.ks.sak.common.BehandlingId
 import no.nav.familie.ks.sak.kjerne.eøs.valutakurs.domene.Valutakurs
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
 import java.time.YearMonth

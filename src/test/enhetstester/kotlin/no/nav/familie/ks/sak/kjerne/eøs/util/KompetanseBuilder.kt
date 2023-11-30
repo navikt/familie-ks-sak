@@ -1,6 +1,6 @@
 package no.nav.familie.ks.sak.kjerne.eøs.util
 
-import no.nav.familie.ks.sak.kjerne.eøs.felles.BehandlingId
+import no.nav.familie.ks.sak.common.BehandlingId
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.Kompetanse
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.KompetanseResultat
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person

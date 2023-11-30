@@ -1,7 +1,7 @@
 package no.nav.familie.ks.sak.kjerne.eøs.felles.domene
 
+import no.nav.familie.ks.sak.common.BehandlingId
 import no.nav.familie.ks.sak.common.entitet.BaseEntitet
-import no.nav.familie.ks.sak.kjerne.eøs.felles.BehandlingId
 
 // Felles entitet klasse for alle EØS skjemaer.
 // Her T kan være entitet klasse Kompetanse, Utenlandskbeløp eller Valutakurs

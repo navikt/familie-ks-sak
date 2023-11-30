@@ -1,5 +1,6 @@
 package no.nav.familie.ks.sak.kjerne.eøs.felles
 
+import no.nav.familie.ks.sak.common.BehandlingId
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.slåSammen
 import no.nav.familie.ks.sak.kjerne.eøs.felles.domene.EøsSkjemaEntitet
 import no.nav.familie.ks.sak.kjerne.eøs.felles.domene.EøsSkjemaRepository

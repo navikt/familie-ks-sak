@@ -1,6 +1,6 @@
 package no.nav.familie.ks.sak.kjerne.eøs.utenlandskperiodebeløp
 
-import no.nav.familie.ks.sak.kjerne.eøs.felles.BehandlingId
+import no.nav.familie.ks.sak.common.BehandlingId
 import no.nav.familie.ks.sak.kjerne.eøs.felles.EøsSkjemaService
 import no.nav.familie.ks.sak.kjerne.eøs.felles.domene.EøsSkjemaRepository
 import no.nav.familie.ks.sak.kjerne.eøs.felles.endringsabonnent.EøsSkjemaEndringAbonnent
