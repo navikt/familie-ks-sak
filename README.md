@@ -17,7 +17,7 @@ eller kan settes til en gradle.properties i ~/.gradle/
 Deretter så kan denne kommandoen kjøres for å bygge
 
 ```
-./gradlew clean build 
+./gradlew build -x test -x integrationTest -x ktlintCheck
 ```
 
 ## Kjøring lokalt
