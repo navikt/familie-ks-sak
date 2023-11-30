@@ -59,7 +59,7 @@ class BehandlingsresultatService(
             YtelsePersonUtils.utledYtelsePersonerMedResultat(
                 behandlingsresultatPersoner = behandlingsresultatPersoner,
                 uregistrerteBarn =
-                    søknadGrunnlagService.finnAktiv(behandling.id)?.hentUregistrerteBarn()?.mapNotNull { it.personnummer }
+                    søknadGrunnlagService.finnAktiv(behandling.id)?.hentUregistrerteBarn()?.map { it.personnummer }
                         ?: emptyList(),
             )
 
