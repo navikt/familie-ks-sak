@@ -1,5 +1,6 @@
 package no.nav.familie.ks.sak.kjerne.eøs.felles
 
+import no.nav.familie.ks.sak.common.BehandlingId
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.slåSammen
 import no.nav.familie.ks.sak.kjerne.eøs.felles.domene.EøsSkjemaEntitet
 import no.nav.familie.ks.sak.kjerne.eøs.felles.domene.EøsSkjemaRepository
@@ -15,10 +16,10 @@ class EøsSkjemaService<T : EøsSkjemaEntitet<T>>(
 ) {
     fun hentMedId(id: Long): T = skjemaRepository.getReferenceById(id)
 
-    fun hentMedBehandlingId(behandlingId: Long) = skjemaRepository.findByBehandlingId(behandlingId)
+    fun hentMedBehandlingId(behandlingId: BehandlingId) = skjemaRepository.findByBehandlingId(behandlingId.id)
 
     fun endreSkjemaer(
-        behandlingId: Long,
+        behandlingId: BehandlingId,
         oppdatering: T,
     ) {
         val skjemaer = hentMedBehandlingId(behandlingId)
@@ -32,7 +33,7 @@ class EøsSkjemaService<T : EøsSkjemaEntitet<T>>(
 
     fun slettSkjema(skjemaId: Long) {
         val skjemaTilSletting = hentMedId(skjemaId)
-        val behandlingId = skjemaTilSletting.behandlingId
+        val behandlingId = BehandlingId(skjemaTilSletting.behandlingId)
         val eksisterendeSkjemaer = hentMedBehandlingId(behandlingId)
         val blanktSkjema = skjemaTilSletting.utenInnhold()
 
@@ -47,7 +48,7 @@ class EøsSkjemaService<T : EøsSkjemaEntitet<T>>(
     }
 
     fun lagreDifferanseOgVarsleAbonnenter(
-        behandlingId: Long,
+        behandlingId: BehandlingId,
         eksisterende: List<T>,
         oppdaterte: List<T>,
     ) {

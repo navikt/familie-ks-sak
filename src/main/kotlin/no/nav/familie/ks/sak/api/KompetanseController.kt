@@ -3,6 +3,7 @@ package no.nav.familie.ks.sak.api
 import no.nav.familie.kontrakter.felles.Ressurs
 import no.nav.familie.ks.sak.api.dto.BehandlingResponsDto
 import no.nav.familie.ks.sak.api.dto.KompetanseDto
+import no.nav.familie.ks.sak.common.BehandlingId
 import no.nav.familie.ks.sak.config.BehandlerRolle
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.KompetanseService
@@ -41,7 +42,7 @@ class KompetanseController(
             minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
             handling = "oppdater kompetanse",
         )
-        kompetanseService.oppdaterKompetanse(behandlingId, kompentanseDto)
+        kompetanseService.oppdaterKompetanse(BehandlingId(behandlingId), kompentanseDto)
         return ResponseEntity.ok(Ressurs.success(behandlingService.lagBehandlingRespons(behandlingId)))
     }
 

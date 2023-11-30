@@ -2,6 +2,7 @@ package no.nav.familie.ks.sak.kjerne.eøs.utenlandskperiodebeløp
 
 import io.mockk.every
 import io.mockk.mockk
+import no.nav.familie.ks.sak.common.BehandlingId
 import no.nav.familie.ks.sak.common.util.førsteDagIInneværendeMåned
 import no.nav.familie.ks.sak.data.tilfeldigPerson
 import no.nav.familie.ks.sak.kjerne.eøs.differanseberegning.domene.Intervall
@@ -9,9 +10,9 @@ import no.nav.familie.ks.sak.kjerne.eøs.felles.domene.EøsSkjemaRepository
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.KompetanseRepository
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.mockEøsSkjemaRepository
 import no.nav.familie.ks.sak.kjerne.eøs.utenlandskperiodebeløp.domene.UtenlandskPeriodebeløp
+import no.nav.familie.ks.sak.kjerne.eøs.util.KompetanseBuilder
+import no.nav.familie.ks.sak.kjerne.eøs.util.UtenlandskPeriodebeløpBuilder
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
-import no.nav.familie.ks.sak.kjerne.tidslinje.util.KompetanseBuilder
-import no.nav.familie.ks.sak.kjerne.util.UtenlandskPeriodebeløpBuilder
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
@@ -20,17 +21,17 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
 internal class UtenlandskPeriodebeløpServiceTest {
-    val utenlandskPeriodebeløpRepository: EøsSkjemaRepository<UtenlandskPeriodebeløp> =
+    private val utenlandskPeriodebeløpRepository: EøsSkjemaRepository<UtenlandskPeriodebeløp> =
         mockEøsSkjemaRepository()
-    val kompetanseRepository: KompetanseRepository = mockk()
+    private val kompetanseRepository: KompetanseRepository = mockk()
 
-    val utenlandskPeriodebeløpService =
+    private val utenlandskPeriodebeløpService =
         UtenlandskPeriodebeløpService(
             utenlandskPeriodebeløpRepository,
             emptyList(),
         )
 
-    val tilpassUtenlandskePeriodebeløpTilKompetanserService =
+    private val tilpassUtenlandskePeriodebeløpTilKompetanserService =
         TilpassUtenlandskePeriodebeløpTilKompetanserService(
             utenlandskPeriodebeløpRepository,
             emptyList(),
@@ -44,7 +45,7 @@ internal class UtenlandskPeriodebeløpServiceTest {
 
     @Test
     fun `skal tilpasse utenlandsk periodebeløp til endrede kompetanser`() {
-        val behandlingId = 10L
+        val behandlingId = BehandlingId(10L)
 
         val barn1 = tilfeldigPerson(personType = PersonType.BARN, fødselsdato = jan(2020).førsteDagIInneværendeMåned())
         val barn2 = tilfeldigPerson(personType = PersonType.BARN, fødselsdato = jan(2020).førsteDagIInneværendeMåned())
@@ -61,7 +62,7 @@ internal class UtenlandskPeriodebeløpServiceTest {
                 .medKompetanse("--   ----", barn2, barn3, annenForeldersAktivitetsland = "N")
                 .byggKompetanser()
 
-        every { kompetanseRepository.findByBehandlingId(behandlingId) } returns kompetanser.toList()
+        every { kompetanseRepository.findByBehandlingId(behandlingId.id) } returns kompetanser
 
         tilpassUtenlandskePeriodebeløpTilKompetanserService
             .tilpassUtenlandskPeriodebeløpTilKompetanser(behandlingId)
@@ -78,7 +79,7 @@ internal class UtenlandskPeriodebeløpServiceTest {
 
     @Test
     fun `Slette et utenlandskPeriodebeløp-skjema skal resultere i et skjema uten innhold, men som fortsatt har utbetalingsland`() {
-        val behandlingId = 10L
+        val behandlingId = BehandlingId(10L)
 
         val barn1 = tilfeldigPerson(personType = PersonType.BARN, fødselsdato = jan(2020).førsteDagIInneværendeMåned())
 
@@ -104,7 +105,7 @@ internal class UtenlandskPeriodebeløpServiceTest {
 
     @Test
     fun `Skal kunne lukke åpen utenlandskPeriodebeløp-skjema ved å sende inn identisk skjema med satt tom-dato`() {
-        val behandlingId = 10L
+        val behandlingId = BehandlingId(10L)
 
         val barn1 = tilfeldigPerson(personType = PersonType.BARN, fødselsdato = jan(2020).førsteDagIInneværendeMåned())
 

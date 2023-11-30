@@ -1,5 +1,6 @@
-package no.nav.familie.ks.sak.kjerne.util
+package no.nav.familie.ks.sak.kjerne.eøs.util
 
+import no.nav.familie.ks.sak.common.BehandlingId
 import no.nav.familie.ks.sak.common.tidslinje.filtrerIkkeNull
 import no.nav.familie.ks.sak.common.tidslinje.util.tilTidslinje
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.tilPerioder
@@ -11,7 +12,7 @@ import java.time.YearMonth
 
 abstract class SkjemaBuilder<S, B>(
     private val startMåned: YearMonth,
-    private val behandlingId: Long,
+    private val behandlingId: BehandlingId,
 ) where S : EøsSkjemaEntitet<S>, B : SkjemaBuilder<S, B> {
     private val skjemaer: MutableList<S> = mutableListOf()
 
@@ -47,9 +48,9 @@ abstract class SkjemaBuilder<S, B>(
         return this as B
     }
 
-    fun bygg(): Collection<S> =
+    fun bygg(): List<S> =
         skjemaer
-            .map { skjema -> skjema.also { it.behandlingId = behandlingId } }
+            .map { skjema -> skjema.also { it.behandlingId = behandlingId.id } }
 
     fun lagreTil(repository: EøsSkjemaRepository<S>): List<S> {
         return repository.saveAll(bygg())

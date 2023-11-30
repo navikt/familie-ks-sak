@@ -65,6 +65,7 @@ import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.Kompetanse
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.KompetanseAktivitet
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.KompetanseResultat
 import no.nav.familie.ks.sak.kjerne.eøs.utenlandskperiodebeløp.domene.UtenlandskPeriodebeløp
+import no.nav.familie.ks.sak.kjerne.eøs.valutakurs.domene.Valutakurs
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.Fagsak
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.FagsakStatus
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
@@ -915,4 +916,21 @@ fun lagUtenlandskPeriodebeløp(
     beløp = beløp,
     intervall = intervall,
     utbetalingsland = utbetalingsland,
+).also { it.behandlingId = behandlingId }
+
+fun lagValutakurs(
+    behandlingId: Long = lagBehandling().id,
+    fom: YearMonth? = null,
+    tom: YearMonth? = null,
+    barnAktører: Set<Aktør> = emptySet(),
+    valutakursdato: LocalDate? = null,
+    valutakode: String? = null,
+    kurs: BigDecimal? = null,
+) = Valutakurs(
+    fom = fom,
+    tom = tom,
+    barnAktører = barnAktører,
+    valutakursdato = valutakursdato,
+    valutakode = valutakode,
+    kurs = kurs,
 ).also { it.behandlingId = behandlingId }

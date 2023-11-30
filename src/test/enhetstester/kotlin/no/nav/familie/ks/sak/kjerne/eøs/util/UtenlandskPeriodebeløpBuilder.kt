@@ -1,14 +1,15 @@
-package no.nav.familie.ks.sak.kjerne.util
+package no.nav.familie.ks.sak.kjerne.eøs.util
 
 import no.nav.familie.ks.sak.api.dto.tilKalkulertMånedligBeløp
+import no.nav.familie.ks.sak.common.BehandlingId
 import no.nav.familie.ks.sak.kjerne.eøs.differanseberegning.domene.Intervall
 import no.nav.familie.ks.sak.kjerne.eøs.utenlandskperiodebeløp.domene.UtenlandskPeriodebeløp
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
 import java.time.YearMonth
 
 class UtenlandskPeriodebeløpBuilder(
-    private val startMåned: YearMonth,
-    private val behandlingId: Long = 1,
+    startMåned: YearMonth,
+    behandlingId: BehandlingId = BehandlingId(1),
 ) : SkjemaBuilder<UtenlandskPeriodebeløp, UtenlandskPeriodebeløpBuilder>(startMåned, behandlingId) {
     fun medBeløp(
         k: String,
