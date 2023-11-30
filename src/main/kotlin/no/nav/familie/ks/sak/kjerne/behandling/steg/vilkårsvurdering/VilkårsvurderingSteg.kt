@@ -2,6 +2,7 @@ package no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering
 
 import no.nav.familie.ks.sak.api.dto.SøknadDto
 import no.nav.familie.ks.sak.api.mapper.SøknadGrunnlagMapper.tilSøknadDto
+import no.nav.familie.ks.sak.common.BehandlingId
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.common.tidslinje.TidslinjePeriodeMedDato
 import no.nav.familie.ks.sak.common.tidslinje.validerIngenOverlapp
@@ -63,11 +64,11 @@ class VilkårsvurderingSteg(
         val finnesKompetanserEllerVilkårVurdertEtterEøs =
             vilkårsvurdering.personResultater.any {
                 it.vilkårResultater.any { vilkårResultat -> vilkårResultat.vurderesEtter == Regelverk.EØS_FORORDNINGEN }
-            } || kompetanseService.hentKompetanser(behandlingId).isNotEmpty()
+            } || kompetanseService.hentKompetanser(BehandlingId(behandlingId)).isNotEmpty()
 
         if (finnesKompetanserEllerVilkårVurdertEtterEøs) {
             logger.info("Oppretter/Tilpasser kompetanse perioder for behandlingId=$behandlingId")
-            kompetanseService.tilpassKompetanse(behandlingId)
+            kompetanseService.tilpassKompetanse(BehandlingId(behandlingId))
         }
     }
 

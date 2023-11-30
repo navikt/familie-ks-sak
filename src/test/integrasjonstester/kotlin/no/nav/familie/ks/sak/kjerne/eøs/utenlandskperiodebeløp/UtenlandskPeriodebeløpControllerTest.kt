@@ -1,4 +1,4 @@
-package no.nav.familie.ks.sak.no.nav.familie.ks.sak.kjerne.eøs.utenlandskperiodebeløp
+package no.nav.familie.ks.sak.kjerne.eøs.utenlandskperiodebeløp
 
 import io.mockk.every
 import io.mockk.just
@@ -7,9 +7,6 @@ import io.mockk.runs
 import jakarta.validation.ConstraintViolationException
 import no.nav.familie.ks.sak.api.dto.UtenlandskPeriodebeløpDto
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
-import no.nav.familie.ks.sak.kjerne.eøs.utenlandskperiodebeløp.UtenlandskPeriodebeløpController
-import no.nav.familie.ks.sak.kjerne.eøs.utenlandskperiodebeløp.UtenlandskPeriodebeløpRepository
-import no.nav.familie.ks.sak.kjerne.eøs.utenlandskperiodebeløp.UtenlandskPeriodebeløpService
 import no.nav.familie.ks.sak.kjerne.eøs.utenlandskperiodebeløp.domene.UtenlandskPeriodebeløp
 import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
 import no.nav.familie.ks.sak.sikkerhet.TilgangService

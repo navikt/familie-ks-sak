@@ -5,6 +5,7 @@ import no.nav.familie.kontrakter.felles.Ressurs
 import no.nav.familie.ks.sak.api.dto.BehandlingResponsDto
 import no.nav.familie.ks.sak.api.dto.UtenlandskPeriodebeløpDto
 import no.nav.familie.ks.sak.api.dto.tilUtenlandskPeriodebeløp
+import no.nav.familie.ks.sak.common.BehandlingId
 import no.nav.familie.ks.sak.config.BehandlerRolle
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
@@ -55,7 +56,7 @@ class UtenlandskPeriodebeløpController(
             restUtenlandskPeriodebeløp.tilUtenlandskPeriodebeløp(barnAktører, eksisterendeUtenlandskPeriodeBeløp)
 
         utenlandskPeriodebeløpService
-            .oppdaterUtenlandskPeriodebeløp(behandlingId, utenlandskPeriodebeløp)
+            .oppdaterUtenlandskPeriodebeløp(BehandlingId(behandlingId), utenlandskPeriodebeløp)
 
         return ResponseEntity.ok(Ressurs.success(behandlingService.lagBehandlingRespons(behandlingId)))
     }
@@ -72,7 +73,7 @@ class UtenlandskPeriodebeløpController(
             handling = "Sletter utenlandsk periodebeløp",
         )
 
-        utenlandskPeriodebeløpService.slettUtenlandskPeriodebeløp(behandlingId, utenlandskPeriodebeløpId)
+        utenlandskPeriodebeløpService.slettUtenlandskPeriodebeløp(BehandlingId(behandlingId), utenlandskPeriodebeløpId)
 
         return ResponseEntity.ok(Ressurs.success(behandlingService.lagBehandlingRespons(behandlingId = behandlingId)))
     }

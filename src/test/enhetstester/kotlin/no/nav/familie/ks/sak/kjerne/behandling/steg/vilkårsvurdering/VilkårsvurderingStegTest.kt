@@ -13,6 +13,7 @@ import no.nav.familie.ks.sak.api.dto.BarnMedOpplysningerDto
 import no.nav.familie.ks.sak.api.dto.SøkerMedOpplysningerDto
 import no.nav.familie.ks.sak.api.dto.SøknadDto
 import no.nav.familie.ks.sak.api.mapper.SøknadGrunnlagMapper
+import no.nav.familie.ks.sak.common.BehandlingId
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.common.util.NullablePeriode
@@ -519,7 +520,7 @@ class VilkårsvurderingStegTest {
                 BehandlingKategori.NASJONAL,
             )
         } returns behandling
-        every { kompetanseService.hentKompetanser(behandling.id) } returns emptyList()
+        every { kompetanseService.hentKompetanser(BehandlingId(behandling.id)) } returns emptyList()
 
         vilkårsvurderingSteg.utførSteg(behandling.id)
 
@@ -527,7 +528,7 @@ class VilkårsvurderingStegTest {
         verify(exactly = 1) { personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(any()) }
         verify(exactly = 1) { vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(behandling.id) }
         verify(exactly = 1) { søknadGrunnlagService.finnAktiv(behandling.id) }
-        verify(exactly = 0) { kompetanseService.tilpassKompetanse(behandling.id) }
+        verify(exactly = 0) { kompetanseService.tilpassKompetanse(BehandlingId(behandling.id)) }
     }
 
     @Test
@@ -567,7 +568,7 @@ class VilkårsvurderingStegTest {
         every { vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(behandling.id) } returns vilkårsvurderingForSøker
         every { behandlingService.hentSisteBehandlingSomErVedtatt(behandling.fagsak.id) } returns null
         every { behandlingService.endreBehandlingstemaPåBehandling(any(), BehandlingKategori.EØS) } returns behandling
-        every { kompetanseService.tilpassKompetanse(behandling.id) } just runs
+        every { kompetanseService.tilpassKompetanse(BehandlingId(behandling.id)) } just runs
 
         vilkårsvurderingSteg.utførSteg(behandling.id)
 
@@ -576,7 +577,7 @@ class VilkårsvurderingStegTest {
         verify(exactly = 1) { vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(behandling.id) }
         verify(exactly = 1) { søknadGrunnlagService.finnAktiv(behandling.id) }
         verify(exactly = 1) { behandlingService.endreBehandlingstemaPåBehandling(any(), BehandlingKategori.EØS) }
-        verify(exactly = 1) { kompetanseService.tilpassKompetanse(behandling.id) }
+        verify(exactly = 1) { kompetanseService.tilpassKompetanse(BehandlingId(behandling.id)) }
     }
 
     @Test
@@ -659,7 +660,7 @@ class VilkårsvurderingStegTest {
         every { vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(forrigeBehandling.id) } returns forrigeVilkårsvurderingForSøker
         every { behandlingService.hentSisteBehandlingSomErVedtatt(behandling.fagsak.id) } returns forrigeBehandling
         every { behandlingService.endreBehandlingstemaPåBehandling(any(), BehandlingKategori.EØS) } returns behandling
-        every { kompetanseService.hentKompetanser(behandling.id) } returns emptyList()
+        every { kompetanseService.hentKompetanser(BehandlingId(behandling.id)) } returns emptyList()
 
         vilkårsvurderingSteg.utførSteg(behandling.id)
 
@@ -669,7 +670,7 @@ class VilkårsvurderingStegTest {
         verify(exactly = 1) { søknadGrunnlagService.finnAktiv(behandling.id) }
         verify(exactly = 1) { behandlingService.endreBehandlingstemaPåBehandling(any(), BehandlingKategori.EØS) }
         // Siden nåværende vilkårvurdering vurderte etter NASJONALE REGLER, oppdaterer vi ikke kompetanse
-        verify(exactly = 0) { kompetanseService.tilpassKompetanse(behandling.id) }
+        verify(exactly = 0) { kompetanseService.tilpassKompetanse(BehandlingId(behandling.id)) }
     }
 
     @Test
@@ -757,7 +758,7 @@ class VilkårsvurderingStegTest {
                 BehandlingKategori.NASJONAL,
             )
         } returns behandling
-        every { kompetanseService.hentKompetanser(behandling.id) } returns emptyList()
+        every { kompetanseService.hentKompetanser(BehandlingId(behandling.id)) } returns emptyList()
 
         vilkårsvurderingSteg.utførSteg(behandling.id)
 
@@ -765,6 +766,6 @@ class VilkårsvurderingStegTest {
         verify(exactly = 1) { personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(any()) }
         verify(exactly = 1) { vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(behandling.id) }
         verify(exactly = 1) { søknadGrunnlagService.finnAktiv(behandling.id) }
-        verify(exactly = 0) { kompetanseService.tilpassKompetanse(behandling.id) }
+        verify(exactly = 0) { kompetanseService.tilpassKompetanse(BehandlingId(behandling.id)) }
     }
 }

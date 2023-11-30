@@ -1,4 +1,4 @@
-package no.nav.familie.ks.sak.no.nav.familie.ks.sak.integrasjon.ecb
+package no.nav.familie.ks.sak.integrasjon.ecb
 
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
@@ -6,7 +6,6 @@ import io.mockk.junit5.MockKExtension
 import io.mockk.verify
 import no.nav.familie.ks.sak.OppslagSpringRunnerTest
 import no.nav.familie.ks.sak.config.DatabaseCleanupService
-import no.nav.familie.ks.sak.integrasjon.ecb.ECBService
 import no.nav.familie.ks.sak.integrasjon.ecb.domene.ECBValutakursCacheRepository
 import no.nav.familie.valutakurs.Frequency
 import no.nav.familie.valutakurs.ValutakursRestClient
