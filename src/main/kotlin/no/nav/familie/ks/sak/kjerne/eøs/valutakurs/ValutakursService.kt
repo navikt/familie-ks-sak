@@ -34,4 +34,10 @@ class ValutakursService(
         valutakursId: Long,
     ) =
         skjemaService.slettSkjema(valutakursId)
+
+    fun kopierOgErstattValutakurser(
+        fraBehandlingId: BehandlingId,
+        tilBehandlingId: BehandlingId,
+    ) =
+        skjemaService.kopierOgErstattSkjemaer(fraBehandlingId, tilBehandlingId)
 }
