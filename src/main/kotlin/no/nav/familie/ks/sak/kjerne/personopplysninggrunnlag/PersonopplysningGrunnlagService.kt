@@ -69,7 +69,8 @@ class PersonopplysningGrunnlagService(
 
         val valgteBarnAktører =
             søknadDto.barnaMedOpplysninger.filter { it.inkludertISøknaden && it.erFolkeregistrert }
-                .map { personidentService.hentOgLagreAktør(it.ident, true) }
+                .mapNotNull { it.personnummer }
+                .map { personidentService.hentOgLagreAktør(it, true) }
 
         val barnAktører =
             when {

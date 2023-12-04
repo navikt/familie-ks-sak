@@ -37,7 +37,7 @@ object YtelsePersonUtils {
      */
     fun utledYtelsePersonerMedResultat(
         behandlingsresultatPersoner: List<BehandlingsresultatPerson>,
-        uregistrerteBarn: List<String> = emptyList(),
+        uregistrerteBarn: List<String?>,
     ): List<YtelsePerson> {
         val altOpphørt = behandlingsresultatPersoner.all { erYtelsenOpphørt(it.andeler) }
 
