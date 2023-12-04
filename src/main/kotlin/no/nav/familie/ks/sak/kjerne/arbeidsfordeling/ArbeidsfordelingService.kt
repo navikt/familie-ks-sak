@@ -1,5 +1,6 @@
 package no.nav.familie.ks.sak.kjerne.arbeidsfordeling
 
+import no.nav.familie.kontrakter.felles.personopplysning.ADRESSEBESKYTTELSEGRADERING
 import no.nav.familie.ks.sak.api.dto.EndreBehandlendeEnhetDto
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
@@ -11,6 +12,7 @@ import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.domene.ArbeidsfordelingPåB
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.logg.LoggService
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
+import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlagRepository
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
@@ -23,6 +25,7 @@ class ArbeidsfordelingService(
     private val personOpplysningerService: PersonOpplysningerService,
     private val oppgaveService: OppgaveService,
     private val loggService: LoggService,
+    private val personidentService: PersonidentService,
 ) {
     fun hentAlleBehandlingerPåEnhet(enhetId: String) =
         arbeidsfordelingPåBehandlingRepository.hentAlleArbeidsfordelingPåBehandlingMedEnhet(enhetId)
@@ -121,6 +124,23 @@ class ArbeidsfordelingService(
             ?: throw Feil(message = "Fant flere eller ingen enheter på behandling.")
     }
 
+    fun hentArbeidsfordelingsenhetPåIdenter(
+        søkerIdent: String,
+        barnIdenter: List<String>,
+    ): ArbeidsfordelingsEnhet {
+        val identerLagtSammen = barnIdenter + søkerIdent
+
+        val identTilAdresseBeskyttelseGraderingMap =
+            identerLagtSammen.map {
+                it to identMedAdressebeskyttelse(it).adressebeskyttelsegradering
+            }
+
+        val identMedStrengeste = finnPersonMedStrengesteAdressebeskyttelse(identTilAdresseBeskyttelseGraderingMap)
+
+        return integrasjonClient.hentBehandlendeEnheter(identMedStrengeste ?: søkerIdent).singleOrNull()
+            ?: throw Feil(message = "Fant flere eller ingen enheter på behandling.")
+    }
+
     private fun fastsettBehandledeEnhetPåSatsendringsbehandling(
         behandling: Behandling,
         sisteVedtattBehandling: Behandling?,
@@ -177,6 +197,20 @@ class ArbeidsfordelingService(
 
     private fun identMedAdressebeskyttelse(aktør: Aktør) =
         aktør.aktivFødselsnummer() to personOpplysningerService.hentPersoninfoEnkel(aktør).adressebeskyttelseGradering
+
+    private fun identMedAdressebeskyttelse(ident: String) =
+        IdentMedAdressebeskyttelse(
+            ident = ident,
+            adressebeskyttelsegradering =
+                personOpplysningerService.hentPersoninfoEnkel(
+                    personidentService.hentAktør(ident),
+                ).adressebeskyttelseGradering,
+        )
+
+    data class IdentMedAdressebeskyttelse(
+        val ident: String,
+        val adressebeskyttelsegradering: ADRESSEBESKYTTELSEGRADERING?,
+    )
 
     companion object {
         private val secureLogger = LoggerFactory.getLogger("secureLogger")

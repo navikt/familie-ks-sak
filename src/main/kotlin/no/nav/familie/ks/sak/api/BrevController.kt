@@ -4,12 +4,18 @@ import jakarta.transaction.Transactional
 import no.nav.familie.kontrakter.felles.Ressurs
 import no.nav.familie.ks.sak.api.dto.BehandlingResponsDto
 import no.nav.familie.ks.sak.api.dto.ManueltBrevDto
+import no.nav.familie.ks.sak.api.dto.MinimalFagsakResponsDto
+import no.nav.familie.ks.sak.api.dto.leggTilEnhet
+import no.nav.familie.ks.sak.api.dto.utvidManueltBrevDtoMedEnhetOgMottaker
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.config.BehandlerRolle
+import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.ArbeidsfordelingService
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.VedtakService
 import no.nav.familie.ks.sak.kjerne.brev.BrevService
 import no.nav.familie.ks.sak.kjerne.brev.GenererBrevService
+import no.nav.familie.ks.sak.kjerne.fagsak.FagsakService
+import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
 import no.nav.familie.ks.sak.sikkerhet.AuditLoggerEvent
 import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext
 import no.nav.familie.ks.sak.sikkerhet.TilgangService
@@ -34,6 +40,9 @@ class BrevController(
     private val tilgangService: TilgangService,
     private val behandlingService: BehandlingService,
     private val vedtakService: VedtakService,
+    private val personopplysningGrunnlagService: PersonopplysningGrunnlagService,
+    private val arbeidsfordelingService: ArbeidsfordelingService,
+    private val fagsakService: FagsakService,
 ) {
     @PostMapping(path = ["/forhåndsvis-brev/{behandlingId}"])
     fun hentForhåndsvisning(
@@ -52,9 +61,49 @@ class BrevController(
         )
 
         return brevService.hentForhåndsvisningAvBrev(
-            behandlingId = behandlingId,
-            manueltBrevDto = manueltBrevDto,
+            manueltBrevDto = manueltBrevDto.utvidManueltBrevDtoMedEnhetOgMottaker(behandlingId, personopplysningGrunnlagService, arbeidsfordelingService),
         ).let { Ressurs.success(it) }
+    }
+
+    @PostMapping(path = ["/fagsak/{fagsakId}/forhåndsvis-brev"])
+    fun hentForhåndsvisningPåFagsak(
+        @PathVariable fagsakId: Long,
+        @RequestBody manueltBrevDto: ManueltBrevDto,
+    ): Ressurs<ByteArray> {
+        logger.info(
+            "${SikkerhetContext.hentSaksbehandlerNavn()} henter forhåndsvisning av brev på fagsak $fagsakId " +
+                "for mal: ${manueltBrevDto.brevmal}",
+        )
+        tilgangService.validerTilgangTilHandlingOgFagsakForPerson(
+            minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
+            handling = "hente forhåndsvisning brev",
+            personIdent = manueltBrevDto.mottakerIdent,
+            event = AuditLoggerEvent.ACCESS,
+        )
+
+        return brevService.hentForhåndsvisningAvBrev(
+            manueltBrevDto = manueltBrevDto.leggTilEnhet(arbeidsfordelingService),
+        ).let { Ressurs.success(it) }
+    }
+
+    @PostMapping(path = ["/fagsak/{fagsakId}/send-brev"])
+    fun sendBrevPåFagsak(
+        @PathVariable fagsakId: Long,
+        @RequestBody manueltBrevDto: ManueltBrevDto,
+    ): ResponseEntity<Ressurs<MinimalFagsakResponsDto>> {
+        logger.info("${SikkerhetContext.hentSaksbehandlerNavn()} genererer og sender brev på fagsak $fagsakId: ${manueltBrevDto.brevmal}")
+        tilgangService.validerTilgangTilHandling(
+            minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
+            handling = "sende brev",
+        )
+
+        val fagsak = fagsakService.hentFagsak(fagsakId)
+
+        brevService.sendBrev(
+            manueltBrevDto = manueltBrevDto.leggTilEnhet(arbeidsfordelingService),
+            fagsak = fagsak,
+        )
+        return ResponseEntity.ok(Ressurs.success(fagsakService.hentMinimalFagsak(fagsakId = fagsakId)))
     }
 
     @PostMapping(path = ["/send-brev/{behandlingId}"])

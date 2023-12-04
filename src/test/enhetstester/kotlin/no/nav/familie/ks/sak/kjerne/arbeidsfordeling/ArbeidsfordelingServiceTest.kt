@@ -16,6 +16,7 @@ import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.domene.ArbeidsfordelingPåB
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.domene.ArbeidsfordelingPåBehandlingRepository
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import no.nav.familie.ks.sak.kjerne.logg.LoggService
+import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlagRepository
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.jupiter.api.Test
@@ -42,6 +43,9 @@ internal class ArbeidsfordelingServiceTest {
 
     @MockK
     private lateinit var loggService: LoggService
+
+    @MockK
+    private lateinit var personidentService: PersonidentService
 
     @InjectMockKs
     private lateinit var arbeidsfordelingService: ArbeidsfordelingService
