@@ -6,6 +6,7 @@ import no.nav.familie.ks.sak.kjerne.eøs.felles.domene.EøsSkjemaRepository
 import no.nav.familie.ks.sak.kjerne.eøs.felles.endringsabonnent.EøsSkjemaEndringAbonnent
 import no.nav.familie.ks.sak.kjerne.eøs.utenlandskperiodebeløp.domene.UtenlandskPeriodebeløp
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 
 @Service
 class UtenlandskPeriodebeløpService(
@@ -33,10 +34,10 @@ class UtenlandskPeriodebeløpService(
     ) =
         skjemaService.slettSkjema(utenlandskPeriodebeløpId)
 
-//    @Transactional
-//    fun kopierOgErstattUtenlandskPeriodebeløp(
-//        fraBehandlingId: Long,
-//        tilBehandlingId: Long,
-//    ) =
-//        skjemaService.kopierOgErstattSkjemaer(fraBehandlingId, tilBehandlingId)
+    @Transactional
+    fun kopierOgErstattUtenlandskPeriodebeløp(
+        fraBehandlingId: BehandlingId,
+        tilBehandlingId: BehandlingId,
+    ) =
+        skjemaService.kopierOgErstattSkjemaer(fraBehandlingId, tilBehandlingId)
 }

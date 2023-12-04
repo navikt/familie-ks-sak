@@ -80,6 +80,13 @@ class KompetanseService(
     @Transactional
     fun slettKompetanse(kompetanseId: Long) = kompetanseSkjemaService.slettSkjema(kompetanseId)
 
+    @Transactional
+    fun kopierOgErstattKompetanser(
+        fraBehandlingId: BehandlingId,
+        tilBehandlingId: BehandlingId,
+    ) =
+        kompetanseSkjemaService.kopierOgErstattSkjemaer(fraBehandlingId, tilBehandlingId)
+
     private fun tilpassKompetanserTilRegelverk(
         eksisterendeKompetanser: Collection<Kompetanse>,
         barnaRegelverkTidslinjer: Map<Aktør, Tidslinje<RegelverkResultat>>,

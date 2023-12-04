@@ -16,28 +16,28 @@ class KompetanseBuilder(
         k: String,
         vararg barn: Person,
         annenForeldersAktivitetsland: String? = null,
-        // erAnnenForelderOmfattetAvNorskLovgivning: Boolean? = false,
+        erAnnenForelderOmfattetAvNorskLovgivning: Boolean? = false,
     ) =
         medSkjema(k, barn.toList()) {
             when (it) {
                 '-' ->
                     tomKompetanse.copy(
                         annenForeldersAktivitetsland = annenForeldersAktivitetsland,
-                        // erAnnenForelderOmfattetAvNorskLovgivning = erAnnenForelderOmfattetAvNorskLovgivning,
+                        erAnnenForelderOmfattetAvNorskLovgivning = erAnnenForelderOmfattetAvNorskLovgivning,
                     )
 
                 'S' ->
                     tomKompetanse.copy(
                         resultat = KompetanseResultat.NORGE_ER_SEKUNDÆRLAND,
                         annenForeldersAktivitetsland = annenForeldersAktivitetsland,
-                        // erAnnenForelderOmfattetAvNorskLovgivning = erAnnenForelderOmfattetAvNorskLovgivning,
+                        erAnnenForelderOmfattetAvNorskLovgivning = erAnnenForelderOmfattetAvNorskLovgivning,
                     ).fyllUt()
 
                 'P' ->
                     tomKompetanse.copy(
                         resultat = KompetanseResultat.NORGE_ER_PRIMÆRLAND,
                         annenForeldersAktivitetsland = annenForeldersAktivitetsland,
-                        // erAnnenForelderOmfattetAvNorskLovgivning = erAnnenForelderOmfattetAvNorskLovgivning,
+                        erAnnenForelderOmfattetAvNorskLovgivning = erAnnenForelderOmfattetAvNorskLovgivning,
                     ).fyllUt()
 
                 else -> null
@@ -49,7 +49,7 @@ class KompetanseBuilder(
 
 fun Kompetanse.fyllUt() =
     this.copy(
-        // erAnnenForelderOmfattetAvNorskLovgivning = erAnnenForelderOmfattetAvNorskLovgivning ?: false,
+        erAnnenForelderOmfattetAvNorskLovgivning = erAnnenForelderOmfattetAvNorskLovgivning ?: false,
         resultat = resultat ?: KompetanseResultat.NORGE_ER_SEKUNDÆRLAND,
         annenForeldersAktivitetsland = annenForeldersAktivitetsland ?: "DK",
         barnetsBostedsland = barnetsBostedsland ?: "NO",

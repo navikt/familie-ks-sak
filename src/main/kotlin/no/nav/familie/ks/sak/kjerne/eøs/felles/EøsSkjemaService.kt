@@ -47,6 +47,20 @@ class EøsSkjemaService<T : EøsSkjemaEntitet<T>>(
         lagreDifferanseOgVarsleAbonnenter(behandlingId, eksisterendeSkjemaer, oppdaterteKompetanser)
     }
 
+    fun kopierOgErstattSkjemaer(
+        fraBehandlingId: BehandlingId,
+        tilBehandlingId: BehandlingId,
+    ) {
+        val gjeldendeTilSkjemaer = hentMedBehandlingId(tilBehandlingId)
+        val kopiAvFraSkjemaer =
+            hentMedBehandlingId(fraBehandlingId)
+                .map { it.kopier() }
+                .medBehandlingId(tilBehandlingId)
+
+        skjemaRepository.deleteAll(gjeldendeTilSkjemaer)
+        skjemaRepository.saveAll(kopiAvFraSkjemaer)
+    }
+
     fun lagreDifferanseOgVarsleAbonnenter(
         behandlingId: BehandlingId,
         eksisterende: List<T>,
