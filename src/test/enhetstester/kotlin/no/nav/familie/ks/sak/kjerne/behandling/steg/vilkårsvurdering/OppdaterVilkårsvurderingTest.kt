@@ -134,10 +134,10 @@ class OppdaterVilkårsvurderingTest {
         val vilkårsvurderingForrigeBehandling =
             lagVilkårsvurderingOppfylt(
                 personer =
-                listOf(
-                    persongrunnlagForrigeBehandling.søker,
-                    persongrunnlagForrigeBehandling.barna.single(),
-                ),
+                    listOf(
+                        persongrunnlagForrigeBehandling.søker,
+                        persongrunnlagForrigeBehandling.barna.single(),
+                    ),
             )
 
         initiellVilkårsvurdering.kopierOverOppfylteOgIkkeAktuelleResultaterFraForrigeBehandling(
@@ -205,10 +205,10 @@ class OppdaterVilkårsvurderingTest {
             lagVilkårsvurderingOppfylt(
                 behandling = nyBehandling,
                 personer =
-                listOf(
-                    lagPerson(personType = PersonType.SØKER, aktør = søkerAktørId),
-                    lagPerson(personType = PersonType.BARN, aktør = randomAktør()),
-                ),
+                    listOf(
+                        lagPerson(personType = PersonType.SØKER, aktør = søkerAktørId),
+                        lagPerson(personType = PersonType.BARN, aktør = randomAktør()),
+                    ),
             )
         val aktivMedBosattIRiketDelvisIkkeOppfylt = Vilkårsvurdering(behandling = forrigeBehandling)
         val personResultat =
@@ -266,10 +266,10 @@ class OppdaterVilkårsvurderingTest {
             lagVilkårsvurderingOppfylt(
                 behandling = nyBehandling,
                 personer =
-                listOf(
-                    lagPerson(personType = PersonType.SØKER, aktør = søkerAktørId),
-                    lagPerson(personType = PersonType.BARN, aktør = randomAktør()),
-                ),
+                    listOf(
+                        lagPerson(personType = PersonType.SØKER, aktør = søkerAktørId),
+                        lagPerson(personType = PersonType.BARN, aktør = randomAktør()),
+                    ),
             )
         val vilkårsvurderingForrigeBehandling = initiellVilkårsvurderingUtenAndreVurderinger.copy()
         vilkårsvurderingForrigeBehandling.personResultater.find { it.erSøkersResultater() }!!
