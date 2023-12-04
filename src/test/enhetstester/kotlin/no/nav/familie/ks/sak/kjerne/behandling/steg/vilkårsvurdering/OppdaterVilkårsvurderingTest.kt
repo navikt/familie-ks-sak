@@ -8,15 +8,18 @@ import no.nav.familie.ks.sak.data.lagVilkårResultat
 import no.nav.familie.ks.sak.data.lagVilkårsvurderingOppfylt
 import no.nav.familie.ks.sak.data.randomAktør
 import no.nav.familie.ks.sak.data.randomFnr
+import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingKategori
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.AnnenVurderingType
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.PersonResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
+import org.hamcrest.MatcherAssert.assertThat
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
+import org.hamcrest.CoreMatchers.`is` as Is
 
 class OppdaterVilkårsvurderingTest {
     @Test
@@ -131,10 +134,10 @@ class OppdaterVilkårsvurderingTest {
         val vilkårsvurderingForrigeBehandling =
             lagVilkårsvurderingOppfylt(
                 personer =
-                    listOf(
-                        persongrunnlagForrigeBehandling.søker,
-                        persongrunnlagForrigeBehandling.barna.single(),
-                    ),
+                listOf(
+                    persongrunnlagForrigeBehandling.søker,
+                    persongrunnlagForrigeBehandling.barna.single(),
+                ),
             )
 
         initiellVilkårsvurdering.kopierOverOppfylteOgIkkeAktuelleResultaterFraForrigeBehandling(
@@ -202,10 +205,10 @@ class OppdaterVilkårsvurderingTest {
             lagVilkårsvurderingOppfylt(
                 behandling = nyBehandling,
                 personer =
-                    listOf(
-                        lagPerson(personType = PersonType.SØKER, aktør = søkerAktørId),
-                        lagPerson(personType = PersonType.BARN, aktør = randomAktør()),
-                    ),
+                listOf(
+                    lagPerson(personType = PersonType.SØKER, aktør = søkerAktørId),
+                    lagPerson(personType = PersonType.BARN, aktør = randomAktør()),
+                ),
             )
         val aktivMedBosattIRiketDelvisIkkeOppfylt = Vilkårsvurdering(behandling = forrigeBehandling)
         val personResultat =
@@ -263,10 +266,10 @@ class OppdaterVilkårsvurderingTest {
             lagVilkårsvurderingOppfylt(
                 behandling = nyBehandling,
                 personer =
-                    listOf(
-                        lagPerson(personType = PersonType.SØKER, aktør = søkerAktørId),
-                        lagPerson(personType = PersonType.BARN, aktør = randomAktør()),
-                    ),
+                listOf(
+                    lagPerson(personType = PersonType.SØKER, aktør = søkerAktørId),
+                    lagPerson(personType = PersonType.BARN, aktør = randomAktør()),
+                ),
             )
         val vilkårsvurderingForrigeBehandling = initiellVilkårsvurderingUtenAndreVurderinger.copy()
         vilkårsvurderingForrigeBehandling.personResultater.find { it.erSøkersResultater() }!!
@@ -281,5 +284,47 @@ class OppdaterVilkårsvurderingTest {
                 .any { it.type == AnnenVurderingType.OPPLYSNINGSPLIKT }
 
         Assertions.assertTrue(nyInitInnholderOpplysningspliktVilkår)
+    }
+
+    @Test
+    fun `genererInitiellVilkårsvurdering skal generere eøs spesifikke vilkår dersom det er en behandling med kategori EØS`() {
+        val søkerFnr = randomFnr()
+        val nyBehandling = lagBehandling(kategori = BehandlingKategori.EØS)
+
+        val persongrunnlag =
+            lagPersonopplysningGrunnlag(
+                behandlingId = nyBehandling.id,
+                søkerPersonIdent = søkerFnr,
+            )
+        val initiellVilkårsvurdering =
+            genererInitiellVilkårsvurdering(
+                behandling = nyBehandling,
+                personopplysningGrunnlag = persongrunnlag,
+            )
+
+        val finnesEøsSpesifikkeVilkårIVilkårsvurdering = initiellVilkårsvurdering.personResultater.flatMap { it.vilkårResultater }.any { it.vilkårType.eøsSpesifikt }
+
+        assertThat(finnesEøsSpesifikkeVilkårIVilkårsvurdering, Is(true))
+    }
+
+    @Test
+    fun `genererInitiellVilkårsvurdering skal generere ikke eøs spesifikke vilkår dersom det er en behandling med kategori NASJONAL`() {
+        val søkerFnr = randomFnr()
+        val nyBehandling = lagBehandling(kategori = BehandlingKategori.NASJONAL)
+
+        val persongrunnlag =
+            lagPersonopplysningGrunnlag(
+                behandlingId = nyBehandling.id,
+                søkerPersonIdent = søkerFnr,
+            )
+        val initiellVilkårsvurdering =
+            genererInitiellVilkårsvurdering(
+                behandling = nyBehandling,
+                personopplysningGrunnlag = persongrunnlag,
+            )
+
+        val finnesEøsSpesifikkeVilkårIVilkårsvurdering = initiellVilkårsvurdering.personResultater.flatMap { it.vilkårResultater }.any { it.vilkårType.eøsSpesifikt }
+
+        assertThat(finnesEøsSpesifikkeVilkårIVilkårsvurdering, Is(false))
     }
 }
