@@ -11,6 +11,7 @@ import io.mockk.slot
 import io.mockk.verify
 import no.nav.familie.kontrakter.felles.dokarkiv.v2.Førsteside
 import no.nav.familie.ks.sak.api.dto.ManueltBrevDto
+import no.nav.familie.ks.sak.api.dto.utvidManueltBrevDtoMedEnhetOgMottaker
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagFagsak
 import no.nav.familie.ks.sak.data.lagPerson
@@ -102,7 +103,7 @@ class BrevServiceTest {
 
         every { genererBrevService.genererManueltBrev(any(), any()) } returns ByteArray(10)
 
-        brevService.hentForhåndsvisningAvBrev(behandlingId = behandling.id, manueltBrevDto).shouldNotBeNull()
+        brevService.hentForhåndsvisningAvBrev(manueltBrevDto.utvidManueltBrevDtoMedEnhetOgMottaker(behandling.id, personopplysningGrunnlagService, arbeidsfordelingService)).shouldNotBeNull()
     }
 
     @ParameterizedTest
