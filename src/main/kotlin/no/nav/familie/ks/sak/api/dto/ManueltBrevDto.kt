@@ -15,6 +15,8 @@ import no.nav.familie.ks.sak.kjerne.brev.domene.maler.HenleggeTrukketSøknadData
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.InformasjonsbrevDeltBostedBrevDto
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.InformasjonsbrevDeltBostedDataDto
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.InformasjonsbrevKanSøkeDto
+import no.nav.familie.ks.sak.kjerne.brev.domene.maler.InformasjonsbrevTilForelderBrev
+import no.nav.familie.ks.sak.kjerne.brev.domene.maler.InformasjonsbrevTilForelderDataDto
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.InnhenteOpplysningerBrevDto
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.InnhenteOpplysningerDataDto
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.InnhenteOpplysningerOmBarnDto
@@ -70,6 +72,32 @@ fun ManueltBrevDto.tilBrev(saksbehandlerNavn: String) =
                                 navn = this.mottakerNavn,
                                 fodselsnummer = this.mottakerIdent,
                                 barnMedDeltBostedAvtale = this.multiselectVerdier,
+                            ),
+                    ),
+            )
+
+        Brevmal.INFORMASJONSBREV_TIL_FORELDER_OMFATTET_NORSK_LOVGIVNING_HAR_FÅTT_EN_SØKNAD_FRA_ANNEN_FORELDER,
+        Brevmal.INFORMASJONSBREV_TIL_FORELDER_OMFATTET_NORSK_LOVGIVNING_VARSEL_OM_REVURDERING,
+        ->
+            InformasjonsbrevTilForelderBrev(
+                mal = this.brevmal,
+                data =
+                    InformasjonsbrevTilForelderDataDto(
+                        delmalData =
+                            InformasjonsbrevTilForelderDataDto.DelmalData(
+                                signatur =
+                                    SignaturDelmal(
+                                        enhet =
+                                            flettefelt(
+                                                this.enhetNavn(),
+                                            ),
+                                    ),
+                            ),
+                        flettefelter =
+                            InformasjonsbrevTilForelderDataDto.Flettefelter(
+                                navn = this.mottakerNavn,
+                                fodselsnummer = this.mottakerIdent,
+                                barnSøktFor = this.multiselectVerdier,
                             ),
                     ),
             )
