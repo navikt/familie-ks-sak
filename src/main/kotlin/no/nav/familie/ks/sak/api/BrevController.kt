@@ -44,7 +44,7 @@ class BrevController(
     private val arbeidsfordelingService: ArbeidsfordelingService,
     private val fagsakService: FagsakService,
 ) {
-    @PostMapping(path = ["/forhåndsvis-brev/{behandlingId}"])
+    @PostMapping(path = ["/forhaandsvis-brev/{behandlingId}"])
     fun hentForhåndsvisning(
         @PathVariable behandlingId: Long,
         @RequestBody manueltBrevDto: ManueltBrevDto,
@@ -65,7 +65,7 @@ class BrevController(
         ).let { Ressurs.success(it) }
     }
 
-    @PostMapping(path = ["/fagsak/{fagsakId}/forhåndsvis-brev"])
+    @PostMapping(path = ["/fagsak/{fagsakId}/forhaandsvis-brev"])
     fun hentForhåndsvisningPåFagsak(
         @PathVariable fagsakId: Long,
         @RequestBody manueltBrevDto: ManueltBrevDto,
@@ -128,7 +128,7 @@ class BrevController(
         )
     }
 
-    @GetMapping(path = ["/forhåndsvis-vedtaksbrev/{behandlingId}"])
+    @GetMapping(path = ["/forhaandsvis-vedtaksbrev/{behandlingId}"])
     fun hentVedtaksbrev(
         @PathVariable behandlingId: Long,
     ): Ressurs<ByteArray> {
@@ -149,7 +149,7 @@ class BrevController(
     }
 
     @Transactional
-    @PostMapping(path = ["forhåndsvis-og-lagre-vedtaksbrev/{behandlingId}"])
+    @PostMapping(path = ["forhaandsvis-og-lagre-vedtaksbrev/{behandlingId}"])
     fun genererOgLagreVedtaksbrev(
         @PathVariable behandlingId: Long,
     ): Ressurs<ByteArray> {
