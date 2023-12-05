@@ -25,7 +25,7 @@ class TilbakekrevingController(
     private val tilgangService: TilgangService,
     private val tilbakekrevingService: TilbakekrevingService,
 ) {
-    @PostMapping("/{behandlingId}/forhåndsvis-tilbakekreving-varselbrev")
+    @PostMapping("/{behandlingId}/forhaandsvis-tilbakekreving-varselbrev")
     fun hentForhåndsvisningVarselbrev(
         @PathVariable behandlingId: Long,
         @RequestBody forhåndsvisTilbakekrevingVarselbrevDto: ForhåndsvisTilbakekrevingVarselbrevDto,
