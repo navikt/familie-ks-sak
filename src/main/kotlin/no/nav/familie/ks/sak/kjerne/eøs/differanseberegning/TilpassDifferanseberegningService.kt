@@ -2,6 +2,7 @@ package no.nav.familie.ks.sak.kjerne.eøs.differanseberegning
 
 import no.nav.familie.ba.sak.kjerne.eøs.differanseberegning.beregnDifferanse
 import no.nav.familie.ks.sak.common.BehandlingId
+import no.nav.familie.ks.sak.kjerne.beregning.TilkjentYtelseEndretAbonnent
 import no.nav.familie.ks.sak.kjerne.beregning.domene.TilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.domene.TilkjentYtelseRepository
 import no.nav.familie.ks.sak.kjerne.beregning.domene.oppdaterTilkjentYtelse
@@ -108,7 +109,3 @@ class TilpassDifferanseberegningEtterValutakursService(
 //         tilkjentYtelseRepository.oppdaterTilkjentYtelse(tilkjentYtelse, oppdaterteAndeler)
 //     }
 // }
-
-interface TilkjentYtelseEndretAbonnent {
-    fun endretTilkjentYtelse(tilkjentYtelse: TilkjentYtelse)
-}
