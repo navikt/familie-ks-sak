@@ -4,6 +4,7 @@ import no.nav.familie.kontrakter.felles.arbeidsfordeling.Enhet
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.util.slåSammen
 import no.nav.familie.ks.sak.common.util.tilKortString
+import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.ArbeidsfordelingService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingKategori
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.Brevmal
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.EnkeltInformasjonsbrevDto
@@ -14,6 +15,8 @@ import no.nav.familie.ks.sak.kjerne.brev.domene.maler.HenleggeTrukketSøknadData
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.InformasjonsbrevDeltBostedBrevDto
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.InformasjonsbrevDeltBostedDataDto
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.InformasjonsbrevKanSøkeDto
+import no.nav.familie.ks.sak.kjerne.brev.domene.maler.InformasjonsbrevTilForelderBrev
+import no.nav.familie.ks.sak.kjerne.brev.domene.maler.InformasjonsbrevTilForelderDataDto
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.InnhenteOpplysningerBrevDto
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.InnhenteOpplysningerDataDto
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.InnhenteOpplysningerOmBarnDto
@@ -22,6 +25,7 @@ import no.nav.familie.ks.sak.kjerne.brev.domene.maler.SvartidsbrevDto
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.VarselbrevMedÅrsakerDto
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.VarselbrevMedÅrsakerOgBarnDto
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.flettefelt
+import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Målform
 import java.time.LocalDate
 
@@ -68,6 +72,32 @@ fun ManueltBrevDto.tilBrev(saksbehandlerNavn: String) =
                                 navn = this.mottakerNavn,
                                 fodselsnummer = this.mottakerIdent,
                                 barnMedDeltBostedAvtale = this.multiselectVerdier,
+                            ),
+                    ),
+            )
+
+        Brevmal.INFORMASJONSBREV_TIL_FORELDER_OMFATTET_NORSK_LOVGIVNING_HAR_FÅTT_EN_SØKNAD_FRA_ANNEN_FORELDER,
+        Brevmal.INFORMASJONSBREV_TIL_FORELDER_OMFATTET_NORSK_LOVGIVNING_VARSEL_OM_REVURDERING,
+        ->
+            InformasjonsbrevTilForelderBrev(
+                mal = this.brevmal,
+                data =
+                    InformasjonsbrevTilForelderDataDto(
+                        delmalData =
+                            InformasjonsbrevTilForelderDataDto.DelmalData(
+                                signatur =
+                                    SignaturDelmal(
+                                        enhet =
+                                            flettefelt(
+                                                this.enhetNavn(),
+                                            ),
+                                    ),
+                            ),
+                        flettefelter =
+                            InformasjonsbrevTilForelderDataDto.Flettefelter(
+                                navn = this.mottakerNavn,
+                                fodselsnummer = this.mottakerIdent,
+                                barnSøktFor = this.multiselectVerdier,
                             ),
                     ),
             )
@@ -219,6 +249,40 @@ fun ManueltBrevDto.tilBrev(saksbehandlerNavn: String) =
         Brevmal.AUTOVEDTAK_NYFØDT_BARN_FRA_FØR,
         -> throw Feil("Kan ikke mappe fra manuel brevrequest til ${this.brevmal}.")
     }
+
+fun ManueltBrevDto.utvidManueltBrevDtoMedEnhetOgMottaker(
+    behandlingId: Long,
+    personopplysningGrunnlagService: PersonopplysningGrunnlagService,
+    arbeidsfordelingService: ArbeidsfordelingService,
+): ManueltBrevDto {
+    val mottakerPerson = personopplysningGrunnlagService.hentSøker(behandlingId)
+    val arbeidsfordelingPåBehandling = arbeidsfordelingService.hentArbeidsfordelingPåBehandling(behandlingId)
+
+    return this.copy(
+        enhet =
+            Enhet(
+                enhetNavn = arbeidsfordelingPåBehandling.behandlendeEnhetNavn,
+                enhetId = arbeidsfordelingPåBehandling.behandlendeEnhetId,
+            ),
+        mottakerMålform = mottakerPerson?.målform ?: mottakerMålform,
+        mottakerNavn = mottakerPerson?.navn ?: mottakerNavn,
+    )
+}
+
+fun ManueltBrevDto.leggTilEnhet(arbeidsfordelingService: ArbeidsfordelingService): ManueltBrevDto {
+    val arbeidsfordelingsenhet =
+        arbeidsfordelingService.hentArbeidsfordelingsenhetPåIdenter(
+            søkerIdent = mottakerIdent,
+            barnIdenter = barnIBrev,
+        )
+    return this.copy(
+        enhet =
+            Enhet(
+                enhetNavn = arbeidsfordelingsenhet.enhetNavn,
+                enhetId = arbeidsfordelingsenhet.enhetId,
+            ),
+    )
+}
 
 private fun List<LocalDate>?.tilFormaterteFødselsdager() =
     slåSammen(

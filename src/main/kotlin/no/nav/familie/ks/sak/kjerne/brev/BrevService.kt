@@ -25,6 +25,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.AnnenVurderingType
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.Brevmal
+import no.nav.familie.ks.sak.kjerne.fagsak.domene.Fagsak
 import no.nav.familie.ks.sak.kjerne.logg.LoggService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
 import no.nav.familie.prosessering.internal.TaskService
@@ -48,19 +49,17 @@ class BrevService(
     private val genererBrevService: GenererBrevService,
 ) {
     fun hentForhåndsvisningAvBrev(
-        behandlingId: Long,
         manueltBrevDto: ManueltBrevDto,
-    ): ByteArray {
-        val manueltBrevDtoMedMottakerData = utvidManueltBrevDtoMedEnhetOgMottaker(behandlingId, manueltBrevDto)
-        return genererBrevService.genererManueltBrev(manueltBrevDtoMedMottakerData, true)
-    }
+    ): ByteArray = genererBrevService.genererManueltBrev(manueltBrevDto, true)
 
     fun genererOgSendBrev(
         behandlingId: Long,
         manueltBrevDto: ManueltBrevDto,
     ) {
+        val behandling = behandlingRepository.hentBehandling(behandlingId)
+
         val manueltBrevDtoMedMottakerData = utvidManueltBrevDtoMedEnhetOgMottaker(behandlingId, manueltBrevDto)
-        sendBrev(behandlingId, manueltBrevDtoMedMottakerData)
+        sendBrev(behandling.fagsak, behandlingId, manueltBrevDtoMedMottakerData)
     }
 
     private fun utvidManueltBrevDtoMedEnhetOgMottaker(
@@ -83,11 +82,11 @@ class BrevService(
 
     @Transactional
     fun sendBrev(
-        behandlingId: Long,
+        fagsak: Fagsak,
+        behandlingId: Long? = null,
         manueltBrevDto: ManueltBrevDto,
     ) {
-        val behandling = behandlingRepository.hentBehandling(behandlingId)
-
+        val behandling = behandlingId?.let { behandlingRepository.hentBehandling(behandlingId) }
         val generertBrev = genererBrevService.genererManueltBrev(manueltBrevDto, false)
 
         val førsteside =
@@ -103,8 +102,8 @@ class BrevService(
 
         val journalpostId =
             utgåendeJournalføringService.journalførDokument(
-                fnr = behandling.fagsak.aktør.aktivFødselsnummer(),
-                fagsakId = behandling.fagsak.id,
+                fnr = fagsak.aktør.aktivFødselsnummer(),
+                fagsakId = fagsak.id,
                 behandlingId = behandlingId,
                 journalførendeEnhet =
                     manueltBrevDto.enhet?.enhetId
@@ -120,57 +119,58 @@ class BrevService(
                 førsteside = førsteside,
             )
 
-        journalføringRepository.save(
-            DbJournalpost(
-                behandling = behandling,
-                journalpostId = journalpostId,
-                type = DbJournalpostType.U,
-            ),
-        )
-
-        if ((
-                manueltBrevDto.brevmal == Brevmal.INNHENTE_OPPLYSNINGER ||
-                    manueltBrevDto.brevmal == Brevmal.VARSEL_OM_REVURDERING
+        behandling?.let {
+            journalføringRepository.save(
+                DbJournalpost(
+                    behandling = behandling,
+                    journalpostId = journalpostId,
+                    type = DbJournalpostType.U,
+                ),
             )
-        ) {
-            leggTilOpplysningspliktIVilkårsvurdering(behandling)
+
+            val skalLeggeTilOpplysningspliktPåVilkårsvurdering = manueltBrevDto.brevmal == Brevmal.INNHENTE_OPPLYSNINGER || manueltBrevDto.brevmal == Brevmal.VARSEL_OM_REVURDERING
+
+            if (skalLeggeTilOpplysningspliktPåVilkårsvurdering) {
+                leggTilOpplysningspliktIVilkårsvurdering(behandling)
+            }
+
+            if (
+                manueltBrevDto.brevmal.setterBehandlingPåVent()
+            ) {
+                settBehandlingPåVentService.settBehandlingPåVent(
+                    behandlingId = behandlingId,
+                    frist =
+                        LocalDate.now()
+                            .plusDays(
+                                manueltBrevDto.brevmal.ventefristDager(
+                                    manuellFrist = manueltBrevDto.antallUkerSvarfrist?.toLong(),
+                                    behandlingKategori = behandling.kategori,
+                                ),
+                            ),
+                    årsak = manueltBrevDto.brevmal.hentVenteÅrsak(),
+                )
+            }
         }
 
         DistribuerBrevTask.opprettDistribuerBrevTask(
             distribuerBrevDTO =
                 DistribuerBrevDto(
                     personIdent = manueltBrevDto.mottakerIdent,
-                    behandlingId = behandling.id,
+                    behandlingId = behandling?.id,
                     journalpostId = journalpostId,
                     brevmal = manueltBrevDto.brevmal,
                     erManueltSendt = true,
                 ),
             properties =
                 Properties().apply {
-                    this["fagsakIdent"] = behandling.fagsak.aktør.aktivFødselsnummer()
+                    this["fagsakIdent"] = fagsak.aktør.aktivFødselsnummer()
                     this["mottakerIdent"] = manueltBrevDto.mottakerIdent
                     this["journalpostId"] = journalpostId
-                    this["behandlingId"] = behandling.id.toString()
-                    this["fagsakId"] = behandling.fagsak.id.toString()
+                    this["behandlingId"] = behandling?.id.toString()
+                    this["fagsakId"] = fagsak.id.toString()
                 },
         ).also {
             taskService.save(it)
-        }
-        if (
-            manueltBrevDto.brevmal.setterBehandlingPåVent()
-        ) {
-            settBehandlingPåVentService.settBehandlingPåVent(
-                behandlingId = behandlingId,
-                frist =
-                    LocalDate.now()
-                        .plusDays(
-                            manueltBrevDto.brevmal.ventefristDager(
-                                manuellFrist = manueltBrevDto.antallUkerSvarfrist?.toLong(),
-                                behandlingKategori = behandling.kategori,
-                            ),
-                        ),
-                årsak = manueltBrevDto.brevmal.hentVenteÅrsak(),
-            )
         }
     }
 

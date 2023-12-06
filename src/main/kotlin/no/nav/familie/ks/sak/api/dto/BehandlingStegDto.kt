@@ -44,12 +44,14 @@ data class SøkerMedOpplysningerDto(
 )
 
 data class BarnMedOpplysningerDto(
-    val ident: String,
+    private val ident: String,
     val navn: String = "",
     val fødselsdato: LocalDate? = null,
     val inkludertISøknaden: Boolean = true,
     val erFolkeregistrert: Boolean = true,
-) : BehandlingStegDto()
+) : BehandlingStegDto() {
+    val personnummer: String? = if (ident == "") null else ident
+}
 
 data class BehandlingPåVentDto(val frist: LocalDate, val årsak: VenteÅrsak)
 
