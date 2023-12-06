@@ -61,7 +61,7 @@ enum class Brevmal(val erVedtaksbrev: Boolean, val apiNavn: String, val visnings
     ),
     INFORMASJONSBREV_TIL_FORELDER_OMFATTET_NORSK_LOVGIVNING_VARSEL_OM_REVURDERING(
         erVedtaksbrev = false,
-        apiNavn = "tilForelderOmfattetNorskLovgivningHarFaattSoknadFraAnnenForelder",
+        apiNavn = "tilForelderOmfattetNorskLovgivningVarselOmRevurdering",
         visningsTekst = "Informasjon til forelder omfattet norsk lovgivning - varsel om revurdering",
     ),
 
