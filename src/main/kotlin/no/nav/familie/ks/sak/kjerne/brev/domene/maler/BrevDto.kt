@@ -54,6 +54,17 @@ typealias Flettefelt = List<String>?
  ***/
 enum class Brevmal(val erVedtaksbrev: Boolean, val apiNavn: String, val visningsTekst: String) {
     INFORMASJONSBREV_DELT_BOSTED(false, "informasjonsbrevDeltBosted", "Informasjonsbrev delt bosted"),
+    INFORMASJONSBREV_TIL_FORELDER_OMFATTET_NORSK_LOVGIVNING_HAR_FÅTT_EN_SØKNAD_FRA_ANNEN_FORELDER(
+        erVedtaksbrev = false,
+        apiNavn = "tilForelderOmfattetNorskLovgivningHarFaattSoknadFraAnnenForelder",
+        visningsTekst = "Informasjon til forelder omfattet norsk lovgivning - har fått en søknad fra annen forelder",
+    ),
+    INFORMASJONSBREV_TIL_FORELDER_OMFATTET_NORSK_LOVGIVNING_VARSEL_OM_REVURDERING(
+        erVedtaksbrev = false,
+        apiNavn = "tilForelderOmfattetNorskLovgivningVarselOmRevurdering",
+        visningsTekst = "Informasjon til forelder omfattet norsk lovgivning - varsel om revurdering",
+    ),
+
     INNHENTE_OPPLYSNINGER(false, "innhenteOpplysninger", "Innhente opplysninger"),
     INNHENTE_OPPLYSNINGER_ETTER_SØKNAD_I_SED(
         false,
@@ -126,6 +137,8 @@ enum class Brevmal(val erVedtaksbrev: Boolean, val apiNavn: String, val visnings
             FORLENGET_SVARTIDSBREV,
             INFORMASJONSBREV_KAN_SØKE,
             INFORMASJONSBREV_KAN_SØKE_EØS,
+            INFORMASJONSBREV_TIL_FORELDER_OMFATTET_NORSK_LOVGIVNING_HAR_FÅTT_EN_SØKNAD_FRA_ANNEN_FORELDER,
+            INFORMASJONSBREV_TIL_FORELDER_OMFATTET_NORSK_LOVGIVNING_VARSEL_OM_REVURDERING,
             -> false
 
             VEDTAK_FØRSTEGANGSVEDTAK,
@@ -153,6 +166,8 @@ enum class Brevmal(val erVedtaksbrev: Boolean, val apiNavn: String, val visnings
             INFORMASJONSBREV_KAN_SØKE -> Dokumenttype.KONTANTSTØTTE_INFORMASJONSBREV_KAN_SØKE
             INNHENTE_OPPLYSNINGER_ETTER_SØKNAD_I_SED -> Dokumenttype.KONTANTSTØTTE_INNHENTE_OPPLYSNINGER_ETTER_SØKNAD_I_SED
             INNHENTE_OPPLYSNINGER_OG_INFORMASJON_OM_AT_ANNEN_FORELDER_MED_SELVSTENDIG_RETT_HAR_SØKT -> Dokumenttype.KONTANTSTØTTE_INNHENTE_OPPLYSNINGER_OG_INFORMASJON_OM_AT_ANNEN_FORELDER_MED_SELVSTENDIG_RETT_HAR_SØKT
+            INFORMASJONSBREV_TIL_FORELDER_OMFATTET_NORSK_LOVGIVNING_HAR_FÅTT_EN_SØKNAD_FRA_ANNEN_FORELDER -> Dokumenttype.KONTANTSTØTTE_INFORMASJONSBREV_TIL_FORELDER_OMFATTET_NORSK_LOVGIVNING_HAR_FÅTT_EN_SØKNAD_FRA_ANNEN_FORELDER
+            INFORMASJONSBREV_TIL_FORELDER_OMFATTET_NORSK_LOVGIVNING_VARSEL_OM_REVURDERING -> Dokumenttype.KONTANTSTØTTE_INFORMASJONSBREV_TIL_FORELDER_OMFATTET_NORSK_LOVGIVNING_HAR_FÅTT_EN_SØKNAD_FRA_ANNEN_FORELDER
             VARSEL_OM_VEDTAK_ETTER_SØKNAD_I_SED -> Dokumenttype.KONTANTSTØTTE_VARSEL_OM_VEDTAK_ETTER_SØKNAD_I_SED
             VARSEL_OM_REVURDERING_FRA_NASJONAL_TIL_EØS -> Dokumenttype.KONTANTSTØTTE_VARSEL_OM_REVURDERING_FRA_NASJONAL_TIL_EØS
             INFORMASJONSBREV_KAN_SØKE_EØS -> Dokumenttype.KONTANTSTØTTE_INFORMASJONSBREV_KAN_SØKE_EØS
@@ -183,6 +198,8 @@ enum class Brevmal(val erVedtaksbrev: Boolean, val apiNavn: String, val visnings
                 VARSEL_OM_VEDTAK_ETTER_SØKNAD_I_SED -> Distribusjonstype.VIKTIG
                 VARSEL_ANNEN_FORELDER_MED_SELVSTENDIG_RETT_SØKT -> Distribusjonstype.VIKTIG
                 INNHENTE_OPPLYSNINGER_OG_INFORMASJON_OM_AT_ANNEN_FORELDER_MED_SELVSTENDIG_RETT_HAR_SØKT -> Distribusjonstype.VIKTIG
+                INFORMASJONSBREV_TIL_FORELDER_OMFATTET_NORSK_LOVGIVNING_HAR_FÅTT_EN_SØKNAD_FRA_ANNEN_FORELDER -> Distribusjonstype.VIKTIG
+                INFORMASJONSBREV_TIL_FORELDER_OMFATTET_NORSK_LOVGIVNING_VARSEL_OM_REVURDERING -> Distribusjonstype.VIKTIG
                 VARSEL_OM_REVURDERING_FRA_NASJONAL_TIL_EØS -> Distribusjonstype.VIKTIG
                 SVARTIDSBREV -> Distribusjonstype.ANNET
                 FORLENGET_SVARTIDSBREV -> Distribusjonstype.ANNET
