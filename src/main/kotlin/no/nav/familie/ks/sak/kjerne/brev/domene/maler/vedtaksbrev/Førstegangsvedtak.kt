@@ -22,6 +22,7 @@ data class Førstegangsvedtak(
         etterbetaling: Etterbetaling?,
         refusjonEosAvklart: RefusjonEøsAvklart? = null,
         refusjonEosUavklart: RefusjonEøsUavklart? = null,
+        duMaaMeldeFraOmEndringerEosSelvstendigRett: Boolean = false,
     ) :
         this(
             mal = Brevmal.VEDTAK_FØRSTEGANGSVEDTAK,
@@ -40,6 +41,7 @@ data class Førstegangsvedtak(
                             korrigertVedtak = fellesdataForVedtaksbrev.korrigertVedtakData,
                             refusjonEosAvklart = refusjonEosAvklart,
                             refusjonEosUavklart = refusjonEosUavklart,
+                            duMaaMeldeFraOmEndringerEosSelvstendigRett = duMaaMeldeFraOmEndringerEosSelvstendigRett,
                         ),
                     flettefelter =
                         FlettefelterForDokumentDtoImpl(
@@ -63,5 +65,6 @@ data class FørstegangsvedtakData(
         val refusjonEosAvklart: RefusjonEøsAvklart?,
         val refusjonEosUavklart: RefusjonEøsUavklart?,
         val korrigertVedtak: KorrigertVedtakData?,
+        val duMaaMeldeFraOmEndringerEosSelvstendigRett: Boolean?,
     )
 }
