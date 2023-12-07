@@ -29,7 +29,7 @@ data class VedtakEndring(
         erFeilutbetalingPåBehandling: Boolean,
         erKlage: Boolean,
         informasjonOmAarligKontroll: Boolean,
-        forMyeUtbetaltKontantstotte: FeilutbetaltValuta? = null,
+        feilutbetaltValuta: FeilutbetaltValuta? = null,
         refusjonEosAvklart: RefusjonEøsAvklart? = null,
         refusjonEosUavklart: RefusjonEøsUavklart? = null,
     ) :
@@ -51,13 +51,13 @@ data class VedtakEndring(
                             feilutbetaling = erFeilutbetalingPåBehandling,
                             korrigertVedtak = fellesdataForVedtaksbrev.korrigertVedtakData,
                             informasjonOmAarligKontroll = informasjonOmAarligKontroll,
-                            forMyeUtbetaltKontantstotte = forMyeUtbetaltKontantstotte != null,
+                            forMyeUtbetaltKontantstotte = feilutbetaltValuta,
                             refusjonEosAvklart = refusjonEosAvklart,
                             refusjonEosUavklart = refusjonEosUavklart,
                         ),
                     flettefelter =
                         object : FlettefelterForDokumentDto {
-                            val perioderMedForMyeUtbetalt: Flettefelt = forMyeUtbetaltKontantstotte?.perioderMedForMyeUtbetalt
+                            val perioderMedForMyeUtbetalt: Flettefelt = feilutbetaltValuta?.perioderMedForMyeUtbetalt
                             override val navn = flettefelt(fellesdataForVedtaksbrev.søkerNavn)
                             override val fodselsnummer = flettefelt(fellesdataForVedtaksbrev.søkerFødselsnummer)
                             override val brevOpprettetDato = flettefelt(LocalDate.now().tilDagMånedÅr())
@@ -80,7 +80,7 @@ data class EndringVedtakData(
         val klage: Boolean,
         val korrigertVedtak: KorrigertVedtakData?,
         val informasjonOmAarligKontroll: Boolean,
-        val forMyeUtbetaltKontantstotte: Boolean,
+        val forMyeUtbetaltKontantstotte: FeilutbetaltValuta?,
         val refusjonEosAvklart: RefusjonEøsAvklart?,
         val refusjonEosUavklart: RefusjonEøsUavklart?,
     )

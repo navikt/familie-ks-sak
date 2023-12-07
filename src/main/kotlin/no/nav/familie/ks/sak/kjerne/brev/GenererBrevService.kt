@@ -144,7 +144,7 @@ class GenererBrevService(
                     erKlage = behandling.erKlage(),
                     erFeilutbetalingPåBehandling = erFeilutbetalingPåBehandling(behandlingId = behandling.id),
                     informasjonOmAarligKontroll = vedtaksperiodeService.skalHaÅrligKontroll(vedtak),
-                    forMyeUtbetaltKontantstotte =
+                    feilutbetaltValuta =
                         feilutbetaltValutaService.beskrivPerioderMedFeilutbetaltValuta(behandling.id)
                             ?.let {
                                 FeilutbetaltValuta(perioderMedForMyeUtbetalt = it)
