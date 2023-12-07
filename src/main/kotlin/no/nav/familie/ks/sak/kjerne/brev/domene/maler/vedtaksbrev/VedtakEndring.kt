@@ -29,7 +29,7 @@ data class VedtakEndring(
         erFeilutbetalingPåBehandling: Boolean,
         erKlage: Boolean,
         informasjonOmAarligKontroll: Boolean,
-        feilutbetaltValuta: FeilutbetaltValuta? = null,
+        forMyeUtbetaltKontantstotte: FeilutbetaltValuta? = null,
         refusjonEosAvklart: RefusjonEøsAvklart? = null,
         refusjonEosUavklart: RefusjonEøsUavklart? = null,
     ) :
@@ -51,13 +51,13 @@ data class VedtakEndring(
                             feilutbetaling = erFeilutbetalingPåBehandling,
                             korrigertVedtak = fellesdataForVedtaksbrev.korrigertVedtakData,
                             informasjonOmAarligKontroll = informasjonOmAarligKontroll,
-                            feilutbetaltKontantstotte = feilutbetaltValuta != null,
+                            feilutbetaltKontantstotte = forMyeUtbetaltKontantstotte != null,
                             refusjonEosAvklart = refusjonEosAvklart,
                             refusjonEosUavklart = refusjonEosUavklart,
                         ),
                     flettefelter =
                         object : FlettefelterForDokumentDto {
-                            val perioderMedForMyeUtbetalt: Flettefelt = feilutbetaltValuta?.perioderMedForMyeUtbetalt
+                            val perioderMedForMyeUtbetalt: Flettefelt = forMyeUtbetaltKontantstotte?.perioderMedForMyeUtbetalt
                             override val navn = flettefelt(fellesdataForVedtaksbrev.søkerNavn)
                             override val fodselsnummer = flettefelt(fellesdataForVedtaksbrev.søkerFødselsnummer)
                             override val brevOpprettetDato = flettefelt(LocalDate.now().tilDagMånedÅr())
