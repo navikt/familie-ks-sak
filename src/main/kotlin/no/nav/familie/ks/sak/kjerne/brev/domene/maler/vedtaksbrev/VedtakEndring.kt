@@ -32,6 +32,7 @@ data class VedtakEndring(
         feilutbetaltValuta: FeilutbetaltValuta? = null,
         refusjonEosAvklart: RefusjonEøsAvklart? = null,
         refusjonEosUavklart: RefusjonEøsUavklart? = null,
+        duMaaMeldeFraOmEndringerEosSelvstendigRett: Boolean = false,
     ) :
         this(
             mal = mal,
@@ -54,6 +55,7 @@ data class VedtakEndring(
                             forMyeUtbetaltKontantstotte = feilutbetaltValuta,
                             refusjonEosAvklart = refusjonEosAvklart,
                             refusjonEosUavklart = refusjonEosUavklart,
+                            duMaaMeldeFraOmEndringerEosSelvstendigRett = duMaaMeldeFraOmEndringerEosSelvstendigRett,
                         ),
                     flettefelter =
                         object : FlettefelterForDokumentDto {
@@ -83,5 +85,6 @@ data class EndringVedtakData(
         val forMyeUtbetaltKontantstotte: FeilutbetaltValuta?,
         val refusjonEosAvklart: RefusjonEøsAvklart?,
         val refusjonEosUavklart: RefusjonEøsUavklart?,
+        val duMaaMeldeFraOmEndringerEosSelvstendigRett: Boolean = false,
     )
 }
