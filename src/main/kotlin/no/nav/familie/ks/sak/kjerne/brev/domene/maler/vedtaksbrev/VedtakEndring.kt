@@ -51,7 +51,7 @@ data class VedtakEndring(
                             feilutbetaling = erFeilutbetalingPåBehandling,
                             korrigertVedtak = fellesdataForVedtaksbrev.korrigertVedtakData,
                             informasjonOmAarligKontroll = informasjonOmAarligKontroll,
-                            feilutbetaltKontantstotte = feilutbetaltValuta != null,
+                            forMyeUtbetaltKontantstotte = feilutbetaltValuta,
                             refusjonEosAvklart = refusjonEosAvklart,
                             refusjonEosUavklart = refusjonEosUavklart,
                         ),
@@ -80,7 +80,7 @@ data class EndringVedtakData(
         val klage: Boolean,
         val korrigertVedtak: KorrigertVedtakData?,
         val informasjonOmAarligKontroll: Boolean,
-        val feilutbetaltKontantstotte: Boolean,
+        val forMyeUtbetaltKontantstotte: FeilutbetaltValuta?,
         val refusjonEosAvklart: RefusjonEøsAvklart?,
         val refusjonEosUavklart: RefusjonEøsUavklart?,
     )
