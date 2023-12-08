@@ -1,4 +1,4 @@
-package no.nav.familie.ks.sak.kjerne.tidslinje.util
+package no.nav.familie.ks.sak.kjerne.eøs.util
 
 import no.nav.familie.ks.sak.common.tidslinje.Periode
 import no.nav.familie.ks.sak.common.tidslinje.Tidslinje

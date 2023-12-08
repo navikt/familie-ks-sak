@@ -1,4 +1,4 @@
-package no.nav.familie.ba.sak.kjerne.eøs.differanseberegning
+package no.nav.familie.ks.sak.kjerne.eøs.differanseberegning
 
 import no.nav.familie.ks.sak.common.util.del
 import no.nav.familie.ks.sak.common.util.multipliser

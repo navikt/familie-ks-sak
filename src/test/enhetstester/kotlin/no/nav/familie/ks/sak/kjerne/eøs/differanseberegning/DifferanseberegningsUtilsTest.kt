@@ -1,4 +1,4 @@
-package no.nav.familie.ba.sak.kjerne.eøs.differanseberegning
+package no.nav.familie.ks.sak.kjerne.eøs.differanseberegning
 
 import no.nav.familie.ks.sak.data.lagAndelTilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.eøs.differanseberegning.domene.Intervall

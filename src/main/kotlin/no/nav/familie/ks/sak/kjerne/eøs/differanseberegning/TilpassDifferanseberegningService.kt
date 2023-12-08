@@ -1,6 +1,5 @@
 package no.nav.familie.ks.sak.kjerne.eøs.differanseberegning
 
-import no.nav.familie.ba.sak.kjerne.eøs.differanseberegning.beregnDifferanse
 import no.nav.familie.ks.sak.common.BehandlingId
 import no.nav.familie.ks.sak.kjerne.beregning.TilkjentYtelseEndretAbonnent
 import no.nav.familie.ks.sak.kjerne.beregning.domene.TilkjentYtelse

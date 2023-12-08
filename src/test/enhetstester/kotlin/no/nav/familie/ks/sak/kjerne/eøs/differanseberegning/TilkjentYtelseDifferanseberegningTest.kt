@@ -14,10 +14,10 @@ import no.nav.familie.ks.sak.kjerne.eøs.util.DeltBostedBuilder
 import no.nav.familie.ks.sak.kjerne.eøs.util.TilkjentYtelseBuilder
 import no.nav.familie.ks.sak.kjerne.eøs.util.UtenlandskPeriodebeløpBuilder
 import no.nav.familie.ks.sak.kjerne.eøs.util.ValutakursBuilder
+import no.nav.familie.ks.sak.kjerne.eøs.util.VilkårsvurderingBuilder
+import no.nav.familie.ks.sak.kjerne.eøs.util.byggTilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.eøs.util.oppdaterTilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
-import no.nav.familie.ks.sak.kjerne.tidslinje.util.VilkårsvurderingBuilder
-import no.nav.familie.ks.sak.kjerne.tidslinje.util.byggTilkjentYtelse
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
