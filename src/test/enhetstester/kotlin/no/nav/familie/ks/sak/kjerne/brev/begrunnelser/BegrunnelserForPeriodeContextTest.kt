@@ -403,7 +403,7 @@ class BegrunnelserForPeriodeContextTest {
                 personResultater,
                 listOf(eøsBegrunnelse),
                 søkerAktør,
-                kompetanser = listOf(Kompetanse(fom = null, tom = null, annenForeldersAktivitet = KompetanseAktivitet.ARBEIDER, resultat = KompetanseResultat.NORGE_ER_PRIMÆRLAND, barnetsBostedsland = BarnetsBostedsland.NORGE.toString(), barnAktører = setOf(barnAktør))),
+                kompetanser = listOf(Kompetanse(fom = null, tom = null, annenForeldersAktivitet = KompetanseAktivitet.ARBEIDER, resultat = KompetanseResultat.NORGE_ER_PRIMÆRLAND, barnetsBostedsland = "NO", barnAktører = setOf(barnAktør))),
             ).hentGyldigeBegrunnelserForVedtaksperiode()
 
         assertEquals(1, begrunnelser.size)
