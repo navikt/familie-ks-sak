@@ -358,9 +358,49 @@ class BegrunnelserForPeriodeContextTest {
             )
         // val vilkårsbegrunnelser = vilkårsvurderingService.hentVilkårsbegrunnelser()
 
+        val personResultatBarn =
+            PersonResultat(
+                aktør = barnAktør,
+                vilkårsvurdering = mockk(),
+                vilkårResultater =
+                    lagVilkårResultaterForVilkårTyper(
+                        vilkårTyper = Vilkår.hentVilkårFor(PersonType.BARN),
+                        fom = vilkårOppfyltFom,
+                        tom = vilkårOppfyltTom,
+                    ),
+            )
+
+        val personResultatSøker =
+            PersonResultat(
+                aktør = søkerAktør,
+                vilkårsvurdering = mockk(),
+                vilkårResultater =
+                    lagVilkårResultaterForVilkårTyper(
+                        vilkårTyper =
+                            setOf(
+                                Vilkår.MEDLEMSKAP,
+                            ),
+                        fom = vilkårOppfyltFom,
+                        tom = vilkårOppfyltTom,
+                    ),
+            )
+
+        personResultatSøker.vilkårResultater.add(
+            lagVilkårResultat(
+                vilkårType = Vilkår.BOSATT_I_RIKET,
+                periodeFom = vilkårOppfyltFom.plusMonths(2),
+                periodeTom = vilkårOppfyltTom.minusDays(15),
+            ),
+        )
+        val personResultater =
+            listOf(
+                personResultatBarn,
+                personResultatSøker,
+            )
+
         val begrunnelser =
             lagFinnGyldigeBegrunnelserForPeriodeContext(
-                emptyList(),
+                personResultater,
                 listOf(eøsBegrunnelse),
                 søkerAktør,
                 kompetanser = listOf(Kompetanse(fom = null, tom = null, annenForeldersAktivitet = KompetanseAktivitet.ARBEIDER, resultat = KompetanseResultat.NORGE_ER_PRIMÆRLAND, barnetsBostedsland = BarnetsBostedsland.NORGE.toString(), barnAktører = setOf(barnAktør))),
