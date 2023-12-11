@@ -356,53 +356,13 @@ class BegrunnelserForPeriodeContextTest {
                 hjemlerEØSForordningen987 = emptyList(),
                 hjemlerSeperasjonsavtalenStorbritannina = emptyList(),
             )
-        // val vilkårsbegrunnelser = vilkårsvurderingService.hentVilkårsbegrunnelser()
-
-        val personResultatBarn =
-            PersonResultat(
-                aktør = barnAktør,
-                vilkårsvurdering = mockk(),
-                vilkårResultater =
-                    lagVilkårResultaterForVilkårTyper(
-                        vilkårTyper = Vilkår.hentVilkårFor(PersonType.BARN),
-                        fom = vilkårOppfyltFom,
-                        tom = vilkårOppfyltTom,
-                    ),
-            )
-
-        val personResultatSøker =
-            PersonResultat(
-                aktør = søkerAktør,
-                vilkårsvurdering = mockk(),
-                vilkårResultater =
-                    lagVilkårResultaterForVilkårTyper(
-                        vilkårTyper =
-                            setOf(
-                                Vilkår.MEDLEMSKAP,
-                            ),
-                        fom = vilkårOppfyltFom,
-                        tom = vilkårOppfyltTom,
-                    ),
-            )
-
-        personResultatSøker.vilkårResultater.add(
-            lagVilkårResultat(
-                vilkårType = Vilkår.BOSATT_I_RIKET,
-                periodeFom = vilkårOppfyltFom.plusMonths(2),
-                periodeTom = vilkårOppfyltTom.minusDays(15),
-            ),
-        )
-        val personResultater =
-            listOf(
-                personResultatBarn,
-                personResultatSøker,
-            )
 
         val begrunnelser =
             lagFinnGyldigeBegrunnelserForPeriodeContext(
-                personResultater,
-                listOf(eøsBegrunnelse),
-                søkerAktør,
+                // Begrunnelsen skal velges uavhengig av hva personresultatene er. Sender derfor ikke med personresultater.
+                personResultater = emptyList(),
+                sanityBegrunnelser = listOf(eøsBegrunnelse),
+                aktørSomTriggerVedtaksperiode = søkerAktør,
                 kompetanser = listOf(Kompetanse(fom = null, tom = null, annenForeldersAktivitet = KompetanseAktivitet.ARBEIDER, resultat = KompetanseResultat.NORGE_ER_PRIMÆRLAND, barnetsBostedsland = "NO", barnAktører = setOf(barnAktør))),
             ).hentGyldigeBegrunnelserForVedtaksperiode()
 
