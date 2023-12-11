@@ -1,18 +1,7 @@
 package no.nav.familie.ks.sak.kjerne.eøs.differanseberegning
 
-import no.nav.familie.ks.sak.common.util.del
-import no.nav.familie.ks.sak.common.util.multipliser
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelse
-import no.nav.familie.ks.sak.kjerne.eøs.differanseberegning.domene.Intervall
 import java.math.BigDecimal
-
-fun Intervall.konverterBeløpTilMånedlig(beløp: BigDecimal): BigDecimal =
-    when (this) {
-        Intervall.ÅRLIG -> beløp.del(12.toBigDecimal(), 10)
-        Intervall.KVARTALSVIS -> beløp.del(3.toBigDecimal(), 10)
-        Intervall.MÅNEDLIG -> beløp
-        Intervall.UKENTLIG -> beløp.multipliser(4.35.toBigDecimal(), 10)
-    }.stripTrailingZeros().toPlainString().toBigDecimal()
 
 /**
  * Kalkulerer nytt utbetalingsbeløp fra [utenlandskPeriodebeløpINorskeKroner]

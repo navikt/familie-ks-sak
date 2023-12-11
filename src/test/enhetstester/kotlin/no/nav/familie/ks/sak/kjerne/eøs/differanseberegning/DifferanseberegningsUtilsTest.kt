@@ -8,6 +8,7 @@ import no.nav.familie.ks.sak.kjerne.eøs.differanseberegning.domene.Intervall.UK
 import no.nav.familie.ks.sak.kjerne.eøs.differanseberegning.domene.Intervall.ÅRLIG
 import no.nav.familie.ks.sak.kjerne.eøs.differanseberegning.domene.KronerPerValutaenhet
 import no.nav.familie.ks.sak.kjerne.eøs.differanseberegning.domene.Valutabeløp
+import no.nav.familie.ks.sak.kjerne.eøs.differanseberegning.domene.konverterBeløpTilMånedlig
 import no.nav.familie.ks.sak.kjerne.eøs.differanseberegning.domene.tilMånedligValutabeløp
 import no.nav.familie.ks.sak.kjerne.eøs.differanseberegning.domene.times
 import no.nav.familie.ks.sak.kjerne.eøs.utenlandskperiodebeløp.domene.UtenlandskPeriodebeløp
