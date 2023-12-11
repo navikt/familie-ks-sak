@@ -14,7 +14,7 @@ fun kombinerVilkårResultaterTilRegelverkResultat(
     // vilkår resultater som er OPPFYLT/IKKE_AKTUELT
     alleVilkårResultater: Iterable<VilkårRegelverkResultat>,
 ): RegelverkResultat? {
-    val skalHenteEøsSpesifikkeVilkår = alleVilkårResultater.any { it.regelverk == Regelverk.EØS_FORORDNINGEN }
+    val skalHenteEøsSpesifikkeVilkår = alleVilkårResultater.any { it.regelverk == Regelverk.EØS_FORORDNINGEN && it.vilkår == Vilkår.BOSATT_I_RIKET }
     val vilkårer = Vilkår.hentVilkårFor(personType, skalHenteEøsSpesifikkeVilkår)
 
     val regelverkVilkår = vilkårer.filter { it.harRegelverk }
