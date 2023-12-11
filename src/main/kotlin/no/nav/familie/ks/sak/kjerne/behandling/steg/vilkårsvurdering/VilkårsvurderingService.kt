@@ -9,7 +9,10 @@ import no.nav.familie.ks.sak.integrasjon.secureLogger
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.AnnenVurderingType
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.PersonResultat
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Regelverk
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårsvurderingRepository
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.BegrunnelseType
@@ -92,9 +95,11 @@ class VilkårsvurderingService(
         val nyeOgEndredeVilkårResultater =
             endreVilkårResultat(eksisterendeVilkårResultater.toList(), endreVilkårResultatDto.endretVilkårResultat)
 
+        val vilkårResultaterEtterFiltreringAvLovligOpphold = fjernEllerLeggTilLovligOppholdVilkår(personResultat, nyeOgEndredeVilkårResultater)
+
         // Det er ikke nødvendig å save Vilkårresultatene eksplitt pga @Transactional
         eksisterendeVilkårResultater.clear()
-        eksisterendeVilkårResultater.addAll(nyeOgEndredeVilkårResultater)
+        eksisterendeVilkårResultater.addAll(vilkårResultaterEtterFiltreringAvLovligOpphold)
     }
 
     @Transactional
@@ -110,8 +115,11 @@ class VilkårsvurderingService(
 
         val nyttVilkårResultat = opprettNyttVilkårResultat(personResultat, nyttVilkårDto.vilkårType)
 
+        val vilkårResultaterEtterFiltreringAvLovligOpphold = fjernEllerLeggTilLovligOppholdVilkår(personResultat, (eksisterendeVilkårResultater + nyttVilkårResultat).toList())
+
         // Det er ikke nødvendig å save Vilkårresultatene eksplitt pga @Transactional
-        eksisterendeVilkårResultater.add(nyttVilkårResultat)
+        eksisterendeVilkårResultater.clear()
+        eksisterendeVilkårResultater.addAll(vilkårResultaterEtterFiltreringAvLovligOpphold)
     }
 
     @Transactional
@@ -147,6 +155,12 @@ class VilkårsvurderingService(
 
             eksisterendeVilkårResultater.add(nyttVilkårMedNullstilteFelter)
         }
+
+        val vilkårResultaterEtterFiltreringAvLovligOpphold = fjernEllerLeggTilLovligOppholdVilkår(personResultat, (eksisterendeVilkårResultater).toList())
+
+        // Det er ikke nødvendig å save Vilkårresultatene eksplitt pga @Transactional
+        eksisterendeVilkårResultater.clear()
+        eksisterendeVilkårResultater.addAll(vilkårResultaterEtterFiltreringAvLovligOpphold)
     }
 
     fun hentAktivVilkårsvurderingForBehandling(behandlingId: Long): Vilkårsvurdering =
@@ -181,6 +195,25 @@ class VilkårsvurderingService(
 
             personResultat.vilkårResultater.clear()
             personResultat.vilkårResultater.addAll(oppdaterteVilkår)
+        }
+    }
+
+    @Transactional
+    fun fjernEllerLeggTilLovligOppholdVilkår(
+        personResultat: PersonResultat,
+        vilkårResultater: List<VilkårResultat>,
+    ): List<VilkårResultat> {
+        val bosattIRiketVilkår = vilkårResultater.filter { it.vilkårType == Vilkår.BOSATT_I_RIKET }
+        val finnesBosattIRiketVilkårVurdertEtterEøs = bosattIRiketVilkår.any { it.vurderesEtter == Regelverk.EØS_FORORDNINGEN }
+        val lovligOppholdVilkårFinnesAllerede = vilkårResultater.any { it.vilkårType == Vilkår.LOVLIG_OPPHOLD }
+
+        return when {
+            finnesBosattIRiketVilkårVurdertEtterEøs && !lovligOppholdVilkårFinnesAllerede -> {
+                vilkårResultater + opprettNyttVilkårResultat(personResultat, Vilkår.LOVLIG_OPPHOLD)
+            }
+
+            lovligOppholdVilkårFinnesAllerede && !finnesBosattIRiketVilkårVurdertEtterEøs -> vilkårResultater.filter { it.vilkårType != Vilkår.LOVLIG_OPPHOLD }
+            else -> return vilkårResultater
         }
     }
 
