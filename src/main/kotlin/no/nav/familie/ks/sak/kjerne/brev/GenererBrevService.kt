@@ -11,6 +11,7 @@ import no.nav.familie.ks.sak.common.util.tilMånedÅr
 import no.nav.familie.ks.sak.integrasjon.sanity.SanityService
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelse
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.ArbeidsfordelingService
+import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg
 import no.nav.familie.ks.sak.kjerne.behandling.steg.simulering.SimuleringService
@@ -22,6 +23,8 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.Vedtak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.UtvidetVedtaksperiodeMedBegrunnelser
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.UtdypendeVilkårsvurdering
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.tilSanityBegrunnelse
 import no.nav.familie.ks.sak.kjerne.brev.domene.FellesdataForVedtaksbrev
 import no.nav.familie.ks.sak.kjerne.brev.domene.VedtaksbrevDto
@@ -132,6 +135,7 @@ class GenererBrevService(
                     etterbetaling = etterbetaling,
                     refusjonEosAvklart = brevPeriodeService.beskrivPerioderMedAvklartRefusjonEøs(vedtak),
                     refusjonEosUavklart = brevPeriodeService.beskrivPerioderMedUavklartRefusjonEøs(vedtak),
+                    duMaaMeldeFraOmEndringerEosSelvstendigRett = skalMeldeFraOmEndringerEøsSelvstendigRett(vedtak),
                 )
             }
 
@@ -151,6 +155,7 @@ class GenererBrevService(
                             },
                     refusjonEosAvklart = brevPeriodeService.beskrivPerioderMedAvklartRefusjonEøs(vedtak),
                     refusjonEosUavklart = brevPeriodeService.beskrivPerioderMedUavklartRefusjonEøs(vedtak),
+                    duMaaMeldeFraOmEndringerEosSelvstendigRett = skalMeldeFraOmEndringerEøsSelvstendigRett(vedtak),
                 )
 
             Brevmal.VEDTAK_OPPHØRT ->
@@ -227,6 +232,25 @@ class GenererBrevService(
             beslutter = totrinnskontroll?.beslutter ?: "Beslutter",
             enhet = enhetNavn,
         )
+    }
+
+    private fun skalMeldeFraOmEndringerEøsSelvstendigRett(vedtak: Vedtak): Boolean {
+        val vilkårsvurdering =
+            vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(behandlingId = vedtak.behandling.id)
+
+        val annenForelderOmfattetAvNorskLovgivningErSattPåBosattIRiket =
+            vilkårsvurdering.personResultater.flatMap { it.vilkårResultater }
+                .any { it.utdypendeVilkårsvurderinger.contains(UtdypendeVilkårsvurdering.ANNEN_FORELDER_OMFATTET_AV_NORSK_LOVGIVNING) && it.vilkårType == Vilkår.BOSATT_I_RIKET }
+
+        val passendeBehandlingsresultat =
+            vedtak.behandling.resultat !in
+                listOf(
+                    Behandlingsresultat.AVSLÅTT,
+                    Behandlingsresultat.ENDRET_OG_OPPHØRT,
+                    Behandlingsresultat.OPPHØRT,
+                )
+
+        return annenForelderOmfattetAvNorskLovgivningErSattPåBosattIRiket && passendeBehandlingsresultat
     }
 
     private fun hentHjemler(

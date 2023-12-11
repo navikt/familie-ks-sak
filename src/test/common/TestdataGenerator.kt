@@ -436,8 +436,26 @@ fun lagVilkårsvurderingMedSøkersVilkår(
                 vurderesEtter = regelverk,
                 utdypendeVilkårsvurderinger = utdypendeVilkårsvurderinger,
             ),
-        ),
+        ) +
+            if (regelverk == Regelverk.EØS_FORORDNINGEN) {
+                setOf(
+                    VilkårResultat(
+                        personResultat = personResultat,
+                        vilkårType = Vilkår.LOVLIG_OPPHOLD,
+                        resultat = resultat,
+                        periodeFom = søkerPeriodeFom,
+                        periodeTom = søkerPeriodeTom,
+                        begrunnelse = "",
+                        behandlingId = behandling.id,
+                        vurderesEtter = regelverk,
+                        utdypendeVilkårsvurderinger = utdypendeVilkårsvurderinger,
+                    ),
+                )
+            } else {
+                emptySet()
+            },
     )
+
     personResultat.andreVurderinger.add(
         AnnenVurdering(
             personResultat = personResultat,

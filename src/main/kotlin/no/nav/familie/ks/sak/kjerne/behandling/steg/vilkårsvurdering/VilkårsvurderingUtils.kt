@@ -18,6 +18,7 @@ import no.nav.familie.ks.sak.common.util.tilDagMånedÅr
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelse
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityEØSBegrunnelse
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
+import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingKategori
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.PersonResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
@@ -351,8 +352,9 @@ fun genererInitiellVilkårsvurdering(
         personResultater =
             personopplysningGrunnlag.personer.map { person ->
                 val personResultat = PersonResultat(vilkårsvurdering = this, aktør = person.aktør)
+                val skalHenteEøsSpesifikkeVilkår = behandling.kategori == BehandlingKategori.EØS
 
-                val vilkårForPerson = Vilkår.hentVilkårFor(person.type)
+                val vilkårForPerson = Vilkår.hentVilkårFor(person.type, skalHenteEøsSpesifikkeVilkår)
 
                 val vilkårResultater =
                     vilkårForPerson.map { vilkår ->

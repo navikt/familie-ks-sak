@@ -442,6 +442,13 @@ class VilkårsvurderingStegTest {
                 ),
                 lagVilkårResultat(
                     personResultat = søkerPersonResultat,
+                    vilkårType = Vilkår.LOVLIG_OPPHOLD,
+                    periodeFom = LocalDate.of(2022, 12, 15),
+                    periodeTom = null,
+                    regelverk = Regelverk.EØS_FORORDNINGEN,
+                ),
+                lagVilkårResultat(
+                    personResultat = søkerPersonResultat,
                     vilkårType = Vilkår.MEDLEMSKAP,
                     periodeFom = LocalDate.of(1992, 7, 31),
                     periodeTom = LocalDate.of(2022, 12, 14),
