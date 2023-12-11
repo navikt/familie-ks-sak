@@ -50,6 +50,9 @@ jobs:
         run: ./gradlew clean build -x test -x integrationTest -x ktlintCheck
 
       - name: Generate and output SBOM
+        env:
+          GITHUB_USERNAME: x-access-token
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: ./gradlew cyclonedxBom
 
       - uses: nais/docker-build-push@v0
