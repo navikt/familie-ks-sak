@@ -13,6 +13,7 @@ import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelse
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelseType
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.Trigger
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.inneholderGjelderFørstePeriodeTrigger
+import no.nav.familie.ks.sak.integrasjon.sanity.domene.landkodeTilBarnetsBostedsland
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.Vedtaksperiodetype
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.UtvidetVedtaksperiodeMedBegrunnelser
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.PersonResultat
@@ -24,6 +25,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.forskyvVil
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.tilFørskjøvetOppfylteVilkårResultatTidslinjeMap
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.tilFørskjøvetVilkårResultatTidslinjeMap
 import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.EndretUtbetalingAndel
+import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.Kompetanse
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
@@ -31,6 +33,7 @@ import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Personopplys
 class BegrunnelserForPeriodeContext(
     private val utvidetVedtaksperiodeMedBegrunnelser: UtvidetVedtaksperiodeMedBegrunnelser,
     private val sanityBegrunnelser: List<SanityBegrunnelse>,
+    private val kompetanser: List<Kompetanse> = emptyList(),
     private val personopplysningGrunnlag: PersonopplysningGrunnlag,
     private val personResultater: List<PersonResultat>,
     private val endretUtbetalingsandeler: List<EndretUtbetalingAndel>,
@@ -92,11 +95,24 @@ class BegrunnelserForPeriodeContext(
                 )
 
             else ->
-                hentPersonerMedVilkårResultaterSomPasserMedBegrunnelseOgPeriode(
-                    this,
-                    sanityBegrunnelse,
+                (
+                    hentPersonerMedVilkårResultaterSomPasserMedBegrunnelseOgPeriode(
+                        this,
+                        sanityBegrunnelse,
+                    ) + hentPersonerSomPasserForKompetanseIPeriode(this, sanityBegrunnelse)
                 ).isNotEmpty()
         }
+    }
+
+    private fun hentPersonerSomPasserForKompetanseIPeriode(
+        begrunnelse: Begrunnelse,
+        sanityBegrunnelse: SanityBegrunnelse,
+    ): Set<Person> {
+        return this.kompetanser.filter { kompetanse ->
+            kompetanse.annenForeldersAktivitet in sanityBegrunnelse.annenForeldersAktivitet &&
+                kompetanse.resultat in sanityBegrunnelse.kompetanseResultat &&
+                landkodeTilBarnetsBostedsland(kompetanse.barnetsBostedsland ?: throw Feil("Barnets bostedsland er null i kompetanse")) in sanityBegrunnelse.barnetsBostedsland
+        }.flatMap { it.barnAktører }.map { aktør -> personopplysningGrunnlag.personer.find { it.aktør == aktør }!! }.toSet()
     }
 
     private fun erEtterEndretPeriodeAvSammeÅrsak(begrunnelse: SanityBegrunnelse) =

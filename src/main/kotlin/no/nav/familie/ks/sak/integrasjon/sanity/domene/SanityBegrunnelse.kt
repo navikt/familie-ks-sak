@@ -47,6 +47,12 @@ enum class BarnetsBostedsland {
     IKKE_NORGE,
 }
 
+fun landkodeTilBarnetsBostedsland(landkode: String): BarnetsBostedsland =
+    when (landkode) {
+        "NO" -> BarnetsBostedsland.NORGE
+        else -> BarnetsBostedsland.IKKE_NORGE
+    }
+
 data class SanityBegrunnelserResponsDto(
     val ms: Int,
     val query: String,

@@ -541,6 +541,10 @@ enum class Begrunnelse : IBegrunnelse {
     REDUKSJON_DEN_ANDRE_FORELDEREN_HAR_FOTT_FRA_SAMME_TIDSROM {
         override val begrunnelseType = BegrunnelseType.REDUKSJON
         override val sanityApiNavn = "reduksjonDenAndreForelderenHarFottFraSammeTidsrom"
+    },
+    INNVILGET_PRIMÆRLAND_BARNET_BOR_I_NORGE {
+        override val sanityApiNavn = "innvilgetPrimarlandBarnetBorINorge"
+        override val begrunnelseType = BegrunnelseType.EØS_INNVILGET
     }, ;
 
     override fun enumnavnTilString() = this.name

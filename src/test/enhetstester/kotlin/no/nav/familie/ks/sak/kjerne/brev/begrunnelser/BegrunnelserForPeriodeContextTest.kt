@@ -6,6 +6,7 @@ import no.nav.familie.ks.sak.data.lagPersonopplysningGrunnlag
 import no.nav.familie.ks.sak.data.lagUtbetalingsperiodeDetalj
 import no.nav.familie.ks.sak.data.lagVilkårResultat
 import no.nav.familie.ks.sak.data.randomAktør
+import no.nav.familie.ks.sak.integrasjon.sanity.domene.BarnetsBostedsland
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelse
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelseType
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.Trigger
@@ -16,6 +17,9 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Utd
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.tilFørskjøvetOppfylteVilkårResultatTidslinjeMap
+import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.Kompetanse
+import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.KompetanseAktivitet
+import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.KompetanseResultat
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
 import org.hamcrest.MatcherAssert.assertThat
@@ -73,6 +77,7 @@ class BegrunnelserForPeriodeContextTest {
                 personResultater,
                 lagSanitybegrunnelser(),
                 barnAktør,
+                kompetanser = emptyList(),
             ).hentGyldigeBegrunnelserForVedtaksperiode()
 
         assertEquals(1, begrunnelser.size)
@@ -328,6 +333,43 @@ class BegrunnelserForPeriodeContextTest {
     }
 
     @Test
+    fun `henteøs - skal hente eøs begrunnelser dersom kompetanse finnes`() {
+        val eøsBegrunnelse =
+            SanityBegrunnelse(
+                Begrunnelse.INNVILGET_PRIMÆRLAND_BARNET_BOR_I_NORGE.sanityApiNavn,
+                "innvilgetPrimarlandBarnetBorINorge",
+                SanityBegrunnelseType.STANDARD,
+                Vilkår.entries,
+                rolle = emptyList(),
+                triggere = emptyList(),
+                utdypendeVilkårsvurderinger = emptyList(),
+                hjemler = emptyList(),
+                endretUtbetalingsperiode = emptyList(),
+                endringsårsaker = emptyList(),
+                støtterFritekst = false,
+                skalAlltidVises = false,
+                annenForeldersAktivitet = listOf(KompetanseAktivitet.ARBEIDER),
+                barnetsBostedsland = listOf(BarnetsBostedsland.NORGE),
+                kompetanseResultat = listOf(KompetanseResultat.NORGE_ER_PRIMÆRLAND),
+                hjemlerFolketrygdloven = emptyList(),
+                hjemlerEØSForordningen883 = emptyList(),
+                hjemlerEØSForordningen987 = emptyList(),
+                hjemlerSeperasjonsavtalenStorbritannina = emptyList(),
+            )
+        // val vilkårsbegrunnelser = vilkårsvurderingService.hentVilkårsbegrunnelser()
+
+        val begrunnelser =
+            lagFinnGyldigeBegrunnelserForPeriodeContext(
+                emptyList(),
+                listOf(eøsBegrunnelse),
+                søkerAktør,
+                kompetanser = listOf(Kompetanse(fom = null, tom = null, annenForeldersAktivitet = KompetanseAktivitet.ARBEIDER, resultat = KompetanseResultat.NORGE_ER_PRIMÆRLAND, barnetsBostedsland = BarnetsBostedsland.NORGE.toString(), barnAktører = setOf(barnAktør))),
+            ).hentGyldigeBegrunnelserForVedtaksperiode()
+
+        assertEquals(1, begrunnelser.size)
+    }
+
+    @Test
     fun `hentGyldigeBegrunnelserForVedtaksperiode - skal returnere 1 begrunnelse av type Standard i tillegg til 1 tilleggstekst som skal vises når BOSATT_I_RIKET for søker trigger vedtaksperioden`() {
         val bosattIRiketBegrunnelser =
             listOf(
@@ -474,6 +516,7 @@ class BegrunnelserForPeriodeContextTest {
         personResultater: List<PersonResultat>,
         sanityBegrunnelser: List<SanityBegrunnelse>,
         aktørSomTriggerVedtaksperiode: Aktør,
+        kompetanser: List<Kompetanse> = emptyList(),
     ): BegrunnelserForPeriodeContext {
         // Må forskyve personresultatene for å finne riktig dato for vedtaksperiode.
         val vedtaksperiodeStartsTidpunkt =
@@ -496,6 +539,7 @@ class BegrunnelserForPeriodeContextTest {
 
         return BegrunnelserForPeriodeContext(
             utvidetVedtaksperiodeMedBegrunnelser = utvidetVedtaksperiodeMedBegrunnelser,
+            kompetanser = kompetanser,
             sanityBegrunnelser = sanityBegrunnelser,
             personopplysningGrunnlag = persongrunnlag,
             personResultater = personResultater,
