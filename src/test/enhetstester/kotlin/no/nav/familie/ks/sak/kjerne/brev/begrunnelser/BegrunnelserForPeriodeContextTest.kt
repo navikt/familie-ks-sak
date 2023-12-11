@@ -28,8 +28,17 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import java.math.BigDecimal
 import java.time.LocalDate
+import java.time.YearMonth
 
 class BegrunnelserForPeriodeContextTest {
+    private fun Int.jan(år: Int) = LocalDate.of(år, 1, this)
+
+    private fun Int.feb(år: Int) = LocalDate.of(år, 2, this)
+
+    private fun jan(år: Int) = YearMonth.of(år, 1)
+
+    private fun feb(år: Int) = YearMonth.of(år, 2)
+
     private val barnAktør = randomAktør()
     private val søkerAktør = randomAktør()
     private val persongrunnlag =
@@ -77,7 +86,6 @@ class BegrunnelserForPeriodeContextTest {
                 personResultater,
                 lagSanitybegrunnelser(),
                 barnAktør,
-                kompetanser = emptyList(),
             ).hentGyldigeBegrunnelserForVedtaksperiode()
 
         assertEquals(1, begrunnelser.size)
@@ -333,13 +341,13 @@ class BegrunnelserForPeriodeContextTest {
     }
 
     @Test
-    fun `henteøs - skal hente eøs begrunnelser dersom kompetanse finnes`() {
+    fun `Skal kunne få opp eøs som gyldige begrunnelse dersom det er en kompetanse i perioden`() {
         val eøsBegrunnelse =
             SanityBegrunnelse(
-                Begrunnelse.INNVILGET_PRIMÆRLAND_BARNET_BOR_I_NORGE.sanityApiNavn,
-                "innvilgetPrimarlandBarnetBorINorge",
-                SanityBegrunnelseType.STANDARD,
-                Vilkår.entries,
+                apiNavn = Begrunnelse.INNVILGET_PRIMÆRLAND_BARNET_BOR_I_NORGE.sanityApiNavn,
+                navnISystem = Begrunnelse.INNVILGET_PRIMÆRLAND_BARNET_BOR_I_NORGE.name,
+                type = SanityBegrunnelseType.STANDARD,
+                vilkår = Vilkår.entries,
                 rolle = emptyList(),
                 triggere = emptyList(),
                 utdypendeVilkårsvurderinger = emptyList(),
@@ -357,14 +365,15 @@ class BegrunnelserForPeriodeContextTest {
                 hjemlerSeperasjonsavtalenStorbritannina = emptyList(),
             )
 
-        val begrunnelser =
-            lagFinnGyldigeBegrunnelserForPeriodeContext(
-                // Begrunnelsen skal velges uavhengig av hva personresultatene er. Sender derfor ikke med personresultater.
-                personResultater = emptyList(),
+        val begrunnelseContext =
+            lagBegrunnelserForPeriodeContextForEøsTester(
                 sanityBegrunnelser = listOf(eøsBegrunnelse),
-                aktørSomTriggerVedtaksperiode = søkerAktør,
-                kompetanser = listOf(Kompetanse(fom = null, tom = null, annenForeldersAktivitet = KompetanseAktivitet.ARBEIDER, resultat = KompetanseResultat.NORGE_ER_PRIMÆRLAND, barnetsBostedsland = "NO", barnAktører = setOf(barnAktør))),
-            ).hentGyldigeBegrunnelserForVedtaksperiode()
+                kompetanser = listOf(Kompetanse(fom = jan(2020), tom = jan(2020), annenForeldersAktivitet = KompetanseAktivitet.ARBEIDER, resultat = KompetanseResultat.NORGE_ER_PRIMÆRLAND, barnetsBostedsland = "NO", barnAktører = setOf(barnAktør))),
+                vedtaksperiodeStartsTidpunkt = 1.jan(2020),
+                vedtaksperiodeSluttTidpunkt = 31.jan(2020),
+            )
+        val begrunnelser =
+            begrunnelseContext.hentGyldigeBegrunnelserForVedtaksperiode()
 
         assertEquals(1, begrunnelser.size)
     }
@@ -516,7 +525,6 @@ class BegrunnelserForPeriodeContextTest {
         personResultater: List<PersonResultat>,
         sanityBegrunnelser: List<SanityBegrunnelse>,
         aktørSomTriggerVedtaksperiode: Aktør,
-        kompetanser: List<Kompetanse> = emptyList(),
     ): BegrunnelserForPeriodeContext {
         // Må forskyve personresultatene for å finne riktig dato for vedtaksperiode.
         val vedtaksperiodeStartsTidpunkt =
@@ -539,10 +547,40 @@ class BegrunnelserForPeriodeContextTest {
 
         return BegrunnelserForPeriodeContext(
             utvidetVedtaksperiodeMedBegrunnelser = utvidetVedtaksperiodeMedBegrunnelser,
-            kompetanser = kompetanser,
             sanityBegrunnelser = sanityBegrunnelser,
             personopplysningGrunnlag = persongrunnlag,
             personResultater = personResultater,
+            endretUtbetalingsandeler = emptyList(),
+            erFørsteVedtaksperiode = false,
+        )
+    }
+
+    private fun lagBegrunnelserForPeriodeContextForEøsTester(
+        sanityBegrunnelser: List<SanityBegrunnelse>,
+        kompetanser: List<Kompetanse>,
+        vedtaksperiodeStartsTidpunkt: LocalDate? = null,
+        vedtaksperiodeSluttTidpunkt: LocalDate? = null,
+    ): BegrunnelserForPeriodeContext {
+        val utvidetVedtaksperiodeMedBegrunnelser =
+            UtvidetVedtaksperiodeMedBegrunnelser(
+                id = 0,
+                fom = vedtaksperiodeStartsTidpunkt,
+                tom = vedtaksperiodeSluttTidpunkt,
+                type = Vedtaksperiodetype.UTBETALING,
+                begrunnelser = emptyList(),
+                utbetalingsperiodeDetaljer =
+                    listOf(
+                        lagUtbetalingsperiodeDetalj(person = lagPerson(aktør = søkerAktør, personType = PersonType.SØKER)),
+                        lagUtbetalingsperiodeDetalj(person = lagPerson(aktør = barnAktør, personType = PersonType.BARN)),
+                    ),
+            )
+
+        return BegrunnelserForPeriodeContext(
+            utvidetVedtaksperiodeMedBegrunnelser = utvidetVedtaksperiodeMedBegrunnelser,
+            kompetanser = kompetanser,
+            sanityBegrunnelser = sanityBegrunnelser,
+            personopplysningGrunnlag = persongrunnlag,
+            personResultater = emptyList(),
             endretUtbetalingsandeler = emptyList(),
             erFørsteVedtaksperiode = false,
         )
