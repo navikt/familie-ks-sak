@@ -8,6 +8,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vil
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår.BARNETS_ALDER
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår.BOR_MED_SØKER
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår.BOSATT_I_RIKET
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår.LOVLIG_OPPHOLD
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår.MEDLEMSKAP
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår.MEDLEMSKAP_ANNEN_FORELDER
 import no.nav.familie.ks.sak.kjerne.eøs.util.DeltBostedBuilder
@@ -47,6 +48,7 @@ class TilkjentYtelseDifferanseberegningTest {
                 .forPerson(søker, startMåned)
                 .medVilkår("EEEEEEEEEEEEEEEEEEEEEEE", BOSATT_I_RIKET)
                 .medVilkår("EEEEEEEEEEEEEEEEEEEEEEE", MEDLEMSKAP)
+                .medVilkår("EEEEEEEEEEEEEEEEEEEEEEE", LOVLIG_OPPHOLD)
                 .forPerson(barn1, startMåned)
                 .medVilkår("+>", BARNETS_ALDER, BARNEHAGEPLASS)
                 .medVilkår("E>", BOSATT_I_RIKET, MEDLEMSKAP, BOR_MED_SØKER, MEDLEMSKAP_ANNEN_FORELDER)
@@ -119,6 +121,7 @@ class TilkjentYtelseDifferanseberegningTest {
                 .forPerson(søker, startMåned)
                 .medVilkår("EEEEEEEEEEEEEEEEEEEEEEE", BOSATT_I_RIKET)
                 .medVilkår("EEEEEEEEEEEEEEEEEEEEEEE", MEDLEMSKAP)
+                .medVilkår("EEEEEEEEEEEEEEEEEEEEEEE", LOVLIG_OPPHOLD)
                 .forPerson(barn1, startMåned)
                 .medVilkår("+>", BARNETS_ALDER, BARNEHAGEPLASS)
                 .medVilkår("E>", BOSATT_I_RIKET, MEDLEMSKAP, BOR_MED_SØKER, MEDLEMSKAP_ANNEN_FORELDER)
