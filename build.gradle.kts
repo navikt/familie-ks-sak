@@ -44,9 +44,9 @@ repositories {
 
 dependencies {
 
-    val springdocVersion = "2.2.0"
+    val springdocVersion = "2.3.0"
     val sentryVersion = "7.0.0"
-    val navFellesVersion = "2.20231130124846_d617d47"
+    val navFellesVersion = "2.20231201131108_ea25dd3"
     val eksterneKontrakterBisysVersion = "2.0_20230214104704_706e9c0"
     val fellesKontrakterVersion = "3.0_20231206111937_3c866af"
     val familieKontrakterSaksstatistikkVersion = "2.0_20230214104704_706e9c0"
@@ -54,7 +54,7 @@ dependencies {
     val tokenValidationSpringVersion = "3.2.0"
     val navFoedselsnummerVersion = "1.0-SNAPSHOT.6"
     val prosesseringVersion = "2.20231026103714_2f17845"
-    val restAssuredVersion = "5.3.2"
+    val restAssuredVersion = "5.4.0"
     val kotlinxVersion = "1.7.3"
 
     // ---------- Spring ---------- \\
@@ -108,7 +108,7 @@ dependencies {
     implementation("nav-foedselsnummer:core:$navFoedselsnummerVersion")
 
     implementation("com.papertrailapp:logback-syslog4j:1.0.0")
-    implementation("io.getunleash:unleash-client-java:9.1.1")
+    implementation("io.getunleash:unleash-client-java:9.2.0")
     implementation("io.sentry:sentry-spring-boot-starter:$sentryVersion")
     implementation("io.sentry:sentry-logback:$sentryVersion")
     implementation("io.micrometer:micrometer-registry-prometheus")
@@ -125,7 +125,7 @@ dependencies {
         exclude(module = "mockito-core")
     }
     testImplementation("org.springframework.boot:spring-boot-starter-test")
-    testImplementation("org.springframework.cloud:spring-cloud-contract-wiremock:4.0.4")
+    testImplementation("org.springframework.cloud:spring-cloud-contract-wiremock:4.1.0")
     testImplementation("io.rest-assured:spring-mock-mvc:$restAssuredVersion")
     testImplementation("io.rest-assured:kotlin-extensions:$restAssuredVersion")
     testImplementation("org.testcontainers:postgresql:1.19.3")
