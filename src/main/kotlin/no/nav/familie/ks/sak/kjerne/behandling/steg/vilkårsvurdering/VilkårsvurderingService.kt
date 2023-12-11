@@ -203,6 +203,8 @@ class VilkårsvurderingService(
         personResultat: PersonResultat,
         vilkårResultater: List<VilkårResultat>,
     ): List<VilkårResultat> {
+        if (!personResultat.erSøkersResultater()) return vilkårResultater
+
         val bosattIRiketVilkår = vilkårResultater.filter { it.vilkårType == Vilkår.BOSATT_I_RIKET }
         val finnesBosattIRiketVilkårVurdertEtterEøs = bosattIRiketVilkår.any { it.vurderesEtter == Regelverk.EØS_FORORDNINGEN }
         val lovligOppholdVilkårFinnesAllerede = vilkårResultater.any { it.vilkårType == Vilkår.LOVLIG_OPPHOLD }
