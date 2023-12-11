@@ -22,6 +22,7 @@ import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.KompetanseAktivitet
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.KompetanseResultat
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
+import org.assertj.core.api.Assertions.assertThat
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.containsInAnyOrder
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -454,7 +455,7 @@ class BegrunnelserForPeriodeContextTest {
             val begrunnelser =
                 begrunnelseContext.hentGyldigeBegrunnelserForVedtaksperiode()
 
-            assertEquals(1, begrunnelser.size)
+            assertThat(begrunnelser.size).isEqualTo(1)
         }
 
         @Test
@@ -492,7 +493,7 @@ class BegrunnelserForPeriodeContextTest {
             val begrunnelser =
                 begrunnelseContext.hentGyldigeBegrunnelserForVedtaksperiode()
 
-            assertEquals(0, begrunnelser.size)
+            assertThat(begrunnelser.size).isEqualTo(0)
         }
 
         @Test
@@ -530,7 +531,7 @@ class BegrunnelserForPeriodeContextTest {
             val begrunnelser =
                 begrunnelseContext.hentGyldigeBegrunnelserForVedtaksperiode()
 
-            assertEquals(1, begrunnelser.size)
+            assertThat(begrunnelser.size).isEqualTo(1)
         }
 
         @Test
@@ -572,7 +573,7 @@ class BegrunnelserForPeriodeContextTest {
             val begrunnelser =
                 begrunnelseContext.hentGyldigeBegrunnelserForVedtaksperiode()
 
-            assertEquals(0, begrunnelser.size)
+            assertThat(begrunnelser.size).isEqualTo(0)
         }
     }
 
