@@ -97,22 +97,3 @@ fun Tidslinje<AndelTilkjentYtelseForTidslinje>.tilAndelerTilkjentYtelse(tilkjent
             )
         }
 }
-//
-// /**
-// * Lager tidslinje med AndelTilkjentYtelseForTidslinje-objekter, som derfor er "trygg" mtp DB-endringer
-// */
-// fun Iterable<AndelTilkjentYtelse>.tilTryggTidslinjeForSøkersYtelse(ytelseType: YtelseType) =
-//    this
-//        .filter { it.erSøkersAndel() }
-//        .filter { it.type == ytelseType }
-//        .let {
-//            tidslinje {
-//                it.map {
-//                    Periode(
-//                        it.stønadFom.tilTidspunkt(),
-//                        it.stønadTom.tilTidspunkt(),
-//                        it.tilpassTilTidslinje(),
-//                    )
-//                }
-//            }
-//        }
