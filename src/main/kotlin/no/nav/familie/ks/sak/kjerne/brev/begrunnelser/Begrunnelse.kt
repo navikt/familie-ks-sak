@@ -544,7 +544,7 @@ enum class Begrunnelse : IBegrunnelse {
     },
     INNVILGET_PRIMÆRLAND_BARNET_BOR_I_NORGE {
         override val sanityApiNavn = "innvilgetPrimarlandBarnetBorINorge"
-        override val begrunnelseType = BegrunnelseType.EØS_INNVILGET
+        override val begrunnelseType = BegrunnelseType.INNVILGET
     }, ;
 
     override fun enumnavnTilString() = this.name
