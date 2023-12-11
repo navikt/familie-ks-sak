@@ -4,11 +4,14 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Utd
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
 import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.Årsak
+import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.KompetanseAktivitet
+import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.KompetanseResultat
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.math.BigDecimal
+import kotlin.enums.EnumEntries
 
 data class SanityBegrunnelse(
     val apiNavn: String?,
@@ -23,12 +26,25 @@ data class SanityBegrunnelse(
     val endretUtbetalingsperiode: List<EndretUtbetalingsperiodeTrigger>,
     val støtterFritekst: Boolean,
     val skalAlltidVises: Boolean,
+    // EØS
+    val annenForeldersAktivitet: List<KompetanseAktivitet> = emptyList(),
+    val barnetsBostedsland: List<BarnetsBostedsland> = emptyList(),
+    val kompetanseResultat: List<KompetanseResultat> = emptyList(),
+    val hjemlerFolketrygdloven: List<String> = emptyList(),
+    val hjemlerEØSForordningen883: List<String> = emptyList(),
+    val hjemlerEØSForordningen987: List<String> = emptyList(),
+    val hjemlerSeperasjonsavtalenStorbritannina: List<String> = emptyList(),
 )
 
 enum class SanityBegrunnelseType {
     STANDARD,
     TILLEGGSTEKST,
     ENDRINGSPERIODE,
+}
+
+enum class BarnetsBostedsland {
+    NORGE,
+    IKKE_NORGE,
 }
 
 data class SanityBegrunnelserResponsDto(
@@ -77,34 +93,48 @@ data class SanityBegrunnelseDto(
     val hjemler: List<String> = emptyList(),
     val stotterFritekst: Boolean?,
     val skalAlltidVises: Boolean?,
+    val annenForeldersAktivitet: List<String> = emptyList(),
+    val barnetsBostedsland: List<String> = emptyList(),
+    val kompetanseResultat: List<String> = emptyList(),
+    val hjemlerFolketrygdloven: List<String> = emptyList(),
+    val hjemlerEØSForordningen883: List<String> = emptyList(),
+    val hjemlerEØSForordningen987: List<String> = emptyList(),
+    val hjemlerSeperasjonsavtalenStorbritannina: List<String> = emptyList(),
 ) {
     fun tilSanityBegrunnelse(): SanityBegrunnelse {
         return SanityBegrunnelse(
             apiNavn = apiNavn,
             navnISystem = navnISystem,
-            type = finnEnumverdi(type, SanityBegrunnelseType.values(), apiNavn) ?: SanityBegrunnelseType.TILLEGGSTEKST,
+            type = finnEnumverdi(type, SanityBegrunnelseType.entries, apiNavn) ?: SanityBegrunnelseType.TILLEGGSTEKST,
             vilkår =
                 vilkaar.mapNotNull {
-                    finnEnumverdi(it, Vilkår.values(), apiNavn)
+                    finnEnumverdi(it, Vilkår.entries, apiNavn)
                 },
-            rolle = rolle.mapNotNull { finnEnumverdi(it, VilkårRolle.values(), apiNavn) },
+            rolle = rolle.mapNotNull { finnEnumverdi(it, VilkårRolle.entries, apiNavn) },
             utdypendeVilkårsvurderinger =
                 utdypendeVilkaarsvurderinger.mapNotNull {
                     finnEnumverdi(
                         it,
-                        UtdypendeVilkårsvurdering.values(),
+                        UtdypendeVilkårsvurdering.entries,
                         apiNavn,
                     )
                 },
-            triggere = triggere.mapNotNull { finnEnumverdi(it, Trigger.values(), apiNavn) },
+            triggere = triggere.mapNotNull { finnEnumverdi(it, Trigger.entries, apiNavn) },
             hjemler = hjemler,
-            endringsårsaker = endringsaarsaker.mapNotNull { finnEnumverdi(it, Årsak.values(), apiNavn) },
+            endringsårsaker = endringsaarsaker.mapNotNull { finnEnumverdi(it, Årsak.entries, apiNavn) },
             endretUtbetalingsperiode =
                 endretUtbetalingsperiode.mapNotNull {
-                    finnEnumverdi(it, EndretUtbetalingsperiodeTrigger.values(), apiNavn)
+                    finnEnumverdi(it, EndretUtbetalingsperiodeTrigger.entries, apiNavn)
                 },
             støtterFritekst = stotterFritekst ?: false,
             skalAlltidVises = skalAlltidVises ?: false,
+            annenForeldersAktivitet = annenForeldersAktivitet.mapNotNull { finnEnumverdi(it, KompetanseAktivitet.entries, apiNavn) },
+            barnetsBostedsland = barnetsBostedsland.mapNotNull { finnEnumverdi(it, BarnetsBostedsland.entries, apiNavn) },
+            kompetanseResultat = kompetanseResultat.mapNotNull { finnEnumverdi(it, KompetanseResultat.entries, apiNavn) },
+            hjemlerFolketrygdloven = hjemlerFolketrygdloven,
+            hjemlerEØSForordningen883 = hjemlerEØSForordningen883,
+            hjemlerEØSForordningen987 = hjemlerEØSForordningen987,
+            hjemlerSeperasjonsavtalenStorbritannina = hjemlerSeperasjonsavtalenStorbritannina,
         )
     }
 }
@@ -115,7 +145,7 @@ fun SanityBegrunnelse.inneholderGjelderFørstePeriodeTrigger() = this.triggere.c
 
 fun <T : Enum<T>> finnEnumverdi(
     verdi: String,
-    enumverdier: Array<T>,
+    enumverdier: EnumEntries<T>,
     apiNavn: String?,
 ): T? {
     val enumverdi = enumverdier.firstOrNull { verdi == it.name }

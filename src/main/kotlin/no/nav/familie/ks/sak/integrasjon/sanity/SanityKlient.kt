@@ -4,8 +4,6 @@ import no.nav.familie.http.client.AbstractRestClient
 import no.nav.familie.ks.sak.integrasjon.kallEksternTjeneste
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelse
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelserResponsDto
-import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityEØSBegrunnelse
-import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityEØSBegrunnelserResponsDto
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import org.springframework.web.client.RestOperations
@@ -31,21 +29,6 @@ class SanityKlient(
             }
 
         return restSanityBegrunnelser.result.map { it.tilSanityBegrunnelse() }
-    }
-
-    fun hentEØSBegrunnelser(datasett: String = "ks-test"): List<SanityEØSBegrunnelse> {
-        val uri = lagHentUri(datasett, HENT_EØS_BEGRUNNELSER)
-
-        val restSanityEØSBegrunnelser =
-            kallEksternTjeneste<SanityEØSBegrunnelserResponsDto>(
-                tjeneste = "Sanity",
-                uri = uri,
-                formål = "Henter EØS-begrunnelser fra sanity",
-            ) {
-                getForEntity(uri)
-            }
-
-        return restSanityEØSBegrunnelser.result.map { it.tilSanityEØSBegrunnelse() }
     }
 
     private fun lagHentUri(

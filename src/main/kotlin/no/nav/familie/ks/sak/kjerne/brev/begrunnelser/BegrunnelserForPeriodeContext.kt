@@ -137,7 +137,6 @@ class BegrunnelserForPeriodeContext(
         val filtrerPåVilkårType =
             filtrerPersonerUtenUtbetalingVedInnvilget
                 .filtrerPåVilkårType(sanityBegrunnelse.vilkår)
-
         val filtrerPåTriggere =
             filtrerPåVilkårType
                 .filtrerPåTriggere(
