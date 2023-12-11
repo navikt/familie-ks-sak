@@ -16,7 +16,6 @@ import no.nav.familie.ks.sak.data.randomAktør
 import no.nav.familie.ks.sak.integrasjon.sanity.SanityService
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelse
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelseType
-import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityEØSBegrunnelse
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
@@ -24,7 +23,6 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vil
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårsvurderingRepository
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.Begrunnelse
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.BegrunnelseType
-import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.EØSBegrunnelse
 import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
 import org.hamcrest.MatcherAssert.assertThat
@@ -189,20 +187,11 @@ class VilkårsvurderingServiceTest {
                 ),
             )
 
-        every { sanityService.hentSanityEØSBegrunnelser() } returns
-            listOf(
-                SanityEØSBegrunnelse(
-                    EØSBegrunnelse.DUMMY.sanityApiNavn,
-                    "navnISystem",
-                ),
-            )
-
         val vilkårsbegrunnelser = vilkårsvurderingService.hentVilkårsbegrunnelser()
 
         // TODO: Endre denne testen når vi får lagt inn riktige Begrunnelser og EØSBegrunnelser
-        assertEquals(5, vilkårsbegrunnelser.size)
+        assertEquals(4, vilkårsbegrunnelser.size)
         assertEquals(0, vilkårsbegrunnelser[BegrunnelseType.AVSLAG]?.size)
-        assertEquals(1, vilkårsbegrunnelser[BegrunnelseType.EØS_OPPHØR]?.size)
     }
 
     @Test
