@@ -952,3 +952,63 @@ fun lagValutakurs(
     valutakode = valutakode,
     kurs = kurs,
 ).also { it.behandlingId = behandlingId }
+
+fun lagAndelTilkjentYtelse(
+    fom: YearMonth,
+    tom: YearMonth,
+    ytelseType: YtelseType = YtelseType.ORDINÆR_KONTANTSTØTTE,
+    beløp: Int = 7500,
+    behandling: Behandling = lagBehandling(),
+    person: Person = tilfeldigPerson(),
+    aktør: Aktør = person.aktør,
+    periodeIdOffset: Long? = null,
+    forrigeperiodeIdOffset: Long? = null,
+    tilkjentYtelse: TilkjentYtelse? = null,
+    prosent: BigDecimal = BigDecimal(100),
+    kildeBehandlingId: Long? = behandling.id,
+    differanseberegnetPeriodebeløp: Int? = null,
+    id: Long = 0,
+    sats: Int = 7500,
+): AndelTilkjentYtelse {
+    return AndelTilkjentYtelse(
+        id = id,
+        aktør = aktør,
+        behandlingId = behandling.id,
+        tilkjentYtelse = tilkjentYtelse ?: lagInitiellTilkjentYtelse(behandling),
+        kalkulertUtbetalingsbeløp = beløp,
+        nasjonaltPeriodebeløp = beløp,
+        stønadFom = fom,
+        stønadTom = tom,
+        type = ytelseType,
+        periodeOffset = periodeIdOffset,
+        forrigePeriodeOffset = forrigeperiodeIdOffset,
+        sats = sats,
+        prosent = prosent,
+        kildeBehandlingId = kildeBehandlingId,
+        differanseberegnetPeriodebeløp = differanseberegnetPeriodebeløp,
+    )
+}
+
+fun lagInitiellTilkjentYtelse(
+    behandling: Behandling = lagBehandling(),
+    utbetalingsoppdrag: String? = null,
+): TilkjentYtelse {
+    return TilkjentYtelse(
+        behandling = behandling,
+        opprettetDato = LocalDate.now(),
+        endretDato = LocalDate.now(),
+        utbetalingsoppdrag = utbetalingsoppdrag,
+    )
+}
+
+fun lagTestPersonopplysningGrunnlag(
+    behandlingId: Long,
+    vararg personer: Person,
+): PersonopplysningGrunnlag {
+    val personopplysningGrunnlag = PersonopplysningGrunnlag(behandlingId = behandlingId)
+
+    personopplysningGrunnlag.personer.addAll(
+        personer.map { it.copy(personopplysningGrunnlag = personopplysningGrunnlag) },
+    )
+    return personopplysningGrunnlag
+}
