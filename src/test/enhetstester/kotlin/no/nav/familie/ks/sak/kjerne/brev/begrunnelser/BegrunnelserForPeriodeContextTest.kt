@@ -424,8 +424,8 @@ class BegrunnelserForPeriodeContextTest {
         fun `Skal kunne få opp eøs som gyldige begrunnelse dersom det er en kompetanse i perioden`() {
             val eøsBegrunnelse =
                 SanityBegrunnelse(
-                    apiNavn = Begrunnelse.INNVILGET_PRIMÆRLAND_BARNET_BOR_I_NORGE.sanityApiNavn,
-                    navnISystem = Begrunnelse.INNVILGET_PRIMÆRLAND_BARNET_BOR_I_NORGE.name,
+                    apiNavn = EØSBegrunnelse.INNVILGET_PRIMÆRLAND_BARNET_BOR_I_NORGE.sanityApiNavn,
+                    navnISystem = EØSBegrunnelse.INNVILGET_PRIMÆRLAND_BARNET_BOR_I_NORGE.name,
                     type = SanityBegrunnelseType.STANDARD,
                     vilkår = Vilkår.entries,
                     rolle = emptyList(),
@@ -462,8 +462,8 @@ class BegrunnelserForPeriodeContextTest {
         fun `Kompetanser som ikke gjelder for perioden skal ikke føre til gyldige begrunnelser`() {
             val eøsBegrunnelse =
                 SanityBegrunnelse(
-                    apiNavn = Begrunnelse.INNVILGET_PRIMÆRLAND_BARNET_BOR_I_NORGE.sanityApiNavn,
-                    navnISystem = Begrunnelse.INNVILGET_PRIMÆRLAND_BARNET_BOR_I_NORGE.name,
+                    apiNavn = EØSBegrunnelse.INNVILGET_PRIMÆRLAND_BARNET_BOR_I_NORGE.sanityApiNavn,
+                    navnISystem = EØSBegrunnelse.INNVILGET_PRIMÆRLAND_BARNET_BOR_I_NORGE.name,
                     type = SanityBegrunnelseType.STANDARD,
                     vilkår = Vilkår.entries,
                     rolle = emptyList(),
@@ -500,8 +500,8 @@ class BegrunnelserForPeriodeContextTest {
         fun `Skal kunne få opp eøs-opphør som gyldige begrunnelser dersom det er en kompetanse som slutter måneden før`() {
             val eøsBegrunnelse =
                 SanityBegrunnelse(
-                    apiNavn = Begrunnelse.OPPHØR_EØS_STANDARD.sanityApiNavn,
-                    navnISystem = Begrunnelse.OPPHØR_EØS_STANDARD.name,
+                    apiNavn = EØSBegrunnelse.OPPHØR_EØS_STANDARD.sanityApiNavn,
+                    navnISystem = EØSBegrunnelse.OPPHØR_EØS_STANDARD.name,
                     type = SanityBegrunnelseType.STANDARD,
                     vilkår = Vilkår.entries,
                     rolle = emptyList(),
@@ -538,8 +538,8 @@ class BegrunnelserForPeriodeContextTest {
         fun `Skal ikke få opp eøs-opphør som gyldige begrunnelser dersom det er en kompetanse som slutter måneden før når vi fremdeles har kompetanse`() {
             val eøsBegrunnelse =
                 SanityBegrunnelse(
-                    apiNavn = Begrunnelse.OPPHØR_EØS_STANDARD.sanityApiNavn,
-                    navnISystem = Begrunnelse.OPPHØR_EØS_STANDARD.name,
+                    apiNavn = EØSBegrunnelse.OPPHØR_EØS_STANDARD.sanityApiNavn,
+                    navnISystem = EØSBegrunnelse.OPPHØR_EØS_STANDARD.name,
                     type = SanityBegrunnelseType.STANDARD,
                     vilkår = Vilkår.entries,
                     rolle = emptyList(),
