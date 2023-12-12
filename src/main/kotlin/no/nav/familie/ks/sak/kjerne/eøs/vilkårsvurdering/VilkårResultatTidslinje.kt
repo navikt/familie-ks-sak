@@ -31,7 +31,7 @@ fun Iterable<VilkårResultat>.tilVilkårRegelverkResultatTidslinje(): Tidslinje<
 fun VilkårResultat.tilPeriode(vilkårerMedBack2BackPerioder: List<Long>): Periode<VilkårRegelverkResultat> =
     Periode(
         fom =
-        if (vilkårerMedBack2BackPerioder.contains(this.id) || periodeFom?.toYearMonth() == periodeTom?.toYearMonth()) {
+            if (vilkårerMedBack2BackPerioder.contains(this.id) || periodeFom?.toYearMonth() == periodeTom?.toYearMonth()) {
                 periodeFom?.førsteDagIInneværendeMåned()
             } else {
                 periodeFom?.førsteDagINesteMåned()
