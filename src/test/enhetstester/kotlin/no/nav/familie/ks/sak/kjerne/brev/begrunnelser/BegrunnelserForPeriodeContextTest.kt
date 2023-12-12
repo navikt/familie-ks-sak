@@ -575,6 +575,17 @@ class BegrunnelserForPeriodeContextTest {
 
             assertThat(begrunnelser.size).isEqualTo(0)
         }
+        // Mangler 5 tester:
+        // Test som viser at to like begrunnelser ikke dukker opp samtidig dersom den ene har tema EØS og den andre har tema nasjonal
+
+        // "Ingen endring"-teskster må dukke opp når kompatansen er lik som i forrige periode.
+
+        // Tilleggstekster skal komme uavhengig av endring
+
+        // Reduksjon forrige behandling. Kommer Begrunnelsen opp dersom kompetansen er fjernet mellom behandlinger?
+        // Opphør mellom behandlinger. Samme som over bare opphør
+
+        // Antar dødsfall, barn 6 år og satsendring dekkes av den andre løypa
     }
 
     private fun lagSanitybegrunnelser(): List<SanityBegrunnelse> =
