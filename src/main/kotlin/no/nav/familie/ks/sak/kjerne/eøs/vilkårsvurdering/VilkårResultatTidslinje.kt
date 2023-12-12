@@ -7,6 +7,7 @@ import no.nav.familie.ks.sak.common.util.erBack2BackIMånedsskifte
 import no.nav.familie.ks.sak.common.util.førsteDagIInneværendeMåned
 import no.nav.familie.ks.sak.common.util.førsteDagINesteMåned
 import no.nav.familie.ks.sak.common.util.sisteDagIMåned
+import no.nav.familie.ks.sak.common.util.toYearMonth
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
 
 /**
@@ -30,7 +31,7 @@ fun Iterable<VilkårResultat>.tilVilkårRegelverkResultatTidslinje(): Tidslinje<
 fun VilkårResultat.tilPeriode(vilkårerMedBack2BackPerioder: List<Long>): Periode<VilkårRegelverkResultat> =
     Periode(
         fom =
-            if (vilkårerMedBack2BackPerioder.contains(this.id)) {
+            if (vilkårerMedBack2BackPerioder.contains(this.id) || periodeFom?.toYearMonth() == periodeTom?.toYearMonth()) {
                 periodeFom?.førsteDagIInneværendeMåned()
             } else {
                 periodeFom?.førsteDagINesteMåned()

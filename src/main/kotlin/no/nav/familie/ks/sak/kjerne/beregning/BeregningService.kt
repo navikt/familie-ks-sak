@@ -34,6 +34,7 @@ class BeregningService(
     private val behandlingRepository: BehandlingRepository,
     private val andelerTilkjentYtelseOgEndreteUtbetalingerService: AndelerTilkjentYtelseOgEndreteUtbetalingerService,
     private val fagsakService: FagsakService,
+    private val tilkjentYtelseEndretAbonnenter: List<TilkjentYtelseEndretAbonnent> = emptyList(),
 ) {
     /**
      * Henter alle barn på behandlingen som har minst en periode med tilkjentytelse.
@@ -87,7 +88,8 @@ class BeregningService(
                 endreteUtbetalingAndeler,
             )
 
-        tilkjentYtelseRepository.save(tilkjentYtelse)
+        val lagretTilkjentYtelse = tilkjentYtelseRepository.save(tilkjentYtelse)
+        tilkjentYtelseEndretAbonnenter.forEach { it.endretTilkjentYtelse(lagretTilkjentYtelse) }
     }
 
     /**
@@ -234,4 +236,8 @@ class BeregningService(
         ).filter { it.erAndelSomSkalSendesTilOppdrag() }
 
     fun slettTilkjentYtelseForBehandling(behandling: Behandling) = tilkjentYtelseRepository.slettTilkjentYtelseForBehandling(behandling)
+}
+
+interface TilkjentYtelseEndretAbonnent {
+    fun endretTilkjentYtelse(tilkjentYtelse: TilkjentYtelse)
 }
