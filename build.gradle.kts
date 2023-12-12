@@ -53,7 +53,7 @@ dependencies {
     val familieKontrakterStønadsstatistikkKsVersion = "2.0_20230825103733_1ac52c2"
     val tokenValidationSpringVersion = "3.2.0"
     val navFoedselsnummerVersion = "1.0-SNAPSHOT.6"
-    val prosesseringVersion = "2.20231026103714_2f17845"
+    val prosesseringVersion = "2.20231212093500_bfa0e7c"
     val restAssuredVersion = "5.4.0"
     val kotlinxVersion = "1.7.3"
 
@@ -129,7 +129,7 @@ dependencies {
     testImplementation("io.rest-assured:spring-mock-mvc:$restAssuredVersion")
     testImplementation("io.rest-assured:kotlin-extensions:$restAssuredVersion")
     testImplementation("org.testcontainers:postgresql:1.19.3")
-    testImplementation("no.nav.security:mock-oauth2-server:2.0.1")
+    testImplementation("no.nav.security:mock-oauth2-server:2.1.0")
     testImplementation("no.nav.security:token-validation-test-support:2.0.5")
     testImplementation("no.nav.security:token-validation-spring-test:$tokenValidationSpringVersion")
     testImplementation("nav-foedselsnummer:testutils:1.0-SNAPSHOT.6")
