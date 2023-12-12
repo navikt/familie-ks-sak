@@ -2,6 +2,7 @@ package no.nav.familie.ks.sak.common.tidslinje
 
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.klipp
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.kombinerMed
+import no.nav.familie.ks.sak.common.tidslinje.utvidelser.map
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.mapper
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.tilPerioder
 import java.time.DayOfWeek
@@ -173,3 +174,14 @@ fun <T> Tidslinje<T>.beskjærEtter(tidslinje: Tidslinje<*>): Tidslinje<T> =
     this.klipp(tidslinje.startsTidspunkt, tidslinje.kalkulerSluttTidspunkt())
 
 fun <T> Tidslinje<T>.inneholder(verdi: T): Boolean = this.tilPerioder().any { it.verdi == verdi }
+
+fun <T, R> Tidslinje<T>.mapVerdi(mapper: (T?) -> R): Tidslinje<R> =
+    this.map { periodeVerdi ->
+        when (periodeVerdi) {
+            is Verdi,
+            is Null,
+            -> mapper(periodeVerdi.verdi)?.let { Verdi(it) } ?: Null()
+
+            is Udefinert -> Udefinert()
+        }
+    }
