@@ -18,27 +18,42 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.Vedtak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.Vedtaksperiodetype
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.VedtaksperiodeMedBegrunnelser
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Regelverk
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.UtdypendeVilkårsvurdering
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
 import no.nav.familie.ks.sak.kjerne.beregning.AndelTilkjentYtelseMedEndreteUtbetalinger
+import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.Kompetanse
+import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.KompetanseAktivitet
+import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.KompetanseResultat
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
+import java.time.LocalDate
+
+// om noe av dette endrer seg skal vi ha en splitt.
+data class SplittkriterierForVedtaksperiode(
+    val splittkriterierForVilkår: Map<Aktør, List<SplittkriterierForVilkår>>?,
+    val splittkriterierForKompetanse: Map<Aktør, SplittkriterierForKompetanse>?,
+    val andelerTilkjentYtelse: Collection<AndelTilkjentYtelseMedEndreteUtbetalinger>?,
+)
 
 fun hentPerioderMedUtbetaling(
     andelerTilkjentYtelse: List<AndelTilkjentYtelseMedEndreteUtbetalinger>,
     vedtak: Vedtak,
     forskjøvetVilkårResultatTidslinjeMap: Map<Aktør, Tidslinje<List<VilkårResultat>>>,
+    kompetanser: List<Kompetanse>,
 ): List<VedtaksperiodeMedBegrunnelser> {
     val splittkriterierForVedtaksperiodeTidslinje =
-        forskjøvetVilkårResultatTidslinjeMap
-            .tilSplittkriterierForVedtaksperiodeTidslinjer().kombiner { it.toMap() }
+        forskjøvetVilkårResultatTidslinjeMap.tilSplittkriterierForVilkårTidslinjer()
+
+    val splittkriterierForKompetanseTidslinjer = kompetanser.tilSplittkriterierForKompetanseTidslinjer()
 
     val andeltilkjentYtelserSplittetPåKriterier =
         andelerTilkjentYtelse
             .tilTidslinjerPerPerson().values
             .slåSammen()
             .filtrer { !it.isNullOrEmpty() }
-            .kombinerMed(splittkriterierForVedtaksperiodeTidslinje) { andelerTilkjentYtelseIPeriode, splittkriterierPerPerson ->
-                andelerTilkjentYtelseIPeriode?.let { Pair(andelerTilkjentYtelseIPeriode, splittkriterierPerPerson) }
+            .kombinerMed(splittkriterierForVedtaksperiodeTidslinje, splittkriterierForKompetanseTidslinjer) { andelerTilkjentYtelseIPeriode, splittkriterierVilkår, splittKriterierKompetanse ->
+                andelerTilkjentYtelseIPeriode?.let { SplittkriterierForVedtaksperiode(splittkriterierVilkår, splittKriterierKompetanse, andelerTilkjentYtelseIPeriode) }
             }
 
     return andeltilkjentYtelserSplittetPåKriterier
@@ -62,32 +77,74 @@ private fun List<AndelTilkjentYtelseMedEndreteUtbetalinger>.tilTidslinje(): Tids
     this.map { Periode(it, it.stønadFom.førsteDagIInneværendeMåned(), it.stønadTom.sisteDagIInneværendeMåned()) }
         .tilTidslinje()
 
-private data class SplittkriterierForVedtaksperiode(
-    val utdypendeVilkårsvurderinger: Set<UtdypendeVilkårsvurdering>,
+data class SplittkriterierForVilkår(
+    val vilkårType: Vilkår,
+    val resultat: Resultat,
+    val periodeFom: LocalDate?,
+    val periodeTom: LocalDate?,
+    val erEksplisittAvslagPåSøknad: Boolean?,
     val regelverk: Regelverk?,
-)
+    val utdypendeVilkårsvurderinger: Set<UtdypendeVilkårsvurdering>,
+) {
+    constructor(vilkårResultat: VilkårResultat) :
+        this(
+            vilkårType = vilkårResultat.vilkårType,
+            resultat = vilkårResultat.resultat,
+            periodeFom = vilkårResultat.periodeFom,
+            periodeTom = vilkårResultat.periodeTom,
+            erEksplisittAvslagPåSøknad = vilkårResultat.erEksplisittAvslagPåSøknad,
+            regelverk = vilkårResultat.vurderesEtter,
+            utdypendeVilkårsvurderinger = vilkårResultat.utdypendeVilkårsvurderinger.toSet(),
+        )
+}
 
-private fun Map<Aktør, Tidslinje<List<VilkårResultat>>>.tilSplittkriterierForVedtaksperiodeTidslinjer(): List<Tidslinje<Pair<Aktør, SplittkriterierForVedtaksperiode>>> =
-
+private fun Map<Aktør, Tidslinje<List<VilkårResultat>>>.tilSplittkriterierForVilkårTidslinjer(): Tidslinje<Map<Aktør, List<SplittkriterierForVilkår>>> =
     this.map { (aktør, vilkårsvurderingTidslinje) ->
         vilkårsvurderingTidslinje.tilPerioder().filtrerIkkeNull().map { vilkårResultater ->
             Periode(
-                verdi =
-                    vilkårResultater.verdi.let {
-                        val utdypendeVilkårsvurderinger = hentSetAvVilkårsVurderinger(it)
-                        Pair(
-                            aktør,
-                            SplittkriterierForVedtaksperiode(
-                                utdypendeVilkårsvurderinger = utdypendeVilkårsvurderinger,
-                                regelverk = hentRegelverkPersonErVurdertEtterIPeriode(it),
-                            ),
-                        )
-                    },
+                verdi = Pair(aktør, vilkårResultater.verdi.map { SplittkriterierForVilkår(it) }),
                 fom = vilkårResultater.fom,
                 tom = vilkårResultater.tom,
             )
         }.tilTidslinje()
-    }
+    }.kombiner { it.toMap() }
+
+data class SplittkriterierForKompetanse(
+    val søkersAktivitet: KompetanseAktivitet? = null,
+    val annenForeldersAktivitet: KompetanseAktivitet? = null,
+    val annenForeldersAktivitetsland: String? = null,
+    val søkersAktivitetsland: String? = null,
+    val barnetsBostedsland: String? = null,
+    val resultat: KompetanseResultat? = null,
+    val erAnnenForelderOmfattetAvNorskLovgivning: Boolean? = false,
+) {
+    constructor(kompetanse: Kompetanse) :
+        this(
+            søkersAktivitet = kompetanse.søkersAktivitet,
+            annenForeldersAktivitet = kompetanse.annenForeldersAktivitet,
+            annenForeldersAktivitetsland = kompetanse.annenForeldersAktivitetsland,
+            søkersAktivitetsland = kompetanse.søkersAktivitetsland,
+            barnetsBostedsland = kompetanse.barnetsBostedsland,
+            resultat = kompetanse.resultat,
+            erAnnenForelderOmfattetAvNorskLovgivning = kompetanse.erAnnenForelderOmfattetAvNorskLovgivning,
+        )
+}
+
+private fun List<Kompetanse>.tilSplittkriterierForKompetanseTidslinjer(): Tidslinje<Map<Aktør, SplittkriterierForKompetanse>> {
+    val alleBarna = this.flatMap { it.barnAktører }.toSet()
+
+    val kompetanserPerBarn = alleBarna.associateWith { barn -> this.filter { barn in it.barnAktører } }
+
+    return kompetanserPerBarn.map { (barn, kompetanse) ->
+        kompetanse.map {
+            Periode(
+                barn to SplittkriterierForKompetanse(it),
+                it.fom?.førsteDagIInneværendeMåned(),
+                it.tom?.sisteDagIInneværendeMåned(),
+            )
+        }.tilTidslinje()
+    }.kombiner { it.toMap() }
+}
 
 private fun hentSetAvVilkårsVurderinger(vilkårResultater: List<VilkårResultat>) =
     vilkårResultater.flatMap { it.utdypendeVilkårsvurderinger }.toSet()

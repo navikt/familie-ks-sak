@@ -716,6 +716,22 @@ fun <T, R, RESULTAT> Tidslinje<T>.kombinerMed(
     }
 }
 
+fun <T, R, S, RESULTAT> Tidslinje<T>.kombinerMed(
+    tidslinje2: Tidslinje<R>,
+    tidslinje3: Tidslinje<S>,
+    kombineringsfunksjon: (elem1: T?, elem2: R?, elem3: S?) -> RESULTAT?,
+): Tidslinje<RESULTAT> {
+    val tidslinje1Og2: Tidslinje<Pair<T?, R?>> =
+        this.biFunksjon(tidslinje2) { elem1PeriodeVerdi, elem2PeriodeVerdi ->
+            Pair(elem1PeriodeVerdi.verdi, elem2PeriodeVerdi.verdi).tilPeriodeVerdi()
+        }
+
+    return tidslinje1Og2.biFunksjon(tidslinje3) { elem1Og2, elem3PeriodeVerdi ->
+        val (elem1, elem2) = elem1Og2.verdi ?: Pair(null, null)
+        kombineringsfunksjon(elem1, elem2, elem3PeriodeVerdi.verdi).tilPeriodeVerdi()
+    }
+}
+
 fun <T> Tidslinje<T>.tilPerioder(): List<Periode<T?>> = this.tilTidslinjePerioderMedDato().map { it.tilPeriode() }
 
 fun <T> Tidslinje<T>.tilPerioderIkkeNull(): List<Periode<T & Any>> = this.tilPerioder().filtrerIkkeNull()
