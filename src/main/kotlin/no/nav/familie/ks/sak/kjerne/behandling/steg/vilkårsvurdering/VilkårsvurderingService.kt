@@ -76,10 +76,7 @@ class VilkårsvurderingService(
     fun finnAktivVilkårsvurdering(behandlingId: Long): Vilkårsvurdering? = vilkårsvurderingRepository.finnAktivForBehandling(behandlingId)
 
     fun hentVilkårsbegrunnelser(): Map<BegrunnelseType, List<VedtakBegrunnelseTilknyttetVilkårResponseDto>> =
-        standardbegrunnelserTilNedtrekksmenytekster(sanityService.hentSanityBegrunnelser()) +
-            eøsStandardbegrunnelserTilNedtrekksmenytekster(
-                sanityService.hentSanityEØSBegrunnelser(),
-            )
+        standardbegrunnelserTilNedtrekksmenytekster(sanityService.hentSanityBegrunnelser())
 
     @Transactional
     fun endreVilkårPåBehandling(

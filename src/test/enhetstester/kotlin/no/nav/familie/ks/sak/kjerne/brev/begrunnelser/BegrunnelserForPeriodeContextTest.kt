@@ -6,6 +6,7 @@ import no.nav.familie.ks.sak.data.lagPersonopplysningGrunnlag
 import no.nav.familie.ks.sak.data.lagUtbetalingsperiodeDetalj
 import no.nav.familie.ks.sak.data.lagVilkårResultat
 import no.nav.familie.ks.sak.data.randomAktør
+import no.nav.familie.ks.sak.integrasjon.sanity.domene.BarnetsBostedsland
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelse
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelseType
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.Trigger
@@ -16,16 +17,31 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Utd
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.tilFørskjøvetOppfylteVilkårResultatTidslinjeMap
+import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.Kompetanse
+import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.KompetanseAktivitet
+import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.KompetanseResultat
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
+import org.assertj.core.api.Assertions.assertThat
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.containsInAnyOrder
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Disabled
+import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import java.math.BigDecimal
 import java.time.LocalDate
+import java.time.YearMonth
 
 class BegrunnelserForPeriodeContextTest {
+    private fun Int.jan(år: Int) = LocalDate.of(år, 1, this)
+
+    private fun Int.feb(år: Int) = LocalDate.of(år, 2, this)
+
+    private fun jan(år: Int) = YearMonth.of(år, 1)
+
+    private fun feb(år: Int) = YearMonth.of(år, 2)
+
     private val barnAktør = randomAktør()
     private val søkerAktør = randomAktør()
     private val persongrunnlag =
@@ -403,6 +419,179 @@ class BegrunnelserForPeriodeContextTest {
         )
     }
 
+    @Nested
+    inner class EØS {
+        @Test
+        fun `Skal kunne få opp eøs som gyldige begrunnelse dersom det er en kompetanse i perioden`() {
+            val eøsBegrunnelse =
+                SanityBegrunnelse(
+                    apiNavn = EØSBegrunnelse.INNVILGET_PRIMÆRLAND_BARNET_BOR_I_NORGE.sanityApiNavn,
+                    navnISystem = EØSBegrunnelse.INNVILGET_PRIMÆRLAND_BARNET_BOR_I_NORGE.name,
+                    type = SanityBegrunnelseType.STANDARD,
+                    vilkår = Vilkår.entries,
+                    rolle = emptyList(),
+                    triggere = emptyList(),
+                    utdypendeVilkårsvurderinger = emptyList(),
+                    hjemler = emptyList(),
+                    endretUtbetalingsperiode = emptyList(),
+                    endringsårsaker = emptyList(),
+                    støtterFritekst = false,
+                    skalAlltidVises = false,
+                    annenForeldersAktivitet = listOf(KompetanseAktivitet.ARBEIDER),
+                    barnetsBostedsland = listOf(BarnetsBostedsland.NORGE),
+                    kompetanseResultat = listOf(KompetanseResultat.NORGE_ER_PRIMÆRLAND),
+                    hjemlerFolketrygdloven = emptyList(),
+                    hjemlerEØSForordningen883 = emptyList(),
+                    hjemlerEØSForordningen987 = emptyList(),
+                    hjemlerSeperasjonsavtalenStorbritannina = emptyList(),
+                )
+
+            val begrunnelseContext =
+                lagBegrunnelserForPeriodeContextForEøsTester(
+                    sanityBegrunnelser = listOf(eøsBegrunnelse),
+                    kompetanser = listOf(Kompetanse(fom = jan(2020), tom = jan(2020), annenForeldersAktivitet = KompetanseAktivitet.ARBEIDER, resultat = KompetanseResultat.NORGE_ER_PRIMÆRLAND, barnetsBostedsland = "NO", barnAktører = setOf(barnAktør))),
+                    vedtaksperiodeStartsTidpunkt = 1.jan(2020),
+                    vedtaksperiodeSluttTidpunkt = 31.jan(2020),
+                )
+            val begrunnelser =
+                begrunnelseContext.hentGyldigeBegrunnelserForVedtaksperiode()
+
+            assertThat(begrunnelser.size).isEqualTo(1)
+        }
+
+        @Test
+        @Disabled
+        fun `Kompetanser som ikke gjelder for perioden skal ikke føre til gyldige begrunnelser`() {
+            val eøsBegrunnelse =
+                SanityBegrunnelse(
+                    apiNavn = EØSBegrunnelse.INNVILGET_PRIMÆRLAND_BARNET_BOR_I_NORGE.sanityApiNavn,
+                    navnISystem = EØSBegrunnelse.INNVILGET_PRIMÆRLAND_BARNET_BOR_I_NORGE.name,
+                    type = SanityBegrunnelseType.STANDARD,
+                    vilkår = Vilkår.entries,
+                    rolle = emptyList(),
+                    triggere = emptyList(),
+                    utdypendeVilkårsvurderinger = emptyList(),
+                    hjemler = emptyList(),
+                    endretUtbetalingsperiode = emptyList(),
+                    endringsårsaker = emptyList(),
+                    støtterFritekst = false,
+                    skalAlltidVises = false,
+                    annenForeldersAktivitet = listOf(KompetanseAktivitet.ARBEIDER),
+                    barnetsBostedsland = listOf(BarnetsBostedsland.NORGE),
+                    kompetanseResultat = listOf(KompetanseResultat.NORGE_ER_PRIMÆRLAND),
+                    hjemlerFolketrygdloven = emptyList(),
+                    hjemlerEØSForordningen883 = emptyList(),
+                    hjemlerEØSForordningen987 = emptyList(),
+                    hjemlerSeperasjonsavtalenStorbritannina = emptyList(),
+                )
+
+            val begrunnelseContext =
+                lagBegrunnelserForPeriodeContextForEøsTester(
+                    sanityBegrunnelser = listOf(eøsBegrunnelse),
+                    kompetanser = listOf(Kompetanse(fom = jan(2020), tom = jan(2020), annenForeldersAktivitet = KompetanseAktivitet.ARBEIDER, resultat = KompetanseResultat.NORGE_ER_PRIMÆRLAND, barnetsBostedsland = "NO", barnAktører = setOf(barnAktør))),
+                    vedtaksperiodeStartsTidpunkt = 1.jan(2021),
+                    vedtaksperiodeSluttTidpunkt = 31.jan(2021),
+                )
+            val begrunnelser =
+                begrunnelseContext.hentGyldigeBegrunnelserForVedtaksperiode()
+
+            assertThat(begrunnelser.size).isEqualTo(0)
+        }
+
+        @Test
+        @Disabled
+        fun `Skal kunne få opp eøs-opphør som gyldige begrunnelser dersom det er en kompetanse som slutter måneden før`() {
+            val eøsBegrunnelse =
+                SanityBegrunnelse(
+                    apiNavn = EØSBegrunnelse.OPPHØR_EØS_STANDARD.sanityApiNavn,
+                    navnISystem = EØSBegrunnelse.OPPHØR_EØS_STANDARD.name,
+                    type = SanityBegrunnelseType.STANDARD,
+                    vilkår = Vilkår.entries,
+                    rolle = emptyList(),
+                    triggere = emptyList(),
+                    utdypendeVilkårsvurderinger = emptyList(),
+                    hjemler = emptyList(),
+                    endretUtbetalingsperiode = emptyList(),
+                    endringsårsaker = emptyList(),
+                    støtterFritekst = false,
+                    skalAlltidVises = false,
+                    annenForeldersAktivitet = listOf(KompetanseAktivitet.ARBEIDER),
+                    barnetsBostedsland = listOf(BarnetsBostedsland.NORGE),
+                    kompetanseResultat = listOf(KompetanseResultat.NORGE_ER_PRIMÆRLAND),
+                    hjemlerFolketrygdloven = emptyList(),
+                    hjemlerEØSForordningen883 = emptyList(),
+                    hjemlerEØSForordningen987 = emptyList(),
+                    hjemlerSeperasjonsavtalenStorbritannina = emptyList(),
+                )
+
+            val begrunnelseContext =
+                lagBegrunnelserForPeriodeContextForEøsTester(
+                    sanityBegrunnelser = listOf(eøsBegrunnelse),
+                    kompetanser = listOf(Kompetanse(fom = jan(2020), tom = jan(2020), annenForeldersAktivitet = KompetanseAktivitet.ARBEIDER, resultat = KompetanseResultat.NORGE_ER_PRIMÆRLAND, barnetsBostedsland = "NO", barnAktører = setOf(barnAktør))),
+                    vedtaksperiodeStartsTidpunkt = 1.feb(2020),
+                    vedtaksperiodeSluttTidpunkt = 28.feb(2020),
+                )
+            val begrunnelser =
+                begrunnelseContext.hentGyldigeBegrunnelserForVedtaksperiode()
+
+            assertThat(begrunnelser.size).isEqualTo(1)
+        }
+
+        @Test
+        @Disabled
+        fun `Skal ikke få opp eøs-opphør som gyldige begrunnelser dersom det er en kompetanse som slutter måneden før når vi fremdeles har kompetanse`() {
+            val eøsBegrunnelse =
+                SanityBegrunnelse(
+                    apiNavn = EØSBegrunnelse.OPPHØR_EØS_STANDARD.sanityApiNavn,
+                    navnISystem = EØSBegrunnelse.OPPHØR_EØS_STANDARD.name,
+                    type = SanityBegrunnelseType.STANDARD,
+                    vilkår = Vilkår.entries,
+                    rolle = emptyList(),
+                    triggere = emptyList(),
+                    utdypendeVilkårsvurderinger = emptyList(),
+                    hjemler = emptyList(),
+                    endretUtbetalingsperiode = emptyList(),
+                    endringsårsaker = emptyList(),
+                    støtterFritekst = false,
+                    skalAlltidVises = false,
+                    annenForeldersAktivitet = listOf(KompetanseAktivitet.ARBEIDER),
+                    barnetsBostedsland = listOf(BarnetsBostedsland.NORGE),
+                    kompetanseResultat = listOf(KompetanseResultat.NORGE_ER_PRIMÆRLAND),
+                    hjemlerFolketrygdloven = emptyList(),
+                    hjemlerEØSForordningen883 = emptyList(),
+                    hjemlerEØSForordningen987 = emptyList(),
+                    hjemlerSeperasjonsavtalenStorbritannina = emptyList(),
+                )
+
+            val begrunnelseContext =
+                lagBegrunnelserForPeriodeContextForEøsTester(
+                    sanityBegrunnelser = listOf(eøsBegrunnelse),
+                    kompetanser =
+                        listOf(
+                            Kompetanse(fom = jan(2020), tom = jan(2020), annenForeldersAktivitet = KompetanseAktivitet.ARBEIDER, resultat = KompetanseResultat.NORGE_ER_PRIMÆRLAND, barnetsBostedsland = "NO", barnAktører = setOf(barnAktør)),
+                            Kompetanse(fom = feb(2020), tom = feb(2020), annenForeldersAktivitet = KompetanseAktivitet.ARBEIDER, resultat = KompetanseResultat.NORGE_ER_SEKUNDÆRLAND, barnetsBostedsland = "NO", barnAktører = setOf(barnAktør)),
+                        ),
+                    vedtaksperiodeStartsTidpunkt = 1.feb(2020),
+                    vedtaksperiodeSluttTidpunkt = 28.feb(2020),
+                )
+            val begrunnelser =
+                begrunnelseContext.hentGyldigeBegrunnelserForVedtaksperiode()
+
+            assertThat(begrunnelser.size).isEqualTo(0)
+        }
+        // Mangler 5 tester:
+        // Test som viser at to like begrunnelser ikke dukker opp samtidig dersom den ene har tema EØS og den andre har tema nasjonal
+
+        // "Ingen endring"-teskster må dukke opp når kompatansen er lik som i forrige periode.
+
+        // Tilleggstekster skal komme uavhengig av endring
+
+        // Reduksjon forrige behandling. Kommer Begrunnelsen opp dersom kompetansen er fjernet mellom behandlinger?
+        // Opphør mellom behandlinger. Samme som over bare opphør
+
+        // Antar dødsfall, barn 6 år og satsendring dekkes av den andre løypa
+    }
+
     private fun lagSanitybegrunnelser(): List<SanityBegrunnelse> =
         listOf(
             SanityBegrunnelse(
@@ -499,6 +688,37 @@ class BegrunnelserForPeriodeContextTest {
             sanityBegrunnelser = sanityBegrunnelser,
             personopplysningGrunnlag = persongrunnlag,
             personResultater = personResultater,
+            endretUtbetalingsandeler = emptyList(),
+            erFørsteVedtaksperiode = false,
+        )
+    }
+
+    private fun lagBegrunnelserForPeriodeContextForEøsTester(
+        sanityBegrunnelser: List<SanityBegrunnelse>,
+        kompetanser: List<Kompetanse>,
+        vedtaksperiodeStartsTidpunkt: LocalDate? = null,
+        vedtaksperiodeSluttTidpunkt: LocalDate? = null,
+    ): BegrunnelserForPeriodeContext {
+        val utvidetVedtaksperiodeMedBegrunnelser =
+            UtvidetVedtaksperiodeMedBegrunnelser(
+                id = 0,
+                fom = vedtaksperiodeStartsTidpunkt,
+                tom = vedtaksperiodeSluttTidpunkt,
+                type = Vedtaksperiodetype.UTBETALING,
+                begrunnelser = emptyList(),
+                utbetalingsperiodeDetaljer =
+                    listOf(
+                        lagUtbetalingsperiodeDetalj(person = lagPerson(aktør = søkerAktør, personType = PersonType.SØKER)),
+                        lagUtbetalingsperiodeDetalj(person = lagPerson(aktør = barnAktør, personType = PersonType.BARN)),
+                    ),
+            )
+
+        return BegrunnelserForPeriodeContext(
+            utvidetVedtaksperiodeMedBegrunnelser = utvidetVedtaksperiodeMedBegrunnelser,
+            kompetanser = kompetanser,
+            sanityBegrunnelser = sanityBegrunnelser,
+            personopplysningGrunnlag = persongrunnlag,
+            personResultater = emptyList(),
             endretUtbetalingsandeler = emptyList(),
             erFørsteVedtaksperiode = false,
         )
