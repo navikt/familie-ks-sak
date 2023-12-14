@@ -48,9 +48,9 @@ class BegrunnelserForPeriodeContext(
             tom = utvidetVedtaksperiodeMedBegrunnelser.tom ?: TIDENES_ENDE,
         )
 
-    fun hentGyldigeBegrunnelserForVedtaksperiode(): List<Begrunnelse> {
+    fun hentGyldigeBegrunnelserForVedtaksperiode(): List<IBegrunnelse> {
         val tillateBegrunnelserForVedtakstype =
-            Begrunnelse.values()
+            (Begrunnelse.entries + EØSBegrunnelse.entries)
                 .filter {
                     utvidetVedtaksperiodeMedBegrunnelser
                         .type
@@ -69,7 +69,7 @@ class BegrunnelserForPeriodeContext(
         }
     }
 
-    private fun List<Begrunnelse>.filtrerPasserVedtaksperiode(): List<Begrunnelse> {
+    private fun List<IBegrunnelse>.filtrerPasserVedtaksperiode(): List<IBegrunnelse> {
         val begrunnelserSomTriggesForVedtaksperiode =
             filter { it.begrunnelseType != BegrunnelseType.FORTSATT_INNVILGET }
                 .filter { it.triggesForVedtaksperiode() }
@@ -84,7 +84,7 @@ class BegrunnelserForPeriodeContext(
         }
     }
 
-    private fun Begrunnelse.triggesForVedtaksperiode(): Boolean {
+    private fun IBegrunnelse.triggesForVedtaksperiode(): Boolean {
         val sanityBegrunnelse = this.tilSanityBegrunnelse(sanityBegrunnelser) ?: return false
 
         // filtrer på tema
@@ -102,7 +102,7 @@ class BegrunnelserForPeriodeContext(
     }
 
     private fun hentPersonerSomPasserForKompetanseIPeriode(
-        begrunnelse: Begrunnelse,
+        begrunnelse: IBegrunnelse,
         sanityBegrunnelse: SanityBegrunnelse,
     ): Set<Person> {
         return this.kompetanser.filter { kompetanse ->
@@ -131,7 +131,7 @@ class BegrunnelserForPeriodeContext(
         }
 
     fun hentPersonerMedVilkårResultaterSomPasserMedBegrunnelseOgPeriode(
-        begrunnelse: Begrunnelse,
+        begrunnelse: IBegrunnelse,
         sanityBegrunnelse: SanityBegrunnelse,
     ): Set<Person> {
         val erFørsteVedtaksperiodeOgBegrunnelseInneholderGjelderFørstePeriodeTrigger =
@@ -197,7 +197,7 @@ class BegrunnelserForPeriodeContext(
         }
     }.filterValues { it.isNotEmpty() }
 
-    private fun Begrunnelse.finnVilkårResultatIderSomPasserMedVedtaksperiodeDato() =
+    private fun IBegrunnelse.finnVilkårResultatIderSomPasserMedVedtaksperiodeDato() =
         when (this.begrunnelseType) {
             BegrunnelseType.REDUKSJON,
             BegrunnelseType.EØS_INNVILGET,
@@ -235,7 +235,7 @@ class BegrunnelserForPeriodeContext(
         }
 
     private fun hentVilkårResultaterSomOverlapperVedtaksperiode(
-        standardBegrunnelse: Begrunnelse,
+        standardBegrunnelse: IBegrunnelse,
         erFørsteVedtaksperiodeOgBegrunnelseInneholderGjelderFørstePeriodeTrigger: Boolean,
     ) = when (standardBegrunnelse.begrunnelseType) {
         BegrunnelseType.REDUKSJON,

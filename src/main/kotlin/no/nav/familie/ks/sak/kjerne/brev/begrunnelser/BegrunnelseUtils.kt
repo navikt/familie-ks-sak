@@ -14,10 +14,10 @@ import java.time.LocalDate
 
 private val logger = LoggerFactory.getLogger(Begrunnelse::class.java)
 
-fun Begrunnelse.tilSanityBegrunnelse(sanityBegrunnelser: List<SanityBegrunnelse>): SanityBegrunnelse? {
+fun IBegrunnelse.tilSanityBegrunnelse(sanityBegrunnelser: List<SanityBegrunnelse>): SanityBegrunnelse? {
     val sanityBegrunnelse = sanityBegrunnelser.find { it.apiNavn == this.sanityApiNavn }
     if (sanityBegrunnelse == null) {
-        logger.warn("Finner ikke begrunnelse med apinavn '${this.sanityApiNavn}' på '${this.name}' i Sanity")
+        logger.warn("Finner ikke begrunnelse med apinavn '${this.sanityApiNavn}' på '${this.sanityApiNavn}' i Sanity")
     }
     return sanityBegrunnelse
 }
