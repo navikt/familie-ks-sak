@@ -23,13 +23,14 @@ enum class Vedtaksperiodetype(val tillatteBegrunnelsestyper: List<BegrunnelseTyp
     UTBETALING(
         listOf(
             BegrunnelseType.INNVILGET,
+            BegrunnelseType.EØS_INNVILGET,
             BegrunnelseType.REDUKSJON,
             BegrunnelseType.FORTSATT_INNVILGET,
             BegrunnelseType.ETTER_ENDRET_UTBETALING,
             BegrunnelseType.ENDRET_UTBETALING,
         ),
     ),
-    OPPHØR(listOf(BegrunnelseType.OPPHØR, BegrunnelseType.ETTER_ENDRET_UTBETALING)),
+    OPPHØR(listOf(BegrunnelseType.OPPHØR, BegrunnelseType.EØS_OPPHØR, BegrunnelseType.ETTER_ENDRET_UTBETALING)),
     AVSLAG(listOf(BegrunnelseType.AVSLAG)),
     FORTSATT_INNVILGET(listOf(BegrunnelseType.FORTSATT_INNVILGET)),
 }

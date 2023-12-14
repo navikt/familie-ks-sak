@@ -16,7 +16,6 @@ import no.nav.familie.ks.sak.common.util.erBack2BackIMånedsskifte
 import no.nav.familie.ks.sak.common.util.sisteDagIMåned
 import no.nav.familie.ks.sak.common.util.tilDagMånedÅr
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelse
-import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityEØSBegrunnelse
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingKategori
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.PersonResultat
@@ -25,9 +24,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vil
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.Begrunnelse
-import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.EØSBegrunnelse
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.tilSanityBegrunnelse
-import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.tilSanityEØSBegrunnelse
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
 import java.time.LocalDate
@@ -45,17 +42,6 @@ fun standardbegrunnelserTilNedtrekksmenytekster(sanityBegrunnelser: List<SanityB
                         vedtakBegrunnelse,
                     )
                 }
-        }
-
-fun eøsStandardbegrunnelserTilNedtrekksmenytekster(sanityEØSBegrunnelser: List<SanityEØSBegrunnelse>) =
-    EØSBegrunnelse.values().groupBy { it.begrunnelseType }
-        .mapValues { begrunnelseGruppe ->
-            begrunnelseGruppe.value.flatMap { vedtakBegrunnelse ->
-                eøsBegrunnelseTilRestVedtakBegrunnelseTilknyttetVilkår(
-                    sanityEØSBegrunnelser,
-                    vedtakBegrunnelse,
-                )
-            }
         }
 
 fun vedtakBegrunnelseTilRestVedtakBegrunnelseTilknyttetVilkår(
@@ -82,21 +68,6 @@ fun vedtakBegrunnelseTilRestVedtakBegrunnelseTilknyttetVilkår(
             )
         }
     }
-}
-
-fun eøsBegrunnelseTilRestVedtakBegrunnelseTilknyttetVilkår(
-    sanityEØSBegrunnelser: List<SanityEØSBegrunnelse>,
-    vedtakBegrunnelse: EØSBegrunnelse,
-): List<VedtakBegrunnelseTilknyttetVilkårResponseDto> {
-    val eøsSanityBegrunnelse = vedtakBegrunnelse.tilSanityEØSBegrunnelse(sanityEØSBegrunnelser) ?: return emptyList()
-
-    return listOf(
-        VedtakBegrunnelseTilknyttetVilkårResponseDto(
-            id = vedtakBegrunnelse,
-            navn = eøsSanityBegrunnelse.navnISystem,
-            vilkår = null,
-        ),
-    )
 }
 
 /**
