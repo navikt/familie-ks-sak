@@ -108,9 +108,10 @@ internal class UtbetalingsperiodeUtilTest {
 
         val faktiskResultat =
             hentPerioderMedUtbetaling(
-                listOf(andelPerson1MarsTilApril, andelPerson1MaiTilJuli, andelPerson2MarsTilJuli),
-                vedtak,
-                personResultater.tilFørskjøvetOppfylteVilkårResultatTidslinjeMap(personopplysningGrunnlag),
+                andelerTilkjentYtelse = listOf(andelPerson1MarsTilApril, andelPerson1MaiTilJuli, andelPerson2MarsTilJuli),
+                vedtak = vedtak,
+                forskjøvetVilkårResultatTidslinjeMap = personResultater.tilFørskjøvetOppfylteVilkårResultatTidslinjeMap(personopplysningGrunnlag),
+                kompetanser = emptyList(),
             )
 
         assertEquals(
@@ -193,9 +194,10 @@ internal class UtbetalingsperiodeUtilTest {
 
         val faktiskResultat =
             hentPerioderMedUtbetaling(
-                listOf(andelPerson1MarsTilMai, andelPerson2MaiTilJuli),
-                vedtak,
-                personResultater.tilFørskjøvetOppfylteVilkårResultatTidslinjeMap(personopplysningGrunnlag),
+                andelerTilkjentYtelse = listOf(andelPerson1MarsTilMai, andelPerson2MaiTilJuli),
+                vedtak = vedtak,
+                forskjøvetVilkårResultatTidslinjeMap = personResultater.tilFørskjøvetOppfylteVilkårResultatTidslinjeMap(personopplysningGrunnlag),
+                kompetanser = emptyList(),
             )
 
         assertEquals(
