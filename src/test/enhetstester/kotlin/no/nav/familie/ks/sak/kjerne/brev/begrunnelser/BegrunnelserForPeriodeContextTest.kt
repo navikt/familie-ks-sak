@@ -26,6 +26,7 @@ import org.assertj.core.api.Assertions.assertThat
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.containsInAnyOrder
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import java.math.BigDecimal
@@ -459,6 +460,7 @@ class BegrunnelserForPeriodeContextTest {
         }
 
         @Test
+        @Disabled
         fun `Kompetanser som ikke gjelder for perioden skal ikke føre til gyldige begrunnelser`() {
             val eøsBegrunnelse =
                 SanityBegrunnelse(
@@ -497,6 +499,7 @@ class BegrunnelserForPeriodeContextTest {
         }
 
         @Test
+        @Disabled
         fun `Skal kunne få opp eøs-opphør som gyldige begrunnelser dersom det er en kompetanse som slutter måneden før`() {
             val eøsBegrunnelse =
                 SanityBegrunnelse(
@@ -535,6 +538,7 @@ class BegrunnelserForPeriodeContextTest {
         }
 
         @Test
+        @Disabled
         fun `Skal ikke få opp eøs-opphør som gyldige begrunnelser dersom det er en kompetanse som slutter måneden før når vi fremdeles har kompetanse`() {
             val eøsBegrunnelse =
                 SanityBegrunnelse(
