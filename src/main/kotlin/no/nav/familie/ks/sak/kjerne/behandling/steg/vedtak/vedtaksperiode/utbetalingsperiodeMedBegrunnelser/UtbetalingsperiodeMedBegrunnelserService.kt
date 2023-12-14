@@ -5,6 +5,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.tilFørskjøvetOppfylteVilkårResultatTidslinjeMap
 import no.nav.familie.ks.sak.kjerne.beregning.AndelerTilkjentYtelseOgEndreteUtbetalingerService
+import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.KompetanseService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
 import org.springframework.stereotype.Service
 
@@ -13,6 +14,7 @@ class UtbetalingsperiodeMedBegrunnelserService(
     private val vilkårsvurderingService: VilkårsvurderingService,
     private val andelerTilkjentYtelseOgEndreteUtbetalingerService: AndelerTilkjentYtelseOgEndreteUtbetalingerService,
     private val personopplysningGrunnlagService: PersonopplysningGrunnlagService,
+    private val kompetanseService: KompetanseService,
 ) {
     fun hentUtbetalingsperioder(
         vedtak: Vedtak,
@@ -34,6 +36,7 @@ class UtbetalingsperiodeMedBegrunnelserService(
             andelerTilkjentYtelse = andelerTilkjentYtelse,
             vedtak = vedtak,
             forskjøvetVilkårResultatTidslinjeMap = forskjøvetVilkårResultatTidslinjeMap,
+            kompetanser = kompetanseService.hentKompetanser(vedtak.behandling.behandlingId),
         )
     }
 }
