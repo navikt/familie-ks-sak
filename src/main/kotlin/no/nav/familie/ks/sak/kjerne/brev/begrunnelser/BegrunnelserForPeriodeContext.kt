@@ -87,20 +87,17 @@ class BegrunnelserForPeriodeContext(
     private fun Begrunnelse.triggesForVedtaksperiode(): Boolean {
         val sanityBegrunnelse = this.tilSanityBegrunnelse(sanityBegrunnelser) ?: return false
 
+        // filtrer på tema
+
+        val personerSomMatcherBegrunnelseIPeriode =
+            hentPersonerMedVilkårResultaterSomPasserMedBegrunnelseOgPeriode(this, sanityBegrunnelse) +
+                hentPersonerSomPasserForKompetanseIPeriode(this, sanityBegrunnelse)
+
         return when {
             sanityBegrunnelse.skalAlltidVises -> true
-            sanityBegrunnelse.endretUtbetalingsperiode.isNotEmpty() ->
-                erEtterEndretPeriodeAvSammeÅrsak(
-                    sanityBegrunnelse,
-                )
+            sanityBegrunnelse.endretUtbetalingsperiode.isNotEmpty() -> erEtterEndretPeriodeAvSammeÅrsak(sanityBegrunnelse)
 
-            else ->
-                (
-                    hentPersonerMedVilkårResultaterSomPasserMedBegrunnelseOgPeriode(
-                        this,
-                        sanityBegrunnelse,
-                    ) + hentPersonerSomPasserForKompetanseIPeriode(this, sanityBegrunnelse)
-                ).isNotEmpty()
+            else -> personerSomMatcherBegrunnelseIPeriode.isNotEmpty()
         }
     }
 
