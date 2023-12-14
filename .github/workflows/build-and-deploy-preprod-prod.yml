@@ -25,7 +25,7 @@ jobs:
         env:
           GITHUB_USERNAME: x-access-token
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: ./gradlew clean build
+        run: ./gradlew build
 
   bygg-og-push-til-github:
     name: Bygg app/image, push til github
@@ -45,7 +45,7 @@ jobs:
         env:
           GITHUB_USERNAME: x-access-token
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: ./gradlew clean build -x test -x integrationTest -x ktlintCheck
+        run: ./gradlew build -x test -x integrationTest -x ktlintCheck
 
       - name: Generate and output SBOM
         env:
