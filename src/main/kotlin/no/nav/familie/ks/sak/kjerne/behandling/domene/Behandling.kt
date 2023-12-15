@@ -16,6 +16,7 @@ import jakarta.persistence.SequenceGenerator
 import jakarta.persistence.Table
 import no.nav.familie.kontrakter.felles.Regelverk
 import no.nav.familie.kontrakter.felles.dokarkiv.Dokumenttype
+import no.nav.familie.ks.sak.common.BehandlingId
 import no.nav.familie.ks.sak.common.entitet.BaseEntitet
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingType.FØRSTEGANGSBEHANDLING
@@ -65,6 +66,8 @@ data class Behandling(
     var søknadMottattDato: LocalDateTime? = null,
     var overstyrtEndringstidspunkt: LocalDate? = null,
 ) : BaseEntitet() {
+    val behandlingId get() = BehandlingId(id)
+
     override fun toString(): String {
         return "Behandling(" +
             "id=$id, " +

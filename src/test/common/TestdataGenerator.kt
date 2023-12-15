@@ -90,7 +90,7 @@ import kotlin.random.Random
 
 val fødselsnummerGenerator = FoedselsnummerGenerator()
 
-fun randomFnr(): String = fødselsnummerGenerator.foedselsnummer().asString
+fun randomFnr(fødselsdato: LocalDate? = null): String = fødselsnummerGenerator.foedselsnummer(foedselsdato = fødselsdato).asString
 
 fun randomAktørId(): String = Random.nextLong(1000_000_000_000, 31_121_299_99999).toString()
 
@@ -115,7 +115,7 @@ fun fnrTilAktør(
 
 fun lagPersonopplysningGrunnlag(
     behandlingId: Long = 0L,
-    søkerPersonIdent: String = randomFnr(),
+    søkerPersonIdent: String = randomFnr(fødselsdato = LocalDate.of(1947, 1, 1)),
     // FGB med register søknad steg har ikke barnasidenter
     barnasIdenter: List<String> = emptyList(),
     barnasFødselsdatoer: List<LocalDate> = barnasIdenter.map { fnrTilFødselsdato(it) },
