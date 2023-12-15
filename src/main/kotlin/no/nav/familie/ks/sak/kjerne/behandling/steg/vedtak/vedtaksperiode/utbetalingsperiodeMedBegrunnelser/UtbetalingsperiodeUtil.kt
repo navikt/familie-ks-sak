@@ -50,7 +50,11 @@ fun hentPerioderMedUtbetaling(
             .tilTidslinjerPerPerson().values
             .slåSammen()
             .filtrer { !it.isNullOrEmpty() }
-            .kombinerMed(splittkriterierForVedtaksperiodeTidslinje, splittkriterierForKompetanseTidslinjer) { andelerTilkjentYtelseIPeriode, splittkriterierVilkår, splittKriterierKompetanse ->
+            .kombinerMed(splittkriterierForVedtaksperiodeTidslinje, splittkriterierForKompetanseTidslinjer) {
+                    andelerTilkjentYtelseIPeriode,
+                    splittkriterierVilkår,
+                    splittKriterierKompetanse,
+                ->
                 andelerTilkjentYtelseIPeriode?.let {
                     SplittkriterierForVedtaksperiode(splittkriterierVilkår, splittKriterierKompetanse, andelerTilkjentYtelseIPeriode)
                 }
