@@ -29,7 +29,7 @@ import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.KompetanseResultat
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import java.time.LocalDate
 
-// om noe av dette endrer seg skal vi ha en splitt.
+// Om noe av dette endrer seg skal vi ha en splitt i vedtaksperiodene.
 data class SplittkriterierForVedtaksperiode(
     val splittkriterierForVilkår: Map<Aktør, List<SplittkriterierForVilkår>>?,
     val splittkriterierForKompetanse: Map<Aktør, SplittkriterierForKompetanse>?,
@@ -42,10 +42,8 @@ fun hentPerioderMedUtbetaling(
     forskjøvetVilkårResultatTidslinjeMap: Map<Aktør, Tidslinje<List<VilkårResultat>>>,
     kompetanser: List<Kompetanse>,
 ): List<VedtaksperiodeMedBegrunnelser> {
-    val splittkriterierForVedtaksperiodeTidslinje =
-        forskjøvetVilkårResultatTidslinjeMap.tilSplittkriterierForVilkårTidslinjer()
-
-    val splittkriterierForKompetanseTidslinjer = kompetanser.tilSplittkriterierForKompetanseTidslinjer()
+    val splittkriterierForVedtaksperiodeTidslinje = forskjøvetVilkårResultatTidslinjeMap.tilSplittkriterierForVilkårTidslinje()
+    val splittkriterierForKompetanseTidslinjer = kompetanser.tilSplittkriterierForKompetanseTidslinje()
 
     val andeltilkjentYtelserSplittetPåKriterier =
         andelerTilkjentYtelse
@@ -53,7 +51,9 @@ fun hentPerioderMedUtbetaling(
             .slåSammen()
             .filtrer { !it.isNullOrEmpty() }
             .kombinerMed(splittkriterierForVedtaksperiodeTidslinje, splittkriterierForKompetanseTidslinjer) { andelerTilkjentYtelseIPeriode, splittkriterierVilkår, splittKriterierKompetanse ->
-                andelerTilkjentYtelseIPeriode?.let { SplittkriterierForVedtaksperiode(splittkriterierVilkår, splittKriterierKompetanse, andelerTilkjentYtelseIPeriode) }
+                andelerTilkjentYtelseIPeriode?.let {
+                    SplittkriterierForVedtaksperiode(splittkriterierVilkår, splittKriterierKompetanse, andelerTilkjentYtelseIPeriode)
+                }
             }
 
     return andeltilkjentYtelserSplittetPåKriterier
@@ -98,7 +98,7 @@ data class SplittkriterierForVilkår(
         )
 }
 
-private fun Map<Aktør, Tidslinje<List<VilkårResultat>>>.tilSplittkriterierForVilkårTidslinjer(): Tidslinje<Map<Aktør, List<SplittkriterierForVilkår>>> =
+private fun Map<Aktør, Tidslinje<List<VilkårResultat>>>.tilSplittkriterierForVilkårTidslinje(): Tidslinje<Map<Aktør, List<SplittkriterierForVilkår>>> =
     this.map { (aktør, vilkårsvurderingTidslinje) ->
         vilkårsvurderingTidslinje.tilPerioder().filtrerIkkeNull().map { vilkårResultater ->
             Periode(
@@ -130,7 +130,7 @@ data class SplittkriterierForKompetanse(
         )
 }
 
-private fun List<Kompetanse>.tilSplittkriterierForKompetanseTidslinjer(): Tidslinje<Map<Aktør, SplittkriterierForKompetanse>> {
+private fun List<Kompetanse>.tilSplittkriterierForKompetanseTidslinje(): Tidslinje<Map<Aktør, SplittkriterierForKompetanse>> {
     val alleBarna = this.flatMap { it.barnAktører }.toSet()
 
     val kompetanserPerBarn = alleBarna.associateWith { barn -> this.filter { barn in it.barnAktører } }
