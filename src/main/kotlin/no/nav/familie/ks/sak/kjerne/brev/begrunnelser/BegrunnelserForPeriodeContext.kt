@@ -114,7 +114,7 @@ class BegrunnelserForPeriodeContext(
         val utfyltekompetanser = this.kompetanser.map { it.tilIKompetanse() }.filterIsInstance<UtfyltKompetanse>()
 
         // kombiner finner kompetanser som overlapper med vedtaksperioden
-        val kompetanser =
+        val kompetanserSomOverlapperMedVedtaksperioder =
             utfyltekompetanser.tilTidslinje().kombinerMed(listOf(this.utvidetVedtaksperiodeMedBegrunnelser).tilTidslinje()) { kompetanse, vedtaksperiode ->
                 if (vedtaksperiode != null) {
                     kompetanse
@@ -123,11 +123,26 @@ class BegrunnelserForPeriodeContext(
                 }
             }.tilPerioderIkkeNull().verdier()
 
-        return kompetanser.filter { kompetanse ->
-            kompetanse.annenForeldersAktivitet in sanityBegrunnelse.annenForeldersAktivitet &&
-                kompetanse.resultat in sanityBegrunnelse.kompetanseResultat &&
-                landkodeTilBarnetsBostedsland(kompetanse.barnetsBostedsland ?: throw Feil("Barnets bostedsland er null i kompetanse")) in sanityBegrunnelse.barnetsBostedsland
-        }.flatMap { it.barnAktører }.map { aktør -> personopplysningGrunnlag.personer.find { it.aktør == aktør }!! }.toSet()
+        // kompetanser som ble avsluttet i forrige periode
+        val kompetanserSomBleAvsluttetIForrigePeriode =
+            utfyltekompetanser.filter { kompetanse ->
+                kompetanse.tom != null &&
+                    kompetanse.tom.plusMonths(1) == utvidetVedtaksperiodeMedBegrunnelser.fom?.toYearMonth()
+            }
+
+        return if (begrunnelse.begrunnelseType == BegrunnelseType.EØS_OPPHØR) {
+            kompetanserSomBleAvsluttetIForrigePeriode
+        } else {
+            kompetanserSomOverlapperMedVedtaksperioder
+        }.begrunnelserSomMatcherKompetanse(sanityBegrunnelse).flatMap { it.barnAktører }.map { aktør -> personopplysningGrunnlag.personer.find { it.aktør == aktør }!! }.toSet()
+    }
+
+    private fun List<UtfyltKompetanse>.begrunnelserSomMatcherKompetanse(
+        sanityBegrunnelse: SanityBegrunnelse,
+    ) = filter { kompetanse ->
+        kompetanse.annenForeldersAktivitet in sanityBegrunnelse.annenForeldersAktivitet &&
+            kompetanse.resultat in sanityBegrunnelse.kompetanseResultat &&
+            landkodeTilBarnetsBostedsland(kompetanse.barnetsBostedsland ?: throw Feil("Barnets bostedsland er null i kompetanse")) in sanityBegrunnelse.barnetsBostedsland
     }
 
     private fun erEtterEndretPeriodeAvSammeÅrsak(begrunnelse: SanityBegrunnelse) =
