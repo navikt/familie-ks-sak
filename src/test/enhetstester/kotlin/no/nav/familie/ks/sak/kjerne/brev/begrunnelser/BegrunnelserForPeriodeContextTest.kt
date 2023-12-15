@@ -460,7 +460,6 @@ class BegrunnelserForPeriodeContextTest {
         }
 
         @Test
-        @Disabled
         fun `Kompetanser som ikke gjelder for perioden skal ikke føre til gyldige begrunnelser`() {
             val eøsBegrunnelse =
                 SanityBegrunnelse(
