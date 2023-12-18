@@ -37,6 +37,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.utbeta
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårsvurderingRepository
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.forskyvVilkårResultater
 import no.nav.familie.ks.sak.kjerne.beregning.AndelTilkjentYtelseMedEndreteUtbetalinger
@@ -243,9 +244,10 @@ class VedtaksperiodeService(
 
         val avslagsperioder =
             hentAvslagsperioderMedBegrunnelser(
-                vedtak,
-                endredeUtbetalinger,
-                søknadGrunnlag,
+                vedtak = vedtak,
+                endredeUtbetalinger = endredeUtbetalinger,
+                søknadGrunnlag = søknadGrunnlag,
+                vilkårsvurdering = vilkårsvurdering,
             )
 
         val utbetalingsperioderUtenOverlappMedAvslagsperioder =
@@ -499,9 +501,14 @@ class VedtaksperiodeService(
         vedtak: Vedtak,
         endredeUtbetalinger: List<EndretUtbetalingAndelMedAndelerTilkjentYtelse>,
         søknadGrunnlag: SøknadGrunnlag,
+        vilkårsvurdering: Vilkårsvurdering,
     ): List<VedtaksperiodeMedBegrunnelser> {
         val behandling = vedtak.behandling
-        val avslagsperioderFraVilkårsvurdering = hentAvslagsperioderFraVilkårsvurdering(behandling.id, vedtak)
+        val avslagsperioderFraVilkårsvurdering =
+            hentAvslagsperioderFraVilkårsvurdering(
+                vedtak = vedtak,
+                vilkårsvurdering = vilkårsvurdering,
+            )
         val avslagsperioderFraEndretUtbetalinger =
             hentAvslagsperioderFraEndretUtbetalinger(
                 vedtak,
@@ -546,14 +553,9 @@ class VedtaksperiodeService(
     }
 
     private fun hentAvslagsperioderFraVilkårsvurdering(
-        behandlingId: Long,
         vedtak: Vedtak,
+        vilkårsvurdering: Vilkårsvurdering,
     ): MutableList<VedtaksperiodeMedBegrunnelser> {
-        val vilkårsvurdering =
-            vilkårsvurderingRepository.finnAktivForBehandling(behandlingId = behandlingId) ?: throw Feil(
-                "Fant ikke vilkårsvurdering for behandling $behandlingId ved generering av avslagsperioder",
-            )
-
         val periodegrupperteAvslagsvilkår: Map<NullablePeriode, List<VilkårResultat>> =
             vilkårsvurdering.personResultater.flatMap { it.vilkårResultater }
                 .filter { it.erEksplisittAvslagPåSøknad == true }
