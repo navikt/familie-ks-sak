@@ -33,7 +33,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.VedtaksperiodeMedBegrunnelser
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.tilUtvidetVedtaksperiodeMedBegrunnelser
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.tilVedtaksbegrunnelseFritekst
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.utbetalingsperiodeMedBegrunnelser.UtbetalingsperiodeMedBegrunnelserService
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.utbetalingsperiodeMedBegrunnelser.hentUtbetalingsperioder
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
@@ -64,7 +64,6 @@ class VedtaksperiodeService(
     private val vilkårsvurderingRepository: VilkårsvurderingRepository,
     private val sanityService: SanityService,
     private val søknadGrunnlagService: SøknadGrunnlagService,
-    private val utbetalingsperiodeMedBegrunnelserService: UtbetalingsperiodeMedBegrunnelserService,
     private val andelerTilkjentYtelseOgEndreteUtbetalingerService: AndelerTilkjentYtelseOgEndreteUtbetalingerService,
     private val integrasjonClient: IntegrasjonClient,
     private val refusjonEøsRepository: RefusjonEøsRepository,
@@ -234,7 +233,7 @@ class VedtaksperiodeService(
             ).map { it.tilVedtaksperiodeMedBegrunnelse(vedtak) }
 
         val utbetalingsperioder =
-            utbetalingsperiodeMedBegrunnelserService.hentUtbetalingsperioder(
+            hentUtbetalingsperioder(
                 vedtak = vedtak,
                 andelerTilkjentYtelse = andelerTilkjentYtelse,
                 vilkårsvurdering = vilkårsvurdering,

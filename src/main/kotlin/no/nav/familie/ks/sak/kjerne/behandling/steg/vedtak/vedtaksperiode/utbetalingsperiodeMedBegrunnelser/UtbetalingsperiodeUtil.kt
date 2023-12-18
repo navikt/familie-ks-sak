@@ -22,11 +22,14 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Res
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.UtdypendeVilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.tilFørskjøvetOppfylteVilkårResultatTidslinjeMap
 import no.nav.familie.ks.sak.kjerne.beregning.AndelTilkjentYtelseMedEndreteUtbetalinger
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.Kompetanse
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.KompetanseAktivitet
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.KompetanseResultat
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
+import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
 import java.time.LocalDate
 
 // Om noe av dette endrer seg skal vi ha en splitt i vedtaksperiodene.
@@ -35,6 +38,24 @@ data class SplittkriterierForVedtaksperiode(
     val splittkriterierForKompetanse: Map<Aktør, SplittkriterierForKompetanse>?,
     val andelerTilkjentYtelse: Collection<AndelTilkjentYtelseMedEndreteUtbetalinger>?,
 )
+
+fun hentUtbetalingsperioder(
+    vedtak: Vedtak,
+    andelerTilkjentYtelse: List<AndelTilkjentYtelseMedEndreteUtbetalinger>,
+    vilkårsvurdering: Vilkårsvurdering,
+    personopplysningGrunnlag: PersonopplysningGrunnlag,
+    kompetanser: List<Kompetanse>,
+): List<VedtaksperiodeMedBegrunnelser> {
+    val forskjøvetVilkårResultatTidslinjeMap =
+        vilkårsvurdering.personResultater.tilFørskjøvetOppfylteVilkårResultatTidslinjeMap(personopplysningGrunnlag)
+
+    return hentPerioderMedUtbetaling(
+        andelerTilkjentYtelse = andelerTilkjentYtelse,
+        vedtak = vedtak,
+        forskjøvetVilkårResultatTidslinjeMap = forskjøvetVilkårResultatTidslinjeMap,
+        kompetanser = kompetanser,
+    )
+}
 
 fun hentPerioderMedUtbetaling(
     andelerTilkjentYtelse: List<AndelTilkjentYtelseMedEndreteUtbetalinger>,
