@@ -3,10 +3,14 @@ package no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.utbet
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.Vedtak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.VedtaksperiodeMedBegrunnelser
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.tilFørskjøvetOppfylteVilkårResultatTidslinjeMap
+import no.nav.familie.ks.sak.kjerne.beregning.AndelTilkjentYtelseMedEndreteUtbetalinger
 import no.nav.familie.ks.sak.kjerne.beregning.AndelerTilkjentYtelseOgEndreteUtbetalingerService
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.KompetanseService
+import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.Kompetanse
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
+import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
 import org.springframework.stereotype.Service
 
 @Service
@@ -18,17 +22,11 @@ class UtbetalingsperiodeMedBegrunnelserService(
 ) {
     fun hentUtbetalingsperioder(
         vedtak: Vedtak,
-        opphørsperioder: List<VedtaksperiodeMedBegrunnelser>,
+        andelerTilkjentYtelse: List<AndelTilkjentYtelseMedEndreteUtbetalinger>,
+        vilkårsvurdering: Vilkårsvurdering,
+        personopplysningGrunnlag: PersonopplysningGrunnlag,
+        kompetanser: List<Kompetanse>,
     ): List<VedtaksperiodeMedBegrunnelser> {
-        val andelerTilkjentYtelse =
-            andelerTilkjentYtelseOgEndreteUtbetalingerService
-                .finnAndelerTilkjentYtelseMedEndreteUtbetalinger(vedtak.behandling.id)
-
-        val vilkårsvurdering =
-            vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(behandlingId = vedtak.behandling.id)
-        val personopplysningGrunnlag =
-            personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(behandlingId = vedtak.behandling.id)
-
         val forskjøvetVilkårResultatTidslinjeMap =
             vilkårsvurdering.personResultater.tilFørskjøvetOppfylteVilkårResultatTidslinjeMap(personopplysningGrunnlag)
 
@@ -36,7 +34,7 @@ class UtbetalingsperiodeMedBegrunnelserService(
             andelerTilkjentYtelse = andelerTilkjentYtelse,
             vedtak = vedtak,
             forskjøvetVilkårResultatTidslinjeMap = forskjøvetVilkårResultatTidslinjeMap,
-            kompetanser = kompetanseService.hentKompetanser(vedtak.behandling.behandlingId),
+            kompetanser = kompetanser,
         )
     }
 }

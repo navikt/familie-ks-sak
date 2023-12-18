@@ -11,6 +11,7 @@ import no.nav.familie.ks.sak.common.util.tilMånedÅr
 import no.nav.familie.ks.sak.integrasjon.sanity.SanityService
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelse
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.ArbeidsfordelingService
+import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg
@@ -25,6 +26,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.Vilkårsvu
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.UtdypendeVilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
+import no.nav.familie.ks.sak.kjerne.beregning.AndelerTilkjentYtelseOgEndreteUtbetalingerService
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.tilSanityBegrunnelse
 import no.nav.familie.ks.sak.kjerne.brev.domene.FellesdataForVedtaksbrev
 import no.nav.familie.ks.sak.kjerne.brev.domene.VedtaksbrevDto
@@ -67,6 +69,8 @@ class GenererBrevService(
     private val korrigertVedtakService: KorrigertVedtakService,
     private val feilutbetaltValutaService: FeilutbetaltValutaService,
     private val saksbehandlerContext: SaksbehandlerContext,
+    private val andelerTilkjentYtelseOgEndreteUtbetalingerService: AndelerTilkjentYtelseOgEndreteUtbetalingerService,
+    private val behandlingRepository: BehandlingRepository,
 ) {
     fun genererManueltBrev(
         manueltBrevRequest: ManueltBrevDto,
@@ -276,8 +280,16 @@ class GenererBrevService(
         )
     }
 
-    fun hentDødsfallbrevData(vedtak: Vedtak) =
-        hentGrunnlagOgSignaturData(vedtak).let { data ->
+    fun hentDødsfallbrevData(vedtak: Vedtak): Dødsfall {
+        val iverksatteBehandlinger = behandlingRepository.finnIverksatteBehandlinger(fagsakId = vedtak.behandling.fagsak.id)
+        val forrigeIverksatteBehandling =
+            iverksatteBehandlinger
+                .filter { it.opprettetTidspunkt.isBefore(vedtak.behandling.opprettetTidspunkt) && it.steg == BehandlingSteg.AVSLUTT_BEHANDLING }
+                .maxByOrNull { it.opprettetTidspunkt }
+        val personopplysningGrunnlagForrigeBehandling = forrigeIverksatteBehandling?.let { personopplysningGrunnlagService.finnAktivPersonopplysningGrunnlag(forrigeIverksatteBehandling.id) }
+        val andelerMedEndringerForrigeBehandling = forrigeIverksatteBehandling?.let { andelerTilkjentYtelseOgEndreteUtbetalingerService.finnAndelerTilkjentYtelseMedEndreteUtbetalinger(forrigeIverksatteBehandling.id) } ?: emptyList()
+
+        return hentGrunnlagOgSignaturData(vedtak).let { data ->
             Dødsfall(
                 data =
                     DødsfallData(
@@ -299,13 +311,21 @@ class GenererBrevService(
                                 navnAvdode = data.grunnlag.søker.navn.storForbokstavIAlleNavn(),
                                 virkningstidspunkt =
                                     hentVirkningstidspunkt(
-                                        opphørsperioder = vedtaksperiodeService.hentOpphørsperioder(vedtak.behandling),
+                                        opphørsperioder =
+                                            vedtaksperiodeService.hentOpphørsperioder(
+                                                behandling = vedtak.behandling,
+                                                personopplysningGrunnlag = personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(behandlingId = vedtak.behandling.id),
+                                                andelerTilkjentYtelse = andelerTilkjentYtelseOgEndreteUtbetalingerService.finnAndelerTilkjentYtelseMedEndreteUtbetalinger(vedtak.behandling.id),
+                                                personopplysningGrunnlagForrigeBehandling = personopplysningGrunnlagForrigeBehandling,
+                                                forrigeAndelerMedEndringer = andelerMedEndringerForrigeBehandling,
+                                            ),
                                         behandlingId = vedtak.behandling.id,
                                     ),
                             ),
                     ),
             )
         }
+    }
 
     private fun hentVirkningstidspunkt(
         opphørsperioder: List<Opphørsperiode>,
