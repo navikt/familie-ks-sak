@@ -470,23 +470,6 @@ class VedtaksperiodeService(
             }
     }
 
-    fun hentOpphørsperioder(
-        behandling: Behandling,
-        personopplysningGrunnlag: PersonopplysningGrunnlag,
-        andelerTilkjentYtelse: List<AndelTilkjentYtelseMedEndreteUtbetalinger>,
-        personopplysningGrunnlagForrigeBehandling: PersonopplysningGrunnlag?,
-        forrigeAndelerMedEndringer: List<AndelTilkjentYtelseMedEndreteUtbetalinger>,
-    ): List<Opphørsperiode> {
-        if (behandling.resultat == Behandlingsresultat.FORTSATT_INNVILGET) return emptyList()
-
-        return mapTilOpphørsperioder(
-            forrigePersonopplysningGrunnlag = personopplysningGrunnlagForrigeBehandling,
-            forrigeAndelerTilkjentYtelse = forrigeAndelerMedEndringer,
-            personopplysningGrunnlag = personopplysningGrunnlag,
-            andelerTilkjentYtelse = andelerTilkjentYtelse,
-        )
-    }
-
     fun finnEndringstidspunktForBehandling(
         behandling: Behandling,
         sisteVedtattBehandling: Behandling?,

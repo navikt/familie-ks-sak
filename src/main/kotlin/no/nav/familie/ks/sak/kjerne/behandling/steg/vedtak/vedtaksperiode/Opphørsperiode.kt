@@ -11,6 +11,8 @@ import no.nav.familie.ks.sak.common.util.førsteDagIInneværendeMåned
 import no.nav.familie.ks.sak.common.util.inneværendeMåned
 import no.nav.familie.ks.sak.common.util.nesteMåned
 import no.nav.familie.ks.sak.common.util.toYearMonth
+import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
+import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat
 import no.nav.familie.ks.sak.kjerne.beregning.AndelTilkjentYtelseMedEndreteUtbetalinger
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
 import java.time.LocalDate
@@ -20,6 +22,23 @@ data class Opphørsperiode(
     override val periodeTom: LocalDate?,
     override val vedtaksperiodetype: Vedtaksperiodetype = Vedtaksperiodetype.OPPHØR,
 ) : Vedtaksperiode
+
+fun hentOpphørsperioder(
+    behandling: Behandling,
+    personopplysningGrunnlag: PersonopplysningGrunnlag,
+    andelerTilkjentYtelse: List<AndelTilkjentYtelseMedEndreteUtbetalinger>,
+    personopplysningGrunnlagForrigeBehandling: PersonopplysningGrunnlag?,
+    forrigeAndelerMedEndringer: List<AndelTilkjentYtelseMedEndreteUtbetalinger>,
+): List<Opphørsperiode> {
+    if (behandling.resultat == Behandlingsresultat.FORTSATT_INNVILGET) return emptyList()
+
+    return mapTilOpphørsperioder(
+        forrigePersonopplysningGrunnlag = personopplysningGrunnlagForrigeBehandling,
+        forrigeAndelerTilkjentYtelse = forrigeAndelerMedEndringer,
+        personopplysningGrunnlag = personopplysningGrunnlag,
+        andelerTilkjentYtelse = andelerTilkjentYtelse,
+    )
+}
 
 fun mapTilOpphørsperioder(
     forrigePersonopplysningGrunnlag: PersonopplysningGrunnlag? = null,

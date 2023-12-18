@@ -22,6 +22,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.feilutbetaltvaluta.Fe
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.Opphørsperiode
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.VedtaksperiodeService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.UtvidetVedtaksperiodeMedBegrunnelser
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.hentOpphørsperioder
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.UtdypendeVilkårsvurdering
@@ -312,7 +313,7 @@ class GenererBrevService(
                                 virkningstidspunkt =
                                     hentVirkningstidspunkt(
                                         opphørsperioder =
-                                            vedtaksperiodeService.hentOpphørsperioder(
+                                            hentOpphørsperioder(
                                                 behandling = vedtak.behandling,
                                                 personopplysningGrunnlag = personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(behandlingId = vedtak.behandling.id),
                                                 andelerTilkjentYtelse = andelerTilkjentYtelseOgEndreteUtbetalingerService.finnAndelerTilkjentYtelseMedEndreteUtbetalinger(vedtak.behandling.id),
