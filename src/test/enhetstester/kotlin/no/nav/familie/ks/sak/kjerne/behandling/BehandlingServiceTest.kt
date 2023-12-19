@@ -35,6 +35,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.VedtakReposito
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.feilutbetaltvaluta.FeilutbetaltValutaService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.refusjonEøs.RefusjonEøsService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.VedtaksperiodeService
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.finnEndringstidspunktForBehandling
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
 import no.nav.familie.ks.sak.kjerne.beregning.AndelerTilkjentYtelseOgEndreteUtbetalingerService
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelseRepository
@@ -160,12 +161,14 @@ class BehandlingServiceTest {
 
         every { vedtaksperiodeService.hentUtvidetVedtaksperioderMedBegrunnelser(any()) } returns emptyList()
         every {
-            vedtaksperiodeService.finnEndringstidspunktForBehandling(
-                any(), any(),
-                andelerTilkjentYtelseOgEndreteUtbetalingerService
-                    .finnAndelerTilkjentYtelseMedEndreteUtbetalinger(any()),
-                andelerTilkjentYtelseOgEndreteUtbetalingerService
-                    .finnAndelerTilkjentYtelseMedEndreteUtbetalinger(any()),
+            finnEndringstidspunktForBehandling(
+                sisteVedtatteBehandling = any(),
+                andelerTilkjentYtelseForBehandling =
+                    andelerTilkjentYtelseOgEndreteUtbetalingerService
+                        .finnAndelerTilkjentYtelseMedEndreteUtbetalinger(any()),
+                andelerTilkjentYtelseForForrigeBehandling =
+                    andelerTilkjentYtelseOgEndreteUtbetalingerService
+                        .finnAndelerTilkjentYtelseMedEndreteUtbetalinger(any()),
             )
         } returns TIDENES_MORGEN
 
@@ -204,12 +207,12 @@ class BehandlingServiceTest {
         verify(exactly = 1) { søknadGrunnlagService.finnAktiv(behandling.id) }
         verify(exactly = 1) { andelTilkjentYtelseRepository.finnAndelerTilkjentYtelseForBehandling(behandling.id) }
         verify(exactly = 1) {
-            vedtaksperiodeService.finnEndringstidspunktForBehandling(
-                behandling,
-                null,
-                andelerTilkjentYtelseOgEndreteUtbetalingerService
-                    .finnAndelerTilkjentYtelseMedEndreteUtbetalinger(behandling.id),
-                emptyList(),
+            finnEndringstidspunktForBehandling(
+                sisteVedtatteBehandling = null,
+                andelerTilkjentYtelseForBehandling =
+                    andelerTilkjentYtelseOgEndreteUtbetalingerService
+                        .finnAndelerTilkjentYtelseMedEndreteUtbetalinger(behandling.id),
+                andelerTilkjentYtelseForForrigeBehandling = emptyList(),
             )
         }
         verify(exactly = 1) { tilbakekrevingRepository.findByBehandlingId(behandling.id) }

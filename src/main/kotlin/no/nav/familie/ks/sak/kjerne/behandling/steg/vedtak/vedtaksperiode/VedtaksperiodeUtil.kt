@@ -2,9 +2,12 @@ package no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode
 
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.common.util.TIDENES_ENDE
+import no.nav.familie.ks.sak.common.util.TIDENES_MORGEN
 import no.nav.familie.ks.sak.common.util.erSammeEllerEtter
+import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.VedtaksperiodeMedBegrunnelser
+import no.nav.familie.ks.sak.kjerne.beregning.AndelTilkjentYtelseMedEndreteUtbetalinger
 import java.time.LocalDate
 
 fun validerVedtaksperiodeMedBegrunnelser(vedtaksperiodeMedBegrunnelser: VedtaksperiodeMedBegrunnelser) {
@@ -37,9 +40,45 @@ fun filtrerUtUtbetalingsperioderMedSammeDatoSomAvslagsperioder(
 
 fun filtrerUtPerioderBasertPåEndringstidspunkt(
     vedtaksperioderMedBegrunnelser: List<VedtaksperiodeMedBegrunnelser>,
-    endringstidspunkt: LocalDate,
+    manueltOverstyrtEndringstidspunkt: LocalDate?,
+    gjelderFortsattInnvilget: Boolean,
+    sisteVedtatteBehandling: Behandling?,
+    andelerTilkjentYtelseForBehandling: List<AndelTilkjentYtelseMedEndreteUtbetalinger>,
+    andelerTilkjentYtelseForForrigeBehandling: List<AndelTilkjentYtelseMedEndreteUtbetalinger>,
 ): List<VedtaksperiodeMedBegrunnelser> {
+    val endringstidspunkt = (
+        manueltOverstyrtEndringstidspunkt
+            ?: if (!gjelderFortsattInnvilget) {
+                finnEndringstidspunktForBehandling(
+                    sisteVedtatteBehandling = sisteVedtatteBehandling,
+                    andelerTilkjentYtelseForBehandling = andelerTilkjentYtelseForBehandling,
+                    andelerTilkjentYtelseForForrigeBehandling = andelerTilkjentYtelseForForrigeBehandling,
+                )
+            } else {
+                TIDENES_MORGEN
+            }
+    )
+
     return vedtaksperioderMedBegrunnelser.filter {
         (it.tom ?: TIDENES_ENDE).erSammeEllerEtter(endringstidspunkt)
     }
+}
+
+fun finnEndringstidspunktForBehandling(
+    sisteVedtatteBehandling: Behandling?,
+    andelerTilkjentYtelseForBehandling: List<AndelTilkjentYtelseMedEndreteUtbetalinger>,
+    andelerTilkjentYtelseForForrigeBehandling: List<AndelTilkjentYtelseMedEndreteUtbetalinger>,
+): LocalDate {
+    if (sisteVedtatteBehandling == null) return TIDENES_MORGEN
+
+    if (andelerTilkjentYtelseForBehandling.isEmpty()) return TIDENES_MORGEN
+
+    val førsteEndringstidspunktFraAndelTilkjentYtelse =
+        andelerTilkjentYtelseForBehandling.hentFørsteEndringstidspunkt(
+            forrigeAndelerTilkjentYtelse = andelerTilkjentYtelseForForrigeBehandling,
+        ) ?: TIDENES_ENDE
+
+    // TODO EØS
+
+    return førsteEndringstidspunktFraAndelTilkjentYtelse
 }

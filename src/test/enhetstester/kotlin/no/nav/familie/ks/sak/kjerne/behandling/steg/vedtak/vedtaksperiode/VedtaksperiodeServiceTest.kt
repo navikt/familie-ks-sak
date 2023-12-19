@@ -250,7 +250,14 @@ internal class VedtaksperiodeServiceTest {
 
     @Test
     fun `finnEndringstidspunktForBehandling finner endringstidspunkt for førstegangsbehandling`() {
-        assertEquals(TIDENES_MORGEN, vedtaksperiodeService.finnEndringstidspunktForBehandling(behandling, null))
+        assertEquals(
+            TIDENES_MORGEN,
+            finnEndringstidspunktForBehandling(
+                null,
+                emptyList(),
+                emptyList(),
+            ),
+        )
     }
 
     @Test
@@ -288,9 +295,14 @@ internal class VedtaksperiodeServiceTest {
         // Siden periode med fom=YearMonth.now().minusMonths(5), tom=YearMonth.now().minusMonths(4) er opphørt nå
         assertEquals(
             YearMonth.now().minusMonths(5).førsteDagIInneværendeMåned(),
-            vedtaksperiodeService.finnEndringstidspunktForBehandling(
-                behandling = revurdering,
-                sisteVedtattBehandling = behandling,
+            finnEndringstidspunktForBehandling(
+                sisteVedtatteBehandling = behandling,
+                andelerTilkjentYtelseForBehandling =
+                    andelerTilkjentYtelseOgEndreteUtbetalingerService
+                        .finnAndelerTilkjentYtelseMedEndreteUtbetalinger(revurdering.id),
+                andelerTilkjentYtelseForForrigeBehandling =
+                    andelerTilkjentYtelseOgEndreteUtbetalingerService
+                        .finnAndelerTilkjentYtelseMedEndreteUtbetalinger(behandling.id),
             ),
         )
     }
@@ -358,9 +370,14 @@ internal class VedtaksperiodeServiceTest {
         // endring i beløp på revurdering for periode2
         assertEquals(
             periode2.fom.førsteDagIInneværendeMåned(),
-            vedtaksperiodeService.finnEndringstidspunktForBehandling(
-                behandling = revurdering,
-                sisteVedtattBehandling = behandling,
+            finnEndringstidspunktForBehandling(
+                sisteVedtatteBehandling = behandling,
+                andelerTilkjentYtelseForBehandling =
+                    andelerTilkjentYtelseOgEndreteUtbetalingerService
+                        .finnAndelerTilkjentYtelseMedEndreteUtbetalinger(revurdering.id),
+                andelerTilkjentYtelseForForrigeBehandling =
+                    andelerTilkjentYtelseOgEndreteUtbetalingerService
+                        .finnAndelerTilkjentYtelseMedEndreteUtbetalinger(behandling.id),
             ),
         )
     }

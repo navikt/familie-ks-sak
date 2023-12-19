@@ -24,6 +24,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.VedtakReposito
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.feilutbetaltvaluta.FeilutbetaltValutaService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.refusjonEøs.RefusjonEøsService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.VedtaksperiodeService
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.finnEndringstidspunktForBehandling
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
 import no.nav.familie.ks.sak.kjerne.beregning.AndelerTilkjentYtelseOgEndreteUtbetalingerService
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelseRepository
@@ -145,9 +146,8 @@ class BehandlingService(
             totrinnskontrollRepository.findByBehandlingAndAktiv(behandlingId = behandling.id)?.tilTotrinnskontrollDto()
 
         val endringstidspunkt =
-            vedtaksperiodeService.finnEndringstidspunktForBehandling(
-                behandling = behandling,
-                sisteVedtattBehandling = hentSisteBehandlingSomErVedtatt(behandling.fagsak.id),
+            finnEndringstidspunktForBehandling(
+                sisteVedtatteBehandling = hentSisteBehandlingSomErVedtatt(behandling.fagsak.id),
                 andelerTilkjentYtelseForBehandling = andelTilkjentYtelseMedEndreteUtbetalinger,
                 andelerTilkjentYtelseForForrigeBehandling =
                     hentSisteBehandlingSomErVedtatt(behandling.fagsak.id)?.let {

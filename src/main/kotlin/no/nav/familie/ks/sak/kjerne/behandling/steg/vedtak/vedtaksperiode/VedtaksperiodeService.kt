@@ -4,7 +4,6 @@ import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.common.tidslinje.tilTidslinje
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.tilPerioderIkkeNull
-import no.nav.familie.ks.sak.common.util.TIDENES_ENDE
 import no.nav.familie.ks.sak.common.util.TIDENES_MORGEN
 import no.nav.familie.ks.sak.common.util.erSenereEnnInneværendeMåned
 import no.nav.familie.ks.sak.common.util.storForbokstav
@@ -212,19 +211,6 @@ class VedtaksperiodeService(
         val vilkårsvurdering = vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(behandlingId = vedtak.behandling.id)
 
         val sisteVedtatteBehandling = hentSisteBehandlingSomErVedtatt(vedtak.behandling.fagsak.id)
-        val endringstidspunkt = (
-            manueltOverstyrtEndringstidspunkt
-                ?: if (!gjelderFortsattInnvilget) {
-                    finnEndringstidspunktForBehandling(
-                        behandling = vedtak.behandling,
-                        sisteVedtattBehandling = sisteVedtatteBehandling,
-                        andelerTilkjentYtelseForBehandling = andelerTilkjentYtelse,
-                        andelerTilkjentYtelseForForrigeBehandling = andelerMedEndringerForrigeBehandling,
-                    )
-                } else {
-                    TIDENES_MORGEN
-                }
-        )
 
         // ^ Henter data
         val opphørsperioder =
@@ -261,7 +247,11 @@ class VedtaksperiodeService(
 
         return filtrerUtPerioderBasertPåEndringstidspunkt(
             vedtaksperioderMedBegrunnelser = (utbetalingsperioderUtenOverlappMedAvslagsperioder + opphørsperioder),
-            endringstidspunkt = endringstidspunkt,
+            manueltOverstyrtEndringstidspunkt = manueltOverstyrtEndringstidspunkt,
+            gjelderFortsattInnvilget = gjelderFortsattInnvilget,
+            sisteVedtatteBehandling = sisteVedtatteBehandling,
+            andelerTilkjentYtelseForBehandling = andelerTilkjentYtelse,
+            andelerTilkjentYtelseForForrigeBehandling = andelerMedEndringerForrigeBehandling,
         ) + avslagsperioder
     }
 
@@ -435,26 +425,6 @@ class VedtaksperiodeService(
                         ).hentGyldigeBegrunnelserForVedtaksperiode(),
                 )
             }
-    }
-
-    fun finnEndringstidspunktForBehandling(
-        behandling: Behandling,
-        sisteVedtattBehandling: Behandling?,
-        andelerTilkjentYtelseForBehandling: List<AndelTilkjentYtelseMedEndreteUtbetalinger>,
-        andelerTilkjentYtelseForForrigeBehandling: List<AndelTilkjentYtelseMedEndreteUtbetalinger>,
-    ): LocalDate {
-        if (sisteVedtattBehandling == null) return TIDENES_MORGEN
-
-        if (andelerTilkjentYtelseForBehandling.isEmpty()) return TIDENES_MORGEN
-
-        val førsteEndringstidspunktFraAndelTilkjentYtelse =
-            andelerTilkjentYtelseForBehandling.hentFørsteEndringstidspunkt(
-                forrigeAndelerTilkjentYtelse = andelerTilkjentYtelseForForrigeBehandling,
-            ) ?: TIDENES_ENDE
-
-        // TODO EØS
-
-        return førsteEndringstidspunktFraAndelTilkjentYtelse
     }
 
     fun beskrivPerioderMedRefusjonEøs(
