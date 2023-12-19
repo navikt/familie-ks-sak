@@ -2,7 +2,9 @@ package no.nav.familie.ks.sak.kjerne.brev.begrunnelser
 
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.klipp
+import no.nav.familie.ks.sak.common.tidslinje.utvidelser.kombinerMed
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.tilPerioderIkkeNull
+import no.nav.familie.ks.sak.common.tidslinje.verdier
 import no.nav.familie.ks.sak.common.util.Periode
 import no.nav.familie.ks.sak.common.util.TIDENES_ENDE
 import no.nav.familie.ks.sak.common.util.TIDENES_MORGEN
@@ -16,6 +18,7 @@ import no.nav.familie.ks.sak.integrasjon.sanity.domene.inneholderGjelderFørsteP
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.landkodeTilBarnetsBostedsland
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.Vedtaksperiodetype
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.UtvidetVedtaksperiodeMedBegrunnelser
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.tilTidslinje
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.PersonResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.UtdypendeVilkårsvurdering
@@ -26,6 +29,9 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.tilFørskj
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.tilFørskjøvetVilkårResultatTidslinjeMap
 import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.EndretUtbetalingAndel
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.Kompetanse
+import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.UtfyltKompetanse
+import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.tilIKompetanse
+import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.tilTidslinje
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
@@ -105,11 +111,38 @@ class BegrunnelserForPeriodeContext(
         begrunnelse: IBegrunnelse,
         sanityBegrunnelse: SanityBegrunnelse,
     ): Set<Person> {
-        return this.kompetanser.filter { kompetanse ->
-            kompetanse.annenForeldersAktivitet in sanityBegrunnelse.annenForeldersAktivitet &&
-                kompetanse.resultat in sanityBegrunnelse.kompetanseResultat &&
-                landkodeTilBarnetsBostedsland(kompetanse.barnetsBostedsland ?: throw Feil("Barnets bostedsland er null i kompetanse")) in sanityBegrunnelse.barnetsBostedsland
-        }.flatMap { it.barnAktører }.map { aktør -> personopplysningGrunnlag.personer.find { it.aktør == aktør }!! }.toSet()
+        val utfyltekompetanser = this.kompetanser.map { it.tilIKompetanse() }.filterIsInstance<UtfyltKompetanse>()
+
+        // kombiner finner kompetanser som overlapper med vedtaksperioden
+        val kompetanserSomOverlapperMedVedtaksperioder =
+            utfyltekompetanser.tilTidslinje().kombinerMed(listOf(this.utvidetVedtaksperiodeMedBegrunnelser).tilTidslinje()) { kompetanse, vedtaksperiode ->
+                if (vedtaksperiode != null) {
+                    kompetanse
+                } else {
+                    null
+                }
+            }.tilPerioderIkkeNull().verdier()
+
+        // kompetanser som ble avsluttet i forrige periode
+        val kompetanserSomBleAvsluttetIForrigePeriode =
+            utfyltekompetanser.filter { kompetanse ->
+                kompetanse.tom != null &&
+                    kompetanse.tom.plusMonths(1) == utvidetVedtaksperiodeMedBegrunnelser.fom?.toYearMonth()
+            }
+
+        return if (begrunnelse.begrunnelseType == BegrunnelseType.EØS_OPPHØR) {
+            kompetanserSomBleAvsluttetIForrigePeriode
+        } else {
+            kompetanserSomOverlapperMedVedtaksperioder
+        }.begrunnelserSomMatcherKompetanse(sanityBegrunnelse).flatMap { it.barnAktører }.map { aktør -> personopplysningGrunnlag.personer.find { it.aktør == aktør }!! }.toSet()
+    }
+
+    private fun List<UtfyltKompetanse>.begrunnelserSomMatcherKompetanse(
+        sanityBegrunnelse: SanityBegrunnelse,
+    ) = filter { kompetanse ->
+        kompetanse.annenForeldersAktivitet in sanityBegrunnelse.annenForeldersAktivitet &&
+            kompetanse.resultat in sanityBegrunnelse.kompetanseResultat &&
+            landkodeTilBarnetsBostedsland(kompetanse.barnetsBostedsland ?: throw Feil("Barnets bostedsland er null i kompetanse")) in sanityBegrunnelse.barnetsBostedsland
     }
 
     private fun erEtterEndretPeriodeAvSammeÅrsak(begrunnelse: SanityBegrunnelse) =
