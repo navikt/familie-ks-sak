@@ -1,19 +1,15 @@
 package no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode
 
-import no.nav.familie.ks.sak.api.dto.BarnMedOpplysningerDto
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.common.tidslinje.tilTidslinje
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.tilPerioderIkkeNull
-import no.nav.familie.ks.sak.common.util.NullablePeriode
 import no.nav.familie.ks.sak.common.util.TIDENES_ENDE
 import no.nav.familie.ks.sak.common.util.TIDENES_MORGEN
 import no.nav.familie.ks.sak.common.util.erSammeEllerEtter
 import no.nav.familie.ks.sak.common.util.erSenereEnnInneværendeMåned
-import no.nav.familie.ks.sak.common.util.sisteDagIMåned
 import no.nav.familie.ks.sak.common.util.storForbokstav
 import no.nav.familie.ks.sak.common.util.tilMånedÅr
-import no.nav.familie.ks.sak.common.util.toLocalDate
 import no.nav.familie.ks.sak.common.util.toYearMonth
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
 import no.nav.familie.ks.sak.integrasjon.sanity.SanityService
@@ -24,25 +20,20 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg
 import no.nav.familie.ks.sak.kjerne.behandling.steg.registrersøknad.SøknadGrunnlagService
-import no.nav.familie.ks.sak.kjerne.behandling.steg.registrersøknad.domene.SøknadGrunnlag
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.Vedtak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.VedtakRepository
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.refusjonEøs.RefusjonEøsRepository
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.UtvidetVedtaksperiodeMedBegrunnelser
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.Vedtaksbegrunnelse
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.VedtaksperiodeMedBegrunnelser
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.tilUtvidetVedtaksperiodeMedBegrunnelser
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.tilVedtaksbegrunnelseFritekst
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.utbetalingsperiodeMedBegrunnelser.hentUtbetalingsperioder
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårsvurderingRepository
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.forskyvVilkårResultater
 import no.nav.familie.ks.sak.kjerne.beregning.AndelTilkjentYtelseMedEndreteUtbetalinger
 import no.nav.familie.ks.sak.kjerne.beregning.AndelerTilkjentYtelseOgEndreteUtbetalingerService
-import no.nav.familie.ks.sak.kjerne.beregning.EndretUtbetalingAndelMedAndelerTilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.Begrunnelse
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.BegrunnelseType
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.BegrunnelserForPeriodeContext
@@ -497,81 +488,6 @@ class VedtaksperiodeService(
         return førsteEndringstidspunktFraAndelTilkjentYtelse
     }
 
-    private fun hentAvslagsperioderMedBegrunnelser(
-        vedtak: Vedtak,
-        endredeUtbetalinger: List<EndretUtbetalingAndelMedAndelerTilkjentYtelse>,
-        søknadGrunnlag: SøknadGrunnlag,
-        vilkårsvurdering: Vilkårsvurdering,
-    ): List<VedtaksperiodeMedBegrunnelser> {
-        val behandling = vedtak.behandling
-        val avslagsperioderFraVilkårsvurdering =
-            hentAvslagsperioderFraVilkårsvurdering(
-                vedtak = vedtak,
-                vilkårsvurdering = vilkårsvurdering,
-            )
-        val avslagsperioderFraEndretUtbetalinger =
-            hentAvslagsperioderFraEndretUtbetalinger(
-                vedtak,
-                endredeUtbetalinger,
-            )
-
-        val uregistrerteBarn =
-            if (behandling.erSøknad()) {
-                søknadGrunnlag.hentUregistrerteBarn()
-            } else {
-                emptyList()
-            }
-
-        return if (uregistrerteBarn.isNotEmpty()) {
-            leggTilAvslagsbegrunnelseForUregistrertBarn(
-                avslagsperioder = avslagsperioderFraVilkårsvurdering + avslagsperioderFraEndretUtbetalinger,
-                vedtak = vedtak,
-                uregistrerteBarn = uregistrerteBarn,
-            )
-        } else {
-            avslagsperioderFraVilkårsvurdering + avslagsperioderFraEndretUtbetalinger
-        }
-    }
-
-    private fun hentAvslagsperioderFraEndretUtbetalinger(
-        vedtak: Vedtak,
-        endredeUtbetalinger: List<EndretUtbetalingAndelMedAndelerTilkjentYtelse>,
-    ): List<VedtaksperiodeMedBegrunnelser> {
-        val periodegrupperteAvslagEndreteUtbetalinger =
-            endredeUtbetalinger.filter { it.erEksplisittAvslagPåSøknad == true }
-                .groupBy { NullablePeriode(it.fom?.toLocalDate(), it.tom?.toLocalDate()) }
-
-        val avslagsperioder =
-            periodegrupperteAvslagEndreteUtbetalinger.map { (fellesPeriode, endretUtbetalinger) ->
-
-                val avslagsbegrunnelser = endretUtbetalinger.map { it.begrunnelser }.flatten().toSet().toList()
-
-                lagVedtaksPeriodeMedBegrunnelser(vedtak, fellesPeriode, avslagsbegrunnelser)
-            }.toMutableList()
-
-        return avslagsperioder
-    }
-
-    private fun hentAvslagsperioderFraVilkårsvurdering(
-        vedtak: Vedtak,
-        vilkårsvurdering: Vilkårsvurdering,
-    ): MutableList<VedtaksperiodeMedBegrunnelser> {
-        val periodegrupperteAvslagsvilkår: Map<NullablePeriode, List<VilkårResultat>> =
-            vilkårsvurdering.personResultater.flatMap { it.vilkårResultater }
-                .filter { it.erEksplisittAvslagPåSøknad == true }
-                .groupBy { NullablePeriode(it.periodeFom, it.periodeTom) }
-
-        val avslagsperioder =
-            periodegrupperteAvslagsvilkår.map { (fellesPeriode, vilkårResultater) ->
-
-                val avslagsbegrunnelser = vilkårResultater.map { it.begrunnelser }.flatten().toSet().toList()
-
-                lagVedtaksPeriodeMedBegrunnelser(vedtak, fellesPeriode, avslagsbegrunnelser)
-            }.toMutableList()
-
-        return avslagsperioder
-    }
-
     fun beskrivPerioderMedRefusjonEøs(
         behandling: Behandling,
         avklart: Boolean,
@@ -604,60 +520,5 @@ class VedtaksperiodeService(
                     }
                 }
             }.toSet().takeIf { it.isNotEmpty() }
-    }
-
-    private fun lagVedtaksPeriodeMedBegrunnelser(
-        vedtak: Vedtak,
-        periode: NullablePeriode,
-        avslagsbegrunnelser: List<Begrunnelse>,
-    ): VedtaksperiodeMedBegrunnelser =
-        VedtaksperiodeMedBegrunnelser(
-            vedtak = vedtak,
-            fom = periode.fom,
-            tom = periode.tom?.sisteDagIMåned(),
-            type = Vedtaksperiodetype.AVSLAG,
-        ).apply {
-            begrunnelser.addAll(
-                avslagsbegrunnelser.map { begrunnelse ->
-                    Vedtaksbegrunnelse(
-                        vedtaksperiodeMedBegrunnelser = this,
-                        begrunnelse = begrunnelse,
-                    )
-                },
-            )
-        }
-
-    private fun leggTilAvslagsbegrunnelseForUregistrertBarn(
-        avslagsperioder: List<VedtaksperiodeMedBegrunnelser>,
-        vedtak: Vedtak,
-        uregistrerteBarn: List<BarnMedOpplysningerDto>,
-    ): List<VedtaksperiodeMedBegrunnelser> {
-        val avslagsperioderMedTomPeriode =
-            if (avslagsperioder.none { it.fom == null && it.tom == null }) {
-                avslagsperioder +
-                    VedtaksperiodeMedBegrunnelser(
-                        vedtak = vedtak,
-                        fom = null,
-                        tom = null,
-                        type = Vedtaksperiodetype.AVSLAG,
-                    )
-            } else {
-                avslagsperioder
-            }
-
-        return avslagsperioderMedTomPeriode.map {
-            if (it.fom == null && it.tom == null && uregistrerteBarn.isNotEmpty()) {
-                it.apply {
-                    begrunnelser.add(
-                        Vedtaksbegrunnelse(
-                            vedtaksperiodeMedBegrunnelser = this,
-                            begrunnelse = Begrunnelse.AVSLAG_UREGISTRERT_BARN,
-                        ),
-                    )
-                }
-            } else {
-                it
-            }
-        }.toList()
     }
 }
