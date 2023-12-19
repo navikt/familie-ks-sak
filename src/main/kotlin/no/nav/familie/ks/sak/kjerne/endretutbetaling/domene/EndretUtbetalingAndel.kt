@@ -75,14 +75,7 @@ data class EndretUtbetalingAndel(
         }
 
     fun validerUtfyltEndring() {
-        if (listOf(
-                person,
-                prosent,
-                fom,
-                tom,
-                årsak,
-                søknadstidspunkt,
-            ).any { it == null } || (begrunnelse?.isEmpty() == true)
+        if (this.manglerObligatoriskFelt() || (begrunnelse?.isEmpty() == true)
         ) {
             val feilmelding =
                 "Person, prosent, fom, tom, årsak, begrunnese og søknadstidspunkt skal være utfylt: $this"
@@ -100,6 +93,16 @@ data class EndretUtbetalingAndel(
             throw FunksjonellFeil("Avtaletidspunkt skal være utfylt når årsak er delt bosted: $this")
         }
     }
+
+    fun manglerObligatoriskFelt() =
+        listOf(
+            this.person,
+            this.prosent,
+            this.fom,
+            this.tom,
+            this.årsak,
+            this.søknadstidspunkt,
+        ).any { it == null }
 
     fun erÅrsakDeltBosted() = this.årsak == Årsak.DELT_BOSTED
 }
@@ -142,4 +145,84 @@ enum class Årsak(val visningsnavn: String) {
     ETTERBETALING_3MND("Etterbetaling 3 måneder"),
     ENDRE_MOTTAKER("Foreldrene bor sammen, endret mottaker"),
     ALLEREDE_UTBETALT("Allerede utbetalt"),
+}
+
+sealed interface IEndretUtbetalingAndel
+
+data class TomEndretUtbetalingAndel(
+    val id: Long,
+    val behandlingId: Long,
+) : IEndretUtbetalingAndel
+
+sealed interface IUtfyltEndretUtbetalingAndel : IEndretUtbetalingAndel {
+    val id: Long
+    val behandlingId: Long
+    val person: Person
+    val prosent: BigDecimal
+    val fom: YearMonth
+    val tom: YearMonth
+    val årsak: Årsak
+    val søknadstidspunkt: LocalDate
+    val begrunnelse: String
+}
+
+data class UtfyltEndretUtbetalingAndel(
+    override val id: Long,
+    override val behandlingId: Long,
+    override val person: Person,
+    override val prosent: BigDecimal,
+    override val fom: YearMonth,
+    override val tom: YearMonth,
+    override val årsak: Årsak,
+    override val søknadstidspunkt: LocalDate,
+    override val begrunnelse: String,
+) : IUtfyltEndretUtbetalingAndel
+
+data class UtfyltEndretUtbetalingAndelDeltBosted(
+    override val id: Long,
+    override val behandlingId: Long,
+    override val person: Person,
+    override val prosent: BigDecimal,
+    override val fom: YearMonth,
+    override val tom: YearMonth,
+    override val årsak: Årsak,
+    override val søknadstidspunkt: LocalDate,
+    override val begrunnelse: String,
+    val avtaletidspunktDeltBosted: LocalDate,
+) : IUtfyltEndretUtbetalingAndel
+
+fun EndretUtbetalingAndel.tilIEndretUtbetalingAndel(): IEndretUtbetalingAndel {
+    return if (this.manglerObligatoriskFelt()) {
+        TomEndretUtbetalingAndel(
+            this.id,
+            this.behandlingId,
+        )
+    } else {
+        if (this.erÅrsakDeltBosted()) {
+            UtfyltEndretUtbetalingAndelDeltBosted(
+                id = this.id,
+                behandlingId = this.behandlingId,
+                person = this.person!!,
+                prosent = this.prosent!!,
+                fom = this.fom!!,
+                tom = this.tom!!,
+                årsak = this.årsak!!,
+                avtaletidspunktDeltBosted = this.avtaletidspunktDeltBosted!!,
+                søknadstidspunkt = this.søknadstidspunkt!!,
+                begrunnelse = this.begrunnelse!!,
+            )
+        } else {
+            UtfyltEndretUtbetalingAndel(
+                id = this.id,
+                behandlingId = this.behandlingId,
+                person = this.person!!,
+                prosent = this.prosent!!,
+                fom = this.fom!!,
+                tom = this.tom!!,
+                årsak = this.årsak!!,
+                søknadstidspunkt = this.søknadstidspunkt!!,
+                begrunnelse = this.begrunnelse!!,
+            )
+        }
+    }
 }
