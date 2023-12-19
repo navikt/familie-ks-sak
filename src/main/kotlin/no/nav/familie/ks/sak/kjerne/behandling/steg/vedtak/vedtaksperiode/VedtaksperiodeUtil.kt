@@ -19,17 +19,17 @@ import java.time.LocalDate
 
 data class GrunnlagForVedtaksperioder(
     val vedtak: Vedtak,
+    val gjelderFortsattInnvilget: Boolean,
     val personopplysningGrunnlag: PersonopplysningGrunnlag,
+    val uregistrerteBarnFraSøknad: List<BarnMedOpplysningerDto>,
+    val vilkårsvurdering: Vilkårsvurdering,
     val andelerTilkjentYtelse: List<AndelTilkjentYtelseMedEndreteUtbetalinger>,
+    val endredeUtbetalinger: List<EndretUtbetalingAndelMedAndelerTilkjentYtelse>,
+    val kompetanser: List<Kompetanse>,
+    val manueltOverstyrtEndringstidspunkt: LocalDate?,
+    val sisteVedtatteBehandling: Behandling?,
     val personopplysningGrunnlagForrigeBehandling: PersonopplysningGrunnlag?,
     val andelerMedEndringerForrigeBehandling: List<AndelTilkjentYtelseMedEndreteUtbetalinger>,
-    val vilkårsvurdering: Vilkårsvurdering,
-    val kompetanser: List<Kompetanse>,
-    val endredeUtbetalinger: List<EndretUtbetalingAndelMedAndelerTilkjentYtelse>,
-    val uregistrerteBarnFraSøknad: List<BarnMedOpplysningerDto>,
-    val manueltOverstyrtEndringstidspunkt: LocalDate?,
-    val gjelderFortsattInnvilget: Boolean,
-    val sisteVedtatteBehandling: Behandling?,
 ) {
     fun hentVedtaksperioder(): List<VedtaksperiodeMedBegrunnelser> {
         val opphørsperioder =
