@@ -17,60 +17,62 @@ import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.Kompetanse
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
 import java.time.LocalDate
 
-fun hentVedtaksperioder(
-    vedtak: Vedtak,
-    gjelderFortsattInnvilget: Boolean,
-    uregistrerteBarnFraSøknad: List<BarnMedOpplysningerDto>,
-    personopplysningGrunnlag: PersonopplysningGrunnlag,
-    vilkårsvurdering: Vilkårsvurdering,
-    andelerTilkjentYtelse: List<AndelTilkjentYtelseMedEndreteUtbetalinger>,
-    endredeUtbetalinger: List<EndretUtbetalingAndelMedAndelerTilkjentYtelse>,
-    kompetanser: List<Kompetanse>,
-    manueltOverstyrtEndringstidspunkt: LocalDate?,
-    sisteVedtatteBehandling: Behandling?,
-    personopplysningGrunnlagForrigeBehandling: PersonopplysningGrunnlag?,
-    andelerMedEndringerForrigeBehandling: List<AndelTilkjentYtelseMedEndreteUtbetalinger>,
-): List<VedtaksperiodeMedBegrunnelser> {
-    val opphørsperioder =
-        hentOpphørsperioder(
-            behandling = vedtak.behandling,
-            personopplysningGrunnlag = personopplysningGrunnlag,
-            andelerTilkjentYtelse = andelerTilkjentYtelse,
-            personopplysningGrunnlagForrigeBehandling = personopplysningGrunnlagForrigeBehandling,
-            forrigeAndelerMedEndringer = andelerMedEndringerForrigeBehandling,
-        ).map { it.tilVedtaksperiodeMedBegrunnelse(vedtak) }
+data class GrunnlagForVedtaksperioder(
+    val vedtak: Vedtak,
+    val personopplysningGrunnlag: PersonopplysningGrunnlag,
+    val andelerTilkjentYtelse: List<AndelTilkjentYtelseMedEndreteUtbetalinger>,
+    val personopplysningGrunnlagForrigeBehandling: PersonopplysningGrunnlag?,
+    val andelerMedEndringerForrigeBehandling: List<AndelTilkjentYtelseMedEndreteUtbetalinger>,
+    val vilkårsvurdering: Vilkårsvurdering,
+    val kompetanser: List<Kompetanse>,
+    val endredeUtbetalinger: List<EndretUtbetalingAndelMedAndelerTilkjentYtelse>,
+    val uregistrerteBarnFraSøknad: List<BarnMedOpplysningerDto>,
+    val manueltOverstyrtEndringstidspunkt: LocalDate?,
+    val gjelderFortsattInnvilget: Boolean,
+    val sisteVedtatteBehandling: Behandling?,
+) {
+    fun hentVedtaksperioder(): List<VedtaksperiodeMedBegrunnelser> {
+        val opphørsperioder =
+            hentOpphørsperioder(
+                behandling = vedtak.behandling,
+                personopplysningGrunnlag = personopplysningGrunnlag,
+                andelerTilkjentYtelse = andelerTilkjentYtelse,
+                personopplysningGrunnlagForrigeBehandling = personopplysningGrunnlagForrigeBehandling,
+                forrigeAndelerMedEndringer = andelerMedEndringerForrigeBehandling,
+            ).map { it.tilVedtaksperiodeMedBegrunnelse(vedtak) }
 
-    val utbetalingsperioder =
-        hentUtbetalingsperioder(
-            vedtak = vedtak,
-            andelerTilkjentYtelse = andelerTilkjentYtelse,
-            vilkårsvurdering = vilkårsvurdering,
-            personopplysningGrunnlag = personopplysningGrunnlag,
-            kompetanser = kompetanser,
-        )
+        val utbetalingsperioder =
+            hentUtbetalingsperioder(
+                vedtak = vedtak,
+                andelerTilkjentYtelse = andelerTilkjentYtelse,
+                vilkårsvurdering = vilkårsvurdering,
+                personopplysningGrunnlag = personopplysningGrunnlag,
+                kompetanser = kompetanser,
+            )
 
-    val avslagsperioder =
-        hentAvslagsperioderMedBegrunnelser(
-            vedtak = vedtak,
-            endredeUtbetalinger = endredeUtbetalinger,
-            vilkårsvurdering = vilkårsvurdering,
-            uregistrerteBarnFraSøknad = uregistrerteBarnFraSøknad,
-        )
+        val avslagsperioder =
+            hentAvslagsperioderMedBegrunnelser(
+                vedtak = vedtak,
+                endredeUtbetalinger = endredeUtbetalinger,
+                vilkårsvurdering = vilkårsvurdering,
+                uregistrerteBarnFraSøknad = uregistrerteBarnFraSøknad,
+            )
 
-    val utbetalingsperioderUtenOverlappMedAvslagsperioder =
-        filtrerUtUtbetalingsperioderMedSammeDatoSomAvslagsperioder(
-            utbetalingsperioder,
-            avslagsperioder,
-        )
+        val utbetalingsperioderUtenOverlappMedAvslagsperioder =
+            filtrerUtUtbetalingsperioderMedSammeDatoSomAvslagsperioder(
+                utbetalingsperioder,
+                avslagsperioder,
+            )
 
-    return filtrerUtPerioderBasertPåEndringstidspunkt(
-        vedtaksperioderMedBegrunnelser = (utbetalingsperioderUtenOverlappMedAvslagsperioder + opphørsperioder),
-        manueltOverstyrtEndringstidspunkt = manueltOverstyrtEndringstidspunkt,
-        gjelderFortsattInnvilget = gjelderFortsattInnvilget,
-        sisteVedtatteBehandling = sisteVedtatteBehandling,
-        andelerTilkjentYtelseForBehandling = andelerTilkjentYtelse,
-        andelerTilkjentYtelseForForrigeBehandling = andelerMedEndringerForrigeBehandling,
-    ) + avslagsperioder
+        return filtrerUtPerioderBasertPåEndringstidspunkt(
+            vedtaksperioderMedBegrunnelser = (utbetalingsperioderUtenOverlappMedAvslagsperioder + opphørsperioder),
+            manueltOverstyrtEndringstidspunkt = manueltOverstyrtEndringstidspunkt,
+            gjelderFortsattInnvilget = gjelderFortsattInnvilget,
+            sisteVedtatteBehandling = sisteVedtatteBehandling,
+            andelerTilkjentYtelseForBehandling = andelerTilkjentYtelse,
+            andelerTilkjentYtelseForForrigeBehandling = andelerMedEndringerForrigeBehandling,
+        ) + avslagsperioder
+    }
 }
 
 fun validerVedtaksperiodeMedBegrunnelser(vedtaksperiodeMedBegrunnelser: VedtaksperiodeMedBegrunnelser) {

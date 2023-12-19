@@ -1,6 +1,5 @@
 package no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode
 
-import no.nav.familie.ks.sak.api.dto.BarnMedOpplysningerDto
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.common.tidslinje.tilTidslinje
@@ -28,19 +27,16 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.tilVedtaksbegrunnelseFritekst
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårsvurderingRepository
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.forskyvVilkårResultater
 import no.nav.familie.ks.sak.kjerne.beregning.AndelTilkjentYtelseMedEndreteUtbetalinger
 import no.nav.familie.ks.sak.kjerne.beregning.AndelerTilkjentYtelseOgEndreteUtbetalingerService
-import no.nav.familie.ks.sak.kjerne.beregning.EndretUtbetalingAndelMedAndelerTilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.Begrunnelse
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.BegrunnelseType
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.BegrunnelserForPeriodeContext
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.EØSBegrunnelse
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.tilVedtaksbegrunnelse
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.KompetanseService
-import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.Kompetanse
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Målform
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
@@ -191,46 +187,40 @@ class VedtaksperiodeService(
         vedtak: Vedtak,
         gjelderFortsattInnvilget: Boolean = false,
         manueltOverstyrtEndringstidspunkt: LocalDate? = null,
-    ): List<VedtaksperiodeMedBegrunnelser> {
-        val endredeUtbetalinger: List<EndretUtbetalingAndelMedAndelerTilkjentYtelse> =
-            andelerTilkjentYtelseOgEndreteUtbetalingerService.finnEndreteUtbetalingerMedAndelerTilkjentYtelse(
-                vedtak.behandling.id,
-            )
-        val uregistrerteBarnFraSøknad: List<BarnMedOpplysningerDto> = søknadGrunnlagService.hentAktiv(behandlingId = vedtak.behandling.id).hentUregistrerteBarn()
+    ): List<VedtaksperiodeMedBegrunnelser> =
+        lagGrunnlagForVedtaksperioder(
+            vedtak = vedtak,
+            gjelderFortsattInnvilget = gjelderFortsattInnvilget,
+            manueltOverstyrtEndringstidspunkt = manueltOverstyrtEndringstidspunkt,
+        ).hentVedtaksperioder()
 
-        val andelerTilkjentYtelse: List<AndelTilkjentYtelseMedEndreteUtbetalinger> =
-            andelerTilkjentYtelseOgEndreteUtbetalingerService
-                .finnAndelerTilkjentYtelseMedEndreteUtbetalinger(vedtak.behandling.id)
-
+    fun lagGrunnlagForVedtaksperioder(
+        vedtak: Vedtak,
+        gjelderFortsattInnvilget: Boolean = false,
+        manueltOverstyrtEndringstidspunkt: LocalDate? = null,
+    ): GrunnlagForVedtaksperioder {
         val iverksatteBehandlinger: List<Behandling> = behandlingRepository.finnIverksatteBehandlinger(fagsakId = vedtak.behandling.fagsak.id)
         val forrigeIverksatteBehandling: Behandling? =
             iverksatteBehandlinger
                 .filter { it.opprettetTidspunkt.isBefore(vedtak.behandling.opprettetTidspunkt) && it.steg == BehandlingSteg.AVSLUTT_BEHANDLING }
                 .maxByOrNull { it.opprettetTidspunkt }
-        val personopplysningGrunnlagForrigeBehandling: PersonopplysningGrunnlag? = forrigeIverksatteBehandling?.let { personopplysningGrunnlagService.finnAktivPersonopplysningGrunnlag(forrigeIverksatteBehandling.id) }
-        val andelerMedEndringerForrigeBehandling: List<AndelTilkjentYtelseMedEndreteUtbetalinger> = forrigeIverksatteBehandling?.let { andelerTilkjentYtelseOgEndreteUtbetalingerService.finnAndelerTilkjentYtelseMedEndreteUtbetalinger(forrigeIverksatteBehandling.id) } ?: emptyList()
 
-        val personopplysningGrunnlag: PersonopplysningGrunnlag = personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(behandlingId = vedtak.behandling.id)
-        val vilkårsvurdering: Vilkårsvurdering = vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(behandlingId = vedtak.behandling.id)
-
-        val sisteVedtatteBehandling: Behandling? = hentSisteBehandlingSomErVedtatt(vedtak.behandling.fagsak.id)
-
-        val kompetanser: List<Kompetanse> = kompetanseService.hentKompetanser(vedtak.behandling.behandlingId)
-        // ^ Henter data
-
-        return hentVedtaksperioder(
+        return GrunnlagForVedtaksperioder(
             vedtak = vedtak,
-            personopplysningGrunnlag = personopplysningGrunnlag,
-            andelerTilkjentYtelse = andelerTilkjentYtelse,
-            personopplysningGrunnlagForrigeBehandling = personopplysningGrunnlagForrigeBehandling,
-            andelerMedEndringerForrigeBehandling = andelerMedEndringerForrigeBehandling,
-            vilkårsvurdering = vilkårsvurdering,
-            kompetanser = kompetanser,
-            endredeUtbetalinger = endredeUtbetalinger,
-            uregistrerteBarnFraSøknad = uregistrerteBarnFraSøknad,
+            personopplysningGrunnlag = personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(behandlingId = vedtak.behandling.id),
+            andelerTilkjentYtelse = andelerTilkjentYtelseOgEndreteUtbetalingerService.finnAndelerTilkjentYtelseMedEndreteUtbetalinger(vedtak.behandling.id),
+            personopplysningGrunnlagForrigeBehandling = forrigeIverksatteBehandling?.let { personopplysningGrunnlagService.finnAktivPersonopplysningGrunnlag(forrigeIverksatteBehandling.id) },
+            andelerMedEndringerForrigeBehandling = forrigeIverksatteBehandling?.let { andelerTilkjentYtelseOgEndreteUtbetalingerService.finnAndelerTilkjentYtelseMedEndreteUtbetalinger(forrigeIverksatteBehandling.id) } ?: emptyList(),
+            vilkårsvurdering = vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(behandlingId = vedtak.behandling.id),
+            kompetanser = kompetanseService.hentKompetanser(vedtak.behandling.behandlingId),
+            endredeUtbetalinger =
+                andelerTilkjentYtelseOgEndreteUtbetalingerService.finnEndreteUtbetalingerMedAndelerTilkjentYtelse(
+                    vedtak.behandling.id,
+                ),
+            uregistrerteBarnFraSøknad = søknadGrunnlagService.hentAktiv(behandlingId = vedtak.behandling.id).hentUregistrerteBarn(),
             manueltOverstyrtEndringstidspunkt = manueltOverstyrtEndringstidspunkt,
             gjelderFortsattInnvilget = gjelderFortsattInnvilget,
-            sisteVedtatteBehandling = sisteVedtatteBehandling,
+            sisteVedtatteBehandling = hentSisteBehandlingSomErVedtatt(vedtak.behandling.fagsak.id),
         )
     }
 
