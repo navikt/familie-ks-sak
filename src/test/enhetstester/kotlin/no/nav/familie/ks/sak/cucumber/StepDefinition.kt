@@ -55,7 +55,7 @@ class StepDefinition {
     var dagensDato: LocalDate = LocalDate.now()
 
     /**
-     * Mulige verdier: | FagsakId | Fagsaktype |
+     * Mulige verdier: | FagsakId |
      */
     @Gitt("følgende fagsaker")
     fun `følgende fagsaker  `(dataTable: DataTable) {
@@ -66,7 +66,7 @@ class StepDefinition {
      * Mulige felter:
      * | BehandlingId | FagsakId | ForrigeBehandlingId | Behandlingsresultat | Behandlingsårsak |
      */
-    @Gitt("følgende behandling")
+    @Og("følgende behandlinger")
     fun `følgende behandling`(dataTable: DataTable) {
         val nyeVedtak =
             lagVedtakListe(
@@ -116,6 +116,16 @@ class StepDefinition {
     }
 
     /**
+     * Mulige verdier: | AktørId | Fra dato | Til dato | BehandlingId |  Årsak | Prosent | Søknadstidspunkt | Avtaletidspunkt delt bosted |
+     */
+    @Og("med endrede utbetalinger")
+    fun `med endrede utbetalinger`(
+        dataTable: DataTable,
+    ) {
+        endredeUtbetalinger = lagEndredeUtbetalinger(dataTable.asMaps(), persongrunnlag)
+    }
+
+    /**
      * Mulige felt:
      * | AktørId | Fra dato | Til dato | Resultat | BehandlingId | Søkers aktivitet | Annen forelders aktivitet | Søkers aktivitetsland | Annen forelders aktivitetsland | Barnets bostedsland |
      */
@@ -149,18 +159,17 @@ class StepDefinition {
         utenlandskPeriodebeløp = lagUtenlandskperiodeBeløp(dataTable.asMaps(), persongrunnlag)
     }
 
-    /**
-     * Mulige verdier: | AktørId | Fra dato | Til dato | BehandlingId |  Årsak | Prosent | Søknadstidspunkt | Avtaletidspunkt delt bosted |
-     */
-    @Og("med endrede utbetalinger")
-    fun `med endrede utbetalinger`(
-        dataTable: DataTable,
-    ) {
-        endredeUtbetalinger = lagEndredeUtbetalinger(dataTable.asMaps(), persongrunnlag)
+    @Og("med andeler for forrige behandling")
+    fun `andeler for behandling`(dataTable: DataTable) {
+        val andelerMap = lagAndelerTilkjentYtelse(dataTable, behandlinger, persongrunnlag)
+        andelerTilkjentYtelse = (andelerTilkjentYtelse + andelerMap).toMutableMap()
     }
 
     @Og("andeler er beregnet for behandling {}")
-    fun `andeler er beregnet`(behandlingId: Long) {
+    fun `andeler er beregnet`(
+        behandlingId: Long,
+        dataTable: DataTable,
+    ) {
         andelerTilkjentYtelse[behandlingId] =
             TilkjentYtelseUtils.beregnTilkjentYtelse(
                 vilkårsvurdering = vilkårsvurdering[behandlingId]!!,
