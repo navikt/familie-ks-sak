@@ -148,6 +148,12 @@ class BehandlingService(
             vedtaksperiodeService.finnEndringstidspunktForBehandling(
                 behandling = behandling,
                 sisteVedtattBehandling = hentSisteBehandlingSomErVedtatt(behandling.fagsak.id),
+                andelerTilkjentYtelseForBehandling = andelTilkjentYtelseMedEndreteUtbetalinger,
+                andelerTilkjentYtelseForForrigeBehandling =
+                    hentSisteBehandlingSomErVedtatt(behandling.fagsak.id)?.let {
+                        andelerTilkjentYtelseOgEndreteUtbetalingerService
+                            .finnAndelerTilkjentYtelseMedEndreteUtbetalinger(it.id)
+                    } ?: emptyList(),
             )
 
         val sisteVedtaksperiodeVisningDato =

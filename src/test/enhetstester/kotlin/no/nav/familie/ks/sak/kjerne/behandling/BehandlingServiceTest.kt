@@ -159,7 +159,15 @@ class BehandlingServiceTest {
         every { vedtakRepository.findByBehandlingAndAktivOptional(any()) } returns Vedtak(behandling = behandling)
 
         every { vedtaksperiodeService.hentUtvidetVedtaksperioderMedBegrunnelser(any()) } returns emptyList()
-        every { vedtaksperiodeService.finnEndringstidspunktForBehandling(any(), any()) } returns TIDENES_MORGEN
+        every {
+            vedtaksperiodeService.finnEndringstidspunktForBehandling(
+                any(), any(),
+                andelerTilkjentYtelseOgEndreteUtbetalingerService
+                    .finnAndelerTilkjentYtelseMedEndreteUtbetalinger(any()),
+                andelerTilkjentYtelseOgEndreteUtbetalingerService
+                    .finnAndelerTilkjentYtelseMedEndreteUtbetalinger(any()),
+            )
+        } returns TIDENES_MORGEN
 
         every { andelTilkjentYtelseRepository.finnAndelerTilkjentYtelseForBehandling(behandling.id) } returns
             listOf(
@@ -195,7 +203,15 @@ class BehandlingServiceTest {
         verify(exactly = 1) { vilkårsvurderingService.finnAktivVilkårsvurdering(behandling.id) }
         verify(exactly = 1) { søknadGrunnlagService.finnAktiv(behandling.id) }
         verify(exactly = 1) { andelTilkjentYtelseRepository.finnAndelerTilkjentYtelseForBehandling(behandling.id) }
-        verify(exactly = 1) { vedtaksperiodeService.finnEndringstidspunktForBehandling(behandling, null) }
+        verify(exactly = 1) {
+            vedtaksperiodeService.finnEndringstidspunktForBehandling(
+                behandling,
+                null,
+                andelerTilkjentYtelseOgEndreteUtbetalingerService
+                    .finnAndelerTilkjentYtelseMedEndreteUtbetalinger(behandling.id),
+                emptyList(),
+            )
+        }
         verify(exactly = 1) { tilbakekrevingRepository.findByBehandlingId(behandling.id) }
         verify(exactly = 1) {
             vedtaksperiodeService.finnSisteVedtaksperiodeVisningsdatoForBehandling(

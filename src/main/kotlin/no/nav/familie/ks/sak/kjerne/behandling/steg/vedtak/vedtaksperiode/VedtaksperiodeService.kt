@@ -218,6 +218,8 @@ class VedtaksperiodeService(
                     finnEndringstidspunktForBehandling(
                         behandling = vedtak.behandling,
                         sisteVedtattBehandling = sisteVedtatteBehandling,
+                        andelerTilkjentYtelseForBehandling = andelerTilkjentYtelse,
+                        andelerTilkjentYtelseForForrigeBehandling = andelerMedEndringerForrigeBehandling,
                     )
                 } else {
                     TIDENES_MORGEN
@@ -438,18 +440,12 @@ class VedtaksperiodeService(
     fun finnEndringstidspunktForBehandling(
         behandling: Behandling,
         sisteVedtattBehandling: Behandling?,
+        andelerTilkjentYtelseForBehandling: List<AndelTilkjentYtelseMedEndreteUtbetalinger>,
+        andelerTilkjentYtelseForForrigeBehandling: List<AndelTilkjentYtelseMedEndreteUtbetalinger>,
     ): LocalDate {
         if (sisteVedtattBehandling == null) return TIDENES_MORGEN
 
-        val andelerTilkjentYtelseForBehandling =
-            andelerTilkjentYtelseOgEndreteUtbetalingerService
-                .finnAndelerTilkjentYtelseMedEndreteUtbetalinger(behandling.id)
-
         if (andelerTilkjentYtelseForBehandling.isEmpty()) return TIDENES_MORGEN
-
-        val andelerTilkjentYtelseForForrigeBehandling =
-            andelerTilkjentYtelseOgEndreteUtbetalingerService
-                .finnAndelerTilkjentYtelseMedEndreteUtbetalinger(sisteVedtattBehandling.id)
 
         val førsteEndringstidspunktFraAndelTilkjentYtelse =
             andelerTilkjentYtelseForBehandling.hentFørsteEndringstidspunkt(
