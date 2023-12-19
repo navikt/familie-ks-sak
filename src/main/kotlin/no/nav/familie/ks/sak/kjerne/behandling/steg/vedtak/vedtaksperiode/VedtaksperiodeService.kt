@@ -6,7 +6,6 @@ import no.nav.familie.ks.sak.common.tidslinje.tilTidslinje
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.tilPerioderIkkeNull
 import no.nav.familie.ks.sak.common.util.TIDENES_ENDE
 import no.nav.familie.ks.sak.common.util.TIDENES_MORGEN
-import no.nav.familie.ks.sak.common.util.erSammeEllerEtter
 import no.nav.familie.ks.sak.common.util.erSenereEnnInneværendeMåned
 import no.nav.familie.ks.sak.common.util.storForbokstav
 import no.nav.familie.ks.sak.common.util.tilMånedÅr
@@ -262,26 +261,6 @@ class VedtaksperiodeService(
             vedtaksperioderMedBegrunnelser = (utbetalingsperioderUtenOverlappMedAvslagsperioder + opphørsperioder),
             endringstidspunkt = endringstidspunkt,
         ) + avslagsperioder
-    }
-
-    private fun filtrerUtUtbetalingsperioderMedSammeDatoSomAvslagsperioder(
-        utbetalingsperioder: List<VedtaksperiodeMedBegrunnelser>,
-        avslagsperioder: List<VedtaksperiodeMedBegrunnelser>,
-    ) = utbetalingsperioder.filter { utbetalingsperiode ->
-        avslagsperioder.none { avslagsperiode ->
-            avslagsperiode.fom == utbetalingsperiode.fom &&
-                avslagsperiode.tom == utbetalingsperiode.tom &&
-                avslagsperiode.begrunnelser.isNotEmpty()
-        }
-    }
-
-    fun filtrerUtPerioderBasertPåEndringstidspunkt(
-        vedtaksperioderMedBegrunnelser: List<VedtaksperiodeMedBegrunnelser>,
-        endringstidspunkt: LocalDate,
-    ): List<VedtaksperiodeMedBegrunnelser> {
-        return vedtaksperioderMedBegrunnelser.filter {
-            (it.tom ?: TIDENES_ENDE).erSammeEllerEtter(endringstidspunkt)
-        }
     }
 
     private fun hentSisteBehandlingSomErVedtatt(fagsakId: Long): Behandling? =
