@@ -1,5 +1,7 @@
 package no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene
 
+import no.nav.familie.ks.sak.common.tidslinje.Periode
+import no.nav.familie.ks.sak.common.tidslinje.tilTidslinje
 import no.nav.familie.ks.sak.common.util.TIDENES_MORGEN
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.UtbetalingsperiodeDetalj
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.Vedtaksperiodetype
@@ -50,3 +52,12 @@ fun VedtaksperiodeMedBegrunnelser.tilUtvidetVedtaksperiodeMedBegrunnelser(
         utbetalingsperiodeDetaljer = utbetalingsperiodeDetaljer,
     )
 }
+
+fun List<UtvidetVedtaksperiodeMedBegrunnelser>.tilTidslinje() =
+    this.map {
+        Periode(
+            fom = it.fom,
+            tom = it.tom,
+            verdi = it,
+        )
+    }.tilTidslinje()

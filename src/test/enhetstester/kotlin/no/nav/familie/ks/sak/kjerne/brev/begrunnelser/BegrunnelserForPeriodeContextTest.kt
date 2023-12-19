@@ -1,6 +1,7 @@
 package no.nav.familie.ks.sak.kjerne.brev.begrunnelser
 
 import io.mockk.mockk
+import no.nav.familie.ks.sak.data.lagKompetanse
 import no.nav.familie.ks.sak.data.lagPerson
 import no.nav.familie.ks.sak.data.lagPersonopplysningGrunnlag
 import no.nav.familie.ks.sak.data.lagUtbetalingsperiodeDetalj
@@ -449,7 +450,7 @@ class BegrunnelserForPeriodeContextTest {
             val begrunnelseContext =
                 lagBegrunnelserForPeriodeContextForEøsTester(
                     sanityBegrunnelser = listOf(eøsBegrunnelse),
-                    kompetanser = listOf(Kompetanse(fom = jan(2020), tom = jan(2020), annenForeldersAktivitet = KompetanseAktivitet.ARBEIDER, resultat = KompetanseResultat.NORGE_ER_PRIMÆRLAND, barnetsBostedsland = "NO", barnAktører = setOf(barnAktør))),
+                    kompetanser = listOf(lagKompetanse(fom = jan(2020), tom = jan(2020), annenForeldersAktivitet = KompetanseAktivitet.ARBEIDER, resultat = KompetanseResultat.NORGE_ER_PRIMÆRLAND, barnetsBostedsland = "NO", barnAktører = setOf(barnAktør))),
                     vedtaksperiodeStartsTidpunkt = 1.jan(2020),
                     vedtaksperiodeSluttTidpunkt = 31.jan(2020),
                 )
@@ -460,7 +461,6 @@ class BegrunnelserForPeriodeContextTest {
         }
 
         @Test
-        @Disabled
         fun `Kompetanser som ikke gjelder for perioden skal ikke føre til gyldige begrunnelser`() {
             val eøsBegrunnelse =
                 SanityBegrunnelse(
@@ -488,7 +488,7 @@ class BegrunnelserForPeriodeContextTest {
             val begrunnelseContext =
                 lagBegrunnelserForPeriodeContextForEøsTester(
                     sanityBegrunnelser = listOf(eøsBegrunnelse),
-                    kompetanser = listOf(Kompetanse(fom = jan(2020), tom = jan(2020), annenForeldersAktivitet = KompetanseAktivitet.ARBEIDER, resultat = KompetanseResultat.NORGE_ER_PRIMÆRLAND, barnetsBostedsland = "NO", barnAktører = setOf(barnAktør))),
+                    kompetanser = listOf(lagKompetanse(fom = jan(2020), tom = jan(2020), annenForeldersAktivitet = KompetanseAktivitet.ARBEIDER, resultat = KompetanseResultat.NORGE_ER_PRIMÆRLAND, barnetsBostedsland = "NO", barnAktører = setOf(barnAktør))),
                     vedtaksperiodeStartsTidpunkt = 1.jan(2021),
                     vedtaksperiodeSluttTidpunkt = 31.jan(2021),
                 )
@@ -499,7 +499,6 @@ class BegrunnelserForPeriodeContextTest {
         }
 
         @Test
-        @Disabled
         fun `Skal kunne få opp eøs-opphør som gyldige begrunnelser dersom det er en kompetanse som slutter måneden før`() {
             val eøsBegrunnelse =
                 SanityBegrunnelse(
@@ -527,7 +526,8 @@ class BegrunnelserForPeriodeContextTest {
             val begrunnelseContext =
                 lagBegrunnelserForPeriodeContextForEøsTester(
                     sanityBegrunnelser = listOf(eøsBegrunnelse),
-                    kompetanser = listOf(Kompetanse(fom = jan(2020), tom = jan(2020), annenForeldersAktivitet = KompetanseAktivitet.ARBEIDER, resultat = KompetanseResultat.NORGE_ER_PRIMÆRLAND, barnetsBostedsland = "NO", barnAktører = setOf(barnAktør))),
+                    vedtaksperiodetype = Vedtaksperiodetype.OPPHØR,
+                    kompetanser = listOf(lagKompetanse(fom = jan(2020), tom = jan(2020), annenForeldersAktivitet = KompetanseAktivitet.ARBEIDER, resultat = KompetanseResultat.NORGE_ER_PRIMÆRLAND, barnetsBostedsland = "NO", barnAktører = setOf(barnAktør))),
                     vedtaksperiodeStartsTidpunkt = 1.feb(2020),
                     vedtaksperiodeSluttTidpunkt = 28.feb(2020),
                 )
@@ -568,8 +568,8 @@ class BegrunnelserForPeriodeContextTest {
                     sanityBegrunnelser = listOf(eøsBegrunnelse),
                     kompetanser =
                         listOf(
-                            Kompetanse(fom = jan(2020), tom = jan(2020), annenForeldersAktivitet = KompetanseAktivitet.ARBEIDER, resultat = KompetanseResultat.NORGE_ER_PRIMÆRLAND, barnetsBostedsland = "NO", barnAktører = setOf(barnAktør)),
-                            Kompetanse(fom = feb(2020), tom = feb(2020), annenForeldersAktivitet = KompetanseAktivitet.ARBEIDER, resultat = KompetanseResultat.NORGE_ER_SEKUNDÆRLAND, barnetsBostedsland = "NO", barnAktører = setOf(barnAktør)),
+                            lagKompetanse(fom = jan(2020), tom = jan(2020), annenForeldersAktivitet = KompetanseAktivitet.ARBEIDER, resultat = KompetanseResultat.NORGE_ER_PRIMÆRLAND, barnetsBostedsland = "NO", barnAktører = setOf(barnAktør)),
+                            lagKompetanse(fom = feb(2020), tom = feb(2020), annenForeldersAktivitet = KompetanseAktivitet.ARBEIDER, resultat = KompetanseResultat.NORGE_ER_SEKUNDÆRLAND, barnetsBostedsland = "NO", barnAktører = setOf(barnAktør)),
                         ),
                     vedtaksperiodeStartsTidpunkt = 1.feb(2020),
                     vedtaksperiodeSluttTidpunkt = 28.feb(2020),
@@ -698,13 +698,14 @@ class BegrunnelserForPeriodeContextTest {
         kompetanser: List<Kompetanse>,
         vedtaksperiodeStartsTidpunkt: LocalDate? = null,
         vedtaksperiodeSluttTidpunkt: LocalDate? = null,
+        vedtaksperiodetype: Vedtaksperiodetype = Vedtaksperiodetype.UTBETALING,
     ): BegrunnelserForPeriodeContext {
         val utvidetVedtaksperiodeMedBegrunnelser =
             UtvidetVedtaksperiodeMedBegrunnelser(
                 id = 0,
                 fom = vedtaksperiodeStartsTidpunkt,
                 tom = vedtaksperiodeSluttTidpunkt,
-                type = Vedtaksperiodetype.UTBETALING,
+                type = vedtaksperiodetype,
                 begrunnelser = emptyList(),
                 utbetalingsperiodeDetaljer =
                     listOf(
