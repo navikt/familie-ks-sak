@@ -1,14 +1,77 @@
 package no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode
 
+import no.nav.familie.ks.sak.api.dto.BarnMedOpplysningerDto
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.common.util.TIDENES_ENDE
 import no.nav.familie.ks.sak.common.util.TIDENES_MORGEN
 import no.nav.familie.ks.sak.common.util.erSammeEllerEtter
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.Vedtak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.VedtaksperiodeMedBegrunnelser
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.utbetalingsperiodeMedBegrunnelser.hentUtbetalingsperioder
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.beregning.AndelTilkjentYtelseMedEndreteUtbetalinger
+import no.nav.familie.ks.sak.kjerne.beregning.EndretUtbetalingAndelMedAndelerTilkjentYtelse
+import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.Kompetanse
+import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
 import java.time.LocalDate
+
+fun hentVedtaksperioder(
+    vedtak: Vedtak,
+    gjelderFortsattInnvilget: Boolean,
+    uregistrerteBarnFraSøknad: List<BarnMedOpplysningerDto>,
+    personopplysningGrunnlag: PersonopplysningGrunnlag,
+    vilkårsvurdering: Vilkårsvurdering,
+    andelerTilkjentYtelse: List<AndelTilkjentYtelseMedEndreteUtbetalinger>,
+    endredeUtbetalinger: List<EndretUtbetalingAndelMedAndelerTilkjentYtelse>,
+    kompetanser: List<Kompetanse>,
+    manueltOverstyrtEndringstidspunkt: LocalDate?,
+    sisteVedtatteBehandling: Behandling?,
+    personopplysningGrunnlagForrigeBehandling: PersonopplysningGrunnlag?,
+    andelerMedEndringerForrigeBehandling: List<AndelTilkjentYtelseMedEndreteUtbetalinger>,
+): List<VedtaksperiodeMedBegrunnelser> {
+    val opphørsperioder =
+        hentOpphørsperioder(
+            behandling = vedtak.behandling,
+            personopplysningGrunnlag = personopplysningGrunnlag,
+            andelerTilkjentYtelse = andelerTilkjentYtelse,
+            personopplysningGrunnlagForrigeBehandling = personopplysningGrunnlagForrigeBehandling,
+            forrigeAndelerMedEndringer = andelerMedEndringerForrigeBehandling,
+        ).map { it.tilVedtaksperiodeMedBegrunnelse(vedtak) }
+
+    val utbetalingsperioder =
+        hentUtbetalingsperioder(
+            vedtak = vedtak,
+            andelerTilkjentYtelse = andelerTilkjentYtelse,
+            vilkårsvurdering = vilkårsvurdering,
+            personopplysningGrunnlag = personopplysningGrunnlag,
+            kompetanser = kompetanser,
+        )
+
+    val avslagsperioder =
+        hentAvslagsperioderMedBegrunnelser(
+            vedtak = vedtak,
+            endredeUtbetalinger = endredeUtbetalinger,
+            vilkårsvurdering = vilkårsvurdering,
+            uregistrerteBarnFraSøknad = uregistrerteBarnFraSøknad,
+        )
+
+    val utbetalingsperioderUtenOverlappMedAvslagsperioder =
+        filtrerUtUtbetalingsperioderMedSammeDatoSomAvslagsperioder(
+            utbetalingsperioder,
+            avslagsperioder,
+        )
+
+    return filtrerUtPerioderBasertPåEndringstidspunkt(
+        vedtaksperioderMedBegrunnelser = (utbetalingsperioderUtenOverlappMedAvslagsperioder + opphørsperioder),
+        manueltOverstyrtEndringstidspunkt = manueltOverstyrtEndringstidspunkt,
+        gjelderFortsattInnvilget = gjelderFortsattInnvilget,
+        sisteVedtatteBehandling = sisteVedtatteBehandling,
+        andelerTilkjentYtelseForBehandling = andelerTilkjentYtelse,
+        andelerTilkjentYtelseForForrigeBehandling = andelerMedEndringerForrigeBehandling,
+    ) + avslagsperioder
+}
 
 fun validerVedtaksperiodeMedBegrunnelser(vedtaksperiodeMedBegrunnelser: VedtaksperiodeMedBegrunnelser) {
     if ((vedtaksperiodeMedBegrunnelser.type == Vedtaksperiodetype.OPPHØR || vedtaksperiodeMedBegrunnelser.type == Vedtaksperiodetype.AVSLAG) && vedtaksperiodeMedBegrunnelser.harFriteksterUtenStandardbegrunnelser()) {
