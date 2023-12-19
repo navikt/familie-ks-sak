@@ -213,6 +213,17 @@ class VedtaksperiodeService(
         val vilkårsvurdering = vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(behandlingId = vedtak.behandling.id)
 
         val sisteVedtatteBehandling = hentSisteBehandlingSomErVedtatt(vedtak.behandling.fagsak.id)
+        val endringstidspunkt = (
+            manueltOverstyrtEndringstidspunkt
+                ?: if (!gjelderFortsattInnvilget) {
+                    finnEndringstidspunktForBehandling(
+                        behandling = vedtak.behandling,
+                        sisteVedtattBehandling = sisteVedtatteBehandling,
+                    )
+                } else {
+                    TIDENES_MORGEN
+                }
+        )
 
         // ^ Henter data
         val opphørsperioder =
@@ -249,10 +260,7 @@ class VedtaksperiodeService(
 
         return filtrerUtPerioderBasertPåEndringstidspunkt(
             vedtaksperioderMedBegrunnelser = (utbetalingsperioderUtenOverlappMedAvslagsperioder + opphørsperioder),
-            behandling = vedtak.behandling,
-            gjelderFortsattInnvilget = gjelderFortsattInnvilget,
-            manueltOverstyrtEndringstidspunkt = manueltOverstyrtEndringstidspunkt,
-            sisteVedtattBehandling = sisteVedtatteBehandling,
+            endringstidspunkt = endringstidspunkt,
         ) + avslagsperioder
     }
 
@@ -269,22 +277,8 @@ class VedtaksperiodeService(
 
     fun filtrerUtPerioderBasertPåEndringstidspunkt(
         vedtaksperioderMedBegrunnelser: List<VedtaksperiodeMedBegrunnelser>,
-        behandling: Behandling,
-        gjelderFortsattInnvilget: Boolean = false,
-        manueltOverstyrtEndringstidspunkt: LocalDate? = null,
-        sisteVedtattBehandling: Behandling?,
+        endringstidspunkt: LocalDate,
     ): List<VedtaksperiodeMedBegrunnelser> {
-        val endringstidspunkt =
-            manueltOverstyrtEndringstidspunkt
-                ?: if (!gjelderFortsattInnvilget) {
-                    finnEndringstidspunktForBehandling(
-                        behandling = behandling,
-                        sisteVedtattBehandling = sisteVedtattBehandling,
-                    )
-                } else {
-                    TIDENES_MORGEN
-                }
-
         return vedtaksperioderMedBegrunnelser.filter {
             (it.tom ?: TIDENES_ENDE).erSammeEllerEtter(endringstidspunkt)
         }
