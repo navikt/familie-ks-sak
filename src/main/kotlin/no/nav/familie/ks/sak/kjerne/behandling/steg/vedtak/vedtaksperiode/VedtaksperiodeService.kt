@@ -193,7 +193,7 @@ class VedtaksperiodeService(
             andelerTilkjentYtelseOgEndreteUtbetalingerService.finnEndreteUtbetalingerMedAndelerTilkjentYtelse(
                 vedtak.behandling.id,
             )
-        val søknadGrunnlag = søknadGrunnlagService.hentAktiv(behandlingId = vedtak.behandling.id)
+        val uregistrerteBarnFraSøknad = søknadGrunnlagService.hentAktiv(behandlingId = vedtak.behandling.id).hentUregistrerteBarn()
 
         val andelerTilkjentYtelse =
             andelerTilkjentYtelseOgEndreteUtbetalingerService
@@ -235,8 +235,8 @@ class VedtaksperiodeService(
             hentAvslagsperioderMedBegrunnelser(
                 vedtak = vedtak,
                 endredeUtbetalinger = endredeUtbetalinger,
-                søknadGrunnlag = søknadGrunnlag,
                 vilkårsvurdering = vilkårsvurdering,
+                uregistrerteBarnFraSøknad = uregistrerteBarnFraSøknad,
             )
 
         val utbetalingsperioderUtenOverlappMedAvslagsperioder =

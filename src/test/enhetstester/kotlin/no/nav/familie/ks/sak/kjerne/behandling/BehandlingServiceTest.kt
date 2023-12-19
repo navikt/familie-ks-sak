@@ -15,7 +15,6 @@ import no.nav.familie.ks.sak.api.dto.EndreBehandlendeEnhetDto
 import no.nav.familie.ks.sak.api.dto.SøkerMedOpplysningerDto
 import no.nav.familie.ks.sak.api.dto.SøknadDto
 import no.nav.familie.ks.sak.api.mapper.SøknadGrunnlagMapper
-import no.nav.familie.ks.sak.common.util.TIDENES_MORGEN
 import no.nav.familie.ks.sak.data.lagAndelTilkjentYtelse
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagFagsak
@@ -160,17 +159,6 @@ class BehandlingServiceTest {
         every { vedtakRepository.findByBehandlingAndAktivOptional(any()) } returns Vedtak(behandling = behandling)
 
         every { vedtaksperiodeService.hentUtvidetVedtaksperioderMedBegrunnelser(any()) } returns emptyList()
-        every {
-            finnEndringstidspunktForBehandling(
-                sisteVedtatteBehandling = any(),
-                andelerTilkjentYtelseForBehandling =
-                    andelerTilkjentYtelseOgEndreteUtbetalingerService
-                        .finnAndelerTilkjentYtelseMedEndreteUtbetalinger(any()),
-                andelerTilkjentYtelseForForrigeBehandling =
-                    andelerTilkjentYtelseOgEndreteUtbetalingerService
-                        .finnAndelerTilkjentYtelseMedEndreteUtbetalinger(any()),
-            )
-        } returns TIDENES_MORGEN
 
         every { andelTilkjentYtelseRepository.finnAndelerTilkjentYtelseForBehandling(behandling.id) } returns
             listOf(

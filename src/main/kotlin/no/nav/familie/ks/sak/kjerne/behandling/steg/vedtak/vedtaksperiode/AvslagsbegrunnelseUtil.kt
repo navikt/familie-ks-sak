@@ -4,7 +4,6 @@ import no.nav.familie.ks.sak.api.dto.BarnMedOpplysningerDto
 import no.nav.familie.ks.sak.common.util.NullablePeriode
 import no.nav.familie.ks.sak.common.util.sisteDagIMåned
 import no.nav.familie.ks.sak.common.util.toLocalDate
-import no.nav.familie.ks.sak.kjerne.behandling.steg.registrersøknad.domene.SøknadGrunnlag
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.Vedtak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.Vedtaksbegrunnelse
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.VedtaksperiodeMedBegrunnelser
@@ -16,8 +15,8 @@ import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.Begrunnelse
 fun hentAvslagsperioderMedBegrunnelser(
     vedtak: Vedtak,
     endredeUtbetalinger: List<EndretUtbetalingAndelMedAndelerTilkjentYtelse>,
-    søknadGrunnlag: SøknadGrunnlag,
     vilkårsvurdering: Vilkårsvurdering,
+    uregistrerteBarnFraSøknad: List<BarnMedOpplysningerDto>,
 ): List<VedtaksperiodeMedBegrunnelser> {
     val behandling = vedtak.behandling
     val avslagsperioderFraVilkårsvurdering =
@@ -33,7 +32,7 @@ fun hentAvslagsperioderMedBegrunnelser(
 
     val uregistrerteBarn =
         if (behandling.erSøknad()) {
-            søknadGrunnlag.hentUregistrerteBarn()
+            uregistrerteBarnFraSøknad
         } else {
             emptyList()
         }
