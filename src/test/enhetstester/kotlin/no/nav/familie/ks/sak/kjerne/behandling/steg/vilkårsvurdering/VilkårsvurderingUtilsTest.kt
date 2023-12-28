@@ -18,6 +18,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vil
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
+import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.dødsfall.Dødsfall
 import org.junit.jupiter.api.Assertions.assertDoesNotThrow
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
@@ -326,8 +327,7 @@ class VilkårsvurderingUtilsTest {
                 )
             }
         assertEquals(
-            "Vilkår ${Vilkår.BOR_MED_SØKER} " +
-                "for barn med fødselsdato ${barnPerson.fødselsdato.tilDagMånedÅr()} mangler fom dato.",
+            "Vilkår ${Vilkår.BOR_MED_SØKER} " + "for barn med fødselsdato ${barnPerson.fødselsdato.tilDagMånedÅr()} mangler fom dato.",
             exception.message,
         )
     }
@@ -362,8 +362,7 @@ class VilkårsvurderingUtilsTest {
                 )
             }
         assertEquals(
-            "Vilkår ${Vilkår.BOR_MED_SØKER} for barn med fødselsdato ${barnPerson.fødselsdato.tilDagMånedÅr()}" +
-                " har fom dato før barnets fødselsdato.",
+            "Vilkår ${Vilkår.BOR_MED_SØKER} for barn med fødselsdato ${barnPerson.fødselsdato.tilDagMånedÅr()}" + " har fom dato før barnets fødselsdato.",
             exception.message,
         )
     }
@@ -555,6 +554,40 @@ class VilkårsvurderingUtilsTest {
         vilkårsvurdering.personResultater = setOf(personResultatForBarn)
 
         assertDoesNotThrow { validerAtDatoErKorrektIBarnasVilkår(vilkårsvurdering, barna = listOf(barnPerson)) }
+    }
+
+    @Test
+    fun `validerAtDatoErKorrektIBarnasVilkår skal ikke kaste feil dersom tom på barnetsalder vilkår er satt til barnets dødsfallsdato`() {
+        val dødsfallsdato = barnPerson.fødselsdato.plusYears(1).plusMonths(5)
+
+        val barnPersonMedDødsfallsdato =
+            barnPerson.apply {
+                dødsfall = Dødsfall(id = 1, person = this, dødsfallDato = dødsfallsdato, dødsfallAdresse = null, dødsfallPostnummer = null, dødsfallPoststed = null)
+            }
+
+        val personResultatForBarn = PersonResultat(vilkårsvurdering = vilkårsvurdering, aktør = barn1)
+        val vilkårResultaterForBarn =
+            setOf(
+                VilkårResultat(
+                    id = 0,
+                    personResultat = personResultatForBarn,
+                    vilkårType = Vilkår.BARNETS_ALDER,
+                    resultat = Resultat.OPPFYLT,
+                    periodeFom = barnPersonMedDødsfallsdato.fødselsdato.plusYears(1),
+                    periodeTom = dødsfallsdato,
+                    begrunnelse = "begrunnelse",
+                    behandlingId = behandling.id,
+                ),
+            )
+        personResultatForBarn.setSortedVilkårResultater(vilkårResultaterForBarn)
+        vilkårsvurdering.personResultater = setOf(personResultatForBarn)
+
+        assertDoesNotThrow {
+            validerAtDatoErKorrektIBarnasVilkår(
+                vilkårsvurdering,
+                barna = listOf(barnPersonMedDødsfallsdato),
+            )
+        }
     }
 
     @Test
