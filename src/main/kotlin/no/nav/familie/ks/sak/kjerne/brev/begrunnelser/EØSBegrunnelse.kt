@@ -235,6 +235,11 @@ enum class EØSBegrunnelse : IBegrunnelse {
         override val sanityApiNavn = "reduksjonSelvstendigRettBarnFlyttetFraSoker"
         override val begrunnelseType = BegrunnelseType.EØS_REDUKSJON
     },
+
+    FORTSATT_INNVILGET_EØS_STANDARD {
+        override val sanityApiNavn = "fortsattInnvilgetEosStandard"
+        override val begrunnelseType = BegrunnelseType.FORTSATT_INNVILGET
+    },
     ;
 
     override fun enumnavnTilString() = this.name
