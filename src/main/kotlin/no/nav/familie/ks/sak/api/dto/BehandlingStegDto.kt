@@ -44,7 +44,7 @@ data class SøkerMedOpplysningerDto(
 )
 
 data class BarnMedOpplysningerDto(
-    private val ident: String,
+    val ident: String,
     val navn: String = "",
     val fødselsdato: LocalDate? = null,
     val inkludertISøknaden: Boolean = true,
