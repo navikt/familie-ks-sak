@@ -233,6 +233,7 @@ class BegrunnelserForPeriodeContext(
     private fun IBegrunnelse.finnVilkårResultatIderSomPasserMedVedtaksperiodeDato() =
         when (this.begrunnelseType) {
             BegrunnelseType.REDUKSJON,
+            BegrunnelseType.EØS_REDUKSJON,
             BegrunnelseType.EØS_INNVILGET,
             BegrunnelseType.AVSLAG,
             BegrunnelseType.ENDRET_UTBETALING,
@@ -272,6 +273,7 @@ class BegrunnelserForPeriodeContext(
         erFørsteVedtaksperiodeOgBegrunnelseInneholderGjelderFørstePeriodeTrigger: Boolean,
     ) = when (standardBegrunnelse.begrunnelseType) {
         BegrunnelseType.REDUKSJON,
+        BegrunnelseType.EØS_REDUKSJON,
         BegrunnelseType.EØS_INNVILGET,
         BegrunnelseType.ENDRET_UTBETALING,
         BegrunnelseType.INNVILGET,

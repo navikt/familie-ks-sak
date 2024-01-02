@@ -2,6 +2,7 @@ package no.nav.familie.ks.sak.kjerne.brev.begrunnelser
 
 enum class BegrunnelseType(val sorteringsrekkefølge: Int) {
     REDUKSJON(1),
+    EØS_REDUKSJON(1),
     INNVILGET(2),
     EØS_INNVILGET(2),
     AVSLAG(3),
