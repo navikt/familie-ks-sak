@@ -44,6 +44,7 @@ import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.BegrunnelseType
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.BegrunnelserForPeriodeContext
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.EØSBegrunnelse
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.tilVedtaksbegrunnelse
+import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.KompetanseService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Målform
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
@@ -64,6 +65,7 @@ class VedtaksperiodeService(
     private val andelerTilkjentYtelseOgEndreteUtbetalingerService: AndelerTilkjentYtelseOgEndreteUtbetalingerService,
     private val integrasjonClient: IntegrasjonClient,
     private val refusjonEøsRepository: RefusjonEøsRepository,
+    private val kompetanseService: KompetanseService,
 ) {
     fun oppdaterVedtaksperiodeMedFritekster(
         vedtaksperiodeId: Long,
@@ -396,6 +398,8 @@ class VedtaksperiodeService(
             andelerTilkjentYtelseOgEndreteUtbetalingerService.finnAndelerTilkjentYtelseMedEndreteUtbetalinger(behandling.id)
                 .map { it.andel }
 
+        val kompetanser = kompetanseService.hentKompetanser(behandling.behandlingId)
+
         return utvidedeVedtaksperioderMedBegrunnelser
             .sortedBy { it.fom }
             .mapNotNull { utvidetVedtaksperiodeMedBegrunnelser ->
@@ -416,6 +420,7 @@ class VedtaksperiodeService(
                             personResultater = vilkårsvurdering.personResultater.toList(),
                             endretUtbetalingsandeler = endreteUtbetalinger,
                             erFørsteVedtaksperiode = erFørsteVedtaksperiodePåFagsak,
+                            kompetanser = kompetanser,
                         ).hentGyldigeBegrunnelserForVedtaksperiode(),
                 )
             }

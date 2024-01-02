@@ -44,6 +44,7 @@ import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.tilSanityBegrunnelse
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.brevperioder.BrevPeriodeDto
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.brevperioder.BrevPeriodeType
 import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.EndretUtbetalingAndel
+import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.Kompetanse
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
@@ -61,6 +62,7 @@ class BrevPeriodeContext(
     private val uregistrerteBarn: List<BarnMedOpplysningerDto>,
     private val barnSomDødeIForrigePeriode: List<Person>,
     private val erFørsteVedtaksperiode: Boolean,
+    private val kompetanser: List<Kompetanse>,
 ) {
     private val personerMedUtbetaling =
         utvidetVedtaksperiodeMedBegrunnelser.utbetalingsperiodeDetaljer.map { it.person }
@@ -276,6 +278,7 @@ class BrevPeriodeContext(
             personResultater = personResultater,
             endretUtbetalingsandeler = andelTilkjentYtelserMedEndreteUtbetalinger.flatMap { it.endreteUtbetalinger },
             erFørsteVedtaksperiode = erFørsteVedtaksperiode,
+            kompetanser = kompetanser,
         )
 
     fun hentBegrunnelseDtoer(): List<BegrunnelseDataDto> {

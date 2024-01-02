@@ -500,6 +500,7 @@ fun lagBrevPeriodeContext(
         uregistrerteBarn = emptyList(),
         barnSomDødeIForrigePeriode = emptyList(),
         erFørsteVedtaksperiode = false,
+        kompetanser = emptyList(),
     )
 }
 

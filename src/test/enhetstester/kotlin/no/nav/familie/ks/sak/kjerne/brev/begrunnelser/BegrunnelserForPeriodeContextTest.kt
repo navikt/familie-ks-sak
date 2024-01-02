@@ -720,6 +720,7 @@ class BegrunnelserForPeriodeContextTest {
             personResultater = personResultater,
             endretUtbetalingsandeler = emptyList(),
             erFørsteVedtaksperiode = false,
+            kompetanser = emptyList(),
         )
     }
 
