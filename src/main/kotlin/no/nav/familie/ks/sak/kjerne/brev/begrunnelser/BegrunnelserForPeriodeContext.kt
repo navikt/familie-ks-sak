@@ -133,7 +133,7 @@ class BegrunnelserForPeriodeContext(
             val utfyltKompetanse =
                 if (begrunnelse.begrunnelseType == BegrunnelseType.EØS_OPPHØR) {
                     kompetanseSomBleAvsluttetIForrigePeriodePåBarn
-                        ?.takeIf { kompetanseSomOverlapperMedVedtaksperioderPåBarn != null }
+                        ?.takeIf { kompetanseSomOverlapperMedVedtaksperioderPåBarn == null }
                 } else {
                     kompetanseSomOverlapperMedVedtaksperioderPåBarn
                 }
