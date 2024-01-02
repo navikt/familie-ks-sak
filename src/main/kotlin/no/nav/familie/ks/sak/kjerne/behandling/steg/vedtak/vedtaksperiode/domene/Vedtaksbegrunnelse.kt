@@ -12,12 +12,12 @@ import jakarta.persistence.JoinColumn
 import jakarta.persistence.ManyToOne
 import jakarta.persistence.SequenceGenerator
 import jakarta.persistence.Table
-import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.Begrunnelse
+import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.NasjonalEllerFellesBegrunnelse
 
 @Entity(name = "Vedtaksbegrunnelse")
 @Table(name = "VEDTAKSBEGRUNNELSE")
 class Vedtaksbegrunnelse(
-    @Id
+        @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "vedtaksbegrunnelse_seq_generator")
     @SequenceGenerator(
         name = "vedtaksbegrunnelse_seq_generator",
@@ -25,19 +25,19 @@ class Vedtaksbegrunnelse(
         allocationSize = 50,
     )
     val id: Long = 0,
-    @JsonIgnore
+        @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "fk_vedtaksperiode_id", nullable = false, updatable = false)
     val vedtaksperiodeMedBegrunnelser: VedtaksperiodeMedBegrunnelser,
-    @Enumerated(EnumType.STRING)
+        @Enumerated(EnumType.STRING)
     @Column(name = "vedtak_begrunnelse_spesifikasjon", updatable = false)
-    val begrunnelse: Begrunnelse,
+    val nasjonalEllerFellesBegrunnelse: NasjonalEllerFellesBegrunnelse,
 ) {
     fun kopier(vedtaksperiodeMedBegrunnelser: VedtaksperiodeMedBegrunnelser): Vedtaksbegrunnelse =
         Vedtaksbegrunnelse(
             vedtaksperiodeMedBegrunnelser = vedtaksperiodeMedBegrunnelser,
-            begrunnelse = this.begrunnelse,
+            nasjonalEllerFellesBegrunnelse = this.nasjonalEllerFellesBegrunnelse,
         )
 
-    override fun toString(): String = "Vedtaksbegrunnelse(id=$id, standardbegrunnelse=$begrunnelse)"
+    override fun toString(): String = "Vedtaksbegrunnelse(id=$id, standardbegrunnelse=$nasjonalEllerFellesBegrunnelse)"
 }

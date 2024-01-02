@@ -39,7 +39,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vil
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.forskyvVilkårResultater
 import no.nav.familie.ks.sak.kjerne.beregning.AndelTilkjentYtelseMedEndreteUtbetalinger
 import no.nav.familie.ks.sak.kjerne.beregning.AndelerTilkjentYtelseOgEndreteUtbetalingerService
-import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.Begrunnelse
+import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.NasjonalEllerFellesBegrunnelse
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.BegrunnelseType
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.BegrunnelserForPeriodeContext
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.EØSBegrunnelse
@@ -89,9 +89,9 @@ class VedtaksperiodeService(
     }
 
     fun oppdaterVedtaksperiodeMedBegrunnelser(
-        vedtaksperiodeId: Long,
-        begrunnelserFraFrontend: List<Begrunnelse>,
-        eøsBegrunnelserFraFrontend: List<EØSBegrunnelse> = emptyList(),
+            vedtaksperiodeId: Long,
+            begrunnelserFraFrontend: List<NasjonalEllerFellesBegrunnelse>,
+            eøsBegrunnelserFraFrontend: List<EØSBegrunnelse> = emptyList(),
     ): Vedtak {
         val vedtaksperiodeMedBegrunnelser =
             vedtaksperiodeHentOgPersisterService.hentVedtaksperiodeThrows(vedtaksperiodeId)
@@ -601,9 +601,9 @@ class VedtaksperiodeService(
     }
 
     private fun lagVedtaksPeriodeMedBegrunnelser(
-        vedtak: Vedtak,
-        periode: NullablePeriode,
-        avslagsbegrunnelser: List<Begrunnelse>,
+            vedtak: Vedtak,
+            periode: NullablePeriode,
+            avslagsbegrunnelser: List<NasjonalEllerFellesBegrunnelse>,
     ): VedtaksperiodeMedBegrunnelser =
         VedtaksperiodeMedBegrunnelser(
             vedtak = vedtak,
@@ -615,7 +615,7 @@ class VedtaksperiodeService(
                 avslagsbegrunnelser.map { begrunnelse ->
                     Vedtaksbegrunnelse(
                         vedtaksperiodeMedBegrunnelser = this,
-                        begrunnelse = begrunnelse,
+                        nasjonalEllerFellesBegrunnelse = begrunnelse,
                     )
                 },
             )
@@ -645,7 +645,7 @@ class VedtaksperiodeService(
                     begrunnelser.add(
                         Vedtaksbegrunnelse(
                             vedtaksperiodeMedBegrunnelser = this,
-                            begrunnelse = Begrunnelse.AVSLAG_UREGISTRERT_BARN,
+                            nasjonalEllerFellesBegrunnelse = NasjonalEllerFellesBegrunnelse.AVSLAG_UREGISTRERT_BARN,
                         ),
                     )
                 }

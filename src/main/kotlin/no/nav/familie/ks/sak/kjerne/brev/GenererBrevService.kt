@@ -282,7 +282,7 @@ class GenererBrevService(
             målform = målform,
             sanitybegrunnelserBruktIBrev =
                 utvidetVedtaksperioderMedBegrunnelser.flatMap { it.begrunnelser }
-                    .mapNotNull { it.begrunnelse.tilSanityBegrunnelse(sanityBegrunnelser) },
+                    .mapNotNull { it.nasjonalEllerFellesBegrunnelse.tilSanityBegrunnelse(sanityBegrunnelser) },
             vedtakKorrigertHjemmelSkalMedIBrev = vedtakKorrigertHjemmelSkalMedIBrev,
         )
     }

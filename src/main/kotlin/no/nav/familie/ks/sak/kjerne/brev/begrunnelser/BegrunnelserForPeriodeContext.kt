@@ -53,7 +53,7 @@ class BegrunnelserForPeriodeContext(
 
     fun hentGyldigeBegrunnelserForVedtaksperiode(): List<IBegrunnelse> {
         val tillateBegrunnelserForVedtakstype =
-            (Begrunnelse.entries + EØSBegrunnelse.entries)
+            (NasjonalEllerFellesBegrunnelse.entries + EØSBegrunnelse.entries)
                 .filter {
                     utvidetVedtaksperiodeMedBegrunnelser
                         .type

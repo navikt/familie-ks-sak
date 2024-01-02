@@ -13,7 +13,7 @@ import org.junit.jupiter.api.Test
 import java.time.LocalDate
 import java.time.YearMonth
 
-internal class BegrunnelseUtilsKtTest {
+internal class NasjonalEllerFellesBegrunnelseUtilsKtTest {
     @Test
     fun `dødeBarnForrigePeriode() skal returnere barn som døde i forrige periode og som er tilknyttet ytelsen`() {
         val behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD)

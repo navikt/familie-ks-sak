@@ -28,7 +28,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vil
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.beregning.AndelTilkjentYtelseMedEndreteUtbetalinger
 import no.nav.familie.ks.sak.kjerne.beregning.TilkjentYtelseUtils
-import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.Begrunnelse
+import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.NasjonalEllerFellesBegrunnelse
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.BegrunnelseDataDto
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.BegrunnelseType
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.brevperioder.BrevPeriodeType
@@ -65,7 +65,7 @@ class BrevPeriodeContextTest {
         val brevPeriodeDto =
             lagBrevPeriodeContext(
                 personerIBehandling = personerIbehandling,
-                begrunnelser = listOf(Begrunnelse.INNVILGET_IKKE_BARNEHAGE),
+                begrunnelser = listOf(NasjonalEllerFellesBegrunnelse.INNVILGET_IKKE_BARNEHAGE),
                 vedtaksperiodeType = Vedtaksperiodetype.UTBETALING,
                 skalOppretteEndretUtbetalingAndeler = false,
             ).genererBrevPeriodeDto()
@@ -143,7 +143,7 @@ class BrevPeriodeContextTest {
         val brevPeriodeDto =
             lagBrevPeriodeContext(
                 personerIBehandling = personerIbehandling,
-                begrunnelser = listOf(Begrunnelse.INNVILGET_DELTID_BARNEHAGE),
+                begrunnelser = listOf(NasjonalEllerFellesBegrunnelse.INNVILGET_DELTID_BARNEHAGE),
                 vedtaksperiodeType = Vedtaksperiodetype.UTBETALING,
                 skalOppretteEndretUtbetalingAndeler = false,
             ).genererBrevPeriodeDto()
@@ -202,7 +202,7 @@ class BrevPeriodeContextTest {
         val brevPeriodeDto =
             lagBrevPeriodeContext(
                 personerIBehandling = personerIbehandling,
-                begrunnelser = listOf(Begrunnelse.INNVILGET_DELTID_BARNEHAGE_ADOPSJON),
+                begrunnelser = listOf(NasjonalEllerFellesBegrunnelse.INNVILGET_DELTID_BARNEHAGE_ADOPSJON),
                 vedtaksperiodeType = Vedtaksperiodetype.UTBETALING,
                 skalOppretteEndretUtbetalingAndeler = false,
             ).genererBrevPeriodeDto()
@@ -255,7 +255,7 @@ class BrevPeriodeContextTest {
         val brevPeriodeDto =
             lagBrevPeriodeContext(
                 personerIBehandling = personerIbehandling,
-                begrunnelser = listOf(Begrunnelse.INNVILGET_IKKE_BARNEHAGE_ADOPSJON),
+                begrunnelser = listOf(NasjonalEllerFellesBegrunnelse.INNVILGET_IKKE_BARNEHAGE_ADOPSJON),
                 vedtaksperiodeType = Vedtaksperiodetype.UTBETALING,
                 skalOppretteEndretUtbetalingAndeler = false,
             ).genererBrevPeriodeDto()
@@ -315,7 +315,7 @@ class BrevPeriodeContextTest {
         val brevPeriodeDto =
             lagBrevPeriodeContext(
                 personerIBehandling = personerIbehandling,
-                begrunnelser = listOf(Begrunnelse.INNVILGET_IKKE_BARNEHAGE_ADOPSJON),
+                begrunnelser = listOf(NasjonalEllerFellesBegrunnelse.INNVILGET_IKKE_BARNEHAGE_ADOPSJON),
                 vedtaksperiodeType = Vedtaksperiodetype.UTBETALING,
                 skalOppretteEndretUtbetalingAndeler = true,
             ).genererBrevPeriodeDto()
@@ -323,7 +323,7 @@ class BrevPeriodeContextTest {
         Assertions.assertEquals(
             BegrunnelseDataDto(
                 vedtakBegrunnelseType = BegrunnelseType.INNVILGET,
-                apiNavn = Begrunnelse.INNVILGET_IKKE_BARNEHAGE_ADOPSJON.sanityApiNavn,
+                apiNavn = NasjonalEllerFellesBegrunnelse.INNVILGET_IKKE_BARNEHAGE_ADOPSJON.sanityApiNavn,
                 sanityBegrunnelseType = SanityBegrunnelseType.STANDARD,
                 gjelderSoker = false,
                 gjelderAndreForelder = true,
@@ -375,7 +375,7 @@ class BrevPeriodeContextTest {
         val brevPeriodeDto =
             lagBrevPeriodeContext(
                 personerIBehandling = personerIbehandling,
-                begrunnelser = listOf(Begrunnelse.INNVILGET_IKKE_BARNEHAGE_ADOPSJON),
+                begrunnelser = listOf(NasjonalEllerFellesBegrunnelse.INNVILGET_IKKE_BARNEHAGE_ADOPSJON),
                 vedtaksperiodeType = Vedtaksperiodetype.UTBETALING,
                 skalOppretteEndretUtbetalingAndeler = true,
             ).genererBrevPeriodeDto()
@@ -383,7 +383,7 @@ class BrevPeriodeContextTest {
         Assertions.assertEquals(
             BegrunnelseDataDto(
                 vedtakBegrunnelseType = BegrunnelseType.INNVILGET,
-                apiNavn = Begrunnelse.INNVILGET_IKKE_BARNEHAGE_ADOPSJON.sanityApiNavn,
+                apiNavn = NasjonalEllerFellesBegrunnelse.INNVILGET_IKKE_BARNEHAGE_ADOPSJON.sanityApiNavn,
                 sanityBegrunnelseType = SanityBegrunnelseType.STANDARD,
                 gjelderSoker = false,
                 gjelderAndreForelder = false,
@@ -415,10 +415,10 @@ data class PersonIBehandling(
  * samtidig med den første andelen tilkjent ytelsen.
  */
 fun lagBrevPeriodeContext(
-    personerIBehandling: List<PersonIBehandling>,
-    begrunnelser: List<Begrunnelse>,
-    vedtaksperiodeType: Vedtaksperiodetype,
-    skalOppretteEndretUtbetalingAndeler: Boolean = false,
+        personerIBehandling: List<PersonIBehandling>,
+        begrunnelser: List<NasjonalEllerFellesBegrunnelse>,
+        vedtaksperiodeType: Vedtaksperiodetype,
+        skalOppretteEndretUtbetalingAndeler: Boolean = false,
 ): BrevPeriodeContext {
     val barnIBehandling = personerIBehandling.filter { it.personType == PersonType.BARN }
 

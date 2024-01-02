@@ -61,8 +61,8 @@ data class VedtaksbegrunnelseDto(
 
 fun Vedtaksbegrunnelse.tilVedtaksbegrunnelseDto(sanityBegrunnelser: List<SanityBegrunnelse>) =
     VedtaksbegrunnelseDto(
-        begrunnelse = this.begrunnelse.enumnavnTilString(),
-        begrunnelseType = this.begrunnelse.begrunnelseType,
-        støtterFritekst = this.begrunnelse.støtterFritekst(sanityBegrunnelser),
-        vedtakBegrunnelseSpesifikasjon = this.begrunnelse.enumnavnTilString(),
+        begrunnelse = this.nasjonalEllerFellesBegrunnelse.enumnavnTilString(),
+        begrunnelseType = this.nasjonalEllerFellesBegrunnelse.begrunnelseType,
+        støtterFritekst = this.nasjonalEllerFellesBegrunnelse.støtterFritekst(sanityBegrunnelser),
+        vedtakBegrunnelseSpesifikasjon = this.nasjonalEllerFellesBegrunnelse.enumnavnTilString(),
     )

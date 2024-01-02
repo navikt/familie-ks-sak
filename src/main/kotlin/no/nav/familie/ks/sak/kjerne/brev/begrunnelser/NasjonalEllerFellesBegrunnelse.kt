@@ -13,7 +13,7 @@ interface IBegrunnelse {
     fun enumnavnTilString(): String
 }
 
-enum class Begrunnelse : IBegrunnelse {
+enum class NasjonalEllerFellesBegrunnelse : IBegrunnelse {
     INNVILGET_IKKE_BARNEHAGE {
         override val sanityApiNavn = "innvilgetIkkeBarnehage"
         override val begrunnelseType = BegrunnelseType.INNVILGET
@@ -546,18 +546,18 @@ enum class Begrunnelse : IBegrunnelse {
     override fun enumnavnTilString() = this.name
 }
 
-fun Begrunnelse.støtterFritekst(sanityBegrunnelser: List<SanityBegrunnelse>) =
+fun NasjonalEllerFellesBegrunnelse.støtterFritekst(sanityBegrunnelser: List<SanityBegrunnelse>) =
     sanityBegrunnelser.first { it.apiNavn == this.sanityApiNavn }.støtterFritekst
 
 @Converter
 class StandardbegrunnelseListConverter :
-    AttributeConverter<List<Begrunnelse>, String> {
-    override fun convertToDatabaseColumn(begrunnelser: List<Begrunnelse>) = konverterEnumsTilString(begrunnelser)
+    AttributeConverter<List<NasjonalEllerFellesBegrunnelse>, String> {
+    override fun convertToDatabaseColumn(begrunnelser: List<NasjonalEllerFellesBegrunnelse>) = konverterEnumsTilString(begrunnelser)
 
-    override fun convertToEntityAttribute(string: String?): List<Begrunnelse> = konverterStringTilEnums(string)
+    override fun convertToEntityAttribute(string: String?): List<NasjonalEllerFellesBegrunnelse> = konverterStringTilEnums(string)
 }
 
-val endretUtbetalingsperiodeBegrunnelser: List<Begrunnelse> =
+val endretUtbetalingsperiodeBegrunnelser: List<NasjonalEllerFellesBegrunnelse> =
     listOf(
         // TODO: Legg til begrunnelser
     )

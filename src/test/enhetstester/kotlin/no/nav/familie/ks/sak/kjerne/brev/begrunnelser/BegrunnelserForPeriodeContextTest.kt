@@ -92,7 +92,7 @@ class BegrunnelserForPeriodeContextTest {
             ).hentGyldigeBegrunnelserForVedtaksperiode()
 
         assertEquals(1, begrunnelser.size)
-        assertEquals(Begrunnelse.INNVILGET_IKKE_BARNEHAGE, begrunnelser.first())
+        assertEquals(NasjonalEllerFellesBegrunnelse.INNVILGET_IKKE_BARNEHAGE, begrunnelser.first())
     }
 
     @Test
@@ -148,7 +148,7 @@ class BegrunnelserForPeriodeContextTest {
             ).hentGyldigeBegrunnelserForVedtaksperiode()
 
         assertEquals(1, begrunnelser.size)
-        assertEquals(Begrunnelse.INNVILGET_IKKE_BARNEHAGE_ADOPSJON, begrunnelser.first())
+        assertEquals(NasjonalEllerFellesBegrunnelse.INNVILGET_IKKE_BARNEHAGE_ADOPSJON, begrunnelser.first())
     }
 
     @Test
@@ -204,7 +204,7 @@ class BegrunnelserForPeriodeContextTest {
             ).hentGyldigeBegrunnelserForVedtaksperiode()
 
         assertEquals(1, begrunnelser.size)
-        assertEquals(Begrunnelse.INNVILGET_DELTID_BARNEHAGE, begrunnelser.first())
+        assertEquals(NasjonalEllerFellesBegrunnelse.INNVILGET_DELTID_BARNEHAGE, begrunnelser.first())
     }
 
     @Test
@@ -265,14 +265,14 @@ class BegrunnelserForPeriodeContextTest {
             ).hentGyldigeBegrunnelserForVedtaksperiode()
 
         assertEquals(1, begrunnelser.size)
-        assertEquals(Begrunnelse.INNVILGET_DELTID_BARNEHAGE_ADOPSJON, begrunnelser.first())
+        assertEquals(NasjonalEllerFellesBegrunnelse.INNVILGET_DELTID_BARNEHAGE_ADOPSJON, begrunnelser.first())
     }
 
     @Test
     fun `hentGyldigeBegrunnelserForVedtaksperiode - skal returnere 1 begrunnelse av type Standard i tillegg til INNVILGET_BOSATT_I_NORGE når vilkåret BOSATT_I_RIKET trigger vedtaksperioden`() {
-        val barn1årSanityBegrunnelse =
+        val barn1ÅrSanityNasjonalEllerFellesBegrunnelse =
             SanityBegrunnelse(
-                apiNavn = Begrunnelse.INNVILGET_BOSATT_I_NORGE.sanityApiNavn,
+                apiNavn = NasjonalEllerFellesBegrunnelse.INNVILGET_BOSATT_I_NORGE.sanityApiNavn,
                 navnISystem = "Barn 1 år",
                 type = SanityBegrunnelseType.TILLEGGSTEKST,
                 vilkår = listOf(Vilkår.BARNETS_ALDER),
@@ -329,7 +329,7 @@ class BegrunnelserForPeriodeContextTest {
         val begrunnelser =
             lagFinnGyldigeBegrunnelserForPeriodeContext(
                 personResultater,
-                lagSanitybegrunnelser() + barn1årSanityBegrunnelse,
+                lagSanitybegrunnelser() + barn1ÅrSanityNasjonalEllerFellesBegrunnelse,
                 barnAktør,
             ).hentGyldigeBegrunnelserForVedtaksperiode()
 
@@ -337,8 +337,8 @@ class BegrunnelserForPeriodeContextTest {
         assertThat(
             begrunnelser,
             containsInAnyOrder(
-                Begrunnelse.INNVILGET_BOSATT_I_NORGE,
-                Begrunnelse.INNVILGET_IKKE_BARNEHAGE,
+                NasjonalEllerFellesBegrunnelse.INNVILGET_BOSATT_I_NORGE,
+                NasjonalEllerFellesBegrunnelse.INNVILGET_IKKE_BARNEHAGE,
             ),
         )
     }
@@ -348,7 +348,7 @@ class BegrunnelserForPeriodeContextTest {
         val bosattIRiketBegrunnelser =
             listOf(
                 SanityBegrunnelse(
-                    apiNavn = Begrunnelse.INNVILGET_BOR_FAST_HOS_SØKER.sanityApiNavn,
+                    apiNavn = NasjonalEllerFellesBegrunnelse.INNVILGET_BOR_FAST_HOS_SØKER.sanityApiNavn,
                     navnISystem = "Søker og eller barn bosatt i riket",
                     type = SanityBegrunnelseType.TILLEGGSTEKST,
                     vilkår = listOf(Vilkår.BOSATT_I_RIKET),
@@ -413,8 +413,8 @@ class BegrunnelserForPeriodeContextTest {
         assertThat(
             begrunnelser,
             containsInAnyOrder(
-                Begrunnelse.INNVILGET_IKKE_BARNEHAGE,
-                Begrunnelse.INNVILGET_BOR_FAST_HOS_SØKER,
+                NasjonalEllerFellesBegrunnelse.INNVILGET_IKKE_BARNEHAGE,
+                NasjonalEllerFellesBegrunnelse.INNVILGET_BOR_FAST_HOS_SØKER,
             ),
         )
     }
@@ -625,7 +625,7 @@ class BegrunnelserForPeriodeContextTest {
     private fun lagSanitybegrunnelser(): List<SanityBegrunnelse> =
         listOf(
             SanityBegrunnelse(
-                apiNavn = Begrunnelse.INNVILGET_IKKE_BARNEHAGE.sanityApiNavn,
+                apiNavn = NasjonalEllerFellesBegrunnelse.INNVILGET_IKKE_BARNEHAGE.sanityApiNavn,
                 navnISystem = "Ikke barnehage",
                 type = SanityBegrunnelseType.STANDARD,
                 vilkår = listOf(Vilkår.BARNEHAGEPLASS, Vilkår.BARNETS_ALDER),
@@ -639,7 +639,7 @@ class BegrunnelserForPeriodeContextTest {
                 skalAlltidVises = false,
             ),
             SanityBegrunnelse(
-                apiNavn = Begrunnelse.INNVILGET_IKKE_BARNEHAGE_ADOPSJON.sanityApiNavn,
+                apiNavn = NasjonalEllerFellesBegrunnelse.INNVILGET_IKKE_BARNEHAGE_ADOPSJON.sanityApiNavn,
                 navnISystem = "Ikke barnehage - adopsjon",
                 type = SanityBegrunnelseType.STANDARD,
                 vilkår = listOf(Vilkår.BARNEHAGEPLASS, Vilkår.BARNETS_ALDER),
@@ -653,7 +653,7 @@ class BegrunnelserForPeriodeContextTest {
                 skalAlltidVises = false,
             ),
             SanityBegrunnelse(
-                apiNavn = Begrunnelse.INNVILGET_DELTID_BARNEHAGE.sanityApiNavn,
+                apiNavn = NasjonalEllerFellesBegrunnelse.INNVILGET_DELTID_BARNEHAGE.sanityApiNavn,
                 navnISystem = "Deltid barnehage",
                 type = SanityBegrunnelseType.STANDARD,
                 vilkår = listOf(Vilkår.BARNEHAGEPLASS, Vilkår.BARNETS_ALDER),
@@ -667,7 +667,7 @@ class BegrunnelserForPeriodeContextTest {
                 skalAlltidVises = false,
             ),
             SanityBegrunnelse(
-                apiNavn = Begrunnelse.INNVILGET_DELTID_BARNEHAGE_ADOPSJON.sanityApiNavn,
+                apiNavn = NasjonalEllerFellesBegrunnelse.INNVILGET_DELTID_BARNEHAGE_ADOPSJON.sanityApiNavn,
                 navnISystem = "Deltid barnehage - adopsjon",
                 type = SanityBegrunnelseType.STANDARD,
                 vilkår = listOf(Vilkår.BARNEHAGEPLASS, Vilkår.BARNETS_ALDER),

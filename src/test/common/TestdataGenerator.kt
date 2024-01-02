@@ -57,7 +57,7 @@ import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.domene.TilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.domene.YtelseType
 import no.nav.familie.ks.sak.kjerne.beregning.domene.maksBeløp
-import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.Begrunnelse
+import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.NasjonalEllerFellesBegrunnelse
 import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.EndretUtbetalingAndel
 import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.Årsak
 import no.nav.familie.ks.sak.kjerne.eøs.differanseberegning.domene.Intervall
@@ -623,12 +623,12 @@ fun lagEndretUtbetalingAndel(
     )
 
 fun lagVedtaksbegrunnelse(
-    begrunnelse: Begrunnelse =
-        Begrunnelse.INNVILGET_IKKE_BARNEHAGE,
-    vedtaksperiodeMedBegrunnelser: VedtaksperiodeMedBegrunnelser = mockk(),
+        nasjonalEllerFellesBegrunnelse: NasjonalEllerFellesBegrunnelse =
+        NasjonalEllerFellesBegrunnelse.INNVILGET_IKKE_BARNEHAGE,
+        vedtaksperiodeMedBegrunnelser: VedtaksperiodeMedBegrunnelser = mockk(),
 ) = Vedtaksbegrunnelse(
     vedtaksperiodeMedBegrunnelser = vedtaksperiodeMedBegrunnelser,
-    begrunnelse = begrunnelse,
+    nasjonalEllerFellesBegrunnelse = nasjonalEllerFellesBegrunnelse,
 )
 
 fun lagVedtaksperiodeMedBegrunnelser(

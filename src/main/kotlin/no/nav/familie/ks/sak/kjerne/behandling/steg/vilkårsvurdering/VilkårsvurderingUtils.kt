@@ -30,7 +30,7 @@ import java.time.LocalDate
 import java.time.Month
 
 fun standardbegrunnelserTilNedtrekksmenytekster(sanityBegrunnelser: List<SanityBegrunnelse>): Map<BegrunnelseType, List<VedtakBegrunnelseTilknyttetVilkårResponseDto>> {
-    return (Begrunnelse.entries + EØSBegrunnelse.entries)
+    return (NasjonalEllerFellesBegrunnelse.entries + EØSBegrunnelse.entries)
         .groupBy { it.begrunnelseType }
         .mapValues { begrunnelseGruppe ->
             begrunnelseGruppe.value
