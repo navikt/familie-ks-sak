@@ -16,7 +16,7 @@ import no.nav.familie.ks.sak.kjerne.brev.domene.maler.flettefelt
 
 data class FortsattInnvilget(
     override val mal: Brevmal,
-    override val data: ForsattInnvilgetData,
+    override val data: FortsattInnvilgetData,
 ) : VedtaksbrevDto {
     constructor(
         mal: Brevmal = Brevmal.VEDTAK_FORTSATT_INNVILGET,
@@ -31,9 +31,9 @@ data class FortsattInnvilget(
         this(
             mal = mal,
             data =
-                ForsattInnvilgetData(
+                FortsattInnvilgetData(
                     delmalData =
-                        ForsattInnvilgetData.Delmaler(
+                        FortsattInnvilgetData.Delmaler(
                             signaturVedtak =
                                 SignaturVedtak(
                                     enhet = fellesdataForVedtaksbrev.enhet,
@@ -60,7 +60,7 @@ data class FortsattInnvilget(
         )
 }
 
-data class ForsattInnvilgetData(
+data class FortsattInnvilgetData(
     override val delmalData: Delmaler,
     override val flettefelter: FlettefelterForDokumentDtoImpl,
     override val perioder: List<BrevPeriodeDto>,
