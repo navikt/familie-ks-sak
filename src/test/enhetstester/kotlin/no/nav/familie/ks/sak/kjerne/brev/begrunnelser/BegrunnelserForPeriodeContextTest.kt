@@ -609,9 +609,9 @@ class BegrunnelserForPeriodeContextTest {
                     sanityBegrunnelser = listOf(eøsBegrunnelse),
                     vedtaksperiodetype = Vedtaksperiodetype.UTBETALING,
                     kompetanser =
-                    listOf(
-                        lagKompetanse(fom = jan(2020), tom = feb(2020), annenForeldersAktivitet = KompetanseAktivitet.ARBEIDER, resultat = KompetanseResultat.NORGE_ER_PRIMÆRLAND, barnetsBostedsland = "NO", barnAktører = setOf(barnAktør)),
-                    ),
+                        listOf(
+                            lagKompetanse(fom = jan(2020), tom = feb(2020), annenForeldersAktivitet = KompetanseAktivitet.ARBEIDER, resultat = KompetanseResultat.NORGE_ER_PRIMÆRLAND, barnetsBostedsland = "NO", barnAktører = setOf(barnAktør)),
+                        ),
                     vedtaksperiodeStartsTidpunkt = 1.feb(2020),
                     vedtaksperiodeSluttTidpunkt = 28.feb(2020),
                 )
@@ -620,8 +620,6 @@ class BegrunnelserForPeriodeContextTest {
 
             assertThat(begrunnelser.size).isEqualTo(1)
         }
-
-        // Tilleggstekster skal komme uavhengig av endring (OK)
     }
 
     private fun lagSanitybegrunnelser(): List<SanityBegrunnelse> =
