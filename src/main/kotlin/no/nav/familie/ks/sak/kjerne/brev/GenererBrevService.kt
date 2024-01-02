@@ -37,7 +37,7 @@ import no.nav.familie.ks.sak.kjerne.brev.domene.maler.Hjemmeltekst
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.KorrigertVedtakData
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.SignaturVedtak
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.vedtaksbrev.Avslag
-import no.nav.familie.ks.sak.kjerne.brev.domene.maler.vedtaksbrev.ForsattInnvilget
+import no.nav.familie.ks.sak.kjerne.brev.domene.maler.vedtaksbrev.FortsattInnvilget
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.vedtaksbrev.Førstegangsvedtak
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.vedtaksbrev.OpphørMedEndring
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.vedtaksbrev.Opphørt
@@ -175,7 +175,7 @@ class GenererBrevService(
                 )
 
             Brevmal.VEDTAK_FORTSATT_INNVILGET ->
-                ForsattInnvilget(
+                FortsattInnvilget(
                     fellesdataForVedtaksbrev = fellesdataForVedtaksbrev,
                     etterbetaling = etterbetaling,
                     informasjonOmAarligKontroll = vedtaksperiodeService.skalHaÅrligKontroll(vedtak),

@@ -15,7 +15,7 @@ import no.nav.familie.ks.sak.kjerne.brev.domene.maler.brevperioder.BrevPeriodeDt
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.flettefelt
 
 
-data class ForsattInnvilget(
+data class FortsattInnvilget(
     override val mal: Brevmal,
     override val data: ForsattInnvilgetData,
 ) : VedtaksbrevDto {
