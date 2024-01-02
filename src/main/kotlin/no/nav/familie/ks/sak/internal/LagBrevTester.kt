@@ -402,9 +402,9 @@ fun hentBrevBegrunnelseTekster(
         | $it | STANDARD |               |                      |             |                                      |         |       |                  |                         |                               |"""
             }
     }
-}*/
+}
 
-/*fun hentEØSBrevBegrunnelseTekster(
+fun hentEØSBrevBegrunnelseTekster(
     behandlingId: Long?,
     vedtaksperioder: List<VedtaksperiodeMedBegrunnelser>,
 ): String {
