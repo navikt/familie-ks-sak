@@ -14,7 +14,6 @@ import no.nav.familie.ks.sak.kjerne.brev.domene.maler.SignaturVedtak
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.brevperioder.BrevPeriodeDto
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.flettefelt
 
-
 data class FortsattInnvilget(
     override val mal: Brevmal,
     override val data: ForsattInnvilgetData,
@@ -29,36 +28,36 @@ data class FortsattInnvilget(
         duMåMeldeFraOmEndringer: Boolean = true,
         duMåMeldeFraOmEndringerEøsSelvstendigRett: Boolean = false,
     ) :
-            this(
-                mal = mal,
-                data =
+        this(
+            mal = mal,
+            data =
                 ForsattInnvilgetData(
                     delmalData =
-                    ForsattInnvilgetData.Delmaler(
-                        signaturVedtak =
-                        SignaturVedtak(
-                            enhet = fellesdataForVedtaksbrev.enhet,
-                            saksbehandler = fellesdataForVedtaksbrev.saksbehandler,
-                            beslutter = fellesdataForVedtaksbrev.beslutter,
+                        ForsattInnvilgetData.Delmaler(
+                            signaturVedtak =
+                                SignaturVedtak(
+                                    enhet = fellesdataForVedtaksbrev.enhet,
+                                    saksbehandler = fellesdataForVedtaksbrev.saksbehandler,
+                                    beslutter = fellesdataForVedtaksbrev.beslutter,
+                                ),
+                            hjemmeltekst = fellesdataForVedtaksbrev.hjemmeltekst,
+                            etterbetaling = etterbetaling,
+                            korrigertVedtak = fellesdataForVedtaksbrev.korrigertVedtakData,
+                            informasjonOmAarligKontroll = informasjonOmAarligKontroll,
+                            refusjonEosAvklart = refusjonEosAvklart,
+                            refusjonEosUavklart = refusjonEosUavklart,
+                            duMaaMeldeFraOmEndringer = duMåMeldeFraOmEndringer,
+                            duMaaMeldeFraOmEndringerEosSelvstendigRett = duMåMeldeFraOmEndringerEøsSelvstendigRett,
                         ),
-                        hjemmeltekst = fellesdataForVedtaksbrev.hjemmeltekst,
-                        etterbetaling = etterbetaling,
-                        korrigertVedtak = fellesdataForVedtaksbrev.korrigertVedtakData,
-                        informasjonOmAarligKontroll = informasjonOmAarligKontroll,
-                        refusjonEosAvklart = refusjonEosAvklart,
-                        refusjonEosUavklart = refusjonEosUavklart,
-                        duMaaMeldeFraOmEndringer = duMåMeldeFraOmEndringer,
-                        duMaaMeldeFraOmEndringerEosSelvstendigRett = duMåMeldeFraOmEndringerEøsSelvstendigRett,
-                    ),
                     flettefelter =
-                    FlettefelterForDokumentDtoImpl(
-                        gjelder = flettefelt(fellesdataForVedtaksbrev.gjelder),
-                        navn = flettefelt(fellesdataForVedtaksbrev.søkerNavn),
-                        fodselsnummer = flettefelt(fellesdataForVedtaksbrev.søkerFødselsnummer),
-                    ),
+                        FlettefelterForDokumentDtoImpl(
+                            gjelder = flettefelt(fellesdataForVedtaksbrev.gjelder),
+                            navn = flettefelt(fellesdataForVedtaksbrev.søkerNavn),
+                            fodselsnummer = flettefelt(fellesdataForVedtaksbrev.søkerFødselsnummer),
+                        ),
                     perioder = fellesdataForVedtaksbrev.perioder,
                 ),
-            )
+        )
 }
 
 data class ForsattInnvilgetData(
