@@ -122,7 +122,7 @@ internal class VedtaksperiodeServiceTest {
         names = ["AVSLAG_UREGISTRERT_BARN", "OPPHØR_FULLTIDSPLASS_I_BARNEHAGE"],
     )
     fun `oppdaterVedtaksperiodeMedBegrunnelser skal kaste feil dersom begrunnelse ikke er tillatt for vedtaksperiode type`(
-            nasjonalEllerFellesBegrunnelse: NasjonalEllerFellesBegrunnelse,
+        nasjonalEllerFellesBegrunnelse: NasjonalEllerFellesBegrunnelse,
     ) {
         val vedtaksperiodeMedBegrunnelse =
             VedtaksperiodeMedBegrunnelser(
@@ -153,7 +153,7 @@ internal class VedtaksperiodeServiceTest {
         names = ["INNVILGET_IKKE_BARNEHAGE", "INNVILGET_IKKE_BARNEHAGE_ADOPSJON", "INNVILGET_DELTID_BARNEHAGE"],
     )
     fun `oppdaterVedtaksperiodeMedBegrunnelser skal oppdatere vedtaksperioder dersom begrunnelse er tillatt for vedtakstype`(
-            nasjonalEllerFellesBegrunnelse: NasjonalEllerFellesBegrunnelse,
+        nasjonalEllerFellesBegrunnelse: NasjonalEllerFellesBegrunnelse,
     ) {
         val vedtaksperiodeMedBegrunnelse =
             VedtaksperiodeMedBegrunnelser(

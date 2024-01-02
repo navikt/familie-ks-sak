@@ -39,10 +39,10 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vil
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.forskyvVilkårResultater
 import no.nav.familie.ks.sak.kjerne.beregning.AndelTilkjentYtelseMedEndreteUtbetalinger
 import no.nav.familie.ks.sak.kjerne.beregning.AndelerTilkjentYtelseOgEndreteUtbetalingerService
-import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.NasjonalEllerFellesBegrunnelse
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.BegrunnelseType
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.BegrunnelserForPeriodeContext
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.EØSBegrunnelse
+import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.NasjonalEllerFellesBegrunnelse
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.tilVedtaksbegrunnelse
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.KompetanseService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
@@ -89,9 +89,9 @@ class VedtaksperiodeService(
     }
 
     fun oppdaterVedtaksperiodeMedBegrunnelser(
-            vedtaksperiodeId: Long,
-            begrunnelserFraFrontend: List<NasjonalEllerFellesBegrunnelse>,
-            eøsBegrunnelserFraFrontend: List<EØSBegrunnelse> = emptyList(),
+        vedtaksperiodeId: Long,
+        begrunnelserFraFrontend: List<NasjonalEllerFellesBegrunnelse>,
+        eøsBegrunnelserFraFrontend: List<EØSBegrunnelse> = emptyList(),
     ): Vedtak {
         val vedtaksperiodeMedBegrunnelser =
             vedtaksperiodeHentOgPersisterService.hentVedtaksperiodeThrows(vedtaksperiodeId)
@@ -601,9 +601,9 @@ class VedtaksperiodeService(
     }
 
     private fun lagVedtaksPeriodeMedBegrunnelser(
-            vedtak: Vedtak,
-            periode: NullablePeriode,
-            avslagsbegrunnelser: List<NasjonalEllerFellesBegrunnelse>,
+        vedtak: Vedtak,
+        periode: NullablePeriode,
+        avslagsbegrunnelser: List<NasjonalEllerFellesBegrunnelse>,
     ): VedtaksperiodeMedBegrunnelser =
         VedtaksperiodeMedBegrunnelser(
             vedtak = vedtak,

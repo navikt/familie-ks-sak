@@ -33,12 +33,12 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vil
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.forskyvVilkårResultater
 import no.nav.familie.ks.sak.kjerne.beregning.AndelTilkjentYtelseMedEndreteUtbetalinger
-import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.NasjonalEllerFellesBegrunnelse
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.BegrunnelseDataDto
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.BegrunnelseDto
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.BegrunnelseType
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.BegrunnelserForPeriodeContext
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.FritekstBegrunnelseDto
+import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.NasjonalEllerFellesBegrunnelse
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.tilBrevTekst
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.tilSanityBegrunnelse
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.brevperioder.BrevPeriodeDto
@@ -179,9 +179,9 @@ class BrevPeriodeContext(
     }
 
     fun hentBarnasFødselsdagerForBegrunnelse(
-            gjelderSøker: Boolean,
-            personerMedVilkårSomPasserBegrunnelse: Collection<Person>,
-            nasjonalEllerFellesBegrunnelse: NasjonalEllerFellesBegrunnelse,
+        gjelderSøker: Boolean,
+        personerMedVilkårSomPasserBegrunnelse: Collection<Person>,
+        nasjonalEllerFellesBegrunnelse: NasjonalEllerFellesBegrunnelse,
     ): List<LocalDate> =
         when {
             nasjonalEllerFellesBegrunnelse == NasjonalEllerFellesBegrunnelse.AVSLAG_UREGISTRERT_BARN ->
@@ -208,8 +208,8 @@ class BrevPeriodeContext(
         }
 
     fun hentAntallBarnForBegrunnelse(
-            barnasFødselsdatoer: List<LocalDate>,
-            nasjonalEllerFellesBegrunnelse: NasjonalEllerFellesBegrunnelse,
+        barnasFødselsdatoer: List<LocalDate>,
+        nasjonalEllerFellesBegrunnelse: NasjonalEllerFellesBegrunnelse,
     ): Int {
         val erAvslagUregistrerteBarn =
             nasjonalEllerFellesBegrunnelse == NasjonalEllerFellesBegrunnelse.AVSLAG_UREGISTRERT_BARN
@@ -230,10 +230,10 @@ class BrevPeriodeContext(
         }
 
     private fun validerBrevbegrunnelse(
-            gjelderSøker: Boolean,
-            barnasFødselsdatoer: List<LocalDate>,
-            sanityBegrunnelse: SanityBegrunnelse,
-            nasjonalEllerFellesBegrunnelse: NasjonalEllerFellesBegrunnelse,
+        gjelderSøker: Boolean,
+        barnasFødselsdatoer: List<LocalDate>,
+        sanityBegrunnelse: SanityBegrunnelse,
+        nasjonalEllerFellesBegrunnelse: NasjonalEllerFellesBegrunnelse,
     ) {
         if (!gjelderSøker && barnasFødselsdatoer.isEmpty() &&
             !sanityBegrunnelse.triggere.contains(Trigger.SATSENDRING) &&

@@ -623,9 +623,9 @@ fun lagEndretUtbetalingAndel(
     )
 
 fun lagVedtaksbegrunnelse(
-        nasjonalEllerFellesBegrunnelse: NasjonalEllerFellesBegrunnelse =
+    nasjonalEllerFellesBegrunnelse: NasjonalEllerFellesBegrunnelse =
         NasjonalEllerFellesBegrunnelse.INNVILGET_IKKE_BARNEHAGE,
-        vedtaksperiodeMedBegrunnelser: VedtaksperiodeMedBegrunnelser = mockk(),
+    vedtaksperiodeMedBegrunnelser: VedtaksperiodeMedBegrunnelser = mockk(),
 ) = Vedtaksbegrunnelse(
     vedtaksperiodeMedBegrunnelser = vedtaksperiodeMedBegrunnelser,
     nasjonalEllerFellesBegrunnelse = nasjonalEllerFellesBegrunnelse,

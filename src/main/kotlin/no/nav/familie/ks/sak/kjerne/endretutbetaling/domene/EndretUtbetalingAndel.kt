@@ -30,7 +30,7 @@ import java.time.YearMonth
 @Entity(name = "EndretUtbetalingAndel")
 @Table(name = "ENDRET_UTBETALING_ANDEL")
 data class EndretUtbetalingAndel(
-        @Id
+    @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "endret_utbetaling_andel_seq_generator")
     @SequenceGenerator(
         name = "endret_utbetaling_andel_seq_generator",
@@ -38,32 +38,32 @@ data class EndretUtbetalingAndel(
         allocationSize = 50,
     )
     val id: Long = 0,
-        @Column(name = "fk_behandling_id", updatable = false, nullable = false)
+    @Column(name = "fk_behandling_id", updatable = false, nullable = false)
     val behandlingId: Long,
-        @ManyToOne
+    @ManyToOne
     @JoinColumn(name = "fk_po_person_id")
     var person: Person? = null,
-        @Column(name = "prosent")
+    @Column(name = "prosent")
     var prosent: BigDecimal? = null,
-        @Column(name = "fom", columnDefinition = "DATE")
+    @Column(name = "fom", columnDefinition = "DATE")
     @Convert(converter = YearMonthConverter::class)
     var fom: YearMonth? = null,
-        @Column(name = "tom", columnDefinition = "DATE")
+    @Column(name = "tom", columnDefinition = "DATE")
     @Convert(converter = YearMonthConverter::class)
     var tom: YearMonth? = null,
-        @Enumerated(EnumType.STRING)
+    @Enumerated(EnumType.STRING)
     @Column(name = "aarsak")
     var årsak: Årsak? = null,
-        @Column(name = "avtaletidspunkt_delt_bosted")
+    @Column(name = "avtaletidspunkt_delt_bosted")
     var avtaletidspunktDeltBosted: LocalDate? = null,
-        @Column(name = "soknadstidspunkt")
+    @Column(name = "soknadstidspunkt")
     var søknadstidspunkt: LocalDate? = null,
-        @Column(name = "begrunnelse")
+    @Column(name = "begrunnelse")
     var begrunnelse: String? = null,
-        @Column(name = "vedtak_begrunnelse_spesifikasjoner")
+    @Column(name = "vedtak_begrunnelse_spesifikasjoner")
     @Convert(converter = StandardbegrunnelseListConverter::class)
     var begrunnelser: List<NasjonalEllerFellesBegrunnelse> = emptyList(),
-        @Column(name = "er_eksplisitt_avslag_paa_soknad")
+    @Column(name = "er_eksplisitt_avslag_paa_soknad")
     var erEksplisittAvslagPåSøknad: Boolean? = null,
 ) : BaseEntitet() {
     fun overlapperMed(periode: MånedPeriode) = periode.overlapperHeltEllerDelvisMed(this.periode)

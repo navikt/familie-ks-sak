@@ -7,8 +7,8 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Res
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.UtdypendeVilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
-import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.NasjonalEllerFellesBegrunnelse
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.IBegrunnelse
+import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.NasjonalEllerFellesBegrunnelse
 import java.math.BigDecimal
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -30,22 +30,22 @@ data class NyttVilkårDto(
 )
 
 data class VilkårResultatDto(
-        val id: Long,
-        val vilkårType: Vilkår,
-        val resultat: Resultat,
-        val periodeFom: LocalDate?,
-        val periodeTom: LocalDate?,
-        val begrunnelse: String,
-        val endretAv: String,
-        val endretTidspunkt: LocalDateTime,
-        val behandlingId: Long,
-        val erVurdert: Boolean = false,
-        val erAutomatiskVurdert: Boolean = false,
-        val erEksplisittAvslagPåSøknad: Boolean? = null,
-        val avslagBegrunnelser: List<NasjonalEllerFellesBegrunnelse>? = emptyList(),
-        val vurderesEtter: Regelverk? = null,
-        val antallTimer: BigDecimal? = null,
-        val utdypendeVilkårsvurderinger: List<UtdypendeVilkårsvurdering> = emptyList(),
+    val id: Long,
+    val vilkårType: Vilkår,
+    val resultat: Resultat,
+    val periodeFom: LocalDate?,
+    val periodeTom: LocalDate?,
+    val begrunnelse: String,
+    val endretAv: String,
+    val endretTidspunkt: LocalDateTime,
+    val behandlingId: Long,
+    val erVurdert: Boolean = false,
+    val erAutomatiskVurdert: Boolean = false,
+    val erEksplisittAvslagPåSøknad: Boolean? = null,
+    val avslagBegrunnelser: List<NasjonalEllerFellesBegrunnelse>? = emptyList(),
+    val vurderesEtter: Regelverk? = null,
+    val antallTimer: BigDecimal? = null,
+    val utdypendeVilkårsvurderinger: List<UtdypendeVilkårsvurdering> = emptyList(),
 ) {
     fun erAvslagUtenPeriode() = erEksplisittAvslagPåSøknad == true && periodeFom == null && periodeTom == null
 
