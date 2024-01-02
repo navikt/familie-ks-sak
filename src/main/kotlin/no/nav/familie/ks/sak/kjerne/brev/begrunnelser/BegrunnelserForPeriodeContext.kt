@@ -111,7 +111,7 @@ class BegrunnelserForPeriodeContext(
         val utfylteKompetanser = this.kompetanser.map { it.tilIKompetanse() }.filterIsInstance<UtfyltKompetanse>()
         val alleBarna = utfylteKompetanser.flatMap { it.barnAktører }.toSet()
         val utfylteKompetanserPerBarn = alleBarna.associateWith { barn -> utfylteKompetanser.filter { barn in it.barnAktører } }
-        val hentVilkårResultaterSomOverlapperVedtaksperiode =
+        val vilkårResultaterSomOverlapperVedtaksperiode =
             hentVilkårResultaterSomOverlapperVedtaksperiode(
                 standardBegrunnelse = begrunnelse,
                 erFørsteVedtaksperiodeOgBegrunnelseInneholderGjelderFørstePeriodeTrigger = false,
@@ -119,7 +119,7 @@ class BegrunnelserForPeriodeContext(
 
         return utfylteKompetanserPerBarn.filter { (barn, utfyltKompetansePåBarn) ->
             val barnPerson = personopplysningGrunnlag.personer.find { it.aktør.aktivFødselsnummer() == barn.aktivFødselsnummer() }
-            val vilkårResultaterPåBarnIPeriode = hentVilkårResultaterSomOverlapperVedtaksperiode[barnPerson] ?: emptyList()
+            val vilkårResultaterPåBarnIPeriode = vilkårResultaterSomOverlapperVedtaksperiode[barnPerson] ?: emptyList()
 
             val kompetanseSomOverlapperMedVedtaksperioderPåBarn =
                 utfyltKompetansePåBarn.tilTidslinje().klipp(vedtaksperiode.fom, vedtaksperiode.tom).tilPerioderIkkeNull().singleOrNull()?.verdi
