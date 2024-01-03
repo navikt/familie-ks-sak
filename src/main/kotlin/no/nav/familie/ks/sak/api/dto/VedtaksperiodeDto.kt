@@ -2,8 +2,9 @@ package no.nav.familie.ks.sak.api.dto
 
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelse
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.Vedtaksperiodetype
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.EØSBegrunnelseDB
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.NasjonalEllerFellesBegrunnelseDB
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.UtvidetVedtaksperiodeMedBegrunnelser
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.Vedtaksbegrunnelse
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.BegrunnelseType
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.støtterFritekst
 import java.time.LocalDate
@@ -31,7 +32,8 @@ data class UtvidetVedtaksperiodeMedBegrunnelserDto(
     val fom: LocalDate?,
     val tom: LocalDate?,
     val type: Vedtaksperiodetype,
-    val begrunnelser: List<VedtaksbegrunnelseDto>,
+    val begrunnelser: List<BegrunnelseDto>,
+    val eøsBegrunnelser: List<BegrunnelseDto>,
     val fritekster: List<String> = emptyList(),
     val gyldigeBegrunnelser: List<String>,
     val utbetalingsperiodeDetaljer: List<UtbetalingsperiodeDetaljDto> = emptyList(),
@@ -49,20 +51,27 @@ fun UtvidetVedtaksperiodeMedBegrunnelser.tilUtvidetVedtaksperiodeMedBegrunnelser
         fritekster = this.fritekster,
         utbetalingsperiodeDetaljer = this.utbetalingsperiodeDetaljer.map { it.tilUtbetalingsperiodeDetaljDto() },
         gyldigeBegrunnelser = this.gyldigeBegrunnelser.map { it.enumnavnTilString() },
+        eøsBegrunnelser = this.eøsBegrunnelser.map { it.tilEøsBegrunnelseDto(sanityBegrunnelser) }
     )
 }
 
-data class VedtaksbegrunnelseDto(
+data class BegrunnelseDto(
     val begrunnelse: String,
-    val vedtakBegrunnelseSpesifikasjon: String,
     val begrunnelseType: BegrunnelseType,
     val støtterFritekst: Boolean,
 )
 
-fun Vedtaksbegrunnelse.tilVedtaksbegrunnelseDto(sanityBegrunnelser: List<SanityBegrunnelse>) =
-    VedtaksbegrunnelseDto(
-        begrunnelse = this.nasjonalEllerFellesBegrunnelse.enumnavnTilString(),
-        begrunnelseType = this.nasjonalEllerFellesBegrunnelse.begrunnelseType,
-        støtterFritekst = this.nasjonalEllerFellesBegrunnelse.støtterFritekst(sanityBegrunnelser),
-        vedtakBegrunnelseSpesifikasjon = this.nasjonalEllerFellesBegrunnelse.enumnavnTilString(),
+fun NasjonalEllerFellesBegrunnelseDB.tilVedtaksbegrunnelseDto(sanityBegrunnelser: List<SanityBegrunnelse>) =
+    BegrunnelseDto(
+        begrunnelse = nasjonalEllerFellesBegrunnelse.enumnavnTilString(),
+        begrunnelseType = nasjonalEllerFellesBegrunnelse.begrunnelseType,
+        støtterFritekst = nasjonalEllerFellesBegrunnelse.støtterFritekst(sanityBegrunnelser),
     )
+
+fun EØSBegrunnelseDB.tilEøsBegrunnelseDto(sanityBegrunnelser: List<SanityBegrunnelse>) =
+    BegrunnelseDto(
+        begrunnelse = this.begrunnelse.enumnavnTilString(),
+        begrunnelseType = this.begrunnelse.begrunnelseType,
+        støtterFritekst = this.begrunnelse.støtterFritekst(sanityBegrunnelser),
+    )
+

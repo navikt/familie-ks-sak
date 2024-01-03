@@ -41,7 +41,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.simulering.domene.ØkonomiSi
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.Vedtak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.UtbetalingsperiodeDetalj
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.Vedtaksperiodetype
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.Vedtaksbegrunnelse
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.NasjonalEllerFellesBegrunnelseDB
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.VedtaksbegrunnelseFritekst
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.VedtaksperiodeMedBegrunnelser
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.AnnenVurdering
@@ -267,11 +267,11 @@ fun lagArbeidsfordelingPåBehandling(behandlingId: Long): ArbeidsfordelingPåBeh
 fun lagRegistrerSøknadDto() =
     RegistrerSøknadDto(
         søknad =
-            SøknadDto(
-                søkerMedOpplysninger = SøkerMedOpplysningerDto(ident = randomFnr()),
-                barnaMedOpplysninger = listOf(BarnMedOpplysningerDto(ident = randomFnr())),
-                endringAvOpplysningerBegrunnelse = "",
-            ),
+        SøknadDto(
+            søkerMedOpplysninger = SøkerMedOpplysningerDto(ident = randomFnr()),
+            barnaMedOpplysninger = listOf(BarnMedOpplysningerDto(ident = randomFnr())),
+            endringAvOpplysningerBegrunnelse = "",
+        ),
         bekreftEndringerViaFrontend = true,
     )
 
@@ -300,16 +300,16 @@ fun lagBostedsadresse(): Bostedsadresse =
     Bostedsadresse(
         gyldigFraOgMed = LocalDate.of(2015, 1, 1),
         vegadresse =
-            Vegadresse(
-                matrikkelId = 1234,
-                husnummer = "3",
-                husbokstav = null,
-                bruksenhetsnummer = null,
-                adressenavn = "OTTO SVERDRUPS VEG",
-                kommunenummer = "1560",
-                postnummer = "6650",
-                tilleggsnavn = null,
-            ),
+        Vegadresse(
+            matrikkelId = 1234,
+            husnummer = "3",
+            husbokstav = null,
+            bruksenhetsnummer = null,
+            adressenavn = "OTTO SVERDRUPS VEG",
+            kommunenummer = "1560",
+            postnummer = "6650",
+            tilleggsnavn = null,
+        ),
     )
 
 fun lagSivilstand(): Sivilstand = Sivilstand(type = SIVILSTAND.UGIFT, gyldigFraOgMed = LocalDate.of(2004, 12, 2))
@@ -626,7 +626,7 @@ fun lagVedtaksbegrunnelse(
     nasjonalEllerFellesBegrunnelse: NasjonalEllerFellesBegrunnelse =
         NasjonalEllerFellesBegrunnelse.INNVILGET_IKKE_BARNEHAGE,
     vedtaksperiodeMedBegrunnelser: VedtaksperiodeMedBegrunnelser = mockk(),
-) = Vedtaksbegrunnelse(
+) = NasjonalEllerFellesBegrunnelseDB(
     vedtaksperiodeMedBegrunnelser = vedtaksperiodeMedBegrunnelser,
     nasjonalEllerFellesBegrunnelse = nasjonalEllerFellesBegrunnelse,
 )
@@ -636,7 +636,7 @@ fun lagVedtaksperiodeMedBegrunnelser(
     fom: LocalDate? = LocalDate.now().withDayOfMonth(1),
     tom: LocalDate? = LocalDate.now().let { it.withDayOfMonth(it.lengthOfMonth()) },
     type: Vedtaksperiodetype = Vedtaksperiodetype.FORTSATT_INNVILGET,
-    begrunnelser: MutableSet<Vedtaksbegrunnelse> = mutableSetOf(lagVedtaksbegrunnelse()),
+    begrunnelser: MutableSet<NasjonalEllerFellesBegrunnelseDB> = mutableSetOf(lagVedtaksbegrunnelse()),
     fritekster: MutableList<VedtaksbegrunnelseFritekst> = mutableListOf(),
 ) = VedtaksperiodeMedBegrunnelser(
     vedtak = vedtak,
@@ -676,12 +676,12 @@ fun lagPersonResultat(
                     begrunnelse = "",
                     behandlingId = vilkårsvurdering.behandling.id,
                     utdypendeVilkårsvurderinger =
-                        listOfNotNull(
-                            when {
-                                erDeltBosted && it == Vilkår.BOR_MED_SØKER -> UtdypendeVilkårsvurdering.DELT_BOSTED
-                                else -> null
-                            },
-                        ),
+                    listOfNotNull(
+                        when {
+                            erDeltBosted && it == Vilkår.BOR_MED_SØKER -> UtdypendeVilkårsvurdering.DELT_BOSTED
+                            else -> null
+                        },
+                    ),
                 )
             }.toSet(),
         )
@@ -758,9 +758,9 @@ fun lagØkonomiSimuleringPostering(
     posteringType: PosteringType = PosteringType.YTELSE,
 ) = ØkonomiSimuleringPostering(
     økonomiSimuleringMottaker =
-        lagØkonomiSimuleringMottaker(
-            behandling = behandling,
-        ),
+    lagØkonomiSimuleringMottaker(
+        behandling = behandling,
+    ),
     fagOmrådeKode = FagOmrådeKode.KONTANTSTØTTE,
     fom = fom,
     tom = tom,
@@ -863,13 +863,13 @@ fun lagVilkårsvurderingOppfylt(
                     VilkårResultat(
                         personResultat = personResultat,
                         periodeFom =
-                            if (person.type == PersonType.SØKER) {
-                                person.fødselsdato
-                            } else {
-                                person.fødselsdato.plusYears(
-                                    1,
-                                )
-                            },
+                        if (person.type == PersonType.SØKER) {
+                            person.fødselsdato
+                        } else {
+                            person.fødselsdato.plusYears(
+                                1,
+                            )
+                        },
                         periodeTom = if (person.type == PersonType.SØKER) null else person.fødselsdato.plusYears(2),
                         vilkårType = it,
                         resultat = Resultat.OPPFYLT,

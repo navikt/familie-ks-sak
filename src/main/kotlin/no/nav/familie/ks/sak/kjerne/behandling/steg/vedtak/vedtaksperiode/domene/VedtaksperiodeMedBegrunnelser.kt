@@ -62,7 +62,14 @@ data class VedtaksperiodeMedBegrunnelser(
         cascade = [CascadeType.ALL],
         orphanRemoval = true,
     )
-    val begrunnelser: MutableSet<Vedtaksbegrunnelse> = mutableSetOf(),
+    val begrunnelser: MutableSet<NasjonalEllerFellesBegrunnelseDB> = mutableSetOf(),
+    @OneToMany(
+        fetch = FetchType.EAGER,
+        mappedBy = "vedtaksperiodeMedBegrunnelser",
+        cascade = [CascadeType.ALL],
+        orphanRemoval = true,
+    )
+    val eøsBegrunnelser: MutableSet<EØSBegrunnelseDB> = mutableSetOf(),
     // Bruker list for å bevare rekkefølgen som settes frontend.
     @OneToMany(
         fetch = FetchType.EAGER,
@@ -72,10 +79,16 @@ data class VedtaksperiodeMedBegrunnelser(
     )
     val fritekster: MutableList<VedtaksbegrunnelseFritekst> = mutableListOf(),
 ) : BaseEntitet() {
-    fun settBegrunnelser(nyeBegrunnelser: List<Vedtaksbegrunnelse>) =
+    fun settBegrunnelser(nyeBegrunnelser: List<NasjonalEllerFellesBegrunnelseDB>) =
         begrunnelser.apply {
             clear()
             addAll(nyeBegrunnelser)
+        }
+
+    fun settEøsBegrunnelser(nyeDBEøsBegrunnelser: List<EØSBegrunnelseDB>) =
+        eøsBegrunnelser.apply {
+            clear()
+            addAll(nyeDBEøsBegrunnelser)
         }
 
     fun settFritekster(nyeFritekster: List<VedtaksbegrunnelseFritekst>) =
@@ -129,11 +142,11 @@ data class VedtaksperiodeMedBegrunnelser(
         val delvisOverlapp =
             andelTilkjentYtelserIPeriode.any {
                 (this.fom ?: TIDENES_MORGEN).isBefore(it.stønadFom.førsteDagIInneværendeMåned()) || (
-                    (
-                        this.tom
-                            ?: TIDENES_ENDE
-                    ).isAfter(it.stønadTom.sisteDagIInneværendeMåned())
-                )
+                        (
+                                this.tom
+                                    ?: TIDENES_ENDE
+                                ).isAfter(it.stønadTom.sisteDagIInneværendeMåned())
+                        )
             }
 
         if (delvisOverlapp) {

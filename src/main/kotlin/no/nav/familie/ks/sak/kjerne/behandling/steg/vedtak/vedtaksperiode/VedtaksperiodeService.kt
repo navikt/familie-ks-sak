@@ -27,8 +27,8 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.registrersøknad.SøknadGrun
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.Vedtak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.VedtakRepository
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.refusjonEøs.RefusjonEøsRepository
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.NasjonalEllerFellesBegrunnelseDB
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.UtvidetVedtaksperiodeMedBegrunnelser
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.Vedtaksbegrunnelse
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.VedtaksperiodeMedBegrunnelser
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.tilUtvidetVedtaksperiodeMedBegrunnelser
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.tilVedtaksbegrunnelseFritekst
@@ -107,6 +107,12 @@ class VedtaksperiodeService(
             },
         )
 
+        vedtaksperiodeMedBegrunnelser.settEøsBegrunnelser(
+            eøsBegrunnelserFraFrontend.map {
+                it.tilVedtaksbegrunnelse(vedtaksperiodeMedBegrunnelser)
+            },
+        )
+
         if (
             begrunnelserFraFrontend.any { it.begrunnelseType == BegrunnelseType.ENDRET_UTBETALING }
         ) {
@@ -124,7 +130,7 @@ class VedtaksperiodeService(
 
     fun skalHaÅrligKontroll(vedtak: Vedtak): Boolean {
         return vedtak.behandling.kategori == BehandlingKategori.EØS &&
-            hentPersisterteVedtaksperioder(vedtak).any { it.tom?.erSenereEnnInneværendeMåned() != false }
+                hentPersisterteVedtaksperioder(vedtak).any { it.tom?.erSenereEnnInneværendeMåned() != false }
     }
 
     private fun validerEndretUtbetalingsbegrunnelse(
@@ -224,8 +230,8 @@ class VedtaksperiodeService(
     ) = utbetalingsperioder.filter { utbetalingsperiode ->
         avslagsperioder.none { avslagsperiode ->
             avslagsperiode.fom == utbetalingsperiode.fom &&
-                avslagsperiode.tom == utbetalingsperiode.tom &&
-                avslagsperiode.begrunnelser.isNotEmpty()
+                    avslagsperiode.tom == utbetalingsperiode.tom &&
+                    avslagsperiode.begrunnelser.isNotEmpty()
         }
     }
 
@@ -413,15 +419,15 @@ class VedtaksperiodeService(
 
                 utvidetVedtaksperiodeMedBegrunnelser.copy(
                     gyldigeBegrunnelser =
-                        BegrunnelserForPeriodeContext(
-                            utvidetVedtaksperiodeMedBegrunnelser = utvidetVedtaksperiodeMedBegrunnelser,
-                            sanityBegrunnelser = sanityBegrunnelser,
-                            personopplysningGrunnlag = persongrunnlag,
-                            personResultater = vilkårsvurdering.personResultater.toList(),
-                            endretUtbetalingsandeler = endreteUtbetalinger,
-                            erFørsteVedtaksperiode = erFørsteVedtaksperiodePåFagsak,
-                            kompetanser = kompetanser,
-                        ).hentGyldigeBegrunnelserForVedtaksperiode(),
+                    BegrunnelserForPeriodeContext(
+                        utvidetVedtaksperiodeMedBegrunnelser = utvidetVedtaksperiodeMedBegrunnelser,
+                        sanityBegrunnelser = sanityBegrunnelser,
+                        personopplysningGrunnlag = persongrunnlag,
+                        personResultater = vilkårsvurdering.personResultater.toList(),
+                        endretUtbetalingsandeler = endreteUtbetalinger,
+                        erFørsteVedtaksperiode = erFørsteVedtaksperiodePåFagsak,
+                        kompetanser = kompetanser,
+                    ).hentGyldigeBegrunnelserForVedtaksperiode(),
                 )
             }
     }
@@ -613,7 +619,7 @@ class VedtaksperiodeService(
         ).apply {
             begrunnelser.addAll(
                 avslagsbegrunnelser.map { begrunnelse ->
-                    Vedtaksbegrunnelse(
+                    NasjonalEllerFellesBegrunnelseDB(
                         vedtaksperiodeMedBegrunnelser = this,
                         nasjonalEllerFellesBegrunnelse = begrunnelse,
                     )
@@ -629,12 +635,12 @@ class VedtaksperiodeService(
         val avslagsperioderMedTomPeriode =
             if (avslagsperioder.none { it.fom == null && it.tom == null }) {
                 avslagsperioder +
-                    VedtaksperiodeMedBegrunnelser(
-                        vedtak = vedtak,
-                        fom = null,
-                        tom = null,
-                        type = Vedtaksperiodetype.AVSLAG,
-                    )
+                        VedtaksperiodeMedBegrunnelser(
+                            vedtak = vedtak,
+                            fom = null,
+                            tom = null,
+                            type = Vedtaksperiodetype.AVSLAG,
+                        )
             } else {
                 avslagsperioder
             }
@@ -643,7 +649,7 @@ class VedtaksperiodeService(
             if (it.fom == null && it.tom == null && uregistrerteBarn.isNotEmpty()) {
                 it.apply {
                     begrunnelser.add(
-                        Vedtaksbegrunnelse(
+                        NasjonalEllerFellesBegrunnelseDB(
                             vedtaksperiodeMedBegrunnelser = this,
                             nasjonalEllerFellesBegrunnelse = NasjonalEllerFellesBegrunnelse.AVSLAG_UREGISTRERT_BARN,
                         ),
