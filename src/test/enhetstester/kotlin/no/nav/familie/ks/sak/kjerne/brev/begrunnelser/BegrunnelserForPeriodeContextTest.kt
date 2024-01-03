@@ -27,7 +27,6 @@ import org.assertj.core.api.Assertions.assertThat
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.containsInAnyOrder
 import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import java.math.BigDecimal
@@ -489,13 +488,13 @@ class BegrunnelserForPeriodeContextTest {
                 lagBegrunnelserForPeriodeContextForEøsTester(
                     sanityBegrunnelser = listOf(eøsBegrunnelse),
                     kompetanser = listOf(lagKompetanse(fom = jan(2020), tom = jan(2020), annenForeldersAktivitet = KompetanseAktivitet.ARBEIDER, resultat = KompetanseResultat.NORGE_ER_PRIMÆRLAND, barnetsBostedsland = "NO", barnAktører = setOf(barnAktør))),
-                    vedtaksperiodeStartsTidpunkt = 1.jan(2021),
-                    vedtaksperiodeSluttTidpunkt = 31.jan(2021),
+                    vedtaksperiodeStartsTidpunkt = 1.feb(2021),
+                    vedtaksperiodeSluttTidpunkt = 28.feb(2021),
                 )
             val begrunnelser =
                 begrunnelseContext.hentGyldigeBegrunnelserForVedtaksperiode()
 
-            assertThat(begrunnelser.size).isEqualTo(0)
+            assertThat(begrunnelser.filter { it.begrunnelseType != BegrunnelseType.FORTSATT_INNVILGET }.size).isEqualTo(0)
         }
 
         @Test
@@ -505,7 +504,7 @@ class BegrunnelserForPeriodeContextTest {
                     apiNavn = EØSBegrunnelse.OPPHØR_EØS_STANDARD.sanityApiNavn,
                     navnISystem = EØSBegrunnelse.OPPHØR_EØS_STANDARD.name,
                     type = SanityBegrunnelseType.STANDARD,
-                    vilkår = Vilkår.entries,
+                    vilkår = emptyList(),
                     rolle = emptyList(),
                     triggere = emptyList(),
                     utdypendeVilkårsvurderinger = emptyList(),
@@ -538,7 +537,6 @@ class BegrunnelserForPeriodeContextTest {
         }
 
         @Test
-        @Disabled
         fun `Skal ikke få opp eøs-opphør som gyldige begrunnelser dersom det er en kompetanse som slutter måneden før når vi fremdeles har kompetanse`() {
             val eøsBegrunnelse =
                 SanityBegrunnelse(
@@ -566,6 +564,7 @@ class BegrunnelserForPeriodeContextTest {
             val begrunnelseContext =
                 lagBegrunnelserForPeriodeContextForEøsTester(
                     sanityBegrunnelser = listOf(eøsBegrunnelse),
+                    vedtaksperiodetype = Vedtaksperiodetype.OPPHØR,
                     kompetanser =
                         listOf(
                             lagKompetanse(fom = jan(2020), tom = jan(2020), annenForeldersAktivitet = KompetanseAktivitet.ARBEIDER, resultat = KompetanseResultat.NORGE_ER_PRIMÆRLAND, barnetsBostedsland = "NO", barnAktører = setOf(barnAktør)),
@@ -579,17 +578,48 @@ class BegrunnelserForPeriodeContextTest {
 
             assertThat(begrunnelser.size).isEqualTo(0)
         }
-        // Mangler 5 tester:
-        // Test som viser at to like begrunnelser ikke dukker opp samtidig dersom den ene har tema EØS og den andre har tema nasjonal
 
-        // "Ingen endring"-teskster må dukke opp når kompatansen er lik som i forrige periode.
+        @Test
+        fun `Skal få opp fortsatt innvilget tekster dersom det ikke er forandring i kompetanse`() {
+            val eøsBegrunnelse =
+                SanityBegrunnelse(
+                    apiNavn = EØSBegrunnelse.FORTSATT_INNVILGET_EØS_STANDARD.sanityApiNavn,
+                    navnISystem = EØSBegrunnelse.FORTSATT_INNVILGET_EØS_STANDARD.name,
+                    type = SanityBegrunnelseType.STANDARD,
+                    vilkår = Vilkår.entries,
+                    rolle = emptyList(),
+                    triggere = emptyList(),
+                    utdypendeVilkårsvurderinger = emptyList(),
+                    hjemler = emptyList(),
+                    endretUtbetalingsperiode = emptyList(),
+                    endringsårsaker = emptyList(),
+                    støtterFritekst = false,
+                    skalAlltidVises = false,
+                    annenForeldersAktivitet = listOf(KompetanseAktivitet.ARBEIDER),
+                    barnetsBostedsland = listOf(BarnetsBostedsland.NORGE),
+                    kompetanseResultat = listOf(KompetanseResultat.NORGE_ER_PRIMÆRLAND),
+                    hjemlerFolketrygdloven = emptyList(),
+                    hjemlerEØSForordningen883 = emptyList(),
+                    hjemlerEØSForordningen987 = emptyList(),
+                    hjemlerSeperasjonsavtalenStorbritannina = emptyList(),
+                )
 
-        // Tilleggstekster skal komme uavhengig av endring
+            val begrunnelseContext =
+                lagBegrunnelserForPeriodeContextForEøsTester(
+                    sanityBegrunnelser = listOf(eøsBegrunnelse),
+                    vedtaksperiodetype = Vedtaksperiodetype.UTBETALING,
+                    kompetanser =
+                        listOf(
+                            lagKompetanse(fom = jan(2020), tom = feb(2020), annenForeldersAktivitet = KompetanseAktivitet.ARBEIDER, resultat = KompetanseResultat.NORGE_ER_PRIMÆRLAND, barnetsBostedsland = "NO", barnAktører = setOf(barnAktør)),
+                        ),
+                    vedtaksperiodeStartsTidpunkt = 1.feb(2020),
+                    vedtaksperiodeSluttTidpunkt = 28.feb(2020),
+                )
+            val begrunnelser =
+                begrunnelseContext.hentGyldigeBegrunnelserForVedtaksperiode()
 
-        // Reduksjon forrige behandling. Kommer Begrunnelsen opp dersom kompetansen er fjernet mellom behandlinger?
-        // Opphør mellom behandlinger. Samme som over bare opphør
-
-        // Antar dødsfall, barn 6 år og satsendring dekkes av den andre løypa
+            assertThat(begrunnelser.size).isEqualTo(1)
+        }
     }
 
     private fun lagSanitybegrunnelser(): List<SanityBegrunnelse> =
@@ -716,8 +746,8 @@ class BegrunnelserForPeriodeContextTest {
 
         return BegrunnelserForPeriodeContext(
             utvidetVedtaksperiodeMedBegrunnelser = utvidetVedtaksperiodeMedBegrunnelser,
-            kompetanser = kompetanser,
             sanityBegrunnelser = sanityBegrunnelser,
+            kompetanser = kompetanser,
             personopplysningGrunnlag = persongrunnlag,
             personResultater = emptyList(),
             endretUtbetalingsandeler = emptyList(),
