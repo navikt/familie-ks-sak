@@ -556,8 +556,3 @@ class StandardbegrunnelseListConverter :
 
     override fun convertToEntityAttribute(string: String?): List<NasjonalEllerFellesBegrunnelse> = konverterStringTilEnums(string)
 }
-
-val endretUtbetalingsperiodeBegrunnelser: List<NasjonalEllerFellesBegrunnelse> =
-    listOf(
-        // TODO: Legg til begrunnelser
-    )
