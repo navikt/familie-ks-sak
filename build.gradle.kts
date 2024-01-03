@@ -1,10 +1,10 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    val kotlinVersion = "1.9.21"
+    val kotlinVersion = "1.9.22"
     kotlin("jvm") version kotlinVersion
 
-    id("org.springframework.boot") version "3.2.0"
+    id("org.springframework.boot") version "3.2.1"
     id("io.spring.dependency-management") version "1.1.4"
     id("org.jetbrains.kotlin.plugin.spring") version kotlinVersion
     id("org.jetbrains.kotlin.plugin.jpa") version kotlinVersion
@@ -85,7 +85,7 @@ dependencies {
 
     // ----------- AVRO ---------\\
     implementation("org.apache.avro:avro:1.11.3")
-    implementation("io.confluent:kafka-avro-serializer:7.5.2")
+    implementation("io.confluent:kafka-avro-serializer:7.5.3")
     implementation("org.eclipse.jetty:jetty-server")
 
     // ---------- NAV ---------- \\
@@ -112,7 +112,7 @@ dependencies {
     implementation("io.sentry:sentry-spring-boot-starter:$sentryVersion")
     implementation("io.sentry:sentry-logback:$sentryVersion")
     implementation("io.micrometer:micrometer-registry-prometheus")
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.16.0")
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.16.1")
     implementation("com.neovisionaries:nv-i18n:1.29")
     ktlint("com.pinterest.ktlint:ktlint-cli:1.1.0") {
         attributes {
