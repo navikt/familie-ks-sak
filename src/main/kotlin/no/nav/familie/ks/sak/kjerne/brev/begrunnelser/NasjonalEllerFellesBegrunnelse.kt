@@ -546,7 +546,7 @@ enum class NasjonalEllerFellesBegrunnelse : IBegrunnelse {
     override fun enumnavnTilString() = this.name
 }
 
-fun NasjonalEllerFellesBegrunnelse.støtterFritekst(sanityBegrunnelser: List<SanityBegrunnelse>) =
+fun IBegrunnelse.støtterFritekst(sanityBegrunnelser: List<SanityBegrunnelse>) =
     sanityBegrunnelser.first { it.apiNavn == this.sanityApiNavn }.støtterFritekst
 
 @Converter

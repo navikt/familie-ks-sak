@@ -16,7 +16,7 @@ import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.NasjonalEllerFellesBegrunn
 
 @Entity(name = "Vedtaksbegrunnelse")
 @Table(name = "VEDTAKSBEGRUNNELSE")
-class Vedtaksbegrunnelse(
+class NasjonalEllerFellesBegrunnelseDB(
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "vedtaksbegrunnelse_seq_generator")
     @SequenceGenerator(
@@ -33,8 +33,8 @@ class Vedtaksbegrunnelse(
     @Column(name = "vedtak_begrunnelse_spesifikasjon", updatable = false)
     val nasjonalEllerFellesBegrunnelse: NasjonalEllerFellesBegrunnelse,
 ) {
-    fun kopier(vedtaksperiodeMedBegrunnelser: VedtaksperiodeMedBegrunnelser): Vedtaksbegrunnelse =
-        Vedtaksbegrunnelse(
+    fun kopier(vedtaksperiodeMedBegrunnelser: VedtaksperiodeMedBegrunnelser): NasjonalEllerFellesBegrunnelseDB =
+        NasjonalEllerFellesBegrunnelseDB(
             vedtaksperiodeMedBegrunnelser = vedtaksperiodeMedBegrunnelser,
             nasjonalEllerFellesBegrunnelse = this.nasjonalEllerFellesBegrunnelse,
         )

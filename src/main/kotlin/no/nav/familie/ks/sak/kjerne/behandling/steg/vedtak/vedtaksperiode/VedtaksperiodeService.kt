@@ -27,8 +27,8 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.registrersøknad.SøknadGrun
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.Vedtak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.VedtakRepository
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.refusjonEøs.RefusjonEøsRepository
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.NasjonalEllerFellesBegrunnelseDB
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.UtvidetVedtaksperiodeMedBegrunnelser
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.Vedtaksbegrunnelse
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.VedtaksperiodeMedBegrunnelser
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.tilUtvidetVedtaksperiodeMedBegrunnelser
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.tilVedtaksbegrunnelseFritekst
@@ -103,6 +103,12 @@ class VedtaksperiodeService(
 
         vedtaksperiodeMedBegrunnelser.settBegrunnelser(
             begrunnelserFraFrontend.map {
+                it.tilVedtaksbegrunnelse(vedtaksperiodeMedBegrunnelser)
+            },
+        )
+
+        vedtaksperiodeMedBegrunnelser.settEøsBegrunnelser(
+            eøsBegrunnelserFraFrontend.map {
                 it.tilVedtaksbegrunnelse(vedtaksperiodeMedBegrunnelser)
             },
         )
@@ -613,7 +619,7 @@ class VedtaksperiodeService(
         ).apply {
             begrunnelser.addAll(
                 avslagsbegrunnelser.map { begrunnelse ->
-                    Vedtaksbegrunnelse(
+                    NasjonalEllerFellesBegrunnelseDB(
                         vedtaksperiodeMedBegrunnelser = this,
                         nasjonalEllerFellesBegrunnelse = begrunnelse,
                     )
@@ -643,7 +649,7 @@ class VedtaksperiodeService(
             if (it.fom == null && it.tom == null && uregistrerteBarn.isNotEmpty()) {
                 it.apply {
                     begrunnelser.add(
-                        Vedtaksbegrunnelse(
+                        NasjonalEllerFellesBegrunnelseDB(
                             vedtaksperiodeMedBegrunnelser = this,
                             nasjonalEllerFellesBegrunnelse = NasjonalEllerFellesBegrunnelse.AVSLAG_UREGISTRERT_BARN,
                         ),
