@@ -130,7 +130,7 @@ class VedtaksperiodeService(
 
     fun skalHaÅrligKontroll(vedtak: Vedtak): Boolean {
         return vedtak.behandling.kategori == BehandlingKategori.EØS &&
-                hentPersisterteVedtaksperioder(vedtak).any { it.tom?.erSenereEnnInneværendeMåned() != false }
+            hentPersisterteVedtaksperioder(vedtak).any { it.tom?.erSenereEnnInneværendeMåned() != false }
     }
 
     private fun validerEndretUtbetalingsbegrunnelse(
@@ -230,8 +230,8 @@ class VedtaksperiodeService(
     ) = utbetalingsperioder.filter { utbetalingsperiode ->
         avslagsperioder.none { avslagsperiode ->
             avslagsperiode.fom == utbetalingsperiode.fom &&
-                    avslagsperiode.tom == utbetalingsperiode.tom &&
-                    avslagsperiode.begrunnelser.isNotEmpty()
+                avslagsperiode.tom == utbetalingsperiode.tom &&
+                avslagsperiode.begrunnelser.isNotEmpty()
         }
     }
 
@@ -419,15 +419,15 @@ class VedtaksperiodeService(
 
                 utvidetVedtaksperiodeMedBegrunnelser.copy(
                     gyldigeBegrunnelser =
-                    BegrunnelserForPeriodeContext(
-                        utvidetVedtaksperiodeMedBegrunnelser = utvidetVedtaksperiodeMedBegrunnelser,
-                        sanityBegrunnelser = sanityBegrunnelser,
-                        personopplysningGrunnlag = persongrunnlag,
-                        personResultater = vilkårsvurdering.personResultater.toList(),
-                        endretUtbetalingsandeler = endreteUtbetalinger,
-                        erFørsteVedtaksperiode = erFørsteVedtaksperiodePåFagsak,
-                        kompetanser = kompetanser,
-                    ).hentGyldigeBegrunnelserForVedtaksperiode(),
+                        BegrunnelserForPeriodeContext(
+                            utvidetVedtaksperiodeMedBegrunnelser = utvidetVedtaksperiodeMedBegrunnelser,
+                            sanityBegrunnelser = sanityBegrunnelser,
+                            personopplysningGrunnlag = persongrunnlag,
+                            personResultater = vilkårsvurdering.personResultater.toList(),
+                            endretUtbetalingsandeler = endreteUtbetalinger,
+                            erFørsteVedtaksperiode = erFørsteVedtaksperiodePåFagsak,
+                            kompetanser = kompetanser,
+                        ).hentGyldigeBegrunnelserForVedtaksperiode(),
                 )
             }
     }
@@ -635,12 +635,12 @@ class VedtaksperiodeService(
         val avslagsperioderMedTomPeriode =
             if (avslagsperioder.none { it.fom == null && it.tom == null }) {
                 avslagsperioder +
-                        VedtaksperiodeMedBegrunnelser(
-                            vedtak = vedtak,
-                            fom = null,
-                            tom = null,
-                            type = Vedtaksperiodetype.AVSLAG,
-                        )
+                    VedtaksperiodeMedBegrunnelser(
+                        vedtak = vedtak,
+                        fom = null,
+                        tom = null,
+                        type = Vedtaksperiodetype.AVSLAG,
+                    )
             } else {
                 avslagsperioder
             }

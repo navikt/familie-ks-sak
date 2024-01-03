@@ -142,11 +142,11 @@ data class VedtaksperiodeMedBegrunnelser(
         val delvisOverlapp =
             andelTilkjentYtelserIPeriode.any {
                 (this.fom ?: TIDENES_MORGEN).isBefore(it.stønadFom.førsteDagIInneværendeMåned()) || (
-                        (
-                                this.tom
-                                    ?: TIDENES_ENDE
-                                ).isAfter(it.stønadTom.sisteDagIInneværendeMåned())
-                        )
+                    (
+                        this.tom
+                            ?: TIDENES_ENDE
+                    ).isAfter(it.stønadTom.sisteDagIInneværendeMåned())
+                )
             }
 
         if (delvisOverlapp) {

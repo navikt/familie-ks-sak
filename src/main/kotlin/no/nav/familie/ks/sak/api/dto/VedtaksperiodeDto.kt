@@ -51,7 +51,7 @@ fun UtvidetVedtaksperiodeMedBegrunnelser.tilUtvidetVedtaksperiodeMedBegrunnelser
         fritekster = this.fritekster,
         utbetalingsperiodeDetaljer = this.utbetalingsperiodeDetaljer.map { it.tilUtbetalingsperiodeDetaljDto() },
         gyldigeBegrunnelser = this.gyldigeBegrunnelser.map { it.enumnavnTilString() },
-        eøsBegrunnelser = this.eøsBegrunnelser.map { it.tilEøsBegrunnelseDto(sanityBegrunnelser) }
+        eøsBegrunnelser = this.eøsBegrunnelser.map { it.tilEøsBegrunnelseDto(sanityBegrunnelser) },
     )
 }
 
@@ -74,4 +74,3 @@ fun EØSBegrunnelseDB.tilEøsBegrunnelseDto(sanityBegrunnelser: List<SanityBegru
         begrunnelseType = this.begrunnelse.begrunnelseType,
         støtterFritekst = this.begrunnelse.støtterFritekst(sanityBegrunnelser),
     )
-

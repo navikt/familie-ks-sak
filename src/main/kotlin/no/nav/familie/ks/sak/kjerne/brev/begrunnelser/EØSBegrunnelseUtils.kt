@@ -12,7 +12,7 @@ fun EØSBegrunnelse.tilVedtaksbegrunnelse(vedtaksperiodeMedBegrunnelser: Vedtaks
     ) {
         throw Feil(
             "Begrunnelsestype ${this.begrunnelseType} passer ikke med " +
-                    "typen '${vedtaksperiodeMedBegrunnelser.type}' som er satt på perioden.",
+                "typen '${vedtaksperiodeMedBegrunnelser.type}' som er satt på perioden.",
         )
     }
 
