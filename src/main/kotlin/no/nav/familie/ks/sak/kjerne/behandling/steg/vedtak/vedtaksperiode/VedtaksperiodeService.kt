@@ -39,11 +39,12 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vil
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.forskyvVilkårResultater
 import no.nav.familie.ks.sak.kjerne.beregning.AndelTilkjentYtelseMedEndreteUtbetalinger
 import no.nav.familie.ks.sak.kjerne.beregning.AndelerTilkjentYtelseOgEndreteUtbetalingerService
-import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.Begrunnelse
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.BegrunnelseType
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.BegrunnelserForPeriodeContext
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.EØSBegrunnelse
+import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.NasjonalEllerFellesBegrunnelse
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.tilVedtaksbegrunnelse
+import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.KompetanseService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Målform
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
@@ -64,6 +65,7 @@ class VedtaksperiodeService(
     private val andelerTilkjentYtelseOgEndreteUtbetalingerService: AndelerTilkjentYtelseOgEndreteUtbetalingerService,
     private val integrasjonClient: IntegrasjonClient,
     private val refusjonEøsRepository: RefusjonEøsRepository,
+    private val kompetanseService: KompetanseService,
 ) {
     fun oppdaterVedtaksperiodeMedFritekster(
         vedtaksperiodeId: Long,
@@ -88,7 +90,7 @@ class VedtaksperiodeService(
 
     fun oppdaterVedtaksperiodeMedBegrunnelser(
         vedtaksperiodeId: Long,
-        begrunnelserFraFrontend: List<Begrunnelse>,
+        begrunnelserFraFrontend: List<NasjonalEllerFellesBegrunnelse>,
         eøsBegrunnelserFraFrontend: List<EØSBegrunnelse> = emptyList(),
     ): Vedtak {
         val vedtaksperiodeMedBegrunnelser =
@@ -396,6 +398,8 @@ class VedtaksperiodeService(
             andelerTilkjentYtelseOgEndreteUtbetalingerService.finnAndelerTilkjentYtelseMedEndreteUtbetalinger(behandling.id)
                 .map { it.andel }
 
+        val kompetanser = kompetanseService.hentKompetanser(behandling.behandlingId)
+
         return utvidedeVedtaksperioderMedBegrunnelser
             .sortedBy { it.fom }
             .mapNotNull { utvidetVedtaksperiodeMedBegrunnelser ->
@@ -416,6 +420,7 @@ class VedtaksperiodeService(
                             personResultater = vilkårsvurdering.personResultater.toList(),
                             endretUtbetalingsandeler = endreteUtbetalinger,
                             erFørsteVedtaksperiode = erFørsteVedtaksperiodePåFagsak,
+                            kompetanser = kompetanser,
                         ).hentGyldigeBegrunnelserForVedtaksperiode(),
                 )
             }
@@ -598,7 +603,7 @@ class VedtaksperiodeService(
     private fun lagVedtaksPeriodeMedBegrunnelser(
         vedtak: Vedtak,
         periode: NullablePeriode,
-        avslagsbegrunnelser: List<Begrunnelse>,
+        avslagsbegrunnelser: List<NasjonalEllerFellesBegrunnelse>,
     ): VedtaksperiodeMedBegrunnelser =
         VedtaksperiodeMedBegrunnelser(
             vedtak = vedtak,
@@ -610,7 +615,7 @@ class VedtaksperiodeService(
                 avslagsbegrunnelser.map { begrunnelse ->
                     Vedtaksbegrunnelse(
                         vedtaksperiodeMedBegrunnelser = this,
-                        begrunnelse = begrunnelse,
+                        nasjonalEllerFellesBegrunnelse = begrunnelse,
                     )
                 },
             )
@@ -640,7 +645,7 @@ class VedtaksperiodeService(
                     begrunnelser.add(
                         Vedtaksbegrunnelse(
                             vedtaksperiodeMedBegrunnelser = this,
-                            begrunnelse = Begrunnelse.AVSLAG_UREGISTRERT_BARN,
+                            nasjonalEllerFellesBegrunnelse = NasjonalEllerFellesBegrunnelse.AVSLAG_UREGISTRERT_BARN,
                         ),
                     )
                 }

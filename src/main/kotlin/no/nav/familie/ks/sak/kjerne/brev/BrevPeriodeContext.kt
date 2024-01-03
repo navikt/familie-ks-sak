@@ -33,17 +33,18 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vil
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.forskyvVilkårResultater
 import no.nav.familie.ks.sak.kjerne.beregning.AndelTilkjentYtelseMedEndreteUtbetalinger
-import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.Begrunnelse
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.BegrunnelseDataDto
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.BegrunnelseDto
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.BegrunnelseType
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.BegrunnelserForPeriodeContext
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.FritekstBegrunnelseDto
+import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.NasjonalEllerFellesBegrunnelse
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.tilBrevTekst
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.tilSanityBegrunnelse
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.brevperioder.BrevPeriodeDto
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.brevperioder.BrevPeriodeType
 import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.EndretUtbetalingAndel
+import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.Kompetanse
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
@@ -61,6 +62,7 @@ class BrevPeriodeContext(
     private val uregistrerteBarn: List<BarnMedOpplysningerDto>,
     private val barnSomDødeIForrigePeriode: List<Person>,
     private val erFørsteVedtaksperiode: Boolean,
+    private val kompetanser: List<Kompetanse>,
 ) {
     private val personerMedUtbetaling =
         utvidetVedtaksperiodeMedBegrunnelser.utbetalingsperiodeDetaljer.map { it.person }
@@ -179,16 +181,16 @@ class BrevPeriodeContext(
     fun hentBarnasFødselsdagerForBegrunnelse(
         gjelderSøker: Boolean,
         personerMedVilkårSomPasserBegrunnelse: Collection<Person>,
-        begrunnelse: Begrunnelse,
+        nasjonalEllerFellesBegrunnelse: NasjonalEllerFellesBegrunnelse,
     ): List<LocalDate> =
         when {
-            begrunnelse == Begrunnelse.AVSLAG_UREGISTRERT_BARN ->
+            nasjonalEllerFellesBegrunnelse == NasjonalEllerFellesBegrunnelse.AVSLAG_UREGISTRERT_BARN ->
                 uregistrerteBarn.mapNotNull { it.fødselsdato }
 
             gjelderSøker &&
-                begrunnelse.begrunnelseType != BegrunnelseType.ENDRET_UTBETALING &&
-                begrunnelse.begrunnelseType != BegrunnelseType.ETTER_ENDRET_UTBETALING -> {
-                if (begrunnelse.begrunnelseType == BegrunnelseType.AVSLAG) {
+                nasjonalEllerFellesBegrunnelse.begrunnelseType != BegrunnelseType.ENDRET_UTBETALING &&
+                nasjonalEllerFellesBegrunnelse.begrunnelseType != BegrunnelseType.ETTER_ENDRET_UTBETALING -> {
+                if (nasjonalEllerFellesBegrunnelse.begrunnelseType == BegrunnelseType.AVSLAG) {
                     personerMedVilkårSomPasserBegrunnelse
                         .filter { it.type == PersonType.BARN }
                         .map { it.fødselsdato }
@@ -207,10 +209,10 @@ class BrevPeriodeContext(
 
     fun hentAntallBarnForBegrunnelse(
         barnasFødselsdatoer: List<LocalDate>,
-        begrunnelse: Begrunnelse,
+        nasjonalEllerFellesBegrunnelse: NasjonalEllerFellesBegrunnelse,
     ): Int {
         val erAvslagUregistrerteBarn =
-            begrunnelse == Begrunnelse.AVSLAG_UREGISTRERT_BARN
+            nasjonalEllerFellesBegrunnelse == NasjonalEllerFellesBegrunnelse.AVSLAG_UREGISTRERT_BARN
 
         return when {
             erAvslagUregistrerteBarn -> uregistrerteBarn.size
@@ -218,9 +220,9 @@ class BrevPeriodeContext(
         }
     }
 
-    private fun hentBeløp(begrunnelse: Begrunnelse) =
-        if (begrunnelse.begrunnelseType == BegrunnelseType.AVSLAG ||
-            begrunnelse.begrunnelseType == BegrunnelseType.OPPHØR
+    private fun hentBeløp(nasjonalEllerFellesBegrunnelse: NasjonalEllerFellesBegrunnelse) =
+        if (nasjonalEllerFellesBegrunnelse.begrunnelseType == BegrunnelseType.AVSLAG ||
+            nasjonalEllerFellesBegrunnelse.begrunnelseType == BegrunnelseType.OPPHØR
         ) {
             0
         } else {
@@ -231,21 +233,21 @@ class BrevPeriodeContext(
         gjelderSøker: Boolean,
         barnasFødselsdatoer: List<LocalDate>,
         sanityBegrunnelse: SanityBegrunnelse,
-        begrunnelse: Begrunnelse,
+        nasjonalEllerFellesBegrunnelse: NasjonalEllerFellesBegrunnelse,
     ) {
         if (!gjelderSøker && barnasFødselsdatoer.isEmpty() &&
             !sanityBegrunnelse.triggere.contains(Trigger.SATSENDRING) &&
-            begrunnelse != Begrunnelse.AVSLAG_UREGISTRERT_BARN &&
-            begrunnelse != Begrunnelse.AVSLAG_SØKT_FOR_SENT_ENDRINGSPERIODE
+            nasjonalEllerFellesBegrunnelse != NasjonalEllerFellesBegrunnelse.AVSLAG_UREGISTRERT_BARN &&
+            nasjonalEllerFellesBegrunnelse != NasjonalEllerFellesBegrunnelse.AVSLAG_SØKT_FOR_SENT_ENDRINGSPERIODE
         ) {
-            throw IllegalStateException("Ingen personer på brevbegrunnelse $begrunnelse")
+            throw IllegalStateException("Ingen personer på brevbegrunnelse $nasjonalEllerFellesBegrunnelse")
         }
     }
 
-    private fun endringsperioderSomPasserMedPeriodeDatoOgBegrunnelse(begrunnelse: Begrunnelse): List<EndretUtbetalingAndel> {
+    private fun endringsperioderSomPasserMedPeriodeDatoOgBegrunnelse(nasjonalEllerFellesBegrunnelse: NasjonalEllerFellesBegrunnelse): List<EndretUtbetalingAndel> {
         val endredeUtbetalinger = andelTilkjentYtelserMedEndreteUtbetalinger.flatMap { it.endreteUtbetalinger }
 
-        return when (begrunnelse.begrunnelseType) {
+        return when (nasjonalEllerFellesBegrunnelse.begrunnelseType) {
             BegrunnelseType.ETTER_ENDRET_UTBETALING -> {
                 endredeUtbetalinger.filter {
                     it.tom?.sisteDagIInneværendeMåned()
@@ -276,14 +278,15 @@ class BrevPeriodeContext(
             personResultater = personResultater,
             endretUtbetalingsandeler = andelTilkjentYtelserMedEndreteUtbetalinger.flatMap { it.endreteUtbetalinger },
             erFørsteVedtaksperiode = erFørsteVedtaksperiode,
+            kompetanser = kompetanser,
         )
 
     fun hentBegrunnelseDtoer(): List<BegrunnelseDataDto> {
         return utvidetVedtaksperiodeMedBegrunnelser
             .begrunnelser
             .mapNotNull { vedtakBegrunnelse ->
-                val nullableSanitybegrunnelse = vedtakBegrunnelse.begrunnelse.tilSanityBegrunnelse(sanityBegrunnelser)
-                nullableSanitybegrunnelse?.let { Pair(vedtakBegrunnelse.begrunnelse, it) }
+                val nullableSanitybegrunnelse = vedtakBegrunnelse.nasjonalEllerFellesBegrunnelse.tilSanityBegrunnelse(sanityBegrunnelser)
+                nullableSanitybegrunnelse?.let { Pair(vedtakBegrunnelse.nasjonalEllerFellesBegrunnelse, it) }
             }.map { (begrunnelse, sanityBegrunnelse) ->
 
                 val relevantePersoner =
@@ -329,7 +332,7 @@ class BrevPeriodeContext(
                     hentBarnasFødselsdagerForBegrunnelse(
                         gjelderSøker = gjelderSøker,
                         personerMedVilkårSomPasserBegrunnelse = relevantePersoner,
-                        begrunnelse = begrunnelse,
+                        nasjonalEllerFellesBegrunnelse = begrunnelse,
                     )
 
                 val maanedOgAarBegrunnelsenGjelderFor =
@@ -347,7 +350,7 @@ class BrevPeriodeContext(
                     gjelderSøker = gjelderSøker,
                     barnasFødselsdatoer = barnasFødselsdatoer,
                     sanityBegrunnelse = sanityBegrunnelse,
-                    begrunnelse = begrunnelse,
+                    nasjonalEllerFellesBegrunnelse = begrunnelse,
                 )
 
                 BegrunnelseDataDto(
@@ -357,7 +360,7 @@ class BrevPeriodeContext(
                     antallBarn =
                         hentAntallBarnForBegrunnelse(
                             barnasFødselsdatoer = barnasFødselsdatoer,
-                            begrunnelse = begrunnelse,
+                            nasjonalEllerFellesBegrunnelse = begrunnelse,
                         ),
                     maanedOgAarBegrunnelsenGjelderFor = maanedOgAarBegrunnelsenGjelderFor,
                     maalform = persongrunnlag.søker.målform.tilSanityFormat(),
@@ -497,7 +500,7 @@ class BrevPeriodeContext(
     }
 }
 
-private fun Begrunnelse.hentRelevanteEndringsperioderForBegrunnelse(
+private fun NasjonalEllerFellesBegrunnelse.hentRelevanteEndringsperioderForBegrunnelse(
     endretUtbetalingAndeler: List<EndretUtbetalingAndel>,
     vedtaksperiode: UtvidetVedtaksperiodeMedBegrunnelser,
     sanityBegrunnelse: SanityBegrunnelse,

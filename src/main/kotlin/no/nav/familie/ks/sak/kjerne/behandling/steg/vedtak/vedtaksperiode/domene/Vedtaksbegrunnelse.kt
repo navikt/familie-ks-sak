@@ -12,7 +12,7 @@ import jakarta.persistence.JoinColumn
 import jakarta.persistence.ManyToOne
 import jakarta.persistence.SequenceGenerator
 import jakarta.persistence.Table
-import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.Begrunnelse
+import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.NasjonalEllerFellesBegrunnelse
 
 @Entity(name = "Vedtaksbegrunnelse")
 @Table(name = "VEDTAKSBEGRUNNELSE")
@@ -31,13 +31,13 @@ class Vedtaksbegrunnelse(
     val vedtaksperiodeMedBegrunnelser: VedtaksperiodeMedBegrunnelser,
     @Enumerated(EnumType.STRING)
     @Column(name = "vedtak_begrunnelse_spesifikasjon", updatable = false)
-    val begrunnelse: Begrunnelse,
+    val nasjonalEllerFellesBegrunnelse: NasjonalEllerFellesBegrunnelse,
 ) {
     fun kopier(vedtaksperiodeMedBegrunnelser: VedtaksperiodeMedBegrunnelser): Vedtaksbegrunnelse =
         Vedtaksbegrunnelse(
             vedtaksperiodeMedBegrunnelser = vedtaksperiodeMedBegrunnelser,
-            begrunnelse = this.begrunnelse,
+            nasjonalEllerFellesBegrunnelse = this.nasjonalEllerFellesBegrunnelse,
         )
 
-    override fun toString(): String = "Vedtaksbegrunnelse(id=$id, standardbegrunnelse=$begrunnelse)"
+    override fun toString(): String = "Vedtaksbegrunnelse(id=$id, standardbegrunnelse=$nasjonalEllerFellesBegrunnelse)"
 }
