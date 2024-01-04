@@ -12,6 +12,9 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.Brevmal
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Målform
 
+const val HJEMMEL_60_EØS_FORORDNINGEN_987 = "60"
+const val FORVALTINIGSLOVEN_PARAGRAF_35 = "35"
+
 fun hentBrevmal(behandling: Behandling): Brevmal =
     when (behandling.opprettetÅrsak) {
         BehandlingÅrsak.DØDSFALL -> Brevmal.VEDTAK_OPPHØR_DØDSFALL
@@ -133,13 +136,21 @@ private fun hentHjemlerForEøsForordningen987(
 ): List<String> {
     val hjemler =
         begrunnelser.flatMap { it.hjemlerEØSForordningen987 } +
-            if (refusjonEøsHjemmelSkalMedIBrev) listOf("60") else emptyList()
+            if (refusjonEøsHjemmelSkalMedIBrev) {
+                listOf(HJEMMEL_60_EØS_FORORDNINGEN_987)
+            } else {
+                emptyList()
+            }
 
     return hjemler.distinct()
 }
 
 fun hentForvaltningsloverHjemler(vedtakKorrigertHjemmelSkalMedIBrev: Boolean): List<String> =
-    if (vedtakKorrigertHjemmelSkalMedIBrev) listOf("35") else emptyList()
+    if (vedtakKorrigertHjemmelSkalMedIBrev) {
+        listOf(FORVALTINIGSLOVEN_PARAGRAF_35)
+    } else {
+        emptyList()
+    }
 
 private fun slåSammenHjemlerAvUlikeTyper(hjemler: List<String>) =
     when (hjemler.size) {
