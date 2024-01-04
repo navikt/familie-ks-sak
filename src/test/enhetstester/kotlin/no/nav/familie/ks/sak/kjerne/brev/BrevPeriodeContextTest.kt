@@ -28,9 +28,9 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vil
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.beregning.AndelTilkjentYtelseMedEndreteUtbetalinger
 import no.nav.familie.ks.sak.kjerne.beregning.TilkjentYtelseUtils
-import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.BegrunnelseDataDto
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.BegrunnelseType
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.NasjonalEllerFellesBegrunnelse
+import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.NasjonalOgFellesBegrunnelseDataDto
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.brevperioder.BrevPeriodeType
 import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.EndretUtbetalingAndel
 import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.Årsak
@@ -96,7 +96,7 @@ class BrevPeriodeContextTest {
         Assertions.assertEquals(listOf(""), brevPeriodeDto?.fodselsdagerBarnMedNullutbetaling)
 
         Assertions.assertEquals(
-            BegrunnelseDataDto(
+            NasjonalOgFellesBegrunnelseDataDto(
                 vedtakBegrunnelseType = BegrunnelseType.INNVILGET,
                 apiNavn = "innvilgetIkkeBarnehage",
                 sanityBegrunnelseType = SanityBegrunnelseType.STANDARD,
@@ -149,7 +149,7 @@ class BrevPeriodeContextTest {
             ).genererBrevPeriodeDto()
 
         Assertions.assertEquals(
-            BegrunnelseDataDto(
+            NasjonalOgFellesBegrunnelseDataDto(
                 vedtakBegrunnelseType = BegrunnelseType.INNVILGET,
                 apiNavn = "innvilgetDeltidBarnehage",
                 sanityBegrunnelseType = SanityBegrunnelseType.STANDARD,
@@ -208,7 +208,7 @@ class BrevPeriodeContextTest {
             ).genererBrevPeriodeDto()
 
         Assertions.assertEquals(
-            BegrunnelseDataDto(
+            NasjonalOgFellesBegrunnelseDataDto(
                 vedtakBegrunnelseType = BegrunnelseType.INNVILGET,
                 apiNavn = "innvilgetDeltidBarnehageAdopsjon",
                 sanityBegrunnelseType = SanityBegrunnelseType.STANDARD,
@@ -261,7 +261,7 @@ class BrevPeriodeContextTest {
             ).genererBrevPeriodeDto()
 
         Assertions.assertEquals(
-            BegrunnelseDataDto(
+            NasjonalOgFellesBegrunnelseDataDto(
                 vedtakBegrunnelseType = BegrunnelseType.INNVILGET,
                 apiNavn = "innvilgetIkkeBarnehageAdopsjon",
                 sanityBegrunnelseType = SanityBegrunnelseType.STANDARD,
@@ -321,7 +321,7 @@ class BrevPeriodeContextTest {
             ).genererBrevPeriodeDto()
 
         Assertions.assertEquals(
-            BegrunnelseDataDto(
+            NasjonalOgFellesBegrunnelseDataDto(
                 vedtakBegrunnelseType = BegrunnelseType.INNVILGET,
                 apiNavn = NasjonalEllerFellesBegrunnelse.INNVILGET_IKKE_BARNEHAGE_ADOPSJON.sanityApiNavn,
                 sanityBegrunnelseType = SanityBegrunnelseType.STANDARD,
@@ -381,7 +381,7 @@ class BrevPeriodeContextTest {
             ).genererBrevPeriodeDto()
 
         Assertions.assertEquals(
-            BegrunnelseDataDto(
+            NasjonalOgFellesBegrunnelseDataDto(
                 vedtakBegrunnelseType = BegrunnelseType.INNVILGET,
                 apiNavn = NasjonalEllerFellesBegrunnelse.INNVILGET_IKKE_BARNEHAGE_ADOPSJON.sanityApiNavn,
                 sanityBegrunnelseType = SanityBegrunnelseType.STANDARD,

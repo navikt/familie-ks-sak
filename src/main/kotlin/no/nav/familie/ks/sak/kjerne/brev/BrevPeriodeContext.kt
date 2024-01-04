@@ -33,12 +33,12 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vil
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.forskyvVilkårResultater
 import no.nav.familie.ks.sak.kjerne.beregning.AndelTilkjentYtelseMedEndreteUtbetalinger
-import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.BegrunnelseDataDto
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.BegrunnelseDto
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.BegrunnelseType
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.BegrunnelserForPeriodeContext
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.FritekstBegrunnelseDto
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.NasjonalEllerFellesBegrunnelse
+import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.NasjonalOgFellesBegrunnelseDataDto
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.tilBrevTekst
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.tilSanityBegrunnelse
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.brevperioder.BrevPeriodeDto
@@ -281,7 +281,7 @@ class BrevPeriodeContext(
             kompetanser = kompetanser,
         )
 
-    fun hentBegrunnelseDtoer(): List<BegrunnelseDataDto> {
+    fun hentBegrunnelseDtoer(): List<NasjonalOgFellesBegrunnelseDataDto> {
         return utvidetVedtaksperiodeMedBegrunnelser
             .begrunnelser
             .mapNotNull { vedtakBegrunnelse ->
@@ -353,7 +353,7 @@ class BrevPeriodeContext(
                     nasjonalEllerFellesBegrunnelse = begrunnelse,
                 )
 
-                BegrunnelseDataDto(
+                NasjonalOgFellesBegrunnelseDataDto(
                     gjelderSoker = gjelderSøker,
                     gjelderAndreForelder = gjelderAndreForelder,
                     barnasFodselsdatoer = barnasFødselsdatoer.tilBrevTekst(),

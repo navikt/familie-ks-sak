@@ -46,7 +46,7 @@ sealed class BegrunnelseDtoMedData(
     type: BrevBegrunnelseType,
 ) : BegrunnelseDto(type)
 
-data class BegrunnelseDataDto(
+data class NasjonalOgFellesBegrunnelseDataDto(
     override val vedtakBegrunnelseType: BegrunnelseType,
     override val apiNavn: String,
     override val sanityBegrunnelseType: SanityBegrunnelseType,
