@@ -104,7 +104,7 @@ class BegrunnelserForPeriodeContext(
         }
     }
 
-    private fun hentPersonerSomPasserForKompetanseIPeriode(
+    fun hentPersonerSomPasserForKompetanseIPeriode(
         begrunnelse: IBegrunnelse,
         sanityBegrunnelse: SanityBegrunnelse,
     ): Set<Person> {

@@ -24,6 +24,7 @@ import no.nav.familie.ks.sak.common.util.tilYearMonth
 import no.nav.familie.ks.sak.common.util.toYearMonth
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelse
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.Trigger
+import no.nav.familie.ks.sak.integrasjon.sanity.domene.begrunnelseGjelderOpphørFraForrigeBehandling
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.inneholderGjelderFørstePeriodeTrigger
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.Vedtaksperiodetype
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.UtvidetVedtaksperiodeMedBegrunnelser
@@ -36,6 +37,9 @@ import no.nav.familie.ks.sak.kjerne.beregning.AndelTilkjentYtelseMedEndreteUtbet
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.BegrunnelseDto
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.BegrunnelseType
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.BegrunnelserForPeriodeContext
+import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.EØSBegrunnelseDto
+import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.EØSBegrunnelseMedKompetanseDto
+import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.EØSBegrunnelseUtenKompetanseDto
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.FritekstBegrunnelseDto
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.IBegrunnelse
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.NasjonalEllerFellesBegrunnelse
@@ -46,6 +50,7 @@ import no.nav.familie.ks.sak.kjerne.brev.domene.maler.brevperioder.BrevPeriodeDt
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.brevperioder.BrevPeriodeType
 import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.EndretUtbetalingAndel
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.Kompetanse
+import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.KompetanseAktivitet
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
@@ -69,7 +74,7 @@ class BrevPeriodeContext(
         utvidetVedtaksperiodeMedBegrunnelser.utbetalingsperiodeDetaljer.map { it.person }
 
     fun genererBrevPeriodeDto(): BrevPeriodeDto? {
-        val begrunnelserOgFritekster = hentNasjonalOgFellesBegrunnelseDtoer() + hentFritekstBegrunnelseDtoer()
+        val begrunnelserOgFritekster = hentNasjonalOgFellesBegrunnelseDtoer() + hentEøsBegrunnelseDataDtoer() + hentFritekstBegrunnelseDtoer()
 
         if (begrunnelserOgFritekster.isEmpty()) return null
 
@@ -234,7 +239,7 @@ class BrevPeriodeContext(
         gjelderSøker: Boolean,
         barnasFødselsdatoer: List<LocalDate>,
         sanityBegrunnelse: SanityBegrunnelse,
-        nasjonalEllerFellesBegrunnelse: NasjonalEllerFellesBegrunnelse,
+        nasjonalEllerFellesBegrunnelse: IBegrunnelse,
     ) {
         if (!gjelderSøker && barnasFødselsdatoer.isEmpty() &&
             !sanityBegrunnelse.triggere.contains(Trigger.SATSENDRING) &&
@@ -290,7 +295,7 @@ class BrevPeriodeContext(
                 nullableSanitybegrunnelse?.let { Pair(vedtakBegrunnelse.nasjonalEllerFellesBegrunnelse, it) }
             }.map { (begrunnelse, sanityBegrunnelse) ->
 
-                val relevantePersoner = hentRelevantePersonerForBegrunnelse(begrunnelse, sanityBegrunnelse)
+                val relevantePersoner = hentRelevantePersonerForNasjonalOgFellesBegrunnelse(begrunnelse, sanityBegrunnelse)
 
                 val vilkårResultaterForRelevantePersoner =
                     personResultater
@@ -321,7 +326,7 @@ class BrevPeriodeContext(
                     hentBarnasFødselsdagerForBegrunnelse(
                         gjelderSøker = gjelderSøker,
                         personerMedVilkårSomPasserBegrunnelse = relevantePersoner,
-                        nasjonalEllerFellesBegrunnelse = begrunnelse,
+                        begrunnelse = begrunnelse,
                     )
 
                 val maanedOgAarBegrunnelsenGjelderFor =
@@ -349,7 +354,7 @@ class BrevPeriodeContext(
                     antallBarn =
                         hentAntallBarnForBegrunnelse(
                             barnasFødselsdatoer = barnasFødselsdatoer,
-                            nasjonalEllerFellesBegrunnelse = begrunnelse,
+                            begrunnelse = begrunnelse,
                         ),
                     maanedOgAarBegrunnelsenGjelderFor = maanedOgAarBegrunnelsenGjelderFor,
                     maalform = persongrunnlag.søker.målform.tilSanityFormat(),
@@ -363,7 +368,7 @@ class BrevPeriodeContext(
             }
     }
 
-    private fun hentRelevantePersonerForBegrunnelse(
+    private fun hentRelevantePersonerForNasjonalOgFellesBegrunnelse(
         begrunnelse: IBegrunnelse,
         sanityBegrunnelse: SanityBegrunnelse,
     ) = when (begrunnelse.begrunnelseType) {
@@ -377,6 +382,116 @@ class BrevPeriodeContext(
                 begrunnelse = begrunnelse,
                 sanityBegrunnelse = sanityBegrunnelse,
             )
+    }
+
+    private fun hentRelevantePersonerForEøsBegrunnelse(
+        begrunnelse: IBegrunnelse,
+        sanityBegrunnelse: SanityBegrunnelse,
+    ): Set<Person> {
+        return begrunnelserForPeriodeContext.hentPersonerSomPasserForKompetanseIPeriode(
+            begrunnelse = begrunnelse,
+            sanityBegrunnelse = sanityBegrunnelse,
+        )
+    }
+
+    fun hentEøsBegrunnelseDataDtoer(): List<EØSBegrunnelseDto> {
+        return this.utvidetVedtaksperiodeMedBegrunnelser
+            .eøsBegrunnelser
+            .mapNotNull { vedtakBegrunnelse ->
+                val nullableSanitybegrunnelse = vedtakBegrunnelse.begrunnelse.tilSanityBegrunnelse(sanityBegrunnelser)
+                nullableSanitybegrunnelse?.let { Pair(vedtakBegrunnelse.begrunnelse, it) }
+            }.map { (begrunnelse, sanityBegrunnelse) ->
+                val personerGjeldendeForBegrunnelse =
+                    hentRelevantePersonerForNasjonalOgFellesBegrunnelse(begrunnelse, sanityBegrunnelse) +
+                        hentRelevantePersonerForEøsBegrunnelse(begrunnelse, sanityBegrunnelse)
+
+                val gjelderSøker = personerGjeldendeForBegrunnelse.any { it.type == PersonType.SØKER }
+
+                val barnasFødselsdatoer =
+                    hentBarnasFødselsdagerForBegrunnelse(
+                        gjelderSøker = gjelderSøker,
+                        personerMedVilkårSomPasserBegrunnelse = personerGjeldendeForBegrunnelse,
+                        begrunnelse = begrunnelse,
+                    )
+
+                validerBrevbegrunnelse(
+                    gjelderSøker = gjelderSøker,
+                    barnasFødselsdatoer = barnasFødselsdatoer,
+                    sanityBegrunnelse = sanityBegrunnelse,
+                    nasjonalEllerFellesBegrunnelse = begrunnelse,
+                )
+
+                val begrunnelseGjelderOpphørFraForrigeBehandling = sanityBegrunnelse.begrunnelseGjelderOpphørFraForrigeBehandling()
+
+                return if (kompetanser.isEmpty() && begrunnelse.begrunnelseType == BegrunnelseType.AVSLAG && begrunnelse.begrunnelseType == BegrunnelseType.EØS_OPPHØR) {
+                    val barnasFødselsdagerForAvslagOgOpphør =
+                        hentBarnasFødselsdagerForAvslagOgOpphør(
+                            barnIBegrunnelse = personerGjeldendeForBegrunnelse.filter { it.type == PersonType.BARN },
+                            barnPåBehandling = persongrunnlag.barna,
+                            uregistrerteBarn = uregistrerteBarn,
+                            gjelderSøker = gjelderSøker,
+                        )
+
+                    listOf(
+                        EØSBegrunnelseUtenKompetanseDto(
+                            vedtakBegrunnelseType = begrunnelse.begrunnelseType,
+                            apiNavn = begrunnelse.sanityApiNavn,
+                            sanityBegrunnelseType = sanityBegrunnelse.type,
+                            barnasFodselsdatoer = barnasFødselsdagerForAvslagOgOpphør.tilBrevTekst(),
+                            antallBarn = barnasFødselsdagerForAvslagOgOpphør.size,
+                            maalform = persongrunnlag.søker.målform.tilSanityFormat(),
+                            gjelderSoker = gjelderSøker,
+                        ),
+                    )
+                } else {
+                    kompetanser.mapNotNull { kompetanse ->
+                        val barnIBegrunnelseOgIKompetanseFødselsdato =
+                            kompetanse.barnAktører.mapNotNull { barnAktør ->
+                                if (gjelderSøker && begrunnelseGjelderOpphørFraForrigeBehandling) {
+                                    persongrunnlag.barna
+                                } else {
+                                    personerGjeldendeForBegrunnelse
+                                }.find { it.aktør == barnAktør }
+                            }.map { it.fødselsdato }
+
+                        if (barnIBegrunnelseOgIKompetanseFødselsdato.isNotEmpty()) {
+                            EØSBegrunnelseMedKompetanseDto(
+                                vedtakBegrunnelseType = begrunnelse.begrunnelseType,
+                                apiNavn = begrunnelse.sanityApiNavn,
+                                sanityBegrunnelseType = sanityBegrunnelse.type,
+                                barnetsBostedsland = "String",
+                                annenForeldersAktivitet = KompetanseAktivitet.UTSENDT_ARBEIDSTAKER_FRA_NORGE,
+                                annenForeldersAktivitetsland = "String",
+                                sokersAktivitet = KompetanseAktivitet.UTSENDT_ARBEIDSTAKER_FRA_NORGE,
+                                sokersAktivitetsland = "",
+                                barnasFodselsdatoer = barnIBegrunnelseOgIKompetanseFødselsdato.tilBrevTekst(),
+                                antallBarn =
+                                    hentAntallBarnForBegrunnelse(
+                                        barnasFødselsdatoer = barnIBegrunnelseOgIKompetanseFødselsdato,
+                                        begrunnelse = begrunnelse,
+                                    ),
+                                maalform = persongrunnlag.søker.målform.tilSanityFormat(),
+                            )
+                        } else {
+                            null
+                        }
+                    }
+                }
+            }
+    }
+
+    fun hentBarnasFødselsdagerForAvslagOgOpphør(
+        barnIBegrunnelse: List<Person>,
+        barnPåBehandling: List<Person>,
+        uregistrerteBarn: List<BarnMedOpplysningerDto>,
+        gjelderSøker: Boolean,
+    ): List<LocalDate> {
+        val registrerteBarnFødselsdatoer =
+            if (gjelderSøker) barnPåBehandling.map { it.fødselsdato } else barnIBegrunnelse.map { it.fødselsdato }
+        val uregistrerteBarnFødselsdatoer =
+            uregistrerteBarn.mapNotNull { it.fødselsdato }
+        val alleBarnaFødselsdatoer = registrerteBarnFødselsdatoer + uregistrerteBarnFødselsdatoer
+        return alleBarnaFødselsdatoer
     }
 
     private fun hentMånedOgÅrForBegrunnelse(
