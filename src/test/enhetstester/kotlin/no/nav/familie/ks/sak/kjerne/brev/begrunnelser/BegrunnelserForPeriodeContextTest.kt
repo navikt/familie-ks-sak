@@ -456,6 +456,7 @@ class BegrunnelserForPeriodeContextTest {
                     kompetanser = listOf(lagKompetanse(fom = jan(2020), tom = jan(2020), annenForeldersAktivitet = KompetanseAktivitet.ARBEIDER, resultat = KompetanseResultat.NORGE_ER_PRIMÆRLAND, barnetsBostedsland = "NO", barnAktører = setOf(barnAktør))),
                     vedtaksperiodeStartsTidpunkt = 1.jan(2020),
                     vedtaksperiodeSluttTidpunkt = 31.jan(2020),
+                    andelerTilkjentYtelse = listOf(AndelTilkjentYtelseMedEndreteUtbetalinger(lagAndelTilkjentYtelse(fom = jan(2020), tom = jan(2020), aktør = barnAktør), endreteUtbetalingerAndeler = emptyList())),
                 )
             val begrunnelser =
                 begrunnelseContext.hentGyldigeBegrunnelserForVedtaksperiode()
@@ -494,6 +495,7 @@ class BegrunnelserForPeriodeContextTest {
                     kompetanser = listOf(lagKompetanse(fom = jan(2020), tom = jan(2020), annenForeldersAktivitet = KompetanseAktivitet.ARBEIDER, resultat = KompetanseResultat.NORGE_ER_PRIMÆRLAND, barnetsBostedsland = "NO", barnAktører = setOf(barnAktør))),
                     vedtaksperiodeStartsTidpunkt = 1.feb(2021),
                     vedtaksperiodeSluttTidpunkt = 28.feb(2021),
+                    andelerTilkjentYtelse = listOf(AndelTilkjentYtelseMedEndreteUtbetalinger(lagAndelTilkjentYtelse(fom = jan(2020), tom = feb(2020), aktør = barnAktør), endreteUtbetalingerAndeler = emptyList())),
                 )
             val begrunnelser =
                 begrunnelseContext.hentGyldigeBegrunnelserForVedtaksperiode()
@@ -533,6 +535,7 @@ class BegrunnelserForPeriodeContextTest {
                     kompetanser = listOf(lagKompetanse(fom = jan(2020), tom = jan(2020), annenForeldersAktivitet = KompetanseAktivitet.ARBEIDER, resultat = KompetanseResultat.NORGE_ER_PRIMÆRLAND, barnetsBostedsland = "NO", barnAktører = setOf(barnAktør))),
                     vedtaksperiodeStartsTidpunkt = 1.feb(2020),
                     vedtaksperiodeSluttTidpunkt = 28.feb(2020),
+                    andelerTilkjentYtelse = listOf(AndelTilkjentYtelseMedEndreteUtbetalinger(lagAndelTilkjentYtelse(fom = jan(2020), tom = jan(2020), aktør = barnAktør), endreteUtbetalingerAndeler = emptyList())),
                 )
             val begrunnelser =
                 begrunnelseContext.hentGyldigeBegrunnelserForVedtaksperiode()
@@ -576,6 +579,7 @@ class BegrunnelserForPeriodeContextTest {
                         ),
                     vedtaksperiodeStartsTidpunkt = 1.feb(2020),
                     vedtaksperiodeSluttTidpunkt = 28.feb(2020),
+                    andelerTilkjentYtelse = listOf(AndelTilkjentYtelseMedEndreteUtbetalinger(lagAndelTilkjentYtelse(fom = jan(2020), tom = feb(2020), aktør = barnAktør), endreteUtbetalingerAndeler = emptyList())),
                 )
             val begrunnelser =
                 begrunnelseContext.hentGyldigeBegrunnelserForVedtaksperiode()
@@ -618,6 +622,7 @@ class BegrunnelserForPeriodeContextTest {
                         ),
                     vedtaksperiodeStartsTidpunkt = 1.feb(2020),
                     vedtaksperiodeSluttTidpunkt = 28.feb(2020),
+                    andelerTilkjentYtelse = listOf(AndelTilkjentYtelseMedEndreteUtbetalinger(lagAndelTilkjentYtelse(fom = jan(2020), tom = feb(2020), aktør = barnAktør), endreteUtbetalingerAndeler = emptyList())),
                 )
             val begrunnelser =
                 begrunnelseContext.hentGyldigeBegrunnelserForVedtaksperiode()
