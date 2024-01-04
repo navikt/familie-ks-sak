@@ -21,6 +21,8 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.tilFørskj
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.Kompetanse
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.KompetanseAktivitet
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.KompetanseResultat
+import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.UtfyltKompetanse
+import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.tilIKompetanse
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
 import org.assertj.core.api.Assertions.assertThat
@@ -748,7 +750,7 @@ class BegrunnelserForPeriodeContextTest {
         return BegrunnelserForPeriodeContext(
             utvidetVedtaksperiodeMedBegrunnelser = utvidetVedtaksperiodeMedBegrunnelser,
             sanityBegrunnelser = sanityBegrunnelser,
-            kompetanser = kompetanser,
+            kompetanser = kompetanser.map { it.tilIKompetanse() }.filterIsInstance<UtfyltKompetanse>(),
             personopplysningGrunnlag = persongrunnlag,
             personResultater = emptyList(),
             endretUtbetalingsandeler = emptyList(),

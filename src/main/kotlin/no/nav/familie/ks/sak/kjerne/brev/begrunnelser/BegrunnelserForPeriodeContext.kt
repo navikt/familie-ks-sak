@@ -25,9 +25,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.forskyvVil
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.tilFørskjøvetOppfylteVilkårResultatTidslinjeMap
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.tilFørskjøvetVilkårResultatTidslinjeMap
 import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.EndretUtbetalingAndel
-import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.Kompetanse
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.UtfyltKompetanse
-import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.tilIKompetanse
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.tilTidslinje
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
@@ -36,7 +34,7 @@ import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Personopplys
 class BegrunnelserForPeriodeContext(
     private val utvidetVedtaksperiodeMedBegrunnelser: UtvidetVedtaksperiodeMedBegrunnelser,
     private val sanityBegrunnelser: List<SanityBegrunnelse>,
-    private val kompetanser: List<Kompetanse>,
+    private val kompetanser: List<UtfyltKompetanse>,
     private val personopplysningGrunnlag: PersonopplysningGrunnlag,
     private val personResultater: List<PersonResultat>,
     private val endretUtbetalingsandeler: List<EndretUtbetalingAndel>,
@@ -104,13 +102,12 @@ class BegrunnelserForPeriodeContext(
         }
     }
 
-    private fun hentPersonerSomPasserForKompetanseIPeriode(
+    fun hentPersonerSomPasserForKompetanseIPeriode(
         begrunnelse: IBegrunnelse,
         sanityBegrunnelse: SanityBegrunnelse,
     ): Set<Person> {
-        val utfylteKompetanser = this.kompetanser.map { it.tilIKompetanse() }.filterIsInstance<UtfyltKompetanse>()
-        val alleBarna = utfylteKompetanser.flatMap { it.barnAktører }.toSet()
-        val utfylteKompetanserPerBarn = alleBarna.associateWith { barn -> utfylteKompetanser.filter { barn in it.barnAktører } }
+        val alleBarna = kompetanser.flatMap { it.barnAktører }.toSet()
+        val utfylteKompetanserPerBarn = alleBarna.associateWith { barn -> kompetanser.filter { barn in it.barnAktører } }
         val vilkårResultaterSomOverlapperVedtaksperiode =
             hentVilkårResultaterSomOverlapperVedtaksperiode(
                 standardBegrunnelse = begrunnelse,

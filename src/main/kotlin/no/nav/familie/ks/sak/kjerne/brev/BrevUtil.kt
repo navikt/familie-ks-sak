@@ -3,6 +3,7 @@ package no.nav.familie.ks.sak.kjerne.brev
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.common.util.slåSammen
+import no.nav.familie.ks.sak.common.util.storForbokstav
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelse
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingType
@@ -10,6 +11,9 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.Brevmal
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Målform
+
+const val HJEMMEL_60_EØS_FORORDNINGEN_987 = "60"
+const val FORVALTINIGSLOVEN_PARAGRAF_35 = "35"
 
 fun hentBrevmal(behandling: Behandling): Brevmal =
     when (behandling.opprettetÅrsak) {
@@ -102,12 +106,12 @@ fun hentHjemmeltekst(
     opplysningspliktHjemlerSkalMedIBrev: Boolean = false,
     målform: Målform,
     vedtakKorrigertHjemmelSkalMedIBrev: Boolean = false,
+    refusjonEøsHjemmelSkalMedIBrev: Boolean,
 ): String {
     val ordinæreHjemler =
         hentOrdinæreHjemler(
             hjemler =
-                sanitybegrunnelserBruktIBrev.flatMap { it.hjemler }
-                    .toMutableSet(),
+                sanitybegrunnelserBruktIBrev.flatMap { it.hjemler }.toMutableSet(),
             opplysningspliktHjemlerSkalMedIBrev = opplysningspliktHjemlerSkalMedIBrev,
         )
 
@@ -118,19 +122,39 @@ fun hentHjemmeltekst(
             ordinæreHjemler = ordinæreHjemler.distinct(),
             målform = målform,
             hjemlerFraForvaltningsloven = forvaltningsloverHjemler,
+            hjemlerSeparasjonsavtaleStorbritannia = sanitybegrunnelserBruktIBrev.flatMap { it.hjemlerSeperasjonsavtalenStorbritannina }.distinct(),
+            hjemlerEØSForordningen883 = sanitybegrunnelserBruktIBrev.flatMap { it.hjemlerEØSForordningen883 }.distinct(),
+            hjemlerEØSForordningen987 = hentHjemlerForEøsForordningen987(sanitybegrunnelserBruktIBrev, refusjonEøsHjemmelSkalMedIBrev),
         )
 
     return slåSammenHjemlerAvUlikeTyper(alleHjemlerForBegrunnelser)
 }
 
+private fun hentHjemlerForEøsForordningen987(
+    begrunnelser: List<SanityBegrunnelse>,
+    refusjonEøsHjemmelSkalMedIBrev: Boolean,
+): List<String> {
+    val hjemler =
+        begrunnelser.flatMap { it.hjemlerEØSForordningen987 } +
+            if (refusjonEøsHjemmelSkalMedIBrev) {
+                listOf(HJEMMEL_60_EØS_FORORDNINGEN_987)
+            } else {
+                emptyList()
+            }
+
+    return hjemler.distinct()
+}
+
 fun hentForvaltningsloverHjemler(vedtakKorrigertHjemmelSkalMedIBrev: Boolean): List<String> =
-    if (vedtakKorrigertHjemmelSkalMedIBrev) listOf("35") else emptyList()
+    if (vedtakKorrigertHjemmelSkalMedIBrev) {
+        listOf(FORVALTINIGSLOVEN_PARAGRAF_35)
+    } else {
+        emptyList()
+    }
 
 private fun slåSammenHjemlerAvUlikeTyper(hjemler: List<String>) =
     when (hjemler.size) {
-        0 -> throw FunksjonellFeil(
-            "Ingen hjemler var knyttet til begrunnelsen(e) som er valgt. Du må velge minst én begrunnelse som er knyttet til en hjemmel.",
-        )
+        0 -> throw FunksjonellFeil("Ingen hjemler var knyttet til begrunnelsen(e) som er valgt. Du må velge minst én begrunnelse som er knyttet til en hjemmel.")
         1 -> hjemler.single()
         else -> slåSammenListeMedHjemler(hjemler)
     }
@@ -149,10 +173,26 @@ private fun hentAlleTyperHjemler(
     ordinæreHjemler: List<String>,
     målform: Målform,
     hjemlerFraForvaltningsloven: List<String>,
+    hjemlerEØSForordningen883: List<String>,
+    hjemlerEØSForordningen987: List<String>,
+    hjemlerSeparasjonsavtaleStorbritannia: List<String>,
 ): List<String> {
     val alleHjemlerForBegrunnelser = mutableListOf<String>()
 
     // Rekkefølgen her er viktig
+    if (hjemlerSeparasjonsavtaleStorbritannia.isNotEmpty()) {
+        alleHjemlerForBegrunnelser.add(
+            "${
+                when (målform) {
+                    Målform.NB -> "Separasjonsavtalen mellom Storbritannia og Norge artikkel"
+                    Målform.NN -> "Separasjonsavtalen mellom Storbritannia og Noreg artikkel"
+                }
+            } ${
+                slåSammen(hjemlerSeparasjonsavtaleStorbritannia)
+            }",
+        )
+    }
+
     if (ordinæreHjemler.isNotEmpty()) {
         alleHjemlerForBegrunnelser.add(
             "${
@@ -167,6 +207,13 @@ private fun hentAlleTyperHjemler(
                 )
             }",
         )
+    }
+
+    if (hjemlerEØSForordningen883.isNotEmpty()) {
+        alleHjemlerForBegrunnelser.add("EØS-forordning 883/2004 artikkel ${slåSammen(hjemlerEØSForordningen883)}")
+    }
+    if (hjemlerEØSForordningen987.isNotEmpty()) {
+        alleHjemlerForBegrunnelser.add("EØS-forordning 987/2009 artikkel ${slåSammen(hjemlerEØSForordningen987)}")
     }
 
     if (hjemlerFraForvaltningsloven.isNotEmpty()) {
@@ -207,4 +254,18 @@ private fun hentOrdinæreHjemler(
     }
 
     return hjemler.map { it.toInt() }.sorted().map { it.toString() }
+}
+
+data class Landkode(val kode: String, val navn: String) {
+    init {
+        if (this.kode.length != 2) {
+            throw Feil("Forventer landkode på 'ISO 3166-1 alpha-2'-format")
+        }
+    }
+}
+
+fun String.tilLandNavn(landkoderISO2: Map<String, String>): Landkode {
+    val kode = landkoderISO2.entries.find { it.key == this } ?: throw Feil("Fant ikke navn for landkode $this.")
+
+    return Landkode(kode.key, kode.value.storForbokstav())
 }

@@ -1,9 +1,8 @@
 package no.nav.familie.ks.sak.kjerne.brev
 
 import io.mockk.every
-import io.mockk.impl.annotations.InjectMockKs
-import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
+import io.mockk.mockk
 import no.nav.familie.kontrakter.felles.arbeidsfordeling.Enhet
 import no.nav.familie.ks.sak.api.dto.ManueltBrevDto
 import no.nav.familie.ks.sak.common.exception.Feil
@@ -19,6 +18,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.simulering.SimuleringService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.VedtakService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.feilutbetaltvaluta.FeilutbetaltValutaService
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.refusjonEøs.RefusjonEøsRepository
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.VedtaksperiodeService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.Brevmal
@@ -35,47 +35,28 @@ import org.junit.jupiter.params.provider.EnumSource
 
 @ExtendWith(MockKExtension::class)
 class GenererBrevServiceTest {
-    @MockK
-    private lateinit var brevKlient: BrevKlient
+    val brevKlient: BrevKlient = mockk()
+    val personopplysningGrunnlagService: PersonopplysningGrunnlagService = mockk()
+    val saksbehandlerContext: SaksbehandlerContext = mockk()
+    val arbeidsfordelingService = mockk<ArbeidsfordelingService>()
 
-    @MockK
-    private lateinit var vedtakService: VedtakService
-
-    @MockK
-    private lateinit var personopplysningGrunnlagService: PersonopplysningGrunnlagService
-
-    @MockK
-    private lateinit var simuleringService: SimuleringService
-
-    @MockK
-    private lateinit var vedtaksperiodeService: VedtaksperiodeService
-
-    @MockK
-    private lateinit var brevPeriodeService: BrevPeriodeService
-
-    @MockK
-    private lateinit var totrinnskontrollService: TotrinnskontrollService
-
-    @MockK
-    private lateinit var sanityService: SanityService
-
-    @MockK
-    private lateinit var arbeidsfordelingService: ArbeidsfordelingService
-
-    @MockK
-    private lateinit var vilkårsvurderingService: VilkårsvurderingService
-
-    @MockK
-    private lateinit var korrigertVedtakService: KorrigertVedtakService
-
-    @MockK
-    private lateinit var feilutbetaltValutaService: FeilutbetaltValutaService
-
-    @MockK
-    private lateinit var saksbehandlerContext: SaksbehandlerContext
-
-    @InjectMockKs
-    private lateinit var genererBrevService: GenererBrevService
+    val genererBrevService =
+        GenererBrevService(
+            brevKlient = brevKlient,
+            vedtakService = mockk<VedtakService>(),
+            personopplysningGrunnlagService = personopplysningGrunnlagService,
+            simuleringService = mockk<SimuleringService>(),
+            vedtaksperiodeService = mockk<VedtaksperiodeService>(),
+            brevPeriodeService = mockk<BrevPeriodeService>(),
+            totrinnskontrollService = mockk<TotrinnskontrollService>(),
+            sanityService = mockk<SanityService>(),
+            arbeidsfordelingService = arbeidsfordelingService,
+            vilkårsvurderingService = mockk<VilkårsvurderingService>(),
+            korrigertVedtakService = mockk<KorrigertVedtakService>(),
+            feilutbetaltValutaService = mockk<FeilutbetaltValutaService>(),
+            saksbehandlerContext = saksbehandlerContext,
+            refusjonEøsRepository = mockk<RefusjonEøsRepository>(),
+        )
 
     private val søker = randomAktør()
     private val fagsak = lagFagsak(søker)
