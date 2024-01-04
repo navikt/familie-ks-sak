@@ -182,16 +182,16 @@ class BrevPeriodeContext(
     fun hentBarnasFødselsdagerForBegrunnelse(
         gjelderSøker: Boolean,
         personerMedVilkårSomPasserBegrunnelse: Collection<Person>,
-        nasjonalEllerFellesBegrunnelse: NasjonalEllerFellesBegrunnelse,
+        begrunnelse: IBegrunnelse,
     ): List<LocalDate> =
         when {
-            nasjonalEllerFellesBegrunnelse == NasjonalEllerFellesBegrunnelse.AVSLAG_UREGISTRERT_BARN ->
+            begrunnelse == NasjonalEllerFellesBegrunnelse.AVSLAG_UREGISTRERT_BARN ->
                 uregistrerteBarn.mapNotNull { it.fødselsdato }
 
             gjelderSøker &&
-                nasjonalEllerFellesBegrunnelse.begrunnelseType != BegrunnelseType.ENDRET_UTBETALING &&
-                nasjonalEllerFellesBegrunnelse.begrunnelseType != BegrunnelseType.ETTER_ENDRET_UTBETALING -> {
-                if (nasjonalEllerFellesBegrunnelse.begrunnelseType == BegrunnelseType.AVSLAG) {
+                begrunnelse.begrunnelseType != BegrunnelseType.ENDRET_UTBETALING &&
+                begrunnelse.begrunnelseType != BegrunnelseType.ETTER_ENDRET_UTBETALING -> {
+                if (begrunnelse.begrunnelseType == BegrunnelseType.AVSLAG) {
                     personerMedVilkårSomPasserBegrunnelse
                         .filter { it.type == PersonType.BARN }
                         .map { it.fødselsdato }
