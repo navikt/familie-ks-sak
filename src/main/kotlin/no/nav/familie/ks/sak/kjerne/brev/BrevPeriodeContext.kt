@@ -256,6 +256,7 @@ class BrevPeriodeContext(
             endretUtbetalingsandeler = andelTilkjentYtelserMedEndreteUtbetalinger.flatMap { it.endreteUtbetalinger },
             erFørsteVedtaksperiode = erFørsteVedtaksperiode,
             kompetanser = kompetanser,
+            andelerTilkjentYtelse = andelTilkjentYtelserMedEndreteUtbetalinger,
         )
 
     fun hentNasjonalOgFellesBegrunnelseDtoer(): List<NasjonalOgFellesBegrunnelseDataDto> {

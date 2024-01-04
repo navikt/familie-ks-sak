@@ -398,6 +398,11 @@ class VedtaksperiodeService(
             )
                 .map { it.endretUtbetalingAndel }
 
+        val andeler =
+            andelerTilkjentYtelseOgEndreteUtbetalingerService.finnAndelerTilkjentYtelseMedEndreteUtbetalinger(
+                behandling.id,
+            )
+
         val sanityBegrunnelser = sanityService.hentSanityBegrunnelser()
 
         val andelerTilkjentYtelse =
@@ -427,6 +432,7 @@ class VedtaksperiodeService(
                             endretUtbetalingsandeler = endreteUtbetalinger,
                             erFørsteVedtaksperiode = erFørsteVedtaksperiodePåFagsak,
                             kompetanser = utfylteKompetanser,
+                            andelerTilkjentYtelse = andeler,
                         ).hentGyldigeBegrunnelserForVedtaksperiode(),
                 )
             }

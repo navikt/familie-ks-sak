@@ -2,6 +2,7 @@ package no.nav.familie.ks.sak.kjerne.brev.begrunnelser
 
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.klipp
+import no.nav.familie.ks.sak.common.tidslinje.utvidelser.kombinerMed
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.tilPerioderIkkeNull
 import no.nav.familie.ks.sak.common.util.Periode
 import no.nav.familie.ks.sak.common.util.TIDENES_ENDE
@@ -24,6 +25,8 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vil
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.forskyvVilkårResultater
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.tilFørskjøvetOppfylteVilkårResultatTidslinjeMap
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.tilFørskjøvetVilkårResultatTidslinjeMap
+import no.nav.familie.ks.sak.kjerne.beregning.AndelTilkjentYtelseMedEndreteUtbetalinger
+import no.nav.familie.ks.sak.kjerne.beregning.tilTidslinje
 import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.EndretUtbetalingAndel
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.UtfyltKompetanse
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.tilTidslinje
@@ -39,6 +42,7 @@ class BegrunnelserForPeriodeContext(
     private val personResultater: List<PersonResultat>,
     private val endretUtbetalingsandeler: List<EndretUtbetalingAndel>,
     private val erFørsteVedtaksperiode: Boolean,
+    private val andelerTilkjentYtelse: List<AndelTilkjentYtelseMedEndreteUtbetalinger>,
 ) {
     private val aktørIderMedUtbetaling =
         utvidetVedtaksperiodeMedBegrunnelser.utbetalingsperiodeDetaljer.map { it.person.aktør.aktørId }
@@ -118,14 +122,25 @@ class BegrunnelserForPeriodeContext(
             val barnPerson = personopplysningGrunnlag.personer.find { it.aktør.aktivFødselsnummer() == barn.aktivFødselsnummer() }
             val vilkårResultaterPåBarnIPeriode = vilkårResultaterSomOverlapperVedtaksperiode[barnPerson] ?: emptyList()
 
+            val innvilgedeAndelerPåPerson =
+                andelerTilkjentYtelse
+                    .filter { it.erInnvilget }
+                    .filter { it.aktør.aktørId == barn.aktørId }
+                    .tilTidslinje()
+
+            val utfyltKompetansePåBarnIPerodeneMedUtbetalingPåBarnet =
+                utfyltKompetansePåBarn.tilTidslinje().kombinerMed(innvilgedeAndelerPåPerson) { kompetanse, innvilget ->
+                    kompetanse?.takeIf { innvilget != null }
+                }
+
             val kompetanseSomOverlapperMedVedtaksperioderPåBarn =
-                utfyltKompetansePåBarn.tilTidslinje().klipp(vedtaksperiode.fom, vedtaksperiode.tom).tilPerioderIkkeNull().singleOrNull()?.verdi
+                utfyltKompetansePåBarnIPerodeneMedUtbetalingPåBarnet.klipp(vedtaksperiode.fom, vedtaksperiode.tom).tilPerioderIkkeNull().singleOrNull()?.verdi
 
             val kompetanseSomBleAvsluttetIForrigePeriodePåBarn =
-                utfyltKompetansePåBarn.singleOrNull { kompetanse ->
-                    kompetanse.tom != null &&
-                        kompetanse.tom.plusMonths(1) == utvidetVedtaksperiodeMedBegrunnelser.fom?.toYearMonth()
-                }
+                utfyltKompetansePåBarnIPerodeneMedUtbetalingPåBarnet.tilPerioderIkkeNull().singleOrNull { kompetansePeriode ->
+                    kompetansePeriode.tom != null &&
+                        kompetansePeriode.tom.toYearMonth().plusMonths(1) == utvidetVedtaksperiodeMedBegrunnelser.fom?.toYearMonth()
+                }?.verdi
 
             val utfyltKompetanse =
                 if (begrunnelse.begrunnelseType == BegrunnelseType.EØS_OPPHØR) {
