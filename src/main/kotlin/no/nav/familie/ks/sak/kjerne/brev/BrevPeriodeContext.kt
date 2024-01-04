@@ -7,20 +7,17 @@ import no.nav.familie.ks.sak.common.tidslinje.Tidslinje
 import no.nav.familie.ks.sak.common.tidslinje.tilTidslinje
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.kombinerMed
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.tilPerioderIkkeNull
-import no.nav.familie.ks.sak.common.util.MånedPeriode
 import no.nav.familie.ks.sak.common.util.TIDENES_ENDE
 import no.nav.familie.ks.sak.common.util.TIDENES_MORGEN
 import no.nav.familie.ks.sak.common.util.erDagenFør
 import no.nav.familie.ks.sak.common.util.erSenereEnnInneværendeMåned
 import no.nav.familie.ks.sak.common.util.formaterBeløp
 import no.nav.familie.ks.sak.common.util.førsteDagIInneværendeMåned
-import no.nav.familie.ks.sak.common.util.overlapperHeltEllerDelvisMed
 import no.nav.familie.ks.sak.common.util.sisteDagIInneværendeMåned
 import no.nav.familie.ks.sak.common.util.slåSammen
 import no.nav.familie.ks.sak.common.util.tilDagMånedÅr
 import no.nav.familie.ks.sak.common.util.tilKortString
 import no.nav.familie.ks.sak.common.util.tilMånedÅr
-import no.nav.familie.ks.sak.common.util.tilYearMonth
 import no.nav.familie.ks.sak.common.util.toYearMonth
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelse
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.Trigger
@@ -247,32 +244,6 @@ class BrevPeriodeContext(
             nasjonalEllerFellesBegrunnelse != NasjonalEllerFellesBegrunnelse.AVSLAG_SØKT_FOR_SENT_ENDRINGSPERIODE
         ) {
             throw IllegalStateException("Ingen personer på brevbegrunnelse $nasjonalEllerFellesBegrunnelse")
-        }
-    }
-
-    private fun endringsperioderSomPasserMedPeriodeDatoOgBegrunnelse(nasjonalEllerFellesBegrunnelse: NasjonalEllerFellesBegrunnelse): List<EndretUtbetalingAndel> {
-        val endredeUtbetalinger = andelTilkjentYtelserMedEndreteUtbetalinger.flatMap { it.endreteUtbetalinger }
-
-        return when (nasjonalEllerFellesBegrunnelse.begrunnelseType) {
-            BegrunnelseType.ETTER_ENDRET_UTBETALING -> {
-                endredeUtbetalinger.filter {
-                    it.tom?.sisteDagIInneværendeMåned()
-                        ?.erDagenFør(utvidetVedtaksperiodeMedBegrunnelser.fom?.førsteDagIInneværendeMåned()) == true
-                }
-            }
-
-            BegrunnelseType.ENDRET_UTBETALING -> {
-                endredeUtbetalinger.filter {
-                    it.periode.overlapperHeltEllerDelvisMed(
-                        MånedPeriode(
-                            (utvidetVedtaksperiodeMedBegrunnelser.fom ?: TIDENES_MORGEN).tilYearMonth(),
-                            (utvidetVedtaksperiodeMedBegrunnelser.tom ?: TIDENES_ENDE).tilYearMonth(),
-                        ),
-                    )
-                }
-            }
-
-            else -> emptyList()
         }
     }
 
