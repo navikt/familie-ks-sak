@@ -459,7 +459,7 @@ class BrevPeriodeContext(
                                 vedtakBegrunnelseType = begrunnelse.begrunnelseType,
                                 apiNavn = begrunnelse.sanityApiNavn,
                                 sanityBegrunnelseType = sanityBegrunnelse.type,
-                                barnetsBostedsland = kompetanse.barnetsBostedsland,
+                                barnetsBostedsland = kompetanse.barnetsBostedsland.tilLandNavn(landkoder).navn,
                                 annenForeldersAktivitet = kompetanse.annenForeldersAktivitet,
                                 annenForeldersAktivitetsland = kompetanse.annenForeldersAktivitetsland?.tilLandNavn(landkoder)?.navn,
                                 sokersAktivitet = kompetanse.søkersAktivitet,
