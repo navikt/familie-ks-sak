@@ -43,7 +43,7 @@ sealed class BegrunnelseDtoMedData(
     open val apiNavn: String,
     open val vedtakBegrunnelseType: BegrunnelseType,
     open val sanityBegrunnelseType: SanityBegrunnelseType,
-    type: BrevBegrunnelseType,
+    override val type: BrevBegrunnelseType,
 ) : BegrunnelseDto(type)
 
 data class NasjonalOgFellesBegrunnelseDataDto(
@@ -70,7 +70,19 @@ data class FritekstBegrunnelseDto(
     val fritekst: String,
 ) : BegrunnelseDto(type = BrevBegrunnelseType.FRITEKST)
 
-data class EØSBegrunnelseDataDto(
+sealed class EØSBegrunnelseDto(
+    override val apiNavn: String,
+    override val vedtakBegrunnelseType: BegrunnelseType,
+    override val sanityBegrunnelseType: SanityBegrunnelseType,
+    override val type: BrevBegrunnelseType,
+) : BegrunnelseDtoMedData(
+        apiNavn = apiNavn,
+        vedtakBegrunnelseType = vedtakBegrunnelseType,
+        sanityBegrunnelseType = sanityBegrunnelseType,
+        type = type,
+    )
+
+data class EØSBegrunnelseMedKompetanseDto(
     override val vedtakBegrunnelseType: BegrunnelseType,
     override val apiNavn: String,
     override val sanityBegrunnelseType: SanityBegrunnelseType,
@@ -82,7 +94,22 @@ data class EØSBegrunnelseDataDto(
     val maalform: String,
     val sokersAktivitet: KompetanseAktivitet,
     val sokersAktivitetsland: String?,
-) : BegrunnelseDtoMedData(
+) : EØSBegrunnelseDto(
+        type = BrevBegrunnelseType.EØS_BEGRUNNELSE,
+        apiNavn = apiNavn,
+        vedtakBegrunnelseType = vedtakBegrunnelseType,
+        sanityBegrunnelseType = sanityBegrunnelseType,
+    )
+
+data class EØSBegrunnelseUtenKompetanseDto(
+    override val vedtakBegrunnelseType: BegrunnelseType,
+    override val apiNavn: String,
+    override val sanityBegrunnelseType: SanityBegrunnelseType,
+    val barnasFodselsdatoer: String,
+    val antallBarn: Int,
+    val maalform: String,
+    val gjelderSoker: Boolean,
+) : EØSBegrunnelseDto(
         type = BrevBegrunnelseType.EØS_BEGRUNNELSE,
         apiNavn = apiNavn,
         vedtakBegrunnelseType = vedtakBegrunnelseType,

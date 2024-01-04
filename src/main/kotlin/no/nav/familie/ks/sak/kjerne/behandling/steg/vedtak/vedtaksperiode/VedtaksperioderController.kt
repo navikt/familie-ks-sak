@@ -4,9 +4,8 @@ import no.nav.familie.kontrakter.felles.Ressurs
 import no.nav.familie.ks.sak.config.BehandlerRolle
 import no.nav.familie.ks.sak.kjerne.brev.BrevKlient
 import no.nav.familie.ks.sak.kjerne.brev.BrevPeriodeService
-import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.EØSBegrunnelseDataDto
+import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.BegrunnelseDtoMedData
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.FritekstBegrunnelseDto
-import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.NasjonalOgFellesBegrunnelseDataDto
 import no.nav.familie.ks.sak.sikkerhet.TilgangService
 import no.nav.security.token.support.core.api.ProtectedWithClaims
 import org.springframework.http.ResponseEntity
@@ -38,8 +37,7 @@ class VedtaksperioderController(
             brevPeriodeService.hentBegrunnelsesteksterForPeriode(vedtaksperiodeId).map {
                 when (it) {
                     is FritekstBegrunnelseDto -> it.fritekst
-                    is NasjonalOgFellesBegrunnelseDataDto -> brevKlient.hentBegrunnelsestekst(it)
-                    is EØSBegrunnelseDataDto -> brevKlient.hentBegrunnelsestekst(it)
+                    is BegrunnelseDtoMedData -> brevKlient.hentBegrunnelsestekst(it)
                 }
             }
 
