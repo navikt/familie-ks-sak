@@ -210,10 +210,10 @@ class BrevPeriodeContext(
 
     fun hentAntallBarnForBegrunnelse(
         barnasFødselsdatoer: List<LocalDate>,
-        nasjonalEllerFellesBegrunnelse: NasjonalEllerFellesBegrunnelse,
+        begrunnelse: IBegrunnelse,
     ): Int {
         val erAvslagUregistrerteBarn =
-            nasjonalEllerFellesBegrunnelse == NasjonalEllerFellesBegrunnelse.AVSLAG_UREGISTRERT_BARN
+            begrunnelse == NasjonalEllerFellesBegrunnelse.AVSLAG_UREGISTRERT_BARN
 
         return when {
             erAvslagUregistrerteBarn -> uregistrerteBarn.size
