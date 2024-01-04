@@ -25,9 +25,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.forskyvVil
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.tilFørskjøvetOppfylteVilkårResultatTidslinjeMap
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.tilFørskjøvetVilkårResultatTidslinjeMap
 import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.EndretUtbetalingAndel
-import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.Kompetanse
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.UtfyltKompetanse
-import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.tilIKompetanse
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.tilTidslinje
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
@@ -36,7 +34,7 @@ import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Personopplys
 class BegrunnelserForPeriodeContext(
     private val utvidetVedtaksperiodeMedBegrunnelser: UtvidetVedtaksperiodeMedBegrunnelser,
     private val sanityBegrunnelser: List<SanityBegrunnelse>,
-    private val kompetanser: List<Kompetanse> = emptyList(),
+    private val kompetanser: List<UtfyltKompetanse>,
     private val personopplysningGrunnlag: PersonopplysningGrunnlag,
     private val personResultater: List<PersonResultat>,
     private val endretUtbetalingsandeler: List<EndretUtbetalingAndel>,
@@ -53,7 +51,7 @@ class BegrunnelserForPeriodeContext(
 
     fun hentGyldigeBegrunnelserForVedtaksperiode(): List<IBegrunnelse> {
         val tillateBegrunnelserForVedtakstype =
-            (Begrunnelse.entries + EØSBegrunnelse.entries)
+            (NasjonalEllerFellesBegrunnelse.entries + EØSBegrunnelse.entries)
                 .filter {
                     utvidetVedtaksperiodeMedBegrunnelser
                         .type
@@ -61,33 +59,33 @@ class BegrunnelserForPeriodeContext(
                         .contains(it.begrunnelseType)
                 }
 
-        return when (utvidetVedtaksperiodeMedBegrunnelser.type) {
+        return when (this.utvidetVedtaksperiodeMedBegrunnelser.type) {
             Vedtaksperiodetype.FORTSATT_INNVILGET,
             Vedtaksperiodetype.AVSLAG,
             -> tillateBegrunnelserForVedtakstype
 
             Vedtaksperiodetype.UTBETALING,
             Vedtaksperiodetype.OPPHØR,
-            -> tillateBegrunnelserForVedtakstype.filtrerPasserVedtaksperiode()
+            -> tillateBegrunnelserForVedtakstype.filtrerErGyldigForVedtaksperiode()
         }
     }
 
-    private fun List<IBegrunnelse>.filtrerPasserVedtaksperiode(): List<IBegrunnelse> {
-        val begrunnelserSomTriggesForVedtaksperiode =
-            filter { it.begrunnelseType != BegrunnelseType.FORTSATT_INNVILGET }
-                .filter { it.triggesForVedtaksperiode() }
+    private fun List<IBegrunnelse>.filtrerErGyldigForVedtaksperiode(): List<IBegrunnelse> {
+        val gyldigeBegrunnelserForVedtaksperiode =
+            this.filter { it.begrunnelseType != BegrunnelseType.FORTSATT_INNVILGET }
+                .filter { it.erGyldigForVedtaksperiode() }
 
         val fantIngenbegrunnelserOgSkalDerforBrukeFortsattInnvilget =
-            utvidetVedtaksperiodeMedBegrunnelser.type == Vedtaksperiodetype.UTBETALING && begrunnelserSomTriggesForVedtaksperiode.isEmpty()
+            utvidetVedtaksperiodeMedBegrunnelser.type == Vedtaksperiodetype.UTBETALING && gyldigeBegrunnelserForVedtaksperiode.isEmpty()
 
         return if (fantIngenbegrunnelserOgSkalDerforBrukeFortsattInnvilget) {
             filter { it.begrunnelseType == BegrunnelseType.FORTSATT_INNVILGET }
         } else {
-            begrunnelserSomTriggesForVedtaksperiode
+            gyldigeBegrunnelserForVedtaksperiode
         }
     }
 
-    private fun IBegrunnelse.triggesForVedtaksperiode(): Boolean {
+    private fun IBegrunnelse.erGyldigForVedtaksperiode(): Boolean {
         val sanityBegrunnelse = this.tilSanityBegrunnelse(sanityBegrunnelser) ?: return false
 
         // filtrer på tema
@@ -104,13 +102,12 @@ class BegrunnelserForPeriodeContext(
         }
     }
 
-    private fun hentPersonerSomPasserForKompetanseIPeriode(
+    fun hentPersonerSomPasserForKompetanseIPeriode(
         begrunnelse: IBegrunnelse,
         sanityBegrunnelse: SanityBegrunnelse,
     ): Set<Person> {
-        val utfylteKompetanser = this.kompetanser.map { it.tilIKompetanse() }.filterIsInstance<UtfyltKompetanse>()
-        val alleBarna = utfylteKompetanser.flatMap { it.barnAktører }.toSet()
-        val utfylteKompetanserPerBarn = alleBarna.associateWith { barn -> utfylteKompetanser.filter { barn in it.barnAktører } }
+        val alleBarna = kompetanser.flatMap { it.barnAktører }.toSet()
+        val utfylteKompetanserPerBarn = alleBarna.associateWith { barn -> kompetanser.filter { barn in it.barnAktører } }
         val vilkårResultaterSomOverlapperVedtaksperiode =
             hentVilkårResultaterSomOverlapperVedtaksperiode(
                 standardBegrunnelse = begrunnelse,

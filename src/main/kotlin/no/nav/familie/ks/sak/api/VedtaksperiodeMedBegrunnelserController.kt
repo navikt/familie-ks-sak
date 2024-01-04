@@ -12,8 +12,8 @@ import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.VedtakService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.VedtaksperiodeService
-import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.Begrunnelse
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.EØSBegrunnelse
+import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.NasjonalEllerFellesBegrunnelse
 import no.nav.familie.ks.sak.sikkerhet.TilgangService
 import no.nav.security.token.support.core.api.ProtectedWithClaims
 import org.springframework.http.ResponseEntity
@@ -46,7 +46,7 @@ class VedtaksperiodeMedBegrunnelserController(
 
         val begrunnelser =
             vedtaksperiodeMedBegrunnelserDto.begrunnelser.mapNotNull {
-                konverterTilEnumverdi<Begrunnelse>(it)
+                konverterTilEnumverdi<NasjonalEllerFellesBegrunnelse>(it)
             }
 
         val eøsBegrunnelser =

@@ -7,8 +7,8 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Res
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.UtdypendeVilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
-import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.Begrunnelse
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.IBegrunnelse
+import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.NasjonalEllerFellesBegrunnelse
 import java.math.BigDecimal
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -42,7 +42,7 @@ data class VilkårResultatDto(
     val erVurdert: Boolean = false,
     val erAutomatiskVurdert: Boolean = false,
     val erEksplisittAvslagPåSøknad: Boolean? = null,
-    val avslagBegrunnelser: List<Begrunnelse>? = emptyList(),
+    val avslagBegrunnelser: List<NasjonalEllerFellesBegrunnelse>? = emptyList(),
     val vurderesEtter: Regelverk? = null,
     val antallTimer: BigDecimal? = null,
     val utdypendeVilkårsvurderinger: List<UtdypendeVilkårsvurdering> = emptyList(),

@@ -1,9 +1,11 @@
 package no.nav.familie.ks.sak.kjerne.brev
 
+import no.nav.familie.ks.sak.common.BehandlingId
 import no.nav.familie.ks.sak.common.util.TIDENES_MORGEN
 import no.nav.familie.ks.sak.common.util.erDagenFør
 import no.nav.familie.ks.sak.common.util.sisteDagIInneværendeMåned
 import no.nav.familie.ks.sak.common.util.toYearMonth
+import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
 import no.nav.familie.ks.sak.integrasjon.sanity.SanityService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.registrersøknad.SøknadGrunnlagService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.Vedtak
@@ -18,6 +20,9 @@ import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.dødeBarnForrigePeriode
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.RefusjonEøsAvklart
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.RefusjonEøsUavklart
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.brevperioder.BrevPeriodeDto
+import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.KompetanseService
+import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.UtfyltKompetanse
+import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.tilIKompetanse
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
 import org.springframework.stereotype.Service
@@ -31,6 +36,8 @@ class BrevPeriodeService(
     val søknadGrunnlagService: SøknadGrunnlagService,
     val vedtaksperiodeHentOgPersisterService: VedtaksperiodeHentOgPersisterService,
     val vedtaksperiodeService: VedtaksperiodeService,
+    val kompetanseService: KompetanseService,
+    val integrasjonClient: IntegrasjonClient,
 ) {
     fun hentBegrunnelsesteksterForPeriode(vedtaksperiodeId: Long): List<BegrunnelseDto> {
         val behandlingId = vedtaksperiodeHentOgPersisterService.hentVedtaksperiodeThrows(vedtaksperiodeId).vedtak.behandling.id
@@ -57,6 +64,7 @@ class BrevPeriodeService(
             andelerTilkjentYtelseOgEndreteUtbetalingerService.finnAndelerTilkjentYtelseMedEndreteUtbetalinger(
                 behandlingId,
             )
+        val kompetanser = kompetanseService.hentKompetanser(behandlingId = BehandlingId(behandlingId))
 
         return utvidetVedtaksperioderMedBegrunnelser
             .sortedBy { it.fom }
@@ -87,6 +95,8 @@ class BrevPeriodeService(
                             ?: emptyList(),
                     barnSomDødeIForrigePeriode = barnSomDødeIForrigePeriode,
                     erFørsteVedtaksperiode = erFørsteVedtaksperiodePåFagsak,
+                    kompetanser = kompetanser.map { it.tilIKompetanse() }.filterIsInstance<UtfyltKompetanse>(),
+                    landkoder = integrasjonClient.hentLandkoderISO2(),
                 ).genererBrevPeriodeDto()
             }
     }
