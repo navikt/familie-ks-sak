@@ -355,16 +355,6 @@ class BrevPeriodeContext(
             )
     }
 
-    private fun hentRelevantePersonerForEøsBegrunnelse(
-        begrunnelse: IBegrunnelse,
-        sanityBegrunnelse: SanityBegrunnelse,
-    ): Set<Person> {
-        return begrunnelserForPeriodeContext.hentPersonerSomPasserForKompetanseIPeriode(
-            begrunnelse = begrunnelse,
-            sanityBegrunnelse = sanityBegrunnelse,
-        )
-    }
-
     fun hentEøsBegrunnelseDataDtoer(): List<EØSBegrunnelseDto> {
         return this.utvidetVedtaksperiodeMedBegrunnelser
             .eøsBegrunnelser
@@ -374,7 +364,7 @@ class BrevPeriodeContext(
             }.flatMap { (begrunnelse, sanityBegrunnelse) ->
                 val personerGjeldendeForBegrunnelse =
                     hentRelevantePersonerForNasjonalOgFellesBegrunnelse(begrunnelse, sanityBegrunnelse) +
-                        hentRelevantePersonerForEøsBegrunnelse(begrunnelse, sanityBegrunnelse)
+                        begrunnelserForPeriodeContext.hentPersonerSomPasserForKompetanseIPeriode(begrunnelse, sanityBegrunnelse)
 
                 val gjelderSøker = personerGjeldendeForBegrunnelse.any { it.type == PersonType.SØKER }
 
