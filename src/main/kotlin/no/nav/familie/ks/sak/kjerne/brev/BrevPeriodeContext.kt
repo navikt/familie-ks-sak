@@ -319,7 +319,7 @@ class BrevPeriodeContext(
                 val gjelderAndreForelder =
                     relevantePersoner.filter { it.type == PersonType.BARN }
                         .any {
-                            if (begrunnelse.begrunnelseType == BegrunnelseType.AVSLAG) it.erMedlemskapVurdertPåAndreforelderSamtidigSomAvslag() else it.erMedlemskapVurdertPåAndreforelder()
+                            if (begrunnelse.begrunnelseType == BegrunnelseType.AVSLAG) erMedlemskapVurdertPåAndreforelderSamtidigSomAvslag() else it.erMedlemskapVurdertPåAndreforelder()
                         }
 
                 val barnasFødselsdatoer =
@@ -573,7 +573,7 @@ class BrevPeriodeContext(
             ?: false
     }
 
-    private fun Person.erMedlemskapVurdertPåAndreforelderSamtidigSomAvslag(): Boolean {
+    private fun erMedlemskapVurdertPåAndreforelderSamtidigSomAvslag(): Boolean {
         val alleMedlemskapAnnenForelderVilkår =
             personResultater.flatMap { it.vilkårResultater }
                 .filter { it.vilkårType == Vilkår.MEDLEMSKAP_ANNEN_FORELDER }
