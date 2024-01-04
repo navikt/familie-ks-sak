@@ -102,12 +102,12 @@ fun hentHjemmeltekst(
     opplysningspliktHjemlerSkalMedIBrev: Boolean = false,
     målform: Målform,
     vedtakKorrigertHjemmelSkalMedIBrev: Boolean = false,
+    refusjonEøsHjemmelSkalMedIBrev: Boolean,
 ): String {
     val ordinæreHjemler =
         hentOrdinæreHjemler(
             hjemler =
-                sanitybegrunnelserBruktIBrev.flatMap { it.hjemler }
-                    .toMutableSet(),
+                sanitybegrunnelserBruktIBrev.flatMap { it.hjemler }.toMutableSet(),
             opplysningspliktHjemlerSkalMedIBrev = opplysningspliktHjemlerSkalMedIBrev,
         )
 
@@ -118,9 +118,23 @@ fun hentHjemmeltekst(
             ordinæreHjemler = ordinæreHjemler.distinct(),
             målform = målform,
             hjemlerFraForvaltningsloven = forvaltningsloverHjemler,
+            hjemlerSeparasjonsavtaleStorbritannia = sanitybegrunnelserBruktIBrev.flatMap { it.hjemlerSeperasjonsavtalenStorbritannina }.distinct(),
+            hjemlerEØSForordningen883 = sanitybegrunnelserBruktIBrev.flatMap { it.hjemlerEØSForordningen883 }.distinct(),
+            hjemlerEØSForordningen987 = hentHjemlerForEøsForordningen987(sanitybegrunnelserBruktIBrev, refusjonEøsHjemmelSkalMedIBrev),
         )
 
     return slåSammenHjemlerAvUlikeTyper(alleHjemlerForBegrunnelser)
+}
+
+private fun hentHjemlerForEøsForordningen987(
+    begrunnelser: List<SanityBegrunnelse>,
+    refusjonEøsHjemmelSkalMedIBrev: Boolean,
+): List<String> {
+    val hjemler =
+        begrunnelser.flatMap { it.hjemlerEØSForordningen987 } +
+            if (refusjonEøsHjemmelSkalMedIBrev) listOf("60") else emptyList()
+
+    return hjemler.distinct()
 }
 
 fun hentForvaltningsloverHjemler(vedtakKorrigertHjemmelSkalMedIBrev: Boolean): List<String> =
@@ -128,9 +142,7 @@ fun hentForvaltningsloverHjemler(vedtakKorrigertHjemmelSkalMedIBrev: Boolean): L
 
 private fun slåSammenHjemlerAvUlikeTyper(hjemler: List<String>) =
     when (hjemler.size) {
-        0 -> throw FunksjonellFeil(
-            "Ingen hjemler var knyttet til begrunnelsen(e) som er valgt. Du må velge minst én begrunnelse som er knyttet til en hjemmel.",
-        )
+        0 -> throw FunksjonellFeil("Ingen hjemler var knyttet til begrunnelsen(e) som er valgt. Du må velge minst én begrunnelse som er knyttet til en hjemmel.")
         1 -> hjemler.single()
         else -> slåSammenListeMedHjemler(hjemler)
     }
@@ -149,10 +161,26 @@ private fun hentAlleTyperHjemler(
     ordinæreHjemler: List<String>,
     målform: Målform,
     hjemlerFraForvaltningsloven: List<String>,
+    hjemlerEØSForordningen883: List<String>,
+    hjemlerEØSForordningen987: List<String>,
+    hjemlerSeparasjonsavtaleStorbritannia: List<String>,
 ): List<String> {
     val alleHjemlerForBegrunnelser = mutableListOf<String>()
 
     // Rekkefølgen her er viktig
+    if (hjemlerSeparasjonsavtaleStorbritannia.isNotEmpty()) {
+        alleHjemlerForBegrunnelser.add(
+            "${
+                when (målform) {
+                    Målform.NB -> "Separasjonsavtalen mellom Storbritannia og Norge artikkel"
+                    Målform.NN -> "Separasjonsavtalen mellom Storbritannia og Noreg artikkel"
+                }
+            } ${
+                slåSammen(hjemlerSeparasjonsavtaleStorbritannia)
+            }",
+        )
+    }
+
     if (ordinæreHjemler.isNotEmpty()) {
         alleHjemlerForBegrunnelser.add(
             "${
@@ -167,6 +195,13 @@ private fun hentAlleTyperHjemler(
                 )
             }",
         )
+    }
+
+    if (hjemlerEØSForordningen883.isNotEmpty()) {
+        alleHjemlerForBegrunnelser.add("EØS-forordning 883/2004 artikkel ${slåSammen(hjemlerEØSForordningen883)}")
+    }
+    if (hjemlerEØSForordningen987.isNotEmpty()) {
+        alleHjemlerForBegrunnelser.add("EØS-forordning 987/2009 artikkel ${slåSammen(hjemlerEØSForordningen987)}")
     }
 
     if (hjemlerFraForvaltningsloven.isNotEmpty()) {

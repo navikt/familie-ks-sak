@@ -18,6 +18,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.simulering.SimuleringService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.VedtakService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.Vedtak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.feilutbetaltvaluta.FeilutbetaltValutaService
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.refusjonEøs.RefusjonEøs
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.Opphørsperiode
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.VedtaksperiodeService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.UtvidetVedtaksperiodeMedBegrunnelser
@@ -25,6 +26,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.Vilkårsvu
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.UtdypendeVilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
+import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.IBegrunnelse
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.tilSanityBegrunnelse
 import no.nav.familie.ks.sak.kjerne.brev.domene.FellesdataForVedtaksbrev
 import no.nav.familie.ks.sak.kjerne.brev.domene.VedtaksbrevDto
@@ -68,6 +70,7 @@ class GenererBrevService(
     private val korrigertVedtakService: KorrigertVedtakService,
     private val feilutbetaltValutaService: FeilutbetaltValutaService,
     private val saksbehandlerContext: SaksbehandlerContext,
+    private val refusjonEøs: List<RefusjonEøs>,
 ) {
     fun genererManueltBrev(
         manueltBrevRequest: ManueltBrevDto,
@@ -277,13 +280,18 @@ class GenererBrevService(
         val opplysningspliktHjemlerSkalMedIBrev =
             vilkårsvurdering.finnOpplysningspliktVilkår()?.resultat == Resultat.IKKE_OPPFYLT
 
+        val refusjonEøsHjemmelSkalMedIBrev = refusjonEøs.isNotEmpty()
+
         return hentHjemmeltekst(
             opplysningspliktHjemlerSkalMedIBrev = opplysningspliktHjemlerSkalMedIBrev,
             målform = målform,
             sanitybegrunnelserBruktIBrev =
-                utvidetVedtaksperioderMedBegrunnelser.flatMap { it.begrunnelser }
-                    .mapNotNull { it.nasjonalEllerFellesBegrunnelse.tilSanityBegrunnelse(sanityBegrunnelser) },
+                utvidetVedtaksperioderMedBegrunnelser
+                    .flatMap<UtvidetVedtaksperiodeMedBegrunnelser, IBegrunnelse> { vedtaksperiode ->
+                        vedtaksperiode.begrunnelser.map { it.nasjonalEllerFellesBegrunnelse } + vedtaksperiode.eøsBegrunnelser.map { it.begrunnelse }
+                    }.mapNotNull { it.tilSanityBegrunnelse(sanityBegrunnelser) },
             vedtakKorrigertHjemmelSkalMedIBrev = vedtakKorrigertHjemmelSkalMedIBrev,
+            refusjonEøsHjemmelSkalMedIBrev = refusjonEøsHjemmelSkalMedIBrev,
         )
     }
 
