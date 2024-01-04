@@ -404,7 +404,7 @@ class VedtaksperiodeService(
             andelerTilkjentYtelseOgEndreteUtbetalingerService.finnAndelerTilkjentYtelseMedEndreteUtbetalinger(behandling.id)
                 .map { it.andel }
 
-        val kompetanser = kompetanseService.hentKompetanser(behandling.behandlingId)
+        val utfylteKompetanser = kompetanseService.hentUtfylteKompetanser(behandling.behandlingId)
 
         return utvidedeVedtaksperioderMedBegrunnelser
             .sortedBy { it.fom }
@@ -426,7 +426,7 @@ class VedtaksperiodeService(
                             personResultater = vilkårsvurdering.personResultater.toList(),
                             endretUtbetalingsandeler = endreteUtbetalinger,
                             erFørsteVedtaksperiode = erFørsteVedtaksperiodePåFagsak,
-                            kompetanser = kompetanser,
+                            kompetanser = utfylteKompetanser,
                         ).hentGyldigeBegrunnelserForVedtaksperiode(),
                 )
             }

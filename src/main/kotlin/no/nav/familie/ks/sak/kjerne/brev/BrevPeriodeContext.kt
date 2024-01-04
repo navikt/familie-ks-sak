@@ -49,8 +49,7 @@ import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.tilSanityBegrunnelse
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.brevperioder.BrevPeriodeDto
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.brevperioder.BrevPeriodeType
 import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.EndretUtbetalingAndel
-import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.Kompetanse
-import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.KompetanseAktivitet
+import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.UtfyltKompetanse
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
@@ -68,7 +67,8 @@ class BrevPeriodeContext(
     private val uregistrerteBarn: List<BarnMedOpplysningerDto>,
     private val barnSomDødeIForrigePeriode: List<Person>,
     private val erFørsteVedtaksperiode: Boolean,
-    private val kompetanser: List<Kompetanse>,
+    private val kompetanser: List<UtfyltKompetanse>,
+    private val landkoder: Map<String, String>,
 ) {
     private val personerMedUtbetaling =
         utvidetVedtaksperiodeMedBegrunnelser.utbetalingsperiodeDetaljer.map { it.person }
@@ -400,7 +400,7 @@ class BrevPeriodeContext(
             .mapNotNull { vedtakBegrunnelse ->
                 val nullableSanitybegrunnelse = vedtakBegrunnelse.begrunnelse.tilSanityBegrunnelse(sanityBegrunnelser)
                 nullableSanitybegrunnelse?.let { Pair(vedtakBegrunnelse.begrunnelse, it) }
-            }.map { (begrunnelse, sanityBegrunnelse) ->
+            }.flatMap { (begrunnelse, sanityBegrunnelse) ->
                 val personerGjeldendeForBegrunnelse =
                     hentRelevantePersonerForNasjonalOgFellesBegrunnelse(begrunnelse, sanityBegrunnelse) +
                         hentRelevantePersonerForEøsBegrunnelse(begrunnelse, sanityBegrunnelse)
@@ -423,7 +423,7 @@ class BrevPeriodeContext(
 
                 val begrunnelseGjelderOpphørFraForrigeBehandling = sanityBegrunnelse.begrunnelseGjelderOpphørFraForrigeBehandling()
 
-                return if (kompetanser.isEmpty() && begrunnelse.begrunnelseType == BegrunnelseType.AVSLAG && begrunnelse.begrunnelseType == BegrunnelseType.EØS_OPPHØR) {
+                if (kompetanser.isEmpty() && begrunnelse.begrunnelseType == BegrunnelseType.AVSLAG && begrunnelse.begrunnelseType == BegrunnelseType.EØS_OPPHØR) {
                     val barnasFødselsdagerForAvslagOgOpphør =
                         hentBarnasFødselsdagerForAvslagOgOpphør(
                             barnIBegrunnelse = personerGjeldendeForBegrunnelse.filter { it.type == PersonType.BARN },
@@ -459,17 +459,13 @@ class BrevPeriodeContext(
                                 vedtakBegrunnelseType = begrunnelse.begrunnelseType,
                                 apiNavn = begrunnelse.sanityApiNavn,
                                 sanityBegrunnelseType = sanityBegrunnelse.type,
-                                barnetsBostedsland = "String",
-                                annenForeldersAktivitet = KompetanseAktivitet.UTSENDT_ARBEIDSTAKER_FRA_NORGE,
-                                annenForeldersAktivitetsland = "String",
-                                sokersAktivitet = KompetanseAktivitet.UTSENDT_ARBEIDSTAKER_FRA_NORGE,
-                                sokersAktivitetsland = "",
+                                barnetsBostedsland = kompetanse.barnetsBostedsland,
+                                annenForeldersAktivitet = kompetanse.annenForeldersAktivitet,
+                                annenForeldersAktivitetsland = kompetanse.annenForeldersAktivitetsland?.tilLandNavn(landkoder)?.navn,
+                                sokersAktivitet = kompetanse.søkersAktivitet,
+                                sokersAktivitetsland = kompetanse.søkersAktivitetsland.tilLandNavn(landkoder).navn,
                                 barnasFodselsdatoer = barnIBegrunnelseOgIKompetanseFødselsdato.tilBrevTekst(),
-                                antallBarn =
-                                    hentAntallBarnForBegrunnelse(
-                                        barnasFødselsdatoer = barnIBegrunnelseOgIKompetanseFødselsdato,
-                                        begrunnelse = begrunnelse,
-                                    ),
+                                antallBarn = hentAntallBarnForBegrunnelse(barnasFødselsdatoer = barnIBegrunnelseOgIKompetanseFødselsdato, begrunnelse = begrunnelse),
                                 maalform = persongrunnlag.søker.målform.tilSanityFormat(),
                             )
                         } else {
