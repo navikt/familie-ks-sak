@@ -1,6 +1,7 @@
 package no.nav.familie.ks.sak.kjerne.brev.begrunnelser
 
 import io.mockk.mockk
+import no.nav.familie.ks.sak.data.lagAndelTilkjentYtelse
 import no.nav.familie.ks.sak.data.lagKompetanse
 import no.nav.familie.ks.sak.data.lagPerson
 import no.nav.familie.ks.sak.data.lagPersonopplysningGrunnlag
@@ -18,6 +19,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Utd
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.tilFørskjøvetOppfylteVilkårResultatTidslinjeMap
+import no.nav.familie.ks.sak.kjerne.beregning.AndelTilkjentYtelseMedEndreteUtbetalinger
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.Kompetanse
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.KompetanseAktivitet
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.KompetanseResultat
@@ -622,6 +624,46 @@ class BegrunnelserForPeriodeContextTest {
 
             assertThat(begrunnelser.size).isEqualTo(1)
         }
+
+        @Test
+        fun `Skal kunne få opp eøs-opphør selv om kompetanse som varer evig når det ikke er noen utbetaling på barnet`() {
+            val eøsBegrunnelse =
+                SanityBegrunnelse(
+                    apiNavn = EØSBegrunnelse.OPPHØR_EØS_STANDARD.sanityApiNavn,
+                    navnISystem = EØSBegrunnelse.OPPHØR_EØS_STANDARD.name,
+                    type = SanityBegrunnelseType.STANDARD,
+                    vilkår = emptyList(),
+                    rolle = emptyList(),
+                    triggere = emptyList(),
+                    utdypendeVilkårsvurderinger = emptyList(),
+                    hjemler = emptyList(),
+                    endretUtbetalingsperiode = emptyList(),
+                    endringsårsaker = emptyList(),
+                    støtterFritekst = false,
+                    skalAlltidVises = false,
+                    annenForeldersAktivitet = listOf(KompetanseAktivitet.ARBEIDER),
+                    barnetsBostedsland = listOf(BarnetsBostedsland.NORGE),
+                    kompetanseResultat = listOf(KompetanseResultat.NORGE_ER_PRIMÆRLAND),
+                    hjemlerFolketrygdloven = emptyList(),
+                    hjemlerEØSForordningen883 = emptyList(),
+                    hjemlerEØSForordningen987 = emptyList(),
+                    hjemlerSeperasjonsavtalenStorbritannina = emptyList(),
+                )
+
+            val begrunnelseContext =
+                lagBegrunnelserForPeriodeContextForEøsTester(
+                    sanityBegrunnelser = listOf(eøsBegrunnelse),
+                    vedtaksperiodetype = Vedtaksperiodetype.OPPHØR,
+                    kompetanser = listOf(lagKompetanse(fom = jan(2020), tom = null, annenForeldersAktivitet = KompetanseAktivitet.ARBEIDER, resultat = KompetanseResultat.NORGE_ER_PRIMÆRLAND, barnetsBostedsland = "NO", barnAktører = setOf(barnAktør))),
+                    vedtaksperiodeStartsTidpunkt = 1.feb(2020),
+                    vedtaksperiodeSluttTidpunkt = 28.feb(2020),
+                    andelerTilkjentYtelse = listOf(AndelTilkjentYtelseMedEndreteUtbetalinger(lagAndelTilkjentYtelse(fom = jan(2020), tom = jan(2020), aktør = barnAktør), endreteUtbetalingerAndeler = emptyList())),
+                )
+            val begrunnelser =
+                begrunnelseContext.hentGyldigeBegrunnelserForVedtaksperiode()
+
+            assertThat(begrunnelser.size).isEqualTo(1)
+        }
     }
 
     private fun lagSanitybegrunnelser(): List<SanityBegrunnelse> =
@@ -695,6 +737,7 @@ class BegrunnelserForPeriodeContextTest {
         personResultater: List<PersonResultat>,
         sanityBegrunnelser: List<SanityBegrunnelse>,
         aktørSomTriggerVedtaksperiode: Aktør,
+        andelerTilkjentYtelse: List<AndelTilkjentYtelseMedEndreteUtbetalinger> = emptyList(),
     ): BegrunnelserForPeriodeContext {
         // Må forskyve personresultatene for å finne riktig dato for vedtaksperiode.
         val vedtaksperiodeStartsTidpunkt =
@@ -723,6 +766,7 @@ class BegrunnelserForPeriodeContextTest {
             endretUtbetalingsandeler = emptyList(),
             erFørsteVedtaksperiode = false,
             kompetanser = emptyList(),
+            andelerTilkjentYtelse = andelerTilkjentYtelse,
         )
     }
 
@@ -732,6 +776,7 @@ class BegrunnelserForPeriodeContextTest {
         vedtaksperiodeStartsTidpunkt: LocalDate? = null,
         vedtaksperiodeSluttTidpunkt: LocalDate? = null,
         vedtaksperiodetype: Vedtaksperiodetype = Vedtaksperiodetype.UTBETALING,
+        andelerTilkjentYtelse: List<AndelTilkjentYtelseMedEndreteUtbetalinger> = emptyList(),
     ): BegrunnelserForPeriodeContext {
         val utvidetVedtaksperiodeMedBegrunnelser =
             UtvidetVedtaksperiodeMedBegrunnelser(
@@ -755,6 +800,7 @@ class BegrunnelserForPeriodeContextTest {
             personResultater = emptyList(),
             endretUtbetalingsandeler = emptyList(),
             erFørsteVedtaksperiode = false,
+            andelerTilkjentYtelse = andelerTilkjentYtelse,
         )
     }
 }
