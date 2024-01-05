@@ -102,6 +102,7 @@ fun hentHjemmeltekst(
     opplysningspliktHjemlerSkalMedIBrev: Boolean = false,
     målform: Målform,
     vedtakKorrigertHjemmelSkalMedIBrev: Boolean = false,
+    refusjonEøsHjemmelSkalMedIBrev: Boolean,
 ): String {
     val ordinæreHjemler =
         hentOrdinæreHjemler(
@@ -118,6 +119,10 @@ fun hentHjemmeltekst(
             ordinæreHjemler = ordinæreHjemler.distinct(),
             målform = målform,
             hjemlerFraForvaltningsloven = forvaltningsloverHjemler,
+            hjemlerEØSForordningen883 = sanitybegrunnelserBruktIBrev.flatMap { it.hjemlerEØSForordningen883 }.distinct(),
+            hjemlerEØSForordningen987 = hentHjemlerForEøsForordningen987(sanitybegrunnelserBruktIBrev, refusjonEøsHjemmelSkalMedIBrev),
+            hjemlerFolketrygdloven = sanitybegrunnelserBruktIBrev.flatMap { it.hjemlerFolketrygdloven }.distinct(),
+            hjemlerSeparasjonsavtalenStorbritannia = sanitybegrunnelserBruktIBrev.flatMap { it.hjemlerSeperasjonsavtalenStorbritannina }.distinct(),
         )
 
     return slåSammenHjemlerAvUlikeTyper(alleHjemlerForBegrunnelser)
@@ -149,10 +154,29 @@ private fun hentAlleTyperHjemler(
     ordinæreHjemler: List<String>,
     målform: Målform,
     hjemlerFraForvaltningsloven: List<String>,
+    hjemlerFolketrygdloven: List<String>,
+    hjemlerEØSForordningen883: List<String>,
+    hjemlerEØSForordningen987: List<String>,
+    hjemlerSeparasjonsavtalenStorbritannia: List<String>,
 ): List<String> {
     val alleHjemlerForBegrunnelser = mutableListOf<String>()
 
     // Rekkefølgen her er viktig
+    if (hjemlerSeparasjonsavtalenStorbritannia.isNotEmpty()) {
+        alleHjemlerForBegrunnelser.add(
+            "${
+                when (målform) {
+                    Målform.NB -> "Separasjonsavtalen mellom Storbritannia og Norge artikkel"
+                    Målform.NN -> "Separasjonsavtalen mellom Storbritannia og Noreg artikkel"
+                }
+            } ${
+                slåSammen(
+                    hjemlerSeparasjonsavtalenStorbritannia,
+                )
+            }",
+        )
+    }
+
     if (ordinæreHjemler.isNotEmpty()) {
         alleHjemlerForBegrunnelser.add(
             "${
@@ -167,6 +191,29 @@ private fun hentAlleTyperHjemler(
                 )
             }",
         )
+    }
+
+    if (hjemlerFolketrygdloven.isNotEmpty()) {
+        alleHjemlerForBegrunnelser.add(
+            "${
+                when (målform) {
+                    Målform.NB -> "folketrygdloven"
+                    Målform.NN -> "folketrygdlova"
+                }
+            } ${
+                hjemlerTilHjemmeltekst(
+                    hjemler = hjemlerFolketrygdloven,
+                    lovForHjemmel = "folketrygdloven",
+                )
+            }",
+        )
+    }
+
+    if (hjemlerEØSForordningen883.isNotEmpty()) {
+        alleHjemlerForBegrunnelser.add("EØS-forordning 883/2004 artikkel ${slåSammen(hjemlerEØSForordningen883)}")
+    }
+    if (hjemlerEØSForordningen987.isNotEmpty()) {
+        alleHjemlerForBegrunnelser.add("EØS-forordning 987/2009 artikkel ${slåSammen(hjemlerEØSForordningen987)}")
     }
 
     if (hjemlerFraForvaltningsloven.isNotEmpty()) {
@@ -195,6 +242,21 @@ fun hjemlerTilHjemmeltekst(
         1 -> "§ ${hjemler[0]}"
         else -> "§§ ${slåSammen(hjemler)}"
     }
+}
+
+fun hentHjemlerForEøsForordningen987(
+    sanityEøsBegrunnelser: List<SanityBegrunnelse>,
+    refusjonEøsHjemmelSkalMedIBrev: Boolean,
+): List<String> {
+    val hjemler = mutableListOf<String>()
+
+    hjemler.addAll(sanityEøsBegrunnelser.flatMap { it.hjemlerEØSForordningen987 }.distinct())
+
+    if (refusjonEøsHjemmelSkalMedIBrev) {
+        hjemler.add("60")
+    }
+
+    return hjemler.distinct()
 }
 
 private fun hentOrdinæreHjemler(

@@ -19,6 +19,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.simulering.SimuleringService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.VedtakService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.feilutbetaltvaluta.FeilutbetaltValutaService
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.refusjonEøs.RefusjonEøsRepository
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.VedtaksperiodeService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.Brevmal
@@ -73,6 +74,9 @@ class GenererBrevServiceTest {
 
     @MockK
     private lateinit var saksbehandlerContext: SaksbehandlerContext
+
+    @MockK
+    private lateinit var refusjonEøsRepository: RefusjonEøsRepository
 
     @InjectMockKs
     private lateinit var genererBrevService: GenererBrevService

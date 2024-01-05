@@ -18,6 +18,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.simulering.SimuleringService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.VedtakService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.Vedtak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.feilutbetaltvaluta.FeilutbetaltValutaService
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.refusjonEøs.RefusjonEøsRepository
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.Opphørsperiode
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.VedtaksperiodeService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.UtvidetVedtaksperiodeMedBegrunnelser
@@ -67,6 +68,7 @@ class GenererBrevService(
     private val korrigertVedtakService: KorrigertVedtakService,
     private val feilutbetaltValutaService: FeilutbetaltValutaService,
     private val saksbehandlerContext: SaksbehandlerContext,
+    private val refusjonEøsRepository: RefusjonEøsRepository,
 ) {
     fun genererManueltBrev(
         manueltBrevRequest: ManueltBrevDto,
@@ -149,10 +151,9 @@ class GenererBrevService(
                     erFeilutbetalingPåBehandling = erFeilutbetalingPåBehandling(behandlingId = behandling.id),
                     informasjonOmAarligKontroll = vedtaksperiodeService.skalHaÅrligKontroll(vedtak),
                     feilutbetaltValuta =
-                        feilutbetaltValutaService.beskrivPerioderMedFeilutbetaltValuta(behandling.id)
-                            ?.let {
-                                FeilutbetaltValuta(perioderMedForMyeUtbetalt = it)
-                            },
+                        feilutbetaltValutaService.beskrivPerioderMedFeilutbetaltValuta(behandling.id)?.let {
+                            FeilutbetaltValuta(perioderMedForMyeUtbetalt = it)
+                        },
                     refusjonEosAvklart = brevPeriodeService.beskrivPerioderMedAvklartRefusjonEøs(vedtak),
                     refusjonEosUavklart = brevPeriodeService.beskrivPerioderMedUavklartRefusjonEøs(vedtak),
                     duMaaMeldeFraOmEndringerEosSelvstendigRett = skalMeldeFraOmEndringerEøsSelvstendigRett(vedtak),
@@ -191,19 +192,23 @@ class GenererBrevService(
 
         val personopplysningsgrunnlagOgSignaturData = hentGrunnlagOgSignaturData(vedtak)
 
-        val brevPeriodeDtoer =
-            brevPeriodeService
-                .hentBrevPeriodeDtoer(utvidetVedtaksperioderMedBegrunnelser, vedtak.behandling.id)
+        val behandling = vedtak.behandling
 
-        val korrigertVedtak = korrigertVedtakService.finnAktivtKorrigertVedtakPåBehandling(vedtak.behandling.id)
+        val brevPeriodeDtoer =
+            brevPeriodeService.hentBrevPeriodeDtoer(utvidetVedtaksperioderMedBegrunnelser, behandling.id)
+
+        val korrigertVedtak = korrigertVedtakService.finnAktivtKorrigertVedtakPåBehandling(behandling.id)
+
+        val refusjonEøs = refusjonEøsRepository.finnRefusjonEøsForBehandling(behandling.id)
 
         val hjemler =
             hentHjemler(
-                behandlingId = vedtak.behandling.id,
+                behandlingId = behandling.id,
                 utvidetVedtaksperioderMedBegrunnelser = utvidetVedtaksperioderMedBegrunnelser,
                 målform = personopplysningsgrunnlagOgSignaturData.grunnlag.søker.målform,
                 sanityBegrunnelser = sanityService.hentSanityBegrunnelser(),
                 vedtakKorrigertHjemmelSkalMedIBrev = korrigertVedtak != null,
+                refusjonEøsHjemmelSkalMedIBrev = refusjonEøs.isNotEmpty(),
             )
 
         return FellesdataForVedtaksbrev(
@@ -259,6 +264,7 @@ class GenererBrevService(
         målform: Målform,
         sanityBegrunnelser: List<SanityBegrunnelse>,
         vedtakKorrigertHjemmelSkalMedIBrev: Boolean = false,
+        refusjonEøsHjemmelSkalMedIBrev: Boolean,
     ): String {
         val vilkårsvurdering =
             vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(behandlingId = behandlingId)
@@ -269,10 +275,9 @@ class GenererBrevService(
         return hentHjemmeltekst(
             opplysningspliktHjemlerSkalMedIBrev = opplysningspliktHjemlerSkalMedIBrev,
             målform = målform,
-            sanitybegrunnelserBruktIBrev =
-                utvidetVedtaksperioderMedBegrunnelser.flatMap { it.begrunnelser }
-                    .mapNotNull { it.begrunnelse.tilSanityBegrunnelse(sanityBegrunnelser) },
+            sanitybegrunnelserBruktIBrev = utvidetVedtaksperioderMedBegrunnelser.flatMap { it.begrunnelser }.mapNotNull { it.begrunnelse.tilSanityBegrunnelse(sanityBegrunnelser) },
             vedtakKorrigertHjemmelSkalMedIBrev = vedtakKorrigertHjemmelSkalMedIBrev,
+            refusjonEøsHjemmelSkalMedIBrev = refusjonEøsHjemmelSkalMedIBrev,
         )
     }
 
@@ -310,12 +315,7 @@ class GenererBrevService(
     private fun hentVirkningstidspunkt(
         opphørsperioder: List<Opphørsperiode>,
         behandlingId: Long,
-    ) = (
-        opphørsperioder
-            .maxOfOrNull { it.periodeFom }
-            ?.tilMånedÅr()
-            ?: throw Feil("Fant ikke opphørdato ved generering av dødsfallbrev på behandling $behandlingId")
-    )
+    ) = (opphørsperioder.maxOfOrNull { it.periodeFom }?.tilMånedÅr() ?: throw Feil("Fant ikke opphørdato ved generering av dødsfallbrev på behandling $behandlingId"))
 
     private fun erFeilutbetalingPåBehandling(behandlingId: Long): Boolean =
         simuleringService.hentFeilutbetaling(behandlingId) > BigDecimal.ZERO
