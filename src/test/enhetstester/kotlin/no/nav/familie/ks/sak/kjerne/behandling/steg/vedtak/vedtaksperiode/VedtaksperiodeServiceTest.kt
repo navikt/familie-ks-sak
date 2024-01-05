@@ -40,6 +40,8 @@ import no.nav.familie.ks.sak.kjerne.beregning.AndelTilkjentYtelseMedEndreteUtbet
 import no.nav.familie.ks.sak.kjerne.beregning.AndelerTilkjentYtelseOgEndreteUtbetalingerService
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.Begrunnelse
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.KompetanseService
+import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.NasjonalEllerFellesBegrunnelse
+import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.KompetanseService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Målform
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
@@ -122,11 +124,11 @@ internal class VedtaksperiodeServiceTest {
 
     @ParameterizedTest
     @EnumSource(
-        value = Begrunnelse::class,
+        value = NasjonalEllerFellesBegrunnelse::class,
         names = ["AVSLAG_UREGISTRERT_BARN", "OPPHØR_FULLTIDSPLASS_I_BARNEHAGE"],
     )
     fun `oppdaterVedtaksperiodeMedBegrunnelser skal kaste feil dersom begrunnelse ikke er tillatt for vedtaksperiode type`(
-        begrunnelse: Begrunnelse,
+        nasjonalEllerFellesBegrunnelse: NasjonalEllerFellesBegrunnelse,
     ) {
         val vedtaksperiodeMedBegrunnelse =
             VedtaksperiodeMedBegrunnelser(
@@ -142,22 +144,22 @@ internal class VedtaksperiodeServiceTest {
 
         val feil =
             assertThrows<Feil> {
-                vedtaksperiodeService.oppdaterVedtaksperiodeMedBegrunnelser(1, listOf(begrunnelse))
+                vedtaksperiodeService.oppdaterVedtaksperiodeMedBegrunnelser(1, listOf(nasjonalEllerFellesBegrunnelse))
             }
 
         assertThat(
             feil.message,
-            Is("Begrunnelsestype ${begrunnelse.begrunnelseType} passer ikke med typen 'UTBETALING' som er satt på perioden."),
+            Is("Begrunnelsestype ${nasjonalEllerFellesBegrunnelse.begrunnelseType} passer ikke med typen 'UTBETALING' som er satt på perioden."),
         )
     }
 
     @ParameterizedTest
     @EnumSource(
-        value = Begrunnelse::class,
+        value = NasjonalEllerFellesBegrunnelse::class,
         names = ["INNVILGET_IKKE_BARNEHAGE", "INNVILGET_IKKE_BARNEHAGE_ADOPSJON", "INNVILGET_DELTID_BARNEHAGE"],
     )
     fun `oppdaterVedtaksperiodeMedBegrunnelser skal oppdatere vedtaksperioder dersom begrunnelse er tillatt for vedtakstype`(
-        begrunnelse: Begrunnelse,
+        nasjonalEllerFellesBegrunnelse: NasjonalEllerFellesBegrunnelse,
     ) {
         val vedtaksperiodeMedBegrunnelse =
             VedtaksperiodeMedBegrunnelser(
@@ -172,7 +174,7 @@ internal class VedtaksperiodeServiceTest {
         every { vedtaksperiodeHentOgPersisterService.hentVedtaksperiodeThrows(any()) } returns vedtaksperiodeMedBegrunnelse
         every { vedtaksperiodeHentOgPersisterService.lagre(vedtaksperiodeMedBegrunnelse) } returns vedtaksperiodeMedBegrunnelse
 
-        vedtaksperiodeService.oppdaterVedtaksperiodeMedBegrunnelser(1, listOf(begrunnelse))
+        vedtaksperiodeService.oppdaterVedtaksperiodeMedBegrunnelser(1, listOf(nasjonalEllerFellesBegrunnelse))
 
         verify { personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(behandling.id) }
         verify { vedtaksperiodeHentOgPersisterService.hentVedtaksperiodeThrows(any()) }

@@ -21,6 +21,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.registrersøknad.SøknadGrun
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.Vedtak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.VedtakRepository
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.refusjonEøs.RefusjonEøsRepository
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.NasjonalEllerFellesBegrunnelseDB
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.UtvidetVedtaksperiodeMedBegrunnelser
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.VedtaksperiodeMedBegrunnelser
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.tilUtvidetVedtaksperiodeMedBegrunnelser
@@ -31,10 +32,10 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vil
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.forskyvVilkårResultater
 import no.nav.familie.ks.sak.kjerne.beregning.AndelTilkjentYtelseMedEndreteUtbetalinger
 import no.nav.familie.ks.sak.kjerne.beregning.AndelerTilkjentYtelseOgEndreteUtbetalingerService
-import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.Begrunnelse
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.BegrunnelseType
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.BegrunnelserForPeriodeContext
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.EØSBegrunnelse
+import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.NasjonalEllerFellesBegrunnelse
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.tilVedtaksbegrunnelse
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.KompetanseService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
@@ -82,7 +83,7 @@ class VedtaksperiodeService(
 
     fun oppdaterVedtaksperiodeMedBegrunnelser(
         vedtaksperiodeId: Long,
-        begrunnelserFraFrontend: List<Begrunnelse>,
+        begrunnelserFraFrontend: List<NasjonalEllerFellesBegrunnelse>,
         eøsBegrunnelserFraFrontend: List<EØSBegrunnelse> = emptyList(),
     ): Vedtak {
         val vedtaksperiodeMedBegrunnelser =
@@ -95,6 +96,12 @@ class VedtaksperiodeService(
 
         vedtaksperiodeMedBegrunnelser.settBegrunnelser(
             begrunnelserFraFrontend.map {
+                it.tilVedtaksbegrunnelse(vedtaksperiodeMedBegrunnelser)
+            },
+        )
+
+        vedtaksperiodeMedBegrunnelser.settEøsBegrunnelser(
+            eøsBegrunnelserFraFrontend.map {
                 it.tilVedtaksbegrunnelse(vedtaksperiodeMedBegrunnelser)
             },
         )
@@ -365,11 +372,18 @@ class VedtaksperiodeService(
             )
                 .map { it.endretUtbetalingAndel }
 
+        val andeler =
+            andelerTilkjentYtelseOgEndreteUtbetalingerService.finnAndelerTilkjentYtelseMedEndreteUtbetalinger(
+                behandling.id,
+            )
+
         val sanityBegrunnelser = sanityService.hentSanityBegrunnelser()
 
         val andelerTilkjentYtelse =
             andelerTilkjentYtelseOgEndreteUtbetalingerService.finnAndelerTilkjentYtelseMedEndreteUtbetalinger(behandling.id)
                 .map { it.andel }
+
+        val utfylteKompetanser = kompetanseService.hentUtfylteKompetanser(behandling.behandlingId)
 
         return utvidedeVedtaksperioderMedBegrunnelser
             .sortedBy { it.fom }
@@ -391,6 +405,8 @@ class VedtaksperiodeService(
                             personResultater = vilkårsvurdering.personResultater.toList(),
                             endretUtbetalingsandeler = endreteUtbetalinger,
                             erFørsteVedtaksperiode = erFørsteVedtaksperiodePåFagsak,
+                            kompetanser = utfylteKompetanser,
+                            andelerTilkjentYtelse = andeler,
                         ).hentGyldigeBegrunnelserForVedtaksperiode(),
                 )
             }
@@ -428,5 +444,60 @@ class VedtaksperiodeService(
                     }
                 }
             }.toSet().takeIf { it.isNotEmpty() }
+    }
+
+    private fun lagVedtaksPeriodeMedBegrunnelser(
+        vedtak: Vedtak,
+        periode: NullablePeriode,
+        avslagsbegrunnelser: List<NasjonalEllerFellesBegrunnelse>,
+    ): VedtaksperiodeMedBegrunnelser =
+        VedtaksperiodeMedBegrunnelser(
+            vedtak = vedtak,
+            fom = periode.fom,
+            tom = periode.tom?.sisteDagIMåned(),
+            type = Vedtaksperiodetype.AVSLAG,
+        ).apply {
+            begrunnelser.addAll(
+                avslagsbegrunnelser.map { begrunnelse ->
+                    NasjonalEllerFellesBegrunnelseDB(
+                        vedtaksperiodeMedBegrunnelser = this,
+                        nasjonalEllerFellesBegrunnelse = begrunnelse,
+                    )
+                },
+            )
+        }
+
+    private fun leggTilAvslagsbegrunnelseForUregistrertBarn(
+        avslagsperioder: List<VedtaksperiodeMedBegrunnelser>,
+        vedtak: Vedtak,
+        uregistrerteBarn: List<BarnMedOpplysningerDto>,
+    ): List<VedtaksperiodeMedBegrunnelser> {
+        val avslagsperioderMedTomPeriode =
+            if (avslagsperioder.none { it.fom == null && it.tom == null }) {
+                avslagsperioder +
+                    VedtaksperiodeMedBegrunnelser(
+                        vedtak = vedtak,
+                        fom = null,
+                        tom = null,
+                        type = Vedtaksperiodetype.AVSLAG,
+                    )
+            } else {
+                avslagsperioder
+            }
+
+        return avslagsperioderMedTomPeriode.map {
+            if (it.fom == null && it.tom == null && uregistrerteBarn.isNotEmpty()) {
+                it.apply {
+                    begrunnelser.add(
+                        NasjonalEllerFellesBegrunnelseDB(
+                            vedtaksperiodeMedBegrunnelser = this,
+                            nasjonalEllerFellesBegrunnelse = NasjonalEllerFellesBegrunnelse.AVSLAG_UREGISTRERT_BARN,
+                        ),
+                    )
+                }
+            } else {
+                it
+            }
+        }.toList()
     }
 }

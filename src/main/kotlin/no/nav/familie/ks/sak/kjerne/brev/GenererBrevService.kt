@@ -19,6 +19,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.simulering.SimuleringService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.VedtakService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.Vedtak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.feilutbetaltvaluta.FeilutbetaltValutaService
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.refusjonEøs.RefusjonEøsRepository
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.Opphørsperiode
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.VedtaksperiodeService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.UtvidetVedtaksperiodeMedBegrunnelser
@@ -28,6 +29,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Res
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.UtdypendeVilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
 import no.nav.familie.ks.sak.kjerne.beregning.AndelerTilkjentYtelseOgEndreteUtbetalingerService
+import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.IBegrunnelse
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.tilSanityBegrunnelse
 import no.nav.familie.ks.sak.kjerne.brev.domene.FellesdataForVedtaksbrev
 import no.nav.familie.ks.sak.kjerne.brev.domene.VedtaksbrevDto
@@ -40,6 +42,7 @@ import no.nav.familie.ks.sak.kjerne.brev.domene.maler.Hjemmeltekst
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.KorrigertVedtakData
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.SignaturVedtak
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.vedtaksbrev.Avslag
+import no.nav.familie.ks.sak.kjerne.brev.domene.maler.vedtaksbrev.FortsattInnvilget
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.vedtaksbrev.Førstegangsvedtak
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.vedtaksbrev.OpphørMedEndring
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.vedtaksbrev.Opphørt
@@ -72,6 +75,7 @@ class GenererBrevService(
     private val saksbehandlerContext: SaksbehandlerContext,
     private val andelerTilkjentYtelseOgEndreteUtbetalingerService: AndelerTilkjentYtelseOgEndreteUtbetalingerService,
     private val behandlingRepository: BehandlingRepository,
+    private val refusjonEøsRepository: RefusjonEøsRepository,
 ) {
     fun genererManueltBrev(
         manueltBrevRequest: ManueltBrevDto,
@@ -178,6 +182,16 @@ class GenererBrevService(
                     refusjonEosUavklart = brevPeriodeService.beskrivPerioderMedUavklartRefusjonEøs(vedtak),
                 )
 
+            Brevmal.VEDTAK_FORTSATT_INNVILGET ->
+                FortsattInnvilget(
+                    fellesdataForVedtaksbrev = fellesdataForVedtaksbrev,
+                    etterbetaling = etterbetaling,
+                    informasjonOmAarligKontroll = vedtaksperiodeService.skalHaÅrligKontroll(vedtak),
+                    refusjonEosAvklart = brevPeriodeService.beskrivPerioderMedAvklartRefusjonEøs(vedtak),
+                    refusjonEosUavklart = brevPeriodeService.beskrivPerioderMedUavklartRefusjonEøs(vedtak),
+                    duMåMeldeFraOmEndringerEøsSelvstendigRett = skalMeldeFraOmEndringerEøsSelvstendigRett(vedtak),
+                )
+
             else -> throw Feil("Forsøker å hente vedtaksbrevdata for brevmal ${brevtype.visningsTekst}")
         }
     }
@@ -271,13 +285,20 @@ class GenererBrevService(
         val opplysningspliktHjemlerSkalMedIBrev =
             vilkårsvurdering.finnOpplysningspliktVilkår()?.resultat == Resultat.IKKE_OPPFYLT
 
+        val refusjonEøs = refusjonEøsRepository.finnRefusjonEøsForBehandling(behandlingId = behandlingId)
+
+        val refusjonEøsHjemmelSkalMedIBrev = refusjonEøs.isNotEmpty()
+
         return hentHjemmeltekst(
             opplysningspliktHjemlerSkalMedIBrev = opplysningspliktHjemlerSkalMedIBrev,
             målform = målform,
             sanitybegrunnelserBruktIBrev =
-                utvidetVedtaksperioderMedBegrunnelser.flatMap { it.begrunnelser }
-                    .mapNotNull { it.begrunnelse.tilSanityBegrunnelse(sanityBegrunnelser) },
+                utvidetVedtaksperioderMedBegrunnelser
+                    .flatMap<UtvidetVedtaksperiodeMedBegrunnelser, IBegrunnelse> { vedtaksperiode ->
+                        vedtaksperiode.begrunnelser.map { it.nasjonalEllerFellesBegrunnelse } + vedtaksperiode.eøsBegrunnelser.map { it.begrunnelse }
+                    }.mapNotNull { it.tilSanityBegrunnelse(sanityBegrunnelser) },
             vedtakKorrigertHjemmelSkalMedIBrev = vedtakKorrigertHjemmelSkalMedIBrev,
+            refusjonEøsHjemmelSkalMedIBrev = refusjonEøsHjemmelSkalMedIBrev,
         )
     }
 

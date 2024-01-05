@@ -10,6 +10,7 @@ import io.mockk.slot
 import io.mockk.verify
 import no.nav.familie.kontrakter.felles.objectMapper
 import no.nav.familie.ks.sak.common.EnvService
+import no.nav.familie.ks.sak.common.util.erHelligdag
 import no.nav.familie.ks.sak.kjerne.avstemming.domene.GrensesnittavstemmingTaskDto
 import no.nav.familie.leader.LeaderClient
 import no.nav.familie.prosessering.domene.Task
@@ -34,6 +35,9 @@ internal class GrensesnittavstemmingSchedulerTest {
     @BeforeEach
     fun setup() {
         mockkStatic(LeaderClient::class)
+        mockkStatic(LocalDate::erHelligdag)
+
+        every { LocalDate.now().erHelligdag() } returns false
         every { LeaderClient.isLeader() } returns true
         every { envService.erLokal() } returns true
     }
@@ -91,6 +95,14 @@ internal class GrensesnittavstemmingSchedulerTest {
         // siden 26.11.2022, 27.11.2022 er helg
         assertEquals(LocalDate.of(2022, 11, 25).atStartOfDay(), taskData.fom)
         assertEquals(LocalDate.of(2022, 11, 28).atStartOfDay(), taskData.tom)
+    }
+
+    @Test
+    fun `utfør skal ikke utføre scheduler dersom det er helligdag`() {
+        every { LocalDate.now().erHelligdag() } returns true
+        grensesnittavstemmingScheduler.utfør()
+
+        verify(exactly = 0) { taskService.finnTasksMedStatus(any(), any(), any()) }
     }
 
     @Test

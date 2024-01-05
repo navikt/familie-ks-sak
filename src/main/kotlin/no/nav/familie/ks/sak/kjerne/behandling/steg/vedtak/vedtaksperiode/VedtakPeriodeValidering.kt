@@ -29,7 +29,7 @@ private fun UtvidetVedtaksperiodeMedBegrunnelser.validerMinstEnEndretUtbetalingb
     val erMuligÅVelgeEndretUtbetalingBegrunnelse =
         this.gyldigeBegrunnelser.any { it.begrunnelseType == BegrunnelseType.ENDRET_UTBETALING }
     val erValgtEndretUtbetalingBegrunnelse =
-        this.begrunnelser.any { it.begrunnelse.begrunnelseType == BegrunnelseType.ENDRET_UTBETALING }
+        this.begrunnelser.any { it.nasjonalEllerFellesBegrunnelse.begrunnelseType == BegrunnelseType.ENDRET_UTBETALING }
 
     if (erMuligÅVelgeEndretUtbetalingBegrunnelse && !erValgtEndretUtbetalingBegrunnelse) {
         logger.warn(
@@ -45,7 +45,7 @@ private fun UtvidetVedtaksperiodeMedBegrunnelser.validerMinstEnInnvilgetbegrunne
     val erMuligÅVelgeInnvilgetBegrunnelse =
         this.gyldigeBegrunnelser.any { it.begrunnelseType == BegrunnelseType.INNVILGET }
     val erValgtInnvilgetBegrunnelse =
-        this.begrunnelser.any { it.begrunnelse.begrunnelseType == BegrunnelseType.INNVILGET }
+        this.begrunnelser.any { it.nasjonalEllerFellesBegrunnelse.begrunnelseType == BegrunnelseType.INNVILGET }
 
     if (erMuligÅVelgeInnvilgetBegrunnelse && !erValgtInnvilgetBegrunnelse) {
         logger.warn(
@@ -61,7 +61,7 @@ private fun UtvidetVedtaksperiodeMedBegrunnelser.validerMinstEnReduksjonsbegrunn
     val erMuligÅVelgeReduksjonBegrunnelse =
         this.gyldigeBegrunnelser.any { it.begrunnelseType == BegrunnelseType.REDUKSJON }
     val erValgtReduksjonBegrunnelse =
-        this.begrunnelser.any { it.begrunnelse.begrunnelseType == BegrunnelseType.REDUKSJON }
+        this.begrunnelser.any { it.nasjonalEllerFellesBegrunnelse.begrunnelseType == BegrunnelseType.REDUKSJON }
 
     if (erMuligÅVelgeReduksjonBegrunnelse && !erValgtReduksjonBegrunnelse) {
         logger.warn(

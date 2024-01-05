@@ -2,6 +2,7 @@ package no.nav.familie.ks.sak.kjerne.brev.begrunnelser
 
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.klipp
+import no.nav.familie.ks.sak.common.tidslinje.utvidelser.kombinerMed
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.tilPerioderIkkeNull
 import no.nav.familie.ks.sak.common.util.Periode
 import no.nav.familie.ks.sak.common.util.TIDENES_ENDE
@@ -24,8 +25,11 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vil
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.forskyvVilkårResultater
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.tilFørskjøvetOppfylteVilkårResultatTidslinjeMap
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.tilFørskjøvetVilkårResultatTidslinjeMap
+import no.nav.familie.ks.sak.kjerne.beregning.AndelTilkjentYtelseMedEndreteUtbetalinger
+import no.nav.familie.ks.sak.kjerne.beregning.tilTidslinje
 import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.EndretUtbetalingAndel
-import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.Kompetanse
+import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.UtfyltKompetanse
+import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.tilTidslinje
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
@@ -33,11 +37,12 @@ import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Personopplys
 class BegrunnelserForPeriodeContext(
     private val utvidetVedtaksperiodeMedBegrunnelser: UtvidetVedtaksperiodeMedBegrunnelser,
     private val sanityBegrunnelser: List<SanityBegrunnelse>,
-    private val kompetanser: List<Kompetanse> = emptyList(),
+    private val kompetanser: List<UtfyltKompetanse>,
     private val personopplysningGrunnlag: PersonopplysningGrunnlag,
     private val personResultater: List<PersonResultat>,
     private val endretUtbetalingsandeler: List<EndretUtbetalingAndel>,
     private val erFørsteVedtaksperiode: Boolean,
+    private val andelerTilkjentYtelse: List<AndelTilkjentYtelseMedEndreteUtbetalinger>,
 ) {
     private val aktørIderMedUtbetaling =
         utvidetVedtaksperiodeMedBegrunnelser.utbetalingsperiodeDetaljer.map { it.person.aktør.aktørId }
@@ -50,7 +55,7 @@ class BegrunnelserForPeriodeContext(
 
     fun hentGyldigeBegrunnelserForVedtaksperiode(): List<IBegrunnelse> {
         val tillateBegrunnelserForVedtakstype =
-            (Begrunnelse.entries + EØSBegrunnelse.entries)
+            (NasjonalEllerFellesBegrunnelse.entries + EØSBegrunnelse.entries)
                 .filter {
                     utvidetVedtaksperiodeMedBegrunnelser
                         .type
@@ -58,33 +63,34 @@ class BegrunnelserForPeriodeContext(
                         .contains(it.begrunnelseType)
                 }
 
-        return when (utvidetVedtaksperiodeMedBegrunnelser.type) {
+        return when (this.utvidetVedtaksperiodeMedBegrunnelser.type) {
             Vedtaksperiodetype.FORTSATT_INNVILGET,
             Vedtaksperiodetype.AVSLAG,
             -> tillateBegrunnelserForVedtakstype
 
             Vedtaksperiodetype.UTBETALING,
             Vedtaksperiodetype.OPPHØR,
-            -> tillateBegrunnelserForVedtakstype.filtrerPasserVedtaksperiode()
+            -> tillateBegrunnelserForVedtakstype.filtrerErGyldigForVedtaksperiode()
         }
     }
 
-    private fun List<IBegrunnelse>.filtrerPasserVedtaksperiode(): List<IBegrunnelse> {
-        val begrunnelserSomTriggesForVedtaksperiode =
-            filter { it.begrunnelseType != BegrunnelseType.FORTSATT_INNVILGET }
-                .filter { it.triggesForVedtaksperiode() }
+    private fun List<IBegrunnelse>.filtrerErGyldigForVedtaksperiode(): List<IBegrunnelse> {
+        val gyldigeBegrunnelserForVedtaksperiode =
+            this.filter { it.begrunnelseType != BegrunnelseType.FORTSATT_INNVILGET }
+                .filter { it.erGyldigForVedtaksperiode() }
 
         val fantIngenbegrunnelserOgSkalDerforBrukeFortsattInnvilget =
-            utvidetVedtaksperiodeMedBegrunnelser.type == Vedtaksperiodetype.UTBETALING && begrunnelserSomTriggesForVedtaksperiode.isEmpty()
+            utvidetVedtaksperiodeMedBegrunnelser.type == Vedtaksperiodetype.UTBETALING && gyldigeBegrunnelserForVedtaksperiode.isEmpty()
 
-        return if (fantIngenbegrunnelserOgSkalDerforBrukeFortsattInnvilget) {
-            filter { it.begrunnelseType == BegrunnelseType.FORTSATT_INNVILGET }
+        return if (fantIngenbegrunnelserOgSkalDerforBrukeFortsattInnvilget || utvidetVedtaksperiodeMedBegrunnelser.type == Vedtaksperiodetype.FORTSATT_INNVILGET) {
+            gyldigeBegrunnelserForVedtaksperiode +
+                this.filter { it.begrunnelseType == BegrunnelseType.FORTSATT_INNVILGET }
         } else {
-            begrunnelserSomTriggesForVedtaksperiode
+            gyldigeBegrunnelserForVedtaksperiode
         }
     }
 
-    private fun IBegrunnelse.triggesForVedtaksperiode(): Boolean {
+    private fun IBegrunnelse.erGyldigForVedtaksperiode(): Boolean {
         val sanityBegrunnelse = this.tilSanityBegrunnelse(sanityBegrunnelser) ?: return false
 
         // filtrer på tema
@@ -101,16 +107,59 @@ class BegrunnelserForPeriodeContext(
         }
     }
 
-    private fun hentPersonerSomPasserForKompetanseIPeriode(
+    fun hentPersonerSomPasserForKompetanseIPeriode(
         begrunnelse: IBegrunnelse,
         sanityBegrunnelse: SanityBegrunnelse,
     ): Set<Person> {
-        return this.kompetanser.filter { kompetanse ->
-            kompetanse.annenForeldersAktivitet in sanityBegrunnelse.annenForeldersAktivitet &&
-                kompetanse.resultat in sanityBegrunnelse.kompetanseResultat &&
-                landkodeTilBarnetsBostedsland(kompetanse.barnetsBostedsland ?: throw Feil("Barnets bostedsland er null i kompetanse")) in sanityBegrunnelse.barnetsBostedsland
-        }.flatMap { it.barnAktører }.map { aktør -> personopplysningGrunnlag.personer.find { it.aktør == aktør }!! }.toSet()
+        val alleBarna = kompetanser.flatMap { it.barnAktører }.toSet()
+        val utfylteKompetanserPerBarn = alleBarna.associateWith { barn -> kompetanser.filter { barn in it.barnAktører } }
+        val vilkårResultaterSomOverlapperVedtaksperiode =
+            hentVilkårResultaterSomOverlapperVedtaksperiode(
+                standardBegrunnelse = begrunnelse,
+                erFørsteVedtaksperiodeOgBegrunnelseInneholderGjelderFørstePeriodeTrigger = false,
+            )
+
+        return utfylteKompetanserPerBarn.filter { (barn, utfyltKompetansePåBarn) ->
+            val barnPerson = personopplysningGrunnlag.personer.find { it.aktør.aktivFødselsnummer() == barn.aktivFødselsnummer() }
+            val vilkårResultaterPåBarnIPeriode = vilkårResultaterSomOverlapperVedtaksperiode[barnPerson] ?: emptyList()
+
+            val innvilgedeAndelerPåPerson =
+                andelerTilkjentYtelse
+                    .filter { it.erInnvilget }
+                    .filter { it.aktør.aktørId == barn.aktørId }
+                    .tilTidslinje()
+
+            val utfyltKompetansePåBarnIPerodeneMedUtbetalingPåBarnet =
+                utfyltKompetansePåBarn.tilTidslinje().kombinerMed(innvilgedeAndelerPåPerson) { kompetanse, innvilget ->
+                    kompetanse?.takeIf { innvilget != null }
+                }
+
+            val kompetanseSomOverlapperMedVedtaksperioderPåBarn =
+                utfyltKompetansePåBarnIPerodeneMedUtbetalingPåBarnet.klipp(vedtaksperiode.fom, vedtaksperiode.tom).tilPerioderIkkeNull().singleOrNull()?.verdi
+
+            val kompetanseSomBleAvsluttetIForrigePeriodePåBarn =
+                utfyltKompetansePåBarnIPerodeneMedUtbetalingPåBarnet.tilPerioderIkkeNull().singleOrNull { kompetansePeriode ->
+                    kompetansePeriode.tom != null &&
+                        kompetansePeriode.tom.toYearMonth().plusMonths(1) == utvidetVedtaksperiodeMedBegrunnelser.fom?.toYearMonth()
+                }?.verdi
+
+            val utfyltKompetanse =
+                if (begrunnelse.begrunnelseType == BegrunnelseType.EØS_OPPHØR) {
+                    kompetanseSomBleAvsluttetIForrigePeriodePåBarn
+                        ?.takeIf { kompetanseSomOverlapperMedVedtaksperioderPåBarn == null }
+                } else {
+                    kompetanseSomOverlapperMedVedtaksperioderPåBarn
+                }
+
+            utfyltKompetanse.erLikKompetanseIBegrunnelse(sanityBegrunnelse) && vilkårResultaterPåBarnIPeriode.erLikVilkårIBegrunnelse(sanityBegrunnelse)
+        }.keys.map { aktør -> personopplysningGrunnlag.personer.find { it.aktør == aktør }!! }.toSet()
     }
+
+    private fun UtfyltKompetanse?.erLikKompetanseIBegrunnelse(
+        sanityBegrunnelse: SanityBegrunnelse,
+    ) = this?.annenForeldersAktivitet in sanityBegrunnelse.annenForeldersAktivitet &&
+        this?.resultat in sanityBegrunnelse.kompetanseResultat &&
+        this?.let { landkodeTilBarnetsBostedsland(it.barnetsBostedsland) } in sanityBegrunnelse.barnetsBostedsland
 
     private fun erEtterEndretPeriodeAvSammeÅrsak(begrunnelse: SanityBegrunnelse) =
         endretUtbetalingsandeler.any { endretUtbetalingAndel ->
@@ -200,6 +249,7 @@ class BegrunnelserForPeriodeContext(
     private fun IBegrunnelse.finnVilkårResultatIderSomPasserMedVedtaksperiodeDato() =
         when (this.begrunnelseType) {
             BegrunnelseType.REDUKSJON,
+            BegrunnelseType.EØS_REDUKSJON,
             BegrunnelseType.EØS_INNVILGET,
             BegrunnelseType.AVSLAG,
             BegrunnelseType.ENDRET_UTBETALING,
@@ -239,6 +289,7 @@ class BegrunnelserForPeriodeContext(
         erFørsteVedtaksperiodeOgBegrunnelseInneholderGjelderFørstePeriodeTrigger: Boolean,
     ) = when (standardBegrunnelse.begrunnelseType) {
         BegrunnelseType.REDUKSJON,
+        BegrunnelseType.EØS_REDUKSJON,
         BegrunnelseType.EØS_INNVILGET,
         BegrunnelseType.ENDRET_UTBETALING,
         BegrunnelseType.INNVILGET,
@@ -381,5 +432,14 @@ class BegrunnelserForPeriodeContext(
         } else {
             utdypendeVilkårFraSanity.all { utdypendeVilkårIBehandling.contains(it) }
         }
+    }
+}
+
+private fun List<VilkårResultat>.erLikVilkårIBegrunnelse(sanityBegrunnelse: SanityBegrunnelse): Boolean {
+    if (sanityBegrunnelse.vilkår.isEmpty()) return true
+    return sanityBegrunnelse.vilkår.any { vilkårISanityBegrunnelse ->
+        val vilkårResultat = this.find { it.vilkårType == vilkårISanityBegrunnelse }
+
+        vilkårResultat != null
     }
 }

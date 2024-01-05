@@ -13,7 +13,7 @@ interface IBegrunnelse {
     fun enumnavnTilString(): String
 }
 
-enum class Begrunnelse : IBegrunnelse {
+enum class NasjonalEllerFellesBegrunnelse : IBegrunnelse {
     INNVILGET_IKKE_BARNEHAGE {
         override val sanityApiNavn = "innvilgetIkkeBarnehage"
         override val begrunnelseType = BegrunnelseType.INNVILGET
@@ -541,23 +541,78 @@ enum class Begrunnelse : IBegrunnelse {
     REDUKSJON_DEN_ANDRE_FORELDEREN_HAR_FOTT_FRA_SAMME_TIDSROM {
         override val begrunnelseType = BegrunnelseType.REDUKSJON
         override val sanityApiNavn = "reduksjonDenAndreForelderenHarFottFraSammeTidsrom"
+    },
+    FORTSATT_INNVILGET_OPPHOLD_I_NORGE {
+        override val begrunnelseType = BegrunnelseType.FORTSATT_INNVILGET
+        override val sanityApiNavn = "fortsattInnvilgetOppholdINorge"
+    },
+    FORTSATT_INNVILGET_TREDJELANDSBORGER_FORTSATT_LOVLIGOPPHOLD {
+        override val begrunnelseType = BegrunnelseType.FORTSATT_INNVILGET
+        override val sanityApiNavn = "fortsattInnvilgetTredjelandsborgerFortsattLovligOpphold"
+    },
+    FORTSATT_INNVILGET_BARN_BOR_MED_SOKER {
+        override val begrunnelseType = BegrunnelseType.FORTSATT_INNVILGET
+        override val sanityApiNavn = "fortsattInnvilgetBarnBorMedSoker"
+    },
+    FORTSATT_INNVILGET_VURDERING_BARN_BOR_MED_SOKER {
+        override val begrunnelseType = BegrunnelseType.FORTSATT_INNVILGET
+        override val sanityApiNavn = "fortsattInnvilgetVurderingBarnBorMedSoker"
+    },
+    FORTSATT_INNVILGET_OPPHOLDSRETT {
+        override val begrunnelseType = BegrunnelseType.FORTSATT_INNVILGET
+        override val sanityApiNavn = "fortsattInnvilgetOppholdsrett"
+    },
+    FORTSATT_INNVILGET_HAR_KONTANTSTOTTEN_DET_ER_SOKT_OM {
+        override val begrunnelseType = BegrunnelseType.FORTSATT_INNVILGET
+        override val sanityApiNavn = "fortsattInnvilgetHarKontantstottenDetErSoktOm"
+    },
+    FORTSATT_INNVILGET_DELT_KONTANTSTOTTE_PRAKTISERES_FORTSATT {
+        override val begrunnelseType = BegrunnelseType.FORTSATT_INNVILGET
+        override val sanityApiNavn = "fortsattInnvilgetDeltKontantstottePraktiseresFortsatt"
+    },
+    FORTSATT_INNVILGET_FORTSATT_AVTALE_OM_DELT_BOSTED {
+        override val begrunnelseType = BegrunnelseType.FORTSATT_INNVILGET
+        override val sanityApiNavn = "fortsattInnvilgetFortsattAvtaleOmDeltBosted"
+    },
+    FORTSATT_INNVILGET_FORTSATT_RETTSAVGJORELSE_OM_DELT_BOSTED {
+        override val begrunnelseType = BegrunnelseType.FORTSATT_INNVILGET
+        override val sanityApiNavn = "fortsattInnvilgetFortsattRettsavgjorelseOmDeltBosted"
+    },
+    FORTSATT_INNVILGET_IKKE_BARNEHAGE {
+        override val begrunnelseType = BegrunnelseType.FORTSATT_INNVILGET
+        override val sanityApiNavn = "fortsattInnvilgetIkkeBarnehage"
+    },
+    FORTSATT_INNVILGET_DELTIDSPLASS_I_BARNEHAGE {
+        override val begrunnelseType = BegrunnelseType.FORTSATT_INNVILGET
+        override val sanityApiNavn = "fortsattInnvilgetDeltidsplassIBarnehage"
+    },
+    FORTSATT_INNVILGET_MEDLEMSKAP_I_FOLKETRYGDEN {
+        override val begrunnelseType = BegrunnelseType.FORTSATT_INNVILGET
+        override val sanityApiNavn = "fortsattInnvilgetMedlemskapIFolketrygden"
+    },
+    FORTSATT_INNVILGET_MEDLEMSKAP_DEN_ANDRE_FORELDEREN {
+        override val begrunnelseType = BegrunnelseType.FORTSATT_INNVILGET
+        override val sanityApiNavn = "fortsattInnvilgetMedlemskapDenAndreForelderen"
+    },
+    FORTSATT_INNVILGET_MEDLEMSKAP_FOLKETRYGDEN_OG_EOS_LAND {
+        override val begrunnelseType = BegrunnelseType.FORTSATT_INNVILGET
+        override val sanityApiNavn = "fortsattInnvilgetMedlemskapFolketrygdenOgEosLand"
+    },
+    FORTSATT_INNVILGET_MEDLEMSKAP_FOLKETRYGDEN_OG_EOS_LAND_DEN_ANDRE_FORELDEREN {
+        override val begrunnelseType = BegrunnelseType.FORTSATT_INNVILGET
+        override val sanityApiNavn = "fortsattInnvilgetMedlemskapFolketrygdenOgEosLandDenAndreForelderen"
     }, ;
 
     override fun enumnavnTilString() = this.name
 }
 
-fun Begrunnelse.støtterFritekst(sanityBegrunnelser: List<SanityBegrunnelse>) =
+fun IBegrunnelse.støtterFritekst(sanityBegrunnelser: List<SanityBegrunnelse>) =
     sanityBegrunnelser.first { it.apiNavn == this.sanityApiNavn }.støtterFritekst
 
 @Converter
 class StandardbegrunnelseListConverter :
-    AttributeConverter<List<Begrunnelse>, String> {
-    override fun convertToDatabaseColumn(begrunnelser: List<Begrunnelse>) = konverterEnumsTilString(begrunnelser)
+    AttributeConverter<List<NasjonalEllerFellesBegrunnelse>, String> {
+    override fun convertToDatabaseColumn(begrunnelser: List<NasjonalEllerFellesBegrunnelse>) = konverterEnumsTilString(begrunnelser)
 
-    override fun convertToEntityAttribute(string: String?): List<Begrunnelse> = konverterStringTilEnums(string)
+    override fun convertToEntityAttribute(string: String?): List<NasjonalEllerFellesBegrunnelse> = konverterStringTilEnums(string)
 }
-
-val endretUtbetalingsperiodeBegrunnelser: List<Begrunnelse> =
-    listOf(
-        // TODO: Legg til begrunnelser
-    )

@@ -5,14 +5,14 @@ import no.nav.familie.ks.sak.common.util.slåSammen
 import no.nav.familie.ks.sak.common.util.tilKortString
 import no.nav.familie.ks.sak.common.util.toYearMonth
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelse
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.Vedtaksbegrunnelse
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.NasjonalEllerFellesBegrunnelseDB
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.VedtaksperiodeMedBegrunnelser
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
 import org.slf4j.LoggerFactory
 import java.time.LocalDate
 
-private val logger = LoggerFactory.getLogger(Begrunnelse::class.java)
+private val logger = LoggerFactory.getLogger(NasjonalEllerFellesBegrunnelse::class.java)
 
 fun IBegrunnelse.tilSanityBegrunnelse(sanityBegrunnelser: List<SanityBegrunnelse>): SanityBegrunnelse? {
     val sanityBegrunnelse = sanityBegrunnelser.find { it.apiNavn == this.sanityApiNavn }
@@ -22,7 +22,7 @@ fun IBegrunnelse.tilSanityBegrunnelse(sanityBegrunnelser: List<SanityBegrunnelse
     return sanityBegrunnelse
 }
 
-fun Begrunnelse.tilVedtaksbegrunnelse(vedtaksperiodeMedBegrunnelser: VedtaksperiodeMedBegrunnelser): Vedtaksbegrunnelse {
+fun NasjonalEllerFellesBegrunnelse.tilVedtaksbegrunnelse(vedtaksperiodeMedBegrunnelser: VedtaksperiodeMedBegrunnelser): NasjonalEllerFellesBegrunnelseDB {
     if (!vedtaksperiodeMedBegrunnelser
             .type
             .tillatteBegrunnelsestyper
@@ -34,9 +34,9 @@ fun Begrunnelse.tilVedtaksbegrunnelse(vedtaksperiodeMedBegrunnelser: Vedtaksperi
         )
     }
 
-    return Vedtaksbegrunnelse(
+    return NasjonalEllerFellesBegrunnelseDB(
         vedtaksperiodeMedBegrunnelser = vedtaksperiodeMedBegrunnelser,
-        begrunnelse = this,
+        nasjonalEllerFellesBegrunnelse = this,
     )
 }
 

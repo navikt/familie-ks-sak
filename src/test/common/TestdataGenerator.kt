@@ -41,7 +41,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.simulering.domene.ØkonomiSi
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.Vedtak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.UtbetalingsperiodeDetalj
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.Vedtaksperiodetype
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.Vedtaksbegrunnelse
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.NasjonalEllerFellesBegrunnelseDB
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.VedtaksbegrunnelseFritekst
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.VedtaksperiodeMedBegrunnelser
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.AnnenVurdering
@@ -57,7 +57,7 @@ import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.domene.TilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.domene.YtelseType
 import no.nav.familie.ks.sak.kjerne.beregning.domene.maksBeløp
-import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.Begrunnelse
+import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.NasjonalEllerFellesBegrunnelse
 import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.EndretUtbetalingAndel
 import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.Årsak
 import no.nav.familie.ks.sak.kjerne.eøs.differanseberegning.domene.Intervall
@@ -623,12 +623,12 @@ fun lagEndretUtbetalingAndel(
     )
 
 fun lagVedtaksbegrunnelse(
-    begrunnelse: Begrunnelse =
-        Begrunnelse.INNVILGET_IKKE_BARNEHAGE,
+    nasjonalEllerFellesBegrunnelse: NasjonalEllerFellesBegrunnelse =
+        NasjonalEllerFellesBegrunnelse.INNVILGET_IKKE_BARNEHAGE,
     vedtaksperiodeMedBegrunnelser: VedtaksperiodeMedBegrunnelser = mockk(),
-) = Vedtaksbegrunnelse(
+) = NasjonalEllerFellesBegrunnelseDB(
     vedtaksperiodeMedBegrunnelser = vedtaksperiodeMedBegrunnelser,
-    begrunnelse = begrunnelse,
+    nasjonalEllerFellesBegrunnelse = nasjonalEllerFellesBegrunnelse,
 )
 
 fun lagVedtaksperiodeMedBegrunnelser(
@@ -636,7 +636,7 @@ fun lagVedtaksperiodeMedBegrunnelser(
     fom: LocalDate? = LocalDate.now().withDayOfMonth(1),
     tom: LocalDate? = LocalDate.now().let { it.withDayOfMonth(it.lengthOfMonth()) },
     type: Vedtaksperiodetype = Vedtaksperiodetype.FORTSATT_INNVILGET,
-    begrunnelser: MutableSet<Vedtaksbegrunnelse> = mutableSetOf(lagVedtaksbegrunnelse()),
+    begrunnelser: MutableSet<NasjonalEllerFellesBegrunnelseDB> = mutableSetOf(lagVedtaksbegrunnelse()),
     fritekster: MutableList<VedtaksbegrunnelseFritekst> = mutableListOf(),
 ) = VedtaksperiodeMedBegrunnelser(
     vedtak = vedtak,

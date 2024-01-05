@@ -86,6 +86,9 @@ enum class Trigger {
     }
 }
 
+fun SanityBegrunnelse.begrunnelseGjelderOpphørFraForrigeBehandling() =
+    Trigger.GJELDER_FØRSTE_PERIODE in this.triggere
+
 data class SanityBegrunnelseDto(
     val apiNavn: String?,
     val navnISystem: String,

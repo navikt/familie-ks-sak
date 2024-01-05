@@ -15,7 +15,11 @@ import jakarta.persistence.ManyToMany
 import jakarta.persistence.SequenceGenerator
 import jakarta.persistence.Table
 import no.nav.familie.ks.sak.common.exception.Feil
+import no.nav.familie.ks.sak.common.tidslinje.Periode
+import no.nav.familie.ks.sak.common.tidslinje.tilTidslinje
 import no.nav.familie.ks.sak.common.util.YearMonthConverter
+import no.nav.familie.ks.sak.common.util.førsteDagIInneværendeMåned
+import no.nav.familie.ks.sak.common.util.sisteDagIInneværendeMåned
 import no.nav.familie.ks.sak.kjerne.eøs.felles.domene.EøsSkjemaEntitet
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import java.time.YearMonth
@@ -95,6 +99,18 @@ data class Kompetanse(
             resultat != null &&
             barnAktører.isNotEmpty()
 
+    fun erObligatoriskeFelterSatt() =
+        fom != null &&
+            erObligatoriskeFelterUtenomTidsperioderSatt()
+
+    fun erObligatoriskeFelterUtenomTidsperioderSatt() =
+        this.søkersAktivitet != null &&
+            this.annenForeldersAktivitet != null &&
+            this.søkersAktivitetsland != null &&
+            this.barnetsBostedsland != null &&
+            this.resultat != null &&
+            this.barnAktører.isNotEmpty()
+
     companion object {
         val blankKompetanse = Kompetanse(fom = null, tom = null, barnAktører = emptySet())
     }
@@ -131,3 +147,59 @@ enum class KompetanseResultat {
     NORGE_ER_SEKUNDÆRLAND,
     TO_PRIMÆRLAND,
 }
+
+sealed interface IKompetanse {
+    val id: Long
+    val behandlingId: Long
+}
+
+data class TomKompetanse(
+    override val id: Long,
+    override val behandlingId: Long,
+) : IKompetanse
+
+data class UtfyltKompetanse(
+    override val id: Long,
+    override val behandlingId: Long,
+    val fom: YearMonth,
+    val tom: YearMonth?,
+    val barnAktører: Set<Aktør>,
+    val søkersAktivitet: KompetanseAktivitet,
+    val annenForeldersAktivitet: KompetanseAktivitet,
+    val annenForeldersAktivitetsland: String?,
+    val søkersAktivitetsland: String,
+    val barnetsBostedsland: String,
+    val resultat: KompetanseResultat,
+) : IKompetanse
+
+fun Kompetanse.tilIKompetanse(): IKompetanse {
+    return if (this.erObligatoriskeFelterSatt()) {
+        UtfyltKompetanse(
+            id = this.id,
+            behandlingId = this.behandlingId,
+            fom = this.fom!!,
+            tom = this.tom,
+            barnAktører = this.barnAktører,
+            søkersAktivitet = this.søkersAktivitet!!,
+            annenForeldersAktivitet = this.annenForeldersAktivitet!!,
+            annenForeldersAktivitetsland = this.annenForeldersAktivitetsland,
+            søkersAktivitetsland = this.søkersAktivitetsland!!,
+            barnetsBostedsland = this.barnetsBostedsland!!,
+            resultat = this.resultat!!,
+        )
+    } else {
+        TomKompetanse(
+            id = this.id,
+            behandlingId = this.behandlingId,
+        )
+    }
+}
+
+fun List<UtfyltKompetanse>.tilTidslinje() =
+    this.map {
+        Periode(
+            fom = it.fom.førsteDagIInneværendeMåned(),
+            tom = it.tom?.sisteDagIInneværendeMåned(),
+            verdi = it,
+        )
+    }.tilTidslinje()

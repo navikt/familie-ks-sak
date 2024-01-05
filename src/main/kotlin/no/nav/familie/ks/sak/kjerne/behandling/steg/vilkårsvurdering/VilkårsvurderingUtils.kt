@@ -23,16 +23,18 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Res
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
-import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.Begrunnelse
+import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.BegrunnelseType
+import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.EØSBegrunnelse
+import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.IBegrunnelse
+import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.NasjonalEllerFellesBegrunnelse
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.tilSanityBegrunnelse
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
 import java.time.LocalDate
 import java.time.Month
 
-fun standardbegrunnelserTilNedtrekksmenytekster(sanityBegrunnelser: List<SanityBegrunnelse>) =
-    Begrunnelse
-        .values()
+fun standardbegrunnelserTilNedtrekksmenytekster(sanityBegrunnelser: List<SanityBegrunnelse>): Map<BegrunnelseType, List<VedtakBegrunnelseTilknyttetVilkårResponseDto>> {
+    return (NasjonalEllerFellesBegrunnelse.entries + EØSBegrunnelse.entries)
         .groupBy { it.begrunnelseType }
         .mapValues { begrunnelseGruppe ->
             begrunnelseGruppe.value
@@ -43,10 +45,11 @@ fun standardbegrunnelserTilNedtrekksmenytekster(sanityBegrunnelser: List<SanityB
                     )
                 }
         }
+}
 
 fun vedtakBegrunnelseTilRestVedtakBegrunnelseTilknyttetVilkår(
     sanityBegrunnelser: List<SanityBegrunnelse>,
-    vedtakBegrunnelse: Begrunnelse,
+    vedtakBegrunnelse: IBegrunnelse,
 ): List<VedtakBegrunnelseTilknyttetVilkårResponseDto> {
     val sanityBegrunnelse = vedtakBegrunnelse.tilSanityBegrunnelse(sanityBegrunnelser) ?: return emptyList()
     val visningsnavn = sanityBegrunnelse.navnISystem
@@ -267,7 +270,7 @@ fun validerAtDatoErKorrektIBarnasVilkår(
                 ) {
                     vilkårResultat.validerVilkårBarnetsAlder(
                         vilkårResultat.lagOgValiderPeriodeFraVilkår(),
-                        barn.fødselsdato,
+                        barn,
                     )?.let { funksjonelleFeil.add(it) }
                 }
             }
@@ -295,21 +298,21 @@ private fun VilkårResultat.lagOgValiderPeriodeFraVilkår(): IkkeNullbarPeriode<
 
 private fun VilkårResultat.validerVilkårBarnetsAlder(
     periode: IkkeNullbarPeriode<Long>,
-    barnFødselsdato: LocalDate,
+    barn: Person,
 ): String? =
     when {
         this.erAdopsjonOppfylt() &&
-            periode.tom.isAfter(barnFødselsdato.plusYears(6).withMonth(Month.AUGUST.value).sisteDagIMåned()) ->
+            periode.tom.isAfter(barn.fødselsdato.plusYears(6).withMonth(Month.AUGUST.value).sisteDagIMåned()) ->
             "Du kan ikke sette en t.o.m dato som er etter august året barnet fyller 6 år."
 
         // Ved adopsjon skal det være lov å ha en differanse på 1 år + 1 dag slik at man får 11 måned med kontantstøtte.
         this.erAdopsjonOppfylt() && periode.fom.diffIDager(periode.tom) > 366 ->
             "Differansen mellom f.o.m datoen og t.o.m datoen kan ikke være mer enn 1 år."
 
-        !this.erAdopsjonOppfylt() && !periode.fom.isEqual(barnFødselsdato.plusYears(1)) ->
+        !this.erAdopsjonOppfylt() && !periode.fom.isEqual(barn.fødselsdato.plusYears(1)) ->
             "F.o.m datoen må være lik barnets 1 års dag."
 
-        !this.erAdopsjonOppfylt() && !periode.tom.isEqual(barnFødselsdato.plusYears(2)) ->
+        !this.erAdopsjonOppfylt() && !periode.tom.isEqual(barn.fødselsdato.plusYears(2)) && periode.tom != barn.dødsfall?.dødsfallDato ->
             "T.o.m datoen må være lik barnets 2 års dag."
 
         else -> null

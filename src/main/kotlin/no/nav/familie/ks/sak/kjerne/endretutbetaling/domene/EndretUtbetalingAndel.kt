@@ -20,7 +20,7 @@ import no.nav.familie.ks.sak.common.util.MånedPeriode
 import no.nav.familie.ks.sak.common.util.YearMonthConverter
 import no.nav.familie.ks.sak.common.util.overlapperHeltEllerDelvisMed
 import no.nav.familie.ks.sak.kjerne.beregning.EndretUtbetalingAndelMedAndelerTilkjentYtelse
-import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.Begrunnelse
+import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.NasjonalEllerFellesBegrunnelse
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.StandardbegrunnelseListConverter
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
 import java.math.BigDecimal
@@ -62,7 +62,7 @@ data class EndretUtbetalingAndel(
     var begrunnelse: String? = null,
     @Column(name = "vedtak_begrunnelse_spesifikasjoner")
     @Convert(converter = StandardbegrunnelseListConverter::class)
-    var begrunnelser: List<Begrunnelse> = emptyList(),
+    var begrunnelser: List<NasjonalEllerFellesBegrunnelse> = emptyList(),
     @Column(name = "er_eksplisitt_avslag_paa_soknad")
     var erEksplisittAvslagPåSøknad: Boolean? = null,
 ) : BaseEntitet() {
@@ -132,7 +132,7 @@ fun EndretUtbetalingAndel.fraEndretUtbetalingAndelRequestDto(
     this.begrunnelse = endretUtbetalingAndelRequestDto.begrunnelse
     this.person = person
     this.erEksplisittAvslagPåSøknad = endretUtbetalingAndelRequestDto.erEksplisittAvslagPåSøknad
-    this.begrunnelser = listOf(Begrunnelse.AVSLAG_SØKT_FOR_SENT_ENDRINGSPERIODE)
+    this.begrunnelser = listOf(NasjonalEllerFellesBegrunnelse.AVSLAG_SØKT_FOR_SENT_ENDRINGSPERIODE)
 
     return this
 }

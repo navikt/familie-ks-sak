@@ -16,6 +16,7 @@ import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.EndretUtbetalingAnde
 import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.EndretUtbetalingAndelRepository
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import java.math.BigDecimal
 import java.time.YearMonth
 
 @Service
@@ -124,6 +125,8 @@ data class AndelTilkjentYtelseMedEndreteUtbetalinger internal constructor(
     val prosent get() = andelTilkjentYtelse.prosent
     val andel get() = andelTilkjentYtelse
     val endreteUtbetalinger get() = endreteUtbetalingerAndeler
+
+    val erInnvilget get() = this.endreteUtbetalinger.none { it.prosent == BigDecimal.ZERO && !it.erÅrsakDeltBosted() }
 
     companion object {
         fun utenEndringer(andelTilkjentYtelse: AndelTilkjentYtelse): AndelTilkjentYtelseMedEndreteUtbetalinger {
