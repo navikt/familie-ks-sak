@@ -106,8 +106,8 @@ data class SanityBegrunnelseDto(
     val barnetsBostedsland: List<String> = emptyList(),
     val kompetanseResultat: List<String> = emptyList(),
     val hjemlerFolketrygdloven: List<String> = emptyList(),
-    val hjemlerEØSForordningen883: List<String> = emptyList(),
-    val hjemlerEØSForordningen987: List<String> = emptyList(),
+    val hjemlerEOSForordningen883: List<String> = emptyList(),
+    val hjemlerEOSForordningen987: List<String> = emptyList(),
     val hjemlerSeperasjonsavtalenStorbritannina: List<String> = emptyList(),
 ) {
     fun tilSanityBegrunnelse(): SanityBegrunnelse {
@@ -141,8 +141,8 @@ data class SanityBegrunnelseDto(
             barnetsBostedsland = barnetsBostedsland.mapNotNull { finnEnumverdi(it, BarnetsBostedsland.entries, apiNavn) },
             kompetanseResultat = kompetanseResultat.mapNotNull { finnEnumverdi(it, KompetanseResultat.entries, apiNavn) },
             hjemlerFolketrygdloven = hjemlerFolketrygdloven,
-            hjemlerEØSForordningen883 = hjemlerEØSForordningen883,
-            hjemlerEØSForordningen987 = hjemlerEØSForordningen987,
+            hjemlerEØSForordningen883 = hjemlerEOSForordningen883,
+            hjemlerEØSForordningen987 = hjemlerEOSForordningen987,
             hjemlerSeperasjonsavtalenStorbritannina = hjemlerSeperasjonsavtalenStorbritannina,
         )
     }
