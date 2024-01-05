@@ -82,8 +82,9 @@ class BegrunnelserForPeriodeContext(
         val fantIngenbegrunnelserOgSkalDerforBrukeFortsattInnvilget =
             utvidetVedtaksperiodeMedBegrunnelser.type == Vedtaksperiodetype.UTBETALING && gyldigeBegrunnelserForVedtaksperiode.isEmpty()
 
-        return if (fantIngenbegrunnelserOgSkalDerforBrukeFortsattInnvilget) {
-            filter { it.begrunnelseType == BegrunnelseType.FORTSATT_INNVILGET }
+        return if (fantIngenbegrunnelserOgSkalDerforBrukeFortsattInnvilget || utvidetVedtaksperiodeMedBegrunnelser.type == Vedtaksperiodetype.FORTSATT_INNVILGET) {
+            gyldigeBegrunnelserForVedtaksperiode +
+                this.filter { it.begrunnelseType == BegrunnelseType.FORTSATT_INNVILGET }
         } else {
             gyldigeBegrunnelserForVedtaksperiode
         }

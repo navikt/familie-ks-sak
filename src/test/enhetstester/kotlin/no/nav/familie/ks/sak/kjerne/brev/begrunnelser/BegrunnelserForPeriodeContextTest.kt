@@ -426,13 +426,13 @@ class BegrunnelserForPeriodeContextTest {
     @Nested
     inner class EØS {
         @Test
-        fun `Skal kunne få opp eøs som gyldige begrunnelse dersom det er en kompetanse i perioden`() {
+        fun `Skal kunne få opp eøs som gyldige begrunnelser dersom det er en kompetanse i perioden`() {
             val eøsBegrunnelse =
                 SanityBegrunnelse(
                     apiNavn = EØSBegrunnelse.INNVILGET_PRIMÆRLAND_BARNET_BOR_I_NORGE.sanityApiNavn,
                     navnISystem = EØSBegrunnelse.INNVILGET_PRIMÆRLAND_BARNET_BOR_I_NORGE.name,
                     type = SanityBegrunnelseType.STANDARD,
-                    vilkår = Vilkår.entries,
+                    vilkår = emptyList(),
                     rolle = emptyList(),
                     triggere = emptyList(),
                     utdypendeVilkårsvurderinger = emptyList(),
@@ -461,7 +461,7 @@ class BegrunnelserForPeriodeContextTest {
             val begrunnelser =
                 begrunnelseContext.hentGyldigeBegrunnelserForVedtaksperiode()
 
-            assertThat(begrunnelser.size).isEqualTo(1)
+            assertThat(begrunnelser).contains(EØSBegrunnelse.INNVILGET_PRIMÆRLAND_BARNET_BOR_I_NORGE)
         }
 
         @Test
@@ -471,7 +471,7 @@ class BegrunnelserForPeriodeContextTest {
                     apiNavn = EØSBegrunnelse.INNVILGET_PRIMÆRLAND_BARNET_BOR_I_NORGE.sanityApiNavn,
                     navnISystem = EØSBegrunnelse.INNVILGET_PRIMÆRLAND_BARNET_BOR_I_NORGE.name,
                     type = SanityBegrunnelseType.STANDARD,
-                    vilkår = Vilkår.entries,
+                    vilkår = emptyList(),
                     rolle = emptyList(),
                     triggere = emptyList(),
                     utdypendeVilkårsvurderinger = emptyList(),
@@ -550,7 +550,7 @@ class BegrunnelserForPeriodeContextTest {
                     apiNavn = EØSBegrunnelse.OPPHØR_EØS_STANDARD.sanityApiNavn,
                     navnISystem = EØSBegrunnelse.OPPHØR_EØS_STANDARD.name,
                     type = SanityBegrunnelseType.STANDARD,
-                    vilkår = Vilkår.entries,
+                    vilkår = emptyList(),
                     rolle = emptyList(),
                     triggere = emptyList(),
                     utdypendeVilkårsvurderinger = emptyList(),
@@ -594,7 +594,7 @@ class BegrunnelserForPeriodeContextTest {
                     apiNavn = EØSBegrunnelse.FORTSATT_INNVILGET_EØS_STANDARD.sanityApiNavn,
                     navnISystem = EØSBegrunnelse.FORTSATT_INNVILGET_EØS_STANDARD.name,
                     type = SanityBegrunnelseType.STANDARD,
-                    vilkår = Vilkår.entries,
+                    vilkår = emptyList(),
                     rolle = emptyList(),
                     triggere = emptyList(),
                     utdypendeVilkårsvurderinger = emptyList(),
@@ -627,7 +627,7 @@ class BegrunnelserForPeriodeContextTest {
             val begrunnelser =
                 begrunnelseContext.hentGyldigeBegrunnelserForVedtaksperiode()
 
-            assertThat(begrunnelser.size).isEqualTo(1)
+            assertThat(begrunnelser).contains(EØSBegrunnelse.FORTSATT_INNVILGET_EØS_STANDARD)
         }
 
         @Test
