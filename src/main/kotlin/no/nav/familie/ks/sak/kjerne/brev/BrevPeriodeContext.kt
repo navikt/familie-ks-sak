@@ -349,6 +349,17 @@ class BrevPeriodeContext(
                 sanityBegrunnelse,
             )
 
+        BegrunnelseType.FORTSATT_INNVILGET -> {
+            val innvilgedeAndelerIPeriode =
+                andelTilkjentYtelserMedEndreteUtbetalinger
+                    .filter { it.erInnvilget }
+                    .filter { utvidetVedtaksperiodeMedBegrunnelser.fom == null || it.stønadFom <= utvidetVedtaksperiodeMedBegrunnelser.fom.toYearMonth() }
+                    .filter { utvidetVedtaksperiodeMedBegrunnelser.tom == null || it.stønadTom >= utvidetVedtaksperiodeMedBegrunnelser.tom.toYearMonth() }
+
+            val aktørerMedUtbetalingIVedtaksperiode = innvilgedeAndelerIPeriode.map { it.aktør }.toSet()
+            aktørerMedUtbetalingIVedtaksperiode.map { aktør -> persongrunnlag.personer.single { it.aktør == aktør } }.toSet()
+        }
+
         else ->
             begrunnelserForPeriodeContext.hentPersonerMedVilkårResultaterSomPasserMedBegrunnelseOgPeriode(
                 begrunnelse = begrunnelse,
