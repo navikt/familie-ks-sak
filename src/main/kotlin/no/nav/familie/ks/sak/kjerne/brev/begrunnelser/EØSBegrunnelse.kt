@@ -71,6 +71,90 @@ enum class EØSBegrunnelse : IBegrunnelse {
         override val begrunnelseType = BegrunnelseType.EØS_INNVILGET
     },
 
+    INNVILGET_PRIMÆRLAND_UK_KONTANTSTØTTE_ALLEREDE_UTBETALT {
+        override val sanityApiNavn = "innvilgetPrimarlandUKKontantstotteAlleredeUtbetalt"
+        override val begrunnelseType = BegrunnelseType.EØS_INNVILGET
+    },
+
+    INNVILGET_SEKUNDÆRLAND_STANDARD {
+        override val sanityApiNavn = "innvilgetSekundarlandStandard"
+        override val begrunnelseType = BegrunnelseType.EØS_INNVILGET
+    },
+
+    INNVILGET_SEKUNDÆRLAND_ALENEANSVAR {
+        override val sanityApiNavn = "innvilgetSekundarlandAleneansvar"
+        override val begrunnelseType = BegrunnelseType.EØS_INNVILGET
+    },
+
+    INNVILGET_SEKUNDÆRLAND_UK_STADARD {
+        override val sanityApiNavn = "innvilgetSekundarlandUkStadard"
+        override val begrunnelseType = BegrunnelseType.EØS_INNVILGET
+    },
+
+    INNVILGET_SEKUNDÆRLAND_UK_ALENEANSVAR {
+        override val sanityApiNavn = "innvilgetSekundarlandUkAleneansvar"
+        override val begrunnelseType = BegrunnelseType.EØS_INNVILGET
+    },
+
+    INNVILGET_SEKUNDÆRLAND_UK_OG_UTLAND_STANDARD {
+        override val sanityApiNavn = "innvilgetSekundarlandUkogUtlandStandard"
+        override val begrunnelseType = BegrunnelseType.EØS_INNVILGET
+    },
+
+    INNVILGET_SEKUNDÆRLAND_TO_ARBEIDSLAND_NORGE_UTBETALER {
+        override val sanityApiNavn = "innvilgetSekundarlandToArbeidslandNorgeUtbetaler"
+        override val begrunnelseType = BegrunnelseType.EØS_INNVILGET
+    },
+
+    INNVILGET_SEKUNDÆRLAND_UK_TO_ARBEIDSLAND_NORGE_UTBETALER {
+        override val sanityApiNavn = "innvilgetSekundarlandUkToArbeidslandNorgeUtbetaler"
+        override val begrunnelseType = BegrunnelseType.EØS_INNVILGET
+    },
+
+    INNVILGET_SEKUNDÆRLAND_BEGGE_FORELDRE_BOSATT_I_NORGE {
+        override val sanityApiNavn = "innvilgetSekundarlandBeggeForeldreBosattINorge"
+        override val begrunnelseType = BegrunnelseType.EØS_INNVILGET
+    },
+
+    INNVILGET_PRIMÆRLAND_DEN_ANDRE_FORELDEREN_UTSENDET_ARBEIDSTAKER {
+        override val sanityApiNavn = "innvilgetPrimarlandDenAndreForelderenUtsendtArbeidstaker"
+        override val begrunnelseType = BegrunnelseType.EØS_INNVILGET
+    },
+
+    INNVILGET_SELVSTENDIG_RETT_PRIMÆRLAND_STANDARD {
+        override val sanityApiNavn = "innvilgetSelvstendigRettPrimarlandStandard"
+        override val begrunnelseType = BegrunnelseType.EØS_INNVILGET
+    },
+
+    INNVILGET_SELVSTENDIG_RETT_PRIMÆRLAND_UK_STANDARD {
+        override val sanityApiNavn = "innvilgetSelvstendigRettPrimarlandUkStandard"
+        override val begrunnelseType = BegrunnelseType.EØS_INNVILGET
+    },
+
+    INNVILGET_SELVSTENDIG_RETT_PRIMÆRLAND_UTSENDET_ARBEIDSTAKER {
+        override val sanityApiNavn = "innvilgetSelvstendigRettPrimarlandUtsendtArbeidstaker"
+        override val begrunnelseType = BegrunnelseType.EØS_INNVILGET
+    },
+
+    INNVILGET_SELVSTENDIG_RETT_SEKUNDÆRLAND_STANDARD {
+        override val sanityApiNavn = "innvilgetSelvstendigRettSekundarlandStandard"
+        override val begrunnelseType = BegrunnelseType.EØS_INNVILGET
+    },
+
+    INNVILGET_SELVSTENDIG_RETT_SEKUNDÆRLAND_UK_STANDARD {
+        override val sanityApiNavn = "innvilgetSelvstendigRettSekundarlandUkStandard"
+        override val begrunnelseType = BegrunnelseType.EØS_INNVILGET
+    },
+
+    INNVILGET_SELVSTENDIG_RETT_PRIMÆRLAND_FOR_YTELSE_I_UTLANDET {
+        override val sanityApiNavn = "innvilgetSelvstendigRettPrimarlandForYtelseIUtlandet"
+        override val begrunnelseType = BegrunnelseType.EØS_INNVILGET
+    },
+
+    INNVILGET_SELVSTENDIG_RETT_SEKUNDÆRLAND_FOR_YTELSE_I_UTLANDET {
+        override val sanityApiNavn = "innvilgetSelvstendigRettSekundarlandForYtelseIUtlandet"
+        override val begrunnelseType = BegrunnelseType.EØS_INNVILGET
+    },
     OPPHØR_EØS_STANDARD {
         override val sanityApiNavn = "opphorEosStandard"
         override val begrunnelseType = BegrunnelseType.EØS_OPPHØR
