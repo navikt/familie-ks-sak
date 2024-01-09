@@ -1,6 +1,5 @@
 package no.nav.familie.ks.sak.statistikk.saksstatistikk
 
-import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingKategori
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingType
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat
@@ -19,7 +18,7 @@ data class BehandlingStatistikkDto(
     val saksnummer: Long,
     val behandlingID: Long,
     val behandlingType: BehandlingType,
-    val behandlingKategori: BehandlingKategori,
+    val utenlandstilsnitt: String,
     val behandlingStatus: BehandlingStatus,
     val behandlingsResultat: Behandlingsresultat? = null,
     val behandlingErManueltOpprettet: Boolean,
