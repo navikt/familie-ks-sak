@@ -44,8 +44,8 @@ class SakStatistikkService(
             behandlingRepository.hentBehandling(behandlingId).behandlingStegTilstand.singleOrNull { it.behandlingSteg == behandlingSteg }
         val hendelsesbeskrivelse =
             "Ny behandlingsstegstilstand " +
-                    "${behandlingStegTilstand?.behandlingSteg}:${behandlingStegTilstand?.behandlingStegStatus} " +
-                    "for behandling $behandlingId"
+                "${behandlingStegTilstand?.behandlingSteg}:${behandlingStegTilstand?.behandlingStegStatus} " +
+                "for behandling $behandlingId"
 
         val tilstand = hentBehandlingensTilstand(behandlingId)
         opprettProsessTask(behandlingId, tilstand, hendelsesbeskrivelse, SendBehandlinghendelseTilDvhTask.TASK_TYPE)
@@ -95,17 +95,17 @@ class SakStatistikkService(
             behandlingErManueltOpprettet = true,
             funksjoneltTidspunkt = behandling.endretTidspunkt.tilOffset(),
             sattPaaVent =
-            behandlingPåVent?.årsak?.name?.let {
-                SattPåVent(
-                    frist =
-                    OffsetDateTime.of(
-                        behandlingPåVent.frist,
-                        java.time.LocalTime.now(),
-                        ZoneOffset.UTC,
-                    ),
-                    aarsak = it,
-                )
-            },
+                behandlingPåVent?.årsak?.name?.let {
+                    SattPåVent(
+                        frist =
+                            OffsetDateTime.of(
+                                behandlingPåVent.frist,
+                                java.time.LocalTime.now(),
+                                ZoneOffset.UTC,
+                            ),
+                        aarsak = it,
+                    )
+                },
             behandlingOpprettetÅrsak = behandling.opprettetÅrsak,
         )
     }
