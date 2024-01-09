@@ -6,6 +6,7 @@ enum class BegrunnelseType(val sorteringsrekkefølge: Int) {
     INNVILGET(2),
     EØS_INNVILGET(2),
     AVSLAG(3),
+    EØS_AVSLAG(3),
     OPPHØR(4),
     EØS_OPPHØR(4),
     FORTSATT_INNVILGET(5),

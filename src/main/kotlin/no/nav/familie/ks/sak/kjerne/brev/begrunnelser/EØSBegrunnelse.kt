@@ -424,6 +424,112 @@ enum class EØSBegrunnelse : IBegrunnelse {
         override val sanityApiNavn = "fortsattInnvilgetEosStandard"
         override val begrunnelseType = BegrunnelseType.FORTSATT_INNVILGET
     },
+
+    AVSLAG_IKKE_EØS_BORGER {
+        override val sanityApiNavn = "avslagIkkeEosBorger"
+        override val begrunnelseType = BegrunnelseType.EØS_AVSLAG
+    },
+
+    AVSLAG_IKKE_BOSATT_I_EØS_LAND {
+        override val sanityApiNavn = "avslagIkkeBosattIEosLand"
+        override val begrunnelseType = BegrunnelseType.EØS_AVSLAG
+    },
+
+    AVSLAG_JOBBER_IKKE {
+        override val sanityApiNavn = "avslagJobberIkke"
+        override val begrunnelseType = BegrunnelseType.EØS_AVSLAG
+    },
+
+    AVSLAG_UTSENDT_ARBEIDSTAKER_FRA_ANNET_EØS_LAND {
+        override val sanityApiNavn = "avslagUtsendtArbeidstakerFraAnnetEosLand"
+        override val begrunnelseType = BegrunnelseType.EØS_AVSLAG
+    },
+
+    AVSLAG_ARBEIDER_MER_ENN_25_PROSENT_I_ANNET_EØS_LAND {
+        override val sanityApiNavn = "avslagArbeiderMerEnn25ProsentIAnnetEosLand"
+        override val begrunnelseType = BegrunnelseType.EØS_AVSLAG
+    },
+
+    AVSLAG_KUN_KORTE_USAMMENHENGENDE_ARBEIDSPERIODER {
+        override val sanityApiNavn = "avslagKunKorteUsammenhengendeArbeidsperioder"
+        override val begrunnelseType = BegrunnelseType.EØS_AVSLAG
+    },
+
+    AVSLAG_IKKE_PENGER_FRA_NAV_SOM_ERSTATTER_LØNN {
+        override val sanityApiNavn = "avslagIkkePengerFraNAVSomErstatterLonn"
+        override val begrunnelseType = BegrunnelseType.EØS_AVSLAG
+    },
+
+    AVSLAG_SEPARASJONSAVTALEN_GJELDER_IKKE {
+        override val sanityApiNavn = "avslagSeparasjonsavtalenGjelderIkke"
+        override val begrunnelseType = BegrunnelseType.EØS_AVSLAG
+    },
+
+    AVSLAG_IKKE_LOVLIG_OPPHOLD_SOM_EØS_BORGER {
+        override val sanityApiNavn = "avslagIkkeLovligOppholdSomEosBorger"
+        override val begrunnelseType = BegrunnelseType.EØS_AVSLAG
+    },
+
+    AVSLAG_IKKE_OPPHOLDSRETT_SOM_FAMILIEMEDLEM_AV_EØS_BORGER {
+        override val sanityApiNavn = "avslagIkkeOppholdsrettSomFamiliemedlemAvEosBorger"
+        override val begrunnelseType = BegrunnelseType.EØS_AVSLAG
+    },
+
+    AVSLAG_IKKE_STUDENT {
+        override val sanityApiNavn = "avslagIkkeStudent"
+        override val begrunnelseType = BegrunnelseType.EØS_AVSLAG
+    },
+
+    AVSLAG_IKKE_ANSVAR_FOR_BARN {
+        override val sanityApiNavn = "avslagIkkeAnsvarForBarn"
+        override val begrunnelseType = BegrunnelseType.EØS_AVSLAG
+    },
+
+    AVSLAG_VURDERING_IKKE_ANSVAR_FOR_BARN {
+        override val sanityApiNavn = "avslagVurderingIkkeAnsvarForBarn"
+        override val begrunnelseType = BegrunnelseType.EØS_AVSLAG
+    },
+
+    AVSLAG_BARN_UTEN_DNUMMER {
+        override val sanityApiNavn = "avslagBarnUtenDNummer"
+        override val begrunnelseType = BegrunnelseType.EØS_AVSLAG
+    },
+
+    AVSLAG_FOR_DAGPENGER_FRA_ANNET_EØS_LAND {
+        override val sanityApiNavn = "avslagForDagpengerFraAnnetEosLand"
+        override val begrunnelseType = BegrunnelseType.EØS_AVSLAG
+    },
+
+    AVSLAG_SELVSTENDIG_NÆRINGSDRIVENDE_NORGE_ARBEIDSTAKER_I_ANNET_EØS_LAND {
+        override val sanityApiNavn = "avslagSelvstendigNaringsdrivendeNorgeArbeidstakerIAnnetEosLand"
+        override val begrunnelseType = BegrunnelseType.EØS_AVSLAG
+    },
+
+    AVSLAG_SELVSTENDIG_RETT_STANDARD_AVSLAG {
+        override val sanityApiNavn = "avslagSelvstendigRettStandardAvslag"
+        override val begrunnelseType = BegrunnelseType.EØS_AVSLAG
+    },
+
+    AVSLAG_SELVSTENDIG_RETT_UTSENDET_ARBEIDSTAKER_FRA_ANNET_EØS_LAND {
+        override val sanityApiNavn = "avslagSelvstendigRettUtsendtArbeidstakerFraAnnetEosLand"
+        override val begrunnelseType = BegrunnelseType.EØS_AVSLAG
+    },
+
+    AVSLAG_SELVSTENDIG_RETT_BOR_IKKE_FAST_MED_BARNET {
+        override val sanityApiNavn = "avslagSelvstendigRettBorIkkeFastMedBarnet"
+        override val begrunnelseType = BegrunnelseType.EØS_AVSLAG
+    },
+
+    AVSLAG_SELVSTENDIG_RETT_FORELDRENE_BOR_SAMMEN {
+        override val sanityApiNavn = "avslagSelvstendigRettForeldreneBorSammen"
+        override val begrunnelseType = BegrunnelseType.EØS_AVSLAG
+    },
+
+    AVSLAG_DELT_BOSTED_BEGGE_FORELDRE_IKKE_OMFATTET_NORSK_LOVVALG {
+        override val sanityApiNavn = "avslagDeltBostedBeggeForeldreIkkeOmfattetNorskLovvalg"
+        override val begrunnelseType = BegrunnelseType.EØS_AVSLAG
+    },
+
     ;
 
     override fun enumnavnTilString() = this.name

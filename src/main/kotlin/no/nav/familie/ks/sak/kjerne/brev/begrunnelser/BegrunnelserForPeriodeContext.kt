@@ -252,6 +252,7 @@ class BegrunnelserForPeriodeContext(
             BegrunnelseType.EØS_REDUKSJON,
             BegrunnelseType.EØS_INNVILGET,
             BegrunnelseType.AVSLAG,
+            BegrunnelseType.EØS_AVSLAG,
             BegrunnelseType.ENDRET_UTBETALING,
             BegrunnelseType.INNVILGET,
             -> finnVilkårResultaterSomStarterSamtidigSomPeriode()
@@ -295,7 +296,7 @@ class BegrunnelserForPeriodeContext(
         BegrunnelseType.INNVILGET,
         -> finnPersonerMedVilkårResultaterSomGjelderIPeriode()
 
-        BegrunnelseType.AVSLAG -> finnPersonerSomHarIkkeOppfylteVilkårResultaterSomStarterSamtidigSomPeriode()
+        BegrunnelseType.AVSLAG, BegrunnelseType.EØS_AVSLAG -> finnPersonerSomHarIkkeOppfylteVilkårResultaterSomStarterSamtidigSomPeriode()
 
         BegrunnelseType.EØS_OPPHØR,
         BegrunnelseType.ETTER_ENDRET_UTBETALING,
