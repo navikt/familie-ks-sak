@@ -13,3 +13,6 @@ enum class BegrunnelseType(val sorteringsrekkefølge: Int) {
     ETTER_ENDRET_UTBETALING(6),
     ENDRET_UTBETALING(7),
 }
+
+fun BegrunnelseType.erAvslagEllerEøsAvslag(): Boolean =
+    this == BegrunnelseType.AVSLAG || this == BegrunnelseType.EØS_AVSLAG

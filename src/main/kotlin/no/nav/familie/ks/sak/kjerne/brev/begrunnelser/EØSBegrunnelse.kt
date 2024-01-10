@@ -86,18 +86,18 @@ enum class EØSBegrunnelse : IBegrunnelse {
         override val begrunnelseType = BegrunnelseType.EØS_INNVILGET
     },
 
-    INNVILGET_SEKUNDÆRLAND_UK_STADARD {
-        override val sanityApiNavn = "innvilgetSekundarlandUkStadard"
+    INNVILGET_SEKUNDÆRLAND_UK_STANDARD {
+        override val sanityApiNavn = "innvilgetSekundarlandUKStandard"
         override val begrunnelseType = BegrunnelseType.EØS_INNVILGET
     },
 
     INNVILGET_SEKUNDÆRLAND_UK_ALENEANSVAR {
-        override val sanityApiNavn = "innvilgetSekundarlandUkAleneansvar"
+        override val sanityApiNavn = "innvilgetSekundarlandUKAleneansvar"
         override val begrunnelseType = BegrunnelseType.EØS_INNVILGET
     },
 
     INNVILGET_SEKUNDÆRLAND_UK_OG_UTLAND_STANDARD {
-        override val sanityApiNavn = "innvilgetSekundarlandUkogUtlandStandard"
+        override val sanityApiNavn = "innvilgetSekundarlandUKogUtlandStandard"
         override val begrunnelseType = BegrunnelseType.EØS_INNVILGET
     },
 
@@ -107,7 +107,7 @@ enum class EØSBegrunnelse : IBegrunnelse {
     },
 
     INNVILGET_SEKUNDÆRLAND_UK_TO_ARBEIDSLAND_NORGE_UTBETALER {
-        override val sanityApiNavn = "innvilgetSekundarlandUkToArbeidslandNorgeUtbetaler"
+        override val sanityApiNavn = "innvilgetSekundarlandUKToArbeidslandNorgeUtbetaler"
         override val begrunnelseType = BegrunnelseType.EØS_INNVILGET
     },
 
@@ -127,7 +127,7 @@ enum class EØSBegrunnelse : IBegrunnelse {
     },
 
     INNVILGET_SELVSTENDIG_RETT_PRIMÆRLAND_UK_STANDARD {
-        override val sanityApiNavn = "innvilgetSelvstendigRettPrimarlandUkStandard"
+        override val sanityApiNavn = "innvilgetSelvstendigRettPrimarlandUKStandard"
         override val begrunnelseType = BegrunnelseType.EØS_INNVILGET
     },
 
@@ -142,7 +142,7 @@ enum class EØSBegrunnelse : IBegrunnelse {
     },
 
     INNVILGET_SELVSTENDIG_RETT_SEKUNDÆRLAND_UK_STANDARD {
-        override val sanityApiNavn = "innvilgetSelvstendigRettSekundarlandUkStandard"
+        override val sanityApiNavn = "innvilgetSelvstendigRettSekundarlandUKStandard"
         override val begrunnelseType = BegrunnelseType.EØS_INNVILGET
     },
 
@@ -407,7 +407,7 @@ enum class EØSBegrunnelse : IBegrunnelse {
     },
 
     REDUKSJON_UK_MIDLERTIDIG_DIFFERANSEUTBETALING {
-        override val sanityApiNavn = "reduksjonUkMidlertidigDifferanseutbetaling"
+        override val sanityApiNavn = "reduksjonUKMidlertidigDifferanseutbetaling"
         override val begrunnelseType = BegrunnelseType.EØS_REDUKSJON
     },
 
