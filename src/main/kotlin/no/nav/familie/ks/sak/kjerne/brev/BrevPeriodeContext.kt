@@ -41,6 +41,7 @@ import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.FritekstBegrunnelseDto
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.IBegrunnelse
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.NasjonalEllerFellesBegrunnelse
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.NasjonalOgFellesBegrunnelseDataDto
+import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.erAvslagEllerEøsAvslag
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.tilBrevTekst
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.tilSanityBegrunnelse
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.brevperioder.BrevPeriodeDto
@@ -193,7 +194,7 @@ class BrevPeriodeContext(
             gjelderSøker &&
                 begrunnelse.begrunnelseType != BegrunnelseType.ENDRET_UTBETALING &&
                 begrunnelse.begrunnelseType != BegrunnelseType.ETTER_ENDRET_UTBETALING -> {
-                if (begrunnelse.begrunnelseType == BegrunnelseType.AVSLAG) {
+                if (begrunnelse.begrunnelseType.erAvslagEllerEøsAvslag()) {
                     personerMedVilkårSomPasserBegrunnelse
                         .filter { it.type == PersonType.BARN }
                         .map { it.fødselsdato }
@@ -396,7 +397,7 @@ class BrevPeriodeContext(
 
                 val begrunnelseGjelderOpphørFraForrigeBehandling = sanityBegrunnelse.begrunnelseGjelderOpphørFraForrigeBehandling()
 
-                if (kompetanser.isEmpty() && begrunnelse.begrunnelseType == BegrunnelseType.AVSLAG && begrunnelse.begrunnelseType == BegrunnelseType.EØS_OPPHØR) {
+                if (kompetanser.isEmpty() && begrunnelse.begrunnelseType.erAvslagEllerEøsAvslag() && begrunnelse.begrunnelseType == BegrunnelseType.EØS_OPPHØR) {
                     val barnasFødselsdagerForAvslagOgOpphør =
                         hentBarnasFødselsdagerForAvslagOgOpphør(
                             barnIBegrunnelse = personerGjeldendeForBegrunnelse.filter { it.type == PersonType.BARN },
