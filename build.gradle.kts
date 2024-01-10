@@ -53,7 +53,7 @@ dependencies {
     val familieKontrakterStønadsstatistikkKsVersion = "2.0_20230825103733_1ac52c2"
     val tokenValidationSpringVersion = "3.2.0"
     val navFoedselsnummerVersion = "1.0-SNAPSHOT.6"
-    val prosesseringVersion = "2.20231212093500_bfa0e7c"
+    val prosesseringVersion = "2.20240110093731_0eda75e"
     val restAssuredVersion = "5.4.0"
     val kotlinxVersion = "1.7.3"
 
