@@ -190,7 +190,7 @@ class VilkårsvurderingServiceTest {
         val vilkårsbegrunnelser = vilkårsvurderingService.hentVilkårsbegrunnelser()
 
         // TODO: Endre denne testen når vi får lagt inn riktige Begrunnelser og EØSBegrunnelser
-        assertEquals(8, vilkårsbegrunnelser.size)
+        assertEquals(9, vilkårsbegrunnelser.size)
         assertEquals(0, vilkårsbegrunnelser[BegrunnelseType.AVSLAG]?.size)
     }
 
