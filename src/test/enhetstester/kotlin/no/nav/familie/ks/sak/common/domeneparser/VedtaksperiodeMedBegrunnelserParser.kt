@@ -4,9 +4,9 @@ import io.cucumber.datatable.DataTable
 import no.nav.familie.ba.sak.cucumber.domeneparser.Domenebegrep
 import no.nav.familie.ba.sak.cucumber.domeneparser.Domenenøkkel
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.Vedtak
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.Vedtaksbegrunnelse
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.NasjonalEllerFellesBegrunnelseDB
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.VedtaksperiodeMedBegrunnelser
-import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.Begrunnelse
+import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.NasjonalEllerFellesBegrunnelse
 
 object VedtaksperiodeMedBegrunnelserParser {
     fun mapForventetVedtaksperioderMedBegrunnelser(
@@ -21,13 +21,13 @@ object VedtaksperiodeMedBegrunnelserParser {
                 type = parseEnum(DomenebegrepVedtaksperiodeMedBegrunnelser.VEDTAKSPERIODE_TYPE, rad),
             ).also { vedtaksperiodeMedBegrunnelser ->
                 val begrunnelser =
-                    parseEnumListe<Begrunnelse>(DomenebegrepVedtaksperiodeMedBegrunnelser.BEGRUNNELSER, rad)
+                    parseEnumListe<NasjonalEllerFellesBegrunnelse>(DomenebegrepVedtaksperiodeMedBegrunnelser.BEGRUNNELSER, rad)
 
                 vedtaksperiodeMedBegrunnelser.begrunnelser.addAll(
                     begrunnelser.map {
-                        Vedtaksbegrunnelse(
+                        NasjonalEllerFellesBegrunnelseDB(
                             vedtaksperiodeMedBegrunnelser = vedtaksperiodeMedBegrunnelser,
-                            begrunnelse = it,
+                            nasjonalEllerFellesBegrunnelse = it,
                         )
                     },
                 )

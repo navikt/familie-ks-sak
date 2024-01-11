@@ -40,9 +40,9 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vil
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.beregning.domene.YtelseType
-import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.Begrunnelse
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.EØSBegrunnelse
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.IBegrunnelse
+import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.NasjonalEllerFellesBegrunnelse
 import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.EndretUtbetalingAndel
 import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.Årsak
 import no.nav.familie.ks.sak.kjerne.eøs.differanseberegning.domene.Intervall
@@ -180,7 +180,7 @@ private fun lagVilkårResultater(
             utdypendeVilkårsvurderinger = utdypendeVilkårsvurderingFor,
             vurderesEtter = vurderesEtter,
             // TODO må fjerne filterIsInstance når vi får inn eøsbegrunnelser her også
-            begrunnelser = hentStandardBegrunnelser(rad).filterIsInstance<Begrunnelse>(),
+            begrunnelser = hentStandardBegrunnelser(rad).filterIsInstance<NasjonalEllerFellesBegrunnelse>(),
         )
     }
 }
@@ -188,7 +188,7 @@ private fun lagVilkårResultater(
 private fun hentStandardBegrunnelser(rad: MutableMap<String, String>): List<IBegrunnelse> {
     val standardbegrunnelser: List<IBegrunnelse> =
         try {
-            parseEnumListe<Begrunnelse>(
+            parseEnumListe<NasjonalEllerFellesBegrunnelse>(
                 VedtaksperiodeMedBegrunnelserParser.DomenebegrepVedtaksperiodeMedBegrunnelser.STANDARDBEGRUNNELSER,
                 rad,
             )
@@ -381,11 +381,11 @@ fun lagPersonGrunnlag(dataTable: DataTable): Map<Long, PersonopplysningGrunnlag>
 
 fun lagAndelerTilkjentYtelse(
     dataTable: DataTable,
+    behandlingId: Long,
     behandlinger: MutableMap<Long, Behandling>,
     personGrunnlag: Map<Long, PersonopplysningGrunnlag>,
 ) = dataTable.asMaps().map { rad ->
     val aktørId = VedtaksperiodeMedBegrunnelserParser.parseAktørId(rad)
-    val behandlingId = parseLong(Domenebegrep.BEHANDLING_ID, rad)
     val beløp = parseInt(VedtaksperiodeMedBegrunnelserParser.DomenebegrepVedtaksperiodeMedBegrunnelser.BELØP, rad)
     lagAndelTilkjentYtelse(
         stønadFom = parseDato(Domenebegrep.FRA_DATO, rad).toYearMonth(),
@@ -409,8 +409,7 @@ fun lagAndelerTilkjentYtelse(
                 rad,
             ) ?: beløp,
     )
-}.groupBy { it.behandlingId }
-    .toMutableMap()
+}
 
 fun lagUregistrerteBarn(dataTable: DataTable) =
     dataTable.asMaps().map { rad ->

@@ -4,19 +4,30 @@ import io.cucumber.datatable.DataTable
 import io.cucumber.java.no.Gitt
 import io.cucumber.java.no.Og
 import io.cucumber.java.no.Så
+import io.mockk.every
+import io.mockk.mockk
 import no.nav.familie.ba.sak.cucumber.domeneparser.Domenebegrep
+import no.nav.familie.kontrakter.felles.objectMapper
 import no.nav.familie.ks.sak.api.dto.BarnMedOpplysningerDto
+import no.nav.familie.ks.sak.api.dto.SøkerMedOpplysningerDto
+import no.nav.familie.ks.sak.api.dto.SøknadDto
 import no.nav.familie.ks.sak.common.domeneparser.VedtaksperiodeMedBegrunnelserParser
 import no.nav.familie.ks.sak.common.domeneparser.VedtaksperiodeMedBegrunnelserParser.mapForventetVedtaksperioderMedBegrunnelser
 import no.nav.familie.ks.sak.common.domeneparser.parseDato
 import no.nav.familie.ks.sak.common.domeneparser.parseLong
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
+import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
+import no.nav.familie.ks.sak.kjerne.behandling.steg.registrersøknad.SøknadGrunnlagService
+import no.nav.familie.ks.sak.kjerne.behandling.steg.registrersøknad.domene.SøknadGrunnlag
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.Vedtak
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.GrunnlagForVedtaksperioder
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.VedtaksperiodeService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.UtvidetVedtaksperiodeMedBegrunnelser
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.VedtaksperiodeMedBegrunnelser
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.utbetalingsperiodeMedBegrunnelser.UtbetalingsperiodeMedBegrunnelserService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårsvurderingRepository
+import no.nav.familie.ks.sak.kjerne.beregning.AndelerTilkjentYtelseOgEndreteUtbetalingerService
 import no.nav.familie.ks.sak.kjerne.beregning.EndretUtbetalingAndelMedAndelerTilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.TilkjentYtelseUtils
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelse
@@ -27,6 +38,7 @@ import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.Kompetanse
 import no.nav.familie.ks.sak.kjerne.eøs.utenlandskperiodebeløp.domene.UtenlandskPeriodebeløp
 import no.nav.familie.ks.sak.kjerne.eøs.valutakurs.domene.Valutakurs
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.Fagsak
+import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Målform
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
 import org.assertj.core.api.Assertions
@@ -53,6 +65,9 @@ class StepDefinition {
     var søknadstidspunkt: LocalDate? = null
 
     var dagensDato: LocalDate = LocalDate.now()
+
+    // every { behandlingRepository.finnIverksatteBehandlinger(Any()) } returns behandling
+    // every { personopplysningGrunnlagService.finnAktivPersonopplysningGrunnlag(any()) } returns hentStatusRespons
 
     /**
      * Mulige verdier: | FagsakId |
@@ -159,22 +174,15 @@ class StepDefinition {
         utenlandskPeriodebeløp = lagUtenlandskperiodeBeløp(dataTable.asMaps(), persongrunnlag)
     }
 
-    @Og("med andeler for forrige behandling")
-    fun `andeler for behandling`(dataTable: DataTable) {
-        val andelerMap = lagAndelerTilkjentYtelse(dataTable, behandlinger, persongrunnlag)
-        andelerTilkjentYtelse = (andelerTilkjentYtelse + andelerMap).toMutableMap()
-    }
-
     @Og("andeler er beregnet for behandling {}")
     fun `andeler er beregnet`(
         behandlingId: Long,
-        dataTable: DataTable,
     ) {
         andelerTilkjentYtelse[behandlingId] =
             TilkjentYtelseUtils.beregnTilkjentYtelse(
                 vilkårsvurdering = vilkårsvurdering[behandlingId]!!,
                 personopplysningGrunnlag = persongrunnlag[behandlingId]!!,
-                endretUtbetalingAndeler = endredeUtbetalinger[behandlingId]!!.map { EndretUtbetalingAndelMedAndelerTilkjentYtelse(it, emptyList()) },
+                endretUtbetalingAndeler = endredeUtbetalinger[behandlingId]?.map { EndretUtbetalingAndelMedAndelerTilkjentYtelse(it, emptyList()) } ?: emptyList(),
             ).andelerTilkjentYtelse.toList()
     }
 
@@ -187,10 +195,10 @@ class StepDefinition {
         dataTable: DataTable,
     ) {
         val beregnetTilkjentYtelse = andelerTilkjentYtelse[behandlingId]!!
-        val forventedeAndeler = lagAndelerTilkjentYtelse(dataTable, behandlinger, persongrunnlag)
+        val forventedeAndeler = lagAndelerTilkjentYtelse(dataTable, behandlingId, behandlinger, persongrunnlag)
 
         Assertions.assertThat(beregnetTilkjentYtelse)
-            .usingRecursiveComparison()
+            .usingRecursiveComparison().ignoringFieldsMatchingRegexes(".*endretTidspunkt", ".*opprettetTidspunkt", ".*kildeBehandlingId", ".*tilkjentYtelse")
             .isEqualTo(forventedeAndeler)
     }
 
@@ -214,27 +222,17 @@ class StepDefinition {
         val forrigeBehandling = behandlinger[behandlingTilForrigeBehandling[behandlingId]]
 
         val andelerTilkjentYtelseDenneBehandlingen = andelerTilkjentYtelse[behandlingId]!!
-        val endredeUtbetalingerDenneBehandlingen = endredeUtbetalinger[behandlingId]!!
+        val endredeUtbetalingerDenneBehandlingen = endredeUtbetalinger[behandlingId] ?: emptyList()
 
         val andelerTilkjentYtelseForrigeBehandling = andelerTilkjentYtelse[forrigeBehandling?.id] ?: emptyList()
         val endredeUtbetalingerForrigeBehandling = endredeUtbetalinger[forrigeBehandling?.id] ?: emptyList()
 
         vedtaksperioderMedBegrunnelser[behandlingId] =
-            GrunnlagForVedtaksperioder(
+            mockVedtaksperiodeService().genererVedtaksperioderMedBegrunnelser(
                 vedtak = vedtakListe.single { it.behandling.id == behandlingId },
-                // Litt usikker på hva dette feltet er :thinking_face:
-                gjelderFortsattInnvilget = true,
-                personopplysningGrunnlag = persongrunnlag[behandlingId]!!,
-                uregistrerteBarnFraSøknad = emptyList(),
-                vilkårsvurdering = vilkårsvurdering[behandlingId]!!,
-                andelerTilkjentYtelse = andelerTilkjentYtelseDenneBehandlingen.tilAndelerTilkjentYtelseMedEndreteUtbetalinger(endredeUtbetalingerDenneBehandlingen),
-                endredeUtbetalinger = endredeUtbetalingerDenneBehandlingen.tilEndretUtbetalingAndelMedAndelerTilkjentYtelse(andelerTilkjentYtelseDenneBehandlingen),
-                kompetanser = kompetanser[behandlingId]!!,
                 manueltOverstyrtEndringstidspunkt = overstyrteEndringstidspunkt[behandlingId],
-                sisteVedtatteBehandling = forrigeBehandling,
-                personopplysningGrunnlagForrigeBehandling = forrigeBehandling?.let { persongrunnlag[forrigeBehandling.id] },
-                andelerMedEndringerForrigeBehandling = andelerTilkjentYtelseForrigeBehandling.tilAndelerTilkjentYtelseMedEndreteUtbetalinger(endredeUtbetalingerForrigeBehandling),
-            ).hentVedtaksperioder()
+                gjelderFortsattInnvilget = false,
+            )
     }
 
     /**
@@ -257,5 +255,69 @@ class StepDefinition {
         Assertions.assertThat(vedtaksperioderMedBegrunnelser[behandlingId]!!.sortedWith(vedtaksperioderComparator))
             .usingRecursiveComparison().ignoringFieldsMatchingRegexes(".*endretTidspunkt", ".*opprettetTidspunkt")
             .isEqualTo(forventedeVedtaksperioder.sortedWith(vedtaksperioderComparator))
+    }
+
+    fun mockVedtaksperiodeService(): VedtaksperiodeService {
+        val behandlingRepository = mockk<BehandlingRepository>()
+        every { behandlingRepository.finnIverksatteBehandlinger(any<Long>()) } answers {
+            behandlinger.values.filter { behandling -> behandling.fagsak.id == firstArg<Long>() }
+        }
+        every { behandlingRepository.finnBehandlinger(any<Long>()) } answers {
+            behandlinger.values.filter { behandling -> behandling.fagsak.id == firstArg<Long>() }
+        }
+
+        val personopplysningGrunnlagService = mockk<PersonopplysningGrunnlagService>()
+        every { personopplysningGrunnlagService.finnAktivPersonopplysningGrunnlag(any<Long>()) } answers {
+            persongrunnlag[firstArg()]
+        }
+
+        val andelerTilkjentYtelseOgEndreteUtbetalingerService = mockk<AndelerTilkjentYtelseOgEndreteUtbetalingerService>()
+        every { andelerTilkjentYtelseOgEndreteUtbetalingerService.finnAndelerTilkjentYtelseMedEndreteUtbetalinger(any<Long>()) } answers {
+            val behandlingId = firstArg<Long>()
+            andelerTilkjentYtelse[behandlingId]?.tilAndelerTilkjentYtelseMedEndreteUtbetalinger(endredeUtbetalinger[behandlingId] ?: emptyList()) ?: emptyList()
+        }
+        every { andelerTilkjentYtelseOgEndreteUtbetalingerService.finnEndreteUtbetalingerMedAndelerTilkjentYtelse(any<Long>()) } answers {
+            val behandlingId = firstArg<Long>()
+            endredeUtbetalinger[behandlingId]?.tilEndretUtbetalingAndelMedAndelerTilkjentYtelse(andelerTilkjentYtelse[behandlingId] ?: emptyList()) ?: emptyList()
+        }
+
+        val utbetalingsperiodeMedBegrunnelserService = mockk<UtbetalingsperiodeMedBegrunnelserService>()
+        every { utbetalingsperiodeMedBegrunnelserService.hentUtbetalingsperioder(any<Vedtak>(), any()) } answers {
+            val vedtak = firstArg<Vedtak>()
+            vedtaksperioderMedBegrunnelser[vedtak.behandling.id] ?: emptyList()
+        }
+
+        val vilkårsvurderingRepository = mockk<VilkårsvurderingRepository>()
+        every { vilkårsvurderingRepository.finnAktivForBehandling(any<Long>()) } answers {
+            val behandlingId = firstArg<Long>()
+            vilkårsvurdering[behandlingId]
+        }
+        val søknadGrunnlagService = mockk<SøknadGrunnlagService>()
+        every { søknadGrunnlagService.hentAktiv(any<Long>()) } answers {
+            val behandlingId = firstArg<Long>()
+            val søknadDtoString =
+                objectMapper.writeValueAsString(
+                    SøknadDto(
+                        barnaMedOpplysninger = uregistrerteBarn[behandlingId] ?: emptyList(),
+                        endringAvOpplysningerBegrunnelse = "",
+                        søkerMedOpplysninger = SøkerMedOpplysningerDto(ident = "", målform = målform),
+                    ),
+                )
+            SøknadGrunnlag(behandlingId = behandlingId, søknad = søknadDtoString)
+        }
+        return VedtaksperiodeService(
+            behandlingRepository = behandlingRepository,
+            personopplysningGrunnlagService = personopplysningGrunnlagService,
+            vedtaksperiodeHentOgPersisterService = mockk(),
+            vedtakRepository = mockk(),
+            vilkårsvurderingRepository = vilkårsvurderingRepository,
+            sanityService = mockk(),
+            søknadGrunnlagService = søknadGrunnlagService,
+            utbetalingsperiodeMedBegrunnelserService = utbetalingsperiodeMedBegrunnelserService,
+            andelerTilkjentYtelseOgEndreteUtbetalingerService = andelerTilkjentYtelseOgEndreteUtbetalingerService,
+            integrasjonClient = mockk(),
+            refusjonEøsRepository = mockk(),
+            kompetanseService = mockk(),
+        )
     }
 }
