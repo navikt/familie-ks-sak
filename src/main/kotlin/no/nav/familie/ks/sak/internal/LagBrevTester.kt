@@ -60,10 +60,10 @@ Egenskap: Plassholdertekst for egenskap - ${RandomStringUtils.randomAlphanumeric
             hentTekstForVilkårresultater(personResultater.sorterPåFødselsdato(persongrunnlag), behandling.id) +
             hentTekstForTilkjentYtelse(andeler, persongrunnlag, forrigeBehandling?.id, behandling.id) +
             hentTekstForEndretUtbetaling(endredeUtbetalinger, endredeUtbetalingerForrigeBehandling) +
-            hentTekstForKompetanse(kompetanse, kompetanseForrigeBehandling) +
+            hentTekstForKompetanse(kompetanse, behandling.id) +
+            hentTekstForKompetanse(kompetanseForrigeBehandling, forrigeBehandling?.id) +
             hentTekstForVedtaksperioder(behandling.id, vedtaksperioder) + """
     
-    Når vedtaksperiodene genereres for behandling ${behandling.id}"""
     // + hentTekstForGyligeBegrunnelserForVedtaksperiodene(vedtaksperioder) +
     // hentTekstValgteBegrunnelser(behandling.id, vedtaksperioder) +
     // hentTekstBrevPerioder(behandling.id, vedtaksperioder) +
@@ -258,20 +258,18 @@ private fun hentEndretUtbetalingRader(endredeUtbetalinger: List<EndretUtbetaling
             }|${it.årsak} | ${it.prosent} | ${it.søknadstidspunkt.tilddMMyyyy()} | ${if (it is UtfyltEndretUtbetalingAndelDeltBosted) it.avtaletidspunktDeltBosted else ""} |"""
         } ?: ""
 
-fun hentTekstForKompetanse(
-    kompetanse: Collection<Kompetanse>,
-    kompetanseForrigeBehandling: Collection<Kompetanse>?,
+private fun hentTekstForKompetanse(
+    kompetanser: Collection<Kompetanse>?,
+    behandlingId: Long?,
 ): String {
-    val rader =
-        hentKompetanseRader(kompetanseForrigeBehandling) +
-            hentKompetanseRader(kompetanse)
+    val rader = hentKompetanseRader(kompetanser)
 
     return if (rader.isEmpty()) {
         ""
     } else {
         """
 
-    Og med kompetanser
+    Og med kompetanser for behandling $behandlingId
       | AktørId | Fra dato | Til dato | Resultat | BehandlingId | Søkers aktivitet | Annen forelders aktivitet | Søkers aktivitetsland | Annen forelders aktivitetsland | Barnets bostedsland |""" +
             rader
     }

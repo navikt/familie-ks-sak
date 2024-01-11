@@ -11,6 +11,7 @@ import no.nav.familie.kontrakter.felles.objectMapper
 import no.nav.familie.ks.sak.api.dto.BarnMedOpplysningerDto
 import no.nav.familie.ks.sak.api.dto.SøkerMedOpplysningerDto
 import no.nav.familie.ks.sak.api.dto.SøknadDto
+import no.nav.familie.ks.sak.common.BehandlingId
 import no.nav.familie.ks.sak.common.domeneparser.VedtaksperiodeMedBegrunnelserParser
 import no.nav.familie.ks.sak.common.domeneparser.VedtaksperiodeMedBegrunnelserParser.mapForventetVedtaksperioderMedBegrunnelser
 import no.nav.familie.ks.sak.common.domeneparser.parseDato
@@ -25,6 +26,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.Vedtak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.UtvidetVedtaksperiodeMedBegrunnelser
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.VedtaksperiodeMedBegrunnelser
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.utbetalingsperiodeMedBegrunnelser.UtbetalingsperiodeMedBegrunnelserService
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårsvurderingRepository
 import no.nav.familie.ks.sak.kjerne.beregning.AndelerTilkjentYtelseOgEndreteUtbetalingerService
@@ -34,6 +36,7 @@ import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.tilAndelerTilkjentYtelseMedEndreteUtbetalinger
 import no.nav.familie.ks.sak.kjerne.beregning.tilEndretUtbetalingAndelMedAndelerTilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.EndretUtbetalingAndel
+import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.KompetanseService
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.Kompetanse
 import no.nav.familie.ks.sak.kjerne.eøs.utenlandskperiodebeløp.domene.UtenlandskPeriodebeløp
 import no.nav.familie.ks.sak.kjerne.eøs.valutakurs.domene.Valutakurs
@@ -144,8 +147,8 @@ class StepDefinition {
      * Mulige felt:
      * | AktørId | Fra dato | Til dato | Resultat | BehandlingId | Søkers aktivitet | Annen forelders aktivitet | Søkers aktivitetsland | Annen forelders aktivitetsland | Barnets bostedsland |
      */
-    @Og("med kompetanser")
-    fun `med kompetanser  `(
+    @Og("med kompetanser for behandling {}")
+    fun `med kompetanser for behandling {}`(
         behandlingId: Long,
         dataTable: DataTable,
     ) {
@@ -250,9 +253,10 @@ class StepDefinition {
                     vedtakListe.find { it.behandling.id == behandlingId }
                         ?: throw Feil("Fant ingen vedtak for behandling $behandlingId"),
             )
+        val faktiskeVedtaksperioder = vedtaksperioderMedBegrunnelser[behandlingId]!!
 
         val vedtaksperioderComparator = compareBy<VedtaksperiodeMedBegrunnelser>({ it.type }, { it.fom }, { it.tom })
-        Assertions.assertThat(vedtaksperioderMedBegrunnelser[behandlingId]!!.sortedWith(vedtaksperioderComparator))
+        Assertions.assertThat(faktiskeVedtaksperioder.sortedWith(vedtaksperioderComparator))
             .usingRecursiveComparison().ignoringFieldsMatchingRegexes(".*endretTidspunkt", ".*opprettetTidspunkt")
             .isEqualTo(forventedeVedtaksperioder.sortedWith(vedtaksperioderComparator))
     }
@@ -270,6 +274,9 @@ class StepDefinition {
         every { personopplysningGrunnlagService.finnAktivPersonopplysningGrunnlag(any<Long>()) } answers {
             persongrunnlag[firstArg()]
         }
+        every { personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(any<Long>()) } answers {
+            persongrunnlag[firstArg()]!!
+        }
 
         val andelerTilkjentYtelseOgEndreteUtbetalingerService = mockk<AndelerTilkjentYtelseOgEndreteUtbetalingerService>()
         every { andelerTilkjentYtelseOgEndreteUtbetalingerService.finnAndelerTilkjentYtelseMedEndreteUtbetalinger(any<Long>()) } answers {
@@ -279,12 +286,6 @@ class StepDefinition {
         every { andelerTilkjentYtelseOgEndreteUtbetalingerService.finnEndreteUtbetalingerMedAndelerTilkjentYtelse(any<Long>()) } answers {
             val behandlingId = firstArg<Long>()
             endredeUtbetalinger[behandlingId]?.tilEndretUtbetalingAndelMedAndelerTilkjentYtelse(andelerTilkjentYtelse[behandlingId] ?: emptyList()) ?: emptyList()
-        }
-
-        val utbetalingsperiodeMedBegrunnelserService = mockk<UtbetalingsperiodeMedBegrunnelserService>()
-        every { utbetalingsperiodeMedBegrunnelserService.hentUtbetalingsperioder(any<Vedtak>(), any()) } answers {
-            val vedtak = firstArg<Vedtak>()
-            vedtaksperioderMedBegrunnelser[vedtak.behandling.id] ?: emptyList()
         }
 
         val vilkårsvurderingRepository = mockk<VilkårsvurderingRepository>()
@@ -305,6 +306,27 @@ class StepDefinition {
                 )
             SøknadGrunnlag(behandlingId = behandlingId, søknad = søknadDtoString)
         }
+
+        val vilkårsvurderingService = mockk<VilkårsvurderingService>()
+        every { vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(any<Long>()) } answers {
+            val behandlingId = firstArg<Long>()
+            vilkårsvurdering[behandlingId]!!
+        }
+
+        val kompetanseService = mockk<KompetanseService>()
+        every { kompetanseService.hentKompetanser(any<BehandlingId>()) } answers {
+            val behandlingId = firstArg<BehandlingId>()
+            kompetanser[behandlingId.id] ?: emptyList()
+        }
+
+        val utbetalingsperiodeMedBegrunnelserService =
+            UtbetalingsperiodeMedBegrunnelserService(
+                vilkårsvurderingService = vilkårsvurderingService,
+                andelerTilkjentYtelseOgEndreteUtbetalingerService = andelerTilkjentYtelseOgEndreteUtbetalingerService,
+                personopplysningGrunnlagService = personopplysningGrunnlagService,
+                kompetanseService = kompetanseService,
+            )
+
         return VedtaksperiodeService(
             behandlingRepository = behandlingRepository,
             personopplysningGrunnlagService = personopplysningGrunnlagService,
@@ -317,7 +339,7 @@ class StepDefinition {
             andelerTilkjentYtelseOgEndreteUtbetalingerService = andelerTilkjentYtelseOgEndreteUtbetalingerService,
             integrasjonClient = mockk(),
             refusjonEøsRepository = mockk(),
-            kompetanseService = mockk(),
+            kompetanseService = kompetanseService,
         )
     }
 }
