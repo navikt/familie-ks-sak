@@ -58,7 +58,7 @@ Egenskap: Plassholdertekst for egenskap - ${RandomStringUtils.randomAlphanumeric
                 forrigeBehandling?.id,
             ) +
             hentTekstForVilkårresultater(personResultater.sorterPåFødselsdato(persongrunnlag), behandling.id) +
-            hentTekstForTilkjentYtelse(andeler, persongrunnlag, andelerForrigeBehandling, persongrunnlagForrigeBehandling, behandling.id) +
+            hentTekstForTilkjentYtelse(andeler, persongrunnlag, forrigeBehandling?.id, behandling.id) +
             hentTekstForEndretUtbetaling(endredeUtbetalinger, endredeUtbetalingerForrigeBehandling) +
             hentTekstForKompetanse(kompetanse, kompetanseForrigeBehandling) +
             hentTekstForVedtaksperioder(behandling.id, vedtaksperioder) + """
@@ -113,7 +113,7 @@ fun hentTekstForBehandlinger(
       | ${it.id} | 1 |           | ${it.resultat} | ${it.opprettetÅrsak}  | ${it.kategori} |"""
         } ?: ""
     }
-      | ${behandling.id} | 1 | ${forrigeBehandling?.id ?: ""} |${behandling.resultat} | ${behandling.opprettetÅrsak}  | ${behandling.kategori} |"""
+      | ${behandling.id} | 2 | ${forrigeBehandling?.id ?: ""} |${behandling.resultat} | ${behandling.opprettetÅrsak}  | ${behandling.kategori} |"""
 
 fun hentTekstForPersongrunnlag(
     persongrunnlag: PersonopplysningGrunnlag,
@@ -193,16 +193,15 @@ private fun tilVilkårResultatRader(personResultater: List<PersonResultat>?) =
 fun hentTekstForTilkjentYtelse(
     andeler: List<AndelTilkjentYtelse>,
     persongrunnlag: PersonopplysningGrunnlag,
-    andelerForrigeBehandling: List<AndelTilkjentYtelse>?,
-    persongrunnlagForrigeBehandling: PersonopplysningGrunnlag?,
+    forrigeBehandlingId: Long?,
     behandlingId: Long,
 ) =
     """
-    ${"\n" + andelerForrigeBehandling?.let { hentAndelRader(andelerForrigeBehandling, persongrunnlagForrigeBehandling) + "\n" }} 
+    ${(forrigeBehandlingId?.let { "\nOg andeler er beregnet for behandling $it\n" } ?: "")} 
     Og andeler er beregnet for behandling $behandlingId
     
-    Så forvent følgende andeler tilkjent ytelse for behandling
-      | AktørId | BehandlingId | Fra dato | Til dato | Beløp | Ytelse type | Prosent | Sats | """ +
+    Så forvent følgende andeler tilkjent ytelse for behandling $behandlingId
+      | AktørId | Fra dato | Til dato | Beløp | Ytelse type | Prosent | Sats | """ +
         hentAndelRader(andeler, persongrunnlag)
 
 private fun hentAndelRader(
@@ -219,7 +218,7 @@ private fun hentAndelRader(
         )
         ?.joinToString("") {
             """
-      | ${it.aktør.aktørId} |${it.behandlingId}|${
+      | ${it.aktør.aktørId} |${
                 it.stønadFom.førsteDagIInneværendeMåned().tilddMMyyyy()
             }|${
                 it.stønadTom.sisteDagIInneværendeMåned().tilddMMyyyy()
