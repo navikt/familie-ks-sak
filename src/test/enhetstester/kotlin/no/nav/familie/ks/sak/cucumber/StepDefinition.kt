@@ -136,8 +136,8 @@ class StepDefinition {
     /**
      * Mulige verdier: | AktørId | Fra dato | Til dato | BehandlingId |  Årsak | Prosent | Søknadstidspunkt | Avtaletidspunkt delt bosted |
      */
-    @Og("med endrede utbetalinger")
-    fun `med endrede utbetalinger`(
+    @Og("følgende endrede utbetalinger")
+    fun `følgende endrede utbetalinger`(
         dataTable: DataTable,
     ) {
         endredeUtbetalinger = lagEndredeUtbetalinger(dataTable.asMaps(), persongrunnlag)
@@ -147,8 +147,8 @@ class StepDefinition {
      * Mulige felt:
      * | AktørId | Fra dato | Til dato | Resultat | BehandlingId | Søkers aktivitet | Annen forelders aktivitet | Søkers aktivitetsland | Annen forelders aktivitetsland | Barnets bostedsland |
      */
-    @Og("med kompetanser for behandling {}")
-    fun `med kompetanser for behandling {}`(
+    @Og("følgende kompetanser for behandling {}")
+    fun `følgende kompetanser for behandling {}`(
         behandlingId: Long,
         dataTable: DataTable,
     ) {

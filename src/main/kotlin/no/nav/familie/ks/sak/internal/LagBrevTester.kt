@@ -238,7 +238,7 @@ fun hentTekstForEndretUtbetaling(
     } else {
         """
 
-    Og med endrede utbetalinger
+    Og følgende endrede utbetalinger
       | AktørId  | BehandlingId | Fra dato   | Til dato   | Årsak             | Prosent | Søknadstidspunkt | Avtaletidspunkt delt bosted |""" +
             hentEndretUtbetalingRader(endredeUtbetalingerForrigeBehandling) +
             hentEndretUtbetalingRader(endredeUtbetalinger)
@@ -269,7 +269,7 @@ private fun hentTekstForKompetanse(
     } else {
         """
 
-    Og med kompetanser for behandling $behandlingId
+    Og følgende kompetanser for behandling $behandlingId
       | AktørId | Fra dato | Til dato | Resultat | BehandlingId | Søkers aktivitet | Annen forelders aktivitet | Søkers aktivitetsland | Annen forelders aktivitetsland | Barnets bostedsland |""" +
             rader
     }
