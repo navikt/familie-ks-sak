@@ -18,6 +18,7 @@ data class BehandlingStatistikkDto(
     val saksnummer: Long,
     val behandlingID: Long,
     val behandlingType: BehandlingType,
+    val utenlandstilsnitt: String,
     val behandlingStatus: BehandlingStatus,
     val behandlingsResultat: Behandlingsresultat? = null,
     val behandlingErManueltOpprettet: Boolean,
