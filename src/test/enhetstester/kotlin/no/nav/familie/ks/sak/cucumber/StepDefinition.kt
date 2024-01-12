@@ -69,9 +69,6 @@ class StepDefinition {
 
     var dagensDato: LocalDate = LocalDate.now()
 
-    // every { behandlingRepository.finnIverksatteBehandlinger(Any()) } returns behandling
-    // every { personopplysningGrunnlagService.finnAktivPersonopplysningGrunnlag(any()) } returns hentStatusRespons
-
     /**
      * Mulige verdier: | FagsakId |
      */

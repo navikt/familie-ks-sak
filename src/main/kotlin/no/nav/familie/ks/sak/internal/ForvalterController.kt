@@ -28,7 +28,7 @@ class ForvalterController(
             behandlingId = behandlingId,
             event = AuditLoggerEvent.ACCESS,
             handling = "hente data til test",
-            minimumBehandlerRolle = BehandlerRolle.FORVALTER,
+            minimumBehandlerRolle = BehandlerRolle.VEILEDER,
         )
 
         return testVerktøyService.hentBrevTest(behandlingId)
