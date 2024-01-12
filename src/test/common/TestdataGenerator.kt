@@ -33,6 +33,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingKategori
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStegTilstand
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingType
+import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingStegStatus
@@ -234,6 +235,7 @@ fun lagBehandling(
     type: BehandlingType = BehandlingType.FØRSTEGANGSBEHANDLING,
     opprettetÅrsak: BehandlingÅrsak = BehandlingÅrsak.SØKNAD,
     kategori: BehandlingKategori = BehandlingKategori.NASJONAL,
+    resultat: Behandlingsresultat = Behandlingsresultat.IKKE_VURDERT,
 ): Behandling =
     Behandling(
         id = nesteBehandlingId(),
@@ -241,6 +243,7 @@ fun lagBehandling(
         type = type,
         opprettetÅrsak = opprettetÅrsak,
         kategori = kategori,
+        resultat = resultat,
     ).initBehandlingStegTilstand()
 
 fun lagBehandlingStegTilstand(
@@ -334,16 +337,19 @@ fun lagAndelTilkjentYtelse(
     sats: Int = maksBeløp(),
     periodeOffset: Long? = null,
     forrigePeriodeOffset: Long? = null,
+    kalkulertUtbetalingsbeløp: Int = sats,
+    ytelseType: YtelseType = YtelseType.ORDINÆR_KONTANTSTØTTE,
+    prosent: BigDecimal = BigDecimal(100),
 ) = AndelTilkjentYtelse(
     behandlingId = behandling.id,
     tilkjentYtelse = tilkjentYtelse ?: lagInitieltTilkjentYtelse(behandling),
     aktør = aktør ?: behandling.fagsak.aktør,
-    kalkulertUtbetalingsbeløp = sats,
+    kalkulertUtbetalingsbeløp = kalkulertUtbetalingsbeløp,
     stønadFom = stønadFom,
     stønadTom = stønadTom,
-    type = YtelseType.ORDINÆR_KONTANTSTØTTE,
+    type = ytelseType,
     sats = sats,
-    prosent = BigDecimal(100),
+    prosent = prosent,
     nasjonaltPeriodebeløp = sats,
     periodeOffset = periodeOffset,
     forrigePeriodeOffset = forrigePeriodeOffset,
@@ -1012,3 +1018,14 @@ fun lagTestPersonopplysningGrunnlag(
     )
     return personopplysningGrunnlag
 }
+
+fun lagVedtak(
+    behandling: Behandling = lagBehandling(),
+    stønadBrevPdF: ByteArray? = null,
+) =
+    Vedtak(
+        id = nesteVedtakId(),
+        behandling = behandling,
+        vedtaksdato = LocalDateTime.now(),
+        stønadBrevPdf = stønadBrevPdF,
+    )
