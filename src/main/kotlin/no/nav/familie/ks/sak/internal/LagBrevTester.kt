@@ -31,7 +31,6 @@ fun lagBrevTest(
     personResultater: Set<PersonResultat>,
     personResultaterForrigeBehandling: Set<PersonResultat>?,
     andeler: List<AndelTilkjentYtelse>,
-    andelerForrigeBehandling: List<AndelTilkjentYtelse>?,
     endredeUtbetalinger: List<EndretUtbetalingAndel>,
     endredeUtbetalingerForrigeBehandling: List<EndretUtbetalingAndel>?,
     vedtaksperioder: List<VedtaksperiodeMedBegrunnelser>,

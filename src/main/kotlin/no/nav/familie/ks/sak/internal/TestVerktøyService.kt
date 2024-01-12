@@ -38,8 +38,6 @@ class TestVerktøyService(
             forrigeBehandling?.let { vilkårService.hentAktivVilkårsvurderingForBehandling(it.id).personResultater }
 
         val andeler = andelTilkjentYtelseRepository.finnAndelerTilkjentYtelseForBehandling(behandlingId)
-        val andelerForrigeBehandling =
-            forrigeBehandling?.let { andelTilkjentYtelseRepository.finnAndelerTilkjentYtelseForBehandling(it.id) }
 
         val endredeUtbetalinger = endretUtbetalingRepository.hentEndretUtbetalingerForBehandling(behandlingId)
         val endredeUtbetalingerForrigeBehandling =
@@ -59,7 +57,6 @@ class TestVerktøyService(
             personResultater = personResultater,
             personResultaterForrigeBehandling = personResultaterForrigeBehandling,
             andeler = andeler,
-            andelerForrigeBehandling = andelerForrigeBehandling,
             vedtaksperioder = vedtaksperioder,
             endredeUtbetalinger = endredeUtbetalinger,
             endredeUtbetalingerForrigeBehandling = endredeUtbetalingerForrigeBehandling,
