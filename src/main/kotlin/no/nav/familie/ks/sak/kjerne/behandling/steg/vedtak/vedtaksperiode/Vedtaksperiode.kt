@@ -31,7 +31,7 @@ enum class Vedtaksperiodetype(val tillatteBegrunnelsestyper: List<BegrunnelseTyp
         ),
     ),
     OPPHØR(listOf(BegrunnelseType.OPPHØR, BegrunnelseType.EØS_OPPHØR, BegrunnelseType.ETTER_ENDRET_UTBETALING)),
-    AVSLAG(listOf(BegrunnelseType.AVSLAG)),
+    AVSLAG(listOf(BegrunnelseType.AVSLAG, BegrunnelseType.EØS_AVSLAG)),
     FORTSATT_INNVILGET(listOf(BegrunnelseType.FORTSATT_INNVILGET)),
 }
 

@@ -85,6 +85,7 @@ class SakStatistikkService(
             mottattTid = mottattTid.tilOffset(),
             registrertTid = behandling.opprettetTidspunkt.tilOffset(),
             behandlingType = behandling.type,
+            utenlandstilsnitt = behandling.kategori.name,
             behandlingStatus = behandling.status,
             behandlingsResultat = behandling.resultat,
             ansvarligEnhet = ansvarligEnhet,
