@@ -158,102 +158,102 @@ enum class EØSBegrunnelse : IBegrunnelse {
 
     INNVILGET_TILLEGGSBEGRUNNELSE_UTBETALING_TIL_ANNEN_FORELDER {
         override val sanityApiNavn = "innvilgetTilleggsbegrunnelseUtbetalingTilAnnenForelder"
-        override val begrunnelseType = BegrunnelseType.INNVILGET
+        override val begrunnelseType = BegrunnelseType.EØS_INNVILGET
     },
 
     INNVILGET_KONTANTSTØTTE_ALLEREDE_UTBETALT {
         override val sanityApiNavn = "innvilgetKontantstotteAlleredeUtbetalt"
-        override val begrunnelseType = BegrunnelseType.INNVILGET
+        override val begrunnelseType = BegrunnelseType.EØS_INNVILGET
     },
 
     INNVILGET_TILLEGGSTEKST_NULLUTBETALING {
         override val sanityApiNavn = "innvilgetTilleggstekstNullutbetaling"
-        override val begrunnelseType = BegrunnelseType.INNVILGET
+        override val begrunnelseType = BegrunnelseType.EØS_INNVILGET
     },
 
     INNVILGET_TILLEGGSTEKST_SATSENDRING {
         override val sanityApiNavn = "innvilgetTilleggstekstSatsendring"
-        override val begrunnelseType = BegrunnelseType.INNVILGET
+        override val begrunnelseType = BegrunnelseType.EØS_INNVILGET
     },
 
     INNVILGET_TILLEGGSTEKST_VALUTAJUSTERING {
         override val sanityApiNavn = "innvilgetTilleggstekstValutajustering"
-        override val begrunnelseType = BegrunnelseType.INNVILGET
+        override val begrunnelseType = BegrunnelseType.EØS_INNVILGET
     },
 
     INNVILGET_TILLEGGSTEKST_SATSENDRING_OG_VALUTAJUSTERING {
         override val sanityApiNavn = "innvilgetTilleggstekstSatsendringOgValutajustering"
-        override val begrunnelseType = BegrunnelseType.INNVILGET
+        override val begrunnelseType = BegrunnelseType.EØS_INNVILGET
     },
 
     INNVILGET_TILLEGGSTEKST_SEKUNDÆR_DELT_BOSTED_ANNEN_FORELDER_IKKE_SOKT {
         override val sanityApiNavn = "innvilgetTilleggstekstSekundarDeltBostedAnnenForeldreIkkeSokt"
-        override val begrunnelseType = BegrunnelseType.INNVILGET
+        override val begrunnelseType = BegrunnelseType.EØS_INNVILGET
     },
 
     INNVILGET_TILLEGGSBEGRUNNELSE_VEDTAK_FOR_SED {
         override val sanityApiNavn = "innvilgetTilleggsbegrunnelseVedtakForSed"
-        override val begrunnelseType = BegrunnelseType.INNVILGET
+        override val begrunnelseType = BegrunnelseType.EØS_INNVILGET
     },
 
     INNVILGET_TILLEGGSTEKST_PRIMÆRLAND_DELT_BOSTED_ANNEN_FORELDER_IKKE_RETT {
         override val sanityApiNavn = "innvilgetTilleggstekstPrimarlandDeltBostedAnnenForelderIkkeRett"
-        override val begrunnelseType = BegrunnelseType.INNVILGET
+        override val begrunnelseType = BegrunnelseType.EØS_INNVILGET
     },
 
     INNVILGET_TILLEGGSTEKST_SEKUNDÆR_FULL_UTBETALING {
         override val sanityApiNavn = "innvilgetTilleggstekstSekundarFullUtbetaling"
-        override val begrunnelseType = BegrunnelseType.INNVILGET
+        override val begrunnelseType = BegrunnelseType.EØS_INNVILGET
     },
 
     INNVILGET_TILLEGGSTEKST_SEKUNDÆR_AVTALE_DELT_BOSTED {
         override val sanityApiNavn = "innvilgetTilleggstekstSekundarAvtaleDeltBosted"
-        override val begrunnelseType = BegrunnelseType.INNVILGET
+        override val begrunnelseType = BegrunnelseType.EØS_INNVILGET
     },
 
     INNVILGET_TILLEGGSTEKST_SEKUNDÆR_IKKE_FATT_SVAR_PÅ_SED {
         override val sanityApiNavn = "innvilgetTilleggstekstSekundarIkkeFattSvarPaaSed"
-        override val begrunnelseType = BegrunnelseType.INNVILGET
+        override val begrunnelseType = BegrunnelseType.EØS_INNVILGET
     },
 
     INNVILGET_TILLEGGSTEKST_SEKUNDÆR_IKKE_KONTANTSTØTTE_I_ANNET_LAND {
         override val sanityApiNavn = "innvilgetTilleggstekstSekundarIkkeKontantstotteIAnnetLand"
-        override val begrunnelseType = BegrunnelseType.INNVILGET
+        override val begrunnelseType = BegrunnelseType.EØS_INNVILGET
     },
 
     INNVILGET_SELVSTENDIG_RETT_TILLEGGSBEGRUNNELSE_VEDTAK_FOR_SED {
         override val sanityApiNavn = "innvilgetSelvstendigRettTilleggsbegrunnelseVedtakForSed"
-        override val begrunnelseType = BegrunnelseType.INNVILGET
+        override val begrunnelseType = BegrunnelseType.EØS_INNVILGET
     },
 
     INNVILGET_SELVSTENDIG_RETT_TILLEGGSTEKST_SEKUNDÆR_FULL_UTBETALING {
         override val sanityApiNavn = "innvilgetSelvstendigRettTilleggstekstSekundarFullUtbetaling"
-        override val begrunnelseType = BegrunnelseType.INNVILGET
+        override val begrunnelseType = BegrunnelseType.EØS_INNVILGET
     },
 
     INNVILGET_SELVSTENDIG_RETT_TILLEGGSTEKST_NULLUTBETALING {
         override val sanityApiNavn = "innvilgetSelvstendigRettTilleggstekstNullutbetaling"
-        override val begrunnelseType = BegrunnelseType.INNVILGET
+        override val begrunnelseType = BegrunnelseType.EØS_INNVILGET
     },
 
     INNVILGET_SELVSTENDIG_RETT_TILLEGGSTEKST_SEKUNDÆRLAND_IKKE_FATT_SVAR_PÅ_SED {
         override val sanityApiNavn = "innvilgetSelvstendigRettTilleggstekstSekundarlandIkkeFattSvarPaaSed"
-        override val begrunnelseType = BegrunnelseType.INNVILGET
+        override val begrunnelseType = BegrunnelseType.EØS_INNVILGET
     },
 
     INNVILGET_TILLEGGSTEKST_DELT_BOSTED {
         override val sanityApiNavn = "innvilgetTilleggstekstDeltBosted"
-        override val begrunnelseType = BegrunnelseType.INNVILGET
+        override val begrunnelseType = BegrunnelseType.EØS_INNVILGET
     },
 
     INNVILGET_TILLEGGSTEKST_FULL_KONTANTSTØTTE_HAR_AVTALE_DELT {
         override val sanityApiNavn = "innvilgetTilleggstekstFullKontantstotteHarAvtaleDelt"
-        override val begrunnelseType = BegrunnelseType.INNVILGET
+        override val begrunnelseType = BegrunnelseType.EØS_INNVILGET
     },
 
     INNVILGET_SELVSTENDIG_RETT_TILLEGGSTEKST_IKKE_KONTANTSTØTTE_I_ANNET_LAND {
         override val sanityApiNavn = "innvilgetSelvstendigRettTilleggstekstIkkeKontantstotteIAnnetLand"
-        override val begrunnelseType = BegrunnelseType.INNVILGET
+        override val begrunnelseType = BegrunnelseType.EØS_INNVILGET
     },
 
     OPPHØR_EØS_STANDARD {
