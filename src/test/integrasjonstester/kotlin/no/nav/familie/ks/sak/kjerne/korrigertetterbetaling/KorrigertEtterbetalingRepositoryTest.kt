@@ -15,7 +15,6 @@ import org.hamcrest.CoreMatchers.`is` as Is
 class KorrigertEtterbetalingRepositoryTest(
     @Autowired private val korrigertEtterbetalingRepository: KorrigertEtterbetalingRepository,
 ) : OppslagSpringRunnerTest() {
-
     @BeforeEach
     fun beforeEach() {
         opprettSøkerFagsakOgBehandling(fagsakStatus = FagsakStatus.LØPENDE)
