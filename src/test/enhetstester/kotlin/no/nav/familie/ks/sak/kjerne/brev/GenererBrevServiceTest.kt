@@ -22,6 +22,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.refusjonEøs.Refusjon
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.VedtaksperiodeService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.Brevmal
+import no.nav.familie.ks.sak.kjerne.korrigertetterbetaling.KorrigertEtterbetalingService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
 import no.nav.familie.ks.sak.kjerne.totrinnskontroll.TotrinnskontrollService
 import no.nav.familie.ks.sak.korrigertvedtak.KorrigertVedtakService
@@ -56,6 +57,7 @@ class GenererBrevServiceTest {
             feilutbetaltValutaService = mockk<FeilutbetaltValutaService>(),
             saksbehandlerContext = saksbehandlerContext,
             refusjonEøsRepository = mockk<RefusjonEøsRepository>(),
+            korrigertEtterbetalingService = mockk<KorrigertEtterbetalingService>(),
         )
 
     private val søker = randomAktør()

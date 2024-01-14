@@ -44,6 +44,7 @@ import no.nav.familie.ks.sak.kjerne.brev.domene.maler.vedtaksbrev.Førstegangsve
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.vedtaksbrev.OpphørMedEndring
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.vedtaksbrev.Opphørt
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.vedtaksbrev.VedtakEndring
+import no.nav.familie.ks.sak.kjerne.korrigertetterbetaling.KorrigertEtterbetalingService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Målform
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
@@ -71,6 +72,7 @@ class GenererBrevService(
     private val feilutbetaltValutaService: FeilutbetaltValutaService,
     private val saksbehandlerContext: SaksbehandlerContext,
     private val refusjonEøsRepository: RefusjonEøsRepository,
+    private val korrigertEtterbetalingService: KorrigertEtterbetalingService,
 ) {
     fun genererManueltBrev(
         manueltBrevRequest: ManueltBrevDto,
@@ -127,10 +129,7 @@ class GenererBrevService(
         val behandling = vedtak.behandling
         val brevtype = hentVedtaksbrevmal(behandling)
         val fellesdataForVedtaksbrev = lagDataForVedtaksbrev(vedtak)
-        val etterbetaling =
-            simuleringService.hentEtterbetaling(behandling.id)
-                .takeIf { it > BigDecimal.ZERO }?.run { formaterBeløp(this.toInt()) }
-                ?.let { Etterbetaling(it) }
+        val etterbetaling = hentEtterbetaling(vedtak)
 
         return when (brevtype) {
             Brevmal.VEDTAK_FØRSTEGANGSVEDTAK -> {
@@ -295,6 +294,17 @@ class GenererBrevService(
             vedtakKorrigertHjemmelSkalMedIBrev = vedtakKorrigertHjemmelSkalMedIBrev,
             refusjonEøsHjemmelSkalMedIBrev = refusjonEøsHjemmelSkalMedIBrev,
         )
+    }
+
+    private fun hentEtterbetaling(vedtak: Vedtak): Etterbetaling? =
+        hentEtterbetalingsbeløp(vedtak)?.let { Etterbetaling(it) }
+
+    private fun hentEtterbetalingsbeløp(vedtak: Vedtak): String? {
+        val etterbetalingsBeløp =
+            korrigertEtterbetalingService.finnAktivtKorrigeringPåBehandling(vedtak.behandling.id)?.beløp?.toBigDecimal()
+                ?: simuleringService.hentEtterbetaling(vedtak.behandling.id)
+
+        return etterbetalingsBeløp.takeIf { it > BigDecimal.ZERO }?.run { formaterBeløp(this.toInt()) }
     }
 
     fun hentDødsfallbrevData(vedtak: Vedtak) =

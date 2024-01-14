@@ -32,6 +32,7 @@ import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.KompetanseRepository
 import no.nav.familie.ks.sak.kjerne.eøs.utenlandskperiodebeløp.UtenlandskPeriodebeløpRepository
 import no.nav.familie.ks.sak.kjerne.eøs.valutakurs.ValutakursRepository
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.Fagsak
+import no.nav.familie.ks.sak.kjerne.korrigertetterbetaling.KorrigertEtterbetalingRepository
 import no.nav.familie.ks.sak.kjerne.logg.LoggService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.StatsborgerskapService
@@ -66,6 +67,7 @@ class BehandlingService(
     private val utenlandskPeriodebeløpRepository: UtenlandskPeriodebeløpRepository,
     private val valutakursRepository: ValutakursRepository,
     private val refusjonEøsService: RefusjonEøsService,
+    private val korrigertEtterbetalingRepository: KorrigertEtterbetalingRepository,
 ) {
     fun hentBehandling(behandlingId: Long): Behandling = behandlingRepository.hentBehandling(behandlingId)
 
@@ -166,6 +168,7 @@ class BehandlingService(
 
         val utenlandskePeriodebeløp = utenlandskPeriodebeløpRepository.findByBehandlingId(behandlingId)
         val valutakurser = valutakursRepository.findByBehandlingId(behandlingId)
+        val korrigertEtterbetaling = korrigertEtterbetalingRepository.finnAktivtKorrigeringPåBehandling(behandlingId)
 
         return BehandlingMapper.lagBehandlingRespons(
             behandling,
@@ -186,6 +189,7 @@ class BehandlingService(
             refusjonEøs,
             utenlandskePeriodebeløp,
             valutakurser,
+            korrigertEtterbetaling,
         )
     }
 

@@ -32,6 +32,7 @@ import no.nav.familie.ks.sak.kjerne.beregning.domene.slåSammenBack2BackAndelspe
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.Kompetanse
 import no.nav.familie.ks.sak.kjerne.eøs.utenlandskperiodebeløp.domene.UtenlandskPeriodebeløp
 import no.nav.familie.ks.sak.kjerne.eøs.valutakurs.domene.Valutakurs
+import no.nav.familie.ks.sak.kjerne.korrigertetterbetaling.KorrigertEtterbetaling
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
 import no.nav.familie.ks.sak.kjerne.tilbakekreving.domene.Tilbakekreving
 import java.math.BigDecimal
@@ -57,6 +58,7 @@ object BehandlingMapper {
         refusjonEøs: List<RefusjonEøsDto>,
         utenlandskePeriodebeløp: List<UtenlandskPeriodebeløp>,
         valutakurser: List<Valutakurs>,
+        korrigertEtterbetaling: KorrigertEtterbetaling?,
     ) = BehandlingResponsDto(
         behandlingId = behandling.id,
         steg = behandling.steg,
@@ -98,6 +100,7 @@ object BehandlingMapper {
         utenlandskePeriodebeløp = utenlandskePeriodebeløp.map { it.tilUtenlandskPeriodebeløpDto() },
         valutakurser = valutakurser.map { it.tilValutakursDto() },
         refusjonEøs = refusjonEøs,
+        korrigertEtterbetaling = korrigertEtterbetaling,
     )
 
     private fun lagArbeidsfordelingRespons(arbeidsfordelingPåBehandling: ArbeidsfordelingPåBehandling) =

@@ -11,6 +11,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingStegStatus
 import no.nav.familie.ks.sak.kjerne.behandling.steg.VenteÅrsak
 import no.nav.familie.ks.sak.kjerne.beregning.domene.YtelseType
+import no.nav.familie.ks.sak.kjerne.korrigertetterbetaling.KorrigertEtterbetaling
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Målform
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
 import java.time.LocalDate
@@ -46,6 +47,7 @@ data class BehandlingResponsDto(
     val valutakurser: List<ValutakursDto>,
     val feilutbetaltValuta: List<FeilutbetaltValutaDto> = emptyList(),
     val refusjonEøs: List<RefusjonEøsDto> = emptyList(),
+    val korrigertEtterbetaling: KorrigertEtterbetaling?,
 )
 
 data class BehandlingStegTilstandResponsDto(
