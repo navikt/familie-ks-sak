@@ -41,7 +41,7 @@ import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelseReposito
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.KompetanseRepository
 import no.nav.familie.ks.sak.kjerne.eøs.utenlandskperiodebeløp.UtenlandskPeriodebeløpRepository
 import no.nav.familie.ks.sak.kjerne.eøs.valutakurs.ValutakursRepository
-import no.nav.familie.ks.sak.kjerne.korrigertetterbetaling.KorrigertEtterbetalingService
+import no.nav.familie.ks.sak.kjerne.korrigertetterbetaling.KorrigertEtterbetalingRepository
 import no.nav.familie.ks.sak.kjerne.logg.LoggService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.StatsborgerskapService
@@ -116,7 +116,7 @@ class BehandlingServiceTest {
     private lateinit var valutakursRepository: ValutakursRepository
 
     @MockK
-    private lateinit var korrigertEtterbetalingService: KorrigertEtterbetalingService
+    private lateinit var korrigertEtterbetalingRepository: KorrigertEtterbetalingRepository
 
     @InjectMockKs
     private lateinit var behandlingService: BehandlingService
@@ -186,7 +186,7 @@ class BehandlingServiceTest {
         every { refusjonEøsService.hentRefusjonEøsPerioder(any()) } returns emptyList()
         every { utenlandskPeriodebeløpRepository.findByBehandlingId(behandling.id) } returns emptyList()
         every { valutakursRepository.findByBehandlingId(behandling.id) } returns emptyList()
-        every { korrigertEtterbetalingService.finnAktivtKorrigeringPåBehandling(behandling.id) } returns null
+        every { korrigertEtterbetalingRepository.finnAktivtKorrigeringPåBehandling(behandling.id) } returns null
     }
 
     @Test
