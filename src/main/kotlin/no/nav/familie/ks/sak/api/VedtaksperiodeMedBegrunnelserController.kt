@@ -130,7 +130,6 @@ class VedtaksperiodeMedBegrunnelserController(
 
         vedtaksperiodeService.oppdaterVedtakMedVedtaksperioder(
             vedtak = vedtak,
-            skalOverstyreFortsattInnvilget = genererFortsattInnvilgetVedtaksperioderDto.skalGenererePerioderForFortsattInnvilget,
         )
 
         return ResponseEntity.ok(Ressurs.success(behandlingService.lagBehandlingRespons(behandlingId = vedtak.behandling.id)))

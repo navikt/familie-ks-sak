@@ -23,7 +23,6 @@ data class GenererVedtaksperioderForOverstyrtEndringstidspunktDto(
 )
 
 data class GenererFortsattInnvilgetVedtaksperioderDto(
-    val skalGenererePerioderForFortsattInnvilget: Boolean,
     val behandlingId: Long,
 )
 

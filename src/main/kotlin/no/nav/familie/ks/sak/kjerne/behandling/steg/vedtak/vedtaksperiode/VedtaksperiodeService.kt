@@ -175,20 +175,15 @@ class VedtaksperiodeService(
     @Transactional
     fun oppdaterVedtakMedVedtaksperioder(
         vedtak: Vedtak,
-        skalOverstyreFortsattInnvilget: Boolean = false,
     ) {
         vedtaksperiodeHentOgPersisterService.slettVedtaksperioderFor(vedtak)
         vedtaksperiodeHentOgPersisterService.lagre(
-            genererVedtaksperioderMedBegrunnelser(
-                vedtak,
-                gjelderFortsattInnvilget = skalOverstyreFortsattInnvilget,
-            ),
+            genererVedtaksperioderMedBegrunnelser(vedtak),
         )
     }
 
     fun genererVedtaksperioderMedBegrunnelser(
         vedtak: Vedtak,
-        gjelderFortsattInnvilget: Boolean = false,
         manueltOverstyrtEndringstidspunkt: LocalDate? = null,
     ): List<VedtaksperiodeMedBegrunnelser> {
         if (vedtak.behandling.resultat == Behandlingsresultat.FORTSATT_INNVILGET) {
@@ -219,7 +214,6 @@ class VedtaksperiodeService(
         return filtrerUtPerioderBasertPåEndringstidspunkt(
             vedtaksperioderMedBegrunnelser = (utbetalingsperioderUtenOverlappMedAvslagsperioder + opphørsperioder),
             behandling = vedtak.behandling,
-            gjelderFortsattInnvilget = gjelderFortsattInnvilget,
             manueltOverstyrtEndringstidspunkt = manueltOverstyrtEndringstidspunkt,
         ) + avslagsperioder
     }
@@ -238,19 +232,14 @@ class VedtaksperiodeService(
     fun filtrerUtPerioderBasertPåEndringstidspunkt(
         vedtaksperioderMedBegrunnelser: List<VedtaksperiodeMedBegrunnelser>,
         behandling: Behandling,
-        gjelderFortsattInnvilget: Boolean = false,
         manueltOverstyrtEndringstidspunkt: LocalDate? = null,
     ): List<VedtaksperiodeMedBegrunnelser> {
         val endringstidspunkt =
             manueltOverstyrtEndringstidspunkt
-                ?: if (!gjelderFortsattInnvilget) {
-                    finnEndringstidspunktForBehandling(
-                        behandling = behandling,
-                        sisteVedtattBehandling = hentSisteBehandlingSomErVedtatt(behandling.fagsak.id),
-                    )
-                } else {
-                    TIDENES_MORGEN
-                }
+                ?: finnEndringstidspunktForBehandling(
+                    behandling = behandling,
+                    sisteVedtattBehandling = hentSisteBehandlingSomErVedtatt(behandling.fagsak.id),
+                )
 
         return vedtaksperioderMedBegrunnelser.filter {
             (it.tom ?: TIDENES_ENDE).erSammeEllerEtter(endringstidspunkt)

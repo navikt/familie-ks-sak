@@ -238,7 +238,6 @@ class StepDefinition {
             mockVedtaksperiodeService().genererVedtaksperioderMedBegrunnelser(
                 vedtak = vedtakListe.single { it.behandling.id == behandlingId },
                 manueltOverstyrtEndringstidspunkt = overstyrteEndringstidspunkt[behandlingId],
-                gjelderFortsattInnvilget = false,
             )
     }
 
