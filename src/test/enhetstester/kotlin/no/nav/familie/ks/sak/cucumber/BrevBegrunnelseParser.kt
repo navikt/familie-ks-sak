@@ -1,8 +1,8 @@
 package no.nav.familie.ks.sak.cucumber
 
 import io.cucumber.datatable.DataTable
-import no.nav.familie.ba.sak.cucumber.domeneparser.Domenebegrep
-import no.nav.familie.ba.sak.cucumber.domeneparser.Domenenøkkel
+import no.nav.familie.ks.sak.common.domeneparser.Domenebegrep
+import no.nav.familie.ks.sak.common.domeneparser.Domenenøkkel
 import no.nav.familie.ks.sak.common.domeneparser.parseEnum
 import no.nav.familie.ks.sak.common.domeneparser.parseEnumListe
 import no.nav.familie.ks.sak.common.domeneparser.parseValgfriDato

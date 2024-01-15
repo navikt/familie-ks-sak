@@ -1,8 +1,6 @@
 package no.nav.familie.ks.sak.common.domeneparser
 
 import io.cucumber.datatable.DataTable
-import no.nav.familie.ba.sak.cucumber.domeneparser.Domenebegrep
-import no.nav.familie.ba.sak.cucumber.domeneparser.Domenenøkkel
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.Vedtak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.NasjonalEllerFellesBegrunnelseDB
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.VedtaksperiodeMedBegrunnelser
