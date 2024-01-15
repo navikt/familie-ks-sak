@@ -28,7 +28,7 @@ spec:
       - type: POSTGRES_14 # IF This is changed, all data will be lost. Read on nais.io how to upgrade
         tier: db-custom-4-3840
         name: familie-ks-sak
-        autoBackupTime: "02:00"
+        autoBackupHour: 2
         diskAutoresize: true
         highAvailability: true
         databases:
