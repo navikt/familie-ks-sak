@@ -17,6 +17,8 @@ import no.nav.familie.ks.sak.common.domeneparser.VedtaksperiodeMedBegrunnelserPa
 import no.nav.familie.ks.sak.common.domeneparser.parseDato
 import no.nav.familie.ks.sak.common.domeneparser.parseLong
 import no.nav.familie.ks.sak.common.exception.Feil
+import no.nav.familie.ks.sak.common.util.tilddMMyyyy
+import no.nav.familie.ks.sak.cucumber.BrevBegrunnelseParser.mapBegrunnelser
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
 import no.nav.familie.ks.sak.kjerne.behandling.steg.registrersøknad.SøknadGrunnlagService
@@ -45,6 +47,7 @@ import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGru
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Målform
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
 import org.assertj.core.api.Assertions
+import org.assertj.core.api.Assertions.assertThat
 import java.time.LocalDate
 
 @Suppress("ktlint:standard:function-naming")
@@ -219,14 +222,6 @@ class StepDefinition {
 
     @Og("vedtaksperioder er laget for behandling {}")
     fun `vedtaksperioder er laget for behandling`(behandlingId: Long) {
-        val forrigeBehandling = behandlinger[behandlingTilForrigeBehandling[behandlingId]]
-
-        val andelerTilkjentYtelseDenneBehandlingen = andelerTilkjentYtelse[behandlingId]!!
-        val endredeUtbetalingerDenneBehandlingen = endredeUtbetalinger[behandlingId] ?: emptyList()
-
-        val andelerTilkjentYtelseForrigeBehandling = andelerTilkjentYtelse[forrigeBehandling?.id] ?: emptyList()
-        val endredeUtbetalingerForrigeBehandling = endredeUtbetalinger[forrigeBehandling?.id] ?: emptyList()
-
         vedtaksperioderMedBegrunnelser[behandlingId] =
             mockVedtaksperiodeService().genererVedtaksperioderMedBegrunnelser(
                 vedtak = vedtakListe.single { it.behandling.id == behandlingId },
@@ -253,9 +248,44 @@ class StepDefinition {
         val faktiskeVedtaksperioder = vedtaksperioderMedBegrunnelser[behandlingId]!!
 
         val vedtaksperioderComparator = compareBy<VedtaksperiodeMedBegrunnelser>({ it.type }, { it.fom }, { it.tom })
-        Assertions.assertThat(faktiskeVedtaksperioder.sortedWith(vedtaksperioderComparator))
+        assertThat(faktiskeVedtaksperioder.sortedWith(vedtaksperioderComparator))
             .usingRecursiveComparison().ignoringFieldsMatchingRegexes(".*endretTidspunkt", ".*opprettetTidspunkt")
             .isEqualTo(forventedeVedtaksperioder.sortedWith(vedtaksperioderComparator))
+    }
+
+    /**
+     * Mulige verdier: | Fra dato | Til dato | VedtaksperiodeType | Regelverk Gyldige begrunnelser | Gyldige begrunnelser | Regelverk Ugyldige begrunnelser | Ugyldige begrunnelser |
+     */
+    @Så("forvent at følgende begrunnelser er gyldige for behandling {}")
+    fun `forvent at følgende begrunnelser er gyldige for behandling`(
+        behandlingId: Long,
+        dataTable: DataTable,
+    ) {
+        val forventedeStandardBegrunnelser = mapBegrunnelser(dataTable).toSet()
+
+        forventedeStandardBegrunnelser.forEach { forventet ->
+            val faktisk =
+                utvidetVedtaksperiodeMedBegrunnelser.find { it.fom == forventet.fom && it.tom == forventet.tom }
+                    ?: throw Feil(
+                        "Forventet å finne en vedtaksperiode med  \n" +
+                            "   Fom: ${forventet.fom?.tilddMMyyyy()} og Tom: ${forventet.tom?.tilddMMyyyy()}. \n" +
+                            "Faktiske vedtaksperioder var \n${
+                                utvidetVedtaksperiodeMedBegrunnelser.joinToString("\n") {
+                                    "   Fom: ${it.fom?.tilddMMyyyy()}, Tom: ${it.tom?.tilddMMyyyy()}"
+                                }
+                            }",
+                    )
+            assertThat(faktisk.type)
+                .`as`("For periode: ${forventet.fom} til ${forventet.tom}")
+                .isEqualTo(forventet.type)
+            assertThat(faktisk.gyldigeBegrunnelser)
+                .`as`("For periode: ${forventet.fom} til ${forventet.tom}")
+                .containsAll(forventet.inkluderteStandardBegrunnelser)
+
+            if (faktisk.gyldigeBegrunnelser.isNotEmpty() && forventet.ekskluderteStandardBegrunnelser.isNotEmpty()) {
+                assertThat(faktisk.gyldigeBegrunnelser).doesNotContainAnyElementsOf(forventet.ekskluderteStandardBegrunnelser)
+            }
+        }
     }
 
     fun mockVedtaksperiodeService(): VedtaksperiodeService {

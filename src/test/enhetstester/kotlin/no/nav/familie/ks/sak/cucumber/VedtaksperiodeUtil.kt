@@ -408,6 +408,11 @@ fun lagAndelerTilkjentYtelse(
                 VedtaksperiodeMedBegrunnelserParser.DomenebegrepVedtaksperiodeMedBegrunnelser.SATS,
                 rad,
             ) ?: beløp,
+        nasjonaltPeriodebeløp =
+            parseValgfriInt(
+                VedtaksperiodeMedBegrunnelserParser.DomenebegrepVedtaksperiodeMedBegrunnelser.NASJONALT_PERIODEBELØP,
+                rad,
+            ) ?: beløp,
     )
 }
 
