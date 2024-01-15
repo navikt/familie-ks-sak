@@ -19,6 +19,8 @@ import no.nav.familie.ks.sak.common.domeneparser.parseLong
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.util.tilddMMyyyy
 import no.nav.familie.ks.sak.cucumber.BrevBegrunnelseParser.mapBegrunnelser
+import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelse
+import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelseDto
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
 import no.nav.familie.ks.sak.kjerne.behandling.steg.registrersøknad.SøknadGrunnlagService
@@ -27,6 +29,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.Vedtak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.VedtaksperiodeService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.UtvidetVedtaksperiodeMedBegrunnelser
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.VedtaksperiodeMedBegrunnelser
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.tilUtvidetVedtaksperiodeMedBegrunnelser
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.utbetalingsperiodeMedBegrunnelser.UtbetalingsperiodeMedBegrunnelserService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
@@ -37,9 +40,12 @@ import no.nav.familie.ks.sak.kjerne.beregning.TilkjentYtelseUtils
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.tilAndelerTilkjentYtelseMedEndreteUtbetalinger
 import no.nav.familie.ks.sak.kjerne.beregning.tilEndretUtbetalingAndelMedAndelerTilkjentYtelse
+import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.BegrunnelserForPeriodeContext
 import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.EndretUtbetalingAndel
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.KompetanseService
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.Kompetanse
+import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.UtfyltKompetanse
+import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.tilIKompetanse
 import no.nav.familie.ks.sak.kjerne.eøs.utenlandskperiodebeløp.domene.UtenlandskPeriodebeløp
 import no.nav.familie.ks.sak.kjerne.eøs.valutakurs.domene.Valutakurs
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.Fagsak
@@ -49,6 +55,8 @@ import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Personopplys
 import org.assertj.core.api.Assertions
 import org.assertj.core.api.Assertions.assertThat
 import java.time.LocalDate
+
+val sanityBegrunnelserMock = SanityBegrunnelseMock.hentSanityBegrunnelserMock()
 
 @Suppress("ktlint:standard:function-naming")
 class StepDefinition {
@@ -265,7 +273,28 @@ class StepDefinition {
 
         forventedeStandardBegrunnelser.forEach { forventet ->
             val faktisk =
-                utvidetVedtaksperiodeMedBegrunnelser.find { it.fom == forventet.fom && it.tom == forventet.tom }
+                vedtaksperioderMedBegrunnelser[behandlingId]!!
+                    .mapIndexed { index, vedtaksperiodeMedBegrunnelser ->
+                        val utvidetVedtaksperiodeMedBegrunnelser =
+                            vedtaksperiodeMedBegrunnelser.tilUtvidetVedtaksperiodeMedBegrunnelser(
+                                personopplysningGrunnlag = persongrunnlag[behandlingId]!!,
+                                andelerTilkjentYtelse = hentAndelerTilkjentYtelseMedEndreteUtbetalinger(behandlingId),
+                            )
+                        utvidetVedtaksperiodeMedBegrunnelser.copy(
+                            gyldigeBegrunnelser =
+                                BegrunnelserForPeriodeContext(
+                                    utvidetVedtaksperiodeMedBegrunnelser = utvidetVedtaksperiodeMedBegrunnelser,
+                                    sanityBegrunnelser = sanityBegrunnelserMock,
+                                    personopplysningGrunnlag = persongrunnlag[behandlingId]!!,
+                                    personResultater = vilkårsvurdering[behandlingId]!!.personResultater.toList(),
+                                    endretUtbetalingsandeler = endredeUtbetalinger[behandlingId] ?: emptyList(),
+                                    erFørsteVedtaksperiode = index == 0,
+                                    kompetanser = (kompetanser[behandlingId] ?: emptyList()).map { it.tilIKompetanse() }.filterIsInstance<UtfyltKompetanse>(),
+                                    andelerTilkjentYtelse = hentAndelerTilkjentYtelseMedEndreteUtbetalinger(behandlingId),
+                                ).hentGyldigeBegrunnelserForVedtaksperiode(),
+                        )
+                    }
+                    .find { it.fom == forventet.fom && it.tom == forventet.tom }
                     ?: throw Feil(
                         "Forventet å finne en vedtaksperiode med  \n" +
                             "   Fom: ${forventet.fom?.tilddMMyyyy()} og Tom: ${forventet.tom?.tilddMMyyyy()}. \n" +
@@ -308,7 +337,7 @@ class StepDefinition {
         val andelerTilkjentYtelseOgEndreteUtbetalingerService = mockk<AndelerTilkjentYtelseOgEndreteUtbetalingerService>()
         every { andelerTilkjentYtelseOgEndreteUtbetalingerService.finnAndelerTilkjentYtelseMedEndreteUtbetalinger(any<Long>()) } answers {
             val behandlingId = firstArg<Long>()
-            andelerTilkjentYtelse[behandlingId]?.tilAndelerTilkjentYtelseMedEndreteUtbetalinger(endredeUtbetalinger[behandlingId] ?: emptyList()) ?: emptyList()
+            hentAndelerTilkjentYtelseMedEndreteUtbetalinger(behandlingId)
         }
         every { andelerTilkjentYtelseOgEndreteUtbetalingerService.finnEndreteUtbetalingerMedAndelerTilkjentYtelse(any<Long>()) } answers {
             val behandlingId = firstArg<Long>()
@@ -368,5 +397,23 @@ class StepDefinition {
             refusjonEøsRepository = mockk(),
             kompetanseService = kompetanseService,
         )
+    }
+
+    private fun hentAndelerTilkjentYtelseMedEndreteUtbetalinger(behandlingId: Long) = andelerTilkjentYtelse[behandlingId]?.tilAndelerTilkjentYtelseMedEndreteUtbetalinger(endredeUtbetalinger[behandlingId] ?: emptyList()) ?: emptyList()
+}
+
+private object SanityBegrunnelseMock {
+    // For å laste ned begrunnelsene kjør kommandoene under eller se https://familie-brev.sanity.studio/ks-brev/vision med query fra SanityQueries.kt .
+    // curl -XGET https://xsrv1mh6.api.sanity.io/v2022-03-07/data/query/ks-brev?query=*%5B_type%3D%3D%22ksBegrunnelse%22%5D | jq '.result' -c | pbcopy
+    // for å få alle begrunnelsene i clipboardet
+    fun hentSanityBegrunnelserMock(): List<SanityBegrunnelse> {
+        val restSanityBegrunnelserJson =
+            this::class.java.getResource("/cucumber/restSanityBegrunnelser.json")!!
+
+        val restSanityBegrunnelser =
+            objectMapper.readValue(restSanityBegrunnelserJson, Array<SanityBegrunnelseDto>::class.java)
+                .toList()
+
+        return restSanityBegrunnelser.map { it.tilSanityBegrunnelse() }
     }
 }
