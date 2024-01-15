@@ -2,6 +2,7 @@ package no.nav.familie.ba.sak.internal.vedtak.begrunnelser
 
 import no.nav.familie.ks.sak.common.util.førsteDagIInneværendeMåned
 import no.nav.familie.ks.sak.common.util.sisteDagIInneværendeMåned
+import no.nav.familie.ks.sak.common.util.tilMånedÅr
 import no.nav.familie.ks.sak.common.util.tilddMMyyyy
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.VedtaksperiodeMedBegrunnelser
@@ -61,14 +62,14 @@ Egenskap: Plassholdertekst for egenskap - ${RandomStringUtils.randomAlphanumeric
             hentTekstForEndretUtbetaling(endredeUtbetalinger, endredeUtbetalingerForrigeBehandling) +
             hentTekstForKompetanse(kompetanse, behandling.id) +
             hentTekstForKompetanse(kompetanseForrigeBehandling, forrigeBehandling?.id) +
-            hentTekstForVedtaksperioder(behandling.id, vedtaksperioder) + """
-    
-    // + hentTekstForGyligeBegrunnelserForVedtaksperiodene(vedtaksperioder) +
-    // hentTekstValgteBegrunnelser(behandling.id, vedtaksperioder) +
-    // hentTekstBrevPerioder(behandling.id, vedtaksperioder) +
-    // hentEØSBrevBegrunnelseTekster(behandling.id, vedtaksperioder) +
-    // hentBrevBegrunnelseTekster(behandling.id, vedtaksperioder) + """
-// """
+            hentTekstForVedtaksperioder(behandling.id, vedtaksperioder) +
+
+            hentTekstForGyligeBegrunnelserForVedtaksperiodene(vedtaksperioder, behandling.id) +
+            hentTekstValgteBegrunnelser(behandling.id, vedtaksperioder) +
+            hentTekstBrevPerioder(behandling.id, vedtaksperioder) +
+            hentEØSBrevBegrunnelseTekster(behandling.id, vedtaksperioder) +
+            hentBrevBegrunnelseTekster(behandling.id, vedtaksperioder) + """
+"""
     return test.anonymiser(persongrunnlag, persongrunnlagForrigeBehandling, forrigeBehandling, behandling)
 }
 
@@ -200,7 +201,7 @@ fun hentTekstForTilkjentYtelse(
     Og andeler er beregnet for behandling $behandlingId
     
     Så forvent følgende andeler tilkjent ytelse for behandling $behandlingId
-      | AktørId | Fra dato | Til dato | Beløp | Ytelse type | Prosent | Sats | """ +
+      | AktørId | Fra dato | Til dato | Beløp | Ytelse type | Prosent | Sats | Nasjonalt periodebeløp | """ +
         hentAndelRader(andeler, persongrunnlag)
 
 private fun hentAndelRader(
@@ -221,7 +222,7 @@ private fun hentAndelRader(
                 it.stønadFom.førsteDagIInneværendeMåned().tilddMMyyyy()
             }|${
                 it.stønadTom.sisteDagIInneværendeMåned().tilddMMyyyy()
-            }|${it.kalkulertUtbetalingsbeløp}| ${it.type} | ${it.prosent} | ${it.sats} | """
+            }|${it.kalkulertUtbetalingsbeløp}| ${it.type} | ${it.prosent} | ${it.sats} | ${it.nasjonaltPeriodebeløp} | """
         } ?: ""
 
 fun hentTekstForEndretUtbetaling(
@@ -321,28 +322,23 @@ private fun hentVedtaksperiodeRader(vedtaksperioder: List<VedtaksperiodeMedBegru
       | ${it.fom?.tilddMMyyyy() ?: ""} |${it.tom?.tilddMMyyyy() ?: ""} |${it.type} |               |"""
     }
 
-/*fun hentTekstForGyligeBegrunnelserForVedtaksperiodene(
+fun hentTekstForGyligeBegrunnelserForVedtaksperiodene(
     vedtaksperioder: List<VedtaksperiodeMedBegrunnelser>,
+    behandlingId: Long?,
 ) =
     """
 
-    Så forvent at følgende begrunnelser er gyldige
+    Så forvent at følgende begrunnelser er gyldige for behandling $behandlingId
       | Fra dato | Til dato | VedtaksperiodeType | Regelverk Gyldige begrunnelser | Gyldige begrunnelser | Ugyldige begrunnelser |""" +
         hentVedtaksperiodeRaderForGyldigeBegrunnelser(vedtaksperioder)
 
 fun hentVedtaksperiodeRaderForGyldigeBegrunnelser(vedtaksperioder: List<VedtaksperiodeMedBegrunnelser>) =
     vedtaksperioder.joinToString("") { vedtaksperiode ->
         """
-        | ${vedtaksperiode.fom?.tilddMMyyyy() ?: ""} |${vedtaksperiode.tom?.tilddMMyyyy() ?: ""} |${vedtaksperiode.type} | | ${vedtaksperiode.begrunnelser.joinToString { it.begrunnelse.name }} | |""" +
-            if (
-                // TODO bytt ut med vedtaksperiode.eøsBegrunnelser
-                emptyList<EØSBegrunnelse>().isNotEmpty()
-            ) {
+        | ${vedtaksperiode.fom?.tilddMMyyyy() ?: ""} |${vedtaksperiode.tom?.tilddMMyyyy() ?: ""} |${vedtaksperiode.type} | | ${vedtaksperiode.begrunnelser.joinToString { it.nasjonalEllerFellesBegrunnelse.name }} | |""" +
+            if (vedtaksperiode.eøsBegrunnelser.isNotEmpty()) {
                 """
-        | ${vedtaksperiode.fom?.tilddMMyyyy() ?: ""} |${vedtaksperiode.tom?.tilddMMyyyy() ?: ""} |${vedtaksperiode.type} | EØS_FORORDNINGEN | ${
-                    // vedtaksperiode.eøsBegrunnelser
-                    emptyList<EØSBegrunnelse>().joinToString { it.name }
-                } | |
+        | ${vedtaksperiode.fom?.tilddMMyyyy() ?: ""} |${vedtaksperiode.tom?.tilddMMyyyy() ?: ""} |${vedtaksperiode.type} | EØS_FORORDNINGEN | ${vedtaksperiode.eøsBegrunnelser.joinToString { it.begrunnelse.name }} | |
                 """
             } else {
                 ""
@@ -362,7 +358,7 @@ fun hentTekstValgteBegrunnelser(
 fun hentValgteBegrunnelserRader(vedtaksperioder: List<VedtaksperiodeMedBegrunnelser>) =
     vedtaksperioder.joinToString("") { vedtaksperiode ->
         """
-        | ${vedtaksperiode.fom?.tilddMMyyyy() ?: ""} |${vedtaksperiode.tom?.tilddMMyyyy() ?: ""} | ${vedtaksperiode.begrunnelser.joinToString { it.begrunnelse.name }} | ${
+        | ${vedtaksperiode.fom?.tilddMMyyyy() ?: ""} |${vedtaksperiode.tom?.tilddMMyyyy() ?: ""} | ${vedtaksperiode.begrunnelser.joinToString { it.nasjonalEllerFellesBegrunnelse.name }} | ${
             ""
             // vedtaksperiode.eøsBegrunnelser.joinToString { it.begrunnelse.name }
         } | ${vedtaksperiode.fritekster.joinToString()} |"""
@@ -392,8 +388,8 @@ fun hentBrevBegrunnelseTekster(
         """
 
     Så forvent følgende brevbegrunnelser for behandling $behandlingId i periode ${vedtaksperiode.fom?.tilddMMyyyy() ?: "-"} til ${vedtaksperiode.tom?.tilddMMyyyy() ?: "-"}
-        | Begrunnelse | Type | Gjelder søker | Barnas fødselsdatoer | Antall barn | Måned og år begrunnelsen gjelder for | Målform | Beløp | Søknadstidspunkt | Søkers rett til utvidet | Avtaletidspunkt delt bosted |""" +
-            vedtaksperiode.begrunnelser.map { it.begrunnelse }.joinToString("") {
+        | Begrunnelse | Type | Gjelder søker | Barnas fødselsdatoer | Antall barn | Målform | Beløp | Søknadstidspunkt | Antall timer barnehageplass | Gjelder andre forelder | Måned og år begrunnelsen gjelder for |""" +
+            vedtaksperiode.begrunnelser.map { it.nasjonalEllerFellesBegrunnelse }.joinToString("") {
                 """
         | $it | STANDARD |               |                      |             |                                      |         |       |                  |                         |                               |"""
             }
@@ -414,4 +410,4 @@ fun hentEØSBrevBegrunnelseTekster(
         | $it | EØS | | | | | | | | |"""
             }
     }
-}*/
+}
