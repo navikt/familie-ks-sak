@@ -402,7 +402,7 @@ class VedtaksperiodeService(
 
         return utvidedeVedtaksperioderMedBegrunnelser
             .sortedBy { it.fom }
-            .mapNotNull { utvidetVedtaksperiodeMedBegrunnelser ->
+            .map { utvidetVedtaksperiodeMedBegrunnelser ->
 
                 val erFørsteVedtaksperiodePåFagsak =
                     !andelerTilkjentYtelse.any {

@@ -57,7 +57,6 @@ import no.nav.familie.ks.sak.kjerne.fagsak.domene.Fagsak
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Målform
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
-import org.assertj.core.api.Assertions
 import org.assertj.core.api.Assertions.assertThat
 import java.time.LocalDate
 
@@ -212,7 +211,7 @@ class StepDefinition {
         val beregnetTilkjentYtelse = andelerTilkjentYtelse[behandlingId]!!
         val forventedeAndeler = lagAndelerTilkjentYtelse(dataTable, behandlingId, behandlinger, persongrunnlag)
 
-        Assertions.assertThat(beregnetTilkjentYtelse)
+        assertThat(beregnetTilkjentYtelse)
             .usingRecursiveComparison().ignoringFieldsMatchingRegexes(".*endretTidspunkt", ".*opprettetTidspunkt", ".*kildeBehandlingId", ".*tilkjentYtelse")
             .isEqualTo(forventedeAndeler)
     }
