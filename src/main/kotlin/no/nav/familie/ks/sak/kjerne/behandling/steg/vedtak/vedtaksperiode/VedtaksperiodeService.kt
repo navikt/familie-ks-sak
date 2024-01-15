@@ -178,23 +178,12 @@ class VedtaksperiodeService(
         skalOverstyreFortsattInnvilget: Boolean = false,
     ) {
         vedtaksperiodeHentOgPersisterService.slettVedtaksperioderFor(vedtak)
-        if (vedtak.behandling.resultat == Behandlingsresultat.FORTSATT_INNVILGET && !skalOverstyreFortsattInnvilget) {
-            vedtaksperiodeHentOgPersisterService.lagre(
-                VedtaksperiodeMedBegrunnelser(
-                    fom = null,
-                    tom = null,
-                    vedtak = vedtak,
-                    type = Vedtaksperiodetype.FORTSATT_INNVILGET,
-                ),
-            )
-        } else {
-            vedtaksperiodeHentOgPersisterService.lagre(
-                genererVedtaksperioderMedBegrunnelser(
-                    vedtak,
-                    gjelderFortsattInnvilget = skalOverstyreFortsattInnvilget,
-                ),
-            )
-        }
+        vedtaksperiodeHentOgPersisterService.lagre(
+            genererVedtaksperioderMedBegrunnelser(
+                vedtak,
+                gjelderFortsattInnvilget = skalOverstyreFortsattInnvilget,
+            ),
+        )
     }
 
     fun genererVedtaksperioderMedBegrunnelser(
@@ -202,6 +191,17 @@ class VedtaksperiodeService(
         gjelderFortsattInnvilget: Boolean = false,
         manueltOverstyrtEndringstidspunkt: LocalDate? = null,
     ): List<VedtaksperiodeMedBegrunnelser> {
+        if (vedtak.behandling.resultat == Behandlingsresultat.FORTSATT_INNVILGET) {
+            return listOf(
+                VedtaksperiodeMedBegrunnelser(
+                    fom = null,
+                    tom = null,
+                    vedtak = vedtak,
+                    type = Vedtaksperiodetype.FORTSATT_INNVILGET,
+                ),
+            )
+        }
+
         val opphørsperioder =
             hentOpphørsperioder(vedtak.behandling).map { it.tilVedtaksperiodeMedBegrunnelse(vedtak) }
 
