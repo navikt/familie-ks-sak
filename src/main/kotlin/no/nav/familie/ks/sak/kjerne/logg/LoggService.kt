@@ -15,6 +15,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Beslutning
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.feilutbetaltvaluta.FeilutbetaltValuta
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.refusjonEøs.RefusjonEøs
+import no.nav.familie.ks.sak.kjerne.korrigertetterbetaling.KorrigertEtterbetaling
 import no.nav.familie.ks.sak.kjerne.logg.domene.Logg
 import no.nav.familie.ks.sak.kjerne.logg.domene.LoggRepository
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
@@ -482,6 +483,43 @@ class LoggService(
                     """.trimIndent(),
             ),
         )
+
+    fun opprettKorrigertEtterbetalingLogg(
+        behandling: Behandling,
+        korrigertEtterbetaling: KorrigertEtterbetaling,
+    ) {
+        val tekst =
+            if (korrigertEtterbetaling.aktiv) {
+                """
+                Årsak: ${korrigertEtterbetaling.årsak.visningsnavn}
+                Nytt beløp: ${korrigertEtterbetaling.beløp} kr
+                Begrunnelse: ${korrigertEtterbetaling.begrunnelse ?: "Ingen begrunnelse"}
+                """.trimIndent()
+            } else {
+                ""
+            }
+
+        val tittel =
+            if (korrigertEtterbetaling.aktiv) {
+                "Etterbetaling i brev er korrigert"
+            } else {
+                "Korrigert etterbetaling er angret"
+            }
+
+        lagreLogg(
+            Logg(
+                behandlingId = behandling.id,
+                type = LoggType.KORRIGERT_ETTERBETALING,
+                rolle =
+                    SikkerhetContext.hentRolletilgangFraSikkerhetscontext(
+                        rolleConfig,
+                        BehandlerRolle.SAKSBEHANDLER,
+                    ),
+                tittel = tittel,
+                tekst = tekst,
+            ),
+        )
+    }
 
     companion object {
         private val logger = LoggerFactory.getLogger(LoggService::class.java)
