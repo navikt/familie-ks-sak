@@ -184,7 +184,7 @@ internal class VedtaksperiodeServiceTest {
         behandling.resultat = Behandlingsresultat.FORTSATT_INNVILGET
 
         val mocketVedtak = mockk<Vedtak>()
-        val vedtaksperiodeMedBegrunnelseSlot = slot<VedtaksperiodeMedBegrunnelser>()
+        val vedtaksperiodeMedBegrunnelseSlot = slot<List<VedtaksperiodeMedBegrunnelser>>()
 
         every { vedtaksperiodeHentOgPersisterService.slettVedtaksperioderFor(mocketVedtak) } just runs
         every { vedtaksperiodeHentOgPersisterService.lagre(capture(vedtaksperiodeMedBegrunnelseSlot)) } returns mockk()
@@ -192,7 +192,7 @@ internal class VedtaksperiodeServiceTest {
 
         vedtaksperiodeService.oppdaterVedtakMedVedtaksperioder(mocketVedtak)
 
-        val lagretVedtaksperiodeMedBegrunnelser = vedtaksperiodeMedBegrunnelseSlot.captured
+        val lagretVedtaksperiodeMedBegrunnelser = vedtaksperiodeMedBegrunnelseSlot.captured.single()
 
         assertThat(lagretVedtaksperiodeMedBegrunnelser.fom, Is(nullValue()))
         assertThat(lagretVedtaksperiodeMedBegrunnelser.tom, Is(nullValue()))

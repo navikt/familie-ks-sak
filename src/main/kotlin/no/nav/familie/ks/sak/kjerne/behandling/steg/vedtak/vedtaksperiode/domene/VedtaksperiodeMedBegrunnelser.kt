@@ -105,35 +105,40 @@ data class VedtaksperiodeMedBegrunnelser(
     fun hentUtbetalingsperiodeDetaljer(
         andelerTilkjentYtelse: List<AndelTilkjentYtelseMedEndreteUtbetalinger>,
         personopplysningGrunnlag: PersonopplysningGrunnlag,
-    ): List<UtbetalingsperiodeDetalj> {
-        val erUtbetalingPeriode = this.type == Vedtaksperiodetype.UTBETALING
-        val erFortsattInnvilgetPeriode = this.type == Vedtaksperiodetype.FORTSATT_INNVILGET
+    ): List<UtbetalingsperiodeDetalj> =
+        when (this.type) {
+            Vedtaksperiodetype.UTBETALING -> {
+                val kombinertTidslinje = andelerTilkjentYtelse.tilKombinertTidslinjePerAktør()
+                val vedtaksperiodeTidslinje = listOf(Periode(verdi = this, fom = fom, tom)).tilTidslinje()
 
-        return if (erUtbetalingPeriode || erFortsattInnvilgetPeriode) {
-            val kombinertTidslinje = andelerTilkjentYtelse.tilKombinertTidslinjePerAktør()
+                val andelTilkjentYtelserIPeriode =
+                    kombinertTidslinje.kombinerMed(
+                        vedtaksperiodeTidslinje,
+                    ) { andelTilkjentYtelseIPeriode, vedtaksPeriode -> if (vedtaksPeriode != null) andelTilkjentYtelseIPeriode else null }.tilPerioder().mapNotNull { it.verdi }.flatten()
 
-            val vedtaksperiodeTidslinje = listOf(Periode(verdi = this, fom = this.fom, this.tom)).tilTidslinje()
-
-            val tidslinjeMedAndelerIPeriode =
-                kombinertTidslinje.kombinerMed(
-                    vedtaksperiodeTidslinje,
-                ) { andelTilkjentYtelseIPeriode, vedtaksPeriode -> if (vedtaksPeriode != null) andelTilkjentYtelseIPeriode else null }
-
-            val andelTilkjentYtelserIPeriode =
-                tidslinjeMedAndelerIPeriode.tilPerioder().mapNotNull { it.verdi }.flatten()
-
-            if (erUtbetalingPeriode) {
                 validerIkkeDelvisOverlappIAndelTilkjentYtelserOgVedtaksperiodeBegrunnelse(
                     andelTilkjentYtelserIPeriode,
                     personopplysningGrunnlag,
                 )
+
+                andelTilkjentYtelserIPeriode.lagUtbetalingsperiodeDetaljer(personopplysningGrunnlag)
             }
 
-            andelTilkjentYtelserIPeriode.lagUtbetalingsperiodeDetaljer(personopplysningGrunnlag)
-        } else {
-            emptyList()
+            Vedtaksperiodetype.FORTSATT_INNVILGET -> {
+                val kombinertTidslinje = andelerTilkjentYtelse.tilKombinertTidslinjePerAktør()
+
+                val andelTilkjentYtelserIPeriode =
+                    kombinertTidslinje.tilPerioder().lastOrNull { (it.fom ?: TIDENES_MORGEN) <= LocalDate.now() }
+                        ?: kombinertTidslinje.tilPerioder().firstOrNull()
+
+                andelTilkjentYtelserIPeriode?.verdi?.lagUtbetalingsperiodeDetaljer(personopplysningGrunnlag)
+                    ?: throw Feil("Finner ikke gjeldende segment ved fortsatt innvilget")
+            }
+
+            Vedtaksperiodetype.OPPHØR,
+            Vedtaksperiodetype.AVSLAG,
+            -> emptyList()
         }
-    }
 
     private fun validerIkkeDelvisOverlappIAndelTilkjentYtelserOgVedtaksperiodeBegrunnelse(
         andelTilkjentYtelserIPeriode: List<AndelTilkjentYtelseMedEndreteUtbetalinger>,

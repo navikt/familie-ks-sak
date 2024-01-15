@@ -340,6 +340,7 @@ fun lagAndelTilkjentYtelse(
     kalkulertUtbetalingsbeløp: Int = sats,
     ytelseType: YtelseType = YtelseType.ORDINÆR_KONTANTSTØTTE,
     prosent: BigDecimal = BigDecimal(100),
+    nasjonaltPeriodebeløp: Int = sats,
 ) = AndelTilkjentYtelse(
     behandlingId = behandling.id,
     tilkjentYtelse = tilkjentYtelse ?: lagInitieltTilkjentYtelse(behandling),
@@ -350,7 +351,7 @@ fun lagAndelTilkjentYtelse(
     type = ytelseType,
     sats = sats,
     prosent = prosent,
-    nasjonaltPeriodebeløp = sats,
+    nasjonaltPeriodebeløp = nasjonaltPeriodebeløp,
     periodeOffset = periodeOffset,
     forrigePeriodeOffset = forrigePeriodeOffset,
     kildeBehandlingId = behandling.id,

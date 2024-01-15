@@ -1,7 +1,6 @@
-package no.nav.familie.ba.sak.cucumber.domeneparser
+package no.nav.familie.ks.sak.common.domeneparser
 
 import io.cucumber.datatable.DataTable
-import no.nav.familie.ks.sak.common.domeneparser.parseLong
 
 interface Domenenøkkel {
     val nøkkel: String

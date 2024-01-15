@@ -12,9 +12,13 @@ data class BrevPeriodeDto(
     val barnasFodselsdager: Flettefelt,
     val begrunnelser: List<BegrunnelseDto>,
     val type: Flettefelt,
+    @Deprecated("Dette har vi fjernet i ba. Tror vi kan fjerne det i ks også")
     val antallBarnMedUtbetaling: Flettefelt,
+    @Deprecated("Dette har vi fjernet i ba. Tror vi kan fjerne det i ks også")
     val antallBarnMedNullutbetaling: Flettefelt,
+    @Deprecated("Dette har vi fjernet i ba. Tror vi kan fjerne det i ks også")
     val fodselsdagerBarnMedUtbetaling: Flettefelt,
+    @Deprecated("Dette har vi fjernet i ba. Tror vi kan fjerne det i ks også")
     val fodselsdagerBarnMedNullutbetaling: Flettefelt,
 ) {
     constructor(
@@ -25,10 +29,10 @@ data class BrevPeriodeDto(
         brevPeriodeType: BrevPeriodeType,
         antallBarn: String,
         barnasFodselsdager: String,
-        antallBarnMedUtbetaling: String,
-        antallBarnMedNullutbetaling: String,
-        fodselsdagerBarnMedUtbetaling: String,
-        fodselsdagerBarnMedNullutbetaling: String,
+        antallBarnMedUtbetaling: String = "",
+        antallBarnMedNullutbetaling: String = "",
+        fodselsdagerBarnMedUtbetaling: String = "",
+        fodselsdagerBarnMedNullutbetaling: String = "",
     ) : this(
         fom = flettefelt(fom),
         tom = flettefelt(tom),
