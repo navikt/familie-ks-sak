@@ -6,17 +6,18 @@ import io.cucumber.java.no.Og
 import io.cucumber.java.no.Så
 import io.mockk.every
 import io.mockk.mockk
-import no.nav.familie.ba.sak.cucumber.domeneparser.Domenebegrep
 import no.nav.familie.kontrakter.felles.objectMapper
 import no.nav.familie.ks.sak.api.dto.BarnMedOpplysningerDto
 import no.nav.familie.ks.sak.api.dto.SøkerMedOpplysningerDto
 import no.nav.familie.ks.sak.api.dto.SøknadDto
 import no.nav.familie.ks.sak.common.BehandlingId
+import no.nav.familie.ks.sak.common.domeneparser.Domenebegrep
 import no.nav.familie.ks.sak.common.domeneparser.VedtaksperiodeMedBegrunnelserParser
 import no.nav.familie.ks.sak.common.domeneparser.VedtaksperiodeMedBegrunnelserParser.mapForventetVedtaksperioderMedBegrunnelser
 import no.nav.familie.ks.sak.common.domeneparser.parseDato
 import no.nav.familie.ks.sak.common.domeneparser.parseLong
 import no.nav.familie.ks.sak.common.exception.Feil
+import no.nav.familie.ks.sak.common.util.TIDENES_MORGEN
 import no.nav.familie.ks.sak.common.util.tilddMMyyyy
 import no.nav.familie.ks.sak.cucumber.BrevBegrunnelseParser.mapBegrunnelser
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelse
@@ -40,6 +41,8 @@ import no.nav.familie.ks.sak.kjerne.beregning.TilkjentYtelseUtils
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.tilAndelerTilkjentYtelseMedEndreteUtbetalinger
 import no.nav.familie.ks.sak.kjerne.beregning.tilEndretUtbetalingAndelMedAndelerTilkjentYtelse
+import no.nav.familie.ks.sak.kjerne.brev.BrevPeriodeContext
+import no.nav.familie.ks.sak.kjerne.brev.LANDKODER
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.BegrunnelserForPeriodeContext
 import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.EndretUtbetalingAndel
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.KompetanseService
@@ -73,7 +76,6 @@ class StepDefinition {
     var endredeUtbetalinger = mutableMapOf<Long, List<EndretUtbetalingAndel>>()
     var andelerTilkjentYtelse = mutableMapOf<Long, List<AndelTilkjentYtelse>>()
     var overstyrteEndringstidspunkt = mutableMapOf<Long, LocalDate>()
-    var utvidetVedtaksperiodeMedBegrunnelser = listOf<UtvidetVedtaksperiodeMedBegrunnelser>()
     var uregistrerteBarn = mutableMapOf<Long, List<BarnMedOpplysningerDto>>()
     var målform: Målform = Målform.NB
     var søknadstidspunkt: LocalDate? = null
@@ -273,13 +275,8 @@ class StepDefinition {
 
         forventedeStandardBegrunnelser.forEach { forventet ->
             val faktisk =
-                vedtaksperioderMedBegrunnelser[behandlingId]!!
-                    .mapIndexed { index, vedtaksperiodeMedBegrunnelser ->
-                        val utvidetVedtaksperiodeMedBegrunnelser =
-                            vedtaksperiodeMedBegrunnelser.tilUtvidetVedtaksperiodeMedBegrunnelser(
-                                personopplysningGrunnlag = persongrunnlag[behandlingId]!!,
-                                andelerTilkjentYtelse = hentAndelerTilkjentYtelseMedEndreteUtbetalinger(behandlingId),
-                            )
+                hentUtvidedeVedtaksperioderMedKompetanser(behandlingId)
+                    .mapIndexed { index, utvidetVedtaksperiodeMedBegrunnelser ->
                         utvidetVedtaksperiodeMedBegrunnelser.copy(
                             gyldigeBegrunnelser =
                                 BegrunnelserForPeriodeContext(
@@ -289,7 +286,7 @@ class StepDefinition {
                                     personResultater = vilkårsvurdering[behandlingId]!!.personResultater.toList(),
                                     endretUtbetalingsandeler = endredeUtbetalinger[behandlingId] ?: emptyList(),
                                     erFørsteVedtaksperiode = index == 0,
-                                    kompetanser = (kompetanser[behandlingId] ?: emptyList()).map { it.tilIKompetanse() }.filterIsInstance<UtfyltKompetanse>(),
+                                    kompetanser = hentUtfylteKompetanserPåBehandling(behandlingId),
                                     andelerTilkjentYtelse = hentAndelerTilkjentYtelseMedEndreteUtbetalinger(behandlingId),
                                 ).hentGyldigeBegrunnelserForVedtaksperiode(),
                         )
@@ -299,7 +296,7 @@ class StepDefinition {
                         "Forventet å finne en vedtaksperiode med  \n" +
                             "   Fom: ${forventet.fom?.tilddMMyyyy()} og Tom: ${forventet.tom?.tilddMMyyyy()}. \n" +
                             "Faktiske vedtaksperioder var \n${
-                                utvidetVedtaksperiodeMedBegrunnelser.joinToString("\n") {
+                                vedtaksperioderMedBegrunnelser[behandlingId]!!.joinToString("\n") {
                                     "   Fom: ${it.fom?.tilddMMyyyy()}, Tom: ${it.tom?.tilddMMyyyy()}"
                                 }
                             }",
@@ -315,6 +312,71 @@ class StepDefinition {
                 assertThat(faktisk.gyldigeBegrunnelser).doesNotContainAnyElementsOf(forventet.ekskluderteStandardBegrunnelser)
             }
         }
+    }
+
+    private fun hentUtfylteKompetanserPåBehandling(behandlingId: Long) =
+        (kompetanser[behandlingId] ?: emptyList())
+            .map { it.tilIKompetanse() }.filterIsInstance<UtfyltKompetanse>()
+
+    fun hentUtvidedeVedtaksperioderMedKompetanser(
+        behandlingId: Long,
+    ): List<UtvidetVedtaksperiodeMedBegrunnelser> {
+        val vedtaksperioderMedBegrunnelser = vedtaksperioderMedBegrunnelser[behandlingId]!!
+        return vedtaksperioderMedBegrunnelser.map {
+            it.tilUtvidetVedtaksperiodeMedBegrunnelser(
+                personopplysningGrunnlag = persongrunnlag[behandlingId]!!,
+                andelerTilkjentYtelse = hentAndelerTilkjentYtelseMedEndreteUtbetalinger(behandlingId),
+            )
+        }
+    }
+
+    /**
+     * Mulige verdier: | Fra dato | Til dato | Standardbegrunnelser | Eøsbegrunnelser | Fritekster |
+     */
+    @Og("når disse begrunnelsene er valgt for behandling {}")
+    fun `når disse begrunnelsene er valgt for behandling`(
+        behandlingId: Long,
+        dataTable: DataTable,
+    ) {
+        val vedtaksperioder = vedtaksperioderMedBegrunnelser[behandlingId]!!
+
+        vedtaksperioderMedBegrunnelser[behandlingId] = leggBegrunnelserIVedtaksperiodene(dataTable, vedtaksperioder)
+    }
+
+    /**
+     * Mulige verdier: | Brevperiodetype | Fra dato | Til dato | Beløp | Antall barn med utbetaling | Barnas fødselsdager | Du eller institusjonen |
+     */
+    @Så("forvent følgende brevperioder for behandling {}")
+    fun `forvent følgende brevperioder for behandling i periode`(
+        behandlingId: Long,
+        dataTable: DataTable,
+    ) {
+        val faktiskeBrevperioder =
+            hentUtvidedeVedtaksperioderMedKompetanser(behandlingId).sortedBy { it.fom ?: TIDENES_MORGEN }.mapIndexed { index, it ->
+                BrevPeriodeContext(
+                    utvidetVedtaksperiodeMedBegrunnelser = it,
+                    sanityBegrunnelser = sanityBegrunnelserMock,
+                    persongrunnlag = persongrunnlag[behandlingId]!!,
+                    personResultater = vilkårsvurdering[behandlingId]!!.personResultater.toList(),
+                    andelTilkjentYtelserMedEndreteUtbetalinger = hentAndelerTilkjentYtelseMedEndreteUtbetalinger(behandlingId),
+                    uregistrerteBarn = uregistrerteBarn[behandlingId] ?: emptyList(),
+                    // TODO
+                    barnSomDødeIForrigePeriode = emptyList(),
+                    erFørsteVedtaksperiode = index == 0,
+                    kompetanser = hentUtfylteKompetanserPåBehandling(behandlingId),
+                    landkoder = LANDKODER,
+                ).genererBrevPeriodeDto()
+            }
+
+        val forvendtedeBrevperioder = parseBrevPerioder(dataTable)
+
+        assertThat(faktiskeBrevperioder)
+            .usingRecursiveComparison()
+            .ignoringFields("begrunnelser")
+            .ignoringFields("antallBarnMedNullutbetaling")
+            .ignoringFields("antallBarnMedUtbetaling")
+            .ignoringFields("fodselsdagerBarnMedUtbetaling")
+            .isEqualTo(forvendtedeBrevperioder)
     }
 
     fun mockVedtaksperiodeService(): VedtaksperiodeService {

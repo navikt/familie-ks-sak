@@ -1,10 +1,10 @@
 package no.nav.familie.ks.sak.cucumber
 
 import io.cucumber.datatable.DataTable
-import no.nav.familie.ba.sak.cucumber.domeneparser.BrevPeriodeParser
-import no.nav.familie.ba.sak.cucumber.domeneparser.Domenebegrep
-import no.nav.familie.ba.sak.cucumber.domeneparser.DomeneparserUtil.groupByBehandlingId
 import no.nav.familie.ks.sak.api.dto.BarnMedOpplysningerDto
+import no.nav.familie.ks.sak.common.domeneparser.BrevPeriodeParser
+import no.nav.familie.ks.sak.common.domeneparser.Domenebegrep
+import no.nav.familie.ks.sak.common.domeneparser.DomeneparserUtil.groupByBehandlingId
 import no.nav.familie.ks.sak.common.domeneparser.VedtaksperiodeMedBegrunnelserParser
 import no.nav.familie.ks.sak.common.domeneparser.parseBigDecimal
 import no.nav.familie.ks.sak.common.domeneparser.parseDato
@@ -19,6 +19,8 @@ import no.nav.familie.ks.sak.common.domeneparser.parseValgfriEnum
 import no.nav.familie.ks.sak.common.domeneparser.parseValgfriInt
 import no.nav.familie.ks.sak.common.domeneparser.parseValgfriLong
 import no.nav.familie.ks.sak.common.domeneparser.parseValgfriString
+import no.nav.familie.ks.sak.common.exception.Feil
+import no.nav.familie.ks.sak.common.util.tilddMMyyyy
 import no.nav.familie.ks.sak.common.util.toYearMonth
 import no.nav.familie.ks.sak.data.lagAndelTilkjentYtelse
 import no.nav.familie.ks.sak.data.lagBehandling
@@ -32,6 +34,9 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingKategori
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.Vedtak
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.EØSBegrunnelseDB
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.NasjonalEllerFellesBegrunnelseDB
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.VedtaksperiodeMedBegrunnelser
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.PersonResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Regelverk
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
@@ -429,3 +434,58 @@ fun lagUregistrerteBarn(dataTable: DataTable) =
             erFolkeregistrert = erFolkeregistrert,
         )
     }
+
+fun leggBegrunnelserIVedtaksperiodene(
+    dataTable: DataTable,
+    vedtaksperioder: List<VedtaksperiodeMedBegrunnelser>,
+): List<VedtaksperiodeMedBegrunnelser> {
+    val vedtaksperioderSomHarFåttBegrunnelser =
+        dataTable.asMaps().map { rad ->
+            val fom = parseValgfriDato(Domenebegrep.FRA_DATO, rad)
+            val tom = parseValgfriDato(Domenebegrep.TIL_DATO, rad)
+
+            val vedtaksperiode =
+                vedtaksperioder.find { it.fom == fom && it.tom == tom }
+                    ?: throw Feil(
+                        "Ingen vedtaksperioder med Fom=$fom og Tom=$tom. " +
+                            "Vedtaksperiodene var ${vedtaksperioder.map { "\n${it.fom?.tilddMMyyyy()} til ${it.tom?.tilddMMyyyy()}" }}",
+                    )
+
+            val nasjonaleOgFellesBegrunnelser =
+                parseEnumListe<NasjonalEllerFellesBegrunnelse>(
+                    VedtaksperiodeMedBegrunnelserParser.DomenebegrepVedtaksperiodeMedBegrunnelser.STANDARDBEGRUNNELSER,
+                    rad,
+                ).map {
+                    NasjonalEllerFellesBegrunnelseDB(
+                        vedtaksperiodeMedBegrunnelser = vedtaksperiode,
+                        nasjonalEllerFellesBegrunnelse = it,
+                    )
+                }
+            val eøsBegrunnelser =
+                parseEnumListe<EØSBegrunnelse>(
+                    VedtaksperiodeMedBegrunnelserParser.DomenebegrepVedtaksperiodeMedBegrunnelser.EØSBEGRUNNELSER,
+                    rad,
+                ).map {
+                    EØSBegrunnelseDB(
+                        vedtaksperiodeMedBegrunnelser = vedtaksperiode,
+                        begrunnelse = it,
+                    )
+                }
+
+            vedtaksperiode.copy(
+                begrunnelser = nasjonaleOgFellesBegrunnelser.toMutableSet(),
+                eøsBegrunnelser = eøsBegrunnelser.toMutableSet(),
+            )
+        }
+
+    val vedtaksperioderUtenBegrunnelser =
+        vedtaksperioder.filter { vedtaksperiodeUtenBegrunnelse ->
+            vedtaksperioderSomHarFåttBegrunnelser.none {
+                it.fom == vedtaksperiodeUtenBegrunnelse.fom &&
+                    it.tom == vedtaksperiodeUtenBegrunnelse.tom &&
+                    it.type == vedtaksperiodeUtenBegrunnelse.type
+            }
+        }
+
+    return vedtaksperioderSomHarFåttBegrunnelser + vedtaksperioderUtenBegrunnelser
+}
