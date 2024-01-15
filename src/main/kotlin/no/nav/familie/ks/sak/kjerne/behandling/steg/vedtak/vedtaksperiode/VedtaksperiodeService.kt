@@ -175,11 +175,19 @@ class VedtaksperiodeService(
     @Transactional
     fun oppdaterVedtakMedVedtaksperioder(
         vedtak: Vedtak,
-        skalOverstyreFortsattInnvilget: Boolean = false,
     ) {
         vedtaksperiodeHentOgPersisterService.slettVedtaksperioderFor(vedtak)
-        if (vedtak.behandling.resultat == Behandlingsresultat.FORTSATT_INNVILGET && !skalOverstyreFortsattInnvilget) {
-            vedtaksperiodeHentOgPersisterService.lagre(
+        vedtaksperiodeHentOgPersisterService.lagre(
+            genererVedtaksperioderMedBegrunnelser(vedtak),
+        )
+    }
+
+    fun genererVedtaksperioderMedBegrunnelser(
+        vedtak: Vedtak,
+        manueltOverstyrtEndringstidspunkt: LocalDate? = null,
+    ): List<VedtaksperiodeMedBegrunnelser> {
+        if (vedtak.behandling.resultat == Behandlingsresultat.FORTSATT_INNVILGET) {
+            return listOf(
                 VedtaksperiodeMedBegrunnelser(
                     fom = null,
                     tom = null,
@@ -187,21 +195,8 @@ class VedtaksperiodeService(
                     type = Vedtaksperiodetype.FORTSATT_INNVILGET,
                 ),
             )
-        } else {
-            vedtaksperiodeHentOgPersisterService.lagre(
-                genererVedtaksperioderMedBegrunnelser(
-                    vedtak,
-                    gjelderFortsattInnvilget = skalOverstyreFortsattInnvilget,
-                ),
-            )
         }
-    }
 
-    fun genererVedtaksperioderMedBegrunnelser(
-        vedtak: Vedtak,
-        gjelderFortsattInnvilget: Boolean = false,
-        manueltOverstyrtEndringstidspunkt: LocalDate? = null,
-    ): List<VedtaksperiodeMedBegrunnelser> {
         val opphørsperioder =
             hentOpphørsperioder(vedtak.behandling).map { it.tilVedtaksperiodeMedBegrunnelse(vedtak) }
 
@@ -219,7 +214,6 @@ class VedtaksperiodeService(
         return filtrerUtPerioderBasertPåEndringstidspunkt(
             vedtaksperioderMedBegrunnelser = (utbetalingsperioderUtenOverlappMedAvslagsperioder + opphørsperioder),
             behandling = vedtak.behandling,
-            gjelderFortsattInnvilget = gjelderFortsattInnvilget,
             manueltOverstyrtEndringstidspunkt = manueltOverstyrtEndringstidspunkt,
         ) + avslagsperioder
     }
@@ -238,19 +232,14 @@ class VedtaksperiodeService(
     fun filtrerUtPerioderBasertPåEndringstidspunkt(
         vedtaksperioderMedBegrunnelser: List<VedtaksperiodeMedBegrunnelser>,
         behandling: Behandling,
-        gjelderFortsattInnvilget: Boolean = false,
         manueltOverstyrtEndringstidspunkt: LocalDate? = null,
     ): List<VedtaksperiodeMedBegrunnelser> {
         val endringstidspunkt =
             manueltOverstyrtEndringstidspunkt
-                ?: if (!gjelderFortsattInnvilget) {
-                    finnEndringstidspunktForBehandling(
-                        behandling = behandling,
-                        sisteVedtattBehandling = hentSisteBehandlingSomErVedtatt(behandling.fagsak.id),
-                    )
-                } else {
-                    TIDENES_MORGEN
-                }
+                ?: finnEndringstidspunktForBehandling(
+                    behandling = behandling,
+                    sisteVedtattBehandling = hentSisteBehandlingSomErVedtatt(behandling.fagsak.id),
+                )
 
         return vedtaksperioderMedBegrunnelser.filter {
             (it.tom ?: TIDENES_ENDE).erSammeEllerEtter(endringstidspunkt)
@@ -413,7 +402,7 @@ class VedtaksperiodeService(
 
         return utvidedeVedtaksperioderMedBegrunnelser
             .sortedBy { it.fom }
-            .mapNotNull { utvidetVedtaksperiodeMedBegrunnelser ->
+            .map { utvidetVedtaksperiodeMedBegrunnelser ->
 
                 val erFørsteVedtaksperiodePåFagsak =
                     !andelerTilkjentYtelse.any {

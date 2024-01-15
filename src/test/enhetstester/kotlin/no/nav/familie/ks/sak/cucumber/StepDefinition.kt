@@ -6,17 +6,22 @@ import io.cucumber.java.no.Og
 import io.cucumber.java.no.Så
 import io.mockk.every
 import io.mockk.mockk
-import no.nav.familie.ba.sak.cucumber.domeneparser.Domenebegrep
 import no.nav.familie.kontrakter.felles.objectMapper
 import no.nav.familie.ks.sak.api.dto.BarnMedOpplysningerDto
 import no.nav.familie.ks.sak.api.dto.SøkerMedOpplysningerDto
 import no.nav.familie.ks.sak.api.dto.SøknadDto
 import no.nav.familie.ks.sak.common.BehandlingId
+import no.nav.familie.ks.sak.common.domeneparser.Domenebegrep
 import no.nav.familie.ks.sak.common.domeneparser.VedtaksperiodeMedBegrunnelserParser
 import no.nav.familie.ks.sak.common.domeneparser.VedtaksperiodeMedBegrunnelserParser.mapForventetVedtaksperioderMedBegrunnelser
 import no.nav.familie.ks.sak.common.domeneparser.parseDato
 import no.nav.familie.ks.sak.common.domeneparser.parseLong
 import no.nav.familie.ks.sak.common.exception.Feil
+import no.nav.familie.ks.sak.common.util.TIDENES_MORGEN
+import no.nav.familie.ks.sak.common.util.tilddMMyyyy
+import no.nav.familie.ks.sak.cucumber.BrevBegrunnelseParser.mapBegrunnelser
+import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelse
+import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelseDto
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
 import no.nav.familie.ks.sak.kjerne.behandling.steg.registrersøknad.SøknadGrunnlagService
@@ -25,6 +30,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.Vedtak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.VedtaksperiodeService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.UtvidetVedtaksperiodeMedBegrunnelser
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.VedtaksperiodeMedBegrunnelser
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.tilUtvidetVedtaksperiodeMedBegrunnelser
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.utbetalingsperiodeMedBegrunnelser.UtbetalingsperiodeMedBegrunnelserService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
@@ -35,17 +41,26 @@ import no.nav.familie.ks.sak.kjerne.beregning.TilkjentYtelseUtils
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.tilAndelerTilkjentYtelseMedEndreteUtbetalinger
 import no.nav.familie.ks.sak.kjerne.beregning.tilEndretUtbetalingAndelMedAndelerTilkjentYtelse
+import no.nav.familie.ks.sak.kjerne.brev.BrevPeriodeContext
+import no.nav.familie.ks.sak.kjerne.brev.LANDKODER
+import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.BegrunnelseDtoMedData
+import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.BegrunnelserForPeriodeContext
+import no.nav.familie.ks.sak.kjerne.brev.domene.maler.brevperioder.BrevPeriodeDto
 import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.EndretUtbetalingAndel
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.KompetanseService
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.Kompetanse
+import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.UtfyltKompetanse
+import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.tilIKompetanse
 import no.nav.familie.ks.sak.kjerne.eøs.utenlandskperiodebeløp.domene.UtenlandskPeriodebeløp
 import no.nav.familie.ks.sak.kjerne.eøs.valutakurs.domene.Valutakurs
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.Fagsak
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Målform
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
-import org.assertj.core.api.Assertions
+import org.assertj.core.api.Assertions.assertThat
 import java.time.LocalDate
+
+val sanityBegrunnelserMock = SanityBegrunnelseMock.hentSanityBegrunnelserMock()
 
 @Suppress("ktlint:standard:function-naming")
 class StepDefinition {
@@ -62,7 +77,6 @@ class StepDefinition {
     var endredeUtbetalinger = mutableMapOf<Long, List<EndretUtbetalingAndel>>()
     var andelerTilkjentYtelse = mutableMapOf<Long, List<AndelTilkjentYtelse>>()
     var overstyrteEndringstidspunkt = mutableMapOf<Long, LocalDate>()
-    var utvidetVedtaksperiodeMedBegrunnelser = listOf<UtvidetVedtaksperiodeMedBegrunnelser>()
     var uregistrerteBarn = mutableMapOf<Long, List<BarnMedOpplysningerDto>>()
     var målform: Målform = Målform.NB
     var søknadstidspunkt: LocalDate? = null
@@ -197,7 +211,7 @@ class StepDefinition {
         val beregnetTilkjentYtelse = andelerTilkjentYtelse[behandlingId]!!
         val forventedeAndeler = lagAndelerTilkjentYtelse(dataTable, behandlingId, behandlinger, persongrunnlag)
 
-        Assertions.assertThat(beregnetTilkjentYtelse)
+        assertThat(beregnetTilkjentYtelse)
             .usingRecursiveComparison().ignoringFieldsMatchingRegexes(".*endretTidspunkt", ".*opprettetTidspunkt", ".*kildeBehandlingId", ".*tilkjentYtelse")
             .isEqualTo(forventedeAndeler)
     }
@@ -219,19 +233,10 @@ class StepDefinition {
 
     @Og("vedtaksperioder er laget for behandling {}")
     fun `vedtaksperioder er laget for behandling`(behandlingId: Long) {
-        val forrigeBehandling = behandlinger[behandlingTilForrigeBehandling[behandlingId]]
-
-        val andelerTilkjentYtelseDenneBehandlingen = andelerTilkjentYtelse[behandlingId]!!
-        val endredeUtbetalingerDenneBehandlingen = endredeUtbetalinger[behandlingId] ?: emptyList()
-
-        val andelerTilkjentYtelseForrigeBehandling = andelerTilkjentYtelse[forrigeBehandling?.id] ?: emptyList()
-        val endredeUtbetalingerForrigeBehandling = endredeUtbetalinger[forrigeBehandling?.id] ?: emptyList()
-
         vedtaksperioderMedBegrunnelser[behandlingId] =
             mockVedtaksperiodeService().genererVedtaksperioderMedBegrunnelser(
                 vedtak = vedtakListe.single { it.behandling.id == behandlingId },
                 manueltOverstyrtEndringstidspunkt = overstyrteEndringstidspunkt[behandlingId],
-                gjelderFortsattInnvilget = false,
             )
     }
 
@@ -253,9 +258,162 @@ class StepDefinition {
         val faktiskeVedtaksperioder = vedtaksperioderMedBegrunnelser[behandlingId]!!
 
         val vedtaksperioderComparator = compareBy<VedtaksperiodeMedBegrunnelser>({ it.type }, { it.fom }, { it.tom })
-        Assertions.assertThat(faktiskeVedtaksperioder.sortedWith(vedtaksperioderComparator))
+        assertThat(faktiskeVedtaksperioder.sortedWith(vedtaksperioderComparator))
             .usingRecursiveComparison().ignoringFieldsMatchingRegexes(".*endretTidspunkt", ".*opprettetTidspunkt")
             .isEqualTo(forventedeVedtaksperioder.sortedWith(vedtaksperioderComparator))
+    }
+
+    /**
+     * Mulige verdier: | Fra dato | Til dato | VedtaksperiodeType | Regelverk Gyldige begrunnelser | Gyldige begrunnelser | Regelverk Ugyldige begrunnelser | Ugyldige begrunnelser |
+     */
+    @Så("forvent at følgende begrunnelser er gyldige for behandling {}")
+    fun `forvent at følgende begrunnelser er gyldige for behandling`(
+        behandlingId: Long,
+        dataTable: DataTable,
+    ) {
+        val forventedeStandardBegrunnelser = mapBegrunnelser(dataTable).toSet()
+
+        forventedeStandardBegrunnelser.forEach { forventet ->
+            val faktisk =
+                hentUtvidedeVedtaksperioderMedBegrunnelser(behandlingId)
+                    .mapIndexed { index, utvidetVedtaksperiodeMedBegrunnelser ->
+                        utvidetVedtaksperiodeMedBegrunnelser.copy(
+                            gyldigeBegrunnelser =
+                                BegrunnelserForPeriodeContext(
+                                    utvidetVedtaksperiodeMedBegrunnelser = utvidetVedtaksperiodeMedBegrunnelser,
+                                    sanityBegrunnelser = sanityBegrunnelserMock,
+                                    personopplysningGrunnlag = persongrunnlag[behandlingId]!!,
+                                    personResultater = vilkårsvurdering[behandlingId]!!.personResultater.toList(),
+                                    endretUtbetalingsandeler = endredeUtbetalinger[behandlingId] ?: emptyList(),
+                                    erFørsteVedtaksperiode = index == 0,
+                                    kompetanser = hentUtfylteKompetanserPåBehandling(behandlingId),
+                                    andelerTilkjentYtelse = hentAndelerTilkjentYtelseMedEndreteUtbetalinger(behandlingId),
+                                ).hentGyldigeBegrunnelserForVedtaksperiode(),
+                        )
+                    }
+                    .find { it.fom == forventet.fom && it.tom == forventet.tom }
+                    ?: throw Feil(
+                        "Forventet å finne en vedtaksperiode med  \n" +
+                            "   Fom: ${forventet.fom?.tilddMMyyyy()} og Tom: ${forventet.tom?.tilddMMyyyy()}. \n" +
+                            "Faktiske vedtaksperioder var \n${
+                                vedtaksperioderMedBegrunnelser[behandlingId]!!.joinToString("\n") {
+                                    "   Fom: ${it.fom?.tilddMMyyyy()}, Tom: ${it.tom?.tilddMMyyyy()}"
+                                }
+                            }",
+                    )
+            assertThat(faktisk.type)
+                .`as`("For periode: ${forventet.fom} til ${forventet.tom}")
+                .isEqualTo(forventet.type)
+            assertThat(faktisk.gyldigeBegrunnelser)
+                .`as`("For periode: ${forventet.fom} til ${forventet.tom}")
+                .containsAll(forventet.inkluderteStandardBegrunnelser)
+
+            if (faktisk.gyldigeBegrunnelser.isNotEmpty() && forventet.ekskluderteStandardBegrunnelser.isNotEmpty()) {
+                assertThat(faktisk.gyldigeBegrunnelser).doesNotContainAnyElementsOf(forventet.ekskluderteStandardBegrunnelser)
+            }
+        }
+    }
+
+    private fun hentUtfylteKompetanserPåBehandling(behandlingId: Long) =
+        (kompetanser[behandlingId] ?: emptyList())
+            .map { it.tilIKompetanse() }.filterIsInstance<UtfyltKompetanse>()
+
+    fun hentUtvidedeVedtaksperioderMedBegrunnelser(
+        behandlingId: Long,
+    ): List<UtvidetVedtaksperiodeMedBegrunnelser> {
+        val vedtaksperioderMedBegrunnelser = vedtaksperioderMedBegrunnelser[behandlingId]!!
+        return vedtaksperioderMedBegrunnelser.map {
+            it.tilUtvidetVedtaksperiodeMedBegrunnelser(
+                personopplysningGrunnlag = persongrunnlag[behandlingId]!!,
+                andelerTilkjentYtelse = hentAndelerTilkjentYtelseMedEndreteUtbetalinger(behandlingId),
+            )
+        }
+    }
+
+    /**
+     * Mulige verdier: | Fra dato | Til dato | Standardbegrunnelser | Eøsbegrunnelser | Fritekster |
+     */
+    @Og("når disse begrunnelsene er valgt for behandling {}")
+    fun `når disse begrunnelsene er valgt for behandling`(
+        behandlingId: Long,
+        dataTable: DataTable,
+    ) {
+        val vedtaksperioder = vedtaksperioderMedBegrunnelser[behandlingId]!!
+
+        vedtaksperioderMedBegrunnelser[behandlingId] = leggBegrunnelserIVedtaksperiodene(dataTable, vedtaksperioder)
+    }
+
+    /**
+     * Mulige verdier: | Brevperiodetype | Fra dato | Til dato | Beløp | Antall barn med utbetaling | Barnas fødselsdager | Du eller institusjonen |
+     */
+    @Så("forvent følgende brevperioder for behandling {}")
+    fun `forvent følgende brevperioder for behandling i periode`(
+        behandlingId: Long,
+        dataTable: DataTable,
+    ) {
+        val faktiskeBrevperioder = hentBrevperioder(behandlingId)
+
+        val forvendtedeBrevperioder = parseBrevPerioder(dataTable)
+
+        assertThat(faktiskeBrevperioder)
+            .usingRecursiveComparison()
+            .ignoringFields("begrunnelser")
+            .ignoringFields("antallBarnMedNullutbetaling")
+            .ignoringFields("antallBarnMedUtbetaling")
+            .ignoringFields("fodselsdagerBarnMedUtbetaling")
+            .isEqualTo(forvendtedeBrevperioder)
+    }
+
+    private fun hentBrevperioder(behandlingId: Long): List<BrevPeriodeDto?> =
+        hentUtvidedeVedtaksperioderMedBegrunnelser(behandlingId).sortedBy { it.fom ?: TIDENES_MORGEN }.mapIndexed { index, it ->
+            it.hentBrevPeriode(behandlingId, index == 0)
+        }
+
+    private fun UtvidetVedtaksperiodeMedBegrunnelser.hentBrevPeriode(
+        behandlingId: Long,
+        erFørsteVedtaksperiode: Boolean,
+    ) = BrevPeriodeContext(
+        utvidetVedtaksperiodeMedBegrunnelser = this,
+        sanityBegrunnelser = sanityBegrunnelserMock,
+        persongrunnlag = persongrunnlag[behandlingId]!!,
+        personResultater = vilkårsvurdering[behandlingId]!!.personResultater.toList(),
+        andelTilkjentYtelserMedEndreteUtbetalinger = hentAndelerTilkjentYtelseMedEndreteUtbetalinger(behandlingId),
+        uregistrerteBarn = uregistrerteBarn[behandlingId] ?: emptyList(),
+        // TODO
+        barnSomDødeIForrigePeriode = emptyList(),
+        erFørsteVedtaksperiode = erFørsteVedtaksperiode,
+        kompetanser = hentUtfylteKompetanserPåBehandling(behandlingId),
+        landkoder = LANDKODER,
+    ).genererBrevPeriodeDto()
+
+    /**
+     * Mulige verdier: | Begrunnelse | Type | Gjelder søker | Barnas fødselsdatoer | Antall barn | Måned og år begrunnelsen gjelder for | Målform | Beløp | Søknadstidspunkt | Avtale tidspunkt delt bosted | Søkers rett til utvidet |
+     */
+    @Så("forvent følgende brevbegrunnelser for behandling {} i periode {} til {}")
+    fun `forvent følgende brevbegrunnelser for behandling i periode`(
+        behandlingId: Long,
+        periodeFom: String,
+        periodeTom: String,
+        dataTable: DataTable,
+    ) {
+        val utvidedeVedtaksperioderMedBegrunnelser = hentUtvidedeVedtaksperioderMedBegrunnelser(behandlingId).sortedBy { it.fom ?: TIDENES_MORGEN }
+        val relevantUtvidetVedtaksperiode =
+            utvidedeVedtaksperioderMedBegrunnelser.find {
+                it.fom == parseNullableDato(periodeFom) && it.tom == parseNullableDato(periodeTom)
+            }!!
+
+        val faktiskeBegrunnelser =
+            relevantUtvidetVedtaksperiode.hentBrevPeriode(
+                behandlingId = behandlingId,
+                erFørsteVedtaksperiode = relevantUtvidetVedtaksperiode == utvidedeVedtaksperioderMedBegrunnelser.firstOrNull(),
+            )!!.begrunnelser.filterIsInstance<BegrunnelseDtoMedData>()
+
+        val forvendtedeBegrunnelser = parseBegrunnelser(dataTable)
+
+        assertThat(faktiskeBegrunnelser.sortedBy { it.apiNavn })
+            .usingRecursiveComparison()
+            .ignoringFields("vedtakBegrunnelseType")
+            .isEqualTo(forvendtedeBegrunnelser.sortedBy { it.apiNavn })
     }
 
     fun mockVedtaksperiodeService(): VedtaksperiodeService {
@@ -278,7 +436,7 @@ class StepDefinition {
         val andelerTilkjentYtelseOgEndreteUtbetalingerService = mockk<AndelerTilkjentYtelseOgEndreteUtbetalingerService>()
         every { andelerTilkjentYtelseOgEndreteUtbetalingerService.finnAndelerTilkjentYtelseMedEndreteUtbetalinger(any<Long>()) } answers {
             val behandlingId = firstArg<Long>()
-            andelerTilkjentYtelse[behandlingId]?.tilAndelerTilkjentYtelseMedEndreteUtbetalinger(endredeUtbetalinger[behandlingId] ?: emptyList()) ?: emptyList()
+            hentAndelerTilkjentYtelseMedEndreteUtbetalinger(behandlingId)
         }
         every { andelerTilkjentYtelseOgEndreteUtbetalingerService.finnEndreteUtbetalingerMedAndelerTilkjentYtelse(any<Long>()) } answers {
             val behandlingId = firstArg<Long>()
@@ -338,5 +496,23 @@ class StepDefinition {
             refusjonEøsRepository = mockk(),
             kompetanseService = kompetanseService,
         )
+    }
+
+    private fun hentAndelerTilkjentYtelseMedEndreteUtbetalinger(behandlingId: Long) = andelerTilkjentYtelse[behandlingId]?.tilAndelerTilkjentYtelseMedEndreteUtbetalinger(endredeUtbetalinger[behandlingId] ?: emptyList()) ?: emptyList()
+}
+
+private object SanityBegrunnelseMock {
+    // For å laste ned begrunnelsene kjør kommandoene under eller se https://familie-brev.sanity.studio/ks-brev/vision med query fra SanityQueries.kt .
+    // curl -XGET https://xsrv1mh6.api.sanity.io/v2022-03-07/data/query/ks-brev?query=*%5B_type%3D%3D%22ksBegrunnelse%22%5D | jq '.result' -c | pbcopy
+    // for å få alle begrunnelsene i clipboardet
+    fun hentSanityBegrunnelserMock(): List<SanityBegrunnelse> {
+        val restSanityBegrunnelserJson =
+            this::class.java.getResource("/cucumber/restSanityBegrunnelser.json")!!
+
+        val restSanityBegrunnelser =
+            objectMapper.readValue(restSanityBegrunnelserJson, Array<SanityBegrunnelseDto>::class.java)
+                .toList()
+
+        return restSanityBegrunnelser.map { it.tilSanityBegrunnelse() }
     }
 }

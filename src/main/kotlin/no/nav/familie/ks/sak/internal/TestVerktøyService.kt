@@ -2,7 +2,7 @@ package no.nav.familie.ks.sak.internal
 
 import no.nav.familie.ba.sak.internal.vedtak.begrunnelser.lagBrevTest
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.VedtakService
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.VedtakRepository
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.VedtaksperiodeService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelseRepository
@@ -19,7 +19,7 @@ class TestVerktøyService(
     private val andelTilkjentYtelseRepository: AndelTilkjentYtelseRepository,
     private val endretUtbetalingRepository: EndretUtbetalingAndelRepository,
     private val vedtaksperiodeService: VedtaksperiodeService,
-    private val vedtakService: VedtakService,
+    private val vedtakRepository: VedtakRepository,
     private val kompetanseRepository: KompetanseRepository,
 ) {
     fun hentBrevTest(behandlingId: Long): String {
@@ -47,7 +47,7 @@ class TestVerktøyService(
         val kompetanseForrigeBehandling =
             forrigeBehandling?.let { kompetanseRepository.findByBehandlingId(it.id) }
 
-        val vedtaksperioder = vedtaksperiodeService.hentPersisterteVedtaksperioder(vedtakService.hentVedtak(behandlingId))
+        val vedtaksperioder = vedtaksperiodeService.hentPersisterteVedtaksperioder(vedtakRepository.findByBehandlingAndAktiv(behandlingId = behandlingId))
 
         return lagBrevTest(
             behandling = behandling,
