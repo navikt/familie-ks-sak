@@ -6,6 +6,7 @@ object BrevPeriodeParser {
         GJELDER_SØKER("Gjelder søker"),
         BARNAS_FØDSELSDATOER("Barnas fødselsdatoer"),
         ANTALL_BARN("Antall barn"),
+        ANTALL_TIMER_BARNEHAGEPLASS("Antall timer barnehageplass"),
         MÅNED_OG_ÅR_BEGRUNNELSEN_GJELDER_FOR("Måned og år begrunnelsen gjelder for"),
         MÅLFORM("Målform"),
         BELØP("Beløp"),
@@ -13,6 +14,7 @@ object BrevPeriodeParser {
         AVTALETIDSPUNKT_DELT_BOSTED("Avtaletidspunkt delt bosted"),
         SØKERS_RETT_TIL_UTVIDET("Søkers rett til utvidet"),
         TYPE("Type"),
+        GJELDER_ANDRE_FORELDER("Gjelder andre forelder"),
     }
 
     enum class DomenebegrepBrevPeriode(override val nøkkel: String) : Domenenøkkel {
