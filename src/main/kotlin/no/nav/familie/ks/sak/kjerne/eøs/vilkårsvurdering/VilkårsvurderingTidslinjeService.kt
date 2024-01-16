@@ -49,7 +49,7 @@ class VilkårsvurderingTidslinjeService(
                     )
                 }.filtrerIkkeNull()
                 .tilTidslinje()
-        
+
         return erAnnenForelderOmfattetAvNorskLovgivingTidslinjeMedKunPerioderSomStrekkerSegOver1MånedForskyvetTidslinje
     }
 }
