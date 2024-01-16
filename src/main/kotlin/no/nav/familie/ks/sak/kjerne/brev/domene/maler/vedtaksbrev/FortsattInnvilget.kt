@@ -51,7 +51,7 @@ data class FortsattInnvilget(
                         ),
                     flettefelter =
                         FlettefelterForDokumentDtoImpl(
-                            gjelder = flettefelt(fellesdataForVedtaksbrev.gjelder),
+                            gjelder = null,
                             navn = flettefelt(fellesdataForVedtaksbrev.søkerNavn),
                             fodselsnummer = flettefelt(fellesdataForVedtaksbrev.søkerFødselsnummer),
                         ),
