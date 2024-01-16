@@ -6,7 +6,6 @@ import no.nav.familie.ks.sak.common.tidslinje.Tidslinje
 import no.nav.familie.ks.sak.common.tidslinje.filtrerIkkeNull
 import no.nav.familie.ks.sak.common.tidslinje.tilTidslinje
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.filtrerIkkeNull
-import no.nav.familie.ks.sak.common.tidslinje.utvidelser.tilPerioder
 import no.nav.familie.ks.sak.common.util.førsteDagIInneværendeMåned
 import no.nav.familie.ks.sak.common.util.sisteDagIMåned
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
@@ -38,24 +37,19 @@ class VilkårsvurderingTidslinjeService(
                 .personResultater
         val søkerPersonresultater = personResultater.single { it.aktør == søker.aktør }
 
-        val erAnnenForelderOmfattetAvNorskLovgivingTidslinjeMedKunPerioderSomStrekkerSegOver1MånedTidslinje =
+        val erAnnenForelderOmfattetAvNorskLovgivingTidslinjeMedKunPerioderSomStrekkerSegOver1MånedForskyvetTidslinje =
             søkerPersonresultater.vilkårResultater
                 .filter { it.vilkårType === Vilkår.BOSATT_I_RIKET && it.erOppfylt() }
                 .filter { it.periodeFom?.month != it.periodeTom?.month }
                 .map {
                     Periode(
                         it.utdypendeVilkårsvurderinger.contains(UtdypendeVilkårsvurdering.ANNEN_FORELDER_OMFATTET_AV_NORSK_LOVGIVNING),
-                        it.periodeFom?.førsteDagIInneværendeMåned(),
+                        it.periodeFom?.plusMonths(1)?.førsteDagIInneværendeMåned(),
                         it.periodeTom?.sisteDagIMåned(),
                     )
-                }
+                }.filtrerIkkeNull()
                 .tilTidslinje()
-
-        val erAnnenForelderOmfattetAvNorskLovgivingTidslinjeMedKunPerioderSomStrekkerSegOver1MånedForskyvetTidslinje =
-            erAnnenForelderOmfattetAvNorskLovgivingTidslinjeMedKunPerioderSomStrekkerSegOver1MånedTidslinje.tilPerioder().map { it.copy(fom = it.fom?.plusMonths(1)?.førsteDagIInneværendeMåned()) }
-                .filtrerIkkeNull()
-                .tilTidslinje()
-
+        
         return erAnnenForelderOmfattetAvNorskLovgivingTidslinjeMedKunPerioderSomStrekkerSegOver1MånedForskyvetTidslinje
     }
 }
