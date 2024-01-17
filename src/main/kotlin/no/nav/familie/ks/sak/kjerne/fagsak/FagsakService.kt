@@ -145,7 +145,7 @@ class FagsakService(
     fun finnMinimalFagsakForPerson(personIdent: String): MinimalFagsakResponsDto? {
         val aktør = personidentService.hentAktør(personIdent)
         val fagsak = finnFagsakForPerson(aktør)
-        return fagsak?.let { lagMinimalFagsakResponsDto(it) }
+        return fagsak?.let { hentMinimalFagsak(fagsakId = fagsak.id) }
     }
 
     @Transactional
