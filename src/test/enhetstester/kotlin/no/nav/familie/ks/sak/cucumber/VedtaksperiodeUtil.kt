@@ -2,6 +2,7 @@ package no.nav.familie.ks.sak.cucumber
 
 import io.cucumber.datatable.DataTable
 import no.nav.familie.ks.sak.api.dto.BarnMedOpplysningerDto
+import no.nav.familie.ks.sak.api.dto.tilKalkulertMånedligBeløp
 import no.nav.familie.ks.sak.common.domeneparser.BrevPeriodeParser
 import no.nav.familie.ks.sak.common.domeneparser.Domenebegrep
 import no.nav.familie.ks.sak.common.domeneparser.DomeneparserUtil.groupByBehandlingId
@@ -210,10 +211,10 @@ private fun hentStandardBegrunnelser(rad: MutableMap<String, String>): List<IBeg
 fun lagKompetanser(
     nyeKompetanserPerBarn: MutableList<MutableMap<String, String>>,
     personopplysningGrunnlag: Map<Long, PersonopplysningGrunnlag>,
+    behandlingId: Long,
 ) =
     nyeKompetanserPerBarn.map { rad ->
         val aktørerForKompetanse = VedtaksperiodeMedBegrunnelserParser.parseAktørIdListe(rad)
-        val behandlingId = parseLong(Domenebegrep.BEHANDLING_ID, rad)
         Kompetanse(
             fom = parseValgfriDato(Domenebegrep.FRA_DATO, rad)?.toYearMonth(),
             tom = parseValgfriDato(Domenebegrep.TIL_DATO, rad)?.toYearMonth(),
@@ -261,10 +262,10 @@ fun lagKompetanser(
 fun lagValutakurs(
     nyeValutakursPerBarn: MutableList<MutableMap<String, String>>,
     personopplysningGrunnlag: Map<Long, PersonopplysningGrunnlag>,
-) =
+    behandlingId: Long,
+): List<Valutakurs> =
     nyeValutakursPerBarn.map { rad ->
         val aktørerForValutakurs = VedtaksperiodeMedBegrunnelserParser.parseAktørIdListe(rad)
-        val behandlingId = parseLong(Domenebegrep.BEHANDLING_ID, rad)
 
         Valutakurs(
             fom = parseValgfriDato(Domenebegrep.FRA_DATO, rad)?.toYearMonth(),
@@ -282,16 +283,15 @@ fun lagValutakurs(
                 ),
             kurs = parseBigDecimal(VedtaksperiodeMedBegrunnelserParser.DomenebegrepValutakurs.KURS, rad),
         ).also { it.behandlingId = behandlingId }
-    }.groupBy { it.behandlingId }
-        .toMutableMap()
+    }
 
 fun lagUtenlandskperiodeBeløp(
     nyeUtenlandskPeriodebeløpPerBarn: MutableList<MutableMap<String, String>>,
     personopplysningGrunnlag: Map<Long, PersonopplysningGrunnlag>,
-) =
+    behandlingId: Long,
+): List<UtenlandskPeriodebeløp> =
     nyeUtenlandskPeriodebeløpPerBarn.map { rad ->
         val aktørerForValutakurs = VedtaksperiodeMedBegrunnelserParser.parseAktørIdListe(rad)
-        val behandlingId = parseLong(Domenebegrep.BEHANDLING_ID, rad)
 
         UtenlandskPeriodebeløp(
             fom = parseValgfriDato(Domenebegrep.FRA_DATO, rad)?.toYearMonth(),
@@ -309,9 +309,11 @@ fun lagUtenlandskperiodeBeløp(
                 ),
             intervall = parseValgfriEnum<Intervall>(VedtaksperiodeMedBegrunnelserParser.DomenebegrepUtenlandskPeriodebeløp.INTERVALL, rad),
             utbetalingsland = parseValgfriString(VedtaksperiodeMedBegrunnelserParser.DomenebegrepUtenlandskPeriodebeløp.UTBETALINGSLAND, rad),
-        ).also { it.behandlingId = behandlingId }
-    }.groupBy { it.behandlingId }
-        .toMutableMap()
+        ).let {
+            it.behandlingId = behandlingId
+            it.copy(kalkulertMånedligBeløp = it.tilKalkulertMånedligBeløp())
+        }
+    }
 
 private fun validerErLandkode(it: String) {
     if (it.length != 2) {
@@ -418,6 +420,11 @@ fun lagAndelerTilkjentYtelse(
                 VedtaksperiodeMedBegrunnelserParser.DomenebegrepVedtaksperiodeMedBegrunnelser.NASJONALT_PERIODEBELØP,
                 rad,
             ) ?: beløp,
+        differanseberegnetPeriodebeløp =
+            parseValgfriInt(
+                VedtaksperiodeMedBegrunnelserParser.DomenebegrepVedtaksperiodeMedBegrunnelser.DIFFERANSEBEREGNET_BELØP,
+                rad,
+            ),
     )
 }
 

@@ -1,6 +1,7 @@
 package no.nav.familie.ks.sak.internal
 
 import no.nav.familie.ba.sak.internal.vedtak.begrunnelser.lagBrevTest
+import no.nav.familie.ks.sak.common.BehandlingId
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.VedtakRepository
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.VedtaksperiodeService
@@ -8,6 +9,8 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.Vilkårsvu
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelseRepository
 import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.EndretUtbetalingAndelRepository
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.KompetanseRepository
+import no.nav.familie.ks.sak.kjerne.eøs.utenlandskperiodebeløp.UtenlandskPeriodebeløpService
+import no.nav.familie.ks.sak.kjerne.eøs.valutakurs.ValutakursService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlagRepository
 import org.springframework.stereotype.Service
 
@@ -21,6 +24,8 @@ class TestVerktøyService(
     private val vedtaksperiodeService: VedtaksperiodeService,
     private val vedtakRepository: VedtakRepository,
     private val kompetanseRepository: KompetanseRepository,
+    private val valutakursService: ValutakursService,
+    private val utenlandskPeriodebeløpService: UtenlandskPeriodebeløpService,
 ) {
     fun hentBrevTest(behandlingId: Long): String {
         val behandling = behandlingService.hentBehandling(behandlingId)
@@ -62,6 +67,10 @@ class TestVerktøyService(
             endredeUtbetalingerForrigeBehandling = endredeUtbetalingerForrigeBehandling,
             kompetanse = kompetanse,
             kompetanseForrigeBehandling = kompetanseForrigeBehandling,
+            utenlandskePeriodebeløp = utenlandskPeriodebeløpService.hentUtenlandskePeriodebeløp(BehandlingId(behandlingId)),
+            utenlandskePeriodebeløpForrigeBehandling = forrigeBehandling?.id?.let { utenlandskPeriodebeløpService.hentUtenlandskePeriodebeløp(BehandlingId(it)) },
+            valutakurser = valutakursService.hentValutakurser(BehandlingId(behandlingId)),
+            valutakurserForrigeBehandling = forrigeBehandling?.id?.let { valutakursService.hentValutakurser(BehandlingId(it)) },
         )
     }
 }

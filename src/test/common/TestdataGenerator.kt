@@ -341,6 +341,7 @@ fun lagAndelTilkjentYtelse(
     ytelseType: YtelseType = YtelseType.ORDINÆR_KONTANTSTØTTE,
     prosent: BigDecimal = BigDecimal(100),
     nasjonaltPeriodebeløp: Int = sats,
+    differanseberegnetPeriodebeløp: Int? = null,
 ) = AndelTilkjentYtelse(
     behandlingId = behandling.id,
     tilkjentYtelse = tilkjentYtelse ?: lagInitieltTilkjentYtelse(behandling),
@@ -355,6 +356,7 @@ fun lagAndelTilkjentYtelse(
     periodeOffset = periodeOffset,
     forrigePeriodeOffset = forrigePeriodeOffset,
     kildeBehandlingId = behandling.id,
+    differanseberegnetPeriodebeløp = differanseberegnetPeriodebeløp,
 )
 
 fun lagPerson(

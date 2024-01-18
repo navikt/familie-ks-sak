@@ -19,6 +19,8 @@ import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.tilIEndretUtbetaling
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.Kompetanse
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.UtfyltKompetanse
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.tilIKompetanse
+import no.nav.familie.ks.sak.kjerne.eøs.utenlandskperiodebeløp.domene.UtenlandskPeriodebeløp
+import no.nav.familie.ks.sak.kjerne.eøs.valutakurs.domene.Valutakurs
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
 import org.apache.commons.lang3.RandomStringUtils
@@ -37,6 +39,10 @@ fun lagBrevTest(
     vedtaksperioder: List<VedtaksperiodeMedBegrunnelser>,
     kompetanse: Collection<Kompetanse>,
     kompetanseForrigeBehandling: Collection<Kompetanse>?,
+    utenlandskePeriodebeløp: List<UtenlandskPeriodebeløp>,
+    utenlandskePeriodebeløpForrigeBehandling: List<UtenlandskPeriodebeløp>?,
+    valutakurser: List<Valutakurs>,
+    valutakurserForrigeBehandling: List<Valutakurs>?,
 ): String {
     val test =
         """
@@ -58,10 +64,17 @@ Egenskap: Plassholdertekst for egenskap - ${RandomStringUtils.randomAlphanumeric
                 forrigeBehandling?.id,
             ) +
             hentTekstForVilkårresultater(personResultater.sorterPåFødselsdato(persongrunnlag), behandling.id) +
-            hentTekstForTilkjentYtelse(andeler, persongrunnlag, forrigeBehandling?.id, behandling.id) +
+
             hentTekstForEndretUtbetaling(endredeUtbetalinger, endredeUtbetalingerForrigeBehandling) +
+
             hentTekstForKompetanse(kompetanse, behandling.id) +
             hentTekstForKompetanse(kompetanseForrigeBehandling, forrigeBehandling?.id) +
+            hentTekstForUtenlandskPeriodebeløp(utenlandskePeriodebeløpForrigeBehandling, forrigeBehandling?.id) +
+            hentTekstForUtenlandskPeriodebeløp(utenlandskePeriodebeløp, behandling.id) +
+            hentTekstForValutakurs(valutakurserForrigeBehandling, forrigeBehandling?.id) +
+            hentTekstForValutakurs(valutakurser, behandling.id) +
+
+            hentTekstForTilkjentYtelse(andeler, persongrunnlag, forrigeBehandling?.id, behandling.id) +
             hentTekstForVedtaksperioder(behandling.id, vedtaksperioder) +
 
             hentTekstForGyligeBegrunnelserForVedtaksperiodene(vedtaksperioder, behandling.id) +
@@ -201,7 +214,7 @@ fun hentTekstForTilkjentYtelse(
     Og andeler er beregnet for behandling $behandlingId
     
     Så forvent følgende andeler tilkjent ytelse for behandling $behandlingId
-      | AktørId | Fra dato | Til dato | Beløp | Ytelse type | Prosent | Sats | Nasjonalt periodebeløp | """ +
+      | AktørId | Fra dato | Til dato | Beløp | Ytelse type | Prosent | Sats | Nasjonalt periodebeløp | Differanseberegnet beløp | """ +
         hentAndelRader(andeler, persongrunnlag)
 
 private fun hentAndelRader(
@@ -222,7 +235,7 @@ private fun hentAndelRader(
                 it.stønadFom.førsteDagIInneværendeMåned().tilddMMyyyy()
             }|${
                 it.stønadTom.sisteDagIInneværendeMåned().tilddMMyyyy()
-            }|${it.kalkulertUtbetalingsbeløp}| ${it.type} | ${it.prosent} | ${it.sats} | ${it.nasjonaltPeriodebeløp} | """
+            }|${it.kalkulertUtbetalingsbeløp}| ${it.type} | ${it.prosent} | ${it.sats} | ${it.nasjonaltPeriodebeløp} | ${it.differanseberegnetPeriodebeløp ?: ""} | """
         } ?: ""
 
 fun hentTekstForEndretUtbetaling(
@@ -270,7 +283,7 @@ private fun hentTekstForKompetanse(
         """
 
     Og følgende kompetanser for behandling $behandlingId
-      | AktørId | Fra dato | Til dato | Resultat | BehandlingId | Søkers aktivitet | Annen forelders aktivitet | Søkers aktivitetsland | Annen forelders aktivitetsland | Barnets bostedsland |""" +
+      | AktørId | Fra dato | Til dato | Resultat | Søkers aktivitet | Annen forelders aktivitet | Søkers aktivitetsland | Annen forelders aktivitetsland | Barnets bostedsland |""" +
             rader
     }
 }
@@ -290,8 +303,6 @@ private fun hentKompetanseRader(kompetanser: Collection<Kompetanse>?): String =
             }|${
                 kompetanse.resultat
             }|${
-                kompetanse.behandlingId
-            }|${
                 kompetanse.søkersAktivitet
             }|${
                 kompetanse.annenForeldersAktivitet
@@ -302,6 +313,80 @@ private fun hentKompetanseRader(kompetanser: Collection<Kompetanse>?): String =
             }|${
                 kompetanse.barnetsBostedsland
             } |"""
+        } ?: ""
+
+private fun hentTekstForUtenlandskPeriodebeløp(
+    utenlandskePeriodebeløp: Collection<UtenlandskPeriodebeløp>?,
+    behandlingId: Long?,
+): String {
+    val rader = hentUtenlandskePeriodebeløpRader(utenlandskePeriodebeløp)
+
+    return if (rader.isEmpty()) {
+        ""
+    } else {
+        """
+
+    Og følgende utenlandske periodebeløp for behandling $behandlingId
+      | AktørId | Fra dato | Til dato | Beløp | Valuta kode | Intervall | Utbetalingsland |""" +
+            rader
+    }
+}
+
+private fun hentUtenlandskePeriodebeløpRader(utenlandskePeriodebeløp: Collection<UtenlandskPeriodebeløp>?): String =
+    utenlandskePeriodebeløp
+        ?.joinToString("") { valutenlandskPeriodebeløp ->
+            """
+      | ${
+                valutenlandskPeriodebeløp.barnAktører.joinToString(", ") { it.aktørId }
+            } | ${
+                valutenlandskPeriodebeløp.fom?.førsteDagIInneværendeMåned()?.tilddMMyyyy() ?: ""
+            } | ${
+                valutenlandskPeriodebeløp.tom?.sisteDagIInneværendeMåned()?.tilddMMyyyy() ?: ""
+            } | ${
+                valutenlandskPeriodebeløp.beløp ?: ""
+            } | ${
+                valutenlandskPeriodebeløp.valutakode ?: ""
+            } | ${
+                valutenlandskPeriodebeløp.intervall ?: ""
+            } | ${
+                valutenlandskPeriodebeløp.utbetalingsland ?: ""
+            }|"""
+        } ?: ""
+
+private fun hentTekstForValutakurs(
+    valutakurser: Collection<Valutakurs>?,
+    behandlingId: Long?,
+): String {
+    val rader = hentValutakursRader(valutakurser)
+
+    return if (rader.isEmpty()) {
+        ""
+    } else {
+        """
+
+    Og følgende valutakurser for behandling $behandlingId
+      | AktørId | Fra dato | Til dato | Valutakursdato | Valuta kode | Kurs |""" +
+            rader
+    }
+}
+
+private fun hentValutakursRader(valutakurser: Collection<Valutakurs>?): String =
+    valutakurser
+        ?.joinToString("") { valutakurs ->
+            """
+      | ${
+                valutakurs.barnAktører.joinToString(", ") { it.aktørId }
+            } | ${
+                valutakurs.fom?.førsteDagIInneværendeMåned()?.tilddMMyyyy() ?: ""
+            } | ${
+                valutakurs.tom?.sisteDagIInneværendeMåned()?.tilddMMyyyy() ?: ""
+            } | ${
+                valutakurs.valutakursdato ?: ""
+            } | ${
+                valutakurs.valutakode ?: ""
+            } | ${
+                valutakurs.kurs ?: ""
+            }|"""
         } ?: ""
 
 private fun hentTekstForVedtaksperioder(
@@ -338,8 +423,7 @@ fun hentVedtaksperiodeRaderForGyldigeBegrunnelser(vedtaksperioder: List<Vedtaksp
         | ${vedtaksperiode.fom?.tilddMMyyyy() ?: ""} |${vedtaksperiode.tom?.tilddMMyyyy() ?: ""} |${vedtaksperiode.type} | | ${vedtaksperiode.begrunnelser.joinToString { it.nasjonalEllerFellesBegrunnelse.name }} | |""" +
             if (vedtaksperiode.eøsBegrunnelser.isNotEmpty()) {
                 """
-        | ${vedtaksperiode.fom?.tilddMMyyyy() ?: ""} |${vedtaksperiode.tom?.tilddMMyyyy() ?: ""} |${vedtaksperiode.type} | EØS_FORORDNINGEN | ${vedtaksperiode.eøsBegrunnelser.joinToString { it.begrunnelse.name }} | |
-                """
+        | ${vedtaksperiode.fom?.tilddMMyyyy() ?: ""} |${vedtaksperiode.tom?.tilddMMyyyy() ?: ""} |${vedtaksperiode.type} | EØS_FORORDNINGEN | ${vedtaksperiode.eøsBegrunnelser.joinToString { it.begrunnelse.name }} | |"""
             } else {
                 ""
             }
@@ -358,10 +442,7 @@ fun hentTekstValgteBegrunnelser(
 fun hentValgteBegrunnelserRader(vedtaksperioder: List<VedtaksperiodeMedBegrunnelser>) =
     vedtaksperioder.joinToString("") { vedtaksperiode ->
         """
-        | ${vedtaksperiode.fom?.tilddMMyyyy() ?: ""} |${vedtaksperiode.tom?.tilddMMyyyy() ?: ""} | ${vedtaksperiode.begrunnelser.joinToString { it.nasjonalEllerFellesBegrunnelse.name }} | ${
-            ""
-            // vedtaksperiode.eøsBegrunnelser.joinToString { it.begrunnelse.name }
-        } | ${vedtaksperiode.fritekster.joinToString()} |"""
+        | ${vedtaksperiode.fom?.tilddMMyyyy() ?: ""} |${vedtaksperiode.tom?.tilddMMyyyy() ?: ""} | ${vedtaksperiode.begrunnelser.joinToString { it.nasjonalEllerFellesBegrunnelse.name }} | ${vedtaksperiode.eøsBegrunnelser.joinToString { it.begrunnelse.name }} | |"""
     }
 
 fun hentTekstBrevPerioder(
