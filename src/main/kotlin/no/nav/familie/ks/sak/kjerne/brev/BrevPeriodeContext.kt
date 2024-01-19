@@ -5,6 +5,8 @@ import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.tidslinje.Periode
 import no.nav.familie.ks.sak.common.tidslinje.Tidslinje
 import no.nav.familie.ks.sak.common.tidslinje.tilTidslinje
+import no.nav.familie.ks.sak.common.tidslinje.utvidelser.hentVerdier
+import no.nav.familie.ks.sak.common.tidslinje.utvidelser.klipp
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.kombinerMed
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.tilPerioderIkkeNull
 import no.nav.familie.ks.sak.common.util.TIDENES_ENDE
@@ -48,6 +50,7 @@ import no.nav.familie.ks.sak.kjerne.brev.domene.maler.brevperioder.BrevPeriodeDt
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.brevperioder.BrevPeriodeType
 import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.EndretUtbetalingAndel
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.UtfyltKompetanse
+import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.tilTidslinje
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
@@ -388,6 +391,43 @@ class BrevPeriodeContext(
                         begrunnelse = begrunnelse,
                     )
 
+                val kompetanserTilBarnIBegrunnelseTidslinjer =
+                    personerGjeldendeForBegrunnelse.filter { it.type == PersonType.BARN }
+                        .associateWith { barn -> kompetanser.filter { barn.aktør in it.barnAktører }.tilTidslinje() }
+
+                val begrunnelseGjelderSøkerOgOpphørFraForrigeBehandling = (sanityBegrunnelse.begrunnelseGjelderOpphørFraForrigeBehandling()) && gjelderSøker
+
+                val relevanteKompetanser =
+                    when (begrunnelse.begrunnelseType) {
+                        BegrunnelseType.INNVILGET,
+                        BegrunnelseType.EØS_INNVILGET,
+                        BegrunnelseType.FORTSATT_INNVILGET,
+                        BegrunnelseType.REDUKSJON,
+                        BegrunnelseType.EØS_REDUKSJON,
+                        BegrunnelseType.ENDRET_UTBETALING,
+                        BegrunnelseType.ETTER_ENDRET_UTBETALING,
+                        -> {
+                            kompetanserTilBarnIBegrunnelseTidslinjer.values
+                                .flatMap { it.klippEtterVedtaksperiode().hentVerdier() }
+                                .filterNotNull()
+                                .toSet()
+                        }
+
+                        BegrunnelseType.OPPHØR,
+                        BegrunnelseType.EØS_OPPHØR,
+                        BegrunnelseType.AVSLAG,
+                        BegrunnelseType.EØS_AVSLAG,
+                        -> {
+                            if (begrunnelseGjelderSøkerOgOpphørFraForrigeBehandling) {
+                                TODO("Må se på kompetansene i samme periode forrige behandling")
+                            } else {
+                                kompetanserTilBarnIBegrunnelseTidslinjer.values
+                                    .mapNotNull { it.finnPeriodeSomAvsluttesRettFørVedtaksperioden()?.verdi }
+                                    .toSet()
+                            }
+                        }
+                    }
+
                 validerBrevbegrunnelse(
                     gjelderSøker = gjelderSøker,
                     barnasFødselsdatoer = barnasFødselsdatoer,
@@ -397,7 +437,7 @@ class BrevPeriodeContext(
 
                 val begrunnelseGjelderOpphørFraForrigeBehandling = sanityBegrunnelse.begrunnelseGjelderOpphørFraForrigeBehandling()
 
-                if (kompetanser.isEmpty() && begrunnelse.begrunnelseType.erAvslagEllerEøsAvslag() && begrunnelse.begrunnelseType == BegrunnelseType.EØS_OPPHØR) {
+                if (relevanteKompetanser.isEmpty() && begrunnelse.begrunnelseType.erAvslagEllerEøsAvslag() && begrunnelse.begrunnelseType == BegrunnelseType.EØS_OPPHØR) {
                     val barnasFødselsdagerForAvslagOgOpphør =
                         hentBarnasFødselsdagerForAvslagOgOpphør(
                             barnIBegrunnelse = personerGjeldendeForBegrunnelse.filter { it.type == PersonType.BARN },
@@ -418,7 +458,7 @@ class BrevPeriodeContext(
                         ),
                     )
                 } else {
-                    kompetanser.mapNotNull { kompetanse ->
+                    relevanteKompetanser.mapNotNull { kompetanse ->
                         val barnIBegrunnelseOgIKompetanseFødselsdato =
                             kompetanse.barnAktører.mapNotNull { barnAktør ->
                                 if (gjelderSøker && begrunnelseGjelderOpphørFraForrigeBehandling) {
@@ -449,6 +489,14 @@ class BrevPeriodeContext(
                 }
             }
     }
+
+    private fun Tidslinje<UtfyltKompetanse>.finnPeriodeSomAvsluttesRettFørVedtaksperioden() = tilPerioderIkkeNull().singleOrNull { it.avsluttesMånedenFørVedtaksperioden() }
+
+    private fun Periode<UtfyltKompetanse>.avsluttesMånedenFørVedtaksperioden() =
+        this.tom != null &&
+            this.tom.toYearMonth().plusMonths(1) == utvidetVedtaksperiodeMedBegrunnelser.fom?.toYearMonth()
+
+    private fun <T> Tidslinje<T>.klippEtterVedtaksperiode() = klipp(utvidetVedtaksperiodeMedBegrunnelser.fom ?: TIDENES_MORGEN, utvidetVedtaksperiodeMedBegrunnelser.tom ?: TIDENES_ENDE)
 
     fun hentBarnasFødselsdagerForAvslagOgOpphør(
         barnIBegrunnelse: List<Person>,

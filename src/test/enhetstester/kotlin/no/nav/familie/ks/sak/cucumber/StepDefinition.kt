@@ -47,6 +47,7 @@ import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.BegrunnelseDtoMedData
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.BegrunnelserForPeriodeContext
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.brevperioder.BrevPeriodeDto
 import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.EndretUtbetalingAndel
+import no.nav.familie.ks.sak.kjerne.eøs.differanseberegning.beregnDifferanse
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.KompetanseService
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.Kompetanse
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.UtfyltKompetanse
@@ -156,48 +157,59 @@ class StepDefinition {
 
     /**
      * Mulige felt:
-     * | AktørId | Fra dato | Til dato | Resultat | BehandlingId | Søkers aktivitet | Annen forelders aktivitet | Søkers aktivitetsland | Annen forelders aktivitetsland | Barnets bostedsland |
+     * | AktørId | Fra dato | Til dato | Resultat | Søkers aktivitet | Annen forelders aktivitet | Søkers aktivitetsland | Annen forelders aktivitetsland | Barnets bostedsland |
      */
     @Og("følgende kompetanser for behandling {}")
     fun `følgende kompetanser for behandling {}`(
         behandlingId: Long,
         dataTable: DataTable,
     ) {
-        kompetanser = lagKompetanser(dataTable.asMaps(), persongrunnlag)
+        kompetanser = lagKompetanser(dataTable.asMaps(), persongrunnlag, behandlingId)
     }
 
     /**
      * Mulige felt:
-     * | AktørId | Fra dato | Til dato | BehandlingId | Valutakursdato | Valuta kode | Kurs
+     * | AktørId | Fra dato | Til dato | BehandlingId | Valutakursdato | Valuta kode | Kurs |
      */
-    @Og("med valutakurs")
-    fun `med valutakurs`(
+    @Og("følgende valutakurser for behandling {}")
+    fun `følgende valutakurser for behandling`(
+        behandlingId: Long,
         dataTable: DataTable,
     ) {
-        valutakurs = lagValutakurs(dataTable.asMaps(), persongrunnlag)
+        valutakurs[behandlingId] = lagValutakurs(dataTable.asMaps(), persongrunnlag, behandlingId)
     }
 
     /**
      * Mulige felt:
-     * | AktørId | Fra dato | Til dato | BehandlingId | Beløp | Valuta kode | Intervall | Utbetalingsland
+     * | AktørId | Fra dato | Til dato | BehandlingId | Beløp | Valuta kode | Intervall | Utbetalingsland |
      */
-    @Og("med utenlandsk periodebeløp")
-    fun `med utenlandsk periodebeløp`(
+    @Og("følgende utenlandske periodebeløp for behandling {}")
+    fun `med utenlandske periodebeløp`(
+        behandlingId: Long,
         dataTable: DataTable,
     ) {
-        utenlandskPeriodebeløp = lagUtenlandskperiodeBeløp(dataTable.asMaps(), persongrunnlag)
+        utenlandskPeriodebeløp[behandlingId] = lagUtenlandskperiodeBeløp(dataTable.asMaps(), persongrunnlag, behandlingId)
     }
 
     @Og("andeler er beregnet for behandling {}")
     fun `andeler er beregnet`(
         behandlingId: Long,
     ) {
-        andelerTilkjentYtelse[behandlingId] =
+        val andelerFørDifferanseberegning =
             TilkjentYtelseUtils.beregnTilkjentYtelse(
                 vilkårsvurdering = vilkårsvurdering[behandlingId]!!,
                 personopplysningGrunnlag = persongrunnlag[behandlingId]!!,
                 endretUtbetalingAndeler = endredeUtbetalinger[behandlingId]?.map { EndretUtbetalingAndelMedAndelerTilkjentYtelse(it, emptyList()) } ?: emptyList(),
             ).andelerTilkjentYtelse.toList()
+
+        val andelerEtterDifferanseberegning =
+            beregnDifferanse(
+                andelerTilkjentYtelse = andelerFørDifferanseberegning,
+                utenlandskePeriodebeløp = utenlandskPeriodebeløp[behandlingId] ?: emptyList(),
+                valutakurser = valutakurs[behandlingId] ?: emptyList(),
+            )
+
+        andelerTilkjentYtelse[behandlingId] = andelerEtterDifferanseberegning
     }
 
     /**
@@ -351,7 +363,8 @@ class StepDefinition {
         behandlingId: Long,
         dataTable: DataTable,
     ) {
-        val faktiskeBrevperioder = hentBrevperioder(behandlingId)
+        val faktiskeBrevperioder =
+            hentBrevperioder(behandlingId).map { brevPeriode -> brevPeriode?.copy(tom = brevPeriode.tom?.map { it.trim() }) }
 
         val forvendtedeBrevperioder = parseBrevPerioder(dataTable)
 
@@ -365,7 +378,7 @@ class StepDefinition {
     }
 
     private fun hentBrevperioder(behandlingId: Long): List<BrevPeriodeDto?> =
-        hentUtvidedeVedtaksperioderMedBegrunnelser(behandlingId).sortedBy { it.fom ?: TIDENES_MORGEN }.mapIndexed { index, it ->
+        hentUtvidedeVedtaksperioderMedBegrunnelser(behandlingId).sortedBy { it.fom ?: TIDENES_MORGEN }.mapIndexedNotNull { index, it ->
             it.hentBrevPeriode(behandlingId, index == 0)
         }
 
