@@ -2,6 +2,8 @@ package no.nav.familie.ks.sak
 
 import no.nav.familie.ks.sak.config.ApplicationConfig
 import no.nav.familie.ks.sak.config.DbContainerInitializer
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import org.springframework.boot.builder.SpringApplicationBuilder
 import java.io.BufferedReader
 import java.io.InputStreamReader
@@ -20,7 +22,9 @@ fun main(args: Array<String>) {
         springBuilder.initializers(DbContainerInitializer())
     }
 
-    settClientIdOgSecret()
+    if (System.getProperty("AZURE_APP_CLIENT_ID") == null) {
+        settClientIdOgSecret()
+    }
 
     springBuilder.run(*args)
 }
@@ -28,6 +32,8 @@ fun main(args: Array<String>) {
 private fun settClientIdOgSecret() {
     val cmd = "./hentMiljøvariabler.sh"
 
+    val logger: Logger = LoggerFactory.getLogger("main -> settClientIdOgSecret")
+    logger.info("Henter miljøvariabler fra Kubernetes...")
     val process = ProcessBuilder(cmd).start()
 
     val status = process.waitFor()
@@ -46,4 +52,5 @@ private fun settClientIdOgSecret() {
         val keyValuePar = it.split("=")
         System.setProperty(keyValuePar[0], keyValuePar[1])
     }
+    logger.info("Miljøvariabler hentet og satt \u2713")
 }
