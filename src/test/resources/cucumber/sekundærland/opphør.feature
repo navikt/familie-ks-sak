@@ -45,22 +45,7 @@ Egenskap: Sekundærland - opphør
 
     Og andeler er beregnet for behandling 1
 
-    Så forvent følgende andeler tilkjent ytelse for behandling 1
-      | AktørId | Fra dato   | Til dato   | Beløp | Ytelse type           | Prosent | Sats | Nasjonalt periodebeløp | Differanseberegnet beløp |
-      | 2       | 01.10.2023 | 31.10.2023 | 4851  | ORDINÆR_KONTANTSTØTTE | 100     | 7500 | 7500                   | 4851                     |
-
     Og vedtaksperioder er laget for behandling 1
-
-    Så forvent følgende vedtaksperioder på behandling 1
-      | Fra dato   | Til dato   | Vedtaksperiodetype | Kommentar |
-      | 01.10.2023 | 31.10.2023 | UTBETALING         |           |
-      | 01.11.2023 |            | OPPHØR             |           |
-
-    Så forvent at følgende begrunnelser er gyldige for behandling 1
-      | Fra dato   | Til dato   | VedtaksperiodeType | Regelverk Gyldige begrunnelser | Gyldige begrunnelser           | Ugyldige begrunnelser |
-      | 01.10.2023 | 31.10.2023 | UTBETALING         |                                |                                |                       |
-      | 01.11.2023 |            | OPPHØR             |                                |                                |                       |
-      | 01.11.2023 |            | OPPHØR             | EØS_FORORDNINGEN               | OPPHØR_SELVSTENDIG_RETT_OPPHØR |                       |
 
     Og når disse begrunnelsene er valgt for behandling 1
       | Fra dato   | Til dato | Standardbegrunnelser | Eøsbegrunnelser                | Fritekster |

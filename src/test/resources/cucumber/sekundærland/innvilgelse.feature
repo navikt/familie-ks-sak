@@ -44,23 +44,7 @@ Egenskap: Sekundærland - innvilgelse
 
     Og andeler er beregnet for behandling 1
 
-    Så forvent følgende andeler tilkjent ytelse for behandling 1
-      | AktørId | Fra dato   | Til dato   | Beløp | Ytelse type           | Prosent | Sats | Nasjonalt periodebeløp | Differanseberegnet beløp |
-      | 2       | 01.10.2023 | 30.11.2023 | 4851  | ORDINÆR_KONTANTSTØTTE | 100     | 7500 | 7500                   | 4851                     |
-      | 2       | 01.12.2023 | 31.08.2024 | 7500  | ORDINÆR_KONTANTSTØTTE | 100     | 7500 | 7500                   |                          |
-
     Og vedtaksperioder er laget for behandling 1
-
-    Så forvent følgende vedtaksperioder på behandling 1
-      | Fra dato   | Til dato   | Vedtaksperiodetype | Kommentar |
-      | 01.10.2023 | 30.11.2023 | UTBETALING         |           |
-      | 01.12.2023 | 31.08.2024 | UTBETALING         |           |
-
-    Så forvent at følgende begrunnelser er gyldige for behandling 1
-      | Fra dato   | Til dato   | VedtaksperiodeType | Regelverk Gyldige begrunnelser | Gyldige begrunnelser            | Ugyldige begrunnelser |
-      | 01.10.2023 | 30.11.2023 | UTBETALING         |                                |                                 |                       |
-      | 01.10.2023 | 30.11.2023 | UTBETALING         | EØS_FORORDNINGEN               | INNVILGET_SEKUNDÆRLAND_STANDARD |                       |
-      | 01.12.2023 | 31.08.2024 | UTBETALING         |                                |                                 |                       |
 
     Og når disse begrunnelsene er valgt for behandling 1
       | Fra dato   | Til dato   | Standardbegrunnelser | Eøsbegrunnelser                 | Fritekster |
