@@ -17,7 +17,7 @@ Egenskap: Sekundærland - opphør
       | 1            | 1       | SØKER      | 16.08.1988  |
       | 1            | 2       | BARN       | 15.09.2022  |
 
-  Scenario: Plassholdertekst for scenario - FLj664h0b2
+  Scenario: Skal få riktige begrunnelser ved opphør
     Og følgende dagens dato 18.01.2024
 
     Og følgende vilkårresultater for behandling 1
