@@ -256,6 +256,11 @@ enum class EØSBegrunnelse : IBegrunnelse {
         override val begrunnelseType = BegrunnelseType.EØS_INNVILGET
     },
 
+    INNVILGET_TILLEGGSTEKST_SEKUNDÆR_DELT_BOSTED_ANNEN_FORELDER_IKKE_RETT {
+        override val sanityApiNavn = "innvilgetTilleggstekstSekundarDeltBostedAnnenForelderIkkeRett"
+        override val begrunnelseType = BegrunnelseType.EØS_INNVILGET
+    },
+
     OPPHØR_EØS_STANDARD {
         override val sanityApiNavn = "opphorEosStandard"
         override val begrunnelseType = BegrunnelseType.EØS_OPPHØR
