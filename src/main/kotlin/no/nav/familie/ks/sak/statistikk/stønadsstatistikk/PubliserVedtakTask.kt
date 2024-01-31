@@ -37,10 +37,10 @@ class PubliserVedtakTask(
                 type = TASK_STEP_TYPE,
                 payload = behandlingsId.toString(),
                 properties =
-                    Properties().apply {
-                        this["personIdent"] = personIdent
-                        this["behandlingsId"] = behandlingsId.toString()
-                    },
+                Properties().apply {
+                    this["personIdent"] = personIdent
+                    this["behandlingsId"] = behandlingsId.toString()
+                },
             )
         }
     }
