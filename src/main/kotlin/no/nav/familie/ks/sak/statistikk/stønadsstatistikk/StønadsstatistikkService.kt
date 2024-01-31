@@ -74,8 +74,7 @@ class StønadsstatistikkService(
             funksjonellId = UUID.randomUUID().toString(),
             behandlingÅrsak = BehandlingÅrsak.valueOf(behandling.opprettetÅrsak.name),
             vilkårResultater = vilkårResultaterTilDVH,
-
-            )
+        )
     }
 
     fun Resultat.tilDatavarehusResultat(): no.nav.familie.eksterne.kontrakter.Resultat {
@@ -87,7 +86,6 @@ class StønadsstatistikkService(
     }
 
     fun List<Kompetanse>.tilEksernkontraktKompetanser(): List<no.nav.familie.eksterne.kontrakter.Kompetanse> {
-
         return this.filter { it.resultat != null }.map { kompetanse ->
             no.nav.familie.eksterne.kontrakter.Kompetanse(
                 barnsIdenter = kompetanse.barnAktører.map { aktør -> aktør.aktivFødselsnummer() },
@@ -131,19 +129,19 @@ class StønadsstatistikkService(
                 stønadTom = it.tom!!,
                 utbetaltPerMnd = sumUtbetalingsbeløp,
                 utbetalingsDetaljer =
-                andelerForPeriode.filter { andel -> andel.erAndelSomSkalSendesTilOppdrag() }
-                    .map { andel ->
-                        UtbetalingsDetaljDVH(
-                            person =
-                            lagPersonDVH(
-                                persongrunnlag.personer.first { person -> andel.aktør == person.aktør },
-                                andel.prosent.intValueExact(),
-                            ),
-                            klassekode = andel.type.klassifisering,
-                            utbetaltPrMnd = andel.kalkulertUtbetalingsbeløp,
-                            delytelseId = behandling.fagsak.id.toString() + andel.periodeOffset,
-                        )
-                    },
+                    andelerForPeriode.filter { andel -> andel.erAndelSomSkalSendesTilOppdrag() }
+                        .map { andel ->
+                            UtbetalingsDetaljDVH(
+                                person =
+                                    lagPersonDVH(
+                                        persongrunnlag.personer.first { person -> andel.aktør == person.aktør },
+                                        andel.prosent.intValueExact(),
+                                    ),
+                                klassekode = andel.type.klassifisering,
+                                utbetaltPrMnd = andel.kalkulertUtbetalingsbeløp,
+                                delytelseId = behandling.fagsak.id.toString() + andel.periodeOffset,
+                            )
+                        },
             )
         }
     }
@@ -170,7 +168,7 @@ class StønadsstatistikkService(
     private fun hentLandkode(person: Person): String =
         when {
             person.bostedsadresser.isNotEmpty() ||
-                    personOpplysningerService.hentPersoninfoEnkel(person.aktør).bostedsadresser.isNotEmpty()
+                personOpplysningerService.hentPersoninfoEnkel(person.aktør).bostedsadresser.isNotEmpty()
             -> "NO"
 
             else -> personOpplysningerService.hentLandkodeUtenlandskBostedsadresse(person.aktør)

@@ -87,7 +87,7 @@ internal class StønadsstatistikkServiceTest {
         every { vedtakService.hentAktivVedtakForBehandling(any()) } returns vedtak
         every { personopplysningerService.hentLandkodeUtenlandskBostedsadresse(any()) } returns "DK"
         every { andelerTilkjentYtelseOgEndreteUtbetalingerService.finnAndelerTilkjentYtelseMedEndreteUtbetalinger(any()) } returns
-                listOf(mockk())
+            listOf(mockk())
         every { vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(any()) } returns vilkårsVurdering
 
         val exception =
@@ -151,7 +151,7 @@ internal class StønadsstatistikkServiceTest {
         every { vedtakService.hentAktivVedtakForBehandling(any()) } returns vedtak
         every { personopplysningerService.hentLandkodeUtenlandskBostedsadresse(any()) } returns "DK"
         every { andelerTilkjentYtelseOgEndreteUtbetalingerService.finnAndelerTilkjentYtelseMedEndreteUtbetalinger(any()) } returns
-                andelerTilkjentYtelse
+            andelerTilkjentYtelse
         every { vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(any()) } returns vilkårsVurdering
         every { persongrunnlagService.hentBarna(any()) } returns personopplysningGrunnlag.barna
         every { kompetanseService.hentKompetanser(any()) } returns emptyList()
@@ -225,22 +225,23 @@ internal class StønadsstatistikkServiceTest {
         every { vedtakService.hentAktivVedtakForBehandling(any()) } returns vedtak
         every { personopplysningerService.hentLandkodeUtenlandskBostedsadresse(any()) } returns "DK"
         every { andelerTilkjentYtelseOgEndreteUtbetalingerService.finnAndelerTilkjentYtelseMedEndreteUtbetalinger(any()) } returns
-                andelerTilkjentYtelse
+            andelerTilkjentYtelse
         every { vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(any()) } returns vilkårsVurdering
         every { persongrunnlagService.hentBarna(any()) } returns personopplysningGrunnlag.barna
-        every { kompetanseService.hentKompetanser(any()) } returns listOf(
-            Kompetanse(
-                fom = YearMonth.now(),
-                tom = null,
-                barnAktører = setOf(barn1.aktør),
-                søkersAktivitet = no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.KompetanseAktivitet.ARBEIDER,
-                annenForeldersAktivitet = no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.KompetanseAktivitet.ARBEIDER,
-                annenForeldersAktivitetsland = "DK",
-                søkersAktivitetsland = "DK",
-                barnetsBostedsland = "DK",
-                resultat = no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.KompetanseResultat.NORGE_ER_PRIMÆRLAND,
+        every { kompetanseService.hentKompetanser(any()) } returns
+            listOf(
+                Kompetanse(
+                    fom = YearMonth.now(),
+                    tom = null,
+                    barnAktører = setOf(barn1.aktør),
+                    søkersAktivitet = no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.KompetanseAktivitet.ARBEIDER,
+                    annenForeldersAktivitet = no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.KompetanseAktivitet.ARBEIDER,
+                    annenForeldersAktivitetsland = "DK",
+                    søkersAktivitetsland = "DK",
+                    barnetsBostedsland = "DK",
+                    resultat = no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.KompetanseResultat.NORGE_ER_PRIMÆRLAND,
+                ),
             )
-        )
 
         val vedtakDvh = stønadsstatistikkService.hentVedtakDVH(1L)
 
