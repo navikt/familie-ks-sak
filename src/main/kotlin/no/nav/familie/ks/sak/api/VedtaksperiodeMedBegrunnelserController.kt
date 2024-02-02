@@ -7,9 +7,9 @@ import no.nav.familie.ks.sak.api.dto.VedtaksperiodeMedBegrunnelserDto
 import no.nav.familie.ks.sak.api.dto.VedtaksperiodeMedFriteksterDto
 import no.nav.familie.ks.sak.config.BehandlerRolle
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.VedtakService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.VedtaksperiodeService
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.EØSBegrunnelse
+import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.IBegrunnelse
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.NasjonalEllerFellesBegrunnelse
 import no.nav.familie.ks.sak.sikkerhet.TilgangService
 import no.nav.security.token.support.core.api.ProtectedWithClaims
@@ -28,7 +28,6 @@ import org.springframework.web.bind.annotation.RestController
 class VedtaksperiodeMedBegrunnelserController(
     private val vedtaksperiodeService: VedtaksperiodeService,
     private val behandlingService: BehandlingService,
-    private val vedtakService: VedtakService,
     private val tilgangService: TilgangService,
 ) {
     @PutMapping("/begrunnelser/{vedtaksperiodeId}")
@@ -42,19 +41,18 @@ class VedtaksperiodeMedBegrunnelserController(
         )
 
         val begrunnelser =
-            vedtaksperiodeMedBegrunnelserDto.begrunnelser.mapNotNull {
-                konverterTilEnumverdi<NasjonalEllerFellesBegrunnelse>(it)
+            vedtaksperiodeMedBegrunnelserDto.begrunnelser.map {
+                IBegrunnelse.konverterTilEnumVerdi(it)
             }
 
+        val nasjonaleEllerFellesBegrunnelser = begrunnelser.filterIsInstance<NasjonalEllerFellesBegrunnelse>()
         val eøsBegrunnelser =
-            vedtaksperiodeMedBegrunnelserDto.begrunnelser.mapNotNull {
-                konverterTilEnumverdi<EØSBegrunnelse>(it)
-            }
+            begrunnelser.filterIsInstance<EØSBegrunnelse>()
 
         val vedtak =
             vedtaksperiodeService.oppdaterVedtaksperiodeMedBegrunnelser(
                 vedtaksperiodeId = vedtaksperiodeId,
-                begrunnelserFraFrontend = begrunnelser,
+                begrunnelserFraFrontend = nasjonaleEllerFellesBegrunnelser,
                 eøsBegrunnelserFraFrontend = eøsBegrunnelser,
             )
 
@@ -100,7 +98,4 @@ class VedtaksperiodeMedBegrunnelserController(
             ),
         )
     }
-
-    private inline fun <reified T> konverterTilEnumverdi(it: String): T? where T : Enum<T> =
-        enumValues<T>().find { enum -> enum.name == it }
 }
