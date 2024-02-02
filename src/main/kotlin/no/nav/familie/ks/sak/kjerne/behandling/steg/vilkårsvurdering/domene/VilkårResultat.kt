@@ -20,7 +20,7 @@ import no.nav.familie.ks.sak.common.util.førsteDagINesteMåned
 import no.nav.familie.ks.sak.common.util.sisteDagIMåned
 import no.nav.familie.ks.sak.common.util.toYearMonth
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.finnTilOgMedDato
-import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.NasjonalEllerFellesBegrunnelse
+import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.IBegrunnelse
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.StandardbegrunnelseListConverter
 import org.hibernate.annotations.Immutable
 import java.math.BigDecimal
@@ -70,7 +70,7 @@ class VilkårResultat(
     var regelOutput: String? = null,
     @Column(name = "vedtak_begrunnelse_spesifikasjoner")
     @Convert(converter = StandardbegrunnelseListConverter::class)
-    var begrunnelser: List<NasjonalEllerFellesBegrunnelse> = emptyList(),
+    var begrunnelser: List<IBegrunnelse> = emptyList(),
     @Enumerated(EnumType.STRING)
     @Column(name = "vurderes_etter")
     var vurderesEtter: Regelverk? = personResultat?.let { vilkårType.defaultRegelverk(it.vilkårsvurdering.behandling.kategori) },
