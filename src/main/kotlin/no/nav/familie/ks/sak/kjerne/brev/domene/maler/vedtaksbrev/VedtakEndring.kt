@@ -33,6 +33,7 @@ data class VedtakEndring(
         refusjonEosAvklart: RefusjonEøsAvklart? = null,
         refusjonEosUavklart: RefusjonEøsUavklart? = null,
         duMaaMeldeFraOmEndringerEosSelvstendigRett: Boolean = false,
+        skalMeldeFraOmEndringer: Boolean,
     ) :
         this(
             mal = mal,

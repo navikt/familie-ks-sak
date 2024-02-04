@@ -23,6 +23,7 @@ data class Førstegangsvedtak(
         refusjonEosAvklart: RefusjonEøsAvklart? = null,
         refusjonEosUavklart: RefusjonEøsUavklart? = null,
         duMaaMeldeFraOmEndringerEosSelvstendigRett: Boolean = false,
+        skalMeldeFraOmEndringer: Boolean,
     ) :
         this(
             mal = Brevmal.VEDTAK_FØRSTEGANGSVEDTAK,

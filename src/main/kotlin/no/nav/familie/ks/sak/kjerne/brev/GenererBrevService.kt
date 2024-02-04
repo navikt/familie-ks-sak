@@ -130,6 +130,7 @@ class GenererBrevService(
         val brevtype = hentVedtaksbrevmal(behandling)
         val fellesdataForVedtaksbrev = lagDataForVedtaksbrev(vedtak)
         val etterbetaling = hentEtterbetaling(vedtak)
+        val skalMeldeFraOmEndringer = sjekkOmBrukerMåMeldeFraOmEndringer(vedtak)
 
         return when (brevtype) {
             Brevmal.VEDTAK_FØRSTEGANGSVEDTAK -> {
@@ -139,6 +140,7 @@ class GenererBrevService(
                     refusjonEosAvklart = brevPeriodeService.beskrivPerioderMedAvklartRefusjonEøs(vedtak),
                     refusjonEosUavklart = brevPeriodeService.beskrivPerioderMedUavklartRefusjonEøs(vedtak),
                     duMaaMeldeFraOmEndringerEosSelvstendigRett = skalMeldeFraOmEndringerEøsSelvstendigRett(vedtak),
+                    skalMeldeFraOmEndringer = skalMeldeFraOmEndringer,
                 )
             }
 
@@ -152,13 +154,14 @@ class GenererBrevService(
                     erFeilutbetalingPåBehandling = erFeilutbetalingPåBehandling(behandlingId = behandling.id),
                     informasjonOmAarligKontroll = vedtaksperiodeService.skalHaÅrligKontroll(vedtak),
                     feilutbetaltValuta =
-                        feilutbetaltValutaService.beskrivPerioderMedFeilutbetaltValuta(behandling.id)
-                            ?.let {
-                                FeilutbetaltValuta(perioderMedForMyeUtbetalt = it)
-                            },
+                    feilutbetaltValutaService.beskrivPerioderMedFeilutbetaltValuta(behandling.id)
+                        ?.let {
+                            FeilutbetaltValuta(perioderMedForMyeUtbetalt = it)
+                        },
                     refusjonEosAvklart = brevPeriodeService.beskrivPerioderMedAvklartRefusjonEøs(vedtak),
                     refusjonEosUavklart = brevPeriodeService.beskrivPerioderMedUavklartRefusjonEøs(vedtak),
                     duMaaMeldeFraOmEndringerEosSelvstendigRett = skalMeldeFraOmEndringerEøsSelvstendigRett(vedtak),
+                    skalMeldeFraOmEndringer = skalMeldeFraOmEndringer,
                 )
 
             Brevmal.VEDTAK_OPPHØRT ->
@@ -188,6 +191,18 @@ class GenererBrevService(
 
             else -> throw Feil("Forsøker å hente vedtaksbrevdata for brevmal ${brevtype.visningsTekst}")
         }
+    }
+
+    private fun sjekkOmBrukerMåMeldeFraOmEndringer(vedtak: Vedtak): Boolean {
+        val vilkårsvurdering = vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(vedtak.behandling.id)
+
+        val brukerMåMeldeFraOmEndringer = vilkårsvurdering.personResultater
+            .any { personResultat ->
+                personResultat.vilkårResultater
+                    .any { vilkårResultat -> vilkårResultat.søkerHarMeldtFraOmBarnehageplass ?: false }
+            }
+
+        return brukerMåMeldeFraOmEndringer
     }
 
     fun lagDataForVedtaksbrev(vedtak: Vedtak): FellesdataForVedtaksbrev {
@@ -257,11 +272,11 @@ class GenererBrevService(
 
         val passendeBehandlingsresultat =
             vedtak.behandling.resultat !in
-                listOf(
-                    Behandlingsresultat.AVSLÅTT,
-                    Behandlingsresultat.ENDRET_OG_OPPHØRT,
-                    Behandlingsresultat.OPPHØRT,
-                )
+                    listOf(
+                        Behandlingsresultat.AVSLÅTT,
+                        Behandlingsresultat.ENDRET_OG_OPPHØRT,
+                        Behandlingsresultat.OPPHØRT,
+                    )
 
         return annenForelderOmfattetAvNorskLovgivningErSattPåBosattIRiket && passendeBehandlingsresultat
     }
@@ -287,10 +302,10 @@ class GenererBrevService(
             opplysningspliktHjemlerSkalMedIBrev = opplysningspliktHjemlerSkalMedIBrev,
             målform = målform,
             sanitybegrunnelserBruktIBrev =
-                utvidetVedtaksperioderMedBegrunnelser
-                    .flatMap<UtvidetVedtaksperiodeMedBegrunnelser, IBegrunnelse> { vedtaksperiode ->
-                        vedtaksperiode.begrunnelser.map { it.nasjonalEllerFellesBegrunnelse } + vedtaksperiode.eøsBegrunnelser.map { it.begrunnelse }
-                    }.mapNotNull { it.tilSanityBegrunnelse(sanityBegrunnelser) },
+            utvidetVedtaksperioderMedBegrunnelser
+                .flatMap<UtvidetVedtaksperiodeMedBegrunnelser, IBegrunnelse> { vedtaksperiode ->
+                    vedtaksperiode.begrunnelser.map { it.nasjonalEllerFellesBegrunnelse } + vedtaksperiode.eøsBegrunnelser.map { it.begrunnelse }
+                }.mapNotNull { it.tilSanityBegrunnelse(sanityBegrunnelser) },
             vedtakKorrigertHjemmelSkalMedIBrev = vedtakKorrigertHjemmelSkalMedIBrev,
             refusjonEøsHjemmelSkalMedIBrev = refusjonEøsHjemmelSkalMedIBrev,
         )
@@ -311,30 +326,30 @@ class GenererBrevService(
         hentGrunnlagOgSignaturData(vedtak).let { data ->
             Dødsfall(
                 data =
-                    DødsfallData(
-                        delmalData =
-                            DødsfallData.DelmalData(
-                                signaturVedtak =
-                                    SignaturVedtak(
-                                        enhet = data.enhet,
-                                        saksbehandler = data.saksbehandler,
-                                        beslutter = data.beslutter,
-                                    ),
-                            ),
-                        flettefelter =
-                            DødsfallData.Flettefelter(
-                                navn = data.grunnlag.søker.navn,
-                                fodselsnummer = data.grunnlag.søker.aktør.aktivFødselsnummer(),
-                                // Selv om det er feil å anta at alle navn er på dette formatet er det ønskelig å skrive
-                                // det slik, da uppercase kan oppleves som skrikende i et brev som skal være skånsomt
-                                navnAvdode = data.grunnlag.søker.navn.storForbokstavIAlleNavn(),
-                                virkningstidspunkt =
-                                    hentVirkningstidspunkt(
-                                        opphørsperioder = vedtaksperiodeService.hentOpphørsperioder(vedtak.behandling),
-                                        behandlingId = vedtak.behandling.id,
-                                    ),
-                            ),
+                DødsfallData(
+                    delmalData =
+                    DødsfallData.DelmalData(
+                        signaturVedtak =
+                        SignaturVedtak(
+                            enhet = data.enhet,
+                            saksbehandler = data.saksbehandler,
+                            beslutter = data.beslutter,
+                        ),
                     ),
+                    flettefelter =
+                    DødsfallData.Flettefelter(
+                        navn = data.grunnlag.søker.navn,
+                        fodselsnummer = data.grunnlag.søker.aktør.aktivFødselsnummer(),
+                        // Selv om det er feil å anta at alle navn er på dette formatet er det ønskelig å skrive
+                        // det slik, da uppercase kan oppleves som skrikende i et brev som skal være skånsomt
+                        navnAvdode = data.grunnlag.søker.navn.storForbokstavIAlleNavn(),
+                        virkningstidspunkt =
+                        hentVirkningstidspunkt(
+                            opphørsperioder = vedtaksperiodeService.hentOpphørsperioder(vedtak.behandling),
+                            behandlingId = vedtak.behandling.id,
+                        ),
+                    ),
+                ),
             )
         }
 
@@ -342,11 +357,11 @@ class GenererBrevService(
         opphørsperioder: List<Opphørsperiode>,
         behandlingId: Long,
     ) = (
-        opphørsperioder
-            .maxOfOrNull { it.periodeFom }
-            ?.tilMånedÅr()
-            ?: throw Feil("Fant ikke opphørdato ved generering av dødsfallbrev på behandling $behandlingId")
-    )
+            opphørsperioder
+                .maxOfOrNull { it.periodeFom }
+                ?.tilMånedÅr()
+                ?: throw Feil("Fant ikke opphørdato ved generering av dødsfallbrev på behandling $behandlingId")
+            )
 
     private fun erFeilutbetalingPåBehandling(behandlingId: Long): Boolean =
         simuleringService.hentFeilutbetaling(behandlingId) > BigDecimal.ZERO
