@@ -105,6 +105,7 @@ data class VedtaksperiodeMedBegrunnelser(
     fun hentUtbetalingsperiodeDetaljer(
         andelerTilkjentYtelse: List<AndelTilkjentYtelseMedEndreteUtbetalinger>,
         personopplysningGrunnlag: PersonopplysningGrunnlag,
+        dagensDato: LocalDate = LocalDate.now(),
     ): List<UtbetalingsperiodeDetalj> =
         when (this.type) {
             Vedtaksperiodetype.UTBETALING -> {
@@ -128,7 +129,7 @@ data class VedtaksperiodeMedBegrunnelser(
                 val kombinertTidslinje = andelerTilkjentYtelse.tilKombinertTidslinjePerAktør()
 
                 val andelTilkjentYtelserIPeriode =
-                    kombinertTidslinje.tilPerioder().lastOrNull { (it.fom ?: TIDENES_MORGEN) <= LocalDate.now() }
+                    kombinertTidslinje.tilPerioder().lastOrNull { (it.fom ?: TIDENES_MORGEN) <= dagensDato }
                         ?: kombinertTidslinje.tilPerioder().firstOrNull()
 
                 andelTilkjentYtelserIPeriode?.verdi?.lagUtbetalingsperiodeDetaljer(personopplysningGrunnlag)

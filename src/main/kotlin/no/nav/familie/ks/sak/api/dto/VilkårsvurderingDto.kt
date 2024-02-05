@@ -48,6 +48,7 @@ data class VilkårResultatDto(
     val vurderesEtter: Regelverk? = null,
     val antallTimer: BigDecimal? = null,
     val utdypendeVilkårsvurderinger: List<UtdypendeVilkårsvurdering> = emptyList(),
+    val søkerHarMeldtFraOmBarnehageplass: Boolean? = null,
 ) {
     fun erAvslagUtenPeriode() = erEksplisittAvslagPåSøknad == true && periodeFom == null && periodeTom == null
 
@@ -69,6 +70,7 @@ data class VilkårResultatDto(
             vilkårType = vilkårResultat.vilkårType,
             // antallTimer kan ikke være 0
             antallTimer = if (antallTimer == BigDecimal(0)) null else antallTimer,
+            søkerHarMeldtFraOmBarnehageplass = søkerHarMeldtFraOmBarnehageplass,
         )
     }
 }
