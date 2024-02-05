@@ -338,6 +338,7 @@ class StepDefinition {
             it.tilUtvidetVedtaksperiodeMedBegrunnelser(
                 personopplysningGrunnlag = persongrunnlag[behandlingId]!!,
                 andelerTilkjentYtelse = hentAndelerTilkjentYtelseMedEndreteUtbetalinger(behandlingId),
+                dagensDato = dagensDato,
             )
         }
     }
