@@ -79,6 +79,8 @@ class VilkårResultat(
     var utdypendeVilkårsvurderinger: List<UtdypendeVilkårsvurdering> = emptyList(),
     @Column(name = "antall_timer")
     val antallTimer: BigDecimal? = null,
+    @Column(name = "soker_har_meldt_fra_om_barnehageplass")
+    var søkerHarMeldtFraOmBarnehageplass: Boolean? = null,
 ) : BaseEntitet() {
     fun erAvslagUtenPeriode() = erEksplisittAvslagPåSøknad == true && periodeFom == null && periodeTom == null
 
@@ -113,6 +115,7 @@ class VilkårResultat(
             vurderesEtter = this.vurderesEtter,
             utdypendeVilkårsvurderinger = this.utdypendeVilkårsvurderinger,
             antallTimer = antallTimer,
+            søkerHarMeldtFraOmBarnehageplass = søkerHarMeldtFraOmBarnehageplass,
         )
     }
 
@@ -144,6 +147,7 @@ class VilkårResultat(
         vurderesEtter = this.vurderesEtter,
         utdypendeVilkårsvurderinger = this.utdypendeVilkårsvurderinger,
         antallTimer = this.antallTimer,
+        søkerHarMeldtFraOmBarnehageplass = this.søkerHarMeldtFraOmBarnehageplass,
     )
 
     override fun toString(): String {
