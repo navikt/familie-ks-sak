@@ -130,6 +130,7 @@ class GenererBrevService(
         val brevtype = hentVedtaksbrevmal(behandling)
         val fellesdataForVedtaksbrev = lagDataForVedtaksbrev(vedtak)
         val etterbetaling = hentEtterbetaling(vedtak)
+        val søkerHarMeldtFraOmBarnehagePlass = sjekkOmSøkerHarMeldtFraOmBarnehagePlass(vedtak)
 
         return when (brevtype) {
             Brevmal.VEDTAK_FØRSTEGANGSVEDTAK -> {
@@ -139,6 +140,8 @@ class GenererBrevService(
                     refusjonEosAvklart = brevPeriodeService.beskrivPerioderMedAvklartRefusjonEøs(vedtak),
                     refusjonEosUavklart = brevPeriodeService.beskrivPerioderMedUavklartRefusjonEøs(vedtak),
                     duMaaMeldeFraOmEndringerEosSelvstendigRett = skalMeldeFraOmEndringerEøsSelvstendigRett(vedtak),
+                    duMaaMeldeFraOmEndringer = søkerHarMeldtFraOmBarnehagePlass,
+                    duMaaGiNavBeskjedHvisBarnetDittFaarTildeltBarnehageplass = !søkerHarMeldtFraOmBarnehagePlass,
                 )
             }
 
@@ -159,6 +162,8 @@ class GenererBrevService(
                     refusjonEosAvklart = brevPeriodeService.beskrivPerioderMedAvklartRefusjonEøs(vedtak),
                     refusjonEosUavklart = brevPeriodeService.beskrivPerioderMedUavklartRefusjonEøs(vedtak),
                     duMaaMeldeFraOmEndringerEosSelvstendigRett = skalMeldeFraOmEndringerEøsSelvstendigRett(vedtak),
+                    duMaaMeldeFraOmEndringer = søkerHarMeldtFraOmBarnehagePlass,
+                    duMaaGiNavBeskjedHvisBarnetDittFaarTildeltBarnehageplass = !søkerHarMeldtFraOmBarnehagePlass,
                 )
 
             Brevmal.VEDTAK_OPPHØRT ->
@@ -188,6 +193,15 @@ class GenererBrevService(
 
             else -> throw Feil("Forsøker å hente vedtaksbrevdata for brevmal ${brevtype.visningsTekst}")
         }
+    }
+
+    private fun sjekkOmSøkerHarMeldtFraOmBarnehagePlass(vedtak: Vedtak): Boolean {
+        val vilkårsvurdering = vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(vedtak.behandling.id)
+        val vilkårResultaterIBehandling = vilkårsvurdering.personResultater.flatMap { it.vilkårResultater }
+
+        val søkerHarMeldtFraOmBarnehagePlass = vilkårResultaterIBehandling.any { it.søkerHarMeldtFraOmBarnehageplass ?: false }
+
+        return søkerHarMeldtFraOmBarnehagePlass
     }
 
     fun lagDataForVedtaksbrev(vedtak: Vedtak): FellesdataForVedtaksbrev {
