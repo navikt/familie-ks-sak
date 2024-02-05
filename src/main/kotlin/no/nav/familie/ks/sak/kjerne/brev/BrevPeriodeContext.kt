@@ -437,7 +437,7 @@ class BrevPeriodeContext(
 
                 val begrunnelseGjelderOpphørFraForrigeBehandling = sanityBegrunnelse.begrunnelseGjelderOpphørFraForrigeBehandling()
 
-                if (relevanteKompetanser.isEmpty() && begrunnelse.begrunnelseType.erAvslagEllerEøsAvslag() && begrunnelse.begrunnelseType == BegrunnelseType.EØS_OPPHØR) {
+                if (relevanteKompetanser.isEmpty() && (begrunnelse.begrunnelseType.erAvslagEllerEøsAvslag() || begrunnelse.begrunnelseType == BegrunnelseType.EØS_OPPHØR)) {
                     val barnasFødselsdagerForAvslagOgOpphør =
                         hentBarnasFødselsdagerForAvslagOgOpphør(
                             barnIBegrunnelse = personerGjeldendeForBegrunnelse.filter { it.type == PersonType.BARN },
