@@ -2,8 +2,6 @@ package no.nav.familie.ks.sak.kjerne.brev
 
 import no.nav.familie.ks.sak.common.BehandlingId
 import no.nav.familie.ks.sak.common.util.TIDENES_MORGEN
-import no.nav.familie.ks.sak.common.util.erDagenFør
-import no.nav.familie.ks.sak.common.util.sisteDagIInneværendeMåned
 import no.nav.familie.ks.sak.common.util.toYearMonth
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
 import no.nav.familie.ks.sak.integrasjon.sanity.SanityService
@@ -14,9 +12,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.Vedtak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.UtvidetVedtaksperiodeMedBegrunnelser
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårsvurderingRepository
 import no.nav.familie.ks.sak.kjerne.beregning.AndelerTilkjentYtelseOgEndreteUtbetalingerService
-import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.BegrunnelseDto
-import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.dødeBarnForrigePeriode
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.RefusjonEøsAvklart
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.RefusjonEøsUavklart
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.brevperioder.BrevPeriodeDto
@@ -24,7 +20,6 @@ import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.KompetanseService
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.UtfyltKompetanse
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.tilIKompetanse
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
-import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
 import org.springframework.stereotype.Service
 
 @Service
@@ -69,14 +64,6 @@ class BrevPeriodeService(
         return utvidetVedtaksperioderMedBegrunnelser
             .sortedBy { it.fom }
             .mapNotNull { utvidetVedtaksperiodeMedBegrunnelser ->
-                val barnSomDødeIForrigePeriode =
-                    dødeBarnForrigePeriode(
-                        ytelserForrigePeriode =
-                            andelTilkjentYtelserMedEndreteUtbetalinger.map { it.andel }
-                                .filter { ytelseErFraForrigePeriode(it, utvidetVedtaksperiodeMedBegrunnelser) },
-                        barnIBehandling = personopplysningGrunnlag.personer.filter { it.type == PersonType.BARN },
-                    )
-
                 val erFørsteVedtaksperiodePåFagsak =
                     !andelTilkjentYtelserMedEndreteUtbetalinger.map { it.andel }.any {
                         it.stønadFom.isBefore(
@@ -93,7 +80,6 @@ class BrevPeriodeService(
                     uregistrerteBarn =
                         søknadGrunnlagService.finnAktiv(behandlingId)?.hentUregistrerteBarn()
                             ?: emptyList(),
-                    barnSomDødeIForrigePeriode = barnSomDødeIForrigePeriode,
                     erFørsteVedtaksperiode = erFørsteVedtaksperiodePåFagsak,
                     kompetanser = kompetanser.map { it.tilIKompetanse() }.filterIsInstance<UtfyltKompetanse>(),
                     landkoder = integrasjonClient.hentLandkoderISO2(),
@@ -109,8 +95,3 @@ class BrevPeriodeService(
         vedtaksperiodeService.beskrivPerioderMedRefusjonEøs(behandling = vedtak.behandling, avklart = true)
             ?.let { RefusjonEøsAvklart(perioderMedRefusjonEøsAvklart = it) }
 }
-
-fun ytelseErFraForrigePeriode(
-    ytelse: AndelTilkjentYtelse,
-    utvidetVedtaksperiodeMedBegrunnelser: UtvidetVedtaksperiodeMedBegrunnelser,
-) = ytelse.stønadTom.sisteDagIInneværendeMåned().erDagenFør(utvidetVedtaksperiodeMedBegrunnelser.fom)

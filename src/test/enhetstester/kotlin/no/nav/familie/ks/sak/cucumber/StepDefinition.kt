@@ -394,7 +394,6 @@ class StepDefinition {
         andelTilkjentYtelserMedEndreteUtbetalinger = hentAndelerTilkjentYtelseMedEndreteUtbetalinger(behandlingId),
         uregistrerteBarn = uregistrerteBarn[behandlingId] ?: emptyList(),
         // TODO
-        barnSomDødeIForrigePeriode = emptyList(),
         erFørsteVedtaksperiode = erFørsteVedtaksperiode,
         kompetanser = hentUtfylteKompetanserPåBehandling(behandlingId),
         landkoder = LANDKODER,

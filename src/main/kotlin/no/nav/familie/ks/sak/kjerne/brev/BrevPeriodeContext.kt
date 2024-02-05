@@ -66,7 +66,6 @@ class BrevPeriodeContext(
     private val personResultater: List<PersonResultat>,
     private val andelTilkjentYtelserMedEndreteUtbetalinger: List<AndelTilkjentYtelseMedEndreteUtbetalinger>,
     private val uregistrerteBarn: List<BarnMedOpplysningerDto>,
-    private val barnSomDødeIForrigePeriode: List<Person>,
     private val erFørsteVedtaksperiode: Boolean,
     private val kompetanser: List<UtfyltKompetanse>,
     private val landkoder: Map<String, String>,
