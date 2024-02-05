@@ -3,10 +3,13 @@ package no.nav.familie.ks.sak.statistikk.stønadsstatistikk
 import no.nav.familie.eksterne.kontrakter.BehandlingType
 import no.nav.familie.eksterne.kontrakter.BehandlingÅrsak
 import no.nav.familie.eksterne.kontrakter.Kategori
+import no.nav.familie.eksterne.kontrakter.KompetanseAktivitet
+import no.nav.familie.eksterne.kontrakter.KompetanseResultat
 import no.nav.familie.eksterne.kontrakter.PersonDVH
 import no.nav.familie.eksterne.kontrakter.UtbetalingsDetaljDVH
 import no.nav.familie.eksterne.kontrakter.UtbetalingsperiodeDVH
 import no.nav.familie.eksterne.kontrakter.VedtakDVH
+import no.nav.familie.ks.sak.common.BehandlingId
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.tilPerioderIkkeNull
 import no.nav.familie.ks.sak.integrasjon.pdl.PersonOpplysningerService
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
@@ -16,6 +19,8 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Res
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
 import no.nav.familie.ks.sak.kjerne.beregning.AndelerTilkjentYtelseOgEndreteUtbetalingerService
 import no.nav.familie.ks.sak.kjerne.beregning.lagVertikalePerioder
+import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.KompetanseService
+import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.Kompetanse
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.statsborgerskap.filtrerGjeldendeNå
@@ -26,6 +31,7 @@ import java.util.UUID
 @Service
 class StønadsstatistikkService(
     private val behandlingService: BehandlingService,
+    private val kompetanseService: KompetanseService,
     private val personopplysningGrunnlagService: PersonopplysningGrunnlagService,
     private val personOpplysningerService: PersonOpplysningerService,
     private val vedtakService: VedtakService,
@@ -39,6 +45,7 @@ class StønadsstatistikkService(
         val aktørId = behandling.fagsak.aktør.aktørId
         val barna = personopplysningGrunnlagService.hentBarna(behandling.id)
 
+        val kompetanser = kompetanseService.hentKompetanser(BehandlingId(behandling.id))
         val vilkårsvurdering = vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(behandlingId)
         val vilkårResultaterForSøker = vilkårsvurdering.hentPersonResultaterTilAktør(aktørId)
         val vilkårResultaterForAlleBarn = barna?.map { vilkårsvurdering.hentPersonResultaterTilAktør(it.aktør.aktørId) }?.flatten()
@@ -61,6 +68,7 @@ class StønadsstatistikkService(
             tidspunktVedtak = vedtaksdato.atZone(TIMEZONE),
             person = hentSøker(behandlingId),
             kategori = Kategori.valueOf(behandling.kategori.name),
+            kompetanseperioder = kompetanser.tilEksernkontraktKompetanser(),
             behandlingType = BehandlingType.valueOf(behandling.type.name),
             utbetalingsperioder = hentUtbetalingsperioder(behandlingId),
             funksjonellId = UUID.randomUUID().toString(),
@@ -75,6 +83,22 @@ class StønadsstatistikkService(
 
     fun Vilkår.tilDatavarehusVilkårType(): no.nav.familie.eksterne.kontrakter.Vilkår {
         return no.nav.familie.eksterne.kontrakter.Vilkår.valueOf(this.name)
+    }
+
+    fun List<Kompetanse>.tilEksernkontraktKompetanser(): List<no.nav.familie.eksterne.kontrakter.Kompetanse> {
+        return this.filter { it.resultat != null }.map { kompetanse ->
+            no.nav.familie.eksterne.kontrakter.Kompetanse(
+                barnsIdenter = kompetanse.barnAktører.map { aktør -> aktør.aktivFødselsnummer() },
+                annenForeldersAktivitet = kompetanse.annenForeldersAktivitet?.let { KompetanseAktivitet.valueOf(it.name) },
+                annenForeldersAktivitetsland = kompetanse.annenForeldersAktivitetsland,
+                barnetsBostedsland = kompetanse.barnetsBostedsland,
+                fom = kompetanse.fom!!,
+                tom = kompetanse.tom,
+                resultat = KompetanseResultat.valueOf(kompetanse.resultat!!.name),
+                kompetanseAktivitet = if (kompetanse.søkersAktivitet != null) KompetanseAktivitet.valueOf(kompetanse.søkersAktivitet.name) else null,
+                sokersAktivitetsland = kompetanse.søkersAktivitetsland,
+            )
+        }
     }
 
     private fun hentSøker(behandlingId: Long): PersonDVH {
