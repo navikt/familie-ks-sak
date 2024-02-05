@@ -122,3 +122,7 @@ her på github.
 ## Tilgang til databasene i prod og preprod
 
 Se https://github.com/navikt/familie/blob/master/doc/utvikling/gcp/gcp_kikke_i_databasen.md
+
+## Kode generert av GitHub Copilot
+
+Dette repoet bruker GitHub Copilot til å generere kode.
