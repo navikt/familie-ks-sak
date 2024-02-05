@@ -35,11 +35,13 @@ data class UtvidetVedtaksperiodeMedBegrunnelser(
 fun VedtaksperiodeMedBegrunnelser.tilUtvidetVedtaksperiodeMedBegrunnelser(
     personopplysningGrunnlag: PersonopplysningGrunnlag,
     andelerTilkjentYtelse: List<AndelTilkjentYtelseMedEndreteUtbetalinger>,
+    dagensDato: LocalDate = LocalDate.now(),
 ): UtvidetVedtaksperiodeMedBegrunnelser {
     val utbetalingsperiodeDetaljer =
         hentUtbetalingsperiodeDetaljer(
             andelerTilkjentYtelse = andelerTilkjentYtelse,
             personopplysningGrunnlag = personopplysningGrunnlag,
+            dagensDato = dagensDato,
         )
 
     return UtvidetVedtaksperiodeMedBegrunnelser(
