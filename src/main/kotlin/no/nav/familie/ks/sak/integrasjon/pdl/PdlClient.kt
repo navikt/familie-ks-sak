@@ -5,6 +5,7 @@ import no.nav.familie.kontrakter.felles.personopplysning.Adressebeskyttelse
 import no.nav.familie.kontrakter.felles.personopplysning.Statsborgerskap
 import no.nav.familie.ks.sak.common.exception.PdlNotFoundException
 import no.nav.familie.ks.sak.config.PdlConfig
+import no.nav.familie.ks.sak.config.PdlConfig.Companion.hentAdressebeskyttelseBolkQuery
 import no.nav.familie.ks.sak.config.PdlConfig.Companion.hentAdressebeskyttelseQuery
 import no.nav.familie.ks.sak.config.PdlConfig.Companion.hentBostedsadresseUtenlandskQuery
 import no.nav.familie.ks.sak.config.PdlConfig.Companion.hentIdenterQuery
@@ -12,11 +13,15 @@ import no.nav.familie.ks.sak.config.PdlConfig.Companion.hentStatsborgerskapUtenH
 import no.nav.familie.ks.sak.config.PdlConfig.Companion.httpHeaders
 import no.nav.familie.ks.sak.config.PersonInfoQuery
 import no.nav.familie.ks.sak.integrasjon.kallEksternTjeneste
+import no.nav.familie.ks.sak.integrasjon.pdl.domene.PdlAdressebeskyttelsePerson
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.PdlAdressebeskyttelseResponse
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.PdlBaseRespons
+import no.nav.familie.ks.sak.integrasjon.pdl.domene.PdlBolkRespons
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.PdlHentIdenterResponse
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.PdlHentPersonResponse
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.PdlIdent
+import no.nav.familie.ks.sak.integrasjon.pdl.domene.PdlPersonBolkRequest
+import no.nav.familie.ks.sak.integrasjon.pdl.domene.PdlPersonBolkRequestVariables
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.PdlPersonData
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.PdlPersonRequest
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.PdlPersonRequestVariables
@@ -35,6 +40,7 @@ class PdlClient(
     pdlConfig: PdlConfig,
     @Qualifier("azureClientCredential") val restTemplate: RestOperations,
 ) : AbstractPingableRestClient(restTemplate, "pdl.personinfo") {
+
     private val pdlUri = pdlConfig.pdlUri
 
     override val pingUri: URI get() = pdlUri
@@ -78,6 +84,28 @@ class PdlClient(
         return feilsjekkOgReturnerData(ident = aktør.aktivFødselsnummer(), pdlRespons = pdlRespons) {
             it.person?.adressebeskyttelse
         }
+    }
+
+    @Cacheable("adressebeskyttelsebolk", cacheManager = "shortCache")
+    fun hentAdressebeskyttelseBolk(personIdentList: List<String>): Map<String, PdlAdressebeskyttelsePerson> {
+        val pdlPersonRequest =
+            PdlPersonBolkRequest(
+                variables = PdlPersonBolkRequestVariables(personIdentList),
+                query = hentAdressebeskyttelseBolkQuery,
+            )
+
+        val pdlRespons: PdlBolkRespons<PdlAdressebeskyttelsePerson> =
+            kallEksternTjeneste(
+                tjeneste = "pdl",
+                uri = pdlUri,
+                formål = "Hent adressebeskyttelse i bolk",
+            ) {
+                postForEntity(pdlUri, pdlPersonRequest, httpHeaders())
+            }
+
+        return feilsjekkOgReturnerData(
+            pdlRespons = pdlRespons,
+        )
     }
 
     @Cacheable("personopplysninger", cacheManager = "shortCache")
