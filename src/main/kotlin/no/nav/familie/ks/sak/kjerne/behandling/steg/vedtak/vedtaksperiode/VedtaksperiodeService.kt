@@ -616,7 +616,7 @@ class VedtaksperiodeService(
             eøsBegrunnelser.addAll(
                 avslagsbegrunnelser.filterIsInstance<EØSBegrunnelse>().map { eøsBegrunnelse ->
                     EØSBegrunnelseDB(vedtaksperiodeMedBegrunnelser = this, begrunnelse = eøsBegrunnelse)
-                }
+                },
             )
         }
 
