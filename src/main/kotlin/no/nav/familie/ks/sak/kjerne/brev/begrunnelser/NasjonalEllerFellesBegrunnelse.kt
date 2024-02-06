@@ -458,6 +458,10 @@ enum class NasjonalEllerFellesBegrunnelse : IBegrunnelse {
         override val begrunnelseType = BegrunnelseType.OPPHØR
         override val sanityApiNavn = "opphorDeltBostedKommunenMelderOmDeltidsplass"
     },
+    OPPHØR_FREMTIDIG_OPPHØR_BARNEHAGEPLASS {
+        override val begrunnelseType = BegrunnelseType.OPPHØR
+        override val sanityApiNavn = "opphorFramtidigOpphorBarnehageplass"
+    },
     REDUKSJON_BARN_FLYTTET_FRA_SOKER {
         override val begrunnelseType = BegrunnelseType.REDUKSJON
         override val sanityApiNavn = "reduksjonBarnFlyttetFraSoker"
