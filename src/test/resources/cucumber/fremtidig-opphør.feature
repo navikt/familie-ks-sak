@@ -41,3 +41,7 @@ Egenskap: Fremtidig opphør - søker har meldt ifra om fremtidig barnehageplass
       | Fra dato   | Til dato   | VedtaksperiodeType | Regelverk Gyldige begrunnelser | Gyldige begrunnelser                   | Ugyldige begrunnelser |
       | 01.10.2023 | 31.07.2024 | UTBETALING         |                                |                                        |                       |
       | 01.08.2024 |            | OPPHØR             |                                | OPPHØR_FRAMTIDIG_OPPHØR_BARNEHAGEPLASS |                       |
+
+    Så forvent følgende brevbegrunnelser for behandling 1 i periode 01.08.2024 til -
+      | Begrunnelse                            | Type     | Barnas fødselsdatoer | Antall barn | Gjelder søker | Målform | Beløp | Søknadstidspunkt | Måned og år begrunnelsen gjelder for | Avtale tidspunkt delt bosted | Søkers rett til utvidet |
+      | OPPHØR_FRAMTIDIG_OPPHØR_BARNEHAGEPLASS | STANDARD | 11.09.22             | 1           |               |         | 0     |                  | august 2024                          |                              |                         |

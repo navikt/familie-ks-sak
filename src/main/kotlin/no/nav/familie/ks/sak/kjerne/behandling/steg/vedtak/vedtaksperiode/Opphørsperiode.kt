@@ -11,9 +11,13 @@ import no.nav.familie.ks.sak.common.util.førsteDagIInneværendeMåned
 import no.nav.familie.ks.sak.common.util.inneværendeMåned
 import no.nav.familie.ks.sak.common.util.nesteMåned
 import no.nav.familie.ks.sak.common.util.toYearMonth
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.Vedtak
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.VedtaksperiodeMedBegrunnelser
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.beregning.AndelTilkjentYtelseMedEndreteUtbetalinger
+import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.NasjonalEllerFellesBegrunnelse
+import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.tilVedtaksbegrunnelse
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
 import java.time.LocalDate
 
@@ -21,6 +25,7 @@ data class Opphørsperiode(
     override val periodeFom: LocalDate,
     override val periodeTom: LocalDate?,
     override val vedtaksperiodetype: Vedtaksperiodetype = Vedtaksperiodetype.OPPHØR,
+    val begrunnelser: MutableList<NasjonalEllerFellesBegrunnelse> = mutableListOf(),
 ) : Vedtaksperiode
 
 fun mapTilOpphørsperioder(
@@ -123,6 +128,7 @@ private fun finnOpphørsperiodeEtterSisteUtbetalingsperiode(
                 periodeFom = sisteUtbetalingsperiodeTom.nesteMåned().førsteDagIInneværendeMåned(),
                 periodeTom = null,
                 vedtaksperiodetype = Vedtaksperiodetype.OPPHØR,
+                begrunnelser = if (erFramtidigOpphørPgaBarnehageplass) mutableListOf(NasjonalEllerFellesBegrunnelse.OPPHØR_FRAMTIDIG_OPPHØR_BARNEHAGEPLASS) else mutableListOf(),
             ),
         )
     } else {
@@ -143,3 +149,17 @@ private fun finnOpphørsperioderMellomUtbetalingsperioder(utbetalingsperioder: L
             )
         }
 }
+
+fun Opphørsperiode.tilVedtaksperiodeMedBegrunnelse(vedtak: Vedtak): VedtaksperiodeMedBegrunnelser =
+    VedtaksperiodeMedBegrunnelser(
+        fom = this.periodeFom,
+        tom = this.periodeTom,
+        vedtak = vedtak,
+        type = this.vedtaksperiodetype,
+    ).also { vedtaksperiodeMedBegrunnelser ->
+        vedtaksperiodeMedBegrunnelser.settBegrunnelser(
+            begrunnelser.map {
+                it.tilVedtaksbegrunnelse(vedtaksperiodeMedBegrunnelser)
+            },
+        )
+    }
