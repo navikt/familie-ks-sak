@@ -11,6 +11,8 @@ import no.nav.familie.ks.sak.common.util.førsteDagIInneværendeMåned
 import no.nav.familie.ks.sak.common.util.inneværendeMåned
 import no.nav.familie.ks.sak.common.util.nesteMåned
 import no.nav.familie.ks.sak.common.util.toYearMonth
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.beregning.AndelTilkjentYtelseMedEndreteUtbetalinger
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
 import java.time.LocalDate
@@ -26,6 +28,7 @@ fun mapTilOpphørsperioder(
     forrigeAndelerTilkjentYtelse: List<AndelTilkjentYtelseMedEndreteUtbetalinger> = emptyList(),
     personopplysningGrunnlag: PersonopplysningGrunnlag,
     andelerTilkjentYtelse: List<AndelTilkjentYtelseMedEndreteUtbetalinger>,
+    vilkårsvurdering: Vilkårsvurdering,
 ): List<Opphørsperiode> {
     val forrigeUtbetalingsperioder =
         if (forrigePersonopplysningGrunnlag != null) {
@@ -53,7 +56,7 @@ fun mapTilOpphørsperioder(
             } else {
                 listOf(
                     finnOpphørsperioderMellomUtbetalingsperioder(utbetalingsperioder),
-                    finnOpphørsperiodeEtterSisteUtbetalingsperiode(utbetalingsperioder),
+                    finnOpphørsperiodeEtterSisteUtbetalingsperiode(utbetalingsperioder, vilkårsvurdering),
                 ).flatten()
             }.sortedBy { it.periodeFom }
         }
@@ -100,11 +103,21 @@ private fun maxOfOpphørsperiodeTom(
     return if (a != null && b != null) maxOf(a, b) else null
 }
 
-private fun finnOpphørsperiodeEtterSisteUtbetalingsperiode(utbetalingsperioder: List<Utbetalingsperiode>): List<Opphørsperiode> {
+private fun finnOpphørsperiodeEtterSisteUtbetalingsperiode(
+    utbetalingsperioder: List<Utbetalingsperiode>,
+    vilkårsvurdering: Vilkårsvurdering,
+): List<Opphørsperiode> {
     val sisteUtbetalingsperiodeTom = utbetalingsperioder.maxOf { it.periodeTom }.toYearMonth()
     val nesteMåned = inneværendeMåned().nesteMåned()
 
-    return if (sisteUtbetalingsperiodeTom.isBefore(nesteMåned)) {
+    val erFramtidigOpphørPgaBarnehageplass =
+        vilkårsvurdering.personResultater.any {
+            it.vilkårResultater.any {
+                it.vilkårType == Vilkår.BARNEHAGEPLASS && it.søkerHarMeldtFraOmBarnehageplass == true && it.periodeTom?.toYearMonth() == sisteUtbetalingsperiodeTom
+            }
+        }
+
+    return if (sisteUtbetalingsperiodeTom.isBefore(nesteMåned) || erFramtidigOpphørPgaBarnehageplass) {
         listOf(
             Opphørsperiode(
                 periodeFom = sisteUtbetalingsperiodeTom.nesteMåned().førsteDagIInneværendeMåned(),
