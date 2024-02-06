@@ -46,7 +46,7 @@ class IBegrunnelseDeserializer : StdDeserializer<List<IBegrunnelse>>(List::class
 }
 
 @Converter
-class StandardbegrunnelseListConverter :
+class IBegrunnelseListConverter :
     AttributeConverter<List<IBegrunnelse>, String> {
     override fun convertToDatabaseColumn(begrunnelser: List<IBegrunnelse>) = begrunnelser.joinToString(";") { it.enumnavnTilString() }
 
