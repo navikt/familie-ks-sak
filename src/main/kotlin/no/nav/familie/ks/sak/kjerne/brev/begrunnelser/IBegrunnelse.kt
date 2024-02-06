@@ -32,7 +32,6 @@ sealed interface IBegrunnelse {
 fun IBegrunnelse.støtterFritekst(sanityBegrunnelser: List<SanityBegrunnelse>) =
     sanityBegrunnelser.first { it.apiNavn == this.sanityApiNavn }.støtterFritekst
 
-
 class IBegrunnelseDeserializer : StdDeserializer<List<IBegrunnelse>>(List::class.java) {
     override fun deserialize(
         jsonParser: JsonParser?,
@@ -58,4 +57,3 @@ class IBegrunnelseListConverter :
                 .map { IBegrunnelse.konverterTilEnumVerdi(it) }
         }
 }
-
