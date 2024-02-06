@@ -25,7 +25,7 @@ data class Opphørsperiode(
     override val periodeFom: LocalDate,
     override val periodeTom: LocalDate?,
     override val vedtaksperiodetype: Vedtaksperiodetype = Vedtaksperiodetype.OPPHØR,
-    val begrunnelser: MutableList<NasjonalEllerFellesBegrunnelse> = mutableListOf(),
+    val begrunnelser: List<NasjonalEllerFellesBegrunnelse> = emptyList(),
 ) : Vedtaksperiode
 
 fun mapTilOpphørsperioder(
