@@ -401,7 +401,8 @@ class StepDefinition {
     ).genererBrevPeriodeDto()
 
     /**
-     * Mulige verdier: | Begrunnelse | Type | Gjelder søker | Barnas fødselsdatoer | Antall barn | Måned og år begrunnelsen gjelder for | Målform | Beløp | Søknadstidspunkt | Avtale tidspunkt delt bosted | Søkers rett til utvidet |
+     * Mulige verdier Nasjonal: | Begrunnelse | Type | Barnas fødselsdatoer | Antall barn | Gjelder søker  | Målform | Beløp | Søknadstidspunkt | Måned og år begrunnelsen gjelder for| Avtale tidspunkt delt bosted | Søkers rett til utvidet |
+     * Mulige verdier EØS: | Begrunnelse | Type | Barnas fødselsdatoer | Antall barn | Gjelder søker | Målform | Søkers aktivitet | Annen forelders aktivitet | Søkers aktivitetsland | Annen forelders aktivitetsland | Barnets bostedsland |
      */
     @Så("forvent følgende brevbegrunnelser for behandling {} i periode {} til {}")
     fun `forvent følgende brevbegrunnelser for behandling i periode`(
