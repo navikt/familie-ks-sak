@@ -26,6 +26,7 @@ class DistribuerBrevTask(
     private val brevService: BrevService,
     private val taskService: TaskService,
 ) : AsyncTaskStep {
+
     override fun doTask(task: Task) {
         val distribuerBrevDto = objectMapper.readValue(task.payload, DistribuerBrevDto::class.java)
 
@@ -35,6 +36,7 @@ class DistribuerBrevTask(
                 behandlingId = distribuerBrevDto.behandlingId,
                 loggBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
                 brevmal = distribuerBrevDto.brevmal,
+                manuellAdresseInfo = distribuerBrevDto.manuellAdresseInfo,
             )
         } else if (!distribuerBrevDto.erManueltSendt && distribuerBrevDto.brevmal.erVedtaksbrev &&
             distribuerBrevDto.behandlingId != null
@@ -44,6 +46,7 @@ class DistribuerBrevTask(
                 behandlingId = distribuerBrevDto.behandlingId,
                 loggBehandlerRolle = BehandlerRolle.SYSTEM,
                 brevmal = distribuerBrevDto.brevmal,
+                manuellAdresseInfo = distribuerBrevDto.manuellAdresseInfo,
             )
 
             val behandling = behandlingService.hentBehandling(distribuerBrevDto.behandlingId)
@@ -58,12 +61,13 @@ class DistribuerBrevTask(
         } else {
             throw Feil(
                 "erManueltSendt=${distribuerBrevDto.erManueltSendt} " +
-                    "ikke støttet for brev=${distribuerBrevDto.brevmal.visningsTekst}",
+                        "ikke støttet for brev=${distribuerBrevDto.brevmal.visningsTekst}",
             )
         }
     }
 
     companion object {
+
         fun opprettDistribuerBrevTask(
             distribuerBrevDTO: DistribuerBrevDto,
             properties: Properties,

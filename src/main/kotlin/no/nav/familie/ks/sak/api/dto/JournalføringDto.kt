@@ -99,6 +99,7 @@ data class MottakerInfo(
     // Feltet brukes for å sette riktig mottaker navn når brev sendes både til verge og bruker
     val navn: String? = null,
     val manuellAdresseInfo: ManuellAdresseInfo? = null,
+    val erVergeEllerFullmektig: Boolean = false,
 )
 
 fun MottakerInfo.toList() = listOf(this)

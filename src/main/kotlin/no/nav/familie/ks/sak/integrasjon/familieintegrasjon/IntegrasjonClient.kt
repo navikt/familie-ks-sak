@@ -10,9 +10,11 @@ import no.nav.familie.kontrakter.felles.dokarkiv.LogiskVedleggRequest
 import no.nav.familie.kontrakter.felles.dokarkiv.LogiskVedleggResponse
 import no.nav.familie.kontrakter.felles.dokarkiv.OppdaterJournalpostResponse
 import no.nav.familie.kontrakter.felles.dokarkiv.v2.ArkiverDokumentRequest
+import no.nav.familie.kontrakter.felles.dokdist.AdresseType
 import no.nav.familie.kontrakter.felles.dokdist.DistribuerJournalpostRequest
 import no.nav.familie.kontrakter.felles.dokdist.Distribusjonstidspunkt
 import no.nav.familie.kontrakter.felles.dokdist.Distribusjonstype
+import no.nav.familie.kontrakter.felles.dokdist.ManuellAdresse
 import no.nav.familie.kontrakter.felles.journalpost.Journalpost
 import no.nav.familie.kontrakter.felles.journalpost.JournalposterForBrukerRequest
 import no.nav.familie.kontrakter.felles.kodeverk.KodeverkDto
@@ -23,6 +25,7 @@ import no.nav.familie.kontrakter.felles.oppgave.Oppgave
 import no.nav.familie.kontrakter.felles.oppgave.OppgaveResponse
 import no.nav.familie.kontrakter.felles.oppgave.OpprettOppgaveRequest
 import no.nav.familie.kontrakter.felles.tilgangskontroll.Tilgang
+import no.nav.familie.ks.sak.api.dto.ManuellAdresseInfo
 import no.nav.familie.ks.sak.api.dto.OppdaterJournalpostRequestDto
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.domene.ArbeidsfordelingsEnhet
 import no.nav.familie.ks.sak.integrasjon.kallEksternTjeneste
@@ -45,6 +48,7 @@ class IntegrasjonClient(
     @Value("\${FAMILIE_INTEGRASJONER_API_URL}") private val integrasjonUri: URI,
     @Qualifier("azure") restOperations: RestOperations,
 ) : AbstractRestClient(restOperations, "integrasjon") {
+
     val tilgangPersonUri = UriComponentsBuilder.fromUri(integrasjonUri).pathSegment(PATH_TILGANG_PERSON).build().toUri()
 
     fun sjekkTilgangTilPersoner(personIdenter: List<String>): List<Tilgang> {
@@ -369,6 +373,7 @@ class IntegrasjonClient(
     fun distribuerBrev(
         journalpostId: String,
         distribusjonstype: Distribusjonstype,
+        manuellAdresseInfo: ManuellAdresseInfo? = null,
     ): String {
         val uri = URI.create("$integrasjonUri/dist/v1")
 
@@ -379,6 +384,7 @@ class IntegrasjonClient(
                 dokumentProdApp = "FAMILIE_KS_SAK",
                 distribusjonstidspunkt = Distribusjonstidspunkt.KJERNETID,
                 distribusjonstype = distribusjonstype,
+                adresse = manuellAdresseInfo?.let { lagManuellAdresse(it) },
             )
 
         val bestillingId: String =
@@ -423,7 +429,22 @@ class IntegrasjonClient(
         }
     }
 
+    private fun lagManuellAdresse(manuellAdresseInfo: ManuellAdresseInfo) =
+        ManuellAdresse(
+            adresseType =
+            when (manuellAdresseInfo.landkode) {
+                "NO" -> AdresseType.norskPostadresse
+                else -> AdresseType.utenlandskPostadresse
+            },
+            adresselinje1 = manuellAdresseInfo.adresselinje1,
+            adresselinje2 = manuellAdresseInfo.adresselinje2,
+            postnummer = manuellAdresseInfo.postnummer,
+            poststed = manuellAdresseInfo.poststed,
+            land = manuellAdresseInfo.landkode,
+        )
+
     companion object {
+
         const val RETRY_BACKOFF_5000MS = "\${retry.backoff.delay:5000}"
         private const val PATH_TILGANG_PERSON = "tilgang/v2/personer"
         private const val HEADER_NAV_TEMA = "Nav-Tema"

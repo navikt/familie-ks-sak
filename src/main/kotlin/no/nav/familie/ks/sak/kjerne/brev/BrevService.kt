@@ -6,6 +6,7 @@ import no.nav.familie.kontrakter.felles.dokarkiv.v2.Dokument
 import no.nav.familie.kontrakter.felles.dokarkiv.v2.Filtype
 import no.nav.familie.kontrakter.felles.dokarkiv.v2.Førsteside
 import no.nav.familie.ks.sak.api.dto.DistribuerBrevDto
+import no.nav.familie.ks.sak.api.dto.ManuellAdresseInfo
 import no.nav.familie.ks.sak.api.dto.ManueltBrevDto
 import no.nav.familie.ks.sak.config.BehandlerRolle
 import no.nav.familie.ks.sak.integrasjon.distribuering.DistribuerBrevTask
@@ -179,8 +180,9 @@ class BrevService(
         behandlingId: Long?,
         loggBehandlerRolle: BehandlerRolle,
         brevmal: Brevmal,
+        manuellAdresseInfo: ManuellAdresseInfo? = null,
     ) = try {
-        distribuerBrevOgLoggHendelse(journalpostId, behandlingId, brevmal, loggBehandlerRolle)
+        distribuerBrevOgLoggHendelse(journalpostId, behandlingId, brevmal, loggBehandlerRolle, manuellAdresseInfo)
     } catch (ressursException: RessursException) {
         logger.info("Klarte ikke å distribuere brev til journalpost $journalpostId. Httpstatus ${ressursException.httpStatus}")
 
@@ -206,8 +208,13 @@ class BrevService(
         behandlingId: Long?,
         brevMal: Brevmal,
         loggBehandlerRolle: BehandlerRolle,
+        manuellAdresseInfo: ManuellAdresseInfo? = null,
     ) {
-        integrasjonClient.distribuerBrev(journalpostId = journalpostId, distribusjonstype = brevMal.distribusjonstype)
+        integrasjonClient.distribuerBrev(
+            journalpostId = journalpostId,
+            distribusjonstype = brevMal.distribusjonstype,
+            manuellAdresseInfo = manuellAdresseInfo,
+        )
 
         if (behandlingId != null) {
             loggService.opprettDistribuertBrevLogg(

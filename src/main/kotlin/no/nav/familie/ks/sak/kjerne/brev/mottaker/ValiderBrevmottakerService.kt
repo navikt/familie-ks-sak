@@ -1,6 +1,6 @@
 package no.nav.familie.ks.sak.kjerne.brev.mottaker
 
-import no.nav.familie.ks.sak.api.dto.ManuellBrevmottaker
+import no.nav.familie.ks.sak.api.dto.BrevmottakerDto
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.integrasjon.pdl.PersonOpplysningerService
@@ -49,7 +49,7 @@ class ValiderBrevmottakerService(
 
     fun validerAtFagsakIkkeInneholderStrengtFortroligePersonerMedManuelleBrevmottakere(
         fagsakId: Long,
-        manuelleBrevmottakere: List<ManuellBrevmottaker>,
+        manuelleBrevmottakere: List<BrevmottakerDto>,
         barnLagtTilIBrev: List<String>,
     ) {
         val erManuellBrevmottaker = manuelleBrevmottakere.isNotEmpty()

@@ -3,9 +3,8 @@ package no.nav.familie.ks.sak.kjerne.brev.mottaker
 import no.nav.familie.kontrakter.felles.BrukerIdType
 import no.nav.familie.ks.sak.api.dto.BrevmottakerDto
 import no.nav.familie.ks.sak.api.dto.ManuellAdresseInfo
-import no.nav.familie.ks.sak.api.dto.ManuellBrevmottaker
 import no.nav.familie.ks.sak.api.dto.MottakerInfo
-import no.nav.familie.ks.sak.api.dto.tilBrevMottaker
+import no.nav.familie.ks.sak.api.dto.tilBrevMottakerDb
 import no.nav.familie.ks.sak.api.dto.toList
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
@@ -30,7 +29,7 @@ class BrevmottakerService(
         restBrevMottaker: BrevmottakerDto,
         behandlingId: Long,
     ) {
-        val brevmottaker = restBrevMottaker.tilBrevMottaker(behandlingId)
+        val brevmottaker = restBrevMottaker.tilBrevMottakerDb(behandlingId)
 
         validerBrevmottakerService.validerAtBehandlingIkkeInneholderStrengtFortroligePersonerMedManuelleBrevmottakere(
             behandlingId = behandlingId,
@@ -59,9 +58,7 @@ class BrevmottakerService(
         brevmottakerRepository.deleteById(id)
     }
 
-    fun hentBrevmottakere(behandlingId: Long) = brevmottakerRepository.finnBrevMottakereForBehandling(behandlingId)
-
-    fun hentRestBrevmottakere(behandlingId: Long) =
+    fun hentBrevmottakere(behandlingId: Long) =
         brevmottakerRepository.finnBrevMottakereForBehandling(behandlingId).map {
             BrevmottakerDto(
                 id = it.id,
@@ -76,7 +73,7 @@ class BrevmottakerService(
         }
 
     fun lagMottakereFraBrevMottakere(
-        manueltRegistrerteMottakere: List<ManuellBrevmottaker>,
+        manueltRegistrerteMottakere: List<BrevmottakerDto>,
         søkersident: String,
         søkersnavn: String = hentMottakerNavn(søkersident),
     ): List<MottakerInfo> {
@@ -111,6 +108,7 @@ class BrevmottakerService(
                         )
                 }.firstNotNullOfOrNull {
                     lagMottakerInfoUtenBrukerId(navn = it.navn, manuellAdresseInfo = lagManuellAdresseInfo(it))
+                        .copy(erVergeEllerFullmektig = true)
                 }
 
         return listOfNotNull(bruker, manuellTilleggsmottaker)
@@ -123,7 +121,7 @@ class BrevmottakerService(
         }
     }
 
-    private fun lagManuellAdresseInfo(brevmottaker: ManuellBrevmottaker) =
+    private fun lagManuellAdresseInfo(brevmottaker: BrevmottakerDto) =
         ManuellAdresseInfo(
             adresselinje1 = brevmottaker.adresselinje1,
             adresselinje2 = brevmottaker.adresselinje2,

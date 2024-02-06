@@ -25,12 +25,13 @@ class UtgåendeJournalføringService(private val integrasjonClient: IntegrasjonC
         vedlegg: List<Dokument> = emptyList(),
         førsteside: Førsteside? = null,
         behandlingId: Long? = null,
+        tilVergeEllerFullmektig: Boolean = true,
     ): String {
         if (journalførendeEnhet == DEFAULT_JOURNALFØRENDE_ENHET) {
             logger.warn("Informasjon om enhet mangler på bruker og er satt til fallback-verdi, $DEFAULT_JOURNALFØRENDE_ENHET")
         }
 
-        val eksternReferanseId = genererEksternReferanseIdForJournalpost(fagsakId, behandlingId)
+        val eksternReferanseId = genererEksternReferanseIdForJournalpost(fagsakId, behandlingId, tilVergeEllerFullmektig)
 
         val journalpostId =
             try {
@@ -84,7 +85,9 @@ class UtgåendeJournalføringService(private val integrasjonClient: IntegrasjonC
     private fun genererEksternReferanseIdForJournalpost(
         fagsakId: Long,
         behandlingId: Long?,
-    ) = "${fagsakId}_${behandlingId}_${MDC.get(MDCConstants.MDC_CALL_ID)}"
+        tilVergeEllerFullmektig: Boolean,
+    ) =
+        "${fagsakId}_${behandlingId}_${if (tilVergeEllerFullmektig) "tilleggsmottaker" else ""}_${MDC.get(MDCConstants.MDC_CALL_ID)}"
 
     companion object {
         const val DEFAULT_JOURNALFØRENDE_ENHET = "9999"
