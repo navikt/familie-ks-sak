@@ -135,7 +135,7 @@ class StepDefinition {
     }
 
     /**
-     * Mulige verdier: | AktørId | Vilkår | Utdypende vilkår | Fra dato | Til dato | Resultat | Er eksplisitt avslag | Vurderes etter | Søker har meldt fra om barnehageplass
+     * Mulige verdier: | AktørId | Vilkår | Utdypende vilkår | Fra dato | Til dato | Resultat | Er eksplisitt avslag | Vurderes etter | Søker har meldt fra om barnehageplass |
      */
     @Og("følgende vilkårresultater for behandling {}")
     fun `legg til nye vilkårresultater for behandling`(
