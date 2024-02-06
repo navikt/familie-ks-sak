@@ -23,6 +23,8 @@ data class Førstegangsvedtak(
         refusjonEosAvklart: RefusjonEøsAvklart? = null,
         refusjonEosUavklart: RefusjonEøsUavklart? = null,
         duMaaMeldeFraOmEndringerEosSelvstendigRett: Boolean = false,
+        duMaaMeldeFraOmEndringer: Boolean = false,
+        duMaaGiNavBeskjedHvisBarnetDittFaarTildeltBarnehageplass: Boolean = false,
     ) :
         this(
             mal = Brevmal.VEDTAK_FØRSTEGANGSVEDTAK,
@@ -42,6 +44,8 @@ data class Førstegangsvedtak(
                             refusjonEosAvklart = refusjonEosAvklart,
                             refusjonEosUavklart = refusjonEosUavklart,
                             duMaaMeldeFraOmEndringerEosSelvstendigRett = duMaaMeldeFraOmEndringerEosSelvstendigRett,
+                            duMaaMeldeFraOmEndringer = duMaaMeldeFraOmEndringer,
+                            duMaaGiNavBeskjedHvisBarnetDittFaarTildeltBarnehageplass = duMaaGiNavBeskjedHvisBarnetDittFaarTildeltBarnehageplass,
                         ),
                     flettefelter =
                         FlettefelterForDokumentDtoImpl(
@@ -66,5 +70,7 @@ data class FørstegangsvedtakData(
         val refusjonEosUavklart: RefusjonEøsUavklart?,
         val korrigertVedtak: KorrigertVedtakData?,
         val duMaaMeldeFraOmEndringerEosSelvstendigRett: Boolean?,
+        val duMaaMeldeFraOmEndringer: Boolean,
+        val duMaaGiNavBeskjedHvisBarnetDittFaarTildeltBarnehageplass: Boolean,
     )
 }
