@@ -29,7 +29,6 @@ class BrevmottakerController(
     private val brevmottakerService: BrevmottakerService,
     private val behandlingService: BehandlingService,
 ) {
-
     @PostMapping(path = ["{behandlingId}"], produces = [APPLICATION_JSON_VALUE], consumes = [APPLICATION_JSON_VALUE])
     fun leggTilBrevmottaker(
         @PathVariable behandlingId: Long,

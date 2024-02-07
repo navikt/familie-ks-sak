@@ -22,7 +22,6 @@ class PersonOpplysningerService(
     private val integrasjonService: IntegrasjonService,
     private val personidentService: PersonidentService,
 ) {
-
     fun hentPersonInfoMedRelasjonerOgRegisterinformasjon(aktør: Aktør): PdlPersonInfo {
         val pdlPersonData = hentPersoninfoMedQuery(aktør, PersonInfoQuery.MED_RELASJONER_OG_REGISTERINFORMASJON)
         val forelderBarnRelasjoner: Set<ForelderBarnRelasjonInfo> =
@@ -58,7 +57,7 @@ class PersonOpplysningerService(
                         logger.warn("Ignorerer relasjon: ${pdlPersonKanIkkeBehandlesIFagsystem.årsak}")
                         secureLogger.warn(
                             "Ignorerer relasjon ${forelderBarnRelasjon.aktør.aktivFødselsnummer()} " +
-                                    "til ${aktør.aktivFødselsnummer()}: ${pdlPersonKanIkkeBehandlesIFagsystem.årsak}",
+                                "til ${aktør.aktivFødselsnummer()}: ${pdlPersonKanIkkeBehandlesIFagsystem.årsak}",
                         )
                         null
                     }
@@ -122,13 +121,12 @@ class PersonOpplysningerService(
         return adresseBeskyttelseBolk.filter { (_, person) ->
             person.adressebeskyttelse.any { adressebeskyttelse ->
                 adressebeskyttelse.gradering == ADRESSEBESKYTTELSEGRADERING.STRENGT_FORTROLIG ||
-                        adressebeskyttelse.gradering == ADRESSEBESKYTTELSEGRADERING.STRENGT_FORTROLIG_UTLAND
+                    adressebeskyttelse.gradering == ADRESSEBESKYTTELSEGRADERING.STRENGT_FORTROLIG_UTLAND
             }
         }.map { it.key }
     }
 
     companion object {
-
         const val PDL_UKJENT_LANDKODE = "XUK"
         const val UKJENT_LANDKODE = "ZZ"
         val UKJENT_STATSBORGERSKAP =

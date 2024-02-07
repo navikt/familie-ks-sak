@@ -13,11 +13,9 @@ import java.net.URI
 class PdlConfig(
     @Value("\${PDL_URL}") pdlUrl: URI,
 ) {
-
     val pdlUri: URI = UriComponentsBuilder.fromUri(pdlUrl).pathSegment(PATH_GRAPHQL).build().toUri()
 
     companion object {
-
         const val PATH_GRAPHQL = "graphql"
 
         val hentIdenterQuery = graphqlQuery("/pdl/hentIdenter.graphql")

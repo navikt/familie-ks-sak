@@ -15,7 +15,6 @@ class ValiderBrevmottakerService(
     private val personOpplysningerService: PersonOpplysningerService,
     private val fagsakRepository: FagsakRepository,
 ) {
-
     fun validerAtBehandlingIkkeInneholderStrengtFortroligePersonerMedManuelleBrevmottakere(
         behandlingId: Long,
         nyBrevmottaker: BrevmottakerDb? = null,

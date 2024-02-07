@@ -23,7 +23,6 @@ class BrevmottakerService(
     private val personOpplysningerService: PersonOpplysningerService,
     private val validerBrevmottakerService: ValiderBrevmottakerService,
 ) {
-
     @Transactional
     fun leggTilBrevmottaker(
         restBrevMottaker: BrevmottakerDto,
@@ -109,7 +108,7 @@ class BrevmottakerService(
                 .let {
                     it.takeIf { it.size <= 1 }
                         ?: throw FunksjonellFeil(
-                            "Mottakerfeil: ${it.first().type.visningsnavn} kan ikke kombineres med ${it.last().type.visningsnavn}"
+                            "Mottakerfeil: ${it.first().type.visningsnavn} kan ikke kombineres med ${it.last().type.visningsnavn}",
                         )
                 }.firstNotNullOfOrNull {
                     lagMottakerInfoUtenBrukerId(navn = it.navn, manuellAdresseInfo = lagManuellAdresseInfo(it))

@@ -35,7 +35,6 @@ class JournalførVedtaksbrevSteg(
     private val fagsakService: FagsakService,
     private val brevmottakerService: BrevmottakerService,
 ) : IBehandlingSteg {
-
     override fun getBehandlingssteg(): BehandlingSteg = BehandlingSteg.JOURNALFØR_VEDTAKSBREV
 
     override fun utførSteg(
@@ -53,30 +52,33 @@ class JournalførVedtaksbrevSteg(
         val søkersident = fagsak.aktør.aktivFødselsnummer()
         val manueltRegistrerteMottakere = brevmottakerService.hentBrevmottakere(behandlingId)
 
-        val mottakere = brevmottakerService.lagMottakereFraBrevMottakere(
-            manueltRegistrerteMottakere = manueltRegistrerteMottakere,
-            søkersIdent = søkersident,
-        )
+        val mottakere =
+            brevmottakerService.lagMottakereFraBrevMottakere(
+                manueltRegistrerteMottakere = manueltRegistrerteMottakere,
+                søkersIdent = søkersident,
+            )
 
-        val journalposterTilDistribusjon = mottakere.map { mottaker ->
-            journalførVedtaksbrev(
-                fnr = søkersident,
-                fagsakId = fagsak.id,
-                vedtak = vedtak,
-                journalførendeEnhet = behandlendeEnhet,
-                tilVergeEllerFullmektig = mottaker.erVergeEllerFullmektig,
-            ) to mottaker
-        }
+        val journalposterTilDistribusjon =
+            mottakere.map { mottaker ->
+                journalførVedtaksbrev(
+                    fnr = søkersident,
+                    fagsakId = fagsak.id,
+                    vedtak = vedtak,
+                    journalførendeEnhet = behandlendeEnhet,
+                    tilVergeEllerFullmektig = mottaker.erVergeEllerFullmektig,
+                ) to mottaker
+            }
 
         journalposterTilDistribusjon.forEach { (journalpostId, mottaker) ->
-            val distribuerBrevDto = DistribuerBrevDto(
-                personIdent = mottaker.brukerId,
-                behandlingId = vedtak.behandling.id,
-                journalpostId = journalpostId,
-                brevmal = hentBrevmal(vedtak.behandling),
-                erManueltSendt = false,
-                manuellAdresseInfo = mottaker.manuellAdresseInfo
-            )
+            val distribuerBrevDto =
+                DistribuerBrevDto(
+                    personIdent = mottaker.brukerId,
+                    behandlingId = vedtak.behandling.id,
+                    journalpostId = journalpostId,
+                    brevmal = hentBrevmal(vedtak.behandling),
+                    erManueltSendt = false,
+                    manuellAdresseInfo = mottaker.manuellAdresseInfo,
+                )
             val distributerBrevTask =
                 if (mottaker.erVergeEllerFullmektig) {
                     DistribuerVedtaksbrevTilVergeEllerFullmektigTask.opprettDistribuerVedtaksbrevTilVergeEllerFullmektigTask(
@@ -160,7 +162,6 @@ class JournalførVedtaksbrevSteg(
     }
 
     companion object {
-
         private val logger: Logger = LoggerFactory.getLogger(JournalførVedtaksbrevSteg::class.java)
 
         const val KONTANTSTØTTE_VEDTAK_VEDLEGG_FILNAVN = "NAV_34-0005bm08-2018.pdf"

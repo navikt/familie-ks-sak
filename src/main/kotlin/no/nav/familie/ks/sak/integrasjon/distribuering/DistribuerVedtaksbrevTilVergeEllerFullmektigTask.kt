@@ -20,7 +20,6 @@ import java.util.Properties
 class DistribuerVedtaksbrevTilVergeEllerFullmektigTask(
     private val brevService: BrevService,
 ) : AsyncTaskStep {
-
     override fun doTask(task: Task) {
         val distribuerBrevDto = objectMapper.readValue(task.payload, DistribuerBrevDto::class.java)
         brevService.prøvDistribuerBrevOgLoggHendelse(
@@ -33,7 +32,6 @@ class DistribuerVedtaksbrevTilVergeEllerFullmektigTask(
     }
 
     companion object {
-
         fun opprettDistribuerVedtaksbrevTilVergeEllerFullmektigTask(
             distribuerBrevDTO: DistribuerBrevDto,
             properties: Properties,

@@ -108,31 +108,34 @@ class BrevService(
             }
 
         val brevmottakereFraBehandling = behandling?.let { brevmottakerService.hentBrevmottakere(it.id) } ?: emptyList()
-        val mottakere = brevmottakerService.lagMottakereFraBrevMottakere(
-            søkersIdent = fagsak.aktør.aktivFødselsnummer(),
-            manueltRegistrerteMottakere = manueltBrevDto.manuelleBrevmottakere + brevmottakereFraBehandling
-        )
+        val mottakere =
+            brevmottakerService.lagMottakereFraBrevMottakere(
+                søkersIdent = fagsak.aktør.aktivFødselsnummer(),
+                manueltRegistrerteMottakere = manueltBrevDto.manuelleBrevmottakere + brevmottakereFraBehandling,
+            )
 
         val journalposterTilDistribusjon =
             mottakere.map { mottaker ->
-                (utgåendeJournalføringService.journalførDokument(
-                    fnr = fagsak.aktør.aktivFødselsnummer(),
-                    fagsakId = fagsak.id,
-                    behandlingId = behandlingId,
-                    journalførendeEnhet =
-                    manueltBrevDto.enhet?.enhetId
-                        ?: DEFAULT_JOURNALFØRENDE_ENHET,
-                brev =
-                    listOf(
-                        Dokument(
-                            dokument = generertBrev,
-                            filtype = Filtype.PDFA,
-                            dokumenttype = manueltBrevDto.brevmal.tilFamilieKontrakterDokumentType(),
-                        ),
-                    ),
-                    førsteside = førsteside,
-                    tilVergeEllerFullmektig = mottaker.erVergeEllerFullmektig
-                ) to mottaker).also { (journalpostId) ->
+                (
+                    utgåendeJournalføringService.journalførDokument(
+                        fnr = fagsak.aktør.aktivFødselsnummer(),
+                        fagsakId = fagsak.id,
+                        behandlingId = behandlingId,
+                        journalførendeEnhet =
+                            manueltBrevDto.enhet?.enhetId
+                                ?: DEFAULT_JOURNALFØRENDE_ENHET,
+                        brev =
+                            listOf(
+                                Dokument(
+                                    dokument = generertBrev,
+                                    filtype = Filtype.PDFA,
+                                    dokumenttype = manueltBrevDto.brevmal.tilFamilieKontrakterDokumentType(),
+                                ),
+                            ),
+                        førsteside = førsteside,
+                        tilVergeEllerFullmektig = mottaker.erVergeEllerFullmektig,
+                    ) to mottaker
+                ).also { (journalpostId) ->
 
                     behandling?.let {
                         journalføringRepository.save(
@@ -175,22 +178,22 @@ class BrevService(
         journalposterTilDistribusjon.forEach { (journalpostId, mottaker) ->
             DistribuerBrevTask.opprettDistribuerBrevTask(
                 distribuerBrevDTO =
-                DistribuerBrevDto(
-                    personIdent = mottaker.brukerId,
-                    behandlingId = behandling?.id,
-                    journalpostId = journalpostId,
-                    brevmal = manueltBrevDto.brevmal,
-                    erManueltSendt = true,
-                    manuellAdresseInfo = mottaker.manuellAdresseInfo
-                ),
-            properties =
-                Properties().apply {
-                    this["fagsakIdent"] = fagsak.aktør.aktivFødselsnummer()
-                    this["mottakerIdent"] = manueltBrevDto.mottakerIdent
-                    this["journalpostId"] = journalpostId
-                    this["behandlingId"] = behandling?.id.toString()
-                    this["fagsakId"] = fagsak.id.toString()
-                },
+                    DistribuerBrevDto(
+                        personIdent = mottaker.brukerId,
+                        behandlingId = behandling?.id,
+                        journalpostId = journalpostId,
+                        brevmal = manueltBrevDto.brevmal,
+                        erManueltSendt = true,
+                        manuellAdresseInfo = mottaker.manuellAdresseInfo,
+                    ),
+                properties =
+                    Properties().apply {
+                        this["fagsakIdent"] = fagsak.aktør.aktivFødselsnummer()
+                        this["mottakerIdent"] = manueltBrevDto.mottakerIdent
+                        this["journalpostId"] = journalpostId
+                        this["behandlingId"] = behandling?.id.toString()
+                        this["fagsakId"] = fagsak.id.toString()
+                    },
             ).also {
                 taskService.save(it)
             }
@@ -298,18 +301,18 @@ class BrevService(
     private fun validerManuelleBrevmottakere(
         behandlingId: Long?,
         fagsak: Fagsak,
-        manueltBrevDto: ManueltBrevDto
+        manueltBrevDto: ManueltBrevDto,
     ) {
         if (behandlingId == null) {
             validerBrevmottakerService.validerAtFagsakIkkeInneholderStrengtFortroligePersonerMedManuelleBrevmottakere(
                 fagsakId = fagsak.id,
                 manuelleBrevmottakere = manueltBrevDto.manuelleBrevmottakere,
-                barnLagtTilIBrev = manueltBrevDto.barnIBrev
+                barnLagtTilIBrev = manueltBrevDto.barnIBrev,
             )
         } else {
             validerBrevmottakerService.validerAtBehandlingIkkeInneholderStrengtFortroligePersonerMedManuelleBrevmottakere(
                 behandlingId = behandlingId,
-                ekstraBarnLagtTilIBrev = manueltBrevDto.barnIBrev
+                ekstraBarnLagtTilIBrev = manueltBrevDto.barnIBrev,
             )
         }
     }

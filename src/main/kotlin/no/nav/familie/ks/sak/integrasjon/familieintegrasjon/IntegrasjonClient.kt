@@ -48,7 +48,6 @@ class IntegrasjonClient(
     @Value("\${FAMILIE_INTEGRASJONER_API_URL}") private val integrasjonUri: URI,
     @Qualifier("azure") restOperations: RestOperations,
 ) : AbstractRestClient(restOperations, "integrasjon") {
-
     val tilgangPersonUri = UriComponentsBuilder.fromUri(integrasjonUri).pathSegment(PATH_TILGANG_PERSON).build().toUri()
 
     fun sjekkTilgangTilPersoner(personIdenter: List<String>): List<Tilgang> {
@@ -432,10 +431,10 @@ class IntegrasjonClient(
     private fun lagManuellAdresse(manuellAdresseInfo: ManuellAdresseInfo) =
         ManuellAdresse(
             adresseType =
-            when (manuellAdresseInfo.landkode) {
-                "NO" -> AdresseType.norskPostadresse
-                else -> AdresseType.utenlandskPostadresse
-            },
+                when (manuellAdresseInfo.landkode) {
+                    "NO" -> AdresseType.norskPostadresse
+                    else -> AdresseType.utenlandskPostadresse
+                },
             adresselinje1 = manuellAdresseInfo.adresselinje1,
             adresselinje2 = manuellAdresseInfo.adresselinje2,
             postnummer = manuellAdresseInfo.postnummer,
@@ -444,7 +443,6 @@ class IntegrasjonClient(
         )
 
     companion object {
-
         const val RETRY_BACKOFF_5000MS = "\${retry.backoff.delay:5000}"
         private const val PATH_TILGANG_PERSON = "tilgang/v2/personer"
         private const val HEADER_NAV_TEMA = "Nav-Tema"

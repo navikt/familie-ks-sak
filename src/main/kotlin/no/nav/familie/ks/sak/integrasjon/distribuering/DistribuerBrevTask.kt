@@ -26,7 +26,6 @@ class DistribuerBrevTask(
     private val brevService: BrevService,
     private val taskService: TaskService,
 ) : AsyncTaskStep {
-
     override fun doTask(task: Task) {
         val distribuerBrevDto = objectMapper.readValue(task.payload, DistribuerBrevDto::class.java)
 
@@ -61,13 +60,12 @@ class DistribuerBrevTask(
         } else {
             throw Feil(
                 "erManueltSendt=${distribuerBrevDto.erManueltSendt} " +
-                        "ikke støttet for brev=${distribuerBrevDto.brevmal.visningsTekst}",
+                    "ikke støttet for brev=${distribuerBrevDto.brevmal.visningsTekst}",
             )
         }
     }
 
     companion object {
-
         fun opprettDistribuerBrevTask(
             distribuerBrevDTO: DistribuerBrevDto,
             properties: Properties,

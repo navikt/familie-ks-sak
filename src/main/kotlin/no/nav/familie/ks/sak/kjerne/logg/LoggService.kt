@@ -32,7 +32,6 @@ class LoggService(
     private val loggRepository: LoggRepository,
     private val rolleConfig: RolleConfig,
 ) {
-
     private val metrikkPerLoggType: Map<LoggType, Counter> =
         LoggType.values().associateWith {
             Metrics.counter(
@@ -53,10 +52,10 @@ class LoggService(
                 behandlingId = behandling.id,
                 type = LoggType.AUTOVEDTAK_TIL_MANUELL_BEHANDLING,
                 rolle =
-                SikkerhetContext.hentRolletilgangFraSikkerhetscontext(
-                    rolleConfig,
-                    BehandlerRolle.SAKSBEHANDLER,
-                ),
+                    SikkerhetContext.hentRolletilgangFraSikkerhetscontext(
+                        rolleConfig,
+                        BehandlerRolle.SAKSBEHANDLER,
+                    ),
                 tekst = tekst,
             ),
         )
@@ -82,12 +81,12 @@ class LoggService(
                 behandlingId = behandling.id,
                 type = LoggType.BEHANDLENDE_ENHET_ENDRET,
                 rolle =
-                SikkerhetContext.hentRolletilgangFraSikkerhetscontext(
-                    rolleConfig,
-                    BehandlerRolle.SAKSBEHANDLER,
-                ),
+                    SikkerhetContext.hentRolletilgangFraSikkerhetscontext(
+                        rolleConfig,
+                        BehandlerRolle.SAKSBEHANDLER,
+                    ),
                 tekst =
-                "Behandlende enhet ${if (manuellOppdatering) "manuelt" else "automatisk"} endret " +
+                    "Behandlende enhet ${if (manuellOppdatering) "manuelt" else "automatisk"} endret " +
                         "fra ${fraEnhet.enhetId} ${fraEnhet.enhetNavn} " +
                         "til ${tilEnhet.behandlendeEnhetId} ${tilEnhet.behandlendeEnhetNavn}." +
                         if (begrunnelse.isNotBlank()) "\n\n$begrunnelse" else "",
@@ -131,10 +130,10 @@ class LoggService(
                 type = LoggType.DOKUMENT_MOTTATT,
                 tittel = "Dokument mottatt ${mottattDato.toLocalDate().tilKortString()}",
                 rolle =
-                SikkerhetContext.hentRolletilgangFraSikkerhetscontext(
-                    rolleConfig,
-                    BehandlerRolle.SAKSBEHANDLER,
-                ),
+                    SikkerhetContext.hentRolletilgangFraSikkerhetscontext(
+                        rolleConfig,
+                        BehandlerRolle.SAKSBEHANDLER,
+                    ),
                 tekst = tekst,
             ),
         )
@@ -149,10 +148,10 @@ class LoggService(
                 behandlingId = behandling.id,
                 type = LoggType.BEHANDLIG_SATT_PÅ_VENT,
                 rolle =
-                SikkerhetContext.hentRolletilgangFraSikkerhetscontext(
-                    rolleConfig,
-                    BehandlerRolle.SAKSBEHANDLER,
-                ),
+                    SikkerhetContext.hentRolletilgangFraSikkerhetscontext(
+                        rolleConfig,
+                        BehandlerRolle.SAKSBEHANDLER,
+                    ),
                 tekst = "Årsak: $årsak",
             ),
         )
@@ -179,10 +178,10 @@ class LoggService(
                 behandlingId = behandling.id,
                 type = LoggType.VENTENDE_BEHANDLING_ENDRET,
                 rolle =
-                SikkerhetContext.hentRolletilgangFraSikkerhetscontext(
-                    rolleConfig,
-                    BehandlerRolle.SAKSBEHANDLER,
-                ),
+                    SikkerhetContext.hentRolletilgangFraSikkerhetscontext(
+                        rolleConfig,
+                        BehandlerRolle.SAKSBEHANDLER,
+                    ),
                 tekst = tekst,
             ),
         )
@@ -230,10 +229,10 @@ class LoggService(
                 type = LoggType.VILKÅRSVURDERING,
                 tittel = tittel,
                 rolle =
-                SikkerhetContext.hentRolletilgangFraSikkerhetscontext(
-                    rolleConfig,
-                    BehandlerRolle.SAKSBEHANDLER,
-                ),
+                    SikkerhetContext.hentRolletilgangFraSikkerhetscontext(
+                        rolleConfig,
+                        BehandlerRolle.SAKSBEHANDLER,
+                    ),
                 tekst = tekst,
             ),
         )
@@ -302,10 +301,10 @@ class LoggService(
                 behandlingId = behandling.id,
                 type = LoggType.HENLEGG_BEHANDLING,
                 rolle =
-                SikkerhetContext.hentRolletilgangFraSikkerhetscontext(
-                    rolleConfig,
-                    BehandlerRolle.SAKSBEHANDLER,
-                ),
+                    SikkerhetContext.hentRolletilgangFraSikkerhetscontext(
+                        rolleConfig,
+                        BehandlerRolle.SAKSBEHANDLER,
+                    ),
                 tekst = "$årsak: $begrunnelse",
             ),
         )
@@ -346,16 +345,16 @@ class LoggService(
     ) {
         val beskrivelse =
             "${barn.navn.uppercase()} (${barn.hentAlder()} år) | " +
-                    "${formaterIdent(barn.aktør.aktivFødselsnummer())} lagt til"
+                "${formaterIdent(barn.aktør.aktivFødselsnummer())} lagt til"
         lagreLogg(
             Logg(
                 behandlingId = behandling.id,
                 type = LoggType.BARN_LAGT_TIL,
                 rolle =
-                SikkerhetContext.hentRolletilgangFraSikkerhetscontext(
-                    rolleConfig,
-                    BehandlerRolle.SAKSBEHANDLER,
-                ),
+                    SikkerhetContext.hentRolletilgangFraSikkerhetscontext(
+                        rolleConfig,
+                        BehandlerRolle.SAKSBEHANDLER,
+                    ),
                 tekst = beskrivelse,
             ),
         )
@@ -387,10 +386,10 @@ class LoggService(
                 behandlingId = behandling.id,
                 type = LoggType.KORRIGERT_VEDTAK,
                 rolle =
-                SikkerhetContext.hentRolletilgangFraSikkerhetscontext(
-                    rolleConfig,
-                    BehandlerRolle.SAKSBEHANDLER,
-                ),
+                    SikkerhetContext.hentRolletilgangFraSikkerhetscontext(
+                        rolleConfig,
+                        BehandlerRolle.SAKSBEHANDLER,
+                    ),
                 tittel = tittel,
                 tekst = tekst,
             ),
@@ -406,10 +405,10 @@ class LoggService(
             behandlingId = behandling.id,
             type = LoggType.BEHANDLINGSTEMA_ENDRET,
             rolle =
-            SikkerhetContext.hentRolletilgangFraSikkerhetscontext(
-                rolleConfig,
-                BehandlerRolle.SAKSBEHANDLER,
-            ),
+                SikkerhetContext.hentRolletilgangFraSikkerhetscontext(
+                    rolleConfig,
+                    BehandlerRolle.SAKSBEHANDLER,
+                ),
             tekst = "Behandlingstema er manuelt endret fra $forrigeKategori ordinær til $nyKategori ordinær",
         ),
     )
@@ -420,12 +419,12 @@ class LoggService(
                 behandlingId = feilutbetaltValuta.behandlingId,
                 type = LoggType.FEILUTBETALT_VALUTA_LAGT_TIL,
                 rolle =
-                SikkerhetContext.hentRolletilgangFraSikkerhetscontext(
-                    rolleConfig,
-                    BehandlerRolle.SAKSBEHANDLER,
-                ),
+                    SikkerhetContext.hentRolletilgangFraSikkerhetscontext(
+                        rolleConfig,
+                        BehandlerRolle.SAKSBEHANDLER,
+                    ),
                 tekst =
-                """
+                    """
                     Periode: ${feilutbetaltValuta.fom.tilKortString()} - ${feilutbetaltValuta.tom.tilKortString()}
                     Beløp: ${feilutbetaltValuta.feilutbetaltBeløp} kr
                     """.trimIndent(),
@@ -438,12 +437,12 @@ class LoggService(
                 behandlingId = feilutbetaltValuta.behandlingId,
                 type = LoggType.FEILUTBETALT_VALUTA_FJERNET,
                 rolle =
-                SikkerhetContext.hentRolletilgangFraSikkerhetscontext(
-                    rolleConfig,
-                    BehandlerRolle.SAKSBEHANDLER,
-                ),
+                    SikkerhetContext.hentRolletilgangFraSikkerhetscontext(
+                        rolleConfig,
+                        BehandlerRolle.SAKSBEHANDLER,
+                    ),
                 tekst =
-                """
+                    """
                     Periode: ${feilutbetaltValuta.fom.tilKortString()} - ${feilutbetaltValuta.tom.tilKortString()}
                     Beløp: ${feilutbetaltValuta.feilutbetaltBeløp} kr
                     """.trimIndent(),
@@ -456,12 +455,12 @@ class LoggService(
                 behandlingId = refusjonEøs.behandlingId,
                 type = LoggType.REFUSJON_EØS_LAGT_TIL,
                 rolle =
-                SikkerhetContext.hentRolletilgangFraSikkerhetscontext(
-                    rolleConfig,
-                    BehandlerRolle.SAKSBEHANDLER,
-                ),
+                    SikkerhetContext.hentRolletilgangFraSikkerhetscontext(
+                        rolleConfig,
+                        BehandlerRolle.SAKSBEHANDLER,
+                    ),
                 tekst =
-                """
+                    """
                     Periode: ${refusjonEøs.fom.tilKortString()} - ${refusjonEøs.tom.tilKortString()}
                     Beløp: ${refusjonEøs.refusjonsbeløp} kr/mnd
                     """.trimIndent(),
@@ -474,12 +473,12 @@ class LoggService(
                 behandlingId = refusjonEøs.behandlingId,
                 type = LoggType.REFUSJON_EØS_FJERNET,
                 rolle =
-                SikkerhetContext.hentRolletilgangFraSikkerhetscontext(
-                    rolleConfig,
-                    BehandlerRolle.SAKSBEHANDLER,
-                ),
+                    SikkerhetContext.hentRolletilgangFraSikkerhetscontext(
+                        rolleConfig,
+                        BehandlerRolle.SAKSBEHANDLER,
+                    ),
                 tekst =
-                """
+                    """
                     Periode: ${refusjonEøs.fom.tilKortString()} - ${refusjonEøs.tom.tilKortString()}
                     Beløp: ${refusjonEøs.refusjonsbeløp} kr/mnd
                     """.trimIndent(),
@@ -513,10 +512,10 @@ class LoggService(
                 behandlingId = behandling.id,
                 type = LoggType.KORRIGERT_ETTERBETALING,
                 rolle =
-                SikkerhetContext.hentRolletilgangFraSikkerhetscontext(
-                    rolleConfig,
-                    BehandlerRolle.SAKSBEHANDLER,
-                ),
+                    SikkerhetContext.hentRolletilgangFraSikkerhetscontext(
+                        rolleConfig,
+                        BehandlerRolle.SAKSBEHANDLER,
+                    ),
                 tittel = tittel,
                 tekst = tekst,
             ),
@@ -545,19 +544,17 @@ class LoggService(
                 behandlingId = brevmottaker.behandlingId,
                 type = LoggType.BREVMOTTAKER_LAGT_TIL_ELLER_FJERNET,
                 rolle =
-                SikkerhetContext.hentRolletilgangFraSikkerhetscontext(
-                    rolleConfig,
-                    BehandlerRolle.SAKSBEHANDLER,
-                ),
+                    SikkerhetContext.hentRolletilgangFraSikkerhetscontext(
+                        rolleConfig,
+                        BehandlerRolle.SAKSBEHANDLER,
+                    ),
                 tittel = tittel,
                 tekst = tekst,
             ),
         )
     }
 
-
     companion object {
-
         private val logger = LoggerFactory.getLogger(LoggService::class.java)
     }
 }

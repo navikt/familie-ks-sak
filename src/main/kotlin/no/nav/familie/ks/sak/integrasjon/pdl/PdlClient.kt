@@ -40,7 +40,6 @@ class PdlClient(
     pdlConfig: PdlConfig,
     @Qualifier("azureClientCredential") val restTemplate: RestOperations,
 ) : AbstractPingableRestClient(restTemplate, "pdl.personinfo") {
-
     private val pdlUri = pdlConfig.pdlUri
 
     override val pingUri: URI get() = pdlUri

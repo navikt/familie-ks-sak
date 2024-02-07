@@ -15,7 +15,6 @@ data class PdlBaseRespons<T>(
     val errors: List<PdlError>?,
     val extensions: PdlExtensions?,
 ) {
-
     fun harFeil(): Boolean {
         return !errors.isNullOrEmpty()
     }
@@ -36,7 +35,6 @@ data class PdlError(
 )
 
 data class PdlErrorExtensions(val code: String?) {
-
     fun notFound() = code == "not_found"
 }
 
@@ -88,7 +86,6 @@ data class PdlPersonData(
     val doedsfall: List<Doedsfall> = emptyList(),
     val kontaktinformasjonForDoedsbo: List<PdlKontaktinformasjonForDødsbo> = emptyList(),
 ) {
-
     fun validerOmPersonKanBehandlesIFagsystem() {
         if (foedsel.isEmpty()) throw PdlPersonKanIkkeBehandlesIFagsystem("mangler fødselsdato")
         if (folkeregisteridentifikator.firstOrNull()?.status == FolkeregisteridentifikatorStatus.OPPHOERT) {
@@ -104,12 +101,14 @@ data class PdlFolkeregisteridentifikator(
     val type: FolkeregisteridentifikatorType?,
 )
 
-enum class FolkeregisteridentifikatorStatus { I_BRUK,
-    OPPHOERT
+enum class FolkeregisteridentifikatorStatus {
+    I_BRUK,
+    OPPHOERT,
 }
 
-enum class FolkeregisteridentifikatorType { FNR,
-    DNR
+enum class FolkeregisteridentifikatorType {
+    FNR,
+    DNR,
 }
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -121,7 +120,6 @@ data class PdlNavn(
     val mellomnavn: String? = null,
     val etternavn: String,
 ) {
-
     fun fulltNavn(): String {
         return when (mellomnavn) {
             null -> "$fornavn $etternavn"
@@ -136,7 +134,6 @@ data class PdlKjoenn(val kjoenn: KJOENN)
 class Doedsfall(val doedsdato: String?)
 
 data class PdlBolkRespons<T>(val data: PersonBolk<T>?, val errors: List<PdlError>?, val extensions: PdlExtensions?) {
-
     fun errorMessages(): String {
         return errors?.joinToString { it -> it.message } ?: ""
     }
