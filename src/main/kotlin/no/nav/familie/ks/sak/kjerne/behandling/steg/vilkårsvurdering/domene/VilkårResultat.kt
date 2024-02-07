@@ -20,8 +20,8 @@ import no.nav.familie.ks.sak.common.util.førsteDagINesteMåned
 import no.nav.familie.ks.sak.common.util.sisteDagIMåned
 import no.nav.familie.ks.sak.common.util.toYearMonth
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.finnTilOgMedDato
-import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.NasjonalEllerFellesBegrunnelse
-import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.StandardbegrunnelseListConverter
+import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.IBegrunnelse
+import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.IBegrunnelseListConverter
 import org.hibernate.annotations.Immutable
 import java.math.BigDecimal
 import java.time.LocalDate
@@ -69,8 +69,8 @@ class VilkårResultat(
     @Column(name = "regel_output", columnDefinition = "TEXT")
     var regelOutput: String? = null,
     @Column(name = "vedtak_begrunnelse_spesifikasjoner")
-    @Convert(converter = StandardbegrunnelseListConverter::class)
-    var begrunnelser: List<NasjonalEllerFellesBegrunnelse> = emptyList(),
+    @Convert(converter = IBegrunnelseListConverter::class)
+    var begrunnelser: List<IBegrunnelse> = emptyList(),
     @Enumerated(EnumType.STRING)
     @Column(name = "vurderes_etter")
     var vurderesEtter: Regelverk? = personResultat?.let { vilkårType.defaultRegelverk(it.vilkårsvurdering.behandling.kategori) },
@@ -79,6 +79,8 @@ class VilkårResultat(
     var utdypendeVilkårsvurderinger: List<UtdypendeVilkårsvurdering> = emptyList(),
     @Column(name = "antall_timer")
     val antallTimer: BigDecimal? = null,
+    @Column(name = "soker_har_meldt_fra_om_barnehageplass")
+    var søkerHarMeldtFraOmBarnehageplass: Boolean? = null,
 ) : BaseEntitet() {
     fun erAvslagUtenPeriode() = erEksplisittAvslagPåSøknad == true && periodeFom == null && periodeTom == null
 
@@ -113,6 +115,7 @@ class VilkårResultat(
             vurderesEtter = this.vurderesEtter,
             utdypendeVilkårsvurderinger = this.utdypendeVilkårsvurderinger,
             antallTimer = antallTimer,
+            søkerHarMeldtFraOmBarnehageplass = søkerHarMeldtFraOmBarnehageplass,
         )
     }
 
@@ -144,6 +147,7 @@ class VilkårResultat(
         vurderesEtter = this.vurderesEtter,
         utdypendeVilkårsvurderinger = this.utdypendeVilkårsvurderinger,
         antallTimer = this.antallTimer,
+        søkerHarMeldtFraOmBarnehageplass = this.søkerHarMeldtFraOmBarnehageplass,
     )
 
     override fun toString(): String {

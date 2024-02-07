@@ -135,7 +135,7 @@ class StepDefinition {
     }
 
     /**
-     * Mulige verdier: | AktørId | Vilkår | Utdypende vilkår | Fra dato | Til dato | Resultat | Er eksplisitt avslag | Vurderes etter |
+     * Mulige verdier: | AktørId | Vilkår | Utdypende vilkår | Fra dato | Til dato | Resultat | Er eksplisitt avslag | Vurderes etter | Søker har meldt fra om barnehageplass |
      */
     @Og("følgende vilkårresultater for behandling {}")
     fun `legg til nye vilkårresultater for behandling`(
@@ -271,7 +271,7 @@ class StepDefinition {
 
         val vedtaksperioderComparator = compareBy<VedtaksperiodeMedBegrunnelser>({ it.type }, { it.fom }, { it.tom })
         assertThat(faktiskeVedtaksperioder.sortedWith(vedtaksperioderComparator))
-            .usingRecursiveComparison().ignoringFieldsMatchingRegexes(".*endretTidspunkt", ".*opprettetTidspunkt")
+            .usingRecursiveComparison().ignoringFieldsMatchingRegexes(".*endretTidspunkt", ".*opprettetTidspunkt", ".*begrunnelser")
             .isEqualTo(forventedeVedtaksperioder.sortedWith(vedtaksperioderComparator))
     }
 
@@ -338,6 +338,7 @@ class StepDefinition {
             it.tilUtvidetVedtaksperiodeMedBegrunnelser(
                 personopplysningGrunnlag = persongrunnlag[behandlingId]!!,
                 andelerTilkjentYtelse = hentAndelerTilkjentYtelseMedEndreteUtbetalinger(behandlingId),
+                dagensDato = dagensDato,
             )
         }
     }
@@ -393,14 +394,14 @@ class StepDefinition {
         andelTilkjentYtelserMedEndreteUtbetalinger = hentAndelerTilkjentYtelseMedEndreteUtbetalinger(behandlingId),
         uregistrerteBarn = uregistrerteBarn[behandlingId] ?: emptyList(),
         // TODO
-        barnSomDødeIForrigePeriode = emptyList(),
         erFørsteVedtaksperiode = erFørsteVedtaksperiode,
         kompetanser = hentUtfylteKompetanserPåBehandling(behandlingId),
         landkoder = LANDKODER,
     ).genererBrevPeriodeDto()
 
     /**
-     * Mulige verdier: | Begrunnelse | Type | Gjelder søker | Barnas fødselsdatoer | Antall barn | Måned og år begrunnelsen gjelder for | Målform | Beløp | Søknadstidspunkt | Avtale tidspunkt delt bosted | Søkers rett til utvidet |
+     * Mulige verdier Nasjonal: | Begrunnelse | Type | Barnas fødselsdatoer | Antall barn | Gjelder søker  | Målform | Beløp | Søknadstidspunkt | Måned og år begrunnelsen gjelder for| Avtale tidspunkt delt bosted | Søkers rett til utvidet |
+     * Mulige verdier EØS: | Begrunnelse | Type | Barnas fødselsdatoer | Antall barn | Gjelder søker | Målform | Søkers aktivitet | Annen forelders aktivitet | Søkers aktivitetsland | Annen forelders aktivitetsland | Barnets bostedsland |
      */
     @Så("forvent følgende brevbegrunnelser for behandling {} i periode {} til {}")
     fun `forvent følgende brevbegrunnelser for behandling i periode`(

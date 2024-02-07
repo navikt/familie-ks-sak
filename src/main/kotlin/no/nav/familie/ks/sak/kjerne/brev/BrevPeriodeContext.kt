@@ -66,7 +66,6 @@ class BrevPeriodeContext(
     private val personResultater: List<PersonResultat>,
     private val andelTilkjentYtelserMedEndreteUtbetalinger: List<AndelTilkjentYtelseMedEndreteUtbetalinger>,
     private val uregistrerteBarn: List<BarnMedOpplysningerDto>,
-    private val barnSomDødeIForrigePeriode: List<Person>,
     private val erFørsteVedtaksperiode: Boolean,
     private val kompetanser: List<UtfyltKompetanse>,
     private val landkoder: Map<String, String>,
@@ -437,7 +436,7 @@ class BrevPeriodeContext(
 
                 val begrunnelseGjelderOpphørFraForrigeBehandling = sanityBegrunnelse.begrunnelseGjelderOpphørFraForrigeBehandling()
 
-                if (relevanteKompetanser.isEmpty() && begrunnelse.begrunnelseType.erAvslagEllerEøsAvslag() && begrunnelse.begrunnelseType == BegrunnelseType.EØS_OPPHØR) {
+                if (relevanteKompetanser.isEmpty() && (begrunnelse.begrunnelseType.erAvslagEllerEøsAvslag() || begrunnelse.begrunnelseType == BegrunnelseType.EØS_OPPHØR)) {
                     val barnasFødselsdagerForAvslagOgOpphør =
                         hentBarnasFødselsdagerForAvslagOgOpphør(
                             barnIBegrunnelse = personerGjeldendeForBegrunnelse.filter { it.type == PersonType.BARN },

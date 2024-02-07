@@ -165,6 +165,12 @@ private fun lagVilkårResultater(
             rad,
         ) ?: Regelverk.NASJONALE_REGLER
 
+    val søkerHarMeldtFraOmBarnehageplass =
+        parseValgfriBoolean(
+            VedtaksperiodeMedBegrunnelserParser.DomenebegrepVedtaksperiodeMedBegrunnelser.FREMTIDIG_BARNEHAGEPLASS,
+            rad,
+        )
+
     return vilkårFor.map { vilkår ->
         VilkårResultat(
             behandlingId = behandlingId,
@@ -187,6 +193,7 @@ private fun lagVilkårResultater(
             vurderesEtter = vurderesEtter,
             // TODO må fjerne filterIsInstance når vi får inn eøsbegrunnelser her også
             begrunnelser = hentStandardBegrunnelser(rad).filterIsInstance<NasjonalEllerFellesBegrunnelse>(),
+            søkerHarMeldtFraOmBarnehageplass = søkerHarMeldtFraOmBarnehageplass,
         )
     }
 }

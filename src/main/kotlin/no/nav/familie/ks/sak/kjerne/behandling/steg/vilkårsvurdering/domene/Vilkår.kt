@@ -22,7 +22,7 @@ enum class Vilkår(
         parterDetteGjelderFor = listOf(PersonType.SØKER),
         ytelseType = YtelseType.ORDINÆR_KONTANTSTØTTE,
         beskrivelse = "Lovlig opphold",
-        harRegelverk = false,
+        harRegelverk = true,
         eøsSpesifikt = true,
     ),
     MEDLEMSKAP(
