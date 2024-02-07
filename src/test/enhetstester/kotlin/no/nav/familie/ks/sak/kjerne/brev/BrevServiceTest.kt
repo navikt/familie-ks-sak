@@ -31,6 +31,8 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.Brevmal
+import no.nav.familie.ks.sak.kjerne.brev.mottaker.BrevmottakerService
+import no.nav.familie.ks.sak.kjerne.brev.mottaker.ValiderBrevmottakerService
 import no.nav.familie.ks.sak.kjerne.logg.LoggService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
 import no.nav.familie.prosessering.internal.TaskService
@@ -74,6 +76,12 @@ class BrevServiceTest {
     @MockK
     private lateinit var settBehandlingPåVentService: SettBehandlingPåVentService
 
+    @MockK(relaxed = true)
+    private lateinit var brevmottakerService: BrevmottakerService
+
+    @MockK(relaxed = true)
+    private lateinit var validerBrevmottakerService: ValiderBrevmottakerService
+
     @InjectMockKs
     private lateinit var brevService: BrevService
 
@@ -103,7 +111,13 @@ class BrevServiceTest {
 
         every { genererBrevService.genererManueltBrev(any(), any()) } returns ByteArray(10)
 
-        brevService.hentForhåndsvisningAvBrev(manueltBrevDto.utvidManueltBrevDtoMedEnhetOgMottaker(behandling.id, personopplysningGrunnlagService, arbeidsfordelingService)).shouldNotBeNull()
+        brevService.hentForhåndsvisningAvBrev(
+            manueltBrevDto.utvidManueltBrevDtoMedEnhetOgMottaker(
+                behandling.id,
+                personopplysningGrunnlagService,
+                arbeidsfordelingService,
+            ),
+        ).shouldNotBeNull()
     }
 
     @ParameterizedTest
