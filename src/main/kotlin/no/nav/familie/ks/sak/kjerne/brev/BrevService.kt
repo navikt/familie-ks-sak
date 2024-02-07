@@ -26,6 +26,8 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.AnnenVurderingType
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.Brevmal
+import no.nav.familie.ks.sak.kjerne.brev.mottaker.BrevmottakerService
+import no.nav.familie.ks.sak.kjerne.brev.mottaker.ValiderBrevmottakerService
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.Fagsak
 import no.nav.familie.ks.sak.kjerne.logg.LoggService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
@@ -48,6 +50,8 @@ class BrevService(
     private val journalføringRepository: JournalføringRepository,
     private val settBehandlingPåVentService: SettBehandlingPåVentService,
     private val genererBrevService: GenererBrevService,
+    private val brevmottakerService: BrevmottakerService,
+    private val validerBrevmottakerService: ValiderBrevmottakerService,
 ) {
     fun hentForhåndsvisningAvBrev(
         manueltBrevDto: ManueltBrevDto,
@@ -87,6 +91,8 @@ class BrevService(
         behandlingId: Long? = null,
         manueltBrevDto: ManueltBrevDto,
     ) {
+        validerManuelleBrevmottakere(behandlingId, fagsak, manueltBrevDto)
+
         val behandling = behandlingId?.let { behandlingRepository.hentBehandling(behandlingId) }
         val generertBrev = genererBrevService.genererManueltBrev(manueltBrevDto, false)
 
@@ -101,12 +107,19 @@ class BrevService(
                 null
             }
 
-        val journalpostId =
-            utgåendeJournalføringService.journalførDokument(
-                fnr = fagsak.aktør.aktivFødselsnummer(),
-                fagsakId = fagsak.id,
-                behandlingId = behandlingId,
-                journalførendeEnhet =
+        val brevmottakereFraBehandling = behandling?.let { brevmottakerService.hentBrevmottakere(it.id) } ?: emptyList()
+        val mottakere = brevmottakerService.lagMottakereFraBrevMottakere(
+            søkersIdent = fagsak.aktør.aktivFødselsnummer(),
+            manueltRegistrerteMottakere = manueltBrevDto.manuelleBrevmottakere + brevmottakereFraBehandling
+        )
+
+        val journalposterTilDistribusjon =
+            mottakere.map { mottaker ->
+                (utgåendeJournalføringService.journalførDokument(
+                    fnr = fagsak.aktør.aktivFødselsnummer(),
+                    fagsakId = fagsak.id,
+                    behandlingId = behandlingId,
+                    journalførendeEnhet =
                     manueltBrevDto.enhet?.enhetId
                         ?: DEFAULT_JOURNALFØRENDE_ENHET,
                 brev =
@@ -117,19 +130,25 @@ class BrevService(
                             dokumenttype = manueltBrevDto.brevmal.tilFamilieKontrakterDokumentType(),
                         ),
                     ),
-                førsteside = førsteside,
-            )
+                    førsteside = førsteside,
+                    tilVergeEllerFullmektig = mottaker.erVergeEllerFullmektig
+                ) to mottaker).also { (journalpostId) ->
+
+                    behandling?.let {
+                        journalføringRepository.save(
+                            DbJournalpost(
+                                behandling = behandling,
+                                journalpostId = journalpostId,
+                                type = DbJournalpostType.U,
+                            ),
+                        )
+                    }
+                }
+            }
 
         behandling?.let {
-            journalføringRepository.save(
-                DbJournalpost(
-                    behandling = behandling,
-                    journalpostId = journalpostId,
-                    type = DbJournalpostType.U,
-                ),
-            )
-
-            val skalLeggeTilOpplysningspliktPåVilkårsvurdering = manueltBrevDto.brevmal == Brevmal.INNHENTE_OPPLYSNINGER || manueltBrevDto.brevmal == Brevmal.VARSEL_OM_REVURDERING
+            val skalLeggeTilOpplysningspliktPåVilkårsvurdering =
+                manueltBrevDto.brevmal == Brevmal.INNHENTE_OPPLYSNINGER || manueltBrevDto.brevmal == Brevmal.VARSEL_OM_REVURDERING
 
             if (skalLeggeTilOpplysningspliktPåVilkårsvurdering) {
                 leggTilOpplysningspliktIVilkårsvurdering(behandling)
@@ -153,14 +172,16 @@ class BrevService(
             }
         }
 
-        DistribuerBrevTask.opprettDistribuerBrevTask(
-            distribuerBrevDTO =
+        journalposterTilDistribusjon.forEach { (journalpostId, mottaker) ->
+            DistribuerBrevTask.opprettDistribuerBrevTask(
+                distribuerBrevDTO =
                 DistribuerBrevDto(
-                    personIdent = manueltBrevDto.mottakerIdent,
+                    personIdent = mottaker.brukerId,
                     behandlingId = behandling?.id,
                     journalpostId = journalpostId,
                     brevmal = manueltBrevDto.brevmal,
                     erManueltSendt = true,
+                    manuellAdresseInfo = mottaker.manuellAdresseInfo
                 ),
             properties =
                 Properties().apply {
@@ -170,8 +191,9 @@ class BrevService(
                     this["behandlingId"] = behandling?.id.toString()
                     this["fagsakId"] = fagsak.id.toString()
                 },
-        ).also {
-            taskService.save(it)
+            ).also {
+                taskService.save(it)
+            }
         }
     }
 
@@ -272,4 +294,23 @@ class BrevService(
         behandlingRepository.finnBehandlinger(fagsakId)
             .filter { !it.erHenlagt() && it.status == BehandlingStatus.AVSLUTTET }
             .maxByOrNull { it.opprettetTidspunkt }
+
+    private fun validerManuelleBrevmottakere(
+        behandlingId: Long?,
+        fagsak: Fagsak,
+        manueltBrevDto: ManueltBrevDto
+    ) {
+        if (behandlingId == null) {
+            validerBrevmottakerService.validerAtFagsakIkkeInneholderStrengtFortroligePersonerMedManuelleBrevmottakere(
+                fagsakId = fagsak.id,
+                manuelleBrevmottakere = manueltBrevDto.manuelleBrevmottakere,
+                barnLagtTilIBrev = manueltBrevDto.barnIBrev
+            )
+        } else {
+            validerBrevmottakerService.validerAtBehandlingIkkeInneholderStrengtFortroligePersonerMedManuelleBrevmottakere(
+                behandlingId = behandlingId,
+                ekstraBarnLagtTilIBrev = manueltBrevDto.barnIBrev
+            )
+        }
+    }
 }

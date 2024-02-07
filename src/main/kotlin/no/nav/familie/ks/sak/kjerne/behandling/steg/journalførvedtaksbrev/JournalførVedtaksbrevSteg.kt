@@ -1,13 +1,11 @@
 package no.nav.familie.ks.sak.kjerne.behandling.steg.journalførvedtaksbrev
 
-import no.nav.familie.kontrakter.felles.BrukerIdType
 import no.nav.familie.kontrakter.felles.dokarkiv.Dokumenttype
 import no.nav.familie.kontrakter.felles.dokarkiv.v2.Dokument
 import no.nav.familie.kontrakter.felles.dokarkiv.v2.Filtype
 import no.nav.familie.ks.sak.api.dto.BehandlingStegDto
 import no.nav.familie.ks.sak.api.dto.DistribuerBrevDto
 import no.nav.familie.ks.sak.api.dto.JournalførVedtaksbrevDTO
-import no.nav.familie.ks.sak.api.dto.MottakerInfo
 import no.nav.familie.ks.sak.integrasjon.distribuering.DistribuerBrevTask
 import no.nav.familie.ks.sak.integrasjon.distribuering.DistribuerVedtaksbrevTilVergeEllerFullmektigTask
 import no.nav.familie.ks.sak.integrasjon.journalføring.UtgåendeJournalføringService
@@ -55,15 +53,10 @@ class JournalførVedtaksbrevSteg(
         val søkersident = fagsak.aktør.aktivFødselsnummer()
         val manueltRegistrerteMottakere = brevmottakerService.hentBrevmottakere(behandlingId)
 
-        val mottakere =
-            if (manueltRegistrerteMottakere.isNotEmpty()) {
-                brevmottakerService.lagMottakereFraBrevMottakere(
-                    manueltRegistrerteMottakere,
-                    søkersident,
-                )
-            } else {
-                listOf(MottakerInfo(søkersident, BrukerIdType.FNR))
-            }
+        val mottakere = brevmottakerService.lagMottakereFraBrevMottakere(
+            manueltRegistrerteMottakere = manueltRegistrerteMottakere,
+            søkersIdent = søkersident,
+        )
 
         val journalposterTilDistribusjon = mottakere.map { mottaker ->
             journalførVedtaksbrev(
