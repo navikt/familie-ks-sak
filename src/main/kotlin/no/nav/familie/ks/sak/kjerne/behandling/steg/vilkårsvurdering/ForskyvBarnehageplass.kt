@@ -5,10 +5,7 @@ import no.nav.familie.ks.sak.common.tidslinje.tilTidslinje
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.kombiner
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.tilPerioder
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.tilPerioderIkkeNull
-import no.nav.familie.ks.sak.common.util.TIDENES_ENDE
-import no.nav.familie.ks.sak.common.util.TIDENES_MORGEN
-import no.nav.familie.ks.sak.common.util.førsteDagIInneværendeMåned
-import no.nav.familie.ks.sak.common.util.sisteDagIMåned
+import no.nav.familie.ks.sak.common.util.*
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
 import no.nav.familie.ks.sak.kjerne.beregning.domene.hentProsentForAntallTimer
 import java.math.BigDecimal
@@ -130,6 +127,8 @@ private fun LocalDate?.tilForskøvetTomBasertPåGraderingsforskjell(graderingsfo
             -> tomDato.plusDays(1).minusMonths(1).sisteDagIMåned()
         }
     }
+
+fun LocalDate?.tilForskjøvetTomMånedForSisteUtbetalingsperiodePgaFremtidigOpphør() = this?.tilForskøvetTomBasertPåGraderingsforskjell(Graderingsforskjell.ReduksjonGårTilIngenUtbetaling)?.toYearMonth()
 
 private fun LocalDate?.tilForskøvetFomBasertPåGraderingsforskjell(graderingsforskjellMellomDenneOgForrigePeriode: Graderingsforskjell) =
     this?.let { fomDato ->

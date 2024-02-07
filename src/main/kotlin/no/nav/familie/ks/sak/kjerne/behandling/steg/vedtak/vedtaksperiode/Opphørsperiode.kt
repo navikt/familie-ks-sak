@@ -15,6 +15,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.Vedtak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.VedtaksperiodeMedBegrunnelser
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.tilForskjøvetTomMånedForSisteUtbetalingsperiodePgaFremtidigOpphør
 import no.nav.familie.ks.sak.kjerne.beregning.AndelTilkjentYtelseMedEndreteUtbetalinger
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.NasjonalEllerFellesBegrunnelse
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.tilVedtaksbegrunnelse
@@ -118,7 +119,8 @@ private fun finnOpphørsperiodeEtterSisteUtbetalingsperiode(
     val erFramtidigOpphørPgaBarnehageplass =
         vilkårsvurdering.personResultater.any {
             it.vilkårResultater.any {
-                it.vilkårType == Vilkår.BARNEHAGEPLASS && it.søkerHarMeldtFraOmBarnehageplass == true && it.periodeTom?.toYearMonth() == sisteUtbetalingsperiodeTom
+                it.vilkårType == Vilkår.BARNEHAGEPLASS && it.søkerHarMeldtFraOmBarnehageplass == true &&
+                    it.periodeTom?.tilForskjøvetTomMånedForSisteUtbetalingsperiodePgaFremtidigOpphør() == sisteUtbetalingsperiodeTom
             }
         }
 
