@@ -3,12 +3,9 @@ package no.nav.familie.ks.sak.kjerne.brev.begrunnelser
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.util.slåSammen
 import no.nav.familie.ks.sak.common.util.tilKortString
-import no.nav.familie.ks.sak.common.util.toYearMonth
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelse
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.NasjonalEllerFellesBegrunnelseDB
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.VedtaksperiodeMedBegrunnelser
-import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelse
-import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
 import org.slf4j.LoggerFactory
 import java.time.LocalDate
 
@@ -39,27 +36,5 @@ fun NasjonalEllerFellesBegrunnelse.tilVedtaksbegrunnelse(vedtaksperiodeMedBegrun
         nasjonalEllerFellesBegrunnelse = this,
     )
 }
-
-fun dødeBarnForrigePeriode(
-    ytelserForrigePeriode: List<AndelTilkjentYtelse>,
-    barnIBehandling: List<Person>,
-): List<Person> =
-    barnIBehandling.filter { barn ->
-        val ytelserForrigePeriodeForBarn =
-            ytelserForrigePeriode.filter {
-                it.aktør == barn.aktør
-            }
-        var barnDødeForrigePeriode = false
-        if (barn.erDød() && ytelserForrigePeriodeForBarn.isNotEmpty()) {
-            val fom =
-                ytelserForrigePeriodeForBarn.minOf { it.stønadFom }
-            val tom =
-                ytelserForrigePeriodeForBarn.maxOf { it.stønadTom }
-            val fomFørDødsfall = fom <= barn.dødsfall!!.dødsfallDato.toYearMonth()
-            val tomEtterDødsfall = tom >= barn.dødsfall!!.dødsfallDato.toYearMonth()
-            barnDødeForrigePeriode = fomFørDødsfall && tomEtterDødsfall
-        }
-        barnDødeForrigePeriode
-    }
 
 fun List<LocalDate>.tilBrevTekst(): String = slåSammen(this.sorted().map { it.tilKortString() })

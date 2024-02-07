@@ -429,7 +429,7 @@ class BegrunnelserForPeriodeContext(
             vilkårResultaterForPerson.flatMap { it.utdypendeVilkårsvurderinger }.toSet()
 
         if (sanityBegrunnelseType == SanityBegrunnelseType.STANDARD) {
-            utdypendeVilkårIBehandling == utdypendeVilkårFraSanity.toSet()
+            utdypendeVilkårFraSanity.isEmpty() || utdypendeVilkårIBehandling == utdypendeVilkårFraSanity.toSet()
         } else {
             utdypendeVilkårFraSanity.all { utdypendeVilkårIBehandling.contains(it) }
         }

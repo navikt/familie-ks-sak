@@ -27,6 +27,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.registrersøknad.SøknadGrun
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.Vedtak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.VedtakRepository
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.refusjonEøs.RefusjonEøsRepository
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.EØSBegrunnelseDB
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.NasjonalEllerFellesBegrunnelseDB
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.UtvidetVedtaksperiodeMedBegrunnelser
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.VedtaksperiodeMedBegrunnelser
@@ -42,6 +43,7 @@ import no.nav.familie.ks.sak.kjerne.beregning.AndelerTilkjentYtelseOgEndreteUtbe
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.BegrunnelseType
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.BegrunnelserForPeriodeContext
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.EØSBegrunnelse
+import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.IBegrunnelse
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.NasjonalEllerFellesBegrunnelse
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.tilVedtaksbegrunnelse
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.KompetanseService
@@ -607,7 +609,7 @@ class VedtaksperiodeService(
     private fun lagVedtaksPeriodeMedBegrunnelser(
         vedtak: Vedtak,
         periode: NullablePeriode,
-        avslagsbegrunnelser: List<NasjonalEllerFellesBegrunnelse>,
+        avslagsbegrunnelser: List<IBegrunnelse>,
     ): VedtaksperiodeMedBegrunnelser =
         VedtaksperiodeMedBegrunnelser(
             vedtak = vedtak,
@@ -616,11 +618,17 @@ class VedtaksperiodeService(
             type = Vedtaksperiodetype.AVSLAG,
         ).apply {
             begrunnelser.addAll(
-                avslagsbegrunnelser.map { begrunnelse ->
+                avslagsbegrunnelser.filterIsInstance<NasjonalEllerFellesBegrunnelse>().map { begrunnelse ->
                     NasjonalEllerFellesBegrunnelseDB(
                         vedtaksperiodeMedBegrunnelser = this,
                         nasjonalEllerFellesBegrunnelse = begrunnelse,
                     )
+                },
+            )
+
+            eøsBegrunnelser.addAll(
+                avslagsbegrunnelser.filterIsInstance<EØSBegrunnelse>().map { eøsBegrunnelse ->
+                    EØSBegrunnelseDB(vedtaksperiodeMedBegrunnelser = this, begrunnelse = eøsBegrunnelse)
                 },
             )
         }

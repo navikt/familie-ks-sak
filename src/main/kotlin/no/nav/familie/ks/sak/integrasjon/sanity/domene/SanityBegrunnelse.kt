@@ -94,6 +94,7 @@ data class SanityBegrunnelseDto(
     val navnISystem: String,
     val type: String,
     val vilkaar: List<String> = emptyList(),
+    val eosVilkaar: List<String> = emptyList(),
     val rolle: List<String> = emptyList(),
     val utdypendeVilkaarsvurderinger: List<String> = emptyList(),
     val endringsaarsaker: List<String> = emptyList(),
@@ -116,7 +117,7 @@ data class SanityBegrunnelseDto(
             navnISystem = navnISystem,
             type = finnEnumverdi(type, SanityBegrunnelseType.entries, apiNavn) ?: SanityBegrunnelseType.TILLEGGSTEKST,
             vilkår =
-                vilkaar.mapNotNull {
+                (vilkaar + eosVilkaar).mapNotNull {
                     finnEnumverdi(it, Vilkår.entries, apiNavn)
                 },
             rolle = rolle.mapNotNull { finnEnumverdi(it, VilkårRolle.entries, apiNavn) },
