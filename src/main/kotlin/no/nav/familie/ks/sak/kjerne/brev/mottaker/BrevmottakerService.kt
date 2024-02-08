@@ -25,10 +25,10 @@ class BrevmottakerService(
 ) {
     @Transactional
     fun leggTilBrevmottaker(
-        restBrevMottaker: BrevmottakerDto,
+        brevmottakerDto: BrevmottakerDto,
         behandlingId: Long,
     ) {
-        val brevmottaker = restBrevMottaker.tilBrevMottakerDb(behandlingId)
+        val brevmottaker = brevmottakerDto.tilBrevMottakerDb(behandlingId)
 
         validerBrevmottakerService.validerAtBehandlingIkkeInneholderStrengtFortroligePersonerMedManuelleBrevmottakere(
             behandlingId = behandlingId,

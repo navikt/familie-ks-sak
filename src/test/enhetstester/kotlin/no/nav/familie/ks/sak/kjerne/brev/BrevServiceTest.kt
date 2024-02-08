@@ -49,7 +49,6 @@ import org.junit.jupiter.params.provider.EnumSource
 
 @ExtendWith(MockKExtension::class)
 class BrevServiceTest {
-
     @MockK
     private lateinit var genererBrevService: GenererBrevService
 
@@ -112,16 +111,16 @@ class BrevServiceTest {
     @Test
     fun `hentForhåndsvisningAvBrev - skal hente pdf i form av en ByteArray fra genererBrevService`() {
         every { personopplysningGrunnlagService.hentSøker(behandlingId = behandling.id) } returns
-                lagPerson(
-                    lagPersonopplysningGrunnlag(behandlingId = behandling.id, søkerPersonIdent = søker.aktivFødselsnummer()),
-                    søker,
-                )
+            lagPerson(
+                lagPersonopplysningGrunnlag(behandlingId = behandling.id, søkerPersonIdent = søker.aktivFødselsnummer()),
+                søker,
+            )
         every { arbeidsfordelingService.hentArbeidsfordelingPåBehandling(behandlingId = behandling.id) } returns
-                ArbeidsfordelingPåBehandling(
-                    behandlingId = behandling.id,
-                    behandlendeEnhetNavn = "Behandlende enhet",
-                    behandlendeEnhetId = "1234",
-                )
+            ArbeidsfordelingPåBehandling(
+                behandlingId = behandling.id,
+                behandlendeEnhetNavn = "Behandlende enhet",
+                behandlendeEnhetId = "1234",
+            )
 
         every { genererBrevService.genererManueltBrev(any(), any()) } returns ByteArray(10)
 
@@ -142,23 +141,23 @@ class BrevServiceTest {
     )
     fun `genererOgSendBrev - skal journalføre brev med forside for brevmaler som tilsier det`(brevmal: Brevmal) {
         every { personopplysningGrunnlagService.hentSøker(behandlingId = behandling.id) } returns
-                lagPerson(
-                    lagPersonopplysningGrunnlag(behandlingId = behandling.id, søkerPersonIdent = søker.aktivFødselsnummer()),
-                    søker,
-                )
+            lagPerson(
+                lagPersonopplysningGrunnlag(behandlingId = behandling.id, søkerPersonIdent = søker.aktivFødselsnummer()),
+                søker,
+            )
         every { arbeidsfordelingService.hentArbeidsfordelingPåBehandling(behandlingId = behandling.id) } returns
-                ArbeidsfordelingPåBehandling(
-                    behandlingId = behandling.id,
-                    behandlendeEnhetNavn = "Behandlende enhet",
-                    behandlendeEnhetId = "1234",
-                )
+            ArbeidsfordelingPåBehandling(
+                behandlingId = behandling.id,
+                behandlendeEnhetNavn = "Behandlende enhet",
+                behandlendeEnhetId = "1234",
+            )
 
         every { vilkårsvurderingService.finnAktivVilkårsvurdering(any()) } returns
-                lagVilkårsvurderingMedSøkersVilkår(
-                    søkerAktør = søker,
-                    behandling = behandling,
-                    resultat = Resultat.IKKE_VURDERT,
-                )
+            lagVilkårsvurderingMedSøkersVilkår(
+                søkerAktør = søker,
+                behandling = behandling,
+                resultat = Resultat.IKKE_VURDERT,
+            )
 
         every { taskService.save(any()) } returns mockk()
 
@@ -184,11 +183,11 @@ class BrevServiceTest {
         every { journalføringRepository.save(any()) } returns mockk()
 
         every { vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(any()) } returns
-                lagVilkårsvurderingMedSøkersVilkår(
-                    søkerAktør = søker,
-                    behandling = behandling,
-                    resultat = Resultat.IKKE_VURDERT,
-                )
+            lagVilkårsvurderingMedSøkersVilkår(
+                søkerAktør = søker,
+                behandling = behandling,
+                resultat = Resultat.IKKE_VURDERT,
+            )
 
         every {
             settBehandlingPåVentService.settBehandlingPåVent(
@@ -218,16 +217,16 @@ class BrevServiceTest {
     )
     fun `genererOgSendBrev - skal journalføre brev uten forside for brevmaler som tilsier det`(brevmal: Brevmal) {
         every { personopplysningGrunnlagService.hentSøker(behandlingId = behandling.id) } returns
-                lagPerson(
-                    lagPersonopplysningGrunnlag(behandlingId = behandling.id, søkerPersonIdent = søker.aktivFødselsnummer()),
-                    søker,
-                )
+            lagPerson(
+                lagPersonopplysningGrunnlag(behandlingId = behandling.id, søkerPersonIdent = søker.aktivFødselsnummer()),
+                søker,
+            )
         every { arbeidsfordelingService.hentArbeidsfordelingPåBehandling(behandlingId = behandling.id) } returns
-                ArbeidsfordelingPåBehandling(
-                    behandlingId = behandling.id,
-                    behandlendeEnhetNavn = "Behandlende enhet",
-                    behandlendeEnhetId = "1234",
-                )
+            ArbeidsfordelingPåBehandling(
+                behandlingId = behandling.id,
+                behandlendeEnhetNavn = "Behandlende enhet",
+                behandlendeEnhetId = "1234",
+            )
 
         every { taskService.save(any()) } returns mockk()
 
@@ -251,11 +250,11 @@ class BrevServiceTest {
         every { journalføringRepository.save(any()) } returns mockk()
 
         every { vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(any()) } returns
-                lagVilkårsvurderingMedSøkersVilkår(
-                    søkerAktør = søker,
-                    behandling = behandling,
-                    resultat = Resultat.IKKE_VURDERT,
-                )
+            lagVilkårsvurderingMedSøkersVilkår(
+                søkerAktør = søker,
+                behandling = behandling,
+                resultat = Resultat.IKKE_VURDERT,
+            )
 
         every {
             settBehandlingPåVentService.settBehandlingPåVent(
@@ -287,23 +286,23 @@ class BrevServiceTest {
         brevmal: Brevmal,
     ) {
         every { personopplysningGrunnlagService.hentSøker(behandlingId = behandling.id) } returns
-                lagPerson(
-                    lagPersonopplysningGrunnlag(behandlingId = behandling.id, søkerPersonIdent = søker.aktivFødselsnummer()),
-                    søker,
-                )
+            lagPerson(
+                lagPersonopplysningGrunnlag(behandlingId = behandling.id, søkerPersonIdent = søker.aktivFødselsnummer()),
+                søker,
+            )
         every { arbeidsfordelingService.hentArbeidsfordelingPåBehandling(behandlingId = behandling.id) } returns
-                ArbeidsfordelingPåBehandling(
-                    behandlingId = behandling.id,
-                    behandlendeEnhetNavn = "Behandlende enhet",
-                    behandlendeEnhetId = "1234",
-                )
+            ArbeidsfordelingPåBehandling(
+                behandlingId = behandling.id,
+                behandlendeEnhetNavn = "Behandlende enhet",
+                behandlendeEnhetId = "1234",
+            )
 
         every { vilkårsvurderingService.finnAktivVilkårsvurdering(any()) } returns
-                lagVilkårsvurderingMedSøkersVilkår(
-                    søkerAktør = søker,
-                    behandling = behandling,
-                    resultat = Resultat.IKKE_VURDERT,
-                )
+            lagVilkårsvurderingMedSøkersVilkår(
+                søkerAktør = søker,
+                behandling = behandling,
+                resultat = Resultat.IKKE_VURDERT,
+            )
 
         every { taskService.save(any()) } returns mockk()
 
@@ -327,11 +326,11 @@ class BrevServiceTest {
         every { journalføringRepository.save(any()) } returns mockk()
 
         every { vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(any()) } returns
-                lagVilkårsvurderingMedSøkersVilkår(
-                    søkerAktør = søker,
-                    behandling = behandling,
-                    resultat = Resultat.IKKE_VURDERT,
-                )
+            lagVilkårsvurderingMedSøkersVilkår(
+                søkerAktør = søker,
+                behandling = behandling,
+                resultat = Resultat.IKKE_VURDERT,
+            )
 
         every {
             settBehandlingPåVentService.settBehandlingPåVent(
@@ -369,16 +368,16 @@ class BrevServiceTest {
     )
     fun `genererOgSendBrev - skal journalføre brev og sette behandling på vent`(brevmal: Brevmal) {
         every { personopplysningGrunnlagService.hentSøker(behandlingId = behandling.id) } returns
-                lagPerson(
-                    lagPersonopplysningGrunnlag(behandlingId = behandling.id, søkerPersonIdent = søker.aktivFødselsnummer()),
-                    søker,
-                )
+            lagPerson(
+                lagPersonopplysningGrunnlag(behandlingId = behandling.id, søkerPersonIdent = søker.aktivFødselsnummer()),
+                søker,
+            )
         every { arbeidsfordelingService.hentArbeidsfordelingPåBehandling(behandlingId = behandling.id) } returns
-                ArbeidsfordelingPåBehandling(
-                    behandlingId = behandling.id,
-                    behandlendeEnhetNavn = "Behandlende enhet",
-                    behandlendeEnhetId = "1234",
-                )
+            ArbeidsfordelingPåBehandling(
+                behandlingId = behandling.id,
+                behandlendeEnhetNavn = "Behandlende enhet",
+                behandlendeEnhetId = "1234",
+            )
 
         every { taskService.save(any()) } returns mockk()
 
@@ -402,18 +401,18 @@ class BrevServiceTest {
         every { journalføringRepository.save(any()) } returns mockk()
 
         every { vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(any()) } returns
-                lagVilkårsvurderingMedSøkersVilkår(
-                    søkerAktør = søker,
-                    behandling = behandling,
-                    resultat = Resultat.IKKE_VURDERT,
-                )
+            lagVilkårsvurderingMedSøkersVilkår(
+                søkerAktør = søker,
+                behandling = behandling,
+                resultat = Resultat.IKKE_VURDERT,
+            )
 
         every { vilkårsvurderingService.finnAktivVilkårsvurdering(any()) } returns
-                lagVilkårsvurderingMedSøkersVilkår(
-                    søkerAktør = søker,
-                    behandling = behandling,
-                    resultat = Resultat.IKKE_VURDERT,
-                )
+            lagVilkårsvurderingMedSøkersVilkår(
+                søkerAktør = søker,
+                behandling = behandling,
+                resultat = Resultat.IKKE_VURDERT,
+            )
 
         every {
             settBehandlingPåVentService.settBehandlingPåVent(
@@ -453,17 +452,17 @@ class BrevServiceTest {
         every { behandlingRepository.hentBehandling(any()) } returns behandling
         every { genererBrevService.genererManueltBrev(any(), any()) } returns ByteArray(10)
         every { brevmottakerService.hentBrevmottakere(behandling.id) } returns
-                listOf(
-                    BrevmottakerDto(
-                        id = 1L,
-                        type = MottakerType.FULLMEKTIG,
-                        navn = "Fullmektig navn",
-                        adresselinje1 = "Test adresse",
-                        postnummer = "0000",
-                        poststed = "Oslo",
-                        landkode = "NO",
-                    ),
-                )
+            listOf(
+                BrevmottakerDto(
+                    id = 1L,
+                    type = MottakerType.FULLMEKTIG,
+                    navn = "Fullmektig navn",
+                    adresselinje1 = "Test adresse",
+                    postnummer = "0000",
+                    poststed = "Oslo",
+                    landkode = "NO",
+                ),
+            )
         every { brevmottakerService.lagMottakereFraBrevMottakere(any(), any()) } answers { callOriginal() }
         every { brevmottakerService.hentMottakerNavn(søkersident) } returns "søker"
         every {
