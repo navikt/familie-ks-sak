@@ -26,7 +26,7 @@ class UtgåendeJournalføringService(private val integrasjonClient: IntegrasjonC
         vedlegg: List<Dokument> = emptyList(),
         førsteside: Førsteside? = null,
         behandlingId: Long? = null,
-        tilVergeEllerFullmektig: Boolean = true,
+        tilVergeEllerFullmektig: Boolean = false,
         avsenderMottaker: AvsenderMottaker? = null,
     ): String {
         if (journalførendeEnhet == DEFAULT_JOURNALFØRENDE_ENHET) {
@@ -90,7 +90,7 @@ class UtgåendeJournalføringService(private val integrasjonClient: IntegrasjonC
         behandlingId: Long?,
         tilVergeEllerFullmektig: Boolean,
     ) =
-        "${fagsakId}_${behandlingId}_${if (tilVergeEllerFullmektig) "tilleggsmottaker" else ""}_${MDC.get(MDCConstants.MDC_CALL_ID)}"
+        "${fagsakId}_${behandlingId}${if (tilVergeEllerFullmektig) "tilleggsmottaker" else ""}_${MDC.get(MDCConstants.MDC_CALL_ID)}"
 
     companion object {
         const val DEFAULT_JOURNALFØRENDE_ENHET = "9999"
