@@ -1,11 +1,13 @@
 package no.nav.familie.ks.sak.kjerne.behandling.steg.journalførvedtaksbrev
 
+import no.nav.familie.kontrakter.felles.dokarkiv.AvsenderMottaker
 import no.nav.familie.kontrakter.felles.dokarkiv.Dokumenttype
 import no.nav.familie.kontrakter.felles.dokarkiv.v2.Dokument
 import no.nav.familie.kontrakter.felles.dokarkiv.v2.Filtype
 import no.nav.familie.ks.sak.api.dto.BehandlingStegDto
 import no.nav.familie.ks.sak.api.dto.DistribuerBrevDto
 import no.nav.familie.ks.sak.api.dto.JournalførVedtaksbrevDTO
+import no.nav.familie.ks.sak.api.dto.tilAvsenderMottaker
 import no.nav.familie.ks.sak.integrasjon.distribuering.DistribuerBrevTask
 import no.nav.familie.ks.sak.integrasjon.distribuering.DistribuerVedtaksbrevTilVergeEllerFullmektigTask
 import no.nav.familie.ks.sak.integrasjon.journalføring.UtgåendeJournalføringService
@@ -66,6 +68,7 @@ class JournalførVedtaksbrevSteg(
                     vedtak = vedtak,
                     journalførendeEnhet = behandlendeEnhet,
                     tilVergeEllerFullmektig = mottaker.erVergeEllerFullmektig,
+                    avsenderMottaker = mottaker.tilAvsenderMottaker(),
                 ) to mottaker
             }
 
@@ -101,6 +104,7 @@ class JournalførVedtaksbrevSteg(
         vedtak: Vedtak,
         journalførendeEnhet: String,
         tilVergeEllerFullmektig: Boolean,
+        avsenderMottaker: AvsenderMottaker?,
     ): String {
         val vedleggPdf = hentVedlegg(KONTANTSTØTTE_VEDTAK_VEDLEGG_FILNAVN)
 
@@ -140,6 +144,7 @@ class JournalførVedtaksbrevSteg(
             vedlegg = vedlegg,
             behandlingId = vedtak.behandling.id,
             tilVergeEllerFullmektig = tilVergeEllerFullmektig,
+            avsenderMottaker = avsenderMottaker,
         )
     }
 

@@ -2,6 +2,7 @@ package no.nav.familie.ks.sak.integrasjon.journalføring
 
 import no.nav.familie.http.client.RessursException
 import no.nav.familie.kontrakter.felles.BrukerIdType
+import no.nav.familie.kontrakter.felles.dokarkiv.AvsenderMottaker
 import no.nav.familie.kontrakter.felles.dokarkiv.v2.ArkiverDokumentRequest
 import no.nav.familie.kontrakter.felles.dokarkiv.v2.Dokument
 import no.nav.familie.kontrakter.felles.dokarkiv.v2.Førsteside
@@ -26,6 +27,7 @@ class UtgåendeJournalføringService(private val integrasjonClient: IntegrasjonC
         førsteside: Førsteside? = null,
         behandlingId: Long? = null,
         tilVergeEllerFullmektig: Boolean = true,
+        avsenderMottaker: AvsenderMottaker? = null,
     ): String {
         if (journalførendeEnhet == DEFAULT_JOURNALFØRENDE_ENHET) {
             logger.warn("Informasjon om enhet mangler på bruker og er satt til fallback-verdi, $DEFAULT_JOURNALFØRENDE_ENHET")
@@ -46,6 +48,7 @@ class UtgåendeJournalføringService(private val integrasjonClient: IntegrasjonC
                             journalførendeEnhet = journalførendeEnhet,
                             førsteside = førsteside,
                             eksternReferanseId = eksternReferanseId,
+                            avsenderMottaker = avsenderMottaker,
                         ),
                     )
 

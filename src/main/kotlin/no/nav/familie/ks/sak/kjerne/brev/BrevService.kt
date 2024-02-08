@@ -8,6 +8,7 @@ import no.nav.familie.kontrakter.felles.dokarkiv.v2.Førsteside
 import no.nav.familie.ks.sak.api.dto.DistribuerBrevDto
 import no.nav.familie.ks.sak.api.dto.ManuellAdresseInfo
 import no.nav.familie.ks.sak.api.dto.ManueltBrevDto
+import no.nav.familie.ks.sak.api.dto.tilAvsenderMottaker
 import no.nav.familie.ks.sak.config.BehandlerRolle
 import no.nav.familie.ks.sak.integrasjon.distribuering.DistribuerBrevTask
 import no.nav.familie.ks.sak.integrasjon.distribuering.DistribuerDødsfallBrevPåFagsakTask
@@ -134,6 +135,7 @@ class BrevService(
                             ),
                         førsteside = førsteside,
                         tilVergeEllerFullmektig = mottaker.erVergeEllerFullmektig,
+                        avsenderMottaker = mottaker.tilAvsenderMottaker(),
                     ) to mottaker
                 ).also { (journalpostId) ->
 

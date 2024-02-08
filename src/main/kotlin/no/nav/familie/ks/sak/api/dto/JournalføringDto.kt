@@ -103,3 +103,13 @@ data class MottakerInfo(
 )
 
 fun MottakerInfo.toList() = listOf(this)
+
+fun MottakerInfo.tilAvsenderMottaker(): AvsenderMottaker? {
+    return navn?.let {
+        AvsenderMottaker(
+            navn = it,
+            id = brukerId,
+            idType = brukerIdType,
+        )
+    }
+}
