@@ -212,26 +212,30 @@ class VilkårsvurderingSteg(
                     it.vilkårType == Vilkår.BARNEHAGEPLASS
                 }
 
-            val minFraOgMedDatoIBarnehageplassVilkårResultater =
+            val startDatoBarnehageplassVilkår =
                 barnehageplassVilkårResultater.sortedBy { it.periodeFom }.first().periodeFom
                     ?: error("Mangler fom dato")
-            val maksTilOmMedDatoIBarnehageplassVilkårResultater =
-                barnehageplassVilkårResultater.sortedWith(compareBy(nullsLast()) { it.periodeTom }).last().periodeTom
+            val sisteBarnehageplassVilkårresultat = barnehageplassVilkårResultater.sortedWith(compareBy(nullsLast()) { it.periodeTom }).last()
+
+            val sluttDatoBarnehageplassVilkår =
+                sisteBarnehageplassVilkårresultat.periodeTom
                     ?: TIDENES_ENDE
+            val sisteBarnehageplassVilkårresultatHarFramtidigOpphør =
+                sisteBarnehageplassVilkårresultat.søkerHarMeldtFraOmBarnehageplass == true
 
             val barnetsAlderVilkårResultater =
                 personResultat.vilkårResultater.filter { it.vilkårType == Vilkår.BARNETS_ALDER }
 
-            val minFraOgMedDatoIBarnetsAlderVilkårResultater =
+            val startDatoBarnetsAlderVilkår =
                 barnetsAlderVilkårResultater.sortedBy { it.periodeFom }.first().periodeFom
                     ?: person.fødselsdato.plusYears(1)
 
-            val maksTilOmMedDatoIBarnetsAlderVilkårResultater =
+            val sluttDatoBarnetsAlderVilkår =
                 barnetsAlderVilkårResultater.sortedBy { it.periodeTom }.last().periodeTom
                     ?: person.fødselsdato.plusYears(2)
 
-            if (minFraOgMedDatoIBarnehageplassVilkårResultater.isAfter(minFraOgMedDatoIBarnetsAlderVilkårResultater) ||
-                maksTilOmMedDatoIBarnehageplassVilkårResultater.isBefore(maksTilOmMedDatoIBarnetsAlderVilkårResultater)
+            if (startDatoBarnehageplassVilkår.isAfter(startDatoBarnetsAlderVilkår) ||
+                (!sisteBarnehageplassVilkårresultatHarFramtidigOpphør && sluttDatoBarnehageplassVilkår.isBefore(sluttDatoBarnetsAlderVilkår))
             ) {
                 throw FunksjonellFeil(
                     "Det mangler vurdering på vilkåret ${Vilkår.BARNEHAGEPLASS.beskrivelse}. " +
@@ -239,7 +243,7 @@ class VilkårsvurderingSteg(
                 )
             }
             if (barnehageplassVilkårResultater.any {
-                    it.periodeFom?.isAfter(maksTilOmMedDatoIBarnetsAlderVilkårResultater) == true
+                    it.periodeFom?.isAfter(sluttDatoBarnetsAlderVilkår) == true
                 }
             ) {
                 throw FunksjonellFeil(
