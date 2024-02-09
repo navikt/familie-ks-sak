@@ -447,7 +447,7 @@ class BrevServiceTest {
         val behandling = lagBehandling()
         val søkersident = behandling.fagsak.aktør.aktivFødselsnummer()
         val manueltBrevRequest = ManueltBrevDto(mottakerIdent = søkersident, brevmal = Brevmal.SVARTIDSBREV)
-        val avsenderMottakere = mutableListOf<AvsenderMottaker>()
+        val avsenderMottaker = slot<AvsenderMottaker>()
 
         every { behandlingRepository.hentBehandling(any()) } returns behandling
         every { genererBrevService.genererManueltBrev(any(), any()) } returns ByteArray(10)
@@ -473,7 +473,7 @@ class BrevServiceTest {
                 journalførendeEnhet = any(),
                 brev = any(),
                 førsteside = any(),
-                avsenderMottaker = capture(avsenderMottakere),
+                avsenderMottaker = any(),
                 tilVergeEllerFullmektig = any(),
             )
         } returns "mockJournalPostId" andThen "mockJournalPostId1"
@@ -483,7 +483,9 @@ class BrevServiceTest {
 
         brevService.sendBrev(behandling.fagsak, behandling.id, manueltBrevRequest)
 
-        verify(exactly = 2) {
+        verify(exactly = 2) { journalføringRepository.save(any()) }
+        verify(exactly = 2) { taskService.save(any()) }
+        verify(exactly = 1) {
             utgåendeJournalføringService.journalførDokument(
                 fnr = any(),
                 fagsakId = any(),
@@ -491,15 +493,23 @@ class BrevServiceTest {
                 journalførendeEnhet = any(),
                 brev = any(),
                 førsteside = any(),
-                avsenderMottaker = any(),
-                tilVergeEllerFullmektig = any(),
+                avsenderMottaker = null,
+                tilVergeEllerFullmektig = false,
             )
         }
-        verify(exactly = 2) { journalføringRepository.save(any()) }
-        verify(exactly = 2) { taskService.save(any()) }
-
-        assertEquals(2, avsenderMottakere.size)
-        assertEquals("Fullmektig navn", avsenderMottakere.single { it.idType == null }.navn)
+        verify(exactly = 1) {
+            utgåendeJournalføringService.journalførDokument(
+                fnr = any(),
+                fagsakId = any(),
+                behandlingId = any(),
+                journalførendeEnhet = any(),
+                brev = any(),
+                førsteside = any(),
+                avsenderMottaker = capture(avsenderMottaker),
+                tilVergeEllerFullmektig = true,
+            )
+        }
+        assertEquals("Fullmektig navn", avsenderMottaker.captured.navn)
     }
 
     @Test
@@ -525,7 +535,7 @@ class BrevServiceTest {
                 brevmal = Brevmal.SVARTIDSBREV,
                 manuelleBrevmottakere = brevmottakere,
             )
-        val avsenderMottakere = mutableListOf<AvsenderMottaker>()
+        val avsenderMottaker = slot<AvsenderMottaker>()
 
         every { genererBrevService.genererManueltBrev(any(), any()) } returns ByteArray(10)
         every { brevmottakerService.hentMottakerNavn(søkersident) } returns "søker"
@@ -536,7 +546,7 @@ class BrevServiceTest {
                 journalførendeEnhet = any(),
                 brev = any(),
                 førsteside = any(),
-                avsenderMottaker = capture(avsenderMottakere),
+                avsenderMottaker = any(),
                 tilVergeEllerFullmektig = any(),
             )
         } returns "mockJournalPostId" andThen "mockJournalPostId1"
@@ -546,20 +556,30 @@ class BrevServiceTest {
 
         brevService.sendBrev(fagsak, behandlingId = null, manueltBrevDto)
 
-        verify(exactly = 2) {
+        verify(exactly = 2) { taskService.save(any()) }
+        verify(exactly = 1) {
             utgåendeJournalføringService.journalførDokument(
                 fnr = any(),
                 fagsakId = any(),
                 journalførendeEnhet = any(),
                 brev = any(),
                 førsteside = any(),
-                avsenderMottaker = any(),
-                tilVergeEllerFullmektig = any(),
+                avsenderMottaker = capture(avsenderMottaker),
+                tilVergeEllerFullmektig = true,
             )
         }
-        verify(exactly = 2) { taskService.save(any()) }
+        verify(exactly = 1) {
+            utgåendeJournalføringService.journalførDokument(
+                fnr = any(),
+                fagsakId = any(),
+                journalførendeEnhet = any(),
+                brev = any(),
+                førsteside = any(),
+                avsenderMottaker = null,
+                tilVergeEllerFullmektig = false,
+            )
+        }
 
-        assertEquals(2, avsenderMottakere.size)
-        assertEquals("Fullmektig navn", avsenderMottakere.single { it.idType == null }.navn)
+        assertEquals("Fullmektig navn", avsenderMottaker.captured.navn)
     }
 }

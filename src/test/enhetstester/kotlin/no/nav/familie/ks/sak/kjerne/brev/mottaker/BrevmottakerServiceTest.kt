@@ -9,6 +9,7 @@ import io.mockk.mockk
 import io.mockk.runs
 import io.mockk.verify
 import no.nav.familie.ks.sak.api.dto.BrevmottakerDto
+import no.nav.familie.ks.sak.api.dto.Bruker
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.data.lagPdlPersonInfo
@@ -64,7 +65,7 @@ internal class BrevmottakerServiceTest {
             )
         assertTrue { mottakerInfo.size == 2 }
 
-        assertEquals(søkersnavn, mottakerInfo.first().navn)
+        assertTrue(mottakerInfo.first() is Bruker)
         assertTrue { mottakerInfo.first().manuellAdresseInfo == null }
 
         assertEquals(søkersnavn, mottakerInfo.last().navn)
