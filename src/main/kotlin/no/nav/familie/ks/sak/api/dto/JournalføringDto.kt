@@ -93,23 +93,49 @@ enum class Sakstype(val type: String) {
     GENERELL_SAK("GENERELL_SAK"),
 }
 
-data class MottakerInfo(
-    val brukerId: String,
-    val brukerIdType: BrukerIdType?,
-    // Feltet brukes for å sette riktig mottaker navn når brev sendes både til verge og bruker
-    val navn: String? = null,
-    val manuellAdresseInfo: ManuellAdresseInfo? = null,
-    val erVergeEllerFullmektig: Boolean = false,
-)
+sealed interface MottakerInfo {
+    val navn: String
+        get() = ""
+    val manuellAdresseInfo: ManuellAdresseInfo?
+        get() = null
+}
+
+class Bruker : MottakerInfo
+
+class BrukerMedUtenlandskAdresse(
+    val personIdent: String,
+    override val navn: String,
+    override val manuellAdresseInfo: ManuellAdresseInfo,
+) : MottakerInfo
+
+class FullmektigEllerVerge(
+    override val navn: String,
+    override val manuellAdresseInfo: ManuellAdresseInfo,
+) : MottakerInfo
+
+class Dødsbo(
+    override val navn: String,
+    override val manuellAdresseInfo: ManuellAdresseInfo,
+) : MottakerInfo
 
 fun MottakerInfo.toList() = listOf(this)
 
 fun MottakerInfo.tilAvsenderMottaker(): AvsenderMottaker? {
-    return navn?.let {
-        AvsenderMottaker(
-            navn = it,
-            id = brukerId,
-            idType = brukerIdType,
-        )
+    return when (this) {
+        is BrukerMedUtenlandskAdresse ->
+            AvsenderMottaker(
+                navn = navn,
+                id = personIdent,
+                idType = BrukerIdType.FNR,
+            )
+
+        is FullmektigEllerVerge, is Dødsbo ->
+            AvsenderMottaker(
+                navn = navn,
+                id = null,
+                idType = null,
+            )
+
+        else -> null
     }
 }

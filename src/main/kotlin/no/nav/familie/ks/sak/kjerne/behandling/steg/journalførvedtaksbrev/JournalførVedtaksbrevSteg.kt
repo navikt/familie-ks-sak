@@ -6,6 +6,7 @@ import no.nav.familie.kontrakter.felles.dokarkiv.v2.Dokument
 import no.nav.familie.kontrakter.felles.dokarkiv.v2.Filtype
 import no.nav.familie.ks.sak.api.dto.BehandlingStegDto
 import no.nav.familie.ks.sak.api.dto.DistribuerBrevDto
+import no.nav.familie.ks.sak.api.dto.FullmektigEllerVerge
 import no.nav.familie.ks.sak.api.dto.JournalførVedtaksbrevDTO
 import no.nav.familie.ks.sak.api.dto.tilAvsenderMottaker
 import no.nav.familie.ks.sak.integrasjon.distribuering.DistribuerBrevTask
@@ -67,7 +68,7 @@ class JournalførVedtaksbrevSteg(
                     fagsakId = fagsak.id,
                     vedtak = vedtak,
                     journalførendeEnhet = behandlendeEnhet,
-                    tilVergeEllerFullmektig = mottaker.erVergeEllerFullmektig,
+                    tilVergeEllerFullmektig = mottaker is FullmektigEllerVerge,
                     avsenderMottaker = mottaker.tilAvsenderMottaker(),
                 ) to mottaker
             }
@@ -75,7 +76,6 @@ class JournalførVedtaksbrevSteg(
         journalposterTilDistribusjon.forEach { (journalpostId, mottaker) ->
             val distribuerBrevDto =
                 DistribuerBrevDto(
-                    personIdent = mottaker.brukerId,
                     behandlingId = vedtak.behandling.id,
                     journalpostId = journalpostId,
                     brevmal = hentBrevmal(vedtak.behandling),
@@ -83,7 +83,7 @@ class JournalførVedtaksbrevSteg(
                     manuellAdresseInfo = mottaker.manuellAdresseInfo,
                 )
             val distributerBrevTask =
-                if (mottaker.erVergeEllerFullmektig) {
+                if (mottaker is FullmektigEllerVerge) {
                     DistribuerVedtaksbrevTilVergeEllerFullmektigTask.opprettDistribuerVedtaksbrevTilVergeEllerFullmektigTask(
                         distribuerBrevDTO = distribuerBrevDto,
                         properties = journalførVedtaksbrevDTO.task.metadata,

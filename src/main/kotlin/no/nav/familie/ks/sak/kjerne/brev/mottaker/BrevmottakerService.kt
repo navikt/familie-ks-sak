@@ -1,7 +1,10 @@
 package no.nav.familie.ks.sak.kjerne.brev.mottaker
 
-import no.nav.familie.kontrakter.felles.BrukerIdType
 import no.nav.familie.ks.sak.api.dto.BrevmottakerDto
+import no.nav.familie.ks.sak.api.dto.Bruker
+import no.nav.familie.ks.sak.api.dto.BrukerMedUtenlandskAdresse
+import no.nav.familie.ks.sak.api.dto.Dødsbo
+import no.nav.familie.ks.sak.api.dto.FullmektigEllerVerge
 import no.nav.familie.ks.sak.api.dto.ManuellAdresseInfo
 import no.nav.familie.ks.sak.api.dto.MottakerInfo
 import no.nav.familie.ks.sak.api.dto.tilBrevMottakerDb
@@ -76,14 +79,14 @@ class BrevmottakerService(
         søkersIdent: String,
     ): List<MottakerInfo> {
         if (manueltRegistrerteMottakere.isEmpty()) {
-            return MottakerInfo(søkersIdent, BrukerIdType.FNR).toList()
+            return Bruker().toList()
         }
 
         val søkersnavn: String = hentMottakerNavn(søkersIdent)
 
         manueltRegistrerteMottakere.singleOrNull { it.type == MottakerType.DØDSBO }?.let {
             // brev sendes kun til den manuelt registerte dødsboadressen
-            return lagMottakerInfoUtenBrukerId(navn = søkersnavn, manuellAdresseInfo = lagManuellAdresseInfo(it)).toList()
+            return Dødsbo(navn = søkersnavn, manuellAdresseInfo = lagManuellAdresseInfo(it)).toList()
         }
 
         val manuellAdresseUtenlands =
@@ -92,15 +95,15 @@ class BrevmottakerService(
                     it.takeIf { it.size <= 1 }
                         ?: throw FunksjonellFeil("Mottakerfeil: Det er registrert mer enn en utenlandsk adresse tilhørende bruker")
                 }.firstNotNullOfOrNull {
-                    lagMottakerInfoMedBrukerId(
-                        brukerId = søkersIdent,
+                    BrukerMedUtenlandskAdresse(
+                        personIdent = søkersIdent,
                         navn = søkersnavn,
                         manuellAdresseInfo = lagManuellAdresseInfo(it),
                     )
                 }
 
         // brev sendes til brukers (manuelt) registerte adresse (i utlandet)
-        val bruker = manuellAdresseUtenlands ?: lagMottakerInfoMedBrukerId(brukerId = søkersIdent, navn = søkersnavn)
+        val bruker = manuellAdresseUtenlands ?: Bruker()
 
         // ...og evt. til en manuelt registrert verge eller fullmektig i tillegg
         val manuellTilleggsmottaker =
@@ -111,8 +114,10 @@ class BrevmottakerService(
                             "Mottakerfeil: ${it.first().type.visningsnavn} kan ikke kombineres med ${it.last().type.visningsnavn}",
                         )
                 }.firstNotNullOfOrNull {
-                    lagMottakerInfoUtenBrukerId(navn = it.navn, manuellAdresseInfo = lagManuellAdresseInfo(it))
-                        .copy(erVergeEllerFullmektig = true)
+                    FullmektigEllerVerge(
+                        navn = it.navn,
+                        manuellAdresseInfo = lagManuellAdresseInfo(it),
+                    )
                 }
 
         return listOfNotNull(bruker, manuellTilleggsmottaker)
@@ -133,26 +138,4 @@ class BrevmottakerService(
             poststed = brevmottaker.poststed,
             landkode = brevmottaker.landkode,
         )
-
-    private fun lagMottakerInfoUtenBrukerId(
-        navn: String,
-        manuellAdresseInfo: ManuellAdresseInfo,
-    ): MottakerInfo =
-        MottakerInfo(
-            brukerId = "",
-            brukerIdType = null,
-            navn = navn,
-            manuellAdresseInfo = manuellAdresseInfo,
-        )
-
-    private fun lagMottakerInfoMedBrukerId(
-        brukerId: String,
-        navn: String,
-        manuellAdresseInfo: ManuellAdresseInfo? = null,
-    ) = MottakerInfo(
-        brukerId = brukerId,
-        brukerIdType = BrukerIdType.FNR,
-        navn = navn,
-        manuellAdresseInfo = manuellAdresseInfo,
-    )
 }
