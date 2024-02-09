@@ -72,7 +72,7 @@ jobs:
       env:
         GITHUB_USERNAME: x-access-token
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: ./gradlew build -x test -x integrationTest -x ktlintCheck
+      run: ./gradlew build -x test -x integrationTest -x ktlintCheck -Dorg.gradle.jvmargs=-Xmx1g
 
     # ℹ️ Command-line programs to run using the OS shell.
     # 📚 See https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#jobsjob_idstepsrun
