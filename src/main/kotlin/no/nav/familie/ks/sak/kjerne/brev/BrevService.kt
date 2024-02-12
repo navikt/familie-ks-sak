@@ -117,7 +117,7 @@ class BrevService(
 
         val journalposterTilDistribusjon =
             mottakere.map { mottaker ->
-                (
+                val journalpostId =
                     utgåendeJournalføringService.journalførDokument(
                         fnr = fagsak.aktør.aktivFødselsnummer(),
                         fagsakId = fagsak.id,
@@ -136,19 +136,19 @@ class BrevService(
                         førsteside = førsteside,
                         tilVergeEllerFullmektig = mottaker is FullmektigEllerVerge,
                         avsenderMottaker = mottaker.tilAvsenderMottaker(),
-                    ) to mottaker
-                ).also { (journalpostId) ->
+                    )
 
-                    behandling?.let {
-                        journalføringRepository.save(
-                            DbJournalpost(
-                                behandling = behandling,
-                                journalpostId = journalpostId,
-                                type = DbJournalpostType.U,
-                            ),
-                        )
-                    }
+                if (behandling != null) {
+                    journalføringRepository.save(
+                        DbJournalpost(
+                            behandling = behandling,
+                            journalpostId = journalpostId,
+                            type = DbJournalpostType.U,
+                        ),
+                    )
                 }
+
+                journalpostId to mottaker
             }
 
         behandling?.let {

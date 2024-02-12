@@ -10,7 +10,6 @@ import jakarta.persistence.Id
 import jakarta.persistence.SequenceGenerator
 import jakarta.persistence.Table
 import no.nav.familie.ks.sak.common.entitet.BaseEntitet
-import org.hibernate.Hibernate
 
 @Entity(name = "Brevmottaker")
 @Table(name = "BREVMOTTAKER")
@@ -37,16 +36,6 @@ data class BrevmottakerDb(
     @Column(name = "landkode", nullable = false, length = 2)
     var landkode: String,
 ) : BaseEntitet() {
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other == null || Hibernate.getClass(this) != Hibernate.getClass(other)) return false
-        other as BrevmottakerDb
-
-        return id == other.id
-    }
-
-    override fun hashCode(): Int = javaClass.hashCode()
-
     @Override
     override fun toString(): String {
         return this::class.simpleName + "(" +

@@ -8,7 +8,6 @@ import no.nav.familie.ks.sak.api.dto.FullmektigEllerVerge
 import no.nav.familie.ks.sak.api.dto.ManuellAdresseInfo
 import no.nav.familie.ks.sak.api.dto.MottakerInfo
 import no.nav.familie.ks.sak.api.dto.tilBrevMottakerDb
-import no.nav.familie.ks.sak.api.dto.toList
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.integrasjon.pdl.PersonOpplysningerService
@@ -77,45 +76,34 @@ class BrevmottakerService(
     fun lagMottakereFraBrevMottakere(
         manueltRegistrerteMottakere: List<BrevmottakerDto>,
     ): List<MottakerInfo> {
-        if (manueltRegistrerteMottakere.isEmpty()) {
-            return Bruker().toList()
-        }
+        return when {
+            manueltRegistrerteMottakere.isEmpty() -> listOf(Bruker())
+            manueltRegistrerteMottakere.any { it.type == MottakerType.DØDSBO } -> {
+                val dodsbo = manueltRegistrerteMottakere.single { it.type == MottakerType.DØDSBO }
+                listOf(Dødsbo(navn = dodsbo.navn, manuellAdresseInfo = lagManuellAdresseInfo(dodsbo)))
+            }
 
-        manueltRegistrerteMottakere.singleOrNull { it.type == MottakerType.DØDSBO }?.let {
-            // brev sendes kun til den manuelt registerte dødsboadressen
-            return Dødsbo(navn = it.navn, manuellAdresseInfo = lagManuellAdresseInfo(it)).toList()
-        }
-
-        val manuellAdresseUtenlands =
-            manueltRegistrerteMottakere.filter { it.type == MottakerType.BRUKER_MED_UTENLANDSK_ADRESSE }
-                .let {
-                    it.takeIf { it.size <= 1 }
-                        ?: throw FunksjonellFeil("Mottakerfeil: Det er registrert mer enn en utenlandsk adresse tilhørende bruker")
-                }.firstNotNullOfOrNull {
-                    BrukerMedUtenlandskAdresse(
-                        manuellAdresseInfo = lagManuellAdresseInfo(it),
-                    )
+            else -> {
+                val brukerMedUtenlandskAdresseListe =
+                    manueltRegistrerteMottakere.filter { it.type == MottakerType.BRUKER_MED_UTENLANDSK_ADRESSE }
+                        .map { BrukerMedUtenlandskAdresse(lagManuellAdresseInfo(it)) }
+                if (brukerMedUtenlandskAdresseListe.size > 1) {
+                    throw FunksjonellFeil("Mottakerfeil: Det er registrert mer enn en utenlandsk adresse tilhørende bruker")
                 }
+                val bruker = brukerMedUtenlandskAdresseListe.firstOrNull() ?: Bruker()
 
-        // brev sendes til brukers (manuelt) registerte adresse (i utlandet)
-        val bruker = manuellAdresseUtenlands ?: Bruker()
-
-        // ...og evt. til en manuelt registrert verge eller fullmektig i tillegg
-        val manuellTilleggsmottaker =
-            manueltRegistrerteMottakere.filter { it.type != MottakerType.BRUKER_MED_UTENLANDSK_ADRESSE }
-                .let {
-                    it.takeIf { it.size <= 1 }
-                        ?: throw FunksjonellFeil(
-                            "Mottakerfeil: ${it.first().type.visningsnavn} kan ikke kombineres med ${it.last().type.visningsnavn}",
-                        )
-                }.firstNotNullOfOrNull {
-                    FullmektigEllerVerge(
-                        navn = it.navn,
-                        manuellAdresseInfo = lagManuellAdresseInfo(it),
-                    )
+                val tilleggsmottakerListe =
+                    manueltRegistrerteMottakere.filter { it.type != MottakerType.BRUKER_MED_UTENLANDSK_ADRESSE }
+                if (tilleggsmottakerListe.size > 1) {
+                    throw FunksjonellFeil("Mottakerfeil: ${tilleggsmottakerListe.first().type.visningsnavn} kan ikke kombineres med ${tilleggsmottakerListe.last().type.visningsnavn}")
                 }
-
-        return listOfNotNull(bruker, manuellTilleggsmottaker)
+                val tilleggsmottaker =
+                    tilleggsmottakerListe.firstOrNull()?.let {
+                        FullmektigEllerVerge(navn = it.navn, manuellAdresseInfo = lagManuellAdresseInfo(it))
+                    }
+                listOfNotNull(bruker, tilleggsmottaker)
+            }
+        }
     }
 
     fun hentMottakerNavn(personIdent: String): String {

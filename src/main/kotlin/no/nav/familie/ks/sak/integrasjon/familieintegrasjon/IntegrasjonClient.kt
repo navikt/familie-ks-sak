@@ -383,7 +383,7 @@ class IntegrasjonClient(
                 dokumentProdApp = "FAMILIE_KS_SAK",
                 distribusjonstidspunkt = Distribusjonstidspunkt.KJERNETID,
                 distribusjonstype = distribusjonstype,
-                adresse = manuellAdresseInfo?.let { lagManuellAdresse(it) },
+                adresse = lagManuellAdresse(manuellAdresseInfo),
             )
 
         val bestillingId: String =
@@ -428,19 +428,21 @@ class IntegrasjonClient(
         }
     }
 
-    private fun lagManuellAdresse(manuellAdresseInfo: ManuellAdresseInfo) =
-        ManuellAdresse(
-            adresseType =
-                when (manuellAdresseInfo.landkode) {
-                    "NO" -> AdresseType.norskPostadresse
-                    else -> AdresseType.utenlandskPostadresse
-                },
-            adresselinje1 = manuellAdresseInfo.adresselinje1,
-            adresselinje2 = manuellAdresseInfo.adresselinje2,
-            postnummer = manuellAdresseInfo.postnummer,
-            poststed = manuellAdresseInfo.poststed,
-            land = manuellAdresseInfo.landkode,
-        )
+    private fun lagManuellAdresse(manuellAdresseInfo: ManuellAdresseInfo?) =
+        manuellAdresseInfo?.let {
+            ManuellAdresse(
+                adresseType =
+                    when (it.landkode) {
+                        "NO" -> AdresseType.norskPostadresse
+                        else -> AdresseType.utenlandskPostadresse
+                    },
+                adresselinje1 = it.adresselinje1,
+                adresselinje2 = it.adresselinje2,
+                postnummer = it.postnummer,
+                poststed = it.poststed,
+                land = it.landkode,
+            )
+        }
 
     companion object {
         const val RETRY_BACKOFF_5000MS = "\${retry.backoff.delay:5000}"

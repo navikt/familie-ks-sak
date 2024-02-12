@@ -24,7 +24,7 @@ class ValiderBrevmottakerService(
         nyBrevmottaker?.let {
             brevmottakere += it
         }
-        brevmottakere.takeIf { it.isNotEmpty() } ?: return
+        if (brevmottakere.isEmpty()) return
 
         val personopplysningGrunnlag =
             persongrunnlagService.finnAktivPersonopplysningGrunnlag(behandlingId = behandlingId) ?: return
