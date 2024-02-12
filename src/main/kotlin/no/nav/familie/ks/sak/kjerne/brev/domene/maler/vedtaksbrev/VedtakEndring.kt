@@ -33,6 +33,8 @@ data class VedtakEndring(
         refusjonEosAvklart: RefusjonEøsAvklart? = null,
         refusjonEosUavklart: RefusjonEøsUavklart? = null,
         duMaaMeldeFraOmEndringerEosSelvstendigRett: Boolean = false,
+        duMaaMeldeFraOmEndringer: Boolean = false,
+        duMaaGiNavBeskjedHvisBarnetDittFaarTildeltBarnehageplass: Boolean = false,
     ) :
         this(
             mal = mal,
@@ -56,6 +58,8 @@ data class VedtakEndring(
                             refusjonEosAvklart = refusjonEosAvklart,
                             refusjonEosUavklart = refusjonEosUavklart,
                             duMaaMeldeFraOmEndringerEosSelvstendigRett = duMaaMeldeFraOmEndringerEosSelvstendigRett,
+                            duMaaMeldeFraOmEndringer = duMaaMeldeFraOmEndringer,
+                            duMaaGiNavBeskjedHvisBarnetDittFaarTildeltBarnehageplass = duMaaGiNavBeskjedHvisBarnetDittFaarTildeltBarnehageplass,
                         ),
                     flettefelter =
                         object : FlettefelterForDokumentDto {
@@ -86,5 +90,7 @@ data class EndringVedtakData(
         val refusjonEosAvklart: RefusjonEøsAvklart?,
         val refusjonEosUavklart: RefusjonEøsUavklart?,
         val duMaaMeldeFraOmEndringerEosSelvstendigRett: Boolean = false,
+        val duMaaMeldeFraOmEndringer: Boolean,
+        val duMaaGiNavBeskjedHvisBarnetDittFaarTildeltBarnehageplass: Boolean,
     )
 }

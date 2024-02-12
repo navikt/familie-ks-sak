@@ -78,6 +78,7 @@ class OpphørsperiodeTest {
             mapTilOpphørsperioder(
                 andelerTilkjentYtelse = listOf(andelBarn1, andel2Barn1, andel3Barn1),
                 personopplysningGrunnlag = personopplysningGrunnlag,
+                vilkårsvurdering = vilkårsvurdering,
             )
 
         assertEquals(2, opphørsperioder.size)
@@ -106,6 +107,7 @@ class OpphørsperiodeTest {
             mapTilOpphørsperioder(
                 andelerTilkjentYtelse = listOf(andelBarn1),
                 personopplysningGrunnlag = personopplysningGrunnlag,
+                vilkårsvurdering = vilkårsvurdering,
             )
 
         assertEquals(1, opphørsperioder.size)
@@ -132,6 +134,7 @@ class OpphørsperiodeTest {
             mapTilOpphørsperioder(
                 andelerTilkjentYtelse = listOf(andelBarn1),
                 personopplysningGrunnlag = personopplysningGrunnlag,
+                vilkårsvurdering = vilkårsvurdering,
             )
 
         assertEquals(1, opphørsperioder.size)

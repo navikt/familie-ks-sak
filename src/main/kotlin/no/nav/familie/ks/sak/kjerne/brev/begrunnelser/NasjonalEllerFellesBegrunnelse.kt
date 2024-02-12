@@ -1,17 +1,6 @@
 package no.nav.familie.ks.sak.kjerne.brev.begrunnelser
 
-import jakarta.persistence.AttributeConverter
-import jakarta.persistence.Converter
-import no.nav.familie.ks.sak.common.util.konverterEnumsTilString
-import no.nav.familie.ks.sak.common.util.konverterStringTilEnums
-import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelse
-
-interface IBegrunnelse {
-    val sanityApiNavn: String
-    val begrunnelseType: BegrunnelseType
-
-    fun enumnavnTilString(): String
-}
+import com.fasterxml.jackson.annotation.JsonValue
 
 enum class NasjonalEllerFellesBegrunnelse : IBegrunnelse {
     INNVILGET_IKKE_BARNEHAGE {
@@ -458,6 +447,10 @@ enum class NasjonalEllerFellesBegrunnelse : IBegrunnelse {
         override val begrunnelseType = BegrunnelseType.OPPHØR
         override val sanityApiNavn = "opphorDeltBostedKommunenMelderOmDeltidsplass"
     },
+    OPPHØR_FRAMTIDIG_OPPHØR_BARNEHAGEPLASS {
+        override val begrunnelseType = BegrunnelseType.OPPHØR
+        override val sanityApiNavn = "opphorFramtidigOpphorBarnehageplass"
+    },
     REDUKSJON_BARN_FLYTTET_FRA_SOKER {
         override val begrunnelseType = BegrunnelseType.REDUKSJON
         override val sanityApiNavn = "reduksjonBarnFlyttetFraSoker"
@@ -603,16 +596,6 @@ enum class NasjonalEllerFellesBegrunnelse : IBegrunnelse {
         override val sanityApiNavn = "fortsattInnvilgetMedlemskapFolketrygdenOgEosLandDenAndreForelderen"
     }, ;
 
-    override fun enumnavnTilString() = this.name
-}
-
-fun IBegrunnelse.støtterFritekst(sanityBegrunnelser: List<SanityBegrunnelse>) =
-    sanityBegrunnelser.first { it.apiNavn == this.sanityApiNavn }.støtterFritekst
-
-@Converter
-class StandardbegrunnelseListConverter :
-    AttributeConverter<List<NasjonalEllerFellesBegrunnelse>, String> {
-    override fun convertToDatabaseColumn(begrunnelser: List<NasjonalEllerFellesBegrunnelse>) = konverterEnumsTilString(begrunnelser)
-
-    override fun convertToEntityAttribute(string: String?): List<NasjonalEllerFellesBegrunnelse> = konverterStringTilEnums(string)
+    @JsonValue
+    override fun enumnavnTilString() = NasjonalEllerFellesBegrunnelse::class.simpleName + "$" + this.name
 }

@@ -20,8 +20,8 @@ import no.nav.familie.ks.sak.common.util.MånedPeriode
 import no.nav.familie.ks.sak.common.util.YearMonthConverter
 import no.nav.familie.ks.sak.common.util.overlapperHeltEllerDelvisMed
 import no.nav.familie.ks.sak.kjerne.beregning.EndretUtbetalingAndelMedAndelerTilkjentYtelse
+import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.IBegrunnelseListConverter
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.NasjonalEllerFellesBegrunnelse
-import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.StandardbegrunnelseListConverter
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
 import java.math.BigDecimal
 import java.time.LocalDate
@@ -61,7 +61,7 @@ data class EndretUtbetalingAndel(
     @Column(name = "begrunnelse")
     var begrunnelse: String? = null,
     @Column(name = "vedtak_begrunnelse_spesifikasjoner")
-    @Convert(converter = StandardbegrunnelseListConverter::class)
+    @Convert(converter = IBegrunnelseListConverter::class)
     var begrunnelser: List<NasjonalEllerFellesBegrunnelse> = emptyList(),
     @Column(name = "er_eksplisitt_avslag_paa_soknad")
     var erEksplisittAvslagPåSøknad: Boolean? = null,

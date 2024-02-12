@@ -1,5 +1,7 @@
 package no.nav.familie.ks.sak.kjerne.brev.begrunnelser
 
+import com.fasterxml.jackson.annotation.JsonValue
+
 enum class EØSBegrunnelse : IBegrunnelse {
     INNVILGET_PRIMÆRLAND_BARNET_BOR_I_NORGE {
         override val sanityApiNavn = "innvilgetPrimarlandBarnetBorINorge"
@@ -537,5 +539,6 @@ enum class EØSBegrunnelse : IBegrunnelse {
 
     ;
 
-    override fun enumnavnTilString() = this.name
+    @JsonValue
+    override fun enumnavnTilString() = EØSBegrunnelse::class.simpleName + "$" + this.name
 }

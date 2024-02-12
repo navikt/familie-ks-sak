@@ -1,5 +1,6 @@
 package no.nav.familie.ks.sak.api.dto
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import no.nav.familie.ks.sak.common.util.sisteDagIMåned
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.AnnenVurderingType
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Regelverk
@@ -8,7 +9,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Utd
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.IBegrunnelse
-import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.NasjonalEllerFellesBegrunnelse
+import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.IBegrunnelseDeserializer
 import java.math.BigDecimal
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -42,10 +43,12 @@ data class VilkårResultatDto(
     val erVurdert: Boolean = false,
     val erAutomatiskVurdert: Boolean = false,
     val erEksplisittAvslagPåSøknad: Boolean? = null,
-    val avslagBegrunnelser: List<NasjonalEllerFellesBegrunnelse>? = emptyList(),
+    @JsonDeserialize(using = IBegrunnelseDeserializer::class)
+    val avslagBegrunnelser: List<IBegrunnelse>? = emptyList(),
     val vurderesEtter: Regelverk? = null,
     val antallTimer: BigDecimal? = null,
     val utdypendeVilkårsvurderinger: List<UtdypendeVilkårsvurdering> = emptyList(),
+    val søkerHarMeldtFraOmBarnehageplass: Boolean? = null,
 ) {
     fun erAvslagUtenPeriode() = erEksplisittAvslagPåSøknad == true && periodeFom == null && periodeTom == null
 
@@ -67,6 +70,7 @@ data class VilkårResultatDto(
             vilkårType = vilkårResultat.vilkårType,
             // antallTimer kan ikke være 0
             antallTimer = if (antallTimer == BigDecimal(0)) null else antallTimer,
+            søkerHarMeldtFraOmBarnehageplass = søkerHarMeldtFraOmBarnehageplass,
         )
     }
 }
