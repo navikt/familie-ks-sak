@@ -87,7 +87,7 @@ internal class BrevmottakerServiceTest {
 
         assertTrue { mottakerInfo.size == 2 }
 
-        assertEquals(søkersnavn, mottakerInfo.first().navn)
+        assertTrue(mottakerInfo.first().navn.isEmpty()) // (kun adressen til bruker som overstyres)
         assertTrue { mottakerInfo.first().manuellAdresseInfo != null }
         assertTrue { mottakerInfo.first().manuellAdresseInfo!!.landkode == "DE" }
 
@@ -112,7 +112,7 @@ internal class BrevmottakerServiceTest {
 
         assertTrue { mottakerInfo.size == 2 }
 
-        assertEquals(søkersnavn, mottakerInfo.first().navn)
+        assertTrue(mottakerInfo.first().navn.isEmpty()) // (kun adressen til bruker som overstyres)
         assertTrue { mottakerInfo.first().manuellAdresseInfo != null }
         assertTrue { mottakerInfo.first().manuellAdresseInfo!!.landkode == "DE" }
 
@@ -136,7 +136,7 @@ internal class BrevmottakerServiceTest {
 
         assertTrue { mottakerInfo.size == 1 }
 
-        assertEquals(søkersnavn, mottakerInfo.first().navn)
+        assertTrue(mottakerInfo.first().navn.isEmpty()) // (kun adressen som overstyrers)
         assertTrue { mottakerInfo.first().manuellAdresseInfo != null }
         assertTrue { mottakerInfo.first().manuellAdresseInfo!!.landkode == "DE" }
     }
