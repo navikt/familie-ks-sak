@@ -126,7 +126,7 @@ fun MottakerInfo.tilAvsenderMottaker(): AvsenderMottaker? {
                 id = null,
                 idType = null,
             )
-        // Trenger ikke spesifiseres når mottaker er bruker
+        // Trenger ikke overstyres når mottaker er bruker
         is Bruker, is BrukerMedUtenlandskAdresse -> null
     }
 }
