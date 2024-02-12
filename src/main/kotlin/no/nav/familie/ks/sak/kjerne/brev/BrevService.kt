@@ -6,7 +6,10 @@ import no.nav.familie.kontrakter.felles.dokarkiv.v2.Dokument
 import no.nav.familie.kontrakter.felles.dokarkiv.v2.Filtype
 import no.nav.familie.kontrakter.felles.dokarkiv.v2.Førsteside
 import no.nav.familie.ks.sak.api.dto.DistribuerBrevDto
+import no.nav.familie.ks.sak.api.dto.FullmektigEllerVerge
+import no.nav.familie.ks.sak.api.dto.ManuellAdresseInfo
 import no.nav.familie.ks.sak.api.dto.ManueltBrevDto
+import no.nav.familie.ks.sak.api.dto.tilAvsenderMottaker
 import no.nav.familie.ks.sak.config.BehandlerRolle
 import no.nav.familie.ks.sak.integrasjon.distribuering.DistribuerBrevTask
 import no.nav.familie.ks.sak.integrasjon.distribuering.DistribuerDødsfallBrevPåFagsakTask
@@ -25,6 +28,8 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.AnnenVurderingType
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.Brevmal
+import no.nav.familie.ks.sak.kjerne.brev.mottaker.BrevmottakerService
+import no.nav.familie.ks.sak.kjerne.brev.mottaker.ValiderBrevmottakerService
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.Fagsak
 import no.nav.familie.ks.sak.kjerne.logg.LoggService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
@@ -47,6 +52,8 @@ class BrevService(
     private val journalføringRepository: JournalføringRepository,
     private val settBehandlingPåVentService: SettBehandlingPåVentService,
     private val genererBrevService: GenererBrevService,
+    private val brevmottakerService: BrevmottakerService,
+    private val validerBrevmottakerService: ValiderBrevmottakerService,
 ) {
     fun hentForhåndsvisningAvBrev(
         manueltBrevDto: ManueltBrevDto,
@@ -86,6 +93,8 @@ class BrevService(
         behandlingId: Long? = null,
         manueltBrevDto: ManueltBrevDto,
     ) {
+        validerManuelleBrevmottakere(behandlingId, fagsak, manueltBrevDto)
+
         val behandling = behandlingId?.let { behandlingRepository.hentBehandling(behandlingId) }
         val generertBrev = genererBrevService.genererManueltBrev(manueltBrevDto, false)
 
@@ -100,35 +109,51 @@ class BrevService(
                 null
             }
 
-        val journalpostId =
-            utgåendeJournalføringService.journalførDokument(
-                fnr = fagsak.aktør.aktivFødselsnummer(),
-                fagsakId = fagsak.id,
-                behandlingId = behandlingId,
-                journalførendeEnhet =
-                    manueltBrevDto.enhet?.enhetId
-                        ?: DEFAULT_JOURNALFØRENDE_ENHET,
-                brev =
-                    listOf(
-                        Dokument(
-                            dokument = generertBrev,
-                            filtype = Filtype.PDFA,
-                            dokumenttype = manueltBrevDto.brevmal.tilFamilieKontrakterDokumentType(),
-                        ),
-                    ),
-                førsteside = førsteside,
+        val brevmottakereFraBehandling = behandling?.let { brevmottakerService.hentBrevmottakere(it.id) } ?: emptyList()
+        val mottakere =
+            brevmottakerService.lagMottakereFraBrevMottakere(
+                manueltRegistrerteMottakere = manueltBrevDto.manuelleBrevmottakere + brevmottakereFraBehandling,
             )
+
+        val journalposterTilDistribusjon =
+            mottakere.map { mottaker ->
+                val journalpostId =
+                    utgåendeJournalføringService.journalførDokument(
+                        fnr = fagsak.aktør.aktivFødselsnummer(),
+                        fagsakId = fagsak.id,
+                        behandlingId = behandlingId,
+                        journalførendeEnhet =
+                            manueltBrevDto.enhet?.enhetId
+                                ?: DEFAULT_JOURNALFØRENDE_ENHET,
+                        brev =
+                            listOf(
+                                Dokument(
+                                    dokument = generertBrev,
+                                    filtype = Filtype.PDFA,
+                                    dokumenttype = manueltBrevDto.brevmal.tilFamilieKontrakterDokumentType(),
+                                ),
+                            ),
+                        førsteside = førsteside,
+                        tilVergeEllerFullmektig = mottaker is FullmektigEllerVerge,
+                        avsenderMottaker = mottaker.tilAvsenderMottaker(),
+                    )
+
+                if (behandling != null) {
+                    journalføringRepository.save(
+                        DbJournalpost(
+                            behandling = behandling,
+                            journalpostId = journalpostId,
+                            type = DbJournalpostType.U,
+                        ),
+                    )
+                }
+
+                journalpostId to mottaker
+            }
 
         behandling?.let {
-            journalføringRepository.save(
-                DbJournalpost(
-                    behandling = behandling,
-                    journalpostId = journalpostId,
-                    type = DbJournalpostType.U,
-                ),
-            )
-
-            val skalLeggeTilOpplysningspliktPåVilkårsvurdering = manueltBrevDto.brevmal == Brevmal.INNHENTE_OPPLYSNINGER || manueltBrevDto.brevmal == Brevmal.VARSEL_OM_REVURDERING
+            val skalLeggeTilOpplysningspliktPåVilkårsvurdering =
+                manueltBrevDto.brevmal == Brevmal.INNHENTE_OPPLYSNINGER || manueltBrevDto.brevmal == Brevmal.VARSEL_OM_REVURDERING
 
             if (skalLeggeTilOpplysningspliktPåVilkårsvurdering) {
                 leggTilOpplysningspliktIVilkårsvurdering(behandling)
@@ -152,25 +177,28 @@ class BrevService(
             }
         }
 
-        DistribuerBrevTask.opprettDistribuerBrevTask(
-            distribuerBrevDTO =
-                DistribuerBrevDto(
-                    personIdent = manueltBrevDto.mottakerIdent,
-                    behandlingId = behandling?.id,
-                    journalpostId = journalpostId,
-                    brevmal = manueltBrevDto.brevmal,
-                    erManueltSendt = true,
-                ),
-            properties =
-                Properties().apply {
-                    this["fagsakIdent"] = fagsak.aktør.aktivFødselsnummer()
-                    this["mottakerIdent"] = manueltBrevDto.mottakerIdent
-                    this["journalpostId"] = journalpostId
-                    this["behandlingId"] = behandling?.id.toString()
-                    this["fagsakId"] = fagsak.id.toString()
-                },
-        ).also {
-            taskService.save(it)
+        journalposterTilDistribusjon.forEach { (journalpostId, mottaker) ->
+            DistribuerBrevTask.opprettDistribuerBrevTask(
+                distribuerBrevDTO =
+                    DistribuerBrevDto(
+                        behandlingId = behandling?.id,
+                        journalpostId = journalpostId,
+                        brevmal = manueltBrevDto.brevmal,
+                        erManueltSendt = true,
+                        manuellAdresseInfo = mottaker.manuellAdresseInfo,
+                    ),
+                properties =
+                    Properties().apply {
+                        this["fagsakIdent"] = fagsak.aktør.aktivFødselsnummer()
+                        this["mottakerIdent"] = manueltBrevDto.mottakerIdent
+                        this["journalpostId"] = journalpostId
+                        this["behandlingId"] = behandling?.id.toString()
+                        this["fagsakId"] = fagsak.id.toString()
+                        this["mottakerType"] = mottaker.javaClass.simpleName
+                    },
+            ).also {
+                taskService.save(it)
+            }
         }
     }
 
@@ -179,8 +207,9 @@ class BrevService(
         behandlingId: Long?,
         loggBehandlerRolle: BehandlerRolle,
         brevmal: Brevmal,
+        manuellAdresseInfo: ManuellAdresseInfo? = null,
     ) = try {
-        distribuerBrevOgLoggHendelse(journalpostId, behandlingId, brevmal, loggBehandlerRolle)
+        distribuerBrevOgLoggHendelse(journalpostId, behandlingId, brevmal, loggBehandlerRolle, manuellAdresseInfo)
     } catch (ressursException: RessursException) {
         logger.info("Klarte ikke å distribuere brev til journalpost $journalpostId. Httpstatus ${ressursException.httpStatus}")
 
@@ -206,8 +235,13 @@ class BrevService(
         behandlingId: Long?,
         brevMal: Brevmal,
         loggBehandlerRolle: BehandlerRolle,
+        manuellAdresseInfo: ManuellAdresseInfo? = null,
     ) {
-        integrasjonClient.distribuerBrev(journalpostId = journalpostId, distribusjonstype = brevMal.distribusjonstype)
+        integrasjonClient.distribuerBrev(
+            journalpostId = journalpostId,
+            distribusjonstype = brevMal.distribusjonstype,
+            manuellAdresseInfo = manuellAdresseInfo,
+        )
 
         if (behandlingId != null) {
             loggService.opprettDistribuertBrevLogg(
@@ -265,4 +299,23 @@ class BrevService(
         behandlingRepository.finnBehandlinger(fagsakId)
             .filter { !it.erHenlagt() && it.status == BehandlingStatus.AVSLUTTET }
             .maxByOrNull { it.opprettetTidspunkt }
+
+    private fun validerManuelleBrevmottakere(
+        behandlingId: Long?,
+        fagsak: Fagsak,
+        manueltBrevDto: ManueltBrevDto,
+    ) {
+        if (behandlingId == null) {
+            validerBrevmottakerService.validerAtFagsakIkkeInneholderStrengtFortroligePersonerMedManuelleBrevmottakere(
+                fagsakId = fagsak.id,
+                manuelleBrevmottakere = manueltBrevDto.manuelleBrevmottakere,
+                barnLagtTilIBrev = manueltBrevDto.barnIBrev,
+            )
+        } else {
+            validerBrevmottakerService.validerAtBehandlingIkkeInneholderStrengtFortroligePersonerMedManuelleBrevmottakere(
+                behandlingId = behandlingId,
+                ekstraBarnLagtTilIBrev = manueltBrevDto.barnIBrev,
+            )
+        }
+    }
 }

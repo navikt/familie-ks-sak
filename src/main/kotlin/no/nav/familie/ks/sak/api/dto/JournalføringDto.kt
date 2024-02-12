@@ -92,3 +92,39 @@ enum class Sakstype(val type: String) {
     FAGSAK("FAGSAK"),
     GENERELL_SAK("GENERELL_SAK"),
 }
+
+sealed interface MottakerInfo {
+    val navn: String
+        get() = ""
+    val manuellAdresseInfo: ManuellAdresseInfo?
+        get() = null
+}
+
+class Bruker : MottakerInfo
+
+class BrukerMedUtenlandskAdresse(
+    override val manuellAdresseInfo: ManuellAdresseInfo,
+) : MottakerInfo
+
+class FullmektigEllerVerge(
+    override val navn: String,
+    override val manuellAdresseInfo: ManuellAdresseInfo,
+) : MottakerInfo
+
+class Dødsbo(
+    override val navn: String,
+    override val manuellAdresseInfo: ManuellAdresseInfo,
+) : MottakerInfo
+
+fun MottakerInfo.tilAvsenderMottaker(): AvsenderMottaker? {
+    return when (this) {
+        is FullmektigEllerVerge, is Dødsbo ->
+            AvsenderMottaker(
+                navn = navn,
+                id = null,
+                idType = null,
+            )
+        // Trenger ikke overstyres når mottaker er bruker
+        is Bruker, is BrukerMedUtenlandskAdresse -> null
+    }
+}

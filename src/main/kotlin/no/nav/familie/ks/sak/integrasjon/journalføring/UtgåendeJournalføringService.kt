@@ -2,6 +2,7 @@ package no.nav.familie.ks.sak.integrasjon.journalføring
 
 import no.nav.familie.http.client.RessursException
 import no.nav.familie.kontrakter.felles.BrukerIdType
+import no.nav.familie.kontrakter.felles.dokarkiv.AvsenderMottaker
 import no.nav.familie.kontrakter.felles.dokarkiv.v2.ArkiverDokumentRequest
 import no.nav.familie.kontrakter.felles.dokarkiv.v2.Dokument
 import no.nav.familie.kontrakter.felles.dokarkiv.v2.Førsteside
@@ -25,12 +26,14 @@ class UtgåendeJournalføringService(private val integrasjonClient: IntegrasjonC
         vedlegg: List<Dokument> = emptyList(),
         førsteside: Førsteside? = null,
         behandlingId: Long? = null,
+        tilVergeEllerFullmektig: Boolean = false,
+        avsenderMottaker: AvsenderMottaker? = null,
     ): String {
         if (journalførendeEnhet == DEFAULT_JOURNALFØRENDE_ENHET) {
             logger.warn("Informasjon om enhet mangler på bruker og er satt til fallback-verdi, $DEFAULT_JOURNALFØRENDE_ENHET")
         }
 
-        val eksternReferanseId = genererEksternReferanseIdForJournalpost(fagsakId, behandlingId)
+        val eksternReferanseId = genererEksternReferanseIdForJournalpost(fagsakId, behandlingId, tilVergeEllerFullmektig)
 
         val journalpostId =
             try {
@@ -45,6 +48,7 @@ class UtgåendeJournalføringService(private val integrasjonClient: IntegrasjonC
                             journalførendeEnhet = journalførendeEnhet,
                             førsteside = førsteside,
                             eksternReferanseId = eksternReferanseId,
+                            avsenderMottaker = avsenderMottaker,
                         ),
                     )
 
@@ -84,7 +88,9 @@ class UtgåendeJournalføringService(private val integrasjonClient: IntegrasjonC
     private fun genererEksternReferanseIdForJournalpost(
         fagsakId: Long,
         behandlingId: Long?,
-    ) = "${fagsakId}_${behandlingId}_${MDC.get(MDCConstants.MDC_CALL_ID)}"
+        tilVergeEllerFullmektig: Boolean,
+    ) =
+        "${fagsakId}_${behandlingId}${if (tilVergeEllerFullmektig) "_tilleggsmottaker" else ""}_${MDC.get(MDCConstants.MDC_CALL_ID)}"
 
     companion object {
         const val DEFAULT_JOURNALFØRENDE_ENHET = "9999"

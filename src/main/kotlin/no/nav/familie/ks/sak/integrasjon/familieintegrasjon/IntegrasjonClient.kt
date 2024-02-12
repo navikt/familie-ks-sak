@@ -10,9 +10,11 @@ import no.nav.familie.kontrakter.felles.dokarkiv.LogiskVedleggRequest
 import no.nav.familie.kontrakter.felles.dokarkiv.LogiskVedleggResponse
 import no.nav.familie.kontrakter.felles.dokarkiv.OppdaterJournalpostResponse
 import no.nav.familie.kontrakter.felles.dokarkiv.v2.ArkiverDokumentRequest
+import no.nav.familie.kontrakter.felles.dokdist.AdresseType
 import no.nav.familie.kontrakter.felles.dokdist.DistribuerJournalpostRequest
 import no.nav.familie.kontrakter.felles.dokdist.Distribusjonstidspunkt
 import no.nav.familie.kontrakter.felles.dokdist.Distribusjonstype
+import no.nav.familie.kontrakter.felles.dokdist.ManuellAdresse
 import no.nav.familie.kontrakter.felles.journalpost.Journalpost
 import no.nav.familie.kontrakter.felles.journalpost.JournalposterForBrukerRequest
 import no.nav.familie.kontrakter.felles.kodeverk.KodeverkDto
@@ -23,6 +25,7 @@ import no.nav.familie.kontrakter.felles.oppgave.Oppgave
 import no.nav.familie.kontrakter.felles.oppgave.OppgaveResponse
 import no.nav.familie.kontrakter.felles.oppgave.OpprettOppgaveRequest
 import no.nav.familie.kontrakter.felles.tilgangskontroll.Tilgang
+import no.nav.familie.ks.sak.api.dto.ManuellAdresseInfo
 import no.nav.familie.ks.sak.api.dto.OppdaterJournalpostRequestDto
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.domene.ArbeidsfordelingsEnhet
 import no.nav.familie.ks.sak.integrasjon.kallEksternTjeneste
@@ -369,6 +372,7 @@ class IntegrasjonClient(
     fun distribuerBrev(
         journalpostId: String,
         distribusjonstype: Distribusjonstype,
+        manuellAdresseInfo: ManuellAdresseInfo? = null,
     ): String {
         val uri = URI.create("$integrasjonUri/dist/v1")
 
@@ -379,6 +383,7 @@ class IntegrasjonClient(
                 dokumentProdApp = "FAMILIE_KS_SAK",
                 distribusjonstidspunkt = Distribusjonstidspunkt.KJERNETID,
                 distribusjonstype = distribusjonstype,
+                adresse = lagManuellAdresse(manuellAdresseInfo),
             )
 
         val bestillingId: String =
@@ -422,6 +427,22 @@ class IntegrasjonClient(
             getForEntity(uri)
         }
     }
+
+    private fun lagManuellAdresse(manuellAdresseInfo: ManuellAdresseInfo?) =
+        manuellAdresseInfo?.let {
+            ManuellAdresse(
+                adresseType =
+                    when (it.landkode) {
+                        "NO" -> AdresseType.norskPostadresse
+                        else -> AdresseType.utenlandskPostadresse
+                    },
+                adresselinje1 = it.adresselinje1,
+                adresselinje2 = it.adresselinje2,
+                postnummer = it.postnummer,
+                poststed = it.poststed,
+                land = it.landkode,
+            )
+        }
 
     companion object {
         const val RETRY_BACKOFF_5000MS = "\${retry.backoff.delay:5000}"

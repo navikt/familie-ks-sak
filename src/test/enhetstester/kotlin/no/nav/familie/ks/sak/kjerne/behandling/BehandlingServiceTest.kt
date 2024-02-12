@@ -38,6 +38,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.Vedtak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
 import no.nav.familie.ks.sak.kjerne.beregning.AndelerTilkjentYtelseOgEndreteUtbetalingerService
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelseRepository
+import no.nav.familie.ks.sak.kjerne.brev.mottaker.BrevmottakerService
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.KompetanseRepository
 import no.nav.familie.ks.sak.kjerne.eøs.utenlandskperiodebeløp.UtenlandskPeriodebeløpRepository
 import no.nav.familie.ks.sak.kjerne.eøs.valutakurs.ValutakursRepository
@@ -118,6 +119,9 @@ class BehandlingServiceTest {
     @MockK
     private lateinit var korrigertEtterbetalingRepository: KorrigertEtterbetalingRepository
 
+    @MockK
+    private lateinit var brevmottakerService: BrevmottakerService
+
     @InjectMockKs
     private lateinit var behandlingService: BehandlingService
 
@@ -187,6 +191,7 @@ class BehandlingServiceTest {
         every { utenlandskPeriodebeløpRepository.findByBehandlingId(behandling.id) } returns emptyList()
         every { valutakursRepository.findByBehandlingId(behandling.id) } returns emptyList()
         every { korrigertEtterbetalingRepository.finnAktivtKorrigeringPåBehandling(behandling.id) } returns null
+        every { brevmottakerService.hentBrevmottakere(any()) } returns emptyList()
     }
 
     @Test
@@ -208,6 +213,7 @@ class BehandlingServiceTest {
             )
         }
         verify(exactly = 1) { kompetanseRepository.findByBehandlingId(behandling.id) }
+        verify(exactly = 1) { brevmottakerService.hentBrevmottakere(behandling.id) }
 
         assertTrue { behandlingResponsDto.personer.isNotEmpty() }
         assertEquals(1, behandlingResponsDto.personer.size)

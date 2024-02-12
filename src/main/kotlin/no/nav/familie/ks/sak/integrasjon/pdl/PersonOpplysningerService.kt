@@ -116,6 +116,16 @@ class PersonOpplysningerService(
         }
     }
 
+    fun hentIdenterMedStrengtFortroligAdressebeskyttelse(personIdenter: List<String>): List<String> {
+        val adresseBeskyttelseBolk = pdlClient.hentAdressebeskyttelseBolk(personIdenter)
+        return adresseBeskyttelseBolk.filter { (_, person) ->
+            person.adressebeskyttelse.any { adressebeskyttelse ->
+                adressebeskyttelse.gradering == ADRESSEBESKYTTELSEGRADERING.STRENGT_FORTROLIG ||
+                    adressebeskyttelse.gradering == ADRESSEBESKYTTELSEGRADERING.STRENGT_FORTROLIG_UTLAND
+            }
+        }.map { it.key }
+    }
+
     companion object {
         const val PDL_UKJENT_LANDKODE = "XUK"
         const val UKJENT_LANDKODE = "ZZ"
