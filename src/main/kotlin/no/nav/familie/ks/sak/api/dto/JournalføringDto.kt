@@ -116,8 +116,6 @@ class Dødsbo(
     override val manuellAdresseInfo: ManuellAdresseInfo,
 ) : MottakerInfo
 
-fun MottakerInfo.toList() = listOf(this)
-
 fun MottakerInfo.tilAvsenderMottaker(): AvsenderMottaker? {
     return when (this) {
         is FullmektigEllerVerge, is Dødsbo ->

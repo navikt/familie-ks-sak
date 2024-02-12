@@ -90,8 +90,6 @@ class BrevServiceTest {
         BrevmottakerService(
             brevmottakerRepository = mockk(relaxed = true),
             loggService = mockk(),
-            personidentService = mockk(),
-            personOpplysningerService = mockk(),
             validerBrevmottakerService = mockk(),
         )
 
@@ -464,7 +462,6 @@ class BrevServiceTest {
                 ),
             )
         every { brevmottakerService.lagMottakereFraBrevMottakere(any()) } answers { callOriginal() }
-        every { brevmottakerService.hentMottakerNavn(søkersident) } returns "søker"
         every {
             utgåendeJournalføringService.journalførDokument(
                 fnr = any(),
@@ -538,7 +535,6 @@ class BrevServiceTest {
         val avsenderMottaker = slot<AvsenderMottaker>()
 
         every { genererBrevService.genererManueltBrev(any(), any()) } returns ByteArray(10)
-        every { brevmottakerService.hentMottakerNavn(søkersident) } returns "søker"
         every {
             utgåendeJournalføringService.journalførDokument(
                 fnr = any(),

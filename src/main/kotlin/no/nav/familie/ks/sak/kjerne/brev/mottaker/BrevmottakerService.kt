@@ -10,9 +10,7 @@ import no.nav.familie.ks.sak.api.dto.MottakerInfo
 import no.nav.familie.ks.sak.api.dto.tilBrevMottakerDb
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
-import no.nav.familie.ks.sak.integrasjon.pdl.PersonOpplysningerService
 import no.nav.familie.ks.sak.kjerne.logg.LoggService
-import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -21,8 +19,6 @@ import org.springframework.transaction.annotation.Transactional
 class BrevmottakerService(
     private val brevmottakerRepository: BrevmottakerRepository,
     private val loggService: LoggService,
-    private val personidentService: PersonidentService,
-    private val personOpplysningerService: PersonOpplysningerService,
     private val validerBrevmottakerService: ValiderBrevmottakerService,
 ) {
     @Transactional
@@ -103,13 +99,6 @@ class BrevmottakerService(
                     }
                 listOfNotNull(bruker, tilleggsmottaker)
             }
-        }
-    }
-
-    fun hentMottakerNavn(personIdent: String): String {
-        val aktør = personidentService.hentAktør(personIdent)
-        return personOpplysningerService.hentPersoninfoEnkel(aktør).let {
-            it.navn!!
         }
     }
 
