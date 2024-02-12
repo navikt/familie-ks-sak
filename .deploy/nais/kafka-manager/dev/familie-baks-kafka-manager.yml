@@ -1,15 +1,15 @@
 kind: Application
 apiVersion: nais.io/v1alpha1
 metadata:
-  name: familie-ks-kafka-manager
+  name: familie-baks-kafka-manager
   namespace: teamfamilie
   labels:
     team: teamfamilie
 spec:
-  image: europe-north1-docker.pkg.dev/nais-management-233d/poao/kafka-manager:2023.12.13-06.32-bd9f953 # See https://github.com/navikt/kafka-manager/packages
+  image: europe-north1-docker.pkg.dev/nais-management-233d/poao/kafka-manager:2024.02.06-12.20-dabf3e1 # See https://github.com/navikt/kafka-manager/actions
   port: 8080
   ingresses:
-    - https://familie-ks-kafka-manager.intern.dev.nav.no
+    - https://familie-baks-kafka-manager.intern.dev.nav.no
   prometheus:
     enabled: true
     path: /internal/prometheus
@@ -64,6 +64,36 @@ spec:
             },
             {
               "name": "alf.aapen-altinn-barnehageliste-mottatt",
+              "location": "AIVEN",
+              "keyDeserializerType": "STRING",
+              "valueDeserializerType": "STRING"
+            },
+            {
+              "name": "teamfamilie.aapen-barnetrygd-vedtak-v2",
+              "location": "AIVEN",
+              "keyDeserializerType": "STRING",
+              "valueDeserializerType": "STRING"
+            },
+            {
+              "name": "teamfamilie.aapen-familie-ba-sak-opphoer-barnetrygd",
+              "location": "AIVEN",
+              "keyDeserializerType": "STRING",
+              "valueDeserializerType": "STRING"
+            },
+            {
+              "name": "teamfamilie.aapen-barnetrygd-saksstatistikk-sak-v1",
+              "location": "AIVEN",
+              "keyDeserializerType": "STRING",
+              "valueDeserializerType": "STRING"
+            },
+            {
+              "name": "teamfamilie.aapen-barnetrygd-saksstatistikk-behandling-v1",
+              "location": "AIVEN",
+              "keyDeserializerType": "STRING",
+              "valueDeserializerType": "STRING"
+            },
+            {
+              "name": "teamfamilie.aapen-familie-ba-sak-identer-med-barnetrygd",
               "location": "AIVEN",
               "keyDeserializerType": "STRING",
               "valueDeserializerType": "STRING"
