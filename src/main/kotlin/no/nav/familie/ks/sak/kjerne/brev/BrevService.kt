@@ -194,6 +194,7 @@ class BrevService(
                         this["journalpostId"] = journalpostId
                         this["behandlingId"] = behandling?.id.toString()
                         this["fagsakId"] = fagsak.id.toString()
+                        this["mottakerType"] = mottaker.javaClass.simpleName
                     },
             ).also {
                 taskService.save(it)
