@@ -112,7 +112,6 @@ class BrevService(
         val brevmottakereFraBehandling = behandling?.let { brevmottakerService.hentBrevmottakere(it.id) } ?: emptyList()
         val mottakere =
             brevmottakerService.lagMottakereFraBrevMottakere(
-                søkersIdent = fagsak.aktør.aktivFødselsnummer(),
                 manueltRegistrerteMottakere = manueltBrevDto.manuelleBrevmottakere + brevmottakereFraBehandling,
             )
 

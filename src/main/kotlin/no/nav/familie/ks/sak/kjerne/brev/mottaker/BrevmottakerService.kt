@@ -76,17 +76,14 @@ class BrevmottakerService(
 
     fun lagMottakereFraBrevMottakere(
         manueltRegistrerteMottakere: List<BrevmottakerDto>,
-        søkersIdent: String,
     ): List<MottakerInfo> {
         if (manueltRegistrerteMottakere.isEmpty()) {
             return Bruker().toList()
         }
 
-        val søkersnavn: String = hentMottakerNavn(søkersIdent)
-
         manueltRegistrerteMottakere.singleOrNull { it.type == MottakerType.DØDSBO }?.let {
             // brev sendes kun til den manuelt registerte dødsboadressen
-            return Dødsbo(navn = søkersnavn, manuellAdresseInfo = lagManuellAdresseInfo(it)).toList()
+            return Dødsbo(navn = it.navn, manuellAdresseInfo = lagManuellAdresseInfo(it)).toList()
         }
 
         val manuellAdresseUtenlands =
@@ -96,8 +93,6 @@ class BrevmottakerService(
                         ?: throw FunksjonellFeil("Mottakerfeil: Det er registrert mer enn en utenlandsk adresse tilhørende bruker")
                 }.firstNotNullOfOrNull {
                     BrukerMedUtenlandskAdresse(
-                        personIdent = søkersIdent,
-                        navn = søkersnavn,
                         manuellAdresseInfo = lagManuellAdresseInfo(it),
                     )
                 }

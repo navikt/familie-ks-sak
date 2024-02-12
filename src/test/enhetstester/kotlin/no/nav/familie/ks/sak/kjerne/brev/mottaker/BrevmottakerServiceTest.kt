@@ -58,11 +58,8 @@ internal class BrevmottakerServiceTest {
     @Test
     fun `lagMottakereFraBrevMottakere skal lage mottakere når brevmottaker er FULLMEKTIG og bruker har norsk adresse`() {
         val brevmottakere = listOf(lagBrevMottaker(søkersnavn, mottakerType = MottakerType.FULLMEKTIG))
-        val mottakerInfo =
-            brevmottakerService.lagMottakereFraBrevMottakere(
-                brevmottakere,
-                søkersident,
-            )
+        val mottakerInfo = brevmottakerService.lagMottakereFraBrevMottakere(brevmottakere)
+
         assertTrue { mottakerInfo.size == 2 }
 
         assertTrue(mottakerInfo.first() is Bruker)
@@ -86,11 +83,8 @@ internal class BrevmottakerServiceTest {
             )
         // every { brevmottakerRepository.finnBrevMottakereForBehandling(any()) } returns brevmottakere.map { it.tilBrevMottakerDb(1) }
 
-        val mottakerInfo =
-            brevmottakerService.lagMottakereFraBrevMottakere(
-                brevmottakere,
-                søkersident,
-            )
+        val mottakerInfo = brevmottakerService.lagMottakereFraBrevMottakere(brevmottakere)
+
         assertTrue { mottakerInfo.size == 2 }
 
         assertEquals(søkersnavn, mottakerInfo.first().navn)
@@ -114,11 +108,8 @@ internal class BrevmottakerServiceTest {
                 ),
             )
 
-        val mottakerInfo =
-            brevmottakerService.lagMottakereFraBrevMottakere(
-                brevmottakere,
-                søkersident,
-            )
+        val mottakerInfo = brevmottakerService.lagMottakereFraBrevMottakere(brevmottakere)
+
         assertTrue { mottakerInfo.size == 2 }
 
         assertEquals(søkersnavn, mottakerInfo.first().navn)
@@ -141,11 +132,8 @@ internal class BrevmottakerServiceTest {
                 ),
             )
 
-        val mottakerInfo =
-            brevmottakerService.lagMottakereFraBrevMottakere(
-                brevmottakere,
-                søkersident,
-            )
+        val mottakerInfo = brevmottakerService.lagMottakereFraBrevMottakere(brevmottakere)
+
         assertTrue { mottakerInfo.size == 1 }
 
         assertEquals(søkersnavn, mottakerInfo.first().navn)
@@ -165,11 +153,8 @@ internal class BrevmottakerServiceTest {
                 ),
             )
 
-        val mottakerInfo =
-            brevmottakerService.lagMottakereFraBrevMottakere(
-                brevmottakere,
-                søkersident,
-            )
+        val mottakerInfo = brevmottakerService.lagMottakereFraBrevMottakere(brevmottakere)
+
         assertTrue { mottakerInfo.size == 1 }
 
         assertEquals(søkersnavn, mottakerInfo.first().navn)
@@ -196,10 +181,7 @@ internal class BrevmottakerServiceTest {
             )
 
         assertThrows<FunksjonellFeil> {
-            brevmottakerService.lagMottakereFraBrevMottakere(
-                brevmottakere,
-                søkersident,
-            )
+            brevmottakerService.lagMottakereFraBrevMottakere(brevmottakere)
         }.also {
             assertTrue(it.frontendFeilmelding!!.contains("kan ikke kombineres"))
         }

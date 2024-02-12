@@ -103,8 +103,6 @@ sealed interface MottakerInfo {
 class Bruker : MottakerInfo
 
 class BrukerMedUtenlandskAdresse(
-    val personIdent: String,
-    override val navn: String,
     override val manuellAdresseInfo: ManuellAdresseInfo,
 ) : MottakerInfo
 
@@ -122,20 +120,13 @@ fun MottakerInfo.toList() = listOf(this)
 
 fun MottakerInfo.tilAvsenderMottaker(): AvsenderMottaker? {
     return when (this) {
-        is BrukerMedUtenlandskAdresse ->
-            AvsenderMottaker(
-                navn = navn,
-                id = personIdent,
-                idType = BrukerIdType.FNR,
-            )
-
         is FullmektigEllerVerge, is Dødsbo ->
             AvsenderMottaker(
                 navn = navn,
                 id = null,
                 idType = null,
             )
-
-        else -> null
+        // Trenger ikke spesifiseres når mottaker er bruker
+        is Bruker, is BrukerMedUtenlandskAdresse -> null
     }
 }

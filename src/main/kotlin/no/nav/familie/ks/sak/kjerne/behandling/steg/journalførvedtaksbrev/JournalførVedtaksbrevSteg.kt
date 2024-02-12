@@ -58,7 +58,6 @@ class JournalførVedtaksbrevSteg(
         val mottakere =
             brevmottakerService.lagMottakereFraBrevMottakere(
                 manueltRegistrerteMottakere = manueltRegistrerteMottakere,
-                søkersIdent = søkersident,
             )
 
         val journalposterTilDistribusjon =

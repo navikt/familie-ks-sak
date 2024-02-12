@@ -463,7 +463,7 @@ class BrevServiceTest {
                     landkode = "NO",
                 ),
             )
-        every { brevmottakerService.lagMottakereFraBrevMottakere(any(), any()) } answers { callOriginal() }
+        every { brevmottakerService.lagMottakereFraBrevMottakere(any()) } answers { callOriginal() }
         every { brevmottakerService.hentMottakerNavn(søkersident) } returns "søker"
         every {
             utgåendeJournalføringService.journalførDokument(
