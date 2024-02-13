@@ -19,7 +19,7 @@ class DistribuerInformasjonsbrevKontantsøtteEndresInfotrygdService(
         if (!erDryRun) {
             val taskerForSakerIInfotrygd =
                 brukereMedLøpendeKontantstøtteIInfotrygd.map {
-                    OpprettFagsakOgSendInformasjonsbrevKontantstøtteendringTask.lagTask(it)
+                    OpprettFagsakOgSendInformasjonsbrevKontantstøtteendringTask.lagTask(søkerOgBarn = it)
                 }
             taskService.saveAll(taskerForSakerIInfotrygd)
         }

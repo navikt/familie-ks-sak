@@ -22,7 +22,7 @@ class DistribuerInformasjonsbrevKontantsøtteEndresKSService(
             val taskerForSakerIKs =
                 fagsakerMedBarnFødtI2023EllerSenere.map {
                     logger.info("Oppretter task for å journalføre og distribuere informasjonsbrev om kontantstøtteendring på fagsak $it")
-                    SendInformasjonsbrevKontantstøtteendringTask.lagTask(it)
+                    SendInformasjonsbrevKontantstøtteendringTask.lagTask(fagsakId = it)
                 }
             taskService.saveAll(taskerForSakerIKs)
         }
