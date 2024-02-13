@@ -2,8 +2,8 @@ package no.nav.familie.ks.sak.internal
 
 import no.nav.familie.ks.sak.config.BehandlerRolle
 import no.nav.familie.ks.sak.integrasjon.infotrygd.SøkerOgBarn
-import no.nav.familie.ks.sak.internal.EndringKontantstøtte2024.DistribuerInformasjonsbrevKontantstøtteEndresInfotrygdService
-import no.nav.familie.ks.sak.internal.EndringKontantstøtte2024.DistribuerInformasjonsbrevKontantstøtteEndresKSService
+import no.nav.familie.ks.sak.internal.endringKontantstøtteInfobrev2024.DistribuerInformasjonsbrevKontantstøtteEndresInfotrygdService
+import no.nav.familie.ks.sak.internal.endringKontantstøtteInfobrev2024.DistribuerInformasjonsbrevKontantstøtteEndresKSService
 import no.nav.familie.ks.sak.sikkerhet.AuditLoggerEvent
 import no.nav.familie.ks.sak.sikkerhet.TilgangService
 import no.nav.security.token.support.core.api.ProtectedWithClaims

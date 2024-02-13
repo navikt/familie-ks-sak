@@ -1,4 +1,4 @@
-package no.nav.familie.ks.sak.internal.EndringKontantstøtte2024
+package no.nav.familie.ks.sak.internal.endringKontantstøtteInfobrev2024
 
 import no.nav.familie.ks.sak.api.dto.ManueltBrevDto
 import no.nav.familie.ks.sak.kjerne.brev.BrevService

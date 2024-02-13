@@ -1,4 +1,4 @@
-package no.nav.familie.ks.sak.internal.EndringKontantstøtte2024
+package no.nav.familie.ks.sak.internal.endringKontantstøtteInfobrev2024
 
 import no.nav.familie.ks.sak.integrasjon.infotrygd.InfotrygdReplikaClient
 import no.nav.familie.ks.sak.integrasjon.infotrygd.SøkerOgBarn

@@ -1,4 +1,4 @@
-package no.nav.familie.ks.sak.internal.EndringKontantstøtte2024
+package no.nav.familie.ks.sak.internal.endringKontantstøtteInfobrev2024
 
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.FagsakRepository
 import no.nav.familie.prosessering.internal.TaskService
