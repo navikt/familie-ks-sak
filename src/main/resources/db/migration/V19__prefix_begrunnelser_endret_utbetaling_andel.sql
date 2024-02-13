@@ -1,7 +1,9 @@
 UPDATE ENDRET_UTBETALING_ANDEL
-SET vedtak_begrunnelse_spesifikasjoner = concat('NasjonalEllerFellesBegrunnelse$', vedtak_begrunnelse_spesifikasjoner)
-WHERE vedtak_begrunnelse_spesifikasjoner <> '';
-
-UPDATE ENDRET_UTBETALING_ANDEL
-SET vedtak_begrunnelse_spesifikasjoner = replace(vedtak_begrunnelse_spesifikasjoner, ';', ';NasjonalEllerFellesBegrunnelse$')
-WHERE vedtak_begrunnelse_spesifikasjoner like '%;%';
+SET vedtak_begrunnelse_spesifikasjoner =
+        CASE
+            WHEN vedtak_begrunnelse_spesifikasjoner = '' THEN ''
+            WHEN vedtak_begrunnelse_spesifikasjoner LIKE 'NasjonalEllerFellesBegrunnelse$%'
+                THEN vedtak_begrunnelse_spesifikasjoner
+            ELSE CONCAT('NasjonalEllerFellesBegrunnelse$',
+                        REPLACE(vedtak_begrunnelse_spesifikasjoner, ';', ';NasjonalEllerFellesBegrunnelse$'))
+            END
