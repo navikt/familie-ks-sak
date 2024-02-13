@@ -2,8 +2,8 @@ package no.nav.familie.ks.sak.internal
 
 import no.nav.familie.ks.sak.config.BehandlerRolle
 import no.nav.familie.ks.sak.integrasjon.infotrygd.SøkerOgBarn
-import no.nav.familie.ks.sak.internal.EndringKontantstøtte2024.DistribuerInformasjonsbrevKontantsøtteEndresInfotrygdService
-import no.nav.familie.ks.sak.internal.EndringKontantstøtte2024.DistribuerInformasjonsbrevKontantsøtteEndresKSService
+import no.nav.familie.ks.sak.internal.EndringKontantstøtte2024.DistribuerInformasjonsbrevKontantstøtteEndresInfotrygdService
+import no.nav.familie.ks.sak.internal.EndringKontantstøtte2024.DistribuerInformasjonsbrevKontantstøtteEndresKSService
 import no.nav.familie.ks.sak.sikkerhet.AuditLoggerEvent
 import no.nav.familie.ks.sak.sikkerhet.TilgangService
 import no.nav.security.token.support.core.api.ProtectedWithClaims
@@ -22,8 +22,8 @@ import org.springframework.web.bind.annotation.RestController
 class ForvalterController(
     private val testVerktøyService: TestVerktøyService,
     private val tilgangService: TilgangService,
-    private val distribuerInformasjonsbrevKontantsøtteEndresService: DistribuerInformasjonsbrevKontantsøtteEndresKSService,
-    private val distribuerInformasjonsbrevKontantsøtteEndresInfotrygdService: DistribuerInformasjonsbrevKontantsøtteEndresInfotrygdService,
+    private val distribuerInformasjonsbrevKontantsøtteEndresService: DistribuerInformasjonsbrevKontantstøtteEndresKSService,
+    private val distribuerInformasjonsbrevKontantstøtteEndresInfotrygdService: DistribuerInformasjonsbrevKontantstøtteEndresInfotrygdService,
 ) {
     private val logger: Logger = LoggerFactory.getLogger(ForvalterController::class.java)
 
@@ -63,6 +63,8 @@ class ForvalterController(
             minimumBehandlerRolle = BehandlerRolle.FORVALTER,
         )
 
-        return distribuerInformasjonsbrevKontantsøtteEndresInfotrygdService.opprettTaskerForÅJournalføreOgSendeUtInformasjonsbrevKontantstøtteendringInfotrygd(erDryRun)
+        return distribuerInformasjonsbrevKontantstøtteEndresInfotrygdService.opprettTaskerForÅJournalføreOgSendeUtInformasjonsbrevKontantstøtteendringInfotrygd(
+            erDryRun,
+        )
     }
 }
