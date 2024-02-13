@@ -24,7 +24,7 @@ import java.util.Properties
 @Service
 @TaskStepBeskrivelse(
     taskStepType = OpprettFagsakOgSendInformasjonsbrevKontantstøtteendringTask.TASK_STEP_TYPE,
-    beskrivelse = "Opprett fagsagk og send informasjonsbrev om kontantstøtteendring",
+    beskrivelse = "Opprett fagsak og send informasjonsbrev om kontantstøtteendring",
     maxAntallFeil = 3,
 )
 class OpprettFagsakOgSendInformasjonsbrevKontantstøtteendringTask(
