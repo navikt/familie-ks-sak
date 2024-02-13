@@ -14,7 +14,7 @@ class DistribuerInformasjonsbrevKontantsøtteEndresInfotrygdService(
     @Transactional
     fun opprettTaskerForÅJournalføreOgSendeUtInformasjonsbrevKontantstøtteendringInfotrygd(erDryRun: Boolean): List<SøkerOgBarn> {
         val brukereMedLøpendeKontantstøtteIInfotrygd =
-            infotrygdReplikaClient.hentAlleSøkereOgBarnidenterForLøpendeFagsakerIInfotrygd()
+            infotrygdReplikaClient.hentSøkereOgBarnForLøpendeFagsakerIInfotrygd()
 
         if (!erDryRun) {
             val taskerForSakerIInfotrygd =
