@@ -48,7 +48,7 @@ class ForvalterController(
     ): List<Long> {
         tilgangService.validerTilgangTilHandling(
             handling = "Sende informasjonsbrev om forkortet kontantstøtte til alle med barn født i 2023 eller senere",
-            minimumBehandlerRolle = BehandlerRolle.FORVALTER,
+            minimumBehandlerRolle = BehandlerRolle.VEILEDER,
         )
 
         return distribuerInformasjonsbrevKontantsøtteEndresService.opprettTaskerForÅJournalføreOgSendeUtInformasjonsbrevKontantstøtteendringKS(erDryRun)
@@ -60,7 +60,7 @@ class ForvalterController(
     ): List<SøkerOgBarn> {
         tilgangService.validerTilgangTilHandling(
             handling = "Sende informasjonsbrev om forkortet kontantstøtte til alle med barn født i 2023 eller senere",
-            minimumBehandlerRolle = BehandlerRolle.FORVALTER,
+            minimumBehandlerRolle = BehandlerRolle.VEILEDER,
         )
 
         return distribuerInformasjonsbrevKontantstøtteEndresInfotrygdService.opprettTaskerForÅJournalføreOgSendeUtInformasjonsbrevKontantstøtteendringInfotrygd(
