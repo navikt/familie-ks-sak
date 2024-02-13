@@ -17,6 +17,7 @@ import no.nav.familie.prosessering.internal.TaskService
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 import java.time.YearMonth
 import java.util.Properties
 
@@ -34,6 +35,7 @@ class OpprettFagsakOgSendInformasjonsbrevKontantstøtteendringTask(
 ) : AsyncTaskStep {
     private val logger: Logger = LoggerFactory.getLogger(this::class.java)
 
+    @Transactional
     override fun doTask(task: Task) {
         val søkerOgBarn = objectMapper.readValue<SøkerOgBarn>(task.payload)
 

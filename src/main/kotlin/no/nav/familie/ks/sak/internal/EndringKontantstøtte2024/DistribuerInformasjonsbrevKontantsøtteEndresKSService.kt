@@ -5,6 +5,7 @@ import no.nav.familie.prosessering.internal.TaskService
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 
 @Service
 class DistribuerInformasjonsbrevKontantsøtteEndresKSService(
@@ -13,6 +14,7 @@ class DistribuerInformasjonsbrevKontantsøtteEndresKSService(
 ) {
     private val logger: Logger = LoggerFactory.getLogger(this::class.java)
 
+    @Transactional
     fun opprettTaskerForÅJournalføreOgSendeUtInformasjonsbrevKontantstøtteendringKS(erDryRun: Boolean): List<Long> {
         val fagsakerMedBarnFødtI2023EllerSenere = fagsakRepository.hentLøpendeFagsakerMedBarnFødtI2023EllerSenere()
 

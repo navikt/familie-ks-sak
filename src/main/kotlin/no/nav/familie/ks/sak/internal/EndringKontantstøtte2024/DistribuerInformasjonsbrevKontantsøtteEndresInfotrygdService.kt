@@ -4,12 +4,14 @@ import no.nav.familie.ks.sak.integrasjon.infotrygd.InfotrygdReplikaClient
 import no.nav.familie.ks.sak.integrasjon.infotrygd.SøkerOgBarn
 import no.nav.familie.prosessering.internal.TaskService
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 
 @Service
 class DistribuerInformasjonsbrevKontantsøtteEndresInfotrygdService(
     private val taskService: TaskService,
     private val infotrygdReplikaClient: InfotrygdReplikaClient,
 ) {
+    @Transactional
     fun opprettTaskerForÅJournalføreOgSendeUtInformasjonsbrevKontantstøtteendringInfotrygd(erDryRun: Boolean): List<SøkerOgBarn> {
         val brukereMedLøpendeKontantstøtteIInfotrygd =
             infotrygdReplikaClient.hentAlleSøkereOgBarnidenterForLøpendeFagsakerIInfotrygd()
