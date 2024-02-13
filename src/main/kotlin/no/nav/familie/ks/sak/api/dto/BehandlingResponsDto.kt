@@ -48,6 +48,7 @@ data class BehandlingResponsDto(
     val feilutbetaltValuta: List<FeilutbetaltValutaDto> = emptyList(),
     val refusjonEøs: List<RefusjonEøsDto> = emptyList(),
     val korrigertEtterbetaling: KorrigertEtterbetaling?,
+    val brevmottakere: List<BrevmottakerDto> = emptyList(),
 )
 
 data class BehandlingStegTilstandResponsDto(

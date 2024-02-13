@@ -20,6 +20,7 @@ class PdlConfig(
 
         val hentIdenterQuery = graphqlQuery("/pdl/hentIdenter.graphql")
         val hentAdressebeskyttelseQuery = graphqlQuery("/pdl/hent-adressebeskyttelse.graphql")
+        val hentAdressebeskyttelseBolkQuery = graphqlQuery("/pdl/hent-adressebeskyttelse-bolk.graphql")
         val hentEnkelPersonQuery = graphqlQuery("/pdl/hentperson-enkel.graphql")
         val hentPersonMedRelasjonOgRegisterInformasjonQuery =
             graphqlQuery("/pdl/hentperson-med-relasjoner-og-registerinformasjon.graphql")

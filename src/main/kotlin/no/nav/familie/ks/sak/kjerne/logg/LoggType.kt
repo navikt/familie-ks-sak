@@ -31,4 +31,5 @@ enum class LoggType(val visningsnavn: String, val tittel: String = visningsnavn)
     FEILUTBETALT_VALUTA_FJERNET("Feilutbetalt valuta fjernet"),
     REFUSJON_EØS_LAGT_TIL("Refusjon EØS lagt til"),
     REFUSJON_EØS_FJERNET("Refusjon EØS fjernet"),
+    BREVMOTTAKER_LAGT_TIL_ELLER_FJERNET("Brevmottaker lagt til eller fjernet"),
 }

@@ -108,11 +108,11 @@ under actions på GitHub, finn byggejobben du vil gå tilbake til, og kopier tag
 
 ### Monitorering av kafka køer
 
-Det er satt opp en tjeneste familie-ks-kafka-manager som er et verktøy for å monitorere
+Det er satt opp en tjeneste familie-baks-kafka-manager som er et verktøy for å monitorere
 kafka meldinger i preprod og prod.
 
-* Preprod: https://familie-ks-kafka-manager.intern.dev.nav.no
-* Prod: https://familie-ks-kafka-manager.intern.nav.no
+* Preprod: https://familie-baks-kafka-manager.intern.dev.nav.no
+* Prod: https://familie-baks-kafka-manager.intern.nav.no
 
 ## Kontaktinformasjon
 

@@ -5,6 +5,7 @@ import no.nav.familie.ks.sak.api.dto.ArbeidsfordelingResponsDto
 import no.nav.familie.ks.sak.api.dto.BehandlingPåVentDto
 import no.nav.familie.ks.sak.api.dto.BehandlingResponsDto
 import no.nav.familie.ks.sak.api.dto.BehandlingStegTilstandResponsDto
+import no.nav.familie.ks.sak.api.dto.BrevmottakerDto
 import no.nav.familie.ks.sak.api.dto.EndretUtbetalingAndelResponsDto
 import no.nav.familie.ks.sak.api.dto.FeilutbetaltValutaDto
 import no.nav.familie.ks.sak.api.dto.PersonResponsDto
@@ -59,6 +60,7 @@ object BehandlingMapper {
         utenlandskePeriodebeløp: List<UtenlandskPeriodebeløp>,
         valutakurser: List<Valutakurs>,
         korrigertEtterbetaling: KorrigertEtterbetaling?,
+        brevmottakere: List<BrevmottakerDto>,
     ) = BehandlingResponsDto(
         behandlingId = behandling.id,
         steg = behandling.steg,
@@ -101,6 +103,7 @@ object BehandlingMapper {
         valutakurser = valutakurser.map { it.tilValutakursDto() },
         refusjonEøs = refusjonEøs,
         korrigertEtterbetaling = korrigertEtterbetaling,
+        brevmottakere = brevmottakere,
     )
 
     private fun lagArbeidsfordelingRespons(arbeidsfordelingPåBehandling: ArbeidsfordelingPåBehandling) =
