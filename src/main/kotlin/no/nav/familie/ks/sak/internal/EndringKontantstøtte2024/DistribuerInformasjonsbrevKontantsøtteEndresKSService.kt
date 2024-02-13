@@ -19,12 +19,12 @@ class DistribuerInformasjonsbrevKontantsøtteEndresKSService(
         val fagsakerMedBarnFødtI2023EllerSenere = fagsakRepository.hentLøpendeFagsakerMedBarnFødtI2023EllerSenere()
 
         if (!erDryRun) {
-            val taskerForSakerIKS =
+            val taskerForSakerIKs =
                 fagsakerMedBarnFødtI2023EllerSenere.map {
                     logger.info("Oppretter task for å journalføre og distribuere informasjonsbrev om kontantstøtteendring på fagsak $it")
                     SendInformasjonsbrevKontantstøtteendringTask.lagTask(it)
                 }
-            taskService.saveAll(taskerForSakerIKS)
+            taskService.saveAll(taskerForSakerIKs)
         }
 
         return fagsakerMedBarnFødtI2023EllerSenere

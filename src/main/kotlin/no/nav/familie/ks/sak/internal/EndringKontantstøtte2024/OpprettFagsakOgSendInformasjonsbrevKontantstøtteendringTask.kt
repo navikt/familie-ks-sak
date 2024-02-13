@@ -47,11 +47,11 @@ class OpprettFagsakOgSendInformasjonsbrevKontantstøtteendringTask(
             return
         }
 
-        val aktørIKS = personidentRepository.findByFødselsnummerOrNull(fødselsnummer = søkerOgBarn.søkerIdent)?.aktør
-        if (aktørIKS != null) {
-            val fagsakPåSøkerIKS = fagsakRepository.finnFagsakForAktør(aktørIKS)
-            if (fagsakPåSøkerIKS != null) {
-                logger.info("Søker fra infotrygd finnes allerede i KS på fagsak=$fagsakPåSøkerIKS")
+        val aktørIKs = personidentRepository.findByFødselsnummerOrNull(fødselsnummer = søkerOgBarn.søkerIdent)?.aktør
+        if (aktørIKs != null) {
+            val fagsakPåSøkerIKs = fagsakRepository.finnFagsakForAktør(aktørIKs)
+            if (fagsakPåSøkerIKs != null) {
+                logger.info("Søker fra infotrygd finnes allerede i KS på fagsak=$fagsakPåSøkerIKs")
             }
         }
 
