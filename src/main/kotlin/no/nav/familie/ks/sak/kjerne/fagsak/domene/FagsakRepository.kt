@@ -58,7 +58,7 @@ interface FagsakRepository : JpaRepository<Fagsak, Long> {
                      join public.gr_personopplysninger gp on b.id = gp.fk_behandling_id
                      join public.po_person pp on gp.id = pp.fk_gr_personopplysninger_id
             where pp.type = 'BARN'
-              and pp.foedselsdato >= '01.09.2022'
+              and pp.foedselsdato >= '2022-09-01'
               and f.status = 'LØPENDE'
             group by f.id;
         """,
