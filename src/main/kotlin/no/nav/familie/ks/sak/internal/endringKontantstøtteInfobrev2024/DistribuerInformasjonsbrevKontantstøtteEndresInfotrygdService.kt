@@ -17,11 +17,10 @@ class DistribuerInformasjonsbrevKontantstøtteEndresInfotrygdService(
             infotrygdReplikaClient.hentSøkereOgBarnForLøpendeFagsakerIInfotrygd()
 
         if (!erDryRun) {
-            val taskerForSakerIInfotrygd =
-                brukereMedLøpendeKontantstøtteIInfotrygd.map {
-                    OpprettFagsakOgSendInformasjonsbrevKontantstøtteendringTask.lagTask(søkerOgBarn = it)
-                }
-            taskService.saveAll(taskerForSakerIInfotrygd)
+            brukereMedLøpendeKontantstøtteIInfotrygd.map {
+                val task = OpprettFagsakOgSendInformasjonsbrevKontantstøtteendringTask.lagTask(søkerOgBarn = it)
+                taskService.save(task)
+            }
         }
 
         return brukereMedLøpendeKontantstøtteIInfotrygd
