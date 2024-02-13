@@ -37,7 +37,7 @@ repositories {
         url = uri("https://maven.pkg.github.com/navikt/maven-release")
         credentials {
             username = System.getenv("GITHUB_USERNAME")
-            password = System.getenv("GITHUB_TOKEN")
+            password = System.getenv("GITHUB_TOKEN_READ_PACKAGES")
         }
     }
 }
@@ -48,7 +48,7 @@ dependencies {
     val sentryVersion = "7.1.0"
     val navFellesVersion = "2.20231201131108_ea25dd3"
     val eksterneKontrakterBisysVersion = "2.0_20230214104704_706e9c0"
-    val fellesKontrakterVersion = "3.0_20231215081141_948d3f9"
+    val fellesKontrakterVersion = "3.0_20240212214436_02d2bd9"
     val familieKontrakterSaksstatistikkVersion = "2.0_20230214104704_706e9c0"
     val familieKontrakterStønadsstatistikkKsVersion = "2.0_20240131125409_e3d0f6d"
     val tokenValidationSpringVersion = "3.2.0"
@@ -199,18 +199,20 @@ tasks.register<JavaExec>("ktlintFormat") {
 allprojects {
     plugins.withId("java") {
         this@allprojects.tasks {
-            val test = "test"(Test::class) {
-                maxParallelForks = (Runtime.getRuntime().availableProcessors() / 2).takeIf { it > 0 } ?: 1
-                useJUnitPlatform {
-                    excludeTags("integrationTest")
+            val test =
+                "test"(Test::class) {
+                    maxParallelForks = (Runtime.getRuntime().availableProcessors() / 2).takeIf { it > 0 } ?: 1
+                    useJUnitPlatform {
+                        excludeTags("integrationTest")
+                    }
                 }
-            }
-            val integrationTest = register<Test>("integrationTest") {
-                useJUnitPlatform {
-                    includeTags("integrationTest")
+            val integrationTest =
+                register<Test>("integrationTest") {
+                    useJUnitPlatform {
+                        includeTags("integrationTest")
+                    }
+                    shouldRunAfter(test)
                 }
-                shouldRunAfter(test)
-            }
             "check" {
                 dependsOn(integrationTest)
             }
