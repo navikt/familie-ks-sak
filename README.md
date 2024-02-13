@@ -8,7 +8,9 @@ For å bygge tjenesten lokalt så kreves det at man har satt miljøvariabler fø
 
 ```
 export GITHUB_USERNAME=`navident` (fra github)
-export GITHUB_TOKEN=`github token` (fra github)
+export GITHUB_TOKEN_READ_PACKAGES=`github token` (fra github)
+
+Lagre dette i `~/.zshrc`
 
 ** Windows brukere kan legge til de øvrige verdiene som miljøvariable i intellij
 eller kan settes til en gradle.properties i ~/.gradle/
