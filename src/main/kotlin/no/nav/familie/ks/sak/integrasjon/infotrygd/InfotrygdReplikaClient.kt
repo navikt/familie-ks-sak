@@ -77,7 +77,7 @@ class InfotrygdReplikaClient(
     fun hentSøkereOgBarnForLøpendeFagsakerIInfotrygd(): List<SøkerOgBarn> {
         val requestURI =
             UriComponentsBuilder.fromUri(familieKsInfotrygdUri)
-                .pathSegment("hent-sokere-og-barn-med-loepende-kontantstøtte")
+                .pathSegment("hent-soekere-og-barn-med-loepende-kontantstoette")
                 .build().toUri()
 
         return kallEksternTjeneste(
