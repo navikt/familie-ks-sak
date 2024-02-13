@@ -437,9 +437,10 @@ class BrevPeriodeContext(
                 val begrunnelseGjelderOpphørFraForrigeBehandling = sanityBegrunnelse.begrunnelseGjelderOpphørFraForrigeBehandling()
 
                 if (relevanteKompetanser.isEmpty() && (begrunnelse.begrunnelseType.erAvslagEllerEøsAvslag() || begrunnelse.begrunnelseType == BegrunnelseType.EØS_OPPHØR)) {
+                    val barnIBegrunnelse = personerGjeldendeForBegrunnelse.filter { it.type == PersonType.BARN }
                     val barnasFødselsdagerForAvslagOgOpphør =
                         hentBarnasFødselsdagerForAvslagOgOpphør(
-                            barnIBegrunnelse = personerGjeldendeForBegrunnelse.filter { it.type == PersonType.BARN },
+                            barnIBegrunnelse = barnIBegrunnelse,
                             barnPåBehandling = persongrunnlag.barna,
                             uregistrerteBarn = uregistrerteBarn,
                             gjelderSøker = gjelderSøker,
@@ -451,7 +452,7 @@ class BrevPeriodeContext(
                             apiNavn = begrunnelse.sanityApiNavn,
                             sanityBegrunnelseType = sanityBegrunnelse.type,
                             barnasFodselsdatoer = barnasFødselsdagerForAvslagOgOpphør.tilBrevTekst(),
-                            antallBarn = barnasFødselsdagerForAvslagOgOpphør.size,
+                            antallBarn = barnIBegrunnelse.size,
                             maalform = persongrunnlag.søker.målform.tilSanityFormat(),
                             gjelderSoker = gjelderSøker,
                         ),

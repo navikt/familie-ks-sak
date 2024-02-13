@@ -1,12 +1,16 @@
 package no.nav.familie.ks.sak.kjerne.behandling.steg.journalførvedtaksbrev
 
+import no.nav.familie.kontrakter.felles.dokarkiv.AvsenderMottaker
 import no.nav.familie.kontrakter.felles.dokarkiv.Dokumenttype
 import no.nav.familie.kontrakter.felles.dokarkiv.v2.Dokument
 import no.nav.familie.kontrakter.felles.dokarkiv.v2.Filtype
 import no.nav.familie.ks.sak.api.dto.BehandlingStegDto
 import no.nav.familie.ks.sak.api.dto.DistribuerBrevDto
+import no.nav.familie.ks.sak.api.dto.FullmektigEllerVerge
 import no.nav.familie.ks.sak.api.dto.JournalførVedtaksbrevDTO
+import no.nav.familie.ks.sak.api.dto.tilAvsenderMottaker
 import no.nav.familie.ks.sak.integrasjon.distribuering.DistribuerBrevTask
+import no.nav.familie.ks.sak.integrasjon.distribuering.DistribuerVedtaksbrevTilVergeEllerFullmektigTask
 import no.nav.familie.ks.sak.integrasjon.journalføring.UtgåendeJournalføringService
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.ArbeidsfordelingService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
@@ -18,6 +22,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.IBehandlingSteg
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.VedtakService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.Vedtak
 import no.nav.familie.ks.sak.kjerne.brev.hentBrevmal
+import no.nav.familie.ks.sak.kjerne.brev.mottaker.BrevmottakerService
 import no.nav.familie.ks.sak.kjerne.fagsak.FagsakService
 import no.nav.familie.prosessering.internal.TaskService
 import org.slf4j.Logger
@@ -31,6 +36,7 @@ class JournalførVedtaksbrevSteg(
     private val utgåendeJournalføringService: UtgåendeJournalføringService,
     private val taskService: TaskService,
     private val fagsakService: FagsakService,
+    private val brevmottakerService: BrevmottakerService,
 ) : IBehandlingSteg {
     override fun getBehandlingssteg(): BehandlingSteg = BehandlingSteg.JOURNALFØR_VEDTAKSBREV
 
@@ -46,27 +52,49 @@ class JournalførVedtaksbrevSteg(
 
         val behandlendeEnhet = arbeidsfordelingService.hentArbeidsfordelingPåBehandling(behandlingId).behandlendeEnhetId
 
-        val journalpostId =
-            journalførVedtaksbrev(
-                fnr = fagsak.aktør.aktivFødselsnummer(),
-                fagsakId = fagsak.id,
-                vedtak = vedtak,
-                journalførendeEnhet = behandlendeEnhet,
+        val søkersident = fagsak.aktør.aktivFødselsnummer()
+        val manueltRegistrerteMottakere = brevmottakerService.hentBrevmottakere(behandlingId)
+
+        val mottakere =
+            brevmottakerService.lagMottakereFraBrevMottakere(
+                manueltRegistrerteMottakere = manueltRegistrerteMottakere,
             )
 
-        val distributerTilSøkerTask =
-            DistribuerBrevTask.opprettDistribuerBrevTask(
-                distribuerBrevDTO =
-                    DistribuerBrevDto(
-                        personIdent = fagsak.aktør.aktivFødselsnummer(),
-                        behandlingId = vedtak.behandling.id,
-                        journalpostId = journalpostId,
-                        brevmal = hentBrevmal(vedtak.behandling),
-                        erManueltSendt = false,
-                    ),
-                properties = journalførVedtaksbrevDTO.task.metadata,
-            )
-        taskService.save(distributerTilSøkerTask)
+        val journalposterTilDistribusjon =
+            mottakere.map { mottaker ->
+                journalførVedtaksbrev(
+                    fnr = søkersident,
+                    fagsakId = fagsak.id,
+                    vedtak = vedtak,
+                    journalførendeEnhet = behandlendeEnhet,
+                    tilVergeEllerFullmektig = mottaker is FullmektigEllerVerge,
+                    avsenderMottaker = mottaker.tilAvsenderMottaker(),
+                ) to mottaker
+            }
+
+        journalposterTilDistribusjon.forEach { (journalpostId, mottaker) ->
+            val distribuerBrevDto =
+                DistribuerBrevDto(
+                    behandlingId = vedtak.behandling.id,
+                    journalpostId = journalpostId,
+                    brevmal = hentBrevmal(vedtak.behandling),
+                    erManueltSendt = false,
+                    manuellAdresseInfo = mottaker.manuellAdresseInfo,
+                )
+            val distributerBrevTask =
+                if (mottaker is FullmektigEllerVerge) {
+                    DistribuerVedtaksbrevTilVergeEllerFullmektigTask.opprettDistribuerVedtaksbrevTilVergeEllerFullmektigTask(
+                        distribuerBrevDTO = distribuerBrevDto,
+                        properties = journalførVedtaksbrevDTO.task.metadata,
+                    )
+                } else {
+                    DistribuerBrevTask.opprettDistribuerBrevTask(
+                        distribuerBrevDTO = distribuerBrevDto,
+                        properties = journalførVedtaksbrevDTO.task.metadata,
+                    )
+                }
+            taskService.save(distributerBrevTask)
+        }
     }
 
     fun journalførVedtaksbrev(
@@ -74,6 +102,8 @@ class JournalførVedtaksbrevSteg(
         fagsakId: Long,
         vedtak: Vedtak,
         journalførendeEnhet: String,
+        tilVergeEllerFullmektig: Boolean,
+        avsenderMottaker: AvsenderMottaker?,
     ): String {
         val vedleggPdf = hentVedlegg(KONTANTSTØTTE_VEDTAK_VEDLEGG_FILNAVN)
 
@@ -88,7 +118,9 @@ class JournalførVedtaksbrevSteg(
             )
 
         logger.info(
-            "Journalfører vedtaksbrev for behandling ${vedtak.behandling.id} med tittel ${
+            "Journalfører vedtaksbrev ${
+                if (tilVergeEllerFullmektig) "til verge/fullmektig" else ""
+            } for behandling ${vedtak.behandling.id} med tittel ${
                 hentOverstyrtDokumenttittel(vedtak.behandling)
             }",
         )
@@ -110,6 +142,8 @@ class JournalførVedtaksbrevSteg(
             brev = brev,
             vedlegg = vedlegg,
             behandlingId = vedtak.behandling.id,
+            tilVergeEllerFullmektig = tilVergeEllerFullmektig,
+            avsenderMottaker = avsenderMottaker,
         )
     }
 

@@ -179,6 +179,7 @@ class GenererBrevService(
                     erFeilutbetalingPåBehandling = erFeilutbetalingPåBehandling(behandlingId = behandling.id),
                     refusjonEosAvklart = brevPeriodeService.beskrivPerioderMedAvklartRefusjonEøs(vedtak),
                     refusjonEosUavklart = brevPeriodeService.beskrivPerioderMedUavklartRefusjonEøs(vedtak),
+                    erKlage = behandling.erKlage(),
                 )
 
             Brevmal.VEDTAK_FORTSATT_INNVILGET ->

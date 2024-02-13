@@ -15,6 +15,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Beslutning
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.feilutbetaltvaluta.FeilutbetaltValuta
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.refusjonEøs.RefusjonEøs
+import no.nav.familie.ks.sak.kjerne.brev.mottaker.BrevmottakerDb
 import no.nav.familie.ks.sak.kjerne.korrigertetterbetaling.KorrigertEtterbetaling
 import no.nav.familie.ks.sak.kjerne.logg.domene.Logg
 import no.nav.familie.ks.sak.kjerne.logg.domene.LoggRepository
@@ -510,6 +511,38 @@ class LoggService(
             Logg(
                 behandlingId = behandling.id,
                 type = LoggType.KORRIGERT_ETTERBETALING,
+                rolle =
+                    SikkerhetContext.hentRolletilgangFraSikkerhetscontext(
+                        rolleConfig,
+                        BehandlerRolle.SAKSBEHANDLER,
+                    ),
+                tittel = tittel,
+                tekst = tekst,
+            ),
+        )
+    }
+
+    fun opprettBrevmottakerLogg(
+        brevmottaker: BrevmottakerDb,
+        brevmottakerFjernet: Boolean,
+    ) {
+        val lagtTilEllerFjernet = if (brevmottakerFjernet) "fjernet" else "lagt til"
+        val tittel = "${brevmottaker.type.visningsnavn} er $lagtTilEllerFjernet som brevmottaker"
+
+        val tekst =
+            listOfNotNull(
+                brevmottaker.navn,
+                brevmottaker.adresselinje1,
+                brevmottaker.adresselinje2,
+                brevmottaker.postnummer,
+                brevmottaker.poststed,
+                brevmottaker.landkode,
+            ).joinToString(separator = System.lineSeparator())
+
+        lagreLogg(
+            Logg(
+                behandlingId = brevmottaker.behandlingId,
+                type = LoggType.BREVMOTTAKER_LAGT_TIL_ELLER_FJERNET,
                 rolle =
                     SikkerhetContext.hentRolletilgangFraSikkerhetscontext(
                         rolleConfig,
