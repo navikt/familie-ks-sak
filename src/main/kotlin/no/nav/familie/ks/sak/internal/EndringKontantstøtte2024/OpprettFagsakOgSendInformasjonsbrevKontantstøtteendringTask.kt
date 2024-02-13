@@ -52,6 +52,7 @@ class OpprettFagsakOgSendInformasjonsbrevKontantstøtteendringTask(
             val fagsakPåSøkerIKs = fagsakRepository.finnFagsakForAktør(aktørIKs)
             if (fagsakPåSøkerIKs != null) {
                 logger.info("Søker fra infotrygd finnes allerede i KS på fagsak=$fagsakPåSøkerIKs")
+                return
             }
         }
 
