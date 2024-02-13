@@ -3,13 +3,16 @@ package no.nav.familie.ks.sak.kjerne.brev
 import io.mockk.every
 import io.mockk.impl.annotations.InjectMockKs
 import io.mockk.impl.annotations.MockK
+import io.mockk.impl.annotations.SpyK
 import io.mockk.junit5.MockKExtension
 import io.mockk.just
 import io.mockk.mockk
 import io.mockk.runs
 import io.mockk.slot
 import io.mockk.verify
+import no.nav.familie.kontrakter.felles.dokarkiv.AvsenderMottaker
 import no.nav.familie.kontrakter.felles.dokarkiv.v2.Førsteside
+import no.nav.familie.ks.sak.api.dto.BrevmottakerDto
 import no.nav.familie.ks.sak.api.dto.ManueltBrevDto
 import no.nav.familie.ks.sak.api.dto.utvidManueltBrevDtoMedEnhetOgMottaker
 import no.nav.familie.ks.sak.data.lagBehandling
@@ -31,9 +34,14 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.Brevmal
+import no.nav.familie.ks.sak.kjerne.brev.mottaker.BrevmottakerService
+import no.nav.familie.ks.sak.kjerne.brev.mottaker.MottakerType
+import no.nav.familie.ks.sak.kjerne.brev.mottaker.ValiderBrevmottakerService
+import no.nav.familie.ks.sak.kjerne.fagsak.domene.Fagsak
 import no.nav.familie.ks.sak.kjerne.logg.LoggService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
 import no.nav.familie.prosessering.internal.TaskService
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.jupiter.params.ParameterizedTest
@@ -71,8 +79,19 @@ class BrevServiceTest {
     @MockK
     private lateinit var taskService: TaskService
 
-    @MockK
+    @MockK(relaxed = true)
     private lateinit var settBehandlingPåVentService: SettBehandlingPåVentService
+
+    @MockK(relaxed = true)
+    private lateinit var validerBrevmottakerService: ValiderBrevmottakerService
+
+    @SpyK
+    private var brevmottakerService =
+        BrevmottakerService(
+            brevmottakerRepository = mockk(relaxed = true),
+            loggService = mockk(),
+            validerBrevmottakerService = mockk(),
+        )
 
     @InjectMockKs
     private lateinit var brevService: BrevService
@@ -103,7 +122,13 @@ class BrevServiceTest {
 
         every { genererBrevService.genererManueltBrev(any(), any()) } returns ByteArray(10)
 
-        brevService.hentForhåndsvisningAvBrev(manueltBrevDto.utvidManueltBrevDtoMedEnhetOgMottaker(behandling.id, personopplysningGrunnlagService, arbeidsfordelingService)).shouldNotBeNull()
+        brevService.hentForhåndsvisningAvBrev(
+            manueltBrevDto.utvidManueltBrevDtoMedEnhetOgMottaker(
+                behandling.id,
+                personopplysningGrunnlagService,
+                arbeidsfordelingService,
+            ),
+        ).shouldNotBeNull()
     }
 
     @ParameterizedTest
@@ -148,6 +173,7 @@ class BrevServiceTest {
                 any(),
                 any(),
                 capture(førstesideSlot),
+                any(),
                 any(),
             )
         } returns "0"
@@ -214,6 +240,7 @@ class BrevServiceTest {
                 any(),
                 any(),
                 null,
+                any(),
                 any(),
             )
         } returns "0"
@@ -283,6 +310,7 @@ class BrevServiceTest {
 
         every {
             utgåendeJournalføringService.journalførDokument(
+                any(),
                 any(),
                 any(),
                 any(),
@@ -364,6 +392,7 @@ class BrevServiceTest {
                 any(),
                 any(),
                 any(),
+                any(),
             )
         } returns "0"
 
@@ -409,5 +438,144 @@ class BrevServiceTest {
                 any(),
             )
         }
+    }
+
+    @Test
+    fun `sendBrev skal sende brev til bruker og manuelt registrert FULLMEKTIG på behandling`() {
+        val behandling = lagBehandling()
+        val søkersident = behandling.fagsak.aktør.aktivFødselsnummer()
+        val manueltBrevRequest = ManueltBrevDto(mottakerIdent = søkersident, brevmal = Brevmal.SVARTIDSBREV)
+        val avsenderMottaker = slot<AvsenderMottaker>()
+
+        every { behandlingRepository.hentBehandling(any()) } returns behandling
+        every { genererBrevService.genererManueltBrev(any(), any()) } returns ByteArray(10)
+        every { brevmottakerService.hentBrevmottakere(behandling.id) } returns
+            listOf(
+                BrevmottakerDto(
+                    id = 1L,
+                    type = MottakerType.FULLMEKTIG,
+                    navn = "Fullmektig navn",
+                    adresselinje1 = "Test adresse",
+                    postnummer = "0000",
+                    poststed = "Oslo",
+                    landkode = "NO",
+                ),
+            )
+        every { brevmottakerService.lagMottakereFraBrevMottakere(any()) } answers { callOriginal() }
+        every {
+            utgåendeJournalføringService.journalførDokument(
+                fnr = any(),
+                fagsakId = any(),
+                behandlingId = any(),
+                journalførendeEnhet = any(),
+                brev = any(),
+                førsteside = any(),
+                avsenderMottaker = any(),
+                tilVergeEllerFullmektig = any(),
+            )
+        } returns "mockJournalPostId" andThen "mockJournalPostId1"
+
+        every { journalføringRepository.save(any()) } returns mockk()
+        every { taskService.save(any()) } returns mockk()
+
+        brevService.sendBrev(behandling.fagsak, behandling.id, manueltBrevRequest)
+
+        verify(exactly = 2) { journalføringRepository.save(any()) }
+        verify(exactly = 2) { taskService.save(any()) }
+        verify(exactly = 1) {
+            utgåendeJournalføringService.journalførDokument(
+                fnr = any(),
+                fagsakId = any(),
+                behandlingId = any(),
+                journalførendeEnhet = any(),
+                brev = any(),
+                førsteside = any(),
+                avsenderMottaker = null,
+                tilVergeEllerFullmektig = false,
+            )
+        }
+        verify(exactly = 1) {
+            utgåendeJournalføringService.journalførDokument(
+                fnr = any(),
+                fagsakId = any(),
+                behandlingId = any(),
+                journalførendeEnhet = any(),
+                brev = any(),
+                førsteside = any(),
+                avsenderMottaker = capture(avsenderMottaker),
+                tilVergeEllerFullmektig = true,
+            )
+        }
+        assertEquals("Fullmektig navn", avsenderMottaker.captured.navn)
+    }
+
+    @Test
+    fun `sendBrev skal sende brev til FULLMEKTIG og bruker ved manuell brevmottaker på fagsak`() {
+        val aktør = randomAktør()
+        val fagsak = Fagsak(aktør = aktør)
+        val søkersident = aktør.aktivFødselsnummer()
+        val brevmottakere =
+            listOf(
+                BrevmottakerDto(
+                    id = null,
+                    type = MottakerType.FULLMEKTIG,
+                    navn = "Fullmektig navn",
+                    adresselinje1 = "Test adresse",
+                    postnummer = "0000",
+                    poststed = "Oslo",
+                    landkode = "NO",
+                ),
+            )
+        val manueltBrevDto =
+            ManueltBrevDto(
+                mottakerIdent = søkersident,
+                brevmal = Brevmal.SVARTIDSBREV,
+                manuelleBrevmottakere = brevmottakere,
+            )
+        val avsenderMottaker = slot<AvsenderMottaker>()
+
+        every { genererBrevService.genererManueltBrev(any(), any()) } returns ByteArray(10)
+        every {
+            utgåendeJournalføringService.journalførDokument(
+                fnr = any(),
+                fagsakId = any(),
+                journalførendeEnhet = any(),
+                brev = any(),
+                førsteside = any(),
+                avsenderMottaker = any(),
+                tilVergeEllerFullmektig = any(),
+            )
+        } returns "mockJournalPostId" andThen "mockJournalPostId1"
+
+        every { journalføringRepository.save(any()) } returns mockk()
+        every { taskService.save(any()) } returns mockk()
+
+        brevService.sendBrev(fagsak, behandlingId = null, manueltBrevDto)
+
+        verify(exactly = 2) { taskService.save(any()) }
+        verify(exactly = 1) {
+            utgåendeJournalføringService.journalførDokument(
+                fnr = any(),
+                fagsakId = any(),
+                journalførendeEnhet = any(),
+                brev = any(),
+                førsteside = any(),
+                avsenderMottaker = capture(avsenderMottaker),
+                tilVergeEllerFullmektig = true,
+            )
+        }
+        verify(exactly = 1) {
+            utgåendeJournalføringService.journalførDokument(
+                fnr = any(),
+                fagsakId = any(),
+                journalførendeEnhet = any(),
+                brev = any(),
+                førsteside = any(),
+                avsenderMottaker = null,
+                tilVergeEllerFullmektig = false,
+            )
+        }
+
+        assertEquals("Fullmektig navn", avsenderMottaker.captured.navn)
     }
 }

@@ -48,6 +48,7 @@ data class ManueltBrevDto(
     val antallUkerSvarfrist: Int? = null,
     val barnasFødselsdager: List<LocalDate>? = null,
     val behandlingKategori: BehandlingKategori? = null,
+    val manuelleBrevmottakere: List<BrevmottakerDto> = emptyList(),
 ) {
     fun enhetNavn(): String = this.enhet?.enhetNavn ?: error("Finner ikke enhetsnavn på manuell brevrequest")
 }

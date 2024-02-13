@@ -9,6 +9,7 @@ import no.nav.familie.ks.sak.integrasjon.pdl.domene.DødsfallData
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.ForelderBarnRelasjonInfo
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.ForelderBarnRelasjonInfoMaskert
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.PdlBaseRespons
+import no.nav.familie.ks.sak.integrasjon.pdl.domene.PdlBolkRespons
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.PdlPersonData
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.PdlPersonInfo
 import org.slf4j.Logger
@@ -43,6 +44,24 @@ inline fun <reified DATA : Any, reified T : Any> feilsjekkOgReturnerData(
         throw PdlRequestException("Manglende ${T::class} ved feilfri respons fra PDL. Se secure logg for detaljer.")
     }
     return data
+}
+
+inline fun <reified T : Any> feilsjekkOgReturnerData(pdlRespons: PdlBolkRespons<T>): Map<String, T> {
+    if (pdlRespons.data == null) {
+        secureLogger.error("Data fra pdl er null ved bolkoppslag av ${T::class} fra PDL: ${pdlRespons.errorMessages()}")
+        throw PdlRequestException("Data er null fra PDL -  ${T::class}. Se secure logg for detaljer.")
+    }
+
+    val feil = pdlRespons.data.personBolk.filter { it.code != "ok" }.associate { it.ident to it.code }
+    if (feil.isNotEmpty()) {
+        secureLogger.error("Feil ved henting av ${T::class} fra PDL: $feil")
+        throw PdlRequestException("Feil ved henting av ${T::class} fra PDL. Se secure logg for detaljer.")
+    }
+    if (pdlRespons.harAdvarsel()) {
+        logger.warn("Advarsel ved henting av ${T::class} fra PDL. Se securelogs for detaljer.")
+        secureLogger.warn("Advarsel ved henting av ${T::class} fra PDL: ${pdlRespons.extensions?.warnings}")
+    }
+    return pdlRespons.data.personBolk.associateBy({ it.ident }, { it.person!! })
 }
 
 fun tilPersonInfo(
