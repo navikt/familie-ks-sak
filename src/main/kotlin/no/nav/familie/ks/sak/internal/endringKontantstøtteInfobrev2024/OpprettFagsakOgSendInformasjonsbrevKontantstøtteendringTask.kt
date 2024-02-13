@@ -19,7 +19,6 @@ import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.YearMonth
-import java.util.Properties
 
 @Service
 @TaskStepBeskrivelse(
@@ -66,10 +65,7 @@ class OpprettFagsakOgSendInformasjonsbrevKontantstøtteendringTask(
             return Task(
                 type = TASK_STEP_TYPE,
                 payload = objectMapper.writeValueAsString(søkerOgBarn),
-                properties =
-                    Properties().apply {
-                        this["fødselsnummerSøker"] = søkerOgBarn.søkerIdent
-                    },
+                properties = mapOf("fødselsnummerSøker" to søkerOgBarn.søkerIdent).toProperties(),
             )
         }
 

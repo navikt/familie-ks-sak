@@ -9,7 +9,6 @@ import no.nav.familie.prosessering.AsyncTaskStep
 import no.nav.familie.prosessering.TaskStepBeskrivelse
 import no.nav.familie.prosessering.domene.Task
 import org.springframework.stereotype.Service
-import java.util.Properties
 
 @Service
 @TaskStepBeskrivelse(
@@ -43,13 +42,13 @@ class SendInformasjonsbrevKontantstøtteendringTask(
             return Task(
                 type = TASK_STEP_TYPE,
                 payload = fagsakId.toString(),
-                properties =
-                    Properties().apply {
-                        this["fagsakId"] = fagsakId
-                    },
+                properties = mapOf("fagsakId" to fagsakId.toString()).toProperties(),
             )
         }
 
         const val TASK_STEP_TYPE = "sendInformasjonsbrevKontantstøtteendring"
     }
 }
+
+fun lagProperties(properties: Map<String, String>) =
+    properties.toProperties()
