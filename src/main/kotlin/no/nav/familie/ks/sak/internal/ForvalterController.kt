@@ -53,4 +53,16 @@ class ForvalterController(
 
         return distribuerInformasjonsbrevKontantsøtteEndresService.opprettTaskerForÅJournalføreOgSendeUtInformasjonsbrevKontantstøtteendringKS(erDryRun)
     }
+
+    @PostMapping(path = ["/fagsaker/kjor-send-informasjonsbrev-endring-kontantstotte-infotrygd"])
+    fun sendInfobrevTilAlleMedBarnFødtEtterJanuar2023Infotrygd(
+        @RequestBody erDryRun: Boolean = true,
+    ): List<SøkerOgBarn> {
+        tilgangService.validerTilgangTilHandling(
+            handling = "Sende informasjonsbrev om forkortet kontantstøtte til alle med barn født i 2023 eller senere",
+            minimumBehandlerRolle = BehandlerRolle.FORVALTER,
+        )
+
+        return distribuerInformasjonsbrevKontantsøtteEndresInfotrygdService.opprettTaskerForÅJournalføreOgSendeUtInformasjonsbrevKontantstøtteendringInfotrygd(erDryRun)
+    }
 }
