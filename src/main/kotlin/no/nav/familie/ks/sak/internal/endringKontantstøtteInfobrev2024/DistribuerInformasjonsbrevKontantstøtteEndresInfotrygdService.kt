@@ -1,7 +1,5 @@
 package no.nav.familie.ks.sak.internal.endringKontantstøtteInfobrev2024
 
-import no.nav.familie.kontrakter.felles.Fødselsnummer
-import no.nav.familie.ks.sak.common.util.toYearMonth
 import no.nav.familie.ks.sak.integrasjon.infotrygd.InfotrygdReplikaClient
 import no.nav.familie.ks.sak.integrasjon.logger
 import no.nav.familie.prosessering.internal.TaskService
@@ -19,8 +17,9 @@ class DistribuerInformasjonsbrevKontantstøtteEndresInfotrygdService(
         val brukereMedLøpendeKontantstøtteIInfotrygd =
             infotrygdReplikaClient.hentSøkereOgBarnForLøpendeFagsakerIInfotrygd()
         return brukereMedLøpendeKontantstøtteIInfotrygd.filter { søkerOgBarn ->
-            val barnasFødselsdatoer = søkerOgBarn.barnIdenter.map { Fødselsnummer(it).fødselsdato }
-            val erBarnFødtEtterSeptember22 = barnasFødselsdatoer.any { it.toYearMonth() >= YearMonth.of(2022, 9) }
+            val barnasFødselsdatoer =
+                søkerOgBarn.barnIdenter.map { it.tilFødselsdato() }
+            val erBarnFødtEtterSeptember22 = barnasFødselsdatoer.any { it >= YearMonth.of(2022, 9) }
             erBarnFødtEtterSeptember22
         }.map { it.søkerIdent }
     }
@@ -33,4 +32,28 @@ class DistribuerInformasjonsbrevKontantstøtteEndresInfotrygdService(
             taskService.save(task)
         }
     }
+}
+
+fun String.tilFødselsdato(): YearMonth {
+    val erNAVSyntetisk = substring(2, 3).toInt() in 4..7
+    val erSkattSyntetisk = substring(2, 3).toInt() >= 8
+
+    val måned =
+        substring(2, 4).toInt() - (
+            when {
+                erNAVSyntetisk -> 40
+                erSkattSyntetisk -> 80
+                else -> 0
+            }
+        )
+    val år = substring(4, 6).toInt()
+    val datoUtenÅrhundre = YearMonth.of(år, måned)
+    val individnummer = this.substring(6, 9).toInt()
+    when {
+        individnummer in 0..499 -> return datoUtenÅrhundre.plusYears(1900)
+        individnummer in 500..749 && år >= 54 && år <= 99 -> return datoUtenÅrhundre.plusYears(1800)
+        individnummer in 900..999 && år >= 40 && år <= 99 -> return datoUtenÅrhundre.plusYears(1900)
+        individnummer in 500..999 && år >= 0 && år <= 39 -> return datoUtenÅrhundre.plusYears(2000)
+    }
+    throw IllegalArgumentException()
 }
