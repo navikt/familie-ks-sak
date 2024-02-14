@@ -17,7 +17,7 @@ import org.springframework.stereotype.Service
 @TaskStepBeskrivelse(
     taskStepType = SendInformasjonsbrevKontantstøtteendringTask.TASK_STEP_TYPE,
     beskrivelse = "Send informasjonsbrev om kontantstøtteendring",
-    maxAntallFeil = 3,
+    maxAntallFeil = 1,
 )
 class SendInformasjonsbrevKontantstøtteendringTask(
     private val brevService: BrevService,
