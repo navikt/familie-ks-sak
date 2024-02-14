@@ -127,8 +127,8 @@ fun parseValgfriBoolean(
     }
 
     return when (verdi.uppercase()) {
-        "JA" -> true
-        "NEI" -> false
+        "JA", "TRUE" -> true
+        "NEI", "FALSE" -> false
         else -> null
     }
 }
