@@ -1,12 +1,6 @@
 package no.nav.familie.ks.sak.internal.endringKontantstøtteInfobrev2024
 
-import com.fasterxml.jackson.module.kotlin.readValue
-import no.nav.familie.kontrakter.felles.Fødselsnummer
-import no.nav.familie.kontrakter.felles.objectMapper
 import no.nav.familie.ks.sak.api.dto.FagsakRequestDto
-import no.nav.familie.ks.sak.common.util.toYearMonth
-import no.nav.familie.ks.sak.integrasjon.infotrygd.SøkerOgBarn
-import no.nav.familie.ks.sak.integrasjon.secureLogger
 import no.nav.familie.ks.sak.kjerne.fagsak.FagsakService
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.FagsakRepository
 import no.nav.familie.ks.sak.kjerne.personident.PersonidentRepository
@@ -18,7 +12,6 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import java.time.YearMonth
 
 @Service
 @TaskStepBeskrivelse(
@@ -36,17 +29,9 @@ class OpprettFagsakOgSendInformasjonsbrevKontantstøtteendringTask(
 
     @Transactional
     override fun doTask(task: Task) {
-        val søkerOgBarn = objectMapper.readValue<SøkerOgBarn>(task.payload)
+        val søkerIdent = task.payload
 
-        val barnasFødselsdatoer = søkerOgBarn.barnIdenter.map { Fødselsnummer(it).fødselsdato }
-        val erBarnFødtEtterSeptember22 = barnasFødselsdatoer.any { it.toYearMonth() >= YearMonth.of(2022, 9) }
-
-        if (!erBarnFødtEtterSeptember22) {
-            secureLogger.info("Ingen barn født etter september 2022 for $søkerOgBarn. Sender ikke infobrev.")
-            return
-        }
-
-        val aktørIKs = personidentRepository.findByFødselsnummerOrNull(fødselsnummer = søkerOgBarn.søkerIdent)?.aktør
+        val aktørIKs = personidentRepository.findByFødselsnummerOrNull(fødselsnummer = søkerIdent)?.aktør
         if (aktørIKs != null) {
             val fagsakPåSøkerIKs = fagsakRepository.finnFagsakForAktør(aktørIKs)
             if (fagsakPåSøkerIKs != null) {
@@ -55,17 +40,18 @@ class OpprettFagsakOgSendInformasjonsbrevKontantstøtteendringTask(
             }
         }
 
-        val minimalFagsak = fagsakService.hentEllerOpprettFagsak(FagsakRequestDto(personIdent = søkerOgBarn.søkerIdent))
+        val minimalFagsak = fagsakService.hentEllerOpprettFagsak(FagsakRequestDto(personIdent = søkerIdent))
+        logger.info("Oppretter task for å journalføre og distribuere informasjonsbrev om kontantstøtteendring på fagsak ${minimalFagsak.id}. Saken er originalt fra infotrygd.")
         val sendBrevTask = SendInformasjonsbrevKontantstøtteendringTask.lagTask(minimalFagsak.id)
         taskService.save(sendBrevTask)
     }
 
     companion object {
-        fun lagTask(søkerOgBarn: SøkerOgBarn): Task {
+        fun lagTask(søkerIdent: String): Task {
             return Task(
                 type = TASK_STEP_TYPE,
-                payload = objectMapper.writeValueAsString(søkerOgBarn),
-                properties = mapOf("fødselsnummerSøker" to søkerOgBarn.søkerIdent).toProperties(),
+                payload = søkerIdent,
+                properties = mapOf("fødselsnummerSøker" to søkerIdent).toProperties(),
             )
         }
 

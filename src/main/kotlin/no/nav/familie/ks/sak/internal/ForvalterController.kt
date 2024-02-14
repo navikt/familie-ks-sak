@@ -1,7 +1,6 @@
 package no.nav.familie.ks.sak.internal
 
 import no.nav.familie.ks.sak.config.BehandlerRolle
-import no.nav.familie.ks.sak.integrasjon.infotrygd.SøkerOgBarn
 import no.nav.familie.ks.sak.internal.endringKontantstøtteInfobrev2024.DistribuerInformasjonsbrevKontantstøtteEndresInfotrygdService
 import no.nav.familie.ks.sak.internal.endringKontantstøtteInfobrev2024.DistribuerInformasjonsbrevKontantstøtteEndresKSService
 import no.nav.familie.ks.sak.sikkerhet.AuditLoggerEvent
@@ -51,20 +50,48 @@ class ForvalterController(
             minimumBehandlerRolle = BehandlerRolle.VEILEDER,
         )
 
-        return distribuerInformasjonsbrevKontantsøtteEndresService.opprettTaskerForÅJournalføreOgSendeUtInformasjonsbrevKontantstøtteendringKS(erDryRun)
+        return distribuerInformasjonsbrevKontantsøtteEndresService.opprettTaskerForÅJournalføreOgSendeUtInformasjonsbrevKontantstøtteendringKS(
+            erDryRun,
+        )
+    }
+
+    @PostMapping(path = ["/fagsaker/hent-personer-informasjonsbrev-endring-kontantstotte-infotrygd"])
+    fun hentSøkereMedBarnFødtEtterJanuar2023Infotrygd(): Set<String> {
+        tilgangService.validerTilgangTilHandling(
+            handling = "Sende informasjonsbrev om forkortet kontantstøtte til alle med barn født i 2023 eller senere",
+            minimumBehandlerRolle = BehandlerRolle.VEILEDER,
+        )
+
+        return distribuerInformasjonsbrevKontantstøtteEndresInfotrygdService.hentPersonerFraInfotrygdMedBarnFødEtterSept22()
+            .toSet()
     }
 
     @PostMapping(path = ["/fagsaker/kjor-send-informasjonsbrev-endring-kontantstotte-infotrygd"])
     fun sendInfobrevTilAlleMedBarnFødtEtterJanuar2023Infotrygd(
-        @RequestBody erDryRun: Boolean = true,
-    ): List<SøkerOgBarn> {
+        @RequestBody søkerIdenterFraInfotrygd: List<String>,
+    ) {
         tilgangService.validerTilgangTilHandling(
             handling = "Sende informasjonsbrev om forkortet kontantstøtte til alle med barn født i 2023 eller senere",
             minimumBehandlerRolle = BehandlerRolle.VEILEDER,
         )
 
         return distribuerInformasjonsbrevKontantstøtteEndresInfotrygdService.opprettTaskerForÅJournalføreOgSendeUtInformasjonsbrevKontantstøtteendringInfotrygd(
-            erDryRun,
+            søkerIdenterFraInfotrygd,
         )
+    }
+
+    @PostMapping(path = ["/fagsaker/hent-personer-og-send-informasjonsbrev-endring-kontantstotte-infotrygd"])
+    fun sendInfobrevTilAlleMedBarnFødtEtterJanuar2023Infotrygd() {
+        tilgangService.validerTilgangTilHandling(
+            handling = "Sende informasjonsbrev om forkortet kontantstøtte til alle med barn født i 2023 eller senere",
+            minimumBehandlerRolle = BehandlerRolle.VEILEDER,
+        )
+
+        val søkerIdenterFraInfotrygd =
+            distribuerInformasjonsbrevKontantstøtteEndresInfotrygdService
+                .hentPersonerFraInfotrygdMedBarnFødEtterSept22().toSet()
+
+        return distribuerInformasjonsbrevKontantstøtteEndresInfotrygdService
+            .opprettTaskerForÅJournalføreOgSendeUtInformasjonsbrevKontantstøtteendringInfotrygd(søkerIdenterFraInfotrygd.toList())
     }
 }
