@@ -32,6 +32,7 @@ import no.nav.familie.ks.sak.data.randomAktør
 import no.nav.familie.ks.sak.data.tilfeldigPerson
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingKategori
+import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.Vedtak
@@ -93,12 +94,14 @@ fun lagVedtakListe(
             val behandlingKategori =
                 parseValgfriEnum<BehandlingKategori>(Domenebegrep.BEHANDLINGSKATEGORI, rad)
                     ?: BehandlingKategori.NASJONAL
+            val status = parseValgfriEnum<BehandlingStatus>(Domenebegrep.BEHANDLINGSSTATUS, rad)
 
             lagBehandling(
                 fagsak = fagsak,
                 opprettetÅrsak = behandlingÅrsak ?: BehandlingÅrsak.SØKNAD,
                 resultat = behandlingResultat ?: Behandlingsresultat.IKKE_VURDERT,
                 kategori = behandlingKategori,
+                status = status ?: BehandlingStatus.UTREDES,
             ).copy(id = behandlingId)
         }.associateBy { it.id },
     )
