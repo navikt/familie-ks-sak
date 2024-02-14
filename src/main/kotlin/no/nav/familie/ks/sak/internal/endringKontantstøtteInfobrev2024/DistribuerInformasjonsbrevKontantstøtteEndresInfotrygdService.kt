@@ -1,7 +1,6 @@
 package no.nav.familie.ks.sak.internal.endringKontantstøtteInfobrev2024
 
 import no.nav.familie.ks.sak.integrasjon.infotrygd.InfotrygdReplikaClient
-import no.nav.familie.ks.sak.integrasjon.logger
 import no.nav.familie.ks.sak.integrasjon.secureLogger
 import no.nav.familie.prosessering.internal.TaskService
 import org.slf4j.Logger
@@ -26,9 +25,9 @@ class DistribuerInformasjonsbrevKontantstøtteEndresInfotrygdService(
                 søkerOgBarn.barnIdenter.map {
                     try {
                         it.tilFødselsdato()
-                    } catch (e: Error) {
+                    } catch (e: Exception) {
                         logger.error("Klarte ikke å finne fødselsdato for barn. Se securelogger for ident.")
-                        secureLogger.error("Klarte ikke å finne fødselsdato for barn med ident=$it")
+                        secureLogger.error("Klarte ikke å finne fødselsdato for barn med ident=$it. Feilmelding=${e.message}")
                         YearMonth.of(1900, 1)
                     }
                 }
