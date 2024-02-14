@@ -30,6 +30,7 @@ val ktlint by configurations.creating
 
 repositories {
     mavenCentral()
+    mavenLocal()
     maven {
         url = uri("https://packages.confluent.io/maven")
     }
@@ -53,7 +54,7 @@ dependencies {
     val familieKontrakterStønadsstatistikkKsVersion = "2.0_20240131125409_e3d0f6d"
     val tokenValidationSpringVersion = "3.2.0"
     val navFoedselsnummerVersion = "1.0-SNAPSHOT.6"
-    val prosesseringVersion = "2.20240214122529_a41d6e7"
+    val prosesseringVersion = "2.20240214140223_83c31de"
     val restAssuredVersion = "5.4.0"
     val kotlinxVersion = "1.7.3"
 
