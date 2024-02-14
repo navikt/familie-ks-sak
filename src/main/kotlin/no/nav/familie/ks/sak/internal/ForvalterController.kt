@@ -82,7 +82,7 @@ class ForvalterController(
 
     @PostMapping(path = ["/fagsaker/obs-hent-personer-og-send-informasjonsbrev-endring-kontantstotte-infotrygd"])
     fun hentOgSendInfobrevTilAlleMedBarnFødtEtterAugust2022Infotrygd(
-        @RequestBody kjøretype: Kjøretype,
+        @RequestBody kjøretype: Kjøretype = Kjøretype.DRY_RUN,
     ) {
         if (kjøretype != Kjøretype.SEND_BREV) {
             throw Feil("Kjøretypen var ikke \"SEND_BREV\"")
@@ -103,6 +103,6 @@ class ForvalterController(
 }
 
 enum class Kjøretype {
-    SEND_BREV,
     DRY_RUN,
+    SEND_BREV,
 }

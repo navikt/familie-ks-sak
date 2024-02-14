@@ -2,7 +2,10 @@ package no.nav.familie.ks.sak.internal.endringKontantstøtteInfobrev2024
 
 import no.nav.familie.ks.sak.integrasjon.infotrygd.InfotrygdReplikaClient
 import no.nav.familie.ks.sak.integrasjon.logger
+import no.nav.familie.ks.sak.integrasjon.secureLogger
 import no.nav.familie.prosessering.internal.TaskService
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.YearMonth
@@ -12,13 +15,23 @@ class DistribuerInformasjonsbrevKontantstøtteEndresInfotrygdService(
     private val taskService: TaskService,
     private val infotrygdReplikaClient: InfotrygdReplikaClient,
 ) {
+    private val logger: Logger = LoggerFactory.getLogger(this::class.java)
+
     @Transactional
     fun hentPersonerFraInfotrygdMedBarnFødEtterAugust22(): List<String> {
         val brukereMedLøpendeKontantstøtteIInfotrygd =
             infotrygdReplikaClient.hentSøkereOgBarnForLøpendeFagsakerIInfotrygd()
         return brukereMedLøpendeKontantstøtteIInfotrygd.filter { søkerOgBarn ->
             val barnasFødselsdatoer =
-                søkerOgBarn.barnIdenter.map { it.tilFødselsdato() }
+                søkerOgBarn.barnIdenter.map {
+                    try {
+                        it.tilFødselsdato()
+                    } catch (e: Error) {
+                        logger.error("Klarte ikke å finne fødselsdato for barn. Se securelogger for ident.")
+                        secureLogger.error("Klarte ikke å finne fødselsdato for barn med ident=$it")
+                        YearMonth.of(1900, 1)
+                    }
+                }
             val erBarnFødtEtterSeptember22 = barnasFødselsdatoer.any { it >= YearMonth.of(2022, 9) }
             erBarnFødtEtterSeptember22
         }.map { it.søkerIdent }
