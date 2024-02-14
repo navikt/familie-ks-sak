@@ -54,6 +54,7 @@ fun String.tilFødselsdato(): YearMonth {
         individnummer in 500..749 && år >= 54 && år <= 99 -> return datoUtenÅrhundre.plusYears(1800)
         individnummer in 900..999 && år >= 40 && år <= 99 -> return datoUtenÅrhundre.plusYears(1900)
         individnummer in 500..999 && år >= 0 && år <= 39 -> return datoUtenÅrhundre.plusYears(2000)
+        år < 25 -> datoUtenÅrhundre.plusYears(2000)
     }
     throw IllegalArgumentException()
 }
