@@ -42,7 +42,7 @@ class ForvalterController(
     }
 
     @PostMapping(path = ["/fagsaker/kjor-send-informasjonsbrev-endring-kontantstotte-ks"])
-    fun sendInfobrevTilAlleMedBarnFødtEtterJanuar2023KS(
+    fun sendInfobrevTilAlleMedBarnFødtEtterSept2022KS(
         @RequestBody erDryRun: Boolean = true,
     ): List<Long> {
         tilgangService.validerTilgangTilHandling(
@@ -56,7 +56,7 @@ class ForvalterController(
     }
 
     @PostMapping(path = ["/fagsaker/hent-personer-informasjonsbrev-endring-kontantstotte-infotrygd"])
-    fun hentSøkereMedBarnFødtEtterJanuar2023Infotrygd(): Set<String> {
+    fun hentSøkereMedBarnFødtEtterSept2022Infotrygd(): Set<String> {
         tilgangService.validerTilgangTilHandling(
             handling = "Sende informasjonsbrev om forkortet kontantstøtte til alle med barn født i 2023 eller senere",
             minimumBehandlerRolle = BehandlerRolle.VEILEDER,
@@ -67,7 +67,7 @@ class ForvalterController(
     }
 
     @PostMapping(path = ["/fagsaker/kjor-send-informasjonsbrev-endring-kontantstotte-infotrygd"])
-    fun sendInfobrevTilAlleMedBarnFødtEtterJanuar2023Infotrygd(
+    fun sendInfobrevTilAlleMedBarnFødtEtterSept2022Infotrygd(
         @RequestBody søkerIdenterFraInfotrygd: List<String>,
     ) {
         tilgangService.validerTilgangTilHandling(
@@ -81,7 +81,7 @@ class ForvalterController(
     }
 
     @PostMapping(path = ["/fagsaker/hent-personer-og-send-informasjonsbrev-endring-kontantstotte-infotrygd"])
-    fun sendInfobrevTilAlleMedBarnFødtEtterJanuar2023Infotrygd() {
+    fun hentOgSendInfobrevTilAlleMedBarnFødtEtterSept2022Infotrygd() {
         tilgangService.validerTilgangTilHandling(
             handling = "Sende informasjonsbrev om forkortet kontantstøtte til alle med barn født i 2023 eller senere",
             minimumBehandlerRolle = BehandlerRolle.VEILEDER,
