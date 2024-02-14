@@ -1,6 +1,7 @@
 package no.nav.familie.ks.sak.internal.endringKontantstøtteInfobrev2024
 
 import no.nav.familie.ks.sak.api.dto.FagsakRequestDto
+import no.nav.familie.ks.sak.integrasjon.secureLogger
 import no.nav.familie.ks.sak.kjerne.fagsak.FagsakService
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.FagsakRepository
 import no.nav.familie.ks.sak.kjerne.personident.PersonidentRepository
@@ -40,6 +41,7 @@ class OpprettFagsakOgSendInformasjonsbrevKontantstøtteendringTask(
             }
         }
 
+        secureLogger.info("Oppretter fagsak på person $søkerIdent")
         val minimalFagsak = fagsakService.hentEllerOpprettFagsak(FagsakRequestDto(personIdent = søkerIdent))
         logger.info("Oppretter task for å journalføre og distribuere informasjonsbrev om kontantstøtteendring på fagsak ${minimalFagsak.id}. Saken er originalt fra infotrygd.")
         val sendBrevTask = SendInformasjonsbrevKontantstøtteendringTask.lagTask(minimalFagsak.id)
