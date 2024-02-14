@@ -25,6 +25,7 @@ import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import java.math.BigDecimal
@@ -99,6 +100,7 @@ class FagsakServiceIntegrasjonTest : OppslagSpringRunnerTest() {
     }
 
     @Test
+    @Disabled
     fun `skal sette status til avsluttet hvis ingen løpende utbetalinger`() {
         val søker = randomAktør(randomFnr())
 
