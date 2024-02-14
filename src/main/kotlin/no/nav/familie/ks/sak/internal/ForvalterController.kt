@@ -43,7 +43,7 @@ class ForvalterController(
 
     @PostMapping(path = ["/fagsaker/kjor-send-informasjonsbrev-endring-kontantstotte-ks"])
     fun sendInfobrevTilAlleMedBarnFødtEtterAugust2022KS(
-        @RequestBody erDryRun: Boolean = true,
+        @RequestBody kjøretype: Kjøretype = Kjøretype.DRY_RUN,
     ): List<Long> {
         tilgangService.validerTilgangTilHandling(
             handling = "Send informasjonsbrev om forkortet kontantstøtte til alle med barn født i september 2022 eller senere",
@@ -51,7 +51,7 @@ class ForvalterController(
         )
 
         return distribuerInformasjonsbrevKontantsøtteEndresService
-            .opprettTaskerForÅJournalføreOgSendeUtInformasjonsbrevKontantstøtteendringKS(erDryRun)
+            .opprettTaskerForÅJournalføreOgSendeUtInformasjonsbrevKontantstøtteendringKS(erDryRun = kjøretype == Kjøretype.DRY_RUN)
     }
 
     @PostMapping(path = ["/fagsaker/hent-personer-informasjonsbrev-endring-kontantstotte-infotrygd"])
@@ -93,4 +93,9 @@ class ForvalterController(
         return distribuerInformasjonsbrevKontantstøtteEndresInfotrygdService
             .opprettTaskerForÅJournalføreOgSendeUtInformasjonsbrevKontantstøtteendringInfotrygd(søkerIdenterFraInfotrygd)
     }
+}
+
+enum class Kjøretype {
+    SEND_BREV,
+    DRY_RUN,
 }
