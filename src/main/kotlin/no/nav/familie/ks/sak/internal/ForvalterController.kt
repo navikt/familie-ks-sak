@@ -1,5 +1,6 @@
 package no.nav.familie.ks.sak.internal
 
+import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.config.BehandlerRolle
 import no.nav.familie.ks.sak.internal.endringKontantstøtteInfobrev2024.DistribuerInformasjonsbrevKontantstøtteEndresInfotrygdService
 import no.nav.familie.ks.sak.internal.endringKontantstøtteInfobrev2024.DistribuerInformasjonsbrevKontantstøtteEndresKSService
@@ -80,7 +81,13 @@ class ForvalterController(
     }
 
     @PostMapping(path = ["/fagsaker/obs-hent-personer-og-send-informasjonsbrev-endring-kontantstotte-infotrygd"])
-    fun hentOgSendInfobrevTilAlleMedBarnFødtEtterAugust2022Infotrygd() {
+    fun hentOgSendInfobrevTilAlleMedBarnFødtEtterAugust2022Infotrygd(
+        @RequestBody kjøretype: Kjøretype,
+    ) {
+        if (kjøretype != Kjøretype.SEND_BREV) {
+            throw Feil("Kjøretypen var ikke \"SEND_BREV\"")
+        }
+
         tilgangService.validerTilgangTilHandling(
             handling = "Send informasjonsbrev om forkortet kontantstøtte til alle med barn født i september 2022 eller senere",
             minimumBehandlerRolle = BehandlerRolle.VEILEDER,
