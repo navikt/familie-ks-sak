@@ -15,7 +15,7 @@ class DistribuerInformasjonsbrevKontantstøtteEndresInfotrygdService(
     private val infotrygdReplikaClient: InfotrygdReplikaClient,
 ) {
     @Transactional
-    fun hentPersonerFraInfotrygdMedBarnFødEtterSept22(): List<String> {
+    fun hentPersonerFraInfotrygdMedBarnFødEtterAugust22(): List<String> {
         val brukereMedLøpendeKontantstøtteIInfotrygd =
             infotrygdReplikaClient.hentSøkereOgBarnForLøpendeFagsakerIInfotrygd()
         return brukereMedLøpendeKontantstøtteIInfotrygd.filter { søkerOgBarn ->
@@ -26,7 +26,7 @@ class DistribuerInformasjonsbrevKontantstøtteEndresInfotrygdService(
     }
 
     @Transactional
-    fun opprettTaskerForÅJournalføreOgSendeUtInformasjonsbrevKontantstøtteendringInfotrygd(søkerIdenterFraInfotrygd: List<String>) {
+    fun opprettTaskerForÅJournalføreOgSendeUtInformasjonsbrevKontantstøtteendringInfotrygd(søkerIdenterFraInfotrygd: Set<String>) {
         logger.info("Oppretter tasker for å sende ut informasjonsbrev om mulig endring av kontantstøtte til brukere fra infotrygd. Antall brukere = ${søkerIdenterFraInfotrygd.size}")
         søkerIdenterFraInfotrygd.map {
             val task = OpprettFagsakOgSendInformasjonsbrevKontantstøtteendringTask.lagTask(søkerIdent = it)
