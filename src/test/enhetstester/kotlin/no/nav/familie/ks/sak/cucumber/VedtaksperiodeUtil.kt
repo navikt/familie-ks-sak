@@ -86,7 +86,6 @@ fun lagVedtakListe(
     behandlingTilForrigeBehandling: MutableMap<Long, Long?>,
     fagsaker: Map<Long, Fagsak>,
 ): List<Vedtak> {
-
     behandlinger.putAll(
         dataTable.asMaps().map { rad ->
             val behandlingId = parseLong(Domenebegrep.BEHANDLING_ID, rad)
@@ -99,12 +98,13 @@ fun lagVedtakListe(
                     ?: BehandlingKategori.NASJONAL
             val status = parseValgfriEnum<BehandlingStatus>(Domenebegrep.BEHANDLINGSSTATUS, rad)
 
-            val behandling = lagBehandling(
-                fagsak = fagsak,
-                opprettetÅrsak = behandlingÅrsak ?: BehandlingÅrsak.SØKNAD,
-                resultat = behandlingResultat ?: Behandlingsresultat.IKKE_VURDERT,
-                kategori = behandlingKategori,
-            ).copy(id = behandlingId)
+            val behandling =
+                lagBehandling(
+                    fagsak = fagsak,
+                    opprettetÅrsak = behandlingÅrsak ?: BehandlingÅrsak.SØKNAD,
+                    resultat = behandlingResultat ?: Behandlingsresultat.IKKE_VURDERT,
+                    kategori = behandlingKategori,
+                ).copy(id = behandlingId)
             behandling.apply {
                 this.status = status ?: BehandlingStatus.UTREDES
 
@@ -112,8 +112,8 @@ fun lagVedtakListe(
                     this.behandlingStegTilstand.add(
                         BehandlingStegTilstand(
                             behandling = this,
-                            behandlingSteg = BehandlingSteg.AVSLUTT_BEHANDLING
-                        )
+                            behandlingSteg = BehandlingSteg.AVSLUTT_BEHANDLING,
+                        ),
                     )
                 }
             }
@@ -194,17 +194,17 @@ private fun lagVilkårResultater(
             personResultat = personResultat,
             vilkårType = vilkår,
             resultat =
-            parseEnum<Resultat>(
-                VedtaksperiodeMedBegrunnelserParser.DomenebegrepVedtaksperiodeMedBegrunnelser.RESULTAT,
-                rad,
-            ),
+                parseEnum<Resultat>(
+                    VedtaksperiodeMedBegrunnelserParser.DomenebegrepVedtaksperiodeMedBegrunnelser.RESULTAT,
+                    rad,
+                ),
             periodeFom = parseValgfriDato(Domenebegrep.FRA_DATO, rad),
             periodeTom = parseValgfriDato(Domenebegrep.TIL_DATO, rad),
             erEksplisittAvslagPåSøknad =
-            parseValgfriBoolean(
-                VedtaksperiodeMedBegrunnelserParser.DomenebegrepVedtaksperiodeMedBegrunnelser.ER_EKSPLISITT_AVSLAG,
-                rad,
-            ),
+                parseValgfriBoolean(
+                    VedtaksperiodeMedBegrunnelserParser.DomenebegrepVedtaksperiodeMedBegrunnelser.ER_EKSPLISITT_AVSLAG,
+                    rad,
+                ),
             begrunnelse = "",
             utdypendeVilkårsvurderinger = utdypendeVilkårsvurderingFor,
             vurderesEtter = vurderesEtter,
@@ -243,42 +243,42 @@ fun lagKompetanser(
             fom = parseValgfriDato(Domenebegrep.FRA_DATO, rad)?.toYearMonth(),
             tom = parseValgfriDato(Domenebegrep.TIL_DATO, rad)?.toYearMonth(),
             barnAktører =
-            personopplysningGrunnlag.finnPersonGrunnlagForBehandling(behandlingId).personer
-                .filter { aktørerForKompetanse.contains(it.aktør.aktørId) }
-                .map { it.aktør }
-                .toSet(),
+                personopplysningGrunnlag.finnPersonGrunnlagForBehandling(behandlingId).personer
+                    .filter { aktørerForKompetanse.contains(it.aktør.aktørId) }
+                    .map { it.aktør }
+                    .toSet(),
             søkersAktivitet =
-            parseValgfriEnum<KompetanseAktivitet>(
-                VedtaksperiodeMedBegrunnelserParser.DomenebegrepKompetanse.SØKERS_AKTIVITET,
-                rad,
-            )
-                ?: KompetanseAktivitet.ARBEIDER,
+                parseValgfriEnum<KompetanseAktivitet>(
+                    VedtaksperiodeMedBegrunnelserParser.DomenebegrepKompetanse.SØKERS_AKTIVITET,
+                    rad,
+                )
+                    ?: KompetanseAktivitet.ARBEIDER,
             annenForeldersAktivitet =
-            parseValgfriEnum<KompetanseAktivitet>(
-                VedtaksperiodeMedBegrunnelserParser.DomenebegrepKompetanse.ANNEN_FORELDERS_AKTIVITET,
-                rad,
-            )
-                ?: KompetanseAktivitet.I_ARBEID,
+                parseValgfriEnum<KompetanseAktivitet>(
+                    VedtaksperiodeMedBegrunnelserParser.DomenebegrepKompetanse.ANNEN_FORELDERS_AKTIVITET,
+                    rad,
+                )
+                    ?: KompetanseAktivitet.I_ARBEID,
             søkersAktivitetsland =
-            parseValgfriString(
-                VedtaksperiodeMedBegrunnelserParser.DomenebegrepKompetanse.SØKERS_AKTIVITETSLAND,
-                rad,
-            )?.also { validerErLandkode(it) } ?: "PL",
+                parseValgfriString(
+                    VedtaksperiodeMedBegrunnelserParser.DomenebegrepKompetanse.SØKERS_AKTIVITETSLAND,
+                    rad,
+                )?.also { validerErLandkode(it) } ?: "PL",
             annenForeldersAktivitetsland =
-            parseValgfriString(
-                VedtaksperiodeMedBegrunnelserParser.DomenebegrepKompetanse.ANNEN_FORELDERS_AKTIVITETSLAND,
-                rad,
-            )?.also { validerErLandkode(it) } ?: "NO",
+                parseValgfriString(
+                    VedtaksperiodeMedBegrunnelserParser.DomenebegrepKompetanse.ANNEN_FORELDERS_AKTIVITETSLAND,
+                    rad,
+                )?.also { validerErLandkode(it) } ?: "NO",
             barnetsBostedsland =
-            parseValgfriString(
-                VedtaksperiodeMedBegrunnelserParser.DomenebegrepKompetanse.BARNETS_BOSTEDSLAND,
-                rad,
-            )?.also { validerErLandkode(it) } ?: "NO",
+                parseValgfriString(
+                    VedtaksperiodeMedBegrunnelserParser.DomenebegrepKompetanse.BARNETS_BOSTEDSLAND,
+                    rad,
+                )?.also { validerErLandkode(it) } ?: "NO",
             resultat =
-            parseEnum<KompetanseResultat>(
-                VedtaksperiodeMedBegrunnelserParser.DomenebegrepKompetanse.RESULTAT,
-                rad,
-            ),
+                parseEnum<KompetanseResultat>(
+                    VedtaksperiodeMedBegrunnelserParser.DomenebegrepKompetanse.RESULTAT,
+                    rad,
+                ),
         ).also { it.behandlingId = behandlingId }
     }.groupBy { it.behandlingId }
         .toMutableMap()
@@ -295,16 +295,16 @@ fun lagValutakurs(
             fom = parseValgfriDato(Domenebegrep.FRA_DATO, rad)?.toYearMonth(),
             tom = parseValgfriDato(Domenebegrep.TIL_DATO, rad)?.toYearMonth(),
             barnAktører =
-            personopplysningGrunnlag.finnPersonGrunnlagForBehandling(behandlingId).personer
-                .filter { aktørerForValutakurs.contains(it.aktør.aktørId) }
-                .map { it.aktør }
-                .toSet(),
+                personopplysningGrunnlag.finnPersonGrunnlagForBehandling(behandlingId).personer
+                    .filter { aktørerForValutakurs.contains(it.aktør.aktørId) }
+                    .map { it.aktør }
+                    .toSet(),
             valutakursdato = parseValgfriDato(VedtaksperiodeMedBegrunnelserParser.DomenebegrepValutakurs.VALUTAKURSDATO, rad),
             valutakode =
-            parseValgfriString(
-                VedtaksperiodeMedBegrunnelserParser.DomenebegrepValutakurs.VALUTA_KODE,
-                rad,
-            ),
+                parseValgfriString(
+                    VedtaksperiodeMedBegrunnelserParser.DomenebegrepValutakurs.VALUTA_KODE,
+                    rad,
+                ),
             kurs = parseBigDecimal(VedtaksperiodeMedBegrunnelserParser.DomenebegrepValutakurs.KURS, rad),
         ).also { it.behandlingId = behandlingId }
     }
@@ -321,16 +321,16 @@ fun lagUtenlandskperiodeBeløp(
             fom = parseValgfriDato(Domenebegrep.FRA_DATO, rad)?.toYearMonth(),
             tom = parseValgfriDato(Domenebegrep.TIL_DATO, rad)?.toYearMonth(),
             barnAktører =
-            personopplysningGrunnlag.finnPersonGrunnlagForBehandling(behandlingId).personer
-                .filter { aktørerForValutakurs.contains(it.aktør.aktørId) }
-                .map { it.aktør }
-                .toSet(),
+                personopplysningGrunnlag.finnPersonGrunnlagForBehandling(behandlingId).personer
+                    .filter { aktørerForValutakurs.contains(it.aktør.aktørId) }
+                    .map { it.aktør }
+                    .toSet(),
             beløp = parseBigDecimal(VedtaksperiodeMedBegrunnelserParser.DomenebegrepUtenlandskPeriodebeløp.BELØP, rad),
             valutakode =
-            parseValgfriString(
-                VedtaksperiodeMedBegrunnelserParser.DomenebegrepUtenlandskPeriodebeløp.VALUTA_KODE,
-                rad,
-            ),
+                parseValgfriString(
+                    VedtaksperiodeMedBegrunnelserParser.DomenebegrepUtenlandskPeriodebeløp.VALUTA_KODE,
+                    rad,
+                ),
             intervall = parseValgfriEnum<Intervall>(VedtaksperiodeMedBegrunnelserParser.DomenebegrepUtenlandskPeriodebeløp.INTERVALL, rad),
             utbetalingsland = parseValgfriString(VedtaksperiodeMedBegrunnelserParser.DomenebegrepUtenlandskPeriodebeløp.UTBETALINGSLAND, rad),
         ).let {
@@ -358,20 +358,20 @@ fun lagEndredeUtbetalinger(
             tom = parseValgfriDato(Domenebegrep.TIL_DATO, rad)?.toYearMonth(),
             person = persongrunnlag.finnPersonGrunnlagForBehandling(behandlingId).personer.find { aktørId == it.aktør.aktørId },
             prosent =
-            parseValgfriLong(
-                VedtaksperiodeMedBegrunnelserParser.DomenebegrepEndretUtbetaling.PROSENT,
-                rad,
-            )?.toBigDecimal() ?: BigDecimal.valueOf(100),
+                parseValgfriLong(
+                    VedtaksperiodeMedBegrunnelserParser.DomenebegrepEndretUtbetaling.PROSENT,
+                    rad,
+                )?.toBigDecimal() ?: BigDecimal.valueOf(100),
             årsak =
-            parseValgfriEnum<Årsak>(VedtaksperiodeMedBegrunnelserParser.DomenebegrepEndretUtbetaling.ÅRSAK, rad)
-                ?: Årsak.ALLEREDE_UTBETALT,
+                parseValgfriEnum<Årsak>(VedtaksperiodeMedBegrunnelserParser.DomenebegrepEndretUtbetaling.ÅRSAK, rad)
+                    ?: Årsak.ALLEREDE_UTBETALT,
             søknadstidspunkt = parseValgfriDato(Domenebegrep.SØKNADSTIDSPUNKT, rad) ?: LocalDate.now(),
             begrunnelse = "Fordi at...",
             avtaletidspunktDeltBosted =
-            parseValgfriDato(
-                BrevPeriodeParser.DomenebegrepBrevBegrunnelse.AVTALETIDSPUNKT_DELT_BOSTED,
-                rad,
-            ),
+                parseValgfriDato(
+                    BrevPeriodeParser.DomenebegrepBrevBegrunnelse.AVTALETIDSPUNKT_DELT_BOSTED,
+                    rad,
+                ),
         )
     }.groupBy { it.behandlingId }
         .toMutableMap()
@@ -381,24 +381,24 @@ fun lagPersonGrunnlag(dataTable: DataTable): Map<Long, PersonopplysningGrunnlag>
         val behandlingsIder = parseList(Domenebegrep.BEHANDLING_ID, rad)
         behandlingsIder.map { id ->
             id to
-                    tilfeldigPerson(
-                        personType =
+                tilfeldigPerson(
+                    personType =
                         parseEnum(
                             VedtaksperiodeMedBegrunnelserParser.DomenebegrepPersongrunnlag.PERSON_TYPE,
                             rad,
                         ),
-                        fødselsdato =
+                    fødselsdato =
                         parseDato(
                             VedtaksperiodeMedBegrunnelserParser.DomenebegrepPersongrunnlag.FØDSELSDATO,
                             rad,
                         ),
-                        aktør = randomAktør().copy(aktørId = VedtaksperiodeMedBegrunnelserParser.parseAktørId(rad)),
-                    ).also { person ->
-                        parseValgfriDato(
-                            VedtaksperiodeMedBegrunnelserParser.DomenebegrepPersongrunnlag.DØDSFALLDATO,
-                            rad,
-                        )?.let { person.dødsfall = lagDødsfall(person = person, dødsfallDato = it) }
-                    }
+                    aktør = randomAktør().copy(aktørId = VedtaksperiodeMedBegrunnelserParser.parseAktørId(rad)),
+                ).also { person ->
+                    parseValgfriDato(
+                        VedtaksperiodeMedBegrunnelserParser.DomenebegrepPersongrunnlag.DØDSFALLDATO,
+                        rad,
+                    )?.let { person.dødsfall = lagDødsfall(person = person, dødsfallDato = it) }
+                }
         }
     }.flatten()
         .groupBy({ it.first }, { it.second })
@@ -425,30 +425,30 @@ fun lagAndelerTilkjentYtelse(
         aktør = personGrunnlag.finnPersonGrunnlagForBehandling(behandlingId).personer.find { aktørId == it.aktør.aktørId }!!.aktør,
         kalkulertUtbetalingsbeløp = beløp,
         ytelseType =
-        parseValgfriEnum<YtelseType>(
-            VedtaksperiodeMedBegrunnelserParser.DomenebegrepAndelTilkjentYtelse.YTELSE_TYPE,
-            rad,
-        ) ?: YtelseType.ORDINÆR_KONTANTSTØTTE,
+            parseValgfriEnum<YtelseType>(
+                VedtaksperiodeMedBegrunnelserParser.DomenebegrepAndelTilkjentYtelse.YTELSE_TYPE,
+                rad,
+            ) ?: YtelseType.ORDINÆR_KONTANTSTØTTE,
         prosent =
-        parseValgfriLong(
-            VedtaksperiodeMedBegrunnelserParser.DomenebegrepEndretUtbetaling.PROSENT,
-            rad,
-        )?.toBigDecimal() ?: BigDecimal(100),
+            parseValgfriLong(
+                VedtaksperiodeMedBegrunnelserParser.DomenebegrepEndretUtbetaling.PROSENT,
+                rad,
+            )?.toBigDecimal() ?: BigDecimal(100),
         sats =
-        parseValgfriInt(
-            VedtaksperiodeMedBegrunnelserParser.DomenebegrepVedtaksperiodeMedBegrunnelser.SATS,
-            rad,
-        ) ?: beløp,
+            parseValgfriInt(
+                VedtaksperiodeMedBegrunnelserParser.DomenebegrepVedtaksperiodeMedBegrunnelser.SATS,
+                rad,
+            ) ?: beløp,
         nasjonaltPeriodebeløp =
-        parseValgfriInt(
-            VedtaksperiodeMedBegrunnelserParser.DomenebegrepVedtaksperiodeMedBegrunnelser.NASJONALT_PERIODEBELØP,
-            rad,
-        ) ?: beløp,
+            parseValgfriInt(
+                VedtaksperiodeMedBegrunnelserParser.DomenebegrepVedtaksperiodeMedBegrunnelser.NASJONALT_PERIODEBELØP,
+                rad,
+            ) ?: beløp,
         differanseberegnetPeriodebeløp =
-        parseValgfriInt(
-            VedtaksperiodeMedBegrunnelserParser.DomenebegrepVedtaksperiodeMedBegrunnelser.DIFFERANSEBEREGNET_BELØP,
-            rad,
-        ),
+            parseValgfriInt(
+                VedtaksperiodeMedBegrunnelserParser.DomenebegrepVedtaksperiodeMedBegrunnelser.DIFFERANSEBEREGNET_BELØP,
+                rad,
+            ),
     )
 }
 
@@ -479,7 +479,7 @@ fun leggBegrunnelserIVedtaksperiodene(
                 vedtaksperioder.find { it.fom == fom && it.tom == tom }
                     ?: throw Feil(
                         "Ingen vedtaksperioder med Fom=$fom og Tom=$tom. " +
-                                "Vedtaksperiodene var ${vedtaksperioder.map { "\n${it.fom?.tilddMMyyyy()} til ${it.tom?.tilddMMyyyy()}" }}",
+                            "Vedtaksperiodene var ${vedtaksperioder.map { "\n${it.fom?.tilddMMyyyy()} til ${it.tom?.tilddMMyyyy()}" }}",
                     )
 
             val nasjonaleOgFellesBegrunnelser =
@@ -513,8 +513,8 @@ fun leggBegrunnelserIVedtaksperiodene(
         vedtaksperioder.filter { vedtaksperiodeUtenBegrunnelse ->
             vedtaksperioderSomHarFåttBegrunnelser.none {
                 it.fom == vedtaksperiodeUtenBegrunnelse.fom &&
-                        it.tom == vedtaksperiodeUtenBegrunnelse.tom &&
-                        it.type == vedtaksperiodeUtenBegrunnelse.type
+                    it.tom == vedtaksperiodeUtenBegrunnelse.tom &&
+                    it.type == vedtaksperiodeUtenBegrunnelse.type
             }
         }
 

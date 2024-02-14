@@ -31,7 +31,6 @@ import no.nav.familie.ks.sak.integrasjon.pdl.domene.PdlPersonInfo
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.domene.ArbeidsfordelingPåBehandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingKategori
-import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStegTilstand
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingType
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat
@@ -236,7 +235,7 @@ fun lagBehandling(
     type: BehandlingType = BehandlingType.FØRSTEGANGSBEHANDLING,
     opprettetÅrsak: BehandlingÅrsak = BehandlingÅrsak.SØKNAD,
     kategori: BehandlingKategori = BehandlingKategori.NASJONAL,
-    resultat: Behandlingsresultat = Behandlingsresultat.IKKE_VURDERT
+    resultat: Behandlingsresultat = Behandlingsresultat.IKKE_VURDERT,
 ): Behandling =
     Behandling(
         id = nesteBehandlingId(),
@@ -246,7 +245,6 @@ fun lagBehandling(
         kategori = kategori,
         resultat = resultat,
     ).initBehandlingStegTilstand()
-
 
 fun lagBehandlingStegTilstand(
     behandling: Behandling,
@@ -272,11 +270,11 @@ fun lagArbeidsfordelingPåBehandling(behandlingId: Long): ArbeidsfordelingPåBeh
 fun lagRegistrerSøknadDto() =
     RegistrerSøknadDto(
         søknad =
-        SøknadDto(
-            søkerMedOpplysninger = SøkerMedOpplysningerDto(ident = randomFnr()),
-            barnaMedOpplysninger = listOf(BarnMedOpplysningerDto(ident = randomFnr())),
-            endringAvOpplysningerBegrunnelse = "",
-        ),
+            SøknadDto(
+                søkerMedOpplysninger = SøkerMedOpplysningerDto(ident = randomFnr()),
+                barnaMedOpplysninger = listOf(BarnMedOpplysningerDto(ident = randomFnr())),
+                endringAvOpplysningerBegrunnelse = "",
+            ),
         bekreftEndringerViaFrontend = true,
     )
 
@@ -305,16 +303,16 @@ fun lagBostedsadresse(): Bostedsadresse =
     Bostedsadresse(
         gyldigFraOgMed = LocalDate.of(2015, 1, 1),
         vegadresse =
-        Vegadresse(
-            matrikkelId = 1234,
-            husnummer = "3",
-            husbokstav = null,
-            bruksenhetsnummer = null,
-            adressenavn = "OTTO SVERDRUPS VEG",
-            kommunenummer = "1560",
-            postnummer = "6650",
-            tilleggsnavn = null,
-        ),
+            Vegadresse(
+                matrikkelId = 1234,
+                husnummer = "3",
+                husbokstav = null,
+                bruksenhetsnummer = null,
+                adressenavn = "OTTO SVERDRUPS VEG",
+                kommunenummer = "1560",
+                postnummer = "6650",
+                tilleggsnavn = null,
+            ),
     )
 
 fun lagSivilstand(): Sivilstand = Sivilstand(type = SIVILSTAND.UGIFT, gyldigFraOgMed = LocalDate.of(2004, 12, 2))
@@ -448,23 +446,23 @@ fun lagVilkårsvurderingMedSøkersVilkår(
                 utdypendeVilkårsvurderinger = utdypendeVilkårsvurderinger,
             ),
         ) +
-                if (regelverk == Regelverk.EØS_FORORDNINGEN) {
-                    setOf(
-                        VilkårResultat(
-                            personResultat = personResultat,
-                            vilkårType = Vilkår.LOVLIG_OPPHOLD,
-                            resultat = resultat,
-                            periodeFom = søkerPeriodeFom,
-                            periodeTom = søkerPeriodeTom,
-                            begrunnelse = "",
-                            behandlingId = behandling.id,
-                            vurderesEtter = regelverk,
-                            utdypendeVilkårsvurderinger = utdypendeVilkårsvurderinger,
-                        ),
-                    )
-                } else {
-                    emptySet()
-                },
+            if (regelverk == Regelverk.EØS_FORORDNINGEN) {
+                setOf(
+                    VilkårResultat(
+                        personResultat = personResultat,
+                        vilkårType = Vilkår.LOVLIG_OPPHOLD,
+                        resultat = resultat,
+                        periodeFom = søkerPeriodeFom,
+                        periodeTom = søkerPeriodeTom,
+                        begrunnelse = "",
+                        behandlingId = behandling.id,
+                        vurderesEtter = regelverk,
+                        utdypendeVilkårsvurderinger = utdypendeVilkårsvurderinger,
+                    ),
+                )
+            } else {
+                emptySet()
+            },
     )
 
     personResultat.andreVurderinger.add(
@@ -687,12 +685,12 @@ fun lagPersonResultat(
                     begrunnelse = "",
                     behandlingId = vilkårsvurdering.behandling.id,
                     utdypendeVilkårsvurderinger =
-                    listOfNotNull(
-                        when {
-                            erDeltBosted && it == Vilkår.BOR_MED_SØKER -> UtdypendeVilkårsvurdering.DELT_BOSTED
-                            else -> null
-                        },
-                    ),
+                        listOfNotNull(
+                            when {
+                                erDeltBosted && it == Vilkår.BOR_MED_SØKER -> UtdypendeVilkårsvurdering.DELT_BOSTED
+                                else -> null
+                            },
+                        ),
                 )
             }.toSet(),
         )
@@ -769,9 +767,9 @@ fun lagØkonomiSimuleringPostering(
     posteringType: PosteringType = PosteringType.YTELSE,
 ) = ØkonomiSimuleringPostering(
     økonomiSimuleringMottaker =
-    lagØkonomiSimuleringMottaker(
-        behandling = behandling,
-    ),
+        lagØkonomiSimuleringMottaker(
+            behandling = behandling,
+        ),
     fagOmrådeKode = FagOmrådeKode.KONTANTSTØTTE,
     fom = fom,
     tom = tom,
@@ -874,13 +872,13 @@ fun lagVilkårsvurderingOppfylt(
                     VilkårResultat(
                         personResultat = personResultat,
                         periodeFom =
-                        if (person.type == PersonType.SØKER) {
-                            person.fødselsdato
-                        } else {
-                            person.fødselsdato.plusYears(
-                                1,
-                            )
-                        },
+                            if (person.type == PersonType.SØKER) {
+                                person.fødselsdato
+                            } else {
+                                person.fødselsdato.plusYears(
+                                    1,
+                                )
+                            },
                         periodeTom = if (person.type == PersonType.SØKER) null else person.fødselsdato.plusYears(2),
                         vilkårType = it,
                         resultat = Resultat.OPPFYLT,
