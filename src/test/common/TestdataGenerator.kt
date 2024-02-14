@@ -236,8 +236,7 @@ fun lagBehandling(
     type: BehandlingType = BehandlingType.FØRSTEGANGSBEHANDLING,
     opprettetÅrsak: BehandlingÅrsak = BehandlingÅrsak.SØKNAD,
     kategori: BehandlingKategori = BehandlingKategori.NASJONAL,
-    resultat: Behandlingsresultat = Behandlingsresultat.IKKE_VURDERT,
-    status: BehandlingStatus = BehandlingStatus.UTREDES
+    resultat: Behandlingsresultat = Behandlingsresultat.IKKE_VURDERT
 ): Behandling =
     Behandling(
         id = nesteBehandlingId(),
@@ -246,18 +245,7 @@ fun lagBehandling(
         opprettetÅrsak = opprettetÅrsak,
         kategori = kategori,
         resultat = resultat,
-        status = status,
     ).initBehandlingStegTilstand()
-        .apply {
-            if (status == BehandlingStatus.AVSLUTTET) {
-                this.behandlingStegTilstand.add(
-                    BehandlingStegTilstand(
-                        behandling = this,
-                        behandlingSteg = BehandlingSteg.AVSLUTT_BEHANDLING
-                    )
-                )
-            }
-        }
 
 
 fun lagBehandlingStegTilstand(
