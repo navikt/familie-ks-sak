@@ -126,7 +126,7 @@ fun hentTekstForBehandlinger(
       | ${it.id} | 1 |           | ${it.resultat} | ${it.opprettetÅrsak}  | ${it.kategori} |"""
         } ?: ""
     }
-      | ${behandling.id} | 2 | ${forrigeBehandling?.id ?: ""} |${behandling.resultat} | ${behandling.opprettetÅrsak}  | ${behandling.kategori} |"""
+      | ${behandling.id} | 1 | ${forrigeBehandling?.id ?: ""} |${behandling.resultat} | ${behandling.opprettetÅrsak}  | ${behandling.kategori} |"""
 
 fun hentTekstForPersongrunnlag(
     persongrunnlag: PersonopplysningGrunnlag,
