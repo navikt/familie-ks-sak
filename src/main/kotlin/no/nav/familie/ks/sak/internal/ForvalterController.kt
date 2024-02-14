@@ -79,7 +79,7 @@ class ForvalterController(
         )
     }
 
-    @PostMapping(path = ["/fagsaker/hent-personer-og-send-informasjonsbrev-endring-kontantstotte-infotrygd"])
+    @PostMapping(path = ["/fagsaker/obs-hent-personer-og-send-informasjonsbrev-endring-kontantstotte-infotrygd"])
     fun hentOgSendInfobrevTilAlleMedBarnFødtEtterAugust2022Infotrygd() {
         tilgangService.validerTilgangTilHandling(
             handling = "Send informasjonsbrev om forkortet kontantstøtte til alle med barn født i september 2022 eller senere",
