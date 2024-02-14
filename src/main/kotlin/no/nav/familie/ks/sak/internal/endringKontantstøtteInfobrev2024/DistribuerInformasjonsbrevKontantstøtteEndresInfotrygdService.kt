@@ -49,12 +49,12 @@ fun String.tilFødselsdato(): YearMonth {
     val år = substring(4, 6).toInt()
     val datoUtenÅrhundre = YearMonth.of(år, måned)
     val individnummer = this.substring(6, 9).toInt()
-    when {
-        individnummer in 0..499 -> return datoUtenÅrhundre.plusYears(1900)
-        individnummer in 500..749 && år >= 54 && år <= 99 -> return datoUtenÅrhundre.plusYears(1800)
-        individnummer in 900..999 && år >= 40 && år <= 99 -> return datoUtenÅrhundre.plusYears(1900)
-        individnummer in 500..999 && år >= 0 && år <= 39 -> return datoUtenÅrhundre.plusYears(2000)
+    return when {
+        individnummer in 0..499 -> datoUtenÅrhundre.plusYears(1900)
+        individnummer in 500..749 && år >= 54 && år <= 99 -> datoUtenÅrhundre.plusYears(1800)
+        individnummer in 900..999 && år >= 40 && år <= 99 -> datoUtenÅrhundre.plusYears(1900)
+        individnummer in 500..999 && år >= 0 && år <= 39 -> datoUtenÅrhundre.plusYears(2000)
         år < 25 -> datoUtenÅrhundre.plusYears(2000)
+        else -> throw IllegalArgumentException()
     }
-    throw IllegalArgumentException()
 }
