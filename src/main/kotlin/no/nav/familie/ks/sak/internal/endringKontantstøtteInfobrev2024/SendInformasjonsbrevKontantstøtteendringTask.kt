@@ -49,6 +49,3 @@ class SendInformasjonsbrevKontantstøtteendringTask(
         const val TASK_STEP_TYPE = "sendInformasjonsbrevKontantstøtteendring"
     }
 }
-
-fun lagProperties(properties: Map<String, String>) =
-    properties.toProperties()
