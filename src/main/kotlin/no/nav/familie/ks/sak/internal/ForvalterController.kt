@@ -50,9 +50,8 @@ class ForvalterController(
             minimumBehandlerRolle = BehandlerRolle.VEILEDER,
         )
 
-        return distribuerInformasjonsbrevKontantsøtteEndresService.opprettTaskerForÅJournalføreOgSendeUtInformasjonsbrevKontantstøtteendringKS(
-            erDryRun,
-        )
+        return distribuerInformasjonsbrevKontantsøtteEndresService
+            .opprettTaskerForÅJournalføreOgSendeUtInformasjonsbrevKontantstøtteendringKS(erDryRun)
     }
 
     @PostMapping(path = ["/fagsaker/hent-personer-informasjonsbrev-endring-kontantstotte-infotrygd"])

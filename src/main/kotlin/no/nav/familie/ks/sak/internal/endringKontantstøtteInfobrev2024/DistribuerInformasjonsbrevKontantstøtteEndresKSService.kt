@@ -16,7 +16,7 @@ class DistribuerInformasjonsbrevKontantstøtteEndresKSService(
 
     @Transactional
     fun opprettTaskerForÅJournalføreOgSendeUtInformasjonsbrevKontantstøtteendringKS(erDryRun: Boolean): List<Long> {
-        val fagsakerMedBarnFødtI2023EllerSenere = fagsakRepository.hentLøpendeFagsakerMedBarnFødtI2023EllerSenere()
+        val fagsakerMedBarnFødtI2023EllerSenere = fagsakRepository.hentLøpendeFagsakerMedBarnFødtEtterAugust2022()
 
         if (!erDryRun) {
             fagsakerMedBarnFødtI2023EllerSenere.forEach {

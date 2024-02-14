@@ -64,5 +64,5 @@ interface FagsakRepository : JpaRepository<Fagsak, Long> {
         """,
         nativeQuery = true,
     )
-    fun hentLøpendeFagsakerMedBarnFødtI2023EllerSenere(): List<Long>
+    fun hentLøpendeFagsakerMedBarnFødtEtterAugust2022(): List<Long>
 }
