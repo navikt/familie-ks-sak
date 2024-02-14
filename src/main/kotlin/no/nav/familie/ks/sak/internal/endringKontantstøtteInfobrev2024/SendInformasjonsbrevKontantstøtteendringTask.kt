@@ -1,6 +1,7 @@
 package no.nav.familie.ks.sak.internal.endringKontantstøtteInfobrev2024
 
 import no.nav.familie.ks.sak.api.dto.ManueltBrevDto
+import no.nav.familie.ks.sak.integrasjon.pdl.PersonOpplysningerService
 import no.nav.familie.ks.sak.kjerne.brev.BrevService
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.Brevmal
 import no.nav.familie.ks.sak.kjerne.fagsak.FagsakService
@@ -19,9 +20,12 @@ import org.springframework.stereotype.Service
 class SendInformasjonsbrevKontantstøtteendringTask(
     private val brevService: BrevService,
     private val fagsakService: FagsakService,
+    private val personOpplysningerService: PersonOpplysningerService,
 ) : AsyncTaskStep {
     override fun doTask(task: Task) {
         val fagsak = fagsakService.hentFagsak(fagsakId = task.payload.toLong())
+
+        val person = personOpplysningerService.hentPersoninfoEnkel(fagsak.aktør)
 
         val manueltBrevDto =
             ManueltBrevDto(
@@ -29,6 +33,7 @@ class SendInformasjonsbrevKontantstøtteendringTask(
                 mottakerIdent = fagsak.aktør.aktivFødselsnummer(),
                 // Dette brevet skal kun sendes ut på bokmål
                 mottakerMålform = Målform.NB,
+                mottakerNavn = person.navn ?: error("Fant ikke navn på person"),
             )
 
         brevService.sendBrev(
