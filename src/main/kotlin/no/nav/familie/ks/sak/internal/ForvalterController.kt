@@ -62,7 +62,7 @@ class ForvalterController(
             minimumBehandlerRolle = BehandlerRolle.VEILEDER,
         )
 
-        return distribuerInformasjonsbrevKontantstøtteEndresInfotrygdService.hentPersonerFraInfotrygdMedBarnFødEtterAugust22()
+        return distribuerInformasjonsbrevKontantstøtteEndresInfotrygdService.hentPersonerFraInfotrygdMedBarnFødtEtterAugust22()
             .toSet()
     }
 
@@ -95,7 +95,7 @@ class ForvalterController(
 
         val søkerIdenterFraInfotrygd =
             distribuerInformasjonsbrevKontantstøtteEndresInfotrygdService
-                .hentPersonerFraInfotrygdMedBarnFødEtterAugust22().toSet()
+                .hentPersonerFraInfotrygdMedBarnFødtEtterAugust22().toSet()
 
         return distribuerInformasjonsbrevKontantstøtteEndresInfotrygdService
             .opprettTaskerForÅJournalføreOgSendeUtInformasjonsbrevKontantstøtteendringInfotrygd(søkerIdenterFraInfotrygd)

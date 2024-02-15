@@ -17,7 +17,7 @@ class DistribuerInformasjonsbrevKontantstøtteEndresInfotrygdService(
     private val logger: Logger = LoggerFactory.getLogger(this::class.java)
 
     @Transactional
-    fun hentPersonerFraInfotrygdMedBarnFødEtterAugust22(): List<String> {
+    fun hentPersonerFraInfotrygdMedBarnFødtEtterAugust22(): List<String> {
         val brukereMedLøpendeKontantstøtteIInfotrygd =
             infotrygdReplikaClient.hentSøkereOgBarnForLøpendeFagsakerIInfotrygd()
         return brukereMedLøpendeKontantstøtteIInfotrygd.filter { søkerOgBarn ->
