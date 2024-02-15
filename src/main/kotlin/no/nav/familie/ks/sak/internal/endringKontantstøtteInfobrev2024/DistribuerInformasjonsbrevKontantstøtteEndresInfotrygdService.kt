@@ -27,7 +27,7 @@ class DistribuerInformasjonsbrevKontantstøtteEndresInfotrygdService(
                         it.tilFødselsdato()
                     } catch (e: Exception) {
                         logger.error("Klarte ikke å finne fødselsdato for barn. Se securelogger for ident.")
-                        secureLogger.error("Klarte ikke å finne fødselsdato for barn med ident=$it. Feilmelding=${e.message}")
+                        secureLogger.error("Klarte ikke å finne fødselsdato for barn med ident=$it. Søkers ident er ${søkerOgBarn.søkerIdent} Feilmelding=${e.message}")
                         YearMonth.of(1900, 1)
                     }
                 }
