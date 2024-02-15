@@ -22,12 +22,12 @@ class DistribuerInformasjonsbrevKontantstøtteEndresInfotrygdService(
             infotrygdReplikaClient.hentSøkereOgBarnForLøpendeFagsakerIInfotrygd()
         return brukereMedLøpendeKontantstøtteIInfotrygd.filter { søkerOgBarn ->
             val barnasFødselsdatoer =
-                søkerOgBarn.barnIdenter.map {
+                søkerOgBarn.barnIdenter.map { barnIdent ->
                     try {
-                        it.tilFødselsdato()
+                        barnIdent.tilFødselsdato()
                     } catch (e: Exception) {
                         logger.error("Klarte ikke å finne fødselsdato for barn. Se securelogger for ident.")
-                        secureLogger.error("Klarte ikke å finne fødselsdato for barn med ident=$it. Søkers ident er ${søkerOgBarn.søkerIdent}. Feilmelding=${e.message}")
+                        secureLogger.error("Klarte ikke å finne fødselsdato for barn med ident=$barnIdent. Søkers ident er ${søkerOgBarn.søkerIdent}. Feilmelding=${e.message}")
                         YearMonth.of(1900, 1)
                     }
                 }
