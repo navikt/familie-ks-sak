@@ -44,7 +44,7 @@ class OpprettFagsakOgSendInformasjonsbrevKontantstøtteendringTask(
         secureLogger.info("Oppretter fagsak på person $søkerIdent")
         val minimalFagsak = fagsakService.hentEllerOpprettFagsak(FagsakRequestDto(personIdent = søkerIdent))
         logger.info("Oppretter task for å journalføre og distribuere informasjonsbrev om kontantstøtteendring på fagsak ${minimalFagsak.id}. Saken er originalt fra infotrygd.")
-        val sendBrevTask = SendInformasjonsbrevKontantstøtteendringTask.lagTask(minimalFagsak.id)
+        val sendBrevTask = SendInformasjonsbrevKontantstøtteendringTask.lagTask(fagsakId = minimalFagsak.id)
         taskService.save(sendBrevTask)
     }
 
