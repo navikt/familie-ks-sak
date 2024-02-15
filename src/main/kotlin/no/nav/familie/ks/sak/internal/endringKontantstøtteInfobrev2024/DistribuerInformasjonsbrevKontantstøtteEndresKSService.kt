@@ -16,10 +16,10 @@ class DistribuerInformasjonsbrevKontantstøtteEndresKSService(
 
     @Transactional
     fun opprettTaskerForÅJournalføreOgSendeUtInformasjonsbrevKontantstøtteendringKS(erDryRun: Boolean): List<Long> {
-        val fagsakerMedBarnFødtI2023EllerSenere = fagsakRepository.hentLøpendeFagsakerMedBarnFødtEtterAugust2022()
+        val fagsakerMedBarnFødtEtterAugust2022 = fagsakRepository.hentLøpendeFagsakerMedBarnFødtEtterAugust2022()
 
         if (!erDryRun) {
-            fagsakerMedBarnFødtI2023EllerSenere.forEach {
+            fagsakerMedBarnFødtEtterAugust2022.forEach {
                 logger.info("Oppretter task for å journalføre og distribuere informasjonsbrev om kontantstøtteendring på fagsak $it")
                 val task = SendInformasjonsbrevKontantstøtteendringTask.lagTask(fagsakId = it)
 
@@ -27,6 +27,6 @@ class DistribuerInformasjonsbrevKontantstøtteEndresKSService(
             }
         }
 
-        return fagsakerMedBarnFødtI2023EllerSenere
+        return fagsakerMedBarnFødtEtterAugust2022
     }
 }
