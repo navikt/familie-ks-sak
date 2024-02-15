@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.RestController
 class ForvalterController(
     private val testVerktøyService: TestVerktøyService,
     private val tilgangService: TilgangService,
-    private val distribuerInformasjonsbrevKontantsøtteEndresService: DistribuerInformasjonsbrevKontantstøtteEndresKSService,
+    private val distribuerInformasjonsbrevKontantstøtteEndresService: DistribuerInformasjonsbrevKontantstøtteEndresKSService,
     private val distribuerInformasjonsbrevKontantstøtteEndresInfotrygdService: DistribuerInformasjonsbrevKontantstøtteEndresInfotrygdService,
 ) {
     private val logger: Logger = LoggerFactory.getLogger(ForvalterController::class.java)
@@ -51,7 +51,7 @@ class ForvalterController(
             minimumBehandlerRolle = BehandlerRolle.VEILEDER,
         )
 
-        return distribuerInformasjonsbrevKontantsøtteEndresService
+        return distribuerInformasjonsbrevKontantstøtteEndresService
             .opprettTaskerForÅJournalføreOgSendeUtInformasjonsbrevKontantstøtteendringKS(erDryRun = kjøretype == Kjøretype.DRY_RUN)
     }
 
