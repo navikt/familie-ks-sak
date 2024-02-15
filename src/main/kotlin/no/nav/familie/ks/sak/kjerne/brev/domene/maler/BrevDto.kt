@@ -54,7 +54,7 @@ typealias Flettefelt = List<String>?
  ***/
 enum class Brevmal(val erVedtaksbrev: Boolean, val apiNavn: String, val visningsTekst: String) {
     @Deprecated("Kun til bruk for mulig lovendring august 2024")
-    INFORMASJONSBREV_MULIG_LOVENDRING_2024(false, "informasjonOmKontantstotte", "Kontantstøtte - viktig informasjon"),
+    INFORMASJONSBREV_MULIG_LOVENDRING_2024(false, "informasjonOmKontantstotte", "Kontantstøtte – viktig informasjon"),
     INFORMASJONSBREV_DELT_BOSTED(false, "informasjonsbrevDeltBosted", "Informasjonsbrev delt bosted"),
     INFORMASJONSBREV_TIL_FORELDER_OMFATTET_NORSK_LOVGIVNING_HAR_FÅTT_EN_SØKNAD_FRA_ANNEN_FORELDER(
         erVedtaksbrev = false,
