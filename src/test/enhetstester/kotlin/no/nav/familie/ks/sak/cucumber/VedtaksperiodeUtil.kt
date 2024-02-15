@@ -32,8 +32,11 @@ import no.nav.familie.ks.sak.data.randomAktør
 import no.nav.familie.ks.sak.data.tilfeldigPerson
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingKategori
+import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
+import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStegTilstand
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
+import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.Vedtak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.EØSBegrunnelseDB
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.NasjonalEllerFellesBegrunnelseDB
@@ -93,13 +96,27 @@ fun lagVedtakListe(
             val behandlingKategori =
                 parseValgfriEnum<BehandlingKategori>(Domenebegrep.BEHANDLINGSKATEGORI, rad)
                     ?: BehandlingKategori.NASJONAL
+            val status = parseValgfriEnum<BehandlingStatus>(Domenebegrep.BEHANDLINGSSTATUS, rad)
 
-            lagBehandling(
-                fagsak = fagsak,
-                opprettetÅrsak = behandlingÅrsak ?: BehandlingÅrsak.SØKNAD,
-                resultat = behandlingResultat ?: Behandlingsresultat.IKKE_VURDERT,
-                kategori = behandlingKategori,
-            ).copy(id = behandlingId)
+            val behandling =
+                lagBehandling(
+                    fagsak = fagsak,
+                    opprettetÅrsak = behandlingÅrsak ?: BehandlingÅrsak.SØKNAD,
+                    resultat = behandlingResultat ?: Behandlingsresultat.IKKE_VURDERT,
+                    kategori = behandlingKategori,
+                ).copy(id = behandlingId)
+            behandling.apply {
+                this.status = status ?: BehandlingStatus.UTREDES
+
+                if (status == BehandlingStatus.AVSLUTTET) {
+                    this.behandlingStegTilstand.add(
+                        BehandlingStegTilstand(
+                            behandling = this,
+                            behandlingSteg = BehandlingSteg.AVSLUTT_BEHANDLING,
+                        ),
+                    )
+                }
+            }
         }.associateBy { it.id },
     )
     behandlingTilForrigeBehandling.putAll(

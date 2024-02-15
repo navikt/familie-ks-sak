@@ -120,13 +120,13 @@ fun hentTekstForBehandlinger(
     """
 
     Og følgende behandlinger
-      | BehandlingId | FagsakId | ForrigeBehandlingId | Behandlingsresultat | Behandlingsårsak  | Behandlingskategori |${
+      | BehandlingId | FagsakId | ForrigeBehandlingId | Behandlingsresultat | Behandlingsårsak  | Behandlingskategori | Behandlingsstatus | ${
         forrigeBehandling?.let {
             """ 
-      | ${it.id} | 1 |           | ${it.resultat} | ${it.opprettetÅrsak}  | ${it.kategori} |"""
+      | ${it.id} | 1 |           | ${it.resultat} | ${it.opprettetÅrsak}  | ${it.kategori} | ${it.status} |"""
         } ?: ""
     }
-      | ${behandling.id} | 2 | ${forrigeBehandling?.id ?: ""} |${behandling.resultat} | ${behandling.opprettetÅrsak}  | ${behandling.kategori} |"""
+      | ${behandling.id} | 1 | ${forrigeBehandling?.id ?: ""} |${behandling.resultat} | ${behandling.opprettetÅrsak}  | ${behandling.kategori} | ${behandling.status} |"""
 
 fun hentTekstForPersongrunnlag(
     persongrunnlag: PersonopplysningGrunnlag,
@@ -469,7 +469,7 @@ fun hentBrevBegrunnelseTekster(
         """
 
     Så forvent følgende brevbegrunnelser for behandling $behandlingId i periode ${vedtaksperiode.fom?.tilddMMyyyy() ?: "-"} til ${vedtaksperiode.tom?.tilddMMyyyy() ?: "-"}
-        | Begrunnelse | Type | Barnas fødselsdatoer | Antall barn | Gjelder søker  | Målform | Beløp | Søknadstidspunkt | Måned og år begrunnelsen gjelder for| Avtale tidspunkt delt bosted | Søkers rett til utvidet |""" +
+        | Begrunnelse | Type | Gjelder søker | Barnas fødselsdatoer | Antall barn | Måned og år begrunnelsen gjelder for | Beløp | Søknadstidspunkt | Antall timer barnehageplass | Gjelder andre forelder | Målform | """ +
             vedtaksperiode.begrunnelser.map { it.nasjonalEllerFellesBegrunnelse }.joinToString("") {
                 """
         | $it | STANDARD |               |                      |             |                                      |         |       |                  |                         |                               |"""
@@ -485,10 +485,10 @@ fun hentEØSBrevBegrunnelseTekster(
         """
 
     Så forvent følgende brevbegrunnelser for behandling $behandlingId i periode ${vedtaksperiode.fom?.tilddMMyyyy() ?: "-"} til ${vedtaksperiode.tom?.tilddMMyyyy() ?: "-"}
-        | Begrunnelse | Type | Barnas fødselsdatoer | Antall barn | Gjelder søker | Målform | Søkers aktivitet | Annen forelders aktivitet | Søkers aktivitetsland | Annen forelders aktivitetsland | Barnets bostedsland | """ +
+        | Begrunnelse | Type | Gjelder søker | Barnas fødselsdatoer | Antall barn | Annen forelders aktivitet | Annen forelders aktivitetsland | Barnets bostedsland | Søkers aktivitet | Søkers aktivitetsland | Målform |""" +
             vedtaksperiode.eøsBegrunnelser.map { it.begrunnelse }.joinToString("") {
                 """
-        | $it | EØS | | | | | | | | |"""
+        | $it | EØS |               |                      |             |                                      |         |       |                  |                         |                               |"""
             }
     }
 }

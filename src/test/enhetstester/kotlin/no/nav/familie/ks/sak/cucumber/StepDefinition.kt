@@ -24,6 +24,7 @@ import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelse
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelseDto
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
+import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
 import no.nav.familie.ks.sak.kjerne.behandling.steg.registrersøknad.SøknadGrunnlagService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.registrersøknad.domene.SøknadGrunnlag
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.Vedtak
@@ -433,7 +434,7 @@ class StepDefinition {
     fun mockVedtaksperiodeService(): VedtaksperiodeService {
         val behandlingRepository = mockk<BehandlingRepository>()
         every { behandlingRepository.finnIverksatteBehandlinger(any<Long>()) } answers {
-            behandlinger.values.filter { behandling -> behandling.fagsak.id == firstArg<Long>() }
+            behandlinger.values.filter { behandling -> behandling.fagsak.id == firstArg<Long>() && behandling.status == BehandlingStatus.AVSLUTTET }
         }
         every { behandlingRepository.finnBehandlinger(any<Long>()) } answers {
             behandlinger.values.filter { behandling -> behandling.fagsak.id == firstArg<Long>() }
