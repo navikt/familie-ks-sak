@@ -6,6 +6,7 @@ import no.nav.familie.ks.sak.common.util.slåSammen
 import no.nav.familie.ks.sak.common.util.tilKortString
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.ArbeidsfordelingService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingKategori
+import no.nav.familie.ks.sak.kjerne.brev.domene.maler.BrevUtenDataDto
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.Brevmal
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.EnkeltInformasjonsbrevDto
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.FlettefelterForDokumentDtoImpl
@@ -235,6 +236,13 @@ fun ManueltBrevDto.tilBrev(saksbehandlerNavn: String) =
                 enhet = this.enhetNavn(),
                 mal = Brevmal.INFORMASJONSBREV_KAN_SØKE_EØS,
                 saksbehandlerNavn = saksbehandlerNavn,
+            )
+
+        Brevmal.INFORMASJONSBREV_MULIG_LOVENDRING_2024 ->
+            BrevUtenDataDto(
+                mal = Brevmal.INFORMASJONSBREV_MULIG_LOVENDRING_2024,
+                mottakerNavn = this.mottakerNavn,
+                mottakerIdent = this.mottakerIdent,
             )
 
         Brevmal.VEDTAK_FØRSTEGANGSVEDTAK,

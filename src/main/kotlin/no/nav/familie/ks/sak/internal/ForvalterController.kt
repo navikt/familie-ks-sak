@@ -1,6 +1,10 @@
 package no.nav.familie.ks.sak.internal
 
+import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.config.BehandlerRolle
+import no.nav.familie.ks.sak.integrasjon.pdl.secureLogger
+import no.nav.familie.ks.sak.internal.endringKontantstøtteInfobrev2024.DistribuerInformasjonsbrevKontantstøtteEndresInfotrygdService
+import no.nav.familie.ks.sak.internal.endringKontantstøtteInfobrev2024.DistribuerInformasjonsbrevKontantstøtteEndresKSService
 import no.nav.familie.ks.sak.sikkerhet.AuditLoggerEvent
 import no.nav.familie.ks.sak.sikkerhet.TilgangService
 import no.nav.security.token.support.core.api.ProtectedWithClaims
@@ -8,6 +12,8 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 
@@ -17,6 +23,8 @@ import org.springframework.web.bind.annotation.RestController
 class ForvalterController(
     private val testVerktøyService: TestVerktøyService,
     private val tilgangService: TilgangService,
+    private val distribuerInformasjonsbrevKontantstøtteEndresService: DistribuerInformasjonsbrevKontantstøtteEndresKSService,
+    private val distribuerInformasjonsbrevKontantstøtteEndresInfotrygdService: DistribuerInformasjonsbrevKontantstøtteEndresInfotrygdService,
 ) {
     private val logger: Logger = LoggerFactory.getLogger(ForvalterController::class.java)
 
@@ -34,4 +42,77 @@ class ForvalterController(
         return testVerktøyService.hentBrevTest(behandlingId)
             .replace("\n", System.lineSeparator())
     }
+
+    @PostMapping(path = ["/fagsaker/kjor-send-informasjonsbrev-endring-kontantstotte-ks"])
+    fun sendInfobrevTilAlleMedBarnFødtEtterAugust2022KS(
+        @RequestBody kjøretype: Kjøretype = Kjøretype.DRY_RUN,
+    ): List<Long> {
+        tilgangService.validerTilgangTilHandling(
+            handling = "Send informasjonsbrev om forkortet kontantstøtte til alle med barn født i september 2022 eller senere",
+            minimumBehandlerRolle = BehandlerRolle.VEILEDER,
+        )
+
+        logger.info("Kaller kjor-send-informasjonsbrev-endring-kontantstotte-ks med kjøretype=$kjøretype")
+
+        return distribuerInformasjonsbrevKontantstøtteEndresService
+            .opprettTaskerForÅJournalføreOgSendeUtInformasjonsbrevKontantstøtteendringKS(erDryRun = kjøretype == Kjøretype.DRY_RUN)
+    }
+
+    @PostMapping(path = ["/fagsaker/hent-personer-informasjonsbrev-endring-kontantstotte-infotrygd"])
+    fun hentSøkereMedBarnFødtEtterAugust2022Infotrygd(): Set<String> {
+        tilgangService.validerTilgangTilHandling(
+            handling = "Henter alle med barn født i september 2022 eller senere fra Infotrygd",
+            minimumBehandlerRolle = BehandlerRolle.VEILEDER,
+        )
+
+        logger.info("Kaller fagsaker/hent-personer-informasjonsbrev-endring-kontantstotte-infotrygd")
+
+        return distribuerInformasjonsbrevKontantstøtteEndresInfotrygdService.hentPersonerFraInfotrygdMedBarnFødtEtterAugust22()
+            .toSet()
+    }
+
+    @PostMapping(path = ["/fagsaker/kjor-send-informasjonsbrev-endring-kontantstotte-infotrygd"])
+    fun sendInfobrevTilAlleMedBarnFødtEtterAugust2022Infotrygd(
+        @RequestBody søkerIdenterFraInfotrygd: Set<String>,
+    ) {
+        tilgangService.validerTilgangTilHandling(
+            handling = "Send informasjonsbrev om forkortet kontantstøtte",
+            minimumBehandlerRolle = BehandlerRolle.VEILEDER,
+        )
+
+        logger.info("Kaller kjor-send-informasjonsbrev-endring-kontantstotte-infotrygd. Se securelogger for hvilke identer")
+        secureLogger.info("Kaller kjor-send-informasjonsbrev-endring-kontantstotte-infotrygd med identer $søkerIdenterFraInfotrygd")
+
+        return distribuerInformasjonsbrevKontantstøtteEndresInfotrygdService.opprettTaskerForÅJournalføreOgSendeUtInformasjonsbrevKontantstøtteendringInfotrygd(
+            søkerIdenterFraInfotrygd,
+        )
+    }
+
+    @PostMapping(path = ["/fagsaker/obs-hent-personer-og-send-informasjonsbrev-endring-kontantstotte-infotrygd"])
+    fun hentOgSendInfobrevTilAlleMedBarnFødtEtterAugust2022Infotrygd(
+        @RequestBody kjøretype: Kjøretype = Kjøretype.DRY_RUN,
+    ) {
+        if (kjøretype != Kjøretype.SEND_BREV) {
+            throw Feil("Kjøretypen var ikke \"SEND_BREV\"")
+        }
+
+        tilgangService.validerTilgangTilHandling(
+            handling = "Send informasjonsbrev om forkortet kontantstøtte til alle med barn født i september 2022 eller senere",
+            minimumBehandlerRolle = BehandlerRolle.VEILEDER,
+        )
+
+        logger.info("Kaller obs-hent-personer-og-send-informasjonsbrev-endring-kontantstotte-infotrygd med kjøretype=$kjøretype")
+
+        val søkerIdenterFraInfotrygd =
+            distribuerInformasjonsbrevKontantstøtteEndresInfotrygdService
+                .hentPersonerFraInfotrygdMedBarnFødtEtterAugust22().toSet()
+
+        return distribuerInformasjonsbrevKontantstøtteEndresInfotrygdService
+            .opprettTaskerForÅJournalføreOgSendeUtInformasjonsbrevKontantstøtteendringInfotrygd(søkerIdenterFraInfotrygd)
+    }
+}
+
+enum class Kjøretype {
+    DRY_RUN,
+    SEND_BREV,
 }
