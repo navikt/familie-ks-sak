@@ -31,8 +31,8 @@ class DistribuerInformasjonsbrevKontantstøtteEndresInfotrygdService(
                         YearMonth.of(1900, 1)
                     }
                 }
-            val erBarnFødtEtterSeptember22 = barnasFødselsdatoer.any { it >= YearMonth.of(2022, 9) }
-            erBarnFødtEtterSeptember22
+            val erBarnFødtEtterAugust22 = barnasFødselsdatoer.any { it >= YearMonth.of(2022, 9) }
+            erBarnFødtEtterAugust22
         }.map { it.søkerIdent }
     }
 
