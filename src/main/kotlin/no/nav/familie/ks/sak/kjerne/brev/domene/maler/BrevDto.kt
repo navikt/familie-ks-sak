@@ -54,7 +54,7 @@ typealias Flettefelt = List<String>?
  ***/
 enum class Brevmal(val erVedtaksbrev: Boolean, val apiNavn: String, val visningsTekst: String) {
     @Deprecated("Kun til bruk for mulig lovendring august 2024")
-    INFORMASJONSBREV_MULIG_LOVENDRING(false, "informasjonOmKontantstotte", "Kontantstøtte - viktig informasjon"),
+    INFORMASJONSBREV_MULIG_LOVENDRING_2024(false, "informasjonOmKontantstotte", "Kontantstøtte - viktig informasjon"),
     INFORMASJONSBREV_DELT_BOSTED(false, "informasjonsbrevDeltBosted", "Informasjonsbrev delt bosted"),
     INFORMASJONSBREV_TIL_FORELDER_OMFATTET_NORSK_LOVGIVNING_HAR_FÅTT_EN_SØKNAD_FRA_ANNEN_FORELDER(
         erVedtaksbrev = false,
@@ -140,7 +140,7 @@ enum class Brevmal(val erVedtaksbrev: Boolean, val apiNavn: String, val visnings
             INFORMASJONSBREV_KAN_SØKE_EØS,
             INFORMASJONSBREV_TIL_FORELDER_OMFATTET_NORSK_LOVGIVNING_HAR_FÅTT_EN_SØKNAD_FRA_ANNEN_FORELDER,
             INFORMASJONSBREV_TIL_FORELDER_OMFATTET_NORSK_LOVGIVNING_VARSEL_OM_REVURDERING,
-            INFORMASJONSBREV_MULIG_LOVENDRING,
+            INFORMASJONSBREV_MULIG_LOVENDRING_2024,
             -> false
 
             VEDTAK_FØRSTEGANGSVEDTAK,
@@ -174,7 +174,7 @@ enum class Brevmal(val erVedtaksbrev: Boolean, val apiNavn: String, val visnings
             VARSEL_OM_REVURDERING_FRA_NASJONAL_TIL_EØS -> Dokumenttype.KONTANTSTØTTE_VARSEL_OM_REVURDERING_FRA_NASJONAL_TIL_EØS
             INFORMASJONSBREV_KAN_SØKE_EØS -> Dokumenttype.KONTANTSTØTTE_INFORMASJONSBREV_KAN_SØKE_EØS
             VARSEL_ANNEN_FORELDER_MED_SELVSTENDIG_RETT_SØKT -> Dokumenttype.KONTANTSTØTTE_VARSEL_ANNEN_FORELDER_MED_SELVSTENDIG_RETT_SØKT
-            INFORMASJONSBREV_MULIG_LOVENDRING -> Dokumenttype.KONTANTSTØTTE_INFORMASJONSBREV_MULIG_LOVENDRING
+            INFORMASJONSBREV_MULIG_LOVENDRING_2024 -> Dokumenttype.KONTANTSTØTTE_INFORMASJONSBREV_MULIG_LOVENDRING
 
             VEDTAK_ENDRING,
             VEDTAK_OPPHØRT,
@@ -219,7 +219,7 @@ enum class Brevmal(val erVedtaksbrev: Boolean, val apiNavn: String, val visnings
                 AUTOVEDTAK_BARN_6_OG_18_ÅR_OG_SMÅBARNSTILLEGG -> Distribusjonstype.VEDTAK
                 AUTOVEDTAK_NYFØDT_FØRSTE_BARN -> Distribusjonstype.VEDTAK
                 AUTOVEDTAK_NYFØDT_BARN_FRA_FØR -> Distribusjonstype.VEDTAK
-                INFORMASJONSBREV_MULIG_LOVENDRING -> Distribusjonstype.VIKTIG
+                INFORMASJONSBREV_MULIG_LOVENDRING_2024 -> Distribusjonstype.VIKTIG
             }
 
     fun setterBehandlingPåVent(): Boolean =

@@ -238,9 +238,9 @@ fun ManueltBrevDto.tilBrev(saksbehandlerNavn: String) =
                 saksbehandlerNavn = saksbehandlerNavn,
             )
 
-        Brevmal.INFORMASJONSBREV_MULIG_LOVENDRING ->
+        Brevmal.INFORMASJONSBREV_MULIG_LOVENDRING_2024 ->
             BrevUtenDataDto(
-                mal = Brevmal.INFORMASJONSBREV_MULIG_LOVENDRING,
+                mal = Brevmal.INFORMASJONSBREV_MULIG_LOVENDRING_2024,
                 mottakerNavn = this.mottakerNavn,
                 mottakerIdent = this.mottakerIdent,
             )

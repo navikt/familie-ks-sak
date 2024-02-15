@@ -38,7 +38,7 @@ class SendInformasjonsbrevKontantstøtteendringTask(
 
         val manueltBrevDto =
             ManueltBrevDto(
-                brevmal = Brevmal.INFORMASJONSBREV_MULIG_LOVENDRING,
+                brevmal = Brevmal.INFORMASJONSBREV_MULIG_LOVENDRING_2024,
                 mottakerIdent = fagsak.aktør.aktivFødselsnummer(),
                 // Dette brevet skal kun sendes ut på bokmål
                 mottakerMålform = Målform.NB,
