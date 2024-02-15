@@ -2,6 +2,7 @@ package no.nav.familie.ks.sak.internal
 
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.config.BehandlerRolle
+import no.nav.familie.ks.sak.integrasjon.pdl.secureLogger
 import no.nav.familie.ks.sak.internal.endringKontantstøtteInfobrev2024.DistribuerInformasjonsbrevKontantstøtteEndresInfotrygdService
 import no.nav.familie.ks.sak.internal.endringKontantstøtteInfobrev2024.DistribuerInformasjonsbrevKontantstøtteEndresKSService
 import no.nav.familie.ks.sak.sikkerhet.AuditLoggerEvent
@@ -51,6 +52,8 @@ class ForvalterController(
             minimumBehandlerRolle = BehandlerRolle.VEILEDER,
         )
 
+        logger.info("Kaller kjor-send-informasjonsbrev-endring-kontantstotte-ks med kjøretype=$kjøretype")
+
         return distribuerInformasjonsbrevKontantstøtteEndresService
             .opprettTaskerForÅJournalføreOgSendeUtInformasjonsbrevKontantstøtteendringKS(erDryRun = kjøretype == Kjøretype.DRY_RUN)
     }
@@ -61,6 +64,8 @@ class ForvalterController(
             handling = "Henter alle med barn født i september 2022 eller senere fra Infotrygd",
             minimumBehandlerRolle = BehandlerRolle.VEILEDER,
         )
+
+        logger.info("Kaller fagsaker/hent-personer-informasjonsbrev-endring-kontantstotte-infotrygd")
 
         return distribuerInformasjonsbrevKontantstøtteEndresInfotrygdService.hentPersonerFraInfotrygdMedBarnFødtEtterAugust22()
             .toSet()
@@ -74,6 +79,9 @@ class ForvalterController(
             handling = "Send informasjonsbrev om forkortet kontantstøtte",
             minimumBehandlerRolle = BehandlerRolle.VEILEDER,
         )
+
+        logger.info("Kaller kjor-send-informasjonsbrev-endring-kontantstotte-infotrygd. Se securelogger for hvilke identer")
+        secureLogger.info("Kaller kjor-send-informasjonsbrev-endring-kontantstotte-infotrygd med identer $søkerIdenterFraInfotrygd")
 
         return distribuerInformasjonsbrevKontantstøtteEndresInfotrygdService.opprettTaskerForÅJournalføreOgSendeUtInformasjonsbrevKontantstøtteendringInfotrygd(
             søkerIdenterFraInfotrygd,
@@ -92,6 +100,8 @@ class ForvalterController(
             handling = "Send informasjonsbrev om forkortet kontantstøtte til alle med barn født i september 2022 eller senere",
             minimumBehandlerRolle = BehandlerRolle.VEILEDER,
         )
+
+        logger.info("Kaller obs-hent-personer-og-send-informasjonsbrev-endring-kontantstotte-infotrygd med kjøretype=$kjøretype")
 
         val søkerIdenterFraInfotrygd =
             distribuerInformasjonsbrevKontantstøtteEndresInfotrygdService
