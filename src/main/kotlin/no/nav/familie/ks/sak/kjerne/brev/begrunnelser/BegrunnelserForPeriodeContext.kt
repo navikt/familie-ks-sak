@@ -302,10 +302,22 @@ class BegrunnelserForPeriodeContext(
         BegrunnelseType.ETTER_ENDRET_UTBETALING,
         BegrunnelseType.OPPHØR,
         -> {
-            if (erFørsteVedtaksperiodeOgBegrunnelseInneholderGjelderFørstePeriodeTrigger) finnPersonerMedVilkårResultatIFørsteVedtaksperiodeSomIkkeErOppfylt() else finnPersonerMedVilkårResultaterSomGjelderRettFørPeriode()
+            val finnesVilkårResultatFørVedtaksperiode =
+                personResultater.flatMap { personResultat ->
+                    personResultat.vilkårResultater
+                }.any {
+                    it.periodeTom != null && it.periodeTom!! <= vedtaksperiode.fom && vilkårErIkkeIPeriode(it)
+                }
+
+            if (erFørsteVedtaksperiodeOgBegrunnelseInneholderGjelderFørstePeriodeTrigger && !finnesVilkårResultatFørVedtaksperiode) finnPersonerMedVilkårResultatIFørsteVedtaksperiodeSomIkkeErOppfylt() else finnPersonerMedVilkårResultaterSomGjelderRettFørPeriode()
         }
 
         BegrunnelseType.FORTSATT_INNVILGET -> throw Feil("FORTSATT_INNVILGET skal være filtrert bort.")
+    }
+
+    fun vilkårErIkkeIPeriode(vilkårResultat: VilkårResultat): Boolean {
+        // TODO
+        return true
     }
 
     private fun finnPersonerSomHarIkkeOppfylteVilkårResultaterSomStarterSamtidigSomPeriode(): Map<Person, List<VilkårResultat>> =
