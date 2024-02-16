@@ -302,22 +302,29 @@ class BegrunnelserForPeriodeContext(
         BegrunnelseType.ETTER_ENDRET_UTBETALING,
         BegrunnelseType.OPPHØR,
         -> {
-            val finnesVilkårResultatFørVedtaksperiode =
-                personResultater.flatMap { personResultat ->
-                    personResultat.vilkårResultater
-                }.any {
-                    it.periodeTom != null && it.periodeTom!! <= vedtaksperiode.fom && vilkårErIkkeIPeriode(it)
-                }
+            val vilkårResultatOpphørerIFørstePeriode =
+                personResultater
+                    .flatMap { personResultat -> personResultat.vilkårResultater }
+                    .any { it.periodeTom != null && it.periodeTom!! <= vedtaksperiode.fom && !vilkårErIFørstePeriode(it.vilkårType) }
 
-            if (erFørsteVedtaksperiodeOgBegrunnelseInneholderGjelderFørstePeriodeTrigger && !finnesVilkårResultatFørVedtaksperiode) finnPersonerMedVilkårResultatIFørsteVedtaksperiodeSomIkkeErOppfylt() else finnPersonerMedVilkårResultaterSomGjelderRettFørPeriode()
+            if (erFørsteVedtaksperiodeOgBegrunnelseInneholderGjelderFørstePeriodeTrigger && !vilkårResultatOpphørerIFørstePeriode) finnPersonerMedVilkårResultatIFørsteVedtaksperiodeSomIkkeErOppfylt() else finnPersonerMedVilkårResultaterSomGjelderRettFørPeriode()
         }
 
         BegrunnelseType.FORTSATT_INNVILGET -> throw Feil("FORTSATT_INNVILGET skal være filtrert bort.")
     }
 
-    fun vilkårErIkkeIPeriode(vilkårResultat: VilkårResultat): Boolean {
-        // TODO
-        return true
+    private fun vilkårErIFørstePeriode(
+        vilkår: Vilkår,
+    ): Boolean {
+        return personResultater.tilFørskjøvetVilkårResultatTidslinjeMap(personopplysningGrunnlag)
+            .all { (_, vilkårResultatTidslinjeForPerson) ->
+                vilkårResultatTidslinjeForPerson
+                    .klipp(vedtaksperiode.fom, vedtaksperiode.tom)
+                    .tilPerioderIkkeNull()
+                    .first().verdi
+                    .map { it.vilkårType }
+                    .contains(vilkår)
+            }
     }
 
     private fun finnPersonerSomHarIkkeOppfylteVilkårResultaterSomStarterSamtidigSomPeriode(): Map<Person, List<VilkårResultat>> =
@@ -417,7 +424,7 @@ class BegrunnelserForPeriodeContext(
         begrunnelseType: BegrunnelseType,
     ) = this.filter { (person, vilkårResultaterForPerson) ->
         val oppfylteTriggereIBehandling =
-            Trigger.values().filter {
+            Trigger.entries.filter {
                 it.erOppfylt(
                     vilkårResultaterForPerson,
                     person,
