@@ -43,8 +43,8 @@ Egenskap: Fremtidig opphør - søker har meldt ifra om fremtidig barnehageplass
       | 01.08.2024 |            | OPPHØR             |                                | OPPHØR_FRAMTIDIG_OPPHØR_BARNEHAGEPLASS |                       |
 
     Så forvent følgende brevbegrunnelser for behandling 1 i periode 01.08.2024 til -
-      | Begrunnelse                            | Type     | Barnas fødselsdatoer | Antall barn | Gjelder søker | Målform | Beløp | Søknadstidspunkt | Måned og år begrunnelsen gjelder for | Avtale tidspunkt delt bosted | Søkers rett til utvidet |
-      | OPPHØR_FRAMTIDIG_OPPHØR_BARNEHAGEPLASS | STANDARD | 11.09.22             | 1           |               |         | 0     |                  | august 2024                          |                              |                         |
+      | Begrunnelse                            | Type     | Barnas fødselsdatoer | Antall barn | Beløp | Måned og år begrunnelsen gjelder for | Gjelder andre forelder |
+      | OPPHØR_FRAMTIDIG_OPPHØR_BARNEHAGEPLASS | STANDARD | 11.09.22             | 1           | 0     | august 2024                          | true                   |
 
   Scenario: Barnehageplass fra måneden før barnet fyller to år
     Og følgende dagens dato 06.02.2024
@@ -72,8 +72,8 @@ Egenskap: Fremtidig opphør - søker har meldt ifra om fremtidig barnehageplass
       | 01.08.2024 |            | OPPHØR             |                                | OPPHØR_FRAMTIDIG_OPPHØR_BARNEHAGEPLASS |                       |
 
     Så forvent følgende brevbegrunnelser for behandling 1 i periode 01.08.2024 til -
-      | Begrunnelse                            | Type     | Barnas fødselsdatoer | Antall barn | Gjelder søker | Målform | Beløp | Søknadstidspunkt | Måned og år begrunnelsen gjelder for | Avtale tidspunkt delt bosted | Søkers rett til utvidet |
-      | OPPHØR_FRAMTIDIG_OPPHØR_BARNEHAGEPLASS | STANDARD | 11.09.22             | 1           |               |         | 0     |                  | august 2024                          |                              |                         |
+      | Begrunnelse                            | Type     | Barnas fødselsdatoer | Antall barn | Målform | Beløp | Måned og år begrunnelsen gjelder for | Gjelder andre forelder |
+      | OPPHØR_FRAMTIDIG_OPPHØR_BARNEHAGEPLASS | STANDARD | 11.09.22             | 1           |         | 0     | august 2024                          | true                   |
 
   Scenario: Barnehageplass fra midten av en måned
     Og følgende dagens dato 06.02.2024
@@ -101,5 +101,5 @@ Egenskap: Fremtidig opphør - søker har meldt ifra om fremtidig barnehageplass
       | 01.07.2024 |            | OPPHØR             |                                | OPPHØR_FRAMTIDIG_OPPHØR_BARNEHAGEPLASS |                       |
 
     Så forvent følgende brevbegrunnelser for behandling 1 i periode 01.07.2024 til -
-      | Begrunnelse                            | Type     | Barnas fødselsdatoer | Antall barn | Gjelder søker | Målform | Beløp | Søknadstidspunkt | Måned og år begrunnelsen gjelder for | Avtale tidspunkt delt bosted | Søkers rett til utvidet |
-      | OPPHØR_FRAMTIDIG_OPPHØR_BARNEHAGEPLASS | STANDARD | 11.09.22             | 1           |               |         | 0     |                  | juli 2024                            |                              |                         |
+      | Begrunnelse                            | Type     | Barnas fødselsdatoer | Antall barn | Beløp | Måned og år begrunnelsen gjelder for | Gjelder andre forelder |
+      | OPPHØR_FRAMTIDIG_OPPHØR_BARNEHAGEPLASS | STANDARD | 11.09.22             | 1           | 0     | juli 2024                            | true                   |
