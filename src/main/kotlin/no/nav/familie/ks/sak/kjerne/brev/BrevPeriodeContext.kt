@@ -556,7 +556,7 @@ class BrevPeriodeContext(
                 val vilkårResultatOverstiger33Timer = (it.antallTimer ?: BigDecimal(0)) >= BigDecimal(33)
 
                 vilkårResultatErIkkeOppfylt && vilkårResultatOverstiger33Timer
-            }
+            }.let { it.ifEmpty { return fom.tilMånedÅr() } }
             .minOf { it.periodeFom ?: fom }
             .tilMånedÅr()
 
