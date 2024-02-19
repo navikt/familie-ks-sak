@@ -302,12 +302,12 @@ class BegrunnelserForPeriodeContext(
         BegrunnelseType.ETTER_ENDRET_UTBETALING,
         BegrunnelseType.OPPHØR,
         -> {
-            val vilkårResultatOpphørerIFørstePeriode =
+            val vilkårResultatManglerIFørstePeriodeMenVarIPeriodenFør =
                 personResultater
                     .flatMap { personResultat -> personResultat.vilkårResultater }
                     .any { it.periodeTom != null && it.periodeTom!! <= vedtaksperiode.fom && !vilkårErIFørstePeriode(it.vilkårType) }
 
-            if (erFørsteVedtaksperiodeOgBegrunnelseInneholderGjelderFørstePeriodeTrigger && !vilkårResultatOpphørerIFørstePeriode) finnPersonerMedVilkårResultatIFørsteVedtaksperiodeSomIkkeErOppfylt() else finnPersonerMedVilkårResultaterSomGjelderRettFørPeriode()
+            if (erFørsteVedtaksperiodeOgBegrunnelseInneholderGjelderFørstePeriodeTrigger && !vilkårResultatManglerIFørstePeriodeMenVarIPeriodenFør) finnPersonerMedVilkårResultatIFørsteVedtaksperiodeSomIkkeErOppfylt() else finnPersonerMedVilkårResultaterSomGjelderRettFørPeriode()
         }
 
         BegrunnelseType.FORTSATT_INNVILGET -> throw Feil("FORTSATT_INNVILGET skal være filtrert bort.")
