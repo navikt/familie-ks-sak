@@ -440,24 +440,6 @@ class StepDefinition {
             behandlinger.values.filter { behandling -> behandling.fagsak.id == firstArg<Long>() }
         }
 
-        val personopplysningGrunnlagService = mockk<PersonopplysningGrunnlagService>()
-        every { personopplysningGrunnlagService.finnAktivPersonopplysningGrunnlag(any<Long>()) } answers {
-            persongrunnlag[firstArg()]
-        }
-        every { personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(any<Long>()) } answers {
-            persongrunnlag[firstArg()]!!
-        }
-
-        val andelerTilkjentYtelseOgEndreteUtbetalingerService = mockk<AndelerTilkjentYtelseOgEndreteUtbetalingerService>()
-        every { andelerTilkjentYtelseOgEndreteUtbetalingerService.finnAndelerTilkjentYtelseMedEndreteUtbetalinger(any<Long>()) } answers {
-            val behandlingId = firstArg<Long>()
-            hentAndelerTilkjentYtelseMedEndreteUtbetalinger(behandlingId)
-        }
-        every { andelerTilkjentYtelseOgEndreteUtbetalingerService.finnEndreteUtbetalingerMedAndelerTilkjentYtelse(any<Long>()) } answers {
-            val behandlingId = firstArg<Long>()
-            endredeUtbetalinger[behandlingId]?.tilEndretUtbetalingAndelMedAndelerTilkjentYtelse(andelerTilkjentYtelse[behandlingId] ?: emptyList()) ?: emptyList()
-        }
-
         val vilkårsvurderingRepository = mockk<VilkårsvurderingRepository>()
         every { vilkårsvurderingRepository.finnAktivForBehandling(any<Long>()) } answers {
             val behandlingId = firstArg<Long>()
@@ -477,12 +459,6 @@ class StepDefinition {
             SøknadGrunnlag(behandlingId = behandlingId, søknad = søknadDtoString)
         }
 
-        val vilkårsvurderingService = mockk<VilkårsvurderingService>()
-        every { vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(any<Long>()) } answers {
-            val behandlingId = firstArg<Long>()
-            vilkårsvurdering[behandlingId]!!
-        }
-
         val kompetanseService = mockk<KompetanseService>()
         every { kompetanseService.hentKompetanser(any<BehandlingId>()) } answers {
             val behandlingId = firstArg<BehandlingId>()
@@ -491,29 +467,68 @@ class StepDefinition {
 
         val utbetalingsperiodeMedBegrunnelserService =
             UtbetalingsperiodeMedBegrunnelserService(
-                vilkårsvurderingService = vilkårsvurderingService,
-                andelerTilkjentYtelseOgEndreteUtbetalingerService = andelerTilkjentYtelseOgEndreteUtbetalingerService,
-                personopplysningGrunnlagService = personopplysningGrunnlagService,
+                vilkårsvurderingService = mockVilkårsvurderingService(),
+                andelerTilkjentYtelseOgEndreteUtbetalingerService = mockAndelerTilkjentYtelseOgEndreteUtbetalingerService(),
+                personopplysningGrunnlagService = mockPersonopplysningGrunnlagService(),
                 kompetanseService = kompetanseService,
             )
 
         return VedtaksperiodeService(
             behandlingRepository = behandlingRepository,
-            personopplysningGrunnlagService = personopplysningGrunnlagService,
+            personopplysningGrunnlagService = mockPersonopplysningGrunnlagService(),
             vedtaksperiodeHentOgPersisterService = mockk(),
             vedtakRepository = mockk(),
             vilkårsvurderingRepository = vilkårsvurderingRepository,
             sanityService = mockk(),
             søknadGrunnlagService = søknadGrunnlagService,
             utbetalingsperiodeMedBegrunnelserService = utbetalingsperiodeMedBegrunnelserService,
-            andelerTilkjentYtelseOgEndreteUtbetalingerService = andelerTilkjentYtelseOgEndreteUtbetalingerService,
+            andelerTilkjentYtelseOgEndreteUtbetalingerService = mockAndelerTilkjentYtelseOgEndreteUtbetalingerService(),
             integrasjonClient = mockk(),
             refusjonEøsRepository = mockk(),
             kompetanseService = kompetanseService,
         )
     }
 
-    private fun hentAndelerTilkjentYtelseMedEndreteUtbetalinger(behandlingId: Long) = andelerTilkjentYtelse[behandlingId]?.tilAndelerTilkjentYtelseMedEndreteUtbetalinger(endredeUtbetalinger[behandlingId] ?: emptyList()) ?: emptyList()
+    private fun mockPersonopplysningGrunnlagService(): PersonopplysningGrunnlagService {
+        val personopplysningGrunnlagService = mockk<PersonopplysningGrunnlagService>()
+        every { personopplysningGrunnlagService.finnAktivPersonopplysningGrunnlag(any<Long>()) } answers {
+            persongrunnlag[firstArg()]
+        }
+        every { personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(any<Long>()) } answers {
+            persongrunnlag[firstArg()]!!
+        }
+        return personopplysningGrunnlagService
+    }
+
+    private fun mockVilkårsvurderingService(): VilkårsvurderingService {
+        val vilkårsvurderingService = mockk<VilkårsvurderingService>()
+        every { vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(any<Long>()) } answers {
+            val behandlingId = firstArg<Long>()
+            vilkårsvurdering[behandlingId]!!
+        }
+        return vilkårsvurderingService
+    }
+
+    private fun mockAndelerTilkjentYtelseOgEndreteUtbetalingerService(): AndelerTilkjentYtelseOgEndreteUtbetalingerService {
+        val andelerTilkjentYtelseOgEndreteUtbetalingerService =
+            mockk<AndelerTilkjentYtelseOgEndreteUtbetalingerService>()
+        every { andelerTilkjentYtelseOgEndreteUtbetalingerService.finnAndelerTilkjentYtelseMedEndreteUtbetalinger(any<Long>()) } answers {
+            val behandlingId = firstArg<Long>()
+            hentAndelerTilkjentYtelseMedEndreteUtbetalinger(behandlingId)
+        }
+        every { andelerTilkjentYtelseOgEndreteUtbetalingerService.finnEndreteUtbetalingerMedAndelerTilkjentYtelse(any<Long>()) } answers {
+            val behandlingId = firstArg<Long>()
+            endredeUtbetalinger[behandlingId]?.tilEndretUtbetalingAndelMedAndelerTilkjentYtelse(
+                andelerTilkjentYtelse[behandlingId] ?: emptyList(),
+            ) ?: emptyList()
+        }
+        return andelerTilkjentYtelseOgEndreteUtbetalingerService
+    }
+
+    private fun hentAndelerTilkjentYtelseMedEndreteUtbetalinger(behandlingId: Long) =
+        andelerTilkjentYtelse[behandlingId]?.tilAndelerTilkjentYtelseMedEndreteUtbetalinger(
+            endredeUtbetalinger[behandlingId] ?: emptyList(),
+        ) ?: emptyList()
 }
 
 private object SanityBegrunnelseMock {
