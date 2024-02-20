@@ -431,6 +431,39 @@ class StepDefinition {
             .isEqualTo(forvendtedeBegrunnelser.sortedBy { it.apiNavn })
     }
 
+    fun mockBehandlingsresultatService(): BehandlingsresultatService {
+        val behandlingService = mockk<BehandlingService>()
+        every { behandlingService.hentSisteBehandlingSomErVedtatt(any()) } answers {
+            val fagsakId = firstArg<Long>()
+            behandlinger.values.filter { behandling -> behandling.fagsak.id == fagsakId && behandling.status == BehandlingStatus.AVSLUTTET }
+                .maxBy { it.id }
+        }
+
+        val søknadGrunnlagService = mockk<SøknadGrunnlagService>()
+        every { søknadGrunnlagService.finnAktiv(any()) } answers {
+            val behandlingId = firstArg<Long>()
+
+            val søknadDtoString =
+                objectMapper.writeValueAsString(
+                    SøknadDto(
+                        barnaMedOpplysninger = uregistrerteBarn[behandlingId] ?: emptyList(),
+                        endringAvOpplysningerBegrunnelse = "",
+                        søkerMedOpplysninger = SøkerMedOpplysningerDto(ident = "", målform = målform),
+                    ),
+                )
+            SøknadGrunnlag(behandlingId = behandlingId, søknad = søknadDtoString)
+        }
+
+        return BehandlingsresultatService(
+            behandlingService = behandlingService,
+            andelerTilkjentYtelseOgEndreteUtbetalingerService = mockAndelerTilkjentYtelseOgEndreteUtbetalingerService(),
+            vilkårsvurderingService = mockVilkårsvurderingService(),
+            søknadGrunnlagService = søknadGrunnlagService,
+            personidentService = mockk(),
+            personopplysningGrunnlagService = mockPersonopplysningGrunnlagService(),
+        )
+    }
+
     fun mockVedtaksperiodeService(): VedtaksperiodeService {
         val behandlingRepository = mockk<BehandlingRepository>()
         every { behandlingRepository.finnIverksatteBehandlinger(any<Long>()) } answers {
@@ -497,6 +530,10 @@ class StepDefinition {
         every { personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(any<Long>()) } answers {
             persongrunnlag[firstArg()]!!
         }
+        every { personopplysningGrunnlagService.hentBarna(any<Long>()) } answers {
+            val behandlingId = firstArg<Long>()
+            persongrunnlag[behandlingId]!!.barna
+        }
         return personopplysningGrunnlagService
     }
 
@@ -506,6 +543,8 @@ class StepDefinition {
             val behandlingId = firstArg<Long>()
             vilkårsvurdering[behandlingId]!!
         }
+        every { vilkårsvurderingService.oppdater(any()) } answers { firstArg<Vilkårsvurdering>() }
+
         return vilkårsvurderingService
     }
 
