@@ -9,8 +9,8 @@ Egenskap: Fremtidig opphør - søker har meldt ifra om fremtidig barnehageplass
       | 1        |
 
     Og følgende behandlinger
-      | BehandlingId | FagsakId | ForrigeBehandlingId | Behandlingsresultat | Behandlingsårsak | Behandlingskategori |
-      | 1            | 2        |                     | INNVILGET           | SØKNAD           | NASJONAL            |
+      | BehandlingId | FagsakId | ForrigeBehandlingId | Behandlingsårsak | Behandlingskategori |
+      | 1            | 2        |                     | SØKNAD           | NASJONAL            |
 
     Og følgende persongrunnlag
       | BehandlingId | AktørId | Persontype | Fødselsdato |
@@ -29,6 +29,8 @@ Egenskap: Fremtidig opphør - søker har meldt ifra om fremtidig barnehageplass
       | 2       | BARNETS_ALDER                                          |                  | 11.09.2023 | 11.09.2024 | OPPFYLT  | Nei                  |                      |                  |                                       |
 
     Og andeler er beregnet for behandling 1
+
+    Og når behandlingsresultatet er utledet for behandling 1
 
     Og vedtaksperioder er laget for behandling 1
 
@@ -58,6 +60,8 @@ Egenskap: Fremtidig opphør - søker har meldt ifra om fremtidig barnehageplass
       | 2       | BARNETS_ALDER                                          |                  | 11.09.2023 | 11.09.2024 | OPPFYLT  | Nei                  |                      |                  |                                       |
 
     Og andeler er beregnet for behandling 1
+
+    Og når behandlingsresultatet er utledet for behandling 1
 
     Og vedtaksperioder er laget for behandling 1
 
@@ -87,6 +91,8 @@ Egenskap: Fremtidig opphør - søker har meldt ifra om fremtidig barnehageplass
       | 2       | BARNETS_ALDER                                          |                  | 11.09.2023 | 11.09.2024 | OPPFYLT  | Nei                  |                      |                  |                                       |
 
     Og andeler er beregnet for behandling 1
+
+    Og når behandlingsresultatet er utledet for behandling 1
 
     Og vedtaksperioder er laget for behandling 1
 

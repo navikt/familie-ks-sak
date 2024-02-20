@@ -97,7 +97,7 @@ class StepDefinition {
 
     /**
      * Mulige felter:
-     * | BehandlingId | FagsakId | ForrigeBehandlingId | Behandlingsresultat | Behandlingsårsak | Behandlingsstatus |
+     * | BehandlingId | FagsakId | ForrigeBehandlingId | Behandlingsårsak | Behandlingsstatus |
      */
     @Og("følgende behandlinger")
     fun `følgende behandling`(dataTable: DataTable) {

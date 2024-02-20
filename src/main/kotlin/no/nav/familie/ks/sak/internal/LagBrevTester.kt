@@ -123,13 +123,13 @@ fun hentTekstForBehandlinger(
     """
 
     Og følgende behandlinger
-      | BehandlingId | FagsakId | ForrigeBehandlingId | Behandlingsresultat | Behandlingsårsak  | Behandlingskategori | Behandlingsstatus | ${
+      | BehandlingId | FagsakId | ForrigeBehandlingId | Behandlingsårsak  | Behandlingskategori | Behandlingsstatus | ${
         forrigeBehandling?.let {
             """ 
-      | ${it.id} | 1 |           | ${it.resultat} | ${it.opprettetÅrsak}  | ${it.kategori} | ${it.status} |"""
+      | ${it.id} | 1 |           | ${it.opprettetÅrsak}  | ${it.kategori} | ${it.status} |"""
         } ?: ""
     }
-      | ${behandling.id} | 1 | ${forrigeBehandling?.id ?: ""} |${behandling.resultat} | ${behandling.opprettetÅrsak}  | ${behandling.kategori} | ${behandling.status} |"""
+      | ${behandling.id} | 1 | ${forrigeBehandling?.id ?: ""} | ${behandling.opprettetÅrsak}  | ${behandling.kategori} | ${behandling.status} |"""
 
 fun hentTekstForPersongrunnlag(
     persongrunnlag: PersonopplysningGrunnlag,
