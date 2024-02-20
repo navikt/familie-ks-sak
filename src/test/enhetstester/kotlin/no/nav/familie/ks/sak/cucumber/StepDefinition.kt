@@ -464,22 +464,17 @@ class StepDefinition {
         every { behandlingService.hentSisteBehandlingSomErVedtatt(any()) } answers {
             val fagsakId = firstArg<Long>()
             behandlinger.values.filter { behandling -> behandling.fagsak.id == fagsakId && behandling.status == BehandlingStatus.AVSLUTTET }
-                .maxBy { it.id }
+                .maxByOrNull { it.id }
         }
 
         val søknadGrunnlagService = mockk<SøknadGrunnlagService>()
         every { søknadGrunnlagService.finnAktiv(any()) } answers {
             val behandlingId = firstArg<Long>()
-
-            val søknadDtoString =
-                objectMapper.writeValueAsString(
-                    SøknadDto(
-                        barnaMedOpplysninger = uregistrerteBarn[behandlingId] ?: emptyList(),
-                        endringAvOpplysningerBegrunnelse = "",
-                        søkerMedOpplysninger = SøkerMedOpplysningerDto(ident = "", målform = målform),
-                    ),
-                )
-            SøknadGrunnlag(behandlingId = behandlingId, søknad = søknadDtoString)
+            lagSøknadGrunnlag(behandlingId)
+        }
+        every { søknadGrunnlagService.hentAktiv(any()) } answers {
+            val behandlingId = firstArg<Long>()
+            lagSøknadGrunnlag(behandlingId) ?: throw Feil("Behandling $behandlingId er ikke en søknad")
         }
 
         return BehandlingsresultatService(
@@ -490,6 +485,22 @@ class StepDefinition {
             personidentService = mockk(),
             personopplysningGrunnlagService = mockPersonopplysningGrunnlagService(),
         )
+    }
+
+    private fun lagSøknadGrunnlag(behandlingId: Long): SøknadGrunnlag? {
+        if (!behandlinger[behandlingId]!!.erSøknad()) {
+            return null
+        }
+
+        val søknadDtoString =
+            objectMapper.writeValueAsString(
+                SøknadDto(
+                    barnaMedOpplysninger = uregistrerteBarn[behandlingId] ?: emptyList(),
+                    endringAvOpplysningerBegrunnelse = "",
+                    søkerMedOpplysninger = SøkerMedOpplysningerDto(ident = "", målform = målform),
+                ),
+            )
+        return SøknadGrunnlag(behandlingId = behandlingId, søknad = søknadDtoString)
     }
 
     fun mockVedtaksperiodeService(): VedtaksperiodeService {
