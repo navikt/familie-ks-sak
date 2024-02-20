@@ -88,7 +88,7 @@ internal class TilbakekrevingServiceTest {
     @MockK
     private lateinit var simuleringService: SimuleringService
 
-    @MockK
+    @MockK(relaxed = true)
     private lateinit var brevmottakerRepository: BrevmottakerRepository
 
     @InjectMockKs
