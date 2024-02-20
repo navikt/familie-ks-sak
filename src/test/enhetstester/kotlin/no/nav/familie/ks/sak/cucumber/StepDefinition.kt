@@ -22,9 +22,12 @@ import no.nav.familie.ks.sak.common.util.tilddMMyyyy
 import no.nav.familie.ks.sak.cucumber.BrevBegrunnelseParser.mapBegrunnelser
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelse
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelseDto
+import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
+import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat
+import no.nav.familie.ks.sak.kjerne.behandling.steg.behandlingsresultat.BehandlingsresultatService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.registrersøknad.SøknadGrunnlagService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.registrersøknad.domene.SøknadGrunnlag
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.Vedtak
@@ -227,6 +230,26 @@ class StepDefinition {
         assertThat(beregnetTilkjentYtelse)
             .usingRecursiveComparison().ignoringFieldsMatchingRegexes(".*endretTidspunkt", ".*opprettetTidspunkt", ".*kildeBehandlingId", ".*tilkjentYtelse")
             .isEqualTo(forventedeAndeler)
+    }
+
+    @Og("når behandlingsresultatet er utledet for behandling {}")
+    fun `når behandlingsresultatet er utledet for behehandling`(
+        behandlingId: Long,
+    ) {
+        val behandling = behandlinger[behandlingId]!!
+
+        val behandlingsresultat = mockBehandlingsresultatService().utledBehandlingsresultat(behandling)
+
+        behandlinger[behandlingId] = behandling.copy(resultat = behandlingsresultat)
+    }
+
+    @Så("forvent at behandlingsresultatet er {} på behandling {}")
+    fun `forvent følgende behanlingsresultat på behandling`(
+        forventetBehandlingsresultat: Behandlingsresultat,
+        behandlingId: Long,
+    ) {
+        val faktiskResultat = behandlinger[behandlingId]!!.resultat
+        assertThat(faktiskResultat).isEqualTo(forventetBehandlingsresultat)
     }
 
     /**
