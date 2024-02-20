@@ -20,6 +20,7 @@ import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.util.TIDENES_MORGEN
 import no.nav.familie.ks.sak.common.util.tilddMMyyyy
 import no.nav.familie.ks.sak.cucumber.BrevBegrunnelseParser.mapBegrunnelser
+import no.nav.familie.ks.sak.data.lagVedtak
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelse
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelseDto
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
@@ -30,7 +31,6 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.behandlingsresultat.BehandlingsresultatService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.registrersøknad.SøknadGrunnlagService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.registrersøknad.domene.SøknadGrunnlag
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.Vedtak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.VedtaksperiodeService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.UtvidetVedtaksperiodeMedBegrunnelser
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.VedtaksperiodeMedBegrunnelser
@@ -71,8 +71,7 @@ val sanityBegrunnelserMock = SanityBegrunnelseMock.hentSanityBegrunnelserMock()
 class StepDefinition {
     var fagsaker: Map<Long, Fagsak> = emptyMap()
     var behandlinger = mutableMapOf<Long, Behandling>()
-    var behandlingTilForrigeBehandling = mutableMapOf<Long, Long?>()
-    var vedtakListe = mutableListOf<Vedtak>()
+    var behandlingTilForrigeBehandling = mapOf<Long, Long?>()
     var persongrunnlag = mutableMapOf<Long, PersonopplysningGrunnlag>()
     var vilkårsvurdering = mutableMapOf<Long, Vilkårsvurdering>()
     var vedtaksperioderMedBegrunnelser = mutableMapOf<Long, List<VedtaksperiodeMedBegrunnelser>>()
@@ -98,20 +97,20 @@ class StepDefinition {
 
     /**
      * Mulige felter:
-     * | BehandlingId | FagsakId | ForrigeBehandlingId | Behandlingsresultat | Behandlingsårsak |
+     * | BehandlingId | FagsakId | ForrigeBehandlingId | Behandlingsresultat | Behandlingsårsak | Behandlingsstatus |
      */
     @Og("følgende behandlinger")
     fun `følgende behandling`(dataTable: DataTable) {
-        val nyeVedtak =
-            lagVedtakListe(
+        behandlinger =
+            lagBehanldinger(
                 dataTable = dataTable,
-                behandlinger = behandlinger,
-                behandlingTilForrigeBehandling = behandlingTilForrigeBehandling,
                 fagsaker = fagsaker,
-            )
+            ).associateBy { it.id }.toMutableMap()
 
-        vedtakListe.addAll(nyeVedtak)
+        behandlingTilForrigeBehandling = lagBehandlingTilForrigeBehanlingMap(dataTable)
     }
+
+    private fun Behandling.tilVedtak() = lagVedtak(this)
 
     /**
      * Mulige verdier: | BehandlingId |  AktørId | Persontype | Fødselsdato |
@@ -271,7 +270,7 @@ class StepDefinition {
     fun `vedtaksperioder er laget for behandling`(behandlingId: Long) {
         vedtaksperioderMedBegrunnelser[behandlingId] =
             mockVedtaksperiodeService().genererVedtaksperioderMedBegrunnelser(
-                vedtak = vedtakListe.single { it.behandling.id == behandlingId },
+                vedtak = behandlinger[behandlingId]!!.tilVedtak(),
                 manueltOverstyrtEndringstidspunkt = overstyrteEndringstidspunkt[behandlingId],
             )
     }
@@ -288,14 +287,20 @@ class StepDefinition {
             mapForventetVedtaksperioderMedBegrunnelser(
                 dataTable = dataTable,
                 vedtak =
-                    vedtakListe.find { it.behandling.id == behandlingId }
+                    behandlinger[behandlingId]?.tilVedtak()
                         ?: throw Feil("Fant ingen vedtak for behandling $behandlingId"),
             )
         val faktiskeVedtaksperioder = vedtaksperioderMedBegrunnelser[behandlingId]!!
 
         val vedtaksperioderComparator = compareBy<VedtaksperiodeMedBegrunnelser>({ it.type }, { it.fom }, { it.tom })
         assertThat(faktiskeVedtaksperioder.sortedWith(vedtaksperioderComparator))
-            .usingRecursiveComparison().ignoringFieldsMatchingRegexes(".*endretTidspunkt", ".*opprettetTidspunkt", ".*begrunnelser")
+            .usingRecursiveComparison().ignoringFieldsMatchingRegexes(
+                ".*endretTidspunkt",
+                ".*opprettetTidspunkt",
+                ".*begrunnelser",
+                ".*id",
+                ".*vedtaksdato",
+            )
             .isEqualTo(forventedeVedtaksperioder.sortedWith(vedtaksperioderComparator))
     }
 

@@ -5,7 +5,6 @@ import no.nav.familie.ks.sak.api.dto.BarnMedOpplysningerDto
 import no.nav.familie.ks.sak.api.dto.tilKalkulertMånedligBeløp
 import no.nav.familie.ks.sak.common.domeneparser.BrevPeriodeParser
 import no.nav.familie.ks.sak.common.domeneparser.Domenebegrep
-import no.nav.familie.ks.sak.common.domeneparser.DomeneparserUtil.groupByBehandlingId
 import no.nav.familie.ks.sak.common.domeneparser.VedtaksperiodeMedBegrunnelserParser
 import no.nav.familie.ks.sak.common.domeneparser.parseBigDecimal
 import no.nav.familie.ks.sak.common.domeneparser.parseDato
@@ -27,7 +26,6 @@ import no.nav.familie.ks.sak.data.lagAndelTilkjentYtelse
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagDødsfall
 import no.nav.familie.ks.sak.data.lagFagsak
-import no.nav.familie.ks.sak.data.lagVedtak
 import no.nav.familie.ks.sak.data.randomAktør
 import no.nav.familie.ks.sak.data.tilfeldigPerson
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
@@ -37,7 +35,6 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStegTilstand
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.Vedtak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.EØSBegrunnelseDB
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.NasjonalEllerFellesBegrunnelseDB
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.VedtaksperiodeMedBegrunnelser
@@ -80,53 +77,46 @@ fun lagFagsaker(dataTable: DataTable) =
         )
     }.associateBy { it.id }
 
-fun lagVedtakListe(
+fun lagBehanldinger(
     dataTable: DataTable,
-    behandlinger: MutableMap<Long, Behandling>,
-    behandlingTilForrigeBehandling: MutableMap<Long, Long?>,
     fagsaker: Map<Long, Fagsak>,
-): List<Vedtak> {
-    behandlinger.putAll(
-        dataTable.asMaps().map { rad ->
-            val behandlingId = parseLong(Domenebegrep.BEHANDLING_ID, rad)
-            val fagsakId = parseValgfriLong(Domenebegrep.FAGSAK_ID, rad)
-            val fagsak = fagsaker[fagsakId] ?: lagFagsak()
-            val behandlingÅrsak = parseValgfriEnum<BehandlingÅrsak>(Domenebegrep.BEHANDLINGSÅRSAK, rad)
-            val behandlingResultat = parseValgfriEnum<Behandlingsresultat>(Domenebegrep.BEHANDLINGSRESULTAT, rad)
-            val behandlingKategori =
-                parseValgfriEnum<BehandlingKategori>(Domenebegrep.BEHANDLINGSKATEGORI, rad)
-                    ?: BehandlingKategori.NASJONAL
-            val status = parseValgfriEnum<BehandlingStatus>(Domenebegrep.BEHANDLINGSSTATUS, rad)
+): List<Behandling> {
+    return dataTable.asMaps().map { rad ->
+        val behandlingId = parseLong(Domenebegrep.BEHANDLING_ID, rad)
+        val fagsakId = parseValgfriLong(Domenebegrep.FAGSAK_ID, rad)
+        val fagsak = fagsaker[fagsakId] ?: lagFagsak()
+        val behandlingÅrsak = parseValgfriEnum<BehandlingÅrsak>(Domenebegrep.BEHANDLINGSÅRSAK, rad)
+        val behandlingKategori =
+            parseValgfriEnum<BehandlingKategori>(Domenebegrep.BEHANDLINGSKATEGORI, rad)
+                ?: BehandlingKategori.NASJONAL
+        val status = parseValgfriEnum<BehandlingStatus>(Domenebegrep.BEHANDLINGSSTATUS, rad)
 
-            val behandling =
-                lagBehandling(
-                    fagsak = fagsak,
-                    opprettetÅrsak = behandlingÅrsak ?: BehandlingÅrsak.SØKNAD,
-                    resultat = behandlingResultat ?: Behandlingsresultat.IKKE_VURDERT,
-                    kategori = behandlingKategori,
-                ).copy(id = behandlingId)
-            behandling.apply {
-                this.status = status ?: BehandlingStatus.UTREDES
+        val behandling =
+            lagBehandling(
+                fagsak = fagsak,
+                opprettetÅrsak = behandlingÅrsak ?: BehandlingÅrsak.SØKNAD,
+                resultat = Behandlingsresultat.IKKE_VURDERT,
+                kategori = behandlingKategori,
+            ).copy(id = behandlingId)
+        behandling.apply {
+            this.status = status ?: BehandlingStatus.UTREDES
 
-                if (status == BehandlingStatus.AVSLUTTET) {
-                    this.behandlingStegTilstand.add(
-                        BehandlingStegTilstand(
-                            behandling = this,
-                            behandlingSteg = BehandlingSteg.AVSLUTT_BEHANDLING,
-                        ),
-                    )
-                }
+            if (status == BehandlingStatus.AVSLUTTET) {
+                this.behandlingStegTilstand.add(
+                    BehandlingStegTilstand(
+                        behandling = this,
+                        behandlingSteg = BehandlingSteg.AVSLUTT_BEHANDLING,
+                    ),
+                )
             }
-        }.associateBy { it.id },
-    )
-    behandlingTilForrigeBehandling.putAll(
-        dataTable.asMaps().associate { rad ->
-            parseLong(Domenebegrep.BEHANDLING_ID, rad) to parseValgfriLong(Domenebegrep.FORRIGE_BEHANDLING_ID, rad)
-        },
-    )
+        }
+    }
+}
 
-    return dataTable.groupByBehandlingId()
-        .map { lagVedtak(behandlinger[it.key] ?: error("Finner ikke behandling")) }
+fun lagBehandlingTilForrigeBehanlingMap(
+    dataTable: DataTable,
+) = dataTable.asMaps().associate { rad ->
+    parseLong(Domenebegrep.BEHANDLING_ID, rad) to parseValgfriLong(Domenebegrep.FORRIGE_BEHANDLING_ID, rad)
 }
 
 fun lagVilkårsvurdering(
