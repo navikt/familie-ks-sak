@@ -56,7 +56,6 @@ Egenskap: Fortsatt innvilget
       | 2       | 01.06.2023 | 31.01.2024 | 7500  | ORDINÆR_KONTANTSTØTTE | 100     | 7500 | 7500                   |
       | 2       | 01.02.2024 | 30.04.2024 | 3750  | ORDINÆR_KONTANTSTØTTE | 50      | 7500 | 3750                   |
 
-    #Og når behandlingsresultatet er utledet for behandling 1
     Og når behandlingsresultatet er utledet for behandling 2
     Så forvent at behandlingsresultatet er FORTSATT_INNVILGET på behandling 2
 
