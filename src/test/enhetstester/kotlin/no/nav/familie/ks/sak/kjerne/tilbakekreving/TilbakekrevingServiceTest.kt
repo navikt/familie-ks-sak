@@ -375,8 +375,7 @@ internal class TilbakekrevingServiceTest {
             tilbakekrevingKlient.opprettTilbakekrevingBehandling(capture(opprettTilbakekrevingRequest))
         }
 
-        assertEquals(1, opprettTilbakekrevingRequest.captured.manuelleBrevmottakere.size)
-        val actualBrevmottaker = opprettTilbakekrevingRequest.captured.manuelleBrevmottakere.first()
+        val actualBrevmottaker = opprettTilbakekrevingRequest.captured.manuelleBrevmottakere.single()
 
         assertBrevmottakerEquals(brevmottaker, actualBrevmottaker)
         assertEquals(arguments.second, actualBrevmottaker.vergetype)
