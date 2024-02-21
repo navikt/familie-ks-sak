@@ -2,12 +2,16 @@ package no.nav.familie.ks.sak.kjerne.tilbakekreving
 
 import no.nav.familie.kontrakter.felles.Fagsystem
 import no.nav.familie.kontrakter.felles.tilbakekreving.Behandlingstype
+import no.nav.familie.kontrakter.felles.tilbakekreving.Brevmottaker
 import no.nav.familie.kontrakter.felles.tilbakekreving.Faktainfo
 import no.nav.familie.kontrakter.felles.tilbakekreving.FeilutbetaltePerioderDto
 import no.nav.familie.kontrakter.felles.tilbakekreving.ForhåndsvisVarselbrevRequest
+import no.nav.familie.kontrakter.felles.tilbakekreving.ManuellAdresseInfo
+import no.nav.familie.kontrakter.felles.tilbakekreving.MottakerType
 import no.nav.familie.kontrakter.felles.tilbakekreving.OpprettManueltTilbakekrevingRequest
 import no.nav.familie.kontrakter.felles.tilbakekreving.OpprettTilbakekrevingRequest
 import no.nav.familie.kontrakter.felles.tilbakekreving.Tilbakekrevingsvalg
+import no.nav.familie.kontrakter.felles.tilbakekreving.Vergetype
 import no.nav.familie.kontrakter.felles.tilbakekreving.Ytelsestype
 import no.nav.familie.ks.sak.api.dto.ForhåndsvisTilbakekrevingVarselbrevDto
 import no.nav.familie.ks.sak.api.dto.TilbakekrevingRequestDto
@@ -20,6 +24,9 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.simulering.SimuleringService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.simulering.hentTilbakekrevingsperioderISimulering
 import no.nav.familie.ks.sak.kjerne.behandling.steg.simulering.opprettVarsel
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.VedtakRepository
+import no.nav.familie.ks.sak.kjerne.brev.mottaker.BrevmottakerRepository
+import no.nav.familie.ks.sak.kjerne.brev.mottaker.MottakerType.FULLMEKTIG
+import no.nav.familie.ks.sak.kjerne.brev.mottaker.MottakerType.VERGE
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
 import no.nav.familie.ks.sak.kjerne.tilbakekreving.domene.Tilbakekreving
 import no.nav.familie.ks.sak.kjerne.tilbakekreving.domene.TilbakekrevingRepository
@@ -37,8 +44,10 @@ class TilbakekrevingService(
     private val personopplysningGrunnlagService: PersonopplysningGrunnlagService,
     private val arbeidsfordelingService: ArbeidsfordelingService,
     private val simuleringService: SimuleringService,
+    private val brevmottakerRepository: BrevmottakerRepository,
 ) {
-    fun harÅpenTilbakekrevingsbehandling(fagsakId: Long): Boolean = tilbakekrevingKlient.harÅpenTilbakekrevingsbehandling(fagsakId)
+    fun harÅpenTilbakekrevingsbehandling(fagsakId: Long): Boolean =
+        tilbakekrevingKlient.harÅpenTilbakekrevingsbehandling(fagsakId)
 
     @Transactional
     fun lagreTilbakekreving(
@@ -159,6 +168,28 @@ class TilbakekrevingService(
             tilbakekrevingRepository.findByBehandlingId(behandling.id)
                 ?: throw Feil("Fant ikke tilbakekreving på behandling ${behandling.id}")
 
+        val manuelleBrevMottakere =
+            brevmottakerRepository.finnBrevMottakereForBehandling(behandling.id).map { mottaker ->
+                Brevmottaker(
+                    type = MottakerType.valueOf(mottaker.type.name),
+                    vergetype =
+                        when (mottaker.type) {
+                            FULLMEKTIG -> Vergetype.ANNEN_FULLMEKTIG
+                            VERGE -> Vergetype.VERGE_FOR_VOKSEN
+                            else -> null
+                        },
+                    navn = mottaker.navn,
+                    manuellAdresseInfo =
+                        ManuellAdresseInfo(
+                            adresselinje1 = mottaker.adresselinje1,
+                            adresselinje2 = mottaker.adresselinje2,
+                            postnummer = mottaker.postnummer,
+                            poststed = mottaker.poststed,
+                            landkode = mottaker.landkode,
+                        ),
+                )
+            }.toSet()
+
         return OpprettTilbakekrevingRequest(
             fagsystem = Fagsystem.KONT,
             regelverk = behandling.kategori.tilRegelverk(),
@@ -192,6 +223,7 @@ class TilbakekrevingService(
                     tilbakekrevingsvalg = tilbakekreving.valg,
                     konsekvensForYtelser = emptySet(),
                 ),
+            manuelleBrevmottakere = manuelleBrevMottakere,
         )
     }
 }
