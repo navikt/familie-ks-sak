@@ -159,7 +159,7 @@ fun hentTekstForVilkårresultater(
     return """
         
     Og følgende vilkårresultater for behandling $behandlingId
-      | AktørId | Vilkår | Utdypende vilkår | Fra dato | Til dato | Resultat | Er eksplisitt avslag | Standardbegrunnelser | Vurderes etter |""" +
+      | AktørId | Vilkår | Utdypende vilkår | Fra dato | Til dato | Resultat | Er eksplisitt avslag | Standardbegrunnelser | Vurderes etter | Søker har meldt fra om barnehageplass |""" +
         tilVilkårResultatRader(personResultater)
 }
 
@@ -175,6 +175,7 @@ data class VilkårResultatRad(
     val erEksplisittAvslagPåSøknad: Boolean?,
     val standardbegrunnelser: List<IBegrunnelse>,
     val vurderesEtter: Regelverk?,
+    val søkerHarMeldtFraOmBarnehageplass: Boolean?,
 )
 
 private fun tilVilkårResultatRader(personResultater: List<PersonResultat>?) =
@@ -191,6 +192,7 @@ private fun tilVilkårResultatRader(personResultater: List<PersonResultat>?) =
                     it.erEksplisittAvslagPåSøknad,
                     it.begrunnelser,
                     it.vurderesEtter,
+                    it.søkerHarMeldtFraOmBarnehageplass,
                 )
             }.toList().joinToString("") { (vilkårResultatRad, vilkårResultater) ->
                 "\n | ${vilkårResultatRad.aktørId} " +
@@ -202,6 +204,7 @@ private fun tilVilkårResultatRader(personResultater: List<PersonResultat>?) =
                     "| ${if (vilkårResultatRad.erEksplisittAvslagPåSøknad == true) "Ja" else "Nei"} " +
                     "| ${vilkårResultatRad.standardbegrunnelser.joinToString(",")}" +
                     "| ${vilkårResultatRad.vurderesEtter ?: ""} " +
+                    "| ${if (vilkårResultatRad.søkerHarMeldtFraOmBarnehageplass == true) "Ja" else "Nei"} " +
                     "| "
             }
     } ?: ""
