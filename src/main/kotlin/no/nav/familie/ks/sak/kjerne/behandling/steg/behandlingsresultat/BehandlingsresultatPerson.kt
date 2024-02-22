@@ -15,6 +15,7 @@ data class BehandlingsresultatPerson(
     val eksplisittAvslag: Boolean = false,
     val forrigeAndeler: List<BehandlingsresultatAndelTilkjentYtelse> = emptyList(),
     val andeler: List<BehandlingsresultatAndelTilkjentYtelse>,
+    val erDetFramtidigOpphørPåBarnehagevilkåret: Boolean,
 ) {
     /**
      * Utleder krav for personer framstilt nå og/eller tidligere.
@@ -28,6 +29,7 @@ data class BehandlingsresultatPerson(
             aktør = aktør,
             ytelseType = YtelseType.ORDINÆR_KONTANTSTØTTE,
             kravOpprinnelse = utledKravOpprinnelser(),
+            erDetFramtidigOpphørPåBarnehagevilkåret = erDetFramtidigOpphørPåBarnehagevilkåret,
         )
     }
 

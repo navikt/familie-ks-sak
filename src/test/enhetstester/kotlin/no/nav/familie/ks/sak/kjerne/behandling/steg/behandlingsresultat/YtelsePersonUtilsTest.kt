@@ -76,11 +76,13 @@ internal class YtelsePersonUtilsTest {
     private fun lagYtelsePerson(
         resultater: Set<YtelsePersonResultat>,
         ytelseSlutt: YearMonth? = YearMonth.now().plusMonths(3),
+        erDetFramtidigOpphørPåBarnehagevilkåret: Boolean = false,
     ) = YtelsePerson(
         aktør = randomAktør(),
         ytelseType = YtelseType.ORDINÆR_KONTANTSTØTTE,
         kravOpprinnelse = listOf(KravOpprinnelse.INNEVÆRENDE),
         resultater = resultater,
         ytelseSlutt = ytelseSlutt,
+        erDetFramtidigOpphørPåBarnehagevilkåret = erDetFramtidigOpphørPåBarnehagevilkåret,
     )
 }
