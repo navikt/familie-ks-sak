@@ -128,11 +128,20 @@ class BehandlingsresultatService(
     private fun erDetFramtidigOpphørPåBarnehagevilkåret(personresultat: PersonResultat): Boolean {
         val oppfylteVilkårsresultater = personresultat.vilkårResultater.filter { it.resultat == Resultat.OPPFYLT }
         val vilkårResultaterForBarnehagevilkår =
-            oppfylteVilkårsresultater.filter { it.vilkårType == Vilkår.BARNEHAGEPLASS && it.søkerHarMeldtFraOmBarnehageplass == true }
+            oppfylteVilkårsresultater.filter { it.vilkårType == Vilkår.BARNEHAGEPLASS }
         val vilkårResultaterForBarnetsAlder = oppfylteVilkårsresultater.filter { it.vilkårType == Vilkår.BARNETS_ALDER }
 
-        return vilkårResultaterForBarnehagevilkår.maxOf { it.periodeTom ?: TIDENES_ENDE } <
-            vilkårResultaterForBarnetsAlder.maxOf { it.periodeTom ?: TIDENES_ENDE }
+        val tidBarnehagevilkåretAvsluttesPgaBarnehageplass =
+            vilkårResultaterForBarnehagevilkår.filter { it.søkerHarMeldtFraOmBarnehageplass == true }
+                .maxOfOrNull { it.periodeTom ?: TIDENES_ENDE }
+
+        val tidAlderVilkåretAvsluttes = vilkårResultaterForBarnetsAlder.maxOf { it.periodeTom ?: TIDENES_ENDE }
+
+        return if (tidBarnehagevilkåretAvsluttesPgaBarnehageplass == null) {
+            false
+        } else {
+            tidBarnehagevilkåretAvsluttesPgaBarnehageplass < tidAlderVilkåretAvsluttes
+        }
     }
 
     private fun hentBarna(behandling: Behandling): List<Aktør> {
