@@ -39,26 +39,6 @@ internal class YtelsePersonUtilsTest {
     }
 
     @Test
-    fun `validerYtelsePersoner skal kaste feil når ytelse slutter etter inneværende måned ved OPPHØR`() {
-        val exception =
-            assertThrows<Feil> {
-                YtelsePersonUtils.validerYtelsePersoner(
-                    listOf(
-                        lagYtelsePerson(setOf(YtelsePersonResultat.INNVILGET)),
-                        lagYtelsePerson(
-                            resultater = setOf(YtelsePersonResultat.OPPHØRT),
-                            ytelseSlutt = YearMonth.now().plusMonths(4),
-                        ),
-                    ),
-                )
-            }
-        assertEquals(
-            "Minst én ytelseperson har fått opphør som resultat og ytelseSlutt etter inneværende måned",
-            exception.message,
-        )
-    }
-
-    @Test
     fun `validerYtelsePersoner skal ikke kaste feil ved INNVILGET og OPPHØRT`() {
         assertDoesNotThrow {
             YtelsePersonUtils.validerYtelsePersoner(
@@ -76,11 +56,13 @@ internal class YtelsePersonUtilsTest {
     private fun lagYtelsePerson(
         resultater: Set<YtelsePersonResultat>,
         ytelseSlutt: YearMonth? = YearMonth.now().plusMonths(3),
+        erDetFramtidigOpphørPåBarnehagevilkåret: Boolean = false,
     ) = YtelsePerson(
         aktør = randomAktør(),
         ytelseType = YtelseType.ORDINÆR_KONTANTSTØTTE,
         kravOpprinnelse = listOf(KravOpprinnelse.INNEVÆRENDE),
         resultater = resultater,
         ytelseSlutt = ytelseSlutt,
+        erDetFramtidigOpphørPåBarnehagevilkåret = erDetFramtidigOpphørPåBarnehagevilkåret,
     )
 }

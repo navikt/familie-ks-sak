@@ -83,6 +83,9 @@ object YtelsePersonUtils {
                     (perioderFjernet + perioderLagtTil).isNotEmpty() -> resultater.add(OPPHØRT)
                 }
             }
+            if (behandlingsresultatPerson.erDetFramtidigOpphørPåBarnehagevilkåret) {
+                resultater.add(OPPHØRT)
+            }
 
             // 3. sjekk innvilget
             if (finnesInnvilget(behandlingsresultatPerson, perioderLagtTil)) resultater.add(INNVILGET)
@@ -92,6 +95,7 @@ object YtelsePersonUtils {
                     andeler.isNotEmpty() ->
                         andeler.maxByOrNull { it.stønadTom }?.stønadTom
                             ?: throw Feil("Finnes andel uten tom")
+
                     else -> TIDENES_MORGEN.toYearMonth()
                 }
 
@@ -113,6 +117,7 @@ object YtelsePersonUtils {
                     ytelseType = YtelseType.ORDINÆR_KONTANTSTØTTE,
                     ytelseSlutt = TIDENES_MORGEN.toYearMonth(),
                     kravOpprinnelse = listOf(KravOpprinnelse.INNEVÆRENDE),
+                    erDetFramtidigOpphørPåBarnehagevilkåret = false,
                 )
             }
     }
@@ -125,13 +130,6 @@ object YtelsePersonUtils {
         if (ytelsePersoner.any { it.ytelseSlutt == null }) {
             throw Feil(message = "YtelseSlutt er ikke satt ved utledning av behandlingsresultat")
         }
-
-        if (ytelsePersoner.any {
-                it.resultater.contains(OPPHØRT) && it.ytelseSlutt?.isAfter(inneværendeMåned()) == true
-            }
-        ) {
-            throw Feil(message = "Minst én ytelseperson har fått opphør som resultat og ytelseSlutt etter inneværende måned")
-        }
     }
 
     fun oppdaterYtelsePersonResultaterVedOpphør(ytelsePersoner: List<YtelsePerson>): Set<YtelsePersonResultat> {
@@ -143,7 +141,10 @@ object YtelsePersonUtils {
         val erAvslått = resultater.all { it == AVSLÅTT }
 
         val altOpphører =
-            ytelsePersoner.all { it.ytelseSlutt != null && it.ytelseSlutt.erSammeEllerTidligere(inneværendeMåned()) }
+            ytelsePersoner.all {
+                it.ytelseSlutt != null &&
+                    (it.ytelseSlutt.erSammeEllerTidligere(inneværendeMåned()) || it.erDetFramtidigOpphørPåBarnehagevilkåret)
+            }
         val noeOpphørerPåTidligereBarn =
             ytelsePersoner.any {
                 it.resultater.contains(OPPHØRT) && !it.kravOpprinnelse.contains(KravOpprinnelse.INNEVÆRENDE)
@@ -169,7 +170,8 @@ object YtelsePersonUtils {
         return resultater
     }
 
-    private fun erYtelsenOpphørt(andeler: List<BehandlingsresultatAndelTilkjentYtelse>) = andeler.none { it.erLøpende(YearMonth.now()) }
+    private fun erYtelsenOpphørt(andeler: List<BehandlingsresultatAndelTilkjentYtelse>) =
+        andeler.none { it.erLøpende(YearMonth.now()) }
 
     private fun List<BehandlingsresultatAndelTilkjentYtelse>.tilTidslinje(): Tidslinje<BehandlingsresultatAndelTilkjentYtelse> =
         this.map {
@@ -257,6 +259,7 @@ object YtelsePersonUtils {
                     else -> IKKE_VURDERT
                 }
             }
+
             forrigeAndeler.isNotEmpty() -> {
                 val erAndelMedEndretBeløp =
                     andelerMedEndretBeløp(
@@ -285,10 +288,12 @@ object YtelsePersonUtils {
                         erLagtTilPerioderMedEndringIUtbetaling ||
                         erFjernetPerioderMedEndringIUtbetaling ||
                         opphørsdatoErSattSenere -> ENDRET_UTBETALING
+
                     erPerioderLagtTil || erPerioderFjernet -> ENDRET_UTEN_UTBETALING
                     else -> IKKE_VURDERT
                 }
             }
+
             else -> IKKE_VURDERT
         }
     }

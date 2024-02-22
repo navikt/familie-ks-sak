@@ -5,6 +5,7 @@ import no.nav.familie.ks.sak.common.util.sisteDagIInneværendeMåned
 import no.nav.familie.ks.sak.common.util.tilMånedÅr
 import no.nav.familie.ks.sak.common.util.tilddMMyyyy
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
+import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.VedtaksperiodeMedBegrunnelser
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.PersonResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Regelverk
@@ -75,6 +76,8 @@ Egenskap: Plassholdertekst for egenskap - ${RandomStringUtils.randomAlphanumeric
             hentTekstForValutakurs(valutakurser, behandling.id) +
 
             hentTekstForTilkjentYtelse(andeler, persongrunnlag, forrigeBehandling?.id, behandling.id) +
+            hentTekstForBehandlingsresultat(behandling.id, behandling.resultat) +
+
             hentTekstForVedtaksperioder(behandling.id, vedtaksperioder) +
 
             hentTekstForGyligeBegrunnelserForVedtaksperiodene(vedtaksperioder, behandling.id) +
@@ -120,13 +123,13 @@ fun hentTekstForBehandlinger(
     """
 
     Og følgende behandlinger
-      | BehandlingId | FagsakId | ForrigeBehandlingId | Behandlingsresultat | Behandlingsårsak  | Behandlingskategori | Behandlingsstatus | ${
+      | BehandlingId | FagsakId | ForrigeBehandlingId | Behandlingsårsak  | Behandlingskategori | Behandlingsstatus | ${
         forrigeBehandling?.let {
             """ 
-      | ${it.id} | 1 |           | ${it.resultat} | ${it.opprettetÅrsak}  | ${it.kategori} | ${it.status} |"""
+      | ${it.id} | 1 |           | ${it.opprettetÅrsak}  | ${it.kategori} | ${it.status} |"""
         } ?: ""
     }
-      | ${behandling.id} | 1 | ${forrigeBehandling?.id ?: ""} |${behandling.resultat} | ${behandling.opprettetÅrsak}  | ${behandling.kategori} | ${behandling.status} |"""
+      | ${behandling.id} | 1 | ${forrigeBehandling?.id ?: ""} | ${behandling.opprettetÅrsak}  | ${behandling.kategori} | ${behandling.status} |"""
 
 fun hentTekstForPersongrunnlag(
     persongrunnlag: PersonopplysningGrunnlag,
@@ -156,7 +159,7 @@ fun hentTekstForVilkårresultater(
     return """
         
     Og følgende vilkårresultater for behandling $behandlingId
-      | AktørId | Vilkår | Utdypende vilkår | Fra dato | Til dato | Resultat | Er eksplisitt avslag | Standardbegrunnelser | Vurderes etter |""" +
+      | AktørId | Vilkår | Utdypende vilkår | Fra dato | Til dato | Resultat | Er eksplisitt avslag | Standardbegrunnelser | Vurderes etter | Søker har meldt fra om barnehageplass |""" +
         tilVilkårResultatRader(personResultater)
 }
 
@@ -172,6 +175,7 @@ data class VilkårResultatRad(
     val erEksplisittAvslagPåSøknad: Boolean?,
     val standardbegrunnelser: List<IBegrunnelse>,
     val vurderesEtter: Regelverk?,
+    val søkerHarMeldtFraOmBarnehageplass: Boolean?,
 )
 
 private fun tilVilkårResultatRader(personResultater: List<PersonResultat>?) =
@@ -188,6 +192,7 @@ private fun tilVilkårResultatRader(personResultater: List<PersonResultat>?) =
                     it.erEksplisittAvslagPåSøknad,
                     it.begrunnelser,
                     it.vurderesEtter,
+                    it.søkerHarMeldtFraOmBarnehageplass,
                 )
             }.toList().joinToString("") { (vilkårResultatRad, vilkårResultater) ->
                 "\n | ${vilkårResultatRad.aktørId} " +
@@ -199,6 +204,7 @@ private fun tilVilkårResultatRader(personResultater: List<PersonResultat>?) =
                     "| ${if (vilkårResultatRad.erEksplisittAvslagPåSøknad == true) "Ja" else "Nei"} " +
                     "| ${vilkårResultatRad.standardbegrunnelser.joinToString(",")}" +
                     "| ${vilkårResultatRad.vurderesEtter ?: ""} " +
+                    "| ${if (vilkårResultatRad.søkerHarMeldtFraOmBarnehageplass == true) "Ja" else "Nei"} " +
                     "| "
             }
     } ?: ""
@@ -216,6 +222,15 @@ fun hentTekstForTilkjentYtelse(
     Så forvent følgende andeler tilkjent ytelse for behandling $behandlingId
       | AktørId | Fra dato | Til dato | Beløp | Ytelse type | Prosent | Sats | Nasjonalt periodebeløp | Differanseberegnet beløp | """ +
         hentAndelRader(andeler, persongrunnlag)
+
+fun hentTekstForBehandlingsresultat(
+    behandlingId: Long,
+    behandlingsresultat: Behandlingsresultat,
+) =
+    """
+    Og når behandlingsresultatet er utledet for behandling $behandlingId
+    Så forvent at behandlingsresultatet er $behandlingsresultat på behandling $behandlingId
+    """
 
 private fun hentAndelRader(
     andeler: List<AndelTilkjentYtelse>?,

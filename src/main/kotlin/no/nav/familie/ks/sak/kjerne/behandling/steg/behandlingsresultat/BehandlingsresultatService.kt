@@ -3,12 +3,16 @@ package no.nav.familie.ks.sak.kjerne.behandling.steg.behandlingsresultat
 import no.nav.familie.kontrakter.felles.objectMapper
 import no.nav.familie.ks.sak.api.mapper.SøknadGrunnlagMapper.tilSøknadDto
 import no.nav.familie.ks.sak.common.exception.Feil
+import no.nav.familie.ks.sak.common.util.TIDENES_ENDE
 import no.nav.familie.ks.sak.common.util.convertDataClassToJson
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.registrersøknad.SøknadGrunnlagService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.PersonResultat
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.beregning.AndelTilkjentYtelseMedEndreteUtbetalinger
 import no.nav.familie.ks.sak.kjerne.beregning.AndelerTilkjentYtelseOgEndreteUtbetalingerService
@@ -97,9 +101,9 @@ class BehandlingsresultatService(
         vilkårsvurdering: Vilkårsvurdering,
     ) = personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(behandling.id)
         .personer.filter { it.type == PersonType.BARN }.map {
-            val harEksplisittAvslagIVilkårsvurderingen =
+            val personresultat =
                 vilkårsvurdering.personResultater.find { personResultat -> personResultat.aktør == it.aktør }
-                    ?.harEksplisittAvslag() ?: false
+            val harEksplisittAvslagIVilkårsvurderingen = personresultat?.harEksplisittAvslag() ?: false
 
             val harEksplisittAvslagIEndreteUtbetalinger =
                 andelerTilkjentYtelseOgEndreteUtbetalingerService.finnEndreteUtbetalingerMedAndelerTilkjentYtelse(
@@ -108,14 +112,37 @@ class BehandlingsresultatService(
                     endretUtbetalingAndel.erEksplisittAvslagPåSøknad == true && endretUtbetalingAndel.person?.aktør == it.aktør
                 }
 
+            val erDetFramtidigOpphørPåBarnehagevilkåret =
+                personresultat?.let { erDetFramtidigOpphørPåBarnehagevilkåret(personresultat) } ?: false
+
             BehandlingsresultatUtils.utledBehandlingsresultatDataForPerson(
                 person = it,
                 personerFremstiltKravFor = personerFremslitKravFor,
                 andelerMedEndringer = andelerMedEndringer,
                 forrigeAndelerMedEndringer = forrigeAndelerMedEndringer,
                 erEksplisittAvslag = harEksplisittAvslagIVilkårsvurderingen || harEksplisittAvslagIEndreteUtbetalinger,
+                erDetFramtidigOpphørPåBarnehagevilkåret = erDetFramtidigOpphørPåBarnehagevilkåret,
             )
         }
+
+    private fun erDetFramtidigOpphørPåBarnehagevilkåret(personresultat: PersonResultat): Boolean {
+        val oppfylteVilkårsresultater = personresultat.vilkårResultater.filter { it.resultat == Resultat.OPPFYLT }
+        val vilkårResultaterForBarnehagevilkår =
+            oppfylteVilkårsresultater.filter { it.vilkårType == Vilkår.BARNEHAGEPLASS }
+        val vilkårResultaterForBarnetsAlder = oppfylteVilkårsresultater.filter { it.vilkårType == Vilkår.BARNETS_ALDER }
+
+        val tidBarnehagevilkåretAvsluttesPgaBarnehageplass =
+            vilkårResultaterForBarnehagevilkår.filter { it.søkerHarMeldtFraOmBarnehageplass == true }
+                .maxOfOrNull { it.periodeTom ?: TIDENES_ENDE }
+
+        val tidAlderVilkåretAvsluttes = vilkårResultaterForBarnetsAlder.maxOf { it.periodeTom ?: TIDENES_ENDE }
+
+        return if (tidBarnehagevilkåretAvsluttesPgaBarnehageplass == null) {
+            false
+        } else {
+            tidBarnehagevilkåretAvsluttesPgaBarnehageplass < tidAlderVilkåretAvsluttes
+        }
+    }
 
     private fun hentBarna(behandling: Behandling): List<Aktør> {
         // Søknad kan ha flere barn som er inkludert i søknaden og folkeregistert, men ikke i behandling

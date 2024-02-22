@@ -9,8 +9,8 @@ Egenskap: Vedtaksperioder
       | 1        |
 
     Og følgende behandlinger
-      | BehandlingId | FagsakId | ForrigeBehandlingId | Behandlingsresultat  | Behandlingsårsak | Behandlingskategori |
-      | 1            | 2        |                     | INNVILGET_OG_OPPHØRT | SØKNAD           | EØS                 |
+      | BehandlingId | FagsakId | ForrigeBehandlingId | Behandlingsårsak | Behandlingskategori |
+      | 1            | 2        |                     | SØKNAD           | EØS                 |
 
     Og følgende persongrunnlag
       | BehandlingId | AktørId | Persontype | Fødselsdato |
@@ -38,6 +38,8 @@ Egenskap: Vedtaksperioder
     Og følgende kompetanser for behandling 1
       | AktørId | Fra dato   | Til dato | Resultat            | BehandlingId | Søkers aktivitet | Annen forelders aktivitet | Søkers aktivitetsland | Annen forelders aktivitetsland | Barnets bostedsland |
       | 2       | 01.03.2023 |          | NORGE_ER_PRIMÆRLAND | 1            | ARBEIDER         | I_ARBEID                  | NO                    | NO                             | NO                  |
+
+    Og når behandlingsresultatet er utledet for behandling 1
 
     Og vedtaksperioder er laget for behandling 1
 

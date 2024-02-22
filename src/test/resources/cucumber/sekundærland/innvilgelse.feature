@@ -9,8 +9,8 @@ Egenskap: Sekundærland - innvilgelse
       | 1        |
 
     Og følgende behandlinger
-      | BehandlingId | FagsakId | ForrigeBehandlingId | Behandlingsresultat | Behandlingsårsak | Behandlingskategori |
-      | 1            | 1        |                     | INNVILGET           | SØKNAD           | EØS                 |
+      | BehandlingId | FagsakId | ForrigeBehandlingId | Behandlingsårsak | Behandlingskategori |
+      | 1            | 1        |                     | SØKNAD           | EØS                 |
 
     Og følgende persongrunnlag
       | BehandlingId | AktørId | Persontype | Fødselsdato |
@@ -43,6 +43,8 @@ Egenskap: Sekundærland - innvilgelse
       | 2       | 01.10.2023 | 30.11.2023 | 2023-10-24     | PLN         | 2.6496751064 |
 
     Og andeler er beregnet for behandling 1
+
+    Og når behandlingsresultatet er utledet for behandling 1
 
     Og vedtaksperioder er laget for behandling 1
 
