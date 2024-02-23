@@ -56,11 +56,13 @@ class BisysService(
         val utbetalingsinfoFraInfotrygd =
             respons.data.filter { stonad ->
                 fom.erSammeEllerFør(stonad.tom?.toLocalDate() ?: LocalDate.MAX) // manglende tom dato i infotrygd er løpende stønad
+            }.filter {
+                it.belop != null
             }.map { stonad ->
                 InfotrygdPeriode(
                     fomMåned = checkNotNull(stonad.fom) { "fom kan ikke være null" },
                     tomMåned = stonad.tom,
-                    beløp = checkNotNull(stonad.belop) { "beløp kan ikke være null" },
+                    beløp = stonad.belop!!,
                     barna = stonad.barn.map { it.fnr.asString },
                 )
             }
