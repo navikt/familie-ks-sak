@@ -610,12 +610,11 @@ class StepDefinition {
 }
 
 private object SanityBegrunnelseMock {
-    // For å laste ned begrunnelsene kjør kommandoene under eller se https://familie-brev.sanity.studio/ks-brev/vision med query fra SanityQueries.kt .
-    // curl -XGET https://xsrv1mh6.api.sanity.io/v2022-03-07/data/query/ks-brev?query=*%5B_type%3D%3D%22ksBegrunnelse%22%5D | jq '.result' -c | pbcopy
-    // for å få alle begrunnelsene i clipboardet
+    // For å laste ned begrunnelsene kjør scriptet "src/test/resources/oppdater-sanity-mock.sh" eller
+    // se https://familie-brev.sanity.studio/ks-brev/vision med query fra SanityQueries.kt.
     fun hentSanityBegrunnelserMock(): List<SanityBegrunnelse> {
         val restSanityBegrunnelserJson =
-            this::class.java.getResource("/cucumber/restSanityBegrunnelser.json")!!
+            this::class.java.getResource("/cucumber/restSanityBegrunnelser")!!
 
         val restSanityBegrunnelser =
             objectMapper.readValue(restSanityBegrunnelserJson, Array<SanityBegrunnelseDto>::class.java)
