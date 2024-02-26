@@ -162,16 +162,12 @@ class FagsakServiceIntegrasjonTest : OppslagSpringRunnerTest() {
         aktør: Aktør,
     ): Behandling {
         val tilkjentYtelse = tilkjentYtelse(behandling = behandling, erIverksatt = erIverksatt)
-        tilkjentYtelseRepository.save(tilkjentYtelse)
-        offsetPåAndeler.forEach {
-            andelTilkjentYtelseRepository.save(
-                andelPåTilkjentYtelse(
-                    tilkjentYtelse = tilkjentYtelse,
-                    periodeOffset = it,
-                    aktør = aktør,
-                ),
-            )
-        }
+        val andelerTilkjentYtelse =
+            offsetPåAndeler.map {
+                andelPåTilkjentYtelse(tilkjentYtelse = tilkjentYtelse, periodeOffset = it, aktør = aktør)
+            }
+        tilkjentYtelse.andelerTilkjentYtelse.addAll(andelerTilkjentYtelse)
+        tilkjentYtelseRepository.saveAndFlush(tilkjentYtelse)
         return behandling
     }
 
