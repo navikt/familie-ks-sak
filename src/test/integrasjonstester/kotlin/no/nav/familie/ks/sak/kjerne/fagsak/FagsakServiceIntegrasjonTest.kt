@@ -100,7 +100,6 @@ class FagsakServiceIntegrasjonTest : OppslagSpringRunnerTest() {
     }
 
     @Test
-    @Disabled
     fun `skal sette status til avsluttet hvis ingen løpende utbetalinger`() {
         val søker = randomAktør(randomFnr())
 
@@ -205,13 +204,13 @@ class FagsakServiceIntegrasjonTest : OppslagSpringRunnerTest() {
         kalkulertUtbetalingsbeløp = 1054,
         nasjonaltPeriodebeløp = 1054,
         stønadFom =
-            LocalDate.now()
-                .minusMonths(12)
-                .toYearMonth(),
+        LocalDate.now()
+            .minusMonths(12)
+            .toYearMonth(),
         stønadTom =
-            LocalDate.now()
-                .plusMonths(12)
-                .toYearMonth(),
+        LocalDate.now()
+            .plusMonths(12)
+            .toYearMonth(),
         type = YtelseType.ORDINÆR_KONTANTSTØTTE,
         periodeOffset = periodeOffset,
         forrigePeriodeOffset = null,
