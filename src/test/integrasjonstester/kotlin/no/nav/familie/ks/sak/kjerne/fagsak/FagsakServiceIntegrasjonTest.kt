@@ -25,7 +25,6 @@ import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import java.math.BigDecimal
@@ -204,13 +203,13 @@ class FagsakServiceIntegrasjonTest : OppslagSpringRunnerTest() {
         kalkulertUtbetalingsbeløp = 1054,
         nasjonaltPeriodebeløp = 1054,
         stønadFom =
-        LocalDate.now()
-            .minusMonths(12)
-            .toYearMonth(),
+            LocalDate.now()
+                .minusMonths(12)
+                .toYearMonth(),
         stønadTom =
-        LocalDate.now()
-            .plusMonths(12)
-            .toYearMonth(),
+            LocalDate.now()
+                .plusMonths(12)
+                .toYearMonth(),
         type = YtelseType.ORDINÆR_KONTANTSTØTTE,
         periodeOffset = periodeOffset,
         forrigePeriodeOffset = null,
