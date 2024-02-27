@@ -176,7 +176,7 @@ interface BarnehagebarnRepository : JpaRepository<Barnehagebarn, UUID> { // , Jp
             SELECT bb.ident as ident, bb.fom as fom, bb.tom as tom, bb.antall_timer_i_barnehage as antallTimerIBarnehage, 
             bb.endringstype as endringstype, bb.kommune_navn as kommuneNavn, bb.kommune_nr as kommuneNr, MAX(bb.endret_tid) as endretTid
             FROM barnehagebarn bb
-            WHERE bb.kommune_navn = :ident
+            WHERE bb.ident = :ident
             GROUP BY bb.ident, bb.fom, bb.tom, bb.antall_timer_i_barnehage, bb.endringstype, bb.kommune_navn, bb.kommune_nr""",
         nativeQuery = true,
     )
