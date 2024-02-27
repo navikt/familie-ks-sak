@@ -25,7 +25,6 @@ import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import java.math.BigDecimal
@@ -100,7 +99,6 @@ class FagsakServiceIntegrasjonTest : OppslagSpringRunnerTest() {
     }
 
     @Test
-    @Disabled
     fun `skal sette status til avsluttet hvis ingen løpende utbetalinger`() {
         val søker = randomAktør(randomFnr())
 
@@ -164,16 +162,12 @@ class FagsakServiceIntegrasjonTest : OppslagSpringRunnerTest() {
         aktør: Aktør,
     ): Behandling {
         val tilkjentYtelse = tilkjentYtelse(behandling = behandling, erIverksatt = erIverksatt)
-        tilkjentYtelseRepository.save(tilkjentYtelse)
-        offsetPåAndeler.forEach {
-            andelTilkjentYtelseRepository.save(
-                andelPåTilkjentYtelse(
-                    tilkjentYtelse = tilkjentYtelse,
-                    periodeOffset = it,
-                    aktør = aktør,
-                ),
-            )
-        }
+        val andelerTilkjentYtelse =
+            offsetPåAndeler.map {
+                andelPåTilkjentYtelse(tilkjentYtelse = tilkjentYtelse, periodeOffset = it, aktør = aktør)
+            }
+        tilkjentYtelse.andelerTilkjentYtelse.addAll(andelerTilkjentYtelse)
+        tilkjentYtelseRepository.saveAndFlush(tilkjentYtelse)
         return behandling
     }
 
