@@ -3,17 +3,13 @@ package no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode
 import no.nav.familie.ks.sak.api.dto.BarnMedOpplysningerDto
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
-import no.nav.familie.ks.sak.common.tidslinje.outerJoin
 import no.nav.familie.ks.sak.common.tidslinje.tilTidslinje
-import no.nav.familie.ks.sak.common.tidslinje.utvidelser.filtrerIkkeNull
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.tilPerioderIkkeNull
-import no.nav.familie.ks.sak.common.tidslinje.utvidelser.tilSeparateTidslinjerForBarna
 import no.nav.familie.ks.sak.common.util.NullablePeriode
 import no.nav.familie.ks.sak.common.util.TIDENES_ENDE
 import no.nav.familie.ks.sak.common.util.TIDENES_MORGEN
 import no.nav.familie.ks.sak.common.util.erSammeEllerEtter
 import no.nav.familie.ks.sak.common.util.erSenereEnnInneværendeMåned
-import no.nav.familie.ks.sak.common.util.førsteDagIInneværendeMåned
 import no.nav.familie.ks.sak.common.util.sisteDagIMåned
 import no.nav.familie.ks.sak.common.util.storForbokstav
 import no.nav.familie.ks.sak.common.util.tilMånedÅr
@@ -51,7 +47,6 @@ import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.IBegrunnelse
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.NasjonalEllerFellesBegrunnelse
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.tilVedtaksbegrunnelse
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.KompetanseService
-import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.Kompetanse
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Målform
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
@@ -468,9 +463,7 @@ class VedtaksperiodeService(
             andelerTilkjentYtelseOgEndreteUtbetalingerService
                 .finnAndelerTilkjentYtelseMedEndreteUtbetalinger(behandling.id)
 
-        val vilkårsvurdering =
-            vilkårsvurderingRepository.finnAktivForBehandling(behandling.id)
-                ?: throw Feil("Fant ikke vilkårsvurdering på behandling $behandling")
+        val vilkårsvurdering = vilkårsvurderingRepository.finnAktivForBehandling(behandling.id) ?: throw Feil("Fant ikke vilkårsvurdering på behandling $behandling")
 
         return mapTilOpphørsperioder(
             forrigePersonopplysningGrunnlag = forrigePersonopplysningGrunnlag,
@@ -506,7 +499,7 @@ class VedtaksperiodeService(
         val kompetansePerioderForrigeBehandling = kompetanseService.hentKompetanser(sisteVedtattBehandling.behandlingId)
 
         val førsteEndringstidspunktIKompetansePerioder =
-            kompetansePerioder.finnFørsteEndringstidspunkt(kompetansePerioderForrigeBehandling)
+            kompetansePerioder.hentFørsteEndringstidspunkt(kompetansePerioderForrigeBehandling)
 
         return minOf(førsteEndringstidspunktFraAndelTilkjentYtelse, førsteEndringstidspunktIKompetansePerioder)
     }
@@ -676,23 +669,5 @@ class VedtaksperiodeService(
                 it
             }
         }.toList()
-    }
-
-    private fun Iterable<Kompetanse>.finnFørsteEndringstidspunkt(kompetansePerioderForrigeBehandling: Iterable<Kompetanse>): LocalDate {
-        val separateTidslinjerForBarna = this.tilSeparateTidslinjerForBarna()
-        val separateTidslinjerForBarnaForrigeBehandling = kompetansePerioderForrigeBehandling.tilSeparateTidslinjerForBarna()
-
-        return separateTidslinjerForBarna.outerJoin(separateTidslinjerForBarnaForrigeBehandling) { nyKompetanse, forrigeKompetanse ->
-            when {
-                nyKompetanse == forrigeKompetanse -> null
-                nyKompetanse == null -> forrigeKompetanse
-                forrigeKompetanse == null -> nyKompetanse
-                nyKompetanse != forrigeKompetanse -> nyKompetanse
-                else -> null
-            }
-        }.values
-            .map { it.filtrerIkkeNull().startsTidspunkt }
-            .filterNot { it == TIDENES_ENDE }
-            .minOfOrNull { it }?.førsteDagIInneværendeMåned() ?: TIDENES_ENDE
     }
 }
