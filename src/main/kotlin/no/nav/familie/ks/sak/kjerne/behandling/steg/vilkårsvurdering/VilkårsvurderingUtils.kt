@@ -320,13 +320,18 @@ private fun VilkårResultat.validerVilkårBarnetsAlder(
 
 fun genererInitiellVilkårsvurdering(
     behandling: Behandling,
+    forrigeVilkårsvurdering: Vilkårsvurdering?,
     personopplysningGrunnlag: PersonopplysningGrunnlag,
 ): Vilkårsvurdering {
     return Vilkårsvurdering(behandling = behandling).apply {
         personResultater =
             personopplysningGrunnlag.personer.map { person ->
                 val personResultat = PersonResultat(vilkårsvurdering = this, aktør = person.aktør)
-                val skalHenteEøsSpesifikkeVilkår = behandling.kategori == BehandlingKategori.EØS
+
+                val forrigeBehandlingHaddeEøsSpesifikkeVilkår = forrigeVilkårsvurdering?.personResultater?.flatMap { it.vilkårResultater }?.any { it.vilkårType.eøsSpesifikt } ?: false
+                val behandlingKategoriErEøs = behandling.kategori == BehandlingKategori.EØS
+
+                val skalHenteEøsSpesifikkeVilkår = behandlingKategoriErEøs || forrigeBehandlingHaddeEøsSpesifikkeVilkår
 
                 val vilkårForPerson = Vilkår.hentVilkårFor(person.type, skalHenteEøsSpesifikkeVilkår)
 
