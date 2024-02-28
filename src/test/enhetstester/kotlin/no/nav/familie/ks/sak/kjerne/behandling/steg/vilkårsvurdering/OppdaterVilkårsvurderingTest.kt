@@ -321,7 +321,7 @@ class OppdaterVilkårsvurderingTest {
                 søkerPersonIdent = søkerFnr,
             )
 
-        val forrigeVilkårsvurdering = lagVilkårsvurderingOppfylt(personer = listOf(persongrunnlag.søker), eøsSpesifikkeVilkår = true)
+        val forrigeVilkårsvurdering = lagVilkårsvurderingOppfylt(personer = listOf(persongrunnlag.søker), skalOppretteEøsSpesifikkeVilkår = true)
 
         val initiellVilkårsvurdering =
             genererInitiellVilkårsvurdering(

@@ -853,7 +853,7 @@ fun lagVilkårsvurderingOppfylt(
     personer: Collection<Person>,
     behandling: Behandling = lagBehandling(),
     erEksplisittAvslagPåSøknad: Boolean = false,
-    eøsSpesifikkeVilkår: Boolean = false,
+    skalOppretteEøsSpesifikkeVilkår: Boolean = false,
 ): Vilkårsvurdering {
     val vilkårsvurdering =
         Vilkårsvurdering(
@@ -869,7 +869,7 @@ fun lagVilkårsvurderingOppfylt(
                 )
 
             personResultat.setSortedVilkårResultater(
-                Vilkår.hentVilkårFor(person.type, eøsSpesifikkeVilkår).map {
+                Vilkår.hentVilkårFor(person.type, skalOppretteEøsSpesifikkeVilkår).map {
                     VilkårResultat(
                         personResultat = personResultat,
                         periodeFom =
