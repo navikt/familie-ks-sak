@@ -34,7 +34,7 @@ class OppdaterVilkårsvurderingTest {
         val vilkårsvurderingForrigeBehandling =
             lagVilkårsvurderingOppfylt(personer = listOf(persongrunnlag.søker, persongrunnlag.barna.single()))
         val initiellVilkårsvurdering =
-            genererInitiellVilkårsvurdering(behandling = mockk(relaxed = true), personopplysningGrunnlag = persongrunnlag)
+            genererInitiellVilkårsvurdering(behandling = mockk(relaxed = true), forrigeVilkårsvurdering = null, personopplysningGrunnlag = persongrunnlag)
 
         initiellVilkårsvurdering.kopierOverOppfylteOgIkkeAktuelleResultaterFraForrigeBehandling(
             vilkårsvurderingForrigeBehandling = vilkårsvurderingForrigeBehandling,
@@ -80,7 +80,7 @@ class OppdaterVilkårsvurderingTest {
                 barnasIdenter = listOf(barnPersonIdent),
             )
         val initiellVilkårsvurdering =
-            genererInitiellVilkårsvurdering(behandling = mockk(relaxed = true), personopplysningGrunnlag = persongrunnlag2)
+            genererInitiellVilkårsvurdering(behandling = mockk(relaxed = true), forrigeVilkårsvurdering = null, personopplysningGrunnlag = persongrunnlag2)
 
         initiellVilkårsvurdering.kopierOverOppfylteOgIkkeAktuelleResultaterFraForrigeBehandling(
             vilkårsvurderingForrigeBehandling = vilkårsvurderingForrigeBehandling,
@@ -102,7 +102,7 @@ class OppdaterVilkårsvurderingTest {
         }
 
         val initiellVilkårsvurderingUendret =
-            genererInitiellVilkårsvurdering(behandling = mockk(relaxed = true), personopplysningGrunnlag = persongrunnlag2)
+            genererInitiellVilkårsvurdering(behandling = mockk(relaxed = true), forrigeVilkårsvurdering = null, personopplysningGrunnlag = persongrunnlag2)
         val barnVilkårResultaterUendret =
             initiellVilkårsvurderingUendret.personResultater.single { it.aktør.aktivFødselsnummer() == barnPersonIdent }.vilkårResultater
 
@@ -123,6 +123,7 @@ class OppdaterVilkårsvurderingTest {
         val initiellVilkårsvurdering =
             genererInitiellVilkårsvurdering(
                 behandling = mockk(relaxed = true),
+                forrigeVilkårsvurdering = null,
                 personopplysningGrunnlag = persongrunnlagRevurdering,
             )
 
@@ -160,6 +161,7 @@ class OppdaterVilkårsvurderingTest {
         val initiellVilkårsvurdering =
             genererInitiellVilkårsvurdering(
                 behandling = nyBehandling,
+                forrigeVilkårsvurdering = null,
                 personopplysningGrunnlag = persongrunnlag,
             )
         val vilkårsvurderingForrigeBehandling = Vilkårsvurdering(behandling = forrigeBehandling)
@@ -299,6 +301,32 @@ class OppdaterVilkårsvurderingTest {
         val initiellVilkårsvurdering =
             genererInitiellVilkårsvurdering(
                 behandling = nyBehandling,
+                forrigeVilkårsvurdering = null,
+                personopplysningGrunnlag = persongrunnlag,
+            )
+
+        val finnesEøsSpesifikkeVilkårIVilkårsvurdering = initiellVilkårsvurdering.personResultater.flatMap { it.vilkårResultater }.any { it.vilkårType.eøsSpesifikt }
+
+        assertThat(finnesEøsSpesifikkeVilkårIVilkårsvurdering, Is(true))
+    }
+
+    @Test
+    fun `genererInitiellVilkårsvurdering skal generere eøs spesifikke vilkår dersom forrige behandling hadde eøs spesifikke vilkår selvom kategori nå er nasjonal`() {
+        val søkerFnr = randomFnr()
+        val nyBehandling = lagBehandling(kategori = BehandlingKategori.NASJONAL)
+
+        val persongrunnlag =
+            lagPersonopplysningGrunnlag(
+                behandlingId = nyBehandling.id,
+                søkerPersonIdent = søkerFnr,
+            )
+
+        val forrigeVilkårsvurdering = lagVilkårsvurderingOppfylt(personer = listOf(persongrunnlag.søker), eøsSpesifikkeVilkår = true)
+
+        val initiellVilkårsvurdering =
+            genererInitiellVilkårsvurdering(
+                behandling = nyBehandling,
+                forrigeVilkårsvurdering = forrigeVilkårsvurdering,
                 personopplysningGrunnlag = persongrunnlag,
             )
 
@@ -320,6 +348,7 @@ class OppdaterVilkårsvurderingTest {
         val initiellVilkårsvurdering =
             genererInitiellVilkårsvurdering(
                 behandling = nyBehandling,
+                forrigeVilkårsvurdering = null,
                 personopplysningGrunnlag = persongrunnlag,
             )
 
