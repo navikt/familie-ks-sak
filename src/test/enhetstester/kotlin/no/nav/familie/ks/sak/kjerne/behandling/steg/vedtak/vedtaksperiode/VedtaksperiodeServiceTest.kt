@@ -40,6 +40,9 @@ import no.nav.familie.ks.sak.kjerne.beregning.AndelTilkjentYtelseMedEndreteUtbet
 import no.nav.familie.ks.sak.kjerne.beregning.AndelerTilkjentYtelseOgEndreteUtbetalingerService
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.NasjonalEllerFellesBegrunnelse
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.KompetanseService
+import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.Kompetanse
+import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.KompetanseAktivitet
+import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.KompetanseResultat
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Målform
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
@@ -58,6 +61,7 @@ import org.hamcrest.CoreMatchers.`is` as Is
 
 @ExtendWith(MockKExtension::class)
 internal class VedtaksperiodeServiceTest {
+
     @MockK
     private lateinit var behandlingRepository: BehandlingRepository
 
@@ -91,7 +95,7 @@ internal class VedtaksperiodeServiceTest {
     @MockK
     private lateinit var refusjonEøsRepository: RefusjonEøsRepository
 
-    @MockK
+    @MockK(relaxed = true)
     private lateinit var kompetanseService: KompetanseService
 
     @InjectMockKs
@@ -220,9 +224,9 @@ internal class VedtaksperiodeServiceTest {
             )
 
         every { vedtaksperiodeHentOgPersisterService.hentVedtaksperioderFor(1) } returns
-            listOf(
-                gammelVedtaksperiodeMedBegrunnelse,
-            )
+                listOf(
+                    gammelVedtaksperiodeMedBegrunnelse,
+                )
         every { vedtaksperiodeHentOgPersisterService.lagre(capture(vedtaksperiodeMedBegrunnelseSlot)) } returnsArgument 0
 
         vedtaksperiodeService.kopierOverVedtaksperioder(gammelVedtak, nyttVedtak)
@@ -321,10 +325,10 @@ internal class VedtaksperiodeServiceTest {
         every {
             andelerTilkjentYtelseOgEndreteUtbetalingerService.finnAndelerTilkjentYtelseMedEndreteUtbetalinger(behandling.id)
         } returns
-            listOf(
-                AndelTilkjentYtelseMedEndreteUtbetalinger(andelTilkjentYtelse1, emptyList()),
-                AndelTilkjentYtelseMedEndreteUtbetalinger(andelTilkjentYtelse2, emptyList()),
-            )
+                listOf(
+                    AndelTilkjentYtelseMedEndreteUtbetalinger(andelTilkjentYtelse1, emptyList()),
+                    AndelTilkjentYtelseMedEndreteUtbetalinger(andelTilkjentYtelse2, emptyList()),
+                )
 
         val revurdering = lagBehandling()
         val andelTilkjentYtelseForRevurdering1 =
@@ -350,10 +354,10 @@ internal class VedtaksperiodeServiceTest {
                 revurdering.id,
             )
         } returns
-            listOf(
-                AndelTilkjentYtelseMedEndreteUtbetalinger(andelTilkjentYtelseForRevurdering1, emptyList()),
-                AndelTilkjentYtelseMedEndreteUtbetalinger(andelTilkjentYtelseForRevurdering2, emptyList()),
-            )
+                listOf(
+                    AndelTilkjentYtelseMedEndreteUtbetalinger(andelTilkjentYtelseForRevurdering1, emptyList()),
+                    AndelTilkjentYtelseMedEndreteUtbetalinger(andelTilkjentYtelseForRevurdering2, emptyList()),
+                )
 
         // endring i beløp på revurdering for periode2
         assertEquals(
@@ -363,6 +367,33 @@ internal class VedtaksperiodeServiceTest {
                 sisteVedtattBehandling = behandling,
             ),
         )
+    }
+
+    @Test
+    fun `finnEndringstidspunktForBehandling finner endringstidspunkt fra kompetanseperiode`() {
+        val kompetanseFom = YearMonth.now().minusMonths(3)
+        every { kompetanseService.hentKompetanser(behandling.behandlingId) } returns
+                listOf(
+                    Kompetanse(
+                        fom = kompetanseFom,
+                        tom = null,
+                        barnAktører = setOf(randomAktør()),
+                        søkersAktivitet = KompetanseAktivitet.I_ARBEID,
+                        annenForeldersAktivitet = KompetanseAktivitet.MOTTAR_UFØRETRYGD,
+                        annenForeldersAktivitetsland = "NO",
+                        søkersAktivitetsland = "DK",
+                        barnetsBostedsland = "DK",
+                        resultat = KompetanseResultat.NORGE_ER_SEKUNDÆRLAND,
+                        erAnnenForelderOmfattetAvNorskLovgivning = true
+                    )
+                )
+        every {
+            andelerTilkjentYtelseOgEndreteUtbetalingerService.finnAndelerTilkjentYtelseMedEndreteUtbetalinger(behandling.id)
+        } returns listOf(AndelTilkjentYtelseMedEndreteUtbetalinger(lagAndelTilkjentYtelse(), emptyList()))
+
+        val endringstidspunkt = vedtaksperiodeService.finnEndringstidspunktForBehandling(behandling, behandling)
+
+        assertEquals(kompetanseFom.førsteDagIInneværendeMåned(), endringstidspunkt)
     }
 
     @Test
@@ -513,21 +544,24 @@ internal class VedtaksperiodeServiceTest {
         )
 
         every { refusjonEøsRepository.finnRefusjonEøsForBehandling(any()) } returns
-            listOf(
-                RefusjonEøs(
-                    behandlingId = 1L,
-                    fom = LocalDate.of(2020, 1, 1),
-                    tom = LocalDate.of(2022, 1, 1),
-                    refusjonsbeløp = 200,
-                    land = "NO",
-                    refusjonAvklart = true,
-                ),
-            )
+                listOf(
+                    RefusjonEøs(
+                        behandlingId = 1L,
+                        fom = LocalDate.of(2020, 1, 1),
+                        tom = LocalDate.of(2022, 1, 1),
+                        refusjonsbeløp = 200,
+                        land = "NO",
+                        refusjonAvklart = true,
+                    ),
+                )
 
         val perioder = vedtaksperiodeService.beskrivPerioderMedRefusjonEøs(behandling = behandling, avklart = true)
 
         assertThat(perioder?.size, Is(1))
-        assertThat(perioder?.single(), Is("Fra januar 2020 til januar 2022 blir etterbetaling på 200 kroner per måned utbetalt til myndighetene i Norge."))
+        assertThat(
+            perioder?.single(),
+            Is("Fra januar 2020 til januar 2022 blir etterbetaling på 200 kroner per måned utbetalt til myndighetene i Norge.")
+        )
     }
 
     @Test
@@ -547,20 +581,23 @@ internal class VedtaksperiodeServiceTest {
         )
 
         every { refusjonEøsRepository.finnRefusjonEøsForBehandling(any()) } returns
-            listOf(
-                RefusjonEøs(
-                    behandlingId = 1L,
-                    fom = LocalDate.of(2020, 1, 1),
-                    tom = LocalDate.of(2022, 1, 1),
-                    refusjonsbeløp = 200,
-                    land = "NO",
-                    refusjonAvklart = false,
-                ),
-            )
+                listOf(
+                    RefusjonEøs(
+                        behandlingId = 1L,
+                        fom = LocalDate.of(2020, 1, 1),
+                        tom = LocalDate.of(2022, 1, 1),
+                        refusjonsbeløp = 200,
+                        land = "NO",
+                        refusjonAvklart = false,
+                    ),
+                )
 
         val perioder = vedtaksperiodeService.beskrivPerioderMedRefusjonEøs(behandling = behandling, avklart = false)
 
         assertThat(perioder?.size, Is(1))
-        assertThat(perioder?.single(), Is(("Fra januar 2020 til januar 2022 blir ikke etterbetaling på 200 kroner per måned utbetalt nå siden det er utbetalt barnetrygd i Norge.")))
+        assertThat(
+            perioder?.single(),
+            Is(("Fra januar 2020 til januar 2022 blir ikke etterbetaling på 200 kroner per måned utbetalt nå siden det er utbetalt barnetrygd i Norge."))
+        )
     }
 }

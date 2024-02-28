@@ -3,13 +3,17 @@ package no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode
 import no.nav.familie.ks.sak.api.dto.BarnMedOpplysningerDto
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
+import no.nav.familie.ks.sak.common.tidslinje.outerJoin
 import no.nav.familie.ks.sak.common.tidslinje.tilTidslinje
+import no.nav.familie.ks.sak.common.tidslinje.utvidelser.filtrerIkkeNull
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.tilPerioderIkkeNull
+import no.nav.familie.ks.sak.common.tidslinje.utvidelser.tilSeparateTidslinjerForBarna
 import no.nav.familie.ks.sak.common.util.NullablePeriode
 import no.nav.familie.ks.sak.common.util.TIDENES_ENDE
 import no.nav.familie.ks.sak.common.util.TIDENES_MORGEN
 import no.nav.familie.ks.sak.common.util.erSammeEllerEtter
 import no.nav.familie.ks.sak.common.util.erSenereEnnInneværendeMåned
+import no.nav.familie.ks.sak.common.util.førsteDagIInneværendeMåned
 import no.nav.familie.ks.sak.common.util.sisteDagIMåned
 import no.nav.familie.ks.sak.common.util.storForbokstav
 import no.nav.familie.ks.sak.common.util.tilMånedÅr
@@ -47,6 +51,7 @@ import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.IBegrunnelse
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.NasjonalEllerFellesBegrunnelse
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.tilVedtaksbegrunnelse
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.KompetanseService
+import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.Kompetanse
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Målform
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
@@ -69,6 +74,7 @@ class VedtaksperiodeService(
     private val refusjonEøsRepository: RefusjonEøsRepository,
     private val kompetanseService: KompetanseService,
 ) {
+
     fun oppdaterVedtaksperiodeMedFritekster(
         vedtaksperiodeId: Long,
         fritekster: List<String>,
@@ -132,7 +138,7 @@ class VedtaksperiodeService(
 
     fun skalHaÅrligKontroll(vedtak: Vedtak): Boolean {
         return vedtak.behandling.kategori == BehandlingKategori.EØS &&
-            hentPersisterteVedtaksperioder(vedtak).any { it.tom?.erSenereEnnInneværendeMåned() != false }
+                hentPersisterteVedtaksperioder(vedtak).any { it.tom?.erSenereEnnInneværendeMåned() != false }
     }
 
     private fun validerEndretUtbetalingsbegrunnelse(
@@ -226,8 +232,8 @@ class VedtaksperiodeService(
     ) = utbetalingsperioder.filter { utbetalingsperiode ->
         avslagsperioder.none { avslagsperiode ->
             avslagsperiode.fom == utbetalingsperiode.fom &&
-                avslagsperiode.tom == utbetalingsperiode.tom &&
-                avslagsperiode.begrunnelser.isNotEmpty()
+                    avslagsperiode.tom == utbetalingsperiode.tom &&
+                    avslagsperiode.begrunnelser.isNotEmpty()
         }
     }
 
@@ -415,16 +421,16 @@ class VedtaksperiodeService(
 
                 utvidetVedtaksperiodeMedBegrunnelser.copy(
                     gyldigeBegrunnelser =
-                        BegrunnelserForPeriodeContext(
-                            utvidetVedtaksperiodeMedBegrunnelser = utvidetVedtaksperiodeMedBegrunnelser,
-                            sanityBegrunnelser = sanityBegrunnelser,
-                            personopplysningGrunnlag = persongrunnlag,
-                            personResultater = vilkårsvurdering.personResultater.toList(),
-                            endretUtbetalingsandeler = endreteUtbetalinger,
-                            erFørsteVedtaksperiode = erFørsteVedtaksperiodePåFagsak,
-                            kompetanser = utfylteKompetanser,
-                            andelerTilkjentYtelse = andeler,
-                        ).hentGyldigeBegrunnelserForVedtaksperiode(),
+                    BegrunnelserForPeriodeContext(
+                        utvidetVedtaksperiodeMedBegrunnelser = utvidetVedtaksperiodeMedBegrunnelser,
+                        sanityBegrunnelser = sanityBegrunnelser,
+                        personopplysningGrunnlag = persongrunnlag,
+                        personResultater = vilkårsvurdering.personResultater.toList(),
+                        endretUtbetalingsandeler = endreteUtbetalinger,
+                        erFørsteVedtaksperiode = erFørsteVedtaksperiodePåFagsak,
+                        kompetanser = utfylteKompetanser,
+                        andelerTilkjentYtelse = andeler,
+                    ).hentGyldigeBegrunnelserForVedtaksperiode(),
                 )
             }
     }
@@ -463,7 +469,8 @@ class VedtaksperiodeService(
             andelerTilkjentYtelseOgEndreteUtbetalingerService
                 .finnAndelerTilkjentYtelseMedEndreteUtbetalinger(behandling.id)
 
-        val vilkårsvurdering = vilkårsvurderingRepository.finnAktivForBehandling(behandling.id) ?: throw Feil("Fant ikke vilkårsvurdering på behandling $behandling")
+        val vilkårsvurdering = vilkårsvurderingRepository.finnAktivForBehandling(behandling.id)
+            ?: throw Feil("Fant ikke vilkårsvurdering på behandling $behandling")
 
         return mapTilOpphørsperioder(
             forrigePersonopplysningGrunnlag = forrigePersonopplysningGrunnlag,
@@ -495,9 +502,13 @@ class VedtaksperiodeService(
                 forrigeAndelerTilkjentYtelse = andelerTilkjentYtelseForForrigeBehandling,
             ) ?: TIDENES_ENDE
 
-        // TODO EØS
+        val kompetansePerioder = kompetanseService.hentKompetanser(behandling.behandlingId)
+        val kompetansePerioderForrigeBehandling = kompetanseService.hentKompetanser(sisteVedtattBehandling.behandlingId)
 
-        return førsteEndringstidspunktFraAndelTilkjentYtelse
+        val førsteEndringstidspunktIKompetansePerioder =
+            kompetansePerioder.finnFørsteEndringstidspunkt(kompetansePerioderForrigeBehandling)
+
+        return minOf(førsteEndringstidspunktFraAndelTilkjentYtelse, førsteEndringstidspunktIKompetansePerioder)
     }
 
     private fun hentAvslagsperioderMedBegrunnelser(vedtak: Vedtak): List<VedtaksperiodeMedBegrunnelser> {
@@ -641,12 +652,12 @@ class VedtaksperiodeService(
         val avslagsperioderMedTomPeriode =
             if (avslagsperioder.none { it.fom == null && it.tom == null }) {
                 avslagsperioder +
-                    VedtaksperiodeMedBegrunnelser(
-                        vedtak = vedtak,
-                        fom = null,
-                        tom = null,
-                        type = Vedtaksperiodetype.AVSLAG,
-                    )
+                        VedtaksperiodeMedBegrunnelser(
+                            vedtak = vedtak,
+                            fom = null,
+                            tom = null,
+                            type = Vedtaksperiodetype.AVSLAG,
+                        )
             } else {
                 avslagsperioder
             }
@@ -666,4 +677,23 @@ class VedtaksperiodeService(
             }
         }.toList()
     }
+
+    private fun Iterable<Kompetanse>.finnFørsteEndringstidspunkt(kompetansePerioderForrigeBehandling: Iterable<Kompetanse>): LocalDate {
+        val separateTidslinjerForBarna = this.tilSeparateTidslinjerForBarna()
+        val separateTidslinjerForBarnaForrigeBehandling = kompetansePerioderForrigeBehandling.tilSeparateTidslinjerForBarna()
+
+        return separateTidslinjerForBarna.outerJoin(separateTidslinjerForBarnaForrigeBehandling) { nyKompetanse, forrigeKompetanse ->
+            when {
+                nyKompetanse == forrigeKompetanse -> null
+                nyKompetanse == null -> forrigeKompetanse
+                forrigeKompetanse == null -> nyKompetanse
+                nyKompetanse != forrigeKompetanse -> nyKompetanse
+                else -> null
+            }
+        }.values
+            .map { it.filtrerIkkeNull().startsTidspunkt }
+            .filterNot { it == TIDENES_ENDE }
+            .minOfOrNull { it }?.førsteDagIInneværendeMåned() ?: TIDENES_ENDE
+    }
+
 }
