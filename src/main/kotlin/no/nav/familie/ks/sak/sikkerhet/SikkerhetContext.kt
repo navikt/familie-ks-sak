@@ -14,21 +14,21 @@ object SikkerhetContext {
     fun erSystemKontekst() = hentSaksbehandler() == SYSTEM_FORKORTELSE
 
     fun erMaskinTilMaskinToken(): Boolean {
-        val claims = SpringTokenValidationContextHolder().tokenValidationContext.getClaims("azuread")
+        val claims = SpringTokenValidationContextHolder().getTokenValidationContext().getClaims("azuread")
         return claims.get("oid") != null &&
             claims.get("oid") == claims.get("sub") &&
             claims.getAsList("roles").contains("access_as_application")
     }
 
     fun hentSaksbehandler(): String =
-        Result.runCatching { SpringTokenValidationContextHolder().tokenValidationContext }
+        Result.runCatching { SpringTokenValidationContextHolder().getTokenValidationContext() }
             .fold(
                 onSuccess = { it.getClaims("azuread")?.get("NAVident")?.toString() ?: SYSTEM_FORKORTELSE },
                 onFailure = { SYSTEM_FORKORTELSE },
             )
 
     fun hentSaksbehandlerEpost(): String =
-        Result.runCatching { SpringTokenValidationContextHolder().tokenValidationContext }
+        Result.runCatching { SpringTokenValidationContextHolder().getTokenValidationContext() }
             .fold(
                 onSuccess = {
                     it.getClaims("azuread")?.get("preferred_username")?.toString() ?: SYSTEM_FORKORTELSE
@@ -37,7 +37,7 @@ object SikkerhetContext {
             )
 
     fun hentSaksbehandlerNavn(): String =
-        Result.runCatching { SpringTokenValidationContextHolder().tokenValidationContext }
+        Result.runCatching { SpringTokenValidationContextHolder().getTokenValidationContext() }
             .fold(
                 onSuccess = { it.getClaims("azuread")?.get("name")?.toString() ?: SYSTEM_NAVN },
                 onFailure = { SYSTEM_NAVN },
@@ -84,7 +84,7 @@ object SikkerhetContext {
         hentSaksbehandler() == SYSTEM_FORKORTELSE || hentGrupper().contains(rolleConfig.FORVALTER_ROLLE)
 
     fun hentGrupper(): List<String> =
-        Result.runCatching { SpringTokenValidationContextHolder().tokenValidationContext }
+        Result.runCatching { SpringTokenValidationContextHolder().getTokenValidationContext() }
             .fold(
                 onSuccess = {
                     @Suppress("UNCHECKED_CAST")
@@ -98,7 +98,7 @@ object SikkerhetContext {
     }
 
     private fun kallKommerFra(forventetApplikasjonsSuffix: String): Boolean {
-        val claims = SpringTokenValidationContextHolder().tokenValidationContext.getClaims("azuread")
+        val claims = SpringTokenValidationContextHolder().getTokenValidationContext().getClaims("azuread")
         val applikasjonsnavn = claims.get("azp_name")?.toString() ?: "" // e.g. dev-gcp:some-team:application-name
         secureLogger.info("Applikasjonsnavn: $applikasjonsnavn")
         return applikasjonsnavn.endsWith(forventetApplikasjonsSuffix)
