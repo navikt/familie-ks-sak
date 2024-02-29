@@ -109,7 +109,7 @@ spec:
       memory: 2048Mi
     requests:
       memory: 1024Mi
-      cpu: 500m
+      cpu: 50m
   ingresses:
     - https://familie-ks-sak.intern.dev.nav.no
     - https://familie-kontantstotte-sak.intern.dev.nav.no
