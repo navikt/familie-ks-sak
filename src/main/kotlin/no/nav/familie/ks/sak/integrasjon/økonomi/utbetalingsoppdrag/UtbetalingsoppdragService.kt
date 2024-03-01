@@ -6,8 +6,6 @@ import no.nav.familie.felles.utbetalingsgenerator.domain.BeregnetUtbetalingsoppd
 import no.nav.familie.felles.utbetalingsgenerator.domain.IdentOgType
 import no.nav.familie.http.client.RessursException
 import no.nav.familie.kontrakter.felles.objectMapper
-import no.nav.familie.kontrakter.felles.oppdrag.OppdragId
-import no.nav.familie.kontrakter.felles.oppdrag.OppdragStatus
 import no.nav.familie.kontrakter.felles.oppdrag.Utbetalingsoppdrag
 import no.nav.familie.ks.sak.common.util.toYearMonth
 import no.nav.familie.ks.sak.integrasjon.oppdrag.OppdragKlient
@@ -40,6 +38,7 @@ class UtbetalingsoppdragService(
 ) {
     private val sammeOppdragSendtKonflikt = Metrics.counter("familie.ks.sak.samme.oppdrag.sendt.konflikt")
 
+    @Deprecated("Bruker gammel utbetalingsgenerator")
     fun oppdaterTilkjentYtelseMedUtbetalingsoppdragOgIverksett(
         vedtak: Vedtak,
         saksbehandlerId: String,
@@ -106,8 +105,6 @@ class UtbetalingsoppdragService(
         }
     }
 
-    fun hentStatus(oppdragId: OppdragId): OppdragStatus = oppdragKlient.hentStatus(oppdragId)
-
     @Transactional
     fun genererUtbetalingsoppdragOgOppdaterTilkjentYtelse(
         vedtak: Vedtak,
@@ -152,6 +149,7 @@ class UtbetalingsoppdragService(
         tilkjentYtelseRepository.save(tilkjentYtelse)
     }
 
+    @Deprecated("Gammel utbetalingsgenerator")
     @Transactional
     fun genererUtbetalingsoppdragOgOppdaterTilkjentYtelse(
         vedtak: Vedtak,

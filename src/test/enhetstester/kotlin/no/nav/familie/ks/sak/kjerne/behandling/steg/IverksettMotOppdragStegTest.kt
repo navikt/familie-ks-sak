@@ -10,6 +10,7 @@ import io.mockk.runs
 import io.mockk.verify
 import no.nav.familie.ks.sak.api.dto.IverksettMotOppdragDto
 import no.nav.familie.ks.sak.common.exception.Feil
+import no.nav.familie.ks.sak.config.FeatureToggleConfig
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.integrasjon.økonomi.utbetalingsoppdrag.UtbetalingsoppdragService
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
@@ -20,6 +21,7 @@ import no.nav.familie.ks.sak.kjerne.beregning.TilkjentYtelseValideringService
 import no.nav.familie.ks.sak.kjerne.totrinnskontroll.TotrinnskontrollService
 import no.nav.familie.ks.sak.kjerne.totrinnskontroll.domene.Totrinnskontroll
 import no.nav.familie.prosessering.internal.TaskService
+import no.nav.familie.unleash.UnleashService
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -45,6 +47,9 @@ class IverksettMotOppdragStegTest {
 
     @MockK
     private lateinit var taskService: TaskService
+
+    @MockK
+    private lateinit var unleashService: UnleashService
 
     @InjectMockKs
     private lateinit var iverksettMotOppdragSteg: IverksettMotOppdragSteg
@@ -109,10 +114,11 @@ class IverksettMotOppdragStegTest {
         every { totrinnskontrollService.hentAktivForBehandling(any()) } returns mocketTotrinnskontroll
         every { vedtakService.hentAktivVedtakForBehandling(any()) } returns mockk()
         every {
-            utbetalingsoppdragService.oppdaterTilkjentYtelseMedUtbetalingsoppdragOgIverksett(any(), any(), any())
+            utbetalingsoppdragService.oppdaterTilkjentYtelseMedUtbetalingsoppdragOgIverksett(any(), any())
         } returns mockk()
         every { behandlingService.hentSisteBehandlingSomErVedtatt(any()) } returns null
         every { taskService.save(any()) } returns mockk()
+        every { unleashService.isEnabled(FeatureToggleConfig.BRUK_NY_UTBETALINGSGENERATOR) } returns true
 
         iverksettMotOppdragSteg.utførSteg(200, iverksettMotOppdragDto)
 
@@ -125,7 +131,7 @@ class IverksettMotOppdragStegTest {
         verify(exactly = 1) { totrinnskontrollService.hentAktivForBehandling(any()) }
         verify(exactly = 1) { vedtakService.hentAktivVedtakForBehandling(any()) }
         verify(exactly = 1) {
-            utbetalingsoppdragService.oppdaterTilkjentYtelseMedUtbetalingsoppdragOgIverksett(any(), any(), any())
+            utbetalingsoppdragService.oppdaterTilkjentYtelseMedUtbetalingsoppdragOgIverksett(any(), any())
         }
         verify(exactly = 1) { taskService.save(any()) }
     }

@@ -85,6 +85,7 @@ class UtbetalingsoppdragGenerator {
      * @param[forrigeTilkjentYtelseMedAndeler] forrige tilkjentYtelse
      * @return oppdatert TilkjentYtelse som inneholder generert utbetalingsoppdrag
      */
+    @Deprecated("Gammel utbetalingsgenerator")
     fun lagTilkjentYtelseMedUtbetalingsoppdrag(
         vedtakMedTilkjentYtelse: VedtakMedTilkjentYtelse,
         andelTilkjentYtelseForUtbetalingsoppdragFactory: AndelTilkjentYtelseForUtbetalingsoppdragFactory,

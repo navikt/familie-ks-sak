@@ -8,7 +8,9 @@ import io.mockk.just
 import io.mockk.mockk
 import io.mockk.runs
 import io.mockk.verify
+import no.nav.familie.ks.sak.data.lagAndelTilkjentYtelse
 import no.nav.familie.ks.sak.data.lagBehandling
+import no.nav.familie.ks.sak.data.lagBeregnetUtbetalingsoppdrag
 import no.nav.familie.ks.sak.data.lagFagsak
 import no.nav.familie.ks.sak.data.lagTilkjentYtelse
 import no.nav.familie.ks.sak.data.lagUtbetalingsoppdrag
@@ -17,8 +19,9 @@ import no.nav.familie.ks.sak.integrasjon.oppdrag.OppdragKlient
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.Vedtak
-import no.nav.familie.ks.sak.kjerne.beregning.BeregningService
 import no.nav.familie.ks.sak.kjerne.beregning.TilkjentYtelseValideringService
+import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelseRepository
+import no.nav.familie.ks.sak.kjerne.beregning.domene.TilkjentYtelseRepository
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -29,9 +32,6 @@ internal class UtbetalingsperiodeServiceTest {
     private lateinit var oppdragKlient: OppdragKlient
 
     @MockK
-    private lateinit var beregningService: BeregningService
-
-    @MockK
     private lateinit var tilkjentYtelseValideringService: TilkjentYtelseValideringService
 
     @MockK
@@ -39,6 +39,12 @@ internal class UtbetalingsperiodeServiceTest {
 
     @MockK
     private lateinit var behandlingService: BehandlingService
+
+    @MockK
+    private lateinit var tilkjentYtelseRepository: TilkjentYtelseRepository
+
+    @MockK
+    private lateinit var andelTilkjentYtelseRepository: AndelTilkjentYtelseRepository
 
     @InjectMockKs
     private lateinit var utbetalingsoppdragService: UtbetalingsoppdragService
@@ -51,34 +57,31 @@ internal class UtbetalingsperiodeServiceTest {
 
     @BeforeEach
     fun beforeEach() {
-        every { beregningService.hentTilkjentYtelseForBehandling(any()) } returns mockk()
         every { behandlingService.hentSisteBehandlingSomErIverksatt(any()) } returns null
-        every {
-            beregningService.hentSisteOffsetPerIdent(
-                any(),
-                any(),
-            )
-        } returns mockk()
-        every { beregningService.hentSisteOffsetPåFagsak(any()) } returns mockk()
-        every { beregningService.populerTilkjentYtelse(any(), any()) } returns mockk()
-        every { beregningService.lagreTilkjentYtelseMedOppdaterteAndeler(any()) } returns mockk()
         every { tilkjentYtelseValideringService.validerIngenAndelerTilkjentYtelseMedSammeOffsetIBehandling(any()) } just runs
         every { oppdragKlient.iverksettOppdrag(any()) } returns ""
+        every { tilkjentYtelseRepository.hentTilkjentYtelseForBehandling(any()) } returns lagTilkjentYtelse(utbetalingsoppdrag = lagUtbetalingsoppdrag(emptyList()), behandling = behandling).also { it.andelerTilkjentYtelse.addAll(mutableListOf(lagAndelTilkjentYtelse())) }
+        every { tilkjentYtelseRepository.save(any()) } returns mockk()
+        every { tilkjentYtelseRepository.finnByBehandlingAndHasUtbetalingsoppdrag(any()) } returns mockk()
+        every { andelTilkjentYtelseRepository.hentSisteAndelPerIdentOgType(any()) } returns emptyList()
     }
 
     @Test
     fun `oppdaterTilkjentYtelseMedUtbetalingsoppdragOgIverksett - skal ikke iverksette mot oppdrag hvis det ikke finnes utbetalingsperioder`() {
         every {
-            utbetalingsoppdragGenerator.lagTilkjentYtelseMedUtbetalingsoppdrag(
+            utbetalingsoppdragGenerator.lagUtbetalingsoppdrag(
+                any(),
+                any(),
+                any(),
                 any(),
                 any(),
                 any(),
             )
-        } returns lagTilkjentYtelse(lagUtbetalingsoppdrag(emptyList()), behandling)
+        } returns
+            lagBeregnetUtbetalingsoppdrag(vedtak, utbetlingsperioder = emptyList())
         utbetalingsoppdragService.oppdaterTilkjentYtelseMedUtbetalingsoppdragOgIverksett(
             vedtak,
             "",
-            AndelTilkjentYtelseForIverksetting.Factory,
         )
         verify(exactly = 0) { oppdragKlient.iverksettOppdrag(any()) }
     }
@@ -86,16 +89,18 @@ internal class UtbetalingsperiodeServiceTest {
     @Test
     fun `oppdaterTilkjentYtelseMedUtbetalingsoppdragOgIverksett - skal iverksette mot oppdrag hvis det finnes utbetalingsperioder`() {
         every {
-            utbetalingsoppdragGenerator.lagTilkjentYtelseMedUtbetalingsoppdrag(
+            utbetalingsoppdragGenerator.lagUtbetalingsoppdrag(
+                any(),
+                any(),
+                any(),
                 any(),
                 any(),
                 any(),
             )
-        } returns lagTilkjentYtelse(lagUtbetalingsoppdrag(listOf(lagUtbetalingsperiode())), behandling)
+        } returns lagBeregnetUtbetalingsoppdrag(vedtak, utbetlingsperioder = listOf(lagUtbetalingsperiode(vedtak)))
         utbetalingsoppdragService.oppdaterTilkjentYtelseMedUtbetalingsoppdragOgIverksett(
             vedtak,
             "",
-            AndelTilkjentYtelseForIverksetting.Factory,
         )
         verify(exactly = 1) { oppdragKlient.iverksettOppdrag(any()) }
     }
