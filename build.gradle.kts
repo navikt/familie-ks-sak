@@ -57,6 +57,7 @@ dependencies {
     val prosesseringVersion = "2.20240214140223_83c31de"
     val restAssuredVersion = "5.4.0"
     val kotlinxVersion = "1.7.3"
+    val utbetalingsgeneratorVersion = "1.0_20240208132236_bce5777"
 
     // ---------- Spring ---------- \\
     implementation("org.springframework.boot:spring-boot-starter")
@@ -106,6 +107,8 @@ dependencies {
     implementation("no.nav.familie.felles:leader:$navFellesVersion")
     implementation("no.nav.familie.felles:http-client:$navFellesVersion")
     implementation("no.nav.familie.felles:modell:$navFellesVersion")
+    implementation("no.nav.familie.felles:familie-utbetalingsgenerator:$utbetalingsgeneratorVersion")
+
     implementation("no.nav.familie.felles:util:$navFellesVersion")
     implementation("no.nav.familie.felles:valutakurs-klient:$navFellesVersion")
     implementation("no.nav.familie.kontrakter:felles:$fellesKontrakterVersion")

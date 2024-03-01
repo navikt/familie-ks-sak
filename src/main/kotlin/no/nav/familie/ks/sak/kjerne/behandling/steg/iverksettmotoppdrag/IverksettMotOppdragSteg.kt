@@ -4,6 +4,7 @@ import io.micrometer.core.instrument.Metrics
 import no.nav.familie.ks.sak.api.dto.BehandlingStegDto
 import no.nav.familie.ks.sak.api.dto.IverksettMotOppdragDto
 import no.nav.familie.ks.sak.common.exception.Feil
+import no.nav.familie.ks.sak.config.FeatureToggleConfig
 import no.nav.familie.ks.sak.integrasjon.økonomi.utbetalingsoppdrag.AndelTilkjentYtelseForIverksetting
 import no.nav.familie.ks.sak.integrasjon.økonomi.utbetalingsoppdrag.UtbetalingsoppdragService
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
@@ -14,6 +15,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.VedtakService
 import no.nav.familie.ks.sak.kjerne.beregning.TilkjentYtelseValideringService
 import no.nav.familie.ks.sak.kjerne.totrinnskontroll.TotrinnskontrollService
 import no.nav.familie.prosessering.internal.TaskService
+import no.nav.familie.unleash.UnleashService
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
@@ -27,6 +29,7 @@ class IverksettMotOppdragSteg(
     private val utbetalingsoppdragService: UtbetalingsoppdragService,
     private val vedtakService: VedtakService,
     private val taskService: TaskService,
+    private val unleashService: UnleashService,
 ) : IBehandlingSteg {
     private val iverksattOppdrag = Metrics.counter("familie.ks.sak.oppdrag.iverksatt")
 
@@ -46,11 +49,19 @@ class IverksettMotOppdragSteg(
 
         val vedtak = vedtakService.hentAktivVedtakForBehandling(behandlingId)
 
-        utbetalingsoppdragService.oppdaterTilkjentYtelseMedUtbetalingsoppdragOgIverksett(
-            vedtak = vedtak,
-            saksbehandlerId = (behandlingStegDto as IverksettMotOppdragDto).saksbehandlerId,
-            andelTilkjentYtelseForUtbetalingsoppdragFactory = AndelTilkjentYtelseForIverksetting.Factory,
-        )
+        if (unleashService.isEnabled(FeatureToggleConfig.BRUK_NY_UTBETALINGSGENERATOR)) {
+            utbetalingsoppdragService.oppdaterTilkjentYtelseMedUtbetalingsoppdragOgIverksett(
+                vedtak = vedtak,
+                saksbehandlerId = (behandlingStegDto as IverksettMotOppdragDto).saksbehandlerId,
+            )
+        } else {
+            utbetalingsoppdragService.oppdaterTilkjentYtelseMedUtbetalingsoppdragOgIverksett(
+                vedtak = vedtak,
+                saksbehandlerId = (behandlingStegDto as IverksettMotOppdragDto).saksbehandlerId,
+                andelTilkjentYtelseForUtbetalingsoppdragFactory = AndelTilkjentYtelseForIverksetting.Factory,
+            )
+        }
+
         iverksattOppdrag.increment()
 
         // Opprett task for å sende vedtak hendelse til infotrygd

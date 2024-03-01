@@ -27,6 +27,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.Vedtak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
 import no.nav.familie.ks.sak.kjerne.beregning.AndelerTilkjentYtelseOgEndreteUtbetalingerService
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelseRepository
+import no.nav.familie.ks.sak.kjerne.beregning.domene.TilkjentYtelseRepository
 import no.nav.familie.ks.sak.kjerne.brev.mottaker.BrevmottakerService
 import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.tilEndretUtbetalingAndelResponsDto
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.KompetanseRepository
@@ -70,6 +71,7 @@ class BehandlingService(
     private val refusjonEøsService: RefusjonEøsService,
     private val korrigertEtterbetalingRepository: KorrigertEtterbetalingRepository,
     private val brevmottakerService: BrevmottakerService,
+    private val tilkjentYtelseRepository: TilkjentYtelseRepository,
 ) {
     fun hentBehandling(behandlingId: Long): Behandling = behandlingRepository.hentBehandling(behandlingId)
 
