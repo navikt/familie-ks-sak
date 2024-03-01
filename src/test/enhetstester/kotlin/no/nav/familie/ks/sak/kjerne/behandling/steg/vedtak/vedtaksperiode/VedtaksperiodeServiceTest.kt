@@ -40,6 +40,9 @@ import no.nav.familie.ks.sak.kjerne.beregning.AndelTilkjentYtelseMedEndreteUtbet
 import no.nav.familie.ks.sak.kjerne.beregning.AndelerTilkjentYtelseOgEndreteUtbetalingerService
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.NasjonalEllerFellesBegrunnelse
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.KompetanseService
+import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.Kompetanse
+import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.KompetanseAktivitet
+import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.KompetanseResultat
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Målform
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
@@ -91,7 +94,7 @@ internal class VedtaksperiodeServiceTest {
     @MockK
     private lateinit var refusjonEøsRepository: RefusjonEøsRepository
 
-    @MockK
+    @MockK(relaxed = true)
     private lateinit var kompetanseService: KompetanseService
 
     @InjectMockKs
@@ -363,6 +366,33 @@ internal class VedtaksperiodeServiceTest {
                 sisteVedtattBehandling = behandling,
             ),
         )
+    }
+
+    @Test
+    fun `finnEndringstidspunktForBehandling finner endringstidspunkt fra kompetanseperiode`() {
+        val kompetanseFom = YearMonth.now().minusMonths(3)
+        every { kompetanseService.hentKompetanser(behandling.behandlingId) } returns
+            listOf(
+                Kompetanse(
+                    fom = kompetanseFom,
+                    tom = null,
+                    barnAktører = setOf(randomAktør()),
+                    søkersAktivitet = KompetanseAktivitet.I_ARBEID,
+                    annenForeldersAktivitet = KompetanseAktivitet.MOTTAR_UFØRETRYGD,
+                    annenForeldersAktivitetsland = "NO",
+                    søkersAktivitetsland = "DK",
+                    barnetsBostedsland = "DK",
+                    resultat = KompetanseResultat.NORGE_ER_SEKUNDÆRLAND,
+                    erAnnenForelderOmfattetAvNorskLovgivning = true,
+                ),
+            )
+        every {
+            andelerTilkjentYtelseOgEndreteUtbetalingerService.finnAndelerTilkjentYtelseMedEndreteUtbetalinger(behandling.id)
+        } returns listOf(AndelTilkjentYtelseMedEndreteUtbetalinger(lagAndelTilkjentYtelse(), emptyList()))
+
+        val endringstidspunkt = vedtaksperiodeService.finnEndringstidspunktForBehandling(behandling, behandling)
+
+        assertEquals(kompetanseFom.førsteDagIInneværendeMåned(), endringstidspunkt)
     }
 
     @Test

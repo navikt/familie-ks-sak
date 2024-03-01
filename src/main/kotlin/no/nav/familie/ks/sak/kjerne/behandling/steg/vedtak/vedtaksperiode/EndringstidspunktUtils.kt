@@ -2,15 +2,20 @@ package no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode
 
 import no.nav.familie.ks.sak.common.tidslinje.Periode
 import no.nav.familie.ks.sak.common.tidslinje.Tidslinje
+import no.nav.familie.ks.sak.common.tidslinje.outerJoin
 import no.nav.familie.ks.sak.common.tidslinje.tilTidslinje
+import no.nav.familie.ks.sak.common.tidslinje.utvidelser.filtrerIkkeNull
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.slåSammen
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.tilPerioder
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.tilPerioderIkkeNull
+import no.nav.familie.ks.sak.common.tidslinje.utvidelser.tilSeparateTidslinjerForBarna
+import no.nav.familie.ks.sak.common.util.TIDENES_ENDE
 import no.nav.familie.ks.sak.common.util.TIDENES_MORGEN
 import no.nav.familie.ks.sak.common.util.førsteDagIInneværendeMåned
 import no.nav.familie.ks.sak.common.util.sisteDagIInneværendeMåned
 import no.nav.familie.ks.sak.kjerne.beregning.AndelTilkjentYtelseMedEndreteUtbetalinger
 import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.Årsak
+import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.Kompetanse
 import java.time.LocalDate
 
 typealias Beløpsdifferanse = Int
@@ -32,6 +37,24 @@ fun List<AndelTilkjentYtelseMedEndreteUtbetalinger>.hentFørsteEndringstidspunkt
         .mapNotNull { (_, tidslinjeMedDifferanserPåPerson) ->
             tidslinjeMedDifferanserPåPerson.tilPerioder().minOfOrNull { checkNotNull(it.fom) }
         }.minOfOrNull { it }
+
+fun Iterable<Kompetanse>.hentFørsteEndringstidspunkt(forrigeKompetansePerioder: Iterable<Kompetanse>): LocalDate {
+    val separateTidslinjerForBarna = this.tilSeparateTidslinjerForBarna()
+    val separateTidslinjerForBarnaForrigeBehandling = forrigeKompetansePerioder.tilSeparateTidslinjerForBarna()
+
+    return separateTidslinjerForBarna.outerJoin(separateTidslinjerForBarnaForrigeBehandling) { nyKompetanse, forrigeKompetanse ->
+        when {
+            nyKompetanse == forrigeKompetanse -> null
+            nyKompetanse == null -> forrigeKompetanse
+            forrigeKompetanse == null -> nyKompetanse
+            nyKompetanse != forrigeKompetanse -> nyKompetanse
+            else -> null
+        }
+    }.values
+        .map { it.filtrerIkkeNull().startsTidspunkt }
+        .filterNot { it == TIDENES_ENDE }
+        .minOfOrNull { it }?.førsteDagIInneværendeMåned() ?: TIDENES_ENDE
+}
 
 fun List<AndelTilkjentYtelseMedEndreteUtbetalinger>.hentPerioderMedEndringerFra(
     forrigeAndelerTilkjentYtelse: List<AndelTilkjentYtelseMedEndreteUtbetalinger>,

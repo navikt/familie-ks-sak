@@ -495,9 +495,13 @@ class VedtaksperiodeService(
                 forrigeAndelerTilkjentYtelse = andelerTilkjentYtelseForForrigeBehandling,
             ) ?: TIDENES_ENDE
 
-        // TODO EØS
+        val kompetansePerioder = kompetanseService.hentKompetanser(behandling.behandlingId)
+        val kompetansePerioderForrigeBehandling = kompetanseService.hentKompetanser(sisteVedtattBehandling.behandlingId)
 
-        return førsteEndringstidspunktFraAndelTilkjentYtelse
+        val førsteEndringstidspunktIKompetansePerioder =
+            kompetansePerioder.hentFørsteEndringstidspunkt(kompetansePerioderForrigeBehandling)
+
+        return minOf(førsteEndringstidspunktFraAndelTilkjentYtelse, førsteEndringstidspunktIKompetansePerioder)
     }
 
     private fun hentAvslagsperioderMedBegrunnelser(vedtak: Vedtak): List<VedtaksperiodeMedBegrunnelser> {
