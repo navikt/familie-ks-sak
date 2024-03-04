@@ -352,6 +352,9 @@ class BegrunnelserForPeriodeContext(
 
                 val person =
                     personopplysningGrunnlag.personer.find { it.aktør.aktivFødselsnummer() == aktør.aktivFødselsnummer() }
+                        ?: return@mapNotNull null
+
+                val vilkårForPerson = Vilkår.hentVilkårFor(person.type)
 
                 val forskøvedeVilkårResultaterSomIkkeErOppfyltEllerOppfyltRettEtterPeriode =
                     vilkårResultatTidslinjeForPerson.klipp(vedtaksperiode.fom, vedtaksperiode.tom).tilPerioderIkkeNull()
@@ -363,7 +366,9 @@ class BegrunnelserForPeriodeContext(
                             vilkårResultatIkkeOppfyltForPeriode || vilkårResultatOppfyltRettEtterPeriode
                         }.flatMap { it.verdi }
 
-                if (person != null && forskøvedeVilkårResultaterSomIkkeErOppfyltEllerOppfyltRettEtterPeriode.isNotEmpty()) {
+                val vilkårRestultatPeriode = vilkårResultatTidslinjeForPerson.klipp(vedtaksperiode.fom, vedtaksperiode.tom).tilPerioderIkkeNull()
+
+                if (forskøvedeVilkårResultaterSomIkkeErOppfyltEllerOppfyltRettEtterPeriode.isNotEmpty()) {
                     Pair(person, forskøvedeVilkårResultaterSomIkkeErOppfyltEllerOppfyltRettEtterPeriode)
                 } else {
                     null
@@ -393,12 +398,28 @@ class BegrunnelserForPeriodeContext(
             .mapNotNull { (aktør, tidslinje) ->
                 val person =
                     personopplysningGrunnlag.personer.find { it.aktør.aktivFødselsnummer() == aktør.aktivFødselsnummer() }
+                        ?: return@mapNotNull null
+
+                // VilkårResultat opphører samtidig som et annet blir oppfylt etter forskyvning
+                if (tidslinje.erTom()) {
+                    val personResultatForPerson =
+                        personResultater.find { it.aktør == aktør }
+                            ?: return@mapNotNull null
+
+                    val vilkårResultatSomOpphørerRettFørPeriode =
+                        personResultatForPerson.vilkårResultater.filter {
+                            it.periodeTom != null &&
+                                it.periodeTom!!.toYearMonth() <= this.vedtaksperiode.fom.toYearMonth()
+                        }
+                    return@mapNotNull Pair(person, vilkårResultatSomOpphørerRettFørPeriode)
+                }
+
                 val forskøvedeVilkårResultaterSlutterDagenFørVedtaksperiode =
                     tidslinje.tilPerioderIkkeNull().singleOrNull {
                         it.tom?.plusDays(1) == vedtaksperiode.fom
                     }?.verdi
 
-                if (person != null && forskøvedeVilkårResultaterSlutterDagenFørVedtaksperiode != null) {
+                if (forskøvedeVilkårResultaterSlutterDagenFørVedtaksperiode != null) {
                     Pair(person, forskøvedeVilkårResultaterSlutterDagenFørVedtaksperiode)
                 } else {
                     null
