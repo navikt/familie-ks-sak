@@ -19,6 +19,7 @@ data class YtelsePerson(
     val kravOpprinnelse: List<KravOpprinnelse>,
     val resultater: Set<YtelsePersonResultat> = emptySet(),
     val ytelseSlutt: YearMonth? = null,
+    val erDetFramtidigOpphørPåBarnehagevilkåret: Boolean,
 ) {
     override fun equals(other: Any?): Boolean {
         if (other == null || javaClass != other.javaClass) {

@@ -72,6 +72,7 @@ object BehandlingsresultatUtils {
         andelerMedEndringer: List<AndelTilkjentYtelseMedEndreteUtbetalinger>,
         forrigeAndelerMedEndringer: List<AndelTilkjentYtelseMedEndreteUtbetalinger>,
         erEksplisittAvslag: Boolean,
+        erDetFramtidigOpphørPåBarnehagevilkåret: Boolean,
     ): BehandlingsresultatPerson {
         val aktør = person.aktør
 
@@ -97,6 +98,7 @@ object BehandlingsresultatUtils {
                         )
                     },
             eksplisittAvslag = erEksplisittAvslag,
+            erDetFramtidigOpphørPåBarnehagevilkåret = erDetFramtidigOpphørPåBarnehagevilkåret,
         )
     }
 

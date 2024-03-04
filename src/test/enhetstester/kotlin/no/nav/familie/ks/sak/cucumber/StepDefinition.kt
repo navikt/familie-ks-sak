@@ -20,14 +20,17 @@ import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.util.TIDENES_MORGEN
 import no.nav.familie.ks.sak.common.util.tilddMMyyyy
 import no.nav.familie.ks.sak.cucumber.BrevBegrunnelseParser.mapBegrunnelser
+import no.nav.familie.ks.sak.data.lagVedtak
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelse
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelseDto
+import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
+import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat
+import no.nav.familie.ks.sak.kjerne.behandling.steg.behandlingsresultat.BehandlingsresultatService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.registrersøknad.SøknadGrunnlagService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.registrersøknad.domene.SøknadGrunnlag
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.Vedtak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.VedtaksperiodeService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.UtvidetVedtaksperiodeMedBegrunnelser
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.VedtaksperiodeMedBegrunnelser
@@ -68,8 +71,7 @@ val sanityBegrunnelserMock = SanityBegrunnelseMock.hentSanityBegrunnelserMock()
 class StepDefinition {
     var fagsaker: Map<Long, Fagsak> = emptyMap()
     var behandlinger = mutableMapOf<Long, Behandling>()
-    var behandlingTilForrigeBehandling = mutableMapOf<Long, Long?>()
-    var vedtakListe = mutableListOf<Vedtak>()
+    var behandlingTilForrigeBehandling = mapOf<Long, Long?>()
     var persongrunnlag = mutableMapOf<Long, PersonopplysningGrunnlag>()
     var vilkårsvurdering = mutableMapOf<Long, Vilkårsvurdering>()
     var vedtaksperioderMedBegrunnelser = mutableMapOf<Long, List<VedtaksperiodeMedBegrunnelser>>()
@@ -95,20 +97,20 @@ class StepDefinition {
 
     /**
      * Mulige felter:
-     * | BehandlingId | FagsakId | ForrigeBehandlingId | Behandlingsresultat | Behandlingsårsak |
+     * | BehandlingId | FagsakId | ForrigeBehandlingId | Behandlingsårsak | Behandlingsstatus |
      */
     @Og("følgende behandlinger")
     fun `følgende behandling`(dataTable: DataTable) {
-        val nyeVedtak =
-            lagVedtakListe(
+        behandlinger =
+            lagBehanldinger(
                 dataTable = dataTable,
-                behandlinger = behandlinger,
-                behandlingTilForrigeBehandling = behandlingTilForrigeBehandling,
                 fagsaker = fagsaker,
-            )
+            ).associateBy { it.id }.toMutableMap()
 
-        vedtakListe.addAll(nyeVedtak)
+        behandlingTilForrigeBehandling = lagBehandlingTilForrigeBehanlingMap(dataTable)
     }
+
+    private fun Behandling.tilVedtak() = lagVedtak(this)
 
     /**
      * Mulige verdier: | BehandlingId |  AktørId | Persontype | Fødselsdato |
@@ -229,6 +231,26 @@ class StepDefinition {
             .isEqualTo(forventedeAndeler)
     }
 
+    @Og("når behandlingsresultatet er utledet for behandling {}")
+    fun `når behandlingsresultatet er utledet for behehandling`(
+        behandlingId: Long,
+    ) {
+        val behandling = behandlinger[behandlingId]!!
+
+        val behandlingsresultat = mockBehandlingsresultatService().utledBehandlingsresultat(behandling)
+
+        behandlinger[behandlingId] = behandling.copy(resultat = behandlingsresultat)
+    }
+
+    @Så("forvent at behandlingsresultatet er {} på behandling {}")
+    fun `forvent følgende behanlingsresultat på behandling`(
+        forventetBehandlingsresultat: Behandlingsresultat,
+        behandlingId: Long,
+    ) {
+        val faktiskResultat = behandlinger[behandlingId]!!.resultat
+        assertThat(faktiskResultat).isEqualTo(forventetBehandlingsresultat)
+    }
+
     /**
      * Mulige verdier: | BehandlingId | Endringstidspunkt |
      */
@@ -248,7 +270,7 @@ class StepDefinition {
     fun `vedtaksperioder er laget for behandling`(behandlingId: Long) {
         vedtaksperioderMedBegrunnelser[behandlingId] =
             mockVedtaksperiodeService().genererVedtaksperioderMedBegrunnelser(
-                vedtak = vedtakListe.single { it.behandling.id == behandlingId },
+                vedtak = behandlinger[behandlingId]!!.tilVedtak(),
                 manueltOverstyrtEndringstidspunkt = overstyrteEndringstidspunkt[behandlingId],
             )
     }
@@ -265,14 +287,20 @@ class StepDefinition {
             mapForventetVedtaksperioderMedBegrunnelser(
                 dataTable = dataTable,
                 vedtak =
-                    vedtakListe.find { it.behandling.id == behandlingId }
+                    behandlinger[behandlingId]?.tilVedtak()
                         ?: throw Feil("Fant ingen vedtak for behandling $behandlingId"),
             )
         val faktiskeVedtaksperioder = vedtaksperioderMedBegrunnelser[behandlingId]!!
 
         val vedtaksperioderComparator = compareBy<VedtaksperiodeMedBegrunnelser>({ it.type }, { it.fom }, { it.tom })
         assertThat(faktiskeVedtaksperioder.sortedWith(vedtaksperioderComparator))
-            .usingRecursiveComparison().ignoringFieldsMatchingRegexes(".*endretTidspunkt", ".*opprettetTidspunkt", ".*begrunnelser")
+            .usingRecursiveComparison().ignoringFieldsMatchingRegexes(
+                ".*endretTidspunkt",
+                ".*opprettetTidspunkt",
+                ".*begrunnelser",
+                ".*id",
+                ".*vedtaksdato",
+            )
             .isEqualTo(forventedeVedtaksperioder.sortedWith(vedtaksperioderComparator))
     }
 
@@ -431,6 +459,50 @@ class StepDefinition {
             .isEqualTo(forvendtedeBegrunnelser.sortedBy { it.apiNavn })
     }
 
+    fun mockBehandlingsresultatService(): BehandlingsresultatService {
+        val behandlingService = mockk<BehandlingService>()
+        every { behandlingService.hentSisteBehandlingSomErVedtatt(any()) } answers {
+            val fagsakId = firstArg<Long>()
+            behandlinger.values.filter { behandling -> behandling.fagsak.id == fagsakId && behandling.status == BehandlingStatus.AVSLUTTET }
+                .maxByOrNull { it.id }
+        }
+
+        val søknadGrunnlagService = mockk<SøknadGrunnlagService>()
+        every { søknadGrunnlagService.finnAktiv(any()) } answers {
+            val behandlingId = firstArg<Long>()
+            lagSøknadGrunnlag(behandlingId)
+        }
+        every { søknadGrunnlagService.hentAktiv(any()) } answers {
+            val behandlingId = firstArg<Long>()
+            lagSøknadGrunnlag(behandlingId) ?: throw Feil("Behandling $behandlingId er ikke en søknad")
+        }
+
+        return BehandlingsresultatService(
+            behandlingService = behandlingService,
+            andelerTilkjentYtelseOgEndreteUtbetalingerService = mockAndelerTilkjentYtelseOgEndreteUtbetalingerService(),
+            vilkårsvurderingService = mockVilkårsvurderingService(),
+            søknadGrunnlagService = søknadGrunnlagService,
+            personidentService = mockk(),
+            personopplysningGrunnlagService = mockPersonopplysningGrunnlagService(),
+        )
+    }
+
+    private fun lagSøknadGrunnlag(behandlingId: Long): SøknadGrunnlag? {
+        if (!behandlinger[behandlingId]!!.erSøknad()) {
+            return null
+        }
+
+        val søknadDtoString =
+            objectMapper.writeValueAsString(
+                SøknadDto(
+                    barnaMedOpplysninger = uregistrerteBarn[behandlingId] ?: emptyList(),
+                    endringAvOpplysningerBegrunnelse = "",
+                    søkerMedOpplysninger = SøkerMedOpplysningerDto(ident = "", målform = målform),
+                ),
+            )
+        return SøknadGrunnlag(behandlingId = behandlingId, søknad = søknadDtoString)
+    }
+
     fun mockVedtaksperiodeService(): VedtaksperiodeService {
         val behandlingRepository = mockk<BehandlingRepository>()
         every { behandlingRepository.finnIverksatteBehandlinger(any<Long>()) } answers {
@@ -438,24 +510,6 @@ class StepDefinition {
         }
         every { behandlingRepository.finnBehandlinger(any<Long>()) } answers {
             behandlinger.values.filter { behandling -> behandling.fagsak.id == firstArg<Long>() }
-        }
-
-        val personopplysningGrunnlagService = mockk<PersonopplysningGrunnlagService>()
-        every { personopplysningGrunnlagService.finnAktivPersonopplysningGrunnlag(any<Long>()) } answers {
-            persongrunnlag[firstArg()]
-        }
-        every { personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(any<Long>()) } answers {
-            persongrunnlag[firstArg()]!!
-        }
-
-        val andelerTilkjentYtelseOgEndreteUtbetalingerService = mockk<AndelerTilkjentYtelseOgEndreteUtbetalingerService>()
-        every { andelerTilkjentYtelseOgEndreteUtbetalingerService.finnAndelerTilkjentYtelseMedEndreteUtbetalinger(any<Long>()) } answers {
-            val behandlingId = firstArg<Long>()
-            hentAndelerTilkjentYtelseMedEndreteUtbetalinger(behandlingId)
-        }
-        every { andelerTilkjentYtelseOgEndreteUtbetalingerService.finnEndreteUtbetalingerMedAndelerTilkjentYtelse(any<Long>()) } answers {
-            val behandlingId = firstArg<Long>()
-            endredeUtbetalinger[behandlingId]?.tilEndretUtbetalingAndelMedAndelerTilkjentYtelse(andelerTilkjentYtelse[behandlingId] ?: emptyList()) ?: emptyList()
         }
 
         val vilkårsvurderingRepository = mockk<VilkårsvurderingRepository>()
@@ -477,12 +531,6 @@ class StepDefinition {
             SøknadGrunnlag(behandlingId = behandlingId, søknad = søknadDtoString)
         }
 
-        val vilkårsvurderingService = mockk<VilkårsvurderingService>()
-        every { vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(any<Long>()) } answers {
-            val behandlingId = firstArg<Long>()
-            vilkårsvurdering[behandlingId]!!
-        }
-
         val kompetanseService = mockk<KompetanseService>()
         every { kompetanseService.hentKompetanser(any<BehandlingId>()) } answers {
             val behandlingId = firstArg<BehandlingId>()
@@ -491,38 +539,82 @@ class StepDefinition {
 
         val utbetalingsperiodeMedBegrunnelserService =
             UtbetalingsperiodeMedBegrunnelserService(
-                vilkårsvurderingService = vilkårsvurderingService,
-                andelerTilkjentYtelseOgEndreteUtbetalingerService = andelerTilkjentYtelseOgEndreteUtbetalingerService,
-                personopplysningGrunnlagService = personopplysningGrunnlagService,
+                vilkårsvurderingService = mockVilkårsvurderingService(),
+                andelerTilkjentYtelseOgEndreteUtbetalingerService = mockAndelerTilkjentYtelseOgEndreteUtbetalingerService(),
+                personopplysningGrunnlagService = mockPersonopplysningGrunnlagService(),
                 kompetanseService = kompetanseService,
             )
 
         return VedtaksperiodeService(
             behandlingRepository = behandlingRepository,
-            personopplysningGrunnlagService = personopplysningGrunnlagService,
+            personopplysningGrunnlagService = mockPersonopplysningGrunnlagService(),
             vedtaksperiodeHentOgPersisterService = mockk(),
             vedtakRepository = mockk(),
             vilkårsvurderingRepository = vilkårsvurderingRepository,
             sanityService = mockk(),
             søknadGrunnlagService = søknadGrunnlagService,
             utbetalingsperiodeMedBegrunnelserService = utbetalingsperiodeMedBegrunnelserService,
-            andelerTilkjentYtelseOgEndreteUtbetalingerService = andelerTilkjentYtelseOgEndreteUtbetalingerService,
+            andelerTilkjentYtelseOgEndreteUtbetalingerService = mockAndelerTilkjentYtelseOgEndreteUtbetalingerService(),
             integrasjonClient = mockk(),
             refusjonEøsRepository = mockk(),
             kompetanseService = kompetanseService,
         )
     }
 
-    private fun hentAndelerTilkjentYtelseMedEndreteUtbetalinger(behandlingId: Long) = andelerTilkjentYtelse[behandlingId]?.tilAndelerTilkjentYtelseMedEndreteUtbetalinger(endredeUtbetalinger[behandlingId] ?: emptyList()) ?: emptyList()
+    private fun mockPersonopplysningGrunnlagService(): PersonopplysningGrunnlagService {
+        val personopplysningGrunnlagService = mockk<PersonopplysningGrunnlagService>()
+        every { personopplysningGrunnlagService.finnAktivPersonopplysningGrunnlag(any<Long>()) } answers {
+            persongrunnlag[firstArg()]
+        }
+        every { personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(any<Long>()) } answers {
+            persongrunnlag[firstArg()]!!
+        }
+        every { personopplysningGrunnlagService.hentBarna(any<Long>()) } answers {
+            val behandlingId = firstArg<Long>()
+            persongrunnlag[behandlingId]!!.barna
+        }
+        return personopplysningGrunnlagService
+    }
+
+    private fun mockVilkårsvurderingService(): VilkårsvurderingService {
+        val vilkårsvurderingService = mockk<VilkårsvurderingService>()
+        every { vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(any<Long>()) } answers {
+            val behandlingId = firstArg<Long>()
+            vilkårsvurdering[behandlingId]!!
+        }
+        every { vilkårsvurderingService.oppdater(any()) } answers { firstArg<Vilkårsvurdering>() }
+
+        return vilkårsvurderingService
+    }
+
+    private fun mockAndelerTilkjentYtelseOgEndreteUtbetalingerService(): AndelerTilkjentYtelseOgEndreteUtbetalingerService {
+        val andelerTilkjentYtelseOgEndreteUtbetalingerService =
+            mockk<AndelerTilkjentYtelseOgEndreteUtbetalingerService>()
+        every { andelerTilkjentYtelseOgEndreteUtbetalingerService.finnAndelerTilkjentYtelseMedEndreteUtbetalinger(any<Long>()) } answers {
+            val behandlingId = firstArg<Long>()
+            hentAndelerTilkjentYtelseMedEndreteUtbetalinger(behandlingId)
+        }
+        every { andelerTilkjentYtelseOgEndreteUtbetalingerService.finnEndreteUtbetalingerMedAndelerTilkjentYtelse(any<Long>()) } answers {
+            val behandlingId = firstArg<Long>()
+            endredeUtbetalinger[behandlingId]?.tilEndretUtbetalingAndelMedAndelerTilkjentYtelse(
+                andelerTilkjentYtelse[behandlingId] ?: emptyList(),
+            ) ?: emptyList()
+        }
+        return andelerTilkjentYtelseOgEndreteUtbetalingerService
+    }
+
+    private fun hentAndelerTilkjentYtelseMedEndreteUtbetalinger(behandlingId: Long) =
+        andelerTilkjentYtelse[behandlingId]?.tilAndelerTilkjentYtelseMedEndreteUtbetalinger(
+            endredeUtbetalinger[behandlingId] ?: emptyList(),
+        ) ?: emptyList()
 }
 
 private object SanityBegrunnelseMock {
-    // For å laste ned begrunnelsene kjør kommandoene under eller se https://familie-brev.sanity.studio/ks-brev/vision med query fra SanityQueries.kt .
-    // curl -XGET https://xsrv1mh6.api.sanity.io/v2022-03-07/data/query/ks-brev?query=*%5B_type%3D%3D%22ksBegrunnelse%22%5D | jq '.result' -c | pbcopy
-    // for å få alle begrunnelsene i clipboardet
+    // For å laste ned begrunnelsene kjør scriptet "src/test/resources/oppdater-sanity-mock.sh" eller
+    // se https://familie-brev.sanity.studio/ks-brev/vision med query fra SanityQueries.kt.
     fun hentSanityBegrunnelserMock(): List<SanityBegrunnelse> {
         val restSanityBegrunnelserJson =
-            this::class.java.getResource("/cucumber/restSanityBegrunnelser.json")!!
+            this::class.java.getResource("/cucumber/restSanityBegrunnelser")!!
 
         val restSanityBegrunnelser =
             objectMapper.readValue(restSanityBegrunnelserJson, Array<SanityBegrunnelseDto>::class.java)

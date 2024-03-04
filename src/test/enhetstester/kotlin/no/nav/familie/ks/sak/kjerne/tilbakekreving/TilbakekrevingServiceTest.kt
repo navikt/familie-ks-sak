@@ -11,12 +11,14 @@ import no.nav.familie.kontrakter.felles.Regelverk
 import no.nav.familie.kontrakter.felles.Språkkode
 import no.nav.familie.kontrakter.felles.simulering.PosteringType
 import no.nav.familie.kontrakter.felles.tilbakekreving.Behandlingstype
+import no.nav.familie.kontrakter.felles.tilbakekreving.Brevmottaker
 import no.nav.familie.kontrakter.felles.tilbakekreving.ForhåndsvisVarselbrevRequest
 import no.nav.familie.kontrakter.felles.tilbakekreving.KanBehandlingOpprettesManueltRespons
 import no.nav.familie.kontrakter.felles.tilbakekreving.OpprettManueltTilbakekrevingRequest
 import no.nav.familie.kontrakter.felles.tilbakekreving.OpprettTilbakekrevingRequest
 import no.nav.familie.kontrakter.felles.tilbakekreving.Periode
 import no.nav.familie.kontrakter.felles.tilbakekreving.Tilbakekrevingsvalg
+import no.nav.familie.kontrakter.felles.tilbakekreving.Vergetype
 import no.nav.familie.kontrakter.felles.tilbakekreving.Ytelsestype
 import no.nav.familie.ks.sak.api.dto.ForhåndsvisTilbakekrevingVarselbrevDto
 import no.nav.familie.ks.sak.common.exception.Feil
@@ -33,6 +35,9 @@ import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.ArbeidsfordelingService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.simulering.SimuleringService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.Vedtak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.VedtakRepository
+import no.nav.familie.ks.sak.kjerne.brev.mottaker.BrevmottakerDb
+import no.nav.familie.ks.sak.kjerne.brev.mottaker.BrevmottakerRepository
+import no.nav.familie.ks.sak.kjerne.brev.mottaker.MottakerType
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Målform
 import no.nav.familie.ks.sak.kjerne.tilbakekreving.domene.Tilbakekreving
@@ -49,10 +54,16 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
+import org.junit.jupiter.api.extension.ExtensionContext
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.Arguments
+import org.junit.jupiter.params.provider.ArgumentsProvider
+import org.junit.jupiter.params.provider.ArgumentsSource
 import java.math.BigDecimal
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.YearMonth
+import java.util.stream.Stream
 
 @ExtendWith(MockKExtension::class)
 internal class TilbakekrevingServiceTest {
@@ -76,6 +87,9 @@ internal class TilbakekrevingServiceTest {
 
     @MockK
     private lateinit var simuleringService: SimuleringService
+
+    @MockK(relaxed = true)
+    private lateinit var brevmottakerRepository: BrevmottakerRepository
 
     @InjectMockKs
     private lateinit var tilbakekrevingService: TilbakekrevingService
@@ -335,6 +349,38 @@ internal class TilbakekrevingServiceTest {
         assertEquals(Ytelsestype.KONTANTSTØTTE, request.ytelsestype)
     }
 
+    @ParameterizedTest
+    @ArgumentsSource(TestProvider::class)
+    fun `lagOpprettTilbakekrevingRequest sender brevmottakere i kall mot familie-tilbake`(arguments: Pair<MottakerType, Vergetype>) {
+        val opprettTilbakekrevingRequest = slot<OpprettTilbakekrevingRequest>()
+        val brevmottaker =
+            BrevmottakerDb(
+                behandlingId = behandling.id,
+                type = arguments.first,
+                navn = "Donald Duck",
+                adresselinje1 = "Andebyveien 1",
+                postnummer = "0000",
+                poststed = "OSLO",
+                landkode = "NO",
+            )
+
+        every { tilbakekrevingRepository.findByBehandlingId(behandling.id) } returns
+            lagTilbakekreving(Tilbakekrevingsvalg.OPPRETT_TILBAKEKREVING_MED_VARSEL, "test")
+        every { brevmottakerRepository.finnBrevMottakereForBehandling(behandling.id) } returns
+            listOf(brevmottaker)
+
+        tilbakekrevingService.sendOpprettTilbakekrevingRequest(behandling)
+
+        verify(exactly = 1) {
+            tilbakekrevingKlient.opprettTilbakekrevingBehandling(capture(opprettTilbakekrevingRequest))
+        }
+
+        val actualBrevmottaker = opprettTilbakekrevingRequest.captured.manuelleBrevmottakere.single()
+
+        assertBrevmottakerEquals(brevmottaker, actualBrevmottaker)
+        assertEquals(arguments.second, actualBrevmottaker.vergetype)
+    }
+
     private fun lagPostering(
         fom: YearMonth,
         tom: YearMonth,
@@ -367,6 +413,28 @@ internal class TilbakekrevingServiceTest {
         this.any {
             it.fom == fom.førsteDagIInneværendeMåned() &&
                 it.tom == tom.atEndOfMonth()
+        }
+    }
+
+    private fun assertBrevmottakerEquals(
+        expected: BrevmottakerDb,
+        actual: Brevmottaker,
+    ) {
+        assertEquals(expected.navn, actual.navn)
+        assertEquals(expected.type.name, actual.type.name)
+        assertEquals(expected.adresselinje1, actual.manuellAdresseInfo?.adresselinje1)
+        assertEquals(expected.postnummer, actual.manuellAdresseInfo?.postnummer)
+        assertEquals(expected.poststed, actual.manuellAdresseInfo?.poststed)
+        assertEquals(expected.landkode, actual.manuellAdresseInfo?.landkode)
+    }
+
+    private class TestProvider : ArgumentsProvider {
+        override fun provideArguments(context: ExtensionContext?): Stream<out Arguments> {
+            return Stream.of(
+                Arguments.of(Pair(MottakerType.FULLMEKTIG, Vergetype.ANNEN_FULLMEKTIG)),
+                Arguments.of(Pair(MottakerType.VERGE, Vergetype.VERGE_FOR_VOKSEN)),
+                Arguments.of(Pair(MottakerType.BRUKER_MED_UTENLANDSK_ADRESSE, null)),
+            )
         }
     }
 }

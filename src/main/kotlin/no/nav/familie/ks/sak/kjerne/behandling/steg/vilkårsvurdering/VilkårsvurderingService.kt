@@ -39,15 +39,16 @@ class VilkårsvurderingService(
         logger.info("${SikkerhetContext.hentSaksbehandlerNavn()} oppretter vilkårsvurdering for behandling ${behandling.id}")
 
         val aktivVilkårsvurdering = finnAktivVilkårsvurdering(behandling.id)
+        val vilkårsvurderingFraForrigeBehandling = forrigeBehandlingSomErVedtatt?.let { hentAktivVilkårsvurderingForBehandling(forrigeBehandlingSomErVedtatt.id) }
 
         val personopplysningGrunnlag =
             personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(behandling.id)
 
-        val initiellVilkårsvurdering = genererInitiellVilkårsvurdering(behandling, personopplysningGrunnlag)
+        val initiellVilkårsvurdering = genererInitiellVilkårsvurdering(behandling, vilkårsvurderingFraForrigeBehandling, personopplysningGrunnlag)
 
-        if (forrigeBehandlingSomErVedtatt != null) {
+        vilkårsvurderingFraForrigeBehandling?.let {
             initiellVilkårsvurdering.kopierOverOppfylteOgIkkeAktuelleResultaterFraForrigeBehandling(
-                vilkårsvurderingForrigeBehandling = hentAktivVilkårsvurderingForBehandling(forrigeBehandlingSomErVedtatt.id),
+                vilkårsvurderingForrigeBehandling = it,
             )
         }
 
