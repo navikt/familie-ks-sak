@@ -19,6 +19,7 @@ import no.nav.familie.ks.sak.integrasjon.oppdrag.OppdragKlient
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.Vedtak
+import no.nav.familie.ks.sak.kjerne.beregning.BeregningService
 import no.nav.familie.ks.sak.kjerne.beregning.TilkjentYtelseValideringService
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelseRepository
 import no.nav.familie.ks.sak.kjerne.beregning.domene.TilkjentYtelseRepository
@@ -30,6 +31,9 @@ import org.junit.jupiter.api.extension.ExtendWith
 internal class UtbetalingsperiodeServiceTest {
     @MockK
     private lateinit var oppdragKlient: OppdragKlient
+
+    @MockK
+    private lateinit var beregningService: BeregningService
 
     @MockK
     private lateinit var tilkjentYtelseValideringService: TilkjentYtelseValideringService
