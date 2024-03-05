@@ -318,10 +318,13 @@ class BegrunnelserForPeriodeContext(
     ): Boolean {
         return personResultater.tilFørskjøvetVilkårResultatTidslinjeMap(personopplysningGrunnlag)
             .all { (_, vilkårResultatTidslinjeForPerson) ->
-                vilkårResultatTidslinjeForPerson
-                    .klipp(vedtaksperiode.fom, vedtaksperiode.tom)
-                    .tilPerioderIkkeNull()
-                    .first().verdi
+                val vilkårResultaterIPeriode =
+                    vilkårResultatTidslinjeForPerson
+                        .klipp(vedtaksperiode.fom, vedtaksperiode.tom)
+                        .tilPerioderIkkeNull()
+                        .first().verdi
+
+                vilkårResultaterIPeriode
                     .map { it.vilkårType }
                     .contains(vilkår)
             }
@@ -348,14 +351,10 @@ class BegrunnelserForPeriodeContext(
 
     private fun finnPersonerMedVilkårResultatIFørsteVedtaksperiodeSomIkkeErOppfylt(): Map<Person, List<VilkårResultat>> =
         personResultater.tilFørskjøvetVilkårResultatTidslinjeMap(personopplysningGrunnlag)
-            .mapNotNull { (aktør, vilkårResultatTidslinjeForPerson) ->
-
-                val person =
-                    personopplysningGrunnlag.personer.find { it.aktør.aktivFødselsnummer() == aktør.aktivFødselsnummer() }
-                        ?: return@mapNotNull null
-
-                val vilkårForPerson = Vilkår.hentVilkårFor(person.type)
-
+            .mapKeys { (aktør, _) ->
+                personopplysningGrunnlag.personer.find { it.aktør.aktivFødselsnummer() == aktør.aktivFødselsnummer() }
+            }.filterKeys { it != null }
+            .mapNotNull { (person, vilkårResultatTidslinjeForPerson) ->
                 val forskøvedeVilkårResultaterSomIkkeErOppfyltEllerOppfyltRettEtterPeriode =
                     vilkårResultatTidslinjeForPerson.klipp(vedtaksperiode.fom, vedtaksperiode.tom).tilPerioderIkkeNull()
                         .filter { vilkårResultat ->
@@ -366,10 +365,8 @@ class BegrunnelserForPeriodeContext(
                             vilkårResultatIkkeOppfyltForPeriode || vilkårResultatOppfyltRettEtterPeriode
                         }.flatMap { it.verdi }
 
-                val vilkårRestultatPeriode = vilkårResultatTidslinjeForPerson.klipp(vedtaksperiode.fom, vedtaksperiode.tom).tilPerioderIkkeNull()
-
                 if (forskøvedeVilkårResultaterSomIkkeErOppfyltEllerOppfyltRettEtterPeriode.isNotEmpty()) {
-                    Pair(person, forskøvedeVilkårResultaterSomIkkeErOppfyltEllerOppfyltRettEtterPeriode)
+                    Pair(person!!, forskøvedeVilkårResultaterSomIkkeErOppfyltEllerOppfyltRettEtterPeriode)
                 } else {
                     null
                 }
@@ -377,16 +374,20 @@ class BegrunnelserForPeriodeContext(
 
     private fun finnPersonerMedVilkårResultaterSomGjelderIPeriode(): Map<Person, List<VilkårResultat>> =
         personResultater.tilFørskjøvetOppfylteVilkårResultatTidslinjeMap(personopplysningGrunnlag)
-            .mapNotNull { (aktør, vilkårResultatTidslinjeForPerson) ->
-
+            .mapNotNull { (aktør, tidslinje) ->
                 val person =
                     personopplysningGrunnlag.personer.find { it.aktør.aktivFødselsnummer() == aktør.aktivFødselsnummer() }
+                        ?: return@mapNotNull null
+
+                Pair(person, tidslinje)
+            }.mapNotNull { (person, vilkårResultatTidslinjeForPerson) ->
+
                 val forskøvedeVilkårResultaterMedSammeFom =
                     vilkårResultatTidslinjeForPerson.klipp(vedtaksperiode.fom, vedtaksperiode.tom).tilPerioderIkkeNull()
                         .singleOrNull {
                             it.fom == vedtaksperiode.fom
                         }?.verdi
-                if (person != null && forskøvedeVilkårResultaterMedSammeFom != null) {
+                if (forskøvedeVilkårResultaterMedSammeFom != null) {
                     Pair(person, forskøvedeVilkårResultaterMedSammeFom)
                 } else {
                     null
@@ -400,31 +401,32 @@ class BegrunnelserForPeriodeContext(
                     personopplysningGrunnlag.personer.find { it.aktør.aktivFødselsnummer() == aktør.aktivFødselsnummer() }
                         ?: return@mapNotNull null
 
-                // VilkårResultat opphører samtidig som et annet blir oppfylt etter forskyvning
-                if (tidslinje.erTom()) {
-                    val personResultatForPerson =
-                        personResultater.find { it.aktør == aktør }
-                            ?: return@mapNotNull null
+                Pair(person, tidslinje)
+            }.mapNotNull { (person, tidslinje) ->
+                val vilkårResultatSomSlutterFørVedtaksperiode =
+                    if (tidslinje.erTom()) {
+                        finnVilkårResultatSomOpphørerRettFørVedtaksperiode(person)
+                    } else {
+                        tidslinje.tilPerioderIkkeNull().singleOrNull {
+                            it.tom?.plusDays(1) == vedtaksperiode.fom
+                        }?.verdi
+                    }
 
-                    val vilkårResultatSomOpphørerRettFørPeriode =
-                        personResultatForPerson.vilkårResultater.filter {
-                            it.periodeTom != null &&
-                                it.periodeTom!!.toYearMonth() <= this.vedtaksperiode.fom.toYearMonth()
-                        }
-                    return@mapNotNull Pair(person, vilkårResultatSomOpphørerRettFørPeriode)
-                }
-
-                val forskøvedeVilkårResultaterSlutterDagenFørVedtaksperiode =
-                    tidslinje.tilPerioderIkkeNull().singleOrNull {
-                        it.tom?.plusDays(1) == vedtaksperiode.fom
-                    }?.verdi
-
-                if (forskøvedeVilkårResultaterSlutterDagenFørVedtaksperiode != null) {
-                    Pair(person, forskøvedeVilkårResultaterSlutterDagenFørVedtaksperiode)
+                if (vilkårResultatSomSlutterFørVedtaksperiode != null) {
+                    Pair(person, vilkårResultatSomSlutterFørVedtaksperiode)
                 } else {
                     null
                 }
             }.toMap().filterValues { it.isNotEmpty() }
+
+    private fun finnVilkårResultatSomOpphørerRettFørVedtaksperiode(person: Person): List<VilkårResultat> {
+        val personResultatForPerson =
+            personResultater.find { it.aktør == person.aktør }
+        return personResultatForPerson?.vilkårResultater?.filter {
+            it.periodeTom != null &&
+                it.periodeTom!!.toYearMonth() <= this.vedtaksperiode.fom.toYearMonth()
+        } ?: emptyList()
+    }
 
     private fun Map<Person, List<VilkårResultat>>.filtrerPersonerUtenUtbetalingVedInnvilget(begrunnelseType: BegrunnelseType) =
         this.filterKeys {
