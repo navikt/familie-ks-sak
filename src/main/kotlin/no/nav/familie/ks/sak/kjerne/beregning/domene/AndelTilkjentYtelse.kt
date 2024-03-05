@@ -163,7 +163,6 @@ fun List<AndelTilkjentYtelse>.slåSammenBack2BackAndelsperioderMedSammeBeløp():
     }
 
 enum class YtelseType(val klassifisering: String) {
-    // TODO verdien må avklares med økonomi
     ORDINÆR_KONTANTSTØTTE("KS"),
     ;
 
