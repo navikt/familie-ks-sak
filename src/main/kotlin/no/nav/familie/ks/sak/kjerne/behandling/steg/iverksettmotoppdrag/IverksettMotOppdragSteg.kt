@@ -49,7 +49,7 @@ class IverksettMotOppdragSteg(
 
         val vedtak = vedtakService.hentAktivVedtakForBehandling(behandlingId)
 
-        if (unleashService.isEnabled(FeatureToggleConfig.BRUK_NY_UTBETALINGSGENERATOR)) {
+        if (unleashService.isEnabled(FeatureToggleConfig.BRUK_NY_UTBETALINGSGENERATOR, mapOf("fagsakId" to behandling.fagsak.id.toString()))) {
             utbetalingsoppdragService.oppdaterTilkjentYtelseMedUtbetalingsoppdragOgIverksett(
                 vedtak = vedtak,
                 saksbehandlerId = (behandlingStegDto as IverksettMotOppdragDto).saksbehandlerId,

@@ -98,7 +98,7 @@ class SimuleringService(
 
         val utbetalingsoppdrag =
             when {
-                unleashService.isEnabled(FeatureToggleConfig.BRUK_NY_UTBETALINGSGENERATOR) ->
+                unleashService.isEnabled(FeatureToggleConfig.BRUK_NY_UTBETALINGSGENERATOR, mapOf("fagsakId" to vedtak.behandling.fagsak.id.toString())) ->
                     utbetalingsoppdragService.genererUtbetalingsoppdragOgOppdaterTilkjentYtelse(
                         vedtak = vedtak,
                         saksbehandlerId = SikkerhetContext.hentSaksbehandler(),

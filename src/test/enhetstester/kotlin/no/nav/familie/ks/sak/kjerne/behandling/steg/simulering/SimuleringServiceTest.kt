@@ -31,7 +31,6 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.VedtakReposito
 import no.nav.familie.ks.sak.kjerne.beregning.BeregningService
 import no.nav.familie.unleash.UnleashService
 import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.EnumSource
@@ -64,11 +63,6 @@ class SimuleringServiceTest {
     @InjectMockKs
     private lateinit var simuleringService: SimuleringService
 
-    @BeforeEach
-    fun beforeEach() {
-        every { unleashService.isEnabled(FeatureToggleConfig.BRUK_NY_UTBETALINGSGENERATOR) } returns true
-    }
-
     @ParameterizedTest
     @EnumSource(value = BehandlingStatus::class, names = ["IVERKSETTER_VEDTAK", "AVSLUTTET"])
     fun `oppdaterSimuleringPåBehandlingVedBehov - skal returnere eksisterende simulering dersom behandlingstatus er IVERKSETTER_VEDTAK eller AVSLUTTET`(
@@ -94,6 +88,7 @@ class SimuleringServiceTest {
 
         every { behandlingRepository.hentBehandling(behandling.id) } returns behandling
         every { øknomiSimuleringMottakerRepository.findByBehandlingId(behandling.id) } returns eksisterendeSimulering
+        every { unleashService.isEnabled(FeatureToggleConfig.BRUK_NY_UTBETALINGSGENERATOR, mapOf("fagsakId" to behandling.fagsak.id.toString())) } returns true
 
         val simulering = simuleringService.oppdaterSimuleringPåBehandlingVedBehov(behandlingId = behandling.id)
 
@@ -137,6 +132,7 @@ class SimuleringServiceTest {
 
         every { behandlingRepository.hentBehandling(behandling.id) } returns behandling
         every { øknomiSimuleringMottakerRepository.findByBehandlingId(behandling.id) } returns eksisterendeSimulering
+        every { unleashService.isEnabled(FeatureToggleConfig.BRUK_NY_UTBETALINGSGENERATOR, mapOf("fagsakId" to behandling.fagsak.id.toString())) } returns true
 
         val simulering = simuleringService.oppdaterSimuleringPåBehandlingVedBehov(behandlingId = behandling.id)
 
@@ -195,6 +191,7 @@ class SimuleringServiceTest {
         every { oppdragKlient.hentSimulering(any()) } returns DetaljertSimuleringResultat(simuleringMottaker = nySimulering)
         every { øknomiSimuleringMottakerRepository.deleteByBehandlingId(any()) } just runs
         every { øknomiSimuleringMottakerRepository.saveAll(any<List<ØkonomiSimuleringMottaker>>()) } returns mockk()
+        every { unleashService.isEnabled(FeatureToggleConfig.BRUK_NY_UTBETALINGSGENERATOR, mapOf("fagsakId" to behandling.fagsak.id.toString())) } returns true
 
         simuleringService.oppdaterSimuleringPåBehandlingVedBehov(behandlingId = behandling.id)
 

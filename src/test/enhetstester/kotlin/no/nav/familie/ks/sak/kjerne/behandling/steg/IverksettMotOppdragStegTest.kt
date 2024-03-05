@@ -118,7 +118,7 @@ class IverksettMotOppdragStegTest {
         } returns mockk()
         every { behandlingService.hentSisteBehandlingSomErVedtatt(any()) } returns null
         every { taskService.save(any()) } returns mockk()
-        every { unleashService.isEnabled(FeatureToggleConfig.BRUK_NY_UTBETALINGSGENERATOR) } returns true
+        every { unleashService.isEnabled(FeatureToggleConfig.BRUK_NY_UTBETALINGSGENERATOR, mapOf("fagsakId" to mocketBehandling.fagsak.id.toString())) } returns true
 
         iverksettMotOppdragSteg.utførSteg(200, iverksettMotOppdragDto)
 
