@@ -54,13 +54,13 @@ class UtbetalingsoppdragGenerator {
                     // Ved simulering når migreringsdato er endret, skal vi opphøre fra den nye datoen og ikke fra første utbetaling per kjede.
                     opphørKjederFraFørsteUtbetaling = erSimulering,
                 ),
-            forrigeAndeler = forrigeTilkjentYtelse?.tilAndelData() ?: emptyList(),
-            nyeAndeler = nyTilkjentYtelse.tilAndelData(),
+            forrigeAndeler = forrigeTilkjentYtelse?.tilAndelDataLongId() ?: emptyList(),
+            nyeAndeler = nyTilkjentYtelse.tilAndelDataLongId(),
             sisteAndelPerKjede = sisteAndelPerKjede.mapValues { it.value.tilAndelDataLongId() },
         )
     }
 
-    private fun TilkjentYtelse.tilAndelData(): List<AndelDataLongId> =
+    private fun TilkjentYtelse.tilAndelDataLongId(): List<AndelDataLongId> =
         this.andelerTilkjentYtelse.map { it.tilAndelDataLongId() }
 
     private fun AndelTilkjentYtelse.tilAndelDataLongId(): AndelDataLongId =
