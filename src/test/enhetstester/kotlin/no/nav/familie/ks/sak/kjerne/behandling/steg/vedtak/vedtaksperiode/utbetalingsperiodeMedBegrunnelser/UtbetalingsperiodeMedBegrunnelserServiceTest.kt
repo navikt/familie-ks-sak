@@ -15,7 +15,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Per
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.tilFørskjøvetOppfylteVilkårResultatTidslinjeMap
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.tilForskjøvetOppfylteVilkårResultatTidslinjeMap
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
@@ -72,7 +72,7 @@ class UtbetalingsperiodeMedBegrunnelserServiceTest {
         personResultat.setSortedVilkårResultater(vilkårResultater.toSet())
 
         val førskjøvetVilkårResultatTidslinjeMap =
-            setOf(personResultat).tilFørskjøvetOppfylteVilkårResultatTidslinjeMap(personopplysningGrunnlag)
+            setOf(personResultat).tilForskjøvetOppfylteVilkårResultatTidslinjeMap(personopplysningGrunnlag)
 
         Assertions.assertEquals(1, førskjøvetVilkårResultatTidslinjeMap.size)
 
@@ -132,7 +132,7 @@ class UtbetalingsperiodeMedBegrunnelserServiceTest {
             }
 
         assertDoesNotThrow {
-            setOf(personResultat).tilFørskjøvetOppfylteVilkårResultatTidslinjeMap(personopplysningGrunnlag)
+            setOf(personResultat).tilForskjøvetOppfylteVilkårResultatTidslinjeMap(personopplysningGrunnlag)
         }
     }
 }
