@@ -1033,3 +1033,55 @@ fun lagVedtak(
         vedtaksdato = LocalDateTime.now(),
         stønadBrevPdf = stønadBrevPdF,
     )
+
+
+fun lagVilkårsvurdering(
+    søkerAktør: Aktør,
+    behandling: Behandling,
+    resultat: Resultat,
+    søkerPeriodeFom: LocalDate? = LocalDate.now().minusMonths(1),
+    søkerPeriodeTom: LocalDate? = LocalDate.now().plusYears(2),
+): Vilkårsvurdering {
+    val vilkårsvurdering =
+        Vilkårsvurdering(
+            behandling = behandling,
+        )
+    val personResultat =
+        PersonResultat(
+            vilkårsvurdering = vilkårsvurdering,
+            aktør = søkerAktør,
+        )
+    personResultat.setSortedVilkårResultater(
+        setOf(
+            VilkårResultat(
+                behandlingId = behandling.id,
+                personResultat = personResultat,
+                vilkårType = Vilkår.BOSATT_I_RIKET,
+                resultat = resultat,
+                periodeFom = søkerPeriodeFom,
+                periodeTom = søkerPeriodeTom,
+                begrunnelse = "",
+            ),
+            VilkårResultat(
+                behandlingId = behandling.id,
+                personResultat = personResultat,
+                vilkårType = Vilkår.LOVLIG_OPPHOLD,
+                resultat = resultat,
+                periodeFom = søkerPeriodeFom,
+                periodeTom = søkerPeriodeTom,
+                begrunnelse = "",
+            ),
+        ),
+    )
+    personResultat.andreVurderinger.add(
+        AnnenVurdering(
+            personResultat = personResultat,
+            resultat = resultat,
+            type = AnnenVurderingType.OPPLYSNINGSPLIKT,
+            begrunnelse = null,
+        ),
+    )
+
+    vilkårsvurdering.personResultater = setOf(personResultat)
+    return vilkårsvurdering
+}
