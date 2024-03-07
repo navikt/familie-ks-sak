@@ -70,9 +70,9 @@ class EndringIKompetanseUtilTest {
         val perioderMedEndring =
             EndringIKompetanseUtil.lagEndringIKompetanseForPersonTidslinje(
                 nåværendeKompetanserForPerson =
-                listOf(
-                    nåværendeKompetanse,
-                ),
+                    listOf(
+                        nåværendeKompetanse,
+                    ),
                 forrigeKompetanserForPerson = listOf(forrigeKompetanse),
             ).tilPerioder().filter { it.verdi == true }
 
@@ -106,9 +106,9 @@ class EndringIKompetanseUtilTest {
         val perioderMedEndring =
             EndringIKompetanseUtil.lagEndringIKompetanseForPersonTidslinje(
                 nåværendeKompetanserForPerson =
-                listOf(
-                    nåværendeKompetanse,
-                ),
+                    listOf(
+                        nåværendeKompetanse,
+                    ),
                 forrigeKompetanserForPerson = listOf(forrigeKompetanse),
             ).tilPerioder().filter { it.verdi == true }
 
@@ -150,9 +150,9 @@ class EndringIKompetanseUtilTest {
         val perioderMedEndring =
             EndringIKompetanseUtil.lagEndringIKompetanseForPersonTidslinje(
                 nåværendeKompetanserForPerson =
-                listOf(
-                    nåværendeKompetanse,
-                ),
+                    listOf(
+                        nåværendeKompetanse,
+                    ),
                 forrigeKompetanserForPerson = listOf(forrigeKompetanse),
             ).tilPerioder().filter { it.verdi == true }
 

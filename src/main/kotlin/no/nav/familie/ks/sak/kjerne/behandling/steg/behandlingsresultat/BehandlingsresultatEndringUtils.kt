@@ -100,17 +100,17 @@ object BehandlingsresultatEndringUtils {
 
                 val erMinstEnEndringForPerson =
                     erEndringIBeløpForPerson ||
-                            erEndringIKompetanseForPerson ||
-                            erEndringIVilkårsvurderingForPerson ||
-                            erEndringIEndretUtbetalingAndelerForPerson
+                        erEndringIKompetanseForPerson ||
+                        erEndringIVilkårsvurderingForPerson ||
+                        erEndringIEndretUtbetalingAndelerForPerson
 
                 if (erMinstEnEndringForPerson) {
                     logger.info(
                         "Endringer: " +
-                                "erEndringIBeløp=$erEndringIBeløpForPerson for aktør ${aktør.aktørId}," +
-                                "erEndringIKompetanse=$erEndringIKompetanseForPerson for aktør ${aktør.aktørId}, " +
-                                "erEndringIVilkårsvurdering=$erEndringIVilkårsvurderingForPerson for aktør ${aktør.aktørId}, " +
-                                "erEndringIEndretUtbetalingAndeler=$erEndringIEndretUtbetalingAndelerForPerson for aktør ${aktør.aktørId}",
+                            "erEndringIBeløp=$erEndringIBeløpForPerson for aktør ${aktør.aktørId}," +
+                            "erEndringIKompetanse=$erEndringIKompetanseForPerson for aktør ${aktør.aktørId}, " +
+                            "erEndringIVilkårsvurdering=$erEndringIVilkårsvurderingForPerson for aktør ${aktør.aktørId}, " +
+                            "erEndringIEndretUtbetalingAndeler=$erEndringIEndretUtbetalingAndelerForPerson for aktør ${aktør.aktørId}",
                     )
 
                     val endredeAndelTilkjentYtelseForPerson = if (erEndringIBeløpForPerson) "nye AndelerTilkjentYtelse for aktør ${aktør.aktørId}: $nåværendeAndeler , " else ""

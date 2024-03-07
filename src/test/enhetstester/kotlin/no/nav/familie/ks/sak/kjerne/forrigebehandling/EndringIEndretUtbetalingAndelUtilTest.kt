@@ -46,7 +46,6 @@ class EndringIEndretUtbetalingAndelUtilTest {
         assertEquals(aug22.sisteDagIInneværendeMåned(), perioderMedEndring.single().tom)
     }
 
-
     @Test
     fun `Endring i endret utbetaling andel - skal ikke ha noen endrede perioder hvis kun prosent er endret`() {
         val barn = lagPerson(aktør = randomAktør(), personType = PersonType.BARN)

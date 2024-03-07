@@ -41,9 +41,9 @@ class EndringIVilkårsvurderingUtilTest {
                     periodeTom = LocalDate.of(2020, 1, 1),
                     begrunnelse = "begrunnelse",
                     utdypendeVilkårsvurderinger =
-                    listOf(
-                        UtdypendeVilkårsvurdering.BARN_BOR_I_NORGE,
-                    ),
+                        listOf(
+                            UtdypendeVilkårsvurdering.BARN_BOR_I_NORGE,
+                        ),
                     vurderesEtter = Regelverk.NASJONALE_REGLER,
                 ),
                 VilkårResultat(
@@ -55,9 +55,9 @@ class EndringIVilkårsvurderingUtilTest {
                     periodeTom = LocalDate.of(2022, 1, 1),
                     begrunnelse = "begrunnelse",
                     utdypendeVilkårsvurderinger =
-                    listOf(
-                        UtdypendeVilkårsvurdering.BARN_BOR_I_NORGE,
-                    ),
+                        listOf(
+                            UtdypendeVilkårsvurdering.BARN_BOR_I_NORGE,
+                        ),
                     vurderesEtter = Regelverk.NASJONALE_REGLER,
                 ),
             )
@@ -87,9 +87,9 @@ class EndringIVilkårsvurderingUtilTest {
                     periodeTom = mai22.sisteDagIInneværendeMåned(),
                     begrunnelse = "begrunnelse",
                     utdypendeVilkårsvurderinger =
-                    listOf(
-                        UtdypendeVilkårsvurdering.BARN_BOR_I_NORGE,
-                    ),
+                        listOf(
+                            UtdypendeVilkårsvurdering.BARN_BOR_I_NORGE,
+                        ),
                     vurderesEtter = Regelverk.NASJONALE_REGLER,
                 ),
             )
@@ -105,9 +105,9 @@ class EndringIVilkårsvurderingUtilTest {
                     periodeTom = mai22.sisteDagIInneværendeMåned(),
                     begrunnelse = "begrunnelse",
                     utdypendeVilkårsvurderinger =
-                    listOf(
-                        UtdypendeVilkårsvurdering.BARN_BOR_I_NORGE,
-                    ),
+                        listOf(
+                            UtdypendeVilkårsvurdering.BARN_BOR_I_NORGE,
+                        ),
                     vurderesEtter = Regelverk.EØS_FORORDNINGEN,
                 ),
             )
@@ -197,9 +197,9 @@ class EndringIVilkårsvurderingUtilTest {
                     periodeTom = LocalDate.of(2020, 1, 1),
                     begrunnelse = "begrunnelse",
                     utdypendeVilkårsvurderinger =
-                    listOf(
-                        UtdypendeVilkårsvurdering.BARN_BOR_I_NORGE,
-                    ),
+                        listOf(
+                            UtdypendeVilkårsvurdering.BARN_BOR_I_NORGE,
+                        ),
                     vurderesEtter = Regelverk.NASJONALE_REGLER,
                 ),
             )
@@ -215,9 +215,9 @@ class EndringIVilkårsvurderingUtilTest {
                     periodeTom = null,
                     begrunnelse = "begrunnelse",
                     utdypendeVilkårsvurderinger =
-                    listOf(
-                        UtdypendeVilkårsvurdering.BARN_BOR_I_NORGE,
-                    ),
+                        listOf(
+                            UtdypendeVilkårsvurdering.BARN_BOR_I_NORGE,
+                        ),
                     vurderesEtter = Regelverk.NASJONALE_REGLER,
                 ),
             )
@@ -262,9 +262,9 @@ class EndringIVilkårsvurderingUtilTest {
                     periodeTom = null,
                     begrunnelse = "migrering",
                     utdypendeVilkårsvurderinger =
-                    listOf(
-                        UtdypendeVilkårsvurdering.BARN_BOR_I_NORGE,
-                    ),
+                        listOf(
+                            UtdypendeVilkårsvurdering.BARN_BOR_I_NORGE,
+                        ),
                     vurderesEtter = Regelverk.EØS_FORORDNINGEN,
                 ),
             )

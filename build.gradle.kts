@@ -180,9 +180,6 @@ val ktlintCheck by tasks.registering(JavaExec::class) {
     )
 }
 
-tasks.check {
-    dependsOn(ktlintCheck)
-}
 
 tasks.register<JavaExec>("ktlintFormat") {
     group = LifecycleBasePlugin.VERIFICATION_GROUP

@@ -50,12 +50,12 @@ object BehandlingsresultatSøknadUtils {
 
         val alleResultater =
             (
-                    if (erEksplisittAvslagPåMinstEnPersonFremstiltKravFor || finnesUregistrerteBarn) {
-                        resultaterFraAndeler.plus(Søknadsresultat.AVSLÅTT)
-                    } else {
-                        resultaterFraAndeler
-                    }
-                    ).distinct()
+                if (erEksplisittAvslagPåMinstEnPersonFremstiltKravFor || finnesUregistrerteBarn) {
+                    resultaterFraAndeler.plus(Søknadsresultat.AVSLÅTT)
+                } else {
+                    resultaterFraAndeler
+                }
+            ).distinct()
 
         return alleResultater.kombinerSøknadsresultater(behandlingÅrsak = behandlingÅrsak)
     }
@@ -91,7 +91,6 @@ object BehandlingsresultatSøknadUtils {
         val nåværendeTidslinje = nåværendeAndelerForPerson.map { it.tilPeriode() }.tilTidslinje()
         val endretUtbetalingTidslinje = endretUtbetalingAndelerForPerson.map { it.tilPeriode() }.tilTidslinje()
 
-
         val resultatTidslinje =
             nåværendeTidslinje.kombinerMed(forrigeTidslinje, endretUtbetalingTidslinje) { nåværende, forrige, endretUtbetalingAndel ->
                 val forrigeBeløp = forrige?.kalkulertUtbetalingsbeløp
@@ -107,8 +106,8 @@ object BehandlingsresultatSøknadUtils {
                                 } else {
                                     secureLogger.info(
                                         "Andel $nåværende er satt til 0kr, men det skyldes verken differanseberegning eller endret utbetaling andel." +
-                                                "\nNåværende andeler: $nåværendeAndelerForPerson" +
-                                                "\nEndret utbetaling andeler: $endretUtbetalingAndelerForPerson",
+                                            "\nNåværende andeler: $nåværendeAndelerForPerson" +
+                                            "\nEndret utbetaling andeler: $endretUtbetalingAndelerForPerson",
                                     )
                                     throw Feil("Andel er satt til 0 kr, men det skyldes verken differanseberegning eller endret utbetaling andel")
                                 }
@@ -160,12 +159,12 @@ object BehandlingsresultatSøknadUtils {
             this.size == 1 -> this.single()
             resultaterUtenIngenEndringer.size == 1 -> resultaterUtenIngenEndringer.single()
             resultaterUtenIngenEndringer.size == 2 &&
-                    resultaterUtenIngenEndringer.containsAll(
-                        listOf(
-                            Søknadsresultat.INNVILGET,
-                            Søknadsresultat.AVSLÅTT,
-                        ),
-                    )
+                resultaterUtenIngenEndringer.containsAll(
+                    listOf(
+                        Søknadsresultat.INNVILGET,
+                        Søknadsresultat.AVSLÅTT,
+                    ),
+                )
             -> Søknadsresultat.DELVIS_INNVILGET
 
             else -> throw Feil("Klarer ikke kombinere søknadsresultater: $this")

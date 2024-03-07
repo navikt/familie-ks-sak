@@ -87,7 +87,6 @@ object EndringIVilkårsvurderingUtil {
                 Vilkår.BARNEHAGEPLASS,
                 Vilkår.MEDLEMSKAP,
                 Vilkår.MEDLEMSKAP_ANNEN_FORELDER,
-                Vilkår.LOVLIG_OPPHOLD,
                 -> false
             }
         }

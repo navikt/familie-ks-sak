@@ -611,7 +611,7 @@ fun lagVilkårResultaterForDeltBosted(
 }
 
 fun lagEndretUtbetalingAndel(
-    behandlingId: Long,
+    behandlingId: Long = 0,
     person: Person,
     prosent: BigDecimal? = null,
     periodeFom: YearMonth = YearMonth.now().minusMonths(1),
@@ -666,6 +666,7 @@ fun lagPersonResultat(
     personType: PersonType = PersonType.BARN,
     vilkårType: Vilkår = Vilkår.BOSATT_I_RIKET,
     erDeltBosted: Boolean = false,
+    erEksplisittAvslagPåSøknad: Boolean = false,
 ): PersonResultat {
     val personResultat =
         PersonResultat(
@@ -684,6 +685,7 @@ fun lagPersonResultat(
                     resultat = resultat,
                     begrunnelse = "",
                     behandlingId = vilkårsvurdering.behandling.id,
+                    erEksplisittAvslagPåSøknad = erEksplisittAvslagPåSøknad,
                     utdypendeVilkårsvurderinger =
                         listOfNotNull(
                             when {
@@ -1033,7 +1035,6 @@ fun lagVedtak(
         vedtaksdato = LocalDateTime.now(),
         stønadBrevPdf = stønadBrevPdF,
     )
-
 
 fun lagVilkårsvurdering(
     søkerAktør: Aktør,
