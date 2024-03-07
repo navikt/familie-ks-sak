@@ -11,11 +11,12 @@ import io.mockk.verify
 import no.nav.familie.kontrakter.felles.simulering.DetaljertSimuleringResultat
 import no.nav.familie.kontrakter.felles.simulering.MottakerType
 import no.nav.familie.kontrakter.felles.simulering.SimuleringMottaker
+import no.nav.familie.ks.sak.config.FeatureToggleConfig
 import no.nav.familie.ks.sak.data.lagBehandling
+import no.nav.familie.ks.sak.data.lagBeregnetUtbetalingsoppdrag
 import no.nav.familie.ks.sak.data.lagSimulertPostering
-import no.nav.familie.ks.sak.data.lagTilkjentYtelse
-import no.nav.familie.ks.sak.data.lagUtbetalingsoppdrag
 import no.nav.familie.ks.sak.data.lagUtbetalingsperiode
+import no.nav.familie.ks.sak.data.lagVedtak
 import no.nav.familie.ks.sak.data.lagØkonomiSimuleringMottaker
 import no.nav.familie.ks.sak.data.lagØkonomiSimuleringPostering
 import no.nav.familie.ks.sak.integrasjon.oppdrag.OppdragKlient
@@ -28,6 +29,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.simulering.domene.ØkonomiSi
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.Vedtak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.VedtakRepository
 import no.nav.familie.ks.sak.kjerne.beregning.BeregningService
+import no.nav.familie.unleash.UnleashService
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.jupiter.params.ParameterizedTest
@@ -54,6 +56,9 @@ class SimuleringServiceTest {
 
     @MockK
     private lateinit var behandlingRepository: BehandlingRepository
+
+    @MockK
+    private lateinit var unleashService: UnleashService
 
     @InjectMockKs
     private lateinit var simuleringService: SimuleringService
@@ -83,6 +88,7 @@ class SimuleringServiceTest {
 
         every { behandlingRepository.hentBehandling(behandling.id) } returns behandling
         every { øknomiSimuleringMottakerRepository.findByBehandlingId(behandling.id) } returns eksisterendeSimulering
+        every { unleashService.isEnabled(FeatureToggleConfig.BRUK_NY_UTBETALINGSGENERATOR, mapOf("fagsakId" to behandling.fagsak.id.toString())) } returns true
 
         val simulering = simuleringService.oppdaterSimuleringPåBehandlingVedBehov(behandlingId = behandling.id)
 
@@ -126,6 +132,7 @@ class SimuleringServiceTest {
 
         every { behandlingRepository.hentBehandling(behandling.id) } returns behandling
         every { øknomiSimuleringMottakerRepository.findByBehandlingId(behandling.id) } returns eksisterendeSimulering
+        every { unleashService.isEnabled(FeatureToggleConfig.BRUK_NY_UTBETALINGSGENERATOR, mapOf("fagsakId" to behandling.fagsak.id.toString())) } returns true
 
         val simulering = simuleringService.oppdaterSimuleringPåBehandlingVedBehov(behandlingId = behandling.id)
 
@@ -175,19 +182,16 @@ class SimuleringServiceTest {
         every { beregningService.innvilgetSøknadUtenUtbetalingsperioderGrunnetEndringsPerioder(behandling = behandling) } returns false
         every {
             utbetalingsoppdragService.genererUtbetalingsoppdragOgOppdaterTilkjentYtelse(
-                any(),
-                any(),
-                any(),
-                any(),
+                vedtak = any(),
+                saksbehandlerId = any(),
+                erSimulering = any(),
             )
         } returns
-            lagTilkjentYtelse(
-                utbetalingsoppdrag = lagUtbetalingsoppdrag(listOf(lagUtbetalingsperiode())),
-                behandling = behandling,
-            )
+            lagBeregnetUtbetalingsoppdrag(vedtak = lagVedtak(behandling), listOf(lagUtbetalingsperiode(vedtak = lagVedtak(behandling))))
         every { oppdragKlient.hentSimulering(any()) } returns DetaljertSimuleringResultat(simuleringMottaker = nySimulering)
         every { øknomiSimuleringMottakerRepository.deleteByBehandlingId(any()) } just runs
         every { øknomiSimuleringMottakerRepository.saveAll(any<List<ØkonomiSimuleringMottaker>>()) } returns mockk()
+        every { unleashService.isEnabled(FeatureToggleConfig.BRUK_NY_UTBETALINGSGENERATOR, mapOf("fagsakId" to behandling.fagsak.id.toString())) } returns true
 
         simuleringService.oppdaterSimuleringPåBehandlingVedBehov(behandlingId = behandling.id)
 
