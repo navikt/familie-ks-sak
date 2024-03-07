@@ -17,7 +17,7 @@ Egenskap: Vedtaksperioder
       | 1            | 1       | SØKER      | 19.06.1988  |
       | 1            | 2       | BARN       | 04.02.2022  |
 
-  Scenario: Skal få opp vedtasperioder
+  Scenario: Skal få opp vedtaksperioder
     Og følgende dagens dato 11.01.2024
 
     Og følgende vilkårresultater for behandling 1

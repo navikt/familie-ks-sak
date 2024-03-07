@@ -557,8 +557,8 @@ class BrevPeriodeContext(
 
                 vilkårResultatErIkkeOppfylt && vilkårResultatOverstiger33Timer
             }
-            .minOf { it.periodeFom ?: fom }
-            .tilMånedÅr()
+            .minOfOrNull { it.periodeFom ?: fom }
+            ?.tilMånedÅr() ?: fom.tilMånedÅr()
 
     private fun kastFeilHvisFomErUgyldig(fom: LocalDate) {
         if (fom == TIDENES_MORGEN) {
