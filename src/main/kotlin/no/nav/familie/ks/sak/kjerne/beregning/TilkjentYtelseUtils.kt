@@ -15,7 +15,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Utd
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.tilFørskjøvetVilkårResultatTidslinjeDerVilkårErOppfyltForPerson
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.tilForskjøvetVilkårResultatTidslinjeDerVilkårErOppfyltForPerson
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.domene.SatsPeriode
 import no.nav.familie.ks.sak.kjerne.beregning.domene.TilkjentYtelse
@@ -66,13 +66,13 @@ object TilkjentYtelseUtils {
         tilkjentYtelse: TilkjentYtelse,
     ): List<AndelTilkjentYtelse> {
         val søkersVilkårResultaterForskjøvetTidslinje =
-            vilkårsvurdering.personResultater.tilFørskjøvetVilkårResultatTidslinjeDerVilkårErOppfyltForPerson(
+            vilkårsvurdering.personResultater.tilForskjøvetVilkårResultatTidslinjeDerVilkårErOppfyltForPerson(
                 personopplysningGrunnlag.søker,
             )
 
         return personopplysningGrunnlag.barna.flatMap { barn ->
             val barnetsVilkårResultaterForskjøvetTidslinje =
-                vilkårsvurdering.personResultater.tilFørskjøvetVilkårResultatTidslinjeDerVilkårErOppfyltForPerson(barn)
+                vilkårsvurdering.personResultater.tilForskjøvetVilkårResultatTidslinjeDerVilkårErOppfyltForPerson(barn)
 
             val barnVilkårResultaterForskjøvetBådeBarnOgSøkerHarAlleOppfylt =
                 barnetsVilkårResultaterForskjøvetTidslinje.kombinerMed(

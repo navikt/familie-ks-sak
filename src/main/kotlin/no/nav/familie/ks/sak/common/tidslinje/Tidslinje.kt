@@ -48,6 +48,8 @@ open class Tidslinje<T>(
             }
     }
 
+    fun erTom() = innhold.sumOf { it.lengde } == 0
+
     /**
      * Kalkulerer slutttidspunkt som en LocalDate.
      * Funksjonen returnerer den siste dagen som er med i tidslinja
