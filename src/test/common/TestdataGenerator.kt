@@ -2,6 +2,8 @@ package no.nav.familie.ks.sak.data
 
 import io.mockk.mockk
 import no.nav.commons.foedselsnummer.testutils.FoedselsnummerGenerator
+import no.nav.familie.felles.utbetalingsgenerator.domain.AndelMedPeriodeIdLongId
+import no.nav.familie.felles.utbetalingsgenerator.domain.BeregnetUtbetalingsoppdragLongId
 import no.nav.familie.kontrakter.felles.objectMapper
 import no.nav.familie.kontrakter.felles.oppdrag.Opphør
 import no.nav.familie.kontrakter.felles.oppdrag.Utbetalingsoppdrag
@@ -55,6 +57,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vil
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelse
+import no.nav.familie.ks.sak.kjerne.beregning.domene.SatsType
 import no.nav.familie.ks.sak.kjerne.beregning.domene.TilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.domene.YtelseType
 import no.nav.familie.ks.sak.kjerne.beregning.domene.maksBeløp
@@ -342,7 +345,9 @@ fun lagAndelTilkjentYtelse(
     prosent: BigDecimal = BigDecimal(100),
     nasjonaltPeriodebeløp: Int = sats,
     differanseberegnetPeriodebeløp: Int? = null,
+    id: Long = 0L,
 ) = AndelTilkjentYtelse(
+    id = id,
     behandlingId = behandling.id,
     tilkjentYtelse = tilkjentYtelse ?: lagInitieltTilkjentYtelse(behandling),
     aktør = aktør ?: behandling.fagsak.aktør,
@@ -711,6 +716,37 @@ fun lagPersonResultat(
     }
     return personResultat
 }
+
+fun lagBeregnetUtbetalingsoppdrag(
+    vedtak: Vedtak,
+    utbetlingsperioder: List<no.nav.familie.felles.utbetalingsgenerator.domain.Utbetalingsperiode> = emptyList(),
+) =
+    BeregnetUtbetalingsoppdragLongId(
+        no.nav.familie.felles.utbetalingsgenerator.domain.Utbetalingsoppdrag(
+            aktoer = "",
+            fagSystem = "KS",
+            saksnummer = "1234",
+            kodeEndring = no.nav.familie.felles.utbetalingsgenerator.domain.Utbetalingsoppdrag.KodeEndring.NY,
+            saksbehandlerId = "123abc",
+            utbetalingsperiode = utbetlingsperioder,
+        ),
+        listOf(AndelMedPeriodeIdLongId(id = 0L, periodeId = 0L, forrigePeriodeId = null, kildeBehandlingId = vedtak.behandling.id)),
+    )
+
+fun lagUtbetalingsperiode(vedtak: Vedtak) =
+    no.nav.familie.felles.utbetalingsgenerator.domain.Utbetalingsperiode(
+        erEndringPåEksisterendePeriode = false,
+        periodeId = 0L,
+        forrigePeriodeId = null,
+        datoForVedtak = LocalDate.now(),
+        klassifisering = "KS",
+        vedtakdatoFom = LocalDate.now().minusMonths(5),
+        vedtakdatoTom = LocalDate.now(),
+        sats = maksBeløp().toBigDecimal(),
+        satsType = no.nav.familie.felles.utbetalingsgenerator.domain.Utbetalingsperiode.SatsType.MND,
+        behandlingId = vedtak.behandling.id,
+        utbetalesTil = "",
+    )
 
 fun lagTilkjentYtelse(
     utbetalingsoppdrag: Utbetalingsoppdrag,

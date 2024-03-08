@@ -1,6 +1,5 @@
 package no.nav.familie.ks.sak.common.domeneparser
 
-import no.nav.familie.ba.sak.cucumber.domeneparser.ÅrMånedEllerDato
 import java.math.BigDecimal
 import java.time.LocalDate
 import java.time.YearMonth

@@ -1,8 +1,8 @@
 package no.nav.familie.ks.sak.integrasjon.økonomi.utbetalingsoppdrag
 
 import io.mockk.junit5.MockKExtension
-import no.nav.familie.kontrakter.felles.objectMapper
-import no.nav.familie.kontrakter.felles.oppdrag.Utbetalingsoppdrag
+import no.nav.familie.felles.utbetalingsgenerator.domain.AndelMedPeriodeIdLongId
+import no.nav.familie.felles.utbetalingsgenerator.domain.IdentOgType
 import no.nav.familie.ks.sak.common.util.førsteDagIInneværendeMåned
 import no.nav.familie.ks.sak.data.dato
 import no.nav.familie.ks.sak.data.fnrTilAktør
@@ -11,7 +11,6 @@ import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagFagsak
 import no.nav.familie.ks.sak.data.randomFnr
 import no.nav.familie.ks.sak.data.årMåned
-import no.nav.familie.ks.sak.integrasjon.økonomi.ØkonomiUtils
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingStegStatus
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.Vedtak
@@ -30,7 +29,7 @@ internal class UtbetalingsoppdragGeneratorTest {
     private val utbetalingsoppdragGenerator = UtbetalingsoppdragGenerator()
 
     @Test
-    fun `lagTilkjentYtelseMedUtbetalingsoppdrag skal opprette et nytt utbetalingsoppdrag med felles løpende periodeId og separat kjeding på to personer`() {
+    fun `lagUtbetalingsoppdrag skal opprette et nytt utbetalingsoppdrag med felles løpende periodeId og separat kjeding på to personer`() {
         val tidNå = LocalDate.now()
 
         val behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD)
@@ -41,26 +40,27 @@ internal class UtbetalingsoppdragGeneratorTest {
 
         val andelTilkjentYtelser =
             listOf(
-                lagAndelTilkjentYtelse(tilkjentYtelse, behandling, aktør, årMåned("2019-04"), årMåned("2023-03")),
-                lagAndelTilkjentYtelse(tilkjentYtelse, behandling, aktør, årMåned("2026-05"), årMåned("2027-06")),
-                lagAndelTilkjentYtelse(tilkjentYtelse, behandling, aktør2, årMåned("2019-03"), årMåned("2037-02")),
-                lagAndelTilkjentYtelse(tilkjentYtelse, behandling, aktør2, årMåned("2037-05"), årMåned("2050-02")),
+                lagAndelTilkjentYtelse(tilkjentYtelse, behandling, aktør, årMåned("2019-04"), årMåned("2023-03"), id = 0),
+                lagAndelTilkjentYtelse(tilkjentYtelse, behandling, aktør, årMåned("2026-05"), årMåned("2027-06"), id = 1),
+                lagAndelTilkjentYtelse(tilkjentYtelse, behandling, aktør2, årMåned("2019-03"), årMåned("2037-02"), id = 2),
+                lagAndelTilkjentYtelse(tilkjentYtelse, behandling, aktør2, årMåned("2037-05"), årMåned("2050-02"), id = 3),
             )
 
         tilkjentYtelse.andelerTilkjentYtelse.addAll(andelTilkjentYtelser)
 
-        val oppdatertTilkjentYtelse =
-            utbetalingsoppdragGenerator.lagTilkjentYtelseMedUtbetalingsoppdrag(
-                lagVedtakMedTilkjentYtelse(
-                    vedtak = vedtak,
-                    tilkjentYtelse = tilkjentYtelse,
-                ),
-                AndelTilkjentYtelseForIverksetting.Factory,
+        val beregnetUtbetalingsoppdragLongId =
+            utbetalingsoppdragGenerator.lagUtbetalingsoppdrag(
+                saksbehandlerId = "123abc",
+                vedtak = vedtak,
+                forrigeTilkjentYtelse = null,
+                nyTilkjentYtelse = tilkjentYtelse,
+                sisteAndelPerKjede = emptyMap(),
+                erSimulering = false,
             )
 
-        val utbetalingsoppdrag = konvertTilUtbetalingsoppdrag(oppdatertTilkjentYtelse.utbetalingsoppdrag)
+        val utbetalingsoppdrag = beregnetUtbetalingsoppdragLongId.utbetalingsoppdrag
 
-        assertThat(utbetalingsoppdrag.kodeEndring, Is(Utbetalingsoppdrag.KodeEndring.NY))
+        assertThat(utbetalingsoppdrag.kodeEndring, Is(no.nav.familie.felles.utbetalingsgenerator.domain.Utbetalingsoppdrag.KodeEndring.NY))
         assertThat(utbetalingsoppdrag.utbetalingsperiode.size, Is(4))
         assertThat(utbetalingsoppdrag.utbetalingsperiode.all { it.sats == BigDecimal(7500) }, Is(true))
         assertThat(
@@ -90,7 +90,7 @@ internal class UtbetalingsoppdragGeneratorTest {
     }
 
     @Test
-    fun `lagTilkjentYtelseMedUtbetalingsoppdrag skal opprette et fullstendig opphør for to personer, hvor opphørsdatoer blir første dato i hver kjede`() {
+    fun `lagUtbetalingsoppdrag skal opprette et fullstendig opphør for to personer, hvor opphørsdatoer blir første dato i hver kjede`() {
         val tidNå = LocalDate.now()
 
         val behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD)
@@ -113,6 +113,7 @@ internal class UtbetalingsoppdragGeneratorTest {
                     stønadFom = førsteDatoKjede1,
                     stønadTom = årMåned("2023-03"),
                     periodeOffset = 0,
+                    id = 0,
                 ),
                 lagAndelTilkjentYtelse(
                     tilkjentYtelse = forrigeTilkjentYtelse,
@@ -121,6 +122,7 @@ internal class UtbetalingsoppdragGeneratorTest {
                     stønadFom = årMåned("2026-05"),
                     stønadTom = årMåned("2027-06"),
                     periodeOffset = 1,
+                    id = 1,
                 ),
                 lagAndelTilkjentYtelse(
                     tilkjentYtelse = forrigeTilkjentYtelse,
@@ -129,28 +131,23 @@ internal class UtbetalingsoppdragGeneratorTest {
                     stønadFom = førsteDatoKjede2,
                     stønadTom = årMåned("2037-02"),
                     periodeOffset = 2,
+                    id = 2,
                 ),
             )
 
         forrigeTilkjentYtelse.andelerTilkjentYtelse.addAll(andelTilkjentYtelser)
 
-        val oppdatertTilkjentYtelse =
-            utbetalingsoppdragGenerator.lagTilkjentYtelseMedUtbetalingsoppdrag(
-                lagVedtakMedTilkjentYtelse(
-                    vedtak = vedtak,
-                    tilkjentYtelse = TilkjentYtelse(behandling = behandling, opprettetDato = tidNå, endretDato = tidNå),
-                    sisteOffsetPerIdent =
-                        ØkonomiUtils.gjeldendeForrigeOffsetForKjede(
-                            ØkonomiUtils.kjedeinndelteAndeler(
-                                andelTilkjentYtelser.forIverksetting(),
-                            ),
-                        ),
-                ),
-                AndelTilkjentYtelseForIverksetting.Factory,
-                forrigeTilkjentYtelseMedAndeler = forrigeTilkjentYtelse,
+        val beregnetUtbetalingsoppdragLongId =
+            utbetalingsoppdragGenerator.lagUtbetalingsoppdrag(
+                saksbehandlerId = "123abc",
+                vedtak = vedtak,
+                forrigeTilkjentYtelse = forrigeTilkjentYtelse,
+                nyTilkjentYtelse = TilkjentYtelse(behandling = behandling, opprettetDato = tidNå, endretDato = tidNå),
+                sisteAndelPerKjede = andelTilkjentYtelser.groupBy { andelTilkjentYtelse -> IdentOgType(ident = andelTilkjentYtelse.aktør.aktivFødselsnummer(), type = YtelsetypeKS.ORDINÆR_KONTANTSTØTTE) }.filterValues { andelTilkjentYtelse -> andelTilkjentYtelse.any { it.periodeOffset != null } }.mapValues { it.value.maxBy { andelTilkjentYtelse -> andelTilkjentYtelse.periodeOffset!! } },
+                erSimulering = false,
             )
 
-        val utbetalingsoppdrag = konvertTilUtbetalingsoppdrag(oppdatertTilkjentYtelse.utbetalingsoppdrag)
+        val utbetalingsoppdrag = beregnetUtbetalingsoppdragLongId.utbetalingsoppdrag
 
         assertThat(utbetalingsoppdrag.utbetalingsperiode.size, Is(2))
         assertThat(utbetalingsoppdrag.utbetalingsperiode.all { it.sats == BigDecimal(7500) }, Is(true))
@@ -207,7 +204,7 @@ internal class UtbetalingsoppdragGeneratorTest {
                     aktør = aktør,
                     stønadFom = årMåned("2020-01"),
                     stønadTom = årMåned("2029-12"),
-                    periodeOffset = 0,
+                    id = 0,
                 ),
                 lagAndelTilkjentYtelse(
                     tilkjentYtelse = tilkjentYtelseIFørsteBehandling,
@@ -215,7 +212,7 @@ internal class UtbetalingsoppdragGeneratorTest {
                     aktør = aktør,
                     stønadFom = fomDatoSomEndres,
                     stønadTom = årMåned("2034-12"),
-                    periodeOffset = 1,
+                    id = 1,
                 ),
                 lagAndelTilkjentYtelse(
                     tilkjentYtelse = tilkjentYtelseIFørsteBehandling,
@@ -223,23 +220,25 @@ internal class UtbetalingsoppdragGeneratorTest {
                     aktør = aktør,
                     stønadFom = årMåned("2037-01"),
                     stønadTom = årMåned("2039-12"),
-                    periodeOffset = 2,
+                    id = 2,
                 ),
             )
 
         tilkjentYtelseIFørsteBehandling.andelerTilkjentYtelse.addAll(andelTilkjentYtelserIFørsteBehandling)
 
-        val oppdatertTilkjentYtelseIFørsteBehandling =
-            utbetalingsoppdragGenerator.lagTilkjentYtelseMedUtbetalingsoppdrag(
-                lagVedtakMedTilkjentYtelse(
-                    vedtak = vedtak,
-                    tilkjentYtelse = tilkjentYtelseIFørsteBehandling,
-                ),
-                AndelTilkjentYtelseForIverksetting.Factory,
+        val beregnetUtbetalingsoppdragLongId1 =
+            utbetalingsoppdragGenerator.lagUtbetalingsoppdrag(
+                saksbehandlerId = "123abc",
+                vedtak = vedtak,
+                forrigeTilkjentYtelse = null,
+                nyTilkjentYtelse = tilkjentYtelseIFørsteBehandling,
+                sisteAndelPerKjede = emptyMap(),
+                erSimulering = false,
             )
 
+        val oppdaterteAndelerTilkjentYtelseFørsteBehandling = tilkjentYtelseIFørsteBehandling.tilAndelerMedOppdatertOffset(beregnetUtbetalingsoppdragLongId1.andeler)
+
         val andreBehandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD, fagsak = fagsak)
-        val andreVedtak = Vedtak(behandling = andreBehandling)
 
         val tilkjentYtelseIAndreBehandling =
             TilkjentYtelse(behandling = andreBehandling, opprettetDato = tidNå, endretDato = tidNå)
@@ -252,7 +251,7 @@ internal class UtbetalingsoppdragGeneratorTest {
                     aktør = aktør,
                     stønadFom = årMåned("2020-01"),
                     stønadTom = årMåned("2029-12"),
-                    periodeOffset = 0,
+                    id = 3,
                 ),
                 lagAndelTilkjentYtelse(
                     tilkjentYtelse = tilkjentYtelseIAndreBehandling,
@@ -260,7 +259,7 @@ internal class UtbetalingsoppdragGeneratorTest {
                     aktør = aktør,
                     stønadFom = årMåned("2034-01"),
                     stønadTom = årMåned("2034-12"),
-                    periodeOffset = 3,
+                    id = 4,
                 ),
                 lagAndelTilkjentYtelse(
                     tilkjentYtelse = tilkjentYtelseIAndreBehandling,
@@ -268,32 +267,23 @@ internal class UtbetalingsoppdragGeneratorTest {
                     aktør = aktør,
                     stønadFom = årMåned("2037-01"),
                     stønadTom = årMåned("2039-12"),
-                    periodeOffset = 4,
+                    id = 5,
                 ),
             )
 
         tilkjentYtelseIAndreBehandling.andelerTilkjentYtelse.addAll(andelTilkjentYtelserIAndreBehandling)
-        val sisteOffsetPåFagsak = 2
 
-        val oppdatertTilkjentYtelseIAndreBehandling =
-            utbetalingsoppdragGenerator.lagTilkjentYtelseMedUtbetalingsoppdrag(
-                lagVedtakMedTilkjentYtelse(
-                    vedtak = andreVedtak,
-                    sisteOffsetPerIdent =
-                        ØkonomiUtils.gjeldendeForrigeOffsetForKjede(
-                            ØkonomiUtils.kjedeinndelteAndeler(
-                                andelTilkjentYtelserIFørsteBehandling.forIverksetting(),
-                            ),
-                        ),
-                    sisteOffsetPåFagsak = sisteOffsetPåFagsak,
-                    tilkjentYtelse = tilkjentYtelseIAndreBehandling,
-                ),
-                AndelTilkjentYtelseForIverksetting.Factory,
-                forrigeTilkjentYtelseMedAndeler = oppdatertTilkjentYtelseIFørsteBehandling,
+        val beregnetUtbetalingsoppdragLongId =
+            utbetalingsoppdragGenerator.lagUtbetalingsoppdrag(
+                saksbehandlerId = "123abc",
+                vedtak = vedtak,
+                forrigeTilkjentYtelse = tilkjentYtelseIFørsteBehandling,
+                nyTilkjentYtelse = tilkjentYtelseIAndreBehandling,
+                sisteAndelPerKjede = oppdaterteAndelerTilkjentYtelseFørsteBehandling.groupBy { andelTilkjentYtelse -> IdentOgType(ident = andelTilkjentYtelse.aktør.aktivFødselsnummer(), type = YtelsetypeKS.ORDINÆR_KONTANTSTØTTE) }.filterValues { andelTilkjentYtelse -> andelTilkjentYtelse.any { it.periodeOffset != null } }.mapValues { it.value.maxBy { andelTilkjentYtelse -> andelTilkjentYtelse.periodeOffset!! } },
+                erSimulering = false,
             )
 
-        val utbetalingsoppdrag =
-            konvertTilUtbetalingsoppdrag(oppdatertTilkjentYtelseIAndreBehandling.utbetalingsoppdrag)
+        val utbetalingsoppdrag = beregnetUtbetalingsoppdragLongId.utbetalingsoppdrag
 
         assertThat(utbetalingsoppdrag.utbetalingsperiode.size, Is(3))
         assertThat(utbetalingsoppdrag.utbetalingsperiode.all { it.sats == BigDecimal(7500) }, Is(true))
@@ -301,7 +291,7 @@ internal class UtbetalingsoppdragGeneratorTest {
             utbetalingsoppdrag.utbetalingsperiode.all { it.utbetalesTil == førsteBehandling.fagsak.aktør.aktivFødselsnummer() },
             Is(true),
         )
-        assertThat(utbetalingsoppdrag.kodeEndring, Is(Utbetalingsoppdrag.KodeEndring.ENDR))
+        assertThat(utbetalingsoppdrag.kodeEndring, Is(no.nav.familie.felles.utbetalingsgenerator.domain.Utbetalingsoppdrag.KodeEndring.ENDR))
         assertThat(utbetalingsoppdrag.utbetalingsperiode.count { it.opphør != null }, Is(1))
         assertThat(utbetalingsoppdrag.utbetalingsperiode.count { it.opphør == null }, Is(2))
 
@@ -348,7 +338,7 @@ internal class UtbetalingsoppdragGeneratorTest {
                     aktør = aktør,
                     stønadFom = årMåned("2020-01"),
                     stønadTom = årMåned("2029-12"),
-                    periodeOffset = 0,
+                    id = 0,
                 ),
                 lagAndelTilkjentYtelse(
                     tilkjentYtelse = tilkjentYtelseIFørsteBehandling,
@@ -356,7 +346,7 @@ internal class UtbetalingsoppdragGeneratorTest {
                     aktør = aktør,
                     stønadFom = årMåned("2033-01"),
                     stønadTom = årMåned("2034-12"),
-                    periodeOffset = 1,
+                    id = 1,
                 ),
             )
 
@@ -364,16 +354,18 @@ internal class UtbetalingsoppdragGeneratorTest {
         tilkjentYtelseIFørsteBehandling.utbetalingsoppdrag = "Oppdrag"
 
         val oppdatertTilkjentYtelseIFørsteBehandling =
-            utbetalingsoppdragGenerator.lagTilkjentYtelseMedUtbetalingsoppdrag(
-                lagVedtakMedTilkjentYtelse(
-                    vedtak = vedtak,
-                    tilkjentYtelse = tilkjentYtelseIFørsteBehandling,
-                ),
-                AndelTilkjentYtelseForIverksetting.Factory,
+            utbetalingsoppdragGenerator.lagUtbetalingsoppdrag(
+                saksbehandlerId = "123abc",
+                vedtak = vedtak,
+                forrigeTilkjentYtelse = null,
+                nyTilkjentYtelse = tilkjentYtelseIFørsteBehandling,
+                sisteAndelPerKjede = emptyMap(),
+                erSimulering = false,
             )
 
+        val oppdaterteAndelerTilkjentYtelseFørsteBehandling = tilkjentYtelseIFørsteBehandling.tilAndelerMedOppdatertOffset(oppdatertTilkjentYtelseIFørsteBehandling.andeler)
+
         val andreBehandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD, fagsak = fagsak)
-        val andreVedtak = Vedtak(behandling = andreBehandling)
         val nyAktør = fnrTilAktør(randomFnr())
 
         val tilkjentYtelseIAndreBehandling =
@@ -387,7 +379,7 @@ internal class UtbetalingsoppdragGeneratorTest {
                     aktør = nyAktør,
                     stønadFom = årMåned("2022-01"),
                     stønadTom = årMåned("2034-12"),
-                    periodeOffset = 2,
+                    id = 2,
                 ),
                 lagAndelTilkjentYtelse(
                     tilkjentYtelse = tilkjentYtelseIAndreBehandling,
@@ -395,32 +387,23 @@ internal class UtbetalingsoppdragGeneratorTest {
                     aktør = nyAktør,
                     stønadFom = årMåned("2037-01"),
                     stønadTom = årMåned("2039-12"),
-                    periodeOffset = 3,
+                    id = 3,
                 ),
             )
 
         tilkjentYtelseIAndreBehandling.andelerTilkjentYtelse.addAll(andelTilkjentYtelserIAndreBehandling)
-        val sisteOffsetPåFagsak = 1
 
         val oppdatertTilkjentYtelseIAndreBehandling =
-            utbetalingsoppdragGenerator.lagTilkjentYtelseMedUtbetalingsoppdrag(
-                lagVedtakMedTilkjentYtelse(
-                    vedtak = andreVedtak,
-                    sisteOffsetPerIdent =
-                        ØkonomiUtils.gjeldendeForrigeOffsetForKjede(
-                            ØkonomiUtils.kjedeinndelteAndeler(
-                                andelTilkjentYtelserIFørsteBehandling.forIverksetting(),
-                            ),
-                        ),
-                    sisteOffsetPåFagsak = sisteOffsetPåFagsak,
-                    tilkjentYtelse = tilkjentYtelseIAndreBehandling,
-                ),
-                AndelTilkjentYtelseForIverksetting.Factory,
-                forrigeTilkjentYtelseMedAndeler = oppdatertTilkjentYtelseIFørsteBehandling,
+            utbetalingsoppdragGenerator.lagUtbetalingsoppdrag(
+                saksbehandlerId = "123abc",
+                vedtak = vedtak,
+                forrigeTilkjentYtelse = tilkjentYtelseIFørsteBehandling,
+                nyTilkjentYtelse = tilkjentYtelseIAndreBehandling,
+                sisteAndelPerKjede = oppdaterteAndelerTilkjentYtelseFørsteBehandling.groupBy { andelTilkjentYtelse -> IdentOgType(ident = andelTilkjentYtelse.aktør.aktivFødselsnummer(), type = YtelsetypeKS.ORDINÆR_KONTANTSTØTTE) }.filterValues { andelTilkjentYtelse -> andelTilkjentYtelse.any { it.periodeOffset != null } }.mapValues { it.value.maxBy { andelTilkjentYtelse -> andelTilkjentYtelse.periodeOffset!! } },
+                erSimulering = false,
             )
 
-        val utbetalingsoppdrag =
-            konvertTilUtbetalingsoppdrag(oppdatertTilkjentYtelseIAndreBehandling.utbetalingsoppdrag)
+        val utbetalingsoppdrag = oppdatertTilkjentYtelseIAndreBehandling.utbetalingsoppdrag
 
         assertThat(utbetalingsoppdrag.utbetalingsperiode.size, Is(3))
         assertThat(utbetalingsoppdrag.utbetalingsperiode.all { it.sats == BigDecimal(7500) }, Is(true))
@@ -428,7 +411,7 @@ internal class UtbetalingsoppdragGeneratorTest {
             utbetalingsoppdrag.utbetalingsperiode.all { it.utbetalesTil == førsteBehandling.fagsak.aktør.aktivFødselsnummer() },
             Is(true),
         )
-        assertThat(utbetalingsoppdrag.kodeEndring, Is(Utbetalingsoppdrag.KodeEndring.ENDR))
+        assertThat(utbetalingsoppdrag.kodeEndring, Is(no.nav.familie.felles.utbetalingsgenerator.domain.Utbetalingsoppdrag.KodeEndring.ENDR))
         assertThat(utbetalingsoppdrag.utbetalingsperiode.count { it.opphør != null }, Is(1))
         assertThat(utbetalingsoppdrag.utbetalingsperiode.count { it.opphør == null }, Is(2))
 
@@ -449,7 +432,7 @@ internal class UtbetalingsoppdragGeneratorTest {
     }
 
     @Test
-    fun `lagTilkjentYtelseMedUtbetalingsoppdrag skal generere komplett utbetalingsoppdrag selvom ingen endringer har blitt gjort`() {
+    fun `lagUtbetalingsoppdrag skal ikke generere utbetalingsperioder for andeler som er uendret`() {
         val tidNå = LocalDate.now()
 
         val aktør = fnrTilAktør(randomFnr())
@@ -475,7 +458,7 @@ internal class UtbetalingsoppdragGeneratorTest {
                     aktør = aktør,
                     stønadFom = årMåned("2020-01"),
                     stønadTom = årMåned("2029-12"),
-                    periodeOffset = 0,
+                    id = 0,
                 ),
                 lagAndelTilkjentYtelse(
                     tilkjentYtelse = tilkjentYtelseIFørsteBehandling,
@@ -483,7 +466,7 @@ internal class UtbetalingsoppdragGeneratorTest {
                     aktør = aktør,
                     stønadFom = årMåned("2030-01"),
                     stønadTom = årMåned("2034-12"),
-                    periodeOffset = 1,
+                    id = 1,
                 ),
                 lagAndelTilkjentYtelse(
                     tilkjentYtelse = tilkjentYtelseIFørsteBehandling,
@@ -491,23 +474,25 @@ internal class UtbetalingsoppdragGeneratorTest {
                     aktør = aktør,
                     stønadFom = årMåned("2035-01"),
                     stønadTom = årMåned("2039-12"),
-                    periodeOffset = 2,
+                    id = 2,
                 ),
             )
 
         tilkjentYtelseIFørsteBehandling.andelerTilkjentYtelse.addAll(andelTilkjentYtelserIFørsteBehandling)
 
         val oppdatertTilkjentYtelseIFørsteBehandling =
-            utbetalingsoppdragGenerator.lagTilkjentYtelseMedUtbetalingsoppdrag(
-                lagVedtakMedTilkjentYtelse(
-                    vedtak = vedtak,
-                    tilkjentYtelse = tilkjentYtelseIFørsteBehandling,
-                ),
-                AndelTilkjentYtelseForIverksetting.Factory,
+            utbetalingsoppdragGenerator.lagUtbetalingsoppdrag(
+                saksbehandlerId = "123abc",
+                vedtak = vedtak,
+                forrigeTilkjentYtelse = null,
+                nyTilkjentYtelse = tilkjentYtelseIFørsteBehandling,
+                sisteAndelPerKjede = emptyMap(),
+                erSimulering = false,
             )
 
+        val oppdaterteAndelerTilkjentYtelseFørsteBehandling = tilkjentYtelseIFørsteBehandling.tilAndelerMedOppdatertOffset(oppdatertTilkjentYtelseIFørsteBehandling.andeler)
+
         val andreBehandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD, fagsak = fagsak)
-        val andreVedtak = Vedtak(behandling = andreBehandling)
 
         val tilkjentYtelseIAndreBehandling =
             TilkjentYtelse(behandling = andreBehandling, opprettetDato = tidNå, endretDato = tidNå)
@@ -520,7 +505,7 @@ internal class UtbetalingsoppdragGeneratorTest {
                     aktør = aktør,
                     stønadFom = årMåned("2020-01"),
                     stønadTom = årMåned("2029-12"),
-                    periodeOffset = 0,
+                    id = 3,
                 ),
                 lagAndelTilkjentYtelse(
                     tilkjentYtelse = tilkjentYtelseIAndreBehandling,
@@ -528,7 +513,7 @@ internal class UtbetalingsoppdragGeneratorTest {
                     aktør = aktør,
                     stønadFom = årMåned("2030-01"),
                     stønadTom = årMåned("2034-12"),
-                    periodeOffset = 3,
+                    id = 4,
                 ),
                 lagAndelTilkjentYtelse(
                     tilkjentYtelse = tilkjentYtelseIAndreBehandling,
@@ -536,82 +521,41 @@ internal class UtbetalingsoppdragGeneratorTest {
                     aktør = aktør,
                     stønadFom = årMåned("2035-01"),
                     stønadTom = årMåned("2039-12"),
-                    periodeOffset = 4,
+                    id = 5,
                 ),
             )
 
         tilkjentYtelseIAndreBehandling.andelerTilkjentYtelse.addAll(andelTilkjentYtelserIAndreBehandling)
-        val sisteOffsetPåFagsak = 2
 
-        val oppdatertTilkjentYtelseIAndreBehandling =
-            utbetalingsoppdragGenerator.lagTilkjentYtelseMedUtbetalingsoppdrag(
-                lagVedtakMedTilkjentYtelse(
-                    vedtak = andreVedtak,
-                    sisteOffsetPerIdent =
-                        ØkonomiUtils.gjeldendeForrigeOffsetForKjede(
-                            ØkonomiUtils.kjedeinndelteAndeler(
-                                andelTilkjentYtelserIFørsteBehandling.forIverksetting(),
-                            ),
-                        ),
-                    sisteOffsetPåFagsak = sisteOffsetPåFagsak,
-                    tilkjentYtelse = tilkjentYtelseIAndreBehandling,
-                    erSimulering = true,
-                ),
-                AndelTilkjentYtelseForIverksetting.Factory,
-                forrigeTilkjentYtelseMedAndeler = oppdatertTilkjentYtelseIFørsteBehandling,
+        val beregnetUtbetalingsoppdragLongId =
+            utbetalingsoppdragGenerator.lagUtbetalingsoppdrag(
+                saksbehandlerId = "123abc",
+                vedtak = vedtak,
+                forrigeTilkjentYtelse = tilkjentYtelseIFørsteBehandling,
+                nyTilkjentYtelse = tilkjentYtelseIAndreBehandling,
+                sisteAndelPerKjede = oppdaterteAndelerTilkjentYtelseFørsteBehandling.groupBy { andelTilkjentYtelse -> IdentOgType(ident = andelTilkjentYtelse.aktør.aktivFødselsnummer(), type = YtelsetypeKS.ORDINÆR_KONTANTSTØTTE) }.filterValues { andelTilkjentYtelse -> andelTilkjentYtelse.any { it.periodeOffset != null } }.mapValues { it.value.maxBy { andelTilkjentYtelse -> andelTilkjentYtelse.periodeOffset!! } },
+                erSimulering = false,
             )
 
-        val utbetalingsoppdrag =
-            konvertTilUtbetalingsoppdrag(oppdatertTilkjentYtelseIAndreBehandling.utbetalingsoppdrag)
+        val utbetalingsoppdrag = beregnetUtbetalingsoppdragLongId.utbetalingsoppdrag
 
-        assertThat(utbetalingsoppdrag.utbetalingsperiode.size, Is(4))
-        assertThat(utbetalingsoppdrag.utbetalingsperiode.all { it.sats == BigDecimal(7500) }, Is(true))
-        assertThat(
-            utbetalingsoppdrag.utbetalingsperiode.all { it.utbetalesTil == førsteBehandling.fagsak.aktør.aktivFødselsnummer() },
-            Is(true),
-        )
-        assertThat(utbetalingsoppdrag.kodeEndring, Is(Utbetalingsoppdrag.KodeEndring.ENDR))
-        assertThat(utbetalingsoppdrag.utbetalingsperiode.count { it.opphør != null }, Is(1))
-        assertThat(utbetalingsoppdrag.utbetalingsperiode.count { it.opphør == null }, Is(3))
-
-        assertThat(utbetalingsoppdrag.utbetalingsperiode[0].vedtakdatoFom, Is(dato("2035-01-01")))
-        assertThat(utbetalingsoppdrag.utbetalingsperiode[0].vedtakdatoTom, Is(dato("2039-12-31")))
-        assertThat(utbetalingsoppdrag.utbetalingsperiode[0].periodeId, Is(2))
-        assertThat(utbetalingsoppdrag.utbetalingsperiode[0].forrigePeriodeId, Is(1))
-
-        assertThat(utbetalingsoppdrag.utbetalingsperiode[1].vedtakdatoFom, Is(dato("2020-01-01")))
-        assertThat(utbetalingsoppdrag.utbetalingsperiode[1].vedtakdatoTom, Is(dato("2029-12-31")))
-        assertThat(utbetalingsoppdrag.utbetalingsperiode[1].periodeId, Is(3))
-        assertThat(utbetalingsoppdrag.utbetalingsperiode[1].forrigePeriodeId, Is(2))
-
-        assertThat(utbetalingsoppdrag.utbetalingsperiode[2].vedtakdatoFom, Is(dato("2030-01-01")))
-        assertThat(utbetalingsoppdrag.utbetalingsperiode[2].vedtakdatoTom, Is(dato("2034-12-31")))
-        assertThat(utbetalingsoppdrag.utbetalingsperiode[2].periodeId, Is(4))
-        assertThat(utbetalingsoppdrag.utbetalingsperiode[2].forrigePeriodeId, Is(3))
-
-        assertThat(utbetalingsoppdrag.utbetalingsperiode[3].vedtakdatoFom, Is(dato("2035-01-01")))
-        assertThat(utbetalingsoppdrag.utbetalingsperiode[3].vedtakdatoTom, Is(dato("2039-12-31")))
-        assertThat(utbetalingsoppdrag.utbetalingsperiode[3].periodeId, Is(5))
-        assertThat(utbetalingsoppdrag.utbetalingsperiode[3].forrigePeriodeId, Is(4))
+        assertThat(utbetalingsoppdrag.utbetalingsperiode.size, Is(0))
     }
 
-    private fun lagVedtakMedTilkjentYtelse(
-        vedtak: Vedtak,
-        tilkjentYtelse: TilkjentYtelse,
-        sisteOffsetPerIdent: Map<String, Int> = emptyMap(),
-        sisteOffsetPåFagsak: Int? = null,
-        erSimulering: Boolean = false,
-    ) = VedtakMedTilkjentYtelse(
-        tilkjentYtelse = tilkjentYtelse,
-        vedtak = vedtak,
-        saksbehandlerId = "saksbehandler",
-        sisteOffsetPerIdent = sisteOffsetPerIdent,
-        sisteOffsetPåFagsak = sisteOffsetPåFagsak,
-        erSimulering = erSimulering,
-    )
+    private fun TilkjentYtelse.tilAndelerMedOppdatertOffset(
+        andelerMedPeriodeId: List<AndelMedPeriodeIdLongId>,
+    ): MutableSet<AndelTilkjentYtelse> {
+        val andelerPåId = andelerMedPeriodeId.associateBy { it.id }
+        val andelerTilkjentYtelse = this.andelerTilkjentYtelse
 
-    private fun konvertTilUtbetalingsoppdrag(utbetalingsoppdragIString: String?) =
-        objectMapper.readValue(utbetalingsoppdragIString, Utbetalingsoppdrag::class.java)
+        andelerTilkjentYtelse.forEach { andel ->
+            if (andel.erAndelSomSkalSendesTilOppdrag()) {
+                val andelMedOffset = andelerPåId[andel.id]
+                andel.periodeOffset = andelMedOffset!!.periodeId
+                andel.forrigePeriodeOffset = andelMedOffset.forrigePeriodeId
+                andel.kildeBehandlingId = andelMedOffset.kildeBehandlingId
+            }
+        }
+        return andelerTilkjentYtelse
+    }
 }
-
-fun Collection<AndelTilkjentYtelse>.forIverksetting() = AndelTilkjentYtelseForIverksetting.Factory.pakkInnForUtbetaling(this)

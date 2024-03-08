@@ -21,27 +21,27 @@ import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
 
-fun Collection<PersonResultat>.tilFørskjøvetOppfylteVilkårResultatTidslinjeMap(
+fun Collection<PersonResultat>.tilForskjøvetOppfylteVilkårResultatTidslinjeMap(
     personopplysningGrunnlag: PersonopplysningGrunnlag,
 ): Map<Aktør, Tidslinje<List<VilkårResultat>>> =
     personopplysningGrunnlag.personer.associate { person ->
         Pair(
             person.aktør,
-            this.tilFørskjøvetVilkårResultatTidslinjeDerVilkårErOppfyltForPerson(person),
+            this.tilForskjøvetVilkårResultatTidslinjeDerVilkårErOppfyltForPerson(person),
         )
     }
 
-fun Collection<PersonResultat>.tilFørskjøvetVilkårResultatTidslinjeMap(
+fun Collection<PersonResultat>.tilForskjøvetVilkårResultatTidslinjeMap(
     personopplysningGrunnlag: PersonopplysningGrunnlag,
 ): Map<Aktør, Tidslinje<List<VilkårResultat>>> =
     personopplysningGrunnlag.personer.associate { person ->
         Pair(
             person.aktør,
-            this.tilFørskjøvetVilkårResultatTidslinjeForPerson(person),
+            this.tilForskjøvetVilkårResultatTidslinjeForPerson(person),
         )
     }
 
-fun Collection<PersonResultat>.tilFørskjøvetVilkårResultatTidslinjeForPerson(person: Person): Tidslinje<List<VilkårResultat>> {
+fun Collection<PersonResultat>.tilForskjøvetVilkårResultatTidslinjeForPerson(person: Person): Tidslinje<List<VilkårResultat>> {
     val forskjøvedeVilkårResultater = forskyvVilkårResultaterForPerson(person)
 
     return forskjøvedeVilkårResultater
@@ -71,7 +71,7 @@ private fun Collection<PersonResultat>.forskyvVilkårResultaterForPerson(person:
  * Forskyver vilkårene til periodene de er oppfylt for.
  * Tar kun med periodene der alle vilkår er oppfylt.
  */
-fun Collection<PersonResultat>.tilFørskjøvetVilkårResultatTidslinjeDerVilkårErOppfyltForPerson(
+fun Collection<PersonResultat>.tilForskjøvetVilkårResultatTidslinjeDerVilkårErOppfyltForPerson(
     person: Person,
 ): Tidslinje<List<VilkårResultat>> {
     val forskjøvedeVilkårResultater = forskyvVilkårResultaterForPerson(person)
