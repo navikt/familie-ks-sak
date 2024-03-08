@@ -86,6 +86,8 @@ class BehandlingsresultatOpphørUtilsTest {
                 forrigeAndeler = forrigeAndeler,
                 nåværendeEndretAndeler = emptyList(),
                 forrigeEndretAndeler = emptyList(),
+                nåværendePersonResultaterPåBarn = emptyList(),
+                forrigePersonResultaterPåBarn = emptyList(),
             )
 
         assertEquals(Opphørsresultat.IKKE_OPPHØRT, opphørsresultat)
@@ -134,6 +136,8 @@ class BehandlingsresultatOpphørUtilsTest {
                 forrigeAndeler = forrigeAndeler,
                 nåværendeEndretAndeler = emptyList(),
                 forrigeEndretAndeler = emptyList(),
+                nåværendePersonResultaterPåBarn = emptyList(),
+                forrigePersonResultaterPåBarn = emptyList(),
             )
 
         assertEquals(Opphørsresultat.OPPHØRT, opphørsresultat)
@@ -182,6 +186,8 @@ class BehandlingsresultatOpphørUtilsTest {
                 forrigeAndeler = forrigeAndeler,
                 nåværendeEndretAndeler = emptyList(),
                 forrigeEndretAndeler = emptyList(),
+                nåværendePersonResultaterPåBarn = emptyList(),
+                forrigePersonResultaterPåBarn = emptyList(),
             )
 
         assertEquals(Opphørsresultat.OPPHØRT, opphørsresultat)
@@ -207,6 +213,8 @@ class BehandlingsresultatOpphørUtilsTest {
                 forrigeAndeler = forrigeAndeler,
                 nåværendeEndretAndeler = emptyList(),
                 forrigeEndretAndeler = emptyList(),
+                nåværendePersonResultaterPåBarn = emptyList(),
+                forrigePersonResultaterPåBarn = emptyList(),
             )
 
         assertEquals(Opphørsresultat.OPPHØRT, opphørsresultat)
@@ -255,6 +263,8 @@ class BehandlingsresultatOpphørUtilsTest {
                 forrigeAndeler = forrigeAndeler,
                 nåværendeEndretAndeler = emptyList(),
                 forrigeEndretAndeler = emptyList(),
+                nåværendePersonResultaterPåBarn = emptyList(),
+                forrigePersonResultaterPåBarn = emptyList(),
             )
 
         assertEquals(Opphørsresultat.FORTSATT_OPPHØRT, opphørsresultat)
@@ -303,6 +313,8 @@ class BehandlingsresultatOpphørUtilsTest {
                 forrigeAndeler = forrigeAndeler,
                 nåværendeEndretAndeler = emptyList(),
                 forrigeEndretAndeler = emptyList(),
+                nåværendePersonResultaterPåBarn = emptyList(),
+                forrigePersonResultaterPåBarn = emptyList(),
             )
 
         assertEquals(Opphørsresultat.IKKE_OPPHØRT, opphørsresultat)

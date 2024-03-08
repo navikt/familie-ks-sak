@@ -170,6 +170,9 @@ class BehandlingsresultatService(
         val personerIBehandling = personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(behandlingId = behandling.id).personer.toSet()
         val personerIForrigeBehandling = forrigeBehandling?.let { personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(behandlingId = forrigeBehandling.id).personer.toSet() } ?: emptySet()
 
+        val forrigeVilkårsvurdering = forrigeBehandling?.id?.let { vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(behandlingId = it) }
+        val forrigePersonResultat = forrigeVilkårsvurdering?.personResultater ?: emptySet()
+
         val personerFremstiltKravFor =
             finnPersonerFremstiltKravFor(
                 behandling = behandling,
@@ -177,7 +180,8 @@ class BehandlingsresultatService(
                 forrigeBehandling = forrigeBehandling,
             )
 
-        BehandlingsresultatValideringUtils.validerAtBarePersonerFremstiltKravForEllerSøkerHarFåttEksplisittAvslag(personerFremstiltKravFor = personerFremstiltKravFor, personResultater = vilkårsvurdering.personResultater)
+        val nåværendePersonResultat = vilkårsvurdering.personResultater
+        BehandlingsresultatValideringUtils.validerAtBarePersonerFremstiltKravForEllerSøkerHarFåttEksplisittAvslag(personerFremstiltKravFor = personerFremstiltKravFor, personResultater = nåværendePersonResultat)
 
         // 1 SØKNAD
         val søknadsresultat =
@@ -187,7 +191,7 @@ class BehandlingsresultatService(
                     forrigeAndeler = forrigeAndelerTilkjentYtelse,
                     endretUtbetalingAndeler = endretUtbetalingAndeler,
                     personerFremstiltKravFor = personerFremstiltKravFor,
-                    nåværendePersonResultater = vilkårsvurdering.personResultater,
+                    nåværendePersonResultater = nåværendePersonResultat,
                     behandlingÅrsak = behandling.opprettetÅrsak,
                     finnesUregistrerteBarn = søknadGrunnlag?.hentUregistrerteBarn()?.isNotEmpty() ?: false,
                 )
@@ -198,7 +202,6 @@ class BehandlingsresultatService(
         // 2 ENDRINGER
         val endringsresultat =
             if (forrigeBehandling != null) {
-                val forrigeVilkårsvurdering = vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(behandlingId = forrigeBehandling.id)
                 val kompetanser = kompetanseService.hentKompetanser(behandlingId = BehandlingId(behandlingId))
                 val forrigeKompetanser = kompetanseService.hentKompetanser(behandlingId = BehandlingId(forrigeBehandling.id))
 
@@ -207,8 +210,8 @@ class BehandlingsresultatService(
                     forrigeAndeler = forrigeAndelerTilkjentYtelse,
                     nåværendeEndretAndeler = endretUtbetalingAndeler,
                     forrigeEndretAndeler = forrigeEndretUtbetalingAndeler,
-                    nåværendePersonResultat = vilkårsvurdering.personResultater,
-                    forrigePersonResultat = forrigeVilkårsvurdering.personResultater,
+                    nåværendePersonResultat = nåværendePersonResultat,
+                    forrigePersonResultat = forrigePersonResultat,
                     nåværendeKompetanser = kompetanser.toList(),
                     forrigeKompetanser = forrigeKompetanser.toList(),
                     personerFremstiltKravFor = personerFremstiltKravFor,
@@ -226,6 +229,8 @@ class BehandlingsresultatService(
                 forrigeAndeler = forrigeAndelerTilkjentYtelse,
                 nåværendeEndretAndeler = endretUtbetalingAndeler,
                 forrigeEndretAndeler = forrigeEndretUtbetalingAndeler,
+                nåværendePersonResultaterPåBarn = nåværendePersonResultat.filter { !it.erSøkersResultater() },
+                forrigePersonResultaterPåBarn = forrigePersonResultat.filter { !it.erSøkersResultater() },
             )
 
         // KOMBINER

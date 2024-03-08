@@ -21,13 +21,13 @@ object EndringIVilkårsvurderingUtil {
                 val vilkårTidslinje =
                     lagEndringIVilkårsvurderingForPersonOgVilkårTidslinje(
                         nåværendeOppfylteVilkårResultaterForPerson =
-                        nåværendePersonResultaterForPerson
-                            .flatMap { it.vilkårResultater }
-                            .filter { it.vilkårType == vilkår && it.resultat == Resultat.OPPFYLT },
+                            nåværendePersonResultaterForPerson
+                                .flatMap { it.vilkårResultater }
+                                .filter { it.vilkårType == vilkår && it.resultat == Resultat.OPPFYLT },
                         forrigeOppfylteVilkårResultaterForPerson =
-                        forrigePersonResultater
-                            .flatMap { it.vilkårResultater }
-                            .filter { it.vilkårType == vilkår && it.resultat == Resultat.OPPFYLT },
+                            forrigePersonResultater
+                                .flatMap { it.vilkårResultater }
+                                .filter { it.vilkårType == vilkår && it.resultat == Resultat.OPPFYLT },
                         vilkår = vilkår,
                     )
                 vilkårTidslinje
@@ -62,8 +62,8 @@ object EndringIVilkårsvurderingUtil {
                 val erVilkårSomErSplittetOpp = nåværende.periodeFom != forrige.periodeFom
 
                 (forrige.obligatoriskUtdypendeVilkårsvurderingErSatt() && erEndringerIUtdypendeVilkårsvurdering) ||
-                        erEndringerIRegelverk ||
-                        erVilkårSomErSplittetOpp
+                    erEndringerIRegelverk ||
+                    erVilkårSomErSplittetOpp
             }
 
         return endringIVilkårResultat

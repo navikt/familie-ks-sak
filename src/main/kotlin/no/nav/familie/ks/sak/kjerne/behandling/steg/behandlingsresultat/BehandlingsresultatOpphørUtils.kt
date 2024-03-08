@@ -3,6 +3,7 @@ package no.nav.familie.ks.sak.kjerne.behandling.steg.behandlingsresultat
 import no.nav.familie.ks.sak.common.tidslinje.tilTidslinje
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.kombinerMed
 import no.nav.familie.ks.sak.common.util.nesteMåned
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.PersonResultat
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.tilAndelTilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.tilPeriode
@@ -22,7 +23,18 @@ object BehandlingsresultatOpphørUtils {
         forrigeAndeler: List<AndelTilkjentYtelse>,
         nåværendeEndretAndeler: List<EndretUtbetalingAndel>,
         forrigeEndretAndeler: List<EndretUtbetalingAndel>,
+        nåværendePersonResultaterPåBarn: List<PersonResultat>,
+        forrigePersonResultaterPåBarn: List<PersonResultat>,
     ): Opphørsresultat {
+        val meldtOmBarnehagePlassPåAlleBarn = nåværendePersonResultaterPåBarn.harMeldtOmBarnehagePlassPåAlleBarn()
+        val meldtOmBarnehagePlassPåAlleBarnIForrigeVilkårsvurdering = forrigePersonResultaterPåBarn.harMeldtOmBarnehagePlassPåAlleBarn()
+
+        if (!meldtOmBarnehagePlassPåAlleBarnIForrigeVilkårsvurdering && meldtOmBarnehagePlassPåAlleBarn) {
+            return Opphørsresultat.OPPHØRT
+        } else if (meldtOmBarnehagePlassPåAlleBarnIForrigeVilkårsvurdering && meldtOmBarnehagePlassPåAlleBarn) {
+            return Opphørsresultat.FORTSATT_OPPHØRT
+        }
+
         val nåværendeBehandlingOpphørsdato =
             nåværendeAndeler.utledOpphørsdatoForNåværendeBehandlingMedFallback(
                 forrigeAndelerIBehandling = forrigeAndeler,
@@ -43,6 +55,15 @@ object BehandlingsresultatOpphørUtils {
             else -> Opphørsresultat.IKKE_OPPHØRT
         }
     }
+
+    private fun List<PersonResultat>.harMeldtOmBarnehagePlassPåAlleBarn() =
+        groupBy { it.aktør }
+            .values
+            .any { resultater ->
+                resultater.any { result ->
+                    result.vilkårResultater.any { it.søkerHarMeldtFraOmBarnehageplass ?: false }
+                }
+            }
 
     private fun List<AndelTilkjentYtelse>.finnOpphørsdato() = this.maxOfOrNull { it.stønadTom }?.nesteMåned()
 
