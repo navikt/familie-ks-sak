@@ -20,6 +20,7 @@ import jakarta.persistence.Table
 import no.nav.familie.ks.sak.common.entitet.BaseEntitet
 import no.nav.familie.ks.sak.common.util.MånedPeriode
 import no.nav.familie.ks.sak.common.util.YearMonthConverter
+import no.nav.familie.ks.sak.integrasjon.økonomi.utbetalingsoppdrag.YtelsetypeKS
 import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.EndretUtbetalingAndel
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import java.math.BigDecimal
@@ -162,5 +163,11 @@ fun List<AndelTilkjentYtelse>.slåSammenBack2BackAndelsperioderMedSammeBeløp():
     }
 
 enum class YtelseType(val klassifisering: String) {
-    ORDINÆR_KONTANTSTØTTE("KS"), // TODO verdien må avklares med økonomi
+    ORDINÆR_KONTANTSTØTTE("KS"),
+    ;
+
+    fun tilYtelseType(): YtelsetypeKS =
+        when (this) {
+            ORDINÆR_KONTANTSTØTTE -> YtelsetypeKS.ORDINÆR_KONTANTSTØTTE
+        }
 }

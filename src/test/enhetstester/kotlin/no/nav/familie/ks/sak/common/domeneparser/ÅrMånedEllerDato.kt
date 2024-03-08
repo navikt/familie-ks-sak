@@ -1,4 +1,4 @@
-package no.nav.familie.ks.sak.cucumber.domeneparser
+package no.nav.familie.ks.sak.common.domeneparser
 
 import java.time.LocalDate
 import java.time.YearMonth
