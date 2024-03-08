@@ -1,7 +1,7 @@
 package no.nav.familie.ks.sak.internal
 
-import no.nav.familie.ba.sak.internal.vedtak.begrunnelser.lagBrevTest
 import no.nav.familie.ks.sak.common.BehandlingId
+import no.nav.familie.ks.sak.internal.vedtak.begrunnelser.lagBrevTest
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.VedtakRepository
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.VedtaksperiodeService

@@ -1,4 +1,4 @@
-package no.nav.familie.ba.sak.internal.vedtak.begrunnelser
+package no.nav.familie.ks.sak.internal.vedtak.begrunnelser
 
 import no.nav.familie.ks.sak.common.util.førsteDagIInneværendeMåned
 import no.nav.familie.ks.sak.common.util.sisteDagIInneværendeMåned

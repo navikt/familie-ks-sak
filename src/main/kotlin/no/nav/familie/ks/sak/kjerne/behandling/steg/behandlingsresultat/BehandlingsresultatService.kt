@@ -43,6 +43,7 @@ class BehandlingsresultatService(
     private val endretUtbetalingAndelService: EndretUtbetalingAndelService,
     private val kompetanseService: KompetanseService,
 ) {
+    @Deprecated("Erstattes av ny behandlingsresultat logikk og kan fjernes sammen med relevant kode når featuretoggle slettes.")
     fun utledBehandlingsresultat(behandling: Behandling): Behandlingsresultat {
         val forrigeBehandling = behandlingService.hentSisteBehandlingSomErVedtatt(behandling.fagsak.id)
 
