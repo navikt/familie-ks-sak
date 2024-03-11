@@ -104,7 +104,7 @@ spec:
       memory: 4096Mi
     requests:
       memory: 512Mi
-      cpu: 500m
+      cpu: 100m
   ingresses:
     - https://familie-ks-sak.intern.nav.no
   secureLogs:
