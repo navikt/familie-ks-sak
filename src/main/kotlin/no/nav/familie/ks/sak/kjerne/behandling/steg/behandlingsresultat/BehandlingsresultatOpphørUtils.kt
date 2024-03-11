@@ -56,14 +56,16 @@ object BehandlingsresultatOpphørUtils {
         }
     }
 
-    private fun List<PersonResultat>.harMeldtOmBarnehagePlassPåAlleBarn() =
-        groupBy { it.aktør }
-            .values
-            .all { resultater ->
-                resultater.any { result ->
-                    result.vilkårResultater.any { it.søkerHarMeldtFraOmBarnehageplass ?: false }
-                }
-            }
+    private fun List<PersonResultat>.harMeldtOmBarnehagePlassPåAlleBarn(): Boolean {
+        return this.isNotEmpty() &&
+                groupBy { it.aktør }
+                    .values
+                    .all { resultater ->
+                        resultater.any { result ->
+                            result.vilkårResultater.firstOrNull { it.søkerHarMeldtFraOmBarnehageplass ?: false } != null
+                        }
+                    }
+    }
 
     private fun List<AndelTilkjentYtelse>.finnOpphørsdato() = this.maxOfOrNull { it.stønadTom }?.nesteMåned()
 
