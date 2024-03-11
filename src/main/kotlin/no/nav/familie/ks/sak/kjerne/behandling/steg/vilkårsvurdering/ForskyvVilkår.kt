@@ -106,10 +106,6 @@ fun forskyvVilkårResultater(
                                 it.vilkårResultat.periodeTom?.plusDays(1)?.sisteDagIMåned()
                             }
 
-                            it.slutterPåSisteDagIMåneden -> { // Hvis perioden slutter siste dag i måned, får man kontantstøtte i denne måneden
-                                it.vilkårResultat.periodeTom?.sisteDagIMåned()
-                            }
-
                             else -> it.vilkårResultat.periodeTom?.minusMonths(1)?.sisteDagIMåned()
                         }
 
