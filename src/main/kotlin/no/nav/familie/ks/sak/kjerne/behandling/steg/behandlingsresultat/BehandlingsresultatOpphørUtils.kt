@@ -59,7 +59,7 @@ object BehandlingsresultatOpphørUtils {
     private fun List<PersonResultat>.harMeldtOmBarnehagePlassPåAlleBarn() =
         groupBy { it.aktør }
             .values
-            .any { resultater ->
+            .all { resultater ->
                 resultater.any { result ->
                     result.vilkårResultater.any { it.søkerHarMeldtFraOmBarnehageplass ?: false }
                 }
