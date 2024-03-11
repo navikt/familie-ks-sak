@@ -565,50 +565,55 @@ class BehandlingsresultatOpphørUtilsTest {
         val barn1 = lagPerson(aktør = randomAktør())
         val barn2 = lagPerson(aktør = randomAktør())
 
-        val personResultatBarn1 = lagPersonResultat(
-            barn1,
-            overstyrendeVilkårResultater = listOf(
-                VilkårResultat(
-                    behandlingId = 0,
-                    personResultat = null,
-                    vilkårType = Vilkår.BARNEHAGEPLASS,
-                    resultat = Resultat.OPPFYLT,
-                    periodeFom = LocalDate.of(2023, 1, 2),
-                    periodeTom = LocalDate.of(2050, 3, 4),
-                    begrunnelse = "",
-                    vurderesEtter = Regelverk.EØS_FORORDNINGEN,
-                    utdypendeVilkårsvurderinger = listOf(UtdypendeVilkårsvurdering.ANNEN_FORELDER_OMFATTET_AV_NORSK_LOVGIVNING),
-                    søkerHarMeldtFraOmBarnehageplass = true,
-                ),
-            ),
-        )
+        val personResultatBarn1 =
+            lagPersonResultat(
+                barn1,
+                overstyrendeVilkårResultater =
+                    listOf(
+                        VilkårResultat(
+                            behandlingId = 0,
+                            personResultat = null,
+                            vilkårType = Vilkår.BARNEHAGEPLASS,
+                            resultat = Resultat.OPPFYLT,
+                            periodeFom = LocalDate.of(2023, 1, 2),
+                            periodeTom = LocalDate.of(2050, 3, 4),
+                            begrunnelse = "",
+                            vurderesEtter = Regelverk.EØS_FORORDNINGEN,
+                            utdypendeVilkårsvurderinger = listOf(UtdypendeVilkårsvurdering.ANNEN_FORELDER_OMFATTET_AV_NORSK_LOVGIVNING),
+                            søkerHarMeldtFraOmBarnehageplass = true,
+                        ),
+                    ),
+            )
 
-        val personResultatBarn2 = lagPersonResultat(
-            barn2,
-            overstyrendeVilkårResultater = listOf(
-                VilkårResultat(
-                    behandlingId = 0,
-                    personResultat = null,
-                    vilkårType = Vilkår.BARNEHAGEPLASS,
-                    resultat = Resultat.OPPFYLT,
-                    periodeFom = LocalDate.of(2023, 1, 2),
-                    periodeTom = LocalDate.of(2050, 3, 4),
-                    begrunnelse = "",
-                    vurderesEtter = Regelverk.EØS_FORORDNINGEN,
-                    utdypendeVilkårsvurderinger = listOf(UtdypendeVilkårsvurdering.ANNEN_FORELDER_OMFATTET_AV_NORSK_LOVGIVNING),
-                    søkerHarMeldtFraOmBarnehageplass = true,
-                ),
-            ),
-        )
+        val personResultatBarn2 =
+            lagPersonResultat(
+                barn2,
+                overstyrendeVilkårResultater =
+                    listOf(
+                        VilkårResultat(
+                            behandlingId = 0,
+                            personResultat = null,
+                            vilkårType = Vilkår.BARNEHAGEPLASS,
+                            resultat = Resultat.OPPFYLT,
+                            periodeFom = LocalDate.of(2023, 1, 2),
+                            periodeTom = LocalDate.of(2050, 3, 4),
+                            begrunnelse = "",
+                            vurderesEtter = Regelverk.EØS_FORORDNINGEN,
+                            utdypendeVilkårsvurderinger = listOf(UtdypendeVilkårsvurdering.ANNEN_FORELDER_OMFATTET_AV_NORSK_LOVGIVNING),
+                            søkerHarMeldtFraOmBarnehageplass = true,
+                        ),
+                    ),
+            )
 
-        val opphørsresultat = hentOpphørsresultatPåBehandling(
-            nåværendeAndeler = emptyList(),
-            forrigeAndeler = emptyList(),
-            nåværendeEndretAndeler = emptyList(),
-            forrigeEndretAndeler = emptyList(),
-            nåværendePersonResultaterPåBarn = listOf(personResultatBarn1, personResultatBarn2),
-            forrigePersonResultaterPåBarn = listOf(),
-        )
+        val opphørsresultat =
+            hentOpphørsresultatPåBehandling(
+                nåværendeAndeler = emptyList(),
+                forrigeAndeler = emptyList(),
+                nåværendeEndretAndeler = emptyList(),
+                forrigeEndretAndeler = emptyList(),
+                nåværendePersonResultaterPåBarn = listOf(personResultatBarn1, personResultatBarn2),
+                forrigePersonResultaterPåBarn = listOf(),
+            )
 
         assertEquals(Opphørsresultat.OPPHØRT, opphørsresultat)
     }
@@ -618,51 +623,55 @@ class BehandlingsresultatOpphørUtilsTest {
         val barn1 = lagPerson(aktør = randomAktør())
         val barn2 = lagPerson(aktør = randomAktør())
 
-        val personResultatBarn1 = lagPersonResultat(
-            barn1,
-            overstyrendeVilkårResultater = listOf(
-                VilkårResultat(
-                    behandlingId = 0,
-                    personResultat = null,
-                    vilkårType = Vilkår.BARNEHAGEPLASS,
-                    resultat = Resultat.OPPFYLT,
-                    periodeFom = LocalDate.of(2023, 1, 2),
-                    periodeTom = LocalDate.of(2050, 3, 4),
-                    begrunnelse = "",
-                    vurderesEtter = Regelverk.EØS_FORORDNINGEN,
-                    utdypendeVilkårsvurderinger = listOf(UtdypendeVilkårsvurdering.ANNEN_FORELDER_OMFATTET_AV_NORSK_LOVGIVNING),
-                    søkerHarMeldtFraOmBarnehageplass = true,
-                ),
-            ),
-        )
+        val personResultatBarn1 =
+            lagPersonResultat(
+                barn1,
+                overstyrendeVilkårResultater =
+                    listOf(
+                        VilkårResultat(
+                            behandlingId = 0,
+                            personResultat = null,
+                            vilkårType = Vilkår.BARNEHAGEPLASS,
+                            resultat = Resultat.OPPFYLT,
+                            periodeFom = LocalDate.of(2023, 1, 2),
+                            periodeTom = LocalDate.of(2050, 3, 4),
+                            begrunnelse = "",
+                            vurderesEtter = Regelverk.EØS_FORORDNINGEN,
+                            utdypendeVilkårsvurderinger = listOf(UtdypendeVilkårsvurdering.ANNEN_FORELDER_OMFATTET_AV_NORSK_LOVGIVNING),
+                            søkerHarMeldtFraOmBarnehageplass = true,
+                        ),
+                    ),
+            )
 
-        val personResultatBarn2 = lagPersonResultat(
-            barn2,
-            overstyrendeVilkårResultater = listOf(
-                VilkårResultat(
-                    behandlingId = 0,
-                    personResultat = null,
-                    vilkårType = Vilkår.BARNEHAGEPLASS,
-                    resultat = Resultat.OPPFYLT,
-                    periodeFom = LocalDate.of(2023, 1, 2),
-                    periodeTom = LocalDate.of(2050, 3, 4),
-                    begrunnelse = "",
-                    vurderesEtter = Regelverk.EØS_FORORDNINGEN,
-                    utdypendeVilkårsvurderinger = listOf(UtdypendeVilkårsvurdering.ANNEN_FORELDER_OMFATTET_AV_NORSK_LOVGIVNING),
-                    søkerHarMeldtFraOmBarnehageplass = true,
-                ),
-            ),
-        )
+        val personResultatBarn2 =
+            lagPersonResultat(
+                barn2,
+                overstyrendeVilkårResultater =
+                    listOf(
+                        VilkårResultat(
+                            behandlingId = 0,
+                            personResultat = null,
+                            vilkårType = Vilkår.BARNEHAGEPLASS,
+                            resultat = Resultat.OPPFYLT,
+                            periodeFom = LocalDate.of(2023, 1, 2),
+                            periodeTom = LocalDate.of(2050, 3, 4),
+                            begrunnelse = "",
+                            vurderesEtter = Regelverk.EØS_FORORDNINGEN,
+                            utdypendeVilkårsvurderinger = listOf(UtdypendeVilkårsvurdering.ANNEN_FORELDER_OMFATTET_AV_NORSK_LOVGIVNING),
+                            søkerHarMeldtFraOmBarnehageplass = true,
+                        ),
+                    ),
+            )
 
-        val opphørsresultat = hentOpphørsresultatPåBehandling(
-            nåværendeAndeler = emptyList(),
-            forrigeAndeler = emptyList(),
-            nåværendeEndretAndeler = emptyList(),
-            forrigeEndretAndeler = emptyList(),
-            nåværendePersonResultaterPåBarn = listOf(personResultatBarn1, personResultatBarn2),
-            forrigePersonResultaterPåBarn = listOf(personResultatBarn1, personResultatBarn2),
-        )
-
+        val opphørsresultat =
+            hentOpphørsresultatPåBehandling(
+                nåværendeAndeler = emptyList(),
+                forrigeAndeler = emptyList(),
+                nåværendeEndretAndeler = emptyList(),
+                forrigeEndretAndeler = emptyList(),
+                nåværendePersonResultaterPåBarn = listOf(personResultatBarn1, personResultatBarn2),
+                forrigePersonResultaterPåBarn = listOf(personResultatBarn1, personResultatBarn2),
+            )
 
         assertEquals(Opphørsresultat.FORTSATT_OPPHØRT, opphørsresultat)
     }
@@ -672,51 +681,55 @@ class BehandlingsresultatOpphørUtilsTest {
         val barn1 = lagPerson(aktør = randomAktør())
         val barn2 = lagPerson(aktør = randomAktør())
 
-        val personResultatBarn1 = lagPersonResultat(
-            barn1,
-            overstyrendeVilkårResultater = listOf(
-                VilkårResultat(
-                    behandlingId = 0,
-                    personResultat = null,
-                    vilkårType = Vilkår.BARNEHAGEPLASS,
-                    resultat = Resultat.OPPFYLT,
-                    periodeFom = LocalDate.of(2023, 1, 2),
-                    periodeTom = LocalDate.of(2050, 3, 4),
-                    begrunnelse = "",
-                    vurderesEtter = Regelverk.EØS_FORORDNINGEN,
-                    utdypendeVilkårsvurderinger = listOf(UtdypendeVilkårsvurdering.ANNEN_FORELDER_OMFATTET_AV_NORSK_LOVGIVNING),
-                    søkerHarMeldtFraOmBarnehageplass = true,
-                ),
-            ),
-        )
+        val personResultatBarn1 =
+            lagPersonResultat(
+                barn1,
+                overstyrendeVilkårResultater =
+                    listOf(
+                        VilkårResultat(
+                            behandlingId = 0,
+                            personResultat = null,
+                            vilkårType = Vilkår.BARNEHAGEPLASS,
+                            resultat = Resultat.OPPFYLT,
+                            periodeFom = LocalDate.of(2023, 1, 2),
+                            periodeTom = LocalDate.of(2050, 3, 4),
+                            begrunnelse = "",
+                            vurderesEtter = Regelverk.EØS_FORORDNINGEN,
+                            utdypendeVilkårsvurderinger = listOf(UtdypendeVilkårsvurdering.ANNEN_FORELDER_OMFATTET_AV_NORSK_LOVGIVNING),
+                            søkerHarMeldtFraOmBarnehageplass = true,
+                        ),
+                    ),
+            )
 
-        val personResultatBarn2 = lagPersonResultat(
-            barn2,
-            overstyrendeVilkårResultater = listOf(
-                VilkårResultat(
-                    behandlingId = 0,
-                    personResultat = null,
-                    vilkårType = Vilkår.BARNEHAGEPLASS,
-                    resultat = Resultat.OPPFYLT,
-                    periodeFom = LocalDate.of(2023, 1, 2),
-                    periodeTom = LocalDate.of(2050, 3, 4),
-                    begrunnelse = "",
-                    vurderesEtter = Regelverk.EØS_FORORDNINGEN,
-                    utdypendeVilkårsvurderinger = listOf(UtdypendeVilkårsvurdering.ANNEN_FORELDER_OMFATTET_AV_NORSK_LOVGIVNING),
-                    søkerHarMeldtFraOmBarnehageplass = false,
-                ),
-            ),
-        )
+        val personResultatBarn2 =
+            lagPersonResultat(
+                barn2,
+                overstyrendeVilkårResultater =
+                    listOf(
+                        VilkårResultat(
+                            behandlingId = 0,
+                            personResultat = null,
+                            vilkårType = Vilkår.BARNEHAGEPLASS,
+                            resultat = Resultat.OPPFYLT,
+                            periodeFom = LocalDate.of(2023, 1, 2),
+                            periodeTom = LocalDate.of(2050, 3, 4),
+                            begrunnelse = "",
+                            vurderesEtter = Regelverk.EØS_FORORDNINGEN,
+                            utdypendeVilkårsvurderinger = listOf(UtdypendeVilkårsvurdering.ANNEN_FORELDER_OMFATTET_AV_NORSK_LOVGIVNING),
+                            søkerHarMeldtFraOmBarnehageplass = false,
+                        ),
+                    ),
+            )
 
-        val opphørsresultat = hentOpphørsresultatPåBehandling(
-            nåværendeAndeler = emptyList(),
-            forrigeAndeler = emptyList(),
-            nåværendeEndretAndeler = emptyList(),
-            forrigeEndretAndeler = emptyList(),
-            nåværendePersonResultaterPåBarn = listOf(personResultatBarn1, personResultatBarn2),
-            forrigePersonResultaterPåBarn = listOf(),
-        )
-
+        val opphørsresultat =
+            hentOpphørsresultatPåBehandling(
+                nåværendeAndeler = emptyList(),
+                forrigeAndeler = emptyList(),
+                nåværendeEndretAndeler = emptyList(),
+                forrigeEndretAndeler = emptyList(),
+                nåværendePersonResultaterPåBarn = listOf(personResultatBarn1, personResultatBarn2),
+                forrigePersonResultaterPåBarn = listOf(),
+            )
 
         assertEquals(Opphørsresultat.IKKE_OPPHØRT, opphørsresultat)
     }
