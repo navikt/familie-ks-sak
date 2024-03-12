@@ -45,8 +45,8 @@ repositories {
 
 dependencies {
 
-    val springdocVersion = "2.3.0"
-    val sentryVersion = "7.1.0"
+    val springdocVersion = "2.4.0"
+    val sentryVersion = "7.6.0"
     val navFellesVersion = "3.20240227112118_e55c4be"
     val eksterneKontrakterBisysVersion = "2.0_20230214104704_706e9c0"
     val fellesKontrakterVersion = "3.0_20240216133329_6a38002"
@@ -56,7 +56,7 @@ dependencies {
     val navFoedselsnummerVersion = "1.0-SNAPSHOT.6"
     val prosesseringVersion = "2.20240214140223_83c31de"
     val restAssuredVersion = "5.4.0"
-    val kotlinxVersion = "1.7.3"
+    val kotlinxVersion = "1.8.0"
     val utbetalingsgeneratorVersion = "1.0_20240208132236_bce5777"
 
     // ---------- Spring ---------- \\
@@ -87,7 +87,7 @@ dependencies {
 
     // ----------- AVRO ---------\\
     implementation("org.apache.avro:avro:1.11.3")
-    implementation("io.confluent:kafka-avro-serializer:7.5.3")
+    implementation("io.confluent:kafka-avro-serializer:7.6.0")
     implementation("org.eclipse.jetty:jetty-server")
 
     // ---- Junit og Cucumber ---- \\
@@ -128,7 +128,7 @@ dependencies {
     implementation("io.micrometer:micrometer-registry-prometheus")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.16.1")
     implementation("com.neovisionaries:nv-i18n:1.29")
-    ktlint("com.pinterest.ktlint:ktlint-cli:1.1.0") {
+    ktlint("com.pinterest.ktlint:ktlint-cli:1.2.1") {
         attributes {
             attribute(Bundling.BUNDLING_ATTRIBUTE, objects.named(Bundling.EXTERNAL))
         }
