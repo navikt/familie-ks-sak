@@ -1,7 +1,7 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    val kotlinVersion = "1.9.22"
+    val kotlinVersion = "1.9.23"
     kotlin("jvm") version kotlinVersion
 
     id("org.springframework.boot") version "3.2.3"
@@ -13,7 +13,7 @@ plugins {
     id("com.github.davidmc24.gradle.plugin.avro") version "1.9.1"
 
     // ------------- SLSA -------------- //
-    id("org.cyclonedx.bom") version "1.8.1"
+    id("org.cyclonedx.bom") version "1.8.2"
 }
 
 configurations {
@@ -92,7 +92,7 @@ dependencies {
 
     // ---- Junit og Cucumber ---- \\
 
-    testImplementation(platform("org.junit:junit-bom:5.10.1"))
+    testImplementation(platform("org.junit:junit-bom:5.10.2"))
     testImplementation(platform("io.cucumber:cucumber-bom:7.15.0"))
 
     testImplementation("io.cucumber:cucumber-java")
@@ -126,7 +126,7 @@ dependencies {
     implementation("io.sentry:sentry-spring-boot-starter:$sentryVersion")
     implementation("io.sentry:sentry-logback:$sentryVersion")
     implementation("io.micrometer:micrometer-registry-prometheus")
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.16.1")
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.16.2")
     implementation("com.neovisionaries:nv-i18n:1.29")
     ktlint("com.pinterest.ktlint:ktlint-cli:1.2.1") {
         attributes {
@@ -134,16 +134,16 @@ dependencies {
         }
     }
 
-    testImplementation("io.mockk:mockk:1.13.8")
+    testImplementation("io.mockk:mockk:1.13.10")
     testImplementation("com.ninja-squad:springmockk:4.0.2") {
         exclude(module = "mockito-core")
     }
     testImplementation("org.springframework.boot:spring-boot-starter-test")
-    testImplementation("org.springframework.cloud:spring-cloud-contract-wiremock:4.1.0")
+    testImplementation("org.springframework.cloud:spring-cloud-contract-wiremock:4.1.1")
     testImplementation("io.rest-assured:spring-mock-mvc:$restAssuredVersion")
     testImplementation("io.rest-assured:kotlin-extensions:$restAssuredVersion")
-    testImplementation("org.testcontainers:postgresql:1.19.3")
-    testImplementation("no.nav.security:mock-oauth2-server:2.1.0")
+    testImplementation("org.testcontainers:postgresql:1.19.7")
+    testImplementation("no.nav.security:mock-oauth2-server:2.1.2")
     testImplementation("no.nav.security:token-validation-test-support:2.0.5")
     testImplementation("no.nav.security:token-validation-spring-test:$tokenValidationSpringVersion")
     testImplementation("nav-foedselsnummer:testutils:1.0-SNAPSHOT.6")
