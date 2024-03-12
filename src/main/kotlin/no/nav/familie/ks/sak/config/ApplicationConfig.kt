@@ -27,6 +27,7 @@ import org.springframework.http.converter.StringHttpMessageConverter
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter
 import org.springframework.retry.annotation.EnableRetry
 import org.springframework.scheduling.annotation.EnableScheduling
+import org.springframework.web.client.RestClient
 import org.springframework.web.client.RestOperations
 import org.springframework.web.client.RestTemplate
 import java.nio.charset.StandardCharsets
@@ -75,9 +76,11 @@ class ApplicationConfig {
     @Primary
     fun oAuth2HttpClient(): OAuth2HttpClient =
         RetryOAuth2HttpClient(
-            RestTemplateBuilder()
-                .setConnectTimeout(Duration.of(2, ChronoUnit.SECONDS))
-                .setReadTimeout(Duration.of(4, ChronoUnit.SECONDS)),
+            RestClient.create(
+                RestTemplateBuilder()
+                    .setConnectTimeout(Duration.of(2, ChronoUnit.SECONDS))
+                    .setReadTimeout(Duration.of(4, ChronoUnit.SECONDS)).build(),
+            ),
         )
 
     @Bean
@@ -97,7 +100,7 @@ class ApplicationConfig {
     ) = object : ProsesseringInfoProvider {
         override fun hentBrukernavn(): String =
             try {
-                SpringTokenValidationContextHolder().tokenValidationContext.getClaims("azuread").getStringClaim("preferred_username")
+                SpringTokenValidationContextHolder().getTokenValidationContext().getClaims("azuread").getStringClaim("preferred_username")
             } catch (e: Exception) {
                 "VL"
             }
@@ -106,7 +109,7 @@ class ApplicationConfig {
 
         private fun grupper(): List<String> {
             return try {
-                SpringTokenValidationContextHolder().tokenValidationContext.getClaims("azuread")
+                SpringTokenValidationContextHolder().getTokenValidationContext().getClaims("azuread")
                     ?.get("groups") as List<String>? ?: emptyList()
             } catch (e: Exception) {
                 emptyList()
