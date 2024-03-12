@@ -481,7 +481,7 @@ internal class KompetanseServiceTest {
 
         val fom = LocalDate.now().minusMonths(6).førsteDagIInneværendeMåned()
         val tom = fom.plusMonths(10).sisteDagIMåned()
-        val tomForBarn2 = fom.plusMonths(2).sisteDagIMåned()
+        val tomForBarn2 = fom.plusMonths(3).sisteDagIMåned()
 
         val vilkårsvurdering =
             lagVilkårsvurdering(
@@ -507,12 +507,12 @@ internal class KompetanseServiceTest {
 
         assertKompetanse(
             fom = fom.plusMonths(1).toYearMonth(),
-            tom = tomForBarn2.toYearMonth(),
+            tom = tomForBarn2.minusMonths(1).toYearMonth(),
             barnAktører = setOf(barn1, barn2),
             hentetKompetanse = kompetanser[0],
         )
         assertKompetanse(
-            fom = tomForBarn2.plusMonths(1).toYearMonth(),
+            fom = tomForBarn2.toYearMonth(),
             tom = null,
             barnAktører = setOf(barn1),
             hentetKompetanse = kompetanser[1],
@@ -628,16 +628,10 @@ internal class KompetanseServiceTest {
             hentetKompetanse = kompetanser[3],
         )
         assertKompetanse(
-            fom = YearMonth.of(2022, 6),
-            tom = YearMonth.of(2022, 6),
-            barnAktører = setOf(barn2),
-            hentetKompetanse = kompetanser[4],
-        )
-        assertKompetanse(
             fom = YearMonth.of(2022, 8),
-            tom = YearMonth.of(2022, 11),
+            tom = YearMonth.of(2022, 10),
             barnAktører = setOf(barn1),
-            hentetKompetanse = kompetanser[5],
+            hentetKompetanse = kompetanser[4],
         )
     }
 

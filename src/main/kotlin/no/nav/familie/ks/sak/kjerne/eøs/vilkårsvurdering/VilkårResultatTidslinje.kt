@@ -3,12 +3,9 @@ package no.nav.familie.ks.sak.kjerne.eøs.vilkårsvurdering
 import no.nav.familie.ks.sak.common.tidslinje.Periode
 import no.nav.familie.ks.sak.common.tidslinje.Tidslinje
 import no.nav.familie.ks.sak.common.tidslinje.tilTidslinje
-import no.nav.familie.ks.sak.common.util.erBack2BackIMånedsskifte
-import no.nav.familie.ks.sak.common.util.førsteDagIInneværendeMåned
-import no.nav.familie.ks.sak.common.util.førsteDagINesteMåned
-import no.nav.familie.ks.sak.common.util.sisteDagIMåned
-import no.nav.familie.ks.sak.common.util.toYearMonth
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.forskyvVilkårResultater
 
 /**
  * Lager tidslinje av VilkårRegelverkResultat for ett vilkår og én aktør
@@ -20,32 +17,23 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vil
  * fom og tom lik null tolkes som fra uendelig lenge siden til uendelig lenge til, som ville skapt overlapp med oppfylt vilkår
  * Overlapp er ikke støttet av tidsliner, og ville gitt exception
  */
-fun Iterable<VilkårResultat>.tilVilkårRegelverkResultatTidslinje(): Tidslinje<VilkårRegelverkResultat> {
-    val oppfyltEllerIkkeAktueltVilkårer = this.filter { it.erOppfylt() || it.erIkkeAktuelt() }
+fun tilVilkårRegelverkResultatTidslinje(
+    vilkår: Vilkår,
+    vilkårResultater: List<VilkårResultat>,
+): Tidslinje<VilkårRegelverkResultat> {
+    val oppfyltEllerIkkeAktueltVilkårer = vilkårResultater.filter { it.erOppfylt() || it.erIkkeAktuelt() }
 
-    val back2backPerioderIMånedsskifteVilkårer = hentVilkårerMedBack2backPerioderIMånedsskifte(this.toList())
+    val forskyvetVilkår = forskyvVilkårResultater(vilkår, oppfyltEllerIkkeAktueltVilkårer)
 
-    return oppfyltEllerIkkeAktueltVilkårer.map { it.tilPeriode(back2backPerioderIMånedsskifteVilkårer) }.tilTidslinje()
+    return forskyvetVilkår.map { it.tilPeriode() }.tilTidslinje()
 }
 
-fun VilkårResultat.tilPeriode(vilkårerMedBack2BackPerioder: List<Long>): Periode<VilkårRegelverkResultat> =
-    Periode(
-        fom =
-            if (vilkårerMedBack2BackPerioder.contains(this.id) || periodeFom?.toYearMonth() == periodeTom?.toYearMonth()) {
-                periodeFom?.førsteDagIInneværendeMåned()
-            } else {
-                periodeFom?.førsteDagINesteMåned()
-            },
-        tom = periodeTom?.sisteDagIMåned(),
-        verdi = VilkårRegelverkResultat(vilkårType, this.tilRegelverkResultat(), utdypendeVilkårsvurderinger = this.utdypendeVilkårsvurderinger),
-    )
+fun Periode<VilkårResultat>.tilPeriode(): Periode<VilkårRegelverkResultat> {
+    val vilkårResultat = this.verdi
 
-fun hentVilkårerMedBack2backPerioderIMånedsskifte(vilkårResultater: List<VilkårResultat>): List<Long> {
-    val vilkårerMedBack2BackPerioderIMånedsskifte = mutableListOf<Long>()
-    vilkårResultater.sortedBy { it.periodeFom }.zipWithNext { periode, nestePeriode ->
-        if (erBack2BackIMånedsskifte(periode.periodeTom, nestePeriode.periodeFom)) {
-            vilkårerMedBack2BackPerioderIMånedsskifte.add(nestePeriode.id)
-        }
-    }
-    return vilkårerMedBack2BackPerioderIMånedsskifte
+    return Periode(
+        fom = this.fom,
+        tom = this.tom,
+        verdi = VilkårRegelverkResultat(vilkårResultat.vilkårType, vilkårResultat.tilRegelverkResultat(), utdypendeVilkårsvurderinger = vilkårResultat.utdypendeVilkårsvurderinger),
+    )
 }
