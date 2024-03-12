@@ -13,7 +13,6 @@ import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingType
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.Vedtak
-import no.nav.familie.ks.sak.kjerne.beregning.BeregningService
 import no.nav.familie.ks.sak.kjerne.beregning.TilkjentYtelseValideringService
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelseRepository
 import no.nav.familie.ks.sak.kjerne.beregning.domene.TilkjentYtelse
@@ -29,7 +28,6 @@ import java.time.LocalDate
 @Service
 class UtbetalingsoppdragService(
     private val oppdragKlient: OppdragKlient,
-    private val beregningService: BeregningService,
     private val tilkjentYtelseValideringService: TilkjentYtelseValideringService,
     private val utbetalingsoppdragGenerator: UtbetalingsoppdragGenerator,
     private val behandlingService: BehandlingService,
@@ -37,32 +35,6 @@ class UtbetalingsoppdragService(
     private val andelTilkjentYtelseRepository: AndelTilkjentYtelseRepository,
 ) {
     private val sammeOppdragSendtKonflikt = Metrics.counter("familie.ks.sak.samme.oppdrag.sendt.konflikt")
-
-    @Deprecated("Bruker gammel utbetalingsgenerator")
-    fun oppdaterTilkjentYtelseMedUtbetalingsoppdragOgIverksett(
-        vedtak: Vedtak,
-        saksbehandlerId: String,
-        andelTilkjentYtelseForUtbetalingsoppdragFactory: AndelTilkjentYtelseForUtbetalingsoppdragFactory,
-    ): TilkjentYtelse {
-        val oppdatertBehandling = vedtak.behandling
-        val tilkjentYtelse =
-            genererUtbetalingsoppdragOgOppdaterTilkjentYtelse(
-                vedtak,
-                saksbehandlerId,
-                andelTilkjentYtelseForUtbetalingsoppdragFactory,
-            )
-        val utbetalingsoppdrag =
-            objectMapper.readValue(tilkjentYtelse.utbetalingsoppdrag, Utbetalingsoppdrag::class.java)
-
-        // lagre tilkjent ytelse
-        val oppdatertTilkjentYtelse = beregningService.populerTilkjentYtelse(oppdatertBehandling, utbetalingsoppdrag)
-        beregningService.lagreTilkjentYtelseMedOppdaterteAndeler(oppdatertTilkjentYtelse)
-
-        tilkjentYtelseValideringService.validerIngenAndelerTilkjentYtelseMedSammeOffsetIBehandling(behandlingId = vedtak.behandling.id)
-        iverksettOppdrag(utbetalingsoppdrag, oppdatertBehandling.id)
-
-        return tilkjentYtelse
-    }
 
     fun oppdaterTilkjentYtelseMedUtbetalingsoppdragOgIverksett(
         vedtak: Vedtak,
@@ -147,47 +119,6 @@ class UtbetalingsoppdragService(
             andelerMedPeriodeId = beregnetUtbetalingsoppdrag.andeler,
         )
         tilkjentYtelseRepository.save(tilkjentYtelse)
-    }
-
-    @Deprecated("Gammel utbetalingsgenerator")
-    @Transactional
-    fun genererUtbetalingsoppdragOgOppdaterTilkjentYtelse(
-        vedtak: Vedtak,
-        saksbehandlerId: String,
-        andelTilkjentYtelseForUtbetalingsoppdragFactory: AndelTilkjentYtelseForUtbetalingsoppdragFactory,
-        erSimulering: Boolean = false,
-    ): TilkjentYtelse {
-        val behandlingId = vedtak.behandling.id
-        val behandling = vedtak.behandling
-        val tilkjentYtelse = beregningService.hentTilkjentYtelseForBehandling(behandlingId)
-
-        // Henter tilkjentYtelse som har utbetalingsoppdrag og var sendt til oppdrag fra forrige iverksatt behandling
-        val forrigeBehandlingSomErIverksatt = behandlingService.hentSisteBehandlingSomErIverksatt(behandling.fagsak.id)
-        val forrigeTilkjentYtelseMedAndeler =
-            forrigeBehandlingSomErIverksatt?.let { beregningService.hentTilkjentYtelseForBehandling(it.id) }
-
-        val sisteOffsetPerIdent =
-            beregningService.hentSisteOffsetPerIdent(
-                behandling.fagsak.id,
-                andelTilkjentYtelseForUtbetalingsoppdragFactory,
-            )
-        val sisteOffsetPåFagsak = beregningService.hentSisteOffsetPåFagsak(behandling)
-
-        val vedtakMedTilkjentYtelse =
-            VedtakMedTilkjentYtelse(
-                tilkjentYtelse = tilkjentYtelse,
-                vedtak = vedtak,
-                saksbehandlerId = saksbehandlerId,
-                sisteOffsetPerIdent = sisteOffsetPerIdent,
-                sisteOffsetPåFagsak = sisteOffsetPåFagsak,
-                erSimulering = erSimulering,
-            )
-
-        return utbetalingsoppdragGenerator.lagTilkjentYtelseMedUtbetalingsoppdrag(
-            vedtakMedTilkjentYtelse = vedtakMedTilkjentYtelse,
-            forrigeTilkjentYtelseMedAndeler = forrigeTilkjentYtelseMedAndeler,
-            andelTilkjentYtelseForUtbetalingsoppdragFactory = andelTilkjentYtelseForUtbetalingsoppdragFactory,
-        )
     }
 
     private fun hentForrigeTilkjentYtelse(behandling: Behandling): TilkjentYtelse? =
