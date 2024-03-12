@@ -97,7 +97,7 @@ class UtbetalingsoppdragService(
                 erSimulering = erSimulering,
             )
 
-        beregnetUtbetalingsoppdrag.utbetalingsoppdrag.valider(behandlingsresultat = vedtak.behandling.resultat, behandlingskategori = vedtak.behandling.kategori, andelerTilkjentYtelse = nyTilkjentYtelse.andelerTilkjentYtelse.toList())
+        beregnetUtbetalingsoppdrag.valider(behandlingsresultat = vedtak.behandling.resultat, behandlingskategori = vedtak.behandling.kategori, andelerTilkjentYtelse = nyTilkjentYtelse.andelerTilkjentYtelse)
 
         if (!erSimulering) {
             oppdaterTilkjentYtelse(nyTilkjentYtelse, beregnetUtbetalingsoppdrag)
