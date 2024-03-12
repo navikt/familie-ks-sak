@@ -26,10 +26,10 @@ internal fun Iterable<EndretUtbetalingAndel>.tilBarnasHarEtterbetaling3MånedTid
         .filter { it.person?.type == PersonType.BARN }
         .filter { it.person?.aktør != null }
         .groupBy { checkNotNull(it.person?.aktør) }
-        .mapValues { (_, endringer) -> endringer.map { it.tilPeriode { true } }.tilTidslinje() }
+        .mapValues { (_, endringer) -> endringer.map { it.tilVilkårRegelverkResultatPeriode { true } }.tilTidslinje() }
 }
 
-private fun <T> EndretUtbetalingAndel.tilPeriode(mapper: (EndretUtbetalingAndel) -> T) =
+private fun <T> EndretUtbetalingAndel.tilVilkårRegelverkResultatPeriode(mapper: (EndretUtbetalingAndel) -> T) =
     Periode(
         fom = this.fom?.førsteDagIInneværendeMåned() ?: LocalDate.now(),
         tom = this.tom?.sisteDagIInneværendeMåned() ?: LocalDate.now(),

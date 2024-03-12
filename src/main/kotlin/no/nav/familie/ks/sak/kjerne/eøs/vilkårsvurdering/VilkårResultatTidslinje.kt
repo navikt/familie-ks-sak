@@ -23,12 +23,12 @@ fun tilVilkårRegelverkResultatTidslinje(
 ): Tidslinje<VilkårRegelverkResultat> {
     val oppfyltEllerIkkeAktueltVilkårer = vilkårResultater.filter { it.erOppfylt() || it.erIkkeAktuelt() }
 
-    val forskyvetVilkår = forskyvVilkårResultater(vilkår, oppfyltEllerIkkeAktueltVilkårer)
+    val forskjøvetVilkårResultatPerioder = forskyvVilkårResultater(vilkår, oppfyltEllerIkkeAktueltVilkårer)
 
-    return forskyvetVilkår.map { it.tilPeriode() }.tilTidslinje()
+    return forskjøvetVilkårResultatPerioder.map { it.tilVilkårRegelverkResultatPeriode() }.tilTidslinje()
 }
 
-fun Periode<VilkårResultat>.tilPeriode(): Periode<VilkårRegelverkResultat> {
+fun Periode<VilkårResultat>.tilVilkårRegelverkResultatPeriode(): Periode<VilkårRegelverkResultat> {
     val vilkårResultat = this.verdi
 
     return Periode(
