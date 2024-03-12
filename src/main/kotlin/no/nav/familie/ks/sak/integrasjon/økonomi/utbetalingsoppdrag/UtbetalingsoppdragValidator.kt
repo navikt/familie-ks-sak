@@ -1,6 +1,6 @@
 package no.nav.familie.ks.sak.integrasjon.økonomi.utbetalingsoppdrag
 
-import no.nav.familie.kontrakter.felles.oppdrag.Utbetalingsoppdrag
+import no.nav.familie.felles.utbetalingsgenerator.domain.Utbetalingsoppdrag
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.common.exception.KONTAKT_TEAMET_SUFFIX
 import no.nav.familie.ks.sak.common.util.sisteDagIMåned
@@ -16,7 +16,9 @@ fun Utbetalingsoppdrag.valider(
     behandlingskategori: BehandlingKategori,
     andelerTilkjentYtelse: List<AndelTilkjentYtelse>,
 ) {
-    if (this.utbetalingsperiode.isNotEmpty() && behandlingsresultat == Behandlingsresultat.FORTSATT_INNVILGET) {
+    if (behandlingsresultat == Behandlingsresultat.OPPHØRT) {
+        this.validerOpphørsoppdrag()
+    } else if (this.utbetalingsperiode.isNotEmpty() && behandlingsresultat == Behandlingsresultat.FORTSATT_INNVILGET) {
         throw FunksjonellFeil(
             "Behandling har resultat fortsatt innvilget, men det finnes utbetalingsperioder som ifølge systemet skal endres. $KONTAKT_TEAMET_SUFFIX",
         )
