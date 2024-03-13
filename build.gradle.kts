@@ -1,7 +1,7 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    val kotlinVersion = "1.9.22"
+    val kotlinVersion = "1.9.23"
     kotlin("jvm") version kotlinVersion
 
     id("org.springframework.boot") version "3.2.3"
@@ -13,7 +13,7 @@ plugins {
     id("com.github.davidmc24.gradle.plugin.avro") version "1.9.1"
 
     // ------------- SLSA -------------- //
-    id("org.cyclonedx.bom") version "1.8.1"
+    id("org.cyclonedx.bom") version "1.8.2"
 }
 
 configurations {
@@ -45,18 +45,18 @@ repositories {
 
 dependencies {
 
-    val springdocVersion = "2.3.0"
-    val sentryVersion = "7.1.0"
+    val springdocVersion = "2.4.0"
+    val sentryVersion = "7.6.0"
     val navFellesVersion = "3.20240227112118_e55c4be"
     val eksterneKontrakterBisysVersion = "2.0_20230214104704_706e9c0"
-    val fellesKontrakterVersion = "3.0_20240216133329_6a38002"
+    val fellesKontrakterVersion = "3.0_20240307134842_b6c7d85"
     val familieKontrakterSaksstatistikkVersion = "2.0_20230214104704_706e9c0"
     val familieKontrakterStønadsstatistikkKsVersion = "2.0_20240131125409_e3d0f6d"
     val tokenValidationSpringVersion = "4.1.3"
     val navFoedselsnummerVersion = "1.0-SNAPSHOT.6"
     val prosesseringVersion = "2.20240214140223_83c31de"
     val restAssuredVersion = "5.4.0"
-    val kotlinxVersion = "1.7.3"
+    val kotlinxVersion = "1.8.0"
     val utbetalingsgeneratorVersion = "1.0_20240208132236_bce5777"
 
     // ---------- Spring ---------- \\
@@ -87,12 +87,12 @@ dependencies {
 
     // ----------- AVRO ---------\\
     implementation("org.apache.avro:avro:1.11.3")
-    implementation("io.confluent:kafka-avro-serializer:7.5.3")
+    implementation("io.confluent:kafka-avro-serializer:7.6.0")
     implementation("org.eclipse.jetty:jetty-server")
 
     // ---- Junit og Cucumber ---- \\
 
-    testImplementation(platform("org.junit:junit-bom:5.10.1"))
+    testImplementation(platform("org.junit:junit-bom:5.10.2"))
     testImplementation(platform("io.cucumber:cucumber-bom:7.15.0"))
 
     testImplementation("io.cucumber:cucumber-java")
@@ -126,24 +126,24 @@ dependencies {
     implementation("io.sentry:sentry-spring-boot-starter:$sentryVersion")
     implementation("io.sentry:sentry-logback:$sentryVersion")
     implementation("io.micrometer:micrometer-registry-prometheus")
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.16.1")
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.16.2")
     implementation("com.neovisionaries:nv-i18n:1.29")
-    ktlint("com.pinterest.ktlint:ktlint-cli:1.1.0") {
+    ktlint("com.pinterest.ktlint:ktlint-cli:1.2.1") {
         attributes {
             attribute(Bundling.BUNDLING_ATTRIBUTE, objects.named(Bundling.EXTERNAL))
         }
     }
 
-    testImplementation("io.mockk:mockk:1.13.8")
+    testImplementation("io.mockk:mockk:1.13.10")
     testImplementation("com.ninja-squad:springmockk:4.0.2") {
         exclude(module = "mockito-core")
     }
     testImplementation("org.springframework.boot:spring-boot-starter-test")
-    testImplementation("org.springframework.cloud:spring-cloud-contract-wiremock:4.1.0")
+    testImplementation("org.springframework.cloud:spring-cloud-contract-wiremock:4.1.1")
     testImplementation("io.rest-assured:spring-mock-mvc:$restAssuredVersion")
     testImplementation("io.rest-assured:kotlin-extensions:$restAssuredVersion")
-    testImplementation("org.testcontainers:postgresql:1.19.3")
-    testImplementation("no.nav.security:mock-oauth2-server:2.1.0")
+    testImplementation("org.testcontainers:postgresql:1.19.7")
+    testImplementation("no.nav.security:mock-oauth2-server:2.1.2")
     testImplementation("no.nav.security:token-validation-test-support:2.0.5")
     testImplementation("no.nav.security:token-validation-spring-test:$tokenValidationSpringVersion")
     testImplementation("nav-foedselsnummer:testutils:1.0-SNAPSHOT.6")
