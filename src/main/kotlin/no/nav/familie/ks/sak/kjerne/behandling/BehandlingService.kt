@@ -19,6 +19,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg
+import no.nav.familie.ks.sak.kjerne.behandling.steg.behandlingsresultat.BehandlingsresultatValideringUtils
 import no.nav.familie.ks.sak.kjerne.behandling.steg.registrersøknad.SøknadGrunnlagService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.VedtakRepository
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.feilutbetaltvaluta.FeilutbetaltValutaService
@@ -208,6 +209,8 @@ class BehandlingService(
         nyUtledetBehandlingsresultat: Behandlingsresultat,
     ): Behandling {
         val behandling = hentBehandling(behandlingId)
+        BehandlingsresultatValideringUtils.validerBehandlingsresultat(behandling, nyUtledetBehandlingsresultat)
+
         logger.info(
             "${SikkerhetContext.hentSaksbehandlerNavn()} endrer resultat på behandling $behandlingId " +
                 "fra ${behandling.resultat} til $nyUtledetBehandlingsresultat",

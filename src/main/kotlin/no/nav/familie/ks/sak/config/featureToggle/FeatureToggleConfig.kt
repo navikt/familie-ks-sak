@@ -7,5 +7,6 @@ class FeatureToggleConfig {
         const val TEKNISK_ENDRING = "familie-ks-sak.behandling.teknisk-endring"
         const val KAN_MANUELT_KORRIGERE_MED_VEDTAKSBREV = "familie-ks-sak.behandling.korreksjon-vedtaksbrev"
         const val BRUK_NY_UTBETALINGSGENERATOR = "familie-ks-sak.bruk-ny-utbetalingsgenerator"
+        const val SKAL_BRUKE_NY_BEHANDLINGSRESULTAT_LOGIKK = "familie-ks-sak.bruk-ny-behandlingsresultat"
     }
 }
