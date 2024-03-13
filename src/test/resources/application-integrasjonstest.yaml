@@ -2,8 +2,7 @@ no.nav.security.jwt:
   issuer:
     azuread:
       discoveryurl: ${AZURE_APP_WELL_KNOWN_URL}
-      acceptedaudience: familie-ks-sak-test
-      cookiename: localhost-idtoken
+      accepted_audience: familie-ks-sak-test
   client:
     registration:
       familie-integrasjoner-onbehalfof:

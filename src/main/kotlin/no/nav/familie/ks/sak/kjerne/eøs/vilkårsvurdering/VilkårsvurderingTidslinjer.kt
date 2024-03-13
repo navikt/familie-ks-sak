@@ -23,7 +23,7 @@ class VilkårsvurderingTidslinjer(
         aktørTilPersonResultater.entries.associate { (aktør, personResultat) ->
             aktør to
                 personResultat.vilkårResultater.groupBy { it.vilkårType }
-                    .map { it.value.tilVilkårRegelverkResultatTidslinje() }
+                    .map { tilVilkårRegelverkResultatTidslinje(it.key, it.value) }
         }
 
     private val søkersTidslinje: SøkersTidslinjer = SøkersTidslinjer(this, søker)
