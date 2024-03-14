@@ -73,7 +73,7 @@ fun parseNasjonalEllerFellesBegrunnelse(rad: Tabellrad): BegrunnelseDtoMedData {
                 BrevPeriodeParser.DomenebegrepBrevBegrunnelse.SØKNADSTIDSPUNKT,
                 rad,
             ) ?: "",
-        antallTimerBarnehageplass = parseValgfriString(BrevPeriodeParser.DomenebegrepBrevBegrunnelse.ANTALL_TIMER_BARNEHAGEPLASS, rad) ?: "0",
+        antallTimerBarnehageplass = parseValgfriString(BrevPeriodeParser.DomenebegrepBrevBegrunnelse.ANTALL_TIMER_BARNEHAGEPLASS, rad) ?: "",
         sanityBegrunnelseType = SanityBegrunnelseType.STANDARD,
         gjelderAndreForelder = parseValgfriBoolean(BrevPeriodeParser.DomenebegrepBrevBegrunnelse.GJELDER_ANDRE_FORELDER, rad) ?: false,
     )
