@@ -298,8 +298,8 @@ private fun VilkårResultat.lagOgValiderPeriodeFraVilkår(): IkkeNullbarPeriode<
 private fun VilkårResultat.validerVilkårBarnetsAlder(
     periode: IkkeNullbarPeriode<Long>,
     barn: Person,
-): String? {
-    return when {
+): String? =
+    when {
         this.erAdopsjonOppfylt() &&
             periode.tom.isAfter(barn.fødselsdato.plusYears(6).withMonth(Month.AUGUST.value).sisteDagIMåned()) ->
             "Du kan ikke sette en t.o.m dato som er etter august året barnet fyller 6 år."
@@ -316,7 +316,6 @@ private fun VilkårResultat.validerVilkårBarnetsAlder(
 
         else -> null
     }
-}
 
 fun genererInitiellVilkårsvurdering(
     behandling: Behandling,
