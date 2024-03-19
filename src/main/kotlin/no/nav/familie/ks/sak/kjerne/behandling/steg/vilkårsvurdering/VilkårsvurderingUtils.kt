@@ -6,7 +6,6 @@ import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.common.tidslinje.IkkeNullbarPeriode
 import no.nav.familie.ks.sak.common.tidslinje.Periode
 import no.nav.familie.ks.sak.common.tidslinje.Tidslinje
-import no.nav.familie.ks.sak.common.tidslinje.diffIDager
 import no.nav.familie.ks.sak.common.tidslinje.tilTidslinje
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.kombinerMed
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.tilPerioderIkkeNull
@@ -300,16 +299,13 @@ private fun VilkårResultat.validerVilkårBarnetsAlder(
     periode: IkkeNullbarPeriode<Long>,
     barn: Person,
 ): String? {
-    val fomEllerTomErSkuddår = periode.fom.isLeapYear || periode.tom.isLeapYear
-    val maksAntallDagerVedAdopsjon = if (fomEllerTomErSkuddår) 367 else 366
-
     return when {
         this.erAdopsjonOppfylt() &&
             periode.tom.isAfter(barn.fødselsdato.plusYears(6).withMonth(Month.AUGUST.value).sisteDagIMåned()) ->
             "Du kan ikke sette en t.o.m dato som er etter august året barnet fyller 6 år."
 
-        // Ved adopsjon skal det være lov å ha en differanse på 1 år + 1 eller 2 dager avhengig om det er skuddår slik at man får 11 måned med kontantstøtte.
-        this.erAdopsjonOppfylt() && periode.fom.diffIDager(periode.tom) > maksAntallDagerVedAdopsjon ->
+        // Ved adopsjon skal det være lov å ha en differanse på 1 år slik at man får 11 måned med kontantstøtte.
+        this.erAdopsjonOppfylt() && periode.fom.plusYears(1) < periode.tom ->
             "Differansen mellom f.o.m datoen og t.o.m datoen kan ikke være mer enn 1 år."
 
         !this.erAdopsjonOppfylt() && !periode.fom.isEqual(barn.fødselsdato.plusYears(1)) ->
