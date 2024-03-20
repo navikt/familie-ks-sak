@@ -47,7 +47,7 @@ dependencies {
 
     val springdocVersion = "2.4.0"
     val sentryVersion = "7.6.0"
-    val navFellesVersion = "3.20240227112118_e55c4be"
+    val navFellesVersion = "3.20240320135638_bd19d4c"
     val eksterneKontrakterBisysVersion = "2.0_20230214104704_706e9c0"
     val fellesKontrakterVersion = "3.0_20240313150947_5947def"
     val familieKontrakterSaksstatistikkVersion = "2.0_20230214104704_706e9c0"
