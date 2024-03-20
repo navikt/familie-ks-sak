@@ -126,7 +126,7 @@ dependencies {
     implementation("io.sentry:sentry-spring-boot-starter:$sentryVersion")
     implementation("io.sentry:sentry-logback:$sentryVersion")
     implementation("io.micrometer:micrometer-registry-prometheus")
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.16.2")
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.17.0")
     implementation("com.neovisionaries:nv-i18n:1.29")
     ktlint("com.pinterest.ktlint:ktlint-cli:1.2.1") {
         attributes {
