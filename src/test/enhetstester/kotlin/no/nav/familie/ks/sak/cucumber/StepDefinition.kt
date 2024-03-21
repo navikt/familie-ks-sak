@@ -484,6 +484,9 @@ class StepDefinition {
             søknadGrunnlagService = søknadGrunnlagService,
             personidentService = mockk(),
             personopplysningGrunnlagService = mockPersonopplysningGrunnlagService(),
+            andelerTilkjentYtelseRepository = mockk(),
+            endretUtbetalingAndelService = mockk(),
+            kompetanseService = mockk(),
         )
     }
 

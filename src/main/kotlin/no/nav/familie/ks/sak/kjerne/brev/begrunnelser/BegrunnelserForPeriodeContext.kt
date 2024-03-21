@@ -338,7 +338,7 @@ class BegrunnelserForPeriodeContext(
                         .singleOrNull()
                         ?.verdi
                         ?.takeIf { vilkårResultater ->
-                            val erAlleVilkårOppfylt = vilkårResultater.all { it.erOppfylt() }
+                            val erAlleVilkårOppfylt = vilkårResultater.all { it.erOppfylt() || it.erIkkeAktuelt() }
                             val erVilkårResultatSomOpphørerRettFørPeriode =
                                 vilkårResultater.any { it.erOppfylt() && it.periodeTom?.toYearMonth() == vedtaksperiode.fom.toYearMonth() }
 

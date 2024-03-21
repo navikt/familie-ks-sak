@@ -616,7 +616,7 @@ fun lagVilkårResultaterForDeltBosted(
 }
 
 fun lagEndretUtbetalingAndel(
-    behandlingId: Long,
+    behandlingId: Long = 0,
     person: Person,
     prosent: BigDecimal? = null,
     periodeFom: YearMonth = YearMonth.now().minusMonths(1),
@@ -671,6 +671,7 @@ fun lagPersonResultat(
     personType: PersonType = PersonType.BARN,
     vilkårType: Vilkår = Vilkår.BOSATT_I_RIKET,
     erDeltBosted: Boolean = false,
+    erEksplisittAvslagPåSøknad: Boolean = false,
 ): PersonResultat {
     val personResultat =
         PersonResultat(
@@ -689,6 +690,7 @@ fun lagPersonResultat(
                     resultat = resultat,
                     begrunnelse = "",
                     behandlingId = vilkårsvurdering.behandling.id,
+                    erEksplisittAvslagPåSøknad = erEksplisittAvslagPåSøknad,
                     utdypendeVilkårsvurderinger =
                         listOfNotNull(
                             when {
@@ -1069,3 +1071,54 @@ fun lagVedtak(
         vedtaksdato = LocalDateTime.now(),
         stønadBrevPdf = stønadBrevPdF,
     )
+
+fun lagVilkårsvurdering(
+    søkerAktør: Aktør,
+    behandling: Behandling,
+    resultat: Resultat,
+    søkerPeriodeFom: LocalDate? = LocalDate.now().minusMonths(1),
+    søkerPeriodeTom: LocalDate? = LocalDate.now().plusYears(2),
+): Vilkårsvurdering {
+    val vilkårsvurdering =
+        Vilkårsvurdering(
+            behandling = behandling,
+        )
+    val personResultat =
+        PersonResultat(
+            vilkårsvurdering = vilkårsvurdering,
+            aktør = søkerAktør,
+        )
+    personResultat.setSortedVilkårResultater(
+        setOf(
+            VilkårResultat(
+                behandlingId = behandling.id,
+                personResultat = personResultat,
+                vilkårType = Vilkår.BOSATT_I_RIKET,
+                resultat = resultat,
+                periodeFom = søkerPeriodeFom,
+                periodeTom = søkerPeriodeTom,
+                begrunnelse = "",
+            ),
+            VilkårResultat(
+                behandlingId = behandling.id,
+                personResultat = personResultat,
+                vilkårType = Vilkår.LOVLIG_OPPHOLD,
+                resultat = resultat,
+                periodeFom = søkerPeriodeFom,
+                periodeTom = søkerPeriodeTom,
+                begrunnelse = "",
+            ),
+        ),
+    )
+    personResultat.andreVurderinger.add(
+        AnnenVurdering(
+            personResultat = personResultat,
+            resultat = resultat,
+            type = AnnenVurderingType.OPPLYSNINGSPLIKT,
+            begrunnelse = null,
+        ),
+    )
+
+    vilkårsvurdering.personResultater = setOf(personResultat)
+    return vilkårsvurdering
+}
