@@ -79,7 +79,7 @@ dependencies {
 
     // ---------- DB ---------- \\
     implementation("org.flywaydb:flyway-core")
-    implementation("org.postgresql:postgresql:42.7.2")
+    implementation("org.postgresql:postgresql:42.7.3")
 
     // ---------- Apache ---------- \\
     implementation("org.apache.httpcomponents:httpclient:4.5.14")
