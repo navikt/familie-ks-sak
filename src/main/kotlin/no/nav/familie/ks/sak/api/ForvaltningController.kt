@@ -283,11 +283,11 @@ class ForvaltningController(
     @GetMapping(path = ["/hent-oppgaver"])
     fun hentOppgaver(
         @RequestBody finnOppgaveDto: FinnOppgaveDto,
-    ): FinnOppgaveResponseDto {
+    ): ResponseEntity<FinnOppgaveResponseDto> {
         tilgangService.validerTilgangTilHandling(
             minimumBehandlerRolle = BehandlerRolle.FORVALTER,
             handling = "Hente oppgaver for debugging av oppgave-integrasjon",
         )
-        return oppgaveService.hentOppgaver(finnOppgaveDto.tilFinnOppgaveRequest())
+        return ResponseEntity.ok(oppgaveService.hentOppgaver(finnOppgaveDto.tilFinnOppgaveRequest()))
     }
 }
