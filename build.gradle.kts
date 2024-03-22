@@ -47,9 +47,9 @@ dependencies {
 
     val springdocVersion = "2.4.0"
     val sentryVersion = "7.6.0"
-    val navFellesVersion = "3.20240227112118_e55c4be"
+    val navFellesVersion = "3.20240320135638_bd19d4c"
     val eksterneKontrakterBisysVersion = "2.0_20230214104704_706e9c0"
-    val fellesKontrakterVersion = "3.0_20240313150947_5947def"
+    val fellesKontrakterVersion = "3.0_20240320115313_5db97db"
     val familieKontrakterSaksstatistikkVersion = "2.0_20230214104704_706e9c0"
     val familieKontrakterStønadsstatistikkKsVersion = "2.0_20240131125409_e3d0f6d"
     val tokenValidationSpringVersion = "4.1.3"
@@ -79,7 +79,7 @@ dependencies {
 
     // ---------- DB ---------- \\
     implementation("org.flywaydb:flyway-core")
-    implementation("org.postgresql:postgresql:42.7.2")
+    implementation("org.postgresql:postgresql:42.7.3")
 
     // ---------- Apache ---------- \\
     implementation("org.apache.httpcomponents:httpclient:4.5.14")
