@@ -49,7 +49,7 @@ dependencies {
     val sentryVersion = "7.6.0"
     val navFellesVersion = "3.20240322143438_d907d85"
     val eksterneKontrakterBisysVersion = "2.0_20230214104704_706e9c0"
-    val fellesKontrakterVersion = "3.0_20240320115313_5db97db"
+    val fellesKontrakterVersion = "3.0_20240322142416_c108f69"
     val familieKontrakterSaksstatistikkVersion = "2.0_20230214104704_706e9c0"
     val familieKontrakterStønadsstatistikkKsVersion = "2.0_20240131125409_e3d0f6d"
     val tokenValidationSpringVersion = "4.1.3"
@@ -126,7 +126,7 @@ dependencies {
     implementation("io.sentry:sentry-spring-boot-starter:$sentryVersion")
     implementation("io.sentry:sentry-logback:$sentryVersion")
     implementation("io.micrometer:micrometer-registry-prometheus")
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.17.0")
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("com.neovisionaries:nv-i18n:1.29")
     ktlint("com.pinterest.ktlint:ktlint-cli:1.2.1") {
         attributes {
