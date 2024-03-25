@@ -3,10 +3,13 @@ package no.nav.familie.ks.sak.kjerne.behandling.steg.iverksettmotoppdrag
 import no.nav.familie.kontrakter.felles.objectMapper
 import no.nav.familie.kontrakter.felles.oppdrag.OppdragId
 import no.nav.familie.kontrakter.felles.oppdrag.OppdragStatus
+import no.nav.familie.ks.sak.common.BehandlingId
 import no.nav.familie.ks.sak.integrasjon.oppdrag.OppdragKlient
 import no.nav.familie.ks.sak.integrasjon.økonomi.utbetalingsoppdrag.FAGSYSTEM
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.steg.StegService
+import no.nav.familie.ks.sak.kjerne.beregning.domene.TilkjentYtelseRepository
+import no.nav.familie.ks.sak.kjerne.beregning.domene.skalIverksettesMotOppdrag
 import no.nav.familie.ks.sak.statistikk.stønadsstatistikk.PubliserVedtakTask
 import no.nav.familie.ks.sak.task.nesteGyldigeTriggertidForBehandlingIHverdager
 import no.nav.familie.prosessering.AsyncTaskStep
@@ -38,13 +41,14 @@ class HentStatusFraOppdragTask(
     private val oppdragKlient: OppdragKlient,
     private val taskService: TaskService,
     private val stegService: StegService,
+    private val tilkjentYtelseRepository: TilkjentYtelseRepository,
 ) : AsyncTaskStep {
     override fun doTask(task: Task) {
         val statusFraOppdragDto = objectMapper.readValue(task.payload, HentStatusFraOppdragDto::class.java)
         val oppdragId = statusFraOppdragDto.oppdragId
         logger.info("Henter status fra oppdrag for oppdragId=$oppdragId,behandlingId=${statusFraOppdragDto.behandlingsId}")
 
-        val statusFraOppdrag = oppdragKlient.hentStatus(oppdragId)
+        val statusFraOppdrag = hentStatus(oppdragId = oppdragId, behandlingId = BehandlingId(statusFraOppdragDto.behandlingsId))
         logger.info("Mottok status '$statusFraOppdrag' fra oppdrag")
 
         when (statusFraOppdrag) {
@@ -60,6 +64,16 @@ class HentStatusFraOppdragTask(
             }
         }
     }
+
+    fun hentStatus(
+        oppdragId: OppdragId,
+        behandlingId: BehandlingId,
+    ): OppdragStatus =
+        if (tilkjentYtelseRepository.hentTilkjentYtelseForBehandling(behandlingId.id).skalIverksettesMotOppdrag()) {
+            oppdragKlient.hentStatus(oppdragId)
+        } else {
+            OppdragStatus.KVITTERT_OK
+        }
 
     override fun onCompletion(task: Task) {
         val statusFraOppdragDto = objectMapper.readValue(task.payload, HentStatusFraOppdragDto::class.java)
