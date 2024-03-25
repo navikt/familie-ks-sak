@@ -47,7 +47,7 @@ dependencies {
 
     val springdocVersion = "2.4.0"
     val sentryVersion = "7.6.0"
-    val navFellesVersion = "3.20240320135638_bd19d4c"
+    val navFellesVersion = "3.20240322143438_d907d85"
     val eksterneKontrakterBisysVersion = "2.0_20230214104704_706e9c0"
     val fellesKontrakterVersion = "3.0_20240320115313_5db97db"
     val familieKontrakterSaksstatistikkVersion = "2.0_20230214104704_706e9c0"
@@ -93,7 +93,7 @@ dependencies {
     // ---- Junit og Cucumber ---- \\
 
     testImplementation(platform("org.junit:junit-bom:5.10.2"))
-    testImplementation(platform("io.cucumber:cucumber-bom:7.15.0"))
+    testImplementation(platform("io.cucumber:cucumber-bom:7.16.1"))
 
     testImplementation("io.cucumber:cucumber-java")
     testImplementation("io.cucumber:cucumber-junit-platform-engine")
