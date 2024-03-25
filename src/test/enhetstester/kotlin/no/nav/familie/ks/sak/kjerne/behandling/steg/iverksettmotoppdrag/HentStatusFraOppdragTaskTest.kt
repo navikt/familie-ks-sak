@@ -11,11 +11,15 @@ import io.mockk.slot
 import io.mockk.verify
 import no.nav.familie.kontrakter.felles.objectMapper
 import no.nav.familie.kontrakter.felles.oppdrag.OppdragStatus
+import no.nav.familie.kontrakter.felles.oppdrag.Utbetalingsoppdrag
 import no.nav.familie.ks.sak.data.lagBehandling
+import no.nav.familie.ks.sak.data.lagTilkjentYtelse
+import no.nav.familie.ks.sak.data.lagUtbetalingsperiode
 import no.nav.familie.ks.sak.integrasjon.oppdrag.OppdragKlient
 import no.nav.familie.ks.sak.integrasjon.økonomi.utbetalingsoppdrag.FAGSYSTEM
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.StegService
+import no.nav.familie.ks.sak.kjerne.beregning.domene.TilkjentYtelseRepository
 import no.nav.familie.prosessering.domene.Status
 import no.nav.familie.prosessering.domene.Task
 import no.nav.familie.prosessering.error.RekjørSenereException
@@ -27,6 +31,8 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertDoesNotThrow
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
+import java.time.LocalDateTime
+import java.util.UUID
 
 @ExtendWith(MockKExtension::class)
 internal class HentStatusFraOppdragTaskTest {
@@ -39,6 +45,9 @@ internal class HentStatusFraOppdragTaskTest {
     @MockK
     private lateinit var stegService: StegService
 
+    @MockK
+    private lateinit var tilkjentYtelseRepository: TilkjentYtelseRepository
+
     @InjectMockKs
     private lateinit var hentStatusFraOppdragTask: HentStatusFraOppdragTask
 
@@ -47,6 +56,22 @@ internal class HentStatusFraOppdragTaskTest {
     @BeforeEach
     fun setup() {
         every { taskService.save(any()) } returns mockk()
+
+        // utbetalingsoppdrag med periode
+        every { tilkjentYtelseRepository.hentTilkjentYtelseForBehandling(any()) } returns
+            lagTilkjentYtelse(
+                behandling = behandling,
+                utbetalingsoppdrag =
+                    Utbetalingsoppdrag(
+                        kodeEndring = Utbetalingsoppdrag.KodeEndring.NY,
+                        fagSystem = FAGSYSTEM,
+                        saksnummer = "",
+                        aktoer = UUID.randomUUID().toString(),
+                        saksbehandlerId = "",
+                        avstemmingTidspunkt = LocalDateTime.now(),
+                        utbetalingsperiode = listOf(lagUtbetalingsperiode()),
+                    ),
+            )
     }
 
     @Test
@@ -75,6 +100,29 @@ internal class HentStatusFraOppdragTaskTest {
 
         assertDoesNotThrow { hentStatusFraOppdragTask.doTask(lagTask()) }
         verify(exactly = 1) { stegService.utførStegEtterIverksettelseAutomatisk(behandling.id) }
+    }
+
+    @Test
+    fun `doTask skal ikke hente status fra oppdrag hvis utbetalingsperiode er en tom liste`() {
+        every { stegService.utførStegEtterIverksettelseAutomatisk(behandling.id) } just runs
+        every { tilkjentYtelseRepository.hentTilkjentYtelseForBehandling(any()) } returns
+            lagTilkjentYtelse(
+                behandling = behandling,
+                utbetalingsoppdrag =
+                    Utbetalingsoppdrag(
+                        kodeEndring = Utbetalingsoppdrag.KodeEndring.NY,
+                        fagSystem = FAGSYSTEM,
+                        saksnummer = "",
+                        aktoer = UUID.randomUUID().toString(),
+                        saksbehandlerId = "",
+                        avstemmingTidspunkt = LocalDateTime.now(),
+                        utbetalingsperiode = emptyList(),
+                    ),
+            )
+
+        assertDoesNotThrow { hentStatusFraOppdragTask.doTask(lagTask()) }
+        verify(exactly = 1) { stegService.utførStegEtterIverksettelseAutomatisk(behandling.id) }
+        verify(exactly = 0) { oppdragKlient.hentStatus(any()) }
     }
 
     private fun lagTask() =
