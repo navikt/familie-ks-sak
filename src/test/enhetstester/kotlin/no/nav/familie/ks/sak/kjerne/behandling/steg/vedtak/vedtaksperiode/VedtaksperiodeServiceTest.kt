@@ -142,6 +142,7 @@ internal class VedtaksperiodeServiceTest {
 
         every { personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(behandling.id) } returns mocketPersonOpplysningGrunnlag
         every { vedtaksperiodeHentOgPersisterService.hentVedtaksperiodeThrows(any()) } returns vedtaksperiodeMedBegrunnelse
+        every { sanityService.hentSanityBegrunnelser() } returns emptyList()
 
         val feil =
             assertThrows<Feil> {
@@ -174,6 +175,7 @@ internal class VedtaksperiodeServiceTest {
         every { personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(behandling.id) } returns mocketPersonOpplysningGrunnlag
         every { vedtaksperiodeHentOgPersisterService.hentVedtaksperiodeThrows(any()) } returns vedtaksperiodeMedBegrunnelse
         every { vedtaksperiodeHentOgPersisterService.lagre(vedtaksperiodeMedBegrunnelse) } returns vedtaksperiodeMedBegrunnelse
+        every { sanityService.hentSanityBegrunnelser() } returns emptyList()
 
         vedtaksperiodeService.oppdaterVedtaksperiodeMedBegrunnelser(1, listOf(nasjonalEllerFellesBegrunnelse))
 
@@ -227,6 +229,8 @@ internal class VedtaksperiodeServiceTest {
                 gammelVedtaksperiodeMedBegrunnelse,
             )
         every { vedtaksperiodeHentOgPersisterService.lagre(capture(vedtaksperiodeMedBegrunnelseSlot)) } returnsArgument 0
+
+        every { sanityService.hentSanityBegrunnelser() } returns emptyList()
 
         vedtaksperiodeService.kopierOverVedtaksperioder(gammelVedtak, nyttVedtak)
 

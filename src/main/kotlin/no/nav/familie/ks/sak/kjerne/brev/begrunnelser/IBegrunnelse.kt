@@ -16,7 +16,7 @@ sealed interface IBegrunnelse {
     fun enumnavnTilString(): String
 
     fun støtterFritekst(sanityBegrunnelser: List<SanityBegrunnelse>) =
-        sanityBegrunnelser.first { it.apiNavn == this.sanityApiNavn }.støtterFritekst ||
+        sanityBegrunnelser.firstOrNull { it.apiNavn == this.sanityApiNavn }?.støtterFritekst ?: false ||
             (this !== NasjonalEllerFellesBegrunnelse.REDUKSJON_SATSENDRING && this.begrunnelseType == BegrunnelseType.REDUKSJON)
 
     companion object {

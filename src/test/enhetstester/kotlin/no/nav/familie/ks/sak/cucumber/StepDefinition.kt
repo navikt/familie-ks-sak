@@ -21,6 +21,7 @@ import no.nav.familie.ks.sak.common.util.TIDENES_MORGEN
 import no.nav.familie.ks.sak.common.util.tilddMMyyyy
 import no.nav.familie.ks.sak.cucumber.BrevBegrunnelseParser.mapBegrunnelser
 import no.nav.familie.ks.sak.data.lagVedtak
+import no.nav.familie.ks.sak.integrasjon.sanity.SanityService
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelse
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelseDto
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
@@ -368,6 +369,7 @@ class StepDefinition {
                 personopplysningGrunnlag = persongrunnlag[behandlingId]!!,
                 andelerTilkjentYtelse = hentAndelerTilkjentYtelseMedEndreteUtbetalinger(behandlingId),
                 dagensDato = dagensDato,
+                sanityBegrunnelser = emptyList(),
             )
         }
     }
@@ -540,6 +542,9 @@ class StepDefinition {
             kompetanser[behandlingId.id] ?: emptyList()
         }
 
+        val sanityService = mockk<SanityService>()
+        every { sanityService.hentSanityBegrunnelser() } answers { emptyList() }
+
         val utbetalingsperiodeMedBegrunnelserService =
             UtbetalingsperiodeMedBegrunnelserService(
                 vilkårsvurderingService = mockVilkårsvurderingService(),
@@ -554,7 +559,7 @@ class StepDefinition {
             vedtaksperiodeHentOgPersisterService = mockk(),
             vedtakRepository = mockk(),
             vilkårsvurderingRepository = vilkårsvurderingRepository,
-            sanityService = mockk(),
+            sanityService = sanityService,
             søknadGrunnlagService = søknadGrunnlagService,
             utbetalingsperiodeMedBegrunnelserService = utbetalingsperiodeMedBegrunnelserService,
             andelerTilkjentYtelseOgEndreteUtbetalingerService = mockAndelerTilkjentYtelseOgEndreteUtbetalingerService(),

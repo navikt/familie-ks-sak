@@ -129,7 +129,7 @@ class BehandlingService(
                         if (behandling.status != BehandlingStatus.AVSLUTTET) {
                             vedtaksperiodeService.hentUtvidetVedtaksperioderMedBegrunnelser(vedtak = it)
                                 .map { utvidetVedtaksperiodeMedBegrunnelser ->
-                                    utvidetVedtaksperiodeMedBegrunnelser.tilUtvidetVedtaksperiodeMedBegrunnelserDto()
+                                    utvidetVedtaksperiodeMedBegrunnelser.tilUtvidetVedtaksperiodeMedBegrunnelserDto(sanityBegrunnelser)
                                 }
                                 .sortedBy { dto -> dto.fom }
                         } else {
