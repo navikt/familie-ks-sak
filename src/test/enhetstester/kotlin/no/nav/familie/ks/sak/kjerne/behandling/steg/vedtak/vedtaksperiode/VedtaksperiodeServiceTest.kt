@@ -203,16 +203,20 @@ internal class VedtaksperiodeServiceTest {
 
         val vedtaksperiodeMedBegrunnelseSlot = slot<VedtaksperiodeMedBegrunnelser>()
 
-        every { personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(behandling.id) } returns mocketPersonOpplysningGrunnlag
-        every { vedtaksperiodeHentOgPersisterService.hentVedtaksperiodeThrows(any()) } returns vedtaksperiodeMedBegrunnelse
-        every { vedtaksperiodeHentOgPersisterService.lagre(capture(vedtaksperiodeMedBegrunnelseSlot)) } returns vedtaksperiodeMedBegrunnelse
-        every { sanityService.hentSanityBegrunnelser() } returns
+        val sanityBegrunnelser =
             listOf(
                 lagSanityBegrunnelse(apiNavn = NasjonalEllerFellesBegrunnelse.INNVILGET_IKKE_BARNEHAGE.sanityApiNavn, støtterFritekst = false),
                 lagSanityBegrunnelse(apiNavn = EØSBegrunnelse.INNVILGET_PRIMÆRLAND_STANDARD.sanityApiNavn, støtterFritekst = false),
             )
 
-        vedtaksperiodeService.oppdaterVedtaksperiodeMedBegrunnelser(1, listOf(NasjonalEllerFellesBegrunnelse.INNVILGET_IKKE_BARNEHAGE, NasjonalEllerFellesBegrunnelse.INNVILGET_DELTID_BARNEHAGE))
+        val valgteBegrunnelser = listOf(NasjonalEllerFellesBegrunnelse.INNVILGET_IKKE_BARNEHAGE, NasjonalEllerFellesBegrunnelse.INNVILGET_DELTID_BARNEHAGE)
+
+        every { personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(behandling.id) } returns mocketPersonOpplysningGrunnlag
+        every { vedtaksperiodeHentOgPersisterService.hentVedtaksperiodeThrows(any()) } returns vedtaksperiodeMedBegrunnelse
+        every { vedtaksperiodeHentOgPersisterService.lagre(capture(vedtaksperiodeMedBegrunnelseSlot)) } returns vedtaksperiodeMedBegrunnelse
+        every { sanityService.hentSanityBegrunnelser() } returns sanityBegrunnelser
+
+        vedtaksperiodeService.oppdaterVedtaksperiodeMedBegrunnelser(1, valgteBegrunnelser)
 
         verify { personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(behandling.id) }
         verify { vedtaksperiodeHentOgPersisterService.hentVedtaksperiodeThrows(any()) }
@@ -221,6 +225,7 @@ internal class VedtaksperiodeServiceTest {
         val capturedVedtaksperiodeMedBegrunnelse = vedtaksperiodeMedBegrunnelseSlot.captured
 
         assertThat(capturedVedtaksperiodeMedBegrunnelse.fritekster, IsEmptyCollection())
+        assertThat(capturedVedtaksperiodeMedBegrunnelse.støtterFritekst(sanityBegrunnelser), Is(false))
     }
 
     @Test
@@ -238,16 +243,21 @@ internal class VedtaksperiodeServiceTest {
 
         val vedtaksperiodeMedBegrunnelseSlot = slot<VedtaksperiodeMedBegrunnelser>()
 
-        every { personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(behandling.id) } returns mocketPersonOpplysningGrunnlag
-        every { vedtaksperiodeHentOgPersisterService.hentVedtaksperiodeThrows(any()) } returns vedtaksperiodeMedBegrunnelse
-        every { vedtaksperiodeHentOgPersisterService.lagre(capture(vedtaksperiodeMedBegrunnelseSlot)) } returns vedtaksperiodeMedBegrunnelse
-        every { sanityService.hentSanityBegrunnelser() } returns
+        val sanityBegrunnelser =
             listOf(
                 lagSanityBegrunnelse(apiNavn = NasjonalEllerFellesBegrunnelse.INNVILGET_IKKE_BARNEHAGE.sanityApiNavn, støtterFritekst = false),
                 lagSanityBegrunnelse(apiNavn = EØSBegrunnelse.INNVILGET_PRIMÆRLAND_STANDARD.sanityApiNavn, støtterFritekst = true),
             )
 
-        vedtaksperiodeService.oppdaterVedtaksperiodeMedBegrunnelser(1, listOf(NasjonalEllerFellesBegrunnelse.INNVILGET_IKKE_BARNEHAGE, NasjonalEllerFellesBegrunnelse.INNVILGET_DELTID_BARNEHAGE))
+        val valgteBegrunnelser = listOf(NasjonalEllerFellesBegrunnelse.INNVILGET_IKKE_BARNEHAGE)
+        val valgteEØSBegrunnelser = listOf(EØSBegrunnelse.INNVILGET_PRIMÆRLAND_STANDARD)
+
+        every { personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(behandling.id) } returns mocketPersonOpplysningGrunnlag
+        every { vedtaksperiodeHentOgPersisterService.hentVedtaksperiodeThrows(any()) } returns vedtaksperiodeMedBegrunnelse
+        every { vedtaksperiodeHentOgPersisterService.lagre(capture(vedtaksperiodeMedBegrunnelseSlot)) } returns vedtaksperiodeMedBegrunnelse
+        every { sanityService.hentSanityBegrunnelser() } returns sanityBegrunnelser
+
+        vedtaksperiodeService.oppdaterVedtaksperiodeMedBegrunnelser(1, valgteBegrunnelser, valgteEØSBegrunnelser)
 
         verify { personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(behandling.id) }
         verify { vedtaksperiodeHentOgPersisterService.hentVedtaksperiodeThrows(any()) }
@@ -256,6 +266,7 @@ internal class VedtaksperiodeServiceTest {
         val capturedVedtaksperiodeMedBegrunnelse = vedtaksperiodeMedBegrunnelseSlot.captured
 
         assertThat(capturedVedtaksperiodeMedBegrunnelse.fritekster.size, Is(1))
+        assertThat(capturedVedtaksperiodeMedBegrunnelse.støtterFritekst(sanityBegrunnelser), Is(true))
     }
 
     @ParameterizedTest
@@ -288,6 +299,7 @@ internal class VedtaksperiodeServiceTest {
         val capturedVedtaksperiodeMedBegrunnelse = vedtaksperiodeMedBegrunnelseSlot.captured
 
         assertThat(capturedVedtaksperiodeMedBegrunnelse.fritekster.size, Is(1))
+        assertThat(capturedVedtaksperiodeMedBegrunnelse.støtterFritekst(emptyList()), Is(true))
     }
 
     @Test
