@@ -10,7 +10,6 @@ import io.mockk.runs
 import io.mockk.verify
 import no.nav.familie.ks.sak.api.dto.IverksettMotOppdragDto
 import no.nav.familie.ks.sak.common.exception.Feil
-import no.nav.familie.ks.sak.config.FeatureToggleConfig
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.integrasjon.økonomi.utbetalingsoppdrag.UtbetalingsoppdragService
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
@@ -21,7 +20,6 @@ import no.nav.familie.ks.sak.kjerne.beregning.TilkjentYtelseValideringService
 import no.nav.familie.ks.sak.kjerne.totrinnskontroll.TotrinnskontrollService
 import no.nav.familie.ks.sak.kjerne.totrinnskontroll.domene.Totrinnskontroll
 import no.nav.familie.prosessering.internal.TaskService
-import no.nav.familie.unleash.UnleashService
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -47,9 +45,6 @@ class IverksettMotOppdragStegTest {
 
     @MockK
     private lateinit var taskService: TaskService
-
-    @MockK
-    private lateinit var unleashService: UnleashService
 
     @InjectMockKs
     private lateinit var iverksettMotOppdragSteg: IverksettMotOppdragSteg
@@ -118,7 +113,6 @@ class IverksettMotOppdragStegTest {
         } returns mockk()
         every { behandlingService.hentSisteBehandlingSomErVedtatt(any()) } returns null
         every { taskService.save(any()) } returns mockk()
-        every { unleashService.isEnabled(FeatureToggleConfig.BRUK_NY_UTBETALINGSGENERATOR, mapOf("fagsakId" to mocketBehandling.fagsak.id.toString())) } returns true
 
         iverksettMotOppdragSteg.utførSteg(200, iverksettMotOppdragDto)
 
