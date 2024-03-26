@@ -16,6 +16,7 @@ import no.nav.familie.ks.sak.common.util.førsteDagIInneværendeMåned
 import no.nav.familie.ks.sak.data.lagAndelTilkjentYtelse
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagInitieltTilkjentYtelse
+import no.nav.familie.ks.sak.data.lagSanityBegrunnelse
 import no.nav.familie.ks.sak.data.randomAktør
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
 import no.nav.familie.ks.sak.integrasjon.sanity.SanityService
@@ -28,6 +29,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.Vedtak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.VedtakRepository
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.refusjonEøs.RefusjonEøs
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.refusjonEøs.RefusjonEøsRepository
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.VedtaksbegrunnelseFritekst
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.VedtaksperiodeMedBegrunnelser
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.utbetalingsperiodeMedBegrunnelser.UtbetalingsperiodeMedBegrunnelserService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.PersonResultat
@@ -38,6 +40,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vil
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårsvurderingRepository
 import no.nav.familie.ks.sak.kjerne.beregning.AndelTilkjentYtelseMedEndreteUtbetalinger
 import no.nav.familie.ks.sak.kjerne.beregning.AndelerTilkjentYtelseOgEndreteUtbetalingerService
+import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.EØSBegrunnelse
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.NasjonalEllerFellesBegrunnelse
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.KompetanseService
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.Kompetanse
@@ -48,6 +51,7 @@ import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Målform
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
 import org.hamcrest.CoreMatchers.nullValue
 import org.hamcrest.MatcherAssert.assertThat
+import org.hamcrest.collection.IsEmptyCollection
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -182,6 +186,108 @@ internal class VedtaksperiodeServiceTest {
         verify { personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(behandling.id) }
         verify { vedtaksperiodeHentOgPersisterService.hentVedtaksperiodeThrows(any()) }
         verify { vedtaksperiodeHentOgPersisterService.lagre(vedtaksperiodeMedBegrunnelse) }
+    }
+
+    @Test
+    fun `oppdaterVedtaksperiodeMedBegrunnelser skal tømme fritekster dersom verken vedtaksperioden eller noen begrunnelsene støtter fritekst`() {
+        val vedtaksperiodeMedBegrunnelse =
+            VedtaksperiodeMedBegrunnelser(
+                id = 0,
+                vedtak = Vedtak(id = 0, behandling = behandling),
+                type = Vedtaksperiodetype.UTBETALING,
+            ).also {
+                it.fritekster.add(VedtaksbegrunnelseFritekst(id = 0, vedtaksperiodeMedBegrunnelser = it, fritekst = "Dette er en fritekst"))
+            }
+
+        val mocketPersonOpplysningGrunnlag = mockk<PersonopplysningGrunnlag>()
+
+        val vedtaksperiodeMedBegrunnelseSlot = slot<VedtaksperiodeMedBegrunnelser>()
+
+        every { personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(behandling.id) } returns mocketPersonOpplysningGrunnlag
+        every { vedtaksperiodeHentOgPersisterService.hentVedtaksperiodeThrows(any()) } returns vedtaksperiodeMedBegrunnelse
+        every { vedtaksperiodeHentOgPersisterService.lagre(capture(vedtaksperiodeMedBegrunnelseSlot)) } returns vedtaksperiodeMedBegrunnelse
+        every { sanityService.hentSanityBegrunnelser() } returns
+            listOf(
+                lagSanityBegrunnelse(apiNavn = NasjonalEllerFellesBegrunnelse.INNVILGET_IKKE_BARNEHAGE.sanityApiNavn, støtterFritekst = false),
+                lagSanityBegrunnelse(apiNavn = EØSBegrunnelse.INNVILGET_PRIMÆRLAND_STANDARD.sanityApiNavn, støtterFritekst = false),
+            )
+
+        vedtaksperiodeService.oppdaterVedtaksperiodeMedBegrunnelser(1, listOf(NasjonalEllerFellesBegrunnelse.INNVILGET_IKKE_BARNEHAGE, NasjonalEllerFellesBegrunnelse.INNVILGET_DELTID_BARNEHAGE))
+
+        verify { personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(behandling.id) }
+        verify { vedtaksperiodeHentOgPersisterService.hentVedtaksperiodeThrows(any()) }
+        verify { vedtaksperiodeHentOgPersisterService.lagre(capture(vedtaksperiodeMedBegrunnelseSlot)) }
+
+        val capturedVedtaksperiodeMedBegrunnelse = vedtaksperiodeMedBegrunnelseSlot.captured
+
+        assertThat(capturedVedtaksperiodeMedBegrunnelse.fritekster, IsEmptyCollection())
+    }
+
+    @Test
+    fun `oppdaterVedtaksperiodeMedBegrunnelser skal ikke tømme fritekster dersom vedtaksperioden ikke støtter fritekst men minst en av begrunnelsene gjør det`() {
+        val vedtaksperiodeMedBegrunnelse =
+            VedtaksperiodeMedBegrunnelser(
+                id = 0,
+                vedtak = Vedtak(id = 0, behandling = behandling),
+                type = Vedtaksperiodetype.UTBETALING,
+            ).also {
+                it.fritekster.add(VedtaksbegrunnelseFritekst(id = 0, vedtaksperiodeMedBegrunnelser = it, fritekst = "Dette er en fritekst"))
+            }
+
+        val mocketPersonOpplysningGrunnlag = mockk<PersonopplysningGrunnlag>()
+
+        val vedtaksperiodeMedBegrunnelseSlot = slot<VedtaksperiodeMedBegrunnelser>()
+
+        every { personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(behandling.id) } returns mocketPersonOpplysningGrunnlag
+        every { vedtaksperiodeHentOgPersisterService.hentVedtaksperiodeThrows(any()) } returns vedtaksperiodeMedBegrunnelse
+        every { vedtaksperiodeHentOgPersisterService.lagre(capture(vedtaksperiodeMedBegrunnelseSlot)) } returns vedtaksperiodeMedBegrunnelse
+        every { sanityService.hentSanityBegrunnelser() } returns
+            listOf(
+                lagSanityBegrunnelse(apiNavn = NasjonalEllerFellesBegrunnelse.INNVILGET_IKKE_BARNEHAGE.sanityApiNavn, støtterFritekst = false),
+                lagSanityBegrunnelse(apiNavn = EØSBegrunnelse.INNVILGET_PRIMÆRLAND_STANDARD.sanityApiNavn, støtterFritekst = true),
+            )
+
+        vedtaksperiodeService.oppdaterVedtaksperiodeMedBegrunnelser(1, listOf(NasjonalEllerFellesBegrunnelse.INNVILGET_IKKE_BARNEHAGE, NasjonalEllerFellesBegrunnelse.INNVILGET_DELTID_BARNEHAGE))
+
+        verify { personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(behandling.id) }
+        verify { vedtaksperiodeHentOgPersisterService.hentVedtaksperiodeThrows(any()) }
+        verify { vedtaksperiodeHentOgPersisterService.lagre(capture(vedtaksperiodeMedBegrunnelseSlot)) }
+
+        val capturedVedtaksperiodeMedBegrunnelse = vedtaksperiodeMedBegrunnelseSlot.captured
+
+        assertThat(capturedVedtaksperiodeMedBegrunnelse.fritekster.size, Is(1))
+    }
+
+    @ParameterizedTest
+    @EnumSource(value = Vedtaksperiodetype::class, names = ["OPPHØR", "AVSLAG", "FORTSATT_INNVILGET"])
+    fun `oppdaterVedtaksperiodeMedBegrunnelser skal ikke tømme fritekster dersom vedtaksperioden støtter fritekst uavhengig av begrunnelser`(vedtaksperiodetype: Vedtaksperiodetype) {
+        val vedtaksperiodeMedBegrunnelse =
+            VedtaksperiodeMedBegrunnelser(
+                id = 0,
+                vedtak = Vedtak(id = 0, behandling = behandling),
+                type = vedtaksperiodetype,
+            ).also {
+                it.fritekster.add(VedtaksbegrunnelseFritekst(id = 0, vedtaksperiodeMedBegrunnelser = it, fritekst = "Dette er en fritekst"))
+            }
+
+        val mocketPersonOpplysningGrunnlag = mockk<PersonopplysningGrunnlag>()
+
+        val vedtaksperiodeMedBegrunnelseSlot = slot<VedtaksperiodeMedBegrunnelser>()
+
+        every { personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(behandling.id) } returns mocketPersonOpplysningGrunnlag
+        every { vedtaksperiodeHentOgPersisterService.hentVedtaksperiodeThrows(any()) } returns vedtaksperiodeMedBegrunnelse
+        every { vedtaksperiodeHentOgPersisterService.lagre(capture(vedtaksperiodeMedBegrunnelseSlot)) } returns vedtaksperiodeMedBegrunnelse
+        every { sanityService.hentSanityBegrunnelser() } returns emptyList()
+
+        vedtaksperiodeService.oppdaterVedtaksperiodeMedBegrunnelser(1, emptyList())
+
+        verify { personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(behandling.id) }
+        verify { vedtaksperiodeHentOgPersisterService.hentVedtaksperiodeThrows(any()) }
+        verify { vedtaksperiodeHentOgPersisterService.lagre(capture(vedtaksperiodeMedBegrunnelseSlot)) }
+
+        val capturedVedtaksperiodeMedBegrunnelse = vedtaksperiodeMedBegrunnelseSlot.captured
+
+        assertThat(capturedVedtaksperiodeMedBegrunnelse.fritekster.size, Is(1))
     }
 
     @Test
