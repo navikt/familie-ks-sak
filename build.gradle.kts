@@ -52,7 +52,7 @@ dependencies {
     val fellesKontrakterVersion = "3.0_20240326084609_597be6d"
     val familieKontrakterSaksstatistikkVersion = "2.0_20230214104704_706e9c0"
     val familieKontrakterStønadsstatistikkKsVersion = "2.0_20240131125409_e3d0f6d"
-    val tokenValidationSpringVersion = "4.1.3"
+    val tokenValidationSpringVersion = "4.1.4"
     val navFoedselsnummerVersion = "1.0-SNAPSHOT.6"
     val prosesseringVersion = "2.20240214140223_83c31de"
     val restAssuredVersion = "5.4.0"
@@ -139,7 +139,7 @@ dependencies {
         exclude(module = "mockito-core")
     }
     testImplementation("org.springframework.boot:spring-boot-starter-test")
-    testImplementation("org.springframework.cloud:spring-cloud-contract-wiremock:4.1.1")
+    testImplementation("org.springframework.cloud:spring-cloud-contract-wiremock:4.1.2")
     testImplementation("io.rest-assured:spring-mock-mvc:$restAssuredVersion")
     testImplementation("io.rest-assured:kotlin-extensions:$restAssuredVersion")
     testImplementation("org.testcontainers:postgresql:1.19.7")
