@@ -103,16 +103,16 @@ class VedtaksperiodeService(
         val persongrunnlag =
             personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(behandlingId = behandling.id)
 
+        val sanityBegrunnelser = sanityService.hentSanityBegrunnelser()
+
         vedtaksperiodeMedBegrunnelser.settBegrunnelser(
             begrunnelserFraFrontend.map {
                 it.tilVedtaksbegrunnelse(vedtaksperiodeMedBegrunnelser)
             },
-        )
-
-        vedtaksperiodeMedBegrunnelser.settEøsBegrunnelser(
             eøsBegrunnelserFraFrontend.map {
                 it.tilVedtaksbegrunnelse(vedtaksperiodeMedBegrunnelser)
             },
+            sanityBegrunnelser,
         )
 
         if (
@@ -199,8 +199,10 @@ class VedtaksperiodeService(
             )
         }
 
+        val sanityBegrunnelser = sanityService.hentSanityBegrunnelser()
+
         val opphørsperioder =
-            hentOpphørsperioder(vedtak.behandling).map { it.tilVedtaksperiodeMedBegrunnelse(vedtak) }
+            hentOpphørsperioder(vedtak.behandling).map { it.tilVedtaksperiodeMedBegrunnelse(vedtak, sanityBegrunnelser) }
 
         val utbetalingsperioder =
             utbetalingsperiodeMedBegrunnelserService.hentUtbetalingsperioder(vedtak, opphørsperioder)
@@ -291,6 +293,8 @@ class VedtaksperiodeService(
         val gamleVedtaksperioderMedBegrunnelser =
             vedtaksperiodeHentOgPersisterService.hentVedtaksperioderFor(vedtakId = deaktivertVedtak.id)
 
+        val sanityBegrunnelser = sanityService.hentSanityBegrunnelser()
+
         gamleVedtaksperioderMedBegrunnelser.forEach { vedtaksperiodeMedBegrunnelser ->
             val nyVedtaksperiodeMedBegrunnelser =
                 vedtaksperiodeHentOgPersisterService.lagre(
@@ -302,15 +306,20 @@ class VedtaksperiodeService(
                     ),
                 )
 
-            nyVedtaksperiodeMedBegrunnelser.settBegrunnelser(
-                vedtaksperiodeMedBegrunnelser.begrunnelser.map {
-                    it.kopier(nyVedtaksperiodeMedBegrunnelser)
-                },
-            )
             nyVedtaksperiodeMedBegrunnelser.settFritekster(
                 vedtaksperiodeMedBegrunnelser.fritekster.map {
                     it.kopier(nyVedtaksperiodeMedBegrunnelser)
                 },
+            )
+
+            nyVedtaksperiodeMedBegrunnelser.settBegrunnelser(
+                vedtaksperiodeMedBegrunnelser.begrunnelser.map {
+                    it.kopier(nyVedtaksperiodeMedBegrunnelser)
+                },
+                vedtaksperiodeMedBegrunnelser.eøsBegrunnelser.map {
+                    it.kopier(nyVedtaksperiodeMedBegrunnelser)
+                },
+                sanityBegrunnelser,
             )
 
             vedtaksperiodeHentOgPersisterService.lagre(nyVedtaksperiodeMedBegrunnelser)
@@ -334,9 +343,12 @@ class VedtaksperiodeService(
                 behandlingId = behandlingId,
             )
 
+        val sanityBegrunnelser = sanityService.hentSanityBegrunnelser()
+
         return vedtaksperiodeMedBegrunnelser.tilUtvidetVedtaksperiodeMedBegrunnelser(
-            personopplysningGrunnlag,
-            andelerTilkjentYtelse,
+            personopplysningGrunnlag = personopplysningGrunnlag,
+            andelerTilkjentYtelse = andelerTilkjentYtelse,
+            sanityBegrunnelser = sanityBegrunnelser,
         )
     }
 
@@ -352,11 +364,14 @@ class VedtaksperiodeService(
         val personopplysningGrunnlag =
             personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(behandling.id)
 
+        val sanityBegrunnelser = sanityService.hentSanityBegrunnelser()
+
         val utvidetVedtaksperioderMedBegrunnelser =
             vedtaksperioderMedBegrunnelser.map {
                 it.tilUtvidetVedtaksperiodeMedBegrunnelser(
                     andelerTilkjentYtelse = andelerTilkjentYtelse,
                     personopplysningGrunnlag = personopplysningGrunnlag,
+                    sanityBegrunnelser = sanityBegrunnelser,
                 )
             }
 
