@@ -57,14 +57,11 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           ./gradlew test
-      - name: Store reports
+      - uses: actions/upload-artifact@v3  # upload test results
         if: failure()
-        uses: actions/upload-artifact@v3
         with:
-          name: reports
-          path: |
-            **/build/reports/
-            **/build/test-results/
+          name: test-results
+          path: jest-junit.xml
   integrasjonstester:
     name: Integrasjonstester
     runs-on: ubuntu-latest-8-cores
@@ -85,11 +82,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           ./gradlew integrationTest
-      - name: Store reports
+      - uses: actions/upload-artifact@v3  # upload test results
         if: failure()
-        uses: actions/upload-artifact@v3
         with:
-          name: reports
-          path: |
-            **/build/reports/
-            **/build/test-results/
+          name: test-results
+          path: jest-junit.xml
