@@ -5,8 +5,10 @@ import no.nav.familie.ks.sak.api.dto.SøknadDto
 import no.nav.familie.ks.sak.api.mapper.SøknadGrunnlagMapper.tilSøknadDto
 import no.nav.familie.ks.sak.common.BehandlingId
 import no.nav.familie.ks.sak.common.exception.Feil
+import no.nav.familie.ks.sak.common.util.LocalDateProvider
 import no.nav.familie.ks.sak.common.util.TIDENES_ENDE
 import no.nav.familie.ks.sak.common.util.convertDataClassToJson
+import no.nav.familie.ks.sak.common.util.toYearMonth
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat
@@ -42,6 +44,7 @@ class BehandlingsresultatService(
     private val andelerTilkjentYtelseRepository: AndelTilkjentYtelseRepository,
     private val endretUtbetalingAndelService: EndretUtbetalingAndelService,
     private val kompetanseService: KompetanseService,
+    private val localDateProvider: LocalDateProvider,
 ) {
     @Deprecated("Erstattes av ny behandlingsresultat logikk og kan fjernes sammen med relevant kode når featuretoggle slettes.")
     fun utledBehandlingsresultat(behandling: Behandling): Behandlingsresultat {
@@ -218,6 +221,7 @@ class BehandlingsresultatService(
                     personerFremstiltKravFor = personerFremstiltKravFor,
                     personerIBehandling = personerIBehandling,
                     personerIForrigeBehandling = personerIForrigeBehandling,
+                    nåDato = localDateProvider.now(),
                 )
             } else {
                 Endringsresultat.INGEN_ENDRING
@@ -232,6 +236,7 @@ class BehandlingsresultatService(
                 forrigeEndretAndeler = forrigeEndretUtbetalingAndeler,
                 nåværendePersonResultaterPåBarn = nåværendePersonResultat.filter { !it.erSøkersResultater() },
                 forrigePersonResultaterPåBarn = forrigePersonResultat.filter { !it.erSøkersResultater() },
+                nåMåned = localDateProvider.now().toYearMonth(),
             )
 
         // KOMBINER

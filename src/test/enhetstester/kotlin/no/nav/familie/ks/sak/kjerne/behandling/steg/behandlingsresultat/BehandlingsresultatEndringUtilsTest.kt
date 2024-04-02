@@ -59,6 +59,7 @@ class BehandlingsresultatEndringUtilsTest {
                 forrigeEndretAndeler = emptyList(),
                 personerIBehandling = emptySet(),
                 personerIForrigeBehandling = emptySet(),
+                nåDato = LocalDate.now(),
             )
 
         assertThat(endringsresultat, Is(Endringsresultat.INGEN_ENDRING))
@@ -89,6 +90,7 @@ class BehandlingsresultatEndringUtilsTest {
                 forrigeEndretAndeler = emptyList(),
                 personerIBehandling = setOf(person),
                 personerIForrigeBehandling = setOf(person),
+                nåDato = LocalDate.now(),
             )
 
         assertThat(endringsresultat, Is(Endringsresultat.ENDRING))
@@ -179,6 +181,7 @@ class BehandlingsresultatEndringUtilsTest {
                 forrigeEndretAndeler = emptyList(),
                 personerIBehandling = setOf(barn),
                 personerIForrigeBehandling = setOf(barn),
+                nåDato = LocalDate.now(),
             )
 
         assertThat(endringsresultat, Is(Endringsresultat.ENDRING))
@@ -222,6 +225,7 @@ class BehandlingsresultatEndringUtilsTest {
                 forrigeEndretAndeler = emptyList(),
                 personerIBehandling = setOf(barnPerson),
                 personerIForrigeBehandling = setOf(barnPerson),
+                nåDato = LocalDate.now(),
             )
 
         assertThat(endringsresultat, Is(Endringsresultat.ENDRING))
@@ -254,6 +258,7 @@ class BehandlingsresultatEndringUtilsTest {
                 nåværendeEndretAndeler = listOf(forrigeEndretAndel.copy(årsak = Årsak.ALLEREDE_UTBETALT)),
                 personerIBehandling = setOf(barn),
                 personerIForrigeBehandling = setOf(barn),
+                nåDato = LocalDate.now(),
             )
 
         assertThat(endringsresultat, Is(Endringsresultat.ENDRING))
@@ -293,6 +298,7 @@ class BehandlingsresultatEndringUtilsTest {
                 forrigeAndelerForPerson = forrigeAndeler,
                 opphørstidspunktForBehandling = opphørstidspunktForBehandling!!,
                 erFremstiltKravForPerson = false,
+                nåDato = LocalDate.now(),
             )
 
         assertEquals(false, erEndringIBeløp)
@@ -351,6 +357,7 @@ class BehandlingsresultatEndringUtilsTest {
                         forrigeAndelerForPerson = forrigeAndeler.filter { it.aktør == aktør },
                         opphørstidspunktForBehandling = opphørstidspunktForBehandling!!,
                         erFremstiltKravForPerson = erFremstiltKravForPerson,
+                        nåDato = LocalDate.now(),
                     )
 
                 erEndringIBeløpForPerson
@@ -419,6 +426,7 @@ class BehandlingsresultatEndringUtilsTest {
                         forrigeAndelerForPerson = forrigeAndeler.filter { it.aktør == aktør },
                         opphørstidspunktForBehandling = opphørstidspunktForBehandling!!,
                         erFremstiltKravForPerson = erFremstiltKravForPerson,
+                        nåDato = LocalDate.now(),
                     )
 
                 erEndringIBeløpForPerson
@@ -477,6 +485,7 @@ class BehandlingsresultatEndringUtilsTest {
                         forrigeAndelerForPerson = forrigeAndeler.filter { it.aktør == aktør },
                         opphørstidspunktForBehandling = opphørstidspunktForBehandling!!,
                         erFremstiltKravForPerson = false,
+                        nåDato = LocalDate.now(),
                     )
 
                 erEndringIBeløpForPerson
@@ -539,6 +548,7 @@ class BehandlingsresultatEndringUtilsTest {
                         forrigeAndelerForPerson = forrigeAndeler.filter { it.aktør == aktør },
                         opphørstidspunktForBehandling = opphørstidspunktForBehandling!!,
                         erFremstiltKravForPerson = erFremstiltKravForPerson,
+                        nåDato = LocalDate.now(),
                     )
 
                 erEndringIBeløpForPerson
@@ -604,6 +614,7 @@ class BehandlingsresultatEndringUtilsTest {
                         forrigeAndelerForPerson = forrigeAndeler.filter { it.aktør == aktør },
                         opphørstidspunktForBehandling = opphørstidspunktForBehandling!!,
                         erFremstiltKravForPerson = false,
+                        nåDato = LocalDate.now(),
                     )
 
                 erEndringIBeløpForPerson
@@ -664,6 +675,7 @@ class BehandlingsresultatEndringUtilsTest {
                 forrigeAndelerForPerson = forrigeAndeler.filter { it.aktør == barn1Aktør },
                 opphørstidspunktForBehandling = opphørstidspunktForBehandling!!,
                 erFremstiltKravForPerson = false,
+                nåDato = LocalDate.now(),
             )
 
         assertEquals(false, erEndringIBeløp)

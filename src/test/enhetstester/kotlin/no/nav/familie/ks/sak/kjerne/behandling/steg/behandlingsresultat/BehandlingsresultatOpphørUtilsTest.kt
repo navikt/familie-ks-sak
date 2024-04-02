@@ -95,6 +95,7 @@ class BehandlingsresultatOpphørUtilsTest {
                 forrigeEndretAndeler = emptyList(),
                 nåværendePersonResultaterPåBarn = emptyList(),
                 forrigePersonResultaterPåBarn = emptyList(),
+                nåMåned = YearMonth.now(),
             )
 
         assertEquals(Opphørsresultat.IKKE_OPPHØRT, opphørsresultat)
@@ -145,6 +146,7 @@ class BehandlingsresultatOpphørUtilsTest {
                 forrigeEndretAndeler = emptyList(),
                 nåværendePersonResultaterPåBarn = emptyList(),
                 forrigePersonResultaterPåBarn = emptyList(),
+                nåMåned = YearMonth.now(),
             )
 
         assertEquals(Opphørsresultat.OPPHØRT, opphørsresultat)
@@ -195,6 +197,7 @@ class BehandlingsresultatOpphørUtilsTest {
                 forrigeEndretAndeler = emptyList(),
                 nåværendePersonResultaterPåBarn = emptyList(),
                 forrigePersonResultaterPåBarn = emptyList(),
+                nåMåned = YearMonth.now(),
             )
 
         assertEquals(Opphørsresultat.OPPHØRT, opphørsresultat)
@@ -222,6 +225,7 @@ class BehandlingsresultatOpphørUtilsTest {
                 forrigeEndretAndeler = emptyList(),
                 nåværendePersonResultaterPåBarn = emptyList(),
                 forrigePersonResultaterPåBarn = emptyList(),
+                nåMåned = YearMonth.now(),
             )
 
         assertEquals(Opphørsresultat.OPPHØRT, opphørsresultat)
@@ -272,6 +276,7 @@ class BehandlingsresultatOpphørUtilsTest {
                 forrigeEndretAndeler = emptyList(),
                 nåværendePersonResultaterPåBarn = emptyList(),
                 forrigePersonResultaterPåBarn = emptyList(),
+                nåMåned = YearMonth.now(),
             )
 
         assertEquals(Opphørsresultat.FORTSATT_OPPHØRT, opphørsresultat)
@@ -322,6 +327,7 @@ class BehandlingsresultatOpphørUtilsTest {
                 forrigeEndretAndeler = emptyList(),
                 nåværendePersonResultaterPåBarn = emptyList(),
                 forrigePersonResultaterPåBarn = emptyList(),
+                nåMåned = YearMonth.now(),
             )
 
         assertEquals(Opphørsresultat.IKKE_OPPHØRT, opphørsresultat)
@@ -613,6 +619,7 @@ class BehandlingsresultatOpphørUtilsTest {
                 forrigeEndretAndeler = emptyList(),
                 nåværendePersonResultaterPåBarn = listOf(personResultatBarn1, personResultatBarn2),
                 forrigePersonResultaterPåBarn = listOf(),
+                nåMåned = YearMonth.now(),
             )
 
         assertEquals(Opphørsresultat.OPPHØRT, opphørsresultat)
@@ -671,6 +678,7 @@ class BehandlingsresultatOpphørUtilsTest {
                 forrigeEndretAndeler = emptyList(),
                 nåværendePersonResultaterPåBarn = listOf(personResultatBarn1, personResultatBarn2),
                 forrigePersonResultaterPåBarn = listOf(personResultatBarn1, personResultatBarn2),
+                nåMåned = YearMonth.now(),
             )
 
         assertEquals(Opphørsresultat.FORTSATT_OPPHØRT, opphørsresultat)
@@ -729,6 +737,7 @@ class BehandlingsresultatOpphørUtilsTest {
                 forrigeEndretAndeler = emptyList(),
                 nåværendePersonResultaterPåBarn = listOf(personResultatBarn1, personResultatBarn2),
                 forrigePersonResultaterPåBarn = listOf(),
+                nåMåned = YearMonth.now(),
             )
 
         assertEquals(Opphørsresultat.IKKE_OPPHØRT, opphørsresultat)
