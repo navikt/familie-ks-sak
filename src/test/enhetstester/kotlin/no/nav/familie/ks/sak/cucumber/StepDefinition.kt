@@ -493,7 +493,7 @@ class StepDefinition {
         val personidentService = mockk<PersonidentService>()
         every { personidentService.hentAktør(any()) } answers {
             val personId = firstArg<String>()
-            persongrunnlag[1]?.personer?.single { it.id.toString() == personId }?.aktør ?: throw Feil("Fant ingen aktør")
+            persongrunnlag.flatMap { it.value.personer }.first { it.id.toString() == personId }.aktør
         }
 
         val andelTilkjentYtelseRepository = mockk<AndelTilkjentYtelseRepository>()
