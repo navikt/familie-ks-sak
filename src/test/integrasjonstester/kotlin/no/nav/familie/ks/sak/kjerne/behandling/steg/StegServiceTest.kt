@@ -7,6 +7,7 @@ import io.mockk.mockk
 import io.mockk.mockkObject
 import io.mockk.runs
 import io.mockk.slot
+import io.mockk.unmockkObject
 import io.mockk.verify
 import no.nav.familie.kontrakter.felles.tilbakekreving.Tilbakekrevingsvalg
 import no.nav.familie.ks.sak.OppslagSpringRunnerTest
@@ -15,6 +16,7 @@ import no.nav.familie.ks.sak.api.dto.BesluttVedtakDto
 import no.nav.familie.ks.sak.api.dto.SøkerMedOpplysningerDto
 import no.nav.familie.ks.sak.api.dto.SøknadDto
 import no.nav.familie.ks.sak.api.mapper.SøknadGrunnlagMapper
+import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.data.lagArbeidsfordelingPåBehandling
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagBehandlingStegTilstand
@@ -65,6 +67,8 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertDoesNotThrow
 import org.junit.jupiter.api.assertThrows
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.EnumSource
 import org.springframework.beans.factory.annotation.Autowired
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -310,6 +314,49 @@ class StegServiceTest : OppslagSpringRunnerTest() {
         assertBehandlingHarSteg(oppdatertBehandling, IVERKSETT_MOT_OPPDRAG, KLAR)
 
         verify(atLeast = 1) { taskService.save(any()) }
+    }
+
+    @ParameterizedTest
+    @EnumSource(value = BehandlingSteg::class, names = ["BESLUTTE_VEDTAK", "IVERKSETT_MOT_OPPDRAG", "JOURNALFØR_VEDTAKSBREV", "AVSLUTT_BEHANDLING"])
+    fun `utførSteg skal kaste feil dersom vi forsøker å utføre et allerede utført steg fra og med BESLUTTE_VEDTAK-steget`(behandlingSteg: BehandlingSteg) {
+        behandling.behandlingStegTilstand.clear()
+        lagBehandlingStegTilstand(behandling, behandlingSteg, UTFØRT)
+
+        lagreBehandling(behandling)
+
+        // Sørger for at vi bytter til system-kontekst dersom vi tester et "system"-steg. Ønsker her kun å teste ny validering på om steget er utført fra før eller ikke.
+        if (!behandlingSteg.kanStegBehandles()) {
+            mockkObject(SikkerhetContext)
+            every { SikkerhetContext.erSystemKontekst() } returns true
+        }
+
+        val alleredeUtførtStegFeil = assertThrows<Feil> { stegService.utførSteg(behandling.id, behandlingSteg, null) }
+        assertTrue(alleredeUtførtStegFeil.message!!.contains("allerede utført"))
+        unmockkObject(SikkerhetContext)
+    }
+
+    @ParameterizedTest
+    @EnumSource(BehandlingSteg::class)
+    fun `utførSteg skal kaste feil dersom vi forsøker å utføre et steg i en avsluttet behandling`(behandlingSteg: BehandlingSteg) {
+        behandling.behandlingStegTilstand.clear()
+
+        BehandlingSteg.entries.forEach {
+            lagBehandlingStegTilstand(behandling, it, UTFØRT)
+        }
+
+        behandling.status = BehandlingStatus.AVSLUTTET
+
+        lagreBehandling(behandling)
+
+        // Sørger for at vi bytter til system-kontekst dersom vi tester et "system"-steg. Ønsker her kun å teste ny validering på om behandling er avsluttet eller ikke.
+        if (!behandlingSteg.kanStegBehandles()) {
+            mockkObject(SikkerhetContext)
+            every { SikkerhetContext.erSystemKontekst() } returns true
+        }
+
+        val behandlingAvsluttetFeil = assertThrows<Feil> { stegService.utførSteg(behandling.id, behandlingSteg, null) }
+        assertTrue(behandlingAvsluttetFeil.message!!.contains("avsluttet behandling"))
+        unmockkObject(SikkerhetContext)
     }
 
     @Test
