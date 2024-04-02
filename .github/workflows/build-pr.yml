@@ -60,8 +60,10 @@ jobs:
       - uses: actions/upload-artifact@v3  # upload test results
         if: failure()
         with:
-          name: test-results
-          path: jest-junit.xml
+          name: test
+          path: "**/build/test-results/test/TEST-*.xml"
+          reporter: java-junit
+          token: ${{ secrets.GITHUB_TOKEN }}
   integrasjonstester:
     name: Integrasjonstester
     runs-on: ubuntu-latest-8-cores
@@ -85,5 +87,7 @@ jobs:
       - uses: actions/upload-artifact@v3  # upload test results
         if: failure()
         with:
-          name: test-results
-          path: jest-junit.xml
+          name: test
+          path: "**/build/test-results/test/TEST-*.xml"
+          reporter: java-junit
+          token: ${{ secrets.GITHUB_TOKEN }}
