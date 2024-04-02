@@ -123,7 +123,7 @@ dependencies {
 
     implementation("com.papertrailapp:logback-syslog4j:1.0.0")
     implementation("io.getunleash:unleash-client-java:9.2.0")
-    implementation("io.sentry:sentry-spring-boot-starter:$sentryVersion")
+    implementation("io.sentry:sentry-spring-boot-starter-jakarta:$sentryVersion")
     implementation("io.sentry:sentry-logback:$sentryVersion")
     implementation("io.micrometer:micrometer-registry-prometheus")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
