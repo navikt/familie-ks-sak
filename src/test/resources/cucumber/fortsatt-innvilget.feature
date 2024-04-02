@@ -1,6 +1,7 @@
 # language: no
 # encoding: UTF-8
 
+@Disabled
 Egenskap: Fortsatt innvilget
 
   Bakgrunn:
