@@ -4,6 +4,12 @@ on:
     types: [ opened, synchronize, reopened, ready_for_review ]
 env:
   IMAGE: ghcr.io/navikt/familie-ks-sak:${{ github.sha }}
+
+permissions:
+  contents: read
+  actions: read
+  checks: write
+
 jobs:
   avslutt-andre-workflows-samme-branch:
     name: Avslutt andre workflows på samme branch
@@ -60,7 +66,7 @@ jobs:
       - uses: dorny/test-reporter@v1
         if: failure()
         with:
-          name: test
+          name: Test-rapport
           path: "**/build/test-results/test/TEST-*.xml"
           reporter: java-junit
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -87,7 +93,7 @@ jobs:
       - uses: dorny/test-reporter@v1
         if: failure()
         with:
-          name: test
+          name: Test-rapport
           path: "**/build/test-results/test/TEST-*.xml"
           reporter: java-junit
           token: ${{ secrets.GITHUB_TOKEN }}
