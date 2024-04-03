@@ -427,13 +427,184 @@ enum class EØSBegrunnelse : IBegrunnelse {
         override val sanityApiNavn = "reduksjonSelvstendigRettBarnFlyttetFraSoker"
         override val begrunnelseType = BegrunnelseType.EØS_REDUKSJON
     },
-    FORTSATT_INNVILGET_EØS_STANDARD {
-        override val sanityApiNavn = "fortsattInnvilgetEosStandard"
+
+    FORTSATT_INNVILGET_PRIMÆRLAND_STANDARD {
+        override val sanityApiNavn = "fortsattInnvilgetPrimarlandStandard"
+        override val begrunnelseType = BegrunnelseType.FORTSATT_INNVILGET
+    },
+
+    FORTSATT_INNVILGET_PRIMÆRLAND_ALENEANSVAR {
+        override val sanityApiNavn = "fortsattInnvilgetPrimarlandAleneansvar"
+        override val begrunnelseType = BegrunnelseType.FORTSATT_INNVILGET
+    },
+
+    FORTSATT_INNVILGET_PRIMÆRLAND_BEGGE_FORELDRE_BOSATT_I_NORGE {
+        override val sanityApiNavn = "fortsattInnvilgetPrimarlandBeggeForeldreBosattINorge"
+        override val begrunnelseType = BegrunnelseType.FORTSATT_INNVILGET
+    },
+
+    FORTSATT_INNVILGET_PRIMÆRLAND_BEGGE_FORELDRE_JOBBER_I_NORGE {
+        override val sanityApiNavn = "fortsattInnvilgetPrimarlandBeggeForeldreJobberINorge"
+        override val begrunnelseType = BegrunnelseType.FORTSATT_INNVILGET
+    },
+
+    FORTSATT_INNVILGET_PRIMÆRLAND_UK_STANDARD {
+        override val sanityApiNavn = "fortsattInnvilgetPrimarlandUKStandard"
+        override val begrunnelseType = BegrunnelseType.FORTSATT_INNVILGET
+    },
+
+    FORTSATT_INNVILGET_PRIMÆRLAND_UK_ALENEANSVAR {
+        override val sanityApiNavn = "fortsattInnvilgetPrimarlandUKAleneansvar"
+        override val begrunnelseType = BegrunnelseType.FORTSATT_INNVILGET
+    },
+
+    FORTSATT_INNVILGET_PRIMÆRLAND_UK_OG_UTLAND_STANDARD {
+        override val sanityApiNavn = "fortsattInnvilgetPrimarlandUKOgUtlandStandard"
+        override val begrunnelseType = BegrunnelseType.FORTSATT_INNVILGET
+    },
+
+    FORTSATT_INNVILGET_PRIMÆRLAND_BARNET_BOR_I_NORGE {
+        override val sanityApiNavn = "fortsattInnvilgetPrimarlandBarnetBorINorge"
+        override val begrunnelseType = BegrunnelseType.FORTSATT_INNVILGET
+    },
+
+    FORTSATT_INNVILGET_PRIMÆRLAND_SÆRKULLSBARN_ANDRE_BARN {
+        override val sanityApiNavn = "fortsattInnvilgetPrimarlandSarkullsbarnAndreBarn"
+        override val begrunnelseType = BegrunnelseType.FORTSATT_INNVILGET
+    },
+
+    FORTSATT_INNVILGET_PRIMÆRLAND_TO_ARBEIDSLAND_NORGE_UTBETALER {
+        override val sanityApiNavn = "fortsattInnvilgetPrimarlandToArbeidslandNorgeUtbetaler"
+        override val begrunnelseType = BegrunnelseType.FORTSATT_INNVILGET
+    },
+
+    FORTSATT_INNVILGET_PRIMÆRLAND_TO_ARBEIDSLAND_ANNET_LAND_UTBETALER {
+        override val sanityApiNavn = "fortsattInnvilgetPrimarlandToArbeidslandAnnetLandUtbetaler"
+        override val begrunnelseType = BegrunnelseType.FORTSATT_INNVILGET
+    },
+
+    FORTSATT_INNVILGET_PRIMÆRLAND_UK_TO_ARBEIDSLAND_NORGE_UTBETALER {
+        override val sanityApiNavn = "fortsattInnvilgetPrimarlandUKToArbeidslandNorgeUtbetaler"
+        override val begrunnelseType = BegrunnelseType.FORTSATT_INNVILGET
+    },
+
+    FORTSATT_INNVILGET_PRIMÆRLAND_UK_TO_ARBEIDSLAND_ANNET_LAND_UTBETALER {
+        override val sanityApiNavn = "fortsattInnvilgetPrimarlandUKToArbeidslandAnnetLandUtbetaler"
+        override val begrunnelseType = BegrunnelseType.FORTSATT_INNVILGET
+    },
+
+    FORTSATT_INNVILGET_SEKUNDÆRLAND_STANDARD {
+        override val sanityApiNavn = "fortsattInnvilgetSekundarlandStandard"
+        override val begrunnelseType = BegrunnelseType.FORTSATT_INNVILGET
+    },
+
+    FORTSATT_INNVILGET_SEKUNDÆRLAND_ALENEANSVAR {
+        override val sanityApiNavn = "fortsattInnvilgetSekundarlandAleneansvar"
+        override val begrunnelseType = BegrunnelseType.FORTSATT_INNVILGET
+    },
+
+    FORTSATT_INNVILGET_SEKUNDÆRLAND_UK_STANDARD {
+        override val sanityApiNavn = "fortsattInnvilgetSekundarlandUKStandard"
+        override val begrunnelseType = BegrunnelseType.FORTSATT_INNVILGET
+    },
+
+    FORTSATT_INNVILGET_SEKUNDÆRLAND_UK_ALENEANSVAR {
+        override val sanityApiNavn = "fortsattInnvilgetSekundarlandUKAleneansvar"
+        override val begrunnelseType = BegrunnelseType.FORTSATT_INNVILGET
+    },
+
+    FORTSATT_INNVILGET_SEKUNDÆRLAND_UK_OG_UTLAND_STANDARD {
+        override val sanityApiNavn = "fortsattInnvilgetSekundarlandUKOgUtlandStandard"
+        override val begrunnelseType = BegrunnelseType.FORTSATT_INNVILGET
+    },
+
+    FORTSATT_INNVILGET_SEKUNDÆRLAND_TO_ARBEIDSLAND_NORGE_UTBETALER {
+        override val sanityApiNavn = "fortsattInnvilgetSekundarlandToArbeidslandNorgeUtbetaler"
+        override val begrunnelseType = BegrunnelseType.FORTSATT_INNVILGET
+    },
+
+    FORTSATT_INNVILGET_SEKUNDÆRLAND_UK_TO_ARBEIDSLAND_NORGE_UTBETALER {
+        override val sanityApiNavn = "fortsattInnvilgetSekundarlandUKToArbeidslandNorgeUtbetaler"
+        override val begrunnelseType = BegrunnelseType.FORTSATT_INNVILGET
+    },
+
+    FORTSATT_INNVILGET_SEKUNDÆRLAND_BEGGE_FORELDRE_BOSATT_I_NORGE {
+        override val sanityApiNavn = "fortsattInnvilgetSekundarlandBeggeForeldreBosattINorge"
+        override val begrunnelseType = BegrunnelseType.FORTSATT_INNVILGET
+    },
+
+    FORTSATT_INNVILGET_SELVSTENDIG_RETT_PRIMÆRLAND_STANDARD {
+        override val sanityApiNavn = "fortsattInnvilgetSelvstendigRettPrimarlandStandard"
+        override val begrunnelseType = BegrunnelseType.FORTSATT_INNVILGET
+    },
+
+    FORTSATT_INNVILGET_SELVSTENDIG_RETT_PRIMÆRLAND_UK_STANDARD {
+        override val sanityApiNavn = "fortsattInnvilgetSelvstendigRettPrimarlandUKStandard"
+        override val begrunnelseType = BegrunnelseType.FORTSATT_INNVILGET
+    },
+
+    FORTSATT_INNVILGET_SELVSTENDIG_RETT_SEKUNDÆRLAND_STANDARD {
+        override val sanityApiNavn = "fortsattInnvilgetSelvstendigRettSekundarlandStandard"
+        override val begrunnelseType = BegrunnelseType.FORTSATT_INNVILGET
+    },
+
+    FORTSATT_INNVILGET_SELVSTENDIG_RETT_SEKUNDÆRLAND_UK_STANDARD {
+        override val sanityApiNavn = "fortsattInnvilgetSelvstendigRettSekundarlandUKStandard"
+        override val begrunnelseType = BegrunnelseType.FORTSATT_INNVILGET
+    },
+
+    FORTSATT_INNVILGET_SELVSTENDIG_RETT_PRIMÆRLAND_FÅR_YTELSE_I_UTLANDET {
+        override val sanityApiNavn = "fortsattInnvilgetSelvstendigRettPrimarlandFaarYtelseIUtlandet"
+        override val begrunnelseType = BegrunnelseType.FORTSATT_INNVILGET
+    },
+
+    FORTSATT_INNVILGET_SELVSTENDIG_RETT_SEKUNDÆRLAND_FÅR_YTELSE_I_UTLANDET {
+        override val sanityApiNavn = "fortsattInnvilgetSelvstendigRettSekundarlandFaarYtelseIUtlandet"
+        override val begrunnelseType = BegrunnelseType.FORTSATT_INNVILGET
+    },
+
+    FORTSATT_INNVILGET_PRIMÆRLAND_TO_ARBEIDSLAND_IKKE_KONTANTSTØTTE_I_ANNET_LAND {
+        override val sanityApiNavn = "fortsattInnvilgetPrimarlandToArbeidslandIkkeKontantstotteIAnnetLand"
+        override val begrunnelseType = BegrunnelseType.FORTSATT_INNVILGET
+    },
+
+    FORTSATT_INNVILGET_TILLEGGSBEGRUNNELSE_UTBETALING_TIL_ANNEN_FORELDER {
+        override val sanityApiNavn = "fortsattInnvilgetTilleggsbegrunnelseUtbetalingTilAnnenForelder"
+        override val begrunnelseType = BegrunnelseType.FORTSATT_INNVILGET
+    },
+
+    FORTSATT_INNVILGET_TILLEGGSBEGRUNNELSE_VEDTAK_FOR_SED {
+        override val sanityApiNavn = "fortsattInnvilgetTilleggsbegrunnelseVedtakForSED"
+        override val begrunnelseType = BegrunnelseType.FORTSATT_INNVILGET
+    },
+
+    FORTSATT_INNVILGET_TILLEGGSBEGRUNNELSE_NULLUTBETALING {
+        override val sanityApiNavn = "fortsattInnvilgetTilleggstekstNullutbetaling"
+        override val begrunnelseType = BegrunnelseType.FORTSATT_INNVILGET
+    },
+
+    FORTSATT_INNVILGET_TILLEGGSBEGRUNNELSE_SEKUNDÆR_IKKE_RETT_FULL_UTBETALING {
+        override val sanityApiNavn = "fortsattInnvilgetTilleggstekstSekundarIkkeRettFullUtbetaling"
+        override val begrunnelseType = BegrunnelseType.FORTSATT_INNVILGET
+    },
+
+    FORTSATT_INNVILGET_TILLEGGSBEGRUNNELSE_SEKUNDÆR_IKKE_FOTT_SVAR_PÅ_SED {
+        override val sanityApiNavn = "fortsattInnvilgetTilleggstekstSekundarIkkeFottSvarPaaSED"
+        override val begrunnelseType = BegrunnelseType.FORTSATT_INNVILGET
+    },
+
+    FORTSATT_INNVILGET_TILLEGGSBEGRUNNELSE_FULL_UTBETALING {
+        override val sanityApiNavn = "fortsattInnvilgetTilleggstekstFullUtbetaling"
+        override val begrunnelseType = BegrunnelseType.FORTSATT_INNVILGET
+    },
+
+    FORTSATT_INNVILGET_TILLEGGSBEGRUNNELSE_TO_ARBEIDSLAND_FULL_UTBETALING {
+        override val sanityApiNavn = "fortsattInnvilgetTilleggstekstToArbeidslandFullUtbetaling"
         override val begrunnelseType = BegrunnelseType.FORTSATT_INNVILGET
     },
 
     AVSLAG_IKKE_EØS_BORGER {
-        override val sanityApiNavn = "avslagIkkeEosBorger"
+        override val sanityApiNavn = "avslagIkkeEosBorgetask_loggr"
         override val begrunnelseType = BegrunnelseType.EØS_AVSLAG
     },
 

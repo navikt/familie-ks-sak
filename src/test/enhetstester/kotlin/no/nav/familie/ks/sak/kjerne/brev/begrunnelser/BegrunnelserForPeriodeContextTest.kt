@@ -590,8 +590,8 @@ class BegrunnelserForPeriodeContextTest {
         fun `Skal få opp fortsatt innvilget tekster dersom det ikke er forandring i kompetanse`() {
             val eøsBegrunnelse =
                 SanityBegrunnelse(
-                    apiNavn = EØSBegrunnelse.FORTSATT_INNVILGET_EØS_STANDARD.sanityApiNavn,
-                    navnISystem = EØSBegrunnelse.FORTSATT_INNVILGET_EØS_STANDARD.name,
+                    apiNavn = EØSBegrunnelse.FORTSATT_INNVILGET_PRIMÆRLAND_STANDARD.sanityApiNavn,
+                    navnISystem = EØSBegrunnelse.FORTSATT_INNVILGET_PRIMÆRLAND_STANDARD.name,
                     type = SanityBegrunnelseType.STANDARD,
                     vilkår = emptyList(),
                     rolle = emptyList(),
@@ -626,7 +626,7 @@ class BegrunnelserForPeriodeContextTest {
             val begrunnelser =
                 begrunnelseContext.hentGyldigeBegrunnelserForVedtaksperiode()
 
-            assertThat(begrunnelser).contains(EØSBegrunnelse.FORTSATT_INNVILGET_EØS_STANDARD)
+            assertThat(begrunnelser).contains(EØSBegrunnelse.FORTSATT_INNVILGET_PRIMÆRLAND_STANDARD)
         }
 
         @Test
