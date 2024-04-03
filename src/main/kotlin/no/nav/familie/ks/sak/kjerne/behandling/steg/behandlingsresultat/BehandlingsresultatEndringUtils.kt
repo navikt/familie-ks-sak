@@ -43,6 +43,7 @@ object BehandlingsresultatEndringUtils {
         forrigeEndretAndeler: List<EndretUtbetalingAndel>,
         personerIBehandling: Set<Person>,
         personerIForrigeBehandling: Set<Person>,
+        nåDato: LocalDate,
     ): Endringsresultat {
         val logger: Logger = LoggerFactory.getLogger("utledEndringsresultatLogger")
         val secureLogger = LoggerFactory.getLogger("secureLogger")
@@ -77,6 +78,7 @@ object BehandlingsresultatEndringUtils {
                             forrigeAndelerForPerson = forrigeAndelerForPerson,
                             opphørstidspunktForBehandling = opphørstidspunktForBehandling,
                             erFremstiltKravForPerson = personerFremstiltKravFor.contains(aktør),
+                            nåDato = nåDato,
                         )
                     } ?: false // false hvis verken forrige eller nåværende behandling har andeler
 
@@ -135,6 +137,7 @@ object BehandlingsresultatEndringUtils {
         forrigeAndelerForPerson: List<AndelTilkjentYtelse>,
         erFremstiltKravForPerson: Boolean,
         opphørstidspunktForBehandling: YearMonth,
+        nåDato: LocalDate,
     ): Boolean {
         val ytelseTyperForPerson = (nåværendeAndelerForPerson.map { it.type } + forrigeAndelerForPerson.map { it.type }).distinct()
 
@@ -144,6 +147,7 @@ object BehandlingsresultatEndringUtils {
                 forrigeAndeler = forrigeAndelerForPerson.filter { it.type == ytelseType },
                 opphørstidspunktForBehandling = opphørstidspunktForBehandling,
                 erFremstiltKravForPerson = erFremstiltKravForPerson,
+                nåDato = nåDato,
             )
         }
     }
@@ -155,6 +159,7 @@ private fun erEndringIBeløpForPersonOgType(
     forrigeAndeler: List<AndelTilkjentYtelse>,
     opphørstidspunktForBehandling: YearMonth,
     erFremstiltKravForPerson: Boolean,
+    nåDato: LocalDate,
 ): Boolean {
     val nåværendeTidslinje = nåværendeAndeler.map { it.tilPeriode() }.tilTidslinje()
     val forrigeTidslinje = forrigeAndeler.map { it.tilPeriode() }.tilTidslinje()
@@ -179,7 +184,7 @@ private fun erEndringIBeløpForPersonOgType(
             }
         }
             .fjernPerioderEtterOpphørsdato(opphørstidspunktForBehandling)
-            .fjernPerioderLengreEnnEnMånedFramITid()
+            .fjernPerioderLengreEnnEnMånedFramITid(nåDato)
 
     return endringIBeløpTidslinje.tilPerioder().any { it.verdi == true }
 }
@@ -187,8 +192,8 @@ private fun erEndringIBeløpForPersonOgType(
 private fun Tidslinje<Boolean>.fjernPerioderEtterOpphørsdato(opphørstidspunkt: YearMonth) =
     this.klipp(startsTidspunkt = TIDENES_MORGEN, sluttTidspunkt = opphørstidspunkt.forrigeMåned().toLocalDate().sisteDagIMåned())
 
-private fun Tidslinje<Boolean>.fjernPerioderLengreEnnEnMånedFramITid() =
-    this.klipp(startsTidspunkt = TIDENES_MORGEN, sluttTidspunkt = LocalDate.now().plusMonths(1).sisteDagIMåned())
+private fun Tidslinje<Boolean>.fjernPerioderLengreEnnEnMånedFramITid(nåDato: LocalDate = LocalDate.now()) =
+    this.klipp(startsTidspunkt = TIDENES_MORGEN, sluttTidspunkt = nåDato.plusMonths(1).sisteDagIMåned())
 
 internal fun erEndringIKompetanseForPerson(
     nåværendeKompetanserForPerson: List<Kompetanse>,
