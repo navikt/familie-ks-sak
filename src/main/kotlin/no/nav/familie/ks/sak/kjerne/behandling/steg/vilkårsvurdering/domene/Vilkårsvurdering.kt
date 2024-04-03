@@ -37,8 +37,6 @@ data class Vilkårsvurdering(
         cascade = [CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH],
     )
     var personResultater: Set<PersonResultat> = setOf(),
-    @Column(name = "ytelse_personer", columnDefinition = "text")
-    var ytelsePersoner: String? = null,
 ) : BaseEntitet() {
     fun hentPersonResultaterTilAktør(aktørId: String): List<VilkårResultat> =
         personResultater.find { it.aktør.aktørId == aktørId }?.vilkårResultater?.toList()
