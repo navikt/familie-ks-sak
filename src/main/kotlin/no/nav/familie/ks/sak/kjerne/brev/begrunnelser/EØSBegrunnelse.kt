@@ -427,10 +427,6 @@ enum class EØSBegrunnelse : IBegrunnelse {
         override val sanityApiNavn = "reduksjonSelvstendigRettBarnFlyttetFraSoker"
         override val begrunnelseType = BegrunnelseType.EØS_REDUKSJON
     },
-    FORTSATT_INNVILGET_EØS_STANDARD {
-        override val sanityApiNavn = "fortsattInnvilgetEosStandard"
-        override val begrunnelseType = BegrunnelseType.FORTSATT_INNVILGET
-    },
 
     FORTSATT_INNVILGET_PRIMÆRLAND_STANDARD {
         override val sanityApiNavn = "fortsattInnvilgetPrimarlandStandard"
@@ -608,7 +604,7 @@ enum class EØSBegrunnelse : IBegrunnelse {
     },
 
     AVSLAG_IKKE_EØS_BORGER {
-        override val sanityApiNavn = "avslagIkkeEosBorger"
+        override val sanityApiNavn = "avslagIkkeEosBorgetask_loggr"
         override val begrunnelseType = BegrunnelseType.EØS_AVSLAG
     },
 
