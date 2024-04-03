@@ -25,6 +25,7 @@ object BehandlingsresultatOpphørUtils {
         forrigeEndretAndeler: List<EndretUtbetalingAndel>,
         nåværendePersonResultaterPåBarn: List<PersonResultat>,
         forrigePersonResultaterPåBarn: List<PersonResultat>,
+        nåMåned: YearMonth,
     ): Opphørsresultat {
         val meldtOmBarnehagePlassPåAlleBarn = nåværendePersonResultaterPåBarn.harMeldtOmBarnehagePlassPåAlleBarn()
         val meldtOmBarnehagePlassPåAlleBarnIForrigeVilkårsvurdering = forrigePersonResultaterPåBarn.harMeldtOmBarnehagePlassPåAlleBarn()
@@ -45,7 +46,7 @@ object BehandlingsresultatOpphørUtils {
         val forrigeBehandlingOpphørsdato =
             forrigeAndeler.utledOpphørsdatoForForrigeBehandling(forrigeEndretAndeler = forrigeEndretAndeler)
 
-        val nesteMåned = YearMonth.now().plusMonths(1)
+        val nesteMåned = nåMåned.plusMonths(1)
 
         return when {
             // Rekkefølgen av sjekkene er viktig for å komme fram til riktig opphørsresultat.

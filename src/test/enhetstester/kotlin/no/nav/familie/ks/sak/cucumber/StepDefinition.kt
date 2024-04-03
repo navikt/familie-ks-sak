@@ -17,6 +17,7 @@ import no.nav.familie.ks.sak.common.domeneparser.VedtaksperiodeMedBegrunnelserPa
 import no.nav.familie.ks.sak.common.domeneparser.parseDato
 import no.nav.familie.ks.sak.common.domeneparser.parseLong
 import no.nav.familie.ks.sak.common.exception.Feil
+import no.nav.familie.ks.sak.common.util.LocalDateProvider
 import no.nav.familie.ks.sak.common.util.TIDENES_MORGEN
 import no.nav.familie.ks.sak.common.util.tilddMMyyyy
 import no.nav.familie.ks.sak.cucumber.BrevBegrunnelseParser.mapBegrunnelser
@@ -44,6 +45,7 @@ import no.nav.familie.ks.sak.kjerne.beregning.AndelerTilkjentYtelseOgEndreteUtbe
 import no.nav.familie.ks.sak.kjerne.beregning.EndretUtbetalingAndelMedAndelerTilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.TilkjentYtelseUtils
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelse
+import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelseRepository
 import no.nav.familie.ks.sak.kjerne.beregning.tilAndelerTilkjentYtelseMedEndreteUtbetalinger
 import no.nav.familie.ks.sak.kjerne.beregning.tilEndretUtbetalingAndelMedAndelerTilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.brev.BrevPeriodeContext
@@ -51,6 +53,7 @@ import no.nav.familie.ks.sak.kjerne.brev.LANDKODER
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.BegrunnelseDtoMedData
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.BegrunnelserForPeriodeContext
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.brevperioder.BrevPeriodeDto
+import no.nav.familie.ks.sak.kjerne.endretutbetaling.EndretUtbetalingAndelService
 import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.EndretUtbetalingAndel
 import no.nav.familie.ks.sak.kjerne.eøs.differanseberegning.beregnDifferanse
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.KompetanseService
@@ -60,8 +63,10 @@ import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.tilIKompetanse
 import no.nav.familie.ks.sak.kjerne.eøs.utenlandskperiodebeløp.domene.UtenlandskPeriodebeløp
 import no.nav.familie.ks.sak.kjerne.eøs.valutakurs.domene.Valutakurs
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.Fagsak
+import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Målform
+import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
 import org.assertj.core.api.Assertions.assertThat
 import java.time.LocalDate
@@ -238,7 +243,7 @@ class StepDefinition {
     ) {
         val behandling = behandlinger[behandlingId]!!
 
-        val behandlingsresultat = mockBehandlingsresultatService().utledBehandlingsresultat(behandling)
+        val behandlingsresultat = mockBehandlingsresultatService().utledBehandlingsresultatNy(behandlingId)
 
         behandlinger[behandlingId] = behandling.copy(resultat = behandlingsresultat)
     }
@@ -463,6 +468,12 @@ class StepDefinition {
 
     fun mockBehandlingsresultatService(): BehandlingsresultatService {
         val behandlingService = mockk<BehandlingService>()
+
+        every { behandlingService.hentBehandling(any()) } answers {
+            val behandlingId = firstArg<Long>()
+            behandlinger[behandlingId] ?: throw Feil("Ingen behandling med id: $behandlingId")
+        }
+
         every { behandlingService.hentSisteBehandlingSomErVedtatt(any()) } answers {
             val fagsakId = firstArg<Long>()
             behandlinger.values.filter { behandling -> behandling.fagsak.id == fagsakId && behandling.status == BehandlingStatus.AVSLUTTET }
@@ -470,25 +481,55 @@ class StepDefinition {
         }
 
         val søknadGrunnlagService = mockk<SøknadGrunnlagService>()
+
+        every { søknadGrunnlagService.hentAktiv(any()) } answers {
+            val behandlingId = firstArg<Long>()
+            lagSøknadGrunnlag(behandlingId) ?: throw Feil("Kunne ikke lage søknadGrunnlag")
+        }
+
         every { søknadGrunnlagService.finnAktiv(any()) } answers {
             val behandlingId = firstArg<Long>()
             lagSøknadGrunnlag(behandlingId)
         }
-        every { søknadGrunnlagService.hentAktiv(any()) } answers {
-            val behandlingId = firstArg<Long>()
-            lagSøknadGrunnlag(behandlingId) ?: throw Feil("Behandling $behandlingId er ikke en søknad")
+
+        val personidentService = mockk<PersonidentService>()
+        every { personidentService.hentAktør(any()) } answers {
+            val personId = firstArg<String>()
+            persongrunnlag.flatMap { it.value.personer }.first { it.id.toString() == personId }.aktør
         }
+
+        val andelTilkjentYtelseRepository = mockk<AndelTilkjentYtelseRepository>()
+        every { andelTilkjentYtelseRepository.finnAndelerTilkjentYtelseForBehandling(any()) } answers {
+            val behandlingId = firstArg<Long>()
+            andelerTilkjentYtelse[behandlingId] ?: emptyList()
+        }
+
+        val endretUtbetalingAndelService = mockk<EndretUtbetalingAndelService>()
+        every { endretUtbetalingAndelService.hentEndredeUtbetalingAndeler(any()) } answers {
+            val behandlingId = firstArg<Long>()
+            endredeUtbetalinger[behandlingId] ?: emptyList()
+        }
+
+        val kompetanseService = mockk<KompetanseService>()
+        every { kompetanseService.hentKompetanser(any()) } answers {
+            val behandlingId = firstArg<BehandlingId>()
+            kompetanser[behandlingId.id] ?: emptyList()
+        }
+
+        val localDateProvider = mockk<LocalDateProvider>()
+        every { localDateProvider.now() } returns dagensDato
 
         return BehandlingsresultatService(
             behandlingService = behandlingService,
             andelerTilkjentYtelseOgEndreteUtbetalingerService = mockAndelerTilkjentYtelseOgEndreteUtbetalingerService(),
             vilkårsvurderingService = mockVilkårsvurderingService(),
             søknadGrunnlagService = søknadGrunnlagService,
-            personidentService = mockk(),
+            personidentService = personidentService,
             personopplysningGrunnlagService = mockPersonopplysningGrunnlagService(),
-            andelerTilkjentYtelseRepository = mockk(),
-            endretUtbetalingAndelService = mockk(),
-            kompetanseService = mockk(),
+            andelerTilkjentYtelseRepository = andelTilkjentYtelseRepository,
+            endretUtbetalingAndelService = endretUtbetalingAndelService,
+            kompetanseService = kompetanseService,
+            localDateProvider = localDateProvider,
         )
     }
 
@@ -500,7 +541,7 @@ class StepDefinition {
         val søknadDtoString =
             objectMapper.writeValueAsString(
                 SøknadDto(
-                    barnaMedOpplysninger = uregistrerteBarn[behandlingId] ?: emptyList(),
+                    barnaMedOpplysninger = lagRegistrertebarn(behandlingId) + (uregistrerteBarn[behandlingId] ?: emptyList()),
                     endringAvOpplysningerBegrunnelse = "",
                     søkerMedOpplysninger = SøkerMedOpplysningerDto(ident = "", målform = målform),
                 ),
@@ -523,12 +564,25 @@ class StepDefinition {
             vilkårsvurdering[behandlingId]
         }
         val søknadGrunnlagService = mockk<SøknadGrunnlagService>()
+        every { søknadGrunnlagService.finnAktiv(any<Long>()) } answers {
+            val behandlingId = firstArg<Long>()
+            val søknadDtoString =
+                objectMapper.writeValueAsString(
+                    SøknadDto(
+                        barnaMedOpplysninger = lagRegistrertebarn(behandlingId) + (uregistrerteBarn[behandlingId] ?: emptyList()),
+                        endringAvOpplysningerBegrunnelse = "",
+                        søkerMedOpplysninger = SøkerMedOpplysningerDto(ident = "", målform = målform),
+                    ),
+                )
+            SøknadGrunnlag(behandlingId = behandlingId, søknad = søknadDtoString)
+        }
+
         every { søknadGrunnlagService.hentAktiv(any<Long>()) } answers {
             val behandlingId = firstArg<Long>()
             val søknadDtoString =
                 objectMapper.writeValueAsString(
                     SøknadDto(
-                        barnaMedOpplysninger = uregistrerteBarn[behandlingId] ?: emptyList(),
+                        barnaMedOpplysninger = lagRegistrertebarn(behandlingId) + (uregistrerteBarn[behandlingId] ?: emptyList()),
                         endringAvOpplysningerBegrunnelse = "",
                         søkerMedOpplysninger = SøkerMedOpplysningerDto(ident = "", målform = målform),
                     ),
@@ -567,6 +621,17 @@ class StepDefinition {
             refusjonEøsRepository = mockk(),
             kompetanseService = kompetanseService,
         )
+    }
+
+    private fun lagRegistrertebarn(behandlingId: Long): List<BarnMedOpplysningerDto> {
+        return persongrunnlag[behandlingId]?.personer
+            ?.filter { it.type == PersonType.BARN }
+            ?.map { person ->
+                BarnMedOpplysningerDto(
+                    ident = person.id.toString(),
+                    fødselsdato = person.fødselsdato,
+                )
+            } ?: emptyList()
     }
 
     private fun mockPersonopplysningGrunnlagService(): PersonopplysningGrunnlagService {

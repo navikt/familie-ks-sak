@@ -130,31 +130,52 @@ class StegService(
 
     private fun valider(
         behandling: Behandling,
-        behandledeSteg: BehandlingSteg,
+        behandlingSteg: BehandlingSteg,
     ) {
         // valider om steget kan behandles av saksbehandler eller beslutter
-        if (!behandledeSteg.kanStegBehandles() && !SikkerhetContext.erSystemKontekst()) {
-            throw Feil("Steget ${behandledeSteg.name} kan ikke behandles for behandling ${behandling.id}")
+        if (!behandlingSteg.kanStegBehandles() && !SikkerhetContext.erSystemKontekst()) {
+            throw Feil("Steget ${behandlingSteg.name} kan ikke behandles for behandling ${behandling.id}")
         }
+
+        // valider at behandlingen ikke er avsluttet
+        if (behandling.erAvsluttet()) {
+            throw Feil(
+                message = "Forsøker å starte steget ${behandlingSteg.name} i en avsluttet behandling. Fagsak ${behandling.fagsak.id}, behandling ${behandling.id}.",
+                frontendFeilmelding = "Kan ikke utføre steget ${behandlingSteg.name}. Behandlingen er avsluttet. Oppdater siden eller gå til saksoversikt.",
+            )
+        }
+
         // valider om steget samsvarer med opprettet årsak til behandling
-        behandledeSteg.gyldigForÅrsaker.singleOrNull { it == behandling.opprettetÅrsak }
+        behandlingSteg.gyldigForÅrsaker.singleOrNull { it == behandling.opprettetÅrsak }
             ?: throw Feil(
-                "Steget ${behandledeSteg.name} er ikke gyldig for behandling ${behandling.id} " +
+                "Steget ${behandlingSteg.name} er ikke gyldig for behandling ${behandling.id} " +
                     "med opprettetÅrsak ${behandling.opprettetÅrsak}",
             )
 
         // valider om et tidligere steg i behandlingen har stegstatus KLAR
         val stegKlarForBehandling =
             behandling.behandlingStegTilstand.singleOrNull {
-                it.behandlingSteg.sekvens < behandledeSteg.sekvens &&
+                it.behandlingSteg.sekvens < behandlingSteg.sekvens &&
                     it.behandlingStegStatus == BehandlingStegStatus.KLAR
             }
         if (stegKlarForBehandling != null) {
             throw Feil(
                 "Behandling ${behandling.id} har allerede et steg " +
                     "${stegKlarForBehandling.behandlingSteg.name}} som er klar for behandling. " +
-                    "Kan ikke behandle ${behandledeSteg.name}",
+                    "Kan ikke behandle ${behandlingSteg.name}",
             )
+        }
+
+        // dersom behandlingsteg er BESLUTTE_VEDTAK eller senere valider at steget ikke allerede finnes i behandlingStegTilstand med status utført.
+        if (behandlingSteg.sekvens >= BESLUTTE_VEDTAK.sekvens) {
+            val alleredeUtførtSteg = behandling.behandlingStegTilstand.singleOrNull { it.behandlingSteg == behandlingSteg && it.behandlingStegStatus == BehandlingStegStatus.UTFØRT }
+            if (alleredeUtførtSteg != null) {
+                val feilmelding = "${behandlingSteg.name} er allerede utført for behandlingen. Oppdater siden eller gå til saksoversikt."
+                throw Feil(
+                    message = feilmelding + "Fagsak: ${behandling.fagsak.id}, behandling ${behandling.id}.",
+                    frontendFeilmelding = feilmelding,
+                )
+            }
         }
     }
 
@@ -178,6 +199,7 @@ class StegService(
                     Beslutning.UNDERKJENT -> BehandlingSteg.VEDTAK
                 }
             }
+
             else -> nesteGyldigeStadier.first()
         }
     }
@@ -201,6 +223,7 @@ class StegService(
                 val saksbehandlerId = SikkerhetContext.hentSaksbehandler()
                 taskService.save(IverksettMotOppdragTask.opprettTask(behandling, vedtakId, saksbehandlerId))
             }
+
             else -> {} // Gjør ingenting. Steg kan ikke utføre automatisk
         }
     }
@@ -218,6 +241,7 @@ class StegService(
                             Oppretter ikke tilbakekrevingsbehandling""",
                     )
                 }
+
                 else -> taskService.save(SendOpprettTilbakekrevingsbehandlingRequestTask.opprettTask(behandlingId))
             }
         }
@@ -325,6 +349,7 @@ class StegService(
                 Beslutning.UNDERKJENT -> BehandlingStegStatus.TILBAKEFØRT
             }
         }
+
         else -> BehandlingStegStatus.UTFØRT
     }
 
