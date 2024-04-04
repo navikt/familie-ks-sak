@@ -1,7 +1,5 @@
 package no.nav.familie.ks.sak.kjerne.behandling.steg.behandlingsresultat
 
-import no.nav.familie.ks.sak.config.FeatureToggleConfig.Companion.SKAL_BRUKE_NY_BEHANDLINGSRESULTAT_LOGIKK
-import no.nav.familie.ks.sak.config.featureToggle.UnleashNextMedContextService
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg
 import no.nav.familie.ks.sak.kjerne.behandling.steg.IBehandlingSteg
@@ -26,7 +24,6 @@ class BehandlingsresultatSteg(
     private val simuleringService: SimuleringService,
     private val vedtakRepository: VedtakRepository,
     private val vedtaksperiodeService: VedtaksperiodeService,
-    private val unleashService: UnleashNextMedContextService,
 ) : IBehandlingSteg {
     override fun getBehandlingssteg(): BehandlingSteg = BehandlingSteg.BEHANDLINGSRESULTAT
 
@@ -41,21 +38,16 @@ class BehandlingsresultatSteg(
             andelerTilkjentYtelseOgEndreteUtbetalingerService
                 .finnEndreteUtbetalingerMedAndelerTilkjentYtelse(behandlingId)
 
-        BehandlingsresultatUtils.validerAtBehandlingsresultatKanUtføres(
+        BehandlingsresultatValideringUtils.validerAtBehandlingsresultatKanUtføres(
             personopplysningGrunnlag,
             tilkjentYtelse,
             endretUtbetalingMedAndeler,
         )
 
-        val resultat =
-            if (unleashService.isEnabled(SKAL_BRUKE_NY_BEHANDLINGSRESULTAT_LOGIKK)) {
-                behandlingsresultatService.utledBehandlingsresultatNy(behandling.id)
-            } else {
-                behandlingsresultatService.utledBehandlingsresultat(behandling)
-            }
+        val resultat = behandlingsresultatService.utledBehandlingsresultat(behandling.id)
 
         // valider om behandlingsresultat samsvarer med Behandlingstype
-        BehandlingsresultatUtils.validerUtledetBehandlingsresultat(behandling, resultat)
+        BehandlingsresultatValideringUtils.validerUtledetBehandlingsresultat(behandling, resultat)
         val behandlingMedOppdatertResultat = behandlingService.oppdaterBehandlingsresultat(behandlingId, resultat)
 
         if (behandlingMedOppdatertResultat.skalSendeVedtaksbrev()) {
