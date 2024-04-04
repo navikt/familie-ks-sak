@@ -1,10 +1,14 @@
 package no.nav.familie.ks.sak.kjerne.personident
 
+import no.nav.familie.kontrakter.felles.PersonIdent
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.integrasjon.pdl.PdlClient
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.PdlIdent
+import no.nav.familie.ks.sak.integrasjon.pdl.domene.hentAktivAktørId
+import no.nav.familie.prosessering.internal.TaskService
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDateTime
 
 @Service
@@ -12,8 +16,30 @@ class PersonidentService(
     private val personidentRepository: PersonidentRepository,
     private val aktørRepository: AktørRepository,
     private val pdlClient: PdlClient,
+    private val taskService: TaskService,
 ) {
     private val secureLogger = LoggerFactory.getLogger("secureLogger")
+
+    @Transactional
+    fun håndterNyIdent(nyIdent: PersonIdent): Aktør? {
+        logger.info("Håndterer ny ident")
+        secureLogger.info("Håndterer ny ident ${nyIdent.ident}")
+        val identerFraPdl = hentIdenter(nyIdent.ident, true)
+
+        val aktørId = identerFraPdl.hentAktivAktørId()
+
+        validerOmAktørIdErMerget(identerFraPdl)
+
+        val aktør = aktørRepository.findByAktørId(aktørId)
+
+        return if (aktør?.harIdent(fødselsnummer = nyIdent.ident) == false) {
+            logger.info("Legger til ny ident")
+            secureLogger.info("Legger til ny ident ${nyIdent.ident} på aktør ${aktør.aktørId}")
+            opprettPersonIdent(aktør, nyIdent.ident)
+        } else {
+            aktør
+        }
+    }
 
     fun hentOgLagreAktør(
         personIdentEllerAktørId: String,
@@ -91,6 +117,29 @@ class PersonidentService(
         historikk: Boolean,
     ): List<PdlIdent> = pdlClient.hentIdenter(personIdent, historikk)
 
+    fun opprettTaskForIdentHendelse(nyIdent: PersonIdent) {
+        if (identSkalLeggesTil(nyIdent)) {
+            logger.info("Oppretter task for senere håndterering av ny ident")
+            secureLogger.info("Oppretter task for senere håndterering av ny ident ${nyIdent.ident}")
+            taskService.save(IdentHendelseTask.opprettTask(nyIdent))
+        } else {
+            logger.info("Ident er ikke knyttet til noen av aktørene våre, ignorerer hendelse.")
+        }
+    }
+
+    fun identSkalLeggesTil(nyIdent: PersonIdent): Boolean {
+        val identerFraPdl = hentIdenter(nyIdent.ident, true)
+        val aktører =
+            identerFraPdl
+                .filter { it.gruppe == "AKTORID" }
+                .mapNotNull { aktørRepository.findByAktørId(it.ident) }
+
+        if (aktører.isNotEmpty()) {
+            return aktører.none { it.harIdent(nyIdent.ident) }
+        }
+        return false
+    }
+
     private fun filtrerAktivtFødselsnummer(pdlIdenter: List<PdlIdent>) =
         pdlIdenter.singleOrNull { it.gruppe == "FOLKEREGISTERIDENT" }?.ident
             ?: throw Error("Finner ikke aktiv ident i Pdl")
@@ -98,4 +147,24 @@ class PersonidentService(
     private fun filtrerAktørId(pdlIdenter: List<PdlIdent>): String =
         pdlIdenter.singleOrNull { it.gruppe == "AKTORID" }?.ident
             ?: throw Error("Finner ikke aktørId i Pdl")
+
+    private fun validerOmAktørIdErMerget(alleHistoriskeIdenterFraPdl: List<PdlIdent>) {
+        val alleHistoriskeAktørIder = alleHistoriskeIdenterFraPdl.filter { it.gruppe == "AKTORID" && it.historisk }.map { it.ident }
+
+        val aktiveAktørerForHistoriskAktørIder =
+            alleHistoriskeAktørIder
+                .mapNotNull { aktørId -> aktørRepository.findByAktørId(aktørId) }
+                .filter { aktør -> aktør.personidenter.any { personident -> personident.aktiv } }
+
+        if (aktiveAktørerForHistoriskAktørIder.isNotEmpty()) {
+            secureLogger.warn("Potensielt merget ident for $alleHistoriskeIdenterFraPdl")
+            throw Feil(
+                message = "Mottok potensielt en hendelse på en merget ident for aktørId=${alleHistoriskeIdenterFraPdl.hentAktivAktørId()}. Sjekk securelogger for liste med identer. Sjekk om identen har flere saker. Disse må løses manuelt.",
+            )
+        }
+    }
+
+    companion object {
+        val logger = LoggerFactory.getLogger(PersonidentService::class.java)
+    }
 }
