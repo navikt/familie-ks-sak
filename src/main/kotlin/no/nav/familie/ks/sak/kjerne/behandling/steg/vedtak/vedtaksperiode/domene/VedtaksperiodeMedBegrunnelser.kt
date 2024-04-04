@@ -82,26 +82,17 @@ data class VedtaksperiodeMedBegrunnelser(
 ) : BaseEntitet() {
     fun settBegrunnelser(
         nyeBegrunnelser: List<NasjonalEllerFellesBegrunnelseDB>,
-        nyeEØSBegrunnelser: List<EØSBegrunnelseDB>,
-        sanityBegrunnelser: List<SanityBegrunnelse>,
     ) {
         begrunnelser.apply {
             clear()
             addAll(nyeBegrunnelser)
         }
-        eøsBegrunnelser.apply {
-            clear()
-            addAll(nyeEØSBegrunnelser)
-        }
-
-        slettFriteksterDersomVedtaksperiodenIkkeStøtterDet(sanityBegrunnelser)
     }
 
-    private fun slettFriteksterDersomVedtaksperiodenIkkeStøtterDet(sanityBegrunnelser: List<SanityBegrunnelse>) {
-        if (fritekster.isNotEmpty()) {
-            if (!this.støtterFritekst(sanityBegrunnelser)) {
-                fritekster.clear()
-            }
+    fun settEøsBegrunnelser(nyeEøsBegrunnelser: List<EØSBegrunnelseDB>) {
+        eøsBegrunnelser.apply {
+            clear()
+            addAll(nyeEøsBegrunnelser)
         }
     }
 

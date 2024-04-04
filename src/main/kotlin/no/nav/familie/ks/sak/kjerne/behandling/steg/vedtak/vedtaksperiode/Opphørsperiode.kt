@@ -11,7 +11,6 @@ import no.nav.familie.ks.sak.common.util.førsteDagIInneværendeMåned
 import no.nav.familie.ks.sak.common.util.inneværendeMåned
 import no.nav.familie.ks.sak.common.util.nesteMåned
 import no.nav.familie.ks.sak.common.util.toYearMonth
-import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelse
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.Vedtak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.VedtaksperiodeMedBegrunnelser
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
@@ -155,7 +154,6 @@ private fun finnOpphørsperioderMellomUtbetalingsperioder(utbetalingsperioder: L
 
 fun Opphørsperiode.tilVedtaksperiodeMedBegrunnelse(
     vedtak: Vedtak,
-    sanityBegrunnelser: List<SanityBegrunnelse>,
 ): VedtaksperiodeMedBegrunnelser =
     VedtaksperiodeMedBegrunnelser(
         fom = this.periodeFom,
@@ -167,7 +165,5 @@ fun Opphørsperiode.tilVedtaksperiodeMedBegrunnelse(
             begrunnelser.map {
                 it.tilVedtaksbegrunnelse(vedtaksperiodeMedBegrunnelser)
             },
-            emptyList(),
-            sanityBegrunnelser,
         )
     }

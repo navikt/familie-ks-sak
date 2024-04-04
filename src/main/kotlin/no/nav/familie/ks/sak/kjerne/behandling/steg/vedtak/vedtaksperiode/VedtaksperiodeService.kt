@@ -103,16 +103,16 @@ class VedtaksperiodeService(
         val persongrunnlag =
             personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(behandlingId = behandling.id)
 
-        val sanityBegrunnelser = sanityService.hentSanityBegrunnelser()
-
         vedtaksperiodeMedBegrunnelser.settBegrunnelser(
             begrunnelserFraFrontend.map {
                 it.tilVedtaksbegrunnelse(vedtaksperiodeMedBegrunnelser)
             },
+        )
+
+        vedtaksperiodeMedBegrunnelser.settEøsBegrunnelser(
             eøsBegrunnelserFraFrontend.map {
                 it.tilVedtaksbegrunnelse(vedtaksperiodeMedBegrunnelser)
             },
-            sanityBegrunnelser,
         )
 
         if (
@@ -199,10 +199,8 @@ class VedtaksperiodeService(
             )
         }
 
-        val sanityBegrunnelser = sanityService.hentSanityBegrunnelser()
-
         val opphørsperioder =
-            hentOpphørsperioder(vedtak.behandling).map { it.tilVedtaksperiodeMedBegrunnelse(vedtak, sanityBegrunnelser) }
+            hentOpphørsperioder(vedtak.behandling).map { it.tilVedtaksperiodeMedBegrunnelse(vedtak) }
 
         val utbetalingsperioder =
             utbetalingsperiodeMedBegrunnelserService.hentUtbetalingsperioder(vedtak, opphørsperioder)
@@ -293,8 +291,6 @@ class VedtaksperiodeService(
         val gamleVedtaksperioderMedBegrunnelser =
             vedtaksperiodeHentOgPersisterService.hentVedtaksperioderFor(vedtakId = deaktivertVedtak.id)
 
-        val sanityBegrunnelser = sanityService.hentSanityBegrunnelser()
-
         gamleVedtaksperioderMedBegrunnelser.forEach { vedtaksperiodeMedBegrunnelser ->
             val nyVedtaksperiodeMedBegrunnelser =
                 vedtaksperiodeHentOgPersisterService.lagre(
@@ -306,20 +302,22 @@ class VedtaksperiodeService(
                     ),
                 )
 
-            nyVedtaksperiodeMedBegrunnelser.settFritekster(
-                vedtaksperiodeMedBegrunnelser.fritekster.map {
-                    it.kopier(nyVedtaksperiodeMedBegrunnelser)
-                },
-            )
-
             nyVedtaksperiodeMedBegrunnelser.settBegrunnelser(
                 vedtaksperiodeMedBegrunnelser.begrunnelser.map {
                     it.kopier(nyVedtaksperiodeMedBegrunnelser)
                 },
+            )
+
+            nyVedtaksperiodeMedBegrunnelser.settEøsBegrunnelser(
                 vedtaksperiodeMedBegrunnelser.eøsBegrunnelser.map {
                     it.kopier(nyVedtaksperiodeMedBegrunnelser)
                 },
-                sanityBegrunnelser,
+            )
+
+            nyVedtaksperiodeMedBegrunnelser.settFritekster(
+                vedtaksperiodeMedBegrunnelser.fritekster.map {
+                    it.kopier(nyVedtaksperiodeMedBegrunnelser)
+                },
             )
 
             vedtaksperiodeHentOgPersisterService.lagre(nyVedtaksperiodeMedBegrunnelser)
