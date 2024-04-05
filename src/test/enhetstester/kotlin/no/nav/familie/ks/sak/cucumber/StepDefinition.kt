@@ -242,7 +242,7 @@ class StepDefinition {
     ) {
         val behandling = behandlinger[behandlingId]!!
 
-        val behandlingsresultat = mockBehandlingsresultatService().utledBehandlingsresultatNy(behandlingId)
+        val behandlingsresultat = mockBehandlingsresultatService().utledBehandlingsresultat(behandlingId)
 
         behandlinger[behandlingId] = behandling.copy(resultat = behandlingsresultat)
     }
@@ -520,7 +520,6 @@ class StepDefinition {
 
         return BehandlingsresultatService(
             behandlingService = behandlingService,
-            andelerTilkjentYtelseOgEndreteUtbetalingerService = mockAndelerTilkjentYtelseOgEndreteUtbetalingerService(),
             vilkårsvurderingService = mockVilkårsvurderingService(),
             søknadGrunnlagService = søknadGrunnlagService,
             personidentService = personidentService,
