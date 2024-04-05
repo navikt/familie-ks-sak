@@ -16,6 +16,7 @@ import no.nav.familie.ks.sak.common.util.førsteDagIInneværendeMåned
 import no.nav.familie.ks.sak.data.lagAndelTilkjentYtelse
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagInitieltTilkjentYtelse
+import no.nav.familie.ks.sak.data.lagSanityBegrunnelse
 import no.nav.familie.ks.sak.data.randomAktør
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
 import no.nav.familie.ks.sak.integrasjon.sanity.SanityService
@@ -28,6 +29,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.Vedtak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.VedtakRepository
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.refusjonEøs.RefusjonEøs
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.refusjonEøs.RefusjonEøsRepository
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.VedtaksbegrunnelseFritekst
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.VedtaksperiodeMedBegrunnelser
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.utbetalingsperiodeMedBegrunnelser.UtbetalingsperiodeMedBegrunnelserService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.PersonResultat
@@ -38,7 +40,9 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vil
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårsvurderingRepository
 import no.nav.familie.ks.sak.kjerne.beregning.AndelTilkjentYtelseMedEndreteUtbetalinger
 import no.nav.familie.ks.sak.kjerne.beregning.AndelerTilkjentYtelseOgEndreteUtbetalingerService
+import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.EØSBegrunnelse
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.NasjonalEllerFellesBegrunnelse
+import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.tilVedtaksbegrunnelse
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.KompetanseService
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.Kompetanse
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.KompetanseAktivitet
@@ -183,6 +187,84 @@ internal class VedtaksperiodeServiceTest {
     }
 
     @Test
+    fun `støtterFritekst skal gi false dersom vedtaksperioden har type UTBETALING og ingen av begrunnelsene støtter fritekst`() {
+        val vedtaksperiodeMedBegrunnelse =
+            VedtaksperiodeMedBegrunnelser(
+                id = 0,
+                vedtak = Vedtak(id = 0, behandling = behandling),
+                type = Vedtaksperiodetype.UTBETALING,
+            ).also {
+                it.fritekster.add(VedtaksbegrunnelseFritekst(id = 0, vedtaksperiodeMedBegrunnelser = it, fritekst = "Dette er en fritekst"))
+                it.begrunnelser.addAll(listOf(NasjonalEllerFellesBegrunnelse.INNVILGET_IKKE_BARNEHAGE.tilVedtaksbegrunnelse(it), NasjonalEllerFellesBegrunnelse.INNVILGET_DELTID_BARNEHAGE.tilVedtaksbegrunnelse(it)))
+            }
+
+        val sanityBegrunnelser =
+            listOf(
+                lagSanityBegrunnelse(apiNavn = NasjonalEllerFellesBegrunnelse.INNVILGET_IKKE_BARNEHAGE.sanityApiNavn, støtterFritekst = false),
+                lagSanityBegrunnelse(apiNavn = EØSBegrunnelse.INNVILGET_PRIMÆRLAND_STANDARD.sanityApiNavn, støtterFritekst = false),
+            )
+
+        assertThat(vedtaksperiodeMedBegrunnelse.støtterFritekst(sanityBegrunnelser), Is(false))
+    }
+
+    @Test
+    fun `støtterFritekst skal gi true dersom vedtaksperioden har type UTBETALING og en av begrunnelsene er av typen REDUKSJON men ikke REDUKSJON_SATSENDRING`() {
+        val vedtaksperiodeMedBegrunnelse =
+            VedtaksperiodeMedBegrunnelser(
+                id = 0,
+                vedtak = Vedtak(id = 0, behandling = behandling),
+                type = Vedtaksperiodetype.UTBETALING,
+            ).also {
+                it.fritekster.add(VedtaksbegrunnelseFritekst(id = 0, vedtaksperiodeMedBegrunnelser = it, fritekst = "Dette er en fritekst"))
+                it.begrunnelser.addAll(listOf(NasjonalEllerFellesBegrunnelse.REDUKSJON_BARN_DOD.tilVedtaksbegrunnelse(it)))
+            }
+
+        val sanityBegrunnelser =
+            listOf(
+                lagSanityBegrunnelse(apiNavn = NasjonalEllerFellesBegrunnelse.REDUKSJON_BARN_DOD.sanityApiNavn, støtterFritekst = false),
+            )
+
+        assertThat(vedtaksperiodeMedBegrunnelse.støtterFritekst(sanityBegrunnelser), Is(true))
+    }
+
+    @Test
+    fun `støtterFritekst skal gi true dersom vedtaksperioden har type UTBETALING og minst en av begrunnelsene støtter fritekst`() {
+        val vedtaksperiodeMedBegrunnelse =
+            VedtaksperiodeMedBegrunnelser(
+                id = 0,
+                vedtak = Vedtak(id = 0, behandling = behandling),
+                type = Vedtaksperiodetype.UTBETALING,
+            ).also {
+                it.fritekster.add(VedtaksbegrunnelseFritekst(id = 0, vedtaksperiodeMedBegrunnelser = it, fritekst = "Dette er en fritekst"))
+                it.begrunnelser.add(NasjonalEllerFellesBegrunnelse.INNVILGET_IKKE_BARNEHAGE.tilVedtaksbegrunnelse(it))
+                it.eøsBegrunnelser.add(EØSBegrunnelse.INNVILGET_PRIMÆRLAND_STANDARD.tilVedtaksbegrunnelse(it))
+            }
+
+        val sanityBegrunnelser =
+            listOf(
+                lagSanityBegrunnelse(apiNavn = NasjonalEllerFellesBegrunnelse.INNVILGET_IKKE_BARNEHAGE.sanityApiNavn, støtterFritekst = false),
+                lagSanityBegrunnelse(apiNavn = EØSBegrunnelse.INNVILGET_PRIMÆRLAND_STANDARD.sanityApiNavn, støtterFritekst = true),
+            )
+
+        assertThat(vedtaksperiodeMedBegrunnelse.støtterFritekst(sanityBegrunnelser), Is(true))
+    }
+
+    @ParameterizedTest
+    @EnumSource(value = Vedtaksperiodetype::class, names = ["OPPHØR", "AVSLAG", "FORTSATT_INNVILGET"])
+    fun `støtterFritekst skal gi true dersom vedtaksperioden er ulik UTBETALING selv om ingen av begrunnelsene støtter fritekst`(vedtaksperiodetype: Vedtaksperiodetype) {
+        val vedtaksperiodeMedBegrunnelse =
+            VedtaksperiodeMedBegrunnelser(
+                id = 0,
+                vedtak = Vedtak(id = 0, behandling = behandling),
+                type = vedtaksperiodetype,
+            ).also {
+                it.fritekster.add(VedtaksbegrunnelseFritekst(id = 0, vedtaksperiodeMedBegrunnelser = it, fritekst = "Dette er en fritekst"))
+            }
+
+        assertThat(vedtaksperiodeMedBegrunnelse.støtterFritekst(emptyList()), Is(true))
+    }
+
+    @Test
     fun `oppdaterVedtakMedVedtaksperioder skal slette eksisterende vedtaksperioder for vedtak og lage ny`() {
         behandling.resultat = Behandlingsresultat.FORTSATT_INNVILGET
 
@@ -227,6 +309,8 @@ internal class VedtaksperiodeServiceTest {
                 gammelVedtaksperiodeMedBegrunnelse,
             )
         every { vedtaksperiodeHentOgPersisterService.lagre(capture(vedtaksperiodeMedBegrunnelseSlot)) } returnsArgument 0
+
+        every { sanityService.hentSanityBegrunnelser() } returns emptyList()
 
         vedtaksperiodeService.kopierOverVedtaksperioder(gammelVedtak, nyttVedtak)
 

@@ -373,6 +373,7 @@ class StepDefinition {
                 personopplysningGrunnlag = persongrunnlag[behandlingId]!!,
                 andelerTilkjentYtelse = hentAndelerTilkjentYtelseMedEndreteUtbetalinger(behandlingId),
                 dagensDato = dagensDato,
+                sanityBegrunnelser = emptyList(),
             )
         }
     }

@@ -152,7 +152,9 @@ private fun finnOpphørsperioderMellomUtbetalingsperioder(utbetalingsperioder: L
         }
 }
 
-fun Opphørsperiode.tilVedtaksperiodeMedBegrunnelse(vedtak: Vedtak): VedtaksperiodeMedBegrunnelser =
+fun Opphørsperiode.tilVedtaksperiodeMedBegrunnelse(
+    vedtak: Vedtak,
+): VedtaksperiodeMedBegrunnelser =
     VedtaksperiodeMedBegrunnelser(
         fom = this.periodeFom,
         tom = this.periodeTom,
