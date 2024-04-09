@@ -347,20 +347,10 @@ class BrevPeriodeContext(
         begrunnelse: IBegrunnelse,
         sanityBegrunnelse: SanityBegrunnelse,
     ) = when (begrunnelse.begrunnelseType) {
-        BegrunnelseType.ETTER_ENDRET_UTBETALING ->
-            begrunnelserForPeriodeContext.hentPersonerMedEndretUtbetalingerSomPasserMedVedtaksperiode(
-                sanityBegrunnelse,
-            )
+        BegrunnelseType.ETTER_ENDRET_UTBETALING -> begrunnelserForPeriodeContext.hentPersonerMedEndretUtbetalingerSomPasserMedVedtaksperiode(sanityBegrunnelse)
 
         BegrunnelseType.FORTSATT_INNVILGET -> {
-            val innvilgedeAndelerIPeriode =
-                andelTilkjentYtelserMedEndreteUtbetalinger
-                    .filter { it.erInnvilget }
-                    .filter { utvidetVedtaksperiodeMedBegrunnelser.fom == null || it.stønadFom <= utvidetVedtaksperiodeMedBegrunnelser.fom.toYearMonth() }
-                    .filter { utvidetVedtaksperiodeMedBegrunnelser.tom == null || it.stønadTom >= utvidetVedtaksperiodeMedBegrunnelser.tom.toYearMonth() }
-
-            val aktørerMedUtbetalingIVedtaksperiode = innvilgedeAndelerIPeriode.map { it.aktør }.toSet()
-            aktørerMedUtbetalingIVedtaksperiode.map { aktør -> persongrunnlag.personer.single { it.aktør == aktør } }.toSet()
+            hentRelevantePersonerForFortsattInnvilget()
         }
 
         else ->
@@ -368,6 +358,34 @@ class BrevPeriodeContext(
                 begrunnelse = begrunnelse,
                 sanityBegrunnelse = sanityBegrunnelse,
             )
+    }
+
+    private fun hentRelevantePersonerForEøsBegrunnelser(
+        begrunnelse: IBegrunnelse,
+        sanityBegrunnelse: SanityBegrunnelse,
+    ) = when (begrunnelse.begrunnelseType) {
+        BegrunnelseType.ETTER_ENDRET_UTBETALING -> begrunnelserForPeriodeContext.hentPersonerMedEndretUtbetalingerSomPasserMedVedtaksperiode(sanityBegrunnelse)
+
+        BegrunnelseType.FORTSATT_INNVILGET -> {
+            hentRelevantePersonerForFortsattInnvilget()
+        }
+
+        else ->
+            begrunnelserForPeriodeContext.hentPersonerSomPasserForKompetanseIPeriode(
+                begrunnelse = begrunnelse,
+                sanityBegrunnelse = sanityBegrunnelse,
+            )
+    }
+
+    private fun hentRelevantePersonerForFortsattInnvilget(): Set<Person> {
+        val innvilgedeAndelerIPeriode =
+            andelTilkjentYtelserMedEndreteUtbetalinger
+                .filter { it.erInnvilget }
+                .filter { utvidetVedtaksperiodeMedBegrunnelser.fom == null || it.stønadFom <= utvidetVedtaksperiodeMedBegrunnelser.fom.toYearMonth() }
+                .filter { utvidetVedtaksperiodeMedBegrunnelser.tom == null || it.stønadTom >= utvidetVedtaksperiodeMedBegrunnelser.tom.toYearMonth() }
+
+        val aktørerMedUtbetalingIVedtaksperiode = innvilgedeAndelerIPeriode.map { it.aktør }.toSet()
+        return aktørerMedUtbetalingIVedtaksperiode.map { aktør -> persongrunnlag.personer.single { it.aktør == aktør } }.toSet()
     }
 
     fun hentEøsBegrunnelseDataDtoer(): List<EØSBegrunnelseDto> {
@@ -379,7 +397,7 @@ class BrevPeriodeContext(
             }.flatMap { (begrunnelse, sanityBegrunnelse) ->
                 val personerGjeldendeForBegrunnelse =
                     hentRelevantePersonerForNasjonalOgFellesBegrunnelse(begrunnelse, sanityBegrunnelse) +
-                        begrunnelserForPeriodeContext.hentPersonerSomPasserForKompetanseIPeriode(begrunnelse, sanityBegrunnelse)
+                        hentRelevantePersonerForEøsBegrunnelser(begrunnelse, sanityBegrunnelse)
 
                 val gjelderSøker = personerGjeldendeForBegrunnelse.any { it.type == PersonType.SØKER }
 
