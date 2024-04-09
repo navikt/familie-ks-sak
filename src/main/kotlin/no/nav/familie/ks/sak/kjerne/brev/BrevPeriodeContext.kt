@@ -360,7 +360,7 @@ class BrevPeriodeContext(
             )
     }
 
-    private fun hentRelevantePersonerForEøsBegrunnelser(
+    private fun hentRelevantePersonerForEøsBegrunnelse(
         begrunnelse: IBegrunnelse,
         sanityBegrunnelse: SanityBegrunnelse,
     ) = when (begrunnelse.begrunnelseType) {
@@ -397,7 +397,7 @@ class BrevPeriodeContext(
             }.flatMap { (begrunnelse, sanityBegrunnelse) ->
                 val personerGjeldendeForBegrunnelse =
                     hentRelevantePersonerForNasjonalOgFellesBegrunnelse(begrunnelse, sanityBegrunnelse) +
-                        hentRelevantePersonerForEøsBegrunnelser(begrunnelse, sanityBegrunnelse)
+                            hentRelevantePersonerForEøsBegrunnelse(begrunnelse, sanityBegrunnelse)
 
                 val gjelderSøker = personerGjeldendeForBegrunnelse.any { it.type == PersonType.SØKER }
 
