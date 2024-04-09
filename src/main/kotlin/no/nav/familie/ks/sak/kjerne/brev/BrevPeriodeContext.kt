@@ -397,7 +397,7 @@ class BrevPeriodeContext(
             }.flatMap { (begrunnelse, sanityBegrunnelse) ->
                 val personerGjeldendeForBegrunnelse =
                     hentRelevantePersonerForNasjonalOgFellesBegrunnelse(begrunnelse, sanityBegrunnelse) +
-                            hentRelevantePersonerForEøsBegrunnelse(begrunnelse, sanityBegrunnelse)
+                        hentRelevantePersonerForEøsBegrunnelse(begrunnelse, sanityBegrunnelse)
 
                 val gjelderSøker = personerGjeldendeForBegrunnelse.any { it.type == PersonType.SØKER }
 
