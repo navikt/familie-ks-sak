@@ -58,5 +58,5 @@ Egenskap: Sekundærland - innvilgelse
       | INNVILGELSE     | 1. oktober 2023 | til 30. november 2023 | 4 851 | 1                          | 15.09.22            | Du                     |
 
     Så forvent følgende brevbegrunnelser for behandling 1 i periode 01.10.2023 til 30.11.2023
-      | Begrunnelse                     | Type | Barnas fødselsdatoer | Antall barn | Målform | Søkers aktivitet | Annen forelders aktivitet | Søkers aktivitetsland | Annen forelders aktivitetsland | Barnets bostedsland |
-      | INNVILGET_SEKUNDÆRLAND_STANDARD | EØS  | 15.09.22             | 1           | NB      | arbeider         | inaktiv                   | Norge                 | Polen                          | Polen               |
+      | Begrunnelse                     | Type | Barnas fødselsdatoer | Antall barn | Målform | Søkers aktivitet | Annen forelders aktivitet | Søkers aktivitetsland | Annen forelders aktivitetsland | Barnets bostedsland | Antall timer barnehageplass |
+      | INNVILGET_SEKUNDÆRLAND_STANDARD | EØS  | 15.09.22             | 1           | NB      | arbeider         | inaktiv                   | Norge                 | Polen                          | Polen               | 0                           |

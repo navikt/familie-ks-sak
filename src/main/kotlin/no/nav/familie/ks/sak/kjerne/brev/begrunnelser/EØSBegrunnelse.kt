@@ -28,6 +28,81 @@ enum class EØSBegrunnelse : IBegrunnelse {
         override val begrunnelseType = BegrunnelseType.EØS_INNVILGET
     },
 
+    INNVILGET_PRIMÆRLAND_STANDARD_HAR_BARNEHAGE {
+        override val sanityApiNavn = "innvilgetPrimarlandStandardHarBarnehage"
+        override val begrunnelseType = BegrunnelseType.EØS_INNVILGET
+    },
+
+    INNVILGET_PRIMÆRLAND_ALENEANSVAR_HAR_BARNEHAGE {
+        override val sanityApiNavn = "innvilgetPrimarlandAleneansvarHarBarnehage"
+        override val begrunnelseType = BegrunnelseType.EØS_INNVILGET
+    },
+
+    INNVILGET_PRIMÆRLAND_BEGGE_FORELDRE_BOSATT_I_NORGE_HAR_BARNEHAGE {
+        override val sanityApiNavn = "innvilgetPrimarlandBeggeForeldreBosattINorgeHarBarnehage"
+        override val begrunnelseType = BegrunnelseType.EØS_INNVILGET
+    },
+
+    INNVILGET_PRIMÆRLAND_BEGGE_FORELDRE_JOBBER_I_NORGE_HAR_BARNEHAGE {
+        override val sanityApiNavn = "innvilgetPrimarlandBeggeForeldreJobberINorgeHarBarnehage"
+        override val begrunnelseType = BegrunnelseType.EØS_INNVILGET
+    },
+
+    INNVILGET_PRIMÆRLAND_BARNET_BOR_I_NORGE_HAR_BARNEHAGE {
+        override val sanityApiNavn = "innvilgetPrimarlandBarnetBorINorgeHarBarnehage"
+        override val begrunnelseType = BegrunnelseType.EØS_INNVILGET
+    },
+
+    INNVILGET_PRIMÆRLAND_BARNET_FLYTTET_TIL_NORGE_HAR_BARNEHAGE {
+        override val sanityApiNavn = "innvilgetPrimarlandBarnetFlyttetTilNorgeHarBarnehage"
+        override val begrunnelseType = BegrunnelseType.EØS_INNVILGET
+    },
+
+    INNVILGET_PRIMÆRLAND_ANDRE_FORELDEREN_UTSENDT_ARBEIDSTAKER_HAR_BARNEHAGE {
+        override val sanityApiNavn = "innvilgetPrimarlandAndreForelderenUtsendtArbeidstakerHarBarnehage"
+        override val begrunnelseType = BegrunnelseType.EØS_INNVILGET
+    },
+
+    INNVILGET_SEKUNDÆRLAND_STANDARD_HAR_BARNEHAGE {
+        override val sanityApiNavn = "innvilgetSekundarlandStandardHarBarnehage"
+        override val begrunnelseType = BegrunnelseType.EØS_INNVILGET
+    },
+
+    INNVILGET_SEKUNDÆRLAND_ALENEANSVAR_HAR_BARNEHAGE {
+        override val sanityApiNavn = "innvilgetSekundarlandAleneansvarHarBarnehage"
+        override val begrunnelseType = BegrunnelseType.EØS_INNVILGET
+    },
+
+    INNVILGET_SEKUNDÆRLAND_BEGGE_FORELDRE_BOSATT_I_NORGE_HAR_BARNEHAGE {
+        override val sanityApiNavn = "innvilgetSekundarlandBeggeForeldreBosattINorgeHarBarnehage"
+        override val begrunnelseType = BegrunnelseType.EØS_INNVILGET
+    },
+
+    INNVILGET_SELVSTENDIG_RETT_PRIMÆRLAND_STANDARD_HAR_BARNEHAGE {
+        override val sanityApiNavn = "innvilgetSelvstendigRettPrimarlandStandardHarBarnehage"
+        override val begrunnelseType = BegrunnelseType.EØS_INNVILGET
+    },
+
+    INNVILGET_SELVSTENDIG_RETT_PRIMÆRLAND_UTSENDT_ARBEIDSTAKER_HAR_BARNEHAGE {
+        override val sanityApiNavn = "innvilgetSelvstendigRettPrimarlandUtsendtArbeidstakerHarBarnehage"
+        override val begrunnelseType = BegrunnelseType.EØS_INNVILGET
+    },
+
+    INNVILGET_SELVSTENDIG_RETT_PRIMÆRLAND_FÅR_YTELSE_I_UTLANDET_HAR_BARNEHAGE {
+        override val sanityApiNavn = "innvilgetSelvstendigRettPrimarlandFaarYtelseIUtlandetHarBarnehage"
+        override val begrunnelseType = BegrunnelseType.EØS_INNVILGET
+    },
+
+    INNVILGET_SELVSTENDIG_RETT_SEKUNDÆRLAND_STANDARD_HAR_BARNEHAGE {
+        override val sanityApiNavn = "innvilgetSelvstendigRettSekundarlandStandardHarBarnehage"
+        override val begrunnelseType = BegrunnelseType.EØS_INNVILGET
+    },
+
+    INNVILGET_SELVSTENDIG_RETT_SEKUNDÆRLAND_FÅR_YTELSE_I_UTLANDET_HAR_BARNEHAGE {
+        override val sanityApiNavn = "innvilgetSelvstendigRettSekundarlandFaarYtelseIUtlandetharBarnehage"
+        override val begrunnelseType = BegrunnelseType.EØS_INNVILGET
+    },
+
     INNVILGET_PRIMÆRLAND_UK_STANDARD {
         override val sanityApiNavn = "innvilgetPrimarlandUKStandard"
         override val begrunnelseType = BegrunnelseType.EØS_INNVILGET
