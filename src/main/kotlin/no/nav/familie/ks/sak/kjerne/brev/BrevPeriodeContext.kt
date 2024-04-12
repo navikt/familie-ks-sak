@@ -452,6 +452,9 @@ class BrevPeriodeContext(
                     nasjonalEllerFellesBegrunnelse = begrunnelse,
                 )
 
+                val antallTimerBarnehageplass =
+                    hentAntallTimerBarnehageplassTekst(personerGjeldendeForBegrunnelse)
+
                 val begrunnelseGjelderOpphørFraForrigeBehandling = sanityBegrunnelse.begrunnelseGjelderOpphørFraForrigeBehandling()
 
                 if (relevanteKompetanser.isEmpty() && (begrunnelse.begrunnelseType.erAvslagEllerEøsAvslag() || begrunnelse.begrunnelseType == BegrunnelseType.EØS_OPPHØR)) {
@@ -473,6 +476,7 @@ class BrevPeriodeContext(
                             antallBarn = barnIBegrunnelse.size,
                             maalform = persongrunnlag.søker.målform.tilSanityFormat(),
                             gjelderSoker = gjelderSøker,
+                            antallTimerBarnehageplass = antallTimerBarnehageplass,
                         ),
                     )
                 } else {
@@ -499,6 +503,7 @@ class BrevPeriodeContext(
                                 barnasFodselsdatoer = barnIBegrunnelseOgIKompetanseFødselsdato.tilBrevTekst(),
                                 antallBarn = hentAntallBarnForBegrunnelse(barnasFødselsdatoer = barnIBegrunnelseOgIKompetanseFødselsdato, begrunnelse = begrunnelse),
                                 maalform = persongrunnlag.søker.målform.tilSanityFormat(),
+                                antallTimerBarnehageplass = antallTimerBarnehageplass,
                             )
                         } else {
                             null
