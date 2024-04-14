@@ -27,12 +27,12 @@ object BehandlingsresultatOpphørUtils {
         forrigePersonResultaterPåBarn: List<PersonResultat>,
         nåMåned: YearMonth,
     ): Opphørsresultat {
-        val meldtOmBarnehagePlassPåAlleBarn = nåværendePersonResultaterPåBarn.harMeldtOmBarnehagePlassPåAlleBarn()
-        val meldtOmBarnehagePlassPåAlleBarnIForrigeVilkårsvurdering = forrigePersonResultaterPåBarn.harMeldtOmBarnehagePlassPåAlleBarn()
+        val meldtOmBarnehagePlassPåAlleBarnMedLøpendeAndeler = nåværendePersonResultaterPåBarn.harMeldtOmBarnehagePlassPåAlleBarnMedLøpendeAndeler(nåværendeAndeler)
+        val meldtOmBarnehagePlassPåAlleBarnMedLøpendeAndelerIForrigeVilkårsvurdering = forrigePersonResultaterPåBarn.harMeldtOmBarnehagePlassPåAlleBarnMedLøpendeAndeler(forrigeAndeler)
 
-        if (!meldtOmBarnehagePlassPåAlleBarnIForrigeVilkårsvurdering && meldtOmBarnehagePlassPåAlleBarn) {
+        if (!meldtOmBarnehagePlassPåAlleBarnMedLøpendeAndelerIForrigeVilkårsvurdering && meldtOmBarnehagePlassPåAlleBarnMedLøpendeAndeler) {
             return Opphørsresultat.OPPHØRT
-        } else if (meldtOmBarnehagePlassPåAlleBarnIForrigeVilkårsvurdering && meldtOmBarnehagePlassPåAlleBarn) {
+        } else if (meldtOmBarnehagePlassPåAlleBarnMedLøpendeAndelerIForrigeVilkårsvurdering && meldtOmBarnehagePlassPåAlleBarnMedLøpendeAndeler) {
             return Opphørsresultat.FORTSATT_OPPHØRT
         }
 
@@ -57,15 +57,15 @@ object BehandlingsresultatOpphørUtils {
         }
     }
 
-    private fun List<PersonResultat>.harMeldtOmBarnehagePlassPåAlleBarn(): Boolean {
-        return this.isNotEmpty() &&
-            groupBy { it.aktør }
-                .values
-                .all { resultater ->
-                    resultater.any { result ->
-                        result.vilkårResultater.firstOrNull { it.søkerHarMeldtFraOmBarnehageplass ?: false } != null
-                    }
-                }
+    private fun List<PersonResultat>.harMeldtOmBarnehagePlassPåAlleBarnMedLøpendeAndeler(andelerIBehandling: List<AndelTilkjentYtelse>): Boolean {
+        val barnDetErMeldtBarnehagePlassPå =
+            this.filter {
+                !it.erSøkersResultater() &&
+                    it.vilkårResultater.any { vilkårResultat -> vilkårResultat.søkerHarMeldtFraOmBarnehageplass == true }
+            }.mapTo(HashSet()) { it.aktør }
+
+        return barnDetErMeldtBarnehagePlassPå.isNotEmpty() &&
+            barnDetErMeldtBarnehagePlassPå.all { barn -> andelerIBehandling.any { it.aktør == barn && it.erLøpende() } }
     }
 
     private fun List<AndelTilkjentYtelse>.finnOpphørsdato() = this.maxOfOrNull { it.stønadTom }?.nesteMåned()
