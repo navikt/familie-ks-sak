@@ -144,6 +144,7 @@ internal class VedtaksperiodeServiceTest {
 
         val mocketPersonOpplysningGrunnlag = mockk<PersonopplysningGrunnlag>()
 
+        every { sanityService.hentSanityBegrunnelser() } returns emptyList()
         every { personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(behandling.id) } returns mocketPersonOpplysningGrunnlag
         every { vedtaksperiodeHentOgPersisterService.hentVedtaksperiodeThrows(any()) } returns vedtaksperiodeMedBegrunnelse
 
@@ -175,6 +176,7 @@ internal class VedtaksperiodeServiceTest {
 
         val mocketPersonOpplysningGrunnlag = mockk<PersonopplysningGrunnlag>()
 
+        every { sanityService.hentSanityBegrunnelser() } returns emptyList()
         every { personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(behandling.id) } returns mocketPersonOpplysningGrunnlag
         every { vedtaksperiodeHentOgPersisterService.hentVedtaksperiodeThrows(any()) } returns vedtaksperiodeMedBegrunnelse
         every { vedtaksperiodeHentOgPersisterService.lagre(vedtaksperiodeMedBegrunnelse) } returns vedtaksperiodeMedBegrunnelse

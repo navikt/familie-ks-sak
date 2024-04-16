@@ -103,6 +103,8 @@ class VedtaksperiodeService(
         val persongrunnlag =
             personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(behandlingId = behandling.id)
 
+        val sanityBegrunnelser = sanityService.hentSanityBegrunnelser()
+
         vedtaksperiodeMedBegrunnelser.settBegrunnelser(
             begrunnelserFraFrontend.map {
                 it.tilVedtaksbegrunnelse(vedtaksperiodeMedBegrunnelser)
@@ -123,6 +125,10 @@ class VedtaksperiodeService(
                     .finnAndelerTilkjentYtelseMedEndreteUtbetalinger(behandling.id)
 
             validerEndretUtbetalingsbegrunnelse(vedtaksperiodeMedBegrunnelser, andelerTilkjentYtelse, persongrunnlag)
+        }
+
+        if (!vedtaksperiodeMedBegrunnelser.støtterFritekst(sanityBegrunnelser)) {
+            vedtaksperiodeMedBegrunnelser.fritekster.clear()
         }
 
         vedtaksperiodeHentOgPersisterService.lagre(vedtaksperiodeMedBegrunnelser)
