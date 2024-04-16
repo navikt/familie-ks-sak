@@ -12,7 +12,9 @@ import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.Årsak
 import java.time.YearMonth
 
 internal enum class Opphørsresultat {
-    OPPHØRT, FORTSATT_OPPHØRT, IKKE_OPPHØRT,
+    OPPHØRT,
+    FORTSATT_OPPHØRT,
+    IKKE_OPPHØRT,
 }
 
 object BehandlingsresultatOpphørUtils {
@@ -34,11 +36,12 @@ object BehandlingsresultatOpphørUtils {
             return Opphørsresultat.FORTSATT_OPPHØRT
         }
 
-        val nåværendeBehandlingOpphørsdato = nåværendeAndeler.utledOpphørsdatoForNåværendeBehandlingMedFallback(
-            forrigeAndelerIBehandling = forrigeAndeler,
-            nåværendeEndretAndelerIBehandling = nåværendeEndretAndeler,
-            endretAndelerForForrigeBehandling = forrigeEndretAndeler,
-        )
+        val nåværendeBehandlingOpphørsdato =
+            nåværendeAndeler.utledOpphørsdatoForNåværendeBehandlingMedFallback(
+                forrigeAndelerIBehandling = forrigeAndeler,
+                nåværendeEndretAndelerIBehandling = nåværendeEndretAndeler,
+                endretAndelerForForrigeBehandling = forrigeEndretAndeler,
+            )
 
         val forrigeBehandlingOpphørsdato = forrigeAndeler.utledOpphørsdatoForForrigeBehandling(forrigeEndretAndeler = forrigeEndretAndeler)
 
@@ -58,12 +61,14 @@ object BehandlingsresultatOpphørUtils {
 
         val alleBarnMedLøpendeAndeler = personResultater.filter { barn -> andelerIBehandling.any { it.aktør == barn.aktør && it.erLøpende() } }
 
-        val meldtBarnehageplassPåAlleBarnMedLøpendeAndeler = alleBarnMedLøpendeAndeler.isNotEmpty() && alleBarnMedLøpendeAndeler.all { barn ->
-            personResultater.any { personresultat ->
-                personresultat.aktør == barn.aktør
-                        && personresultat.vilkårResultater.any { vilkårResultat -> vilkårResultat.søkerHarMeldtFraOmBarnehageplass == true }
-            }
-        }
+        val meldtBarnehageplassPåAlleBarnMedLøpendeAndeler =
+            alleBarnMedLøpendeAndeler.isNotEmpty() &&
+                alleBarnMedLøpendeAndeler.all { barn ->
+                    personResultater.any { personresultat ->
+                        personresultat.aktør == barn.aktør &&
+                            personresultat.vilkårResultater.any { vilkårResultat -> vilkårResultat.søkerHarMeldtFraOmBarnehageplass == true }
+                    }
+                }
 
         return meldtBarnehageplassPåAlleBarnMedLøpendeAndeler
     }
