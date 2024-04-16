@@ -613,8 +613,8 @@ class BehandlingsresultatOpphørUtilsTest {
 
         val opphørsresultat =
             hentOpphørsresultatPåBehandling(
-                nåværendeAndeler = emptyList(),
-                forrigeAndeler = emptyList(),
+                nåværendeAndeler = listOf(lagAndelTilkjentYtelse(aktør = barn1.aktør), lagAndelTilkjentYtelse(aktør = barn2.aktør)),
+                forrigeAndeler = listOf(lagAndelTilkjentYtelse(aktør = barn1.aktør), lagAndelTilkjentYtelse(aktør = barn2.aktør)),
                 nåværendeEndretAndeler = emptyList(),
                 forrigeEndretAndeler = emptyList(),
                 nåværendePersonResultaterPåBarn = listOf(personResultatBarn1, personResultatBarn2),
@@ -626,7 +626,7 @@ class BehandlingsresultatOpphørUtilsTest {
     }
 
     @Test
-    fun `hentOpphørsresultatPåBehandling skal returnere FORTSATT_OPPHØRT hvis bruker har krysset av for meldt barnehageplass på alle barn i forrige og nåværende behandling`() {
+    fun `hentOpphørsresultatPåBehandling skal returnere FORTSATT_OPPHØRT hvis bruker har krysset av for meldt barnehageplass på alle barn med løpende andeler i forrige og nåværende behandling`() {
         val barn1 = lagPerson(aktør = randomAktør())
         val barn2 = lagPerson(aktør = randomAktør())
 
@@ -672,8 +672,8 @@ class BehandlingsresultatOpphørUtilsTest {
 
         val opphørsresultat =
             hentOpphørsresultatPåBehandling(
-                nåværendeAndeler = emptyList(),
-                forrigeAndeler = emptyList(),
+                nåværendeAndeler = listOf(lagAndelTilkjentYtelse(aktør = barn1.aktør), lagAndelTilkjentYtelse(aktør = barn2.aktør)),
+                forrigeAndeler = listOf(lagAndelTilkjentYtelse(aktør = barn1.aktør), lagAndelTilkjentYtelse(aktør = barn2.aktør)),
                 nåværendeEndretAndeler = emptyList(),
                 forrigeEndretAndeler = emptyList(),
                 nåværendePersonResultaterPåBarn = listOf(personResultatBarn1, personResultatBarn2),
@@ -685,7 +685,7 @@ class BehandlingsresultatOpphørUtilsTest {
     }
 
     @Test
-    fun `hentOpphørsresultatPåBehandling skal ikke returnere OPPHØRT dersom ikke alle barn har blitt krysset av for meldt barnehageplass`() {
+    fun `hentOpphørsresultatPåBehandling skal ikke returnere OPPHØRT dersom ikke alle barn med løpende ytelse har blitt krysset av for meldt barnehageplass`() {
         val barn1 = lagPerson(aktør = randomAktør())
         val barn2 = lagPerson(aktør = randomAktør())
 
@@ -731,7 +731,7 @@ class BehandlingsresultatOpphørUtilsTest {
 
         val opphørsresultat =
             hentOpphørsresultatPåBehandling(
-                nåværendeAndeler = emptyList(),
+                nåværendeAndeler = listOf(lagAndelTilkjentYtelse(aktør = barn2.aktør)),
                 forrigeAndeler = emptyList(),
                 nåværendeEndretAndeler = emptyList(),
                 forrigeEndretAndeler = emptyList(),
