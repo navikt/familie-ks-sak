@@ -27,12 +27,12 @@ object BehandlingsresultatOpphørUtils {
         forrigePersonResultaterPåBarn: List<PersonResultat>,
         nåMåned: YearMonth,
     ): Opphørsresultat {
-        val meldtOmBarnehagePlassPåAlleBarn = nåværendePersonResultaterPåBarn.harMeldtOmBarnehagePlassPåAlleBarn()
-        val meldtOmBarnehagePlassPåAlleBarnIForrigeVilkårsvurdering = forrigePersonResultaterPåBarn.harMeldtOmBarnehagePlassPåAlleBarn()
+        val meldtOmBarnehagePlassPåAlleBarnMedLøpendeAndeler = nåværendePersonResultaterPåBarn.harMeldtOmBarnehagePlassPåAlleBarnMedLøpendeAndeler(nåværendeAndeler)
+        val meldtOmBarnehagePlassPåAlleBarnMedLøpendeAndelerIForrigeVilkårsvurdering = forrigePersonResultaterPåBarn.harMeldtOmBarnehagePlassPåAlleBarnMedLøpendeAndeler(forrigeAndeler)
 
-        if (!meldtOmBarnehagePlassPåAlleBarnIForrigeVilkårsvurdering && meldtOmBarnehagePlassPåAlleBarn) {
+        if (!meldtOmBarnehagePlassPåAlleBarnMedLøpendeAndelerIForrigeVilkårsvurdering && meldtOmBarnehagePlassPåAlleBarnMedLøpendeAndeler) {
             return Opphørsresultat.OPPHØRT
-        } else if (meldtOmBarnehagePlassPåAlleBarnIForrigeVilkårsvurdering && meldtOmBarnehagePlassPåAlleBarn) {
+        } else if (meldtOmBarnehagePlassPåAlleBarnMedLøpendeAndelerIForrigeVilkårsvurdering && meldtOmBarnehagePlassPåAlleBarnMedLøpendeAndeler) {
             return Opphørsresultat.FORTSATT_OPPHØRT
         }
 
@@ -43,8 +43,7 @@ object BehandlingsresultatOpphørUtils {
                 endretAndelerForForrigeBehandling = forrigeEndretAndeler,
             )
 
-        val forrigeBehandlingOpphørsdato =
-            forrigeAndeler.utledOpphørsdatoForForrigeBehandling(forrigeEndretAndeler = forrigeEndretAndeler)
+        val forrigeBehandlingOpphørsdato = forrigeAndeler.utledOpphørsdatoForForrigeBehandling(forrigeEndretAndeler = forrigeEndretAndeler)
 
         val nesteMåned = nåMåned.plusMonths(1)
 
@@ -57,15 +56,21 @@ object BehandlingsresultatOpphørUtils {
         }
     }
 
-    private fun List<PersonResultat>.harMeldtOmBarnehagePlassPåAlleBarn(): Boolean {
-        return this.isNotEmpty() &&
-            groupBy { it.aktør }
-                .values
-                .all { resultater ->
-                    resultater.any { result ->
-                        result.vilkårResultater.firstOrNull { it.søkerHarMeldtFraOmBarnehageplass ?: false } != null
+    private fun List<PersonResultat>.harMeldtOmBarnehagePlassPåAlleBarnMedLøpendeAndeler(andelerIBehandling: List<AndelTilkjentYtelse>): Boolean {
+        val personResultater = this
+
+        val alleBarnMedLøpendeAndeler = personResultater.filter { barn -> andelerIBehandling.any { it.aktør == barn.aktør && it.erLøpende() } }
+
+        val meldtBarnehageplassPåAlleBarnMedLøpendeAndeler =
+            alleBarnMedLøpendeAndeler.isNotEmpty() &&
+                alleBarnMedLøpendeAndeler.all { barn ->
+                    personResultater.any { personresultat ->
+                        personresultat.aktør == barn.aktør &&
+                            personresultat.vilkårResultater.any { vilkårResultat -> vilkårResultat.søkerHarMeldtFraOmBarnehageplass == true }
                     }
                 }
+
+        return meldtBarnehageplassPåAlleBarnMedLøpendeAndeler
     }
 
     private fun List<AndelTilkjentYtelse>.finnOpphørsdato() = this.maxOfOrNull { it.stønadTom }?.nesteMåned()
@@ -81,16 +86,13 @@ object BehandlingsresultatOpphørUtils {
         nåværendeEndretAndelerIBehandling: List<EndretUtbetalingAndel>,
         endretAndelerForForrigeBehandling: List<EndretUtbetalingAndel>,
     ): YearMonth? {
-        return this.filtrerBortIrrelevanteAndeler(endretAndeler = nåværendeEndretAndelerIBehandling).finnOpphørsdato()
-            ?: forrigeAndelerIBehandling.filtrerBortIrrelevanteAndeler(endretAndeler = endretAndelerForForrigeBehandling).minOfOrNull { it.stønadFom }
+        return this.filtrerBortIrrelevanteAndeler(endretAndeler = nåværendeEndretAndelerIBehandling).finnOpphørsdato() ?: forrigeAndelerIBehandling.filtrerBortIrrelevanteAndeler(endretAndeler = endretAndelerForForrigeBehandling).minOfOrNull { it.stønadFom }
     }
 
     /**
      * Hvis det ikke fantes noen andeler i forrige behandling defaulter vi til inneværende måned
      */
-    private fun List<AndelTilkjentYtelse>.utledOpphørsdatoForForrigeBehandling(forrigeEndretAndeler: List<EndretUtbetalingAndel>): YearMonth =
-        this.filtrerBortIrrelevanteAndeler(endretAndeler = forrigeEndretAndeler).finnOpphørsdato() ?: YearMonth.now()
-            .nesteMåned()
+    private fun List<AndelTilkjentYtelse>.utledOpphørsdatoForForrigeBehandling(forrigeEndretAndeler: List<EndretUtbetalingAndel>): YearMonth = this.filtrerBortIrrelevanteAndeler(endretAndeler = forrigeEndretAndeler).finnOpphørsdato() ?: YearMonth.now().nesteMåned()
 
     /**
      * Hvis det eksisterer andeler med beløp == 0 så ønsker vi å filtrere bort disse dersom det eksisterer endret utbetaling andel for perioden

@@ -760,6 +760,7 @@ class BegrunnelserForPeriodeContextTest {
                         lagUtbetalingsperiodeDetalj(person = lagPerson(aktør = søkerAktør, personType = PersonType.SØKER)),
                         lagUtbetalingsperiodeDetalj(person = lagPerson(aktør = barnAktør, personType = PersonType.BARN)),
                     ),
+                støtterFritekst = false,
             )
 
         return BegrunnelserForPeriodeContext(
@@ -794,6 +795,7 @@ class BegrunnelserForPeriodeContextTest {
                         lagUtbetalingsperiodeDetalj(person = lagPerson(aktør = søkerAktør, personType = PersonType.SØKER)),
                         lagUtbetalingsperiodeDetalj(person = lagPerson(aktør = barnAktør, personType = PersonType.BARN)),
                     ),
+                støtterFritekst = false,
             )
 
         return BegrunnelserForPeriodeContext(

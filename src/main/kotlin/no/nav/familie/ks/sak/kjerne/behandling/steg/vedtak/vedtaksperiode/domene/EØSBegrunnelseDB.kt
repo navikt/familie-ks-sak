@@ -32,4 +32,10 @@ class EØSBegrunnelseDB(
     @Enumerated(EnumType.STRING)
     @Column(name = "begrunnelse", updatable = false)
     val begrunnelse: EØSBegrunnelse,
-)
+) {
+    fun kopier(vedtaksperiodeMedBegrunnelser: VedtaksperiodeMedBegrunnelser): EØSBegrunnelseDB =
+        EØSBegrunnelseDB(
+            vedtaksperiodeMedBegrunnelser = vedtaksperiodeMedBegrunnelser,
+            begrunnelse = this.begrunnelse,
+        )
+}

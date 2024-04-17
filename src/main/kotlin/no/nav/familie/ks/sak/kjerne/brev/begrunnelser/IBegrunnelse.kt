@@ -15,6 +15,10 @@ sealed interface IBegrunnelse {
 
     fun enumnavnTilString(): String
 
+    fun støtterFritekst(sanityBegrunnelser: List<SanityBegrunnelse>) =
+        sanityBegrunnelser.firstOrNull { it.apiNavn == this.sanityApiNavn }?.støtterFritekst == true ||
+            (this.begrunnelseType == BegrunnelseType.REDUKSJON && this !== NasjonalEllerFellesBegrunnelse.REDUKSJON_SATSENDRING) // Alle reduksjons-begrunnelser med unntak av REDUKSJON_SATSENDRING støtter fritekst
+
     companion object {
         fun konverterTilEnumVerdi(string: String): IBegrunnelse {
             val splittet = string.split('$')
@@ -28,9 +32,6 @@ sealed interface IBegrunnelse {
         }
     }
 }
-
-fun IBegrunnelse.støtterFritekst(sanityBegrunnelser: List<SanityBegrunnelse>) =
-    sanityBegrunnelser.first { it.apiNavn == this.sanityApiNavn }.støtterFritekst
 
 class IBegrunnelseDeserializer : StdDeserializer<List<IBegrunnelse>>(List::class.java) {
     override fun deserialize(

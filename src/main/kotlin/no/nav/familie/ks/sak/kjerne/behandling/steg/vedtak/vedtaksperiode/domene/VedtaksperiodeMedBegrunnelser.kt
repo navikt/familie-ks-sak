@@ -25,6 +25,7 @@ import no.nav.familie.ks.sak.common.util.TIDENES_ENDE
 import no.nav.familie.ks.sak.common.util.TIDENES_MORGEN
 import no.nav.familie.ks.sak.common.util.førsteDagIInneværendeMåned
 import no.nav.familie.ks.sak.common.util.sisteDagIInneværendeMåned
+import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelse
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.Vedtak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.UtbetalingsperiodeDetalj
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.Vedtaksperiodetype
@@ -79,17 +80,21 @@ data class VedtaksperiodeMedBegrunnelser(
     )
     val fritekster: MutableList<VedtaksbegrunnelseFritekst> = mutableListOf(),
 ) : BaseEntitet() {
-    fun settBegrunnelser(nyeBegrunnelser: List<NasjonalEllerFellesBegrunnelseDB>) =
+    fun settBegrunnelser(
+        nyeBegrunnelser: List<NasjonalEllerFellesBegrunnelseDB>,
+    ) {
         begrunnelser.apply {
             clear()
             addAll(nyeBegrunnelser)
         }
+    }
 
-    fun settEøsBegrunnelser(nyeDBEøsBegrunnelser: List<EØSBegrunnelseDB>) =
+    fun settEøsBegrunnelser(nyeEøsBegrunnelser: List<EØSBegrunnelseDB>) {
         eøsBegrunnelser.apply {
             clear()
-            addAll(nyeDBEøsBegrunnelser)
+            addAll(nyeEøsBegrunnelser)
         }
+    }
 
     fun settFritekster(nyeFritekster: List<VedtaksbegrunnelseFritekst>) =
         fritekster.apply {
@@ -140,6 +145,11 @@ data class VedtaksperiodeMedBegrunnelser(
             Vedtaksperiodetype.AVSLAG,
             -> emptyList()
         }
+
+    fun støtterFritekst(sanityBegrunnelser: List<SanityBegrunnelse>) =
+        (type !== Vedtaksperiodetype.UTBETALING) ||
+            begrunnelser.any { it.nasjonalEllerFellesBegrunnelse.støtterFritekst(sanityBegrunnelser) } ||
+            eøsBegrunnelser.any { it.begrunnelse.støtterFritekst(sanityBegrunnelser) }
 
     private fun validerIkkeDelvisOverlappIAndelTilkjentYtelserOgVedtaksperiodeBegrunnelse(
         andelTilkjentYtelserIPeriode: List<AndelTilkjentYtelseMedEndreteUtbetalinger>,
