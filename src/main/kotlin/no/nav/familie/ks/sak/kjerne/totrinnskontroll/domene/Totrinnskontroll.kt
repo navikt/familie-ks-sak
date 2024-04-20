@@ -45,7 +45,5 @@ data class Totrinnskontroll(
     @Convert(converter = StringListConverter::class)
     var kontrollerteSider: List<String> = emptyList(),
 ) : BaseEntitet() {
-    fun erBesluttet() = beslutter != null
-
     fun erUgyldig() = godkjent && saksbehandler == beslutter && saksbehandler != SikkerhetContext.SYSTEM_NAVN
 }

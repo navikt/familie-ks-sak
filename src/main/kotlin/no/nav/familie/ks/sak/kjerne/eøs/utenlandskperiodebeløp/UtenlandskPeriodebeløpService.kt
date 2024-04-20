@@ -29,7 +29,6 @@ class UtenlandskPeriodebeløpService(
         skjemaService.endreSkjemaer(behandlingId, utenlandskPeriodebeløp)
 
     fun slettUtenlandskPeriodebeløp(
-        behandlingId: BehandlingId,
         utenlandskPeriodebeløpId: Long,
     ) =
         skjemaService.slettSkjema(utenlandskPeriodebeløpId)
