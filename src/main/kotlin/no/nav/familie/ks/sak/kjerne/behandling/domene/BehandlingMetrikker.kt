@@ -32,7 +32,7 @@ class BehandlingMetrikker(
     private val antallBehandlingerBehandletPerEnhet = initBehandlingerBehandletPerEnhetMetrikker()
 
     private val antallBehandlingsresultat =
-        Behandlingsresultat.values().associateWith {
+        Behandlingsresultat.entries.associateWith {
             Metrics.counter(
                 "behandlinger.resultat",
                 "type",
@@ -70,7 +70,7 @@ class BehandlingMetrikker(
     private fun tellBehandlingsresultatTypeMetrikk(behandling: Behandling) = antallBehandlingsresultat[behandling.resultat]?.increment()
 
     private fun initBehandlingTypeMetrikker(): Map<BehandlingType, Counter> =
-        BehandlingType.values().associateWith {
+        BehandlingType.entries.associateWith {
             Metrics.counter(
                 "behandlinger.opprettet",
                 "type",
@@ -81,7 +81,7 @@ class BehandlingMetrikker(
         }
 
     private fun initBehandlingÅrsakMetrikker(): Map<BehandlingÅrsak, Counter> =
-        BehandlingÅrsak.values().associateWith {
+        BehandlingÅrsak.entries.associateWith {
             Metrics.counter(
                 "behandlinger.aarsak",
                 "aarsak",

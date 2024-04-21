@@ -12,7 +12,7 @@ import io.mockk.verify
 import no.nav.familie.ks.sak.api.dto.HenleggÅrsak
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
-import no.nav.familie.ks.sak.config.FeatureToggleConfig
+import no.nav.familie.ks.sak.config.featureToggle.FeatureToggleConfig
 import no.nav.familie.ks.sak.config.featureToggle.UnleashNextMedContextService
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.integrasjon.oppgave.OppgaveService

@@ -54,7 +54,6 @@ class AndelerTilkjentYtelseOgEndreteUtbetalingerServiceTest {
             barnasIdenter = listOf(barn1.aktivFødselsnummer()),
         )
     private val søkerPerson = lagPerson(personopplysningGrunnlag, søker, PersonType.SØKER)
-    val barnPerson = lagPerson(personopplysningGrunnlag, barn1, PersonType.BARN)
     val vilkårsvurdering = Vilkårsvurdering(behandling = behandling)
 
     @Test

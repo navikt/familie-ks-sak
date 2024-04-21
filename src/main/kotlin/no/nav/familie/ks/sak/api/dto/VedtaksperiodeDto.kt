@@ -21,10 +21,6 @@ data class GenererVedtaksperioderForOverstyrtEndringstidspunktDto(
     val overstyrtEndringstidspunkt: LocalDate,
 )
 
-data class GenererFortsattInnvilgetVedtaksperioderDto(
-    val behandlingId: Long,
-)
-
 data class UtvidetVedtaksperiodeMedBegrunnelserDto(
     val id: Long,
     val fom: LocalDate?,

@@ -6,7 +6,6 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.Vedtak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.VedtakRepository
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.VedtaksperiodeService
-import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 
 @Service
@@ -43,9 +42,5 @@ class VedtakService(
         }
 
         vedtakRepository.save(nyttVedtak)
-    }
-
-    companion object {
-        private val logger = LoggerFactory.getLogger(VedtakService::class.java)
     }
 }

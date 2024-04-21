@@ -198,7 +198,7 @@ object TilkjentYtelseValidator {
         andelerForPerson: List<AndelTilkjentYtelse>,
         gyldigEtterbetalingFom: YearMonth?,
     ): Boolean {
-        return YtelseType.values().any { ytelseType ->
+        return YtelseType.entries.any { ytelseType ->
             val forrigeAndelerForPersonOgType = forrigeAndelerForPerson?.filter { it.type == ytelseType } ?: emptyList()
             val andelerForPersonOgType = andelerForPerson.filter { it.type == ytelseType }
 

@@ -212,6 +212,5 @@ class OppgaveService(
 
     companion object {
         private val logger = LoggerFactory.getLogger(OppgaveService::class.java)
-        private val secureLogger = LoggerFactory.getLogger("secureLoger")
     }
 }

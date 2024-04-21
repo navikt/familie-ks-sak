@@ -9,16 +9,13 @@ interface Domenenøkkel {
 enum class Domenebegrep(override val nøkkel: String) : Domenenøkkel {
     ID("Id"),
     FAGSAK_ID("FagsakId"),
-    FAGSAK_TYPE("Fagsaktype"),
     BEHANDLING_ID("BehandlingId"),
     FORRIGE_BEHANDLING_ID("ForrigeBehandlingId"),
     FRA_DATO("Fra dato"),
     TIL_DATO("Til dato"),
-    ENDRET_MIGRERINGSDATO("Endret migreringsdato"),
     BEHANDLINGSÅRSAK("Behandlingsårsak"),
     BEHANDLINGSRESULTAT("Behandlingsresultat"),
     BEHANDLINGSSTATUS("Behandlingsstatus"),
-    SKAL_BEHANLDES_AUTOMATISK("Skal behandles automatisk"),
     SØKNADSTIDSPUNKT("Søknadstidspunkt"),
     BEHANDLINGSKATEGORI("Behandlingskategori"),
 }

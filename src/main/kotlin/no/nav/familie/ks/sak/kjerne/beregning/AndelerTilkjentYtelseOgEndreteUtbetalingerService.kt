@@ -121,8 +121,6 @@ data class AndelTilkjentYtelseMedEndreteUtbetalinger internal constructor(
 
     fun erAndelSomSkalSendesTilOppdrag() = andelTilkjentYtelse.erAndelSomSkalSendesTilOppdrag()
 
-    fun overlapperPeriode(månedPeriode: MånedPeriode) = andelTilkjentYtelse.overlapperPeriode(månedPeriode)
-
     fun medTom(tom: YearMonth): AndelTilkjentYtelseMedEndreteUtbetalinger =
         AndelTilkjentYtelseMedEndreteUtbetalinger(andelTilkjentYtelse.copy(stønadTom = tom), endreteUtbetalinger)
 
@@ -146,8 +144,6 @@ data class EndretUtbetalingAndelMedAndelerTilkjentYtelse(
     private val andeler: List<AndelTilkjentYtelse>,
 ) {
     fun overlapperMed(månedPeriode: MånedPeriode) = endretUtbetalingAndel.overlapperMed(månedPeriode)
-
-    fun årsakErDeltBosted() = endretUtbetalingAndel.erÅrsakDeltBosted()
 
     val periode get() = endretUtbetalingAndel.periode
     val person get() = endretUtbetalingAndel.person

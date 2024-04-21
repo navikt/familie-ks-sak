@@ -6,7 +6,6 @@ import no.nav.familie.kontrakter.felles.oppdrag.Utbetalingsoppdrag
 import no.nav.familie.ks.sak.data.lagAndelTilkjentYtelse
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.randomAktør
-import no.nav.familie.ks.sak.integrasjoner.økonomi.internkonsistensavstemming.erForskjellMellomAndelerOgOppdrag
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test

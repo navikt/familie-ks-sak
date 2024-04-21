@@ -15,7 +15,6 @@ import java.time.LocalDateTime
 @Profile("!integrasjonstest & !dev-postgres-preprod")
 class BarnehagelisteConsumer(val barnehageListeService: BarnehageListeService) {
     private val logger = LoggerFactory.getLogger(this::class.java)
-    private val secureLogger = LoggerFactory.getLogger("secureLogger")
 
     @KafkaListener(
         id = "familie-ks-sak-barnehageliste",

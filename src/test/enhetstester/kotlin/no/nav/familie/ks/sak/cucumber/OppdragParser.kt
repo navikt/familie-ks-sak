@@ -1,7 +1,6 @@
 package no.nav.familie.ks.sak.cucumber
 
 import io.cucumber.datatable.DataTable
-import no.nav.familie.felles.utbetalingsgenerator.domain.AndelDataLongId
 import no.nav.familie.kontrakter.felles.oppdrag.Utbetalingsoppdrag
 import no.nav.familie.ks.sak.common.domeneparser.Domenebegrep
 import no.nav.familie.ks.sak.common.domeneparser.Domenenøkkel
@@ -17,7 +16,6 @@ import no.nav.familie.ks.sak.common.domeneparser.parseValgfriLong
 import no.nav.familie.ks.sak.common.domeneparser.parseValgfriÅrMåned
 import no.nav.familie.ks.sak.common.domeneparser.parseÅrMåned
 import no.nav.familie.ks.sak.data.lagAndelTilkjentYtelse
-import no.nav.familie.ks.sak.integrasjon.økonomi.utbetalingsoppdrag.YtelsetypeKS
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.domene.TilkjentYtelse
@@ -83,22 +81,6 @@ object OppdragParser {
                 behandlingId = behandlingId,
                 kodeEndring = parseEnum(DomenebegrepUtbetalingsoppdrag.KODE_ENDRING, rad),
                 utbetalingsperiode = rader.map { mapForventetUtbetalingsperiode(it) },
-            )
-        }
-    }
-
-    fun mapForventetBeståendeAndeler(dataTable: DataTable): List<AndelDataLongId> {
-        return dataTable.asMaps().map { rad ->
-            AndelDataLongId(
-                id = parseLong(Domenebegrep.ID, rad),
-                fom = parseÅrMåned(Domenebegrep.FRA_DATO, rad),
-                tom = parseÅrMåned(Domenebegrep.TIL_DATO, rad),
-                beløp = parseInt(DomenebegrepTilkjentYtelse.BELØP, rad),
-                personIdent = lagFødselsnummer("1"),
-                type = YtelsetypeKS.ORDINÆR_KONTANTSTØTTE,
-                periodeId = parseValgfriLong(DomenebegrepUtbetalingsoppdrag.PERIODE_ID, rad),
-                forrigePeriodeId = parseValgfriLong(DomenebegrepUtbetalingsoppdrag.FORRIGE_PERIODE_ID, rad),
-                kildeBehandlingId = parseValgfriLong(DomenebegrepTilkjentYtelse.KILDEBEHANDLING_ID, rad),
             )
         }
     }

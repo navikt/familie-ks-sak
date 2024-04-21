@@ -1,12 +1,8 @@
 package no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode
 
-import no.nav.familie.ks.sak.common.tidslinje.Periode
-import no.nav.familie.ks.sak.common.tidslinje.tilTidslinje
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.tilPerioderIkkeNull
 import no.nav.familie.ks.sak.common.util.TIDENES_ENDE
 import no.nav.familie.ks.sak.common.util.TIDENES_MORGEN
-import no.nav.familie.ks.sak.common.util.førsteDagIInneværendeMåned
-import no.nav.familie.ks.sak.common.util.sisteDagIInneværendeMåned
 import no.nav.familie.ks.sak.kjerne.beregning.AndelTilkjentYtelseMedEndreteUtbetalinger
 import no.nav.familie.ks.sak.kjerne.beregning.domene.YtelseType
 import no.nav.familie.ks.sak.kjerne.beregning.tilKombinertTidslinjePerAktør
@@ -57,15 +53,6 @@ fun mapTilUtbetalingsperioder(
 
     return utbetalingsPerioder
 }
-
-private fun List<AndelTilkjentYtelseMedEndreteUtbetalinger>.tilTidslinje() =
-    map {
-        Periode(
-            it,
-            it.stønadFom.førsteDagIInneværendeMåned(),
-            it.stønadTom.sisteDagIInneværendeMåned(),
-        )
-    }.tilTidslinje()
 
 internal fun Collection<AndelTilkjentYtelseMedEndreteUtbetalinger>.lagUtbetalingsperiodeDetaljer(
     personopplysningGrunnlag: PersonopplysningGrunnlag,

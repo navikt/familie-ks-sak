@@ -1,6 +1,5 @@
 package no.nav.familie.ks.sak.kjerne.klage
 
-import brukVedtaksdatoFraKlageinstansHvisOversendt
 import no.nav.familie.kontrakter.felles.klage.Fagsystem
 import no.nav.familie.kontrakter.felles.klage.FagsystemType
 import no.nav.familie.kontrakter.felles.klage.FagsystemVedtak

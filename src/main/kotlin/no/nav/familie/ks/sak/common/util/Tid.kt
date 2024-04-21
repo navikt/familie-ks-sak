@@ -35,8 +35,6 @@ fun LocalDate.sisteDagIMåned(): LocalDate = YearMonth.from(this).atEndOfMonth()
 
 fun YearMonth.tilKortString() = this.format(DateTimeFormatter.ofPattern("MM.yy", nbLocale))
 
-fun YearMonth.tilMånedÅr() = this.format(DateTimeFormatter.ofPattern("MMMM yyyy", nbLocale))
-
 fun YearMonth.toLocalDate() = LocalDate.of(this.year, this.month, 1)
 
 fun LocalDate.toYearMonth() = YearMonth.from(this)
@@ -44,8 +42,6 @@ fun LocalDate.toYearMonth() = YearMonth.from(this)
 fun YearMonth.førsteDagIInneværendeMåned() = this.atDay(1)
 
 fun YearMonth.sisteDagIInneværendeMåned() = this.atEndOfMonth()
-
-fun YearMonth.erSammeEllerTidligere(toCompare: YearMonth): Boolean = this.isBefore(toCompare) || this == toCompare
 
 fun LocalDate.erSenereEnnInneværendeMåned(): Boolean = this.isAfter(LocalDate.now().sisteDagIMåned())
 
@@ -63,25 +59,11 @@ fun LocalDate.erSammeEllerFør(toCompare: LocalDate): Boolean = this.isBefore(to
 
 fun LocalDate.erSammeEllerEtter(toCompare: LocalDate): Boolean = this.isAfter(toCompare) || this == toCompare
 
-fun LocalDate.erMellom(toCompare: Periode): Boolean =
-    this.erSammeEllerEtter(toCompare.fom) &&
-        this.erSammeEllerEtter(toCompare.tom)
-
 fun LocalDate.førsteDagIInneværendeMåned() = this.withDayOfMonth(1)
-
-fun Periode.overlapperHeltEllerDelvisMed(annenPeriode: Periode) =
-    this.fom.erMellom(annenPeriode) ||
-        this.tom.erMellom(annenPeriode) ||
-        annenPeriode.fom.erMellom(this) ||
-        annenPeriode.tom.erMellom(this)
-
-fun Periode.tilMånedPeriode(): MånedPeriode = MånedPeriode(fom = this.fom.toYearMonth(), tom = this.tom.toYearMonth())
 
 data class MånedPeriode(val fom: YearMonth, val tom: YearMonth)
 
 data class NullablePeriode(val fom: LocalDate?, val tom: LocalDate?)
-
-data class NullableMånedPeriode(val fom: YearMonth?, val tom: YearMonth?)
 
 fun MånedPeriode.inkluderer(yearMonth: YearMonth) = yearMonth >= this.fom && yearMonth <= this.tom
 

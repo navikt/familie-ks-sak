@@ -41,8 +41,6 @@ class KompetanseService(
 ) {
     private val kompetanseSkjemaService = EøsSkjemaService(kompetanseRepository, kompetanseEndringsAbonnenter)
 
-    fun hentKompetanse(kompetanseId: Long) = kompetanseSkjemaService.hentMedId(kompetanseId)
-
     fun hentKompetanser(behandlingId: BehandlingId) = kompetanseSkjemaService.hentMedBehandlingId(behandlingId)
 
     fun hentUtfylteKompetanser(behandlingId: BehandlingId) = hentKompetanser(behandlingId).map { it.tilIKompetanse() }.filterIsInstance<UtfyltKompetanse>()

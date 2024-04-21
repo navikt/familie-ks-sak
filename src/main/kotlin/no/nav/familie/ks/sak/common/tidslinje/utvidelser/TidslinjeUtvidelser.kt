@@ -45,33 +45,6 @@ fun <T> Tidslinje<T>.medTittel(tittel: String): Tidslinje<T> {
     return this
 }
 
-fun <T> List<Tidslinje<T>>.medTittel(tittler: List<String>): List<Tidslinje<T>> {
-    if (this.size != tittler.size) throw IllegalArgumentException("Listene må ha lik lengde")
-    this.forEachIndexed { index, it -> it.tittel = tittler[index] }
-    return this
-}
-
-fun <T> Tidslinje<T>.fjernTidsenheterFraEnden(antall: Int): Tidslinje<T> {
-    if (antall > this.innhold.sumOf { it.lengde }) {
-        throw java.lang.IllegalArgumentException("Tidslinja er ikke lang nok til å fjerne oppgitt antall elementer")
-    }
-
-    var antallEnheter = antall
-
-    val perioder = ArrayList(this.innhold)
-
-    while (antallEnheter > 0) {
-        val periode = perioder.removeLast()
-        val enheterÅFjerne = periode.lengde
-        antallEnheter -= enheterÅFjerne
-        if (antallEnheter < 0) {
-            perioder.add(TidslinjePeriode(periode.periodeVerdi, -antallEnheter))
-        }
-    }
-
-    return Tidslinje(this.startsTidspunkt, perioder, this.tidsEnhet)
-}
-
 /**
  * Konverterer to input-tidslinjer til å bli av samme lengde. Dette gjør den ved å legge til en "padding" bestående av en periode
  * med lengde lik differansen mellom de to tidspunktene og verdi gitt av [nullVerdi] til tidslinjen.

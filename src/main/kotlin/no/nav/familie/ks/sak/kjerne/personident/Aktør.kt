@@ -56,8 +56,6 @@ data class Aktør(
 
     fun aktivFødselsnummer() = personidenter.single { it.aktiv }.fødselsnummer
 
-    fun harIdent(fødselsnummer: String) = personidenter.any { it.fødselsnummer == fødselsnummer }
-
     companion object {
         private const val VALID_REGEXP = "^\\d{13}$"
         private val VALID = java.util.regex.Pattern.compile(VALID_REGEXP)

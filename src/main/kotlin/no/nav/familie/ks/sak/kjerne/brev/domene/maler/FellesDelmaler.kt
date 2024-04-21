@@ -40,14 +40,6 @@ data class Hjemmeltekst(
     )
 }
 
-data class AutoUnderskrift(
-    val enhet: Flettefelt,
-) {
-    constructor(enhet: String) : this(
-        flettefelt(enhet),
-    )
-}
-
 data class KorrigertVedtakData(
     val datoKorrigertVedtak: Flettefelt,
 ) {
