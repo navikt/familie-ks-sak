@@ -94,6 +94,7 @@ data class EØSBegrunnelseMedKompetanseDto(
     val maalform: String,
     val sokersAktivitet: KompetanseAktivitet,
     val sokersAktivitetsland: String?,
+    val antallTimerBarnehageplass: String,
 ) : EØSBegrunnelseDto(
         type = BrevBegrunnelseType.EØS_BEGRUNNELSE,
         apiNavn = apiNavn,
@@ -109,6 +110,7 @@ data class EØSBegrunnelseUtenKompetanseDto(
     val antallBarn: Int,
     val maalform: String,
     val gjelderSoker: Boolean,
+    val antallTimerBarnehageplass: String,
 ) : EØSBegrunnelseDto(
         type = BrevBegrunnelseType.EØS_BEGRUNNELSE,
         apiNavn = apiNavn,

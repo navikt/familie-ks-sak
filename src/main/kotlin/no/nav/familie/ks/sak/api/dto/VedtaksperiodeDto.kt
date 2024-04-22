@@ -6,7 +6,6 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.NasjonalEllerFellesBegrunnelseDB
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.UtvidetVedtaksperiodeMedBegrunnelser
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.BegrunnelseType
-import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.støtterFritekst
 import java.time.LocalDate
 
 data class VedtaksperiodeMedFriteksterDto(
@@ -36,11 +35,10 @@ data class UtvidetVedtaksperiodeMedBegrunnelserDto(
     val fritekster: List<String> = emptyList(),
     val gyldigeBegrunnelser: List<String>,
     val utbetalingsperiodeDetaljer: List<UtbetalingsperiodeDetaljDto> = emptyList(),
+    val støtterFritekst: Boolean,
 )
 
-fun UtvidetVedtaksperiodeMedBegrunnelser.tilUtvidetVedtaksperiodeMedBegrunnelserDto(
-    sanityBegrunnelser: List<SanityBegrunnelse>,
-): UtvidetVedtaksperiodeMedBegrunnelserDto {
+fun UtvidetVedtaksperiodeMedBegrunnelser.tilUtvidetVedtaksperiodeMedBegrunnelserDto(sanityBegrunnelser: List<SanityBegrunnelse>): UtvidetVedtaksperiodeMedBegrunnelserDto {
     return UtvidetVedtaksperiodeMedBegrunnelserDto(
         id = this.id,
         fom = this.fom,
@@ -51,6 +49,7 @@ fun UtvidetVedtaksperiodeMedBegrunnelser.tilUtvidetVedtaksperiodeMedBegrunnelser
         utbetalingsperiodeDetaljer = this.utbetalingsperiodeDetaljer.map { it.tilUtbetalingsperiodeDetaljDto() },
         gyldigeBegrunnelser = this.gyldigeBegrunnelser.map { it.enumnavnTilString() },
         eøsBegrunnelser = this.eøsBegrunnelser.map { it.tilEøsBegrunnelseDto(sanityBegrunnelser) },
+        støtterFritekst = this.støtterFritekst,
     )
 }
 

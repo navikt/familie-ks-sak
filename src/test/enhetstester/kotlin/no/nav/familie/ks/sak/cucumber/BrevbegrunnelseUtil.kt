@@ -87,6 +87,9 @@ fun parseEøsBegrunnelse(rad: Tabellrad): EØSBegrunnelseDto {
             VedtaksperiodeMedBegrunnelserParser.DomenebegrepKompetanse.ANNEN_FORELDERS_AKTIVITET,
             rad,
         )
+
+    val antallTimerBarnehageplass = parseValgfriString(BrevPeriodeParser.DomenebegrepBrevBegrunnelse.ANTALL_TIMER_BARNEHAGEPLASS, rad) ?: ""
+
     val annenForeldersAktivitetsland =
         parseValgfriString(
             VedtaksperiodeMedBegrunnelserParser.DomenebegrepKompetanse.ANNEN_FORELDERS_AKTIVITETSLAND,
@@ -146,6 +149,7 @@ fun parseEøsBegrunnelse(rad: Tabellrad): EØSBegrunnelseDto {
             sokersAktivitet = søkersAktivitet,
             sokersAktivitetsland = søkersAktivitetsland,
             sanityBegrunnelseType = SanityBegrunnelseType.STANDARD,
+            antallTimerBarnehageplass = antallTimerBarnehageplass,
         )
     } else {
         EØSBegrunnelseUtenKompetanseDto(
@@ -156,6 +160,7 @@ fun parseEøsBegrunnelse(rad: Tabellrad): EØSBegrunnelseDto {
             maalform = målform,
             gjelderSoker = gjelderSoker,
             sanityBegrunnelseType = SanityBegrunnelseType.STANDARD,
+            antallTimerBarnehageplass = antallTimerBarnehageplass,
         )
     }
 }

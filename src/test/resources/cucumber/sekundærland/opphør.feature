@@ -58,5 +58,5 @@ Egenskap: Sekundærland - opphør
       | OPPHOR          | 1. november 2023 |          | 0     | 0                          |                     | Du                     |
 
     Så forvent følgende brevbegrunnelser for behandling 1 i periode 01.11.2023 til -
-      | Begrunnelse                    | Type | Barnas fødselsdatoer | Antall barn | Målform | Søkers aktivitet | Annen forelders aktivitet | Søkers aktivitetsland | Annen forelders aktivitetsland | Barnets bostedsland |
-      | OPPHØR_SELVSTENDIG_RETT_OPPHØR | EØS  | 15.09.22             | 1           | NB      | arbeider         | inaktiv                   | Norge                 | Polen                          | Polen               |
+      | Begrunnelse                    | Type | Barnas fødselsdatoer | Antall barn | Målform | Søkers aktivitet | Annen forelders aktivitet | Søkers aktivitetsland | Annen forelders aktivitetsland | Barnets bostedsland | Antall timer barnehageplass |
+      | OPPHØR_SELVSTENDIG_RETT_OPPHØR | EØS  | 15.09.22             | 1           | NB      | arbeider         | inaktiv                   | Norge                 | Polen                          | Polen               | 0                           |

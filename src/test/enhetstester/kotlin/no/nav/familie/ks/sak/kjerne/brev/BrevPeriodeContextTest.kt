@@ -492,6 +492,7 @@ fun lagBrevPeriodeContext(
             vedtaksperiodeMedBegrunnelser.tilUtvidetVedtaksperiodeMedBegrunnelser(
                 persongrunnlag,
                 andelTilkjentYtelserMedEndreteUtbetalinger,
+                emptyList(),
             ),
         sanityBegrunnelser = lagSanityBegrunnelserFraDump(),
         persongrunnlag = persongrunnlag,

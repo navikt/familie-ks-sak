@@ -30,6 +30,8 @@ import no.nav.familie.ks.sak.common.util.førsteDagIInneværendeMåned
 import no.nav.familie.ks.sak.common.util.sisteDagIMåned
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.ForelderBarnRelasjonInfo
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.PdlPersonInfo
+import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelse
+import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelseType
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.domene.ArbeidsfordelingPåBehandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingKategori
@@ -1122,3 +1124,22 @@ fun lagVilkårsvurdering(
     vilkårsvurdering.personResultater = setOf(personResultat)
     return vilkårsvurdering
 }
+
+fun lagSanityBegrunnelse(
+    apiNavn: String,
+    støtterFritekst: Boolean,
+): SanityBegrunnelse =
+    SanityBegrunnelse(
+        apiNavn = apiNavn,
+        navnISystem = "",
+        type = SanityBegrunnelseType.STANDARD,
+        vilkår = emptyList(),
+        rolle = emptyList(),
+        utdypendeVilkårsvurderinger = emptyList(),
+        triggere = emptyList(),
+        hjemler = emptyList(),
+        endringsårsaker = emptyList(),
+        endretUtbetalingsperiode = emptyList(),
+        støtterFritekst = støtterFritekst,
+        skalAlltidVises = false,
+    )
