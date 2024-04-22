@@ -17,6 +17,7 @@ import no.nav.familie.ks.sak.common.util.tilDagMånedÅr
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelse
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingKategori
+import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingType
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.PersonResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
@@ -419,7 +420,7 @@ fun Vilkårsvurdering.oppdaterMedDødsdatoer(personopplysningGrunnlag: Personopp
     }
 }
 
-fun Vilkårsvurdering.kopierOverOppfylteOgIkkeAktuelleResultaterFraForrigeBehandling(vilkårsvurderingForrigeBehandling: Vilkårsvurdering) {
+fun Vilkårsvurdering.kopierResultaterFraForrigeBehandling(vilkårsvurderingForrigeBehandling: Vilkårsvurdering) {
     personResultater.forEach { initieltPersonResultat ->
         val personResultatForrigeBehandling =
             vilkårsvurderingForrigeBehandling.personResultater.find {
@@ -431,7 +432,8 @@ fun Vilkårsvurdering.kopierOverOppfylteOgIkkeAktuelleResultaterFraForrigeBehand
                 initieltPersonResultat.vilkårResultater
             } else {
                 initieltPersonResultat.vilkårResultater
-                    .overskrivMedGodkjenteVilkårResultaterFraForrigeBehandling(
+                    .overskrivMedVilkårResultaterFraForrigeBehandling(
+                        kunForGodkjenteVilkår = behandling.type != BehandlingType.FØRSTEGANGSBEHANDLING,
                         vilkårResultaterFraForrigeBehandling = personResultatForrigeBehandling.vilkårResultater,
                         nyttPersonResultat = initieltPersonResultat,
                     )
@@ -441,14 +443,15 @@ fun Vilkårsvurdering.kopierOverOppfylteOgIkkeAktuelleResultaterFraForrigeBehand
     }
 }
 
-private fun Collection<VilkårResultat>.overskrivMedGodkjenteVilkårResultaterFraForrigeBehandling(
+private fun Collection<VilkårResultat>.overskrivMedVilkårResultaterFraForrigeBehandling(
     vilkårResultaterFraForrigeBehandling: Collection<VilkårResultat>,
     nyttPersonResultat: PersonResultat,
+    kunForGodkjenteVilkår: Boolean,
 ) = flatMap { initeltVilkårResultat ->
     val vilkårResultaterForrigeBehandlingSomViØnskerÅTaMed =
         vilkårResultaterFraForrigeBehandling
             .filter { it.vilkårType == initeltVilkårResultat.vilkårType }
-            .filter { it.resultat in listOf(Resultat.IKKE_AKTUELT, Resultat.OPPFYLT) }
+            .filter { !kunForGodkjenteVilkår || it.resultat in listOf(Resultat.IKKE_AKTUELT, Resultat.OPPFYLT) }
             .map { it.kopier(personResultat = nyttPersonResultat) }
 
     vilkårResultaterForrigeBehandlingSomViØnskerÅTaMed.ifEmpty {
