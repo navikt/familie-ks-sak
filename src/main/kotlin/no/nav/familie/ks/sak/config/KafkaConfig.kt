@@ -78,6 +78,14 @@ class KafkaConfig(
         }
 
     @Bean
+    fun kafkaAivenHendelseListenerAvroLatestContainerFactory(kafkaErrorHandler: KafkaErrorHandler): ConcurrentKafkaListenerContainerFactory<String, String> =
+        ConcurrentKafkaListenerContainerFactory<String, String>().apply {
+            containerProperties.ackMode = ContainerProperties.AckMode.MANUAL_IMMEDIATE
+            consumerFactory = DefaultKafkaConsumerFactory(consumerConfigsLatestAvro())
+            setCommonErrorHandler(kafkaErrorHandler)
+        }
+
+    @Bean
     fun earliestConcurrentKafkaListenerContainerFactoryAvro(
         kafkaErrorHandler: KafkaErrorHandler,
     ): ConcurrentKafkaListenerContainerFactory<String, String> =
@@ -104,6 +112,26 @@ class KafkaConfig(
                 ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG to KafkaAvroDeserializer::class.java,
                 ConsumerConfig.CLIENT_ID_CONFIG to "consumer-familie-ks-sak-2",
                 ConsumerConfig.AUTO_OFFSET_RESET_CONFIG to "earliest",
+            )
+        return consumerConfigs.toMap() + securityConfig()
+    }
+
+    private fun consumerConfigsLatestAvro(): Map<String, Any> {
+        val kafkaBrokers = System.getenv("KAFKA_BROKERS") ?: "http://localhost:9092"
+        val schemaRegistry = System.getenv("KAFKA_SCHEMA_REGISTRY") ?: "http://localhost:9093"
+        val schemaRegistryUser = System.getenv("KAFKA_SCHEMA_REGISTRY_USER") ?: "mangler i pod"
+        val schemaRegistryPassword = System.getenv("KAFKA_SCHEMA_REGISTRY_PASSWORD") ?: "mangler i pod"
+        val consumerConfigs =
+            mutableMapOf(
+                ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG to kafkaBrokers,
+                "schema.registry.url" to schemaRegistry,
+                "basic.auth.credentials.source" to "USER_INFO",
+                "basic.auth.user.info" to "$schemaRegistryUser:$schemaRegistryPassword",
+                "specific.avro.reader" to true,
+                ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG to StringDeserializer::class.java,
+                ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG to KafkaAvroDeserializer::class.java,
+                ConsumerConfig.CLIENT_ID_CONFIG to "consumer-familie-ks-sak-2",
+                ConsumerConfig.AUTO_OFFSET_RESET_CONFIG to "latest",
             )
         return consumerConfigs.toMap() + securityConfig()
     }
@@ -167,5 +195,6 @@ class KafkaConfig(
         const val KONTANTSTØTTE_FEED_TOPIC = "teamfamilie.aapen-feed-kontantstotte-v1"
         const val FAGSYSTEMSBEHANDLING_REQUEST_TBK_TOPIC = "teamfamilie.privat-tbk-hentfagsystemsbehandling-request-topic"
         const val FAGSYSTEMSBEHANDLING_RESPONS_TBK_TOPIC = "teamfamilie.privat-tbk-hentfagsystemsbehandling-respons-topic"
+        const val PDL_AKTOR_V2_TOPIC = "pdl.aktor-v2"
     }
 }
