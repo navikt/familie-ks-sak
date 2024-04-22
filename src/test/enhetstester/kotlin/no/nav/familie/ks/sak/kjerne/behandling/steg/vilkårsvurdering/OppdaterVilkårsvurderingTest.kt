@@ -151,7 +151,7 @@ class OppdaterVilkårsvurderingTest {
     @Test
     fun `kopierResultaterFraForrigeBehandling skal ha med tomt vilkår på person hvis vilkåret ble avslått forrige behandling`() {
         val søkerFnr = randomFnr()
-        val nyBehandling = lagBehandling()
+        val nyBehandling = lagBehandling(type = BehandlingType.REVURDERING)
         val forrigeBehandling = lagBehandling()
 
         val persongrunnlag =
@@ -209,10 +209,10 @@ class OppdaterVilkårsvurderingTest {
                 lagVilkårsvurderingOppfylt(
                     behandling = nyBehandling,
                     personer =
-                    listOf(
-                        lagPerson(personType = PersonType.SØKER, aktør = søkerAktørId),
-                        lagPerson(personType = PersonType.BARN, aktør = randomAktør()),
-                    ),
+                        listOf(
+                            lagPerson(personType = PersonType.SØKER, aktør = søkerAktørId),
+                            lagPerson(personType = PersonType.BARN, aktør = randomAktør()),
+                        ),
                 )
             val aktivMedBosattIRiketDelvisIkkeOppfylt = Vilkårsvurdering(behandling = forrigeBehandling)
             val personResultat =
