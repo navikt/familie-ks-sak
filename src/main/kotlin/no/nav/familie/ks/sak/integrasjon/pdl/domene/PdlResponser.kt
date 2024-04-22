@@ -52,11 +52,6 @@ data class PdlIdent(
     val gruppe: String,
 )
 
-fun List<PdlIdent>.hentAktivAktørId(): String {
-    return this.singleOrNull { it.gruppe == "AKTORID" && !it.historisk }?.ident
-        ?: throw Error("Finner ikke aktørId i Pdl")
-}
-
 class PdlAdressebeskyttelseResponse(val person: PdlAdressebeskyttelsePerson?)
 
 class PdlAdressebeskyttelsePerson(val adressebeskyttelse: List<Adressebeskyttelse>)
