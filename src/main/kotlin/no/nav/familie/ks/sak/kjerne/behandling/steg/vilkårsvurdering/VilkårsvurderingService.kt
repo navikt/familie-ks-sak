@@ -47,7 +47,7 @@ class VilkårsvurderingService(
         val initiellVilkårsvurdering = genererInitiellVilkårsvurdering(behandling, vilkårsvurderingFraForrigeBehandling, personopplysningGrunnlag)
 
         vilkårsvurderingFraForrigeBehandling?.let {
-            initiellVilkårsvurdering.kopierOverOppfylteOgIkkeAktuelleResultaterFraForrigeBehandling(
+            initiellVilkårsvurdering.kopierResultaterFraForrigeBehandling(
                 vilkårsvurderingForrigeBehandling = it,
             )
         }
