@@ -33,6 +33,7 @@ class IdenthendelseV2Consumer(
         ack: Acknowledgment,
     ) {
         try {
+            Thread.sleep(60000) // Venter 1 min da det kan hende at PDL ikke er ferdig med å populere sine opplysninger rett etter at vi har lest meldingen
             MDC.put(MDCConstants.MDC_CALL_ID, UUID.randomUUID().toString())
             SECURE_LOGGER.info("Har mottatt ident-hendelse $consumerRecord")
 
