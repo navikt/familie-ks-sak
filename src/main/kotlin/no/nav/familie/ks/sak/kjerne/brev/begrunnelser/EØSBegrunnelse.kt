@@ -679,7 +679,7 @@ enum class EØSBegrunnelse : IBegrunnelse {
     },
 
     AVSLAG_IKKE_EØS_BORGER {
-        override val sanityApiNavn = "avslagIkkeEosBorgetask_loggr"
+        override val sanityApiNavn = "avslagIkkeEosBorger"
         override val begrunnelseType = BegrunnelseType.EØS_AVSLAG
     },
 
