@@ -63,7 +63,7 @@ class IdenthendelseV2Consumer(
         } catch (e: RuntimeException) {
             log.warn("Feil i prosessering av ident-hendelser", e)
             SECURE_LOGGER.warn("Feil i prosessering av ident-hendelser $consumerRecord", e)
-            throw e
+            throw RuntimeException("Feil i prosessering av ident-hendelser")
         } finally {
             MDC.clear()
         }
