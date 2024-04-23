@@ -57,7 +57,6 @@ class BehandlingsresultatService(
             finnPersonerFremstiltKravFor(
                 behandling = behandling,
                 søknadDto = søknadDto,
-                forrigeBehandling = forrigeBehandling,
             )
 
         val nåværendePersonResultat = vilkårsvurdering.personResultater
@@ -124,7 +123,6 @@ class BehandlingsresultatService(
     internal fun finnPersonerFremstiltKravFor(
         behandling: Behandling,
         søknadDto: SøknadDto?,
-        forrigeBehandling: Behandling?,
     ): List<Aktør> {
         val personerFremstiltKravFor =
             when (behandling.opprettetÅrsak) {

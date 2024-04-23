@@ -3,7 +3,6 @@ package no.nav.familie.ks.sak.kjerne.eøs.util
 import no.nav.familie.ks.sak.common.tidslinje.Periode
 import no.nav.familie.ks.sak.common.tidslinje.Tidslinje
 import no.nav.familie.ks.sak.common.tidslinje.filtrerIkkeNull
-import no.nav.familie.ks.sak.common.tidslinje.mapVerdi
 import no.nav.familie.ks.sak.common.tidslinje.util.tilTidslinje
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.tilPerioder
 import no.nav.familie.ks.sak.data.lagBehandling
@@ -23,8 +22,6 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vil
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.beregning.TilkjentYtelseUtils
-import no.nav.familie.ks.sak.kjerne.eøs.vilkårsvurdering.VilkårRegelverkResultat
-import no.nav.familie.ks.sak.kjerne.eøs.vilkårsvurdering.VilkårsvurderingTidslinjer
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
 import java.time.YearMonth
@@ -68,30 +65,12 @@ data class VilkårsvurderingBuilder(
             return this
         }
 
-        fun medVilkår(tidslinje: Tidslinje<VilkårRegelverkResultat>): PersonResultatBuilder {
-            vilkårsresultatTidslinjer.add(
-                tidslinje.mapVerdi {
-                    it?.let { UtdypendeVilkårRegelverkResultat(it.vilkår, it.resultat, it.regelverk) }
-                },
-            )
-            return this
-        }
-
-        fun medUtdypendeVilkår(tidslinje: Tidslinje<UtdypendeVilkårRegelverkResultat?>): PersonResultatBuilder {
-            vilkårsresultatTidslinjer.add(tidslinje)
-            return this
-        }
-
         fun forPerson(
             person: Person,
             startTidspunkt: YearMonth,
         ): PersonResultatBuilder {
             return byggPerson().forPerson(person, startTidspunkt)
         }
-
-        fun byggVilkårsvurdering(): Vilkårsvurdering = byggPerson().byggVilkårsvurdering()
-
-        fun byggPersonopplysningGrunnlag(): PersonopplysningGrunnlag = byggPerson().byggPersonopplysningGrunnlag()
 
         fun byggPerson(): VilkårsvurderingBuilder {
             val personResultat =
@@ -131,12 +110,6 @@ internal fun Periode<UtdypendeVilkårRegelverkResultat>.tilVilkårResultater(per
         ),
     )
 }
-
-fun VilkårsvurderingBuilder.byggVilkårsvurderingTidslinjer() =
-    VilkårsvurderingTidslinjer(this.byggVilkårsvurdering(), this.byggPersonopplysningGrunnlag())
-
-fun VilkårsvurderingBuilder.PersonResultatBuilder.byggVilkårsvurderingTidslinjer() =
-    this.byggPerson().byggVilkårsvurderingTidslinjer()
 
 fun VilkårsvurderingBuilder.byggTilkjentYtelse() =
     TilkjentYtelseUtils.beregnTilkjentYtelse(

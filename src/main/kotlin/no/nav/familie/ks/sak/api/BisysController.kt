@@ -9,7 +9,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses
 import no.nav.familie.ks.sak.api.dto.BisysDto
 import no.nav.familie.ks.sak.api.dto.BisysResponsDto
 import no.nav.familie.ks.sak.bisys.BisysService
-import no.nav.familie.ks.sak.sikkerhet.TilgangService
 import no.nav.security.token.support.core.api.ProtectedWithClaims
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
@@ -21,7 +20,7 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 @RequestMapping("/api/bisys")
 @ProtectedWithClaims(issuer = "azuread")
-class BisysController(private val bisysService: BisysService, private val tilgangService: TilgangService) {
+class BisysController(private val bisysService: BisysService) {
     @Operation(description = "Tjeneste for BISYS for å hente utbetalingsinfo for barna.")
     @ApiResponses(
         value = [

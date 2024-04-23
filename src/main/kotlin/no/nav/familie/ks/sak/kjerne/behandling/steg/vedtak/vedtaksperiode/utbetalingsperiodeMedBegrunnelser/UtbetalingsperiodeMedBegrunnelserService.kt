@@ -18,7 +18,6 @@ class UtbetalingsperiodeMedBegrunnelserService(
 ) {
     fun hentUtbetalingsperioder(
         vedtak: Vedtak,
-        opphørsperioder: List<VedtaksperiodeMedBegrunnelser>,
     ): List<VedtaksperiodeMedBegrunnelser> {
         val andelerTilkjentYtelse =
             andelerTilkjentYtelseOgEndreteUtbetalingerService

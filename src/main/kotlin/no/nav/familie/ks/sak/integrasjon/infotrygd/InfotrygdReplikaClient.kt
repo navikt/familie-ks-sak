@@ -74,19 +74,6 @@ class InfotrygdReplikaClient(
         return barnMedLøpendeFagsak
     }
 
-    fun hentSøkereOgBarnForLøpendeFagsakerIInfotrygd(): List<SøkerOgBarn> {
-        val requestURI =
-            UriComponentsBuilder.fromUri(familieKsInfotrygdUri)
-                .pathSegment("hent-soekere-og-barn-med-loepende-kontantstoette")
-                .build().toUri()
-
-        return kallEksternTjeneste(
-            tjeneste = "Infotrygd replika",
-            uri = requestURI,
-            formål = "Henter alle henter søkere og barn med løpende kontantstøtte",
-        ) { getForEntity(uri = requestURI) }
-    }
-
     fun List<BarnMedOpplysningerDto>.tilInnsynsRequest(): InnsynRequest {
         return InnsynRequest(barn = this.mapNotNull { it.personnummer })
     }
@@ -121,8 +108,3 @@ data class Foedselsnummer(
             return if (kjoenn % 2 == 0) Kjoenn.KVINNE else Kjoenn.MANN
         }
 }
-
-data class SøkerOgBarn(
-    val søkerIdent: String,
-    val barnIdenter: List<String>,
-)

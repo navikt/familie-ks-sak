@@ -10,10 +10,7 @@ import no.nav.familie.ks.sak.common.util.førsteDagIInneværendeMåned
 import no.nav.familie.ks.sak.common.util.sisteDagIInneværendeMåned
 import no.nav.familie.ks.sak.common.util.tilYearMonth
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelse
-import no.nav.familie.ks.sak.kjerne.beregning.domene.TilkjentYtelse
-import no.nav.familie.ks.sak.kjerne.beregning.domene.YtelseType
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
-import java.math.BigDecimal
 import java.time.YearMonth
 
 fun Iterable<AndelTilkjentYtelse>.tilSeparateTidslinjerForBarna(): Map<Aktør, Tidslinje<AndelTilkjentYtelse>> {
@@ -56,44 +53,3 @@ fun AndelTilkjentYtelse.medPeriode(
         stønadFom = fraOgMed ?: MIN_MÅNED,
         stønadTom = tilOgMed ?: MAX_MÅNED,
     ).also { versjon = this.versjon }
-
-data class AndelTilkjentYtelseForTidslinje(
-    val aktør: Aktør,
-    val beløp: Int,
-    val sats: Int,
-    val ytelseType: YtelseType,
-    val prosent: BigDecimal,
-    val nasjonaltPeriodebeløp: Int = beløp,
-    val differanseberegnetPeriodebeløp: Int? = null,
-)
-
-fun AndelTilkjentYtelse.tilpassTilTidslinje() =
-    AndelTilkjentYtelseForTidslinje(
-        aktør = this.aktør,
-        beløp = this.kalkulertUtbetalingsbeløp,
-        ytelseType = this.type,
-        sats = this.sats,
-        prosent = this.prosent,
-        nasjonaltPeriodebeløp = this.nasjonaltPeriodebeløp ?: this.kalkulertUtbetalingsbeløp,
-        differanseberegnetPeriodebeløp = this.differanseberegnetPeriodebeløp,
-    )
-
-fun Tidslinje<AndelTilkjentYtelseForTidslinje>.tilAndelerTilkjentYtelse(tilkjentYtelse: TilkjentYtelse): List<AndelTilkjentYtelse> {
-    return this.tilPerioder()
-        .filter { it.verdi != null }
-        .map {
-            AndelTilkjentYtelse(
-                behandlingId = tilkjentYtelse.behandling.id,
-                tilkjentYtelse = tilkjentYtelse,
-                aktør = it.verdi!!.aktør,
-                type = it.verdi.ytelseType,
-                kalkulertUtbetalingsbeløp = it.verdi.beløp,
-                nasjonaltPeriodebeløp = it.verdi.nasjonaltPeriodebeløp,
-                differanseberegnetPeriodebeløp = it.verdi.differanseberegnetPeriodebeløp,
-                sats = it.verdi.sats,
-                prosent = it.verdi.prosent,
-                stønadFom = it.fom?.tilYearMonth() ?: error("Fom på andel tilkjent ytelse skal ikke være null"),
-                stønadTom = it.tom?.tilYearMonth() ?: error("Tom på andel tilkjent ytelse skal ikke være null"),
-            )
-        }
-}

@@ -31,7 +31,6 @@ class ValutakursService(
         skjemaService.endreSkjemaer(behandlingId, valutakurs)
 
     fun slettValutakurs(
-        behandlingId: BehandlingId,
         valutakursId: Long,
     ) =
         skjemaService.slettSkjema(valutakursId)

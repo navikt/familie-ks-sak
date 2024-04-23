@@ -81,61 +81,7 @@ data class UtenlandskPeriodebeløp(
             barnAktører = barnAktører.toSet(),
         )
 
-    fun erObligatoriskeFelterSatt() =
-        fom != null &&
-            erObligatoriskeFelterUtenomTidsperioderSatt()
-
-    fun erObligatoriskeFelterUtenomTidsperioderSatt() =
-        this.valutakode != null &&
-            this.beløp != null &&
-            this.intervall != null &&
-            this.utbetalingsland != null &&
-            this.barnAktører.isNotEmpty()
-
     companion object {
         val NULL = UtenlandskPeriodebeløp(null, null, emptySet())
-    }
-}
-
-sealed interface IUtenlandskPeriodebeløp {
-    val id: Long
-    val behandlingId: Long
-}
-
-data class TomUtenlandskPeriodebeløp(
-    override val id: Long,
-    override val behandlingId: Long,
-) : IUtenlandskPeriodebeløp
-
-data class UtfyltUtenlandskPeriodebeløp(
-    override val id: Long,
-    override val behandlingId: Long,
-    val fom: YearMonth,
-    val tom: YearMonth?,
-    val barnAktører: Set<Aktør>,
-    val beløp: BigDecimal,
-    val valutakode: String,
-    val intervall: Intervall,
-    val utbetalingsland: String,
-) : IUtenlandskPeriodebeløp
-
-fun UtenlandskPeriodebeløp.tilIUtenlandskPeriodebeløp(): IUtenlandskPeriodebeløp {
-    return if (this.erObligatoriskeFelterSatt()) {
-        UtfyltUtenlandskPeriodebeløp(
-            id = this.id,
-            behandlingId = this.behandlingId,
-            fom = this.fom!!,
-            tom = this.tom,
-            barnAktører = this.barnAktører,
-            beløp = this.beløp!!,
-            valutakode = this.valutakode!!,
-            intervall = this.intervall!!,
-            utbetalingsland = this.utbetalingsland!!,
-        )
-    } else {
-        TomUtenlandskPeriodebeløp(
-            id = this.id,
-            behandlingId = this.behandlingId,
-        )
     }
 }

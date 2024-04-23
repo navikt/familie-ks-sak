@@ -105,8 +105,6 @@ data class VedtaksperiodeMedBegrunnelser(
     fun harFriteksterUtenStandardbegrunnelser(): Boolean =
         fritekster.isNotEmpty() && begrunnelser.isEmpty() && eøsBegrunnelser.isEmpty()
 
-    fun harFriteksterOgStandardbegrunnelser(): Boolean = fritekster.isNotEmpty() && begrunnelser.isNotEmpty()
-
     fun hentUtbetalingsperiodeDetaljer(
         andelerTilkjentYtelse: List<AndelTilkjentYtelseMedEndreteUtbetalinger>,
         personopplysningGrunnlag: PersonopplysningGrunnlag,

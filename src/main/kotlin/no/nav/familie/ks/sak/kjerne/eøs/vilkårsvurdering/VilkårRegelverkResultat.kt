@@ -21,13 +21,6 @@ data class VilkårRegelverkResultat(
     val regelverk get() = regelverkResultat.regelverk
 }
 
-fun VilkårRegelverkResultat.medRegelverk(regelverk: Regelverk) =
-    VilkårRegelverkResultat(
-        this.vilkår,
-        RegelverkResultat.values().first { it.regelverk == regelverk && it.resultat == this.resultat },
-        this.utdypendeVilkårsvurderinger,
-    )
-
 enum class RegelverkResultat(val regelverk: Regelverk?, val resultat: Resultat?) {
     OPPFYLT_EØS_FORORDNINGEN(Regelverk.EØS_FORORDNINGEN, Resultat.OPPFYLT),
     OPPFYLT_NASJONALE_REGLER(Regelverk.NASJONALE_REGLER, Resultat.OPPFYLT),
@@ -99,5 +92,3 @@ fun RegelverkResultat?.kombinerMed(resultat: RegelverkResultat?) =
         IKKE_OPPFYLT -> IKKE_OPPFYLT
         IKKE_FULLT_VURDERT -> IKKE_FULLT_VURDERT
     }
-
-fun VilkårRegelverkResultat?.erOppfylt() = this?.resultat == Resultat.OPPFYLT

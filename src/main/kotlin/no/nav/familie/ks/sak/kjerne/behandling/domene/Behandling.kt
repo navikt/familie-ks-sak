@@ -130,8 +130,6 @@ data class Behandling(
 
     fun erHenlagt() = resultat in listOf(HENLAGT_FEILAKTIG_OPPRETTET, HENLAGT_SØKNAD_TRUKKET, HENLAGT_TEKNISK_VEDLIKEHOLD)
 
-    fun erVedtatt() = status == BehandlingStatus.AVSLUTTET && !erHenlagt()
-
     fun erAvsluttet() = status == BehandlingStatus.AVSLUTTET
 
     fun erSøknad() = opprettetÅrsak == BehandlingÅrsak.SØKNAD
@@ -141,8 +139,6 @@ data class Behandling(
     fun erSatsendring() = this.opprettetÅrsak == BehandlingÅrsak.SATSENDRING
 
     fun erTekniskEndring() = opprettetÅrsak == BehandlingÅrsak.TEKNISK_ENDRING
-
-    fun erKorrigereVedtak() = opprettetÅrsak == BehandlingÅrsak.KORREKSJON_VEDTAKSBREV
 }
 
 /**
@@ -215,11 +211,6 @@ enum class BehandlingÅrsak(val visningsnavn: String, val gyldigeBehandlingstype
     KORREKSJON_VEDTAKSBREV("Korrigere vedtak med egen brevmal", listOf(REVURDERING)),
     SATSENDRING("Satsendring", listOf(REVURDERING)),
     BARNEHAGELISTE("Barnehageliste", listOf(REVURDERING)),
-    ;
-
-    fun årsakSomKanEndreBehandlingKategori(): Boolean =
-        this == SØKNAD || this == ÅRLIG_KONTROLL || this == NYE_OPPLYSNINGER ||
-            this == KLAGE
 }
 
 enum class BehandlingType(val visningsnavn: String) {
@@ -258,8 +249,6 @@ enum class BehandlingStatus {
     ;
 
     fun erLåstMenIkkeAvsluttet() = this == FATTER_VEDTAK || this == IVERKSETTER_VEDTAK
-
-    fun erÅpen(): Boolean = this != AVSLUTTET
 }
 
 fun initStatus(): BehandlingStatus = BehandlingStatus.UTREDES

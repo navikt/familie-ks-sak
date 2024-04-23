@@ -1,6 +1,5 @@
 package no.nav.familie.ks.sak.common.util
 
-import no.nav.familie.kontrakter.felles.objectMapper
 import java.math.BigDecimal
 import java.math.RoundingMode
 import java.text.NumberFormat
@@ -21,8 +20,6 @@ inline fun <reified T : Enum<T>> konverterStringTilEnums(string: String?): List<
     if (string.isNullOrBlank()) emptyList() else string.split(";").map { enumValueOf(it) }
 
 fun slåSammen(stringListe: List<String>): String = Regex("(.*),").replace(stringListe.joinToString(", "), "$1 og")
-
-fun Any.convertDataClassToJson(): String = objectMapper.writeValueAsString(this)
 
 fun formaterBeløp(beløp: Int): String = NumberFormat.getNumberInstance(nbLocale).format(beløp)
 

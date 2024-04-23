@@ -16,12 +16,6 @@ interface VedtaksbrevData : BrevDataDto {
     val perioder: List<BrevPeriodeDto>
 }
 
-enum class EndretUtbetalingBrevPeriodeType(val apiNavn: String) {
-    ENDRET_UTBETALINGSPERIODE("endretUtbetalingsperiode"),
-    ENDRET_UTBETALINGSPERIODE_DELVIS_UTBETALING("endretUtbetalingsperiodeDelvisUtbetaling"),
-    ENDRET_UTBETALINGSPERIODE_INGEN_UTBETALING("endretUtbetalingsperiodeIngenUtbetaling"),
-}
-
 data class FellesdataForVedtaksbrev(
     val enhet: String,
     val saksbehandler: String,

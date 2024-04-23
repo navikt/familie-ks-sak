@@ -14,7 +14,6 @@ import jakarta.persistence.JoinTable
 import jakarta.persistence.ManyToMany
 import jakarta.persistence.SequenceGenerator
 import jakarta.persistence.Table
-import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.tidslinje.Periode
 import no.nav.familie.ks.sak.common.tidslinje.tilTidslinje
 import no.nav.familie.ks.sak.common.util.YearMonthConverter
@@ -85,19 +84,6 @@ data class Kompetanse(
         tom: YearMonth?,
         barnAktører: Set<Aktør>,
     ) = copy(fom = fom, tom = tom, barnAktører = barnAktører)
-
-    fun validerFelterErSatt() {
-        if (!erFelterSatt()) {
-            throw Feil("Kompetanse mangler verdier")
-        }
-    }
-
-    fun erFelterSatt() =
-        søkersAktivitet != null &&
-            annenForeldersAktivitet != null &&
-            barnetsBostedsland != null &&
-            resultat != null &&
-            barnAktører.isNotEmpty()
 
     fun erObligatoriskeFelterSatt() =
         fom != null &&

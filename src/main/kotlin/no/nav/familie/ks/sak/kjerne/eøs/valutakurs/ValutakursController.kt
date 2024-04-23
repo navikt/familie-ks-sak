@@ -71,7 +71,7 @@ class ValutakursController(
             event = AuditLoggerEvent.DELETE,
             handling = "Sletter valutakurs",
         )
-        valutakursService.slettValutakurs(BehandlingId(behandlingId), valutakursId)
+        valutakursService.slettValutakurs(valutakursId)
 
         return ResponseEntity.ok(Ressurs.success(behandlingService.lagBehandlingRespons(behandlingId = behandlingId)))
     }
