@@ -142,7 +142,7 @@ FAMILIE_KS_SAK_API_URL: http://localhost:8086/api
 FAMILIE_KS_INFOTRYGD_API_URL: https://familie-ks-infotrygd.dev.intern.nav.no/api
 FAMILIE_KS_INFOTRYGD_SCOPE: api://dev-fss.teamfamilie.familie-ks-infotrygd/.default
 
-FAMILIE_INTEGRASJONER_API_URL: https://familie-integrasjoner.dev.intern.nav.no/api
+FAMILIE_INTEGRASJONER_API_URL: https://familie-integrasjoner.intern.dev.nav.no/api
 FAMILIE_INTEGRASJONER_SCOPE: api://dev-fss.teamfamilie.familie-integrasjoner/.default
 PDL_URL: https://pdl-api.dev.intern.nav.no/
 PDL_SCOPE: api://dev-fss.pdl.pdl-api/.default
