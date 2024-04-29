@@ -224,6 +224,7 @@ class TilbakekrevingService(
                     konsekvensForYtelser = emptySet(),
                 ),
             manuelleBrevmottakere = manuelleBrevMottakere,
+            begrunnelseForTilbakekreving = tilbakekreving.begrunnelse,
         )
     }
 }
