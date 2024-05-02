@@ -61,7 +61,7 @@ class DatabaseCleanupService(
     private fun <T> retryFunksjon(
         antallGanger: Int = 2,
         forsinkelseIms: Long = 1000,
-        funksjon: () -> T
+        funksjon: () -> T,
     ): T? {
         repeat(antallGanger - 1) {
             try {
@@ -74,5 +74,3 @@ class DatabaseCleanupService(
         return funksjon()
     }
 }
-
-

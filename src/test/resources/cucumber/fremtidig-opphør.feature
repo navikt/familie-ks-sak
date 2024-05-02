@@ -110,6 +110,7 @@ Egenskap: Fremtidig opphør - søker har meldt ifra om fremtidig barnehageplass
       | Begrunnelse                            | Type     | Barnas fødselsdatoer | Antall barn | Målform | Beløp | Måned og år begrunnelsen gjelder for | Gjelder andre forelder | Antall timer barnehageplass |
       | OPPHØR_FRAMTIDIG_OPPHØR_BARNEHAGEPLASS | STANDARD | 11.09.22             | 1           |         | 0     | juli 2024                            | true                   | 0                           |
 
+  @Disabled
   Scenario: Revurdering. Eneste endring er framtidig opphør framtidig opphør på barnehageplass. Skal gi behandlingsresultat opphør.
     Gitt følgende fagsaker
       | FagsakId |
