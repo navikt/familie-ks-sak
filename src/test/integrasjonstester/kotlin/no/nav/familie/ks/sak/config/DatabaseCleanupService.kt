@@ -52,7 +52,27 @@ class DatabaseCleanupService(
         logger.info("Truncating tables: $tableNames")
         entityManager.flush()
         tableNames?.forEach {
-            entityManager.createNativeQuery("TRUNCATE TABLE $it CASCADE").executeUpdate()
+            retryFunksjon(antallGanger = 2) {
+                entityManager.createNativeQuery("TRUNCATE TABLE $it CASCADE").executeUpdate()
+            }
         }
     }
+
+    private fun <T> retryFunksjon(
+        antallGanger: Int = 2,
+        forsinkelseIms: Long = 1000,
+        funksjon: () -> T
+    ): T? {
+        repeat(antallGanger - 1) {
+            try {
+                return funksjon()
+            } catch (e: Exception) {
+                logger.error("Funksjon kjørte med feil", e)
+            }
+            Thread.sleep(forsinkelseIms)
+        }
+        return funksjon()
+    }
 }
+
+
