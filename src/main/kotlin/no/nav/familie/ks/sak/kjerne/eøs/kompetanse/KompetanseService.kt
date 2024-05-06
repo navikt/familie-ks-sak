@@ -124,7 +124,7 @@ class KompetanseService(
         this.mapValues { (_, tidslinjer) ->
             tidslinjer.filtrer { it?.regelverk == Regelverk.EØS_FORORDNINGEN }
                 .filtrerIkkeNull()
-                .forlengTomdatoTilUendeligOmTomErSenereEnn(LocalDate.now())
+                .forlengTomdatoTilUendeligOmTomErSenereEnn(LocalDate.now().plusMonths(1))
         }
 
     private fun <T> Tidslinje<T>.forlengTomdatoTilUendeligOmTomErSenereEnn(nå: LocalDate): Tidslinje<T & Any> {
