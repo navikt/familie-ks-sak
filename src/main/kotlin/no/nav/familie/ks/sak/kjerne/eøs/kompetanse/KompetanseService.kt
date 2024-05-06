@@ -126,14 +126,14 @@ class KompetanseService(
         this.mapValues { (_, tidslinjer) ->
             tidslinjer.filtrer { it?.regelverk == Regelverk.EØS_FORORDNINGEN }
                 .filtrerIkkeNull()
-                .forlengTomdatoTilUendeligOmTomErSenereEnn(LocalDate.now().førsteDagINesteMåned())
+                .forlengTomdatoTilUendeligOmTomErSenereEnn(førsteDagINesteMåned = LocalDate.now().førsteDagINesteMåned())
         }
 
-    private fun <T> Tidslinje<T>.forlengTomdatoTilUendeligOmTomErSenereEnn(nå: LocalDate): Tidslinje<T & Any> {
+    private fun <T> Tidslinje<T>.forlengTomdatoTilUendeligOmTomErSenereEnn(førsteDagINesteMåned: LocalDate): Tidslinje<T & Any> {
         val tom = this.tilPerioderIkkeNull().mapNotNull { it.tom }.maxOrNull()
-        return if (tom != null && tom > nå) {
+        return if (tom != null && tom > førsteDagINesteMåned) {
             this.tilPerioderIkkeNull()
-                .filter { it.fom != null && it.fom <= nå }
+                .filter { it.fom != null && it.fom <= førsteDagINesteMåned }
                 .replaceLast { Periode(verdi = it.verdi, fom = it.fom, tom = null) }
                 .tilTidslinje()
         } else {
