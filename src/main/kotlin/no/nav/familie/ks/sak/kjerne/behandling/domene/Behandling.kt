@@ -116,7 +116,7 @@ data class Behandling(
         return this
     }
 
-    fun opprettBehandleSakOppgave(): Boolean {
+    fun skalOppretteBehandleSakOppgave(): Boolean {
         return type != TEKNISK_ENDRING
     }
 
