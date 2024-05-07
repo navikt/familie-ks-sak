@@ -91,7 +91,7 @@ class OpprettBehandlingService(
         vedtakService.opprettOgInitierNyttVedtakForBehandling(lagretBehandling) // initierer vedtak
         loggService.opprettBehandlingLogg(lagretBehandling) // lag historikkinnslag
         // Oppretter BehandleSak oppgave via task. Ruller tasken tilbake, hvis behandling opprettelse feiler
-        if (lagretBehandling.opprettBehandleSakOppgave()) {
+        if (lagretBehandling.skalOppretteBehandleSakOppgave()) {
             taskService.save(
                 OpprettOppgaveTask.opprettTask(
                     behandlingId = lagretBehandling.id,
