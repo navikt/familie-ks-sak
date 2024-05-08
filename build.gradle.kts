@@ -1,11 +1,11 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    val kotlinVersion = "1.9.23"
+    val kotlinVersion = "1.9.24"
     kotlin("jvm") version kotlinVersion
 
-    id("org.springframework.boot") version "3.2.4"
-    id("io.spring.dependency-management") version "1.1.4"
+    id("org.springframework.boot") version "3.2.5"
+    id("io.spring.dependency-management") version "1.1.5"
     id("org.jetbrains.kotlin.plugin.spring") version kotlinVersion
     id("org.jetbrains.kotlin.plugin.jpa") version kotlinVersion
     id("org.jetbrains.kotlin.plugin.allopen") version kotlinVersion
@@ -87,7 +87,7 @@ dependencies {
 
     // ----------- AVRO ---------\\
     implementation("org.apache.avro:avro:1.11.3")
-    implementation("io.confluent:kafka-avro-serializer:7.6.0")
+    implementation("io.confluent:kafka-avro-serializer:7.6.1")
     implementation("org.eclipse.jetty:jetty-server")
 
     // ---- Junit og Cucumber ---- \\
@@ -122,7 +122,7 @@ dependencies {
     implementation("nav-foedselsnummer:core:$navFoedselsnummerVersion")
 
     implementation("com.papertrailapp:logback-syslog4j:1.0.0")
-    implementation("io.getunleash:unleash-client-java:9.2.0")
+    implementation("io.getunleash:unleash-client-java:9.2.1")
     implementation("io.sentry:sentry-spring-boot-starter-jakarta:$sentryVersion")
     implementation("io.sentry:sentry-logback:$sentryVersion")
     implementation("io.micrometer:micrometer-registry-prometheus")
