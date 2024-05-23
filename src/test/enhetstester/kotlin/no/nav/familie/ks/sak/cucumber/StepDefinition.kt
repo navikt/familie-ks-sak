@@ -284,7 +284,7 @@ class StepDefinition {
      * Mulige verdier: | Fra dato | Til dato | Vedtaksperiodetype |
      */
     @Så("forvent følgende vedtaksperioder på behandling {}")
-    fun `forvent følgende vedtaksperioder med begrunnelser`(
+    fun `forvent følgende vedtaksperioder på behandling`(
         behandlingId: Long,
         dataTable: DataTable,
     ) {

@@ -55,3 +55,8 @@ Egenskap: Klagebehandling med endret ytelse
     Og når behandlingsresultatet er utledet for behandling 2
 
     Så forvent at behandlingsresultatet er INNVILGET på behandling 2
+
+    Og vedtaksperioder er laget for behandling 2
+    Så forvent at følgende begrunnelser er gyldige for behandling 2
+      | Fra dato   | Til dato   | VedtaksperiodeType | Regelverk Gyldige begrunnelser | Gyldige begrunnelser       | Ugyldige begrunnelser |
+      | 01.04.2024 | 31.01.2025 | UTBETALING         |                                | INNVILGET_DELTID_BARNEHAGE |                       |
