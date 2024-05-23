@@ -66,7 +66,9 @@ object BehandlingsresultatOpphørUtils {
                 alleBarnMedLøpendeAndeler.all { barn ->
                     personResultater.any { personresultat ->
                         personresultat.aktør == barn.aktør &&
-                            personresultat.vilkårResultater.any { vilkårResultat -> vilkårResultat.søkerHarMeldtFraOmBarnehageplass == true }
+                            personresultat.vilkårResultater.any { vilkårResultat ->
+                                vilkårResultat.harFullBarnehageplass()
+                            }
                     }
                 }
 

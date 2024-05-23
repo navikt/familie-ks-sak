@@ -53,23 +53,5 @@ Egenskap: Klagebehandling med endret ytelse
       | 2       | 01.03.2024 | 31.03.2024 | 7500  | ORDINÆR_KONTANTSTØTTE | 100     | 7500 | 7500                   |                          |
       | 2       | 01.04.2024 | 31.01.2025 | 3000  | ORDINÆR_KONTANTSTØTTE | 40      | 7500 | 3000                   |                          |
     Og når behandlingsresultatet er utledet for behandling 2
+
     Så forvent at behandlingsresultatet er INNVILGET på behandling 2
-
-
-    Og vedtaksperioder er laget for behandling 2
-
-    Så forvent følgende vedtaksperioder på behandling 2
-      | Fra dato | Til dato | Vedtaksperiodetype | Kommentar |
-      |          |          | INNVILGET |           |
-
-    Så forvent at følgende begrunnelser er gyldige for behandling 2
-      | Fra dato | Til dato | VedtaksperiodeType | Regelverk Gyldige begrunnelser | Gyldige begrunnelser | Ugyldige begrunnelser |
-      |          |          | INNVILGET |                                |                      |                       |
-
-    Og når disse begrunnelsene er valgt for behandling 2
-      | Fra dato | Til dato | Standardbegrunnelser | Eøsbegrunnelser | Fritekster |
-      |          |          |                      |                 |            |
-
-    Så forvent følgende brevperioder for behandling 2
-      | Brevperiodetype | Fra dato | Til dato | Beløp | Antall barn med utbetaling | Barnas fødselsdager | Du eller institusjonen |
-      |                 |          |          |       |                            |                     |                        |
