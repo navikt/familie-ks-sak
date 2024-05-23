@@ -13,6 +13,7 @@ import no.nav.familie.ks.sak.common.domeneparser.parseEnumListe
 import no.nav.familie.ks.sak.common.domeneparser.parseInt
 import no.nav.familie.ks.sak.common.domeneparser.parseList
 import no.nav.familie.ks.sak.common.domeneparser.parseLong
+import no.nav.familie.ks.sak.common.domeneparser.parseValgfriBigDecimal
 import no.nav.familie.ks.sak.common.domeneparser.parseValgfriBoolean
 import no.nav.familie.ks.sak.common.domeneparser.parseValgfriDato
 import no.nav.familie.ks.sak.common.domeneparser.parseValgfriEnum
@@ -134,7 +135,11 @@ fun lagVilkårsvurdering(
 
     val personresultater =
         vilkårResultaterPerPerson.map { (aktørId, personResultatDataRader) ->
-            val personResultat = PersonResultat(vilkårsvurdering = vilkårvurdering, aktør = stepDefinition.persongrunnlag[behandlingId]!!.personer.single { it.aktør.aktørId == aktørId }.aktør)
+            val personResultat =
+                PersonResultat(
+                    vilkårsvurdering = vilkårvurdering,
+                    aktør = stepDefinition.persongrunnlag[behandlingId]!!.personer.single { it.aktør.aktørId == aktørId }.aktør,
+                )
 
             val vilkårResultater =
                 personResultatDataRader.flatMap { rad ->
@@ -178,6 +183,12 @@ private fun lagVilkårResultater(
             rad,
         )
 
+    val antallTimer =
+        parseValgfriBigDecimal(
+            VedtaksperiodeMedBegrunnelserParser.DomenebegrepVedtaksperiodeMedBegrunnelser.ANTALL_TIMER,
+            rad,
+        )
+
     return vilkårFor.map { vilkår ->
         VilkårResultat(
             behandlingId = behandlingId,
@@ -201,6 +212,7 @@ private fun lagVilkårResultater(
             // TODO må fjerne filterIsInstance når vi får inn eøsbegrunnelser her også
             begrunnelser = hentStandardBegrunnelser(rad).filterIsInstance<NasjonalEllerFellesBegrunnelse>(),
             søkerHarMeldtFraOmBarnehageplass = søkerHarMeldtFraOmBarnehageplass,
+            antallTimer = antallTimer,
         )
     }
 }
