@@ -27,8 +27,8 @@ object BehandlingsresultatOpphørUtils {
         forrigePersonResultaterPåBarn: List<PersonResultat>,
         nåMåned: YearMonth,
     ): Opphørsresultat {
-        val meldtOmBarnehagePlassPåAlleBarnMedLøpendeAndeler = nåværendePersonResultaterPåBarn.harMeldtOmBarnehagePlassPåAlleBarnMedLøpendeAndeler(nåværendeAndeler)
-        val meldtOmBarnehagePlassPåAlleBarnMedLøpendeAndelerIForrigeVilkårsvurdering = forrigePersonResultaterPåBarn.harMeldtOmBarnehagePlassPåAlleBarnMedLøpendeAndeler(forrigeAndeler)
+        val meldtOmBarnehagePlassPåAlleBarnMedLøpendeAndeler = nåværendePersonResultaterPåBarn.harMeldtOmBarnehagePlassPåAlleBarnMedLøpendeAndeler(nåværendeAndeler, nåMåned)
+        val meldtOmBarnehagePlassPåAlleBarnMedLøpendeAndelerIForrigeVilkårsvurdering = forrigePersonResultaterPåBarn.harMeldtOmBarnehagePlassPåAlleBarnMedLøpendeAndeler(forrigeAndeler, nåMåned)
 
         if (!meldtOmBarnehagePlassPåAlleBarnMedLøpendeAndelerIForrigeVilkårsvurdering && meldtOmBarnehagePlassPåAlleBarnMedLøpendeAndeler) {
             return Opphørsresultat.OPPHØRT
@@ -56,10 +56,13 @@ object BehandlingsresultatOpphørUtils {
         }
     }
 
-    private fun List<PersonResultat>.harMeldtOmBarnehagePlassPåAlleBarnMedLøpendeAndeler(andelerIBehandling: List<AndelTilkjentYtelse>): Boolean {
+    private fun List<PersonResultat>.harMeldtOmBarnehagePlassPåAlleBarnMedLøpendeAndeler(
+        andelerIBehandling: List<AndelTilkjentYtelse>,
+        nåMåned: YearMonth,
+    ): Boolean {
         val personResultater = this
 
-        val alleBarnMedLøpendeAndeler = personResultater.filter { barn -> andelerIBehandling.any { it.aktør == barn.aktør && it.erLøpende() } }
+        val alleBarnMedLøpendeAndeler = personResultater.filter { barn -> andelerIBehandling.any { it.aktør == barn.aktør && it.erLøpende(nåMåned) } }
 
         val meldtBarnehageplassPåAlleBarnMedLøpendeAndeler =
             alleBarnMedLøpendeAndeler.isNotEmpty() &&

@@ -12,6 +12,8 @@ import no.nav.familie.ks.sak.api.mapper.FagsakMapper.lagMinimalFagsakResponsDto
 import no.nav.familie.ks.sak.api.mapper.FagsakMapper.lagTilbakekrevingsbehandlingResponsDto
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
+import no.nav.familie.ks.sak.common.util.LocalDateProvider
+import no.nav.familie.ks.sak.common.util.toYearMonth
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonService
 import no.nav.familie.ks.sak.integrasjon.pdl.PersonOpplysningerService
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.PdlPersonInfo
@@ -53,6 +55,7 @@ class FagsakService(
     private val tilbakekrevingsbehandlingHentService: TilbakekrevingsbehandlingHentService,
     private val vedtakRepository: VedtakRepository,
     private val andelerTilkjentYtelseRepository: AndelTilkjentYtelseRepository,
+    private val localDateProvider: LocalDateProvider,
 ) {
     private val antallFagsakerOpprettetFraManuell =
         Metrics.counter("familie.ks.sak.fagsak.opprettet", "saksbehandling", "manuell")
@@ -291,7 +294,7 @@ class FagsakService(
             andelerTilkjentYtelseRepository.finnAndelerTilkjentYtelseForAktør(aktør = aktør)
                 .filter { it.type == YtelseType.ORDINÆR_KONTANTSTØTTE }
 
-        val løpendeAndeler = ordinæreAndelerPåAktør.filter { it.erLøpende() }
+        val løpendeAndeler = ordinæreAndelerPåAktør.filter { it.erLøpende(localDateProvider.now().toYearMonth()) }
 
         val behandlingerMedLøpendeAndeler =
             løpendeAndeler
