@@ -170,17 +170,11 @@ private fun erEndringIBeløpForPersonOgType(
             val forrigeBeløp = forrige?.kalkulertUtbetalingsbeløp ?: 0
 
             if (erFremstiltKravForPerson) {
-                // Hvis det er søkt for person vil vi kun ha med endringer som går fra beløp > 0 til 0/null
-                when {
-                    forrigeBeløp > 0 && nåværendeBeløp == 0 -> true
-                    else -> false
-                }
+                // Hvis det er søkt for person vil vi kun ha med endringer som går fra beløp > 0 til 0/null siden vi skal ha innvilgelse når vi øker beløpet.
+                forrigeBeløp > 0 && nåværendeBeløp == 0
             } else {
                 // Hvis det ikke er søkt for person vil vi ha med alle endringer i beløp
-                when {
-                    forrigeBeløp != nåværendeBeløp -> true
-                    else -> false
-                }
+                forrigeBeløp != nåværendeBeløp
             }
         }
             .fjernPerioderEtterOpphørsdato(opphørstidspunktForBehandling)
