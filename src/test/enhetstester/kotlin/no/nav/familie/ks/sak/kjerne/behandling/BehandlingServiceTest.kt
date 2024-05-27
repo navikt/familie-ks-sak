@@ -296,13 +296,7 @@ class BehandlingServiceTest {
         assertEquals(oppdatertBehandling.kategori, BehandlingKategori.NASJONAL)
 
         verify(exactly = 1) { behandlingRepository.hentBehandling(behandling.id) }
-        verify {
-            loggService.opprettEndretBehandlingstemaLogg(
-                any(),
-                BehandlingKategori.NASJONAL,
-                BehandlingKategori.EØS,
-            ) wasNot called
-        }
-        verify { behandlingRepository.save(behandling) wasNot called }
+        verify { loggService wasNot called }
+        verify(exactly = 0) { behandlingRepository.save(behandling) }
     }
 }
