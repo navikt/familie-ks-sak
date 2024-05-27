@@ -60,27 +60,17 @@ object BehandlingsresultatOpphørUtils {
         andelerIBehandling: List<AndelTilkjentYtelse>,
         nåMåned: YearMonth,
     ): Boolean {
-        val personResultater = this
-
-        val alleBarnMedLøpendeAndeler = personResultater.filter { barn -> andelerIBehandling.any { it.aktør == barn.aktør && it.erLøpende(nåMåned) } }
+        val personResultaterForBarnMedLøpendeAndeler = this.filter { barn -> andelerIBehandling.any { it.aktør == barn.aktør && it.erLøpende(nåMåned) } }
 
         val meldtBarnehageplassPåAlleBarnMedLøpendeAndeler =
-            alleBarnMedLøpendeAndeler.isNotEmpty() &&
-                alleBarnMedLøpendeAndeler.all { barn ->
-                    barnHarBarnehageplass(personResultater, barn)
+            personResultaterForBarnMedLøpendeAndeler.isNotEmpty() &&
+                personResultaterForBarnMedLøpendeAndeler.all { personResultatForBarn ->
+                    personResultatForBarn.vilkårResultater.any { vilkårResultat ->
+                        vilkårResultat.harFullBarnehageplass()
+                    }
                 }
 
         return meldtBarnehageplassPåAlleBarnMedLøpendeAndeler
-    }
-
-    private fun barnHarBarnehageplass(
-        personResultater: List<PersonResultat>,
-        barn: PersonResultat,
-    ) = personResultater.any { personresultat ->
-        personresultat.aktør == barn.aktør &&
-            personresultat.vilkårResultater.any { vilkårResultat ->
-                vilkårResultat.harFullBarnehageplass()
-            }
     }
 
     private fun List<AndelTilkjentYtelse>.finnOpphørsdato() = this.maxOfOrNull { it.stønadTom }?.nesteMåned()
