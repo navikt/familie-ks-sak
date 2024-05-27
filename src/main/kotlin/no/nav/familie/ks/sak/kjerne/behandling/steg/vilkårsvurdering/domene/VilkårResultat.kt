@@ -96,7 +96,7 @@ class VilkårResultat(
     fun erIkkeAktuelt() = this.resultat == Resultat.IKKE_AKTUELT
 
     fun harFullBarnehageplass() =
-        this.søkerHarMeldtFraOmBarnehageplass == true && this.antallTimer == null
+        this.søkerHarMeldtFraOmBarnehageplass == true && (this.antallTimer == null || this.antallTimer >= BigDecimal(33))
 
     fun kopierMedNyPeriodeOgBehandling(
         fom: LocalDate?,

@@ -67,15 +67,20 @@ object BehandlingsresultatOpphørUtils {
         val meldtBarnehageplassPåAlleBarnMedLøpendeAndeler =
             alleBarnMedLøpendeAndeler.isNotEmpty() &&
                 alleBarnMedLøpendeAndeler.all { barn ->
-                    personResultater.any { personresultat ->
-                        personresultat.aktør == barn.aktør &&
-                            personresultat.vilkårResultater.any { vilkårResultat ->
-                                vilkårResultat.harFullBarnehageplass()
-                            }
-                    }
+                    barnHarBarnehageplass(personResultater, barn)
                 }
 
         return meldtBarnehageplassPåAlleBarnMedLøpendeAndeler
+    }
+
+    private fun barnHarBarnehageplass(
+        personResultater: List<PersonResultat>,
+        barn: PersonResultat,
+    ) = personResultater.any { personresultat ->
+        personresultat.aktør == barn.aktør &&
+            personresultat.vilkårResultater.any { vilkårResultat ->
+                vilkårResultat.harFullBarnehageplass()
+            }
     }
 
     private fun List<AndelTilkjentYtelse>.finnOpphørsdato() = this.maxOfOrNull { it.stønadTom }?.nesteMåned()
