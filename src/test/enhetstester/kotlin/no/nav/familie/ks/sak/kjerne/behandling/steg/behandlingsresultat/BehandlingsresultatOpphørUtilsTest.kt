@@ -587,6 +587,7 @@ class BehandlingsresultatOpphørUtilsTest {
                             vurderesEtter = Regelverk.EØS_FORORDNINGEN,
                             utdypendeVilkårsvurderinger = listOf(UtdypendeVilkårsvurdering.ANNEN_FORELDER_OMFATTET_AV_NORSK_LOVGIVNING),
                             søkerHarMeldtFraOmBarnehageplass = true,
+                            antallTimer = BigDecimal(33),
                         ),
                     ),
             )
@@ -607,6 +608,7 @@ class BehandlingsresultatOpphørUtilsTest {
                             vurderesEtter = Regelverk.EØS_FORORDNINGEN,
                             utdypendeVilkårsvurderinger = listOf(UtdypendeVilkårsvurdering.ANNEN_FORELDER_OMFATTET_AV_NORSK_LOVGIVNING),
                             søkerHarMeldtFraOmBarnehageplass = true,
+                            antallTimer = BigDecimal(33),
                         ),
                     ),
             )
@@ -646,6 +648,7 @@ class BehandlingsresultatOpphørUtilsTest {
                             vurderesEtter = Regelverk.EØS_FORORDNINGEN,
                             utdypendeVilkårsvurderinger = listOf(UtdypendeVilkårsvurdering.ANNEN_FORELDER_OMFATTET_AV_NORSK_LOVGIVNING),
                             søkerHarMeldtFraOmBarnehageplass = true,
+                            antallTimer = BigDecimal(33),
                         ),
                     ),
             )
@@ -666,6 +669,7 @@ class BehandlingsresultatOpphørUtilsTest {
                             vurderesEtter = Regelverk.EØS_FORORDNINGEN,
                             utdypendeVilkårsvurderinger = listOf(UtdypendeVilkårsvurdering.ANNEN_FORELDER_OMFATTET_AV_NORSK_LOVGIVNING),
                             søkerHarMeldtFraOmBarnehageplass = true,
+                            antallTimer = BigDecimal(33),
                         ),
                     ),
             )

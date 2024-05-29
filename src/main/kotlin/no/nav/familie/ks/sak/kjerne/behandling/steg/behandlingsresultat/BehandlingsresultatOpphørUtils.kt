@@ -27,8 +27,8 @@ object BehandlingsresultatOpphørUtils {
         forrigePersonResultaterPåBarn: List<PersonResultat>,
         nåMåned: YearMonth,
     ): Opphørsresultat {
-        val meldtOmBarnehagePlassPåAlleBarnMedLøpendeAndeler = nåværendePersonResultaterPåBarn.harMeldtOmBarnehagePlassPåAlleBarnMedLøpendeAndeler(nåværendeAndeler)
-        val meldtOmBarnehagePlassPåAlleBarnMedLøpendeAndelerIForrigeVilkårsvurdering = forrigePersonResultaterPåBarn.harMeldtOmBarnehagePlassPåAlleBarnMedLøpendeAndeler(forrigeAndeler)
+        val meldtOmBarnehagePlassPåAlleBarnMedLøpendeAndeler = nåværendePersonResultaterPåBarn.harMeldtOmBarnehagePlassPåAlleBarnMedLøpendeAndeler(nåværendeAndeler, nåMåned)
+        val meldtOmBarnehagePlassPåAlleBarnMedLøpendeAndelerIForrigeVilkårsvurdering = forrigePersonResultaterPåBarn.harMeldtOmBarnehagePlassPåAlleBarnMedLøpendeAndeler(forrigeAndeler, nåMåned)
 
         if (!meldtOmBarnehagePlassPåAlleBarnMedLøpendeAndelerIForrigeVilkårsvurdering && meldtOmBarnehagePlassPåAlleBarnMedLøpendeAndeler) {
             return Opphørsresultat.OPPHØRT
@@ -56,17 +56,17 @@ object BehandlingsresultatOpphørUtils {
         }
     }
 
-    private fun List<PersonResultat>.harMeldtOmBarnehagePlassPåAlleBarnMedLøpendeAndeler(andelerIBehandling: List<AndelTilkjentYtelse>): Boolean {
-        val personResultater = this
-
-        val alleBarnMedLøpendeAndeler = personResultater.filter { barn -> andelerIBehandling.any { it.aktør == barn.aktør && it.erLøpende() } }
+    private fun List<PersonResultat>.harMeldtOmBarnehagePlassPåAlleBarnMedLøpendeAndeler(
+        andelerIBehandling: List<AndelTilkjentYtelse>,
+        nåMåned: YearMonth,
+    ): Boolean {
+        val personResultaterForBarnMedLøpendeAndeler = this.filter { barn -> andelerIBehandling.any { it.aktør == barn.aktør && it.erLøpende(nåMåned) } }
 
         val meldtBarnehageplassPåAlleBarnMedLøpendeAndeler =
-            alleBarnMedLøpendeAndeler.isNotEmpty() &&
-                alleBarnMedLøpendeAndeler.all { barn ->
-                    personResultater.any { personresultat ->
-                        personresultat.aktør == barn.aktør &&
-                            personresultat.vilkårResultater.any { vilkårResultat -> vilkårResultat.søkerHarMeldtFraOmBarnehageplass == true }
+            personResultaterForBarnMedLøpendeAndeler.isNotEmpty() &&
+                personResultaterForBarnMedLøpendeAndeler.all { personResultatForBarn ->
+                    personResultatForBarn.vilkårResultater.any { vilkårResultat ->
+                        vilkårResultat.harMeldtBarnehageplassOgErFulltidIBarnehage()
                     }
                 }
 

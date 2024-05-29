@@ -128,7 +128,7 @@ data class AndelTilkjentYtelse(
 
     fun stønadsPeriode() = MånedPeriode(this.stønadFom, this.stønadTom)
 
-    fun erLøpende(): Boolean = this.stønadTom > YearMonth.now()
+    fun erLøpende(nåÅrMåned: YearMonth): Boolean = this.stønadTom > nåÅrMåned
 
     fun overlapperMed(andelFraAnnenBehandling: AndelTilkjentYtelse): Boolean {
         return this.type == andelFraAnnenBehandling.type &&

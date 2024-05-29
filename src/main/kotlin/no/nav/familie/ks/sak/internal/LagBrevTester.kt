@@ -25,6 +25,7 @@ import no.nav.familie.ks.sak.kjerne.eøs.valutakurs.domene.Valutakurs
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
 import org.apache.commons.lang3.RandomStringUtils
+import java.math.BigDecimal
 import java.time.LocalDate
 
 fun lagBrevTest(
@@ -159,7 +160,7 @@ fun hentTekstForVilkårresultater(
     return """
         
     Og følgende vilkårresultater for behandling $behandlingId
-      | AktørId | Vilkår | Utdypende vilkår | Fra dato | Til dato | Resultat | Er eksplisitt avslag | Standardbegrunnelser | Vurderes etter | Søker har meldt fra om barnehageplass |""" +
+      | AktørId | Vilkår | Utdypende vilkår | Fra dato | Til dato | Resultat | Er eksplisitt avslag | Standardbegrunnelser | Vurderes etter | Søker har meldt fra om barnehageplass | Antall timer |""" +
         tilVilkårResultatRader(personResultater)
 }
 
@@ -176,6 +177,7 @@ data class VilkårResultatRad(
     val standardbegrunnelser: List<IBegrunnelse>,
     val vurderesEtter: Regelverk?,
     val søkerHarMeldtFraOmBarnehageplass: Boolean?,
+    val antallTimer: BigDecimal?,
 )
 
 private fun tilVilkårResultatRader(personResultater: List<PersonResultat>?) =
@@ -193,6 +195,7 @@ private fun tilVilkårResultatRader(personResultater: List<PersonResultat>?) =
                     it.begrunnelser,
                     it.vurderesEtter,
                     it.søkerHarMeldtFraOmBarnehageplass,
+                    it.antallTimer,
                 )
             }.toList().joinToString("") { (vilkårResultatRad, vilkårResultater) ->
                 "\n | ${vilkårResultatRad.aktørId} " +
@@ -205,6 +208,7 @@ private fun tilVilkårResultatRader(personResultater: List<PersonResultat>?) =
                     "| ${vilkårResultatRad.standardbegrunnelser.joinToString(",")}" +
                     "| ${vilkårResultatRad.vurderesEtter ?: ""} " +
                     "| ${if (vilkårResultatRad.søkerHarMeldtFraOmBarnehageplass == true) "Ja" else "Nei"} " +
+                    "| ${vilkårResultatRad.antallTimer ?: ""} " +
                     "| "
             }
     } ?: ""

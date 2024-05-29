@@ -130,7 +130,6 @@ class BehandlingsresultatService(
                     // alle barna som er krysset av på søknad
                     søknadDto?.barnaMedOpplysninger?.filter { it.erFolkeregistrert && it.inkludertISøknaden }?.map { personidentService.hentAktør(it.ident) } ?: emptyList()
                 }
-
                 BehandlingÅrsak.KLAGE -> personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(behandling.id).personer.map { it.aktør }
                 else -> emptyList()
             }

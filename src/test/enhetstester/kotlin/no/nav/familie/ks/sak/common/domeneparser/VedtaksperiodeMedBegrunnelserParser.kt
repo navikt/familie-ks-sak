@@ -66,6 +66,7 @@ object VedtaksperiodeMedBegrunnelserParser {
         EØSBEGRUNNELSER("Eøsbegrunnelser"),
         FRITEKSTER("Fritekster"),
         FREMTIDIG_BARNEHAGEPLASS("Søker har meldt fra om barnehageplass"),
+        ANTALL_TIMER("Antall timer"),
     }
 
     enum class DomenebegrepKompetanse(override val nøkkel: String) : Domenenøkkel {

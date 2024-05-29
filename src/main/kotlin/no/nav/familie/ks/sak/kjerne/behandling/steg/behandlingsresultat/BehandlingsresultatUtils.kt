@@ -24,7 +24,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat.OPPHØ
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 
 object BehandlingsresultatUtils {
-    internal fun skalUtledeSøknadsresultatForBehandling(behandling: Behandling): Boolean = behandling.opprettetÅrsak == BehandlingÅrsak.SØKNAD
+    internal fun skalUtledeSøknadsresultatForBehandling(behandling: Behandling): Boolean = behandling.opprettetÅrsak in listOf(BehandlingÅrsak.SØKNAD, BehandlingÅrsak.KLAGE)
 
     internal fun kombinerResultaterTilBehandlingsresultat(
         // Søknadsresultat er null hvis det ikke er en søknad/fødselshendelse/manuell migrering
