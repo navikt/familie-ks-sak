@@ -107,12 +107,12 @@ class StepDefinition {
     @Og("følgende behandlinger")
     fun `følgende behandling`(dataTable: DataTable) {
         behandlinger =
-            lagBehanldinger(
+            lagbehandlinger(
                 dataTable = dataTable,
                 fagsaker = fagsaker,
             ).associateBy { it.id }.toMutableMap()
 
-        behandlingTilForrigeBehandling = lagBehandlingTilForrigeBehanlingMap(dataTable)
+        behandlingTilForrigeBehandling = lagBehandlingTilForrigeBehandlingMap(dataTable)
     }
 
     private fun Behandling.tilVedtak() = lagVedtak(this)

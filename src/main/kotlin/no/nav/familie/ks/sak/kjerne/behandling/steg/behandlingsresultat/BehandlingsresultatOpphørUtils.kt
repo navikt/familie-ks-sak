@@ -66,7 +66,7 @@ object BehandlingsresultatOpphørUtils {
             personResultaterForBarnMedLøpendeAndeler.isNotEmpty() &&
                 personResultaterForBarnMedLøpendeAndeler.all { personResultatForBarn ->
                     personResultatForBarn.vilkårResultater.any { vilkårResultat ->
-                        vilkårResultat.harFullBarnehageplass()
+                        vilkårResultat.harMeldtBarnehageplassOgErFulltidIBarnehage()
                     }
                 }
 

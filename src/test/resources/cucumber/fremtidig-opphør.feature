@@ -141,14 +141,14 @@ Egenskap: Fremtidig opphør - søker har meldt ifra om fremtidig barnehageplass
       | 2       | BARNETS_ALDER                 |                  | 28.09.2023 | 28.09.2024 | OPPFYLT  | Nei                  |                      |                  |                                       |
 
     Og følgende vilkårresultater for behandling 2
-      | AktørId | Vilkår                        | Utdypende vilkår | Fra dato   | Til dato   | Resultat | Er eksplisitt avslag | Standardbegrunnelser | Vurderes etter   | Søker har meldt fra om barnehageplass |
-      | 1       | BOSATT_I_RIKET                |                  | 15.10.1988 |            | OPPFYLT  | Nei                  |                      | NASJONALE_REGLER |                                       |
-      | 1       | MEDLEMSKAP                    |                  | 15.11.1993 |            | OPPFYLT  | Nei                  |                      | NASJONALE_REGLER |                                       |
+      | AktørId | Vilkår                        | Utdypende vilkår | Fra dato   | Til dato   | Resultat | Er eksplisitt avslag | Standardbegrunnelser | Vurderes etter   | Søker har meldt fra om barnehageplass | Antall timer |
+      | 1       | BOSATT_I_RIKET                |                  | 15.10.1988 |            | OPPFYLT  | Nei                  |                      | NASJONALE_REGLER |                                       |              |
+      | 1       | MEDLEMSKAP                    |                  | 15.11.1993 |            | OPPFYLT  | Nei                  |                      | NASJONALE_REGLER |                                       |              |
 
-      | 2       | MEDLEMSKAP_ANNEN_FORELDER     |                  | 15.12.1980 |            | OPPFYLT  | Nei                  |                      | NASJONALE_REGLER |                                       |
-      | 2       | BOSATT_I_RIKET, BOR_MED_SØKER |                  | 28.09.2022 |            | OPPFYLT  | Nei                  |                      | NASJONALE_REGLER |                                       |
-      | 2       | BARNEHAGEPLASS                |                  | 28.09.2022 | 31.05.2024 | OPPFYLT  | Nei                  |                      |                  | Ja                                    |
-      | 2       | BARNETS_ALDER                 |                  | 28.09.2023 | 28.09.2024 | OPPFYLT  | Nei                  |                      |                  |                                       |
+      | 2       | MEDLEMSKAP_ANNEN_FORELDER     |                  | 15.12.1980 |            | OPPFYLT  | Nei                  |                      | NASJONALE_REGLER |                                       |              |
+      | 2       | BOSATT_I_RIKET, BOR_MED_SØKER |                  | 28.09.2022 |            | OPPFYLT  | Nei                  |                      | NASJONALE_REGLER |                                       |              |
+      | 2       | BARNEHAGEPLASS                |                  | 28.09.2022 | 31.05.2024 | OPPFYLT  | Nei                  |                      |                  | Ja                                    |              |
+      | 2       | BARNETS_ALDER                 |                  | 28.09.2023 | 28.09.2024 | OPPFYLT  | Nei                  |                      |                  |                                       |              |
 
     Og andeler er beregnet for behandling 1
     Og andeler er beregnet for behandling 2

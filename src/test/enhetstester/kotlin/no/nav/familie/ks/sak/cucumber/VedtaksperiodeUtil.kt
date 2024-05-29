@@ -78,7 +78,7 @@ fun lagFagsaker(dataTable: DataTable) =
         )
     }.associateBy { it.id }
 
-fun lagBehanldinger(
+fun lagbehandlinger(
     dataTable: DataTable,
     fagsaker: Map<Long, Fagsak>,
 ): List<Behandling> {
@@ -114,7 +114,7 @@ fun lagBehanldinger(
     }
 }
 
-fun lagBehandlingTilForrigeBehanlingMap(
+fun lagBehandlingTilForrigeBehandlingMap(
     dataTable: DataTable,
 ) = dataTable.asMaps().associate { rad ->
     parseLong(Domenebegrep.BEHANDLING_ID, rad) to parseValgfriLong(Domenebegrep.FORRIGE_BEHANDLING_ID, rad)

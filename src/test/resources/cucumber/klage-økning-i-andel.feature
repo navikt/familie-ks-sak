@@ -54,7 +54,7 @@ Egenskap: Klagebehandling med endret ytelse
       | 2       | 01.04.2024 | 31.01.2025 | 3000  | ORDINÆR_KONTANTSTØTTE | 40      | 7500 | 3000                   |                          |
     Og når behandlingsresultatet er utledet for behandling 2
 
-    Så forvent at behandlingsresultatet er ENDRET_UTBETALING på behandling 2
+    Så forvent at behandlingsresultatet er INNVILGET på behandling 2
 
     Og vedtaksperioder er laget for behandling 2
     Så forvent at følgende begrunnelser er gyldige for behandling 2
