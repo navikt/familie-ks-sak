@@ -52,11 +52,11 @@ dependencies {
     val fellesKontrakterVersion = "3.0_20240506120136_2e7f6d9"
     val familieKontrakterSaksstatistikkVersion = "2.0_20230214104704_706e9c0"
     val familieKontrakterStønadsstatistikkKsVersion = "2.0_20240131125409_e3d0f6d"
-    val tokenValidationSpringVersion = "4.1.4"
+    val tokenValidationSpringVersion = "4.1.7"
     val navFoedselsnummerVersion = "1.0-SNAPSHOT.6"
     val prosesseringVersion = "2.20240426120029_490d299"
     val restAssuredVersion = "5.4.0"
-    val kotlinxVersion = "1.8.0"
+    val kotlinxVersion = "1.8.1"
     val utbetalingsgeneratorVersion = "1.0_20240426154435_ca351af"
 
     // ---------- Spring ---------- \\
@@ -122,7 +122,7 @@ dependencies {
     implementation("nav-foedselsnummer:core:$navFoedselsnummerVersion")
 
     implementation("com.papertrailapp:logback-syslog4j:1.0.0")
-    implementation("io.getunleash:unleash-client-java:9.2.1")
+    implementation("io.getunleash:unleash-client-java:9.2.2")
     implementation("io.sentry:sentry-spring-boot-starter-jakarta:$sentryVersion")
     implementation("io.sentry:sentry-logback:$sentryVersion")
     implementation("io.micrometer:micrometer-registry-prometheus")
@@ -142,8 +142,8 @@ dependencies {
     testImplementation("org.springframework.cloud:spring-cloud-contract-wiremock:4.1.2")
     testImplementation("io.rest-assured:spring-mock-mvc:$restAssuredVersion")
     testImplementation("io.rest-assured:kotlin-extensions:$restAssuredVersion")
-    testImplementation("org.testcontainers:postgresql:1.19.7")
-    testImplementation("no.nav.security:mock-oauth2-server:2.1.2")
+    testImplementation("org.testcontainers:postgresql:1.19.8")
+    testImplementation("no.nav.security:mock-oauth2-server:2.1.5")
     testImplementation("no.nav.security:token-validation-test-support:2.0.5")
     testImplementation("no.nav.security:token-validation-spring-test:$tokenValidationSpringVersion")
     testImplementation("nav-foedselsnummer:testutils:1.0-SNAPSHOT.6")
