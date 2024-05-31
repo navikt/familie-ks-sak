@@ -212,7 +212,7 @@ class StegService(
 
     private fun hentNesteStegOgOpprettTaskEtterBeslutteVedtak(behandling: Behandling): BehandlingSteg {
         return when {
-            behandling.erTekniskEndring() -> if (behandling.resultat.kanIkkeSendesTilOppdrag()) AVSLUTT_BEHANDLING else IVERKSETT_MOT_OPPDRAG
+            behandling.erTekniskEndring() -> if (!erEndringIUtbetaling(behandling)) AVSLUTT_BEHANDLING else IVERKSETT_MOT_OPPDRAG
             !erEndringIUtbetaling(behandling) -> {
                 opprettJournalførVedtaksbrevTaskPåBehandling(behandling)
                 JOURNALFØR_VEDTAKSBREV
