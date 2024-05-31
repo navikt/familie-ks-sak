@@ -17,6 +17,7 @@ import no.nav.familie.ks.sak.api.dto.SøkerMedOpplysningerDto
 import no.nav.familie.ks.sak.api.dto.SøknadDto
 import no.nav.familie.ks.sak.api.mapper.SøknadGrunnlagMapper
 import no.nav.familie.ks.sak.common.exception.Feil
+import no.nav.familie.ks.sak.data.lagAndelTilkjentYtelse
 import no.nav.familie.ks.sak.data.lagArbeidsfordelingPåBehandling
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagBehandlingStegTilstand
@@ -54,6 +55,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.VedtakReposito
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingSteg
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
 import no.nav.familie.ks.sak.kjerne.beregning.BeregningService
+import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelseRepository
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.FagsakStatus
 import no.nav.familie.ks.sak.kjerne.tilbakekreving.domene.Tilbakekreving
 import no.nav.familie.ks.sak.kjerne.tilbakekreving.domene.TilbakekrevingRepository
@@ -109,6 +111,9 @@ class StegServiceTest : OppslagSpringRunnerTest() {
 
     @Autowired
     private lateinit var tilbakekrevingRepository: TilbakekrevingRepository
+
+    @Autowired
+    private lateinit var andelTilkjentYtelseRepository: AndelTilkjentYtelseRepository
 
     @BeforeEach
     fun setup() {
@@ -303,6 +308,15 @@ class StegServiceTest : OppslagSpringRunnerTest() {
         behandling.status = BehandlingStatus.FATTER_VEDTAK
         lagreBehandling(behandling)
         vedtakRepository.saveAndFlush(Vedtak(behandling = behandling, vedtaksdato = LocalDateTime.now()))
+
+        lagTilkjentYtelse("")
+        val andelTilkjentYtelse =
+            lagAndelTilkjentYtelse(
+                tilkjentYtelse = tilkjentYtelse,
+                kalkulertUtbetalingsbeløp = 1000,
+                behandling = behandling,
+            )
+        andelTilkjentYtelseRepository.saveAndFlush(andelTilkjentYtelse)
 
         val beslutteVedtakDto = BesluttVedtakDto(beslutning = Beslutning.GODKJENT, begrunnelse = "Godkjent")
         assertDoesNotThrow { stegService.utførSteg(behandling.id, BESLUTTE_VEDTAK, beslutteVedtakDto) }
