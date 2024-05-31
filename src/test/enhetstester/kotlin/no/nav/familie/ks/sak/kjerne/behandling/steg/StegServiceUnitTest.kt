@@ -9,21 +9,30 @@ import io.mockk.mockk
 import io.mockk.runs
 import io.mockk.slot
 import io.mockk.verify
+import no.nav.familie.ks.sak.api.dto.BesluttVedtakDto
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
+import no.nav.familie.ks.sak.data.lagAndelTilkjentYtelse
 import no.nav.familie.ks.sak.data.lagBehandling
+import no.nav.familie.ks.sak.data.lagVedtak
+import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
+import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
+import no.nav.familie.ks.sak.kjerne.behandling.domene.Beslutning
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.VedtakRepository
+import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelseRepository
 import no.nav.familie.ks.sak.kjerne.logg.LoggService
 import no.nav.familie.ks.sak.kjerne.tilbakekreving.domene.TilbakekrevingRepository
 import no.nav.familie.ks.sak.statistikk.saksstatistikk.SakStatistikkService
 import no.nav.familie.prosessering.internal.TaskService
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
 import java.time.LocalDate
+import java.time.YearMonth
 
 @ExtendWith(MockKExtension::class)
 class StegServiceUnitTest {
@@ -44,6 +53,12 @@ class StegServiceUnitTest {
 
     @MockK
     private lateinit var taskService: TaskService
+
+    @MockK
+    private lateinit var andelTilkjentYtelseRepository: AndelTilkjentYtelseRepository
+
+    @MockK
+    private lateinit var behandlingService: BehandlingService
 
     @MockK
     private lateinit var loggService: LoggService
@@ -143,5 +158,122 @@ class StegServiceUnitTest {
         )
 
         verify(exactly = 1) { behandlingRepository.saveAndFlush(any()) }
+    }
+
+    @Test
+    fun `skal iverksette mot oppdrag hvis det er endring i andeler`() {
+        // Arrange
+        val forrigeBehandling = lagBehandling(fagsak = behandling.fagsak, resultat = Behandlingsresultat.INNVILGET)
+        val forrigeBehandlingAndeler =
+            listOf(
+                lagAndelTilkjentYtelse(
+                    behandling = forrigeBehandling,
+                    stønadFom = YearMonth.now().minusMonths(5),
+                    stønadTom = YearMonth.now().minusMonths(3),
+                    kalkulertUtbetalingsbeløp = 1000,
+                ),
+            )
+
+        val behandlingAndeler =
+            listOf(
+                lagAndelTilkjentYtelse(
+                    behandling = behandling,
+                    stønadFom = YearMonth.now().minusMonths(5),
+                    stønadTom = YearMonth.now().minusMonths(3),
+                    kalkulertUtbetalingsbeløp = 2000,
+                ),
+            )
+
+        every { behandlingService.hentSisteBehandlingSomErIverksatt(behandling.fagsak.id) } returns forrigeBehandling
+        every { andelTilkjentYtelseRepository.finnAndelerTilkjentYtelseForBehandling(forrigeBehandling.id) } returns forrigeBehandlingAndeler
+        every { andelTilkjentYtelseRepository.finnAndelerTilkjentYtelseForBehandling(behandling.id) } returns behandlingAndeler
+        every { vedtakRepository.findByBehandlingAndAktiv(any()) } returns lagVedtak()
+        every { taskService.save(any()) } returns mockk()
+
+        val behandlingsStegDto =
+            BesluttVedtakDto(
+                Beslutning.GODKJENT,
+                "GODKJENT",
+            )
+
+        // Act
+        val nesteSteg = stegService.hentNesteSteg(behandling, BehandlingSteg.BESLUTTE_VEDTAK, behandlingsStegDto)
+
+        // Assert
+        assertThat(nesteSteg).isEqualTo(BehandlingSteg.IVERKSETT_MOT_OPPDRAG)
+    }
+
+    @Test
+    fun `skal ikke iverksette mot oppdrag hvis det ikke er endring i andeler`() {
+        // Arrange
+        val forrigeBehandling = lagBehandling(fagsak = behandling.fagsak, resultat = Behandlingsresultat.INNVILGET)
+        val forrigeBehandlingAndeler =
+            listOf(
+                lagAndelTilkjentYtelse(
+                    behandling = forrigeBehandling,
+                    stønadFom = YearMonth.now().minusMonths(5),
+                    stønadTom = YearMonth.now().minusMonths(3),
+                    kalkulertUtbetalingsbeløp = 1000,
+                ),
+            )
+
+        val behandlingAndeler =
+            listOf(
+                lagAndelTilkjentYtelse(
+                    behandling = behandling,
+                    stønadFom = YearMonth.now().minusMonths(5),
+                    stønadTom = YearMonth.now().minusMonths(3),
+                    kalkulertUtbetalingsbeløp = 1000,
+                ),
+            )
+
+        every { behandlingService.hentSisteBehandlingSomErIverksatt(behandling.fagsak.id) } returns forrigeBehandling
+        every { andelTilkjentYtelseRepository.finnAndelerTilkjentYtelseForBehandling(forrigeBehandling.id) } returns forrigeBehandlingAndeler
+        every { andelTilkjentYtelseRepository.finnAndelerTilkjentYtelseForBehandling(behandling.id) } returns behandlingAndeler
+        every { vedtakRepository.findByBehandlingAndAktiv(any()) } returns lagVedtak()
+        every { taskService.save(any()) } returns mockk()
+
+        val behandlingsStegDto =
+            BesluttVedtakDto(
+                Beslutning.GODKJENT,
+                "GODKJENT",
+            )
+
+        // Act
+        val nesteSteg = stegService.hentNesteSteg(behandling, BehandlingSteg.BESLUTTE_VEDTAK, behandlingsStegDto)
+
+        // Assert
+        assertThat(nesteSteg).isEqualTo(BehandlingSteg.JOURNALFØR_VEDTAKSBREV)
+    }
+
+    @Test
+    fun `skal iverksette mot oppdrag sålenge det er andeler på en førstegangsbehandling`() {
+        // Arrange
+        val behandlingAndeler =
+            listOf(
+                lagAndelTilkjentYtelse(
+                    behandling = behandling,
+                    stønadFom = YearMonth.now().minusMonths(5),
+                    stønadTom = YearMonth.now().minusMonths(3),
+                    kalkulertUtbetalingsbeløp = 1000,
+                ),
+            )
+
+        every { behandlingService.hentSisteBehandlingSomErIverksatt(behandling.fagsak.id) } returns null
+        every { andelTilkjentYtelseRepository.finnAndelerTilkjentYtelseForBehandling(behandling.id) } returns behandlingAndeler
+        every { vedtakRepository.findByBehandlingAndAktiv(any()) } returns lagVedtak()
+        every { taskService.save(any()) } returns mockk()
+
+        val behandlingsStegDto =
+            BesluttVedtakDto(
+                Beslutning.GODKJENT,
+                "GODKJENT",
+            )
+
+        // Act
+        val nesteSteg = stegService.hentNesteSteg(behandling, BehandlingSteg.BESLUTTE_VEDTAK, behandlingsStegDto)
+
+        // Assert
+        assertThat(nesteSteg).isEqualTo(BehandlingSteg.IVERKSETT_MOT_OPPDRAG)
     }
 }

@@ -1,10 +1,13 @@
 package no.nav.familie.ks.sak.kjerne.behandling.steg
 
+import no.nav.familie.ba.sak.kjerne.forrigebehandling.EndringIUtbetalingUtil.lagEndringIUtbetalingTidslinje
 import no.nav.familie.kontrakter.felles.tilbakekreving.Tilbakekrevingsvalg
 import no.nav.familie.ks.sak.api.dto.BehandlingStegDto
 import no.nav.familie.ks.sak.api.dto.BesluttVedtakDto
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
+import no.nav.familie.ks.sak.common.tidslinje.utvidelser.tilPerioder
+import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStegTilstand
@@ -16,6 +19,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg.JOURNALFØR_V
 import no.nav.familie.ks.sak.kjerne.behandling.steg.iverksettmotoppdrag.IverksettMotOppdragTask
 import no.nav.familie.ks.sak.kjerne.behandling.steg.journalførvedtaksbrev.JournalførVedtaksbrevTask
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.VedtakRepository
+import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelseRepository
 import no.nav.familie.ks.sak.kjerne.logg.LoggService
 import no.nav.familie.ks.sak.kjerne.tilbakekreving.SendOpprettTilbakekrevingsbehandlingRequestTask
 import no.nav.familie.ks.sak.kjerne.tilbakekreving.domene.TilbakekrevingRepository
@@ -36,6 +40,8 @@ class StegService(
     private val sakStatistikkService: SakStatistikkService,
     private val taskService: TaskService,
     private val loggService: LoggService,
+    private val behandlingService: BehandlingService,
+    private val andelTilkjentYtelseRepository: AndelTilkjentYtelseRepository,
 ) {
     @Transactional
     fun utførSteg(
@@ -207,13 +213,25 @@ class StegService(
     private fun hentNesteStegOgOpprettTaskEtterBeslutteVedtak(behandling: Behandling): BehandlingSteg {
         return when {
             behandling.erTekniskEndring() -> if (behandling.resultat.kanIkkeSendesTilOppdrag()) AVSLUTT_BEHANDLING else IVERKSETT_MOT_OPPDRAG
-            behandling.resultat.kanIkkeSendesTilOppdrag() -> {
+            !erEndringIUtbetaling(behandling) -> {
                 opprettJournalførVedtaksbrevTaskPåBehandling(behandling)
                 JOURNALFØR_VEDTAKSBREV
             }
 
             else -> IVERKSETT_MOT_OPPDRAG
         }
+    }
+
+    private fun erEndringIUtbetaling(behandling: Behandling): Boolean {
+        val forrigeBehandling = behandlingService.hentSisteBehandlingSomErIverksatt(behandling.fagsak.id)
+        val andelerForrigeBehandling =
+            forrigeBehandling?.let { andelTilkjentYtelseRepository.finnAndelerTilkjentYtelseForBehandling(it.id) }
+                ?: emptyList()
+
+        val andelerBehandling = behandling.let { andelTilkjentYtelseRepository.finnAndelerTilkjentYtelseForBehandling(it.id) }
+
+        return lagEndringIUtbetalingTidslinje(andelerBehandling, andelerForrigeBehandling)
+            .tilPerioder().any { it.verdi == true }
     }
 
     private fun utførStegAutomatisk(behandling: Behandling) {
