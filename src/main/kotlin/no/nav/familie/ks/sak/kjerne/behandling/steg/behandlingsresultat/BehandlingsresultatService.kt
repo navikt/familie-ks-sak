@@ -96,7 +96,6 @@ class BehandlingsresultatService(
                     personerFremstiltKravFor = personerFremstiltKravFor,
                     personerIBehandling = personerIBehandling,
                     personerIForrigeBehandling = personerIForrigeBehandling,
-                    nåDato = localDateProvider.now(),
                 )
             } else {
                 Endringsresultat.INGEN_ENDRING
