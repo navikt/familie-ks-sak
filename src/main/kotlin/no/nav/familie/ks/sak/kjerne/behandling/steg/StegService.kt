@@ -187,7 +187,7 @@ class StegService(
         behandlingStegDto: BehandlingStegDto?,
     ): BehandlingSteg {
         val nesteGyldigeStadier =
-            BehandlingSteg.values().filter {
+            BehandlingSteg.entries.filter {
                 it.sekvens > behandledeSteg.sekvens &&
                     behandling.opprettetÅrsak in it.gyldigForÅrsaker &&
                     behandling.resultat in it.gyldigForResultater
