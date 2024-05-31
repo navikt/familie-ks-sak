@@ -204,6 +204,39 @@ class StegServiceUnitTest {
     }
 
     @Test
+    fun `skal iverksette mot oppdrag hvis det mangler andeler i ny behandling`() {
+        // Arrange
+        val forrigeBehandling = lagBehandling(fagsak = behandling.fagsak, resultat = Behandlingsresultat.INNVILGET)
+        val forrigeBehandlingAndeler =
+            listOf(
+                lagAndelTilkjentYtelse(
+                    behandling = forrigeBehandling,
+                    stønadFom = YearMonth.now().minusMonths(5),
+                    stønadTom = YearMonth.now().minusMonths(3),
+                    kalkulertUtbetalingsbeløp = 2000,
+                ),
+            )
+
+        every { behandlingService.hentSisteBehandlingSomErIverksatt(behandling.fagsak.id) } returns forrigeBehandling
+        every { andelTilkjentYtelseRepository.finnAndelerTilkjentYtelseForBehandling(forrigeBehandling.id) } returns forrigeBehandlingAndeler
+        every { andelTilkjentYtelseRepository.finnAndelerTilkjentYtelseForBehandling(behandling.id) } returns emptyList()
+        every { vedtakRepository.findByBehandlingAndAktiv(any()) } returns lagVedtak()
+        every { taskService.save(any()) } returns mockk()
+
+        val behandlingsStegDto =
+            BesluttVedtakDto(
+                Beslutning.GODKJENT,
+                "GODKJENT",
+            )
+
+        // Act
+        val nesteSteg = stegService.hentNesteSteg(behandling, BehandlingSteg.BESLUTTE_VEDTAK, behandlingsStegDto)
+
+        // Assert
+        assertThat(nesteSteg).isEqualTo(BehandlingSteg.IVERKSETT_MOT_OPPDRAG)
+    }
+
+    @Test
     fun `skal ikke iverksette mot oppdrag hvis det ikke er endring i andeler`() {
         // Arrange
         val forrigeBehandling = lagBehandling(fagsak = behandling.fagsak, resultat = Behandlingsresultat.INNVILGET)
@@ -275,5 +308,26 @@ class StegServiceUnitTest {
 
         // Assert
         assertThat(nesteSteg).isEqualTo(BehandlingSteg.IVERKSETT_MOT_OPPDRAG)
+    }
+
+    @Test
+    fun `skal ikke iverksette hvis det mangler andeler på behandlingen`() {
+        // Arrange
+        every { behandlingService.hentSisteBehandlingSomErIverksatt(behandling.fagsak.id) } returns null
+        every { andelTilkjentYtelseRepository.finnAndelerTilkjentYtelseForBehandling(behandling.id) } returns emptyList()
+        every { vedtakRepository.findByBehandlingAndAktiv(any()) } returns lagVedtak()
+        every { taskService.save(any()) } returns mockk()
+
+        val behandlingsStegDto =
+            BesluttVedtakDto(
+                Beslutning.GODKJENT,
+                "GODKJENT",
+            )
+
+        // Act
+        val nesteSteg = stegService.hentNesteSteg(behandling, BehandlingSteg.BESLUTTE_VEDTAK, behandlingsStegDto)
+
+        // Assert
+        assertThat(nesteSteg).isEqualTo(BehandlingSteg.JOURNALFØR_VEDTAKSBREV)
     }
 }
