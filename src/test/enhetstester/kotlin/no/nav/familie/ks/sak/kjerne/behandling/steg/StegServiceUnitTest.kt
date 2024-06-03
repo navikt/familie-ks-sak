@@ -311,7 +311,7 @@ class StegServiceUnitTest {
     }
 
     @Test
-    fun `skal ikke iverksette hvis det er første iverksettelse og det ikke er andeler på behandlingen`() {
+    fun `skal ikke iverksette hvis det mangler andeler på behandlingen`() {
         // Arrange
         every { behandlingService.hentSisteBehandlingSomErIverksatt(behandling.fagsak.id) } returns null
         every { andelTilkjentYtelseRepository.finnAndelerTilkjentYtelseForBehandling(behandling.id) } returns emptyList()

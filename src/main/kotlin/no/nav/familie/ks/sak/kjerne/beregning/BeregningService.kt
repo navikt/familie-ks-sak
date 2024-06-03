@@ -1,9 +1,6 @@
 package no.nav.familie.ks.sak.kjerne.beregning
 
-import no.nav.familie.ba.sak.kjerne.forrigebehandling.EndringIUtbetalingUtil.lagEndringIUtbetalingTidslinje
-import no.nav.familie.ks.sak.common.tidslinje.utvidelser.tilPerioder
 import no.nav.familie.ks.sak.common.util.toYearMonth
-import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
@@ -31,7 +28,6 @@ class BeregningService(
     private val andelerTilkjentYtelseOgEndreteUtbetalingerService: AndelerTilkjentYtelseOgEndreteUtbetalingerService,
     private val fagsakService: FagsakService,
     private val tilkjentYtelseEndretAbonnenter: List<TilkjentYtelseEndretAbonnent> = emptyList(),
-    private val behandlingService: BehandlingService,
 ) {
     /**
      * Henter alle barn på behandlingen som har minst en periode med tilkjentytelse.
@@ -172,18 +168,6 @@ class BeregningService(
         ).filter { it.erAndelSomSkalSendesTilOppdrag() }
 
     fun slettTilkjentYtelseForBehandling(behandling: Behandling) = tilkjentYtelseRepository.slettTilkjentYtelseForBehandling(behandling)
-
-    fun erEndringIUtbetaling(behandling: Behandling): Boolean {
-        val forrigeBehandling = behandlingService.hentSisteBehandlingSomErIverksatt(behandling.fagsak.id)
-        val andelerForrigeBehandling =
-            forrigeBehandling?.let { andelTilkjentYtelseRepository.finnAndelerTilkjentYtelseForBehandling(it.id) }
-                ?: emptyList()
-
-        val andelerBehandling = behandling.let { andelTilkjentYtelseRepository.finnAndelerTilkjentYtelseForBehandling(it.id) }
-
-        return lagEndringIUtbetalingTidslinje(andelerBehandling, andelerForrigeBehandling)
-            .tilPerioder().any { it.verdi == true }
-    }
 }
 
 interface TilkjentYtelseEndretAbonnent {
