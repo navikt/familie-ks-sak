@@ -532,6 +532,15 @@ class StegServiceTest : OppslagSpringRunnerTest() {
         val tekniskEndringBehandling = lagreBehandling(lagBehandling(fagsak = fagsak, opprettetÅrsak = BehandlingÅrsak.TEKNISK_ENDRING))
         lagreArbeidsfordeling(lagArbeidsfordelingPåBehandling(behandlingId = tekniskEndringBehandling.id))
 
+        lagTilkjentYtelse("")
+        val andelTilkjentYtelse =
+            lagAndelTilkjentYtelse(
+                tilkjentYtelse = tilkjentYtelse,
+                kalkulertUtbetalingsbeløp = 1000,
+                behandling = tekniskEndringBehandling,
+            )
+        andelTilkjentYtelseRepository.saveAndFlush(andelTilkjentYtelse)
+
         tekniskEndringBehandling.resultat = Behandlingsresultat.ENDRET_UTBETALING
         tekniskEndringBehandling.status = BehandlingStatus.FATTER_VEDTAK
         tekniskEndringBehandling.behandlingStegTilstand.clear()
