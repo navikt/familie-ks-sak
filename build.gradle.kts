@@ -128,6 +128,8 @@ dependencies {
     implementation("io.micrometer:micrometer-registry-prometheus")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("com.neovisionaries:nv-i18n:1.29")
+    implementation("com.github.jsqlparser:jsqlparser:4.9")
+
     ktlint("com.pinterest.ktlint:ktlint-cli:1.2.1") {
         attributes {
             attribute(Bundling.BUNDLING_ATTRIBUTE, objects.named(Bundling.EXTERNAL))
@@ -147,6 +149,8 @@ dependencies {
     testImplementation("no.nav.security:token-validation-test-support:2.0.5")
     testImplementation("no.nav.security:token-validation-spring-test:$tokenValidationSpringVersion")
     testImplementation("nav-foedselsnummer:testutils:1.0-SNAPSHOT.6")
+
+    runtimeOnly("org.flywaydb:flyway-database-postgresql")
 }
 
 sourceSets.getByName("test") {
