@@ -5,7 +5,6 @@ import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.integrasjon.pdl.PdlClient
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.PdlIdent
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.hentAktivAktørId
-import no.nav.familie.prosessering.internal.TaskService
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -16,7 +15,6 @@ class PersonidentService(
     private val personidentRepository: PersonidentRepository,
     private val aktørRepository: AktørRepository,
     private val pdlClient: PdlClient,
-    private val taskService: TaskService,
 ) {
     private val secureLogger = LoggerFactory.getLogger("secureLogger")
 
@@ -116,16 +114,6 @@ class PersonidentService(
         personIdent: String,
         historikk: Boolean,
     ): List<PdlIdent> = pdlClient.hentIdenter(personIdent, historikk)
-
-    fun opprettTaskForIdentHendelse(nyIdent: PersonIdent) {
-        if (identSkalLeggesTil(nyIdent)) {
-            logger.info("Oppretter task for senere håndterering av ny ident")
-            secureLogger.info("Oppretter task for senere håndterering av ny ident ${nyIdent.ident}")
-            taskService.save(IdentHendelseTask.opprettTask(nyIdent))
-        } else {
-            logger.info("Ident er ikke knyttet til noen av aktørene våre, ignorerer hendelse.")
-        }
-    }
 
     fun identSkalLeggesTil(nyIdent: PersonIdent): Boolean {
         val identerFraPdl = hentIdenter(nyIdent.ident, true)

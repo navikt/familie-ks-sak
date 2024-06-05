@@ -4,7 +4,6 @@ import io.mockk.every
 import io.mockk.impl.annotations.InjectMockKs
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
-import io.mockk.mockk
 import io.mockk.slot
 import io.mockk.verify
 import no.nav.familie.kontrakter.felles.PersonIdent
@@ -213,7 +212,6 @@ class PersonidentServiceTest {
                     personidentRepository,
                     aktørRepository,
                     pdlClient,
-                    mockk(),
                 )
 
             val aktør = personidentService.håndterNyIdent(nyIdent = PersonIdent(personIdentSomSkalLeggesTil))
@@ -249,7 +247,6 @@ class PersonidentServiceTest {
                     personidentRepository,
                     aktørRepository,
                     pdlClient,
-                    mockk(),
                 )
 
             val aktør = personidentService.håndterNyIdent(nyIdent = PersonIdent(personIdentSomFinnes))
@@ -289,7 +286,6 @@ class PersonidentServiceTest {
                     personidentRepository,
                     aktørRepository,
                     pdlClient,
-                    mockk(),
                 )
 
             val feil = assertThrows<Feil> { personidentService.håndterNyIdent(nyIdent = PersonIdent(aktivFnrIdent2)) }
@@ -324,7 +320,6 @@ class PersonidentServiceTest {
                     personidentRepository,
                     aktørRepository,
                     pdlClient,
-                    mockk(),
                 )
 
             val aktør = personidentService.håndterNyIdent(nyIdent = PersonIdent(aktivFnrIdent2))
