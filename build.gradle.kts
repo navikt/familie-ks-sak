@@ -4,7 +4,7 @@ plugins {
     val kotlinVersion = "1.9.24"
     kotlin("jvm") version kotlinVersion
 
-    id("org.springframework.boot") version "3.2.5"
+    id("org.springframework.boot") version "3.3.0"
     id("io.spring.dependency-management") version "1.1.5"
     id("org.jetbrains.kotlin.plugin.spring") version kotlinVersion
     id("org.jetbrains.kotlin.plugin.jpa") version kotlinVersion
@@ -52,11 +52,11 @@ dependencies {
     val fellesKontrakterVersion = "3.0_20240506120136_2e7f6d9"
     val familieKontrakterSaksstatistikkVersion = "2.0_20230214104704_706e9c0"
     val familieKontrakterStønadsstatistikkKsVersion = "2.0_20240131125409_e3d0f6d"
-    val tokenValidationSpringVersion = "4.1.4"
+    val tokenValidationSpringVersion = "4.1.8"
     val navFoedselsnummerVersion = "1.0-SNAPSHOT.6"
     val prosesseringVersion = "2.20240426120029_490d299"
     val restAssuredVersion = "5.4.0"
-    val kotlinxVersion = "1.8.0"
+    val kotlinxVersion = "1.8.1"
     val utbetalingsgeneratorVersion = "1.0_20240426154435_ca351af"
 
     // ---------- Spring ---------- \\
@@ -122,12 +122,14 @@ dependencies {
     implementation("nav-foedselsnummer:core:$navFoedselsnummerVersion")
 
     implementation("com.papertrailapp:logback-syslog4j:1.0.0")
-    implementation("io.getunleash:unleash-client-java:9.2.1")
+    implementation("io.getunleash:unleash-client-java:9.2.2")
     implementation("io.sentry:sentry-spring-boot-starter-jakarta:$sentryVersion")
     implementation("io.sentry:sentry-logback:$sentryVersion")
     implementation("io.micrometer:micrometer-registry-prometheus")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("com.neovisionaries:nv-i18n:1.29")
+    implementation("com.github.jsqlparser:jsqlparser:4.9")
+
     ktlint("com.pinterest.ktlint:ktlint-cli:1.2.1") {
         attributes {
             attribute(Bundling.BUNDLING_ATTRIBUTE, objects.named(Bundling.EXTERNAL))
@@ -139,14 +141,16 @@ dependencies {
         exclude(module = "mockito-core")
     }
     testImplementation("org.springframework.boot:spring-boot-starter-test")
-    testImplementation("org.springframework.cloud:spring-cloud-contract-wiremock:4.1.2")
+    testImplementation("org.springframework.cloud:spring-cloud-contract-wiremock:4.1.3")
     testImplementation("io.rest-assured:spring-mock-mvc:$restAssuredVersion")
     testImplementation("io.rest-assured:kotlin-extensions:$restAssuredVersion")
-    testImplementation("org.testcontainers:postgresql:1.19.7")
-    testImplementation("no.nav.security:mock-oauth2-server:2.1.2")
+    testImplementation("org.testcontainers:postgresql:1.19.8")
+    testImplementation("no.nav.security:mock-oauth2-server:2.1.5")
     testImplementation("no.nav.security:token-validation-test-support:2.0.5")
     testImplementation("no.nav.security:token-validation-spring-test:$tokenValidationSpringVersion")
     testImplementation("nav-foedselsnummer:testutils:1.0-SNAPSHOT.6")
+
+    runtimeOnly("org.flywaydb:flyway-database-postgresql")
 }
 
 sourceSets.getByName("test") {
