@@ -46,15 +46,15 @@ repositories {
 dependencies {
 
     val springdocVersion = "2.5.0"
-    val sentryVersion = "7.8.0"
-    val navFellesVersion = "3.20240502154951_caf5f1d"
+    val sentryVersion = "7.10.0"
+    val navFellesVersion = "3.20240515152313_9dd5659"
     val eksterneKontrakterBisysVersion = "2.0_20230214104704_706e9c0"
     val fellesKontrakterVersion = "3.0_20240603143357_2992125"
     val familieKontrakterSaksstatistikkVersion = "2.0_20230214104704_706e9c0"
     val familieKontrakterStønadsstatistikkKsVersion = "2.0_20240131125409_e3d0f6d"
     val tokenValidationSpringVersion = "4.1.8"
     val navFoedselsnummerVersion = "1.0-SNAPSHOT.6"
-    val prosesseringVersion = "2.20240426120029_490d299"
+    val prosesseringVersion = "2.20240603145215_c56e179"
     val restAssuredVersion = "5.4.0"
     val kotlinxVersion = "1.8.1"
     val utbetalingsgeneratorVersion = "1.0_20240604142436_76988ba"
@@ -93,7 +93,7 @@ dependencies {
     // ---- Junit og Cucumber ---- \\
 
     testImplementation(platform("org.junit:junit-bom:5.10.2"))
-    testImplementation(platform("io.cucumber:cucumber-bom:7.17.0"))
+    testImplementation(platform("io.cucumber:cucumber-bom:7.18.0"))
 
     testImplementation("io.cucumber:cucumber-java")
     testImplementation("io.cucumber:cucumber-junit-platform-engine")
@@ -130,7 +130,7 @@ dependencies {
     implementation("com.neovisionaries:nv-i18n:1.29")
     implementation("com.github.jsqlparser:jsqlparser:4.9")
 
-    ktlint("com.pinterest.ktlint:ktlint-cli:1.2.1") {
+    ktlint("com.pinterest.ktlint:ktlint-cli:1.3.0") {
         attributes {
             attribute(Bundling.BUNDLING_ATTRIBUTE, objects.named(Bundling.EXTERNAL))
         }
