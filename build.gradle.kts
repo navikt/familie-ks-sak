@@ -130,7 +130,7 @@ dependencies {
     implementation("com.neovisionaries:nv-i18n:1.29")
     implementation("com.github.jsqlparser:jsqlparser:4.9")
 
-    ktlint("com.pinterest.ktlint:ktlint-cli:1.3.0") {
+    ktlint("com.pinterest.ktlint:ktlint-cli:1.2.1") {
         attributes {
             attribute(Bundling.BUNDLING_ATTRIBUTE, objects.named(Bundling.EXTERNAL))
         }
