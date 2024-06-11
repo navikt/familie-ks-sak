@@ -1,4 +1,4 @@
-package no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering
+package no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.regelsett.lov2021
 
 import no.nav.familie.ks.sak.common.tidslinje.Periode
 import no.nav.familie.ks.sak.common.tidslinje.tilTidslinje
@@ -11,6 +11,7 @@ import no.nav.familie.ks.sak.common.util.førsteDagIInneværendeMåned
 import no.nav.familie.ks.sak.common.util.sisteDagIMåned
 import no.nav.familie.ks.sak.common.util.toYearMonth
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.tilTidslinje
 import no.nav.familie.ks.sak.kjerne.beregning.domene.hentProsentForAntallTimer
 import java.math.BigDecimal
 import java.time.LocalDate
@@ -89,26 +90,6 @@ private fun VilkårResultat?.hentGraderingsforskjellMellomDenneOgForrigePeriode(
         else -> Graderingsforskjell.Lik
     }
 }
-
-enum class Graderingsforskjell {
-    IngenUtbetalingGrunnetFullBarnehageplassTilØking,
-    Øking,
-    ØkingGrunnetSluttIBarnehage,
-    ReduksjonGårTilIngenUtbetaling,
-    Reduksjon,
-    Lik,
-    IngenUtbetalingGrunnetFørsteperiodeTilØking,
-}
-
-data class BarnehageplassVilkårMedGraderingsforskjellMellomPerioder<NullableVilkårResultat : VilkårResultat?>(
-    val vilkårResultat: NullableVilkårResultat,
-    val graderingsforskjellMellomDenneOgForrigePeriode: Graderingsforskjell,
-    val graderingsforskjellMellomDenneOgNestePeriode: Graderingsforskjell,
-)
-
-@Suppress("UNCHECKED_CAST")
-private fun List<BarnehageplassVilkårMedGraderingsforskjellMellomPerioder<VilkårResultat?>>.filtrerBortNullverdier(): List<BarnehageplassVilkårMedGraderingsforskjellMellomPerioder<VilkårResultat>> =
-    this.filter { it.vilkårResultat != null } as List<BarnehageplassVilkårMedGraderingsforskjellMellomPerioder<VilkårResultat>>
 
 private fun List<Periode<VilkårResultat>>.filtrerBortOverlappendePerioderMedMinstGradering() =
     map { listOf(it).tilTidslinje() }
