@@ -22,6 +22,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Per
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Regelverk
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårRegelsett
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.eøs.felles.domene.EøsSkjemaRepository
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.Kompetanse
@@ -735,6 +736,7 @@ internal class KompetanseServiceTest {
                 søkerPeriodeFom = søkersperiode.fom,
                 søkerPeriodeTom = søkersperiode.tom,
                 regelverk = Regelverk.EØS_FORORDNINGEN,
+                regelsett = VilkårRegelsett.LOV_AUGUST_2021,
             )
         val personResultaterForBarna =
             barnasperioder.map { (aktør, periode) ->
@@ -748,6 +750,7 @@ internal class KompetanseServiceTest {
                             periodeTom = periode.second,
                             behandlingId = behandling.id,
                             regelverk = Regelverk.EØS_FORORDNINGEN,
+                            regelsett = VilkårRegelsett.LOV_AUGUST_2021,
                         )
                     }
                 personResultat.setSortedVilkårResultater(vilkårResultater.toSet())

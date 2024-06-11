@@ -17,6 +17,8 @@ import no.nav.familie.ks.sak.common.BehandlingId
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.common.util.NullablePeriode
+import no.nav.familie.ks.sak.config.featureToggle.FeatureToggleConfig
+import no.nav.familie.ks.sak.config.featureToggle.UnleashNextMedContextService
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagFagsak
 import no.nav.familie.ks.sak.data.lagPersonopplysningGrunnlag
@@ -34,6 +36,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Reg
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.UtdypendeVilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårRegelsett
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.beregning.BeregningService
@@ -56,6 +59,9 @@ class VilkårsvurderingStegTest {
 
     @MockK
     private lateinit var behandlingService: BehandlingService
+
+    @MockK
+    private lateinit var unleashService: UnleashNextMedContextService
 
     @MockK
     private lateinit var vilkårsvurderingService: VilkårsvurderingService
@@ -107,6 +113,7 @@ class VilkårsvurderingStegTest {
         every { behandlingService.hentBehandling(behandling.id) } returns behandling
         every { personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(any()) } returns personopplysningGrunnlag
         every { beregningService.oppdaterTilkjentYtelsePåBehandling(any(), any(), any(), any()) } just runs
+        every { unleashService.isEnabled(FeatureToggleConfig.LOV_ENDRING_7_MND_NYE_BEHANDLINGER) } returns false
     }
 
     @Test
@@ -137,6 +144,7 @@ class VilkårsvurderingStegTest {
                     periodeTom = LocalDate.of(2022, 12, 12),
                     begrunnelse = "",
                     behandlingId = behandling.id,
+                    regelsett = VilkårRegelsett.LOV_AUGUST_2021,
                 ),
             ),
         )
@@ -179,6 +187,7 @@ class VilkårsvurderingStegTest {
                     periodeTom = LocalDate.of(2022, 12, 12),
                     begrunnelse = "",
                     behandlingId = behandling.id,
+                    regelsett = VilkårRegelsett.LOV_AUGUST_2021,
                 ),
             ),
         )
@@ -193,6 +202,7 @@ class VilkårsvurderingStegTest {
                     periodeTom = LocalDate.of(2022, 12, 12),
                     begrunnelse = "",
                     behandlingId = behandling.id,
+                    regelsett = VilkårRegelsett.LOV_AUGUST_2021,
                     antallTimer = BigDecimal(25),
                 ),
                 VilkårResultat(
@@ -204,6 +214,7 @@ class VilkårsvurderingStegTest {
                     periodeTom = LocalDate.of(2022, 12, 12),
                     begrunnelse = "",
                     behandlingId = behandling.id,
+                    regelsett = VilkårRegelsett.LOV_AUGUST_2021,
                 ),
             ),
         )
@@ -261,6 +272,7 @@ class VilkårsvurderingStegTest {
                     periodeTom = LocalDate.of(2022, 10, 12),
                     begrunnelse = "",
                     behandlingId = behandling.id,
+                    regelsett = VilkårRegelsett.LOV_AUGUST_2021,
                 ),
             ),
         )
@@ -298,6 +310,7 @@ class VilkårsvurderingStegTest {
             lagVilkårsvurderingMedSøkersVilkår(
                 søkerAktør = søker,
                 behandling = behandling,
+                regelsett = VilkårRegelsett.LOV_AUGUST_2021,
             )
         val søkerPersonResultat = vilkårsvurdering.personResultater.first()
 
@@ -316,6 +329,7 @@ class VilkårsvurderingStegTest {
                         ) to BigDecimal(10),
                     ),
                 behandlingId = behandling.id,
+                regelsett = VilkårRegelsett.LOV_AUGUST_2021,
             )
         barnPersonResultat.setSortedVilkårResultater(vilkårResultaterForBarn)
         vilkårsvurdering.personResultater = setOf(søkerPersonResultat, barnPersonResultat)
@@ -336,6 +350,7 @@ class VilkårsvurderingStegTest {
             lagVilkårsvurderingMedSøkersVilkår(
                 søkerAktør = søker,
                 behandling = behandling,
+                regelsett = VilkårRegelsett.LOV_AUGUST_2021,
             )
         val søkerPersonResultat = vilkårsvurdering.personResultater.first()
 
@@ -358,6 +373,7 @@ class VilkårsvurderingStegTest {
                         ) to BigDecimal(30),
                     ),
                 behandlingId = behandling.id,
+                regelsett = VilkårRegelsett.LOV_AUGUST_2021,
             )
         barnPersonResultat.setSortedVilkårResultater(vilkårResultaterForBarn)
         vilkårsvurdering.personResultater = setOf(søkerPersonResultat, barnPersonResultat)
@@ -379,6 +395,7 @@ class VilkårsvurderingStegTest {
             lagVilkårsvurderingMedSøkersVilkår(
                 søkerAktør = søker,
                 behandling = behandling,
+                regelsett = VilkårRegelsett.LOV_AUGUST_2021,
             )
         val søkerPersonResultat = vilkårsvurdering.personResultater.first()
 
@@ -404,6 +421,7 @@ class VilkårsvurderingStegTest {
                         ) to BigDecimal(16),
                     ),
                 behandlingId = behandling.id,
+                regelsett = VilkårRegelsett.LOV_AUGUST_2021,
             )
         barnPersonResultat.setSortedVilkårResultater(vilkårResultaterForBarn)
         vilkårsvurdering.personResultater = setOf(søkerPersonResultat, barnPersonResultat)
@@ -432,6 +450,7 @@ class VilkårsvurderingStegTest {
                     periodeFom = LocalDate.of(1987, 7, 31),
                     periodeTom = LocalDate.of(2022, 12, 14),
                     regelverk = Regelverk.NASJONALE_REGLER,
+                    regelsett = VilkårRegelsett.LOV_AUGUST_2021,
                 ),
                 lagVilkårResultat(
                     personResultat = søkerPersonResultat,
@@ -439,6 +458,7 @@ class VilkårsvurderingStegTest {
                     periodeFom = LocalDate.of(2022, 12, 15),
                     periodeTom = null,
                     regelverk = Regelverk.EØS_FORORDNINGEN,
+                    regelsett = VilkårRegelsett.LOV_AUGUST_2021,
                 ),
                 lagVilkårResultat(
                     personResultat = søkerPersonResultat,
@@ -446,6 +466,7 @@ class VilkårsvurderingStegTest {
                     periodeFom = LocalDate.of(2022, 12, 15),
                     periodeTom = null,
                     regelverk = Regelverk.EØS_FORORDNINGEN,
+                    regelsett = VilkårRegelsett.LOV_AUGUST_2021,
                 ),
                 lagVilkårResultat(
                     personResultat = søkerPersonResultat,
@@ -453,6 +474,7 @@ class VilkårsvurderingStegTest {
                     periodeFom = LocalDate.of(1992, 7, 31),
                     periodeTom = LocalDate.of(2022, 12, 14),
                     regelverk = Regelverk.NASJONALE_REGLER,
+                    regelsett = VilkårRegelsett.LOV_AUGUST_2021,
                 ),
                 lagVilkårResultat(
                     personResultat = søkerPersonResultat,
@@ -460,6 +482,7 @@ class VilkårsvurderingStegTest {
                     periodeFom = LocalDate.of(2022, 12, 15),
                     periodeTom = null,
                     regelverk = Regelverk.NASJONALE_REGLER,
+                    regelsett = VilkårRegelsett.LOV_AUGUST_2021,
                 ),
             ),
         )
@@ -473,6 +496,7 @@ class VilkårsvurderingStegTest {
                 barnehageplassPerioder = listOf(NullablePeriode(fom = barnFødselsDato.plusYears(1), tom = null) to null),
                 regelverk = Regelverk.EØS_FORORDNINGEN,
                 behandlingId = behandling.id,
+                regelsett = VilkårRegelsett.LOV_AUGUST_2021,
             )
         barnPersonResultat.setSortedVilkårResultater(vilkårResultaterForBarn)
         vilkårsvurdering.personResultater = setOf(søkerPersonResultat, barnPersonResultat)
@@ -502,6 +526,7 @@ class VilkårsvurderingStegTest {
                     periodeTom = LocalDate.of(2022, 10, 12),
                     begrunnelse = "",
                     behandlingId = behandling.id,
+                    regelsett = VilkårRegelsett.LOV_AUGUST_2021,
                 ),
             ),
         )
@@ -515,6 +540,7 @@ class VilkårsvurderingStegTest {
                         NullablePeriode(barnFødselsDato.plusYears(1), barnFødselsDato.plusYears(2)) to null,
                     ),
                 behandlingId = behandling.id,
+                regelsett = VilkårRegelsett.LOV_AUGUST_2021,
             )
         barnPersonResultat.setSortedVilkårResultater(vilkårResultaterForBarn)
         vilkårsvurderingForSøker.personResultater = setOf(søkerPersonResultat, barnPersonResultat)
@@ -555,6 +581,7 @@ class VilkårsvurderingStegTest {
                     vurderesEtter = Regelverk.EØS_FORORDNINGEN,
                     begrunnelse = "",
                     behandlingId = behandling.id,
+                    regelsett = VilkårRegelsett.LOV_AUGUST_2021,
                 ),
             ),
         )
@@ -568,6 +595,7 @@ class VilkårsvurderingStegTest {
                         NullablePeriode(barnFødselsDato.plusYears(1), barnFødselsDato.plusYears(2)) to null,
                     ),
                 behandlingId = behandling.id,
+                regelsett = VilkårRegelsett.LOV_AUGUST_2021,
             )
         barnPersonResultat.setSortedVilkårResultater(vilkårResultaterForBarn)
         vilkårsvurderingForSøker.personResultater = setOf(søkerPersonResultat, barnPersonResultat)
@@ -604,6 +632,7 @@ class VilkårsvurderingStegTest {
                     periodeTom = LocalDate.of(2022, 10, 12),
                     begrunnelse = "",
                     behandlingId = behandling.id,
+                    regelsett = VilkårRegelsett.LOV_AUGUST_2021,
                 ),
             ),
         )
@@ -617,6 +646,7 @@ class VilkårsvurderingStegTest {
                         NullablePeriode(barnFødselsDato.plusYears(1), barnFødselsDato.plusYears(2)) to null,
                     ),
                 behandlingId = behandling.id,
+                regelsett = VilkårRegelsett.LOV_AUGUST_2021,
             )
         barnPersonResultat.setSortedVilkårResultater(vilkårResultaterForBarn)
         vilkårsvurderingForSøker.personResultater = setOf(søkerPersonResultat, barnPersonResultat)
@@ -639,6 +669,7 @@ class VilkårsvurderingStegTest {
                     vurderesEtter = Regelverk.EØS_FORORDNINGEN,
                     begrunnelse = "",
                     behandlingId = behandling.id,
+                    regelsett = VilkårRegelsett.LOV_AUGUST_2021,
                 ),
             ),
         )
@@ -656,6 +687,7 @@ class VilkårsvurderingStegTest {
                         ) to null,
                     ),
                 behandlingId = forrigeBehandling.id,
+                regelsett = VilkårRegelsett.LOV_AUGUST_2021,
             )
         barnPersonResultatIForrigeVilkårsvurdering.setSortedVilkårResultater(
             vilkårResultaterForBarnIForrigeVilkårsvurdering,
@@ -697,6 +729,7 @@ class VilkårsvurderingStegTest {
                     periodeTom = LocalDate.of(2022, 10, 12),
                     begrunnelse = "",
                     behandlingId = behandling.id,
+                    regelsett = VilkårRegelsett.LOV_AUGUST_2021,
                 ),
             ),
         )
@@ -710,6 +743,7 @@ class VilkårsvurderingStegTest {
                         NullablePeriode(barnFødselsDato.plusYears(1), barnFødselsDato.plusYears(2)) to null,
                     ),
                 behandlingId = behandling.id,
+                regelsett = VilkårRegelsett.LOV_AUGUST_2021,
             )
         barnPersonResultat.setSortedVilkårResultater(vilkårResultaterForBarn)
         vilkårsvurderingForSøker.personResultater = setOf(søkerPersonResultat, barnPersonResultat)
@@ -732,6 +766,7 @@ class VilkårsvurderingStegTest {
                     vurderesEtter = Regelverk.EØS_FORORDNINGEN,
                     begrunnelse = "",
                     behandlingId = behandling.id,
+                    regelsett = VilkårRegelsett.LOV_AUGUST_2021,
                 ),
             ),
         )
@@ -749,6 +784,7 @@ class VilkårsvurderingStegTest {
                         ) to null,
                     ),
                 behandlingId = forrigeBehandling.id,
+                regelsett = VilkårRegelsett.LOV_AUGUST_2021,
             )
         barnPersonResultatIForrigeVilkårsvurdering.setSortedVilkårResultater(
             vilkårResultaterForBarnIForrigeVilkårsvurdering,

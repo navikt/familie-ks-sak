@@ -9,9 +9,12 @@ import no.nav.familie.ks.sak.common.tidslinje.validerIngenOverlapp
 import no.nav.familie.ks.sak.common.util.TIDENES_ENDE
 import no.nav.familie.ks.sak.common.util.sisteDagIMåned
 import no.nav.familie.ks.sak.common.util.slåSammen
+import no.nav.familie.ks.sak.config.featureToggle.FeatureToggleConfig
+import no.nav.familie.ks.sak.config.featureToggle.UnleashNextMedContextService
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingKategori
+import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingType
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import no.nav.familie.ks.sak.kjerne.behandling.domene.finnHøyesteKategori
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg
@@ -41,6 +44,7 @@ class VilkårsvurderingSteg(
     private val vilkårsvurderingService: VilkårsvurderingService,
     private val beregningService: BeregningService,
     private val kompetanseService: KompetanseService,
+    private val unleashService: UnleashNextMedContextService,
 ) : IBehandlingSteg {
     override fun getBehandlingssteg(): BehandlingSteg = BehandlingSteg.VILKÅRSVURDERING
 
@@ -113,6 +117,8 @@ class VilkårsvurderingSteg(
         søknadGrunnlagDto: SøknadDto?,
         behandling: Behandling,
     ) {
+        val behandlingFølgerNyeLovEndringer2024 = behandling.type == BehandlingType.FØRSTEGANGSBEHANDLING && unleashService.isEnabled(FeatureToggleConfig.LOV_ENDRING_7_MND_NYE_BEHANDLINGER)
+
         validerAtDetFinnesBarnIPersonopplysningsgrunnlaget(personopplysningGrunnlag, søknadGrunnlagDto, behandling)
         if (behandling.opprettetÅrsak == BehandlingÅrsak.DØDSFALL) {
             validerAtIngenVilkårErSattEtterSøkersDød(
@@ -124,6 +130,7 @@ class VilkårsvurderingSteg(
         validerAtPerioderIBarnehageplassSamsvarerMedPeriodeIBarnetsAlderVilkår(
             vilkårsvurdering,
             personopplysningGrunnlag,
+            behandlingFølgerNyeLovEndringer2024,
         )
         validerAtDetIkkeFinnesMerEnn2EndringerISammeMånedIBarnehageplassVilkår(vilkårsvurdering)
         validerAtDatoErKorrektIBarnasVilkår(vilkårsvurdering, personopplysningGrunnlag.barna)
@@ -202,10 +209,14 @@ class VilkårsvurderingSteg(
     private fun validerAtPerioderIBarnehageplassSamsvarerMedPeriodeIBarnetsAlderVilkår(
         vilkårsvurdering: Vilkårsvurdering,
         personopplysningGrunnlag: PersonopplysningGrunnlag,
+        behandlingFølgerNyeLovEndringer2024: Boolean,
     ) {
         vilkårsvurdering.personResultater.filter { !it.erSøkersResultater() }.forEach { personResultat ->
             val person =
                 personopplysningGrunnlag.personer.single { it.aktør.aktivFødselsnummer() == personResultat.aktør.aktivFødselsnummer() }
+
+            val defaultStartDatoBarnetsAlderVilkår = if (behandlingFølgerNyeLovEndringer2024) person.fødselsdato.plusMonths(13) else person.fødselsdato.plusYears(1)
+            val defaultSluttDatoBarnetsAlderVilkår = if (behandlingFølgerNyeLovEndringer2024) person.fødselsdato.plusMonths(19) else person.fødselsdato.plusYears(2)
 
             val barnehageplassVilkårResultater =
                 personResultat.vilkårResultater.filter {
@@ -228,11 +239,11 @@ class VilkårsvurderingSteg(
 
             val startDatoBarnetsAlderVilkår =
                 barnetsAlderVilkårResultater.sortedBy { it.periodeFom }.first().periodeFom
-                    ?: person.fødselsdato.plusYears(1)
+                    ?: defaultStartDatoBarnetsAlderVilkår
 
             val sluttDatoBarnetsAlderVilkår =
                 barnetsAlderVilkårResultater.sortedBy { it.periodeTom }.last().periodeTom
-                    ?: person.fødselsdato.plusYears(2)
+                    ?: defaultSluttDatoBarnetsAlderVilkår
 
             if (startDatoBarnehageplassVilkår.isAfter(startDatoBarnetsAlderVilkår) ||
                 (!sisteBarnehageplassVilkårresultatHarFramtidigOpphør && sluttDatoBarnehageplassVilkår.isBefore(sluttDatoBarnetsAlderVilkår))

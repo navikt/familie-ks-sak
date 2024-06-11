@@ -62,7 +62,11 @@ internal class TilkjentYtelseValidatorTest {
 
         val exception =
             assertThrows<FunksjonellFeil> {
-                validerAtTilkjentYtelseHarFornuftigePerioderOgBeløp(tilkjentYtelse, personopplysningGrunnlag)
+                validerAtTilkjentYtelseHarFornuftigePerioderOgBeløp(
+                    tilkjentYtelse = tilkjentYtelse,
+                    personopplysningGrunnlag = personopplysningGrunnlag,
+                    behandlingSkalFølgeNyeLovendringer2024 = false,
+                )
             }
         val feilmelding =
             "Kontantstøtte kan maks utbetales for 11 måneder. Du er i ferd med å utbetale mer enn dette for barn med fnr ${barn.aktivFødselsnummer()}. " +
@@ -93,7 +97,11 @@ internal class TilkjentYtelseValidatorTest {
         tilkjentYtelse.andelerTilkjentYtelse.addAll(setOf(andelTilkjentYtelse1, andelTilkjentYtelse2))
 
         assertDoesNotThrow {
-            validerAtTilkjentYtelseHarFornuftigePerioderOgBeløp(tilkjentYtelse, personopplysningGrunnlag)
+            validerAtTilkjentYtelseHarFornuftigePerioderOgBeløp(
+                tilkjentYtelse = tilkjentYtelse,
+                personopplysningGrunnlag = personopplysningGrunnlag,
+                behandlingSkalFølgeNyeLovendringer2024 = false,
+            )
         }
     }
 
@@ -115,7 +123,11 @@ internal class TilkjentYtelseValidatorTest {
 
         val exception =
             assertThrows<Feil> {
-                validerAtTilkjentYtelseHarFornuftigePerioderOgBeløp(tilkjentYtelse, personopplysningGrunnlag)
+                validerAtTilkjentYtelseHarFornuftigePerioderOgBeløp(
+                    tilkjentYtelse = tilkjentYtelse,
+                    personopplysningGrunnlag = personopplysningGrunnlag,
+                    behandlingSkalFølgeNyeLovendringer2024 = false,
+                )
             }
 
         assertEquals("Feil i beregning. Søkers andeler må være tom", exception.message)
@@ -138,7 +150,11 @@ internal class TilkjentYtelseValidatorTest {
 
         val exception =
             assertThrows<FunksjonellFeil> {
-                validerAtTilkjentYtelseHarFornuftigePerioderOgBeløp(tilkjentYtelse, personopplysningGrunnlag)
+                validerAtTilkjentYtelseHarFornuftigePerioderOgBeløp(
+                    tilkjentYtelse = tilkjentYtelse,
+                    personopplysningGrunnlag = personopplysningGrunnlag,
+                    behandlingSkalFølgeNyeLovendringer2024 = false,
+                )
             }
 
         assertEquals(

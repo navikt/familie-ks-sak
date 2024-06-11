@@ -18,6 +18,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.Vedtak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.Vedtaksperiodetype
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårRegelsett
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.tilForskjøvetOppfylteVilkårResultatTidslinjeMap
 import no.nav.familie.ks.sak.kjerne.beregning.AndelTilkjentYtelseMedEndreteUtbetalinger
@@ -332,6 +333,7 @@ internal class UtbetalingsperiodeUtilTest {
             periodeTom = person.fødselsdato.plusYears(2),
             lagFullstendigVilkårResultat = true,
             personType = PersonType.BARN,
+            regelsett = VilkårRegelsett.LOV_AUGUST_2021,
         )
 
     private fun Vilkårsvurdering.lagGodkjentPersonResultatForSøker(person: Person) =
@@ -343,5 +345,6 @@ internal class UtbetalingsperiodeUtilTest {
             periodeTom = null,
             lagFullstendigVilkårResultat = true,
             personType = PersonType.SØKER,
+            regelsett = VilkårRegelsett.LOV_AUGUST_2021,
         )
 }

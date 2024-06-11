@@ -29,7 +29,10 @@ object TilkjentYtelseValidator {
     fun validerAtTilkjentYtelseHarFornuftigePerioderOgBeløp(
         tilkjentYtelse: TilkjentYtelse,
         personopplysningGrunnlag: PersonopplysningGrunnlag,
+        behandlingSkalFølgeNyeLovendringer2024: Boolean,
     ) {
+        val maksAntallMånederMedUtbetaling = if (behandlingSkalFølgeNyeLovendringer2024) 7 else 11
+
         val søker = personopplysningGrunnlag.søker
         val barna = personopplysningGrunnlag.barna
 
@@ -40,9 +43,9 @@ object TilkjentYtelseValidator {
             val stønadTom = andeler.maxOf { it.stønadTom }
 
             val diff = Period.between(stønadFom.toLocalDate(), stønadTom.toLocalDate())
-            if (diff.toTotalMonths() > 11) {
+            if (diff.toTotalMonths() > maksAntallMånederMedUtbetaling) {
                 val feilmelding =
-                    "Kontantstøtte kan maks utbetales for 11 måneder. Du er i ferd med å utbetale mer enn dette for barn med fnr ${aktør.aktivFødselsnummer()}. " +
+                    "Kontantstøtte kan maks utbetales for $maksAntallMånederMedUtbetaling måneder. Du er i ferd med å utbetale mer enn dette for barn med fnr ${aktør.aktivFødselsnummer()}. " +
                         "Kontroller datoene på vilkårene eller ta kontakt med team familie"
                 throw FunksjonellFeil(frontendFeilmelding = feilmelding, melding = feilmelding)
             }

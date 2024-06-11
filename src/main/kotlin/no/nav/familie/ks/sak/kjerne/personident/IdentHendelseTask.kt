@@ -2,7 +2,6 @@ package no.nav.familie.ks.sak.kjerne.personident
 
 import no.nav.familie.kontrakter.felles.PersonIdent
 import no.nav.familie.kontrakter.felles.objectMapper
-import no.nav.familie.ks.sak.integrasjon.secureLogger
 import no.nav.familie.prosessering.AsyncTaskStep
 import no.nav.familie.prosessering.TaskStepBeskrivelse
 import no.nav.familie.prosessering.domene.Task
@@ -25,13 +24,7 @@ class IdentHendelseTask(
     override fun doTask(task: Task) {
         logger.info("Kjører task for håndtering av identhendelse.")
         val personIdent = objectMapper.readValue(task.payload, PersonIdent::class.java)
-        if (personidentService.identSkalLeggesTil(personIdent)) {
-            logger.info("Skal håndtere ny ident")
-            secureLogger.info("Skal håndtere ny ident ${personIdent.ident}")
-            personidentService.håndterNyIdent(personIdent)
-        } else {
-            logger.info("Ident er ikke knyttet til noen av aktørene våre, ignorerer hendelse.")
-        }
+        personidentService.håndterNyIdent(personIdent)
     }
 
     companion object {

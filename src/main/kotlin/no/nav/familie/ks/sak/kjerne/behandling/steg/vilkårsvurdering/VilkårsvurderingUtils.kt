@@ -21,6 +21,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingType
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.PersonResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårRegelsett
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.BegrunnelseType
@@ -117,6 +118,7 @@ fun endreVilkårResultat(
 fun opprettNyttVilkårResultat(
     personResultat: PersonResultat,
     vilkårType: Vilkår,
+    regelsett: VilkårRegelsett,
 ): VilkårResultat {
     if (harUvurdertePerioderForVilkårType(personResultat, vilkårType)) {
         throw FunksjonellFeil(
@@ -131,6 +133,7 @@ fun opprettNyttVilkårResultat(
         resultat = Resultat.IKKE_VURDERT,
         begrunnelse = "",
         behandlingId = personResultat.vilkårsvurdering.behandling.id,
+        regelsett = regelsett,
     )
 }
 
@@ -300,28 +303,49 @@ private fun VilkårResultat.validerVilkårBarnetsAlder(
     periode: IkkeNullbarPeriode<Long>,
     barn: Person,
 ): String? =
-    when {
-        this.erAdopsjonOppfylt() &&
-            periode.tom.isAfter(barn.fødselsdato.plusYears(6).withMonth(Month.AUGUST.value).sisteDagIMåned()) ->
-            "Du kan ikke sette en t.o.m dato som er etter august året barnet fyller 6 år."
+    if (regelsett == VilkårRegelsett.LOV_AUGUST_2024) {
+        when {
+            this.erAdopsjonOppfylt() &&
+                periode.tom.isAfter(barn.fødselsdato.plusYears(6).withMonth(Month.AUGUST.value).sisteDagIMåned()) ->
+                "Du kan ikke sette en t.o.m dato som er etter august året barnet fyller 6 år."
 
-        // Ved adopsjon skal det være lov å ha en differanse på 1 år slik at man får 11 måned med kontantstøtte.
-        this.erAdopsjonOppfylt() && periode.fom.plusYears(1) < periode.tom ->
-            "Differansen mellom f.o.m datoen og t.o.m datoen kan ikke være mer enn 1 år."
+            // Ved adopsjon skal det være lov å ha en differanse på 1 år slik at man får 11 måned med kontantstøtte.
+            this.erAdopsjonOppfylt() && periode.fom.plusYears(1) < periode.tom ->
+                "Differansen mellom f.o.m datoen og t.o.m datoen kan ikke være mer enn 7 måneder. "
 
-        !this.erAdopsjonOppfylt() && !periode.fom.isEqual(barn.fødselsdato.plusYears(1)) ->
-            "F.o.m datoen må være lik barnets 1 års dag."
+            !this.erAdopsjonOppfylt() && !periode.fom.isEqual(barn.fødselsdato.plusMonths(13)) ->
+                "F.o.m datoen må være lik datoen barnet fyller 13 måneder."
 
-        !this.erAdopsjonOppfylt() && !periode.tom.isEqual(barn.fødselsdato.plusYears(2)) && periode.tom != barn.dødsfall?.dødsfallDato ->
-            "T.o.m datoen må være lik barnets 2 års dag."
+            !this.erAdopsjonOppfylt() && !periode.tom.isEqual(barn.fødselsdato.plusMonths(19)) && periode.tom != barn.dødsfall?.dødsfallDato ->
+                "T.o.m datoen må være lik datoen barnet fyller 19 måneder."
 
-        else -> null
+            else -> null
+        }
+    } else {
+        when {
+            this.erAdopsjonOppfylt() &&
+                periode.tom.isAfter(barn.fødselsdato.plusYears(6).withMonth(Month.AUGUST.value).sisteDagIMåned()) ->
+                "Du kan ikke sette en t.o.m dato som er etter august året barnet fyller 6 år."
+
+            // Ved adopsjon skal det være lov å ha en differanse på 1 år slik at man får 11 måned med kontantstøtte.
+            this.erAdopsjonOppfylt() && periode.fom.plusYears(1) < periode.tom ->
+                "Differansen mellom f.o.m datoen og t.o.m datoen kan ikke være mer enn 1 år."
+
+            !this.erAdopsjonOppfylt() && !periode.fom.isEqual(barn.fødselsdato.plusYears(1)) ->
+                "F.o.m datoen må være lik barnets 1 års dag."
+
+            !this.erAdopsjonOppfylt() && !periode.tom.isEqual(barn.fødselsdato.plusYears(2)) && periode.tom != barn.dødsfall?.dødsfallDato ->
+                "T.o.m datoen må være lik barnets 2 års dag."
+
+            else -> null
+        }
     }
 
 fun genererInitiellVilkårsvurdering(
     behandling: Behandling,
     forrigeVilkårsvurdering: Vilkårsvurdering?,
     personopplysningGrunnlag: PersonopplysningGrunnlag,
+    behandlingSkalFølgeNyeLovendringer2024: Boolean,
 ): Vilkårsvurdering {
     return Vilkårsvurdering(behandling = behandling).apply {
         personResultater =
@@ -334,12 +358,16 @@ fun genererInitiellVilkårsvurdering(
                 val skalHenteEøsSpesifikkeVilkår = behandlingKategoriErEøs || forrigeBehandlingHaddeEøsSpesifikkeVilkår
 
                 val vilkårForPerson = Vilkår.hentVilkårFor(person.type, skalHenteEøsSpesifikkeVilkår)
+                val regelsett = if (behandlingSkalFølgeNyeLovendringer2024) VilkårRegelsett.LOV_AUGUST_2024 else VilkårRegelsett.LOV_AUGUST_2021
 
                 val vilkårResultater =
                     vilkårForPerson.map { vilkår ->
                         // prefyller diverse vilkår automatisk basert på type
                         when (vilkår) {
-                            Vilkår.BARNETS_ALDER ->
+                            Vilkår.BARNETS_ALDER -> {
+                                val periodeFomForBarnetsAlder = if (regelsett == VilkårRegelsett.LOV_AUGUST_2024) person.fødselsdato.plusMonths(13) else person.fødselsdato.plusYears(1)
+                                val periodeTomForBarnetsAlder = if (regelsett == VilkårRegelsett.LOV_AUGUST_2024) person.fødselsdato.plusMonths(19) else person.fødselsdato.plusYears(2)
+
                                 VilkårResultat(
                                     personResultat = personResultat,
                                     erAutomatiskVurdert = true,
@@ -347,9 +375,11 @@ fun genererInitiellVilkårsvurdering(
                                     vilkårType = vilkår,
                                     begrunnelse = "Vurdert og satt automatisk",
                                     behandlingId = behandling.id,
-                                    periodeFom = person.fødselsdato.plusYears(1),
-                                    periodeTom = person.fødselsdato.plusYears(2),
+                                    periodeFom = periodeFomForBarnetsAlder,
+                                    periodeTom = periodeTomForBarnetsAlder,
+                                    regelsett = regelsett,
                                 )
+                            }
 
                             Vilkår.MEDLEMSKAP ->
                                 VilkårResultat(
@@ -360,18 +390,23 @@ fun genererInitiellVilkårsvurdering(
                                     begrunnelse = "",
                                     periodeFom = person.fødselsdato.plusYears(5),
                                     behandlingId = behandling.id,
+                                    regelsett = regelsett,
                                 )
 
-                            Vilkår.BARNEHAGEPLASS ->
+                            Vilkår.BARNEHAGEPLASS -> {
+                                val periodeFomForBarnehageplass = if (regelsett == VilkårRegelsett.LOV_AUGUST_2024) person.fødselsdato.plusMonths(13) else person.fødselsdato
+
                                 VilkårResultat(
                                     personResultat = personResultat,
                                     erAutomatiskVurdert = false,
                                     resultat = Resultat.OPPFYLT,
                                     vilkårType = vilkår,
                                     begrunnelse = "",
-                                    periodeFom = person.fødselsdato,
+                                    periodeFom = periodeFomForBarnehageplass,
                                     behandlingId = behandling.id,
+                                    regelsett = regelsett,
                                 )
+                            }
 
                             else ->
                                 VilkårResultat(
@@ -382,6 +417,7 @@ fun genererInitiellVilkårsvurdering(
                                     begrunnelse = "",
                                     periodeFom = null,
                                     behandlingId = behandling.id,
+                                    regelsett = regelsett,
                                 )
                         }
                     }.toSortedSet(VilkårResultat.VilkårResultatComparator)
