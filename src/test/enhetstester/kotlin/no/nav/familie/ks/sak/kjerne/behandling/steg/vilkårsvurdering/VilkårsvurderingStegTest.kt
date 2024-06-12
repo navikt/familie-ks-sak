@@ -17,8 +17,6 @@ import no.nav.familie.ks.sak.common.BehandlingId
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.common.util.NullablePeriode
-import no.nav.familie.ks.sak.config.featureToggle.FeatureToggleConfig
-import no.nav.familie.ks.sak.config.featureToggle.UnleashNextMedContextService
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagFagsak
 import no.nav.familie.ks.sak.data.lagPersonopplysningGrunnlag
@@ -59,9 +57,6 @@ class VilkårsvurderingStegTest {
 
     @MockK
     private lateinit var behandlingService: BehandlingService
-
-    @MockK
-    private lateinit var unleashService: UnleashNextMedContextService
 
     @MockK
     private lateinit var vilkårsvurderingService: VilkårsvurderingService
@@ -113,7 +108,6 @@ class VilkårsvurderingStegTest {
         every { behandlingService.hentBehandling(behandling.id) } returns behandling
         every { personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(any()) } returns personopplysningGrunnlag
         every { beregningService.oppdaterTilkjentYtelsePåBehandling(any(), any(), any(), any()) } just runs
-        every { unleashService.isEnabled(FeatureToggleConfig.LOV_ENDRING_7_MND_NYE_BEHANDLINGER) } returns false
     }
 
     @Test

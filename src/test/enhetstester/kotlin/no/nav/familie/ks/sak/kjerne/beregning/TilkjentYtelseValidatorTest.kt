@@ -10,8 +10,10 @@ import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagInitieltTilkjentYtelse
 import no.nav.familie.ks.sak.data.lagPerson
 import no.nav.familie.ks.sak.data.lagPersonopplysningGrunnlag
+import no.nav.familie.ks.sak.data.lagVilkårsvurderingOppfylt
 import no.nav.familie.ks.sak.data.randomAktør
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårRegelsett
 import no.nav.familie.ks.sak.kjerne.beregning.TilkjentYtelseValidator.finnAktørIderMedUgyldigEtterbetalingsperiode
 import no.nav.familie.ks.sak.kjerne.beregning.TilkjentYtelseValidator.validerAtBarnIkkeFårFlereUtbetalingerSammePeriode
 import no.nav.familie.ks.sak.kjerne.beregning.TilkjentYtelseValidator.validerAtTilkjentYtelseHarFornuftigePerioderOgBeløp
@@ -25,18 +27,18 @@ import java.time.LocalDateTime
 import java.time.YearMonth
 
 internal class TilkjentYtelseValidatorTest {
-    val søker = randomAktør()
-    val barn = randomAktør("01012112345")
-    val barn2 = randomAktør("01012112346")
+    val søker = lagPerson(personType = PersonType.SØKER, aktør = randomAktør())
+    val barn = lagPerson(personType = PersonType.BARN, aktør = randomAktør("01012112345"))
+    val barn2 = lagPerson(personType = PersonType.BARN, aktør = randomAktør("01012112346"))
 
     val behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD)
     val personopplysningGrunnlag =
         lagPersonopplysningGrunnlag(
             behandlingId = behandling.id,
-            søkerPersonIdent = søker.aktivFødselsnummer(),
-            barnasIdenter = listOf(barn.aktivFødselsnummer()),
-            søkerAktør = søker,
-            barnAktør = listOf(barn),
+            søkerPersonIdent = søker.aktør.aktivFødselsnummer(),
+            barnasIdenter = listOf(barn.aktør.aktivFødselsnummer()),
+            søkerAktør = søker.aktør,
+            barnAktør = listOf(barn.aktør),
         )
     private val tilkjentYtelse = lagInitieltTilkjentYtelse(behandling)
 
@@ -46,7 +48,7 @@ internal class TilkjentYtelseValidatorTest {
             lagAndelTilkjentYtelse(
                 tilkjentYtelse = tilkjentYtelse,
                 behandling = behandling,
-                aktør = barn,
+                aktør = barn.aktør,
                 stønadFom = YearMonth.now().minusMonths(10),
                 stønadTom = YearMonth.now().minusMonths(4),
             )
@@ -54,7 +56,7 @@ internal class TilkjentYtelseValidatorTest {
             lagAndelTilkjentYtelse(
                 tilkjentYtelse = tilkjentYtelse,
                 behandling = behandling,
-                aktør = barn,
+                aktør = barn.aktør,
                 stønadFom = YearMonth.now().minusMonths(3),
                 stønadTom = YearMonth.now().plusMonths(6),
             )
@@ -65,11 +67,47 @@ internal class TilkjentYtelseValidatorTest {
                 validerAtTilkjentYtelseHarFornuftigePerioderOgBeløp(
                     tilkjentYtelse = tilkjentYtelse,
                     personopplysningGrunnlag = personopplysningGrunnlag,
-                    behandlingSkalFølgeNyeLovendringer2024 = false,
+                    vilkårsvurdering = lagVilkårsvurderingOppfylt(personer = listOf(barn, søker), regelsett = VilkårRegelsett.LOV_AUGUST_2021),
                 )
             }
         val feilmelding =
-            "Kontantstøtte kan maks utbetales for 11 måneder. Du er i ferd med å utbetale mer enn dette for barn med fnr ${barn.aktivFødselsnummer()}. " +
+            "Kontantstøtte kan maks utbetales for 11 måneder. Du er i ferd med å utbetale mer enn dette for barn med fnr ${barn.aktør.aktivFødselsnummer()}. " +
+                "Kontroller datoene på vilkårene eller ta kontakt med team familie"
+
+        assertEquals(feilmelding, exception.frontendFeilmelding)
+        assertEquals(feilmelding, exception.message)
+    }
+
+    @Test
+    fun `validerAtTilkjentYtelseHarFornuftigePerioderOgBeløp skal kaste feil når utbetalingsperiode er mer enn 7 måneder når regelsett er satt til LOV_AUG_2024`() {
+        val andelTilkjentYtelse1 =
+            lagAndelTilkjentYtelse(
+                tilkjentYtelse = tilkjentYtelse,
+                behandling = behandling,
+                aktør = barn.aktør,
+                stønadFom = YearMonth.now().minusMonths(10),
+                stønadTom = YearMonth.now().minusMonths(4),
+            )
+        val andelTilkjentYtelse2 =
+            lagAndelTilkjentYtelse(
+                tilkjentYtelse = tilkjentYtelse,
+                behandling = behandling,
+                aktør = barn.aktør,
+                stønadFom = YearMonth.now().minusMonths(3),
+                stønadTom = YearMonth.now().plusMonths(6),
+            )
+        tilkjentYtelse.andelerTilkjentYtelse.addAll(setOf(andelTilkjentYtelse1, andelTilkjentYtelse2))
+
+        val exception =
+            assertThrows<FunksjonellFeil> {
+                validerAtTilkjentYtelseHarFornuftigePerioderOgBeløp(
+                    tilkjentYtelse = tilkjentYtelse,
+                    personopplysningGrunnlag = personopplysningGrunnlag,
+                    vilkårsvurdering = lagVilkårsvurderingOppfylt(personer = listOf(barn, søker), regelsett = VilkårRegelsett.LOV_AUGUST_2024),
+                )
+            }
+        val feilmelding =
+            "Kontantstøtte kan maks utbetales for 7 måneder. Du er i ferd med å utbetale mer enn dette for barn med fnr ${barn.aktør.aktivFødselsnummer()}. " +
                 "Kontroller datoene på vilkårene eller ta kontakt med team familie"
 
         assertEquals(feilmelding, exception.frontendFeilmelding)
@@ -82,7 +120,7 @@ internal class TilkjentYtelseValidatorTest {
             lagAndelTilkjentYtelse(
                 tilkjentYtelse = tilkjentYtelse,
                 behandling = behandling,
-                aktør = barn,
+                aktør = barn.aktør,
                 stønadFom = YearMonth.now().minusMonths(10),
                 stønadTom = YearMonth.now().minusMonths(4),
             )
@@ -90,7 +128,7 @@ internal class TilkjentYtelseValidatorTest {
             lagAndelTilkjentYtelse(
                 tilkjentYtelse = tilkjentYtelse,
                 behandling = behandling,
-                aktør = barn2,
+                aktør = barn2.aktør,
                 stønadFom = YearMonth.now().minusMonths(3),
                 stønadTom = YearMonth.now().plusMonths(6),
             )
@@ -100,7 +138,7 @@ internal class TilkjentYtelseValidatorTest {
             validerAtTilkjentYtelseHarFornuftigePerioderOgBeløp(
                 tilkjentYtelse = tilkjentYtelse,
                 personopplysningGrunnlag = personopplysningGrunnlag,
-                behandlingSkalFølgeNyeLovendringer2024 = false,
+                vilkårsvurdering = lagVilkårsvurderingOppfylt(personer = listOf(barn2, barn, søker), regelsett = VilkårRegelsett.LOV_AUGUST_2021),
             )
         }
     }
@@ -111,13 +149,13 @@ internal class TilkjentYtelseValidatorTest {
             lagAndelTilkjentYtelse(
                 tilkjentYtelse = tilkjentYtelse,
                 behandling = behandling,
-                aktør = søker,
+                aktør = søker.aktør,
             )
         val andelTilkjentYtelseForBarn =
             lagAndelTilkjentYtelse(
                 tilkjentYtelse = tilkjentYtelse,
                 behandling = behandling,
-                aktør = barn,
+                aktør = barn.aktør,
             )
         tilkjentYtelse.andelerTilkjentYtelse.addAll(listOf(andelTilkjentYtelseForSøker, andelTilkjentYtelseForBarn))
 
@@ -126,7 +164,7 @@ internal class TilkjentYtelseValidatorTest {
                 validerAtTilkjentYtelseHarFornuftigePerioderOgBeløp(
                     tilkjentYtelse = tilkjentYtelse,
                     personopplysningGrunnlag = personopplysningGrunnlag,
-                    behandlingSkalFølgeNyeLovendringer2024 = false,
+                    vilkårsvurdering = lagVilkårsvurderingOppfylt(personer = listOf(barn, søker), regelsett = VilkårRegelsett.LOV_AUGUST_2021),
                 )
             }
 
@@ -139,7 +177,7 @@ internal class TilkjentYtelseValidatorTest {
             lagAndelTilkjentYtelse(
                 tilkjentYtelse = tilkjentYtelse,
                 behandling = behandling,
-                aktør = barn,
+                aktør = barn.aktør,
                 stønadFom = YearMonth.now().minusMonths(11),
                 stønadTom = YearMonth.now().minusMonths(6),
                 sats = 8000,
@@ -153,7 +191,7 @@ internal class TilkjentYtelseValidatorTest {
                 validerAtTilkjentYtelseHarFornuftigePerioderOgBeløp(
                     tilkjentYtelse = tilkjentYtelse,
                     personopplysningGrunnlag = personopplysningGrunnlag,
-                    behandlingSkalFølgeNyeLovendringer2024 = false,
+                    vilkårsvurdering = lagVilkårsvurderingOppfylt(personer = listOf(barn, søker), regelsett = VilkårRegelsett.LOV_AUGUST_2021),
                 )
             }
 
@@ -174,7 +212,7 @@ internal class TilkjentYtelseValidatorTest {
             lagAndelTilkjentYtelse(
                 tilkjentYtelse = tilkjentYtelse,
                 behandling = behandling,
-                aktør = barn,
+                aktør = barn.aktør,
                 stønadFom = YearMonth.now().minusMonths(11),
                 stønadTom = YearMonth.now().minusMonths(6),
                 sats = 8000,
@@ -191,7 +229,7 @@ internal class TilkjentYtelseValidatorTest {
             }
 
         val andreTilkjenteYtelser = listOf(annenTilkjentYtelse)
-        val person = lagPerson(personopplysningGrunnlag, barn, PersonType.BARN)
+        val person = lagPerson(personopplysningGrunnlag, barn.aktør, PersonType.BARN)
         val utbetalingsikkerhetFeil =
             assertThrows<UtbetalingsikkerhetFeil> {
                 validerAtBarnIkkeFårFlereUtbetalingerSammePeriode(
@@ -219,7 +257,7 @@ internal class TilkjentYtelseValidatorTest {
             lagAndelTilkjentYtelse(
                 tilkjentYtelse = tilkjentYtelse,
                 behandling = behandling,
-                aktør = barn,
+                aktør = barn.aktør,
                 stønadFom = YearMonth.now().minusMonths(11),
                 stønadTom = YearMonth.now().minusMonths(6),
                 sats = 8000,
@@ -236,7 +274,7 @@ internal class TilkjentYtelseValidatorTest {
                     lagAndelTilkjentYtelse(
                         tilkjentYtelse = tilkjentYtelse,
                         behandling = behandling,
-                        aktør = barn,
+                        aktør = barn.aktør,
                         stønadFom = YearMonth.now().minusMonths(5),
                         stønadTom = YearMonth.now(),
                         sats = 8000,
@@ -245,7 +283,7 @@ internal class TilkjentYtelseValidatorTest {
             }
 
         val andreTilkjenteYtelser = listOf(annenTilkjentYtelse)
-        val person = lagPerson(personopplysningGrunnlag, barn, PersonType.BARN)
+        val person = lagPerson(personopplysningGrunnlag, barn.aktør, PersonType.BARN)
 
         validerAtBarnIkkeFårFlereUtbetalingerSammePeriode(
             tilkjentYtelse,
@@ -262,7 +300,7 @@ internal class TilkjentYtelseValidatorTest {
             listOf(
                 lagAndelTilkjentYtelse(
                     behandling = behandling,
-                    aktør = barn,
+                    aktør = barn.aktør,
                     stønadFom = YearMonth.now().minusMonths(4),
                     stønadTom = YearMonth.now(),
                     sats = 5000,
@@ -272,7 +310,7 @@ internal class TilkjentYtelseValidatorTest {
             listOf(
                 lagAndelTilkjentYtelse(
                     behandling = behandling,
-                    aktør = barn,
+                    aktør = barn.aktør,
                     stønadFom = YearMonth.now().minusMonths(4),
                     stønadTom = YearMonth.now(),
                     sats = 4000,
@@ -282,7 +320,7 @@ internal class TilkjentYtelseValidatorTest {
             finnAktørIderMedUgyldigEtterbetalingsperiode(forrigeAndeler, andeler, LocalDateTime.now())
 
         assertEquals(1, aktørerMedUgyldigEtterbetalingsperiode.size)
-        assertEquals(aktørerMedUgyldigEtterbetalingsperiode.single(), barn.aktørId)
+        assertEquals(aktørerMedUgyldigEtterbetalingsperiode.single(), barn.aktør.aktørId)
     }
 
     @Test
@@ -291,7 +329,7 @@ internal class TilkjentYtelseValidatorTest {
             listOf(
                 lagAndelTilkjentYtelse(
                     behandling = behandling,
-                    aktør = barn,
+                    aktør = barn.aktør,
                     stønadFom = YearMonth.now().minusMonths(4),
                     stønadTom = YearMonth.now(),
                     sats = 5000,
@@ -301,7 +339,7 @@ internal class TilkjentYtelseValidatorTest {
             listOf(
                 lagAndelTilkjentYtelse(
                     behandling = behandling,
-                    aktør = barn,
+                    aktør = barn.aktør,
                     stønadFom = YearMonth.now().minusMonths(3),
                     stønadTom = YearMonth.now(),
                     sats = 5000,
@@ -311,13 +349,13 @@ internal class TilkjentYtelseValidatorTest {
             finnAktørIderMedUgyldigEtterbetalingsperiode(forrigeAndeler, andeler, LocalDateTime.now())
 
         assertEquals(1, aktørerMedUgyldigEtterbetalingsperiode.size)
-        assertEquals(aktørerMedUgyldigEtterbetalingsperiode.single(), barn.aktørId)
+        assertEquals(aktørerMedUgyldigEtterbetalingsperiode.single(), barn.aktør.aktørId)
 
         aktørerMedUgyldigEtterbetalingsperiode =
             finnAktørIderMedUgyldigEtterbetalingsperiode(null, andeler, LocalDateTime.now())
 
         assertEquals(1, aktørerMedUgyldigEtterbetalingsperiode.size)
-        assertEquals(aktørerMedUgyldigEtterbetalingsperiode.single(), barn.aktørId)
+        assertEquals(aktørerMedUgyldigEtterbetalingsperiode.single(), barn.aktør.aktørId)
     }
 
     @Test
@@ -326,7 +364,7 @@ internal class TilkjentYtelseValidatorTest {
             listOf(
                 lagAndelTilkjentYtelse(
                     behandling = behandling,
-                    aktør = barn,
+                    aktør = barn.aktør,
                     stønadFom = YearMonth.now().minusMonths(4),
                     stønadTom = YearMonth.now(),
                     sats = 5000,
@@ -336,7 +374,7 @@ internal class TilkjentYtelseValidatorTest {
             listOf(
                 lagAndelTilkjentYtelse(
                     behandling = behandling,
-                    aktør = barn,
+                    aktør = barn.aktør,
                     stønadFom = YearMonth.now().minusMonths(4),
                     stønadTom = YearMonth.now(),
                     sats = 5000,
@@ -354,7 +392,7 @@ internal class TilkjentYtelseValidatorTest {
             listOf(
                 lagAndelTilkjentYtelse(
                     behandling = behandling,
-                    aktør = barn,
+                    aktør = barn.aktør,
                     stønadFom = YearMonth.now().minusMonths(2),
                     stønadTom = YearMonth.now(),
                     sats = 5000,
@@ -364,7 +402,7 @@ internal class TilkjentYtelseValidatorTest {
             listOf(
                 lagAndelTilkjentYtelse(
                     behandling = behandling,
-                    aktør = barn,
+                    aktør = barn.aktør,
                     stønadFom = YearMonth.now().minusMonths(4),
                     stønadTom = YearMonth.now(),
                     sats = 4000,

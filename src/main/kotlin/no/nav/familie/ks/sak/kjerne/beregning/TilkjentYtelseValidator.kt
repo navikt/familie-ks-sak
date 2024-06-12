@@ -12,6 +12,9 @@ import no.nav.familie.ks.sak.common.tidslinje.utvidelser.tilPerioderIkkeNull
 import no.nav.familie.ks.sak.common.util.overlapperHeltEllerDelvisMed
 import no.nav.familie.ks.sak.common.util.toLocalDate
 import no.nav.familie.ks.sak.common.util.toYearMonth
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårRegelsett
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.hentRegelsettBruktIVilkår
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.domene.TilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.domene.YtelseType
@@ -29,16 +32,22 @@ object TilkjentYtelseValidator {
     fun validerAtTilkjentYtelseHarFornuftigePerioderOgBeløp(
         tilkjentYtelse: TilkjentYtelse,
         personopplysningGrunnlag: PersonopplysningGrunnlag,
-        behandlingSkalFølgeNyeLovendringer2024: Boolean,
+        vilkårsvurdering: Vilkårsvurdering,
     ) {
-        val maksAntallMånederMedUtbetaling = if (behandlingSkalFølgeNyeLovendringer2024) 7 else 11
-
         val søker = personopplysningGrunnlag.søker
         val barna = personopplysningGrunnlag.barna
 
         val andelerPerAktør = tilkjentYtelse.andelerTilkjentYtelse.groupBy { it.aktør }
 
         andelerPerAktør.filter { it.value.isNotEmpty() }.forEach { (aktør, andeler) ->
+            val regelsettPåAktør = vilkårsvurdering.hentPersonResultaterTilAktør(aktørId = aktør.aktørId).hentRegelsettBruktIVilkår() ?: throw Feil("Fant ikke regelsett på aktør med id ${aktør.aktørId}")
+
+            val maksAntallMånederMedUtbetaling =
+                when (regelsettPåAktør) {
+                    VilkårRegelsett.LOV_AUGUST_2021 -> 11
+                    VilkårRegelsett.LOV_AUGUST_2024 -> 7
+                }
+
             val stønadFom = andeler.minOf { it.stønadFom }
             val stønadTom = andeler.maxOf { it.stønadTom }
 

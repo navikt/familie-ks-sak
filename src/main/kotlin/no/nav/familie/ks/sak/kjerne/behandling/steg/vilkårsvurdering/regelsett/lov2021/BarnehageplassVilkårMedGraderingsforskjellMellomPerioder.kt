@@ -8,7 +8,6 @@ data class BarnehageplassVilkårMedGraderingsforskjellMellomPerioder<NullableVil
     val graderingsforskjellMellomDenneOgNestePeriode: Graderingsforskjell,
 )
 
-
 @Suppress("UNCHECKED_CAST")
 fun List<BarnehageplassVilkårMedGraderingsforskjellMellomPerioder<VilkårResultat?>>.filtrerBortNullverdier(): List<BarnehageplassVilkårMedGraderingsforskjellMellomPerioder<VilkårResultat>> =
     this.filter { it.vilkårResultat != null } as List<BarnehageplassVilkårMedGraderingsforskjellMellomPerioder<VilkårResultat>>

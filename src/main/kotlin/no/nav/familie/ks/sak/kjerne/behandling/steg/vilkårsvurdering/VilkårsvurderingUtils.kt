@@ -364,8 +364,17 @@ fun genererInitiellVilkårsvurdering(
                         // prefyller diverse vilkår automatisk basert på type
                         when (vilkår) {
                             Vilkår.BARNETS_ALDER -> {
-                                val periodeFomForBarnetsAlder = if (regelsett == VilkårRegelsett.LOV_AUGUST_2024) person.fødselsdato.plusMonths(13) else person.fødselsdato.plusYears(1)
-                                val periodeTomForBarnetsAlder = if (regelsett == VilkårRegelsett.LOV_AUGUST_2024) person.fødselsdato.plusMonths(19) else person.fødselsdato.plusYears(2)
+                                val periodeFomForBarnetsAlder =
+                                    when (regelsett) {
+                                        VilkårRegelsett.LOV_AUGUST_2021 -> person.fødselsdato.plusYears(1)
+                                        VilkårRegelsett.LOV_AUGUST_2024 -> person.fødselsdato.plusMonths(13)
+                                    }
+
+                                val periodeTomForBarnetsAlder =
+                                    when (regelsett) {
+                                        VilkårRegelsett.LOV_AUGUST_2021 -> person.fødselsdato.plusYears(2)
+                                        VilkårRegelsett.LOV_AUGUST_2024 -> person.fødselsdato.plusMonths(19)
+                                    }
 
                                 VilkårResultat(
                                     personResultat = personResultat,
@@ -393,7 +402,11 @@ fun genererInitiellVilkårsvurdering(
                                 )
 
                             Vilkår.BARNEHAGEPLASS -> {
-                                val periodeFomForBarnehageplass = if (regelsett == VilkårRegelsett.LOV_AUGUST_2024) person.fødselsdato.plusMonths(13) else person.fødselsdato
+                                val periodeFomForBarnehageplass =
+                                    when (regelsett) {
+                                        VilkårRegelsett.LOV_AUGUST_2021 -> person.fødselsdato
+                                        VilkårRegelsett.LOV_AUGUST_2024 -> person.fødselsdato.plusMonths(13)
+                                    }
 
                                 VilkårResultat(
                                     personResultat = personResultat,
