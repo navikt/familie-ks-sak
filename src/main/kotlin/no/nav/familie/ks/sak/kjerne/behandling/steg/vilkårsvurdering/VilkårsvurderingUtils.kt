@@ -303,42 +303,54 @@ private fun VilkårResultat.validerVilkårBarnetsAlder(
     periode: IkkeNullbarPeriode<Long>,
     barn: Person,
 ): String? =
-    if (regelsett == VilkårRegelsett.LOV_AUGUST_2024) {
-        when {
-            this.erAdopsjonOppfylt() &&
-                periode.tom.isAfter(barn.fødselsdato.plusYears(6).withMonth(Month.AUGUST.value).sisteDagIMåned()) ->
-                "Du kan ikke sette en t.o.m dato som er etter august året barnet fyller 6 år."
+    when (regelsett) {
+        VilkårRegelsett.LOV_AUGUST_2021 ->
+            validerBarnetsAlderIHenholdTilLovI2021(periode, barn)
 
-            this.erAdopsjonOppfylt() && periode.fom.plusMonths(7) < periode.tom ->
-                "Differansen mellom f.o.m datoen og t.o.m datoen kan ikke være mer enn 7 måneder. "
-
-            !this.erAdopsjonOppfylt() && !periode.fom.isEqual(barn.fødselsdato.plusMonths(13)) ->
-                "F.o.m datoen må være lik datoen barnet fyller 13 måneder."
-
-            !this.erAdopsjonOppfylt() && !periode.tom.isEqual(barn.fødselsdato.plusMonths(19)) && periode.tom != barn.dødsfall?.dødsfallDato ->
-                "T.o.m datoen må være lik datoen barnet fyller 19 måneder."
-
-            else -> null
-        }
-    } else {
-        when {
-            this.erAdopsjonOppfylt() &&
-                periode.tom.isAfter(barn.fødselsdato.plusYears(6).withMonth(Month.AUGUST.value).sisteDagIMåned()) ->
-                "Du kan ikke sette en t.o.m dato som er etter august året barnet fyller 6 år."
-
-            // Ved adopsjon skal det være lov å ha en differanse på 1 år slik at man får 11 måned med kontantstøtte.
-            this.erAdopsjonOppfylt() && periode.fom.plusYears(1) < periode.tom ->
-                "Differansen mellom f.o.m datoen og t.o.m datoen kan ikke være mer enn 1 år."
-
-            !this.erAdopsjonOppfylt() && !periode.fom.isEqual(barn.fødselsdato.plusYears(1)) ->
-                "F.o.m datoen må være lik barnets 1 års dag."
-
-            !this.erAdopsjonOppfylt() && !periode.tom.isEqual(barn.fødselsdato.plusYears(2)) && periode.tom != barn.dødsfall?.dødsfallDato ->
-                "T.o.m datoen må være lik barnets 2 års dag."
-
-            else -> null
-        }
+        VilkårRegelsett.LOV_AUGUST_2024 ->
+            validerBarnetsAlderIHenholdTilLovI2024(periode, barn)
     }
+
+private fun VilkårResultat.validerBarnetsAlderIHenholdTilLovI2024(
+    periode: IkkeNullbarPeriode<Long>,
+    barn: Person,
+) = when {
+    this.erAdopsjonOppfylt() &&
+        periode.tom.isAfter(barn.fødselsdato.plusYears(6).withMonth(Month.AUGUST.value).sisteDagIMåned()) ->
+        "Du kan ikke sette en t.o.m dato som er etter august året barnet fyller 6 år."
+
+    this.erAdopsjonOppfylt() && periode.fom.plusMonths(7) < periode.tom ->
+        "Differansen mellom f.o.m datoen og t.o.m datoen kan ikke være mer enn 7 måneder. "
+
+    !this.erAdopsjonOppfylt() && !periode.fom.isEqual(barn.fødselsdato.plusMonths(13)) ->
+        "F.o.m datoen må være lik datoen barnet fyller 13 måneder."
+
+    !this.erAdopsjonOppfylt() && !periode.tom.isEqual(barn.fødselsdato.plusMonths(19)) && periode.tom != barn.dødsfall?.dødsfallDato ->
+        "T.o.m datoen må være lik datoen barnet fyller 19 måneder."
+
+    else -> null
+}
+
+private fun VilkårResultat.validerBarnetsAlderIHenholdTilLovI2021(
+    periode: IkkeNullbarPeriode<Long>,
+    barn: Person,
+) = when {
+    this.erAdopsjonOppfylt() &&
+        periode.tom.isAfter(barn.fødselsdato.plusYears(6).withMonth(Month.AUGUST.value).sisteDagIMåned()) ->
+        "Du kan ikke sette en t.o.m dato som er etter august året barnet fyller 6 år."
+
+    // Ved adopsjon skal det være lov å ha en differanse på 1 år slik at man får 11 måned med kontantstøtte.
+    this.erAdopsjonOppfylt() && periode.fom.plusYears(1) < periode.tom ->
+        "Differansen mellom f.o.m datoen og t.o.m datoen kan ikke være mer enn 1 år."
+
+    !this.erAdopsjonOppfylt() && !periode.fom.isEqual(barn.fødselsdato.plusYears(1)) ->
+        "F.o.m datoen må være lik barnets 1 års dag."
+
+    !this.erAdopsjonOppfylt() && !periode.tom.isEqual(barn.fødselsdato.plusYears(2)) && periode.tom != barn.dødsfall?.dødsfallDato ->
+        "T.o.m datoen må være lik barnets 2 års dag."
+
+    else -> null
+}
 
 fun genererInitiellVilkårsvurdering(
     behandling: Behandling,
