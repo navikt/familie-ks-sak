@@ -309,8 +309,7 @@ private fun VilkårResultat.validerVilkårBarnetsAlder(
                 periode.tom.isAfter(barn.fødselsdato.plusYears(6).withMonth(Month.AUGUST.value).sisteDagIMåned()) ->
                 "Du kan ikke sette en t.o.m dato som er etter august året barnet fyller 6 år."
 
-            // Ved adopsjon skal det være lov å ha en differanse på 1 år slik at man får 11 måned med kontantstøtte.
-            this.erAdopsjonOppfylt() && periode.fom.plusYears(1) < periode.tom ->
+            this.erAdopsjonOppfylt() && periode.fom.plusMonths(7) < periode.tom ->
                 "Differansen mellom f.o.m datoen og t.o.m datoen kan ikke være mer enn 7 måneder. "
 
             !this.erAdopsjonOppfylt() && !periode.fom.isEqual(barn.fødselsdato.plusMonths(13)) ->
