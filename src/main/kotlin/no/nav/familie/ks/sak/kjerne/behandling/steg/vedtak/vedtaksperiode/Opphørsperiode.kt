@@ -120,19 +120,17 @@ private fun finnOpphørsperiodeEtterSisteUtbetalingsperiode(
     val nesteMåned = inneværendeMåned().nesteMåned()
 
     val erFramtidigOpphørPgaBarnehageplass =
-        vilkårsvurdering.personResultater.any {
-            val vilkårResultaterPåPerson = it.vilkårResultater
-            val regelsett = vilkårResultaterPåPerson.hentRegelsettBruktIVilkår() ?: return@any false
-
-            vilkårResultaterPåPerson.any {
-                val periodeTom = it.periodeTom
+        vilkårsvurdering.personResultater.any { personResultat ->
+            val barnehageplassVilkårResultaterPåPerson = personResultat.vilkårResultater.filter { vilkårResultat -> vilkårResultat.vilkårType == Vilkår.BARNEHAGEPLASS }
+            val regelsett = barnehageplassVilkårResultaterPåPerson.hentRegelsettBruktIVilkår() ?: return@any false
+            barnehageplassVilkårResultaterPåPerson.any { barnehageplassVilkårResultat ->
+                val periodeTom = barnehageplassVilkårResultat.periodeTom
                 val periodeTomForskjøvetTomMånedForSisteUtbetalingsperiodePgaFremtidigOpphør =
                     when (regelsett) {
                         VilkårRegelsett.LOV_AUGUST_2021 -> periodeTom?.tilForskjøvetTomMånedForSisteUtbetalingsperiodePgaFremtidigOpphør()
                         VilkårRegelsett.LOV_AUGUST_2024 -> periodeTom?.tilForskjøvetTomMånedForSisteUtbetalingsperiodePgaFremtidigOpphør2024()
                     }
-
-                it.vilkårType == Vilkår.BARNEHAGEPLASS && it.søkerHarMeldtFraOmBarnehageplass == true && periodeTomForskjøvetTomMånedForSisteUtbetalingsperiodePgaFremtidigOpphør == sisteUtbetalingsperiodeTom
+                barnehageplassVilkårResultat.søkerHarMeldtFraOmBarnehageplass == true && periodeTomForskjøvetTomMånedForSisteUtbetalingsperiodePgaFremtidigOpphør == sisteUtbetalingsperiodeTom
             }
         }
 
