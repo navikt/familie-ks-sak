@@ -243,6 +243,7 @@ fun List<BehandlingKategori>.finnHøyesteKategori(): BehandlingKategori = this.m
 enum class BehandlingStatus {
     OPPRETTET,
     UTREDES,
+    SATT_PÅ_MASKINELL_VENT,
     FATTER_VEDTAK,
     IVERKSETTER_VEDTAK,
     AVSLUTTET,
