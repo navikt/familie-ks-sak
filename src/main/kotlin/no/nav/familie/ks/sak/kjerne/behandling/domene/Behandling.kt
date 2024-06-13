@@ -59,6 +59,8 @@ data class Behandling(
     val behandlingStegTilstand: MutableSet<BehandlingStegTilstand> = mutableSetOf(),
     @Column(name = "aktiv", nullable = false)
     var aktiv: Boolean = true,
+    @Column(name = "aktivert_tid", nullable = false)
+    var aktivertTidspunkt: LocalDateTime = LocalDateTime.now(),
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
     var status: BehandlingStatus = initStatus(),

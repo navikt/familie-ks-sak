@@ -14,6 +14,7 @@ import no.nav.familie.ks.sak.data.lagAndelTilkjentYtelse
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagInitieltTilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
+import no.nav.familie.ks.sak.kjerne.behandling.SnikeIKøenService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingMetrikker
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
@@ -47,6 +48,9 @@ internal class AvsluttBehandlingStegTest {
 
     @MockK
     private lateinit var behandlingMetrikker: BehandlingMetrikker
+
+    @MockK
+    private lateinit var snikeIKøenService: SnikeIKøenService
 
     @InjectMockKs
     private lateinit var avsluttBehandlingSteg: AvsluttBehandlingSteg

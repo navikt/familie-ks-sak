@@ -133,7 +133,7 @@ class SnikeIKøenService(
         }
 
         behandlingPåVent.aktiv = true
-        //behandlingPåVent.aktivertTidspunkt = LocalDateTime.now()
+        behandlingPåVent.aktivertTidspunkt = LocalDateTime.now()
         behandlingPåVent.status = BehandlingStatus.UTREDES
 
         behandlingService.oppdaterBehandling(behandlingPåVent)
