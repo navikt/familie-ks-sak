@@ -39,6 +39,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStegTilstand
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingType
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
+import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingStegStatus
 import no.nav.familie.ks.sak.kjerne.behandling.steg.simulering.domene.ØkonomiSimuleringMottaker
@@ -241,6 +242,8 @@ fun lagBehandling(
     opprettetÅrsak: BehandlingÅrsak = BehandlingÅrsak.SØKNAD,
     kategori: BehandlingKategori = BehandlingKategori.NASJONAL,
     resultat: Behandlingsresultat = Behandlingsresultat.IKKE_VURDERT,
+    aktiv: Boolean = true,
+    status: BehandlingStatus = BehandlingStatus.UTREDES,
 ): Behandling =
     Behandling(
         id = nesteBehandlingId(),
@@ -249,6 +252,8 @@ fun lagBehandling(
         opprettetÅrsak = opprettetÅrsak,
         kategori = kategori,
         resultat = resultat,
+        aktiv = aktiv,
+        status = status,
     ).initBehandlingStegTilstand()
 
 fun lagBehandlingStegTilstand(

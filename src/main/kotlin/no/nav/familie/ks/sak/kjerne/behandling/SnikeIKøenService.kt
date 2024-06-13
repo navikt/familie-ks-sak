@@ -24,22 +24,25 @@ class SnikeIKøenService(
         årsak: SettPåMaskinellVentÅrsak,
     ) {
         val behandling = behandlingService.hentBehandling(behandlingId)
+
         if (!behandling.aktiv) {
-            error("Behandling=$behandlingId er ikke aktiv")
+            throw IllegalStateException("Behandling=$behandlingId er ikke aktiv")
         }
+
         val behandlingStatus = behandling.status
         val behandlingStegTilstand = finnBehandlingStegTilstand(behandling)
 
-        val erBehanlingPåVent = behandlingStegTilstand.behandlingStegStatus === BehandlingStegStatus.VENTER
+        val erBehandlingIkkePåVent = behandlingStegTilstand.behandlingStegStatus !== BehandlingStegStatus.VENTER
 
-        if (behandlingStatus !== BehandlingStatus.UTREDES && !erBehanlingPåVent) {
-            error("Behandling=$behandlingId kan ikke settes på maskinell vent då status=$behandlingStatus")
+        // TODO : Er denne if-sjekken korrekt?
+        if (erBehandlingIkkePåVent && behandlingStatus !== BehandlingStatus.UTREDES) {
+            throw IllegalStateException("Behandling=$behandlingId kan ikke settes på maskinell vent då status=$behandlingStatus")
         }
 
         behandling.status = BehandlingStatus.SATT_PÅ_MASKINELL_VENT
         behandling.aktiv = false
         behandlingService.oppdaterBehandling(behandling)
-        loggService.opprettSettPåMaskinellVent(behandling, årsak.årsak)
+        loggService.opprettSettPåMaskinellVent(behandling, årsak.beskrivelse)
     }
 
     private fun finnBehandlingStegTilstand(behandling: Behandling) =
@@ -155,7 +158,7 @@ class SnikeIKøenService(
 private fun Behandling.harVærtPåVilkårsvurderingSteg() =
     behandlingStegTilstand.any { it.behandlingSteg == BehandlingSteg.VILKÅRSVURDERING }
 
-enum class SettPåMaskinellVentÅrsak(val årsak: String) {
+enum class SettPåMaskinellVentÅrsak(val beskrivelse: String) {
     SATSENDRING("Satsendring"),
     MÅNEDLIG_VALUTAJUSTERING("Månedlig valutajustering"),
 }
