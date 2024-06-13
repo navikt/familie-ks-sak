@@ -13,7 +13,7 @@ Egenskap: Medlemskap annen forelder
       | 1            | 1        |                     | SØKNAD           | NASJONAL            |
 
 
-  Scenario: Man skal ha rett til kontantstøtte fra og med måned man har fått innvilget vilkåret Medlemskap annen forelder til og med siste måned.
+  Scenario: Man skal ha rett til kontantstøtte fra og med måned man har fått innvilget vilkåret medlemskap annen forelder til og med siste måned.
     Og følgende persongrunnlag
       | BehandlingId | AktørId | Persontype | Fødselsdato |
       | 1            | 1       | SØKER      | 19.06.1988  |
