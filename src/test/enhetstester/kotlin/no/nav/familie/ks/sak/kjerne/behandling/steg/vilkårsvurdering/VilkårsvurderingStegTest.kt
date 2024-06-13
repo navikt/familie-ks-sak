@@ -425,7 +425,7 @@ class VilkårsvurderingStegTest {
         val exception = assertThrows<FunksjonellFeil> { vilkårsvurderingSteg.utførSteg(behandling.id) }
         assertEquals(
             "Du har lagt inn flere enn 2 endringer i barnehagevilkåret i samme måned. " +
-                "Dette er ikke støttet enda. Ta kontakt med Team Familie.",
+                "Dette er ikke støttet enda. Ta kontakt med Team BAKS.",
             exception.message,
         )
     }

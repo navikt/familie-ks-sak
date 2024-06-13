@@ -55,7 +55,7 @@ object TilkjentYtelseValidator {
             if (diff.toTotalMonths() > maksAntallMånederMedUtbetaling) {
                 val feilmelding =
                     "Kontantstøtte kan maks utbetales for $maksAntallMånederMedUtbetaling måneder. Du er i ferd med å utbetale mer enn dette for barn med fnr ${aktør.aktivFødselsnummer()}. " +
-                        "Kontroller datoene på vilkårene eller ta kontakt med team familie"
+                        "Kontroller datoene på vilkårene eller ta kontakt med Team BAKS"
                 throw FunksjonellFeil(frontendFeilmelding = feilmelding, melding = feilmelding)
             }
         }

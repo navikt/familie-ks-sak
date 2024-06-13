@@ -72,7 +72,7 @@ internal class TilkjentYtelseValidatorTest {
             }
         val feilmelding =
             "Kontantstøtte kan maks utbetales for 11 måneder. Du er i ferd med å utbetale mer enn dette for barn med fnr ${barn.aktør.aktivFødselsnummer()}. " +
-                "Kontroller datoene på vilkårene eller ta kontakt med team familie"
+                "Kontroller datoene på vilkårene eller ta kontakt med Team BAKS"
 
         assertEquals(feilmelding, exception.frontendFeilmelding)
         assertEquals(feilmelding, exception.message)
@@ -108,7 +108,7 @@ internal class TilkjentYtelseValidatorTest {
             }
         val feilmelding =
             "Kontantstøtte kan maks utbetales for 7 måneder. Du er i ferd med å utbetale mer enn dette for barn med fnr ${barn.aktør.aktivFødselsnummer()}. " +
-                "Kontroller datoene på vilkårene eller ta kontakt med team familie"
+                "Kontroller datoene på vilkårene eller ta kontakt med Team BAKS"
 
         assertEquals(feilmelding, exception.frontendFeilmelding)
         assertEquals(feilmelding, exception.message)
