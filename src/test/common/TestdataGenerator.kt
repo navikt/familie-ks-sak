@@ -42,6 +42,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingStegStatus
+import no.nav.familie.ks.sak.kjerne.behandling.steg.VenteÅrsak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.simulering.domene.ØkonomiSimuleringMottaker
 import no.nav.familie.ks.sak.kjerne.behandling.steg.simulering.domene.ØkonomiSimuleringPostering
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.Vedtak
@@ -261,11 +262,15 @@ fun lagBehandlingStegTilstand(
     behandling: Behandling,
     behandlingSteg: BehandlingSteg,
     behandlingStegStatus: BehandlingStegStatus,
+    frist: LocalDate? = null,
+    årsak: VenteÅrsak? = null,
 ) = behandling.behandlingStegTilstand.add(
     BehandlingStegTilstand(
         behandling = behandling,
         behandlingSteg = behandlingSteg,
         behandlingStegStatus = behandlingStegStatus,
+        frist = frist,
+        årsak = årsak
     ),
 )
 

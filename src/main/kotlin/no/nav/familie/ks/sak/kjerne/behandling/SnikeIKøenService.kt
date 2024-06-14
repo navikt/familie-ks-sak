@@ -2,7 +2,6 @@ package no.nav.familie.ks.sak.kjerne.behandling
 
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
-import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingStegStatus
 import no.nav.familie.ks.sak.kjerne.logg.LoggService
 import org.slf4j.LoggerFactory
@@ -140,6 +139,7 @@ class SnikeIKøenService(
             behandlingService.oppdaterBehandling(aktivBehandling)
         }
 
+
         behandlingPåVent.aktiv = true
         behandlingPåVent.aktivertTidspunkt = LocalDateTime.now()
         behandlingPåVent.status = BehandlingStatus.UTREDES
@@ -159,9 +159,6 @@ class SnikeIKøenService(
         }
     }
 }
-
-private fun Behandling.harVærtPåVilkårsvurderingSteg() =
-    behandlingStegTilstand.any { it.behandlingSteg == BehandlingSteg.VILKÅRSVURDERING }
 
 enum class SettPåMaskinellVentÅrsak(val beskrivelse: String) {
     SATSENDRING("Satsendring"),

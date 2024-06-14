@@ -7,6 +7,7 @@ import no.nav.familie.ks.sak.data.lagFagsak
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingStegStatus
+import no.nav.familie.ks.sak.kjerne.behandling.steg.VenteÅrsak
 import no.nav.familie.ks.sak.kjerne.logg.LoggService
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Nested
@@ -14,11 +15,12 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.EnumSource
+import java.time.LocalDate
 
 class SnikeIKøenServiceTest {
     private val behandlingService: BehandlingService = mockk()
-    private val loggService: LoggService = mockk()
-    private val tilbakestillBehandlingService: TilbakestillBehandlingService = mockk()
+    private val loggService: LoggService = mockk(relaxed = true)
+    private val tilbakestillBehandlingService: TilbakestillBehandlingService = mockk(relaxed = true)
 
     private val snikeIKøenService: SnikeIKøenService =
         SnikeIKøenService(
@@ -277,6 +279,167 @@ class SnikeIKøenServiceTest {
             assertThat(exception.message).isEqualTo(
                 "Behandling=${behandlingSomSnekIKøen.id} har status=${behandlingSomSnekIKøen.status} og er ikke avsluttet"
             )
+        }
+
+        @Test
+        fun `skal reaktivere maskinell behandling og deaktivere aktiv behandling`() {
+
+            // Arrange
+            val fagsak = lagFagsak(
+                id = 1L
+            )
+
+            val behandlingPåVent = lagBehandling(
+                id = 1L,
+                fagsak  = fagsak,
+                status = BehandlingStatus.SATT_PÅ_MASKINELL_VENT,
+                aktiv = false
+            )
+
+            val behandlingSomSnekIKøen = lagBehandling(
+                id = 2L,
+                fagsak = fagsak,
+                status = BehandlingStatus.AVSLUTTET,
+                aktiv = true
+            )
+
+            every { behandlingService.hentBehandlingerPåFagsak(fagsak.id) }
+                .returns(listOf(
+                    behandlingSomSnekIKøen,
+                    behandlingPåVent
+                ))
+
+            every { behandlingService.oppdaterBehandling(behandlingSomSnekIKøen) }
+                .returns(behandlingSomSnekIKøen)
+
+            every { behandlingService.oppdaterBehandling(behandlingPåVent) }
+                .returns(behandlingPåVent)
+
+            // Act
+            val reaktivert = snikeIKøenService.reaktiverBehandlingPåMaskinellVent(behandlingSomSnekIKøen)
+
+            // Assert
+            assertThat(behandlingSomSnekIKøen.aktiv).isFalse();
+            assertThat(behandlingPåVent.aktiv).isTrue()
+            assertThat(behandlingPåVent.aktivertTidspunkt).isNotNull()
+            assertThat(behandlingPåVent.status).isEqualTo(BehandlingStatus.UTREDES)
+            verify(exactly = 1) { tilbakestillBehandlingService.tilbakestillBehandlingTilVilkårsvurdering(behandlingPåVent.id) }
+            verify(exactly = 1) { loggService.opprettTattAvMaskinellVent(behandlingPåVent) }
+            assertThat(reaktivert).isEqualTo(Reaktivert.JA)
+
+        }
+
+        @Test
+        fun `skal reaktivere maskinell behandling og ikke deaktivere noen behandlinger da ingen behandlinger er aktiv`() {
+
+            // Arrange
+            val fagsak = lagFagsak(
+                id = 1L
+            )
+
+            val behandlingPåVent = lagBehandling(
+                id = 1L,
+                fagsak  = fagsak,
+                status = BehandlingStatus.SATT_PÅ_MASKINELL_VENT,
+                aktiv = false
+            )
+
+            val behandlingSomSnekIKøen = lagBehandling(
+                id = 2L,
+                fagsak = fagsak,
+                status = BehandlingStatus.AVSLUTTET,
+                aktiv = false
+            )
+
+            every { behandlingService.hentBehandlingerPåFagsak(fagsak.id) }
+                .returns(listOf(
+                    behandlingSomSnekIKøen,
+                    behandlingPåVent
+                ))
+
+            every { behandlingService.oppdaterBehandling(behandlingSomSnekIKøen) }
+                .returns(behandlingSomSnekIKøen)
+
+            every { behandlingService.oppdaterBehandling(behandlingPåVent) }
+                .returns(behandlingPåVent)
+
+            // Act
+            val reaktivert = snikeIKøenService.reaktiverBehandlingPåMaskinellVent(behandlingSomSnekIKøen)
+
+            // Assert
+            assertThat(behandlingSomSnekIKøen.aktiv).isFalse();
+            assertThat(behandlingPåVent.aktiv).isTrue()
+            assertThat(behandlingPåVent.aktivertTidspunkt).isNotNull()
+            assertThat(behandlingPåVent.status).isEqualTo(BehandlingStatus.UTREDES)
+            verify(exactly = 1) { tilbakestillBehandlingService.tilbakestillBehandlingTilVilkårsvurdering(behandlingPåVent.id) }
+            verify(exactly = 1) { loggService.opprettTattAvMaskinellVent(behandlingPåVent) }
+            assertThat(reaktivert).isEqualTo(Reaktivert.JA)
+
+        }
+
+
+        @Test
+        fun `skal reaktivere maskinell behandling og sette BehandlingStegTilstand tilbake til VENTER`() {
+
+            // Arrange
+            val dagensDato = LocalDate.now()
+
+            val fagsak = lagFagsak(
+                id = 1L
+            )
+
+            val behandlingPåVent = lagBehandling(
+                id = 1L,
+                fagsak  = fagsak,
+                status = BehandlingStatus.SATT_PÅ_MASKINELL_VENT,
+                aktiv = false
+            )
+            behandlingPåVent.behandlingStegTilstand.clear()
+            lagBehandlingStegTilstand(
+                behandlingPåVent,
+                BehandlingSteg.VILKÅRSVURDERING,
+                BehandlingStegStatus.VENTER,
+                frist = dagensDato,
+                årsak = VenteÅrsak.AVVENTER_BEHANDLING
+            )
+
+            val behandlingSomSnekIKøen = lagBehandling(
+                id = 2L,
+                fagsak = fagsak,
+                status = BehandlingStatus.AVSLUTTET,
+                aktiv = true
+            )
+
+            every { behandlingService.hentBehandlingerPåFagsak(fagsak.id) }
+                .returns(listOf(
+                    behandlingSomSnekIKøen,
+                    behandlingPåVent
+                ))
+
+            every { behandlingService.oppdaterBehandling(behandlingSomSnekIKøen) }
+                .returns(behandlingSomSnekIKøen)
+
+            every { behandlingService.oppdaterBehandling(behandlingPåVent) }
+                .returns(behandlingPåVent)
+
+            // Act
+            val reaktivert = snikeIKøenService.reaktiverBehandlingPåMaskinellVent(behandlingSomSnekIKøen)
+
+            // Assert
+            assertThat(behandlingSomSnekIKøen.aktiv).isFalse();
+            assertThat(behandlingPåVent.aktiv).isTrue()
+            assertThat(behandlingPåVent.aktivertTidspunkt).isNotNull()
+            assertThat(behandlingPåVent.status).isEqualTo(BehandlingStatus.UTREDES)
+            assertThat(behandlingPåVent.behandlingStegTilstand).hasSize(1)
+            assertThat(behandlingPåVent.behandlingStegTilstand).anySatisfy {
+                assertThat(it.behandlingStegStatus).isEqualTo(BehandlingStegStatus.VENTER)
+                assertThat(it.frist).isEqualTo(dagensDato)
+                assertThat(it.årsak).isEqualTo(VenteÅrsak.AVVENTER_BEHANDLING)
+            }
+            verify(exactly = 1) { tilbakestillBehandlingService.tilbakestillBehandlingTilVilkårsvurdering(behandlingPåVent.id) }
+            verify(exactly = 1) { loggService.opprettTattAvMaskinellVent(behandlingPåVent) }
+            assertThat(reaktivert).isEqualTo(Reaktivert.JA)
+
         }
 
     }
