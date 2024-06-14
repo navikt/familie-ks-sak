@@ -7,6 +7,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Reg
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.UtdypendeVilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårRegelsett
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.IBegrunnelse
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.IBegrunnelseDeserializer
@@ -49,6 +50,7 @@ data class VilkårResultatDto(
     val antallTimer: BigDecimal? = null,
     val utdypendeVilkårsvurderinger: List<UtdypendeVilkårsvurdering> = emptyList(),
     val søkerHarMeldtFraOmBarnehageplass: Boolean? = null,
+    val regelsett: VilkårRegelsett? = null,
 ) {
     fun erAvslagUtenPeriode() = erEksplisittAvslagPåSøknad == true && periodeFom == null && periodeTom == null
 
@@ -71,6 +73,7 @@ data class VilkårResultatDto(
             // antallTimer kan ikke være 0
             antallTimer = if (antallTimer == BigDecimal(0)) null else antallTimer,
             søkerHarMeldtFraOmBarnehageplass = søkerHarMeldtFraOmBarnehageplass,
+            regelsett = vilkårResultat.regelsett,
         )
     }
 }

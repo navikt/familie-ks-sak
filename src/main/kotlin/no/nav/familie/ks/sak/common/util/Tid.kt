@@ -59,6 +59,8 @@ fun LocalDate.erSammeEllerFør(toCompare: LocalDate): Boolean = this.isBefore(to
 
 fun LocalDate.erSammeEllerEtter(toCompare: LocalDate): Boolean = this.isAfter(toCompare) || this == toCompare
 
+fun LocalDate.erFørsteAugust2024EllerSenere(): Boolean = !this.isBefore(LocalDate.of(2024, 8, 1))
+
 fun LocalDate.førsteDagIInneværendeMåned() = this.withDayOfMonth(1)
 
 data class MånedPeriode(val fom: YearMonth, val tom: YearMonth)

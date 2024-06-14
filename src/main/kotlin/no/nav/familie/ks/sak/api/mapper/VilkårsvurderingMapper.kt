@@ -35,6 +35,7 @@ object VilkårsvurderingMapper {
             utdypendeVilkårsvurderinger = vilkårResultat.utdypendeVilkårsvurderinger,
             antallTimer = vilkårResultat.antallTimer,
             søkerHarMeldtFraOmBarnehageplass = vilkårResultat.søkerHarMeldtFraOmBarnehageplass,
+            regelsett = vilkårResultat.regelsett,
         )
 
     private fun lagAnnenVurderingRespons(annenVurdering: AnnenVurdering) =

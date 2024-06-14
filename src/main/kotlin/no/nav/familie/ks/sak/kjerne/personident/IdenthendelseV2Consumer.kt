@@ -3,7 +3,6 @@ package no.nav.familie.ks.sak.kjerne.personident
 import no.nav.familie.kontrakter.felles.PersonIdent
 import no.nav.familie.ks.sak.config.KafkaConfig.Companion.PDL_AKTOR_V2_TOPIC
 import no.nav.familie.log.mdc.MDCConstants
-import no.nav.familie.prosessering.internal.TaskService
 import no.nav.person.pdl.aktor.v2.Aktor
 import no.nav.person.pdl.aktor.v2.Type
 import org.apache.kafka.clients.consumer.ConsumerRecord
@@ -20,7 +19,7 @@ import java.util.UUID
 @Service
 @Profile("!integrasjonstest & !dev-postgres-preprod")
 class IdenthendelseV2Consumer(
-    val taskService: TaskService,
+    val personidentService: PersonidentService,
 ) {
     @KafkaListener(
         id = "familie-ks-sak-aktorv2",
@@ -56,7 +55,7 @@ class IdenthendelseV2Consumer(
                 aktør?.identifikatorer?.singleOrNull { ident ->
                     ident.type == Type.FOLKEREGISTERIDENT && ident.gjeldende
                 }?.also { folkeregisterident ->
-                    taskService.save(IdentHendelseTask.opprettTask(PersonIdent(folkeregisterident.idnummer)))
+                    personidentService.opprettTaskForIdentHendelse(PersonIdent(folkeregisterident.idnummer))
                 }
             } else {
                 SECURE_LOGGER.info("Ignorerer å lage task på ident-hendelse fordi aktør $aktørIdPåHendelse ikke lenger er en gyldig aktør")

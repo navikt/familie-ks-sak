@@ -7,6 +7,8 @@ import io.mockk.junit5.MockKExtension
 import io.mockk.mockk
 import io.mockk.slot
 import no.nav.familie.ks.sak.common.exception.Feil
+import no.nav.familie.ks.sak.config.featureToggle.FeatureToggleConfig
+import no.nav.familie.ks.sak.config.featureToggle.UnleashNextMedContextService
 import no.nav.familie.ks.sak.data.fnrTilFødselsdato
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagFagsak
@@ -19,6 +21,7 @@ import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelseType
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårRegelsett
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårsvurderingRepository
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.BegrunnelseType
@@ -49,6 +52,9 @@ class VilkårsvurderingServiceTest {
     @MockK
     private lateinit var personidentService: PersonidentService
 
+    @MockK
+    private lateinit var unleashService: UnleashNextMedContextService
+
     @InjectMockKs
     private lateinit var vilkårsvurderingService: VilkårsvurderingService
 
@@ -60,6 +66,8 @@ class VilkårsvurderingServiceTest {
 
     @Test
     fun `opprettVilkårsvurdering - skal opprette tom vilkårsvurdering dersom det ikke finnes tidligere vedtatte behandlinger på fagsak`() {
+        every { unleashService.isEnabled(FeatureToggleConfig.LOV_ENDRING_7_MND_NYE_BEHANDLINGER) } returns false
+
         val barn1 = randomAktør()
         val barn2 = randomAktør()
 
@@ -139,15 +147,18 @@ class VilkårsvurderingServiceTest {
 
     @Test
     fun `opprettVilkårsvurdering - skal opprette tom vilkårsvurdering og deaktivere eksisterende dersom det ikke finnes tidligere vedtatte behandlinger på fagsak`() {
+        every { unleashService.isEnabled(FeatureToggleConfig.LOV_ENDRING_7_MND_NYE_BEHANDLINGER) } returns false
+
         val barn1 = randomAktør()
         val barn2 = randomAktør()
         val lagretDeaktivertVilkårsvurderingSlot = slot<Vilkårsvurdering>()
         val lagretVilkårsvurderingSlot = slot<Vilkårsvurdering>()
         every { vilkårsvurderingRepository.finnAktivForBehandling(any()) } returns
             lagVilkårsvurderingMedSøkersVilkår(
-                søker,
-                behandling,
-                Resultat.OPPFYLT,
+                søkerAktør = søker,
+                behandling = behandling,
+                resultat = Resultat.OPPFYLT,
+                regelsett = VilkårRegelsett.LOV_AUGUST_2021,
             )
         every { personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(any()) } returns
             lagPersonopplysningGrunnlag(
@@ -169,6 +180,8 @@ class VilkårsvurderingServiceTest {
 
     @Test
     fun `hentVilkårsbegrunnelser - skal returnere et map med begrunnelsestyper mappet mot liste av begrunnelser`() {
+        every { unleashService.isEnabled(FeatureToggleConfig.LOV_ENDRING_7_MND_NYE_BEHANDLINGER) } returns false
+
         every { sanityService.hentSanityBegrunnelser() } returns
             listOf(
                 SanityBegrunnelse(
@@ -219,7 +232,13 @@ class VilkårsvurderingServiceTest {
 
     @Test
     fun `slettVilkårPåBehandling - skal kaste feil dersom vilkåret som forsøkes å slettes ikke finnes`() {
-        val vilkårsvurdering = lagVilkårsvurderingMedSøkersVilkår(søker, behandling, Resultat.OPPFYLT)
+        val vilkårsvurdering =
+            lagVilkårsvurderingMedSøkersVilkår(
+                søkerAktør = søker,
+                behandling = behandling,
+                resultat = Resultat.OPPFYLT,
+                regelsett = VilkårRegelsett.LOV_AUGUST_2021,
+            )
 
         every { personidentService.hentAktør(any()) } returns søker
         every { vilkårsvurderingRepository.finnAktivForBehandling(200) } returns vilkårsvurdering

@@ -14,8 +14,11 @@ import no.nav.familie.ks.sak.common.util.toYearMonth
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.Vedtak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.VedtaksperiodeMedBegrunnelser
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårRegelsett
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.tilForskjøvetTomMånedForSisteUtbetalingsperiodePgaFremtidigOpphør
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.hentRegelsettBruktIVilkår
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.regelsett.lov2021.tilForskjøvetTomMånedForSisteUtbetalingsperiodePgaFremtidigOpphør
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.regelsett.lov2024.tilForskjøvetTomMånedForSisteUtbetalingsperiodePgaFremtidigOpphør2024
 import no.nav.familie.ks.sak.kjerne.beregning.AndelTilkjentYtelseMedEndreteUtbetalinger
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.NasjonalEllerFellesBegrunnelse
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.tilVedtaksbegrunnelse
@@ -117,10 +120,17 @@ private fun finnOpphørsperiodeEtterSisteUtbetalingsperiode(
     val nesteMåned = inneværendeMåned().nesteMåned()
 
     val erFramtidigOpphørPgaBarnehageplass =
-        vilkårsvurdering.personResultater.any {
-            it.vilkårResultater.any {
-                it.vilkårType == Vilkår.BARNEHAGEPLASS && it.søkerHarMeldtFraOmBarnehageplass == true &&
-                    it.periodeTom?.tilForskjøvetTomMånedForSisteUtbetalingsperiodePgaFremtidigOpphør() == sisteUtbetalingsperiodeTom
+        vilkårsvurdering.personResultater.any { personResultat ->
+            val barnehageplassVilkårResultaterPåPerson = personResultat.vilkårResultater.filter { vilkårResultat -> vilkårResultat.vilkårType == Vilkår.BARNEHAGEPLASS }
+            val regelsett = barnehageplassVilkårResultaterPåPerson.hentRegelsettBruktIVilkår() ?: return@any false
+            barnehageplassVilkårResultaterPåPerson.any { barnehageplassVilkårResultat ->
+                val periodeTom = barnehageplassVilkårResultat.periodeTom
+                val periodeTomForskjøvetTomMånedForSisteUtbetalingsperiodePgaFremtidigOpphør =
+                    when (regelsett) {
+                        VilkårRegelsett.LOV_AUGUST_2021 -> periodeTom?.tilForskjøvetTomMånedForSisteUtbetalingsperiodePgaFremtidigOpphør()
+                        VilkårRegelsett.LOV_AUGUST_2024 -> periodeTom?.tilForskjøvetTomMånedForSisteUtbetalingsperiodePgaFremtidigOpphør2024()
+                    }
+                barnehageplassVilkårResultat.søkerHarMeldtFraOmBarnehageplass == true && periodeTomForskjøvetTomMånedForSisteUtbetalingsperiodePgaFremtidigOpphør == sisteUtbetalingsperiodeTom
             }
         }
 

@@ -17,8 +17,9 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.PersonResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.UtdypendeVilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårRegelsett
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.tilForskjøvetOppfylteVilkårResultatTidslinjeMap
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.regelsett.tilForskjøvetOppfylteVilkårResultatTidslinjeMap
 import no.nav.familie.ks.sak.kjerne.beregning.AndelTilkjentYtelseMedEndreteUtbetalinger
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.Kompetanse
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.KompetanseAktivitet
@@ -113,6 +114,7 @@ class BegrunnelserForPeriodeContextTest {
                             periodeFom = vilkårOppfyltFom,
                             periodeTom = vilkårOppfyltTom,
                             utdypendeVilkårsvurderinger = listOf(UtdypendeVilkårsvurdering.ADOPSJON),
+                            regelsett = VilkårRegelsett.LOV_AUGUST_2021,
                         ),
                     ),
             )
@@ -168,6 +170,7 @@ class BegrunnelserForPeriodeContextTest {
                             periodeFom = vilkårOppfyltFom,
                             periodeTom = vilkårOppfyltTom,
                             antallTimer = BigDecimal.valueOf(8),
+                            regelsett = VilkårRegelsett.LOV_AUGUST_2021,
                         ),
                     ),
             )
@@ -224,12 +227,14 @@ class BegrunnelserForPeriodeContextTest {
                             periodeFom = vilkårOppfyltFom,
                             periodeTom = vilkårOppfyltTom,
                             antallTimer = BigDecimal.valueOf(8),
+                            regelsett = VilkårRegelsett.LOV_AUGUST_2021,
                         ),
                         lagVilkårResultat(
                             vilkårType = Vilkår.BARNETS_ALDER,
                             periodeFom = vilkårOppfyltFom,
                             periodeTom = vilkårOppfyltTom,
                             utdypendeVilkårsvurderinger = listOf(UtdypendeVilkårsvurdering.ADOPSJON),
+                            regelsett = VilkårRegelsett.LOV_AUGUST_2021,
                         ),
                     ),
             )
@@ -310,6 +315,7 @@ class BegrunnelserForPeriodeContextTest {
                 vilkårType = Vilkår.BARNETS_ALDER,
                 periodeFom = vilkårOppfyltFom.plusDays(15),
                 periodeTom = vilkårOppfyltTom.minusDays(15),
+                regelsett = VilkårRegelsett.LOV_AUGUST_2021,
             ),
         )
         val personResultatSøker =
@@ -397,6 +403,7 @@ class BegrunnelserForPeriodeContextTest {
                 vilkårType = Vilkår.BOSATT_I_RIKET,
                 periodeFom = vilkårOppfyltFom.plusMonths(2),
                 periodeTom = vilkårOppfyltTom.minusDays(15),
+                regelsett = VilkårRegelsett.LOV_AUGUST_2021,
             ),
         )
         val personResultater =
@@ -735,7 +742,14 @@ class BegrunnelserForPeriodeContextTest {
         fom: LocalDate,
         tom: LocalDate,
     ): MutableSet<VilkårResultat> =
-        vilkårTyper.map { lagVilkårResultat(vilkårType = it, periodeFom = fom, periodeTom = tom) }.toMutableSet()
+        vilkårTyper.map {
+            lagVilkårResultat(
+                vilkårType = it,
+                periodeFom = fom,
+                periodeTom = tom,
+                regelsett = VilkårRegelsett.LOV_AUGUST_2021,
+            )
+        }.toMutableSet()
 
     private fun lagFinnGyldigeBegrunnelserForPeriodeContext(
         personResultater: List<PersonResultat>,

@@ -42,7 +42,7 @@ fun hentVedtaksbrevtype(
         "Brev ikke støttet for behandlingstype=$behandlingType"
     val frontendFeilmelding =
         "Vi finner ikke vedtaksbrev som matcher med behandlingen og resultatet du har fått. " +
-            "Ta kontakt med Team familie slik at vi kan se nærmere på saken."
+            "Ta kontakt med Team BAKS slik at vi kan se nærmere på saken."
 
     return when (behandlingType) {
         BehandlingType.FØRSTEGANGSBEHANDLING ->

@@ -15,7 +15,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Utd
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.tilForskjøvetVilkårResultatTidslinjeDerVilkårErOppfyltForPerson
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.regelsett.tilForskjøvetVilkårResultatTidslinjeDerVilkårErOppfyltForPerson
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.domene.SatsPeriode
 import no.nav.familie.ks.sak.kjerne.beregning.domene.TilkjentYtelse
