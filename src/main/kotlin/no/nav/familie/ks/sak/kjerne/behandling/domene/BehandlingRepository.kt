@@ -22,13 +22,13 @@ interface BehandlingRepository : JpaRepository<Behandling, Long> {
 
     @Query(
         "SELECT b FROM Behandling b JOIN b.fagsak f WHERE f.id = :fagsakId AND f.arkivert = false " +
-            "AND b.aktiv = true ",
+                "AND b.aktiv = true ",
     )
     fun findByFagsakAndAktiv(fagsakId: Long): Behandling?
 
     @Query(
         "SELECT b FROM Behandling b JOIN b.fagsak f WHERE f.id = :fagsakId AND f.arkivert = false AND " +
-            "b.aktiv = true AND b.status <> 'AVSLUTTET'",
+                "b.aktiv = true AND b.status <> 'AVSLUTTET'",
     )
     fun findByFagsakAndAktivAndOpen(fagsakId: Long): Behandling?
 
@@ -98,4 +98,15 @@ interface BehandlingRepository : JpaRepository<Behandling, Long> {
             where b.id in (:behandlingIder) AND p.aktiv=true AND f.status = 'LØPENDE' """,
     )
     fun finnAktivtFødselsnummerForBehandlinger(behandlingIder: List<Long>): List<Pair<Long, String>>
+
+    @Query(
+        """ SELECT b.id
+            FROM Behandling b
+                 JOIN Vilkårsvurdering v ON b.id = v.behandling.id
+                 JOIN PersonResultat pr ON pr.vilkårsvurdering.id = v.id
+                 JOIN VilkårResultat vr ON vr.personResultat.id = pr.id
+            WHERE vr.søkerHarMeldtFraOmBarnehageplass = true 
+            AND vr.periodeTom >= '2024-08-01' """
+    )
+    fun finnBehandlingerFremtidigOpphørEtterAugust2024(): List<Long>
 }

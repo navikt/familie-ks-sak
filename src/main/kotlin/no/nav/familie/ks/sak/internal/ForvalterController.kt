@@ -1,13 +1,12 @@
 package no.nav.familie.ks.sak.internal
 
 import no.nav.familie.ks.sak.config.BehandlerRolle
+import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
 import no.nav.familie.ks.sak.sikkerhet.AuditLoggerEvent
 import no.nav.familie.ks.sak.sikkerhet.TilgangService
 import no.nav.security.token.support.core.api.ProtectedWithClaims
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.http.ResponseEntity
+import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("/api/forvalter")
@@ -15,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController
 class ForvalterController(
     private val testVerktøyService: TestVerktøyService,
     private val tilgangService: TilgangService,
+    private val behandlingRepository: BehandlingRepository
 ) {
     @GetMapping(path = ["/behandling/{behandlingId}/begrunnelsetest"])
     fun hentBegrunnelsetestPåBehandling(
@@ -29,5 +29,17 @@ class ForvalterController(
 
         return testVerktøyService.hentBrevTest(behandlingId)
             .replace("\n", System.lineSeparator())
+    }
+
+    @PostMapping(path = ["/revurder-fremtidig-opphor-behandlinger"])
+    fun revurderFremtidigOpphørBehandlinger(
+    ): ResponseEntity<String> {
+        // Gjør et kall mot DB
+        // Hent alle behandlinger for fremtidig opphør etter Aug 2024
+        // Send brev for hver behandling
+
+        val behandlingerFremtidigOpphørAugust2024 = behandlingRepository.finnBehandlingerFremtidigOpphørEtterAugust2024()
+
+        return ResponseEntity.ok().body("ok")
     }
 }
