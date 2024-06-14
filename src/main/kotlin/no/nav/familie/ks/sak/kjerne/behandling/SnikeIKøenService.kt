@@ -7,6 +7,7 @@ import no.nav.familie.ks.sak.kjerne.logg.LoggService
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import java.time.Clock
 import java.time.LocalDateTime
 
 @Service
@@ -14,6 +15,7 @@ class SnikeIKøenService(
     private val behandlingService: BehandlingService,
     private val loggService: LoggService,
     private val tilbakestillBehandlingService: TilbakestillBehandlingService,
+    private val clock: Clock
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
@@ -91,7 +93,7 @@ class SnikeIKøenService(
             logger.info("Behandling=$behandlingId er satt på vent av saksbehandler, $loggSuffix")
             return true
         }
-        val tid4TimerSiden = LocalDateTime.now().minusHours(4)
+        val tid4TimerSiden = LocalDateTime.now(clock).minusHours(4)
         if (aktivOgÅpenBehandling.endretTidspunkt.isAfter(tid4TimerSiden)) {
             logger.info(
                 "Behandling=$behandlingId har endretTid=${aktivOgÅpenBehandling.endretTidspunkt}. " +

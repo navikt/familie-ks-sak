@@ -28,6 +28,7 @@ import no.nav.familie.ks.sak.api.dto.SøknadDto
 import no.nav.familie.ks.sak.common.util.NullablePeriode
 import no.nav.familie.ks.sak.common.util.førsteDagIInneværendeMåned
 import no.nav.familie.ks.sak.common.util.sisteDagIMåned
+import no.nav.familie.ks.sak.config.BehandlerRolle
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.ForelderBarnRelasjonInfo
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.PdlPersonInfo
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelse
@@ -76,6 +77,8 @@ import no.nav.familie.ks.sak.kjerne.eøs.utenlandskperiodebeløp.domene.Utenland
 import no.nav.familie.ks.sak.kjerne.eøs.valutakurs.domene.Valutakurs
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.Fagsak
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.FagsakStatus
+import no.nav.familie.ks.sak.kjerne.logg.LoggType
+import no.nav.familie.ks.sak.kjerne.logg.domene.Logg
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import no.nav.familie.ks.sak.kjerne.personident.Personident
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Kjønn
@@ -237,6 +240,26 @@ fun nesteUtvidetVedtaksperiodeId(): Long {
     return gjeldendeUtvidetVedtaksperiodeId
 }
 
+fun lagLogg(
+    behandlingId: Long,
+    id: Long = 1L,
+    opprettetAv: String = "saksbehandler",
+    opprettetTidspunkt: LocalDateTime = LocalDateTime.now(),
+    type: LoggType = LoggType.BEHANDLING_OPPRETTET,
+    tittel: String = "tittel",
+    rolle: BehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
+    tekst: String = "",
+) : Logg = Logg(
+    id,
+    opprettetAv,
+    opprettetTidspunkt,
+    behandlingId,
+    type,
+    tittel,
+    rolle,
+    tekst,
+)
+
 fun lagBehandling(
     fagsak: Fagsak = lagFagsak(),
     type: BehandlingType = BehandlingType.FØRSTEGANGSBEHANDLING,
@@ -246,8 +269,9 @@ fun lagBehandling(
     aktiv: Boolean = true,
     status: BehandlingStatus = BehandlingStatus.UTREDES,
     id: Long = nesteBehandlingId(),
-): Behandling =
-    Behandling(
+    endretTidspunkt: LocalDateTime = LocalDateTime.now(),
+): Behandling {
+    val behandling = Behandling(
         id = id,
         fagsak = fagsak,
         type = type,
@@ -257,6 +281,9 @@ fun lagBehandling(
         aktiv = aktiv,
         status = status,
     ).initBehandlingStegTilstand()
+    behandling.endretTidspunkt = endretTidspunkt
+    return behandling
+}
 
 fun lagBehandlingStegTilstand(
     behandling: Behandling,

@@ -1,9 +1,14 @@
 package no.nav.familie.ks.sak.kjerne.behandling
 
-import io.mockk.*
+import io.mockk.every
+import io.mockk.just
+import io.mockk.mockk
+import io.mockk.runs
+import io.mockk.verify
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagBehandlingStegTilstand
 import no.nav.familie.ks.sak.data.lagFagsak
+import no.nav.familie.ks.sak.data.lagLogg
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingStegStatus
@@ -16,8 +21,13 @@ import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.EnumSource
 import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.Clock
+import java.time.Instant
+import java.time.ZoneId
 
 class SnikeIKøenServiceTest {
+    private val clock = Clock.fixed(Instant.parse("2024-01-01T18:00:00.00Z"), ZoneId.of("Europe/Oslo"))
     private val behandlingService: BehandlingService = mockk()
     private val loggService: LoggService = mockk(relaxed = true)
     private val tilbakestillBehandlingService: TilbakestillBehandlingService = mockk(relaxed = true)
@@ -27,10 +37,11 @@ class SnikeIKøenServiceTest {
             behandlingService = behandlingService,
             loggService = loggService,
             tilbakestillBehandlingService = tilbakestillBehandlingService,
+            clock,
         )
 
     @Nested
-    inner class SettAktivBehandlingPåMaskinellVent {
+    inner class SettAktivBehandlingPåMaskinellVentTest {
         @Test
         fun `skal kaste exception hvis behandling ikke er aktiv`() {
             // Arrange
@@ -144,7 +155,7 @@ class SnikeIKøenServiceTest {
     }
 
     @Nested
-    inner class ReaktiverBehandlingPåMaskinellVent {
+    inner class ReaktiverBehandlingPåMaskinellVentTest {
 
         @Test
         fun `skal ikke reaktivere behandling når ingen behandling på maskinell vent finnes`() {
@@ -195,12 +206,14 @@ class SnikeIKøenServiceTest {
             )
 
             every {
-                behandlingService.hentBehandlingerPåFagsak(fagsak.id,)
-            }.returns(listOf(
-                behandlingSomHarSneketIKøen,
-                behandlingPåMaskinellVent1,
-                behandlingPåMaskinellVent2
-            ))
+                behandlingService.hentBehandlingerPåFagsak(fagsak.id)
+            }.returns(
+                listOf(
+                    behandlingSomHarSneketIKøen,
+                    behandlingPåMaskinellVent1,
+                    behandlingPåMaskinellVent2
+                )
+            )
 
             // Act & assert
             val exception = assertThrows<IllegalStateException> {
@@ -219,7 +232,7 @@ class SnikeIKøenServiceTest {
             )
 
             val behandlingPåVent = lagBehandling(
-                fagsak  = fagsak,
+                fagsak = fagsak,
                 status = BehandlingStatus.SATT_PÅ_MASKINELL_VENT,
                 aktiv = true
             )
@@ -231,10 +244,12 @@ class SnikeIKøenServiceTest {
             )
 
             every { behandlingService.hentBehandlingerPåFagsak(fagsak.id) }
-                .returns(listOf(
-                    behandlingSomSnekIKøen,
-                    behandlingPåVent
-                ))
+                .returns(
+                    listOf(
+                        behandlingSomSnekIKøen,
+                        behandlingPåVent
+                    )
+                )
 
             // Act & assert
             val exception = assertThrows<IllegalStateException> {
@@ -254,7 +269,7 @@ class SnikeIKøenServiceTest {
 
             val behandlingPåVent = lagBehandling(
                 id = 1L,
-                fagsak  = fagsak,
+                fagsak = fagsak,
                 status = BehandlingStatus.SATT_PÅ_MASKINELL_VENT,
                 aktiv = false
             )
@@ -267,10 +282,12 @@ class SnikeIKøenServiceTest {
             )
 
             every { behandlingService.hentBehandlingerPåFagsak(fagsak.id) }
-                .returns(listOf(
-                    behandlingSomSnekIKøen,
-                    behandlingPåVent
-                ))
+                .returns(
+                    listOf(
+                        behandlingSomSnekIKøen,
+                        behandlingPåVent
+                    )
+                )
 
             // Act & assert
             val exception = assertThrows<BehandlingErIkkeAvsluttetException> {
@@ -291,7 +308,7 @@ class SnikeIKøenServiceTest {
 
             val behandlingPåVent = lagBehandling(
                 id = 1L,
-                fagsak  = fagsak,
+                fagsak = fagsak,
                 status = BehandlingStatus.SATT_PÅ_MASKINELL_VENT,
                 aktiv = false
             )
@@ -304,10 +321,12 @@ class SnikeIKøenServiceTest {
             )
 
             every { behandlingService.hentBehandlingerPåFagsak(fagsak.id) }
-                .returns(listOf(
-                    behandlingSomSnekIKøen,
-                    behandlingPåVent
-                ))
+                .returns(
+                    listOf(
+                        behandlingSomSnekIKøen,
+                        behandlingPåVent
+                    )
+                )
 
             every { behandlingService.oppdaterBehandling(behandlingSomSnekIKøen) }
                 .returns(behandlingSomSnekIKøen)
@@ -339,7 +358,7 @@ class SnikeIKøenServiceTest {
 
             val behandlingPåVent = lagBehandling(
                 id = 1L,
-                fagsak  = fagsak,
+                fagsak = fagsak,
                 status = BehandlingStatus.SATT_PÅ_MASKINELL_VENT,
                 aktiv = false
             )
@@ -352,10 +371,12 @@ class SnikeIKøenServiceTest {
             )
 
             every { behandlingService.hentBehandlingerPåFagsak(fagsak.id) }
-                .returns(listOf(
-                    behandlingSomSnekIKøen,
-                    behandlingPåVent
-                ))
+                .returns(
+                    listOf(
+                        behandlingSomSnekIKøen,
+                        behandlingPåVent
+                    )
+                )
 
             every { behandlingService.oppdaterBehandling(behandlingSomSnekIKøen) }
                 .returns(behandlingSomSnekIKøen)
@@ -390,7 +411,7 @@ class SnikeIKøenServiceTest {
 
             val behandlingPåVent = lagBehandling(
                 id = 1L,
-                fagsak  = fagsak,
+                fagsak = fagsak,
                 status = BehandlingStatus.SATT_PÅ_MASKINELL_VENT,
                 aktiv = false
             )
@@ -411,10 +432,12 @@ class SnikeIKøenServiceTest {
             )
 
             every { behandlingService.hentBehandlingerPåFagsak(fagsak.id) }
-                .returns(listOf(
-                    behandlingSomSnekIKøen,
-                    behandlingPåVent
-                ))
+                .returns(
+                    listOf(
+                        behandlingSomSnekIKøen,
+                        behandlingPåVent
+                    )
+                )
 
             every { behandlingService.oppdaterBehandling(behandlingSomSnekIKøen) }
                 .returns(behandlingSomSnekIKøen)
@@ -439,6 +462,97 @@ class SnikeIKøenServiceTest {
             verify(exactly = 1) { tilbakestillBehandlingService.tilbakestillBehandlingTilVilkårsvurdering(behandlingPåVent.id) }
             verify(exactly = 1) { loggService.opprettTattAvMaskinellVent(behandlingPåVent) }
             assertThat(reaktivert).isEqualTo(Reaktivert.JA)
+
+        }
+
+    }
+
+    @Nested
+    inner class KanSnikeForbiTest {
+
+        @Test
+        fun `skal kunne snike i køen om BehandlingStegStatus er VENTER`() {
+
+            // Arrange
+            val behandling = lagBehandling()
+            behandling.behandlingStegTilstand.clear()
+            lagBehandlingStegTilstand(
+                behandling,
+                BehandlingSteg.VILKÅRSVURDERING,
+                BehandlingStegStatus.VENTER,
+            )
+
+            // Act
+            val kanSnikeForbi = snikeIKøenService.kanSnikeForbi(behandling)
+
+            // Assert
+            assertThat(kanSnikeForbi).isTrue()
+
+        }
+
+        @Test
+        fun `skal ikke kunne snike i køen om EndretTidspunkt på behandlingen er mindre enn 4 timer siden`() {
+
+            // Arrange
+            val endretTidspunkt = LocalDateTime.now(clock).minusHours(3).minusMinutes(59).minusSeconds(59)
+
+            val behandling = lagBehandling(
+                endretTidspunkt = endretTidspunkt
+            )
+
+            // Act
+            val kanSnikeForbi = snikeIKøenService.kanSnikeForbi(behandling)
+
+            // Assert
+            assertThat(kanSnikeForbi).isFalse()
+
+        }
+
+        @Test
+        fun `skal ikke kunne snike i køen da siste logghendelse er mindre enn 4 timer siden`() {
+
+            // Arrange
+            val behandling = lagBehandling(
+                endretTidspunkt = LocalDateTime.now(clock).minusHours(4)
+            )
+
+            val logg = lagLogg(
+                behandlingId = behandling.id,
+                opprettetTidspunkt = LocalDateTime.now().minusHours(3).minusMinutes(59).minusSeconds(59)
+            )
+
+            every { loggService.hentLoggForBehandling(behandling.id) }
+                .returns(listOf(logg))
+
+            // Act
+            val kanSnikeForbi = snikeIKøenService.kanSnikeForbi(behandling)
+
+            // Assert
+            assertThat(kanSnikeForbi).isFalse()
+
+        }
+
+        @Test
+        fun `skal kunne snike i køen om BehandlingStegStatus ikke er VENTER dersom endretTidspunkt og opprettTidspunkt er 4 timer siden eller mer`() {
+
+            // Arrange
+            val behandling = lagBehandling(
+                endretTidspunkt = LocalDateTime.now(clock).minusHours(4)
+            )
+
+            val logg = lagLogg(
+                behandlingId = behandling.id,
+                opprettetTidspunkt = LocalDateTime.now(clock).minusHours(4)
+            )
+
+            every { loggService.hentLoggForBehandling(behandling.id) }
+                .returns(listOf(logg))
+
+            // Act
+            val kanSnikeForbi = snikeIKøenService.kanSnikeForbi(behandling)
+
+            // Assert
+            assertThat(kanSnikeForbi).isTrue()
 
         }
 
