@@ -34,7 +34,6 @@ class SnikeIKøenService(
 
         val erBehandlingIkkePåVent = behandlingStegTilstand.behandlingStegStatus !== BehandlingStegStatus.VENTER
 
-        // TODO : Er denne if-sjekken korrekt?
         if (erBehandlingIkkePåVent && behandlingStatus !== BehandlingStatus.UTREDES) {
             throw IllegalStateException("Behandling=$behandlingId kan ikke settes på maskinell vent då status=$behandlingStatus")
         }
@@ -55,21 +54,24 @@ class SnikeIKøenService(
      * @return boolean som tilsier om en behandling er reaktivert eller ikke
      */
     @Transactional
-    fun reaktiverBehandlingPåMaskinellVent(behandlingSomFerdigstilles: Behandling): Boolean {
-        val fagsakId = behandlingSomFerdigstilles.fagsak.id
+    fun reaktiverBehandlingPåMaskinellVent(behandlingSomFerdigstilles: Behandling): Reaktivert {
 
-        val behandlingPåMaskinellVent = finnBehandlingPåMaskinellVent(fagsakId) ?: return false
+        val behandlingerPåFagsak = behandlingService.hentBehandlingerPåFagsak(behandlingSomFerdigstilles.fagsak.id)
+
+        val behandlingPåMaskinellVent = finnBehandlingPåMaskinellVent(behandlingerPåFagsak) ?: return Reaktivert.NEI
 
         val behandlingStegTilstand = finnBehandlingStegTilstand(behandlingPåMaskinellVent)
+
         val erBehandlingStegStatusVenter = behandlingStegTilstand.behandlingStegStatus == BehandlingStegStatus.VENTER
 
-        val aktivBehandling = behandlingService.hentBehandlingerPåFagsak(fagsakId).singleOrNull { it.aktiv }
+        val aktivBehandling = behandlingerPåFagsak.singleOrNull { it.aktiv }
 
         validerBehandlinger(aktivBehandling, behandlingPåMaskinellVent)
 
         aktiverBehandlingPåVent(aktivBehandling, behandlingPåMaskinellVent, behandlingSomFerdigstilles)
 
         tilbakestillBehandlingService.tilbakestillBehandlingTilVilkårsvurdering(behandlingPåMaskinellVent.id)
+
         if (erBehandlingStegStatusVenter) {
             val behandlingStegTilstandEtterTilbakestilling = finnBehandlingStegTilstand(behandlingPåMaskinellVent)
             behandlingStegTilstandEtterTilbakestilling.behandlingStegStatus = BehandlingStegStatus.VENTER
@@ -78,7 +80,7 @@ class SnikeIKøenService(
         }
 
         loggService.opprettTattAvMaskinellVent(behandlingPåMaskinellVent)
-        return true
+        return Reaktivert.JA
     }
 
     fun kanSnikeForbi(aktivOgÅpenBehandling: Behandling): Boolean {
@@ -94,7 +96,7 @@ class SnikeIKøenService(
         if (aktivOgÅpenBehandling.endretTidspunkt.isAfter(tid4TimerSiden)) {
             logger.info(
                 "Behandling=$behandlingId har endretTid=${aktivOgÅpenBehandling.endretTidspunkt}. " +
-                    "Det er altså mindre enn 4 timer siden behandlingen var endret, og vi ønsker derfor ikke å sette behandlingen på maskinell vent",
+                        "Det er altså mindre enn 4 timer siden behandlingen var endret, og vi ønsker derfor ikke å sette behandlingen på maskinell vent",
             )
             return false
         }
@@ -102,8 +104,8 @@ class SnikeIKøenService(
         if (sisteLogghendelse.opprettetTidspunkt.isAfter(tid4TimerSiden)) {
             logger.info(
                 "Behandling=$behandlingId siste logginslag er " +
-                    "type=${sisteLogghendelse.type} tid=${sisteLogghendelse.opprettetTidspunkt}, $loggSuffix. " +
-                    "Det er altså mindre enn 4 timer siden siste logginslag, og vi ønsker derfor ikke å sette behandlingen på maskinell vent",
+                        "type=${sisteLogghendelse.type} tid=${sisteLogghendelse.opprettetTidspunkt}, $loggSuffix. " +
+                        "Det er altså mindre enn 4 timer siden siste logginslag, og vi ønsker derfor ikke å sette behandlingen på maskinell vent",
             )
             return false
         }
@@ -111,13 +113,16 @@ class SnikeIKøenService(
     }
 
     private fun finnBehandlingPåMaskinellVent(
-        fagsakId: Long,
-    ): Behandling? =
-        behandlingService.hentBehandlingerPåFagsak(fagsakId).filter {
-            it.status == BehandlingStatus.SATT_PÅ_MASKINELL_VENT
+        behandlingerPåFagsak: List<Behandling>,
+    ): Behandling? {
+        val behandlingerPåMaskinellVent = behandlingerPåFagsak.filter { it.status == BehandlingStatus.SATT_PÅ_MASKINELL_VENT }
+        if (behandlingerPåMaskinellVent.isEmpty()) {
+            return null;
         }
-            .takeIf { it.isNotEmpty() }
-            ?.let { it.singleOrNull() ?: error("Forventer kun en behandling på vent for fagsak=$fagsakId") }
+        return behandlingerPåMaskinellVent.singleOrNull() ?: throw IllegalStateException(
+            "Forventer kun en behandling på maskinell vent for fagsak=${behandlingerPåFagsak.first().fagsak.id}"
+        )
+    }
 
     private fun aktiverBehandlingPåVent(
         aktivBehandling: Behandling?,
@@ -126,8 +131,8 @@ class SnikeIKøenService(
     ) {
         logger.info(
             "Deaktiverer aktivBehandling=${aktivBehandling?.id}" +
-                " aktiverer behandlingPåVent=${behandlingPåVent.id}" +
-                " behandlingSomFerdigstilles=${behandlingSomFerdigstilles.id}",
+                    " aktiverer behandlingPåVent=${behandlingPåVent.id}" +
+                    " behandlingSomFerdigstilles=${behandlingSomFerdigstilles.id}",
         )
 
         if (aktivBehandling != null) {
@@ -147,7 +152,7 @@ class SnikeIKøenService(
         behandlingPåVent: Behandling,
     ) {
         if (behandlingPåVent.aktiv) {
-            error("Åpen behandling har feil tilstand $behandlingPåVent")
+            throw IllegalStateException("Behandling på vent er aktiv")
         }
         if (aktivBehandling != null && aktivBehandling.status != BehandlingStatus.AVSLUTTET) {
             throw BehandlingErIkkeAvsluttetException(aktivBehandling)
@@ -161,6 +166,11 @@ private fun Behandling.harVærtPåVilkårsvurderingSteg() =
 enum class SettPåMaskinellVentÅrsak(val beskrivelse: String) {
     SATSENDRING("Satsendring"),
     MÅNEDLIG_VALUTAJUSTERING("Månedlig valutajustering"),
+}
+
+enum class Reaktivert {
+    JA,
+    NEI
 }
 
 class BehandlingErIkkeAvsluttetException(val behandling: Behandling) :

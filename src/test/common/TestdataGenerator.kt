@@ -244,9 +244,10 @@ fun lagBehandling(
     resultat: Behandlingsresultat = Behandlingsresultat.IKKE_VURDERT,
     aktiv: Boolean = true,
     status: BehandlingStatus = BehandlingStatus.UTREDES,
+    id: Long = nesteBehandlingId(),
 ): Behandling =
     Behandling(
-        id = nesteBehandlingId(),
+        id = id,
         fagsak = fagsak,
         type = type,
         opprettetÅrsak = opprettetÅrsak,
