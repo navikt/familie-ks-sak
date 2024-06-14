@@ -157,7 +157,9 @@ class SnikeIKøenService(
             throw IllegalStateException("Behandling på vent er aktiv")
         }
         if (aktivBehandling != null && aktivBehandling.status != BehandlingStatus.AVSLUTTET) {
-            throw BehandlingErIkkeAvsluttetException(aktivBehandling)
+            throw IllegalStateException(
+                "Behandling=${aktivBehandling.id} har status=${aktivBehandling.status} og er ikke avsluttet"
+            )
         }
     }
 }
@@ -171,6 +173,3 @@ enum class Reaktivert {
     JA,
     NEI
 }
-
-class BehandlingErIkkeAvsluttetException(val behandling: Behandling) :
-    RuntimeException("Behandling=${behandling.id} har status=${behandling.status} og er ikke avsluttet")

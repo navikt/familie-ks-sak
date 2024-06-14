@@ -290,7 +290,7 @@ class SnikeIKøenServiceTest {
                 )
 
             // Act & assert
-            val exception = assertThrows<BehandlingErIkkeAvsluttetException> {
+            val exception = assertThrows<IllegalStateException> {
                 snikeIKøenService.reaktiverBehandlingPåMaskinellVent(behandlingSomSnekIKøen)
             }
             assertThat(exception.message).isEqualTo(
