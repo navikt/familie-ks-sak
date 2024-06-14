@@ -298,7 +298,7 @@ class BrevService(
     private fun hentSisteBehandlingSomErVedtatt(fagsakId: Long): Behandling? =
         behandlingRepository.finnBehandlinger(fagsakId)
             .filter { !it.erHenlagt() && it.status == BehandlingStatus.AVSLUTTET }
-            .maxByOrNull { it.opprettetTidspunkt }
+            .maxByOrNull { it.aktivertTidspunkt }
 
     private fun validerManuelleBrevmottakere(
         behandlingId: Long?,
