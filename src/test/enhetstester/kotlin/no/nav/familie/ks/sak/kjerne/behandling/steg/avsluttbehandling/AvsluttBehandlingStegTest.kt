@@ -14,6 +14,7 @@ import no.nav.familie.ks.sak.data.lagAndelTilkjentYtelse
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagInitieltTilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
+import no.nav.familie.ks.sak.kjerne.behandling.Reaktivert
 import no.nav.familie.ks.sak.kjerne.behandling.SnikeIKøenService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingMetrikker
@@ -66,6 +67,7 @@ internal class AvsluttBehandlingStegTest {
         every { behandlingService.hentBehandling(behandling.id) } returns behandling
         every { loggService.opprettAvsluttBehandlingLogg(behandling) } just runs
         every { behandlingMetrikker.oppdaterBehandlingMetrikker(behandling) } just runs
+        every { snikeIKøenService.reaktiverBehandlingPåMaskinellVent(any()) } returns Reaktivert.NEI
     }
 
     @Test
