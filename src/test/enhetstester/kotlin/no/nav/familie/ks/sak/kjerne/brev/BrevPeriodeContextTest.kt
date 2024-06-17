@@ -24,6 +24,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Per
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.UtdypendeVilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårRegelsett
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.beregning.AndelTilkjentYtelseMedEndreteUtbetalinger
@@ -135,6 +136,7 @@ class BrevPeriodeContextTest {
                                 periodeFom = barnFødselsdato.plusYears(1),
                                 periodeTom = barnFødselsdato.plusYears(2),
                                 antallTimer = BigDecimal.valueOf(17),
+                                regelsett = VilkårRegelsett.LOV_AUGUST_2021,
                             ),
                         ),
                 ),
@@ -188,12 +190,14 @@ class BrevPeriodeContextTest {
                                 periodeFom = barnFødselsdato.plusYears(1),
                                 periodeTom = barnFødselsdato.plusYears(2),
                                 antallTimer = BigDecimal.valueOf(17),
+                                regelsett = VilkårRegelsett.LOV_AUGUST_2021,
                             ),
                             lagVilkårResultat(
                                 vilkårType = Vilkår.BARNETS_ALDER,
                                 periodeFom = barnFødselsdato.plusYears(1),
                                 periodeTom = barnFødselsdato.plusYears(2),
                                 utdypendeVilkårsvurderinger = listOf(UtdypendeVilkårsvurdering.ADOPSJON),
+                                regelsett = VilkårRegelsett.LOV_AUGUST_2021,
                             ),
                         ),
                 ),
@@ -247,6 +251,7 @@ class BrevPeriodeContextTest {
                                 periodeFom = barnFødselsdato.plusYears(1),
                                 periodeTom = barnFødselsdato.plusYears(2),
                                 utdypendeVilkårsvurderinger = listOf(UtdypendeVilkårsvurdering.ADOPSJON),
+                                regelsett = VilkårRegelsett.LOV_AUGUST_2021,
                             ),
                         ),
                 ),
@@ -300,6 +305,7 @@ class BrevPeriodeContextTest {
                                 periodeFom = barnFødselsdato.plusYears(1),
                                 periodeTom = barnFødselsdato.plusYears(2),
                                 utdypendeVilkårsvurderinger = listOf(UtdypendeVilkårsvurdering.ADOPSJON),
+                                regelsett = VilkårRegelsett.LOV_AUGUST_2021,
                             ),
                             lagVilkårResultat(
                                 vilkårType = Vilkår.MEDLEMSKAP_ANNEN_FORELDER,
@@ -307,6 +313,7 @@ class BrevPeriodeContextTest {
                                 periodeTom = barnFødselsdato.plusYears(2),
                                 utdypendeVilkårsvurderinger = listOf(UtdypendeVilkårsvurdering.ADOPSJON),
                                 resultat = Resultat.OPPFYLT,
+                                regelsett = VilkårRegelsett.LOV_AUGUST_2021,
                             ),
                         ),
                 ),
@@ -360,6 +367,7 @@ class BrevPeriodeContextTest {
                                 periodeFom = barnFødselsdato.plusYears(1),
                                 periodeTom = barnFødselsdato.plusYears(2),
                                 utdypendeVilkårsvurderinger = listOf(UtdypendeVilkårsvurdering.ADOPSJON),
+                                regelsett = VilkårRegelsett.LOV_AUGUST_2021,
                             ),
                             lagVilkårResultat(
                                 vilkårType = Vilkår.MEDLEMSKAP_ANNEN_FORELDER,
@@ -367,6 +375,7 @@ class BrevPeriodeContextTest {
                                 periodeTom = barnFødselsdato.plusYears(2),
                                 utdypendeVilkårsvurderinger = listOf(UtdypendeVilkårsvurdering.ADOPSJON),
                                 resultat = Resultat.IKKE_AKTUELT,
+                                regelsett = VilkårRegelsett.LOV_AUGUST_2021,
                             ),
                         ),
                 ),
@@ -542,6 +551,7 @@ fun lagVilkårResultater(
                     periodeTom = if (person.type == PersonType.SØKER) null else person.fødselsdato.plusYears(2),
                     behandlingId = 0L,
                     antallTimer = null,
+                    regelsett = VilkårRegelsett.LOV_AUGUST_2021,
                 )
             }
     return vilkårResultaterForBarn + overstyrendeVilkårResultater

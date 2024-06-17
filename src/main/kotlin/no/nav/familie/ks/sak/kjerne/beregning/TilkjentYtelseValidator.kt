@@ -12,6 +12,9 @@ import no.nav.familie.ks.sak.common.tidslinje.utvidelser.tilPerioderIkkeNull
 import no.nav.familie.ks.sak.common.util.overlapperHeltEllerDelvisMed
 import no.nav.familie.ks.sak.common.util.toLocalDate
 import no.nav.familie.ks.sak.common.util.toYearMonth
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårRegelsett
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.hentRegelsettBruktIVilkår
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.domene.TilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.domene.YtelseType
@@ -29,6 +32,7 @@ object TilkjentYtelseValidator {
     fun validerAtTilkjentYtelseHarFornuftigePerioderOgBeløp(
         tilkjentYtelse: TilkjentYtelse,
         personopplysningGrunnlag: PersonopplysningGrunnlag,
+        vilkårsvurdering: Vilkårsvurdering,
     ) {
         val søker = personopplysningGrunnlag.søker
         val barna = personopplysningGrunnlag.barna
@@ -36,14 +40,22 @@ object TilkjentYtelseValidator {
         val andelerPerAktør = tilkjentYtelse.andelerTilkjentYtelse.groupBy { it.aktør }
 
         andelerPerAktør.filter { it.value.isNotEmpty() }.forEach { (aktør, andeler) ->
+            val regelsettPåAktør = vilkårsvurdering.hentPersonResultaterTilAktør(aktørId = aktør.aktørId).hentRegelsettBruktIVilkår() ?: throw Feil("Fant ikke regelsett på aktør med id ${aktør.aktørId}")
+
+            val maksAntallMånederMedUtbetaling =
+                when (regelsettPåAktør) {
+                    VilkårRegelsett.LOV_AUGUST_2021 -> 11
+                    VilkårRegelsett.LOV_AUGUST_2024 -> 7
+                }
+
             val stønadFom = andeler.minOf { it.stønadFom }
             val stønadTom = andeler.maxOf { it.stønadTom }
 
             val diff = Period.between(stønadFom.toLocalDate(), stønadTom.toLocalDate())
-            if (diff.toTotalMonths() > 11) {
+            if (diff.toTotalMonths() > maksAntallMånederMedUtbetaling) {
                 val feilmelding =
-                    "Kontantstøtte kan maks utbetales for 11 måneder. Du er i ferd med å utbetale mer enn dette for barn med fnr ${aktør.aktivFødselsnummer()}. " +
-                        "Kontroller datoene på vilkårene eller ta kontakt med team familie"
+                    "Kontantstøtte kan maks utbetales for $maksAntallMånederMedUtbetaling måneder. Du er i ferd med å utbetale mer enn dette for barn med fnr ${aktør.aktivFødselsnummer()}. " +
+                        "Kontroller datoene på vilkårene eller ta kontakt med Team BAKS"
                 throw FunksjonellFeil(frontendFeilmelding = feilmelding, melding = feilmelding)
             }
         }

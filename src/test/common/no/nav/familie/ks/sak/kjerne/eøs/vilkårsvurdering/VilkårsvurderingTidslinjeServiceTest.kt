@@ -15,6 +15,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Reg
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.UtdypendeVilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårRegelsett
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårsvurderingRepository
@@ -60,6 +61,7 @@ internal class VilkårsvurderingTidslinjeServiceTest {
                 søkerPeriodeFom = LocalDate.of(2023, 1, 2),
                 søkerPeriodeTom = LocalDate.of(2023, 3, 4),
                 utdypendeVilkårsvurderinger = listOf(UtdypendeVilkårsvurdering.ANNEN_FORELDER_OMFATTET_AV_NORSK_LOVGIVNING),
+                regelsett = VilkårRegelsett.LOV_AUGUST_2021,
             )
 
         every { personopplysningGrunnlagRepository.hentByBehandlingAndAktiv(behandlingId = behandling.id) } returns
@@ -113,6 +115,7 @@ internal class VilkårsvurderingTidslinjeServiceTest {
                             behandlingId = behandling.id,
                             vurderesEtter = Regelverk.EØS_FORORDNINGEN,
                             utdypendeVilkårsvurderinger = listOf(UtdypendeVilkårsvurdering.ANNEN_FORELDER_OMFATTET_AV_NORSK_LOVGIVNING),
+                            regelsett = VilkårRegelsett.LOV_AUGUST_2021,
                         ),
                         VilkårResultat(
                             personResultat = null,
@@ -124,6 +127,7 @@ internal class VilkårsvurderingTidslinjeServiceTest {
                             behandlingId = behandling.id,
                             vurderesEtter = Regelverk.EØS_FORORDNINGEN,
                             utdypendeVilkårsvurderinger = listOf(UtdypendeVilkårsvurdering.ANNEN_FORELDER_OMFATTET_AV_NORSK_LOVGIVNING),
+                            regelsett = VilkårRegelsett.LOV_AUGUST_2021,
                         ),
                     ),
             )
@@ -172,6 +176,7 @@ internal class VilkårsvurderingTidslinjeServiceTest {
                 søkerPeriodeFom = LocalDate.of(2023, 3, 1),
                 søkerPeriodeTom = LocalDate.of(2023, 3, 25),
                 utdypendeVilkårsvurderinger = listOf(UtdypendeVilkårsvurdering.ANNEN_FORELDER_OMFATTET_AV_NORSK_LOVGIVNING),
+                regelsett = VilkårRegelsett.LOV_AUGUST_2021,
             )
 
         every { personopplysningGrunnlagRepository.hentByBehandlingAndAktiv(behandlingId = behandling.id) } returns
@@ -206,6 +211,7 @@ internal class VilkårsvurderingTidslinjeServiceTest {
                 resultat = Resultat.OPPFYLT,
                 søkerPeriodeFom = LocalDate.of(2023, 1, 2),
                 søkerPeriodeTom = LocalDate.of(2023, 3, 4),
+                regelsett = VilkårRegelsett.LOV_AUGUST_2021,
             )
 
         every { personopplysningGrunnlagRepository.hentByBehandlingAndAktiv(behandlingId = behandling.id) } returns

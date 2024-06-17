@@ -12,6 +12,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.behandlingsresultat.BehandlingsresultatSøknadUtils.kombinerSøknadsresultater
 import no.nav.familie.ks.sak.kjerne.behandling.steg.behandlingsresultat.BehandlingsresultatSøknadUtils.utledSøknadResultatFraAndelerTilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårRegelsett
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.Årsak
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
@@ -443,6 +444,7 @@ internal class BehandlingsresultatSøknadUtilsTest {
                 personType = PersonType.BARN,
                 erEksplisittAvslagPåSøknad = true,
                 lagFullstendigVilkårResultat = true,
+                regelsett = VilkårRegelsett.LOV_AUGUST_2021,
             )
 
         val resultatPåSøknad =
@@ -485,6 +487,7 @@ internal class BehandlingsresultatSøknadUtilsTest {
                 periodeTom = LocalDate.now(),
                 personType = PersonType.BARN,
                 lagFullstendigVilkårResultat = true,
+                regelsett = VilkårRegelsett.LOV_AUGUST_2021,
             )
 
         val resultatPåSøknad =
@@ -527,6 +530,7 @@ internal class BehandlingsresultatSøknadUtilsTest {
                 periodeTom = LocalDate.now(),
                 personType = PersonType.BARN,
                 lagFullstendigVilkårResultat = true,
+                regelsett = VilkårRegelsett.LOV_AUGUST_2021,
             )
 
         val resultatPåSøknad =
@@ -569,6 +573,7 @@ internal class BehandlingsresultatSøknadUtilsTest {
                 periodeTom = LocalDate.now(),
                 personType = PersonType.BARN,
                 lagFullstendigVilkårResultat = true,
+                regelsett = VilkårRegelsett.LOV_AUGUST_2021,
             )
 
         val resultatPåSøknad =

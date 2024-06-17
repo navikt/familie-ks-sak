@@ -3,6 +3,7 @@ package no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering
 import no.nav.familie.ks.sak.api.dto.SøknadDto
 import no.nav.familie.ks.sak.api.mapper.SøknadGrunnlagMapper.tilSøknadDto
 import no.nav.familie.ks.sak.common.BehandlingId
+import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.common.tidslinje.TidslinjePeriodeMedDato
 import no.nav.familie.ks.sak.common.tidslinje.validerIngenOverlapp
@@ -20,7 +21,9 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.registrersøknad.SøknadGrun
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Regelverk
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.UtdypendeVilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårRegelsett
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.hentRegelsettBruktIVilkår
 import no.nav.familie.ks.sak.kjerne.beregning.BeregningService
 import no.nav.familie.ks.sak.kjerne.beregning.tilPeriodeResultater
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.KompetanseService
@@ -207,6 +210,21 @@ class VilkårsvurderingSteg(
             val person =
                 personopplysningGrunnlag.personer.single { it.aktør.aktivFødselsnummer() == personResultat.aktør.aktivFødselsnummer() }
 
+            val regelsett = personResultat.vilkårResultater.hentRegelsettBruktIVilkår()
+
+            val defaultStartDatoBarnetsAlderVilkår =
+                when (regelsett) {
+                    VilkårRegelsett.LOV_AUGUST_2021 -> person.fødselsdato.plusYears(1)
+                    VilkårRegelsett.LOV_AUGUST_2024 -> person.fødselsdato.plusMonths(13)
+                    else -> throw Feil("Fant ikke regelsett på vilkårresultater for person m/ id ${person.id}")
+                }
+
+            val defaultSluttDatoBarnetsAlderVilkår =
+                when (regelsett) {
+                    VilkårRegelsett.LOV_AUGUST_2021 -> person.fødselsdato.plusYears(2)
+                    VilkårRegelsett.LOV_AUGUST_2024 -> person.fødselsdato.plusMonths(19)
+                }
+
             val barnehageplassVilkårResultater =
                 personResultat.vilkårResultater.filter {
                     it.vilkårType == Vilkår.BARNEHAGEPLASS
@@ -228,11 +246,11 @@ class VilkårsvurderingSteg(
 
             val startDatoBarnetsAlderVilkår =
                 barnetsAlderVilkårResultater.sortedBy { it.periodeFom }.first().periodeFom
-                    ?: person.fødselsdato.plusYears(1)
+                    ?: defaultStartDatoBarnetsAlderVilkår
 
             val sluttDatoBarnetsAlderVilkår =
                 barnetsAlderVilkårResultater.sortedBy { it.periodeTom }.last().periodeTom
-                    ?: person.fødselsdato.plusYears(2)
+                    ?: defaultSluttDatoBarnetsAlderVilkår
 
             if (startDatoBarnehageplassVilkår.isAfter(startDatoBarnetsAlderVilkår) ||
                 (!sisteBarnehageplassVilkårresultatHarFramtidigOpphør && sluttDatoBarnehageplassVilkår.isBefore(sluttDatoBarnetsAlderVilkår))
@@ -263,7 +281,7 @@ class VilkårsvurderingSteg(
             ) {
                 throw FunksjonellFeil(
                     "Du har lagt inn flere enn 2 endringer i barnehagevilkåret i samme måned. " +
-                        "Dette er ikke støttet enda. Ta kontakt med Team Familie.",
+                        "Dette er ikke støttet enda. Ta kontakt med Team BAKS.",
                 )
             }
         }

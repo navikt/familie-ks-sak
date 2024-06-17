@@ -44,6 +44,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Reg
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.UtdypendeVilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårRegelsett
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.beregning.domene.YtelseType
@@ -189,6 +190,12 @@ private fun lagVilkårResultater(
             rad,
         )
 
+    val regelsett =
+        parseValgfriEnum<VilkårRegelsett>(
+            VedtaksperiodeMedBegrunnelserParser.DomenebegrepVedtaksperiodeMedBegrunnelser.REGELSETT,
+            rad,
+        ) ?: VilkårRegelsett.LOV_AUGUST_2021
+
     return vilkårFor.map { vilkår ->
         VilkårResultat(
             behandlingId = behandlingId,
@@ -213,6 +220,7 @@ private fun lagVilkårResultater(
             begrunnelser = hentStandardBegrunnelser(rad).filterIsInstance<NasjonalEllerFellesBegrunnelse>(),
             søkerHarMeldtFraOmBarnehageplass = søkerHarMeldtFraOmBarnehageplass,
             antallTimer = antallTimer,
+            regelsett = regelsett,
         )
     }
 }

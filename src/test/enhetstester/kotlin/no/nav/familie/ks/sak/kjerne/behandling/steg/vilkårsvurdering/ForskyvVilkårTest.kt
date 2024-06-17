@@ -1,6 +1,7 @@
 import no.nav.familie.ks.sak.data.lagVilkårResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.forskyvVilkårResultater
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårRegelsett
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.regelsett.forskyvVilkårResultater
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import java.time.YearMonth
@@ -19,12 +20,14 @@ class ForskyvVilkårTest {
                 vilkårType = Vilkår.BARNETS_ALDER,
                 periodeFom = august.atDay(15),
                 periodeTom = oktober.atDay(14),
+                regelsett = VilkårRegelsett.LOV_AUGUST_2021,
             )
         val vilkårResultat2 =
             lagVilkårResultat(
                 vilkårType = Vilkår.BARNETS_ALDER,
                 periodeFom = oktober.atDay(15),
                 periodeTom = desember.atDay(1),
+                regelsett = VilkårRegelsett.LOV_AUGUST_2021,
             )
 
         val forskjøvedeVilkårResultater =
@@ -46,12 +49,14 @@ class ForskyvVilkårTest {
                 vilkårType = Vilkår.BARNETS_ALDER,
                 periodeFom = august.atDay(15),
                 periodeTom = oktober.atDay(13),
+                regelsett = VilkårRegelsett.LOV_AUGUST_2021,
             )
         val vilkårResultat2 =
             lagVilkårResultat(
                 vilkårType = Vilkår.BARNETS_ALDER,
                 periodeFom = oktober.atDay(15),
                 periodeTom = desember.atDay(1),
+                regelsett = VilkårRegelsett.LOV_AUGUST_2021,
             )
 
         val forskjøvedeVilkårResultater =
@@ -73,12 +78,14 @@ class ForskyvVilkårTest {
                 vilkårType = Vilkår.BARNETS_ALDER,
                 periodeFom = august.atDay(15),
                 periodeTom = august.atEndOfMonth(),
+                regelsett = VilkårRegelsett.LOV_AUGUST_2021,
             )
         val vilkårResultat2 =
             lagVilkårResultat(
                 vilkårType = Vilkår.BARNETS_ALDER,
                 periodeFom = september.atDay(1),
                 periodeTom = desember.atDay(1),
+                regelsett = VilkårRegelsett.LOV_AUGUST_2021,
             )
 
         val forskjøvedeVilkårResultater =
@@ -100,12 +107,14 @@ class ForskyvVilkårTest {
                 vilkårType = Vilkår.BARNETS_ALDER,
                 periodeFom = august.atDay(15),
                 periodeTom = september.atEndOfMonth(),
+                regelsett = VilkårRegelsett.LOV_AUGUST_2021,
             )
         val vilkårResultat2 =
             lagVilkårResultat(
                 vilkårType = Vilkår.BARNETS_ALDER,
                 periodeFom = oktober.atDay(2),
                 periodeTom = desember.atDay(1),
+                regelsett = VilkårRegelsett.LOV_AUGUST_2021,
             )
 
         val forskjøvedeVilkårResultater =
@@ -124,6 +133,7 @@ class ForskyvVilkårTest {
                 vilkårType = Vilkår.BARNETS_ALDER,
                 periodeFom = august.atDay(15),
                 periodeTom = september.atEndOfMonth(),
+                regelsett = VilkårRegelsett.LOV_AUGUST_2021,
             )
         val forskjøvedeVilkårResultater =
             forskyvVilkårResultater(Vilkår.BARNETS_ALDER, listOf(vilkårResultat1))

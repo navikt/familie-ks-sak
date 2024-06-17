@@ -1,6 +1,5 @@
 package no.nav.familie.ks.sak.kjerne.personident
 
-import io.mockk.every
 import io.mockk.impl.annotations.InjectMockKs
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
@@ -23,7 +22,6 @@ internal class IdentHendelseTaskTest {
     @Test
     fun `Task skal kalle videre på håndtering av ny ident`() {
         val nyPersonIdent = PersonIdent("123")
-        every { personidentService.identSkalLeggesTil(nyPersonIdent) } returns true
         val task = IdentHendelseTask.opprettTask(nyPersonIdent)
         assertEquals(nyPersonIdent, objectMapper.readValue(task.payload, PersonIdent::class.java))
         assertEquals("123", task.metadata["nyPersonIdent"])
