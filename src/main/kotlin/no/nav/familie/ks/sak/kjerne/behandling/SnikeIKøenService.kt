@@ -106,12 +106,8 @@ class SnikeIKøenService(
 
         private fun finnBehandlingPåMaskinellVent(behandlingerPåFagsak: List<Behandling>): Behandling? {
             val behandlingerPåMaskinellVent = behandlingerPåFagsak.filter { it.status == BehandlingStatus.SATT_PÅ_MASKINELL_VENT }
-            if (behandlingerPåMaskinellVent.isEmpty()) {
-                return null
-            }
-            return behandlingerPåMaskinellVent.singleOrNull() ?: throw IllegalStateException(
-                "Forventer kun en behandling på maskinell vent for fagsak=${behandlingerPåFagsak.first().fagsak.id}",
-            )
+            Validator.validerAntallBehandlingerPåMaskinellVent(behandlingerPåMaskinellVent)
+            return behandlingerPåMaskinellVent.singleOrNull()
         }
     }
 
@@ -140,6 +136,14 @@ class SnikeIKøenService(
             fun validerBehandlingPåMaskinellVentFørReaktivering(behandlingPåMaskinellVent: Behandling) {
                 if (behandlingPåMaskinellVent.aktiv) {
                     throw IllegalStateException("Behandling på maskinell vent er aktiv")
+                }
+            }
+
+            fun validerAntallBehandlingerPåMaskinellVent(behandlingerPåMaskinellVent: List<Behandling>) {
+                if (behandlingerPåMaskinellVent.size > 1) {
+                    throw IllegalStateException(
+                        "Forventet kun en eller ingen behandling på maskinell vent for fagsak=${behandlingerPåMaskinellVent.first().fagsak.id}",
+                    )
                 }
             }
         }

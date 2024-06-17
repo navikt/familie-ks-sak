@@ -223,7 +223,7 @@ class SnikeIKøenServiceTest {
                 assertThrows<IllegalStateException> {
                     snikeIKøenService.reaktiverBehandlingPåMaskinellVent(behandlingSomHarSneketIKøen)
                 }
-            assertThat(exception.message).isEqualTo("Forventer kun en behandling på maskinell vent for fagsak=${fagsak.id}")
+            assertThat(exception.message).isEqualTo("Forventet kun en eller ingen behandling på maskinell vent for fagsak=${fagsak.id}")
         }
 
         @Test
