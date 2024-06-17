@@ -36,11 +36,11 @@ import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelseType
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.domene.ArbeidsfordelingPåBehandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingKategori
+import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStegTilstand
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingType
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
-import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingStegStatus
 import no.nav.familie.ks.sak.kjerne.behandling.steg.VenteÅrsak
@@ -249,16 +249,17 @@ fun lagLogg(
     tittel: String = "tittel",
     rolle: BehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
     tekst: String = "",
-) : Logg = Logg(
-    id,
-    opprettetAv,
-    opprettetTidspunkt,
-    behandlingId,
-    type,
-    tittel,
-    rolle,
-    tekst,
-)
+): Logg =
+    Logg(
+        id,
+        opprettetAv,
+        opprettetTidspunkt,
+        behandlingId,
+        type,
+        tittel,
+        rolle,
+        tekst,
+    )
 
 fun lagBehandling(
     fagsak: Fagsak = lagFagsak(),
@@ -271,16 +272,17 @@ fun lagBehandling(
     id: Long = nesteBehandlingId(),
     endretTidspunkt: LocalDateTime = LocalDateTime.now(),
 ): Behandling {
-    val behandling = Behandling(
-        id = id,
-        fagsak = fagsak,
-        type = type,
-        opprettetÅrsak = opprettetÅrsak,
-        kategori = kategori,
-        resultat = resultat,
-        aktiv = aktiv,
-        status = status,
-    ).initBehandlingStegTilstand()
+    val behandling =
+        Behandling(
+            id = id,
+            fagsak = fagsak,
+            type = type,
+            opprettetÅrsak = opprettetÅrsak,
+            kategori = kategori,
+            resultat = resultat,
+            aktiv = aktiv,
+            status = status,
+        ).initBehandlingStegTilstand()
     behandling.endretTidspunkt = endretTidspunkt
     return behandling
 }
@@ -297,7 +299,7 @@ fun lagBehandlingStegTilstand(
         behandlingSteg = behandlingSteg,
         behandlingStegStatus = behandlingStegStatus,
         frist = frist,
-        årsak = årsak
+        årsak = årsak,
     ),
 )
 

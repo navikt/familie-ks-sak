@@ -15,7 +15,7 @@ class SnikeIKøenService(
     private val behandlingService: BehandlingService,
     private val loggService: LoggService,
     private val tilbakestillBehandlingService: TilbakestillBehandlingService,
-    private val clock: Clock
+    private val clock: Clock,
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
@@ -56,7 +56,6 @@ class SnikeIKøenService(
      */
     @Transactional
     fun reaktiverBehandlingPåMaskinellVent(behandlingSomFerdigstilles: Behandling): Reaktivert {
-
         val behandlingerPåFagsak = behandlingService.hentBehandlingerPåFagsak(behandlingSomFerdigstilles.fagsak.id)
 
         val behandlingPåMaskinellVent = finnBehandlingPåMaskinellVent(behandlingerPåFagsak) ?: return Reaktivert.NEI
@@ -97,7 +96,7 @@ class SnikeIKøenService(
         if (aktivOgÅpenBehandling.endretTidspunkt.isAfter(tid4TimerSiden)) {
             logger.info(
                 "Behandling=$behandlingId har endretTid=${aktivOgÅpenBehandling.endretTidspunkt}. " +
-                        "Det er altså mindre enn 4 timer siden behandlingen var endret, og vi ønsker derfor ikke å sette behandlingen på maskinell vent",
+                    "Det er altså mindre enn 4 timer siden behandlingen var endret, og vi ønsker derfor ikke å sette behandlingen på maskinell vent",
             )
             return false
         }
@@ -105,8 +104,8 @@ class SnikeIKøenService(
         if (sisteLogghendelse.opprettetTidspunkt.isAfter(tid4TimerSiden)) {
             logger.info(
                 "Behandling=$behandlingId siste logginslag er " +
-                        "type=${sisteLogghendelse.type} tid=${sisteLogghendelse.opprettetTidspunkt}, $loggSuffix. " +
-                        "Det er altså mindre enn 4 timer siden siste logginslag, og vi ønsker derfor ikke å sette behandlingen på maskinell vent",
+                    "type=${sisteLogghendelse.type} tid=${sisteLogghendelse.opprettetTidspunkt}, $loggSuffix. " +
+                    "Det er altså mindre enn 4 timer siden siste logginslag, og vi ønsker derfor ikke å sette behandlingen på maskinell vent",
             )
             return false
         }
@@ -118,10 +117,10 @@ class SnikeIKøenService(
     ): Behandling? {
         val behandlingerPåMaskinellVent = behandlingerPåFagsak.filter { it.status == BehandlingStatus.SATT_PÅ_MASKINELL_VENT }
         if (behandlingerPåMaskinellVent.isEmpty()) {
-            return null;
+            return null
         }
         return behandlingerPåMaskinellVent.singleOrNull() ?: throw IllegalStateException(
-            "Forventer kun en behandling på maskinell vent for fagsak=${behandlingerPåFagsak.first().fagsak.id}"
+            "Forventer kun en behandling på maskinell vent for fagsak=${behandlingerPåFagsak.first().fagsak.id}",
         )
     }
 
@@ -132,8 +131,8 @@ class SnikeIKøenService(
     ) {
         logger.info(
             "Deaktiverer aktivBehandling=${aktivBehandling?.id}" +
-                    " aktiverer behandlingPåVent=${behandlingPåVent.id}" +
-                    " behandlingSomFerdigstilles=${behandlingSomFerdigstilles.id}",
+                " aktiverer behandlingPåVent=${behandlingPåVent.id}" +
+                " behandlingSomFerdigstilles=${behandlingSomFerdigstilles.id}",
         )
 
         if (aktivBehandling != null) {
@@ -158,7 +157,7 @@ class SnikeIKøenService(
         }
         if (aktivBehandling != null && aktivBehandling.status != BehandlingStatus.AVSLUTTET) {
             throw IllegalStateException(
-                "Behandling=${aktivBehandling.id} har status=${aktivBehandling.status} og er ikke avsluttet"
+                "Behandling=${aktivBehandling.id} har status=${aktivBehandling.status} og er ikke avsluttet",
             )
         }
     }
@@ -171,5 +170,5 @@ enum class SettPåMaskinellVentÅrsak(val beskrivelse: String) {
 
 enum class Reaktivert {
     JA,
-    NEI
+    NEI,
 }

@@ -63,7 +63,7 @@ class TilbakestillBehandlingService(
 
     private fun settAlleEtterfølgendeStegTilStatusTilbakeført(
         behandling: Behandling,
-        behandlingSteg: BehandlingSteg
+        behandlingSteg: BehandlingSteg,
     ) {
         behandling.behandlingStegTilstand
             .filter { it.behandlingSteg.sekvens > behandlingSteg.sekvens }

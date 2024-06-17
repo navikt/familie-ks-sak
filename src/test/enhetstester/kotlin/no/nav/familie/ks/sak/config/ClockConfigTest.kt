@@ -4,10 +4,8 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
 class ClockConfigTest {
-
     @Test
     fun `Skal opprette en clock`() {
-
         // Arrange
         val clockConfig = ClockConfig()
 
@@ -16,7 +14,5 @@ class ClockConfigTest {
 
         // Assert
         assertThat(clock).isNotNull()
-
     }
-
 }
