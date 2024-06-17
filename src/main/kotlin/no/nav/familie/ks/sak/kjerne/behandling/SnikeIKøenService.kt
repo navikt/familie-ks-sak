@@ -25,60 +25,37 @@ class SnikeIKøenService(
         årsak: SettPåMaskinellVentÅrsak,
     ) {
         val behandling = behandlingService.hentBehandling(behandlingId)
-
-        if (!behandling.aktiv) {
-            throw IllegalStateException("Behandling=$behandlingId er ikke aktiv")
-        }
-
-        val behandlingStatus = behandling.status
-        val behandlingStegTilstand = finnBehandlingStegTilstand(behandling)
-
-        val erBehandlingIkkePåVent = behandlingStegTilstand.behandlingStegStatus !== BehandlingStegStatus.VENTER
-
-        if (erBehandlingIkkePåVent && behandlingStatus !== BehandlingStatus.UTREDES) {
-            throw IllegalStateException("Behandling=$behandlingId kan ikke settes på maskinell vent då status=$behandlingStatus")
-        }
-
+        Validator.validerBehandlingSomSkalSettesPåMaskinellVent(behandling)
         behandling.status = BehandlingStatus.SATT_PÅ_MASKINELL_VENT
         behandling.aktiv = false
         behandlingService.oppdaterBehandling(behandling)
         loggService.opprettSettPåMaskinellVent(behandling, årsak.beskrivelse)
     }
 
-    private fun finnBehandlingStegTilstand(behandling: Behandling) =
-        behandling.behandlingStegTilstand.single { it.behandlingSteg == behandling.steg }
-
     /**
-     * @param behandlingSomFerdigstilles er behandlingen som ferdigstilles i [no.nav.familie.ba.sak.kjerne.steg.FerdigstillBehandling]
+     * @param behandlingSomAvsluttes er behandlingen som ferdigstilles i [no.nav.familie.ba.sak.kjerne.steg.FerdigstillBehandling]
      *  Den er mest brukt for å logge hvilken behandling det er som ferdigstilles og hvilken som blir deaktivert
      *
      * @return reaktivert enum som tilsier om en behandling er reaktivert eller ikke.
      */
     @Transactional
-    fun reaktiverBehandlingPåMaskinellVent(behandlingSomFerdigstilles: Behandling): Reaktivert {
-        val behandlingerPåFagsak = behandlingService.hentBehandlingerPåFagsak(behandlingSomFerdigstilles.fagsak.id)
-
+    fun reaktiverBehandlingPåMaskinellVent(behandlingSomAvsluttes: Behandling): Reaktivert {
+        val behandlingerPåFagsak = behandlingService.hentBehandlingerPåFagsak(behandlingSomAvsluttes.fagsak.id)
         val behandlingPåMaskinellVent = finnBehandlingPåMaskinellVent(behandlingerPåFagsak) ?: return Reaktivert.NEI
-
         val behandlingStegTilstand = finnBehandlingStegTilstand(behandlingPåMaskinellVent)
-
         val erBehandlingStegStatusVenter = behandlingStegTilstand.behandlingStegStatus == BehandlingStegStatus.VENTER
-
         val aktivBehandling = behandlingerPåFagsak.singleOrNull { it.aktiv }
-
-        validerBehandlinger(aktivBehandling, behandlingPåMaskinellVent)
-
-        aktiverBehandlingPåVent(aktivBehandling, behandlingPåMaskinellVent, behandlingSomFerdigstilles)
-
+        Validator.validerBehandlingPåMaskinellVentFørReaktivering(behandlingPåMaskinellVent)
+        Validator.validerAktivBehandlingFørReaktivering(aktivBehandling)
+        deaktiverAktivBehandling(aktivBehandling)
+        aktiverBehandlingPåMaskinellVent(behandlingPåMaskinellVent)
         tilbakestillBehandlingService.tilbakestillBehandlingTilVilkårsvurdering(behandlingPåMaskinellVent.id)
-
         if (erBehandlingStegStatusVenter) {
             val behandlingStegTilstandEtterTilbakestilling = finnBehandlingStegTilstand(behandlingPåMaskinellVent)
             behandlingStegTilstandEtterTilbakestilling.behandlingStegStatus = BehandlingStegStatus.VENTER
             behandlingStegTilstandEtterTilbakestilling.frist = behandlingStegTilstand.frist
             behandlingStegTilstandEtterTilbakestilling.årsak = behandlingStegTilstand.årsak
         }
-
         loggService.opprettTattAvMaskinellVent(behandlingPåMaskinellVent)
         return Reaktivert.JA
     }
@@ -86,8 +63,7 @@ class SnikeIKøenService(
     fun kanSnikeForbi(aktivOgÅpenBehandling: Behandling): Boolean {
         val behandlingId = aktivOgÅpenBehandling.id
         val loggSuffix = "endrer status på behandling til på vent"
-
-        val behandlingStegStatus = finnBehandlingStegTilstand(aktivOgÅpenBehandling).behandlingStegStatus
+        val behandlingStegStatus = Companion.finnBehandlingStegTilstand(aktivOgÅpenBehandling).behandlingStegStatus
         if (behandlingStegStatus == BehandlingStegStatus.VENTER) {
             logger.info("Behandling=$behandlingId er satt på vent av saksbehandler, $loggSuffix")
             return true
@@ -112,53 +88,66 @@ class SnikeIKøenService(
         return true
     }
 
-    private fun finnBehandlingPåMaskinellVent(
-        behandlingerPåFagsak: List<Behandling>,
-    ): Behandling? {
-        val behandlingerPåMaskinellVent = behandlingerPåFagsak.filter { it.status == BehandlingStatus.SATT_PÅ_MASKINELL_VENT }
-        if (behandlingerPåMaskinellVent.isEmpty()) {
-            return null
-        }
-        return behandlingerPåMaskinellVent.singleOrNull() ?: throw IllegalStateException(
-            "Forventer kun en behandling på maskinell vent for fagsak=${behandlingerPåFagsak.first().fagsak.id}",
-        )
-    }
-
-    private fun aktiverBehandlingPåVent(
-        aktivBehandling: Behandling?,
-        behandlingPåVent: Behandling,
-        behandlingSomFerdigstilles: Behandling,
-    ) {
-        logger.info(
-            "Deaktiverer aktivBehandling=${aktivBehandling?.id}" +
-                " aktiverer behandlingPåVent=${behandlingPåVent.id}" +
-                " behandlingSomFerdigstilles=${behandlingSomFerdigstilles.id}",
-        )
-
+    private fun deaktiverAktivBehandling(aktivBehandling: Behandling?) {
         if (aktivBehandling != null) {
+            logger.info("Deaktiverer aktiv behandling=${aktivBehandling.id}")
             aktivBehandling.aktiv = false
             behandlingService.oppdaterBehandling(aktivBehandling)
+        } else {
+            logger.info("Fant ingen aktiv behandling å deaktivere")
         }
-
-
-        behandlingPåVent.aktiv = true
-        behandlingPåVent.aktivertTidspunkt = LocalDateTime.now()
-        behandlingPåVent.status = BehandlingStatus.UTREDES
-
-        behandlingService.oppdaterBehandling(behandlingPåVent)
     }
 
-    private fun validerBehandlinger(
-        aktivBehandling: Behandling?,
-        behandlingPåVent: Behandling,
-    ) {
-        if (behandlingPåVent.aktiv) {
-            throw IllegalStateException("Behandling på vent er aktiv")
-        }
-        if (aktivBehandling != null && aktivBehandling.status != BehandlingStatus.AVSLUTTET) {
-            throw IllegalStateException(
-                "Behandling=${aktivBehandling.id} har status=${aktivBehandling.status} og er ikke avsluttet",
+    private fun aktiverBehandlingPåMaskinellVent(behandlingPåMaskinellVent: Behandling) {
+        logger.info("Aktiverer behandling=${behandlingPåMaskinellVent.id} som er på maskinell vent")
+        behandlingPåMaskinellVent.aktiv = true
+        behandlingPåMaskinellVent.aktivertTidspunkt = LocalDateTime.now()
+        behandlingPåMaskinellVent.status = BehandlingStatus.UTREDES
+        behandlingService.oppdaterBehandling(behandlingPåMaskinellVent)
+    }
+
+    companion object {
+        private fun finnBehandlingStegTilstand(behandling: Behandling) =
+            behandling.behandlingStegTilstand.single { it.behandlingSteg == behandling.steg }
+
+        private fun finnBehandlingPåMaskinellVent(behandlingerPåFagsak: List<Behandling>): Behandling? {
+            val behandlingerPåMaskinellVent = behandlingerPåFagsak.filter { it.status == BehandlingStatus.SATT_PÅ_MASKINELL_VENT }
+            if (behandlingerPåMaskinellVent.isEmpty()) {
+                return null
+            }
+            return behandlingerPåMaskinellVent.singleOrNull() ?: throw IllegalStateException(
+                "Forventer kun en behandling på maskinell vent for fagsak=${behandlingerPåFagsak.first().fagsak.id}",
             )
+        }
+    }
+
+    private class Validator {
+        companion object {
+            fun validerBehandlingSomSkalSettesPåMaskinellVent(behandling: Behandling) {
+                if (!behandling.aktiv) {
+                    throw IllegalStateException("Behandling=${behandling.id} er ikke aktiv")
+                }
+                val behandlingStatus = behandling.status
+                val behandlingStegTilstand = finnBehandlingStegTilstand(behandling)
+                val erBehandlingIkkePåVent = behandlingStegTilstand.behandlingStegStatus !== BehandlingStegStatus.VENTER
+                if (erBehandlingIkkePåVent && behandlingStatus !== BehandlingStatus.UTREDES) {
+                    throw IllegalStateException("Behandling=${behandling.id} kan ikke settes på maskinell vent da status=$behandlingStatus")
+                }
+            }
+
+            fun validerAktivBehandlingFørReaktivering(aktivBehandling: Behandling?) {
+                if (aktivBehandling != null && aktivBehandling.status != BehandlingStatus.AVSLUTTET) {
+                    throw IllegalStateException(
+                        "Behandling=${aktivBehandling.id} har status=${aktivBehandling.status} og er ikke avsluttet",
+                    )
+                }
+            }
+
+            fun validerBehandlingPåMaskinellVentFørReaktivering(behandlingPåMaskinellVent: Behandling) {
+                if (behandlingPåMaskinellVent.aktiv) {
+                    throw IllegalStateException("Behandling på maskinell vent er aktiv")
+                }
+            }
         }
     }
 }

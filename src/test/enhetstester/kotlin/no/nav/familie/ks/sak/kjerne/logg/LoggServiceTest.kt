@@ -253,7 +253,7 @@ class LoggServiceTest {
             lagretLogg.tekst,
             Is(
                 "Resultat gikk fra ${behandlingsforrigeResultat.displayName.lowercase()} " +
-                        "til ${behandlingsNyResultat.displayName.lowercase()}",
+                    "til ${behandlingsNyResultat.displayName.lowercase()}",
             ),
         )
         assertThat(lagretLogg.tittel, Is("Vilkårsvurdering endret"))
@@ -453,10 +453,8 @@ class LoggServiceTest {
 
     @Nested
     inner class OpprettSettPåMaskinellVentTest {
-
         @Test
         fun `skal opprette for behandling som blir satt på maskinell vent`() {
-
             // Arrange
             val behandling = lagBehandling()
             val slot = slot<Logg>()
@@ -466,7 +464,7 @@ class LoggServiceTest {
             // Act
             loggService.opprettSettPåMaskinellVent(
                 behandling = behandling,
-                årsak = "Satsendring"
+                årsak = "Satsendring",
             )
 
             // Assert
@@ -475,17 +473,13 @@ class LoggServiceTest {
             assertThat(capturedLogg.type, Is(LoggType.BEHANDLING_SATT_PÅ_MASKINELL_VENT))
             assertThat(capturedLogg.rolle, Is(BehandlerRolle.SYSTEM))
             assertThat(capturedLogg.tekst, Is("Årsak: Satsendring"))
-
         }
-
     }
 
     @Nested
     inner class OpprettTattAvMaskinellVentTest {
-
         @Test
         fun `skal opprette for behandling som blir tatt av maskinell vent`() {
-
             // Arrange
             val behandling = lagBehandling()
             val slot = slot<Logg>()
@@ -494,7 +488,7 @@ class LoggServiceTest {
 
             // Act
             loggService.opprettTattAvMaskinellVent(
-                behandling = behandling
+                behandling = behandling,
             )
 
             // Assert
@@ -502,9 +496,6 @@ class LoggServiceTest {
             assertThat(capturedLogg.behandlingId, Is(behandling.id))
             assertThat(capturedLogg.type, Is(LoggType.BEHANDLING_TATT_AV_MASKINELL_VENT))
             assertThat(capturedLogg.rolle, Is(BehandlerRolle.SYSTEM))
-
         }
-
     }
-
 }

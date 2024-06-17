@@ -72,7 +72,6 @@ internal class AvsluttBehandlingStegTest {
 
     @Test
     fun `utførSteg skal ikke utføre steg når behandling ikke har IVERKSETT_VEDTAK status`() {
-
         // Arrange
         behandling.status = BehandlingStatus.UTREDES
 
@@ -84,12 +83,10 @@ internal class AvsluttBehandlingStegTest {
             "Prøver å ferdigstille behandling ${behandling.id}, men status er ${behandling.status}",
             exception.message,
         )
-
     }
 
     @Test
     fun `utførSteg skal avslutte behandling og oppdatere fagsak status til løpende når behandling har løpende utbetaling`() {
-
         // Arrange
         val tilkjentYtelse =
             lagInitieltTilkjentYtelse(behandling).also {
@@ -112,12 +109,10 @@ internal class AvsluttBehandlingStegTest {
         verify(exactly = 1) { snikeIKøenService.reaktiverBehandlingPåMaskinellVent(behandling) }
         assertEquals(FagsakStatus.LØPENDE, fagsakStausSlot.captured)
         assertEquals(BehandlingStatus.AVSLUTTET, behandling.status)
-
     }
 
     @Test
     fun `utførSteg skal avslutte behandling og oppdatere fagsak status til avsluttet når behandling ikke har løpende utbetaling`() {
-
         // Arrange
         val tilkjentYtelse =
             lagInitieltTilkjentYtelse(behandling).also {
@@ -140,12 +135,10 @@ internal class AvsluttBehandlingStegTest {
         verify(exactly = 1) { snikeIKøenService.reaktiverBehandlingPåMaskinellVent(behandling) }
         assertEquals(FagsakStatus.AVSLUTTET, fagsakStausSlot.captured)
         assertEquals(BehandlingStatus.AVSLUTTET, behandling.status)
-
     }
 
     @Test
     fun `utførSteg skal avslutte behandling men ikke oppdatere fagsak status når behandling resultat er AVSLÅTT`() {
-
         // Arrange
         behandling.resultat = Behandlingsresultat.AVSLÅTT
         every { behandlingService.hentBehandling(behandling.id) } returns behandling
@@ -156,7 +149,5 @@ internal class AvsluttBehandlingStegTest {
         verify(exactly = 0) { fagsakService.oppdaterStatus(any(), any()) }
         verify(exactly = 1) { snikeIKøenService.reaktiverBehandlingPåMaskinellVent(behandling) }
         assertEquals(BehandlingStatus.AVSLUTTET, behandling.status)
-
     }
-
 }

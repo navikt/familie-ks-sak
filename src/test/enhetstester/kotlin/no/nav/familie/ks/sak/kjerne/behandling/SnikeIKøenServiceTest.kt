@@ -84,7 +84,9 @@ class SnikeIKøenServiceTest {
                         SettPåMaskinellVentÅrsak.SATSENDRING,
                     )
                 }
-            assertThat(exception.message).isEqualTo("Behandling=${behandling.id} kan ikke settes på maskinell vent då status=${behandling.status}")
+            assertThat(exception.message).isEqualTo(
+                "Behandling=${behandling.id} kan ikke settes på maskinell vent da status=${behandling.status}",
+            )
         }
 
         @ParameterizedTest
@@ -259,7 +261,7 @@ class SnikeIKøenServiceTest {
                 assertThrows<IllegalStateException> {
                     snikeIKøenService.reaktiverBehandlingPåMaskinellVent(behandlingSomSnekIKøen)
                 }
-            assertThat(exception.message).isEqualTo("Behandling på vent er aktiv")
+            assertThat(exception.message).isEqualTo("Behandling på maskinell vent er aktiv")
         }
 
         @Test
