@@ -32,12 +32,6 @@ class SnikeIKøenService(
         loggService.opprettSettPåMaskinellVent(behandling, årsak.beskrivelse)
     }
 
-    /**
-     * @param behandlingSomAvsluttes er behandlingen som ferdigstilles i [no.nav.familie.ba.sak.kjerne.steg.FerdigstillBehandling]
-     *  Den er mest brukt for å logge hvilken behandling det er som ferdigstilles og hvilken som blir deaktivert
-     *
-     * @return reaktivert enum som tilsier om en behandling er reaktivert eller ikke.
-     */
     @Transactional
     fun reaktiverBehandlingPåMaskinellVent(behandlingSomAvsluttes: Behandling): Reaktivert {
         val behandlingerPåFagsak = behandlingService.hentBehandlingerPåFagsak(behandlingSomAvsluttes.fagsak.id)
