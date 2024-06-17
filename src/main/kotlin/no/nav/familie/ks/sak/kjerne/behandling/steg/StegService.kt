@@ -342,20 +342,6 @@ class StegService(
         steg.singleOrNull { it.getBehandlingssteg() == behandlingssteg }
             ?: throw Feil("Finner ikke behandlingssteg $behandlingssteg")
 
-    private fun oppdaterBehandlingStatus(behandling: Behandling): Behandling {
-        // oppdaterer ikke behandling status for siste steg AVSLUTT_BEHANDLING. Det skjer direkte i steget
-        if (behandling.steg == AVSLUTT_BEHANDLING) {
-            return behandling
-        }
-        val nyBehandlingStatus = behandling.steg.tilknyttetBehandlingStatus
-        logger.info(
-            "${SikkerhetContext.hentSaksbehandlerNavn()} endrer status på behandling ${behandling.id} " +
-                "fra ${behandling.status} til $nyBehandlingStatus",
-        )
-        behandling.status = nyBehandlingStatus
-        return behandling
-    }
-
     private fun utledNåværendeBehandlingStegStatus(
         behandlingSteg: BehandlingSteg,
         behandlingStegDto: BehandlingStegDto? = null,
@@ -373,5 +359,19 @@ class StegService(
 
     companion object {
         private val logger = LoggerFactory.getLogger(StegService::class.java)
+
+        fun oppdaterBehandlingStatus(behandling: Behandling): Behandling {
+            // oppdaterer ikke behandling status for siste steg AVSLUTT_BEHANDLING. Det skjer direkte i steget
+            if (behandling.steg == AVSLUTT_BEHANDLING) {
+                return behandling
+            }
+            val nyBehandlingStatus = behandling.steg.tilknyttetBehandlingStatus
+            logger.info(
+                "${SikkerhetContext.hentSaksbehandlerNavn()} endrer status på behandling ${behandling.id} " +
+                    "fra ${behandling.status} til $nyBehandlingStatus",
+            )
+            behandling.status = nyBehandlingStatus
+            return behandling
+        }
     }
 }
