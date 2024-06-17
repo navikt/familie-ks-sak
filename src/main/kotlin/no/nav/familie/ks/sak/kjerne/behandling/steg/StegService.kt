@@ -115,25 +115,6 @@ class StegService(
         sakStatistikkService.opprettSendingAvBehandlingensTilstand(behandlingId, behandlingSteg)
     }
 
-    @Transactional
-    fun tilbakeførSteg(
-        behandlingId: Long,
-        behandlingSteg: BehandlingSteg,
-    ) {
-        val behandling = behandlingRepository.hentAktivBehandling(behandlingId)
-        val behandlingStegTilstand = hentStegTilstandForBehandlingSteg(behandling, behandlingSteg)
-        if (behandlingStegTilstand.behandlingStegStatus == BehandlingStegStatus.KLAR) { // steget er allerede tilbakeført
-            return
-        }
-
-        // tilbakefører alle stegene som er etter behandlede steg
-        behandling.behandlingStegTilstand.filter { it.behandlingSteg.sekvens > behandlingSteg.sekvens }
-            .forEach { it.behandlingStegStatus = BehandlingStegStatus.TILBAKEFØRT }
-        behandlingStegTilstand.behandlingStegStatus = BehandlingStegStatus.KLAR
-
-        behandlingRepository.saveAndFlush(oppdaterBehandlingStatus(behandling))
-    }
-
     private fun valider(
         behandling: Behandling,
         behandlingSteg: BehandlingSteg,
