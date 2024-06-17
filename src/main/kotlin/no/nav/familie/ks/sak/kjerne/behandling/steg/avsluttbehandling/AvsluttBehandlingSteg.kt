@@ -52,7 +52,6 @@ class AvsluttBehandlingSteg(
         // oppdater behandling status til Avsluttet
         behandling.status = BehandlingStatus.AVSLUTTET
 
-        //
         snikeIKøenService.reaktiverBehandlingPåMaskinellVent(behandlingSomFerdigstilles = behandling)
 
         // trenger ikke å kalle eksplisitt save fordi behandling objekt er mutert og ha @Transactional
