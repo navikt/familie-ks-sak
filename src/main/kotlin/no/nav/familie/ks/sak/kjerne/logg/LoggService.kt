@@ -163,7 +163,7 @@ class LoggService(
     ) {
         lagreLogg(
             Logg(
-                behandling.id,
+                behandlingId = behandling.id,
                 type = LoggType.BEHANDLING_SATT_PÅ_MASKINELL_VENT,
                 rolle = SikkerhetContext.hentRolletilgangFraSikkerhetscontext(rolleConfig, BehandlerRolle.FORVALTER),
                 tekst = "Årsak: $årsak",
@@ -174,7 +174,7 @@ class LoggService(
     fun opprettTattAvMaskinellVent(behandling: Behandling) {
         lagreLogg(
             Logg(
-                behandling.id,
+                behandlingId = behandling.id,
                 type = LoggType.BEHANDLING_TATT_AV_MASKINELL_VENT,
                 rolle = SikkerhetContext.hentRolletilgangFraSikkerhetscontext(rolleConfig, BehandlerRolle.FORVALTER),
             )

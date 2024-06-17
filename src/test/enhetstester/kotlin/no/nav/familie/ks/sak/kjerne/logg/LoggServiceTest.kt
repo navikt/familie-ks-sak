@@ -20,6 +20,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.feilutbetaltvaluta.Fe
 import no.nav.familie.ks.sak.kjerne.logg.domene.Logg
 import no.nav.familie.ks.sak.kjerne.logg.domene.LoggRepository
 import org.hamcrest.MatcherAssert.assertThat
+import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import java.time.LocalDate
@@ -252,7 +253,7 @@ class LoggServiceTest {
             lagretLogg.tekst,
             Is(
                 "Resultat gikk fra ${behandlingsforrigeResultat.displayName.lowercase()} " +
-                    "til ${behandlingsNyResultat.displayName.lowercase()}",
+                        "til ${behandlingsNyResultat.displayName.lowercase()}",
             ),
         )
         assertThat(lagretLogg.tittel, Is("Vilkårsvurdering endret"))
@@ -449,4 +450,61 @@ class LoggServiceTest {
 
         verify(exactly = 1) { loggRepository.save(opprettetLoggOmFeilutbetaltValutaFjernet) }
     }
+
+    @Nested
+    inner class OpprettSettPåMaskinellVentTest {
+
+        @Test
+        fun `skal opprette for behandling som blir satt på maskinell vent`() {
+
+            // Arrange
+            val behandling = lagBehandling()
+            val slot = slot<Logg>()
+
+            every { loggRepository.save(capture(slot)) } returns mockk()
+
+            // Act
+            loggService.opprettSettPåMaskinellVent(
+                behandling = behandling,
+                årsak = "Satsendring"
+            )
+
+            // Assert
+            val capturedLogg = slot.captured
+            assertThat(capturedLogg.behandlingId, Is(behandling.id))
+            assertThat(capturedLogg.type, Is(LoggType.BEHANDLING_SATT_PÅ_MASKINELL_VENT))
+            assertThat(capturedLogg.rolle, Is(BehandlerRolle.SYSTEM))
+            assertThat(capturedLogg.tekst, Is("Årsak: Satsendring"))
+
+        }
+
+    }
+
+    @Nested
+    inner class OpprettTattAvMaskinellVentTest {
+
+        @Test
+        fun `skal opprette for behandling som blir tatt av maskinell vent`() {
+
+            // Arrange
+            val behandling = lagBehandling()
+            val slot = slot<Logg>()
+
+            every { loggRepository.save(capture(slot)) } returns mockk()
+
+            // Act
+            loggService.opprettTattAvMaskinellVent(
+                behandling = behandling
+            )
+
+            // Assert
+            val capturedLogg = slot.captured
+            assertThat(capturedLogg.behandlingId, Is(behandling.id))
+            assertThat(capturedLogg.type, Is(LoggType.BEHANDLING_TATT_AV_MASKINELL_VENT))
+            assertThat(capturedLogg.rolle, Is(BehandlerRolle.SYSTEM))
+
+        }
+
+    }
+
 }
