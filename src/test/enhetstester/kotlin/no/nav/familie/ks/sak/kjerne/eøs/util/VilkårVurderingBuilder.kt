@@ -19,6 +19,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Res
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.UtdypendeVilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.UtdypendeVilkårsvurdering.DELT_BOSTED
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårRegelsett
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.beregning.TilkjentYtelseUtils
@@ -107,6 +108,7 @@ internal fun Periode<UtdypendeVilkårRegelverkResultat>.tilVilkårResultater(per
             begrunnelse = "En begrunnelse",
             utdypendeVilkårsvurderinger = this.verdi.utdypendeVilkårsvurderinger,
             behandlingId = personResultat.vilkårsvurdering.behandling.id,
+            regelsett = VilkårRegelsett.LOV_AUGUST_2021,
         ),
     )
 }

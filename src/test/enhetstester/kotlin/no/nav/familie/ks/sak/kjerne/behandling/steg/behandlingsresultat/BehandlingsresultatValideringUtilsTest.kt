@@ -7,6 +7,7 @@ import no.nav.familie.ks.sak.data.lagVilkårsvurdering
 import no.nav.familie.ks.sak.data.randomAktør
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårRegelsett
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertDoesNotThrow
@@ -17,7 +18,13 @@ internal class BehandlingsresultatValideringUtilsTest {
     @Test
     fun `Valider eksplisitt avlag - Skal kaste feil hvis eksplisitt avslått for barn det ikke er fremstilt krav for`() {
         val behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD)
-        val vilkårsvurdering = lagVilkårsvurdering(søkerAktør = randomAktør(), behandling = behandling, resultat = Resultat.OPPFYLT)
+        val vilkårsvurdering =
+            lagVilkårsvurdering(
+                søkerAktør = randomAktør(),
+                behandling = behandling,
+                resultat = Resultat.OPPFYLT,
+                regelsett = VilkårRegelsett.LOV_AUGUST_2021,
+            )
         val barn1 = randomAktør()
         val barn2 = randomAktør()
 
@@ -31,6 +38,7 @@ internal class BehandlingsresultatValideringUtilsTest {
                 lagFullstendigVilkårResultat = true,
                 personType = PersonType.BARN,
                 erEksplisittAvslagPåSøknad = true,
+                regelsett = VilkårRegelsett.LOV_AUGUST_2021,
             )
         val barn2PersonResultat =
             lagPersonResultat(
@@ -42,6 +50,7 @@ internal class BehandlingsresultatValideringUtilsTest {
                 lagFullstendigVilkårResultat = true,
                 personType = PersonType.BARN,
                 erEksplisittAvslagPåSøknad = true,
+                regelsett = VilkårRegelsett.LOV_AUGUST_2021,
             )
 
         assertThrows<FunksjonellFeil> {
@@ -55,7 +64,13 @@ internal class BehandlingsresultatValideringUtilsTest {
     @Test
     fun `Valider eksplisitt avslag - Skal ikke kaste feil hvis person med eksplsitt avslag er fremstilt krav for`() {
         val behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD)
-        val vilkårsvurdering = lagVilkårsvurdering(søkerAktør = randomAktør(), behandling = behandling, resultat = Resultat.OPPFYLT)
+        val vilkårsvurdering =
+            lagVilkårsvurdering(
+                søkerAktør = randomAktør(),
+                behandling = behandling,
+                resultat = Resultat.OPPFYLT,
+                regelsett = VilkårRegelsett.LOV_AUGUST_2021,
+            )
         val barn1 = randomAktør()
         val barn2 = randomAktør()
 
@@ -69,6 +84,7 @@ internal class BehandlingsresultatValideringUtilsTest {
                 lagFullstendigVilkårResultat = true,
                 personType = PersonType.BARN,
                 erEksplisittAvslagPåSøknad = true,
+                regelsett = VilkårRegelsett.LOV_AUGUST_2021,
             )
         val barn2PersonResultat =
             lagPersonResultat(
@@ -80,6 +96,7 @@ internal class BehandlingsresultatValideringUtilsTest {
                 lagFullstendigVilkårResultat = true,
                 personType = PersonType.BARN,
                 erEksplisittAvslagPåSøknad = true,
+                regelsett = VilkårRegelsett.LOV_AUGUST_2021,
             )
 
         assertDoesNotThrow {

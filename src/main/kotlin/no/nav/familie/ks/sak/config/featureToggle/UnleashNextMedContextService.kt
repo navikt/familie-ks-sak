@@ -1,7 +1,7 @@
 package no.nav.familie.ks.sak.config.featureToggle
 
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.ArbeidsfordelingService
-import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
+import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
 import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext
 import no.nav.familie.unleash.UnleashContextFields
 import no.nav.familie.unleash.UnleashService
@@ -10,14 +10,14 @@ import org.springframework.stereotype.Service
 @Service
 class UnleashNextMedContextService(
     private val unleashService: UnleashService,
-    private val behandlingService: BehandlingService,
+    private val behandlingRepository: BehandlingRepository,
     private val arbeidsfordelingService: ArbeidsfordelingService,
 ) {
     fun isEnabled(
         toggleId: String,
         behandlingId: Long,
     ): Boolean {
-        val behandling = behandlingService.hentBehandling(behandlingId)
+        val behandling = behandlingRepository.hentBehandling(behandlingId)
 
         return unleashService.isEnabled(
             toggleId,

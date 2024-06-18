@@ -22,6 +22,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.Vedtak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.VedtakRepository
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårRegelsett
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårsvurderingRepository
 import no.nav.familie.ks.sak.kjerne.beregning.domene.TilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.domene.TilkjentYtelseRepository
@@ -204,8 +205,9 @@ abstract class OppslagSpringRunnerTest {
         aktør: Aktør,
         behandling: Behandling,
         resultat: Resultat,
+        regelsett: VilkårRegelsett,
     ) {
-        val vilkårsvurdering = lagVilkårsvurderingMedSøkersVilkår(aktør, behandling, resultat)
+        val vilkårsvurdering = lagVilkårsvurderingMedSøkersVilkår(søkerAktør = aktør, behandling = behandling, resultat = resultat, regelsett = regelsett)
         vilkårsvurderingRepository.saveAndFlush(vilkårsvurdering)
     }
 

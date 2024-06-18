@@ -20,6 +20,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.VedtakService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.Vedtak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårRegelsett
 import no.nav.familie.ks.sak.kjerne.beregning.AndelTilkjentYtelseMedEndreteUtbetalinger
 import no.nav.familie.ks.sak.kjerne.beregning.AndelerTilkjentYtelseOgEndreteUtbetalingerService
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.KompetanseService
@@ -76,7 +77,13 @@ internal class StønadsstatistikkServiceTest {
     private val barn1 = personopplysningGrunnlag.barna.first()
     private val barn2 = personopplysningGrunnlag.barna.last()
 
-    private val vilkårsVurdering = lagVilkårsvurderingOppfylt(personopplysningGrunnlag.personer, behandling, false)
+    private val vilkårsVurdering =
+        lagVilkårsvurderingOppfylt(
+            personopplysningGrunnlag.personer,
+            behandling,
+            false,
+            regelsett = VilkårRegelsett.LOV_AUGUST_2021,
+        )
 
     @Test
     fun `hentVedtakDVH skal kaste feil dersom vedtak ikke har noe dato satt`() {
