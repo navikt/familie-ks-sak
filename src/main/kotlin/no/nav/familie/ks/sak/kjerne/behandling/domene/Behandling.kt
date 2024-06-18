@@ -77,7 +77,8 @@ data class Behandling(
             "type=$type, " +
             "kategori=$kategori, " +
             "status=$status, " +
-            "resultat=$resultat)"
+            "resultat=$resultat, " +
+            "aktivertTidspunkt=$aktivertTidspunkt)"
     }
 
     fun validerBehandlingstype(sisteBehandlingSomErVedtatt: Behandling? = null) {
