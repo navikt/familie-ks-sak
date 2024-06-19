@@ -237,7 +237,7 @@ class SnikeIKøenIntegrasjonstest(
     private fun validerSisteBehandling(behandling: Behandling) {
         val fagsakId = fagsak.id
 
-        with (behandlingRepository) {
+        with(behandlingRepository) {
             val sisteIverksatteBehandlingPåFagsak = finnIverksatteBehandlinger(fagsakId).filter { it.erAvsluttet() }.maxBy { it.aktivertTidspunkt }
             val sisteIverksatteBehandlingFraLøpendeFagsaker = finnSisteIverksatteBehandlingFraLøpendeFagsaker(page = Pageable.unpaged())
 
@@ -256,7 +256,7 @@ class SnikeIKøenIntegrasjonstest(
 
     private fun validerErAktivBehandling(behandling: Behandling) {
         assertThat(behandlingService.hentAktivtBehandling(behandling.id).id).isEqualTo(behandling.id)
-}
+    }
 
     private fun lagUtbetalingsoppdragOgAvslutt(behandling: Behandling) {
         val tilkjentYtelse = lagInitiellTilkjentYtelse(behandling, utbetalingsoppdrag = "utbetalingsoppdrag")
@@ -322,7 +322,11 @@ class SnikeIKøenIntegrasjonstest(
         return behandlingRepository.saveAndFlush(behandling)
     }
 
-    private fun settBehandlingPåVent(behandling: Behandling, frist: LocalDate, årsak: VenteÅrsak) {
+    private fun settBehandlingPåVent(
+        behandling: Behandling,
+        frist: LocalDate,
+        årsak: VenteÅrsak,
+    ) {
         val behandlingStegTilstand = behandling.behandlingStegTilstand.single { it.behandlingSteg == behandling.steg }
         behandlingStegTilstand.frist = frist
         behandlingStegTilstand.årsak = årsak
