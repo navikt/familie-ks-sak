@@ -13,7 +13,12 @@ import java.net.URI
 class PdlConfig(
     @Value("\${PDL_URL}") pdlUrl: URI,
 ) {
-    val pdlUri: URI = UriComponentsBuilder.fromUri(pdlUrl).pathSegment(PATH_GRAPHQL).build().toUri()
+    val pdlUri: URI =
+        UriComponentsBuilder
+            .fromUri(pdlUrl)
+            .pathSegment(PATH_GRAPHQL)
+            .build()
+            .toUri()
 
     companion object {
         const val PATH_GRAPHQL = "graphql"
@@ -24,31 +29,30 @@ class PdlConfig(
         val hentEnkelPersonQuery = graphqlQuery("/pdl/hentperson-enkel.graphql")
         val hentPersonMedRelasjonOgRegisterInformasjonQuery =
             graphqlQuery("/pdl/hentperson-med-relasjoner-og-registerinformasjon.graphql")
-        val hentPersonMedNavnOgAdresseQuery = graphqlQuery("/pdl/hentperson-navn-og-adresse.graphql")
         val hentStatsborgerskapUtenHistorikkQuery = graphqlQuery("/pdl/statsborgerskap-uten-historikk.graphql")
         val hentBostedsadresseUtenlandskQuery = graphqlQuery("/pdl/bostedsadresse-utenlandsk.graphql")
 
         private fun graphqlQuery(path: String) =
-            PdlConfig::class.java.getResource(path)!!
-                .readText().graphqlCompatible()
+            PdlConfig::class.java
+                .getResource(path)!!
+                .readText()
+                .graphqlCompatible()
 
-        private fun String.graphqlCompatible(): String {
-            return StringUtils.normalizeSpace(this.replace("\n", ""))
-        }
+        private fun String.graphqlCompatible(): String = StringUtils.normalizeSpace(this.replace("\n", ""))
 
-        fun httpHeaders(): HttpHeaders {
-            return HttpHeaders().apply {
+        fun httpHeaders(): HttpHeaders =
+            HttpHeaders().apply {
                 contentType = MediaType.APPLICATION_JSON
                 accept = listOf(MediaType.APPLICATION_JSON)
                 add("Tema", Tema.KON.name)
                 add("behandlingsnummer", Tema.KON.behandlingsnummer)
             }
-        }
     }
 }
 
-enum class PersonInfoQuery(val query: String) {
+enum class PersonInfoQuery(
+    val query: String,
+) {
     ENKEL(PdlConfig.hentEnkelPersonQuery),
     MED_RELASJONER_OG_REGISTERINFORMASJON(PdlConfig.hentPersonMedRelasjonOgRegisterInformasjonQuery),
-    NAVN_OG_ADRESSE(PdlConfig.hentPersonMedNavnOgAdresseQuery),
 }
