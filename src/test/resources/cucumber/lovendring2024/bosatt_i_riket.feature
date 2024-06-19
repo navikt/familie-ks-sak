@@ -17,7 +17,7 @@ Egenskap: Bosatt i riket
     Og følgende persongrunnlag
       | BehandlingId | AktørId | Persontype | Fødselsdato |
       | 1            | 1       | SØKER      | 19.06.1988  |
-      | 1            | 2       | BARN       | 05.01.2023  |
+      | 1            | 2       | BARN       | 05.08.2023  |
 
     Og følgende dagens dato 11.06.2024
 
@@ -26,13 +26,13 @@ Egenskap: Bosatt i riket
       | 1       | BOSATT_I_RIKET,MEDLEMSKAP               |                  | 19.06.1988 |            | OPPFYLT  | Nei                  |                      |                | LOV_AUGUST_2024 |
       | 1       | LOVLIG_OPPHOLD                          |                  | 19.06.1988 |            | OPPFYLT  | Nei                  |                      |                | LOV_AUGUST_2024 |
 
-      | 2       | BOSATT_I_RIKET                          |                  | 05.03.2024 | 05.07.2024 | OPPFYLT  | Nei                  |                      |                | LOV_AUGUST_2024 |
+      | 2       | BOSATT_I_RIKET                          |                  | 05.11.2024 | 05.02.2025 | OPPFYLT  | Nei                  |                      |                | LOV_AUGUST_2024 |
       | 2       | MEDLEMSKAP_ANNEN_FORELDER,BOR_MED_SØKER |                  | 05.01.2023 |            | OPPFYLT  | Nei                  |                      |                | LOV_AUGUST_2024 |
       | 2       | BARNEHAGEPLASS                          |                  | 05.02.2024 |            | OPPFYLT  | Nei                  |                      |                | LOV_AUGUST_2024 |
-      | 2       | BARNETS_ALDER                           |                  | 05.02.2024 | 05.08.2024 | OPPFYLT  | Nei                  |                      |                | LOV_AUGUST_2024 |
+      | 2       | BARNETS_ALDER                           |                  | 05.09.2024 | 05.03.2025 | OPPFYLT  | Nei                  |                      |                | LOV_AUGUST_2024 |
 
     Og andeler er beregnet for behandling 1
 
     Så forvent følgende andeler tilkjent ytelse for behandling 1
       | AktørId | Fra dato   | Til dato   | Beløp | Ytelse type           | Prosent | Sats |
-      | 2       | 01.03.2024 | 31.07.2024 | 7500  | ORDINÆR_KONTANTSTØTTE | 100     | 7500 |
+      | 2       | 01.11.2024 | 28.02.2025 | 7500  | ORDINÆR_KONTANTSTØTTE | 100     | 7500 |
