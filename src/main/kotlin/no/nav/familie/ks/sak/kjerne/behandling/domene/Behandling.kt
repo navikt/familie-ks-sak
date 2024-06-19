@@ -88,6 +88,16 @@ data class Behandling(
 
         if (id != other.id) return false
         if (fagsak != other.fagsak) return false
+        if (behandlingStegTilstand != other.behandlingStegTilstand) return false
+        if (resultat != other.resultat) return false
+        if (type != other.type) return false
+        if (opprettetÅrsak != other.opprettetÅrsak) return false
+        if (skalBehandlesAutomatisk != other.skalBehandlesAutomatisk) return false
+        if (kategori != other.kategori) return false
+        if (underkategori != other.underkategori) return false
+        if (aktiv != other.aktiv) return false
+        if (status != other.status) return false
+        if (overstyrtEndringstidspunkt != other.overstyrtEndringstidspunkt) return false
 
         return true
     }
@@ -95,6 +105,16 @@ data class Behandling(
     override fun hashCode(): Int {
         var result = id.hashCode()
         result = 31 * result + fagsak.hashCode()
+        result = 31 * result + behandlingStegTilstand.hashCode()
+        result = 31 * result + resultat.hashCode()
+        result = 31 * result + type.hashCode()
+        result = 31 * result + opprettetÅrsak.hashCode()
+        result = 31 * result + skalBehandlesAutomatisk.hashCode()
+        result = 31 * result + kategori.hashCode()
+        result = 31 * result + underkategori.hashCode()
+        result = 31 * result + aktiv.hashCode()
+        result = 31 * result + status.hashCode()
+        result = 31 * result + (overstyrtEndringstidspunkt?.hashCode() ?: 0)
         return result
     }
 
