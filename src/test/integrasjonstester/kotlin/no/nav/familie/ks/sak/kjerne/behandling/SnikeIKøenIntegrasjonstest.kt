@@ -1,10 +1,12 @@
 package no.nav.familie.ks.sak.no.nav.familie.ks.sak.kjerne.behandling
 
+import com.ninjasquad.springmockk.MockkBean
+import io.mockk.every
 import no.nav.familie.ks.sak.OppslagSpringRunnerTest
-import no.nav.familie.ks.sak.api.dto.FagsakRequestDto
 import no.nav.familie.ks.sak.config.DatabaseCleanupService
+import no.nav.familie.ks.sak.data.lagFagsak
 import no.nav.familie.ks.sak.data.lagInitiellTilkjentYtelse
-import no.nav.familie.ks.sak.data.tilfeldigPerson
+import no.nav.familie.ks.sak.data.randomAktør
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.domene.ArbeidsfordelingPåBehandling
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.domene.ArbeidsfordelingPåBehandlingRepository
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
@@ -27,8 +29,12 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.Vedtak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.VedtaksperiodeMedBegrunnelser
 import no.nav.familie.ks.sak.kjerne.beregning.domene.TilkjentYtelseRepository
 import no.nav.familie.ks.sak.kjerne.fagsak.FagsakService
+import no.nav.familie.ks.sak.kjerne.fagsak.PubliserSaksstatistikkTask
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.Fagsak
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.FagsakStatus
+import no.nav.familie.ks.sak.kjerne.personident.AktørRepository
+import no.nav.familie.prosessering.domene.Task
+import no.nav.familie.prosessering.internal.TaskService
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.BeforeEach
@@ -47,13 +53,18 @@ class SnikeIKøenIntegrasjonstest(
     @Autowired private val snikeIKøenService: SnikeIKøenService,
     @Autowired private val vedtaksperiodeHentOgPersisterService: VedtaksperiodeHentOgPersisterService,
     @Autowired private val arbeidsfordelingPåBehandlingRepository: ArbeidsfordelingPåBehandlingRepository,
+    @Autowired private val aktørRepository: AktørRepository,
 ) : OppslagSpringRunnerTest() {
     private var skalVenteLitt = false // for å unngå at behandlingen opprettes med samme tidspunkt
+
+    @MockkBean
+    private lateinit var taskService: TaskService
 
     @BeforeEach
     fun setUp() {
         skalVenteLitt = false
         databaseCleanupService.truncate()
+        mockPubliserSaksstatistikk()
         fagsak = opprettLøpendeFagsak()
     }
 
@@ -81,7 +92,8 @@ class SnikeIKøenIntegrasjonstest(
         snikeIKøenService.reaktiverBehandlingPåMaskinellVent(behandling2)
 
         val oppdatertBehandling = behandlingRepository.hentBehandling(behandling1.id)
-        val oppdatertBehandlingStegTilstand = oppdatertBehandling.behandlingStegTilstand.single { it.behandlingSteg == oppdatertBehandling.steg }
+        val oppdatertBehandlingStegTilstand =
+            oppdatertBehandling.behandlingStegTilstand.single { it.behandlingSteg == oppdatertBehandling.steg }
 
         assertThat(oppdatertBehandlingStegTilstand.behandlingStegStatus).isEqualTo(BehandlingStegStatus.VENTER)
         assertThat(oppdatertBehandling.aktiv).isTrue()
@@ -110,7 +122,7 @@ class SnikeIKøenIntegrasjonstest(
     }
 
     @Test
-    fun `behandling som er satt på vent blir aktivert og iverksatt, og er då siste aktive behandlingen`() {
+    fun `behandling som er satt på vent blir aktivert og iverksatt, og er da siste aktive behandling`() {
         val behandling1 = opprettBehandling(status = BehandlingStatus.SATT_PÅ_MASKINELL_VENT, aktiv = false)
         val behandling2 = opprettBehandling(status = BehandlingStatus.AVSLUTTET, aktiv = true)
         lagUtbetalingsoppdragOgAvslutt(behandling2)
@@ -146,38 +158,53 @@ class SnikeIKøenIntegrasjonstest(
     }
 
     @Test
-    fun `reaktivering skal tilbakestille til vilkårsvurdering kun dersom steget er lagt til på behandlingen`() {
-        val behandling1 = opprettBehandling(status = BehandlingStatus.SATT_PÅ_MASKINELL_VENT, aktiv = false)
+    fun `reaktivering skal ikke 'tilbakestille' behandlingen til vilkårsvurdering når den befinner seg på et tidligere steg`() {
+        // Arrange
         val initielStegTilstand = BehandlingSteg.REGISTRERE_SØKNAD
 
-        leggTilSteg(behandling1, initielStegTilstand)
-        behandlingRepository.saveAndFlush(behandling1)
+        val behandling =
+            opprettBehandling(resultat = Behandlingsresultat.IKKE_VURDERT).also {
+                leggTilSteg(it, initielStegTilstand)
+                behandlingRepository.saveAndFlush(it)
+            }
+        snikeIKøenService.settAktivBehandlingPåMaskinellVent(behandling.id, SettPåMaskinellVentÅrsak.SATSENDRING)
 
-        val behandling2 = opprettBehandling(status = BehandlingStatus.AVSLUTTET, aktiv = true)
-        lagUtbetalingsoppdragOgAvslutt(behandling2)
+        val behandlingSomSniker = opprettBehandling()
+        lagUtbetalingsoppdragOgAvslutt(behandlingSomSniker)
 
-        snikeIKøenService.reaktiverBehandlingPåMaskinellVent(behandling2)
+        // Act
+        snikeIKøenService.reaktiverBehandlingPåMaskinellVent(behandlingSomAvsluttes = behandlingSomSniker)
 
-        val oppdatertBehandling = behandlingRepository.hentBehandling(behandling1.id)
-
+        // Assert
+        val oppdatertBehandling = behandlingRepository.hentBehandling(behandling.id)
         assertThat(oppdatertBehandling.steg).isEqualTo(initielStegTilstand)
+    }
 
-        leggTilSteg(oppdatertBehandling, BehandlingSteg.VILKÅRSVURDERING, BehandlingStegStatus.UTFØRT)
-        leggTilSteg(oppdatertBehandling, BehandlingSteg.BEHANDLINGSRESULTAT)
-        settBehandlingTilPåMaskinellVent(oppdatertBehandling)
+    @Test
+    fun `reaktivering skal tilbakestille behandlingen til vilkårsvurdering`() {
+        // Arrange
+        val behandling =
+            opprettBehandling().also {
+                leggTilSteg(it, BehandlingSteg.VILKÅRSVURDERING, BehandlingStegStatus.UTFØRT)
+                leggTilSteg(it, BehandlingSteg.BEHANDLINGSRESULTAT)
+                behandlingRepository.saveAndFlush(it)
+            }
+        snikeIKøenService.settAktivBehandlingPåMaskinellVent(behandling.id, SettPåMaskinellVentÅrsak.LOVENDRING)
 
-        snikeIKøenService.reaktiverBehandlingPåMaskinellVent(behandling2)
+        val behandlingSomSniker = opprettBehandling()
+        lagUtbetalingsoppdragOgAvslutt(behandlingSomSniker)
 
-        val oppdatertStegTilstand = behandlingRepository.hentBehandling(behandling1.id).behandlingStegTilstand.last()
+        // Act
+        snikeIKøenService.reaktiverBehandlingPåMaskinellVent(behandlingSomAvsluttes = behandlingSomSniker)
+
+        // Assert
+        val behandlingEtterReaktivering = behandlingRepository.hentBehandling(behandling.id)
+        val oppdatertStegTilstand =
+            behandlingEtterReaktivering.behandlingStegTilstand
+                .single { it.behandlingSteg == behandlingEtterReaktivering.steg }
 
         assertThat(oppdatertStegTilstand.behandlingSteg).isEqualTo(BehandlingSteg.VILKÅRSVURDERING)
         assertThat(oppdatertStegTilstand.behandlingStegStatus).isEqualTo(BehandlingStegStatus.KLAR)
-    }
-
-    private fun settBehandlingTilPåMaskinellVent(oppdatertBehandling: Behandling) {
-        oppdatertBehandling.aktiv = false
-        oppdatertBehandling.status = BehandlingStatus.SATT_PÅ_MASKINELL_VENT
-        behandlingRepository.saveAndFlush(oppdatertBehandling)
     }
 
     @Test
@@ -212,12 +239,12 @@ class SnikeIKøenIntegrasjonstest(
     inner class ValideringAvReaktiverBehandling {
         @Suppress("UNUSED_VARIABLE")
         @Test
-        fun `skal feile når åpen behandling er aktiv`() {
+        fun `skal feile når behandling på maskinell vent er aktiv`() {
             val behandlingPåVent = opprettBehandling(status = BehandlingStatus.SATT_PÅ_MASKINELL_VENT, aktiv = true)
             val behandlingSomSnekIKøen = opprettBehandling(status = BehandlingStatus.AVSLUTTET, aktiv = false)
 
             assertThatThrownBy { snikeIKøenService.reaktiverBehandlingPåMaskinellVent(behandlingSomSnekIKøen) }
-                .hasMessageContaining("Åpen behandling har feil tilstand")
+                .hasMessageContaining("Behandling på maskinell vent er aktiv")
         }
 
         @Test
@@ -230,16 +257,28 @@ class SnikeIKøenIntegrasjonstest(
         }
     }
 
+    private fun mockPubliserSaksstatistikk() {
+        val publiserSaksstatistikkTask = mutableListOf<Task>()
+        every {
+            taskService.save(capture(publiserSaksstatistikkTask))
+        } answers {
+            publiserSaksstatistikkTask.single()
+            publiserSaksstatistikkTask.single { it.type == PubliserSaksstatistikkTask.TASK_STEP_TYPE }
+        }
+    }
+
     private fun settAktivBehandlingTilPåMaskinellVent(behandling: Behandling) {
         snikeIKøenService.settAktivBehandlingPåMaskinellVent(behandling.id, SettPåMaskinellVentÅrsak.SATSENDRING)
     }
 
     private fun validerSisteBehandling(behandling: Behandling) {
-        val fagsakId = fagsak.id
+        val fagsakId = behandling.fagsak.id
 
         with(behandlingRepository) {
-            val sisteIverksatteBehandlingPåFagsak = finnIverksatteBehandlinger(fagsakId).filter { it.erAvsluttet() }.maxBy { it.aktivertTidspunkt }
-            val sisteIverksatteBehandlingFraLøpendeFagsaker = finnSisteIverksatteBehandlingFraLøpendeFagsaker(page = Pageable.unpaged())
+            val sisteIverksatteBehandlingPåFagsak =
+                finnIverksatteBehandlinger(fagsakId).filter { it.erAvsluttet() }.maxBy { it.aktivertTidspunkt }
+            val sisteIverksatteBehandlingFraLøpendeFagsaker =
+                finnSisteIverksatteBehandlingFraLøpendeFagsaker(page = Pageable.unpaged())
 
             assertThat(sisteIverksatteBehandlingPåFagsak.id).isEqualTo(behandling.id)
             assertThat(sisteIverksatteBehandlingFraLøpendeFagsaker).containsExactly(behandling.id)
@@ -283,13 +322,12 @@ class SnikeIKøenIntegrasjonstest(
     }
 
     private fun opprettLøpendeFagsak(): Fagsak {
-        val aktør = tilfeldigPerson().aktør
-        with(fagsakService) {
-            val fagsakId = hentEllerOpprettFagsak(FagsakRequestDto(aktør.aktivFødselsnummer())).id
-            val fagsak = hentFagsak(fagsakId)
-
-            return oppdaterStatus(fagsak, FagsakStatus.LØPENDE)
-        }
+        return fagsakService.lagre(
+            lagFagsak(
+                aktør = aktørRepository.saveAndFlush(randomAktør()),
+                status = FagsakStatus.LØPENDE,
+            ),
+        )
     }
 
     private fun opprettBehandling(

@@ -1,6 +1,7 @@
 package no.nav.familie.ks.sak.kjerne.behandling
 
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
+import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingStegStatus
 import no.nav.familie.ks.sak.kjerne.logg.LoggService
@@ -12,7 +13,7 @@ import java.time.LocalDateTime
 
 @Service
 class SnikeIKøenService(
-    private val behandlingService: BehandlingService,
+    private val behandlingRepository: BehandlingRepository,
     private val loggService: LoggService,
     private val tilbakestillBehandlingService: TilbakestillBehandlingService,
     private val clock: Clock,
@@ -24,17 +25,17 @@ class SnikeIKøenService(
         behandlingId: Long,
         årsak: SettPåMaskinellVentÅrsak,
     ) {
-        val behandling = behandlingService.hentBehandling(behandlingId)
+        val behandling = behandlingRepository.hentBehandling(behandlingId)
         Validator.validerBehandlingSomSkalSettesPåMaskinellVent(behandling)
         behandling.status = BehandlingStatus.SATT_PÅ_MASKINELL_VENT
         behandling.aktiv = false
-        behandlingService.oppdaterBehandling(behandling)
+        behandlingRepository.saveAndFlush(behandling)
         loggService.opprettSettPåMaskinellVent(behandling, årsak.beskrivelse)
     }
 
     @Transactional
     fun reaktiverBehandlingPåMaskinellVent(behandlingSomAvsluttes: Behandling): Reaktivert {
-        val behandlingerPåFagsak = behandlingService.hentBehandlingerPåFagsak(behandlingSomAvsluttes.fagsak.id)
+        val behandlingerPåFagsak = behandlingRepository.finnBehandlinger(behandlingSomAvsluttes.fagsak.id)
         val behandlingPåMaskinellVent = finnBehandlingPåMaskinellVent(behandlingerPåFagsak) ?: return Reaktivert.NEI
         val behandlingStegTilstand = finnBehandlingStegTilstand(behandlingPåMaskinellVent)
         val erBehandlingStegStatusVenter = behandlingStegTilstand.behandlingStegStatus == BehandlingStegStatus.VENTER
@@ -57,7 +58,7 @@ class SnikeIKøenService(
     fun kanSnikeForbi(aktivOgÅpenBehandling: Behandling): Boolean {
         val behandlingId = aktivOgÅpenBehandling.id
         val loggSuffix = "endrer status på behandling til på vent"
-        val behandlingStegStatus = Companion.finnBehandlingStegTilstand(aktivOgÅpenBehandling).behandlingStegStatus
+        val behandlingStegStatus = finnBehandlingStegTilstand(aktivOgÅpenBehandling).behandlingStegStatus
         if (behandlingStegStatus == BehandlingStegStatus.VENTER) {
             logger.info("Behandling=$behandlingId er satt på vent av saksbehandler, $loggSuffix")
             return true
@@ -86,7 +87,7 @@ class SnikeIKøenService(
         if (aktivBehandling != null) {
             logger.info("Deaktiverer aktiv behandling=${aktivBehandling.id}")
             aktivBehandling.aktiv = false
-            behandlingService.oppdaterBehandling(aktivBehandling)
+            behandlingRepository.saveAndFlush(aktivBehandling)
         } else {
             logger.info("Fant ingen aktiv behandling å deaktivere")
         }
@@ -97,7 +98,7 @@ class SnikeIKøenService(
         behandlingPåMaskinellVent.aktiv = true
         behandlingPåMaskinellVent.aktivertTidspunkt = LocalDateTime.now()
         behandlingPåMaskinellVent.status = BehandlingStatus.UTREDES
-        behandlingService.oppdaterBehandling(behandlingPåMaskinellVent)
+        behandlingRepository.saveAndFlush(behandlingPåMaskinellVent)
     }
 
     companion object {
@@ -151,8 +152,8 @@ class SnikeIKøenService(
 }
 
 enum class SettPåMaskinellVentÅrsak(val beskrivelse: String) {
+    LOVENDRING("Lovendring"),
     SATSENDRING("Satsendring"),
-    MÅNEDLIG_VALUTAJUSTERING("Månedlig valutajustering"),
 }
 
 enum class Reaktivert {

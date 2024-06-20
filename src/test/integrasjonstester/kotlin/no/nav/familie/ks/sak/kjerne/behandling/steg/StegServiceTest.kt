@@ -170,7 +170,12 @@ class StegServiceTest : OppslagSpringRunnerTest() {
 
     @Test
     fun `utførSteg skal utføre REGISTRER_PERSONGRUNNLAG og sette neste steg til VILKÅRSVURDERING for revurdering`() {
-        lagreBehandling(behandling.also { it.aktiv = false })
+        lagreBehandling(
+            behandling.also {
+                it.aktiv = false
+                it.status = BehandlingStatus.AVSLUTTET
+            },
+        )
         var revurderingBehandling =
             lagreBehandling(
                 lagBehandling(
@@ -250,7 +255,12 @@ class StegServiceTest : OppslagSpringRunnerTest() {
 
     @Test
     fun `utførSteg skal ikke utføre REGISTRERE_SØKNAD for behandling med årsak SATSENDRING`() {
-        lagreBehandling(behandling.also { it.aktiv = false })
+        lagreBehandling(
+            behandling.also {
+                it.aktiv = false
+                it.status = BehandlingStatus.AVSLUTTET
+            },
+        )
         val revurderingBehandling =
             lagreBehandling(
                 lagBehandling(
