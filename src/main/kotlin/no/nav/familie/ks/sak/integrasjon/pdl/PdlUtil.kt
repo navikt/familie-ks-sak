@@ -52,7 +52,10 @@ inline fun <reified T : Any> feilsjekkOgReturnerData(pdlRespons: PdlBolkRespons<
         throw PdlRequestException("Data er null fra PDL -  ${T::class}. Se secure logg for detaljer.")
     }
 
-    val feil = pdlRespons.data.personBolk.filter { it.code != "ok" }.associate { it.ident to it.code }
+    val feil =
+        pdlRespons.data.personBolk
+            .filter { it.code != "ok" }
+            .associate { it.ident to it.code }
     if (feil.isNotEmpty()) {
         secureLogger.error("Feil ved henting av ${T::class} fra PDL: $feil")
         throw PdlRequestException("Feil ved henting av ${T::class} fra PDL. Se secure logg for detaljer.")
@@ -68,9 +71,9 @@ fun tilPersonInfo(
     pdlPersonData: PdlPersonData,
     forelderBarnRelasjoner: Set<ForelderBarnRelasjonInfo> = emptySet(),
     maskertForelderBarnRelasjoner: Set<ForelderBarnRelasjonInfoMaskert> = emptySet(),
-): PdlPersonInfo {
-    return PdlPersonInfo(
-        fødselsdato = LocalDate.parse(pdlPersonData.foedsel.first().foedselsdato),
+): PdlPersonInfo =
+    PdlPersonInfo(
+        fødselsdato = LocalDate.parse(pdlPersonData.foedselsdato.first().foedselsdato),
         navn = pdlPersonData.navn.firstOrNull()?.fulltNavn(),
         kjønn = pdlPersonData.kjoenn.firstOrNull()?.kjoenn,
         forelderBarnRelasjoner = forelderBarnRelasjoner,
@@ -83,7 +86,6 @@ fun tilPersonInfo(
         dødsfall = hentDødsfallDataFraListeMedDødsfall(pdlPersonData.doedsfall),
         kontaktinformasjonForDoedsbo = pdlPersonData.kontaktinformasjonForDoedsbo.firstOrNull(),
     )
-}
 
 fun List<Adressebeskyttelse>.tilAdressebeskyttelse() =
     this.firstOrNull()?.gradering
