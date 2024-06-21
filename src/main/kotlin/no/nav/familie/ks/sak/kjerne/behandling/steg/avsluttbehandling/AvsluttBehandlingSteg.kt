@@ -52,7 +52,7 @@ class AvsluttBehandlingSteg(
         // oppdater behandling status til Avsluttet
         behandling.status = BehandlingStatus.AVSLUTTET
 
-        snikeIKøenService.reaktiverBehandlingPåMaskinellVent(behandlingSomAvsluttes = behandling)
+        // snikeIKøenService.reaktiverBehandlingPåMaskinellVent(behandlingSomAvsluttes = behandling) // TODO
 
         // trenger ikke å kalle eksplisitt save fordi behandling objekt er mutert og ha @Transactional
     }
