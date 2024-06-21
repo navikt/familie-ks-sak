@@ -3,21 +3,24 @@ package no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.regelsett
 import no.nav.familie.ks.sak.common.tidslinje.Periode
 import no.nav.familie.ks.sak.common.tidslinje.Tidslinje
 import no.nav.familie.ks.sak.common.tidslinje.tilTidslinje
+import no.nav.familie.ks.sak.common.tidslinje.utvidelser.klipp
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.kombiner
+import no.nav.familie.ks.sak.common.tidslinje.utvidelser.kombinerMed
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.tilPerioderIkkeNull
+import no.nav.familie.ks.sak.common.util.TIDENES_ENDE
+import no.nav.familie.ks.sak.common.util.TIDENES_MORGEN
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.PersonResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Regelverk
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårRegelsett
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.hentRegelsettBruktIVilkår
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.regelsett.lov2021.forskyvEtterLovgivning2021
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.regelsett.lov2024.forskyvEtterLovgivning2024
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
+import java.time.LocalDate
 
 fun Collection<PersonResultat>.tilForskjøvetOppfylteVilkårResultatTidslinjeMap(
     personopplysningGrunnlag: PersonopplysningGrunnlag,
@@ -84,12 +87,26 @@ fun forskyvVilkårResultater(
     vilkårType: Vilkår,
     vilkårResultater: List<VilkårResultat>,
 ): List<Periode<VilkårResultat>> {
-    val regelsett = vilkårResultater.hentRegelsettBruktIVilkår() ?: return emptyList()
 
-    return when (regelsett) {
-        VilkårRegelsett.LOV_AUGUST_2021 -> forskyvEtterLovgivning2021(vilkårType, vilkårResultater)
-        VilkårRegelsett.LOV_AUGUST_2024 -> forskyvEtterLovgivning2024(vilkårType, vilkårResultater)
-    }
+    val tidslinje2021 = forskyvEtterLovgivning2021(vilkårType, vilkårResultater).tilTidslinje()
+    val tidslinje2024 = forskyvEtterLovgivning2024(vilkårType, vilkårResultater).tilTidslinje()
+
+    val sisteDatoIJuli = LocalDate.of(2024, 7, 31)
+    val førsteAugust = LocalDate.of(2024, 8, 1)
+
+    val klippetTidslinje2021 = tidslinje2021.klipp(TIDENES_MORGEN, sisteDatoIJuli)
+    val klippetTidslinje2024 = tidslinje2024.klipp(førsteAugust, TIDENES_ENDE)
+
+    val tilPerioderIkkeNull = klippetTidslinje2021.kombinerMed(klippetTidslinje2024) { vilkår2021, vilkår2024 ->
+        if (vilkår2021 != null) {
+            vilkår2021
+        } else {
+            vilkår2024
+        }
+    }.tilPerioderIkkeNull()
+
+    return tilPerioderIkkeNull
+
 }
 
 private fun MutableList<VilkårResultat>.fjernAvslagUtenPeriodeHvisDetFinsAndreVilkårResultat(): List<VilkårResultat> =
