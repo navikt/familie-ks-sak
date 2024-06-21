@@ -7,8 +7,6 @@ import no.nav.familie.ks.sak.common.tidslinje.utvidelser.klipp
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.kombiner
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.kombinerMed
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.tilPerioderIkkeNull
-import no.nav.familie.ks.sak.common.util.TIDENES_ENDE
-import no.nav.familie.ks.sak.common.util.TIDENES_MORGEN
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.PersonResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Regelverk
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
@@ -94,16 +92,12 @@ fun forskyvVilkårResultater(
     val sisteDatoIJuli = LocalDate.of(2024, 7, 31)
     val førsteAugust = LocalDate.of(2024, 8, 1)
 
-    val klippetTidslinje2021 = tidslinje2021.klipp(TIDENES_MORGEN, sisteDatoIJuli)
-    val klippetTidslinje2024 = tidslinje2024.klipp(førsteAugust, TIDENES_ENDE)
+    val klippetTidslinje2021 = tidslinje2021.klipp(tidslinje2021.startsTidspunkt, sisteDatoIJuli)
+    val klippetTidslinje2024 = tidslinje2024.klipp(førsteAugust, tidslinje2024.kalkulerSluttTidspunkt())
 
-    val tilPerioderIkkeNull = klippetTidslinje2021.kombinerMed(klippetTidslinje2024) { vilkår2021, vilkår2024 ->
-        if (vilkår2021 != null) {
-            vilkår2021
-        } else {
-            vilkår2024
-        }
-    }.tilPerioderIkkeNull()
+    val tilPerioderIkkeNull = klippetTidslinje2021
+        .kombinerMed(klippetTidslinje2024) { vilkår2021, vilkår2024 -> vilkår2021 ?: vilkår2024 }
+        .tilPerioderIkkeNull()
 
     return tilPerioderIkkeNull
 
