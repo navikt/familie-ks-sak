@@ -59,6 +59,8 @@ data class Behandling(
     val behandlingStegTilstand: MutableSet<BehandlingStegTilstand> = mutableSetOf(),
     @Column(name = "aktiv", nullable = false)
     var aktiv: Boolean = true,
+    @Column(name = "aktivert_tid", nullable = false)
+    var aktivertTidspunkt: LocalDateTime = LocalDateTime.now(),
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
     var status: BehandlingStatus = initStatus(),
@@ -76,6 +78,42 @@ data class Behandling(
             "kategori=$kategori, " +
             "status=$status, " +
             "resultat=$resultat)"
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as Behandling
+
+        if (id != other.id) return false
+        if (fagsak != other.fagsak) return false
+        if (resultat != other.resultat) return false
+        if (type != other.type) return false
+        if (opprettetÅrsak != other.opprettetÅrsak) return false
+        if (kategori != other.kategori) return false
+        if (behandlingStegTilstand != other.behandlingStegTilstand) return false
+        if (aktiv != other.aktiv) return false
+        if (status != other.status) return false
+        if (søknadMottattDato != other.søknadMottattDato) return false
+        if (overstyrtEndringstidspunkt != other.overstyrtEndringstidspunkt) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = id.hashCode()
+        result = 31 * result + fagsak.hashCode()
+        result = 31 * result + resultat.hashCode()
+        result = 31 * result + type.hashCode()
+        result = 31 * result + opprettetÅrsak.hashCode()
+        result = 31 * result + kategori.hashCode()
+        result = 31 * result + behandlingStegTilstand.hashCode()
+        result = 31 * result + aktiv.hashCode()
+        result = 31 * result + status.hashCode()
+        result = 31 * result + (søknadMottattDato?.hashCode() ?: 0)
+        result = 31 * result + (overstyrtEndringstidspunkt?.hashCode() ?: 0)
+        return result
     }
 
     fun validerBehandlingstype(sisteBehandlingSomErVedtatt: Behandling? = null) {
@@ -243,6 +281,7 @@ fun List<BehandlingKategori>.finnHøyesteKategori(): BehandlingKategori = this.m
 enum class BehandlingStatus {
     OPPRETTET,
     UTREDES,
+    SATT_PÅ_MASKINELL_VENT,
     FATTER_VEDTAK,
     IVERKSETTER_VEDTAK,
     AVSLUTTET,
