@@ -1,7 +1,7 @@
 # language: no
 # encoding: UTF-8
 
-Egenskap: Overgang fra barnehageplass
+Egenskap: Overgang fra barnehageplass kombinert
 
   Bakgrunn:
     Gitt følgende fagsaker
