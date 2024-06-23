@@ -13,24 +13,32 @@ fun forskyvEtterLovgivning2024(
     vilkårType: Vilkår,
     vilkårResultater: List<VilkårResultat>,
 ) = when (vilkårType) {
-    Vilkår.BARNEHAGEPLASS -> vilkårResultater.forskyvBarnehageplassVilkår2024()
+    Vilkår.BARNEHAGEPLASS -> {
+        vilkårResultater.forskyvBarnehageplassVilkår2024()
+    }
 
-    else ->
-        vilkårResultater.filter { it.erOppfylt() || it.erIkkeAktuelt() }.sortedBy { it.periodeFom }.tilVilkårResultaterMedInformasjonOmNestePeriode()
+    Vilkår.BOSATT_I_RIKET,
+    Vilkår.LOVLIG_OPPHOLD,
+    Vilkår.MEDLEMSKAP,
+    Vilkår.MEDLEMSKAP_ANNEN_FORELDER,
+    Vilkår.BOR_MED_SØKER,
+    Vilkår.BARNETS_ALDER,
+    -> {
+        vilkårResultater
+            .filter { it.erOppfylt() || it.erIkkeAktuelt() }
+            .sortedBy { it.periodeFom }
+            .tilVilkårResultaterMedInformasjonOmNestePeriode()
             .map {
-                val forskjøvetTom =
-                    when {
-                        it.slutterDagenFørNeste -> {
-                            it.vilkårResultat.periodeTom
-                        }
-
-                        else -> it.vilkårResultat.periodeTom?.sisteDagIMåned()
-                    }
-
                 Periode(
                     verdi = it.vilkårResultat,
                     fom = it.vilkårResultat.periodeFom?.førsteDagIInneværendeMåned(),
-                    tom = forskjøvetTom,
+                    tom =
+                        when (it.slutterDagenFørNeste) {
+                            true -> it.vilkårResultat.periodeTom
+                            false -> it.vilkårResultat.periodeTom?.sisteDagIMåned()
+                        },
                 )
-            }.filter { (it.fom ?: TIDENES_MORGEN).isBefore(it.tom ?: TIDENES_ENDE) }
+            }
+            .filter { (it.fom ?: TIDENES_MORGEN).isBefore(it.tom ?: TIDENES_ENDE) }
+    }
 }
