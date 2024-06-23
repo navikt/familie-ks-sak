@@ -87,19 +87,32 @@ fun forskyvVilkårResultater(
     vilkårType: Vilkår,
     vilkårResultater: List<VilkårResultat>,
 ): List<Periode<VilkårResultat>> {
-    val forskjøvetTidslinje2021 = forskyvEtterLovgivning2021(vilkårType, vilkårResultater).tilTidslinje()
-    val forskjøvetTidslinje2024 = forskyvEtterLovgivning2024(vilkårType, vilkårResultater).tilTidslinje()
+    val forskjøvetVilkårResultaterEtterLovgivning2021 =
+        forskyvEtterLovgivning2021(
+            vilkårType,
+            vilkårResultater,
+        )
+
+    val forskjøvetVilkårResultaterEtterLovgivning2024 =
+        forskyvEtterLovgivning2024(
+            vilkårType,
+            vilkårResultater,
+        )
+
+    val forskjøvetVilkårResultaterTidslinje2021 = forskjøvetVilkårResultaterEtterLovgivning2021.tilTidslinje()
+
+    val forskjøvetVilkårResultaterTidslinje2024 = forskjøvetVilkårResultaterEtterLovgivning2024.tilTidslinje()
 
     val klippetTidslinje2021 =
-        forskjøvetTidslinje2021.klipp(
-            forskjøvetTidslinje2021.startsTidspunkt,
+        forskjøvetVilkårResultaterTidslinje2021.klipp(
+            forskjøvetVilkårResultaterTidslinje2021.startsTidspunkt,
             DATO_FOR_LOVENDRING_AV_FORSKYVNINGER.minusDays(1),
         )
 
     val klippetTidslinje2024 =
-        forskjøvetTidslinje2024.klipp(
+        forskjøvetVilkårResultaterTidslinje2024.klipp(
             DATO_FOR_LOVENDRING_AV_FORSKYVNINGER,
-            forskjøvetTidslinje2024.kalkulerSluttTidspunkt(),
+            forskjøvetVilkårResultaterTidslinje2024.kalkulerSluttTidspunkt(),
         )
 
     return klippetTidslinje2021
