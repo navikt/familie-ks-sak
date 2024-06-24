@@ -52,14 +52,14 @@ Egenskap: Opphør første periode
 
     Så forvent at følgende begrunnelser er gyldige for behandling 2
       | Fra dato   | Til dato   | VedtaksperiodeType | Regelverk Gyldige begrunnelser | Gyldige begrunnelser                                                                                                             | Ugyldige begrunnelser |
-      | 01.09.2023 | 31.07.2024 | OPPHØR             |                                | OPPHØR_VURDERING_IKKE_BOSATT_I_NORGE, OPPHØR_IKKE_BOSATT_I_NORGE, OPPHØR_FLYTTET_FRA_NORGE, OPPHØR_FRA_START_IKKE_BOSATT_I_NORGE |                       |
+      | 01.09.2023 | 31.08.2024 | OPPHØR             |                                | OPPHØR_VURDERING_IKKE_BOSATT_I_NORGE, OPPHØR_IKKE_BOSATT_I_NORGE, OPPHØR_FLYTTET_FRA_NORGE, OPPHØR_FRA_START_IKKE_BOSATT_I_NORGE |                       |
 
     Og når disse begrunnelsene er valgt for behandling 2
       | Fra dato   | Til dato   | Standardbegrunnelser                                                                                                             | Eøsbegrunnelser | Fritekster |
-      | 01.09.2023 | 31.07.2024 | OPPHØR_VURDERING_IKKE_BOSATT_I_NORGE, OPPHØR_IKKE_BOSATT_I_NORGE, OPPHØR_FLYTTET_FRA_NORGE, OPPHØR_FRA_START_IKKE_BOSATT_I_NORGE |                 |            |
+      | 01.09.2023 | 31.08.2024 | OPPHØR_VURDERING_IKKE_BOSATT_I_NORGE, OPPHØR_IKKE_BOSATT_I_NORGE, OPPHØR_FLYTTET_FRA_NORGE, OPPHØR_FRA_START_IKKE_BOSATT_I_NORGE |                 |            |
 
 
-    Så forvent følgende brevbegrunnelser for behandling 2 i periode 01.09.2023 til 31.07.2024
+    Så forvent følgende brevbegrunnelser for behandling 2 i periode 01.09.2023 til 31.08.2024
       | Begrunnelse                          | Type     | Antall barn | Barnas fødselsdatoer | Gjelder søker | Beløp | Måned og år begrunnelsen gjelder for | Gjelder andre forelder | Antall timer barnehageplass |
       | OPPHØR_VURDERING_IKKE_BOSATT_I_NORGE | STANDARD | 1           | 25.08.22             | ja            | 0     | september 2023                       | true                   | 0                           |
       | OPPHØR_IKKE_BOSATT_I_NORGE           | STANDARD | 1           | 25.08.22             | ja            | 0     | september 2023                       | true                   | 0                           |
@@ -105,12 +105,12 @@ Egenskap: Opphør første periode
 
     Så forvent at følgende begrunnelser er gyldige for behandling 2
       | Fra dato   | Til dato   | VedtaksperiodeType | Regelverk Gyldige begrunnelser | Gyldige begrunnelser                 | Ugyldige begrunnelser |
-      | 01.12.2023 | 31.10.2024 | OPPHØR             |                                | OPPHØR_FRA_START_IKKE_BOSATT_I_NORGE |                       |
+      | 01.12.2023 | 30.11.2024 | OPPHØR             |                                | OPPHØR_FRA_START_IKKE_BOSATT_I_NORGE |                       |
 
     Og når disse begrunnelsene er valgt for behandling 2
       | Fra dato   | Til dato   | Standardbegrunnelser                 | Eøsbegrunnelser | Fritekster |
-      | 01.12.2023 | 31.10.2024 | OPPHØR_FRA_START_IKKE_BOSATT_I_NORGE |                 |            |
+      | 01.12.2023 | 30.11.2024 | OPPHØR_FRA_START_IKKE_BOSATT_I_NORGE |                 |            |
 
-    Så forvent følgende brevbegrunnelser for behandling 2 i periode 01.12.2023 til 31.10.2024
+    Så forvent følgende brevbegrunnelser for behandling 2 i periode 01.12.2023 til 30.11.2024
       | Begrunnelse                          | Type     | Gjelder søker | Antall barn | Måned og år begrunnelsen gjelder for | Beløp | Gjelder andre forelder | Antall timer barnehageplass |
       | OPPHØR_FRA_START_IKKE_BOSATT_I_NORGE | STANDARD | Ja            | 0           | desember 2023                        | 0     | false                  |                             |

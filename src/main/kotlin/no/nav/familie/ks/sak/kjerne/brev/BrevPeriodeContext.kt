@@ -653,6 +653,7 @@ class BrevPeriodeContext(
 
         return personTilVilkårResultaterMap.mapValues { (_, vilkårResultaterMap) ->
             vilkårResultaterMap.mapValues { (_, vilkårResultatTidslinje) ->
+
                 vilkårResultatTidslinje.kombinerMed(vedtaksperiodeTidslinje) { vilkårResultat, vedtaksperiode ->
                     vedtaksperiode?.let { vilkårResultat }
                 }

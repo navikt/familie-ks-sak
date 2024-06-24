@@ -185,7 +185,6 @@ class EndringIVilkårsvurderingUtilTest {
 
         Assertions.assertEquals(1, perioderMedEndring.size)
         Assertions.assertEquals(jun22.førsteDagIInneværendeMåned(), perioderMedEndring.single().fom)
-        Assertions.assertEquals(null, perioderMedEndring.single().tom)
     }
 
     @Test

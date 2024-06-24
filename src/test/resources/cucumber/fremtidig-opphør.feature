@@ -15,7 +15,7 @@ Egenskap: Fremtidig opphør - søker har meldt ifra om fremtidig barnehageplass
     Og følgende persongrunnlag
       | BehandlingId | AktørId | Persontype | Fødselsdato |
       | 1            | 1       | SØKER      | 23.08.1988  |
-      | 1            | 2       | BARN       | 11.09.2022  |
+      | 1            | 2       | BARN       | 11.06.2022  |
 
   Scenario: Barnehageplass fra måneden før barnet fyller to år
     Og følgende dagens dato 06.02.2024
@@ -24,9 +24,9 @@ Egenskap: Fremtidig opphør - søker har meldt ifra om fremtidig barnehageplass
       | AktørId | Vilkår                                                 | Utdypende vilkår | Fra dato   | Til dato   | Resultat | Er eksplisitt avslag | Standardbegrunnelser | Vurderes etter   | Søker har meldt fra om barnehageplass |
       | 1       | BOSATT_I_RIKET,MEDLEMSKAP                              |                  | 23.08.1988 |            | OPPFYLT  | Nei                  |                      | NASJONALE_REGLER |                                       |
 
-      | 2       | BARNEHAGEPLASS                                         |                  | 11.09.2022 | 31.07.2024 | OPPFYLT  | Nei                  |                      |                  | Ja                                    |
-      | 2       | BOR_MED_SØKER,BOSATT_I_RIKET,MEDLEMSKAP_ANNEN_FORELDER |                  | 11.09.2022 |            | OPPFYLT  | Nei                  |                      | NASJONALE_REGLER |                                       |
-      | 2       | BARNETS_ALDER                                          |                  | 11.09.2023 | 11.09.2024 | OPPFYLT  | Nei                  |                      |                  |                                       |
+      | 2       | BARNEHAGEPLASS                                         |                  | 11.06.2022 | 31.04.2024 | OPPFYLT  | Nei                  |                      |                  | Ja                                    |
+      | 2       | BOR_MED_SØKER,BOSATT_I_RIKET,MEDLEMSKAP_ANNEN_FORELDER |                  | 11.06.2022 |            | OPPFYLT  | Nei                  |                      | NASJONALE_REGLER |                                       |
+      | 2       | BARNETS_ALDER                                          |                  | 11.06.2023 | 11.06.2024 | OPPFYLT  | Nei                  |                      |                  |                                       |
 
     Og andeler er beregnet for behandling 1
 
@@ -36,48 +36,17 @@ Egenskap: Fremtidig opphør - søker har meldt ifra om fremtidig barnehageplass
 
     Så forvent følgende vedtaksperioder på behandling 1
       | Fra dato   | Til dato   | Vedtaksperiodetype | Kommentar |
-      | 01.10.2023 | 31.07.2024 | UTBETALING         |           |
-      | 01.08.2024 |            | OPPHØR             |           |
+      | 01.07.2023 | 31.04.2024 | UTBETALING         |           |
+      | 01.05.2024 |            | OPPHØR             |           |
 
     Så forvent at følgende begrunnelser er gyldige for behandling 1
       | Fra dato   | Til dato   | VedtaksperiodeType | Regelverk Gyldige begrunnelser | Gyldige begrunnelser                   | Ugyldige begrunnelser |
-      | 01.10.2023 | 31.07.2024 | UTBETALING         |                                |                                        |                       |
-      | 01.08.2024 |            | OPPHØR             |                                | OPPHØR_FRAMTIDIG_OPPHØR_BARNEHAGEPLASS |                       |
+      | 01.07.2023 | 30.04.2024 | UTBETALING         |                                |                                        |                       |
+      | 01.05.2024 |            | OPPHØR             |                                | OPPHØR_FRAMTIDIG_OPPHØR_BARNEHAGEPLASS |                       |
 
-    Så forvent følgende brevbegrunnelser for behandling 1 i periode 01.08.2024 til -
+    Så forvent følgende brevbegrunnelser for behandling 1 i periode 01.05.2024 til -
       | Begrunnelse                            | Type     | Barnas fødselsdatoer | Antall barn | Målform | Beløp | Måned og år begrunnelsen gjelder for | Gjelder andre forelder | Antall timer barnehageplass |
-      | OPPHØR_FRAMTIDIG_OPPHØR_BARNEHAGEPLASS | STANDARD | 11.09.22             | 1           |         | 0     | august 2024                          | true                   | 0                           |
-
-  Scenario: Barnehageplass fra måneden før barnet fyller to år
-    Og følgende dagens dato 06.02.2024
-
-    Og følgende vilkårresultater for behandling 1
-      | AktørId | Vilkår                                                 | Utdypende vilkår | Fra dato   | Til dato   | Resultat | Er eksplisitt avslag | Standardbegrunnelser | Vurderes etter   | Søker har meldt fra om barnehageplass |
-      | 1       | BOSATT_I_RIKET,MEDLEMSKAP                              |                  | 23.08.1988 |            | OPPFYLT  | Nei                  |                      | NASJONALE_REGLER |                                       |
-
-      | 2       | BARNEHAGEPLASS                                         |                  | 11.09.2022 | 31.07.2024 | OPPFYLT  | Nei                  |                      |                  | Ja                                    |
-      | 2       | BOR_MED_SØKER,BOSATT_I_RIKET,MEDLEMSKAP_ANNEN_FORELDER |                  | 11.09.2022 |            | OPPFYLT  | Nei                  |                      | NASJONALE_REGLER |                                       |
-      | 2       | BARNETS_ALDER                                          |                  | 11.09.2023 | 11.09.2024 | OPPFYLT  | Nei                  |                      |                  |                                       |
-
-    Og andeler er beregnet for behandling 1
-
-    Og når behandlingsresultatet er utledet for behandling 1
-
-    Og vedtaksperioder er laget for behandling 1
-
-    Så forvent følgende vedtaksperioder på behandling 1
-      | Fra dato   | Til dato   | Vedtaksperiodetype | Kommentar |
-      | 01.10.2023 | 31.07.2024 | UTBETALING         |           |
-      | 01.08.2024 |            | OPPHØR             |           |
-
-    Så forvent at følgende begrunnelser er gyldige for behandling 1
-      | Fra dato   | Til dato   | VedtaksperiodeType | Regelverk Gyldige begrunnelser | Gyldige begrunnelser                   | Ugyldige begrunnelser |
-      | 01.10.2023 | 31.07.2024 | UTBETALING         |                                |                                        |                       |
-      | 01.08.2024 |            | OPPHØR             |                                | OPPHØR_FRAMTIDIG_OPPHØR_BARNEHAGEPLASS |                       |
-
-    Så forvent følgende brevbegrunnelser for behandling 1 i periode 01.08.2024 til -
-      | Begrunnelse                            | Type     | Barnas fødselsdatoer | Antall barn | Målform | Beløp | Søknadstidspunkt | Måned og år begrunnelsen gjelder for | Gjelder andre forelder | Antall timer barnehageplass |
-      | OPPHØR_FRAMTIDIG_OPPHØR_BARNEHAGEPLASS | STANDARD | 11.09.22             | 1           |         | 0     |                  | august 2024                          | true                   | 0                           |
+      | OPPHØR_FRAMTIDIG_OPPHØR_BARNEHAGEPLASS | STANDARD | 11.06.22             | 1           |         | 0     | mai 2024                             | true                   | 0                           |
 
   Scenario: Barnehageplass fra midten av en måned
     Og følgende dagens dato 06.02.2024
@@ -108,7 +77,7 @@ Egenskap: Fremtidig opphør - søker har meldt ifra om fremtidig barnehageplass
 
     Så forvent følgende brevbegrunnelser for behandling 1 i periode 01.07.2024 til -
       | Begrunnelse                            | Type     | Barnas fødselsdatoer | Antall barn | Målform | Beløp | Måned og år begrunnelsen gjelder for | Gjelder andre forelder | Antall timer barnehageplass |
-      | OPPHØR_FRAMTIDIG_OPPHØR_BARNEHAGEPLASS | STANDARD | 11.09.22             | 1           |         | 0     | juli 2024                            | true                   | 0                           |
+      | OPPHØR_FRAMTIDIG_OPPHØR_BARNEHAGEPLASS | STANDARD | 11.06.22             | 1           |         | 0     | juli 2024                            | true                   | 0                           |
 
 
   Scenario: Revurdering. Eneste endring er framtidig opphør framtidig opphør på barnehageplass. Skal gi behandlingsresultat opphør.

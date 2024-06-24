@@ -7,6 +7,7 @@ import no.nav.familie.ks.sak.common.tidslinje.utvidelser.klipp
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.kombiner
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.kombinerMed
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.tilPerioderIkkeNull
+import no.nav.familie.ks.sak.common.util.TIDENES_ENDE
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.PersonResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Regelverk
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
@@ -78,7 +79,11 @@ fun Collection<PersonResultat>.tilForskjøvetVilkårResultatTidslinjeDerVilkårE
     val forskjøvedeVilkårResultater = forskyvVilkårResultaterForPerson(person)
 
     return forskjøvedeVilkårResultater
-        .kombiner { alleVilkårOppfyltEllerNull(it, person.type) }
+        .kombiner {
+            val alleVilkårOppfyltEllerNull = alleVilkårOppfyltEllerNull(it, person.type)
+
+            alleVilkårOppfyltEllerNull
+        }
         .tilPerioderIkkeNull()
         .tilTidslinje()
 }
@@ -112,7 +117,7 @@ fun forskyvVilkårResultater(
     val klippetTidslinje2024 =
         forskjøvetVilkårResultaterTidslinje2024.klipp(
             DATO_FOR_LOVENDRING_AV_FORSKYVNINGER,
-            forskjøvetVilkårResultaterTidslinje2024.kalkulerSluttTidspunkt(),
+            TIDENES_ENDE,
         )
 
     return klippetTidslinje2021
