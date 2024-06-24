@@ -7,30 +7,38 @@ import no.nav.familie.ks.sak.common.util.førsteDagIInneværendeMåned
 import no.nav.familie.ks.sak.common.util.sisteDagIMåned
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.regelsett.tilVilkårResultaterMedInformasjonOmNestePeriode
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.regelsett.mapTilTilknyttetVilkårResultater
 
 fun forskyvEtterLovgivning2021(
     vilkårType: Vilkår,
     vilkårResultater: List<VilkårResultat>,
 ) = when (vilkårType) {
-    Vilkår.BARNEHAGEPLASS -> vilkårResultater.forskyvBarnehageplassVilkår()
+    Vilkår.BARNEHAGEPLASS -> {
+        vilkårResultater.forskyvBarnehageplassVilkår()
+    }
 
-    else ->
-        vilkårResultater.filter { it.erOppfylt() || it.erIkkeAktuelt() }.sortedBy { it.periodeFom }.tilVilkårResultaterMedInformasjonOmNestePeriode()
+    Vilkår.BOSATT_I_RIKET,
+    Vilkår.LOVLIG_OPPHOLD,
+    Vilkår.MEDLEMSKAP,
+    Vilkår.MEDLEMSKAP_ANNEN_FORELDER,
+    Vilkår.BOR_MED_SØKER,
+    Vilkår.BARNETS_ALDER,
+    -> {
+        vilkårResultater
+            .filter { it.erOppfylt() || it.erIkkeAktuelt() }
+            .sortedBy { it.periodeFom }
+            .mapTilTilknyttetVilkårResultater()
             .map {
-                val forskjøvetTom =
-                    when {
-                        it.slutterDagenFørNeste -> {
-                            it.vilkårResultat.periodeTom?.plusDays(1)?.sisteDagIMåned()
-                        }
-
-                        else -> it.vilkårResultat.periodeTom?.minusMonths(1)?.sisteDagIMåned()
-                    }
-
                 Periode(
-                    verdi = it.vilkårResultat,
-                    fom = it.vilkårResultat.periodeFom?.plusMonths(1)?.førsteDagIInneværendeMåned(),
-                    tom = forskjøvetTom,
+                    verdi = it.gjeldende,
+                    fom = it.gjeldende.periodeFom?.plusMonths(1)?.førsteDagIInneværendeMåned(),
+                    tom =
+                        when (it.gjeldendeSlutterDagenFørNeste()) {
+                            true -> it.gjeldende.periodeTom?.plusDays(1)?.sisteDagIMåned()
+                            false -> it.gjeldende.periodeTom?.minusMonths(1)?.sisteDagIMåned()
+                        },
                 )
-            }.filter { (it.fom ?: TIDENES_MORGEN).isBefore(it.tom ?: TIDENES_ENDE) }
+            }
+            .filter { (it.fom ?: TIDENES_MORGEN).isBefore(it.tom ?: TIDENES_ENDE) }
+    }
 }

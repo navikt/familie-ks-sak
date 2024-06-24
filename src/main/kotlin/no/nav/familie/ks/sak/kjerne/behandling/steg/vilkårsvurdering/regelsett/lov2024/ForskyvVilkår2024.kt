@@ -10,7 +10,7 @@ import no.nav.familie.ks.sak.common.util.førsteDagIInneværendeMåned
 import no.nav.familie.ks.sak.common.util.sisteDagIMåned
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.regelsett.tilVilkårResultaterMedInformasjonOmNestePeriode
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.regelsett.mapTilTilknyttetVilkårResultater
 
 fun forskyvEtterLovgivning2024(
     vilkårType: Vilkår,
@@ -30,15 +30,15 @@ fun forskyvEtterLovgivning2024(
         vilkårResultater
             .filter { it.erOppfylt() || it.erIkkeAktuelt() }
             .sortedBy { it.periodeFom }
-            .tilVilkårResultaterMedInformasjonOmNestePeriode()
+            .mapTilTilknyttetVilkårResultater()
             .map {
                 Periode(
-                    verdi = it.vilkårResultat,
-                    fom = it.vilkårResultat.periodeFom?.førsteDagIInneværendeMåned(),
+                    verdi = it.gjeldende,
+                    fom = it.gjeldende.periodeFom?.førsteDagIInneværendeMåned(),
                     tom =
-                        when (it.slutterDagenFørNeste) {
-                            true -> it.vilkårResultat.periodeTom
-                            false -> it.vilkårResultat.periodeTom?.sisteDagIMåned()
+                        when (it.gjeldendeSlutterDagenFørNeste()) {
+                            true -> it.gjeldende.periodeTom
+                            false -> it.gjeldende.periodeTom?.sisteDagIMåned()
                         },
                 )
             }
