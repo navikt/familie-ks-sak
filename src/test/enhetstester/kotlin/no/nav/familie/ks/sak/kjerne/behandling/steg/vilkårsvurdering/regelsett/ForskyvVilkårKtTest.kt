@@ -1,6 +1,7 @@
 package no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.regelsett
 
 import no.nav.familie.ks.sak.data.lagVilkårResultat
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårRegelsett
 import org.assertj.core.api.Assertions.assertThat
@@ -60,12 +61,21 @@ class ForskyvVilkårKtTest {
                         vilkårType = Vilkår.BARNETS_ALDER,
                         periodeFom = august.atDay(15),
                         periodeTom = oktober.atDay(13),
+                        resultat = Resultat.OPPFYLT,
+                        regelsett = VilkårRegelsett.LOV_AUGUST_2021,
+                    ),
+                    lagVilkårResultat(
+                        vilkårType = Vilkår.BARNETS_ALDER,
+                        periodeFom = oktober.atDay(14),
+                        periodeTom = oktober.atDay(14),
+                        resultat = Resultat.IKKE_OPPFYLT,
                         regelsett = VilkårRegelsett.LOV_AUGUST_2021,
                     ),
                     lagVilkårResultat(
                         vilkårType = Vilkår.BARNETS_ALDER,
                         periodeFom = oktober.atDay(15),
                         periodeTom = desember.atDay(1),
+                        resultat = Resultat.OPPFYLT,
                         regelsett = VilkårRegelsett.LOV_AUGUST_2021,
                     ),
                 )

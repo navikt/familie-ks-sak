@@ -79,11 +79,7 @@ fun Collection<PersonResultat>.tilForskjøvetVilkårResultatTidslinjeDerVilkårE
     val forskjøvedeVilkårResultater = forskyvVilkårResultaterForPerson(person)
 
     return forskjøvedeVilkårResultater
-        .kombiner {
-            val alleVilkårOppfyltEllerNull = alleVilkårOppfyltEllerNull(it, person.type)
-
-            alleVilkårOppfyltEllerNull
-        }
+        .kombiner { alleVilkårOppfyltEllerNull(it, person.type) }
         .tilPerioderIkkeNull()
         .tilTidslinje()
 }
