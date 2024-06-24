@@ -52,7 +52,7 @@ class RegistrerPersonGrunnlagSteg(
     private fun hentSisteBehandlingSomErVedtatt(fagsakId: Long): Behandling? =
         behandlingRepository.finnBehandlinger(fagsakId)
             .filter { !it.erHenlagt() && it.status == BehandlingStatus.AVSLUTTET }
-            .maxByOrNull { it.opprettetTidspunkt }
+            .maxByOrNull { it.aktivertTidspunkt }
 
     companion object {
         private val logger: Logger = LoggerFactory.getLogger(RegistrerPersonGrunnlagSteg::class.java)

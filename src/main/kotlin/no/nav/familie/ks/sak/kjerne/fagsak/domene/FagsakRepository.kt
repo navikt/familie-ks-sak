@@ -31,7 +31,7 @@ interface FagsakRepository : JpaRepository<Fagsak, Long> {
                 SELECT f1.* FROM fagsak f1
                 WHERE f1.id IN (
                     WITH sisteiverksatte AS (
-                        SELECT b.fk_fagsak_id AS fagsakid, MAX(b.opprettet_tid) AS opprettet_tid
+                        SELECT b.fk_fagsak_id AS fagsakid, MAX(b.aktivert_tid) AS aktivert_tid
                         FROM behandling b
                                  INNER JOIN tilkjent_ytelse ty ON b.id = ty.fk_behandling_id
                                  INNER JOIN fagsak f2 ON f2.id = b.fk_fagsak_id
@@ -44,7 +44,7 @@ interface FagsakRepository : JpaRepository<Fagsak, Long> {
                     FROM sisteiverksatte silp
                              INNER JOIN behandling b ON b.fk_fagsak_id = silp.fagsakid
                              INNER JOIN tilkjent_ytelse ty ON b.id = ty.fk_behandling_id
-                    WHERE b.opprettet_tid = silp.opprettet_tid AND ty.stonad_tom < DATE_TRUNC('month', NOW()));
+                    WHERE b.aktivert_tid = silp.aktivert_tid AND ty.stonad_tom < DATE_TRUNC('month', NOW()));
                 """,
         nativeQuery = true,
     )

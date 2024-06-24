@@ -106,7 +106,7 @@ internal class AvsluttBehandlingStegTest {
         assertDoesNotThrow { avsluttBehandlingSteg.utførSteg(behandling.id) }
         verify(exactly = 1) { loggService.opprettAvsluttBehandlingLogg(behandling) }
         verify(exactly = 1) { fagsakService.oppdaterStatus(any(), any()) }
-        verify(exactly = 0) { snikeIKøenService.reaktiverBehandlingPåMaskinellVent(behandling) }
+        verify(exactly = 1) { snikeIKøenService.reaktiverBehandlingPåMaskinellVent(behandling) }
         assertEquals(FagsakStatus.LØPENDE, fagsakStausSlot.captured)
         assertEquals(BehandlingStatus.AVSLUTTET, behandling.status)
     }
@@ -132,7 +132,7 @@ internal class AvsluttBehandlingStegTest {
         assertDoesNotThrow { avsluttBehandlingSteg.utførSteg(behandling.id) }
         verify(exactly = 1) { loggService.opprettAvsluttBehandlingLogg(behandling) }
         verify(exactly = 1) { fagsakService.oppdaterStatus(any(), any()) }
-        verify(exactly = 0) { snikeIKøenService.reaktiverBehandlingPåMaskinellVent(behandling) }
+        verify(exactly = 1) { snikeIKøenService.reaktiverBehandlingPåMaskinellVent(behandling) }
         assertEquals(FagsakStatus.AVSLUTTET, fagsakStausSlot.captured)
         assertEquals(BehandlingStatus.AVSLUTTET, behandling.status)
     }
@@ -147,7 +147,7 @@ internal class AvsluttBehandlingStegTest {
         assertDoesNotThrow { avsluttBehandlingSteg.utførSteg(behandling.id) }
         verify(exactly = 1) { loggService.opprettAvsluttBehandlingLogg(behandling) }
         verify(exactly = 0) { fagsakService.oppdaterStatus(any(), any()) }
-        verify(exactly = 0) { snikeIKøenService.reaktiverBehandlingPåMaskinellVent(behandling) }
+        verify(exactly = 1) { snikeIKøenService.reaktiverBehandlingPåMaskinellVent(behandling) }
         assertEquals(BehandlingStatus.AVSLUTTET, behandling.status)
     }
 }

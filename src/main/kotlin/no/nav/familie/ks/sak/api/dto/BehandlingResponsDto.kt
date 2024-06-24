@@ -28,6 +28,7 @@ data class BehandlingResponsDto(
     val kategori: BehandlingKategori,
     val årsak: BehandlingÅrsak,
     val opprettetTidspunkt: LocalDateTime,
+    val aktivertTidspunkt: LocalDateTime,
     val endretAv: String,
     val arbeidsfordelingPåBehandling: ArbeidsfordelingResponsDto,
     val søknadsgrunnlag: SøknadDto?,

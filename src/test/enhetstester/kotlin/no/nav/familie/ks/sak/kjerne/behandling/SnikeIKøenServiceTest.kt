@@ -9,6 +9,7 @@ import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagBehandlingStegTilstand
 import no.nav.familie.ks.sak.data.lagFagsak
 import no.nav.familie.ks.sak.data.lagLogg
+import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingStegStatus
@@ -28,13 +29,13 @@ import java.time.ZoneId
 
 class SnikeIKøenServiceTest {
     private val clock = Clock.fixed(Instant.parse("2024-01-01T18:00:00.00Z"), ZoneId.of("Europe/Oslo"))
-    private val behandlingService: BehandlingService = mockk()
+    private val behandlingRepository: BehandlingRepository = mockk()
     private val loggService: LoggService = mockk(relaxed = true)
     private val tilbakestillBehandlingService: TilbakestillBehandlingService = mockk(relaxed = true)
 
     private val snikeIKøenService: SnikeIKøenService =
         SnikeIKøenService(
-            behandlingService = behandlingService,
+            behandlingRepository = behandlingRepository,
             loggService = loggService,
             tilbakestillBehandlingService = tilbakestillBehandlingService,
             clock,
@@ -47,7 +48,7 @@ class SnikeIKøenServiceTest {
             // Arrange
             val behandling = lagBehandling(id = 1L, aktiv = false)
 
-            every { behandlingService.hentBehandling(1L) }.returns(behandling)
+            every { behandlingRepository.hentBehandling(1L) } returns behandling
 
             // Act & assert
             val exception =
@@ -74,7 +75,7 @@ class SnikeIKøenServiceTest {
                 BehandlingStegStatus.KLAR,
             )
 
-            every { behandlingService.hentBehandling(1L) }.returns(behandling)
+            every { behandlingRepository.hentBehandling(1L) } returns behandling
 
             // Act & assert
             val exception =
@@ -104,8 +105,8 @@ class SnikeIKøenServiceTest {
 
             val årsak = SettPåMaskinellVentÅrsak.SATSENDRING
 
-            every { behandlingService.hentBehandling(1L) }.returns(behandling)
-            every { behandlingService.oppdaterBehandling(behandling) }.returns(behandling)
+            every { behandlingRepository.hentBehandling(1L) } returns behandling
+            every { behandlingRepository.saveAndFlush(behandling) } returns behandling
             every { loggService.opprettSettPåMaskinellVent(behandling, årsak.beskrivelse) } just runs
 
             // Act
@@ -116,8 +117,8 @@ class SnikeIKøenServiceTest {
 
             // Assert
             assertThat(behandling.status).isEqualTo(BehandlingStatus.SATT_PÅ_MASKINELL_VENT)
-            assertThat(behandling.aktiv).isFalse()
-            verify(exactly = 1) { behandlingService.oppdaterBehandling(behandling) }
+            assertThat(behandling.aktiv).isFalse
+            verify(exactly = 1) { behandlingRepository.saveAndFlush(behandling) }
             verify(exactly = 1) { loggService.opprettSettPåMaskinellVent(behandling, årsak.beskrivelse) }
         }
 
@@ -137,8 +138,8 @@ class SnikeIKøenServiceTest {
 
             val årsak = SettPåMaskinellVentÅrsak.SATSENDRING
 
-            every { behandlingService.hentBehandling(1L) }.returns(behandling)
-            every { behandlingService.oppdaterBehandling(behandling) }.returns(behandling)
+            every { behandlingRepository.hentBehandling(1L) } returns behandling
+            every { behandlingRepository.saveAndFlush(behandling) } returns behandling
             every { loggService.opprettSettPåMaskinellVent(behandling, årsak.beskrivelse) } just runs
 
             // Act
@@ -150,7 +151,7 @@ class SnikeIKøenServiceTest {
             // Assert
             assertThat(behandling.status).isEqualTo(BehandlingStatus.SATT_PÅ_MASKINELL_VENT)
             assertThat(behandling.aktiv).isFalse()
-            verify(exactly = 1) { behandlingService.oppdaterBehandling(behandling) }
+            verify(exactly = 1) { behandlingRepository.saveAndFlush(behandling) }
             verify(exactly = 1) { loggService.opprettSettPåMaskinellVent(behandling, årsak.beskrivelse) }
         }
     }
@@ -172,8 +173,8 @@ class SnikeIKøenServiceTest {
                 )
 
             every {
-                behandlingService.hentBehandlingerPåFagsak(fagsak.id)
-            }.returns(listOf(behandling))
+                behandlingRepository.finnBehandlinger(fagsak.id)
+            } returns listOf(behandling)
 
             // Act
             val erReaktivert = snikeIKøenService.reaktiverBehandlingPåMaskinellVent(behandling)
@@ -209,14 +210,13 @@ class SnikeIKøenServiceTest {
                 )
 
             every {
-                behandlingService.hentBehandlingerPåFagsak(fagsak.id)
-            }.returns(
+                behandlingRepository.finnBehandlinger(fagsak.id)
+            } returns
                 listOf(
                     behandlingSomHarSneketIKøen,
                     behandlingPåMaskinellVent1,
                     behandlingPåMaskinellVent2,
-                ),
-            )
+                )
 
             // Act & assert
             val exception =
@@ -248,12 +248,10 @@ class SnikeIKøenServiceTest {
                     aktiv = false,
                 )
 
-            every { behandlingService.hentBehandlingerPåFagsak(fagsak.id) }
-                .returns(
-                    listOf(
-                        behandlingSomSnekIKøen,
-                        behandlingPåVent,
-                    ),
+            every { behandlingRepository.finnBehandlinger(fagsak.id) } returns
+                listOf(
+                    behandlingSomSnekIKøen,
+                    behandlingPåVent,
                 )
 
             // Act & assert
@@ -288,12 +286,10 @@ class SnikeIKøenServiceTest {
                     aktiv = true,
                 )
 
-            every { behandlingService.hentBehandlingerPåFagsak(fagsak.id) }
-                .returns(
-                    listOf(
-                        behandlingSomSnekIKøen,
-                        behandlingPåVent,
-                    ),
+            every { behandlingRepository.finnBehandlinger(fagsak.id) } returns
+                listOf(
+                    behandlingSomSnekIKøen,
+                    behandlingPåVent,
                 )
 
             // Act & assert
@@ -330,19 +326,15 @@ class SnikeIKøenServiceTest {
                     aktiv = true,
                 )
 
-            every { behandlingService.hentBehandlingerPåFagsak(fagsak.id) }
-                .returns(
-                    listOf(
-                        behandlingSomSnekIKøen,
-                        behandlingPåVent,
-                    ),
+            every { behandlingRepository.finnBehandlinger(fagsak.id) } returns
+                listOf(
+                    behandlingSomSnekIKøen,
+                    behandlingPåVent,
                 )
 
-            every { behandlingService.oppdaterBehandling(behandlingSomSnekIKøen) }
-                .returns(behandlingSomSnekIKøen)
+            every { behandlingRepository.saveAndFlush(behandlingSomSnekIKøen) } returns behandlingSomSnekIKøen
 
-            every { behandlingService.oppdaterBehandling(behandlingPåVent) }
-                .returns(behandlingPåVent)
+            every { behandlingRepository.saveAndFlush(behandlingPåVent) } returns behandlingPåVent
 
             // Act
             val reaktivert = snikeIKøenService.reaktiverBehandlingPåMaskinellVent(behandlingSomSnekIKøen)
@@ -381,19 +373,15 @@ class SnikeIKøenServiceTest {
                     aktiv = false,
                 )
 
-            every { behandlingService.hentBehandlingerPåFagsak(fagsak.id) }
-                .returns(
-                    listOf(
-                        behandlingSomSnekIKøen,
-                        behandlingPåVent,
-                    ),
+            every { behandlingRepository.finnBehandlinger(fagsak.id) } returns
+                listOf(
+                    behandlingSomSnekIKøen,
+                    behandlingPåVent,
                 )
 
-            every { behandlingService.oppdaterBehandling(behandlingSomSnekIKøen) }
-                .returns(behandlingSomSnekIKøen)
+            every { behandlingRepository.saveAndFlush(behandlingSomSnekIKøen) } returns behandlingSomSnekIKøen
 
-            every { behandlingService.oppdaterBehandling(behandlingPåVent) }
-                .returns(behandlingPåVent)
+            every { behandlingRepository.saveAndFlush(behandlingPåVent) } returns behandlingPåVent
 
             // Act
             val reaktivert = snikeIKøenService.reaktiverBehandlingPåMaskinellVent(behandlingSomSnekIKøen)
@@ -442,19 +430,15 @@ class SnikeIKøenServiceTest {
                     aktiv = true,
                 )
 
-            every { behandlingService.hentBehandlingerPåFagsak(fagsak.id) }
-                .returns(
-                    listOf(
-                        behandlingSomSnekIKøen,
-                        behandlingPåVent,
-                    ),
+            every { behandlingRepository.finnBehandlinger(fagsak.id) } returns
+                listOf(
+                    behandlingSomSnekIKøen,
+                    behandlingPåVent,
                 )
 
-            every { behandlingService.oppdaterBehandling(behandlingSomSnekIKøen) }
-                .returns(behandlingSomSnekIKøen)
+            every { behandlingRepository.saveAndFlush(behandlingSomSnekIKøen) } returns behandlingSomSnekIKøen
 
-            every { behandlingService.oppdaterBehandling(behandlingPåVent) }
-                .returns(behandlingPåVent)
+            every { behandlingRepository.saveAndFlush(behandlingPåVent) } returns behandlingPåVent
 
             // Act
             val reaktivert = snikeIKøenService.reaktiverBehandlingPåMaskinellVent(behandlingSomSnekIKøen)
@@ -527,8 +511,7 @@ class SnikeIKøenServiceTest {
                     opprettetTidspunkt = LocalDateTime.now().minusHours(3).minusMinutes(59).minusSeconds(59),
                 )
 
-            every { loggService.hentLoggForBehandling(behandling.id) }
-                .returns(listOf(logg))
+            every { loggService.hentLoggForBehandling(behandling.id) } returns listOf(logg)
 
             // Act
             val kanSnikeForbi = snikeIKøenService.kanSnikeForbi(behandling)
@@ -551,14 +534,13 @@ class SnikeIKøenServiceTest {
                     opprettetTidspunkt = LocalDateTime.now(clock).minusHours(4),
                 )
 
-            every { loggService.hentLoggForBehandling(behandling.id) }
-                .returns(listOf(logg))
+            every { loggService.hentLoggForBehandling(behandling.id) } returns listOf(logg)
 
             // Act
             val kanSnikeForbi = snikeIKøenService.kanSnikeForbi(behandling)
 
             // Assert
-            assertThat(kanSnikeForbi).isTrue()
+            assertThat(kanSnikeForbi).isTrue
         }
     }
 }
