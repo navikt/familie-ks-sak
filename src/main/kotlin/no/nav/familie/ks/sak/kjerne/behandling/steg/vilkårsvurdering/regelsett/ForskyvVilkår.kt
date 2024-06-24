@@ -88,21 +88,8 @@ fun forskyvVilkårResultater(
     vilkårType: Vilkår,
     vilkårResultater: List<VilkårResultat>,
 ): List<Periode<VilkårResultat>> {
-    val forskjøvetVilkårResultaterEtterLovgivning2021 =
-        forskyvEtterLovgivning2021(
-            vilkårType,
-            vilkårResultater,
-        )
-
-    val forskjøvetVilkårResultaterEtterLovgivning2024 =
-        forskyvEtterLovgivning2024(
-            vilkårType,
-            vilkårResultater,
-        )
-
-    val forskjøvetVilkårResultaterTidslinje2021 = forskjøvetVilkårResultaterEtterLovgivning2021.tilTidslinje()
-
-    val forskjøvetVilkårResultaterTidslinje2024 = forskjøvetVilkårResultaterEtterLovgivning2024.tilTidslinje()
+    val forskjøvetVilkårResultaterTidslinje2021 = forskyvEtterLovgivning2021(vilkårType, vilkårResultater).tilTidslinje()
+    val forskjøvetVilkårResultaterTidslinje2024 = forskyvEtterLovgivning2024(vilkårType, vilkårResultater).tilTidslinje()
 
     val klippetTidslinje2021 =
         forskjøvetVilkårResultaterTidslinje2021.klipp(

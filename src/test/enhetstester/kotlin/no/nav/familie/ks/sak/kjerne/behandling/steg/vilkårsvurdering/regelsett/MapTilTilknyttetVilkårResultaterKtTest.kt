@@ -165,5 +165,4 @@ class MapTilTilknyttetVilkårResultaterKtTest {
             assertThat(it.neste).isNull()
         })
     }
-
 }
