@@ -104,9 +104,9 @@ Egenskap: Overgang fra barnehageplass kombinert
       | 1       | LOVLIG_OPPHOLD                                         |                  | 19.06.1988 |            | OPPFYLT      | Nei                  |                      |                | LOV_AUGUST_2024 |              |
 
       | 2       | MEDLEMSKAP_ANNEN_FORELDER,BOR_MED_SØKER,BOSATT_I_RIKET |                  | 20.03.2023 |            | OPPFYLT      | Nei                  |                      |                | LOV_AUGUST_2024 |              |
-      | 2       | BARNEHAGEPLASS                                         |                  | 20.04.2024 | 14.05.2024 | OPPFYLT      | Nei                  |                      |                | LOV_AUGUST_2024 |              |
+      | 2       | BARNEHAGEPLASS                                         |                  | 20.03.2024 | 14.05.2024 | OPPFYLT      | Nei                  |                      |                | LOV_AUGUST_2024 |              |
       | 2       | BARNEHAGEPLASS                                         |                  | 15.05.2024 |            | IKKE_OPPFYLT | Nei                  |                      |                | LOV_AUGUST_2024 | 40           |
-      | 2       | BARNETS_ALDER                                          |                  | 20.04.2024 | 20.10.2025 | OPPFYLT      | Nei                  |                      |                | LOV_AUGUST_2024 |              |
+      | 2       | BARNETS_ALDER                                          |                  | 20.03.2024 | 20.03.2025 | OPPFYLT      | Nei                  |                      |                | LOV_AUGUST_2024 |              |
 
     Og følgende vilkårresultater for behandling 2
       | AktørId | Vilkår                                                 | Utdypende vilkår | Fra dato   | Til dato   | Resultat | Er eksplisitt avslag | Standardbegrunnelser | Vurderes etter | Regelsett       | Antall timer |
@@ -114,20 +114,21 @@ Egenskap: Overgang fra barnehageplass kombinert
       | 1       | LOVLIG_OPPHOLD                                         |                  | 19.06.1988 |            | OPPFYLT  | Nei                  |                      |                | LOV_AUGUST_2024 |              |
 
       | 2       | MEDLEMSKAP_ANNEN_FORELDER,BOR_MED_SØKER,BOSATT_I_RIKET |                  | 20.03.2023 |            | OPPFYLT  | Nei                  |                      |                | LOV_AUGUST_2024 |              |
-      | 2       | BARNEHAGEPLASS                                         |                  | 20.04.2024 | 14.05.2024 | OPPFYLT  | Nei                  |                      |                | LOV_AUGUST_2024 |              |
+      | 2       | BARNEHAGEPLASS                                         |                  | 20.03.2024 | 14.05.2024 | OPPFYLT  | Nei                  |                      |                | LOV_AUGUST_2024 |              |
       | 2       | BARNEHAGEPLASS                                         |                  | 15.05.2024 |            | OPPFYLT  | Nei                  |                      |                | LOV_AUGUST_2024 | 20           |
-      | 2       | BARNETS_ALDER                                          |                  | 20.04.2024 | 20.10.2025 | OPPFYLT  | Nei                  |                      |                | LOV_AUGUST_2024 |              |
+      | 2       | BARNETS_ALDER                                          |                  | 20.03.2024 | 20.10.2024 | OPPFYLT  | Nei                  |                      |                | LOV_AUGUST_2024 |              |
 
     Og andeler er beregnet for behandling 1
     Og andeler er beregnet for behandling 2
 
     Så forvent følgende andeler tilkjent ytelse for behandling 1
-      | AktørId | Fra dato | Til dato | Beløp | Ytelse type | Prosent | Sats |
-      # Ingen andeler, er det riktig?
+      | AktørId | Fra dato   | Til dato   | Beløp | Ytelse type           | Prosent | Sats |
+      | 2       | 01.04.2024 | 31.04.2024 | 7500  | ORDINÆR_KONTANTSTØTTE | 100     | 7500 |
 
     Så forvent følgende andeler tilkjent ytelse for behandling 2
       | AktørId | Fra dato   | Til dato   | Beløp | Ytelse type           | Prosent | Sats |
-      | 2       | 01.05.2024 | 31.10.2025 | 3000  | ORDINÆR_KONTANTSTØTTE | 40      | 7500 |
+      | 2       | 01.04.2024 | 31.04.2024 | 7500  | ORDINÆR_KONTANTSTØTTE | 100     | 7500 |
+      | 2       | 01.05.2024 | 20.10.2024 | 3000  | ORDINÆR_KONTANTSTØTTE | 40      | 7500 |
 
   Scenario: case 2
     Og følgende persongrunnlag
@@ -145,8 +146,8 @@ Egenskap: Overgang fra barnehageplass kombinert
       | 1       | LOVLIG_OPPHOLD                                         |                  | 19.06.1988 |            | OPPFYLT  | Nei                  |                      |                | LOV_AUGUST_2024 |              |
 
       | 2       | MEDLEMSKAP_ANNEN_FORELDER,BOR_MED_SØKER,BOSATT_I_RIKET |                  | 25.04.2023 |            | OPPFYLT  | Nei                  |                      |                | LOV_AUGUST_2024 |              |
-      | 2       | BARNEHAGEPLASS                                         |                  | 25.05.2024 |            | OPPFYLT  | Nei                  |                      |                | LOV_AUGUST_2024 |              |
-      | 2       | BARNETS_ALDER                                          |                  | 25.05.2024 | 20.11.2025 | OPPFYLT  | Nei                  |                      |                | LOV_AUGUST_2024 |              |
+      | 2       | BARNEHAGEPLASS                                         |                  | 25.04.2024 |            | OPPFYLT  | Nei                  |                      |                | LOV_AUGUST_2024 |              |
+      | 2       | BARNETS_ALDER                                          |                  | 25.04.2024 | 25.04.2025 | OPPFYLT  | Nei                  |                      |                | LOV_AUGUST_2024 |              |
 
     Og følgende vilkårresultater for behandling 2
       | AktørId | Vilkår                                                 | Utdypende vilkår | Fra dato   | Til dato   | Resultat | Er eksplisitt avslag | Standardbegrunnelser | Vurderes etter | Regelsett       | Antall timer |
@@ -154,23 +155,23 @@ Egenskap: Overgang fra barnehageplass kombinert
       | 1       | LOVLIG_OPPHOLD                                         |                  | 19.06.1988 |            | OPPFYLT  | Nei                  |                      |                | LOV_AUGUST_2024 |              |
 
       | 2       | MEDLEMSKAP_ANNEN_FORELDER,BOR_MED_SØKER,BOSATT_I_RIKET |                  | 25.04.2023 |            | OPPFYLT  | Nei                  |                      |                | LOV_AUGUST_2024 |              |
-      | 2       | BARNEHAGEPLASS                                         |                  | 25.05.2024 | 09.08.2024 | OPPFYLT  | Nei                  |                      |                | LOV_AUGUST_2024 |              |
+      | 2       | BARNEHAGEPLASS                                         |                  | 25.04.2024 | 09.08.2024 | OPPFYLT  | Nei                  |                      |                | LOV_AUGUST_2024 |              |
       | 2       | BARNEHAGEPLASS                                         |                  | 10.08.2024 | 30.09.2024 | OPPFYLT  | Nei                  |                      |                | LOV_AUGUST_2024 | 30           |
       | 2       | BARNEHAGEPLASS                                         |                  | 01.10.2024 |            | OPPFYLT  | Nei                  |                      |                | LOV_AUGUST_2024 | 15           |
-      | 2       | BARNETS_ALDER                                          |                  | 25.05.2024 | 25.11.2025 | OPPFYLT  | Nei                  |                      |                | LOV_AUGUST_2024 |              |
+      | 2       | BARNETS_ALDER                                          |                  | 25.04.2024 | 25.11.2024 | OPPFYLT  | Nei                  |                      |                | LOV_AUGUST_2024 |              |
 
     Og andeler er beregnet for behandling 1
     Og andeler er beregnet for behandling 2
 
     Så forvent følgende andeler tilkjent ytelse for behandling 1
       | AktørId | Fra dato   | Til dato   | Beløp | Ytelse type           | Prosent | Sats |
-      | 2       | 01.06.2024 | 30.11.2025 | 7500  | ORDINÆR_KONTANTSTØTTE | 100     | 7500 |
+      | 2       | 01.05.2024 | 31.04.2025 | 7500  | ORDINÆR_KONTANTSTØTTE | 100     | 7500 |
 
     Så forvent følgende andeler tilkjent ytelse for behandling 2
       | AktørId | Fra dato   | Til dato   | Beløp | Ytelse type           | Prosent | Sats |
-      | 2       | 01.06.2024 | 31.08.2024 | 7500  | ORDINÆR_KONTANTSTØTTE | 100     | 7500 |
+      | 2       | 01.05.2024 | 31.08.2024 | 7500  | ORDINÆR_KONTANTSTØTTE | 100     | 7500 |
       | 2       | 01.09.2024 | 30.09.2024 | 1500  | ORDINÆR_KONTANTSTØTTE | 20      | 7500 |
-      | 2       | 01.10.2024 | 30.11.2025 | 4500  | ORDINÆR_KONTANTSTØTTE | 60      | 7500 |
+      | 2       | 01.10.2024 | 30.11.2024 | 4500  | ORDINÆR_KONTANTSTØTTE | 60      | 7500 |
 
   Scenario: case 3
     Og følgende persongrunnlag
@@ -188,8 +189,8 @@ Egenskap: Overgang fra barnehageplass kombinert
       | 1       | LOVLIG_OPPHOLD                                         |                  | 19.06.1988 |            | OPPFYLT  | Nei                  |                      |                | LOV_AUGUST_2024 |              |
 
       | 2       | MEDLEMSKAP_ANNEN_FORELDER,BOR_MED_SØKER,BOSATT_I_RIKET |                  | 05.04.2023 |            | OPPFYLT  | Nei                  |                      |                | LOV_AUGUST_2024 |              |
-      | 2       | BARNEHAGEPLASS                                         |                  | 05.05.2024 |            | OPPFYLT  | Nei                  |                      |                | LOV_AUGUST_2024 |              |
-      | 2       | BARNETS_ALDER                                          |                  | 05.05.2024 | 05.11.2025 | OPPFYLT  | Nei                  |                      |                | LOV_AUGUST_2024 |              |
+      | 2       | BARNEHAGEPLASS                                         |                  | 05.04.2024 |            | OPPFYLT  | Nei                  |                      |                | LOV_AUGUST_2024 |              |
+      | 2       | BARNETS_ALDER                                          |                  | 05.04.2024 | 05.04.2025 | OPPFYLT  | Nei                  |                      |                | LOV_AUGUST_2024 |              |
 
     Og følgende vilkårresultater for behandling 2
       | AktørId | Vilkår                                  | Utdypende vilkår | Fra dato   | Til dato   | Resultat | Er eksplisitt avslag | Standardbegrunnelser | Vurderes etter | Regelsett       | Antall timer |
@@ -202,20 +203,20 @@ Egenskap: Overgang fra barnehageplass kombinert
       | 2       | BARNEHAGEPLASS                          |                  | 10.05.2024 | 09.07.2024 | OPPFYLT  | Nei                  |                      |                | LOV_AUGUST_2024 |              |
       | 2       | BARNEHAGEPLASS                          |                  | 10.07.2024 | 31.08.2024 | OPPFYLT  | Nei                  |                      |                | LOV_AUGUST_2024 | 15           |
       | 2       | BARNEHAGEPLASS                          |                  | 01.09.2024 |            | OPPFYLT  | Nei                  |                      |                | LOV_AUGUST_2024 | 30           |
-      | 2       | BARNETS_ALDER                           |                  | 05.05.2024 | 05.11.2025 | OPPFYLT  | Nei                  |                      |                | LOV_AUGUST_2024 |              |
+      | 2       | BARNETS_ALDER                           |                  | 05.05.2024 | 05.11.2024 | OPPFYLT  | Nei                  |                      |                | LOV_AUGUST_2024 |              |
 
     Og andeler er beregnet for behandling 1
     Og andeler er beregnet for behandling 2
 
     Så forvent følgende andeler tilkjent ytelse for behandling 1
       | AktørId | Fra dato   | Til dato   | Beløp | Ytelse type           | Prosent | Sats |
-      | 2       | 01.06.2024 | 30.11.2025 | 7500  | ORDINÆR_KONTANTSTØTTE | 100     | 7500 |
+      | 2       | 01.05.2024 | 30.04.2025 | 7500  | ORDINÆR_KONTANTSTØTTE | 100     | 7500 |
 
     Så forvent følgende andeler tilkjent ytelse for behandling 2
       | AktørId | Fra dato   | Til dato   | Beløp | Ytelse type           | Prosent | Sats |
       | 2       | 01.06.2024 | 31.06.2024 | 7500  | ORDINÆR_KONTANTSTØTTE | 100     | 7500 |
       | 2       | 01.07.2024 | 31.09.2024 | 4500  | ORDINÆR_KONTANTSTØTTE | 60      | 7500 |
-      | 2       | 01.10.2024 | 30.11.2025 | 1500  | ORDINÆR_KONTANTSTØTTE | 20      | 7500 |
+      | 2       | 01.10.2024 | 30.11.2024 | 1500  | ORDINÆR_KONTANTSTØTTE | 20      | 7500 |
 
   Scenario: case 4
     Og følgende persongrunnlag
