@@ -23,6 +23,7 @@ import no.nav.familie.ks.sak.common.util.LocalDateProvider
 import no.nav.familie.ks.sak.common.util.TIDENES_MORGEN
 import no.nav.familie.ks.sak.common.util.tilddMMyyyy
 import no.nav.familie.ks.sak.cucumber.BrevBegrunnelseParser.mapBegrunnelser
+import no.nav.familie.ks.sak.cucumber.mocking.CucumberMock
 import no.nav.familie.ks.sak.data.lagVedtak
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelse
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelseDto
@@ -34,6 +35,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.behandlingsresultat.BehandlingsresultatService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.registrersøknad.SøknadGrunnlagService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.registrersøknad.domene.SøknadGrunnlag
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.Vedtak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.VedtaksperiodeService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.UtvidetVedtaksperiodeMedBegrunnelser
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.VedtaksperiodeMedBegrunnelser
@@ -91,6 +93,7 @@ class StepDefinition {
     var uregistrerteBarn = mutableMapOf<Long, List<BarnMedOpplysningerDto>>()
     var målform: Målform = Målform.NB
     var søknadstidspunkt: LocalDate? = null
+    var vedtakslister = mutableListOf<Vedtak>()
 
     var dagensDato: LocalDate = LocalDate.now()
 
@@ -108,11 +111,14 @@ class StepDefinition {
      */
     @Og("følgende behandlinger")
     fun `følgende behandling`(dataTable: DataTable) {
-        behandlinger =
+        val nyeBehandlinger =
             lagbehandlinger(
                 dataTable = dataTable,
                 fagsaker = fagsaker,
-            ).associateBy { it.id }.toMutableMap()
+            )
+
+        behandlinger.putAll(nyeBehandlinger.associateBy { it.id }.toMutableMap())
+        vedtakslister.addAll(behandlinger.values.map { it.tilVedtak() })
 
         behandlingTilForrigeBehandling = lagBehandlingTilForrigeBehandlingMap(dataTable)
     }
@@ -469,7 +475,7 @@ class StepDefinition {
 
     @Når("vi oppretter vilkårresultater for behandling {}")
     fun `vi oppretter vilkårresultater for behandling`(behandlingId: Long) {
-        val vilkårsvurderingService = mockVilkårsvurderingService()
+        val vilkårsvurderingService = CucumberMock(this).vilkårsvurderingService
         val behandling = behandlinger[behandlingId]!!
         vilkårsvurdering[behandlingId] =
             vilkårsvurderingService.opprettVilkårsvurdering(
@@ -478,18 +484,20 @@ class StepDefinition {
             )
     }
 
+    // Mulige verdier: | AktørId | Vilkår | Utdypende vilkår | Fra dato | Til dato | Resultat | Er eksplisitt avslag | Vurderes etter | Søker har meldt fra om barnehageplass |
     @Så("forvent følgende vilkårresultater for behandling {}")
-    fun `forvent følgende vilkårresultater for behandling`(behandlingId: Long) {
-        // TODO: Sjekk at vilkårsvurdering er riktig
-        val faktiskeVilkårsvurderinger = vilkårsvurdering[behandlingId]!!.personResultater
-        val forventedeVilkårsvurderinger = vilkårsvurdering[behandlingId]!!.personResultater
+    fun `forvent følgende vilkårresultater for behandling`(
+        behandlingId: Long,
+        dataTable: DataTable,
+    ) {
+        val forventetVilkårsvurdering = lagVilkårsvurdering(dataTable, this, behandlingId)
 
-        assertThat(faktiskeVilkårsvurderinger)
+        val faktiskeVilkårsvurderinger = vilkårsvurdering[behandlingId]!!
+
+        assertThat(faktiskeVilkårsvurderinger.personResultater)
             .usingRecursiveComparison()
-            .ignoringFields("id")
-            .ignoringFields("opprettetTidspunkt")
-            .ignoringFields("endretTidspunkt")
-            .isEqualTo(forventedeVilkårsvurderinger)
+            .ignoringFieldsMatchingRegexes(".*endretTidspunkt", ".*id", ".*opprettetTidspunkt", ".*begrunnelse")
+            .isEqualTo(forventetVilkårsvurdering.personResultater)
     }
 
     fun mockBehandlingsresultatService(): BehandlingsresultatService {
