@@ -377,11 +377,39 @@ fun genererInitiellVilkårsvurdering(
                         // prefyller diverse vilkår automatisk basert på type
                         when (vilkår) {
                             Vilkår.BARNETS_ALDER -> {
-                                lagAutomatiskGenererteVilkårForBarnetsAlder(
-                                    personResultat = personResultat,
-                                    behandling = behandling,
-                                    fødselsdato = person.fødselsdato,
-                                )
+                                if (behandlingSkalFølgeNyeLovendringer2024) {
+                                    lagAutomatiskGenererteVilkårForBarnetsAlder(
+                                        personResultat = personResultat,
+                                        behandling = behandling,
+                                        fødselsdato = person.fødselsdato,
+                                    )
+                                } else {
+                                    val periodeFomForBarnetsAlder =
+                                        when (regelsett) {
+                                            VilkårRegelsett.LOV_AUGUST_2021 -> person.fødselsdato.plusYears(1)
+                                            VilkårRegelsett.LOV_AUGUST_2024 -> person.fødselsdato.plusMonths(13)
+                                        }
+
+                                    val periodeTomForBarnetsAlder =
+                                        when (regelsett) {
+                                            VilkårRegelsett.LOV_AUGUST_2021 -> person.fødselsdato.plusYears(2)
+                                            VilkårRegelsett.LOV_AUGUST_2024 -> person.fødselsdato.plusMonths(19)
+                                        }
+
+                                    listOf(
+                                        VilkårResultat(
+                                            personResultat = personResultat,
+                                            erAutomatiskVurdert = true,
+                                            resultat = Resultat.OPPFYLT,
+                                            vilkårType = vilkår,
+                                            begrunnelse = "Vurdert og satt automatisk",
+                                            behandlingId = behandling.id,
+                                            periodeFom = periodeFomForBarnetsAlder,
+                                            periodeTom = periodeTomForBarnetsAlder,
+                                            regelsett = regelsett,
+                                        ),
+                                    )
+                                }
                             }
 
                             Vilkår.MEDLEMSKAP ->
