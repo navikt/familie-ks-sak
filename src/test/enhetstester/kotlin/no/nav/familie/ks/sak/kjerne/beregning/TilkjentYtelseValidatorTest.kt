@@ -13,7 +13,6 @@ import no.nav.familie.ks.sak.data.lagPersonopplysningGrunnlag
 import no.nav.familie.ks.sak.data.lagVilkårsvurderingOppfylt
 import no.nav.familie.ks.sak.data.randomAktør
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårRegelsett
 import no.nav.familie.ks.sak.kjerne.beregning.TilkjentYtelseValidator.finnAktørIderMedUgyldigEtterbetalingsperiode
 import no.nav.familie.ks.sak.kjerne.beregning.TilkjentYtelseValidator.validerAtBarnIkkeFårFlereUtbetalingerSammePeriode
 import no.nav.familie.ks.sak.kjerne.beregning.TilkjentYtelseValidator.validerAtTilkjentYtelseHarFornuftigePerioderOgBeløp
@@ -67,7 +66,7 @@ internal class TilkjentYtelseValidatorTest {
                 validerAtTilkjentYtelseHarFornuftigePerioderOgBeløp(
                     tilkjentYtelse = tilkjentYtelse,
                     personopplysningGrunnlag = personopplysningGrunnlag,
-                    vilkårsvurdering = lagVilkårsvurderingOppfylt(personer = listOf(barn, søker), regelsett = VilkårRegelsett.LOV_AUGUST_2021),
+                    vilkårsvurdering = lagVilkårsvurderingOppfylt(personer = listOf(barn, søker)),
                 )
             }
         val feilmelding =
@@ -78,6 +77,7 @@ internal class TilkjentYtelseValidatorTest {
         assertEquals(feilmelding, exception.message)
     }
 
+    // TODO : KAN DENNE FJERNES?
     @Test
     fun `validerAtTilkjentYtelseHarFornuftigePerioderOgBeløp skal kaste feil når utbetalingsperiode er mer enn 7 måneder når regelsett er satt til LOV_AUG_2024`() {
         val andelTilkjentYtelse1 =
@@ -103,7 +103,7 @@ internal class TilkjentYtelseValidatorTest {
                 validerAtTilkjentYtelseHarFornuftigePerioderOgBeløp(
                     tilkjentYtelse = tilkjentYtelse,
                     personopplysningGrunnlag = personopplysningGrunnlag,
-                    vilkårsvurdering = lagVilkårsvurderingOppfylt(personer = listOf(barn, søker), regelsett = VilkårRegelsett.LOV_AUGUST_2024),
+                    vilkårsvurdering = lagVilkårsvurderingOppfylt(personer = listOf(barn, søker)),
                 )
             }
         val feilmelding =
@@ -138,7 +138,7 @@ internal class TilkjentYtelseValidatorTest {
             validerAtTilkjentYtelseHarFornuftigePerioderOgBeløp(
                 tilkjentYtelse = tilkjentYtelse,
                 personopplysningGrunnlag = personopplysningGrunnlag,
-                vilkårsvurdering = lagVilkårsvurderingOppfylt(personer = listOf(barn2, barn, søker), regelsett = VilkårRegelsett.LOV_AUGUST_2021),
+                vilkårsvurdering = lagVilkårsvurderingOppfylt(personer = listOf(barn2, barn, søker)),
             )
         }
     }
@@ -164,7 +164,7 @@ internal class TilkjentYtelseValidatorTest {
                 validerAtTilkjentYtelseHarFornuftigePerioderOgBeløp(
                     tilkjentYtelse = tilkjentYtelse,
                     personopplysningGrunnlag = personopplysningGrunnlag,
-                    vilkårsvurdering = lagVilkårsvurderingOppfylt(personer = listOf(barn, søker), regelsett = VilkårRegelsett.LOV_AUGUST_2021),
+                    vilkårsvurdering = lagVilkårsvurderingOppfylt(personer = listOf(barn, søker)),
                 )
             }
 
@@ -191,7 +191,7 @@ internal class TilkjentYtelseValidatorTest {
                 validerAtTilkjentYtelseHarFornuftigePerioderOgBeløp(
                     tilkjentYtelse = tilkjentYtelse,
                     personopplysningGrunnlag = personopplysningGrunnlag,
-                    vilkårsvurdering = lagVilkårsvurderingOppfylt(personer = listOf(barn, søker), regelsett = VilkårRegelsett.LOV_AUGUST_2021),
+                    vilkårsvurdering = lagVilkårsvurderingOppfylt(personer = listOf(barn, søker)),
                 )
             }
 

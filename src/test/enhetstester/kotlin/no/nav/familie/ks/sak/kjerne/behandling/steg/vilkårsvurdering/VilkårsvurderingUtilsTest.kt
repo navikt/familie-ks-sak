@@ -58,7 +58,6 @@ class VilkårsvurderingUtilsTest {
                 behandlingId = 1,
                 periodeFom = januar,
                 periodeTom = desember.minusDays(1),
-                regelsett = VilkårRegelsett.LOV_AUGUST_2021,
             )
         val vilkårResultat2 =
             lagVilkårResultat(
@@ -67,7 +66,6 @@ class VilkårsvurderingUtilsTest {
                 behandlingId = 2,
                 periodeFom = april,
                 periodeTom = august.minusDays(1),
-                regelsett = VilkårRegelsett.LOV_AUGUST_2021,
             )
 
         val resultat =
@@ -98,7 +96,6 @@ class VilkårsvurderingUtilsTest {
                 behandlingId = 1,
                 periodeFom = januar,
                 periodeTom = desember.minusDays(1),
-                regelsett = VilkårRegelsett.LOV_AUGUST_2021,
             )
         val vilkårResultat2 =
             lagVilkårResultat(
@@ -107,7 +104,6 @@ class VilkårsvurderingUtilsTest {
                 behandlingId = 2,
                 periodeFom = april,
                 periodeTom = desember.minusDays(1),
-                regelsett = VilkårRegelsett.LOV_AUGUST_2021,
             )
 
         val resultat =

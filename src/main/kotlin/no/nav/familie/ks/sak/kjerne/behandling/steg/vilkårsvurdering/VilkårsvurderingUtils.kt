@@ -118,7 +118,6 @@ fun endreVilkårResultat(
 fun opprettNyttVilkårResultat(
     personResultat: PersonResultat,
     vilkårType: Vilkår,
-    regelsett: VilkårRegelsett,
 ): VilkårResultat {
     if (harUvurdertePerioderForVilkårType(personResultat, vilkårType)) {
         throw FunksjonellFeil(
@@ -133,7 +132,6 @@ fun opprettNyttVilkårResultat(
         resultat = Resultat.IKKE_VURDERT,
         begrunnelse = "",
         behandlingId = personResultat.vilkårsvurdering.behandling.id,
-        regelsett = regelsett,
     )
 }
 
@@ -397,7 +395,6 @@ fun genererInitiellVilkårsvurdering(
                                     behandlingId = behandling.id,
                                     periodeFom = periodeFomForBarnetsAlder,
                                     periodeTom = periodeTomForBarnetsAlder,
-                                    regelsett = regelsett,
                                 )
                             }
 
@@ -410,7 +407,6 @@ fun genererInitiellVilkårsvurdering(
                                     begrunnelse = "",
                                     periodeFom = person.fødselsdato.plusYears(5),
                                     behandlingId = behandling.id,
-                                    regelsett = regelsett,
                                 )
 
                             Vilkår.BARNEHAGEPLASS -> {
@@ -428,7 +424,6 @@ fun genererInitiellVilkårsvurdering(
                                     begrunnelse = "",
                                     periodeFom = periodeFomForBarnehageplass,
                                     behandlingId = behandling.id,
-                                    regelsett = regelsett,
                                 )
                             }
 
@@ -441,7 +436,6 @@ fun genererInitiellVilkårsvurdering(
                                     begrunnelse = "",
                                     periodeFom = null,
                                     behandlingId = behandling.id,
-                                    regelsett = regelsett,
                                 )
                         }
                     }.toSortedSet(VilkårResultat.VilkårResultatComparator)

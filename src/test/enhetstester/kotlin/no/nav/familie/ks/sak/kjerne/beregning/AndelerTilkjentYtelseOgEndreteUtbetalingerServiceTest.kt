@@ -15,7 +15,6 @@ import no.nav.familie.ks.sak.data.lagVilkårResultaterForDeltBosted
 import no.nav.familie.ks.sak.data.randomAktør
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.PersonResultat
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårRegelsett
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårsvurderingRepository
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelseRepository
@@ -147,7 +146,6 @@ class AndelerTilkjentYtelseOgEndreteUtbetalingerServiceTest {
                 behandlingId = behandling.id,
                 fom1 = fom.minusMonths(1).førsteDagIInneværendeMåned(),
                 tom1 = tom.sisteDagIInneværendeMåned(),
-                regelsett = VilkårRegelsett.LOV_AUGUST_2021,
             )
         personResultatForBarn1.setSortedVilkårResultater(vilkårResultaterForBarn1)
         vilkårsvurdering.personResultater = setOf(personResultatForBarn1)

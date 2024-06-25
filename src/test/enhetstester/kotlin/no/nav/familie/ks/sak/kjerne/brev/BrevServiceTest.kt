@@ -156,7 +156,6 @@ class BrevServiceTest {
                 søkerAktør = søker,
                 behandling = behandling,
                 resultat = Resultat.IKKE_VURDERT,
-                regelsett = VilkårRegelsett.LOV_AUGUST_2021,
             )
 
         every { taskService.save(any()) } returns mockk()
@@ -187,7 +186,6 @@ class BrevServiceTest {
                 søkerAktør = søker,
                 behandling = behandling,
                 resultat = Resultat.IKKE_VURDERT,
-                regelsett = VilkårRegelsett.LOV_AUGUST_2021,
             )
 
         every {
@@ -255,7 +253,6 @@ class BrevServiceTest {
                 søkerAktør = søker,
                 behandling = behandling,
                 resultat = Resultat.IKKE_VURDERT,
-                regelsett = VilkårRegelsett.LOV_AUGUST_2021,
             )
 
         every {
@@ -304,7 +301,6 @@ class BrevServiceTest {
                 søkerAktør = søker,
                 behandling = behandling,
                 resultat = Resultat.IKKE_VURDERT,
-                regelsett = VilkårRegelsett.LOV_AUGUST_2021,
             )
 
         every { taskService.save(any()) } returns mockk()
@@ -333,7 +329,6 @@ class BrevServiceTest {
                 søkerAktør = søker,
                 behandling = behandling,
                 resultat = Resultat.IKKE_VURDERT,
-                regelsett = VilkårRegelsett.LOV_AUGUST_2021,
             )
 
         every {
@@ -409,7 +404,6 @@ class BrevServiceTest {
                 søkerAktør = søker,
                 behandling = behandling,
                 resultat = Resultat.IKKE_VURDERT,
-                regelsett = VilkårRegelsett.LOV_AUGUST_2021,
             )
 
         every { vilkårsvurderingService.finnAktivVilkårsvurdering(any()) } returns
@@ -417,7 +411,6 @@ class BrevServiceTest {
                 søkerAktør = søker,
                 behandling = behandling,
                 resultat = Resultat.IKKE_VURDERT,
-                regelsett = VilkårRegelsett.LOV_AUGUST_2021,
             )
 
         every {

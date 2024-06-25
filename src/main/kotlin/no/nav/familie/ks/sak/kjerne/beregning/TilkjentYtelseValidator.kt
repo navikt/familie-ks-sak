@@ -14,7 +14,7 @@ import no.nav.familie.ks.sak.common.util.toLocalDate
 import no.nav.familie.ks.sak.common.util.toYearMonth
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårRegelsett
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.hentRegelsettBruktIVilkår
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.regelsett.utledVilkårRegelsettForDato
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.domene.TilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.domene.YtelseType
@@ -40,16 +40,17 @@ object TilkjentYtelseValidator {
         val andelerPerAktør = tilkjentYtelse.andelerTilkjentYtelse.groupBy { it.aktør }
 
         andelerPerAktør.filter { it.value.isNotEmpty() }.forEach { (aktør, andeler) ->
-            val regelsettPåAktør = vilkårsvurdering.hentPersonResultaterTilAktør(aktørId = aktør.aktørId).hentRegelsettBruktIVilkår() ?: throw Feil("Fant ikke regelsett på aktør med id ${aktør.aktørId}")
-
-            val maksAntallMånederMedUtbetaling =
-                when (regelsettPåAktør) {
-                    VilkårRegelsett.LOV_AUGUST_2021 -> 11
-                    VilkårRegelsett.LOV_AUGUST_2024 -> 7
-                }
 
             val stønadFom = andeler.minOf { it.stønadFom }
             val stønadTom = andeler.maxOf { it.stønadTom }
+
+            val vilkårRegelsett = utledVilkårRegelsettForDato(stønadTom.atDay(1))
+
+            val maksAntallMånederMedUtbetaling =
+                when (vilkårRegelsett) {
+                    VilkårRegelsett.LOV_AUGUST_2021 -> 11 // TODO : Vurder å se på barnets alder, kan være mindre enn 11 i noen tilfeller
+                    VilkårRegelsett.LOV_AUGUST_2024 -> 7
+                }
 
             val diff = Period.between(stønadFom.toLocalDate(), stønadTom.toLocalDate())
             if (diff.toTotalMonths() > maksAntallMånederMedUtbetaling) {

@@ -56,11 +56,9 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Reg
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.UtdypendeVilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårRegelsett
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelse
-import no.nav.familie.ks.sak.kjerne.beregning.domene.SatsType
 import no.nav.familie.ks.sak.kjerne.beregning.domene.TilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.domene.YtelseType
 import no.nav.familie.ks.sak.kjerne.beregning.domene.maksBeløp
@@ -91,7 +89,7 @@ import java.math.BigDecimal
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.YearMonth
-import java.util.UUID
+import java.util.*
 import kotlin.math.abs
 import kotlin.random.Random
 
@@ -276,11 +274,11 @@ fun lagArbeidsfordelingPåBehandling(behandlingId: Long): ArbeidsfordelingPåBeh
 fun lagRegistrerSøknadDto() =
     RegistrerSøknadDto(
         søknad =
-            SøknadDto(
-                søkerMedOpplysninger = SøkerMedOpplysningerDto(ident = randomFnr()),
-                barnaMedOpplysninger = listOf(BarnMedOpplysningerDto(ident = randomFnr())),
-                endringAvOpplysningerBegrunnelse = "",
-            ),
+        SøknadDto(
+            søkerMedOpplysninger = SøkerMedOpplysningerDto(ident = randomFnr()),
+            barnaMedOpplysninger = listOf(BarnMedOpplysningerDto(ident = randomFnr())),
+            endringAvOpplysningerBegrunnelse = "",
+        ),
         bekreftEndringerViaFrontend = true,
     )
 
@@ -309,16 +307,16 @@ fun lagBostedsadresse(): Bostedsadresse =
     Bostedsadresse(
         gyldigFraOgMed = LocalDate.of(2015, 1, 1),
         vegadresse =
-            Vegadresse(
-                matrikkelId = 1234,
-                husnummer = "3",
-                husbokstav = null,
-                bruksenhetsnummer = null,
-                adressenavn = "OTTO SVERDRUPS VEG",
-                kommunenummer = "1560",
-                postnummer = "6650",
-                tilleggsnavn = null,
-            ),
+        Vegadresse(
+            matrikkelId = 1234,
+            husnummer = "3",
+            husbokstav = null,
+            bruksenhetsnummer = null,
+            adressenavn = "OTTO SVERDRUPS VEG",
+            kommunenummer = "1560",
+            postnummer = "6650",
+            tilleggsnavn = null,
+        ),
     )
 
 fun lagSivilstand(): Sivilstand = Sivilstand(type = SIVILSTAND.UGIFT, gyldigFraOgMed = LocalDate.of(2004, 12, 2))
@@ -419,7 +417,6 @@ fun lagVilkårsvurderingMedSøkersVilkår(
     søkerPeriodeTom: LocalDate? = LocalDate.now().plusYears(2),
     regelverk: Regelverk = Regelverk.NASJONALE_REGLER,
     utdypendeVilkårsvurderinger: List<UtdypendeVilkårsvurdering> = emptyList(),
-    regelsett: VilkårRegelsett,
 ): Vilkårsvurdering {
     val vilkårsvurdering =
         Vilkårsvurdering(
@@ -442,7 +439,6 @@ fun lagVilkårsvurderingMedSøkersVilkår(
                 behandlingId = behandling.id,
                 vurderesEtter = regelverk,
                 utdypendeVilkårsvurderinger = utdypendeVilkårsvurderinger,
-                regelsett = regelsett,
             ),
             VilkårResultat(
                 personResultat = personResultat,
@@ -454,27 +450,25 @@ fun lagVilkårsvurderingMedSøkersVilkår(
                 behandlingId = behandling.id,
                 vurderesEtter = regelverk,
                 utdypendeVilkårsvurderinger = utdypendeVilkårsvurderinger,
-                regelsett = regelsett,
             ),
         ) +
-            if (regelverk == Regelverk.EØS_FORORDNINGEN) {
-                setOf(
-                    VilkårResultat(
-                        personResultat = personResultat,
-                        vilkårType = Vilkår.LOVLIG_OPPHOLD,
-                        resultat = resultat,
-                        periodeFom = søkerPeriodeFom,
-                        periodeTom = søkerPeriodeTom,
-                        begrunnelse = "",
-                        behandlingId = behandling.id,
-                        vurderesEtter = regelverk,
-                        utdypendeVilkårsvurderinger = utdypendeVilkårsvurderinger,
-                        regelsett = regelsett,
-                    ),
-                )
-            } else {
-                emptySet()
-            },
+                if (regelverk == Regelverk.EØS_FORORDNINGEN) {
+                    setOf(
+                        VilkårResultat(
+                            personResultat = personResultat,
+                            vilkårType = Vilkår.LOVLIG_OPPHOLD,
+                            resultat = resultat,
+                            periodeFom = søkerPeriodeFom,
+                            periodeTom = søkerPeriodeTom,
+                            begrunnelse = "",
+                            behandlingId = behandling.id,
+                            vurderesEtter = regelverk,
+                            utdypendeVilkårsvurderinger = utdypendeVilkårsvurderinger,
+                        ),
+                    )
+                } else {
+                    emptySet()
+                },
     )
 
     personResultat.andreVurderinger.add(
@@ -502,7 +496,6 @@ fun lagVilkårResultat(
     utdypendeVilkårsvurderinger: List<UtdypendeVilkårsvurdering> = emptyList(),
     regelverk: Regelverk = Regelverk.NASJONALE_REGLER,
     antallTimer: BigDecimal? = null,
-    regelsett: VilkårRegelsett,
 ): VilkårResultat =
     VilkårResultat(
         id = id,
@@ -516,7 +509,6 @@ fun lagVilkårResultat(
         utdypendeVilkårsvurderinger = utdypendeVilkårsvurderinger,
         vurderesEtter = regelverk,
         antallTimer = antallTimer,
-        regelsett = regelsett,
     )
 
 fun lagVilkårResultaterForBarn(
@@ -526,7 +518,6 @@ fun lagVilkårResultaterForBarn(
     behandlingId: Long,
     regelverk: Regelverk = Regelverk.NASJONALE_REGLER,
     periodeTom: LocalDate? = null,
-    regelsett: VilkårRegelsett,
 ): Set<VilkårResultat> {
     val vilkårResultaterForBarn = mutableSetOf<VilkårResultat>()
     Vilkår.hentVilkårFor(PersonType.BARN).forEach {
@@ -540,7 +531,6 @@ fun lagVilkårResultaterForBarn(
                         periodeTom = barnFødselsdato.plusYears(2),
                         behandlingId = behandlingId,
                         regelverk = regelverk,
-                        regelsett = regelsett,
                     ),
                 )
 
@@ -554,7 +544,6 @@ fun lagVilkårResultaterForBarn(
                             periodeTom = perioderMedAntallTimer.first.tom,
                             behandlingId = behandlingId,
                             antallTimer = perioderMedAntallTimer.second,
-                            regelsett = regelsett,
                         )
                     },
                 )
@@ -569,7 +558,6 @@ fun lagVilkårResultaterForBarn(
                         periodeTom = periodeTom,
                         behandlingId = behandlingId,
                         regelverk = regelverk,
-                        regelsett = regelsett,
                     ),
                 )
         }
@@ -584,7 +572,6 @@ fun lagVilkårResultaterForDeltBosted(
     fom2: LocalDate? = null,
     tom2: LocalDate? = null,
     behandlingId: Long,
-    regelsett: VilkårRegelsett,
 ): Set<VilkårResultat> {
     val vilkårResultaterForBarn = mutableSetOf<VilkårResultat>()
     Vilkår.hentVilkårFor(PersonType.BARN).forEach {
@@ -598,7 +585,6 @@ fun lagVilkårResultaterForDeltBosted(
                         periodeTom = tom1,
                         behandlingId = behandlingId,
                         utdypendeVilkårsvurderinger = listOf(UtdypendeVilkårsvurdering.DELT_BOSTED),
-                        regelsett = regelsett,
                     )
                 vilkårResultaterForBarn.add(vilkårResultatMedDeltBosted1)
                 if (fom2 != null && tom2 != null) {
@@ -610,7 +596,6 @@ fun lagVilkårResultaterForDeltBosted(
                             periodeTom = tom2,
                             behandlingId = behandlingId,
                             utdypendeVilkårsvurderinger = listOf(UtdypendeVilkårsvurdering.DELT_BOSTED),
-                            regelsett = regelsett,
                         )
                     vilkårResultaterForBarn.add(vilkårResultatMedDeltBosted2)
                 }
@@ -624,7 +609,6 @@ fun lagVilkårResultaterForDeltBosted(
                         periodeFom = fom1,
                         periodeTom = tom2 ?: tom1,
                         behandlingId = behandlingId,
-                        regelsett = regelsett,
                     ),
                 )
         }
@@ -689,7 +673,6 @@ fun lagPersonResultat(
     vilkårType: Vilkår = Vilkår.BOSATT_I_RIKET,
     erDeltBosted: Boolean = false,
     erEksplisittAvslagPåSøknad: Boolean = false,
-    regelsett: VilkårRegelsett,
 ): PersonResultat {
     val personResultat =
         PersonResultat(
@@ -710,13 +693,12 @@ fun lagPersonResultat(
                     behandlingId = vilkårsvurdering.behandling.id,
                     erEksplisittAvslagPåSøknad = erEksplisittAvslagPåSøknad,
                     utdypendeVilkårsvurderinger =
-                        listOfNotNull(
-                            when {
-                                erDeltBosted && it == Vilkår.BOR_MED_SØKER -> UtdypendeVilkårsvurdering.DELT_BOSTED
-                                else -> null
-                            },
-                        ),
-                    regelsett = regelsett,
+                    listOfNotNull(
+                        when {
+                            erDeltBosted && it == Vilkår.BOR_MED_SØKER -> UtdypendeVilkårsvurdering.DELT_BOSTED
+                            else -> null
+                        },
+                    ),
                 )
             }.toSet(),
         )
@@ -731,7 +713,6 @@ fun lagPersonResultat(
                     resultat = resultat,
                     begrunnelse = "",
                     behandlingId = vilkårsvurdering.behandling.id,
-                    regelsett = regelsett,
                 ),
             ),
         )
@@ -825,9 +806,9 @@ fun lagØkonomiSimuleringPostering(
     posteringType: PosteringType = PosteringType.YTELSE,
 ) = ØkonomiSimuleringPostering(
     økonomiSimuleringMottaker =
-        lagØkonomiSimuleringMottaker(
-            behandling = behandling,
-        ),
+    lagØkonomiSimuleringMottaker(
+        behandling = behandling,
+    ),
     fagOmrådeKode = FagOmrådeKode.KONTANTSTØTTE,
     fom = fom,
     tom = tom,
@@ -912,7 +893,6 @@ fun lagVilkårsvurderingOppfylt(
     behandling: Behandling = lagBehandling(),
     erEksplisittAvslagPåSøknad: Boolean = false,
     skalOppretteEøsSpesifikkeVilkår: Boolean = false,
-    regelsett: VilkårRegelsett,
 ): Vilkårsvurdering {
     val vilkårsvurdering =
         Vilkårsvurdering(
@@ -932,13 +912,13 @@ fun lagVilkårsvurderingOppfylt(
                     VilkårResultat(
                         personResultat = personResultat,
                         periodeFom =
-                            if (person.type == PersonType.SØKER) {
-                                person.fødselsdato
-                            } else {
-                                person.fødselsdato.plusYears(
-                                    1,
-                                )
-                            },
+                        if (person.type == PersonType.SØKER) {
+                            person.fødselsdato
+                        } else {
+                            person.fødselsdato.plusYears(
+                                1,
+                            )
+                        },
                         periodeTom = if (person.type == PersonType.SØKER) null else person.fødselsdato.plusYears(2),
                         vilkårType = it,
                         resultat = Resultat.OPPFYLT,
@@ -946,7 +926,6 @@ fun lagVilkårsvurderingOppfylt(
                         behandlingId = vilkårsvurdering.behandling.id,
                         utdypendeVilkårsvurderinger = emptyList(),
                         erEksplisittAvslagPåSøknad = erEksplisittAvslagPåSøknad,
-                        regelsett = regelsett,
                     )
                 }.toSet(),
             )
@@ -1100,7 +1079,6 @@ fun lagVilkårsvurdering(
     resultat: Resultat,
     søkerPeriodeFom: LocalDate? = LocalDate.now().minusMonths(1),
     søkerPeriodeTom: LocalDate? = LocalDate.now().plusYears(2),
-    regelsett: VilkårRegelsett,
 ): Vilkårsvurdering {
     val vilkårsvurdering =
         Vilkårsvurdering(
@@ -1121,7 +1099,6 @@ fun lagVilkårsvurdering(
                 periodeFom = søkerPeriodeFom,
                 periodeTom = søkerPeriodeTom,
                 begrunnelse = "",
-                regelsett = regelsett,
             ),
             VilkårResultat(
                 behandlingId = behandling.id,
@@ -1131,7 +1108,6 @@ fun lagVilkårsvurdering(
                 periodeFom = søkerPeriodeFom,
                 periodeTom = søkerPeriodeTom,
                 begrunnelse = "",
-                regelsett = regelsett,
             ),
         ),
     )

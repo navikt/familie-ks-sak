@@ -3,7 +3,6 @@ package no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering
 import no.nav.familie.ks.sak.api.dto.SøknadDto
 import no.nav.familie.ks.sak.api.mapper.SøknadGrunnlagMapper.tilSøknadDto
 import no.nav.familie.ks.sak.common.BehandlingId
-import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.common.tidslinje.TidslinjePeriodeMedDato
 import no.nav.familie.ks.sak.common.tidslinje.validerIngenOverlapp
@@ -23,7 +22,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Utd
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårRegelsett
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.hentRegelsettBruktIVilkår
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.regelsett.utledVilkårRegelsettForDato
 import no.nav.familie.ks.sak.kjerne.beregning.BeregningService
 import no.nav.familie.ks.sak.kjerne.beregning.tilPeriodeResultater
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.KompetanseService
@@ -210,19 +209,23 @@ class VilkårsvurderingSteg(
             val person =
                 personopplysningGrunnlag.personer.single { it.aktør.aktivFødselsnummer() == personResultat.aktør.aktivFødselsnummer() }
 
-            val regelsett = personResultat.vilkårResultater.hentRegelsettBruktIVilkår()
+            val sisteDagIJuli = LocalDate.of(2024, 7, 31)
 
-            val defaultStartDatoBarnetsAlderVilkår =
-                when (regelsett) {
-                    VilkårRegelsett.LOV_AUGUST_2021 -> person.fødselsdato.plusYears(1)
-                    VilkårRegelsett.LOV_AUGUST_2024 -> person.fødselsdato.plusMonths(13)
-                    else -> throw Feil("Fant ikke regelsett på vilkårresultater for person m/ id ${person.id}")
-                }
+            val regelsettFom = utledVilkårRegelsettForDato(person.fødselsdato.plusMonths(12))
 
             val defaultSluttDatoBarnetsAlderVilkår =
-                when (regelsett) {
-                    VilkårRegelsett.LOV_AUGUST_2021 -> person.fødselsdato.plusYears(2)
-                    VilkårRegelsett.LOV_AUGUST_2024 -> person.fødselsdato.plusMonths(19)
+                when(person.fødselsdato.plusYears(2).isAfter(sisteDagIJuli)) {
+                    true -> when(person.fødselsdato.plusMonths(19).isAfter(sisteDagIJuli)) {
+                        true -> person.fødselsdato.plusMonths(19)
+                        false -> sisteDagIJuli
+                    }
+                    false -> person.fødselsdato.plusYears(2)
+                }
+
+            val defaultStartDatoBarnetsAlderVilkår =
+                when (regelsettFom) {
+                    VilkårRegelsett.LOV_AUGUST_2021 -> person.fødselsdato.plusYears(1)
+                    VilkårRegelsett.LOV_AUGUST_2024 -> person.fødselsdato.plusMonths(13)
                 }
 
             val barnehageplassVilkårResultater =
