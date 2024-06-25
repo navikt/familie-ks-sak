@@ -40,8 +40,16 @@ Egenskap: Barnets alder
     Og følgende persongrunnlag
       | BehandlingId | AktørId | Persontype | Fødselsdato |
       | 1            | 1       | SØKER      | 19.06.1988  |
-      | 1            | 2       | BARN       | 01.10.2023  |
+      | 1            | 2       | BARN       | 15.01.2023  |
 
     Når vi oppretter vilkårresultater for behandling 1
 
     Så forvent følgende vilkårresultater for behandling 1
+      | AktørId | Vilkår                                                 | Utdypende vilkår | Fra dato   | Til dato   | Resultat     | Regelsett       | Vurderes etter   | Er automatisk vurdert |
+      | 1       | BOSATT_I_RIKET                                         |                  |            |            | IKKE_VURDERT | LOV_AUGUST_2024 | NASJONALE_REGLER |                       |
+      | 1       | MEDLEMSKAP                                             |                  | 19.06.1993 |            | IKKE_VURDERT | LOV_AUGUST_2024 | NASJONALE_REGLER |                       |
+
+      | 2       | MEDLEMSKAP_ANNEN_FORELDER,BOR_MED_SØKER,BOSATT_I_RIKET |                  |            |            | IKKE_VURDERT | LOV_AUGUST_2024 | NASJONALE_REGLER |                       |
+      | 2       | BARNEHAGEPLASS                                         |                  | 15.01.2024 |            | OPPFYLT      | LOV_AUGUST_2024 |                  | Ja                    |
+      | 2       | BARNETS_ALDER                                          |                  | 15.01.2024 | 31.07.2024 | OPPFYLT      | LOV_AUGUST_2021 | NASJONALE_REGLER | Ja                    |
+      | 2       | BARNETS_ALDER                                          |                  | 01.08.2024 | 15.08.2024 | OPPFYLT      | LOV_AUGUST_2024 | NASJONALE_REGLER | Ja                    |
