@@ -61,7 +61,7 @@ interface BehandlingRepository : JpaRepository<Behandling, Long> {
 
     @Query(
         value = """WITH sisteiverksattebehandlingfraløpendefagsak AS (
-                            SELECT f.id AS fagsakid, MAX(b.opprettet_tid) AS opprettet_tid
+                            SELECT f.id AS fagsakid, MAX(b.aktivert_tid) AS aktivert_tid
                             FROM behandling b
                                    INNER JOIN fagsak f ON f.id = b.fk_fagsak_id
                                    INNER JOIN tilkjent_ytelse ty ON b.id = ty.fk_behandling_id
@@ -72,9 +72,9 @@ interface BehandlingRepository : JpaRepository<Behandling, Long> {
                         
         SELECT b.id FROM sisteiverksattebehandlingfraløpendefagsak silp JOIN behandling b 
             ON b.fk_fagsak_id = silp.fagsakid 
-        WHERE b.opprettet_tid = silp.opprettet_tid""",
+        WHERE b.aktivert_tid = silp.aktivert_tid""",
         countQuery = """WITH sisteiverksattebehandlingfraløpendefagsak AS (
-                            SELECT f.id AS fagsakid, MAX(b.opprettet_tid) AS opprettet_tid
+                            SELECT f.id AS fagsakid, MAX(b.aktivert_tid) AS aktivert_tid
                             FROM behandling b
                                    INNER JOIN fagsak f ON f.id = b.fk_fagsak_id
                                    INNER JOIN tilkjent_ytelse ty ON b.id = ty.fk_behandling_id
@@ -85,7 +85,7 @@ interface BehandlingRepository : JpaRepository<Behandling, Long> {
                         
                         SELECT count(b.id) FROM sisteiverksattebehandlingfraløpendefagsak silp JOIN behandling b 
                             ON b.fk_fagsak_id = silp.fagsakid 
-                        WHERE b.opprettet_tid = silp.opprettet_tid""",
+                        WHERE b.aktivert_tid = silp.aktivert_tid""",
         nativeQuery = true,
     )
     fun finnSisteIverksatteBehandlingFraLøpendeFagsaker(page: Pageable): Page<Long>

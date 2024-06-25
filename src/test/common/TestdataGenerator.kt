@@ -28,6 +28,7 @@ import no.nav.familie.ks.sak.api.dto.SøknadDto
 import no.nav.familie.ks.sak.common.util.NullablePeriode
 import no.nav.familie.ks.sak.common.util.førsteDagIInneværendeMåned
 import no.nav.familie.ks.sak.common.util.sisteDagIMåned
+import no.nav.familie.ks.sak.config.BehandlerRolle
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.ForelderBarnRelasjonInfo
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.PdlPersonInfo
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelse
@@ -35,12 +36,14 @@ import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelseType
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.domene.ArbeidsfordelingPåBehandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingKategori
+import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStegTilstand
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingType
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingStegStatus
+import no.nav.familie.ks.sak.kjerne.behandling.steg.VenteÅrsak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.simulering.domene.ØkonomiSimuleringMottaker
 import no.nav.familie.ks.sak.kjerne.behandling.steg.simulering.domene.ØkonomiSimuleringPostering
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.Vedtak
@@ -75,6 +78,8 @@ import no.nav.familie.ks.sak.kjerne.eøs.utenlandskperiodebeløp.domene.Utenland
 import no.nav.familie.ks.sak.kjerne.eøs.valutakurs.domene.Valutakurs
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.Fagsak
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.FagsakStatus
+import no.nav.familie.ks.sak.kjerne.logg.LoggType
+import no.nav.familie.ks.sak.kjerne.logg.domene.Logg
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import no.nav.familie.ks.sak.kjerne.personident.Personident
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Kjønn
@@ -236,31 +241,66 @@ fun nesteUtvidetVedtaksperiodeId(): Long {
     return gjeldendeUtvidetVedtaksperiodeId
 }
 
+fun lagLogg(
+    behandlingId: Long,
+    id: Long = 1L,
+    opprettetAv: String = "saksbehandler",
+    opprettetTidspunkt: LocalDateTime = LocalDateTime.now(),
+    type: LoggType = LoggType.BEHANDLING_OPPRETTET,
+    tittel: String = "tittel",
+    rolle: BehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
+    tekst: String = "",
+): Logg =
+    Logg(
+        id,
+        opprettetAv,
+        opprettetTidspunkt,
+        behandlingId,
+        type,
+        tittel,
+        rolle,
+        tekst,
+    )
+
 fun lagBehandling(
     fagsak: Fagsak = lagFagsak(),
     type: BehandlingType = BehandlingType.FØRSTEGANGSBEHANDLING,
     opprettetÅrsak: BehandlingÅrsak = BehandlingÅrsak.SØKNAD,
     kategori: BehandlingKategori = BehandlingKategori.NASJONAL,
     resultat: Behandlingsresultat = Behandlingsresultat.IKKE_VURDERT,
-): Behandling =
-    Behandling(
-        id = nesteBehandlingId(),
-        fagsak = fagsak,
-        type = type,
-        opprettetÅrsak = opprettetÅrsak,
-        kategori = kategori,
-        resultat = resultat,
-    ).initBehandlingStegTilstand()
+    aktiv: Boolean = true,
+    status: BehandlingStatus = BehandlingStatus.UTREDES,
+    id: Long = nesteBehandlingId(),
+    endretTidspunkt: LocalDateTime = LocalDateTime.now(),
+): Behandling {
+    val behandling =
+        Behandling(
+            id = id,
+            fagsak = fagsak,
+            type = type,
+            opprettetÅrsak = opprettetÅrsak,
+            kategori = kategori,
+            resultat = resultat,
+            aktiv = aktiv,
+            status = status,
+        ).initBehandlingStegTilstand()
+    behandling.endretTidspunkt = endretTidspunkt
+    return behandling
+}
 
 fun lagBehandlingStegTilstand(
     behandling: Behandling,
     behandlingSteg: BehandlingSteg,
     behandlingStegStatus: BehandlingStegStatus,
+    frist: LocalDate? = null,
+    årsak: VenteÅrsak? = null,
 ) = behandling.behandlingStegTilstand.add(
     BehandlingStegTilstand(
         behandling = behandling,
         behandlingSteg = behandlingSteg,
         behandlingStegStatus = behandlingStegStatus,
+        frist = frist,
+        årsak = årsak,
     ),
 )
 

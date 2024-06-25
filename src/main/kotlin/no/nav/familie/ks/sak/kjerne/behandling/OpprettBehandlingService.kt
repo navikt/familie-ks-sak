@@ -198,7 +198,7 @@ class OpprettBehandlingService(
     fun hentSisteBehandlingSomErVedtatt(fagsakId: Long): Behandling? {
         return behandlingRepository.finnBehandlinger(fagsakId)
             .filter { !it.erHenlagt() && it.status == BehandlingStatus.AVSLUTTET }
-            .maxByOrNull { it.opprettetTidspunkt }
+            .maxByOrNull { it.aktivertTidspunkt }
     }
 
     // kan kalles fra BehandlingController eller OpprettBehandlingServiceTest metoder,
