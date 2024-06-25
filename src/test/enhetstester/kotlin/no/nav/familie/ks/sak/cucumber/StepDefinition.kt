@@ -2,6 +2,7 @@ package no.nav.familie.ks.sak.cucumber
 
 import io.cucumber.datatable.DataTable
 import io.cucumber.java.no.Gitt
+import io.cucumber.java.no.Når
 import io.cucumber.java.no.Og
 import io.cucumber.java.no.Så
 import io.mockk.every
@@ -16,6 +17,7 @@ import no.nav.familie.ks.sak.common.domeneparser.VedtaksperiodeMedBegrunnelserPa
 import no.nav.familie.ks.sak.common.domeneparser.VedtaksperiodeMedBegrunnelserParser.mapForventetVedtaksperioderMedBegrunnelser
 import no.nav.familie.ks.sak.common.domeneparser.parseDato
 import no.nav.familie.ks.sak.common.domeneparser.parseLong
+import no.nav.familie.ks.sak.common.domeneparser.parseValgfriDato
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.util.LocalDateProvider
 import no.nav.familie.ks.sak.common.util.TIDENES_MORGEN
@@ -139,7 +141,7 @@ class StepDefinition {
 
     @Og("følgende dagens dato {}")
     fun `følgende dagens dato`(dagensDatoString: String) {
-        dagensDato = parseDato(dagensDatoString)
+        dagensDato = parseValgfriDato(dagensDatoString) ?: LocalDate.now()
     }
 
     /**
@@ -463,6 +465,31 @@ class StepDefinition {
             .usingRecursiveComparison()
             .ignoringFields("vedtakBegrunnelseType")
             .isEqualTo(forvendtedeBegrunnelser.sortedBy { it.apiNavn })
+    }
+
+    @Når("vi oppretter vilkårresultater for behandling {}")
+    fun `vi oppretter vilkårresultater for behandling`(behandlingId: Long) {
+        val vilkårsvurderingService = mockVilkårsvurderingService()
+        val behandling = behandlinger[behandlingId]!!
+        vilkårsvurdering[behandlingId] =
+            vilkårsvurderingService.opprettVilkårsvurdering(
+                behandling = behandling,
+                forrigeBehandlingSomErVedtatt = null,
+            )
+    }
+
+    @Så("forvent følgende vilkårresultater for behandling {}")
+    fun `forvent følgende vilkårresultater for behandling`(behandlingId: Long) {
+        // TODO: Sjekk at vilkårsvurdering er riktig
+        val faktiskeVilkårsvurderinger = vilkårsvurdering[behandlingId]!!.personResultater
+        val forventedeVilkårsvurderinger = vilkårsvurdering[behandlingId]!!.personResultater
+
+        assertThat(faktiskeVilkårsvurderinger)
+            .usingRecursiveComparison()
+            .ignoringFields("id")
+            .ignoringFields("opprettetTidspunkt")
+            .ignoringFields("endretTidspunkt")
+            .isEqualTo(forventedeVilkårsvurderinger)
     }
 
     fun mockBehandlingsresultatService(): BehandlingsresultatService {

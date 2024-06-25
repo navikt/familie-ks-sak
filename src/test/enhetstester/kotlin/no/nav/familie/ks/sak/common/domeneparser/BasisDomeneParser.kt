@@ -149,6 +149,16 @@ fun parseDato(dato: String): LocalDate {
     }
 }
 
+fun parseValgfriDato(dato: String?): LocalDate? {
+    return if (dato == null) {
+        null
+    } else if (dato.contains(".")) {
+        LocalDate.parse(dato, norskDatoFormatter)
+    } else {
+        LocalDate.parse(dato, isoDatoFormatter)
+    }
+}
+
 fun parseValgfriDato(
     domenebegrep: String,
     rad: Map<String, String?>,

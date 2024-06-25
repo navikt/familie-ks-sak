@@ -35,3 +35,13 @@ Egenskap: Barnets alder
     Så forvent følgende andeler tilkjent ytelse for behandling 1
       | AktørId | Fra dato   | Til dato   | Beløp | Ytelse type           | Prosent | Sats |
       | 2       | 01.06.2024 | 31.12.2024 | 7500  | ORDINÆR_KONTANTSTØTTE | 100     | 7500 |
+
+  Scenario: For barn født 1. oktober 2022 skal aldersvilkår være oppfylt 1. oktober 2023 til 31. juli 2024
+    Og følgende persongrunnlag
+      | BehandlingId | AktørId | Persontype | Fødselsdato |
+      | 1            | 1       | SØKER      | 19.06.1988  |
+      | 1            | 2       | BARN       | 01.10.2023  |
+
+    Når vi oppretter vilkårresultater for behandling 1
+
+    Så forvent følgende vilkårresultater for behandling 1
