@@ -1,5 +1,7 @@
 package no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering
 
+import java.time.LocalDate
+import java.time.Month
 import no.nav.familie.ks.sak.api.dto.VedtakBegrunnelseTilknyttetVilkårResponseDto
 import no.nav.familie.ks.sak.api.dto.VilkårResultatDto
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
@@ -13,7 +15,6 @@ import no.nav.familie.ks.sak.common.util.DATO_LOVENDRING_2024
 import no.nav.familie.ks.sak.common.util.TIDENES_ENDE
 import no.nav.familie.ks.sak.common.util.TIDENES_MORGEN
 import no.nav.familie.ks.sak.common.util.erBack2BackIMånedsskifte
-import no.nav.familie.ks.sak.common.util.erSammeEllerEtter
 import no.nav.familie.ks.sak.common.util.sisteDagIMåned
 import no.nav.familie.ks.sak.common.util.tilDagMånedÅr
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelse
@@ -33,8 +34,6 @@ import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.NasjonalEllerFellesBegrunn
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.tilSanityBegrunnelse
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
-import java.time.LocalDate
-import java.time.Month
 
 fun standardbegrunnelserTilNedtrekksmenytekster(sanityBegrunnelser: List<SanityBegrunnelse>): Map<BegrunnelseType, List<VedtakBegrunnelseTilknyttetVilkårResponseDto>> {
     return (NasjonalEllerFellesBegrunnelse.entries + EØSBegrunnelse.entries)
@@ -303,19 +302,11 @@ private fun VilkårResultat.validerVilkårBarnetsAlder(
     periode: IkkeNullbarPeriode<Long>,
     barn: Person,
 ): String? {
-    val periodeFomBarnetsAlderLov2024 = barn.fødselsdato.plusMonths(13)
-    val periodeTomBarnetsAlderLov2024 = barn.fødselsdato.plusMonths(19)
-
-    val periodeFomBarnetsAlderLov2021 = barn.fødselsdato.plusYears(1)
-    val periodeTomBarnetsAlderLov2021 = barn.fødselsdato.plusYears(2)
-
-    val erTruffetAvRegelverk2021 = periodeFomBarnetsAlderLov2021.isBefore(DATO_LOVENDRING_2024)
-    val erTruffetAvRegelverk2024 = periodeTomBarnetsAlderLov2024.erSammeEllerEtter(DATO_LOVENDRING_2024)
-
+    val vilkårRegelverkInformasjonForBarn = VilkårRegelverkInformasjonForBarn(barn.fødselsdato)
     return when {
-        erTruffetAvRegelverk2021 && erTruffetAvRegelverk2024 -> "Barnets alder vilkåret må splittes i to perioder fordi barnet fyller 1 år før og 19 måneder etter 01.08.24. Periodene må være som følgende: [$periodeFomBarnetsAlderLov2021 - ${minOf(periodeTomBarnetsAlderLov2021, DATO_LOVENDRING_2024.minusMonths(1).sisteDagIMåned())}, ${maxOf(periodeFomBarnetsAlderLov2024, DATO_LOVENDRING_2024)} - $periodeTomBarnetsAlderLov2024]"
-        erTruffetAvRegelverk2021 -> validerBarnetsAlderIHenholdTilLovI2021(periode, barn, periodeFomBarnetsAlderLov2021, periodeTomBarnetsAlderLov2021)
-        erTruffetAvRegelverk2024 -> validerBarnetsAlderIHenholdTilLovI2024(periode, barn, periodeFomBarnetsAlderLov2024, periodeTomBarnetsAlderLov2024)
+        vilkårRegelverkInformasjonForBarn.erTruffetAvRegelverk2021 && vilkårRegelverkInformasjonForBarn.erTruffetAvRegelverk2024 -> "Barnets alder vilkåret må splittes i to perioder fordi barnet fyller 1 år før og 19 måneder etter 01.08.24. Periodene må være som følgende: [${vilkårRegelverkInformasjonForBarn.periodeFomBarnetsAlderLov2021} - ${minOf(vilkårRegelverkInformasjonForBarn.periodeTomBarnetsAlderLov2021, DATO_LOVENDRING_2024.minusMonths(1).sisteDagIMåned())}, ${maxOf(vilkårRegelverkInformasjonForBarn.periodeFomBarnetsAlderLov2024, DATO_LOVENDRING_2024)} - ${vilkårRegelverkInformasjonForBarn.periodeTomBarnetsAlderLov2024}]"
+        vilkårRegelverkInformasjonForBarn.erTruffetAvRegelverk2021 -> validerBarnetsAlderIHenholdTilLovI2021(periode, barn, vilkårRegelverkInformasjonForBarn.periodeFomBarnetsAlderLov2021, vilkårRegelverkInformasjonForBarn.periodeTomBarnetsAlderLov2021)
+        vilkårRegelverkInformasjonForBarn.erTruffetAvRegelverk2024 -> validerBarnetsAlderIHenholdTilLovI2024(periode, barn, vilkårRegelverkInformasjonForBarn.periodeFomBarnetsAlderLov2024, vilkårRegelverkInformasjonForBarn.periodeTomBarnetsAlderLov2024)
         else -> null
     }
 }
@@ -429,6 +420,7 @@ fun genererInitiellVilkårsvurdering(
                                     when (regelsett) {
                                         VilkårRegelsett.LOV_AUGUST_2021 -> person.fødselsdato
                                         VilkårRegelsett.LOV_AUGUST_2024 -> person.fødselsdato.plusMonths(13)
+                                        // TODO : Spør Birgitte om man faktisk skal plusse på 13 måneder for 2024
                                     }
 
                                 VilkårResultat(

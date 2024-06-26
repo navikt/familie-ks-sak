@@ -1,5 +1,9 @@
 package no.nav.familie.ks.sak.kjerne.beregning
 
+import java.math.BigDecimal
+import java.time.LocalDateTime
+import java.time.Period
+import java.time.YearMonth
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.common.exception.KONTAKT_TEAMET_SUFFIX
@@ -9,12 +13,12 @@ import no.nav.familie.ks.sak.common.tidslinje.tilTidslinje
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.kombinerMed
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.tilPerioder
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.tilPerioderIkkeNull
+import no.nav.familie.ks.sak.common.util.DATO_LOVENDRING_2024
 import no.nav.familie.ks.sak.common.util.overlapperHeltEllerDelvisMed
 import no.nav.familie.ks.sak.common.util.toLocalDate
 import no.nav.familie.ks.sak.common.util.toYearMonth
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårRegelsett
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårRegelverkInformasjonForBarn
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.regelsett.utledVilkårRegelsettForDato
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.domene.TilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.domene.YtelseType
@@ -23,10 +27,6 @@ import no.nav.familie.ks.sak.kjerne.beregning.domene.tilTidslinjeMedAndeler
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.tilBrevTekst
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
-import java.math.BigDecimal
-import java.time.LocalDateTime
-import java.time.Period
-import java.time.YearMonth
 
 object TilkjentYtelseValidator {
     fun validerAtTilkjentYtelseHarFornuftigePerioderOgBeløp(
@@ -44,12 +44,22 @@ object TilkjentYtelseValidator {
             val stønadFom = andeler.minOf { it.stønadFom }
             val stønadTom = andeler.maxOf { it.stønadTom }
 
-            val vilkårRegelsett = utledVilkårRegelsettForDato(stønadTom.atDay(1))
+            val relevantBarn = barna.single { it.aktør == aktør }
+
+            val vilkårRegelverkInformasjonForBarn = VilkårRegelverkInformasjonForBarn(relevantBarn.fødselsdato)
 
             val maksAntallMånederMedUtbetaling =
-                when (vilkårRegelsett) {
-                    VilkårRegelsett.LOV_AUGUST_2021 -> 11 // TODO : Vurder å se på barnets alder, kan være mindre enn 11 i noen tilfeller
-                    VilkårRegelsett.LOV_AUGUST_2024 -> 7
+                when {
+                    vilkårRegelverkInformasjonForBarn.erTruffetAvRegelverk2021 && vilkårRegelverkInformasjonForBarn.erTruffetAvRegelverk2024 -> 7
+                    vilkårRegelverkInformasjonForBarn.erTruffetAvRegelverk2021 -> {
+                        val diff = Period.between(
+                            vilkårRegelverkInformasjonForBarn.periodeFomBarnetsAlderLov2024,
+                            minOf(vilkårRegelverkInformasjonForBarn.periodeTomBarnetsAlderLov2021, DATO_LOVENDRING_2024.minusDays(1))
+                        )
+                        diff.toTotalMonths()
+                    } // TODO 8-11
+                    vilkårRegelverkInformasjonForBarn.erTruffetAvRegelverk2024 -> 7
+                    else -> throw FunksjonellFeil("asdf")
                 }
 
             val diff = Period.between(stønadFom.toLocalDate(), stønadTom.toLocalDate())

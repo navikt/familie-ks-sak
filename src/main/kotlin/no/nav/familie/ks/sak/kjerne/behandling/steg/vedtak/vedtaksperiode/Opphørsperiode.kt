@@ -1,9 +1,11 @@
 package no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode
 
+import java.time.LocalDate
 import no.nav.familie.ks.sak.common.tidslinje.Periode
 import no.nav.familie.ks.sak.common.tidslinje.Udefinert
 import no.nav.familie.ks.sak.common.tidslinje.tilTidslinje
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.tilTidslinjePerioderMedDato
+import no.nav.familie.ks.sak.common.util.DATO_LOVENDRING_2024
 import no.nav.familie.ks.sak.common.util.TIDENES_ENDE
 import no.nav.familie.ks.sak.common.util.TIDENES_MORGEN
 import no.nav.familie.ks.sak.common.util.erSammeEllerFør
@@ -14,16 +16,13 @@ import no.nav.familie.ks.sak.common.util.toYearMonth
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.Vedtak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.VedtaksperiodeMedBegrunnelser
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårRegelsett
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.regelsett.lov2021.tilForskjøvetTomMånedForSisteUtbetalingsperiodePgaFremtidigOpphør
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.regelsett.lov2024.tilForskjøvetTomMånedForSisteUtbetalingsperiodePgaFremtidigOpphør2024
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.regelsett.utledVilkårRegelsettForDato
 import no.nav.familie.ks.sak.kjerne.beregning.AndelTilkjentYtelseMedEndreteUtbetalinger
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.NasjonalEllerFellesBegrunnelse
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.tilVedtaksbegrunnelse
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
-import java.time.LocalDate
 
 data class Opphørsperiode(
     override val periodeFom: LocalDate,
@@ -126,11 +125,10 @@ private fun finnOpphørsperiodeEtterSisteUtbetalingsperiode(
                 .filter { it.periodeTom != null }
                 .any { barnehageplassVilkårResultat ->
                     val periodeTom = barnehageplassVilkårResultat.periodeTom!!
-                    val regelsett = utledVilkårRegelsettForDato(periodeTom)
                     val periodeTomForskjøvetTomMånedForSisteUtbetalingsperiodePgaFremtidigOpphør =
-                        when (regelsett) {
-                            VilkårRegelsett.LOV_AUGUST_2021 -> periodeTom.tilForskjøvetTomMånedForSisteUtbetalingsperiodePgaFremtidigOpphør()
-                            VilkårRegelsett.LOV_AUGUST_2024 -> periodeTom.tilForskjøvetTomMånedForSisteUtbetalingsperiodePgaFremtidigOpphør2024()
+                        when (periodeTom.isBefore(DATO_LOVENDRING_2024)) {
+                            true -> periodeTom.tilForskjøvetTomMånedForSisteUtbetalingsperiodePgaFremtidigOpphør()
+                            false -> periodeTom.tilForskjøvetTomMånedForSisteUtbetalingsperiodePgaFremtidigOpphør2024()
                         }
                     barnehageplassVilkårResultat.søkerHarMeldtFraOmBarnehageplass == true &&
                             periodeTomForskjøvetTomMånedForSisteUtbetalingsperiodePgaFremtidigOpphør == sisteUtbetalingsperiodeTom
