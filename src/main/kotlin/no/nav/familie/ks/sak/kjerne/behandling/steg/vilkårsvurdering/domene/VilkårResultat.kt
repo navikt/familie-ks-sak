@@ -160,7 +160,7 @@ class VilkårResultat(
     )
 
     override fun toString(): String {
-        return """ VilkårResultat(id=$id,vilkårType=$vilkårType,periodeFom=$periodeFom,periodeTom=$periodeTom,resultat=$resultat,evalueringÅrsaker=$evalueringÅrsaker") """
+        return """ VilkårResultat(id=$id,vilkårType=$vilkårType,periodeFom=$periodeFom,periodeTom=$periodeTom,resultat=$resultat,evalueringÅrsaker=$evalueringÅrsaker",erAutomatiskVurdert=$erAutomatiskVurdert) """
     }
 
     companion object {
