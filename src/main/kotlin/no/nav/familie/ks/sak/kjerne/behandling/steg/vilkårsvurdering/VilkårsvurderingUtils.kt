@@ -384,18 +384,6 @@ fun genererInitiellVilkårsvurdering(
                                         fødselsdato = person.fødselsdato,
                                     )
                                 } else {
-                                    val periodeFomForBarnetsAlder =
-                                        when (regelsett) {
-                                            VilkårRegelsett.LOV_AUGUST_2021 -> person.fødselsdato.plusYears(1)
-                                            VilkårRegelsett.LOV_AUGUST_2024 -> person.fødselsdato.plusMonths(13)
-                                        }
-
-                                    val periodeTomForBarnetsAlder =
-                                        when (regelsett) {
-                                            VilkårRegelsett.LOV_AUGUST_2021 -> person.fødselsdato.plusYears(2)
-                                            VilkårRegelsett.LOV_AUGUST_2024 -> person.fødselsdato.plusMonths(19)
-                                        }
-
                                     listOf(
                                         VilkårResultat(
                                             personResultat = personResultat,
@@ -404,8 +392,8 @@ fun genererInitiellVilkårsvurdering(
                                             vilkårType = vilkår,
                                             begrunnelse = "Vurdert og satt automatisk",
                                             behandlingId = behandling.id,
-                                            periodeFom = periodeFomForBarnetsAlder,
-                                            periodeTom = periodeTomForBarnetsAlder,
+                                            periodeFom = person.fødselsdato.plusYears(1),
+                                            periodeTom = person.fødselsdato.plusYears(2),
                                             regelsett = regelsett,
                                         ),
                                     )
