@@ -42,6 +42,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.tilUtvidetVedtaksperiodeMedBegrunnelser
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.utbetalingsperiodeMedBegrunnelser.UtbetalingsperiodeMedBegrunnelserService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårsvurderingRepository
 import no.nav.familie.ks.sak.kjerne.beregning.AndelerTilkjentYtelseOgEndreteUtbetalingerService
@@ -204,7 +205,8 @@ class StepDefinition {
         behandlingId: Long,
         dataTable: DataTable,
     ) {
-        utenlandskPeriodebeløp[behandlingId] = lagUtenlandskperiodeBeløp(dataTable.asMaps(), persongrunnlag, behandlingId)
+        utenlandskPeriodebeløp[behandlingId] =
+            lagUtenlandskperiodeBeløp(dataTable.asMaps(), persongrunnlag, behandlingId)
     }
 
     @Og("andeler er beregnet for behandling {}")
@@ -215,7 +217,13 @@ class StepDefinition {
             TilkjentYtelseUtils.beregnTilkjentYtelse(
                 vilkårsvurdering = vilkårsvurdering[behandlingId]!!,
                 personopplysningGrunnlag = persongrunnlag[behandlingId]!!,
-                endretUtbetalingAndeler = endredeUtbetalinger[behandlingId]?.map { EndretUtbetalingAndelMedAndelerTilkjentYtelse(it, emptyList()) } ?: emptyList(),
+                endretUtbetalingAndeler =
+                    endredeUtbetalinger[behandlingId]?.map {
+                        EndretUtbetalingAndelMedAndelerTilkjentYtelse(
+                            it,
+                            emptyList(),
+                        )
+                    } ?: emptyList(),
             ).andelerTilkjentYtelse.toList()
 
         val andelerEtterDifferanseberegning =
@@ -240,7 +248,12 @@ class StepDefinition {
         val forventedeAndeler = lagAndelerTilkjentYtelse(dataTable, behandlingId, behandlinger, persongrunnlag)
 
         assertThat(beregnetTilkjentYtelse)
-            .usingRecursiveComparison().ignoringFieldsMatchingRegexes(".*endretTidspunkt", ".*opprettetTidspunkt", ".*kildeBehandlingId", ".*tilkjentYtelse")
+            .usingRecursiveComparison().ignoringFieldsMatchingRegexes(
+                ".*endretTidspunkt",
+                ".*opprettetTidspunkt",
+                ".*kildeBehandlingId",
+                ".*tilkjentYtelse",
+            )
             .isEqualTo(forventedeAndeler)
     }
 
@@ -274,7 +287,10 @@ class StepDefinition {
                 overstyrteEndringstidspunkt +
                     dataTable.asMaps().associate { rad ->
                         parseLong(Domenebegrep.BEHANDLING_ID, rad) to
-                            parseDato(VedtaksperiodeMedBegrunnelserParser.DomenebegrepVedtaksperiodeMedBegrunnelser.ENDRINGSTIDSPUNKT, rad)
+                            parseDato(
+                                VedtaksperiodeMedBegrunnelserParser.DomenebegrepVedtaksperiodeMedBegrunnelser.ENDRINGSTIDSPUNKT,
+                                rad,
+                            )
                     }
             ).toMutableMap()
     }
@@ -422,9 +438,10 @@ class StepDefinition {
     }
 
     private fun hentBrevperioder(behandlingId: Long): List<BrevPeriodeDto?> =
-        hentUtvidedeVedtaksperioderMedBegrunnelser(behandlingId).sortedBy { it.fom ?: TIDENES_MORGEN }.mapIndexedNotNull { index, it ->
-            it.hentBrevPeriode(behandlingId, index == 0)
-        }
+        hentUtvidedeVedtaksperioderMedBegrunnelser(behandlingId).sortedBy { it.fom ?: TIDENES_MORGEN }
+            .mapIndexedNotNull { index, it ->
+                it.hentBrevPeriode(behandlingId, index == 0)
+            }
 
     private fun UtvidetVedtaksperiodeMedBegrunnelser.hentBrevPeriode(
         behandlingId: Long,
@@ -453,7 +470,8 @@ class StepDefinition {
         periodeTom: String,
         dataTable: DataTable,
     ) {
-        val utvidedeVedtaksperioderMedBegrunnelser = hentUtvidedeVedtaksperioderMedBegrunnelser(behandlingId).sortedBy { it.fom ?: TIDENES_MORGEN }
+        val utvidedeVedtaksperioderMedBegrunnelser =
+            hentUtvidedeVedtaksperioderMedBegrunnelser(behandlingId).sortedBy { it.fom ?: TIDENES_MORGEN }
         val relevantUtvidetVedtaksperiode =
             utvidedeVedtaksperioderMedBegrunnelser.find {
                 it.fom == parseNullableDato(periodeFom) && it.tom == parseNullableDato(periodeTom)
@@ -494,10 +512,27 @@ class StepDefinition {
 
         val faktiskeVilkårsvurderinger = vilkårsvurdering[behandlingId]!!
 
-        assertThat(faktiskeVilkårsvurderinger.personResultater)
-            .usingRecursiveComparison()
-            .ignoringFieldsMatchingRegexes(".*endretTidspunkt", ".*id", ".*opprettetTidspunkt", ".*begrunnelse")
-            .isEqualTo(forventetVilkårsvurdering.personResultater)
+        val faktiskeVilkårResultaterGruppertPåAktør =
+            faktiskeVilkårsvurderinger.personResultater.map { Pair(it.aktør, it.vilkårResultater) }.toMap()
+        val forventetVilkårResultaterGruppertPåAktør =
+            forventetVilkårsvurdering.personResultater.map { Pair(it.aktør, it.vilkårResultater) }.toMap()
+
+        forventetVilkårResultaterGruppertPåAktør.forEach { (aktør, forventetVilkårResultat) ->
+            val faktiskVilkårResultat = faktiskeVilkårResultaterGruppertPåAktør[aktør] ?: emptyList()
+
+            val comparator = compareBy<VilkårResultat>({ it.vilkårType }, { it.periodeFom })
+            assertThat(faktiskVilkårResultat.sortedWith(comparator)).`as`("Valider vilkår for aktør $aktør")
+                .usingRecursiveComparison()
+                .ignoringFieldsMatchingRegexes(
+                    ".*endretTidspunkt",
+                    ".*id",
+                    ".*opprettetTidspunkt",
+                    ".*begrunnelse",
+                    ".*regelsett",
+                    ".*personResultat",
+                )
+                .isEqualTo(forventetVilkårResultat.sortedWith(comparator))
+        }
     }
 
     fun mockBehandlingsresultatService(): BehandlingsresultatService {
@@ -574,7 +609,11 @@ class StepDefinition {
         val søknadDtoString =
             objectMapper.writeValueAsString(
                 SøknadDto(
-                    barnaMedOpplysninger = lagRegistrertebarn(behandlingId) + (uregistrerteBarn[behandlingId] ?: emptyList()),
+                    barnaMedOpplysninger =
+                        lagRegistrertebarn(behandlingId) + (
+                            uregistrerteBarn[behandlingId]
+                                ?: emptyList()
+                        ),
                     endringAvOpplysningerBegrunnelse = "",
                     søkerMedOpplysninger = SøkerMedOpplysningerDto(ident = "", målform = målform),
                 ),
@@ -602,7 +641,11 @@ class StepDefinition {
             val søknadDtoString =
                 objectMapper.writeValueAsString(
                     SøknadDto(
-                        barnaMedOpplysninger = lagRegistrertebarn(behandlingId) + (uregistrerteBarn[behandlingId] ?: emptyList()),
+                        barnaMedOpplysninger =
+                            lagRegistrertebarn(behandlingId) + (
+                                uregistrerteBarn[behandlingId]
+                                    ?: emptyList()
+                            ),
                         endringAvOpplysningerBegrunnelse = "",
                         søkerMedOpplysninger = SøkerMedOpplysningerDto(ident = "", målform = målform),
                     ),
@@ -615,7 +658,11 @@ class StepDefinition {
             val søknadDtoString =
                 objectMapper.writeValueAsString(
                     SøknadDto(
-                        barnaMedOpplysninger = lagRegistrertebarn(behandlingId) + (uregistrerteBarn[behandlingId] ?: emptyList()),
+                        barnaMedOpplysninger =
+                            lagRegistrertebarn(behandlingId) + (
+                                uregistrerteBarn[behandlingId]
+                                    ?: emptyList()
+                            ),
                         endringAvOpplysningerBegrunnelse = "",
                         søkerMedOpplysninger = SøkerMedOpplysningerDto(ident = "", målform = målform),
                     ),
