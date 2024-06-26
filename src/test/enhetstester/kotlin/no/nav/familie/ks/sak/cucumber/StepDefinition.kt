@@ -2,6 +2,7 @@ package no.nav.familie.ks.sak.cucumber
 
 import io.cucumber.datatable.DataTable
 import io.cucumber.java.no.Gitt
+import io.cucumber.java.no.Når
 import io.cucumber.java.no.Og
 import io.cucumber.java.no.Så
 import io.mockk.every
@@ -16,11 +17,13 @@ import no.nav.familie.ks.sak.common.domeneparser.VedtaksperiodeMedBegrunnelserPa
 import no.nav.familie.ks.sak.common.domeneparser.VedtaksperiodeMedBegrunnelserParser.mapForventetVedtaksperioderMedBegrunnelser
 import no.nav.familie.ks.sak.common.domeneparser.parseDato
 import no.nav.familie.ks.sak.common.domeneparser.parseLong
+import no.nav.familie.ks.sak.common.domeneparser.parseValgfriDato
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.util.LocalDateProvider
 import no.nav.familie.ks.sak.common.util.TIDENES_MORGEN
 import no.nav.familie.ks.sak.common.util.tilddMMyyyy
 import no.nav.familie.ks.sak.cucumber.BrevBegrunnelseParser.mapBegrunnelser
+import no.nav.familie.ks.sak.cucumber.mocking.CucumberMock
 import no.nav.familie.ks.sak.data.lagVedtak
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelse
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelseDto
@@ -32,12 +35,14 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.behandlingsresultat.BehandlingsresultatService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.registrersøknad.SøknadGrunnlagService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.registrersøknad.domene.SøknadGrunnlag
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.Vedtak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.VedtaksperiodeService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.UtvidetVedtaksperiodeMedBegrunnelser
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.VedtaksperiodeMedBegrunnelser
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.tilUtvidetVedtaksperiodeMedBegrunnelser
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.utbetalingsperiodeMedBegrunnelser.UtbetalingsperiodeMedBegrunnelserService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårsvurderingRepository
 import no.nav.familie.ks.sak.kjerne.beregning.AndelerTilkjentYtelseOgEndreteUtbetalingerService
@@ -89,6 +94,7 @@ class StepDefinition {
     var uregistrerteBarn = mutableMapOf<Long, List<BarnMedOpplysningerDto>>()
     var målform: Målform = Målform.NB
     var søknadstidspunkt: LocalDate? = null
+    var vedtakslister = mutableListOf<Vedtak>()
 
     var dagensDato: LocalDate = LocalDate.now()
 
@@ -106,11 +112,14 @@ class StepDefinition {
      */
     @Og("følgende behandlinger")
     fun `følgende behandling`(dataTable: DataTable) {
-        behandlinger =
+        val nyeBehandlinger =
             lagbehandlinger(
                 dataTable = dataTable,
                 fagsaker = fagsaker,
-            ).associateBy { it.id }.toMutableMap()
+            )
+
+        behandlinger.putAll(nyeBehandlinger.associateBy { it.id }.toMutableMap())
+        vedtakslister.addAll(behandlinger.values.map { it.tilVedtak() })
 
         behandlingTilForrigeBehandling = lagBehandlingTilForrigeBehandlingMap(dataTable)
     }
@@ -139,7 +148,7 @@ class StepDefinition {
 
     @Og("følgende dagens dato {}")
     fun `følgende dagens dato`(dagensDatoString: String) {
-        dagensDato = parseDato(dagensDatoString)
+        dagensDato = parseValgfriDato(dagensDatoString) ?: LocalDate.now()
     }
 
     /**
@@ -465,6 +474,50 @@ class StepDefinition {
             .isEqualTo(forvendtedeBegrunnelser.sortedBy { it.apiNavn })
     }
 
+    @Når("vi oppretter vilkårresultater for behandling {}")
+    fun `vi oppretter vilkårresultater for behandling`(behandlingId: Long) {
+        val vilkårsvurderingService = CucumberMock(this).vilkårsvurderingService
+        val behandling = behandlinger[behandlingId]!!
+        vilkårsvurdering[behandlingId] =
+            vilkårsvurderingService.opprettVilkårsvurdering(
+                behandling = behandling,
+                forrigeBehandlingSomErVedtatt = null,
+            )
+    }
+
+    // Mulige verdier: | AktørId | Vilkår | Utdypende vilkår | Fra dato | Til dato | Resultat | Er eksplisitt avslag | Vurderes etter | Søker har meldt fra om barnehageplass |
+    @Så("forvent følgende vilkårresultater for behandling {}")
+    fun `forvent følgende vilkårresultater for behandling`(
+        behandlingId: Long,
+        dataTable: DataTable,
+    ) {
+        val forventetVilkårsvurdering = lagVilkårsvurdering(dataTable, this, behandlingId)
+
+        val faktiskeVilkårsvurderinger = vilkårsvurdering[behandlingId]!!
+
+        val faktiskeVilkårResultaterGruppertPåAktør =
+            faktiskeVilkårsvurderinger.personResultater.map { Pair(it.aktør, it.vilkårResultater) }.toMap()
+        val forventetVilkårResultaterGruppertPåAktør =
+            forventetVilkårsvurdering.personResultater.map { Pair(it.aktør, it.vilkårResultater) }.toMap()
+
+        forventetVilkårResultaterGruppertPåAktør.forEach { (aktør, forventetVilkårResultat) ->
+            val faktiskVilkårResultat = faktiskeVilkårResultaterGruppertPåAktør[aktør] ?: emptyList()
+
+            val comparator = compareBy<VilkårResultat>({ it.vilkårType }, { it.periodeFom })
+            assertThat(faktiskVilkårResultat.sortedWith(comparator)).`as`("Valider vilkår for aktør $aktør")
+                .usingRecursiveComparison()
+                .ignoringFieldsMatchingRegexes(
+                    ".*endretTidspunkt",
+                    ".*id",
+                    ".*opprettetTidspunkt",
+                    ".*begrunnelse",
+                    ".*regelsett",
+                    ".*personResultat",
+                )
+                .isEqualTo(forventetVilkårResultat.sortedWith(comparator))
+        }
+    }
+
     fun mockBehandlingsresultatService(): BehandlingsresultatService {
         val behandlingService = mockk<BehandlingService>()
 
@@ -567,7 +620,11 @@ class StepDefinition {
             val søknadDtoString =
                 objectMapper.writeValueAsString(
                     SøknadDto(
-                        barnaMedOpplysninger = lagRegistrertebarn(behandlingId) + (uregistrerteBarn[behandlingId] ?: emptyList()),
+                        barnaMedOpplysninger =
+                            lagRegistrertebarn(behandlingId) + (
+                                uregistrerteBarn[behandlingId]
+                                    ?: emptyList()
+                            ),
                         endringAvOpplysningerBegrunnelse = "",
                         søkerMedOpplysninger = SøkerMedOpplysningerDto(ident = "", målform = målform),
                     ),
