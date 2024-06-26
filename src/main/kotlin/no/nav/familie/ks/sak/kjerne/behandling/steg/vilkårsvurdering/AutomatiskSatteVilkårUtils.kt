@@ -32,7 +32,7 @@ fun lagAutomatiskGenererteVilkårForBarnetsAlder(
                 begrunnelse = "Vurdert og satt automatisk",
                 behandlingId = behandling.id,
                 periodeFom = periodeFomBarnetsAlderLov2021,
-                periodeTom = minOf(periodeTomBarnetsAlderLov2021, DATO_LOVENDRING_2024),
+                periodeTom = minOf(periodeTomBarnetsAlderLov2021, DATO_LOVENDRING_2024.minusDays(1)),
                 regelsett = VilkårRegelsett.LOV_AUGUST_2021,
             )
         } else {
