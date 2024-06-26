@@ -9,9 +9,11 @@ import no.nav.familie.ks.sak.common.tidslinje.Tidslinje
 import no.nav.familie.ks.sak.common.tidslinje.tilTidslinje
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.kombinerMed
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.tilPerioderIkkeNull
+import no.nav.familie.ks.sak.common.util.DATO_LOVENDRING_2024
 import no.nav.familie.ks.sak.common.util.TIDENES_ENDE
 import no.nav.familie.ks.sak.common.util.TIDENES_MORGEN
 import no.nav.familie.ks.sak.common.util.erBack2BackIMånedsskifte
+import no.nav.familie.ks.sak.common.util.erSammeEllerEtter
 import no.nav.familie.ks.sak.common.util.sisteDagIMåned
 import no.nav.familie.ks.sak.common.util.tilDagMånedÅr
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelse
@@ -300,18 +302,29 @@ private fun VilkårResultat.lagOgValiderPeriodeFraVilkår(): IkkeNullbarPeriode<
 private fun VilkårResultat.validerVilkårBarnetsAlder(
     periode: IkkeNullbarPeriode<Long>,
     barn: Person,
-): String? =
-    when (regelsett) {
-        VilkårRegelsett.LOV_AUGUST_2021 ->
-            validerBarnetsAlderIHenholdTilLovI2021(periode, barn)
+): String? {
+    val periodeFomBarnetsAlderLov2024 = barn.fødselsdato.plusMonths(13)
+    val periodeTomBarnetsAlderLov2024 = barn.fødselsdato.plusMonths(19)
 
-        VilkårRegelsett.LOV_AUGUST_2024 ->
-            validerBarnetsAlderIHenholdTilLovI2024(periode, barn)
+    val periodeFomBarnetsAlderLov2021 = barn.fødselsdato.plusYears(1)
+    val periodeTomBarnetsAlderLov2021 = barn.fødselsdato.plusYears(2)
+
+    val erTruffetAvRegelverk2021 = periodeFomBarnetsAlderLov2021.isBefore(DATO_LOVENDRING_2024)
+    val erTruffetAvRegelverk2024 = periodeTomBarnetsAlderLov2024.erSammeEllerEtter(DATO_LOVENDRING_2024)
+
+    return when {
+        erTruffetAvRegelverk2021 && erTruffetAvRegelverk2024 -> "Barnets alder vilkåret må splittes i to perioder fordi barnet fyller 1 år før og 19 måneder etter 01.08.24. Periodene må være som følgende: [$periodeFomBarnetsAlderLov2021 - ${minOf(periodeTomBarnetsAlderLov2021, DATO_LOVENDRING_2024.minusMonths(1).sisteDagIMåned())}, ${maxOf(periodeFomBarnetsAlderLov2024, DATO_LOVENDRING_2024)} - $periodeTomBarnetsAlderLov2024]"
+        erTruffetAvRegelverk2021 -> validerBarnetsAlderIHenholdTilLovI2021(periode, barn, periodeFomBarnetsAlderLov2021, periodeTomBarnetsAlderLov2021)
+        erTruffetAvRegelverk2024 -> validerBarnetsAlderIHenholdTilLovI2024(periode, barn, periodeFomBarnetsAlderLov2024, periodeTomBarnetsAlderLov2024)
+        else -> null
     }
+}
 
 private fun VilkårResultat.validerBarnetsAlderIHenholdTilLovI2024(
     periode: IkkeNullbarPeriode<Long>,
     barn: Person,
+    periodeFomBarnetsAlderLov2024: LocalDate,
+    periodeTomBarnetsAlderLov2024: LocalDate,
 ) = when {
     this.erAdopsjonOppfylt() &&
         periode.tom.isAfter(barn.fødselsdato.plusYears(6).withMonth(Month.AUGUST.value).sisteDagIMåned()) ->
@@ -320,11 +333,11 @@ private fun VilkårResultat.validerBarnetsAlderIHenholdTilLovI2024(
     this.erAdopsjonOppfylt() && periode.fom.plusMonths(7) < periode.tom ->
         "Differansen mellom f.o.m datoen og t.o.m datoen kan ikke være mer enn 7 måneder. "
 
-    !this.erAdopsjonOppfylt() && !periode.fom.isEqual(barn.fødselsdato.plusMonths(13)) ->
-        "F.o.m datoen må være lik datoen barnet fyller 13 måneder."
+    !this.erAdopsjonOppfylt() && !periode.fom.isEqual(maxOf(periodeFomBarnetsAlderLov2024, DATO_LOVENDRING_2024)) ->
+        "F.o.m datoen må være lik datoen barnet fyller 13 måneder eller 01.08.24 dersom barnet fyller 13 måneder før 01.08.24."
 
-    !this.erAdopsjonOppfylt() && !periode.tom.isEqual(barn.fødselsdato.plusMonths(19)) && periode.tom != barn.dødsfall?.dødsfallDato ->
-        "T.o.m datoen må være lik datoen barnet fyller 19 måneder."
+    !this.erAdopsjonOppfylt() && !periode.tom.isEqual(periodeTomBarnetsAlderLov2024) && periode.tom != barn.dødsfall?.dødsfallDato ->
+        "T.o.m datoen må være lik datoen barnet fyller 19 måneder. Dersom barnet ikke lever må t.o.m datoen være lik dato for dødsfall."
 
     else -> null
 }
@@ -332,6 +345,8 @@ private fun VilkårResultat.validerBarnetsAlderIHenholdTilLovI2024(
 private fun VilkårResultat.validerBarnetsAlderIHenholdTilLovI2021(
     periode: IkkeNullbarPeriode<Long>,
     barn: Person,
+    periodeFomBarnetsAlderLov2021: LocalDate,
+    periodeTomBarnetsAlderLov2021: LocalDate,
 ) = when {
     this.erAdopsjonOppfylt() &&
         periode.tom.isAfter(barn.fødselsdato.plusYears(6).withMonth(Month.AUGUST.value).sisteDagIMåned()) ->
@@ -341,11 +356,11 @@ private fun VilkårResultat.validerBarnetsAlderIHenholdTilLovI2021(
     this.erAdopsjonOppfylt() && periode.fom.plusYears(1) < periode.tom ->
         "Differansen mellom f.o.m datoen og t.o.m datoen kan ikke være mer enn 1 år."
 
-    !this.erAdopsjonOppfylt() && !periode.fom.isEqual(barn.fødselsdato.plusYears(1)) ->
+    !this.erAdopsjonOppfylt() && !periode.fom.isEqual(periodeFomBarnetsAlderLov2021) ->
         "F.o.m datoen må være lik barnets 1 års dag."
 
-    !this.erAdopsjonOppfylt() && !periode.tom.isEqual(barn.fødselsdato.plusYears(2)) && periode.tom != barn.dødsfall?.dødsfallDato ->
-        "T.o.m datoen må være lik barnets 2 års dag."
+    !this.erAdopsjonOppfylt() && !periode.tom.isEqual(minOf(periodeTomBarnetsAlderLov2021, DATO_LOVENDRING_2024.minusMonths(1).sisteDagIMåned())) && periode.tom != barn.dødsfall?.dødsfallDato ->
+        "T.o.m datoen må være lik barnets 2 års dag eller 31.07.24 på grunn av lovendring fra og med 01.08.24. Dersom barnet ikke lever må t.o.m datoen være lik dato for dødsfall."
 
     else -> null
 }
