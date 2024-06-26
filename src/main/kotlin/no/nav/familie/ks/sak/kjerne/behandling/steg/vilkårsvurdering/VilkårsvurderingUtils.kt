@@ -1,5 +1,6 @@
 package no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering
 
+import lagAutomatiskGenererteVilkårForBarnetsAlder
 import no.nav.familie.ks.sak.api.dto.VedtakBegrunnelseTilknyttetVilkårResponseDto
 import no.nav.familie.ks.sak.api.dto.VilkårResultatDto
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
@@ -372,45 +373,57 @@ fun genererInitiellVilkårsvurdering(
                 val regelsett = if (behandlingSkalFølgeNyeLovendringer2024) VilkårRegelsett.LOV_AUGUST_2024 else VilkårRegelsett.LOV_AUGUST_2021
 
                 val vilkårResultater =
-                    vilkårForPerson.map { vilkår ->
+                    vilkårForPerson.flatMap { vilkår ->
                         // prefyller diverse vilkår automatisk basert på type
                         when (vilkår) {
                             Vilkår.BARNETS_ALDER -> {
-                                val periodeFomForBarnetsAlder =
-                                    when (regelsett) {
-                                        VilkårRegelsett.LOV_AUGUST_2021 -> person.fødselsdato.plusYears(1)
-                                        VilkårRegelsett.LOV_AUGUST_2024 -> person.fødselsdato.plusMonths(13)
-                                    }
+                                if (behandlingSkalFølgeNyeLovendringer2024) {
+                                    lagAutomatiskGenererteVilkårForBarnetsAlder(
+                                        personResultat = personResultat,
+                                        behandling = behandling,
+                                        fødselsdato = person.fødselsdato,
+                                    )
+                                } else {
+                                    val periodeFomForBarnetsAlder =
+                                        when (regelsett) {
+                                            VilkårRegelsett.LOV_AUGUST_2021 -> person.fødselsdato.plusYears(1)
+                                            VilkårRegelsett.LOV_AUGUST_2024 -> person.fødselsdato.plusMonths(13)
+                                        }
 
-                                val periodeTomForBarnetsAlder =
-                                    when (regelsett) {
-                                        VilkårRegelsett.LOV_AUGUST_2021 -> person.fødselsdato.plusYears(2)
-                                        VilkårRegelsett.LOV_AUGUST_2024 -> person.fødselsdato.plusMonths(19)
-                                    }
+                                    val periodeTomForBarnetsAlder =
+                                        when (regelsett) {
+                                            VilkårRegelsett.LOV_AUGUST_2021 -> person.fødselsdato.plusYears(2)
+                                            VilkårRegelsett.LOV_AUGUST_2024 -> person.fødselsdato.plusMonths(19)
+                                        }
 
-                                VilkårResultat(
-                                    personResultat = personResultat,
-                                    erAutomatiskVurdert = true,
-                                    resultat = Resultat.OPPFYLT,
-                                    vilkårType = vilkår,
-                                    begrunnelse = "Vurdert og satt automatisk",
-                                    behandlingId = behandling.id,
-                                    periodeFom = periodeFomForBarnetsAlder,
-                                    periodeTom = periodeTomForBarnetsAlder,
-                                    regelsett = regelsett,
-                                )
+                                    listOf(
+                                        VilkårResultat(
+                                            personResultat = personResultat,
+                                            erAutomatiskVurdert = true,
+                                            resultat = Resultat.OPPFYLT,
+                                            vilkårType = vilkår,
+                                            begrunnelse = "Vurdert og satt automatisk",
+                                            behandlingId = behandling.id,
+                                            periodeFom = periodeFomForBarnetsAlder,
+                                            periodeTom = periodeTomForBarnetsAlder,
+                                            regelsett = regelsett,
+                                        ),
+                                    )
+                                }
                             }
 
                             Vilkår.MEDLEMSKAP ->
-                                VilkårResultat(
-                                    personResultat = personResultat,
-                                    erAutomatiskVurdert = false,
-                                    resultat = Resultat.IKKE_VURDERT,
-                                    vilkårType = vilkår,
-                                    begrunnelse = "",
-                                    periodeFom = person.fødselsdato.plusYears(5),
-                                    behandlingId = behandling.id,
-                                    regelsett = regelsett,
+                                listOf(
+                                    VilkårResultat(
+                                        personResultat = personResultat,
+                                        erAutomatiskVurdert = false,
+                                        resultat = Resultat.IKKE_VURDERT,
+                                        vilkårType = vilkår,
+                                        begrunnelse = "",
+                                        periodeFom = person.fødselsdato.plusYears(5),
+                                        behandlingId = behandling.id,
+                                        regelsett = regelsett,
+                                    ),
                                 )
 
                             Vilkår.BARNEHAGEPLASS -> {
@@ -420,28 +433,32 @@ fun genererInitiellVilkårsvurdering(
                                         VilkårRegelsett.LOV_AUGUST_2024 -> person.fødselsdato.plusMonths(13)
                                     }
 
-                                VilkårResultat(
-                                    personResultat = personResultat,
-                                    erAutomatiskVurdert = false,
-                                    resultat = Resultat.OPPFYLT,
-                                    vilkårType = vilkår,
-                                    begrunnelse = "",
-                                    periodeFom = periodeFomForBarnehageplass,
-                                    behandlingId = behandling.id,
-                                    regelsett = regelsett,
+                                listOf(
+                                    VilkårResultat(
+                                        personResultat = personResultat,
+                                        erAutomatiskVurdert = false,
+                                        resultat = Resultat.OPPFYLT,
+                                        vilkårType = vilkår,
+                                        begrunnelse = "",
+                                        periodeFom = periodeFomForBarnehageplass,
+                                        behandlingId = behandling.id,
+                                        regelsett = regelsett,
+                                    ),
                                 )
                             }
 
                             else ->
-                                VilkårResultat(
-                                    personResultat = personResultat,
-                                    erAutomatiskVurdert = false,
-                                    resultat = Resultat.IKKE_VURDERT,
-                                    vilkårType = vilkår,
-                                    begrunnelse = "",
-                                    periodeFom = null,
-                                    behandlingId = behandling.id,
-                                    regelsett = regelsett,
+                                listOf(
+                                    VilkårResultat(
+                                        personResultat = personResultat,
+                                        erAutomatiskVurdert = false,
+                                        resultat = Resultat.IKKE_VURDERT,
+                                        vilkårType = vilkår,
+                                        begrunnelse = "",
+                                        periodeFom = null,
+                                        behandlingId = behandling.id,
+                                        regelsett = regelsett,
+                                    ),
                                 )
                         }
                     }.toSortedSet(VilkårResultat.VilkårResultatComparator)
