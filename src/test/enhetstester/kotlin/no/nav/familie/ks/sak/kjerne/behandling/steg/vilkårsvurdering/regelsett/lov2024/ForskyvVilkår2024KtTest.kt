@@ -28,14 +28,14 @@ class ForskyvVilkår2024KtTest {
                     periodeFom = august.atDay(15),
                     periodeTom = oktober.atDay(14),
                     antallTimer = BigDecimal.valueOf(20L),
-                    regelsett = VilkårRegelsett.LOV_AUGUST_2021,
+                    
                 ),
                 lagVilkårResultat(
                     vilkårType = Vilkår.BARNEHAGEPLASS,
                     periodeFom = oktober.atDay(15),
                     periodeTom = desember.atDay(1),
                     antallTimer = BigDecimal.valueOf(20L),
-                    regelsett = VilkårRegelsett.LOV_AUGUST_2021,
+                    
                 ),
             )
 
@@ -65,14 +65,14 @@ class ForskyvVilkår2024KtTest {
                     periodeFom = august.atDay(15),
                     periodeTom = september.atDay(14),
                     resultat = Resultat.IKKE_OPPFYLT,
-                    regelsett = VilkårRegelsett.LOV_AUGUST_2021,
+                    
                 ),
                 lagVilkårResultat(
                     vilkårType = vilkår,
                     periodeFom = oktober.atDay(15),
                     periodeTom = desember.atDay(1),
                     resultat = Resultat.IKKE_VURDERT,
-                    regelsett = VilkårRegelsett.LOV_AUGUST_2021,
+                    
                 ),
             )
 
@@ -98,14 +98,14 @@ class ForskyvVilkår2024KtTest {
                     periodeFom = august.atDay(15),
                     periodeTom = oktober.atDay(14),
                     resultat = Resultat.IKKE_VURDERT,
-                    regelsett = VilkårRegelsett.LOV_AUGUST_2021,
+                    
                 ),
                 lagVilkårResultat(
                     vilkårType = vilkår,
                     periodeFom = oktober.atDay(15),
                     periodeTom = desember.atDay(1),
                     resultat = Resultat.OPPFYLT,
-                    regelsett = VilkårRegelsett.LOV_AUGUST_2021,
+                    
                 ),
             )
 

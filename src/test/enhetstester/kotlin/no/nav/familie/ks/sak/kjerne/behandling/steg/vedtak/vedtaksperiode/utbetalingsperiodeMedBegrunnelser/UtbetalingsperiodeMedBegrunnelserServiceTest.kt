@@ -49,7 +49,7 @@ class UtbetalingsperiodeMedBegrunnelserServiceTest {
                 søkerAktør = søkerPerson.aktør,
                 behandling = behandling,
                 resultat = Resultat.OPPFYLT,
-                regelsett = VilkårRegelsett.LOV_AUGUST_2021,
+                
             )
 
         val personResultat =
@@ -68,7 +68,7 @@ class UtbetalingsperiodeMedBegrunnelserServiceTest {
                     begrunnelse = "",
                     behandlingId = vilkårsvurdering.behandling.id,
                     utdypendeVilkårsvurderinger = emptyList(),
-                    regelsett = VilkårRegelsett.LOV_AUGUST_2021,
+                    
                 )
             }
 
@@ -102,7 +102,7 @@ class UtbetalingsperiodeMedBegrunnelserServiceTest {
                 søkerAktør = søkerPerson.aktør,
                 behandling = behandling,
                 resultat = Resultat.OPPFYLT,
-                regelsett = VilkårRegelsett.LOV_AUGUST_2021,
+                
             )
 
         val personResultat =
@@ -120,7 +120,7 @@ class UtbetalingsperiodeMedBegrunnelserServiceTest {
                             resultat = Resultat.OPPFYLT,
                             begrunnelse = "",
                             behandlingId = vilkårsvurdering.behandling.id,
-                            regelsett = VilkårRegelsett.LOV_AUGUST_2021,
+                            
                         ),
                         VilkårResultat(
                             personResultat = it,
@@ -131,7 +131,7 @@ class UtbetalingsperiodeMedBegrunnelserServiceTest {
                             begrunnelse = "",
                             behandlingId = vilkårsvurdering.behandling.id,
                             erEksplisittAvslagPåSøknad = true,
-                            regelsett = VilkårRegelsett.LOV_AUGUST_2021,
+                            
                         ),
                     ),
                 )

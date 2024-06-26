@@ -23,7 +23,6 @@ internal class BehandlingsresultatValideringUtilsTest {
                 søkerAktør = randomAktør(),
                 behandling = behandling,
                 resultat = Resultat.OPPFYLT,
-                regelsett = VilkårRegelsett.LOV_AUGUST_2021,
             )
         val barn1 = randomAktør()
         val barn2 = randomAktør()
@@ -38,7 +37,6 @@ internal class BehandlingsresultatValideringUtilsTest {
                 lagFullstendigVilkårResultat = true,
                 personType = PersonType.BARN,
                 erEksplisittAvslagPåSøknad = true,
-                regelsett = VilkårRegelsett.LOV_AUGUST_2021,
             )
         val barn2PersonResultat =
             lagPersonResultat(
@@ -50,7 +48,7 @@ internal class BehandlingsresultatValideringUtilsTest {
                 lagFullstendigVilkårResultat = true,
                 personType = PersonType.BARN,
                 erEksplisittAvslagPåSøknad = true,
-                regelsett = VilkårRegelsett.LOV_AUGUST_2021,
+                
             )
 
         assertThrows<FunksjonellFeil> {
@@ -69,7 +67,7 @@ internal class BehandlingsresultatValideringUtilsTest {
                 søkerAktør = randomAktør(),
                 behandling = behandling,
                 resultat = Resultat.OPPFYLT,
-                regelsett = VilkårRegelsett.LOV_AUGUST_2021,
+                
             )
         val barn1 = randomAktør()
         val barn2 = randomAktør()
@@ -84,7 +82,7 @@ internal class BehandlingsresultatValideringUtilsTest {
                 lagFullstendigVilkårResultat = true,
                 personType = PersonType.BARN,
                 erEksplisittAvslagPåSøknad = true,
-                regelsett = VilkårRegelsett.LOV_AUGUST_2021,
+                
             )
         val barn2PersonResultat =
             lagPersonResultat(
@@ -96,7 +94,7 @@ internal class BehandlingsresultatValideringUtilsTest {
                 lagFullstendigVilkårResultat = true,
                 personType = PersonType.BARN,
                 erEksplisittAvslagPåSøknad = true,
-                regelsett = VilkårRegelsett.LOV_AUGUST_2021,
+                
             )
 
         assertDoesNotThrow {

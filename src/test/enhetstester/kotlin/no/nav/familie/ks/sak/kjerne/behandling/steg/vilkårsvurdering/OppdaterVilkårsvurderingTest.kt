@@ -36,7 +36,10 @@ class OppdaterVilkårsvurderingTest {
                 barnasIdenter = listOf(barnPersonIdent),
             )
         val vilkårsvurderingForrigeBehandling =
-            lagVilkårsvurderingOppfylt(personer = listOf(persongrunnlag.søker, persongrunnlag.barna.single()), regelsett = VilkårRegelsett.LOV_AUGUST_2021)
+            lagVilkårsvurderingOppfylt(
+                personer = listOf(persongrunnlag.søker, persongrunnlag.barna.single()),
+
+            )
         val initiellVilkårsvurdering =
             genererInitiellVilkårsvurdering(
                 behandling = mockk(relaxed = true),
@@ -80,7 +83,7 @@ class OppdaterVilkårsvurderingTest {
             lagPersonopplysningGrunnlag(
                 søkerPersonIdent = søkerPersonIdent,
             )
-        val vilkårsvurderingForrigeBehandling = lagVilkårsvurderingOppfylt(personer = listOf(persongrunnlag1.søker), regelsett = VilkårRegelsett.LOV_AUGUST_2021)
+        val vilkårsvurderingForrigeBehandling = lagVilkårsvurderingOppfylt(personer = listOf(persongrunnlag1.søker), )
 
         val barnPersonIdent = randomFnr()
         val persongrunnlag2 =
@@ -159,7 +162,6 @@ class OppdaterVilkårsvurderingTest {
                         persongrunnlagForrigeBehandling.søker,
                         persongrunnlagForrigeBehandling.barna.single(),
                     ),
-                regelsett = VilkårRegelsett.LOV_AUGUST_2021,
             )
 
         initiellVilkårsvurdering.kopierResultaterFraForrigeBehandling(
@@ -200,7 +202,6 @@ class OppdaterVilkårsvurderingTest {
                     resultat = Resultat.IKKE_OPPFYLT,
                     periodeFom = LocalDate.now().minusYears(2),
                     periodeTom = LocalDate.now().minusYears(1),
-                    regelsett = VilkårRegelsett.LOV_AUGUST_2021,
                 ),
             )
         personResultat.setSortedVilkårResultater(bosattIRiketVilkårResultater)
@@ -237,7 +238,6 @@ class OppdaterVilkårsvurderingTest {
                         lagPerson(personType = PersonType.SØKER, aktør = søkerAktørId),
                         lagPerson(personType = PersonType.BARN, aktør = randomAktør()),
                     ),
-                regelsett = VilkårRegelsett.LOV_AUGUST_2021,
             )
         val aktivMedBosattIRiketDelvisIkkeOppfylt = Vilkårsvurdering(behandling = forrigeBehandling)
         val personResultat =
@@ -253,7 +253,6 @@ class OppdaterVilkårsvurderingTest {
                     resultat = Resultat.IKKE_OPPFYLT,
                     periodeFom = LocalDate.now().minusYears(2),
                     periodeTom = LocalDate.now().minusYears(1),
-                    regelsett = VilkårRegelsett.LOV_AUGUST_2021,
                 ),
                 lagVilkårResultat(
                     vilkårType = Vilkår.BOSATT_I_RIKET,
@@ -261,7 +260,6 @@ class OppdaterVilkårsvurderingTest {
                     resultat = Resultat.OPPFYLT,
                     periodeFom = LocalDate.now(),
                     periodeTom = LocalDate.now().plusYears(1),
-                    regelsett = VilkårRegelsett.LOV_AUGUST_2021,
                 ),
                 lagVilkårResultat(
                     vilkårType = Vilkår.BOSATT_I_RIKET,
@@ -269,7 +267,6 @@ class OppdaterVilkårsvurderingTest {
                     resultat = Resultat.IKKE_AKTUELT,
                     periodeFom = LocalDate.now().plusYears(2),
                     periodeTom = LocalDate.now().plusYears(3),
-                    regelsett = VilkårRegelsett.LOV_AUGUST_2021,
                 ),
             )
         personResultat.setSortedVilkårResultater(bosattIRiketVilkårResultater)
@@ -308,7 +305,6 @@ class OppdaterVilkårsvurderingTest {
                         lagPerson(personType = PersonType.SØKER, aktør = søkerAktørId),
                         lagPerson(personType = PersonType.BARN, aktør = randomAktør()),
                     ),
-                regelsett = VilkårRegelsett.LOV_AUGUST_2021,
             )
         val vilkårsvurderingForrigeBehandling = initiellVilkårsvurderingUtenAndreVurderinger.copy()
         vilkårsvurderingForrigeBehandling.personResultater.find { it.erSøkersResultater() }!!
@@ -359,7 +355,7 @@ class OppdaterVilkårsvurderingTest {
                 søkerPersonIdent = søkerFnr,
             )
 
-        val forrigeVilkårsvurdering = lagVilkårsvurderingOppfylt(personer = listOf(persongrunnlag.søker), skalOppretteEøsSpesifikkeVilkår = true, regelsett = VilkårRegelsett.LOV_AUGUST_2021)
+        val forrigeVilkårsvurdering = lagVilkårsvurderingOppfylt(personer = listOf(persongrunnlag.søker), skalOppretteEøsSpesifikkeVilkår = true, )
 
         val initiellVilkårsvurdering =
             genererInitiellVilkårsvurdering(

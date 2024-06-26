@@ -510,7 +510,7 @@ internal class VedtaksperiodeServiceTest {
                     periodeTom = LocalDate.of(2022, 12, 12),
                     begrunnelse = "",
                     behandlingId = behandling.id,
-                    regelsett = VilkårRegelsett.LOV_AUGUST_2021,
+                    
                 ),
                 VilkårResultat(
                     personResultat = barnPersonResultat,
@@ -520,7 +520,7 @@ internal class VedtaksperiodeServiceTest {
                     periodeTom = LocalDate.of(2026, 12, 12),
                     begrunnelse = "",
                     behandlingId = behandling.id,
-                    regelsett = VilkårRegelsett.LOV_AUGUST_2021,
+                    
                 ),
             ),
         )
@@ -534,7 +534,7 @@ internal class VedtaksperiodeServiceTest {
                     periodeTom = LocalDate.of(2022, 12, 12),
                     begrunnelse = "",
                     behandlingId = behandling.id,
-                    regelsett = VilkårRegelsett.LOV_AUGUST_2021,
+                    
                 ),
                 VilkårResultat(
                     personResultat = barnPersonResultat2,
@@ -544,7 +544,7 @@ internal class VedtaksperiodeServiceTest {
                     periodeTom = LocalDate.of(2027, 12, 12),
                     begrunnelse = "",
                     behandlingId = behandling.id,
-                    regelsett = VilkårRegelsett.LOV_AUGUST_2021,
+                    
                 ),
             ),
         )
@@ -593,7 +593,7 @@ internal class VedtaksperiodeServiceTest {
                     periodeTom = LocalDate.of(2022, 12, 12),
                     begrunnelse = "",
                     behandlingId = behandling.id,
-                    regelsett = VilkårRegelsett.LOV_AUGUST_2021,
+                    
                 ),
                 VilkårResultat(
                     personResultat = personResultat,
@@ -603,7 +603,7 @@ internal class VedtaksperiodeServiceTest {
                     periodeTom = LocalDate.of(2026, 12, 12),
                     begrunnelse = "",
                     behandlingId = behandling.id,
-                    regelsett = VilkårRegelsett.LOV_AUGUST_2021,
+                    
                 ),
             ),
         )

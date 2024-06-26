@@ -1,6 +1,8 @@
 package no.nav.familie.ks.sak.cucumber
 
 import io.cucumber.datatable.DataTable
+import java.math.BigDecimal
+import java.time.LocalDate
 import no.nav.familie.ks.sak.api.dto.BarnMedOpplysningerDto
 import no.nav.familie.ks.sak.api.dto.tilKalkulertMånedligBeløp
 import no.nav.familie.ks.sak.common.domeneparser.BrevPeriodeParser
@@ -45,7 +47,6 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Reg
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.UtdypendeVilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårRegelsett
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.beregning.domene.YtelseType
@@ -63,8 +64,6 @@ import no.nav.familie.ks.sak.kjerne.eøs.valutakurs.domene.Valutakurs
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.Fagsak
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
 import org.testcontainers.shaded.org.apache.commons.lang3.RandomStringUtils
-import java.math.BigDecimal
-import java.time.LocalDate
 
 fun Map<Long, Behandling>.finnBehandling(behandlingId: Long) =
     this[behandlingId] ?: error("Finner ikke behandling med id $behandlingId")
@@ -191,12 +190,6 @@ private fun lagVilkårResultater(
             rad,
         )
 
-    val regelsett =
-        parseValgfriEnum<VilkårRegelsett>(
-            VedtaksperiodeMedBegrunnelserParser.DomenebegrepVedtaksperiodeMedBegrunnelser.REGELSETT,
-            rad,
-        ) ?: VilkårRegelsett.LOV_AUGUST_2021
-
     return vilkårFor.map { vilkår ->
         VilkårResultat(
             behandlingId = behandlingId,
@@ -221,7 +214,6 @@ private fun lagVilkårResultater(
             begrunnelser = hentStandardBegrunnelser(rad).filterIsInstance<NasjonalEllerFellesBegrunnelse>(),
             søkerHarMeldtFraOmBarnehageplass = søkerHarMeldtFraOmBarnehageplass,
             antallTimer = antallTimer,
-            regelsett = regelsett,
             erAutomatiskVurdert =
                 parseValgfriBoolean(DomenebegrepAndelTilkjentYtelse.ER_AUTOMATISK_VURDERT, rad) ?: false,
         )

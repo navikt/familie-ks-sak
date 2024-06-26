@@ -120,7 +120,7 @@ class StegServiceTest : OppslagSpringRunnerTest() {
         opprettSøkerFagsakOgBehandling(fagsakStatus = FagsakStatus.LØPENDE)
         lagreArbeidsfordeling(lagArbeidsfordelingPåBehandling(behandlingId = behandling.id))
         opprettPersonopplysningGrunnlagOgPersonForBehandling(behandlingId = behandling.id, lagBarn = true)
-        opprettVilkårsvurdering(søker, behandling, Resultat.IKKE_VURDERT, regelsett = VilkårRegelsett.LOV_AUGUST_2021)
+        opprettVilkårsvurdering(søker, behandling, Resultat.IKKE_VURDERT)
 
         every { søknadGrunnlagService.hentAktiv(behandling.id) } returns
             mockk<SøknadGrunnlag>(relaxed = true).also {

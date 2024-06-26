@@ -27,13 +27,13 @@ class ForskyvVilkårKtTest {
                         vilkårType = Vilkår.BARNETS_ALDER,
                         periodeFom = august.atDay(15),
                         periodeTom = oktober.atDay(14),
-                        regelsett = VilkårRegelsett.LOV_AUGUST_2021,
+                        
                     ),
                     lagVilkårResultat(
                         vilkårType = Vilkår.BARNETS_ALDER,
                         periodeFom = oktober.atDay(15),
                         periodeTom = desember.atDay(1),
-                        regelsett = VilkårRegelsett.LOV_AUGUST_2021,
+                        
                     ),
                 )
 
@@ -62,21 +62,21 @@ class ForskyvVilkårKtTest {
                         periodeFom = august.atDay(15),
                         periodeTom = oktober.atDay(13),
                         resultat = Resultat.OPPFYLT,
-                        regelsett = VilkårRegelsett.LOV_AUGUST_2021,
+                        
                     ),
                     lagVilkårResultat(
                         vilkårType = Vilkår.BARNETS_ALDER,
                         periodeFom = oktober.atDay(14),
                         periodeTom = oktober.atDay(14),
                         resultat = Resultat.IKKE_OPPFYLT,
-                        regelsett = VilkårRegelsett.LOV_AUGUST_2021,
+                        
                     ),
                     lagVilkårResultat(
                         vilkårType = Vilkår.BARNETS_ALDER,
                         periodeFom = oktober.atDay(15),
                         periodeTom = desember.atDay(1),
                         resultat = Resultat.OPPFYLT,
-                        regelsett = VilkårRegelsett.LOV_AUGUST_2021,
+                        
                     ),
                 )
 
@@ -104,13 +104,13 @@ class ForskyvVilkårKtTest {
                         vilkårType = Vilkår.BARNETS_ALDER,
                         periodeFom = august.atDay(15),
                         periodeTom = august.atEndOfMonth(),
-                        regelsett = VilkårRegelsett.LOV_AUGUST_2021,
+                        
                     ),
                     lagVilkårResultat(
                         vilkårType = Vilkår.BARNETS_ALDER,
                         periodeFom = september.atDay(1),
                         periodeTom = desember.atDay(1),
-                        regelsett = VilkårRegelsett.LOV_AUGUST_2021,
+                        
                     ),
                 )
 
@@ -138,13 +138,13 @@ class ForskyvVilkårKtTest {
                         vilkårType = Vilkår.BARNETS_ALDER,
                         periodeFom = august.atDay(15),
                         periodeTom = september.atEndOfMonth(),
-                        regelsett = VilkårRegelsett.LOV_AUGUST_2021,
+                        
                     ),
                     lagVilkårResultat(
                         vilkårType = Vilkår.BARNETS_ALDER,
                         periodeFom = oktober.atDay(2),
                         periodeTom = desember.atDay(1),
-                        regelsett = VilkårRegelsett.LOV_AUGUST_2021,
+                        
                     ),
                 )
 
@@ -172,7 +172,7 @@ class ForskyvVilkårKtTest {
                         vilkårType = Vilkår.BARNETS_ALDER,
                         periodeFom = august.atDay(15),
                         periodeTom = september.atEndOfMonth(),
-                        regelsett = VilkårRegelsett.LOV_AUGUST_2021,
+                        
                     ),
                 )
 

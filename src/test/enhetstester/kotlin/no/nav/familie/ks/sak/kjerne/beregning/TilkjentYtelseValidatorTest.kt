@@ -10,7 +10,6 @@ import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagInitieltTilkjentYtelse
 import no.nav.familie.ks.sak.data.lagPerson
 import no.nav.familie.ks.sak.data.lagPersonopplysningGrunnlag
-import no.nav.familie.ks.sak.data.lagVilkårsvurderingOppfylt
 import no.nav.familie.ks.sak.data.randomAktør
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import no.nav.familie.ks.sak.kjerne.beregning.TilkjentYtelseValidator.finnAktørIderMedUgyldigEtterbetalingsperiode
@@ -66,7 +65,6 @@ internal class TilkjentYtelseValidatorTest {
                 validerAtTilkjentYtelseHarFornuftigePerioderOgBeløp(
                     tilkjentYtelse = tilkjentYtelse,
                     personopplysningGrunnlag = personopplysningGrunnlag,
-                    vilkårsvurdering = lagVilkårsvurderingOppfylt(personer = listOf(barn, søker)),
                 )
             }
         val feilmelding =
@@ -103,7 +101,6 @@ internal class TilkjentYtelseValidatorTest {
                 validerAtTilkjentYtelseHarFornuftigePerioderOgBeløp(
                     tilkjentYtelse = tilkjentYtelse,
                     personopplysningGrunnlag = personopplysningGrunnlag,
-                    vilkårsvurdering = lagVilkårsvurderingOppfylt(personer = listOf(barn, søker)),
                 )
             }
         val feilmelding =
@@ -138,7 +135,6 @@ internal class TilkjentYtelseValidatorTest {
             validerAtTilkjentYtelseHarFornuftigePerioderOgBeløp(
                 tilkjentYtelse = tilkjentYtelse,
                 personopplysningGrunnlag = personopplysningGrunnlag,
-                vilkårsvurdering = lagVilkårsvurderingOppfylt(personer = listOf(barn2, barn, søker)),
             )
         }
     }
@@ -164,7 +160,6 @@ internal class TilkjentYtelseValidatorTest {
                 validerAtTilkjentYtelseHarFornuftigePerioderOgBeløp(
                     tilkjentYtelse = tilkjentYtelse,
                     personopplysningGrunnlag = personopplysningGrunnlag,
-                    vilkårsvurdering = lagVilkårsvurderingOppfylt(personer = listOf(barn, søker)),
                 )
             }
 
@@ -191,7 +186,6 @@ internal class TilkjentYtelseValidatorTest {
                 validerAtTilkjentYtelseHarFornuftigePerioderOgBeløp(
                     tilkjentYtelse = tilkjentYtelse,
                     personopplysningGrunnlag = personopplysningGrunnlag,
-                    vilkårsvurdering = lagVilkårsvurderingOppfylt(personer = listOf(barn, søker)),
                 )
             }
 

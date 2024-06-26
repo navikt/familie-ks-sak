@@ -39,13 +39,11 @@ class BehandlingsresultatSteg(
         val endretUtbetalingMedAndeler =
             andelerTilkjentYtelseOgEndreteUtbetalingerService
                 .finnEndreteUtbetalingerMedAndelerTilkjentYtelse(behandlingId)
-        val vilkårsvurdering = vilkårsvurdering.hentAktivVilkårsvurderingForBehandling(behandlingId)
 
         BehandlingsresultatValideringUtils.validerAtBehandlingsresultatKanUtføres(
             personopplysningGrunnlag,
             tilkjentYtelse,
             endretUtbetalingMedAndeler,
-            vilkårsvurdering,
         )
 
         val resultat = behandlingsresultatService.utledBehandlingsresultat(behandling.id)

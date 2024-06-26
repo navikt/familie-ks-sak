@@ -82,7 +82,7 @@ internal class StønadsstatistikkServiceTest {
             personopplysningGrunnlag.personer,
             behandling,
             false,
-            regelsett = VilkårRegelsett.LOV_AUGUST_2021,
+            
         )
 
     @Test

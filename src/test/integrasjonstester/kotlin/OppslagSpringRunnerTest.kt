@@ -205,9 +205,12 @@ abstract class OppslagSpringRunnerTest {
         aktør: Aktør,
         behandling: Behandling,
         resultat: Resultat,
-        regelsett: VilkårRegelsett,
     ) {
-        val vilkårsvurdering = lagVilkårsvurderingMedSøkersVilkår(søkerAktør = aktør, behandling = behandling, resultat = resultat, regelsett = regelsett)
+        val vilkårsvurdering = lagVilkårsvurderingMedSøkersVilkår(
+            søkerAktør = aktør,
+            behandling = behandling,
+            resultat = resultat,
+        )
         vilkårsvurderingRepository.saveAndFlush(vilkårsvurdering)
     }
 

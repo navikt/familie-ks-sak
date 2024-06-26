@@ -1,6 +1,10 @@
 package no.nav.familie.ks.sak.kjerne.behandling.steg.behandlingsresultat
 
+import org.hamcrest.CoreMatchers.`is` as Is
 import io.mockk.mockk
+import java.math.BigDecimal
+import java.time.LocalDate
+import java.time.YearMonth
 import no.nav.familie.ks.sak.common.util.førsteDagIInneværendeMåned
 import no.nav.familie.ks.sak.data.lagAndelTilkjentYtelse
 import no.nav.familie.ks.sak.data.lagBehandling
@@ -18,7 +22,6 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Reg
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.UtdypendeVilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårRegelsett
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
 import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.Årsak
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.KompetanseAktivitet
@@ -29,10 +32,6 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
-import java.math.BigDecimal
-import java.time.LocalDate
-import java.time.YearMonth
-import org.hamcrest.CoreMatchers.`is` as Is
 
 class BehandlingsresultatEndringUtilsTest {
     val søker = tilfeldigPerson()
@@ -130,7 +129,6 @@ class BehandlingsresultatEndringUtilsTest {
                             UtdypendeVilkårsvurdering.BARN_BOR_I_NORGE,
                         ),
                     vurderesEtter = Regelverk.NASJONALE_REGLER,
-                    regelsett = VilkårRegelsett.LOV_AUGUST_2021,
                 ),
             )
 
@@ -149,7 +147,6 @@ class BehandlingsresultatEndringUtilsTest {
                             UtdypendeVilkårsvurdering.BARN_BOR_I_NORGE,
                         ),
                     vurderesEtter = Regelverk.EØS_FORORDNINGEN,
-                    regelsett = VilkårRegelsett.LOV_AUGUST_2021,
                 ),
             )
 
@@ -1027,7 +1024,6 @@ class BehandlingsresultatEndringUtilsTest {
                             UtdypendeVilkårsvurdering.BARN_BOR_I_NORGE,
                         ),
                     vurderesEtter = Regelverk.NASJONALE_REGLER,
-                    regelsett = VilkårRegelsett.LOV_AUGUST_2021,
                 ),
                 VilkårResultat(
                     behandlingId = 0,
@@ -1042,7 +1038,6 @@ class BehandlingsresultatEndringUtilsTest {
                             UtdypendeVilkårsvurdering.BARN_BOR_I_NORGE,
                         ),
                     vurderesEtter = Regelverk.NASJONALE_REGLER,
-                    regelsett = VilkårRegelsett.LOV_AUGUST_2021,
                 ),
             )
 
@@ -1061,7 +1056,6 @@ class BehandlingsresultatEndringUtilsTest {
                             UtdypendeVilkårsvurdering.BARN_BOR_I_NORGE,
                         ),
                     vurderesEtter = Regelverk.NASJONALE_REGLER,
-                    regelsett = VilkårRegelsett.LOV_AUGUST_2021,
                 ),
                 VilkårResultat(
                     behandlingId = 0,
@@ -1076,7 +1070,6 @@ class BehandlingsresultatEndringUtilsTest {
                             UtdypendeVilkårsvurdering.BARN_BOR_I_NORGE,
                         ),
                     vurderesEtter = Regelverk.NASJONALE_REGLER,
-                    regelsett = VilkårRegelsett.LOV_AUGUST_2021,
                 ),
             )
 
@@ -1109,7 +1102,6 @@ class BehandlingsresultatEndringUtilsTest {
                             UtdypendeVilkårsvurdering.BARN_BOR_I_NORGE,
                         ),
                     vurderesEtter = Regelverk.NASJONALE_REGLER,
-                    regelsett = VilkårRegelsett.LOV_AUGUST_2021,
                 ),
             )
 
@@ -1128,7 +1120,6 @@ class BehandlingsresultatEndringUtilsTest {
                             UtdypendeVilkårsvurdering.BARN_BOR_I_NORGE,
                         ),
                     vurderesEtter = Regelverk.EØS_FORORDNINGEN,
-                    regelsett = VilkårRegelsett.LOV_AUGUST_2021,
                 ),
             )
 
@@ -1161,7 +1152,6 @@ class BehandlingsresultatEndringUtilsTest {
                             UtdypendeVilkårsvurdering.VURDERING_ANNET_GRUNNLAG,
                         ),
                     vurderesEtter = Regelverk.NASJONALE_REGLER,
-                    regelsett = VilkårRegelsett.LOV_AUGUST_2021,
                 ),
             )
 
@@ -1180,7 +1170,6 @@ class BehandlingsresultatEndringUtilsTest {
                             UtdypendeVilkårsvurdering.BARN_BOR_I_NORGE,
                         ),
                     vurderesEtter = Regelverk.NASJONALE_REGLER,
-                    regelsett = VilkårRegelsett.LOV_AUGUST_2021,
                 ),
             )
 
@@ -1210,7 +1199,6 @@ class BehandlingsresultatEndringUtilsTest {
                     begrunnelse = "",
                     utdypendeVilkårsvurderinger = listOf(),
                     vurderesEtter = Regelverk.NASJONALE_REGLER,
-                    regelsett = VilkårRegelsett.LOV_AUGUST_2021,
                 ),
             )
 
@@ -1226,7 +1214,6 @@ class BehandlingsresultatEndringUtilsTest {
                     begrunnelse = "",
                     utdypendeVilkårsvurderinger = listOf(),
                     vurderesEtter = Regelverk.NASJONALE_REGLER,
-                    regelsett = VilkårRegelsett.LOV_AUGUST_2021,
                 ),
                 VilkårResultat(
                     behandlingId = 0,
@@ -1238,7 +1225,6 @@ class BehandlingsresultatEndringUtilsTest {
                     begrunnelse = "",
                     utdypendeVilkårsvurderinger = listOf(),
                     vurderesEtter = Regelverk.NASJONALE_REGLER,
-                    regelsett = VilkårRegelsett.LOV_AUGUST_2021,
                 ),
             )
 
@@ -1271,7 +1257,6 @@ class BehandlingsresultatEndringUtilsTest {
                             UtdypendeVilkårsvurdering.BARN_BOR_I_NORGE,
                         ),
                     vurderesEtter = Regelverk.NASJONALE_REGLER,
-                    regelsett = VilkårRegelsett.LOV_AUGUST_2021,
                 ),
             )
 
@@ -1290,7 +1275,6 @@ class BehandlingsresultatEndringUtilsTest {
                             UtdypendeVilkårsvurdering.BARN_BOR_I_NORGE,
                         ),
                     vurderesEtter = Regelverk.NASJONALE_REGLER,
-                    regelsett = VilkårRegelsett.LOV_AUGUST_2021,
                 ),
             )
 
@@ -1310,7 +1294,11 @@ class BehandlingsresultatEndringUtilsTest {
         aktør: Aktør,
     ): PersonResultat {
         val vilkårsvurdering =
-            lagVilkårsvurdering(behandling = lagBehandling(), resultat = Resultat.OPPFYLT, søkerAktør = randomAktør(), regelsett = VilkårRegelsett.LOV_AUGUST_2021)
+            lagVilkårsvurdering(
+                behandling = lagBehandling(),
+                resultat = Resultat.OPPFYLT,
+                søkerAktør = randomAktør(),
+            )
         val personResultat = PersonResultat(vilkårsvurdering = vilkårsvurdering, aktør = aktør)
 
         personResultat.setSortedVilkårResultater(vilkårResultater)

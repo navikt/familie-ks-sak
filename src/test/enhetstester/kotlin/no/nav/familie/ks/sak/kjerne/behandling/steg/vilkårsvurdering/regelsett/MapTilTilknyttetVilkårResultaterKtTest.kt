@@ -33,7 +33,7 @@ class MapTilTilknyttetVilkårResultaterKtTest {
                 vilkårType = Vilkår.BARNETS_ALDER,
                 periodeFom = august.atDay(1),
                 periodeTom = september.atDay(14),
-                regelsett = VilkårRegelsett.LOV_AUGUST_2021,
+                
             )
 
         val vilkårResultat2 =
@@ -41,7 +41,7 @@ class MapTilTilknyttetVilkårResultaterKtTest {
                 vilkårType = Vilkår.BARNETS_ALDER,
                 periodeFom = september.atDay(15),
                 periodeTom = oktober.atDay(1),
-                regelsett = VilkårRegelsett.LOV_AUGUST_2021,
+                
             )
 
         val list: List<VilkårResultat> =
@@ -77,7 +77,7 @@ class MapTilTilknyttetVilkårResultaterKtTest {
                 vilkårType = Vilkår.BARNETS_ALDER,
                 periodeFom = august.atDay(1),
                 periodeTom = september.atDay(14),
-                regelsett = VilkårRegelsett.LOV_AUGUST_2021,
+                
             )
 
         val vilkårResultat2 =
@@ -85,7 +85,7 @@ class MapTilTilknyttetVilkårResultaterKtTest {
                 vilkårType = Vilkår.BARNETS_ALDER,
                 periodeFom = september.atDay(15),
                 periodeTom = oktober.atDay(1),
-                regelsett = VilkårRegelsett.LOV_AUGUST_2021,
+                
             )
 
         val vilkårResultat3 =
@@ -93,7 +93,7 @@ class MapTilTilknyttetVilkårResultaterKtTest {
                 vilkårType = Vilkår.BARNETS_ALDER,
                 periodeFom = oktober.atDay(1),
                 periodeTom = oktober.atDay(31),
-                regelsett = VilkårRegelsett.LOV_AUGUST_2021,
+                
             )
 
         val list: List<VilkårResultat> =
@@ -134,7 +134,7 @@ class MapTilTilknyttetVilkårResultaterKtTest {
                 vilkårType = Vilkår.BARNETS_ALDER,
                 periodeFom = september.atDay(15),
                 periodeTom = oktober.atDay(1),
-                regelsett = VilkårRegelsett.LOV_AUGUST_2021,
+                
             )
 
         val vilkårResultat2 =
@@ -142,7 +142,7 @@ class MapTilTilknyttetVilkårResultaterKtTest {
                 vilkårType = Vilkår.BARNETS_ALDER,
                 periodeFom = august.atDay(1),
                 periodeTom = september.atDay(14),
-                regelsett = VilkårRegelsett.LOV_AUGUST_2021,
+                
             )
 
         val list: List<VilkårResultat> =

@@ -88,10 +88,10 @@ fun slåSammenOpphørsperioder(alleOpphørsperioder: List<Opphørsperiode>): Lis
                 acc[acc.lastIndex] =
                     forrigeOpphørsperiode.copy(
                         periodeTom =
-                        maxOfOpphørsperiodeTom(
-                            forrigeOpphørsperiode.periodeTom,
-                            nesteOpphørsperiode.periodeTom,
-                        ),
+                            maxOfOpphørsperiodeTom(
+                                forrigeOpphørsperiode.periodeTom,
+                                nesteOpphørsperiode.periodeTom,
+                            ),
                     )
             }
 
@@ -131,7 +131,7 @@ private fun finnOpphørsperiodeEtterSisteUtbetalingsperiode(
                             false -> periodeTom.tilForskjøvetTomMånedForSisteUtbetalingsperiodePgaFremtidigOpphør2024()
                         }
                     barnehageplassVilkårResultat.søkerHarMeldtFraOmBarnehageplass == true &&
-                            periodeTomForskjøvetTomMånedForSisteUtbetalingsperiodePgaFremtidigOpphør == sisteUtbetalingsperiodeTom
+                        periodeTomForskjøvetTomMånedForSisteUtbetalingsperiodePgaFremtidigOpphør == sisteUtbetalingsperiodeTom
                 }
         }
 

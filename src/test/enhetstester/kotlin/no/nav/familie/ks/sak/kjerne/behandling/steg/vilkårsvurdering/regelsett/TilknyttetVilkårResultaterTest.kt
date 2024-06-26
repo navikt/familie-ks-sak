@@ -21,7 +21,7 @@ class TilknyttetVilkårResultaterTest {
                     vilkårType = Vilkår.BARNETS_ALDER,
                     periodeFom = august.atDay(1),
                     periodeTom = september.atDay(14),
-                    regelsett = VilkårRegelsett.LOV_AUGUST_2021,
+                    
                 ),
                 null,
             )
@@ -42,14 +42,13 @@ class TilknyttetVilkårResultaterTest {
                     vilkårType = Vilkår.BARNETS_ALDER,
                     periodeFom = august.atDay(1),
                     periodeTom = null,
-                    regelsett = VilkårRegelsett.LOV_AUGUST_2021,
+                    
                 ),
                 // Perioden her er lagt inn kun for å teste gjeldende sin periodeTom
                 lagVilkårResultat(
                     vilkårType = Vilkår.BARNETS_ALDER,
                     periodeFom = september.atDay(15),
                     periodeTom = oktober.atDay(1),
-                    regelsett = VilkårRegelsett.LOV_AUGUST_2024,
                 ),
             )
 
@@ -69,13 +68,11 @@ class TilknyttetVilkårResultaterTest {
                     vilkårType = Vilkår.BARNETS_ALDER,
                     periodeFom = august.atDay(1),
                     periodeTom = september.atDay(14),
-                    regelsett = VilkårRegelsett.LOV_AUGUST_2024,
                 ),
                 lagVilkårResultat(
                     vilkårType = Vilkår.BARNETS_ALDER,
                     periodeFom = september.atDay(15),
                     periodeTom = oktober.atDay(1),
-                    regelsett = VilkårRegelsett.LOV_AUGUST_2024,
                 ),
             )
 
