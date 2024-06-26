@@ -30,8 +30,8 @@ class TestVerktøyService(
         val behandling = behandlingService.hentBehandling(behandlingId)
         val forrigeBehandling =
             behandlingService.hentBehandlingerPåFagsak(behandling.fagsak.id)
-                .filter { it.erAvsluttet() }.filter { !it.erHenlagt() }.filter { it.opprettetTidspunkt < behandling.opprettetTidspunkt }
-                .maxByOrNull { it.opprettetTidspunkt }
+                .filter { it.erAvsluttet() }.filter { !it.erHenlagt() }.filter { it.aktivertTidspunkt < behandling.aktivertTidspunkt }
+                .maxByOrNull { it.aktivertTidspunkt }
 
         val persongrunnlag = personopplysningGrunnlagRepository.findByBehandlingAndAktiv(behandlingId)!!
         val persongrunnlagForrigeBehandling =

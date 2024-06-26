@@ -104,7 +104,7 @@ class BeregningService(
                 ?: behandlingRepository.finnBehandlingerSomHolderPåÅIverksettes(fagsakId = fagsak.id).singleOrNull()
                 ?: behandlingRepository.finnIverksatteBehandlinger(fagsakId = fagsak.id)
                     .filter { it.status == BehandlingStatus.AVSLUTTET }
-                    .maxByOrNull { it.opprettetTidspunkt }
+                    .maxByOrNull { it.aktivertTidspunkt }
         }.map {
             hentTilkjentYtelseForBehandling(behandlingId = it.id)
         }.filter {
@@ -141,7 +141,7 @@ class BeregningService(
 
         val alleBarnISistIverksattBehandling =
             behandlingRepository.finnIverksatteBehandlinger(behandling.fagsak.id)
-                .filter { it.steg == BehandlingSteg.AVSLUTT_BEHANDLING }.maxByOrNull { it.opprettetTidspunkt }?.let {
+                .filter { it.steg == BehandlingSteg.AVSLUTT_BEHANDLING }.maxByOrNull { it.aktivertTidspunkt }?.let {
                     finnBarnFraBehandlingMedTilkjentYtelse(
                         it.id,
                     )

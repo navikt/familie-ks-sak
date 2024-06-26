@@ -3,6 +3,7 @@ package no.nav.familie.ks.sak.kjerne.behandling.steg.avsluttbehandling
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.util.inneværendeMåned
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
+import no.nav.familie.ks.sak.kjerne.behandling.SnikeIKøenService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingMetrikker
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
@@ -25,6 +26,7 @@ class AvsluttBehandlingSteg(
     private val beregningService: BeregningService,
     private val fagsakService: FagsakService,
     private val behandlingMetrikker: BehandlingMetrikker,
+    private val snikeIKøenService: SnikeIKøenService,
 ) : IBehandlingSteg {
     override fun getBehandlingssteg(): BehandlingSteg = BehandlingSteg.AVSLUTT_BEHANDLING
 
@@ -49,6 +51,8 @@ class AvsluttBehandlingSteg(
 
         // oppdater behandling status til Avsluttet
         behandling.status = BehandlingStatus.AVSLUTTET
+
+        snikeIKøenService.reaktiverBehandlingPåMaskinellVent(behandlingSomAvsluttes = behandling)
 
         // trenger ikke å kalle eksplisitt save fordi behandling objekt er mutert og ha @Transactional
     }

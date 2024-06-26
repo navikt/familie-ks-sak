@@ -81,7 +81,7 @@ class BehandlingService(
     fun hentSisteBehandlingSomErVedtatt(fagsakId: Long): Behandling? =
         behandlingRepository.finnBehandlinger(fagsakId)
             .filter { !it.erHenlagt() && it.status == BehandlingStatus.AVSLUTTET }
-            .maxByOrNull { it.opprettetTidspunkt }
+            .maxByOrNull { it.aktivertTidspunkt }
 
     fun oppdaterBehandling(behandling: Behandling): Behandling {
         logger.info("${SikkerhetContext.hentSaksbehandlerNavn()} oppdaterer behandling $behandling")
@@ -248,7 +248,7 @@ class BehandlingService(
     private fun hentSisteBehandlingSomErIverksatt(iverksatteBehandlinger: List<Behandling>): Behandling? {
         return iverksatteBehandlinger
             .filter { it.steg == BehandlingSteg.AVSLUTT_BEHANDLING }
-            .maxByOrNull { it.opprettetTidspunkt }
+            .maxByOrNull { it.aktivertTidspunkt }
     }
 
     @Transactional
@@ -285,7 +285,7 @@ class BehandlingService(
 
     private fun List<Behandling>.filtrerSisteBehandlingSomErAvsluttetEllerSendtTilØkonomi() =
         filter { !it.erHenlagt() && (it.status == BehandlingStatus.AVSLUTTET || it.status == BehandlingStatus.IVERKSETTER_VEDTAK) }
-            .maxByOrNull { it.opprettetTidspunkt }
+            .maxByOrNull { it.aktivertTidspunkt }
 
     companion object {
         private val logger: Logger = LoggerFactory.getLogger(BehandlingService::class.java)
