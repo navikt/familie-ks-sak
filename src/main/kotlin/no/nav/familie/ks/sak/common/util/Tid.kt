@@ -17,6 +17,8 @@ val TIDENES_ENDE = LocalDate.MAX
 val MAX_MÅNED = LocalDate.MAX.toYearMonth()
 val MIN_MÅNED = LocalDate.MIN.toYearMonth()
 
+val DATO_LOVENDRING_2024 = LocalDate.of(2024, Month.AUGUST, 1)
+
 fun LocalDate.tilddMMyy() = this.format(DateTimeFormatter.ofPattern("ddMMyy", nbLocale))
 
 fun LocalDate.tilyyyyMMdd() = this.format(DateTimeFormatter.ofPattern("yyyy-MM-dd", nbLocale))

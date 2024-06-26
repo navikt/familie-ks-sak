@@ -20,6 +20,10 @@ enum class Domenebegrep(override val nøkkel: String) : Domenenøkkel {
     BEHANDLINGSKATEGORI("Behandlingskategori"),
 }
 
+enum class DomenebegrepAndelTilkjentYtelse(override val nøkkel: String) : Domenenøkkel {
+    ER_AUTOMATISK_VURDERT("Er automatisk vurdert"),
+}
+
 object DomeneparserUtil {
     fun DataTable.groupByBehandlingId(): Map<Long, List<Map<String, String>>> =
         this.asMaps().groupBy { rad -> parseLong(Domenebegrep.BEHANDLING_ID, rad) }
