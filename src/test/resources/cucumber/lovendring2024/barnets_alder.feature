@@ -35,3 +35,21 @@ Egenskap: Barnets alder
     Så forvent følgende andeler tilkjent ytelse for behandling 1
       | AktørId | Fra dato   | Til dato   | Beløp | Ytelse type           | Prosent | Sats |
       | 2       | 01.06.2024 | 31.12.2024 | 7500  | ORDINÆR_KONTANTSTØTTE | 100     | 7500 |
+
+  Scenario: For barn født 15. januar 2023 skal aldersvilkår splittes i agust 2024
+    Og følgende persongrunnlag
+      | BehandlingId | AktørId | Persontype | Fødselsdato |
+      | 1            | 1       | SØKER      | 19.06.1988  |
+      | 1            | 2       | BARN       | 15.01.2023  |
+
+    Når vi oppretter vilkårresultater for behandling 1
+
+    Så forvent følgende vilkårresultater for behandling 1
+      | AktørId | Vilkår                                                 | Utdypende vilkår | Fra dato   | Til dato   | Resultat     | Regelsett       | Vurderes etter   | Er automatisk vurdert |
+      | 1       | BOSATT_I_RIKET                                         |                  |            |            | IKKE_VURDERT | LOV_AUGUST_2024 | NASJONALE_REGLER | Nei                   |
+      | 1       | MEDLEMSKAP                                             |                  | 19.06.1993 |            | IKKE_VURDERT | LOV_AUGUST_2024 | NASJONALE_REGLER | Nei                   |
+
+      | 2       | MEDLEMSKAP_ANNEN_FORELDER,BOR_MED_SØKER,BOSATT_I_RIKET |                  |            |            | IKKE_VURDERT | LOV_AUGUST_2024 | NASJONALE_REGLER | Nei                   |
+      | 2       | BARNEHAGEPLASS                                         |                  | 15.02.2024 |            | OPPFYLT      | LOV_AUGUST_2024 |                  | Nei                   |
+      | 2       | BARNETS_ALDER                                          |                  | 15.01.2024 | 31.07.2024 | OPPFYLT      | LOV_AUGUST_2021 |                  | Ja                    |
+      | 2       | BARNETS_ALDER                                          |                  | 01.08.2024 | 15.08.2024 | OPPFYLT      | LOV_AUGUST_2024 |                  | Ja                    |
