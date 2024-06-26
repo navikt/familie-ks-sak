@@ -177,7 +177,7 @@ private fun lagVilkårResultater(
         parseValgfriEnum<Regelverk>(
             VedtaksperiodeMedBegrunnelserParser.DomenebegrepVedtaksperiodeMedBegrunnelser.VURDERES_ETTER,
             rad,
-        ) ?: Regelverk.NASJONALE_REGLER
+        )
 
     val søkerHarMeldtFraOmBarnehageplass =
         parseValgfriBoolean(
