@@ -36,7 +36,7 @@ Egenskap: Barnets alder
       | AktørId | Fra dato   | Til dato   | Beløp | Ytelse type           | Prosent | Sats |
       | 2       | 01.06.2024 | 31.12.2024 | 7500  | ORDINÆR_KONTANTSTØTTE | 100     | 7500 |
 
-  Scenario: For barn født 15. januar 2023 skal aldersvilkår splittes i agust 2024
+  Scenario: For barn født 15. januar 2023 skal aldersvilkår splittes i august 2024
     Og følgende persongrunnlag
       | BehandlingId | AktørId | Persontype | Fødselsdato |
       | 1            | 1       | SØKER      | 19.06.1988  |
