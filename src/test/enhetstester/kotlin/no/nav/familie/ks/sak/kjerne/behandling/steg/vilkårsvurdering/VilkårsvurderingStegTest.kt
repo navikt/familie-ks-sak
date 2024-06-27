@@ -325,7 +325,7 @@ class VilkårsvurderingStegTest {
         val exception = assertThrows<FunksjonellFeil> { vilkårsvurderingSteg.utførSteg(behandling.id) }
         assertEquals(
             "Det mangler vurdering på vilkåret ${Vilkår.BARNEHAGEPLASS.beskrivelse}. " +
-                    "Hele eller deler av perioden der barnets alder vilkåret er oppfylt er ikke vurdert.",
+                "Hele eller deler av perioden der barnets alder vilkåret er oppfylt er ikke vurdert.",
             exception.message,
         )
     }
