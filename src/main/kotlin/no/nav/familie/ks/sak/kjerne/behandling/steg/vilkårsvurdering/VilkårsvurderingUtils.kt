@@ -10,9 +10,11 @@ import no.nav.familie.ks.sak.common.tidslinje.Tidslinje
 import no.nav.familie.ks.sak.common.tidslinje.tilTidslinje
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.kombinerMed
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.tilPerioderIkkeNull
+import no.nav.familie.ks.sak.common.util.DATO_LOVENDRING_2024
 import no.nav.familie.ks.sak.common.util.TIDENES_ENDE
 import no.nav.familie.ks.sak.common.util.TIDENES_MORGEN
 import no.nav.familie.ks.sak.common.util.erBack2BackIMånedsskifte
+import no.nav.familie.ks.sak.common.util.erSammeEllerEtter
 import no.nav.familie.ks.sak.common.util.sisteDagIMåned
 import no.nav.familie.ks.sak.common.util.tilDagMånedÅr
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelse
@@ -364,13 +366,16 @@ fun genererInitiellVilkårsvurdering(
             personopplysningGrunnlag.personer.map { person ->
                 val personResultat = PersonResultat(vilkårsvurdering = this, aktør = person.aktør)
 
-                val forrigeBehandlingHaddeEøsSpesifikkeVilkår = forrigeVilkårsvurdering?.personResultater?.flatMap { it.vilkårResultater }?.any { it.vilkårType.eøsSpesifikt } ?: false
+                val forrigeBehandlingHaddeEøsSpesifikkeVilkår =
+                    forrigeVilkårsvurdering?.personResultater?.flatMap { it.vilkårResultater }
+                        ?.any { it.vilkårType.eøsSpesifikt } ?: false
                 val behandlingKategoriErEøs = behandling.kategori == BehandlingKategori.EØS
 
                 val skalHenteEøsSpesifikkeVilkår = behandlingKategoriErEøs || forrigeBehandlingHaddeEøsSpesifikkeVilkår
 
                 val vilkårForPerson = Vilkår.hentVilkårFor(person.type, skalHenteEøsSpesifikkeVilkår)
-                val regelsett = if (behandlingSkalFølgeNyeLovendringer2024) VilkårRegelsett.LOV_AUGUST_2024 else VilkårRegelsett.LOV_AUGUST_2021
+                val regelsett =
+                    if (behandlingSkalFølgeNyeLovendringer2024) VilkårRegelsett.LOV_AUGUST_2024 else VilkårRegelsett.LOV_AUGUST_2021
 
                 val vilkårResultater =
                     vilkårForPerson.flatMap { vilkår ->
@@ -460,7 +465,8 @@ fun genererInitiellVilkårsvurdering(
 
 fun Vilkårsvurdering.oppdaterMedDødsdatoer(personopplysningGrunnlag: PersonopplysningGrunnlag) {
     this.personResultater.forEach { personResultat ->
-        val dødsDato = personopplysningGrunnlag.personer.single { it.aktør == personResultat.aktør }.dødsfall?.dødsfallDato
+        val dødsDato =
+            personopplysningGrunnlag.personer.single { it.aktør == personResultat.aktør }.dødsfall?.dødsfallDato
 
         val vikårResultaterOppdatertMedDødsdato =
             if (dødsDato != null) {
@@ -485,7 +491,10 @@ fun Vilkårsvurdering.oppdaterMedDødsdatoer(personopplysningGrunnlag: Personopp
     }
 }
 
-fun Vilkårsvurdering.kopierResultaterFraForrigeBehandling(vilkårsvurderingForrigeBehandling: Vilkårsvurdering) {
+fun Vilkårsvurdering.kopierResultaterFraForrigeBehandling(
+    vilkårsvurderingForrigeBehandling: Vilkårsvurdering,
+    behandlingSkalFølgeNyeLovendringer2024: Boolean,
+) {
     personResultater.forEach { initieltPersonResultat ->
         val personResultatForrigeBehandling =
             vilkårsvurderingForrigeBehandling.personResultater.find {
@@ -501,6 +510,7 @@ fun Vilkårsvurdering.kopierResultaterFraForrigeBehandling(vilkårsvurderingForr
                         kunForGodkjenteVilkår = behandling.type != BehandlingType.FØRSTEGANGSBEHANDLING,
                         vilkårResultaterFraForrigeBehandling = personResultatForrigeBehandling.vilkårResultater,
                         nyttPersonResultat = initieltPersonResultat,
+                        behandlingSkalFølgeNyeLovendringer2024 = behandlingSkalFølgeNyeLovendringer2024,
                     )
             }
 
@@ -512,14 +522,64 @@ private fun Collection<VilkårResultat>.overskrivMedVilkårResultaterFraForrigeB
     vilkårResultaterFraForrigeBehandling: Collection<VilkårResultat>,
     nyttPersonResultat: PersonResultat,
     kunForGodkjenteVilkår: Boolean,
+    behandlingSkalFølgeNyeLovendringer2024: Boolean,
 ) = flatMap { initeltVilkårResultat ->
     val vilkårResultaterForrigeBehandlingSomViØnskerÅTaMed =
-        vilkårResultaterFraForrigeBehandling
-            .filter { it.vilkårType == initeltVilkårResultat.vilkårType }
-            .filter { !kunForGodkjenteVilkår || it.resultat in listOf(Resultat.IKKE_AKTUELT, Resultat.OPPFYLT) }
-            .map { it.kopier(personResultat = nyttPersonResultat) }
+        if (behandlingSkalFølgeNyeLovendringer2024) {
+            val vilkårResultaterAvSammeTypeIForrigeBehandling =
+                vilkårResultaterFraForrigeBehandling
+                    .filter { it.vilkårType == initeltVilkårResultat.vilkårType }
+                    .map { it.kopier(personResultat = nyttPersonResultat) }
+
+            when (initeltVilkårResultat.vilkårType) {
+                Vilkår.BARNEHAGEPLASS -> {
+                    /* *
+                     * Ønsker å dra med vilkårresultatene som er avslått og opphørt i forrige behandling
+                     * for barnehagevilkåret fordi vi krever at alle peridene skal være vurdert, også de med opphør
+                     * */
+                    vilkårResultaterAvSammeTypeIForrigeBehandling
+                }
+
+                Vilkår.BARNETS_ALDER -> {
+                    /* *
+                     * Barnets alder vilkåret settes automatisk og bør ikke endres med midre det er snakk om adopsjon.
+                     * Kopierer derfor kun vilkåret ved adopsjon og tar med som er generert på denne behandlingen ellers.
+                     * På denne måten kan vi få med regelendringer som endrer vilkåret på revurderinger.
+                     * */
+                    vilkårResultaterAvSammeTypeIForrigeBehandling
+                        .filter { it.erAdopsjonOppfylt() }
+                        .filter { it.resultat in listOf(Resultat.IKKE_AKTUELT, Resultat.OPPFYLT) }
+                        .splittOppOmKrysserRegelverksendring()
+                }
+
+                else ->
+                    vilkårResultaterAvSammeTypeIForrigeBehandling
+                        .filter { it.resultat in listOf(Resultat.IKKE_AKTUELT, Resultat.OPPFYLT) }
+            }
+        } else {
+            vilkårResultaterFraForrigeBehandling
+                .filter { it.vilkårType == initeltVilkårResultat.vilkårType }
+                .filter { !kunForGodkjenteVilkår || it.resultat in listOf(Resultat.IKKE_AKTUELT, Resultat.OPPFYLT) }
+                .map { it.kopier(personResultat = nyttPersonResultat) }
+        }
 
     vilkårResultaterForrigeBehandlingSomViØnskerÅTaMed.ifEmpty {
         listOf(initeltVilkårResultat)
     }
 }
+
+fun Collection<VilkårResultat>.splittOppOmKrysserRegelverksendring(): List<VilkårResultat> =
+    this.flatMap {
+        val krysserRegelendring =
+            (it.periodeFom ?: TIDENES_MORGEN).isBefore(DATO_LOVENDRING_2024) &&
+                (it.periodeTom ?: TIDENES_ENDE).erSammeEllerEtter(DATO_LOVENDRING_2024)
+
+        if (krysserRegelendring) {
+            listOf(
+                it.kopier(periodeTom = DATO_LOVENDRING_2024.minusDays(1)),
+                it.kopier(periodeFom = DATO_LOVENDRING_2024),
+            )
+        } else {
+            listOf(it)
+        }
+    }

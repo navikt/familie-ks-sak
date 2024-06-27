@@ -56,6 +56,7 @@ class VilkårsvurderingService(
         vilkårsvurderingFraForrigeBehandling?.let {
             initiellVilkårsvurdering.kopierResultaterFraForrigeBehandling(
                 vilkårsvurderingForrigeBehandling = it,
+                behandlingSkalFølgeNyeLovendringer2024 = behandlingSkalFølgeNyeLovendringer2024,
             )
         }
 
