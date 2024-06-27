@@ -23,7 +23,6 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingType
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.PersonResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårRegelsett
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.BegrunnelseType
@@ -374,7 +373,6 @@ fun genererInitiellVilkårsvurdering(
                 val skalHenteEøsSpesifikkeVilkår = behandlingKategoriErEøs || forrigeBehandlingHaddeEøsSpesifikkeVilkår
 
                 val vilkårForPerson = Vilkår.hentVilkårFor(person.type, skalHenteEøsSpesifikkeVilkår)
-                val regelsett = if (behandlingSkalFølgeNyeLovendringer2024) VilkårRegelsett.LOV_AUGUST_2024 else VilkårRegelsett.LOV_AUGUST_2021
 
                 val vilkårResultater =
                     vilkårForPerson.flatMap { vilkår ->
@@ -417,13 +415,6 @@ fun genererInitiellVilkårsvurdering(
                                 )
 
                             Vilkår.BARNEHAGEPLASS -> {
-                                val periodeFomForBarnehageplass =
-                                    when (regelsett) {
-                                        VilkårRegelsett.LOV_AUGUST_2021 -> person.fødselsdato
-                                        VilkårRegelsett.LOV_AUGUST_2024 -> person.fødselsdato.plusMonths(13)
-                                        // TODO : Spør Birgitte om man faktisk skal plusse på 13 måneder for 2024
-                                    }
-
                                 listOf(
                                     VilkårResultat(
                                         personResultat = personResultat,
@@ -431,7 +422,7 @@ fun genererInitiellVilkårsvurdering(
                                         resultat = Resultat.OPPFYLT,
                                         vilkårType = vilkår,
                                         begrunnelse = "",
-                                        periodeFom = periodeFomForBarnehageplass,
+                                        periodeFom = person.fødselsdato,
                                         behandlingId = behandling.id,
                                     ),
                                 )
