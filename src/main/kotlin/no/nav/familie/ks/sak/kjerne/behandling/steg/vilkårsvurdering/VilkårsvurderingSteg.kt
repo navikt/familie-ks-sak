@@ -1,5 +1,7 @@
 package no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering
 
+import java.math.BigDecimal
+import java.time.LocalDate
 import no.nav.familie.ks.sak.api.dto.SøknadDto
 import no.nav.familie.ks.sak.api.mapper.SøknadGrunnlagMapper.tilSøknadDto
 import no.nav.familie.ks.sak.common.BehandlingId
@@ -22,6 +24,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Reg
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.UtdypendeVilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.validering.BarnetsVilkårValidator
 import no.nav.familie.ks.sak.kjerne.beregning.BeregningService
 import no.nav.familie.ks.sak.kjerne.beregning.tilPeriodeResultater
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.KompetanseService
@@ -31,8 +34,6 @@ import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Personopplys
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
-import java.math.BigDecimal
-import java.time.LocalDate
 
 @Service
 class VilkårsvurderingSteg(
@@ -42,6 +43,7 @@ class VilkårsvurderingSteg(
     private val vilkårsvurderingService: VilkårsvurderingService,
     private val beregningService: BeregningService,
     private val kompetanseService: KompetanseService,
+    private val barnetsVilkårValidator: BarnetsVilkårValidator,
 ) : IBehandlingSteg {
     override fun getBehandlingssteg(): BehandlingSteg = BehandlingSteg.VILKÅRSVURDERING
 
@@ -124,7 +126,7 @@ class VilkårsvurderingSteg(
         validerAtDetIkkeErOverlappMellomGradertBarnehageplassOgDeltBosted(vilkårsvurdering)
         validerAtPerioderIBarnehageplassSamsvarerMedPeriodeIBarnetsAlderVilkår(vilkårsvurdering)
         validerAtDetIkkeFinnesMerEnn2EndringerISammeMånedIBarnehageplassVilkår(vilkårsvurdering)
-        validerAtDatoErKorrektIBarnasVilkår(vilkårsvurdering, personopplysningGrunnlag.barna)
+        barnetsVilkårValidator.validerAtDatoErKorrektIBarnasVilkår(vilkårsvurdering, personopplysningGrunnlag.barna)
         validerIkkeBlandetRegelverk(personopplysningGrunnlag, vilkårsvurdering)
     }
 
