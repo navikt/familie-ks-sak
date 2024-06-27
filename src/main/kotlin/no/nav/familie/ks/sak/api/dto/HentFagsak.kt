@@ -33,6 +33,7 @@ data class MinimalFagsakResponsDto(
 data class MinimalBehandlingResponsDto(
     val behandlingId: Long,
     val opprettetTidspunkt: LocalDateTime,
+    val aktivertTidspunkt: LocalDateTime,
     val kategori: BehandlingKategori,
     val aktiv: Boolean,
     val årsak: BehandlingÅrsak?,

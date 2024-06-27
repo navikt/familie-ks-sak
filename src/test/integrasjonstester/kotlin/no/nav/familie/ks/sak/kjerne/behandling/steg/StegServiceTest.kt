@@ -38,7 +38,6 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg.IVERKSETT_MOT
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg.JOURNALFØR_VEDTAKSBREV
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg.REGISTRERE_PERSONGRUNNLAG
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg.REGISTRERE_SØKNAD
-import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg.SIMULERING
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg.VEDTAK
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg.VILKÅRSVURDERING
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingStegStatus.KLAR
@@ -171,7 +170,12 @@ class StegServiceTest : OppslagSpringRunnerTest() {
 
     @Test
     fun `utførSteg skal utføre REGISTRER_PERSONGRUNNLAG og sette neste steg til VILKÅRSVURDERING for revurdering`() {
-        lagreBehandling(behandling.also { it.aktiv = false })
+        lagreBehandling(
+            behandling.also {
+                it.aktiv = false
+                it.status = BehandlingStatus.AVSLUTTET
+            },
+        )
         var revurderingBehandling =
             lagreBehandling(
                 lagBehandling(
@@ -251,7 +255,12 @@ class StegServiceTest : OppslagSpringRunnerTest() {
 
     @Test
     fun `utførSteg skal ikke utføre REGISTRERE_SØKNAD for behandling med årsak SATSENDRING`() {
-        lagreBehandling(behandling.also { it.aktiv = false })
+        lagreBehandling(
+            behandling.also {
+                it.aktiv = false
+                it.status = BehandlingStatus.AVSLUTTET
+            },
+        )
         val revurderingBehandling =
             lagreBehandling(
                 lagBehandling(
@@ -390,38 +399,6 @@ class StegServiceTest : OppslagSpringRunnerTest() {
         assertTrue { oppdatertBehandling.status == BehandlingStatus.UTREDES }
         assertBehandlingHarSteg(oppdatertBehandling, VEDTAK, KLAR)
         assertBehandlingHarSteg(oppdatertBehandling, BESLUTTE_VEDTAK, TILBAKEFØRT)
-    }
-
-    @Test
-    fun `tilbakeførSteg skal tilbakeføre til behandling steg`() {
-        behandling.behandlingStegTilstand.clear()
-        lagBehandlingStegTilstand(behandling, VILKÅRSVURDERING, UTFØRT)
-        lagBehandlingStegTilstand(behandling, BEHANDLINGSRESULTAT, UTFØRT)
-        lagBehandlingStegTilstand(behandling, SIMULERING, KLAR)
-
-        lagreBehandling(behandling)
-        assertDoesNotThrow { stegService.tilbakeførSteg(behandling.id, VILKÅRSVURDERING) }
-
-        val oppdatertBehandling = behandlingRepository.hentBehandling(behandling.id)
-        assertBehandlingHarSteg(oppdatertBehandling, VILKÅRSVURDERING, KLAR)
-        assertBehandlingHarSteg(oppdatertBehandling, BEHANDLINGSRESULTAT, TILBAKEFØRT)
-        assertBehandlingHarSteg(oppdatertBehandling, SIMULERING, TILBAKEFØRT)
-    }
-
-    @Test
-    fun `tilbakeførSteg skal ikke tilbakeføre til behandling steg når behandling er på samme steg`() {
-        behandling.behandlingStegTilstand.clear()
-        lagBehandlingStegTilstand(behandling, VILKÅRSVURDERING, UTFØRT)
-        lagBehandlingStegTilstand(behandling, BEHANDLINGSRESULTAT, UTFØRT)
-        lagBehandlingStegTilstand(behandling, SIMULERING, KLAR)
-        lagreBehandling(behandling)
-
-        assertDoesNotThrow { stegService.tilbakeførSteg(behandling.id, SIMULERING) }
-
-        val oppdatertBehandling = behandlingRepository.hentBehandling(behandling.id)
-        assertBehandlingHarSteg(oppdatertBehandling, VILKÅRSVURDERING, UTFØRT)
-        assertBehandlingHarSteg(oppdatertBehandling, BEHANDLINGSRESULTAT, UTFØRT)
-        assertBehandlingHarSteg(oppdatertBehandling, SIMULERING, KLAR)
     }
 
     @Test

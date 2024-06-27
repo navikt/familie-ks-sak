@@ -58,6 +58,7 @@ object FagsakMapper {
     ) = MinimalBehandlingResponsDto(
         behandlingId = behandling.id,
         opprettetTidspunkt = behandling.opprettetTidspunkt,
+        aktivertTidspunkt = behandling.aktivertTidspunkt,
         kategori = behandling.kategori,
         aktiv = behandling.aktiv,
         årsak = behandling.opprettetÅrsak,

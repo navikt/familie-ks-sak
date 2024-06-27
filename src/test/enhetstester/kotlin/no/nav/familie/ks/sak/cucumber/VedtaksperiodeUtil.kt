@@ -5,6 +5,7 @@ import no.nav.familie.ks.sak.api.dto.BarnMedOpplysningerDto
 import no.nav.familie.ks.sak.api.dto.tilKalkulertMånedligBeløp
 import no.nav.familie.ks.sak.common.domeneparser.BrevPeriodeParser
 import no.nav.familie.ks.sak.common.domeneparser.Domenebegrep
+import no.nav.familie.ks.sak.common.domeneparser.DomenebegrepAndelTilkjentYtelse
 import no.nav.familie.ks.sak.common.domeneparser.VedtaksperiodeMedBegrunnelserParser
 import no.nav.familie.ks.sak.common.domeneparser.parseBigDecimal
 import no.nav.familie.ks.sak.common.domeneparser.parseDato
@@ -176,7 +177,7 @@ private fun lagVilkårResultater(
         parseValgfriEnum<Regelverk>(
             VedtaksperiodeMedBegrunnelserParser.DomenebegrepVedtaksperiodeMedBegrunnelser.VURDERES_ETTER,
             rad,
-        ) ?: Regelverk.NASJONALE_REGLER
+        )
 
     val søkerHarMeldtFraOmBarnehageplass =
         parseValgfriBoolean(
@@ -221,6 +222,8 @@ private fun lagVilkårResultater(
             søkerHarMeldtFraOmBarnehageplass = søkerHarMeldtFraOmBarnehageplass,
             antallTimer = antallTimer,
             regelsett = regelsett,
+            erAutomatiskVurdert =
+                parseValgfriBoolean(DomenebegrepAndelTilkjentYtelse.ER_AUTOMATISK_VURDERT, rad) ?: false,
         )
     }
 }

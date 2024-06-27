@@ -118,7 +118,7 @@ class FagsakService(
 
         val sistIverksatteBehandling =
             alleBehandlinger.filter { it.steg == BehandlingSteg.AVSLUTT_BEHANDLING }
-                .maxByOrNull { it.opprettetTidspunkt }
+                .maxByOrNull { it.aktivertTidspunkt }
 
         val gjeldendeUtbetalingsperioder =
             sistIverksatteBehandling?.let {
@@ -309,7 +309,7 @@ class FagsakService(
     private fun hentSisteBehandlingSomErVedtattPåFagsak(fagsakId: Long) =
         behandlingRepository.finnBehandlinger(fagsakId)
             .filter { !it.erHenlagt() && it.status == BehandlingStatus.AVSLUTTET }
-            .maxByOrNull { it.opprettetTidspunkt }
+            .maxByOrNull { it.aktivertTidspunkt }
 
     companion object {
         private val logger = LoggerFactory.getLogger(FagsakService::class.java)
