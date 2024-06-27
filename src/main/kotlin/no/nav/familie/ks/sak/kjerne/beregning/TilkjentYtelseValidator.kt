@@ -1,9 +1,5 @@
 package no.nav.familie.ks.sak.kjerne.beregning
 
-import java.math.BigDecimal
-import java.time.LocalDateTime
-import java.time.Period
-import java.time.YearMonth
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.common.exception.KONTAKT_TEAMET_SUFFIX
@@ -25,6 +21,10 @@ import no.nav.familie.ks.sak.kjerne.beregning.domene.tilTidslinjeMedAndeler
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.tilBrevTekst
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
+import java.math.BigDecimal
+import java.time.LocalDateTime
+import java.time.Period
+import java.time.YearMonth
 
 object TilkjentYtelseValidator {
     fun validerAtTilkjentYtelseHarFornuftigePerioderOgBeløp(
@@ -33,6 +33,12 @@ object TilkjentYtelseValidator {
     ) {
         val søker = personopplysningGrunnlag.søker
         val barna = personopplysningGrunnlag.barna
+
+        val andelerTilkjentYtelse = tilkjentYtelse.andelerTilkjentYtelse.toList()
+
+        if (hentSøkersAndeler(andeler = andelerTilkjentYtelse, søker).isNotEmpty()) {
+            throw Feil("Feil i beregning. Søkers andeler må være tom")
+        }
 
         val andelerPerAktør = tilkjentYtelse.andelerTilkjentYtelse.groupBy { it.aktør }
 
@@ -48,7 +54,7 @@ object TilkjentYtelseValidator {
             val maksAntallMånederMedUtbetaling = utledMaksAntallMånederMedUtbetaling(vilkårRegelverkInformasjonForBarn)
 
             val diff = Period.between(stønadFom.toLocalDate(), stønadTom.toLocalDate())
-            if (diff.toTotalMonths() > maksAntallMånederMedUtbetaling) {
+            if (diff.toTotalMonths() >= maksAntallMånederMedUtbetaling) {
                 val feilmelding =
                     "Kontantstøtte kan maks utbetales for $maksAntallMånederMedUtbetaling måneder. Du er i ferd med å utbetale mer enn dette for barn med fnr ${aktør.aktivFødselsnummer()}. " +
                         "Kontroller datoene på vilkårene eller ta kontakt med Team BAKS"
@@ -60,10 +66,6 @@ object TilkjentYtelseValidator {
 
         tidslinjeMedAndeler.tilPerioder().forEach {
             val andeler = it.verdi?.toList() ?: emptyList()
-
-            if (hentSøkersAndeler(andeler, søker).isNotEmpty()) {
-                throw Feil("Feil i beregning. Søkers andeler må være tom")
-            }
             val barnasAndeler = hentBarnasAndeler(andeler, barna)
             barnasAndeler.forEach { (_, andeler) -> validerAtBeløpForPartStemmerMedSatser(andeler) }
         }
