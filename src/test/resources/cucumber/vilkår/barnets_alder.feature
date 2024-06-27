@@ -17,7 +17,7 @@ Egenskap: Barnets alder
     Og følgende persongrunnlag
       | BehandlingId | AktørId | Persontype | Fødselsdato |
       | 1            | 1       | SØKER      | 19.06.1988  |
-      | 1            | 2       | BARN       | 05.05.2023  |
+      | 1            | 2       | BARN       | 05.09.2023  |
 
     Og følgende dagens dato 11.06.2024
 
@@ -28,13 +28,13 @@ Egenskap: Barnets alder
 
       | 2       | MEDLEMSKAP_ANNEN_FORELDER,BOR_MED_SØKER,BOSATT_I_RIKET |                  | 05.01.2023 |            | OPPFYLT  | Nei                  |                      |                | LOV_AUGUST_2024 |
       | 2       | BARNEHAGEPLASS                                         |                  | 05.02.2024 |            | OPPFYLT  | Nei                  |                      |                | LOV_AUGUST_2024 |
-      | 2       | BARNETS_ALDER                                          |                  | 05.06.2024 | 05.12.2024 | OPPFYLT  | Nei                  |                      |                | LOV_AUGUST_2024 |
+      | 2       | BARNETS_ALDER                                          |                  | 05.10.2024 | 05.04.2025 | OPPFYLT  | Nei                  |                      |                | LOV_AUGUST_2024 |
 
     Og andeler er beregnet for behandling 1
 
     Så forvent følgende andeler tilkjent ytelse for behandling 1
       | AktørId | Fra dato   | Til dato   | Beløp | Ytelse type           | Prosent | Sats |
-      | 2       | 01.06.2024 | 31.12.2024 | 7500  | ORDINÆR_KONTANTSTØTTE | 100     | 7500 |
+      | 2       | 01.10.2024 | 31.04.2025 | 7500  | ORDINÆR_KONTANTSTØTTE | 100     | 7500 |
 
   Scenario: For barn født 15. januar 2023 skal aldersvilkår splittes i august 2024
     Og følgende persongrunnlag
