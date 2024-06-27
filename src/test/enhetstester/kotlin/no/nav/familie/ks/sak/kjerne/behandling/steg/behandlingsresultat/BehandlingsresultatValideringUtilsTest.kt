@@ -7,7 +7,6 @@ import no.nav.familie.ks.sak.data.lagVilkårsvurdering
 import no.nav.familie.ks.sak.data.randomAktør
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårRegelsett
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertDoesNotThrow
@@ -48,7 +47,6 @@ internal class BehandlingsresultatValideringUtilsTest {
                 lagFullstendigVilkårResultat = true,
                 personType = PersonType.BARN,
                 erEksplisittAvslagPåSøknad = true,
-                
             )
 
         assertThrows<FunksjonellFeil> {
@@ -67,7 +65,6 @@ internal class BehandlingsresultatValideringUtilsTest {
                 søkerAktør = randomAktør(),
                 behandling = behandling,
                 resultat = Resultat.OPPFYLT,
-                
             )
         val barn1 = randomAktør()
         val barn2 = randomAktør()
@@ -82,7 +79,6 @@ internal class BehandlingsresultatValideringUtilsTest {
                 lagFullstendigVilkårResultat = true,
                 personType = PersonType.BARN,
                 erEksplisittAvslagPåSøknad = true,
-                
             )
         val barn2PersonResultat =
             lagPersonResultat(
@@ -94,7 +90,6 @@ internal class BehandlingsresultatValideringUtilsTest {
                 lagFullstendigVilkårResultat = true,
                 personType = PersonType.BARN,
                 erEksplisittAvslagPåSøknad = true,
-                
             )
 
         assertDoesNotThrow {

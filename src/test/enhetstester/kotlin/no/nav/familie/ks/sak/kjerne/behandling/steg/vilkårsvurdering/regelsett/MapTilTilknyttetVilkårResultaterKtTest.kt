@@ -2,7 +2,6 @@ package no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.regelsett
 
 import no.nav.familie.ks.sak.data.lagVilkårResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårRegelsett
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
@@ -33,7 +32,6 @@ class MapTilTilknyttetVilkårResultaterKtTest {
                 vilkårType = Vilkår.BARNETS_ALDER,
                 periodeFom = august.atDay(1),
                 periodeTom = september.atDay(14),
-                
             )
 
         val vilkårResultat2 =
@@ -41,7 +39,6 @@ class MapTilTilknyttetVilkårResultaterKtTest {
                 vilkårType = Vilkår.BARNETS_ALDER,
                 periodeFom = september.atDay(15),
                 periodeTom = oktober.atDay(1),
-                
             )
 
         val list: List<VilkårResultat> =
@@ -77,7 +74,6 @@ class MapTilTilknyttetVilkårResultaterKtTest {
                 vilkårType = Vilkår.BARNETS_ALDER,
                 periodeFom = august.atDay(1),
                 periodeTom = september.atDay(14),
-                
             )
 
         val vilkårResultat2 =
@@ -85,7 +81,6 @@ class MapTilTilknyttetVilkårResultaterKtTest {
                 vilkårType = Vilkår.BARNETS_ALDER,
                 periodeFom = september.atDay(15),
                 periodeTom = oktober.atDay(1),
-                
             )
 
         val vilkårResultat3 =
@@ -93,7 +88,6 @@ class MapTilTilknyttetVilkårResultaterKtTest {
                 vilkårType = Vilkår.BARNETS_ALDER,
                 periodeFom = oktober.atDay(1),
                 periodeTom = oktober.atDay(31),
-                
             )
 
         val list: List<VilkårResultat> =
@@ -134,7 +128,6 @@ class MapTilTilknyttetVilkårResultaterKtTest {
                 vilkårType = Vilkår.BARNETS_ALDER,
                 periodeFom = september.atDay(15),
                 periodeTom = oktober.atDay(1),
-                
             )
 
         val vilkårResultat2 =
@@ -142,7 +135,6 @@ class MapTilTilknyttetVilkårResultaterKtTest {
                 vilkårType = Vilkår.BARNETS_ALDER,
                 periodeFom = august.atDay(1),
                 periodeTom = september.atDay(14),
-                
             )
 
         val list: List<VilkårResultat> =

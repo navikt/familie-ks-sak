@@ -1,13 +1,6 @@
 package no.nav.familie.ks.sak.data
 
 import io.mockk.mockk
-import java.math.BigDecimal
-import java.time.LocalDate
-import java.time.LocalDateTime
-import java.time.YearMonth
-import java.util.UUID
-import kotlin.math.abs
-import kotlin.random.Random
 import no.nav.commons.foedselsnummer.testutils.FoedselsnummerGenerator
 import no.nav.familie.felles.utbetalingsgenerator.domain.AndelMedPeriodeIdLongId
 import no.nav.familie.felles.utbetalingsgenerator.domain.BeregnetUtbetalingsoppdragLongId
@@ -97,6 +90,13 @@ import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.bostedsadres
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.dødsfall.Dødsfall
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.sivilstand.GrSivilstand
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.statsborgerskap.GrStatsborgerskap
+import java.math.BigDecimal
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.YearMonth
+import java.util.UUID
+import kotlin.math.abs
+import kotlin.random.Random
 
 val fødselsnummerGenerator = FoedselsnummerGenerator()
 

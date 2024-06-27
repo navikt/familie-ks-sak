@@ -13,8 +13,6 @@ import jakarta.persistence.JoinColumn
 import jakarta.persistence.ManyToOne
 import jakarta.persistence.SequenceGenerator
 import jakarta.persistence.Table
-import java.math.BigDecimal
-import java.time.LocalDate
 import no.nav.familie.ks.sak.common.entitet.BaseEntitet
 import no.nav.familie.ks.sak.common.tidslinje.Periode
 import no.nav.familie.ks.sak.common.util.StringListConverter
@@ -25,6 +23,8 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.finnTilOgM
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.IBegrunnelse
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.IBegrunnelseListConverter
 import org.hibernate.annotations.Immutable
+import java.math.BigDecimal
+import java.time.LocalDate
 
 @Entity(name = "VilkårResultat")
 @Table(name = "vilkar_resultat")

@@ -14,7 +14,6 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.PersonResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårRegelsett
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.regelsett.tilForskjøvetOppfylteVilkårResultatTidslinjeMap
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
@@ -49,7 +48,6 @@ class UtbetalingsperiodeMedBegrunnelserServiceTest {
                 søkerAktør = søkerPerson.aktør,
                 behandling = behandling,
                 resultat = Resultat.OPPFYLT,
-                
             )
 
         val personResultat =
@@ -68,7 +66,6 @@ class UtbetalingsperiodeMedBegrunnelserServiceTest {
                     begrunnelse = "",
                     behandlingId = vilkårsvurdering.behandling.id,
                     utdypendeVilkårsvurderinger = emptyList(),
-                    
                 )
             }
 
@@ -102,7 +99,6 @@ class UtbetalingsperiodeMedBegrunnelserServiceTest {
                 søkerAktør = søkerPerson.aktør,
                 behandling = behandling,
                 resultat = Resultat.OPPFYLT,
-                
             )
 
         val personResultat =
@@ -120,7 +116,6 @@ class UtbetalingsperiodeMedBegrunnelserServiceTest {
                             resultat = Resultat.OPPFYLT,
                             begrunnelse = "",
                             behandlingId = vilkårsvurdering.behandling.id,
-                            
                         ),
                         VilkårResultat(
                             personResultat = it,
@@ -131,7 +126,6 @@ class UtbetalingsperiodeMedBegrunnelserServiceTest {
                             begrunnelse = "",
                             behandlingId = vilkårsvurdering.behandling.id,
                             erEksplisittAvslagPåSøknad = true,
-                            
                         ),
                     ),
                 )

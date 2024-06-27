@@ -1,8 +1,8 @@
 package no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering
 
-import java.time.LocalDate
 import no.nav.familie.ks.sak.common.util.DATO_LOVENDRING_2024
 import no.nav.familie.ks.sak.common.util.erSammeEllerEtter
+import java.time.LocalDate
 
 data class VilkårRegelverkInformasjonForBarn(
     val fødselsdatoBarn: LocalDate,

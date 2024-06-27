@@ -14,7 +14,6 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Ann
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.PersonResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårRegelsett
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
 import org.hamcrest.MatcherAssert.assertThat
@@ -38,7 +37,6 @@ class OppdaterVilkårsvurderingTest {
         val vilkårsvurderingForrigeBehandling =
             lagVilkårsvurderingOppfylt(
                 personer = listOf(persongrunnlag.søker, persongrunnlag.barna.single()),
-
             )
         val initiellVilkårsvurdering =
             genererInitiellVilkårsvurdering(
@@ -83,7 +81,7 @@ class OppdaterVilkårsvurderingTest {
             lagPersonopplysningGrunnlag(
                 søkerPersonIdent = søkerPersonIdent,
             )
-        val vilkårsvurderingForrigeBehandling = lagVilkårsvurderingOppfylt(personer = listOf(persongrunnlag1.søker), )
+        val vilkårsvurderingForrigeBehandling = lagVilkårsvurderingOppfylt(personer = listOf(persongrunnlag1.søker))
 
         val barnPersonIdent = randomFnr()
         val persongrunnlag2 =
@@ -355,7 +353,7 @@ class OppdaterVilkårsvurderingTest {
                 søkerPersonIdent = søkerFnr,
             )
 
-        val forrigeVilkårsvurdering = lagVilkårsvurderingOppfylt(personer = listOf(persongrunnlag.søker), skalOppretteEøsSpesifikkeVilkår = true, )
+        val forrigeVilkårsvurdering = lagVilkårsvurderingOppfylt(personer = listOf(persongrunnlag.søker), skalOppretteEøsSpesifikkeVilkår = true)
 
         val initiellVilkårsvurdering =
             genererInitiellVilkårsvurdering(

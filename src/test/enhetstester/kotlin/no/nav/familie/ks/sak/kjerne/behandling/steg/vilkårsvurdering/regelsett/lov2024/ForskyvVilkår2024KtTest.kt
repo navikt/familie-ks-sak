@@ -3,7 +3,6 @@ package no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.regelsett
 import no.nav.familie.ks.sak.data.lagVilkårResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårRegelsett
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
@@ -15,7 +14,6 @@ class ForskyvVilkår2024KtTest {
     val august = YearMonth.of(2024, 8)
     val september = YearMonth.of(2024, 9)
     val oktober = YearMonth.of(2024, 10)
-    val november = YearMonth.of(2024, 11)
     val desember = YearMonth.of(2024, 12)
 
     @Test
@@ -28,14 +26,12 @@ class ForskyvVilkår2024KtTest {
                     periodeFom = august.atDay(15),
                     periodeTom = oktober.atDay(14),
                     antallTimer = BigDecimal.valueOf(20L),
-                    
                 ),
                 lagVilkårResultat(
                     vilkårType = Vilkår.BARNEHAGEPLASS,
                     periodeFom = oktober.atDay(15),
                     periodeTom = desember.atDay(1),
                     antallTimer = BigDecimal.valueOf(20L),
-                    
                 ),
             )
 
@@ -65,14 +61,12 @@ class ForskyvVilkår2024KtTest {
                     periodeFom = august.atDay(15),
                     periodeTom = september.atDay(14),
                     resultat = Resultat.IKKE_OPPFYLT,
-                    
                 ),
                 lagVilkårResultat(
                     vilkårType = vilkår,
                     periodeFom = oktober.atDay(15),
                     periodeTom = desember.atDay(1),
                     resultat = Resultat.IKKE_VURDERT,
-                    
                 ),
             )
 
@@ -98,14 +92,12 @@ class ForskyvVilkår2024KtTest {
                     periodeFom = august.atDay(15),
                     periodeTom = oktober.atDay(14),
                     resultat = Resultat.IKKE_VURDERT,
-                    
                 ),
                 lagVilkårResultat(
                     vilkårType = vilkår,
                     periodeFom = oktober.atDay(15),
                     periodeTom = desember.atDay(1),
                     resultat = Resultat.OPPFYLT,
-                    
                 ),
             )
 

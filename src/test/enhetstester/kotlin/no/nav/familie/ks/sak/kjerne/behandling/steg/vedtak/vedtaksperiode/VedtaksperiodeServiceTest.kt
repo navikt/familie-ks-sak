@@ -35,7 +35,6 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.utbeta
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.PersonResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårRegelsett
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårsvurderingRepository
@@ -510,7 +509,6 @@ internal class VedtaksperiodeServiceTest {
                     periodeTom = LocalDate.of(2022, 12, 12),
                     begrunnelse = "",
                     behandlingId = behandling.id,
-                    
                 ),
                 VilkårResultat(
                     personResultat = barnPersonResultat,
@@ -520,7 +518,6 @@ internal class VedtaksperiodeServiceTest {
                     periodeTom = LocalDate.of(2026, 12, 12),
                     begrunnelse = "",
                     behandlingId = behandling.id,
-                    
                 ),
             ),
         )
@@ -534,7 +531,6 @@ internal class VedtaksperiodeServiceTest {
                     periodeTom = LocalDate.of(2022, 12, 12),
                     begrunnelse = "",
                     behandlingId = behandling.id,
-                    
                 ),
                 VilkårResultat(
                     personResultat = barnPersonResultat2,
@@ -544,7 +540,6 @@ internal class VedtaksperiodeServiceTest {
                     periodeTom = LocalDate.of(2027, 12, 12),
                     begrunnelse = "",
                     behandlingId = behandling.id,
-                    
                 ),
             ),
         )
@@ -593,7 +588,6 @@ internal class VedtaksperiodeServiceTest {
                     periodeTom = LocalDate.of(2022, 12, 12),
                     begrunnelse = "",
                     behandlingId = behandling.id,
-                    
                 ),
                 VilkårResultat(
                     personResultat = personResultat,
@@ -603,7 +597,6 @@ internal class VedtaksperiodeServiceTest {
                     periodeTom = LocalDate.of(2026, 12, 12),
                     begrunnelse = "",
                     behandlingId = behandling.id,
-                    
                 ),
             ),
         )

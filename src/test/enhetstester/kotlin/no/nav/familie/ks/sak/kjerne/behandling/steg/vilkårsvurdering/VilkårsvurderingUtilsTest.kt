@@ -15,7 +15,6 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Per
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.UtdypendeVilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårRegelsett
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
@@ -132,7 +131,6 @@ class VilkårsvurderingUtilsTest {
                 behandlingId = 1,
                 periodeFom = januar,
                 periodeTom = desember.minusDays(1),
-                
             )
         val vilkårResultat2 =
             lagVilkårResultat(
@@ -141,7 +139,6 @@ class VilkårsvurderingUtilsTest {
                 behandlingId = 2,
                 periodeFom = januar,
                 periodeTom = august.minusDays(1),
-                
             )
 
         val resultat =
@@ -170,7 +167,6 @@ class VilkårsvurderingUtilsTest {
                 behandlingId = 1,
                 periodeFom = januar,
                 periodeTom = april.minusDays(1),
-                
             )
         val vilkårResultat2 =
             lagVilkårResultat(
@@ -179,7 +175,6 @@ class VilkårsvurderingUtilsTest {
                 behandlingId = 2,
                 periodeFom = august,
                 periodeTom = desember.minusDays(1),
-                
             )
 
         val resultat =
@@ -208,7 +203,6 @@ class VilkårsvurderingUtilsTest {
                 behandlingId = 1,
                 periodeFom = april,
                 periodeTom = august.minusDays(1),
-                
             )
         val vilkårResultat2 =
             lagVilkårResultat(
@@ -217,7 +211,6 @@ class VilkårsvurderingUtilsTest {
                 behandlingId = 2,
                 periodeFom = januar,
                 periodeTom = desember.minusDays(1),
-                
             )
 
         val resultat =
@@ -239,7 +232,6 @@ class VilkårsvurderingUtilsTest {
                 behandlingId = 1,
                 periodeFom = januar,
                 periodeTom = april.minusDays(1),
-                
             )
         val vilkårResultat2 =
             lagVilkårResultat(
@@ -248,7 +240,6 @@ class VilkårsvurderingUtilsTest {
                 behandlingId = 2,
                 periodeFom = august,
                 periodeTom = desember.minusDays(1),
-                
             )
 
         val resultat =
@@ -278,7 +269,6 @@ class VilkårsvurderingUtilsTest {
                 periodeFom = januar,
                 periodeTom = august.minusDays(1),
                 vilkårType = Vilkår.BOR_MED_SØKER,
-                
             )
         val vilkårResultat2 =
             lagVilkårResultat(
@@ -288,7 +278,6 @@ class VilkårsvurderingUtilsTest {
                 periodeFom = april,
                 periodeTom = desember.minusDays(1),
                 vilkårType = Vilkår.BOSATT_I_RIKET,
-                
             )
 
         val resultat =
@@ -325,7 +314,6 @@ class VilkårsvurderingUtilsTest {
                     periodeTom = tom,
                     begrunnelse = "begrunnelse",
                     behandlingId = behandling.id,
-                    
                 ),
             )
         personResultatForBarn.setSortedVilkårResultater(vilkårResultaterForBarn)
@@ -361,7 +349,6 @@ class VilkårsvurderingUtilsTest {
                     periodeTom = tom,
                     begrunnelse = "begrunnelse",
                     behandlingId = behandling.id,
-                    
                 ),
             )
         personResultatForBarn.setSortedVilkårResultater(vilkårResultaterForBarn)
@@ -395,7 +382,6 @@ class VilkårsvurderingUtilsTest {
                     begrunnelse = "begrunnelse",
                     behandlingId = behandling.id,
                     erEksplisittAvslagPåSøknad = true,
-                    
                 ),
             )
         personResultatForBarn.setSortedVilkårResultater(vilkårResultaterForBarn)
@@ -423,7 +409,6 @@ class VilkårsvurderingUtilsTest {
                     periodeTom = barnPerson.fødselsdato.plusYears(2),
                     begrunnelse = "begrunnelse",
                     behandlingId = behandling.id,
-                    
                 ),
             )
         personResultatForBarn.setSortedVilkårResultater(vilkårResultaterForBarn)
@@ -453,7 +438,6 @@ class VilkårsvurderingUtilsTest {
                     periodeTom = barnPerson.fødselsdato.plusYears(2).plusMonths(2),
                     begrunnelse = "begrunnelse",
                     behandlingId = behandling.id,
-                    
                 ),
             )
         personResultatForBarn.setSortedVilkårResultater(vilkårResultaterForBarn)
@@ -484,7 +468,6 @@ class VilkårsvurderingUtilsTest {
                     begrunnelse = "begrunnelse",
                     behandlingId = behandling.id,
                     utdypendeVilkårsvurderinger = listOf(UtdypendeVilkårsvurdering.ADOPSJON),
-                    
                 ),
             )
         personResultatForBarn.setSortedVilkårResultater(vilkårResultaterForBarn)
@@ -515,7 +498,6 @@ class VilkårsvurderingUtilsTest {
                     begrunnelse = "begrunnelse",
                     behandlingId = behandling.id,
                     utdypendeVilkårsvurderinger = listOf(UtdypendeVilkårsvurdering.ADOPSJON),
-                    
                 ),
             )
         personResultatForBarn.setSortedVilkårResultater(vilkårResultaterForBarn)
@@ -548,7 +530,6 @@ class VilkårsvurderingUtilsTest {
                     begrunnelse = "begrunnelse",
                     behandlingId = behandling.id,
                     utdypendeVilkårsvurderinger = listOf(UtdypendeVilkårsvurdering.ADOPSJON),
-                    
                 ),
             )
         personResultatForBarn.setSortedVilkårResultater(vilkårResultaterForBarn)
@@ -577,7 +558,6 @@ class VilkårsvurderingUtilsTest {
                     begrunnelse = "begrunnelse",
                     behandlingId = behandling.id,
                     utdypendeVilkårsvurderinger = listOf(UtdypendeVilkårsvurdering.ADOPSJON),
-                    
                 ),
             )
         personResultatForBarn.setSortedVilkårResultater(vilkårResultaterForBarn)
@@ -612,7 +592,6 @@ class VilkårsvurderingUtilsTest {
                     periodeTom = dødsfallsdato,
                     begrunnelse = "begrunnelse",
                     behandlingId = behandling.id,
-                    
                 ),
             )
         personResultatForBarn.setSortedVilkårResultater(vilkårResultaterForBarn)

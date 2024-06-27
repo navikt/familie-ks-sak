@@ -1,10 +1,6 @@
 package no.nav.familie.ks.sak.kjerne.behandling.steg.behandlingsresultat
 
-import org.hamcrest.CoreMatchers.`is` as Is
 import io.mockk.mockk
-import java.math.BigDecimal
-import java.time.LocalDate
-import java.time.YearMonth
 import no.nav.familie.ks.sak.common.util.førsteDagIInneværendeMåned
 import no.nav.familie.ks.sak.data.lagAndelTilkjentYtelse
 import no.nav.familie.ks.sak.data.lagBehandling
@@ -32,6 +28,10 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
+import java.math.BigDecimal
+import java.time.LocalDate
+import java.time.YearMonth
+import org.hamcrest.CoreMatchers.`is` as Is
 
 class BehandlingsresultatEndringUtilsTest {
     val søker = tilfeldigPerson()

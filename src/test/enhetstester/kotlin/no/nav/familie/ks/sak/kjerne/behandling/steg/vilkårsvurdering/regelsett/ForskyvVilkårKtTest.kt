@@ -3,7 +3,6 @@ package no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.regelsett
 import no.nav.familie.ks.sak.data.lagVilkårResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårRegelsett
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -27,13 +26,11 @@ class ForskyvVilkårKtTest {
                         vilkårType = Vilkår.BARNETS_ALDER,
                         periodeFom = august.atDay(15),
                         periodeTom = oktober.atDay(14),
-                        
                     ),
                     lagVilkårResultat(
                         vilkårType = Vilkår.BARNETS_ALDER,
                         periodeFom = oktober.atDay(15),
                         periodeTom = desember.atDay(1),
-                        
                     ),
                 )
 
@@ -62,21 +59,18 @@ class ForskyvVilkårKtTest {
                         periodeFom = august.atDay(15),
                         periodeTom = oktober.atDay(13),
                         resultat = Resultat.OPPFYLT,
-                        
                     ),
                     lagVilkårResultat(
                         vilkårType = Vilkår.BARNETS_ALDER,
                         periodeFom = oktober.atDay(14),
                         periodeTom = oktober.atDay(14),
                         resultat = Resultat.IKKE_OPPFYLT,
-                        
                     ),
                     lagVilkårResultat(
                         vilkårType = Vilkår.BARNETS_ALDER,
                         periodeFom = oktober.atDay(15),
                         periodeTom = desember.atDay(1),
                         resultat = Resultat.OPPFYLT,
-                        
                     ),
                 )
 
@@ -104,13 +98,11 @@ class ForskyvVilkårKtTest {
                         vilkårType = Vilkår.BARNETS_ALDER,
                         periodeFom = august.atDay(15),
                         periodeTom = august.atEndOfMonth(),
-                        
                     ),
                     lagVilkårResultat(
                         vilkårType = Vilkår.BARNETS_ALDER,
                         periodeFom = september.atDay(1),
                         periodeTom = desember.atDay(1),
-                        
                     ),
                 )
 
@@ -138,13 +130,11 @@ class ForskyvVilkårKtTest {
                         vilkårType = Vilkår.BARNETS_ALDER,
                         periodeFom = august.atDay(15),
                         periodeTom = september.atEndOfMonth(),
-                        
                     ),
                     lagVilkårResultat(
                         vilkårType = Vilkår.BARNETS_ALDER,
                         periodeFom = oktober.atDay(2),
                         periodeTom = desember.atDay(1),
-                        
                     ),
                 )
 
@@ -172,7 +162,6 @@ class ForskyvVilkårKtTest {
                         vilkårType = Vilkår.BARNETS_ALDER,
                         periodeFom = august.atDay(15),
                         periodeTom = september.atEndOfMonth(),
-                        
                     ),
                 )
 
