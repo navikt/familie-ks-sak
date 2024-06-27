@@ -27,7 +27,7 @@ Egenskap: Barnets alder
       | 1       | LOVLIG_OPPHOLD                                         |                  | 19.06.1988 |            | OPPFYLT  | Nei                  |                      |                | LOV_AUGUST_2024 |
 
       | 2       | MEDLEMSKAP_ANNEN_FORELDER,BOR_MED_SØKER,BOSATT_I_RIKET |                  | 05.01.2023 |            | OPPFYLT  | Nei                  |                      |                | LOV_AUGUST_2024 |
-      | 2       | BARNEHAGEPLASS                                         |                  | 05.02.2024 |            | OPPFYLT  | Nei                  |                      |                | LOV_AUGUST_2024 |
+      | 2       | BARNEHAGEPLASS                                         |                  | 05.09.2023 |            | OPPFYLT  | Nei                  |                      |                | LOV_AUGUST_2024 |
       | 2       | BARNETS_ALDER                                          |                  | 05.10.2024 | 05.04.2025 | OPPFYLT  | Nei                  |                      |                | LOV_AUGUST_2024 |
 
     Og andeler er beregnet for behandling 1
@@ -50,7 +50,7 @@ Egenskap: Barnets alder
       | 1       | LOVLIG_OPPHOLD                                         |                  | 19.06.1988 |            | OPPFYLT  | Nei                  |                      |                | LOV_AUGUST_2024 |
 
       | 2       | MEDLEMSKAP_ANNEN_FORELDER,BOR_MED_SØKER,BOSATT_I_RIKET |                  | 05.01.2023 |            | OPPFYLT  | Nei                  |                      |                | LOV_AUGUST_2024 |
-      | 2       | BARNEHAGEPLASS                                         |                  | 05.02.2024 |            | OPPFYLT  | Nei                  |                      |                | LOV_AUGUST_2024 |
+      | 2       | BARNEHAGEPLASS                                         |                  | 15.02.2023 |            | OPPFYLT  | Nei                  |                      |                | LOV_AUGUST_2024 |
       | 2       | BARNETS_ALDER                                          |                  | 15.02.2024 | 31.07.2024 | OPPFYLT  | Nei                  |                      |                | LOV_AUGUST_2021 |
       | 2       | BARNETS_ALDER                                          |                  | 01.08.2024 | 15.09.2024 | OPPFYLT  | Nei                  |                      |                | LOV_AUGUST_2024 |
 
@@ -74,7 +74,7 @@ Egenskap: Barnets alder
       | 1       | MEDLEMSKAP                                             |                  | 19.06.1993 |            | IKKE_VURDERT | LOV_AUGUST_2024 | NASJONALE_REGLER | Nei                   |
 
       | 2       | MEDLEMSKAP_ANNEN_FORELDER,BOR_MED_SØKER,BOSATT_I_RIKET |                  |            |            | IKKE_VURDERT | LOV_AUGUST_2024 | NASJONALE_REGLER | Nei                   |
-      | 2       | BARNEHAGEPLASS                                         |                  | 15.02.2024 |            | OPPFYLT      | LOV_AUGUST_2024 |                  | Nei                   |
+      | 2       | BARNEHAGEPLASS                                         |                  | 15.01.2023 |            | OPPFYLT      | LOV_AUGUST_2024 |                  | Nei                   |
       | 2       | BARNETS_ALDER                                          |                  | 15.01.2024 | 31.07.2024 | OPPFYLT      | LOV_AUGUST_2021 |                  | Ja                    |
       | 2       | BARNETS_ALDER                                          |                  | 01.08.2024 | 15.08.2024 | OPPFYLT      | LOV_AUGUST_2024 |                  | Ja                    |
 
@@ -92,7 +92,7 @@ Egenskap: Barnets alder
       | 1       | MEDLEMSKAP                                             |                  | 19.06.1993 |            | IKKE_VURDERT | LOV_AUGUST_2024 | NASJONALE_REGLER | Nei                   |
 
       | 2       | MEDLEMSKAP_ANNEN_FORELDER,BOR_MED_SØKER,BOSATT_I_RIKET |                  |            |            | IKKE_VURDERT | LOV_AUGUST_2024 | NASJONALE_REGLER | Nei                   |
-      | 2       | BARNEHAGEPLASS                                         |                  | 01.11.2023 |            | OPPFYLT      | LOV_AUGUST_2024 |                  | Nei                   |
+      | 2       | BARNEHAGEPLASS                                         |                  | 01.10.2022 |            | OPPFYLT      | LOV_AUGUST_2024 |                  | Nei                   |
       | 2       | BARNETS_ALDER                                          |                  | 01.10.2023 | 31.07.2024 | OPPFYLT      | LOV_AUGUST_2021 |                  | Ja                    |
 
   Scenario: Ved opprettelse av ny behandling av barn født 1. des 2022 skal aldersvilkåret være oppfylt f.o.m. 1 des 2023 til 31 juli 2024
@@ -109,7 +109,7 @@ Egenskap: Barnets alder
       | 1       | MEDLEMSKAP                                             |                  | 19.06.1993 |            | IKKE_VURDERT | LOV_AUGUST_2024 | NASJONALE_REGLER | Nei                   |
 
       | 2       | MEDLEMSKAP_ANNEN_FORELDER,BOR_MED_SØKER,BOSATT_I_RIKET |                  |            |            | IKKE_VURDERT | LOV_AUGUST_2024 | NASJONALE_REGLER | Nei                   |
-      | 2       | BARNEHAGEPLASS                                         |                  | 01.01.2024 |            | OPPFYLT      | LOV_AUGUST_2024 |                  | Nei                   |
+      | 2       | BARNEHAGEPLASS                                         |                  | 01.12.2022 |            | OPPFYLT      | LOV_AUGUST_2024 |                  | Nei                   |
       | 2       | BARNETS_ALDER                                          |                  | 01.12.2023 | 31.07.2024 | OPPFYLT      | LOV_AUGUST_2021 |                  | Ja                    |
 
   Scenario: Ved opprettelse av ny behandling av barn født 15. feb 2023 skal aldersvilkåret være oppfylt fom 15 februar 2024 til 31 juli 2024 og fom 1 august 2024 til 15 september 2024
@@ -126,7 +126,7 @@ Egenskap: Barnets alder
       | 1       | MEDLEMSKAP                                             |                  | 19.06.1993 |            | IKKE_VURDERT | LOV_AUGUST_2024 | NASJONALE_REGLER | Nei                   |
 
       | 2       | MEDLEMSKAP_ANNEN_FORELDER,BOR_MED_SØKER,BOSATT_I_RIKET |                  |            |            | IKKE_VURDERT | LOV_AUGUST_2024 | NASJONALE_REGLER | Nei                   |
-      | 2       | BARNEHAGEPLASS                                         |                  | 15.03.2024 |            | OPPFYLT      | LOV_AUGUST_2024 |                  | Nei                   |
+      | 2       | BARNEHAGEPLASS                                         |                  | 15.02.2023 |            | OPPFYLT      | LOV_AUGUST_2024 |                  | Nei                   |
       | 2       | BARNETS_ALDER                                          |                  | 15.02.2024 | 31.07.2024 | OPPFYLT      | LOV_AUGUST_2021 |                  | Ja                    |
       | 2       | BARNETS_ALDER                                          |                  | 01.08.2024 | 15.09.2024 | OPPFYLT      | LOV_AUGUST_2021 |                  | Ja                    |
 
@@ -144,7 +144,7 @@ Egenskap: Barnets alder
       | 1       | MEDLEMSKAP                                             |                  | 19.06.1993 |            | IKKE_VURDERT | LOV_AUGUST_2024 | NASJONALE_REGLER | Nei                   |
 
       | 2       | MEDLEMSKAP_ANNEN_FORELDER,BOR_MED_SØKER,BOSATT_I_RIKET |                  |            |            | IKKE_VURDERT | LOV_AUGUST_2024 | NASJONALE_REGLER | Nei                   |
-      | 2       | BARNEHAGEPLASS                                         |                  | 15.08.2024 |            | OPPFYLT      | LOV_AUGUST_2024 |                  | Nei                   |
+      | 2       | BARNEHAGEPLASS                                         |                  | 15.07.2023 |            | OPPFYLT      | LOV_AUGUST_2024 |                  | Nei                   |
       | 2       | BARNETS_ALDER                                          |                  | 15.07.2024 | 31.07.2024 | OPPFYLT      | LOV_AUGUST_2021 |                  | Ja                    |
       | 2       | BARNETS_ALDER                                          |                  | 15.08.2024 | 15.02.2025 | OPPFYLT      | LOV_AUGUST_2021 |                  | Ja                    |
 
@@ -162,5 +162,5 @@ Egenskap: Barnets alder
       | 1       | MEDLEMSKAP                                             |                  | 19.06.1993 |            | IKKE_VURDERT | LOV_AUGUST_2024 | NASJONALE_REGLER | Nei                   |
 
       | 2       | MEDLEMSKAP_ANNEN_FORELDER,BOR_MED_SØKER,BOSATT_I_RIKET |                  |            |            | IKKE_VURDERT | LOV_AUGUST_2024 | NASJONALE_REGLER | Nei                   |
-      | 2       | BARNEHAGEPLASS                                         |                  | 15.09.2024 |            | OPPFYLT      | LOV_AUGUST_2024 |                  | Nei                   |
+      | 2       | BARNEHAGEPLASS                                         |                  | 15.08.2023 |            | OPPFYLT      | LOV_AUGUST_2024 |                  | Nei                   |
       | 2       | BARNETS_ALDER                                          |                  | 15.09.2024 | 15.03.2025 | OPPFYLT      | LOV_AUGUST_2021 |                  | Ja                    |
