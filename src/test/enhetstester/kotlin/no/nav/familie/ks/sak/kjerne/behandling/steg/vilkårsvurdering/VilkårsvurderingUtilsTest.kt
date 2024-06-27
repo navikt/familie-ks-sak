@@ -2,6 +2,7 @@ package no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering
 
 import io.mockk.mockk
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
+import no.nav.familie.ks.sak.common.util.DATO_LOVENDRING_2024
 import no.nav.familie.ks.sak.common.util.tilDagMånedÅr
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagPerson
@@ -396,8 +397,9 @@ class VilkårsvurderingUtilsTest {
     }
 
     @Test
-    fun `validerAtDatoErKorrektIBarnasVilkår skal kaste funksjonell feil når BARNETS_ALDER vilkår resulat har fom etter barnets 1 år`() {
-        val personResultatForBarn = PersonResultat(vilkårsvurdering = vilkårsvurdering, aktør = barn1)
+    fun `validerAtDatoErKorrektIBarnasVilkår skal kaste funksjonell feil når BARNETS_ALDER vilkår resulat har fom etter barnets 1 års dag når barn er født før august 2023`() {
+        val barnFødtJuli23 = lagPerson(personType = PersonType.BARN, aktør = randomAktør("30062312345"))
+        val personResultatForBarn = PersonResultat(vilkårsvurdering = vilkårsvurdering, aktør = barnFødtJuli23.aktør)
         val vilkårResultaterForBarn =
             setOf(
                 VilkårResultat(
@@ -405,8 +407,18 @@ class VilkårsvurderingUtilsTest {
                     personResultat = personResultatForBarn,
                     vilkårType = Vilkår.BARNETS_ALDER,
                     resultat = Resultat.OPPFYLT,
-                    periodeFom = barnPerson.fødselsdato.plusMonths(13),
-                    periodeTom = barnPerson.fødselsdato.plusYears(2),
+                    periodeFom = barnFødtJuli23.fødselsdato.plusMonths(13),
+                    periodeTom = LocalDate.of(2024, 7, 31),
+                    begrunnelse = "begrunnelse",
+                    behandlingId = behandling.id,
+                ),
+                VilkårResultat(
+                    id = 0,
+                    personResultat = personResultatForBarn,
+                    vilkårType = Vilkår.BARNETS_ALDER,
+                    resultat = Resultat.OPPFYLT,
+                    periodeFom = DATO_LOVENDRING_2024,
+                    periodeTom = barnFødtJuli23.fødselsdato.plusMonths(19),
                     begrunnelse = "begrunnelse",
                     behandlingId = behandling.id,
                 ),
@@ -418,15 +430,16 @@ class VilkårsvurderingUtilsTest {
             assertThrows<FunksjonellFeil> {
                 validerAtDatoErKorrektIBarnasVilkår(
                     vilkårsvurdering,
-                    barna = listOf(barnPerson),
+                    barna = listOf(barnFødtJuli23),
                 )
             }
         assertEquals("F.o.m datoen må være lik barnets 1 års dag.", exception.message)
     }
 
     @Test
-    fun `validerAtDatoErKorrektIBarnasVilkår skal kaste funksjonell feil når BARNETS_ALDER vilkår resulat har tom etter barnets 2 år`() {
-        val personResultatForBarn = PersonResultat(vilkårsvurdering = vilkårsvurdering, aktør = barn1)
+    fun `validerAtDatoErKorrektIBarnasVilkår skal kaste funksjonell feil når BARNETS_ALDER vilkår resulat har tom etter barnet fyller 19 måneder for barn født i 2023 og senere`() {
+        val barnFødtAugust22 = lagPerson(personType = PersonType.BARN, aktør = randomAktør("01012312345"))
+        val personResultatForBarn = PersonResultat(vilkårsvurdering = vilkårsvurdering, aktør = barnFødtAugust22.aktør)
         val vilkårResultaterForBarn =
             setOf(
                 VilkårResultat(
@@ -434,8 +447,18 @@ class VilkårsvurderingUtilsTest {
                     personResultat = personResultatForBarn,
                     vilkårType = Vilkår.BARNETS_ALDER,
                     resultat = Resultat.OPPFYLT,
-                    periodeFom = barnPerson.fødselsdato.plusYears(1),
-                    periodeTom = barnPerson.fødselsdato.plusYears(2).plusMonths(2),
+                    periodeFom = barnFødtAugust22.fødselsdato.plusYears(1),
+                    periodeTom = DATO_LOVENDRING_2024.minusDays(1),
+                    begrunnelse = "begrunnelse",
+                    behandlingId = behandling.id,
+                ),
+                VilkårResultat(
+                    id = 0,
+                    personResultat = personResultatForBarn,
+                    vilkårType = Vilkår.BARNETS_ALDER,
+                    resultat = Resultat.OPPFYLT,
+                    periodeFom = DATO_LOVENDRING_2024,
+                    periodeTom = barnFødtAugust22.fødselsdato.plusYears(2),
                     begrunnelse = "begrunnelse",
                     behandlingId = behandling.id,
                 ),
@@ -447,10 +470,70 @@ class VilkårsvurderingUtilsTest {
             assertThrows<FunksjonellFeil> {
                 validerAtDatoErKorrektIBarnasVilkår(
                     vilkårsvurdering,
-                    barna = listOf(barnPerson),
+                    barna = listOf(barnFødtAugust22),
                 )
             }
-        assertEquals("T.o.m datoen må være lik barnets 2 års dag.", exception.message)
+        assertEquals("T.o.m datoen må være lik datoen barnet fyller 19 måneder. Dersom barnet ikke lever må t.o.m datoen være lik dato for dødsfall.", exception.message)
+    }
+
+    @Test
+    fun `validerAtDatoErKorrektIBarnasVilkår skal kaste funksjonell feil når BARNETS_ALDER vilkår resulat har fom etter barnet blir 13 måneder og barn er født etter 2023`() {
+        val barnFødtAugust22 = lagPerson(personType = PersonType.BARN, aktør = randomAktør("01082212345"))
+        val personResultatForBarn = PersonResultat(vilkårsvurdering = vilkårsvurdering, aktør = barnFødtAugust22.aktør)
+        val vilkårResultaterForBarn =
+            setOf(
+                VilkårResultat(
+                    id = 0,
+                    personResultat = personResultatForBarn,
+                    vilkårType = Vilkår.BARNETS_ALDER,
+                    resultat = Resultat.OPPFYLT,
+                    periodeFom = barnFødtAugust22.fødselsdato.plusMonths(13),
+                    periodeTom = LocalDate.of(2024, 7, 31),
+                    begrunnelse = "begrunnelse",
+                    behandlingId = behandling.id,
+                ),
+            )
+        personResultatForBarn.setSortedVilkårResultater(vilkårResultaterForBarn)
+        vilkårsvurdering.personResultater = setOf(personResultatForBarn)
+
+        val exception =
+            assertThrows<FunksjonellFeil> {
+                validerAtDatoErKorrektIBarnasVilkår(
+                    vilkårsvurdering,
+                    barna = listOf(barnFødtAugust22),
+                )
+            }
+        assertEquals("F.o.m datoen må være lik barnets 1 års dag.", exception.message)
+    }
+
+    @Test
+    fun `validerAtDatoErKorrektIBarnasVilkår skal kaste funksjonell feil når BARNETS_ALDER vilkår resulat har tom etter barnet fyller 2 år og barn er født før 2023`() {
+        val barnFødtAugust22 = lagPerson(personType = PersonType.BARN, aktør = randomAktør("01122212345"))
+        val personResultatForBarn = PersonResultat(vilkårsvurdering = vilkårsvurdering, aktør = barnFødtAugust22.aktør)
+        val vilkårResultaterForBarn =
+            setOf(
+                VilkårResultat(
+                    id = 0,
+                    personResultat = personResultatForBarn,
+                    vilkårType = Vilkår.BARNETS_ALDER,
+                    resultat = Resultat.OPPFYLT,
+                    periodeFom = barnFødtAugust22.fødselsdato.plusYears(1),
+                    periodeTom = barnFødtAugust22.fødselsdato.plusYears(2).plusMonths(2),
+                    begrunnelse = "begrunnelse",
+                    behandlingId = behandling.id,
+                ),
+            )
+        personResultatForBarn.setSortedVilkårResultater(vilkårResultaterForBarn)
+        vilkårsvurdering.personResultater = setOf(personResultatForBarn)
+
+        val exception =
+            assertThrows<FunksjonellFeil> {
+                validerAtDatoErKorrektIBarnasVilkår(
+                    vilkårsvurdering,
+                    barna = listOf(barnFødtAugust22),
+                )
+            }
+        assertEquals("T.o.m datoen må være lik barnets 2 års dag eller 31.07.24 på grunn av lovendring fra og med 01.08.24. Dersom barnet ikke lever må t.o.m datoen være lik dato for dødsfall.", exception.message)
     }
 
     @Test

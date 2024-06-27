@@ -248,34 +248,31 @@ fun validerAtDatoErKorrektIBarnasVilkår(
     val funksjonelleFeil = mutableListOf<String>()
 
     barna.map { barn ->
-        vilkårsvurdering.personResultater
-            .flatMap { it.vilkårResultater }
-            .filter { it.personResultat?.aktør == barn.aktør }
-            .forEach { vilkårResultat ->
-                val fødselsdato = barn.fødselsdato.tilDagMånedÅr()
-                val vilkårType = vilkårResultat.vilkårType
-                if (vilkårResultat.resultat == Resultat.OPPFYLT && vilkårResultat.periodeFom == null) {
-                    funksjonelleFeil.add("Vilkår $vilkårType for barn med fødselsdato $fødselsdato mangler fom dato.")
-                }
-                if (vilkårResultat.periodeFom != null &&
-                    vilkårType != Vilkår.MEDLEMSKAP_ANNEN_FORELDER &&
-                    vilkårResultat.lagOgValiderPeriodeFraVilkår().fom.isBefore(barn.fødselsdato)
-                ) {
-                    funksjonelleFeil.add(
-                        "Vilkår $vilkårType for barn med fødselsdato $fødselsdato " +
-                            "har fom dato før barnets fødselsdato.",
-                    )
-                }
-                if (vilkårResultat.periodeFom != null &&
-                    vilkårResultat.erEksplisittAvslagPåSøknad != true &&
-                    vilkårResultat.vilkårType == Vilkår.BARNETS_ALDER
-                ) {
-                    vilkårResultat.validerVilkårBarnetsAlder(
-                        vilkårResultat.lagOgValiderPeriodeFraVilkår(),
-                        barn,
-                    )?.let { funksjonelleFeil.add(it) }
-                }
+        val vilkårsResultaterForBarn =
+            vilkårsvurdering.personResultater
+                .flatMap { it.vilkårResultater }
+                .filter { it.personResultat?.aktør == barn.aktør }
+
+        vilkårsResultaterForBarn.forEach { vilkårResultat ->
+            val fødselsdato = barn.fødselsdato.tilDagMånedÅr()
+            val vilkårType = vilkårResultat.vilkårType
+            if (vilkårResultat.resultat == Resultat.OPPFYLT && vilkårResultat.periodeFom == null) {
+                funksjonelleFeil.add("Vilkår $vilkårType for barn med fødselsdato $fødselsdato mangler fom dato.")
             }
+            if (vilkårResultat.periodeFom != null &&
+                vilkårType != Vilkår.MEDLEMSKAP_ANNEN_FORELDER &&
+                vilkårResultat.lagOgValiderPeriodeFraVilkår().fom.isBefore(barn.fødselsdato)
+            ) {
+                funksjonelleFeil.add(
+                    "Vilkår $vilkårType for barn med fødselsdato $fødselsdato " +
+                        "har fom dato før barnets fødselsdato.",
+                )
+            }
+        }
+
+        val barnetsAlderVilkårSomSkalValideres = vilkårsResultaterForBarn.filter { it.vilkårType == Vilkår.BARNETS_ALDER && it.periodeFom != null && it.erEksplisittAvslagPåSøknad != true }
+        val funksjonelleFeilBarnetsAlder = validerVilkårBarnetsAlder(barnetsAlderVilkårSomSkalValideres.map { it.lagOgValiderPeriodeFraVilkår() }, barn)
+        funksjonelleFeil.addAll(funksjonelleFeilBarnetsAlder)
     }
 
     if (funksjonelleFeil.isNotEmpty()) {
@@ -283,14 +280,14 @@ fun validerAtDatoErKorrektIBarnasVilkår(
     }
 }
 
-private fun VilkårResultat.lagOgValiderPeriodeFraVilkår(): IkkeNullbarPeriode<Long> =
+private fun VilkårResultat.lagOgValiderPeriodeFraVilkår(): IkkeNullbarPeriode<VilkårResultat> =
     when {
         periodeFom !== null -> {
-            IkkeNullbarPeriode(verdi = behandlingId, fom = checkNotNull(periodeFom), tom = periodeTom ?: TIDENES_ENDE)
+            IkkeNullbarPeriode(verdi = this, fom = checkNotNull(periodeFom), tom = periodeTom ?: TIDENES_ENDE)
         }
 
         erEksplisittAvslagPåSøknad == true && periodeTom == null -> {
-            IkkeNullbarPeriode(verdi = behandlingId, fom = TIDENES_MORGEN, tom = TIDENES_ENDE)
+            IkkeNullbarPeriode(verdi = this, fom = TIDENES_MORGEN, tom = TIDENES_ENDE)
         }
 
         else -> {
@@ -298,62 +295,95 @@ private fun VilkårResultat.lagOgValiderPeriodeFraVilkår(): IkkeNullbarPeriode<
         }
     }
 
-private fun VilkårResultat.validerVilkårBarnetsAlder(
-    periode: IkkeNullbarPeriode<Long>,
+private fun validerVilkårBarnetsAlder(
+    perioder: List<IkkeNullbarPeriode<VilkårResultat>>,
     barn: Person,
-): String? {
+): List<String> {
     val vilkårRegelverkInformasjonForBarn = VilkårRegelverkInformasjonForBarn(barn.fødselsdato)
     return when {
-        vilkårRegelverkInformasjonForBarn.erTruffetAvRegelverk2021 && vilkårRegelverkInformasjonForBarn.erTruffetAvRegelverk2024 -> "Barnets alder vilkåret må splittes i to perioder fordi barnet fyller 1 år før og 19 måneder etter 01.08.24. Periodene må være som følgende: [${vilkårRegelverkInformasjonForBarn.periodeFomBarnetsAlderLov2021} - ${minOf(vilkårRegelverkInformasjonForBarn.periodeTomBarnetsAlderLov2021, DATO_LOVENDRING_2024.minusMonths(1).sisteDagIMåned())}, ${maxOf(vilkårRegelverkInformasjonForBarn.periodeFomBarnetsAlderLov2024, DATO_LOVENDRING_2024)} - ${vilkårRegelverkInformasjonForBarn.periodeTomBarnetsAlderLov2024}]"
-        vilkårRegelverkInformasjonForBarn.erTruffetAvRegelverk2021 -> validerBarnetsAlderIHenholdTilLovI2021(periode, barn, vilkårRegelverkInformasjonForBarn.periodeFomBarnetsAlderLov2021, vilkårRegelverkInformasjonForBarn.periodeTomBarnetsAlderLov2021)
-        vilkårRegelverkInformasjonForBarn.erTruffetAvRegelverk2024 -> validerBarnetsAlderIHenholdTilLovI2024(periode, barn, vilkårRegelverkInformasjonForBarn.periodeFomBarnetsAlderLov2024, vilkårRegelverkInformasjonForBarn.periodeTomBarnetsAlderLov2024)
-        else -> null
+        vilkårRegelverkInformasjonForBarn.erTruffetAvRegelverk2021 && vilkårRegelverkInformasjonForBarn.erTruffetAvRegelverk2024 -> validerBarnetsAlderIHenholdTilLov2021OgLov2024(perioder, barn, vilkårRegelverkInformasjonForBarn)
+        vilkårRegelverkInformasjonForBarn.erTruffetAvRegelverk2021 -> validerBarnetsAlderIHenholdTilLovI2021(perioder, barn, vilkårRegelverkInformasjonForBarn.periodeFomBarnetsAlderLov2021, vilkårRegelverkInformasjonForBarn.periodeTomBarnetsAlderLov2021)
+        vilkårRegelverkInformasjonForBarn.erTruffetAvRegelverk2024 -> validerBarnetsAlderIHenholdTilLovI2024(perioder, barn, vilkårRegelverkInformasjonForBarn.periodeFomBarnetsAlderLov2024, vilkårRegelverkInformasjonForBarn.periodeTomBarnetsAlderLov2024)
+        else -> emptyList()
     }
 }
 
-private fun VilkårResultat.validerBarnetsAlderIHenholdTilLovI2024(
-    periode: IkkeNullbarPeriode<Long>,
+private fun validerBarnetsAlderIHenholdTilLov2021OgLov2024(
+    perioder: List<IkkeNullbarPeriode<VilkårResultat>>,
+    barn: Person,
+    vilkårRegelverkInformasjonForBarn: VilkårRegelverkInformasjonForBarn,
+): List<String> {
+    val barnErAdoptert = perioder.any { it.verdi.erAdopsjonOppfylt() }
+    if (!barnErAdoptert && perioder.size != 2) {
+        return listOf("Barnets alder vilkåret må splittes i to perioder fordi barnet fyller 1 år før og 19 måneder etter 01.08.24. Periodene må være som følgende: [${vilkårRegelverkInformasjonForBarn.periodeFomBarnetsAlderLov2021} - ${minOf(vilkårRegelverkInformasjonForBarn.periodeTomBarnetsAlderLov2021, DATO_LOVENDRING_2024.minusMonths(1).sisteDagIMåned())}, ${maxOf(vilkårRegelverkInformasjonForBarn.periodeFomBarnetsAlderLov2024, DATO_LOVENDRING_2024)} - ${vilkårRegelverkInformasjonForBarn.periodeTomBarnetsAlderLov2024}]")
+    }
+    val sortertePerioder = perioder.sortedBy { it.fom }
+    val periodeLov2021 = sortertePerioder.first()
+    val periodeLov2024 = sortertePerioder.last()
+    val funksjonelleFeilValideringLov2021 = validerBarnetsAlderIHenholdTilLovI2021(listOf(periodeLov2021), barn, vilkårRegelverkInformasjonForBarn.periodeFomBarnetsAlderLov2021, vilkårRegelverkInformasjonForBarn.periodeTomBarnetsAlderLov2021)
+    val funksjonelleFeilValideringLov2024 = validerBarnetsAlderIHenholdTilLovI2024(listOf(periodeLov2024), barn, vilkårRegelverkInformasjonForBarn.periodeFomBarnetsAlderLov2024, vilkårRegelverkInformasjonForBarn.periodeTomBarnetsAlderLov2024)
+
+    return funksjonelleFeilValideringLov2021.plus(funksjonelleFeilValideringLov2024)
+}
+
+private fun validerBarnetsAlderIHenholdTilLovI2024(
+    perioder: List<IkkeNullbarPeriode<VilkårResultat>>,
     barn: Person,
     periodeFomBarnetsAlderLov2024: LocalDate,
     periodeTomBarnetsAlderLov2024: LocalDate,
-) = when {
-    this.erAdopsjonOppfylt() &&
-        periode.tom.isAfter(barn.fødselsdato.plusYears(6).withMonth(Month.AUGUST.value).sisteDagIMåned()) ->
-        "Du kan ikke sette en t.o.m dato som er etter august året barnet fyller 6 år."
+): List<String> {
+    if (perioder.isEmpty()) return emptyList()
+    val funksjonelleFeil =
+        perioder.map {
+            when {
+                it.verdi.erAdopsjonOppfylt() &&
+                    it.tom.isAfter(barn.fødselsdato.plusYears(6).withMonth(Month.AUGUST.value).sisteDagIMåned()) ->
+                    "Du kan ikke sette en t.o.m dato som er etter august året barnet fyller 6 år."
 
-    this.erAdopsjonOppfylt() && periode.fom.plusMonths(7) < periode.tom ->
-        "Differansen mellom f.o.m datoen og t.o.m datoen kan ikke være mer enn 7 måneder. "
+                it.verdi.erAdopsjonOppfylt() && it.fom.plusMonths(7) < it.tom ->
+                    "Differansen mellom f.o.m datoen og t.o.m datoen kan ikke være mer enn 7 måneder. "
 
-    !this.erAdopsjonOppfylt() && !periode.fom.isEqual(maxOf(periodeFomBarnetsAlderLov2024, DATO_LOVENDRING_2024)) ->
-        "F.o.m datoen må være lik datoen barnet fyller 13 måneder eller 01.08.24 dersom barnet fyller 13 måneder før 01.08.24."
+                !it.verdi.erAdopsjonOppfylt() && !it.fom.isEqual(maxOf(periodeFomBarnetsAlderLov2024, DATO_LOVENDRING_2024)) ->
+                    "F.o.m datoen må være lik datoen barnet fyller 13 måneder eller 01.08.24 dersom barnet fyller 13 måneder før 01.08.24."
 
-    !this.erAdopsjonOppfylt() && !periode.tom.isEqual(periodeTomBarnetsAlderLov2024) && periode.tom != barn.dødsfall?.dødsfallDato ->
-        "T.o.m datoen må være lik datoen barnet fyller 19 måneder. Dersom barnet ikke lever må t.o.m datoen være lik dato for dødsfall."
+                !it.verdi.erAdopsjonOppfylt() && !it.tom.isEqual(periodeTomBarnetsAlderLov2024) && it.tom != barn.dødsfall?.dødsfallDato ->
+                    "T.o.m datoen må være lik datoen barnet fyller 19 måneder. Dersom barnet ikke lever må t.o.m datoen være lik dato for dødsfall."
 
-    else -> null
+                else -> null
+            }
+        }
+    return funksjonelleFeil.filterNotNull()
 }
 
-private fun VilkårResultat.validerBarnetsAlderIHenholdTilLovI2021(
-    periode: IkkeNullbarPeriode<Long>,
+private fun validerBarnetsAlderIHenholdTilLovI2021(
+    perioder: List<IkkeNullbarPeriode<VilkårResultat>>,
     barn: Person,
     periodeFomBarnetsAlderLov2021: LocalDate,
     periodeTomBarnetsAlderLov2021: LocalDate,
-) = when {
-    this.erAdopsjonOppfylt() &&
-        periode.tom.isAfter(barn.fødselsdato.plusYears(6).withMonth(Month.AUGUST.value).sisteDagIMåned()) ->
-        "Du kan ikke sette en t.o.m dato som er etter august året barnet fyller 6 år."
+): List<String> {
+    if (perioder.isEmpty()) return emptyList()
 
-    // Ved adopsjon skal det være lov å ha en differanse på 1 år slik at man får 11 måned med kontantstøtte.
-    this.erAdopsjonOppfylt() && periode.fom.plusYears(1) < periode.tom ->
-        "Differansen mellom f.o.m datoen og t.o.m datoen kan ikke være mer enn 1 år."
+    val funksjonelleFeil =
+        perioder.map {
+            when {
+                it.verdi.erAdopsjonOppfylt() &&
+                    it.tom.isAfter(barn.fødselsdato.plusYears(6).withMonth(Month.AUGUST.value).sisteDagIMåned()) ->
+                    "Du kan ikke sette en t.o.m dato som er etter august året barnet fyller 6 år."
 
-    !this.erAdopsjonOppfylt() && !periode.fom.isEqual(periodeFomBarnetsAlderLov2021) ->
-        "F.o.m datoen må være lik barnets 1 års dag."
+                // Ved adopsjon skal det være lov å ha en differanse på 1 år slik at man får 11 måned med kontantstøtte.
+                it.verdi.erAdopsjonOppfylt() && it.fom.plusYears(1) < it.tom ->
+                    "Differansen mellom f.o.m datoen og t.o.m datoen kan ikke være mer enn 1 år."
 
-    !this.erAdopsjonOppfylt() && !periode.tom.isEqual(minOf(periodeTomBarnetsAlderLov2021, DATO_LOVENDRING_2024.minusMonths(1).sisteDagIMåned())) && periode.tom != barn.dødsfall?.dødsfallDato ->
-        "T.o.m datoen må være lik barnets 2 års dag eller 31.07.24 på grunn av lovendring fra og med 01.08.24. Dersom barnet ikke lever må t.o.m datoen være lik dato for dødsfall."
+                !it.verdi.erAdopsjonOppfylt() && !it.fom.isEqual(periodeFomBarnetsAlderLov2021) ->
+                    "F.o.m datoen må være lik barnets 1 års dag."
 
-    else -> null
+                !it.verdi.erAdopsjonOppfylt() && !it.tom.isEqual(minOf(periodeTomBarnetsAlderLov2021, DATO_LOVENDRING_2024.minusMonths(1).sisteDagIMåned())) && it.tom != barn.dødsfall?.dødsfallDato ->
+                    "T.o.m datoen må være lik barnets 2 års dag eller 31.07.24 på grunn av lovendring fra og med 01.08.24. Dersom barnet ikke lever må t.o.m datoen være lik dato for dødsfall."
+
+                else -> null
+            }
+        }
+    return funksjonelleFeil.filterNotNull()
 }
 
 fun genererInitiellVilkårsvurdering(
