@@ -1,9 +1,5 @@
 package no.nav.familie.ks.sak.kjerne.beregning
 
-import java.math.BigDecimal
-import java.time.LocalDateTime
-import java.time.Period
-import java.time.YearMonth
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.common.exception.KONTAKT_TEAMET_SUFFIX
@@ -25,11 +21,16 @@ import no.nav.familie.ks.sak.kjerne.beregning.domene.tilTidslinjeMedAndeler
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.tilBrevTekst
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
+import java.math.BigDecimal
+import java.time.LocalDateTime
+import java.time.Period
+import java.time.YearMonth
 
 object TilkjentYtelseValidator {
     fun validerAtTilkjentYtelseHarFornuftigePerioderOgBeløp(
         tilkjentYtelse: TilkjentYtelse,
         personopplysningGrunnlag: PersonopplysningGrunnlag,
+        behandlingSkalFølgeNyeLovendringer2024: Boolean,
     ) {
         val søker = personopplysningGrunnlag.søker
         val barna = personopplysningGrunnlag.barna
@@ -51,8 +52,11 @@ object TilkjentYtelseValidator {
 
             val vilkårLovverkInformasjonForBarn = VilkårLovverkInformasjonForBarn(relevantBarn.fødselsdato)
 
-            val maksAntallMånederMedUtbetaling = utledMaksAntallMånederMedUtbetaling(vilkårLovverkInformasjonForBarn)
-
+            val maksAntallMånederMedUtbetaling =
+                when (behandlingSkalFølgeNyeLovendringer2024) {
+                    true -> utledMaksAntallMånederMedUtbetaling(vilkårLovverkInformasjonForBarn)
+                    false -> 11L
+                }
             val diff = Period.between(stønadFom.toLocalDate(), stønadTom.toLocalDate())
             if (diff.toTotalMonths() >= maksAntallMånederMedUtbetaling) {
                 val feilmelding =

@@ -65,6 +65,7 @@ internal class TilkjentYtelseValidatorTest {
                 validerAtTilkjentYtelseHarFornuftigePerioderOgBeløp(
                     tilkjentYtelse = tilkjentYtelse,
                     personopplysningGrunnlag = personopplysningGrunnlag,
+                    behandlingSkalFølgeNyeLovendringer2024 = true,
                 )
             }
         val feilmelding =
@@ -109,6 +110,7 @@ internal class TilkjentYtelseValidatorTest {
                             søkerAktør = søker.aktør,
                             barnAktør = listOf(barnFødtIJanuar2023.aktør),
                         ),
+                    behandlingSkalFølgeNyeLovendringer2024 = true,
                 )
             }
         val feilmelding =
@@ -145,6 +147,7 @@ internal class TilkjentYtelseValidatorTest {
                             søkerAktør = søker.aktør,
                             barnAktør = listOf(barnFødtIAugust2022.aktør),
                         ),
+                    behandlingSkalFølgeNyeLovendringer2024 = true,
                 )
             }
         val feilmelding =
@@ -179,6 +182,7 @@ internal class TilkjentYtelseValidatorTest {
             validerAtTilkjentYtelseHarFornuftigePerioderOgBeløp(
                 tilkjentYtelse = tilkjentYtelse,
                 personopplysningGrunnlag = personopplysningGrunnlag,
+                behandlingSkalFølgeNyeLovendringer2024 = true,
             )
         }
     }
@@ -204,6 +208,7 @@ internal class TilkjentYtelseValidatorTest {
                 validerAtTilkjentYtelseHarFornuftigePerioderOgBeløp(
                     tilkjentYtelse = tilkjentYtelse,
                     personopplysningGrunnlag = personopplysningGrunnlag,
+                    behandlingSkalFølgeNyeLovendringer2024 = true,
                 )
             }
 
@@ -230,6 +235,7 @@ internal class TilkjentYtelseValidatorTest {
                 validerAtTilkjentYtelseHarFornuftigePerioderOgBeløp(
                     tilkjentYtelse = tilkjentYtelse,
                     personopplysningGrunnlag = personopplysningGrunnlag,
+                    behandlingSkalFølgeNyeLovendringer2024 = true,
                 )
             }
 

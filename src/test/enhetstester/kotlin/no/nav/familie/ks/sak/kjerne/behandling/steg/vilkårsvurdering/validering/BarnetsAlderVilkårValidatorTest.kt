@@ -3,7 +3,6 @@ package no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.validerin
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import java.time.LocalDate
 import no.nav.familie.ks.sak.common.tidslinje.IkkeNullbarPeriode
 import no.nav.familie.ks.sak.common.util.DATO_LOVENDRING_2024
 import no.nav.familie.ks.sak.data.lagPerson
@@ -13,6 +12,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårLov
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
+import java.time.LocalDate
 
 class BarnetsAlderVilkårValidatorTest {
     val barnetsAlderVilkårValidator2021: BarnetsAlderVilkårValidator2021 = mockk()
@@ -58,6 +58,7 @@ class BarnetsAlderVilkårValidatorTest {
             barnetsAlderVilkårValidator.validerVilkårBarnetsAlder(
                 vilkårResultatPerioder,
                 person,
+                true,
             )
 
         // Assert
@@ -100,6 +101,7 @@ class BarnetsAlderVilkårValidatorTest {
             barnetsAlderVilkårValidator.validerVilkårBarnetsAlder(
                 vilkårResultatPerioder,
                 person,
+                true,
             )
 
         // Assert
@@ -144,6 +146,7 @@ class BarnetsAlderVilkårValidatorTest {
             barnetsAlderVilkårValidator.validerVilkårBarnetsAlder(
                 vilkårResultatPerioder,
                 person,
+                true,
             )
 
         // Assert
@@ -187,6 +190,7 @@ class BarnetsAlderVilkårValidatorTest {
             barnetsAlderVilkårValidator.validerVilkårBarnetsAlder(
                 vilkårResultatPerioder,
                 person,
+                true,
             )
 
         // Assert
@@ -229,6 +233,7 @@ class BarnetsAlderVilkårValidatorTest {
             barnetsAlderVilkårValidator.validerVilkårBarnetsAlder(
                 vilkårResultatPerioder,
                 person,
+                true,
             )
 
         // Assert
@@ -270,6 +275,7 @@ class BarnetsAlderVilkårValidatorTest {
             barnetsAlderVilkårValidator.validerVilkårBarnetsAlder(
                 vilkårResultatPerioder,
                 person,
+                true,
             )
 
         // Assert
@@ -279,5 +285,4 @@ class BarnetsAlderVilkårValidatorTest {
         verify(exactly = 1) { barnetsAlderVilkårValidator2024.validerBarnetsAlderVilkår(vilkårResultatPerioder, person, any<LocalDate>(), any<LocalDate>()) }
         verify(exactly = 0) { barnetsAlderVilkårValidator2021og2024.validerBarnetsAlderVilkår(vilkårResultatPerioder, person, any<VilkårLovverkInformasjonForBarn>()) }
     }
-
 }

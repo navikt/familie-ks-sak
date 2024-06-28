@@ -34,6 +34,7 @@ object TilkjentYtelseUtils {
     fun beregnTilkjentYtelse(
         vilkårsvurdering: Vilkårsvurdering,
         personopplysningGrunnlag: PersonopplysningGrunnlag,
+        behandlingSkalFølgeNyeLovendringer2024: Boolean,
         endretUtbetalingAndeler: List<EndretUtbetalingAndelMedAndelerTilkjentYtelse> = emptyList(),
     ): TilkjentYtelse {
         val tilkjentYtelse =
@@ -49,6 +50,7 @@ object TilkjentYtelseUtils {
                 personopplysningGrunnlag = personopplysningGrunnlag,
                 vilkårsvurdering = vilkårsvurdering,
                 tilkjentYtelse = tilkjentYtelse,
+                behandlingSkalFølgeNyeLovendringer2024 = behandlingSkalFølgeNyeLovendringer2024,
             )
 
         val andelerTilkjentYtelseBarnaMedAlleEndringer =
@@ -64,15 +66,17 @@ object TilkjentYtelseUtils {
         personopplysningGrunnlag: PersonopplysningGrunnlag,
         vilkårsvurdering: Vilkårsvurdering,
         tilkjentYtelse: TilkjentYtelse,
+        behandlingSkalFølgeNyeLovendringer2024: Boolean,
     ): List<AndelTilkjentYtelse> {
         val søkersVilkårResultaterForskjøvetTidslinje =
             vilkårsvurdering.personResultater.tilForskjøvetVilkårResultatTidslinjeDerVilkårErOppfyltForPerson(
                 personopplysningGrunnlag.søker,
+                behandlingSkalFølgeNyeLovendringer2024,
             )
 
         return personopplysningGrunnlag.barna.flatMap { barn ->
             val barnetsVilkårResultaterForskjøvetTidslinje =
-                vilkårsvurdering.personResultater.tilForskjøvetVilkårResultatTidslinjeDerVilkårErOppfyltForPerson(barn)
+                vilkårsvurdering.personResultater.tilForskjøvetVilkårResultatTidslinjeDerVilkårErOppfyltForPerson(barn, behandlingSkalFølgeNyeLovendringer2024)
 
             val barnVilkårResultaterForskjøvetBådeBarnOgSøkerHarAlleOppfylt =
                 barnetsVilkårResultaterForskjøvetTidslinje.kombinerMed(

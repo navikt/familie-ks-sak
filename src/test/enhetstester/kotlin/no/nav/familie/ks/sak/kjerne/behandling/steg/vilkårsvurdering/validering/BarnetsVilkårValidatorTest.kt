@@ -1,7 +1,5 @@
 package no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.validering
 
-import java.time.LocalDate
-import java.time.Month
 import junit.framework.TestCase.assertEquals
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.common.util.DATO_LOVENDRING_2024
@@ -21,6 +19,8 @@ import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.dødsfall.Dødsfall
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertDoesNotThrow
+import java.time.LocalDate
+import java.time.Month
 
 class BarnetsVilkårValidatorTest {
     private val søker = randomAktør()
@@ -79,6 +79,7 @@ class BarnetsVilkårValidatorTest {
                 barnetsVilkårValidator.validerAtDatoErKorrektIBarnasVilkår(
                     vilkårsvurdering,
                     barna = listOf(barnPerson),
+                    true,
                 )
             }
         assertEquals(
@@ -114,6 +115,7 @@ class BarnetsVilkårValidatorTest {
                 barnetsVilkårValidator.validerAtDatoErKorrektIBarnasVilkår(
                     vilkårsvurdering,
                     barna = listOf(barnPerson),
+                    true,
                 )
             }
         assertEquals(
@@ -146,6 +148,7 @@ class BarnetsVilkårValidatorTest {
             barnetsVilkårValidator.validerAtDatoErKorrektIBarnasVilkår(
                 vilkårsvurdering,
                 barna = listOf(barnPerson),
+                true,
             )
         }
     }
@@ -185,6 +188,7 @@ class BarnetsVilkårValidatorTest {
                 barnetsVilkårValidator.validerAtDatoErKorrektIBarnasVilkår(
                     vilkårsvurdering,
                     barna = listOf(barnFødtJuli23),
+                    true,
                 )
             }
         assertEquals("F.o.m datoen må være lik barnets 1 års dag.", exception.message)
@@ -225,6 +229,7 @@ class BarnetsVilkårValidatorTest {
                 barnetsVilkårValidator.validerAtDatoErKorrektIBarnasVilkår(
                     vilkårsvurdering,
                     barna = listOf(barnFødtAugust22),
+                    true,
                 )
             }
         assertEquals("T.o.m datoen må være lik datoen barnet fyller 19 måneder. Dersom barnet ikke lever må t.o.m datoen være lik dato for dødsfall.", exception.message)
@@ -255,6 +260,7 @@ class BarnetsVilkårValidatorTest {
                 barnetsVilkårValidator.validerAtDatoErKorrektIBarnasVilkår(
                     vilkårsvurdering,
                     barna = listOf(barnFødtAugust22),
+                    true,
                 )
             }
         assertEquals("F.o.m datoen må være lik barnets 1 års dag.", exception.message)
@@ -285,6 +291,7 @@ class BarnetsVilkårValidatorTest {
                 barnetsVilkårValidator.validerAtDatoErKorrektIBarnasVilkår(
                     vilkårsvurdering,
                     barna = listOf(barnFødtAugust22),
+                    true,
                 )
             }
         assertEquals("T.o.m datoen må være lik barnets 2 års dag eller 31.07.24 på grunn av lovendring fra og med 01.08.24. Dersom barnet ikke lever må t.o.m datoen være lik dato for dødsfall.", exception.message)
@@ -315,6 +322,7 @@ class BarnetsVilkårValidatorTest {
                 barnetsVilkårValidator.validerAtDatoErKorrektIBarnasVilkår(
                     vilkårsvurdering,
                     barna = listOf(barnPerson),
+                    true,
                 )
             }
         assertEquals("Du kan ikke sette en t.o.m dato som er etter august året barnet fyller 6 år.", exception.message)
@@ -345,6 +353,7 @@ class BarnetsVilkårValidatorTest {
                 barnetsVilkårValidator.validerAtDatoErKorrektIBarnasVilkår(
                     vilkårsvurdering,
                     barna = listOf(barnPerson),
+                    true,
                 )
             }
         assertEquals("Differansen mellom f.o.m datoen og t.o.m datoen kan ikke være mer enn 1 år.", exception.message)
@@ -376,6 +385,7 @@ class BarnetsVilkårValidatorTest {
             barnetsVilkårValidator.validerAtDatoErKorrektIBarnasVilkår(
                 vilkårsvurdering,
                 barna = listOf(barnPerson),
+                true,
             )
         }
     }
@@ -404,6 +414,7 @@ class BarnetsVilkårValidatorTest {
             barnetsVilkårValidator.validerAtDatoErKorrektIBarnasVilkår(
                 vilkårsvurdering,
                 barna = listOf(barnPerson),
+                true,
             )
         }
     }
@@ -438,6 +449,7 @@ class BarnetsVilkårValidatorTest {
             barnetsVilkårValidator.validerAtDatoErKorrektIBarnasVilkår(
                 vilkårsvurdering,
                 barna = listOf(barnPersonMedDødsfallsdato),
+                true,
             )
         }
     }

@@ -1,7 +1,6 @@
 package no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering
 
 import io.mockk.mockk
-import java.time.LocalDate
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagPersonopplysningGrunnlag
 import no.nav.familie.ks.sak.data.lagVilkårResultat
@@ -12,6 +11,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
+import java.time.LocalDate
 
 class VilkårsvurderingUtilsTest {
     private val januar = LocalDate.of(2022, 1, 1)

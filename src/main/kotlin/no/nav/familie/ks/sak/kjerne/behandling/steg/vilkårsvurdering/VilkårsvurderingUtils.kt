@@ -1,6 +1,5 @@
 package no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering
 
-import java.time.LocalDate
 import lagAutomatiskGenererteVilkårForBarnetsAlder
 import no.nav.familie.ks.sak.api.dto.VedtakBegrunnelseTilknyttetVilkårResponseDto
 import no.nav.familie.ks.sak.api.dto.VilkårResultatDto
@@ -29,6 +28,7 @@ import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.IBegrunnelse
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.NasjonalEllerFellesBegrunnelse
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.tilSanityBegrunnelse
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
+import java.time.LocalDate
 
 fun standardbegrunnelserTilNedtrekksmenytekster(sanityBegrunnelser: List<SanityBegrunnelse>): Map<BegrunnelseType, List<VedtakBegrunnelseTilknyttetVilkårResponseDto>> {
     return (NasjonalEllerFellesBegrunnelse.entries + EØSBegrunnelse.entries)

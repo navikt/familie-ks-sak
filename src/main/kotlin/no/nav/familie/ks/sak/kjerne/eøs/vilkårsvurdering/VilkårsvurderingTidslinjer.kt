@@ -13,6 +13,7 @@ import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Personopplys
 class VilkårsvurderingTidslinjer(
     vilkårsvurdering: Vilkårsvurdering,
     personopplysningGrunnlag: PersonopplysningGrunnlag,
+    behandlingSkalFølgeNyeLovendringer2024: Boolean,
 ) {
     private val barna: List<Aktør> = personopplysningGrunnlag.barna.map { it.aktør }
     private val søker: Aktør = personopplysningGrunnlag.søker.aktør
@@ -23,7 +24,7 @@ class VilkårsvurderingTidslinjer(
         aktørTilPersonResultater.entries.associate { (aktør, personResultat) ->
             aktør to
                 personResultat.vilkårResultater.groupBy { it.vilkårType }
-                    .map { tilVilkårRegelverkResultatTidslinje(it.key, it.value) }
+                    .map { tilVilkårRegelverkResultatTidslinje(it.key, it.value, behandlingSkalFølgeNyeLovendringer2024) }
         }
 
     private val søkersTidslinje: SøkersTidslinjer = SøkersTidslinjer(this, søker)

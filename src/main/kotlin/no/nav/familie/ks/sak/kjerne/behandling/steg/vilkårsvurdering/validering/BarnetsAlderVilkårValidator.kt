@@ -16,26 +16,36 @@ class BarnetsAlderVilkårValidator(
     fun validerVilkårBarnetsAlder(
         perioder: List<IkkeNullbarPeriode<VilkårResultat>>,
         barn: Person,
+        behandlingSkalFølgeNyeLovendringer2024: Boolean,
     ): List<String> {
         val vilkårLovverkInformasjonForBarn = VilkårLovverkInformasjonForBarn(barn.fødselsdato)
-        return when(vilkårLovverkInformasjonForBarn.lovverk) {
-            VilkårLovverk._2021_OG_2024 -> barnetsAlderVilkårValidator2021og2024.validerBarnetsAlderVilkår(
-                perioder,
-                barn,
-                vilkårLovverkInformasjonForBarn
-            )
-            VilkårLovverk._2021 -> barnetsAlderVilkårValidator2021.validerBarnetsAlderVilkår(
-                perioder,
-                barn,
-                vilkårLovverkInformasjonForBarn.periodeFomBarnetsAlderLov2021,
-                vilkårLovverkInformasjonForBarn.periodeTomBarnetsAlderLov2021
-            )
-            VilkårLovverk._2024 -> barnetsAlderVilkårValidator2024.validerBarnetsAlderVilkår(
-                perioder,
-                barn,
-                vilkårLovverkInformasjonForBarn.periodeFomBarnetsAlderLov2024,
-                vilkårLovverkInformasjonForBarn.periodeTomBarnetsAlderLov2024
-            )
+        if (!behandlingSkalFølgeNyeLovendringer2024) {
+            barnetsAlderVilkårValidator2021.validerBarnetsAlderVilkår(perioder, barn, vilkårLovverkInformasjonForBarn.periodeFomBarnetsAlderLov2021, vilkårLovverkInformasjonForBarn.periodeTomBarnetsAlderLov2021)
+        }
+
+        return when (vilkårLovverkInformasjonForBarn.lovverk) {
+            VilkårLovverk.LOVVERK_2021_OG_2024 ->
+                barnetsAlderVilkårValidator2021og2024.validerBarnetsAlderVilkår(
+                    perioder,
+                    barn,
+                    vilkårLovverkInformasjonForBarn,
+                )
+
+            VilkårLovverk.LOVVVERK_2021 ->
+                barnetsAlderVilkårValidator2021.validerBarnetsAlderVilkår(
+                    perioder,
+                    barn,
+                    vilkårLovverkInformasjonForBarn.periodeFomBarnetsAlderLov2021,
+                    vilkårLovverkInformasjonForBarn.periodeTomBarnetsAlderLov2021,
+                )
+
+            VilkårLovverk.LOVVERK_2024 ->
+                barnetsAlderVilkårValidator2024.validerBarnetsAlderVilkår(
+                    perioder,
+                    barn,
+                    vilkårLovverkInformasjonForBarn.periodeFomBarnetsAlderLov2024,
+                    vilkårLovverkInformasjonForBarn.periodeTomBarnetsAlderLov2024,
+                )
         }
     }
 }

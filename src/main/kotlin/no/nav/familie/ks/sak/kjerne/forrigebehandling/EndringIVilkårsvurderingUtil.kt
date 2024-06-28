@@ -15,6 +15,7 @@ object EndringIVilkårsvurderingUtil {
     fun lagEndringIVilkårsvurderingTidslinje(
         nåværendePersonResultaterForPerson: Set<PersonResultat>,
         forrigePersonResultater: Set<PersonResultat>,
+        behandlingSkalFølgeNyeLovendringer2024: Boolean,
     ): Tidslinje<Boolean> {
         val tidslinjePerVilkår =
             Vilkår.entries.map { vilkår ->
@@ -29,6 +30,7 @@ object EndringIVilkårsvurderingUtil {
                                 .flatMap { it.vilkårResultater }
                                 .filter { it.vilkårType == vilkår && it.resultat == Resultat.OPPFYLT },
                         vilkår = vilkår,
+                        behandlingSkalFølgeNyeLovendringer2024 = behandlingSkalFølgeNyeLovendringer2024,
                     )
                 vilkårTidslinje
             }
@@ -48,9 +50,10 @@ object EndringIVilkårsvurderingUtil {
         nåværendeOppfylteVilkårResultaterForPerson: List<VilkårResultat>,
         forrigeOppfylteVilkårResultaterForPerson: List<VilkårResultat>,
         vilkår: Vilkår,
+        behandlingSkalFølgeNyeLovendringer2024: Boolean,
     ): Tidslinje<Boolean> {
-        val nåværendeVilkårResultatTidslinje = forskyvVilkårResultater(vilkår, nåværendeOppfylteVilkårResultaterForPerson).tilTidslinje()
-        val tidligereVilkårResultatTidslinje = forskyvVilkårResultater(vilkår, forrigeOppfylteVilkårResultaterForPerson).tilTidslinje()
+        val nåværendeVilkårResultatTidslinje = forskyvVilkårResultater(vilkår, nåværendeOppfylteVilkårResultaterForPerson, behandlingSkalFølgeNyeLovendringer2024).tilTidslinje()
+        val tidligereVilkårResultatTidslinje = forskyvVilkårResultater(vilkår, forrigeOppfylteVilkårResultaterForPerson, behandlingSkalFølgeNyeLovendringer2024).tilTidslinje()
 
         val endringIVilkårResultat =
             nåværendeVilkårResultatTidslinje.kombinerMed(tidligereVilkårResultatTidslinje) { nåværende, forrige ->

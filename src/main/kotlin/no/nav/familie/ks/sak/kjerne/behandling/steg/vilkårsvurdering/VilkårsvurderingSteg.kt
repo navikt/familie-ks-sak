@@ -11,6 +11,8 @@ import no.nav.familie.ks.sak.common.tidslinje.validerIngenOverlapp
 import no.nav.familie.ks.sak.common.util.TIDENES_ENDE
 import no.nav.familie.ks.sak.common.util.sisteDagIMåned
 import no.nav.familie.ks.sak.common.util.slåSammen
+import no.nav.familie.ks.sak.config.featureToggle.FeatureToggleConfig
+import no.nav.familie.ks.sak.config.featureToggle.UnleashNextMedContextService
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingKategori
@@ -45,6 +47,7 @@ class VilkårsvurderingSteg(
     private val beregningService: BeregningService,
     private val kompetanseService: KompetanseService,
     private val barnetsVilkårValidator: BarnetsVilkårValidator,
+    private val unleashNextMedContextService: UnleashNextMedContextService,
 ) : IBehandlingSteg {
     override fun getBehandlingssteg(): BehandlingSteg = BehandlingSteg.VILKÅRSVURDERING
 
@@ -56,8 +59,9 @@ class VilkårsvurderingSteg(
             personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(behandlingId)
         val søknadDto = søknadGrunnlagService.finnAktiv(behandlingId = behandling.id)?.tilSøknadDto()
         val vilkårsvurdering = vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(behandling.id)
+        val behandlingSkalFølgeNyeLovendringer2024 = unleashNextMedContextService.isEnabled(FeatureToggleConfig.LOV_ENDRING_7_MND_NYE_BEHANDLINGER)
 
-        validerVilkårsvurdering(vilkårsvurdering, personopplysningGrunnlag, søknadDto, behandling)
+        validerVilkårsvurdering(vilkårsvurdering, personopplysningGrunnlag, søknadDto, behandling, behandlingSkalFølgeNyeLovendringer2024)
 
         settBehandlingstemaBasertPåVilkårsvurdering(behandling, vilkårsvurdering)
 
@@ -116,6 +120,7 @@ class VilkårsvurderingSteg(
         personopplysningGrunnlag: PersonopplysningGrunnlag,
         søknadGrunnlagDto: SøknadDto?,
         behandling: Behandling,
+        behandlingSkalFølgeNyeLovendringer2024: Boolean,
     ) {
         validerAtDetFinnesBarnIPersonopplysningsgrunnlaget(personopplysningGrunnlag, søknadGrunnlagDto, behandling)
         if (behandling.opprettetÅrsak == BehandlingÅrsak.DØDSFALL) {
@@ -127,7 +132,7 @@ class VilkårsvurderingSteg(
         validerAtDetIkkeErOverlappMellomGradertBarnehageplassOgDeltBosted(vilkårsvurdering)
         validerAtPerioderIBarnehageplassSamsvarerMedPeriodeIBarnetsAlderVilkår(vilkårsvurdering)
         validerAtDetIkkeFinnesMerEnn2EndringerISammeMånedIBarnehageplassVilkår(vilkårsvurdering)
-        barnetsVilkårValidator.validerAtDatoErKorrektIBarnasVilkår(vilkårsvurdering, personopplysningGrunnlag.barna)
+        barnetsVilkårValidator.validerAtDatoErKorrektIBarnasVilkår(vilkårsvurdering, personopplysningGrunnlag.barna, behandlingSkalFølgeNyeLovendringer2024)
         validerIkkeBlandetRegelverk(personopplysningGrunnlag, vilkårsvurdering)
     }
 
@@ -265,7 +270,8 @@ class VilkårsvurderingSteg(
         personopplysningGrunnlag: PersonopplysningGrunnlag,
         vilkårsvurdering: Vilkårsvurdering,
     ) {
-        val vilkårsvurderingTidslinjer = VilkårsvurderingTidslinjer(vilkårsvurdering, personopplysningGrunnlag)
+        val behandlingSkalFølgeNyeLovendringer2024 = unleashNextMedContextService.isEnabled(FeatureToggleConfig.LOV_ENDRING_7_MND_NYE_BEHANDLINGER)
+        val vilkårsvurderingTidslinjer = VilkårsvurderingTidslinjer(vilkårsvurdering, personopplysningGrunnlag, behandlingSkalFølgeNyeLovendringer2024)
         if (vilkårsvurderingTidslinjer.harBlandetRegelverk()) {
             throw FunksjonellFeil(
                 melding = "Det er forskjellig regelverk for en eller flere perioder for søker eller barna",

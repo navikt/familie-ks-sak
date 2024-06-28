@@ -2,12 +2,12 @@ package no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering
 
 import io.mockk.every
 import io.mockk.mockk
-import java.time.LocalDate
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.util.erSammeEllerEtter
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
+import java.time.LocalDate
 
 class VilkårLovverkInformasjonForBarnTest {
     @Test
@@ -19,7 +19,7 @@ class VilkårLovverkInformasjonForBarnTest {
         val vilkårLovverkInformasjonForBarn = VilkårLovverkInformasjonForBarn(fødselsdato)
 
         // Assert
-        assertThat(vilkårLovverkInformasjonForBarn.lovverk).isEqualTo(VilkårLovverk._2021)
+        assertThat(vilkårLovverkInformasjonForBarn.lovverk).isEqualTo(VilkårLovverk.LOVVVERK_2021)
 
         assertThat(vilkårLovverkInformasjonForBarn.periodeFomBarnetsAlderLov2021).isEqualTo(fødselsdato.plusYears(1))
         assertThat(vilkårLovverkInformasjonForBarn.periodeTomBarnetsAlderLov2021).isEqualTo(fødselsdato.plusYears(2))
@@ -37,7 +37,7 @@ class VilkårLovverkInformasjonForBarnTest {
         val vilkårLovverkInformasjonForBarn = VilkårLovverkInformasjonForBarn(fødselsdato)
 
         // Assert
-        assertThat(vilkårLovverkInformasjonForBarn.lovverk).isEqualTo(VilkårLovverk._2024)
+        assertThat(vilkårLovverkInformasjonForBarn.lovverk).isEqualTo(VilkårLovverk.LOVVERK_2024)
 
         assertThat(vilkårLovverkInformasjonForBarn.periodeFomBarnetsAlderLov2021).isEqualTo(fødselsdato.plusYears(1))
         assertThat(vilkårLovverkInformasjonForBarn.periodeTomBarnetsAlderLov2021).isEqualTo(fødselsdato.plusYears(2))
@@ -55,7 +55,7 @@ class VilkårLovverkInformasjonForBarnTest {
         val vilkårLovverkInformasjonForBarn = VilkårLovverkInformasjonForBarn(fødselsdato)
 
         // Assert
-        assertThat(vilkårLovverkInformasjonForBarn.lovverk).isEqualTo(VilkårLovverk._2021_OG_2024)
+        assertThat(vilkårLovverkInformasjonForBarn.lovverk).isEqualTo(VilkårLovverk.LOVVERK_2021_OG_2024)
 
         assertThat(vilkårLovverkInformasjonForBarn.periodeFomBarnetsAlderLov2021).isEqualTo(fødselsdato.plusYears(1))
         assertThat(vilkårLovverkInformasjonForBarn.periodeTomBarnetsAlderLov2021).isEqualTo(fødselsdato.plusYears(2))
@@ -66,7 +66,6 @@ class VilkårLovverkInformasjonForBarnTest {
 
     @Test
     fun `skal kaste feil om barnet ikke er truffet av noen lovverk`() {
-
         // Arrange
         val mockDato: LocalDate = mockk()
 
@@ -77,12 +76,12 @@ class VilkårLovverkInformasjonForBarnTest {
         every { mockDato.erSammeEllerEtter(any()) } returns false
 
         // Act & assert
-        val exception = assertThrows<Feil> {
-            VilkårLovverkInformasjonForBarn(mockDato)
-        }
+        val exception =
+            assertThrows<Feil> {
+                VilkårLovverkInformasjonForBarn(mockDato)
+            }
         assertThat(exception.message).isEqualTo(
-            "Forventer at barnet blir truffet av minst et lovverk"
+            "Forventer at barnet blir truffet at minst et lovverk",
         )
-
     }
 }

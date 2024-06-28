@@ -1,9 +1,9 @@
 package no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering
 
-import java.time.LocalDate
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.util.DATO_LOVENDRING_2024
 import no.nav.familie.ks.sak.common.util.erSammeEllerEtter
+import java.time.LocalDate
 
 data class VilkårLovverkInformasjonForBarn(
     val fødselsdato: LocalDate,
@@ -21,12 +21,13 @@ data class VilkårLovverkInformasjonForBarn(
         this.periodeTomBarnetsAlderLov2024 = fødselsdato.plusMonths(19)
         val erTruffetAvLovverk2021 = periodeFomBarnetsAlderLov2021.isBefore(DATO_LOVENDRING_2024)
         val erTruffetAvLovverk2024 = periodeTomBarnetsAlderLov2024.erSammeEllerEtter(DATO_LOVENDRING_2024)
-        this.lovverk = when {
-            erTruffetAvLovverk2021 && erTruffetAvLovverk2024 -> VilkårLovverk._2021_OG_2024
-            erTruffetAvLovverk2021 -> VilkårLovverk._2021
-            erTruffetAvLovverk2024 -> VilkårLovverk._2024
-            else -> throw Feil("Forventer at barnet blir truffet av minst et lovverk")
-        }
+
+        this.lovverk =
+            when {
+                erTruffetAvLovverk2021 && erTruffetAvLovverk2024 -> VilkårLovverk.LOVVERK_2021_OG_2024
+                erTruffetAvLovverk2021 -> VilkårLovverk.LOVVVERK_2021
+                erTruffetAvLovverk2024 -> VilkårLovverk.LOVVERK_2024
+                else -> throw Feil("Forventer at barnet blir truffet at minst et lovverk")
+            }
     }
 }
-

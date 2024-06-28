@@ -22,8 +22,10 @@ import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.util.LocalDateProvider
 import no.nav.familie.ks.sak.common.util.TIDENES_MORGEN
 import no.nav.familie.ks.sak.common.util.tilddMMyyyy
+import no.nav.familie.ks.sak.config.featureToggle.FeatureToggleConfig
 import no.nav.familie.ks.sak.cucumber.BrevBegrunnelseParser.mapBegrunnelser
 import no.nav.familie.ks.sak.cucumber.mocking.CucumberMock
+import no.nav.familie.ks.sak.cucumber.mocking.mockUnleashNextMedContextService
 import no.nav.familie.ks.sak.data.lagVedtak
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelse
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelseDto
@@ -217,6 +219,7 @@ class StepDefinition {
                 vilkårsvurdering = vilkårsvurdering[behandlingId]!!,
                 personopplysningGrunnlag = persongrunnlag[behandlingId]!!,
                 endretUtbetalingAndeler = endredeUtbetalinger[behandlingId]?.map { EndretUtbetalingAndelMedAndelerTilkjentYtelse(it, emptyList()) } ?: emptyList(),
+                behandlingSkalFølgeNyeLovendringer2024 = mockUnleashNextMedContextService().isEnabled(FeatureToggleConfig.LOV_ENDRING_7_MND_NYE_BEHANDLINGER),
             ).andelerTilkjentYtelse.toList()
 
         val andelerEtterDifferanseberegning =
@@ -343,6 +346,7 @@ class StepDefinition {
                                     erFørsteVedtaksperiode = index == 0,
                                     kompetanser = hentUtfylteKompetanserPåBehandling(behandlingId),
                                     andelerTilkjentYtelse = hentAndelerTilkjentYtelseMedEndreteUtbetalinger(behandlingId),
+                                    behandlingSkalFølgeNyeLovendringer2024 = true,
                                 ).hentGyldigeBegrunnelserForVedtaksperiode(),
                         )
                     }
@@ -441,6 +445,7 @@ class StepDefinition {
         erFørsteVedtaksperiode = erFørsteVedtaksperiode,
         kompetanser = hentUtfylteKompetanserPåBehandling(behandlingId),
         landkoder = LANDKODER,
+        behandlingSkalFølgeNyeLovendringer2024 = true,
     ).genererBrevPeriodeDto()
 
     /**
@@ -581,6 +586,7 @@ class StepDefinition {
             endretUtbetalingAndelService = endretUtbetalingAndelService,
             kompetanseService = kompetanseService,
             localDateProvider = localDateProvider,
+            unleashNextMedContextService = mockUnleashNextMedContextService(),
         )
     }
 
@@ -657,6 +663,7 @@ class StepDefinition {
                 andelerTilkjentYtelseOgEndreteUtbetalingerService = mockAndelerTilkjentYtelseOgEndreteUtbetalingerService(),
                 personopplysningGrunnlagService = mockPersonopplysningGrunnlagService(),
                 kompetanseService = kompetanseService,
+                unleashNextMedContextService = mockUnleashNextMedContextService(),
             )
 
         return VedtaksperiodeService(
@@ -672,6 +679,7 @@ class StepDefinition {
             integrasjonClient = mockk(),
             refusjonEøsRepository = mockk(),
             kompetanseService = kompetanseService,
+            unleashNextMedContextService = mockUnleashNextMedContextService(),
         )
     }
 

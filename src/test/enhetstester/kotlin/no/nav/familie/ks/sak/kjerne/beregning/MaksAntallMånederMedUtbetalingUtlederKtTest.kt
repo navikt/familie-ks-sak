@@ -1,10 +1,10 @@
 package no.nav.familie.ks.sak.kjerne.beregning
 
-import java.time.LocalDate
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårLovverkInformasjonForBarn
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.CsvSource
+import java.time.LocalDate
 
 class MaksAntallMånederMedUtbetalingUtlederKtTest {
     @ParameterizedTest
@@ -82,5 +82,4 @@ class MaksAntallMånederMedUtbetalingUtlederKtTest {
         // Assert
         assertThat(maksAntallMånederMedUtbetaling).isEqualTo(forventetMaksAntallMånederMedUtbetaling)
     }
-
 }

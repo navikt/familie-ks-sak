@@ -1,7 +1,7 @@
 package no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering
 
 enum class VilkårLovverk {
-    _2021,
-    _2024,
-    _2021_OG_2024
+    LOVVVERK_2021,
+    LOVVERK_2024,
+    LOVVERK_2021_OG_2024,
 }

@@ -1,6 +1,5 @@
 package no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering
 
-import org.hamcrest.CoreMatchers.`is` as Is
 import io.mockk.every
 import io.mockk.junit5.MockKExtension
 import io.mockk.just
@@ -8,8 +7,6 @@ import io.mockk.mockk
 import io.mockk.mockkObject
 import io.mockk.runs
 import io.mockk.verify
-import java.math.BigDecimal
-import java.time.LocalDate
 import no.nav.familie.ks.sak.api.dto.BarnMedOpplysningerDto
 import no.nav.familie.ks.sak.api.dto.SøkerMedOpplysningerDto
 import no.nav.familie.ks.sak.api.dto.SøknadDto
@@ -18,6 +15,8 @@ import no.nav.familie.ks.sak.common.BehandlingId
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.common.util.NullablePeriode
+import no.nav.familie.ks.sak.config.featureToggle.FeatureToggleConfig
+import no.nav.familie.ks.sak.config.featureToggle.UnleashNextMedContextService
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagFagsak
 import no.nav.familie.ks.sak.data.lagPersonopplysningGrunnlag
@@ -51,6 +50,9 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
+import java.math.BigDecimal
+import java.time.LocalDate
+import org.hamcrest.CoreMatchers.`is` as Is
 
 @ExtendWith(MockKExtension::class)
 class VilkårsvurderingStegTest {
@@ -60,6 +62,7 @@ class VilkårsvurderingStegTest {
     private val søknadGrunnlagService: SøknadGrunnlagService = mockk()
     private val beregningService: BeregningService = mockk()
     private val kompetanseService: KompetanseService = mockk()
+    private val unleashNextMedContextService: UnleashNextMedContextService = mockk()
 
     private val barnetsAlderVilkårValidator2021 = BarnetsAlderVilkårValidator2021()
     private val barnetsAlderVilkårValidator2024 = BarnetsAlderVilkårValidator2024()
@@ -83,6 +86,7 @@ class VilkårsvurderingStegTest {
             beregningService,
             kompetanseService,
             barnetsVilkårValidator,
+            unleashNextMedContextService,
         )
 
     private val søker = randomAktør()
@@ -120,6 +124,7 @@ class VilkårsvurderingStegTest {
         every { behandlingService.hentBehandling(behandling.id) } returns behandling
         every { personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(any()) } returns personopplysningGrunnlag
         every { beregningService.oppdaterTilkjentYtelsePåBehandling(any(), any(), any(), any()) } just runs
+        every { unleashNextMedContextService.isEnabled(FeatureToggleConfig.LOV_ENDRING_7_MND_NYE_BEHANDLINGER) } returns true
     }
 
     @Test
