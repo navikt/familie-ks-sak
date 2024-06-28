@@ -523,48 +523,56 @@ private fun Collection<VilkårResultat>.overskrivMedVilkårResultaterFraForrigeB
     nyttPersonResultat: PersonResultat,
     kunForGodkjenteVilkår: Boolean,
     behandlingSkalFølgeNyeLovendringer2024: Boolean,
-) = flatMap { initeltVilkårResultat ->
-    val vilkårResultaterForrigeBehandlingSomViØnskerÅTaMed =
-        if (behandlingSkalFølgeNyeLovendringer2024) {
-            val vilkårResultaterAvSammeTypeIForrigeBehandling =
-                vilkårResultaterFraForrigeBehandling
-                    .filter { it.vilkårType == initeltVilkårResultat.vilkårType }
-                    .map { it.kopier(personResultat = nyttPersonResultat) }
+): List<VilkårResultat> {
+    val vilkårForPerson = nyttPersonResultat.vilkårResultater.map { it.vilkårType }.toSet()
 
-            when (initeltVilkårResultat.vilkårType) {
-                Vilkår.BARNEHAGEPLASS -> {
+    return vilkårForPerson.flatMap { vilkårType ->
+        val vilkårResultaterAvSammeType: List<VilkårResultat> =
+            nyttPersonResultat.vilkårResultater.filter { it.vilkårType == vilkårType }
+
+        val vilkårResultaterAvSammeTypeIForrigeBehandling =
+            vilkårResultaterFraForrigeBehandling.filter { it.vilkårType == vilkårType }
+                .map { it.kopier(personResultat = nyttPersonResultat) }
+
+        val vilkårResultaterForrigeBehandlingSomViØnskerÅTaMed: List<VilkårResultat> =
+            if (behandlingSkalFølgeNyeLovendringer2024) {
+                when (vilkårType) {
+                    Vilkår.BARNEHAGEPLASS -> {
                     /* *
                      * Ønsker å dra med vilkårresultatene som er avslått og opphørt i forrige behandling
                      * for barnehagevilkåret fordi vi krever at alle peridene skal være vurdert, også de med opphør
                      * */
-                    vilkårResultaterAvSammeTypeIForrigeBehandling
-                }
+                        vilkårResultaterAvSammeTypeIForrigeBehandling
+                    }
 
-                Vilkår.BARNETS_ALDER -> {
+                    Vilkår.BARNETS_ALDER -> {
                     /* *
                      * Barnets alder vilkåret settes automatisk og bør ikke endres med midre det er snakk om adopsjon.
                      * Kopierer derfor kun vilkåret ved adopsjon og tar med som er generert på denne behandlingen ellers.
                      * På denne måten kan vi få med regelendringer som endrer vilkåret på revurderinger.
                      * */
-                    vilkårResultaterAvSammeTypeIForrigeBehandling
-                        .filter { it.erAdopsjonOppfylt() }
-                        .filter { it.resultat in listOf(Resultat.IKKE_AKTUELT, Resultat.OPPFYLT) }
-                        .splittOppOmKrysserRegelverksendring()
+                        vilkårResultaterAvSammeTypeIForrigeBehandling
+                            .filter { it.erAdopsjonOppfylt() }
+                            .filter { it.resultat in listOf(Resultat.IKKE_AKTUELT, Resultat.OPPFYLT) }
+                            .splittOppOmKrysserRegelverksendring()
+                    }
+
+                    else ->
+                        vilkårResultaterAvSammeTypeIForrigeBehandling
+                            .filter { it.resultat in listOf(Resultat.IKKE_AKTUELT, Resultat.OPPFYLT) }
                 }
-
-                else ->
-                    vilkårResultaterAvSammeTypeIForrigeBehandling
-                        .filter { it.resultat in listOf(Resultat.IKKE_AKTUELT, Resultat.OPPFYLT) }
+            } else {
+                vilkårResultaterFraForrigeBehandling
+                    .filter { it.vilkårType == vilkårType }
+                    .filter { !kunForGodkjenteVilkår || it.resultat in listOf(Resultat.IKKE_AKTUELT, Resultat.OPPFYLT) }
+                    .map { it.kopier(personResultat = nyttPersonResultat) }
             }
-        } else {
-            vilkårResultaterFraForrigeBehandling
-                .filter { it.vilkårType == initeltVilkårResultat.vilkårType }
-                .filter { !kunForGodkjenteVilkår || it.resultat in listOf(Resultat.IKKE_AKTUELT, Resultat.OPPFYLT) }
-                .map { it.kopier(personResultat = nyttPersonResultat) }
-        }
 
-    vilkårResultaterForrigeBehandlingSomViØnskerÅTaMed.ifEmpty {
-        listOf(initeltVilkårResultat)
+        if (vilkårResultaterForrigeBehandlingSomViØnskerÅTaMed.isNotEmpty()) {
+            vilkårResultaterForrigeBehandlingSomViØnskerÅTaMed
+        } else {
+            vilkårResultaterAvSammeType
+        }
     }
 }
 
