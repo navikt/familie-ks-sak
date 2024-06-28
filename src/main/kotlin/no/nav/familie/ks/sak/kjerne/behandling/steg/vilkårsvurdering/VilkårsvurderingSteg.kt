@@ -1,12 +1,11 @@
 package no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering
 
-import java.math.BigDecimal
-import java.time.LocalDate
 import no.nav.familie.ks.sak.api.dto.SøknadDto
 import no.nav.familie.ks.sak.api.mapper.SøknadGrunnlagMapper.tilSøknadDto
 import no.nav.familie.ks.sak.common.BehandlingId
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.common.tidslinje.TidslinjePeriodeMedDato
+import no.nav.familie.ks.sak.common.tidslinje.utvidelser.klipp
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.kombinerMed
 import no.nav.familie.ks.sak.common.tidslinje.validerIngenOverlapp
 import no.nav.familie.ks.sak.common.util.TIDENES_ENDE
@@ -34,6 +33,8 @@ import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Personopplys
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
+import java.math.BigDecimal
+import java.time.LocalDate
 
 @Service
 class VilkårsvurderingSteg(
@@ -204,8 +205,15 @@ class VilkårsvurderingSteg(
     ) {
         vilkårsvurdering.personResultater.filter { !it.erSøkersResultater() }.forEach { personResultat ->
 
+            val barnehageplassVilkår = personResultat.vilkårResultater.filter { it.vilkårType == Vilkår.BARNEHAGEPLASS }
+            val sistePeriode = barnehageplassVilkår.sortedBy { it.periodeFom }.last()
+            val sistePeriodeErFremtidigOpphør = barnehageplassVilkår.sortedBy { it.periodeFom }.last().harMeldtBarnehageplassOgErFulltidIBarnehage()
             val barnehageplassTidslinje = personResultat.vilkårResultater.filter { it.vilkårType == Vilkår.BARNEHAGEPLASS }.tilTidslinje()
-            val barnetsAlderTidslinje = personResultat.vilkårResultater.filter { it.vilkårType == Vilkår.BARNETS_ALDER }.tilTidslinje()
+            val barnetsAlderTidslinje =
+                personResultat.vilkårResultater
+                    .filter { it.vilkårType == Vilkår.BARNETS_ALDER }
+                    .tilTidslinje()
+                    .klipp(barnehageplassTidslinje.startsTidspunkt, if (sistePeriodeErFremtidigOpphør) sistePeriode.periodeTom!! else TIDENES_ENDE)
 
             barnetsAlderTidslinje.kombinerMed(barnehageplassTidslinje) { barnetsAlder, barnehageplass ->
                 if (barnetsAlder != null && barnehageplass == null) {
