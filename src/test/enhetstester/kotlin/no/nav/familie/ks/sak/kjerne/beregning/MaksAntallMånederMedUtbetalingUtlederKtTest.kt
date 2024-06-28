@@ -1,13 +1,8 @@
 package no.nav.familie.ks.sak.kjerne.beregning
 
-import io.mockk.every
-import io.mockk.mockk
 import java.time.LocalDate
-import no.nav.familie.ks.sak.common.exception.Feil
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårRegelverkInformasjonForBarn
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårLovverkInformasjonForBarn
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.CsvSource
 
@@ -19,13 +14,13 @@ class MaksAntallMånederMedUtbetalingUtlederKtTest {
         forventetMaksAntallMånederMedUtbetaling: Long,
     ) {
         // Arrange
-        val vilkårRegelverkInformasjonForBarn =
-            VilkårRegelverkInformasjonForBarn(
+        val vilkårLovverkInformasjonForBarn =
+            VilkårLovverkInformasjonForBarn(
                 LocalDate.of(2022, måned, 1),
             )
 
         // Act
-        val maksAntallMånederMedUtbetaling = utledMaksAntallMånederMedUtbetaling(vilkårRegelverkInformasjonForBarn)
+        val maksAntallMånederMedUtbetaling = utledMaksAntallMånederMedUtbetaling(vilkårLovverkInformasjonForBarn)
 
         // Assert
         assertThat(maksAntallMånederMedUtbetaling).isEqualTo(forventetMaksAntallMånederMedUtbetaling)
@@ -38,13 +33,13 @@ class MaksAntallMånederMedUtbetalingUtlederKtTest {
         forventetMaksAntallMånederMedUtbetaling: Long,
     ) {
         // Arrange
-        val vilkårRegelverkInformasjonForBarn =
-            VilkårRegelverkInformasjonForBarn(
+        val vilkårLovverkInformasjonForBarn =
+            VilkårLovverkInformasjonForBarn(
                 LocalDate.of(2022, måned, 1),
             )
 
         // Act
-        val maksAntallMånederMedUtbetaling = utledMaksAntallMånederMedUtbetaling(vilkårRegelverkInformasjonForBarn)
+        val maksAntallMånederMedUtbetaling = utledMaksAntallMånederMedUtbetaling(vilkårLovverkInformasjonForBarn)
 
         // Assert
         assertThat(maksAntallMånederMedUtbetaling).isEqualTo(forventetMaksAntallMånederMedUtbetaling)
@@ -57,13 +52,13 @@ class MaksAntallMånederMedUtbetalingUtlederKtTest {
         forventetMaksAntallMånederMedUtbetaling: Long,
     ) {
         // Arrange
-        val vilkårRegelverkInformasjonForBarn =
-            VilkårRegelverkInformasjonForBarn(
+        val vilkårLovverkInformasjonForBarn =
+            VilkårLovverkInformasjonForBarn(
                 LocalDate.of(2023, måned, 1),
             )
 
         // Act
-        val maksAntallMånederMedUtbetaling = utledMaksAntallMånederMedUtbetaling(vilkårRegelverkInformasjonForBarn)
+        val maksAntallMånederMedUtbetaling = utledMaksAntallMånederMedUtbetaling(vilkårLovverkInformasjonForBarn)
 
         // Assert
         assertThat(maksAntallMånederMedUtbetaling).isEqualTo(forventetMaksAntallMånederMedUtbetaling)
@@ -76,33 +71,16 @@ class MaksAntallMånederMedUtbetalingUtlederKtTest {
         forventetMaksAntallMånederMedUtbetaling: Long,
     ) {
         // Arrange
-        val vilkårRegelverkInformasjonForBarn =
-            VilkårRegelverkInformasjonForBarn(
+        val vilkårLovverkInformasjonForBarn =
+            VilkårLovverkInformasjonForBarn(
                 LocalDate.of(2024, måned, 1),
             )
 
         // Act
-        val maksAntallMånederMedUtbetaling = utledMaksAntallMånederMedUtbetaling(vilkårRegelverkInformasjonForBarn)
+        val maksAntallMånederMedUtbetaling = utledMaksAntallMånederMedUtbetaling(vilkårLovverkInformasjonForBarn)
 
         // Assert
         assertThat(maksAntallMånederMedUtbetaling).isEqualTo(forventetMaksAntallMånederMedUtbetaling)
     }
 
-    @Test
-    fun `utledMaksAntallMånederMedUtbetaling - skal kaste feil om barnet hverken er påvirket av 2021 eller 2024 regelverk `() {
-        // Arrange
-        val vilkårRegelverkInformasjonForBarn: VilkårRegelverkInformasjonForBarn = mockk()
-
-        every { vilkårRegelverkInformasjonForBarn.erTruffetAvRegelverk2021 } returns false
-        every { vilkårRegelverkInformasjonForBarn.erTruffetAvRegelverk2024 } returns false
-
-        // Act & assert
-        val exception =
-            assertThrows<Feil> {
-                utledMaksAntallMånederMedUtbetaling(vilkårRegelverkInformasjonForBarn)
-            }
-        assertThat(exception.message).isEqualTo(
-            "Barnets vilkår blir verken truffet av 2021 eller 2024 regelverket. Dette skal ikke være mulig.",
-        )
-    }
 }
