@@ -20,7 +20,7 @@ class BarnetsAlderVilkårValidator(
     ): List<String> {
         val vilkårLovverkInformasjonForBarn = VilkårLovverkInformasjonForBarn(barn.fødselsdato)
         if (!behandlingSkalFølgeNyeLovendringer2024) {
-            barnetsAlderVilkårValidator2021.validerBarnetsAlderVilkår(perioder, barn, vilkårLovverkInformasjonForBarn.periodeFomBarnetsAlderLov2021, vilkårLovverkInformasjonForBarn.periodeTomBarnetsAlderLov2021)
+            return barnetsAlderVilkårValidator2021.validerBarnetsAlderVilkår(perioder, barn, vilkårLovverkInformasjonForBarn.periodeFomBarnetsAlderLov2021, vilkårLovverkInformasjonForBarn.periodeTomBarnetsAlderLov2021, behandlingSkalFølgeNyeLovendringer2024)
         }
 
         return when (vilkårLovverkInformasjonForBarn.lovverk) {
@@ -29,6 +29,7 @@ class BarnetsAlderVilkårValidator(
                     perioder,
                     barn,
                     vilkårLovverkInformasjonForBarn,
+                    behandlingSkalFølgeNyeLovendringer2024,
                 )
 
             VilkårLovverk.LOVVVERK_2021 ->
@@ -37,6 +38,7 @@ class BarnetsAlderVilkårValidator(
                     barn,
                     vilkårLovverkInformasjonForBarn.periodeFomBarnetsAlderLov2021,
                     vilkårLovverkInformasjonForBarn.periodeTomBarnetsAlderLov2021,
+                    behandlingSkalFølgeNyeLovendringer2024,
                 )
 
             VilkårLovverk.LOVVERK_2024 ->

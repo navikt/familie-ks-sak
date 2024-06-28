@@ -18,11 +18,11 @@ class BarnetsAlderVilkårValidator2021 {
         barn: Person,
         periodeFomBarnetsAlderLov2021: LocalDate,
         periodeTomBarnetsAlderLov2021: LocalDate,
+        behandlingSkalFølgeNyeLovendringer2024: Boolean,
     ): List<String> {
-        if (perioder.isEmpty())
-            {
-                return emptyList()
-            }
+        if (perioder.isEmpty()) {
+            return emptyList()
+        }
 
         val funksjonelleFeilForPerioderMedAdopsjon =
             perioder
@@ -51,7 +51,10 @@ class BarnetsAlderVilkårValidator2021 {
                     when {
                         !it.fom.isEqual(periodeFomBarnetsAlderLov2021) ->
                             "F.o.m datoen må være lik barnets 1 års dag."
-                        !it.tom.isEqual(periodeTomEllerDatoFørLovendring) && it.tom != barn.dødsfall?.dødsfallDato ->
+                        behandlingSkalFølgeNyeLovendringer2024 && !it.tom.isEqual(periodeTomEllerDatoFørLovendring) && it.tom != barn.dødsfall?.dødsfallDato ->
+                            "T.o.m datoen må være lik barnets 2 års dag eller 31.07.24 på grunn av lovendring fra og med 01.08.24. Dersom barnet ikke lever må t.o.m datoen være lik dato for dødsfall."
+
+                        !behandlingSkalFølgeNyeLovendringer2024 && !it.tom.isEqual(periodeTomBarnetsAlderLov2021) && it.tom != barn.dødsfall?.dødsfallDato ->
                             "T.o.m datoen må være lik barnets 2 års dag eller 31.07.24 på grunn av lovendring fra og med 01.08.24. Dersom barnet ikke lever må t.o.m datoen være lik dato for dødsfall."
                         else -> null
                     }

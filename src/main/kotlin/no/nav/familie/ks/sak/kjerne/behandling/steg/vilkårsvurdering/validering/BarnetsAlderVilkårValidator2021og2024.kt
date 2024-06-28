@@ -19,6 +19,7 @@ class BarnetsAlderVilkårValidator2021og2024(
         perioder: List<IkkeNullbarPeriode<VilkårResultat>>,
         barn: Person,
         vilkårLovverkInformasjonForBarn: VilkårLovverkInformasjonForBarn,
+        behandlingSkalFølgeNyeLovendringer2024: Boolean,
     ): List<String> {
         val barnErAdoptert = perioder.any { it.verdi.erAdopsjonOppfylt() }
         // TODO : Er det riktig å sjekke på !barnErAdropter her?
@@ -28,7 +29,7 @@ class BarnetsAlderVilkårValidator2021og2024(
         val sortertePerioder = perioder.sortedBy { it.fom }
         val periodeLov2021 = sortertePerioder.first()
         val periodeLov2024 = sortertePerioder.last()
-        val funksjonelleFeilValideringLov2021 = barnetsAlderVilkårValidator2021.validerBarnetsAlderVilkår(listOf(periodeLov2021), barn, vilkårLovverkInformasjonForBarn.periodeFomBarnetsAlderLov2021, vilkårLovverkInformasjonForBarn.periodeTomBarnetsAlderLov2021)
+        val funksjonelleFeilValideringLov2021 = barnetsAlderVilkårValidator2021.validerBarnetsAlderVilkår(listOf(periodeLov2021), barn, vilkårLovverkInformasjonForBarn.periodeFomBarnetsAlderLov2021, vilkårLovverkInformasjonForBarn.periodeTomBarnetsAlderLov2021, behandlingSkalFølgeNyeLovendringer2024)
         val funksjonelleFeilValideringLov2024 = barnetsAlderVilkårValidator2024.validerBarnetsAlderVilkår(listOf(periodeLov2024), barn, vilkårLovverkInformasjonForBarn.periodeFomBarnetsAlderLov2024, vilkårLovverkInformasjonForBarn.periodeTomBarnetsAlderLov2024)
         return funksjonelleFeilValideringLov2021.plus(funksjonelleFeilValideringLov2024)
     }

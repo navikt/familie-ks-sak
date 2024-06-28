@@ -50,6 +50,7 @@ class BarnetsAlderVilkårValidatorTest {
                 perioder = vilkårResultatPerioder,
                 barn = person,
                 any<VilkårLovverkInformasjonForBarn>(),
+                true,
             )
         }.returns(listOf())
 
@@ -63,9 +64,9 @@ class BarnetsAlderVilkårValidatorTest {
 
         // Assert
         assertThat(feil).isEmpty()
-        verify(exactly = 0) { barnetsAlderVilkårValidator2021.validerBarnetsAlderVilkår(vilkårResultatPerioder, person, any<LocalDate>(), any<LocalDate>()) }
+        verify(exactly = 0) { barnetsAlderVilkårValidator2021.validerBarnetsAlderVilkår(vilkårResultatPerioder, person, any<LocalDate>(), any<LocalDate>(), true) }
         verify(exactly = 0) { barnetsAlderVilkårValidator2024.validerBarnetsAlderVilkår(vilkårResultatPerioder, person, any<LocalDate>(), any<LocalDate>()) }
-        verify(exactly = 1) { barnetsAlderVilkårValidator2021og2024.validerBarnetsAlderVilkår(vilkårResultatPerioder, person, any<VilkårLovverkInformasjonForBarn>()) }
+        verify(exactly = 1) { barnetsAlderVilkårValidator2021og2024.validerBarnetsAlderVilkår(vilkårResultatPerioder, person, any<VilkårLovverkInformasjonForBarn>(), true) }
     }
 
     @Test
@@ -93,6 +94,7 @@ class BarnetsAlderVilkårValidatorTest {
                 perioder = vilkårResultatPerioder,
                 barn = person,
                 any<VilkårLovverkInformasjonForBarn>(),
+                true,
             )
         }.returns(listOf("feilmelding"))
 
@@ -107,9 +109,9 @@ class BarnetsAlderVilkårValidatorTest {
         // Assert
         assertThat(feil).hasSize(1)
         assertThat(feil).contains("feilmelding")
-        verify(exactly = 0) { barnetsAlderVilkårValidator2021.validerBarnetsAlderVilkår(vilkårResultatPerioder, person, any<LocalDate>(), any<LocalDate>()) }
+        verify(exactly = 0) { barnetsAlderVilkårValidator2021.validerBarnetsAlderVilkår(vilkårResultatPerioder, person, any<LocalDate>(), any<LocalDate>(), true) }
         verify(exactly = 0) { barnetsAlderVilkårValidator2024.validerBarnetsAlderVilkår(vilkårResultatPerioder, person, any<LocalDate>(), any<LocalDate>()) }
-        verify(exactly = 1) { barnetsAlderVilkårValidator2021og2024.validerBarnetsAlderVilkår(vilkårResultatPerioder, person, any<VilkårLovverkInformasjonForBarn>()) }
+        verify(exactly = 1) { barnetsAlderVilkårValidator2021og2024.validerBarnetsAlderVilkår(vilkårResultatPerioder, person, any<VilkårLovverkInformasjonForBarn>(), true) }
     }
 
     @Test
@@ -138,6 +140,7 @@ class BarnetsAlderVilkårValidatorTest {
                 barn = person,
                 periodeFomBarnetsAlderLov2021 = any<LocalDate>(),
                 periodeTomBarnetsAlderLov2021 = any<LocalDate>(),
+                true,
             )
         }.returns(listOf())
 
@@ -151,9 +154,9 @@ class BarnetsAlderVilkårValidatorTest {
 
         // Assert
         assertThat(feil).isEmpty()
-        verify(exactly = 1) { barnetsAlderVilkårValidator2021.validerBarnetsAlderVilkår(vilkårResultatPerioder, person, any<LocalDate>(), any<LocalDate>()) }
+        verify(exactly = 1) { barnetsAlderVilkårValidator2021.validerBarnetsAlderVilkår(vilkårResultatPerioder, person, any<LocalDate>(), any<LocalDate>(), true) }
         verify(exactly = 0) { barnetsAlderVilkårValidator2024.validerBarnetsAlderVilkår(vilkårResultatPerioder, person, any<LocalDate>(), any<LocalDate>()) }
-        verify(exactly = 0) { barnetsAlderVilkårValidator2021og2024.validerBarnetsAlderVilkår(vilkårResultatPerioder, person, any<VilkårLovverkInformasjonForBarn>()) }
+        verify(exactly = 0) { barnetsAlderVilkårValidator2021og2024.validerBarnetsAlderVilkår(vilkårResultatPerioder, person, any<VilkårLovverkInformasjonForBarn>(), true) }
     }
 
     @Test
@@ -182,6 +185,7 @@ class BarnetsAlderVilkårValidatorTest {
                 person,
                 any<LocalDate>(),
                 any<LocalDate>(),
+                true,
             )
         }.returns(listOf("Feilmelding"))
 
@@ -196,9 +200,9 @@ class BarnetsAlderVilkårValidatorTest {
         // Assert
         assertThat(feil).hasSize(1)
         assertThat(feil).contains("Feilmelding")
-        verify(exactly = 1) { barnetsAlderVilkårValidator2021.validerBarnetsAlderVilkår(vilkårResultatPerioder, person, any<LocalDate>(), any<LocalDate>()) }
+        verify(exactly = 1) { barnetsAlderVilkårValidator2021.validerBarnetsAlderVilkår(vilkårResultatPerioder, person, any<LocalDate>(), any<LocalDate>(), true) }
         verify(exactly = 0) { barnetsAlderVilkårValidator2024.validerBarnetsAlderVilkår(vilkårResultatPerioder, person, any<LocalDate>(), any<LocalDate>()) }
-        verify(exactly = 0) { barnetsAlderVilkårValidator2021og2024.validerBarnetsAlderVilkår(vilkårResultatPerioder, person, any<VilkårLovverkInformasjonForBarn>()) }
+        verify(exactly = 0) { barnetsAlderVilkårValidator2021og2024.validerBarnetsAlderVilkår(vilkårResultatPerioder, person, any<VilkårLovverkInformasjonForBarn>(), true) }
     }
 
     @Test
@@ -238,9 +242,9 @@ class BarnetsAlderVilkårValidatorTest {
 
         // Assert
         assertThat(feil).isEmpty()
-        verify(exactly = 0) { barnetsAlderVilkårValidator2021.validerBarnetsAlderVilkår(vilkårResultatPerioder, person, any<LocalDate>(), any<LocalDate>()) }
-        verify(exactly = 1) { barnetsAlderVilkårValidator2024.validerBarnetsAlderVilkår(vilkårResultatPerioder, person, any<LocalDate>(), any<LocalDate>()) }
-        verify(exactly = 0) { barnetsAlderVilkårValidator2021og2024.validerBarnetsAlderVilkår(vilkårResultatPerioder, person, any<VilkårLovverkInformasjonForBarn>()) }
+        verify(exactly = 1) { barnetsAlderVilkårValidator2021.validerBarnetsAlderVilkår(vilkårResultatPerioder, person, any<LocalDate>(), any<LocalDate>(), true) }
+        verify(exactly = 0) { barnetsAlderVilkårValidator2024.validerBarnetsAlderVilkår(vilkårResultatPerioder, person, any<LocalDate>(), any<LocalDate>()) }
+        verify(exactly = 0) { barnetsAlderVilkårValidator2021og2024.validerBarnetsAlderVilkår(vilkårResultatPerioder, person, any<VilkårLovverkInformasjonForBarn>(), true) }
     }
 
     @Test
@@ -281,8 +285,8 @@ class BarnetsAlderVilkårValidatorTest {
         // Assert
         assertThat(feil).hasSize(1)
         assertThat(feil).contains("Feilmelding")
-        verify(exactly = 0) { barnetsAlderVilkårValidator2021.validerBarnetsAlderVilkår(vilkårResultatPerioder, person, any<LocalDate>(), any<LocalDate>()) }
+        verify(exactly = 0) { barnetsAlderVilkårValidator2021.validerBarnetsAlderVilkår(vilkårResultatPerioder, person, any<LocalDate>(), any<LocalDate>(), true) }
         verify(exactly = 1) { barnetsAlderVilkårValidator2024.validerBarnetsAlderVilkår(vilkårResultatPerioder, person, any<LocalDate>(), any<LocalDate>()) }
-        verify(exactly = 0) { barnetsAlderVilkårValidator2021og2024.validerBarnetsAlderVilkår(vilkårResultatPerioder, person, any<VilkårLovverkInformasjonForBarn>()) }
+        verify(exactly = 0) { barnetsAlderVilkårValidator2021og2024.validerBarnetsAlderVilkår(vilkårResultatPerioder, person, any<VilkårLovverkInformasjonForBarn>(), true) }
     }
 }

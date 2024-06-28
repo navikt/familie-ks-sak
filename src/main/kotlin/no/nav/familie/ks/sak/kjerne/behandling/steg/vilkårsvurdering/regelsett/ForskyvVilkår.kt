@@ -97,7 +97,7 @@ fun forskyvVilkårResultater(
     val forskjøvetVilkårResultaterTidslinje2021 = forskyvEtterLovgivning2021(vilkårType, vilkårResultater).tilTidslinje()
 
     if (!behandlingSkalFølgeNyeLovendringer2024) {
-        forskjøvetVilkårResultaterTidslinje2021.tilPerioderIkkeNull()
+        return forskjøvetVilkårResultaterTidslinje2021.tilPerioderIkkeNull()
     }
     val forskjøvetVilkårResultaterTidslinje2024 = forskyvEtterLovgivning2024(vilkårType, vilkårResultater).tilTidslinje()
 
