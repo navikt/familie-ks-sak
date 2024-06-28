@@ -493,7 +493,7 @@ fun Vilkårsvurdering.oppdaterMedDødsdatoer(personopplysningGrunnlag: Personopp
 
 fun Vilkårsvurdering.kopierResultaterFraForrigeBehandling(
     vilkårsvurderingForrigeBehandling: Vilkårsvurdering,
-    behandlingSkalFølgeNyeLovendringer2024: Boolean,
+    erToggleForLovendringAugust2024På: Boolean,
 ) {
     personResultater.forEach { initieltPersonResultat ->
         val personResultatForrigeBehandling =
@@ -510,7 +510,7 @@ fun Vilkårsvurdering.kopierResultaterFraForrigeBehandling(
                         kunForGodkjenteVilkår = behandling.type != BehandlingType.FØRSTEGANGSBEHANDLING,
                         vilkårResultaterFraForrigeBehandling = personResultatForrigeBehandling.vilkårResultater,
                         nyttPersonResultat = initieltPersonResultat,
-                        behandlingSkalFølgeNyeLovendringer2024 = behandlingSkalFølgeNyeLovendringer2024,
+                        erToggleForLovendringAugust2024På = erToggleForLovendringAugust2024På,
                     )
             }
 
@@ -522,7 +522,7 @@ private fun Collection<VilkårResultat>.overskrivMedVilkårResultaterFraForrigeB
     vilkårResultaterFraForrigeBehandling: Collection<VilkårResultat>,
     nyttPersonResultat: PersonResultat,
     kunForGodkjenteVilkår: Boolean,
-    behandlingSkalFølgeNyeLovendringer2024: Boolean,
+    erToggleForLovendringAugust2024På: Boolean,
 ): List<VilkårResultat> {
     val vilkårForPerson = nyttPersonResultat.vilkårResultater.map { it.vilkårType }.toSet()
 
@@ -535,7 +535,7 @@ private fun Collection<VilkårResultat>.overskrivMedVilkårResultaterFraForrigeB
                 .map { it.kopier(personResultat = nyttPersonResultat) }
 
         val vilkårResultaterForrigeBehandlingSomViØnskerÅTaMed: List<VilkårResultat> =
-            if (behandlingSkalFølgeNyeLovendringer2024) {
+            if (erToggleForLovendringAugust2024På) {
                 when (vilkårType) {
                     Vilkår.BARNEHAGEPLASS -> {
                     /* *

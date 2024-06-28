@@ -45,7 +45,7 @@ class OppdaterVilkårsvurderingTest {
 
         initiellVilkårsvurdering.kopierResultaterFraForrigeBehandling(
             vilkårsvurderingForrigeBehandling = vilkårsvurderingForrigeBehandling,
-            behandlingSkalFølgeNyeLovendringer2024 = true,
+            erToggleForLovendringAugust2024På = true,
         )
 
         val søkerVilkårResultater =
@@ -97,7 +97,7 @@ class OppdaterVilkårsvurderingTest {
 
         initiellVilkårsvurdering.kopierResultaterFraForrigeBehandling(
             vilkårsvurderingForrigeBehandling = vilkårsvurderingForrigeBehandling,
-            behandlingSkalFølgeNyeLovendringer2024 = true,
+            erToggleForLovendringAugust2024På = true,
         )
 
         val søkerVilkårResultater =
@@ -164,7 +164,7 @@ class OppdaterVilkårsvurderingTest {
 
         initiellVilkårsvurdering.kopierResultaterFraForrigeBehandling(
             vilkårsvurderingForrigeBehandling = vilkårsvurderingForrigeBehandling,
-            behandlingSkalFølgeNyeLovendringer2024 = true,
+            erToggleForLovendringAugust2024På = true,
         )
         Assertions.assertEquals(1, initiellVilkårsvurdering.personResultater.size)
     }
@@ -209,7 +209,7 @@ class OppdaterVilkårsvurderingTest {
 
         initiellVilkårsvurdering.kopierResultaterFraForrigeBehandling(
             vilkårsvurderingForrigeBehandling = vilkårsvurderingForrigeBehandling,
-            behandlingSkalFølgeNyeLovendringer2024 = true,
+            erToggleForLovendringAugust2024På = true,
         )
 
         val nyInitBosattIRiketVilkår =
@@ -242,7 +242,7 @@ class OppdaterVilkårsvurderingTest {
 
         initiellVilkårsvurderingUtenAndreVurderinger.kopierResultaterFraForrigeBehandling(
             vilkårsvurderingForrigeBehandling = vilkårsvurderingForrigeBehandling,
-            behandlingSkalFølgeNyeLovendringer2024 = true,
+            erToggleForLovendringAugust2024På = true,
         )
 
         val nyInitInnholderOpplysningspliktVilkår =

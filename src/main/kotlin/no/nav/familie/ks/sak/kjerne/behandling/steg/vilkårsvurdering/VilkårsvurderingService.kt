@@ -42,7 +42,7 @@ class VilkårsvurderingService(
     ): Vilkårsvurdering {
         logger.info("${SikkerhetContext.hentSaksbehandlerNavn()} oppretter vilkårsvurdering for behandling ${behandling.id}")
 
-        val behandlingSkalFølgeNyeLovendringer2024 =
+        val erToggleForLovendringAugust2024På =
             unleashService.isEnabled(FeatureToggleConfig.LOV_ENDRING_7_MND_NYE_BEHANDLINGER)
 
         val aktivVilkårsvurdering = finnAktivVilkårsvurdering(behandling.id)
@@ -51,12 +51,18 @@ class VilkårsvurderingService(
         val personopplysningGrunnlag =
             personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(behandling.id)
 
-        val initiellVilkårsvurdering = genererInitiellVilkårsvurdering(behandling, vilkårsvurderingFraForrigeBehandling, personopplysningGrunnlag, behandlingSkalFølgeNyeLovendringer2024)
+        val initiellVilkårsvurdering =
+            genererInitiellVilkårsvurdering(
+                behandling,
+                vilkårsvurderingFraForrigeBehandling,
+                personopplysningGrunnlag,
+                erToggleForLovendringAugust2024På,
+            )
 
         vilkårsvurderingFraForrigeBehandling?.let {
             initiellVilkårsvurdering.kopierResultaterFraForrigeBehandling(
                 vilkårsvurderingForrigeBehandling = it,
-                behandlingSkalFølgeNyeLovendringer2024 = behandlingSkalFølgeNyeLovendringer2024,
+                erToggleForLovendringAugust2024På = erToggleForLovendringAugust2024På,
             )
         }
 
