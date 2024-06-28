@@ -30,10 +30,10 @@ class BarnetsAlderVilkårValidator2021 {
                 .map {
                     when {
                         it.tom.isAfter(barn.fødselsdato.plusYears(6).withMonth(Month.AUGUST.value).sisteDagIMåned()) ->
-                            "Du kan ikke sette en t.o.m dato som er etter august året barnet fyller 6 år."
+                            "Du kan ikke sette en t.o.m dato på barnets alder vilkåret som er etter august året barnet fyller 6 år."
                         // Ved adopsjon skal det være lov å ha en differanse på 1 år slik at man får 11 måned med kontantstøtte.
                         it.fom.plusYears(1) < it.tom ->
-                            "Differansen mellom f.o.m datoen og t.o.m datoen kan ikke være mer enn 1 år."
+                            "Differansen mellom f.o.m datoen og t.o.m datoen på barnets alder vilkåret kan ikke være mer enn 1 år."
                         else -> null
                     }
                 }
@@ -50,12 +50,12 @@ class BarnetsAlderVilkårValidator2021 {
                         )
                     when {
                         !it.fom.isEqual(periodeFomBarnetsAlderLov2021) ->
-                            "F.o.m datoen må være lik barnets 1 års dag."
+                            "F.o.m datoen på barnets alder vilkåret må være lik barnets 1 års dag."
                         behandlingSkalFølgeNyeLovendringer2024 && !it.tom.isEqual(periodeTomEllerDatoFørLovendring) && it.tom != barn.dødsfall?.dødsfallDato ->
-                            "T.o.m datoen må være lik barnets 2 års dag eller 31.07.24 på grunn av lovendring fra og med 01.08.24. Dersom barnet ikke lever må t.o.m datoen være lik dato for dødsfall."
+                            "T.o.m datoen på barnets alder vilkåret må være lik barnets 2 års dag eller 31.07.24 på grunn av lovendring fra og med 01.08.24. Dersom barnet ikke lever må t.o.m datoen være lik dato for dødsfall."
 
                         !behandlingSkalFølgeNyeLovendringer2024 && !it.tom.isEqual(periodeTomBarnetsAlderLov2021) && it.tom != barn.dødsfall?.dødsfallDato ->
-                            "T.o.m datoen må være lik barnets 2 års dag eller 31.07.24 på grunn av lovendring fra og med 01.08.24. Dersom barnet ikke lever må t.o.m datoen være lik dato for dødsfall."
+                            "T.o.m datoen på barnets alder vilkåret må være lik barnets 2 års dag. Dersom barnet ikke lever må t.o.m datoen være lik dato for dødsfall."
                         else -> null
                     }
                 }
