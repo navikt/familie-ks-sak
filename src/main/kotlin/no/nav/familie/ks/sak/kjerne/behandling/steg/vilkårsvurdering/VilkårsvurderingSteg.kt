@@ -7,7 +7,11 @@ import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.common.tidslinje.TidslinjePeriodeMedDato
 import no.nav.familie.ks.sak.common.tidslinje.validerIngenOverlapp
-import no.nav.familie.ks.sak.common.util.*
+import no.nav.familie.ks.sak.common.util.DATO_LOVENDRING_2024
+import no.nav.familie.ks.sak.common.util.TIDENES_ENDE
+import no.nav.familie.ks.sak.common.util.erSammeEllerEtter
+import no.nav.familie.ks.sak.common.util.sisteDagIMåned
+import no.nav.familie.ks.sak.common.util.slåSammen
 import no.nav.familie.ks.sak.config.featureToggle.FeatureToggleConfig
 import no.nav.familie.ks.sak.config.featureToggle.UnleashNextMedContextService
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
@@ -44,7 +48,7 @@ class VilkårsvurderingSteg(
     private val vilkårsvurderingService: VilkårsvurderingService,
     private val beregningService: BeregningService,
     private val kompetanseService: KompetanseService,
-    private val unleashNextMedContextService: UnleashNextMedContextService
+    private val unleashNextMedContextService: UnleashNextMedContextService,
 ) : IBehandlingSteg {
     override fun getBehandlingssteg(): BehandlingSteg = BehandlingSteg.VILKÅRSVURDERING
 
@@ -70,7 +74,8 @@ class VilkårsvurderingSteg(
         val finnesKompetanserEllerVilkårVurdertEtterEøs =
             vilkårsvurdering.personResultater.any {
                 it.vilkårResultater.any { vilkårResultat -> vilkårResultat.vurderesEtter == Regelverk.EØS_FORORDNINGEN }
-            } || kompetanseService.hentKompetanser(BehandlingId(behandlingId)).isNotEmpty()
+            } ||
+                kompetanseService.hentKompetanser(BehandlingId(behandlingId)).isNotEmpty()
 
         if (finnesKompetanserEllerVilkårVurdertEtterEøs) {
             logger.info("Oppretter/Tilpasser kompetanse perioder for behandlingId=$behandlingId")
@@ -83,7 +88,8 @@ class VilkårsvurderingSteg(
         nåværendeVilkårsvurdering: Vilkårsvurdering,
     ) {
         val nåværendeVilkårVurderesEtterEøs =
-            nåværendeVilkårsvurdering.personResultater.flatMap { it.vilkårResultater }
+            nåværendeVilkårsvurdering.personResultater
+                .flatMap { it.vilkårResultater }
                 .filter { it.behandlingId == nåværendeBehandling.id }
                 .any { it.vurderesEtter == Regelverk.EØS_FORORDNINGEN }
 
@@ -97,12 +103,13 @@ class VilkårsvurderingSteg(
 
                 // Vi sjekker om vi har løpende EØS vilkårresultater fra forrige behandling
                 val harLøpendeEøsUtbetalingIForrigeVedtattBehandling =
-                    vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(forrigeBehandling.id)
-                        .personResultater.flatMap { it.vilkårResultater }
+                    vilkårsvurderingService
+                        .hentAktivVilkårsvurderingForBehandling(forrigeBehandling.id)
+                        .personResultater
+                        .flatMap { it.vilkårResultater }
                         .filter {
                             (it.periodeTom ?: TIDENES_ENDE).isAfter(LocalDate.now().sisteDagIMåned())
-                        }
-                        .any { it.vurderesEtter == Regelverk.EØS_FORORDNINGEN }
+                        }.any { it.vurderesEtter == Regelverk.EØS_FORORDNINGEN }
 
                 if (harLøpendeEøsUtbetalingIForrigeVedtattBehandling) BehandlingKategori.EØS else BehandlingKategori.NASJONAL
             } ?: BehandlingKategori.NASJONAL
@@ -191,23 +198,24 @@ class VilkårsvurderingSteg(
 
     private fun validerAtDetIkkeErOverlappMellomGradertBarnehageplassOgDeltBosted(vilkårsvurdering: Vilkårsvurdering) {
         vilkårsvurdering.personResultater.forEach {
-            it.vilkårResultater.filter { vilkårResultat ->
-                val gradertBarnehageplass =
-                    vilkårResultat.antallTimer != null &&
-                        vilkårResultat.antallTimer > BigDecimal(0) &&
-                        vilkårResultat.vilkårType == Vilkår.BARNEHAGEPLASS
+            it.vilkårResultater
+                .filter { vilkårResultat ->
+                    val gradertBarnehageplass =
+                        vilkårResultat.antallTimer != null &&
+                            vilkårResultat.antallTimer > BigDecimal(0) &&
+                            vilkårResultat.vilkårType == Vilkår.BARNEHAGEPLASS
 
-                val deltBosted =
-                    vilkårResultat.utdypendeVilkårsvurderinger.contains(UtdypendeVilkårsvurdering.DELT_BOSTED)
+                    val deltBosted =
+                        vilkårResultat.utdypendeVilkårsvurderinger.contains(UtdypendeVilkårsvurdering.DELT_BOSTED)
 
-                vilkårResultat.erOppfylt() && (gradertBarnehageplass || deltBosted)
-            }.map { vilkårResultat ->
-                TidslinjePeriodeMedDato(
-                    verdi = vilkårResultat,
-                    fom = vilkårResultat.periodeFom,
-                    tom = vilkårResultat.periodeTom,
-                )
-            }.validerIngenOverlapp("Det er lagt inn gradert barnehageplass og delt bosted for samme periode.")
+                    vilkårResultat.erOppfylt() && (gradertBarnehageplass || deltBosted)
+                }.map { vilkårResultat ->
+                    TidslinjePeriodeMedDato(
+                        verdi = vilkårResultat,
+                        fom = vilkårResultat.periodeFom,
+                        tom = vilkårResultat.periodeTom,
+                    )
+                }.validerIngenOverlapp("Det er lagt inn gradert barnehageplass og delt bosted for samme periode.")
         }
     }
 
