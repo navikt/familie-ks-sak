@@ -7,12 +7,10 @@ import java.time.LocalDate
 import no.nav.familie.ks.sak.common.tidslinje.IkkeNullbarPeriode
 import no.nav.familie.ks.sak.common.util.DATO_LOVENDRING_2024
 import no.nav.familie.ks.sak.data.lagPerson
-import no.nav.familie.ks.sak.data.lagPersonopplysningGrunnlag
 import no.nav.familie.ks.sak.data.lagVilkårResultat
 import no.nav.familie.ks.sak.data.randomAktør
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårLovverkInformasjonForBarn
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
-import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
@@ -20,7 +18,6 @@ class BarnetsAlderVilkårValidatorTest {
     val barnetsAlderVilkårValidator2021: BarnetsAlderVilkårValidator2021 = mockk()
     val barnetsAlderVilkårValidator2024: BarnetsAlderVilkårValidator2024 = mockk()
     val barnetsAlderVilkårValidator2021og2024: BarnetsAlderVilkårValidator2021og2024 = mockk()
-
     val barnetsAlderVilkårValidator =
         BarnetsAlderVilkårValidator(
             barnetsAlderVilkårValidator2021,
@@ -28,17 +25,101 @@ class BarnetsAlderVilkårValidatorTest {
             barnetsAlderVilkårValidator2021og2024,
         )
 
-    val person =
-        lagPerson(
-            lagPersonopplysningGrunnlag(),
-            randomAktør(),
-            PersonType.BARN,
-        )
+    @Test
+    fun `skal returnere ingen feil når validering for 2021 og 2024 returnerer ingen feil`() {
+        // Arrange
+        val fødselsdato = DATO_LOVENDRING_2024.minusMonths(19)
+
+        val person =
+            lagPerson(
+                aktør = randomAktør(),
+                fødselsdato = fødselsdato,
+            )
+
+        val vilkårResultatPeriode =
+            IkkeNullbarPeriode(
+                lagVilkårResultat(vilkårType = Vilkår.BARNETS_ALDER),
+                fødselsdato,
+                DATO_LOVENDRING_2024.minusDays(1),
+            )
+
+        val vilkårResultatPerioder = listOf(vilkårResultatPeriode)
+
+        every {
+            barnetsAlderVilkårValidator2021og2024.validerBarnetsAlderVilkår(
+                perioder = vilkårResultatPerioder,
+                barn = person,
+                any<VilkårLovverkInformasjonForBarn>(),
+            )
+        }.returns(listOf())
+
+        // Act
+        val feil =
+            barnetsAlderVilkårValidator.validerVilkårBarnetsAlder(
+                vilkårResultatPerioder,
+                person,
+            )
+
+        // Assert
+        assertThat(feil).isEmpty()
+        verify(exactly = 0) { barnetsAlderVilkårValidator2021.validerBarnetsAlderVilkår(vilkårResultatPerioder, person, any<LocalDate>(), any<LocalDate>()) }
+        verify(exactly = 0) { barnetsAlderVilkårValidator2024.validerBarnetsAlderVilkår(vilkårResultatPerioder, person, any<LocalDate>(), any<LocalDate>()) }
+        verify(exactly = 1) { barnetsAlderVilkårValidator2021og2024.validerBarnetsAlderVilkår(vilkårResultatPerioder, person, any<VilkårLovverkInformasjonForBarn>()) }
+    }
 
     @Test
-    fun `skal ha ingen feil når validering for 2021 returnere ingen feil`() {
+    fun `skal returnere feil når validering for 2021 og 2024 returnerer feil`() {
         // Arrange
-        val fødselsdato = DATO_LOVENDRING_2024.minusYears(1)
+        val fødselsdato = DATO_LOVENDRING_2024.minusMonths(19)
+
+        val person =
+            lagPerson(
+                aktør = randomAktør(),
+                fødselsdato = fødselsdato,
+            )
+
+        val vilkårResultatPeriode =
+            IkkeNullbarPeriode(
+                lagVilkårResultat(vilkårType = Vilkår.BARNETS_ALDER),
+                fødselsdato,
+                DATO_LOVENDRING_2024.minusDays(1),
+            )
+
+        val vilkårResultatPerioder = listOf(vilkårResultatPeriode)
+
+        every {
+            barnetsAlderVilkårValidator2021og2024.validerBarnetsAlderVilkår(
+                perioder = vilkårResultatPerioder,
+                barn = person,
+                any<VilkårLovverkInformasjonForBarn>(),
+            )
+        }.returns(listOf("feilmelding"))
+
+        // Act
+        val feil =
+            barnetsAlderVilkårValidator.validerVilkårBarnetsAlder(
+                vilkårResultatPerioder,
+                person,
+            )
+
+        // Assert
+        assertThat(feil).hasSize(1)
+        assertThat(feil).contains("feilmelding")
+        verify(exactly = 0) { barnetsAlderVilkårValidator2021.validerBarnetsAlderVilkår(vilkårResultatPerioder, person, any<LocalDate>(), any<LocalDate>()) }
+        verify(exactly = 0) { barnetsAlderVilkårValidator2024.validerBarnetsAlderVilkår(vilkårResultatPerioder, person, any<LocalDate>(), any<LocalDate>()) }
+        verify(exactly = 1) { barnetsAlderVilkårValidator2021og2024.validerBarnetsAlderVilkår(vilkårResultatPerioder, person, any<VilkårLovverkInformasjonForBarn>()) }
+    }
+
+    @Test
+    fun `skal returnere ingen feil når validering for 2021 returnerer ingen feil`() {
+        // Arrange
+        val fødselsdato = DATO_LOVENDRING_2024.minusMonths(19).minusDays(1)
+
+        val person =
+            lagPerson(
+                aktør = randomAktør(),
+                fødselsdato = fødselsdato,
+            )
 
         val vilkårResultatPeriode =
             IkkeNullbarPeriode(
@@ -73,12 +154,20 @@ class BarnetsAlderVilkårValidatorTest {
     }
 
     @Test
-    fun `skal ingen feil når validering for 2021 returnere feil`() {
+    fun `skal returnere feil når validering for 2021 returnerer feil`() {
         // Arrange
+        val fødselsdato = DATO_LOVENDRING_2024.minusMonths(19).minusDays(1)
+
+        val person =
+            lagPerson(
+                aktør = randomAktør(),
+                fødselsdato = fødselsdato,
+            )
+
         val vilkårResultatPeriode =
             IkkeNullbarPeriode(
                 lagVilkårResultat(),
-                DATO_LOVENDRING_2024.minusYears(1),
+                fødselsdato,
                 DATO_LOVENDRING_2024.minusDays(1),
             )
 
@@ -109,8 +198,14 @@ class BarnetsAlderVilkårValidatorTest {
     }
 
     @Test
-    fun `skal ha ingen feil når validering for 2024 returnere ingen feil`() {
+    fun `skal returnere ingen feil når validering for 2024 returnerer ingen feil`() {
         // Arrange
+        val person =
+            lagPerson(
+                aktør = randomAktør(),
+                fødselsdato = DATO_LOVENDRING_2024,
+            )
+
         val vilkårResultatPeriode =
             IkkeNullbarPeriode(
                 lagVilkårResultat(),
@@ -138,14 +233,20 @@ class BarnetsAlderVilkårValidatorTest {
 
         // Assert
         assertThat(feil).isEmpty()
-        verify(exactly = 1) { barnetsAlderVilkårValidator2021.validerBarnetsAlderVilkår(vilkårResultatPerioder, person, any<LocalDate>(), any<LocalDate>()) }
-        verify(exactly = 0) { barnetsAlderVilkårValidator2024.validerBarnetsAlderVilkår(vilkårResultatPerioder, person, any<LocalDate>(), any<LocalDate>()) }
+        verify(exactly = 0) { barnetsAlderVilkårValidator2021.validerBarnetsAlderVilkår(vilkårResultatPerioder, person, any<LocalDate>(), any<LocalDate>()) }
+        verify(exactly = 1) { barnetsAlderVilkårValidator2024.validerBarnetsAlderVilkår(vilkårResultatPerioder, person, any<LocalDate>(), any<LocalDate>()) }
         verify(exactly = 0) { barnetsAlderVilkårValidator2021og2024.validerBarnetsAlderVilkår(vilkårResultatPerioder, person, any<VilkårLovverkInformasjonForBarn>()) }
     }
 
     @Test
-    fun `skal ingen feil når validering for 2024 returnere feil`() {
+    fun `skal returnere feil når validering for 2024 returnerer feil`() {
         // Arrange
+        val person =
+            lagPerson(
+                aktør = randomAktør(),
+                fødselsdato = DATO_LOVENDRING_2024,
+            )
+
         val vilkårResultatPeriode =
             IkkeNullbarPeriode(
                 lagVilkårResultat(),
