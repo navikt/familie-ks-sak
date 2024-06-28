@@ -25,7 +25,7 @@ data class VilkårLovverkInformasjonForBarn(
             erTruffetAvLovverk2021 && erTruffetAvLovverk2024 -> VilkårLovverk._2021_OG_2024
             erTruffetAvLovverk2021 -> VilkårLovverk._2021
             erTruffetAvLovverk2024 -> VilkårLovverk._2024
-            else -> throw Feil("Forventer at barnet blir truffet at minst et lovverk")
+            else -> throw Feil("Forventer at barnet blir truffet av minst et lovverk")
         }
     }
 }

@@ -81,7 +81,7 @@ class VilkårLovverkInformasjonForBarnTest {
             VilkårLovverkInformasjonForBarn(mockDato)
         }
         assertThat(exception.message).isEqualTo(
-            "Forventer at barnet blir truffet at minst et lovverk"
+            "Forventer at barnet blir truffet av minst et lovverk"
         )
 
     }
