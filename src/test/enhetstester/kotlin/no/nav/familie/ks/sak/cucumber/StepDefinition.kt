@@ -481,7 +481,7 @@ class StepDefinition {
         vilkårsvurdering[behandlingId] =
             vilkårsvurderingService.opprettVilkårsvurdering(
                 behandling = behandling,
-                forrigeBehandlingSomErVedtatt = null,
+                forrigeBehandlingSomErVedtatt = behandlingTilForrigeBehandling[behandlingId]?.let { behandlinger[it] },
             )
     }
 
@@ -513,6 +513,7 @@ class StepDefinition {
                     ".*begrunnelse",
                     ".*regelsett",
                     ".*personResultat",
+                    ".*behandlingId",
                 )
                 .isEqualTo(forventetVilkårResultat.sortedWith(comparator))
         }
