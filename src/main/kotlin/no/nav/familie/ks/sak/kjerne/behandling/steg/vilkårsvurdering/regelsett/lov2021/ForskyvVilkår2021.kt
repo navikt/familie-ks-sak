@@ -32,14 +32,16 @@ fun forskyvEtterLovgivning2021(
             .sortedBy { it.periodeFom }
             .mapTilTilknyttetVilkårResultater()
             .map {
+                val periodeTom = it.gjeldende.periodeTom
+
                 Periode(
                     verdi = it.gjeldende,
                     fom = it.gjeldende.periodeFom?.plusMonths(1)?.førsteDagIInneværendeMåned(),
                     tom =
                         when {
-                            it.gjeldendeSlutterDagenFørNeste() || it.gjeldende.periodeTom == DATO_FOR_LOVENDRING_AV_FORSKYVNINGER.minusDays(1) -> it.gjeldende.periodeTom?.plusDays(1)?.sisteDagIMåned()
-
-                            else -> it.gjeldende.periodeTom?.minusMonths(1)?.sisteDagIMåned()
+                            it.gjeldendeSlutterDagenFørNeste() -> periodeTom?.plusDays(1)?.sisteDagIMåned()
+                            periodeTom == DATO_FOR_LOVENDRING_AV_FORSKYVNINGER.minusDays(1) -> periodeTom
+                            else -> periodeTom?.minusMonths(1)?.sisteDagIMåned()
                         },
                 )
             }
