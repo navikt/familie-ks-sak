@@ -103,14 +103,14 @@ fun forskyvVilkårResultater(
 
     val klippetTidslinje2021 =
         forskjøvetVilkårResultaterTidslinje2021.klipp(
-            forskjøvetVilkårResultaterTidslinje2021.startsTidspunkt,
-            DATO_FOR_LOVENDRING_AV_FORSKYVNINGER.minusDays(1),
+            startsTidspunkt = forskjøvetVilkårResultaterTidslinje2021.startsTidspunkt,
+            sluttTidspunkt = DATO_FOR_LOVENDRING_AV_FORSKYVNINGER.minusDays(1),
         )
 
     val klippetTidslinje2024 =
         forskjøvetVilkårResultaterTidslinje2024.klipp(
-            DATO_FOR_LOVENDRING_AV_FORSKYVNINGER,
-            TIDENES_ENDE,
+            startsTidspunkt = DATO_FOR_LOVENDRING_AV_FORSKYVNINGER,
+            sluttTidspunkt = TIDENES_ENDE,
         )
 
     return klippetTidslinje2021
