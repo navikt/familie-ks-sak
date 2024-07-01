@@ -246,3 +246,4 @@ Egenskap: Overgang fra barnehageplass kombinert
       | 2       | 01.07.2024 | 31.09.2024 | 4500  | ORDINÆR_KONTANTSTØTTE | 60      | 7500 |
       | 2       | 01.10.2024 | 30.11.2024 | 1500  | ORDINÆR_KONTANTSTØTTE | 20      | 7500 |
       | 2       | 01.12.2024 | 31.12.2025 | 7500  | ORDINÆR_KONTANTSTØTTE | 100     | 7500 |
+  TODO:
