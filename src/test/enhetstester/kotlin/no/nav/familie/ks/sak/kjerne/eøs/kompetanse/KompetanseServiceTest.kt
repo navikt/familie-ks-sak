@@ -767,6 +767,7 @@ internal class KompetanseServiceTest {
                     barnasIdenter = listOf(barn1.aktivFødselsnummer(), barn2.aktivFødselsnummer()),
                     barnAktør = listOf(barn1, barn2),
                 ),
+            behandlingSkalFølgeNyeLovendringer2024 = true,
         )
 
     private fun assertKompetanse(

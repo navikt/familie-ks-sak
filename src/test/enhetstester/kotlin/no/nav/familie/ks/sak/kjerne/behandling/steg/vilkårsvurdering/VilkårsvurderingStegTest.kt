@@ -1,8 +1,6 @@
 package no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering
 
 import io.mockk.every
-import io.mockk.impl.annotations.InjectMockKs
-import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import io.mockk.just
 import io.mockk.mockk
@@ -17,6 +15,8 @@ import no.nav.familie.ks.sak.common.BehandlingId
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.common.util.NullablePeriode
+import no.nav.familie.ks.sak.config.featureToggle.FeatureToggleConfig
+import no.nav.familie.ks.sak.config.featureToggle.UnleashNextMedContextService
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagFagsak
 import no.nav.familie.ks.sak.data.lagPersonopplysningGrunnlag
@@ -36,6 +36,11 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Utd
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.validering.BarnetsAlderVilkårValidator
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.validering.BarnetsAlderVilkårValidator2021
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.validering.BarnetsAlderVilkårValidator2021og2024
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.validering.BarnetsAlderVilkårValidator2024
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.validering.BarnetsVilkårValidator
 import no.nav.familie.ks.sak.kjerne.beregning.BeregningService
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.KompetanseService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
@@ -51,26 +56,38 @@ import org.hamcrest.CoreMatchers.`is` as Is
 
 @ExtendWith(MockKExtension::class)
 class VilkårsvurderingStegTest {
-    @MockK
-    private lateinit var personopplysningGrunnlagService: PersonopplysningGrunnlagService
+    private val personopplysningGrunnlagService: PersonopplysningGrunnlagService = mockk()
+    private val behandlingService: BehandlingService = mockk()
+    private val vilkårsvurderingService: VilkårsvurderingService = mockk()
+    private val søknadGrunnlagService: SøknadGrunnlagService = mockk()
+    private val beregningService: BeregningService = mockk()
+    private val kompetanseService: KompetanseService = mockk()
+    private val unleashNextMedContextService: UnleashNextMedContextService = mockk()
 
-    @MockK
-    private lateinit var behandlingService: BehandlingService
-
-    @MockK
-    private lateinit var vilkårsvurderingService: VilkårsvurderingService
-
-    @MockK
-    private lateinit var søknadGrunnlagService: SøknadGrunnlagService
-
-    @MockK
-    private lateinit var beregningService: BeregningService
-
-    @MockK
-    private lateinit var kompetanseService: KompetanseService
-
-    @InjectMockKs
-    private lateinit var vilkårsvurderingSteg: VilkårsvurderingSteg
+    private val barnetsAlderVilkårValidator2021 = BarnetsAlderVilkårValidator2021()
+    private val barnetsAlderVilkårValidator2024 = BarnetsAlderVilkårValidator2024()
+    private val barnetsVilkårValidator: BarnetsVilkårValidator =
+        BarnetsVilkårValidator(
+            BarnetsAlderVilkårValidator(
+                barnetsAlderVilkårValidator2021,
+                barnetsAlderVilkårValidator2024,
+                BarnetsAlderVilkårValidator2021og2024(
+                    barnetsAlderVilkårValidator2021,
+                    barnetsAlderVilkårValidator2024,
+                ),
+            ),
+        )
+    private val vilkårsvurderingSteg: VilkårsvurderingSteg =
+        VilkårsvurderingSteg(
+            personopplysningGrunnlagService,
+            behandlingService,
+            søknadGrunnlagService,
+            vilkårsvurderingService,
+            beregningService,
+            kompetanseService,
+            barnetsVilkårValidator,
+            unleashNextMedContextService,
+        )
 
     private val søker = randomAktør()
     private val barn = randomAktør()
@@ -107,6 +124,7 @@ class VilkårsvurderingStegTest {
         every { behandlingService.hentBehandling(behandling.id) } returns behandling
         every { personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(any()) } returns personopplysningGrunnlag
         every { beregningService.oppdaterTilkjentYtelsePåBehandling(any(), any(), any(), any()) } just runs
+        every { unleashNextMedContextService.isEnabled(FeatureToggleConfig.LOV_ENDRING_7_MND_NYE_BEHANDLINGER) } returns true
     }
 
     @Test

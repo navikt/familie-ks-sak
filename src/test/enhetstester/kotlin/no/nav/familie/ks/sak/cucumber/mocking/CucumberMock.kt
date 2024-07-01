@@ -108,6 +108,7 @@ class CucumberMock(stepDefinition: StepDefinition) {
             andelerTilkjentYtelseOgEndreteUtbetalingerService = andelerTilkjentYtelseOgEndreteUtbetalingerService,
             fagsakService = fagsakService,
             tilkjentYtelseEndretAbonnenter = listOf(tilpassDifferanseberegningEtterTilkjentYtelseService),
+            unleashNextMedContextService = unleashNextMedContextServiceMock,
         )
 
     val personopplysningGrunnlagService =

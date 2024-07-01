@@ -456,6 +456,7 @@ fun lagBrevPeriodeContext(
             personopplysningGrunnlag = persongrunnlag,
             vilkårsvurdering = vilkårsvurdering,
             tilkjentYtelse = mockk(),
+            behandlingSkalFølgeNyeLovendringer2024 = true,
         )
 
     val vedtaksperiodeMedBegrunnelser =
@@ -502,6 +503,7 @@ fun lagBrevPeriodeContext(
         erFørsteVedtaksperiode = false,
         kompetanser = emptyList(),
         landkoder = LANDKODER,
+        behandlingSkalFølgeNyeLovendringer2024 = true,
     )
 }
 

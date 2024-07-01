@@ -1,26 +1,26 @@
 package no.nav.familie.ks.sak.kjerne.beregning
 
-import java.time.temporal.ChronoUnit
-import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.util.DATO_LOVENDRING_2024
 import no.nav.familie.ks.sak.common.util.tilYearMonth
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårRegelverkInformasjonForBarn
+import no.nav.familie.ks.sak.common.util.toYearMonth
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårLovverk
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårLovverkInformasjonForBarn
+import java.time.temporal.ChronoUnit
 
-fun utledMaksAntallMånederMedUtbetaling(vilkårRegelverkInformasjonForBarn: VilkårRegelverkInformasjonForBarn): Long {
-    return when {
-        vilkårRegelverkInformasjonForBarn.erTruffetAvRegelverk2021 && vilkårRegelverkInformasjonForBarn.erTruffetAvRegelverk2024 -> 7L
-        vilkårRegelverkInformasjonForBarn.erTruffetAvRegelverk2021 -> {
-            val tomBarnetsAlderEllerDatoForLovendring =
+fun utledMaksAntallMånederMedUtbetaling(vilkårLovverkInformasjonForBarn: VilkårLovverkInformasjonForBarn): Long {
+    return when (vilkårLovverkInformasjonForBarn.lovverk) {
+        VilkårLovverk.LOVVERK_2024,
+        VilkårLovverk.LOVVERK_2021_OG_2024,
+        -> 7L
+        VilkårLovverk.LOVVVERK_2021 -> {
+            val sisteMuligeUtbetaling =
                 minOf(
-                    vilkårRegelverkInformasjonForBarn.periodeTomBarnetsAlderLov2021.tilYearMonth(),
-                    DATO_LOVENDRING_2024.tilYearMonth(),
-                )
-            val fomBarnetsAlder = vilkårRegelverkInformasjonForBarn.periodeFomBarnetsAlderLov2024.tilYearMonth()
-            fomBarnetsAlder.until(tomBarnetsAlderEllerDatoForLovendring, ChronoUnit.MONTHS)
+                    vilkårLovverkInformasjonForBarn.periodeTomBarnetsAlderLov2021.tilYearMonth(),
+                    DATO_LOVENDRING_2024.toYearMonth(),
+                ).minusMonths(1)
+            val førsteMuligeUtbetaling = vilkårLovverkInformasjonForBarn.periodeFomBarnetsAlderLov2021.tilYearMonth().plusMonths(1)
+
+            førsteMuligeUtbetaling.until(sisteMuligeUtbetaling, ChronoUnit.MONTHS) + 1L
         }
-        vilkårRegelverkInformasjonForBarn.erTruffetAvRegelverk2024 -> 7L
-        else -> throw Feil(
-            "Barnets vilkår blir verken truffet av 2021 eller 2024 regelverket. Dette skal ikke være mulig.",
-        )
     }
 }

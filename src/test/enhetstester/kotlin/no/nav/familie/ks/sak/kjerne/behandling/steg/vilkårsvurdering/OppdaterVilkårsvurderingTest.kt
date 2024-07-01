@@ -19,8 +19,6 @@ import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.params.ParameterizedTest
-import org.junit.jupiter.params.provider.EnumSource
 import java.time.LocalDate
 import org.hamcrest.CoreMatchers.`is` as Is
 
@@ -48,6 +46,7 @@ class OppdaterVilkårsvurderingTest {
 
         initiellVilkårsvurdering.kopierResultaterFraForrigeBehandling(
             vilkårsvurderingForrigeBehandling = vilkårsvurderingForrigeBehandling,
+            erToggleForLovendringAugust2024På = true,
         )
 
         val søkerVilkårResultater =
@@ -99,6 +98,7 @@ class OppdaterVilkårsvurderingTest {
 
         initiellVilkårsvurdering.kopierResultaterFraForrigeBehandling(
             vilkårsvurderingForrigeBehandling = vilkårsvurderingForrigeBehandling,
+            erToggleForLovendringAugust2024På = true,
         )
 
         val søkerVilkårResultater =
@@ -164,6 +164,7 @@ class OppdaterVilkårsvurderingTest {
 
         initiellVilkårsvurdering.kopierResultaterFraForrigeBehandling(
             vilkårsvurderingForrigeBehandling = vilkårsvurderingForrigeBehandling,
+            erToggleForLovendringAugust2024På = true,
         )
         Assertions.assertEquals(1, initiellVilkårsvurdering.personResultater.size)
     }
@@ -207,6 +208,7 @@ class OppdaterVilkårsvurderingTest {
 
         initiellVilkårsvurdering.kopierResultaterFraForrigeBehandling(
             vilkårsvurderingForrigeBehandling = vilkårsvurderingForrigeBehandling,
+            erToggleForLovendringAugust2024På = true,
         )
 
         val nyInitBosattIRiketVilkår =
@@ -216,78 +218,6 @@ class OppdaterVilkårsvurderingTest {
 
         Assertions.assertTrue(nyInitBosattIRiketVilkår.isNotEmpty())
         Assertions.assertTrue(nyInitBosattIRiketVilkår.single().resultat == Resultat.IKKE_VURDERT)
-    }
-
-    @ParameterizedTest
-    @EnumSource(value = BehandlingType::class, names = ["FØRSTEGANGSBEHANDLING", "REVURDERING"])
-    fun `kopierResultaterFraForrigeBehandling skal kun ta med oppfylte og ikke aktuelle perioder såsant det ikke er ny førstegangsbehandling`(
-        behandlingType: BehandlingType,
-    ) {
-        val søkerAktørId = randomAktør()
-        val forrigeBehandling = lagBehandling()
-
-        val nyBehandling = lagBehandling(type = behandlingType)
-
-        val initiellVilkårsvurdering =
-            lagVilkårsvurderingOppfylt(
-                behandling = nyBehandling,
-                personer =
-                    listOf(
-                        lagPerson(personType = PersonType.SØKER, aktør = søkerAktørId),
-                        lagPerson(personType = PersonType.BARN, aktør = randomAktør()),
-                    ),
-            )
-        val aktivMedBosattIRiketDelvisIkkeOppfylt = Vilkårsvurdering(behandling = forrigeBehandling)
-        val personResultat =
-            PersonResultat(
-                vilkårsvurdering = aktivMedBosattIRiketDelvisIkkeOppfylt,
-                aktør = søkerAktørId,
-            )
-        val bosattIRiketVilkårResultater =
-            setOf(
-                lagVilkårResultat(
-                    vilkårType = Vilkår.BOSATT_I_RIKET,
-                    personResultat = personResultat,
-                    resultat = Resultat.IKKE_OPPFYLT,
-                    periodeFom = LocalDate.now().minusYears(2),
-                    periodeTom = LocalDate.now().minusYears(1),
-                ),
-                lagVilkårResultat(
-                    vilkårType = Vilkår.BOSATT_I_RIKET,
-                    personResultat = personResultat,
-                    resultat = Resultat.OPPFYLT,
-                    periodeFom = LocalDate.now(),
-                    periodeTom = LocalDate.now().plusYears(1),
-                ),
-                lagVilkårResultat(
-                    vilkårType = Vilkår.BOSATT_I_RIKET,
-                    personResultat = personResultat,
-                    resultat = Resultat.IKKE_AKTUELT,
-                    periodeFom = LocalDate.now().plusYears(2),
-                    periodeTom = LocalDate.now().plusYears(3),
-                ),
-            )
-        personResultat.setSortedVilkårResultater(bosattIRiketVilkårResultater)
-        aktivMedBosattIRiketDelvisIkkeOppfylt.personResultater = setOf(personResultat)
-
-        initiellVilkårsvurdering.kopierResultaterFraForrigeBehandling(
-            vilkårsvurderingForrigeBehandling = aktivMedBosattIRiketDelvisIkkeOppfylt,
-        )
-
-        val nyInitBosattIRiketVilkår =
-            initiellVilkårsvurdering.personResultater.find {
-                it.aktør == søkerAktørId
-            }?.vilkårResultater?.filter { it.vilkårType == Vilkår.BOSATT_I_RIKET }
-                ?: emptyList()
-
-        Assertions.assertTrue(nyInitBosattIRiketVilkår.isNotEmpty())
-        val erKunOppfylteOgIkkeAktuellePerioder =
-            nyInitBosattIRiketVilkår.all { it.resultat == Resultat.OPPFYLT || it.resultat == Resultat.IKKE_AKTUELT }
-
-        when (behandlingType != BehandlingType.FØRSTEGANGSBEHANDLING) {
-            true -> Assertions.assertTrue(erKunOppfylteOgIkkeAktuellePerioder)
-            false -> Assertions.assertFalse(erKunOppfylteOgIkkeAktuellePerioder)
-        }
     }
 
     @Test
@@ -310,6 +240,7 @@ class OppdaterVilkårsvurderingTest {
 
         initiellVilkårsvurderingUtenAndreVurderinger.kopierResultaterFraForrigeBehandling(
             vilkårsvurderingForrigeBehandling = vilkårsvurderingForrigeBehandling,
+            erToggleForLovendringAugust2024På = true,
         )
 
         val nyInitInnholderOpplysningspliktVilkår =

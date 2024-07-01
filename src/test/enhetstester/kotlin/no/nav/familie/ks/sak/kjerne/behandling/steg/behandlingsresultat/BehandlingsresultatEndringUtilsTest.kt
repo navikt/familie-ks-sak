@@ -59,6 +59,7 @@ class BehandlingsresultatEndringUtilsTest {
                 forrigeEndretAndeler = emptyList(),
                 personerIBehandling = emptySet(),
                 personerIForrigeBehandling = emptySet(),
+                behandlingSkalFølgeNyeLovendringer2024 = true,
             )
 
         assertThat(endringsresultat, Is(Endringsresultat.INGEN_ENDRING))
@@ -89,6 +90,7 @@ class BehandlingsresultatEndringUtilsTest {
                 forrigeEndretAndeler = emptyList(),
                 personerIBehandling = setOf(person),
                 personerIForrigeBehandling = setOf(person),
+                behandlingSkalFølgeNyeLovendringer2024 = true,
             )
 
         assertThat(endringsresultat, Is(Endringsresultat.ENDRING))
@@ -179,6 +181,7 @@ class BehandlingsresultatEndringUtilsTest {
                 forrigeEndretAndeler = emptyList(),
                 personerIBehandling = setOf(barn),
                 personerIForrigeBehandling = setOf(barn),
+                behandlingSkalFølgeNyeLovendringer2024 = true,
             )
 
         assertThat(endringsresultat, Is(Endringsresultat.ENDRING))
@@ -222,6 +225,7 @@ class BehandlingsresultatEndringUtilsTest {
                 forrigeEndretAndeler = emptyList(),
                 personerIBehandling = setOf(barnPerson),
                 personerIForrigeBehandling = setOf(barnPerson),
+                behandlingSkalFølgeNyeLovendringer2024 = true,
             )
 
         assertThat(endringsresultat, Is(Endringsresultat.ENDRING))
@@ -254,6 +258,7 @@ class BehandlingsresultatEndringUtilsTest {
                 nåværendeEndretAndeler = listOf(forrigeEndretAndel.copy(årsak = Årsak.ALLEREDE_UTBETALT)),
                 personerIBehandling = setOf(barn),
                 personerIForrigeBehandling = setOf(barn),
+                behandlingSkalFølgeNyeLovendringer2024 = true,
             )
 
         assertThat(endringsresultat, Is(Endringsresultat.ENDRING))
@@ -1079,6 +1084,7 @@ class BehandlingsresultatEndringUtilsTest {
             erEndringIVilkårsvurderingForPerson(
                 nåværendePersonResultaterForPerson = setOf(lagPersonResultatFraVilkårResultater(nåværendeVilkårResultat, aktør)),
                 forrigePersonResultaterForPerson = setOf(lagPersonResultatFraVilkårResultater(forrigeVilkårResultat, aktør)),
+                behandlingSkalFølgeNyeLovendringer2024 = true,
             )
 
         assertThat(erEndringIVilkårvurderingForPerson, Is(false))
@@ -1129,6 +1135,7 @@ class BehandlingsresultatEndringUtilsTest {
             erEndringIVilkårsvurderingForPerson(
                 nåværendePersonResultaterForPerson = setOf(lagPersonResultatFraVilkårResultater(nåværendeVilkårResultat, aktør)),
                 forrigePersonResultaterForPerson = setOf(lagPersonResultatFraVilkårResultater(forrigeVilkårResultat, aktør)),
+                behandlingSkalFølgeNyeLovendringer2024 = true,
             )
 
         assertThat(erEndringIVilkårvurderingForPerson, Is(true))
@@ -1179,6 +1186,7 @@ class BehandlingsresultatEndringUtilsTest {
             erEndringIVilkårsvurderingForPerson(
                 nåværendePersonResultaterForPerson = setOf(lagPersonResultatFraVilkårResultater(nåværendeVilkårResultat, aktør)),
                 forrigePersonResultaterForPerson = setOf(lagPersonResultatFraVilkårResultater(forrigeVilkårResultat, aktør)),
+                behandlingSkalFølgeNyeLovendringer2024 = true,
             )
 
         assertThat(erEndringIVilkårvurderingForPerson, Is(true))
@@ -1234,6 +1242,7 @@ class BehandlingsresultatEndringUtilsTest {
             erEndringIVilkårsvurderingForPerson(
                 nåværendePersonResultaterForPerson = setOf(lagPersonResultatFraVilkårResultater(nåværendeVilkårResultat, aktør)),
                 forrigePersonResultaterForPerson = setOf(lagPersonResultatFraVilkårResultater(forrigeVilkårResultat, aktør)),
+                behandlingSkalFølgeNyeLovendringer2024 = true,
             )
 
         assertThat(erEndringIVilkårvurderingForPerson, Is(true))
@@ -1284,6 +1293,7 @@ class BehandlingsresultatEndringUtilsTest {
             erEndringIVilkårsvurderingForPerson(
                 nåværendePersonResultaterForPerson = setOf(lagPersonResultatFraVilkårResultater(nåværendeVilkårResultat, aktør)),
                 forrigePersonResultaterForPerson = setOf(lagPersonResultatFraVilkårResultater(forrigeVilkårResultat, aktør)),
+                behandlingSkalFølgeNyeLovendringer2024 = true,
             )
 
         assertThat(erEndringIVilkårvurderingForPerson, Is(false))

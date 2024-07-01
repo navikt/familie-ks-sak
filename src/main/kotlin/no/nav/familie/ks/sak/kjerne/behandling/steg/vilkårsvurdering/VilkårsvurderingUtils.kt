@@ -4,7 +4,6 @@ import lagAutomatiskGenererteVilkårForBarnetsAlder
 import no.nav.familie.ks.sak.api.dto.VedtakBegrunnelseTilknyttetVilkårResponseDto
 import no.nav.familie.ks.sak.api.dto.VilkårResultatDto
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
-import no.nav.familie.ks.sak.common.tidslinje.IkkeNullbarPeriode
 import no.nav.familie.ks.sak.common.tidslinje.Periode
 import no.nav.familie.ks.sak.common.tidslinje.Tidslinje
 import no.nav.familie.ks.sak.common.tidslinje.tilTidslinje
@@ -14,8 +13,8 @@ import no.nav.familie.ks.sak.common.util.DATO_LOVENDRING_2024
 import no.nav.familie.ks.sak.common.util.TIDENES_ENDE
 import no.nav.familie.ks.sak.common.util.TIDENES_MORGEN
 import no.nav.familie.ks.sak.common.util.erBack2BackIMånedsskifte
+import no.nav.familie.ks.sak.common.util.erSammeEllerEtter
 import no.nav.familie.ks.sak.common.util.sisteDagIMåned
-import no.nav.familie.ks.sak.common.util.tilDagMånedÅr
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelse
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingKategori
@@ -30,10 +29,8 @@ import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.EØSBegrunnelse
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.IBegrunnelse
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.NasjonalEllerFellesBegrunnelse
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.tilSanityBegrunnelse
-import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
 import java.time.LocalDate
-import java.time.Month
 
 fun standardbegrunnelserTilNedtrekksmenytekster(sanityBegrunnelser: List<SanityBegrunnelse>): Map<BegrunnelseType, List<VedtakBegrunnelseTilknyttetVilkårResponseDto>> {
     return (NasjonalEllerFellesBegrunnelse.entries + EØSBegrunnelse.entries)
@@ -241,121 +238,6 @@ fun finnTilOgMedDato(
     return if (skalVidereføresEnMndEkstra) tilOgMed.plusMonths(1).sisteDagIMåned() else tilOgMed.sisteDagIMåned()
 }
 
-fun validerAtDatoErKorrektIBarnasVilkår(
-    vilkårsvurdering: Vilkårsvurdering,
-    barna: List<Person>,
-) {
-    val funksjonelleFeil = mutableListOf<String>()
-
-    barna.map { barn ->
-        vilkårsvurdering.personResultater
-            .flatMap { it.vilkårResultater }
-            .filter { it.personResultat?.aktør == barn.aktør }
-            .forEach { vilkårResultat ->
-                val fødselsdato = barn.fødselsdato.tilDagMånedÅr()
-                val vilkårType = vilkårResultat.vilkårType
-                if (vilkårResultat.resultat == Resultat.OPPFYLT && vilkårResultat.periodeFom == null) {
-                    funksjonelleFeil.add("Vilkår $vilkårType for barn med fødselsdato $fødselsdato mangler fom dato.")
-                }
-                if (vilkårResultat.periodeFom != null &&
-                    vilkårType != Vilkår.MEDLEMSKAP_ANNEN_FORELDER &&
-                    vilkårResultat.lagOgValiderPeriodeFraVilkår().fom.isBefore(barn.fødselsdato)
-                ) {
-                    funksjonelleFeil.add(
-                        "Vilkår $vilkårType for barn med fødselsdato $fødselsdato " +
-                            "har fom dato før barnets fødselsdato.",
-                    )
-                }
-                if (vilkårResultat.periodeFom != null &&
-                    vilkårResultat.erEksplisittAvslagPåSøknad != true &&
-                    vilkårResultat.vilkårType == Vilkår.BARNETS_ALDER
-                ) {
-                    vilkårResultat.validerVilkårBarnetsAlder(
-                        vilkårResultat.lagOgValiderPeriodeFraVilkår(),
-                        barn,
-                    )?.let { funksjonelleFeil.add(it) }
-                }
-            }
-    }
-
-    if (funksjonelleFeil.isNotEmpty()) {
-        throw FunksjonellFeil(funksjonelleFeil.joinToString(separator = "\n"))
-    }
-}
-
-private fun VilkårResultat.lagOgValiderPeriodeFraVilkår(): IkkeNullbarPeriode<Long> =
-    when {
-        periodeFom !== null -> {
-            IkkeNullbarPeriode(verdi = behandlingId, fom = checkNotNull(periodeFom), tom = periodeTom ?: TIDENES_ENDE)
-        }
-
-        erEksplisittAvslagPåSøknad == true && periodeTom == null -> {
-            IkkeNullbarPeriode(verdi = behandlingId, fom = TIDENES_MORGEN, tom = TIDENES_ENDE)
-        }
-
-        else -> {
-            throw FunksjonellFeil("Ugyldig periode. Periode må ha t.o.m.-dato eller være et avslag uten datoer.")
-        }
-    }
-
-private fun VilkårResultat.validerVilkårBarnetsAlder(
-    periode: IkkeNullbarPeriode<Long>,
-    barn: Person,
-): String? {
-    val vilkårRegelverkInformasjonForBarn = VilkårRegelverkInformasjonForBarn(barn.fødselsdato)
-    return when {
-        vilkårRegelverkInformasjonForBarn.erTruffetAvRegelverk2021 && vilkårRegelverkInformasjonForBarn.erTruffetAvRegelverk2024 -> "Barnets alder vilkåret må splittes i to perioder fordi barnet fyller 1 år før og 19 måneder etter 01.08.24. Periodene må være som følgende: [${vilkårRegelverkInformasjonForBarn.periodeFomBarnetsAlderLov2021} - ${minOf(vilkårRegelverkInformasjonForBarn.periodeTomBarnetsAlderLov2021, DATO_LOVENDRING_2024.minusMonths(1).sisteDagIMåned())}, ${maxOf(vilkårRegelverkInformasjonForBarn.periodeFomBarnetsAlderLov2024, DATO_LOVENDRING_2024)} - ${vilkårRegelverkInformasjonForBarn.periodeTomBarnetsAlderLov2024}]"
-        vilkårRegelverkInformasjonForBarn.erTruffetAvRegelverk2021 -> validerBarnetsAlderIHenholdTilLovI2021(periode, barn, vilkårRegelverkInformasjonForBarn.periodeFomBarnetsAlderLov2021, vilkårRegelverkInformasjonForBarn.periodeTomBarnetsAlderLov2021)
-        vilkårRegelverkInformasjonForBarn.erTruffetAvRegelverk2024 -> validerBarnetsAlderIHenholdTilLovI2024(periode, barn, vilkårRegelverkInformasjonForBarn.periodeFomBarnetsAlderLov2024, vilkårRegelverkInformasjonForBarn.periodeTomBarnetsAlderLov2024)
-        else -> null
-    }
-}
-
-private fun VilkårResultat.validerBarnetsAlderIHenholdTilLovI2024(
-    periode: IkkeNullbarPeriode<Long>,
-    barn: Person,
-    periodeFomBarnetsAlderLov2024: LocalDate,
-    periodeTomBarnetsAlderLov2024: LocalDate,
-) = when {
-    this.erAdopsjonOppfylt() &&
-        periode.tom.isAfter(barn.fødselsdato.plusYears(6).withMonth(Month.AUGUST.value).sisteDagIMåned()) ->
-        "Du kan ikke sette en t.o.m dato som er etter august året barnet fyller 6 år."
-
-    this.erAdopsjonOppfylt() && periode.fom.plusMonths(7) < periode.tom ->
-        "Differansen mellom f.o.m datoen og t.o.m datoen kan ikke være mer enn 7 måneder. "
-
-    !this.erAdopsjonOppfylt() && !periode.fom.isEqual(maxOf(periodeFomBarnetsAlderLov2024, DATO_LOVENDRING_2024)) ->
-        "F.o.m datoen må være lik datoen barnet fyller 13 måneder eller 01.08.24 dersom barnet fyller 13 måneder før 01.08.24."
-
-    !this.erAdopsjonOppfylt() && !periode.tom.isEqual(periodeTomBarnetsAlderLov2024) && periode.tom != barn.dødsfall?.dødsfallDato ->
-        "T.o.m datoen må være lik datoen barnet fyller 19 måneder. Dersom barnet ikke lever må t.o.m datoen være lik dato for dødsfall."
-
-    else -> null
-}
-
-private fun VilkårResultat.validerBarnetsAlderIHenholdTilLovI2021(
-    periode: IkkeNullbarPeriode<Long>,
-    barn: Person,
-    periodeFomBarnetsAlderLov2021: LocalDate,
-    periodeTomBarnetsAlderLov2021: LocalDate,
-) = when {
-    this.erAdopsjonOppfylt() &&
-        periode.tom.isAfter(barn.fødselsdato.plusYears(6).withMonth(Month.AUGUST.value).sisteDagIMåned()) ->
-        "Du kan ikke sette en t.o.m dato som er etter august året barnet fyller 6 år."
-
-    // Ved adopsjon skal det være lov å ha en differanse på 1 år slik at man får 11 måned med kontantstøtte.
-    this.erAdopsjonOppfylt() && periode.fom.plusYears(1) < periode.tom ->
-        "Differansen mellom f.o.m datoen og t.o.m datoen kan ikke være mer enn 1 år."
-
-    !this.erAdopsjonOppfylt() && !periode.fom.isEqual(periodeFomBarnetsAlderLov2021) ->
-        "F.o.m datoen må være lik barnets 1 års dag."
-
-    !this.erAdopsjonOppfylt() && !periode.tom.isEqual(minOf(periodeTomBarnetsAlderLov2021, DATO_LOVENDRING_2024.minusMonths(1).sisteDagIMåned())) && periode.tom != barn.dødsfall?.dødsfallDato ->
-        "T.o.m datoen må være lik barnets 2 års dag eller 31.07.24 på grunn av lovendring fra og med 01.08.24. Dersom barnet ikke lever må t.o.m datoen være lik dato for dødsfall."
-
-    else -> null
-}
-
 fun genererInitiellVilkårsvurdering(
     behandling: Behandling,
     forrigeVilkårsvurdering: Vilkårsvurdering?,
@@ -367,7 +249,9 @@ fun genererInitiellVilkårsvurdering(
             personopplysningGrunnlag.personer.map { person ->
                 val personResultat = PersonResultat(vilkårsvurdering = this, aktør = person.aktør)
 
-                val forrigeBehandlingHaddeEøsSpesifikkeVilkår = forrigeVilkårsvurdering?.personResultater?.flatMap { it.vilkårResultater }?.any { it.vilkårType.eøsSpesifikt } ?: false
+                val forrigeBehandlingHaddeEøsSpesifikkeVilkår =
+                    forrigeVilkårsvurdering?.personResultater?.flatMap { it.vilkårResultater }
+                        ?.any { it.vilkårType.eøsSpesifikt } ?: false
                 val behandlingKategoriErEøs = behandling.kategori == BehandlingKategori.EØS
 
                 val skalHenteEøsSpesifikkeVilkår = behandlingKategoriErEøs || forrigeBehandlingHaddeEøsSpesifikkeVilkår
@@ -452,7 +336,8 @@ fun genererInitiellVilkårsvurdering(
 
 fun Vilkårsvurdering.oppdaterMedDødsdatoer(personopplysningGrunnlag: PersonopplysningGrunnlag) {
     this.personResultater.forEach { personResultat ->
-        val dødsDato = personopplysningGrunnlag.personer.single { it.aktør == personResultat.aktør }.dødsfall?.dødsfallDato
+        val dødsDato =
+            personopplysningGrunnlag.personer.single { it.aktør == personResultat.aktør }.dødsfall?.dødsfallDato
 
         val vikårResultaterOppdatertMedDødsdato =
             if (dødsDato != null) {
@@ -477,7 +362,10 @@ fun Vilkårsvurdering.oppdaterMedDødsdatoer(personopplysningGrunnlag: Personopp
     }
 }
 
-fun Vilkårsvurdering.kopierResultaterFraForrigeBehandling(vilkårsvurderingForrigeBehandling: Vilkårsvurdering) {
+fun Vilkårsvurdering.kopierResultaterFraForrigeBehandling(
+    vilkårsvurderingForrigeBehandling: Vilkårsvurdering,
+    erToggleForLovendringAugust2024På: Boolean,
+) {
     personResultater.forEach { initieltPersonResultat ->
         val personResultatForrigeBehandling =
             vilkårsvurderingForrigeBehandling.personResultater.find {
@@ -493,6 +381,7 @@ fun Vilkårsvurdering.kopierResultaterFraForrigeBehandling(vilkårsvurderingForr
                         kunForGodkjenteVilkår = behandling.type != BehandlingType.FØRSTEGANGSBEHANDLING,
                         vilkårResultaterFraForrigeBehandling = personResultatForrigeBehandling.vilkårResultater,
                         nyttPersonResultat = initieltPersonResultat,
+                        erToggleForLovendringAugust2024På = erToggleForLovendringAugust2024På,
                     )
             }
 
@@ -504,14 +393,72 @@ private fun Collection<VilkårResultat>.overskrivMedVilkårResultaterFraForrigeB
     vilkårResultaterFraForrigeBehandling: Collection<VilkårResultat>,
     nyttPersonResultat: PersonResultat,
     kunForGodkjenteVilkår: Boolean,
-) = flatMap { initeltVilkårResultat ->
-    val vilkårResultaterForrigeBehandlingSomViØnskerÅTaMed =
-        vilkårResultaterFraForrigeBehandling
-            .filter { it.vilkårType == initeltVilkårResultat.vilkårType }
-            .filter { !kunForGodkjenteVilkår || it.resultat in listOf(Resultat.IKKE_AKTUELT, Resultat.OPPFYLT) }
-            .map { it.kopier(personResultat = nyttPersonResultat) }
+    erToggleForLovendringAugust2024På: Boolean,
+): List<VilkårResultat> {
+    val vilkårForPerson = nyttPersonResultat.vilkårResultater.map { it.vilkårType }.toSet()
 
-    vilkårResultaterForrigeBehandlingSomViØnskerÅTaMed.ifEmpty {
-        listOf(initeltVilkårResultat)
+    return vilkårForPerson.flatMap { vilkårType ->
+        val vilkårResultaterAvSammeType: List<VilkårResultat> =
+            nyttPersonResultat.vilkårResultater.filter { it.vilkårType == vilkårType }
+
+        val vilkårResultaterAvSammeTypeIForrigeBehandling =
+            vilkårResultaterFraForrigeBehandling.filter { it.vilkårType == vilkårType }
+                .map { it.kopier(personResultat = nyttPersonResultat) }
+
+        val vilkårResultaterForrigeBehandlingSomViØnskerÅTaMed: List<VilkårResultat> =
+            if (erToggleForLovendringAugust2024På) {
+                when (vilkårType) {
+                    Vilkår.BARNEHAGEPLASS -> {
+                        /* *
+                         * Ønsker å dra med vilkårresultatene som er avslått og opphørt i forrige behandling
+                         * for barnehagevilkåret fordi vi krever at alle peridene skal være vurdert, også de med opphør
+                         * */
+                        vilkårResultaterAvSammeTypeIForrigeBehandling
+                    }
+
+                    Vilkår.BARNETS_ALDER -> {
+                        /* *
+                         * Barnets alder vilkåret settes automatisk og bør ikke endres med midre det er snakk om adopsjon.
+                         * Kopierer derfor kun vilkåret ved adopsjon og tar med som er generert på denne behandlingen ellers.
+                         * På denne måten kan vi få med regelendringer som endrer vilkåret på revurderinger.
+                         * */
+                        vilkårResultaterAvSammeTypeIForrigeBehandling
+                            .filter { it.erAdopsjonOppfylt() }
+                            .filter { it.resultat in listOf(Resultat.IKKE_AKTUELT, Resultat.OPPFYLT) }
+                            .splittOppOmKrysserRegelverksendring()
+                    }
+
+                    else ->
+                        vilkårResultaterAvSammeTypeIForrigeBehandling
+                            .filter { it.resultat in listOf(Resultat.IKKE_AKTUELT, Resultat.OPPFYLT) }
+                }
+            } else {
+                vilkårResultaterFraForrigeBehandling
+                    .filter { it.vilkårType == vilkårType }
+                    .filter { !kunForGodkjenteVilkår || it.resultat in listOf(Resultat.IKKE_AKTUELT, Resultat.OPPFYLT) }
+                    .map { it.kopier(personResultat = nyttPersonResultat) }
+            }
+
+        if (vilkårResultaterForrigeBehandlingSomViØnskerÅTaMed.isNotEmpty()) {
+            vilkårResultaterForrigeBehandlingSomViØnskerÅTaMed
+        } else {
+            vilkårResultaterAvSammeType
+        }
     }
 }
+
+fun Collection<VilkårResultat>.splittOppOmKrysserRegelverksendring(): List<VilkårResultat> =
+    this.flatMap {
+        val krysserRegelendring =
+            (it.periodeFom ?: TIDENES_MORGEN).isBefore(DATO_LOVENDRING_2024) &&
+                (it.periodeTom ?: TIDENES_ENDE).erSammeEllerEtter(DATO_LOVENDRING_2024)
+
+        if (krysserRegelendring) {
+            listOf(
+                it.kopier(periodeTom = DATO_LOVENDRING_2024.minusDays(1)),
+                it.kopier(periodeFom = DATO_LOVENDRING_2024),
+            )
+        } else {
+            listOf(it)
+        }
+    }

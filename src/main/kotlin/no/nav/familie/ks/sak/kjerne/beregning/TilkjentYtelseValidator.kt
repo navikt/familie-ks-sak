@@ -12,7 +12,7 @@ import no.nav.familie.ks.sak.common.tidslinje.utvidelser.tilPerioderIkkeNull
 import no.nav.familie.ks.sak.common.util.overlapperHeltEllerDelvisMed
 import no.nav.familie.ks.sak.common.util.toLocalDate
 import no.nav.familie.ks.sak.common.util.toYearMonth
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårRegelverkInformasjonForBarn
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårLovverkInformasjonForBarn
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.domene.TilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.domene.YtelseType
@@ -30,6 +30,7 @@ object TilkjentYtelseValidator {
     fun validerAtTilkjentYtelseHarFornuftigePerioderOgBeløp(
         tilkjentYtelse: TilkjentYtelse,
         personopplysningGrunnlag: PersonopplysningGrunnlag,
+        behandlingSkalFølgeNyeLovendringer2024: Boolean,
     ) {
         val søker = personopplysningGrunnlag.søker
         val barna = personopplysningGrunnlag.barna
@@ -49,10 +50,13 @@ object TilkjentYtelseValidator {
 
             val relevantBarn = barna.single { it.aktør == aktør }
 
-            val vilkårRegelverkInformasjonForBarn = VilkårRegelverkInformasjonForBarn(relevantBarn.fødselsdato)
+            val vilkårLovverkInformasjonForBarn = VilkårLovverkInformasjonForBarn(relevantBarn.fødselsdato)
 
-            val maksAntallMånederMedUtbetaling = utledMaksAntallMånederMedUtbetaling(vilkårRegelverkInformasjonForBarn)
-
+            val maksAntallMånederMedUtbetaling =
+                when (behandlingSkalFølgeNyeLovendringer2024) {
+                    true -> utledMaksAntallMånederMedUtbetaling(vilkårLovverkInformasjonForBarn)
+                    false -> 11L
+                }
             val diff = Period.between(stønadFom.toLocalDate(), stønadTom.toLocalDate())
             if (diff.toTotalMonths() >= maksAntallMånederMedUtbetaling) {
                 val feilmelding =

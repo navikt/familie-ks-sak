@@ -42,6 +42,7 @@ object BehandlingsresultatEndringUtils {
         forrigeEndretAndeler: List<EndretUtbetalingAndel>,
         personerIBehandling: Set<Person>,
         personerIForrigeBehandling: Set<Person>,
+        behandlingSkalFølgeNyeLovendringer2024: Boolean,
     ): Endringsresultat {
         val logger: Logger = LoggerFactory.getLogger("utledEndringsresultatLogger")
         val secureLogger = LoggerFactory.getLogger("secureLogger")
@@ -83,6 +84,7 @@ object BehandlingsresultatEndringUtils {
                     erEndringIVilkårsvurderingForPerson(
                         nåværendePersonResultaterForPerson = nåværendePersonResultatForPerson,
                         forrigePersonResultaterForPerson = forrigePersonResultatForPerson,
+                        behandlingSkalFølgeNyeLovendringer2024 = behandlingSkalFølgeNyeLovendringer2024,
                     )
 
                 val erEndringIKompetanseForPerson =
@@ -195,11 +197,13 @@ internal fun erEndringIKompetanseForPerson(
 internal fun erEndringIVilkårsvurderingForPerson(
     nåværendePersonResultaterForPerson: Set<PersonResultat>,
     forrigePersonResultaterForPerson: Set<PersonResultat>,
+    behandlingSkalFølgeNyeLovendringer2024: Boolean,
 ): Boolean {
     val endringIVilkårsvurderingTidslinje =
         EndringIVilkårsvurderingUtil.lagEndringIVilkårsvurderingTidslinje(
             nåværendePersonResultaterForPerson = nåværendePersonResultaterForPerson,
             forrigePersonResultater = forrigePersonResultaterForPerson,
+            behandlingSkalFølgeNyeLovendringer2024 = behandlingSkalFølgeNyeLovendringer2024,
         )
 
     return endringIVilkårsvurderingTidslinje.tilPerioder().any { it.verdi == true }

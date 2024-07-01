@@ -1,6 +1,8 @@
 package no.nav.familie.ks.sak.kjerne.beregning
 
 import no.nav.familie.ks.sak.common.util.toYearMonth
+import no.nav.familie.ks.sak.config.featureToggle.FeatureToggleConfig
+import no.nav.familie.ks.sak.config.featureToggle.UnleashNextMedContextService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
@@ -28,6 +30,7 @@ class BeregningService(
     private val andelerTilkjentYtelseOgEndreteUtbetalingerService: AndelerTilkjentYtelseOgEndreteUtbetalingerService,
     private val fagsakService: FagsakService,
     private val tilkjentYtelseEndretAbonnenter: List<TilkjentYtelseEndretAbonnent> = emptyList(),
+    private val unleashNextMedContextService: UnleashNextMedContextService,
 ) {
     /**
      * Henter alle barn på behandlingen som har minst en periode med tilkjentytelse.
@@ -72,10 +75,13 @@ class BeregningService(
                 }
         slettTilkjentYtelseForBehandling(behandling)
 
+        val behandlingSkalFølgeNyeLovendringer2024 = unleashNextMedContextService.isEnabled(FeatureToggleConfig.LOV_ENDRING_7_MND_NYE_BEHANDLINGER)
+
         val tilkjentYtelse =
             TilkjentYtelseUtils.beregnTilkjentYtelse(
                 vilkårsvurdering,
                 personopplysningGrunnlag,
+                behandlingSkalFølgeNyeLovendringer2024,
                 endreteUtbetalingAndeler,
             )
 

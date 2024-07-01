@@ -4,6 +4,7 @@ import io.mockk.every
 import io.mockk.mockk
 import no.nav.familie.ks.sak.common.tidslinje.Periode
 import no.nav.familie.ks.sak.common.tidslinje.tilTidslinje
+import no.nav.familie.ks.sak.config.featureToggle.UnleashNextMedContextService
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagPerson
 import no.nav.familie.ks.sak.data.lagPersonopplysningGrunnlag
@@ -32,6 +33,7 @@ internal class VilkårsvurderingTidslinjeServiceTest {
     val personopplysningGrunnlagRepository = mockk<PersonopplysningGrunnlagRepository>()
     val vilkårsvurderingService = mockk<VilkårsvurderingService>()
     val vilkårsvurderingRepository = mockk<VilkårsvurderingRepository>()
+    val unleashNextMedContextService = mockk<UnleashNextMedContextService>()
 
     private lateinit var vilkårsvurderingTidslinjeService: VilkårsvurderingTidslinjeService
 
@@ -42,6 +44,7 @@ internal class VilkårsvurderingTidslinjeServiceTest {
                 vilkårsvurderingRepository = vilkårsvurderingRepository,
                 personopplysningGrunnlagRepository = personopplysningGrunnlagRepository,
                 vilkårsvurderingService = vilkårsvurderingService,
+                unleashNextMedContextService = unleashNextMedContextService,
             )
     }
 
