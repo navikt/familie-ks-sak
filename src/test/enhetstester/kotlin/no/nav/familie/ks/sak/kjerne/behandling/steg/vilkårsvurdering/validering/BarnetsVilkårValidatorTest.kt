@@ -191,7 +191,7 @@ class BarnetsVilkårValidatorTest {
                     true,
                 )
             }
-        assertEquals("F.o.m datoen må være lik barnets 1 års dag.", exception.message)
+        assertEquals("F.o.m datoen på barnets alder vilkåret må være lik barnets 1 års dag.", exception.message)
     }
 
     @Test
@@ -232,7 +232,7 @@ class BarnetsVilkårValidatorTest {
                     true,
                 )
             }
-        assertEquals("T.o.m datoen må være lik datoen barnet fyller 19 måneder. Dersom barnet ikke lever må t.o.m datoen være lik dato for dødsfall.", exception.message)
+        assertEquals("T.o.m datoen på barnets alder vilkåret må være lik datoen barnet fyller 19 måneder. Dersom barnet ikke lever må t.o.m datoen være lik dato for dødsfall.", exception.message)
     }
 
     @Test
@@ -263,7 +263,7 @@ class BarnetsVilkårValidatorTest {
                     true,
                 )
             }
-        assertEquals("F.o.m datoen må være lik barnets 1 års dag.", exception.message)
+        assertEquals("F.o.m datoen på barnets alder vilkåret må være lik barnets 1 års dag.", exception.message)
     }
 
     @Test
@@ -294,7 +294,7 @@ class BarnetsVilkårValidatorTest {
                     true,
                 )
             }
-        assertEquals("T.o.m datoen må være lik barnets 2 års dag eller 31.07.24 på grunn av lovendring fra og med 01.08.24. Dersom barnet ikke lever må t.o.m datoen være lik dato for dødsfall.", exception.message)
+        assertEquals("T.o.m datoen på barnets alder vilkåret må være lik barnets 2 års dag eller 31.07.24 på grunn av lovendring fra og med 01.08.24. Dersom barnet ikke lever må t.o.m datoen være lik dato for dødsfall.", exception.message)
     }
 
     @Test
@@ -325,7 +325,7 @@ class BarnetsVilkårValidatorTest {
                     true,
                 )
             }
-        assertEquals("Du kan ikke sette en t.o.m dato som er etter august året barnet fyller 6 år.", exception.message)
+        assertEquals("Du kan ikke sette en t.o.m dato på barnets alder vilkåret som er etter august året barnet fyller 6 år.", exception.message)
     }
 
     @Test
@@ -356,7 +356,7 @@ class BarnetsVilkårValidatorTest {
                     true,
                 )
             }
-        assertEquals("Differansen mellom f.o.m datoen og t.o.m datoen kan ikke være mer enn 1 år.", exception.message)
+        assertEquals("Differansen mellom f.o.m datoen og t.o.m datoen på barnets alder vilkåret kan ikke være mer enn 1 år.", exception.message)
     }
 
     @Test

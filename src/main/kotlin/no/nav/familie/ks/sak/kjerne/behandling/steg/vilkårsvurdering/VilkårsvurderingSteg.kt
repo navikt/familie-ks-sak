@@ -61,6 +61,7 @@ class VilkårsvurderingSteg(
             personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(behandlingId)
         val søknadDto = søknadGrunnlagService.finnAktiv(behandlingId = behandling.id)?.tilSøknadDto()
         val vilkårsvurdering = vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(behandling.id)
+
         val behandlingSkalFølgeNyeLovendringer2024 = unleashNextMedContextService.isEnabled(FeatureToggleConfig.LOV_ENDRING_7_MND_NYE_BEHANDLINGER)
 
         validerVilkårsvurdering(vilkårsvurdering, personopplysningGrunnlag, søknadDto, behandling, behandlingSkalFølgeNyeLovendringer2024)
@@ -74,7 +75,8 @@ class VilkårsvurderingSteg(
         val finnesKompetanserEllerVilkårVurdertEtterEøs =
             vilkårsvurdering.personResultater.any {
                 it.vilkårResultater.any { vilkårResultat -> vilkårResultat.vurderesEtter == Regelverk.EØS_FORORDNINGEN }
-            } || kompetanseService.hentKompetanser(BehandlingId(behandlingId)).isNotEmpty()
+            } ||
+                kompetanseService.hentKompetanser(BehandlingId(behandlingId)).isNotEmpty()
 
         if (finnesKompetanserEllerVilkårVurdertEtterEøs) {
             logger.info("Oppretter/Tilpasser kompetanse perioder for behandlingId=$behandlingId")
@@ -87,7 +89,8 @@ class VilkårsvurderingSteg(
         nåværendeVilkårsvurdering: Vilkårsvurdering,
     ) {
         val nåværendeVilkårVurderesEtterEøs =
-            nåværendeVilkårsvurdering.personResultater.flatMap { it.vilkårResultater }
+            nåværendeVilkårsvurdering.personResultater
+                .flatMap { it.vilkårResultater }
                 .filter { it.behandlingId == nåværendeBehandling.id }
                 .any { it.vurderesEtter == Regelverk.EØS_FORORDNINGEN }
 
@@ -101,12 +104,13 @@ class VilkårsvurderingSteg(
 
                 // Vi sjekker om vi har løpende EØS vilkårresultater fra forrige behandling
                 val harLøpendeEøsUtbetalingIForrigeVedtattBehandling =
-                    vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(forrigeBehandling.id)
-                        .personResultater.flatMap { it.vilkårResultater }
+                    vilkårsvurderingService
+                        .hentAktivVilkårsvurderingForBehandling(forrigeBehandling.id)
+                        .personResultater
+                        .flatMap { it.vilkårResultater }
                         .filter {
                             (it.periodeTom ?: TIDENES_ENDE).isAfter(LocalDate.now().sisteDagIMåned())
-                        }
-                        .any { it.vurderesEtter == Regelverk.EØS_FORORDNINGEN }
+                        }.any { it.vurderesEtter == Regelverk.EØS_FORORDNINGEN }
 
                 if (harLøpendeEøsUtbetalingIForrigeVedtattBehandling) BehandlingKategori.EØS else BehandlingKategori.NASJONAL
             } ?: BehandlingKategori.NASJONAL
@@ -192,23 +196,24 @@ class VilkårsvurderingSteg(
 
     private fun validerAtDetIkkeErOverlappMellomGradertBarnehageplassOgDeltBosted(vilkårsvurdering: Vilkårsvurdering) {
         vilkårsvurdering.personResultater.forEach {
-            it.vilkårResultater.filter { vilkårResultat ->
-                val gradertBarnehageplass =
-                    vilkårResultat.antallTimer != null &&
-                        vilkårResultat.antallTimer > BigDecimal(0) &&
-                        vilkårResultat.vilkårType == Vilkår.BARNEHAGEPLASS
+            it.vilkårResultater
+                .filter { vilkårResultat ->
+                    val gradertBarnehageplass =
+                        vilkårResultat.antallTimer != null &&
+                            vilkårResultat.antallTimer > BigDecimal(0) &&
+                            vilkårResultat.vilkårType == Vilkår.BARNEHAGEPLASS
 
-                val deltBosted =
-                    vilkårResultat.utdypendeVilkårsvurderinger.contains(UtdypendeVilkårsvurdering.DELT_BOSTED)
+                    val deltBosted =
+                        vilkårResultat.utdypendeVilkårsvurderinger.contains(UtdypendeVilkårsvurdering.DELT_BOSTED)
 
-                vilkårResultat.erOppfylt() && (gradertBarnehageplass || deltBosted)
-            }.map { vilkårResultat ->
-                TidslinjePeriodeMedDato(
-                    verdi = vilkårResultat,
-                    fom = vilkårResultat.periodeFom,
-                    tom = vilkårResultat.periodeTom,
-                )
-            }.validerIngenOverlapp("Det er lagt inn gradert barnehageplass og delt bosted for samme periode.")
+                    vilkårResultat.erOppfylt() && (gradertBarnehageplass || deltBosted)
+                }.map { vilkårResultat ->
+                    TidslinjePeriodeMedDato(
+                        verdi = vilkårResultat,
+                        fom = vilkårResultat.periodeFom,
+                        tom = vilkårResultat.periodeTom,
+                    )
+                }.validerIngenOverlapp("Det er lagt inn gradert barnehageplass og delt bosted for samme periode.")
         }
     }
 

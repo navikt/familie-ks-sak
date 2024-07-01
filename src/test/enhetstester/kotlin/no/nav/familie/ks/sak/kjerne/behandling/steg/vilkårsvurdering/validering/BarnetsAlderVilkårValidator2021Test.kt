@@ -82,7 +82,7 @@ class BarnetsAlderVilkårValidator2021Test {
         // Assert
         assertThat(validerBarnetsAlderVilkår).hasSize(1)
         assertThat(validerBarnetsAlderVilkår).contains(
-            "Du kan ikke sette en t.o.m dato som er etter august året barnet fyller 6 år.",
+            "Du kan ikke sette en t.o.m dato på barnets alder vilkåret som er etter august året barnet fyller 6 år.",
         )
     }
 
@@ -127,7 +127,7 @@ class BarnetsAlderVilkårValidator2021Test {
         // Assert
         assertThat(validerBarnetsAlderVilkår).hasSize(1)
         assertThat(validerBarnetsAlderVilkår).contains(
-            "Differansen mellom f.o.m datoen og t.o.m datoen kan ikke være mer enn 1 år.",
+            "Differansen mellom f.o.m datoen og t.o.m datoen på barnets alder vilkåret kan ikke være mer enn 1 år.",
         )
     }
 
@@ -164,7 +164,7 @@ class BarnetsAlderVilkårValidator2021Test {
         // Assert
         assertThat(validerBarnetsAlderVilkår).hasSize(1)
         assertThat(validerBarnetsAlderVilkår).contains(
-            "F.o.m datoen må være lik barnets 1 års dag.",
+            "F.o.m datoen på barnets alder vilkåret må være lik barnets 1 års dag.",
         )
     }
 
@@ -201,7 +201,7 @@ class BarnetsAlderVilkårValidator2021Test {
         // Assert
         assertThat(validerBarnetsAlderVilkår).hasSize(1)
         assertThat(validerBarnetsAlderVilkår).contains(
-            "T.o.m datoen må være lik barnets 2 års dag eller 31.07.24 på grunn av lovendring fra og med 01.08.24. Dersom barnet ikke lever må t.o.m datoen være lik dato for dødsfall.",
+            "T.o.m datoen på barnets alder vilkåret må være lik barnets 2 års dag eller 31.07.24 på grunn av lovendring fra og med 01.08.24. Dersom barnet ikke lever må t.o.m datoen være lik dato for dødsfall.",
         )
     }
 
@@ -245,7 +245,7 @@ class BarnetsAlderVilkårValidator2021Test {
         // Assert
         assertThat(validerBarnetsAlderVilkår).hasSize(1)
         assertThat(validerBarnetsAlderVilkår).contains(
-            "T.o.m datoen må være lik barnets 2 års dag eller 31.07.24 på grunn av lovendring fra og med 01.08.24. Dersom barnet ikke lever må t.o.m datoen være lik dato for dødsfall.",
+            "T.o.m datoen på barnets alder vilkåret må være lik barnets 2 års dag eller 31.07.24 på grunn av lovendring fra og med 01.08.24. Dersom barnet ikke lever må t.o.m datoen være lik dato for dødsfall.",
         )
     }
 
