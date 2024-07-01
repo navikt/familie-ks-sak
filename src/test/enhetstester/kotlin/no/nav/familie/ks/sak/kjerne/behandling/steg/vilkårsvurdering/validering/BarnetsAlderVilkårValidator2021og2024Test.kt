@@ -11,7 +11,7 @@ class BarnetsAlderVilkårValidator2021og2024Test {
     private val barnetsAlderVilkårValidator2021og2024: BarnetsAlderVilkårValidator2021og2024 =
         BarnetsAlderVilkårValidator2021og2024(
             barnetsAlderVilkårValidator2021 = BarnetsAlderVilkårValidator2021(),
-            barnetsAlderVilkårValidator2024 = BarnetsAlderVilkårValidator2024()
+            barnetsAlderVilkårValidator2024 = BarnetsAlderVilkårValidator2024(),
         )
 
     @Test
@@ -37,7 +37,5 @@ class BarnetsAlderVilkårValidator2021og2024Test {
         // Assert
         Assertions.assertThat(validerBarnetsAlderVilkår).hasSize(1)
         Assertions.assertThat(validerBarnetsAlderVilkår[0]).isEqualTo("Barnets alder vilkåret må splittes i to perioder fordi barnet fyller 1 år før og 19 måneder etter 01.08.24. Periodene må være som følgende: [2023-07-31 - 2024-07-31, 2024-08-01 - 2024-02-29]")
-
     }
-
 }
