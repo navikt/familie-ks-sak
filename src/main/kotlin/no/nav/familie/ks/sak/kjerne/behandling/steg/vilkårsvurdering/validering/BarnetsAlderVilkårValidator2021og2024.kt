@@ -22,7 +22,7 @@ class BarnetsAlderVilkårValidator2021og2024(
         behandlingSkalFølgeNyeLovendringer2024: Boolean,
     ): List<String> {
         val barnErAdoptert = perioder.any { it.verdi.erAdopsjonOppfylt() }
-        // TODO : Er det riktig å sjekke på !barnErAdropter her?
+
         if (!barnErAdoptert && perioder.size != 2) {
             return listOf("Barnets alder vilkåret må splittes i to perioder fordi barnet fyller 1 år før og 19 måneder etter 01.08.24. Periodene må være som følgende: [${vilkårLovverkInformasjonForBarn.periodeFomBarnetsAlderLov2021} - ${minOf(vilkårLovverkInformasjonForBarn.periodeTomBarnetsAlderLov2021, DATO_LOVENDRING_2024.minusMonths(1).sisteDagIMåned())}, ${maxOf(vilkårLovverkInformasjonForBarn.periodeFomBarnetsAlderLov2024, DATO_LOVENDRING_2024)} - ${vilkårLovverkInformasjonForBarn.periodeTomBarnetsAlderLov2024}]")
         }
