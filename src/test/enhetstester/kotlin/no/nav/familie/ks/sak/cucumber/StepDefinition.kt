@@ -516,7 +516,6 @@ class StepDefinition {
                     ".*id",
                     ".*opprettetTidspunkt",
                     ".*begrunnelse",
-                    ".*regelsett",
                     ".*personResultat",
                     ".*behandlingId",
                 )

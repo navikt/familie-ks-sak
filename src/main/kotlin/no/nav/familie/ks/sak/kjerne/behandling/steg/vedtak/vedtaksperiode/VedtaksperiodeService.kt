@@ -181,7 +181,7 @@ class VedtaksperiodeService(
 
             vilkårResultaterForAktørMapSomAlltidSkalKunneBegrunnes.flatMap { (vilkårType, vilkårResultater) ->
                 forskyvVilkårResultater(vilkårType, vilkårResultater, erToggleForLovendringAugust2024På).tilTidslinje().tilPerioderIkkeNull()
-            }.mapNotNull { it.tom }.maxOfOrNull { it }
+            }.mapNotNull { it.verdi.periodeTom }.maxOfOrNull { it }
         }.maxOfOrNull { it }
     }
 
