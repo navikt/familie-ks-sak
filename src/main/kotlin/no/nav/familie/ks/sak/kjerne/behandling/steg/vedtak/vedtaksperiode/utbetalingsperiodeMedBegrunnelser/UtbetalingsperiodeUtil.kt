@@ -92,22 +92,22 @@ data class SplittkriterierForVilkår(
     val regelverk: Regelverk?,
     val utdypendeVilkårsvurderinger: Set<UtdypendeVilkårsvurdering>,
 ) {
-    constructor(vilkårResultat: VilkårResultat) :
-        this(
-            vilkårType = vilkårResultat.vilkårType,
-            resultat = vilkårResultat.resultat,
-            periodeFom = vilkårResultat.periodeFom,
-            periodeTom = vilkårResultat.periodeTom,
-            erEksplisittAvslagPåSøknad = vilkårResultat.erEksplisittAvslagPåSøknad,
-            regelverk = vilkårResultat.vurderesEtter,
-            utdypendeVilkårsvurderinger = vilkårResultat.utdypendeVilkårsvurderinger.toSet(),
-        )
+    constructor(vilkårResultat: VilkårResultat) : this(
+        vilkårType = vilkårResultat.vilkårType,
+        resultat = vilkårResultat.resultat,
+        periodeFom = vilkårResultat.periodeFom,
+        periodeTom = vilkårResultat.periodeTom,
+        erEksplisittAvslagPåSøknad = vilkårResultat.erEksplisittAvslagPåSøknad,
+        regelverk = vilkårResultat.vurderesEtter,
+        utdypendeVilkårsvurderinger = vilkårResultat.utdypendeVilkårsvurderinger.toSet(),
+    )
 }
 
 private fun Map<Aktør, Tidslinje<List<VilkårResultat>>>.tilSplittkriterierForVilkårTidslinje(): Tidslinje<Map<Aktør, List<SplittkriterierForVilkår>>> =
     this.map { (aktør, vilkårsvurderingTidslinje) ->
-        val vilkårsvurderingTidslinjeUtenBarnetsAlder =
-            vilkårsvurderingTidslinje.mapVerdi { it?.filter { vilkårResultat -> vilkårResultat.vilkårType != Vilkår.BARNETS_ALDER } }.slåSammenLikePerioder()
+        // Vi ønsker ikke å splitte opp vedtaksperiodene på grunn av splitt i barnets alder grunnet lovendringen i 2024 august.
+        // Vurder å sjekke om personen er truffet av lovendringen i 2021 og 2024 først dersom det oppstår problemer
+        val vilkårsvurderingTidslinjeUtenBarnetsAlder = vilkårsvurderingTidslinje.mapVerdi { it?.filter { vilkårResultat -> vilkårResultat.vilkårType != Vilkår.BARNETS_ALDER } }.slåSammenLikePerioder()
 
         vilkårsvurderingTidslinjeUtenBarnetsAlder.tilPerioder().filtrerIkkeNull().map { vilkårResultater ->
             Periode(
@@ -127,16 +127,15 @@ data class SplittkriterierForKompetanse(
     val resultat: KompetanseResultat? = null,
     val erAnnenForelderOmfattetAvNorskLovgivning: Boolean? = false,
 ) {
-    constructor(kompetanse: Kompetanse) :
-        this(
-            søkersAktivitet = kompetanse.søkersAktivitet,
-            annenForeldersAktivitet = kompetanse.annenForeldersAktivitet,
-            annenForeldersAktivitetsland = kompetanse.annenForeldersAktivitetsland,
-            søkersAktivitetsland = kompetanse.søkersAktivitetsland,
-            barnetsBostedsland = kompetanse.barnetsBostedsland,
-            resultat = kompetanse.resultat,
-            erAnnenForelderOmfattetAvNorskLovgivning = kompetanse.erAnnenForelderOmfattetAvNorskLovgivning,
-        )
+    constructor(kompetanse: Kompetanse) : this(
+        søkersAktivitet = kompetanse.søkersAktivitet,
+        annenForeldersAktivitet = kompetanse.annenForeldersAktivitet,
+        annenForeldersAktivitetsland = kompetanse.annenForeldersAktivitetsland,
+        søkersAktivitetsland = kompetanse.søkersAktivitetsland,
+        barnetsBostedsland = kompetanse.barnetsBostedsland,
+        resultat = kompetanse.resultat,
+        erAnnenForelderOmfattetAvNorskLovgivning = kompetanse.erAnnenForelderOmfattetAvNorskLovgivning,
+    )
 }
 
 private fun List<Kompetanse>.tilSplittkriterierForKompetanseTidslinje(): Tidslinje<Map<Aktør, SplittkriterierForKompetanse>> {
