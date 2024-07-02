@@ -116,7 +116,7 @@ fun forskyvVilkårResultater(
         .tilPerioderIkkeNull()
 }
 
-private fun MutableList<VilkårResultat>.fjernAvslagUtenPeriodeHvisDetFinsAndreVilkårResultat(): List<VilkårResultat> =
+private fun List<VilkårResultat>.fjernAvslagUtenPeriodeHvisDetFinsAndreVilkårResultat(): List<VilkårResultat> =
     if (this.any { !it.erAvslagUtenPeriode() }) this.filterNot { it.erAvslagUtenPeriode() } else this
 
 private fun alleVilkårOppfyltEllerNull(
