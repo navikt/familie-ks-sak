@@ -22,13 +22,13 @@ Egenskap: Barnets alder
     Og følgende dagens dato 11.06.2024
 
     Og følgende vilkårresultater for behandling 1
-      | AktørId | Vilkår                                                 | Utdypende vilkår | Fra dato   | Til dato   | Resultat | Er eksplisitt avslag | Standardbegrunnelser | Vurderes etter | Regelsett       |
-      | 1       | BOSATT_I_RIKET,MEDLEMSKAP                              |                  | 19.06.1988 |            | OPPFYLT  | Nei                  |                      |                | LOV_AUGUST_2024 |
-      | 1       | LOVLIG_OPPHOLD                                         |                  | 19.06.1988 |            | OPPFYLT  | Nei                  |                      |                | LOV_AUGUST_2024 |
+      | AktørId | Vilkår                                                 | Utdypende vilkår | Fra dato   | Til dato   | Resultat | Er eksplisitt avslag | Standardbegrunnelser | Vurderes etter |
+      | 1       | BOSATT_I_RIKET,MEDLEMSKAP                              |                  | 19.06.1988 |            | OPPFYLT  | Nei                  |                      |                |
+      | 1       | LOVLIG_OPPHOLD                                         |                  | 19.06.1988 |            | OPPFYLT  | Nei                  |                      |                |
 
-      | 2       | MEDLEMSKAP_ANNEN_FORELDER,BOR_MED_SØKER,BOSATT_I_RIKET |                  | 05.01.2023 |            | OPPFYLT  | Nei                  |                      |                | LOV_AUGUST_2024 |
-      | 2       | BARNEHAGEPLASS                                         |                  | 05.09.2023 |            | OPPFYLT  | Nei                  |                      |                | LOV_AUGUST_2024 |
-      | 2       | BARNETS_ALDER                                          |                  | 05.10.2024 | 05.04.2025 | OPPFYLT  | Nei                  |                      |                | LOV_AUGUST_2024 |
+      | 2       | MEDLEMSKAP_ANNEN_FORELDER,BOR_MED_SØKER,BOSATT_I_RIKET |                  | 05.01.2023 |            | OPPFYLT  | Nei                  |                      |                |
+      | 2       | BARNEHAGEPLASS                                         |                  | 05.09.2023 |            | OPPFYLT  | Nei                  |                      |                |
+      | 2       | BARNETS_ALDER                                          |                  | 05.10.2024 | 05.04.2025 | OPPFYLT  | Nei                  |                      |                |
 
     Og andeler er beregnet for behandling 1
 
@@ -45,14 +45,14 @@ Egenskap: Barnets alder
     Og følgende dagens dato 11.06.2024
 
     Og følgende vilkårresultater for behandling 1
-      | AktørId | Vilkår                                                 | Utdypende vilkår | Fra dato   | Til dato   | Resultat | Er eksplisitt avslag | Standardbegrunnelser | Vurderes etter | Regelsett       |
-      | 1       | BOSATT_I_RIKET,MEDLEMSKAP                              |                  | 19.06.1988 |            | OPPFYLT  | Nei                  |                      |                | LOV_AUGUST_2024 |
-      | 1       | LOVLIG_OPPHOLD                                         |                  | 19.06.1988 |            | OPPFYLT  | Nei                  |                      |                | LOV_AUGUST_2024 |
+      | AktørId | Vilkår                                                 | Utdypende vilkår | Fra dato   | Til dato   | Resultat | Er eksplisitt avslag | Standardbegrunnelser | Vurderes etter |
+      | 1       | BOSATT_I_RIKET,MEDLEMSKAP                              |                  | 19.06.1988 |            | OPPFYLT  | Nei                  |                      |                |
+      | 1       | LOVLIG_OPPHOLD                                         |                  | 19.06.1988 |            | OPPFYLT  | Nei                  |                      |                |
 
-      | 2       | MEDLEMSKAP_ANNEN_FORELDER,BOR_MED_SØKER,BOSATT_I_RIKET |                  | 05.01.2023 |            | OPPFYLT  | Nei                  |                      |                | LOV_AUGUST_2024 |
-      | 2       | BARNEHAGEPLASS                                         |                  | 15.02.2023 |            | OPPFYLT  | Nei                  |                      |                | LOV_AUGUST_2024 |
-      | 2       | BARNETS_ALDER                                          |                  | 15.02.2024 | 31.07.2024 | OPPFYLT  | Nei                  |                      |                | LOV_AUGUST_2021 |
-      | 2       | BARNETS_ALDER                                          |                  | 01.08.2024 | 15.09.2024 | OPPFYLT  | Nei                  |                      |                | LOV_AUGUST_2024 |
+      | 2       | MEDLEMSKAP_ANNEN_FORELDER,BOR_MED_SØKER,BOSATT_I_RIKET |                  | 05.01.2023 |            | OPPFYLT  | Nei                  |                      |                |
+      | 2       | BARNEHAGEPLASS                                         |                  | 15.02.2023 |            | OPPFYLT  | Nei                  |                      |                |
+      | 2       | BARNETS_ALDER                                          |                  | 15.02.2024 | 31.07.2024 | OPPFYLT  | Nei                  |                      |                |
+      | 2       | BARNETS_ALDER                                          |                  | 01.08.2024 | 15.09.2024 | OPPFYLT  | Nei                  |                      |                |
 
     Og andeler er beregnet for behandling 1
 
@@ -69,14 +69,14 @@ Egenskap: Barnets alder
     Når vi oppretter vilkårresultater for behandling 1
 
     Så forvent følgende vilkårresultater for behandling 1
-      | AktørId | Vilkår                                                 | Utdypende vilkår | Fra dato   | Til dato   | Resultat     | Regelsett       | Vurderes etter   | Er automatisk vurdert |
-      | 1       | BOSATT_I_RIKET                                         |                  |            |            | IKKE_VURDERT | LOV_AUGUST_2024 | NASJONALE_REGLER | Nei                   |
-      | 1       | MEDLEMSKAP                                             |                  | 19.06.1993 |            | IKKE_VURDERT | LOV_AUGUST_2024 | NASJONALE_REGLER | Nei                   |
+      | AktørId | Vilkår                                                 | Utdypende vilkår | Fra dato   | Til dato   | Resultat     | Vurderes etter   | Er automatisk vurdert |
+      | 1       | BOSATT_I_RIKET                                         |                  |            |            | IKKE_VURDERT | NASJONALE_REGLER | Nei                   |
+      | 1       | MEDLEMSKAP                                             |                  | 19.06.1993 |            | IKKE_VURDERT | NASJONALE_REGLER | Nei                   |
 
-      | 2       | MEDLEMSKAP_ANNEN_FORELDER,BOR_MED_SØKER,BOSATT_I_RIKET |                  |            |            | IKKE_VURDERT | LOV_AUGUST_2024 | NASJONALE_REGLER | Nei                   |
-      | 2       | BARNEHAGEPLASS                                         |                  | 15.01.2023 |            | OPPFYLT      | LOV_AUGUST_2024 |                  | Nei                   |
-      | 2       | BARNETS_ALDER                                          |                  | 15.01.2024 | 31.07.2024 | OPPFYLT      | LOV_AUGUST_2021 |                  | Ja                    |
-      | 2       | BARNETS_ALDER                                          |                  | 01.08.2024 | 15.08.2024 | OPPFYLT      | LOV_AUGUST_2024 |                  | Ja                    |
+      | 2       | MEDLEMSKAP_ANNEN_FORELDER,BOR_MED_SØKER,BOSATT_I_RIKET |                  |            |            | IKKE_VURDERT | NASJONALE_REGLER | Nei                   |
+      | 2       | BARNEHAGEPLASS                                         |                  | 15.01.2023 |            | OPPFYLT      |                  | Nei                   |
+      | 2       | BARNETS_ALDER                                          |                  | 15.01.2024 | 31.07.2024 | OPPFYLT      |                  | Ja                    |
+      | 2       | BARNETS_ALDER                                          |                  | 01.08.2024 | 15.08.2024 | OPPFYLT      |                  | Ja                    |
 
   Scenario: Ved opprettelse av ny behandling av barn født 1. okt 2022 skal aldersvilkåret være oppfylt f.o.m. 1 oktober 2023 til 31 juli 2024
     Og følgende persongrunnlag
@@ -87,13 +87,13 @@ Egenskap: Barnets alder
     Når vi oppretter vilkårresultater for behandling 1
 
     Så forvent følgende vilkårresultater for behandling 1
-      | AktørId | Vilkår                                                 | Utdypende vilkår | Fra dato   | Til dato   | Resultat     | Regelsett       | Vurderes etter   | Er automatisk vurdert |
-      | 1       | BOSATT_I_RIKET                                         |                  |            |            | IKKE_VURDERT | LOV_AUGUST_2024 | NASJONALE_REGLER | Nei                   |
-      | 1       | MEDLEMSKAP                                             |                  | 19.06.1993 |            | IKKE_VURDERT | LOV_AUGUST_2024 | NASJONALE_REGLER | Nei                   |
+      | AktørId | Vilkår                                                 | Utdypende vilkår | Fra dato   | Til dato   | Resultat     | Vurderes etter   | Er automatisk vurdert |
+      | 1       | BOSATT_I_RIKET                                         |                  |            |            | IKKE_VURDERT | NASJONALE_REGLER | Nei                   |
+      | 1       | MEDLEMSKAP                                             |                  | 19.06.1993 |            | IKKE_VURDERT | NASJONALE_REGLER | Nei                   |
 
-      | 2       | MEDLEMSKAP_ANNEN_FORELDER,BOR_MED_SØKER,BOSATT_I_RIKET |                  |            |            | IKKE_VURDERT | LOV_AUGUST_2024 | NASJONALE_REGLER | Nei                   |
-      | 2       | BARNEHAGEPLASS                                         |                  | 01.10.2022 |            | OPPFYLT      | LOV_AUGUST_2024 |                  | Nei                   |
-      | 2       | BARNETS_ALDER                                          |                  | 01.10.2023 | 31.07.2024 | OPPFYLT      | LOV_AUGUST_2021 |                  | Ja                    |
+      | 2       | MEDLEMSKAP_ANNEN_FORELDER,BOR_MED_SØKER,BOSATT_I_RIKET |                  |            |            | IKKE_VURDERT | NASJONALE_REGLER | Nei                   |
+      | 2       | BARNEHAGEPLASS                                         |                  | 01.10.2022 |            | OPPFYLT      |                  | Nei                   |
+      | 2       | BARNETS_ALDER                                          |                  | 01.10.2023 | 31.07.2024 | OPPFYLT      |                  | Ja                    |
 
   Scenario: Ved opprettelse av ny behandling av barn født 1. des 2022 skal aldersvilkåret være oppfylt f.o.m. 1 des 2023 til 31 juli 2024
     Og følgende persongrunnlag
@@ -104,13 +104,13 @@ Egenskap: Barnets alder
     Når vi oppretter vilkårresultater for behandling 1
 
     Så forvent følgende vilkårresultater for behandling 1
-      | AktørId | Vilkår                                                 | Utdypende vilkår | Fra dato   | Til dato   | Resultat     | Regelsett       | Vurderes etter   | Er automatisk vurdert |
-      | 1       | BOSATT_I_RIKET                                         |                  |            |            | IKKE_VURDERT | LOV_AUGUST_2024 | NASJONALE_REGLER | Nei                   |
-      | 1       | MEDLEMSKAP                                             |                  | 19.06.1993 |            | IKKE_VURDERT | LOV_AUGUST_2024 | NASJONALE_REGLER | Nei                   |
+      | AktørId | Vilkår                                                 | Utdypende vilkår | Fra dato   | Til dato   | Resultat     | Vurderes etter   | Er automatisk vurdert |
+      | 1       | BOSATT_I_RIKET                                         |                  |            |            | IKKE_VURDERT | NASJONALE_REGLER | Nei                   |
+      | 1       | MEDLEMSKAP                                             |                  | 19.06.1993 |            | IKKE_VURDERT | NASJONALE_REGLER | Nei                   |
 
-      | 2       | MEDLEMSKAP_ANNEN_FORELDER,BOR_MED_SØKER,BOSATT_I_RIKET |                  |            |            | IKKE_VURDERT | LOV_AUGUST_2024 | NASJONALE_REGLER | Nei                   |
-      | 2       | BARNEHAGEPLASS                                         |                  | 01.12.2022 |            | OPPFYLT      | LOV_AUGUST_2024 |                  | Nei                   |
-      | 2       | BARNETS_ALDER                                          |                  | 01.12.2023 | 31.07.2024 | OPPFYLT      | LOV_AUGUST_2021 |                  | Ja                    |
+      | 2       | MEDLEMSKAP_ANNEN_FORELDER,BOR_MED_SØKER,BOSATT_I_RIKET |                  |            |            | IKKE_VURDERT | NASJONALE_REGLER | Nei                   |
+      | 2       | BARNEHAGEPLASS                                         |                  | 01.12.2022 |            | OPPFYLT      |                  | Nei                   |
+      | 2       | BARNETS_ALDER                                          |                  | 01.12.2023 | 31.07.2024 | OPPFYLT      |                  | Ja                    |
 
   Scenario: Ved opprettelse av ny behandling av barn født 15. feb 2023 skal aldersvilkåret være oppfylt fom 15 februar 2024 til 31 juli 2024 og fom 1 august 2024 til 15 september 2024
     Og følgende persongrunnlag
@@ -121,14 +121,14 @@ Egenskap: Barnets alder
     Når vi oppretter vilkårresultater for behandling 1
 
     Så forvent følgende vilkårresultater for behandling 1
-      | AktørId | Vilkår                                                 | Utdypende vilkår | Fra dato   | Til dato   | Resultat     | Regelsett       | Vurderes etter   | Er automatisk vurdert |
-      | 1       | BOSATT_I_RIKET                                         |                  |            |            | IKKE_VURDERT | LOV_AUGUST_2024 | NASJONALE_REGLER | Nei                   |
-      | 1       | MEDLEMSKAP                                             |                  | 19.06.1993 |            | IKKE_VURDERT | LOV_AUGUST_2024 | NASJONALE_REGLER | Nei                   |
+      | AktørId | Vilkår                                                 | Utdypende vilkår | Fra dato   | Til dato   | Resultat     | Vurderes etter   | Er automatisk vurdert |
+      | 1       | BOSATT_I_RIKET                                         |                  |            |            | IKKE_VURDERT | NASJONALE_REGLER | Nei                   |
+      | 1       | MEDLEMSKAP                                             |                  | 19.06.1993 |            | IKKE_VURDERT | NASJONALE_REGLER | Nei                   |
 
-      | 2       | MEDLEMSKAP_ANNEN_FORELDER,BOR_MED_SØKER,BOSATT_I_RIKET |                  |            |            | IKKE_VURDERT | LOV_AUGUST_2024 | NASJONALE_REGLER | Nei                   |
-      | 2       | BARNEHAGEPLASS                                         |                  | 15.02.2023 |            | OPPFYLT      | LOV_AUGUST_2024 |                  | Nei                   |
-      | 2       | BARNETS_ALDER                                          |                  | 15.02.2024 | 31.07.2024 | OPPFYLT      | LOV_AUGUST_2021 |                  | Ja                    |
-      | 2       | BARNETS_ALDER                                          |                  | 01.08.2024 | 15.09.2024 | OPPFYLT      | LOV_AUGUST_2021 |                  | Ja                    |
+      | 2       | MEDLEMSKAP_ANNEN_FORELDER,BOR_MED_SØKER,BOSATT_I_RIKET |                  |            |            | IKKE_VURDERT | NASJONALE_REGLER | Nei                   |
+      | 2       | BARNEHAGEPLASS                                         |                  | 15.02.2023 |            | OPPFYLT      |                  | Nei                   |
+      | 2       | BARNETS_ALDER                                          |                  | 15.02.2024 | 31.07.2024 | OPPFYLT      |                  | Ja                    |
+      | 2       | BARNETS_ALDER                                          |                  | 01.08.2024 | 15.09.2024 | OPPFYLT      |                  | Ja                    |
 
   Scenario: Ved opprettelse av ny behandling av barn født 15. juli 2023 skal aldersvilkåret være oppfylt fom 15 juli 2024 til 31 juli 2024 og fom 15 august 2024 til 15 februar 2025
     Og følgende persongrunnlag
@@ -139,14 +139,14 @@ Egenskap: Barnets alder
     Når vi oppretter vilkårresultater for behandling 1
 
     Så forvent følgende vilkårresultater for behandling 1
-      | AktørId | Vilkår                                                 | Utdypende vilkår | Fra dato   | Til dato   | Resultat     | Regelsett       | Vurderes etter   | Er automatisk vurdert |
-      | 1       | BOSATT_I_RIKET                                         |                  |            |            | IKKE_VURDERT | LOV_AUGUST_2024 | NASJONALE_REGLER | Nei                   |
-      | 1       | MEDLEMSKAP                                             |                  | 19.06.1993 |            | IKKE_VURDERT | LOV_AUGUST_2024 | NASJONALE_REGLER | Nei                   |
+      | AktørId | Vilkår                                                 | Utdypende vilkår | Fra dato   | Til dato   | Resultat     | Vurderes etter   | Er automatisk vurdert |
+      | 1       | BOSATT_I_RIKET                                         |                  |            |            | IKKE_VURDERT | NASJONALE_REGLER | Nei                   |
+      | 1       | MEDLEMSKAP                                             |                  | 19.06.1993 |            | IKKE_VURDERT | NASJONALE_REGLER | Nei                   |
 
-      | 2       | MEDLEMSKAP_ANNEN_FORELDER,BOR_MED_SØKER,BOSATT_I_RIKET |                  |            |            | IKKE_VURDERT | LOV_AUGUST_2024 | NASJONALE_REGLER | Nei                   |
-      | 2       | BARNEHAGEPLASS                                         |                  | 15.07.2023 |            | OPPFYLT      | LOV_AUGUST_2024 |                  | Nei                   |
-      | 2       | BARNETS_ALDER                                          |                  | 15.07.2024 | 31.07.2024 | OPPFYLT      | LOV_AUGUST_2021 |                  | Ja                    |
-      | 2       | BARNETS_ALDER                                          |                  | 15.08.2024 | 15.02.2025 | OPPFYLT      | LOV_AUGUST_2021 |                  | Ja                    |
+      | 2       | MEDLEMSKAP_ANNEN_FORELDER,BOR_MED_SØKER,BOSATT_I_RIKET |                  |            |            | IKKE_VURDERT | NASJONALE_REGLER | Nei                   |
+      | 2       | BARNEHAGEPLASS                                         |                  | 15.07.2023 |            | OPPFYLT      |                  | Nei                   |
+      | 2       | BARNETS_ALDER                                          |                  | 15.07.2024 | 31.07.2024 | OPPFYLT      |                  | Ja                    |
+      | 2       | BARNETS_ALDER                                          |                  | 15.08.2024 | 15.02.2025 | OPPFYLT      |                  | Ja                    |
 
   Scenario: Ved opprettelse av ny behandling av barn født 15. august 2023 skal aldersvilkåret være oppfylt fom 15.september 2024 til tom 15. mars 2025
     Og følgende persongrunnlag
@@ -157,10 +157,10 @@ Egenskap: Barnets alder
     Når vi oppretter vilkårresultater for behandling 1
 
     Så forvent følgende vilkårresultater for behandling 1
-      | AktørId | Vilkår                                                 | Utdypende vilkår | Fra dato   | Til dato   | Resultat     | Regelsett       | Vurderes etter   | Er automatisk vurdert |
-      | 1       | BOSATT_I_RIKET                                         |                  |            |            | IKKE_VURDERT | LOV_AUGUST_2024 | NASJONALE_REGLER | Nei                   |
-      | 1       | MEDLEMSKAP                                             |                  | 19.06.1993 |            | IKKE_VURDERT | LOV_AUGUST_2024 | NASJONALE_REGLER | Nei                   |
+      | AktørId | Vilkår                                                 | Utdypende vilkår | Fra dato   | Til dato   | Resultat     | Vurderes etter   | Er automatisk vurdert |
+      | 1       | BOSATT_I_RIKET                                         |                  |            |            | IKKE_VURDERT | NASJONALE_REGLER | Nei                   |
+      | 1       | MEDLEMSKAP                                             |                  | 19.06.1993 |            | IKKE_VURDERT | NASJONALE_REGLER | Nei                   |
 
-      | 2       | MEDLEMSKAP_ANNEN_FORELDER,BOR_MED_SØKER,BOSATT_I_RIKET |                  |            |            | IKKE_VURDERT | LOV_AUGUST_2024 | NASJONALE_REGLER | Nei                   |
-      | 2       | BARNEHAGEPLASS                                         |                  | 15.08.2023 |            | OPPFYLT      | LOV_AUGUST_2024 |                  | Nei                   |
-      | 2       | BARNETS_ALDER                                          |                  | 15.09.2024 | 15.03.2025 | OPPFYLT      | LOV_AUGUST_2021 |                  | Ja                    |
+      | 2       | MEDLEMSKAP_ANNEN_FORELDER,BOR_MED_SØKER,BOSATT_I_RIKET |                  |            |            | IKKE_VURDERT | NASJONALE_REGLER | Nei                   |
+      | 2       | BARNEHAGEPLASS                                         |                  | 15.08.2023 |            | OPPFYLT      |                  | Nei                   |
+      | 2       | BARNETS_ALDER                                          |                  | 15.09.2024 | 15.03.2025 | OPPFYLT      |                  | Ja                    |
