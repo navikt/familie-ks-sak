@@ -58,7 +58,9 @@ object TilkjentYtelseValidator {
                     false -> 11L
                 }
             val diff = Period.between(stønadFom.toLocalDate(), stønadTom.toLocalDate())
-            if (diff.toTotalMonths() >= maksAntallMånederMedUtbetaling) {
+            val antallMånederUtbetalt = diff.toTotalMonths() + 1
+
+            if (antallMånederUtbetalt > maksAntallMånederMedUtbetaling) {
                 val feilmelding =
                     "Kontantstøtte kan maks utbetales for $maksAntallMånederMedUtbetaling måneder. Du er i ferd med å utbetale mer enn dette for barn med fnr ${aktør.aktivFødselsnummer()}. " +
                         "Kontroller datoene på vilkårene eller ta kontakt med Team BAKS"
