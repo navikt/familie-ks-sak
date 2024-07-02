@@ -25,7 +25,7 @@ class BarnetsAlderVilkårValidator2021 {
         val funksjonelleFeilForPerioderMedAdopsjon =
             perioder
                 .filter { it.verdi.erAdopsjonOppfylt() }
-                .map {
+                .mapNotNull {
                     when {
                         it.tom.isAfter(barn.fødselsdato.plusYears(6).withMonth(Month.AUGUST.value).sisteDagIMåned()) ->
                             "Du kan ikke sette en t.o.m dato på barnets alder vilkåret som er etter august året barnet fyller 6 år."
@@ -35,12 +35,11 @@ class BarnetsAlderVilkårValidator2021 {
                         else -> null
                     }
                 }
-                .filterNotNull()
 
         val funksjonelleFeilForPerioderUtenAdopsjon =
             perioder
                 .filter { !it.verdi.erAdopsjonOppfylt() }
-                .map {
+                .mapNotNull {
                     val periodeTomEllerDatoFørLovendring =
                         minOf(
                             periodeTomBarnetsAlderLov2021,
@@ -55,10 +54,10 @@ class BarnetsAlderVilkårValidator2021 {
 
                         !erToggleForLovendringAugust2024På && !it.tom.isEqual(periodeTomBarnetsAlderLov2021) && it.tom != barn.dødsfall?.dødsfallDato ->
                             "T.o.m datoen på barnets alder vilkåret må være lik barnets 2 års dag. Dersom barnet ikke lever må t.o.m datoen være lik dato for dødsfall."
+
                         else -> null
                     }
                 }
-                .filterNotNull()
 
         return funksjonelleFeilForPerioderMedAdopsjon + funksjonelleFeilForPerioderUtenAdopsjon
     }

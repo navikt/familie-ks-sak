@@ -19,7 +19,9 @@ class BarnetsAlderVilkårValidator2021og2024(
         vilkårLovverkInformasjonForBarn: VilkårLovverkInformasjonForBarn,
         erToggleForLovendringAugust2024På: Boolean,
     ): List<String> {
-        if (perioder.size != 2) {
+        val påkrevdAntallBarnetsAlderPerioderPåBarn = 2
+
+        if (perioder.size != påkrevdAntallBarnetsAlderPerioderPåBarn) {
             return listOf("Vilkåret for barnets alder må splittes i to perioder fordi den strekker seg over lovendringen 01.08.2024. Periodene må være som følgende: [${vilkårLovverkInformasjonForBarn.periodeFomBarnetsAlderLov2021} - ${minOf(vilkårLovverkInformasjonForBarn.periodeTomBarnetsAlderLov2021, DATO_LOVENDRING_2024.minusMonths(1).sisteDagIMåned())}, ${maxOf(vilkårLovverkInformasjonForBarn.periodeFomBarnetsAlderLov2024, DATO_LOVENDRING_2024)} - ${vilkårLovverkInformasjonForBarn.periodeTomBarnetsAlderLov2024}]")
         }
 
