@@ -4,11 +4,13 @@ import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.tidslinje.Periode
 import no.nav.familie.ks.sak.common.tidslinje.Tidslinje
 import no.nav.familie.ks.sak.common.tidslinje.filtrerIkkeNull
+import no.nav.familie.ks.sak.common.tidslinje.mapVerdi
 import no.nav.familie.ks.sak.common.tidslinje.tilTidslinje
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.filtrer
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.kombiner
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.kombinerMed
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.slåSammen
+import no.nav.familie.ks.sak.common.tidslinje.utvidelser.slåSammenLikePerioder
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.tilPerioder
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.tilPerioderIkkeNull
 import no.nav.familie.ks.sak.common.util.førsteDagIInneværendeMåned
@@ -104,7 +106,10 @@ data class SplittkriterierForVilkår(
 
 private fun Map<Aktør, Tidslinje<List<VilkårResultat>>>.tilSplittkriterierForVilkårTidslinje(): Tidslinje<Map<Aktør, List<SplittkriterierForVilkår>>> =
     this.map { (aktør, vilkårsvurderingTidslinje) ->
-        vilkårsvurderingTidslinje.tilPerioder().filtrerIkkeNull().map { vilkårResultater ->
+        val vilkårsvurderingTidslinjeUtenBarnetsAlder =
+            vilkårsvurderingTidslinje.mapVerdi { it?.filter { vilkårResultat -> vilkårResultat.vilkårType != Vilkår.BARNETS_ALDER } }.slåSammenLikePerioder()
+
+        vilkårsvurderingTidslinjeUtenBarnetsAlder.tilPerioder().filtrerIkkeNull().map { vilkårResultater ->
             Periode(
                 verdi = Pair(aktør, vilkårResultater.verdi.map { SplittkriterierForVilkår(it) }),
                 fom = vilkårResultater.fom,
