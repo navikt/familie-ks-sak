@@ -17,7 +17,6 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.PersonResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.UtdypendeVilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårRegelsett
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.regelsett.tilForskjøvetOppfylteVilkårResultatTidslinjeMap
 import no.nav.familie.ks.sak.kjerne.beregning.AndelTilkjentYtelseMedEndreteUtbetalinger
@@ -114,7 +113,6 @@ class BegrunnelserForPeriodeContextTest {
                             periodeFom = vilkårOppfyltFom,
                             periodeTom = vilkårOppfyltTom,
                             utdypendeVilkårsvurderinger = listOf(UtdypendeVilkårsvurdering.ADOPSJON),
-                            regelsett = VilkårRegelsett.LOV_AUGUST_2021,
                         ),
                     ),
             )
@@ -170,7 +168,6 @@ class BegrunnelserForPeriodeContextTest {
                             periodeFom = vilkårOppfyltFom,
                             periodeTom = vilkårOppfyltTom,
                             antallTimer = BigDecimal.valueOf(8),
-                            regelsett = VilkårRegelsett.LOV_AUGUST_2021,
                         ),
                     ),
             )
@@ -227,14 +224,12 @@ class BegrunnelserForPeriodeContextTest {
                             periodeFom = vilkårOppfyltFom,
                             periodeTom = vilkårOppfyltTom,
                             antallTimer = BigDecimal.valueOf(8),
-                            regelsett = VilkårRegelsett.LOV_AUGUST_2021,
                         ),
                         lagVilkårResultat(
                             vilkårType = Vilkår.BARNETS_ALDER,
                             periodeFom = vilkårOppfyltFom,
                             periodeTom = vilkårOppfyltTom,
                             utdypendeVilkårsvurderinger = listOf(UtdypendeVilkårsvurdering.ADOPSJON),
-                            regelsett = VilkårRegelsett.LOV_AUGUST_2021,
                         ),
                     ),
             )
@@ -315,7 +310,6 @@ class BegrunnelserForPeriodeContextTest {
                 vilkårType = Vilkår.BARNETS_ALDER,
                 periodeFom = vilkårOppfyltFom.plusDays(15),
                 periodeTom = vilkårOppfyltTom.minusDays(15),
-                regelsett = VilkårRegelsett.LOV_AUGUST_2021,
             ),
         )
         val personResultatSøker =
@@ -403,7 +397,6 @@ class BegrunnelserForPeriodeContextTest {
                 vilkårType = Vilkår.BOSATT_I_RIKET,
                 periodeFom = vilkårOppfyltFom.plusMonths(2),
                 periodeTom = vilkårOppfyltTom.minusDays(15),
-                regelsett = VilkårRegelsett.LOV_AUGUST_2021,
             ),
         )
         val personResultater =
@@ -747,7 +740,6 @@ class BegrunnelserForPeriodeContextTest {
                 vilkårType = it,
                 periodeFom = fom,
                 periodeTom = tom,
-                regelsett = VilkårRegelsett.LOV_AUGUST_2021,
             )
         }.toMutableSet()
 
@@ -759,7 +751,7 @@ class BegrunnelserForPeriodeContextTest {
     ): BegrunnelserForPeriodeContext {
         // Må forskyve personresultatene for å finne riktig dato for vedtaksperiode.
         val vedtaksperiodeStartsTidpunkt =
-            personResultater.tilForskjøvetOppfylteVilkårResultatTidslinjeMap(persongrunnlag)
+            personResultater.tilForskjøvetOppfylteVilkårResultatTidslinjeMap(persongrunnlag, true)
                 .filterKeys { it.aktørId == aktørSomTriggerVedtaksperiode.aktørId }.values.first().startsTidspunkt
 
         val utvidetVedtaksperiodeMedBegrunnelser =
@@ -786,6 +778,7 @@ class BegrunnelserForPeriodeContextTest {
             erFørsteVedtaksperiode = false,
             kompetanser = emptyList(),
             andelerTilkjentYtelse = andelerTilkjentYtelse,
+            erToggleForLovendringAugust2024På = true,
         )
     }
 
@@ -821,6 +814,7 @@ class BegrunnelserForPeriodeContextTest {
             endretUtbetalingsandeler = emptyList(),
             erFørsteVedtaksperiode = false,
             andelerTilkjentYtelse = andelerTilkjentYtelse,
+            erToggleForLovendringAugust2024På = true,
         )
     }
 }

@@ -14,7 +14,6 @@ import jakarta.persistence.ManyToOne
 import jakarta.persistence.SequenceGenerator
 import jakarta.persistence.Table
 import no.nav.familie.ks.sak.common.entitet.BaseEntitet
-import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.tidslinje.Periode
 import no.nav.familie.ks.sak.common.util.StringListConverter
 import no.nav.familie.ks.sak.common.util.førsteDagINesteMåned
@@ -82,9 +81,6 @@ class VilkårResultat(
     val antallTimer: BigDecimal? = null,
     @Column(name = "soker_har_meldt_fra_om_barnehageplass")
     var søkerHarMeldtFraOmBarnehageplass: Boolean? = null,
-    @Column(name = "regelsett")
-    @Enumerated(EnumType.STRING)
-    var regelsett: VilkårRegelsett,
 ) : BaseEntitet() {
     fun erAvslagUtenPeriode() = erEksplisittAvslagPåSøknad == true && periodeFom == null && periodeTom == null
 
@@ -123,7 +119,6 @@ class VilkårResultat(
             utdypendeVilkårsvurderinger = this.utdypendeVilkårsvurderinger,
             antallTimer = antallTimer,
             søkerHarMeldtFraOmBarnehageplass = søkerHarMeldtFraOmBarnehageplass,
-            regelsett = this.regelsett,
         )
     }
 
@@ -156,7 +151,6 @@ class VilkårResultat(
         utdypendeVilkårsvurderinger = this.utdypendeVilkårsvurderinger,
         antallTimer = this.antallTimer,
         søkerHarMeldtFraOmBarnehageplass = this.søkerHarMeldtFraOmBarnehageplass,
-        regelsett = this.regelsett,
     )
 
     override fun toString(): String {
@@ -165,15 +159,5 @@ class VilkårResultat(
 
     companion object {
         val VilkårResultatComparator = compareBy<VilkårResultat>({ it.periodeFom }, { it.resultat }, { it.vilkårType })
-    }
-}
-
-fun Collection<VilkårResultat>.hentRegelsettBruktIVilkår(): VilkårRegelsett? {
-    val regelsettBruktIVilkår = this.map { it.regelsett }.distinct()
-
-    return when {
-        regelsettBruktIVilkår.size == 1 -> regelsettBruktIVilkår.first()
-        regelsettBruktIVilkår.isEmpty() -> null
-        else -> throw Feil("Det er brukt blandet regelsett i vilkårene")
     }
 }

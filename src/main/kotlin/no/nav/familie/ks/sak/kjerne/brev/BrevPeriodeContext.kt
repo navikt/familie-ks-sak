@@ -69,6 +69,7 @@ class BrevPeriodeContext(
     private val erFørsteVedtaksperiode: Boolean,
     private val kompetanser: List<UtfyltKompetanse>,
     private val landkoder: Map<String, String>,
+    private val erToggleForLovendringAugust2024På: Boolean,
 ) {
     private val personerMedUtbetaling =
         utvidetVedtaksperiodeMedBegrunnelser.utbetalingsperiodeDetaljer.map { it.person }
@@ -260,6 +261,7 @@ class BrevPeriodeContext(
             erFørsteVedtaksperiode = erFørsteVedtaksperiode,
             kompetanser = kompetanser,
             andelerTilkjentYtelse = andelTilkjentYtelserMedEndreteUtbetalinger,
+            erToggleForLovendringAugust2024På = erToggleForLovendringAugust2024På,
         )
 
     fun hentNasjonalOgFellesBegrunnelseDtoer(): List<NasjonalOgFellesBegrunnelseDataDto> {
@@ -634,7 +636,7 @@ class BrevPeriodeContext(
 
             personResultat.aktør to
                 vilkårTilVilkårResultaterMap.mapValues { (vilkår, vilkårResultater) ->
-                    forskyvVilkårResultater(vilkår, vilkårResultater).tilTidslinje()
+                    forskyvVilkårResultater(vilkår, vilkårResultater, erToggleForLovendringAugust2024På).tilTidslinje()
                 }
         }
     }
@@ -653,6 +655,7 @@ class BrevPeriodeContext(
 
         return personTilVilkårResultaterMap.mapValues { (_, vilkårResultaterMap) ->
             vilkårResultaterMap.mapValues { (_, vilkårResultatTidslinje) ->
+
                 vilkårResultatTidslinje.kombinerMed(vedtaksperiodeTidslinje) { vilkårResultat, vedtaksperiode ->
                     vedtaksperiode?.let { vilkårResultat }
                 }
