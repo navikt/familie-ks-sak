@@ -45,9 +45,9 @@ repositories {
 
 dependencies {
 
-    val springdocVersion = "2.5.0"
-    val sentryVersion = "7.10.0"
-    val navFellesVersion = "3.20240515152313_9dd5659"
+    val springdocVersion = "2.6.0"
+    val sentryVersion = "7.11.0"
+    val navFellesVersion = "3.20240624143824_64bf8f2"
     val eksterneKontrakterBisysVersion = "2.0_20230214104704_706e9c0"
     val fellesKontrakterVersion = "3.0_20240603143357_2992125"
     val familieKontrakterSaksstatistikkVersion = "2.0_20230214104704_706e9c0"
@@ -130,7 +130,7 @@ dependencies {
     implementation("com.neovisionaries:nv-i18n:1.29")
     implementation("com.github.jsqlparser:jsqlparser:4.9")
 
-    ktlint("com.pinterest.ktlint:ktlint-cli:1.2.1") {
+    ktlint("com.pinterest.ktlint:ktlint-cli:1.3.1") {
         attributes {
             attribute(Bundling.BUNDLING_ATTRIBUTE, objects.named(Bundling.EXTERNAL))
         }
