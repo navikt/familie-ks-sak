@@ -86,7 +86,7 @@ class BehandlingsresultatService(
             if (forrigeBehandling != null) {
                 val kompetanser = kompetanseService.hentKompetanser(behandlingId = BehandlingId(behandlingId))
                 val forrigeKompetanser = kompetanseService.hentKompetanser(behandlingId = BehandlingId(forrigeBehandling.id))
-                val behandlingSkalFølgeNyeLovendringer2024 = unleashNextMedContextService.isEnabled(FeatureToggleConfig.LOV_ENDRING_7_MND_NYE_BEHANDLINGER)
+                val erToggleForLovendringAugust2024På = unleashNextMedContextService.isEnabled(FeatureToggleConfig.LOV_ENDRING_7_MND_NYE_BEHANDLINGER)
 
                 BehandlingsresultatEndringUtils.utledEndringsresultat(
                     nåværendeAndeler = andelerTilkjentYtelse,
@@ -100,7 +100,7 @@ class BehandlingsresultatService(
                     personerFremstiltKravFor = personerFremstiltKravFor,
                     personerIBehandling = personerIBehandling,
                     personerIForrigeBehandling = personerIForrigeBehandling,
-                    behandlingSkalFølgeNyeLovendringer2024 = behandlingSkalFølgeNyeLovendringer2024,
+                    erToggleForLovendringAugust2024På = erToggleForLovendringAugust2024På,
                 )
             } else {
                 Endringsresultat.INGEN_ENDRING

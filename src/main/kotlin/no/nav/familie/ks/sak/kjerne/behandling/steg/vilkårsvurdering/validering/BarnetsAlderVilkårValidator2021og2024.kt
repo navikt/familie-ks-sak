@@ -1,5 +1,3 @@
-@file:Suppress("ktlint:standard:filename")
-
 package no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.validering
 
 import no.nav.familie.ks.sak.common.tidslinje.IkkeNullbarPeriode
@@ -19,17 +17,16 @@ class BarnetsAlderVilkårValidator2021og2024(
         perioder: List<IkkeNullbarPeriode<VilkårResultat>>,
         barn: Person,
         vilkårLovverkInformasjonForBarn: VilkårLovverkInformasjonForBarn,
-        behandlingSkalFølgeNyeLovendringer2024: Boolean,
+        erToggleForLovendringAugust2024På: Boolean,
     ): List<String> {
-        val barnErAdoptert = perioder.any { it.verdi.erAdopsjonOppfylt() }
-
-        if (!barnErAdoptert && perioder.size != 2) {
-            return listOf("Barnets alder vilkåret må splittes i to perioder fordi barnet fyller 1 år før og 19 måneder etter 01.08.24. Periodene må være som følgende: [${vilkårLovverkInformasjonForBarn.periodeFomBarnetsAlderLov2021} - ${minOf(vilkårLovverkInformasjonForBarn.periodeTomBarnetsAlderLov2021, DATO_LOVENDRING_2024.minusMonths(1).sisteDagIMåned())}, ${maxOf(vilkårLovverkInformasjonForBarn.periodeFomBarnetsAlderLov2024, DATO_LOVENDRING_2024)} - ${vilkårLovverkInformasjonForBarn.periodeTomBarnetsAlderLov2024}]")
+        if (perioder.size != 2) {
+            return listOf("Vilkåret for barnets alder må splittes i to perioder fordi den strekker seg over lovendringen 01.08.2024. Periodene må være som følgende: [${vilkårLovverkInformasjonForBarn.periodeFomBarnetsAlderLov2021} - ${minOf(vilkårLovverkInformasjonForBarn.periodeTomBarnetsAlderLov2021, DATO_LOVENDRING_2024.minusMonths(1).sisteDagIMåned())}, ${maxOf(vilkårLovverkInformasjonForBarn.periodeFomBarnetsAlderLov2024, DATO_LOVENDRING_2024)} - ${vilkårLovverkInformasjonForBarn.periodeTomBarnetsAlderLov2024}]")
         }
+
         val sortertePerioder = perioder.sortedBy { it.fom }
         val periodeLov2021 = sortertePerioder.first()
         val periodeLov2024 = sortertePerioder.last()
-        val funksjonelleFeilValideringLov2021 = barnetsAlderVilkårValidator2021.validerBarnetsAlderVilkår(listOf(periodeLov2021), barn, vilkårLovverkInformasjonForBarn.periodeFomBarnetsAlderLov2021, vilkårLovverkInformasjonForBarn.periodeTomBarnetsAlderLov2021, behandlingSkalFølgeNyeLovendringer2024)
+        val funksjonelleFeilValideringLov2021 = barnetsAlderVilkårValidator2021.validerBarnetsAlderVilkår(listOf(periodeLov2021), barn, vilkårLovverkInformasjonForBarn.periodeFomBarnetsAlderLov2021, vilkårLovverkInformasjonForBarn.periodeTomBarnetsAlderLov2021, erToggleForLovendringAugust2024På)
         val funksjonelleFeilValideringLov2024 = barnetsAlderVilkårValidator2024.validerBarnetsAlderVilkår(listOf(periodeLov2024), barn, vilkårLovverkInformasjonForBarn.periodeFomBarnetsAlderLov2024, vilkårLovverkInformasjonForBarn.periodeTomBarnetsAlderLov2024)
         return funksjonelleFeilValideringLov2021.plus(funksjonelleFeilValideringLov2024)
     }

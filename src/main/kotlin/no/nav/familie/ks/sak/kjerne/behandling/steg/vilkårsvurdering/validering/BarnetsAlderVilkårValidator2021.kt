@@ -1,5 +1,3 @@
-@file:Suppress("ktlint:standard:filename")
-
 package no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.validering
 
 import no.nav.familie.ks.sak.common.tidslinje.IkkeNullbarPeriode
@@ -18,7 +16,7 @@ class BarnetsAlderVilkårValidator2021 {
         barn: Person,
         periodeFomBarnetsAlderLov2021: LocalDate,
         periodeTomBarnetsAlderLov2021: LocalDate,
-        behandlingSkalFølgeNyeLovendringer2024: Boolean,
+        erToggleForLovendringAugust2024På: Boolean,
     ): List<String> {
         if (perioder.isEmpty()) {
             return emptyList()
@@ -51,10 +49,11 @@ class BarnetsAlderVilkårValidator2021 {
                     when {
                         !it.fom.isEqual(periodeFomBarnetsAlderLov2021) ->
                             "F.o.m datoen på barnets alder vilkåret må være lik barnets 1 års dag."
-                        behandlingSkalFølgeNyeLovendringer2024 && !it.tom.isEqual(periodeTomEllerDatoFørLovendring) && it.tom != barn.dødsfall?.dødsfallDato ->
+
+                        erToggleForLovendringAugust2024På && !it.tom.isEqual(periodeTomEllerDatoFørLovendring) && it.tom != barn.dødsfall?.dødsfallDato ->
                             "T.o.m datoen på barnets alder vilkåret må være lik barnets 2 års dag eller 31.07.24 på grunn av lovendring fra og med 01.08.24. Dersom barnet ikke lever må t.o.m datoen være lik dato for dødsfall."
 
-                        !behandlingSkalFølgeNyeLovendringer2024 && !it.tom.isEqual(periodeTomBarnetsAlderLov2021) && it.tom != barn.dødsfall?.dødsfallDato ->
+                        !erToggleForLovendringAugust2024På && !it.tom.isEqual(periodeTomBarnetsAlderLov2021) && it.tom != barn.dødsfall?.dødsfallDato ->
                             "T.o.m datoen på barnets alder vilkåret må være lik barnets 2 års dag. Dersom barnet ikke lever må t.o.m datoen være lik dato for dødsfall."
                         else -> null
                     }

@@ -34,7 +34,7 @@ object TilkjentYtelseUtils {
     fun beregnTilkjentYtelse(
         vilkårsvurdering: Vilkårsvurdering,
         personopplysningGrunnlag: PersonopplysningGrunnlag,
-        behandlingSkalFølgeNyeLovendringer2024: Boolean,
+        erToggleForLovendringAugust2024På: Boolean,
         endretUtbetalingAndeler: List<EndretUtbetalingAndelMedAndelerTilkjentYtelse> = emptyList(),
     ): TilkjentYtelse {
         val tilkjentYtelse =
@@ -50,7 +50,7 @@ object TilkjentYtelseUtils {
                 personopplysningGrunnlag = personopplysningGrunnlag,
                 vilkårsvurdering = vilkårsvurdering,
                 tilkjentYtelse = tilkjentYtelse,
-                behandlingSkalFølgeNyeLovendringer2024 = behandlingSkalFølgeNyeLovendringer2024,
+                erToggleForLovendringAugust2024På = erToggleForLovendringAugust2024På,
             )
 
         val andelerTilkjentYtelseBarnaMedAlleEndringer =
@@ -66,17 +66,17 @@ object TilkjentYtelseUtils {
         personopplysningGrunnlag: PersonopplysningGrunnlag,
         vilkårsvurdering: Vilkårsvurdering,
         tilkjentYtelse: TilkjentYtelse,
-        behandlingSkalFølgeNyeLovendringer2024: Boolean,
+        erToggleForLovendringAugust2024På: Boolean,
     ): List<AndelTilkjentYtelse> {
         val søkersVilkårResultaterForskjøvetTidslinje =
             vilkårsvurdering.personResultater.tilForskjøvetVilkårResultatTidslinjeDerVilkårErOppfyltForPerson(
                 personopplysningGrunnlag.søker,
-                behandlingSkalFølgeNyeLovendringer2024,
+                erToggleForLovendringAugust2024På,
             )
 
         return personopplysningGrunnlag.barna.flatMap { barn ->
             val barnetsVilkårResultaterForskjøvetTidslinje =
-                vilkårsvurdering.personResultater.tilForskjøvetVilkårResultatTidslinjeDerVilkårErOppfyltForPerson(barn, behandlingSkalFølgeNyeLovendringer2024)
+                vilkårsvurdering.personResultater.tilForskjøvetVilkårResultatTidslinjeDerVilkårErOppfyltForPerson(barn, erToggleForLovendringAugust2024På)
 
             val barnVilkårResultaterForskjøvetBådeBarnOgSøkerHarAlleOppfylt =
                 barnetsVilkårResultaterForskjøvetTidslinje.kombinerMed(

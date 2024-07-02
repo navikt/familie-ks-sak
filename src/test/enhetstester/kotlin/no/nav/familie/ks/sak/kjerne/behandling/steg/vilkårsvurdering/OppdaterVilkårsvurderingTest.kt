@@ -41,7 +41,7 @@ class OppdaterVilkårsvurderingTest {
                 behandling = mockk(relaxed = true),
                 forrigeVilkårsvurdering = null,
                 personopplysningGrunnlag = persongrunnlag,
-                behandlingSkalFølgeNyeLovendringer2024 = false,
+                erToggleForLovendringAugust2024På = false,
             )
 
         initiellVilkårsvurdering.kopierResultaterFraForrigeBehandling(
@@ -93,7 +93,7 @@ class OppdaterVilkårsvurderingTest {
                 behandling = mockk(relaxed = true),
                 forrigeVilkårsvurdering = null,
                 personopplysningGrunnlag = persongrunnlag2,
-                behandlingSkalFølgeNyeLovendringer2024 = false,
+                erToggleForLovendringAugust2024På = false,
             )
 
         initiellVilkårsvurdering.kopierResultaterFraForrigeBehandling(
@@ -121,7 +121,7 @@ class OppdaterVilkårsvurderingTest {
                 behandling = mockk(relaxed = true),
                 forrigeVilkårsvurdering = null,
                 personopplysningGrunnlag = persongrunnlag2,
-                behandlingSkalFølgeNyeLovendringer2024 = false,
+                erToggleForLovendringAugust2024På = false,
             )
         val barnVilkårResultaterUendret =
             initiellVilkårsvurderingUendret.personResultater.single { it.aktør.aktivFødselsnummer() == barnPersonIdent }.vilkårResultater
@@ -145,7 +145,7 @@ class OppdaterVilkårsvurderingTest {
                 behandling = mockk(relaxed = true),
                 forrigeVilkårsvurdering = null,
                 personopplysningGrunnlag = persongrunnlagRevurdering,
-                behandlingSkalFølgeNyeLovendringer2024 = false,
+                erToggleForLovendringAugust2024På = false,
             )
 
         val persongrunnlagForrigeBehandling =
@@ -185,7 +185,7 @@ class OppdaterVilkårsvurderingTest {
                 behandling = nyBehandling,
                 forrigeVilkårsvurdering = null,
                 personopplysningGrunnlag = persongrunnlag,
-                behandlingSkalFølgeNyeLovendringer2024 = false,
+                erToggleForLovendringAugust2024På = false,
             )
         val vilkårsvurderingForrigeBehandling = Vilkårsvurdering(behandling = forrigeBehandling)
         val personResultat =
@@ -265,7 +265,7 @@ class OppdaterVilkårsvurderingTest {
                 behandling = nyBehandling,
                 forrigeVilkårsvurdering = null,
                 personopplysningGrunnlag = persongrunnlag,
-                behandlingSkalFølgeNyeLovendringer2024 = false,
+                erToggleForLovendringAugust2024På = false,
             )
 
         val finnesEøsSpesifikkeVilkårIVilkårsvurdering = initiellVilkårsvurdering.personResultater.flatMap { it.vilkårResultater }.any { it.vilkårType.eøsSpesifikt }
@@ -291,7 +291,7 @@ class OppdaterVilkårsvurderingTest {
                 behandling = nyBehandling,
                 forrigeVilkårsvurdering = forrigeVilkårsvurdering,
                 personopplysningGrunnlag = persongrunnlag,
-                behandlingSkalFølgeNyeLovendringer2024 = false,
+                erToggleForLovendringAugust2024På = false,
             )
 
         val finnesEøsSpesifikkeVilkårIVilkårsvurdering = initiellVilkårsvurdering.personResultater.flatMap { it.vilkårResultater }.any { it.vilkårType.eøsSpesifikt }
@@ -314,7 +314,7 @@ class OppdaterVilkårsvurderingTest {
                 behandling = nyBehandling,
                 forrigeVilkårsvurdering = null,
                 personopplysningGrunnlag = persongrunnlag,
-                behandlingSkalFølgeNyeLovendringer2024 = false,
+                erToggleForLovendringAugust2024På = false,
             )
 
         val finnesEøsSpesifikkeVilkårIVilkårsvurdering = initiellVilkårsvurdering.personResultater.flatMap { it.vilkårResultater }.any { it.vilkårType.eøsSpesifikt }

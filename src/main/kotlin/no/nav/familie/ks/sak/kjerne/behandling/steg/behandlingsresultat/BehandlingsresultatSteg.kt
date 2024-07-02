@@ -40,13 +40,13 @@ class BehandlingsresultatSteg(
         val endretUtbetalingMedAndeler =
             andelerTilkjentYtelseOgEndreteUtbetalingerService
                 .finnEndreteUtbetalingerMedAndelerTilkjentYtelse(behandlingId)
-        val behandlingSkalFølgeNyeLovendringer2024 = unleashNextMedContextService.isEnabled(FeatureToggleConfig.LOV_ENDRING_7_MND_NYE_BEHANDLINGER)
+        val erToggleForLovendringAugust2024På = unleashNextMedContextService.isEnabled(FeatureToggleConfig.LOV_ENDRING_7_MND_NYE_BEHANDLINGER)
 
         BehandlingsresultatValideringUtils.validerAtBehandlingsresultatKanUtføres(
             personopplysningGrunnlag,
             tilkjentYtelse,
             endretUtbetalingMedAndeler,
-            behandlingSkalFølgeNyeLovendringer2024,
+            erToggleForLovendringAugust2024På,
         )
 
         val resultat = behandlingsresultatService.utledBehandlingsresultat(behandling.id)

@@ -30,10 +30,10 @@ class UtbetalingsperiodeMedBegrunnelserService(
             vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(behandlingId = vedtak.behandling.id)
         val personopplysningGrunnlag =
             personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(behandlingId = vedtak.behandling.id)
-        val behandlingSkalFølgeNyeLovendringer2024 = unleashNextMedContextService.isEnabled(FeatureToggleConfig.LOV_ENDRING_7_MND_NYE_BEHANDLINGER)
+        val erToggleForLovendringAugust2024På = unleashNextMedContextService.isEnabled(FeatureToggleConfig.LOV_ENDRING_7_MND_NYE_BEHANDLINGER)
 
         val forskjøvetVilkårResultatTidslinjeMap =
-            vilkårsvurdering.personResultater.tilForskjøvetOppfylteVilkårResultatTidslinjeMap(personopplysningGrunnlag, behandlingSkalFølgeNyeLovendringer2024)
+            vilkårsvurdering.personResultater.tilForskjøvetOppfylteVilkårResultatTidslinjeMap(personopplysningGrunnlag, erToggleForLovendringAugust2024På)
 
         return hentPerioderMedUtbetaling(
             andelerTilkjentYtelse = andelerTilkjentYtelse,

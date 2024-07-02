@@ -1,6 +1,7 @@
 package no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.regelsett.lov2021
 
 import no.nav.familie.ks.sak.common.tidslinje.Periode
+import no.nav.familie.ks.sak.common.util.DATO_LOVENDRING_2024
 import no.nav.familie.ks.sak.common.util.TIDENES_ENDE
 import no.nav.familie.ks.sak.common.util.TIDENES_MORGEN
 import no.nav.familie.ks.sak.common.util.førsteDagIInneværendeMåned
@@ -8,9 +9,6 @@ import no.nav.familie.ks.sak.common.util.sisteDagIMåned
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.regelsett.mapTilTilknyttetVilkårResultater
-import java.time.LocalDate
-
-private val DATO_FOR_LOVENDRING_AV_FORSKYVNINGER: LocalDate = LocalDate.of(2024, 8, 1)
 
 fun forskyvEtterLovgivning2021(
     vilkårType: Vilkår,
@@ -40,7 +38,7 @@ fun forskyvEtterLovgivning2021(
                     tom =
                         when {
                             it.gjeldendeSlutterDagenFørNeste() -> periodeTom?.plusDays(1)?.sisteDagIMåned()
-                            periodeTom == DATO_FOR_LOVENDRING_AV_FORSKYVNINGER.minusDays(1) -> periodeTom
+                            periodeTom == DATO_LOVENDRING_2024.minusDays(1) -> periodeTom
                             else -> periodeTom?.minusMonths(1)?.sisteDagIMåned()
                         },
                 )

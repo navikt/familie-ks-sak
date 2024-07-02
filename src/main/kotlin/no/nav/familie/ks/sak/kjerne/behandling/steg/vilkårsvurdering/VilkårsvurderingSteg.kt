@@ -62,9 +62,9 @@ class VilkårsvurderingSteg(
         val søknadDto = søknadGrunnlagService.finnAktiv(behandlingId = behandling.id)?.tilSøknadDto()
         val vilkårsvurdering = vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(behandling.id)
 
-        val behandlingSkalFølgeNyeLovendringer2024 = unleashNextMedContextService.isEnabled(FeatureToggleConfig.LOV_ENDRING_7_MND_NYE_BEHANDLINGER)
+        val erToggleForLovendringAugust2024På = unleashNextMedContextService.isEnabled(FeatureToggleConfig.LOV_ENDRING_7_MND_NYE_BEHANDLINGER)
 
-        validerVilkårsvurdering(vilkårsvurdering, personopplysningGrunnlag, søknadDto, behandling, behandlingSkalFølgeNyeLovendringer2024)
+        validerVilkårsvurdering(vilkårsvurdering, personopplysningGrunnlag, søknadDto, behandling, erToggleForLovendringAugust2024På)
 
         settBehandlingstemaBasertPåVilkårsvurdering(behandling, vilkårsvurdering)
 
@@ -126,10 +126,10 @@ class VilkårsvurderingSteg(
         personopplysningGrunnlag: PersonopplysningGrunnlag,
         søknadGrunnlagDto: SøknadDto?,
         behandling: Behandling,
-        behandlingSkalFølgeNyeLovendringer2024: Boolean,
+        erToggleForLovendringAugust2024På: Boolean,
     ) {
         val erFremtidigOpphørEtterLovendring2024 = vilkårsvurdering.personResultater.flatMap { it.vilkårResultater }.any { it.harMeldtBarnehageplassOgErFulltidIBarnehage() && (it.periodeTom ?: TIDENES_ENDE).erSammeEllerEtter(DATO_LOVENDRING_2024) }
-        if (erFremtidigOpphørEtterLovendring2024 && !behandlingSkalFølgeNyeLovendringer2024) {
+        if (erFremtidigOpphørEtterLovendring2024 && !erToggleForLovendringAugust2024På) {
             throw FunksjonellFeil("Det er satt fremtidig opphør etter regelverksendring 01.08.24. Dette støttes ikke enda.")
         }
 
@@ -143,7 +143,7 @@ class VilkårsvurderingSteg(
         validerAtDetIkkeErOverlappMellomGradertBarnehageplassOgDeltBosted(vilkårsvurdering)
         validerAtPerioderIBarnehageplassSamsvarerMedPeriodeIBarnetsAlderVilkår(vilkårsvurdering)
         validerAtDetIkkeFinnesMerEnn2EndringerISammeMånedIBarnehageplassVilkår(vilkårsvurdering)
-        barnetsVilkårValidator.validerAtDatoErKorrektIBarnasVilkår(vilkårsvurdering, personopplysningGrunnlag.barna, behandlingSkalFølgeNyeLovendringer2024)
+        barnetsVilkårValidator.validerAtDatoErKorrektIBarnasVilkår(vilkårsvurdering, personopplysningGrunnlag.barna, erToggleForLovendringAugust2024På)
         validerIkkeBlandetRegelverk(personopplysningGrunnlag, vilkårsvurdering)
     }
 
@@ -282,8 +282,8 @@ class VilkårsvurderingSteg(
         personopplysningGrunnlag: PersonopplysningGrunnlag,
         vilkårsvurdering: Vilkårsvurdering,
     ) {
-        val behandlingSkalFølgeNyeLovendringer2024 = unleashNextMedContextService.isEnabled(FeatureToggleConfig.LOV_ENDRING_7_MND_NYE_BEHANDLINGER)
-        val vilkårsvurderingTidslinjer = VilkårsvurderingTidslinjer(vilkårsvurdering, personopplysningGrunnlag, behandlingSkalFølgeNyeLovendringer2024)
+        val erToggleForLovendringAugust2024På = unleashNextMedContextService.isEnabled(FeatureToggleConfig.LOV_ENDRING_7_MND_NYE_BEHANDLINGER)
+        val vilkårsvurderingTidslinjer = VilkårsvurderingTidslinjer(vilkårsvurdering, personopplysningGrunnlag, erToggleForLovendringAugust2024På)
         if (vilkårsvurderingTidslinjer.harBlandetRegelverk()) {
             throw FunksjonellFeil(
                 melding = "Det er forskjellig regelverk for en eller flere perioder for søker eller barna",

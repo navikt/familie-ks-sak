@@ -29,9 +29,9 @@ class VilkårsvurderingTidslinjeService(
             vilkårsvurderingRepository.finnAktivForBehandling(behandlingId)
                 ?: throw Feil("Finnes ikke aktiv vilkårsvurdering for behandlingId=$behandlingId")
         val personopplysningGrunnlag = personopplysningGrunnlagRepository.hentByBehandlingAndAktiv(behandlingId)
-        val behandlingSkalFølgeNyeLovendringer2024 = unleashNextMedContextService.isEnabled(FeatureToggleConfig.LOV_ENDRING_7_MND_NYE_BEHANDLINGER)
+        val erToggleForLovendringAugust2024På = unleashNextMedContextService.isEnabled(FeatureToggleConfig.LOV_ENDRING_7_MND_NYE_BEHANDLINGER)
 
-        return VilkårsvurderingTidslinjer(vilkårsvurdering, personopplysningGrunnlag, behandlingSkalFølgeNyeLovendringer2024)
+        return VilkårsvurderingTidslinjer(vilkårsvurdering, personopplysningGrunnlag, erToggleForLovendringAugust2024På)
     }
 
     fun hentAnnenForelderOmfattetAvNorskLovgivningTidslinje(behandlingId: Long): Tidslinje<Boolean> {

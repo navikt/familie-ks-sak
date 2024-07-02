@@ -63,7 +63,7 @@ class BrevPeriodeService(
                 behandlingId,
             )
         val kompetanser = kompetanseService.hentKompetanser(behandlingId = BehandlingId(behandlingId))
-        val behandlingSkalFølgeNyeLovendringer2024 = unleashNextMedContextService.isEnabled(FeatureToggleConfig.LOV_ENDRING_7_MND_NYE_BEHANDLINGER)
+        val erToggleForLovendringAugust2024På = unleashNextMedContextService.isEnabled(FeatureToggleConfig.LOV_ENDRING_7_MND_NYE_BEHANDLINGER)
 
         return utvidetVedtaksperioderMedBegrunnelser
             .sortedBy { it.fom }
@@ -87,7 +87,7 @@ class BrevPeriodeService(
                     erFørsteVedtaksperiode = erFørsteVedtaksperiodePåFagsak,
                     kompetanser = kompetanser.map { it.tilIKompetanse() }.filterIsInstance<UtfyltKompetanse>(),
                     landkoder = integrasjonClient.hentLandkoderISO2(),
-                    behandlingSkalFølgeNyeLovendringer2024 = behandlingSkalFølgeNyeLovendringer2024,
+                    erToggleForLovendringAugust2024På = erToggleForLovendringAugust2024På,
                 ).genererBrevPeriodeDto()
             }
     }

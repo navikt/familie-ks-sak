@@ -75,13 +75,13 @@ class BeregningService(
                 }
         slettTilkjentYtelseForBehandling(behandling)
 
-        val behandlingSkalFølgeNyeLovendringer2024 = unleashNextMedContextService.isEnabled(FeatureToggleConfig.LOV_ENDRING_7_MND_NYE_BEHANDLINGER)
+        val erToggleForLovendringAugust2024På = unleashNextMedContextService.isEnabled(FeatureToggleConfig.LOV_ENDRING_7_MND_NYE_BEHANDLINGER)
 
         val tilkjentYtelse =
             TilkjentYtelseUtils.beregnTilkjentYtelse(
                 vilkårsvurdering,
                 personopplysningGrunnlag,
-                behandlingSkalFølgeNyeLovendringer2024,
+                erToggleForLovendringAugust2024På,
                 endreteUtbetalingAndeler,
             )
 

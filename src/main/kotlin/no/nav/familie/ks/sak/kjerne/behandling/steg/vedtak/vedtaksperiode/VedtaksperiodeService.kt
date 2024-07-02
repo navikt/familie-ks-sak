@@ -167,7 +167,7 @@ class VedtaksperiodeService(
         val vilkårsvurdering =
             vilkårsvurderingRepository.finnAktivForBehandling(behandlingId = behandlingId) ?: return null
 
-        val behandlingSkalFølgeNyeLovendringer2024 = unleashNextMedContextService.isEnabled(FeatureToggleConfig.LOV_ENDRING_7_MND_NYE_BEHANDLINGER)
+        val erToggleForLovendringAugust2024På = unleashNextMedContextService.isEnabled(FeatureToggleConfig.LOV_ENDRING_7_MND_NYE_BEHANDLINGER)
 
         return vilkårsvurdering.personResultater.mapNotNull { personResultat ->
 
@@ -180,7 +180,7 @@ class VedtaksperiodeService(
                     .mapValues { it.value }
 
             vilkårResultaterForAktørMapSomAlltidSkalKunneBegrunnes.flatMap { (vilkårType, vilkårResultater) ->
-                forskyvVilkårResultater(vilkårType, vilkårResultater, behandlingSkalFølgeNyeLovendringer2024).tilTidslinje().tilPerioderIkkeNull()
+                forskyvVilkårResultater(vilkårType, vilkårResultater, erToggleForLovendringAugust2024På).tilTidslinje().tilPerioderIkkeNull()
             }.mapNotNull { it.tom }.maxOfOrNull { it }
         }.maxOfOrNull { it }
     }
@@ -437,7 +437,7 @@ class VedtaksperiodeService(
                         )
                     }
 
-                val behandlingSkalFølgeNyeLovendringer2024 = unleashNextMedContextService.isEnabled(FeatureToggleConfig.LOV_ENDRING_7_MND_NYE_BEHANDLINGER)
+                val erToggleForLovendringAugust2024På = unleashNextMedContextService.isEnabled(FeatureToggleConfig.LOV_ENDRING_7_MND_NYE_BEHANDLINGER)
 
                 utvidetVedtaksperiodeMedBegrunnelser.copy(
                     gyldigeBegrunnelser =
@@ -450,7 +450,7 @@ class VedtaksperiodeService(
                             erFørsteVedtaksperiode = erFørsteVedtaksperiodePåFagsak,
                             kompetanser = utfylteKompetanser,
                             andelerTilkjentYtelse = andeler,
-                            behandlingSkalFølgeNyeLovendringer2024 = behandlingSkalFølgeNyeLovendringer2024,
+                            erToggleForLovendringAugust2024På = erToggleForLovendringAugust2024På,
                         ).hentGyldigeBegrunnelserForVedtaksperiode(),
                 )
             }

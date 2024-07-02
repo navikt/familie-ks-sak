@@ -91,7 +91,7 @@ internal class TilkjentYtelseUtilsTest {
             TilkjentYtelseUtils.beregnTilkjentYtelse(
                 vilkårsvurdering = vilkårsvurdering,
                 personopplysningGrunnlag = personopplysningGrunnlag,
-                behandlingSkalFølgeNyeLovendringer2024 = true,
+                erToggleForLovendringAugust2024På = true,
             )
         assertTilkjentYtelse(tilkjentYtelse, 1)
         assertAndelTilkjentYtelse(
@@ -125,7 +125,7 @@ internal class TilkjentYtelseUtilsTest {
             TilkjentYtelseUtils.beregnTilkjentYtelse(
                 vilkårsvurdering = vilkårsvurdering,
                 personopplysningGrunnlag = personopplysningGrunnlag,
-                behandlingSkalFølgeNyeLovendringer2024 = true,
+                erToggleForLovendringAugust2024På = true,
             )
         assertTilkjentYtelse(tilkjentYtelse, 1)
         assertAndelTilkjentYtelse(
@@ -165,7 +165,7 @@ internal class TilkjentYtelseUtilsTest {
             TilkjentYtelseUtils.beregnTilkjentYtelse(
                 vilkårsvurdering = vilkårsvurdering,
                 personopplysningGrunnlag = personopplysningGrunnlag,
-                behandlingSkalFølgeNyeLovendringer2024 = true,
+                erToggleForLovendringAugust2024På = true,
             )
         assertTilkjentYtelse(tilkjentYtelse, 2)
         assertAndelTilkjentYtelse(
@@ -211,7 +211,7 @@ internal class TilkjentYtelseUtilsTest {
             TilkjentYtelseUtils.beregnTilkjentYtelse(
                 vilkårsvurdering = vilkårsvurdering,
                 personopplysningGrunnlag = personopplysningGrunnlag,
-                behandlingSkalFølgeNyeLovendringer2024 = true,
+                erToggleForLovendringAugust2024På = true,
             )
         assertTilkjentYtelse(tilkjentYtelse, 2)
         assertAndelTilkjentYtelse(
@@ -257,7 +257,7 @@ internal class TilkjentYtelseUtilsTest {
             TilkjentYtelseUtils.beregnTilkjentYtelse(
                 vilkårsvurdering = vilkårsvurdering,
                 personopplysningGrunnlag = personopplysningGrunnlag,
-                behandlingSkalFølgeNyeLovendringer2024 = true,
+                erToggleForLovendringAugust2024På = true,
             )
         assertTilkjentYtelse(tilkjentYtelse, 2)
         assertAndelTilkjentYtelse(
@@ -316,7 +316,7 @@ internal class TilkjentYtelseUtilsTest {
             TilkjentYtelseUtils.beregnTilkjentYtelse(
                 vilkårsvurdering = vilkårsvurdering,
                 personopplysningGrunnlag = personopplysningGrunnlag,
-                behandlingSkalFølgeNyeLovendringer2024 = true,
+                erToggleForLovendringAugust2024På = true,
             )
         assertTilkjentYtelse(tilkjentYtelse, 1)
         assertAndelTilkjentYtelse(
@@ -369,7 +369,7 @@ internal class TilkjentYtelseUtilsTest {
             TilkjentYtelseUtils.beregnTilkjentYtelse(
                 vilkårsvurdering = vilkårsvurdering,
                 personopplysningGrunnlag = personopplysningGrunnlag,
-                behandlingSkalFølgeNyeLovendringer2024 = true,
+                erToggleForLovendringAugust2024På = true,
             )
         assertTilkjentYtelse(tilkjentYtelse, 1)
         assertAndelTilkjentYtelse(
@@ -411,7 +411,7 @@ internal class TilkjentYtelseUtilsTest {
             TilkjentYtelseUtils.beregnTilkjentYtelse(
                 vilkårsvurdering = vilkårsvurdering,
                 personopplysningGrunnlag = personopplysningGrunnlag,
-                behandlingSkalFølgeNyeLovendringer2024 = true,
+                erToggleForLovendringAugust2024På = true,
             )
         assertTilkjentYtelse(tilkjentYtelse, 2)
         assertAndelTilkjentYtelse(
@@ -459,7 +459,7 @@ internal class TilkjentYtelseUtilsTest {
             TilkjentYtelseUtils.beregnTilkjentYtelse(
                 vilkårsvurdering = vilkårsvurdering,
                 personopplysningGrunnlag = personopplysningGrunnlag,
-                behandlingSkalFølgeNyeLovendringer2024 = true,
+                erToggleForLovendringAugust2024På = true,
             )
         assertTilkjentYtelse(tilkjentYtelse, 2)
         assertAndelTilkjentYtelse(
@@ -507,7 +507,7 @@ internal class TilkjentYtelseUtilsTest {
             TilkjentYtelseUtils.beregnTilkjentYtelse(
                 vilkårsvurdering = vilkårsvurdering,
                 personopplysningGrunnlag = personopplysningGrunnlag,
-                behandlingSkalFølgeNyeLovendringer2024 = true,
+                erToggleForLovendringAugust2024På = true,
             )
         assertTilkjentYtelse(tilkjentYtelse, 2)
         assertAndelTilkjentYtelse(

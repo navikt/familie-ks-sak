@@ -242,7 +242,7 @@ fun genererInitiellVilkårsvurdering(
     behandling: Behandling,
     forrigeVilkårsvurdering: Vilkårsvurdering?,
     personopplysningGrunnlag: PersonopplysningGrunnlag,
-    behandlingSkalFølgeNyeLovendringer2024: Boolean,
+    erToggleForLovendringAugust2024På: Boolean,
 ): Vilkårsvurdering {
     return Vilkårsvurdering(behandling = behandling).apply {
         personResultater =
@@ -263,7 +263,7 @@ fun genererInitiellVilkårsvurdering(
                         // prefyller diverse vilkår automatisk basert på type
                         when (vilkår) {
                             Vilkår.BARNETS_ALDER -> {
-                                if (behandlingSkalFølgeNyeLovendringer2024) {
+                                if (erToggleForLovendringAugust2024På) {
                                     lagAutomatiskGenererteVilkårForBarnetsAlder(
                                         personResultat = personResultat,
                                         behandling = behandling,

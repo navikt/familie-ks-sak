@@ -1,5 +1,3 @@
-@file:Suppress("ktlint:standard:filename")
-
 package no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.validering
 
 import no.nav.familie.ks.sak.common.tidslinje.IkkeNullbarPeriode

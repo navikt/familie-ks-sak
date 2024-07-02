@@ -778,7 +778,7 @@ class BegrunnelserForPeriodeContextTest {
             erFørsteVedtaksperiode = false,
             kompetanser = emptyList(),
             andelerTilkjentYtelse = andelerTilkjentYtelse,
-            behandlingSkalFølgeNyeLovendringer2024 = true,
+            erToggleForLovendringAugust2024På = true,
         )
     }
 
@@ -814,7 +814,7 @@ class BegrunnelserForPeriodeContextTest {
             endretUtbetalingsandeler = emptyList(),
             erFørsteVedtaksperiode = false,
             andelerTilkjentYtelse = andelerTilkjentYtelse,
-            behandlingSkalFølgeNyeLovendringer2024 = true,
+            erToggleForLovendringAugust2024På = true,
         )
     }
 }

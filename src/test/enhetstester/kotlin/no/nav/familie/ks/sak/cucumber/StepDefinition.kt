@@ -219,7 +219,7 @@ class StepDefinition {
                 vilkårsvurdering = vilkårsvurdering[behandlingId]!!,
                 personopplysningGrunnlag = persongrunnlag[behandlingId]!!,
                 endretUtbetalingAndeler = endredeUtbetalinger[behandlingId]?.map { EndretUtbetalingAndelMedAndelerTilkjentYtelse(it, emptyList()) } ?: emptyList(),
-                behandlingSkalFølgeNyeLovendringer2024 = mockUnleashNextMedContextService().isEnabled(FeatureToggleConfig.LOV_ENDRING_7_MND_NYE_BEHANDLINGER),
+                erToggleForLovendringAugust2024På = mockUnleashNextMedContextService().isEnabled(FeatureToggleConfig.LOV_ENDRING_7_MND_NYE_BEHANDLINGER),
             ).andelerTilkjentYtelse.toList()
 
         val andelerEtterDifferanseberegning =
@@ -346,7 +346,7 @@ class StepDefinition {
                                     erFørsteVedtaksperiode = index == 0,
                                     kompetanser = hentUtfylteKompetanserPåBehandling(behandlingId),
                                     andelerTilkjentYtelse = hentAndelerTilkjentYtelseMedEndreteUtbetalinger(behandlingId),
-                                    behandlingSkalFølgeNyeLovendringer2024 = true,
+                                    erToggleForLovendringAugust2024På = true,
                                 ).hentGyldigeBegrunnelserForVedtaksperiode(),
                         )
                     }
@@ -445,7 +445,7 @@ class StepDefinition {
         erFørsteVedtaksperiode = erFørsteVedtaksperiode,
         kompetanser = hentUtfylteKompetanserPåBehandling(behandlingId),
         landkoder = LANDKODER,
-        behandlingSkalFølgeNyeLovendringer2024 = true,
+        erToggleForLovendringAugust2024På = true,
     ).genererBrevPeriodeDto()
 
     /**
