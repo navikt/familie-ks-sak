@@ -4,7 +4,6 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.PersonResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårRegelsett
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
 import java.time.LocalDate
 
@@ -33,7 +32,6 @@ fun lagAutomatiskGenererteVilkårForBarnetsAlder(
                 behandlingId = behandling.id,
                 periodeFom = periodeFomBarnetsAlderLov2021,
                 periodeTom = minOf(periodeTomBarnetsAlderLov2021, DATO_LOVENDRING_2024.minusDays(1)),
-                regelsett = VilkårRegelsett.LOV_AUGUST_2021,
             )
         } else {
             null
@@ -50,7 +48,6 @@ fun lagAutomatiskGenererteVilkårForBarnetsAlder(
                 behandlingId = behandling.id,
                 periodeFom = maxOf(periodeFomBarnetsAlderLov2024, DATO_LOVENDRING_2024),
                 periodeTom = periodeTomBarnetsAlderLov2024,
-                regelsett = VilkårRegelsett.LOV_AUGUST_2024,
             )
         } else {
             null

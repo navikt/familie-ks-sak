@@ -20,7 +20,7 @@ Egenskap: Klagebehandling med endret ytelse
       | 2            | 1       | SØKER      | 25.10.1991  |
       | 2            | 2       | BARN       | 08.02.2023  |
 
-  Scenario: Når vi har en klage der vi øker barnetrygden og samtidig ikke har fremtidig opphør lenger
+  Scenario: Når vi har en klage der vi øker kontantstøtte og samtidig ikke har fremtidig opphør lenger
     Og følgende dagens dato 21.05.2024
 
     Og følgende vilkårresultater for behandling 1
@@ -51,7 +51,7 @@ Egenskap: Klagebehandling med endret ytelse
     Så forvent følgende andeler tilkjent ytelse for behandling 2
       | AktørId | Fra dato   | Til dato   | Beløp | Ytelse type           | Prosent | Sats | Nasjonalt periodebeløp | Differanseberegnet beløp |
       | 2       | 01.03.2024 | 31.03.2024 | 7500  | ORDINÆR_KONTANTSTØTTE | 100     | 7500 | 7500                   |                          |
-      | 2       | 01.04.2024 | 31.01.2025 | 3000  | ORDINÆR_KONTANTSTØTTE | 40      | 7500 | 3000                   |                          |
+      | 2       | 01.04.2024 | 28.02.2025 | 3000  | ORDINÆR_KONTANTSTØTTE | 40      | 7500 | 3000                   |                          |
     Og når behandlingsresultatet er utledet for behandling 2
 
     Så forvent at behandlingsresultatet er INNVILGET på behandling 2
@@ -59,4 +59,4 @@ Egenskap: Klagebehandling med endret ytelse
     Og vedtaksperioder er laget for behandling 2
     Så forvent at følgende begrunnelser er gyldige for behandling 2
       | Fra dato   | Til dato   | VedtaksperiodeType | Regelverk Gyldige begrunnelser | Gyldige begrunnelser       | Ugyldige begrunnelser |
-      | 01.04.2024 | 31.01.2025 | UTBETALING         |                                | INNVILGET_DELTID_BARNEHAGE |                       |
+      | 01.04.2024 | 28.02.2025 | UTBETALING         |                                | INNVILGET_DELTID_BARNEHAGE |                       |

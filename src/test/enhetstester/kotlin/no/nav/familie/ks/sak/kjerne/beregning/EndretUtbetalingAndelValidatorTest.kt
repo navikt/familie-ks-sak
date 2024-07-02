@@ -12,7 +12,6 @@ import no.nav.familie.ks.sak.data.lagVilkårResultaterForDeltBosted
 import no.nav.familie.ks.sak.data.randomAktør
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.PersonResultat
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårRegelsett
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.endretutbetaling.EndretUtbetalingAndelValidator
 import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.Årsak
@@ -163,7 +162,6 @@ class EndretUtbetalingAndelValidatorTest {
                 behandlingId = behandling.id,
                 fom1 = fom,
                 tom1 = tom,
-                regelsett = VilkårRegelsett.LOV_AUGUST_2021,
             )
         personResultatForBarn.setSortedVilkårResultater(vilkårResultaterForBarn)
         vilkårsvurdering.personResultater = setOf(personResultatForBarn)
@@ -196,7 +194,6 @@ class EndretUtbetalingAndelValidatorTest {
                 tom1 = tom1,
                 fom2 = fom2,
                 tom2 = tom2,
-                regelsett = VilkårRegelsett.LOV_AUGUST_2021,
             )
 
         personResultatForBarn.setSortedVilkårResultater(vilkårResultaterForBarn)
@@ -233,7 +230,6 @@ class EndretUtbetalingAndelValidatorTest {
                 tom1 = LocalDate.now().minusMonths(1).sisteDagIMåned(),
                 fom2 = LocalDate.now().førsteDagIInneværendeMåned(),
                 tom2 = tomBarn1,
-                regelsett = VilkårRegelsett.LOV_AUGUST_2021,
             )
         val vilkårResultaterForBarn2 =
             lagVilkårResultaterForDeltBosted(
@@ -242,7 +238,6 @@ class EndretUtbetalingAndelValidatorTest {
                 fom1 = fomBarn2,
                 // sammenhengde periode med første barn vilkår resultat
                 tom1 = fomBarn1,
-                regelsett = VilkårRegelsett.LOV_AUGUST_2021,
             )
 
         personResultatForBarn1.setSortedVilkårResultater(vilkårResultaterForBarn1)
@@ -279,7 +274,6 @@ class EndretUtbetalingAndelValidatorTest {
                 tom1 = LocalDate.now().minusMonths(1).sisteDagIMåned(),
                 fom2 = LocalDate.now().førsteDagIInneværendeMåned(),
                 tom2 = tomBarn1,
-                regelsett = VilkårRegelsett.LOV_AUGUST_2021,
             )
         val vilkårResultaterForBarn2 =
             lagVilkårResultaterForDeltBosted(
@@ -288,7 +282,6 @@ class EndretUtbetalingAndelValidatorTest {
                 fom1 = fomBarn2,
                 // overlapper med første barn vilkårresultat
                 tom1 = tomBarn1,
-                regelsett = VilkårRegelsett.LOV_AUGUST_2021,
             )
 
         personResultatForBarn1.setSortedVilkårResultater(vilkårResultaterForBarn1)
@@ -319,7 +312,6 @@ class EndretUtbetalingAndelValidatorTest {
                 behandlingId = behandling.id,
                 fom1 = fom,
                 tom1 = tom,
-                regelsett = VilkårRegelsett.LOV_AUGUST_2021,
             )
         personResultatForBarn.setSortedVilkårResultater(vilkårResultaterForBarn)
         vilkårsvurdering.personResultater = setOf(personResultatForBarn)
@@ -360,7 +352,6 @@ class EndretUtbetalingAndelValidatorTest {
                 behandlingId = behandling.id,
                 fom1 = fom,
                 tom1 = tom,
-                regelsett = VilkårRegelsett.LOV_AUGUST_2021,
             )
         personResultatForBarn.setSortedVilkårResultater(vilkårResultaterForBarn)
         vilkårsvurdering.personResultater = setOf(personResultatForBarn)

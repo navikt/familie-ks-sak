@@ -12,9 +12,7 @@ import no.nav.familie.ks.sak.common.tidslinje.utvidelser.tilPerioderIkkeNull
 import no.nav.familie.ks.sak.common.util.overlapperHeltEllerDelvisMed
 import no.nav.familie.ks.sak.common.util.toLocalDate
 import no.nav.familie.ks.sak.common.util.toYearMonth
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårRegelsett
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.hentRegelsettBruktIVilkår
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårLovverkInformasjonForBarn
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.domene.TilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.domene.YtelseType
@@ -32,27 +30,37 @@ object TilkjentYtelseValidator {
     fun validerAtTilkjentYtelseHarFornuftigePerioderOgBeløp(
         tilkjentYtelse: TilkjentYtelse,
         personopplysningGrunnlag: PersonopplysningGrunnlag,
-        vilkårsvurdering: Vilkårsvurdering,
+        erToggleForLovendringAugust2024På: Boolean,
     ) {
         val søker = personopplysningGrunnlag.søker
         val barna = personopplysningGrunnlag.barna
 
+        val andelerTilkjentYtelse = tilkjentYtelse.andelerTilkjentYtelse.toList()
+
+        if (hentSøkersAndeler(andeler = andelerTilkjentYtelse, søker).isNotEmpty()) {
+            throw Feil("Feil i beregning. Søkers andeler må være tom")
+        }
+
         val andelerPerAktør = tilkjentYtelse.andelerTilkjentYtelse.groupBy { it.aktør }
 
         andelerPerAktør.filter { it.value.isNotEmpty() }.forEach { (aktør, andeler) ->
-            val regelsettPåAktør = vilkårsvurdering.hentPersonResultaterTilAktør(aktørId = aktør.aktørId).hentRegelsettBruktIVilkår() ?: throw Feil("Fant ikke regelsett på aktør med id ${aktør.aktørId}")
-
-            val maksAntallMånederMedUtbetaling =
-                when (regelsettPåAktør) {
-                    VilkårRegelsett.LOV_AUGUST_2021 -> 11
-                    VilkårRegelsett.LOV_AUGUST_2024 -> 7
-                }
 
             val stønadFom = andeler.minOf { it.stønadFom }
             val stønadTom = andeler.maxOf { it.stønadTom }
 
+            val relevantBarn = barna.single { it.aktør == aktør }
+
+            val vilkårLovverkInformasjonForBarn = VilkårLovverkInformasjonForBarn(relevantBarn.fødselsdato)
+
+            val maksAntallMånederMedUtbetaling =
+                when (erToggleForLovendringAugust2024På) {
+                    true -> utledMaksAntallMånederMedUtbetaling(vilkårLovverkInformasjonForBarn)
+                    false -> 11L
+                }
             val diff = Period.between(stønadFom.toLocalDate(), stønadTom.toLocalDate())
-            if (diff.toTotalMonths() > maksAntallMånederMedUtbetaling) {
+            val antallMånederUtbetalt = diff.toTotalMonths() + 1
+
+            if (antallMånederUtbetalt > maksAntallMånederMedUtbetaling) {
                 val feilmelding =
                     "Kontantstøtte kan maks utbetales for $maksAntallMånederMedUtbetaling måneder. Du er i ferd med å utbetale mer enn dette for barn med fnr ${aktør.aktivFødselsnummer()}. " +
                         "Kontroller datoene på vilkårene eller ta kontakt med Team BAKS"
@@ -64,10 +72,6 @@ object TilkjentYtelseValidator {
 
         tidslinjeMedAndeler.tilPerioder().forEach {
             val andeler = it.verdi?.toList() ?: emptyList()
-
-            if (hentSøkersAndeler(andeler, søker).isNotEmpty()) {
-                throw Feil("Feil i beregning. Søkers andeler må være tom")
-            }
             val barnasAndeler = hentBarnasAndeler(andeler, barna)
             barnasAndeler.forEach { (_, andeler) -> validerAtBeløpForPartStemmerMedSatser(andeler) }
         }

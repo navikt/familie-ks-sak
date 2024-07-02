@@ -11,7 +11,6 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Reg
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.UtdypendeVilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårRegelsett
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import org.junit.jupiter.api.Assertions
@@ -44,7 +43,6 @@ class EndringIVilkårsvurderingUtilTest {
                             UtdypendeVilkårsvurdering.BARN_BOR_I_NORGE,
                         ),
                     vurderesEtter = Regelverk.NASJONALE_REGLER,
-                    regelsett = VilkårRegelsett.LOV_AUGUST_2021,
                 ),
                 VilkårResultat(
                     behandlingId = 0,
@@ -59,7 +57,6 @@ class EndringIVilkårsvurderingUtilTest {
                             UtdypendeVilkårsvurdering.BARN_BOR_I_NORGE,
                         ),
                     vurderesEtter = Regelverk.NASJONALE_REGLER,
-                    regelsett = VilkårRegelsett.LOV_AUGUST_2021,
                 ),
             )
 
@@ -69,6 +66,7 @@ class EndringIVilkårsvurderingUtilTest {
             EndringIVilkårsvurderingUtil.lagEndringIVilkårsvurderingTidslinje(
                 nåværendePersonResultaterForPerson = setOf(lagPersonResultatFraVilkårResultater(vilkårResultater, aktør)),
                 forrigePersonResultater = setOf(lagPersonResultatFraVilkårResultater(vilkårResultater, aktør)),
+                erToggleForLovendringAugust2024På = true,
             ).tilPerioder().filter { it.verdi == true }
 
         Assertions.assertTrue(perioderMedEndring.isEmpty())
@@ -92,7 +90,6 @@ class EndringIVilkårsvurderingUtilTest {
                             UtdypendeVilkårsvurdering.BARN_BOR_I_NORGE,
                         ),
                     vurderesEtter = Regelverk.NASJONALE_REGLER,
-                    regelsett = VilkårRegelsett.LOV_AUGUST_2021,
                 ),
             )
 
@@ -111,7 +108,6 @@ class EndringIVilkårsvurderingUtilTest {
                             UtdypendeVilkårsvurdering.BARN_BOR_I_NORGE,
                         ),
                     vurderesEtter = Regelverk.EØS_FORORDNINGEN,
-                    regelsett = VilkårRegelsett.LOV_AUGUST_2021,
                 ),
             )
 
@@ -121,6 +117,7 @@ class EndringIVilkårsvurderingUtilTest {
             EndringIVilkårsvurderingUtil.lagEndringIVilkårsvurderingTidslinje(
                 nåværendePersonResultaterForPerson = setOf(lagPersonResultatFraVilkårResultater(nåværendeVilkårResultat, aktør)),
                 forrigePersonResultater = setOf(lagPersonResultatFraVilkårResultater(forrigeVilkårResultat, aktør)),
+                erToggleForLovendringAugust2024På = true,
             ).tilPerioder().filter { it.verdi == true }
 
         Assertions.assertEquals(1, perioderMedEndring.size)
@@ -143,7 +140,6 @@ class EndringIVilkårsvurderingUtilTest {
                     begrunnelse = "",
                     utdypendeVilkårsvurderinger = listOf(),
                     vurderesEtter = Regelverk.NASJONALE_REGLER,
-                    regelsett = VilkårRegelsett.LOV_AUGUST_2021,
                 ),
             )
 
@@ -159,7 +155,6 @@ class EndringIVilkårsvurderingUtilTest {
                     begrunnelse = "",
                     utdypendeVilkårsvurderinger = listOf(),
                     vurderesEtter = Regelverk.NASJONALE_REGLER,
-                    regelsett = VilkårRegelsett.LOV_AUGUST_2021,
                 ),
                 VilkårResultat(
                     behandlingId = 0,
@@ -171,7 +166,6 @@ class EndringIVilkårsvurderingUtilTest {
                     begrunnelse = "",
                     utdypendeVilkårsvurderinger = listOf(),
                     vurderesEtter = Regelverk.NASJONALE_REGLER,
-                    regelsett = VilkårRegelsett.LOV_AUGUST_2021,
                 ),
             )
 
@@ -181,11 +175,11 @@ class EndringIVilkårsvurderingUtilTest {
             EndringIVilkårsvurderingUtil.lagEndringIVilkårsvurderingTidslinje(
                 nåværendePersonResultaterForPerson = setOf(lagPersonResultatFraVilkårResultater(nåværendeVilkårResultat, aktør)),
                 forrigePersonResultater = setOf(lagPersonResultatFraVilkårResultater(forrigeVilkårResultat, aktør)),
+                erToggleForLovendringAugust2024På = true,
             ).tilPerioder().filter { it.verdi == true }
 
         Assertions.assertEquals(1, perioderMedEndring.size)
         Assertions.assertEquals(jun22.førsteDagIInneværendeMåned(), perioderMedEndring.single().fom)
-        Assertions.assertEquals(null, perioderMedEndring.single().tom)
     }
 
     @Test
@@ -206,7 +200,6 @@ class EndringIVilkårsvurderingUtilTest {
                             UtdypendeVilkårsvurdering.BARN_BOR_I_NORGE,
                         ),
                     vurderesEtter = Regelverk.NASJONALE_REGLER,
-                    regelsett = VilkårRegelsett.LOV_AUGUST_2021,
                 ),
             )
 
@@ -225,7 +218,6 @@ class EndringIVilkårsvurderingUtilTest {
                             UtdypendeVilkårsvurdering.BARN_BOR_I_NORGE,
                         ),
                     vurderesEtter = Regelverk.NASJONALE_REGLER,
-                    regelsett = VilkårRegelsett.LOV_AUGUST_2021,
                 ),
             )
 
@@ -235,6 +227,7 @@ class EndringIVilkårsvurderingUtilTest {
             EndringIVilkårsvurderingUtil.lagEndringIVilkårsvurderingTidslinje(
                 nåværendePersonResultaterForPerson = setOf(lagPersonResultatFraVilkårResultater(nåværendeVilkårResultat, aktør)),
                 forrigePersonResultater = setOf(lagPersonResultatFraVilkårResultater(forrigeVilkårResultat, aktør)),
+                erToggleForLovendringAugust2024På = true,
             ).tilPerioder().filter { it.verdi == true }
 
         Assertions.assertTrue(perioderMedEndring.isEmpty())
@@ -255,7 +248,6 @@ class EndringIVilkårsvurderingUtilTest {
                     begrunnelse = "migrering",
                     utdypendeVilkårsvurderinger = listOf(),
                     vurderesEtter = Regelverk.EØS_FORORDNINGEN,
-                    regelsett = VilkårRegelsett.LOV_AUGUST_2021,
                 ),
             )
 
@@ -274,7 +266,6 @@ class EndringIVilkårsvurderingUtilTest {
                             UtdypendeVilkårsvurdering.BARN_BOR_I_NORGE,
                         ),
                     vurderesEtter = Regelverk.EØS_FORORDNINGEN,
-                    regelsett = VilkårRegelsett.LOV_AUGUST_2021,
                 ),
             )
 
@@ -284,6 +275,7 @@ class EndringIVilkårsvurderingUtilTest {
             EndringIVilkårsvurderingUtil.lagEndringIVilkårsvurderingTidslinje(
                 nåværendePersonResultaterForPerson = setOf(lagPersonResultatFraVilkårResultater(nåværendeVilkårResultat, aktør)),
                 forrigePersonResultater = setOf(lagPersonResultatFraVilkårResultater(forrigeVilkårResultat, aktør)),
+                erToggleForLovendringAugust2024På = true,
             ).tilPerioder().filter { it.verdi == true }
 
         Assertions.assertTrue(perioderMedEndring.isEmpty())
@@ -298,7 +290,6 @@ class EndringIVilkårsvurderingUtilTest {
                 behandling = lagBehandling(),
                 resultat = Resultat.OPPFYLT,
                 søkerAktør = randomAktør(),
-                regelsett = VilkårRegelsett.LOV_AUGUST_2021,
             )
         val personResultat = PersonResultat(vilkårsvurdering = vilkårsvurdering, aktør = aktør)
 
