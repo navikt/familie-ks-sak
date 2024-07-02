@@ -93,15 +93,15 @@ data class SplittkriterierForVilkår(
     val utdypendeVilkårsvurderinger: Set<UtdypendeVilkårsvurdering>,
 ) {
     constructor(vilkårResultat: VilkårResultat) :
-            this(
-                vilkårType = vilkårResultat.vilkårType,
-                resultat = vilkårResultat.resultat,
-                periodeFom = vilkårResultat.periodeFom,
-                periodeTom = vilkårResultat.periodeTom,
-                erEksplisittAvslagPåSøknad = vilkårResultat.erEksplisittAvslagPåSøknad,
-                regelverk = vilkårResultat.vurderesEtter,
-                utdypendeVilkårsvurderinger = vilkårResultat.utdypendeVilkårsvurderinger.toSet(),
-            )
+        this(
+            vilkårType = vilkårResultat.vilkårType,
+            resultat = vilkårResultat.resultat,
+            periodeFom = vilkårResultat.periodeFom,
+            periodeTom = vilkårResultat.periodeTom,
+            erEksplisittAvslagPåSøknad = vilkårResultat.erEksplisittAvslagPåSøknad,
+            regelverk = vilkårResultat.vurderesEtter,
+            utdypendeVilkårsvurderinger = vilkårResultat.utdypendeVilkårsvurderinger.toSet(),
+        )
 }
 
 private fun Map<Aktør, Tidslinje<List<VilkårResultat>>>.tilSplittkriterierForVilkårTidslinje(): Tidslinje<Map<Aktør, List<SplittkriterierForVilkår>>> =
@@ -128,15 +128,15 @@ data class SplittkriterierForKompetanse(
     val erAnnenForelderOmfattetAvNorskLovgivning: Boolean? = false,
 ) {
     constructor(kompetanse: Kompetanse) :
-            this(
-                søkersAktivitet = kompetanse.søkersAktivitet,
-                annenForeldersAktivitet = kompetanse.annenForeldersAktivitet,
-                annenForeldersAktivitetsland = kompetanse.annenForeldersAktivitetsland,
-                søkersAktivitetsland = kompetanse.søkersAktivitetsland,
-                barnetsBostedsland = kompetanse.barnetsBostedsland,
-                resultat = kompetanse.resultat,
-                erAnnenForelderOmfattetAvNorskLovgivning = kompetanse.erAnnenForelderOmfattetAvNorskLovgivning,
-            )
+        this(
+            søkersAktivitet = kompetanse.søkersAktivitet,
+            annenForeldersAktivitet = kompetanse.annenForeldersAktivitet,
+            annenForeldersAktivitetsland = kompetanse.annenForeldersAktivitetsland,
+            søkersAktivitetsland = kompetanse.søkersAktivitetsland,
+            barnetsBostedsland = kompetanse.barnetsBostedsland,
+            resultat = kompetanse.resultat,
+            erAnnenForelderOmfattetAvNorskLovgivning = kompetanse.erAnnenForelderOmfattetAvNorskLovgivning,
+        )
 }
 
 private fun List<Kompetanse>.tilSplittkriterierForKompetanseTidslinje(): Tidslinje<Map<Aktør, SplittkriterierForKompetanse>> {
