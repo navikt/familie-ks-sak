@@ -37,6 +37,7 @@ fun mapTilOpphørsperioder(
     personopplysningGrunnlag: PersonopplysningGrunnlag,
     andelerTilkjentYtelse: List<AndelTilkjentYtelseMedEndreteUtbetalinger>,
     vilkårsvurdering: Vilkårsvurdering,
+    erToggleForLovendringAugust2024På: Boolean,
 ): List<Opphørsperiode> {
     val forrigeUtbetalingsperioder =
         if (forrigePersonopplysningGrunnlag != null) {
@@ -64,7 +65,7 @@ fun mapTilOpphørsperioder(
             } else {
                 listOf(
                     finnOpphørsperioderMellomUtbetalingsperioder(utbetalingsperioder),
-                    finnOpphørsperiodeEtterSisteUtbetalingsperiode(utbetalingsperioder, vilkårsvurdering),
+                    finnOpphørsperiodeEtterSisteUtbetalingsperiode(utbetalingsperioder, vilkårsvurdering, erToggleForLovendringAugust2024På),
                 ).flatten()
             }.sortedBy { it.periodeFom }
         }
@@ -114,9 +115,15 @@ private fun maxOfOpphørsperiodeTom(
 private fun finnOpphørsperiodeEtterSisteUtbetalingsperiode(
     utbetalingsperioder: List<Utbetalingsperiode>,
     vilkårsvurdering: Vilkårsvurdering,
+    erToggleForLovendringAugust2024På: Boolean,
 ): List<Opphørsperiode> {
     val sisteUtbetalingsperiodeTom = utbetalingsperioder.maxOf { it.periodeTom }.toYearMonth()
-    val nesteMåned = inneværendeMåned().nesteMåned()
+    val cutOffDato =
+        if (erToggleForLovendringAugust2024På) {
+            inneværendeMåned().plusMonths(2)
+        } else {
+            inneværendeMåned().plusMonths(1)
+        }
 
     val erFramtidigOpphørPgaBarnehageplass =
         vilkårsvurdering.personResultater.any { personResultat ->
@@ -135,7 +142,7 @@ private fun finnOpphørsperiodeEtterSisteUtbetalingsperiode(
                 }
         }
 
-    return if (sisteUtbetalingsperiodeTom.isBefore(nesteMåned) || erFramtidigOpphørPgaBarnehageplass) {
+    return if (sisteUtbetalingsperiodeTom.isBefore(cutOffDato) || erFramtidigOpphørPgaBarnehageplass) {
         listOf(
             Opphørsperiode(
                 periodeFom = sisteUtbetalingsperiodeTom.nesteMåned().førsteDagIInneværendeMåned(),
