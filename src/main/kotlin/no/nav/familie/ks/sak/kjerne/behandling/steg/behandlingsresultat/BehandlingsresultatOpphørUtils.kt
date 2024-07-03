@@ -26,6 +26,7 @@ object BehandlingsresultatOpphørUtils {
         nåværendePersonResultaterPåBarn: List<PersonResultat>,
         forrigePersonResultaterPåBarn: List<PersonResultat>,
         nåMåned: YearMonth,
+        erToggleForLovendringAugust2024På: Boolean,
     ): Opphørsresultat {
         val meldtOmBarnehagePlassPåAlleBarnMedLøpendeAndeler = nåværendePersonResultaterPåBarn.harMeldtOmBarnehagePlassPåAlleBarnMedLøpendeAndeler(nåværendeAndeler, nåMåned)
         val meldtOmBarnehagePlassPåAlleBarnMedLøpendeAndelerIForrigeVilkårsvurdering = forrigePersonResultaterPåBarn.harMeldtOmBarnehagePlassPåAlleBarnMedLøpendeAndeler(forrigeAndeler, nåMåned)
@@ -45,13 +46,18 @@ object BehandlingsresultatOpphørUtils {
 
         val forrigeBehandlingOpphørsdato = forrigeAndeler.utledOpphørsdatoForForrigeBehandling(forrigeEndretAndeler = forrigeEndretAndeler)
 
-        val nesteMåned = nåMåned.plusMonths(1)
+        val cutOffDato =
+            if (erToggleForLovendringAugust2024På) {
+                nåMåned.plusMonths(2)
+            } else {
+                nåMåned.plusMonths(1)
+            }
 
         return when {
             // Rekkefølgen av sjekkene er viktig for å komme fram til riktig opphørsresultat.
             nåværendeBehandlingOpphørsdato == null -> Opphørsresultat.IKKE_OPPHØRT // Både forrige og nåværende behandling har ingen andeler
-            nåværendeBehandlingOpphørsdato <= nesteMåned && forrigeBehandlingOpphørsdato > nåværendeBehandlingOpphørsdato -> Opphørsresultat.OPPHØRT // Nåværende behandling er opphørt og forrige har senere opphørsdato
-            nåværendeBehandlingOpphørsdato <= nesteMåned && nåværendeBehandlingOpphørsdato == forrigeBehandlingOpphørsdato -> Opphørsresultat.FORTSATT_OPPHØRT
+            nåværendeBehandlingOpphørsdato <= cutOffDato && forrigeBehandlingOpphørsdato > nåværendeBehandlingOpphørsdato -> Opphørsresultat.OPPHØRT // Nåværende behandling er opphørt og forrige har senere opphørsdato
+            nåværendeBehandlingOpphørsdato <= cutOffDato && nåværendeBehandlingOpphørsdato == forrigeBehandlingOpphørsdato -> Opphørsresultat.FORTSATT_OPPHØRT
             else -> Opphørsresultat.IKKE_OPPHØRT
         }
     }

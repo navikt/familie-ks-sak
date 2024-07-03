@@ -210,8 +210,10 @@ class VedtaksperiodeService(
             )
         }
 
+        val erToggleForLovendringAugust2024På = unleashNextMedContextService.isEnabled(FeatureToggleConfig.LOV_ENDRING_7_MND_NYE_BEHANDLINGER)
+
         val opphørsperioder =
-            hentOpphørsperioder(vedtak.behandling).map { it.tilVedtaksperiodeMedBegrunnelse(vedtak) }
+            hentOpphørsperioder(vedtak.behandling, erToggleForLovendringAugust2024På).map { it.tilVedtaksperiodeMedBegrunnelse(vedtak) }
 
         val utbetalingsperioder =
             utbetalingsperiodeMedBegrunnelserService.hentUtbetalingsperioder(vedtak)
@@ -456,7 +458,10 @@ class VedtaksperiodeService(
             }
     }
 
-    fun hentOpphørsperioder(behandling: Behandling): List<Opphørsperiode> {
+    fun hentOpphørsperioder(
+        behandling: Behandling,
+        erToggleForLovendringAugust2024På: Boolean,
+    ): List<Opphørsperiode> {
         if (behandling.resultat == Behandlingsresultat.FORTSATT_INNVILGET) return emptyList()
 
         val iverksatteBehandlinger =
@@ -498,6 +503,7 @@ class VedtaksperiodeService(
             personopplysningGrunnlag = personopplysningGrunnlag,
             andelerTilkjentYtelse = andelerTilkjentYtelse,
             vilkårsvurdering = vilkårsvurdering,
+            erToggleForLovendringAugust2024På = erToggleForLovendringAugust2024På,
         )
     }
 
