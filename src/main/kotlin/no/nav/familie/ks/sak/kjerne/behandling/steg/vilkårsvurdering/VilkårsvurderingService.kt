@@ -17,7 +17,6 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vil
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårsvurderingRepository
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.hentRegelsettBruktIVilkår
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.BegrunnelseType
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
@@ -124,9 +123,8 @@ class VilkårsvurderingService(
             hentPersonResultatForPerson(vilkårsvurdering.personResultater, nyttVilkårDto.personIdent)
 
         val eksisterendeVilkårResultater = personResultat.vilkårResultater
-        val regelsett = eksisterendeVilkårResultater.hentRegelsettBruktIVilkår() ?: throw Feil("Fant ikke eksisterende regelsett i vilkår.")
 
-        val nyttVilkårResultat = opprettNyttVilkårResultat(personResultat, nyttVilkårDto.vilkårType, regelsett)
+        val nyttVilkårResultat = opprettNyttVilkårResultat(personResultat, nyttVilkårDto.vilkårType)
 
         val vilkårResultaterEtterFiltreringAvLovligOpphold = fjernEllerLeggTilLovligOppholdVilkår(personResultat, (eksisterendeVilkårResultater + nyttVilkårResultat).toList())
 
@@ -161,12 +159,10 @@ class VilkårsvurderingService(
             eksisterendeVilkårResultater
                 .filter { it.vilkårType == vilkårResultatSomSkalSlettes.vilkårType && it.id != vilkårResultatSomSkalSlettes.id }
 
-        val regelsett = eksisterendeVilkårResultater.hentRegelsettBruktIVilkår() ?: throw Feil("Fant ikke eksisterende regelsett i vilkår.")
-
         // Vi oppretter initiell vilkår dersom det ikke finnes flere av samme type.
         if (perioderMedSammeVilkårType.isEmpty()) {
             val nyttVilkårMedNullstilteFelter =
-                opprettNyttVilkårResultat(personResultat, vilkårResultatSomSkalSlettes.vilkårType, regelsett)
+                opprettNyttVilkårResultat(personResultat, vilkårResultatSomSkalSlettes.vilkårType)
 
             eksisterendeVilkårResultater.add(nyttVilkårMedNullstilteFelter)
         }
@@ -223,11 +219,10 @@ class VilkårsvurderingService(
         val bosattIRiketVilkår = vilkårResultater.filter { it.vilkårType == Vilkår.BOSATT_I_RIKET }
         val finnesBosattIRiketVilkårVurdertEtterEøs = bosattIRiketVilkår.any { it.vurderesEtter == Regelverk.EØS_FORORDNINGEN }
         val lovligOppholdVilkårFinnesAllerede = vilkårResultater.any { it.vilkårType == Vilkår.LOVLIG_OPPHOLD }
-        val regelsett = bosattIRiketVilkår.hentRegelsettBruktIVilkår() ?: throw Feil("Fant ikke eksisterende regelsett i vilkår.")
 
         return when {
             finnesBosattIRiketVilkårVurdertEtterEøs && !lovligOppholdVilkårFinnesAllerede -> {
-                vilkårResultater + opprettNyttVilkårResultat(personResultat, Vilkår.LOVLIG_OPPHOLD, regelsett)
+                vilkårResultater + opprettNyttVilkårResultat(personResultat, Vilkår.LOVLIG_OPPHOLD)
             }
 
             lovligOppholdVilkårFinnesAllerede && !finnesBosattIRiketVilkårVurdertEtterEøs -> vilkårResultater.filter { it.vilkårType != Vilkår.LOVLIG_OPPHOLD }

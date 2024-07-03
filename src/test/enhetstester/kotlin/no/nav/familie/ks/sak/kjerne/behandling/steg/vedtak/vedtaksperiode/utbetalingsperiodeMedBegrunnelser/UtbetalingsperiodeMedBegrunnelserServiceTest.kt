@@ -14,7 +14,6 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.PersonResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårRegelsett
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.regelsett.tilForskjøvetOppfylteVilkårResultatTidslinjeMap
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
@@ -49,7 +48,6 @@ class UtbetalingsperiodeMedBegrunnelserServiceTest {
                 søkerAktør = søkerPerson.aktør,
                 behandling = behandling,
                 resultat = Resultat.OPPFYLT,
-                regelsett = VilkårRegelsett.LOV_AUGUST_2021,
             )
 
         val personResultat =
@@ -68,14 +66,13 @@ class UtbetalingsperiodeMedBegrunnelserServiceTest {
                     begrunnelse = "",
                     behandlingId = vilkårsvurdering.behandling.id,
                     utdypendeVilkårsvurderinger = emptyList(),
-                    regelsett = VilkårRegelsett.LOV_AUGUST_2021,
                 )
             }
 
         personResultat.setSortedVilkårResultater(vilkårResultater.toSet())
 
         val førskjøvetVilkårResultatTidslinjeMap =
-            setOf(personResultat).tilForskjøvetOppfylteVilkårResultatTidslinjeMap(personopplysningGrunnlag)
+            setOf(personResultat).tilForskjøvetOppfylteVilkårResultatTidslinjeMap(personopplysningGrunnlag, true)
 
         Assertions.assertEquals(1, førskjøvetVilkårResultatTidslinjeMap.size)
 
@@ -102,7 +99,6 @@ class UtbetalingsperiodeMedBegrunnelserServiceTest {
                 søkerAktør = søkerPerson.aktør,
                 behandling = behandling,
                 resultat = Resultat.OPPFYLT,
-                regelsett = VilkårRegelsett.LOV_AUGUST_2021,
             )
 
         val personResultat =
@@ -120,7 +116,6 @@ class UtbetalingsperiodeMedBegrunnelserServiceTest {
                             resultat = Resultat.OPPFYLT,
                             begrunnelse = "",
                             behandlingId = vilkårsvurdering.behandling.id,
-                            regelsett = VilkårRegelsett.LOV_AUGUST_2021,
                         ),
                         VilkårResultat(
                             personResultat = it,
@@ -131,14 +126,13 @@ class UtbetalingsperiodeMedBegrunnelserServiceTest {
                             begrunnelse = "",
                             behandlingId = vilkårsvurdering.behandling.id,
                             erEksplisittAvslagPåSøknad = true,
-                            regelsett = VilkårRegelsett.LOV_AUGUST_2021,
                         ),
                     ),
                 )
             }
 
         assertDoesNotThrow {
-            setOf(personResultat).tilForskjøvetOppfylteVilkårResultatTidslinjeMap(personopplysningGrunnlag)
+            setOf(personResultat).tilForskjøvetOppfylteVilkårResultatTidslinjeMap(personopplysningGrunnlag, true)
         }
     }
 }

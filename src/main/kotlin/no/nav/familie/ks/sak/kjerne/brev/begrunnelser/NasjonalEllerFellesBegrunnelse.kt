@@ -594,7 +594,125 @@ enum class NasjonalEllerFellesBegrunnelse : IBegrunnelse {
     FORTSATT_INNVILGET_MEDLEMSKAP_FOLKETRYGDEN_OG_EOS_LAND_DEN_ANDRE_FORELDEREN {
         override val begrunnelseType = BegrunnelseType.FORTSATT_INNVILGET
         override val sanityApiNavn = "fortsattInnvilgetMedlemskapFolketrygdenOgEosLandDenAndreForelderen"
-    }, ;
+    },
+
+    // Begrunnelser knyttet til lovendring 2024
+
+    INNVILGET_IKKE_BARNEHAGE_0824 {
+        override val sanityApiNavn = "innvilgetIkkeBarnehage0824"
+        override val begrunnelseType = BegrunnelseType.INNVILGET
+    },
+
+    INNVILGET_DELTIDSPLASS_BARNEHAGE_0824 {
+        override val sanityApiNavn = "innvilgetDeltidsplassBarnehage0824"
+        override val begrunnelseType = BegrunnelseType.INNVILGET
+    },
+
+    INNVILGET_MEDLEMSKAP_FOLKETRYGDEN_0824 {
+        override val sanityApiNavn = "innvilgetMedlemskapFolketrygden0824"
+        override val begrunnelseType = BegrunnelseType.INNVILGET
+    },
+
+    INNVILGET_MEDLEMSKAP_FOLKETRYGDEN_OG_EØS_LAND_0824 {
+        override val sanityApiNavn = "innvilgetMedlemskapFolketrygdenOgEosLand0824"
+        override val begrunnelseType = BegrunnelseType.INNVILGET
+    },
+
+    INNVILGET_MÅNEDEN_BARNET_ER_13_MÅNEDER_0824 {
+        override val sanityApiNavn = "innvilgetMaanedenBarneter13Maaneder0824"
+        override val begrunnelseType = BegrunnelseType.INNVILGET
+    },
+
+    INNVILGET_MÅNEDEN_BARNET_SLUTTET_I_BARNEHAGE_0824 {
+        override val sanityApiNavn = "innvilgetMaanedenBarnetSluttetIBarnehage0824"
+        override val begrunnelseType = BegrunnelseType.INNVILGET
+    },
+
+    INNVILGET_BOR_FAST_HOS_SØKER_0824 {
+        override val sanityApiNavn = "innvilgetBorFastHosSoker0824"
+        override val begrunnelseType = BegrunnelseType.INNVILGET
+    },
+
+    INNVILGET_BOSATT_I_NORGE_0824 {
+        override val sanityApiNavn = "innvilgetBosattINorge0824"
+        override val begrunnelseType = BegrunnelseType.INNVILGET
+    },
+
+    INNVILGET_DELT_BOSTED_SØKNAD_0824 {
+        override val sanityApiNavn = "innvilgetDeltBostedSoknad0824"
+        override val begrunnelseType = BegrunnelseType.INNVILGET
+    },
+
+    INNVILGET_DELT_BOSTED_ENIGHET_0824 {
+        override val sanityApiNavn = "innvilgetDeltBostedEnighet0824"
+        override val begrunnelseType = BegrunnelseType.INNVILGET
+    },
+
+    INNVILGET_MÅNEDEN_FORELDREPENGER_UTLØPER_0824 {
+        override val sanityApiNavn = "innvilgetMaanedenForeldrepengerUtloper0824"
+        override val begrunnelseType = BegrunnelseType.INNVILGET
+    },
+
+    INNVILGET_TREDJELANDSBORGER_MED_LOVLIG_OPPHOLD_SAMTIDIG_SOM_BOSATT_I_NORGE_0824 {
+        override val sanityApiNavn = "innvilgetTredjelandsborgerMedLovligOppholdSamtidigSomBosattINorge0824"
+        override val begrunnelseType = BegrunnelseType.INNVILGET
+    },
+
+    INNVILGET_TREDJELANDSBORGER_LOVLIG_OPPHOLD_FOR_BOSATT_I_NORGE_0824 {
+        override val sanityApiNavn = "innvilgetTredjelandsborgerLovligOppholdForBosattINorge0824"
+        override val begrunnelseType = BegrunnelseType.INNVILGET
+    },
+
+    INNVILGET_TREDJELANDSBORGER_BOSATT_FOR_LOVLIG_OPPHOLD_I_NORGE_0824 {
+        override val sanityApiNavn = "innvilgetTredjelandsborgerBosattForLovligOppholdINorge0824"
+        override val begrunnelseType = BegrunnelseType.INNVILGET
+    },
+
+    INNVILGET_VURDERING_BOR_FAST_HOS_SØKER_0824 {
+        override val sanityApiNavn = "innvilgetVurderingBorFastHosSoker0824"
+        override val begrunnelseType = BegrunnelseType.INNVILGET
+    },
+
+    INNVILGET_RETTSAVGJØRELSE_BOR_FAST_HOS_SØKER_0824 {
+        override val sanityApiNavn = "innvilgetRettsavgjorelseBorFastHosSoker0824"
+        override val begrunnelseType = BegrunnelseType.INNVILGET
+    },
+
+    INNVILGET_BOSATT_ETTER_UTENLANDSOPPHOLD_0824 {
+        override val sanityApiNavn = "innvilgetBosattEtterUtenlandsopphold0824"
+        override val begrunnelseType = BegrunnelseType.INNVILGET
+    },
+
+    REDUKSJON_BARN_HAR_FYLT_19_MÅNEDER_0824 {
+        override val sanityApiNavn = "reduksjonBarnHarFylt19Maaneder0824"
+        override val begrunnelseType = BegrunnelseType.REDUKSJON
+    },
+
+    REDUKSJON_ADOPSJON_MOTTATT_KONTANTSTØTTE_I_7_MÅNEDER_0824 {
+        override val sanityApiNavn = "reduksjonAdopsjonMottattKontantstotteI7Maaneder0824"
+        override val begrunnelseType = BegrunnelseType.REDUKSJON
+    },
+
+    OPPHØR_BARN_OVER_19_MND_0824 {
+        override val sanityApiNavn = "opphorBarnOver19Mnd0824"
+        override val begrunnelseType = BegrunnelseType.OPPHØR
+    },
+
+    OPPHØR_MOTTATT_I_7_MND_0824 {
+        override val sanityApiNavn = "opphorMottattI7Mnd0824"
+        override val begrunnelseType = BegrunnelseType.OPPHØR
+    },
+
+    AVSLAG_BARN_OVER_19_MND_0824 {
+        override val sanityApiNavn = "avslagBarnOver19Mnd0824"
+        override val begrunnelseType = BegrunnelseType.AVSLAG
+    },
+
+    AVSLAG_MOTTATT_I_7_MÅNEDER_0824 {
+        override val sanityApiNavn = "avslagMottattI7Maaneder0824"
+        override val begrunnelseType = BegrunnelseType.AVSLAG
+    },
+    ;
 
     @JsonValue
     override fun enumnavnTilString() = NasjonalEllerFellesBegrunnelse::class.simpleName + "$" + this.name

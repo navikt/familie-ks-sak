@@ -15,6 +15,8 @@ import no.nav.familie.ks.sak.common.util.storForbokstav
 import no.nav.familie.ks.sak.common.util.tilMånedÅr
 import no.nav.familie.ks.sak.common.util.toLocalDate
 import no.nav.familie.ks.sak.common.util.toYearMonth
+import no.nav.familie.ks.sak.config.featureToggle.FeatureToggleConfig
+import no.nav.familie.ks.sak.config.featureToggle.UnleashNextMedContextService
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
 import no.nav.familie.ks.sak.integrasjon.sanity.SanityService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
@@ -68,6 +70,7 @@ class VedtaksperiodeService(
     private val integrasjonClient: IntegrasjonClient,
     private val refusjonEøsRepository: RefusjonEøsRepository,
     private val kompetanseService: KompetanseService,
+    private val unleashNextMedContextService: UnleashNextMedContextService,
 ) {
     fun oppdaterVedtaksperiodeMedFritekster(
         vedtaksperiodeId: Long,
@@ -164,6 +167,8 @@ class VedtaksperiodeService(
         val vilkårsvurdering =
             vilkårsvurderingRepository.finnAktivForBehandling(behandlingId = behandlingId) ?: return null
 
+        val erToggleForLovendringAugust2024På = unleashNextMedContextService.isEnabled(FeatureToggleConfig.LOV_ENDRING_7_MND_NYE_BEHANDLINGER)
+
         return vilkårsvurdering.personResultater.mapNotNull { personResultat ->
 
             val vilkårResultaterForAktørSomAlltidSkalKunneBegrunnes =
@@ -175,8 +180,8 @@ class VedtaksperiodeService(
                     .mapValues { it.value }
 
             vilkårResultaterForAktørMapSomAlltidSkalKunneBegrunnes.flatMap { (vilkårType, vilkårResultater) ->
-                forskyvVilkårResultater(vilkårType, vilkårResultater).tilTidslinje().tilPerioderIkkeNull()
-            }.mapNotNull { it.tom }.maxOfOrNull { it }
+                forskyvVilkårResultater(vilkårType, vilkårResultater, erToggleForLovendringAugust2024På).tilTidslinje().tilPerioderIkkeNull()
+            }.mapNotNull { it.verdi.periodeTom }.maxOfOrNull { it }
         }.maxOfOrNull { it }
     }
 
@@ -432,6 +437,8 @@ class VedtaksperiodeService(
                         )
                     }
 
+                val erToggleForLovendringAugust2024På = unleashNextMedContextService.isEnabled(FeatureToggleConfig.LOV_ENDRING_7_MND_NYE_BEHANDLINGER)
+
                 utvidetVedtaksperiodeMedBegrunnelser.copy(
                     gyldigeBegrunnelser =
                         BegrunnelserForPeriodeContext(
@@ -443,6 +450,7 @@ class VedtaksperiodeService(
                             erFørsteVedtaksperiode = erFørsteVedtaksperiodePåFagsak,
                             kompetanser = utfylteKompetanser,
                             andelerTilkjentYtelse = andeler,
+                            erToggleForLovendringAugust2024På = erToggleForLovendringAugust2024På,
                         ).hentGyldigeBegrunnelserForVedtaksperiode(),
                 )
             }

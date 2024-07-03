@@ -10,10 +10,8 @@ import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagInitieltTilkjentYtelse
 import no.nav.familie.ks.sak.data.lagPerson
 import no.nav.familie.ks.sak.data.lagPersonopplysningGrunnlag
-import no.nav.familie.ks.sak.data.lagVilkårsvurderingOppfylt
 import no.nav.familie.ks.sak.data.randomAktør
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårRegelsett
 import no.nav.familie.ks.sak.kjerne.beregning.TilkjentYtelseValidator.finnAktørIderMedUgyldigEtterbetalingsperiode
 import no.nav.familie.ks.sak.kjerne.beregning.TilkjentYtelseValidator.validerAtBarnIkkeFårFlereUtbetalingerSammePeriode
 import no.nav.familie.ks.sak.kjerne.beregning.TilkjentYtelseValidator.validerAtTilkjentYtelseHarFornuftigePerioderOgBeløp
@@ -36,9 +34,9 @@ internal class TilkjentYtelseValidatorTest {
         lagPersonopplysningGrunnlag(
             behandlingId = behandling.id,
             søkerPersonIdent = søker.aktør.aktivFødselsnummer(),
-            barnasIdenter = listOf(barn.aktør.aktivFødselsnummer()),
+            barnasIdenter = listOf(barn.aktør.aktivFødselsnummer(), barn2.aktør.aktivFødselsnummer()),
             søkerAktør = søker.aktør,
-            barnAktør = listOf(barn.aktør),
+            barnAktør = listOf(barn.aktør, barn2.aktør),
         )
     private val tilkjentYtelse = lagInitieltTilkjentYtelse(behandling)
 
@@ -67,7 +65,7 @@ internal class TilkjentYtelseValidatorTest {
                 validerAtTilkjentYtelseHarFornuftigePerioderOgBeløp(
                     tilkjentYtelse = tilkjentYtelse,
                     personopplysningGrunnlag = personopplysningGrunnlag,
-                    vilkårsvurdering = lagVilkårsvurderingOppfylt(personer = listOf(barn, søker), regelsett = VilkårRegelsett.LOV_AUGUST_2021),
+                    erToggleForLovendringAugust2024På = true,
                 )
             }
         val feilmelding =
@@ -79,22 +77,24 @@ internal class TilkjentYtelseValidatorTest {
     }
 
     @Test
-    fun `validerAtTilkjentYtelseHarFornuftigePerioderOgBeløp skal kaste feil når utbetalingsperiode er mer enn 7 måneder når regelsett er satt til LOV_AUG_2024`() {
+    fun `validerAtTilkjentYtelseHarFornuftigePerioderOgBeløp skal kaste feil når utbetalingsperiode er mer enn 7 måneder når barn er født i 2023 og treffes av nytt lovverk fra august 2024`() {
+        val barnFødtIJanuar2023 = lagPerson(personType = PersonType.BARN, aktør = randomAktør("01012312345"))
+
         val andelTilkjentYtelse1 =
             lagAndelTilkjentYtelse(
                 tilkjentYtelse = tilkjentYtelse,
                 behandling = behandling,
-                aktør = barn.aktør,
-                stønadFom = YearMonth.now().minusMonths(10),
-                stønadTom = YearMonth.now().minusMonths(4),
+                aktør = barnFødtIJanuar2023.aktør,
+                stønadFom = YearMonth.of(2024, 2),
+                stønadTom = YearMonth.of(2024, 5),
             )
         val andelTilkjentYtelse2 =
             lagAndelTilkjentYtelse(
                 tilkjentYtelse = tilkjentYtelse,
                 behandling = behandling,
-                aktør = barn.aktør,
-                stønadFom = YearMonth.now().minusMonths(3),
-                stønadTom = YearMonth.now().plusMonths(6),
+                aktør = barnFødtIJanuar2023.aktør,
+                stønadFom = YearMonth.of(2024, 6),
+                stønadTom = YearMonth.of(2024, 9),
             )
         tilkjentYtelse.andelerTilkjentYtelse.addAll(setOf(andelTilkjentYtelse1, andelTilkjentYtelse2))
 
@@ -102,12 +102,56 @@ internal class TilkjentYtelseValidatorTest {
             assertThrows<FunksjonellFeil> {
                 validerAtTilkjentYtelseHarFornuftigePerioderOgBeløp(
                     tilkjentYtelse = tilkjentYtelse,
-                    personopplysningGrunnlag = personopplysningGrunnlag,
-                    vilkårsvurdering = lagVilkårsvurderingOppfylt(personer = listOf(barn, søker), regelsett = VilkårRegelsett.LOV_AUGUST_2024),
+                    personopplysningGrunnlag =
+                        lagPersonopplysningGrunnlag(
+                            behandlingId = behandling.id,
+                            søkerPersonIdent = søker.aktør.aktivFødselsnummer(),
+                            barnasIdenter = listOf(barnFødtIJanuar2023.aktør.aktivFødselsnummer()),
+                            søkerAktør = søker.aktør,
+                            barnAktør = listOf(barnFødtIJanuar2023.aktør),
+                        ),
+                    erToggleForLovendringAugust2024På = true,
                 )
             }
         val feilmelding =
-            "Kontantstøtte kan maks utbetales for 7 måneder. Du er i ferd med å utbetale mer enn dette for barn med fnr ${barn.aktør.aktivFødselsnummer()}. " +
+            "Kontantstøtte kan maks utbetales for 7 måneder. Du er i ferd med å utbetale mer enn dette for barn med fnr ${barnFødtIJanuar2023.aktør.aktivFødselsnummer()}. " +
+                "Kontroller datoene på vilkårene eller ta kontakt med Team BAKS"
+
+        assertEquals(feilmelding, exception.frontendFeilmelding)
+        assertEquals(feilmelding, exception.message)
+    }
+
+    @Test
+    fun `validerAtTilkjentYtelseHarFornuftigePerioderOgBeløp skal kaste feil når utbetalingsperiode er mer enn 11 måneder når barn er født før september 2022 og kun treffes av gammelt lovverk`() {
+        val barnFødtIAugust2022 = lagPerson(personType = PersonType.BARN, aktør = randomAktør("01082212345"))
+
+        val andelTilkjentYtelse1 =
+            lagAndelTilkjentYtelse(
+                tilkjentYtelse = tilkjentYtelse,
+                behandling = behandling,
+                aktør = barnFødtIAugust2022.aktør,
+                stønadFom = YearMonth.of(2023, 9),
+                stønadTom = YearMonth.of(2024, 8),
+            )
+        tilkjentYtelse.andelerTilkjentYtelse.addAll(setOf(andelTilkjentYtelse1))
+
+        val exception =
+            assertThrows<FunksjonellFeil> {
+                validerAtTilkjentYtelseHarFornuftigePerioderOgBeløp(
+                    tilkjentYtelse = tilkjentYtelse,
+                    personopplysningGrunnlag =
+                        lagPersonopplysningGrunnlag(
+                            behandlingId = behandling.id,
+                            søkerPersonIdent = søker.aktør.aktivFødselsnummer(),
+                            barnasIdenter = listOf(barnFødtIAugust2022.aktør.aktivFødselsnummer()),
+                            søkerAktør = søker.aktør,
+                            barnAktør = listOf(barnFødtIAugust2022.aktør),
+                        ),
+                    erToggleForLovendringAugust2024På = true,
+                )
+            }
+        val feilmelding =
+            "Kontantstøtte kan maks utbetales for 11 måneder. Du er i ferd med å utbetale mer enn dette for barn med fnr ${barnFødtIAugust2022.aktør.aktivFødselsnummer()}. " +
                 "Kontroller datoene på vilkårene eller ta kontakt med Team BAKS"
 
         assertEquals(feilmelding, exception.frontendFeilmelding)
@@ -138,7 +182,7 @@ internal class TilkjentYtelseValidatorTest {
             validerAtTilkjentYtelseHarFornuftigePerioderOgBeløp(
                 tilkjentYtelse = tilkjentYtelse,
                 personopplysningGrunnlag = personopplysningGrunnlag,
-                vilkårsvurdering = lagVilkårsvurderingOppfylt(personer = listOf(barn2, barn, søker), regelsett = VilkårRegelsett.LOV_AUGUST_2021),
+                erToggleForLovendringAugust2024På = true,
             )
         }
     }
@@ -164,7 +208,7 @@ internal class TilkjentYtelseValidatorTest {
                 validerAtTilkjentYtelseHarFornuftigePerioderOgBeløp(
                     tilkjentYtelse = tilkjentYtelse,
                     personopplysningGrunnlag = personopplysningGrunnlag,
-                    vilkårsvurdering = lagVilkårsvurderingOppfylt(personer = listOf(barn, søker), regelsett = VilkårRegelsett.LOV_AUGUST_2021),
+                    erToggleForLovendringAugust2024På = true,
                 )
             }
 
@@ -191,7 +235,7 @@ internal class TilkjentYtelseValidatorTest {
                 validerAtTilkjentYtelseHarFornuftigePerioderOgBeløp(
                     tilkjentYtelse = tilkjentYtelse,
                     personopplysningGrunnlag = personopplysningGrunnlag,
-                    vilkårsvurdering = lagVilkårsvurderingOppfylt(personer = listOf(barn, søker), regelsett = VilkårRegelsett.LOV_AUGUST_2021),
+                    erToggleForLovendringAugust2024På = true,
                 )
             }
 

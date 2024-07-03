@@ -18,7 +18,6 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Reg
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.UtdypendeVilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårRegelsett
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
 import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.Årsak
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.KompetanseAktivitet
@@ -60,6 +59,7 @@ class BehandlingsresultatEndringUtilsTest {
                 forrigeEndretAndeler = emptyList(),
                 personerIBehandling = emptySet(),
                 personerIForrigeBehandling = emptySet(),
+                erToggleForLovendringAugust2024På = true,
             )
 
         assertThat(endringsresultat, Is(Endringsresultat.INGEN_ENDRING))
@@ -90,6 +90,7 @@ class BehandlingsresultatEndringUtilsTest {
                 forrigeEndretAndeler = emptyList(),
                 personerIBehandling = setOf(person),
                 personerIForrigeBehandling = setOf(person),
+                erToggleForLovendringAugust2024På = true,
             )
 
         assertThat(endringsresultat, Is(Endringsresultat.ENDRING))
@@ -130,7 +131,6 @@ class BehandlingsresultatEndringUtilsTest {
                             UtdypendeVilkårsvurdering.BARN_BOR_I_NORGE,
                         ),
                     vurderesEtter = Regelverk.NASJONALE_REGLER,
-                    regelsett = VilkårRegelsett.LOV_AUGUST_2021,
                 ),
             )
 
@@ -149,7 +149,6 @@ class BehandlingsresultatEndringUtilsTest {
                             UtdypendeVilkårsvurdering.BARN_BOR_I_NORGE,
                         ),
                     vurderesEtter = Regelverk.EØS_FORORDNINGEN,
-                    regelsett = VilkårRegelsett.LOV_AUGUST_2021,
                 ),
             )
 
@@ -182,6 +181,7 @@ class BehandlingsresultatEndringUtilsTest {
                 forrigeEndretAndeler = emptyList(),
                 personerIBehandling = setOf(barn),
                 personerIForrigeBehandling = setOf(barn),
+                erToggleForLovendringAugust2024På = true,
             )
 
         assertThat(endringsresultat, Is(Endringsresultat.ENDRING))
@@ -225,6 +225,7 @@ class BehandlingsresultatEndringUtilsTest {
                 forrigeEndretAndeler = emptyList(),
                 personerIBehandling = setOf(barnPerson),
                 personerIForrigeBehandling = setOf(barnPerson),
+                erToggleForLovendringAugust2024På = true,
             )
 
         assertThat(endringsresultat, Is(Endringsresultat.ENDRING))
@@ -257,6 +258,7 @@ class BehandlingsresultatEndringUtilsTest {
                 nåværendeEndretAndeler = listOf(forrigeEndretAndel.copy(årsak = Årsak.ALLEREDE_UTBETALT)),
                 personerIBehandling = setOf(barn),
                 personerIForrigeBehandling = setOf(barn),
+                erToggleForLovendringAugust2024På = true,
             )
 
         assertThat(endringsresultat, Is(Endringsresultat.ENDRING))
@@ -1027,7 +1029,6 @@ class BehandlingsresultatEndringUtilsTest {
                             UtdypendeVilkårsvurdering.BARN_BOR_I_NORGE,
                         ),
                     vurderesEtter = Regelverk.NASJONALE_REGLER,
-                    regelsett = VilkårRegelsett.LOV_AUGUST_2021,
                 ),
                 VilkårResultat(
                     behandlingId = 0,
@@ -1042,7 +1043,6 @@ class BehandlingsresultatEndringUtilsTest {
                             UtdypendeVilkårsvurdering.BARN_BOR_I_NORGE,
                         ),
                     vurderesEtter = Regelverk.NASJONALE_REGLER,
-                    regelsett = VilkårRegelsett.LOV_AUGUST_2021,
                 ),
             )
 
@@ -1061,7 +1061,6 @@ class BehandlingsresultatEndringUtilsTest {
                             UtdypendeVilkårsvurdering.BARN_BOR_I_NORGE,
                         ),
                     vurderesEtter = Regelverk.NASJONALE_REGLER,
-                    regelsett = VilkårRegelsett.LOV_AUGUST_2021,
                 ),
                 VilkårResultat(
                     behandlingId = 0,
@@ -1076,7 +1075,6 @@ class BehandlingsresultatEndringUtilsTest {
                             UtdypendeVilkårsvurdering.BARN_BOR_I_NORGE,
                         ),
                     vurderesEtter = Regelverk.NASJONALE_REGLER,
-                    regelsett = VilkårRegelsett.LOV_AUGUST_2021,
                 ),
             )
 
@@ -1086,6 +1084,7 @@ class BehandlingsresultatEndringUtilsTest {
             erEndringIVilkårsvurderingForPerson(
                 nåværendePersonResultaterForPerson = setOf(lagPersonResultatFraVilkårResultater(nåværendeVilkårResultat, aktør)),
                 forrigePersonResultaterForPerson = setOf(lagPersonResultatFraVilkårResultater(forrigeVilkårResultat, aktør)),
+                erToggleForLovendringAugust2024På = true,
             )
 
         assertThat(erEndringIVilkårvurderingForPerson, Is(false))
@@ -1109,7 +1108,6 @@ class BehandlingsresultatEndringUtilsTest {
                             UtdypendeVilkårsvurdering.BARN_BOR_I_NORGE,
                         ),
                     vurderesEtter = Regelverk.NASJONALE_REGLER,
-                    regelsett = VilkårRegelsett.LOV_AUGUST_2021,
                 ),
             )
 
@@ -1128,7 +1126,6 @@ class BehandlingsresultatEndringUtilsTest {
                             UtdypendeVilkårsvurdering.BARN_BOR_I_NORGE,
                         ),
                     vurderesEtter = Regelverk.EØS_FORORDNINGEN,
-                    regelsett = VilkårRegelsett.LOV_AUGUST_2021,
                 ),
             )
 
@@ -1138,6 +1135,7 @@ class BehandlingsresultatEndringUtilsTest {
             erEndringIVilkårsvurderingForPerson(
                 nåværendePersonResultaterForPerson = setOf(lagPersonResultatFraVilkårResultater(nåværendeVilkårResultat, aktør)),
                 forrigePersonResultaterForPerson = setOf(lagPersonResultatFraVilkårResultater(forrigeVilkårResultat, aktør)),
+                erToggleForLovendringAugust2024På = true,
             )
 
         assertThat(erEndringIVilkårvurderingForPerson, Is(true))
@@ -1161,7 +1159,6 @@ class BehandlingsresultatEndringUtilsTest {
                             UtdypendeVilkårsvurdering.VURDERING_ANNET_GRUNNLAG,
                         ),
                     vurderesEtter = Regelverk.NASJONALE_REGLER,
-                    regelsett = VilkårRegelsett.LOV_AUGUST_2021,
                 ),
             )
 
@@ -1180,7 +1177,6 @@ class BehandlingsresultatEndringUtilsTest {
                             UtdypendeVilkårsvurdering.BARN_BOR_I_NORGE,
                         ),
                     vurderesEtter = Regelverk.NASJONALE_REGLER,
-                    regelsett = VilkårRegelsett.LOV_AUGUST_2021,
                 ),
             )
 
@@ -1190,6 +1186,7 @@ class BehandlingsresultatEndringUtilsTest {
             erEndringIVilkårsvurderingForPerson(
                 nåværendePersonResultaterForPerson = setOf(lagPersonResultatFraVilkårResultater(nåværendeVilkårResultat, aktør)),
                 forrigePersonResultaterForPerson = setOf(lagPersonResultatFraVilkårResultater(forrigeVilkårResultat, aktør)),
+                erToggleForLovendringAugust2024På = true,
             )
 
         assertThat(erEndringIVilkårvurderingForPerson, Is(true))
@@ -1210,7 +1207,6 @@ class BehandlingsresultatEndringUtilsTest {
                     begrunnelse = "",
                     utdypendeVilkårsvurderinger = listOf(),
                     vurderesEtter = Regelverk.NASJONALE_REGLER,
-                    regelsett = VilkårRegelsett.LOV_AUGUST_2021,
                 ),
             )
 
@@ -1226,7 +1222,6 @@ class BehandlingsresultatEndringUtilsTest {
                     begrunnelse = "",
                     utdypendeVilkårsvurderinger = listOf(),
                     vurderesEtter = Regelverk.NASJONALE_REGLER,
-                    regelsett = VilkårRegelsett.LOV_AUGUST_2021,
                 ),
                 VilkårResultat(
                     behandlingId = 0,
@@ -1238,7 +1233,6 @@ class BehandlingsresultatEndringUtilsTest {
                     begrunnelse = "",
                     utdypendeVilkårsvurderinger = listOf(),
                     vurderesEtter = Regelverk.NASJONALE_REGLER,
-                    regelsett = VilkårRegelsett.LOV_AUGUST_2021,
                 ),
             )
 
@@ -1248,6 +1242,7 @@ class BehandlingsresultatEndringUtilsTest {
             erEndringIVilkårsvurderingForPerson(
                 nåværendePersonResultaterForPerson = setOf(lagPersonResultatFraVilkårResultater(nåværendeVilkårResultat, aktør)),
                 forrigePersonResultaterForPerson = setOf(lagPersonResultatFraVilkårResultater(forrigeVilkårResultat, aktør)),
+                erToggleForLovendringAugust2024På = true,
             )
 
         assertThat(erEndringIVilkårvurderingForPerson, Is(true))
@@ -1271,7 +1266,6 @@ class BehandlingsresultatEndringUtilsTest {
                             UtdypendeVilkårsvurdering.BARN_BOR_I_NORGE,
                         ),
                     vurderesEtter = Regelverk.NASJONALE_REGLER,
-                    regelsett = VilkårRegelsett.LOV_AUGUST_2021,
                 ),
             )
 
@@ -1290,7 +1284,6 @@ class BehandlingsresultatEndringUtilsTest {
                             UtdypendeVilkårsvurdering.BARN_BOR_I_NORGE,
                         ),
                     vurderesEtter = Regelverk.NASJONALE_REGLER,
-                    regelsett = VilkårRegelsett.LOV_AUGUST_2021,
                 ),
             )
 
@@ -1300,6 +1293,7 @@ class BehandlingsresultatEndringUtilsTest {
             erEndringIVilkårsvurderingForPerson(
                 nåværendePersonResultaterForPerson = setOf(lagPersonResultatFraVilkårResultater(nåværendeVilkårResultat, aktør)),
                 forrigePersonResultaterForPerson = setOf(lagPersonResultatFraVilkårResultater(forrigeVilkårResultat, aktør)),
+                erToggleForLovendringAugust2024På = true,
             )
 
         assertThat(erEndringIVilkårvurderingForPerson, Is(false))
@@ -1310,7 +1304,11 @@ class BehandlingsresultatEndringUtilsTest {
         aktør: Aktør,
     ): PersonResultat {
         val vilkårsvurdering =
-            lagVilkårsvurdering(behandling = lagBehandling(), resultat = Resultat.OPPFYLT, søkerAktør = randomAktør(), regelsett = VilkårRegelsett.LOV_AUGUST_2021)
+            lagVilkårsvurdering(
+                behandling = lagBehandling(),
+                resultat = Resultat.OPPFYLT,
+                søkerAktør = randomAktør(),
+            )
         val personResultat = PersonResultat(vilkårsvurdering = vilkårsvurdering, aktør = aktør)
 
         personResultat.setSortedVilkårResultater(vilkårResultater)

@@ -21,7 +21,6 @@ import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelseType
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårRegelsett
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårsvurderingRepository
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.BegrunnelseType
@@ -158,7 +157,6 @@ class VilkårsvurderingServiceTest {
                 søkerAktør = søker,
                 behandling = behandling,
                 resultat = Resultat.OPPFYLT,
-                regelsett = VilkårRegelsett.LOV_AUGUST_2021,
             )
         every { personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(any()) } returns
             lagPersonopplysningGrunnlag(
@@ -237,7 +235,6 @@ class VilkårsvurderingServiceTest {
                 søkerAktør = søker,
                 behandling = behandling,
                 resultat = Resultat.OPPFYLT,
-                regelsett = VilkårRegelsett.LOV_AUGUST_2021,
             )
 
         every { personidentService.hentAktør(any()) } returns søker
