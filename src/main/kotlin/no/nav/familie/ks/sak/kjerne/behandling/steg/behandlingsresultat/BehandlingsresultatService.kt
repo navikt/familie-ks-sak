@@ -36,7 +36,9 @@ class BehandlingsresultatService(
     private val unleashNextMedContextService: UnleashNextMedContextService,
 ) {
     internal fun utledBehandlingsresultat(behandlingId: Long): Behandlingsresultat {
+        val erToggleForLovendringAugust2024På = unleashNextMedContextService.isEnabled(FeatureToggleConfig.LOV_ENDRING_7_MND_NYE_BEHANDLINGER)
         val behandling = behandlingService.hentBehandling(behandlingId)
+
         val forrigeBehandling = behandlingService.hentSisteBehandlingSomErVedtatt(fagsakId = behandling.fagsak.id)
 
         val søknadGrunnlag = søknadGrunnlagService.finnAktiv(behandlingId = behandling.id)
@@ -86,7 +88,6 @@ class BehandlingsresultatService(
             if (forrigeBehandling != null) {
                 val kompetanser = kompetanseService.hentKompetanser(behandlingId = BehandlingId(behandlingId))
                 val forrigeKompetanser = kompetanseService.hentKompetanser(behandlingId = BehandlingId(forrigeBehandling.id))
-                val erToggleForLovendringAugust2024På = unleashNextMedContextService.isEnabled(FeatureToggleConfig.LOV_ENDRING_7_MND_NYE_BEHANDLINGER)
 
                 BehandlingsresultatEndringUtils.utledEndringsresultat(
                     nåværendeAndeler = andelerTilkjentYtelse,
@@ -116,6 +117,7 @@ class BehandlingsresultatService(
                 nåværendePersonResultaterPåBarn = nåværendePersonResultat.filter { !it.erSøkersResultater() },
                 forrigePersonResultaterPåBarn = forrigePersonResultat.filter { !it.erSøkersResultater() },
                 nåMåned = localDateProvider.now().toYearMonth(),
+                erToggleForLovendringAugust2024På = erToggleForLovendringAugust2024På,
             )
 
         // KOMBINER
