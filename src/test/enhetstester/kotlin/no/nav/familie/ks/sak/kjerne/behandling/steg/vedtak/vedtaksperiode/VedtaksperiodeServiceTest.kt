@@ -13,6 +13,8 @@ import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.util.MånedPeriode
 import no.nav.familie.ks.sak.common.util.TIDENES_MORGEN
 import no.nav.familie.ks.sak.common.util.førsteDagIInneværendeMåned
+import no.nav.familie.ks.sak.config.featureToggle.FeatureToggleConfig
+import no.nav.familie.ks.sak.config.featureToggle.UnleashNextMedContextService
 import no.nav.familie.ks.sak.data.lagAndelTilkjentYtelse
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagInitieltTilkjentYtelse
@@ -35,7 +37,6 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.utbeta
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.PersonResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårRegelsett
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårsvurderingRepository
@@ -101,6 +102,9 @@ internal class VedtaksperiodeServiceTest {
 
     @MockK(relaxed = true)
     private lateinit var kompetanseService: KompetanseService
+
+    @MockK
+    private lateinit var unleashNextMedContextService: UnleashNextMedContextService
 
     @InjectMockKs
     private lateinit var vedtaksperiodeService: VedtaksperiodeService
@@ -510,7 +514,6 @@ internal class VedtaksperiodeServiceTest {
                     periodeTom = LocalDate.of(2022, 12, 12),
                     begrunnelse = "",
                     behandlingId = behandling.id,
-                    regelsett = VilkårRegelsett.LOV_AUGUST_2021,
                 ),
                 VilkårResultat(
                     personResultat = barnPersonResultat,
@@ -520,7 +523,6 @@ internal class VedtaksperiodeServiceTest {
                     periodeTom = LocalDate.of(2026, 12, 12),
                     begrunnelse = "",
                     behandlingId = behandling.id,
-                    regelsett = VilkårRegelsett.LOV_AUGUST_2021,
                 ),
             ),
         )
@@ -534,7 +536,6 @@ internal class VedtaksperiodeServiceTest {
                     periodeTom = LocalDate.of(2022, 12, 12),
                     begrunnelse = "",
                     behandlingId = behandling.id,
-                    regelsett = VilkårRegelsett.LOV_AUGUST_2021,
                 ),
                 VilkårResultat(
                     personResultat = barnPersonResultat2,
@@ -544,18 +545,18 @@ internal class VedtaksperiodeServiceTest {
                     periodeTom = LocalDate.of(2027, 12, 12),
                     begrunnelse = "",
                     behandlingId = behandling.id,
-                    regelsett = VilkårRegelsett.LOV_AUGUST_2021,
                 ),
             ),
         )
         vilkårsvurdering.personResultater = setOf(barnPersonResultat, barnPersonResultat2)
 
         every { vilkårsvurderingRepository.finnAktivForBehandling(200) } returns vilkårsvurdering
+        every { unleashNextMedContextService.isEnabled(FeatureToggleConfig.LOV_ENDRING_7_MND_NYE_BEHANDLINGER) } returns true
 
         val finnSisteVedtaksperiodeVisningsdatoForBehandling =
             vedtaksperiodeService.finnSisteVedtaksperiodeVisningsdatoForBehandling(200)
 
-        assertThat(finnSisteVedtaksperiodeVisningsdatoForBehandling, Is(LocalDate.of(2027, 11, 30)))
+        assertThat(finnSisteVedtaksperiodeVisningsdatoForBehandling, Is(LocalDate.of(2027, 12, 12)))
 
         verify(exactly = 1) { vilkårsvurderingRepository.finnAktivForBehandling(200) }
     }
@@ -593,7 +594,6 @@ internal class VedtaksperiodeServiceTest {
                     periodeTom = LocalDate.of(2022, 12, 12),
                     begrunnelse = "",
                     behandlingId = behandling.id,
-                    regelsett = VilkårRegelsett.LOV_AUGUST_2021,
                 ),
                 VilkårResultat(
                     personResultat = personResultat,
@@ -603,13 +603,13 @@ internal class VedtaksperiodeServiceTest {
                     periodeTom = LocalDate.of(2026, 12, 12),
                     begrunnelse = "",
                     behandlingId = behandling.id,
-                    regelsett = VilkårRegelsett.LOV_AUGUST_2021,
                 ),
             ),
         )
         vilkårsvurdering.personResultater = setOf(personResultat)
 
         every { vilkårsvurderingRepository.finnAktivForBehandling(200) } returns vilkårsvurdering
+        every { unleashNextMedContextService.isEnabled(FeatureToggleConfig.LOV_ENDRING_7_MND_NYE_BEHANDLINGER) } returns true
 
         val finnSisteVedtaksperiodeVisningsdatoForBehandling =
             vedtaksperiodeService.finnSisteVedtaksperiodeVisningsdatoForBehandling(200)

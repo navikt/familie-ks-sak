@@ -14,7 +14,6 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Ann
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.PersonResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårRegelsett
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
 import org.hamcrest.MatcherAssert.assertThat
@@ -34,13 +33,15 @@ class OppdaterVilkårsvurderingTest {
                 barnasIdenter = listOf(barnPersonIdent),
             )
         val vilkårsvurderingForrigeBehandling =
-            lagVilkårsvurderingOppfylt(personer = listOf(persongrunnlag.søker, persongrunnlag.barna.single()), regelsett = VilkårRegelsett.LOV_AUGUST_2021)
+            lagVilkårsvurderingOppfylt(
+                personer = listOf(persongrunnlag.søker, persongrunnlag.barna.single()),
+            )
         val initiellVilkårsvurdering =
             genererInitiellVilkårsvurdering(
                 behandling = mockk(relaxed = true),
                 forrigeVilkårsvurdering = null,
                 personopplysningGrunnlag = persongrunnlag,
-                behandlingSkalFølgeNyeLovendringer2024 = false,
+                erToggleForLovendringAugust2024På = false,
             )
 
         initiellVilkårsvurdering.kopierResultaterFraForrigeBehandling(
@@ -79,7 +80,7 @@ class OppdaterVilkårsvurderingTest {
             lagPersonopplysningGrunnlag(
                 søkerPersonIdent = søkerPersonIdent,
             )
-        val vilkårsvurderingForrigeBehandling = lagVilkårsvurderingOppfylt(personer = listOf(persongrunnlag1.søker), regelsett = VilkårRegelsett.LOV_AUGUST_2021)
+        val vilkårsvurderingForrigeBehandling = lagVilkårsvurderingOppfylt(personer = listOf(persongrunnlag1.søker))
 
         val barnPersonIdent = randomFnr()
         val persongrunnlag2 =
@@ -92,7 +93,7 @@ class OppdaterVilkårsvurderingTest {
                 behandling = mockk(relaxed = true),
                 forrigeVilkårsvurdering = null,
                 personopplysningGrunnlag = persongrunnlag2,
-                behandlingSkalFølgeNyeLovendringer2024 = false,
+                erToggleForLovendringAugust2024På = false,
             )
 
         initiellVilkårsvurdering.kopierResultaterFraForrigeBehandling(
@@ -120,7 +121,7 @@ class OppdaterVilkårsvurderingTest {
                 behandling = mockk(relaxed = true),
                 forrigeVilkårsvurdering = null,
                 personopplysningGrunnlag = persongrunnlag2,
-                behandlingSkalFølgeNyeLovendringer2024 = false,
+                erToggleForLovendringAugust2024På = false,
             )
         val barnVilkårResultaterUendret =
             initiellVilkårsvurderingUendret.personResultater.single { it.aktør.aktivFødselsnummer() == barnPersonIdent }.vilkårResultater
@@ -144,7 +145,7 @@ class OppdaterVilkårsvurderingTest {
                 behandling = mockk(relaxed = true),
                 forrigeVilkårsvurdering = null,
                 personopplysningGrunnlag = persongrunnlagRevurdering,
-                behandlingSkalFølgeNyeLovendringer2024 = false,
+                erToggleForLovendringAugust2024På = false,
             )
 
         val persongrunnlagForrigeBehandling =
@@ -159,7 +160,6 @@ class OppdaterVilkårsvurderingTest {
                         persongrunnlagForrigeBehandling.søker,
                         persongrunnlagForrigeBehandling.barna.single(),
                     ),
-                regelsett = VilkårRegelsett.LOV_AUGUST_2021,
             )
 
         initiellVilkårsvurdering.kopierResultaterFraForrigeBehandling(
@@ -185,7 +185,7 @@ class OppdaterVilkårsvurderingTest {
                 behandling = nyBehandling,
                 forrigeVilkårsvurdering = null,
                 personopplysningGrunnlag = persongrunnlag,
-                behandlingSkalFølgeNyeLovendringer2024 = false,
+                erToggleForLovendringAugust2024På = false,
             )
         val vilkårsvurderingForrigeBehandling = Vilkårsvurdering(behandling = forrigeBehandling)
         val personResultat =
@@ -201,7 +201,6 @@ class OppdaterVilkårsvurderingTest {
                     resultat = Resultat.IKKE_OPPFYLT,
                     periodeFom = LocalDate.now().minusYears(2),
                     periodeTom = LocalDate.now().minusYears(1),
-                    regelsett = VilkårRegelsett.LOV_AUGUST_2021,
                 ),
             )
         personResultat.setSortedVilkårResultater(bosattIRiketVilkårResultater)
@@ -234,7 +233,6 @@ class OppdaterVilkårsvurderingTest {
                         lagPerson(personType = PersonType.SØKER, aktør = søkerAktørId),
                         lagPerson(personType = PersonType.BARN, aktør = randomAktør()),
                     ),
-                regelsett = VilkårRegelsett.LOV_AUGUST_2021,
             )
         val vilkårsvurderingForrigeBehandling = initiellVilkårsvurderingUtenAndreVurderinger.copy()
         vilkårsvurderingForrigeBehandling.personResultater.find { it.erSøkersResultater() }!!
@@ -267,7 +265,7 @@ class OppdaterVilkårsvurderingTest {
                 behandling = nyBehandling,
                 forrigeVilkårsvurdering = null,
                 personopplysningGrunnlag = persongrunnlag,
-                behandlingSkalFølgeNyeLovendringer2024 = false,
+                erToggleForLovendringAugust2024På = false,
             )
 
         val finnesEøsSpesifikkeVilkårIVilkårsvurdering = initiellVilkårsvurdering.personResultater.flatMap { it.vilkårResultater }.any { it.vilkårType.eøsSpesifikt }
@@ -286,14 +284,14 @@ class OppdaterVilkårsvurderingTest {
                 søkerPersonIdent = søkerFnr,
             )
 
-        val forrigeVilkårsvurdering = lagVilkårsvurderingOppfylt(personer = listOf(persongrunnlag.søker), skalOppretteEøsSpesifikkeVilkår = true, regelsett = VilkårRegelsett.LOV_AUGUST_2021)
+        val forrigeVilkårsvurdering = lagVilkårsvurderingOppfylt(personer = listOf(persongrunnlag.søker), skalOppretteEøsSpesifikkeVilkår = true)
 
         val initiellVilkårsvurdering =
             genererInitiellVilkårsvurdering(
                 behandling = nyBehandling,
                 forrigeVilkårsvurdering = forrigeVilkårsvurdering,
                 personopplysningGrunnlag = persongrunnlag,
-                behandlingSkalFølgeNyeLovendringer2024 = false,
+                erToggleForLovendringAugust2024På = false,
             )
 
         val finnesEøsSpesifikkeVilkårIVilkårsvurdering = initiellVilkårsvurdering.personResultater.flatMap { it.vilkårResultater }.any { it.vilkårType.eøsSpesifikt }
@@ -316,7 +314,7 @@ class OppdaterVilkårsvurderingTest {
                 behandling = nyBehandling,
                 forrigeVilkårsvurdering = null,
                 personopplysningGrunnlag = persongrunnlag,
-                behandlingSkalFølgeNyeLovendringer2024 = false,
+                erToggleForLovendringAugust2024På = false,
             )
 
         val finnesEøsSpesifikkeVilkårIVilkårsvurdering = initiellVilkårsvurdering.personResultater.flatMap { it.vilkårResultater }.any { it.vilkårType.eøsSpesifikt }

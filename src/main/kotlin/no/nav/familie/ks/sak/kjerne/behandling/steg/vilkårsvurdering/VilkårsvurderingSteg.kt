@@ -3,13 +3,18 @@ package no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering
 import no.nav.familie.ks.sak.api.dto.SøknadDto
 import no.nav.familie.ks.sak.api.mapper.SøknadGrunnlagMapper.tilSøknadDto
 import no.nav.familie.ks.sak.common.BehandlingId
-import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.common.tidslinje.TidslinjePeriodeMedDato
+import no.nav.familie.ks.sak.common.tidslinje.utvidelser.klipp
+import no.nav.familie.ks.sak.common.tidslinje.utvidelser.kombinerMed
 import no.nav.familie.ks.sak.common.tidslinje.validerIngenOverlapp
+import no.nav.familie.ks.sak.common.util.DATO_LOVENDRING_2024
 import no.nav.familie.ks.sak.common.util.TIDENES_ENDE
+import no.nav.familie.ks.sak.common.util.erSammeEllerEtter
 import no.nav.familie.ks.sak.common.util.sisteDagIMåned
 import no.nav.familie.ks.sak.common.util.slåSammen
+import no.nav.familie.ks.sak.config.featureToggle.FeatureToggleConfig
+import no.nav.familie.ks.sak.config.featureToggle.UnleashNextMedContextService
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingKategori
@@ -21,9 +26,8 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.registrersøknad.SøknadGrun
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Regelverk
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.UtdypendeVilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårRegelsett
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.hentRegelsettBruktIVilkår
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.validering.BarnetsVilkårValidator
 import no.nav.familie.ks.sak.kjerne.beregning.BeregningService
 import no.nav.familie.ks.sak.kjerne.beregning.tilPeriodeResultater
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.KompetanseService
@@ -44,6 +48,8 @@ class VilkårsvurderingSteg(
     private val vilkårsvurderingService: VilkårsvurderingService,
     private val beregningService: BeregningService,
     private val kompetanseService: KompetanseService,
+    private val barnetsVilkårValidator: BarnetsVilkårValidator,
+    private val unleashNextMedContextService: UnleashNextMedContextService,
 ) : IBehandlingSteg {
     override fun getBehandlingssteg(): BehandlingSteg = BehandlingSteg.VILKÅRSVURDERING
 
@@ -56,7 +62,9 @@ class VilkårsvurderingSteg(
         val søknadDto = søknadGrunnlagService.finnAktiv(behandlingId = behandling.id)?.tilSøknadDto()
         val vilkårsvurdering = vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(behandling.id)
 
-        validerVilkårsvurdering(vilkårsvurdering, personopplysningGrunnlag, søknadDto, behandling)
+        val erToggleForLovendringAugust2024På = unleashNextMedContextService.isEnabled(FeatureToggleConfig.LOV_ENDRING_7_MND_NYE_BEHANDLINGER)
+
+        validerVilkårsvurdering(vilkårsvurdering, personopplysningGrunnlag, søknadDto, behandling, erToggleForLovendringAugust2024På)
 
         settBehandlingstemaBasertPåVilkårsvurdering(behandling, vilkårsvurdering)
 
@@ -67,7 +75,8 @@ class VilkårsvurderingSteg(
         val finnesKompetanserEllerVilkårVurdertEtterEøs =
             vilkårsvurdering.personResultater.any {
                 it.vilkårResultater.any { vilkårResultat -> vilkårResultat.vurderesEtter == Regelverk.EØS_FORORDNINGEN }
-            } || kompetanseService.hentKompetanser(BehandlingId(behandlingId)).isNotEmpty()
+            } ||
+                kompetanseService.hentKompetanser(BehandlingId(behandlingId)).isNotEmpty()
 
         if (finnesKompetanserEllerVilkårVurdertEtterEøs) {
             logger.info("Oppretter/Tilpasser kompetanse perioder for behandlingId=$behandlingId")
@@ -80,7 +89,8 @@ class VilkårsvurderingSteg(
         nåværendeVilkårsvurdering: Vilkårsvurdering,
     ) {
         val nåværendeVilkårVurderesEtterEøs =
-            nåværendeVilkårsvurdering.personResultater.flatMap { it.vilkårResultater }
+            nåværendeVilkårsvurdering.personResultater
+                .flatMap { it.vilkårResultater }
                 .filter { it.behandlingId == nåværendeBehandling.id }
                 .any { it.vurderesEtter == Regelverk.EØS_FORORDNINGEN }
 
@@ -94,12 +104,13 @@ class VilkårsvurderingSteg(
 
                 // Vi sjekker om vi har løpende EØS vilkårresultater fra forrige behandling
                 val harLøpendeEøsUtbetalingIForrigeVedtattBehandling =
-                    vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(forrigeBehandling.id)
-                        .personResultater.flatMap { it.vilkårResultater }
+                    vilkårsvurderingService
+                        .hentAktivVilkårsvurderingForBehandling(forrigeBehandling.id)
+                        .personResultater
+                        .flatMap { it.vilkårResultater }
                         .filter {
                             (it.periodeTom ?: TIDENES_ENDE).isAfter(LocalDate.now().sisteDagIMåned())
-                        }
-                        .any { it.vurderesEtter == Regelverk.EØS_FORORDNINGEN }
+                        }.any { it.vurderesEtter == Regelverk.EØS_FORORDNINGEN }
 
                 if (harLøpendeEøsUtbetalingIForrigeVedtattBehandling) BehandlingKategori.EØS else BehandlingKategori.NASJONAL
             } ?: BehandlingKategori.NASJONAL
@@ -115,7 +126,13 @@ class VilkårsvurderingSteg(
         personopplysningGrunnlag: PersonopplysningGrunnlag,
         søknadGrunnlagDto: SøknadDto?,
         behandling: Behandling,
+        erToggleForLovendringAugust2024På: Boolean,
     ) {
+        val erFremtidigOpphørEtterLovendring2024 = vilkårsvurdering.personResultater.flatMap { it.vilkårResultater }.any { it.harMeldtBarnehageplassOgErFulltidIBarnehage() && (it.periodeTom ?: TIDENES_ENDE).erSammeEllerEtter(DATO_LOVENDRING_2024) }
+        if (erFremtidigOpphørEtterLovendring2024 && !erToggleForLovendringAugust2024På) {
+            throw FunksjonellFeil("Det er satt fremtidig opphør etter regelverksendring 01.08.24. Dette støttes ikke enda.")
+        }
+
         validerAtDetFinnesBarnIPersonopplysningsgrunnlaget(personopplysningGrunnlag, søknadGrunnlagDto, behandling)
         if (behandling.opprettetÅrsak == BehandlingÅrsak.DØDSFALL) {
             validerAtIngenVilkårErSattEtterSøkersDød(
@@ -124,12 +141,9 @@ class VilkårsvurderingSteg(
             )
         }
         validerAtDetIkkeErOverlappMellomGradertBarnehageplassOgDeltBosted(vilkårsvurdering)
-        validerAtPerioderIBarnehageplassSamsvarerMedPeriodeIBarnetsAlderVilkår(
-            vilkårsvurdering,
-            personopplysningGrunnlag,
-        )
+        validerAtPerioderIBarnehageplassSamsvarerMedPeriodeIBarnetsAlderVilkår(vilkårsvurdering)
         validerAtDetIkkeFinnesMerEnn2EndringerISammeMånedIBarnehageplassVilkår(vilkårsvurdering)
-        validerAtDatoErKorrektIBarnasVilkår(vilkårsvurdering, personopplysningGrunnlag.barna)
+        barnetsVilkårValidator.validerAtDatoErKorrektIBarnasVilkår(vilkårsvurdering, personopplysningGrunnlag.barna, erToggleForLovendringAugust2024På)
         validerIkkeBlandetRegelverk(personopplysningGrunnlag, vilkårsvurdering)
     }
 
@@ -182,84 +196,61 @@ class VilkårsvurderingSteg(
 
     private fun validerAtDetIkkeErOverlappMellomGradertBarnehageplassOgDeltBosted(vilkårsvurdering: Vilkårsvurdering) {
         vilkårsvurdering.personResultater.forEach {
-            it.vilkårResultater.filter { vilkårResultat ->
-                val gradertBarnehageplass =
-                    vilkårResultat.antallTimer != null &&
-                        vilkårResultat.antallTimer > BigDecimal(0) &&
-                        vilkårResultat.vilkårType == Vilkår.BARNEHAGEPLASS
+            it.vilkårResultater
+                .filter { vilkårResultat ->
+                    val gradertBarnehageplass =
+                        vilkårResultat.antallTimer != null &&
+                            vilkårResultat.antallTimer > BigDecimal(0) &&
+                            vilkårResultat.vilkårType == Vilkår.BARNEHAGEPLASS
 
-                val deltBosted =
-                    vilkårResultat.utdypendeVilkårsvurderinger.contains(UtdypendeVilkårsvurdering.DELT_BOSTED)
+                    val deltBosted =
+                        vilkårResultat.utdypendeVilkårsvurderinger.contains(UtdypendeVilkårsvurdering.DELT_BOSTED)
 
-                vilkårResultat.erOppfylt() && (gradertBarnehageplass || deltBosted)
-            }.map { vilkårResultat ->
-                TidslinjePeriodeMedDato(
-                    verdi = vilkårResultat,
-                    fom = vilkårResultat.periodeFom,
-                    tom = vilkårResultat.periodeTom,
-                )
-            }.validerIngenOverlapp("Det er lagt inn gradert barnehageplass og delt bosted for samme periode.")
+                    vilkårResultat.erOppfylt() && (gradertBarnehageplass || deltBosted)
+                }.map { vilkårResultat ->
+                    TidslinjePeriodeMedDato(
+                        verdi = vilkårResultat,
+                        fom = vilkårResultat.periodeFom,
+                        tom = vilkårResultat.periodeTom,
+                    )
+                }.validerIngenOverlapp("Det er lagt inn gradert barnehageplass og delt bosted for samme periode.")
         }
     }
 
     private fun validerAtPerioderIBarnehageplassSamsvarerMedPeriodeIBarnetsAlderVilkår(
         vilkårsvurdering: Vilkårsvurdering,
-        personopplysningGrunnlag: PersonopplysningGrunnlag,
     ) {
         vilkårsvurdering.personResultater.filter { !it.erSøkersResultater() }.forEach { personResultat ->
-            val person =
-                personopplysningGrunnlag.personer.single { it.aktør.aktivFødselsnummer() == personResultat.aktør.aktivFødselsnummer() }
 
-            val regelsett = personResultat.vilkårResultater.hentRegelsettBruktIVilkår()
+            val barnehageplassVilkår = personResultat.vilkårResultater.filter { it.vilkårType == Vilkår.BARNEHAGEPLASS }
+            val sistePeriode = barnehageplassVilkår.sortedBy { it.periodeFom }.last()
+            val sistePeriodeErFremtidigOpphør = barnehageplassVilkår.sortedBy { it.periodeFom }.last().harMeldtBarnehageplassOgErFulltidIBarnehage()
+            val barnehageplassTidslinje = personResultat.vilkårResultater.filter { it.vilkårType == Vilkår.BARNEHAGEPLASS }.tilTidslinje()
+            val barnetsAlderTidslinje =
+                personResultat.vilkårResultater
+                    .filter { it.vilkårType == Vilkår.BARNETS_ALDER }
+                    .tilTidslinje()
+                    .klipp(barnehageplassTidslinje.startsTidspunkt, if (sistePeriodeErFremtidigOpphør) sistePeriode.periodeTom!! else TIDENES_ENDE)
 
-            val defaultStartDatoBarnetsAlderVilkår =
-                when (regelsett) {
-                    VilkårRegelsett.LOV_AUGUST_2021 -> person.fødselsdato.plusYears(1)
-                    VilkårRegelsett.LOV_AUGUST_2024 -> person.fødselsdato.plusMonths(13)
-                    else -> throw Feil("Fant ikke regelsett på vilkårresultater for person m/ id ${person.id}")
+            barnetsAlderTidslinje.kombinerMed(barnehageplassTidslinje) { barnetsAlder, barnehageplass ->
+                if (barnetsAlder != null && barnehageplass == null) {
+                    throw FunksjonellFeil(
+                        "Det mangler vurdering på vilkåret ${Vilkår.BARNEHAGEPLASS.beskrivelse}. " +
+                            "Hele eller deler av perioden der barnets alder vilkåret er oppfylt er ikke vurdert.",
+                    )
                 }
-
-            val defaultSluttDatoBarnetsAlderVilkår =
-                when (regelsett) {
-                    VilkårRegelsett.LOV_AUGUST_2021 -> person.fødselsdato.plusYears(2)
-                    VilkårRegelsett.LOV_AUGUST_2024 -> person.fødselsdato.plusMonths(19)
-                }
+            }
 
             val barnehageplassVilkårResultater =
-                personResultat.vilkårResultater.filter {
-                    it.vilkårType == Vilkår.BARNEHAGEPLASS
-                }
-
-            val startDatoBarnehageplassVilkår =
-                barnehageplassVilkårResultater.sortedBy { it.periodeFom }.first().periodeFom
-                    ?: error("Mangler fom dato")
-            val sisteBarnehageplassVilkårresultat = barnehageplassVilkårResultater.sortedWith(compareBy(nullsLast()) { it.periodeTom }).last()
-
-            val sluttDatoBarnehageplassVilkår =
-                sisteBarnehageplassVilkårresultat.periodeTom
-                    ?: TIDENES_ENDE
-            val sisteBarnehageplassVilkårresultatHarFramtidigOpphør =
-                sisteBarnehageplassVilkårresultat.søkerHarMeldtFraOmBarnehageplass == true
+                personResultat.vilkårResultater.filter { it.vilkårType == Vilkår.BARNEHAGEPLASS }
 
             val barnetsAlderVilkårResultater =
                 personResultat.vilkårResultater.filter { it.vilkårType == Vilkår.BARNETS_ALDER }
 
-            val startDatoBarnetsAlderVilkår =
-                barnetsAlderVilkårResultater.sortedBy { it.periodeFom }.first().periodeFom
-                    ?: defaultStartDatoBarnetsAlderVilkår
-
             val sluttDatoBarnetsAlderVilkår =
                 barnetsAlderVilkårResultater.sortedBy { it.periodeTom }.last().periodeTom
-                    ?: defaultSluttDatoBarnetsAlderVilkår
+                    ?: throw FunksjonellFeil("Barnets alder vilkåret må ha en t.o.m dato.")
 
-            if (startDatoBarnehageplassVilkår.isAfter(startDatoBarnetsAlderVilkår) ||
-                (!sisteBarnehageplassVilkårresultatHarFramtidigOpphør && sluttDatoBarnehageplassVilkår.isBefore(sluttDatoBarnetsAlderVilkår))
-            ) {
-                throw FunksjonellFeil(
-                    "Det mangler vurdering på vilkåret ${Vilkår.BARNEHAGEPLASS.beskrivelse}. " +
-                        "Hele eller deler av perioden der barnet er mellom 1 og 2 år er ikke vurdert.",
-                )
-            }
             if (barnehageplassVilkårResultater.any {
                     it.periodeFom?.isAfter(sluttDatoBarnetsAlderVilkår) == true
                 }
@@ -291,7 +282,8 @@ class VilkårsvurderingSteg(
         personopplysningGrunnlag: PersonopplysningGrunnlag,
         vilkårsvurdering: Vilkårsvurdering,
     ) {
-        val vilkårsvurderingTidslinjer = VilkårsvurderingTidslinjer(vilkårsvurdering, personopplysningGrunnlag)
+        val erToggleForLovendringAugust2024På = unleashNextMedContextService.isEnabled(FeatureToggleConfig.LOV_ENDRING_7_MND_NYE_BEHANDLINGER)
+        val vilkårsvurderingTidslinjer = VilkårsvurderingTidslinjer(vilkårsvurdering, personopplysningGrunnlag, erToggleForLovendringAugust2024På)
         if (vilkårsvurderingTidslinjer.harBlandetRegelverk()) {
             throw FunksjonellFeil(
                 melding = "Det er forskjellig regelverk for en eller flere perioder for søker eller barna",
