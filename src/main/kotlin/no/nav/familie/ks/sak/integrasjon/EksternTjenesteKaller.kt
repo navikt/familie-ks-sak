@@ -80,8 +80,8 @@ fun handleException(
     tjeneste: String,
     uri: URI,
     formål: String,
-): Exception {
-    return when (exception) {
+): Exception =
+    when (exception) {
         is RessursException -> {
             secureLogger.info(
                 "${
@@ -105,7 +105,6 @@ fun handleException(
         is HttpClientErrorException -> exception
         else -> opprettIntegrasjonsException(tjeneste, uri, exception, formål)
     }
-}
 
 private fun opprettIntegrasjonsException(
     tjeneste: String,

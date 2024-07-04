@@ -132,7 +132,8 @@ class FagsakController(
         val minimalFagsakForPerson = fagsakService.finnMinimalFagsakForPerson(personIdent)
 
         return minimalFagsakForPerson?.let { ResponseEntity.ok().body(Ressurs.success(it)) }
-            ?: ResponseEntity.status(HttpStatus.NOT_FOUND)
+            ?: ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
                 .body(Ressurs.failure(errorMessage = "Fant ikke fagsak på person"))
     }
 
@@ -178,7 +179,9 @@ class FagsakController(
     }
 }
 
-data class RestSøkFagsakRequest(val personIdent: String)
+data class RestSøkFagsakRequest(
+    val personIdent: String,
+)
 
 data class RestFagsakIdOgTilknyttetAktørId(
     val aktørId: String,

@@ -52,7 +52,11 @@ typealias Flettefelt = List<String>?
  * Se https://github.com/navikt/familie/blob/master/doc/ba-sak/legg-til-nytt-brev.md
  * for detaljer om alt som skal inn når du legger til en ny brevmal.
  ***/
-enum class Brevmal(val erVedtaksbrev: Boolean, val apiNavn: String, val visningsTekst: String) {
+enum class Brevmal(
+    val erVedtaksbrev: Boolean,
+    val apiNavn: String,
+    val visningsTekst: String,
+) {
     INFORMASJONSBREV_DELT_BOSTED(false, "informasjonsbrevDeltBosted", "Informasjonsbrev delt bosted"),
     INFORMASJONSBREV_TIL_FORELDER_OMFATTET_NORSK_LOVGIVNING_HAR_FÅTT_EN_SØKNAD_FRA_ANNEN_FORELDER(
         erVedtaksbrev = false,

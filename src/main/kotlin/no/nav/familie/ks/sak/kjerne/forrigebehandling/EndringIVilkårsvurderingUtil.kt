@@ -72,12 +72,10 @@ object EndringIVilkårsvurderingUtil {
         return endringIVilkårResultat
     }
 
-    private fun VilkårResultat.obligatoriskUtdypendeVilkårsvurderingErSatt(): Boolean {
-        return this.utdypendeVilkårsvurderinger.isNotEmpty() || !this.utdypendeVilkårsvurderingErObligatorisk()
-    }
+    private fun VilkårResultat.obligatoriskUtdypendeVilkårsvurderingErSatt(): Boolean = this.utdypendeVilkårsvurderinger.isNotEmpty() || !this.utdypendeVilkårsvurderingErObligatorisk()
 
-    private fun VilkårResultat.utdypendeVilkårsvurderingErObligatorisk(): Boolean {
-        return if (this.vurderesEtter == Regelverk.NASJONALE_REGLER) {
+    private fun VilkårResultat.utdypendeVilkårsvurderingErObligatorisk(): Boolean =
+        if (this.vurderesEtter == Regelverk.NASJONALE_REGLER) {
             false
         } else {
             when (this.vilkårType) {
@@ -93,5 +91,4 @@ object EndringIVilkårsvurderingUtil {
                 -> false
             }
         }
-    }
 }

@@ -430,7 +430,8 @@ fun lagBrevPeriodeContext(
 
     val barnPersonResultater =
         persongrunnlag
-            .barna.zip(barnIBehandling)
+            .barna
+            .zip(barnIBehandling)
             .map { (person, personIBehandling) ->
                 lagPersonResultat(
                     person = person,
@@ -534,7 +535,8 @@ fun lagVilkårResultater(
     personResultat: PersonResultat,
 ): List<VilkårResultat> {
     val vilkårResultaterForBarn =
-        Vilkår.hentVilkårFor(person.type)
+        Vilkår
+            .hentVilkårFor(person.type)
             .filter { vilkår -> overstyrendeVilkårResultater.none { it.vilkårType == vilkår } }
             .map {
                 lagVilkårResultat(
@@ -552,8 +554,10 @@ fun lagVilkårResultater(
 fun lagSanityBegrunnelserFraDump(): List<SanityBegrunnelse> {
     val fil = File("./src/test/resources/sanityDump/begrunnelser.json")
 
-    return objectMapper.readValue(
-        fil.readText(),
-        SanityBegrunnelserResponsDto::class.java,
-    ).result.map { it.tilSanityBegrunnelse() }
+    return objectMapper
+        .readValue(
+            fil.readText(),
+            SanityBegrunnelserResponsDto::class.java,
+        ).result
+        .map { it.tilSanityBegrunnelse() }
 }

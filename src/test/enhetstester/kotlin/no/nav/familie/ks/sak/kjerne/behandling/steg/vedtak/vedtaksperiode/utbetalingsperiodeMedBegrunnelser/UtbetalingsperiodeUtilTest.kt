@@ -241,7 +241,11 @@ internal class UtbetalingsperiodeUtilTest {
                 listOf(
                     lagKompetanse(
                         fom = tilkjentYtelse.andelerTilkjentYtelse.first().stønadFom,
-                        tom = tilkjentYtelse.andelerTilkjentYtelse.first().stønadFom.plusMonths(1),
+                        tom =
+                            tilkjentYtelse.andelerTilkjentYtelse
+                                .first()
+                                .stønadFom
+                                .plusMonths(1),
                         barnAktører = setOf(barn1.aktør),
                     ),
                 )
@@ -281,8 +285,16 @@ internal class UtbetalingsperiodeUtilTest {
                         annenForeldersAktivitet = KompetanseAktivitet.ARBEIDER,
                     ),
                     lagKompetanse(
-                        fom = tilkjentYtelse.andelerTilkjentYtelse.first().stønadFom.plusMonths(1),
-                        tom = tilkjentYtelse.andelerTilkjentYtelse.first().stønadFom.plusMonths(1),
+                        fom =
+                            tilkjentYtelse.andelerTilkjentYtelse
+                                .first()
+                                .stønadFom
+                                .plusMonths(1),
+                        tom =
+                            tilkjentYtelse.andelerTilkjentYtelse
+                                .first()
+                                .stønadFom
+                                .plusMonths(1),
                         barnAktører = setOf(barn1.aktør),
                         annenForeldersAktivitet = KompetanseAktivitet.INAKTIV,
                     ),

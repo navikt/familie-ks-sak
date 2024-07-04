@@ -91,9 +91,7 @@ object BehandlingsresultatOpphørUtils {
         forrigeAndelerIBehandling: List<AndelTilkjentYtelse>,
         nåværendeEndretAndelerIBehandling: List<EndretUtbetalingAndel>,
         endretAndelerForForrigeBehandling: List<EndretUtbetalingAndel>,
-    ): YearMonth? {
-        return this.filtrerBortIrrelevanteAndeler(endretAndeler = nåværendeEndretAndelerIBehandling).finnOpphørsdato() ?: forrigeAndelerIBehandling.filtrerBortIrrelevanteAndeler(endretAndeler = endretAndelerForForrigeBehandling).minOfOrNull { it.stønadFom }
-    }
+    ): YearMonth? = this.filtrerBortIrrelevanteAndeler(endretAndeler = nåværendeEndretAndelerIBehandling).finnOpphørsdato() ?: forrigeAndelerIBehandling.filtrerBortIrrelevanteAndeler(endretAndeler = endretAndelerForForrigeBehandling).minOfOrNull { it.stønadFom }
 
     /**
      * Hvis det ikke fantes noen andeler i forrige behandling defaulter vi til inneværende måned
@@ -125,20 +123,21 @@ object BehandlingsresultatOpphørUtils {
         val andelTilkjentYtelseTidslinje = andelerPåPersonFiltrertPåType.map { it.tilPeriode() }.tilTidslinje()
         val endretUtbetalingAndelTidslinje = endretAndelerPåPerson.map { it.tilPeriode() }.tilTidslinje()
 
-        return andelTilkjentYtelseTidslinje.kombinerMed(endretUtbetalingAndelTidslinje) { andelTilkjentYtelse, endretUtbetalingAndel ->
-            val kalkulertUtbetalingsbeløp = andelTilkjentYtelse?.kalkulertUtbetalingsbeløp ?: return@kombinerMed null
-            val endringsperiodeÅrsak = endretUtbetalingAndel?.årsak ?: return@kombinerMed andelTilkjentYtelse
+        return andelTilkjentYtelseTidslinje
+            .kombinerMed(endretUtbetalingAndelTidslinje) { andelTilkjentYtelse, endretUtbetalingAndel ->
+                val kalkulertUtbetalingsbeløp = andelTilkjentYtelse?.kalkulertUtbetalingsbeløp ?: return@kombinerMed null
+                val endringsperiodeÅrsak = endretUtbetalingAndel?.årsak ?: return@kombinerMed andelTilkjentYtelse
 
-            when (endringsperiodeÅrsak) {
-                Årsak.ALLEREDE_UTBETALT,
-                Årsak.ENDRE_MOTTAKER,
-                Årsak.ETTERBETALING_3MND,
-                ->
-                    // Vi ønsker å filtrere bort andeler som har 0 i kalkulertUtbetalingsbeløp
-                    if (kalkulertUtbetalingsbeløp == 0) null else andelTilkjentYtelse
+                when (endringsperiodeÅrsak) {
+                    Årsak.ALLEREDE_UTBETALT,
+                    Årsak.ENDRE_MOTTAKER,
+                    Årsak.ETTERBETALING_3MND,
+                    ->
+                        // Vi ønsker å filtrere bort andeler som har 0 i kalkulertUtbetalingsbeløp
+                        if (kalkulertUtbetalingsbeløp == 0) null else andelTilkjentYtelse
 
-                Årsak.DELT_BOSTED -> andelTilkjentYtelse
-            }
-        }.tilAndelTilkjentYtelse()
+                    Årsak.DELT_BOSTED -> andelTilkjentYtelse
+                }
+            }.tilAndelTilkjentYtelse()
     }
 }

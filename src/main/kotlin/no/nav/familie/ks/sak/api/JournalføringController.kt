@@ -31,15 +31,14 @@ class JournalføringController(
     @PostMapping(path = ["/bruker"])
     fun hentJournalposterForBruker(
         @RequestBody personIdentBody: PersonIdent,
-    ): ResponseEntity<Ressurs<List<Journalpost>>> {
-        return ResponseEntity.ok(
+    ): ResponseEntity<Ressurs<List<Journalpost>>> =
+        ResponseEntity.ok(
             Ressurs.success(
                 innkommendeJournalføringService.hentJournalposterForBruker(
                     personIdentBody.ident,
                 ),
             ),
         )
-    }
 
     @GetMapping("/{journalpostId}/dokument/{dokumentId}")
     fun hentDokumentIJournalpost(

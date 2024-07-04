@@ -35,12 +35,11 @@ data class DbOppgave(
     @Column(name = "ferdigstilt", nullable = false, updatable = true)
     var erFerdigstilt: Boolean = false,
 ) {
-    override fun toString(): String {
-        return "Oppgave(" +
+    override fun toString(): String =
+        "Oppgave(" +
             "id=$id, " +
             "behandling=${behandling.id}, " +
             "gsakId=$gsakId, " +
             "type=$type, " +
             "erFerdigstilt=$erFerdigstilt)"
-    }
 }

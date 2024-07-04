@@ -71,8 +71,8 @@ class BrevmottakerService(
 
     fun lagMottakereFraBrevMottakere(
         manueltRegistrerteMottakere: List<BrevmottakerDto>,
-    ): List<MottakerInfo> {
-        return when {
+    ): List<MottakerInfo> =
+        when {
             manueltRegistrerteMottakere.isEmpty() -> listOf(Bruker())
             manueltRegistrerteMottakere.any { it.type == MottakerType.DØDSBO } -> {
                 val dodsbo = manueltRegistrerteMottakere.single { it.type == MottakerType.DØDSBO }
@@ -81,7 +81,8 @@ class BrevmottakerService(
 
             else -> {
                 val brukerMedUtenlandskAdresseListe =
-                    manueltRegistrerteMottakere.filter { it.type == MottakerType.BRUKER_MED_UTENLANDSK_ADRESSE }
+                    manueltRegistrerteMottakere
+                        .filter { it.type == MottakerType.BRUKER_MED_UTENLANDSK_ADRESSE }
                         .map { BrukerMedUtenlandskAdresse(lagManuellAdresseInfo(it)) }
                 if (brukerMedUtenlandskAdresseListe.size > 1) {
                     throw FunksjonellFeil("Mottakerfeil: Det er registrert mer enn en utenlandsk adresse tilhørende bruker")
@@ -100,7 +101,6 @@ class BrevmottakerService(
                 listOfNotNull(bruker, tilleggsmottaker)
             }
         }
-    }
 
     private fun lagManuellAdresseInfo(brevmottaker: BrevmottakerDto) =
         ManuellAdresseInfo(

@@ -13,7 +13,9 @@ import java.util.Properties
 
 @Service
 @TaskStepBeskrivelse(taskStepType = TASK_STEP_TYPE, beskrivelse = "Journalfør brev i Joark", maxAntallFeil = 3)
-class JournalførVedtaksbrevTask(private val stegService: StegService) : AsyncTaskStep {
+class JournalførVedtaksbrevTask(
+    private val stegService: StegService,
+) : AsyncTaskStep {
     override fun doTask(task: Task) {
         val behandlingId = task.payload.toLong()
         val vedtakId = task.metadata.getProperty("vedtakId").toLong()

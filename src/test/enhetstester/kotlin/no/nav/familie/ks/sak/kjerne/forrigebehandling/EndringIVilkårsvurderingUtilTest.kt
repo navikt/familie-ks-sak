@@ -63,11 +63,13 @@ class EndringIVilkårsvurderingUtilTest {
         val aktør = randomAktør()
 
         val perioderMedEndring =
-            EndringIVilkårsvurderingUtil.lagEndringIVilkårsvurderingTidslinje(
-                nåværendePersonResultaterForPerson = setOf(lagPersonResultatFraVilkårResultater(vilkårResultater, aktør)),
-                forrigePersonResultater = setOf(lagPersonResultatFraVilkårResultater(vilkårResultater, aktør)),
-                erToggleForLovendringAugust2024På = true,
-            ).tilPerioder().filter { it.verdi == true }
+            EndringIVilkårsvurderingUtil
+                .lagEndringIVilkårsvurderingTidslinje(
+                    nåværendePersonResultaterForPerson = setOf(lagPersonResultatFraVilkårResultater(vilkårResultater, aktør)),
+                    forrigePersonResultater = setOf(lagPersonResultatFraVilkårResultater(vilkårResultater, aktør)),
+                    erToggleForLovendringAugust2024På = true,
+                ).tilPerioder()
+                .filter { it.verdi == true }
 
         Assertions.assertTrue(perioderMedEndring.isEmpty())
     }
@@ -114,11 +116,13 @@ class EndringIVilkårsvurderingUtilTest {
         val aktør = randomAktør()
 
         val perioderMedEndring =
-            EndringIVilkårsvurderingUtil.lagEndringIVilkårsvurderingTidslinje(
-                nåværendePersonResultaterForPerson = setOf(lagPersonResultatFraVilkårResultater(nåværendeVilkårResultat, aktør)),
-                forrigePersonResultater = setOf(lagPersonResultatFraVilkårResultater(forrigeVilkårResultat, aktør)),
-                erToggleForLovendringAugust2024På = true,
-            ).tilPerioder().filter { it.verdi == true }
+            EndringIVilkårsvurderingUtil
+                .lagEndringIVilkårsvurderingTidslinje(
+                    nåværendePersonResultaterForPerson = setOf(lagPersonResultatFraVilkårResultater(nåværendeVilkårResultat, aktør)),
+                    forrigePersonResultater = setOf(lagPersonResultatFraVilkårResultater(forrigeVilkårResultat, aktør)),
+                    erToggleForLovendringAugust2024På = true,
+                ).tilPerioder()
+                .filter { it.verdi == true }
 
         Assertions.assertEquals(1, perioderMedEndring.size)
         Assertions.assertEquals(feb22.førsteDagIInneværendeMåned(), perioderMedEndring.single().fom)
@@ -172,11 +176,13 @@ class EndringIVilkårsvurderingUtilTest {
         val aktør = randomAktør()
 
         val perioderMedEndring =
-            EndringIVilkårsvurderingUtil.lagEndringIVilkårsvurderingTidslinje(
-                nåværendePersonResultaterForPerson = setOf(lagPersonResultatFraVilkårResultater(nåværendeVilkårResultat, aktør)),
-                forrigePersonResultater = setOf(lagPersonResultatFraVilkårResultater(forrigeVilkårResultat, aktør)),
-                erToggleForLovendringAugust2024På = true,
-            ).tilPerioder().filter { it.verdi == true }
+            EndringIVilkårsvurderingUtil
+                .lagEndringIVilkårsvurderingTidslinje(
+                    nåværendePersonResultaterForPerson = setOf(lagPersonResultatFraVilkårResultater(nåværendeVilkårResultat, aktør)),
+                    forrigePersonResultater = setOf(lagPersonResultatFraVilkårResultater(forrigeVilkårResultat, aktør)),
+                    erToggleForLovendringAugust2024På = true,
+                ).tilPerioder()
+                .filter { it.verdi == true }
 
         Assertions.assertEquals(1, perioderMedEndring.size)
         Assertions.assertEquals(jun22.førsteDagIInneværendeMåned(), perioderMedEndring.single().fom)
@@ -224,11 +230,13 @@ class EndringIVilkårsvurderingUtilTest {
         val aktør = randomAktør()
 
         val perioderMedEndring =
-            EndringIVilkårsvurderingUtil.lagEndringIVilkårsvurderingTidslinje(
-                nåværendePersonResultaterForPerson = setOf(lagPersonResultatFraVilkårResultater(nåværendeVilkårResultat, aktør)),
-                forrigePersonResultater = setOf(lagPersonResultatFraVilkårResultater(forrigeVilkårResultat, aktør)),
-                erToggleForLovendringAugust2024På = true,
-            ).tilPerioder().filter { it.verdi == true }
+            EndringIVilkårsvurderingUtil
+                .lagEndringIVilkårsvurderingTidslinje(
+                    nåværendePersonResultaterForPerson = setOf(lagPersonResultatFraVilkårResultater(nåværendeVilkårResultat, aktør)),
+                    forrigePersonResultater = setOf(lagPersonResultatFraVilkårResultater(forrigeVilkårResultat, aktør)),
+                    erToggleForLovendringAugust2024På = true,
+                ).tilPerioder()
+                .filter { it.verdi == true }
 
         Assertions.assertTrue(perioderMedEndring.isEmpty())
     }
@@ -272,11 +280,13 @@ class EndringIVilkårsvurderingUtilTest {
         val aktør = randomAktør()
 
         val perioderMedEndring =
-            EndringIVilkårsvurderingUtil.lagEndringIVilkårsvurderingTidslinje(
-                nåværendePersonResultaterForPerson = setOf(lagPersonResultatFraVilkårResultater(nåværendeVilkårResultat, aktør)),
-                forrigePersonResultater = setOf(lagPersonResultatFraVilkårResultater(forrigeVilkårResultat, aktør)),
-                erToggleForLovendringAugust2024På = true,
-            ).tilPerioder().filter { it.verdi == true }
+            EndringIVilkårsvurderingUtil
+                .lagEndringIVilkårsvurderingTidslinje(
+                    nåværendePersonResultaterForPerson = setOf(lagPersonResultatFraVilkårResultater(nåværendeVilkårResultat, aktør)),
+                    forrigePersonResultater = setOf(lagPersonResultatFraVilkårResultater(forrigeVilkårResultat, aktør)),
+                    erToggleForLovendringAugust2024På = true,
+                ).tilPerioder()
+                .filter { it.verdi == true }
 
         Assertions.assertTrue(perioderMedEndring.isEmpty())
     }

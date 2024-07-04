@@ -32,8 +32,8 @@ import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.tilSanityBegrunnelse
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
 import java.time.LocalDate
 
-fun standardbegrunnelserTilNedtrekksmenytekster(sanityBegrunnelser: List<SanityBegrunnelse>): Map<BegrunnelseType, List<VedtakBegrunnelseTilknyttetVilkårResponseDto>> {
-    return (NasjonalEllerFellesBegrunnelse.entries + EØSBegrunnelse.entries)
+fun standardbegrunnelserTilNedtrekksmenytekster(sanityBegrunnelser: List<SanityBegrunnelse>): Map<BegrunnelseType, List<VedtakBegrunnelseTilknyttetVilkårResponseDto>> =
+    (NasjonalEllerFellesBegrunnelse.entries + EØSBegrunnelse.entries)
         .groupBy { it.begrunnelseType }
         .mapValues { begrunnelseGruppe ->
             begrunnelseGruppe.value
@@ -44,7 +44,6 @@ fun standardbegrunnelserTilNedtrekksmenytekster(sanityBegrunnelser: List<SanityB
                     )
                 }
         }
-}
 
 fun vedtakBegrunnelseTilRestVedtakBegrunnelseTilknyttetVilkår(
     sanityBegrunnelser: List<SanityBegrunnelse>,
@@ -197,15 +196,14 @@ private fun validerAvslagUtenPeriodeMedLøpende(
     }
 }
 
-fun List<VilkårResultat>.tilTidslinje(): Tidslinje<VilkårResultat> {
-    return map {
+fun List<VilkårResultat>.tilTidslinje(): Tidslinje<VilkårResultat> =
+    map {
         Periode(
             verdi = it,
             fom = it.periodeFom,
             tom = it.periodeTom,
         )
     }.tilTidslinje()
-}
 
 private fun Periode<VilkårResultat>.tilVilkårResultatMedOppdatertPeriodeOgBehandlingsId(nyBehandlingsId: Long): VilkårResultat {
     val vilkårResultat = this.verdi
@@ -243,101 +241,107 @@ fun genererInitiellVilkårsvurdering(
     forrigeVilkårsvurdering: Vilkårsvurdering?,
     personopplysningGrunnlag: PersonopplysningGrunnlag,
     erToggleForLovendringAugust2024På: Boolean,
-): Vilkårsvurdering {
-    return Vilkårsvurdering(behandling = behandling).apply {
+): Vilkårsvurdering =
+    Vilkårsvurdering(behandling = behandling).apply {
         personResultater =
-            personopplysningGrunnlag.personer.map { person ->
-                val personResultat = PersonResultat(vilkårsvurdering = this, aktør = person.aktør)
+            personopplysningGrunnlag.personer
+                .map { person ->
+                    val personResultat = PersonResultat(vilkårsvurdering = this, aktør = person.aktør)
 
-                val forrigeBehandlingHaddeEøsSpesifikkeVilkår =
-                    forrigeVilkårsvurdering?.personResultater?.flatMap { it.vilkårResultater }
-                        ?.any { it.vilkårType.eøsSpesifikt } ?: false
-                val behandlingKategoriErEøs = behandling.kategori == BehandlingKategori.EØS
+                    val forrigeBehandlingHaddeEøsSpesifikkeVilkår =
+                        forrigeVilkårsvurdering
+                            ?.personResultater
+                            ?.flatMap { it.vilkårResultater }
+                            ?.any { it.vilkårType.eøsSpesifikt } ?: false
+                    val behandlingKategoriErEøs = behandling.kategori == BehandlingKategori.EØS
 
-                val skalHenteEøsSpesifikkeVilkår = behandlingKategoriErEøs || forrigeBehandlingHaddeEøsSpesifikkeVilkår
+                    val skalHenteEøsSpesifikkeVilkår = behandlingKategoriErEøs || forrigeBehandlingHaddeEøsSpesifikkeVilkår
 
-                val vilkårForPerson = Vilkår.hentVilkårFor(person.type, skalHenteEøsSpesifikkeVilkår)
+                    val vilkårForPerson = Vilkår.hentVilkårFor(person.type, skalHenteEøsSpesifikkeVilkår)
 
-                val vilkårResultater =
-                    vilkårForPerson.flatMap { vilkår ->
-                        // prefyller diverse vilkår automatisk basert på type
-                        when (vilkår) {
-                            Vilkår.BARNETS_ALDER -> {
-                                if (erToggleForLovendringAugust2024På) {
-                                    lagAutomatiskGenererteVilkårForBarnetsAlder(
-                                        personResultat = personResultat,
-                                        behandling = behandling,
-                                        fødselsdato = person.fødselsdato,
-                                    )
-                                } else {
-                                    listOf(
-                                        VilkårResultat(
-                                            personResultat = personResultat,
-                                            erAutomatiskVurdert = true,
-                                            resultat = Resultat.OPPFYLT,
-                                            vilkårType = vilkår,
-                                            begrunnelse = "Vurdert og satt automatisk",
-                                            behandlingId = behandling.id,
-                                            periodeFom = person.fødselsdato.plusYears(1),
-                                            periodeTom = person.fødselsdato.plusYears(2),
-                                        ),
-                                    )
+                    val vilkårResultater =
+                        vilkårForPerson
+                            .flatMap { vilkår ->
+                                // prefyller diverse vilkår automatisk basert på type
+                                when (vilkår) {
+                                    Vilkår.BARNETS_ALDER -> {
+                                        if (erToggleForLovendringAugust2024På) {
+                                            lagAutomatiskGenererteVilkårForBarnetsAlder(
+                                                personResultat = personResultat,
+                                                behandling = behandling,
+                                                fødselsdato = person.fødselsdato,
+                                            )
+                                        } else {
+                                            listOf(
+                                                VilkårResultat(
+                                                    personResultat = personResultat,
+                                                    erAutomatiskVurdert = true,
+                                                    resultat = Resultat.OPPFYLT,
+                                                    vilkårType = vilkår,
+                                                    begrunnelse = "Vurdert og satt automatisk",
+                                                    behandlingId = behandling.id,
+                                                    periodeFom = person.fødselsdato.plusYears(1),
+                                                    periodeTom = person.fødselsdato.plusYears(2),
+                                                ),
+                                            )
+                                        }
+                                    }
+
+                                    Vilkår.MEDLEMSKAP ->
+                                        listOf(
+                                            VilkårResultat(
+                                                personResultat = personResultat,
+                                                erAutomatiskVurdert = false,
+                                                resultat = Resultat.IKKE_VURDERT,
+                                                vilkårType = vilkår,
+                                                begrunnelse = "",
+                                                periodeFom = person.fødselsdato.plusYears(5),
+                                                behandlingId = behandling.id,
+                                            ),
+                                        )
+
+                                    Vilkår.BARNEHAGEPLASS -> {
+                                        listOf(
+                                            VilkårResultat(
+                                                personResultat = personResultat,
+                                                erAutomatiskVurdert = false,
+                                                resultat = Resultat.OPPFYLT,
+                                                vilkårType = vilkår,
+                                                begrunnelse = "",
+                                                periodeFom = person.fødselsdato,
+                                                behandlingId = behandling.id,
+                                            ),
+                                        )
+                                    }
+
+                                    else ->
+                                        listOf(
+                                            VilkårResultat(
+                                                personResultat = personResultat,
+                                                erAutomatiskVurdert = false,
+                                                resultat = Resultat.IKKE_VURDERT,
+                                                vilkårType = vilkår,
+                                                begrunnelse = "",
+                                                periodeFom = null,
+                                                behandlingId = behandling.id,
+                                            ),
+                                        )
                                 }
-                            }
+                            }.toSortedSet(VilkårResultat.VilkårResultatComparator)
 
-                            Vilkår.MEDLEMSKAP ->
-                                listOf(
-                                    VilkårResultat(
-                                        personResultat = personResultat,
-                                        erAutomatiskVurdert = false,
-                                        resultat = Resultat.IKKE_VURDERT,
-                                        vilkårType = vilkår,
-                                        begrunnelse = "",
-                                        periodeFom = person.fødselsdato.plusYears(5),
-                                        behandlingId = behandling.id,
-                                    ),
-                                )
+                    personResultat.setSortedVilkårResultater(vilkårResultater)
 
-                            Vilkår.BARNEHAGEPLASS -> {
-                                listOf(
-                                    VilkårResultat(
-                                        personResultat = personResultat,
-                                        erAutomatiskVurdert = false,
-                                        resultat = Resultat.OPPFYLT,
-                                        vilkårType = vilkår,
-                                        begrunnelse = "",
-                                        periodeFom = person.fødselsdato,
-                                        behandlingId = behandling.id,
-                                    ),
-                                )
-                            }
-
-                            else ->
-                                listOf(
-                                    VilkårResultat(
-                                        personResultat = personResultat,
-                                        erAutomatiskVurdert = false,
-                                        resultat = Resultat.IKKE_VURDERT,
-                                        vilkårType = vilkår,
-                                        begrunnelse = "",
-                                        periodeFom = null,
-                                        behandlingId = behandling.id,
-                                    ),
-                                )
-                        }
-                    }.toSortedSet(VilkårResultat.VilkårResultatComparator)
-
-                personResultat.setSortedVilkårResultater(vilkårResultater)
-
-                personResultat
-            }.toSet()
+                    personResultat
+                }.toSet()
     }
-}
 
 fun Vilkårsvurdering.oppdaterMedDødsdatoer(personopplysningGrunnlag: PersonopplysningGrunnlag) {
     this.personResultater.forEach { personResultat ->
         val dødsDato =
-            personopplysningGrunnlag.personer.single { it.aktør == personResultat.aktør }.dødsfall?.dødsfallDato
+            personopplysningGrunnlag.personer
+                .single { it.aktør == personResultat.aktør }
+                .dødsfall
+                ?.dødsfallDato
 
         val vikårResultaterOppdatertMedDødsdato =
             if (dødsDato != null) {
@@ -402,7 +406,8 @@ private fun Collection<VilkårResultat>.overskrivMedVilkårResultaterFraForrigeB
             nyttPersonResultat.vilkårResultater.filter { it.vilkårType == vilkårType }
 
         val vilkårResultaterAvSammeTypeIForrigeBehandling =
-            vilkårResultaterFraForrigeBehandling.filter { it.vilkårType == vilkårType }
+            vilkårResultaterFraForrigeBehandling
+                .filter { it.vilkårType == vilkårType }
                 .map { it.kopier(personResultat = nyttPersonResultat) }
 
         val vilkårResultaterForrigeBehandlingSomViØnskerÅTaMed: List<VilkårResultat> =

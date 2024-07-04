@@ -13,7 +13,9 @@ import java.time.LocalDateTime
 
 @Service
 @Profile("!integrasjonstest & !dev-postgres-preprod")
-class BarnehagelisteConsumer(val barnehageListeService: BarnehageListeService) {
+class BarnehagelisteConsumer(
+    val barnehageListeService: BarnehageListeService,
+) {
     private val logger = LoggerFactory.getLogger(this::class.java)
 
     @KafkaListener(

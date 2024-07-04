@@ -32,7 +32,9 @@ import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonReposi
 import no.nav.familie.ks.sak.kjerne.tilbakekreving.TilbakekrevingsbehandlingHentService
 import java.time.LocalDate
 
-class CucumberMock(stepDefinition: StepDefinition) {
+class CucumberMock(
+    stepDefinition: StepDefinition,
+) {
     val mockedDateProvider = MockedDateProvider(stepDefinition.dagensDato)
 
     val vilkårsvurderingRepositoryMock = mockVilkårsvurderingRepository(stepDefinition)

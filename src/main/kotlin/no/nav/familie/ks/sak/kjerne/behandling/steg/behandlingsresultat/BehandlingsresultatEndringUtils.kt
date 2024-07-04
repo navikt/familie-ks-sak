@@ -161,19 +161,19 @@ private fun erEndringIBeløpForPersonOgType(
     val forrigeTidslinje = forrigeAndeler.map { it.tilPeriode() }.tilTidslinje()
 
     val endringIBeløpTidslinje =
-        nåværendeTidslinje.kombinerMed(forrigeTidslinje) { nåværende, forrige ->
-            val nåværendeBeløp = nåværende?.kalkulertUtbetalingsbeløp ?: 0
-            val forrigeBeløp = forrige?.kalkulertUtbetalingsbeløp ?: 0
+        nåværendeTidslinje
+            .kombinerMed(forrigeTidslinje) { nåværende, forrige ->
+                val nåværendeBeløp = nåværende?.kalkulertUtbetalingsbeløp ?: 0
+                val forrigeBeløp = forrige?.kalkulertUtbetalingsbeløp ?: 0
 
-            if (erFremstiltKravForPerson) {
-                // Hvis det er søkt for person vil vi kun ha med endringer som går fra beløp > 0 til 0/null siden vi skal ha innvilgelse når vi øker beløpet.
-                forrigeBeløp > 0 && nåværendeBeløp == 0
-            } else {
-                // Hvis det ikke er søkt for person vil vi ha med alle endringer i beløp
-                forrigeBeløp != nåværendeBeløp
-            }
-        }
-            .fjernPerioderEtterOpphørsdato(opphørstidspunktForBehandling)
+                if (erFremstiltKravForPerson) {
+                    // Hvis det er søkt for person vil vi kun ha med endringer som går fra beløp > 0 til 0/null siden vi skal ha innvilgelse når vi øker beløpet.
+                    forrigeBeløp > 0 && nåværendeBeløp == 0
+                } else {
+                    // Hvis det ikke er søkt for person vil vi ha med alle endringer i beløp
+                    forrigeBeløp != nåværendeBeløp
+                }
+            }.fjernPerioderEtterOpphørsdato(opphørstidspunktForBehandling)
 
     return endringIBeløpTidslinje.tilPerioder().any { it.verdi == true }
 }

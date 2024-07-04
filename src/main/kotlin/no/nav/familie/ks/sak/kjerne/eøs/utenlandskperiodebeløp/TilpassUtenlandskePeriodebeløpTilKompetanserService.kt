@@ -69,10 +69,12 @@ internal fun tilpassUtenlandskePeriodebeløpTilKompetanser(
     gjeldendeKompetanser: Iterable<Kompetanse>,
 ): List<UtenlandskPeriodebeløp> {
     val barnasKompetanseTidslinjer =
-        gjeldendeKompetanser.tilSeparateTidslinjerForBarna()
+        gjeldendeKompetanser
+            .tilSeparateTidslinjerForBarna()
             .filtrerSekundærland()
 
-    return forrigeUtenlandskePeriodebeløp.tilSeparateTidslinjerForBarna()
+    return forrigeUtenlandskePeriodebeløp
+        .tilSeparateTidslinjerForBarna()
         .outerJoin(barnasKompetanseTidslinjer) { upb, kompetanse ->
             when {
                 kompetanse == null -> null
@@ -80,8 +82,7 @@ internal fun tilpassUtenlandskePeriodebeløpTilKompetanser(
                     UtenlandskPeriodebeløp.NULL.copy(utbetalingsland = kompetanse.annenForeldersAktivitetsland)
                 else -> upb
             }
-        }
-        .tilSkjemaer()
+        }.tilSkjemaer()
 }
 
 fun Map<Aktør, Tidslinje<Kompetanse>>.filtrerSekundærland() =

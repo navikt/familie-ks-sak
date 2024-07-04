@@ -215,12 +215,14 @@ class StepDefinition {
         behandlingId: Long,
     ) {
         val andelerFørDifferanseberegning =
-            TilkjentYtelseUtils.beregnTilkjentYtelse(
-                vilkårsvurdering = vilkårsvurdering[behandlingId]!!,
-                personopplysningGrunnlag = persongrunnlag[behandlingId]!!,
-                endretUtbetalingAndeler = endredeUtbetalinger[behandlingId]?.map { EndretUtbetalingAndelMedAndelerTilkjentYtelse(it, emptyList()) } ?: emptyList(),
-                erToggleForLovendringAugust2024På = mockUnleashNextMedContextService().isEnabled(FeatureToggleConfig.LOV_ENDRING_7_MND_NYE_BEHANDLINGER),
-            ).andelerTilkjentYtelse.toList()
+            TilkjentYtelseUtils
+                .beregnTilkjentYtelse(
+                    vilkårsvurdering = vilkårsvurdering[behandlingId]!!,
+                    personopplysningGrunnlag = persongrunnlag[behandlingId]!!,
+                    endretUtbetalingAndeler = endredeUtbetalinger[behandlingId]?.map { EndretUtbetalingAndelMedAndelerTilkjentYtelse(it, emptyList()) } ?: emptyList(),
+                    erToggleForLovendringAugust2024På = mockUnleashNextMedContextService().isEnabled(FeatureToggleConfig.LOV_ENDRING_7_MND_NYE_BEHANDLINGER),
+                ).andelerTilkjentYtelse
+                .toList()
 
         val andelerEtterDifferanseberegning =
             beregnDifferanse(
@@ -244,7 +246,8 @@ class StepDefinition {
         val forventedeAndeler = lagAndelerTilkjentYtelse(dataTable, behandlingId, behandlinger, persongrunnlag)
 
         assertThat(beregnetTilkjentYtelse)
-            .usingRecursiveComparison().ignoringFieldsMatchingRegexes(".*endretTidspunkt", ".*opprettetTidspunkt", ".*kildeBehandlingId", ".*tilkjentYtelse")
+            .usingRecursiveComparison()
+            .ignoringFieldsMatchingRegexes(".*endretTidspunkt", ".*opprettetTidspunkt", ".*kildeBehandlingId", ".*tilkjentYtelse")
             .isEqualTo(forventedeAndeler)
     }
 
@@ -311,14 +314,14 @@ class StepDefinition {
 
         val vedtaksperioderComparator = compareBy<VedtaksperiodeMedBegrunnelser>({ it.type }, { it.fom }, { it.tom })
         assertThat(faktiskeVedtaksperioder.sortedWith(vedtaksperioderComparator))
-            .usingRecursiveComparison().ignoringFieldsMatchingRegexes(
+            .usingRecursiveComparison()
+            .ignoringFieldsMatchingRegexes(
                 ".*endretTidspunkt",
                 ".*opprettetTidspunkt",
                 ".*begrunnelser",
                 ".*id",
                 ".*vedtaksdato",
-            )
-            .isEqualTo(forventedeVedtaksperioder.sortedWith(vedtaksperioderComparator))
+            ).isEqualTo(forventedeVedtaksperioder.sortedWith(vedtaksperioderComparator))
     }
 
     /**
@@ -349,8 +352,7 @@ class StepDefinition {
                                     erToggleForLovendringAugust2024På = true,
                                 ).hentGyldigeBegrunnelserForVedtaksperiode(),
                         )
-                    }
-                    .find { it.fom == forventet.fom && it.tom == forventet.tom }
+                    }.find { it.fom == forventet.fom && it.tom == forventet.tom }
                     ?: throw Feil(
                         "Forventet å finne en vedtaksperiode med  \n" +
                             "   Fom: ${forventet.fom?.tilddMMyyyy()} og Tom: ${forventet.tom?.tilddMMyyyy()}. \n" +
@@ -375,7 +377,8 @@ class StepDefinition {
 
     private fun hentUtfylteKompetanserPåBehandling(behandlingId: Long) =
         (kompetanser[behandlingId] ?: emptyList())
-            .map { it.tilIKompetanse() }.filterIsInstance<UtfyltKompetanse>()
+            .map { it.tilIKompetanse() }
+            .filterIsInstance<UtfyltKompetanse>()
 
     fun hentUtvidedeVedtaksperioderMedBegrunnelser(
         behandlingId: Long,
@@ -466,10 +469,13 @@ class StepDefinition {
             }!!
 
         val faktiskeBegrunnelser =
-            relevantUtvidetVedtaksperiode.hentBrevPeriode(
-                behandlingId = behandlingId,
-                erFørsteVedtaksperiode = relevantUtvidetVedtaksperiode == utvidedeVedtaksperioderMedBegrunnelser.firstOrNull(),
-            )!!.begrunnelser.filterIsInstance<BegrunnelseDtoMedData>()
+            relevantUtvidetVedtaksperiode
+                .hentBrevPeriode(
+                    behandlingId = behandlingId,
+                    erFørsteVedtaksperiode = relevantUtvidetVedtaksperiode == utvidedeVedtaksperioderMedBegrunnelser.firstOrNull(),
+                )!!
+                .begrunnelser
+                .filterIsInstance<BegrunnelseDtoMedData>()
 
         val forvendtedeBegrunnelser = parseBegrunnelser(dataTable)
 
@@ -509,7 +515,8 @@ class StepDefinition {
             val faktiskVilkårResultat = faktiskeVilkårResultaterGruppertPåAktør[aktør] ?: emptyList()
 
             val comparator = compareBy<VilkårResultat>({ it.vilkårType }, { it.periodeFom })
-            assertThat(faktiskVilkårResultat.sortedWith(comparator)).`as`("Valider vilkår for aktør $aktør")
+            assertThat(faktiskVilkårResultat.sortedWith(comparator))
+                .`as`("Valider vilkår for aktør $aktør")
                 .usingRecursiveComparison()
                 .ignoringFieldsMatchingRegexes(
                     ".*endretTidspunkt",
@@ -518,8 +525,7 @@ class StepDefinition {
                     ".*begrunnelse",
                     ".*personResultat",
                     ".*behandlingId",
-                )
-                .isEqualTo(forventetVilkårResultat.sortedWith(comparator))
+                ).isEqualTo(forventetVilkårResultat.sortedWith(comparator))
         }
     }
 
@@ -533,7 +539,8 @@ class StepDefinition {
 
         every { behandlingService.hentSisteBehandlingSomErVedtatt(any()) } answers {
             val fagsakId = firstArg<Long>()
-            behandlinger.values.filter { behandling -> behandling.fagsak.id == fagsakId && behandling.status == BehandlingStatus.AVSLUTTET }
+            behandlinger.values
+                .filter { behandling -> behandling.fagsak.id == fagsakId && behandling.status == BehandlingStatus.AVSLUTTET }
                 .maxByOrNull { it.id }
         }
 
@@ -683,8 +690,9 @@ class StepDefinition {
         )
     }
 
-    private fun lagRegistrertebarn(behandlingId: Long): List<BarnMedOpplysningerDto> {
-        return persongrunnlag[behandlingId]?.personer
+    private fun lagRegistrertebarn(behandlingId: Long): List<BarnMedOpplysningerDto> =
+        persongrunnlag[behandlingId]
+            ?.personer
             ?.filter { it.type == PersonType.BARN }
             ?.map { person ->
                 BarnMedOpplysningerDto(
@@ -692,7 +700,6 @@ class StepDefinition {
                     fødselsdato = person.fødselsdato,
                 )
             } ?: emptyList()
-    }
 
     private fun mockPersonopplysningGrunnlagService(): PersonopplysningGrunnlagService {
         val personopplysningGrunnlagService = mockk<PersonopplysningGrunnlagService>()
@@ -750,7 +757,8 @@ private object SanityBegrunnelseMock {
             this::class.java.getResource("/cucumber/restSanityBegrunnelser")!!
 
         val restSanityBegrunnelser =
-            objectMapper.readValue(restSanityBegrunnelserJson, Array<SanityBegrunnelseDto>::class.java)
+            objectMapper
+                .readValue(restSanityBegrunnelserJson, Array<SanityBegrunnelseDto>::class.java)
                 .toList()
 
         return restSanityBegrunnelser.map { it.tilSanityBegrunnelse() }

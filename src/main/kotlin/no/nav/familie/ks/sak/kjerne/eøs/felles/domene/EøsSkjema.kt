@@ -69,23 +69,26 @@ fun <T : EøsSkjema<T>> T.trekkFra(skjema: T): List<T> {
     val gammeltSkjema = this
 
     val skjemaForFjernetBarn =
-        gammeltSkjema.kopier(
-            barnAktører = gammeltSkjema.barnAktører.minus(skjema.barnAktører),
-        ).takeIf { it.barnAktører.isNotEmpty() }
+        gammeltSkjema
+            .kopier(
+                barnAktører = gammeltSkjema.barnAktører.minus(skjema.barnAktører),
+            ).takeIf { it.barnAktører.isNotEmpty() }
 
     val skjemaForTidligerePerioder =
-        gammeltSkjema.kopier(
-            fom = gammeltSkjema.fom,
-            tom = skjema.fom?.minusMonths(1),
-            barnAktører = skjema.barnAktører,
-        ).takeIf { it.fom != null && checkNotNull(it.fom) <= it.tom }
+        gammeltSkjema
+            .kopier(
+                fom = gammeltSkjema.fom,
+                tom = skjema.fom?.minusMonths(1),
+                barnAktører = skjema.barnAktører,
+            ).takeIf { it.fom != null && checkNotNull(it.fom) <= it.tom }
 
     val skjemaForEtterfølgendePerioder =
-        gammeltSkjema.kopier(
-            fom = skjema.tom?.plusMonths(1),
-            tom = gammeltSkjema.tom,
-            barnAktører = skjema.barnAktører,
-        ).takeIf { it.fom != null && it.fom!! <= (it.tom ?: MAX_MÅNED) }
+        gammeltSkjema
+            .kopier(
+                fom = skjema.tom?.plusMonths(1),
+                tom = gammeltSkjema.tom,
+                barnAktører = skjema.barnAktører,
+            ).takeIf { it.fom != null && it.fom!! <= (it.tom ?: MAX_MÅNED) }
 
     return listOfNotNull(skjemaForFjernetBarn, skjemaForTidligerePerioder, skjemaForEtterfølgendePerioder)
 }

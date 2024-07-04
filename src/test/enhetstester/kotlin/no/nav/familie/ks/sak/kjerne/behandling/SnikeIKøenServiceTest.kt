@@ -483,7 +483,12 @@ class SnikeIKøenServiceTest {
         @Test
         fun `skal ikke kunne snike i køen om EndretTidspunkt på behandlingen er mindre enn 4 timer siden`() {
             // Arrange
-            val endretTidspunkt = LocalDateTime.now(clock).minusHours(3).minusMinutes(59).minusSeconds(59)
+            val endretTidspunkt =
+                LocalDateTime
+                    .now(clock)
+                    .minusHours(3)
+                    .minusMinutes(59)
+                    .minusSeconds(59)
 
             val behandling =
                 lagBehandling(
@@ -508,7 +513,12 @@ class SnikeIKøenServiceTest {
             val logg =
                 lagLogg(
                     behandlingId = behandling.id,
-                    opprettetTidspunkt = LocalDateTime.now().minusHours(3).minusMinutes(59).minusSeconds(59),
+                    opprettetTidspunkt =
+                        LocalDateTime
+                            .now()
+                            .minusHours(3)
+                            .minusMinutes(59)
+                            .minusSeconds(59),
                 )
 
             every { loggService.hentLoggForBehandling(behandling.id) } returns listOf(logg)

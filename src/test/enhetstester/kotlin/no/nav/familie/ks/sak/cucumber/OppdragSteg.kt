@@ -120,12 +120,14 @@ class OppdragSteg {
     fun `forvent følgende utbetalingsoppdrag`(dataTable: DataTable) {
         validerForventetUtbetalingsoppdrag(
             dataTable,
-            beregnetUtbetalingsoppdrag.mapValues { it.value.utbetalingsoppdrag.tilRestUtbetalingsoppdrag() }
+            beregnetUtbetalingsoppdrag
+                .mapValues { it.value.utbetalingsoppdrag.tilRestUtbetalingsoppdrag() }
                 .toMutableMap(),
         )
         assertSjekkBehandlingIder(
             dataTable,
-            beregnetUtbetalingsoppdrag.mapValues { it.value.utbetalingsoppdrag.tilRestUtbetalingsoppdrag() }
+            beregnetUtbetalingsoppdrag
+                .mapValues { it.value.utbetalingsoppdrag.tilRestUtbetalingsoppdrag() }
                 .toMutableMap(),
         )
     }
@@ -134,12 +136,14 @@ class OppdragSteg {
     fun `forvent følgende simulering`(dataTable: DataTable) {
         validerForventetUtbetalingsoppdrag(
             dataTable,
-            beregnetUtbetalingsoppdragSimulering.mapValues { it.value.utbetalingsoppdrag.tilRestUtbetalingsoppdrag() }
+            beregnetUtbetalingsoppdragSimulering
+                .mapValues { it.value.utbetalingsoppdrag.tilRestUtbetalingsoppdrag() }
                 .toMutableMap(),
         )
         assertSjekkBehandlingIder(
             dataTable,
-            beregnetUtbetalingsoppdragSimulering.mapValues { it.value.utbetalingsoppdrag.tilRestUtbetalingsoppdrag() }
+            beregnetUtbetalingsoppdragSimulering
+                .mapValues { it.value.utbetalingsoppdrag.tilRestUtbetalingsoppdrag() }
                 .toMutableMap(),
         )
     }
@@ -169,16 +173,17 @@ class OppdragSteg {
     private fun genererBehandlinger(dataTable: DataTable) {
         val fagsak = lagFagsak()
         behandlinger =
-            dataTable.groupByBehandlingId()
+            dataTable
+                .groupByBehandlingId()
                 .map { lagBehandling(fagsak = fagsak).copy(id = it.key) }
                 .associateBy { it.id }
     }
 
-    private fun sisteAndelPerIdent(tilkjenteYtelser: List<TilkjentYtelse>): Map<IdentOgType, AndelTilkjentYtelse> {
-        return tilkjenteYtelser.flatMap { it.andelerTilkjentYtelse }
+    private fun sisteAndelPerIdent(tilkjenteYtelser: List<TilkjentYtelse>): Map<IdentOgType, AndelTilkjentYtelse> =
+        tilkjenteYtelser
+            .flatMap { it.andelerTilkjentYtelse }
             .groupBy { IdentOgType(it.aktør.aktivFødselsnummer(), it.type.tilYtelseType()) }
             .mapValues { it.value.maxBy { it.periodeOffset ?: 0 } }
-    }
 
     private fun assertUtbetalingsoppdrag(
         forventetUtbetalingsoppdrag: ForventetUtbetalingsoppdrag,

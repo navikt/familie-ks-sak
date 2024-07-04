@@ -139,10 +139,9 @@ class VedtaksperiodeService(
         return vedtaksperiodeMedBegrunnelser.vedtak
     }
 
-    fun skalHaÅrligKontroll(vedtak: Vedtak): Boolean {
-        return vedtak.behandling.kategori == BehandlingKategori.EØS &&
+    fun skalHaÅrligKontroll(vedtak: Vedtak): Boolean =
+        vedtak.behandling.kategori == BehandlingKategori.EØS &&
             hentPersisterteVedtaksperioder(vedtak).any { it.tom?.erSenereEnnInneværendeMåned() != false }
-    }
 
     private fun validerEndretUtbetalingsbegrunnelse(
         vedtaksperiodeMedBegrunnelser: VedtaksperiodeMedBegrunnelser,
@@ -169,20 +168,23 @@ class VedtaksperiodeService(
 
         val erToggleForLovendringAugust2024På = unleashNextMedContextService.isEnabled(FeatureToggleConfig.LOV_ENDRING_7_MND_NYE_BEHANDLINGER)
 
-        return vilkårsvurdering.personResultater.mapNotNull { personResultat ->
+        return vilkårsvurdering.personResultater
+            .mapNotNull { personResultat ->
 
-            val vilkårResultaterForAktørSomAlltidSkalKunneBegrunnes =
-                personResultat.vilkårResultater.filter { listeAvVilkårSomAlltidSkalKunneBegrunnes.contains(it.vilkårType) && it.periodeFom != null }
+                val vilkårResultaterForAktørSomAlltidSkalKunneBegrunnes =
+                    personResultat.vilkårResultater.filter { listeAvVilkårSomAlltidSkalKunneBegrunnes.contains(it.vilkårType) && it.periodeFom != null }
 
-            val vilkårResultaterForAktørMapSomAlltidSkalKunneBegrunnes =
-                vilkårResultaterForAktørSomAlltidSkalKunneBegrunnes
-                    .groupByTo(mutableMapOf()) { it.vilkårType }
-                    .mapValues { it.value }
+                val vilkårResultaterForAktørMapSomAlltidSkalKunneBegrunnes =
+                    vilkårResultaterForAktørSomAlltidSkalKunneBegrunnes
+                        .groupByTo(mutableMapOf()) { it.vilkårType }
+                        .mapValues { it.value }
 
-            vilkårResultaterForAktørMapSomAlltidSkalKunneBegrunnes.flatMap { (vilkårType, vilkårResultater) ->
-                forskyvVilkårResultater(vilkårType, vilkårResultater, erToggleForLovendringAugust2024På).tilTidslinje().tilPerioderIkkeNull()
-            }.mapNotNull { it.verdi.periodeTom }.maxOfOrNull { it }
-        }.maxOfOrNull { it }
+                vilkårResultaterForAktørMapSomAlltidSkalKunneBegrunnes
+                    .flatMap { (vilkårType, vilkårResultater) ->
+                        forskyvVilkårResultater(vilkårType, vilkårResultater, erToggleForLovendringAugust2024På).tilTidslinje().tilPerioderIkkeNull()
+                    }.mapNotNull { it.verdi.periodeTom }
+                    .maxOfOrNull { it }
+            }.maxOfOrNull { it }
     }
 
     @Transactional
@@ -262,7 +264,8 @@ class VedtaksperiodeService(
     }
 
     private fun hentSisteBehandlingSomErVedtatt(fagsakId: Long): Behandling? =
-        behandlingRepository.finnBehandlinger(fagsakId)
+        behandlingRepository
+            .finnBehandlinger(fagsakId)
             .filter { !it.erHenlagt() && it.status == BehandlingStatus.AVSLUTTET }
             .maxByOrNull { it.aktivertTidspunkt }
 
@@ -410,10 +413,10 @@ class VedtaksperiodeService(
                 ?: error("Finner ikke vilkårsvurdering ved begrunning av vedtak")
 
         val endreteUtbetalinger =
-            andelerTilkjentYtelseOgEndreteUtbetalingerService.finnEndreteUtbetalingerMedAndelerTilkjentYtelse(
-                behandling.id,
-            )
-                .map { it.endretUtbetalingAndel }
+            andelerTilkjentYtelseOgEndreteUtbetalingerService
+                .finnEndreteUtbetalingerMedAndelerTilkjentYtelse(
+                    behandling.id,
+                ).map { it.endretUtbetalingAndel }
 
         val andeler =
             andelerTilkjentYtelseOgEndreteUtbetalingerService.finnAndelerTilkjentYtelseMedEndreteUtbetalinger(
@@ -423,7 +426,8 @@ class VedtaksperiodeService(
         val sanityBegrunnelser = sanityService.hentSanityBegrunnelser()
 
         val andelerTilkjentYtelse =
-            andelerTilkjentYtelseOgEndreteUtbetalingerService.finnAndelerTilkjentYtelseMedEndreteUtbetalinger(behandling.id)
+            andelerTilkjentYtelseOgEndreteUtbetalingerService
+                .finnAndelerTilkjentYtelseMedEndreteUtbetalinger(behandling.id)
                 .map { it.andel }
 
         val utfylteKompetanser = kompetanseService.hentUtfylteKompetanser(behandling.behandlingId)
@@ -570,16 +574,23 @@ class VedtaksperiodeService(
             )
 
         val periodegrupperteAvslagEndreteUtbetalinger =
-            endreteUtbetalinger.filter { it.erEksplisittAvslagPåSøknad == true }
+            endreteUtbetalinger
+                .filter { it.erEksplisittAvslagPåSøknad == true }
                 .groupBy { NullablePeriode(it.fom?.toLocalDate(), it.tom?.toLocalDate()) }
 
         val avslagsperioder =
-            periodegrupperteAvslagEndreteUtbetalinger.map { (fellesPeriode, endretUtbetalinger) ->
+            periodegrupperteAvslagEndreteUtbetalinger
+                .map { (fellesPeriode, endretUtbetalinger) ->
 
-                val avslagsbegrunnelser = endretUtbetalinger.map { it.begrunnelser }.flatten().toSet().toList()
+                    val avslagsbegrunnelser =
+                        endretUtbetalinger
+                            .map { it.begrunnelser }
+                            .flatten()
+                            .toSet()
+                            .toList()
 
-                lagVedtaksPeriodeMedBegrunnelser(vedtak, fellesPeriode, avslagsbegrunnelser)
-            }.toMutableList()
+                    lagVedtaksPeriodeMedBegrunnelser(vedtak, fellesPeriode, avslagsbegrunnelser)
+                }.toMutableList()
 
         return avslagsperioder
     }
@@ -594,17 +605,24 @@ class VedtaksperiodeService(
             )
 
         val periodegrupperteAvslagsvilkår: Map<NullablePeriode, List<VilkårResultat>> =
-            vilkårsvurdering.personResultater.flatMap { it.vilkårResultater }
+            vilkårsvurdering.personResultater
+                .flatMap { it.vilkårResultater }
                 .filter { it.erEksplisittAvslagPåSøknad == true }
                 .groupBy { NullablePeriode(it.periodeFom, it.periodeTom) }
 
         val avslagsperioder =
-            periodegrupperteAvslagsvilkår.map { (fellesPeriode, vilkårResultater) ->
+            periodegrupperteAvslagsvilkår
+                .map { (fellesPeriode, vilkårResultater) ->
 
-                val avslagsbegrunnelser = vilkårResultater.map { it.begrunnelser }.flatten().toSet().toList()
+                    val avslagsbegrunnelser =
+                        vilkårResultater
+                            .map { it.begrunnelser }
+                            .flatten()
+                            .toSet()
+                            .toList()
 
-                lagVedtaksPeriodeMedBegrunnelser(vedtak, fellesPeriode, avslagsbegrunnelser)
-            }.toMutableList()
+                    lagVedtaksPeriodeMedBegrunnelser(vedtak, fellesPeriode, avslagsbegrunnelser)
+                }.toMutableList()
 
         return avslagsperioder
     }
@@ -616,8 +634,10 @@ class VedtaksperiodeService(
         val målform = personopplysningGrunnlagService.hentSøkersMålform(behandlingId = behandling.id)
         val landkoderISO2 = integrasjonClient.hentLandkoderISO2()
 
-        return refusjonEøsRepository.finnRefusjonEøsForBehandling(behandling.id)
-            .filter { it.refusjonAvklart == avklart }.map {
+        return refusjonEøsRepository
+            .finnRefusjonEøsForBehandling(behandling.id)
+            .filter { it.refusjonAvklart == avklart }
+            .map {
                 val (fom, tom) = it.fom.tilMånedÅr() to it.tom.tilMånedÅr()
                 val land =
                     landkoderISO2[it.land]?.storForbokstav() ?: throw Feil("Fant ikke navn for landkode ${it.land}")
@@ -640,7 +660,8 @@ class VedtaksperiodeService(
                         }
                     }
                 }
-            }.toSet().takeIf { it.isNotEmpty() }
+            }.toSet()
+            .takeIf { it.isNotEmpty() }
     }
 
     private fun lagVedtaksPeriodeMedBegrunnelser(
@@ -688,19 +709,20 @@ class VedtaksperiodeService(
                 avslagsperioder
             }
 
-        return avslagsperioderMedTomPeriode.map {
-            if (it.fom == null && it.tom == null && uregistrerteBarn.isNotEmpty()) {
-                it.apply {
-                    begrunnelser.add(
-                        NasjonalEllerFellesBegrunnelseDB(
-                            vedtaksperiodeMedBegrunnelser = this,
-                            nasjonalEllerFellesBegrunnelse = NasjonalEllerFellesBegrunnelse.AVSLAG_UREGISTRERT_BARN,
-                        ),
-                    )
+        return avslagsperioderMedTomPeriode
+            .map {
+                if (it.fom == null && it.tom == null && uregistrerteBarn.isNotEmpty()) {
+                    it.apply {
+                        begrunnelser.add(
+                            NasjonalEllerFellesBegrunnelseDB(
+                                vedtaksperiodeMedBegrunnelser = this,
+                                nasjonalEllerFellesBegrunnelse = NasjonalEllerFellesBegrunnelse.AVSLAG_UREGISTRERT_BARN,
+                            ),
+                        )
+                    }
+                } else {
+                    it
                 }
-            } else {
-                it
-            }
-        }.toList()
+            }.toList()
     }
 }

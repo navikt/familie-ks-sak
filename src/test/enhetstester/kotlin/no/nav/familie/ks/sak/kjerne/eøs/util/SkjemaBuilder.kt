@@ -24,7 +24,8 @@ abstract class SkjemaBuilder<S, B>(
         val tidslinje =
             charTidslinje.tilTidslinje(startMåned, mapChar)
 
-        tidslinje.tilPerioder()
+        tidslinje
+            .tilPerioder()
             .filtrerIkkeNull()
             .map {
                 it.verdi.kopier(
@@ -32,8 +33,7 @@ abstract class SkjemaBuilder<S, B>(
                     tom = it.tom?.tilYearMonth(),
                     barnAktører = barn.map { person -> person.aktør }.toSet(),
                 )
-            }
-            .all { skjemaer.add(it) }
+            }.all { skjemaer.add(it) }
 
         @Suppress("UNCHECKED_CAST")
         return this as B
@@ -52,7 +52,5 @@ abstract class SkjemaBuilder<S, B>(
         skjemaer
             .map { skjema -> skjema.also { it.behandlingId = behandlingId.id } }
 
-    fun lagreTil(repository: EøsSkjemaRepository<S>): List<S> {
-        return repository.saveAll(bygg())
-    }
+    fun lagreTil(repository: EøsSkjemaRepository<S>): List<S> = repository.saveAll(bygg())
 }

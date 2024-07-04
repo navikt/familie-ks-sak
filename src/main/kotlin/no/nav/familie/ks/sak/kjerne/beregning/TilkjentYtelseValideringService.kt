@@ -66,12 +66,12 @@ class TilkjentYtelseValideringService(
     fun kontantstøtteLøperForAnnenForelder(
         behandling: Behandling,
         barna: List<Person>,
-    ): Boolean {
-        return barna.any {
-            beregningService.hentRelevanteTilkjentYtelserForBarn(barnAktør = it.aktør, fagsakId = behandling.fagsak.id)
+    ): Boolean =
+        barna.any {
+            beregningService
+                .hentRelevanteTilkjentYtelserForBarn(barnAktør = it.aktør, fagsakId = behandling.fagsak.id)
                 .isNotEmpty()
         }
-    }
 
     fun finnAktørerMedUgyldigEtterbetalingsperiode(behandlingId: Long): List<Aktør> {
         val tilkjentYtelse = beregningService.hentTilkjentYtelseForBehandling(behandlingId = behandlingId)
@@ -81,9 +81,11 @@ class TilkjentYtelseValideringService(
                 fagsakId = behandlingService.hentBehandling(behandlingId).fagsak.id,
             )
         val forrigeAndelerTilkjentYtelse =
-            forrigeBehandling?.let {
-                beregningService.hentTilkjentYtelseForBehandling(behandlingId = it.id)
-            }?.andelerTilkjentYtelse?.toList()
+            forrigeBehandling
+                ?.let {
+                    beregningService.hentTilkjentYtelseForBehandling(behandlingId = it.id)
+                }?.andelerTilkjentYtelse
+                ?.toList()
 
         val aktørIderMedUgyldigEtterbetaling =
             finnAktørIderMedUgyldigEtterbetalingsperiode(

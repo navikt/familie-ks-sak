@@ -32,7 +32,8 @@ internal class OppdragKlientTest {
     @Test
     fun `hentSimulering - skal hente simulering for utbetalingsoppdrag`() {
         wiremockServerItem.stubFor(
-            WireMock.post(WireMock.urlEqualTo("/simulering/v1"))
+            WireMock
+                .post(WireMock.urlEqualTo("/simulering/v1"))
                 .willReturn(WireMock.okJson(readFile("hentSimulering.json"))),
         )
 
@@ -69,7 +70,8 @@ internal class OppdragKlientTest {
     @Test
     fun `hentStatus - skal hente status for oppdragId`() {
         wiremockServerItem.stubFor(
-            WireMock.post(WireMock.urlEqualTo("/status"))
+            WireMock
+                .post(WireMock.urlEqualTo("/status"))
                 .willReturn(WireMock.okJson(readFile("hentStatus.json"))),
         )
 
@@ -78,7 +80,5 @@ internal class OppdragKlientTest {
         assertThat(oppdragStatus, Is(OppdragStatus.KVITTERT_OK))
     }
 
-    private fun readFile(filnavn: String): String {
-        return this::class.java.getResource("/oppdrag/json/$filnavn").readText()
-    }
+    private fun readFile(filnavn: String): String = this::class.java.getResource("/oppdrag/json/$filnavn").readText()
 }

@@ -86,15 +86,19 @@ class VilkårsvurderingServiceTest {
 
         assertEquals(3, lagretVilkårsvurdering.personResultater.size)
         assertThat(
-            lagretVilkårsvurdering.personResultater.find {
-                it.aktør.aktivFødselsnummer() === søker.aktivFødselsnummer()
-            }?.vilkårResultater?.map { it.vilkårType },
+            lagretVilkårsvurdering.personResultater
+                .find {
+                    it.aktør.aktivFødselsnummer() === søker.aktivFødselsnummer()
+                }?.vilkårResultater
+                ?.map { it.vilkårType },
             containsInAnyOrder(Vilkår.BOSATT_I_RIKET, Vilkår.MEDLEMSKAP),
         )
         assertThat(
-            lagretVilkårsvurdering.personResultater.find {
-                it.aktør.aktivFødselsnummer() === barn1.aktivFødselsnummer()
-            }?.vilkårResultater?.map { it.vilkårType },
+            lagretVilkårsvurdering.personResultater
+                .find {
+                    it.aktør.aktivFødselsnummer() === barn1.aktivFødselsnummer()
+                }?.vilkårResultater
+                ?.map { it.vilkårType },
             containsInAnyOrder(
                 Vilkår.BOSATT_I_RIKET,
                 Vilkår.BARNEHAGEPLASS,
@@ -106,11 +110,13 @@ class VilkårsvurderingServiceTest {
 
         // autoutfylling
         val barnetsAlderVilkårer =
-            lagretVilkårsvurdering.personResultater.filter { !it.erSøkersResultater() }
+            lagretVilkårsvurdering.personResultater
+                .filter { !it.erSøkersResultater() }
                 .flatMap { it.vilkårResultater.filter { it.vilkårType == Vilkår.BARNETS_ALDER } }
 
         val barnehageVilkårer =
-            lagretVilkårsvurdering.personResultater.filter { !it.erSøkersResultater() }
+            lagretVilkårsvurdering.personResultater
+                .filter { !it.erSøkersResultater() }
                 .flatMap { it.vilkårResultater.filter { vilkår -> vilkår.vilkårType == Vilkår.BARNEHAGEPLASS } }
 
         assertTrue {
@@ -139,8 +145,10 @@ class VilkårsvurderingServiceTest {
         assertTrue { barnehageVilkårer.any { it.periodeFom == barn2FødselsDato } }
 
         val medlemskapVilkår =
-            lagretVilkårsvurdering.personResultater.single { it.erSøkersResultater() }
-                .vilkårResultater.single { it.vilkårType == Vilkår.MEDLEMSKAP }
+            lagretVilkårsvurdering.personResultater
+                .single { it.erSøkersResultater() }
+                .vilkårResultater
+                .single { it.vilkårType == Vilkår.MEDLEMSKAP }
         assertEquals(fnrTilFødselsdato(søker.aktivFødselsnummer()).plusYears(5), medlemskapVilkår.periodeFom)
     }
 

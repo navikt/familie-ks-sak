@@ -13,7 +13,8 @@ class WebConfig(
     private val rolleConfig: RolleConfig,
 ) : WebMvcConfigurer {
     override fun addInterceptors(registry: InterceptorRegistry) {
-        registry.addInterceptor(RolletilgangInterceptor(rolleConfig))
+        registry
+            .addInterceptor(RolletilgangInterceptor(rolleConfig))
             .excludePathPatterns("/api/task/**", "/api/v2/task/**", "/internal", "/testverktoy", "/api/feature")
         super.addInterceptors(registry)
     }

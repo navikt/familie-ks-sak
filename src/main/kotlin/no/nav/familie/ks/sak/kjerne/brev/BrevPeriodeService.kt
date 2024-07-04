@@ -38,7 +38,10 @@ class BrevPeriodeService(
     val unleashNextMedContextService: UnleashNextMedContextService,
 ) {
     fun hentBegrunnelsesteksterForPeriode(vedtaksperiodeId: Long): List<BegrunnelseDto> {
-        val behandlingId = vedtaksperiodeHentOgPersisterService.hentVedtaksperiodeThrows(vedtaksperiodeId).vedtak.behandling.id
+        val behandlingId =
+            vedtaksperiodeHentOgPersisterService
+                .hentVedtaksperiodeThrows(vedtaksperiodeId)
+                .vedtak.behandling.id
 
         val utvidetVedtaksperiodeMedBegrunnelser =
             vedtaksperiodeService.hentUtvidetVedtaksperiodeMedBegrunnelser(vedtaksperiodeId)
@@ -93,10 +96,12 @@ class BrevPeriodeService(
     }
 
     fun beskrivPerioderMedUavklartRefusjonEøs(vedtak: Vedtak) =
-        vedtaksperiodeService.beskrivPerioderMedRefusjonEøs(behandling = vedtak.behandling, avklart = false)
+        vedtaksperiodeService
+            .beskrivPerioderMedRefusjonEøs(behandling = vedtak.behandling, avklart = false)
             ?.let { RefusjonEøsUavklart(perioderMedRefusjonEøsUavklart = it) }
 
     fun beskrivPerioderMedAvklartRefusjonEøs(vedtak: Vedtak) =
-        vedtaksperiodeService.beskrivPerioderMedRefusjonEøs(behandling = vedtak.behandling, avklart = true)
+        vedtaksperiodeService
+            .beskrivPerioderMedRefusjonEøs(behandling = vedtak.behandling, avklart = true)
             ?.let { RefusjonEøsAvklart(perioderMedRefusjonEøsAvklart = it) }
 }
