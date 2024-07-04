@@ -14,7 +14,6 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Reg
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.UtdypendeVilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårRegelsett
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.brev.lagPersonResultat
@@ -97,6 +96,7 @@ class BehandlingsresultatOpphørUtilsTest {
                 nåværendePersonResultaterPåBarn = emptyList(),
                 forrigePersonResultaterPåBarn = emptyList(),
                 nåMåned = YearMonth.now(),
+                erToggleForLovendringAugust2024På = true,
             )
 
         assertEquals(Opphørsresultat.IKKE_OPPHØRT, opphørsresultat)
@@ -148,6 +148,7 @@ class BehandlingsresultatOpphørUtilsTest {
                 nåværendePersonResultaterPåBarn = emptyList(),
                 forrigePersonResultaterPåBarn = emptyList(),
                 nåMåned = YearMonth.now(),
+                erToggleForLovendringAugust2024På = true,
             )
 
         assertEquals(Opphørsresultat.OPPHØRT, opphørsresultat)
@@ -199,6 +200,7 @@ class BehandlingsresultatOpphørUtilsTest {
                 nåværendePersonResultaterPåBarn = emptyList(),
                 forrigePersonResultaterPåBarn = emptyList(),
                 nåMåned = YearMonth.now(),
+                erToggleForLovendringAugust2024På = true,
             )
 
         assertEquals(Opphørsresultat.OPPHØRT, opphørsresultat)
@@ -227,6 +229,7 @@ class BehandlingsresultatOpphørUtilsTest {
                 nåværendePersonResultaterPåBarn = emptyList(),
                 forrigePersonResultaterPåBarn = emptyList(),
                 nåMåned = YearMonth.now(),
+                erToggleForLovendringAugust2024På = true,
             )
 
         assertEquals(Opphørsresultat.OPPHØRT, opphørsresultat)
@@ -278,6 +281,7 @@ class BehandlingsresultatOpphørUtilsTest {
                 nåværendePersonResultaterPåBarn = emptyList(),
                 forrigePersonResultaterPåBarn = emptyList(),
                 nåMåned = YearMonth.now(),
+                erToggleForLovendringAugust2024På = true,
             )
 
         assertEquals(Opphørsresultat.FORTSATT_OPPHØRT, opphørsresultat)
@@ -329,6 +333,7 @@ class BehandlingsresultatOpphørUtilsTest {
                 nåværendePersonResultaterPåBarn = emptyList(),
                 forrigePersonResultaterPåBarn = emptyList(),
                 nåMåned = YearMonth.now(),
+                erToggleForLovendringAugust2024På = true,
             )
 
         assertEquals(Opphørsresultat.IKKE_OPPHØRT, opphørsresultat)
@@ -589,7 +594,6 @@ class BehandlingsresultatOpphørUtilsTest {
                             utdypendeVilkårsvurderinger = listOf(UtdypendeVilkårsvurdering.ANNEN_FORELDER_OMFATTET_AV_NORSK_LOVGIVNING),
                             søkerHarMeldtFraOmBarnehageplass = true,
                             antallTimer = BigDecimal(33),
-                            regelsett = VilkårRegelsett.LOV_AUGUST_2021,
                         ),
                     ),
             )
@@ -611,7 +615,6 @@ class BehandlingsresultatOpphørUtilsTest {
                             utdypendeVilkårsvurderinger = listOf(UtdypendeVilkårsvurdering.ANNEN_FORELDER_OMFATTET_AV_NORSK_LOVGIVNING),
                             søkerHarMeldtFraOmBarnehageplass = true,
                             antallTimer = BigDecimal(33),
-                            regelsett = VilkårRegelsett.LOV_AUGUST_2021,
                         ),
                     ),
             )
@@ -625,6 +628,7 @@ class BehandlingsresultatOpphørUtilsTest {
                 nåværendePersonResultaterPåBarn = listOf(personResultatBarn1, personResultatBarn2),
                 forrigePersonResultaterPåBarn = listOf(),
                 nåMåned = YearMonth.now(),
+                erToggleForLovendringAugust2024På = true,
             )
 
         assertEquals(Opphørsresultat.OPPHØRT, opphørsresultat)
@@ -652,7 +656,6 @@ class BehandlingsresultatOpphørUtilsTest {
                             utdypendeVilkårsvurderinger = listOf(UtdypendeVilkårsvurdering.ANNEN_FORELDER_OMFATTET_AV_NORSK_LOVGIVNING),
                             søkerHarMeldtFraOmBarnehageplass = true,
                             antallTimer = BigDecimal(33),
-                            regelsett = VilkårRegelsett.LOV_AUGUST_2021,
                         ),
                     ),
             )
@@ -674,7 +677,6 @@ class BehandlingsresultatOpphørUtilsTest {
                             utdypendeVilkårsvurderinger = listOf(UtdypendeVilkårsvurdering.ANNEN_FORELDER_OMFATTET_AV_NORSK_LOVGIVNING),
                             søkerHarMeldtFraOmBarnehageplass = true,
                             antallTimer = BigDecimal(33),
-                            regelsett = VilkårRegelsett.LOV_AUGUST_2021,
                         ),
                     ),
             )
@@ -688,6 +690,7 @@ class BehandlingsresultatOpphørUtilsTest {
                 nåværendePersonResultaterPåBarn = listOf(personResultatBarn1, personResultatBarn2),
                 forrigePersonResultaterPåBarn = listOf(personResultatBarn1, personResultatBarn2),
                 nåMåned = YearMonth.now(),
+                erToggleForLovendringAugust2024På = true,
             )
 
         assertEquals(Opphørsresultat.FORTSATT_OPPHØRT, opphørsresultat)
@@ -714,7 +717,6 @@ class BehandlingsresultatOpphørUtilsTest {
                             vurderesEtter = Regelverk.EØS_FORORDNINGEN,
                             utdypendeVilkårsvurderinger = listOf(UtdypendeVilkårsvurdering.ANNEN_FORELDER_OMFATTET_AV_NORSK_LOVGIVNING),
                             søkerHarMeldtFraOmBarnehageplass = true,
-                            regelsett = VilkårRegelsett.LOV_AUGUST_2021,
                         ),
                     ),
             )
@@ -735,7 +737,6 @@ class BehandlingsresultatOpphørUtilsTest {
                             vurderesEtter = Regelverk.EØS_FORORDNINGEN,
                             utdypendeVilkårsvurderinger = listOf(UtdypendeVilkårsvurdering.ANNEN_FORELDER_OMFATTET_AV_NORSK_LOVGIVNING),
                             søkerHarMeldtFraOmBarnehageplass = false,
-                            regelsett = VilkårRegelsett.LOV_AUGUST_2021,
                         ),
                     ),
             )
@@ -749,6 +750,7 @@ class BehandlingsresultatOpphørUtilsTest {
                 nåværendePersonResultaterPåBarn = listOf(personResultatBarn1, personResultatBarn2),
                 forrigePersonResultaterPåBarn = listOf(),
                 nåMåned = YearMonth.now(),
+                erToggleForLovendringAugust2024På = true,
             )
 
         assertEquals(Opphørsresultat.IKKE_OPPHØRT, opphørsresultat)

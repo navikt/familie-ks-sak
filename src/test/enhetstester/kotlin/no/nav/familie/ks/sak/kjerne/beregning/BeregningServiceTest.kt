@@ -5,6 +5,7 @@ import io.mockk.impl.annotations.InjectMockKs
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import io.mockk.mockk
+import no.nav.familie.ks.sak.config.featureToggle.UnleashNextMedContextService
 import no.nav.familie.ks.sak.data.lagAndelTilkjentYtelse
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagFagsak
@@ -47,6 +48,9 @@ class BeregningServiceTest {
 
     @MockK
     private lateinit var fagsakService: FagsakService
+
+    @MockK
+    private lateinit var unleashNextMedContextService: UnleashNextMedContextService
 
     @InjectMockKs
     private lateinit var beregningService: BeregningService

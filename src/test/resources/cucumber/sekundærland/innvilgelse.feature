@@ -51,7 +51,7 @@ Egenskap: Sekundærland - innvilgelse
     Og når disse begrunnelsene er valgt for behandling 1
       | Fra dato   | Til dato   | Standardbegrunnelser | Eøsbegrunnelser                 | Fritekster |
       | 01.10.2023 | 30.11.2023 |                      | INNVILGET_SEKUNDÆRLAND_STANDARD |            |
-      | 01.12.2023 | 31.08.2024 |                      |                                 |            |
+      | 01.12.2023 | 30.09.2024 |                      |                                 |            |
 
     Så forvent følgende brevperioder for behandling 1
       | Brevperiodetype | Fra dato        | Til dato              | Beløp | Antall barn med utbetaling | Barnas fødselsdager | Du eller institusjonen |

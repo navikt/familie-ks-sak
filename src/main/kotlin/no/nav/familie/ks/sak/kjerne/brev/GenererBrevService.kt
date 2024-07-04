@@ -8,6 +8,8 @@ import no.nav.familie.ks.sak.common.util.formaterBeløp
 import no.nav.familie.ks.sak.common.util.storForbokstavIAlleNavn
 import no.nav.familie.ks.sak.common.util.tilDagMånedÅr
 import no.nav.familie.ks.sak.common.util.tilMånedÅr
+import no.nav.familie.ks.sak.config.featureToggle.FeatureToggleConfig
+import no.nav.familie.ks.sak.config.featureToggle.UnleashNextMedContextService
 import no.nav.familie.ks.sak.integrasjon.sanity.SanityService
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelse
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.ArbeidsfordelingService
@@ -73,6 +75,7 @@ class GenererBrevService(
     private val saksbehandlerContext: SaksbehandlerContext,
     private val refusjonEøsRepository: RefusjonEøsRepository,
     private val korrigertEtterbetalingService: KorrigertEtterbetalingService,
+    private val unleashNextMedContextService: UnleashNextMedContextService,
 ) {
     fun genererManueltBrev(
         manueltBrevRequest: ManueltBrevDto,
@@ -100,6 +103,7 @@ class GenererBrevService(
 
     fun genererBrevForBehandling(behandlingId: Long): ByteArray {
         val vedtak = vedtakService.hentAktivVedtakForBehandling(behandlingId)
+        val erToggleForLovendringAugust2024På = unleashNextMedContextService.isEnabled(FeatureToggleConfig.LOV_ENDRING_7_MND_NYE_BEHANDLINGER)
         try {
             if (vedtak.behandling.steg > BehandlingSteg.BESLUTTE_VEDTAK) {
                 throw FunksjonellFeil("Ikke tillatt å generere brev etter at behandlingen er sendt fra beslutter")
@@ -108,7 +112,7 @@ class GenererBrevService(
             val målform = personopplysningGrunnlagService.hentSøkersMålform(vedtak.behandling.id)
             val vedtaksbrev =
                 when (vedtak.behandling.opprettetÅrsak) {
-                    BehandlingÅrsak.DØDSFALL -> hentDødsfallbrevData(vedtak)
+                    BehandlingÅrsak.DØDSFALL -> hentDødsfallbrevData(vedtak, erToggleForLovendringAugust2024På)
                     BehandlingÅrsak.KORREKSJON_VEDTAKSBREV -> TODO() // brevService.hentKorreksjonbrevData(vedtak)
                     else -> hentVedtaksbrevData(vedtak)
                 }
@@ -322,7 +326,10 @@ class GenererBrevService(
         return etterbetalingsBeløp.takeIf { it > BigDecimal.ZERO }?.run { formaterBeløp(this.toInt()) }
     }
 
-    fun hentDødsfallbrevData(vedtak: Vedtak) =
+    fun hentDødsfallbrevData(
+        vedtak: Vedtak,
+        erToggleForLovendringAugust2024På: Boolean,
+    ) =
         hentGrunnlagOgSignaturData(vedtak).let { data ->
             Dødsfall(
                 data =
@@ -345,7 +352,7 @@ class GenererBrevService(
                                 navnAvdode = data.grunnlag.søker.navn.storForbokstavIAlleNavn(),
                                 virkningstidspunkt =
                                     hentVirkningstidspunkt(
-                                        opphørsperioder = vedtaksperiodeService.hentOpphørsperioder(vedtak.behandling),
+                                        opphørsperioder = vedtaksperiodeService.hentOpphørsperioder(vedtak.behandling, erToggleForLovendringAugust2024På),
                                         behandlingId = vedtak.behandling.id,
                                     ),
                             ),

@@ -8,6 +8,8 @@ import no.nav.familie.ks.sak.common.tidslinje.tilTidslinje
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.filtrerIkkeNull
 import no.nav.familie.ks.sak.common.util.førsteDagIInneværendeMåned
 import no.nav.familie.ks.sak.common.util.sisteDagIMåned
+import no.nav.familie.ks.sak.config.featureToggle.FeatureToggleConfig
+import no.nav.familie.ks.sak.config.featureToggle.UnleashNextMedContextService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.UtdypendeVilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
@@ -20,14 +22,16 @@ class VilkårsvurderingTidslinjeService(
     private val vilkårsvurderingRepository: VilkårsvurderingRepository,
     private val vilkårsvurderingService: VilkårsvurderingService,
     private val personopplysningGrunnlagRepository: PersonopplysningGrunnlagRepository,
+    private val unleashNextMedContextService: UnleashNextMedContextService,
 ) {
     fun lagVilkårsvurderingTidslinjer(behandlingId: Long): VilkårsvurderingTidslinjer {
         val vilkårsvurdering =
             vilkårsvurderingRepository.finnAktivForBehandling(behandlingId)
                 ?: throw Feil("Finnes ikke aktiv vilkårsvurdering for behandlingId=$behandlingId")
         val personopplysningGrunnlag = personopplysningGrunnlagRepository.hentByBehandlingAndAktiv(behandlingId)
+        val erToggleForLovendringAugust2024På = unleashNextMedContextService.isEnabled(FeatureToggleConfig.LOV_ENDRING_7_MND_NYE_BEHANDLINGER)
 
-        return VilkårsvurderingTidslinjer(vilkårsvurdering, personopplysningGrunnlag)
+        return VilkårsvurderingTidslinjer(vilkårsvurdering, personopplysningGrunnlag, erToggleForLovendringAugust2024På)
     }
 
     fun hentAnnenForelderOmfattetAvNorskLovgivningTidslinje(behandlingId: Long): Tidslinje<Boolean> {

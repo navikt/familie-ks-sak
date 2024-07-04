@@ -18,7 +18,6 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.Vedtak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.Vedtaksperiodetype
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårRegelsett
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.regelsett.tilForskjøvetOppfylteVilkårResultatTidslinjeMap
 import no.nav.familie.ks.sak.kjerne.beregning.AndelTilkjentYtelseMedEndreteUtbetalinger
@@ -120,7 +119,7 @@ internal class UtbetalingsperiodeUtilTest {
             hentPerioderMedUtbetaling(
                 andelerTilkjentYtelse = listOf(andelPerson1MarsTilApril, andelPerson1MaiTilJuli, andelPerson2MarsTilJuli),
                 vedtak = vedtak,
-                forskjøvetVilkårResultatTidslinjeMap = personResultater.tilForskjøvetOppfylteVilkårResultatTidslinjeMap(personopplysningGrunnlag),
+                forskjøvetVilkårResultatTidslinjeMap = personResultater.tilForskjøvetOppfylteVilkårResultatTidslinjeMap(personopplysningGrunnlag, true),
                 kompetanser = emptyList(),
             )
 
@@ -206,7 +205,7 @@ internal class UtbetalingsperiodeUtilTest {
             hentPerioderMedUtbetaling(
                 andelerTilkjentYtelse = listOf(andelPerson1MarsTilMai, andelPerson2MaiTilJuli),
                 vedtak = vedtak,
-                forskjøvetVilkårResultatTidslinjeMap = personResultater.tilForskjøvetOppfylteVilkårResultatTidslinjeMap(personopplysningGrunnlag),
+                forskjøvetVilkårResultatTidslinjeMap = personResultater.tilForskjøvetOppfylteVilkårResultatTidslinjeMap(personopplysningGrunnlag, true),
                 kompetanser = emptyList(),
             )
 
@@ -226,7 +225,7 @@ internal class UtbetalingsperiodeUtilTest {
         @Test
         fun `Skal lage ny vedtaksperiode dersom vi får en ny kompetansene`() {
             val (vilkårsvurdering, tilkjentYtelse) = kjørBehandlingFramTilBehandlingsresultatMedAltGodkjent()
-            val forskjøvetVilkårResultatTidslinjeMap = vilkårsvurdering.personResultater.tilForskjøvetOppfylteVilkårResultatTidslinjeMap(personopplysningGrunnlag)
+            val forskjøvetVilkårResultatTidslinjeMap = vilkårsvurdering.personResultater.tilForskjøvetOppfylteVilkårResultatTidslinjeMap(personopplysningGrunnlag, true)
 
             val vedtaksperioderUtenKompetanse =
                 hentPerioderMedUtbetaling(
@@ -261,7 +260,7 @@ internal class UtbetalingsperiodeUtilTest {
         @Test
         fun `Skal lage ny vedtaksperiode dersom det er endring i kompetansene`() {
             val (vilkårsvurdering, tilkjentYtelse) = kjørBehandlingFramTilBehandlingsresultatMedAltGodkjent()
-            val forskjøvetVilkårResultatTidslinjeMap = vilkårsvurdering.personResultater.tilForskjøvetOppfylteVilkårResultatTidslinjeMap(personopplysningGrunnlag)
+            val forskjøvetVilkårResultatTidslinjeMap = vilkårsvurdering.personResultater.tilForskjøvetOppfylteVilkårResultatTidslinjeMap(personopplysningGrunnlag, true)
 
             val vedtaksperioderUtenKompetanse =
                 hentPerioderMedUtbetaling(
@@ -320,6 +319,7 @@ internal class UtbetalingsperiodeUtilTest {
             TilkjentYtelseUtils.beregnTilkjentYtelse(
                 vilkårsvurdering = vilkårsvurdering,
                 personopplysningGrunnlag = personopplysningGrunnlag,
+                true,
             )
         return DataEtterVilkårsvurdering(vilkårsvurdering, tilkjentYtelse)
     }
@@ -333,7 +333,6 @@ internal class UtbetalingsperiodeUtilTest {
             periodeTom = person.fødselsdato.plusYears(2),
             lagFullstendigVilkårResultat = true,
             personType = PersonType.BARN,
-            regelsett = VilkårRegelsett.LOV_AUGUST_2021,
         )
 
     private fun Vilkårsvurdering.lagGodkjentPersonResultatForSøker(person: Person) =
@@ -345,6 +344,5 @@ internal class UtbetalingsperiodeUtilTest {
             periodeTom = null,
             lagFullstendigVilkårResultat = true,
             personType = PersonType.SØKER,
-            regelsett = VilkårRegelsett.LOV_AUGUST_2021,
         )
 }
