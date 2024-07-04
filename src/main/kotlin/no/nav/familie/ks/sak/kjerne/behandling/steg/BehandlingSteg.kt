@@ -4,6 +4,7 @@ import no.nav.familie.ks.sak.config.BehandlerRolle
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
+import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak.LOVENDRING_2024
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak.SATSENDRING
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak.SØKNAD
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak.TEKNISK_ENDRING
@@ -26,21 +27,18 @@ enum class BehandlingSteg(
     SIMULERING(
         sekvens = 5,
         gyldigBehandlerRolle = listOf(BehandlerRolle.SYSTEM, BehandlerRolle.SAKSBEHANDLER),
-        gyldigForÅrsaker = BehandlingÅrsak.values().filterNot { it == SATSENDRING },
+        gyldigForÅrsaker = BehandlingÅrsak.entries.minus(listOf(SATSENDRING, LOVENDRING_2024)),
         gyldigForResultater = Behandlingsresultat.values().filterNot { it == Behandlingsresultat.AVSLÅTT },
     ),
     VEDTAK(
         sekvens = 6,
         gyldigBehandlerRolle = listOf(BehandlerRolle.SYSTEM, BehandlerRolle.SAKSBEHANDLER),
-        gyldigForÅrsaker = BehandlingÅrsak.values().filterNot { it == SATSENDRING },
+        gyldigForÅrsaker = BehandlingÅrsak.entries.minus(listOf(SATSENDRING, LOVENDRING_2024)),
     ),
     BESLUTTE_VEDTAK(
         sekvens = 7,
         gyldigBehandlerRolle = listOf(BehandlerRolle.SYSTEM, BehandlerRolle.BESLUTTER),
-        gyldigForÅrsaker =
-            BehandlingÅrsak.values()
-                // steg er gyldig for alle behandling årsaker bortsett fra SATSENDRING
-                .filterNot { it == SATSENDRING },
+        gyldigForÅrsaker = BehandlingÅrsak.entries.minus(listOf(SATSENDRING, LOVENDRING_2024)),
         tilknyttetBehandlingStatus = BehandlingStatus.FATTER_VEDTAK,
     ),
     IVERKSETT_MOT_OPPDRAG(
@@ -51,7 +49,7 @@ enum class BehandlingSteg(
     JOURNALFØR_VEDTAKSBREV(
         sekvens = 9,
         gyldigBehandlerRolle = listOf(BehandlerRolle.SYSTEM),
-        gyldigForÅrsaker = BehandlingÅrsak.values().filterNot { it == SATSENDRING || it == TEKNISK_ENDRING },
+        gyldigForÅrsaker = BehandlingÅrsak.entries.minus(listOf(SATSENDRING, TEKNISK_ENDRING, LOVENDRING_2024)),
         tilknyttetBehandlingStatus = BehandlingStatus.IVERKSETTER_VEDTAK,
     ),
     AVSLUTT_BEHANDLING(

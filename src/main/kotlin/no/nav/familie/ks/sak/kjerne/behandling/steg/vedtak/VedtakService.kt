@@ -7,6 +7,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.Vedtak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.VedtakRepository
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.VedtaksperiodeService
 import org.springframework.stereotype.Service
+import java.time.LocalDateTime
 
 @Service
 class VedtakService(
@@ -24,6 +25,7 @@ class VedtakService(
     fun opprettOgInitierNyttVedtakForBehandling(
         behandling: Behandling,
         kopierVedtakBegrunnelser: Boolean = false,
+        erAutomatiskBehandling: Boolean = false,
     ) {
         behandling.steg.takeUnless { it !== BehandlingSteg.BESLUTTE_VEDTAK && it !== BehandlingSteg.REGISTRERE_PERSONGRUNNLAG }
             ?: throw Feil("Forsøker å initiere vedtak på steg ${behandling.steg}")
@@ -32,7 +34,11 @@ class VedtakService(
             vedtakRepository.findByBehandlingAndAktivOptional(behandlingId = behandling.id)
                 ?.let { vedtakRepository.saveAndFlush(it.also { it.aktiv = false }) }
 
-        val nyttVedtak = Vedtak(behandling = behandling)
+        val nyttVedtak =
+            Vedtak(
+                behandling = behandling,
+                vedtaksdato = if (erAutomatiskBehandling) LocalDateTime.now() else null,
+            )
 
         if (kopierVedtakBegrunnelser && deaktivertVedtak != null) {
             vedtaksperiodeService.kopierOverVedtaksperioder(

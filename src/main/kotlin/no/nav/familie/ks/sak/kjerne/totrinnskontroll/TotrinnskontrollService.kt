@@ -17,6 +17,19 @@ class TotrinnskontrollService(private val totrinnskontrollRepository: Totrinnsko
         totrinnskontrollRepository.findByBehandlingAndAktiv(behandlingId)
             ?: throw Feil("Fant ikke aktiv totrinnskontroll for behandling $behandlingId")
 
+    fun opprettAutomatiskTotrinnskontroll(behandling: Behandling) {
+        lagreOgDeaktiverGammel(
+            Totrinnskontroll(
+                behandling = behandling,
+                godkjent = true,
+                saksbehandler = SikkerhetContext.SYSTEM_NAVN,
+                saksbehandlerId = SikkerhetContext.SYSTEM_FORKORTELSE,
+                beslutter = SikkerhetContext.SYSTEM_NAVN,
+                beslutterId = SikkerhetContext.SYSTEM_FORKORTELSE,
+            ),
+        )
+    }
+
     fun opprettTotrinnskontrollMedSaksbehandler(
         behandling: Behandling,
         saksbehandler: String = SikkerhetContext.hentSaksbehandlerNavn(),

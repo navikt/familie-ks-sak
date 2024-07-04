@@ -8,7 +8,7 @@ import no.nav.security.token.support.spring.SpringTokenValidationContextHolder
 import org.slf4j.LoggerFactory
 
 object SikkerhetContext {
-    private const val SYSTEM_FORKORTELSE = "VL"
+    const val SYSTEM_FORKORTELSE = "VL"
     const val SYSTEM_NAVN = "System"
 
     private val secureLogger = LoggerFactory.getLogger("secureLogger")

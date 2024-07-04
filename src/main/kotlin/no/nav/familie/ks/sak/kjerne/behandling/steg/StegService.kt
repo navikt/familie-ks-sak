@@ -216,14 +216,11 @@ class StegService(
     }
 
     private fun utførStegAutomatisk(behandling: Behandling) {
-        when (behandling.steg) {
-            IVERKSETT_MOT_OPPDRAG -> {
-                val vedtakId = vedtakRepository.findByBehandlingAndAktiv(behandling.id).id
-                val saksbehandlerId = SikkerhetContext.hentSaksbehandler()
-                taskService.save(IverksettMotOppdragTask.opprettTask(behandling, vedtakId, saksbehandlerId))
-            }
-
-            else -> {} // Gjør ingenting. Steg kan ikke utføre automatisk
+        // Dersom behandling er lovendring må vedtak kontrolleres først
+        if (behandling.steg == IVERKSETT_MOT_OPPDRAG && !behandling.erLovendring()) {
+            val vedtakId = vedtakRepository.findByBehandlingAndAktiv(behandling.id).id
+            val saksbehandlerId = SikkerhetContext.hentSaksbehandler()
+            taskService.save(IverksettMotOppdragTask.opprettTask(behandling, vedtakId, saksbehandlerId))
         }
     }
 
