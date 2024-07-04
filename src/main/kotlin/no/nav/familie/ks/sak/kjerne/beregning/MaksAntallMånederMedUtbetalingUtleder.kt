@@ -7,12 +7,12 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårLov
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårLovverkInformasjonForBarn
 import java.time.temporal.ChronoUnit
 
-fun utledMaksAntallMånederMedUtbetaling(vilkårLovverkInformasjonForBarn: VilkårLovverkInformasjonForBarn): Long {
-    return when (vilkårLovverkInformasjonForBarn.lovverk) {
+fun utledMaksAntallMånederMedUtbetaling(vilkårLovverkInformasjonForBarn: VilkårLovverkInformasjonForBarn): Long =
+    when (vilkårLovverkInformasjonForBarn.lovverk) {
         VilkårLovverk.LOVVERK_2024,
         VilkårLovverk.LOVVERK_2021_OG_2024,
         -> 7L
-        VilkårLovverk.LOVVVERK_2021 -> {
+        VilkårLovverk.LOVVERK_2021 -> {
             val sisteMuligeUtbetaling =
                 minOf(
                     vilkårLovverkInformasjonForBarn.periodeTomBarnetsAlderLov2021.tilYearMonth(),
@@ -23,4 +23,3 @@ fun utledMaksAntallMånederMedUtbetaling(vilkårLovverkInformasjonForBarn: Vilk�
             førsteMuligeUtbetaling.until(sisteMuligeUtbetaling, ChronoUnit.MONTHS) + 1L
         }
     }
-}
