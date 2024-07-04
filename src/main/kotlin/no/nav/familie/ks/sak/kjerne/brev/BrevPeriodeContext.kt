@@ -9,6 +9,7 @@ import no.nav.familie.ks.sak.common.tidslinje.utvidelser.hentVerdier
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.klipp
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.kombinerMed
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.tilPerioderIkkeNull
+import no.nav.familie.ks.sak.common.util.DATO_LOVENDRING_2024
 import no.nav.familie.ks.sak.common.util.TIDENES_ENDE
 import no.nav.familie.ks.sak.common.util.TIDENES_MORGEN
 import no.nav.familie.ks.sak.common.util.erDagenFør
@@ -559,7 +560,13 @@ class BrevPeriodeContext(
                 if (sanityBegrunnelse.inneholderGjelderFørstePeriodeTrigger()) {
                     hentTidligesteFomSomIkkeErOppfyltOgOverstiger33Timer(vilkårResultaterForRelevantePersoner, fom)
                 } else {
-                    fom.tilMånedÅr()
+                    val opphørErFørLovendring = fom.isBefore(DATO_LOVENDRING_2024)
+
+                    if (opphørErFørLovendring) {
+                        fom.tilMånedÅr()
+                    } else {
+                        fom.minusMonths(1).tilMånedÅr()
+                    }
                 }
             }
 
