@@ -122,3 +122,7 @@ spec:
       value: "-XX:MinRAMPercentage=25.0 -XX:MaxRAMPercentage=75.0 -XX:+HeapDumpOnOutOfMemoryError"
   kafka:
     pool: nav-dev
+  observability:
+    autoInstrumentation:
+      enabled: true
+      runtime: java
