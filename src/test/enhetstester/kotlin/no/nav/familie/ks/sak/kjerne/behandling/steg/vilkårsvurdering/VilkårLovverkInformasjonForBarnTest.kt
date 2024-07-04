@@ -19,7 +19,7 @@ class VilkårLovverkInformasjonForBarnTest {
         val vilkårLovverkInformasjonForBarn = VilkårLovverkInformasjonForBarn(fødselsdato)
 
         // Assert
-        assertThat(vilkårLovverkInformasjonForBarn.lovverk).isEqualTo(VilkårLovverk.LOVVVERK_2021)
+        assertThat(vilkårLovverkInformasjonForBarn.lovverk).isEqualTo(VilkårLovverk.LOVVERK_2021)
 
         assertThat(vilkårLovverkInformasjonForBarn.periodeFomBarnetsAlderLov2021).isEqualTo(fødselsdato.plusYears(1))
         assertThat(vilkårLovverkInformasjonForBarn.periodeTomBarnetsAlderLov2021).isEqualTo(fødselsdato.plusYears(2))

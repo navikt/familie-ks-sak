@@ -32,7 +32,7 @@ class BarnetsAlderVilkårValidator(
                     erToggleForLovendringAugust2024På = erToggleForLovendringAugust2024På,
                 )
 
-            VilkårLovverk.LOVVVERK_2021 ->
+            VilkårLovverk.LOVVERK_2021 ->
                 barnetsAlderVilkårValidator2021.validerBarnetsAlderVilkår(
                     perioder = perioder,
                     barn = barn,
