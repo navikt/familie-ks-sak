@@ -160,6 +160,7 @@ abstract class OppslagSpringRunnerTest {
     fun opprettPersonopplysningGrunnlagOgPersonForBehandling(
         behandlingId: Long,
         lagBarn: Boolean = false,
+        fødselsdatoBarn: LocalDate = LocalDate.of(2022, 1, 1),
     ) {
         personopplysningGrunnlag = lagrePersonopplysningGrunnlag(PersonopplysningGrunnlag(behandlingId = behandlingId))
 
@@ -185,7 +186,7 @@ abstract class OppslagSpringRunnerTest {
                     aktør = barn,
                     type = PersonType.BARN,
                     personopplysningGrunnlag = personopplysningGrunnlag,
-                    fødselsdato = LocalDate.of(2022, 1, 1),
+                    fødselsdato = fødselsdatoBarn,
                     navn = "",
                     kjønn = Kjønn.KVINNE,
                 ).also { søker ->

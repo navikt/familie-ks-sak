@@ -1,9 +1,6 @@
-package no.nav.familie.ks.sak.kjerne.maskinellrevurdering
+package no.nav.familie.ks.sak.kjerne.autovedtak
 
-import no.nav.familie.ks.sak.api.dto.OpprettBehandlingDto
 import no.nav.familie.ks.sak.common.exception.Feil
-import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
-import no.nav.familie.ks.sak.kjerne.behandling.OpprettBehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.SettPåMaskinellVentÅrsak
 import no.nav.familie.ks.sak.kjerne.behandling.SnikeIKøenService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
@@ -11,33 +8,24 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingType
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg
-import no.nav.familie.ks.sak.kjerne.behandling.steg.StegService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.avsluttbehandling.AvsluttBehandlingTask
 import no.nav.familie.ks.sak.kjerne.behandling.steg.iverksettmotoppdrag.IverksettMotOppdragTask
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.VedtakService
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.Vedtak
 import no.nav.familie.ks.sak.kjerne.fagsak.FagsakService
-import no.nav.familie.ks.sak.kjerne.personident.Aktør
-import no.nav.familie.ks.sak.kjerne.totrinnskontroll.TotrinnskontrollService
 import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext
 import no.nav.familie.prosessering.internal.TaskService
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
 @Service
-class MaskinellRevurderingLovendringService(
-    private val stegService: StegService,
-    private val opprettBehandlingService: OpprettBehandlingService,
+class AutovedtakLovendringService(
     private val fagsakService: FagsakService,
     private val behandlingRepository: BehandlingRepository,
     private val snikeIKøenService: SnikeIKøenService,
-    private val totrinnskontrollService: TotrinnskontrollService,
-    private val vedtakService: VedtakService,
-    private val behandlingService: BehandlingService,
     private val taskService: TaskService,
+    private val autovedtakService: AutovedtakService,
 ) {
     @Transactional
-    fun revurderFagsak(fagsakId: Long) {
+    fun revurderFagsak(fagsakId: Long): Behandling {
         val fagsak = fagsakService.hentFagsak(fagsakId = fagsakId)
 
         val aktivOgÅpenBehandling = behandlingRepository.findByFagsakAndAktivAndOpen(fagsakId = fagsakId)
@@ -54,8 +42,8 @@ class MaskinellRevurderingLovendringService(
         }
 
         val søkerAktør = fagsak.aktør
-        val behandlingEtterBehandlingsresultat = opprettMaskinellRevurderingOgKjørTilBehandlingsresultat(aktør = søkerAktør)
-        val opprettetVedtak = opprettTotrinnskontrollOgVedtaksbrevForMaskinellRevurdering(behandlingEtterBehandlingsresultat)
+        val behandlingEtterBehandlingsresultat = autovedtakService.opprettAutomatiskBehandlingOgKjørTilBehandlingsresultat(aktør = søkerAktør, behandlingÅrsak = BehandlingÅrsak.LOVENDRING_2024, behandlingType = BehandlingType.REVURDERING)
+        val opprettetVedtak = autovedtakService.opprettTotrinnskontrollForAutomatiskBehandling(behandlingEtterBehandlingsresultat)
 
         val task =
             when (behandlingEtterBehandlingsresultat.steg) {
@@ -78,30 +66,7 @@ class MaskinellRevurderingLovendringService(
             }
 
         taskService.save(task)
-    }
 
-    private fun opprettMaskinellRevurderingOgKjørTilBehandlingsresultat(
-        aktør: Aktør,
-    ): Behandling {
-        val behandling =
-            opprettBehandlingService.opprettBehandling(
-                opprettBehandlingRequest =
-                    OpprettBehandlingDto(
-                        søkersIdent = aktør.aktivFødselsnummer(),
-                        behandlingType = BehandlingType.REVURDERING,
-                        behandlingÅrsak = BehandlingÅrsak.LOVENDRING_2024,
-                    ),
-            )
-
-        stegService.utførSteg(behandling.id, BehandlingSteg.VILKÅRSVURDERING)
-        stegService.utførSteg(behandling.id, BehandlingSteg.BEHANDLINGSRESULTAT)
-
-        return behandlingService.hentBehandling(behandling.id)
-    }
-
-    private fun opprettTotrinnskontrollOgVedtaksbrevForMaskinellRevurdering(behandling: Behandling): Vedtak {
-        totrinnskontrollService.opprettAutomatiskTotrinnskontroll(behandling)
-        val vedtak = vedtakService.hentAktivVedtakForBehandling(behandlingId = behandling.id)
-        return vedtakService.oppdaterVedtak(vedtak = vedtak)
+        return behandlingEtterBehandlingsresultat
     }
 }

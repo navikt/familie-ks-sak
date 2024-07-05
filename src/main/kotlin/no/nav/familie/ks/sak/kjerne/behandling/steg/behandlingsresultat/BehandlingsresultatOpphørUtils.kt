@@ -91,9 +91,13 @@ object BehandlingsresultatOpphørUtils {
         forrigeAndelerIBehandling: List<AndelTilkjentYtelse>,
         nåværendeEndretAndelerIBehandling: List<EndretUtbetalingAndel>,
         endretAndelerForForrigeBehandling: List<EndretUtbetalingAndel>,
-    ): YearMonth? {
-        return this.filtrerBortIrrelevanteAndeler(endretAndeler = nåværendeEndretAndelerIBehandling).finnOpphørsdato() ?: forrigeAndelerIBehandling.filtrerBortIrrelevanteAndeler(endretAndeler = endretAndelerForForrigeBehandling).minOfOrNull { it.stønadFom }
-    }
+    ): YearMonth? =
+        this
+            .filtrerBortIrrelevanteAndeler(endretAndeler = nåværendeEndretAndelerIBehandling)
+            .finnOpphørsdato()
+            ?: forrigeAndelerIBehandling
+                .filtrerBortIrrelevanteAndeler(endretAndeler = endretAndelerForForrigeBehandling)
+                .minOfOrNull { it.stønadTom } // TODO: Skal dette være stønadFom eller stønadTom?
 
     /**
      * Hvis det ikke fantes noen andeler i forrige behandling defaulter vi til inneværende måned
