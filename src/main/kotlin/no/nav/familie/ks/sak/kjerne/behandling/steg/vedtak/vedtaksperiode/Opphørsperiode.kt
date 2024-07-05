@@ -4,6 +4,7 @@ import no.nav.familie.ks.sak.common.tidslinje.Periode
 import no.nav.familie.ks.sak.common.tidslinje.Udefinert
 import no.nav.familie.ks.sak.common.tidslinje.tilTidslinje
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.tilTidslinjePerioderMedDato
+import no.nav.familie.ks.sak.common.util.DATO_LOVENDRING_2024
 import no.nav.familie.ks.sak.common.util.TIDENES_ENDE
 import no.nav.familie.ks.sak.common.util.TIDENES_MORGEN
 import no.nav.familie.ks.sak.common.util.erSammeEllerFør
@@ -14,9 +15,7 @@ import no.nav.familie.ks.sak.common.util.toYearMonth
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.Vedtak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.VedtaksperiodeMedBegrunnelser
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårRegelsett
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.hentRegelsettBruktIVilkår
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.regelsett.lov2021.tilForskjøvetTomMånedForSisteUtbetalingsperiodePgaFremtidigOpphør
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.regelsett.lov2024.tilForskjøvetTomMånedForSisteUtbetalingsperiodePgaFremtidigOpphør2024
 import no.nav.familie.ks.sak.kjerne.beregning.AndelTilkjentYtelseMedEndreteUtbetalinger
@@ -38,6 +37,7 @@ fun mapTilOpphørsperioder(
     personopplysningGrunnlag: PersonopplysningGrunnlag,
     andelerTilkjentYtelse: List<AndelTilkjentYtelseMedEndreteUtbetalinger>,
     vilkårsvurdering: Vilkårsvurdering,
+    erToggleForLovendringAugust2024På: Boolean,
 ): List<Opphørsperiode> {
     val forrigeUtbetalingsperioder =
         if (forrigePersonopplysningGrunnlag != null) {
@@ -65,7 +65,7 @@ fun mapTilOpphørsperioder(
             } else {
                 listOf(
                     finnOpphørsperioderMellomUtbetalingsperioder(utbetalingsperioder),
-                    finnOpphørsperiodeEtterSisteUtbetalingsperiode(utbetalingsperioder, vilkårsvurdering),
+                    finnOpphørsperiodeEtterSisteUtbetalingsperiode(utbetalingsperioder, vilkårsvurdering, erToggleForLovendringAugust2024På),
                 ).flatten()
             }.sortedBy { it.periodeFom }
         }
@@ -115,26 +115,34 @@ private fun maxOfOpphørsperiodeTom(
 private fun finnOpphørsperiodeEtterSisteUtbetalingsperiode(
     utbetalingsperioder: List<Utbetalingsperiode>,
     vilkårsvurdering: Vilkårsvurdering,
+    erToggleForLovendringAugust2024På: Boolean,
 ): List<Opphørsperiode> {
     val sisteUtbetalingsperiodeTom = utbetalingsperioder.maxOf { it.periodeTom }.toYearMonth()
-    val nesteMåned = inneværendeMåned().nesteMåned()
+    val cutOffDato =
+        if (erToggleForLovendringAugust2024På) {
+            inneværendeMåned().plusMonths(2)
+        } else {
+            inneværendeMåned().plusMonths(1)
+        }
 
     val erFramtidigOpphørPgaBarnehageplass =
         vilkårsvurdering.personResultater.any { personResultat ->
-            val barnehageplassVilkårResultaterPåPerson = personResultat.vilkårResultater.filter { vilkårResultat -> vilkårResultat.vilkårType == Vilkår.BARNEHAGEPLASS }
-            val regelsett = barnehageplassVilkårResultaterPåPerson.hentRegelsettBruktIVilkår() ?: return@any false
-            barnehageplassVilkårResultaterPåPerson.any { barnehageplassVilkårResultat ->
-                val periodeTom = barnehageplassVilkårResultat.periodeTom
-                val periodeTomForskjøvetTomMånedForSisteUtbetalingsperiodePgaFremtidigOpphør =
-                    when (regelsett) {
-                        VilkårRegelsett.LOV_AUGUST_2021 -> periodeTom?.tilForskjøvetTomMånedForSisteUtbetalingsperiodePgaFremtidigOpphør()
-                        VilkårRegelsett.LOV_AUGUST_2024 -> periodeTom?.tilForskjøvetTomMånedForSisteUtbetalingsperiodePgaFremtidigOpphør2024()
-                    }
-                barnehageplassVilkårResultat.søkerHarMeldtFraOmBarnehageplass == true && periodeTomForskjøvetTomMånedForSisteUtbetalingsperiodePgaFremtidigOpphør == sisteUtbetalingsperiodeTom
-            }
+            personResultat.vilkårResultater
+                .filter { vilkårResultat -> vilkårResultat.vilkårType == Vilkår.BARNEHAGEPLASS }
+                .filter { it.periodeTom != null }
+                .any { barnehageplassVilkårResultat ->
+                    val periodeTom = barnehageplassVilkårResultat.periodeTom!!
+                    val periodeTomForskjøvetTomMånedForSisteUtbetalingsperiodePgaFremtidigOpphør =
+                        when (periodeTom.isBefore(DATO_LOVENDRING_2024)) {
+                            true -> periodeTom.tilForskjøvetTomMånedForSisteUtbetalingsperiodePgaFremtidigOpphør()
+                            false -> periodeTom.tilForskjøvetTomMånedForSisteUtbetalingsperiodePgaFremtidigOpphør2024()
+                        }
+                    barnehageplassVilkårResultat.søkerHarMeldtFraOmBarnehageplass == true &&
+                        periodeTomForskjøvetTomMånedForSisteUtbetalingsperiodePgaFremtidigOpphør == sisteUtbetalingsperiodeTom
+                }
         }
 
-    return if (sisteUtbetalingsperiodeTom.isBefore(nesteMåned) || erFramtidigOpphørPgaBarnehageplass) {
+    return if (sisteUtbetalingsperiodeTom.isBefore(cutOffDato) || erFramtidigOpphørPgaBarnehageplass) {
         listOf(
             Opphørsperiode(
                 periodeFom = sisteUtbetalingsperiodeTom.nesteMåned().førsteDagIInneværendeMåned(),

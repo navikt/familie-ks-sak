@@ -53,7 +53,6 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.Vedtak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.VedtakRepository
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingSteg
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårRegelsett
 import no.nav.familie.ks.sak.kjerne.beregning.BeregningService
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelseRepository
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.FagsakStatus
@@ -120,7 +119,7 @@ class StegServiceTest : OppslagSpringRunnerTest() {
         opprettSøkerFagsakOgBehandling(fagsakStatus = FagsakStatus.LØPENDE)
         lagreArbeidsfordeling(lagArbeidsfordelingPåBehandling(behandlingId = behandling.id))
         opprettPersonopplysningGrunnlagOgPersonForBehandling(behandlingId = behandling.id, lagBarn = true)
-        opprettVilkårsvurdering(søker, behandling, Resultat.IKKE_VURDERT, regelsett = VilkårRegelsett.LOV_AUGUST_2021)
+        opprettVilkårsvurdering(søker, behandling, Resultat.IKKE_VURDERT)
 
         every { søknadGrunnlagService.hentAktiv(behandling.id) } returns
             mockk<SøknadGrunnlag>(relaxed = true).also {

@@ -6,6 +6,7 @@ import io.mockk.mockk
 import no.nav.familie.kontrakter.felles.arbeidsfordeling.Enhet
 import no.nav.familie.ks.sak.api.dto.ManueltBrevDto
 import no.nav.familie.ks.sak.common.exception.Feil
+import no.nav.familie.ks.sak.config.featureToggle.UnleashNextMedContextService
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagFagsak
 import no.nav.familie.ks.sak.data.lagPerson
@@ -58,6 +59,7 @@ class GenererBrevServiceTest {
             saksbehandlerContext = saksbehandlerContext,
             refusjonEøsRepository = mockk<RefusjonEøsRepository>(),
             korrigertEtterbetalingService = mockk<KorrigertEtterbetalingService>(),
+            unleashNextMedContextService = mockk<UnleashNextMedContextService>(),
         )
 
     private val søker = randomAktør()

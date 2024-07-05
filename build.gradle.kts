@@ -1,10 +1,10 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    val kotlinVersion = "2.0.0"
+    val kotlinVersion = "1.9.24"
     kotlin("jvm") version kotlinVersion
 
-    id("org.springframework.boot") version "3.3.0"
+    id("org.springframework.boot") version "3.3.1"
     id("io.spring.dependency-management") version "1.1.5"
     id("org.jetbrains.kotlin.plugin.spring") version kotlinVersion
     id("org.jetbrains.kotlin.plugin.jpa") version kotlinVersion
@@ -49,7 +49,7 @@ dependencies {
     val sentryVersion = "7.10.0"
     val navFellesVersion = "3.20240515152313_9dd5659"
     val eksterneKontrakterBisysVersion = "2.0_20230214104704_706e9c0"
-    val fellesKontrakterVersion = "3.0_20240603143357_2992125"
+    val fellesKontrakterVersion = "3.0_20240607101709_d35e18c"
     val familieKontrakterSaksstatistikkVersion = "2.0_20230214104704_706e9c0"
     val familieKontrakterStønadsstatistikkKsVersion = "2.0_20240131125409_e3d0f6d"
     val tokenValidationSpringVersion = "5.0.1"
@@ -57,7 +57,7 @@ dependencies {
     val prosesseringVersion = "2.20240603145215_c56e179"
     val restAssuredVersion = "5.4.0"
     val kotlinxVersion = "1.8.1"
-    val utbetalingsgeneratorVersion = "1.0_20240604142436_76988ba"
+    val utbetalingsgeneratorVersion = "1.0_20240624093832_8242223"
 
     // ---------- Spring ---------- \\
     implementation("org.springframework.boot:spring-boot-starter")
@@ -92,7 +92,7 @@ dependencies {
 
     // ---- Junit og Cucumber ---- \\
 
-    testImplementation(platform("org.junit:junit-bom:5.10.2"))
+    testImplementation(platform("org.junit:junit-bom:5.10.3"))
     testImplementation(platform("io.cucumber:cucumber-bom:7.18.0"))
 
     testImplementation("io.cucumber:cucumber-java")
@@ -145,7 +145,7 @@ dependencies {
     testImplementation("io.rest-assured:spring-mock-mvc:$restAssuredVersion")
     testImplementation("io.rest-assured:kotlin-extensions:$restAssuredVersion")
     testImplementation("org.testcontainers:postgresql:1.19.8")
-    testImplementation("no.nav.security:mock-oauth2-server:2.1.5")
+    testImplementation("no.nav.security:mock-oauth2-server:2.1.8")
     testImplementation("no.nav.security:token-validation-test-support:2.0.5")
     testImplementation("no.nav.security:token-validation-spring-test:$tokenValidationSpringVersion")
     testImplementation("nav-foedselsnummer:testutils:1.0-SNAPSHOT.6")

@@ -3,15 +3,17 @@ package no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.regelsett
 import no.nav.familie.ks.sak.common.tidslinje.Periode
 import no.nav.familie.ks.sak.common.tidslinje.Tidslinje
 import no.nav.familie.ks.sak.common.tidslinje.tilTidslinje
+import no.nav.familie.ks.sak.common.tidslinje.utvidelser.klipp
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.kombiner
+import no.nav.familie.ks.sak.common.tidslinje.utvidelser.kombinerMed
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.tilPerioderIkkeNull
+import no.nav.familie.ks.sak.common.util.DATO_LOVENDRING_2024
+import no.nav.familie.ks.sak.common.util.TIDENES_ENDE
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.PersonResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Regelverk
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårRegelsett
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.hentRegelsettBruktIVilkår
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.regelsett.lov2021.forskyvEtterLovgivning2021
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.regelsett.lov2024.forskyvEtterLovgivning2024
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
@@ -21,28 +23,31 @@ import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Personopplys
 
 fun Collection<PersonResultat>.tilForskjøvetOppfylteVilkårResultatTidslinjeMap(
     personopplysningGrunnlag: PersonopplysningGrunnlag,
+    erToggleForLovendringAugust2024På: Boolean,
 ): Map<Aktør, Tidslinje<List<VilkårResultat>>> =
     personopplysningGrunnlag.personer.associate { person ->
         Pair(
             person.aktør,
-            this.tilForskjøvetVilkårResultatTidslinjeDerVilkårErOppfyltForPerson(person),
+            this.tilForskjøvetVilkårResultatTidslinjeDerVilkårErOppfyltForPerson(person, erToggleForLovendringAugust2024På),
         )
     }
 
 fun Collection<PersonResultat>.tilForskjøvetVilkårResultatTidslinjeMap(
     personopplysningGrunnlag: PersonopplysningGrunnlag,
+    erToggleForLovendringAugust2024På: Boolean,
 ): Map<Aktør, Tidslinje<List<VilkårResultat>>> =
     personopplysningGrunnlag.personer.associate { person ->
         Pair(
             person.aktør,
-            this.tilForskjøvetVilkårResultatTidslinjeForPerson(person),
+            this.tilForskjøvetVilkårResultatTidslinjeForPerson(person, erToggleForLovendringAugust2024På),
         )
     }
 
 fun Collection<PersonResultat>.tilForskjøvetVilkårResultatTidslinjeForPerson(
     person: Person,
+    erToggleForLovendringAugust2024På: Boolean,
 ): Tidslinje<List<VilkårResultat>> {
-    val forskjøvedeVilkårResultater = forskyvVilkårResultaterForPerson(person)
+    val forskjøvedeVilkårResultater = forskyvVilkårResultaterForPerson(person, erToggleForLovendringAugust2024På)
 
     return forskjøvedeVilkårResultater
         .kombiner { it.toList() }
@@ -52,6 +57,7 @@ fun Collection<PersonResultat>.tilForskjøvetVilkårResultatTidslinjeForPerson(
 
 private fun Collection<PersonResultat>.forskyvVilkårResultaterForPerson(
     person: Person,
+    erToggleForLovendringAugust2024På: Boolean,
 ): List<Tidslinje<VilkårResultat>> {
     val personResultat = this.find { it.aktør == person.aktør }
 
@@ -64,15 +70,16 @@ private fun Collection<PersonResultat>.forskyvVilkårResultaterForPerson(
 
     val forskjøvedeVilkårResultater =
         vilkårResultaterForAktørMap.map { (vilkårType, vilkårResultater) ->
-            forskyvVilkårResultater(vilkårType, vilkårResultater).tilTidslinje()
+            forskyvVilkårResultater(vilkårType, vilkårResultater, erToggleForLovendringAugust2024På).tilTidslinje()
         }
     return forskjøvedeVilkårResultater
 }
 
 fun Collection<PersonResultat>.tilForskjøvetVilkårResultatTidslinjeDerVilkårErOppfyltForPerson(
     person: Person,
+    erToggleForLovendringAugust2024På: Boolean,
 ): Tidslinje<List<VilkårResultat>> {
-    val forskjøvedeVilkårResultater = forskyvVilkårResultaterForPerson(person)
+    val forskjøvedeVilkårResultater = forskyvVilkårResultaterForPerson(person, erToggleForLovendringAugust2024På)
 
     return forskjøvedeVilkårResultater
         .kombiner { alleVilkårOppfyltEllerNull(it, person.type) }
@@ -83,16 +90,33 @@ fun Collection<PersonResultat>.tilForskjøvetVilkårResultatTidslinjeDerVilkårE
 fun forskyvVilkårResultater(
     vilkårType: Vilkår,
     vilkårResultater: List<VilkårResultat>,
+    erToggleForLovendringAugust2024På: Boolean,
 ): List<Periode<VilkårResultat>> {
-    val regelsett = vilkårResultater.hentRegelsettBruktIVilkår() ?: return emptyList()
+    val forskjøvetVilkårResultaterTidslinje2021 = forskyvEtterLovgivning2021(vilkårType, vilkårResultater).tilTidslinje()
 
-    return when (regelsett) {
-        VilkårRegelsett.LOV_AUGUST_2021 -> forskyvEtterLovgivning2021(vilkårType, vilkårResultater)
-        VilkårRegelsett.LOV_AUGUST_2024 -> forskyvEtterLovgivning2024(vilkårType, vilkårResultater)
+    if (!erToggleForLovendringAugust2024På) {
+        return forskjøvetVilkårResultaterTidslinje2021.tilPerioderIkkeNull()
     }
+    val forskjøvetVilkårResultaterTidslinje2024 = forskyvEtterLovgivning2024(vilkårType, vilkårResultater).tilTidslinje()
+
+    val klippetTidslinje2021 =
+        forskjøvetVilkårResultaterTidslinje2021.klipp(
+            startsTidspunkt = forskjøvetVilkårResultaterTidslinje2021.startsTidspunkt,
+            sluttTidspunkt = DATO_LOVENDRING_2024.minusDays(1),
+        )
+
+    val klippetTidslinje2024 =
+        forskjøvetVilkårResultaterTidslinje2024.klipp(
+            startsTidspunkt = DATO_LOVENDRING_2024,
+            sluttTidspunkt = TIDENES_ENDE,
+        )
+
+    return klippetTidslinje2021
+        .kombinerMed(klippetTidslinje2024) { vilkår2021, vilkår2024 -> vilkår2021 ?: vilkår2024 }
+        .tilPerioderIkkeNull()
 }
 
-private fun MutableList<VilkårResultat>.fjernAvslagUtenPeriodeHvisDetFinsAndreVilkårResultat(): List<VilkårResultat> =
+private fun List<VilkårResultat>.fjernAvslagUtenPeriodeHvisDetFinsAndreVilkårResultat(): List<VilkårResultat> =
     if (this.any { !it.erAvslagUtenPeriode() }) this.filterNot { it.erAvslagUtenPeriode() } else this
 
 private fun alleVilkårOppfyltEllerNull(

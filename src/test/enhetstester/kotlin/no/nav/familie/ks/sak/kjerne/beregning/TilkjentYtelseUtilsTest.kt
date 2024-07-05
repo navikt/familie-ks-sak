@@ -17,7 +17,6 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.PersonResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårRegelsett
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.beregning.TilkjentYtelseUtils.oppdaterTilkjentYtelseMedEndretUtbetalingAndeler
@@ -65,7 +64,6 @@ internal class TilkjentYtelseUtilsTest {
                 resultat = Resultat.OPPFYLT,
                 søkerPeriodeFom = LocalDate.of(1987, 1, 1),
                 søkerPeriodeTom = null,
-                regelsett = VilkårRegelsett.LOV_AUGUST_2021,
             )
     }
 
@@ -85,7 +83,6 @@ internal class TilkjentYtelseUtilsTest {
                 barnFødselsdato = barnFødselsdato,
                 barnehageplassPerioder = listOf(barnehagePlassPeriodeMedAntallTimer),
                 behandlingId = behandling.id,
-                regelsett = VilkårRegelsett.LOV_AUGUST_2021,
             )
         personResultatForBarn.setSortedVilkårResultater(vilkårResultaterForBarn)
         vilkårsvurdering.personResultater += personResultatForBarn
@@ -94,6 +91,7 @@ internal class TilkjentYtelseUtilsTest {
             TilkjentYtelseUtils.beregnTilkjentYtelse(
                 vilkårsvurdering = vilkårsvurdering,
                 personopplysningGrunnlag = personopplysningGrunnlag,
+                erToggleForLovendringAugust2024På = true,
             )
         assertTilkjentYtelse(tilkjentYtelse, 1)
         assertAndelTilkjentYtelse(
@@ -119,7 +117,6 @@ internal class TilkjentYtelseUtilsTest {
                 barnFødselsdato = barnFødselsdato,
                 barnehageplassPerioder = listOf(barnehagePlassPeriodeMedAntallTimer),
                 behandlingId = behandling.id,
-                regelsett = VilkårRegelsett.LOV_AUGUST_2021,
             )
         personResultatForBarn.setSortedVilkårResultater(vilkårResultaterForBarn)
         vilkårsvurdering.personResultater += personResultatForBarn
@@ -128,6 +125,7 @@ internal class TilkjentYtelseUtilsTest {
             TilkjentYtelseUtils.beregnTilkjentYtelse(
                 vilkårsvurdering = vilkårsvurdering,
                 personopplysningGrunnlag = personopplysningGrunnlag,
+                erToggleForLovendringAugust2024På = true,
             )
         assertTilkjentYtelse(tilkjentYtelse, 1)
         assertAndelTilkjentYtelse(
@@ -159,7 +157,6 @@ internal class TilkjentYtelseUtilsTest {
                 barnFødselsdato = barnFødselsdato,
                 barnehageplassPerioder = barnehagePlassPerioderMedAntallTimer,
                 behandlingId = behandling.id,
-                regelsett = VilkårRegelsett.LOV_AUGUST_2021,
             )
         personResultatForBarn.setSortedVilkårResultater(vilkårResultaterForBarn)
         vilkårsvurdering.personResultater += personResultatForBarn
@@ -168,6 +165,7 @@ internal class TilkjentYtelseUtilsTest {
             TilkjentYtelseUtils.beregnTilkjentYtelse(
                 vilkårsvurdering = vilkårsvurdering,
                 personopplysningGrunnlag = personopplysningGrunnlag,
+                erToggleForLovendringAugust2024På = true,
             )
         assertTilkjentYtelse(tilkjentYtelse, 2)
         assertAndelTilkjentYtelse(
@@ -205,7 +203,6 @@ internal class TilkjentYtelseUtilsTest {
                 barnFødselsdato = barnFødselsdato,
                 barnehageplassPerioder = barnehagePlassPerioderMedAntallTimer,
                 behandlingId = behandling.id,
-                regelsett = VilkårRegelsett.LOV_AUGUST_2021,
             )
         personResultatForBarn.setSortedVilkårResultater(vilkårResultaterForBarn)
         vilkårsvurdering.personResultater += personResultatForBarn
@@ -214,6 +211,7 @@ internal class TilkjentYtelseUtilsTest {
             TilkjentYtelseUtils.beregnTilkjentYtelse(
                 vilkårsvurdering = vilkårsvurdering,
                 personopplysningGrunnlag = personopplysningGrunnlag,
+                erToggleForLovendringAugust2024På = true,
             )
         assertTilkjentYtelse(tilkjentYtelse, 2)
         assertAndelTilkjentYtelse(
@@ -251,7 +249,6 @@ internal class TilkjentYtelseUtilsTest {
                 barnFødselsdato = barnFødselsdato,
                 barnehageplassPerioder = barnehagePlassPerioderMedAntallTimer,
                 behandlingId = behandling.id,
-                regelsett = VilkårRegelsett.LOV_AUGUST_2021,
             )
         personResultatForBarn.setSortedVilkårResultater(vilkårResultaterForBarn)
         vilkårsvurdering.personResultater += personResultatForBarn
@@ -260,6 +257,7 @@ internal class TilkjentYtelseUtilsTest {
             TilkjentYtelseUtils.beregnTilkjentYtelse(
                 vilkårsvurdering = vilkårsvurdering,
                 personopplysningGrunnlag = personopplysningGrunnlag,
+                erToggleForLovendringAugust2024På = true,
             )
         assertTilkjentYtelse(tilkjentYtelse, 2)
         assertAndelTilkjentYtelse(
@@ -297,7 +295,6 @@ internal class TilkjentYtelseUtilsTest {
                 barnFødselsdato = barnFødselsdato,
                 barnehageplassPerioder = barnehagePlassPerioderMedAntallTimer,
                 behandlingId = behandling.id,
-                regelsett = VilkårRegelsett.LOV_AUGUST_2021,
             ).toMutableSet()
         // full barnehageplass vilkår
         val fullBarnehageplassVilkår =
@@ -309,7 +306,6 @@ internal class TilkjentYtelseUtilsTest {
                 periodeTom = andrePeriodeTom,
                 begrunnelse = "",
                 behandlingId = behandling.id,
-                regelsett = VilkårRegelsett.LOV_AUGUST_2021,
                 antallTimer = BigDecimal(33),
             )
         vilkårResultaterForBarn.add(fullBarnehageplassVilkår)
@@ -320,6 +316,7 @@ internal class TilkjentYtelseUtilsTest {
             TilkjentYtelseUtils.beregnTilkjentYtelse(
                 vilkårsvurdering = vilkårsvurdering,
                 personopplysningGrunnlag = personopplysningGrunnlag,
+                erToggleForLovendringAugust2024På = true,
             )
         assertTilkjentYtelse(tilkjentYtelse, 1)
         assertAndelTilkjentYtelse(
@@ -351,7 +348,6 @@ internal class TilkjentYtelseUtilsTest {
                 barnFødselsdato = barnFødselsdato,
                 barnehageplassPerioder = barnehagePlassPerioderMedAntallTimer,
                 behandlingId = behandling.id,
-                regelsett = VilkårRegelsett.LOV_AUGUST_2021,
             ).toMutableSet()
         // full barnehageplass vilkår
         val fullBarnehageplassVilkår =
@@ -363,7 +359,6 @@ internal class TilkjentYtelseUtilsTest {
                 periodeTom = førstePeriodeTom,
                 begrunnelse = "",
                 behandlingId = behandling.id,
-                regelsett = VilkårRegelsett.LOV_AUGUST_2021,
                 antallTimer = BigDecimal(33),
             )
         vilkårResultaterForBarn.add(fullBarnehageplassVilkår)
@@ -374,6 +369,7 @@ internal class TilkjentYtelseUtilsTest {
             TilkjentYtelseUtils.beregnTilkjentYtelse(
                 vilkårsvurdering = vilkårsvurdering,
                 personopplysningGrunnlag = personopplysningGrunnlag,
+                erToggleForLovendringAugust2024På = true,
             )
         assertTilkjentYtelse(tilkjentYtelse, 1)
         assertAndelTilkjentYtelse(
@@ -406,7 +402,6 @@ internal class TilkjentYtelseUtilsTest {
                 barnFødselsdato = barnFødselsdato,
                 barnehageplassPerioder = barnehagePlassPerioderMedAntallTimer,
                 behandlingId = behandling.id,
-                regelsett = VilkårRegelsett.LOV_AUGUST_2021,
             )
 
         personResultatForBarn.setSortedVilkårResultater(vilkårResultaterForBarn)
@@ -416,6 +411,7 @@ internal class TilkjentYtelseUtilsTest {
             TilkjentYtelseUtils.beregnTilkjentYtelse(
                 vilkårsvurdering = vilkårsvurdering,
                 personopplysningGrunnlag = personopplysningGrunnlag,
+                erToggleForLovendringAugust2024På = true,
             )
         assertTilkjentYtelse(tilkjentYtelse, 2)
         assertAndelTilkjentYtelse(
@@ -454,7 +450,6 @@ internal class TilkjentYtelseUtilsTest {
                 barnFødselsdato = barnFødselsdato,
                 barnehageplassPerioder = barnehagePlassPerioderMedAntallTimer,
                 behandlingId = behandling.id,
-                regelsett = VilkårRegelsett.LOV_AUGUST_2021,
             )
 
         personResultatForBarn.setSortedVilkårResultater(vilkårResultaterForBarn)
@@ -464,6 +459,7 @@ internal class TilkjentYtelseUtilsTest {
             TilkjentYtelseUtils.beregnTilkjentYtelse(
                 vilkårsvurdering = vilkårsvurdering,
                 personopplysningGrunnlag = personopplysningGrunnlag,
+                erToggleForLovendringAugust2024På = true,
             )
         assertTilkjentYtelse(tilkjentYtelse, 2)
         assertAndelTilkjentYtelse(
@@ -502,7 +498,6 @@ internal class TilkjentYtelseUtilsTest {
                 barnFødselsdato = barnFødselsdato,
                 barnehageplassPerioder = barnehagePlassPerioderMedAntallTimer,
                 behandlingId = behandling.id,
-                regelsett = VilkårRegelsett.LOV_AUGUST_2021,
             )
 
         personResultatForBarn.setSortedVilkårResultater(vilkårResultaterForBarn)
@@ -512,6 +507,7 @@ internal class TilkjentYtelseUtilsTest {
             TilkjentYtelseUtils.beregnTilkjentYtelse(
                 vilkårsvurdering = vilkårsvurdering,
                 personopplysningGrunnlag = personopplysningGrunnlag,
+                erToggleForLovendringAugust2024På = true,
             )
         assertTilkjentYtelse(tilkjentYtelse, 2)
         assertAndelTilkjentYtelse(
