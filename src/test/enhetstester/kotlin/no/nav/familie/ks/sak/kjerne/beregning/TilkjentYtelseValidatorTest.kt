@@ -1,5 +1,6 @@
 package no.nav.familie.ks.sak.kjerne.beregning
 
+import lagAutomatiskGenererteVilkårForBarnetsAlder
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.common.exception.KONTAKT_TEAMET_SUFFIX
@@ -10,8 +11,11 @@ import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagInitieltTilkjentYtelse
 import no.nav.familie.ks.sak.data.lagPerson
 import no.nav.familie.ks.sak.data.lagPersonopplysningGrunnlag
+import no.nav.familie.ks.sak.data.lagVilkårsvurdering
 import no.nav.familie.ks.sak.data.randomAktør
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.PersonResultat
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
 import no.nav.familie.ks.sak.kjerne.beregning.TilkjentYtelseValidator.finnAktørIderMedUgyldigEtterbetalingsperiode
 import no.nav.familie.ks.sak.kjerne.beregning.TilkjentYtelseValidator.validerAtBarnIkkeFårFlereUtbetalingerSammePeriode
 import no.nav.familie.ks.sak.kjerne.beregning.TilkjentYtelseValidator.validerAtTilkjentYtelseHarFornuftigePerioderOgBeløp
@@ -21,6 +25,7 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertDoesNotThrow
 import org.junit.jupiter.api.assertThrows
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.YearMonth
 
@@ -38,6 +43,7 @@ internal class TilkjentYtelseValidatorTest {
             søkerAktør = søker.aktør,
             barnAktør = listOf(barn.aktør, barn2.aktør),
         )
+    val vilkårsvurdering = lagVilkårsvurdering(søkerAktør = søker.aktør, behandling = behandling, resultat = Resultat.OPPFYLT, søkerPeriodeFom = LocalDate.of(2021, 1, 1))
     private val tilkjentYtelse = lagInitieltTilkjentYtelse(behandling)
 
     @Test
@@ -60,11 +66,15 @@ internal class TilkjentYtelseValidatorTest {
             )
         tilkjentYtelse.andelerTilkjentYtelse.addAll(setOf(andelTilkjentYtelse1, andelTilkjentYtelse2))
 
+        val personResultat = PersonResultat(vilkårsvurdering = vilkårsvurdering, aktør = barn.aktør)
+        val barnetsAlderVilkårResultater = lagAutomatiskGenererteVilkårForBarnetsAlder(personResultat = personResultat, behandling = behandling, fødselsdato = LocalDate.now().minusYears(1).minusMonths(11))
+
         val exception =
             assertThrows<FunksjonellFeil> {
                 validerAtTilkjentYtelseHarFornuftigePerioderOgBeløp(
                     tilkjentYtelse = tilkjentYtelse,
                     personopplysningGrunnlag = personopplysningGrunnlag,
+                    alleBarnetsAlderVilkårResultater = barnetsAlderVilkårResultater,
                     erToggleForLovendringAugust2024På = true,
                 )
             }
@@ -98,6 +108,9 @@ internal class TilkjentYtelseValidatorTest {
             )
         tilkjentYtelse.andelerTilkjentYtelse.addAll(setOf(andelTilkjentYtelse1, andelTilkjentYtelse2))
 
+        val personResultat = PersonResultat(vilkårsvurdering = vilkårsvurdering, aktør = barn.aktør)
+        val barnetsAlderVilkårResultater = lagAutomatiskGenererteVilkårForBarnetsAlder(personResultat = personResultat, behandling = behandling, fødselsdato = LocalDate.of(2023, 1, 1))
+
         val exception =
             assertThrows<FunksjonellFeil> {
                 validerAtTilkjentYtelseHarFornuftigePerioderOgBeløp(
@@ -110,6 +123,7 @@ internal class TilkjentYtelseValidatorTest {
                             søkerAktør = søker.aktør,
                             barnAktør = listOf(barnFødtIJanuar2023.aktør),
                         ),
+                    alleBarnetsAlderVilkårResultater = barnetsAlderVilkårResultater,
                     erToggleForLovendringAugust2024På = true,
                 )
             }
@@ -135,6 +149,9 @@ internal class TilkjentYtelseValidatorTest {
             )
         tilkjentYtelse.andelerTilkjentYtelse.addAll(setOf(andelTilkjentYtelse1))
 
+        val personResultat = PersonResultat(vilkårsvurdering = vilkårsvurdering, aktør = barn.aktør)
+        val barnetsAlderVilkårResultater = lagAutomatiskGenererteVilkårForBarnetsAlder(personResultat = personResultat, behandling = behandling, fødselsdato = LocalDate.of(2022, 8, 1))
+
         val exception =
             assertThrows<FunksjonellFeil> {
                 validerAtTilkjentYtelseHarFornuftigePerioderOgBeløp(
@@ -147,6 +164,7 @@ internal class TilkjentYtelseValidatorTest {
                             søkerAktør = søker.aktør,
                             barnAktør = listOf(barnFødtIAugust2022.aktør),
                         ),
+                    alleBarnetsAlderVilkårResultater = barnetsAlderVilkårResultater,
                     erToggleForLovendringAugust2024På = true,
                 )
             }
@@ -178,10 +196,17 @@ internal class TilkjentYtelseValidatorTest {
             )
         tilkjentYtelse.andelerTilkjentYtelse.addAll(setOf(andelTilkjentYtelse1, andelTilkjentYtelse2))
 
+        val personResultatBarn1 = PersonResultat(vilkårsvurdering = vilkårsvurdering, aktør = barn.aktør)
+        val barnetsAlderVilkårResultaterBarn1 = lagAutomatiskGenererteVilkårForBarnetsAlder(personResultat = personResultatBarn1, behandling = behandling, fødselsdato = LocalDate.now().minusYears(1).minusMonths(10))
+
+        val personResultatBarn2 = PersonResultat(vilkårsvurdering = vilkårsvurdering, aktør = barn2.aktør)
+        val barnetsAlderVilkårResultaterBarn2 = lagAutomatiskGenererteVilkårForBarnetsAlder(personResultat = personResultatBarn2, behandling = behandling, fødselsdato = LocalDate.now().minusYears(1).minusMonths(3))
+
         assertDoesNotThrow {
             validerAtTilkjentYtelseHarFornuftigePerioderOgBeløp(
                 tilkjentYtelse = tilkjentYtelse,
                 personopplysningGrunnlag = personopplysningGrunnlag,
+                alleBarnetsAlderVilkårResultater = barnetsAlderVilkårResultaterBarn1 + barnetsAlderVilkårResultaterBarn2,
                 erToggleForLovendringAugust2024På = true,
             )
         }
@@ -203,11 +228,15 @@ internal class TilkjentYtelseValidatorTest {
             )
         tilkjentYtelse.andelerTilkjentYtelse.addAll(listOf(andelTilkjentYtelseForSøker, andelTilkjentYtelseForBarn))
 
+        val personResultat = PersonResultat(vilkårsvurdering = vilkårsvurdering, aktør = barn.aktør)
+        val barnetsAlderVilkårResultater = lagAutomatiskGenererteVilkårForBarnetsAlder(personResultat = personResultat, behandling = behandling, fødselsdato = LocalDate.now().minusYears(1).minusMonths(5))
+
         val exception =
             assertThrows<Feil> {
                 validerAtTilkjentYtelseHarFornuftigePerioderOgBeløp(
                     tilkjentYtelse = tilkjentYtelse,
                     personopplysningGrunnlag = personopplysningGrunnlag,
+                    alleBarnetsAlderVilkårResultater = barnetsAlderVilkårResultater,
                     erToggleForLovendringAugust2024På = true,
                 )
             }
@@ -228,6 +257,9 @@ internal class TilkjentYtelseValidatorTest {
             )
         tilkjentYtelse.andelerTilkjentYtelse.add(andelTilkjentYtelseForBarn)
 
+        val personResultat = PersonResultat(vilkårsvurdering = vilkårsvurdering, aktør = barn.aktør)
+        val barnetsAlderVilkårResultater = lagAutomatiskGenererteVilkårForBarnetsAlder(personResultat = personResultat, behandling = behandling, fødselsdato = LocalDate.now().minusYears(1).minusMonths(5))
+
         val andeler = tilkjentYtelse.andelerTilkjentYtelse
 
         val exception =
@@ -235,6 +267,7 @@ internal class TilkjentYtelseValidatorTest {
                 validerAtTilkjentYtelseHarFornuftigePerioderOgBeløp(
                     tilkjentYtelse = tilkjentYtelse,
                     personopplysningGrunnlag = personopplysningGrunnlag,
+                    alleBarnetsAlderVilkårResultater = barnetsAlderVilkårResultater,
                     erToggleForLovendringAugust2024På = true,
                 )
             }
