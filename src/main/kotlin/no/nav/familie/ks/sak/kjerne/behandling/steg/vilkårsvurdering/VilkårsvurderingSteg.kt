@@ -228,7 +228,7 @@ class VilkårsvurderingSteg(
             val barnehageplassTidslinje = personResultat.vilkårResultater.filter { it.vilkårType == Vilkår.BARNEHAGEPLASS }.tilTidslinje()
             val barnetsAlderTidslinje =
                 personResultat.vilkårResultater
-                    .filter { it.vilkårType == Vilkår.BARNETS_ALDER }
+                    .filter { it.vilkårType == Vilkår.BARNETS_ALDER && !it.erAvslagUtenPeriode() }
                     .tilTidslinje()
                     .klipp(barnehageplassTidslinje.startsTidspunkt, if (sistePeriodeErFremtidigOpphør) sistePeriode.periodeTom!! else TIDENES_ENDE)
 
