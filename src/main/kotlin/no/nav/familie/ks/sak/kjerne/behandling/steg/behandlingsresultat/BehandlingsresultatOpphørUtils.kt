@@ -51,9 +51,10 @@ object BehandlingsresultatOpphørUtils {
                 nåMåned.plusMonths(1)
             }
 
-        val forrigeBehandlingOpphørsdato = forrigeAndeler.utledOpphørsdatoForForrigeBehandling(
-            forrigeEndretAndeler = forrigeEndretAndeler,
-        )
+        val forrigeBehandlingOpphørsdato =
+            forrigeAndeler.utledOpphørsdatoForForrigeBehandling(
+                forrigeEndretAndeler = forrigeEndretAndeler,
+            )
 
         val harTidligereOpphørsDatoEnnForrigeBehandling = forrigeBehandlingOpphørsdato?.let { it > nåværendeBehandlingOpphørsdato } ?: true
 

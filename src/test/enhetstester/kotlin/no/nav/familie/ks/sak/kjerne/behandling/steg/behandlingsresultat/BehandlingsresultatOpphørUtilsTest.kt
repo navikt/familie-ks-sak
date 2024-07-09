@@ -38,6 +38,7 @@ class BehandlingsresultatOpphørUtilsTest {
     val for2mndSiden = YearMonth.now().minusMonths(2)
     val for1mndSiden = YearMonth.now().minusMonths(1)
     val om1mnd = YearMonth.now().plusMonths(1)
+    val om2Mnd = YearMonth.now().plusMonths(2)
     val om4mnd = YearMonth.now().plusMonths(4)
 
     @BeforeEach
@@ -754,5 +755,34 @@ class BehandlingsresultatOpphørUtilsTest {
             )
 
         assertEquals(Opphørsresultat.IKKE_OPPHØRT, opphørsresultat)
+    }
+
+    @Test
+    fun `hentOpphørsresultatPåBehandling skal returnere OPPHØRT dersom kontantstøtten opphører to måneder fram i tid`() {
+        val barn1Aktør = randomAktør()
+
+        val nåværendeAndeler =
+            listOf(
+                lagAndelTilkjentYtelse(
+                    fom = for3mndSiden,
+                    tom = om1mnd,
+                    beløp = 1054,
+                    aktør = barn1Aktør,
+                ),
+            )
+
+        val opphørsresultat =
+            hentOpphørsresultatPåBehandling(
+                nåværendeAndeler = nåværendeAndeler,
+                forrigeAndeler = emptyList(),
+                nåværendeEndretAndeler = emptyList(),
+                forrigeEndretAndeler = emptyList(),
+                nåværendePersonResultaterPåBarn = emptyList(),
+                forrigePersonResultaterPåBarn = emptyList(),
+                nåMåned = YearMonth.now(),
+                erToggleForLovendringAugust2024På = true,
+            )
+
+        assertEquals(Opphørsresultat.OPPHØRT, opphørsresultat)
     }
 }
