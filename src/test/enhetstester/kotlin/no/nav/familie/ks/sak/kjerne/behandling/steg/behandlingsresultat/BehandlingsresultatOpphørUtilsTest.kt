@@ -38,7 +38,6 @@ class BehandlingsresultatOpphørUtilsTest {
     val for2mndSiden = YearMonth.now().minusMonths(2)
     val for1mndSiden = YearMonth.now().minusMonths(1)
     val om1mnd = YearMonth.now().plusMonths(1)
-    val om2Mnd = YearMonth.now().plusMonths(2)
     val om4mnd = YearMonth.now().plusMonths(4)
 
     @BeforeEach
