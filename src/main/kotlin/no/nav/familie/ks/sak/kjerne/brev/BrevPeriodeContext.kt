@@ -312,9 +312,10 @@ class BrevPeriodeContext(
                         hentMånedOgÅrForBegrunnelse(
                             vedtaksperiodeType = this.utvidetVedtaksperiodeMedBegrunnelser.type,
                             sanityBegrunnelse = sanityBegrunnelse,
+                            begrunnelse = begrunnelse,
                             vilkårResultaterForRelevantePersoner = vilkårResultaterForRelevantePersoner,
-                            tom = this.utvidetVedtaksperiodeMedBegrunnelser.tom ?: TIDENES_ENDE,
-                            fom = fom,
+                            vedtaksperiodeTom = this.utvidetVedtaksperiodeMedBegrunnelser.tom ?: TIDENES_ENDE,
+                            vedtaksperiodeFom = fom,
                         )
                     }
 
@@ -542,41 +543,42 @@ class BrevPeriodeContext(
         vedtaksperiodeType: Vedtaksperiodetype,
         sanityBegrunnelse: SanityBegrunnelse,
         vilkårResultaterForRelevantePersoner: List<VilkårResultat>,
-        fom: LocalDate,
-        tom: LocalDate,
-    ): String =
-        when (vedtaksperiodeType) {
+        vedtaksperiodeFom: LocalDate,
+        vedtaksperiodeTom: LocalDate,
+        begrunnelse: NasjonalEllerFellesBegrunnelse,
+    ): String {
+        val fomErFørLovendring2024 = vedtaksperiodeFom.isBefore(DATO_LOVENDRING_2024)
+        val månedenFørFom = vedtaksperiodeFom.minusMonths(1)
+
+        return when (vedtaksperiodeType) {
             Vedtaksperiodetype.AVSLAG ->
-                if (fom == TIDENES_MORGEN && tom == TIDENES_ENDE) {
-                    ""
-                } else if (tom == TIDENES_ENDE) {
-                    fom.tilMånedÅr()
-                } else {
-                    "${fom.tilMånedÅr()} til ${tom.tilMånedÅr()}"
+                when {
+                    vedtaksperiodeFom == TIDENES_MORGEN && vedtaksperiodeTom == TIDENES_ENDE -> ""
+                    vedtaksperiodeTom == TIDENES_ENDE -> vedtaksperiodeFom.tilMånedÅr()
+                    else -> "${vedtaksperiodeFom.tilMånedÅr()} til ${vedtaksperiodeTom.tilMånedÅr()}"
                 }
 
             Vedtaksperiodetype.OPPHØR -> {
-                kastFeilHvisFomErUgyldig(fom)
-                if (sanityBegrunnelse.inneholderGjelderFørstePeriodeTrigger()) {
-                    hentTidligesteFomSomIkkeErOppfyltOgOverstiger33Timer(vilkårResultaterForRelevantePersoner, fom)
-                } else {
-                    val opphørErFørLovendring = fom.isBefore(DATO_LOVENDRING_2024)
-
-                    if (opphørErFørLovendring) {
-                        fom.tilMånedÅr()
-                    } else {
-                        fom.minusMonths(1).tilMånedÅr()
-                    }
+                kastFeilHvisFomErUgyldig(vedtaksperiodeFom)
+                when {
+                    sanityBegrunnelse.inneholderGjelderFørstePeriodeTrigger() -> hentTidligesteFomSomIkkeErOppfyltOgOverstiger33Timer(vilkårResultaterForRelevantePersoner, vedtaksperiodeFom)
+                    fomErFørLovendring2024 -> vedtaksperiodeFom.tilMånedÅr()
+                    else -> månedenFørFom.tilMånedÅr()
                 }
             }
 
             Vedtaksperiodetype.UTBETALING,
             Vedtaksperiodetype.FORTSATT_INNVILGET,
             -> {
-                kastFeilHvisFomErUgyldig(fom)
-                fom.tilMånedÅr()
+                kastFeilHvisFomErUgyldig(vedtaksperiodeFom)
+                if (begrunnelse.begrunnelseType == BegrunnelseType.REDUKSJON && !fomErFørLovendring2024) {
+                    månedenFørFom.tilMånedÅr()
+                } else {
+                    vedtaksperiodeFom.tilMånedÅr()
+                }
             }
         }
+    }
 
     private fun hentTidligesteFomSomIkkeErOppfyltOgOverstiger33Timer(
         vilkårResultaterForRelevantePersoner: List<VilkårResultat>,
