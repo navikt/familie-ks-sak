@@ -95,6 +95,10 @@ enum class NasjonalEllerFellesBegrunnelse : IBegrunnelse {
         override val begrunnelseType = BegrunnelseType.INNVILGET
         override val sanityApiNavn = "innvilgetErklaringOmMotregning"
     },
+    INNVILGET_13_MND_SAMME_MÅNED_SOM_BARNEHAGEPLASS_0824 {
+        override val begrunnelseType = BegrunnelseType.INNVILGET
+        override val sanityApiNavn = "innvilget13MndSammeMaanedSomBarnehageplass0824"
+    },
     AVSLAG_UREGISTRERT_BARN {
         override val begrunnelseType = BegrunnelseType.AVSLAG
         override val sanityApiNavn = "avslagUregistrertBarn"
