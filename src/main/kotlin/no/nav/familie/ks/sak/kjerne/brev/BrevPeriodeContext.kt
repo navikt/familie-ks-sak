@@ -23,6 +23,7 @@ import no.nav.familie.ks.sak.common.util.tilKortString
 import no.nav.familie.ks.sak.common.util.tilMånedÅr
 import no.nav.familie.ks.sak.common.util.toYearMonth
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelse
+import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityResultat
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.Trigger
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.begrunnelseGjelderOpphørFraForrigeBehandling
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.inneholderGjelderFørstePeriodeTrigger
@@ -312,7 +313,6 @@ class BrevPeriodeContext(
                         hentMånedOgÅrForBegrunnelse(
                             vedtaksperiodeType = this.utvidetVedtaksperiodeMedBegrunnelser.type,
                             sanityBegrunnelse = sanityBegrunnelse,
-                            begrunnelse = begrunnelse,
                             vilkårResultaterForRelevantePersoner = vilkårResultaterForRelevantePersoner,
                             vedtaksperiodeTom = this.utvidetVedtaksperiodeMedBegrunnelser.tom ?: TIDENES_ENDE,
                             vedtaksperiodeFom = fom,
@@ -545,7 +545,6 @@ class BrevPeriodeContext(
         vilkårResultaterForRelevantePersoner: List<VilkårResultat>,
         vedtaksperiodeFom: LocalDate,
         vedtaksperiodeTom: LocalDate,
-        begrunnelse: NasjonalEllerFellesBegrunnelse,
     ): String {
         val fomErFørLovendring2024 = vedtaksperiodeFom.isBefore(DATO_LOVENDRING_2024)
         val månedenFørFom = vedtaksperiodeFom.minusMonths(1)
@@ -571,7 +570,7 @@ class BrevPeriodeContext(
             Vedtaksperiodetype.FORTSATT_INNVILGET,
             -> {
                 kastFeilHvisFomErUgyldig(vedtaksperiodeFom)
-                if (begrunnelse.begrunnelseType == BegrunnelseType.REDUKSJON && !fomErFørLovendring2024) {
+                if (sanityBegrunnelse.resultat == SanityResultat.REDUKSJON && !fomErFørLovendring2024) {
                     månedenFørFom.tilMånedÅr()
                 } else {
                     vedtaksperiodeFom.tilMånedÅr()
