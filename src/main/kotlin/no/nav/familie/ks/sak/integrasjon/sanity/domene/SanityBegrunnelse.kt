@@ -34,6 +34,7 @@ data class SanityBegrunnelse(
     val hjemlerEØSForordningen883: List<String> = emptyList(),
     val hjemlerEØSForordningen987: List<String> = emptyList(),
     val hjemlerSeperasjonsavtalenStorbritannina: List<String> = emptyList(),
+    val resultat: SanityResultat,
 )
 
 enum class SanityBegrunnelseType {
@@ -89,10 +90,21 @@ enum class Trigger {
 fun SanityBegrunnelse.begrunnelseGjelderOpphørFraForrigeBehandling() =
     Trigger.GJELDER_FØRSTE_PERIODE in this.triggere
 
+enum class SanityResultat {
+    INNVILGET,
+    REDUKSJON,
+    AVSLAG,
+    OPPHØR,
+    FORTSATT_INNVILGET,
+    ENDRET_UTBETALING,
+    ETTER_ENDRET_UTBETALINGSPERIODE,
+}
+
 data class SanityBegrunnelseDto(
     val apiNavn: String?,
     val navnISystem: String,
     val type: String,
+    val resultat: SanityResultat,
     val vilkaar: List<String> = emptyList(),
     val eosVilkaar: List<String> = emptyList(),
     val rolle: List<String> = emptyList(),
@@ -115,6 +127,7 @@ data class SanityBegrunnelseDto(
         return SanityBegrunnelse(
             apiNavn = apiNavn,
             navnISystem = navnISystem,
+            resultat = resultat,
             type = finnEnumverdi(type, SanityBegrunnelseType.entries, apiNavn) ?: SanityBegrunnelseType.TILLEGGSTEKST,
             vilkår =
                 (vilkaar + eosVilkaar).mapNotNull {

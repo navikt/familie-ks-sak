@@ -22,6 +22,7 @@ import no.nav.familie.ks.sak.data.lagSanityBegrunnelse
 import no.nav.familie.ks.sak.data.randomAktør
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
 import no.nav.familie.ks.sak.integrasjon.sanity.SanityService
+import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityResultat
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingKategori
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
@@ -207,8 +208,8 @@ internal class VedtaksperiodeServiceTest {
 
         val sanityBegrunnelser =
             listOf(
-                lagSanityBegrunnelse(apiNavn = NasjonalEllerFellesBegrunnelse.INNVILGET_IKKE_BARNEHAGE.sanityApiNavn, støtterFritekst = false),
-                lagSanityBegrunnelse(apiNavn = EØSBegrunnelse.INNVILGET_PRIMÆRLAND_STANDARD.sanityApiNavn, støtterFritekst = false),
+                lagSanityBegrunnelse(apiNavn = NasjonalEllerFellesBegrunnelse.INNVILGET_IKKE_BARNEHAGE.sanityApiNavn, støtterFritekst = false, SanityResultat.INNVILGET),
+                lagSanityBegrunnelse(apiNavn = EØSBegrunnelse.INNVILGET_PRIMÆRLAND_STANDARD.sanityApiNavn, støtterFritekst = false, resultat = SanityResultat.INNVILGET),
             )
 
         assertThat(vedtaksperiodeMedBegrunnelse.støtterFritekst(sanityBegrunnelser), Is(false))
@@ -228,7 +229,7 @@ internal class VedtaksperiodeServiceTest {
 
         val sanityBegrunnelser =
             listOf(
-                lagSanityBegrunnelse(apiNavn = NasjonalEllerFellesBegrunnelse.REDUKSJON_BARN_DOD.sanityApiNavn, støtterFritekst = false),
+                lagSanityBegrunnelse(apiNavn = NasjonalEllerFellesBegrunnelse.REDUKSJON_BARN_DOD.sanityApiNavn, støtterFritekst = false, resultat = SanityResultat.REDUKSJON),
             )
 
         assertThat(vedtaksperiodeMedBegrunnelse.støtterFritekst(sanityBegrunnelser), Is(true))
@@ -249,8 +250,8 @@ internal class VedtaksperiodeServiceTest {
 
         val sanityBegrunnelser =
             listOf(
-                lagSanityBegrunnelse(apiNavn = NasjonalEllerFellesBegrunnelse.INNVILGET_IKKE_BARNEHAGE.sanityApiNavn, støtterFritekst = false),
-                lagSanityBegrunnelse(apiNavn = EØSBegrunnelse.INNVILGET_PRIMÆRLAND_STANDARD.sanityApiNavn, støtterFritekst = true),
+                lagSanityBegrunnelse(apiNavn = NasjonalEllerFellesBegrunnelse.INNVILGET_IKKE_BARNEHAGE.sanityApiNavn, støtterFritekst = false, resultat = SanityResultat.INNVILGET),
+                lagSanityBegrunnelse(apiNavn = EØSBegrunnelse.INNVILGET_PRIMÆRLAND_STANDARD.sanityApiNavn, støtterFritekst = true, resultat = SanityResultat.INNVILGET),
             )
 
         assertThat(vedtaksperiodeMedBegrunnelse.støtterFritekst(sanityBegrunnelser), Is(true))

@@ -286,6 +286,7 @@
       "apiNavn": "etterEndretUtbetalingEtterbetalingTreMaanedTilbakeITid",
       "navnISystem": "Etterbetaling tre måneder tilbake i tid",
       "type": "STANDARD",
+      "resultat": "INNVILGET",
       "vilkår": [],
       "rolle": [],
       "utdypendeVilkårsvurderinger": [],
