@@ -58,7 +58,53 @@ Egenskap: Barnets alder
 
     Så forvent følgende andeler tilkjent ytelse for behandling 1
       | AktørId | Fra dato   | Til dato   | Beløp | Ytelse type           | Prosent | Sats |
-      | 2       | 01.03.2024 | 15.09.2024 | 7500  | ORDINÆR_KONTANTSTØTTE | 100     | 7500 |
+      | 2       | 01.03.2024 | 30.09.2024 | 7500  | ORDINÆR_KONTANTSTØTTE | 100     | 7500 |
+
+  Scenario: Det skal bli utbetalt for Juli 2024 dersom barnets alder er splittet på 31 juli 2024 og barnet ikke er 2 år
+    Og følgende persongrunnlag
+      | BehandlingId | AktørId | Persontype | Fødselsdato |
+      | 1            | 1       | SØKER      | 19.06.1988  |
+      | 1            | 2       | BARN       | 31.12.2022  |
+
+    Og følgende dagens dato 11.06.2024
+
+    Og følgende vilkårresultater for behandling 1
+      | AktørId | Vilkår                                                 | Utdypende vilkår | Fra dato   | Til dato   | Resultat | Er eksplisitt avslag | Standardbegrunnelser | Vurderes etter |
+      | 1       | BOSATT_I_RIKET,MEDLEMSKAP                              |                  | 19.06.1988 |            | OPPFYLT  | Nei                  |                      |                |
+      | 1       | LOVLIG_OPPHOLD                                         |                  | 19.06.1988 |            | OPPFYLT  | Nei                  |                      |                |
+
+      | 2       | MEDLEMSKAP_ANNEN_FORELDER,BOR_MED_SØKER,BOSATT_I_RIKET |                  | 05.01.2023 |            | OPPFYLT  | Nei                  |                      |                |
+      | 2       | BARNEHAGEPLASS                                         |                  | 15.02.2023 |            | OPPFYLT  | Nei                  |                      |                |
+      | 2       | BARNETS_ALDER                                          |                  | 31.12.2023 | 31.07.2024 | OPPFYLT  | Nei                  |                      |                |
+
+    Og andeler er beregnet for behandling 1
+
+    Så forvent følgende andeler tilkjent ytelse for behandling 1
+      | AktørId | Fra dato   | Til dato   | Beløp | Ytelse type           | Prosent | Sats |
+      | 2       | 01.01.2024 | 31.07.2024 | 7500  | ORDINÆR_KONTANTSTØTTE | 100     | 7500 |
+
+  Scenario: Det skal ikke bli utbetalt for Juli 2024 dersom barnets alder er splittet på 31 juli 2024 og barnet blir 2 år den dagen
+    Og følgende persongrunnlag
+      | BehandlingId | AktørId | Persontype | Fødselsdato |
+      | 1            | 1       | SØKER      | 19.06.1988  |
+      | 1            | 2       | BARN       | 31.07.2022  |
+
+    Og følgende dagens dato 11.06.2024
+
+    Og følgende vilkårresultater for behandling 1
+      | AktørId | Vilkår                                                 | Utdypende vilkår | Fra dato   | Til dato   | Resultat | Er eksplisitt avslag | Standardbegrunnelser | Vurderes etter |
+      | 1       | BOSATT_I_RIKET,MEDLEMSKAP                              |                  | 19.06.1988 |            | OPPFYLT  | Nei                  |                      |                |
+      | 1       | LOVLIG_OPPHOLD                                         |                  | 19.06.1988 |            | OPPFYLT  | Nei                  |                      |                |
+
+      | 2       | MEDLEMSKAP_ANNEN_FORELDER,BOR_MED_SØKER,BOSATT_I_RIKET |                  | 05.01.2023 |            | OPPFYLT  | Nei                  |                      |                |
+      | 2       | BARNEHAGEPLASS                                         |                  | 15.02.2023 |            | OPPFYLT  | Nei                  |                      |                |
+      | 2       | BARNETS_ALDER                                          |                  | 31.07.2023 | 31.07.2024 | OPPFYLT  | Nei                  |                      |                |
+
+    Og andeler er beregnet for behandling 1
+
+    Så forvent følgende andeler tilkjent ytelse for behandling 1
+      | AktørId | Fra dato   | Til dato   | Beløp | Ytelse type           | Prosent | Sats |
+      | 2       | 01.08.2023 | 30.06.2024 | 7500  | ORDINÆR_KONTANTSTØTTE | 100     | 7500 |
 
   Scenario: For barn født 15. januar 2023 skal aldersvilkår splittes i august 2024
     Og følgende persongrunnlag

@@ -25,6 +25,7 @@ fun forskyvEtterLovgivning2021(
     Vilkår.BOR_MED_SØKER,
     Vilkår.BARNETS_ALDER,
     -> {
+        val sisteMuligeTomForBarnetsAlderILov2021 = DATO_LOVENDRING_2024.minusDays(1)
         vilkårResultater
             .filter { it.erOppfylt() || it.erIkkeAktuelt() }
             .sortedBy { it.periodeFom }
@@ -32,13 +33,18 @@ fun forskyvEtterLovgivning2021(
             .map {
                 val periodeTom = it.gjeldende.periodeTom
 
+                val skalHaUtbetaltForJuli2024PgaLovendring =
+                    it.gjeldende.vilkårType == Vilkår.BARNETS_ALDER &&
+                        periodeTom == sisteMuligeTomForBarnetsAlderILov2021 &&
+                        it.gjeldende.periodeFom?.plusYears(1) != sisteMuligeTomForBarnetsAlderILov2021
+
                 Periode(
                     verdi = it.gjeldende,
                     fom = it.gjeldende.periodeFom?.plusMonths(1)?.førsteDagIInneværendeMåned(),
                     tom =
                         when {
                             it.gjeldendeSlutterDagenFørNeste() -> periodeTom?.plusDays(1)?.sisteDagIMåned()
-                            periodeTom == DATO_LOVENDRING_2024.minusDays(1) -> periodeTom
+                            skalHaUtbetaltForJuli2024PgaLovendring -> periodeTom
                             else -> periodeTom?.minusMonths(1)?.sisteDagIMåned()
                         },
                 )
