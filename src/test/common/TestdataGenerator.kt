@@ -33,6 +33,7 @@ import no.nav.familie.ks.sak.integrasjon.pdl.domene.ForelderBarnRelasjonInfo
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.PdlPersonInfo
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelse
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelseType
+import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityResultat
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.domene.ArbeidsfordelingPåBehandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingKategori
@@ -1167,6 +1168,7 @@ fun lagVilkårsvurdering(
 fun lagSanityBegrunnelse(
     apiNavn: String,
     støtterFritekst: Boolean,
+    resultat: SanityResultat,
 ): SanityBegrunnelse =
     SanityBegrunnelse(
         apiNavn = apiNavn,
@@ -1181,4 +1183,5 @@ fun lagSanityBegrunnelse(
         endretUtbetalingsperiode = emptyList(),
         støtterFritekst = støtterFritekst,
         skalAlltidVises = false,
+        resultat = resultat,
     )
