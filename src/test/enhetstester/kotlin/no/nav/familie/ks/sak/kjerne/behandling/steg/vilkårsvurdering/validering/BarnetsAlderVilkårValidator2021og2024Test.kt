@@ -31,7 +31,6 @@ class BarnetsAlderVilkårValidator2021og2024Test {
                 perioder = listOf(),
                 barn = person,
                 vilkårLovverkInformasjonForBarn = VilkårLovverkInformasjonForBarn(person.fødselsdato),
-                erToggleForLovendringAugust2024På = true,
             )
 
         // Assert

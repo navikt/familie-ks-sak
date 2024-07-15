@@ -96,7 +96,6 @@ class BehandlingsresultatOpphørUtilsTest {
                 nåværendePersonResultaterPåBarn = emptyList(),
                 forrigePersonResultaterPåBarn = emptyList(),
                 nåMåned = YearMonth.now(),
-                erToggleForLovendringAugust2024På = true,
             )
 
         assertEquals(Opphørsresultat.IKKE_OPPHØRT, opphørsresultat)
@@ -148,7 +147,6 @@ class BehandlingsresultatOpphørUtilsTest {
                 nåværendePersonResultaterPåBarn = emptyList(),
                 forrigePersonResultaterPåBarn = emptyList(),
                 nåMåned = YearMonth.now(),
-                erToggleForLovendringAugust2024På = true,
             )
 
         assertEquals(Opphørsresultat.OPPHØRT, opphørsresultat)
@@ -200,7 +198,6 @@ class BehandlingsresultatOpphørUtilsTest {
                 nåværendePersonResultaterPåBarn = emptyList(),
                 forrigePersonResultaterPåBarn = emptyList(),
                 nåMåned = YearMonth.now(),
-                erToggleForLovendringAugust2024På = true,
             )
 
         assertEquals(Opphørsresultat.OPPHØRT, opphørsresultat)
@@ -229,7 +226,6 @@ class BehandlingsresultatOpphørUtilsTest {
                 nåværendePersonResultaterPåBarn = emptyList(),
                 forrigePersonResultaterPåBarn = emptyList(),
                 nåMåned = YearMonth.now(),
-                erToggleForLovendringAugust2024På = true,
             )
 
         assertEquals(Opphørsresultat.OPPHØRT, opphørsresultat)
@@ -281,7 +277,6 @@ class BehandlingsresultatOpphørUtilsTest {
                 nåværendePersonResultaterPåBarn = emptyList(),
                 forrigePersonResultaterPåBarn = emptyList(),
                 nåMåned = YearMonth.now(),
-                erToggleForLovendringAugust2024På = true,
             )
 
         assertEquals(Opphørsresultat.FORTSATT_OPPHØRT, opphørsresultat)
@@ -333,7 +328,6 @@ class BehandlingsresultatOpphørUtilsTest {
                 nåværendePersonResultaterPåBarn = emptyList(),
                 forrigePersonResultaterPåBarn = emptyList(),
                 nåMåned = YearMonth.now(),
-                erToggleForLovendringAugust2024På = true,
             )
 
         assertEquals(Opphørsresultat.IKKE_OPPHØRT, opphørsresultat)
@@ -628,7 +622,6 @@ class BehandlingsresultatOpphørUtilsTest {
                 nåværendePersonResultaterPåBarn = listOf(personResultatBarn1, personResultatBarn2),
                 forrigePersonResultaterPåBarn = listOf(),
                 nåMåned = YearMonth.now(),
-                erToggleForLovendringAugust2024På = true,
             )
 
         assertEquals(Opphørsresultat.OPPHØRT, opphørsresultat)
@@ -690,7 +683,6 @@ class BehandlingsresultatOpphørUtilsTest {
                 nåværendePersonResultaterPåBarn = listOf(personResultatBarn1, personResultatBarn2),
                 forrigePersonResultaterPåBarn = listOf(personResultatBarn1, personResultatBarn2),
                 nåMåned = YearMonth.now(),
-                erToggleForLovendringAugust2024På = true,
             )
 
         assertEquals(Opphørsresultat.FORTSATT_OPPHØRT, opphørsresultat)
@@ -750,7 +742,6 @@ class BehandlingsresultatOpphørUtilsTest {
                 nåværendePersonResultaterPåBarn = listOf(personResultatBarn1, personResultatBarn2),
                 forrigePersonResultaterPåBarn = listOf(),
                 nåMåned = YearMonth.now(),
-                erToggleForLovendringAugust2024På = true,
             )
 
         assertEquals(Opphørsresultat.IKKE_OPPHØRT, opphørsresultat)
@@ -779,7 +770,6 @@ class BehandlingsresultatOpphørUtilsTest {
                 nåværendePersonResultaterPåBarn = emptyList(),
                 forrigePersonResultaterPåBarn = emptyList(),
                 nåMåned = YearMonth.now(),
-                erToggleForLovendringAugust2024På = true,
             )
 
         assertEquals(Opphørsresultat.OPPHØRT, opphørsresultat)

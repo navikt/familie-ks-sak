@@ -4,8 +4,6 @@ import no.nav.familie.ks.sak.api.dto.EndreVilkårResultatDto
 import no.nav.familie.ks.sak.api.dto.NyttVilkårDto
 import no.nav.familie.ks.sak.api.dto.VedtakBegrunnelseTilknyttetVilkårResponseDto
 import no.nav.familie.ks.sak.common.exception.Feil
-import no.nav.familie.ks.sak.config.featureToggle.FeatureToggleConfig
-import no.nav.familie.ks.sak.config.featureToggle.UnleashNextMedContextService
 import no.nav.familie.ks.sak.integrasjon.sanity.SanityService
 import no.nav.familie.ks.sak.integrasjon.secureLogger
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
@@ -32,7 +30,6 @@ class VilkårsvurderingService(
     private val personopplysningGrunnlagService: PersonopplysningGrunnlagService,
     private val sanityService: SanityService,
     private val personidentService: PersonidentService,
-    private val unleashService: UnleashNextMedContextService,
 ) {
     @Transactional
     fun opprettVilkårsvurdering(
@@ -40,9 +37,6 @@ class VilkårsvurderingService(
         forrigeBehandlingSomErVedtatt: Behandling?,
     ): Vilkårsvurdering {
         logger.info("${SikkerhetContext.hentSaksbehandlerNavn()} oppretter vilkårsvurdering for behandling ${behandling.id}")
-
-        val erToggleForLovendringAugust2024På =
-            unleashService.isEnabled(FeatureToggleConfig.LOV_ENDRING_7_MND_NYE_BEHANDLINGER)
 
         val aktivVilkårsvurdering = finnAktivVilkårsvurdering(behandling.id)
         val vilkårsvurderingFraForrigeBehandling = forrigeBehandlingSomErVedtatt?.let { hentAktivVilkårsvurderingForBehandling(forrigeBehandlingSomErVedtatt.id) }
@@ -55,13 +49,11 @@ class VilkårsvurderingService(
                 behandling,
                 vilkårsvurderingFraForrigeBehandling,
                 personopplysningGrunnlag,
-                erToggleForLovendringAugust2024På,
             )
 
         vilkårsvurderingFraForrigeBehandling?.let {
             initiellVilkårsvurdering.kopierResultaterFraForrigeBehandling(
                 vilkårsvurderingForrigeBehandling = it,
-                erToggleForLovendringAugust2024På = erToggleForLovendringAugust2024På,
             )
         }
 

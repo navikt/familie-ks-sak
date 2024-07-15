@@ -32,10 +32,9 @@ object BehandlingsresultatValideringUtils {
         personopplysningGrunnlag: PersonopplysningGrunnlag,
         tilkjentYtelse: TilkjentYtelse,
         endretUtbetalingMedAndeler: List<EndretUtbetalingAndelMedAndelerTilkjentYtelse>,
-        erToggleForLovendringAugust2024På: Boolean,
     ) {
         // valider TilkjentYtelse
-        TilkjentYtelseValidator.validerAtTilkjentYtelseHarFornuftigePerioderOgBeløp(tilkjentYtelse, personopplysningGrunnlag, erToggleForLovendringAugust2024På)
+        TilkjentYtelseValidator.validerAtTilkjentYtelseHarFornuftigePerioderOgBeløp(tilkjentYtelse, personopplysningGrunnlag)
 
         // valider EndretUtbetalingAndel
         EndretUtbetalingAndelValidator.validerAtAlleOpprettedeEndringerErUtfylt(endretUtbetalingMedAndeler.map { it.endretUtbetaling })

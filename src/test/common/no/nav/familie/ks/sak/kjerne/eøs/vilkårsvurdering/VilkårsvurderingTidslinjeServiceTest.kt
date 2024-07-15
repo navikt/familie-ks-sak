@@ -44,7 +44,6 @@ internal class VilkårsvurderingTidslinjeServiceTest {
                 vilkårsvurderingRepository = vilkårsvurderingRepository,
                 personopplysningGrunnlagRepository = personopplysningGrunnlagRepository,
                 vilkårsvurderingService = vilkårsvurderingService,
-                unleashNextMedContextService = unleashNextMedContextService,
             )
     }
 

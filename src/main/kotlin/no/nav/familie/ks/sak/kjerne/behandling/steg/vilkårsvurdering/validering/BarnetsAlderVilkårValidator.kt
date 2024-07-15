@@ -16,12 +16,8 @@ class BarnetsAlderVilkårValidator(
     fun validerVilkårBarnetsAlder(
         perioder: List<IkkeNullbarPeriode<VilkårResultat>>,
         barn: Person,
-        erToggleForLovendringAugust2024På: Boolean,
     ): List<String> {
         val vilkårLovverkInformasjonForBarn = VilkårLovverkInformasjonForBarn(barn.fødselsdato)
-        if (!erToggleForLovendringAugust2024På) {
-            return barnetsAlderVilkårValidator2021.validerBarnetsAlderVilkår(perioder, barn, vilkårLovverkInformasjonForBarn.periodeFomBarnetsAlderLov2021, vilkårLovverkInformasjonForBarn.periodeTomBarnetsAlderLov2021, erToggleForLovendringAugust2024På)
-        }
 
         return when (vilkårLovverkInformasjonForBarn.lovverk) {
             VilkårLovverk.LOVVERK_2021_OG_2024 ->
@@ -29,7 +25,6 @@ class BarnetsAlderVilkårValidator(
                     perioder = perioder,
                     barn = barn,
                     vilkårLovverkInformasjonForBarn = vilkårLovverkInformasjonForBarn,
-                    erToggleForLovendringAugust2024På = erToggleForLovendringAugust2024På,
                 )
 
             VilkårLovverk.LOVVERK_2021 ->
@@ -38,7 +33,6 @@ class BarnetsAlderVilkårValidator(
                     barn = barn,
                     periodeFomBarnetsAlderLov2021 = vilkårLovverkInformasjonForBarn.periodeFomBarnetsAlderLov2021,
                     periodeTomBarnetsAlderLov2021 = vilkårLovverkInformasjonForBarn.periodeTomBarnetsAlderLov2021,
-                    erToggleForLovendringAugust2024På = erToggleForLovendringAugust2024På,
                 )
 
             VilkårLovverk.LOVVERK_2024 ->

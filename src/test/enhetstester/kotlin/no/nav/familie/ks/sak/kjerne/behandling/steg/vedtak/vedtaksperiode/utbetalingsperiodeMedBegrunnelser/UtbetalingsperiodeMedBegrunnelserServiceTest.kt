@@ -72,7 +72,7 @@ class UtbetalingsperiodeMedBegrunnelserServiceTest {
         personResultat.setSortedVilkårResultater(vilkårResultater.toSet())
 
         val førskjøvetVilkårResultatTidslinjeMap =
-            setOf(personResultat).tilForskjøvetOppfylteVilkårResultatTidslinjeMap(personopplysningGrunnlag, true)
+            setOf(personResultat).tilForskjøvetOppfylteVilkårResultatTidslinjeMap(personopplysningGrunnlag)
 
         Assertions.assertEquals(1, førskjøvetVilkårResultatTidslinjeMap.size)
 
@@ -132,7 +132,7 @@ class UtbetalingsperiodeMedBegrunnelserServiceTest {
             }
 
         assertDoesNotThrow {
-            setOf(personResultat).tilForskjøvetOppfylteVilkårResultatTidslinjeMap(personopplysningGrunnlag, true)
+            setOf(personResultat).tilForskjøvetOppfylteVilkårResultatTidslinjeMap(personopplysningGrunnlag)
         }
     }
 }
