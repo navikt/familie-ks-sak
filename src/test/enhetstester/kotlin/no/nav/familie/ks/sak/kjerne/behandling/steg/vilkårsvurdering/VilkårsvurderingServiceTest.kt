@@ -7,8 +7,6 @@ import io.mockk.junit5.MockKExtension
 import io.mockk.mockk
 import io.mockk.slot
 import no.nav.familie.ks.sak.common.exception.Feil
-import no.nav.familie.ks.sak.config.featureToggle.FeatureToggleConfig
-import no.nav.familie.ks.sak.config.featureToggle.UnleashNextMedContextService
 import no.nav.familie.ks.sak.data.fnrTilFødselsdato
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagFagsak
@@ -52,9 +50,6 @@ class VilkårsvurderingServiceTest {
     @MockK
     private lateinit var personidentService: PersonidentService
 
-    @MockK
-    private lateinit var unleashService: UnleashNextMedContextService
-
     @InjectMockKs
     private lateinit var vilkårsvurderingService: VilkårsvurderingService
 
@@ -66,8 +61,6 @@ class VilkårsvurderingServiceTest {
 
     @Test
     fun `opprettVilkårsvurdering - skal opprette tom vilkårsvurdering dersom det ikke finnes tidligere vedtatte behandlinger på fagsak`() {
-        every { unleashService.isEnabled(FeatureToggleConfig.LOV_ENDRING_7_MND_NYE_BEHANDLINGER) } returns false
-
         val barn1 = randomAktør()
         val barn2 = randomAktør()
 
@@ -147,8 +140,6 @@ class VilkårsvurderingServiceTest {
 
     @Test
     fun `opprettVilkårsvurdering - skal opprette tom vilkårsvurdering og deaktivere eksisterende dersom det ikke finnes tidligere vedtatte behandlinger på fagsak`() {
-        every { unleashService.isEnabled(FeatureToggleConfig.LOV_ENDRING_7_MND_NYE_BEHANDLINGER) } returns false
-
         val barn1 = randomAktør()
         val barn2 = randomAktør()
         val lagretDeaktivertVilkårsvurderingSlot = slot<Vilkårsvurdering>()
@@ -179,8 +170,6 @@ class VilkårsvurderingServiceTest {
 
     @Test
     fun `hentVilkårsbegrunnelser - skal returnere et map med begrunnelsestyper mappet mot liste av begrunnelser`() {
-        every { unleashService.isEnabled(FeatureToggleConfig.LOV_ENDRING_7_MND_NYE_BEHANDLINGER) } returns false
-
         every { sanityService.hentSanityBegrunnelser() } returns
             listOf(
                 SanityBegrunnelse(

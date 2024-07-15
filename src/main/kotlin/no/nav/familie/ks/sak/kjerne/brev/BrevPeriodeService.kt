@@ -3,8 +3,6 @@ package no.nav.familie.ks.sak.kjerne.brev
 import no.nav.familie.ks.sak.common.BehandlingId
 import no.nav.familie.ks.sak.common.util.TIDENES_MORGEN
 import no.nav.familie.ks.sak.common.util.toYearMonth
-import no.nav.familie.ks.sak.config.featureToggle.FeatureToggleConfig
-import no.nav.familie.ks.sak.config.featureToggle.UnleashNextMedContextService
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
 import no.nav.familie.ks.sak.integrasjon.sanity.SanityService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.registrersøknad.SøknadGrunnlagService
@@ -35,7 +33,6 @@ class BrevPeriodeService(
     val vedtaksperiodeService: VedtaksperiodeService,
     val kompetanseService: KompetanseService,
     val integrasjonClient: IntegrasjonClient,
-    val unleashNextMedContextService: UnleashNextMedContextService,
 ) {
     fun hentBegrunnelsesteksterForPeriode(vedtaksperiodeId: Long): List<BegrunnelseDto> {
         val behandlingId = vedtaksperiodeHentOgPersisterService.hentVedtaksperiodeThrows(vedtaksperiodeId).vedtak.behandling.id
@@ -63,7 +60,6 @@ class BrevPeriodeService(
                 behandlingId,
             )
         val kompetanser = kompetanseService.hentKompetanser(behandlingId = BehandlingId(behandlingId))
-        val erToggleForLovendringAugust2024På = unleashNextMedContextService.isEnabled(FeatureToggleConfig.LOV_ENDRING_7_MND_NYE_BEHANDLINGER)
 
         return utvidetVedtaksperioderMedBegrunnelser
             .sortedBy { it.fom }
@@ -87,7 +83,6 @@ class BrevPeriodeService(
                     erFørsteVedtaksperiode = erFørsteVedtaksperiodePåFagsak,
                     kompetanser = kompetanser.map { it.tilIKompetanse() }.filterIsInstance<UtfyltKompetanse>(),
                     landkoder = integrasjonClient.hentLandkoderISO2(),
-                    erToggleForLovendringAugust2024På = erToggleForLovendringAugust2024På,
                 ).genererBrevPeriodeDto()
             }
     }
