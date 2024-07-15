@@ -1,8 +1,6 @@
 package no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.validering
 
 import no.nav.familie.ks.sak.common.tidslinje.IkkeNullbarPeriode
-import no.nav.familie.ks.sak.common.util.DATO_LOVENDRING_2024
-import no.nav.familie.ks.sak.common.util.sisteDagIMåned
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårLovverkInformasjonForBarn
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
@@ -21,7 +19,7 @@ class BarnetsAlderVilkårValidator2021og2024(
         val påkrevdAntallBarnetsAlderPerioderPåBarn = 2
 
         if (perioder.size != påkrevdAntallBarnetsAlderPerioderPåBarn) {
-            return listOf("Vilkåret for barnets alder må splittes i to perioder fordi den strekker seg over lovendringen 01.08.2024. Periodene må være som følgende: [${vilkårLovverkInformasjonForBarn.periodeFomBarnetsAlderLov2021} - ${minOf(vilkårLovverkInformasjonForBarn.periodeTomBarnetsAlderLov2021, DATO_LOVENDRING_2024.minusMonths(1).sisteDagIMåned())}, ${maxOf(vilkårLovverkInformasjonForBarn.periodeFomBarnetsAlderLov2024, DATO_LOVENDRING_2024)} - ${vilkårLovverkInformasjonForBarn.periodeTomBarnetsAlderLov2024}]")
+            return listOf("Vilkåret for barnets alder må splittes i to perioder fordi den strekker seg over lovendringen 01.08.2024. Henlegg denne behandlingen og opprett en ny behandling. I den nye behandlingen vil splitten dannes automatisk")
         }
 
         val sortertePerioder = perioder.sortedBy { it.fom }
