@@ -30,7 +30,7 @@ class SimuleringUtilTest {
     private fun mockVedtakSimuleringPostering(
         økonomiSimuleringMottaker: ØkonomiSimuleringMottaker = mockk(relaxed = true),
         beløp: Int = 0,
-        fagOmrådeKode: FagOmrådeKode = FagOmrådeKode.BARNETRYGD,
+        fagOmrådeKode: FagOmrådeKode = FagOmrådeKode.KONTANTSTØTTE,
         fom: LocalDate = LocalDate.now().minusMonths(1),
         tom: LocalDate = LocalDate.now().minusMonths(1),
         betalingType: BetalingType = BetalingType.DEBIT,
@@ -59,7 +59,7 @@ class SimuleringUtilTest {
         MutableList(antallMåneder) { index ->
             ØkonomiSimuleringPostering(
                 økonomiSimuleringMottaker = mockk(relaxed = true),
-                fagOmrådeKode = FagOmrådeKode.BARNETRYGD,
+                fagOmrådeKode = FagOmrådeKode.KONTANTSTØTTE,
                 fom = måned.plusMonths(index.toLong()).atDay(1),
                 tom = måned.plusMonths(index.toLong()).atEndOfMonth(),
                 betalingType = betalingstype,

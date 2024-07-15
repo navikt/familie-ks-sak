@@ -616,7 +616,7 @@ class VedtaksperiodeService(
                         if (avklart) {
                             "Frå $fom til $tom blir etterbetaling på $beløp kroner per måned utbetalt til myndighetene i $land."
                         } else {
-                            "Frå $fom til $tom blir ikkje etterbetaling på $beløp kroner per månad utbetalt no sidan det er utbetalt barnetrygd i $land."
+                            "Frå $fom til $tom blir ikkje etterbetaling på $beløp kroner per månad utbetalt no sidan det er utbetalt kontantstøtte i $land."
                         }
                     }
 
@@ -624,7 +624,7 @@ class VedtaksperiodeService(
                         if (avklart) {
                             "Fra $fom til $tom blir etterbetaling på $beløp kroner per måned utbetalt til myndighetene i $land."
                         } else {
-                            "Fra $fom til $tom blir ikke etterbetaling på $beløp kroner per måned utbetalt nå siden det er utbetalt barnetrygd i $land."
+                            "Fra $fom til $tom blir ikke etterbetaling på $beløp kroner per måned utbetalt nå siden det er utbetalt kontantstøtte i $land."
                         }
                     }
                 }
