@@ -678,6 +678,6 @@ internal class VedtaksperiodeServiceTest {
         val perioder = vedtaksperiodeService.beskrivPerioderMedRefusjonEøs(behandling = behandling, avklart = false)
 
         assertThat(perioder?.size, Is(1))
-        assertThat(perioder?.single(), Is(("Fra januar 2020 til januar 2022 blir ikke etterbetaling på 200 kroner per måned utbetalt nå siden det er utbetalt barnetrygd i Norge.")))
+        assertThat(perioder?.single(), Is(("Fra januar 2020 til januar 2022 blir ikke etterbetaling på 200 kroner per måned utbetalt nå siden det er utbetalt kontantstøtte i Norge.")))
     }
 }
