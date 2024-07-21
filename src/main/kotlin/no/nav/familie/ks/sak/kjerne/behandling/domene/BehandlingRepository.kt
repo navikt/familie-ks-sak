@@ -98,4 +98,29 @@ interface BehandlingRepository : JpaRepository<Behandling, Long> {
             where b.id in (:behandlingIder) AND p.aktiv=true AND f.status = 'LØPENDE' """,
     )
     fun finnAktivtFødselsnummerForBehandlinger(behandlingIder: List<Long>): List<Pair<Long, String>>
+
+    @Query(
+        value = """
+            SELECT b.* 
+            FROM behandling b 
+            INNER JOIN tilkjent_ytelse ty ON ty.fk_behandling_id = b.id 
+            WHERE ty.stonad_tom > '2024-07-31'
+              AND b.soknad_mottatt_dato < '2024-02-02'
+              AND EXISTS (
+                SELECT 1 
+                FROM vedtak v 
+                WHERE v.fk_behandling_id = b.id 
+                  AND v.vedtaksdato > '2024-02-29'
+              )
+              AND EXISTS (
+                SELECT 1 
+                FROM andel_tilkjent_ytelse aty 
+                WHERE aty.fk_behandling_id = b.id
+              )
+              AND ty.utbetalingsoppdrag IS NOT NULL 
+              AND b.status = 'AVSLUTTET'
+        """,
+        nativeQuery = true,
+    )
+    fun finnBehandlingerSomSkalMottaInformasjonsbrevOmKontantstøtteLovendringJuli2024(): List<Behandling>
 }
