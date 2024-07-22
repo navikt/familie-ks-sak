@@ -115,7 +115,6 @@ fun VilkårsvurderingBuilder.byggTilkjentYtelse() =
     TilkjentYtelseUtils.beregnTilkjentYtelse(
         vilkårsvurdering = this.byggVilkårsvurdering(),
         personopplysningGrunnlag = this.byggPersonopplysningGrunnlag(),
-        erToggleForLovendringAugust2024På = true,
     )
 
 data class UtdypendeVilkårRegelverkResultat(

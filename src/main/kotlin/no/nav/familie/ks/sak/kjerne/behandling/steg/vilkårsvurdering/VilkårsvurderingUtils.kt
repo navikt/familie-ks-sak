@@ -242,7 +242,6 @@ fun genererInitiellVilkårsvurdering(
     behandling: Behandling,
     forrigeVilkårsvurdering: Vilkårsvurdering?,
     personopplysningGrunnlag: PersonopplysningGrunnlag,
-    erToggleForLovendringAugust2024På: Boolean,
 ): Vilkårsvurdering {
     return Vilkårsvurdering(behandling = behandling).apply {
         personResultater =
@@ -263,26 +262,11 @@ fun genererInitiellVilkårsvurdering(
                         // prefyller diverse vilkår automatisk basert på type
                         when (vilkår) {
                             Vilkår.BARNETS_ALDER -> {
-                                if (erToggleForLovendringAugust2024På) {
-                                    lagAutomatiskGenererteVilkårForBarnetsAlder(
-                                        personResultat = personResultat,
-                                        behandling = behandling,
-                                        fødselsdato = person.fødselsdato,
-                                    )
-                                } else {
-                                    listOf(
-                                        VilkårResultat(
-                                            personResultat = personResultat,
-                                            erAutomatiskVurdert = true,
-                                            resultat = Resultat.OPPFYLT,
-                                            vilkårType = vilkår,
-                                            begrunnelse = "Vurdert og satt automatisk",
-                                            behandlingId = behandling.id,
-                                            periodeFom = person.fødselsdato.plusYears(1),
-                                            periodeTom = person.fødselsdato.plusYears(2),
-                                        ),
-                                    )
-                                }
+                                lagAutomatiskGenererteVilkårForBarnetsAlder(
+                                    personResultat = personResultat,
+                                    behandling = behandling,
+                                    fødselsdato = person.fødselsdato,
+                                )
                             }
 
                             Vilkår.MEDLEMSKAP ->
@@ -364,7 +348,6 @@ fun Vilkårsvurdering.oppdaterMedDødsdatoer(personopplysningGrunnlag: Personopp
 
 fun Vilkårsvurdering.kopierResultaterFraForrigeBehandling(
     vilkårsvurderingForrigeBehandling: Vilkårsvurdering,
-    erToggleForLovendringAugust2024På: Boolean,
 ) {
     personResultater.forEach { initieltPersonResultat ->
         val personResultatForrigeBehandling =
@@ -381,7 +364,6 @@ fun Vilkårsvurdering.kopierResultaterFraForrigeBehandling(
                         kunForGodkjenteVilkår = behandling.type != BehandlingType.FØRSTEGANGSBEHANDLING,
                         vilkårResultaterFraForrigeBehandling = personResultatForrigeBehandling.vilkårResultater,
                         nyttPersonResultat = initieltPersonResultat,
-                        erToggleForLovendringAugust2024På = erToggleForLovendringAugust2024På,
                     )
             }
 
@@ -393,7 +375,6 @@ private fun Collection<VilkårResultat>.overskrivMedVilkårResultaterFraForrigeB
     vilkårResultaterFraForrigeBehandling: Collection<VilkårResultat>,
     nyttPersonResultat: PersonResultat,
     kunForGodkjenteVilkår: Boolean,
-    erToggleForLovendringAugust2024På: Boolean,
 ): List<VilkårResultat> {
     val vilkårForPerson = nyttPersonResultat.vilkårResultater.map { it.vilkårType }.toSet()
 
@@ -406,37 +387,30 @@ private fun Collection<VilkårResultat>.overskrivMedVilkårResultaterFraForrigeB
                 .map { it.kopier(personResultat = nyttPersonResultat) }
 
         val vilkårResultaterForrigeBehandlingSomViØnskerÅTaMed: List<VilkårResultat> =
-            if (erToggleForLovendringAugust2024På) {
-                when (vilkårType) {
-                    Vilkår.BARNEHAGEPLASS -> {
+            when (vilkårType) {
+                Vilkår.BARNEHAGEPLASS -> {
                         /* *
                          * Ønsker å dra med vilkårresultatene som er avslått og opphørt i forrige behandling
                          * for barnehagevilkåret fordi vi krever at alle peridene skal være vurdert, også de med opphør
                          * */
-                        vilkårResultaterAvSammeTypeIForrigeBehandling
-                    }
+                    vilkårResultaterAvSammeTypeIForrigeBehandling
+                }
 
-                    Vilkår.BARNETS_ALDER -> {
+                Vilkår.BARNETS_ALDER -> {
                         /* *
                          * Barnets alder vilkåret settes automatisk og bør ikke endres med midre det er snakk om adopsjon.
                          * Kopierer derfor kun vilkåret ved adopsjon og tar med som er generert på denne behandlingen ellers.
                          * På denne måten kan vi få med regelendringer som endrer vilkåret på revurderinger.
                          * */
-                        vilkårResultaterAvSammeTypeIForrigeBehandling
-                            .filter { it.erAdopsjonOppfylt() }
-                            .filter { it.resultat in listOf(Resultat.IKKE_AKTUELT, Resultat.OPPFYLT) }
-                            .splittOppOmKrysserRegelverksendring()
-                    }
-
-                    else ->
-                        vilkårResultaterAvSammeTypeIForrigeBehandling
-                            .filter { it.resultat in listOf(Resultat.IKKE_AKTUELT, Resultat.OPPFYLT) }
+                    vilkårResultaterAvSammeTypeIForrigeBehandling
+                        .filter { it.erAdopsjonOppfylt() }
+                        .filter { it.resultat in listOf(Resultat.IKKE_AKTUELT, Resultat.OPPFYLT) }
+                        .splittOppOmKrysserRegelverksendring()
                 }
-            } else {
-                vilkårResultaterFraForrigeBehandling
-                    .filter { it.vilkårType == vilkårType }
-                    .filter { !kunForGodkjenteVilkår || it.resultat in listOf(Resultat.IKKE_AKTUELT, Resultat.OPPFYLT) }
-                    .map { it.kopier(personResultat = nyttPersonResultat) }
+
+                else ->
+                    vilkårResultaterAvSammeTypeIForrigeBehandling
+                        .filter { it.resultat in listOf(Resultat.IKKE_AKTUELT, Resultat.OPPFYLT) }
             }
 
         if (vilkårResultaterForrigeBehandlingSomViØnskerÅTaMed.isNotEmpty()) {

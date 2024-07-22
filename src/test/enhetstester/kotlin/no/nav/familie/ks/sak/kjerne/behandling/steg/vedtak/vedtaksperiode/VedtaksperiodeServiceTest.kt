@@ -13,8 +13,6 @@ import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.util.MånedPeriode
 import no.nav.familie.ks.sak.common.util.TIDENES_MORGEN
 import no.nav.familie.ks.sak.common.util.førsteDagIInneværendeMåned
-import no.nav.familie.ks.sak.config.featureToggle.FeatureToggleConfig
-import no.nav.familie.ks.sak.config.featureToggle.UnleashNextMedContextService
 import no.nav.familie.ks.sak.data.lagAndelTilkjentYtelse
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagInitieltTilkjentYtelse
@@ -22,6 +20,7 @@ import no.nav.familie.ks.sak.data.lagSanityBegrunnelse
 import no.nav.familie.ks.sak.data.randomAktør
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
 import no.nav.familie.ks.sak.integrasjon.sanity.SanityService
+import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityResultat
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingKategori
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
@@ -102,9 +101,6 @@ internal class VedtaksperiodeServiceTest {
 
     @MockK(relaxed = true)
     private lateinit var kompetanseService: KompetanseService
-
-    @MockK
-    private lateinit var unleashNextMedContextService: UnleashNextMedContextService
 
     @InjectMockKs
     private lateinit var vedtaksperiodeService: VedtaksperiodeService
@@ -207,8 +203,8 @@ internal class VedtaksperiodeServiceTest {
 
         val sanityBegrunnelser =
             listOf(
-                lagSanityBegrunnelse(apiNavn = NasjonalEllerFellesBegrunnelse.INNVILGET_IKKE_BARNEHAGE.sanityApiNavn, støtterFritekst = false),
-                lagSanityBegrunnelse(apiNavn = EØSBegrunnelse.INNVILGET_PRIMÆRLAND_STANDARD.sanityApiNavn, støtterFritekst = false),
+                lagSanityBegrunnelse(apiNavn = NasjonalEllerFellesBegrunnelse.INNVILGET_IKKE_BARNEHAGE.sanityApiNavn, støtterFritekst = false, SanityResultat.INNVILGET),
+                lagSanityBegrunnelse(apiNavn = EØSBegrunnelse.INNVILGET_PRIMÆRLAND_STANDARD.sanityApiNavn, støtterFritekst = false, resultat = SanityResultat.INNVILGET),
             )
 
         assertThat(vedtaksperiodeMedBegrunnelse.støtterFritekst(sanityBegrunnelser), Is(false))
@@ -228,7 +224,7 @@ internal class VedtaksperiodeServiceTest {
 
         val sanityBegrunnelser =
             listOf(
-                lagSanityBegrunnelse(apiNavn = NasjonalEllerFellesBegrunnelse.REDUKSJON_BARN_DOD.sanityApiNavn, støtterFritekst = false),
+                lagSanityBegrunnelse(apiNavn = NasjonalEllerFellesBegrunnelse.REDUKSJON_BARN_DOD.sanityApiNavn, støtterFritekst = false, resultat = SanityResultat.REDUKSJON),
             )
 
         assertThat(vedtaksperiodeMedBegrunnelse.støtterFritekst(sanityBegrunnelser), Is(true))
@@ -249,8 +245,8 @@ internal class VedtaksperiodeServiceTest {
 
         val sanityBegrunnelser =
             listOf(
-                lagSanityBegrunnelse(apiNavn = NasjonalEllerFellesBegrunnelse.INNVILGET_IKKE_BARNEHAGE.sanityApiNavn, støtterFritekst = false),
-                lagSanityBegrunnelse(apiNavn = EØSBegrunnelse.INNVILGET_PRIMÆRLAND_STANDARD.sanityApiNavn, støtterFritekst = true),
+                lagSanityBegrunnelse(apiNavn = NasjonalEllerFellesBegrunnelse.INNVILGET_IKKE_BARNEHAGE.sanityApiNavn, støtterFritekst = false, resultat = SanityResultat.INNVILGET),
+                lagSanityBegrunnelse(apiNavn = EØSBegrunnelse.INNVILGET_PRIMÆRLAND_STANDARD.sanityApiNavn, støtterFritekst = true, resultat = SanityResultat.INNVILGET),
             )
 
         assertThat(vedtaksperiodeMedBegrunnelse.støtterFritekst(sanityBegrunnelser), Is(true))
@@ -551,7 +547,6 @@ internal class VedtaksperiodeServiceTest {
         vilkårsvurdering.personResultater = setOf(barnPersonResultat, barnPersonResultat2)
 
         every { vilkårsvurderingRepository.finnAktivForBehandling(200) } returns vilkårsvurdering
-        every { unleashNextMedContextService.isEnabled(FeatureToggleConfig.LOV_ENDRING_7_MND_NYE_BEHANDLINGER) } returns true
 
         val finnSisteVedtaksperiodeVisningsdatoForBehandling =
             vedtaksperiodeService.finnSisteVedtaksperiodeVisningsdatoForBehandling(200)
@@ -609,7 +604,6 @@ internal class VedtaksperiodeServiceTest {
         vilkårsvurdering.personResultater = setOf(personResultat)
 
         every { vilkårsvurderingRepository.finnAktivForBehandling(200) } returns vilkårsvurdering
-        every { unleashNextMedContextService.isEnabled(FeatureToggleConfig.LOV_ENDRING_7_MND_NYE_BEHANDLINGER) } returns true
 
         val finnSisteVedtaksperiodeVisningsdatoForBehandling =
             vedtaksperiodeService.finnSisteVedtaksperiodeVisningsdatoForBehandling(200)
@@ -684,6 +678,6 @@ internal class VedtaksperiodeServiceTest {
         val perioder = vedtaksperiodeService.beskrivPerioderMedRefusjonEøs(behandling = behandling, avklart = false)
 
         assertThat(perioder?.size, Is(1))
-        assertThat(perioder?.single(), Is(("Fra januar 2020 til januar 2022 blir ikke etterbetaling på 200 kroner per måned utbetalt nå siden det er utbetalt barnetrygd i Norge.")))
+        assertThat(perioder?.single(), Is(("Fra januar 2020 til januar 2022 blir ikke etterbetaling på 200 kroner per måned utbetalt nå siden det er utbetalt kontantstøtte i Norge.")))
     }
 }

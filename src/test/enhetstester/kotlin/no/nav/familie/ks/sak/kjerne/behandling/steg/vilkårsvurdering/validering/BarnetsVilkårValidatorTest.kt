@@ -79,7 +79,6 @@ class BarnetsVilkårValidatorTest {
                 barnetsVilkårValidator.validerAtDatoErKorrektIBarnasVilkår(
                     vilkårsvurdering,
                     barna = listOf(barnPerson),
-                    true,
                 )
             }
         assertEquals(
@@ -115,7 +114,6 @@ class BarnetsVilkårValidatorTest {
                 barnetsVilkårValidator.validerAtDatoErKorrektIBarnasVilkår(
                     vilkårsvurdering,
                     barna = listOf(barnPerson),
-                    true,
                 )
             }
         assertEquals(
@@ -148,7 +146,6 @@ class BarnetsVilkårValidatorTest {
             barnetsVilkårValidator.validerAtDatoErKorrektIBarnasVilkår(
                 vilkårsvurdering,
                 barna = listOf(barnPerson),
-                true,
             )
         }
     }
@@ -188,7 +185,6 @@ class BarnetsVilkårValidatorTest {
                 barnetsVilkårValidator.validerAtDatoErKorrektIBarnasVilkår(
                     vilkårsvurdering,
                     barna = listOf(barnFødtJuli23),
-                    true,
                 )
             }
         assertEquals("F.o.m datoen på barnets alder vilkåret må være lik barnets 1 års dag.", exception.message)
@@ -229,7 +225,6 @@ class BarnetsVilkårValidatorTest {
                 barnetsVilkårValidator.validerAtDatoErKorrektIBarnasVilkår(
                     vilkårsvurdering,
                     barna = listOf(barnFødtAugust22),
-                    true,
                 )
             }
         assertEquals("T.o.m datoen på barnets alder vilkåret må være lik datoen barnet fyller 19 måneder. Dersom barnet ikke lever må t.o.m datoen være lik dato for dødsfall.", exception.message)
@@ -260,7 +255,6 @@ class BarnetsVilkårValidatorTest {
                 barnetsVilkårValidator.validerAtDatoErKorrektIBarnasVilkår(
                     vilkårsvurdering,
                     barna = listOf(barnFødtAugust22),
-                    true,
                 )
             }
         assertEquals("F.o.m datoen på barnets alder vilkåret må være lik barnets 1 års dag.", exception.message)
@@ -291,7 +285,6 @@ class BarnetsVilkårValidatorTest {
                 barnetsVilkårValidator.validerAtDatoErKorrektIBarnasVilkår(
                     vilkårsvurdering,
                     barna = listOf(barnFødtAugust22),
-                    true,
                 )
             }
         assertEquals("T.o.m datoen på barnets alder vilkåret må være lik barnets 2 års dag eller 31.07.24 på grunn av lovendring fra og med 01.08.24. Dersom barnet ikke lever må t.o.m datoen være lik dato for dødsfall.", exception.message)
@@ -322,7 +315,6 @@ class BarnetsVilkårValidatorTest {
                 barnetsVilkårValidator.validerAtDatoErKorrektIBarnasVilkår(
                     vilkårsvurdering,
                     barna = listOf(barnPerson),
-                    true,
                 )
             }
         assertEquals("Du kan ikke sette en t.o.m dato på barnets alder vilkåret som er etter august året barnet fyller 6 år.", exception.message)
@@ -353,7 +345,6 @@ class BarnetsVilkårValidatorTest {
                 barnetsVilkårValidator.validerAtDatoErKorrektIBarnasVilkår(
                     vilkårsvurdering,
                     barna = listOf(barnPerson),
-                    true,
                 )
             }
         assertEquals("Differansen mellom f.o.m datoen og t.o.m datoen på barnets alder vilkåret kan ikke være mer enn 1 år.", exception.message)
@@ -385,7 +376,6 @@ class BarnetsVilkårValidatorTest {
             barnetsVilkårValidator.validerAtDatoErKorrektIBarnasVilkår(
                 vilkårsvurdering,
                 barna = listOf(barnPerson),
-                true,
             )
         }
     }
@@ -414,7 +404,6 @@ class BarnetsVilkårValidatorTest {
             barnetsVilkårValidator.validerAtDatoErKorrektIBarnasVilkår(
                 vilkårsvurdering,
                 barna = listOf(barnPerson),
-                true,
             )
         }
     }
@@ -449,7 +438,6 @@ class BarnetsVilkårValidatorTest {
             barnetsVilkårValidator.validerAtDatoErKorrektIBarnasVilkår(
                 vilkårsvurdering,
                 barna = listOf(barnPersonMedDødsfallsdato),
-                true,
             )
         }
     }

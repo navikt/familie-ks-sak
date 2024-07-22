@@ -58,7 +58,6 @@ class CucumberMock(stepDefinition: StepDefinition) {
     val personRepository = mockk<PersonRepository>()
     val tilbakekrevingsbehandlingHentService = mockk<TilbakekrevingsbehandlingHentService>()
     val arbeidsfordelingServiceMock = mockk<ArbeidsfordelingService>()
-    val unleashNextMedContextServiceMock = mockUnleashNextMedContextService()
 
     val tilpassDifferanseberegningEtterTilkjentYtelseService =
         TilpassDifferanseberegningEtterTilkjentYtelseService(
@@ -108,7 +107,6 @@ class CucumberMock(stepDefinition: StepDefinition) {
             andelerTilkjentYtelseOgEndreteUtbetalingerService = andelerTilkjentYtelseOgEndreteUtbetalingerService,
             fagsakService = fagsakService,
             tilkjentYtelseEndretAbonnenter = listOf(tilpassDifferanseberegningEtterTilkjentYtelseService),
-            unleashNextMedContextService = unleashNextMedContextServiceMock,
         )
 
     val personopplysningGrunnlagService =
@@ -128,7 +126,6 @@ class CucumberMock(stepDefinition: StepDefinition) {
             personopplysningGrunnlagService = personopplysningGrunnlagService,
             sanityService = mockk(),
             personidentService = personidentService,
-            unleashService = unleashNextMedContextServiceMock,
         )
 }
 

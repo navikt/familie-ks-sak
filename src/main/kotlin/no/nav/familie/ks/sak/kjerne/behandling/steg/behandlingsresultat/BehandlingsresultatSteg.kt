@@ -1,6 +1,5 @@
 package no.nav.familie.ks.sak.kjerne.behandling.steg.behandlingsresultat
 
-import no.nav.familie.ks.sak.config.featureToggle.FeatureToggleConfig
 import no.nav.familie.ks.sak.config.featureToggle.UnleashNextMedContextService
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg
@@ -50,14 +49,11 @@ class BehandlingsresultatSteg(
                 .filter { !it.erSøkersResultater() }
                 .flatMap { it.vilkårResultater.filter { vilkårResultat -> vilkårResultat.vilkårType == Vilkår.BARNETS_ALDER } }
 
-        val erToggleForLovendringAugust2024På = unleashNextMedContextService.isEnabled(FeatureToggleConfig.LOV_ENDRING_7_MND_NYE_BEHANDLINGER)
-
         BehandlingsresultatValideringUtils.validerAtBehandlingsresultatKanUtføres(
             personopplysningGrunnlag,
             tilkjentYtelse,
             endretUtbetalingMedAndeler,
             alleBarnetsAlderVilkårResultater,
-            erToggleForLovendringAugust2024På,
         )
 
         val resultat = behandlingsresultatService.utledBehandlingsresultat(behandling.id)

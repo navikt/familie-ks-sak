@@ -119,7 +119,7 @@ internal class UtbetalingsperiodeUtilTest {
             hentPerioderMedUtbetaling(
                 andelerTilkjentYtelse = listOf(andelPerson1MarsTilApril, andelPerson1MaiTilJuli, andelPerson2MarsTilJuli),
                 vedtak = vedtak,
-                forskjøvetVilkårResultatTidslinjeMap = personResultater.tilForskjøvetOppfylteVilkårResultatTidslinjeMap(personopplysningGrunnlag, true),
+                forskjøvetVilkårResultatTidslinjeMap = personResultater.tilForskjøvetOppfylteVilkårResultatTidslinjeMap(personopplysningGrunnlag),
                 kompetanser = emptyList(),
             )
 
@@ -205,7 +205,7 @@ internal class UtbetalingsperiodeUtilTest {
             hentPerioderMedUtbetaling(
                 andelerTilkjentYtelse = listOf(andelPerson1MarsTilMai, andelPerson2MaiTilJuli),
                 vedtak = vedtak,
-                forskjøvetVilkårResultatTidslinjeMap = personResultater.tilForskjøvetOppfylteVilkårResultatTidslinjeMap(personopplysningGrunnlag, true),
+                forskjøvetVilkårResultatTidslinjeMap = personResultater.tilForskjøvetOppfylteVilkårResultatTidslinjeMap(personopplysningGrunnlag),
                 kompetanser = emptyList(),
             )
 
@@ -225,7 +225,7 @@ internal class UtbetalingsperiodeUtilTest {
         @Test
         fun `Skal lage ny vedtaksperiode dersom vi får en ny kompetansene`() {
             val (vilkårsvurdering, tilkjentYtelse) = kjørBehandlingFramTilBehandlingsresultatMedAltGodkjent()
-            val forskjøvetVilkårResultatTidslinjeMap = vilkårsvurdering.personResultater.tilForskjøvetOppfylteVilkårResultatTidslinjeMap(personopplysningGrunnlag, true)
+            val forskjøvetVilkårResultatTidslinjeMap = vilkårsvurdering.personResultater.tilForskjøvetOppfylteVilkårResultatTidslinjeMap(personopplysningGrunnlag)
 
             val vedtaksperioderUtenKompetanse =
                 hentPerioderMedUtbetaling(
@@ -260,7 +260,7 @@ internal class UtbetalingsperiodeUtilTest {
         @Test
         fun `Skal lage ny vedtaksperiode dersom det er endring i kompetansene`() {
             val (vilkårsvurdering, tilkjentYtelse) = kjørBehandlingFramTilBehandlingsresultatMedAltGodkjent()
-            val forskjøvetVilkårResultatTidslinjeMap = vilkårsvurdering.personResultater.tilForskjøvetOppfylteVilkårResultatTidslinjeMap(personopplysningGrunnlag, true)
+            val forskjøvetVilkårResultatTidslinjeMap = vilkårsvurdering.personResultater.tilForskjøvetOppfylteVilkårResultatTidslinjeMap(personopplysningGrunnlag)
 
             val vedtaksperioderUtenKompetanse =
                 hentPerioderMedUtbetaling(
@@ -319,7 +319,6 @@ internal class UtbetalingsperiodeUtilTest {
             TilkjentYtelseUtils.beregnTilkjentYtelse(
                 vilkårsvurdering = vilkårsvurdering,
                 personopplysningGrunnlag = personopplysningGrunnlag,
-                true,
             )
         return DataEtterVilkårsvurdering(vilkårsvurdering, tilkjentYtelse)
     }

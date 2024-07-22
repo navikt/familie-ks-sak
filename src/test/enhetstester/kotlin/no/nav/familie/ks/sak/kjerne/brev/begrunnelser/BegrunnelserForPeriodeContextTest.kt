@@ -11,6 +11,7 @@ import no.nav.familie.ks.sak.data.randomAktør
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.BarnetsBostedsland
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelse
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelseType
+import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityResultat
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.Trigger
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.Vedtaksperiodetype
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.UtvidetVedtaksperiodeMedBegrunnelser
@@ -287,6 +288,7 @@ class BegrunnelserForPeriodeContextTest {
                 endringsårsaker = emptyList(),
                 støtterFritekst = false,
                 skalAlltidVises = false,
+                resultat = SanityResultat.INNVILGET,
             )
         val personResultatBarn =
             PersonResultat(
@@ -363,6 +365,7 @@ class BegrunnelserForPeriodeContextTest {
                     endretUtbetalingsperiode = emptyList(),
                     støtterFritekst = false,
                     skalAlltidVises = false,
+                    resultat = SanityResultat.INNVILGET,
                 ),
             )
         val personResultatBarn =
@@ -447,6 +450,7 @@ class BegrunnelserForPeriodeContextTest {
                     hjemlerEØSForordningen883 = emptyList(),
                     hjemlerEØSForordningen987 = emptyList(),
                     hjemlerSeperasjonsavtalenStorbritannina = emptyList(),
+                    resultat = SanityResultat.INNVILGET,
                 )
 
             val begrunnelseContext =
@@ -486,6 +490,7 @@ class BegrunnelserForPeriodeContextTest {
                     hjemlerEØSForordningen883 = emptyList(),
                     hjemlerEØSForordningen987 = emptyList(),
                     hjemlerSeperasjonsavtalenStorbritannina = emptyList(),
+                    resultat = SanityResultat.INNVILGET,
                 )
 
             val begrunnelseContext =
@@ -525,6 +530,7 @@ class BegrunnelserForPeriodeContextTest {
                     hjemlerEØSForordningen883 = emptyList(),
                     hjemlerEØSForordningen987 = emptyList(),
                     hjemlerSeperasjonsavtalenStorbritannina = emptyList(),
+                    resultat = SanityResultat.OPPHØR,
                 )
 
             val begrunnelseContext =
@@ -565,6 +571,7 @@ class BegrunnelserForPeriodeContextTest {
                     hjemlerEØSForordningen883 = emptyList(),
                     hjemlerEØSForordningen987 = emptyList(),
                     hjemlerSeperasjonsavtalenStorbritannina = emptyList(),
+                    resultat = SanityResultat.OPPHØR,
                 )
 
             val begrunnelseContext =
@@ -609,6 +616,7 @@ class BegrunnelserForPeriodeContextTest {
                     hjemlerEØSForordningen883 = emptyList(),
                     hjemlerEØSForordningen987 = emptyList(),
                     hjemlerSeperasjonsavtalenStorbritannina = emptyList(),
+                    resultat = SanityResultat.FORTSATT_INNVILGET,
                 )
 
             val begrunnelseContext =
@@ -652,6 +660,7 @@ class BegrunnelserForPeriodeContextTest {
                     hjemlerEØSForordningen883 = emptyList(),
                     hjemlerEØSForordningen987 = emptyList(),
                     hjemlerSeperasjonsavtalenStorbritannina = emptyList(),
+                    resultat = SanityResultat.OPPHØR,
                 )
 
             val begrunnelseContext =
@@ -685,6 +694,7 @@ class BegrunnelserForPeriodeContextTest {
                 endringsårsaker = emptyList(),
                 støtterFritekst = false,
                 skalAlltidVises = false,
+                resultat = SanityResultat.INNVILGET,
             ),
             SanityBegrunnelse(
                 apiNavn = NasjonalEllerFellesBegrunnelse.INNVILGET_IKKE_BARNEHAGE_ADOPSJON.sanityApiNavn,
@@ -699,6 +709,7 @@ class BegrunnelserForPeriodeContextTest {
                 endringsårsaker = emptyList(),
                 støtterFritekst = false,
                 skalAlltidVises = false,
+                resultat = SanityResultat.INNVILGET,
             ),
             SanityBegrunnelse(
                 apiNavn = NasjonalEllerFellesBegrunnelse.INNVILGET_DELTID_BARNEHAGE.sanityApiNavn,
@@ -713,6 +724,7 @@ class BegrunnelserForPeriodeContextTest {
                 endringsårsaker = emptyList(),
                 støtterFritekst = false,
                 skalAlltidVises = false,
+                resultat = SanityResultat.INNVILGET,
             ),
             SanityBegrunnelse(
                 apiNavn = NasjonalEllerFellesBegrunnelse.INNVILGET_DELTID_BARNEHAGE_ADOPSJON.sanityApiNavn,
@@ -727,6 +739,7 @@ class BegrunnelserForPeriodeContextTest {
                 endringsårsaker = emptyList(),
                 støtterFritekst = false,
                 skalAlltidVises = false,
+                resultat = SanityResultat.INNVILGET,
             ),
         )
 
@@ -751,7 +764,7 @@ class BegrunnelserForPeriodeContextTest {
     ): BegrunnelserForPeriodeContext {
         // Må forskyve personresultatene for å finne riktig dato for vedtaksperiode.
         val vedtaksperiodeStartsTidpunkt =
-            personResultater.tilForskjøvetOppfylteVilkårResultatTidslinjeMap(persongrunnlag, true)
+            personResultater.tilForskjøvetOppfylteVilkårResultatTidslinjeMap(persongrunnlag)
                 .filterKeys { it.aktørId == aktørSomTriggerVedtaksperiode.aktørId }.values.first().startsTidspunkt
 
         val utvidetVedtaksperiodeMedBegrunnelser =
@@ -778,7 +791,6 @@ class BegrunnelserForPeriodeContextTest {
             erFørsteVedtaksperiode = false,
             kompetanser = emptyList(),
             andelerTilkjentYtelse = andelerTilkjentYtelse,
-            erToggleForLovendringAugust2024På = true,
         )
     }
 
@@ -814,7 +826,6 @@ class BegrunnelserForPeriodeContextTest {
             endretUtbetalingsandeler = emptyList(),
             erFørsteVedtaksperiode = false,
             andelerTilkjentYtelse = andelerTilkjentYtelse,
-            erToggleForLovendringAugust2024På = true,
         )
     }
 }

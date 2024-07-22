@@ -59,7 +59,6 @@ class BehandlingsresultatEndringUtilsTest {
                 forrigeEndretAndeler = emptyList(),
                 personerIBehandling = emptySet(),
                 personerIForrigeBehandling = emptySet(),
-                erToggleForLovendringAugust2024På = true,
             )
 
         assertThat(endringsresultat, Is(Endringsresultat.INGEN_ENDRING))
@@ -90,7 +89,6 @@ class BehandlingsresultatEndringUtilsTest {
                 forrigeEndretAndeler = emptyList(),
                 personerIBehandling = setOf(person),
                 personerIForrigeBehandling = setOf(person),
-                erToggleForLovendringAugust2024På = true,
             )
 
         assertThat(endringsresultat, Is(Endringsresultat.ENDRING))
@@ -181,7 +179,6 @@ class BehandlingsresultatEndringUtilsTest {
                 forrigeEndretAndeler = emptyList(),
                 personerIBehandling = setOf(barn),
                 personerIForrigeBehandling = setOf(barn),
-                erToggleForLovendringAugust2024På = true,
             )
 
         assertThat(endringsresultat, Is(Endringsresultat.ENDRING))
@@ -225,7 +222,6 @@ class BehandlingsresultatEndringUtilsTest {
                 forrigeEndretAndeler = emptyList(),
                 personerIBehandling = setOf(barnPerson),
                 personerIForrigeBehandling = setOf(barnPerson),
-                erToggleForLovendringAugust2024På = true,
             )
 
         assertThat(endringsresultat, Is(Endringsresultat.ENDRING))
@@ -258,7 +254,6 @@ class BehandlingsresultatEndringUtilsTest {
                 nåværendeEndretAndeler = listOf(forrigeEndretAndel.copy(årsak = Årsak.ALLEREDE_UTBETALT)),
                 personerIBehandling = setOf(barn),
                 personerIForrigeBehandling = setOf(barn),
-                erToggleForLovendringAugust2024På = true,
             )
 
         assertThat(endringsresultat, Is(Endringsresultat.ENDRING))
@@ -1084,7 +1079,6 @@ class BehandlingsresultatEndringUtilsTest {
             erEndringIVilkårsvurderingForPerson(
                 nåværendePersonResultaterForPerson = setOf(lagPersonResultatFraVilkårResultater(nåværendeVilkårResultat, aktør)),
                 forrigePersonResultaterForPerson = setOf(lagPersonResultatFraVilkårResultater(forrigeVilkårResultat, aktør)),
-                erToggleForLovendringAugust2024På = true,
             )
 
         assertThat(erEndringIVilkårvurderingForPerson, Is(false))
@@ -1135,7 +1129,6 @@ class BehandlingsresultatEndringUtilsTest {
             erEndringIVilkårsvurderingForPerson(
                 nåværendePersonResultaterForPerson = setOf(lagPersonResultatFraVilkårResultater(nåværendeVilkårResultat, aktør)),
                 forrigePersonResultaterForPerson = setOf(lagPersonResultatFraVilkårResultater(forrigeVilkårResultat, aktør)),
-                erToggleForLovendringAugust2024På = true,
             )
 
         assertThat(erEndringIVilkårvurderingForPerson, Is(true))
@@ -1186,7 +1179,6 @@ class BehandlingsresultatEndringUtilsTest {
             erEndringIVilkårsvurderingForPerson(
                 nåværendePersonResultaterForPerson = setOf(lagPersonResultatFraVilkårResultater(nåværendeVilkårResultat, aktør)),
                 forrigePersonResultaterForPerson = setOf(lagPersonResultatFraVilkårResultater(forrigeVilkårResultat, aktør)),
-                erToggleForLovendringAugust2024På = true,
             )
 
         assertThat(erEndringIVilkårvurderingForPerson, Is(true))
@@ -1242,7 +1234,6 @@ class BehandlingsresultatEndringUtilsTest {
             erEndringIVilkårsvurderingForPerson(
                 nåværendePersonResultaterForPerson = setOf(lagPersonResultatFraVilkårResultater(nåværendeVilkårResultat, aktør)),
                 forrigePersonResultaterForPerson = setOf(lagPersonResultatFraVilkårResultater(forrigeVilkårResultat, aktør)),
-                erToggleForLovendringAugust2024På = true,
             )
 
         assertThat(erEndringIVilkårvurderingForPerson, Is(true))
@@ -1293,7 +1284,6 @@ class BehandlingsresultatEndringUtilsTest {
             erEndringIVilkårsvurderingForPerson(
                 nåværendePersonResultaterForPerson = setOf(lagPersonResultatFraVilkårResultater(nåværendeVilkårResultat, aktør)),
                 forrigePersonResultaterForPerson = setOf(lagPersonResultatFraVilkårResultater(forrigeVilkårResultat, aktør)),
-                erToggleForLovendringAugust2024På = true,
             )
 
         assertThat(erEndringIVilkårvurderingForPerson, Is(false))

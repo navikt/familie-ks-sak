@@ -37,7 +37,6 @@ fun mapTilOpphørsperioder(
     personopplysningGrunnlag: PersonopplysningGrunnlag,
     andelerTilkjentYtelse: List<AndelTilkjentYtelseMedEndreteUtbetalinger>,
     vilkårsvurdering: Vilkårsvurdering,
-    erToggleForLovendringAugust2024På: Boolean,
 ): List<Opphørsperiode> {
     val forrigeUtbetalingsperioder =
         if (forrigePersonopplysningGrunnlag != null) {
@@ -65,7 +64,7 @@ fun mapTilOpphørsperioder(
             } else {
                 listOf(
                     finnOpphørsperioderMellomUtbetalingsperioder(utbetalingsperioder),
-                    finnOpphørsperiodeEtterSisteUtbetalingsperiode(utbetalingsperioder, vilkårsvurdering, erToggleForLovendringAugust2024På),
+                    finnOpphørsperiodeEtterSisteUtbetalingsperiode(utbetalingsperioder, vilkårsvurdering),
                 ).flatten()
             }.sortedBy { it.periodeFom }
         }
@@ -115,15 +114,9 @@ private fun maxOfOpphørsperiodeTom(
 private fun finnOpphørsperiodeEtterSisteUtbetalingsperiode(
     utbetalingsperioder: List<Utbetalingsperiode>,
     vilkårsvurdering: Vilkårsvurdering,
-    erToggleForLovendringAugust2024På: Boolean,
 ): List<Opphørsperiode> {
     val sisteUtbetalingsperiodeTom = utbetalingsperioder.maxOf { it.periodeTom }.toYearMonth()
-    val cutOffDato =
-        if (erToggleForLovendringAugust2024På) {
-            inneværendeMåned().plusMonths(2)
-        } else {
-            inneværendeMåned().plusMonths(1)
-        }
+    val cutOffDato = inneværendeMåned().plusMonths(2)
 
     val erFramtidigOpphørPgaBarnehageplass =
         vilkårsvurdering.personResultater.any { personResultat ->

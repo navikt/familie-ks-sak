@@ -75,7 +75,6 @@ internal class TilkjentYtelseValidatorTest {
                     tilkjentYtelse = tilkjentYtelse,
                     personopplysningGrunnlag = personopplysningGrunnlag,
                     alleBarnetsAlderVilkårResultater = barnetsAlderVilkårResultater,
-                    erToggleForLovendringAugust2024På = true,
                 )
             }
         val feilmelding =
@@ -124,7 +123,6 @@ internal class TilkjentYtelseValidatorTest {
                             barnAktør = listOf(barnFødtIJanuar2023.aktør),
                         ),
                     alleBarnetsAlderVilkårResultater = barnetsAlderVilkårResultater,
-                    erToggleForLovendringAugust2024På = true,
                 )
             }
         val feilmelding =
@@ -165,7 +163,6 @@ internal class TilkjentYtelseValidatorTest {
                             barnAktør = listOf(barnFødtIAugust2022.aktør),
                         ),
                     alleBarnetsAlderVilkårResultater = barnetsAlderVilkårResultater,
-                    erToggleForLovendringAugust2024På = true,
                 )
             }
         val feilmelding =
@@ -207,7 +204,6 @@ internal class TilkjentYtelseValidatorTest {
                 tilkjentYtelse = tilkjentYtelse,
                 personopplysningGrunnlag = personopplysningGrunnlag,
                 alleBarnetsAlderVilkårResultater = barnetsAlderVilkårResultaterBarn1 + barnetsAlderVilkårResultaterBarn2,
-                erToggleForLovendringAugust2024På = true,
             )
         }
     }
@@ -237,7 +233,6 @@ internal class TilkjentYtelseValidatorTest {
                     tilkjentYtelse = tilkjentYtelse,
                     personopplysningGrunnlag = personopplysningGrunnlag,
                     alleBarnetsAlderVilkårResultater = barnetsAlderVilkårResultater,
-                    erToggleForLovendringAugust2024På = true,
                 )
             }
 
@@ -268,7 +263,6 @@ internal class TilkjentYtelseValidatorTest {
                     tilkjentYtelse = tilkjentYtelse,
                     personopplysningGrunnlag = personopplysningGrunnlag,
                     alleBarnetsAlderVilkårResultater = barnetsAlderVilkårResultater,
-                    erToggleForLovendringAugust2024På = true,
                 )
             }
 

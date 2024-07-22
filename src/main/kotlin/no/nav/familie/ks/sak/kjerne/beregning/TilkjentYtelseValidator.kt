@@ -32,7 +32,6 @@ object TilkjentYtelseValidator {
         tilkjentYtelse: TilkjentYtelse,
         personopplysningGrunnlag: PersonopplysningGrunnlag,
         alleBarnetsAlderVilkårResultater: List<VilkårResultat>,
-        erToggleForLovendringAugust2024På: Boolean,
     ) {
         val søker = personopplysningGrunnlag.søker
         val barna = personopplysningGrunnlag.barna
@@ -53,15 +52,10 @@ object TilkjentYtelseValidator {
             val relevantBarn = barna.single { it.aktør == aktør }
 
             val vilkårLovverkInformasjonForBarn = VilkårLovverkInformasjonForBarn(relevantBarn.fødselsdato)
+            val barnetsAlderVilkårResultater = alleBarnetsAlderVilkårResultater.filter { it.personResultat?.aktør == aktør }
 
-            val maksAntallMånederMedUtbetaling =
-                when (erToggleForLovendringAugust2024På) {
-                    true -> {
-                        val barnetsAlderVilkårResultater = alleBarnetsAlderVilkårResultater.filter { it.personResultat?.aktør == aktør }
-                        utledMaksAntallMånederMedUtbetaling(vilkårLovverkInformasjonForBarn, barnetsAlderVilkårResultater)
-                    }
-                    false -> 11L
-                }
+            val maksAntallMånederMedUtbetaling = utledMaksAntallMånederMedUtbetaling(vilkårLovverkInformasjonForBarn, barnetsAlderVilkårResultater)
+
             val diff = Period.between(stønadFom.toLocalDate(), stønadTom.toLocalDate())
             val antallMånederUtbetalt = diff.toTotalMonths() + 1
 

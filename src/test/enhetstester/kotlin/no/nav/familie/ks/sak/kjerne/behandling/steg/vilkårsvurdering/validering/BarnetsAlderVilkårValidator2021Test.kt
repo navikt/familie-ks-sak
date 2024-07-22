@@ -34,7 +34,6 @@ class BarnetsAlderVilkårValidator2021Test {
                 barn = person,
                 periodeFomBarnetsAlderLov2021 = fødselsdato,
                 periodeTomBarnetsAlderLov2021 = fødselsdato.plusYears(1),
-                true,
             )
 
         // Assert
@@ -76,7 +75,6 @@ class BarnetsAlderVilkårValidator2021Test {
                 barn = person,
                 periodeFomBarnetsAlderLov2021 = fødselsdato,
                 periodeTomBarnetsAlderLov2021 = fødselsdato.plusYears(1),
-                true,
             )
 
         // Assert
@@ -121,7 +119,6 @@ class BarnetsAlderVilkårValidator2021Test {
                 barn = person,
                 periodeFomBarnetsAlderLov2021 = fødselsdato,
                 periodeTomBarnetsAlderLov2021 = fødselsdato.plusYears(1),
-                true,
             )
 
         // Assert
@@ -158,7 +155,6 @@ class BarnetsAlderVilkårValidator2021Test {
                 barn = person,
                 periodeFomBarnetsAlderLov2021 = fødselsdato.minusDays(1),
                 periodeTomBarnetsAlderLov2021 = fødselsdato.plusYears(1),
-                true,
             )
 
         // Assert
@@ -195,7 +191,6 @@ class BarnetsAlderVilkårValidator2021Test {
                 barn = person,
                 periodeFomBarnetsAlderLov2021 = fødselsdato,
                 periodeTomBarnetsAlderLov2021 = fødselsdato.plusYears(1),
-                true,
             )
 
         // Assert
@@ -239,7 +234,6 @@ class BarnetsAlderVilkårValidator2021Test {
                 barn = person,
                 periodeFomBarnetsAlderLov2021 = fødselsdato,
                 periodeTomBarnetsAlderLov2021 = fødselsdato.plusYears(1),
-                true,
             )
 
         // Assert
@@ -296,7 +290,6 @@ class BarnetsAlderVilkårValidator2021Test {
                 barn = person,
                 periodeFomBarnetsAlderLov2021 = fødselsdato,
                 periodeTomBarnetsAlderLov2021 = fødselsdato.plusYears(1),
-                true,
             )
 
         // Assert

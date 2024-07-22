@@ -34,10 +34,9 @@ object BehandlingsresultatValideringUtils {
         tilkjentYtelse: TilkjentYtelse,
         endretUtbetalingMedAndeler: List<EndretUtbetalingAndelMedAndelerTilkjentYtelse>,
         alleBarnetsAlderVilkårResultater: List<VilkårResultat>,
-        erToggleForLovendringAugust2024På: Boolean,
     ) {
         // valider TilkjentYtelse
-        TilkjentYtelseValidator.validerAtTilkjentYtelseHarFornuftigePerioderOgBeløp(tilkjentYtelse, personopplysningGrunnlag, alleBarnetsAlderVilkårResultater, erToggleForLovendringAugust2024På)
+        TilkjentYtelseValidator.validerAtTilkjentYtelseHarFornuftigePerioderOgBeløp(tilkjentYtelse, personopplysningGrunnlag, alleBarnetsAlderVilkårResultater)
 
         // valider EndretUtbetalingAndel
         EndretUtbetalingAndelValidator.validerAtAlleOpprettedeEndringerErUtfylt(endretUtbetalingMedAndeler.map { it.endretUtbetaling })

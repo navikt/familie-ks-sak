@@ -5,8 +5,6 @@ import no.nav.familie.ks.sak.api.mapper.SøknadGrunnlagMapper.tilSøknadDto
 import no.nav.familie.ks.sak.common.BehandlingId
 import no.nav.familie.ks.sak.common.util.LocalDateProvider
 import no.nav.familie.ks.sak.common.util.toYearMonth
-import no.nav.familie.ks.sak.config.featureToggle.FeatureToggleConfig
-import no.nav.familie.ks.sak.config.featureToggle.UnleashNextMedContextService
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat
@@ -33,10 +31,8 @@ class BehandlingsresultatService(
     private val endretUtbetalingAndelService: EndretUtbetalingAndelService,
     private val kompetanseService: KompetanseService,
     private val localDateProvider: LocalDateProvider,
-    private val unleashNextMedContextService: UnleashNextMedContextService,
 ) {
     internal fun utledBehandlingsresultat(behandlingId: Long): Behandlingsresultat {
-        val erToggleForLovendringAugust2024På = unleashNextMedContextService.isEnabled(FeatureToggleConfig.LOV_ENDRING_7_MND_NYE_BEHANDLINGER)
         val behandling = behandlingService.hentBehandling(behandlingId)
 
         val forrigeBehandling = behandlingService.hentSisteBehandlingSomErVedtatt(fagsakId = behandling.fagsak.id)
@@ -101,7 +97,6 @@ class BehandlingsresultatService(
                     personerFremstiltKravFor = personerFremstiltKravFor,
                     personerIBehandling = personerIBehandling,
                     personerIForrigeBehandling = personerIForrigeBehandling,
-                    erToggleForLovendringAugust2024På = erToggleForLovendringAugust2024På,
                 )
             } else {
                 Endringsresultat.INGEN_ENDRING
@@ -117,7 +112,6 @@ class BehandlingsresultatService(
                 nåværendePersonResultaterPåBarn = nåværendePersonResultat.filter { !it.erSøkersResultater() },
                 forrigePersonResultaterPåBarn = forrigePersonResultat.filter { !it.erSøkersResultater() },
                 nåMåned = localDateProvider.now().toYearMonth(),
-                erToggleForLovendringAugust2024På = erToggleForLovendringAugust2024På,
             )
 
         // KOMBINER

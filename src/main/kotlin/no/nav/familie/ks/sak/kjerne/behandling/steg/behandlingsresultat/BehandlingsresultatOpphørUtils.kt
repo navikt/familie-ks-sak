@@ -26,7 +26,6 @@ object BehandlingsresultatOpphørUtils {
         nåværendePersonResultaterPåBarn: List<PersonResultat>,
         forrigePersonResultaterPåBarn: List<PersonResultat>,
         nåMåned: YearMonth,
-        erToggleForLovendringAugust2024På: Boolean,
     ): Opphørsresultat {
         val meldtOmBarnehagePlassPåAlleBarnMedLøpendeAndeler = nåværendePersonResultaterPåBarn.harMeldtOmBarnehagePlassPåAlleBarnMedLøpendeAndeler(nåværendeAndeler, nåMåned)
         val meldtOmBarnehagePlassPåAlleBarnMedLøpendeAndelerIForrigeVilkårsvurdering = forrigePersonResultaterPåBarn.harMeldtOmBarnehagePlassPåAlleBarnMedLøpendeAndeler(forrigeAndeler, nåMåned)
@@ -44,19 +43,19 @@ object BehandlingsresultatOpphørUtils {
                 endretAndelerForForrigeBehandling = forrigeEndretAndeler,
             )
 
-        val forrigeBehandlingOpphørsdato = forrigeAndeler.utledOpphørsdatoForForrigeBehandling(forrigeEndretAndeler = forrigeEndretAndeler)
+        val cutOffDato = nåMåned.plusMonths(2)
 
-        val cutOffDato =
-            if (erToggleForLovendringAugust2024På) {
-                nåMåned.plusMonths(2)
-            } else {
-                nåMåned.plusMonths(1)
-            }
+        val forrigeBehandlingOpphørsdato =
+            forrigeAndeler.utledOpphørsdatoForForrigeBehandling(
+                forrigeEndretAndeler = forrigeEndretAndeler,
+            )
+
+        val harTidligereOpphørsDatoEnnForrigeBehandling = forrigeBehandlingOpphørsdato?.let { it > nåværendeBehandlingOpphørsdato } ?: true
 
         return when {
             // Rekkefølgen av sjekkene er viktig for å komme fram til riktig opphørsresultat.
             nåværendeBehandlingOpphørsdato == null -> Opphørsresultat.IKKE_OPPHØRT // Både forrige og nåværende behandling har ingen andeler
-            nåværendeBehandlingOpphørsdato <= cutOffDato && forrigeBehandlingOpphørsdato > nåværendeBehandlingOpphørsdato -> Opphørsresultat.OPPHØRT // Nåværende behandling er opphørt og forrige har senere opphørsdato
+            nåværendeBehandlingOpphørsdato <= cutOffDato && harTidligereOpphørsDatoEnnForrigeBehandling -> Opphørsresultat.OPPHØRT // Nåværende behandling er opphørt og forrige har senere opphørsdato
             nåværendeBehandlingOpphørsdato <= cutOffDato && nåværendeBehandlingOpphørsdato == forrigeBehandlingOpphørsdato -> Opphørsresultat.FORTSATT_OPPHØRT
             else -> Opphørsresultat.IKKE_OPPHØRT
         }
@@ -98,7 +97,7 @@ object BehandlingsresultatOpphørUtils {
     /**
      * Hvis det ikke fantes noen andeler i forrige behandling defaulter vi til inneværende måned
      */
-    private fun List<AndelTilkjentYtelse>.utledOpphørsdatoForForrigeBehandling(forrigeEndretAndeler: List<EndretUtbetalingAndel>): YearMonth = this.filtrerBortIrrelevanteAndeler(endretAndeler = forrigeEndretAndeler).finnOpphørsdato() ?: YearMonth.now().nesteMåned()
+    private fun List<AndelTilkjentYtelse>.utledOpphørsdatoForForrigeBehandling(forrigeEndretAndeler: List<EndretUtbetalingAndel>): YearMonth? = this.filtrerBortIrrelevanteAndeler(endretAndeler = forrigeEndretAndeler).finnOpphørsdato()
 
     /**
      * Hvis det eksisterer andeler med beløp == 0 så ønsker vi å filtrere bort disse dersom det eksisterer endret utbetaling andel for perioden
