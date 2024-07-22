@@ -130,7 +130,7 @@ class JournalførVedtaksbrevSteg(
                 Dokument(
                     vedleggPdf,
                     filtype = Filtype.PDFA,
-                    dokumenttype = Dokumenttype.BARNETRYGD_VEDLEGG,
+                    dokumenttype = Dokumenttype.KONTANTSTØTTE_VEDLEGG,
                     tittel = KONTANTSTØTTE_VEDTAK_VEDLEGG_TITTEL,
                 ),
             )
@@ -152,12 +152,14 @@ class JournalførVedtaksbrevSteg(
             when (behandling.resultat) {
                 Behandlingsresultat.INNVILGET, Behandlingsresultat.DELVIS_INNVILGET,
                 Behandlingsresultat.INNVILGET_OG_ENDRET,
+                -> "Vedtak om endret kontantstøtte"
+
                 Behandlingsresultat.INNVILGET_OG_OPPHØRT,
                 Behandlingsresultat.DELVIS_INNVILGET_OG_OPPHØRT,
                 Behandlingsresultat.ENDRET_OG_OPPHØRT,
-                -> "Vedtak om endret barnetrygd"
+                -> "Vedtak om opphørt kontantstøtte"
 
-                Behandlingsresultat.FORTSATT_INNVILGET -> "Vedtak om fortsatt barnetrygd"
+                Behandlingsresultat.FORTSATT_INNVILGET -> "Vedtak om fortsatt kontantstøtte"
                 else -> null
             }
         } else {

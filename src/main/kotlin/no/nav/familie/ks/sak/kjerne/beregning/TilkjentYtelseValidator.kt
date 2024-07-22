@@ -30,7 +30,6 @@ object TilkjentYtelseValidator {
     fun validerAtTilkjentYtelseHarFornuftigePerioderOgBeløp(
         tilkjentYtelse: TilkjentYtelse,
         personopplysningGrunnlag: PersonopplysningGrunnlag,
-        erToggleForLovendringAugust2024På: Boolean,
     ) {
         val søker = personopplysningGrunnlag.søker
         val barna = personopplysningGrunnlag.barna
@@ -52,11 +51,8 @@ object TilkjentYtelseValidator {
 
             val vilkårLovverkInformasjonForBarn = VilkårLovverkInformasjonForBarn(relevantBarn.fødselsdato)
 
-            val maksAntallMånederMedUtbetaling =
-                when (erToggleForLovendringAugust2024På) {
-                    true -> utledMaksAntallMånederMedUtbetaling(vilkårLovverkInformasjonForBarn)
-                    false -> 11L
-                }
+            val maksAntallMånederMedUtbetaling = utledMaksAntallMånederMedUtbetaling(vilkårLovverkInformasjonForBarn)
+
             val diff = Period.between(stønadFom.toLocalDate(), stønadTom.toLocalDate())
             val antallMånederUtbetalt = diff.toTotalMonths() + 1
 

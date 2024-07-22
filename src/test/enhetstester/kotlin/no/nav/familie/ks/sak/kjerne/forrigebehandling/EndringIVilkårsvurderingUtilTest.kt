@@ -66,7 +66,6 @@ class EndringIVilkårsvurderingUtilTest {
             EndringIVilkårsvurderingUtil.lagEndringIVilkårsvurderingTidslinje(
                 nåværendePersonResultaterForPerson = setOf(lagPersonResultatFraVilkårResultater(vilkårResultater, aktør)),
                 forrigePersonResultater = setOf(lagPersonResultatFraVilkårResultater(vilkårResultater, aktør)),
-                erToggleForLovendringAugust2024På = true,
             ).tilPerioder().filter { it.verdi == true }
 
         Assertions.assertTrue(perioderMedEndring.isEmpty())
@@ -117,7 +116,6 @@ class EndringIVilkårsvurderingUtilTest {
             EndringIVilkårsvurderingUtil.lagEndringIVilkårsvurderingTidslinje(
                 nåværendePersonResultaterForPerson = setOf(lagPersonResultatFraVilkårResultater(nåværendeVilkårResultat, aktør)),
                 forrigePersonResultater = setOf(lagPersonResultatFraVilkårResultater(forrigeVilkårResultat, aktør)),
-                erToggleForLovendringAugust2024På = true,
             ).tilPerioder().filter { it.verdi == true }
 
         Assertions.assertEquals(1, perioderMedEndring.size)
@@ -175,7 +173,6 @@ class EndringIVilkårsvurderingUtilTest {
             EndringIVilkårsvurderingUtil.lagEndringIVilkårsvurderingTidslinje(
                 nåværendePersonResultaterForPerson = setOf(lagPersonResultatFraVilkårResultater(nåværendeVilkårResultat, aktør)),
                 forrigePersonResultater = setOf(lagPersonResultatFraVilkårResultater(forrigeVilkårResultat, aktør)),
-                erToggleForLovendringAugust2024På = true,
             ).tilPerioder().filter { it.verdi == true }
 
         Assertions.assertEquals(1, perioderMedEndring.size)
@@ -227,7 +224,6 @@ class EndringIVilkårsvurderingUtilTest {
             EndringIVilkårsvurderingUtil.lagEndringIVilkårsvurderingTidslinje(
                 nåværendePersonResultaterForPerson = setOf(lagPersonResultatFraVilkårResultater(nåværendeVilkårResultat, aktør)),
                 forrigePersonResultater = setOf(lagPersonResultatFraVilkårResultater(forrigeVilkårResultat, aktør)),
-                erToggleForLovendringAugust2024På = true,
             ).tilPerioder().filter { it.verdi == true }
 
         Assertions.assertTrue(perioderMedEndring.isEmpty())
@@ -275,7 +271,6 @@ class EndringIVilkårsvurderingUtilTest {
             EndringIVilkårsvurderingUtil.lagEndringIVilkårsvurderingTidslinje(
                 nåværendePersonResultaterForPerson = setOf(lagPersonResultatFraVilkårResultater(nåværendeVilkårResultat, aktør)),
                 forrigePersonResultater = setOf(lagPersonResultatFraVilkårResultater(forrigeVilkårResultat, aktør)),
-                erToggleForLovendringAugust2024På = true,
             ).tilPerioder().filter { it.verdi == true }
 
         Assertions.assertTrue(perioderMedEndring.isEmpty())

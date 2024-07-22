@@ -39,7 +39,6 @@ class ForskyvVilkårKtTest {
                 forskyvVilkårResultater(
                     Vilkår.BARNETS_ALDER,
                     vilkårResultater,
-                    true,
                 )
 
             // Arrange
@@ -80,7 +79,6 @@ class ForskyvVilkårKtTest {
                 forskyvVilkårResultater(
                     Vilkår.BARNETS_ALDER,
                     vilkårResultater,
-                    true,
                 )
 
             // Assert
@@ -113,7 +111,6 @@ class ForskyvVilkårKtTest {
                 forskyvVilkårResultater(
                     Vilkår.BARNETS_ALDER,
                     vilkårResultater,
-                    true,
                 )
 
             // Assert
@@ -146,7 +143,6 @@ class ForskyvVilkårKtTest {
                 forskyvVilkårResultater(
                     Vilkår.BARNETS_ALDER,
                     vilkårResultater,
-                    true,
                 )
 
             // Assert
@@ -174,7 +170,6 @@ class ForskyvVilkårKtTest {
                 forskyvVilkårResultater(
                     Vilkår.BARNETS_ALDER,
                     vilkårResultater,
-                    true,
                 )
 
             // Assert

@@ -26,7 +26,6 @@ object BehandlingsresultatOpphørUtils {
         nåværendePersonResultaterPåBarn: List<PersonResultat>,
         forrigePersonResultaterPåBarn: List<PersonResultat>,
         nåMåned: YearMonth,
-        erToggleForLovendringAugust2024På: Boolean,
     ): Opphørsresultat {
         val meldtOmBarnehagePlassPåAlleBarnMedLøpendeAndeler = nåværendePersonResultaterPåBarn.harMeldtOmBarnehagePlassPåAlleBarnMedLøpendeAndeler(nåværendeAndeler, nåMåned)
         val meldtOmBarnehagePlassPåAlleBarnMedLøpendeAndelerIForrigeVilkårsvurdering = forrigePersonResultaterPåBarn.harMeldtOmBarnehagePlassPåAlleBarnMedLøpendeAndeler(forrigeAndeler, nåMåned)
@@ -44,12 +43,7 @@ object BehandlingsresultatOpphørUtils {
                 endretAndelerForForrigeBehandling = forrigeEndretAndeler,
             )
 
-        val cutOffDato =
-            if (erToggleForLovendringAugust2024På) {
-                nåMåned.plusMonths(2)
-            } else {
-                nåMåned.plusMonths(1)
-            }
+        val cutOffDato = nåMåned.plusMonths(2)
 
         val forrigeBehandlingOpphørsdato =
             forrigeAndeler.utledOpphørsdatoForForrigeBehandling(

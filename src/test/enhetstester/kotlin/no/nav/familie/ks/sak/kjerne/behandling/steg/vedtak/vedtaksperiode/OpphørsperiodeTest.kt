@@ -79,7 +79,6 @@ class OpphørsperiodeTest {
                 personopplysningGrunnlag = personopplysningGrunnlag,
                 andelerTilkjentYtelse = listOf(andelBarn1, andel2Barn1, andel3Barn1),
                 vilkårsvurdering = vilkårsvurdering,
-                erToggleForLovendringAugust2024På = true,
             )
 
         assertEquals(2, opphørsperioder.size)
@@ -109,7 +108,6 @@ class OpphørsperiodeTest {
                 personopplysningGrunnlag = personopplysningGrunnlag,
                 andelerTilkjentYtelse = listOf(andelBarn1),
                 vilkårsvurdering = vilkårsvurdering,
-                erToggleForLovendringAugust2024På = true,
             )
 
         assertEquals(1, opphørsperioder.size)
@@ -137,7 +135,6 @@ class OpphørsperiodeTest {
                 personopplysningGrunnlag = personopplysningGrunnlag,
                 andelerTilkjentYtelse = listOf(andelBarn1),
                 vilkårsvurdering = vilkårsvurdering,
-                erToggleForLovendringAugust2024På = true,
             )
 
         assertEquals(1, opphørsperioder.size)

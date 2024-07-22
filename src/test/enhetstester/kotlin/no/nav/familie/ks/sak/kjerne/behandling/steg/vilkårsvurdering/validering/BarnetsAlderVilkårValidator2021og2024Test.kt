@@ -31,11 +31,10 @@ class BarnetsAlderVilkårValidator2021og2024Test {
                 perioder = listOf(),
                 barn = person,
                 vilkårLovverkInformasjonForBarn = VilkårLovverkInformasjonForBarn(person.fødselsdato),
-                erToggleForLovendringAugust2024På = true,
             )
 
         // Assert
         Assertions.assertThat(validerBarnetsAlderVilkår).hasSize(1)
-        Assertions.assertThat(validerBarnetsAlderVilkår[0]).isEqualTo("Vilkåret for barnets alder må splittes i to perioder fordi den strekker seg over lovendringen 01.08.2024. Periodene må være som følgende: [2023-07-31 - 2024-07-31, 2024-08-01 - 2024-02-29]")
+        Assertions.assertThat(validerBarnetsAlderVilkår[0]).isEqualTo("Vilkåret for barnets alder må splittes i to perioder fordi den strekker seg over lovendringen 01.08.2024. Henlegg denne behandlingen og opprett en ny behandling. I den nye behandlingen vil splitten dannes automatisk")
     }
 }

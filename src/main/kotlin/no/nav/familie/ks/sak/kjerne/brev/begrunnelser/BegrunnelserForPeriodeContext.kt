@@ -45,7 +45,6 @@ class BegrunnelserForPeriodeContext(
     private val endretUtbetalingsandeler: List<EndretUtbetalingAndel>,
     private val erFørsteVedtaksperiode: Boolean,
     private val andelerTilkjentYtelse: List<AndelTilkjentYtelseMedEndreteUtbetalinger>,
-    private val erToggleForLovendringAugust2024På: Boolean,
 ) {
     private val aktørIderMedUtbetaling =
         utvidetVedtaksperiodeMedBegrunnelser.utbetalingsperiodeDetaljer.map { it.person.aktør.aktørId }
@@ -273,7 +272,7 @@ class BegrunnelserForPeriodeContext(
             val vilkårTilVilkårResultaterMap = personResultat.vilkårResultater.groupBy { it.vilkårType }
 
             vilkårTilVilkårResultaterMap.mapValues { (vilkår, vilkårResultater) ->
-                forskyvVilkårResultater(vilkår, vilkårResultater, erToggleForLovendringAugust2024På).filter { it.fom == vedtaksperiode.fom }
+                forskyvVilkårResultater(vilkår, vilkårResultater).filter { it.fom == vedtaksperiode.fom }
                     .map { it.verdi.id }
             }.filterValues { it.isNotEmpty() }.flatMap { it.value }
         }
@@ -283,7 +282,7 @@ class BegrunnelserForPeriodeContext(
             val vilkårTilVilkårResultaterMap = personResultat.vilkårResultater.groupBy { it.vilkårType }
 
             vilkårTilVilkårResultaterMap.mapValues { (vilkår, vilkårResultater) ->
-                forskyvVilkårResultater(vilkår, vilkårResultater, erToggleForLovendringAugust2024På).filter { it.tom?.plusDays(1) == vedtaksperiode.fom }
+                forskyvVilkårResultater(vilkår, vilkårResultater).filter { it.tom?.plusDays(1) == vedtaksperiode.fom }
                     .map { it.verdi.id }
             }.filterValues { it.isNotEmpty() }.flatMap { it.value }
         }
@@ -331,7 +330,7 @@ class BegrunnelserForPeriodeContext(
         }.toMap()
 
     private fun finnPersonerMedVilkårResultatIFørsteVedtaksperiodeSomIkkeErOppfylt(): Map<Person, List<VilkårResultat>> =
-        personResultater.tilForskjøvetVilkårResultatTidslinjeMap(personopplysningGrunnlag, erToggleForLovendringAugust2024På)
+        personResultater.tilForskjøvetVilkårResultatTidslinjeMap(personopplysningGrunnlag)
             .mapKeys { (aktør, _) -> aktør.hentPerson() }
             .mapNotNull { (person, vilkårResultatTidslinjeForPerson) ->
                 val forskjøvedeVilkårResultaterSomIkkeErOppfyltEllerMistetIPeriode =
@@ -375,7 +374,7 @@ class BegrunnelserForPeriodeContext(
     )
 
     private fun finnPersonerMedVilkårResultaterSomGjelderIPeriode(): Map<Person, List<VilkårResultat>> =
-        personResultater.tilForskjøvetOppfylteVilkårResultatTidslinjeMap(personopplysningGrunnlag, erToggleForLovendringAugust2024På)
+        personResultater.tilForskjøvetOppfylteVilkårResultatTidslinjeMap(personopplysningGrunnlag)
             .mapKeys { (aktør, _) -> aktør.hentPerson() }
             .mapNotNull { (person, vilkårResultatTidslinjeForPerson) ->
                 val forskøvedeVilkårResultaterMedSammeFom =
@@ -391,7 +390,7 @@ class BegrunnelserForPeriodeContext(
             }.toMap().filterValues { it.isNotEmpty() }
 
     private fun finnPersonerMedVilkårResultaterSomGjelderRettFørPeriode(): Map<Person, List<VilkårResultat>> =
-        personResultater.tilForskjøvetVilkårResultatTidslinjeMap(personopplysningGrunnlag, erToggleForLovendringAugust2024På)
+        personResultater.tilForskjøvetVilkårResultatTidslinjeMap(personopplysningGrunnlag)
             .mapKeys { (aktør, _) -> aktør.hentPerson() }
             .mapNotNull { (person, tidslinje) ->
                 val vilkårResultatSomSlutterFørVedtaksperiode =
