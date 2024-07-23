@@ -70,15 +70,14 @@ data class Behandling(
 ) : BaseEntitet() {
     val behandlingId get() = BehandlingId(id)
 
-    override fun toString(): String {
-        return "Behandling(" +
+    override fun toString(): String =
+        "Behandling(" +
             "id=$id, " +
             "fagsak=${fagsak.id}, " +
             "type=$type, " +
             "kategori=$kategori, " +
             "status=$status, " +
             "resultat=$resultat)"
-    }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -128,11 +127,14 @@ data class Behandling(
 
     val steg: BehandlingSteg
         get() =
-            behandlingStegTilstand.singleOrNull {
-                it.behandlingStegStatus == BehandlingStegStatus.KLAR
-            }?.behandlingSteg
-                ?: behandlingStegTilstand.filter { it.behandlingStegStatus != BehandlingStegStatus.TILBAKEFØRT }
-                    .maxBy { it.behandlingSteg.sekvens }.behandlingSteg
+            behandlingStegTilstand
+                .singleOrNull {
+                    it.behandlingStegStatus == BehandlingStegStatus.KLAR
+                }?.behandlingSteg
+                ?: behandlingStegTilstand
+                    .filter { it.behandlingStegStatus != BehandlingStegStatus.TILBAKEFØRT }
+                    .maxBy { it.behandlingSteg.sekvens }
+                    .behandlingSteg
 
     fun initBehandlingStegTilstand(): Behandling {
         behandlingStegTilstand.add(
@@ -154,17 +156,14 @@ data class Behandling(
         return this
     }
 
-    fun skalOppretteBehandleSakOppgave(): Boolean {
-        return type != TEKNISK_ENDRING
-    }
+    fun skalOppretteBehandleSakOppgave(): Boolean = type != TEKNISK_ENDRING
 
-    fun skalSendeVedtaksbrev(): Boolean {
-        return when {
+    fun skalSendeVedtaksbrev(): Boolean =
+        when {
             type == TEKNISK_ENDRING -> false
             opprettetÅrsak in listOf(BehandlingÅrsak.SATSENDRING, BehandlingÅrsak.LOVENDRING_2024) -> false
             else -> true
         }
-    }
 
     fun erHenlagt() = resultat in listOf(HENLAGT_FEILAKTIG_OPPRETTET, HENLAGT_SØKNAD_TRUKKET, HENLAGT_TEKNISK_VEDLIKEHOLD)
 
@@ -179,6 +178,8 @@ data class Behandling(
     fun erTekniskEndring() = opprettetÅrsak == BehandlingÅrsak.TEKNISK_ENDRING
 
     fun erLovendring() = opprettetÅrsak == BehandlingÅrsak.LOVENDRING_2024
+
+    fun skalBehandlesAutomatisk(): Boolean = this.opprettetÅrsak in listOf(BehandlingÅrsak.LOVENDRING_2024)
 }
 
 /**
@@ -187,7 +188,10 @@ data class Behandling(
  * Et behandlingsresultater beskriver det samlede resultatet for vurderinger gjort i inneværende behandling.
  * @displayName benyttes for visning av resultat
  */
-enum class Behandlingsresultat(val displayName: String, val gyldigeBehandlingstyper: List<BehandlingType>) {
+enum class Behandlingsresultat(
+    val displayName: String,
+    val gyldigeBehandlingstyper: List<BehandlingType>,
+) {
     // Søknad
     INNVILGET(displayName = "Innvilget", BehandlingType.values().toList()),
     INNVILGET_OG_OPPHØRT(displayName = "Innvilget og opphørt", BehandlingType.values().toList()),
@@ -238,7 +242,10 @@ fun Behandlingsresultat.tilDokumenttype() =
 /**
  * Årsak er knyttet til en behandling og sier noe om hvorfor behandling ble opprettet.
  */
-enum class BehandlingÅrsak(val visningsnavn: String, val gyldigeBehandlingstyper: List<BehandlingType>) {
+enum class BehandlingÅrsak(
+    val visningsnavn: String,
+    val gyldigeBehandlingstyper: List<BehandlingType>,
+) {
     SØKNAD("Søknad", listOf(FØRSTEGANGSBEHANDLING, REVURDERING)),
     ÅRLIG_KONTROLL("Årsak kontroll", listOf(REVURDERING)),
     DØDSFALL("Dødsfall", listOf(REVURDERING)),
@@ -254,23 +261,27 @@ enum class BehandlingÅrsak(val visningsnavn: String, val gyldigeBehandlingstype
     LOVENDRING_2024("Lovendring 2024", listOf(REVURDERING)),
 }
 
-enum class BehandlingType(val visningsnavn: String) {
+enum class BehandlingType(
+    val visningsnavn: String,
+) {
     FØRSTEGANGSBEHANDLING("Førstegangsbehandling"),
     REVURDERING("Revurdering"),
     TEKNISK_ENDRING("Teknisk endring"),
 }
 
-enum class BehandlingKategori(val visningsnavn: String, val nivå: Int) {
+enum class BehandlingKategori(
+    val visningsnavn: String,
+    val nivå: Int,
+) {
     EØS("EØS", 2),
     NASJONAL("Nasjonal", 1),
     ;
 
-    fun tilOppgavebehandlingType(): OppgaveBehandlingType {
-        return when (this) {
+    fun tilOppgavebehandlingType(): OppgaveBehandlingType =
+        when (this) {
             EØS -> OppgaveBehandlingType.EØS
             NASJONAL -> OppgaveBehandlingType.NASJONAL
         }
-    }
 
     fun tilRegelverk(): Regelverk =
         when (this) {

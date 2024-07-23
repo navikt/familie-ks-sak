@@ -10,7 +10,9 @@ import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 
 @Service
-class TotrinnskontrollService(private val totrinnskontrollRepository: TotrinnskontrollRepository) {
+class TotrinnskontrollService(
+    private val totrinnskontrollRepository: TotrinnskontrollRepository,
+) {
     fun finnAktivForBehandling(behandlingId: Long): Totrinnskontroll? = totrinnskontrollRepository.findByBehandlingAndAktiv(behandlingId)
 
     fun hentAktivForBehandling(behandlingId: Long): Totrinnskontroll =
@@ -18,6 +20,10 @@ class TotrinnskontrollService(private val totrinnskontrollRepository: Totrinnsko
             ?: throw Feil("Fant ikke aktiv totrinnskontroll for behandling $behandlingId")
 
     fun opprettAutomatiskTotrinnskontroll(behandling: Behandling) {
+        if (!behandling.skalBehandlesAutomatisk()) {
+            throw Feil("Kan ikke opprette automatisk totrinnskontroll ved manuell behandling")
+        }
+
         lagreOgDeaktiverGammel(
             Totrinnskontroll(
                 behandling = behandling,

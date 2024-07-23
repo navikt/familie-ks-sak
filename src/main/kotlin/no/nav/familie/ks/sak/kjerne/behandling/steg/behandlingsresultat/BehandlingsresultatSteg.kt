@@ -61,7 +61,10 @@ class BehandlingsresultatSteg(
                     ),
             )
         }
-        simuleringService.oppdaterSimuleringPåBehandling(behandlingId)
+
+        if (!behandling.skalBehandlesAutomatisk()) {
+            simuleringService.oppdaterSimuleringPåBehandling(behandlingId)
+        }
     }
 
     companion object {

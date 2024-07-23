@@ -45,7 +45,6 @@ class AutovedtakService(
     fun opprettTotrinnskontrollForAutomatiskBehandling(behandling: Behandling): Vedtak {
         totrinnskontrollService.opprettAutomatiskTotrinnskontroll(behandling = behandling)
 
-        // TODO: Oppdatere vedtak med støndasbrev?
         return vedtakService.hentAktivVedtakForBehandling(behandlingId = behandling.id)
     }
 }
