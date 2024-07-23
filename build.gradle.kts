@@ -45,9 +45,9 @@ repositories {
 
 dependencies {
 
-    val springdocVersion = "2.5.0"
-    val sentryVersion = "7.10.0"
-    val navFellesVersion = "3.20240515152313_9dd5659"
+    val springdocVersion = "2.6.0"
+    val sentryVersion = "7.12.0"
+    val navFellesVersion = "3.20240715145751_fc025c1"
     val eksterneKontrakterBisysVersion = "2.0_20230214104704_706e9c0"
     val fellesKontrakterVersion = "3.0_20240607101709_d35e18c"
     val familieKontrakterSaksstatistikkVersion = "2.0_20230214104704_706e9c0"
@@ -55,7 +55,7 @@ dependencies {
     val tokenValidationSpringVersion = "5.0.1"
     val navFoedselsnummerVersion = "1.0-SNAPSHOT.6"
     val prosesseringVersion = "2.20240603145215_c56e179"
-    val restAssuredVersion = "5.4.0"
+    val restAssuredVersion = "5.5.0"
     val kotlinxVersion = "1.8.1"
     val utbetalingsgeneratorVersion = "1.0_20240624093832_8242223"
 
@@ -130,7 +130,7 @@ dependencies {
     implementation("com.neovisionaries:nv-i18n:1.29")
     implementation("com.github.jsqlparser:jsqlparser:4.9")
 
-    ktlint("com.pinterest.ktlint:ktlint-cli:1.2.1") {
+    ktlint("com.pinterest.ktlint:ktlint-cli:1.3.1") {
         attributes {
             attribute(Bundling.BUNDLING_ATTRIBUTE, objects.named(Bundling.EXTERNAL))
         }
@@ -144,7 +144,7 @@ dependencies {
     testImplementation("org.springframework.cloud:spring-cloud-contract-wiremock:4.1.3")
     testImplementation("io.rest-assured:spring-mock-mvc:$restAssuredVersion")
     testImplementation("io.rest-assured:kotlin-extensions:$restAssuredVersion")
-    testImplementation("org.testcontainers:postgresql:1.19.8")
+    testImplementation("org.testcontainers:postgresql:1.20.0")
     testImplementation("no.nav.security:mock-oauth2-server:2.1.8")
     testImplementation("no.nav.security:token-validation-test-support:2.0.5")
     testImplementation("no.nav.security:token-validation-spring-test:$tokenValidationSpringVersion")
