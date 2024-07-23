@@ -117,8 +117,8 @@ funksjonsbrytere:
 spring:
   datasource:
     url: jdbc:postgresql://localhost:5432/familie-ks-sak
-    password: test
-    username: postgres
+    password: WyFzSS3FmhwPCi85VRayzXnMhZRkxkD8SKjkW_BJVmM
+    username: familie-ks-sak
   flyway:
     enabled: true
   jpa:
