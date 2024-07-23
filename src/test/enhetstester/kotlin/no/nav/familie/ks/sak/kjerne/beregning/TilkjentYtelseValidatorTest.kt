@@ -107,7 +107,7 @@ internal class TilkjentYtelseValidatorTest {
             )
         tilkjentYtelse.andelerTilkjentYtelse.addAll(setOf(andelTilkjentYtelse1, andelTilkjentYtelse2))
 
-        val personResultat = PersonResultat(vilkårsvurdering = vilkårsvurdering, aktør = barn.aktør)
+        val personResultat = PersonResultat(vilkårsvurdering = vilkårsvurdering, aktør = barnFødtIJanuar2023.aktør)
         val barnetsAlderVilkårResultater = lagAutomatiskGenererteVilkårForBarnetsAlder(personResultat = personResultat, behandling = behandling, fødselsdato = LocalDate.of(2023, 1, 1))
 
         val exception =
@@ -147,7 +147,7 @@ internal class TilkjentYtelseValidatorTest {
             )
         tilkjentYtelse.andelerTilkjentYtelse.addAll(setOf(andelTilkjentYtelse1))
 
-        val personResultat = PersonResultat(vilkårsvurdering = vilkårsvurdering, aktør = barn.aktør)
+        val personResultat = PersonResultat(vilkårsvurdering = vilkårsvurdering, aktør = barnFødtIAugust2022.aktør)
         val barnetsAlderVilkårResultater = lagAutomatiskGenererteVilkårForBarnetsAlder(personResultat = personResultat, behandling = behandling, fødselsdato = LocalDate.of(2022, 8, 1))
 
         val exception =
@@ -175,11 +175,14 @@ internal class TilkjentYtelseValidatorTest {
 
     @Test
     fun `validerAtTilkjentYtelseHarFornuftigePerioderOgBeløp skal ikke kaste feil når selvom utbetalingsperioden er over 11 måneder dersom det er fordelt på flere barn`() {
+        val barnFødtAugust2023 = lagPerson(personType = PersonType.BARN, aktør = randomAktør("01082312345"))
+        val barnFødtAugust2022 = lagPerson(personType = PersonType.BARN, aktør = randomAktør("01082212345"))
+
         val andelTilkjentYtelse1 =
             lagAndelTilkjentYtelse(
                 tilkjentYtelse = tilkjentYtelse,
                 behandling = behandling,
-                aktør = barn.aktør,
+                aktør = barnFødtAugust2023.aktør,
                 stønadFom = YearMonth.now().minusMonths(10),
                 stønadTom = YearMonth.now().minusMonths(4),
             )
@@ -187,22 +190,28 @@ internal class TilkjentYtelseValidatorTest {
             lagAndelTilkjentYtelse(
                 tilkjentYtelse = tilkjentYtelse,
                 behandling = behandling,
-                aktør = barn2.aktør,
-                stønadFom = YearMonth.now().minusMonths(3),
-                stønadTom = YearMonth.now().plusMonths(6),
+                aktør = barnFødtAugust2022.aktør,
+                stønadFom = YearMonth.of(2022, 9),
+                stønadTom = YearMonth.of(2023, 7),
             )
         tilkjentYtelse.andelerTilkjentYtelse.addAll(setOf(andelTilkjentYtelse1, andelTilkjentYtelse2))
 
-        val personResultatBarn1 = PersonResultat(vilkårsvurdering = vilkårsvurdering, aktør = barn.aktør)
-        val barnetsAlderVilkårResultaterBarn1 = lagAutomatiskGenererteVilkårForBarnetsAlder(personResultat = personResultatBarn1, behandling = behandling, fødselsdato = LocalDate.now().minusYears(1).minusMonths(10))
+        val personResultatBarn1 = PersonResultat(vilkårsvurdering = vilkårsvurdering, aktør = barnFødtAugust2022.aktør)
+        val barnetsAlderVilkårResultaterBarn1 = lagAutomatiskGenererteVilkårForBarnetsAlder(personResultat = personResultatBarn1, behandling = behandling, fødselsdato = LocalDate.of(2022, 8, 1))
 
-        val personResultatBarn2 = PersonResultat(vilkårsvurdering = vilkårsvurdering, aktør = barn2.aktør)
-        val barnetsAlderVilkårResultaterBarn2 = lagAutomatiskGenererteVilkårForBarnetsAlder(personResultat = personResultatBarn2, behandling = behandling, fødselsdato = LocalDate.now().minusYears(1).minusMonths(3))
+        val personResultatBarn2 = PersonResultat(vilkårsvurdering = vilkårsvurdering, aktør = barnFødtAugust2023.aktør)
+        val barnetsAlderVilkårResultaterBarn2 = lagAutomatiskGenererteVilkårForBarnetsAlder(personResultat = personResultatBarn2, behandling = behandling, fødselsdato = LocalDate.of(2023, 8, 1))
 
         assertDoesNotThrow {
             validerAtTilkjentYtelseHarFornuftigePerioderOgBeløp(
                 tilkjentYtelse = tilkjentYtelse,
-                personopplysningGrunnlag = personopplysningGrunnlag,
+                lagPersonopplysningGrunnlag(
+                    behandlingId = behandling.id,
+                    søkerPersonIdent = søker.aktør.aktivFødselsnummer(),
+                    barnasIdenter = listOf(barnFødtAugust2023.aktør.aktivFødselsnummer(), barnFødtAugust2022.aktør.aktivFødselsnummer()),
+                    søkerAktør = søker.aktør,
+                    barnAktør = listOf(barnFødtAugust2023.aktør, barnFødtAugust2022.aktør),
+                ),
                 alleBarnetsAlderVilkårResultater = barnetsAlderVilkårResultaterBarn1 + barnetsAlderVilkårResultaterBarn2,
             )
         }
@@ -241,18 +250,20 @@ internal class TilkjentYtelseValidatorTest {
 
     @Test
     fun `validerAtTilkjentYtelseHarFornuftigePerioderOgBeløp skal kaste feil når barn har andel med beløp som er større en maks beløp`() {
+        val barnFødtJuli2023 = lagPerson(personType = PersonType.BARN, aktør = randomAktør("01072312345"))
+
         val andelTilkjentYtelseForBarn =
             lagAndelTilkjentYtelse(
                 tilkjentYtelse = tilkjentYtelse,
                 behandling = behandling,
-                aktør = barn.aktør,
+                aktør = barnFødtJuli2023.aktør,
                 stønadFom = YearMonth.now().minusMonths(11),
                 stønadTom = YearMonth.now().minusMonths(6),
                 sats = 8000,
             )
         tilkjentYtelse.andelerTilkjentYtelse.add(andelTilkjentYtelseForBarn)
 
-        val personResultat = PersonResultat(vilkårsvurdering = vilkårsvurdering, aktør = barn.aktør)
+        val personResultat = PersonResultat(vilkårsvurdering = vilkårsvurdering, aktør = barnFødtJuli2023.aktør)
         val barnetsAlderVilkårResultater = lagAutomatiskGenererteVilkårForBarnetsAlder(personResultat = personResultat, behandling = behandling, fødselsdato = LocalDate.now().minusYears(1).minusMonths(5))
 
         val andeler = tilkjentYtelse.andelerTilkjentYtelse
@@ -261,7 +272,14 @@ internal class TilkjentYtelseValidatorTest {
             assertThrows<FunksjonellFeil> {
                 validerAtTilkjentYtelseHarFornuftigePerioderOgBeløp(
                     tilkjentYtelse = tilkjentYtelse,
-                    personopplysningGrunnlag = personopplysningGrunnlag,
+                    personopplysningGrunnlag =
+                        lagPersonopplysningGrunnlag(
+                            behandlingId = behandling.id,
+                            søkerPersonIdent = søker.aktør.aktivFødselsnummer(),
+                            barnasIdenter = listOf(barnFødtJuli2023.aktør.aktivFødselsnummer()),
+                            søkerAktør = søker.aktør,
+                            barnAktør = listOf(barnFødtJuli2023.aktør),
+                        ),
                     alleBarnetsAlderVilkårResultater = barnetsAlderVilkårResultater,
                 )
             }
