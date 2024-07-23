@@ -7,8 +7,6 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingType
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
-import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg
-import no.nav.familie.ks.sak.kjerne.behandling.steg.avsluttbehandling.AvsluttBehandlingTask
 import no.nav.familie.ks.sak.kjerne.behandling.steg.iverksettmotoppdrag.IverksettMotOppdragTask
 import no.nav.familie.ks.sak.kjerne.fagsak.FagsakService
 import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext
@@ -45,27 +43,13 @@ class AutovedtakLovendringService(
         val behandlingEtterBehandlingsresultat = autovedtakService.opprettAutomatiskBehandlingOgKjørTilBehandlingsresultat(aktør = søkerAktør, behandlingÅrsak = BehandlingÅrsak.LOVENDRING_2024, behandlingType = BehandlingType.REVURDERING)
         val opprettetVedtak = autovedtakService.opprettTotrinnskontrollForAutomatiskBehandling(behandlingEtterBehandlingsresultat)
 
-        val task =
-            when (behandlingEtterBehandlingsresultat.steg) {
-                BehandlingSteg.IVERKSETT_MOT_OPPDRAG -> {
-                    IverksettMotOppdragTask.opprettTask(
-                        behandlingEtterBehandlingsresultat,
-                        opprettetVedtak.id,
-                        SikkerhetContext.SYSTEM_FORKORTELSE,
-                    )
-                }
-
-                BehandlingSteg.AVSLUTT_BEHANDLING -> {
-                    AvsluttBehandlingTask.opprettTask(
-                        søkerAktør.aktivFødselsnummer(),
-                        behandlingEtterBehandlingsresultat.id,
-                    )
-                }
-
-                else -> throw Feil("Ugyldig neste steg ${behandlingEtterBehandlingsresultat.steg} ved månedlig valutajustering for fagsak=$fagsakId")
-            }
-
-        taskService.save(task)
+        taskService.save(
+            IverksettMotOppdragTask.opprettTask(
+                behandlingEtterBehandlingsresultat,
+                opprettetVedtak.id,
+                SikkerhetContext.SYSTEM_FORKORTELSE,
+            ),
+        )
 
         return behandlingEtterBehandlingsresultat
     }

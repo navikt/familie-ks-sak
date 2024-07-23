@@ -156,7 +156,7 @@ data class Behandling(
         return this
     }
 
-    fun skalOppretteBehandleSakOppgave(): Boolean = type != TEKNISK_ENDRING
+    fun skalOppretteBehandleSakOppgave(): Boolean = type != TEKNISK_ENDRING && opprettetÅrsak != BehandlingÅrsak.LOVENDRING_2024
 
     fun skalSendeVedtaksbrev(): Boolean =
         when {

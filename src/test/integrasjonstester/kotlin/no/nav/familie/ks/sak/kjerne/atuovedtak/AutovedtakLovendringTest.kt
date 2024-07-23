@@ -8,11 +8,13 @@ import no.nav.familie.ks.sak.common.util.toYearMonth
 import no.nav.familie.ks.sak.config.featureToggle.UnleashNextMedContextService
 import no.nav.familie.ks.sak.data.lagAndelTilkjentYtelse
 import no.nav.familie.ks.sak.data.lagPersonResultat
+import no.nav.familie.ks.sak.integrasjon.økonomi.utbetalingsoppdrag.UtbetalingsoppdragService
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.ArbeidsfordelingService
 import no.nav.familie.ks.sak.kjerne.autovedtak.AutovedtakLovendringService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
+import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
@@ -48,6 +50,9 @@ class AutovedtakLovendringTest(
     @MockkBean
     private lateinit var personService: PersonService
 
+    @MockkBean
+    private lateinit var utbetalingsoppdragService: UtbetalingsoppdragService
+
     @BeforeEach
     fun setUp() {
         justRun { arbeidsfordelingService.fastsettBehandledeEnhet(any(), any()) }
@@ -57,6 +62,8 @@ class AutovedtakLovendringTest(
             val aktør = firstArg<Aktør>()
             personRepository.findByAktør(aktør).first()
         }
+
+        justRun { utbetalingsoppdragService.oppdaterTilkjentYtelseMedUtbetalingsoppdragOgIverksett(any(), any()) }
     }
 
     @Test
@@ -90,6 +97,8 @@ class AutovedtakLovendringTest(
         // assert
         assertThat(nyBehandling.opprettetÅrsak).isEqualTo(BehandlingÅrsak.LOVENDRING_2024)
         assertThat(nyBehandling.resultat).isEqualTo(Behandlingsresultat.ENDRET_UTBETALING)
+        assertThat(nyBehandling.steg).isEqualTo(BehandlingSteg.IVERKSETT_MOT_OPPDRAG)
+
         val andelTilkjentYtelseNy = andelTilkjentYtelseRepository.finnAndelerTilkjentYtelseForBehandling(nyBehandling.id).single()
         assertThat(andelTilkjentYtelseNy.stønadFom).isEqualTo(fødselsdatoBarn.plusYears(1).plusMonths(1).toYearMonth())
         assertThat(andelTilkjentYtelseNy.stønadTom).isEqualTo(fødselsdatoBarn.plusYears(1).plusMonths(7).toYearMonth()) // 7 måneder som i nytt regelverk
@@ -128,6 +137,8 @@ class AutovedtakLovendringTest(
         // assert
         assertThat(nyBehandling.opprettetÅrsak).isEqualTo(BehandlingÅrsak.LOVENDRING_2024)
         assertThat(nyBehandling.resultat).isEqualTo(Behandlingsresultat.FORTSATT_OPPHØRT)
+        assertThat(nyBehandling.steg).isEqualTo(BehandlingSteg.IVERKSETT_MOT_OPPDRAG)
+
         val andelTilkjentYtelseNy = andelTilkjentYtelseRepository.finnAndelerTilkjentYtelseForBehandling(nyBehandling.id).single()
         assertThat(andelTilkjentYtelseNy.stønadFom).isEqualTo(stønadFom)
         assertThat(andelTilkjentYtelseNy.stønadTom).isEqualTo(stønadTom)

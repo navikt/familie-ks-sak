@@ -72,7 +72,6 @@ class OpprettBehandlingService(
                 overstyrtKategori = opprettBehandlingRequest.kategori,
                 behandlingType = opprettBehandlingRequest.behandlingType,
                 behandlingÅrsak = opprettBehandlingRequest.behandlingÅrsak,
-                // TODO EØS implementeres etter vilkårsvurdering
                 kategoriFraLøpendeBehandling = BehandlingKategori.NASJONAL,
             )
         val behandling =
@@ -159,8 +158,8 @@ class OpprettBehandlingService(
     private fun opprettRevurderingKlage(
         fagsak: Fagsak,
         behandlingÅrsak: BehandlingÅrsak,
-    ): OpprettRevurderingResponse {
-        return try {
+    ): OpprettRevurderingResponse =
+        try {
             val forrigeBehandling = hentSisteBehandlingSomErVedtatt(fagsakId = fagsak.id)
 
             val behandlingDto =
@@ -178,7 +177,6 @@ class OpprettBehandlingService(
             secureLogger.error("Feilet opprettelse av revurdering for fagsak=$fagsak", e)
             OpprettRevurderingResponse(IkkeOpprettet(IkkeOpprettetÅrsak.FEIL, e.message))
         }
-    }
 
     private fun utledKanOppretteRevurdering(fagsak: Fagsak): KanOppretteRevurderingResultat {
         val finnesÅpenBehandlingPåFagsak = erÅpenBehandlingPåFagsak(fagsak.id)
@@ -198,11 +196,11 @@ class OpprettBehandlingService(
 
     // kan kalles fra BehandlingController eller OpprettBehandlingServiceTest metoder,
     // andre tjenester bruker eventuelt BehandlingService istedet
-    fun hentSisteBehandlingSomErVedtatt(fagsakId: Long): Behandling? {
-        return behandlingRepository.finnBehandlinger(fagsakId)
+    fun hentSisteBehandlingSomErVedtatt(fagsakId: Long): Behandling? =
+        behandlingRepository
+            .finnBehandlinger(fagsakId)
             .filter { !it.erHenlagt() && it.status == BehandlingStatus.AVSLUTTET }
             .maxByOrNull { it.aktivertTidspunkt }
-    }
 
     // kan kalles fra BehandlingController eller OpprettBehandlingServiceTest metoder,
     // andre tjenester bruker eventuelt BehandlingService istedet
@@ -230,7 +228,9 @@ private sealed interface KanOppretteRevurderingResultat
 
 private object KanOppretteRevurdering : KanOppretteRevurderingResultat
 
-private data class KanIkkeOppretteRevurdering(val årsak: Årsak) : KanOppretteRevurderingResultat
+private data class KanIkkeOppretteRevurdering(
+    val årsak: Årsak,
+) : KanOppretteRevurderingResultat
 
 private enum class Årsak(
     val ikkeOpprettetÅrsak: IkkeOpprettetÅrsak,
