@@ -13,6 +13,7 @@ import no.nav.familie.ks.sak.common.util.overlapperHeltEllerDelvisMed
 import no.nav.familie.ks.sak.common.util.toLocalDate
 import no.nav.familie.ks.sak.common.util.toYearMonth
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårLovverkInformasjonForBarn
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.domene.TilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.domene.YtelseType
@@ -30,6 +31,7 @@ object TilkjentYtelseValidator {
     fun validerAtTilkjentYtelseHarFornuftigePerioderOgBeløp(
         tilkjentYtelse: TilkjentYtelse,
         personopplysningGrunnlag: PersonopplysningGrunnlag,
+        alleBarnetsAlderVilkårResultater: List<VilkårResultat>,
     ) {
         val søker = personopplysningGrunnlag.søker
         val barna = personopplysningGrunnlag.barna
@@ -50,8 +52,9 @@ object TilkjentYtelseValidator {
             val relevantBarn = barna.single { it.aktør == aktør }
 
             val vilkårLovverkInformasjonForBarn = VilkårLovverkInformasjonForBarn(relevantBarn.fødselsdato)
+            val barnetsAlderVilkårResultater = alleBarnetsAlderVilkårResultater.filter { it.personResultat?.aktør == aktør }
 
-            val maksAntallMånederMedUtbetaling = utledMaksAntallMånederMedUtbetaling(vilkårLovverkInformasjonForBarn)
+            val maksAntallMånederMedUtbetaling = utledMaksAntallMånederMedUtbetaling(vilkårLovverkInformasjonForBarn, barnetsAlderVilkårResultater)
 
             val diff = Period.between(stønadFom.toLocalDate(), stønadTom.toLocalDate())
             val antallMånederUtbetalt = diff.toTotalMonths() + 1
@@ -126,7 +129,8 @@ object TilkjentYtelseValidator {
         val barnMedUtbetalingsikkerhetFeil = mutableListOf<Person>()
         barnasAndeler.forEach { (barn, andeler) ->
             val barnsAndelerFraAndreBehandlinger =
-                barnMedAndreRelevanteTilkjentYtelser.filter { it.first.aktør == barn.aktør }
+                barnMedAndreRelevanteTilkjentYtelser
+                    .filter { it.first.aktør == barn.aktør }
                     .flatMap { it.second }
                     .flatMap { it.andelerTilkjentYtelse }
                     .filter { it.aktør == barn.aktør }
@@ -154,14 +158,13 @@ object TilkjentYtelseValidator {
     private fun erOverlappAvAndeler(
         andeler: List<AndelTilkjentYtelse>,
         andelerFraAndreBehandlinger: List<AndelTilkjentYtelse>,
-    ): Boolean {
-        return andeler.any { andelTilkjentYtelse ->
+    ): Boolean =
+        andeler.any { andelTilkjentYtelse ->
             andelerFraAndreBehandlinger.any {
                 andelTilkjentYtelse.overlapperMed(it) &&
                     andelTilkjentYtelse.prosent + it.prosent > BigDecimal(100)
             }
         }
-    }
 
     fun finnAktørIderMedUgyldigEtterbetalingsperiode(
         forrigeAndelerTilkjentYtelse: List<AndelTilkjentYtelse>?,
@@ -209,21 +212,23 @@ object TilkjentYtelseValidator {
         forrigeAndelerForPerson: List<AndelTilkjentYtelse>?,
         andelerForPerson: List<AndelTilkjentYtelse>,
         gyldigEtterbetalingFom: YearMonth?,
-    ): Boolean {
-        return YtelseType.entries.any { ytelseType ->
+    ): Boolean =
+        YtelseType.entries.any { ytelseType ->
             val forrigeAndelerForPersonOgType = forrigeAndelerForPerson?.filter { it.type == ytelseType } ?: emptyList()
             val andelerForPersonOgType = andelerForPerson.filter { it.type == ytelseType }
 
             val forrigeAndelerTidslinje =
-                forrigeAndelerForPersonOgType.map {
-                    Periode(
-                        it,
-                        it.stønadFom.toLocalDate(),
-                        it.stønadTom.toLocalDate(),
-                    )
-                }.tilTidslinje()
+                forrigeAndelerForPersonOgType
+                    .map {
+                        Periode(
+                            it,
+                            it.stønadFom.toLocalDate(),
+                            it.stønadTom.toLocalDate(),
+                        )
+                    }.tilTidslinje()
             val andelerTidslinje =
-                andelerForPersonOgType.map { Periode(it, it.stønadFom.toLocalDate(), it.stønadTom.toLocalDate()) }
+                andelerForPersonOgType
+                    .map { Periode(it, it.stønadFom.toLocalDate(), it.stønadTom.toLocalDate()) }
                     .tilTidslinje()
 
             val erAndelMedØktBeløpFørGyldigEtterbetalingsdato =
@@ -234,19 +239,20 @@ object TilkjentYtelseValidator {
                 )
 
             val segmenterLagtTil =
-                andelerTidslinje.kombinerMed(forrigeAndelerTidslinje) { andel1, andel2 ->
-                    if (andel2 == null) andel1 else null
-                }.tilPerioderIkkeNull()
+                andelerTidslinje
+                    .kombinerMed(forrigeAndelerTidslinje) { andel1, andel2 ->
+                        if (andel2 == null) andel1 else null
+                    }.tilPerioderIkkeNull()
 
             val erLagtTilSegmentFørGyldigEtterbetalingsdato =
                 segmenterLagtTil.any { it.verdi.stønadFom < gyldigEtterbetalingFom && it.verdi.kalkulertUtbetalingsbeløp > 0 }
 
             erAndelMedØktBeløpFørGyldigEtterbetalingsdato || erLagtTilSegmentFørGyldigEtterbetalingsdato
         }
-    }
 
     private fun hentGyldigEtterbetalingFom(kravDato: LocalDateTime) =
-        kravDato.minusMonths(3)
+        kravDato
+            .minusMonths(3)
             .toLocalDate()
             .toYearMonth()
 

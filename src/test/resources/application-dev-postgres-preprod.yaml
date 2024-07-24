@@ -117,8 +117,8 @@ funksjonsbrytere:
 spring:
   datasource:
     url: jdbc:postgresql://localhost:5432/familie-ks-sak
-    password: test
-    username: postgres
+    password: WyFzSS3FmhwPCi85VRayzXnMhZRkxkD8SKjkW_BJVmM
+    username: familie-ks-sak
   flyway:
     enabled: true
   jpa:
@@ -135,7 +135,7 @@ spring:
 AZURE_APP_WELL_KNOWN_URL: https://login.microsoftonline.com/navq.onmicrosoft.com/v2.0/.well-known/openid-configuration
 AZURE_OPENID_CONFIG_TOKEN_ENDPOINT: https://login.microsoftonline.com/navq.onmicrosoft.com/oauth2/v2.0/token
 
-SANITY_DATASET: "ks-v2"
+SANITY_DATASET: "ks-brev"
 
 
 FAMILIE_KS_SAK_API_URL: http://localhost:8086/api
