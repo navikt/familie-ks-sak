@@ -339,6 +339,7 @@ class BegrunnelserForPeriodeContext(
 
                 val tidslinjeMedVilkårSomSluttetMånedenFør =
                     vilkårResultatTidslinjeForPerson
+                        .klipp(vedtaksperiode.fom.minusMonths(1), vedtaksperiode.fom)
                         .konverterTilMåned(antallMndBakoverITid = 1) { _, vindu ->
                             val forrigeMåned = vindu[0]
                             val denneMåneden = vindu[1]
