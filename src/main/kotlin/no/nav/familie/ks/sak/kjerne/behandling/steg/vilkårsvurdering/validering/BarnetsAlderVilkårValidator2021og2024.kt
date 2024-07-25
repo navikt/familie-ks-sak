@@ -19,7 +19,7 @@ class BarnetsAlderVilkårValidator2021og2024(
         val påkrevdAntallBarnetsAlderPerioderPåBarn = 2
 
         if (perioder.size != påkrevdAntallBarnetsAlderPerioderPåBarn) {
-            return listOf("Vilkåret for barnets alder må splittes i to perioder fordi den strekker seg over lovendringen 01.08.2024. Henlegg denne behandlingen og opprett en ny behandling. I den nye behandlingen vil splitten dannes automatisk")
+            return listOf("Vilkåret for barnets alder må splittes i to perioder fordi den strekker seg over lovendringen 01.08.2024. Henlegg denne behandlingen og opprett en ny behandling. I den nye behandlingen vil splitten dannes automatisk.")
         }
 
         val sortertePerioder = perioder.sortedBy { it.fom }
