@@ -13,8 +13,8 @@ class DbContainerInitializer : ApplicationContextInitializer<ConfigurableApplica
             postgres.start()
             TestPropertyValues.of(
                 "spring.datasource.url=${postgres.jdbcUrl}",
-                "spring.datasource.username=familie-ks-sak",
-                "spring.datasource.password=WyFzSS3FmhwPCi85VRayzXnMhZRkxkD8SKjkW_BJVmM",
+                "spring.datasource.username=${postgres.username}",
+                "spring.datasource.password=${postgres.password}",
             ).applyTo(applicationContext.environment)
         }
     }
@@ -24,8 +24,8 @@ class DbContainerInitializer : ApplicationContextInitializer<ConfigurableApplica
         private val postgres: KPostgreSQLContainer by lazy {
             KPostgreSQLContainer("postgres:14.5")
                 .withDatabaseName("databasename")
-                .withUsername("familie-ks-sak")
-                .withPassword("WyFzSS3FmhwPCi85VRayzXnMhZRkxkD8SKjkW_BJVmM")
+                .withUsername("postgres")
+                .withPassword("test")
         }
     }
 }
