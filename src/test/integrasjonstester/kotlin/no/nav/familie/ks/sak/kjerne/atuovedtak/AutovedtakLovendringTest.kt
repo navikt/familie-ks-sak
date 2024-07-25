@@ -15,8 +15,10 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.PersonResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårsvurderingRepository
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelseRepository
@@ -30,6 +32,7 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
+import java.math.BigDecimal
 import java.time.LocalDate
 
 class AutovedtakLovendringTest(
@@ -144,11 +147,104 @@ class AutovedtakLovendringTest(
         assertThat(andelTilkjentYtelseNy.stønadTom).isEqualTo(stønadTom)
     }
 
+    @Test
+    fun `automatisk revurdering av fagsak som har fremtidig opphør beholder fremtidig opphør`() {
+        // arrange
+        opprettSøkerFagsakOgBehandling(fagsakStatus = FagsakStatus.LØPENDE, behandlingStatus = BehandlingStatus.AVSLUTTET, behandlingResultat = Behandlingsresultat.INNVILGET)
+        val fødselsdatoBarn = LocalDate.of(2023, 4, 1)
+        opprettPersonopplysningGrunnlagOgPersonForBehandling(
+            behandlingId = behandling.id,
+            lagBarn = true,
+            fødselsdatoBarn = fødselsdatoBarn,
+        )
+
+        val datoForBarnehageplass = fødselsdatoBarn.plusYears(1).plusMonths(4).plusDays(12) // 13. august 2024
+        lagVilkårsvurderingMedFremtidigOpphør(fødselsdatoBarn, datoForBarnehageplass)
+
+        lagTilkjentYtelse(null)
+        tilkjentYtelse.andelerTilkjentYtelse.add(
+            andelTilkjentYtelseRepository.save(
+                lagAndelTilkjentYtelse(
+                    tilkjentYtelse = tilkjentYtelse,
+                    behandling = behandling,
+                    aktør = barn,
+                    stønadFom = fødselsdatoBarn.plusYears(1).plusMonths(1).toYearMonth(),
+                    stønadTom = datoForBarnehageplass.minusMonths(1).toYearMonth(),
+                ),
+            ),
+        )
+
+        // act
+        val nyBehandling = autovedtakLovendringService.revurderFagsak(fagsakId = behandling.fagsak.id)
+
+        // assert
+        assertThat(nyBehandling.opprettetÅrsak).isEqualTo(BehandlingÅrsak.LOVENDRING_2024)
+        assertThat(nyBehandling.resultat).isEqualTo(Behandlingsresultat.ENDRET_OG_OPPHØRT)
+        assertThat(nyBehandling.steg).isEqualTo(BehandlingSteg.IVERKSETT_MOT_OPPDRAG)
+
+        val andelTilkjentYtelseNy = andelTilkjentYtelseRepository.finnAndelerTilkjentYtelseForBehandling(nyBehandling.id).single()
+        assertThat(andelTilkjentYtelseNy.stønadFom).isEqualTo(fødselsdatoBarn.plusYears(1).plusMonths(1).toYearMonth())
+        assertThat(andelTilkjentYtelseNy.stønadTom).isEqualTo(datoForBarnehageplass.toYearMonth())
+
+        val vilkårResultatRevurdering =
+            vilkårsvurderingRepository
+                .finnAktivForBehandling(nyBehandling.id)!!
+                .personResultater
+                .find { !it.erSøkersResultater() }!!
+                .vilkårResultater
+                .filter { it.vilkårType == Vilkår.BARNEHAGEPLASS && it.harMeldtBarnehageplassOgErFulltidIBarnehage() }
+        assertThat(vilkårResultatRevurdering.size).isEqualTo(1)
+    }
+
     private fun lagVilkårsvurderingEtterGammeltRegelverk(fødselsdatoBarn: LocalDate?) {
         val vilkårsvurdering =
             Vilkårsvurdering(
                 behandling = behandling,
             )
+        vilkårsvurdering.personResultater = lagPersonResultater(vilkårsvurdering, fødselsdatoBarn).toSet()
+        vilkårsvurderingRepository.saveAndFlush(vilkårsvurdering)
+    }
+
+    private fun lagVilkårsvurderingMedFremtidigOpphør(
+        fødselsdatoBarn: LocalDate,
+        datoForBarnehageplass: LocalDate,
+    ) {
+        val vilkårsvurdering =
+            Vilkårsvurdering(
+                behandling = behandling,
+            )
+        val mutablePersonResultater = lagPersonResultater(vilkårsvurdering, fødselsdatoBarn)
+
+        val personResultatBarn = mutablePersonResultater.find { !it.erSøkersResultater() }!!
+        val barnehagevilkårIkkeBarnehageplass =
+            personResultatBarn
+                .vilkårResultater
+                .find { it.vilkårType == Vilkår.BARNEHAGEPLASS }!!
+
+        barnehagevilkårIkkeBarnehageplass.periodeTom = datoForBarnehageplass
+
+        val barnetHarBarnehageplassVilkår =
+            VilkårResultat(
+                personResultat = personResultatBarn,
+                vilkårType = Vilkår.BARNEHAGEPLASS,
+                periodeFom = datoForBarnehageplass.plusDays(1),
+                periodeTom = fødselsdatoBarn.plusYears(2).minusMonths(1), // barnets alder-vilkår.periode_tom
+                behandlingId = behandling.id,
+                resultat = Resultat.IKKE_OPPFYLT,
+                antallTimer = BigDecimal.valueOf(42),
+                søkerHarMeldtFraOmBarnehageplass = true,
+                begrunnelse = "Barnet har barnehageplass",
+            )
+        personResultatBarn.vilkårResultater.add(barnetHarBarnehageplassVilkår)
+
+        vilkårsvurdering.personResultater = mutablePersonResultater.toSet()
+        vilkårsvurderingRepository.saveAndFlush(vilkårsvurdering)
+    }
+
+    private fun lagPersonResultater(
+        vilkårsvurdering: Vilkårsvurdering,
+        fødselsdatoBarn: LocalDate?,
+    ): Set<PersonResultat> {
         val søkersPersonResultat =
             lagPersonResultat(
                 vilkårsvurdering = vilkårsvurdering,
@@ -173,7 +269,6 @@ class AutovedtakLovendringTest(
         barnetsAlderVilkår.periodeFom = fødselsdatoBarn!!.plusYears(1)
         barnetsAlderVilkår.periodeTom = fødselsdatoBarn.plusYears(2).minusMonths(1)
 
-        vilkårsvurdering.personResultater = setOf(barnetsPersonResultat, søkersPersonResultat)
-        vilkårsvurderingRepository.saveAndFlush(vilkårsvurdering)
+        return mutableSetOf(barnetsPersonResultat, søkersPersonResultat)
     }
 }
