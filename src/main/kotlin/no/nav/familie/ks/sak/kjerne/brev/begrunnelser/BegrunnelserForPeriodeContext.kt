@@ -1,6 +1,7 @@
 package no.nav.familie.ks.sak.kjerne.brev.begrunnelser
 
 import no.nav.familie.ks.sak.common.exception.Feil
+import no.nav.familie.ks.sak.common.tidslinje.TidslinjePeriode
 import no.nav.familie.ks.sak.common.tidslinje.tilPeriodeVerdi
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.klipp
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.kombinerMed
@@ -362,16 +363,20 @@ class BegrunnelserForPeriodeContext(
                 val vilkårSomSlutterMånedenFør =
                     vilkårResultatTidslinjeForPerson
                         .konverterTilMåned(antallMndBakoverITid = 1) { _, vindu ->
-                            vindu[0]
-                                .lastOrNull()
-                                ?.periodeVerdi
-                                ?.verdi
-                                ?.filter { it.erOppfylt() || it.erIkkeAktuelt() }
-                                ?.filter { vilkårResultat ->
-                                    vindu[1]
-                                        .last()
-                                        .periodeVerdi.verdi
-                                        ?.none { it.vilkårType == vilkårResultat.vilkårType && it.resultat == vilkårResultat.resultat } == true
+                            val forrigeMåned = vindu[0]
+                            val denneMåneden = vindu[1]
+                            val oppfylteVilkårForrigeMåned =
+                                forrigeMåned.tilInnoldIPerioden().filter { it.erOppfylt() || it.erIkkeAktuelt() }
+
+                            oppfylteVilkårForrigeMåned
+                                .filter { vilkårResultatFraForrigeMåned ->
+                                    val tilsvarendeVilkårDennePerioden =
+                                        denneMåneden
+                                            .tilInnoldIPerioden()
+                                            .filter { it.vilkårType == vilkårResultatFraForrigeMåned.vilkårType && it.resultat == vilkårResultatFraForrigeMåned.resultat }
+
+                                    val vilkårSluttetMånedenFør = tilsvarendeVilkårDennePerioden.isEmpty()
+                                    vilkårSluttetMånedenFør
                                 }.tilPeriodeVerdi()
                         }.tilPerioderIkkeNull()
                         .filter { it.fom == vedtaksperiode.fom }
@@ -388,6 +393,8 @@ class BegrunnelserForPeriodeContext(
                 }
             }.toMap()
             .filterValues { it.isNotEmpty() }
+
+    private fun List<TidslinjePeriode<List<VilkårResultat>>>.tilInnoldIPerioden(): List<VilkårResultat> = this.lastOrNull()?.periodeVerdi?.verdi ?: emptyList()
 
     private fun Aktør.hentPerson() = (
         personopplysningGrunnlag.personer.singleOrNull { it.aktør.aktivFødselsnummer() == aktivFødselsnummer() }
