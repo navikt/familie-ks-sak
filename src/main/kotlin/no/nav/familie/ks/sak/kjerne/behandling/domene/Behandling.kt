@@ -189,15 +189,15 @@ enum class Behandlingsresultat(val displayName: String, val gyldigeBehandlingsty
     // Søknad
     INNVILGET(displayName = "Innvilget", BehandlingType.values().toList()),
     INNVILGET_OG_OPPHØRT(displayName = "Innvilget og opphørt", BehandlingType.values().toList()),
-    INNVILGET_OG_ENDRET(displayName = "Innvilget og endret", listOf(REVURDERING, TEKNISK_ENDRING)),
-    INNVILGET_ENDRET_OG_OPPHØRT(displayName = "Innvilget, endret og opphørt", listOf(REVURDERING, TEKNISK_ENDRING)),
+    INNVILGET_OG_ENDRET(displayName = "Innvilget og endret", BehandlingType.values().toList()),
+    INNVILGET_ENDRET_OG_OPPHØRT(displayName = "Innvilget, endret og opphørt", BehandlingType.values().toList()),
 
     DELVIS_INNVILGET(displayName = "Delvis innvilget", BehandlingType.values().toList()),
     DELVIS_INNVILGET_OG_OPPHØRT(displayName = "Delvis innvilget og opphørt", BehandlingType.values().toList()),
-    DELVIS_INNVILGET_OG_ENDRET(displayName = "Delvis innvilget og endret", listOf(REVURDERING, TEKNISK_ENDRING)),
+    DELVIS_INNVILGET_OG_ENDRET(displayName = "Delvis innvilget og endret", BehandlingType.values().toList()),
     DELVIS_INNVILGET_ENDRET_OG_OPPHØRT(
         displayName = "Delvis innvilget, endret og opphørt",
-        listOf(REVURDERING, TEKNISK_ENDRING),
+        BehandlingType.values().toList(),
     ),
 
     AVSLÅTT(displayName = "Avslått", BehandlingType.values().toList()),
