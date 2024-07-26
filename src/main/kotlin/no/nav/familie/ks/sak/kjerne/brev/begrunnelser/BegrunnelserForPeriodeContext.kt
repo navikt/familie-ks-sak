@@ -1,7 +1,6 @@
 package no.nav.familie.ks.sak.kjerne.brev.begrunnelser
 
 import no.nav.familie.ks.sak.common.exception.Feil
-import no.nav.familie.ks.sak.common.tidslinje.TidslinjePeriode
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.klipp
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.kombinerMed
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.tilPerioder
@@ -36,6 +35,7 @@ import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
+import java.time.LocalDate
 
 class BegrunnelserForPeriodeContext(
     private val utvidetVedtaksperiodeMedBegrunnelser: UtvidetVedtaksperiodeMedBegrunnelser,
@@ -338,8 +338,8 @@ class BegrunnelserForPeriodeContext(
                 val perioderMedVilkårForPerson = vilkårResultatTidslinjeForPerson.tilPerioder()
                 val månedenFørVedtaksperioden = vedtaksperiode.fom.minusMonths(1)
 
-                val vilkårResultaterForrigeMåned = perioderMedVilkårForPerson.singleOrNull { it.fom != null && it.fom <= månedenFørVedtaksperioden && (it.tom == null || it.tom >= månedenFørVedtaksperioden) }?.verdi ?: emptyList()
-                val vilkårResultaterDenneMåneden = perioderMedVilkårForPerson.singleOrNull { it.fom != null && it.fom <= vedtaksperiode.fom && (it.tom == null || it.tom >= vedtaksperiode.fom) }?.verdi ?: emptyList()
+                val vilkårResultaterForrigeMåned = perioderMedVilkårForPerson.tilInnoldForMåned(månedenFørVedtaksperioden)
+                val vilkårResultaterDenneMåneden = perioderMedVilkårForPerson.tilInnoldForMåned(vedtaksperiode.fom)
 
                 val oppfylteVilkårForrigeMåned = vilkårResultaterForrigeMåned.filter { it.erOppfylt() || it.erIkkeAktuelt() }
 
@@ -363,7 +363,7 @@ class BegrunnelserForPeriodeContext(
             }.toMap()
             .filterValues { it.isNotEmpty() }
 
-    private fun List<TidslinjePeriode<List<VilkårResultat>>>.tilInnoldIPerioden(): List<VilkårResultat> = this.lastOrNull()?.periodeVerdi?.verdi ?: emptyList()
+    private fun List<no.nav.familie.ks.sak.common.tidslinje.Periode<List<VilkårResultat>?>>.tilInnoldForMåned(dato: LocalDate?): List<VilkårResultat> = this.singleOrNull { it.fom != null && it.fom <= dato && (it.tom == null || it.tom >= dato) }?.verdi ?: emptyList()
 
     private fun Aktør.hentPerson() = (
         personopplysningGrunnlag.personer.singleOrNull { it.aktør.aktivFødselsnummer() == aktivFødselsnummer() }
