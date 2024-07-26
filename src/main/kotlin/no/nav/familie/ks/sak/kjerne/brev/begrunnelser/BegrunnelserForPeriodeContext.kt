@@ -2,10 +2,9 @@ package no.nav.familie.ks.sak.kjerne.brev.begrunnelser
 
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.tidslinje.TidslinjePeriode
-import no.nav.familie.ks.sak.common.tidslinje.tilPeriodeVerdi
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.klipp
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.kombinerMed
-import no.nav.familie.ks.sak.common.tidslinje.utvidelser.konverterTilMåned
+import no.nav.familie.ks.sak.common.tidslinje.utvidelser.tilPerioder
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.tilPerioderIkkeNull
 import no.nav.familie.ks.sak.common.util.Periode
 import no.nav.familie.ks.sak.common.util.TIDENES_ENDE
@@ -336,34 +335,21 @@ class BegrunnelserForPeriodeContext(
             .tilForskjøvetVilkårResultatTidslinjeMap(personopplysningGrunnlag)
             .mapKeys { (aktør, _) -> aktør.hentPerson() }
             .mapNotNull { (person, vilkårResultatTidslinjeForPerson) ->
+                val perioderMedVilkårForPerson = vilkårResultatTidslinjeForPerson.tilPerioder()
+                val månedenFørVedtaksperioden = vedtaksperiode.fom.minusMonths(1)
 
-                val tidslinjeMedVilkårSomSluttetMånedenFør =
-                    vilkårResultatTidslinjeForPerson
-                        .klipp(vedtaksperiode.fom.minusMonths(1), vedtaksperiode.fom)
-                        .konverterTilMåned(antallMndBakoverITid = 1) { _, vindu ->
-                            val forrigeMåned = vindu[0]
-                            val denneMåneden = vindu[1]
-                            val oppfylteVilkårForrigeMåned =
-                                forrigeMåned.tilInnoldIPerioden().filter { it.erOppfylt() || it.erIkkeAktuelt() }
+                val vilkårResultaterForrigeMåned = perioderMedVilkårForPerson.singleOrNull { it.fom != null && it.fom <= månedenFørVedtaksperioden && (it.tom == null || it.tom >= månedenFørVedtaksperioden) }?.verdi ?: emptyList()
+                val vilkårResultaterDenneMåneden = perioderMedVilkårForPerson.singleOrNull { it.fom != null && it.fom <= vedtaksperiode.fom && (it.tom == null || it.tom >= vedtaksperiode.fom) }?.verdi ?: emptyList()
 
-                            val vilkårSomSluttetMånedenFør =
-                                oppfylteVilkårForrigeMåned
-                                    .filter { vilkårResultatFraForrigeMåned ->
-                                        val tilsvarendeVilkårDennePerioden =
-                                            denneMåneden
-                                                .tilInnoldIPerioden()
-                                                .filter { it.vilkårType == vilkårResultatFraForrigeMåned.vilkårType && it.resultat == vilkårResultatFraForrigeMåned.resultat }
-
-                                        val vilkårSluttetMånedenFør = tilsvarendeVilkårDennePerioden.isEmpty()
-                                        vilkårSluttetMånedenFør
-                                    }.tilPeriodeVerdi()
-                            vilkårSomSluttetMånedenFør
-                        }.tilPerioderIkkeNull()
+                val oppfylteVilkårForrigeMåned = vilkårResultaterForrigeMåned.filter { it.erOppfylt() || it.erIkkeAktuelt() }
 
                 val vilkårSomSlutterMånedenFørDenneVedtaksperioden =
-                    tidslinjeMedVilkårSomSluttetMånedenFør
-                        .filter { it.fom == vedtaksperiode.fom }
-                        .flatMap { it.verdi }
+                    oppfylteVilkårForrigeMåned.filter { vilkårResultatForrigeMåned ->
+                        val tilsvarendeVilkårDennePerioden = vilkårResultaterDenneMåneden.filter { it.vilkårType == vilkårResultatForrigeMåned.vilkårType && it.resultat == vilkårResultatForrigeMåned.resultat }
+                        val vilkårSluttetMånedenFørVedtaksperioden = tilsvarendeVilkårDennePerioden.isEmpty()
+
+                        vilkårSluttetMånedenFørVedtaksperioden
+                    }
 
                 val vilkårSomIkkeErOppfyltFraOgMedDennePerioden = personResultater.find { it.aktør == person.aktør }?.vilkårResultater?.filter { it.periodeFom == vedtaksperiode.fom } ?: emptyList()
 
