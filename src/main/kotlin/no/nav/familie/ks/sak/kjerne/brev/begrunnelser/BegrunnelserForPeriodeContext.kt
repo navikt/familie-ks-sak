@@ -1,9 +1,9 @@
 package no.nav.familie.ks.sak.kjerne.brev.begrunnelser
 
 import no.nav.familie.ks.sak.common.exception.Feil
-import no.nav.familie.ks.sak.common.tidslinje.Tidslinje
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.klipp
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.kombinerMed
+import no.nav.familie.ks.sak.common.tidslinje.utvidelser.tilPerioder
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.tilPerioderIkkeNull
 import no.nav.familie.ks.sak.common.util.Periode
 import no.nav.familie.ks.sak.common.util.TIDENES_ENDE
@@ -35,6 +35,7 @@ import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
+import java.time.LocalDate
 
 class BegrunnelserForPeriodeContext(
     private val utvidetVedtaksperiodeMedBegrunnelser: UtvidetVedtaksperiodeMedBegrunnelser,
@@ -330,43 +331,39 @@ class BegrunnelserForPeriodeContext(
         }.toMap()
 
     private fun finnPersonerMedVilkårResultatIFørsteVedtaksperiodeSomIkkeErOppfylt(): Map<Person, List<VilkårResultat>> =
-        personResultater.tilForskjøvetVilkårResultatTidslinjeMap(personopplysningGrunnlag)
+        personResultater
+            .tilForskjøvetVilkårResultatTidslinjeMap(personopplysningGrunnlag)
             .mapKeys { (aktør, _) -> aktør.hentPerson() }
             .mapNotNull { (person, vilkårResultatTidslinjeForPerson) ->
-                val forskjøvedeVilkårResultaterSomIkkeErOppfyltEllerMistetIPeriode =
-                    vilkårResultatTidslinjeForPerson.klipp(vedtaksperiode.fom, vedtaksperiode.tom).tilPerioderIkkeNull()
-                        .singleOrNull()
-                        ?.verdi
-                        ?.takeIf { vilkårResultater ->
-                            val erAlleVilkårOppfylt = vilkårResultater.all { it.erOppfylt() || it.erIkkeAktuelt() }
-                            val erVilkårResultatSomOpphørerRettFørPeriode =
-                                vilkårResultater.any { it.erOppfylt() && it.periodeTom?.toYearMonth() == vedtaksperiode.fom.toYearMonth() }
+                val perioderMedVilkårForPerson = vilkårResultatTidslinjeForPerson.tilPerioder()
+                val månedenFørVedtaksperioden = vedtaksperiode.fom.minusMonths(1)
 
-                            !erAlleVilkårOppfylt || erVilkårResultatSomOpphørerRettFørPeriode
-                        } ?: emptyList()
+                val vilkårResultaterForrigeMåned = perioderMedVilkårForPerson.tilInnoldForMåned(månedenFørVedtaksperioden)
+                val vilkårResultaterDenneMåneden = perioderMedVilkårForPerson.tilInnoldForMåned(vedtaksperiode.fom)
 
-                val forskjøvedeVilkårResultaterSomOpphørerFraForrigePeriode = vilkårResultatTidslinjeForPerson.finnVilkårResultaterSomOpphørerRettFørPeriode()
+                val oppfylteVilkårForrigeMåned = vilkårResultaterForrigeMåned.filter { it.erOppfylt() || it.erIkkeAktuelt() }
 
-                val forskjøvedeVilkårResultaterSomIkkeErOppfylt = forskjøvedeVilkårResultaterSomIkkeErOppfyltEllerMistetIPeriode + forskjøvedeVilkårResultaterSomOpphørerFraForrigePeriode
+                val vilkårSomSlutterMånedenFørDenneVedtaksperioden =
+                    oppfylteVilkårForrigeMåned.filter { vilkårResultatForrigeMåned ->
+                        val tilsvarendeVilkårDennePerioden = vilkårResultaterDenneMåneden.filter { it.vilkårType == vilkårResultatForrigeMåned.vilkårType && it.resultat == vilkårResultatForrigeMåned.resultat }
+                        val vilkårSluttetMånedenFørVedtaksperioden = tilsvarendeVilkårDennePerioden.isEmpty()
 
-                if (forskjøvedeVilkårResultaterSomIkkeErOppfylt.isNotEmpty()) {
-                    Pair(person, forskjøvedeVilkårResultaterSomIkkeErOppfylt)
+                        vilkårSluttetMånedenFørVedtaksperioden
+                    }
+
+                val vilkårSomIkkeErOppfyltFraOgMedDennePerioden = personResultater.find { it.aktør == person.aktør }?.vilkårResultater?.filter { it.periodeFom?.toYearMonth() == vedtaksperiode.fom.toYearMonth() } ?: emptyList()
+
+                val vilkårSomIkkeErOppfyltEllerSlutterMånedenFør = vilkårSomSlutterMånedenFørDenneVedtaksperioden + vilkårSomIkkeErOppfyltFraOgMedDennePerioden
+
+                if (vilkårSomIkkeErOppfyltEllerSlutterMånedenFør.isNotEmpty()) {
+                    Pair(person, vilkårSomIkkeErOppfyltEllerSlutterMånedenFør)
                 } else {
                     null
                 }
-            }.toMap().filterValues { it.isNotEmpty() }
+            }.toMap()
+            .filterValues { it.isNotEmpty() }
 
-    private fun Tidslinje<List<VilkårResultat>>.finnVilkårResultaterSomOpphørerRettFørPeriode(): List<VilkårResultat> {
-        val forrigePeriode =
-            tilPerioderIkkeNull()
-                .singleOrNull { it.tom?.plusDays(1) == vedtaksperiode.fom }
-
-        return forrigePeriode?.verdi?.filter { vilkårResultat ->
-            vilkårResultat.periodeTom != null &&
-                forrigePeriode.fom != null &&
-                vilkårResultat.periodeTom!!.toYearMonth() == vedtaksperiode.fom.toYearMonth()
-        } ?: emptyList()
-    }
+    private fun List<no.nav.familie.ks.sak.common.tidslinje.Periode<List<VilkårResultat>?>>.tilInnoldForMåned(dato: LocalDate?): List<VilkårResultat> = this.singleOrNull { it.fom != null && it.fom <= dato && (it.tom == null || it.tom >= dato) }?.verdi ?: emptyList()
 
     private fun Aktør.hentPerson() = (
         personopplysningGrunnlag.personer.singleOrNull { it.aktør.aktivFødselsnummer() == aktivFødselsnummer() }
