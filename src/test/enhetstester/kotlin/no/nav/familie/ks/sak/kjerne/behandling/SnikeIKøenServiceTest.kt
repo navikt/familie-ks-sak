@@ -5,6 +5,7 @@ import io.mockk.just
 import io.mockk.mockk
 import io.mockk.runs
 import io.mockk.verify
+import no.nav.familie.ks.sak.common.util.LocalDateTimeProvider
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagBehandlingStegTilstand
 import no.nav.familie.ks.sak.data.lagFagsak
@@ -16,19 +17,17 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingStegStatus
 import no.nav.familie.ks.sak.kjerne.behandling.steg.VenteÅrsak
 import no.nav.familie.ks.sak.kjerne.logg.LoggService
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.EnumSource
-import java.time.Clock
-import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
-import java.time.ZoneId
 
 class SnikeIKøenServiceTest {
-    private val clock = Clock.fixed(Instant.parse("2024-01-01T18:00:00.00Z"), ZoneId.of("Europe/Oslo"))
+    private val localDateTimeProvider: LocalDateTimeProvider = mockk()
     private val behandlingRepository: BehandlingRepository = mockk()
     private val loggService: LoggService = mockk(relaxed = true)
     private val tilbakestillBehandlingService: TilbakestillBehandlingService = mockk(relaxed = true)
@@ -38,8 +37,15 @@ class SnikeIKøenServiceTest {
             behandlingRepository = behandlingRepository,
             loggService = loggService,
             tilbakestillBehandlingService = tilbakestillBehandlingService,
-            clock,
+            localDateTimeProvider = localDateTimeProvider,
         )
+
+    private val dagensDato = LocalDateTime.of(2024, 1, 1, 18, 0)
+
+    @BeforeEach
+    fun setUp() {
+        every { localDateTimeProvider.now() } returns dagensDato
+    }
 
     @Nested
     inner class SettAktivBehandlingPåMaskinellVentTest {
@@ -483,7 +489,11 @@ class SnikeIKøenServiceTest {
         @Test
         fun `skal ikke kunne snike i køen om EndretTidspunkt på behandlingen er mindre enn 4 timer siden`() {
             // Arrange
-            val endretTidspunkt = LocalDateTime.now(clock).minusHours(3).minusMinutes(59).minusSeconds(59)
+            val endretTidspunkt =
+                dagensDato
+                    .minusHours(3)
+                    .minusMinutes(59)
+                    .minusSeconds(59)
 
             val behandling =
                 lagBehandling(
@@ -502,13 +512,18 @@ class SnikeIKøenServiceTest {
             // Arrange
             val behandling =
                 lagBehandling(
-                    endretTidspunkt = LocalDateTime.now(clock).minusHours(4),
+                    endretTidspunkt = dagensDato.minusHours(4),
                 )
 
             val logg =
                 lagLogg(
                     behandlingId = behandling.id,
-                    opprettetTidspunkt = LocalDateTime.now().minusHours(3).minusMinutes(59).minusSeconds(59),
+                    opprettetTidspunkt =
+                        LocalDateTime
+                            .now()
+                            .minusHours(3)
+                            .minusMinutes(59)
+                            .minusSeconds(59),
                 )
 
             every { loggService.hentLoggForBehandling(behandling.id) } returns listOf(logg)
@@ -525,13 +540,13 @@ class SnikeIKøenServiceTest {
             // Arrange
             val behandling =
                 lagBehandling(
-                    endretTidspunkt = LocalDateTime.now(clock).minusHours(4),
+                    endretTidspunkt = dagensDato.minusHours(4),
                 )
 
             val logg =
                 lagLogg(
                     behandlingId = behandling.id,
-                    opprettetTidspunkt = LocalDateTime.now(clock).minusHours(4),
+                    opprettetTidspunkt = dagensDato.minusHours(4),
                 )
 
             every { loggService.hentLoggForBehandling(behandling.id) } returns listOf(logg)
