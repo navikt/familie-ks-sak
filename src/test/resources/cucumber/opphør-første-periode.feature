@@ -114,3 +114,48 @@ Egenskap: Opphør første periode
     Så forvent følgende brevbegrunnelser for behandling 2 i periode 01.12.2023 til 30.11.2024
       | Begrunnelse                          | Type     | Gjelder søker | Antall barn | Måned og år begrunnelsen gjelder for | Beløp | Gjelder andre forelder | Antall timer barnehageplass |
       | OPPHØR_FRA_START_IKKE_BOSATT_I_NORGE | STANDARD | Ja            | 0           | desember 2023                        | 0     | false                  |                             |
+
+  Scenario: Når det er ikke oppfylt fra første periode på revurdering ønsker vi å få opp riktige begrunnelser
+    Og følgende dagens dato 14.02.2024
+
+    Og følgende vilkårresultater for behandling 1
+      | AktørId | Vilkår                       | Utdypende vilkår | Fra dato   | Til dato   | Resultat | Er eksplisitt avslag | Standardbegrunnelser | Vurderes etter   |
+      | 1       | BOSATT_I_RIKET               |                  | 15.03.2010 |            | OPPFYLT  | Nei                  |                      | NASJONALE_REGLER |
+      | 1       | MEDLEMSKAP                   |                  | 15.10.2018 |            | OPPFYLT  | Nei                  |                      | NASJONALE_REGLER |
+
+      | 2       | MEDLEMSKAP_ANNEN_FORELDER    |                  | 01.12.2008 |            | OPPFYLT  | Nei                  |                      | NASJONALE_REGLER |
+      | 2       | BOSATT_I_RIKET,BOR_MED_SØKER |                  | 25.08.2022 |            | OPPFYLT  | Nei                  |                      | NASJONALE_REGLER |
+      | 2       | BARNEHAGEPLASS               |                  | 25.08.2022 |            | OPPFYLT  | Nei                  |                      |                  |
+      | 2       | BARNETS_ALDER                |                  | 25.08.2023 | 25.08.2024 | OPPFYLT  | Nei                  |                      |                  |
+
+    Og følgende vilkårresultater for behandling 2
+      | AktørId | Vilkår                       | Utdypende vilkår | Fra dato   | Til dato   | Resultat     | Er eksplisitt avslag | Standardbegrunnelser | Vurderes etter   |
+      | 1       | BOSATT_I_RIKET               |                  | 15.03.2010 |            | OPPFYLT      | Nei                  |                      | NASJONALE_REGLER |
+      | 1       | MEDLEMSKAP                   |                  | 15.09.2023 |            | IKKE_OPPFYLT | Nei                  |                      | NASJONALE_REGLER |
+
+      | 2       | MEDLEMSKAP_ANNEN_FORELDER    |                  | 01.12.2008 |            | OPPFYLT      | Nei                  |                      | NASJONALE_REGLER |
+      | 2       | BOSATT_I_RIKET,BOR_MED_SØKER |                  | 25.08.2022 |            | OPPFYLT      | Nei                  |                      | NASJONALE_REGLER |
+      | 2       | BARNEHAGEPLASS               |                  | 25.08.2022 |            | OPPFYLT      | Nei                  |                      |                  |
+      | 2       | BARNETS_ALDER                |                  | 25.08.2023 | 25.08.2024 | OPPFYLT      | Nei                  |                      |                  |
+
+    Og andeler er beregnet for behandling 1
+
+    Og andeler er beregnet for behandling 2
+
+    Og vedtaksperioder er laget for behandling 2
+
+    Så forvent at følgende begrunnelser er gyldige for behandling 2
+      | Fra dato   | Til dato   | VedtaksperiodeType | Regelverk Gyldige begrunnelser | Gyldige begrunnelser                                                                                                                                                                                          | Ugyldige begrunnelser |
+      | 01.09.2023 | 31.08.2024 | OPPHØR             |                                | OPPHØR_IKKE_MEDLEM_I_FOLKETRYGDEN_I_5_ÅR, OPPHØR_VURDERING_IKKE_MEDLEM_I_FOLKETRYGDEN_I_5_ÅR, OPPHØR_IKKE_MEDLEM_FOLKETRYGDEN_ELLER_EOS_I_5_ÅR, OPPHØR_VURDERING_IKKE_MEDLEM_I_FOLKETRYGDEN_ELLER_EØS_I_5_AAR |                       |
+
+    Og når disse begrunnelsene er valgt for behandling 2
+      | Fra dato   | Til dato   | Standardbegrunnelser                                                                                                                                                                                          | Eøsbegrunnelser | Fritekster |
+      | 01.09.2023 | 31.08.2024 | OPPHØR_IKKE_MEDLEM_I_FOLKETRYGDEN_I_5_ÅR, OPPHØR_VURDERING_IKKE_MEDLEM_I_FOLKETRYGDEN_I_5_ÅR, OPPHØR_IKKE_MEDLEM_FOLKETRYGDEN_ELLER_EOS_I_5_ÅR, OPPHØR_VURDERING_IKKE_MEDLEM_I_FOLKETRYGDEN_ELLER_EØS_I_5_AAR |                 |            |
+
+
+    Så forvent følgende brevbegrunnelser for behandling 2 i periode 01.09.2023 til 31.08.2024
+      | Begrunnelse                                                   | Type     | Antall barn | Gjelder søker | Beløp | Måned og år begrunnelsen gjelder for | Gjelder andre forelder |
+      | OPPHØR_IKKE_MEDLEM_I_FOLKETRYGDEN_I_5_ÅR                      | STANDARD | 0           | ja            | 0     | september 2023                       | false                  |
+      | OPPHØR_VURDERING_IKKE_MEDLEM_I_FOLKETRYGDEN_I_5_ÅR            | STANDARD | 0           | ja            | 0     | september 2023                       | false                  |
+      | OPPHØR_IKKE_MEDLEM_FOLKETRYGDEN_ELLER_EOS_I_5_ÅR              | STANDARD | 0           | ja            | 0     | september 2023                       | false                  |
+      | OPPHØR_VURDERING_IKKE_MEDLEM_I_FOLKETRYGDEN_ELLER_EØS_I_5_AAR | STANDARD | 0           | ja            | 0     | september 2023                       | false                  |
