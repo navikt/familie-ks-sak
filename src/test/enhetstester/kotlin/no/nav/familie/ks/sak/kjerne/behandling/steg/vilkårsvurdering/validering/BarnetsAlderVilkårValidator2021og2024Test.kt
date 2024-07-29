@@ -35,6 +35,6 @@ class BarnetsAlderVilkårValidator2021og2024Test {
 
         // Assert
         Assertions.assertThat(validerBarnetsAlderVilkår).hasSize(1)
-        Assertions.assertThat(validerBarnetsAlderVilkår[0]).isEqualTo("Vilkåret for barnets alder må splittes i to perioder fordi den strekker seg over lovendringen 01.08.2024. Henlegg denne behandlingen og opprett en ny behandling. I den nye behandlingen vil splitten dannes automatisk")
+        Assertions.assertThat(validerBarnetsAlderVilkår[0]).isEqualTo("Vilkåret for barnets alder må splittes i to perioder fordi den strekker seg over lovendringen 01.08.2024. Henlegg denne behandlingen og opprett en ny behandling. I den nye behandlingen vil splitten dannes automatisk.")
     }
 }
