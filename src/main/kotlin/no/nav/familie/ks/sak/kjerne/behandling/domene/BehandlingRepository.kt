@@ -119,11 +119,13 @@ interface BehandlingRepository : JpaRepository<Behandling, Long> {
                               WHERE b2.fk_fagsak_id = b.fk_fagsak_id
                                 AND vr.soker_har_meldt_fra_om_barnehageplass = true
                                 AND EXTRACT(MONTH FROM vr.periode_tom) = 8)
+                                AND EXTRACT(YEAR FROM vr.periode_fom) = 2024
               AND NOT EXISTS (SELECT 1
                               FROM behandling b2
                                        INNER JOIN vilkar_resultat vr ON vr.fk_behandling_id = b2.id
                               WHERE b2.fk_fagsak_id = b.fk_fagsak_id
                                 AND EXTRACT(MONTH FROM vr.periode_fom) = 8
+                                AND EXTRACT(YEAR FROM vr.periode_fom) = 2024
                                 AND vr.resultat = 'IKKE_OPPFYLT')
               AND ty.utbetalingsoppdrag IS NOT NULL
               AND b.status = 'AVSLUTTET';
