@@ -13,7 +13,7 @@ plugins {
     id("com.github.davidmc24.gradle.plugin.avro") version "1.9.1"
 
     // ------------- SLSA -------------- //
-    id("org.cyclonedx.bom") version "1.8.2"
+    id("org.cyclonedx.bom") version "1.9.0"
 }
 
 configurations {
@@ -45,9 +45,9 @@ repositories {
 
 dependencies {
 
-    val springdocVersion = "2.5.0"
-    val sentryVersion = "7.10.0"
-    val navFellesVersion = "3.20240515152313_9dd5659"
+    val springdocVersion = "2.6.0"
+    val sentryVersion = "7.12.1"
+    val navFellesVersion = "3.20240715145751_fc025c1"
     val eksterneKontrakterBisysVersion = "2.0_20230214104704_706e9c0"
     val fellesKontrakterVersion = "3.0_20240722091153_6e40a2c"
     val familieKontrakterSaksstatistikkVersion = "2.0_20230214104704_706e9c0"
@@ -55,9 +55,9 @@ dependencies {
     val tokenValidationSpringVersion = "5.0.1"
     val navFoedselsnummerVersion = "1.0-SNAPSHOT.6"
     val prosesseringVersion = "2.20240603145215_c56e179"
-    val restAssuredVersion = "5.4.0"
+    val restAssuredVersion = "5.5.0"
     val kotlinxVersion = "1.8.1"
-    val utbetalingsgeneratorVersion = "1.0_20240624093832_8242223"
+    val utbetalingsgeneratorVersion = "1.0_20240729145155_57174aa"
 
     // ---------- Spring ---------- \\
     implementation("org.springframework.boot:spring-boot-starter")
@@ -87,7 +87,7 @@ dependencies {
 
     // ----------- AVRO ---------\\
     implementation("org.apache.avro:avro:1.11.3")
-    implementation("io.confluent:kafka-avro-serializer:7.6.1")
+    implementation("io.confluent:kafka-avro-serializer:7.7.0")
     implementation("org.eclipse.jetty:jetty-server")
 
     // ---- Junit og Cucumber ---- \\
@@ -144,7 +144,7 @@ dependencies {
     testImplementation("org.springframework.cloud:spring-cloud-contract-wiremock:4.1.3")
     testImplementation("io.rest-assured:spring-mock-mvc:$restAssuredVersion")
     testImplementation("io.rest-assured:kotlin-extensions:$restAssuredVersion")
-    testImplementation("org.testcontainers:postgresql:1.19.8")
+    testImplementation("org.testcontainers:postgresql:1.20.0")
     testImplementation("no.nav.security:mock-oauth2-server:2.1.8")
     testImplementation("no.nav.security:token-validation-test-support:2.0.5")
     testImplementation("no.nav.security:token-validation-spring-test:$tokenValidationSpringVersion")
@@ -189,6 +189,11 @@ val ktlintCheck by tasks.registering(JavaExec::class) {
 
 tasks.check {
     dependsOn(ktlintCheck)
+}
+
+tasks.cyclonedxBom {
+    setIncludeConfigs(listOf("runtimeClasspath"))
+    setSkipConfigs(listOf("compileClasspath", "testCompileClasspath"))
 }
 
 tasks.register<JavaExec>("ktlintFormat") {
