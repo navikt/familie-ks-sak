@@ -57,7 +57,7 @@ dependencies {
     val prosesseringVersion = "2.20240603145215_c56e179"
     val restAssuredVersion = "5.5.0"
     val kotlinxVersion = "1.8.1"
-    val utbetalingsgeneratorVersion = "1.0_20240624093832_8242223"
+    val utbetalingsgeneratorVersion = "1.0_20240729145155_57174aa"
 
     // ---------- Spring ---------- \\
     implementation("org.springframework.boot:spring-boot-starter")
@@ -189,6 +189,11 @@ val ktlintCheck by tasks.registering(JavaExec::class) {
 
 tasks.check {
     dependsOn(ktlintCheck)
+}
+
+tasks.cyclonedxBom {
+    setIncludeConfigs(listOf("runtimeClasspath"))
+    setSkipConfigs(listOf("compileClasspath", "testCompileClasspath"))
 }
 
 tasks.register<JavaExec>("ktlintFormat") {
