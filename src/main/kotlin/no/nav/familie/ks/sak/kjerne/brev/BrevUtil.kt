@@ -41,16 +41,18 @@ fun hentVedtaksbrevtype(
     val feilmelidingBehandlingType =
         "Brev ikke støttet for behandlingstype=$behandlingType"
     val frontendFeilmelding =
-        "Vi finner ikke vedtaksbrev som matcher med behandlingen og resultatet du har fått. " +
-            "Ta kontakt med Team BAKS slik at vi kan se nærmere på saken."
+        "Vi finner ikke vedtaksbrev som matcher med behandlingen og resultatet du har fått. " + "Ta kontakt med Team BAKS slik at vi kan se nærmere på saken."
 
     return when (behandlingType) {
         BehandlingType.FØRSTEGANGSBEHANDLING ->
             when (behandlingsresultat) {
                 Behandlingsresultat.INNVILGET,
                 Behandlingsresultat.INNVILGET_OG_OPPHØRT,
+                Behandlingsresultat.INNVILGET_OG_ENDRET,
                 Behandlingsresultat.DELVIS_INNVILGET,
                 Behandlingsresultat.DELVIS_INNVILGET_OG_OPPHØRT,
+                Behandlingsresultat.DELVIS_INNVILGET_OG_ENDRET,
+                Behandlingsresultat.DELVIS_INNVILGET_ENDRET_OG_OPPHØRT,
                 -> Brevmal.VEDTAK_FØRSTEGANGSVEDTAK
 
                 Behandlingsresultat.AVSLÅTT -> Brevmal.VEDTAK_AVSLAG
@@ -110,8 +112,7 @@ fun hentHjemmeltekst(
 ): String {
     val ordinæreHjemler =
         hentOrdinæreHjemler(
-            hjemler =
-                sanitybegrunnelserBruktIBrev.flatMap { it.hjemler }.toMutableSet(),
+            hjemler = sanitybegrunnelserBruktIBrev.flatMap { it.hjemler }.toMutableSet(),
             opplysningspliktHjemlerSkalMedIBrev = opplysningspliktHjemlerSkalMedIBrev,
         )
 
@@ -239,6 +240,7 @@ fun hjemlerTilHjemmeltekst(
         0 -> throw Feil(
             "Kan ikke lage hjemmeltekst for $lovForHjemmel når ingen begrunnelser har hjemler fra $lovForHjemmel knyttet til seg.",
         )
+
         1 -> "§ ${hjemler[0]}"
         else -> "§§ ${slåSammen(hjemler)}"
     }
