@@ -4,8 +4,8 @@ plugins {
     val kotlinVersion = "1.9.24"
     kotlin("jvm") version kotlinVersion
 
-    id("org.springframework.boot") version "3.3.1"
-    id("io.spring.dependency-management") version "1.1.5"
+    id("org.springframework.boot") version "3.3.2"
+    id("io.spring.dependency-management") version "1.1.6"
     id("org.jetbrains.kotlin.plugin.spring") version kotlinVersion
     id("org.jetbrains.kotlin.plugin.jpa") version kotlinVersion
     id("org.jetbrains.kotlin.plugin.allopen") version kotlinVersion
@@ -93,7 +93,7 @@ dependencies {
     // ---- Junit og Cucumber ---- \\
 
     testImplementation(platform("org.junit:junit-bom:5.10.3"))
-    testImplementation(platform("io.cucumber:cucumber-bom:7.18.0"))
+    testImplementation(platform("io.cucumber:cucumber-bom:7.18.1"))
 
     testImplementation("io.cucumber:cucumber-java")
     testImplementation("io.cucumber:cucumber-junit-platform-engine")
@@ -122,7 +122,7 @@ dependencies {
     implementation("nav-foedselsnummer:core:$navFoedselsnummerVersion")
 
     implementation("com.papertrailapp:logback-syslog4j:1.0.0")
-    implementation("io.getunleash:unleash-client-java:9.2.2")
+    implementation("io.getunleash:unleash-client-java:9.2.4")
     implementation("io.sentry:sentry-spring-boot-starter-jakarta:$sentryVersion")
     implementation("io.sentry:sentry-logback:$sentryVersion")
     implementation("io.micrometer:micrometer-registry-prometheus")
@@ -136,12 +136,12 @@ dependencies {
         }
     }
 
-    testImplementation("io.mockk:mockk:1.13.11")
+    testImplementation("io.mockk:mockk:1.13.12")
     testImplementation("com.ninja-squad:springmockk:4.0.2") {
         exclude(module = "mockito-core")
     }
     testImplementation("org.springframework.boot:spring-boot-starter-test")
-    testImplementation("org.springframework.cloud:spring-cloud-contract-wiremock:4.1.3")
+    testImplementation("org.springframework.cloud:spring-cloud-contract-wiremock:4.1.4")
     testImplementation("io.rest-assured:spring-mock-mvc:$restAssuredVersion")
     testImplementation("io.rest-assured:kotlin-extensions:$restAssuredVersion")
     testImplementation("org.testcontainers:postgresql:1.20.0")
