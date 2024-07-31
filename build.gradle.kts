@@ -4,8 +4,8 @@ plugins {
     val kotlinVersion = "1.9.24"
     kotlin("jvm") version kotlinVersion
 
-    id("org.springframework.boot") version "3.3.1"
-    id("io.spring.dependency-management") version "1.1.5"
+    id("org.springframework.boot") version "3.3.2"
+    id("io.spring.dependency-management") version "1.1.6"
     id("org.jetbrains.kotlin.plugin.spring") version kotlinVersion
     id("org.jetbrains.kotlin.plugin.jpa") version kotlinVersion
     id("org.jetbrains.kotlin.plugin.allopen") version kotlinVersion
@@ -13,7 +13,7 @@ plugins {
     id("com.github.davidmc24.gradle.plugin.avro") version "1.9.1"
 
     // ------------- SLSA -------------- //
-    id("org.cyclonedx.bom") version "1.8.2"
+    id("org.cyclonedx.bom") version "1.9.0"
 }
 
 configurations {
@@ -45,9 +45,9 @@ repositories {
 
 dependencies {
 
-    val springdocVersion = "2.5.0"
-    val sentryVersion = "7.10.0"
-    val navFellesVersion = "3.20240515152313_9dd5659"
+    val springdocVersion = "2.6.0"
+    val sentryVersion = "7.12.1"
+    val navFellesVersion = "3.20240715145751_fc025c1"
     val eksterneKontrakterBisysVersion = "2.0_20230214104704_706e9c0"
     val fellesKontrakterVersion = "3.0_20240731134554_8101d8c"
     val familieKontrakterSaksstatistikkVersion = "2.0_20230214104704_706e9c0"
@@ -55,9 +55,9 @@ dependencies {
     val tokenValidationSpringVersion = "5.0.1"
     val navFoedselsnummerVersion = "1.0-SNAPSHOT.6"
     val prosesseringVersion = "2.20240603145215_c56e179"
-    val restAssuredVersion = "5.4.0"
+    val restAssuredVersion = "5.5.0"
     val kotlinxVersion = "1.8.1"
-    val utbetalingsgeneratorVersion = "1.0_20240624093832_8242223"
+    val utbetalingsgeneratorVersion = "1.0_20240729145155_57174aa"
 
     // ---------- Spring ---------- \\
     implementation("org.springframework.boot:spring-boot-starter")
@@ -87,13 +87,13 @@ dependencies {
 
     // ----------- AVRO ---------\\
     implementation("org.apache.avro:avro:1.11.3")
-    implementation("io.confluent:kafka-avro-serializer:7.6.1")
+    implementation("io.confluent:kafka-avro-serializer:7.7.0")
     implementation("org.eclipse.jetty:jetty-server")
 
     // ---- Junit og Cucumber ---- \\
 
     testImplementation(platform("org.junit:junit-bom:5.10.3"))
-    testImplementation(platform("io.cucumber:cucumber-bom:7.18.0"))
+    testImplementation(platform("io.cucumber:cucumber-bom:7.18.1"))
 
     testImplementation("io.cucumber:cucumber-java")
     testImplementation("io.cucumber:cucumber-junit-platform-engine")
@@ -122,7 +122,7 @@ dependencies {
     implementation("nav-foedselsnummer:core:$navFoedselsnummerVersion")
 
     implementation("com.papertrailapp:logback-syslog4j:1.0.0")
-    implementation("io.getunleash:unleash-client-java:9.2.2")
+    implementation("io.getunleash:unleash-client-java:9.2.4")
     implementation("io.sentry:sentry-spring-boot-starter-jakarta:$sentryVersion")
     implementation("io.sentry:sentry-logback:$sentryVersion")
     implementation("io.micrometer:micrometer-registry-prometheus")
@@ -136,15 +136,15 @@ dependencies {
         }
     }
 
-    testImplementation("io.mockk:mockk:1.13.11")
+    testImplementation("io.mockk:mockk:1.13.12")
     testImplementation("com.ninja-squad:springmockk:4.0.2") {
         exclude(module = "mockito-core")
     }
     testImplementation("org.springframework.boot:spring-boot-starter-test")
-    testImplementation("org.springframework.cloud:spring-cloud-contract-wiremock:4.1.3")
+    testImplementation("org.springframework.cloud:spring-cloud-contract-wiremock:4.1.4")
     testImplementation("io.rest-assured:spring-mock-mvc:$restAssuredVersion")
     testImplementation("io.rest-assured:kotlin-extensions:$restAssuredVersion")
-    testImplementation("org.testcontainers:postgresql:1.19.8")
+    testImplementation("org.testcontainers:postgresql:1.20.0")
     testImplementation("no.nav.security:mock-oauth2-server:2.1.8")
     testImplementation("no.nav.security:token-validation-test-support:2.0.5")
     testImplementation("no.nav.security:token-validation-spring-test:$tokenValidationSpringVersion")
@@ -189,6 +189,11 @@ val ktlintCheck by tasks.registering(JavaExec::class) {
 
 tasks.check {
     dependsOn(ktlintCheck)
+}
+
+tasks.cyclonedxBom {
+    setIncludeConfigs(listOf("runtimeClasspath"))
+    setSkipConfigs(listOf("compileClasspath", "testCompileClasspath"))
 }
 
 tasks.register<JavaExec>("ktlintFormat") {
