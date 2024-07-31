@@ -16,8 +16,8 @@ import no.nav.familie.ks.sak.kjerne.beregning.domene.hentProsentForAntallTimer
 import java.math.BigDecimal
 import java.time.LocalDate
 
-fun List<VilkårResultat>.forskyvBarnehageplassVilkår(): List<Periode<VilkårResultat>> {
-    return tilBarnehageplassVilkårMedGraderingsforskjellMellomPerioder()
+fun List<VilkårResultat>.forskyvBarnehageplassVilkår(): List<Periode<VilkårResultat>> =
+    tilBarnehageplassVilkårMedGraderingsforskjellMellomPerioder()
         .map {
             Periode(
                 verdi = it.vilkårResultat,
@@ -30,7 +30,6 @@ fun List<VilkårResultat>.forskyvBarnehageplassVilkår(): List<Periode<VilkårRe
             )
         }.filter { (it.fom ?: TIDENES_MORGEN).isBefore(it.tom ?: TIDENES_ENDE) }
         .filtrerBortOverlappendePerioderMedMinstGradering()
-}
 
 private fun List<VilkårResultat>.tilBarnehageplassVilkårMedGraderingsforskjellMellomPerioder(): List<BarnehageplassVilkårMedGraderingsforskjellMellomPerioder<VilkårResultat>> {
     val vilkårResultatListeMedNullverdierForHullITidslinje: List<VilkårResultat?> =
@@ -126,7 +125,8 @@ private fun LocalDate?.tilForskøvetFomBasertPåGraderingsforskjell(graderingsfo
             Graderingsforskjell.IngenUtbetalingGrunnetFullBarnehageplassTilØking,
             Graderingsforskjell.IngenUtbetalingGrunnetFørsteperiodeTilØking,
             ->
-                fomDato.plusMonths(1)
+                fomDato
+                    .plusMonths(1)
                     .førsteDagIInneværendeMåned()
 
             Graderingsforskjell.ReduksjonGårTilIngenUtbetaling,

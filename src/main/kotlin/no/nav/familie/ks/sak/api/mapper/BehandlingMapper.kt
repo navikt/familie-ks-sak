@@ -88,7 +88,8 @@ object BehandlingMapper {
             personResultater?.map { VilkårsvurderingMapper.lagPersonResultatRespons(it) }
                 ?: emptyList(),
         behandlingPåVent =
-            behandling.behandlingStegTilstand.singleOrNull { it.behandlingStegStatus == BehandlingStegStatus.VENTER }
+            behandling.behandlingStegTilstand
+                .singleOrNull { it.behandlingStegStatus == BehandlingStegStatus.VENTER }
                 ?.let { BehandlingPåVentDto(it.frist!!, it.årsak!!) },
         personerMedAndelerTilkjentYtelse = personerMedAndelerTilkjentYtelse,
         utbetalingsperioder = utbetalingsperioder,
@@ -131,13 +132,15 @@ object BehandlingMapper {
     fun lagPersonerMedAndelTilkjentYtelseRespons(
         personer: Set<Person>,
         andelerTilkjentYtelse: List<AndelTilkjentYtelse>,
-    ) = andelerTilkjentYtelse.groupBy { it.aktør }
+    ) = andelerTilkjentYtelse
+        .groupBy { it.aktør }
         .map { andelerForPerson ->
             val aktør = andelerForPerson.key
             val andeler = andelerForPerson.value
 
             val sammenslåtteAndeler =
-                andeler.groupBy { it.type }
+                andeler
+                    .groupBy { it.type }
                     .flatMap { it.value.slåSammenBack2BackAndelsperioderMedSammeBeløp() }
             PersonerMedAndelerResponsDto(
                 personIdent = personer.find { person -> person.aktør == aktør }?.aktør?.aktivFødselsnummer(),

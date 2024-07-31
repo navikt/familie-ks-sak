@@ -28,9 +28,7 @@ val mapper =
 fun <T, R, RESULTAT> List<Tidslinje<T>>.join(
     operand: Tidslinje<R>,
     operator: (elem1: PeriodeVerdi<T>, elem2: PeriodeVerdi<R>) -> PeriodeVerdi<RESULTAT>,
-): List<Tidslinje<RESULTAT>> {
-    return this.mapIndexed { _, tidslinjeBarn -> tidslinjeBarn.biFunksjon(operand, kombineringsfunksjon = operator) }
-}
+): List<Tidslinje<RESULTAT>> = this.mapIndexed { _, tidslinjeBarn -> tidslinjeBarn.biFunksjon(operand, kombineringsfunksjon = operator) }
 
 fun <T, R, RESULTAT> List<Tidslinje<T>>.join(
     operand: List<Tidslinje<R>>,
@@ -66,7 +64,11 @@ private fun <T, R> konverterTilSammeLengde(
     val udefinert1 = Udefinert<T>()
     val udefinert2 = Udefinert<R>()
 
-    var tidsenhetForskjell = kopi1.startsTidspunkt.until(kopi2.startsTidspunkt, mapper[kopi1.tidsEnhet]).toInt().absoluteValue
+    var tidsenhetForskjell =
+        kopi1.startsTidspunkt
+            .until(kopi2.startsTidspunkt, mapper[kopi1.tidsEnhet])
+            .toInt()
+            .absoluteValue
 
     if (kopi1.startsTidspunkt > kopi2.startsTidspunkt) {
         kopi1.innhold = listOf(TidslinjePeriode(udefinert1, tidsenhetForskjell, false)) + kopi1.innhold
@@ -99,8 +101,7 @@ private fun <T, R> konverterTilSammeLengde(
                     .until(
                         kopi2.kalkulerSluttTidspunkt().plusDays(1),
                         mapper[kopi1.tidsEnhet],
-                    )
-                    .toInt()
+                    ).toInt()
                     .absoluteValue
             kopi1.innhold = kopi1.innhold + listOf(TidslinjePeriode(udefinert1, tidsenhetForskjell, false))
         } else if (kopi2.kalkulerSluttTidspunkt() < kopi1.kalkulerSluttTidspunkt()) {
@@ -111,8 +112,7 @@ private fun <T, R> konverterTilSammeLengde(
                     .until(
                         kopi2.kalkulerSluttTidspunkt(),
                         mapper[kopi1.tidsEnhet],
-                    )
-                    .toInt()
+                    ).toInt()
                     .absoluteValue
             kopi2.innhold = kopi2.innhold + listOf(TidslinjePeriode(udefinert2, tidsenhetForskjell, false))
         }
@@ -180,12 +180,11 @@ fun <T, R> Tidslinje<T>.map(operator: (elem: PeriodeVerdi<T>) -> PeriodeVerdi<R>
  * Fjerner alle periodeverdier i [periodeVerdier] fra slutten og begynnelsen av tidslinja.
  * Ved fjerning av perioder i begynnelsen av tislinja, vil startspunktet bli flyttet.
  */
-fun <T> Tidslinje<T>.trim(vararg periodeVerdier: PeriodeVerdi<T>): Tidslinje<T> {
-    return this
+fun <T> Tidslinje<T>.trim(vararg periodeVerdier: PeriodeVerdi<T>): Tidslinje<T> =
+    this
         .trimVenstre(*periodeVerdier)
         .trimHøyre(*periodeVerdier)
         .medTittel(this.tittel)
-}
 
 fun <T> Tidslinje<T>.trimVenstre(vararg periodeVerdier: PeriodeVerdi<T>): Tidslinje<T> {
     val perioder = ArrayList(this.innhold)
@@ -274,10 +273,9 @@ fun <T> Tidslinje<T>.konverterTilMåned(
 /**
  * Shifter en tidslinje [antall] tidsenheter (enten DAG eller MÅNED) mot høyre.
  */
-fun <T> Tidslinje<T>.høyreShift(antall: Int = 1): Tidslinje<T> {
-    return Tidslinje(this.startsTidspunkt.plus(antall.toLong(), mapper[this.tidsEnhet]), this.innhold, this.tidsEnhet)
+fun <T> Tidslinje<T>.høyreShift(antall: Int = 1): Tidslinje<T> =
+    Tidslinje(this.startsTidspunkt.plus(antall.toLong(), mapper[this.tidsEnhet]), this.innhold, this.tidsEnhet)
         .medTittel(this.tittel)
-}
 
 /**
  * Splitter periodene i en tidslinje på månedsgrenser og returnerer en liste av
@@ -342,8 +340,8 @@ fun <T> Tidslinje<T>.splittPåMåned(): MutableList<List<TidslinjePeriode<T>>> {
 private fun <R> klippeOperator(
     status1: PeriodeVerdi<R>,
     status2: PeriodeVerdi<Boolean>,
-): PeriodeVerdi<R> {
-    return if (status1 is Udefinert || status2 is Udefinert) {
+): PeriodeVerdi<R> =
+    if (status1 is Udefinert || status2 is Udefinert) {
         Udefinert()
     } else if (status1 is Null || status2 is Null) {
         Null()
@@ -354,7 +352,6 @@ private fun <R> klippeOperator(
             Udefinert()
         }
     }
-}
 
 fun <T> Tidslinje<T>.klipp(
     startsTidspunkt: LocalDate,
@@ -373,20 +370,22 @@ fun <T> Tidslinje<T>.klipp(
                         TidslinjePeriode(
                             true,
                             lengde =
-                                startsTidspunkt.until(
-                                    justertSluttTidspunkt,
-                                    mapper[this.tidsEnhet],
-                                ).toInt(),
+                                startsTidspunkt
+                                    .until(
+                                        justertSluttTidspunkt,
+                                        mapper[this.tidsEnhet],
+                                    ).toInt(),
                         ),
                     ),
                     this.tidsEnhet,
                 )
-            this.biFunksjon(tidslinjeKlipp) { status1, status2 ->
-                klippeOperator(
-                    status1,
-                    status2,
-                )
-            }.fjernForeldre()
+            this
+                .biFunksjon(tidslinjeKlipp) { status1, status2 ->
+                    klippeOperator(
+                        status1,
+                        status2,
+                    )
+                }.fjernForeldre()
         } else {
             Tidslinje(startsTidspunkt, emptyList(), this.tidsEnhet)
         }
@@ -534,9 +533,7 @@ fun <T, R, RESULTAT> Tidslinje<T>.biFunksjon(
 fun <T> Tidslinje<T>.binærOperator(
     operand: Tidslinje<T>,
     operator: (elem1: PeriodeVerdi<T>, elem2: PeriodeVerdi<T>) -> PeriodeVerdi<T>,
-): Tidslinje<T> {
-    return this.biFunksjon(operand, operator)
-}
+): Tidslinje<T> = this.biFunksjon(operand, operator)
 
 /**
  * Lager en ny tidslengde fra en streng [innhold] og en mapper [mapper].
@@ -640,11 +637,12 @@ fun <T> Tidslinje<T>.hentVerdier(): List<T?> = this.innhold.slåSammenLike().map
  */
 fun <T> Tidslinje<T>.tilTidslinjePerioderMedDato(): List<TidslinjePeriodeMedDato<T>> {
     val (tidslinjePeriodeMedLocalDateListe, _) =
-        this.innhold.fold(Pair(emptyList<TidslinjePeriodeMedDato<T>>(), 0L)) { (
-            tidslinjePeriodeMedLocalDateListe: List<TidslinjePeriodeMedDato<T>>,
-            tidFraStarttidspunktFom: Long,
-        ),
-                                                                               tidslinjePeriode,
+        this.innhold.fold(Pair(emptyList<TidslinjePeriodeMedDato<T>>(), 0L)) {
+                (
+                    tidslinjePeriodeMedLocalDateListe: List<TidslinjePeriodeMedDato<T>>,
+                    tidFraStarttidspunktFom: Long,
+                ),
+                tidslinjePeriode,
             ->
             val tidFraStarttidspunktTilNesteFom = tidFraStarttidspunktFom + tidslinjePeriode.lengde
 
@@ -682,12 +680,11 @@ private fun LocalDate.leggTil(
 fun <T, R, RESULTAT> Tidslinje<T>.kombinerMed(
     annen: Tidslinje<R>,
     kombineringsfunksjon: (elem1: T?, elem2: R?) -> RESULTAT?,
-): Tidslinje<RESULTAT> {
-    return this.biFunksjon(annen) { periodeverdiVenstre, periodeverdiHøyre ->
+): Tidslinje<RESULTAT> =
+    this.biFunksjon(annen) { periodeverdiVenstre, periodeverdiHøyre ->
         kombineringsfunksjon(periodeverdiVenstre.verdi, periodeverdiHøyre.verdi)
             .tilPeriodeVerdi()
     }
-}
 
 fun <T, R, S, RESULTAT> Tidslinje<T>.kombinerMed(
     tidslinje2: Tidslinje<R>,

@@ -12,7 +12,6 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStegTilstand
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Beslutning
-import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg.*
 import no.nav.familie.ks.sak.kjerne.behandling.steg.iverksettmotoppdrag.IverksettMotOppdragTask
 import no.nav.familie.ks.sak.kjerne.behandling.steg.journalførvedtaksbrev.JournalførVedtaksbrevTask
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.VedtakRepository
@@ -62,7 +61,7 @@ class StegService(
                         behandlingStegDto,
                     )
                 // AVSLUTT_BEHANDLING er siste steg, der slipper man å hente neste steg
-                if (behandlingSteg != AVSLUTT_BEHANDLING) {
+                if (behandlingSteg != BehandlingSteg.AVSLUTT_BEHANDLING) {
                     // Henter neste steg basert på sekvens og årsak
                     val nesteSteg = hentNesteSteg(behandling, behandlingSteg, behandlingStegDto)
                     // legger til neste steg hvis steget er ny, eller oppdaterer eksisterende steg status til KLAR
@@ -153,7 +152,7 @@ class StegService(
         }
 
         // dersom behandlingsteg er BESLUTTE_VEDTAK eller senere valider at steget ikke allerede finnes i behandlingStegTilstand med status utført.
-        if (behandlingSteg.sekvens >= BESLUTTE_VEDTAK.sekvens) {
+        if (behandlingSteg.sekvens >= BehandlingSteg.BESLUTTE_VEDTAK.sekvens) {
             val alleredeUtførtSteg = behandling.behandlingStegTilstand.singleOrNull { it.behandlingSteg == behandlingSteg && it.behandlingStegStatus == BehandlingStegStatus.UTFØRT }
             if (alleredeUtførtSteg != null) {
                 val feilmelding = "${behandlingSteg.name} er allerede utført for behandlingen. Oppdater siden eller gå til saksoversikt."
@@ -178,20 +177,20 @@ class StegService(
                         behandling.resultat in it.gyldigForResultater
                 }.sortedBy { it.sekvens }
         return when (behandletSteg) {
-            AVSLUTT_BEHANDLING -> throw Feil("Behandling ${behandling.id} er allerede avsluttet")
-            BESLUTTE_VEDTAK -> {
+            BehandlingSteg.AVSLUTT_BEHANDLING -> throw Feil("Behandling ${behandling.id} er allerede avsluttet")
+            BehandlingSteg.BESLUTTE_VEDTAK -> {
                 val beslutteVedtakDto = behandlingStegDto as BesluttVedtakDto
                 when (beslutteVedtakDto.beslutning) {
                     Beslutning.GODKJENT -> hentNesteStegOgOpprettTaskEtterBeslutteVedtak(behandling)
-                    Beslutning.UNDERKJENT -> VEDTAK
+                    Beslutning.UNDERKJENT -> BehandlingSteg.VEDTAK
                 }
             }
 
-            BEHANDLINGSRESULTAT ->
+            BehandlingSteg.BEHANDLINGSRESULTAT ->
                 if (behandling.skalBehandlesAutomatisk() && behandling.skalSendeVedtaksbrev()) {
-                    SIMULERING
+                    BehandlingSteg.SIMULERING
                 } else {
-                    IVERKSETT_MOT_OPPDRAG
+                    BehandlingSteg.IVERKSETT_MOT_OPPDRAG
                 }
 
             else -> nesteGyldigeStadier.first()
@@ -200,13 +199,13 @@ class StegService(
 
     private fun hentNesteStegOgOpprettTaskEtterBeslutteVedtak(behandling: Behandling): BehandlingSteg =
         when {
-            behandling.erTekniskEndring() -> if (!erEndringIUtbetaling(behandling)) AVSLUTT_BEHANDLING else IVERKSETT_MOT_OPPDRAG
+            behandling.erTekniskEndring() -> if (!erEndringIUtbetaling(behandling)) BehandlingSteg.AVSLUTT_BEHANDLING else BehandlingSteg.IVERKSETT_MOT_OPPDRAG
             !erEndringIUtbetaling(behandling) -> {
                 opprettJournalførVedtaksbrevTaskPåBehandling(behandling)
-                JOURNALFØR_VEDTAKSBREV
+                BehandlingSteg.JOURNALFØR_VEDTAKSBREV
             }
 
-            else -> IVERKSETT_MOT_OPPDRAG
+            else -> BehandlingSteg.IVERKSETT_MOT_OPPDRAG
         }
 
     private fun erEndringIUtbetaling(behandling: Behandling): Boolean {
@@ -224,7 +223,7 @@ class StegService(
 
     private fun utførStegAutomatisk(behandling: Behandling) {
         // Dersom behandling er lovendring må vedtak kontrolleres først
-        if (behandling.steg == IVERKSETT_MOT_OPPDRAG && !behandling.erLovendring()) {
+        if (behandling.steg == BehandlingSteg.IVERKSETT_MOT_OPPDRAG && !behandling.erLovendring()) {
             val vedtakId = vedtakRepository.findByBehandlingAndAktiv(behandling.id).id
             val saksbehandlerId = SikkerhetContext.hentSaksbehandler()
             taskService.save(IverksettMotOppdragTask.opprettTask(behandling, vedtakId, saksbehandlerId))
@@ -249,12 +248,12 @@ class StegService(
             }
         }
         when (behandling.steg) {
-            JOURNALFØR_VEDTAKSBREV -> {
+            BehandlingSteg.JOURNALFØR_VEDTAKSBREV -> {
                 // JournalførVedtaksbrevTask -> DistribuerBrevTask -> AvsluttBehandlingTask for å avslutte behandling automatisk
                 opprettJournalførVedtaksbrevTaskPåBehandling(behandling)
             }
             // Behandling med årsak SATSENDRING eller TEKNISK_ENDRING sender ikke vedtaksbrev. Da avslutter behandling her
-            AVSLUTT_BEHANDLING -> utførSteg(behandlingId = behandling.id, AVSLUTT_BEHANDLING)
+            BehandlingSteg.AVSLUTT_BEHANDLING -> utførSteg(behandlingId = behandling.id, BehandlingSteg.AVSLUTT_BEHANDLING)
             else -> {} // Gjør ingenting
         }
     }
@@ -331,7 +330,7 @@ class StegService(
         behandlingSteg: BehandlingSteg,
         behandlingStegDto: BehandlingStegDto? = null,
     ) = when (behandlingSteg) {
-        BESLUTTE_VEDTAK -> {
+        BehandlingSteg.BESLUTTE_VEDTAK -> {
             val beslutteVedtakDto = behandlingStegDto as BesluttVedtakDto
             when (beslutteVedtakDto.beslutning) {
                 Beslutning.GODKJENT -> BehandlingStegStatus.UTFØRT
@@ -347,7 +346,7 @@ class StegService(
 
         fun oppdaterBehandlingStatus(behandling: Behandling): Behandling {
             // oppdaterer ikke behandling status for siste steg AVSLUTT_BEHANDLING. Det skjer direkte i steget
-            if (behandling.steg == AVSLUTT_BEHANDLING) {
+            if (behandling.steg == BehandlingSteg.AVSLUTT_BEHANDLING) {
                 return behandling
             }
             val nyBehandlingStatus = behandling.steg.tilknyttetBehandlingStatus

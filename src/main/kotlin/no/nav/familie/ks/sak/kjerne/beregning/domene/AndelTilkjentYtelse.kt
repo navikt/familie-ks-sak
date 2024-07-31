@@ -105,8 +105,8 @@ data class AndelTilkjentYtelse(
             Objects.equals(differanseberegnetPeriodebeløp, annen.differanseberegnetPeriodebeløp)
     }
 
-    override fun hashCode(): Int {
-        return Objects.hash(
+    override fun hashCode(): Int =
+        Objects.hash(
             id,
             behandlingId,
             type,
@@ -117,23 +117,20 @@ data class AndelTilkjentYtelse(
             nasjonaltPeriodebeløp,
             differanseberegnetPeriodebeløp,
         )
-    }
 
-    override fun toString(): String {
-        return "AndelTilkjentYtelse(id = $id, behandling = $behandlingId, type = $type, prosent = $prosent," +
+    override fun toString(): String =
+        "AndelTilkjentYtelse(id = $id, behandling = $behandlingId, type = $type, prosent = $prosent," +
             "beløp = $kalkulertUtbetalingsbeløp, stønadFom = $stønadFom, stønadTom = $stønadTom, " +
             "periodeOffset = $periodeOffset, forrigePeriodeOffset = $forrigePeriodeOffset, " +
             "nasjonaltPeriodebeløp = $nasjonaltPeriodebeløp, differanseberegnetBeløp = $differanseberegnetPeriodebeløp)"
-    }
 
     fun stønadsPeriode() = MånedPeriode(this.stønadFom, this.stønadTom)
 
     fun erLøpende(nåÅrMåned: YearMonth): Boolean = this.stønadTom > nåÅrMåned
 
-    fun overlapperMed(andelFraAnnenBehandling: AndelTilkjentYtelse): Boolean {
-        return this.type == andelFraAnnenBehandling.type &&
+    fun overlapperMed(andelFraAnnenBehandling: AndelTilkjentYtelse): Boolean =
+        this.type == andelFraAnnenBehandling.type &&
             this.overlapperPeriode(andelFraAnnenBehandling.periode)
-    }
 
     fun overlapperPeriode(måndePeriode: MånedPeriode): Boolean =
         this.stønadFom <= måndePeriode.tom &&
@@ -157,7 +154,9 @@ fun List<AndelTilkjentYtelse>.slåSammenBack2BackAndelsperioderMedSammeBeløp():
         }
     }
 
-enum class YtelseType(val klassifisering: String) {
+enum class YtelseType(
+    val klassifisering: String,
+) {
     ORDINÆR_KONTANTSTØTTE("KS"),
     ;
 

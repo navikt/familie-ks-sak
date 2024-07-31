@@ -9,7 +9,8 @@ fun Any?.nullableTilString() = this?.toString() ?: ""
 fun String.storForbokstav() = this.lowercase().replaceFirstChar { it.uppercase() }
 
 fun String.storForbokstavIAlleNavn() =
-    this.split(" ")
+    this
+        .split(" ")
         .joinToString(" ") { navn ->
             navn.split("-").joinToString("-") { it.storForbokstav() }
         }.trimEnd()
@@ -26,8 +27,10 @@ fun formaterBeløp(beløp: Int): String = NumberFormat.getNumberInstance(nbLocal
 fun Int.avrundetHeltallAvProsent(prosent: BigDecimal) = this.toBigDecimal().avrundetHeltallAvProsent(prosent)
 
 fun BigDecimal.avrundetHeltallAvProsent(prosent: BigDecimal) =
-    this.times(prosent)
-        .divide(100.toBigDecimal()).setScale(0, RoundingMode.HALF_UP)
+    this
+        .times(prosent)
+        .divide(100.toBigDecimal())
+        .setScale(0, RoundingMode.HALF_UP)
         .toInt()
 
 fun er11Siffer(ident: String): Boolean = ident.all { it.isDigit() } && ident.length == 11

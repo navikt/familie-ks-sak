@@ -67,17 +67,16 @@ open class Tidslinje<T>(
         }
     }
 
-    private fun kalkulerSluttTidspunkt(sluttDato: LocalDate): LocalDate {
-        return when (this.tidsEnhet) {
+    private fun kalkulerSluttTidspunkt(sluttDato: LocalDate): LocalDate =
+        when (this.tidsEnhet) {
             TidsEnhet.ÅR -> sluttDato.with(TemporalAdjusters.lastDayOfYear())
             TidsEnhet.MÅNED -> sluttDato.with(TemporalAdjusters.lastDayOfMonth())
             TidsEnhet.UKE -> sluttDato.with(DayOfWeek.SUNDAY)
             TidsEnhet.DAG -> sluttDato
         }
-    }
 
-    override fun toString(): String {
-        return "StartTidspunkt: " + startsTidspunkt + " Tidsenhet: " + tidsEnhet +
+    override fun toString(): String =
+        "StartTidspunkt: " + startsTidspunkt + " Tidsenhet: " + tidsEnhet +
             " Total lengde: " + innhold.sumOf { it.lengde } +
             " Perioder: " +
             innhold.mapIndexed { indeks, it ->
@@ -92,7 +91,6 @@ open class Tidslinje<T>(
                     ) +
                     ")"
             }
-    }
 
     private fun lagInnholdBasertPåPeriodelengder(innhold: List<TidslinjePeriode<T>>): List<TidslinjePeriode<T>> {
         val arr = mutableListOf<TidslinjePeriode<T>>()
@@ -130,9 +128,7 @@ open class Tidslinje<T>(
             other.tittel == this.tittel
     }
 
-    override fun hashCode(): Int {
-        return this.startsTidspunkt.hashCode() + this.innhold.hashCode() + this.tidsEnhet.hashCode() + this.tittel.hashCode()
-    }
+    override fun hashCode(): Int = this.startsTidspunkt.hashCode() + this.innhold.hashCode() + this.tidsEnhet.hashCode() + this.tittel.hashCode()
 
     companion object
 }

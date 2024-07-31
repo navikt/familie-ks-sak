@@ -49,7 +49,8 @@ fun hentPerioderMedUtbetaling(
 
     val andeltilkjentYtelserSplittetPåKriterier =
         andelerTilkjentYtelse
-            .tilTidslinjerPerPerson().values
+            .tilTidslinjerPerPerson()
+            .values
             .slåSammen()
             .filtrer { !it.isNullOrEmpty() }
             .kombinerMed(splittkriterierForVilkårResultatTidslinje, splittkriterierForKompetanseTidslinjer) {
@@ -80,7 +81,8 @@ private fun List<AndelTilkjentYtelseMedEndreteUtbetalinger>.tilTidslinjerPerPers
     }
 
 private fun List<AndelTilkjentYtelseMedEndreteUtbetalinger>.tilTidslinje(): Tidslinje<AndelTilkjentYtelseMedEndreteUtbetalinger> =
-    this.map { Periode(it, it.stønadFom.førsteDagIInneværendeMåned(), it.stønadTom.sisteDagIInneværendeMåned()) }
+    this
+        .map { Periode(it, it.stønadFom.førsteDagIInneværendeMåned(), it.stønadTom.sisteDagIInneværendeMåned()) }
         .tilTidslinje()
 
 data class SplittkriterierForVilkår(
@@ -104,19 +106,23 @@ data class SplittkriterierForVilkår(
 }
 
 private fun Map<Aktør, Tidslinje<List<VilkårResultat>>>.tilSplittkriterierForVilkårTidslinje(): Tidslinje<Map<Aktør, List<SplittkriterierForVilkår>>> =
-    this.map { (aktør, vilkårsvurderingTidslinje) ->
-        // Vi ønsker ikke å splitte opp vedtaksperiodene på grunn av splitt i barnets alder grunnet lovendringen i 2024 august.
-        // Vurder å sjekke om personen er truffet av lovendringen i 2021 og 2024 først dersom det oppstår problemer
-        val vilkårsvurderingTidslinjeUtenBarnetsAlder = vilkårsvurderingTidslinje.mapVerdi { it?.filter { vilkårResultat -> vilkårResultat.vilkårType != Vilkår.BARNETS_ALDER } }.slåSammenLikePerioder()
+    this
+        .map { (aktør, vilkårsvurderingTidslinje) ->
+            // Vi ønsker ikke å splitte opp vedtaksperiodene på grunn av splitt i barnets alder grunnet lovendringen i 2024 august.
+            // Vurder å sjekke om personen er truffet av lovendringen i 2021 og 2024 først dersom det oppstår problemer
+            val vilkårsvurderingTidslinjeUtenBarnetsAlder = vilkårsvurderingTidslinje.mapVerdi { it?.filter { vilkårResultat -> vilkårResultat.vilkårType != Vilkår.BARNETS_ALDER } }.slåSammenLikePerioder()
 
-        vilkårsvurderingTidslinjeUtenBarnetsAlder.tilPerioder().filtrerIkkeNull().map { vilkårResultater ->
-            Periode(
-                verdi = Pair(aktør, vilkårResultater.verdi.map { SplittkriterierForVilkår(it) }),
-                fom = vilkårResultater.fom,
-                tom = vilkårResultater.tom,
-            )
-        }.tilTidslinje()
-    }.kombiner { it.toMap() }
+            vilkårsvurderingTidslinjeUtenBarnetsAlder
+                .tilPerioder()
+                .filtrerIkkeNull()
+                .map { vilkårResultater ->
+                    Periode(
+                        verdi = Pair(aktør, vilkårResultater.verdi.map { SplittkriterierForVilkår(it) }),
+                        fom = vilkårResultater.fom,
+                        tom = vilkårResultater.tom,
+                    )
+                }.tilTidslinje()
+        }.kombiner { it.toMap() }
 
 data class SplittkriterierForKompetanse(
     val søkersAktivitet: KompetanseAktivitet? = null,
@@ -143,15 +149,17 @@ private fun List<Kompetanse>.tilSplittkriterierForKompetanseTidslinje(): Tidslin
 
     val kompetanserPerBarn = alleBarna.associateWith { barn -> this.filter { barn in it.barnAktører } }
 
-    return kompetanserPerBarn.map { (barn, kompetanse) ->
-        kompetanse.map {
-            Periode(
-                barn to SplittkriterierForKompetanse(it),
-                it.fom?.førsteDagIInneværendeMåned(),
-                it.tom?.sisteDagIInneværendeMåned(),
-            )
-        }.tilTidslinje()
-    }.kombiner { it.toMap() }
+    return kompetanserPerBarn
+        .map { (barn, kompetanse) ->
+            kompetanse
+                .map {
+                    Periode(
+                        barn to SplittkriterierForKompetanse(it),
+                        it.fom?.førsteDagIInneværendeMåned(),
+                        it.tom?.sisteDagIInneværendeMåned(),
+                    )
+                }.tilTidslinje()
+        }.kombiner { it.toMap() }
 }
 
 private fun hentSetAvVilkårsVurderinger(vilkårResultater: List<VilkårResultat>) =

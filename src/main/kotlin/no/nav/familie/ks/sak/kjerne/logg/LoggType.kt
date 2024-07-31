@@ -1,6 +1,9 @@
 package no.nav.familie.ks.sak.kjerne.logg
 
-enum class LoggType(val visningsnavn: String, val tittel: String = visningsnavn) {
+enum class LoggType(
+    val visningsnavn: String,
+    val tittel: String = visningsnavn,
+) {
     AUTOVEDTAK_TIL_MANUELL_BEHANDLING("Autovedtak til manuell behandling", "Automatisk behandling stoppet"),
     LIVSHENDELSE("Livshendelse"),
     BEHANDLENDE_ENHET_ENDRET("Behandlende enhet endret", "Endret enhet på behandling"),

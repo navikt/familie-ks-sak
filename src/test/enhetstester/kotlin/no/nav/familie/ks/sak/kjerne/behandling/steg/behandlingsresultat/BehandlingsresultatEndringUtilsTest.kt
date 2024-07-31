@@ -213,7 +213,8 @@ class BehandlingsresultatEndringUtilsTest {
                 forrigeKompetanser = listOf(forrigeKompetanse),
                 nåværendeKompetanser =
                     listOf(
-                        forrigeKompetanse.copy(søkersAktivitet = KompetanseAktivitet.ARBEIDER_PÅ_NORSK_SOKKEL)
+                        forrigeKompetanse
+                            .copy(søkersAktivitet = KompetanseAktivitet.ARBEIDER_PÅ_NORSK_SOKKEL)
                             .apply { behandlingId = nåværendeBehandling.id },
                     ),
                 nåværendePersonResultat = emptySet(),
@@ -843,7 +844,8 @@ class BehandlingsresultatEndringUtilsTest {
             erEndringIKompetanseForPerson(
                 nåværendeKompetanserForPerson =
                     listOf(
-                        forrigeKompetanse.copy(søkersAktivitet = KompetanseAktivitet.ARBEIDER_PÅ_NORSK_SOKKEL)
+                        forrigeKompetanse
+                            .copy(søkersAktivitet = KompetanseAktivitet.ARBEIDER_PÅ_NORSK_SOKKEL)
                             .apply { behandlingId = nåværendeBehandling.id },
                     ),
                 forrigeKompetanserForPerson = listOf(forrigeKompetanse),
@@ -874,7 +876,8 @@ class BehandlingsresultatEndringUtilsTest {
             erEndringIKompetanseForPerson(
                 nåværendeKompetanserForPerson =
                     listOf(
-                        forrigeKompetanse.copy(annenForeldersAktivitetsland = "DK")
+                        forrigeKompetanse
+                            .copy(annenForeldersAktivitetsland = "DK")
                             .apply { behandlingId = nåværendeBehandling.id },
                     ),
                 forrigeKompetanserForPerson = listOf(forrigeKompetanse),
@@ -905,7 +908,8 @@ class BehandlingsresultatEndringUtilsTest {
             erEndringIKompetanseForPerson(
                 nåværendeKompetanserForPerson =
                     listOf(
-                        forrigeKompetanse.copy(annenForeldersAktivitet = KompetanseAktivitet.FORSIKRET_I_BOSTEDSLAND)
+                        forrigeKompetanse
+                            .copy(annenForeldersAktivitet = KompetanseAktivitet.FORSIKRET_I_BOSTEDSLAND)
                             .apply { behandlingId = nåværendeBehandling.id },
                     ),
                 forrigeKompetanserForPerson = listOf(forrigeKompetanse),
@@ -966,7 +970,8 @@ class BehandlingsresultatEndringUtilsTest {
             erEndringIKompetanseForPerson(
                 nåværendeKompetanserForPerson =
                     listOf(
-                        forrigeKompetanse.copy(resultat = KompetanseResultat.NORGE_ER_SEKUNDÆRLAND)
+                        forrigeKompetanse
+                            .copy(resultat = KompetanseResultat.NORGE_ER_SEKUNDÆRLAND)
                             .apply { behandlingId = nåværendeBehandling.id },
                     ),
                 forrigeKompetanserForPerson = listOf(forrigeKompetanse),
@@ -997,7 +1002,8 @@ class BehandlingsresultatEndringUtilsTest {
             erEndringIKompetanseForPerson(
                 nåværendeKompetanserForPerson =
                     listOf(
-                        forrigeKompetanse.copy(fom = YearMonth.now().minusMonths(10))
+                        forrigeKompetanse
+                            .copy(fom = YearMonth.now().minusMonths(10))
                             .apply { behandlingId = nåværendeBehandling.id },
                     ),
                 forrigeKompetanserForPerson = listOf(forrigeKompetanse),

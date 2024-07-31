@@ -147,8 +147,8 @@ class JournalførVedtaksbrevSteg(
         )
     }
 
-    fun hentOverstyrtDokumenttittel(behandling: Behandling): String? {
-        return if (behandling.type == BehandlingType.REVURDERING) {
+    fun hentOverstyrtDokumenttittel(behandling: Behandling): String? =
+        if (behandling.type == BehandlingType.REVURDERING) {
             when (behandling.resultat) {
                 Behandlingsresultat.INNVILGET, Behandlingsresultat.DELVIS_INNVILGET,
                 Behandlingsresultat.INNVILGET_OG_ENDRET,
@@ -165,7 +165,6 @@ class JournalførVedtaksbrevSteg(
         } else {
             null
         }
-    }
 
     companion object {
         private val logger: Logger = LoggerFactory.getLogger(JournalførVedtaksbrevSteg::class.java)

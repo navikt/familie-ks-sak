@@ -84,9 +84,7 @@ data class Person(
     @OneToOne(mappedBy = "person", cascade = [CascadeType.ALL], fetch = FetchType.EAGER, optional = true)
     var dødsfall: Dødsfall? = null,
 ) : BaseEntitet() {
-    override fun toString(): String {
-        return "Person(aktørId=$aktør,type=$type,fødselsdato=$fødselsdato)".trimMargin()
-    }
+    override fun toString(): String = "Person(aktørId=$aktør,type=$type,fødselsdato=$fødselsdato)".trimMargin()
 
     override fun equals(other: Any?): Boolean {
         if (other == null || javaClass != other.javaClass) {
@@ -96,9 +94,7 @@ data class Person(
         return Objects.equals(hashCode(), entitet.hashCode())
     }
 
-    override fun hashCode(): Int {
-        return Objects.hash(aktør, fødselsdato)
-    }
+    override fun hashCode(): Int = Objects.hash(aktør, fødselsdato)
 
     fun erDød(): Boolean = dødsfall != null
 
@@ -148,8 +144,7 @@ fun List<Person>.tilBarnasFødselsdatoer(): String =
             .filter { it.type == PersonType.BARN }
             .sortedBy { person ->
                 person.fødselsdato
-            }
-            .map { person ->
+            }.map { person ->
                 person.fødselsdato.tilKortString()
             },
     )

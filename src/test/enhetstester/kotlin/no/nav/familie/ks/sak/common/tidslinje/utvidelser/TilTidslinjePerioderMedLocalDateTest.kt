@@ -64,13 +64,14 @@ class TilTidslinjePerioderMedLocalDateTest {
             )
 
         val tidslinjePerioderMedDato =
-            tidslinje1.biFunksjon(tidslinje2) { a, b ->
-                if (b is Verdi) {
-                    b
-                } else {
-                    a
-                }
-            }.tilTidslinjePerioderMedDato()
+            tidslinje1
+                .biFunksjon(tidslinje2) { a, b ->
+                    if (b is Verdi) {
+                        b
+                    } else {
+                        a
+                    }
+                }.tilTidslinjePerioderMedDato()
 
         Assertions.assertEquals(3, tidslinjePerioderMedDato.size)
 

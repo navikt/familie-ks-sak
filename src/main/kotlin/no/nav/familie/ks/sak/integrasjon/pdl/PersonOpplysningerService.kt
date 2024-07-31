@@ -37,43 +37,45 @@ class PersonOpplysningerService(
 
         val identerMedAdressebeskyttelse = mutableSetOf<Pair<Aktør, FORELDERBARNRELASJONROLLE>>()
         val forelderBarnRelasjonerMedAdressebeskyttelseGradering =
-            forelderBarnRelasjoner.mapNotNull { forelderBarnRelasjon ->
-                val harTilgang =
-                    integrasjonService.sjekkTilgangTilPerson(forelderBarnRelasjon.aktør.aktivFødselsnummer()).harTilgang
+            forelderBarnRelasjoner
+                .mapNotNull { forelderBarnRelasjon ->
+                    val harTilgang =
+                        integrasjonService.sjekkTilgangTilPerson(forelderBarnRelasjon.aktør.aktivFødselsnummer()).harTilgang
 
-                if (harTilgang) {
-                    try {
-                        // henter alle aktive forelder barn relasjoner med adressebeskyttelse gradering
-                        // disse relasjoner har tilgang til aktør-en og er ikke en KODE6/KODE7 brukere
-                        val relasjonData = hentPersoninfoEnkel(forelderBarnRelasjon.aktør)
-                        ForelderBarnRelasjonInfo(
-                            aktør = forelderBarnRelasjon.aktør,
-                            relasjonsrolle = forelderBarnRelasjon.relasjonsrolle,
-                            fødselsdato = relasjonData.fødselsdato,
-                            navn = relasjonData.navn,
-                            adressebeskyttelseGradering = relasjonData.adressebeskyttelseGradering,
-                        )
-                    } catch (pdlPersonKanIkkeBehandlesIFagsystem: PdlPersonKanIkkeBehandlesIFagsystem) {
-                        logger.warn("Ignorerer relasjon: ${pdlPersonKanIkkeBehandlesIFagsystem.årsak}")
-                        secureLogger.warn(
-                            "Ignorerer relasjon ${forelderBarnRelasjon.aktør.aktivFødselsnummer()} " +
-                                "til ${aktør.aktivFødselsnummer()}: ${pdlPersonKanIkkeBehandlesIFagsystem.årsak}",
-                        )
+                    if (harTilgang) {
+                        try {
+                            // henter alle aktive forelder barn relasjoner med adressebeskyttelse gradering
+                            // disse relasjoner har tilgang til aktør-en og er ikke en KODE6/KODE7 brukere
+                            val relasjonData = hentPersoninfoEnkel(forelderBarnRelasjon.aktør)
+                            ForelderBarnRelasjonInfo(
+                                aktør = forelderBarnRelasjon.aktør,
+                                relasjonsrolle = forelderBarnRelasjon.relasjonsrolle,
+                                fødselsdato = relasjonData.fødselsdato,
+                                navn = relasjonData.navn,
+                                adressebeskyttelseGradering = relasjonData.adressebeskyttelseGradering,
+                            )
+                        } catch (pdlPersonKanIkkeBehandlesIFagsystem: PdlPersonKanIkkeBehandlesIFagsystem) {
+                            logger.warn("Ignorerer relasjon: ${pdlPersonKanIkkeBehandlesIFagsystem.årsak}")
+                            secureLogger.warn(
+                                "Ignorerer relasjon ${forelderBarnRelasjon.aktør.aktivFødselsnummer()} " +
+                                    "til ${aktør.aktivFødselsnummer()}: ${pdlPersonKanIkkeBehandlesIFagsystem.årsak}",
+                            )
+                            null
+                        }
+                    } else { // disse relasjoner har ikke tilgang til aktør-en og er en KODE6/KODE7 brukere
+                        identerMedAdressebeskyttelse.add(Pair(forelderBarnRelasjon.aktør, forelderBarnRelasjon.relasjonsrolle))
                         null
                     }
-                } else { // disse relasjoner har ikke tilgang til aktør-en og er en KODE6/KODE7 brukere
-                    identerMedAdressebeskyttelse.add(Pair(forelderBarnRelasjon.aktør, forelderBarnRelasjon.relasjonsrolle))
-                    null
-                }
-            }.toSet()
+                }.toSet()
 
         val forelderBarnRelasjonMaskert =
-            identerMedAdressebeskyttelse.map {
-                ForelderBarnRelasjonInfoMaskert(
-                    relasjonsrolle = it.second,
-                    adressebeskyttelseGradering = hentAdressebeskyttelseSomSystembruker(it.first),
-                )
-            }.toSet()
+            identerMedAdressebeskyttelse
+                .map {
+                    ForelderBarnRelasjonInfoMaskert(
+                        relasjonsrolle = it.second,
+                        adressebeskyttelseGradering = hentAdressebeskyttelseSomSystembruker(it.first),
+                    )
+                }.toSet()
 
         return tilPersonInfo(
             pdlPersonData,
@@ -118,12 +120,13 @@ class PersonOpplysningerService(
 
     fun hentIdenterMedStrengtFortroligAdressebeskyttelse(personIdenter: List<String>): List<String> {
         val adresseBeskyttelseBolk = pdlClient.hentAdressebeskyttelseBolk(personIdenter)
-        return adresseBeskyttelseBolk.filter { (_, person) ->
-            person.adressebeskyttelse.any { adressebeskyttelse ->
-                adressebeskyttelse.gradering == ADRESSEBESKYTTELSEGRADERING.STRENGT_FORTROLIG ||
-                    adressebeskyttelse.gradering == ADRESSEBESKYTTELSEGRADERING.STRENGT_FORTROLIG_UTLAND
-            }
-        }.map { it.key }
+        return adresseBeskyttelseBolk
+            .filter { (_, person) ->
+                person.adressebeskyttelse.any { adressebeskyttelse ->
+                    adressebeskyttelse.gradering == ADRESSEBESKYTTELSEGRADERING.STRENGT_FORTROLIG ||
+                        adressebeskyttelse.gradering == ADRESSEBESKYTTELSEGRADERING.STRENGT_FORTROLIG_UTLAND
+                }
+            }.map { it.key }
     }
 
     companion object {

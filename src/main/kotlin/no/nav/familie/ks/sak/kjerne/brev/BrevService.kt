@@ -165,7 +165,8 @@ class BrevService(
                 settBehandlingPåVentService.settBehandlingPåVent(
                     behandlingId = behandlingId,
                     frist =
-                        LocalDate.now()
+                        LocalDate
+                            .now()
                             .plusDays(
                                 manueltBrevDto.brevmal.ventefristDager(
                                     manuellFrist = manueltBrevDto.antallUkerSvarfrist?.toLong(),
@@ -178,27 +179,28 @@ class BrevService(
         }
 
         journalposterTilDistribusjon.forEach { (journalpostId, mottaker) ->
-            DistribuerBrevTask.opprettDistribuerBrevTask(
-                distribuerBrevDTO =
-                    DistribuerBrevDto(
-                        behandlingId = behandling?.id,
-                        journalpostId = journalpostId,
-                        brevmal = manueltBrevDto.brevmal,
-                        erManueltSendt = true,
-                        manuellAdresseInfo = mottaker.manuellAdresseInfo,
-                    ),
-                properties =
-                    Properties().apply {
-                        this["fagsakIdent"] = fagsak.aktør.aktivFødselsnummer()
-                        this["mottakerIdent"] = manueltBrevDto.mottakerIdent
-                        this["journalpostId"] = journalpostId
-                        this["behandlingId"] = behandling?.id.toString()
-                        this["fagsakId"] = fagsak.id.toString()
-                        this["mottakerType"] = mottaker.javaClass.simpleName
-                    },
-            ).also {
-                taskService.save(it)
-            }
+            DistribuerBrevTask
+                .opprettDistribuerBrevTask(
+                    distribuerBrevDTO =
+                        DistribuerBrevDto(
+                            behandlingId = behandling?.id,
+                            journalpostId = journalpostId,
+                            brevmal = manueltBrevDto.brevmal,
+                            erManueltSendt = true,
+                            manuellAdresseInfo = mottaker.manuellAdresseInfo,
+                        ),
+                    properties =
+                        Properties().apply {
+                            this["fagsakIdent"] = fagsak.aktør.aktivFødselsnummer()
+                            this["mottakerIdent"] = manueltBrevDto.mottakerIdent
+                            this["journalpostId"] = journalpostId
+                            this["behandlingId"] = behandling?.id.toString()
+                            this["fagsakId"] = fagsak.id.toString()
+                            this["mottakerType"] = mottaker.javaClass.simpleName
+                        },
+                ).also {
+                    taskService.save(it)
+                }
         }
     }
 
@@ -291,12 +293,14 @@ class BrevService(
             vilkårsvurderingService.finnAktivVilkårsvurdering(behandling.id)
                 ?: vilkårsvurderingService.opprettVilkårsvurdering(behandling, sisteVedtattBehandling)
 
-        vilkårsvurdering.personResultater.single { it.erSøkersResultater() }
+        vilkårsvurdering.personResultater
+            .single { it.erSøkersResultater() }
             .leggTilBlankAnnenVurdering(AnnenVurderingType.OPPLYSNINGSPLIKT)
     }
 
     private fun hentSisteBehandlingSomErVedtatt(fagsakId: Long): Behandling? =
-        behandlingRepository.finnBehandlinger(fagsakId)
+        behandlingRepository
+            .finnBehandlinger(fagsakId)
             .filter { !it.erHenlagt() && it.status == BehandlingStatus.AVSLUTTET }
             .maxByOrNull { it.aktivertTidspunkt }
 

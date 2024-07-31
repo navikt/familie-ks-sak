@@ -51,13 +51,12 @@ class SendInformasjonsbrevKontantstøtteendringTask(
     }
 
     companion object {
-        fun lagTask(fagsakId: Long): Task {
-            return Task(
+        fun lagTask(fagsakId: Long): Task =
+            Task(
                 type = TASK_STEP_TYPE,
                 payload = fagsakId.toString(),
                 properties = mapOf("fagsakId" to fagsakId.toString()).toProperties(),
             )
-        }
 
         const val TASK_STEP_TYPE = "sendInformasjonsbrevKontantstøtteJuli2024"
     }

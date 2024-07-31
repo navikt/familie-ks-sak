@@ -6,7 +6,10 @@ import org.springframework.http.HttpStatus
 import java.time.LocalDate
 import java.time.YearMonth
 
-data class BisysDto(val fom: LocalDate, val identer: List<String>) {
+data class BisysDto(
+    val fom: LocalDate,
+    val identer: List<String>,
+) {
     init {
         if (identer.any { it.length != 11 }) {
             throw Feil("Ugyldig input. identerdenter må være 11 siffer", httpStatus = HttpStatus.BAD_REQUEST)
@@ -14,7 +17,10 @@ data class BisysDto(val fom: LocalDate, val identer: List<String>) {
     }
 }
 
-data class BisysResponsDto(val infotrygdPerioder: List<InfotrygdPeriode>, val ksSakPerioder: List<KsSakPeriode>)
+data class BisysResponsDto(
+    val infotrygdPerioder: List<InfotrygdPeriode>,
+    val ksSakPerioder: List<KsSakPeriode>,
+)
 
 data class InfotrygdPeriode(
     @Schema(implementation = String::class, example = "2022-12")
@@ -33,4 +39,7 @@ data class KsSakPeriode(
     val barn: Barn,
 )
 
-data class Barn(val beløp: Int, val ident: String)
+data class Barn(
+    val beløp: Int,
+    val ident: String,
+)
