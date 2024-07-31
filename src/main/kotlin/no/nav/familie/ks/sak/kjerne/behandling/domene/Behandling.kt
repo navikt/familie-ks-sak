@@ -161,6 +161,7 @@ data class Behandling(
     fun skalSendeVedtaksbrev(): Boolean =
         when {
             type == TEKNISK_ENDRING -> false
+            opprettetÅrsak == BehandlingÅrsak.LOVENDRING_2024 && resultat in listOf(Behandlingsresultat.ENDRET_OG_OPPHØRT) -> true
             opprettetÅrsak in listOf(BehandlingÅrsak.SATSENDRING, BehandlingÅrsak.LOVENDRING_2024) -> false
             else -> true
         }

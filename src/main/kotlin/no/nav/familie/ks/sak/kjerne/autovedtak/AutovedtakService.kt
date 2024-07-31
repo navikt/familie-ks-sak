@@ -19,8 +19,6 @@ class AutovedtakService(
     private val stegService: StegService,
     private val behandlingService: BehandlingService,
     private val opprettBehandlingService: OpprettBehandlingService,
-    private val totrinnskontrollService: TotrinnskontrollService,
-    private val vedtakService: VedtakService,
 ) {
     fun opprettAutomatiskBehandlingOgKjørTilBehandlingsresultat(
         aktør: Aktør,
@@ -42,9 +40,4 @@ class AutovedtakService(
         return behandlingService.hentBehandling(behandlingId = nyBehandling.id)
     }
 
-    fun opprettTotrinnskontrollForAutomatiskBehandling(behandling: Behandling): Vedtak {
-        totrinnskontrollService.opprettAutomatiskTotrinnskontroll(behandling = behandling)
-
-        return vedtakService.hentAktivVedtakForBehandling(behandlingId = behandling.id)
-    }
 }

@@ -7,7 +7,10 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingType
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
+import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg
+import no.nav.familie.ks.sak.kjerne.behandling.steg.StegService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.iverksettmotoppdrag.IverksettMotOppdragTask
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.VedtakRepository
 import no.nav.familie.ks.sak.kjerne.fagsak.FagsakService
 import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext
 import no.nav.familie.prosessering.internal.TaskService
@@ -21,6 +24,8 @@ class AutovedtakLovendringService(
     private val snikeIKøenService: SnikeIKøenService,
     private val taskService: TaskService,
     private val autovedtakService: AutovedtakService,
+    private val stegService: StegService,
+    private val vedtakRepository: VedtakRepository,
 ) {
     @Transactional
     fun revurderFagsak(fagsakId: Long): Behandling {
@@ -41,13 +46,19 @@ class AutovedtakLovendringService(
 
         val søkerAktør = fagsak.aktør
         val behandlingEtterBehandlingsresultat = autovedtakService.opprettAutomatiskBehandlingOgKjørTilBehandlingsresultat(aktør = søkerAktør, behandlingÅrsak = BehandlingÅrsak.LOVENDRING_2024, behandlingType = BehandlingType.REVURDERING)
-        val opprettetVedtak = autovedtakService.opprettTotrinnskontrollForAutomatiskBehandling(behandlingEtterBehandlingsresultat)
+
+        if (behandlingEtterBehandlingsresultat.skalSendeVedtaksbrev()) {
+            stegService.utførSteg(behandlingId = behandlingEtterBehandlingsresultat.id, behandlingSteg = BehandlingSteg.SIMULERING)
+            stegService.utførSteg(behandlingId = behandlingEtterBehandlingsresultat.id, behandlingSteg = BehandlingSteg.VEDTAK)
+        }
+
+        val vedtak = vedtakRepository.findByBehandlingAndAktiv(behandlingEtterBehandlingsresultat.id)
 
         taskService.save(
             IverksettMotOppdragTask.opprettTask(
-                behandlingEtterBehandlingsresultat,
-                opprettetVedtak.id,
-                SikkerhetContext.SYSTEM_FORKORTELSE,
+                behandling = behandlingEtterBehandlingsresultat,
+                vedtakId = vedtak.id,
+                saksbehandlerId = SikkerhetContext.SYSTEM_FORKORTELSE,
             ),
         )
 

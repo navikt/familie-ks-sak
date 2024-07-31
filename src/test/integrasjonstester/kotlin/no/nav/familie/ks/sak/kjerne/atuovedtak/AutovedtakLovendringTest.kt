@@ -3,6 +3,7 @@ package no.nav.familie.ks.sak.no.nav.familie.ks.sak.kjerne.atuovedtak
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
 import io.mockk.justRun
+import io.mockk.verify
 import no.nav.familie.ks.sak.OppslagSpringRunnerTest
 import no.nav.familie.ks.sak.common.util.LocalDateTimeProvider
 import no.nav.familie.ks.sak.common.util.toYearMonth
@@ -13,6 +14,7 @@ import no.nav.familie.ks.sak.data.lagLogg
 import no.nav.familie.ks.sak.data.lagPersonResultat
 import no.nav.familie.ks.sak.integrasjon.økonomi.utbetalingsoppdrag.UtbetalingsoppdragService
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.ArbeidsfordelingService
+import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.domene.ArbeidsfordelingPåBehandling
 import no.nav.familie.ks.sak.kjerne.autovedtak.AutovedtakLovendringService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
@@ -20,6 +22,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg
+import no.nav.familie.ks.sak.kjerne.behandling.steg.simulering.SimuleringService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.PersonResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
@@ -27,6 +30,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vil
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårsvurderingRepository
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelseRepository
+import no.nav.familie.ks.sak.kjerne.brev.BrevKlient
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.FagsakStatus
 import no.nav.familie.ks.sak.kjerne.logg.LoggService
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
@@ -49,6 +53,12 @@ class AutovedtakLovendringTest(
     @Autowired private val vilkårsvurderingRepository: VilkårsvurderingRepository,
     @Autowired private val behandlingRepository: BehandlingRepository,
 ) : OppslagSpringRunnerTest() {
+    @MockkBean
+    private lateinit var brevklient: BrevKlient
+
+    @MockkBean
+    private lateinit var simuleringService: SimuleringService
+
     @MockkBean
     private lateinit var arbeidsfordelingService: ArbeidsfordelingService
 
@@ -79,6 +89,14 @@ class AutovedtakLovendringTest(
             val aktør = firstArg<Aktør>()
             personRepository.findByAktør(aktør).first()
         }
+
+        every { arbeidsfordelingService.hentArbeidsfordelingPåBehandling(any()) } returns
+            ArbeidsfordelingPåBehandling(
+                behandlingId = 1234,
+                behandlendeEnhetId = "1234",
+                behandlendeEnhetNavn = "MockEnhetNavn",
+            )
+
         justRun { loggService.opprettBehandlingLogg(any()) }
         justRun { loggService.opprettVilkårsvurderingLogg(any(), any(), any()) }
 
@@ -153,8 +171,12 @@ class AutovedtakLovendringTest(
     }
 
     @Test
-    fun `automatisk revurdering av fagsak som har fremtidig opphør beholder fremtidig opphør`() {
+    fun `automatisk revurdering av fagsak som har fremtidig opphør beholder fremtidig opphør og sender brev`() {
         // arrange
+
+        every { brevklient.genererBrev(any(), any()) } returns "brev".toByteArray()
+        every { simuleringService.oppdaterSimuleringPåBehandling(any<Long>()) } returns emptyList()
+
         opprettSøkerFagsakOgBehandling(fagsakStatus = FagsakStatus.LØPENDE, behandlingStatus = BehandlingStatus.AVSLUTTET, behandlingResultat = Behandlingsresultat.INNVILGET)
 
         val fødselsdatoBarn = LocalDate.of(2023, 4, 1)
@@ -200,6 +222,9 @@ class AutovedtakLovendringTest(
                 .vilkårResultater
                 .filter { it.vilkårType == Vilkår.BARNEHAGEPLASS && it.harMeldtBarnehageplassOgErFulltidIBarnehage() }
         assertThat(vilkårResultatRevurdering.size).isEqualTo(1)
+
+        verify { simuleringService.oppdaterSimuleringPåBehandling(any<Long>()) }
+        verify { brevklient.genererBrev(any(), any()) }
     }
 
     @Test

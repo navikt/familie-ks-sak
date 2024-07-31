@@ -247,6 +247,7 @@ fun ManueltBrevDto.tilBrev(saksbehandlerNavn: String) =
 
         Brevmal.VEDTAK_FØRSTEGANGSVEDTAK,
         Brevmal.VEDTAK_ENDRING,
+        Brevmal.ENDRING_AV_FRAMTIDIG_OPPHØR,
         Brevmal.VEDTAK_OPPHØRT,
         Brevmal.VEDTAK_OPPHØR_MED_ENDRING,
         Brevmal.VEDTAK_AVSLAG,

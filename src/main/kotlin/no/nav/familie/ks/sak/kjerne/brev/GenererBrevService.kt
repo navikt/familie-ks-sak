@@ -30,9 +30,12 @@ import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.IBegrunnelse
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.tilSanityBegrunnelse
 import no.nav.familie.ks.sak.kjerne.brev.domene.FellesdataForVedtaksbrev
 import no.nav.familie.ks.sak.kjerne.brev.domene.VedtaksbrevDto
+import no.nav.familie.ks.sak.kjerne.brev.domene.maler.BrevDto
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.Brevmal
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.Dødsfall
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.DødsfallData
+import no.nav.familie.ks.sak.kjerne.brev.domene.maler.EndringAvFramtidigOpphør
+import no.nav.familie.ks.sak.kjerne.brev.domene.maler.EndringAvFramtidigOpphørData
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.Etterbetaling
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.FeilutbetaltValuta
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.Hjemmeltekst
@@ -110,6 +113,7 @@ class GenererBrevService(
                 when (vedtak.behandling.opprettetÅrsak) {
                     BehandlingÅrsak.DØDSFALL -> hentDødsfallbrevData(vedtak)
                     BehandlingÅrsak.KORREKSJON_VEDTAKSBREV -> TODO() // brevService.hentKorreksjonbrevData(vedtak)
+                    BehandlingÅrsak.LOVENDRING_2024 -> hentEndringAvFramtidigOpphørData(vedtak)
                     else -> hentVedtaksbrevData(vedtak)
                 }
             return brevKlient.genererBrev(målform.tilSanityFormat(), vedtaksbrev)
@@ -155,7 +159,8 @@ class GenererBrevService(
                     erFeilutbetalingPåBehandling = erFeilutbetalingPåBehandling(behandlingId = behandling.id),
                     informasjonOmAarligKontroll = vedtaksperiodeService.skalHaÅrligKontroll(vedtak),
                     feilutbetaltValuta =
-                        feilutbetaltValutaService.beskrivPerioderMedFeilutbetaltValuta(behandling.id)
+                        feilutbetaltValutaService
+                            .beskrivPerioderMedFeilutbetaltValuta(behandling.id)
                             ?.let {
                                 FeilutbetaltValuta(perioderMedForMyeUtbetalt = it)
                             },
@@ -240,7 +245,9 @@ class GenererBrevService(
             beslutter = personopplysningsgrunnlagOgSignaturData.beslutter,
             hjemmeltekst = Hjemmeltekst(hjemler),
             søkerNavn = personopplysningsgrunnlagOgSignaturData.grunnlag.søker.navn,
-            søkerFødselsnummer = personopplysningsgrunnlagOgSignaturData.grunnlag.søker.aktør.aktivFødselsnummer(),
+            søkerFødselsnummer =
+                personopplysningsgrunnlagOgSignaturData.grunnlag.søker.aktør
+                    .aktivFødselsnummer(),
             perioder = brevPeriodeDtoer,
             gjelder = personopplysningsgrunnlagOgSignaturData.grunnlag.søker.navn,
             korrigertVedtakData = korrigertVedtak?.let { KorrigertVedtakData(datoKorrigertVedtak = it.vedtaksdato.tilDagMånedÅr()) },
@@ -267,7 +274,8 @@ class GenererBrevService(
             vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(behandlingId = vedtak.behandling.id)
 
         val annenForelderOmfattetAvNorskLovgivningErSattPåBosattIRiket =
-            vilkårsvurdering.personResultater.flatMap { it.vilkårResultater }
+            vilkårsvurdering.personResultater
+                .flatMap { it.vilkårResultater }
                 .any { it.utdypendeVilkårsvurderinger.contains(UtdypendeVilkårsvurdering.ANNEN_FORELDER_OMFATTET_AV_NORSK_LOVGIVNING) && it.vilkårType == Vilkår.BOSATT_I_RIKET }
 
         val passendeBehandlingsresultat =
@@ -322,6 +330,32 @@ class GenererBrevService(
         return etterbetalingsBeløp.takeIf { it > BigDecimal.ZERO }?.run { formaterBeløp(this.toInt()) }
     }
 
+    fun hentEndringAvFramtidigOpphørData(vedtak: Vedtak): BrevDto {
+        hentGrunnlagOgSignaturData(vedtak).let { data ->
+            return EndringAvFramtidigOpphør(
+                data =
+                    EndringAvFramtidigOpphørData(
+                        delmalData =
+                            EndringAvFramtidigOpphørData.DelmalData(
+                                signaturVedtak =
+                                    SignaturVedtak(
+                                        enhet = data.enhet,
+                                        saksbehandler = data.saksbehandler,
+                                        beslutter = data.beslutter,
+                                    ),
+                            ),
+                        flettefelter =
+                            EndringAvFramtidigOpphørData.Flettefelter(
+                                navn = data.grunnlag.søker.navn,
+                                fodselsnummer =
+                                    data.grunnlag.søker.aktør
+                                        .aktivFødselsnummer(),
+                            ),
+                    ),
+            )
+        }
+    }
+
     fun hentDødsfallbrevData(
         vedtak: Vedtak,
     ) =
@@ -341,10 +375,14 @@ class GenererBrevService(
                         flettefelter =
                             DødsfallData.Flettefelter(
                                 navn = data.grunnlag.søker.navn,
-                                fodselsnummer = data.grunnlag.søker.aktør.aktivFødselsnummer(),
+                                fodselsnummer =
+                                    data.grunnlag.søker.aktør
+                                        .aktivFødselsnummer(),
                                 // Selv om det er feil å anta at alle navn er på dette formatet er det ønskelig å skrive
                                 // det slik, da uppercase kan oppleves som skrikende i et brev som skal være skånsomt
-                                navnAvdode = data.grunnlag.søker.navn.storForbokstavIAlleNavn(),
+                                navnAvdode =
+                                    data.grunnlag.søker.navn
+                                        .storForbokstavIAlleNavn(),
                                 virkningstidspunkt =
                                     hentVirkningstidspunkt(
                                         opphørsperioder = vedtaksperiodeService.hentOpphørsperioder(vedtak.behandling),

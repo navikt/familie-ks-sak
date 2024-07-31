@@ -52,7 +52,11 @@ typealias Flettefelt = List<String>?
  * Se https://github.com/navikt/familie/blob/master/doc/ba-sak/legg-til-nytt-brev.md
  * for detaljer om alt som skal inn når du legger til en ny brevmal.
  ***/
-enum class Brevmal(val erVedtaksbrev: Boolean, val apiNavn: String, val visningsTekst: String) {
+enum class Brevmal(
+    val erVedtaksbrev: Boolean,
+    val apiNavn: String,
+    val visningsTekst: String,
+) {
     @Deprecated("Manuelt brev som skal sendes en gang til de som er påvirket av lovendring med søknadsdato før feb 2024, vedtatt etter feb 2024, og ATY etter juli 2024.")
     INFORMASJONSBREV_LOVENDRING_JULI_2024(false, "informasjonOmOvergangsordningForKontantstotte", "Kontantstøtte – overgangsordning"),
     INFORMASJONSBREV_DELT_BOSTED(false, "informasjonsbrevDeltBosted", "Informasjonsbrev delt bosted"),
@@ -80,6 +84,7 @@ enum class Brevmal(val erVedtaksbrev: Boolean, val apiNavn: String, val visnings
     ),
 
     HENLEGGE_TRUKKET_SØKNAD(false, "henleggeTrukketSoknad", "Henlegge trukket søknad"),
+    ENDRING_AV_FRAMTIDIG_OPPHØR(false, "endringAvFramtidigOpphor", "Endring av framtidig opphør"),
     VARSEL_OM_REVURDERING(false, "varselOmRevurdering", "Varsel om revurdering"),
     VARSEL_OM_VEDTAK_ETTER_SØKNAD_I_SED(
         false,
@@ -132,6 +137,7 @@ enum class Brevmal(val erVedtaksbrev: Boolean, val apiNavn: String, val visnings
             VARSEL_ANNEN_FORELDER_MED_SELVSTENDIG_RETT_SØKT,
             -> true
 
+            ENDRING_AV_FRAMTIDIG_OPPHØR,
             INFORMASJONSBREV_DELT_BOSTED,
             HENLEGGE_TRUKKET_SØKNAD,
             SVARTIDSBREV,
@@ -175,6 +181,7 @@ enum class Brevmal(val erVedtaksbrev: Boolean, val apiNavn: String, val visnings
             INFORMASJONSBREV_KAN_SØKE_EØS -> Dokumenttype.KONTANTSTØTTE_INFORMASJONSBREV_KAN_SØKE_EØS
             VARSEL_ANNEN_FORELDER_MED_SELVSTENDIG_RETT_SØKT -> Dokumenttype.KONTANTSTØTTE_VARSEL_ANNEN_FORELDER_MED_SELVSTENDIG_RETT_SØKT
             INFORMASJONSBREV_LOVENDRING_JULI_2024 -> Dokumenttype.KONTANTSTØTTE_INFORMASJONSBREV_LOVENDRING_JULI_2024
+            ENDRING_AV_FRAMTIDIG_OPPHØR -> Dokumenttype.KONTANTSTØTTE_ENDRING_AV_FRAMTIDIG_OPPHØR
 
             VEDTAK_ENDRING,
             VEDTAK_OPPHØRT,
@@ -211,6 +218,7 @@ enum class Brevmal(val erVedtaksbrev: Boolean, val apiNavn: String, val visnings
                 INFORMASJONSBREV_KAN_SØKE_EØS -> Distribusjonstype.ANNET
                 VEDTAK_FØRSTEGANGSVEDTAK -> Distribusjonstype.VEDTAK
                 VEDTAK_ENDRING -> Distribusjonstype.VEDTAK
+                ENDRING_AV_FRAMTIDIG_OPPHØR -> Distribusjonstype.VEDTAK
                 VEDTAK_OPPHØRT -> Distribusjonstype.VEDTAK
                 VEDTAK_OPPHØR_MED_ENDRING -> Distribusjonstype.VEDTAK
                 VEDTAK_AVSLAG -> Distribusjonstype.VEDTAK
