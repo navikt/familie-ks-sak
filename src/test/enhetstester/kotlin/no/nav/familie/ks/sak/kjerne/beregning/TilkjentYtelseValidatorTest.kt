@@ -53,21 +53,21 @@ internal class TilkjentYtelseValidatorTest {
                 tilkjentYtelse = tilkjentYtelse,
                 behandling = behandling,
                 aktør = barn.aktør,
-                stønadFom = YearMonth.now().minusMonths(10),
-                stønadTom = YearMonth.now().minusMonths(4),
+                stønadFom = YearMonth.of(2022, 1),
+                stønadTom = YearMonth.of(2022, 6),
             )
         val andelTilkjentYtelse2 =
             lagAndelTilkjentYtelse(
                 tilkjentYtelse = tilkjentYtelse,
                 behandling = behandling,
                 aktør = barn.aktør,
-                stønadFom = YearMonth.now().minusMonths(3),
-                stønadTom = YearMonth.now().plusMonths(6),
+                stønadFom = YearMonth.of(2022, 7),
+                stønadTom = YearMonth.of(2022, 12),
             )
         tilkjentYtelse.andelerTilkjentYtelse.addAll(setOf(andelTilkjentYtelse1, andelTilkjentYtelse2))
 
         val personResultat = PersonResultat(vilkårsvurdering = vilkårsvurdering, aktør = barn.aktør)
-        val barnetsAlderVilkårResultater = lagAutomatiskGenererteVilkårForBarnetsAlder(personResultat = personResultat, behandling = behandling, fødselsdato = LocalDate.now().minusYears(1).minusMonths(11))
+        val barnetsAlderVilkårResultater = lagAutomatiskGenererteVilkårForBarnetsAlder(personResultat = personResultat, behandling = behandling, fødselsdato = LocalDate.of(2022, 1, 1).minusMonths(11))
 
         val exception =
             assertThrows<FunksjonellFeil> {
