@@ -19,9 +19,7 @@ class RolleConfig(
     val KODE7: String,
 )
 
-enum class BehandlerRolle(
-    val nivå: Int,
-) {
+enum class BehandlerRolle(val nivå: Int) {
     SYSTEM(5),
     BESLUTTER(4),
     SAKSBEHANDLER(3),

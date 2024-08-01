@@ -164,8 +164,7 @@ internal class KompetanseServiceTest {
 
         // Hvis SB fjener oppdateringen, retuneres det til eksisterde kompetanse
         val kompetanseSomSkalSlettes =
-            kompetanseService
-                .hentKompetanser(behandlingId)
+            kompetanseService.hentKompetanser(behandlingId)
                 .first { it == oppdateresKompetanse }
         kompetanseService.slettKompetanse(kompetanseSomSkalSlettes.id)
 
@@ -651,18 +650,21 @@ internal class KompetanseServiceTest {
                     barn1,
                     annenForeldersAktivitetsland = null,
                     erAnnenForelderOmfattetAvNorskLovgivning = true,
-                ).medKompetanse(
+                )
+                .medKompetanse(
                     "---------",
                     barn2,
                     barn3,
                     annenForeldersAktivitetsland = null,
                     erAnnenForelderOmfattetAvNorskLovgivning = false,
-                ).medKompetanse(
+                )
+                .medKompetanse(
                     "   SSSS",
                     barn1,
                     annenForeldersAktivitetsland = null,
                     erAnnenForelderOmfattetAvNorskLovgivning = true,
-                ).lagreTil(kompetanseRepository)
+                )
+                .lagreTil(kompetanseRepository)
 
         kompetanseService.kopierOgErstattKompetanser(behandlingId1, behandlingId2)
 

@@ -44,10 +44,8 @@ class PersonService(
             person.opphold = personinfo.opphold?.map { GrOpphold.fraOpphold(it, person) }?.toMutableList()
                 ?: mutableListOf()
             person.bostedsadresser =
-                personinfo.bostedsadresser
-                    .filtrerUtKunNorskeBostedsadresser()
-                    .map { GrBostedsadresse.fraBostedsadresse(it, person) }
-                    .toMutableList()
+                personinfo.bostedsadresser.filtrerUtKunNorskeBostedsadresser()
+                    .map { GrBostedsadresse.fraBostedsadresse(it, person) }.toMutableList()
             person.sivilstander = personinfo.sivilstander.map { GrSivilstand.fraSivilstand(it, person) }.toMutableList()
             person.dødsfall =
                 Dødsfall.lagDødsfall(
@@ -55,11 +53,9 @@ class PersonService(
                     pdlDødsfallDato = personinfo.dødsfall?.dødsdato,
                     pdlDødsfallAdresse = personinfo.kontaktinformasjonForDoedsbo?.adresse,
                 )
-            person.statsborgerskap = personinfo.statsborgerskap
-                ?.flatMap {
-                    statsborgerskapService.hentStatsborgerskapMedMedlemskap(it, person)
-                }?.sortedBy { it.gyldigPeriode?.fom }
-                ?.toMutableList() ?: mutableListOf()
+            person.statsborgerskap = personinfo.statsborgerskap?.flatMap {
+                statsborgerskapService.hentStatsborgerskapMedMedlemskap(it, person)
+            }?.sortedBy { it.gyldigPeriode?.fom }?.toMutableList() ?: mutableListOf()
         }
     }
 }

@@ -67,10 +67,9 @@ enum class Vilkår(
             personType: PersonType,
             skalHenteEøsSpesifikkeVilkår: Boolean = false,
         ): Set<Vilkår> =
-            entries
-                .filter {
-                    personType in it.parterDetteGjelderFor && (skalHenteEøsSpesifikkeVilkår || !it.eøsSpesifikt)
-                }.toSet()
+            entries.filter {
+                personType in it.parterDetteGjelderFor && (skalHenteEøsSpesifikkeVilkår || !it.eøsSpesifikt)
+            }.toSet()
     }
 
     fun defaultRegelverk(behandlingKategori: BehandlingKategori): Regelverk? {

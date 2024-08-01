@@ -11,7 +11,8 @@ import org.springframework.stereotype.Service
 @Service
 class KompetanseSkjemaEndretService(
     @Lazy private val tilbakestillBehandlingService: TilbakestillBehandlingService,
-) : EøsSkjemaEndringAbonnent<Kompetanse> {
+) :
+    EøsSkjemaEndringAbonnent<Kompetanse> {
     override fun skjemaerEndret(
         behandlingId: BehandlingId,
         endretTil: List<Kompetanse>,

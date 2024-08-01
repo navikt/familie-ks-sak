@@ -34,8 +34,7 @@ class ForvalterController(
             minimumBehandlerRolle = BehandlerRolle.VEILEDER,
         )
 
-        return testVerktøyService
-            .hentBrevTest(behandlingId)
+        return testVerktøyService.hentBrevTest(behandlingId)
             .replace("\n", System.lineSeparator())
     }
 

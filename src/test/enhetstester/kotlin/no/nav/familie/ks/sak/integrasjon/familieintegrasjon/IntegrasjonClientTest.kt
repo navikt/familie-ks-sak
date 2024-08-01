@@ -38,8 +38,7 @@ internal class IntegrasjonClientTest {
     @Test
     fun `hentOppgaver skal returnere en liste av oppgaver basert på request og tema`() {
         wiremockServerItem.stubFor(
-            WireMock
-                .post(WireMock.urlEqualTo("/oppgave/v4"))
+            WireMock.post(WireMock.urlEqualTo("/oppgave/v4"))
                 .willReturn(WireMock.okJson(readFile("hentOppgaverEnkelKONResponse.json"))),
         )
 
@@ -54,8 +53,7 @@ internal class IntegrasjonClientTest {
     @Test
     fun `hentBehandlendeEnhet skal hente enhet fra familie-integrasjon`() {
         wiremockServerItem.stubFor(
-            WireMock
-                .post(WireMock.urlEqualTo("/arbeidsfordeling/enhet/KON"))
+            WireMock.post(WireMock.urlEqualTo("/arbeidsfordeling/enhet/KON"))
                 .willReturn(WireMock.okJson(readFile("hentBehandlendeEnhetEnkelResponse.json"))),
         )
 
@@ -69,8 +67,7 @@ internal class IntegrasjonClientTest {
     @Test
     fun `hentNavKontorEnhet skal hente enhet fra familie-integrasjon`() {
         wiremockServerItem.stubFor(
-            WireMock
-                .get(WireMock.urlEqualTo("/arbeidsfordeling/nav-kontor/200"))
+            WireMock.get(WireMock.urlEqualTo("/arbeidsfordeling/nav-kontor/200"))
                 .willReturn(WireMock.okJson(readFile("hentEnhetEnkelResponse.json"))),
         )
 
@@ -85,8 +82,7 @@ internal class IntegrasjonClientTest {
     @Test
     fun `finnOppgaveMedId skal hente oppgave med spesifikt id fra familie-integrasjon`() {
         wiremockServerItem.stubFor(
-            WireMock
-                .get(WireMock.urlEqualTo("/oppgave/200"))
+            WireMock.get(WireMock.urlEqualTo("/oppgave/200"))
                 .willReturn(WireMock.okJson(readFile("finnOppgaveMedIdEnkelResponse.json"))),
         )
 
@@ -102,8 +98,7 @@ internal class IntegrasjonClientTest {
     @Test
     fun `sjekkTilgangTilPersoner skal returnere Tilgang med true hvis SB har tilgang til alle personidenter`() {
         wiremockServerItem.stubFor(
-            WireMock
-                .post(WireMock.urlEqualTo("/tilgang/v2/personer"))
+            WireMock.post(WireMock.urlEqualTo("/tilgang/v2/personer"))
                 .willReturn(WireMock.okJson(readFile("sjekkTilgangTilPersonerResponseMedTilgangTilAlle.json"))),
         )
 
@@ -119,8 +114,7 @@ internal class IntegrasjonClientTest {
     @Test
     fun `sjekkTilgangTilPersoner skal returnere Tilgang med false hvis SB ikke har tilgang til alle personidenter`() {
         wiremockServerItem.stubFor(
-            WireMock
-                .post(WireMock.urlEqualTo("/tilgang/v2/personer"))
+            WireMock.post(WireMock.urlEqualTo("/tilgang/v2/personer"))
                 .willReturn(WireMock.okJson(readFile("sjekkTilgangTilPersonerResponseMedIkkeTilgangTilAlle.json"))),
         )
 
@@ -139,8 +133,7 @@ internal class IntegrasjonClientTest {
         val saksbehandler = "testSB"
 
         wiremockServerItem.stubFor(
-            WireMock
-                .post(WireMock.urlEqualTo("/oppgave/200/fordel?saksbehandler=$saksbehandler"))
+            WireMock.post(WireMock.urlEqualTo("/oppgave/200/fordel?saksbehandler=$saksbehandler"))
                 .willReturn(WireMock.okJson(readFile("fordelOppgaveEnkelResponse.json"))),
         )
 
@@ -154,8 +147,7 @@ internal class IntegrasjonClientTest {
         val nyEnhet = "testenhet"
 
         wiremockServerItem.stubFor(
-            WireMock
-                .patch(WireMock.urlEqualTo("/oppgave/200/enhet/testenhet?fjernMappeFraOppgave=true"))
+            WireMock.patch(WireMock.urlEqualTo("/oppgave/200/enhet/testenhet?fjernMappeFraOppgave=true"))
                 .willReturn(WireMock.okJson(readFile("fordelOppgaveEnkelResponse.json"))),
         )
 
@@ -169,8 +161,7 @@ internal class IntegrasjonClientTest {
         val request = LogiskVedleggRequest("testtittel")
 
         wiremockServerItem.stubFor(
-            WireMock
-                .post(WireMock.urlEqualTo("/arkiv/dokument/testid/logiskVedlegg"))
+            WireMock.post(WireMock.urlEqualTo("/arkiv/dokument/testid/logiskVedlegg"))
                 .willReturn(WireMock.okJson(readFile("logiskVedleggEnkelResponse.json"))),
         )
 
@@ -182,8 +173,7 @@ internal class IntegrasjonClientTest {
     @Test
     fun `slettLogiskVedlegg skal returnere id på vedlegg som ble slettet til`() {
         wiremockServerItem.stubFor(
-            WireMock
-                .delete(WireMock.urlEqualTo("/arkiv/dokument/testDokumentId/logiskVedlegg/testId"))
+            WireMock.delete(WireMock.urlEqualTo("/arkiv/dokument/testDokumentId/logiskVedlegg/testId"))
                 .willReturn(WireMock.okJson(readFile("logiskVedleggEnkelResponse.json"))),
         )
 
@@ -197,8 +187,7 @@ internal class IntegrasjonClientTest {
         val request = OppdaterJournalpostRequestDto(bruker = JournalpostBrukerDto(id = "testId", navn = "testNavn"))
 
         wiremockServerItem.stubFor(
-            WireMock
-                .put(WireMock.urlEqualTo("/arkiv/v2/testJournalpostId"))
+            WireMock.put(WireMock.urlEqualTo("/arkiv/v2/testJournalpostId"))
                 .willReturn(WireMock.okJson(readFile("oppdaterJournalpostEnkelResponse.json"))),
         )
 
@@ -210,8 +199,7 @@ internal class IntegrasjonClientTest {
     @Test
     fun `ferdigstillJournalpost skal sette journalpost til ferdigstilt`() {
         wiremockServerItem.stubFor(
-            WireMock
-                .put(WireMock.urlEqualTo("/arkiv/v2/testJournalPost/ferdigstill?journalfoerendeEnhet=testEnhet"))
+            WireMock.put(WireMock.urlEqualTo("/arkiv/v2/testJournalPost/ferdigstill?journalfoerendeEnhet=testEnhet"))
                 .willReturn(WireMock.okJson(readFile("logiskVedleggEnkelResponse.json"))),
         )
 
@@ -223,8 +211,7 @@ internal class IntegrasjonClientTest {
         val request = ArkiverDokumentRequest(randomFnr(), true, emptyList(), emptyList())
 
         wiremockServerItem.stubFor(
-            WireMock
-                .post(WireMock.urlEqualTo("/arkiv/v4"))
+            WireMock.post(WireMock.urlEqualTo("/arkiv/v4"))
                 .willReturn(WireMock.okJson(readFile("journalførDokumentEnkelResponse.json"))),
         )
 
@@ -239,8 +226,7 @@ internal class IntegrasjonClientTest {
         val landKode = "NOR"
 
         wiremockServerItem.stubFor(
-            WireMock
-                .get(WireMock.urlEqualTo("/kodeverk/landkoder/$landKode"))
+            WireMock.get(WireMock.urlEqualTo("/kodeverk/landkoder/$landKode"))
                 .willReturn(WireMock.okJson(readFile("hentLandEnkelResponse.json"))),
         )
 
@@ -252,8 +238,7 @@ internal class IntegrasjonClientTest {
     @Test
     fun `distribuerBrev skal en bestillingsid på at brevet at distribuert`() {
         wiremockServerItem.stubFor(
-            WireMock
-                .post(WireMock.urlEqualTo("/dist/v1"))
+            WireMock.post(WireMock.urlEqualTo("/dist/v1"))
                 .willReturn(WireMock.okJson(readFile("distribuerBrevEnkelResponse.json"))),
         )
 
@@ -262,5 +247,7 @@ internal class IntegrasjonClientTest {
         assertThat(bestillingId, Is("testBestillingId"))
     }
 
-    private fun readFile(filnavn: String): String = this::class.java.getResource("/familieintegrasjon/json/$filnavn").readText()
+    private fun readFile(filnavn: String): String {
+        return this::class.java.getResource("/familieintegrasjon/json/$filnavn").readText()
+    }
 }

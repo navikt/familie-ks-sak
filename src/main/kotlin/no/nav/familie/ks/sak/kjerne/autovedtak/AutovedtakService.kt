@@ -8,7 +8,10 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingType
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg
 import no.nav.familie.ks.sak.kjerne.behandling.steg.StegService
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.VedtakService
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.Vedtak
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
+import no.nav.familie.ks.sak.kjerne.totrinnskontroll.TotrinnskontrollService
 import org.springframework.stereotype.Service
 
 @Service
@@ -36,4 +39,5 @@ class AutovedtakService(
 
         return behandlingService.hentBehandling(behandlingId = nyBehandling.id)
     }
+
 }

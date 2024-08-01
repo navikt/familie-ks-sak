@@ -31,7 +31,8 @@ class DatabaseCleanupService(
                 field = metaModel.managedTypes
                     .filter {
                         it.javaType.kotlin.findAnnotation<Table>() != null || it.javaType.kotlin.findAnnotation<JdbcTable>() != null
-                    }.map {
+                    }
+                    .map {
                         val tableAnnotation: Table? = it.javaType.kotlin.findAnnotation()
                         val jdbcTableAnnotation: JdbcTable? = it.javaType.kotlin.findAnnotation()
                         tableAnnotation?.name ?: jdbcTableAnnotation!!.value

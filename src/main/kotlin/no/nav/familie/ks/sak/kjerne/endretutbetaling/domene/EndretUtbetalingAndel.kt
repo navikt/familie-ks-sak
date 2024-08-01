@@ -140,9 +140,7 @@ fun EndretUtbetalingAndel.fraEndretUtbetalingAndelRequestDto(
     return this
 }
 
-enum class Årsak(
-    val visningsnavn: String,
-) {
+enum class Årsak(val visningsnavn: String) {
     DELT_BOSTED("Delt bosted"),
     ETTERBETALING_3MND("Etterbetaling 3 måneder"),
     ENDRE_MOTTAKER("Foreldrene bor sammen, endret mottaker"),
@@ -193,8 +191,8 @@ data class UtfyltEndretUtbetalingAndelDeltBosted(
     val avtaletidspunktDeltBosted: LocalDate,
 ) : IUtfyltEndretUtbetalingAndel
 
-fun EndretUtbetalingAndel.tilIEndretUtbetalingAndel(): IEndretUtbetalingAndel =
-    if (this.manglerObligatoriskFelt()) {
+fun EndretUtbetalingAndel.tilIEndretUtbetalingAndel(): IEndretUtbetalingAndel {
+    return if (this.manglerObligatoriskFelt()) {
         TomEndretUtbetalingAndel(
             this.id,
             this.behandlingId,
@@ -227,3 +225,4 @@ fun EndretUtbetalingAndel.tilIEndretUtbetalingAndel(): IEndretUtbetalingAndel =
             )
         }
     }
+}

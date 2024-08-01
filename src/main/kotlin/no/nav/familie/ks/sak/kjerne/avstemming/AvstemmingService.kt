@@ -62,8 +62,7 @@ class AvstemmingService(
             behandlingService.hentAktivtFødselsnummerForBehandlinger(
                 relevanteAndeler.mapNotNull { it.kildeBehandlingId },
             )
-        return relevanteAndeler
-            .groupBy { it.kildeBehandlingId }
+        return relevanteAndeler.groupBy { it.kildeBehandlingId }
             .map { (kildeBehandlingId, andeler) ->
                 if (kildeBehandlingId == null) secureLogger.warn("Finner ikke behandlingsId for andeler=$andeler")
                 PerioderForBehandling(
@@ -72,10 +71,9 @@ class AvstemmingService(
                         aktiveFødselsnummere[kildeBehandlingId]
                             ?: error("Finnes ikke et aktivt fødselsnummer for behandling $kildeBehandlingId"),
                     perioder =
-                        andeler
-                            .map {
-                                it.periodeOffset ?: error("Andel $it mangler periodeOffset")
-                            }.toSet(),
+                        andeler.map {
+                            it.periodeOffset ?: error("Andel $it mangler periodeOffset")
+                        }.toSet(),
                 )
             }
     }

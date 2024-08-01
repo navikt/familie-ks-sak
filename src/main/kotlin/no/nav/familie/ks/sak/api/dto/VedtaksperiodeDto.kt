@@ -34,8 +34,8 @@ data class UtvidetVedtaksperiodeMedBegrunnelserDto(
     val støtterFritekst: Boolean,
 )
 
-fun UtvidetVedtaksperiodeMedBegrunnelser.tilUtvidetVedtaksperiodeMedBegrunnelserDto(sanityBegrunnelser: List<SanityBegrunnelse>): UtvidetVedtaksperiodeMedBegrunnelserDto =
-    UtvidetVedtaksperiodeMedBegrunnelserDto(
+fun UtvidetVedtaksperiodeMedBegrunnelser.tilUtvidetVedtaksperiodeMedBegrunnelserDto(sanityBegrunnelser: List<SanityBegrunnelse>): UtvidetVedtaksperiodeMedBegrunnelserDto {
+    return UtvidetVedtaksperiodeMedBegrunnelserDto(
         id = this.id,
         fom = this.fom,
         tom = this.tom,
@@ -47,6 +47,7 @@ fun UtvidetVedtaksperiodeMedBegrunnelser.tilUtvidetVedtaksperiodeMedBegrunnelser
         eøsBegrunnelser = this.eøsBegrunnelser.map { it.tilEøsBegrunnelseDto(sanityBegrunnelser) },
         støtterFritekst = this.støtterFritekst,
     )
+}
 
 data class BegrunnelseDto(
     val begrunnelse: String,

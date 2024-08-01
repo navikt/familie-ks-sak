@@ -31,33 +31,29 @@ fun filterBortIrrelevanteVedtakSimuleringPosteringer(
 
 fun hentNyttBeløpIPeriode(periode: List<ØkonomiSimuleringPostering>): BigDecimal {
     val sumPositiveYtelser =
-        periode
-            .filter { postering ->
-                postering.posteringType == PosteringType.YTELSE && postering.beløp > BigDecimal.ZERO
-            }.sumOf { it.beløp }
+        periode.filter { postering ->
+            postering.posteringType == PosteringType.YTELSE && postering.beløp > BigDecimal.ZERO
+        }.sumOf { it.beløp }
     val feilutbetaling = hentFeilbetalingIPeriode(periode)
     return if (feilutbetaling > BigDecimal.ZERO) sumPositiveYtelser - feilutbetaling else sumPositiveYtelser
 }
 
 fun hentFeilbetalingIPeriode(periode: List<ØkonomiSimuleringPostering>) =
-    periode
-        .filter { postering ->
-            postering.posteringType == PosteringType.FEILUTBETALING
-        }.sumOf { it.beløp }
+    periode.filter { postering ->
+        postering.posteringType == PosteringType.FEILUTBETALING
+    }.sumOf { it.beløp }
 
 fun hentPositivFeilbetalingIPeriode(periode: List<ØkonomiSimuleringPostering>) =
-    periode
-        .filter { postering ->
-            postering.posteringType == PosteringType.FEILUTBETALING &&
-                postering.beløp > BigDecimal.ZERO
-        }.sumOf { it.beløp }
+    periode.filter { postering ->
+        postering.posteringType == PosteringType.FEILUTBETALING &&
+            postering.beløp > BigDecimal.ZERO
+    }.sumOf { it.beløp }
 
 fun hentTidligereUtbetaltIPeriode(periode: List<ØkonomiSimuleringPostering>): BigDecimal {
     val sumNegativeYtelser =
-        periode
-            .filter { postering ->
-                (postering.posteringType == PosteringType.YTELSE && postering.beløp < BigDecimal.ZERO)
-            }.sumOf { it.beløp }
+        periode.filter { postering ->
+            (postering.posteringType == PosteringType.YTELSE && postering.beløp < BigDecimal.ZERO)
+        }.sumOf { it.beløp }
     val feilutbetaling = hentFeilbetalingIPeriode(periode)
     return if (feilutbetaling < BigDecimal.ZERO) -(sumNegativeYtelser - feilutbetaling) else -sumNegativeYtelser
 }
@@ -79,8 +75,7 @@ fun hentEtterbetalingIPeriode(
     val periodeHarPositivFeilutbetaling =
         periode.any { it.posteringType == PosteringType.FEILUTBETALING && it.beløp > BigDecimal.ZERO }
     val sumYtelser =
-        periode
-            .filter { it.posteringType == PosteringType.YTELSE && it.forfallsdato <= tidSimuleringHentet }
+        periode.filter { it.posteringType == PosteringType.YTELSE && it.forfallsdato <= tidSimuleringHentet }
             .sumOf { it.beløp }
     return when {
         periodeHarPositivFeilutbetaling ->
@@ -98,20 +93,20 @@ fun hentEtterbetalingIPeriode(
 fun hentTotalEtterbetaling(
     simuleringPerioder: List<SimuleringsPeriodeDto>,
     fomDatoNestePeriode: LocalDate?,
-): BigDecimal =
-    simuleringPerioder
-        .filter {
-            (fomDatoNestePeriode == null || it.fom < fomDatoNestePeriode)
-        }.sumOf { it.etterbetaling }
-        .takeIf { it > BigDecimal.ZERO } ?: BigDecimal.ZERO
+): BigDecimal {
+    return simuleringPerioder.filter {
+        (fomDatoNestePeriode == null || it.fom < fomDatoNestePeriode)
+    }.sumOf { it.etterbetaling }.takeIf { it > BigDecimal.ZERO } ?: BigDecimal.ZERO
+}
 
 fun hentTotalFeilutbetaling(
     simuleringPerioder: List<SimuleringsPeriodeDto>,
     fomDatoNestePeriode: LocalDate?,
-): BigDecimal =
-    simuleringPerioder
+): BigDecimal {
+    return simuleringPerioder
         .filter { fomDatoNestePeriode == null || it.fom < fomDatoNestePeriode }
         .sumOf { it.feilutbetaling }
+}
 
 fun SimuleringMottaker.tilBehandlingSimuleringMottaker(behandling: Behandling): ØkonomiSimuleringMottaker {
     val behandlingSimuleringMottaker =
@@ -157,11 +152,8 @@ fun validerTilbakekrevingData(
 fun hentTilbakekrevingsperioderISimulering(simulering: List<ØkonomiSimuleringMottaker>): List<Periode> {
     val tilbakekrevingsperioder = mutableListOf<Periode>()
     val feilutbetaltePerioder =
-        simulering
-            .tilSimuleringDto()
-            .perioder
-            .filter { it.feilutbetaling != BigDecimal.ZERO }
-            .sortedBy { it.fom }
+        simulering.tilSimuleringDto().perioder
+            .filter { it.feilutbetaling != BigDecimal.ZERO }.sortedBy { it.fom }
 
     var aktuellFom = feilutbetaltePerioder.first().fom
     var aktuellTom = feilutbetaltePerioder.first().tom

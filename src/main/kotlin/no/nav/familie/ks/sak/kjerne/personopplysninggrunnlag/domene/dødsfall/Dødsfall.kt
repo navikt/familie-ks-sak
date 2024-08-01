@@ -35,7 +35,9 @@ data class Dødsfall(
     @Column(name = "doedsfall_poststed", nullable = true)
     val dødsfallPoststed: String?,
 ) : BaseEntitet() {
-    fun hentAdresseToString(): String = """$dødsfallAdresse, $dødsfallPostnummer $dødsfallPoststed"""
+    fun hentAdresseToString(): String {
+        return """$dødsfallAdresse, $dødsfallPostnummer $dødsfallPoststed"""
+    }
 
     companion object {
         fun lagDødsfall(

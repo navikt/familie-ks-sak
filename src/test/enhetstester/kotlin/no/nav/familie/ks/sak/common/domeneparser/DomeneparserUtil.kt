@@ -6,9 +6,7 @@ interface Domenenøkkel {
     val nøkkel: String
 }
 
-enum class Domenebegrep(
-    override val nøkkel: String,
-) : Domenenøkkel {
+enum class Domenebegrep(override val nøkkel: String) : Domenenøkkel {
     ID("Id"),
     FAGSAK_ID("FagsakId"),
     BEHANDLING_ID("BehandlingId"),
@@ -22,9 +20,7 @@ enum class Domenebegrep(
     BEHANDLINGSKATEGORI("Behandlingskategori"),
 }
 
-enum class DomenebegrepAndelTilkjentYtelse(
-    override val nøkkel: String,
-) : Domenenøkkel {
+enum class DomenebegrepAndelTilkjentYtelse(override val nøkkel: String) : Domenenøkkel {
     ER_AUTOMATISK_VURDERT("Er automatisk vurdert"),
 }
 

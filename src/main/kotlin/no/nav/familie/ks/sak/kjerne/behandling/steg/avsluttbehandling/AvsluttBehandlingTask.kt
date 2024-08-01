@@ -14,9 +14,7 @@ import java.util.Properties
     beskrivelse = "Avslutt behandling",
     maxAntallFeil = 3,
 )
-class AvsluttBehandlingTask(
-    private val stegService: StegService,
-) : AsyncTaskStep {
+class AvsluttBehandlingTask(private val stegService: StegService) : AsyncTaskStep {
     override fun doTask(task: Task) {
         val behandlingId = task.payload.toLong()
         stegService.utførSteg(behandlingId, BehandlingSteg.AVSLUTT_BEHANDLING)

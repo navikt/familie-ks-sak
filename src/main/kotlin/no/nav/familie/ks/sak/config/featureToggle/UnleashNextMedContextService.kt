@@ -32,8 +32,8 @@ class UnleashNextMedContextService(
         )
     }
 
-    fun isEnabled(toggleId: String): Boolean =
-        unleashService.isEnabled(
+    fun isEnabled(toggleId: String): Boolean {
+        return unleashService.isEnabled(
             toggleId,
             properties =
                 mapOf(
@@ -41,4 +41,5 @@ class UnleashNextMedContextService(
                     UnleashContextFields.EPOST to SikkerhetContext.hentSaksbehandlerEpost(),
                 ),
         )
+    }
 }

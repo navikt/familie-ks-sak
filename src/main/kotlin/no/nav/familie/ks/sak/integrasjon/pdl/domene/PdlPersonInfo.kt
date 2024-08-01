@@ -43,9 +43,13 @@ data class ForelderBarnRelasjonInfo(
     val fødselsdato: LocalDate? = null,
     val adressebeskyttelseGradering: ADRESSEBESKYTTELSEGRADERING? = null,
 ) {
-    override fun toString(): String = "ForelderBarnRelasjon(personIdent=XXX, relasjonsrolle=$relasjonsrolle, navn=XXX, fødselsdato=$fødselsdato)"
+    override fun toString(): String {
+        return "ForelderBarnRelasjon(personIdent=XXX, relasjonsrolle=$relasjonsrolle, navn=XXX, fødselsdato=$fødselsdato)"
+    }
 
-    fun toSecureString(): String = "ForelderBarnRelasjon(personIdent=${aktør.aktivFødselsnummer()}, relasjonsrolle=$relasjonsrolle, navn=XXX, fødselsdato=$fødselsdato)"
+    fun toSecureString(): String {
+        return "ForelderBarnRelasjon(personIdent=${aktør.aktivFødselsnummer()}, relasjonsrolle=$relasjonsrolle, navn=XXX, fødselsdato=$fødselsdato)"
+    }
 
     fun harForelderRelasjon() =
         this.relasjonsrolle in
@@ -60,7 +64,9 @@ data class ForelderBarnRelasjonInfoMaskert(
     val relasjonsrolle: FORELDERBARNRELASJONROLLE,
     val adressebeskyttelseGradering: ADRESSEBESKYTTELSEGRADERING,
 ) {
-    override fun toString(): String = "ForelderBarnRelasjonMaskert(relasjonsrolle=$relasjonsrolle)"
+    override fun toString(): String {
+        return "ForelderBarnRelasjonMaskert(relasjonsrolle=$relasjonsrolle)"
+    }
 }
 
 data class DødsfallData(

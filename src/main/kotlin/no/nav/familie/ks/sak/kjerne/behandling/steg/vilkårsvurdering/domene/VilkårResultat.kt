@@ -102,8 +102,8 @@ class VilkårResultat(
         fom: LocalDate?,
         tom: LocalDate?,
         behandlingId: Long,
-    ): VilkårResultat =
-        VilkårResultat(
+    ): VilkårResultat {
+        return VilkårResultat(
             personResultat = this.personResultat,
             erAutomatiskVurdert = this.erAutomatiskVurdert,
             vilkårType = this.vilkårType,
@@ -120,6 +120,7 @@ class VilkårResultat(
             antallTimer = antallTimer,
             søkerHarMeldtFraOmBarnehageplass = søkerHarMeldtFraOmBarnehageplass,
         )
+    }
 
     fun tilPeriode(vilkår: List<VilkårResultat>): Periode<Long>? {
         val fraOgMedDato = this.periodeFom?.førsteDagINesteMåned() ?: return null
@@ -152,7 +153,9 @@ class VilkårResultat(
         søkerHarMeldtFraOmBarnehageplass = this.søkerHarMeldtFraOmBarnehageplass,
     )
 
-    override fun toString(): String = """ VilkårResultat(id=$id,vilkårType=$vilkårType,periodeFom=$periodeFom,periodeTom=$periodeTom,resultat=$resultat,evalueringÅrsaker=$evalueringÅrsaker",erAutomatiskVurdert=$erAutomatiskVurdert) """
+    override fun toString(): String {
+        return """ VilkårResultat(id=$id,vilkårType=$vilkårType,periodeFom=$periodeFom,periodeTom=$periodeTom,resultat=$resultat,evalueringÅrsaker=$evalueringÅrsaker",erAutomatiskVurdert=$erAutomatiskVurdert) """
+    }
 
     companion object {
         val VilkårResultatComparator = compareBy<VilkårResultat>({ it.periodeFom }, { it.resultat }, { it.vilkårType })

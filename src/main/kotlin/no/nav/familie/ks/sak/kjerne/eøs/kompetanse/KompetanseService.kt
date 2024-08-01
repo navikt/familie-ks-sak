@@ -98,8 +98,7 @@ class KompetanseService(
         annenForelderOmfattetAvNorskLovgivningTidslinje: Tidslinje<Boolean>,
     ): List<Kompetanse> {
         val barnasEøsRegelverkTidslinjer =
-            barnaRegelverkTidslinjer
-                .tilBarnasEøsRegelverkTidslinjer()
+            barnaRegelverkTidslinjer.tilBarnasEøsRegelverkTidslinjer()
                 .leftJoin(barnasHarEtterbetaling3MånedTidslinjer) { regelverk, harEtterbetaling3Måned ->
                     when (harEtterbetaling3Måned) {
                         true -> null // ta bort regelverk hvis barnet har etterbetaling 3 måned
@@ -107,8 +106,7 @@ class KompetanseService(
                     }
                 }
 
-        return eksisterendeKompetanser
-            .tilSeparateTidslinjerForBarna()
+        return eksisterendeKompetanser.tilSeparateTidslinjerForBarna()
             .outerJoin(barnasEøsRegelverkTidslinjer) { kompetanse, regelverk ->
                 regelverk?.let { kompetanse ?: Kompetanse.blankKompetanse }
             }.mapValues { (_, value) ->
@@ -119,17 +117,14 @@ class KompetanseService(
     }
 
     private fun hentBarnasRegelverkResultatTidslinjer(behandlingId: BehandlingId): Map<Aktør, Tidslinje<RegelverkResultat>> =
-        vilkårsvurderingTidslinjeService
-            .lagVilkårsvurderingTidslinjer(behandlingId.id)
-            .barnasTidslinjer()
+        vilkårsvurderingTidslinjeService.lagVilkårsvurderingTidslinjer(behandlingId.id).barnasTidslinjer()
             .mapValues { (_, tidslinjer) ->
                 tidslinjer.regelverkResultatTidslinje
             }
 
     private fun Map<Aktør, Tidslinje<RegelverkResultat>>.tilBarnasEøsRegelverkTidslinjer() =
         this.mapValues { (_, tidslinjer) ->
-            tidslinjer
-                .filtrer { it?.regelverk == Regelverk.EØS_FORORDNINGEN }
+            tidslinjer.filtrer { it?.regelverk == Regelverk.EØS_FORORDNINGEN }
                 .filtrerIkkeNull()
                 .forlengTomdatoTilUendeligOmTomErSenereEnn(førsteDagINesteMåned = LocalDate.now().førsteDagINesteMåned())
         }
@@ -137,8 +132,7 @@ class KompetanseService(
     private fun <T> Tidslinje<T>.forlengTomdatoTilUendeligOmTomErSenereEnn(førsteDagINesteMåned: LocalDate): Tidslinje<T & Any> {
         val tom = this.tilPerioderIkkeNull().mapNotNull { it.tom }.maxOrNull()
         return if (tom != null && tom > førsteDagINesteMåned) {
-            this
-                .tilPerioderIkkeNull()
+            this.tilPerioderIkkeNull()
                 .filter { it.fom != null && it.fom <= førsteDagINesteMåned }
                 .replaceLast { Periode(verdi = it.verdi, fom = it.fom, tom = null) }
                 .tilTidslinje()

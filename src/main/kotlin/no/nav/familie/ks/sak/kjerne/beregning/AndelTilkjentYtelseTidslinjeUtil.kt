@@ -13,24 +13,28 @@ import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import java.time.YearMonth
 
-fun Iterable<AndelTilkjentYtelse>.tilSeparateTidslinjerForBarna(): Map<Aktør, Tidslinje<AndelTilkjentYtelse>> =
-    this
-        .groupBy { it.aktør }
+fun Iterable<AndelTilkjentYtelse>.tilSeparateTidslinjerForBarna(): Map<Aktør, Tidslinje<AndelTilkjentYtelse>> {
+    return this.groupBy { it.aktør }
         .mapValues { (_, andeler) -> andeler.map { it.tilPeriode() }.tilTidslinje() }
+}
 
-fun Map<Aktør, Tidslinje<AndelTilkjentYtelse>>.tilAndelerTilkjentYtelse(): List<AndelTilkjentYtelse> = this.values.flatMap { it.tilAndelTilkjentYtelse() }
+fun Map<Aktør, Tidslinje<AndelTilkjentYtelse>>.tilAndelerTilkjentYtelse(): List<AndelTilkjentYtelse> {
+    return this.values.flatMap { it.tilAndelTilkjentYtelse() }
+}
 
-fun Iterable<Tidslinje<AndelTilkjentYtelse>>.tilAndelerTilkjentYtelse(): List<AndelTilkjentYtelse> = this.flatMap { it.tilAndelTilkjentYtelse() }
+fun Iterable<Tidslinje<AndelTilkjentYtelse>>.tilAndelerTilkjentYtelse(): List<AndelTilkjentYtelse> {
+    return this.flatMap { it.tilAndelTilkjentYtelse() }
+}
 
-fun Tidslinje<AndelTilkjentYtelse>.tilAndelTilkjentYtelse(): List<AndelTilkjentYtelse> =
-    this
-        .tilPerioder()
-        .map {
+fun Tidslinje<AndelTilkjentYtelse>.tilAndelTilkjentYtelse(): List<AndelTilkjentYtelse> {
+    return this
+        .tilPerioder().map {
             it.verdi?.medPeriode(
                 it.fom?.tilYearMonth(),
                 it.tom?.tilYearMonth(),
             )
         }.filterNotNull()
+}
 
 fun AndelTilkjentYtelse.tilPeriode() =
     Periode(

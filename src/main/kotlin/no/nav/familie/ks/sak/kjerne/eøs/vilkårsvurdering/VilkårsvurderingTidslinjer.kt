@@ -22,8 +22,7 @@ class VilkårsvurderingTidslinjer(
     private val vilkårResultaterTidslinjeMap =
         aktørTilPersonResultater.entries.associate { (aktør, personResultat) ->
             aktør to
-                personResultat.vilkårResultater
-                    .groupBy { it.vilkårType }
+                personResultat.vilkårResultater.groupBy { it.vilkårType }
                     .map { tilVilkårRegelverkResultatTidslinje(it.key, it.value) }
         }
 
@@ -34,10 +33,7 @@ class VilkårsvurderingTidslinjer(
 
     fun barnasTidslinjer(): Map<Aktør, BarnetsTidslinjer> = barnasTidslinjer.entries.associate { it.key to it.value }
 
-    class SøkersTidslinjer(
-        tidslinjer: VilkårsvurderingTidslinjer,
-        aktør: Aktør,
-    ) {
+    class SøkersTidslinjer(tidslinjer: VilkårsvurderingTidslinjer, aktør: Aktør) {
         val vilkårResultatTidslinjer = tidslinjer.vilkårResultaterTidslinjeMap[aktør] ?: listOf(tomTidslinje())
         val regelverkResultatTidslinje =
             vilkårResultatTidslinjer.kombiner {
@@ -45,10 +41,7 @@ class VilkårsvurderingTidslinjer(
             }
     }
 
-    class BarnetsTidslinjer(
-        tidslinjer: VilkårsvurderingTidslinjer,
-        aktør: Aktør,
-    ) {
+    class BarnetsTidslinjer(tidslinjer: VilkårsvurderingTidslinjer, aktør: Aktør) {
         private val søkersTidslinje = tidslinjer.søkersTidslinje
 
         val vilkårResultatTidslinjer = tidslinjer.vilkårResultaterTidslinjeMap[aktør] ?: listOf(tomTidslinje())
@@ -63,9 +56,10 @@ class VilkårsvurderingTidslinjer(
                 }.beskjærEtter(søkersTidslinje.regelverkResultatTidslinje)
     }
 
-    fun harBlandetRegelverk(): Boolean =
-        søkersTidslinje.regelverkResultatTidslinje.inneholder(RegelverkResultat.OPPFYLT_BLANDET_REGELVERK) ||
+    fun harBlandetRegelverk(): Boolean {
+        return søkersTidslinje.regelverkResultatTidslinje.inneholder(RegelverkResultat.OPPFYLT_BLANDET_REGELVERK) ||
             barnasTidslinjer().values.any {
                 it.egetRegelverkResultatTidslinje.inneholder(RegelverkResultat.OPPFYLT_BLANDET_REGELVERK)
             }
+    }
 }

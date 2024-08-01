@@ -26,12 +26,7 @@ class BarnetsAlderVilkårValidator2021 {
                 .filter { it.verdi.erAdopsjonOppfylt() }
                 .mapNotNull {
                     when {
-                        it.tom.isAfter(
-                            barn.fødselsdato
-                                .plusYears(6)
-                                .withMonth(Month.AUGUST.value)
-                                .sisteDagIMåned(),
-                        ) ->
+                        it.tom.isAfter(barn.fødselsdato.plusYears(6).withMonth(Month.AUGUST.value).sisteDagIMåned()) ->
                             "Du kan ikke sette en t.o.m dato på barnets alder vilkåret som er etter august året barnet fyller 6 år."
                         // Ved adopsjon skal det være lov å ha en differanse på 1 år slik at man får 11 måned med kontantstøtte.
                         it.fom.plusYears(1) < it.tom ->

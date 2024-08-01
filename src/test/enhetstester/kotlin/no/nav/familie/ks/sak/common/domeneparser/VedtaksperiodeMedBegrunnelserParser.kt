@@ -10,8 +10,8 @@ object VedtaksperiodeMedBegrunnelserParser {
     fun mapForventetVedtaksperioderMedBegrunnelser(
         dataTable: DataTable,
         vedtak: Vedtak,
-    ): List<VedtaksperiodeMedBegrunnelser> =
-        dataTable.asMaps().map { rad ->
+    ): List<VedtaksperiodeMedBegrunnelser> {
+        return dataTable.asMaps().map { rad ->
             VedtaksperiodeMedBegrunnelser(
                 vedtak = vedtak,
                 fom = parseValgfriDato(Domenebegrep.FRA_DATO, rad),
@@ -31,6 +31,7 @@ object VedtaksperiodeMedBegrunnelserParser {
                 )
             }
         }
+    }
 
     fun parseAktørId(rad: MutableMap<String, String>) =
         parseString(DomenebegrepPersongrunnlag.AKTØR_ID, rad).padEnd(13, '0')
@@ -38,9 +39,7 @@ object VedtaksperiodeMedBegrunnelserParser {
     fun parseAktørIdListe(rad: MutableMap<String, String>) =
         parseStringList(DomenebegrepPersongrunnlag.AKTØR_ID, rad).map { it.padEnd(13, '0') }
 
-    enum class DomenebegrepPersongrunnlag(
-        override val nøkkel: String,
-    ) : Domenenøkkel {
+    enum class DomenebegrepPersongrunnlag(override val nøkkel: String) : Domenenøkkel {
         PERSON_TYPE("Persontype"),
         FØDSELSDATO("Fødselsdato"),
         DØDSFALLDATO("Dødsfalldato"),
@@ -50,9 +49,7 @@ object VedtaksperiodeMedBegrunnelserParser {
         ER_FOLKEREGISTRERT("Er folkeregistrert"),
     }
 
-    enum class DomenebegrepVedtaksperiodeMedBegrunnelser(
-        override val nøkkel: String,
-    ) : Domenenøkkel {
+    enum class DomenebegrepVedtaksperiodeMedBegrunnelser(override val nøkkel: String) : Domenenøkkel {
         VEDTAKSPERIODE_TYPE("Vedtaksperiodetype"),
         VILKÅR("Vilkår"),
         UTDYPENDE_VILKÅR("Utdypende vilkår"),
@@ -72,9 +69,7 @@ object VedtaksperiodeMedBegrunnelserParser {
         ANTALL_TIMER("Antall timer"),
     }
 
-    enum class DomenebegrepKompetanse(
-        override val nøkkel: String,
-    ) : Domenenøkkel {
+    enum class DomenebegrepKompetanse(override val nøkkel: String) : Domenenøkkel {
         SØKERS_AKTIVITET("Søkers aktivitet"),
         ANNEN_FORELDERS_AKTIVITET("Annen forelders aktivitet"),
         SØKERS_AKTIVITETSLAND("Søkers aktivitetsland"),
@@ -83,33 +78,25 @@ object VedtaksperiodeMedBegrunnelserParser {
         RESULTAT("Resultat"),
     }
 
-    enum class DomenebegrepValutakurs(
-        override val nøkkel: String,
-    ) : Domenenøkkel {
+    enum class DomenebegrepValutakurs(override val nøkkel: String) : Domenenøkkel {
         VALUTAKURSDATO("Valutakursdato"),
         VALUTA_KODE("Valuta kode"),
         KURS("Kurs"),
     }
 
-    enum class DomenebegrepUtenlandskPeriodebeløp(
-        override val nøkkel: String,
-    ) : Domenenøkkel {
+    enum class DomenebegrepUtenlandskPeriodebeløp(override val nøkkel: String) : Domenenøkkel {
         BELØP("Beløp"),
         VALUTA_KODE("Valuta kode"),
         INTERVALL("Intervall"),
         UTBETALINGSLAND("Utbetalingsland"),
     }
 
-    enum class DomenebegrepEndretUtbetaling(
-        override val nøkkel: String,
-    ) : Domenenøkkel {
+    enum class DomenebegrepEndretUtbetaling(override val nøkkel: String) : Domenenøkkel {
         PROSENT("Prosent"),
         ÅRSAK("Årsak"),
     }
 
-    enum class DomenebegrepAndelTilkjentYtelse(
-        override val nøkkel: String,
-    ) : Domenenøkkel {
+    enum class DomenebegrepAndelTilkjentYtelse(override val nøkkel: String) : Domenenøkkel {
         YTELSE_TYPE("Ytelse type"),
     }
 }

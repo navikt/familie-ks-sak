@@ -31,19 +31,29 @@ class KafkaConfig(
     @Value("\${KAFKA_KEYSTORE_PATH}") private val kafkaKeystorePath: String,
 ) {
     @Bean
-    fun producerFactory(): ProducerFactory<String, String> = DefaultKafkaProducerFactory(producerConfigs())
+    fun producerFactory(): ProducerFactory<String, String> {
+        return DefaultKafkaProducerFactory(producerConfigs())
+    }
 
     @Bean
-    fun kafkaTemplate(): KafkaTemplate<String, String> = KafkaTemplate(producerFactory())
+    fun kafkaTemplate(): KafkaTemplate<String, String> {
+        return KafkaTemplate(producerFactory())
+    }
 
     @Bean
-    fun consumerFactory(): ConsumerFactory<String, String> = DefaultKafkaConsumerFactory(consumerConfigs())
+    fun consumerFactory(): ConsumerFactory<String, String> {
+        return DefaultKafkaConsumerFactory(consumerConfigs())
+    }
 
     @Bean
-    fun earliestConsumerFactory(): ConsumerFactory<String, String> = DefaultKafkaConsumerFactory(consumerConfigsEarliest())
+    fun earliestConsumerFactory(): ConsumerFactory<String, String> {
+        return DefaultKafkaConsumerFactory(consumerConfigsEarliest())
+    }
 
     @Bean
-    fun earliestConsumerFactoryAvro(): ConsumerFactory<String, String> = DefaultKafkaConsumerFactory(consumerConfigsEarliestAvro())
+    fun earliestConsumerFactoryAvro(): ConsumerFactory<String, String> {
+        return DefaultKafkaConsumerFactory(consumerConfigsEarliestAvro())
+    }
 
     @Bean
     fun concurrentKafkaListenerContainerFactory(

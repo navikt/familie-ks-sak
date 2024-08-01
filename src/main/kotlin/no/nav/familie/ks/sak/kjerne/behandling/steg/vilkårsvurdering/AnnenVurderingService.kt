@@ -8,12 +8,9 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
 @Service
-class AnnenVurderingService(
-    private val annenVurderingRepository: AnnenVurderingRepository,
-) {
+class AnnenVurderingService(private val annenVurderingRepository: AnnenVurderingRepository) {
     fun hentAnnenVurderingThrows(annenVurderingId: Long): AnnenVurdering =
-        annenVurderingRepository
-            .findById(annenVurderingId)
+        annenVurderingRepository.findById(annenVurderingId)
             .orElseThrow { FunksjonellFeil("Annen vurdering med id $annenVurderingId finnes ikke i db") }
 
     @Transactional

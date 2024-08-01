@@ -18,17 +18,18 @@ data class TidslinjePeriodeMedDato<T>(
         tom = Dato(tom ?: PRAKTISK_SENESTE_DAG),
     )
 
-    class Dato(
-        private val dato: LocalDate,
-    ) : Comparable<Dato> {
-        fun tilLocalDateEllerNull(): LocalDate? =
-            if (this.dato == PRAKTISK_TIDLIGSTE_DAG || this.dato == PRAKTISK_SENESTE_DAG) {
+    class Dato(private val dato: LocalDate) : Comparable<Dato> {
+        fun tilLocalDateEllerNull(): LocalDate? {
+            return if (this.dato == PRAKTISK_TIDLIGSTE_DAG || this.dato == PRAKTISK_SENESTE_DAG) {
                 null
             } else {
                 this.dato
             }
+        }
 
-        override fun compareTo(other: Dato): Int = this.dato.compareTo(other.dato)
+        override fun compareTo(other: Dato): Int {
+            return this.dato.compareTo(other.dato)
+        }
     }
 
     fun tilPeriode() = Periode(periodeVerdi.verdi, fom.tilLocalDateEllerNull(), tom.tilLocalDateEllerNull())
@@ -42,15 +43,14 @@ fun <T> List<TidslinjePeriodeMedDato<T>>.tilTidslinje(): Tidslinje<T> {
     )
 }
 
-private fun <T> List<TidslinjePeriodeMedDato<T>>.fyllInnTommePerioder(): List<TidslinjePeriodeMedDato<T>> =
-    this.fold(emptyList()) { periodeListeMedTommePerioder, periode ->
+private fun <T> List<TidslinjePeriodeMedDato<T>>.fyllInnTommePerioder(): List<TidslinjePeriodeMedDato<T>> {
+    return this.fold(emptyList()) { periodeListeMedTommePerioder, periode ->
         val sisteElement = periodeListeMedTommePerioder.lastOrNull()
 
         if (sisteElement == null) {
             periodeListeMedTommePerioder + periode
         } else if (sisteElement.tom.tilDatoEllerPraktiskSenesteDag() ==
-            periode.fom
-                .tilDatoEllerPraktiskTidligsteDag()
+            periode.fom.tilDatoEllerPraktiskTidligsteDag()
                 .minusDays(1)
         ) {
             periodeListeMedTommePerioder + periode
@@ -64,13 +64,13 @@ private fun <T> List<TidslinjePeriodeMedDato<T>>.fyllInnTommePerioder(): List<Ti
                 periode
         }
     }
+}
 
 private fun <T> List<TidslinjePeriodeMedDato<T>>.tilTidslinjePerioder(): List<TidslinjePeriode<T>> {
     this.validerKunFørsteEllerSistePeriodeErUendelig()
     this.validerIngenOverlapp()
 
-    return this
-        .sortedBy { it.fom }
+    return this.sortedBy { it.fom }
         .fyllInnTommePerioder()
         .map {
             TidslinjePeriode(
@@ -82,8 +82,7 @@ private fun <T> List<TidslinjePeriodeMedDato<T>>.tilTidslinjePerioder(): List<Ti
 }
 
 fun <T> List<TidslinjePeriodeMedDato<T>>.validerIngenOverlapp(feilmelding: String = "Feil med tidslinje. Overlapp på periode") {
-    this
-        .sortedBy { it.fom }
+    this.sortedBy { it.fom }
         .zipWithNext { a, b ->
             if (a.tom.tilDatoEllerPraktiskSenesteDag().isAfter(b.fom.tilDatoEllerPraktiskTidligsteDag())) {
                 throw Feil(message = feilmelding, frontendFeilmelding = feilmelding)
@@ -104,6 +103,10 @@ private fun <T> List<TidslinjePeriodeMedDato<T>>.validerKunFørsteEllerSistePeri
     }
 }
 
-private fun TidslinjePeriodeMedDato.Dato.tilDatoEllerPraktiskTidligsteDag(): LocalDate = this.tilLocalDateEllerNull() ?: PRAKTISK_TIDLIGSTE_DAG
+private fun TidslinjePeriodeMedDato.Dato.tilDatoEllerPraktiskTidligsteDag(): LocalDate {
+    return this.tilLocalDateEllerNull() ?: PRAKTISK_TIDLIGSTE_DAG
+}
 
-private fun TidslinjePeriodeMedDato.Dato.tilDatoEllerPraktiskSenesteDag(): LocalDate = this.tilLocalDateEllerNull() ?: PRAKTISK_SENESTE_DAG
+private fun TidslinjePeriodeMedDato.Dato.tilDatoEllerPraktiskSenesteDag(): LocalDate {
+    return this.tilLocalDateEllerNull() ?: PRAKTISK_SENESTE_DAG
+}

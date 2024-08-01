@@ -17,9 +17,7 @@ import java.util.Properties
     beskrivelse = "Grensesnittavstemming mot oppdrag",
     maxAntallFeil = 3,
 )
-class GrensesnittavstemmingTask(
-    private val avstemmingService: AvstemmingService,
-) : AsyncTaskStep {
+class GrensesnittavstemmingTask(private val avstemmingService: AvstemmingService) : AsyncTaskStep {
     override fun doTask(task: Task) {
         val taskData = objectMapper.readValue(task.payload, GrensesnittavstemmingTaskDto::class.java)
         logger.info("Kjører $TASK_STEP_TYPE for fom=${taskData.fom}, tom=${taskData.tom}")
@@ -36,8 +34,7 @@ class GrensesnittavstemmingTask(
             type = TASK_STEP_TYPE,
             payload = objectMapper.writeValueAsString(GrensesnittavstemmingTaskDto(fom, tom)),
             properties =
-                Properties().apply {
-                    // la til denne i properties slik at de kan vises i familie-prosessering
+                Properties().apply { // la til denne i properties slik at de kan vises i familie-prosessering
                     this["fom"] = fom.toString()
                     this["tom"] = tom.toString()
                 },

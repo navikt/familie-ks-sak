@@ -116,13 +116,9 @@ data class VedtaksperiodeMedBegrunnelser(
                 val vedtaksperiodeTidslinje = listOf(Periode(verdi = this, fom = fom, tom)).tilTidslinje()
 
                 val andelTilkjentYtelserIPeriode =
-                    kombinertTidslinje
-                        .kombinerMed(
-                            vedtaksperiodeTidslinje,
-                        ) { andelTilkjentYtelseIPeriode, vedtaksPeriode -> if (vedtaksPeriode != null) andelTilkjentYtelseIPeriode else null }
-                        .tilPerioder()
-                        .mapNotNull { it.verdi }
-                        .flatten()
+                    kombinertTidslinje.kombinerMed(
+                        vedtaksperiodeTidslinje,
+                    ) { andelTilkjentYtelseIPeriode, vedtaksPeriode -> if (vedtaksPeriode != null) andelTilkjentYtelseIPeriode else null }.tilPerioder().mapNotNull { it.verdi }.flatten()
 
                 validerIkkeDelvisOverlappIAndelTilkjentYtelserOgVedtaksperiodeBegrunnelse(
                     andelTilkjentYtelserIPeriode,
@@ -159,13 +155,12 @@ data class VedtaksperiodeMedBegrunnelser(
     ) {
         val delvisOverlapp =
             andelTilkjentYtelserIPeriode.any {
-                (this.fom ?: TIDENES_MORGEN).isBefore(it.stønadFom.førsteDagIInneværendeMåned()) ||
+                (this.fom ?: TIDENES_MORGEN).isBefore(it.stønadFom.førsteDagIInneværendeMåned()) || (
                     (
-                        (
-                            this.tom
-                                ?: TIDENES_ENDE
-                        ).isAfter(it.stønadTom.sisteDagIInneværendeMåned())
-                    )
+                        this.tom
+                            ?: TIDENES_ENDE
+                    ).isAfter(it.stønadTom.sisteDagIInneværendeMåned())
+                )
             }
 
         if (delvisOverlapp) {

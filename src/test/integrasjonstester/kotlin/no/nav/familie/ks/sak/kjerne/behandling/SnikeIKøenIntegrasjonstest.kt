@@ -321,13 +321,14 @@ class SnikeIKøenIntegrasjonstest(
         behandling.behandlingStegTilstand.add(stegTilstand)
     }
 
-    private fun opprettLøpendeFagsak(): Fagsak =
-        fagsakService.lagre(
+    private fun opprettLøpendeFagsak(): Fagsak {
+        return fagsakService.lagre(
             lagFagsak(
                 aktør = aktørRepository.saveAndFlush(randomAktør()),
                 status = FagsakStatus.LØPENDE,
             ),
         )
+    }
 
     private fun opprettBehandling(
         status: BehandlingStatus = BehandlingStatus.UTREDES,

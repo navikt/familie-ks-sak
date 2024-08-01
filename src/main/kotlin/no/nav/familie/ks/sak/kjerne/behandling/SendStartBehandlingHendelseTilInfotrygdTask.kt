@@ -15,9 +15,7 @@ import java.util.Properties
     taskStepType = SendStartBehandlingHendelseTilInfotrygdTask.TASK_STEP_TYPE,
     beskrivelse = "Send startbehandling hendelse til Infotrygd feed.",
 )
-class SendStartBehandlingHendelseTilInfotrygdTask(
-    private val kafkaProducer: KafkaProducer,
-) : AsyncTaskStep {
+class SendStartBehandlingHendelseTilInfotrygdTask(private val kafkaProducer: KafkaProducer) : AsyncTaskStep {
     override fun doTask(task: Task) {
         val søkersfnr = task.payload
         secureLogger.info("Sender StartBehandling hendelse for $søkersfnr via Kafka")

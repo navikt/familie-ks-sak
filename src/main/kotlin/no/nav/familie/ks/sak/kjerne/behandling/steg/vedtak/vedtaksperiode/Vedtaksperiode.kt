@@ -17,9 +17,7 @@ interface Vedtaksperiode {
     val vedtaksperiodetype: Vedtaksperiodetype
 }
 
-enum class Vedtaksperiodetype(
-    val tillatteBegrunnelsestyper: List<BegrunnelseType>,
-) {
+enum class Vedtaksperiodetype(val tillatteBegrunnelsestyper: List<BegrunnelseType>) {
     UTBETALING(
         listOf(
             BegrunnelseType.INNVILGET,

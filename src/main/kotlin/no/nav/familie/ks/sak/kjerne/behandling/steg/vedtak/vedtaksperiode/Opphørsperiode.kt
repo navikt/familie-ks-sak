@@ -107,7 +107,9 @@ fun slåSammenOpphørsperioder(alleOpphørsperioder: List<Opphørsperiode>): Lis
 private fun maxOfOpphørsperiodeTom(
     a: LocalDate?,
     b: LocalDate?,
-): LocalDate? = if (a != null && b != null) maxOf(a, b) else null
+): LocalDate? {
+    return if (a != null && b != null) maxOf(a, b) else null
+}
 
 private fun finnOpphørsperiodeEtterSisteUtbetalingsperiode(
     utbetalingsperioder: List<Utbetalingsperiode>,
@@ -151,9 +153,7 @@ private fun finnOpphørsperioderMellomUtbetalingsperioder(utbetalingsperioder: L
     val utbetalingsperioderTidslinje =
         utbetalingsperioder.map { Periode(it, it.periodeFom, it.periodeTom) }.tilTidslinje()
 
-    return utbetalingsperioderTidslinje
-        .tilTidslinjePerioderMedDato()
-        .filter { it.periodeVerdi is Udefinert }
+    return utbetalingsperioderTidslinje.tilTidslinjePerioderMedDato().filter { it.periodeVerdi is Udefinert }
         .map {
             Opphørsperiode(
                 periodeFom = it.fom.tilLocalDateEllerNull() ?: TIDENES_MORGEN,

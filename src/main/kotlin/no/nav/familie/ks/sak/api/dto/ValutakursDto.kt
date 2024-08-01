@@ -16,7 +16,9 @@ data class ValutakursDto(
     val kurs: BigDecimal?,
     override val status: UtfyltStatus = UtfyltStatus.IKKE_UTFYLT,
 ) : AbstractEøsSkjemaUtfyltStatus<ValutakursDto>() {
-    override fun medUtfyltStatus(): ValutakursDto = this.copy(status = utfyltStatus(finnAntallUtfylt(listOf(this.valutakursdato, this.kurs)), 2))
+    override fun medUtfyltStatus(): ValutakursDto {
+        return this.copy(status = utfyltStatus(finnAntallUtfylt(listOf(this.valutakursdato, this.kurs)), 2))
+    }
 }
 
 fun ValutakursDto.tilValutakurs(barnAktører: List<Aktør>) =

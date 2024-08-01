@@ -160,14 +160,15 @@ private fun slåSammenHjemlerAvUlikeTyper(hjemler: List<String>) =
         else -> slåSammenListeMedHjemler(hjemler)
     }
 
-private fun slåSammenListeMedHjemler(hjemler: List<String>): String =
-    hjemler.reduceIndexed { index, acc, s ->
+private fun slåSammenListeMedHjemler(hjemler: List<String>): String {
+    return hjemler.reduceIndexed { index, acc, s ->
         when (index) {
             0 -> acc + s
             hjemler.size - 1 -> "$acc og $s"
             else -> "$acc, $s"
         }
     }
+}
 
 private fun hentAlleTyperHjemler(
     ordinæreHjemler: List<String>,
@@ -234,8 +235,8 @@ private fun hentAlleTyperHjemler(
 fun hjemlerTilHjemmeltekst(
     hjemler: List<String>,
     lovForHjemmel: String,
-): String =
-    when (hjemler.size) {
+): String {
+    return when (hjemler.size) {
         0 -> throw Feil(
             "Kan ikke lage hjemmeltekst for $lovForHjemmel når ingen begrunnelser har hjemler fra $lovForHjemmel knyttet til seg.",
         )
@@ -243,6 +244,7 @@ fun hjemlerTilHjemmeltekst(
         1 -> "§ ${hjemler[0]}"
         else -> "§§ ${slåSammen(hjemler)}"
     }
+}
 
 private fun hentOrdinæreHjemler(
     hjemler: MutableSet<String>,
@@ -256,10 +258,7 @@ private fun hentOrdinæreHjemler(
     return hjemler.map { it.toInt() }.sorted().map { it.toString() }
 }
 
-data class Landkode(
-    val kode: String,
-    val navn: String,
-) {
+data class Landkode(val kode: String, val navn: String) {
     init {
         if (this.kode.length != 2) {
             throw Feil("Forventer landkode på 'ISO 3166-1 alpha-2'-format")

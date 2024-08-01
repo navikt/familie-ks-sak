@@ -62,8 +62,7 @@ class KorrigertEtterbetalingController(
         )
 
         val korrigerteEtterbetalinger =
-            korrigertEtterbetalingService
-                .finnAlleKorrigeringerPåBehandling(behandlingId)
+            korrigertEtterbetalingService.finnAlleKorrigeringerPåBehandling(behandlingId)
                 .map { it.tilKorrigertEtterbetalingResponsDto() }
 
         return ResponseEntity.ok(Ressurs.success(korrigerteEtterbetalinger))

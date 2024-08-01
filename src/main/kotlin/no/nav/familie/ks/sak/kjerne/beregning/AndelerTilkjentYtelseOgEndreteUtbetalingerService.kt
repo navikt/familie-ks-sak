@@ -32,19 +32,18 @@ class AndelerTilkjentYtelseOgEndreteUtbetalingerService(
     @Transactional
     fun finnEndreteUtbetalingerMedAndelerTilkjentYtelse(behandlingId: Long): List<EndretUtbetalingAndelMedAndelerTilkjentYtelse> =
         lagKombinator(behandlingId).lagEndreteUtbetalingMedAndeler().map { endretUtbetalingAndelMedAndelTilkjentYtelse ->
-            endretUtbetalingAndelMedAndelTilkjentYtelse
-                .utenAndelerVedValideringsfeil {
-                    EndretUtbetalingAndelValidator.validerPeriodeInnenforTilkjentYtelse(
-                        endretUtbetalingAndelMedAndelTilkjentYtelse.endretUtbetaling,
-                        endretUtbetalingAndelMedAndelTilkjentYtelse.andelerTilkjentYtelse,
-                    )
-                }.utenAndelerVedValideringsfeil {
-                    EndretUtbetalingAndelValidator.validerÅrsak(
-                        årsak = endretUtbetalingAndelMedAndelTilkjentYtelse.årsak,
-                        endretUtbetalingAndel = endretUtbetalingAndelMedAndelTilkjentYtelse.endretUtbetaling,
-                        vilkårsvurdering = vilkårsvurderingRepository.finnAktivForBehandling(behandlingId),
-                    )
-                }
+            endretUtbetalingAndelMedAndelTilkjentYtelse.utenAndelerVedValideringsfeil {
+                EndretUtbetalingAndelValidator.validerPeriodeInnenforTilkjentYtelse(
+                    endretUtbetalingAndelMedAndelTilkjentYtelse.endretUtbetaling,
+                    endretUtbetalingAndelMedAndelTilkjentYtelse.andelerTilkjentYtelse,
+                )
+            }.utenAndelerVedValideringsfeil {
+                EndretUtbetalingAndelValidator.validerÅrsak(
+                    årsak = endretUtbetalingAndelMedAndelTilkjentYtelse.årsak,
+                    endretUtbetalingAndel = endretUtbetalingAndelMedAndelTilkjentYtelse.endretUtbetaling,
+                    vilkårsvurdering = vilkårsvurderingRepository.finnAktivForBehandling(behandlingId),
+                )
+            }
         }
 
     private fun lagKombinator(behandlingId: Long) =
@@ -60,13 +59,14 @@ class AndelerTilkjentYtelseOgEndreteUtbetalingerService(
      */
     private fun EndretUtbetalingAndelMedAndelerTilkjentYtelse.utenAndelerVedValideringsfeil(
         validator: () -> Unit,
-    ): EndretUtbetalingAndelMedAndelerTilkjentYtelse =
-        try {
+    ): EndretUtbetalingAndelMedAndelerTilkjentYtelse {
+        return try {
             validator()
             this
         } catch (e: Throwable) {
             this.copy(andeler = emptyList())
         }
+    }
 }
 
 fun Collection<AndelTilkjentYtelse>.tilAndelerTilkjentYtelseMedEndreteUtbetalinger(endretUtbetalingAndeler: Collection<EndretUtbetalingAndel>) =
@@ -79,9 +79,13 @@ private class AndelTilkjentYtelseOgEndreteUtbetalingerKombinator(
     private val andelerTilkjentYtelse: Collection<AndelTilkjentYtelse>,
     private val endretUtbetalingAndeler: Collection<EndretUtbetalingAndel>,
 ) {
-    fun lagAndelerMedEndringer(): List<AndelTilkjentYtelseMedEndreteUtbetalinger> = andelerTilkjentYtelse.map { lagAndelMedEndringer(it) }
+    fun lagAndelerMedEndringer(): List<AndelTilkjentYtelseMedEndreteUtbetalinger> {
+        return andelerTilkjentYtelse.map { lagAndelMedEndringer(it) }
+    }
 
-    fun lagEndreteUtbetalingMedAndeler(): List<EndretUtbetalingAndelMedAndelerTilkjentYtelse> = endretUtbetalingAndeler.map { lagEndringMedAndeler(it) }
+    fun lagEndreteUtbetalingMedAndeler(): List<EndretUtbetalingAndelMedAndelerTilkjentYtelse> {
+        return endretUtbetalingAndeler.map { lagEndringMedAndeler(it) }
+    }
 
     private fun lagAndelMedEndringer(andelTilkjentYtelse: AndelTilkjentYtelse): AndelTilkjentYtelseMedEndreteUtbetalinger {
         val endreteUtbetalinger = endretUtbetalingAndeler.filter { overlapper(andelTilkjentYtelse, it) }
@@ -98,11 +102,11 @@ private class AndelTilkjentYtelseOgEndreteUtbetalingerKombinator(
     private fun overlapper(
         andelTilkjentYtelse: AndelTilkjentYtelse,
         endretUtbetalingAndel: EndretUtbetalingAndel,
-    ): Boolean =
-        andelTilkjentYtelse.aktør == endretUtbetalingAndel.person?.aktør &&
-            endretUtbetalingAndel.fom != null &&
-            endretUtbetalingAndel.tom != null &&
+    ): Boolean {
+        return andelTilkjentYtelse.aktør == endretUtbetalingAndel.person?.aktør &&
+            endretUtbetalingAndel.fom != null && endretUtbetalingAndel.tom != null &&
             endretUtbetalingAndel.periode.overlapperHeltEllerDelvisMed(andelTilkjentYtelse.periode)
+    }
 }
 
 data class AndelTilkjentYtelseMedEndreteUtbetalinger internal constructor(
@@ -129,7 +133,9 @@ data class AndelTilkjentYtelseMedEndreteUtbetalinger internal constructor(
     val erInnvilget get() = this.endreteUtbetalinger.none { it.prosent == BigDecimal.ZERO && !it.erÅrsakDeltBosted() }
 
     companion object {
-        fun utenEndringer(andelTilkjentYtelse: AndelTilkjentYtelse): AndelTilkjentYtelseMedEndreteUtbetalinger = AndelTilkjentYtelseMedEndreteUtbetalinger(andelTilkjentYtelse, emptyList())
+        fun utenEndringer(andelTilkjentYtelse: AndelTilkjentYtelse): AndelTilkjentYtelseMedEndreteUtbetalinger {
+            return AndelTilkjentYtelseMedEndreteUtbetalinger(andelTilkjentYtelse, emptyList())
+        }
     }
 }
 
@@ -190,11 +196,10 @@ fun List<AndelTilkjentYtelseMedEndreteUtbetalinger>.tilKombinertTidslinjePerAkt�
 }
 
 fun List<AndelTilkjentYtelseMedEndreteUtbetalinger>.tilTidslinje() =
-    this
-        .map {
-            Periode(
-                it,
-                it.stønadFom.førsteDagIInneværendeMåned(),
-                it.stønadTom.sisteDagIInneværendeMåned(),
-            )
-        }.tilTidslinje()
+    this.map {
+        Periode(
+            it,
+            it.stønadFom.førsteDagIInneværendeMåned(),
+            it.stønadTom.sisteDagIInneværendeMåned(),
+        )
+    }.tilTidslinje()

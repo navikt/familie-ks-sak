@@ -79,8 +79,7 @@ class BehandlingService(
     fun hentBehandlingerPåFagsak(fagsakId: Long): List<Behandling> = behandlingRepository.finnBehandlinger(fagsakId)
 
     fun hentSisteBehandlingSomErVedtatt(fagsakId: Long): Behandling? =
-        behandlingRepository
-            .finnBehandlinger(fagsakId)
+        behandlingRepository.finnBehandlinger(fagsakId)
             .filter { !it.erHenlagt() && it.status == BehandlingStatus.AVSLUTTET }
             .maxByOrNull { it.aktivertTidspunkt }
 
@@ -95,9 +94,7 @@ class BehandlingService(
         val personopplysningGrunnlag = personopplysningGrunnlagService.finnAktivPersonopplysningGrunnlag(behandlingId)
         val personer = personopplysningGrunnlag?.personer?.toList() ?: emptyList()
         val landKodeOgLandNavn =
-            personer
-                .flatMap { it.statsborgerskap }
-                .toSet()
+            personer.flatMap { it.statsborgerskap }.toSet()
                 .associate { it.landkode to statsborgerskapService.hentLand(it.landkode) }
         val personResponser = personer.map { lagPersonRespons(it, landKodeOgLandNavn) }
 
@@ -130,11 +127,11 @@ class BehandlingService(
                 it.tilVedtakDto(
                     vedtaksperioderMedBegrunnelser =
                         if (behandling.status != BehandlingStatus.AVSLUTTET) {
-                            vedtaksperiodeService
-                                .hentUtvidetVedtaksperioderMedBegrunnelser(vedtak = it)
+                            vedtaksperiodeService.hentUtvidetVedtaksperioderMedBegrunnelser(vedtak = it)
                                 .map { utvidetVedtaksperiodeMedBegrunnelser ->
                                     utvidetVedtaksperiodeMedBegrunnelser.tilUtvidetVedtaksperiodeMedBegrunnelserDto(sanityBegrunnelser)
-                                }.sortedBy { dto -> dto.fom }
+                                }
+                                .sortedBy { dto -> dto.fom }
                         } else {
                             emptyList()
                         },
@@ -248,10 +245,11 @@ class BehandlingService(
         return hentSisteBehandlingSomErIverksatt(iverksatteBehandlinger)
     }
 
-    private fun hentSisteBehandlingSomErIverksatt(iverksatteBehandlinger: List<Behandling>): Behandling? =
-        iverksatteBehandlinger
+    private fun hentSisteBehandlingSomErIverksatt(iverksatteBehandlinger: List<Behandling>): Behandling? {
+        return iverksatteBehandlinger
             .filter { it.steg == BehandlingSteg.AVSLUTT_BEHANDLING }
             .maxByOrNull { it.aktivertTidspunkt }
+    }
 
     @Transactional
     fun endreBehandlingstemaPåBehandling(
@@ -272,9 +270,10 @@ class BehandlingService(
         return oppdaterBehandling(behandling)
     }
 
-    fun hentFerdigstilteBehandlinger(fagsak: Fagsak): List<Behandling> =
-        hentBehandlingerPåFagsak(fagsakId = fagsak.id)
+    fun hentFerdigstilteBehandlinger(fagsak: Fagsak): List<Behandling> {
+        return hentBehandlingerPåFagsak(fagsakId = fagsak.id)
             .filter { it.erAvsluttet() && !it.erHenlagt() }
+    }
 
     fun hentSisteBehandlingSomErAvsluttetEllerSendtTilØkonomiPerFagsak(fagsakIder: Set<Long>): List<Behandling> {
         val behandlingerPåFagsakene = behandlingRepository.finnBehandlinger(fagsakIder)

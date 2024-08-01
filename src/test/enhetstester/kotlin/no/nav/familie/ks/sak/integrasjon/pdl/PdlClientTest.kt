@@ -32,8 +32,7 @@ internal class PdlClientTest {
     @Test
     fun `hentPerson skal hente enkel persondata fra PDL med ENKEL query`() {
         wiremockServerItem.stubFor(
-            WireMock
-                .post(WireMock.urlEqualTo("/${PdlConfig.PATH_GRAPHQL}"))
+            WireMock.post(WireMock.urlEqualTo("/${PdlConfig.PATH_GRAPHQL}"))
                 .willReturn(WireMock.okJson(readFile("pdlOkResponseEnkel.json"))),
         )
 
@@ -48,8 +47,7 @@ internal class PdlClientTest {
     @Test
     fun `hentPerson skal kaste exception når person ikke eksisterer i PDL`() {
         wiremockServerItem.stubFor(
-            WireMock
-                .post(WireMock.urlEqualTo("/${PdlConfig.PATH_GRAPHQL}"))
+            WireMock.post(WireMock.urlEqualTo("/${PdlConfig.PATH_GRAPHQL}"))
                 .willReturn(WireMock.okJson(readFile("pdlPersonIkkeFunnetResponse.json"))),
         )
 
@@ -66,5 +64,7 @@ internal class PdlClientTest {
         )
     }
 
-    private fun readFile(filnavn: String): String = this::class.java.getResource("/pdl/json/$filnavn").readText()
+    private fun readFile(filnavn: String): String {
+        return this::class.java.getResource("/pdl/json/$filnavn").readText()
+    }
 }

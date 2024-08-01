@@ -54,11 +54,12 @@ data class ØkonomiSimuleringMottaker(
         return (id == other.id)
     }
 
-    override fun toString(): String =
-        "ØkonomiSimuleringMottaker(" +
+    override fun toString(): String {
+        return "ØkonomiSimuleringMottaker(" +
             "id=$id, " +
             "mottakerType=$mottakerType, " +
             "behandling=$behandling, " +
             "økonomiSimuleringPostering=$økonomiSimuleringPostering" +
             ")"
+    }
 }

@@ -20,17 +20,14 @@ interface KafkaProducer {
 
 @Service
 @Profile("!integrasjonstest & !dev-postgres-preprod")
-class HentFagsystemsbehandlingResponsKafkaProducer(
-    private val kafkaTemplate: KafkaTemplate<String, String>,
-) : KafkaProducer {
+class HentFagsystemsbehandlingResponsKafkaProducer(private val kafkaTemplate: KafkaTemplate<String, String>) : KafkaProducer {
     override fun sendFagsystemsbehandlingRespons(
         melding: HentFagsystemsbehandlingRespons,
         key: String,
         behandlingId: String,
     ) {
         val meldingIString: String = objectMapper.writeValueAsString(melding)
-        kafkaTemplate
-            .send(FAGSYSTEMSBEHANDLING_RESPONS_TBK_TOPIC, key, meldingIString)
+        kafkaTemplate.send(FAGSYSTEMSBEHANDLING_RESPONS_TBK_TOPIC, key, meldingIString)
             .thenAccept {
                 logger.info(
                     """Melding på topic $FAGSYSTEMSBEHANDLING_RESPONS_TBK_TOPIC for $behandlingId med $key er sendt. 

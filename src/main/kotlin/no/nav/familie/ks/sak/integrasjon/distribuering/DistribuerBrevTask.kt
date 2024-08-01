@@ -37,8 +37,7 @@ class DistribuerBrevTask(
                 brevmal = distribuerBrevDto.brevmal,
                 manuellAdresseInfo = distribuerBrevDto.manuellAdresseInfo,
             )
-        } else if (!distribuerBrevDto.erManueltSendt &&
-            distribuerBrevDto.brevmal.erVedtaksbrev &&
+        } else if (!distribuerBrevDto.erManueltSendt && distribuerBrevDto.brevmal.erVedtaksbrev &&
             distribuerBrevDto.behandlingId != null
         ) {
             brevService.prøvDistribuerBrevOgLoggHendelse(
@@ -70,14 +69,15 @@ class DistribuerBrevTask(
         fun opprettDistribuerBrevTask(
             distribuerBrevDTO: DistribuerBrevDto,
             properties: Properties,
-        ): Task =
-            Task(
+        ): Task {
+            return Task(
                 type = TASK_STEP_TYPE,
                 payload = objectMapper.writeValueAsString(distribuerBrevDTO),
                 properties = properties,
             ).copy(
                 triggerTid = nesteGyldigeTriggertidForBehandlingIHverdager(),
             )
+        }
 
         const val TASK_STEP_TYPE = "distribuerBrev"
     }

@@ -144,8 +144,8 @@ class ArbeidsfordelingService(
     private fun fastsettBehandledeEnhetPåSatsendringsbehandling(
         behandling: Behandling,
         sisteVedtattBehandling: Behandling?,
-    ): ArbeidsfordelingPåBehandling =
-        if (sisteVedtattBehandling != null) {
+    ): ArbeidsfordelingPåBehandling {
+        return if (sisteVedtattBehandling != null) {
             val forrigeVedtattBehandlingArbeidsfordelingsenhet =
                 arbeidsfordelingPåBehandlingRepository.finnArbeidsfordelingPåBehandling(sisteVedtattBehandling.id)
 
@@ -159,6 +159,7 @@ class ArbeidsfordelingService(
         } else {
             throw Feil("Klarte ikke å fastsette arbeidsfordelingsenhet på satsendringsbehandling.")
         }
+    }
 
     private fun settBehandlendeEnhet(
         behandling: Behandling,
@@ -201,10 +202,9 @@ class ArbeidsfordelingService(
         IdentMedAdressebeskyttelse(
             ident = ident,
             adressebeskyttelsegradering =
-                personOpplysningerService
-                    .hentPersoninfoEnkel(
-                        personidentService.hentAktør(ident),
-                    ).adressebeskyttelseGradering,
+                personOpplysningerService.hentPersoninfoEnkel(
+                    personidentService.hentAktør(ident),
+                ).adressebeskyttelseGradering,
         )
 
     data class IdentMedAdressebeskyttelse(

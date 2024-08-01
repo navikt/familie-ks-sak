@@ -36,32 +36,44 @@ fun parseDatoListe(
 fun parseDato(
     domenebegrep: Domenenøkkel,
     rad: Map<String, String>,
-): LocalDate = parseDato(domenebegrep.nøkkel, rad)
+): LocalDate {
+    return parseDato(domenebegrep.nøkkel, rad)
+}
 
 fun parseValgfriDato(
     domenebegrep: Domenenøkkel,
     rad: Map<String, String?>,
-): LocalDate? = parseValgfriDato(domenebegrep.nøkkel, rad)
+): LocalDate? {
+    return parseValgfriDato(domenebegrep.nøkkel, rad)
+}
 
 fun parseÅrMåned(
     domenebegrep: Domenenøkkel,
     rad: Map<String, String?>,
-): YearMonth = parseValgfriÅrMåned(domenebegrep.nøkkel, rad)!!
+): YearMonth {
+    return parseValgfriÅrMåned(domenebegrep.nøkkel, rad)!!
+}
 
 fun parseValgfriÅrMåned(
     domenebegrep: Domenenøkkel,
     rad: Map<String, String?>,
-): YearMonth? = parseValgfriÅrMåned(domenebegrep.nøkkel, rad)
+): YearMonth? {
+    return parseValgfriÅrMåned(domenebegrep.nøkkel, rad)
+}
 
 fun parseString(
     domenebegrep: Domenenøkkel,
     rad: Map<String, String>,
-): String = verdi(domenebegrep.nøkkel, rad)
+): String {
+    return verdi(domenebegrep.nøkkel, rad)
+}
 
 fun parseValgfriString(
     domenebegrep: Domenenøkkel,
     rad: Map<String, String>,
-): String? = valgfriVerdi(domenebegrep.nøkkel, rad)
+): String? {
+    return valgfriVerdi(domenebegrep.nøkkel, rad)
+}
 
 fun parseBooleanMedBooleanVerdi(
     domenebegrep: Domenenøkkel,
@@ -78,11 +90,12 @@ fun parseBooleanMedBooleanVerdi(
 fun parseBooleanJaIsTrue(
     domenebegrep: Domenenøkkel,
     rad: Map<String, String>,
-): Boolean =
-    when (valgfriVerdi(domenebegrep.nøkkel, rad)) {
+): Boolean {
+    return when (valgfriVerdi(domenebegrep.nøkkel, rad)) {
         "Ja" -> true
         else -> false
     }
+}
 
 fun parseBoolean(
     domenebegrep: Domenenøkkel,
@@ -96,11 +109,12 @@ fun parseBoolean(
     }
 }
 
-fun parseBoolean(verdi: String): Boolean =
-    when (verdi) {
+fun parseBoolean(verdi: String): Boolean {
+    return when (verdi) {
         "Ja" -> true
         else -> false
     }
+}
 
 fun parseValgfriBoolean(
     domenebegrep: Domenenøkkel,
@@ -127,21 +141,23 @@ fun parseDato(
     return parseDato(dato)
 }
 
-fun parseDato(dato: String): LocalDate =
-    if (dato.contains(".")) {
+fun parseDato(dato: String): LocalDate {
+    return if (dato.contains(".")) {
         LocalDate.parse(dato, norskDatoFormatter)
     } else {
         LocalDate.parse(dato, isoDatoFormatter)
     }
+}
 
-fun parseValgfriDato(dato: String?): LocalDate? =
-    if (dato == null) {
+fun parseValgfriDato(dato: String?): LocalDate? {
+    return if (dato == null) {
         null
     } else if (dato.contains(".")) {
         LocalDate.parse(dato, norskDatoFormatter)
     } else {
         LocalDate.parse(dato, isoDatoFormatter)
     }
+}
 
 fun parseValgfriDato(
     domenebegrep: String,
@@ -171,12 +187,13 @@ fun parseValgfriÅrMåned(
     return parseÅrMåned(verdi)
 }
 
-fun parseÅrMåned(verdi: String): YearMonth =
-    if (verdi.contains(".")) {
+fun parseÅrMåned(verdi: String): YearMonth {
+    return if (verdi.contains(".")) {
         YearMonth.parse(verdi, norskÅrMånedFormatter)
     } else {
         YearMonth.parse(verdi, isoÅrMånedFormatter)
     }
+}
 
 fun parseValgfriÅrMånedEllerDato(
     domenebegrep: Domenenøkkel,
@@ -211,7 +228,9 @@ fun verdi(
 fun valgfriVerdi(
     nøkkel: String,
     rad: Map<String, String>,
-): String? = rad[nøkkel]
+): String? {
+    return rad[nøkkel]
+}
 
 fun parseInt(
     domenebegrep: Domenenøkkel,
@@ -234,17 +253,23 @@ fun parseLong(
 fun parseList(
     domenebegrep: Domenenøkkel,
     rad: Map<String, String>,
-): List<Long> = verdi(domenebegrep.nøkkel, rad).split(",").map { it.trim().toLong() }
+): List<Long> {
+    return verdi(domenebegrep.nøkkel, rad).split(",").map { it.trim().toLong() }
+}
 
 fun parseStringList(
     domenebegrep: Domenenøkkel,
     rad: Map<String, String>,
-): List<String> = verdi(domenebegrep.nøkkel, rad).split(",").map { it.trim() }
+): List<String> {
+    return verdi(domenebegrep.nøkkel, rad).split(",").map { it.trim() }
+}
 
 fun parseValgfriStringList(
     domenebegrep: Domenenøkkel,
     rad: Map<String, String>,
-): List<String> = valgfriVerdi(domenebegrep.nøkkel, rad)?.split(",")?.map { it.trim() } ?: emptyList()
+): List<String> {
+    return valgfriVerdi(domenebegrep.nøkkel, rad)?.split(",")?.map { it.trim() } ?: emptyList()
+}
 
 fun parseBigDecimal(
     domenebegrep: Domenenøkkel,
@@ -314,7 +339,9 @@ inline fun <reified T : Enum<T>> parseValgfriEnum(
 inline fun <reified T : Enum<T>> parseEnum(
     domenebegrep: Domenenøkkel,
     rad: Map<String, String>,
-): T = parseValgfriEnum<T>(domenebegrep, rad)!!
+): T {
+    return parseValgfriEnum<T>(domenebegrep, rad)!!
+}
 
 inline fun <reified T : Enum<T>> parseEnumListe(
     domenebegrep: Domenenøkkel,

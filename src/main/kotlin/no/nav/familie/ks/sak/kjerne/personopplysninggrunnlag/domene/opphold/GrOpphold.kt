@@ -49,7 +49,9 @@ data class GrOpphold(
         return true
     }
 
-    override fun hashCode(): Int = 31 * gyldigPeriode.hashCode() + type.hashCode()
+    override fun hashCode(): Int {
+        return 31 * gyldigPeriode.hashCode() + type.hashCode()
+    }
 
     companion object {
         fun fraOpphold(

@@ -35,8 +35,8 @@ data class BarnInfolinje(
         kommuneNavn: String,
         kommuneNr: String,
         arkivReferanse: String,
-    ): Barnehagebarn =
-        Barnehagebarn(
+    ): Barnehagebarn {
+        return Barnehagebarn(
             ident = this.barn.fodselsnummer,
             fom = this.startdato,
             tom = this.sluttdato,
@@ -46,6 +46,7 @@ data class BarnInfolinje(
             kommuneNr = kommuneNr,
             arkivReferanse = arkivReferanse,
         )
+    }
 }
 
 data class Barn(

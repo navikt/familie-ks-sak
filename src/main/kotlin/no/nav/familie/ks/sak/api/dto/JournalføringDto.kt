@@ -88,9 +88,7 @@ enum class IdType {
     AKTOERID,
 }
 
-enum class Sakstype(
-    val type: String,
-) {
+enum class Sakstype(val type: String) {
     FAGSAK("FAGSAK"),
     GENERELL_SAK("GENERELL_SAK"),
 }
@@ -118,8 +116,8 @@ class Dødsbo(
     override val manuellAdresseInfo: ManuellAdresseInfo,
 ) : MottakerInfo
 
-fun MottakerInfo.tilAvsenderMottaker(): AvsenderMottaker? =
-    when (this) {
+fun MottakerInfo.tilAvsenderMottaker(): AvsenderMottaker? {
+    return when (this) {
         is FullmektigEllerVerge, is Dødsbo ->
             AvsenderMottaker(
                 navn = navn,
@@ -129,3 +127,4 @@ fun MottakerInfo.tilAvsenderMottaker(): AvsenderMottaker? =
         // Trenger ikke overstyres når mottaker er bruker
         is Bruker, is BrukerMedUtenlandskAdresse -> null
     }
+}

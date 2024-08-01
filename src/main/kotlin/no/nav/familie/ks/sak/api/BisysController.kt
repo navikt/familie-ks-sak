@@ -20,9 +20,7 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 @RequestMapping("/api/bisys")
 @ProtectedWithClaims(issuer = "azuread")
-class BisysController(
-    private val bisysService: BisysService,
-) {
+class BisysController(private val bisysService: BisysService) {
     @Operation(description = "Tjeneste for BISYS for å hente utbetalingsinfo for barna.")
     @ApiResponses(
         value = [
@@ -55,5 +53,7 @@ class BisysController(
     )
     fun hentUtbetalingsinfo(
         @RequestBody bisysRequestDto: BisysDto,
-    ): ResponseEntity<BisysResponsDto> = ResponseEntity.ok(bisysService.hentUtbetalingsinfo(bisysRequestDto.fom, bisysRequestDto.identer))
+    ): ResponseEntity<BisysResponsDto> {
+        return ResponseEntity.ok(bisysService.hentUtbetalingsinfo(bisysRequestDto.fom, bisysRequestDto.identer))
+    }
 }

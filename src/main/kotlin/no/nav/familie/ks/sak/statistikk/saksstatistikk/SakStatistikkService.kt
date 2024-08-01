@@ -74,8 +74,7 @@ class SakStatistikkService(
         val ansvarligEnhet = arbeidsfordelingService.hentArbeidsfordelingPåBehandling(behandlingId).behandlendeEnhetId
         val totrinnskontroll = totrinnskontrollService.finnAktivForBehandling(behandlingId)
         val behandlingPåVent =
-            behandling.behandlingStegTilstand
-                .singleOrNull { it.behandlingStegStatus == BehandlingStegStatus.VENTER }
+            behandling.behandlingStegTilstand.singleOrNull { it.behandlingStegStatus == BehandlingStegStatus.VENTER }
                 ?.let { BehandlingPåVentDto(it.frist!!, it.årsak!!) }
 
         val mottattTid = behandling.søknadMottattDato ?: behandling.opprettetTidspunkt
@@ -125,11 +124,12 @@ class SakStatistikkService(
         }
     }
 
-    fun LocalDateTime.tilOffset(): OffsetDateTime =
-        OffsetDateTime.of(
+    fun LocalDateTime.tilOffset(): OffsetDateTime {
+        return OffsetDateTime.of(
             this,
             ZoneOffset.UTC,
         )
+    }
 
     fun mapTilSakDvh(fagsakId: Long): SakStatistikkDto {
         val fagsak = fagsakService.hentFagsak(fagsakId)
@@ -139,8 +139,7 @@ class SakStatistikkService(
             if (aktivBehandling != null) {
                 personopplysningGrunnlagService
                     .finnAktivPersonopplysningGrunnlag(behandlingId = aktivBehandling.id)
-                    ?.personer
-                    ?.map {
+                    ?.personer?.map {
                         AktørDVH(
                             it.aktør.aktørId.toLong(),
                             it.type.name,

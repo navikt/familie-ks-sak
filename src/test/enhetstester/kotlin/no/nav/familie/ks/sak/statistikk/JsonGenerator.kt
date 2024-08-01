@@ -54,9 +54,7 @@ class JsonGenerator {
  * Based on JsonSchemaGenerator Created by Roee Shlomo on 11/29/2016, which was
  * forked from Scala code by mbknor @ https://github.com/mbknor/mbknor-jackson-jsonSchema
  */
-class JsonSchemaGenerator(
-    private val rootObjectMapper: ObjectMapper,
-) {
+class JsonSchemaGenerator(private val rootObjectMapper: ObjectMapper) {
     private val customType2FormatMapping =
         mapOf(
             "java.time.LocalDateTime" to "datetime-local",
@@ -76,7 +74,9 @@ class JsonSchemaGenerator(
             myProvider = provider
         }
 
-        fun getProvider(): SerializerProvider = myProvider!!
+        fun getProvider(): SerializerProvider {
+            return myProvider!!
+        }
     }
 
     abstract class EnumSupport {
@@ -98,15 +98,9 @@ class JsonSchemaGenerator(
         node.put("format", format)
     }
 
-    data class DefinitionInfo(
-        val ref: String?,
-        val jsonObjectFormatVisitor: JsonObjectFormatVisitor?,
-    )
+    data class DefinitionInfo(val ref: String?, val jsonObjectFormatVisitor: JsonObjectFormatVisitor?)
 
-    data class WorkInProgress(
-        val classInProgress: Class<*>,
-        val nodeInProgress: ObjectNode,
-    )
+    data class WorkInProgress(val classInProgress: Class<*>, val nodeInProgress: ObjectNode)
 
     // Class that manages creating new defenitions or getting $refs to existing definitions
     inner class DefinitionsHandler {
@@ -176,15 +170,9 @@ class JsonSchemaGenerator(
         }
     }
 
-    data class PolymorphismInfo(
-        val typePropertyName: String,
-        val subTypeName: String,
-    )
+    data class PolymorphismInfo(val typePropertyName: String, val subTypeName: String)
 
-    data class PropertyNode(
-        val main: ObjectNode,
-        val meta: ObjectNode,
-    )
+    data class PropertyNode(val main: ObjectNode, val meta: ObjectNode)
 
     inner class MyJsonFormatVisitorWrapper(
         val objectMapper: ObjectMapper,
@@ -193,13 +181,13 @@ class JsonSchemaGenerator(
         val definitionsHandler: DefinitionsHandler,
         // This property may represent the BeanProperty when we're directly processing beneath the property
         val currentProperty: BeanProperty?,
-    ) : MySerializerProvider(),
-        JsonFormatVisitorWrapper {
+    ) : JsonFormatVisitorWrapper,
+        MySerializerProvider() {
         open inner class MyJsonObjectFormatVisitor(
             private val thisObjectNode: ObjectNode,
             private val propertiesNode: ObjectNode,
-        ) : MySerializerProvider(),
-            JsonObjectFormatVisitor {
+        ) : JsonObjectFormatVisitor,
+            MySerializerProvider() {
             private fun myPropertyHandler(
                 propertyName: String,
                 propertyType: JavaType,
@@ -278,14 +266,15 @@ class JsonSchemaGenerator(
         fun createChild(
             childNode: ObjectNode,
             currentProperty: BeanProperty?,
-        ): MyJsonFormatVisitorWrapper =
-            MyJsonFormatVisitorWrapper(
+        ): MyJsonFormatVisitorWrapper {
+            return MyJsonFormatVisitorWrapper(
                 objectMapper,
                 level + 1,
                 node = childNode,
                 definitionsHandler = definitionsHandler,
                 currentProperty = currentProperty,
             )
+        }
 
         override fun expectStringFormat(type: JavaType?): JsonStringFormatVisitor {
             node.put("type", "string")
@@ -347,7 +336,9 @@ class JsonSchemaGenerator(
             }
         }
 
-        override fun expectNullFormat(type: JavaType?): JsonNullFormatVisitor = object : JsonNullFormatVisitor {}
+        override fun expectNullFormat(type: JavaType?): JsonNullFormatVisitor {
+            return object : JsonNullFormatVisitor {}
+        }
 
         override fun expectNumberFormat(type: JavaType?): JsonNumberFormatVisitor {
             node.put("type", "number")
@@ -375,7 +366,9 @@ class JsonSchemaGenerator(
             }
         }
 
-        override fun expectAnyFormat(type: JavaType?): JsonAnyFormatVisitor = object : JsonAnyFormatVisitor {}
+        override fun expectAnyFormat(type: JavaType?): JsonAnyFormatVisitor {
+            return object : JsonAnyFormatVisitor {}
+        }
 
         override fun expectMapFormat(type: JavaType?): JsonMapFormatVisitor {
             // There is no way to specify map in jsonSchema,
@@ -601,11 +594,17 @@ class JsonSchemaGenerator(
         return s.substring(0, 1).uppercase() + s.substring(1)
     }
 
-    fun resolvePropertyFormat(_type: JavaType): String? = resolvePropertyFormat(_type.rawClass.name)
+    fun resolvePropertyFormat(_type: JavaType): String? {
+        return resolvePropertyFormat(_type.rawClass.name)
+    }
 
-    fun resolvePropertyFormat(prop: BeanProperty): String? = resolvePropertyFormat(prop.type.rawClass.name)
+    fun resolvePropertyFormat(prop: BeanProperty): String? {
+        return resolvePropertyFormat(prop.type.rawClass.name)
+    }
 
-    private fun resolvePropertyFormat(rawClassName: String): String? = customType2FormatMapping[rawClassName]
+    private fun resolvePropertyFormat(rawClassName: String): String? {
+        return customType2FormatMapping[rawClassName]
+    }
 
     fun <T> generateJsonSchema(clazz: Class<T>): JsonNode {
         val rootNode = JsonNodeFactory.instance.objectNode()

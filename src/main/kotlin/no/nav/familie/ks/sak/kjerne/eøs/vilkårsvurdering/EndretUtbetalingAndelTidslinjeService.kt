@@ -14,22 +14,20 @@ import org.springframework.stereotype.Service
 import java.time.LocalDate
 
 @Service
-class EndretUtbetalingAndelTidslinjeService(
-    private val endretUtbetalingAndelService: EndretUtbetalingAndelService,
-) {
+class EndretUtbetalingAndelTidslinjeService(private val endretUtbetalingAndelService: EndretUtbetalingAndelService) {
     fun hentBarnasHarEtterbetaling3MånedTidslinjer(behandlingId: Long) =
         endretUtbetalingAndelService
             .hentEndredeUtbetalingAndeler(behandlingId)
             .tilBarnasHarEtterbetaling3MånedTidslinjer()
 }
 
-internal fun Iterable<EndretUtbetalingAndel>.tilBarnasHarEtterbetaling3MånedTidslinjer(): Map<Aktør, Tidslinje<Boolean>> =
-    this
-        .filter { it.årsak == Årsak.ETTERBETALING_3MND }
+internal fun Iterable<EndretUtbetalingAndel>.tilBarnasHarEtterbetaling3MånedTidslinjer(): Map<Aktør, Tidslinje<Boolean>> {
+    return this.filter { it.årsak == Årsak.ETTERBETALING_3MND }
         .filter { it.person?.type == PersonType.BARN }
         .filter { it.person?.aktør != null }
         .groupBy { checkNotNull(it.person?.aktør) }
         .mapValues { (_, endringer) -> endringer.map { it.tilPeriode { true } }.tilTidslinje() }
+}
 
 private fun <T> EndretUtbetalingAndel.tilPeriode(mapper: (EndretUtbetalingAndel) -> T) =
     Periode(

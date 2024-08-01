@@ -23,16 +23,14 @@ object SikkerhetContext {
     }
 
     fun hentSaksbehandler(): String =
-        Result
-            .runCatching { SpringTokenValidationContextHolder().getTokenValidationContext() }
+        Result.runCatching { SpringTokenValidationContextHolder().getTokenValidationContext() }
             .fold(
                 onSuccess = { it.hentClaimsForIssuer("azuread")?.get("NAVident")?.toString() ?: SYSTEM_FORKORTELSE },
                 onFailure = { SYSTEM_FORKORTELSE },
             )
 
     fun hentSaksbehandlerEpost(): String =
-        Result
-            .runCatching { SpringTokenValidationContextHolder().getTokenValidationContext() }
+        Result.runCatching { SpringTokenValidationContextHolder().getTokenValidationContext() }
             .fold(
                 onSuccess = {
                     it.hentClaimsForIssuer("azuread")?.get("preferred_username")?.toString() ?: SYSTEM_FORKORTELSE
@@ -41,8 +39,7 @@ object SikkerhetContext {
             )
 
     fun hentSaksbehandlerNavn(): String =
-        Result
-            .runCatching { SpringTokenValidationContextHolder().getTokenValidationContext() }
+        Result.runCatching { SpringTokenValidationContextHolder().getTokenValidationContext() }
             .fold(
                 onSuccess = { it.hentClaimsForIssuer("azuread")?.get("name")?.toString() ?: SYSTEM_NAVN },
                 onFailure = { SYSTEM_NAVN },
@@ -89,8 +86,7 @@ object SikkerhetContext {
         hentSaksbehandler() == SYSTEM_FORKORTELSE || hentGrupper().contains(rolleConfig.FORVALTER_ROLLE)
 
     fun hentGrupper(): List<String> =
-        Result
-            .runCatching { SpringTokenValidationContextHolder().getTokenValidationContext() }
+        Result.runCatching { SpringTokenValidationContextHolder().getTokenValidationContext() }
             .fold(
                 onSuccess = {
                     @Suppress("UNCHECKED_CAST")
@@ -99,9 +95,13 @@ object SikkerhetContext {
                 onFailure = { emptyList() },
             )
 
-    fun kallKommerFraKlage(): Boolean = kallKommerFra("teamfamilie:familie-klage")
+    fun kallKommerFraKlage(): Boolean {
+        return kallKommerFra("teamfamilie:familie-klage")
+    }
 
-    fun TokenValidationContext.hentClaimsForIssuer(issuer: String): JwtTokenClaims? = if (this.issuers.contains(issuer)) this.getClaims(issuer) else null
+    fun TokenValidationContext.hentClaimsForIssuer(issuer: String): JwtTokenClaims? {
+        return if (this.issuers.contains(issuer)) this.getClaims(issuer) else null
+    }
 
     private fun kallKommerFra(forventetApplikasjonsSuffix: String): Boolean {
         val claims = SpringTokenValidationContextHolder().getTokenValidationContext().getClaims("azuread")

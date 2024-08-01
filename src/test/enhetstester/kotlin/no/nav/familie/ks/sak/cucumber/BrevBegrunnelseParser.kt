@@ -23,8 +23,8 @@ data class SammenlignbarBegrunnelse(
 )
 
 object BrevBegrunnelseParser {
-    fun mapBegrunnelser(dataTable: DataTable): List<SammenlignbarBegrunnelse> =
-        dataTable.asMaps().map { rad ->
+    fun mapBegrunnelser(dataTable: DataTable): List<SammenlignbarBegrunnelse> {
+        return dataTable.asMaps().map { rad ->
             val regelverkForInkluderteBegrunnelser =
                 parseValgfriEnum<Regelverk>(DomenebegrepUtvidetVedtaksperiodeMedBegrunnelser.REGELVERK_INKLUDERTE_BEGRUNNELSER, rad)
                     ?: Regelverk.NASJONALE_REGLER
@@ -54,13 +54,14 @@ object BrevBegrunnelseParser {
                 ekskluderteStandardBegrunnelser = ekskluderteStandardBegrunnelser,
             )
         }
+    }
 
     private fun hentForventedeBegrunnelser(
         vurderesEtter: Regelverk,
         inkludertEllerEkskludert: DomenebegrepUtvidetVedtaksperiodeMedBegrunnelser,
         rad: Map<String, String>,
-    ): Set<IBegrunnelse> =
-        when (vurderesEtter) {
+    ): Set<IBegrunnelse> {
+        return when (vurderesEtter) {
             Regelverk.NASJONALE_REGLER -> {
                 parseEnumListe<NasjonalEllerFellesBegrunnelse>(
                     inkludertEllerEkskludert,
@@ -75,10 +76,9 @@ object BrevBegrunnelseParser {
                 ).toSet()
             }
         }
+    }
 
-    enum class DomenebegrepUtvidetVedtaksperiodeMedBegrunnelser(
-        override val nøkkel: String,
-    ) : Domenenøkkel {
+    enum class DomenebegrepUtvidetVedtaksperiodeMedBegrunnelser(override val nøkkel: String) : Domenenøkkel {
         VEDTAKSPERIODE_TYPE("VedtaksperiodeType"),
         INKLUDERTE_BEGRUNNELSER("Gyldige begrunnelser"),
         EKSKLUDERTE_BEGRUNNELSER("Ugyldige begrunnelser"),

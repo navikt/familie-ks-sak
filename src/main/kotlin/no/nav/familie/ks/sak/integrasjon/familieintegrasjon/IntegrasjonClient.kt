@@ -48,12 +48,7 @@ class IntegrasjonClient(
     @Value("\${FAMILIE_INTEGRASJONER_API_URL}") private val integrasjonUri: URI,
     @Qualifier("azure") restOperations: RestOperations,
 ) : AbstractRestClient(restOperations, "integrasjon") {
-    val tilgangPersonUri =
-        UriComponentsBuilder
-            .fromUri(integrasjonUri)
-            .pathSegment(PATH_TILGANG_PERSON)
-            .build()
-            .toUri()
+    val tilgangPersonUri = UriComponentsBuilder.fromUri(integrasjonUri).pathSegment(PATH_TILGANG_PERSON).build().toUri()
 
     fun sjekkTilgangTilPersoner(personIdenter: List<String>): List<Tilgang> {
         if (SikkerhetContext.erSystemKontekst()) {
@@ -96,11 +91,7 @@ class IntegrasjonClient(
             if (saksbehandler == null) {
                 baseUri
             } else {
-                UriComponentsBuilder
-                    .fromUri(baseUri)
-                    .queryParam("saksbehandler", saksbehandler)
-                    .build()
-                    .toUri()
+                UriComponentsBuilder.fromUri(baseUri).queryParam("saksbehandler", saksbehandler).build().toUri()
             }
 
         return kallEksternTjenesteRessurs(
@@ -121,10 +112,7 @@ class IntegrasjonClient(
     ): OppgaveResponse {
         val baseUri = URI.create("$integrasjonUri/oppgave/$oppgaveId/enhet/$nyEnhet")
         val uri =
-            UriComponentsBuilder
-                .fromUri(baseUri)
-                .queryParam("fjernMappeFraOppgave", true)
-                .build()
+            UriComponentsBuilder.fromUri(baseUri).queryParam("fjernMappeFraOppgave", true).build()
                 .toUri() // fjerner alltid mappe fra Kontantstøtte siden hver enhet har sin mappestruktur
 
         return kallEksternTjenesteRessurs(
@@ -222,8 +210,7 @@ class IntegrasjonClient(
             UriComponentsBuilder
                 .fromUri(integrasjonUri)
                 .pathSegment("arbeidsfordeling", "enhet", Tema.KON.name)
-                .build()
-                .toUri()
+                .build().toUri()
 
         return kallEksternTjenesteRessurs(
             tjeneste = "arbeidsfordeling",
@@ -417,8 +404,7 @@ class IntegrasjonClient(
             UriComponentsBuilder
                 .fromUri(integrasjonUri)
                 .pathSegment("arbeidsfordeling", "enhet", Tema.KON.name, "med-relasjoner")
-                .build()
-                .toUri()
+                .build().toUri()
 
         return kallEksternTjenesteRessurs<List<ArbeidsfordelingsEnhet>>(
             tjeneste = "arbeidsfordeling",

@@ -49,9 +49,7 @@ fun KorrigertEtterbetalingRequestDto.tilKorrigertEtterbetaling(behandling: Behan
         aktiv = true,
     )
 
-enum class KorrigertEtterbetalingÅrsak(
-    val visningsnavn: String,
-) {
+enum class KorrigertEtterbetalingÅrsak(val visningsnavn: String) {
     FEIL_TIDLIGERE_UTBETALT_BELØP("Feil i tidligere utbetalt beløp"),
     REFUSJON_FRA_ANDRE_MYNDIGHETER("Refusjon fra andre myndigheter"),
     MOTREGNING("Motregning"),

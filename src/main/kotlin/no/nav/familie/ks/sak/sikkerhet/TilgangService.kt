@@ -113,13 +113,11 @@ class TilgangService(
                 val aktør = fagsakService.hentFagsak(fagsakId).aktør
                 val behandlinger = behandlingRepository.finnBehandlinger(fagsakId)
                 val personIdenterIFagsak =
-                    behandlinger
-                        .flatMap { behandling ->
-                            val personopplysningGrunnlag =
-                                personopplysningGrunnlagRepository.findByBehandlingAndAktiv(behandling.id)
-                            personopplysningGrunnlag?.personer?.map { person -> person.aktør.aktivFødselsnummer() } ?: emptyList()
-                        }.distinct()
-                        .ifEmpty { listOf(aktør.aktivFødselsnummer()) }
+                    behandlinger.flatMap { behandling ->
+                        val personopplysningGrunnlag =
+                            personopplysningGrunnlagRepository.findByBehandlingAndAktiv(behandling.id)
+                        personopplysningGrunnlag?.personer?.map { person -> person.aktør.aktivFødselsnummer() } ?: emptyList()
+                    }.distinct().ifEmpty { listOf(aktør.aktivFødselsnummer()) }
                 loggPersonoppslag(personIdenterIFagsak, event, CustomKeyValue("fagsak", fagsakId.toString()))
                 harTilgangTilPersoner(personIdenterIFagsak)
             }
@@ -150,10 +148,11 @@ class TilgangService(
         validerTilgangTilHandlingOgFagsak(fagsakId, event, minimumBehandlerRolle, handling)
     }
 
-    private fun harTilgangTilPersoner(personIdenter: List<String>): Boolean =
-        harSaksbehandlerTilgang("validerTilgangTilPersoner", personIdenter) {
+    private fun harTilgangTilPersoner(personIdenter: List<String>): Boolean {
+        return harSaksbehandlerTilgang("validerTilgangTilPersoner", personIdenter) {
             integrasjonService.sjekkTilgangTilPersoner(personIdenter).all { it.value.harTilgang }
         }
+    }
 
     /**
      * Logger at informasjon tilknyttet personidenter er forsøkt hentet

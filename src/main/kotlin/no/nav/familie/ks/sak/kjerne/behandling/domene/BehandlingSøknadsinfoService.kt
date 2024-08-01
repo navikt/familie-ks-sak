@@ -29,8 +29,7 @@ class BehandlingSøknadsinfoService(
         fom: LocalDate,
         tom: LocalDate,
     ): SøknadsstatistikkForPeriode =
-        behandlingSøknadsinfoRepository
-            .hentAntallSøknaderIPeriode(fom.atStartOfDay(), tom.atTime(LocalTime.MAX))
+        behandlingSøknadsinfoRepository.hentAntallSøknaderIPeriode(fom.atStartOfDay(), tom.atTime(LocalTime.MAX))
             .let {
                 SøknadsstatistikkForPeriode(
                     fom = fom,

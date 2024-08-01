@@ -117,8 +117,7 @@ class FagsakService(
         val tilbakekrevingsbehandlinger = tilbakekrevingsbehandlingHentService.hentTilbakekrevingsbehandlinger(fagsakId)
 
         val sistIverksatteBehandling =
-            alleBehandlinger
-                .filter { it.steg == BehandlingSteg.AVSLUTT_BEHANDLING }
+            alleBehandlinger.filter { it.steg == BehandlingSteg.AVSLUTT_BEHANDLING }
                 .maxByOrNull { it.aktivertTidspunkt }
 
         val gjeldendeUtbetalingsperioder =
@@ -162,8 +161,7 @@ class FagsakService(
 
     @Transactional
     fun finnOgAvsluttFagsakerSomSkalAvsluttes(): Int =
-        fagsakRepository
-            .finnFagsakerSomSkalAvsluttes()
+        fagsakRepository.finnFagsakerSomSkalAvsluttes()
             .map { oppdaterStatus(it, FagsakStatus.AVSLUTTET) }
             .size
 
@@ -274,12 +272,11 @@ class FagsakService(
     fun hentFagsakerPåPerson(aktør: Aktør): List<Fagsak> {
         val versjonerAvBarn = personRepository.findByAktør(aktør)
 
-        return versjonerAvBarn
-            .map {
-                it.personopplysningGrunnlag.behandlingId
-            }.map {
-                behandlingRepository.hentBehandling(it).fagsak
-            }.distinct()
+        return versjonerAvBarn.map {
+            it.personopplysningGrunnlag.behandlingId
+        }.map {
+            behandlingRepository.hentBehandling(it).fagsak
+        }.distinct()
     }
 
     fun finnAlleFagsakerHvorAktørErSøkerEllerMottarLøpendeKontantstøtte(aktør: Aktør): List<Fagsak> {
@@ -294,16 +291,14 @@ class FagsakService(
         aktør: Aktør,
     ): List<Fagsak> {
         val ordinæreAndelerPåAktør =
-            andelerTilkjentYtelseRepository
-                .finnAndelerTilkjentYtelseForAktør(aktør = aktør)
+            andelerTilkjentYtelseRepository.finnAndelerTilkjentYtelseForAktør(aktør = aktør)
                 .filter { it.type == YtelseType.ORDINÆR_KONTANTSTØTTE }
 
         val løpendeAndeler = ordinæreAndelerPåAktør.filter { it.erLøpende(localDateProvider.now().toYearMonth()) }
 
         val behandlingerMedLøpendeAndeler =
             løpendeAndeler
-                .map { it.behandlingId }
-                .toSet()
+                .map { it.behandlingId }.toSet()
                 .map { behandlingRepository.hentBehandling(behandlingId = it) }
 
         val behandlingerSomErSisteVedtattePåFagsak = behandlingerMedLøpendeAndeler.filter { hentSisteBehandlingSomErVedtattPåFagsak(it.fagsak.id) == it }
@@ -312,8 +307,7 @@ class FagsakService(
     }
 
     private fun hentSisteBehandlingSomErVedtattPåFagsak(fagsakId: Long) =
-        behandlingRepository
-            .finnBehandlinger(fagsakId)
+        behandlingRepository.finnBehandlinger(fagsakId)
             .filter { !it.erHenlagt() && it.status == BehandlingStatus.AVSLUTTET }
             .maxByOrNull { it.aktivertTidspunkt }
 

@@ -18,11 +18,12 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories
 @EnableJpaAuditing
 class DatabaseConfig : AbstractJdbcConfiguration() {
     @Bean
-    override fun jdbcCustomConversions(): JdbcCustomConversions =
-        JdbcCustomConversions(
+    override fun jdbcCustomConversions(): JdbcCustomConversions {
+        return JdbcCustomConversions(
             listOf(
                 PropertiesWrapperTilStringConverter(),
                 StringTilPropertiesWrapperConverter(),
             ),
         )
+    }
 }

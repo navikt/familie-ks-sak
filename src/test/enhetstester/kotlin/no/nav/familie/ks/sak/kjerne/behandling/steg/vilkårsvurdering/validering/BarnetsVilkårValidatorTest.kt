@@ -301,11 +301,7 @@ class BarnetsVilkårValidatorTest {
                     vilkårType = Vilkår.BARNETS_ALDER,
                     resultat = Resultat.OPPFYLT,
                     periodeFom = barnPerson.fødselsdato.plusYears(3),
-                    periodeTom =
-                        barnPerson.fødselsdato
-                            .plusYears(6)
-                            .withMonth(Month.AUGUST.value)
-                            .plusMonths(2),
+                    periodeTom = barnPerson.fødselsdato.plusYears(6).withMonth(Month.AUGUST.value).plusMonths(2),
                     begrunnelse = "begrunnelse",
                     behandlingId = behandling.id,
                     utdypendeVilkårsvurderinger = listOf(UtdypendeVilkårsvurdering.ADOPSJON),

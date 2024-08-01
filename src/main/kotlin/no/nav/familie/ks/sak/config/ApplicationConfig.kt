@@ -79,20 +79,20 @@ class ApplicationConfig {
             RestClient.create(
                 RestTemplateBuilder()
                     .setConnectTimeout(Duration.of(2, ChronoUnit.SECONDS))
-                    .setReadTimeout(Duration.of(4, ChronoUnit.SECONDS))
-                    .build(),
+                    .setReadTimeout(Duration.of(4, ChronoUnit.SECONDS)).build(),
             ),
         )
 
     @Bean
-    fun restOperations(): RestOperations =
-        RestTemplate(
+    fun restOperations(): RestOperations {
+        return RestTemplate(
             listOf(
                 StringHttpMessageConverter(StandardCharsets.UTF_8),
                 ByteArrayHttpMessageConverter(),
                 MappingJackson2HttpMessageConverter(objectMapper),
             ),
         )
+    }
 
     @Bean
     fun prosesseringInfoProvider(
@@ -107,15 +107,14 @@ class ApplicationConfig {
 
         override fun harTilgang(): Boolean = grupper().contains(prosesseringRolle)
 
-        private fun grupper(): List<String> =
-            try {
-                SpringTokenValidationContextHolder()
-                    .getTokenValidationContext()
-                    .getClaims("azuread")
+        private fun grupper(): List<String> {
+            return try {
+                SpringTokenValidationContextHolder().getTokenValidationContext().getClaims("azuread")
                     ?.get("groups") as List<String>? ?: emptyList()
             } catch (e: Exception) {
                 emptyList()
             }
+        }
     }
 
     companion object {

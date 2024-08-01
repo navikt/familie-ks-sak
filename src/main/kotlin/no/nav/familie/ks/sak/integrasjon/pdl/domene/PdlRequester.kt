@@ -10,10 +10,6 @@ data class PdlPersonBolkRequest(
     val query: String,
 )
 
-data class PdlPersonRequestVariables(
-    var ident: String,
-)
+data class PdlPersonRequestVariables(var ident: String)
 
-data class PdlPersonBolkRequestVariables(
-    var identer: List<String>,
-)
+data class PdlPersonBolkRequestVariables(var identer: List<String>)

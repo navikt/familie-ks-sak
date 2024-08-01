@@ -107,7 +107,9 @@ class VilkårsvurderingController(
     }
 
     @GetMapping(path = ["/vilkaarsbegrunnelser"])
-    fun hentVilkårsbegrunnelser(): ResponseEntity<Ressurs<Map<BegrunnelseType, List<VedtakBegrunnelseTilknyttetVilkårResponseDto>>>> = ResponseEntity.ok(Ressurs.success(vilkårsvurderingService.hentVilkårsbegrunnelser()))
+    fun hentVilkårsbegrunnelser(): ResponseEntity<Ressurs<Map<BegrunnelseType, List<VedtakBegrunnelseTilknyttetVilkårResponseDto>>>> {
+        return ResponseEntity.ok(Ressurs.success(vilkårsvurderingService.hentVilkårsbegrunnelser()))
+    }
 
     @PutMapping(path = ["/{behandlingId}/annenvurdering"])
     fun endreAnnenVurdering(

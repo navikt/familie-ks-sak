@@ -18,8 +18,8 @@ data class BarnehagebarnInfotrygdDto(
         fun fraBarnehageBarnInterfaceTilDto(
             barnehagebarnInfotrygdDtoInterface: BarnehagebarnInfotrygdDtoInterface,
             harFagsak: Boolean,
-        ): BarnehagebarnInfotrygdDto =
-            BarnehagebarnInfotrygdDto(
+        ): BarnehagebarnInfotrygdDto {
+            return BarnehagebarnInfotrygdDto(
                 ident = barnehagebarnInfotrygdDtoInterface.getIdent(),
                 fom = barnehagebarnInfotrygdDtoInterface.getFom(),
                 tom = barnehagebarnInfotrygdDtoInterface.getTom(),
@@ -30,5 +30,6 @@ data class BarnehagebarnInfotrygdDto(
                 harFagsak = harFagsak,
                 endretTid = barnehagebarnInfotrygdDtoInterface.getEndretTid(),
             )
+        }
     }
 }

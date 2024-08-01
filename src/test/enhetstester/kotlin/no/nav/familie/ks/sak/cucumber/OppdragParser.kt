@@ -73,8 +73,8 @@ object OppdragParser {
 
     fun mapForventetUtbetalingsoppdrag(
         dataTable: DataTable,
-    ): List<ForventetUtbetalingsoppdrag> =
-        dataTable.groupByBehandlingId().map { (behandlingId, rader) ->
+    ): List<ForventetUtbetalingsoppdrag> {
+        return dataTable.groupByBehandlingId().map { (behandlingId, rader) ->
             val rad = rader.first()
             validerAlleKodeEndringerLike(rader)
             ForventetUtbetalingsoppdrag(
@@ -83,6 +83,7 @@ object OppdragParser {
                 utbetalingsperiode = rader.map { mapForventetUtbetalingsperiode(it) },
             )
         }
+    }
 
     private fun mapForventetUtbetalingsperiode(it: Map<String, String>) =
         ForventetUtbetalingsperiode(
@@ -100,13 +101,9 @@ object OppdragParser {
         )
 
     private fun validerAlleKodeEndringerLike(rader: List<Map<String, String>>) {
-        rader
-            .map { parseEnum<Utbetalingsoppdrag.KodeEndring>(DomenebegrepUtbetalingsoppdrag.KODE_ENDRING, it) }
-            .zipWithNext()
-            .forEach {
-                Assertions
-                    .assertThat(it.first)
-                    .isEqualTo(it.second)
+        rader.map { parseEnum<Utbetalingsoppdrag.KodeEndring>(DomenebegrepUtbetalingsoppdrag.KODE_ENDRING, it) }
+            .zipWithNext().forEach {
+                Assertions.assertThat(it.first).isEqualTo(it.second)
                     .withFailMessage("Alle kodeendringer for en og samme oppdrag må være lik ${it.first} -> ${it.second}")
             }
     }
@@ -144,9 +141,7 @@ object OppdragParser {
     private fun lagFødselsnummer(id: String) = id.padStart(11, '0')
 }
 
-enum class DomenebegrepTilkjentYtelse(
-    override val nøkkel: String,
-) : Domenenøkkel {
+enum class DomenebegrepTilkjentYtelse(override val nøkkel: String) : Domenenøkkel {
     YTELSE_TYPE("Ytelse"),
     UTEN_ANDELER("Uten andeler"),
     BELØP("Beløp"),
@@ -154,9 +149,7 @@ enum class DomenebegrepTilkjentYtelse(
     IDENT("Ident"),
 }
 
-enum class DomenebegrepUtbetalingsoppdrag(
-    override val nøkkel: String,
-) : Domenenøkkel {
+enum class DomenebegrepUtbetalingsoppdrag(override val nøkkel: String) : Domenenøkkel {
     KODE_ENDRING("Kode endring"),
     ER_ENDRING("Er endring"),
     PERIODE_ID("Periode id"),

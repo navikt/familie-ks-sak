@@ -32,8 +32,8 @@ class PubliserVedtakTask(
         fun opprettTask(
             personIdent: String,
             behandlingsId: Long,
-        ): Task =
-            Task(
+        ): Task {
+            return Task(
                 type = TASK_STEP_TYPE,
                 payload = behandlingsId.toString(),
                 properties =
@@ -42,5 +42,6 @@ class PubliserVedtakTask(
                         this["behandlingsId"] = behandlingsId.toString()
                     },
             )
+        }
     }
 }

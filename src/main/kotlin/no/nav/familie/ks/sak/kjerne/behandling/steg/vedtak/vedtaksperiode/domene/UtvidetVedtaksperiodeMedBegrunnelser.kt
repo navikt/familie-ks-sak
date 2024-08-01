@@ -23,14 +23,15 @@ data class UtvidetVedtaksperiodeMedBegrunnelser(
     val utbetalingsperiodeDetaljer: List<UtbetalingsperiodeDetalj> = emptyList(),
     val støtterFritekst: Boolean,
 ) : Comparable<UtvidetVedtaksperiodeMedBegrunnelser> {
-    override fun compareTo(other: UtvidetVedtaksperiodeMedBegrunnelser): Int =
-        if (this.type == Vedtaksperiodetype.AVSLAG) {
+    override fun compareTo(other: UtvidetVedtaksperiodeMedBegrunnelser): Int {
+        return if (this.type == Vedtaksperiodetype.AVSLAG) {
             1
         } else if (other.type == Vedtaksperiodetype.AVSLAG) {
             -1
         } else {
             (fom ?: TIDENES_MORGEN).compareTo(other.fom ?: TIDENES_MORGEN)
         }
+    }
 }
 
 fun VedtaksperiodeMedBegrunnelser.tilUtvidetVedtaksperiodeMedBegrunnelser(
@@ -60,11 +61,10 @@ fun VedtaksperiodeMedBegrunnelser.tilUtvidetVedtaksperiodeMedBegrunnelser(
 }
 
 fun List<UtvidetVedtaksperiodeMedBegrunnelser>.tilTidslinje() =
-    this
-        .map {
-            Periode(
-                fom = it.fom,
-                tom = it.tom,
-                verdi = it,
-            )
-        }.tilTidslinje()
+    this.map {
+        Periode(
+            fom = it.fom,
+            tom = it.tom,
+            verdi = it,
+        )
+    }.tilTidslinje()

@@ -122,14 +122,13 @@ class BrevServiceTest {
 
         every { genererBrevService.genererManueltBrev(any(), any()) } returns ByteArray(10)
 
-        brevService
-            .hentForhåndsvisningAvBrev(
-                manueltBrevDto.utvidManueltBrevDtoMedEnhetOgMottaker(
-                    behandling.id,
-                    personopplysningGrunnlagService,
-                    arbeidsfordelingService,
-                ),
-            ).shouldNotBeNull()
+        brevService.hentForhåndsvisningAvBrev(
+            manueltBrevDto.utvidManueltBrevDtoMedEnhetOgMottaker(
+                behandling.id,
+                personopplysningGrunnlagService,
+                arbeidsfordelingService,
+            ),
+        ).shouldNotBeNull()
     }
 
     @ParameterizedTest

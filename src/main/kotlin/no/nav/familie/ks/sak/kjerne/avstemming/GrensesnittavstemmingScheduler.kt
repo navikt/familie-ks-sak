@@ -19,10 +19,7 @@ import java.time.LocalDate
 import java.util.UUID
 
 @Service
-class GrensesnittavstemmingScheduler(
-    private val taskService: TaskService,
-    private val envService: EnvService,
-) {
+class GrensesnittavstemmingScheduler(private val taskService: TaskService, private val envService: EnvService) {
     @Scheduled(cron = "\${CRON_GRENSESNITT_AVSTEMMING}")
     fun utfør() {
         MDC.put(MDCConstants.MDC_CALL_ID, UUID.randomUUID().toString())

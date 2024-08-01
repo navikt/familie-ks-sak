@@ -29,8 +29,8 @@ class LesOgArkiverBarnehagelisteTask(
         fun opprettTask(
             barnehagelisteId: UUID,
             arkivreferanse: String,
-        ): Task =
-            Task(
+        ): Task {
+            return Task(
                 type = TASK_STEP_TYPE,
                 payload = barnehagelisteId.toString(),
                 properties =
@@ -38,5 +38,6 @@ class LesOgArkiverBarnehagelisteTask(
                         this["AR-referanse"] = arkivreferanse
                     },
             )
+        }
     }
 }

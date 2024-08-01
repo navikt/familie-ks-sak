@@ -26,9 +26,7 @@ interface KafkaProducer {
 
 @Service
 @Profile("!integrasjonstest & !dev-postgres-preprod")
-class DatavarehusKafkaProducer(
-    private val kafkaTemplate: KafkaTemplate<String, String>,
-) : KafkaProducer {
+class DatavarehusKafkaProducer(private val kafkaTemplate: KafkaTemplate<String, String>) : KafkaProducer {
     private val log = LoggerFactory.getLogger(this::class.java)
 
     override fun sendBehandlingsTilstand(
@@ -88,8 +86,7 @@ class DatavarehusKafkaProducer(
                 "BehandlingId: $behandlingId \n" +
                 "FagsakId: $fagsakId \n"
 
-        kafkaTemplate
-            .send(topic, key, melding)
+        kafkaTemplate.send(topic, key, melding)
             .thenAccept { log.info("Melding sendt på kafka. \n" + "Offset: ${it?.recordMetadata?.offset()} \n" + logMeldingMetadata) }
             .exceptionally { throw Feil("Kafkamelding kan ikke sendes. \n" + logMeldingMetadata + "Feilmelding: \"${it.message}\"") }
     }

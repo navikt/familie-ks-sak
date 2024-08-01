@@ -59,13 +59,10 @@ class FeilutbetaltValutaService(
         val fra = if (målform == Målform.NB) "Fra" else "Frå"
         val mye = if (målform == Målform.NB) "mye" else "mykje"
 
-        return feilutbetaltValutaRepository
-            .finnFeilutbetalteValutaForBehandling(behandlingId)
-            .map {
-                val fom = it.fom.tilDagMånedÅr()
-                val tom = it.tom.tilDagMånedÅr()
-                "$fra $fom til $tom er det utbetalt ${it.feilutbetaltBeløp} kroner for $mye."
-            }.toSet()
-            .takeIf { it.isNotEmpty() }
+        return feilutbetaltValutaRepository.finnFeilutbetalteValutaForBehandling(behandlingId).map {
+            val fom = it.fom.tilDagMånedÅr()
+            val tom = it.tom.tilDagMånedÅr()
+            "$fra $fom til $tom er det utbetalt ${it.feilutbetaltBeløp} kroner for $mye."
+        }.toSet().takeIf { it.isNotEmpty() }
     }
 }

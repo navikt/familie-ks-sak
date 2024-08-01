@@ -67,30 +67,29 @@ class TilkjentYtelseBuilder(
             gjeldendePersoner
                 .map { person ->
                     val andelTilkjentYtelseTidslinje =
-                        s
-                            .tilTidslinje(startMåned) {
-                                if (it == '$') true else null
-                            }.mapVerdi {
-                                it?.let {
-                                    AndelTilkjentYtelse(
-                                        behandlingId = behandling.id,
-                                        tilkjentYtelse = tilkjentYtelse,
-                                        aktør = person.aktør,
-                                        stønadFom = MIN_MÅNED,
-                                        stønadTom = MAX_MÅNED,
-                                        // Overskrives under
-                                        kalkulertUtbetalingsbeløp = 0,
-                                        // Overskrives under
-                                        nasjonaltPeriodebeløp = 0,
-                                        // Overskrives under
-                                        differanseberegnetPeriodebeløp = null,
-                                        prosent = BigDecimal.valueOf(prosent),
-                                        // Overskrives under
-                                        sats = 0,
-                                        type = type,
-                                    )
-                                }
+                        s.tilTidslinje(startMåned) {
+                            if (it == '$') true else null
+                        }.mapVerdi {
+                            it?.let {
+                                AndelTilkjentYtelse(
+                                    behandlingId = behandling.id,
+                                    tilkjentYtelse = tilkjentYtelse,
+                                    aktør = person.aktør,
+                                    stønadFom = MIN_MÅNED,
+                                    stønadTom = MAX_MÅNED,
+                                    // Overskrives under
+                                    kalkulertUtbetalingsbeløp = 0,
+                                    // Overskrives under
+                                    nasjonaltPeriodebeløp = 0,
+                                    // Overskrives under
+                                    differanseberegnetPeriodebeløp = null,
+                                    prosent = BigDecimal.valueOf(prosent),
+                                    // Overskrives under
+                                    sats = 0,
+                                    type = type,
+                                )
                             }
+                        }
 
                     andelTilkjentYtelseTidslinje.kombinerMed(satsTidslinje(person)) { aty, sats ->
                         if (aty == null || sats == null) {

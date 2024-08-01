@@ -45,10 +45,7 @@ object RegisterHistorikkMapper {
         RegisteropplysningResponsDto(
             fom = sivilstand.fom,
             tom = null,
-            verdi =
-                sivilstand.type.name
-                    .replace('_', ' ')
-                    .storForbokstav(),
+            verdi = sivilstand.type.name.replace('_', ' ').storForbokstav(),
         )
 
     private fun lagRegisterOpplysningDto(bostedsAdresse: GrBostedsadresse) =
@@ -82,9 +79,6 @@ object RegisterHistorikkMapper {
         RegisteropplysningResponsDto(
             fom = opphold.gyldigPeriode?.fom,
             tom = opphold.gyldigPeriode?.tom,
-            verdi =
-                opphold.type.name
-                    .replace('_', ' ')
-                    .storForbokstav(),
+            verdi = opphold.type.name.replace('_', ' ').storForbokstav(),
         )
 }

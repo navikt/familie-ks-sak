@@ -77,16 +77,16 @@ class StønadsstatistikkService(
         )
     }
 
-    fun Resultat.tilDatavarehusResultat(): no.nav.familie.eksterne.kontrakter.Resultat =
-        no.nav.familie.eksterne.kontrakter.Resultat
-            .valueOf(this.name)
+    fun Resultat.tilDatavarehusResultat(): no.nav.familie.eksterne.kontrakter.Resultat {
+        return no.nav.familie.eksterne.kontrakter.Resultat.valueOf(this.name)
+    }
 
-    fun Vilkår.tilDatavarehusVilkårType(): no.nav.familie.eksterne.kontrakter.Vilkår =
-        no.nav.familie.eksterne.kontrakter.Vilkår
-            .valueOf(this.name)
+    fun Vilkår.tilDatavarehusVilkårType(): no.nav.familie.eksterne.kontrakter.Vilkår {
+        return no.nav.familie.eksterne.kontrakter.Vilkår.valueOf(this.name)
+    }
 
-    fun List<Kompetanse>.tilEksernkontraktKompetanser(): List<no.nav.familie.eksterne.kontrakter.Kompetanse> =
-        this.filter { it.resultat != null }.map { kompetanse ->
+    fun List<Kompetanse>.tilEksernkontraktKompetanser(): List<no.nav.familie.eksterne.kontrakter.Kompetanse> {
+        return this.filter { it.resultat != null }.map { kompetanse ->
             no.nav.familie.eksterne.kontrakter.Kompetanse(
                 barnsIdenter = kompetanse.barnAktører.map { aktør -> aktør.aktivFødselsnummer() },
                 annenForeldersAktivitet = kompetanse.annenForeldersAktivitet?.let { KompetanseAktivitet.valueOf(it.name) },
@@ -99,6 +99,7 @@ class StønadsstatistikkService(
                 sokersAktivitetsland = kompetanse.søkersAktivitetsland,
             )
         }
+    }
 
     private fun hentSøker(behandlingId: Long): PersonDVH {
         val persongrunnlag = personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(behandlingId)
@@ -128,8 +129,7 @@ class StønadsstatistikkService(
                 stønadTom = it.tom!!,
                 utbetaltPerMnd = sumUtbetalingsbeløp,
                 utbetalingsDetaljer =
-                    andelerForPeriode
-                        .filter { andel -> andel.erAndelSomSkalSendesTilOppdrag() }
+                    andelerForPeriode.filter { andel -> andel.erAndelSomSkalSendesTilOppdrag() }
                         .map { andel ->
                             UtbetalingsDetaljDVH(
                                 person =

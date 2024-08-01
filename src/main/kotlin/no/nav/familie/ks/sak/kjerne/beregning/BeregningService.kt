@@ -35,29 +35,24 @@ class BeregningService(
     fun finnBarnFraBehandlingMedTilkjentYtelse(behandlingId: Long): List<Aktør> {
         val andelerTilkjentYtelse = andelTilkjentYtelseRepository.finnAndelerTilkjentYtelseForBehandling(behandlingId)
 
-        return personopplysningGrunnlagRepository
-            .hentByBehandlingAndAktiv(behandlingId)
-            .barna
-            .map { it.aktør }
+        return personopplysningGrunnlagRepository.hentByBehandlingAndAktiv(behandlingId).barna.map { it.aktør }
             .filter { andelerTilkjentYtelse.any { aty -> aty.aktør == it } }
     }
 
     fun hentTilkjentYtelseForBehandling(behandlingId: Long) = tilkjentYtelseRepository.hentTilkjentYtelseForBehandling(behandlingId)
 
     fun hentAndelerTilkjentYtelseMedUtbetalingerForBehandling(behandlingId: Long): List<AndelTilkjentYtelse> =
-        andelTilkjentYtelseRepository
-            .finnAndelerTilkjentYtelseForBehandling(behandlingId)
+        andelTilkjentYtelseRepository.finnAndelerTilkjentYtelseForBehandling(behandlingId)
             .filter { it.erAndelSomSkalSendesTilOppdrag() }
 
     fun hentTilkjentYtelseForBehandlingerIverksattMotØkonomi(fagsakId: Long): List<TilkjentYtelse> {
         val iverksatteBehandlinger = behandlingRepository.finnByFagsakAndAvsluttet(fagsakId)
         return iverksatteBehandlinger.mapNotNull {
-            tilkjentYtelseRepository
-                .finnByBehandlingAndHasUtbetalingsoppdrag(
-                    it.id,
-                )?.takeIf { tilkjentYtelse ->
-                    tilkjentYtelse.andelerTilkjentYtelse.any { aty -> aty.erAndelSomSkalSendesTilOppdrag() }
-                }
+            tilkjentYtelseRepository.finnByBehandlingAndHasUtbetalingsoppdrag(
+                it.id,
+            )?.takeIf { tilkjentYtelse ->
+                tilkjentYtelse.andelerTilkjentYtelse.any { aty -> aty.erAndelSomSkalSendesTilOppdrag() }
+            }
         }
     }
 
@@ -68,8 +63,7 @@ class BeregningService(
         endretUtbetalingAndel: EndretUtbetalingAndel? = null,
     ) {
         val endreteUtbetalingAndeler =
-            andelerTilkjentYtelseOgEndreteUtbetalingerService
-                .finnEndreteUtbetalingerMedAndelerTilkjentYtelse(behandling.id)
+            andelerTilkjentYtelseOgEndreteUtbetalingerService.finnEndreteUtbetalingerMedAndelerTilkjentYtelse(behandling.id)
                 .filter {
                     when {
                         endretUtbetalingAndel != null -> it.id == endretUtbetalingAndel.id || it.andelerTilkjentYtelse.isNotEmpty()
@@ -101,29 +95,25 @@ class BeregningService(
         fagsakId: Long,
     ): List<TilkjentYtelse> {
         val andreFagsaker =
-            fagsakService
-                .hentFagsakerPåPerson(barnAktør)
+            fagsakService.hentFagsakerPåPerson(barnAktør)
                 .filter { it.id != fagsakId }
 
-        return andreFagsaker
-            .mapNotNull { fagsak ->
+        return andreFagsaker.mapNotNull { fagsak ->
 
-                behandlingRepository.finnBehandlingerSendtTilGodkjenning(fagsakId = fagsak.id).singleOrNull()
-                    ?: behandlingRepository.finnBehandlingerSomHolderPåÅIverksettes(fagsakId = fagsak.id).singleOrNull()
-                    ?: behandlingRepository
-                        .finnIverksatteBehandlinger(fagsakId = fagsak.id)
-                        .filter { it.status == BehandlingStatus.AVSLUTTET }
-                        .maxByOrNull { it.aktivertTidspunkt }
-            }.map {
-                hentTilkjentYtelseForBehandling(behandlingId = it.id)
-            }.filter {
-                personopplysningGrunnlagRepository
-                    .findByBehandlingAndAktiv(behandlingId = it.behandling.id)
-                    ?.barna
-                    ?.map { barn -> barn.aktør }
-                    ?.contains(barnAktør)
-                    ?: false
-            }
+            behandlingRepository.finnBehandlingerSendtTilGodkjenning(fagsakId = fagsak.id).singleOrNull()
+                ?: behandlingRepository.finnBehandlingerSomHolderPåÅIverksettes(fagsakId = fagsak.id).singleOrNull()
+                ?: behandlingRepository.finnIverksatteBehandlinger(fagsakId = fagsak.id)
+                    .filter { it.status == BehandlingStatus.AVSLUTTET }
+                    .maxByOrNull { it.aktivertTidspunkt }
+        }.map {
+            hentTilkjentYtelseForBehandling(behandlingId = it.id)
+        }.filter {
+            personopplysningGrunnlagRepository
+                .findByBehandlingAndAktiv(behandlingId = it.behandling.id)
+                ?.barna?.map { barn -> barn.aktør }
+                ?.contains(barnAktør)
+                ?: false
+        }
     }
 
     /*
@@ -134,14 +124,10 @@ class BeregningService(
             andelerTilkjentYtelseOgEndreteUtbetalingerService
                 .finnAndelerTilkjentYtelseMedEndreteUtbetalinger(behandlingId)
 
-        return personopplysningGrunnlagRepository
-            .hentByBehandlingAndAktiv(behandlingId)
-            .barna
-            .map { it.aktør }
+        return personopplysningGrunnlagRepository.hentByBehandlingAndAktiv(behandlingId).barna.map { it.aktør }
             .filter { aktør ->
                 andelerMedEndringer
-                    .filter { it.aktør == aktør }
-                    .any { aty ->
+                    .filter { it.aktør == aktør }.any { aty ->
                         aty.kalkulertUtbetalingsbeløp != 0 || aty.endreteUtbetalinger.isEmpty()
                     }
             }
@@ -154,11 +140,8 @@ class BeregningService(
         val alleBarnISisteBehanlding = finnBarnFraBehandlingMedTilkjentYtelse(behandling.id)
 
         val alleBarnISistIverksattBehandling =
-            behandlingRepository
-                .finnIverksatteBehandlinger(behandling.fagsak.id)
-                .filter { it.steg == BehandlingSteg.AVSLUTT_BEHANDLING }
-                .maxByOrNull { it.aktivertTidspunkt }
-                ?.let {
+            behandlingRepository.finnIverksatteBehandlinger(behandling.fagsak.id)
+                .filter { it.steg == BehandlingSteg.AVSLUTT_BEHANDLING }.maxByOrNull { it.aktivertTidspunkt }?.let {
                     finnBarnFraBehandlingMedTilkjentYtelse(
                         it.id,
                     )
@@ -179,11 +162,10 @@ class BeregningService(
         behandlingIder: List<Long>,
         avstemmingstidspunkt: LocalDateTime,
     ): List<AndelTilkjentYtelse> =
-        andelTilkjentYtelseRepository
-            .finnLøpendeAndelerTilkjentYtelseForBehandlinger(
-                behandlingIder,
-                avstemmingstidspunkt.toLocalDate().toYearMonth(),
-            ).filter { it.erAndelSomSkalSendesTilOppdrag() }
+        andelTilkjentYtelseRepository.finnLøpendeAndelerTilkjentYtelseForBehandlinger(
+            behandlingIder,
+            avstemmingstidspunkt.toLocalDate().toYearMonth(),
+        ).filter { it.erAndelSomSkalSendesTilOppdrag() }
 
     fun slettTilkjentYtelseForBehandling(behandling: Behandling) = tilkjentYtelseRepository.slettTilkjentYtelseForBehandling(behandling)
 }

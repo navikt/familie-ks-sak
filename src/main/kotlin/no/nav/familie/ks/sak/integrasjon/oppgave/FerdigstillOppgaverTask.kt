@@ -35,8 +35,8 @@ class FerdigstillOppgaverTask(
         fun opprettTask(
             behandlingId: Long,
             oppgavetype: Oppgavetype,
-        ): Task =
-            Task(
+        ): Task {
+            return Task(
                 type = TASK_STEP_TYPE,
                 payload =
                     objectMapper.writeValueAsString(
@@ -46,5 +46,6 @@ class FerdigstillOppgaverTask(
                         ),
                     ),
             )
+        }
     }
 }

@@ -33,8 +33,7 @@ data class PeriodeVilkår(
 
 fun PersonResultat.tilPeriodeResultater(): List<PeriodeResultat> {
     val tidslinjer =
-        this.vilkårResultater
-            .filter { !it.erAvslagUtenPeriode() }
+        this.vilkårResultater.filter { !it.erAvslagUtenPeriode() }
             .map { vilkårResultat ->
                 listOf(
                     Periode(
@@ -51,18 +50,17 @@ fun PersonResultat.tilPeriodeResultater(): List<PeriodeResultat> {
             periodeFom = periode.fom,
             periodeTom = periode.tom,
             vilkårResultater =
-                periode.verdi!!
-                    .map { vilkårResultat ->
-                        PeriodeVilkår(
-                            vilkårType = vilkårResultat.vilkårType,
-                            resultat = vilkårResultat.resultat,
-                            begrunnelse = vilkårResultat.begrunnelse,
-                            utdypendeVilkårsvurderinger = vilkårResultat.utdypendeVilkårsvurderinger,
-                            antallTimer = vilkårResultat.antallTimer,
-                            periodeFom = utledFomFraVilkårResultat(vilkårResultat),
-                            periodeTom = utledTomFraVilkårResultat(vilkårResultat),
-                        )
-                    }.toSet(),
+                periode.verdi!!.map { vilkårResultat ->
+                    PeriodeVilkår(
+                        vilkårType = vilkårResultat.vilkårType,
+                        resultat = vilkårResultat.resultat,
+                        begrunnelse = vilkårResultat.begrunnelse,
+                        utdypendeVilkårsvurderinger = vilkårResultat.utdypendeVilkårsvurderinger,
+                        antallTimer = vilkårResultat.antallTimer,
+                        periodeFom = utledFomFraVilkårResultat(vilkårResultat),
+                        periodeTom = utledTomFraVilkårResultat(vilkårResultat),
+                    )
+                }.toSet(),
         )
     }
 }

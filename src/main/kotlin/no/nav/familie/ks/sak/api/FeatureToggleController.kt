@@ -22,11 +22,12 @@ class FeatureToggleController(
     @PostMapping(produces = [MediaType.APPLICATION_JSON_VALUE])
     fun hentToggles(
         @RequestBody toggles: List<String>,
-    ): ResponseEntity<Ressurs<Map<String, Boolean>>> =
-        RessursUtils.ok(
+    ): ResponseEntity<Ressurs<Map<String, Boolean>>> {
+        return RessursUtils.ok(
             toggles.fold(mutableMapOf()) { acc, toggleId ->
                 acc[toggleId] = unleashNextMedContextService.isEnabled(toggleId)
                 acc
             },
         )
+    }
 }

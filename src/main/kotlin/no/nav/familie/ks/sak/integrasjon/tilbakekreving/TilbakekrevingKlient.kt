@@ -115,6 +115,4 @@ class TilbakekrevingKlient(
 
 fun encodePath(path: String) = UriUtils.encodePath(path, "UTF-8")
 
-data class FinnesTilbakekrevingBehandlingsresponsDto(
-    val finnesÅpenBehandling: Boolean,
-)
+data class FinnesTilbakekrevingBehandlingsresponsDto(val finnesÅpenBehandling: Boolean)

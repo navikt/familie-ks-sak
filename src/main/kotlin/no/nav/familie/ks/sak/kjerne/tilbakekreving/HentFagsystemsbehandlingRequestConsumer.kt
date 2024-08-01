@@ -15,9 +15,7 @@ import org.springframework.stereotype.Service
 
 @Service
 @Profile("!integrasjonstest & !dev-postgres-preprod")
-class HentFagsystemsbehandlingRequestConsumer(
-    private val fagsystemsbehandlingService: FagsystemsbehandlingService,
-) {
+class HentFagsystemsbehandlingRequestConsumer(private val fagsystemsbehandlingService: FagsystemsbehandlingService) {
     private val logger = LoggerFactory.getLogger(this::class.java)
     private val secureLogger = LoggerFactory.getLogger("secureLogger")
 

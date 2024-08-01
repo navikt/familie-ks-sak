@@ -12,9 +12,7 @@ import org.springframework.stereotype.Service
 import java.time.LocalDate
 
 @Service
-class StatsborgerskapService(
-    val integrasjonClient: IntegrasjonClient,
-) {
+class StatsborgerskapService(val integrasjonClient: IntegrasjonClient) {
     fun hentLand(landkode: String): String = integrasjonClient.hentLand(landkode)
 
     fun hentStatsborgerskapMedMedlemskap(
@@ -141,8 +139,8 @@ class StatsborgerskapService(
     ) = (statsborgerFra == null || dato.isAfter(statsborgerFra)) &&
         (statsborgerTil == null || dato.isBefore(statsborgerTil))
 
-    private fun hentDatointervallerMedSluttdatoFørNesteStarter(intervaller: List<List<LocalDate?>>): List<DatoIntervallEntitet> =
-        intervaller.mapIndexed { index, endringsdatoPar ->
+    private fun hentDatointervallerMedSluttdatoFørNesteStarter(intervaller: List<List<LocalDate?>>): List<DatoIntervallEntitet> {
+        return intervaller.mapIndexed { index, endringsdatoPar ->
             val fra = endringsdatoPar[0]
             val nesteEndringsdato = endringsdatoPar[1]
 
@@ -155,6 +153,7 @@ class StatsborgerskapService(
 
             DatoIntervallEntitet(fra, intervallSluttdato)
         }
+    }
 
     companion object {
         const val LANDKODE_UKJENT = "XUK"

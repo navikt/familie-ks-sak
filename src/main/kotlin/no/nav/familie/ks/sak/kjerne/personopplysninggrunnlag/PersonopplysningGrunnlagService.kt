@@ -68,8 +68,7 @@ class PersonopplysningGrunnlagService(
                 ?: throw Feil("Det finnes ikke noe aktivt personopplysningsgrunnlag for ${behandling.id}")
 
         val valgteBarnAktører =
-            søknadDto.barnaMedOpplysninger
-                .filter { it.inkludertISøknaden && it.erFolkeregistrert }
+            søknadDto.barnaMedOpplysninger.filter { it.inkludertISøknaden && it.erFolkeregistrert }
                 .mapNotNull { it.personnummer }
                 .map { personidentService.hentOgLagreAktør(it, true) }
 
@@ -200,8 +199,7 @@ class PersonopplysningGrunnlagService(
             )
 
         // la til historikkinnslag
-        oppdatertPersonopplysningGrunnlag.barna
-            .singleOrNull { nyttBarnAktør == it.aktør }
+        oppdatertPersonopplysningGrunnlag.barna.singleOrNull { nyttBarnAktør == it.aktør }
             ?.also { loggService.opprettBarnLagtTilLogg(behandling, it) } ?: run {
             secureLogger.info(
                 "Klarte ikke legge til barn med aktør $nyttBarnAktør " +

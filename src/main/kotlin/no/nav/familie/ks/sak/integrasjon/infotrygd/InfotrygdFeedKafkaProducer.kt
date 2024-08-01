@@ -20,9 +20,7 @@ interface KafkaProducer {
 
 @Service
 @Profile("!integrasjonstest & !dev-postgres-preprod")
-class InfotrygdFeedKafkaProducer(
-    private val kafkaTemplate: KafkaTemplate<String, String>,
-) : KafkaProducer {
+class InfotrygdFeedKafkaProducer(private val kafkaTemplate: KafkaTemplate<String, String>) : KafkaProducer {
     private val secureLogger = LoggerFactory.getLogger("secureLogger")
 
     override fun sendStartBehandlingHendelseTilInfotrygd(startBehandlingDto: StartBehandlingDto) {
@@ -50,14 +48,14 @@ class InfotrygdFeedKafkaProducer(
         val melding = objectMapper.writeValueAsString(request)
         val producerRecord = ProducerRecord(topic, key, melding)
 
-        kafkaTemplate
-            .send(producerRecord)
+        kafkaTemplate.send(producerRecord)
             .thenAccept {
                 secureLogger.info(
                     "Melding på topic $topic for $personIdent med $key er sendt. " +
                         "Fikk offset ${it?.recordMetadata?.offset()}",
                 )
-            }.exceptionally {
+            }
+            .exceptionally {
                 val feilmelding =
                     "Melding på topic $topic kan ikke sendes for $personIdent med $key. " +
                         "Feiler med ${it.message}"

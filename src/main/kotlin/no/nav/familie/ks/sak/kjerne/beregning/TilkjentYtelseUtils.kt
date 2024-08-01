@@ -164,8 +164,7 @@ object TilkjentYtelseUtils {
 
                 // Deler opp hver enkelt andel i perioder som hhv blir berørt av endringene og de som ikke berøres av de.
                 val (perioderMedEndring, perioderUtenEndring) =
-                    andelForPerson
-                        .stønadsPeriode()
+                    andelForPerson.stønadsPeriode()
                         .perioderMedOgUtenOverlapp(
                             endringerForPerson.map { endringerForPerson -> endringerForPerson.periode },
                         )
@@ -236,9 +235,7 @@ object TilkjentYtelseUtils {
             val nesteMånedMedNyOverlappstatus =
                 alleMånederMedOverlappStatus
                     .filter { it.key > periodeStart && it.value != periodeMedOverlapp }
-                    .minByOrNull { it.key }
-                    ?.key
-                    ?.minusMonths(1) ?: this.tom
+                    .minByOrNull { it.key }?.key?.minusMonths(1) ?: this.tom
 
             // Når tom skal utledes for en periode det eksisterer en endret periode for må den minste av følgende to datoer velges:
             // 1. tom for den aktuelle endrete perioden
@@ -261,8 +258,7 @@ object TilkjentYtelseUtils {
             periodeStart =
                 alleMånederMedOverlappStatus
                     .filter { it.key > periodeSlutt }
-                    .minByOrNull { it.key }
-                    ?.key
+                    .minByOrNull { it.key }?.key
         }
         return Pair(perioderMedOverlapp, perioderUtenOverlapp)
     }
@@ -310,14 +306,10 @@ object TilkjentYtelseUtils {
         førsteAndel: AndelTilkjentYtelseMedEndreteUtbetalinger,
         nesteAndel: AndelTilkjentYtelseMedEndreteUtbetalinger,
     ): Boolean =
-        førsteAndel.stønadTom
-            .sisteDagIInneværendeMåned()
-            .erDagenFør(nesteAndel.stønadFom.førsteDagIInneværendeMåned()) &&
-            førsteAndel.prosent == BigDecimal(0) &&
-            nesteAndel.prosent ==
+        førsteAndel.stønadTom.sisteDagIInneværendeMåned()
+            .erDagenFør(nesteAndel.stønadFom.førsteDagIInneværendeMåned()) && førsteAndel.prosent == BigDecimal(0) && nesteAndel.prosent ==
             BigDecimal(
                 0,
             ) &&
-            førsteAndel.endreteUtbetalinger.isNotEmpty() &&
-            førsteAndel.endreteUtbetalinger.singleOrNull() == nesteAndel.endreteUtbetalinger.singleOrNull()
+            førsteAndel.endreteUtbetalinger.isNotEmpty() && førsteAndel.endreteUtbetalinger.singleOrNull() == nesteAndel.endreteUtbetalinger.singleOrNull()
 }

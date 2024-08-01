@@ -12,14 +12,15 @@ class SøknadGrunnlagService(
 ) {
     @Transactional
     fun lagreOgDeaktiverGammel(søknadGrunnlag: SøknadGrunnlag): SøknadGrunnlag {
-        søknadGrunnlagRepository
-            .finnAktiv(søknadGrunnlag.behandlingId)
+        søknadGrunnlagRepository.finnAktiv(søknadGrunnlag.behandlingId)
             ?.let { søknadGrunnlagRepository.saveAndFlush(it.also { it.aktiv = false }) }
 
         return søknadGrunnlagRepository.save(søknadGrunnlag)
     }
 
-    fun finnAktiv(behandlingId: Long): SøknadGrunnlag? = søknadGrunnlagRepository.finnAktiv(behandlingId)
+    fun finnAktiv(behandlingId: Long): SøknadGrunnlag? {
+        return søknadGrunnlagRepository.finnAktiv(behandlingId)
+    }
 
     fun hentAktiv(behandlingId: Long): SøknadGrunnlag =
         finnAktiv(behandlingId) ?: throw Feil("Fant ikke aktiv søknadsgrunnlag for behandling $behandlingId.")

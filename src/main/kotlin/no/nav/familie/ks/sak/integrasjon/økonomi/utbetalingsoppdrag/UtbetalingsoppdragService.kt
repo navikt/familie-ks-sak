@@ -124,13 +124,11 @@ class UtbetalingsoppdragService(
     }
 
     private fun hentForrigeTilkjentYtelse(behandling: Behandling): TilkjentYtelse? =
-        behandlingService
-            .hentSisteBehandlingSomErIverksatt(fagsakId = behandling.fagsak.id)
+        behandlingService.hentSisteBehandlingSomErIverksatt(fagsakId = behandling.fagsak.id)
             ?.let { tilkjentYtelseRepository.finnByBehandlingAndHasUtbetalingsoppdrag(behandlingId = it.id) }
 
     private fun hentSisteAndelTilkjentYtelse(fagsak: Fagsak) =
-        andelTilkjentYtelseRepository
-            .hentSisteAndelPerIdentOgType(fagsakId = fagsak.id)
+        andelTilkjentYtelseRepository.hentSisteAndelPerIdentOgType(fagsakId = fagsak.id)
             .associateBy { IdentOgType(it.aktør.aktivFødselsnummer(), it.type.tilYtelseType()) }
 
     private fun utledOpphør(
@@ -187,10 +185,7 @@ class UtbetalingsoppdragService(
         }
     }
 
-    data class Opphør(
-        val erRentOpphør: Boolean,
-        val opphørsdato: LocalDate?,
-    )
+    data class Opphør(val erRentOpphør: Boolean, val opphørsdato: LocalDate?)
 
     companion object {
         val logger = LoggerFactory.getLogger(UtbetalingsoppdragService::class.java)

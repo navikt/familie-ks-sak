@@ -197,8 +197,7 @@ private fun tilVilkårResultatRader(personResultater: List<PersonResultat>?) =
                     it.søkerHarMeldtFraOmBarnehageplass,
                     it.antallTimer,
                 )
-            }.toList()
-            .joinToString("") { (vilkårResultatRad, vilkårResultater) ->
+            }.toList().joinToString("") { (vilkårResultatRad, vilkårResultater) ->
                 "\n | ${vilkårResultatRad.aktørId} " +
                     "| ${vilkårResultater.map { it.vilkårType }.joinToString(",")} " +
                     "| ${vilkårResultatRad.utdypendeVilkårsvurderinger.joinToString(",")} " +
@@ -248,7 +247,8 @@ private fun hentAndelRader(
                 { it.stønadFom },
                 { it.stønadTom },
             ),
-        )?.joinToString("") {
+        )
+        ?.joinToString("") {
             """
       | ${it.aktør.aktørId} |${
                 it.stønadFom.førsteDagIInneværendeMåned().tilddMMyyyy()
@@ -483,8 +483,8 @@ fun hentBrevPeriodeRader(vedtaksperioder: List<VedtaksperiodeMedBegrunnelser>) =
 fun hentBrevBegrunnelseTekster(
     behandlingId: Long?,
     vedtaksperioder: List<VedtaksperiodeMedBegrunnelser>,
-): String =
-    vedtaksperioder.filter { (it.begrunnelser).isNotEmpty() }.joinToString("") { vedtaksperiode ->
+): String {
+    return vedtaksperioder.filter { (it.begrunnelser).isNotEmpty() }.joinToString("") { vedtaksperiode ->
         """
 
     Så forvent følgende brevbegrunnelser for behandling $behandlingId i periode ${vedtaksperiode.fom?.tilddMMyyyy() ?: "-"} til ${vedtaksperiode.tom?.tilddMMyyyy() ?: "-"}
@@ -494,12 +494,13 @@ fun hentBrevBegrunnelseTekster(
         | $it | STANDARD |               |                      |             |                                      |         |       |                  |                         |                               |         |"""
             }
     }
+}
 
 fun hentEØSBrevBegrunnelseTekster(
     behandlingId: Long?,
     vedtaksperioder: List<VedtaksperiodeMedBegrunnelser>,
-): String =
-    vedtaksperioder.filter { (it.eøsBegrunnelser).isNotEmpty() }.joinToString("") { vedtaksperiode ->
+): String {
+    return vedtaksperioder.filter { (it.eøsBegrunnelser).isNotEmpty() }.joinToString("") { vedtaksperiode ->
         """
 
     Så forvent følgende brevbegrunnelser for behandling $behandlingId i periode ${vedtaksperiode.fom?.tilddMMyyyy() ?: "-"} til ${vedtaksperiode.tom?.tilddMMyyyy() ?: "-"}
@@ -509,3 +510,4 @@ fun hentEØSBrevBegrunnelseTekster(
         | $it | EØS |               |                      |             |                                      |         |       |                  |                         |                               |"""
             }
     }
+}

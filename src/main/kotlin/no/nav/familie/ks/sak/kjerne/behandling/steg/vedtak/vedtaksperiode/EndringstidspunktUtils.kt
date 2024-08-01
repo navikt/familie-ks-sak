@@ -33,8 +33,7 @@ private data class AndelTilkjentYtelseDataForÅKalkulereEndring(
 fun List<AndelTilkjentYtelseMedEndreteUtbetalinger>.hentFørsteEndringstidspunkt(
     forrigeAndelerTilkjentYtelse: List<AndelTilkjentYtelseMedEndreteUtbetalinger>,
 ): LocalDate? =
-    this
-        .hentPerioderMedEndringerFra(forrigeAndelerTilkjentYtelse)
+    this.hentPerioderMedEndringerFra(forrigeAndelerTilkjentYtelse)
         .mapNotNull { (_, tidslinjeMedDifferanserPåPerson) ->
             tidslinjeMedDifferanserPåPerson.tilPerioder().minOfOrNull { checkNotNull(it.fom) }
         }.minOfOrNull { it }
@@ -43,20 +42,18 @@ fun Iterable<Kompetanse>.hentFørsteEndringstidspunkt(forrigeKompetansePerioder:
     val separateTidslinjerForBarna = this.tilSeparateTidslinjerForBarna()
     val separateTidslinjerForBarnaForrigeBehandling = forrigeKompetansePerioder.tilSeparateTidslinjerForBarna()
 
-    return separateTidslinjerForBarna
-        .outerJoin(separateTidslinjerForBarnaForrigeBehandling) { nyKompetanse, forrigeKompetanse ->
-            when {
-                nyKompetanse == forrigeKompetanse -> null
-                nyKompetanse == null -> forrigeKompetanse
-                forrigeKompetanse == null -> nyKompetanse
-                nyKompetanse != forrigeKompetanse -> nyKompetanse
-                else -> null
-            }
-        }.values
+    return separateTidslinjerForBarna.outerJoin(separateTidslinjerForBarnaForrigeBehandling) { nyKompetanse, forrigeKompetanse ->
+        when {
+            nyKompetanse == forrigeKompetanse -> null
+            nyKompetanse == null -> forrigeKompetanse
+            forrigeKompetanse == null -> nyKompetanse
+            nyKompetanse != forrigeKompetanse -> nyKompetanse
+            else -> null
+        }
+    }.values
         .map { it.filtrerIkkeNull().startsTidspunkt }
         .filterNot { it == TIDENES_ENDE }
-        .minOfOrNull { it }
-        ?.førsteDagIInneværendeMåned() ?: TIDENES_ENDE
+        .minOfOrNull { it }?.førsteDagIInneværendeMåned() ?: TIDENES_ENDE
 }
 
 fun List<AndelTilkjentYtelseMedEndreteUtbetalinger>.hentPerioderMedEndringerFra(
@@ -68,46 +65,42 @@ fun List<AndelTilkjentYtelseMedEndreteUtbetalinger>.hentPerioderMedEndringerFra(
     val personerFraForrigeEllerDenneBehandlinger =
         (this.map { it.aktør.aktørId } + forrigeAndelerTilkjentYtelse.map { it.aktør.aktørId }).toSet()
 
-    return personerFraForrigeEllerDenneBehandlinger
-        .associateWith { aktørId ->
-            val tidslinjeForPerson =
-                andelerTidslinje[aktørId]
-                    ?: Tidslinje(startsTidspunkt = TIDENES_MORGEN.plusDays(1), perioder = emptyList())
-            val forrigeTidslinjeForPerson =
-                forrigeAndelerTidslinje[aktørId]
-                    ?: Tidslinje(startsTidspunkt = TIDENES_MORGEN.plusDays(1), perioder = emptyList())
-            val kombinertTidslinje = listOf(tidslinjeForPerson, forrigeTidslinjeForPerson).slåSammen()
+    return personerFraForrigeEllerDenneBehandlinger.associateWith { aktørId ->
+        val tidslinjeForPerson =
+            andelerTidslinje[aktørId]
+                ?: Tidslinje(startsTidspunkt = TIDENES_MORGEN.plusDays(1), perioder = emptyList())
+        val forrigeTidslinjeForPerson =
+            forrigeAndelerTidslinje[aktørId]
+                ?: Tidslinje(startsTidspunkt = TIDENES_MORGEN.plusDays(1), perioder = emptyList())
+        val kombinertTidslinje = listOf(tidslinjeForPerson, forrigeTidslinjeForPerson).slåSammen()
 
-            kombinertTidslinje.tilPerioderIkkeNull().mapNotNull { it.tilPeriodeMedEndringer() }.tilTidslinje()
-        }.filter { it.value.tilPerioder().isNotEmpty() }
+        kombinertTidslinje.tilPerioderIkkeNull().mapNotNull { it.tilPeriodeMedEndringer() }.tilTidslinje()
+    }.filter { it.value.tilPerioder().isNotEmpty() }
 }
 
 private fun List<AndelTilkjentYtelseMedEndreteUtbetalinger>.hentTidslinjerForPersoner(
     behandlingAlder: BehandlingAlder,
 ): Map<String, Tidslinje<AndelTilkjentYtelseDataForÅKalkulereEndring>> =
-    this
-        .groupBy { it.aktør.aktørId }
-        .map { (aktørId, andeler) ->
-            aktørId to andeler.hentTidslinje(behandlingAlder)
-        }.toMap()
+    this.groupBy { it.aktør.aktørId }.map { (aktørId, andeler) ->
+        aktørId to andeler.hentTidslinje(behandlingAlder)
+    }.toMap()
 
 private fun List<AndelTilkjentYtelseMedEndreteUtbetalinger>.hentTidslinje(
     behandlingAlder: BehandlingAlder,
 ): Tidslinje<AndelTilkjentYtelseDataForÅKalkulereEndring> =
-    this
-        .map {
-            Periode(
-                fom = it.stønadFom.førsteDagIInneværendeMåned(),
-                tom = it.stønadTom.sisteDagIInneværendeMåned(),
-                verdi =
-                    AndelTilkjentYtelseDataForÅKalkulereEndring(
-                        aktørId = it.aktør.aktørId,
-                        kalkulertBeløp = it.kalkulertUtbetalingsbeløp,
-                        endretUtbetalingÅrsaker = it.endreteUtbetalinger.mapNotNull { endretUtbetalingAndel -> endretUtbetalingAndel.årsak },
-                        behandlingAlder = behandlingAlder,
-                    ),
-            )
-        }.tilTidslinje()
+    this.map {
+        Periode(
+            fom = it.stønadFom.førsteDagIInneværendeMåned(),
+            tom = it.stønadTom.sisteDagIInneværendeMåned(),
+            verdi =
+                AndelTilkjentYtelseDataForÅKalkulereEndring(
+                    aktørId = it.aktør.aktørId,
+                    kalkulertBeløp = it.kalkulertUtbetalingsbeløp,
+                    endretUtbetalingÅrsaker = it.endreteUtbetalinger.mapNotNull { endretUtbetalingAndel -> endretUtbetalingAndel.årsak },
+                    behandlingAlder = behandlingAlder,
+                ),
+        )
+    }.tilTidslinje()
 
 private fun Periode<Collection<AndelTilkjentYtelseDataForÅKalkulereEndring>>.tilPeriodeMedEndringer(): Periode<Int>? {
     val erEndring = erEndringPåPersonISegment(this.verdi)

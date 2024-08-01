@@ -74,16 +74,14 @@ class InfotrygdReplikaClient(
         return barnMedLøpendeFagsak
     }
 
-    fun List<BarnMedOpplysningerDto>.tilInnsynsRequest(): InnsynRequest = InnsynRequest(barn = this.mapNotNull { it.personnummer })
+    fun List<BarnMedOpplysningerDto>.tilInnsynsRequest(): InnsynRequest {
+        return InnsynRequest(barn = this.mapNotNull { it.personnummer })
+    }
 }
 
-data class InnsynRequest(
-    val barn: List<String>,
-)
+data class InnsynRequest(val barn: List<String>)
 
-data class InnsynResponse(
-    val data: List<StonadDto>,
-)
+data class InnsynResponse(val data: List<StonadDto>)
 
 data class StonadDto(
     val fnr: Foedselsnummer,
@@ -93,9 +91,7 @@ data class StonadDto(
     val barn: List<BarnDto>,
 )
 
-data class BarnDto(
-    val fnr: Foedselsnummer,
-)
+data class BarnDto(val fnr: Foedselsnummer)
 
 data class Foedselsnummer(
     @get:JsonValue val asString: String,

@@ -12,15 +12,9 @@ import java.time.LocalDate
 
 abstract class BehandlingStegDto
 
-data class RegistrerSøknadDto(
-    val søknad: SøknadDto,
-    val bekreftEndringerViaFrontend: Boolean,
-) : BehandlingStegDto()
+data class RegistrerSøknadDto(val søknad: SøknadDto, val bekreftEndringerViaFrontend: Boolean) : BehandlingStegDto()
 
-data class JournalførVedtaksbrevDTO(
-    val vedtakId: Long,
-    val task: Task,
-) : BehandlingStegDto()
+data class JournalførVedtaksbrevDTO(val vedtakId: Long, val task: Task) : BehandlingStegDto()
 
 data class BesluttVedtakDto(
     val beslutning: Beslutning,
@@ -28,10 +22,7 @@ data class BesluttVedtakDto(
     val kontrollerteSider: List<String> = emptyList(),
 ) : BehandlingStegDto()
 
-data class IverksettMotOppdragDto(
-    val behandlingId: Long,
-    val saksbehandlerId: String,
-) : BehandlingStegDto()
+data class IverksettMotOppdragDto(val behandlingId: Long, val saksbehandlerId: String) : BehandlingStegDto()
 
 data class SøknadDto(
     val søkerMedOpplysninger: SøkerMedOpplysningerDto,
@@ -62,19 +53,11 @@ data class BarnMedOpplysningerDto(
     val personnummer: String? = if (ident == "") null else ident
 }
 
-data class BehandlingPåVentDto(
-    val frist: LocalDate,
-    val årsak: VenteÅrsak,
-)
+data class BehandlingPåVentDto(val frist: LocalDate, val årsak: VenteÅrsak)
 
-data class HenleggBehandlingDto(
-    val årsak: HenleggÅrsak,
-    val begrunnelse: String,
-)
+data class HenleggBehandlingDto(val årsak: HenleggÅrsak, val begrunnelse: String)
 
-enum class HenleggÅrsak(
-    val beskrivelse: String,
-) {
+enum class HenleggÅrsak(val beskrivelse: String) {
     SØKNAD_TRUKKET("Søknad trukket"),
     FEILAKTIG_OPPRETTET("Behandling feilaktig opprettet"),
     TEKNISK_VEDLIKEHOLD("Teknisk vedlikehold"),

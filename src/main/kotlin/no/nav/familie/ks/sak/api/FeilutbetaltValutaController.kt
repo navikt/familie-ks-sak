@@ -104,10 +104,9 @@ class FeilutbetaltValutaController(
         )
         return ResponseEntity.ok(
             Ressurs.success(
-                feilutbetaltValutaService
-                    .hentAlleFeilutbetaltValutaForBehandling(
-                        behandlingId = behandlingId,
-                    ).map { it.tilFeilutbetaltValutaDto() },
+                feilutbetaltValutaService.hentAlleFeilutbetaltValutaForBehandling(
+                    behandlingId = behandlingId,
+                ).map { it.tilFeilutbetaltValutaDto() },
             ),
         )
     }

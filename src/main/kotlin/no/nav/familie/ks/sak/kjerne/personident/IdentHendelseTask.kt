@@ -31,8 +31,8 @@ class IdentHendelseTask(
         const val TASK_STEP_TYPE = "IdentHendelseTask"
         private val logger: Logger = LoggerFactory.getLogger(IdentHendelseTask::class.java)
 
-        fun opprettTask(nyIdent: PersonIdent): Task =
-            Task(
+        fun opprettTask(nyIdent: PersonIdent): Task {
+            return Task(
                 type = TASK_STEP_TYPE,
                 payload = objectMapper.writeValueAsString(nyIdent),
                 properties =
@@ -42,5 +42,6 @@ class IdentHendelseTask(
             ).medTriggerTid(
                 triggerTid = LocalDateTime.now().plusMinutes(1),
             )
+        }
     }
 }

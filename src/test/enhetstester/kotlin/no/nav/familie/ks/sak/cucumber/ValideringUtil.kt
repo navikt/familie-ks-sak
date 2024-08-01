@@ -11,10 +11,9 @@ object ValideringUtil {
         utbetalingsoppdrag: Map<Long, Utbetalingsoppdrag>,
     ) {
         val eksisterendeBehandlingId =
-            utbetalingsoppdrag
-                .filter {
-                    it.value.utbetalingsperiode.isNotEmpty()
-                }.keys
+            utbetalingsoppdrag.filter {
+                it.value.utbetalingsperiode.isNotEmpty()
+            }.keys
         val forventedeBehandlingId = dataTable.asMaps().map { parseLong(Domenebegrep.BEHANDLING_ID, it) }.toSet()
         val ukontrollerteBehandlingId = eksisterendeBehandlingId.filterNot { forventedeBehandlingId.contains(it) }
         if (ukontrollerteBehandlingId.isNotEmpty() &&
@@ -34,5 +33,6 @@ object ValideringUtil {
         utbetalingsoppdrag
             .filterKeys {
                 ukontrollerteBehandlingId.contains(it)
-            }.any { it.value.utbetalingsperiode.isNotEmpty() }
+            }
+            .any { it.value.utbetalingsperiode.isNotEmpty() }
 }

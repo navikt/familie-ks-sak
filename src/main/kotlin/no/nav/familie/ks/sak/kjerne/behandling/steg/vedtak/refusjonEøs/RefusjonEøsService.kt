@@ -14,9 +14,10 @@ class RefusjonEøsService(
     @Autowired
     private val loggService: LoggService,
 ) {
-    private fun hentRefusjonEøs(id: Long): RefusjonEøs =
-        refusjonEøsRepository.finnRefusjonEøs(id)
+    private fun hentRefusjonEøs(id: Long): RefusjonEøs {
+        return refusjonEøsRepository.finnRefusjonEøs(id)
             ?: throw Feil("Finner ikke refusjon eøs med id=$id")
+    }
 
     @Transactional
     fun leggTilRefusjonEøsPeriode(
@@ -51,8 +52,7 @@ class RefusjonEøsService(
     }
 
     fun hentRefusjonEøsPerioder(behandlingId: Long) =
-        refusjonEøsRepository
-            .finnRefusjonEøsForBehandling(behandlingId = behandlingId)
+        refusjonEøsRepository.finnRefusjonEøsForBehandling(behandlingId = behandlingId)
             .map { tilRest(it) }
 
     @Transactional

@@ -84,19 +84,18 @@ internal class ValutakursServiceTest {
         val behandlingId = BehandlingId(10L)
 
         val lagretValutakurs =
-            valutakursRepository
-                .saveAll(
-                    listOf(
-                        Valutakurs(
-                            fom = YearMonth.now(),
-                            tom = YearMonth.now(),
-                            barnAktører = setOf(tilfeldigPerson().aktør),
-                            valutakursdato = LocalDate.now(),
-                            valutakode = "EUR",
-                            kurs = BigDecimal.TEN,
-                        ),
-                    ).medBehandlingId(behandlingId),
-                ).single()
+            valutakursRepository.saveAll(
+                listOf(
+                    Valutakurs(
+                        fom = YearMonth.now(),
+                        tom = YearMonth.now(),
+                        barnAktører = setOf(tilfeldigPerson().aktør),
+                        valutakursdato = LocalDate.now(),
+                        valutakode = "EUR",
+                        kurs = BigDecimal.TEN,
+                    ),
+                ).medBehandlingId(behandlingId),
+            ).single()
 
         valutakursService.slettValutakurs(lagretValutakurs.id)
 

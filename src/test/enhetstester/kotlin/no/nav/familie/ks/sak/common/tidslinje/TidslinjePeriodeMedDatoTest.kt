@@ -20,14 +20,13 @@ class TidslinjePeriodeMedDatoTest {
         val tidslinjeB = listOf(TidslinjePeriodeMedDato("b", førsteFebruar, sisteDagIFebruar)).tilTidslinje()
 
         val tidslinjePerioderMedDato =
-            tidslinjeA
-                .biFunksjon(tidslinjeB) { a, b ->
-                    if (b is Verdi) {
-                        b
-                    } else {
-                        a
-                    }
-                }.tilTidslinjePerioderMedDato()
+            tidslinjeA.biFunksjon(tidslinjeB) { a, b ->
+                if (b is Verdi) {
+                    b
+                } else {
+                    a
+                }
+            }.tilTidslinjePerioderMedDato()
 
         Assertions.assertEquals(3, tidslinjePerioderMedDato.size)
 

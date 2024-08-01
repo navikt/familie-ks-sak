@@ -51,10 +51,7 @@ class UtenlandskPeriodebeløpControllerTest {
         val forventedeFelterMedFeil = listOf("beløp")
         val faktiskeFelterMedFeil =
             exception.constraintViolations.map { constraintViolation ->
-                constraintViolation.propertyPath
-                    .toString()
-                    .split(".")
-                    .last()
+                constraintViolation.propertyPath.toString().split(".").last()
             }
 
         assertThat(faktiskeFelterMedFeil).hasSize(1).containsAll(forventedeFelterMedFeil)
