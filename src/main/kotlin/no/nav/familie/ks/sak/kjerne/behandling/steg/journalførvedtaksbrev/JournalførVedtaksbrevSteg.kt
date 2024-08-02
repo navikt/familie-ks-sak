@@ -170,7 +170,7 @@ class JournalførVedtaksbrevSteg(
     companion object {
         private val logger: Logger = LoggerFactory.getLogger(JournalførVedtaksbrevSteg::class.java)
 
-        const val KONTANTSTØTTE_VEDTAK_VEDLEGG_FILNAVN = "NAV_34-0005bm08-2018.pdf"
+        const val KONTANTSTØTTE_VEDTAK_VEDLEGG_FILNAVN = "NAV_34-0005bm08-2024.pdf"
         const val KONTANTSTØTTE_VEDTAK_VEDLEGG_TITTEL = "Stønadsmottakerens rettigheter og plikter (Kontantstøtte)"
 
         private fun hentVedlegg(vedleggsnavn: String): ByteArray {
