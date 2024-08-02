@@ -5,6 +5,7 @@ import io.mockk.every
 import io.mockk.justRun
 import io.mockk.verify
 import no.nav.familie.ks.sak.OppslagSpringRunnerTest
+import no.nav.familie.ks.sak.common.util.LocalDateProvider
 import no.nav.familie.ks.sak.common.util.LocalDateTimeProvider
 import no.nav.familie.ks.sak.common.util.toYearMonth
 import no.nav.familie.ks.sak.config.featureToggle.UnleashNextMedContextService
@@ -78,6 +79,9 @@ class AutovedtakLovendringTest(
     private lateinit var localDateTimeProvider: LocalDateTimeProvider
 
     @MockkBean
+    private lateinit var localDateProvider: LocalDateProvider
+
+    @MockkBean
     private lateinit var loggService: LoggService
 
     @BeforeEach
@@ -96,6 +100,8 @@ class AutovedtakLovendringTest(
                 behandlendeEnhetId = "1234",
                 behandlendeEnhetNavn = "MockEnhetNavn",
             )
+
+        every { localDateProvider.now() } returns LocalDate.now()
 
         justRun { loggService.opprettBehandlingLogg(any()) }
         justRun { loggService.opprettVilkårsvurderingLogg(any(), any(), any()) }
@@ -176,6 +182,7 @@ class AutovedtakLovendringTest(
 
         every { brevklient.genererBrev(any(), any()) } returns "brev".toByteArray()
         every { simuleringService.oppdaterSimuleringPåBehandling(any<Long>()) } returns emptyList()
+        every { localDateProvider.now() } returns LocalDate.of(2024, 8, 1)
 
         opprettSøkerFagsakOgBehandling(fagsakStatus = FagsakStatus.LØPENDE, behandlingStatus = BehandlingStatus.AVSLUTTET, behandlingResultat = Behandlingsresultat.INNVILGET)
 
@@ -186,7 +193,7 @@ class AutovedtakLovendringTest(
             fødselsdatoBarn = fødselsdatoBarn,
         )
 
-        val datoForBarnehageplass = fødselsdatoBarn.plusYears(1).plusMonths(4).plusDays(12) // 13. august 2024
+        val datoForBarnehageplass = fødselsdatoBarn.plusYears(1).plusMonths(5).plusDays(12) // 13. september 2024
         lagVilkårsvurderingMedFremtidigOpphør(fødselsdatoBarn, datoForBarnehageplass)
 
         lagTilkjentYtelse(null)
