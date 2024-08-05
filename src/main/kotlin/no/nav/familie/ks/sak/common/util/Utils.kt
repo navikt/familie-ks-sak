@@ -33,6 +33,11 @@ fun formaterIdent(ident: String): String =
         else -> ident
     }
 
-fun hentDokument(dokumentNavn: String): ByteArray =
-    {}::class.java.classLoader.getResourceAsStream("dokumenter/$dokumentNavn")?.readAllBytes()
-        ?: error("Klarte ikke hente dokument $dokumentNavn")
+fun hentDokument(dokumentNavn: String): ByteArray {
+    val dokumentByteArray = (
+        {}::class.java.classLoader.getResourceAsStream("dokumenter/$dokumentNavn")?.readAllBytes()
+            ?: error("Klarte ikke hente dokument $dokumentNavn")
+    )
+
+    return dokumentByteArray
+}
