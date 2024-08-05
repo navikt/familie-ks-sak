@@ -25,7 +25,6 @@ class VedtakService(
     fun opprettOgInitierNyttVedtakForBehandling(
         behandling: Behandling,
         kopierVedtakBegrunnelser: Boolean = false,
-        erAutomatiskBehandling: Boolean = false,
     ) {
         behandling.steg.takeUnless { it !== BehandlingSteg.BESLUTTE_VEDTAK && it !== BehandlingSteg.REGISTRERE_PERSONGRUNNLAG }
             ?: throw Feil("Forsøker å initiere vedtak på steg ${behandling.steg}")
@@ -37,7 +36,7 @@ class VedtakService(
         val nyttVedtak =
             Vedtak(
                 behandling = behandling,
-                vedtaksdato = if (erAutomatiskBehandling) LocalDateTime.now() else null,
+                vedtaksdato = if (behandling.skalBehandlesAutomatisk()) LocalDateTime.now() else null,
             )
 
         if (kopierVedtakBegrunnelser && deaktivertVedtak != null) {

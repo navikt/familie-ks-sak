@@ -46,10 +46,7 @@ class OpprettBehandlingService(
     private val behandlingMetrikker: BehandlingMetrikker,
 ) {
     @Transactional
-    fun opprettBehandling(
-        opprettBehandlingRequest: OpprettBehandlingDto,
-        erAutomatiskBehandling: Boolean = false,
-    ): Behandling {
+    fun opprettBehandling(opprettBehandlingRequest: OpprettBehandlingDto): Behandling {
         val aktør = personidentService.hentAktør(opprettBehandlingRequest.søkersIdent)
         val fagsak =
             fagsakRepository.finnFagsakForAktør(aktør)
@@ -90,7 +87,7 @@ class OpprettBehandlingService(
                 aktivBehandling = aktivBehandling,
                 sisteVedtattBehandling = sisteVedtattBehandling,
             )
-        vedtakService.opprettOgInitierNyttVedtakForBehandling(behandling = lagretBehandling, erAutomatiskBehandling = erAutomatiskBehandling) // initierer vedtak
+        vedtakService.opprettOgInitierNyttVedtakForBehandling(behandling = lagretBehandling) // initierer vedtak
         loggService.opprettBehandlingLogg(lagretBehandling) // lag historikkinnslag
         // Oppretter BehandleSak oppgave via task. Ruller tasken tilbake, hvis behandling opprettelse feiler
         if (lagretBehandling.skalOppretteBehandleSakOppgave()) {
