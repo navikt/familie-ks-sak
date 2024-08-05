@@ -244,9 +244,7 @@ class GenererBrevService(
             beslutter = personopplysningsgrunnlagOgSignaturData.beslutter,
             hjemmeltekst = Hjemmeltekst(hjemler),
             søkerNavn = personopplysningsgrunnlagOgSignaturData.grunnlag.søker.navn,
-            søkerFødselsnummer =
-                personopplysningsgrunnlagOgSignaturData.grunnlag.søker.aktør
-                    .aktivFødselsnummer(),
+            søkerFødselsnummer = personopplysningsgrunnlagOgSignaturData.grunnlag.søker.aktør.aktivFødselsnummer(),
             perioder = brevPeriodeDtoer,
             gjelder = personopplysningsgrunnlagOgSignaturData.grunnlag.søker.navn,
             korrigertVedtakData = korrigertVedtak?.let { KorrigertVedtakData(datoKorrigertVedtak = it.vedtaksdato.tilDagMånedÅr()) },
@@ -273,8 +271,7 @@ class GenererBrevService(
             vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(behandlingId = vedtak.behandling.id)
 
         val annenForelderOmfattetAvNorskLovgivningErSattPåBosattIRiket =
-            vilkårsvurdering.personResultater
-                .flatMap { it.vilkårResultater }
+            vilkårsvurdering.personResultater.flatMap { it.vilkårResultater }
                 .any { it.utdypendeVilkårsvurderinger.contains(UtdypendeVilkårsvurdering.ANNEN_FORELDER_OMFATTET_AV_NORSK_LOVGIVNING) && it.vilkårType == Vilkår.BOSATT_I_RIKET }
 
         val passendeBehandlingsresultat =
