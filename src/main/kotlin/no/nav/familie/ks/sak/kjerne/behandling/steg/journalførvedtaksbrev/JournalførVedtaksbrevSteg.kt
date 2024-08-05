@@ -9,6 +9,7 @@ import no.nav.familie.ks.sak.api.dto.DistribuerBrevDto
 import no.nav.familie.ks.sak.api.dto.FullmektigEllerVerge
 import no.nav.familie.ks.sak.api.dto.JournalførVedtaksbrevDTO
 import no.nav.familie.ks.sak.api.dto.tilAvsenderMottaker
+import no.nav.familie.ks.sak.common.util.hentDokument
 import no.nav.familie.ks.sak.integrasjon.distribuering.DistribuerBrevTask
 import no.nav.familie.ks.sak.integrasjon.distribuering.DistribuerVedtaksbrevTilVergeEllerFullmektigTask
 import no.nav.familie.ks.sak.integrasjon.journalføring.UtgåendeJournalføringService
@@ -24,6 +25,8 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.Vedtak
 import no.nav.familie.ks.sak.kjerne.brev.hentBrevmal
 import no.nav.familie.ks.sak.kjerne.brev.mottaker.BrevmottakerService
 import no.nav.familie.ks.sak.kjerne.fagsak.FagsakService
+import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
+import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Målform
 import no.nav.familie.prosessering.internal.TaskService
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -37,6 +40,7 @@ class JournalførVedtaksbrevSteg(
     private val taskService: TaskService,
     private val fagsakService: FagsakService,
     private val brevmottakerService: BrevmottakerService,
+    private val personopplysningGrunnlagService: PersonopplysningGrunnlagService,
 ) : IBehandlingSteg {
     override fun getBehandlingssteg(): BehandlingSteg = BehandlingSteg.JOURNALFØR_VEDTAKSBREV
 
@@ -105,7 +109,12 @@ class JournalførVedtaksbrevSteg(
         tilVergeEllerFullmektig: Boolean,
         avsenderMottaker: AvsenderMottaker?,
     ): String {
-        val vedleggPdf = hentVedlegg(KONTANTSTØTTE_VEDTAK_VEDLEGG_FILNAVN)
+        val søkersMålform = personopplysningGrunnlagService.hentSøkersMålform(vedtak.behandling.id)
+
+        val vedleggPdf =
+            hentDokument(
+                if (søkersMålform == Målform.NB) KONTANTSTØTTE_VEDTAK_BOKMÅL_VEDLEGG_FILNAVN else KONTANTSTØTTE_VEDTAK_NYNORSK_VEDLEGG_FILNAVN,
+            )
 
         val brev =
             listOf(
@@ -170,15 +179,8 @@ class JournalførVedtaksbrevSteg(
     companion object {
         private val logger: Logger = LoggerFactory.getLogger(JournalførVedtaksbrevSteg::class.java)
 
-        const val KONTANTSTØTTE_VEDTAK_VEDLEGG_FILNAVN = "NAV_34-0005bm08-2024.pdf"
+        const val KONTANTSTØTTE_VEDTAK_BOKMÅL_VEDLEGG_FILNAVN = "NAV_34-0005bm08-2024.pdf"
+        const val KONTANTSTØTTE_VEDTAK_NYNORSK_VEDLEGG_FILNAVN = "NAV_34-0005nn08-2024.pdf"
         const val KONTANTSTØTTE_VEDTAK_VEDLEGG_TITTEL = "Stønadsmottakerens rettigheter og plikter (Kontantstøtte)"
-
-        private fun hentVedlegg(vedleggsnavn: String): ByteArray {
-            val inputStream =
-                this::class.java.classLoader.getResourceAsStream("dokumenter/$vedleggsnavn")
-                    ?: error("Klarte ikke hente vedlegg $vedleggsnavn")
-
-            return inputStream.readAllBytes()
-        }
     }
 }
