@@ -498,4 +498,67 @@ class LoggServiceTest {
             assertThat(capturedLogg.rolle, Is(BehandlerRolle.SYSTEM))
         }
     }
+
+    @Test
+    fun `skal opprette logg for opprettet sammensatt kontrollsak`() {
+        // Arrange
+        val slot = slot<Logg>()
+
+        every { loggRepository.save(capture(slot)) } returns mockk()
+
+        // Act
+        loggService.opprettSammensattKontrollsakOpprettetLogg(
+            behandlingId = 123L,
+        )
+
+        // Assert
+        val capturedLogg = slot.captured
+        assertThat(capturedLogg.behandlingId, Is(123L))
+        assertThat(capturedLogg.type, Is(LoggType.SAMMENSATT_KONTROLLSAK_OPPRETTET))
+        assertThat(capturedLogg.rolle, Is(BehandlerRolle.SYSTEM))
+        assertThat(capturedLogg.tittel, Is(LoggType.SAMMENSATT_KONTROLLSAK_OPPRETTET.tittel))
+        assertThat(capturedLogg.tekst, Is("En sammensatt kontrollsak har blitt opprettet"))
+    }
+
+    @Test
+    fun `skal opprette logg for oppdatert sammensatt kontrollsak`() {
+        // Arrange
+        val slot = slot<Logg>()
+
+        every { loggRepository.save(capture(slot)) } returns mockk()
+
+        // Act
+        loggService.opprettSammensattKontrollsakOppdatertLogg(
+            behandlingId = 123L,
+        )
+
+        // Assert
+        val capturedLogg = slot.captured
+        assertThat(capturedLogg.behandlingId, Is(123L))
+        assertThat(capturedLogg.type, Is(LoggType.SAMMENSATT_KONTROLLSAK_OPPDATERT))
+        assertThat(capturedLogg.rolle, Is(BehandlerRolle.SYSTEM))
+        assertThat(capturedLogg.tittel, Is(LoggType.SAMMENSATT_KONTROLLSAK_OPPDATERT.tittel))
+        assertThat(capturedLogg.tekst, Is("En sammensatt kontrollsak har blitt oppdatert"))
+    }
+
+    @Test
+    fun `skal opprette logg for slettet sammensatt kontrollsak`() {
+        // Arrange
+        val slot = slot<Logg>()
+
+        every { loggRepository.save(capture(slot)) } returns mockk()
+
+        // Act
+        loggService.opprettSammensattKontrollsakSlettetLogg(
+            behandlingId = 123L,
+        )
+
+        // Assert
+        val capturedLogg = slot.captured
+        assertThat(capturedLogg.behandlingId, Is(123L))
+        assertThat(capturedLogg.type, Is(LoggType.SAMMENSATT_KONTROLLSAK_SLETTET))
+        assertThat(capturedLogg.rolle, Is(BehandlerRolle.SYSTEM))
+        assertThat(capturedLogg.tittel, Is(LoggType.SAMMENSATT_KONTROLLSAK_SLETTET.tittel))
+        assertThat(capturedLogg.tekst, Is("En sammensatt kontrollsak har blitt slettet"))
+    }
 }
