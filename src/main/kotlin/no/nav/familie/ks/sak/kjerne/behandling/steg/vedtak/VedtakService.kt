@@ -7,7 +7,6 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.Vedtak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.VedtakRepository
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.VedtaksperiodeService
 import org.springframework.stereotype.Service
-import java.time.LocalDateTime
 
 @Service
 class VedtakService(
@@ -33,11 +32,7 @@ class VedtakService(
             vedtakRepository.findByBehandlingAndAktivOptional(behandlingId = behandling.id)
                 ?.let { vedtakRepository.saveAndFlush(it.also { it.aktiv = false }) }
 
-        val nyttVedtak =
-            Vedtak(
-                behandling = behandling,
-                vedtaksdato = if (behandling.skalBehandlesAutomatisk()) LocalDateTime.now() else null,
-            )
+        val nyttVedtak = Vedtak(behandling = behandling)
 
         if (kopierVedtakBegrunnelser && deaktivertVedtak != null) {
             vedtaksperiodeService.kopierOverVedtaksperioder(
