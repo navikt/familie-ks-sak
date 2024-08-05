@@ -159,8 +159,7 @@ class GenererBrevService(
                     erFeilutbetalingPåBehandling = erFeilutbetalingPåBehandling(behandlingId = behandling.id),
                     informasjonOmAarligKontroll = vedtaksperiodeService.skalHaÅrligKontroll(vedtak),
                     feilutbetaltValuta =
-                        feilutbetaltValutaService
-                            .beskrivPerioderMedFeilutbetaltValuta(behandling.id)
+                        feilutbetaltValutaService.beskrivPerioderMedFeilutbetaltValuta(behandling.id)
                             ?.let {
                                 FeilutbetaltValuta(perioderMedForMyeUtbetalt = it)
                             },
@@ -375,14 +374,10 @@ class GenererBrevService(
                         flettefelter =
                             DødsfallData.Flettefelter(
                                 navn = data.grunnlag.søker.navn,
-                                fodselsnummer =
-                                    data.grunnlag.søker.aktør
-                                        .aktivFødselsnummer(),
+                                fodselsnummer = data.grunnlag.søker.aktør.aktivFødselsnummer(),
                                 // Selv om det er feil å anta at alle navn er på dette formatet er det ønskelig å skrive
                                 // det slik, da uppercase kan oppleves som skrikende i et brev som skal være skånsomt
-                                navnAvdode =
-                                    data.grunnlag.søker.navn
-                                        .storForbokstavIAlleNavn(),
+                                navnAvdode = data.grunnlag.søker.navn.storForbokstavIAlleNavn(),
                                 virkningstidspunkt =
                                     hentVirkningstidspunkt(
                                         opphørsperioder = vedtaksperiodeService.hentOpphørsperioder(vedtak.behandling),
