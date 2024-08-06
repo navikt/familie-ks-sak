@@ -45,6 +45,7 @@ class VedtakSteg(
         validerAtBehandlingErGyldigForVedtak(behandling)
 
         if (behandling.skalBehandlesAutomatisk()) {
+            loggService.opprettSendTilBeslutterLogg(behandling.id)
             totrinnskontrollService.opprettAutomatiskTotrinnskontroll(behandling = behandling)
         } else {
             loggService.opprettSendTilBeslutterLogg(behandling.id)
@@ -78,11 +79,11 @@ class VedtakSteg(
         val relevanteOppgave =
             oppgaver.filter {
                 it.type in
-                    listOf(
-                        Oppgavetype.BehandleSak,
-                        Oppgavetype.BehandleUnderkjentVedtak,
-                        Oppgavetype.VurderLivshendelse,
-                    )
+                        listOf(
+                            Oppgavetype.BehandleSak,
+                            Oppgavetype.BehandleUnderkjentVedtak,
+                            Oppgavetype.VurderLivshendelse,
+                        )
             }
 
         relevanteOppgave.forEach {

@@ -49,8 +49,10 @@ class AutovedtakLovendringService(
 
         if (behandlingEtterBehandlingsresultat.skalSendeVedtaksbrev()) {
             stegService.utførSteg(behandlingId = behandlingEtterBehandlingsresultat.id, behandlingSteg = BehandlingSteg.SIMULERING)
-            stegService.utførSteg(behandlingId = behandlingEtterBehandlingsresultat.id, behandlingSteg = BehandlingSteg.VEDTAK)
         }
+
+        stegService.utførSteg(behandlingId = behandlingEtterBehandlingsresultat.id, behandlingSteg = BehandlingSteg.VEDTAK)
+
 
         val vedtak = vedtakRepository.findByBehandlingAndAktiv(behandlingEtterBehandlingsresultat.id)
 
