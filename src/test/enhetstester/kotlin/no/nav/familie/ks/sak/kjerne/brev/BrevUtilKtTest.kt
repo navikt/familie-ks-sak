@@ -45,13 +45,13 @@ internal class BrevUtilKtTest {
             assertThrows<FunksjonellFeil> {
                 hentVedtaksbrevtype(
                     BehandlingType.FØRSTEGANGSBEHANDLING,
-                    Behandlingsresultat.INNVILGET_ENDRET_OG_OPPHØRT,
+                    Behandlingsresultat.IKKE_VURDERT,
                 )
             }
 
         assertThat(
             feil.message,
-            Is("Brev ikke støttet for behandlingstype=FØRSTEGANGSBEHANDLING og behandlingsresultat=INNVILGET_ENDRET_OG_OPPHØRT"),
+            Is("Brev ikke støttet for behandlingstype=FØRSTEGANGSBEHANDLING og behandlingsresultat=IKKE_VURDERT"),
         )
     }
 
