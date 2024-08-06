@@ -144,7 +144,7 @@ dependencies {
     testImplementation("org.springframework.cloud:spring-cloud-contract-wiremock:4.1.4")
     testImplementation("io.rest-assured:spring-mock-mvc:$restAssuredVersion")
     testImplementation("io.rest-assured:kotlin-extensions:$restAssuredVersion")
-    testImplementation("org.testcontainers:postgresql:1.20.0")
+    testImplementation("org.testcontainers:postgresql:1.20.1")
     testImplementation("no.nav.security:mock-oauth2-server:2.1.8")
     testImplementation("no.nav.security:token-validation-test-support:2.0.5")
     testImplementation("no.nav.security:token-validation-spring-test:$tokenValidationSpringVersion")
