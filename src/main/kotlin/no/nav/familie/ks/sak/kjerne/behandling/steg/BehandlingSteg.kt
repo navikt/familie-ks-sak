@@ -49,7 +49,7 @@ enum class BehandlingSteg(
     JOURNALFØR_VEDTAKSBREV(
         sekvens = 9,
         gyldigBehandlerRolle = listOf(BehandlerRolle.SYSTEM),
-        gyldigForÅrsaker = BehandlingÅrsak.entries.minus(listOf(SATSENDRING, TEKNISK_ENDRING, LOVENDRING_2024)),
+        gyldigForÅrsaker = BehandlingÅrsak.entries.minus(listOf(SATSENDRING, TEKNISK_ENDRING)),
         tilknyttetBehandlingStatus = BehandlingStatus.IVERKSETTER_VEDTAK,
     ),
     AVSLUTT_BEHANDLING(
