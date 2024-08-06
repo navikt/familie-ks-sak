@@ -49,6 +49,7 @@ fun hentVedtaksbrevtype(
                 Behandlingsresultat.INNVILGET,
                 Behandlingsresultat.INNVILGET_OG_OPPHØRT,
                 Behandlingsresultat.INNVILGET_OG_ENDRET,
+                Behandlingsresultat.INNVILGET_ENDRET_OG_OPPHØRT,
                 Behandlingsresultat.DELVIS_INNVILGET,
                 Behandlingsresultat.DELVIS_INNVILGET_OG_OPPHØRT,
                 Behandlingsresultat.DELVIS_INNVILGET_OG_ENDRET,
