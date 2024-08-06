@@ -29,6 +29,7 @@ class AutovedtakLovendringService(
 ) {
     @Transactional
     fun revurderFagsak(fagsakId: Long): Behandling {
+        // TODO gjør tjenesten idempotent
         val fagsak = fagsakService.hentFagsak(fagsakId = fagsakId)
 
         val aktivOgÅpenBehandling = behandlingRepository.findByFagsakAndAktivAndOpen(fagsakId = fagsakId)
