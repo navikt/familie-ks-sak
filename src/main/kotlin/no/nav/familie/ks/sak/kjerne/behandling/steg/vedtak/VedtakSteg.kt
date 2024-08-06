@@ -79,11 +79,11 @@ class VedtakSteg(
         val relevanteOppgave =
             oppgaver.filter {
                 it.type in
-                        listOf(
-                            Oppgavetype.BehandleSak,
-                            Oppgavetype.BehandleUnderkjentVedtak,
-                            Oppgavetype.VurderLivshendelse,
-                        )
+                    listOf(
+                        Oppgavetype.BehandleSak,
+                        Oppgavetype.BehandleUnderkjentVedtak,
+                        Oppgavetype.VurderLivshendelse,
+                    )
             }
 
         relevanteOppgave.forEach {

@@ -95,11 +95,11 @@ class AutovedtakLovendringTest(
         }
 
         every { arbeidsfordelingService.hentArbeidsfordelingPåBehandling(any()) } returns
-                ArbeidsfordelingPåBehandling(
-                    behandlingId = 1234,
-                    behandlendeEnhetId = "1234",
-                    behandlendeEnhetNavn = "MockEnhetNavn",
-                )
+            ArbeidsfordelingPåBehandling(
+                behandlingId = 1234,
+                behandlendeEnhetId = "1234",
+                behandlendeEnhetNavn = "MockEnhetNavn",
+            )
 
         every { localDateProvider.now() } returns LocalDate.now()
 

@@ -110,7 +110,7 @@ class StegService(
             BehandlingStegStatus.AVBRUTT, BehandlingStegStatus.TILBAKEFØRT ->
                 throw Feil(
                     "Kan ikke behandle behandling $behandlingId " +
-                            "med steg $behandlingSteg med status ${behandlingStegTilstand.behandlingStegStatus}",
+                        "med steg $behandlingSteg med status ${behandlingStegTilstand.behandlingStegStatus}",
                 )
         }
         // statistikk til datavarehus
@@ -138,20 +138,20 @@ class StegService(
         behandlingSteg.gyldigForÅrsaker.singleOrNull { it == behandling.opprettetÅrsak }
             ?: throw Feil(
                 "Steget ${behandlingSteg.name} er ikke gyldig for behandling ${behandling.id} " +
-                        "med opprettetÅrsak ${behandling.opprettetÅrsak}",
+                    "med opprettetÅrsak ${behandling.opprettetÅrsak}",
             )
 
         // valider om et tidligere steg i behandlingen har stegstatus KLAR
         val stegKlarForBehandling =
             behandling.behandlingStegTilstand.singleOrNull {
                 it.behandlingSteg.sekvens < behandlingSteg.sekvens &&
-                        it.behandlingStegStatus == BehandlingStegStatus.KLAR
+                    it.behandlingStegStatus == BehandlingStegStatus.KLAR
             }
         if (stegKlarForBehandling != null) {
             throw Feil(
                 "Behandling ${behandling.id} har allerede et steg " +
-                        "${stegKlarForBehandling.behandlingSteg.name}} som er klar for behandling. " +
-                        "Kan ikke behandle ${behandlingSteg.name}",
+                    "${stegKlarForBehandling.behandlingSteg.name}} som er klar for behandling. " +
+                    "Kan ikke behandle ${behandlingSteg.name}",
             )
         }
 
@@ -177,8 +177,8 @@ class StegService(
             BehandlingSteg.entries
                 .filter {
                     it.sekvens > behandletSteg.sekvens &&
-                            behandling.opprettetÅrsak in it.gyldigForÅrsaker &&
-                            behandling.resultat in it.gyldigForResultater
+                        behandling.opprettetÅrsak in it.gyldigForÅrsaker &&
+                        behandling.resultat in it.gyldigForResultater
                 }.sortedBy { it.sekvens }
         return when (behandletSteg) {
             AVSLUTT_BEHANDLING -> throw Feil("Behandling ${behandling.id} er allerede avsluttet")
@@ -359,7 +359,7 @@ class StegService(
             val nyBehandlingStatus = behandling.steg.tilknyttetBehandlingStatus
             logger.info(
                 "${SikkerhetContext.hentSaksbehandlerNavn()} endrer status på behandling ${behandling.id} " +
-                        "fra ${behandling.status} til $nyBehandlingStatus",
+                    "fra ${behandling.status} til $nyBehandlingStatus",
             )
             behandling.status = nyBehandlingStatus
             return behandling

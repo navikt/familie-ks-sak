@@ -53,7 +53,6 @@ class AutovedtakLovendringService(
 
         stegService.utførSteg(behandlingId = behandlingEtterBehandlingsresultat.id, behandlingSteg = BehandlingSteg.VEDTAK)
 
-
         val vedtak = vedtakRepository.findByBehandlingAndAktiv(behandlingEtterBehandlingsresultat.id)
 
         taskService.save(
