@@ -199,6 +199,13 @@ class StegService(
                     VEDTAK
                 }
 
+            IVERKSETT_MOT_OPPDRAG ->
+                if (behandling.skalBehandlesAutomatisk() && behandling.skalSendeVedtaksbrev()) {
+                    JOURNALFØR_VEDTAKSBREV
+                } else {
+                    AVSLUTT_BEHANDLING
+                }
+
             else -> nesteGyldigeStadier.first()
         }
     }

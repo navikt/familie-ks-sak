@@ -48,7 +48,6 @@ class JournalførVedtaksbrevSteg(
         behandlingId: Long,
         behandlingStegDto: BehandlingStegDto,
     ) {
-        // TODO Implementer løype for lovendring
         logger.info("Utfører steg ${getBehandlingssteg().name} for behandling $behandlingId")
         val journalførVedtaksbrevDTO = behandlingStegDto as JournalførVedtaksbrevDTO
 
