@@ -17,7 +17,6 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg.BEHANDLINGSRE
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg.BESLUTTE_VEDTAK
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg.IVERKSETT_MOT_OPPDRAG
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg.JOURNALFØR_VEDTAKSBREV
-import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg.SIMULERING
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg.VEDTAK
 import no.nav.familie.ks.sak.kjerne.behandling.steg.iverksettmotoppdrag.IverksettMotOppdragTask
 import no.nav.familie.ks.sak.kjerne.behandling.steg.journalførvedtaksbrev.JournalførVedtaksbrevTask
@@ -193,17 +192,17 @@ class StegService(
             }
 
             BEHANDLINGSRESULTAT ->
-                if (behandling.skalBehandlesAutomatisk() && behandling.skalSendeVedtaksbrev()) {
-                    SIMULERING
-                } else {
+                if (behandling.skalBehandlesAutomatisk() && !behandling.skalSendeVedtaksbrev()) {
                     VEDTAK
+                } else {
+                    nesteGyldigeStadier.first()
                 }
 
             IVERKSETT_MOT_OPPDRAG ->
-                if (behandling.skalBehandlesAutomatisk() && behandling.skalSendeVedtaksbrev()) {
-                    JOURNALFØR_VEDTAKSBREV
-                } else {
+                if (behandling.skalBehandlesAutomatisk() && !behandling.skalSendeVedtaksbrev()) {
                     AVSLUTT_BEHANDLING
+                } else {
+                    nesteGyldigeStadier.first()
                 }
 
             else -> nesteGyldigeStadier.first()
