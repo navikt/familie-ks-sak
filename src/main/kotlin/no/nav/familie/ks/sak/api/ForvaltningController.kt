@@ -278,8 +278,8 @@ class ForvaltningController(
         return ResponseEntity.ok(ecbService.hentValutakurs(valuta, dato))
     }
 
-    @PostMapping("/automatisk-revurdering/{fagsakId}")
-    fun opprettAutomatiskRevurdering(
+    @PostMapping("/automatisk-revurdering-lovendring/{fagsakId}")
+    fun opprettAutomatiskLovendringRevurdering(
         @PathVariable fagsakId: Long,
     ): ResponseEntity<Ressurs<String>> {
         tilgangService.validerTilgangTilHandling(
