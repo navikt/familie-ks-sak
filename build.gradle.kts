@@ -46,8 +46,8 @@ repositories {
 dependencies {
 
     val springdocVersion = "2.6.0"
-    val sentryVersion = "7.12.1"
-    val navFellesVersion = "3.20240715145751_fc025c1"
+    val sentryVersion = "7.13.0"
+    val navFellesVersion = "3.20240806111424_fff2930"
     val eksterneKontrakterBisysVersion = "2.0_20230214104704_706e9c0"
     val fellesKontrakterVersion = "3.0_20240722091153_6e40a2c"
     val familieKontrakterSaksstatistikkVersion = "2.0_20230214104704_706e9c0"
@@ -86,7 +86,7 @@ dependencies {
     implementation("org.apache.httpcomponents:httpcore:4.4.16")
 
     // ----------- AVRO ---------\\
-    implementation("org.apache.avro:avro:1.11.3")
+    implementation("org.apache.avro:avro:1.12.0")
     implementation("io.confluent:kafka-avro-serializer:7.7.0")
     implementation("org.eclipse.jetty:jetty-server")
 
@@ -130,7 +130,7 @@ dependencies {
     implementation("com.neovisionaries:nv-i18n:1.29")
     implementation("com.github.jsqlparser:jsqlparser:4.9")
 
-    ktlint("com.pinterest.ktlint:ktlint-cli:1.2.1") {
+    ktlint("com.pinterest.ktlint:ktlint-cli:1.3.1") {
         attributes {
             attribute(Bundling.BUNDLING_ATTRIBUTE, objects.named(Bundling.EXTERNAL))
         }
