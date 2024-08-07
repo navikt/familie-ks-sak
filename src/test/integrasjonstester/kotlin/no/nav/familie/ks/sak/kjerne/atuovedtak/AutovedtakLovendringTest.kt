@@ -108,7 +108,7 @@ class AutovedtakLovendringTest(
 
         justRun { loggService.opprettBehandlingLogg(any()) }
         justRun { loggService.opprettVilkårsvurderingLogg(any(), any(), any()) }
-        justRun { loggService.opprettSendTilBeslutterLogg(any()) }
+        justRun { loggService.opprettBeslutningOmVedtakLogg(any(), any(), any()) }
 
         justRun { utbetalingsoppdragService.oppdaterTilkjentYtelseMedUtbetalingsoppdragOgIverksett(any(), any()) }
     }
