@@ -15,7 +15,6 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg
 import no.nav.familie.ks.sak.kjerne.behandling.steg.simulering.SimuleringService
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.VedtakService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.Vedtak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.feilutbetaltvaluta.FeilutbetaltValutaService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.refusjonEøs.RefusjonEøsRepository
@@ -62,7 +61,6 @@ import java.math.BigDecimal
 @Service
 class GenererBrevService(
     private val brevKlient: BrevKlient,
-    private val vedtakService: VedtakService,
     private val personopplysningGrunnlagService: PersonopplysningGrunnlagService,
     private val simuleringService: SimuleringService,
     private val vedtaksperiodeService: VedtaksperiodeService,
