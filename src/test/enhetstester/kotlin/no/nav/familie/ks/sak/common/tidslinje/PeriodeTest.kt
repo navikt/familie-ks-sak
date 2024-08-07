@@ -22,9 +22,10 @@ class PeriodeTest {
         val tidslinjeB = listOf(Periode("b", førsteFebruar, sisteDagIFebruar)).tilTidslinje()
 
         val periode =
-            tidslinjeA.kombinerMed(tidslinjeB) { a, b ->
-                b ?: a
-            }.tilPerioder()
+            tidslinjeA
+                .kombinerMed(tidslinjeB) { a, b ->
+                    b ?: a
+                }.tilPerioder()
 
         Assertions.assertEquals(3, periode.size)
 

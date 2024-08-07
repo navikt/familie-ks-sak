@@ -58,7 +58,8 @@ class VilkårsvurderingService(
         }
 
         aktivVilkårsvurdering?.finnOpplysningspliktVilkår()?.let {
-            initiellVilkårsvurdering.personResultater.single { it.erSøkersResultater() }
+            initiellVilkårsvurdering.personResultater
+                .single { it.erSøkersResultater() }
                 .leggTilBlankAnnenVurdering(AnnenVurderingType.OPPLYSNINGSPLIKT)
         }
 

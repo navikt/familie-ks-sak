@@ -38,7 +38,8 @@ enum class BehandlingSteg(
         sekvens = 7,
         gyldigBehandlerRolle = listOf(BehandlerRolle.SYSTEM, BehandlerRolle.BESLUTTER),
         gyldigForÅrsaker =
-            BehandlingÅrsak.values()
+            BehandlingÅrsak
+                .values()
                 // steg er gyldig for alle behandling årsaker bortsett fra SATSENDRING
                 .filterNot { it == SATSENDRING },
         tilknyttetBehandlingStatus = BehandlingStatus.FATTER_VEDTAK,
@@ -67,10 +68,16 @@ enum class BehandlingSteg(
                 it == BehandlerRolle.BESLUTTER
         }
 
-    fun visningsnavn(): String = this.name.replace('_', ' ').lowercase().replaceFirstChar { it.uppercase() }
+    fun visningsnavn(): String =
+        this.name
+            .replace('_', ' ')
+            .lowercase()
+            .replaceFirstChar { it.uppercase() }
 }
 
-enum class BehandlingStegStatus(private val beskrivelse: String) {
+enum class BehandlingStegStatus(
+    private val beskrivelse: String,
+) {
     VENTER("Steget er satt på vent, f.eks. venter på brukertilbakemelding"),
     KLAR("Klar til saksbehandling"),
     UTFØRT("Steget er ferdig utført"),
@@ -78,7 +85,9 @@ enum class BehandlingStegStatus(private val beskrivelse: String) {
     AVBRUTT("Steget er avbrutt, skal brukes kun for henleggelse"),
 }
 
-enum class VenteÅrsak(val visningsnavn: String) {
+enum class VenteÅrsak(
+    val visningsnavn: String,
+) {
     AVVENTER_DOKUMENTASJON("Avventer dokumentasjon"),
     AVVENTER_BEHANDLING("Avventer behandling"),
 }

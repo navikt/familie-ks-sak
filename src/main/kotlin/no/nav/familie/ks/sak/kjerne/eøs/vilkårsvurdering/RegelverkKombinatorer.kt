@@ -21,11 +21,13 @@ fun kombinerVilkårResultaterTilRegelverkResultat(
 
     val alleEøsVilkårResultater =
         alleVilkårResultater
-            .filter { it.regelverk == Regelverk.EØS_FORORDNINGEN }.map { it.vilkår }
+            .filter { it.regelverk == Regelverk.EØS_FORORDNINGEN }
+            .map { it.vilkår }
 
     val alleNasjonaleVilkårResultater =
         alleVilkårResultater
-            .filter { it.regelverk == Regelverk.NASJONALE_REGLER }.map { it.vilkår }
+            .filter { it.regelverk == Regelverk.NASJONALE_REGLER }
+            .map { it.vilkår }
 
     val erAlleVilkårUtenResultat = alleVilkårResultater.all { it.resultat == null }
 

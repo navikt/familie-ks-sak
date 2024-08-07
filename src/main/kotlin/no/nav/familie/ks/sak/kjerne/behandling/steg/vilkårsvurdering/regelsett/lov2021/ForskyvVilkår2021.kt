@@ -40,7 +40,10 @@ fun forskyvEtterLovgivning2021(
 
                 Periode(
                     verdi = it.gjeldende,
-                    fom = it.gjeldende.periodeFom?.plusMonths(1)?.førsteDagIInneværendeMåned(),
+                    fom =
+                        it.gjeldende.periodeFom
+                            ?.plusMonths(1)
+                            ?.førsteDagIInneværendeMåned(),
                     tom =
                         when {
                             it.gjeldendeSlutterDagenFørNeste() -> periodeTom?.plusDays(1)?.sisteDagIMåned()
@@ -48,7 +51,6 @@ fun forskyvEtterLovgivning2021(
                             else -> periodeTom?.minusMonths(1)?.sisteDagIMåned()
                         },
                 )
-            }
-            .filter { (it.fom ?: TIDENES_MORGEN).isBefore(it.tom ?: TIDENES_ENDE) }
+            }.filter { (it.fom ?: TIDENES_MORGEN).isBefore(it.tom ?: TIDENES_ENDE) }
     }
 }

@@ -6,8 +6,8 @@ import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.KompetanseAktivitet
 sealed class BegrunnelseDto(
     open val type: BrevBegrunnelseType,
 ) : Comparable<BegrunnelseDto> {
-    override fun compareTo(other: BegrunnelseDto): Int {
-        return when (this) {
+    override fun compareTo(other: BegrunnelseDto): Int =
+        when (this) {
             is FritekstBegrunnelseDto -> Int.MAX_VALUE
             is BegrunnelseDtoMedData ->
                 when (other) {
@@ -30,7 +30,6 @@ sealed class BegrunnelseDto(
                         }
                 }
         }
-    }
 }
 
 enum class BrevBegrunnelseType {

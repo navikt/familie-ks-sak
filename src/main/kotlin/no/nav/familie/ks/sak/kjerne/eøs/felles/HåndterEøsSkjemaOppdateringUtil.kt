@@ -46,7 +46,8 @@ fun <T : EøsSkjemaEntitet<T>> T.lagBlankSkjemaEllerNull(skjemaer: List<T>): T? 
         // 1. med fjernet barn
         // 2. med perioden som starter måneden etter ny tom dato og frem til eksisterende tom dato(kan være null)
         skjemaetDerTomForkortesOgBarnFjernes != null ->
-            oppdatering.medFjernetBarn(skjemaetDerTomForkortesOgBarnFjernes)
+            oppdatering
+                .medFjernetBarn(skjemaetDerTomForkortesOgBarnFjernes)
                 .utenInnholdTom(skjemaetDerTomForkortesOgBarnFjernes.tom)
         // oppretter et nytt blank skjema
         // med fjernet barn

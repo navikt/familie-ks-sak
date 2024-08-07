@@ -67,8 +67,8 @@ class DistribuerDødsfallBrevPåFagsakTask(
         fun opprettTask(
             journalpostId: String,
             brevmal: Brevmal,
-        ): Task {
-            return Task(
+        ): Task =
+            Task(
                 type = TASK_STEP_TYPE,
                 payload =
                     objectMapper.writeValueAsString(
@@ -78,7 +78,6 @@ class DistribuerDødsfallBrevPåFagsakTask(
                         ),
                     ),
             )
-        }
 
         const val TASK_STEP_TYPE = "distribuerBrevPåFagsak"
         val logger: Logger = LoggerFactory.getLogger(this::class.java)

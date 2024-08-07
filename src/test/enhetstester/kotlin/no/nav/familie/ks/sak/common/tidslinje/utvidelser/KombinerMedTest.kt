@@ -28,9 +28,10 @@ class KombinerMedTest {
             listOf(Periode(2, førsteFebruar, sisteDagIFebruar), Periode(2, førsteApril, sisteDagIApril)).tilTidslinje()
 
         val perioder =
-            tidslinjeA.kombinerMed(tidslinjeB) { verdiFraTidslinjeA, verdiFraTidslinjeB ->
-                (verdiFraTidslinjeA ?: 0) + (verdiFraTidslinjeB ?: 0)
-            }.tilPerioder()
+            tidslinjeA
+                .kombinerMed(tidslinjeB) { verdiFraTidslinjeA, verdiFraTidslinjeB ->
+                    (verdiFraTidslinjeA ?: 0) + (verdiFraTidslinjeB ?: 0)
+                }.tilPerioder()
 
         Assertions.assertEquals(4, perioder.size)
 
@@ -62,9 +63,10 @@ class KombinerMedTest {
         val tidslinjeB = listOf(Periode(2, førsteMars, sisteDagIMars)).tilTidslinje()
 
         val perioder =
-            tidslinjeA.kombinerMed(tidslinjeB) { verdiFraTidslinjeA, verdiFraTidslinjeB ->
-                (verdiFraTidslinjeA ?: 0) + (verdiFraTidslinjeB ?: 0)
-            }.tilPerioder()
+            tidslinjeA
+                .kombinerMed(tidslinjeB) { verdiFraTidslinjeA, verdiFraTidslinjeB ->
+                    (verdiFraTidslinjeA ?: 0) + (verdiFraTidslinjeB ?: 0)
+                }.tilPerioder()
 
         Assertions.assertEquals(3, perioder.size)
 

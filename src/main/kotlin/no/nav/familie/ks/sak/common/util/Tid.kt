@@ -55,7 +55,10 @@ fun YearMonth.nesteMåned(): YearMonth = this.plusMonths(1)
 
 fun LocalDate.erDagenFør(other: LocalDate?) = other != null && this.plusDays(1).equals(other)
 
-data class Periode(val fom: LocalDate, val tom: LocalDate)
+data class Periode(
+    val fom: LocalDate,
+    val tom: LocalDate,
+)
 
 fun LocalDate.erSammeEllerFør(toCompare: LocalDate): Boolean = this.isBefore(toCompare) || this == toCompare
 
@@ -65,9 +68,15 @@ fun LocalDate.erFørsteAugust2024EllerSenere(): Boolean = !this.isBefore(LocalDa
 
 fun LocalDate.førsteDagIInneværendeMåned() = this.withDayOfMonth(1)
 
-data class MånedPeriode(val fom: YearMonth, val tom: YearMonth)
+data class MånedPeriode(
+    val fom: YearMonth,
+    val tom: YearMonth,
+)
 
-data class NullablePeriode(val fom: LocalDate?, val tom: LocalDate?)
+data class NullablePeriode(
+    val fom: LocalDate?,
+    val tom: LocalDate?,
+)
 
 fun MånedPeriode.inkluderer(yearMonth: YearMonth) = yearMonth >= this.fom && yearMonth <= this.tom
 
@@ -99,17 +108,21 @@ fun LocalDateTime.erHverdag(): Boolean = this.dayOfWeek != DayOfWeek.SATURDAY &&
 fun erKlokkenMellom21Og06(localTime: LocalTime = LocalTime.now()): Boolean =
     localTime.isAfter(LocalTime.of(21, 0)) || localTime.isBefore(LocalTime.of(6, 0))
 
-fun kl06IdagEllerNesteDag(date: LocalDateTime = LocalDateTime.now()): LocalDateTime {
-    return if (date.toLocalTime().isBefore(LocalTime.of(6, 0))) {
+fun kl06IdagEllerNesteDag(date: LocalDateTime = LocalDateTime.now()): LocalDateTime =
+    if (date.toLocalTime().isBefore(LocalTime.of(6, 0))) {
         date.withHour(6)
     } else {
         date.plusDays(1).withHour(6)
     }
-}
 
 fun LocalDate.erHelligdag() =
-    this.dayOfMonth == 1 && this.month == Month.JANUARY ||
-        this.dayOfMonth == 1 && this.month == Month.MAY ||
-        this.dayOfMonth == 17 && this.month == Month.MAY ||
-        this.dayOfMonth == 25 && this.month == Month.DECEMBER ||
-        this.dayOfMonth == 26 && this.month == Month.DECEMBER
+    this.dayOfMonth == 1 &&
+        this.month == Month.JANUARY ||
+        this.dayOfMonth == 1 &&
+        this.month == Month.MAY ||
+        this.dayOfMonth == 17 &&
+        this.month == Month.MAY ||
+        this.dayOfMonth == 25 &&
+        this.month == Month.DECEMBER ||
+        this.dayOfMonth == 26 &&
+        this.month == Month.DECEMBER

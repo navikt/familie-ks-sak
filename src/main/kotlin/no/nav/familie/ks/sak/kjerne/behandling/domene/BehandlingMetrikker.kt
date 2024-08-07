@@ -135,9 +135,7 @@ class BehandlingMetrikker(
         antallBehandlingerTotalt.register(multiGaugeRows)
     }
 
-    private fun erLeader(): Boolean {
-        return LeaderClient.isLeader() == true
-    }
+    private fun erLeader(): Boolean = LeaderClient.isLeader() == true
 
     companion object {
         const val ÅR_MÅNED_DAG = "aar-maaned-dag"

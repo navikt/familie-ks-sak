@@ -26,8 +26,8 @@ class UtbetalingsoppdragGenerator {
         nyTilkjentYtelse: TilkjentYtelse,
         sisteAndelPerKjede: Map<IdentOgType, AndelTilkjentYtelse>,
         erSimulering: Boolean,
-    ): BeregnetUtbetalingsoppdragLongId {
-        return Utbetalingsgenerator().lagUtbetalingsoppdrag(
+    ): BeregnetUtbetalingsoppdragLongId =
+        Utbetalingsgenerator().lagUtbetalingsoppdrag(
             behandlingsinformasjon =
                 Behandlingsinformasjon(
                     saksbehandlerId = saksbehandlerId,
@@ -35,10 +35,14 @@ class UtbetalingsoppdragGenerator {
                     eksternBehandlingId = vedtak.behandling.id,
                     eksternFagsakId = vedtak.behandling.fagsak.id,
                     fagsystem = FagsystemKS.KONTANTSTØTTE,
-                    personIdent = vedtak.behandling.fagsak.aktør.aktivFødselsnummer(),
+                    personIdent =
+                        vedtak.behandling.fagsak.aktør
+                            .aktivFødselsnummer(),
                     vedtaksdato = vedtak.vedtaksdato?.toLocalDate() ?: LocalDate.now(),
                     opphørAlleKjederFra = null,
-                    utbetalesTil = vedtak.behandling.fagsak.aktør.aktivFødselsnummer(),
+                    utbetalesTil =
+                        vedtak.behandling.fagsak.aktør
+                            .aktivFødselsnummer(),
                     // Ved simulering når migreringsdato er endret, skal vi opphøre fra den nye datoen og ikke fra første utbetaling per kjede.
                     opphørKjederFraFørsteUtbetaling = erSimulering,
                 ),
@@ -46,7 +50,6 @@ class UtbetalingsoppdragGenerator {
             nyeAndeler = nyTilkjentYtelse.tilAndelDataLongId(),
             sisteAndelPerKjede = sisteAndelPerKjede.mapValues { it.value.tilAndelDataLongId() },
         )
-    }
 
     private fun TilkjentYtelse.tilAndelDataLongId(): List<AndelDataLongId> =
         this.andelerTilkjentYtelse.map { it.tilAndelDataLongId() }

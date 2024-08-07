@@ -158,8 +158,8 @@ data class UtfyltKompetanse(
     val resultat: KompetanseResultat,
 ) : IKompetanse
 
-fun Kompetanse.tilIKompetanse(): IKompetanse {
-    return if (this.erObligatoriskeFelterSatt()) {
+fun Kompetanse.tilIKompetanse(): IKompetanse =
+    if (this.erObligatoriskeFelterSatt()) {
         UtfyltKompetanse(
             id = this.id,
             behandlingId = this.behandlingId,
@@ -179,13 +179,13 @@ fun Kompetanse.tilIKompetanse(): IKompetanse {
             behandlingId = this.behandlingId,
         )
     }
-}
 
 fun List<UtfyltKompetanse>.tilTidslinje() =
-    this.map {
-        Periode(
-            fom = it.fom.førsteDagIInneværendeMåned(),
-            tom = it.tom?.sisteDagIInneværendeMåned(),
-            verdi = it,
-        )
-    }.tilTidslinje()
+    this
+        .map {
+            Periode(
+                fom = it.fom.førsteDagIInneværendeMåned(),
+                tom = it.tom?.sisteDagIInneværendeMåned(),
+                verdi = it,
+            )
+        }.tilTidslinje()

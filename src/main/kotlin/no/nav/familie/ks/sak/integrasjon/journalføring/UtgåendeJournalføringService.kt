@@ -17,7 +17,9 @@ import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 
 @Service
-class UtgåendeJournalføringService(private val integrasjonClient: IntegrasjonClient) {
+class UtgåendeJournalføringService(
+    private val integrasjonClient: IntegrasjonClient,
+) {
     fun journalførDokument(
         fnr: String,
         fagsakId: Long,
@@ -78,12 +80,14 @@ class UtgåendeJournalføringService(private val integrasjonClient: IntegrasjonC
         eksternReferanseId: String,
         fnr: String,
     ): String =
-        integrasjonClient.hentJournalposterForBruker(
-            JournalposterForBrukerRequest(
-                brukerId = Bruker(id = fnr, type = BrukerIdType.FNR),
-                antall = 50,
-            ),
-        ).single { it.eksternReferanseId == eksternReferanseId }.journalpostId
+        integrasjonClient
+            .hentJournalposterForBruker(
+                JournalposterForBrukerRequest(
+                    brukerId = Bruker(id = fnr, type = BrukerIdType.FNR),
+                    antall = 50,
+                ),
+            ).single { it.eksternReferanseId == eksternReferanseId }
+            .journalpostId
 
     private fun genererEksternReferanseIdForJournalpost(
         fagsakId: Long,

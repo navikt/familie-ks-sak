@@ -41,8 +41,7 @@ fun forskyvEtterLovgivning2024(
                             false -> it.gjeldende.periodeTom?.sisteDagIMåned()
                         },
                 )
-            }
-            .filter { (it.fom ?: TIDENES_MORGEN).isBefore(it.tom ?: TIDENES_ENDE) }
+            }.filter { (it.fom ?: TIDENES_MORGEN).isBefore(it.tom ?: TIDENES_ENDE) }
             .filtrerBortOverlappendePerioder()
     }
 }

@@ -25,14 +25,16 @@ fun <T> String.tilTidslinje(
         }
 
     val sisteIndex = charListeUtenUendelighet.size - 1
-    return charListeUtenUendelighet.mapIndexed { index, char ->
-        val erUendeligStartOgFørstePeriode = index == 0 && førsteTegnBeskriverUendelighet
-        val erUendeligSluttOgSistePeriode = index == sisteIndex && sisteTegnBeskriverUendelighet
+    return charListeUtenUendelighet
+        .mapIndexed { index, char ->
+            val erUendeligStartOgFørstePeriode = index == 0 && førsteTegnBeskriverUendelighet
+            val erUendeligSluttOgSistePeriode = index == sisteIndex && sisteTegnBeskriverUendelighet
 
-        val fom = if (erUendeligStartOgFørstePeriode) null else startTidspunkt.plusMonths(index.toLong()).førsteDagIInneværendeMåned()
-        val tom = if (erUendeligSluttOgSistePeriode) null else startTidspunkt.plusMonths(index.toLong()).sisteDagIInneværendeMåned()
-        val verdi = mapper(char)
+            val fom = if (erUendeligStartOgFørstePeriode) null else startTidspunkt.plusMonths(index.toLong()).førsteDagIInneværendeMåned()
+            val tom = if (erUendeligSluttOgSistePeriode) null else startTidspunkt.plusMonths(index.toLong()).sisteDagIInneværendeMåned()
+            val verdi = mapper(char)
 
-        Periode(verdi, fom, tom)
-    }.tilTidslinje().slåSammenLikePerioder()
+            Periode(verdi, fom, tom)
+        }.tilTidslinje()
+        .slåSammenLikePerioder()
 }

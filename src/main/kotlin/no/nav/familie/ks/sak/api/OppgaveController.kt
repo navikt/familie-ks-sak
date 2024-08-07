@@ -82,12 +82,13 @@ class OppgaveController(
             handling = "Tilbakestille fordeling på oppgave",
         )
 
-        Result.runCatching {
-            oppgaveService.tilbakestillFordelingPåOppgave(oppgaveId)
-        }.fold(
-            onSuccess = { return ResponseEntity.ok().body(Ressurs.Companion.success(it)) },
-            onFailure = { return illegalState("Feil ved tilbakestilling av tildeling på oppgave", it) },
-        )
+        Result
+            .runCatching {
+                oppgaveService.tilbakestillFordelingPåOppgave(oppgaveId)
+            }.fold(
+                onSuccess = { return ResponseEntity.ok().body(Ressurs.Companion.success(it)) },
+                onFailure = { return illegalState("Feil ved tilbakestilling av tildeling på oppgave", it) },
+            )
     }
 
     @GetMapping("/{oppgaveId}/ferdigstill")
@@ -119,7 +120,8 @@ class OppgaveController(
                 journalpost = journalpost,
                 person =
                     aktør?.let {
-                        personOpplysningerService.hentPersonInfoMedRelasjonerOgRegisterinformasjon(it)
+                        personOpplysningerService
+                            .hentPersonInfoMedRelasjonerOgRegisterinformasjon(it)
                             .tilPersonInfoDto(it.aktivFødselsnummer())
                     },
                 minimalFagsak = aktør?.let { fagsakService.finnMinimalFagsakForPerson(aktør.aktørId) },

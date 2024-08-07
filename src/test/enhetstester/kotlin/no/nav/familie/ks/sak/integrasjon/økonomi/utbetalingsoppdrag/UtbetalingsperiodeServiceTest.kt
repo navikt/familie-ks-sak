@@ -673,9 +673,12 @@ internal class UtbetalingsperiodeServiceTest {
             every { tilkjentYtelseRepository.finnByBehandlingAndHasUtbetalingsoppdrag(forrigeTilkjentYtelse.behandling.id) } returns forrigeTilkjentYtelse
 
             every { andelTilkjentYtelseRepository.hentSisteAndelPerIdentOgType(behandling.fagsak.id) } returns
-                forrigeTilkjentYtelse.andelerTilkjentYtelse.filter { it.erAndelSomSkalSendesTilOppdrag() }
+                forrigeTilkjentYtelse.andelerTilkjentYtelse
+                    .filter { it.erAndelSomSkalSendesTilOppdrag() }
                     .groupBy { it.aktør.aktivFødselsnummer() }
-                    .mapValues { it.value.maxBy { it.periodeOffset!! } }.values.toList()
+                    .mapValues { it.value.maxBy { it.periodeOffset!! } }
+                    .values
+                    .toList()
         }
 
         every { tilkjentYtelseRepository.hentTilkjentYtelseForBehandling(behandling.id) } returns tilkjentYtelse

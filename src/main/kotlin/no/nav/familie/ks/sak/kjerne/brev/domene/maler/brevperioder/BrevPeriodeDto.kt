@@ -48,7 +48,9 @@ data class BrevPeriodeDto(
     )
 }
 
-enum class BrevPeriodeType(val apiNavn: String) {
+enum class BrevPeriodeType(
+    val apiNavn: String,
+) {
     INNVILGELSE("innvilgelse"),
     INNVILGELSE_INGEN_UTBETALING("innvilgelseIngenUtbetaling"),
     INNVILGELSE_KUN_UTBETALING_PÅ_SØKER("innvilgelseKunUtbetalingPaSoker"),

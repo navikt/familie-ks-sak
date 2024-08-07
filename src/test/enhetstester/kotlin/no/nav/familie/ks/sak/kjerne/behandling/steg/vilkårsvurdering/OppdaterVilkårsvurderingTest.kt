@@ -203,8 +203,10 @@ class OppdaterVilkårsvurderingTest {
         )
 
         val nyInitBosattIRiketVilkår =
-            initiellVilkårsvurdering.personResultater.find { it.aktør.aktivFødselsnummer() == søkerFnr }
-                ?.vilkårResultater?.filter { it.vilkårType == Vilkår.BOSATT_I_RIKET }
+            initiellVilkårsvurdering.personResultater
+                .find { it.aktør.aktivFødselsnummer() == søkerFnr }
+                ?.vilkårResultater
+                ?.filter { it.vilkårType == Vilkår.BOSATT_I_RIKET }
                 ?: emptyList()
 
         Assertions.assertTrue(nyInitBosattIRiketVilkår.isNotEmpty())
@@ -226,7 +228,8 @@ class OppdaterVilkårsvurderingTest {
                     ),
             )
         val vilkårsvurderingForrigeBehandling = initiellVilkårsvurderingUtenAndreVurderinger.copy()
-        vilkårsvurderingForrigeBehandling.personResultater.find { it.erSøkersResultater() }!!
+        vilkårsvurderingForrigeBehandling.personResultater
+            .find { it.erSøkersResultater() }!!
             .leggTilBlankAnnenVurdering(AnnenVurderingType.OPPLYSNINGSPLIKT)
 
         initiellVilkårsvurderingUtenAndreVurderinger.kopierResultaterFraForrigeBehandling(
@@ -234,7 +237,9 @@ class OppdaterVilkårsvurderingTest {
         )
 
         val nyInitInnholderOpplysningspliktVilkår =
-            initiellVilkårsvurderingUtenAndreVurderinger.personResultater.find { it.erSøkersResultater() }!!.andreVurderinger
+            initiellVilkårsvurderingUtenAndreVurderinger.personResultater
+                .find { it.erSøkersResultater() }!!
+                .andreVurderinger
                 .any { it.type == AnnenVurderingType.OPPLYSNINGSPLIKT }
 
         Assertions.assertTrue(nyInitInnholderOpplysningspliktVilkår)
