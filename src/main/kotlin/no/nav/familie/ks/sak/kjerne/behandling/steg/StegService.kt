@@ -195,7 +195,7 @@ class StegService(
 
             BEHANDLINGSRESULTAT ->
                 if (behandling.skalBehandlesAutomatisk() && !behandling.skalSendeVedtaksbrev()) {
-                    VEDTAK
+                    IVERKSETT_MOT_OPPDRAG
                 } else {
                     nesteGyldigeStadier.first()
                 }

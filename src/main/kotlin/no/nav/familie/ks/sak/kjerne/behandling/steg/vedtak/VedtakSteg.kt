@@ -44,24 +44,19 @@ class VedtakSteg(
         val behandling = behandlingService.hentBehandling(behandlingId)
         validerAtBehandlingErGyldigForVedtak(behandling)
 
-        if (behandling.skalBehandlesAutomatisk()) {
-            loggService.opprettSendTilBeslutterLogg(behandling.id)
-            totrinnskontrollService.opprettAutomatiskTotrinnskontroll(behandling = behandling)
-        } else {
-            loggService.opprettSendTilBeslutterLogg(behandling.id)
-            totrinnskontrollService.opprettTotrinnskontrollMedSaksbehandler(behandling)
+        loggService.opprettSendTilBeslutterLogg(behandling.id)
+        totrinnskontrollService.opprettTotrinnskontrollMedSaksbehandler(behandling)
 
-            val godkjenneVedtakTask =
-                OpprettOppgaveTask.opprettTask(
-                    behandlingId = behandling.id,
-                    oppgavetype = Oppgavetype.GodkjenneVedtak,
-                    fristForFerdigstillelse = LocalDate.now(),
-                )
+        val godkjenneVedtakTask =
+            OpprettOppgaveTask.opprettTask(
+                behandlingId = behandling.id,
+                oppgavetype = Oppgavetype.GodkjenneVedtak,
+                fristForFerdigstillelse = LocalDate.now(),
+            )
 
-            taskService.save(godkjenneVedtakTask)
+        taskService.save(godkjenneVedtakTask)
 
-            opprettFerdigstillOppgaveTasker(behandling)
-        }
+        opprettFerdigstillOppgaveTasker(behandling)
 
         val vedtak = vedtakService.hentAktivVedtakForBehandling(behandlingId)
 
