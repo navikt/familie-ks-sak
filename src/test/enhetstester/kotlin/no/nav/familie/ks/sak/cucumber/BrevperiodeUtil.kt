@@ -11,8 +11,8 @@ import no.nav.familie.ks.sak.kjerne.brev.domene.maler.brevperioder.BrevPeriodeTy
 
 typealias Tabellrad = Map<String, String>
 
-fun parseBrevPerioder(dataTable: DataTable): List<BrevPeriodeDto> {
-    return dataTable.asMaps().map { rad: Tabellrad ->
+fun parseBrevPerioder(dataTable: DataTable): List<BrevPeriodeDto> =
+    dataTable.asMaps().map { rad: Tabellrad ->
 
         val beløp = parseValgfriString(BrevPeriodeParser.DomenebegrepBrevPeriode.BELØP, rad)?.replace(' ', ' ') ?: ""
         val antallBarn = parseValgfriInt(BrevPeriodeParser.DomenebegrepBrevPeriode.ANTALL_BARN, rad) ?: -1
@@ -35,4 +35,3 @@ fun parseBrevPerioder(dataTable: DataTable): List<BrevPeriodeDto> {
             barnasFodselsdager = barnasFodselsdager,
         )
     }
-}

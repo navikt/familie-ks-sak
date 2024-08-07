@@ -11,8 +11,8 @@ fun bestemKategoriVedOpprettelse(
     behandlingÅrsak: BehandlingÅrsak,
     // siste iverksatt behandling som har løpende utbetaling. Hvis løpende utbetaling ikke finnes, settes det til NASJONAL
     kategoriFraLøpendeBehandling: BehandlingKategori,
-): BehandlingKategori {
-    return when {
+): BehandlingKategori =
+    when {
         behandlingType in listOf(BehandlingType.FØRSTEGANGSBEHANDLING, BehandlingType.REVURDERING) &&
             behandlingÅrsak == BehandlingÅrsak.SØKNAD -> {
             overstyrtKategori
@@ -26,4 +26,3 @@ fun bestemKategoriVedOpprettelse(
             kategoriFraLøpendeBehandling
         }
     }
-}

@@ -38,10 +38,12 @@ class EndringIKompetanseUtilTest {
         val nåværendeKompetanse = forrigeKompetanse.copy().apply { behandlingId = nåværendeBehandling.id }
 
         val perioderMedEndring =
-            EndringIKompetanseUtil.lagEndringIKompetanseForPersonTidslinje(
-                nåværendeKompetanserForPerson = listOf(nåværendeKompetanse),
-                forrigeKompetanserForPerson = listOf(forrigeKompetanse),
-            ).tilPerioder().filter { it.verdi == true }
+            EndringIKompetanseUtil
+                .lagEndringIKompetanseForPersonTidslinje(
+                    nåværendeKompetanserForPerson = listOf(nåværendeKompetanse),
+                    forrigeKompetanserForPerson = listOf(forrigeKompetanse),
+                ).tilPerioder()
+                .filter { it.verdi == true }
 
         Assertions.assertTrue(perioderMedEndring.isEmpty())
     }
@@ -68,13 +70,15 @@ class EndringIKompetanseUtilTest {
             forrigeKompetanse.copy(søkersAktivitetsland = "DK").apply { behandlingId = nåværendeBehandling.id }
 
         val perioderMedEndring =
-            EndringIKompetanseUtil.lagEndringIKompetanseForPersonTidslinje(
-                nåværendeKompetanserForPerson =
-                    listOf(
-                        nåværendeKompetanse,
-                    ),
-                forrigeKompetanserForPerson = listOf(forrigeKompetanse),
-            ).tilPerioder().filter { it.verdi == true }
+            EndringIKompetanseUtil
+                .lagEndringIKompetanseForPersonTidslinje(
+                    nåværendeKompetanserForPerson =
+                        listOf(
+                            nåværendeKompetanse,
+                        ),
+                    forrigeKompetanserForPerson = listOf(forrigeKompetanse),
+                ).tilPerioder()
+                .filter { it.verdi == true }
 
         Assertions.assertEquals(1, perioderMedEndring.size)
         Assertions.assertEquals(jan22.førsteDagIInneværendeMåned(), perioderMedEndring.single().fom)
@@ -100,17 +104,20 @@ class EndringIKompetanseUtilTest {
             )
 
         val nåværendeKompetanse =
-            forrigeKompetanse.copy(fom = YearMonth.now().minusMonths(10))
+            forrigeKompetanse
+                .copy(fom = YearMonth.now().minusMonths(10))
                 .apply { behandlingId = nåværendeBehandling.id }
 
         val perioderMedEndring =
-            EndringIKompetanseUtil.lagEndringIKompetanseForPersonTidslinje(
-                nåværendeKompetanserForPerson =
-                    listOf(
-                        nåværendeKompetanse,
-                    ),
-                forrigeKompetanserForPerson = listOf(forrigeKompetanse),
-            ).tilPerioder().filter { it.verdi == true }
+            EndringIKompetanseUtil
+                .lagEndringIKompetanseForPersonTidslinje(
+                    nåværendeKompetanserForPerson =
+                        listOf(
+                            nåværendeKompetanse,
+                        ),
+                    forrigeKompetanserForPerson = listOf(forrigeKompetanse),
+                ).tilPerioder()
+                .filter { it.verdi == true }
 
         Assertions.assertTrue(perioderMedEndring.isEmpty())
     }
@@ -148,13 +155,15 @@ class EndringIKompetanseUtilTest {
             )
 
         val perioderMedEndring =
-            EndringIKompetanseUtil.lagEndringIKompetanseForPersonTidslinje(
-                nåværendeKompetanserForPerson =
-                    listOf(
-                        nåværendeKompetanse,
-                    ),
-                forrigeKompetanserForPerson = listOf(forrigeKompetanse),
-            ).tilPerioder().filter { it.verdi == true }
+            EndringIKompetanseUtil
+                .lagEndringIKompetanseForPersonTidslinje(
+                    nåværendeKompetanserForPerson =
+                        listOf(
+                            nåværendeKompetanse,
+                        ),
+                    forrigeKompetanserForPerson = listOf(forrigeKompetanse),
+                ).tilPerioder()
+                .filter { it.verdi == true }
 
         Assertions.assertTrue(perioderMedEndring.isEmpty())
     }

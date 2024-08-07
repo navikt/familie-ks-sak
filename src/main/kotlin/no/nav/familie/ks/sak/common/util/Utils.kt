@@ -9,9 +9,11 @@ fun Any?.nullableTilString() = this?.toString() ?: ""
 fun String.storForbokstav() = this.lowercase().replaceFirstChar { it.uppercase() }
 
 fun String.storForbokstavIAlleNavn() =
-    this.split(" ").joinToString(" ") { navn ->
-        navn.split("-").joinToString("-") { it.storForbokstav() }
-    }.trimEnd()
+    this
+        .split(" ")
+        .joinToString(" ") { navn ->
+            navn.split("-").joinToString("-") { it.storForbokstav() }
+        }.trimEnd()
 
 inline fun <reified T : Enum<T>> konverterEnumsTilString(liste: List<T>) = liste.joinToString(separator = ";")
 
@@ -23,7 +25,12 @@ fun formaterBeløp(beløp: Int): String = NumberFormat.getNumberInstance(nbLocal
 
 fun Int.avrundetHeltallAvProsent(prosent: BigDecimal) = this.toBigDecimal().avrundetHeltallAvProsent(prosent)
 
-fun BigDecimal.avrundetHeltallAvProsent(prosent: BigDecimal) = this.times(prosent).divide(100.toBigDecimal()).setScale(0, RoundingMode.HALF_UP).toInt()
+fun BigDecimal.avrundetHeltallAvProsent(prosent: BigDecimal) =
+    this
+        .times(prosent)
+        .divide(100.toBigDecimal())
+        .setScale(0, RoundingMode.HALF_UP)
+        .toInt()
 
 fun er11Siffer(ident: String): Boolean = ident.all { it.isDigit() } && ident.length == 11
 
@@ -35,7 +42,9 @@ fun formaterIdent(ident: String): String =
 
 fun hentDokument(dokumentNavn: String): ByteArray {
     val dokumentByteArray = (
-        {}::class.java.classLoader.getResourceAsStream("dokumenter/$dokumentNavn")?.readAllBytes()
+        {}::class.java.classLoader
+            .getResourceAsStream("dokumenter/$dokumentNavn")
+            ?.readAllBytes()
             ?: error("Klarte ikke hente dokument $dokumentNavn")
     )
 

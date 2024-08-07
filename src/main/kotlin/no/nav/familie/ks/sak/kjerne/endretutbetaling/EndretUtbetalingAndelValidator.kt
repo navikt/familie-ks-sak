@@ -38,13 +38,17 @@ object EndretUtbetalingAndelValidator {
                 "i hele eller deler av perioden."
 
         val minsteDatoForTilkjentYtelse =
-            andelTilkjentYtelser.filter { it.aktør == endretUtbetalingAndel.person?.aktør }
-                .minByOrNull { it.stønadFom }?.stønadFom
+            andelTilkjentYtelser
+                .filter { it.aktør == endretUtbetalingAndel.person?.aktør }
+                .minByOrNull { it.stønadFom }
+                ?.stønadFom
                 ?: throw FunksjonellFeil(melding = feilMelding, frontendFeilmelding = frontendFeilMelding)
 
         val størsteDatoForTilkjentYtelse =
-            andelTilkjentYtelser.filter { it.aktør == endretUtbetalingAndel.person!!.aktør }
-                .maxByOrNull { it.stønadTom }?.stønadTom
+            andelTilkjentYtelser
+                .filter { it.aktør == endretUtbetalingAndel.person!!.aktør }
+                .maxByOrNull { it.stønadTom }
+                ?.stønadTom
                 ?: throw FunksjonellFeil(melding = feilMelding, frontendFeilmelding = frontendFeilMelding)
 
         if (checkNotNull(endretUtbetalingAndel.fom).isBefore(minsteDatoForTilkjentYtelse) ||
@@ -133,13 +137,17 @@ object EndretUtbetalingAndelValidator {
                         }
 
                     val deltBostedPerioder =
-                        deltBostedVilkårResultater.groupBy { it.personResultat?.aktør }
+                        deltBostedVilkårResultater
+                            .groupBy { it.personResultat?.aktør }
                             .flatMap { (_, vilkårResultater) -> vilkårResultater.mapNotNull { it.tilPeriode(vilkår = vilkårResultater) } }
 
                     // slår sammen overlappende perioder
-                    deltBostedPerioder.filter { it.fom != null && it.tom != null }.map { listOf(it).tilTidslinje() }
+                    deltBostedPerioder
+                        .filter { it.fom != null && it.tom != null }
+                        .map { listOf(it).tilTidslinje() }
                         .slåSammenLikeTidslinjer { _, _ -> Verdi(person.personopplysningGrunnlag.behandlingId) }
-                        .slåSammenLikePerioder().tilPerioder()
+                        .slåSammenLikePerioder()
+                        .tilPerioder()
                 }
 
                 else -> { // For barn, hentes det delt bosted for spesikt barn
@@ -149,12 +157,18 @@ object EndretUtbetalingAndelValidator {
                             it.utdypendeVilkårsvurderinger.contains(UtdypendeVilkårsvurdering.DELT_BOSTED) && it.resultat == Resultat.OPPFYLT
                         }
 
-                    deltBostedVilkårResultater.mapNotNull { it.tilPeriode(vilkår = deltBostedVilkårResultater) }
-                        .tilTidslinje().tilPerioder()
+                    deltBostedVilkårResultater
+                        .mapNotNull { it.tilPeriode(vilkår = deltBostedVilkårResultater) }
+                        .tilTidslinje()
+                        .tilPerioder()
                 }
             }
         // det slår sammen alle delt bosted perioder som er sammenhengende
-        return deltBostedPerioder.tilTidslinje().slåSammenLikePerioder().tilPerioder().filtrerIkkeNull()
+        return deltBostedPerioder
+            .tilTidslinje()
+            .slåSammenLikePerioder()
+            .tilPerioder()
+            .filtrerIkkeNull()
     }
 
     private fun validerDeltBosted(

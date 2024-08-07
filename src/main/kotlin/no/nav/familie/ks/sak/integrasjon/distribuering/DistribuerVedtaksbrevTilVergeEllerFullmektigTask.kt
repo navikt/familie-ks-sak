@@ -35,15 +35,14 @@ class DistribuerVedtaksbrevTilVergeEllerFullmektigTask(
         fun opprettDistribuerVedtaksbrevTilVergeEllerFullmektigTask(
             distribuerBrevDTO: DistribuerBrevDto,
             properties: Properties,
-        ): Task {
-            return Task(
+        ): Task =
+            Task(
                 type = TASK_STEP_TYPE,
                 payload = objectMapper.writeValueAsString(distribuerBrevDTO),
                 properties = properties,
             ).copy(
                 triggerTid = nesteGyldigeTriggertidForBehandlingIHverdager(),
             )
-        }
 
         const val TASK_STEP_TYPE = "distribuerVedtaksbrevTilVergeEllerFullmektig"
     }

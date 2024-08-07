@@ -61,9 +61,7 @@ class SimuleringService(
         return simuleringMottakere.tilSimuleringDto().feilutbetaling
     }
 
-    fun hentSimuleringPåBehandling(behandlingId: Long): List<ØkonomiSimuleringMottaker> {
-        return øknomiSimuleringMottakerRepository.findByBehandlingId(behandlingId)
-    }
+    fun hentSimuleringPåBehandling(behandlingId: Long): List<ØkonomiSimuleringMottaker> = øknomiSimuleringMottakerRepository.findByBehandlingId(behandlingId)
 
     fun oppdaterSimuleringPåBehandling(behandlingId: Long): List<ØkonomiSimuleringMottaker> {
         val behandling = behandlingRepository.hentBehandling(behandlingId)
@@ -91,11 +89,13 @@ class SimuleringService(
         }
 
         val utbetalingsoppdrag =
-            utbetalingsoppdragService.genererUtbetalingsoppdragOgOppdaterTilkjentYtelse(
-                vedtak = vedtak,
-                saksbehandlerId = SikkerhetContext.hentSaksbehandler(),
-                erSimulering = true,
-            ).utbetalingsoppdrag.tilRestUtbetalingsoppdrag()
+            utbetalingsoppdragService
+                .genererUtbetalingsoppdragOgOppdaterTilkjentYtelse(
+                    vedtak = vedtak,
+                    saksbehandlerId = SikkerhetContext.hentSaksbehandler(),
+                    erSimulering = true,
+                ).utbetalingsoppdrag
+                .tilRestUtbetalingsoppdrag()
 
         if (utbetalingsoppdrag.utbetalingsperiode.isEmpty()) return null
 

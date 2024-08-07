@@ -159,7 +159,8 @@ class GenererBrevService(
                     erFeilutbetalingPåBehandling = erFeilutbetalingPåBehandling(behandlingId = behandling.id),
                     informasjonOmAarligKontroll = vedtaksperiodeService.skalHaÅrligKontroll(vedtak),
                     feilutbetaltValuta =
-                        feilutbetaltValutaService.beskrivPerioderMedFeilutbetaltValuta(behandling.id)
+                        feilutbetaltValutaService
+                            .beskrivPerioderMedFeilutbetaltValuta(behandling.id)
                             ?.let {
                                 FeilutbetaltValuta(perioderMedForMyeUtbetalt = it)
                             },
@@ -244,7 +245,9 @@ class GenererBrevService(
             beslutter = personopplysningsgrunnlagOgSignaturData.beslutter,
             hjemmeltekst = Hjemmeltekst(hjemler),
             søkerNavn = personopplysningsgrunnlagOgSignaturData.grunnlag.søker.navn,
-            søkerFødselsnummer = personopplysningsgrunnlagOgSignaturData.grunnlag.søker.aktør.aktivFødselsnummer(),
+            søkerFødselsnummer =
+                personopplysningsgrunnlagOgSignaturData.grunnlag.søker.aktør
+                    .aktivFødselsnummer(),
             perioder = brevPeriodeDtoer,
             gjelder = personopplysningsgrunnlagOgSignaturData.grunnlag.søker.navn,
             korrigertVedtakData = korrigertVedtak?.let { KorrigertVedtakData(datoKorrigertVedtak = it.vedtaksdato.tilDagMånedÅr()) },
@@ -271,7 +274,8 @@ class GenererBrevService(
             vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(behandlingId = vedtak.behandling.id)
 
         val annenForelderOmfattetAvNorskLovgivningErSattPåBosattIRiket =
-            vilkårsvurdering.personResultater.flatMap { it.vilkårResultater }
+            vilkårsvurdering.personResultater
+                .flatMap { it.vilkårResultater }
                 .any { it.utdypendeVilkårsvurderinger.contains(UtdypendeVilkårsvurdering.ANNEN_FORELDER_OMFATTET_AV_NORSK_LOVGIVNING) && it.vilkårType == Vilkår.BOSATT_I_RIKET }
 
         val passendeBehandlingsresultat =
@@ -371,10 +375,14 @@ class GenererBrevService(
                         flettefelter =
                             DødsfallData.Flettefelter(
                                 navn = data.grunnlag.søker.navn,
-                                fodselsnummer = data.grunnlag.søker.aktør.aktivFødselsnummer(),
+                                fodselsnummer =
+                                    data.grunnlag.søker.aktør
+                                        .aktivFødselsnummer(),
                                 // Selv om det er feil å anta at alle navn er på dette formatet er det ønskelig å skrive
                                 // det slik, da uppercase kan oppleves som skrikende i et brev som skal være skånsomt
-                                navnAvdode = data.grunnlag.søker.navn.storForbokstavIAlleNavn(),
+                                navnAvdode =
+                                    data.grunnlag.søker.navn
+                                        .storForbokstavIAlleNavn(),
                                 virkningstidspunkt =
                                     hentVirkningstidspunkt(
                                         opphørsperioder = vedtaksperiodeService.hentOpphørsperioder(vedtak.behandling),

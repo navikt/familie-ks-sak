@@ -260,10 +260,34 @@ class BarnehagelisteServiceTest(
         assertEquals("Oslo", melding.skjema.listeopplysninger.kommuneNavn)
         assertEquals("0301", melding.skjema.listeopplysninger.kommuneNr)
         assertEquals(2, melding.skjema.barnInfolinjer.size)
-        assertEquals("123456789", melding.skjema.barnInfolinjer.get(0).barn.fodselsnummer)
-        assertEquals(47.5, melding.skjema.barnInfolinjer.get(0).avtaltOppholdstidTimer)
-        assertEquals("barnStartet", melding.skjema.barnInfolinjer.get(0).endringstype)
-        assertEquals(LocalDate.parse("2023-09-06"), melding.skjema.barnInfolinjer.get(0).startdato)
-        assertNull(melding.skjema.barnInfolinjer.get(0).sluttdato)
+        assertEquals(
+            "123456789",
+            melding.skjema.barnInfolinjer
+                .get(0)
+                .barn.fodselsnummer,
+        )
+        assertEquals(
+            47.5,
+            melding.skjema.barnInfolinjer
+                .get(0)
+                .avtaltOppholdstidTimer,
+        )
+        assertEquals(
+            "barnStartet",
+            melding.skjema.barnInfolinjer
+                .get(0)
+                .endringstype,
+        )
+        assertEquals(
+            LocalDate.parse("2023-09-06"),
+            melding.skjema.barnInfolinjer
+                .get(0)
+                .startdato,
+        )
+        assertNull(
+            melding.skjema.barnInfolinjer
+                .get(0)
+                .sluttdato,
+        )
     }
 }

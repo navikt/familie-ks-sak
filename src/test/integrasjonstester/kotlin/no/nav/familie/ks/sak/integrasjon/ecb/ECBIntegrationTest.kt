@@ -85,8 +85,8 @@ class ECBIntegrationTest : OppslagSpringRunnerTest() {
         frequency: Frequency,
         exchangeRates: List<Pair<String, BigDecimal>>,
         exchangeRateDate: String,
-    ): ECBExchangeRatesData {
-        return ECBExchangeRatesData(
+    ): ECBExchangeRatesData =
+        ECBExchangeRatesData(
             ECBExchangeRatesDataSet(
                 exchangeRates.map {
                     ECBExchangeRatesForCurrency(
@@ -104,5 +104,4 @@ class ECBIntegrationTest : OppslagSpringRunnerTest() {
                 },
             ),
         )
-    }
 }

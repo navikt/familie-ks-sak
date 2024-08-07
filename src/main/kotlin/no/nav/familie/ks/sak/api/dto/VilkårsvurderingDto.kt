@@ -54,8 +54,8 @@ data class VilkårResultatDto(
 
     fun harFremtidigTom() = periodeTom?.isAfter(LocalDate.now().sisteDagIMåned()) ?: true
 
-    fun tilVilkårResultat(vilkårResultat: VilkårResultat): VilkårResultat {
-        return VilkårResultat(
+    fun tilVilkårResultat(vilkårResultat: VilkårResultat): VilkårResultat =
+        VilkårResultat(
             periodeFom = periodeFom,
             periodeTom = periodeTom,
             begrunnelse = begrunnelse,
@@ -63,7 +63,9 @@ data class VilkårResultatDto(
             resultat = resultat,
             erAutomatiskVurdert = false,
             erEksplisittAvslagPåSøknad = erEksplisittAvslagPåSøknad,
-            behandlingId = vilkårResultat.personResultat!!.vilkårsvurdering.behandling.id,
+            behandlingId =
+                vilkårResultat.personResultat!!
+                    .vilkårsvurdering.behandling.id,
             vurderesEtter = vurderesEtter,
             utdypendeVilkårsvurderinger = utdypendeVilkårsvurderinger,
             personResultat = vilkårResultat.personResultat,
@@ -72,7 +74,6 @@ data class VilkårResultatDto(
             antallTimer = if (antallTimer == BigDecimal(0)) null else antallTimer,
             søkerHarMeldtFraOmBarnehageplass = søkerHarMeldtFraOmBarnehageplass,
         )
-    }
 }
 
 data class AnnenVurderingDto(

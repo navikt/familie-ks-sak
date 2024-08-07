@@ -43,7 +43,8 @@ class PersonController(
         val aktør = personidentService.hentAktør(personIdent)
         val personinfo =
             integrasjonService.hentMaskertPersonInfoVedManglendeTilgang(aktør)
-                ?: personOpplysningerService.hentPersonInfoMedRelasjonerOgRegisterinformasjon(aktør)
+                ?: personOpplysningerService
+                    .hentPersonInfoMedRelasjonerOgRegisterinformasjon(aktør)
                     .tilPersonInfoDto(personIdent)
         return ResponseEntity.ok(Ressurs.success(personinfo))
     }
@@ -56,7 +57,8 @@ class PersonController(
         val aktør = personidentService.hentAktør(personIdent)
         val personinfo =
             integrasjonService.hentMaskertPersonInfoVedManglendeTilgang(aktør)
-                ?: personOpplysningerService.hentPersoninfoEnkel(aktør)
+                ?: personOpplysningerService
+                    .hentPersoninfoEnkel(aktør)
                     .tilPersonInfoDto(personIdent)
         return ResponseEntity.ok(Ressurs.success(personinfo))
     }

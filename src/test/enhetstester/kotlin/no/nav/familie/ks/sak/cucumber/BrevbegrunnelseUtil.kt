@@ -26,8 +26,8 @@ enum class Begrunnelsetype {
     STANDARD,
 }
 
-fun parseBegrunnelser(dataTable: DataTable): List<BegrunnelseDtoMedData> {
-    return dataTable.asMaps().map { rad: Tabellrad ->
+fun parseBegrunnelser(dataTable: DataTable): List<BegrunnelseDtoMedData> =
+    dataTable.asMaps().map { rad: Tabellrad ->
 
         val type =
             parseValgfriEnum<Begrunnelsetype>(
@@ -40,7 +40,6 @@ fun parseBegrunnelser(dataTable: DataTable): List<BegrunnelseDtoMedData> {
             Begrunnelsetype.EØS -> parseEøsBegrunnelse(rad)
         }
     }
-}
 
 fun parseNasjonalEllerFellesBegrunnelse(rad: Tabellrad): BegrunnelseDtoMedData {
     val begrunnelse =

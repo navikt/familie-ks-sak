@@ -13,13 +13,14 @@ import no.nav.familie.ks.sak.kjerne.eøs.felles.domene.utenPeriode
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
 
 fun <T : EøsSkjema<T>> List<T>.tilTidslinje() =
-    this.map {
-        Periode(
-            it.utenPeriode(),
-            it.fom?.førsteDagIInneværendeMåned(),
-            it.tom?.sisteDagIInneværendeMåned(),
-        )
-    }.tilTidslinje()
+    this
+        .map {
+            Periode(
+                it.utenPeriode(),
+                it.fom?.førsteDagIInneværendeMåned(),
+                it.tom?.sisteDagIInneværendeMåned(),
+            )
+        }.tilTidslinje()
 
 fun <T : EøsSkjema<T>> T.tilTidslinje() = listOf(this).tilTidslinje()
 
@@ -28,7 +29,11 @@ fun <T : EøsSkjema<T>> List<T>.slåSammen(): List<T> {
 
     val eøsTidslinjer: Tidslinje<Set<T>> =
         this.map { it.tilTidslinje() }.kombiner { tidslinje ->
-            tidslinje.groupingBy { it.utenBarn() }.reduce { _, acc, skjema -> acc.leggSammenBarn(skjema) }.values.toSet()
+            tidslinje
+                .groupingBy { it.utenBarn() }
+                .reduce { _, acc, skjema -> acc.leggSammenBarn(skjema) }
+                .values
+                .toSet()
         }
 
     val eøsTidslinjerSlåttSammenVertikalt =
@@ -40,7 +45,9 @@ fun <T : EøsSkjema<T>> List<T>.slåSammen(): List<T> {
             .groupBy { it.utenPeriode() }
             .mapValues { (_, kompetanser) -> kompetanser.tilTidslinje().slåSammenLikePerioder() }
             .mapValues { (_, tidslinje) -> tidslinje.tilPerioder() }
-            .values.flatten().mapNotNull { periode -> periode.verdi?.settFomOgTom(periode) }
+            .values
+            .flatten()
+            .mapNotNull { periode -> periode.verdi?.settFomOgTom(periode) }
 
     return eøsTidslinjerSlåttSammenHorizontalt
 }
@@ -69,7 +76,8 @@ fun <T : EøsSkjema<T>> Iterable<T>.tilSeparateTidslinjerForBarna(): Map<Aktør,
     val alleBarnAktørIder = skjemaer.map { it.barnAktører }.reduce { akk, neste -> akk + neste }
 
     return alleBarnAktørIder.associateWith { aktør ->
-        skjemaer.filter { it.barnAktører.contains(aktør) }
+        skjemaer
+            .filter { it.barnAktører.contains(aktør) }
             .map {
                 Periode(
                     fom = it.fom?.førsteDagIInneværendeMåned(),

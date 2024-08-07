@@ -57,12 +57,11 @@ class BarnehageListeService(
         return barnehagelisteMottatt
     }
 
-    fun erListenMottattTidligere(meldingId: String): Boolean {
-        return barnehagelisteMottattRepository.existsByMeldingId(meldingId) ||
+    fun erListenMottattTidligere(meldingId: String): Boolean =
+        barnehagelisteMottattRepository.existsByMeldingId(meldingId) ||
             barnehagelisteMottattArkivRepository.existsByMeldingId(
                 meldingId,
             )
-    }
 
     @Transactional
     fun lesOgArkiver(uuid: UUID) {
@@ -91,17 +90,11 @@ class BarnehageListeService(
         }
     }
 
-    fun lesBarnehagelisteMottattMeldingXml(xml: String?): Melding {
-        return xmlDeserializer.readValue(xml, Melding::class.java)
-    }
+    fun lesBarnehagelisteMottattMeldingXml(xml: String?): Melding = xmlDeserializer.readValue(xml, Melding::class.java)
 
-    fun hentBarnehagebarn(ident: String): Barnehagebarn {
-        return barnehagebarnRepository.findByIdent(ident)
-    }
+    fun hentBarnehagebarn(ident: String): Barnehagebarn = barnehagebarnRepository.findByIdent(ident)
 
-    fun hentUarkiverteBarnehagelisteUuider(): List<String> {
-        return barnehagelisteMottattRepository.findAllIds()
-    }
+    fun hentUarkiverteBarnehagelisteUuider(): List<String> = barnehagelisteMottattRepository.findAllIds()
 
     fun hentAlleBarnehagebarnInfotrygd(barnehagebarnRequestParams: BarnehagebarnRequestParams): Page<BarnehagebarnInfotrygdDto> {
         val sort =
@@ -119,43 +112,48 @@ class BarnehageListeService(
 
         if (!barnehagebarnRequestParams.ident.isNullOrEmpty()) {
             if (barnehagebarnRequestParams.kunLøpendeFagsak) {
-                return barnehagebarnRepository.findBarnehagebarnByIdentInfotrygd(
-                    ident = barnehagebarnRequestParams.ident,
-                    barna = barna,
-                    pageable = pageable,
-                ).map { BarnehagebarnInfotrygdDto.fraBarnehageBarnInterfaceTilDto(it, true) }
+                return barnehagebarnRepository
+                    .findBarnehagebarnByIdentInfotrygd(
+                        ident = barnehagebarnRequestParams.ident,
+                        barna = barna,
+                        pageable = pageable,
+                    ).map { BarnehagebarnInfotrygdDto.fraBarnehageBarnInterfaceTilDto(it, true) }
             } else {
-                return barnehagebarnRepository.findBarnehagebarnByIdentInfotrygdUavhengigAvFagsak(
-                    ident = barnehagebarnRequestParams.ident,
-                    pageable = pageable,
-                ).map {
-                    BarnehagebarnInfotrygdDto.fraBarnehageBarnInterfaceTilDto(
-                        it,
-                        barneMap.contains(it.getIdent()),
-                    )
-                }
+                return barnehagebarnRepository
+                    .findBarnehagebarnByIdentInfotrygdUavhengigAvFagsak(
+                        ident = barnehagebarnRequestParams.ident,
+                        pageable = pageable,
+                    ).map {
+                        BarnehagebarnInfotrygdDto.fraBarnehageBarnInterfaceTilDto(
+                            it,
+                            barneMap.contains(it.getIdent()),
+                        )
+                    }
             }
         } else if (!barnehagebarnRequestParams.kommuneNavn.isNullOrEmpty()) {
             if (barnehagebarnRequestParams.kunLøpendeFagsak) {
-                return barnehagebarnRepository.findBarnehagebarnByKommuneNavnInfotrygd(
-                    kommuneNavn = barnehagebarnRequestParams.kommuneNavn,
-                    barna = barna,
-                    pageable = pageable,
-                ).map { BarnehagebarnInfotrygdDto.fraBarnehageBarnInterfaceTilDto(it, true) }
+                return barnehagebarnRepository
+                    .findBarnehagebarnByKommuneNavnInfotrygd(
+                        kommuneNavn = barnehagebarnRequestParams.kommuneNavn,
+                        barna = barna,
+                        pageable = pageable,
+                    ).map { BarnehagebarnInfotrygdDto.fraBarnehageBarnInterfaceTilDto(it, true) }
             } else {
-                return barnehagebarnRepository.findBarnehagebarnByKommuneNavnInfotrygdUavhengigAvFagsak(
-                    kommuneNavn = barnehagebarnRequestParams.kommuneNavn,
-                    pageable = pageable,
-                ).map {
-                    BarnehagebarnInfotrygdDto.fraBarnehageBarnInterfaceTilDto(
-                        it,
-                        barneMap.contains(it.getIdent()),
-                    )
-                }
+                return barnehagebarnRepository
+                    .findBarnehagebarnByKommuneNavnInfotrygdUavhengigAvFagsak(
+                        kommuneNavn = barnehagebarnRequestParams.kommuneNavn,
+                        pageable = pageable,
+                    ).map {
+                        BarnehagebarnInfotrygdDto.fraBarnehageBarnInterfaceTilDto(
+                            it,
+                            barneMap.contains(it.getIdent()),
+                        )
+                    }
             }
         } else {
             if (barnehagebarnRequestParams.kunLøpendeFagsak) {
-                return barnehagebarnRepository.findBarnehagebarnInfotrygd(barna = barna, pageable = pageable)
+                return barnehagebarnRepository
+                    .findBarnehagebarnInfotrygd(barna = barna, pageable = pageable)
                     .map { BarnehagebarnInfotrygdDto.fraBarnehageBarnInterfaceTilDto(it, true) }
             } else {
                 return barnehagebarnRepository.findBarnehagebarnInfotrygdUavhengigAvFagsak(pageable = pageable).map {
@@ -215,13 +213,12 @@ class BarnehageListeService(
         }
     }
 
-    private fun getCorrectSortBy(sortBy: String): String {
-        return when (sortBy.lowercase()) {
+    private fun getCorrectSortBy(sortBy: String): String =
+        when (sortBy.lowercase()) {
             "endrettidspunkt" -> "endret_tid"
             "kommunenavn" -> "kommune_navn"
             "kommunenr" -> "kommune_nr"
             "antalltimeribarnehage" -> "antall_timer_i_barnehage"
             else -> sortBy
         }
-    }
 }

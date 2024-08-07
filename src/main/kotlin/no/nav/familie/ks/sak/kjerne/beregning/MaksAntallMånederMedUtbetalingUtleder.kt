@@ -24,7 +24,8 @@ fun utledMaksAntallMånederMedUtbetaling(
             val sisteMuligeUtbetaling =
                 when {
                     vilkårLovverkInformasjonForBarn.fødselsdato.plusYears(2)
-                        != dagenFørLovendring && sisteBarnetsAlderVilkårResultatTom == dagenFørLovendring -> minstAvTomEllerLovEndringDato
+                        != dagenFørLovendring &&
+                        sisteBarnetsAlderVilkårResultatTom == dagenFørLovendring -> minstAvTomEllerLovEndringDato
 
                     else -> minstAvTomEllerLovEndringDato.minusMonths(1)
                 }

@@ -81,8 +81,10 @@ class HenleggBehandlingService(
             }
             else -> {
                 // aktiverer siste vedtatt behandling på nytt
-                alleBehandlinger.filter { !it.erHenlagt() && it.status == BehandlingStatus.AVSLUTTET }
-                    .maxByOrNull { it.aktivertTidspunkt }?.apply {
+                alleBehandlinger
+                    .filter { !it.erHenlagt() && it.status == BehandlingStatus.AVSLUTTET }
+                    .maxByOrNull { it.aktivertTidspunkt }
+                    ?.apply {
                         aktiv = true
                         behandlingRepository.saveAndFlush(this)
                     }

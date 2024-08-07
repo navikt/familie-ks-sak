@@ -71,7 +71,8 @@ class StegService(
                     // Henter neste steg basert på sekvens og årsak
                     val nesteSteg = hentNesteSteg(behandling, behandlingSteg, behandlingStegDto)
                     // legger til neste steg hvis steget er ny, eller oppdaterer eksisterende steg status til KLAR
-                    behandling.behandlingStegTilstand.singleOrNull { it.behandlingSteg == nesteSteg }
+                    behandling.behandlingStegTilstand
+                        .singleOrNull { it.behandlingSteg == nesteSteg }
                         ?.let { it.behandlingStegStatus = BehandlingStegStatus.KLAR }
                         ?: behandling.leggTilNesteSteg(nesteSteg)
                 }
@@ -85,7 +86,8 @@ class StegService(
 
             BehandlingStegStatus.UTFØRT -> {
                 // tilbakefører alle stegene som er etter behandlede steg
-                behandling.behandlingStegTilstand.filter { it.behandlingSteg.sekvens > behandlingSteg.sekvens }
+                behandling.behandlingStegTilstand
+                    .filter { it.behandlingSteg.sekvens > behandlingSteg.sekvens }
                     .forEach { it.behandlingStegStatus = BehandlingStegStatus.TILBAKEFØRT }
 
                 // oppdaterte behandling med behandlede steg som KLAR slik at det kan behandles
@@ -209,8 +211,8 @@ class StegService(
         }
     }
 
-    private fun hentNesteStegOgOpprettTaskEtterBeslutteVedtak(behandling: Behandling): BehandlingSteg {
-        return when {
+    private fun hentNesteStegOgOpprettTaskEtterBeslutteVedtak(behandling: Behandling): BehandlingSteg =
+        when {
             behandling.erTekniskEndring() -> if (!erEndringIUtbetaling(behandling)) AVSLUTT_BEHANDLING else IVERKSETT_MOT_OPPDRAG
 
             !erEndringIUtbetaling(behandling) -> {
@@ -220,7 +222,6 @@ class StegService(
 
             else -> IVERKSETT_MOT_OPPDRAG
         }
-    }
 
     private fun erEndringIUtbetaling(behandling: Behandling): Boolean {
         val forrigeBehandling = behandlingService.hentSisteBehandlingSomErIverksatt(behandling.fagsak.id)
@@ -231,7 +232,8 @@ class StegService(
         val andelerBehandling = behandling.let { andelTilkjentYtelseRepository.finnAndelerTilkjentYtelseForBehandling(it.id) }
 
         return lagEndringIUtbetalingTidslinje(andelerBehandling, andelerForrigeBehandling)
-            .tilPerioder().any { it.verdi == true }
+            .tilPerioder()
+            .any { it.verdi == true }
     }
 
     private fun utførStegAutomatisk(behandling: Behandling) {

@@ -18,7 +18,10 @@ import java.time.LocalDate
 
 @Import(ValutakursRestClient::class)
 @Service
-class ECBService(private val ecbClient: ValutakursRestClient, private val ecbValutakursCacheRepository: ECBValutakursCacheRepository) {
+class ECBService(
+    private val ecbClient: ValutakursRestClient,
+    private val ecbValutakursCacheRepository: ECBValutakursCacheRepository,
+) {
     private val logger: Logger = LoggerFactory.getLogger(ECBService::class.java)
 
     /**
@@ -97,9 +100,7 @@ class ECBService(private val ecbClient: ValutakursRestClient, private val ecbVal
     private fun throwValidationException(
         currency: String,
         exchangeRateDate: LocalDate,
-    ) {
-        throw ECBServiceException("Fant ikke nødvendige valutakurser for valutakursdato ${exchangeRateDate.tilKortString()} for å bestemme valutakursen $currency - NOK")
-    }
+    ): Unit = throw ECBServiceException("Fant ikke nødvendige valutakurser for valutakursdato ${exchangeRateDate.tilKortString()} for å bestemme valutakursen $currency - NOK")
 }
 
 object ECBConstants {
