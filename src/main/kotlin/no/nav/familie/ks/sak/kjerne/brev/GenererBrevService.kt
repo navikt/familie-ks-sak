@@ -104,7 +104,7 @@ class GenererBrevService(
     fun genererBrevForBehandling(behandlingId: Long): ByteArray {
         val vedtak = vedtakService.hentAktivVedtakForBehandling(behandlingId)
         try {
-            if (vedtak.behandling.steg > BehandlingSteg.BESLUTTE_VEDTAK) {
+            if (!vedtak.behandling.skalBehandlesAutomatisk() && vedtak.behandling.steg > BehandlingSteg.BESLUTTE_VEDTAK) {
                 throw FunksjonellFeil("Ikke tillatt å generere brev etter at behandlingen er sendt fra beslutter")
             }
 
