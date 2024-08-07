@@ -154,17 +154,15 @@ data class Behandling(
         return this
     }
 
-    fun skalOppretteBehandleSakOppgave(): Boolean {
-        return type != TEKNISK_ENDRING
-    }
+    fun skalOppretteBehandleSakOppgave(): Boolean = type != TEKNISK_ENDRING && opprettetÅrsak != BehandlingÅrsak.LOVENDRING_2024
 
-    fun skalSendeVedtaksbrev(): Boolean {
-        return when {
+    fun skalSendeVedtaksbrev(): Boolean =
+        when {
             type == TEKNISK_ENDRING -> false
-            opprettetÅrsak == BehandlingÅrsak.SATSENDRING -> false
+            opprettetÅrsak == BehandlingÅrsak.LOVENDRING_2024 && resultat in listOf(Behandlingsresultat.ENDRET_OG_OPPHØRT) -> true
+            opprettetÅrsak in listOf(BehandlingÅrsak.SATSENDRING, BehandlingÅrsak.LOVENDRING_2024) -> false
             else -> true
         }
-    }
 
     fun erHenlagt() = resultat in listOf(HENLAGT_FEILAKTIG_OPPRETTET, HENLAGT_SØKNAD_TRUKKET, HENLAGT_TEKNISK_VEDLIKEHOLD)
 
@@ -177,6 +175,10 @@ data class Behandling(
     fun erSatsendring() = this.opprettetÅrsak == BehandlingÅrsak.SATSENDRING
 
     fun erTekniskEndring() = opprettetÅrsak == BehandlingÅrsak.TEKNISK_ENDRING
+
+    fun erLovendring() = opprettetÅrsak == BehandlingÅrsak.LOVENDRING_2024
+
+    fun skalBehandlesAutomatisk(): Boolean = this.opprettetÅrsak in listOf(BehandlingÅrsak.LOVENDRING_2024)
 }
 
 /**
@@ -249,6 +251,7 @@ enum class BehandlingÅrsak(val visningsnavn: String, val gyldigeBehandlingstype
     KORREKSJON_VEDTAKSBREV("Korrigere vedtak med egen brevmal", listOf(REVURDERING)),
     SATSENDRING("Satsendring", listOf(REVURDERING)),
     BARNEHAGELISTE("Barnehageliste", listOf(REVURDERING)),
+    LOVENDRING_2024("Lovendring 2024", listOf(REVURDERING)),
 }
 
 enum class BehandlingType(val visningsnavn: String) {

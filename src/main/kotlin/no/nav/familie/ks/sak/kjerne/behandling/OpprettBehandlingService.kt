@@ -69,7 +69,6 @@ class OpprettBehandlingService(
                 overstyrtKategori = opprettBehandlingRequest.kategori,
                 behandlingType = opprettBehandlingRequest.behandlingType,
                 behandlingÅrsak = opprettBehandlingRequest.behandlingÅrsak,
-                // TODO EØS implementeres etter vilkårsvurdering
                 kategoriFraLøpendeBehandling = BehandlingKategori.NASJONAL,
             )
         val behandling =

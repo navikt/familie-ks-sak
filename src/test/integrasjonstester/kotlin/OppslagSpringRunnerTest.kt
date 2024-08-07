@@ -18,6 +18,8 @@ import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.domene.ArbeidsfordelingPåB
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.domene.ArbeidsfordelingPåBehandlingRepository
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
+import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
+import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.Vedtak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.VedtakRepository
@@ -146,16 +148,19 @@ abstract class OppslagSpringRunnerTest {
         søker: Aktør = randomAktør(),
         barn: Aktør = randomAktør(),
         fagsakStatus: FagsakStatus,
+        behandlingStatus: BehandlingStatus = BehandlingStatus.UTREDES,
+        behandlingResultat: Behandlingsresultat = Behandlingsresultat.IKKE_VURDERT,
     ) {
         this.søker = lagreAktør(søker)
         this.barn = lagreAktør(barn)
         fagsak = lagreFagsak(lagFagsak(aktør = søker, status = fagsakStatus))
-        behandling = lagreBehandling(lagBehandling(fagsak = fagsak, opprettetÅrsak = BehandlingÅrsak.SØKNAD))
+        behandling = lagreBehandling(lagBehandling(fagsak = fagsak, opprettetÅrsak = BehandlingÅrsak.SØKNAD, status = behandlingStatus, resultat = behandlingResultat))
     }
 
     fun opprettPersonopplysningGrunnlagOgPersonForBehandling(
         behandlingId: Long,
         lagBarn: Boolean = false,
+        fødselsdatoBarn: LocalDate = LocalDate.of(2022, 1, 1),
     ) {
         personopplysningGrunnlag = lagrePersonopplysningGrunnlag(PersonopplysningGrunnlag(behandlingId = behandlingId))
 
@@ -181,7 +186,7 @@ abstract class OppslagSpringRunnerTest {
                     aktør = barn,
                     type = PersonType.BARN,
                     personopplysningGrunnlag = personopplysningGrunnlag,
-                    fødselsdato = LocalDate.of(2022, 1, 1),
+                    fødselsdato = fødselsdatoBarn,
                     navn = "",
                     kjønn = Kjønn.KVINNE,
                 ).also { søker ->

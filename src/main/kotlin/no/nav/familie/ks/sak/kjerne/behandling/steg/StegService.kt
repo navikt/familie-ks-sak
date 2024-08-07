@@ -13,9 +13,11 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStegTilstand
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Beslutning
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg.AVSLUTT_BEHANDLING
+import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg.BEHANDLINGSRESULTAT
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg.BESLUTTE_VEDTAK
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg.IVERKSETT_MOT_OPPDRAG
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg.JOURNALFØR_VEDTAKSBREV
+import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg.VEDTAK
 import no.nav.familie.ks.sak.kjerne.behandling.steg.iverksettmotoppdrag.IverksettMotOppdragTask
 import no.nav.familie.ks.sak.kjerne.behandling.steg.journalførvedtaksbrev.JournalførVedtaksbrevTask
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.VedtakRepository
@@ -168,24 +170,40 @@ class StegService(
 
     fun hentNesteSteg(
         behandling: Behandling,
-        behandledeSteg: BehandlingSteg,
+        behandletSteg: BehandlingSteg,
         behandlingStegDto: BehandlingStegDto?,
     ): BehandlingSteg {
         val nesteGyldigeStadier =
-            BehandlingSteg.entries.filter {
-                it.sekvens > behandledeSteg.sekvens &&
-                    behandling.opprettetÅrsak in it.gyldigForÅrsaker &&
-                    behandling.resultat in it.gyldigForResultater
-            }.sortedBy { it.sekvens }
-        return when (behandledeSteg) {
+            BehandlingSteg.entries
+                .filter {
+                    it.sekvens > behandletSteg.sekvens &&
+                        behandling.opprettetÅrsak in it.gyldigForÅrsaker &&
+                        behandling.resultat in it.gyldigForResultater
+                }.sortedBy { it.sekvens }
+        return when (behandletSteg) {
             AVSLUTT_BEHANDLING -> throw Feil("Behandling ${behandling.id} er allerede avsluttet")
+
             BESLUTTE_VEDTAK -> {
                 val beslutteVedtakDto = behandlingStegDto as BesluttVedtakDto
                 when (beslutteVedtakDto.beslutning) {
                     Beslutning.GODKJENT -> hentNesteStegOgOpprettTaskEtterBeslutteVedtak(behandling)
-                    Beslutning.UNDERKJENT -> BehandlingSteg.VEDTAK
+                    Beslutning.UNDERKJENT -> VEDTAK
                 }
             }
+
+            BEHANDLINGSRESULTAT ->
+                if (behandling.skalBehandlesAutomatisk() && !behandling.skalSendeVedtaksbrev()) {
+                    VEDTAK
+                } else {
+                    nesteGyldigeStadier.first()
+                }
+
+            IVERKSETT_MOT_OPPDRAG ->
+                if (behandling.skalBehandlesAutomatisk() && !behandling.skalSendeVedtaksbrev()) {
+                    AVSLUTT_BEHANDLING
+                } else {
+                    nesteGyldigeStadier.first()
+                }
 
             else -> nesteGyldigeStadier.first()
         }
@@ -194,6 +212,7 @@ class StegService(
     private fun hentNesteStegOgOpprettTaskEtterBeslutteVedtak(behandling: Behandling): BehandlingSteg {
         return when {
             behandling.erTekniskEndring() -> if (!erEndringIUtbetaling(behandling)) AVSLUTT_BEHANDLING else IVERKSETT_MOT_OPPDRAG
+
             !erEndringIUtbetaling(behandling) -> {
                 opprettJournalførVedtaksbrevTaskPåBehandling(behandling)
                 JOURNALFØR_VEDTAKSBREV
@@ -216,14 +235,11 @@ class StegService(
     }
 
     private fun utførStegAutomatisk(behandling: Behandling) {
-        when (behandling.steg) {
-            IVERKSETT_MOT_OPPDRAG -> {
-                val vedtakId = vedtakRepository.findByBehandlingAndAktiv(behandling.id).id
-                val saksbehandlerId = SikkerhetContext.hentSaksbehandler()
-                taskService.save(IverksettMotOppdragTask.opprettTask(behandling, vedtakId, saksbehandlerId))
-            }
-
-            else -> {} // Gjør ingenting. Steg kan ikke utføre automatisk
+        // Dersom behandling er lovendring må vedtak kontrolleres først
+        if (behandling.steg == IVERKSETT_MOT_OPPDRAG && !behandling.erLovendring()) {
+            val vedtakId = vedtakRepository.findByBehandlingAndAktiv(behandling.id).id
+            val saksbehandlerId = SikkerhetContext.hentSaksbehandler()
+            taskService.save(IverksettMotOppdragTask.opprettTask(behandling, vedtakId, saksbehandlerId))
         }
     }
 
@@ -251,6 +267,7 @@ class StegService(
             }
             // Behandling med årsak SATSENDRING eller TEKNISK_ENDRING sender ikke vedtaksbrev. Da avslutter behandling her
             AVSLUTT_BEHANDLING -> utførSteg(behandlingId = behandling.id, AVSLUTT_BEHANDLING)
+
             else -> {} // Gjør ingenting
         }
     }

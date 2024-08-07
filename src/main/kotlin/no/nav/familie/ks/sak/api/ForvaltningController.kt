@@ -21,6 +21,7 @@ import no.nav.familie.ks.sak.config.BehandlerRolle
 import no.nav.familie.ks.sak.config.SpringProfile
 import no.nav.familie.ks.sak.integrasjon.ecb.ECBService
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
+import no.nav.familie.ks.sak.kjerne.autovedtak.AutovedtakLovendringService
 import no.nav.familie.ks.sak.kjerne.avstemming.GrensesnittavstemmingTask
 import no.nav.familie.ks.sak.kjerne.avstemming.KonsistensavstemmingKjøreplanService
 import no.nav.familie.ks.sak.kjerne.avstemming.KonsistensavstemmingTask
@@ -67,6 +68,7 @@ class ForvaltningController(
     private val barnehageListeService: BarnehageListeService,
     private val environment: Environment,
     private val ecbService: ECBService,
+    private val autovedtakLovendringService: AutovedtakLovendringService,
 ) {
     private val logger = LoggerFactory.getLogger(ForvaltningController::class.java)
 
@@ -274,5 +276,19 @@ class ForvaltningController(
             handling = "hentValutakurs",
         )
         return ResponseEntity.ok(ecbService.hentValutakurs(valuta, dato))
+    }
+
+    @PostMapping("/automatisk-revurdering-lovendring/{fagsakId}")
+    fun opprettAutomatiskLovendringRevurdering(
+        @PathVariable fagsakId: Long,
+    ): ResponseEntity<Ressurs<String>> {
+        tilgangService.validerTilgangTilHandling(
+            minimumBehandlerRolle = BehandlerRolle.FORVALTER,
+            handling = "opprette automatisk revurdering",
+        )
+
+        autovedtakLovendringService.revurderFagsak(fagsakId = fagsakId)
+
+        return ResponseEntity.ok(Ressurs.success("Automatisk revurdering opprettet"))
     }
 }
