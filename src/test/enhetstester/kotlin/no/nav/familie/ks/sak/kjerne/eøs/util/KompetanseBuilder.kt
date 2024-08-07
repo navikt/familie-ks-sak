@@ -27,18 +27,20 @@ class KompetanseBuilder(
                     )
 
                 'S' ->
-                    tomKompetanse.copy(
-                        resultat = KompetanseResultat.NORGE_ER_SEKUNDÆRLAND,
-                        annenForeldersAktivitetsland = annenForeldersAktivitetsland,
-                        erAnnenForelderOmfattetAvNorskLovgivning = erAnnenForelderOmfattetAvNorskLovgivning,
-                    ).fyllUt()
+                    tomKompetanse
+                        .copy(
+                            resultat = KompetanseResultat.NORGE_ER_SEKUNDÆRLAND,
+                            annenForeldersAktivitetsland = annenForeldersAktivitetsland,
+                            erAnnenForelderOmfattetAvNorskLovgivning = erAnnenForelderOmfattetAvNorskLovgivning,
+                        ).fyllUt()
 
                 'P' ->
-                    tomKompetanse.copy(
-                        resultat = KompetanseResultat.NORGE_ER_PRIMÆRLAND,
-                        annenForeldersAktivitetsland = annenForeldersAktivitetsland,
-                        erAnnenForelderOmfattetAvNorskLovgivning = erAnnenForelderOmfattetAvNorskLovgivning,
-                    ).fyllUt()
+                    tomKompetanse
+                        .copy(
+                            resultat = KompetanseResultat.NORGE_ER_PRIMÆRLAND,
+                            annenForeldersAktivitetsland = annenForeldersAktivitetsland,
+                            erAnnenForelderOmfattetAvNorskLovgivning = erAnnenForelderOmfattetAvNorskLovgivning,
+                        ).fyllUt()
 
                 else -> null
             }

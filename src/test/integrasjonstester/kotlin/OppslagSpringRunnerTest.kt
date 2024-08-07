@@ -232,25 +232,27 @@ abstract class OppslagSpringRunnerTest {
                 else -> ""
             }
 
-        return mockOAuth2Server.issueToken(
-            issuerId,
-            "theclientid",
-            DefaultOAuth2TokenCallback(
+        return mockOAuth2Server
+            .issueToken(
                 issuerId,
-                subject,
-                JOSEObjectType.JWT.type,
-                listOf("familie-ks-sak-test"),
-                mapOf(Pair("NAVident", "test"), Pair("groups", listOf(behandlerRolleId))),
-                3600,
-            ),
-        ).serialize()
+                "theclientid",
+                DefaultOAuth2TokenCallback(
+                    issuerId,
+                    subject,
+                    JOSEObjectType.JWT.type,
+                    listOf("familie-ks-sak-test"),
+                    mapOf(Pair("NAVident", "test"), Pair("groups", listOf(behandlerRolleId))),
+                    3600,
+                ),
+            ).serialize()
     }
 
     private fun resetWiremockServers() =
         applicationContext.getBeansOfType(WireMockServer::class.java).values.forEach(WireMockServer::resetRequests)
 
     private fun clearCaches() =
-        cacheManager.cacheNames.mapNotNull { cacheManager.getCache(it) }
+        cacheManager.cacheNames
+            .mapNotNull { cacheManager.getCache(it) }
             .forEach { it.clear() }
 
     private fun resetTableForAllEntityClass() = databaseCleanupService.truncate()

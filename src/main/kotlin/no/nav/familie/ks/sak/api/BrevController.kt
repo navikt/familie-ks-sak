@@ -60,9 +60,10 @@ class BrevController(
             handling = "hente forhåndsvisning brev",
         )
 
-        return brevService.hentForhåndsvisningAvBrev(
-            manueltBrevDto = manueltBrevDto.utvidManueltBrevDtoMedEnhetOgMottaker(behandlingId, personopplysningGrunnlagService, arbeidsfordelingService),
-        ).let { Ressurs.success(it) }
+        return brevService
+            .hentForhåndsvisningAvBrev(
+                manueltBrevDto = manueltBrevDto.utvidManueltBrevDtoMedEnhetOgMottaker(behandlingId, personopplysningGrunnlagService, arbeidsfordelingService),
+            ).let { Ressurs.success(it) }
     }
 
     @PostMapping(path = ["/fagsak/{fagsakId}/forhaandsvis-brev"])
@@ -81,9 +82,10 @@ class BrevController(
             event = AuditLoggerEvent.ACCESS,
         )
 
-        return brevService.hentForhåndsvisningAvBrev(
-            manueltBrevDto = manueltBrevDto.leggTilEnhet(arbeidsfordelingService),
-        ).let { Ressurs.success(it) }
+        return brevService
+            .hentForhåndsvisningAvBrev(
+                manueltBrevDto = manueltBrevDto.leggTilEnhet(arbeidsfordelingService),
+            ).let { Ressurs.success(it) }
     }
 
     @PostMapping(path = ["/fagsak/{fagsakId}/send-brev"])

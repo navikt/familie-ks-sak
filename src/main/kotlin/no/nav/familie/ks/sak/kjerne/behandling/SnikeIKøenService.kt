@@ -151,7 +151,9 @@ class SnikeIKøenService(
     }
 }
 
-enum class SettPåMaskinellVentÅrsak(val beskrivelse: String) {
+enum class SettPåMaskinellVentÅrsak(
+    val beskrivelse: String,
+) {
     LOVENDRING("Lovendring"),
     SATSENDRING("Satsendring"),
     MÅNEDLIG_VALUTAJUSTERING("Månedlig valutajustering"),

@@ -13,11 +13,18 @@ data class Sats(
     val gyldigTom: LocalDate = LocalDate.MAX,
 )
 
-enum class SatsType(val beskrivelse: String) {
+enum class SatsType(
+    val beskrivelse: String,
+) {
     KS("Ordinær kontantstøtte"),
 }
 
-data class SatsPeriode(val sats: Int, val fom: YearMonth, val tom: YearMonth, val prosent: BigDecimal)
+data class SatsPeriode(
+    val sats: Int,
+    val fom: YearMonth,
+    val tom: YearMonth,
+    val prosent: BigDecimal,
+)
 
 private val sats = Sats(type = SatsType.KS, beløp = 7500, gyldigFom = LocalDate.MIN, gyldigTom = LocalDate.MAX)
 
@@ -50,4 +57,10 @@ fun hentGyldigSatsFor(
 fun hentProsentForAntallTimer(antallTimer: BigDecimal?): BigDecimal =
     hentGyldigSatsFor(antallTimer, false, sats.gyldigFom.toYearMonth(), sats.gyldigTom.toYearMonth()).prosent
 
-fun Int.prosent(prosent: BigDecimal) = this.toBigDecimal().times(prosent).divide(BigDecimal(100)).setScale(0, RoundingMode.HALF_UP).toInt()
+fun Int.prosent(prosent: BigDecimal) =
+    this
+        .toBigDecimal()
+        .times(prosent)
+        .divide(BigDecimal(100))
+        .setScale(0, RoundingMode.HALF_UP)
+        .toInt()

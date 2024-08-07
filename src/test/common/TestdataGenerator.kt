@@ -723,25 +723,27 @@ fun lagPersonResultat(
 
     if (lagFullstendigVilkårResultat) {
         personResultat.setSortedVilkårResultater(
-            Vilkår.hentVilkårFor(personType).map {
-                VilkårResultat(
-                    personResultat = personResultat,
-                    periodeFom = periodeFom,
-                    periodeTom = periodeTom,
-                    vilkårType = it,
-                    resultat = resultat,
-                    begrunnelse = "",
-                    behandlingId = vilkårsvurdering.behandling.id,
-                    erEksplisittAvslagPåSøknad = erEksplisittAvslagPåSøknad,
-                    utdypendeVilkårsvurderinger =
-                        listOfNotNull(
-                            when {
-                                erDeltBosted && it == Vilkår.BOR_MED_SØKER -> UtdypendeVilkårsvurdering.DELT_BOSTED
-                                else -> null
-                            },
-                        ),
-                )
-            }.toSet(),
+            Vilkår
+                .hentVilkårFor(personType)
+                .map {
+                    VilkårResultat(
+                        personResultat = personResultat,
+                        periodeFom = periodeFom,
+                        periodeTom = periodeTom,
+                        vilkårType = it,
+                        resultat = resultat,
+                        begrunnelse = "",
+                        behandlingId = vilkårsvurdering.behandling.id,
+                        erEksplisittAvslagPåSøknad = erEksplisittAvslagPåSøknad,
+                        utdypendeVilkårsvurderinger =
+                            listOfNotNull(
+                                when {
+                                    erDeltBosted && it == Vilkår.BOR_MED_SØKER -> UtdypendeVilkårsvurdering.DELT_BOSTED
+                                    else -> null
+                                },
+                            ),
+                    )
+                }.toSet(),
         )
     } else {
         personResultat.setSortedVilkårResultater(
@@ -941,37 +943,40 @@ fun lagVilkårsvurderingOppfylt(
         )
 
     val personResultater =
-        personer.map { person ->
-            val personResultat =
-                PersonResultat(
-                    vilkårsvurdering = vilkårsvurdering,
-                    aktør = person.aktør,
-                )
-
-            personResultat.setSortedVilkårResultater(
-                Vilkår.hentVilkårFor(person.type, skalOppretteEøsSpesifikkeVilkår).map {
-                    VilkårResultat(
-                        personResultat = personResultat,
-                        periodeFom =
-                            if (person.type == PersonType.SØKER) {
-                                person.fødselsdato
-                            } else {
-                                person.fødselsdato.plusYears(
-                                    1,
-                                )
-                            },
-                        periodeTom = if (person.type == PersonType.SØKER) null else person.fødselsdato.plusYears(2),
-                        vilkårType = it,
-                        resultat = Resultat.OPPFYLT,
-                        begrunnelse = "",
-                        behandlingId = vilkårsvurdering.behandling.id,
-                        utdypendeVilkårsvurderinger = emptyList(),
-                        erEksplisittAvslagPåSøknad = erEksplisittAvslagPåSøknad,
+        personer
+            .map { person ->
+                val personResultat =
+                    PersonResultat(
+                        vilkårsvurdering = vilkårsvurdering,
+                        aktør = person.aktør,
                     )
-                }.toSet(),
-            )
-            personResultat
-        }.toSet()
+
+                personResultat.setSortedVilkårResultater(
+                    Vilkår
+                        .hentVilkårFor(person.type, skalOppretteEøsSpesifikkeVilkår)
+                        .map {
+                            VilkårResultat(
+                                personResultat = personResultat,
+                                periodeFom =
+                                    if (person.type == PersonType.SØKER) {
+                                        person.fødselsdato
+                                    } else {
+                                        person.fødselsdato.plusYears(
+                                            1,
+                                        )
+                                    },
+                                periodeTom = if (person.type == PersonType.SØKER) null else person.fødselsdato.plusYears(2),
+                                vilkårType = it,
+                                resultat = Resultat.OPPFYLT,
+                                begrunnelse = "",
+                                behandlingId = vilkårsvurdering.behandling.id,
+                                utdypendeVilkårsvurderinger = emptyList(),
+                                erEksplisittAvslagPåSøknad = erEksplisittAvslagPåSøknad,
+                            )
+                        }.toSet(),
+                )
+                personResultat
+            }.toSet()
 
     vilkårsvurdering.personResultater = personResultater
 
@@ -1059,8 +1064,8 @@ fun lagAndelTilkjentYtelse(
     differanseberegnetPeriodebeløp: Int? = null,
     id: Long = 0,
     sats: Int = 7500,
-): AndelTilkjentYtelse {
-    return AndelTilkjentYtelse(
+): AndelTilkjentYtelse =
+    AndelTilkjentYtelse(
         id = id,
         aktør = aktør,
         behandlingId = behandling.id,
@@ -1077,19 +1082,17 @@ fun lagAndelTilkjentYtelse(
         kildeBehandlingId = kildeBehandlingId,
         differanseberegnetPeriodebeløp = differanseberegnetPeriodebeløp,
     )
-}
 
 fun lagInitiellTilkjentYtelse(
     behandling: Behandling = lagBehandling(),
     utbetalingsoppdrag: String? = null,
-): TilkjentYtelse {
-    return TilkjentYtelse(
+): TilkjentYtelse =
+    TilkjentYtelse(
         behandling = behandling,
         opprettetDato = LocalDate.now(),
         endretDato = LocalDate.now(),
         utbetalingsoppdrag = utbetalingsoppdrag,
     )
-}
 
 fun lagTestPersonopplysningGrunnlag(
     behandlingId: Long,

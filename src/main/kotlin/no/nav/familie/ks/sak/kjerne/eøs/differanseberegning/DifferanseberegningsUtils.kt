@@ -30,7 +30,8 @@ fun AndelTilkjentYtelse.medDifferanseberegning(
 ): AndelTilkjentYtelse {
     val avrundetUtenlandskPeriodebeløp =
         utenlandskPeriodebeløpINorskeKroner
-            .toBigInteger().intValueExact() // Fjern desimaler for å gi fordel til søker
+            .toBigInteger()
+            .intValueExact() // Fjern desimaler for å gi fordel til søker
 
     val nyttDifferanseberegnetBeløp =
         (
@@ -45,10 +46,9 @@ fun AndelTilkjentYtelse.medDifferanseberegning(
     )
 }
 
-private fun AndelTilkjentYtelse.utenDifferanseberegning(): AndelTilkjentYtelse {
-    return copy(
+private fun AndelTilkjentYtelse.utenDifferanseberegning(): AndelTilkjentYtelse =
+    copy(
         id = 0,
         kalkulertUtbetalingsbeløp = nasjonaltPeriodebeløp ?: this.kalkulertUtbetalingsbeløp,
         differanseberegnetPeriodebeløp = null,
     )
-}

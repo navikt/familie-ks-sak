@@ -16,8 +16,8 @@ import no.nav.familie.ks.sak.kjerne.beregning.domene.hentProsentForAntallTimer
 import java.math.BigDecimal
 import java.time.LocalDate
 
-fun List<VilkårResultat>.forskyvBarnehageplassVilkår2024(): List<Periode<VilkårResultat>> {
-    return tilBarnehageplassVilkårMedGraderingsforskjellMellomPerioder2024()
+fun List<VilkårResultat>.forskyvBarnehageplassVilkår2024(): List<Periode<VilkårResultat>> =
+    tilBarnehageplassVilkårMedGraderingsforskjellMellomPerioder2024()
         .map {
             Periode(
                 verdi = it.vilkårResultat,
@@ -30,7 +30,6 @@ fun List<VilkårResultat>.forskyvBarnehageplassVilkår2024(): List<Periode<Vilk�
             )
         }.filter { (it.fom ?: TIDENES_MORGEN).isBefore(it.tom ?: TIDENES_ENDE) }
         .filtrerBortOverlappendePerioderMedMaksGradering()
-}
 
 fun LocalDate?.tilForskjøvetTomMånedForSisteUtbetalingsperiodePgaFremtidigOpphør2024() = this?.tilForskøvetTomBasertPåGraderingsforskjell2024(Graderingsforskjell.Reduksjon)?.toYearMonth()
 

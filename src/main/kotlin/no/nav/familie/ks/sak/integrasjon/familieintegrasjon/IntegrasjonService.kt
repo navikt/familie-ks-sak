@@ -9,10 +9,11 @@ import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import org.springframework.stereotype.Service
 
 @Service
-class IntegrasjonService(private val integrasjonClient: IntegrasjonClient, private val pdlClient: PdlClient) {
-    fun sjekkTilgangTilPerson(personIdent: String): Tilgang {
-        return sjekkTilgangTilPersoner(listOf(personIdent)).values.single()
-    }
+class IntegrasjonService(
+    private val integrasjonClient: IntegrasjonClient,
+    private val pdlClient: PdlClient,
+) {
+    fun sjekkTilgangTilPerson(personIdent: String): Tilgang = sjekkTilgangTilPersoner(listOf(personIdent)).values.single()
 
     fun sjekkTilgangTilPersoner(personIdenter: List<String>): Map<String, Tilgang> =
         integrasjonClient.sjekkTilgangTilPersoner(personIdenter).associateBy { it.personIdent }

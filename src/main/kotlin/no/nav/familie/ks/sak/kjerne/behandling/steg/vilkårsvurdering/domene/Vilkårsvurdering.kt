@@ -42,8 +42,9 @@ data class Vilkårsvurdering(
         personResultater.find { it.aktør.aktørId == aktørId }?.vilkårResultater?.toList()
             ?: throw IllegalStateException("Fant ikke personresultat for $aktørId")
 
-    fun finnOpplysningspliktVilkår(): AnnenVurdering? {
-        return personResultater.single { it.erSøkersResultater() }
-            .andreVurderinger.singleOrNull { it.type == AnnenVurderingType.OPPLYSNINGSPLIKT }
-    }
+    fun finnOpplysningspliktVilkår(): AnnenVurdering? =
+        personResultater
+            .single { it.erSøkersResultater() }
+            .andreVurderinger
+            .singleOrNull { it.type == AnnenVurderingType.OPPLYSNINGSPLIKT }
 }

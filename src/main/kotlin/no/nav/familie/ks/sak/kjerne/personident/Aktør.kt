@@ -38,9 +38,7 @@ data class Aktør(
         }
     }
 
-    override fun toString(): String {
-        return """aktørId=$aktørId""".trimMargin()
-    }
+    override fun toString(): String = """aktørId=$aktørId""".trimMargin()
 
     override fun equals(other: Any?): Boolean {
         if (other == null || javaClass != other.javaClass) {
@@ -50,9 +48,7 @@ data class Aktør(
         return aktørId == otherAktør.aktørId
     }
 
-    override fun hashCode(): Int {
-        return Objects.hash(aktørId)
-    }
+    override fun hashCode(): Int = Objects.hash(aktørId)
 
     fun aktivFødselsnummer() = personidenter.single { it.aktiv }.fødselsnummer
 
@@ -60,6 +56,8 @@ data class Aktør(
 
     companion object {
         private const val VALID_REGEXP = "^\\d{13}$"
-        private val VALID = java.util.regex.Pattern.compile(VALID_REGEXP)
+        private val VALID =
+            java.util.regex.Pattern
+                .compile(VALID_REGEXP)
     }
 }

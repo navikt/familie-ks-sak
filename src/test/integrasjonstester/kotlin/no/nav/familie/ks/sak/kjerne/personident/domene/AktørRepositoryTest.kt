@@ -39,7 +39,5 @@ class AktørRepositoryTest : OppslagSpringRunnerTest() {
         assertNull(hentetAktør)
     }
 
-    private fun opprettAktør(): Aktør {
-        return aktørRepository.saveAndFlush(randomAktør())
-    }
+    private fun opprettAktør(): Aktør = aktørRepository.saveAndFlush(randomAktør())
 }
