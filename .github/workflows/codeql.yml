@@ -59,14 +59,14 @@ jobs:
         # queries: security-extended,security-and-quality
 
 
-    - uses: gradle/actions/wrapper-validation@v3
+    - uses: gradle/actions/wrapper-validation@v4
     - uses: actions/setup-java@v4
       with:
         java-version: "21"
         distribution: 'temurin'
 
     - name: Setup Gradle
-      uses: gradle/actions/setup-gradle@v3
+      uses: gradle/actions/setup-gradle@v4
 
     - name: Bygg med gradle
       env:
