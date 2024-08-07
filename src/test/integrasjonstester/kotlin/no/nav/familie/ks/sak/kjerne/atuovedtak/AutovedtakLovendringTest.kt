@@ -38,6 +38,8 @@ import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonRepository
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
+import no.nav.familie.ks.sak.kjerne.totrinnskontroll.TotrinnskontrollService
+import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext
 import no.nav.familie.ks.sak.statistikk.saksstatistikk.SakStatistikkService
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
@@ -53,6 +55,7 @@ class AutovedtakLovendringTest(
     @Autowired private val personRepository: PersonRepository,
     @Autowired private val vilkårsvurderingRepository: VilkårsvurderingRepository,
     @Autowired private val behandlingRepository: BehandlingRepository,
+    @Autowired private val totrinnskontrollService: TotrinnskontrollService,
 ) : OppslagSpringRunnerTest() {
     @MockkBean
     private lateinit var brevklient: BrevKlient
@@ -135,6 +138,8 @@ class AutovedtakLovendringTest(
         val andelTilkjentYtelseNy = andelTilkjentYtelseRepository.finnAndelerTilkjentYtelseForBehandling(nyBehandling.id).single()
         assertThat(andelTilkjentYtelseNy.stønadFom).isEqualTo(fødselsdatoBarn.plusYears(1).plusMonths(1).toYearMonth())
         assertThat(andelTilkjentYtelseNy.stønadTom).isEqualTo(fødselsdatoBarn.plusYears(1).plusMonths(7).toYearMonth()) // 7 måneder som i nytt regelverk
+
+        assertTotrinnskontroll(nyBehandling)
     }
 
     @Test
@@ -175,6 +180,8 @@ class AutovedtakLovendringTest(
         val andelTilkjentYtelseNy = andelTilkjentYtelseRepository.finnAndelerTilkjentYtelseForBehandling(nyBehandling.id).single()
         assertThat(andelTilkjentYtelseNy.stønadFom).isEqualTo(stønadFom)
         assertThat(andelTilkjentYtelseNy.stønadTom).isEqualTo(stønadTom)
+
+        assertTotrinnskontroll(nyBehandling)
     }
 
     @Test
@@ -233,6 +240,8 @@ class AutovedtakLovendringTest(
 
         verify { simuleringService.oppdaterSimuleringPåBehandling(any<Long>()) }
         verify { brevklient.genererBrev(any(), any()) }
+
+        assertTotrinnskontroll(nyBehandling)
     }
 
     @Test
@@ -282,6 +291,8 @@ class AutovedtakLovendringTest(
 
         val behandlingSomBlirSneketForbi = behandlingRepository.hentBehandling(behandling.id)
         assertThat(behandlingSomBlirSneketForbi.status).isEqualTo(BehandlingStatus.SATT_PÅ_MASKINELL_VENT)
+
+        assertTotrinnskontroll(nyBehandling)
     }
 
     // trengs for at validering på at behandling som skal snikes forbi ikke er endret siste 4 timer skal passere
@@ -392,5 +403,12 @@ class AutovedtakLovendringTest(
         barnetsAlderVilkår.periodeTom = fødselsdatoBarn.plusYears(2).minusMonths(1)
 
         return mutableSetOf(barnetsPersonResultat, søkersPersonResultat)
+    }
+
+    private fun assertTotrinnskontroll(nyBehandling: Behandling) {
+        val totrinnskontroll = totrinnskontrollService.finnAktivForBehandling(nyBehandling.id)
+        assertThat(totrinnskontroll).isNotNull
+        assertThat(totrinnskontroll!!.godkjent).isTrue()
+        assertThat(totrinnskontroll.saksbehandler).isEqualTo(SikkerhetContext.SYSTEM_NAVN)
     }
 }
