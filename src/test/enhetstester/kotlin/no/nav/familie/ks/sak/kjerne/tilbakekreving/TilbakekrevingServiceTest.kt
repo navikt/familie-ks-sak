@@ -429,12 +429,11 @@ internal class TilbakekrevingServiceTest {
     }
 
     private class TestProvider : ArgumentsProvider {
-        override fun provideArguments(context: ExtensionContext?): Stream<out Arguments> {
-            return Stream.of(
+        override fun provideArguments(context: ExtensionContext?): Stream<out Arguments> =
+            Stream.of(
                 Arguments.of(Pair(MottakerType.FULLMEKTIG, Vergetype.ANNEN_FULLMEKTIG)),
                 Arguments.of(Pair(MottakerType.VERGE, Vergetype.VERGE_FOR_VOKSEN)),
                 Arguments.of(Pair(MottakerType.BRUKER_MED_UTENLANDSK_ADRESSE, null)),
             )
-        }
     }
 }

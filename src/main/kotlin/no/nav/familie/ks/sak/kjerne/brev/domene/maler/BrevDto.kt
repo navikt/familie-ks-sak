@@ -52,7 +52,11 @@ typealias Flettefelt = List<String>?
  * Se https://github.com/navikt/familie/blob/master/doc/ba-sak/legg-til-nytt-brev.md
  * for detaljer om alt som skal inn når du legger til en ny brevmal.
  ***/
-enum class Brevmal(val erVedtaksbrev: Boolean, val apiNavn: String, val visningsTekst: String) {
+enum class Brevmal(
+    val erVedtaksbrev: Boolean,
+    val apiNavn: String,
+    val visningsTekst: String,
+) {
     @Deprecated("Manuelt brev som skal sendes en gang til de som er påvirket av lovendring med søknadsdato før feb 2024, vedtatt etter feb 2024, og ATY etter juli 2024.")
     INFORMASJONSBREV_LOVENDRING_JULI_2024(false, "informasjonOmOvergangsordningForKontantstotte", "Kontantstøtte – overgangsordning"),
     INFORMASJONSBREV_DELT_BOSTED(false, "informasjonsbrevDeltBosted", "Informasjonsbrev delt bosted"),

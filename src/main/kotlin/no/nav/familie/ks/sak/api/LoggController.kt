@@ -19,7 +19,10 @@ import org.springframework.web.bind.annotation.RestController
 @RequestMapping("/api/logg")
 @ProtectedWithClaims(issuer = "azuread")
 @Validated
-class LoggController(private val loggService: LoggService, private val tilgangService: TilgangService) {
+class LoggController(
+    private val loggService: LoggService,
+    private val tilgangService: TilgangService,
+) {
     @GetMapping(path = ["/{behandlingId}"])
     fun hentLoggForBehandling(
         @PathVariable
@@ -32,7 +35,8 @@ class LoggController(private val loggService: LoggService, private val tilgangSe
             handling = "Hent logg",
         )
 
-        return Result.runCatching { loggService.hentLoggForBehandling(behandlingId) }
+        return Result
+            .runCatching { loggService.hentLoggForBehandling(behandlingId) }
             .fold(
                 onSuccess = { ResponseEntity.ok(Ressurs.success(it)) },
                 onFailure = { badRequest("Henting av logg feilet", it) },

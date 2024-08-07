@@ -748,13 +748,14 @@ class BegrunnelserForPeriodeContextTest {
         fom: LocalDate,
         tom: LocalDate,
     ): MutableSet<VilkårResultat> =
-        vilkårTyper.map {
-            lagVilkårResultat(
-                vilkårType = it,
-                periodeFom = fom,
-                periodeTom = tom,
-            )
-        }.toMutableSet()
+        vilkårTyper
+            .map {
+                lagVilkårResultat(
+                    vilkårType = it,
+                    periodeFom = fom,
+                    periodeTom = tom,
+                )
+            }.toMutableSet()
 
     private fun lagFinnGyldigeBegrunnelserForPeriodeContext(
         personResultater: List<PersonResultat>,
@@ -764,8 +765,12 @@ class BegrunnelserForPeriodeContextTest {
     ): BegrunnelserForPeriodeContext {
         // Må forskyve personresultatene for å finne riktig dato for vedtaksperiode.
         val vedtaksperiodeStartsTidpunkt =
-            personResultater.tilForskjøvetOppfylteVilkårResultatTidslinjeMap(persongrunnlag)
-                .filterKeys { it.aktørId == aktørSomTriggerVedtaksperiode.aktørId }.values.first().startsTidspunkt
+            personResultater
+                .tilForskjøvetOppfylteVilkårResultatTidslinjeMap(persongrunnlag)
+                .filterKeys { it.aktørId == aktørSomTriggerVedtaksperiode.aktørId }
+                .values
+                .first()
+                .startsTidspunkt
 
         val utvidetVedtaksperiodeMedBegrunnelser =
             UtvidetVedtaksperiodeMedBegrunnelser(

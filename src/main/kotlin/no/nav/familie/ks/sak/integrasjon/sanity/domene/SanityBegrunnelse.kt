@@ -123,8 +123,8 @@ data class SanityBegrunnelseDto(
     val hjemlerEOSForordningen987: List<String> = emptyList(),
     val hjemlerSeperasjonsavtalenStorbritannina: List<String> = emptyList(),
 ) {
-    fun tilSanityBegrunnelse(): SanityBegrunnelse {
-        return SanityBegrunnelse(
+    fun tilSanityBegrunnelse(): SanityBegrunnelse =
+        SanityBegrunnelse(
             apiNavn = apiNavn,
             navnISystem = navnISystem,
             resultat = resultat,
@@ -159,7 +159,6 @@ data class SanityBegrunnelseDto(
             hjemlerEØSForordningen987 = hjemlerEOSForordningen987,
             hjemlerSeperasjonsavtalenStorbritannina = hjemlerSeperasjonsavtalenStorbritannina,
         )
-    }
 }
 
 private val logger: Logger = LoggerFactory.getLogger(SanityBegrunnelseDto::class.java)

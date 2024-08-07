@@ -107,7 +107,9 @@ class TilbakekrevingService(
                         ),
                     // for ks vil fagsystem alltid være KONT,
                     fagsystem = Fagsystem.KONT,
-                    eksternFagsakId = vedtak.behandling.fagsak.id.toString(),
+                    eksternFagsakId =
+                        vedtak.behandling.fagsak.id
+                            .toString(),
                     ident = søker.aktør.aktivFødselsnummer(),
                     saksbehandlerIdent = SikkerhetContext.hentSaksbehandlerNavn(),
                     // TODO kommer når verge er implementert
@@ -169,26 +171,28 @@ class TilbakekrevingService(
                 ?: throw Feil("Fant ikke tilbakekreving på behandling ${behandling.id}")
 
         val manuelleBrevMottakere =
-            brevmottakerRepository.finnBrevMottakereForBehandling(behandling.id).map { mottaker ->
-                Brevmottaker(
-                    type = MottakerType.valueOf(mottaker.type.name),
-                    vergetype =
-                        when (mottaker.type) {
-                            FULLMEKTIG -> Vergetype.ANNEN_FULLMEKTIG
-                            VERGE -> Vergetype.VERGE_FOR_VOKSEN
-                            else -> null
-                        },
-                    navn = mottaker.navn,
-                    manuellAdresseInfo =
-                        ManuellAdresseInfo(
-                            adresselinje1 = mottaker.adresselinje1,
-                            adresselinje2 = mottaker.adresselinje2,
-                            postnummer = mottaker.postnummer,
-                            poststed = mottaker.poststed,
-                            landkode = mottaker.landkode,
-                        ),
-                )
-            }.toSet()
+            brevmottakerRepository
+                .finnBrevMottakereForBehandling(behandling.id)
+                .map { mottaker ->
+                    Brevmottaker(
+                        type = MottakerType.valueOf(mottaker.type.name),
+                        vergetype =
+                            when (mottaker.type) {
+                                FULLMEKTIG -> Vergetype.ANNEN_FULLMEKTIG
+                                VERGE -> Vergetype.VERGE_FOR_VOKSEN
+                                else -> null
+                            },
+                        navn = mottaker.navn,
+                        manuellAdresseInfo =
+                            ManuellAdresseInfo(
+                                adresselinje1 = mottaker.adresselinje1,
+                                adresselinje2 = mottaker.adresselinje2,
+                                postnummer = mottaker.postnummer,
+                                poststed = mottaker.poststed,
+                                landkode = mottaker.landkode,
+                            ),
+                    )
+                }.toSet()
 
         return OpprettTilbakekrevingRequest(
             fagsystem = Fagsystem.KONT,

@@ -46,15 +46,15 @@ class IBegrunnelseDeserializer : StdDeserializer<List<IBegrunnelse>>(List::class
 }
 
 @Converter
-class IBegrunnelseListConverter :
-    AttributeConverter<List<IBegrunnelse>, String> {
+class IBegrunnelseListConverter : AttributeConverter<List<IBegrunnelse>, String> {
     override fun convertToDatabaseColumn(begrunnelser: List<IBegrunnelse>) = begrunnelser.joinToString(";") { it.enumnavnTilString() }
 
     override fun convertToEntityAttribute(string: String?): List<IBegrunnelse> =
         if (string.isNullOrBlank()) {
             emptyList()
         } else {
-            string.split(";")
+            string
+                .split(";")
                 .map { IBegrunnelse.konverterTilEnumVerdi(it) }
         }
 }

@@ -200,15 +200,14 @@ class OppgaveService(
     private fun lagOppgaveTekst(
         fagsakId: Long,
         beskrivelse: String? = null,
-    ): String {
-        return beskrivelse?.let { it + "\n" }
+    ): String =
+        beskrivelse?.let { it + "\n" }
             ?: (
                 "----- Opprettet av familie-ks-sak ${
                     LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME)
                 } --- \n" +
                     "https://ks.intern.nav.no/fagsak/$fagsakId"
             )
-    }
 
     companion object {
         private val logger = LoggerFactory.getLogger(OppgaveService::class.java)

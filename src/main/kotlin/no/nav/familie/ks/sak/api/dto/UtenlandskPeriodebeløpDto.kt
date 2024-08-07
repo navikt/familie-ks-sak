@@ -19,15 +19,14 @@ data class UtenlandskPeriodebeløpDto(
     val kalkulertMånedligBeløp: BigDecimal?,
     override val status: UtfyltStatus = UtfyltStatus.IKKE_UTFYLT,
 ) : AbstractEøsSkjemaUtfyltStatus<UtenlandskPeriodebeløpDto>() {
-    override fun medUtfyltStatus(): UtenlandskPeriodebeløpDto {
-        return this.copy(
+    override fun medUtfyltStatus(): UtenlandskPeriodebeløpDto =
+        this.copy(
             status =
                 utfyltStatus(
                     finnAntallUtfylt(listOf(this.beløp, this.valutakode, this.intervall)),
                     3,
                 ),
         )
-    }
 }
 
 fun UtenlandskPeriodebeløpDto.tilUtenlandskPeriodebeløp(

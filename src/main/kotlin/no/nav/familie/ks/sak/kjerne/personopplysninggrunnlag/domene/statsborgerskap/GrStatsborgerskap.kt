@@ -58,9 +58,7 @@ data class GrStatsborgerskap(
         return true
     }
 
-    override fun hashCode(): Int {
-        return 31 * gyldigPeriode.hashCode() + landkode.hashCode()
-    }
+    override fun hashCode(): Int = 31 * gyldigPeriode.hashCode() + landkode.hashCode()
 
     companion object {
         fun fraStatsborgerskap(

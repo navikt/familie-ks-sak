@@ -49,7 +49,7 @@ dependencies {
     val sentryVersion = "7.12.1"
     val navFellesVersion = "3.20240715145751_fc025c1"
     val eksterneKontrakterBisysVersion = "2.0_20230214104704_706e9c0"
-    val fellesKontrakterVersion = "3.0_20240731134554_8101d8c"
+    val fellesKontrakterVersion = "3.0_20240801145104_f611578"
     val familieKontrakterSaksstatistikkVersion = "2.0_20230214104704_706e9c0"
     val familieKontrakterStønadsstatistikkKsVersion = "2.0_20240806120744_a042aa1"
     val tokenValidationSpringVersion = "5.0.1"
@@ -130,7 +130,7 @@ dependencies {
     implementation("com.neovisionaries:nv-i18n:1.29")
     implementation("com.github.jsqlparser:jsqlparser:4.9")
 
-    ktlint("com.pinterest.ktlint:ktlint-cli:1.2.1") {
+    ktlint("com.pinterest.ktlint:ktlint-cli:1.3.1") {
         attributes {
             attribute(Bundling.BUNDLING_ATTRIBUTE, objects.named(Bundling.EXTERNAL))
         }

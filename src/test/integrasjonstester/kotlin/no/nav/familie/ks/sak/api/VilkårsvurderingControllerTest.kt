@@ -87,8 +87,12 @@ class VilkårsvurderingControllerTest : OppslagSpringRunnerTest() {
     @Test
     fun `endreVilkår - skal returnere endrede vilkår`() {
         val bosattIRiketVilkår =
-            vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(behandling.id)
-                .personResultater.find { it.aktør == søker }?.vilkårResultater?.find { it.vilkårType == Vilkår.BOSATT_I_RIKET }!!
+            vilkårsvurderingService
+                .hentAktivVilkårsvurderingForBehandling(behandling.id)
+                .personResultater
+                .find { it.aktør == søker }
+                ?.vilkårResultater
+                ?.find { it.vilkårType == Vilkår.BOSATT_I_RIKET }!!
 
         assertThat(bosattIRiketVilkår.periodeFom, Is(nullValue()))
 
@@ -154,9 +158,13 @@ class VilkårsvurderingControllerTest : OppslagSpringRunnerTest() {
         lagVedtakOgVedtaksperiode()
 
         val bosattIRiketVilkår =
-            vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(behandling.id).personResultater.find {
-                it.aktør == søker
-            }?.vilkårResultater?.find { it.vilkårType == Vilkår.BOSATT_I_RIKET }!!
+            vilkårsvurderingService
+                .hentAktivVilkårsvurderingForBehandling(behandling.id)
+                .personResultater
+                .find {
+                    it.aktør == søker
+                }?.vilkårResultater
+                ?.find { it.vilkårType == Vilkår.BOSATT_I_RIKET }!!
 
         assertThat(bosattIRiketVilkår.periodeFom, Is(nullValue()))
 
@@ -354,8 +362,12 @@ class VilkårsvurderingControllerTest : OppslagSpringRunnerTest() {
     @Test
     fun `slettVilkår - skal lage nytt initiell vilkår av samme type dersom det bare finnes en ved sletting`() {
         val bosattIRiketVilkår =
-            vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(behandling.id)
-                .personResultater.find { it.aktør == søker }?.vilkårResultater?.find { it.vilkårType == Vilkår.BOSATT_I_RIKET }!!
+            vilkårsvurderingService
+                .hentAktivVilkårsvurderingForBehandling(behandling.id)
+                .personResultater
+                .find { it.aktør == søker }
+                ?.vilkårResultater
+                ?.find { it.vilkårType == Vilkår.BOSATT_I_RIKET }!!
 
         val gammelVilkårId = bosattIRiketVilkår.id
 
@@ -408,8 +420,10 @@ class VilkårsvurderingControllerTest : OppslagSpringRunnerTest() {
     fun `endreAnnenVurdering - skal oppdatere eksisterende annen vurdering`() {
         val token = lokalTestToken(behandlerRolle = BehandlerRolle.SAKSBEHANDLER)
         val personResultat =
-            vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(behandling.id)
-                .personResultater.find { it.aktør == søker }
+            vilkårsvurderingService
+                .hentAktivVilkårsvurderingForBehandling(behandling.id)
+                .personResultater
+                .find { it.aktør == søker }
         val annenVurdering =
             annenVurderingRepository.saveAndFlush(
                 AnnenVurdering(

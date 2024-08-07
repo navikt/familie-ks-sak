@@ -35,7 +35,8 @@ class RefusjonEøsServiceTest(
 
         val id = refusjonEøsService.leggTilRefusjonEøsPeriode(refusjonEøs = refusjonEøs, behandlingId = behandling.id)
 
-        refusjonEøsService.hentRefusjonEøsPerioder(behandlingId = behandling.id)
+        refusjonEøsService
+            .hentRefusjonEøsPerioder(behandlingId = behandling.id)
             .also { Assertions.assertThat(it[0].id).isEqualTo(id) }
             .also { Assertions.assertThat(it[0].fom).isEqualTo("2020-01-01") }
             .also { Assertions.assertThat(it[0].tom).isEqualTo("2021-05-31") }
@@ -53,7 +54,8 @@ class RefusjonEøsServiceTest(
             id = id,
         )
 
-        refusjonEøsService.hentRefusjonEøsPerioder(behandlingId = behandling.id)
+        refusjonEøsService
+            .hentRefusjonEøsPerioder(behandlingId = behandling.id)
             .also { Assertions.assertThat(it[0].id).isEqualTo(id) }
             .also { Assertions.assertThat(it[0].tom).isEqualTo("2020-05-31") }
             .also { Assertions.assertThat(it[0].refusjonsbeløp).isEqualTo(1) }
@@ -72,13 +74,15 @@ class RefusjonEøsServiceTest(
 
         val id2 = refusjonEøsService.leggTilRefusjonEøsPeriode(refusjonEøs = refusjonEøs2, behandlingId = behandling.id)
 
-        refusjonEøsService.hentRefusjonEøsPerioder(behandlingId = behandling.id)
+        refusjonEøsService
+            .hentRefusjonEøsPerioder(behandlingId = behandling.id)
             .also { Assertions.assertThat(it.size).isEqualTo(2) }
             .also { Assertions.assertThat(it[0].id).isEqualTo(id2) }
 
         refusjonEøsService.fjernRefusjonEøsPeriode(id = id, behandlingId = behandling.id)
 
-        refusjonEøsService.hentRefusjonEøsPerioder(behandlingId = behandling.id)
+        refusjonEøsService
+            .hentRefusjonEøsPerioder(behandlingId = behandling.id)
             .also { Assertions.assertThat(it.size).isEqualTo(1) }
             .also { Assertions.assertThat(it[0].id).isEqualTo(id2) }
     }

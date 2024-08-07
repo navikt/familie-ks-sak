@@ -15,7 +15,9 @@ import java.time.LocalDate
     beskrivelse = "Opprett oppgave i GOSYS for behandling",
     maxAntallFeil = 3,
 )
-class OpprettOppgaveTask(private val oppgaveService: OppgaveService) : AsyncTaskStep {
+class OpprettOppgaveTask(
+    private val oppgaveService: OppgaveService,
+) : AsyncTaskStep {
     override fun doTask(task: Task) {
         val opprettOppgaveTaskDTO = objectMapper.readValue(task.payload, OpprettOppgaveTaskDTO::class.java)
         task.metadata["oppgaveId"] =
@@ -37,8 +39,8 @@ class OpprettOppgaveTask(private val oppgaveService: OppgaveService) : AsyncTask
             fristForFerdigstillelse: LocalDate,
             tilordnetRessurs: String? = null,
             beskrivelse: String? = null,
-        ): Task {
-            return Task(
+        ): Task =
+            Task(
                 type = TASK_STEP_TYPE,
                 payload =
                     objectMapper.writeValueAsString(
@@ -51,6 +53,5 @@ class OpprettOppgaveTask(private val oppgaveService: OppgaveService) : AsyncTask
                         ),
                     ),
             )
-        }
     }
 }

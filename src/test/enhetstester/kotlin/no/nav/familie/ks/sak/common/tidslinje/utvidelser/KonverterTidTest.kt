@@ -199,7 +199,15 @@ class KonverterTidTest {
         val tidslinje = Tidslinje(dato1Start, tmp)
 
         val tidslinjeMåned =
-            tidslinje.konverterTilMåned { _, it -> Verdi(it.last().map { it.periodeVerdi.verdi!! }.toList().average()) }
+            tidslinje.konverterTilMåned { _, it ->
+                Verdi(
+                    it
+                        .last()
+                        .map { it.periodeVerdi.verdi!! }
+                        .toList()
+                        .average(),
+                )
+            }
         val correct: List<Double> = listOf(1.5, 3.0, 3.5, 4.0, 5.0)
 
         Assertions.assertEquals(correct, tidslinjeMåned.innhold.map { it.periodeVerdi.verdi }.toList())
@@ -306,8 +314,16 @@ class KonverterTidTest {
             )
 
         val tidslinjeMåned =
-            test.konverterTilMåned { _, it -> Verdi(it.last().map { it.periodeVerdi.verdi!! }.toList().average()) }
-                .høyreShift()
+            test
+                .konverterTilMåned { _, it ->
+                    Verdi(
+                        it
+                            .last()
+                            .map { it.periodeVerdi.verdi!! }
+                            .toList()
+                            .average(),
+                    )
+                }.høyreShift()
         val correct = listOf(16.0, 14.5, 16.0)
 
         Assertions.assertEquals(correct, tidslinjeMåned.innhold.map { it.periodeVerdi.verdi }.toList())

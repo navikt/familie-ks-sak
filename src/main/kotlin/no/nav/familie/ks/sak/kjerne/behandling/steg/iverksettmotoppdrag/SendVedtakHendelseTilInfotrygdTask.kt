@@ -46,8 +46,12 @@ class SendVedtakHendelseTilInfotrygdTask(
         return when {
             andelerMedEndringer.isNotEmpty() -> {
                 val førsteUtbetalingsperiode =
-                    andelerMedEndringer.lagVertikalePerioder().tilPerioder().filtrerIkkeNull()
-                        .sortedWith(compareBy({ it.fom }, { it.tom })).first()
+                    andelerMedEndringer
+                        .lagVertikalePerioder()
+                        .tilPerioder()
+                        .filtrerIkkeNull()
+                        .sortedWith(compareBy({ it.fom }, { it.tom }))
+                        .first()
                 checkNotNull(førsteUtbetalingsperiode.fom)
             }
             else -> {
@@ -76,5 +80,8 @@ class SendVedtakHendelseTilInfotrygdTask(
         }
     }
 
-    data class VedtakHendelseDto(val fnrStoenadsmottaker: String, val behandlingId: Long)
+    data class VedtakHendelseDto(
+        val fnrStoenadsmottaker: String,
+        val behandlingId: Long,
+    )
 }

@@ -22,7 +22,12 @@ class BarnetsAlderVilkårValidator2024 {
             perioder.map {
                 when {
                     it.verdi.erAdopsjonOppfylt() &&
-                        it.tom.isAfter(barn.fødselsdato.plusYears(6).withMonth(Month.AUGUST.value).sisteDagIMåned()) ->
+                        it.tom.isAfter(
+                            barn.fødselsdato
+                                .plusYears(6)
+                                .withMonth(Month.AUGUST.value)
+                                .sisteDagIMåned(),
+                        ) ->
                         "Du kan ikke sette en t.o.m dato på barnets alder vilkåret som er etter august året barnet fyller 6 år."
 
                     it.verdi.erAdopsjonOppfylt() && it.fom.plusMonths(7) < it.tom ->

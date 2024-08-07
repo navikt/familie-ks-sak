@@ -34,9 +34,7 @@ data class PersonopplysningGrunnlag(
     @Column(name = "aktiv", nullable = false)
     var aktiv: Boolean = true,
 ) : BaseEntitet() {
-    override fun toString(): String {
-        return "PersonopplysningGrunnlagEntitet{id=$id,personer=$personer,aktiv=$aktiv}"
-    }
+    override fun toString(): String = "PersonopplysningGrunnlagEntitet{id=$id,personer=$personer,aktiv=$aktiv}"
 
     val barna: List<Person> get() = personer.filter { it.type == PersonType.BARN }
 

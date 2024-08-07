@@ -14,8 +14,10 @@ data class Periode<T>(
 }
 
 fun <T> List<Periode<T>>.tilTidslinje(): Tidslinje<T> =
-    this.map { it.tilTidslinjePeriodeMedDato() }
-        .sortedBy { it.fom }.tilTidslinje()
+    this
+        .map { it.tilTidslinjePeriodeMedDato() }
+        .sortedBy { it.fom }
+        .tilTidslinje()
 
 fun <T> List<Periode<T>>.filtrerIkkeNull(): List<Periode<T & Any>> =
     this.mapNotNull { periode -> periode.verdi?.let { periode as Periode<T & Any> } }
@@ -23,4 +25,8 @@ fun <T> List<Periode<T>>.filtrerIkkeNull(): List<Periode<T & Any>> =
 fun <T> List<Periode<T>>.verdier(): List<T> =
     this.map { it.verdi }
 
-data class IkkeNullbarPeriode<T>(val verdi: T, val fom: LocalDate, val tom: LocalDate)
+data class IkkeNullbarPeriode<T>(
+    val verdi: T,
+    val fom: LocalDate,
+    val tom: LocalDate,
+)
