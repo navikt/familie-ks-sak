@@ -33,7 +33,7 @@ enum class BehandlingSteg(
     VEDTAK(
         sekvens = 6,
         gyldigBehandlerRolle = listOf(BehandlerRolle.SYSTEM, BehandlerRolle.SAKSBEHANDLER),
-        gyldigForÅrsaker = BehandlingÅrsak.entries.minus(listOf(SATSENDRING)),
+        gyldigForÅrsaker = BehandlingÅrsak.entries.minus(listOf(SATSENDRING, LOVENDRING_2024)),
     ),
     BESLUTTE_VEDTAK(
         sekvens = 7,
