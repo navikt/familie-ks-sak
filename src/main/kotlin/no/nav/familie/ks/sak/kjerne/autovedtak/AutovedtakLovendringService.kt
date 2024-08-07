@@ -29,7 +29,8 @@ class AutovedtakLovendringService(
 ) {
     @Transactional
     fun revurderFagsak(fagsakId: Long): Behandling {
-        // TODO gjør tjenesten idempotent
+        validerAtIkkeAlleredeRevurdert(fagsakId)
+
         val fagsak = fagsakService.hentFagsak(fagsakId = fagsakId)
 
         val aktivOgÅpenBehandling = behandlingRepository.findByFagsakAndAktivAndOpen(fagsakId = fagsakId)
@@ -65,5 +66,12 @@ class AutovedtakLovendringService(
         )
 
         return behandlingEtterBehandlingsresultat
+    }
+
+    private fun validerAtIkkeAlleredeRevurdert(fagsakId: Long) {
+        val erAlleredeBlittRevurdert = behandlingRepository.finnBehandlinger(fagsakId).any { it.opprettetÅrsak == BehandlingÅrsak.LOVENDRING_2024 }
+        if (erAlleredeBlittRevurdert) {
+            throw Feil("Fagsak=$fagsakId har allerede blitt revurdert")
+        }
     }
 }
