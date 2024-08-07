@@ -6,12 +6,15 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.Vedtak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.VedtakRepository
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.VedtaksperiodeService
+import no.nav.familie.ks.sak.kjerne.brev.GenererBrevService
 import org.springframework.stereotype.Service
+import java.time.LocalDateTime
 
 @Service
 class VedtakService(
     private val vedtakRepository: VedtakRepository,
     private val vedtaksperiodeService: VedtaksperiodeService,
+    private val genererBrevService: GenererBrevService,
 ) {
     fun hentVedtak(vedtakId: Long): Vedtak = vedtakRepository.hentVedtak(vedtakId)
 
@@ -20,6 +23,18 @@ class VedtakService(
             ?: throw Feil("Fant ikke aktiv vedtak for behandling $behandlingId")
 
     fun oppdaterVedtak(vedtak: Vedtak) = vedtakRepository.saveAndFlush(vedtak)
+
+    fun oppdaterVedtakMedDatoOgStønadsbrev(behandling: Behandling): Vedtak {
+        val vedtak = hentAktivVedtakForBehandling(behandling.id)
+
+        vedtak.vedtaksdato = LocalDateTime.now()
+        if (behandling.skalSendeVedtaksbrev()) {
+            val brev = genererBrevService.genererBrevForBehandling(vedtak)
+            vedtak.stønadBrevPdf = brev
+        }
+
+        return oppdaterVedtak(vedtak)
+    }
 
     fun opprettOgInitierNyttVedtakForBehandling(
         behandling: Behandling,

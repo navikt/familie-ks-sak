@@ -11,12 +11,10 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg
 import no.nav.familie.ks.sak.kjerne.behandling.steg.StegService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.VedtakService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.Vedtak
-import no.nav.familie.ks.sak.kjerne.brev.GenererBrevService
 import no.nav.familie.ks.sak.kjerne.logg.LoggService
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import no.nav.familie.ks.sak.kjerne.totrinnskontroll.TotrinnskontrollService
 import org.springframework.stereotype.Service
-import java.time.LocalDateTime
 
 @Service
 class AutovedtakService(
@@ -26,7 +24,6 @@ class AutovedtakService(
     private val totrinnskontrollService: TotrinnskontrollService,
     private val loggService: LoggService,
     private val vedtakService: VedtakService,
-    private val genererBrevService: GenererBrevService,
 ) {
     fun opprettAutomatiskBehandlingOgKjørTilBehandlingsresultat(
         aktør: Aktør,
@@ -57,14 +54,6 @@ class AutovedtakService(
             begrunnelse = null,
         )
 
-        val vedtak = vedtakService.hentAktivVedtakForBehandling(behandling.id)
-
-        vedtak.vedtaksdato = LocalDateTime.now()
-        if (behandling.skalSendeVedtaksbrev()) {
-            val brev = genererBrevService.genererBrevForBehandling(behandling.id)
-            vedtak.stønadBrevPdf = brev
-        }
-
-        return vedtakService.oppdaterVedtak(vedtak)
+        return vedtakService.oppdaterVedtakMedDatoOgStønadsbrev(behandling)
     }
 }
