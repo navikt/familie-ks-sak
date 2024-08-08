@@ -14,11 +14,9 @@ import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagVedtak
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingType.REVURDERING
-import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat.ENDRET_OG_OPPHØRT
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat.INNVILGET
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
-import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak.LOVENDRING_2024
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.Vedtak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.VedtakRepository
@@ -60,7 +58,7 @@ class VedtakServiceTest {
     }
 
     @ParameterizedTest
-    @EnumSource(value = BehandlingÅrsak::class, names = ["SATSENDRING"], mode = EnumSource.Mode.EXCLUDE)
+    @EnumSource(value = BehandlingÅrsak::class, names = ["SATSENDRING", "LOVENDRING_2024"], mode = EnumSource.Mode.EXCLUDE)
     fun `oppdaterVedtakMedDatoOgStønadsbrev - skal oppdatere vedtak med dato og stønadsbrev`(
         behandlingÅrsak: BehandlingÅrsak,
     ) {
@@ -97,34 +95,6 @@ class VedtakServiceTest {
 
         mockkStatic(LocalDateTime::class)
 
-        every { vedtakRepository.findByBehandlingAndAktivOptional(any()) } returns vedtak
-        every { vedtakRepository.saveAndFlush(any()) } answers { firstArg() }
-        every { LocalDateTime.now() } returns LocalDateTime.of(2024, 1, 1, 0, 0)
-
-        val oppdatertVedtak = vedtakService.oppdaterVedtakMedDatoOgStønadsbrev(behandling)
-
-        assertThat(oppdatertVedtak.stønadBrevPdf, IsNull())
-        assertThat(oppdatertVedtak.vedtaksdato, Is(LocalDateTime.of(2024, 1, 1, 0, 0)))
-
-        verify(exactly = 0) { genererBrevService.genererBrevForBehandling(vedtak) }
-        verify(exactly = 1) { vedtakRepository.findByBehandlingAndAktivOptional(behandling.id) }
-        verify(exactly = 1) { vedtakRepository.saveAndFlush(oppdatertVedtak) }
-
-        unmockkStatic(LocalDateTime::class)
-    }
-
-    @ParameterizedTest
-    @EnumSource(value = Behandlingsresultat::class, names = ["ENDRET_OG_OPPHØRT"], mode = EnumSource.Mode.EXCLUDE)
-    fun `oppdaterVedtakMedDatoOgStønadsbrev - skal oppdatere vedtak med dato, men ikke stønadsbrev for årsak LOVENDRING_2024 og resultat ikke lik ENDRET_OG_OPPHØRT`(
-        behandlingsResultat: Behandlingsresultat,
-    ) {
-        val behandling = lagBehandling(opprettetÅrsak = LOVENDRING_2024, resultat = behandlingsResultat, type = REVURDERING)
-        val vedtak = lagVedtak(behandling)
-        val brev = "brev".toByteArray()
-
-        mockkStatic(LocalDateTime::class)
-
-        every { genererBrevService.genererBrevForBehandling(any()) } returns brev
         every { vedtakRepository.findByBehandlingAndAktivOptional(any()) } returns vedtak
         every { vedtakRepository.saveAndFlush(any()) } answers { firstArg() }
         every { LocalDateTime.now() } returns LocalDateTime.of(2024, 1, 1, 0, 0)
