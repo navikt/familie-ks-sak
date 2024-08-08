@@ -109,6 +109,7 @@ class VedtakStegTest {
         every { vedtakService.oppdaterVedtak(any()) } returns mockk()
         every { vedtaksperiodeService.hentUtvidetVedtaksperioderMedBegrunnelser(any()) } returns mockk(relaxed = true)
         every { genererBrevService.genererBrevForBehandling(any()) } returns ByteArray(30)
+        every { vedtakService.oppdaterVedtakMedDatoOgStønadsbrev(any()) } returns mockk()
 
         vedtakSteg.utførSteg(200)
 
