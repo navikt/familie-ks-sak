@@ -10,6 +10,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg
 import no.nav.familie.ks.sak.kjerne.behandling.steg.StegService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.iverksettmotoppdrag.IverksettMotOppdragTask
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.VedtakService
 import no.nav.familie.ks.sak.kjerne.fagsak.FagsakService
 import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext
 import no.nav.familie.prosessering.internal.TaskService
@@ -24,6 +25,7 @@ class AutovedtakLovendringService(
     private val taskService: TaskService,
     private val autovedtakService: AutovedtakService,
     private val stegService: StegService,
+    private val vedtakService: VedtakService,
 ) {
     @Transactional
     fun revurderFagsak(fagsakId: Long): Behandling {
@@ -49,12 +51,12 @@ class AutovedtakLovendringService(
 
         if (behandlingEtterBehandlingsresultat.skalSendeVedtaksbrev()) {
             stegService.utførSteg(behandlingId = behandlingEtterBehandlingsresultat.id, behandlingSteg = BehandlingSteg.SIMULERING)
+            stegService.utførSteg(behandlingId = behandlingEtterBehandlingsresultat.id, behandlingSteg = BehandlingSteg.VEDTAK)
+        } else {
+            autovedtakService.opprettToTrinnskontrollOgVedtaksbrevForAutomatiskBehandling(behandlingEtterBehandlingsresultat)
         }
 
-        val vedtak =
-            autovedtakService.opprettToTrinnskontrollOgVedtaksbrevForAutomatiskBehandling(
-                behandlingEtterBehandlingsresultat,
-            )
+        val vedtak = vedtakService.hentAktivVedtakForBehandling(behandlingId = behandlingEtterBehandlingsresultat.id)
 
         taskService.save(
             IverksettMotOppdragTask.opprettTask(

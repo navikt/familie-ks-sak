@@ -5,21 +5,32 @@ import io.mockk.impl.annotations.InjectMockKs
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import io.mockk.mockk
+import io.mockk.mockkStatic
 import io.mockk.slot
+import io.mockk.unmockkStatic
 import io.mockk.verify
 import no.nav.familie.ks.sak.common.exception.Feil
+import no.nav.familie.ks.sak.data.lagBehandling
+import no.nav.familie.ks.sak.data.lagVedtak
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
+import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingType.REVURDERING
+import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat.ENDRET_OG_OPPHØRT
+import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat.INNVILGET
+import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.Vedtak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.VedtakRepository
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.VedtaksperiodeService
+import no.nav.familie.ks.sak.kjerne.brev.GenererBrevService
 import org.hamcrest.MatcherAssert.assertThat
+import org.hamcrest.core.IsNull
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.EnumSource
+import java.time.LocalDateTime
 import org.hamcrest.CoreMatchers.`is` as Is
 
 @ExtendWith(MockKExtension::class)
@@ -29,6 +40,9 @@ class VedtakServiceTest {
 
     @MockK
     private lateinit var vedtaksperiodeService: VedtaksperiodeService
+
+    @MockK
+    private lateinit var genererBrevService: GenererBrevService
 
     @InjectMockKs
     private lateinit var vedtakService: VedtakService
@@ -41,6 +55,60 @@ class VedtakServiceTest {
 
         Assertions.assertNotNull(hentetVedtak)
         verify(exactly = 1) { vedtakRepository.hentVedtak(1) }
+    }
+
+    @ParameterizedTest
+    @EnumSource(value = BehandlingÅrsak::class, names = ["SATSENDRING", "LOVENDRING_2024"], mode = EnumSource.Mode.EXCLUDE)
+    fun `oppdaterVedtakMedDatoOgStønadsbrev - skal oppdatere vedtak med dato og stønadsbrev`(
+        behandlingÅrsak: BehandlingÅrsak,
+    ) {
+        val behandling = lagBehandling(opprettetÅrsak = behandlingÅrsak, resultat = ENDRET_OG_OPPHØRT)
+        val vedtak = lagVedtak(behandling)
+        val brev = "brev".toByteArray()
+
+        mockkStatic(LocalDateTime::class)
+
+        every { genererBrevService.genererBrevForBehandling(any()) } returns brev
+        every { vedtakRepository.findByBehandlingAndAktivOptional(any()) } returns vedtak
+        every { vedtakRepository.saveAndFlush(any()) } answers { firstArg() }
+        every { LocalDateTime.now() } returns LocalDateTime.of(2024, 1, 1, 0, 0)
+
+        val oppdatertVedtak = vedtakService.oppdaterVedtakMedDatoOgStønadsbrev(behandling)
+
+        assertThat(oppdatertVedtak.stønadBrevPdf, Is(brev))
+        assertThat(oppdatertVedtak.vedtaksdato, Is(LocalDateTime.of(2024, 1, 1, 0, 0)))
+
+        verify(exactly = 1) { genererBrevService.genererBrevForBehandling(vedtak) }
+        verify(exactly = 1) { vedtakRepository.findByBehandlingAndAktivOptional(behandling.id) }
+        verify(exactly = 1) { vedtakRepository.saveAndFlush(oppdatertVedtak) }
+
+        unmockkStatic(LocalDateTime::class)
+    }
+
+    @ParameterizedTest
+    @EnumSource(value = BehandlingÅrsak::class, names = ["LOVENDRING_2024", "SATSENDRING"])
+    fun `oppdaterVedtakMedDatoOgStønadsbrev - skal oppdatere vedtak med dato, men ikke stønadsbrev`(
+        behandlingÅrsak: BehandlingÅrsak,
+    ) {
+        val behandling = lagBehandling(opprettetÅrsak = behandlingÅrsak, resultat = INNVILGET, type = REVURDERING)
+        val vedtak = lagVedtak(behandling)
+
+        mockkStatic(LocalDateTime::class)
+
+        every { vedtakRepository.findByBehandlingAndAktivOptional(any()) } returns vedtak
+        every { vedtakRepository.saveAndFlush(any()) } answers { firstArg() }
+        every { LocalDateTime.now() } returns LocalDateTime.of(2024, 1, 1, 0, 0)
+
+        val oppdatertVedtak = vedtakService.oppdaterVedtakMedDatoOgStønadsbrev(behandling)
+
+        assertThat(oppdatertVedtak.stønadBrevPdf, IsNull())
+        assertThat(oppdatertVedtak.vedtaksdato, Is(LocalDateTime.of(2024, 1, 1, 0, 0)))
+
+        verify(exactly = 0) { genererBrevService.genererBrevForBehandling(vedtak) }
+        verify(exactly = 1) { vedtakRepository.findByBehandlingAndAktivOptional(behandling.id) }
+        verify(exactly = 1) { vedtakRepository.saveAndFlush(oppdatertVedtak) }
+
+        unmockkStatic(LocalDateTime::class)
     }
 
     @ParameterizedTest

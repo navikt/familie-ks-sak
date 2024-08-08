@@ -164,7 +164,7 @@ class BeslutteVedtakStegTest {
         every { tilkjentYtelseValideringService.validerAtIngenUtbetalingerOverstiger100Prosent(any()) } just runs
 
         every { vedtakService.hentAktivVedtakForBehandling(any()) } returns mockk(relaxed = true)
-        every { vedtakService.oppdaterVedtak(any()) } returns mockk()
+        every { vedtakService.oppdaterVedtakMedDatoOgStønadsbrev(any()) } returns mockk()
         beslutteVedtakSteg.utførSteg(200, besluttVedtakDto)
 
         verify(exactly = 1) {
@@ -177,9 +177,7 @@ class BeslutteVedtakStegTest {
             )
         }
         verify(exactly = 1) { loggService.opprettBeslutningOmVedtakLogg(any(), any(), any()) }
-        verify(exactly = 1) { genererBrevService.genererBrevForBehandling(any()) }
-        verify(exactly = 1) { vedtakService.hentAktivVedtakForBehandling(any()) }
-        verify(exactly = 1) { vedtakService.oppdaterVedtak(any()) }
+        verify(exactly = 1) { vedtakService.oppdaterVedtakMedDatoOgStønadsbrev(any()) }
         verify(exactly = 1) { tilkjentYtelseValideringService.validerAtIngenUtbetalingerOverstiger100Prosent(any()) }
     }
 }

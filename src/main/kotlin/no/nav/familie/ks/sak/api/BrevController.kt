@@ -164,9 +164,9 @@ class BrevController(
             handling = "Vis og lagre vedtaksbrev",
         )
 
-        val generertPdf = genererBrevService.genererBrevForBehandling(behandlingId)
-
         val vedtak = vedtakService.hentAktivVedtakForBehandling(behandlingId)
+        val generertPdf = genererBrevService.genererBrevForBehandling(vedtak)
+
         vedtak.stønadBrevPdf = generertPdf
 
         return Ressurs.success(generertPdf)
