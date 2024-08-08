@@ -2,8 +2,9 @@ package no.nav.familie.ks.sak.kjerne.autovedtak
 
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
-import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
+import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak.LOVENDRING_2024
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
 import no.nav.familie.ks.sak.kjerne.fagsak.FagsakService
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.FagsakStatus
 import no.nav.familie.ks.sak.statistikk.stønadsstatistikk.PubliserVedtakTask.Companion.TASK_STEP_TYPE
@@ -36,7 +37,7 @@ class AutovedtakLovendringIkkeFremtidigOpphørTask(
             throw Feil("Fagsak $fagsakId er ikke løpende")
         }
 
-        if (behandlingService.hentBehandlingerPåFagsak(fagsakId).any { it.opprettetÅrsak == BehandlingÅrsak.LOVENDRING_2024 }) {
+        if (behandlingService.hentBehandlingerPåFagsak(fagsakId).any { it.opprettetÅrsak == LOVENDRING_2024 }) {
             logger.info("Lovendring 2024 allerede kjørt for fagsakId=$fagsakId")
         } else {
             val sisteIverksatteBehandling =
@@ -48,8 +49,11 @@ class AutovedtakLovendringIkkeFremtidigOpphørTask(
 
             val vilkårResultaterPåBehandling = vilkårsvurdering.personResultater.flatMap { it.vilkårResultater }
 
-            val behandlingHarFremtidigOpphør = vilkårResultaterPåBehandling.any { it.søkerHarMeldtFraOmBarnehageplass == true }
-            check(behandlingHarFremtidigOpphør) { "Siste iverksatte behandling=${sisteIverksatteBehandling.id} på fagsak=$fagsakId har fremtidig opphør." }
+            val behandlingHarFremtidigOpphør =
+                vilkårResultaterPåBehandling.filter { it.vilkårType == Vilkår.BARNEHAGEPLASS }.any {
+                    it.søkerHarMeldtFraOmBarnehageplass == true
+                }
+            if (behandlingHarFremtidigOpphør) error("Siste iverksatte behandling=${sisteIverksatteBehandling.id} på fagsak=$fagsakId har fremtidig opphør.")
 
             autovedtakLovendringService.revurderFagsak(fagsakId = fagsakId)
         }
