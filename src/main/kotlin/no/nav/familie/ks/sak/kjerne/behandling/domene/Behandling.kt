@@ -19,6 +19,9 @@ import no.nav.familie.kontrakter.felles.dokarkiv.Dokumenttype
 import no.nav.familie.ks.sak.common.BehandlingId
 import no.nav.familie.ks.sak.common.entitet.BaseEntitet
 import no.nav.familie.ks.sak.common.exception.Feil
+import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus.OPPRETTET
+import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus.SATT_PÅ_MASKINELL_VENT
+import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus.UTREDES
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingType.FØRSTEGANGSBEHANDLING
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingType.REVURDERING
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingType.TEKNISK_ENDRING
@@ -181,6 +184,8 @@ data class Behandling(
     fun erLovendring() = opprettetÅrsak == BehandlingÅrsak.LOVENDRING_2024
 
     fun skalBehandlesAutomatisk(): Boolean = this.opprettetÅrsak in listOf(BehandlingÅrsak.LOVENDRING_2024)
+
+    fun erRedigerbar() = status in setOf(OPPRETTET, UTREDES, SATT_PÅ_MASKINELL_VENT)
 }
 
 /**

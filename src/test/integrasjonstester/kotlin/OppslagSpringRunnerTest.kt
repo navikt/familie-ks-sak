@@ -147,14 +147,14 @@ abstract class OppslagSpringRunnerTest {
     fun opprettSøkerFagsakOgBehandling(
         søker: Aktør = randomAktør(),
         barn: Aktør = randomAktør(),
-        fagsakStatus: FagsakStatus,
+        fagsakStatus: FagsakStatus = FagsakStatus.OPPRETTET,
         behandlingStatus: BehandlingStatus = BehandlingStatus.UTREDES,
         behandlingResultat: Behandlingsresultat = Behandlingsresultat.IKKE_VURDERT,
     ) {
         this.søker = lagreAktør(søker)
         this.barn = lagreAktør(barn)
-        fagsak = lagreFagsak(lagFagsak(aktør = søker, status = fagsakStatus))
-        behandling = lagreBehandling(lagBehandling(fagsak = fagsak, opprettetÅrsak = BehandlingÅrsak.SØKNAD, status = behandlingStatus, resultat = behandlingResultat))
+        this.fagsak = lagreFagsak(lagFagsak(aktør = søker, status = fagsakStatus))
+        this.behandling = lagreBehandling(lagBehandling(fagsak = fagsak, opprettetÅrsak = BehandlingÅrsak.SØKNAD, status = behandlingStatus, resultat = behandlingResultat))
     }
 
     fun opprettPersonopplysningGrunnlagOgPersonForBehandling(
