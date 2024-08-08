@@ -188,6 +188,7 @@ class AutovedtakLovendringTest(
     @Test
     @Disabled
     fun `automatisk revurdering av fagsak som har fremtidig opphør beholder fremtidig opphør og sender brev`() {
+        // TODO: Fjern @Disabled når løype for fremtidig opphør med brevutsending er implementert
         // arrange
 
         every { brevklient.genererBrev(any(), any()) } returns "brev".toByteArray()
