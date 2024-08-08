@@ -16,7 +16,6 @@ import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.ArbeidsfordelingService
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.domene.ArbeidsfordelingPåBehandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.simulering.SimuleringService
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.VedtakService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.feilutbetaltvaluta.FeilutbetaltValutaService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.refusjonEøs.RefusjonEøsRepository
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.VedtaksperiodeService
@@ -44,7 +43,6 @@ class GenererBrevServiceTest {
     val genererBrevService =
         GenererBrevService(
             brevKlient = brevKlient,
-            vedtakService = mockk<VedtakService>(),
             personopplysningGrunnlagService = personopplysningGrunnlagService,
             simuleringService = mockk<SimuleringService>(),
             vedtaksperiodeService = mockk<VedtaksperiodeService>(),

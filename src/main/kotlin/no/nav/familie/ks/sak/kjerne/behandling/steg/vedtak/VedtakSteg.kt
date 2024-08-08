@@ -8,12 +8,12 @@ import no.nav.familie.ks.sak.integrasjon.oppgave.OpprettOppgaveTask
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat
+import no.nav.familie.ks.sak.kjerne.behandling.domene.Beslutning.GODKJENT
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingStegStatus
 import no.nav.familie.ks.sak.kjerne.behandling.steg.IBehandlingSteg
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.VedtaksperiodeService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.validerPerioderInneholderBegrunnelser
-import no.nav.familie.ks.sak.kjerne.brev.GenererBrevService
 import no.nav.familie.ks.sak.kjerne.logg.LoggService
 import no.nav.familie.ks.sak.kjerne.totrinnskontroll.TotrinnskontrollService
 import no.nav.familie.prosessering.internal.TaskService
@@ -22,7 +22,6 @@ import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDate
-import java.time.LocalDateTime
 
 @Service
 class VedtakSteg(
@@ -33,7 +32,6 @@ class VedtakSteg(
     private val oppgaveService: OppgaveService,
     private val vedtakService: VedtakService,
     private val vedtaksperiodeService: VedtaksperiodeService,
-    private val genererBrevService: GenererBrevService,
 ) : IBehandlingSteg {
     override fun getBehandlingssteg(): BehandlingSteg = BehandlingSteg.VEDTAK
 
@@ -45,8 +43,8 @@ class VedtakSteg(
         validerAtBehandlingErGyldigForVedtak(behandling)
 
         if (behandling.skalBehandlesAutomatisk()) {
-            loggService.opprettSendTilBeslutterLogg(behandling.id)
-            totrinnskontrollService.opprettAutomatiskTotrinnskontroll(behandling = behandling)
+            loggService.opprettBeslutningOmVedtakLogg(behandling = behandling, beslutning = GODKJENT, begrunnelse = null)
+            totrinnskontrollService.opprettAutomatiskTotrinnskontroll(behandling)
         } else {
             loggService.opprettSendTilBeslutterLogg(behandling.id)
             totrinnskontrollService.opprettTotrinnskontrollMedSaksbehandler(behandling)
@@ -63,15 +61,7 @@ class VedtakSteg(
             opprettFerdigstillOppgaveTasker(behandling)
         }
 
-        val vedtak = vedtakService.hentAktivVedtakForBehandling(behandlingId)
-
-        vedtak.vedtaksdato = LocalDateTime.now()
-        if (behandling.skalSendeVedtaksbrev()) {
-            val brev = genererBrevService.genererBrevForBehandling(behandling.id)
-            vedtak.stønadBrevPdf = brev
-        }
-
-        vedtakService.oppdaterVedtak(vedtak)
+        vedtakService.oppdaterVedtakMedDatoOgStønadsbrev(behandling)
     }
 
     private fun opprettFerdigstillOppgaveTasker(behandling: Behandling) {
