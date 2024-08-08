@@ -2,6 +2,7 @@ package no.nav.familie.ks.sak.kjerne.autovedtak
 
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
+import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
 import no.nav.familie.ks.sak.kjerne.fagsak.FagsakService
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.FagsakStatus
@@ -26,6 +27,8 @@ class AutovedtakLovendringIkkeFremtidigOpphørTask(
     val behandlingService: BehandlingService,
     val vilkårsvurderingService: VilkårsvurderingService,
 ) : AsyncTaskStep {
+    private val logger = LoggerFactory.getLogger(this::class.java)
+
     override fun doTask(task: Task) {
         val fagsakId = task.payload.toLong()
         val fagsak = fagsakService.hentFagsak(fagsakId)
@@ -33,19 +36,23 @@ class AutovedtakLovendringIkkeFremtidigOpphørTask(
             throw Feil("Fagsak $fagsakId er ikke løpende")
         }
 
-        val sisteIverksatteBehandling =
-            behandlingService.hentSisteBehandlingSomErIverksatt(fagsakId)
-                ?: throw Feil("Fant ingen aktiv behandling for fagsak $fagsakId")
-        val vilkårsvurdering =
-            vilkårsvurderingService.finnAktivVilkårsvurdering(sisteIverksatteBehandling.id)
-                ?: throw Feil("Fant ingen vilkårsvurdering for behandling ${sisteIverksatteBehandling.id}")
+        if (behandlingService.hentBehandlingerPåFagsak(fagsakId).any { it.opprettetÅrsak == BehandlingÅrsak.LOVENDRING_2024 }) {
+            logger.info("Lovendring 2024 allerede kjørt for fagsakId=$fagsakId")
+        } else {
+            val sisteIverksatteBehandling =
+                behandlingService.hentSisteBehandlingSomErIverksatt(fagsakId)
+                    ?: throw Feil("Fant ingen aktiv behandling for fagsak $fagsakId")
+            val vilkårsvurdering =
+                vilkårsvurderingService.finnAktivVilkårsvurdering(sisteIverksatteBehandling.id)
+                    ?: throw Feil("Fant ingen vilkårsvurdering for behandling ${sisteIverksatteBehandling.id}")
 
-        val vilkårResultaterPåBehandling = vilkårsvurdering.personResultater.flatMap { it.vilkårResultater }
+            val vilkårResultaterPåBehandling = vilkårsvurdering.personResultater.flatMap { it.vilkårResultater }
 
-        val behandlingHarFremtidigOpphør = vilkårResultaterPåBehandling.any { it.søkerHarMeldtFraOmBarnehageplass == true }
-        check(behandlingHarFremtidigOpphør) { "Siste iverksatte behandling=${sisteIverksatteBehandling.id} på fagsak=$fagsakId har fremtidig opphør." }
+            val behandlingHarFremtidigOpphør = vilkårResultaterPåBehandling.any { it.søkerHarMeldtFraOmBarnehageplass == true }
+            check(behandlingHarFremtidigOpphør) { "Siste iverksatte behandling=${sisteIverksatteBehandling.id} på fagsak=$fagsakId har fremtidig opphør." }
 
-        autovedtakLovendringService.revurderFagsak(fagsakId = fagsakId)
+            autovedtakLovendringService.revurderFagsak(fagsakId = fagsakId)
+        }
     }
 
     companion object {

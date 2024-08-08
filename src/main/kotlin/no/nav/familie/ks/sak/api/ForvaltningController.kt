@@ -293,16 +293,16 @@ class ForvaltningController(
         return ResponseEntity.ok(Ressurs.success("Automatisk revurdering opprettet"))
     }
 
-    @PostMapping("/automatisk-revurdering-lovendring-ikke-fremtidig-opphør/{limit}")
+    @PostMapping("/automatisk-revurdering-lovendring-ikke-fremtidig-opphor/{limit}")
     fun opprettAutomatiskLovendringIkkeFremtidigOpphør(
-        @PathVariable limit: Int,
+        @PathVariable limit: Long,
     ): ResponseEntity<Ressurs<String>> {
         tilgangService.validerTilgangTilHandling(
             minimumBehandlerRolle = BehandlerRolle.FORVALTER,
             handling = "opprette automatisk revurdering",
         )
 
-        behandlingRepository.finnBehandlingerSomSkalRekjøresLovendring().take(limit).forEach {
+        behandlingRepository.finnBehandlingerSomSkalRekjøresLovendring().take(limit.toInt()).forEach {
             AutovedtakLovendringIkkeFremtidigOpphørTask.opprettTask(it).apply { taskService.save(this) }
         }
 

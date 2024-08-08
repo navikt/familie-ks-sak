@@ -1,6 +1,5 @@
 package no.nav.familie.ks.sak.kjerne.autovedtak
 
-import no.nav.familie.ks.sak.api.ForvaltningController
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.kjerne.behandling.SettPåMaskinellVentÅrsak
 import no.nav.familie.ks.sak.kjerne.behandling.SnikeIKøenService
@@ -29,11 +28,11 @@ class AutovedtakLovendringService(
     private val stegService: StegService,
     private val vedtakRepository: VedtakRepository,
 ) {
-    private val logger = LoggerFactory.getLogger(ForvaltningController::class.java)
+    private val logger = LoggerFactory.getLogger(this::class.java)
 
     @Transactional
     fun revurderFagsak(fagsakId: Long): Behandling? =
-        if (validerAtIkkeAlleredeRevurdert(fagsakId)) {
+        if (behandlingRepository.finnBehandlinger(fagsakId).any { it.opprettetÅrsak == BehandlingÅrsak.LOVENDRING_2024 }) {
             logger.info("Lovendring 2024 allerede kjørt for fagsakId=$fagsakId")
             null
         } else {
@@ -72,7 +71,4 @@ class AutovedtakLovendringService(
             )
             behandlingEtterBehandlingsresultat
         }
-
-    private fun validerAtIkkeAlleredeRevurdert(fagsakId: Long): Boolean =
-        behandlingRepository.finnBehandlinger(fagsakId).any { it.opprettetÅrsak == BehandlingÅrsak.LOVENDRING_2024 }
 }
