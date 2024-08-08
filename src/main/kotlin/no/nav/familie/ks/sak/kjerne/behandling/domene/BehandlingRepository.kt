@@ -136,21 +136,22 @@ interface BehandlingRepository : JpaRepository<Behandling, Long> {
 
     @Query(
         value = """
-            select distinct (f.id)
-            from fagsak f
-                     join behandling b on f.id = b.fk_fagsak_id
-                     join vilkar_resultat vr on vr.fk_behandling_id = b.id
-            where b.aktiv = true
-              and f.status = 'LØPENDE'
-              AND  NOT EXISTS (SELECT 1
-                              FROM behandling b2
-                                       INNER JOIN vilkar_resultat vr ON vr.fk_behandling_id = b2.id
-                              WHERE b2.fk_fagsak_id = b.fk_fagsak_id
-                                AND vr.soker_har_meldt_fra_om_barnehageplass = true
-                                AND vr.resultat = 'OPPFYLT')
-              AND NOT EXISTS (SELECT 1
-                              FROM behandling b2
-                              WHERE b2.opprettet_aarsak = 'LOVENDRING_2024');
+            SELECT DISTINCT (f.id)
+            FROM fagsak f
+                     JOIN behandling b ON f.id = b.fk_fagsak_id
+                     JOIN vilkar_resultat vr ON vr.fk_behandling_id = b.id
+            WHERE b.aktiv = true
+              AND f.status = 'LØPENDE'
+              AND NOT EXISTS (
+                SELECT 1 FROM behandling b2
+                   INNER JOIN vilkar_resultat vr ON vr.fk_behandling_id = b2.id
+                WHERE b2.fk_fagsak_id = b.fk_fagsak_id
+                AND vr.soker_har_meldt_fra_om_barnehageplass = true
+                AND vr.resultat = 'OPPFYLT')
+              AND NOT EXISTS (
+                SELECT 1 FROM behandling b2
+                WHERE b2.fk_fagsak_id = b.fk_fagsak_id
+                AND b2.opprettet_aarsak = 'LOVENDRING_2024');
         """,
         nativeQuery = true,
     )
