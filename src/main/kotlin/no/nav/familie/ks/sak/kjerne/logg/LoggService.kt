@@ -578,6 +578,60 @@ class LoggService(
         )
     }
 
+    fun opprettSammensattKontrollsakOpprettetLogg(
+        behandlingId: Long,
+    ) {
+        lagreLogg(
+            Logg(
+                behandlingId = behandlingId,
+                type = LoggType.SAMMENSATT_KONTROLLSAK_OPPRETTET,
+                rolle =
+                    SikkerhetContext.hentRolletilgangFraSikkerhetscontext(
+                        rolleConfig,
+                        BehandlerRolle.SAKSBEHANDLER,
+                    ),
+                tittel = LoggType.SAMMENSATT_KONTROLLSAK_OPPRETTET.tittel,
+                tekst = "En sammensatt kontrollsak har blitt opprettet",
+            ),
+        )
+    }
+
+    fun opprettSammensattKontrollsakOppdatertLogg(
+        behandlingId: Long,
+    ) {
+        lagreLogg(
+            Logg(
+                behandlingId = behandlingId,
+                type = LoggType.SAMMENSATT_KONTROLLSAK_OPPDATERT,
+                rolle =
+                    SikkerhetContext.hentRolletilgangFraSikkerhetscontext(
+                        rolleConfig,
+                        BehandlerRolle.SAKSBEHANDLER,
+                    ),
+                tittel = LoggType.SAMMENSATT_KONTROLLSAK_OPPDATERT.tittel,
+                tekst = "En sammensatt kontrollsak har blitt oppdatert",
+            ),
+        )
+    }
+
+    fun opprettSammensattKontrollsakSlettetLogg(
+        behandlingId: Long,
+    ) {
+        lagreLogg(
+            Logg(
+                behandlingId = behandlingId,
+                type = LoggType.SAMMENSATT_KONTROLLSAK_SLETTET,
+                rolle =
+                    SikkerhetContext.hentRolletilgangFraSikkerhetscontext(
+                        rolleConfig,
+                        BehandlerRolle.SAKSBEHANDLER,
+                    ),
+                tittel = LoggType.SAMMENSATT_KONTROLLSAK_SLETTET.tittel,
+                tekst = "En sammensatt kontrollsak har blitt slettet",
+            ),
+        )
+    }
+
     companion object {
         private val logger = LoggerFactory.getLogger(LoggService::class.java)
     }

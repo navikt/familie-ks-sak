@@ -37,4 +37,7 @@ enum class LoggType(
     REFUSJON_EØS_LAGT_TIL("Refusjon EØS lagt til"),
     REFUSJON_EØS_FJERNET("Refusjon EØS fjernet"),
     BREVMOTTAKER_LAGT_TIL_ELLER_FJERNET("Brevmottaker lagt til eller fjernet"),
+    SAMMENSATT_KONTROLLSAK_OPPRETTET("Sammensatt kontrollsak opprettet"),
+    SAMMENSATT_KONTROLLSAK_OPPDATERT("Sammensatt kontrollsak oppdatert"),
+    SAMMENSATT_KONTROLLSAK_SLETTET("Sammensatt kontrollsak slettet"),
 }
