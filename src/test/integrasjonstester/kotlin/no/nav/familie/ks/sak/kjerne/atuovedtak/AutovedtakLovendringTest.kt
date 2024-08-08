@@ -128,7 +128,7 @@ class AutovedtakLovendringTest(
         lagTilkjentytelseMedAndelForBarn(fødselsdatoBarn, behandling)
 
         // act
-        val nyBehandling = autovedtakLovendringService.revurderFagsak(fagsakId = behandling.fagsak.id)
+        val nyBehandling = autovedtakLovendringService.revurderFagsak(fagsakId = behandling.fagsak.id)!!
 
         // assert
         assertThat(nyBehandling.opprettetÅrsak).isEqualTo(BehandlingÅrsak.LOVENDRING_2024)
@@ -170,7 +170,7 @@ class AutovedtakLovendringTest(
         )
 
         // act
-        val nyBehandling = autovedtakLovendringService.revurderFagsak(fagsakId = fagsak.id)
+        val nyBehandling = autovedtakLovendringService.revurderFagsak(fagsakId = fagsak.id)!!
 
         // assert
         assertThat(nyBehandling.opprettetÅrsak).isEqualTo(BehandlingÅrsak.LOVENDRING_2024)
@@ -218,7 +218,7 @@ class AutovedtakLovendringTest(
         )
 
         // act
-        val nyBehandling = autovedtakLovendringService.revurderFagsak(fagsakId = fagsak.id)
+        val nyBehandling = autovedtakLovendringService.revurderFagsak(fagsakId = fagsak.id)!!
 
         // assert
         assertThat(nyBehandling.opprettetÅrsak).isEqualTo(BehandlingÅrsak.LOVENDRING_2024)
@@ -278,7 +278,7 @@ class AutovedtakLovendringTest(
         lagTilkjentytelseMedAndelForBarn(fødselsdatoBarn, avsluttetFørstegangsBehandling)
 
         // act
-        val nyBehandling = autovedtakLovendringService.revurderFagsak(fagsakId = fagsak.id)
+        val nyBehandling = autovedtakLovendringService.revurderFagsak(fagsakId = fagsak.id)!!
 
         // assert
         assertThat(nyBehandling.opprettetÅrsak).isEqualTo(BehandlingÅrsak.LOVENDRING_2024)

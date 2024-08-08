@@ -22,11 +22,11 @@ import no.nav.familie.ks.sak.config.SpringProfile
 import no.nav.familie.ks.sak.integrasjon.ecb.ECBService
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
 import no.nav.familie.ks.sak.kjerne.autovedtak.AutovedtakLovendringIkkeFremtidigOpphørTask
-import no.nav.familie.ks.sak.kjerne.autovedtak.AutovedtakLovendringService
 import no.nav.familie.ks.sak.kjerne.avstemming.GrensesnittavstemmingTask
 import no.nav.familie.ks.sak.kjerne.avstemming.KonsistensavstemmingKjøreplanService
 import no.nav.familie.ks.sak.kjerne.avstemming.KonsistensavstemmingTask
 import no.nav.familie.ks.sak.kjerne.avstemming.domene.KonsistensavstemmingTaskDto
+import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
 import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
 import no.nav.familie.ks.sak.sikkerhet.TilgangService
@@ -69,7 +69,7 @@ class ForvaltningController(
     private val barnehageListeService: BarnehageListeService,
     private val environment: Environment,
     private val ecbService: ECBService,
-    private val autovedtakLovendringService: AutovedtakLovendringService,
+    private val behandlingRepository: BehandlingRepository,
 ) {
     private val logger = LoggerFactory.getLogger(ForvaltningController::class.java)
 
@@ -289,6 +289,22 @@ class ForvaltningController(
         )
 
         AutovedtakLovendringIkkeFremtidigOpphørTask.opprettTask(fagsakId).apply { taskService.save(this) }
+
+        return ResponseEntity.ok(Ressurs.success("Automatisk revurdering opprettet"))
+    }
+
+    @PostMapping("/automatisk-revurdering-lovendring-ikke-fremtidig-opphør/{limit}")
+    fun opprettAutomatiskLovendringIkkeFremtidigOpphør(
+        @PathVariable limit: Int,
+    ): ResponseEntity<Ressurs<String>> {
+        tilgangService.validerTilgangTilHandling(
+            minimumBehandlerRolle = BehandlerRolle.FORVALTER,
+            handling = "opprette automatisk revurdering",
+        )
+
+        behandlingRepository.finnBehandlingerSomSkalRekjøresLovendring().take(limit).forEach {
+            AutovedtakLovendringIkkeFremtidigOpphørTask.opprettTask(it).apply { taskService.save(this) }
+        }
 
         return ResponseEntity.ok(Ressurs.success("Automatisk revurdering opprettet"))
     }

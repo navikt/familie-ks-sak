@@ -1,5 +1,6 @@
 package no.nav.familie.ks.sak.kjerne.autovedtak
 
+import no.nav.familie.ks.sak.api.ForvaltningController
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.kjerne.behandling.SettPåMaskinellVentÅrsak
 import no.nav.familie.ks.sak.kjerne.behandling.SnikeIKøenService
@@ -14,6 +15,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.VedtakReposito
 import no.nav.familie.ks.sak.kjerne.fagsak.FagsakService
 import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext
 import no.nav.familie.prosessering.internal.TaskService
+import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -27,51 +29,50 @@ class AutovedtakLovendringService(
     private val stegService: StegService,
     private val vedtakRepository: VedtakRepository,
 ) {
+    private val logger = LoggerFactory.getLogger(ForvaltningController::class.java)
+
     @Transactional
-    fun revurderFagsak(fagsakId: Long): Behandling {
-        validerAtIkkeAlleredeRevurdert(fagsakId)
+    fun revurderFagsak(fagsakId: Long): Behandling? =
+        if (validerAtIkkeAlleredeRevurdert(fagsakId)) {
+            logger.info("Lovendring 2024 allerede kjørt for fagsakId=$fagsakId")
+            null
+        } else {
+            val fagsak = fagsakService.hentFagsak(fagsakId = fagsakId)
 
-        val fagsak = fagsakService.hentFagsak(fagsakId = fagsakId)
+            val aktivOgÅpenBehandling = behandlingRepository.findByFagsakAndAktivAndOpen(fagsakId = fagsakId)
 
-        val aktivOgÅpenBehandling = behandlingRepository.findByFagsakAndAktivAndOpen(fagsakId = fagsakId)
-
-        if (aktivOgÅpenBehandling != null) {
-            if (snikeIKøenService.kanSnikeForbi(aktivOgÅpenBehandling)) {
-                snikeIKøenService.settAktivBehandlingPåMaskinellVent(
-                    aktivOgÅpenBehandling.id,
-                    SettPåMaskinellVentÅrsak.LOVENDRING,
-                )
-            } else {
-                throw Feil("Kan ikke gjennomføre revurderingsbehandling for fagsak=$fagsakId fordi det er en åpen behandling vi ikke klarer å snike forbi")
+            if (aktivOgÅpenBehandling != null) {
+                if (snikeIKøenService.kanSnikeForbi(aktivOgÅpenBehandling)) {
+                    snikeIKøenService.settAktivBehandlingPåMaskinellVent(
+                        aktivOgÅpenBehandling.id,
+                        SettPåMaskinellVentÅrsak.LOVENDRING,
+                    )
+                } else {
+                    throw Feil("Kan ikke gjennomføre revurderingsbehandling for fagsak=$fagsakId fordi det er en åpen behandling vi ikke klarer å snike forbi")
+                }
             }
+
+            val søkerAktør = fagsak.aktør
+            val behandlingEtterBehandlingsresultat = autovedtakService.opprettAutomatiskBehandlingOgKjørTilBehandlingsresultat(aktør = søkerAktør, behandlingÅrsak = BehandlingÅrsak.LOVENDRING_2024, behandlingType = BehandlingType.REVURDERING)
+
+            if (behandlingEtterBehandlingsresultat.skalSendeVedtaksbrev()) {
+                stegService.utførSteg(behandlingId = behandlingEtterBehandlingsresultat.id, behandlingSteg = BehandlingSteg.SIMULERING)
+            }
+
+            stegService.utførSteg(behandlingId = behandlingEtterBehandlingsresultat.id, behandlingSteg = BehandlingSteg.VEDTAK)
+
+            val vedtak = vedtakRepository.findByBehandlingAndAktiv(behandlingEtterBehandlingsresultat.id)
+
+            taskService.save(
+                IverksettMotOppdragTask.opprettTask(
+                    behandling = behandlingEtterBehandlingsresultat,
+                    vedtakId = vedtak.id,
+                    saksbehandlerId = SikkerhetContext.SYSTEM_FORKORTELSE,
+                ),
+            )
+            behandlingEtterBehandlingsresultat
         }
 
-        val søkerAktør = fagsak.aktør
-        val behandlingEtterBehandlingsresultat = autovedtakService.opprettAutomatiskBehandlingOgKjørTilBehandlingsresultat(aktør = søkerAktør, behandlingÅrsak = BehandlingÅrsak.LOVENDRING_2024, behandlingType = BehandlingType.REVURDERING)
-
-        if (behandlingEtterBehandlingsresultat.skalSendeVedtaksbrev()) {
-            stegService.utførSteg(behandlingId = behandlingEtterBehandlingsresultat.id, behandlingSteg = BehandlingSteg.SIMULERING)
-        }
-
-        stegService.utførSteg(behandlingId = behandlingEtterBehandlingsresultat.id, behandlingSteg = BehandlingSteg.VEDTAK)
-
-        val vedtak = vedtakRepository.findByBehandlingAndAktiv(behandlingEtterBehandlingsresultat.id)
-
-        taskService.save(
-            IverksettMotOppdragTask.opprettTask(
-                behandling = behandlingEtterBehandlingsresultat,
-                vedtakId = vedtak.id,
-                saksbehandlerId = SikkerhetContext.SYSTEM_FORKORTELSE,
-            ),
-        )
-
-        return behandlingEtterBehandlingsresultat
-    }
-
-    private fun validerAtIkkeAlleredeRevurdert(fagsakId: Long) {
-        val erAlleredeBlittRevurdert = behandlingRepository.finnBehandlinger(fagsakId).any { it.opprettetÅrsak == BehandlingÅrsak.LOVENDRING_2024 }
-        if (erAlleredeBlittRevurdert) {
-            throw Feil("Fagsak=$fagsakId har allerede blitt revurdert")
-        }
-    }
+    private fun validerAtIkkeAlleredeRevurdert(fagsakId: Long): Boolean =
+        behandlingRepository.finnBehandlinger(fagsakId).any { it.opprettetÅrsak == BehandlingÅrsak.LOVENDRING_2024 }
 }

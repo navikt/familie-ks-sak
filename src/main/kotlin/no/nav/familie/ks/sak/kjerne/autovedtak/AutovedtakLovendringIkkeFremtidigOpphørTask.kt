@@ -15,7 +15,7 @@ import java.util.Properties
 
 @Service
 @TaskStepBeskrivelse(
-    taskStepType = TASK_STEP_TYPE,
+    taskStepType = AutovedtakLovendringIkkeFremtidigOpphørTask.TASK_STEP_TYPE,
     beskrivelse = "Trigger autovedtak av lovendring",
     maxAntallFeil = 1,
     settTilManuellOppfølgning = true,
@@ -33,17 +33,17 @@ class AutovedtakLovendringIkkeFremtidigOpphørTask(
             throw Feil("Fagsak $fagsakId er ikke løpende")
         }
 
-        val aktivBehandling =
+        val sisteIverksatteBehandling =
             behandlingService.hentSisteBehandlingSomErIverksatt(fagsakId)
                 ?: throw Feil("Fant ingen aktiv behandling for fagsak $fagsakId")
         val vilkårsvurdering =
-            vilkårsvurderingService.finnAktivVilkårsvurdering(aktivBehandling.id)
-                ?: throw Feil("Fant ingen vilkårsvurdering for behandling ${aktivBehandling.id}")
+            vilkårsvurderingService.finnAktivVilkårsvurdering(sisteIverksatteBehandling.id)
+                ?: throw Feil("Fant ingen vilkårsvurdering for behandling ${sisteIverksatteBehandling.id}")
 
         val vilkårResultaterPåBehandling = vilkårsvurdering.personResultater.flatMap { it.vilkårResultater }
 
         val behandlingHarFremtidigOpphør = vilkårResultaterPåBehandling.any { it.søkerHarMeldtFraOmBarnehageplass == true }
-        check(behandlingHarFremtidigOpphør) { "Siste iverksatte behandling=${aktivBehandling.id} på fagsak=$fagsakId har fremtidig opphør." }
+        check(behandlingHarFremtidigOpphør) { "Siste iverksatte behandling=${sisteIverksatteBehandling.id} på fagsak=$fagsakId har fremtidig opphør." }
 
         autovedtakLovendringService.revurderFagsak(fagsakId = fagsakId)
     }
