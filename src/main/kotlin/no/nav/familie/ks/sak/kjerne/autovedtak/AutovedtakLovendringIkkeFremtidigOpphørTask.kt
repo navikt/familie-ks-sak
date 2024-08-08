@@ -50,7 +50,7 @@ class AutovedtakLovendringIkkeFremtidigOpphørTask(
 
     companion object {
         val logger = LoggerFactory.getLogger(AutovedtakLovendringIkkeFremtidigOpphørTask::class.java)
-        const val TASK_STEP_TYPE = "autovedtakLovendring"
+        const val TASK_STEP_TYPE = "autovedtakLovendringIkkeFremtidigOpphør"
 
         fun opprettTask(
             fagsakId: Long,

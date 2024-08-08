@@ -21,8 +21,8 @@ import no.nav.familie.ks.sak.config.BehandlerRolle
 import no.nav.familie.ks.sak.config.SpringProfile
 import no.nav.familie.ks.sak.integrasjon.ecb.ECBService
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
+import no.nav.familie.ks.sak.kjerne.autovedtak.AutovedtakLovendringIkkeFremtidigOpphørTask
 import no.nav.familie.ks.sak.kjerne.autovedtak.AutovedtakLovendringService
-import no.nav.familie.ks.sak.kjerne.autovedtak.AutovedtakLovendringTask
 import no.nav.familie.ks.sak.kjerne.avstemming.GrensesnittavstemmingTask
 import no.nav.familie.ks.sak.kjerne.avstemming.KonsistensavstemmingKjøreplanService
 import no.nav.familie.ks.sak.kjerne.avstemming.KonsistensavstemmingTask
@@ -288,7 +288,7 @@ class ForvaltningController(
             handling = "opprette automatisk revurdering",
         )
 
-        AutovedtakLovendringTask.opprettTask(fagsakId).apply { taskService.save(this) }
+        AutovedtakLovendringIkkeFremtidigOpphørTask.opprettTask(fagsakId).apply { taskService.save(this) }
 
         return ResponseEntity.ok(Ressurs.success("Automatisk revurdering opprettet"))
     }
