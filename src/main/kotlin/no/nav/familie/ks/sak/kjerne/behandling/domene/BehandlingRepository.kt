@@ -146,12 +146,17 @@ interface BehandlingRepository : JpaRepository<Behandling, Long> {
                 SELECT 1 FROM behandling b2
                    INNER JOIN vilkar_resultat vr ON vr.fk_behandling_id = b2.id
                 WHERE b2.fk_fagsak_id = b.fk_fagsak_id
-                AND vr.soker_har_meldt_fra_om_barnehageplass = true
-                AND vr.resultat = 'OPPFYLT')
+                    AND vr.soker_har_meldt_fra_om_barnehageplass = true
+                    AND vr.resultat = 'OPPFYLT')
+              AND NOT EXISTS (
+                SELECT 1 FROM behandling b2
+                    INNER JOIN vilkar_resultat vr ON vr.fk_behandling_id = b2.id
+                WHERE b2.fk_fagsak_id = b.fk_fagsak_id
+                    AND vr.utdypende_vilkarsvurderinger = 'ADOPSJON')
               AND NOT EXISTS (
                 SELECT 1 FROM behandling b2
                 WHERE b2.fk_fagsak_id = b.fk_fagsak_id
-                AND b2.opprettet_aarsak = 'LOVENDRING_2024');
+                    AND b2.opprettet_aarsak = 'LOVENDRING_2024');
         """,
         nativeQuery = true,
     )
