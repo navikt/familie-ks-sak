@@ -46,6 +46,7 @@ internal class BrevUtilKtTest {
                 hentVedtaksbrevtype(
                     BehandlingType.FØRSTEGANGSBEHANDLING,
                     Behandlingsresultat.IKKE_VURDERT,
+                    BehandlingÅrsak.SØKNAD,
                 )
             }
 
@@ -57,7 +58,7 @@ internal class BrevUtilKtTest {
 
     @Test
     fun `hentVedtaksbrevtype skal returnere førstegangsvedtak mal for førstegangsbehandlinger med innvilget resultat`() {
-        val brevmal = hentVedtaksbrevtype(BehandlingType.FØRSTEGANGSBEHANDLING, Behandlingsresultat.INNVILGET)
+        val brevmal = hentVedtaksbrevtype(BehandlingType.FØRSTEGANGSBEHANDLING, Behandlingsresultat.INNVILGET, BehandlingÅrsak.SØKNAD)
 
         assertThat(
             brevmal,

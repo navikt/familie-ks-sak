@@ -27,7 +27,7 @@ fun hentVedtaksbrevmal(behandling: Behandling): Brevmal {
         throw Feil("Kan ikke opprette brev. Behandlingen er ikke vurdert.")
     }
 
-    val brevmal = hentVedtaksbrevtype(behandling.type, behandling.resultat)
+    val brevmal = hentVedtaksbrevtype(behandling.type, behandling.resultat, behandling.opprettetÅrsak)
 
     return if (brevmal.erVedtaksbrev) brevmal else throw Feil("Brevmal ${brevmal.visningsTekst} er ikke vedtaksbrev")
 }
@@ -35,6 +35,7 @@ fun hentVedtaksbrevmal(behandling: Behandling): Brevmal {
 fun hentVedtaksbrevtype(
     behandlingType: BehandlingType,
     behandlingsresultat: Behandlingsresultat,
+    behandlingÅrsak: BehandlingÅrsak,
 ): Brevmal {
     val feilmeldingBehandlingTypeOgResultat =
         "Brev ikke støttet for behandlingstype=$behandlingType og behandlingsresultat=$behandlingsresultat"
@@ -42,6 +43,10 @@ fun hentVedtaksbrevtype(
         "Brev ikke støttet for behandlingstype=$behandlingType"
     val frontendFeilmelding =
         "Vi finner ikke vedtaksbrev som matcher med behandlingen og resultatet du har fått. " + "Ta kontakt med Team BAKS slik at vi kan se nærmere på saken."
+
+    if (behandlingÅrsak == BehandlingÅrsak.LOVENDRING_2024) {
+        return Brevmal.ENDRING_AV_FRAMTIDIG_OPPHØR
+    }
 
     return when (behandlingType) {
         BehandlingType.FØRSTEGANGSBEHANDLING ->

@@ -84,7 +84,7 @@ enum class Brevmal(
     ),
 
     HENLEGGE_TRUKKET_SØKNAD(false, "henleggeTrukketSoknad", "Henlegge trukket søknad"),
-    ENDRING_AV_FRAMTIDIG_OPPHØR(false, "endringAvFramtidigOpphor", "Endring av framtidig opphør"),
+    ENDRING_AV_FRAMTIDIG_OPPHØR(true, "endringAvFramtidigOpphor", "Endring av framtidig opphør"),
     VARSEL_OM_REVURDERING(false, "varselOmRevurdering", "Varsel om revurdering"),
     VARSEL_OM_VEDTAK_ETTER_SØKNAD_I_SED(
         false,

@@ -11,6 +11,7 @@ import no.nav.familie.ks.sak.api.mapper.BehandlingMapper
 import no.nav.familie.ks.sak.api.mapper.BehandlingMapper.lagPersonRespons
 import no.nav.familie.ks.sak.api.mapper.BehandlingMapper.lagPersonerMedAndelTilkjentYtelseRespons
 import no.nav.familie.ks.sak.api.mapper.SøknadGrunnlagMapper.tilSøknadDto
+import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.integrasjon.sanity.SanityService
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.ArbeidsfordelingService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
@@ -18,6 +19,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingKategori
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat
+import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak.LOVENDRING_2024
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg
 import no.nav.familie.ks.sak.kjerne.behandling.steg.behandlingsresultat.BehandlingsresultatValideringUtils
 import no.nav.familie.ks.sak.kjerne.behandling.steg.registrersøknad.SøknadGrunnlagService
@@ -47,6 +49,7 @@ import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import java.time.YearMonth
 
 @Service
 class BehandlingService(
@@ -270,6 +273,33 @@ class BehandlingService(
 
         behandling.kategori = overstyrtKategori
         return oppdaterBehandling(behandling)
+    }
+
+    fun erLovendringOgFremtidigOpphørOgNyAndelIAugust2024(
+        behandlingEtterBehandlingsresultat: Behandling,
+    ): Boolean {
+        if (behandlingEtterBehandlingsresultat.opprettetÅrsak != LOVENDRING_2024) {
+            return false
+        }
+
+        if (!vilkårsvurderingService.erFremtidigOpphørIBehandling(behandlingEtterBehandlingsresultat)) {
+            return false
+        }
+
+        val fagsakId = behandlingEtterBehandlingsresultat.fagsak.id
+        val sisteIverksatteBehandling = hentSisteBehandlingSomErIverksatt(fagsakId) ?: throw Feil("Fant ingen iverksatt behandling for fagsak $fagsakId")
+
+        val andelerNåværendeBehandling = andelTilkjentYtelseRepository.finnAndelerTilkjentYtelseForBehandling(behandlingEtterBehandlingsresultat.id)
+        val andelerForrigeBehandling = andelTilkjentYtelseRepository.finnAndelerTilkjentYtelseForBehandling(sisteIverksatteBehandling.id)
+
+        val aktører = (andelerNåværendeBehandling.map { it.aktør } + andelerForrigeBehandling.map { it.aktør }).distinct()
+
+        return aktører.any { aktør ->
+            val sisteNåværendeUtbetalingForAktør = andelerNåværendeBehandling.filter { it.aktør == aktør }.maxOfOrNull { it.stønadTom }
+            val sisteForrigeUtbetalingForAktør = andelerForrigeBehandling.filter { it.aktør == aktør }.maxOfOrNull { it.stønadTom }
+
+            sisteForrigeUtbetalingForAktør == YearMonth.of(2024, 7) && sisteNåværendeUtbetalingForAktør == YearMonth.of(2024, 8)
+        }
     }
 
     fun hentFerdigstilteBehandlinger(fagsak: Fagsak): List<Behandling> =
