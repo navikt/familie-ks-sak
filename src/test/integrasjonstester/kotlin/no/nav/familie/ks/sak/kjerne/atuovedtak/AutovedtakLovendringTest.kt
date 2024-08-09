@@ -221,7 +221,7 @@ class AutovedtakLovendringTest(
         )
 
         // act
-        val nyBehandling = autovedtakLovendringService.revurderFagsak(fagsakId = fagsak.id)!!
+        val nyBehandling = autovedtakLovendringService.revurderFagsak(fagsakId = fagsak.id, erFremtidigOpphør = true)!!
 
         // assert
         assertThat(nyBehandling.opprettetÅrsak).isEqualTo(BehandlingÅrsak.LOVENDRING_2024)

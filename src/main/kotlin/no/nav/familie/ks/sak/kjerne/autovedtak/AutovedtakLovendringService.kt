@@ -1,6 +1,7 @@
 package no.nav.familie.ks.sak.kjerne.autovedtak
 
 import no.nav.familie.ks.sak.common.exception.Feil
+import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.SettPåMaskinellVentÅrsak
 import no.nav.familie.ks.sak.kjerne.behandling.SnikeIKøenService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
@@ -27,11 +28,15 @@ class AutovedtakLovendringService(
     private val autovedtakService: AutovedtakService,
     private val stegService: StegService,
     private val vedtakService: VedtakService,
+    private val behandlingService: BehandlingService,
 ) {
     private val logger = LoggerFactory.getLogger(this::class.java)
 
     @Transactional
-    fun revurderFagsak(fagsakId: Long): Behandling? =
+    fun revurderFagsak(
+        fagsakId: Long,
+        erFremtidigOpphør: Boolean = false,
+    ): Behandling? =
         if (behandlingRepository.finnBehandlinger(fagsakId).any { it.opprettetÅrsak == BehandlingÅrsak.LOVENDRING_2024 }) {
             logger.info("Lovendring 2024 allerede kjørt for fagsakId=$fagsakId")
             null
@@ -54,7 +59,9 @@ class AutovedtakLovendringService(
             val søkerAktør = fagsak.aktør
             val behandlingEtterBehandlingsresultat = autovedtakService.opprettAutomatiskBehandlingOgKjørTilBehandlingsresultat(aktør = søkerAktør, behandlingÅrsak = BehandlingÅrsak.LOVENDRING_2024, behandlingType = BehandlingType.REVURDERING)
 
-            if (behandlingEtterBehandlingsresultat.skalSendeVedtaksbrev()) {
+            val erLovendringOgFremtidigOpphørOgNyAndelIAugust2024 = behandlingService.erLovendringOgFremtidigOpphørOgNyAndelIAugust2024(behandlingEtterBehandlingsresultat)
+
+            if (behandlingEtterBehandlingsresultat.skalSendeVedtaksbrev(erLovendringOgFremtidigOpphørOgNyAndelIAugust2024)) {
                 stegService.utførSteg(behandlingId = behandlingEtterBehandlingsresultat.id, behandlingSteg = BehandlingSteg.SIMULERING)
                 stegService.utførSteg(behandlingId = behandlingEtterBehandlingsresultat.id, behandlingSteg = BehandlingSteg.VEDTAK)
             } else {

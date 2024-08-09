@@ -4,10 +4,8 @@ import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak.LOVENDRING_2024
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
 import no.nav.familie.ks.sak.kjerne.fagsak.FagsakService
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.FagsakStatus
-import no.nav.familie.ks.sak.statistikk.stønadsstatistikk.PubliserVedtakTask.Companion.TASK_STEP_TYPE
 import no.nav.familie.prosessering.AsyncTaskStep
 import no.nav.familie.prosessering.TaskStepBeskrivelse
 import no.nav.familie.prosessering.domene.Task
@@ -43,17 +41,10 @@ class AutovedtakLovendringIkkeFremtidigOpphørTask(
             val sisteIverksatteBehandling =
                 behandlingService.hentSisteBehandlingSomErIverksatt(fagsakId)
                     ?: throw Feil("Fant ingen aktiv behandling for fagsak $fagsakId")
-            val vilkårsvurdering =
-                vilkårsvurderingService.finnAktivVilkårsvurdering(sisteIverksatteBehandling.id)
-                    ?: throw Feil("Fant ingen vilkårsvurdering for behandling ${sisteIverksatteBehandling.id}")
 
-            val vilkårResultaterPåBehandling = vilkårsvurdering.personResultater.flatMap { it.vilkårResultater }
-
-            val behandlingHarFremtidigOpphør =
-                vilkårResultaterPåBehandling.filter { it.vilkårType == Vilkår.BARNEHAGEPLASS }.any {
-                    it.søkerHarMeldtFraOmBarnehageplass == true
-                }
-            if (behandlingHarFremtidigOpphør) error("Siste iverksatte behandling=${sisteIverksatteBehandling.id} på fagsak=$fagsakId har fremtidig opphør.")
+            if (vilkårsvurderingService.erFremtidigOpphørIBehandling(sisteIverksatteBehandling)) {
+                error("Siste iverksatte behandling=${sisteIverksatteBehandling.id} på fagsak=$fagsakId har fremtidig opphør.")
+            }
 
             autovedtakLovendringService.revurderFagsak(fagsakId = fagsakId)
         }

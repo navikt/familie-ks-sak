@@ -194,14 +194,14 @@ class StegService(
             }
 
             BEHANDLINGSRESULTAT ->
-                if (behandling.skalBehandlesAutomatisk() && !behandling.skalSendeVedtaksbrev()) {
+                if (behandling.skalBehandlesAutomatisk() && !behandlingService.erLovendringOgFremtidigOpphørOgNyAndelIAugust2024(behandling)) {
                     IVERKSETT_MOT_OPPDRAG
                 } else {
                     nesteGyldigeStadier.first()
                 }
 
             IVERKSETT_MOT_OPPDRAG ->
-                if (behandling.skalBehandlesAutomatisk() && !behandling.skalSendeVedtaksbrev()) {
+                if (behandling.skalBehandlesAutomatisk() && !behandlingService.erLovendringOgFremtidigOpphørOgNyAndelIAugust2024(behandling)) {
                     AVSLUTT_BEHANDLING
                 } else {
                     nesteGyldigeStadier.first()
