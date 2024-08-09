@@ -1,7 +1,7 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    val kotlinVersion = "1.9.24"
+    val kotlinVersion = "2.0.10"
     kotlin("jvm") version kotlinVersion
 
     id("org.springframework.boot") version "3.3.2"
@@ -128,7 +128,7 @@ dependencies {
     implementation("io.micrometer:micrometer-registry-prometheus")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("com.neovisionaries:nv-i18n:1.29")
-    implementation("com.github.jsqlparser:jsqlparser:4.9")
+    implementation("com.github.jsqlparser:jsqlparser:5.0")
 
     ktlint("com.pinterest.ktlint:ktlint-cli:1.3.1") {
         attributes {
