@@ -21,6 +21,7 @@ import no.nav.familie.ks.sak.config.BehandlerRolle
 import no.nav.familie.ks.sak.config.SpringProfile
 import no.nav.familie.ks.sak.integrasjon.ecb.ECBService
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
+import no.nav.familie.ks.sak.kjerne.autovedtak.AutovedtakLovendringFremtidigOpphørTask
 import no.nav.familie.ks.sak.kjerne.autovedtak.AutovedtakLovendringIkkeFremtidigOpphørTask
 import no.nav.familie.ks.sak.kjerne.avstemming.GrensesnittavstemmingTask
 import no.nav.familie.ks.sak.kjerne.avstemming.KonsistensavstemmingKjøreplanService
@@ -304,6 +305,22 @@ class ForvaltningController(
 
         behandlingRepository.finnBehandlingerSomSkalRekjøresLovendring().take(limit.toInt()).forEach {
             AutovedtakLovendringIkkeFremtidigOpphørTask.opprettTask(it).apply { taskService.save(this) }
+        }
+
+        return ResponseEntity.ok(Ressurs.success("Automatisk revurdering opprettet"))
+    }
+
+    @PostMapping("/automatisk-revurdering-lovendring-fremtidig-opphor/{limit}")
+    fun opprettAutomatiskLovendringFremtidigOpphør(
+        @PathVariable limit: Long,
+    ): ResponseEntity<Ressurs<String>> {
+        tilgangService.validerTilgangTilHandling(
+            minimumBehandlerRolle = BehandlerRolle.FORVALTER,
+            handling = "opprette automatisk revurdering",
+        )
+
+        behandlingRepository.finnBehandlingerSomSkalRekjøresLovendringForFremtidigOpphør().take(limit.toInt()).forEach {
+            AutovedtakLovendringFremtidigOpphørTask.opprettTask(it).apply { taskService.save(this) }
         }
 
         return ResponseEntity.ok(Ressurs.success("Automatisk revurdering opprettet"))
