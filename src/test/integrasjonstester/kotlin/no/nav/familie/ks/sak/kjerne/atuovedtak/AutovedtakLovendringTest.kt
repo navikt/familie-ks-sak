@@ -1,6 +1,7 @@
 package no.nav.familie.ks.sak.no.nav.familie.ks.sak.kjerne.atuovedtak
 
 import com.ninjasquad.springmockk.MockkBean
+import com.ninjasquad.springmockk.SpykBean
 import io.mockk.every
 import io.mockk.justRun
 import io.mockk.verify
@@ -17,6 +18,7 @@ import no.nav.familie.ks.sak.integrasjon.økonomi.utbetalingsoppdrag.Utbetalings
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.ArbeidsfordelingService
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.domene.ArbeidsfordelingPåBehandling
 import no.nav.familie.ks.sak.kjerne.autovedtak.AutovedtakLovendringService
+import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
@@ -43,7 +45,6 @@ import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext
 import no.nav.familie.ks.sak.statistikk.saksstatistikk.SakStatistikkService
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import java.math.BigDecimal
@@ -58,6 +59,9 @@ class AutovedtakLovendringTest(
     @Autowired private val behandlingRepository: BehandlingRepository,
     @Autowired private val totrinnskontrollService: TotrinnskontrollService,
 ) : OppslagSpringRunnerTest() {
+    @SpykBean
+    private lateinit var behandlingService: BehandlingService
+
     @MockkBean
     private lateinit var brevklient: BrevKlient
 
@@ -186,9 +190,7 @@ class AutovedtakLovendringTest(
     }
 
     @Test
-    @Disabled
     fun `automatisk revurdering av fagsak som har fremtidig opphør beholder fremtidig opphør og sender brev`() {
-        // TODO: Fjern @Disabled når løype for fremtidig opphør med brevutsending er implementert
         // arrange
 
         every { brevklient.genererBrev(any(), any()) } returns "brev".toByteArray()
@@ -197,6 +199,8 @@ class AutovedtakLovendringTest(
 
         opprettSøkerFagsakOgBehandling(fagsakStatus = FagsakStatus.LØPENDE, behandlingStatus = BehandlingStatus.AVSLUTTET, behandlingResultat = Behandlingsresultat.INNVILGET)
 
+        every { behandlingService.hentSisteBehandlingSomErIverksatt(fagsak.id) } returns behandling
+
         val fødselsdatoBarn = LocalDate.of(2023, 4, 1)
         opprettPersonopplysningGrunnlagOgPersonForBehandling(
             behandlingId = behandling.id,
@@ -204,7 +208,7 @@ class AutovedtakLovendringTest(
             fødselsdatoBarn = fødselsdatoBarn,
         )
 
-        val datoForBarnehageplass = fødselsdatoBarn.plusYears(1).plusMonths(5).plusDays(12) // 13. september 2024
+        val datoForBarnehageplass = LocalDate.of(2024, 8, 1)
         lagVilkårsvurderingMedFremtidigOpphør(fødselsdatoBarn, datoForBarnehageplass)
 
         lagTilkjentYtelse(null)
@@ -225,7 +229,7 @@ class AutovedtakLovendringTest(
 
         // assert
         assertThat(nyBehandling.opprettetÅrsak).isEqualTo(BehandlingÅrsak.LOVENDRING_2024)
-        assertThat(nyBehandling.resultat).isEqualTo(Behandlingsresultat.ENDRET_OG_OPPHØRT)
+        assertThat(nyBehandling.behandlingStegTilstand.map { it.behandlingSteg }).containsAll(setOf(BehandlingSteg.SIMULERING, BehandlingSteg.VEDTAK))
         assertThat(nyBehandling.steg).isEqualTo(BehandlingSteg.IVERKSETT_MOT_OPPDRAG)
 
         val andelTilkjentYtelseNy = andelTilkjentYtelseRepository.finnAndelerTilkjentYtelseForBehandling(nyBehandling.id).single()
@@ -236,10 +240,10 @@ class AutovedtakLovendringTest(
             vilkårsvurderingRepository
                 .finnAktivForBehandling(nyBehandling.id)!!
                 .personResultater
-                .find { !it.erSøkersResultater() }!!
-                .vilkårResultater
-                .filter { it.vilkårType == Vilkår.BARNEHAGEPLASS && it.harMeldtBarnehageplassOgErFulltidIBarnehage() }
-        assertThat(vilkårResultatRevurdering.size).isEqualTo(1)
+                .flatMap { it.vilkårResultater }
+                .single { it.vilkårType == Vilkår.BARNEHAGEPLASS && it.harMeldtBarnehageplassOgErFulltidIBarnehage() }
+
+        assertThat(vilkårResultatRevurdering.periodeFom).isEqualTo(datoForBarnehageplass)
 
         verify { simuleringService.oppdaterSimuleringPåBehandling(any<Long>()) }
         verify { brevklient.genererBrev(any(), any()) }
@@ -351,19 +355,16 @@ class AutovedtakLovendringTest(
             )
         val mutablePersonResultater = lagPersonResultater(vilkårsvurdering, fødselsdatoBarn)
 
-        val personResultatBarn = mutablePersonResultater.find { !it.erSøkersResultater() }!!
-        val barnehagevilkårIkkeBarnehageplass =
-            personResultatBarn
-                .vilkårResultater
-                .find { it.vilkårType == Vilkår.BARNEHAGEPLASS }!!
+        val personResultatBarn = mutablePersonResultater.first { !it.erSøkersResultater() }
+        val barnehagevilkårIkkeBarnehageplass = personResultatBarn.vilkårResultater.first { it.vilkårType == Vilkår.BARNEHAGEPLASS }
 
-        barnehagevilkårIkkeBarnehageplass.periodeTom = datoForBarnehageplass
+        barnehagevilkårIkkeBarnehageplass.periodeTom = datoForBarnehageplass.minusDays(1)
 
         val barnetHarBarnehageplassVilkår =
             VilkårResultat(
                 personResultat = personResultatBarn,
                 vilkårType = Vilkår.BARNEHAGEPLASS,
-                periodeFom = datoForBarnehageplass.plusDays(1),
+                periodeFom = datoForBarnehageplass,
                 periodeTom = fødselsdatoBarn.plusYears(2).minusMonths(1), // barnets alder-vilkår.periode_tom
                 behandlingId = behandling.id,
                 resultat = Resultat.IKKE_OPPFYLT,
@@ -413,5 +414,6 @@ class AutovedtakLovendringTest(
         assertThat(totrinnskontroll).isNotNull
         assertThat(totrinnskontroll!!.godkjent).isTrue()
         assertThat(totrinnskontroll.saksbehandler).isEqualTo(SikkerhetContext.SYSTEM_NAVN)
+        assertThat(totrinnskontroll.beslutter).isEqualTo(SikkerhetContext.SYSTEM_NAVN)
     }
 }
