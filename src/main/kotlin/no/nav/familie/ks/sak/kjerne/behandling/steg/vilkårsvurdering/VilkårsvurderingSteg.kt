@@ -8,9 +8,7 @@ import no.nav.familie.ks.sak.common.tidslinje.TidslinjePeriodeMedDato
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.klipp
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.kombinerMed
 import no.nav.familie.ks.sak.common.tidslinje.validerIngenOverlapp
-import no.nav.familie.ks.sak.common.util.DATO_LOVENDRING_2024
 import no.nav.familie.ks.sak.common.util.TIDENES_ENDE
-import no.nav.familie.ks.sak.common.util.erSammeEllerEtter
 import no.nav.familie.ks.sak.common.util.sisteDagIMåned
 import no.nav.familie.ks.sak.common.util.slåSammen
 import no.nav.familie.ks.sak.config.featureToggle.FeatureToggleConfig
@@ -128,11 +126,6 @@ class VilkårsvurderingSteg(
         behandling: Behandling,
         erToggleForLovendringAugust2024På: Boolean,
     ) {
-        val erFremtidigOpphørEtterLovendring2024 = vilkårsvurdering.personResultater.flatMap { it.vilkårResultater }.any { it.harMeldtBarnehageplassOgErFulltidIBarnehage() && (it.periodeTom ?: TIDENES_ENDE).erSammeEllerEtter(DATO_LOVENDRING_2024) }
-        if (erFremtidigOpphørEtterLovendring2024 && !erToggleForLovendringAugust2024På) {
-            throw FunksjonellFeil("Det er satt fremtidig opphør etter regelverksendring 01.08.24. Dette støttes ikke enda.")
-        }
-
         validerAtDetFinnesBarnIPersonopplysningsgrunnlaget(personopplysningGrunnlag, søknadGrunnlagDto, behandling)
         if (behandling.opprettetÅrsak == BehandlingÅrsak.DØDSFALL) {
             validerAtIngenVilkårErSattEtterSøkersDød(
