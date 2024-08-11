@@ -171,7 +171,7 @@ interface BehandlingRepository : JpaRepository<Behandling, Long> {
                      JOIN vedtak v ON v.fk_behandling_id = b.id
             WHERE b.aktiv = true
               AND vr.soker_har_meldt_fra_om_barnehageplass = true
-              AND vr.periode_tom > '2024-07-30'
+              AND vr.periode_tom > '2024-07-30 23:59:59'
               AND v.vedtaksdato < '2024-07-03 14:00:00'
               AND NOT EXISTS (
                 SELECT 1 FROM behandling b2

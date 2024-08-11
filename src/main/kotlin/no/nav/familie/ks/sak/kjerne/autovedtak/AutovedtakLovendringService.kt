@@ -59,9 +59,9 @@ class AutovedtakLovendringService(
             val søkerAktør = fagsak.aktør
             val behandlingEtterBehandlingsresultat = autovedtakService.opprettAutomatiskBehandlingOgKjørTilBehandlingsresultat(aktør = søkerAktør, behandlingÅrsak = BehandlingÅrsak.LOVENDRING_2024, behandlingType = BehandlingType.REVURDERING)
 
-            val erLovendringOgFremtidigOpphørOgNyAndelIAugust2024 = behandlingService.erLovendringOgFremtidigOpphørOgNyAndelIAugust2024(behandlingEtterBehandlingsresultat)
+            val erLovendringOgFremtidigOpphørOgHarFlereAndeler = behandlingService.erLovendringOgFremtidigOpphørOgHarFlereAndeler(behandlingEtterBehandlingsresultat)
 
-            if (behandlingEtterBehandlingsresultat.skalSendeVedtaksbrev(erLovendringOgFremtidigOpphørOgNyAndelIAugust2024)) {
+            if (behandlingEtterBehandlingsresultat.skalSendeVedtaksbrev(erLovendringOgFremtidigOpphørOgHarFlereAndeler)) {
                 stegService.utførSteg(behandlingId = behandlingEtterBehandlingsresultat.id, behandlingSteg = BehandlingSteg.SIMULERING)
                 stegService.utførSteg(behandlingId = behandlingEtterBehandlingsresultat.id, behandlingSteg = BehandlingSteg.VEDTAK)
             } else {

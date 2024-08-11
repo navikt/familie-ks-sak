@@ -29,10 +29,10 @@ class VedtakService(
     fun oppdaterVedtakMedDatoOgStønadsbrev(behandling: Behandling): Vedtak {
         val vedtak = hentAktivVedtakForBehandling(behandling.id)
 
-        val erLovendringOgFremtidigOpphørOgNyAndelIAugust2024 = behandlingService.erLovendringOgFremtidigOpphørOgNyAndelIAugust2024(behandling)
+        val erLovendringOgFremtidigOpphørOgHarFlereAndeler = behandlingService.erLovendringOgFremtidigOpphørOgHarFlereAndeler(behandling)
 
         vedtak.vedtaksdato = LocalDateTime.now()
-        if (behandling.skalSendeVedtaksbrev(erLovendringOgFremtidigOpphørOgNyAndelIAugust2024)) {
+        if (behandling.skalSendeVedtaksbrev(erLovendringOgFremtidigOpphørOgHarFlereAndeler)) {
             val brev = genererBrevService.genererBrevForBehandling(vedtak)
             vedtak.stønadBrevPdf = brev
         }

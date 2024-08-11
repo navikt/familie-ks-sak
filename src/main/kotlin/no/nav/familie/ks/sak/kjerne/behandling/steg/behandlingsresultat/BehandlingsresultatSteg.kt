@@ -60,7 +60,7 @@ class BehandlingsresultatSteg(
         BehandlingsresultatValideringUtils.validerUtledetBehandlingsresultat(behandling, resultat)
         val behandlingMedOppdatertResultat = behandlingService.oppdaterBehandlingsresultat(behandlingId, resultat)
 
-        val erLovendringOgFremtidigOpphørOgNyAndelIAugust2024 = behandlingService.erLovendringOgFremtidigOpphørOgNyAndelIAugust2024(behandling)
+        val erLovendringOgFremtidigOpphørOgNyAndelIAugust2024 = behandlingService.erLovendringOgFremtidigOpphørOgHarFlereAndeler(behandling)
 
         if (behandlingMedOppdatertResultat.skalSendeVedtaksbrev(erLovendringOgFremtidigOpphørOgNyAndelIAugust2024)) {
             behandlingService.nullstillEndringstidspunkt(behandlingId)

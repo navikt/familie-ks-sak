@@ -75,7 +75,7 @@ class VedtakServiceTest {
         every { genererBrevService.genererBrevForBehandling(any()) } returns brev
         every { vedtakRepository.findByBehandlingAndAktivOptional(any()) } returns vedtak
         every { vedtakRepository.saveAndFlush(any()) } answers { firstArg() }
-        every { behandlingService.erLovendringOgFremtidigOpphørOgNyAndelIAugust2024(any()) } returns false
+        every { behandlingService.erLovendringOgFremtidigOpphørOgHarFlereAndeler(any()) } returns false
         every { LocalDateTime.now() } returns LocalDateTime.of(2024, 1, 1, 0, 0)
 
         val oppdatertVedtak = vedtakService.oppdaterVedtakMedDatoOgStønadsbrev(behandling)
@@ -102,7 +102,7 @@ class VedtakServiceTest {
 
         every { vedtakRepository.findByBehandlingAndAktivOptional(any()) } returns vedtak
         every { vedtakRepository.saveAndFlush(any()) } answers { firstArg() }
-        every { behandlingService.erLovendringOgFremtidigOpphørOgNyAndelIAugust2024(any()) } returns false
+        every { behandlingService.erLovendringOgFremtidigOpphørOgHarFlereAndeler(any()) } returns false
         every { LocalDateTime.now() } returns LocalDateTime.of(2024, 1, 1, 0, 0)
 
         val oppdatertVedtak = vedtakService.oppdaterVedtakMedDatoOgStønadsbrev(behandling)

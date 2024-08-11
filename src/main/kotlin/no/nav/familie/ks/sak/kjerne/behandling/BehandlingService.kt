@@ -12,6 +12,8 @@ import no.nav.familie.ks.sak.api.mapper.BehandlingMapper.lagPersonRespons
 import no.nav.familie.ks.sak.api.mapper.BehandlingMapper.lagPersonerMedAndelTilkjentYtelseRespons
 import no.nav.familie.ks.sak.api.mapper.SøknadGrunnlagMapper.tilSøknadDto
 import no.nav.familie.ks.sak.common.exception.Feil
+import no.nav.familie.ks.sak.common.util.TIDENES_MORGEN
+import no.nav.familie.ks.sak.common.util.toYearMonth
 import no.nav.familie.ks.sak.integrasjon.sanity.SanityService
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.ArbeidsfordelingService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
@@ -49,7 +51,6 @@ import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import java.time.YearMonth
 
 @Service
 class BehandlingService(
@@ -275,7 +276,7 @@ class BehandlingService(
         return oppdaterBehandling(behandling)
     }
 
-    fun erLovendringOgFremtidigOpphørOgNyAndelIAugust2024(
+    fun erLovendringOgFremtidigOpphørOgHarFlereAndeler(
         behandlingEtterBehandlingsresultat: Behandling,
     ): Boolean {
         if (behandlingEtterBehandlingsresultat.opprettetÅrsak != LOVENDRING_2024) {
@@ -295,10 +296,12 @@ class BehandlingService(
         val aktører = (andelerNåværendeBehandling.map { it.aktør } + andelerForrigeBehandling.map { it.aktør }).distinct()
 
         return aktører.any { aktør ->
-            val sisteNåværendeUtbetalingForAktør = andelerNåværendeBehandling.filter { it.aktør == aktør }.maxOfOrNull { it.stønadTom }
-            val sisteForrigeUtbetalingForAktør = andelerForrigeBehandling.filter { it.aktør == aktør }.maxOfOrNull { it.stønadTom }
+            val sisteNåværendeUtbetalingForAktør =
+                andelerNåværendeBehandling.filter { it.aktør == aktør }.maxOfOrNull { it.stønadTom } ?: return@any false
+            val sisteForrigeUtbetalingForAktør =
+                andelerForrigeBehandling.filter { it.aktør == aktør }.maxOfOrNull { it.stønadTom } ?: TIDENES_MORGEN.toYearMonth()
 
-            sisteForrigeUtbetalingForAktør == YearMonth.of(2024, 7) && sisteNåværendeUtbetalingForAktør == YearMonth.of(2024, 8)
+            sisteForrigeUtbetalingForAktør < sisteNåværendeUtbetalingForAktør
         }
     }
 
