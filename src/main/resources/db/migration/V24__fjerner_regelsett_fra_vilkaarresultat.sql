@@ -1,0 +1,1 @@
+ALTER TABLE vilkar_resultat DROP COLUMN regelsett;
