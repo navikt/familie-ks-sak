@@ -22,6 +22,8 @@ import no.nav.familie.ks.sak.config.BehandlerRolle
 import no.nav.familie.ks.sak.config.SpringProfile
 import no.nav.familie.ks.sak.integrasjon.ecb.ECBService
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
+import no.nav.familie.ks.sak.internal.TestVerktøyService
+import no.nav.familie.ks.sak.internal.kontantstøtteInfobrevJuli2024.DistribuerInformasjonsbrevKontantstøtteJuli2024
 import no.nav.familie.ks.sak.kjerne.autovedtak.AutovedtakLovendringIkkeFremtidigOpphørTask
 import no.nav.familie.ks.sak.kjerne.autovedtak.AutovedtakLovendringTask
 import no.nav.familie.ks.sak.kjerne.avstemming.GrensesnittavstemmingTask
@@ -31,6 +33,7 @@ import no.nav.familie.ks.sak.kjerne.avstemming.domene.KonsistensavstemmingTaskDt
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
 import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
+import no.nav.familie.ks.sak.sikkerhet.AuditLoggerEvent
 import no.nav.familie.ks.sak.sikkerhet.TilgangService
 import no.nav.familie.ks.sak.statistikk.saksstatistikk.SakStatistikkService
 import no.nav.familie.ks.sak.statistikk.stønadsstatistikk.PubliserVedtakTask
@@ -72,6 +75,8 @@ class ForvaltningController(
     private val environment: Environment,
     private val ecbService: ECBService,
     private val behandlingRepository: BehandlingRepository,
+    private val testVerktøyService: TestVerktøyService,
+    private val distribuerInformasjonsbrevKontantstøtteJuli2024: DistribuerInformasjonsbrevKontantstøtteJuli2024,
 ) {
     private val logger = LoggerFactory.getLogger(ForvaltningController::class.java)
 
@@ -317,5 +322,44 @@ class ForvaltningController(
         }
 
         return ResponseEntity.ok(Ressurs.success("Automatisk revurdering opprettet"))
+    }
+
+    @GetMapping(path = ["/behandling/{behandlingId}/begrunnelsetest"])
+    fun hentBegrunnelsetestPåBehandling(
+        @PathVariable behandlingId: Long,
+    ): String {
+        tilgangService.validerTilgangTilHandlingOgFagsakForBehandling(
+            behandlingId = behandlingId,
+            event = AuditLoggerEvent.ACCESS,
+            handling = "hente data til test",
+            minimumBehandlerRolle = BehandlerRolle.VEILEDER,
+        )
+
+        return testVerktøyService
+            .hentBrevTest(behandlingId)
+            .replace("\n", System.lineSeparator())
+    }
+
+    @PostMapping(path = ["/fagsaker/kjor-send-informasjonsbrev-juli-2024"])
+    fun sendInformasjonsBrevJuli2024TilFagsakSomErTruffet() {
+        tilgangService.validerTilgangTilHandling(
+            handling = "Send informasjonsbrev til alle fagsak som skal motta informasjonsbrev juli 2024",
+            minimumBehandlerRolle = BehandlerRolle.VEILEDER,
+        )
+
+        logger.info("Kaller kjor-send-informasjonsbrev-juli-2024")
+        distribuerInformasjonsbrevKontantstøtteJuli2024.opprettTaskerForÅJournalføreOgSendeUtInformasjonsbrevKontantstøttJuli2024()
+    }
+
+    @PostMapping(path = ["/fagsaker/hent-fagsak-id-send-informasjonsbrev-juli-2024"])
+    fun hentAlleFagsakIdSomDetSkalSendesBrevTil(): Set<Long> {
+        tilgangService.validerTilgangTilHandling(
+            handling = "Henter alle fagsak som skal motta informasjonsbrev juli 2024",
+            minimumBehandlerRolle = BehandlerRolle.VEILEDER,
+        )
+
+        logger.info("Kaller fagsaker/hent-personer-informasjonsbrev-endring-kontantstotte-infotrygd")
+
+        return distribuerInformasjonsbrevKontantstøtteJuli2024.hentAlleFagsakIdSomDetSkalSendesBrevTil().toSet()
     }
 }
