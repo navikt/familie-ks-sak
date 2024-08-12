@@ -9,6 +9,7 @@ import no.nav.familie.prosessering.domene.Task
 import org.slf4j.LoggerFactory
 import org.springframework.context.i18n.LocaleContextHolder
 import org.springframework.stereotype.Service
+import java.time.LocalDateTime
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
 
@@ -25,7 +26,11 @@ class SendBehandlinghendelseTilDvhTask(
     override fun doTask(task: Task) {
         log.info("SendBehandlinghendelseTilDvhTask prosesserer med id=${task.id} og metadata ${task.metadata}")
         val behandlingStatistikkDto: BehandlingStatistikkDto = objectMapper.readValue(task.payload)
-        val tekniskTidspunkt = OffsetDateTime.now(ZoneOffset.UTC)
+        val tekniskTidspunkt =
+            OffsetDateTime.of(
+                LocalDateTime.now(),
+                ZoneOffset.UTC,
+            )
         // Logger om teknisk tidspunkt er tidligere enn funksjonell tidspunkt, da dette ikke skal forekomme. Men datavarehus har rapportert om det
         if (tekniskTidspunkt.isBefore(behandlingStatistikkDto.funksjoneltTidspunkt)) {
             log.warn("Teknisk tidspunkt er tidligere enn funksjonell tidspunkt. Teknisk tidspunkt: ${behandlingStatistikkDto.tekniskTidspunkt}, funksjonell tidspunkt: $tekniskTidspunkt Tidssone ${LocaleContextHolder.getTimeZone()}")
