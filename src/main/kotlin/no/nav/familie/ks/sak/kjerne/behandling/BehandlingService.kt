@@ -32,7 +32,6 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.Vedtak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
 import no.nav.familie.ks.sak.kjerne.beregning.AndelerTilkjentYtelseOgEndreteUtbetalingerService
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelseRepository
-import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.NasjonalEllerFellesBegrunnelse
 import no.nav.familie.ks.sak.kjerne.brev.mottaker.BrevmottakerService
 import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.tilEndretUtbetalingAndelResponsDto
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.KompetanseRepository
@@ -278,40 +277,27 @@ class BehandlingService(
     }
 
     fun erLovendringOgFremtidigOpphørOgHarFlereAndeler(
-        behandlingEtterBehandlingsresultat: Behandling,
+        behandling: Behandling,
     ): Boolean {
-        if (behandlingEtterBehandlingsresultat.opprettetÅrsak != LOVENDRING_2024) {
+        if (behandling.opprettetÅrsak != LOVENDRING_2024) {
             return false
         }
 
-        if (!vilkårsvurderingService.erFremtidigOpphørIBehandling(behandlingEtterBehandlingsresultat)) {
+        if (!vilkårsvurderingService.erFremtidigOpphørIBehandling(behandling)) {
             return false
         }
 
-        val fagsakId = behandlingEtterBehandlingsresultat.fagsak.id
+        val fagsakId = behandling.fagsak.id
         val sisteIverksatteBehandling = hentSisteBehandlingSomErIverksatt(fagsakId) ?: throw Feil("Fant ingen iverksatt behandling for fagsak $fagsakId")
 
-        val vedtakForSisteIverksatteBehandling =
-            vedtakRepository.findByBehandlingAndAktiv(
-                behandlingId = sisteIverksatteBehandling.id,
-            )
-        val vedtaksperioderMedBegrunnelser =
-            vedtaksperiodeService.hentUtvidetVedtaksperioderMedBegrunnelser(
-                vedtak = vedtakForSisteIverksatteBehandling,
-            )
-        val forrigeBehandlingHaddeIkkeVedtaksperiodeMedFramtidigOpphørsegrunnelse =
-            vedtaksperioderMedBegrunnelser.none { uvmb ->
-                uvmb.begrunnelser
-                    .map { nefb ->
-                        nefb.nasjonalEllerFellesBegrunnelse
-                    }.contains(NasjonalEllerFellesBegrunnelse.OPPHØR_FRAMTIDIG_OPPHØR_BARNEHAGEPLASS)
-            }
+        val vedtakForSisteIverksatteBehandling = vedtakRepository.findByBehandlingAndAktiv(sisteIverksatteBehandling.id)
+        val forrigeBehandlingHaddeFramtidigOpphørsbegrunnelse = vedtaksperiodeService.vedtakInneholderFremtidigOpphørBegrunnelse(vedtakForSisteIverksatteBehandling)
 
-        if (forrigeBehandlingHaddeIkkeVedtaksperiodeMedFramtidigOpphørsegrunnelse) {
+        if (!forrigeBehandlingHaddeFramtidigOpphørsbegrunnelse) {
             return false
         }
 
-        val andelerNåværendeBehandling = andelTilkjentYtelseRepository.finnAndelerTilkjentYtelseForBehandling(behandlingEtterBehandlingsresultat.id)
+        val andelerNåværendeBehandling = andelTilkjentYtelseRepository.finnAndelerTilkjentYtelseForBehandling(behandling.id)
         val andelerForrigeBehandling = andelTilkjentYtelseRepository.finnAndelerTilkjentYtelseForBehandling(sisteIverksatteBehandling.id)
 
         val aktører = (andelerNåværendeBehandling.map { it.aktør } + andelerForrigeBehandling.map { it.aktør }).distinct()
