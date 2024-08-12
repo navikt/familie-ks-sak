@@ -347,7 +347,7 @@ class ForvaltningController(
             handling = "opprette automatisk revurdering framtidig opphør på fagsak",
         )
 
-        AutovedtakLovendringIkkeFremtidigOpphørTask.opprettTask(fagsakId).apply { taskService.save(this) }
+        AutovedtakLovendringFremtidigOpphørTask.opprettTask(fagsakId).apply { taskService.save(this) }
 
         return ResponseEntity.ok(Ressurs.success("Automatisk revurdering på framtidig opphør opprettet"))
     }
