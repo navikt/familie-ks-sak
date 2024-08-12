@@ -463,7 +463,9 @@ fun lagBrevPeriodeContext(
         lagVedtaksperiodeMedBegrunnelser(
             fom = andelerTilkjentYtelse.first().stønadFom.førsteDagIInneværendeMåned(),
             tom = andelerTilkjentYtelse.first().stønadTom.sisteDagIInneværendeMåned(),
-            begrunnelser = begrunnelser.map { lagVedtaksbegrunnelse(it) }.toMutableSet(),
+            begrunnelser = {
+                begrunnelser.map { lagVedtaksbegrunnelse(it) }.toList()
+            },
             type = vedtaksperiodeType,
         )
 

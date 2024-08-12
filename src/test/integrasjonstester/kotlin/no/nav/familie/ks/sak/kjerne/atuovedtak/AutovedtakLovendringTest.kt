@@ -50,6 +50,10 @@ import org.springframework.beans.factory.annotation.Autowired
 import java.math.BigDecimal
 import java.time.LocalDate
 import java.time.LocalDateTime
+import no.nav.familie.ks.sak.data.lagVedtaksperiodeMedBegrunnelser
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.NasjonalEllerFellesBegrunnelseDB
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.VedtaksperiodeRepository
+import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.NasjonalEllerFellesBegrunnelse.OPPHØR_FRAMTIDIG_OPPHØR_BARNEHAGEPLASS
 
 class AutovedtakLovendringTest(
     @Autowired private val autovedtakLovendringService: AutovedtakLovendringService,
@@ -58,6 +62,7 @@ class AutovedtakLovendringTest(
     @Autowired private val vilkårsvurderingRepository: VilkårsvurderingRepository,
     @Autowired private val behandlingRepository: BehandlingRepository,
     @Autowired private val totrinnskontrollService: TotrinnskontrollService,
+    @Autowired private val vedtaksperiodeRepository: VedtaksperiodeRepository
 ) : OppslagSpringRunnerTest() {
     @SpykBean
     private lateinit var behandlingService: BehandlingService
@@ -103,11 +108,11 @@ class AutovedtakLovendringTest(
         }
 
         every { arbeidsfordelingService.hentArbeidsfordelingPåBehandling(any()) } returns
-            ArbeidsfordelingPåBehandling(
-                behandlingId = 1234,
-                behandlendeEnhetId = "1234",
-                behandlendeEnhetNavn = "MockEnhetNavn",
-            )
+                ArbeidsfordelingPåBehandling(
+                    behandlingId = 1234,
+                    behandlendeEnhetId = "1234",
+                    behandlendeEnhetNavn = "MockEnhetNavn",
+                )
 
         every { localDateProvider.now() } returns LocalDate.now()
 
@@ -192,13 +197,31 @@ class AutovedtakLovendringTest(
     @Test
     fun `automatisk revurdering av fagsak som har fremtidig opphør beholder fremtidig opphør og sender brev`() {
         // arrange
+        opprettSøkerFagsakOgBehandling(
+            fagsakStatus = FagsakStatus.LØPENDE,
+            behandlingStatus = BehandlingStatus.AVSLUTTET,
+            behandlingResultat = Behandlingsresultat.INNVILGET
+        )
+
+        lagVedtak()
+
+        vedtaksperiodeRepository.save(
+            lagVedtaksperiodeMedBegrunnelser(
+                vedtak,
+                begrunnelser = {
+                    listOf(
+                        NasjonalEllerFellesBegrunnelseDB(
+                            vedtaksperiodeMedBegrunnelser = it,
+                            nasjonalEllerFellesBegrunnelse = OPPHØR_FRAMTIDIG_OPPHØR_BARNEHAGEPLASS
+                        )
+                    )
+                }
+            )
+        )
 
         every { brevklient.genererBrev(any(), any()) } returns "brev".toByteArray()
         every { simuleringService.oppdaterSimuleringPåBehandling(any<Long>()) } returns emptyList()
         every { localDateProvider.now() } returns LocalDate.of(2024, 8, 1)
-
-        opprettSøkerFagsakOgBehandling(fagsakStatus = FagsakStatus.LØPENDE, behandlingStatus = BehandlingStatus.AVSLUTTET, behandlingResultat = Behandlingsresultat.INNVILGET)
-
         every { behandlingService.hentSisteBehandlingSomErIverksatt(fagsak.id) } returns behandling
 
         val fødselsdatoBarn = LocalDate.of(2023, 4, 1)

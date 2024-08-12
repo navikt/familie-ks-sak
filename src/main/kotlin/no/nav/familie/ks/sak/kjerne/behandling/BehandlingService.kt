@@ -32,6 +32,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.Vedtak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
 import no.nav.familie.ks.sak.kjerne.beregning.AndelerTilkjentYtelseOgEndreteUtbetalingerService
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelseRepository
+import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.NasjonalEllerFellesBegrunnelse.*
 import no.nav.familie.ks.sak.kjerne.brev.mottaker.BrevmottakerService
 import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.tilEndretUtbetalingAndelResponsDto
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.KompetanseRepository
@@ -289,6 +290,23 @@ class BehandlingService(
 
         val fagsakId = behandlingEtterBehandlingsresultat.fagsak.id
         val sisteIverksatteBehandling = hentSisteBehandlingSomErIverksatt(fagsakId) ?: throw Feil("Fant ingen iverksatt behandling for fagsak $fagsakId")
+
+        val vedtakForSisteIverksatteBehandling = vedtakRepository.findByBehandlingAndAktiv(
+            behandlingId = sisteIverksatteBehandling.id
+        )
+        val vedtaksperioderMedBegrunnelser = vedtaksperiodeService.hentUtvidetVedtaksperioderMedBegrunnelser(
+            vedtak = vedtakForSisteIverksatteBehandling
+        )
+        val forrigeBehandlingHaddeIkkeVedtaksperiodeMedFramtidigOpphørsegrunnelse =
+            vedtaksperioderMedBegrunnelser.none {
+                uvmb -> uvmb.begrunnelser.map {
+                    nefb -> nefb.nasjonalEllerFellesBegrunnelse
+                }.contains(OPPHØR_FRAMTIDIG_OPPHØR_BARNEHAGEPLASS)
+            }
+
+        if (forrigeBehandlingHaddeIkkeVedtaksperiodeMedFramtidigOpphørsegrunnelse) {
+            return false
+        }
 
         val andelerNåværendeBehandling = andelTilkjentYtelseRepository.finnAndelerTilkjentYtelseForBehandling(behandlingEtterBehandlingsresultat.id)
         val andelerForrigeBehandling = andelTilkjentYtelseRepository.finnAndelerTilkjentYtelseForBehandling(sisteIverksatteBehandling.id)

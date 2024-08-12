@@ -96,6 +96,7 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.YearMonth
 import java.util.UUID
+import java.util.function.Function
 import kotlin.math.abs
 import kotlin.random.Random
 
@@ -692,16 +693,19 @@ fun lagVedtaksperiodeMedBegrunnelser(
     fom: LocalDate? = LocalDate.now().withDayOfMonth(1),
     tom: LocalDate? = LocalDate.now().let { it.withDayOfMonth(it.lengthOfMonth()) },
     type: Vedtaksperiodetype = Vedtaksperiodetype.FORTSATT_INNVILGET,
-    begrunnelser: MutableSet<NasjonalEllerFellesBegrunnelseDB> = mutableSetOf(lagVedtaksbegrunnelse()),
+    begrunnelser: (vedtaksperiodeMedBegrunnelser: VedtaksperiodeMedBegrunnelser) -> List<NasjonalEllerFellesBegrunnelseDB> = { emptyList() },
     fritekster: MutableList<VedtaksbegrunnelseFritekst> = mutableListOf(),
-) = VedtaksperiodeMedBegrunnelser(
-    vedtak = vedtak,
-    fom = fom,
-    tom = tom,
-    type = type,
-    begrunnelser = begrunnelser,
-    fritekster = fritekster,
-)
+): VedtaksperiodeMedBegrunnelser {
+    val vedtaksperiodeMedBegrunnelser = VedtaksperiodeMedBegrunnelser(
+        vedtak = vedtak,
+        fom = fom,
+        tom = tom,
+        type = type,
+        fritekster = fritekster,
+    )
+    vedtaksperiodeMedBegrunnelser.settBegrunnelser(begrunnelser(vedtaksperiodeMedBegrunnelser))
+    return vedtaksperiodeMedBegrunnelser
+}
 
 fun lagPersonResultat(
     vilkårsvurdering: Vilkårsvurdering,
