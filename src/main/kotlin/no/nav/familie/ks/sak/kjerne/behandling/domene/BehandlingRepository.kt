@@ -189,12 +189,13 @@ interface BehandlingRepository : JpaRepository<Behandling, Long> {
                         AND v.aktiv = TRUE
                         AND v.vedtaksdato IS NOT NULL
                         AND b2.status = 'AVSLUTTET')
-                AND NOT EXISTS (
+                AND EXISTS (
                     SELECT 1
                     FROM behandling b2
                         INNER JOIN andel_tilkjent_ytelse aty on b2.id = aty.fk_behandling_id
                     WHERE b2.fk_fagsak_id = f.id
-                        AND aty.stonad_tom >= '2024-08-01'
+                        AND aty.stonad_fom >= '2024-07-01'
+                        AND aty.stonad_tom < '2024-08-01'
                         AND b2.status = 'AVSLUTTET')""",
         nativeQuery = true,
     )
