@@ -21,7 +21,7 @@ import java.util.Properties
 
 @Service
 @TaskStepBeskrivelse(
-    taskStepType = AutovedtakLovendringIkkeFremtidigOpphørTask.TASK_STEP_TYPE,
+    taskStepType = AutovedtakLovendringOpphørteSaker.TASK_STEP_TYPE,
     beskrivelse = "Trigger autovedtak av lovendring",
     maxAntallFeil = 1,
     settTilManuellOppfølgning = true,
