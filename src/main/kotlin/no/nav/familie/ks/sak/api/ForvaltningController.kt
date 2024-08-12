@@ -338,7 +338,7 @@ class ForvaltningController(
         return ResponseEntity.ok(Ressurs.success("Automatisk revurdering opprettet"))
     }
 
-    @PostMapping("/automatisk-revurdering-lovendring-framtidig-opphør/{fagsakId}")
+    @PostMapping("/automatisk-revurdering-lovendring-framtidig-opphor/{fagsakId}")
     fun opprettAutomatiskLovendringRevurderingFramtidigOpphør(
         @PathVariable fagsakId: Long,
     ): ResponseEntity<Ressurs<String>> {
