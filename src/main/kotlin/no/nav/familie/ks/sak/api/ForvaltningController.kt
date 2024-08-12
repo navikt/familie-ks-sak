@@ -1,5 +1,6 @@
 package no.nav.familie.ks.sak.api
 
+import io.swagger.v3.oas.annotations.Operation
 import no.nav.familie.eksterne.kontrakter.VedtakDVH
 import no.nav.familie.kontrakter.felles.Ressurs
 import no.nav.familie.kontrakter.felles.Tema
@@ -22,6 +23,7 @@ import no.nav.familie.ks.sak.config.SpringProfile
 import no.nav.familie.ks.sak.integrasjon.ecb.ECBService
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
 import no.nav.familie.ks.sak.kjerne.autovedtak.AutovedtakLovendringIkkeFremtidigOpphørTask
+import no.nav.familie.ks.sak.kjerne.autovedtak.AutovedtakLovendringTask
 import no.nav.familie.ks.sak.kjerne.avstemming.GrensesnittavstemmingTask
 import no.nav.familie.ks.sak.kjerne.avstemming.KonsistensavstemmingKjøreplanService
 import no.nav.familie.ks.sak.kjerne.avstemming.KonsistensavstemmingTask
@@ -280,6 +282,10 @@ class ForvaltningController(
     }
 
     @PostMapping("/automatisk-revurdering-lovendring/{fagsakId}")
+    @Operation(
+        summary = "Oppretter en AutovedtakLovendringTask",
+        description = "Oppretter en AutovedtakLovendringTask som trigger en lovendring på fagsak. Det er ingen validering som stopper lovendring-revurdering på dette endepunktet",
+    )
     fun opprettAutomatiskLovendringRevurdering(
         @PathVariable fagsakId: Long,
     ): ResponseEntity<Ressurs<String>> {
@@ -288,12 +294,16 @@ class ForvaltningController(
             handling = "opprette automatisk revurdering",
         )
 
-        AutovedtakLovendringIkkeFremtidigOpphørTask.opprettTask(fagsakId).apply { taskService.save(this) }
+        AutovedtakLovendringTask.opprettTask(fagsakId).apply { taskService.save(this) }
 
         return ResponseEntity.ok(Ressurs.success("Automatisk revurdering opprettet"))
     }
 
     @PostMapping("/automatisk-revurdering-lovendring-ikke-fremtidig-opphor/{limit}")
+    @Operation(
+        summary = "Oppretter AutovedtakLovendringIkkeFremtidigOpphørTask for løpende saker uten fremtidig opphør",
+        description = "Oppretter en AutovedtakLovendringIkkeFremtidigOpphørTask som trigger en lovendring på fagsak. Det er kun løpende saker uten fremtidig opphør som kan bruke dette endepunktet",
+    )
     fun opprettAutomatiskLovendringIkkeFremtidigOpphør(
         @PathVariable limit: Long,
     ): ResponseEntity<Ressurs<String>> {
