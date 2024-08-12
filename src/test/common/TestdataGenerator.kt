@@ -96,7 +96,6 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.YearMonth
 import java.util.UUID
-import java.util.function.Function
 import kotlin.math.abs
 import kotlin.random.Random
 
@@ -696,13 +695,14 @@ fun lagVedtaksperiodeMedBegrunnelser(
     begrunnelser: (vedtaksperiodeMedBegrunnelser: VedtaksperiodeMedBegrunnelser) -> List<NasjonalEllerFellesBegrunnelseDB> = { emptyList() },
     fritekster: MutableList<VedtaksbegrunnelseFritekst> = mutableListOf(),
 ): VedtaksperiodeMedBegrunnelser {
-    val vedtaksperiodeMedBegrunnelser = VedtaksperiodeMedBegrunnelser(
-        vedtak = vedtak,
-        fom = fom,
-        tom = tom,
-        type = type,
-        fritekster = fritekster,
-    )
+    val vedtaksperiodeMedBegrunnelser =
+        VedtaksperiodeMedBegrunnelser(
+            vedtak = vedtak,
+            fom = fom,
+            tom = tom,
+            type = type,
+            fritekster = fritekster,
+        )
     vedtaksperiodeMedBegrunnelser.settBegrunnelser(begrunnelser(vedtaksperiodeMedBegrunnelser))
     return vedtaksperiodeMedBegrunnelser
 }

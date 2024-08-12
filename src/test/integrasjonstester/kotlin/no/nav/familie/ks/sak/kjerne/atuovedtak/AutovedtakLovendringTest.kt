@@ -14,6 +14,7 @@ import no.nav.familie.ks.sak.data.lagAndelTilkjentYtelse
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagLogg
 import no.nav.familie.ks.sak.data.lagPersonResultat
+import no.nav.familie.ks.sak.data.lagVedtaksperiodeMedBegrunnelser
 import no.nav.familie.ks.sak.integrasjon.økonomi.utbetalingsoppdrag.UtbetalingsoppdragService
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.ArbeidsfordelingService
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.domene.ArbeidsfordelingPåBehandling
@@ -26,6 +27,8 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg
 import no.nav.familie.ks.sak.kjerne.behandling.steg.simulering.SimuleringService
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.NasjonalEllerFellesBegrunnelseDB
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.VedtaksperiodeRepository
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.PersonResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
@@ -34,6 +37,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vil
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårsvurderingRepository
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelseRepository
 import no.nav.familie.ks.sak.kjerne.brev.BrevKlient
+import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.NasjonalEllerFellesBegrunnelse.OPPHØR_FRAMTIDIG_OPPHØR_BARNEHAGEPLASS
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.FagsakStatus
 import no.nav.familie.ks.sak.kjerne.logg.LoggService
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
@@ -50,10 +54,6 @@ import org.springframework.beans.factory.annotation.Autowired
 import java.math.BigDecimal
 import java.time.LocalDate
 import java.time.LocalDateTime
-import no.nav.familie.ks.sak.data.lagVedtaksperiodeMedBegrunnelser
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.NasjonalEllerFellesBegrunnelseDB
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.VedtaksperiodeRepository
-import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.NasjonalEllerFellesBegrunnelse.OPPHØR_FRAMTIDIG_OPPHØR_BARNEHAGEPLASS
 
 class AutovedtakLovendringTest(
     @Autowired private val autovedtakLovendringService: AutovedtakLovendringService,
@@ -62,7 +62,7 @@ class AutovedtakLovendringTest(
     @Autowired private val vilkårsvurderingRepository: VilkårsvurderingRepository,
     @Autowired private val behandlingRepository: BehandlingRepository,
     @Autowired private val totrinnskontrollService: TotrinnskontrollService,
-    @Autowired private val vedtaksperiodeRepository: VedtaksperiodeRepository
+    @Autowired private val vedtaksperiodeRepository: VedtaksperiodeRepository,
 ) : OppslagSpringRunnerTest() {
     @SpykBean
     private lateinit var behandlingService: BehandlingService
@@ -108,11 +108,11 @@ class AutovedtakLovendringTest(
         }
 
         every { arbeidsfordelingService.hentArbeidsfordelingPåBehandling(any()) } returns
-                ArbeidsfordelingPåBehandling(
-                    behandlingId = 1234,
-                    behandlendeEnhetId = "1234",
-                    behandlendeEnhetNavn = "MockEnhetNavn",
-                )
+            ArbeidsfordelingPåBehandling(
+                behandlingId = 1234,
+                behandlendeEnhetId = "1234",
+                behandlendeEnhetNavn = "MockEnhetNavn",
+            )
 
         every { localDateProvider.now() } returns LocalDate.now()
 
@@ -200,7 +200,7 @@ class AutovedtakLovendringTest(
         opprettSøkerFagsakOgBehandling(
             fagsakStatus = FagsakStatus.LØPENDE,
             behandlingStatus = BehandlingStatus.AVSLUTTET,
-            behandlingResultat = Behandlingsresultat.INNVILGET
+            behandlingResultat = Behandlingsresultat.INNVILGET,
         )
 
         lagVedtak()
@@ -212,11 +212,11 @@ class AutovedtakLovendringTest(
                     listOf(
                         NasjonalEllerFellesBegrunnelseDB(
                             vedtaksperiodeMedBegrunnelser = it,
-                            nasjonalEllerFellesBegrunnelse = OPPHØR_FRAMTIDIG_OPPHØR_BARNEHAGEPLASS
-                        )
+                            nasjonalEllerFellesBegrunnelse = OPPHØR_FRAMTIDIG_OPPHØR_BARNEHAGEPLASS,
+                        ),
                     )
-                }
-            )
+                },
+            ),
         )
 
         every { brevklient.genererBrev(any(), any()) } returns "brev".toByteArray()
