@@ -26,9 +26,9 @@ class SendBehandlinghendelseTilDvhTask(
         log.info("SendBehandlinghendelseTilDvhTask prosesserer med id=${task.id} og metadata ${task.metadata}")
         val behandlingStatistikkDto: BehandlingStatistikkDto = objectMapper.readValue(task.payload)
         val tekniskTidspunkt = OffsetDateTime.now(ZoneOffset.UTC)
-        //Logger om teknisk tidspunkt er tidligere enn funksjonell tidspunkt, da dette ikke skal forekomme. Men datavarehus har rapportert om det
+        // Logger om teknisk tidspunkt er tidligere enn funksjonell tidspunkt, da dette ikke skal forekomme. Men datavarehus har rapportert om det
         if (tekniskTidspunkt.isBefore(behandlingStatistikkDto.funksjoneltTidspunkt)) {
-            log.warn("Teknisk tidspunkt er tidligere enn funksjonell tidspunkt. Teknisk tidspunkt: ${behandlingStatistikkDto.tekniskTidspunkt}, funksjonell tidspunkt: ${tekniskTidspunkt} Tidssone ${LocaleContextHolder.getTimeZone()}")
+            log.warn("Teknisk tidspunkt er tidligere enn funksjonell tidspunkt. Teknisk tidspunkt: ${behandlingStatistikkDto.tekniskTidspunkt}, funksjonell tidspunkt: $tekniskTidspunkt Tidssone ${LocaleContextHolder.getTimeZone()}")
         }
         kafkaProducer.sendBehandlingsTilstand(
             behandlingStatistikkDto.behandlingID.toString(),
