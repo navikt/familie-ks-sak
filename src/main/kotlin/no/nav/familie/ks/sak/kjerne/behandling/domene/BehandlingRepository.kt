@@ -186,6 +186,7 @@ interface BehandlingRepository : JpaRepository<Behandling, Long> {
                         INNER JOIN vedtak v on b2.id = v.fk_behandling_id
                     WHERE b2.fk_fagsak_id = f.id
                         AND v.vedtaksdato >= '2024-06-01'
+                        AND v.vedtaksdato < '2024-08-01'
                         AND v.aktiv = TRUE
                         AND v.vedtaksdato IS NOT NULL
                         AND b2.status = 'AVSLUTTET')
