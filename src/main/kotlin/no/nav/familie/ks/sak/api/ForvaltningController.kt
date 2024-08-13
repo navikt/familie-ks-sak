@@ -22,9 +22,9 @@ import no.nav.familie.ks.sak.config.BehandlerRolle
 import no.nav.familie.ks.sak.config.SpringProfile
 import no.nav.familie.ks.sak.integrasjon.ecb.ECBService
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
-import no.nav.familie.ks.sak.kjerne.autovedtak.AutovedtakLovendringFremtidigOpphørTask
 import no.nav.familie.ks.sak.internal.TestVerktøyService
 import no.nav.familie.ks.sak.internal.kontantstøtteInfobrevJuli2024.DistribuerInformasjonsbrevKontantstøtteJuli2024
+import no.nav.familie.ks.sak.kjerne.autovedtak.AutovedtakLovendringFremtidigOpphørTask
 import no.nav.familie.ks.sak.kjerne.autovedtak.AutovedtakLovendringIkkeFremtidigOpphørTask
 import no.nav.familie.ks.sak.kjerne.autovedtak.AutovedtakLovendringTask
 import no.nav.familie.ks.sak.kjerne.avstemming.GrensesnittavstemmingTask
