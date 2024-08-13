@@ -99,6 +99,10 @@ enum class NasjonalEllerFellesBegrunnelse : IBegrunnelse {
         override val begrunnelseType = BegrunnelseType.INNVILGET
         override val sanityApiNavn = "innvilget13MndSammeMaanedSomBarnehageplass0824"
     },
+    INNVILGET_PÅ_GRUNN_AV_LOVENDRING_2024 {
+        override val begrunnelseType = BegrunnelseType.INNVILGET
+        override val sanityApiNavn = "innvilgetInnvilgetPaaGrunnAvLovendring"
+    },
     AVSLAG_UREGISTRERT_BARN {
         override val begrunnelseType = BegrunnelseType.AVSLAG
         override val sanityApiNavn = "avslagUregistrertBarn"
@@ -454,6 +458,10 @@ enum class NasjonalEllerFellesBegrunnelse : IBegrunnelse {
     OPPHØR_FRAMTIDIG_OPPHØR_BARNEHAGEPLASS {
         override val begrunnelseType = BegrunnelseType.OPPHØR
         override val sanityApiNavn = "opphorFramtidigOpphorBarnehageplass"
+    },
+    OPPHØR_NYTT_FRAMTIDIG_OPPHØR_BARNEHAGEPLASS {
+        override val begrunnelseType = BegrunnelseType.OPPHØR
+        override val sanityApiNavn = "opphorNyttFramtidigOpphorBarnehageplass"
     },
     REDUKSJON_BARN_FLYTTET_FRA_SOKER {
         override val begrunnelseType = BegrunnelseType.REDUKSJON
