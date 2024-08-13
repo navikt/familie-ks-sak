@@ -21,6 +21,10 @@ interface BrevDataDto {
     fun toBrevString(): String = objectMapper.writeValueAsString(this)
 }
 
+interface VedtaksbrevSammensattKontrollsak : BrevDataDto {
+    val sammensattKontrollsakFritekst: String
+}
+
 interface FlettefelterForDokumentDto {
     val navn: Flettefelt
     val fodselsnummer: Flettefelt
@@ -255,3 +259,13 @@ enum class Brevmal(
 fun flettefelt(flettefeltData: String?): Flettefelt = if (flettefeltData != null) listOf(flettefeltData) else null
 
 fun flettefelt(flettefeltData: List<String>): Flettefelt = flettefeltData
+
+data class VedtakFellesfelterSammensattKontrollsak(
+    val enhet: String,
+    val saksbehandler: String,
+    val beslutter: String,
+    val søkerNavn: String,
+    val søkerFødselsnummer: String,
+    val sammensattKontrollsakFritekst: String,
+    val korrigertVedtakData: KorrigertVedtakData? = null,
+)

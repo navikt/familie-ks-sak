@@ -17,6 +17,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.journalførvedtaksbrev.Journ
 import no.nav.familie.ks.sak.kjerne.behandling.steg.journalførvedtaksbrev.JournalførVedtaksbrevSteg.Companion.KONTANTSTØTTE_VEDTAK_NYNORSK_VEDLEGG_FILNAVN
 import no.nav.familie.ks.sak.kjerne.behandling.steg.journalførvedtaksbrev.JournalførVedtaksbrevSteg.Companion.KONTANTSTØTTE_VEDTAK_VEDLEGG_TITTEL
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.VedtakService
+import no.nav.familie.ks.sak.kjerne.brev.BrevmalService
 import no.nav.familie.ks.sak.kjerne.brev.mottaker.BrevmottakerService
 import no.nav.familie.ks.sak.kjerne.fagsak.FagsakService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
@@ -49,6 +50,9 @@ class JournalførVedtaksbrevStegTest {
 
     @MockK
     private lateinit var personopplysningGrunnlagService: PersonopplysningGrunnlagService
+
+    @MockK
+    private lateinit var brevmalService: BrevmalService
 
     @InjectMockKs
     private lateinit var journalførVedtaksbrevSteg: JournalførVedtaksbrevSteg

@@ -48,6 +48,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.VenteÅrsak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.simulering.domene.ØkonomiSimuleringMottaker
 import no.nav.familie.ks.sak.kjerne.behandling.steg.simulering.domene.ØkonomiSimuleringPostering
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.Vedtak
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.sammensattkontrollsak.SammensattKontrollsak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.UtbetalingsperiodeDetalj
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.Vedtaksperiodetype
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.NasjonalEllerFellesBegrunnelseDB
@@ -67,6 +68,7 @@ import no.nav.familie.ks.sak.kjerne.beregning.domene.TilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.domene.YtelseType
 import no.nav.familie.ks.sak.kjerne.beregning.domene.maksBeløp
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.NasjonalEllerFellesBegrunnelse
+import no.nav.familie.ks.sak.kjerne.brev.domene.maler.VedtakFellesfelterSammensattKontrollsak
 import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.EndretUtbetalingAndel
 import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.Årsak
 import no.nav.familie.ks.sak.kjerne.eøs.differanseberegning.domene.Intervall
@@ -91,6 +93,8 @@ import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.bostedsadres
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.dødsfall.Dødsfall
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.sivilstand.GrSivilstand
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.statsborgerskap.GrStatsborgerskap
+import no.nav.familie.ks.sak.kjerne.totrinnskontroll.domene.Totrinnskontroll
+import no.nav.familie.ks.sak.korrigertvedtak.KorrigertVedtak
 import java.math.BigDecimal
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -154,6 +158,7 @@ fun lagPersonopplysningGrunnlag(
             }
         },
     søkerDødsDato: LocalDate? = null,
+    søkerNavn: String = "",
 ): PersonopplysningGrunnlag {
     val personopplysningGrunnlag = PersonopplysningGrunnlag(behandlingId = behandlingId)
 
@@ -163,7 +168,7 @@ fun lagPersonopplysningGrunnlag(
             type = PersonType.SØKER,
             personopplysningGrunnlag = personopplysningGrunnlag,
             fødselsdato = fnrTilFødselsdato(søkerPersonIdent),
-            navn = "",
+            navn = søkerNavn,
             kjønn = Kjønn.KVINNE,
         ).also { søker ->
             søker.statsborgerskap =
@@ -303,13 +308,19 @@ fun lagBehandlingStegTilstand(
     ),
 )
 
-fun lagArbeidsfordelingPåBehandling(behandlingId: Long): ArbeidsfordelingPåBehandling =
+fun lagArbeidsfordelingPåBehandling(
+    id: Long = 123,
+    behandlingId: Long,
+    behandlendeEnhetId: String = "4321",
+    behandlendeEnhetNavn: String = "Test enhet",
+    manueltOverstyrt: Boolean = false,
+): ArbeidsfordelingPåBehandling =
     ArbeidsfordelingPåBehandling(
-        id = 123,
+        id = id,
         behandlingId = behandlingId,
-        behandlendeEnhetId = "4321",
-        behandlendeEnhetNavn = "Test enhet",
-        manueltOverstyrt = false,
+        behandlendeEnhetId = behandlendeEnhetId,
+        behandlendeEnhetNavn = behandlendeEnhetNavn,
+        manueltOverstyrt = manueltOverstyrt,
     )
 
 fun lagRegistrerSøknadDto() =
@@ -1194,3 +1205,128 @@ fun lagSanityBegrunnelse(
         skalAlltidVises = false,
         resultat = resultat,
     )
+
+fun lagSammensattKontrollsak(
+    id: Long = 0L,
+    behandlingId: Long,
+    fritekst: String = "",
+): SammensattKontrollsak =
+    SammensattKontrollsak(
+        id,
+        behandlingId,
+        fritekst,
+    )
+
+fun lagVedtakFellesfelterSammensattKontrollsak(
+    enhet: String = "enhet",
+    saksbehandler: String = "saksbehandler",
+    beslutter: String = "beslutter",
+    søkerNavn: String = "søkerNavn",
+    søkerFødselsnummer: String = "søkerFødselsnummer",
+    sammensattKontrollsakFritekst: String = "sammensattKontrollsakFritekst",
+) = VedtakFellesfelterSammensattKontrollsak(
+    "enhet",
+    "saksbehandler",
+    "beslutter",
+    "søkerNavn",
+    "søkerFødselsnummer",
+    "sammensattKontrollsakFritekst",
+)
+
+fun lagKorrigertVedtak(
+    behandling: Behandling,
+    vedtaksdato: LocalDate = LocalDate.now(),
+    begrunnelse: String? = null,
+    aktiv: Boolean = true,
+): KorrigertVedtak =
+    KorrigertVedtak(
+        behandling = behandling,
+        vedtaksdato = vedtaksdato,
+        begrunnelse = begrunnelse,
+        aktiv = aktiv,
+    )
+
+fun lagToTrinnskontroll(
+    behandling: Behandling = lagBehandling(),
+    saksbehandler: String = "saksbehandler",
+    beslutter: String = "beslutter",
+    saksbehandlerId: String = "1234",
+    godkjent: Boolean = true,
+): Totrinnskontroll =
+    Totrinnskontroll(
+        behandling = behandling,
+        saksbehandler = saksbehandler,
+        beslutter = beslutter,
+        saksbehandlerId = saksbehandlerId,
+        godkjent = godkjent,
+    )
+
+fun lagVilkårsvurdering(
+    id: Long = 0L,
+    behandling: Behandling = lagBehandling(),
+    aktiv: Boolean = true,
+    lagPersonResultat: (vilkårsvurdering: Vilkårsvurdering) -> PersonResultat = {
+        lagPersonResultat(
+            vilkårsvurdering = it,
+            aktør = randomAktør(),
+        )
+    },
+): Vilkårsvurdering {
+    val vilkårsvurdering =
+        Vilkårsvurdering(
+            id = id,
+            behandling = behandling,
+            aktiv = aktiv,
+        )
+    val personResultat = lagPersonResultat(vilkårsvurdering)
+    vilkårsvurdering.personResultater = setOf(personResultat)
+    return vilkårsvurdering
+}
+
+fun lagPersonResultat(
+    id: Long = 0L,
+    vilkårsvurdering: Vilkårsvurdering,
+    aktør: Aktør = randomAktør(),
+    lagVilkårResultater: (personResultat: PersonResultat) -> Set<VilkårResultat> = {
+        setOf(
+            lagVilkårResultat(
+                behandlingId = vilkårsvurdering.behandling.id,
+                personResultat = it,
+                vilkårType = Vilkår.BOSATT_I_RIKET,
+                resultat = Resultat.OPPFYLT,
+                periodeFom = LocalDate.now().minusMonths(1),
+                periodeTom = LocalDate.now().plusYears(2),
+                begrunnelse = "",
+            ),
+            lagVilkårResultat(
+                behandlingId = vilkårsvurdering.behandling.id,
+                personResultat = it,
+                vilkårType = Vilkår.LOVLIG_OPPHOLD,
+                resultat = Resultat.OPPFYLT,
+                periodeFom = LocalDate.now().minusMonths(1),
+                periodeTom = LocalDate.now().plusYears(2),
+                begrunnelse = "",
+            ),
+        )
+    },
+    lagAnnenVurdering: (personResultat: PersonResultat) -> Set<AnnenVurdering> = {
+        setOf(
+            AnnenVurdering(
+                personResultat = it,
+                resultat = Resultat.OPPFYLT,
+                type = AnnenVurderingType.OPPLYSNINGSPLIKT,
+                begrunnelse = null,
+            ),
+        )
+    },
+): PersonResultat {
+    val personResultat =
+        PersonResultat(
+            id = id,
+            vilkårsvurdering = vilkårsvurdering,
+            aktør = aktør,
+        )
+    personResultat.setSortedVilkårResultater(lagVilkårResultater(personResultat))
+    personResultat.andreVurderinger.addAll(lagAnnenVurdering(personResultat))
+    return personResultat
+}

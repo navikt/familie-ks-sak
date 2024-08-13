@@ -18,12 +18,11 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.simulering.SimuleringService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.feilutbetaltvaluta.FeilutbetaltValutaService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.refusjonEøs.RefusjonEøsRepository
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.sammensattkontrollsak.SammensattKontrollsakService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.VedtaksperiodeService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.Brevmal
-import no.nav.familie.ks.sak.kjerne.korrigertetterbetaling.KorrigertEtterbetalingService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
-import no.nav.familie.ks.sak.kjerne.totrinnskontroll.TotrinnskontrollService
 import no.nav.familie.ks.sak.korrigertvedtak.KorrigertVedtakService
 import no.nav.familie.ks.sak.sikkerhet.SaksbehandlerContext
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -47,15 +46,18 @@ class GenererBrevServiceTest {
             simuleringService = mockk<SimuleringService>(),
             vedtaksperiodeService = mockk<VedtaksperiodeService>(),
             brevPeriodeService = mockk<BrevPeriodeService>(),
-            totrinnskontrollService = mockk<TotrinnskontrollService>(),
             sanityService = mockk<SanityService>(),
-            arbeidsfordelingService = arbeidsfordelingService,
             vilkårsvurderingService = mockk<VilkårsvurderingService>(),
             korrigertVedtakService = mockk<KorrigertVedtakService>(),
             feilutbetaltValutaService = mockk<FeilutbetaltValutaService>(),
             saksbehandlerContext = saksbehandlerContext,
             refusjonEøsRepository = mockk<RefusjonEøsRepository>(),
-            korrigertEtterbetalingService = mockk<KorrigertEtterbetalingService>(),
+            sammensattKontrollsakService = mockk<SammensattKontrollsakService>(),
+            opprettGrunnlagOgSignaturDataService = mockk<OpprettGrunnlagOgSignaturDataService>(),
+            etterbetalingService = mockk<EtterbetalingService>(),
+            meldepliktService = mockk<MeldepliktService>(),
+            opprettSammensattKontrollsakBrevDtoService = mockk<OpprettSammensattKontrollsakBrevDtoService>(),
+            brevmalService = mockk<BrevmalService>(),
         )
 
     private val søker = randomAktør()

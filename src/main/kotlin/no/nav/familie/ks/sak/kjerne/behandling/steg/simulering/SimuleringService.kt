@@ -61,6 +61,8 @@ class SimuleringService(
         return simuleringMottakere.tilSimuleringDto().feilutbetaling
     }
 
+    fun erFeilutbetalingPåBehandling(behandlingId: Long): Boolean = hentFeilutbetaling(behandlingId) > BigDecimal.ZERO
+
     fun hentSimuleringPåBehandling(behandlingId: Long): List<ØkonomiSimuleringMottaker> = øknomiSimuleringMottakerRepository.findByBehandlingId(behandlingId)
 
     fun oppdaterSimuleringPåBehandling(behandlingId: Long): List<ØkonomiSimuleringMottaker> {

@@ -7,7 +7,6 @@ import no.nav.familie.ks.sak.kjerne.brev.domene.VedtaksbrevDto
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.Brevmal
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.Etterbetaling
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.FeilutbetaltValuta
-import no.nav.familie.ks.sak.kjerne.brev.domene.maler.Flettefelt
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.FlettefelterForDokumentDto
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.Hjemmeltekst
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.KorrigertVedtakData
@@ -63,7 +62,6 @@ data class VedtakEndring(
                         ),
                     flettefelter =
                         object : FlettefelterForDokumentDto {
-                            val perioderMedForMyeUtbetalt: Flettefelt = feilutbetaltValuta?.perioderMedForMyeUtbetalt
                             override val navn = flettefelt(fellesdataForVedtaksbrev.søkerNavn)
                             override val fodselsnummer = flettefelt(fellesdataForVedtaksbrev.søkerFødselsnummer)
                             override val brevOpprettetDato = flettefelt(LocalDate.now().tilDagMånedÅr())
@@ -93,4 +91,19 @@ data class EndringVedtakData(
         val duMaaMeldeFraOmEndringer: Boolean,
         val duMaaGiNavBeskjedHvisBarnetDittFaarTildeltBarnehageplass: Boolean,
     )
+}
+
+interface EndringVedtakDelmaler {
+    val signaturVedtak: SignaturVedtak
+    val etterbetaling: Etterbetaling?
+    val feilutbetaling: Boolean
+    val klage: Boolean
+    val korrigertVedtak: KorrigertVedtakData?
+    val informasjonOmAarligKontroll: Boolean
+    val forMyeUtbetaltBarnetrygd: FeilutbetaltValuta?
+    val refusjonEosAvklart: RefusjonEøsAvklart?
+    val refusjonEosUavklart: RefusjonEøsUavklart?
+    val duMaaMeldeFraOmEndringerEosSelvstendigRett: Boolean
+    val duMaaMeldeFraOmEndringer: Boolean
+    val informasjonOmUtbetaling: Boolean
 }

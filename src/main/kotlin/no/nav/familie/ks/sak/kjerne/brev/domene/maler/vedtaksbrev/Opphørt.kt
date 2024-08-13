@@ -61,3 +61,9 @@ data class OpphørtData(
         val korrigertVedtak: KorrigertVedtakData?,
     )
 }
+
+interface OpphørtDelmaler {
+    val signaturVedtak: SignaturVedtak
+    val feilutbetaling: Boolean
+    val korrigertVedtak: KorrigertVedtakData?
+}

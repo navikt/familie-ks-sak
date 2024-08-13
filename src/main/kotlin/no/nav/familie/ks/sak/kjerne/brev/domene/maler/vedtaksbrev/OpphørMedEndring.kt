@@ -76,3 +76,13 @@ data class OpphørMedEndringData(
         val klage: Boolean,
     )
 }
+
+interface OpphørMedEndringDelmaler {
+    val signaturVedtak: SignaturVedtak
+    val feilutbetaling: Boolean
+    val etterbetaling: Etterbetaling?
+    val korrigertVedtak: KorrigertVedtakData?
+    val refusjonEosAvklart: RefusjonEøsAvklart?
+    val refusjonEosUavklart: RefusjonEøsUavklart?
+    val klage: Boolean
+}

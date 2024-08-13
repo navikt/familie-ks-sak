@@ -4,28 +4,24 @@ import no.nav.familie.ks.sak.api.dto.ManueltBrevDto
 import no.nav.familie.ks.sak.api.dto.tilBrev
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
-import no.nav.familie.ks.sak.common.util.formaterBeløp
 import no.nav.familie.ks.sak.common.util.storForbokstavIAlleNavn
 import no.nav.familie.ks.sak.common.util.tilDagMånedÅr
 import no.nav.familie.ks.sak.common.util.tilMånedÅr
 import no.nav.familie.ks.sak.integrasjon.sanity.SanityService
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelse
-import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.ArbeidsfordelingService
-import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg
 import no.nav.familie.ks.sak.kjerne.behandling.steg.simulering.SimuleringService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.Vedtak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.feilutbetaltvaluta.FeilutbetaltValutaService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.refusjonEøs.RefusjonEøsRepository
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.sammensattkontrollsak.SammensattKontrollsakService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.Opphørsperiode
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.VedtaksperiodeService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.Vedtaksperiodetype
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.UtvidetVedtaksperiodeMedBegrunnelser
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.UtdypendeVilkårsvurdering
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.IBegrunnelse
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.NasjonalEllerFellesBegrunnelse
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.tilSanityBegrunnelse
@@ -37,7 +33,6 @@ import no.nav.familie.ks.sak.kjerne.brev.domene.maler.Dødsfall
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.DødsfallData
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.EndringAvFramtidigOpphør
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.EndringAvFramtidigOpphørData
-import no.nav.familie.ks.sak.kjerne.brev.domene.maler.Etterbetaling
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.FeilutbetaltValuta
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.Hjemmeltekst
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.KorrigertVedtakData
@@ -48,34 +43,32 @@ import no.nav.familie.ks.sak.kjerne.brev.domene.maler.vedtaksbrev.Førstegangsve
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.vedtaksbrev.OpphørMedEndring
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.vedtaksbrev.Opphørt
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.vedtaksbrev.VedtakEndring
-import no.nav.familie.ks.sak.kjerne.korrigertetterbetaling.KorrigertEtterbetalingService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Målform
-import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
-import no.nav.familie.ks.sak.kjerne.totrinnskontroll.TotrinnskontrollService
 import no.nav.familie.ks.sak.korrigertvedtak.KorrigertVedtakService
 import no.nav.familie.ks.sak.sikkerhet.SaksbehandlerContext
-import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
-import java.math.BigDecimal
 
 @Service
 class GenererBrevService(
     private val brevKlient: BrevKlient,
     private val personopplysningGrunnlagService: PersonopplysningGrunnlagService,
-    private val simuleringService: SimuleringService,
     private val vedtaksperiodeService: VedtaksperiodeService,
     private val brevPeriodeService: BrevPeriodeService,
-    private val totrinnskontrollService: TotrinnskontrollService,
     private val sanityService: SanityService,
-    private val arbeidsfordelingService: ArbeidsfordelingService,
     private val vilkårsvurderingService: VilkårsvurderingService,
     private val korrigertVedtakService: KorrigertVedtakService,
     private val feilutbetaltValutaService: FeilutbetaltValutaService,
     private val saksbehandlerContext: SaksbehandlerContext,
     private val refusjonEøsRepository: RefusjonEøsRepository,
-    private val korrigertEtterbetalingService: KorrigertEtterbetalingService,
+    private val sammensattKontrollsakService: SammensattKontrollsakService,
+    private val etterbetalingService: EtterbetalingService,
+    private val simuleringService: SimuleringService,
+    private val opprettSammensattKontrollsakBrevDtoService: OpprettSammensattKontrollsakBrevDtoService,
+    private val meldepliktService: MeldepliktService,
+    private val opprettGrunnlagOgSignaturDataService: OpprettGrunnlagOgSignaturDataService,
+    private val brevmalService: BrevmalService,
 ) {
     fun genererManueltBrev(
         manueltBrevRequest: ManueltBrevDto,
@@ -104,45 +97,62 @@ class GenererBrevService(
     fun genererBrevForBehandling(vedtak: Vedtak): ByteArray {
         try {
             if (!vedtak.behandling.skalBehandlesAutomatisk() && vedtak.behandling.steg > BehandlingSteg.BESLUTTE_VEDTAK) {
-                throw FunksjonellFeil("Ikke tillatt å generere brev etter at behandlingen er sendt fra beslutter")
+                throw FunksjonellFeil(
+                    melding = "Ikke tillatt å generere brev etter at behandlingen er sendt fra beslutter",
+                )
             }
 
-            val målform = personopplysningGrunnlagService.hentSøkersMålform(vedtak.behandling.id)
+            val sammensattKontrollsak =
+                sammensattKontrollsakService.finnSammensattKontrollsakForBehandling(
+                    behandlingId = vedtak.behandling.id,
+                )
+
+            val målform =
+                personopplysningGrunnlagService.hentSøkersMålform(
+                    behandlingId = vedtak.behandling.id,
+                )
+
             val vedtaksbrev =
-                when (vedtak.behandling.opprettetÅrsak) {
-                    BehandlingÅrsak.DØDSFALL -> hentDødsfallbrevData(vedtak)
-                    BehandlingÅrsak.KORREKSJON_VEDTAKSBREV -> TODO() // brevService.hentKorreksjonbrevData(vedtak)
-                    BehandlingÅrsak.LOVENDRING_2024 -> hentEndringAvFramtidigOpphørData(vedtak)
+                when {
+                    sammensattKontrollsak != null -> opprettSammensattKontrollsakBrevDtoService.opprett(vedtak = vedtak, sammensattKontrollsak = sammensattKontrollsak)
+                    vedtak.behandling.opprettetÅrsak == BehandlingÅrsak.DØDSFALL -> hentDødsfallbrevData(vedtak)
+                    vedtak.behandling.opprettetÅrsak == BehandlingÅrsak.KORREKSJON_VEDTAKSBREV -> TODO() // brevService.hentKorreksjonbrevData(vedtak)
+                    vedtak.behandling.opprettetÅrsak == BehandlingÅrsak.LOVENDRING_2024 -> hentEndringAvFramtidigOpphørData(vedtak)
                     else -> hentVedtaksbrevData(vedtak)
                 }
-            return brevKlient.genererBrev(målform.tilSanityFormat(), vedtaksbrev)
-        } catch (feil: Exception) {
-            if (feil is FunksjonellFeil) throw feil
 
+            return brevKlient.genererBrev(
+                målform = målform.tilSanityFormat(),
+                brev = vedtaksbrev,
+            )
+        } catch (exception: Exception) {
+            if (exception is FunksjonellFeil) {
+                throw exception
+            }
             throw Feil(
-                message = "Klarte ikke generere vedtaksbrev på behandling ${vedtak.behandling}: ${feil.message}",
+                message = "Klarte ikke generere vedtaksbrev på behandling ${vedtak.behandling}: ${exception.message}",
                 frontendFeilmelding = "Det har skjedd en feil, og brevet er ikke sendt. Prøv igjen, og ta kontakt med brukerstøtte hvis problemet vedvarer.",
                 httpStatus = HttpStatus.INTERNAL_SERVER_ERROR,
-                throwable = feil,
+                throwable = exception,
             )
         }
     }
 
     fun hentVedtaksbrevData(vedtak: Vedtak): VedtaksbrevDto {
         val behandling = vedtak.behandling
-        val brevtype = hentVedtaksbrevmal(behandling)
+        val vedtaksbrevmal = brevmalService.hentVedtaksbrevmal(behandling)
         val fellesdataForVedtaksbrev = lagDataForVedtaksbrev(vedtak)
-        val etterbetaling = hentEtterbetaling(vedtak)
+        val etterbetaling = etterbetalingService.hentEtterbetaling(vedtak)
         val søkerHarMeldtFraOmBarnehagePlass = sjekkOmSøkerHarMeldtFraOmBarnehagePlass(vedtak)
 
-        return when (brevtype) {
+        return when (vedtaksbrevmal) {
             Brevmal.VEDTAK_FØRSTEGANGSVEDTAK -> {
                 Førstegangsvedtak(
                     fellesdataForVedtaksbrev = fellesdataForVedtaksbrev,
                     etterbetaling = etterbetaling,
                     refusjonEosAvklart = brevPeriodeService.beskrivPerioderMedAvklartRefusjonEøs(vedtak),
                     refusjonEosUavklart = brevPeriodeService.beskrivPerioderMedUavklartRefusjonEøs(vedtak),
-                    duMaaMeldeFraOmEndringerEosSelvstendigRett = skalMeldeFraOmEndringerEøsSelvstendigRett(vedtak),
+                    duMaaMeldeFraOmEndringerEosSelvstendigRett = meldepliktService.skalMeldeFraOmEndringerEøsSelvstendigRett(vedtak),
                     duMaaMeldeFraOmEndringer = søkerHarMeldtFraOmBarnehagePlass,
                     duMaaGiNavBeskjedHvisBarnetDittFaarTildeltBarnehageplass = !søkerHarMeldtFraOmBarnehagePlass,
                 )
@@ -155,7 +165,7 @@ class GenererBrevService(
                     fellesdataForVedtaksbrev = fellesdataForVedtaksbrev,
                     etterbetaling = etterbetaling,
                     erKlage = behandling.erKlage(),
-                    erFeilutbetalingPåBehandling = erFeilutbetalingPåBehandling(behandlingId = behandling.id),
+                    erFeilutbetalingPåBehandling = simuleringService.erFeilutbetalingPåBehandling(behandlingId = behandling.id),
                     informasjonOmAarligKontroll = vedtaksperiodeService.skalHaÅrligKontroll(vedtak),
                     feilutbetaltValuta =
                         feilutbetaltValutaService
@@ -165,7 +175,7 @@ class GenererBrevService(
                             },
                     refusjonEosAvklart = brevPeriodeService.beskrivPerioderMedAvklartRefusjonEøs(vedtak),
                     refusjonEosUavklart = brevPeriodeService.beskrivPerioderMedUavklartRefusjonEøs(vedtak),
-                    duMaaMeldeFraOmEndringerEosSelvstendigRett = skalMeldeFraOmEndringerEøsSelvstendigRett(vedtak),
+                    duMaaMeldeFraOmEndringerEosSelvstendigRett = meldepliktService.skalMeldeFraOmEndringerEøsSelvstendigRett(vedtak),
                     duMaaMeldeFraOmEndringer = søkerHarMeldtFraOmBarnehagePlass,
                     duMaaGiNavBeskjedHvisBarnetDittFaarTildeltBarnehageplass = !søkerHarMeldtFraOmBarnehagePlass,
                 )
@@ -173,14 +183,14 @@ class GenererBrevService(
             Brevmal.VEDTAK_OPPHØRT ->
                 Opphørt(
                     fellesdataForVedtaksbrev = fellesdataForVedtaksbrev,
-                    erFeilutbetalingPåBehandling = erFeilutbetalingPåBehandling(behandlingId = behandling.id),
+                    erFeilutbetalingPåBehandling = simuleringService.erFeilutbetalingPåBehandling(behandlingId = behandling.id),
                 )
 
             Brevmal.VEDTAK_OPPHØR_MED_ENDRING ->
                 OpphørMedEndring(
                     fellesdataForVedtaksbrev = fellesdataForVedtaksbrev,
                     etterbetaling = etterbetaling,
-                    erFeilutbetalingPåBehandling = erFeilutbetalingPåBehandling(behandlingId = behandling.id),
+                    erFeilutbetalingPåBehandling = simuleringService.erFeilutbetalingPåBehandling(behandlingId = behandling.id),
                     refusjonEosAvklart = brevPeriodeService.beskrivPerioderMedAvklartRefusjonEøs(vedtak),
                     refusjonEosUavklart = brevPeriodeService.beskrivPerioderMedUavklartRefusjonEøs(vedtak),
                     erKlage = behandling.erKlage(),
@@ -193,10 +203,10 @@ class GenererBrevService(
                     informasjonOmAarligKontroll = vedtaksperiodeService.skalHaÅrligKontroll(vedtak),
                     refusjonEosAvklart = brevPeriodeService.beskrivPerioderMedAvklartRefusjonEøs(vedtak),
                     refusjonEosUavklart = brevPeriodeService.beskrivPerioderMedUavklartRefusjonEøs(vedtak),
-                    duMåMeldeFraOmEndringerEøsSelvstendigRett = skalMeldeFraOmEndringerEøsSelvstendigRett(vedtak),
+                    duMåMeldeFraOmEndringerEøsSelvstendigRett = meldepliktService.skalMeldeFraOmEndringerEøsSelvstendigRett(vedtak),
                 )
 
-            else -> throw Feil("Forsøker å hente vedtaksbrevdata for brevmal ${brevtype.visningsTekst}")
+            else -> throw Feil("Forsøker å hente vedtaksbrevdata for brevmal ${vedtaksbrevmal.visningsTekst}")
         }
     }
 
@@ -231,7 +241,7 @@ class GenererBrevService(
             )
         }
 
-        val personopplysningsgrunnlagOgSignaturData = hentGrunnlagOgSignaturData(vedtak)
+        val personopplysningsgrunnlagOgSignaturData = opprettGrunnlagOgSignaturDataService.opprett(vedtak)
 
         val brevPeriodeDtoer =
             brevPeriodeService
@@ -296,41 +306,6 @@ class GenererBrevService(
         )
     }
 
-    private fun hentGrunnlagOgSignaturData(vedtak: Vedtak): GrunnlagOgSignaturData {
-        val personopplysningGrunnlag =
-            personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(vedtak.behandling.id)
-        val totrinnskontroll = totrinnskontrollService.finnAktivForBehandling(vedtak.behandling.id)
-        val enhetNavn =
-            arbeidsfordelingService.hentArbeidsfordelingPåBehandling(vedtak.behandling.id).behandlendeEnhetNavn
-
-        return GrunnlagOgSignaturData(
-            grunnlag = personopplysningGrunnlag,
-            saksbehandler = totrinnskontroll?.saksbehandler ?: SikkerhetContext.hentSaksbehandlerNavn(),
-            beslutter = totrinnskontroll?.beslutter ?: "Beslutter",
-            enhet = enhetNavn,
-        )
-    }
-
-    private fun skalMeldeFraOmEndringerEøsSelvstendigRett(vedtak: Vedtak): Boolean {
-        val vilkårsvurdering =
-            vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(behandlingId = vedtak.behandling.id)
-
-        val annenForelderOmfattetAvNorskLovgivningErSattPåBosattIRiket =
-            vilkårsvurdering.personResultater
-                .flatMap { it.vilkårResultater }
-                .any { it.utdypendeVilkårsvurderinger.contains(UtdypendeVilkårsvurdering.ANNEN_FORELDER_OMFATTET_AV_NORSK_LOVGIVNING) && it.vilkårType == Vilkår.BOSATT_I_RIKET }
-
-        val passendeBehandlingsresultat =
-            vedtak.behandling.resultat !in
-                listOf(
-                    Behandlingsresultat.AVSLÅTT,
-                    Behandlingsresultat.ENDRET_OG_OPPHØRT,
-                    Behandlingsresultat.OPPHØRT,
-                )
-
-        return annenForelderOmfattetAvNorskLovgivningErSattPåBosattIRiket && passendeBehandlingsresultat
-    }
-
     private fun hentHjemler(
         behandlingId: Long,
         utvidetVedtaksperioderMedBegrunnelser: List<UtvidetVedtaksperiodeMedBegrunnelser>,
@@ -361,20 +336,9 @@ class GenererBrevService(
         )
     }
 
-    private fun hentEtterbetaling(vedtak: Vedtak): Etterbetaling? =
-        hentEtterbetalingsbeløp(vedtak)?.let { Etterbetaling(it) }
-
-    private fun hentEtterbetalingsbeløp(vedtak: Vedtak): String? {
-        val etterbetalingsBeløp =
-            korrigertEtterbetalingService.finnAktivtKorrigeringPåBehandling(vedtak.behandling.id)?.beløp?.toBigDecimal()
-                ?: simuleringService.hentEtterbetaling(vedtak.behandling.id)
-
-        return etterbetalingsBeløp.takeIf { it > BigDecimal.ZERO }?.run { formaterBeløp(this.toInt()) }
-    }
-
     fun hentEndringAvFramtidigOpphørData(vedtak: Vedtak): BrevDto {
         val fellesdataForVedtaksbrev = lagDataForVedtaksbrev(vedtak)
-        hentGrunnlagOgSignaturData(vedtak).let { data ->
+        opprettGrunnlagOgSignaturDataService.opprett(vedtak).let { data ->
             return EndringAvFramtidigOpphør(
                 data =
                     EndringAvFramtidigOpphørData(
@@ -403,7 +367,7 @@ class GenererBrevService(
     fun hentDødsfallbrevData(
         vedtak: Vedtak,
     ) =
-        hentGrunnlagOgSignaturData(vedtak).let { data ->
+        opprettGrunnlagOgSignaturDataService.opprett(vedtak).let { data ->
             Dødsfall(
                 data =
                     DødsfallData(
@@ -445,15 +409,5 @@ class GenererBrevService(
             .maxOfOrNull { it.periodeFom }
             ?.tilMånedÅr()
             ?: throw Feil("Fant ikke opphørdato ved generering av dødsfallbrev på behandling $behandlingId")
-    )
-
-    private fun erFeilutbetalingPåBehandling(behandlingId: Long): Boolean =
-        simuleringService.hentFeilutbetaling(behandlingId) > BigDecimal.ZERO
-
-    private data class GrunnlagOgSignaturData(
-        val grunnlag: PersonopplysningGrunnlag,
-        val saksbehandler: String,
-        val beslutter: String,
-        val enhet: String,
     )
 }
