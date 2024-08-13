@@ -211,9 +211,7 @@ class GenererBrevService(
 
     fun lagDataForVedtaksbrev(vedtak: Vedtak): FellesdataForVedtaksbrev {
         val utvidetVedtaksperioderMedBegrunnelser =
-            vedtaksperiodeService.hentUtvidetVedtaksperioderMedBegrunnelser(vedtak).filter {
-                !(it.begrunnelser.isEmpty() && it.fritekster.isEmpty() && it.eøsBegrunnelser.isEmpty())
-            }
+            vedtaksperiodeService.hentUtvidetVedtaksperioderMedBegrunnelser(vedtak)
 
         val erBehandlingOpprettetForLovendring2024 = vedtak.behandling.opprettetÅrsak == BehandlingÅrsak.LOVENDRING_2024
         if (erBehandlingOpprettetForLovendring2024) {
