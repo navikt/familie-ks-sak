@@ -25,7 +25,7 @@ import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
 import no.nav.familie.ks.sak.internal.TestVerktøyService
 import no.nav.familie.ks.sak.internal.kontantstøtteInfobrevJuli2024.DistribuerInformasjonsbrevKontantstøtteJuli2024
 import no.nav.familie.ks.sak.kjerne.autovedtak.AutovedtakLovendringIkkeFremtidigOpphørTask
-import no.nav.familie.ks.sak.kjerne.autovedtak.AutovedtakLovendringOpphørteSaker
+import no.nav.familie.ks.sak.kjerne.autovedtak.AutovedtakLovendringOpphørteSakerTask
 import no.nav.familie.ks.sak.kjerne.autovedtak.AutovedtakLovendringTask
 import no.nav.familie.ks.sak.kjerne.avstemming.GrensesnittavstemmingTask
 import no.nav.familie.ks.sak.kjerne.avstemming.KonsistensavstemmingKjøreplanService
@@ -335,7 +335,7 @@ class ForvaltningController(
         )
 
         behandlingRepository.finnBehandlingerSomSkalRekjøresLovendringOpphørteSaker().take(limit.toInt()).forEach {
-            AutovedtakLovendringOpphørteSaker.opprettTask(it).apply { taskService.save(this) }
+            AutovedtakLovendringOpphørteSakerTask.opprettTask(it).apply { taskService.save(this) }
         }
 
         return ResponseEntity.ok(Ressurs.success("Automatisk revurdering opprettet"))

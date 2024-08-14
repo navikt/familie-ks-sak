@@ -139,11 +139,11 @@ data class Behandling(
                     .maxBy { it.behandlingSteg.sekvens }
                     .behandlingSteg
 
-    fun initBehandlingStegTilstand(): Behandling {
+    fun initBehandlingStegTilstand(steg: BehandlingSteg = BehandlingSteg.REGISTRERE_PERSONGRUNNLAG): Behandling {
         behandlingStegTilstand.add(
             BehandlingStegTilstand(
                 behandling = this,
-                behandlingSteg = BehandlingSteg.REGISTRERE_PERSONGRUNNLAG,
+                behandlingSteg = steg,
             ),
         )
         return this

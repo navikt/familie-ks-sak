@@ -271,6 +271,7 @@ fun lagBehandling(
     status: BehandlingStatus = BehandlingStatus.UTREDES,
     id: Long = nesteBehandlingId(),
     endretTidspunkt: LocalDateTime = LocalDateTime.now(),
+    steg: BehandlingSteg = BehandlingSteg.REGISTRERE_SØKNAD,
 ): Behandling {
     val behandling =
         Behandling(
@@ -282,7 +283,7 @@ fun lagBehandling(
             resultat = resultat,
             aktiv = aktiv,
             status = status,
-        ).initBehandlingStegTilstand()
+        ).initBehandlingStegTilstand(steg)
     behandling.endretTidspunkt = endretTidspunkt
     return behandling
 }

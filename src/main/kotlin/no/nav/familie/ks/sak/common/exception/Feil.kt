@@ -13,6 +13,12 @@ open class Feil(
     override val cause: Throwable? = throwable,
 ) : RuntimeException(message)
 
+open class RollbackRevurderFagsakFeil(
+    message: String,
+    open val throwable: Throwable? = null,
+    override val cause: Throwable? = throwable,
+) : RuntimeException(message)
+
 open class FunksjonellFeil(
     open val melding: String,
     open val frontendFeilmelding: String? = melding,

@@ -11,13 +11,18 @@ import no.nav.familie.ks.sak.api.mapper.BehandlingMapper
 import no.nav.familie.ks.sak.api.mapper.BehandlingMapper.lagPersonRespons
 import no.nav.familie.ks.sak.api.mapper.BehandlingMapper.lagPersonerMedAndelTilkjentYtelseRespons
 import no.nav.familie.ks.sak.api.mapper.SøknadGrunnlagMapper.tilSøknadDto
+import no.nav.familie.ks.sak.common.exception.Feil
+import no.nav.familie.ks.sak.common.util.TIDENES_MORGEN
+import no.nav.familie.ks.sak.common.util.toYearMonth
 import no.nav.familie.ks.sak.integrasjon.sanity.SanityService
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.ArbeidsfordelingService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingKategori
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
+import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingType.TEKNISK_ENDRING
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat
+import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg
 import no.nav.familie.ks.sak.kjerne.behandling.steg.behandlingsresultat.BehandlingsresultatValideringUtils
 import no.nav.familie.ks.sak.kjerne.behandling.steg.registrersøknad.SøknadGrunnlagService
@@ -26,7 +31,9 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.feilutbetaltvaluta.Fe
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.refusjonEøs.RefusjonEøsService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.VedtaksperiodeService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
 import no.nav.familie.ks.sak.kjerne.beregning.AndelerTilkjentYtelseOgEndreteUtbetalingerService
+import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelseRepository
 import no.nav.familie.ks.sak.kjerne.brev.mottaker.BrevmottakerService
 import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.tilEndretUtbetalingAndelResponsDto
@@ -47,6 +54,8 @@ import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import java.time.LocalDateTime
+import java.time.YearMonth
 
 @Service
 class BehandlingService(
@@ -287,6 +296,79 @@ class BehandlingService(
     private fun List<Behandling>.filtrerSisteBehandlingSomErAvsluttetEllerSendtTilØkonomi() =
         filter { !it.erHenlagt() && (it.status == BehandlingStatus.AVSLUTTET || it.status == BehandlingStatus.IVERKSETTER_VEDTAK) }
             .maxByOrNull { it.aktivertTidspunkt }
+
+    fun skalSendeVedtaksbrev(behandling: Behandling): Boolean =
+        when {
+            behandling.type == TEKNISK_ENDRING -> false
+            erOpphørtIjuliIkkeFremtidigOpphørOgHarIkkeFlereAndelerEnnForrigeBehandling(behandling) -> false
+            erOpphørtIjuliIkkeFremtidigOpphørOgHarFlereAndelerEnnForrigeBehandling(behandling) -> true
+            behandling.opprettetÅrsak in listOf(BehandlingÅrsak.SATSENDRING, BehandlingÅrsak.LOVENDRING_2024) -> false
+            else -> true
+        }
+
+    fun erOpphørtIjuliIkkeFremtidigOpphørOgHarIkkeFlereAndelerEnnForrigeBehandling(behandling: Behandling): Boolean {
+        val sisteIverksatteBehandling =
+            hentSisteBehandlingSomErIverksatt(behandling.fagsak.id)
+                ?: throw Feil("Fant ingen iverksatt behandling for fagsak ${behandling.fagsak.id}")
+
+        val fikkAndelerIAugustEtterRevurdering =
+            fikkAndelerIAugustEtterRevurdering(behandling, sisteIverksatteBehandling)
+
+        return erBehandletIJuniJuli24MedSisteUtbetalingIJuli(sisteIverksatteBehandling) && !fikkAndelerIAugustEtterRevurdering
+    }
+
+    fun erOpphørtIjuliIkkeFremtidigOpphørOgHarFlereAndelerEnnForrigeBehandling(behandling: Behandling): Boolean {
+        val sisteIverksatteBehandling =
+            hentSisteBehandlingSomErIverksatt(behandling.fagsak.id)
+                ?: throw Feil("Fant ingen iverksatt behandling for fagsak ${behandling.fagsak.id}")
+
+        val fikkAndelerIAugustEtterRevurdering =
+            fikkAndelerIAugustEtterRevurdering(behandling, sisteIverksatteBehandling)
+
+        return erBehandletIJuniJuli24MedSisteUtbetalingIJuli(sisteIverksatteBehandling) && fikkAndelerIAugustEtterRevurdering
+    }
+
+    private fun fikkAndelerIAugustEtterRevurdering(
+        behandling: Behandling,
+        sisteIverksatteBehandling: Behandling,
+    ): Boolean {
+        val andelerNåværendeBehandling = andelTilkjentYtelseRepository.finnAndelerTilkjentYtelseForBehandling(behandling.id)
+        val andelerForrigeBehandling = andelTilkjentYtelseRepository.finnAndelerTilkjentYtelseForBehandling(sisteIverksatteBehandling.id)
+
+        val aktører = (andelerNåværendeBehandling.map { it.aktør } + andelerForrigeBehandling.map { it.aktør }).distinct()
+
+        return aktører.any { aktør ->
+            val sisteNåværendeUtbetalingForAktør =
+                andelerNåværendeBehandling.filter<AndelTilkjentYtelse> { it.aktør == aktør }.maxOfOrNull<AndelTilkjentYtelse, YearMonth> { it.stønadTom } ?: return@any false
+            val sisteForrigeUtbetalingForAktør =
+                andelerForrigeBehandling.filter { it.aktør == aktør }.maxOfOrNull { it.stønadTom } ?: TIDENES_MORGEN.toYearMonth()
+
+            sisteForrigeUtbetalingForAktør < sisteNåværendeUtbetalingForAktør
+        }
+    }
+
+    private fun erBehandletIJuniJuli24MedSisteUtbetalingIJuli(sisteIverksatteBehandling: Behandling): Boolean {
+        val august2024 = LocalDateTime.of(2024, 8, 1, 0, 0)
+        val førsteJuni2024 = LocalDateTime.of(2024, 6, 1, 0, 0)
+
+        val andeler = andelTilkjentYtelseRepository.finnAndelerTilkjentYtelseForBehandling(sisteIverksatteBehandling.id)
+        val harAndelerEtterJuli2024 = andeler.any { it.stønadFom >= august2024.toLocalDate().toYearMonth() }
+
+        val vedtak = vedtakRepository.findByBehandlingAndAktiv(sisteIverksatteBehandling.id)
+        val vedtattIJuniEllerJuli2024 = vedtak.vedtaksdato != null && vedtak.vedtaksdato!! > førsteJuni2024 && vedtak.vedtaksdato!! < august2024
+
+        val vilkårsvurdering =
+            vilkårsvurderingService.finnAktivVilkårsvurdering(sisteIverksatteBehandling.id)
+                ?: throw Feil("Fant ingen vilkårsvurdering for behandling ${sisteIverksatteBehandling.id}")
+
+        val vilkårResultaterPåBehandling = vilkårsvurdering.personResultater.flatMap { it.vilkårResultater }
+
+        val behandlingHarFremtidigOpphør =
+            vilkårResultaterPåBehandling.filter { it.vilkårType == Vilkår.BARNEHAGEPLASS }.any {
+                it.søkerHarMeldtFraOmBarnehageplass == true
+            }
+        return harAndelerEtterJuli2024 && vedtattIJuniEllerJuli2024 && behandlingHarFremtidigOpphør
+    }
 
     companion object {
         private val logger: Logger = LoggerFactory.getLogger(BehandlingService::class.java)

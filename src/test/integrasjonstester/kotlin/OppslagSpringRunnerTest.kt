@@ -21,6 +21,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
+import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.Vedtak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.VedtakRepository
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
@@ -150,11 +151,21 @@ abstract class OppslagSpringRunnerTest {
         fagsakStatus: FagsakStatus = FagsakStatus.OPPRETTET,
         behandlingStatus: BehandlingStatus = BehandlingStatus.UTREDES,
         behandlingResultat: Behandlingsresultat = Behandlingsresultat.IKKE_VURDERT,
+        behandlingSteg: BehandlingSteg = BehandlingSteg.REGISTRERE_PERSONGRUNNLAG,
     ) {
         this.søker = lagreAktør(søker)
         this.barn = lagreAktør(barn)
         this.fagsak = lagreFagsak(lagFagsak(aktør = søker, status = fagsakStatus))
-        this.behandling = lagreBehandling(lagBehandling(fagsak = fagsak, opprettetÅrsak = BehandlingÅrsak.SØKNAD, status = behandlingStatus, resultat = behandlingResultat))
+        this.behandling =
+            lagreBehandling(
+                lagBehandling(
+                    fagsak = fagsak,
+                    opprettetÅrsak = BehandlingÅrsak.SØKNAD,
+                    status = behandlingStatus,
+                    resultat = behandlingResultat,
+                    steg = behandlingSteg,
+                ),
+            )
     }
 
     fun opprettPersonopplysningGrunnlagOgPersonForBehandling(
@@ -294,8 +305,8 @@ abstract class OppslagSpringRunnerTest {
             )
     }
 
-    fun lagVedtak() {
-        vedtak = vedtakRepository.saveAndFlush(Vedtak(behandling = behandling))
+    fun lagVedtak(behandlingForVedtak: Behandling = behandling) {
+        vedtak = vedtakRepository.saveAndFlush(Vedtak(behandling = behandlingForVedtak))
     }
 
     companion object {

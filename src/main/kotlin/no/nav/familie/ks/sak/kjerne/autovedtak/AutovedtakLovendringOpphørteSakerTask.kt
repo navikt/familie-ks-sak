@@ -1,13 +1,13 @@
 package no.nav.familie.ks.sak.kjerne.autovedtak
 
 import no.nav.familie.ks.sak.common.exception.Feil
+import no.nav.familie.ks.sak.common.exception.RollbackRevurderFagsakFeil
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak.LOVENDRING_2024
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.VedtakService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelseRepository
 import no.nav.familie.ks.sak.kjerne.fagsak.FagsakService
 import no.nav.familie.prosessering.AsyncTaskStep
@@ -21,12 +21,12 @@ import java.util.Properties
 
 @Service
 @TaskStepBeskrivelse(
-    taskStepType = AutovedtakLovendringOpphørteSaker.TASK_STEP_TYPE,
+    taskStepType = AutovedtakLovendringOpphørteSakerTask.TASK_STEP_TYPE,
     beskrivelse = "Trigger autovedtak av lovendring",
     maxAntallFeil = 1,
     settTilManuellOppfølgning = true,
 )
-class AutovedtakLovendringOpphørteSaker(
+class AutovedtakLovendringOpphørteSakerTask(
     val autovedtakLovendringService: AutovedtakLovendringService,
     val fagsakService: FagsakService,
     val behandlingService: BehandlingService,
@@ -47,17 +47,18 @@ class AutovedtakLovendringOpphørteSaker(
             val sisteIverksatteBehandling =
                 behandlingService.hentSisteBehandlingSomErIverksatt(fagsakId)
                     ?: throw Feil("Fant ingen aktiv behandling for fagsak $fagsakId")
-            val vilkårsvurdering =
-                vilkårsvurderingService.finnAktivVilkårsvurdering(sisteIverksatteBehandling.id)
-                    ?: throw Feil("Fant ingen vilkårsvurdering for behandling ${sisteIverksatteBehandling.id}")
 
             validerIngenAndelerEtterJuli20204(sisteIverksatteBehandling)
 
             validerVedtattEtterJuni2024(sisteIverksatteBehandling)
 
-            validerIkkeFremtidigOpphør(vilkårsvurdering, sisteIverksatteBehandling, fagsakId)
+            validerIkkeFremtidigOpphør(sisteIverksatteBehandling, fagsakId)
 
-            autovedtakLovendringService.revurderFagsak(fagsakId = fagsakId)
+            try {
+                autovedtakLovendringService.revurderFagsak(fagsakId = fagsakId)
+            } catch (e: RollbackRevurderFagsakFeil) {
+                logger.info(e.message)
+            }
         }
     }
 
@@ -71,16 +72,19 @@ class AutovedtakLovendringOpphørteSaker(
 
     private fun validerVedtattEtterJuni2024(sisteIverksatteBehandling: Behandling) {
         val vedtak = vedtakService.hentAktivVedtakForBehandling(sisteIverksatteBehandling.id)
-        if (vedtak.vedtaksdato != null && vedtak.vedtaksdato!! < førsteJuni2024) {
+        if (vedtak.vedtaksdato != null && vedtak.vedtaksdato!! > førsteJuni2024) {
             error("Vedtak=${vedtak.id} har vedtaksdato før juni 2024")
         }
     }
 
     private fun validerIkkeFremtidigOpphør(
-        vilkårsvurdering: Vilkårsvurdering,
         sisteIverksatteBehandling: Behandling,
         fagsakId: Long,
     ) {
+        val vilkårsvurdering =
+            vilkårsvurderingService.finnAktivVilkårsvurdering(sisteIverksatteBehandling.id)
+                ?: throw Feil("Fant ingen vilkårsvurdering for behandling ${sisteIverksatteBehandling.id}")
+
         val vilkårResultaterPåBehandling = vilkårsvurdering.personResultater.flatMap { it.vilkårResultater }
 
         val behandlingHarFremtidigOpphør =

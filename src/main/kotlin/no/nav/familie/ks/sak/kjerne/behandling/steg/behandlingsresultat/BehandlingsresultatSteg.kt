@@ -60,7 +60,7 @@ class BehandlingsresultatSteg(
         BehandlingsresultatValideringUtils.validerUtledetBehandlingsresultat(behandling, resultat)
         val behandlingMedOppdatertResultat = behandlingService.oppdaterBehandlingsresultat(behandlingId, resultat)
 
-        if (behandlingMedOppdatertResultat.skalSendeVedtaksbrev()) {
+        if (behandlingService.skalSendeVedtaksbrev(behandlingMedOppdatertResultat)) {
             behandlingService.nullstillEndringstidspunkt(behandlingId)
             vedtaksperiodeService.oppdaterVedtakMedVedtaksperioder(
                 vedtak =
@@ -70,7 +70,7 @@ class BehandlingsresultatSteg(
             )
         }
 
-        if (!behandling.skalBehandlesAutomatisk() || behandling.skalSendeVedtaksbrev()) {
+        if (!behandling.skalBehandlesAutomatisk() || behandlingService.skalSendeVedtaksbrev(behandling)) {
             simuleringService.oppdaterSimuleringPåBehandling(behandlingId)
         }
     }
