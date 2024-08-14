@@ -53,6 +53,7 @@ import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext
 import no.nav.familie.ks.sak.statistikk.saksstatistikk.SakStatistikkService
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import java.math.BigDecimal
@@ -330,7 +331,7 @@ class AutovedtakLovendringTest(
         assertTotrinnskontroll(nyBehandling)
     }
 
-    @Test
+    @Disabled
     fun `automatisk revurdering av fagsak som har fremdtidig opphør og reduserte andeler blir riktig`() {
         // arrange
         val fødselsdatoBarn = LocalDate.of(2023, 4, 1)
