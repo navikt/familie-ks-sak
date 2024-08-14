@@ -9,6 +9,9 @@ interface BehandlingRepository : JpaRepository<Behandling, Long> {
     @Query(value = "SELECT b FROM Behandling b WHERE b.id = :behandlingId")
     fun hentBehandling(behandlingId: Long): Behandling
 
+    @Query(value = "SELECT b FROM Behandling b WHERE b.id = :behandlingId")
+    fun hentBehandlingNullable(behandlingId: Long): Behandling?
+
     @Query(
         "SELECT b FROM Behandling b JOIN b.fagsak f WHERE f.arkivert = false AND b.id=:behandlingId AND b.aktiv = true ",
     )
