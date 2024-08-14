@@ -266,7 +266,6 @@ class GenererBrevService(
     private fun begrunnPerioderLovendring2024(
         utvidetVedtaksperioderMedBegrunnelser: List<UtvidetVedtaksperiodeMedBegrunnelser>,
     ) {
-        // TODO: Tillat flere utbetalingsperioder, må finne ut hvordan de skal begrunnes
         val utvidetVedtaksperiodeMedBegrunnelserAvTypeUtbetaling =
             utvidetVedtaksperioderMedBegrunnelser.singleOrNull {
                 it.type == Vedtaksperiodetype.UTBETALING
