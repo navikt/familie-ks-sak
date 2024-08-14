@@ -15,6 +15,7 @@ import no.nav.familie.ks.sak.data.lagAndelTilkjentYtelse
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagLogg
 import no.nav.familie.ks.sak.data.lagPersonResultat
+import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
 import no.nav.familie.ks.sak.integrasjon.økonomi.utbetalingsoppdrag.UtbetalingsoppdragService
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.ArbeidsfordelingService
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.domene.ArbeidsfordelingPåBehandling
@@ -101,6 +102,9 @@ class AutovedtakLovendringTest(
     @MockkBean
     private lateinit var loggService: LoggService
 
+    @MockkBean
+    private lateinit var integrasjonClient: IntegrasjonClient
+
     @BeforeEach
     fun setUp() {
         clearAllMocks()
@@ -118,6 +122,7 @@ class AutovedtakLovendringTest(
                 behandlendeEnhetId = "1234",
                 behandlendeEnhetNavn = "MockEnhetNavn",
             )
+        every { integrasjonClient.hentLandkoderISO2() } returns mapOf(Pair("NO", "NORGE"))
 
         justRun { loggService.opprettBehandlingLogg(any()) }
         justRun { loggService.opprettVilkårsvurderingLogg(any(), any(), any()) }
