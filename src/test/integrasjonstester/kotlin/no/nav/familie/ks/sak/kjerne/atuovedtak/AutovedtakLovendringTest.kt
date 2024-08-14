@@ -16,6 +16,7 @@ import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagLogg
 import no.nav.familie.ks.sak.data.lagPersonResultat
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
+import no.nav.familie.ks.sak.data.lagVilkårResultat
 import no.nav.familie.ks.sak.integrasjon.økonomi.utbetalingsoppdrag.UtbetalingsoppdragService
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.ArbeidsfordelingService
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.domene.ArbeidsfordelingPåBehandling
@@ -38,6 +39,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vil
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårsvurderingRepository
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelseRepository
+import no.nav.familie.ks.sak.kjerne.beregning.domene.maksBeløp
 import no.nav.familie.ks.sak.kjerne.brev.BrevKlient
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.NasjonalEllerFellesBegrunnelse.OPPHØR_FRAMTIDIG_OPPHØR_BARNEHAGEPLASS
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.FagsakStatus.LØPENDE
@@ -329,6 +331,135 @@ class AutovedtakLovendringTest(
     }
 
     @Test
+    fun `automatisk revurdering av fagsak som har fremdtidig opphør og reduserte andeler blir riktig`() {
+        // arrange
+        val fødselsdatoBarn = LocalDate.of(2023, 4, 1)
+        val datoForRedusertBarnehageplass = LocalDate.of(2024, 8, 10)
+        val datoForFullBarnehageplass = LocalDate.of(2024, 9, 10)
+
+        opprettSøkerFagsakOgBehandling(fagsakStatus = LØPENDE, behandlingStatus = AVSLUTTET, behandlingResultat = INNVILGET)
+        opprettPersonopplysningGrunnlagOgPersonForBehandling(lagBarn = true, fødselsdatoBarn = fødselsdatoBarn)
+
+        val vilkårsvurdering = Vilkårsvurdering(behandling = behandling)
+
+        val søkersPersonResultat =
+            lagPersonResultat(
+                vilkårsvurdering = vilkårsvurdering,
+                aktør = søker,
+                resultat = Resultat.OPPFYLT,
+                periodeFom = fødselsdatoBarn,
+                periodeTom = null,
+                personType = PersonType.SØKER,
+                lagFullstendigVilkårResultat = true,
+            )
+
+        val barnetsPersonResultat =
+            lagPersonResultat(
+                vilkårsvurdering = vilkårsvurdering,
+                aktør = barn,
+                resultat = Resultat.OPPFYLT,
+                periodeFom = fødselsdatoBarn,
+                periodeTom = null,
+                personType = PersonType.BARN,
+                lagFullstendigVilkårResultat = true,
+            )
+
+        val barnehageOppfylt100prosent =
+            lagVilkårResultat(
+                personResultat = barnetsPersonResultat,
+                vilkårType = Vilkår.BARNEHAGEPLASS,
+                resultat = Resultat.OPPFYLT,
+                periodeFom = fødselsdatoBarn.plusYears(1),
+                periodeTom = datoForRedusertBarnehageplass.minusDays(1),
+                behandlingId = behandling.id,
+            )
+
+        val barnehageOppfylt40prosent =
+            lagVilkårResultat(
+                personResultat = barnetsPersonResultat,
+                vilkårType = Vilkår.BARNEHAGEPLASS,
+                resultat = Resultat.OPPFYLT,
+                periodeFom = datoForRedusertBarnehageplass,
+                periodeTom = datoForFullBarnehageplass.minusDays(1),
+                behandlingId = behandling.id,
+                antallTimer = BigDecimal.valueOf(20),
+                søkerHarMeldtFraOmBarnehageplass = true,
+            )
+
+        val barnehageIkkeOppfylt =
+            lagVilkårResultat(
+                personResultat = barnetsPersonResultat,
+                vilkårType = Vilkår.BARNEHAGEPLASS,
+                resultat = Resultat.IKKE_OPPFYLT,
+                periodeFom = datoForFullBarnehageplass,
+                periodeTom = fødselsdatoBarn.plusYears(1).plusMonths(7),
+                behandlingId = behandling.id,
+                antallTimer = BigDecimal.valueOf(40),
+            )
+
+        barnetsPersonResultat.setSortedVilkårResultater(
+            (
+                    barnetsPersonResultat
+                        .vilkårResultater
+                        .filter { it.vilkårType != Vilkår.BARNEHAGEPLASS } +
+                            barnehageOppfylt100prosent + barnehageOppfylt40prosent + barnehageIkkeOppfylt
+                    ).toSet(),
+        )
+
+        vilkårsvurdering.personResultater = setOf(søkersPersonResultat, barnetsPersonResultat)
+
+        vilkårsvurderingRepository.saveAndFlush(vilkårsvurdering)
+
+        lagTilkjentYtelse()
+        leggTilAndelTilkjentYtelseForBarn(
+            stønadFom = fødselsdatoBarn.plusYears(1).plusMonths(1).toYearMonth(),
+            stønadTom = datoForRedusertBarnehageplass.minusMonths(1).toYearMonth(),
+            prosent = BigDecimal.valueOf(100),
+            kalkulertUtbetalingsbeløp = maksBeløp(),
+        )
+        leggTilAndelTilkjentYtelseForBarn(
+            stønadFom = datoForRedusertBarnehageplass.toYearMonth(),
+            stønadTom = datoForFullBarnehageplass.minusMonths(1).toYearMonth(),
+            prosent = BigDecimal.valueOf(40),
+            kalkulertUtbetalingsbeløp = (maksBeløp() * 0.4).toInt(),
+        )
+
+        lagVedtak()
+        opprettVedtaksperiodeMedBegrunnelser(begrunnelser = listOf(OPPHØR_FRAMTIDIG_OPPHØR_BARNEHAGEPLASS))
+
+        every { brevklient.genererBrev(any(), any()) } returns "brev".toByteArray()
+        every { simuleringService.oppdaterSimuleringPåBehandling(any<Long>()) } returns emptyList()
+        every { localDateProvider.now() } returns LocalDate.of(2024, 8, 1)
+        every { behandlingService.hentSisteBehandlingSomErIverksatt(fagsak.id) } returns behandling
+
+        // act
+        val nyBehandling = autovedtakLovendringService.revurderFagsak(fagsakId = fagsak.id, erFremtidigOpphør = true)!!
+
+        // assert
+        assertThat(nyBehandling.opprettetÅrsak).isEqualTo(LOVENDRING_2024)
+        assertThat(nyBehandling.steg).isEqualTo(BehandlingSteg.IVERKSETT_MOT_OPPDRAG)
+
+        val andelTilkjentYtelseNy = andelTilkjentYtelseRepository.finnAndelerTilkjentYtelseForBehandling(nyBehandling.id)
+
+        assertThat(andelTilkjentYtelseNy).hasSize(2)
+        assertThat(andelTilkjentYtelseNy).anySatisfy {
+            assertThat(it.stønadFom).isEqualTo(YearMonth.of(2024, 5))
+            assertThat(it.stønadTom).isEqualTo(YearMonth.of(2024, 8))
+            assertThat(it.prosent).isEqualTo(BigDecimal.valueOf(100))
+        }
+        assertThat(andelTilkjentYtelseNy).anySatisfy {
+            assertThat(it.stønadFom).isEqualTo(YearMonth.of(2024, 9))
+            assertThat(it.stønadTom).isEqualTo(YearMonth.of(2024, 9))
+            assertThat(it.prosent).isEqualTo(BigDecimal.valueOf(40))
+        }
+
+        verify { simuleringService.oppdaterSimuleringPåBehandling(any<Long>()) }
+        verify { brevklient.genererBrev(any(), any()) }
+
+        assertTotrinnskontroll(nyBehandling)
+    }
+
+    @Test
     fun `automatisk revurdering av fagsak som blir truffet av nytt regelverk skal snike i køen`() {
         // arrange
 
@@ -407,16 +538,37 @@ class AutovedtakLovendringTest(
         )
     }
 
+    private fun leggTilAndelTilkjentYtelseForBarn(
+        stønadFom: YearMonth,
+        stønadTom: YearMonth,
+        prosent: BigDecimal = BigDecimal.valueOf(100),
+        kalkulertUtbetalingsbeløp: Int = maksBeløp(),
+    ) {
+        tilkjentYtelse.andelerTilkjentYtelse.add(
+            andelTilkjentYtelseRepository.save(
+                lagAndelTilkjentYtelse(
+                    tilkjentYtelse = tilkjentYtelse,
+                    behandling = behandling,
+                    aktør = barn,
+                    stønadFom = stønadFom,
+                    stønadTom = stønadTom,
+                    prosent = prosent,
+                    kalkulertUtbetalingsbeløp = kalkulertUtbetalingsbeløp,
+                ),
+            ),
+        )
+    }
+
     private fun lagVilkårsvurderingEtterGammeltRegelverk(
         fødselsdatoBarn: LocalDate = LocalDate.now(),
         behandling: Behandling = this.behandling,
-    ) {
+    ): Vilkårsvurdering {
         val vilkårsvurdering =
             Vilkårsvurdering(
                 behandling = behandling,
             )
         vilkårsvurdering.personResultater = lagPersonResultater(vilkårsvurdering, fødselsdatoBarn).toSet()
-        vilkårsvurderingRepository.saveAndFlush(vilkårsvurdering)
+        return vilkårsvurderingRepository.saveAndFlush(vilkårsvurdering)
     }
 
     private fun lagVilkårsvurderingMedFremtidigOpphør(

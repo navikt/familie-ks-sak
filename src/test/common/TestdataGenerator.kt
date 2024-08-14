@@ -537,6 +537,7 @@ fun lagVilkårResultat(
     utdypendeVilkårsvurderinger: List<UtdypendeVilkårsvurdering> = emptyList(),
     regelverk: Regelverk = Regelverk.NASJONALE_REGLER,
     antallTimer: BigDecimal? = null,
+    søkerHarMeldtFraOmBarnehageplass: Boolean? = null,
 ): VilkårResultat =
     VilkårResultat(
         id = id,
@@ -550,6 +551,7 @@ fun lagVilkårResultat(
         utdypendeVilkårsvurderinger = utdypendeVilkårsvurderinger,
         vurderesEtter = regelverk,
         antallTimer = antallTimer,
+        søkerHarMeldtFraOmBarnehageplass = søkerHarMeldtFraOmBarnehageplass,
     )
 
 fun lagVilkårResultaterForBarn(

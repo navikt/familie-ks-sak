@@ -266,17 +266,18 @@ class GenererBrevService(
     private fun begrunnPerioderLovendring2024(
         utvidetVedtaksperioderMedBegrunnelser: List<UtvidetVedtaksperiodeMedBegrunnelser>,
     ) {
+        // TODO: Tillat flere utbetalingsperioder, må finne ut hvordan de skal begrunnes
         val utvidetVedtaksperiodeMedBegrunnelserAvTypeUtbetaling =
             utvidetVedtaksperioderMedBegrunnelser.singleOrNull {
                 it.type == Vedtaksperiodetype.UTBETALING
             } ?: throw Feil(
-                "Fant ingen utvidet vedtaksperiode med begrunnelse av type ${Vedtaksperiodetype.UTBETALING}",
+                "Forventet én vedtaksperiode med begrunnelse av type ${Vedtaksperiodetype.UTBETALING}",
             )
         val utvidetVedtaksperiodeMedBegrunnelserAvTypeOpphør =
             utvidetVedtaksperioderMedBegrunnelser.singleOrNull {
                 it.type == Vedtaksperiodetype.OPPHØR
             } ?: throw Feil(
-                "Fant ingen utvidet vedtaksperiode med begrunnelse av type ${Vedtaksperiodetype.OPPHØR}",
+                "Forventet én vedtaksperiode med begrunnelse av type ${Vedtaksperiodetype.OPPHØR}",
             )
         vedtaksperiodeService.oppdaterVedtaksperiodeMedBegrunnelser(
             vedtaksperiodeId = utvidetVedtaksperiodeMedBegrunnelserAvTypeUtbetaling.id,
