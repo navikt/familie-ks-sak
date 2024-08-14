@@ -45,7 +45,9 @@ import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.BegrunnelserForPeriodeCont
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.EØSBegrunnelse
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.IBegrunnelse
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.NasjonalEllerFellesBegrunnelse
+import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.NasjonalEllerFellesBegrunnelse.OPPHØR_BRUKER_MELDER_FULLTIDSPLASS_I_BARNEHAGE
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.NasjonalEllerFellesBegrunnelse.OPPHØR_FRAMTIDIG_OPPHØR_BARNEHAGEPLASS
+import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.NasjonalEllerFellesBegrunnelse.OPPHØR_NYTT_FRAMTIDIG_OPPHØR_BARNEHAGEPLASS
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.tilVedtaksbegrunnelse
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.KompetanseService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
@@ -342,7 +344,7 @@ class VedtaksperiodeService(
     ): Boolean =
         hentPersisterteVedtaksperioder(vedtak).any { vedtaksperiode ->
             vedtaksperiode.begrunnelser.any { begrunnelse ->
-                begrunnelse.nasjonalEllerFellesBegrunnelse == OPPHØR_FRAMTIDIG_OPPHØR_BARNEHAGEPLASS
+                begrunnelse.nasjonalEllerFellesBegrunnelse in listOf(OPPHØR_FRAMTIDIG_OPPHØR_BARNEHAGEPLASS, OPPHØR_BRUKER_MELDER_FULLTIDSPLASS_I_BARNEHAGE, OPPHØR_NYTT_FRAMTIDIG_OPPHØR_BARNEHAGEPLASS)
             }
         }
 
