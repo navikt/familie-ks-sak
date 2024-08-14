@@ -15,8 +15,8 @@ import no.nav.familie.ks.sak.data.lagAndelTilkjentYtelse
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagLogg
 import no.nav.familie.ks.sak.data.lagPersonResultat
-import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
 import no.nav.familie.ks.sak.data.lagVilkårResultat
+import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
 import no.nav.familie.ks.sak.integrasjon.økonomi.utbetalingsoppdrag.UtbetalingsoppdragService
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.ArbeidsfordelingService
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.domene.ArbeidsfordelingPåBehandling
@@ -400,11 +400,11 @@ class AutovedtakLovendringTest(
 
         barnetsPersonResultat.setSortedVilkårResultater(
             (
-                    barnetsPersonResultat
-                        .vilkårResultater
-                        .filter { it.vilkårType != Vilkår.BARNEHAGEPLASS } +
-                            barnehageOppfylt100prosent + barnehageOppfylt40prosent + barnehageIkkeOppfylt
-                    ).toSet(),
+                barnetsPersonResultat
+                    .vilkårResultater
+                    .filter { it.vilkårType != Vilkår.BARNEHAGEPLASS } +
+                    barnehageOppfylt100prosent + barnehageOppfylt40prosent + barnehageIkkeOppfylt
+            ).toSet(),
         )
 
         vilkårsvurdering.personResultater = setOf(søkersPersonResultat, barnetsPersonResultat)
