@@ -1,6 +1,8 @@
 package no.nav.familie.ks.sak.no.nav.familie.ks.sak.kjerne.atuovedtak
 
 import com.ninjasquad.springmockk.MockkBean
+import com.ninjasquad.springmockk.SpykBean
+import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.justRun
 import io.mockk.verify
@@ -13,17 +15,24 @@ import no.nav.familie.ks.sak.data.lagAndelTilkjentYtelse
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagLogg
 import no.nav.familie.ks.sak.data.lagPersonResultat
+import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
 import no.nav.familie.ks.sak.integrasjon.økonomi.utbetalingsoppdrag.UtbetalingsoppdragService
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.ArbeidsfordelingService
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.domene.ArbeidsfordelingPåBehandling
 import no.nav.familie.ks.sak.kjerne.autovedtak.AutovedtakLovendringService
+import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
+import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus.AVSLUTTET
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat
-import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
+import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat.INNVILGET
+import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak.LOVENDRING_2024
+import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak.SØKNAD
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg
+import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg.AVSLUTT_BEHANDLING
 import no.nav.familie.ks.sak.kjerne.behandling.steg.simulering.SimuleringService
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.VedtaksperiodeService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.PersonResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
@@ -33,8 +42,10 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vil
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelseRepository
 import no.nav.familie.ks.sak.kjerne.beregning.domene.TilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.domene.TilkjentYtelseRepository
+import no.nav.familie.ks.sak.kjerne.beregning.domene.maksBeløp
 import no.nav.familie.ks.sak.kjerne.brev.BrevKlient
-import no.nav.familie.ks.sak.kjerne.fagsak.domene.FagsakStatus
+import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.NasjonalEllerFellesBegrunnelse.OPPHØR_FRAMTIDIG_OPPHØR_BARNEHAGEPLASS
+import no.nav.familie.ks.sak.kjerne.fagsak.domene.FagsakStatus.LØPENDE
 import no.nav.familie.ks.sak.kjerne.logg.LoggService
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonService
@@ -45,12 +56,12 @@ import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext
 import no.nav.familie.ks.sak.statistikk.saksstatistikk.SakStatistikkService
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import java.math.BigDecimal
 import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.YearMonth
 
 class AutovedtakLovendringTest(
     @Autowired private val autovedtakLovendringService: AutovedtakLovendringService,
@@ -61,6 +72,12 @@ class AutovedtakLovendringTest(
     @Autowired private val totrinnskontrollService: TotrinnskontrollService,
     @Autowired private val tilkjentYtelseRepository: TilkjentYtelseRepository,
 ) : OppslagSpringRunnerTest() {
+    @SpykBean
+    private lateinit var vedtaksperiodeService: VedtaksperiodeService
+
+    @SpykBean
+    private lateinit var behandlingService: BehandlingService
+
     @MockkBean
     private lateinit var brevklient: BrevKlient
 
@@ -85,14 +102,18 @@ class AutovedtakLovendringTest(
     @MockkBean
     private lateinit var localDateTimeProvider: LocalDateTimeProvider
 
-    @MockkBean
+    @SpykBean
     private lateinit var localDateProvider: LocalDateProvider
 
     @MockkBean
     private lateinit var loggService: LoggService
 
+    @MockkBean
+    private lateinit var integrasjonClient: IntegrasjonClient
+
     @BeforeEach
     fun setUp() {
+        clearAllMocks()
         justRun { arbeidsfordelingService.fastsettBehandledeEnhet(any(), any()) }
         justRun { sakStatistikkService.opprettSendingAvBehandlingensTilstand(any(), any()) }
         every { unleashNextMedContextService.isEnabled(any()) } returns true
@@ -107,8 +128,7 @@ class AutovedtakLovendringTest(
                 behandlendeEnhetId = "1234",
                 behandlendeEnhetNavn = "MockEnhetNavn",
             )
-
-        every { localDateProvider.now() } returns LocalDate.now()
+        every { integrasjonClient.hentLandkoderISO2() } returns mapOf(Pair("NO", "NORGE"))
 
         justRun { loggService.opprettBehandlingLogg(any()) }
         justRun { loggService.opprettVilkårsvurderingLogg(any(), any(), any()) }
@@ -120,28 +140,19 @@ class AutovedtakLovendringTest(
     @Test
     fun `automatisk revurdering av fagsak som blir truffet av nytt regelverk gir endret utbetaling`() {
         // arrange
-        opprettSøkerFagsakOgBehandling(
-            fagsakStatus = FagsakStatus.LØPENDE,
-            behandlingStatus = BehandlingStatus.AVSLUTTET,
-            behandlingResultat = Behandlingsresultat.INNVILGET,
-            behandlingSteg = BehandlingSteg.AVSLUTT_BEHANDLING,
-        )
-        lagVedtak()
         val fødselsdatoBarn = LocalDate.of(2023, 4, 1)
-        opprettPersonopplysningGrunnlagOgPersonForBehandling(
-            behandlingId = behandling.id,
-            lagBarn = true,
-            fødselsdatoBarn = fødselsdatoBarn,
-        )
-        lagVilkårsvurderingEtterGammeltRegelverk(fødselsdatoBarn)
 
-        lagTilkjentytelseMedAndelForBarn(fødselsdatoBarn, behandling)
+        opprettSøkerFagsakOgBehandling(fagsakStatus = LØPENDE, behandlingStatus = AVSLUTTET, behandlingResultat = INNVILGET, behandlingSteg = AVSLUTT_BEHANDLING)
+        opprettPersonopplysningGrunnlagOgPersonForBehandling(lagBarn = true, fødselsdatoBarn = fødselsdatoBarn)
+        lagVilkårsvurderingEtterGammeltRegelverk(fødselsdatoBarn)
+        lagTilkjentytelseMedAndelForBarn(fødselsdatoBarn = fødselsdatoBarn)
+        lagVedtak()
 
         // act
         val nyBehandling = autovedtakLovendringService.revurderFagsak(fagsakId = behandling.fagsak.id)!!
 
         // assert
-        assertThat(nyBehandling.opprettetÅrsak).isEqualTo(BehandlingÅrsak.LOVENDRING_2024)
+        assertThat(nyBehandling.opprettetÅrsak).isEqualTo(LOVENDRING_2024)
         assertThat(nyBehandling.resultat).isEqualTo(Behandlingsresultat.ENDRET_UTBETALING)
         assertThat(nyBehandling.steg).isEqualTo(BehandlingSteg.IVERKSETT_MOT_OPPDRAG)
 
@@ -155,41 +166,21 @@ class AutovedtakLovendringTest(
     @Test
     fun `automatisk revurdering av fagsak som ikke blir truffet av nytt regelverk gir ikke endret utbetaling`() {
         // arrange
-        opprettSøkerFagsakOgBehandling(
-            fagsakStatus = FagsakStatus.LØPENDE,
-            behandlingStatus = BehandlingStatus.AVSLUTTET,
-            behandlingResultat = Behandlingsresultat.INNVILGET,
-            behandlingSteg = BehandlingSteg.AVSLUTT_BEHANDLING,
-        )
-        lagVedtak()
         val fødselsdatoBarn = LocalDate.of(2021, 4, 1)
-        opprettPersonopplysningGrunnlagOgPersonForBehandling(
-            behandlingId = behandling.id,
-            lagBarn = true,
-            fødselsdatoBarn = fødselsdatoBarn,
-        )
-        lagVilkårsvurderingEtterGammeltRegelverk(fødselsdatoBarn)
-
-        lagTilkjentYtelse("mockUtbetalingsOppdrag")
         val stønadFom = fødselsdatoBarn.plusYears(1).plusMonths(1).toYearMonth()
         val stønadTom = fødselsdatoBarn.plusYears(2).minusMonths(1).toYearMonth() // 11 måneder som i gammelt regelverk
-        tilkjentYtelse.andelerTilkjentYtelse.add(
-            andelTilkjentYtelseRepository.save(
-                lagAndelTilkjentYtelse(
-                    tilkjentYtelse = tilkjentYtelse,
-                    behandling = behandling,
-                    aktør = barn,
-                    stønadFom = stønadFom,
-                    stønadTom = stønadTom,
-                ),
-            ),
-        )
+
+        opprettSøkerFagsakOgBehandling(fagsakStatus = LØPENDE, behandlingStatus = AVSLUTTET, behandlingResultat = INNVILGET, behandlingSteg = AVSLUTT_BEHANDLING)
+        lagVedtak()
+        opprettPersonopplysningGrunnlagOgPersonForBehandling(lagBarn = true, fødselsdatoBarn = fødselsdatoBarn)
+        lagVilkårsvurderingEtterGammeltRegelverk(fødselsdatoBarn)
+        lagTilkjentytelseMedAndelForBarn(fødselsdatoBarn = fødselsdatoBarn, stønadFom = stønadFom, stønadTom = stønadTom)
 
         // act
         val nyBehandling = autovedtakLovendringService.revurderFagsak(fagsakId = fagsak.id)!!
 
         // assert
-        assertThat(nyBehandling.opprettetÅrsak).isEqualTo(BehandlingÅrsak.LOVENDRING_2024)
+        assertThat(nyBehandling.opprettetÅrsak).isEqualTo(LOVENDRING_2024)
         assertThat(nyBehandling.resultat).isEqualTo(Behandlingsresultat.FORTSATT_OPPHØRT)
         assertThat(nyBehandling.steg).isEqualTo(BehandlingSteg.IVERKSETT_MOT_OPPDRAG)
 
@@ -201,52 +192,31 @@ class AutovedtakLovendringTest(
     }
 
     @Test
-    @Disabled
-    fun `automatisk revurdering av fagsak som har fremtidig opphør beholder fremtidig opphør og sender brev`() {
-        // TODO: Fjern @Disabled når løype for fremtidig opphør med brevutsending er implementert
+    fun `automatisk revurdering av fagsak som har fremtidig opphør med begrunnelse og økning i andeler beholder fremtidig opphør og sender brev`() {
         // arrange
+        val fødselsdatoBarn = LocalDate.of(2023, 4, 1)
+        val datoForBarnehageplass = LocalDate.of(2024, 8, 1)
+        val stønadFom = fødselsdatoBarn.plusYears(1).plusMonths(1).toYearMonth()
+        val stønadTom = datoForBarnehageplass.minusMonths(1).toYearMonth()
+
+        opprettSøkerFagsakOgBehandling(fagsakStatus = LØPENDE, behandlingStatus = AVSLUTTET, behandlingResultat = INNVILGET)
+        opprettPersonopplysningGrunnlagOgPersonForBehandling(lagBarn = true, fødselsdatoBarn = fødselsdatoBarn)
+        lagVilkårsvurderingMedFremtidigOpphør(fødselsdatoBarn, datoForBarnehageplass)
+        lagTilkjentytelseMedAndelForBarn(fødselsdatoBarn = fødselsdatoBarn, stønadFom = stønadFom, stønadTom = stønadTom)
+        lagVedtak()
+        opprettVedtaksperiodeMedBegrunnelser(begrunnelser = listOf(OPPHØR_FRAMTIDIG_OPPHØR_BARNEHAGEPLASS))
 
         every { brevklient.genererBrev(any(), any()) } returns "brev".toByteArray()
         every { simuleringService.oppdaterSimuleringPåBehandling(any<Long>()) } returns emptyList()
         every { localDateProvider.now() } returns LocalDate.of(2024, 8, 1)
-
-        opprettSøkerFagsakOgBehandling(
-            fagsakStatus = FagsakStatus.LØPENDE,
-            behandlingStatus = BehandlingStatus.AVSLUTTET,
-            behandlingResultat = Behandlingsresultat.INNVILGET,
-            behandlingSteg = BehandlingSteg.AVSLUTT_BEHANDLING,
-        )
-
-        lagVedtak()
-        val fødselsdatoBarn = LocalDate.of(2023, 4, 1)
-        opprettPersonopplysningGrunnlagOgPersonForBehandling(
-            behandlingId = behandling.id,
-            lagBarn = true,
-            fødselsdatoBarn = fødselsdatoBarn,
-        )
-
-        val datoForBarnehageplass = fødselsdatoBarn.plusYears(1).plusMonths(5).plusDays(12) // 13. september 2024
-        lagVilkårsvurderingMedFremtidigOpphør(fødselsdatoBarn, datoForBarnehageplass)
-
-        lagTilkjentYtelse("mockUtbetalingsOppdrag")
-        tilkjentYtelse.andelerTilkjentYtelse.add(
-            andelTilkjentYtelseRepository.save(
-                lagAndelTilkjentYtelse(
-                    tilkjentYtelse = tilkjentYtelse,
-                    behandling = behandling,
-                    aktør = barn,
-                    stønadFom = fødselsdatoBarn.plusYears(1).plusMonths(1).toYearMonth(),
-                    stønadTom = datoForBarnehageplass.minusMonths(1).toYearMonth(),
-                ),
-            ),
-        )
+        every { behandlingService.hentSisteBehandlingSomErIverksatt(fagsak.id) } returns behandling
 
         // act
-        val nyBehandling = autovedtakLovendringService.revurderFagsak(fagsakId = fagsak.id)!!
+        val nyBehandling = autovedtakLovendringService.revurderFagsak(fagsakId = fagsak.id, erFremtidigOpphør = true)!!
 
         // assert
-        assertThat(nyBehandling.opprettetÅrsak).isEqualTo(BehandlingÅrsak.LOVENDRING_2024)
-        assertThat(nyBehandling.resultat).isEqualTo(Behandlingsresultat.ENDRET_OG_OPPHØRT)
+        assertThat(nyBehandling.opprettetÅrsak).isEqualTo(LOVENDRING_2024)
+        assertThat(nyBehandling.behandlingStegTilstand.map { it.behandlingSteg }).containsAll(setOf(BehandlingSteg.SIMULERING, BehandlingSteg.VEDTAK))
         assertThat(nyBehandling.steg).isEqualTo(BehandlingSteg.IVERKSETT_MOT_OPPDRAG)
 
         val andelTilkjentYtelseNy = andelTilkjentYtelseRepository.finnAndelerTilkjentYtelseForBehandling(nyBehandling.id).single()
@@ -257,10 +227,10 @@ class AutovedtakLovendringTest(
             vilkårsvurderingRepository
                 .finnAktivForBehandling(nyBehandling.id)!!
                 .personResultater
-                .find { !it.erSøkersResultater() }!!
-                .vilkårResultater
-                .filter { it.vilkårType == Vilkår.BARNEHAGEPLASS && it.harMeldtBarnehageplassOgErFulltidIBarnehage() }
-        assertThat(vilkårResultatRevurdering.size).isEqualTo(1)
+                .flatMap { it.vilkårResultater }
+                .single { it.vilkårType == Vilkår.BARNEHAGEPLASS && it.harMeldtBarnehageplassOgErFulltidIBarnehage() }
+
+        assertThat(vilkårResultatRevurdering.periodeFom).isEqualTo(datoForBarnehageplass)
 
         verify { simuleringService.oppdaterSimuleringPåBehandling(any<Long>()) }
         verify { brevklient.genererBrev(any(), any()) }
@@ -269,13 +239,65 @@ class AutovedtakLovendringTest(
     }
 
     @Test
+    fun `automatisk revurdering av fagsak som har fremdtidig opphør, men ikke fremtidig opphør begrunnelse sender ikke brev`() {
+        // arrange
+        val fødselsdatoBarn = LocalDate.of(2023, 4, 1)
+        val datoForBarnehageplass = LocalDate.of(2024, 8, 1)
+        val stønadFom = fødselsdatoBarn.plusYears(1).plusMonths(1).toYearMonth()
+        val stønadTom = datoForBarnehageplass.minusMonths(1).toYearMonth()
+
+        opprettSøkerFagsakOgBehandling(fagsakStatus = LØPENDE, behandlingStatus = AVSLUTTET, behandlingResultat = INNVILGET)
+        opprettPersonopplysningGrunnlagOgPersonForBehandling(lagBarn = true, fødselsdatoBarn = fødselsdatoBarn)
+        lagVilkårsvurderingMedFremtidigOpphør(fødselsdatoBarn, datoForBarnehageplass)
+        lagTilkjentytelseMedAndelForBarn(fødselsdatoBarn = fødselsdatoBarn, stønadFom = stønadFom, stønadTom = stønadTom)
+        lagVedtak()
+
+        every { brevklient.genererBrev(any(), any()) } returns "brev".toByteArray()
+        every { simuleringService.oppdaterSimuleringPåBehandling(any<Long>()) } returns emptyList()
+        every { localDateProvider.now() } returns LocalDate.of(2024, 8, 1)
+        every { behandlingService.hentSisteBehandlingSomErIverksatt(fagsak.id) } returns behandling
+
+        var erFremtidigOpphørBegrunnelseIForrigeBehandling: Boolean? = null
+        every { vedtaksperiodeService.vedtakInneholderFremtidigOpphørBegrunnelse(any()) } answers {
+            callOriginal().also { erFremtidigOpphørBegrunnelseIForrigeBehandling = it }
+        }
+
+        // act
+        val nyBehandling = autovedtakLovendringService.revurderFagsak(fagsakId = fagsak.id, erFremtidigOpphør = true)!!
+
+        // assert
+        assertThat(nyBehandling.opprettetÅrsak).isEqualTo(LOVENDRING_2024)
+        assertThat(nyBehandling.steg).isEqualTo(BehandlingSteg.IVERKSETT_MOT_OPPDRAG)
+
+        val andelTilkjentYtelseNy = andelTilkjentYtelseRepository.finnAndelerTilkjentYtelseForBehandling(nyBehandling.id).single()
+        assertThat(andelTilkjentYtelseNy.stønadFom).isEqualTo(fødselsdatoBarn.plusYears(1).plusMonths(1).toYearMonth())
+        assertThat(andelTilkjentYtelseNy.stønadTom).isEqualTo(datoForBarnehageplass.toYearMonth())
+
+        val vilkårResultatRevurdering =
+            vilkårsvurderingRepository
+                .finnAktivForBehandling(nyBehandling.id)!!
+                .personResultater
+                .flatMap { it.vilkårResultater }
+                .single { it.vilkårType == Vilkår.BARNEHAGEPLASS && it.harMeldtBarnehageplassOgErFulltidIBarnehage() }
+
+        assertThat(vilkårResultatRevurdering.periodeFom).isEqualTo(datoForBarnehageplass)
+
+        assertThat(erFremtidigOpphørBegrunnelseIForrigeBehandling).isFalse()
+
+        verify(inverse = true) { simuleringService.oppdaterSimuleringPåBehandling(any<Long>()) }
+        verify(inverse = true) { brevklient.genererBrev(any(), any()) }
+
+        assertTotrinnskontroll(nyBehandling)
+    }
+
+    @Test
     fun `automatisk revurdering av fagsak som blir truffet av nytt regelverk skal snike i køen`() {
         // arrange
         opprettSøkerFagsakOgBehandling(
-            fagsakStatus = FagsakStatus.LØPENDE,
+            fagsakStatus = LØPENDE,
             behandlingStatus = BehandlingStatus.UTREDES,
-            behandlingResultat = Behandlingsresultat.INNVILGET,
-            behandlingSteg = BehandlingSteg.AVSLUTT_BEHANDLING,
+            behandlingResultat = INNVILGET,
+            behandlingSteg = AVSLUTT_BEHANDLING,
         )
 
         lagVedtak()
@@ -283,11 +305,11 @@ class AutovedtakLovendringTest(
             lagreBehandling(
                 lagBehandling(
                     fagsak = fagsak,
-                    opprettetÅrsak = BehandlingÅrsak.SØKNAD,
-                    status = BehandlingStatus.AVSLUTTET,
-                    resultat = Behandlingsresultat.INNVILGET,
+                    opprettetÅrsak = SØKNAD,
+                    status = AVSLUTTET,
+                    resultat = INNVILGET,
                     aktiv = false,
-                    steg = BehandlingSteg.AVSLUTT_BEHANDLING,
+                    steg = AVSLUTT_BEHANDLING,
                 ),
             )
         lagVedtak(avsluttetFørstegangsBehandling)
@@ -302,14 +324,14 @@ class AutovedtakLovendringTest(
             fødselsdatoBarn = fødselsdatoBarn,
         )
         lagVilkårsvurderingEtterGammeltRegelverk(fødselsdatoBarn, avsluttetFørstegangsBehandling)
-        lagTilkjentytelseMedAndelForBarn(fødselsdatoBarn, avsluttetFørstegangsBehandling)
-        lagTilkjentytelseMedAndelForBarn(fødselsdatoBarn, behandling, null)
+        lagTilkjentytelseMedAndelForBarn(fødselsdatoBarn = fødselsdatoBarn, behandling = avsluttetFørstegangsBehandling)
+        lagTilkjentytelseMedAndelForBarn(fødselsdatoBarn = fødselsdatoBarn, behandling = behandling, utbetalingsOppdrag = null)
 
         // act
         val nyBehandling = autovedtakLovendringService.revurderFagsak(fagsakId = fagsak.id)!!
 
         // assert
-        assertThat(nyBehandling.opprettetÅrsak).isEqualTo(BehandlingÅrsak.LOVENDRING_2024)
+        assertThat(nyBehandling.opprettetÅrsak).isEqualTo(LOVENDRING_2024)
         assertThat(nyBehandling.resultat).isEqualTo(Behandlingsresultat.ENDRET_UTBETALING)
         assertThat(nyBehandling.steg).isEqualTo(BehandlingSteg.IVERKSETT_MOT_OPPDRAG)
 
@@ -337,8 +359,10 @@ class AutovedtakLovendringTest(
     }
 
     private fun lagTilkjentytelseMedAndelForBarn(
-        fødselsdatoBarn: LocalDate,
-        behandling: Behandling,
+        behandling: Behandling = this.behandling,
+        fødselsdatoBarn: LocalDate = LocalDate.now(),
+        stønadFom: YearMonth = fødselsdatoBarn.plusYears(1).plusMonths(1).toYearMonth(),
+        stønadTom: YearMonth = fødselsdatoBarn.plusYears(1).plusMonths(11).toYearMonth(), // 11 måneder som i gammelt regelverk
         utbetalingsOppdrag: String? = "mockUtbetalingsOppdrag",
     ) {
         tilkjentYtelse =
@@ -356,28 +380,49 @@ class AutovedtakLovendringTest(
                     tilkjentYtelse = tilkjentYtelse,
                     behandling = behandling,
                     aktør = barn,
-                    stønadFom = fødselsdatoBarn.plusYears(1).plusMonths(1).toYearMonth(),
-                    stønadTom = fødselsdatoBarn.plusYears(2).minusMonths(1).toYearMonth(), // 11 måneder som i gammelt regelverk
+                    stønadFom = stønadFom,
+                    stønadTom = stønadTom,
+                ),
+            ),
+        )
+    }
+
+    private fun leggTilAndelTilkjentYtelseForBarn(
+        stønadFom: YearMonth,
+        stønadTom: YearMonth,
+        prosent: BigDecimal = BigDecimal.valueOf(100),
+        kalkulertUtbetalingsbeløp: Int = maksBeløp(),
+    ) {
+        tilkjentYtelse.andelerTilkjentYtelse.add(
+            andelTilkjentYtelseRepository.save(
+                lagAndelTilkjentYtelse(
+                    tilkjentYtelse = tilkjentYtelse,
+                    behandling = behandling,
+                    aktør = barn,
+                    stønadFom = stønadFom,
+                    stønadTom = stønadTom,
+                    prosent = prosent,
+                    kalkulertUtbetalingsbeløp = kalkulertUtbetalingsbeløp,
                 ),
             ),
         )
     }
 
     private fun lagVilkårsvurderingEtterGammeltRegelverk(
-        fødselsdatoBarn: LocalDate,
+        fødselsdatoBarn: LocalDate = LocalDate.now(),
         behandling: Behandling = this.behandling,
-    ) {
+    ): Vilkårsvurdering {
         val vilkårsvurdering =
             Vilkårsvurdering(
                 behandling = behandling,
             )
         vilkårsvurdering.personResultater = lagPersonResultater(vilkårsvurdering, fødselsdatoBarn).toSet()
-        vilkårsvurderingRepository.saveAndFlush(vilkårsvurdering)
+        return vilkårsvurderingRepository.saveAndFlush(vilkårsvurdering)
     }
 
     private fun lagVilkårsvurderingMedFremtidigOpphør(
-        fødselsdatoBarn: LocalDate,
-        datoForBarnehageplass: LocalDate,
+        fødselsdatoBarn: LocalDate = LocalDate.now(),
+        datoForBarnehageplass: LocalDate = LocalDate.now(),
     ) {
         val vilkårsvurdering =
             Vilkårsvurdering(
@@ -385,19 +430,16 @@ class AutovedtakLovendringTest(
             )
         val mutablePersonResultater = lagPersonResultater(vilkårsvurdering, fødselsdatoBarn)
 
-        val personResultatBarn = mutablePersonResultater.find { !it.erSøkersResultater() }!!
-        val barnehagevilkårIkkeBarnehageplass =
-            personResultatBarn
-                .vilkårResultater
-                .find { it.vilkårType == Vilkår.BARNEHAGEPLASS }!!
+        val personResultatBarn = mutablePersonResultater.first { !it.erSøkersResultater() }
+        val barnehagevilkårIkkeBarnehageplass = personResultatBarn.vilkårResultater.first { it.vilkårType == Vilkår.BARNEHAGEPLASS }
 
-        barnehagevilkårIkkeBarnehageplass.periodeTom = datoForBarnehageplass
+        barnehagevilkårIkkeBarnehageplass.periodeTom = datoForBarnehageplass.minusDays(1)
 
         val barnetHarBarnehageplassVilkår =
             VilkårResultat(
                 personResultat = personResultatBarn,
                 vilkårType = Vilkår.BARNEHAGEPLASS,
-                periodeFom = datoForBarnehageplass.plusDays(1),
+                periodeFom = datoForBarnehageplass,
                 periodeTom = fødselsdatoBarn.plusYears(2).minusMonths(1), // barnets alder-vilkår.periode_tom
                 behandlingId = behandling.id,
                 resultat = Resultat.IKKE_OPPFYLT,
@@ -447,5 +489,6 @@ class AutovedtakLovendringTest(
         assertThat(totrinnskontroll).isNotNull
         assertThat(totrinnskontroll!!.godkjent).isTrue()
         assertThat(totrinnskontroll.saksbehandler).isEqualTo(SikkerhetContext.SYSTEM_NAVN)
+        assertThat(totrinnskontroll.beslutter).isEqualTo(SikkerhetContext.SYSTEM_NAVN)
     }
 }

@@ -12,6 +12,7 @@ import no.nav.familie.ks.sak.config.DbContainerInitializer
 import no.nav.familie.ks.sak.config.RolleConfig
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagFagsak
+import no.nav.familie.ks.sak.data.lagVedtaksperiodeMedBegrunnelser
 import no.nav.familie.ks.sak.data.lagVilkårsvurderingMedSøkersVilkår
 import no.nav.familie.ks.sak.data.randomAktør
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.domene.ArbeidsfordelingPåBehandling
@@ -24,10 +25,13 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.Vedtak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.VedtakRepository
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.NasjonalEllerFellesBegrunnelseDB
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.VedtaksperiodeRepository
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårsvurderingRepository
 import no.nav.familie.ks.sak.kjerne.beregning.domene.TilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.domene.TilkjentYtelseRepository
+import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.NasjonalEllerFellesBegrunnelse
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.Fagsak
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.FagsakRepository
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.FagsakStatus
@@ -117,6 +121,9 @@ abstract class OppslagSpringRunnerTest {
     private lateinit var vedtakRepository: VedtakRepository
 
     @Autowired
+    private lateinit var vedtaksperiodeRepository: VedtaksperiodeRepository
+
+    @Autowired
     private lateinit var tilkjentYtelseRepository: TilkjentYtelseRepository
 
     lateinit var søker: Aktør
@@ -152,6 +159,7 @@ abstract class OppslagSpringRunnerTest {
         behandlingStatus: BehandlingStatus = BehandlingStatus.UTREDES,
         behandlingResultat: Behandlingsresultat = Behandlingsresultat.IKKE_VURDERT,
         behandlingSteg: BehandlingSteg = BehandlingSteg.REGISTRERE_PERSONGRUNNLAG,
+        behandlingÅrsak: BehandlingÅrsak = BehandlingÅrsak.SØKNAD,
     ) {
         this.søker = lagreAktør(søker)
         this.barn = lagreAktør(barn)
@@ -160,7 +168,7 @@ abstract class OppslagSpringRunnerTest {
             lagreBehandling(
                 lagBehandling(
                     fagsak = fagsak,
-                    opprettetÅrsak = BehandlingÅrsak.SØKNAD,
+                    opprettetÅrsak = behandlingÅrsak,
                     status = behandlingStatus,
                     resultat = behandlingResultat,
                     steg = behandlingSteg,
@@ -169,7 +177,7 @@ abstract class OppslagSpringRunnerTest {
     }
 
     fun opprettPersonopplysningGrunnlagOgPersonForBehandling(
-        behandlingId: Long,
+        behandlingId: Long = behandling.id,
         lagBarn: Boolean = false,
         fødselsdatoBarn: LocalDate = LocalDate.of(2022, 1, 1),
     ) {
@@ -228,6 +236,25 @@ abstract class OppslagSpringRunnerTest {
                 resultat = resultat,
             )
         vilkårsvurderingRepository.saveAndFlush(vilkårsvurdering)
+    }
+
+    fun opprettVedtaksperiodeMedBegrunnelser(
+        vedtak: Vedtak = this.vedtak,
+        begrunnelser: List<NasjonalEllerFellesBegrunnelse> = emptyList(),
+    ) {
+        vedtaksperiodeRepository.save(
+            lagVedtaksperiodeMedBegrunnelser(
+                vedtak,
+                begrunnelser = { vedtaksperiodeMedBegrunnelser ->
+                    begrunnelser.map {
+                        NasjonalEllerFellesBegrunnelseDB(
+                            vedtaksperiodeMedBegrunnelser = vedtaksperiodeMedBegrunnelser,
+                            nasjonalEllerFellesBegrunnelse = it,
+                        )
+                    }
+                },
+            ),
+        )
     }
 
     protected fun lokalTestToken(
@@ -293,7 +320,7 @@ abstract class OppslagSpringRunnerTest {
         arbeidsfordelingPåBehandlingRepository.saveAndFlush(arbeidsfordelingPåBehandling)
     }
 
-    fun lagTilkjentYtelse(utbetalingsOppdrag: String?) {
+    fun lagTilkjentYtelse(utbetalingsOppdrag: String? = null) {
         tilkjentYtelse =
             tilkjentYtelseRepository.saveAndFlush(
                 TilkjentYtelse(
@@ -305,8 +332,10 @@ abstract class OppslagSpringRunnerTest {
             )
     }
 
-    fun lagVedtak(behandlingForVedtak: Behandling = behandling) {
-        vedtak = vedtakRepository.saveAndFlush(Vedtak(behandling = behandlingForVedtak))
+    fun lagVedtak(
+        behandling: Behandling = this.behandling,
+    ) {
+        vedtak = vedtakRepository.saveAndFlush(Vedtak(behandling = behandling))
     }
 
     companion object {

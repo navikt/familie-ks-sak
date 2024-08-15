@@ -58,8 +58,8 @@ enum class Brevmal(
     val visningsTekst: String,
 ) {
     @Deprecated("Manuelt brev som skal sendes en gang til de som er påvirket av lovendring med søknadsdato før feb 2024, vedtatt etter feb 2024, og ATY etter juli 2024.")
-    INFORMASJONSBREV_LOVENDRING_JULI_2024(false, "informasjonOmOvergangsordningForKontantstotte", "Kontantstøtte – overgangsordning"),
-    INFORMASJONSBREV_DELT_BOSTED(false, "informasjonsbrevDeltBosted", "Informasjonsbrev delt bosted"),
+    INFORMASJONSBREV_LOVENDRING_JULI_2024(erVedtaksbrev = false, apiNavn = "informasjonOmOvergangsordningForKontantstotte", visningsTekst = "Kontantstøtte – overgangsordning"),
+    INFORMASJONSBREV_DELT_BOSTED(erVedtaksbrev = false, apiNavn = "informasjonsbrevDeltBosted", visningsTekst = "Informasjonsbrev delt bosted"),
     INFORMASJONSBREV_TIL_FORELDER_OMFATTET_NORSK_LOVGIVNING_HAR_FÅTT_EN_SØKNAD_FRA_ANNEN_FORELDER(
         erVedtaksbrev = false,
         apiNavn = "tilForelderOmfattetNorskLovgivningHarFaattSoknadFraAnnenForelder",
@@ -71,59 +71,35 @@ enum class Brevmal(
         visningsTekst = "Informasjon til forelder omfattet norsk lovgivning - varsel om revurdering",
     ),
 
-    INNHENTE_OPPLYSNINGER(false, "innhenteOpplysninger", "Innhente opplysninger"),
-    INNHENTE_OPPLYSNINGER_ETTER_SØKNAD_I_SED(
-        false,
-        "innhenteOpplysningerEtterSoknadISED",
-        "Innhente opplysninger etter søknad i SED",
-    ),
-    INNHENTE_OPPLYSNINGER_OG_INFORMASJON_OM_AT_ANNEN_FORELDER_MED_SELVSTENDIG_RETT_HAR_SØKT(
-        erVedtaksbrev = false,
-        apiNavn = "innhentingOgInfoAnnenForelderMedSelvstendigRettSokt",
-        visningsTekst = "Innhente opplysninger og informasjon om at annen forelder med selvstendig rett har søkt",
-    ),
+    INNHENTE_OPPLYSNINGER(erVedtaksbrev = false, apiNavn = "innhenteOpplysninger", visningsTekst = "Innhente opplysninger"),
+    INNHENTE_OPPLYSNINGER_ETTER_SØKNAD_I_SED(erVedtaksbrev = false, apiNavn = "innhenteOpplysningerEtterSoknadISED", visningsTekst = "Innhente opplysninger etter søknad i SED"),
+    INNHENTE_OPPLYSNINGER_OG_INFORMASJON_OM_AT_ANNEN_FORELDER_MED_SELVSTENDIG_RETT_HAR_SØKT(erVedtaksbrev = false, apiNavn = "innhentingOgInfoAnnenForelderMedSelvstendigRettSokt", visningsTekst = "Innhente opplysninger og informasjon om at annen forelder med selvstendig rett har søkt"),
 
-    HENLEGGE_TRUKKET_SØKNAD(false, "henleggeTrukketSoknad", "Henlegge trukket søknad"),
-    ENDRING_AV_FRAMTIDIG_OPPHØR(false, "endringAvFramtidigOpphor", "Endring av framtidig opphør"),
-    VARSEL_OM_REVURDERING(false, "varselOmRevurdering", "Varsel om revurdering"),
-    VARSEL_OM_VEDTAK_ETTER_SØKNAD_I_SED(
-        false,
-        "varselOmVedtakEtterSoknadISED",
-        "Varsel om vedtak etter søknad i SED",
-    ),
-    VARSEL_OM_REVURDERING_FRA_NASJONAL_TIL_EØS(
-        false,
-        "varselOmRevurderingFraNasjonalTilEOS",
-        "Varsel om revurdering fra nasjonal til EØS",
-    ),
-    VARSEL_ANNEN_FORELDER_MED_SELVSTENDIG_RETT_SØKT(
-        false,
-        "varselAnnenForelderMedSelvstendigRettSoekt",
-        "Varsel annen forelder med selvstendig rett søkt",
-    ),
+    HENLEGGE_TRUKKET_SØKNAD(erVedtaksbrev = false, apiNavn = "henleggeTrukketSoknad", visningsTekst = "Henlegge trukket søknad"),
+    ENDRING_AV_FRAMTIDIG_OPPHØR(erVedtaksbrev = true, apiNavn = "endringAvFramtidigOpphor", visningsTekst = "Endring av framtidig opphør"),
+    VARSEL_OM_REVURDERING(erVedtaksbrev = false, apiNavn = "varselOmRevurdering", visningsTekst = "Varsel om revurdering"),
+    VARSEL_OM_VEDTAK_ETTER_SØKNAD_I_SED(erVedtaksbrev = false, apiNavn = "varselOmVedtakEtterSoknadISED", visningsTekst = "Varsel om vedtak etter søknad i SED"),
+    VARSEL_OM_REVURDERING_FRA_NASJONAL_TIL_EØS(erVedtaksbrev = false, apiNavn = "varselOmRevurderingFraNasjonalTilEOS", visningsTekst = "Varsel om revurdering fra nasjonal til EØS"),
+    VARSEL_ANNEN_FORELDER_MED_SELVSTENDIG_RETT_SØKT(erVedtaksbrev = false, apiNavn = "varselAnnenForelderMedSelvstendigRettSoekt", visningsTekst = "Varsel annen forelder med selvstendig rett søkt"),
 
-    SVARTIDSBREV(false, "svartidsbrev", "Svartidsbrev"),
-    FORLENGET_SVARTIDSBREV(false, "forlengetSvartidsbrev", "Forlenget svartidsbrev"),
+    SVARTIDSBREV(erVedtaksbrev = false, apiNavn = "svartidsbrev", visningsTekst = "Svartidsbrev"),
+    FORLENGET_SVARTIDSBREV(erVedtaksbrev = false, apiNavn = "forlengetSvartidsbrev", visningsTekst = "Forlenget svartidsbrev"),
 
-    INFORMASJONSBREV_KAN_SØKE(false, "informasjonsbrevKanSoke", "Informasjonsbrev kan søke"),
-    INFORMASJONSBREV_KAN_SØKE_EØS(false, "informasjonsbrevKanSokeEOS", "Informasjonsbrev kan søke EØS"),
+    INFORMASJONSBREV_KAN_SØKE(erVedtaksbrev = false, apiNavn = "informasjonsbrevKanSoke", visningsTekst = "Informasjonsbrev kan søke"),
+    INFORMASJONSBREV_KAN_SØKE_EØS(erVedtaksbrev = false, apiNavn = "informasjonsbrevKanSokeEOS", visningsTekst = "Informasjonsbrev kan søke EØS"),
 
-    VEDTAK_FØRSTEGANGSVEDTAK(true, "forstegangsvedtak", "Førstegangsvedtak"),
-    VEDTAK_ENDRING(true, "vedtakEndring", "Vedtak endring"),
-    VEDTAK_OPPHØRT(true, "opphort", "Opphørt"),
-    VEDTAK_OPPHØR_MED_ENDRING(true, "opphorMedEndring", "Opphør med endring"),
-    VEDTAK_AVSLAG(true, "vedtakAvslag", "Avslag"),
-    VEDTAK_FORTSATT_INNVILGET(true, "vedtakFortsattInnvilget", "Vedtak fortsatt innvilget"),
-    VEDTAK_KORREKSJON_VEDTAKSBREV(true, "korrigertVedtakEgenBrevmal", "Korrigere vedtak med egen brevmal"),
-    VEDTAK_OPPHØR_DØDSFALL(true, "dodsfall", "Dødsfall"),
+    VEDTAK_FØRSTEGANGSVEDTAK(erVedtaksbrev = true, apiNavn = "forstegangsvedtak", visningsTekst = "Førstegangsvedtak"),
+    VEDTAK_ENDRING(erVedtaksbrev = true, apiNavn = "vedtakEndring", visningsTekst = "Vedtak endring"),
+    VEDTAK_OPPHØRT(erVedtaksbrev = true, apiNavn = "opphort", visningsTekst = "Opphørt"),
+    VEDTAK_OPPHØR_MED_ENDRING(erVedtaksbrev = true, apiNavn = "opphorMedEndring", visningsTekst = "Opphør med endring"),
+    VEDTAK_AVSLAG(erVedtaksbrev = true, apiNavn = "vedtakAvslag", visningsTekst = "Avslag"),
+    VEDTAK_FORTSATT_INNVILGET(erVedtaksbrev = true, apiNavn = "vedtakFortsattInnvilget", visningsTekst = "Vedtak fortsatt innvilget"),
+    VEDTAK_KORREKSJON_VEDTAKSBREV(erVedtaksbrev = true, apiNavn = "korrigertVedtakEgenBrevmal", visningsTekst = "Korrigere vedtak med egen brevmal"),
+    VEDTAK_OPPHØR_DØDSFALL(erVedtaksbrev = true, apiNavn = "dodsfall", visningsTekst = "Dødsfall"),
 
-    AUTOVEDTAK_BARN_6_OG_18_ÅR_OG_SMÅBARNSTILLEGG(
-        true,
-        "autovedtakBarn6AarOg18AarOgSmaabarnstillegg",
-        "Autovedtak - Barn 6 og 18 år og småbarnstillegg",
-    ),
-    AUTOVEDTAK_NYFØDT_FØRSTE_BARN(true, "autovedtakNyfodtForsteBarn", "Autovedtak nyfødt - første barn"),
-    AUTOVEDTAK_NYFØDT_BARN_FRA_FØR(true, "autovedtakNyfodtBarnFraFor", "Autovedtak nyfødt - barn fra før"),
+    AUTOVEDTAK_BARN_6_OG_18_ÅR_OG_SMÅBARNSTILLEGG(erVedtaksbrev = true, apiNavn = "autovedtakBarn6AarOg18AarOgSmaabarnstillegg", visningsTekst = "Autovedtak - Barn 6 og 18 år og småbarnstillegg"),
+    AUTOVEDTAK_NYFØDT_FØRSTE_BARN(erVedtaksbrev = true, apiNavn = "autovedtakNyfodtForsteBarn", visningsTekst = "Autovedtak nyfødt - første barn"),
+    AUTOVEDTAK_NYFØDT_BARN_FRA_FØR(erVedtaksbrev = true, apiNavn = "autovedtakNyfodtBarnFraFor", visningsTekst = "Autovedtak nyfødt - barn fra før"),
     ;
 
     fun skalGenerereForside(): Boolean =

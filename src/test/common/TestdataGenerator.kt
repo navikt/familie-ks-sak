@@ -538,6 +538,7 @@ fun lagVilkårResultat(
     utdypendeVilkårsvurderinger: List<UtdypendeVilkårsvurdering> = emptyList(),
     regelverk: Regelverk = Regelverk.NASJONALE_REGLER,
     antallTimer: BigDecimal? = null,
+    søkerHarMeldtFraOmBarnehageplass: Boolean? = null,
 ): VilkårResultat =
     VilkårResultat(
         id = id,
@@ -551,6 +552,7 @@ fun lagVilkårResultat(
         utdypendeVilkårsvurderinger = utdypendeVilkårsvurderinger,
         vurderesEtter = regelverk,
         antallTimer = antallTimer,
+        søkerHarMeldtFraOmBarnehageplass = søkerHarMeldtFraOmBarnehageplass,
     )
 
 fun lagVilkårResultaterForBarn(
@@ -693,16 +695,20 @@ fun lagVedtaksperiodeMedBegrunnelser(
     fom: LocalDate? = LocalDate.now().withDayOfMonth(1),
     tom: LocalDate? = LocalDate.now().let { it.withDayOfMonth(it.lengthOfMonth()) },
     type: Vedtaksperiodetype = Vedtaksperiodetype.FORTSATT_INNVILGET,
-    begrunnelser: MutableSet<NasjonalEllerFellesBegrunnelseDB> = mutableSetOf(lagVedtaksbegrunnelse()),
+    begrunnelser: (vedtaksperiodeMedBegrunnelser: VedtaksperiodeMedBegrunnelser) -> List<NasjonalEllerFellesBegrunnelseDB> = { emptyList() },
     fritekster: MutableList<VedtaksbegrunnelseFritekst> = mutableListOf(),
-) = VedtaksperiodeMedBegrunnelser(
-    vedtak = vedtak,
-    fom = fom,
-    tom = tom,
-    type = type,
-    begrunnelser = begrunnelser,
-    fritekster = fritekster,
-)
+): VedtaksperiodeMedBegrunnelser {
+    val vedtaksperiodeMedBegrunnelser =
+        VedtaksperiodeMedBegrunnelser(
+            vedtak = vedtak,
+            fom = fom,
+            tom = tom,
+            type = type,
+            fritekster = fritekster,
+        )
+    vedtaksperiodeMedBegrunnelser.settBegrunnelser(begrunnelser(vedtaksperiodeMedBegrunnelser))
+    return vedtaksperiodeMedBegrunnelser
+}
 
 fun lagPersonResultat(
     vilkårsvurdering: Vilkårsvurdering,

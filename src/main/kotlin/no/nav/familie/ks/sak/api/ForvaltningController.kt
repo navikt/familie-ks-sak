@@ -16,6 +16,7 @@ import no.nav.familie.ks.sak.api.dto.ManuellStartKonsistensavstemmingDto
 import no.nav.familie.ks.sak.api.dto.OpprettOppgaveDto
 import no.nav.familie.ks.sak.barnehagelister.BarnehageListeService
 import no.nav.familie.ks.sak.barnehagelister.domene.BarnehagebarnDtoInterface
+import no.nav.familie.ks.sak.common.EnvService
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.util.Periode
 import no.nav.familie.ks.sak.config.BehandlerRolle
@@ -24,6 +25,7 @@ import no.nav.familie.ks.sak.integrasjon.ecb.ECBService
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
 import no.nav.familie.ks.sak.internal.TestVerktøyService
 import no.nav.familie.ks.sak.internal.kontantstøtteInfobrevJuli2024.DistribuerInformasjonsbrevKontantstøtteJuli2024
+import no.nav.familie.ks.sak.kjerne.autovedtak.AutovedtakLovendringFremtidigOpphørTask
 import no.nav.familie.ks.sak.kjerne.autovedtak.AutovedtakLovendringIkkeFremtidigOpphørTask
 import no.nav.familie.ks.sak.kjerne.autovedtak.AutovedtakLovendringOpphørteSakerTask
 import no.nav.familie.ks.sak.kjerne.autovedtak.AutovedtakLovendringTask
@@ -41,6 +43,7 @@ import no.nav.familie.ks.sak.statistikk.stønadsstatistikk.PubliserVedtakTask
 import no.nav.familie.ks.sak.statistikk.stønadsstatistikk.StønadsstatistikkService
 import no.nav.familie.prosessering.internal.TaskService
 import no.nav.security.token.support.core.api.ProtectedWithClaims
+import no.nav.security.token.support.core.api.Unprotected
 import org.slf4j.LoggerFactory
 import org.springframework.core.env.Environment
 import org.springframework.data.domain.Page
@@ -56,6 +59,7 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import java.math.BigDecimal
+import java.net.URI
 import java.time.LocalDate
 import java.util.UUID
 
@@ -78,6 +82,7 @@ class ForvaltningController(
     private val behandlingRepository: BehandlingRepository,
     private val testVerktøyService: TestVerktøyService,
     private val distribuerInformasjonsbrevKontantstøtteJuli2024: DistribuerInformasjonsbrevKontantstøtteJuli2024,
+    private val envService: EnvService,
 ) {
     private val logger = LoggerFactory.getLogger(ForvaltningController::class.java)
 
@@ -341,6 +346,46 @@ class ForvaltningController(
         return ResponseEntity.ok(Ressurs.success("Automatisk revurdering opprettet"))
     }
 
+    @GetMapping("/automatisk-revurdering-lovendring-fremtidig-opphor")
+    fun hentAlleFagsakSomSkalRevurderesFramtidigOpphør(): List<Long> {
+        tilgangService.validerTilgangTilHandling(
+            minimumBehandlerRolle = BehandlerRolle.FORVALTER,
+            handling = "hent automatisk revurdering framtidig opphør",
+        )
+
+        return behandlingRepository.finnBehandlingerSomSkalRekjøresLovendringForFremtidigOpphør()
+    }
+
+    @PostMapping("/automatisk-revurdering-lovendring-fremtidig-opphor/{limit}")
+    fun opprettAutomatiskLovendringFremtidigOpphør(
+        @PathVariable limit: Long,
+    ): ResponseEntity<Ressurs<String>> {
+        tilgangService.validerTilgangTilHandling(
+            minimumBehandlerRolle = BehandlerRolle.FORVALTER,
+            handling = "opprette automatisk revurdering",
+        )
+
+        behandlingRepository.finnBehandlingerSomSkalRekjøresLovendringForFremtidigOpphør().take(limit.toInt()).forEach {
+            AutovedtakLovendringFremtidigOpphørTask.opprettTask(it).apply { taskService.save(this) }
+        }
+
+        return ResponseEntity.ok(Ressurs.success("Automatisk revurdering opprettet"))
+    }
+
+    @PostMapping("/automatisk-revurdering-lovendring-framtidig-opphor/{fagsakId}")
+    fun opprettAutomatiskLovendringRevurderingFramtidigOpphør(
+        @PathVariable fagsakId: Long,
+    ): ResponseEntity<Ressurs<String>> {
+        tilgangService.validerTilgangTilHandling(
+            minimumBehandlerRolle = BehandlerRolle.FORVALTER,
+            handling = "opprette automatisk revurdering framtidig opphør på fagsak",
+        )
+
+        AutovedtakLovendringFremtidigOpphørTask.opprettTask(fagsakId).apply { taskService.save(this) }
+
+        return ResponseEntity.ok(Ressurs.success("Automatisk revurdering på framtidig opphør opprettet"))
+    }
+
     @GetMapping(path = ["/behandling/{behandlingId}/begrunnelsetest"])
     fun hentBegrunnelsetestPåBehandling(
         @PathVariable behandlingId: Long,
@@ -378,5 +423,31 @@ class ForvaltningController(
         logger.info("Kaller fagsaker/hent-personer-informasjonsbrev-endring-kontantstotte-infotrygd")
 
         return distribuerInformasjonsbrevKontantstøtteJuli2024.hentAlleFagsakIdSomDetSkalSendesBrevTil().toSet()
+    }
+
+    @GetMapping("/redirect/behandling/{behandlingId}")
+    @Unprotected
+    fun redirectTilBarnetrygd(
+        @PathVariable behandlingId: Long,
+    ): ResponseEntity<Any> {
+        val hostname =
+            if (envService.erLokal()) {
+                "http://localhost:8000"
+            } else if (envService.erPreprod()) {
+                "https://kontantstotte.ansatt.dev.nav.no"
+            } else if (envService.erProd()) {
+                "https://kontantstotte.intern.nav.no"
+            } else {
+                error("Klarer ikke å utlede miljø for redirect til fagsak")
+            }
+        val behandling = behandlingRepository.hentBehandlingNullable(behandlingId)
+        return if (behandling == null) {
+            ResponseEntity.status(200).body("Fant ikke behandling med id $behandlingId")
+        } else {
+            ResponseEntity
+                .status(302)
+                .location(URI.create("$hostname/fagsak/${behandling.fagsak.id}/$behandlingId/"))
+                .build()
+        }
     }
 }

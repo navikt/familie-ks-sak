@@ -12,6 +12,7 @@ import io.mockk.verify
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagVedtak
+import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingType.REVURDERING
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat.ENDRET_OG_OPPHØRT
@@ -44,6 +45,9 @@ class VedtakServiceTest {
     @MockK
     private lateinit var genererBrevService: GenererBrevService
 
+    @MockK
+    private lateinit var behandlingService: BehandlingService
+
     @InjectMockKs
     private lateinit var vedtakService: VedtakService
 
@@ -71,6 +75,7 @@ class VedtakServiceTest {
         every { genererBrevService.genererBrevForBehandling(any()) } returns brev
         every { vedtakRepository.findByBehandlingAndAktivOptional(any()) } returns vedtak
         every { vedtakRepository.saveAndFlush(any()) } answers { firstArg() }
+        every { behandlingService.erLovendringOgFremtidigOpphørOgHarFlereAndeler(any()) } returns false
         every { LocalDateTime.now() } returns LocalDateTime.of(2024, 1, 1, 0, 0)
 
         val oppdatertVedtak = vedtakService.oppdaterVedtakMedDatoOgStønadsbrev(behandling)
@@ -97,6 +102,7 @@ class VedtakServiceTest {
 
         every { vedtakRepository.findByBehandlingAndAktivOptional(any()) } returns vedtak
         every { vedtakRepository.saveAndFlush(any()) } answers { firstArg() }
+        every { behandlingService.erLovendringOgFremtidigOpphørOgHarFlereAndeler(any()) } returns false
         every { LocalDateTime.now() } returns LocalDateTime.of(2024, 1, 1, 0, 0)
 
         val oppdatertVedtak = vedtakService.oppdaterVedtakMedDatoOgStønadsbrev(behandling)

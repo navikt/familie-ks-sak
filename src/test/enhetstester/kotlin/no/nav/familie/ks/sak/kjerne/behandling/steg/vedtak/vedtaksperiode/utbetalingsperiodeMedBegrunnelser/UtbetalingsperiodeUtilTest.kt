@@ -96,14 +96,12 @@ internal class UtbetalingsperiodeUtilTest {
                     fom = mars2020.førsteDagIInneværendeMåned(),
                     tom = april2020.sisteDagIInneværendeMåned(),
                     type = Vedtaksperiodetype.UTBETALING,
-                    begrunnelser = mutableSetOf(),
                 ),
                 lagVedtaksperiodeMedBegrunnelser(
                     vedtak = vedtak,
                     fom = mai2020.førsteDagIInneværendeMåned(),
                     tom = juli2020.sisteDagIInneværendeMåned(),
                     type = Vedtaksperiodetype.UTBETALING,
-                    begrunnelser = mutableSetOf(),
                 ),
             )
 
@@ -175,21 +173,18 @@ internal class UtbetalingsperiodeUtilTest {
                     fom = mars2020.førsteDagIInneværendeMåned(),
                     tom = april2020.sisteDagIInneværendeMåned(),
                     type = Vedtaksperiodetype.UTBETALING,
-                    begrunnelser = mutableSetOf(),
                 ),
                 lagVedtaksperiodeMedBegrunnelser(
                     vedtak = vedtak,
                     fom = mai2020.førsteDagIInneværendeMåned(),
                     tom = mai2020.sisteDagIInneværendeMåned(),
                     type = Vedtaksperiodetype.UTBETALING,
-                    begrunnelser = mutableSetOf(),
                 ),
                 lagVedtaksperiodeMedBegrunnelser(
                     vedtak = vedtak,
                     fom = juni2020.førsteDagIInneværendeMåned(),
                     tom = juli2020.sisteDagIInneværendeMåned(),
                     type = Vedtaksperiodetype.UTBETALING,
-                    begrunnelser = mutableSetOf(),
                 ),
             )
 

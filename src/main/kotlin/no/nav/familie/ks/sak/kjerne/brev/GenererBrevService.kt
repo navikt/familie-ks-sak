@@ -20,12 +20,14 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.feilutbetaltvaluta.Fe
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.refusjonEøs.RefusjonEøsRepository
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.Opphørsperiode
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.VedtaksperiodeService
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.Vedtaksperiodetype
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.UtvidetVedtaksperiodeMedBegrunnelser
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.UtdypendeVilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.IBegrunnelse
+import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.NasjonalEllerFellesBegrunnelse
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.tilSanityBegrunnelse
 import no.nav.familie.ks.sak.kjerne.brev.domene.FellesdataForVedtaksbrev
 import no.nav.familie.ks.sak.kjerne.brev.domene.VedtaksbrevDto
@@ -209,11 +211,21 @@ class GenererBrevService(
 
     fun lagDataForVedtaksbrev(vedtak: Vedtak): FellesdataForVedtaksbrev {
         val utvidetVedtaksperioderMedBegrunnelser =
+            vedtaksperiodeService.hentUtvidetVedtaksperioderMedBegrunnelser(vedtak)
+
+        val erBehandlingOpprettetForLovendring2024 = vedtak.behandling.opprettetÅrsak == BehandlingÅrsak.LOVENDRING_2024
+        if (erBehandlingOpprettetForLovendring2024) {
+            begrunnPerioderLovendring2024(
+                utvidetVedtaksperioderMedBegrunnelser = utvidetVedtaksperioderMedBegrunnelser,
+            )
+        }
+
+        val oppdatertUtvidetVedtaksperioderMedBegrunnelser =
             vedtaksperiodeService.hentUtvidetVedtaksperioderMedBegrunnelser(vedtak).filter {
                 !(it.begrunnelser.isEmpty() && it.fritekster.isEmpty() && it.eøsBegrunnelser.isEmpty())
             }
 
-        if (utvidetVedtaksperioderMedBegrunnelser.isEmpty()) {
+        if (oppdatertUtvidetVedtaksperioderMedBegrunnelser.isEmpty()) {
             throw FunksjonellFeil(
                 "Vedtaket mangler begrunnelser. Du må legge til begrunnelser for å generere vedtaksbrevet.",
             )
@@ -223,14 +235,14 @@ class GenererBrevService(
 
         val brevPeriodeDtoer =
             brevPeriodeService
-                .hentBrevPeriodeDtoer(utvidetVedtaksperioderMedBegrunnelser, vedtak.behandling.id)
+                .hentBrevPeriodeDtoer(oppdatertUtvidetVedtaksperioderMedBegrunnelser, vedtak.behandling.id)
 
         val korrigertVedtak = korrigertVedtakService.finnAktivtKorrigertVedtakPåBehandling(vedtak.behandling.id)
 
         val hjemler =
             hentHjemler(
                 behandlingId = vedtak.behandling.id,
-                utvidetVedtaksperioderMedBegrunnelser = utvidetVedtaksperioderMedBegrunnelser,
+                utvidetVedtaksperioderMedBegrunnelser = oppdatertUtvidetVedtaksperioderMedBegrunnelser,
                 målform = personopplysningsgrunnlagOgSignaturData.grunnlag.søker.målform,
                 sanityBegrunnelser = sanityService.hentSanityBegrunnelser(),
                 vedtakKorrigertHjemmelSkalMedIBrev = korrigertVedtak != null,
@@ -248,6 +260,39 @@ class GenererBrevService(
             perioder = brevPeriodeDtoer,
             gjelder = personopplysningsgrunnlagOgSignaturData.grunnlag.søker.navn,
             korrigertVedtakData = korrigertVedtak?.let { KorrigertVedtakData(datoKorrigertVedtak = it.vedtaksdato.tilDagMånedÅr()) },
+        )
+    }
+
+    private fun begrunnPerioderLovendring2024(
+        utvidetVedtaksperioderMedBegrunnelser: List<UtvidetVedtaksperiodeMedBegrunnelser>,
+    ) {
+        val utvidetVedtaksperiodeMedBegrunnelserAvTypeUtbetaling =
+            utvidetVedtaksperioderMedBegrunnelser.singleOrNull {
+                it.type == Vedtaksperiodetype.UTBETALING
+            } ?: throw Feil(
+                "Forventet én vedtaksperiode med begrunnelse av type ${Vedtaksperiodetype.UTBETALING}",
+            )
+        val utvidetVedtaksperiodeMedBegrunnelserAvTypeOpphør =
+            utvidetVedtaksperioderMedBegrunnelser.singleOrNull {
+                it.type == Vedtaksperiodetype.OPPHØR
+            } ?: throw Feil(
+                "Forventet én vedtaksperiode med begrunnelse av type ${Vedtaksperiodetype.OPPHØR}",
+            )
+        vedtaksperiodeService.oppdaterVedtaksperiodeMedBegrunnelser(
+            vedtaksperiodeId = utvidetVedtaksperiodeMedBegrunnelserAvTypeUtbetaling.id,
+            begrunnelserFraFrontend =
+                listOf(
+                    NasjonalEllerFellesBegrunnelse.INNVILGET_PÅ_GRUNN_AV_LOVENDRING_2024,
+                ),
+            eøsBegrunnelserFraFrontend = listOf(),
+        )
+        vedtaksperiodeService.oppdaterVedtaksperiodeMedBegrunnelser(
+            vedtaksperiodeId = utvidetVedtaksperiodeMedBegrunnelserAvTypeOpphør.id,
+            begrunnelserFraFrontend =
+                listOf(
+                    NasjonalEllerFellesBegrunnelse.OPPHØR_NYTT_FRAMTIDIG_OPPHØR_BARNEHAGEPLASS,
+                ),
+            eøsBegrunnelserFraFrontend = listOf(),
         )
     }
 
@@ -328,6 +373,7 @@ class GenererBrevService(
     }
 
     fun hentEndringAvFramtidigOpphørData(vedtak: Vedtak): BrevDto {
+        val fellesdataForVedtaksbrev = lagDataForVedtaksbrev(vedtak)
         hentGrunnlagOgSignaturData(vedtak).let { data ->
             return EndringAvFramtidigOpphør(
                 data =
@@ -348,6 +394,7 @@ class GenererBrevService(
                                     data.grunnlag.søker.aktør
                                         .aktivFødselsnummer(),
                             ),
+                        perioder = fellesdataForVedtaksbrev.perioder,
                     ),
             )
         }

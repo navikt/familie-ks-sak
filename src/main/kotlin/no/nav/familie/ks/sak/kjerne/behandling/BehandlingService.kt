@@ -23,6 +23,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingType.TEKNISK_ENDRING
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
+import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak.LOVENDRING_2024
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg
 import no.nav.familie.ks.sak.kjerne.behandling.steg.behandlingsresultat.BehandlingsresultatValideringUtils
 import no.nav.familie.ks.sak.kjerne.behandling.steg.registrersøknad.SøknadGrunnlagService
@@ -281,6 +282,42 @@ class BehandlingService(
         return oppdaterBehandling(behandling)
     }
 
+    fun erLovendringOgFremtidigOpphørOgHarFlereAndeler(
+        behandling: Behandling,
+    ): Boolean {
+        if (behandling.opprettetÅrsak != LOVENDRING_2024) {
+            return false
+        }
+
+        if (!vilkårsvurderingService.erFremtidigOpphørIBehandling(behandling)) {
+            return false
+        }
+
+        val fagsakId = behandling.fagsak.id
+        val sisteIverksatteBehandling = hentSisteBehandlingSomErIverksatt(fagsakId) ?: throw Feil("Fant ingen iverksatt behandling for fagsak $fagsakId")
+
+        val vedtakForSisteIverksatteBehandling = vedtakRepository.findByBehandlingAndAktiv(sisteIverksatteBehandling.id)
+        val forrigeBehandlingHaddeFramtidigOpphørsbegrunnelse = vedtaksperiodeService.vedtakInneholderFremtidigOpphørBegrunnelse(vedtakForSisteIverksatteBehandling)
+
+        if (!forrigeBehandlingHaddeFramtidigOpphørsbegrunnelse) {
+            return false
+        }
+
+        val andelerNåværendeBehandling = andelTilkjentYtelseRepository.finnAndelerTilkjentYtelseForBehandling(behandling.id)
+        val andelerForrigeBehandling = andelTilkjentYtelseRepository.finnAndelerTilkjentYtelseForBehandling(sisteIverksatteBehandling.id)
+
+        val aktører = (andelerNåværendeBehandling.map { it.aktør } + andelerForrigeBehandling.map { it.aktør }).distinct()
+
+        return aktører.any { aktør ->
+            val sisteNåværendeUtbetalingForAktør =
+                andelerNåværendeBehandling.filter { it.aktør == aktør }.maxOfOrNull { it.stønadTom } ?: return@any false
+            val sisteForrigeUtbetalingForAktør =
+                andelerForrigeBehandling.filter { it.aktør == aktør }.maxOfOrNull { it.stønadTom } ?: TIDENES_MORGEN.toYearMonth()
+
+            sisteForrigeUtbetalingForAktør < sisteNåværendeUtbetalingForAktør
+        }
+    }
+
     fun hentFerdigstilteBehandlinger(fagsak: Fagsak): List<Behandling> =
         hentBehandlingerPåFagsak(fagsakId = fagsak.id)
             .filter { it.erAvsluttet() && !it.erHenlagt() }
@@ -300,9 +337,10 @@ class BehandlingService(
     fun skalSendeVedtaksbrev(behandling: Behandling): Boolean =
         when {
             behandling.type == TEKNISK_ENDRING -> false
+            behandling.opprettetÅrsak == LOVENDRING_2024 && erLovendringOgFremtidigOpphørOgHarFlereAndeler(behandling) -> true
             erOpphørtIjuliIkkeFremtidigOpphørOgHarIkkeFlereAndelerEnnForrigeBehandling(behandling) -> false
             erOpphørtIjuliIkkeFremtidigOpphørOgHarFlereAndelerEnnForrigeBehandling(behandling) -> true
-            behandling.opprettetÅrsak in listOf(BehandlingÅrsak.SATSENDRING, BehandlingÅrsak.LOVENDRING_2024) -> false
+            behandling.opprettetÅrsak in listOf(BehandlingÅrsak.SATSENDRING, LOVENDRING_2024) -> false
             else -> true
         }
 

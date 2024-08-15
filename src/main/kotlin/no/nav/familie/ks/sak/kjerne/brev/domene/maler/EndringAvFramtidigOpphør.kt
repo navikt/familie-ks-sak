@@ -1,17 +1,21 @@
 package no.nav.familie.ks.sak.kjerne.brev.domene.maler
 
 import no.nav.familie.ks.sak.common.util.tilDagMånedÅr
+import no.nav.familie.ks.sak.kjerne.brev.domene.VedtaksbrevData
+import no.nav.familie.ks.sak.kjerne.brev.domene.VedtaksbrevDto
+import no.nav.familie.ks.sak.kjerne.brev.domene.maler.brevperioder.BrevPeriodeDto
 import java.time.LocalDate
 
 data class EndringAvFramtidigOpphør(
     override val mal: Brevmal = Brevmal.ENDRING_AV_FRAMTIDIG_OPPHØR,
     override val data: EndringAvFramtidigOpphørData,
-) : BrevDto
+) : VedtaksbrevDto
 
 data class EndringAvFramtidigOpphørData(
     override val delmalData: DelmalData,
     override val flettefelter: Flettefelter,
-) : BrevDataDto {
+    override val perioder: List<BrevPeriodeDto>,
+) : VedtaksbrevData {
     data class Flettefelter(
         override val navn: Flettefelt,
         override val fodselsnummer: Flettefelt,

@@ -1,5 +1,6 @@
 package no.nav.familie.ks.sak.no.nav.familie.ks.sak.statistikk.saksstatistikk
 
+import com.fasterxml.jackson.module.kotlin.readValue
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
 import io.mockk.just
@@ -11,12 +12,16 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg
 import no.nav.familie.ks.sak.kjerne.behandling.steg.RegistrerPersonGrunnlagSteg
 import no.nav.familie.ks.sak.kjerne.behandling.steg.StegService
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.FagsakStatus
+import no.nav.familie.ks.sak.statistikk.saksstatistikk.BehandlingStatistikkDto
 import no.nav.familie.ks.sak.statistikk.saksstatistikk.SakStatistikkService
 import no.nav.familie.ks.sak.statistikk.saksstatistikk.SendBehandlinghendelseTilDvhTask
 import no.nav.familie.prosessering.internal.TaskService
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
+import java.time.LocalDateTime
+import java.time.OffsetDateTime
+import java.time.ZoneOffset
 import java.time.temporal.ChronoUnit
 
 class SakStatistikkServiceTest : OppslagSpringRunnerTest() {
@@ -47,6 +52,28 @@ class SakStatistikkServiceTest : OppslagSpringRunnerTest() {
             1,
             taskService.findAll().count { it.type == SendBehandlinghendelseTilDvhTask.TASK_TYPE },
         )
+    }
+
+    @Test
+    fun `ved sending av task skal teknisk tid være nyere enn funksjonell tid`() {
+        every { registerPersonGrunnlagSteg.utførSteg(any()) } just runs
+        every { registerPersonGrunnlagSteg.getBehandlingssteg() } answers { callOriginal() }
+        opprettSøkerFagsakOgBehandling(fagsakStatus = FagsakStatus.LØPENDE)
+        lagreArbeidsfordeling(lagArbeidsfordelingPåBehandling(behandlingId = behandling.id))
+        opprettPersonopplysningGrunnlagOgPersonForBehandling(behandlingId = behandling.id, lagBarn = true)
+        stegService.utførSteg(behandling.id, BehandlingSteg.REGISTRERE_PERSONGRUNNLAG)
+        taskService.findAll().filter { it.type == SendBehandlinghendelseTilDvhTask.TASK_TYPE }.first().let {
+            val behandlingStatistikkDto: BehandlingStatistikkDto =
+                no.nav.familie.kontrakter.felles.objectMapper
+                    .readValue(it.payload)
+            val tekniskTid =
+                OffsetDateTime.of(
+                    LocalDateTime.now(),
+                    ZoneOffset.UTC,
+                )
+            val funksjonellTid = behandlingStatistikkDto.funksjoneltTidspunkt
+            assertEquals(true, tekniskTid.isAfter(funksjonellTid))
+        }
     }
 
     @Test

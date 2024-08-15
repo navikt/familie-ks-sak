@@ -18,7 +18,6 @@ import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext
 import no.nav.familie.prosessering.internal.TaskService
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
-import org.springframework.transaction.annotation.Propagation
 import org.springframework.transaction.annotation.Transactional
 
 @Service
@@ -34,8 +33,11 @@ class AutovedtakLovendringService(
 ) {
     private val logger = LoggerFactory.getLogger(this::class.java)
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
-    fun revurderFagsak(fagsakId: Long): Behandling? =
+    @Transactional
+    fun revurderFagsak(
+        fagsakId: Long,
+        erFremtidigOpphør: Boolean = false,
+    ): Behandling? =
         if (behandlingRepository.finnBehandlinger(fagsakId).any { it.opprettetÅrsak == BehandlingÅrsak.LOVENDRING_2024 }) {
             logger.info("Lovendring 2024 allerede kjørt for fagsakId=$fagsakId")
             null
@@ -58,8 +60,10 @@ class AutovedtakLovendringService(
             val søkerAktør = fagsak.aktør
             val behandlingEtterBehandlingsresultat = autovedtakService.opprettAutomatiskBehandlingOgKjørTilBehandlingsresultat(aktør = søkerAktør, behandlingÅrsak = BehandlingÅrsak.LOVENDRING_2024, behandlingType = BehandlingType.REVURDERING)
 
-            if (behandlingService.erOpphørtIjuliIkkeFremtidigOpphørOgHarIkkeFlereAndelerEnnForrigeBehandling(behandlingEtterBehandlingsresultat)) {
-                throw RollbackRevurderFagsakFeil("Fagsak $fagsakId får ikke flere andeler etter revurdering og skal ha brev. Venter med revurdering til brevkode er implementert.")
+            if (behandlingService.skalSendeVedtaksbrev(behandlingEtterBehandlingsresultat)) {
+                if (behandlingService.erOpphørtIjuliIkkeFremtidigOpphørOgHarIkkeFlereAndelerEnnForrigeBehandling(behandlingEtterBehandlingsresultat)) {
+                    throw RollbackRevurderFagsakFeil("Fagsak $fagsakId får ikke flere andeler etter revurdering og skal ha brev. Venter med revurdering til brevkode er implementert.")
+                }
             }
 
             if (behandlingService.skalSendeVedtaksbrev(behandlingEtterBehandlingsresultat)) {

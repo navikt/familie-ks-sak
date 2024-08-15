@@ -80,6 +80,18 @@ class VilkårsvurderingService(
         return vilkårsvurderingRepository.save(vilkårsvurdering)
     }
 
+    fun erFremtidigOpphørIBehandling(behandling: Behandling): Boolean {
+        val vilkårsvurdering =
+            finnAktivVilkårsvurdering(behandling.id)
+                ?: throw Feil("Fant ingen vilkårsvurdering for behandling ${behandling.id}")
+
+        val vilkårResultaterPåBehandling = vilkårsvurdering.personResultater.flatMap { it.vilkårResultater }
+
+        return vilkårResultaterPåBehandling.filter { it.vilkårType == Vilkår.BARNEHAGEPLASS }.any {
+            it.søkerHarMeldtFraOmBarnehageplass == true
+        }
+    }
+
     fun finnAktivVilkårsvurdering(behandlingId: Long): Vilkårsvurdering? = vilkårsvurderingRepository.finnAktivForBehandling(behandlingId)
 
     fun hentVilkårsbegrunnelser(): Map<BegrunnelseType, List<VedtakBegrunnelseTilknyttetVilkårResponseDto>> =
