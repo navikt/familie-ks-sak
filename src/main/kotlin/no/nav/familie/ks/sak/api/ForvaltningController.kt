@@ -329,10 +329,8 @@ class ForvaltningController(
         return ResponseEntity.ok(Ressurs.success("Automatisk revurdering opprettet"))
     }
 
-    @GetMapping("/automatisk-revurdering-lovendring-fremtidig-opphor/{limit}")
-    fun hentAlleFagsakSomSkalRevurderesFramtidigOpphør(
-        @PathVariable limit: Long,
-    ): List<Long> {
+    @GetMapping("/automatisk-revurdering-lovendring-fremtidig-opphor")
+    fun hentAlleFagsakSomSkalRevurderesFramtidigOpphør(): List<Long> {
         tilgangService.validerTilgangTilHandling(
             minimumBehandlerRolle = BehandlerRolle.FORVALTER,
             handling = "hent automatisk revurdering framtidig opphør",
