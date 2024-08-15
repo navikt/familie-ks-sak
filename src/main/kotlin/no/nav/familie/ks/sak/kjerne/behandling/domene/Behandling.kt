@@ -161,10 +161,12 @@ data class Behandling(
 
     fun skalOppretteBehandleSakOppgave(): Boolean = type != TEKNISK_ENDRING && opprettetÅrsak != BehandlingÅrsak.LOVENDRING_2024
 
-    fun skalSendeVedtaksbrev(): Boolean =
+    fun skalSendeVedtaksbrev(
+        erFremtidigOpphørOgNyAndelIAugust2024: Boolean,
+    ): Boolean =
         when {
             type == TEKNISK_ENDRING -> false
-            // TODO: Legg til mulighet for å sende brev for behandling med årsak lovendring med fremtidig opphør
+            opprettetÅrsak == BehandlingÅrsak.LOVENDRING_2024 && erFremtidigOpphørOgNyAndelIAugust2024 -> true
             opprettetÅrsak in listOf(BehandlingÅrsak.SATSENDRING, BehandlingÅrsak.LOVENDRING_2024) -> false
             else -> true
         }

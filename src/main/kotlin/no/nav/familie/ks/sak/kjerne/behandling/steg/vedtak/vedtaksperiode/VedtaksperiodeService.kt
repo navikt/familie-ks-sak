@@ -45,6 +45,10 @@ import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.BegrunnelserForPeriodeCont
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.EØSBegrunnelse
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.IBegrunnelse
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.NasjonalEllerFellesBegrunnelse
+import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.NasjonalEllerFellesBegrunnelse.AVSLAG_UREGISTRERT_BARN
+import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.NasjonalEllerFellesBegrunnelse.OPPHØR_BRUKER_MELDER_FULLTIDSPLASS_I_BARNEHAGE
+import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.NasjonalEllerFellesBegrunnelse.OPPHØR_FRAMTIDIG_OPPHØR_BARNEHAGEPLASS
+import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.NasjonalEllerFellesBegrunnelse.OPPHØR_NYTT_FRAMTIDIG_OPPHØR_BARNEHAGEPLASS
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.tilVedtaksbegrunnelse
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.KompetanseService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
@@ -335,6 +339,20 @@ class VedtaksperiodeService(
 
     fun hentPersisterteVedtaksperioder(vedtak: Vedtak): List<VedtaksperiodeMedBegrunnelser> =
         vedtaksperiodeHentOgPersisterService.hentVedtaksperioderFor(vedtakId = vedtak.id)
+
+    fun vedtakInneholderFremtidigOpphørBegrunnelse(
+        vedtak: Vedtak,
+    ): Boolean =
+        hentPersisterteVedtaksperioder(vedtak).any { vedtaksperiode ->
+            vedtaksperiode.begrunnelser.any { begrunnelse ->
+                begrunnelse.nasjonalEllerFellesBegrunnelse in
+                    listOf(
+                        OPPHØR_FRAMTIDIG_OPPHØR_BARNEHAGEPLASS,
+                        OPPHØR_BRUKER_MELDER_FULLTIDSPLASS_I_BARNEHAGE,
+                        OPPHØR_NYTT_FRAMTIDIG_OPPHØR_BARNEHAGEPLASS,
+                    )
+            }
+        }
 
     fun hentUtvidetVedtaksperiodeMedBegrunnelser(vedtaksperiodeId: Long): UtvidetVedtaksperiodeMedBegrunnelser {
         val vedtaksperiodeMedBegrunnelser =
@@ -704,7 +722,7 @@ class VedtaksperiodeService(
                         begrunnelser.add(
                             NasjonalEllerFellesBegrunnelseDB(
                                 vedtaksperiodeMedBegrunnelser = this,
-                                nasjonalEllerFellesBegrunnelse = NasjonalEllerFellesBegrunnelse.AVSLAG_UREGISTRERT_BARN,
+                                nasjonalEllerFellesBegrunnelse = AVSLAG_UREGISTRERT_BARN,
                             ),
                         )
                     }

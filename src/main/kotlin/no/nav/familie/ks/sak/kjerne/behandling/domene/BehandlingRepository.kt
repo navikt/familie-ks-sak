@@ -164,4 +164,24 @@ interface BehandlingRepository : JpaRepository<Behandling, Long> {
         nativeQuery = true,
     )
     fun finnBehandlingerSomSkalRekjøresLovendring(): List<Long>
+
+    @Query(
+        value = """
+            SELECT DISTINCT (f.id)
+            FROM fagsak f
+                     JOIN behandling b ON f.id = b.fk_fagsak_id
+                     JOIN vilkar_resultat vr ON vr.fk_behandling_id = b.id
+                     JOIN vedtak v ON v.fk_behandling_id = b.id
+              WHERE vr.soker_har_meldt_fra_om_barnehageplass = true
+              AND vr.periode_tom > '2024-07-30 23:59:59'
+              AND v.vedtaksdato < '2024-07-03 14:00:00'
+              AND NOT EXISTS (
+                SELECT 1 FROM behandling b2
+                WHERE b2.fk_fagsak_id = b.fk_fagsak_id
+                AND b2.opprettet_aarsak = 'LOVENDRING_2024'
+              );
+        """,
+        nativeQuery = true,
+    )
+    fun finnBehandlingerSomSkalRekjøresLovendringForFremtidigOpphør(): List<Long>
 }

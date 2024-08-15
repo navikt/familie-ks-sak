@@ -60,7 +60,9 @@ class BehandlingsresultatSteg(
         BehandlingsresultatValideringUtils.validerUtledetBehandlingsresultat(behandling, resultat)
         val behandlingMedOppdatertResultat = behandlingService.oppdaterBehandlingsresultat(behandlingId, resultat)
 
-        if (behandlingMedOppdatertResultat.skalSendeVedtaksbrev()) {
+        val erLovendringOgFremtidigOpphørOgNyAndelIAugust2024 = behandlingService.erLovendringOgFremtidigOpphørOgHarFlereAndeler(behandling)
+
+        if (behandlingMedOppdatertResultat.skalSendeVedtaksbrev(erLovendringOgFremtidigOpphørOgNyAndelIAugust2024)) {
             behandlingService.nullstillEndringstidspunkt(behandlingId)
             vedtaksperiodeService.oppdaterVedtakMedVedtaksperioder(
                 vedtak =
@@ -70,7 +72,7 @@ class BehandlingsresultatSteg(
             )
         }
 
-        if (!behandling.skalBehandlesAutomatisk() || behandling.skalSendeVedtaksbrev()) {
+        if (!behandling.skalBehandlesAutomatisk() || behandling.skalSendeVedtaksbrev(erLovendringOgFremtidigOpphørOgNyAndelIAugust2024)) {
             simuleringService.oppdaterSimuleringPåBehandling(behandlingId)
         }
     }

@@ -25,6 +25,7 @@ import no.nav.familie.ks.sak.integrasjon.ecb.ECBService
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
 import no.nav.familie.ks.sak.internal.TestVerktøyService
 import no.nav.familie.ks.sak.internal.kontantstøtteInfobrevJuli2024.DistribuerInformasjonsbrevKontantstøtteJuli2024
+import no.nav.familie.ks.sak.kjerne.autovedtak.AutovedtakLovendringFremtidigOpphørTask
 import no.nav.familie.ks.sak.kjerne.autovedtak.AutovedtakLovendringIkkeFremtidigOpphørTask
 import no.nav.familie.ks.sak.kjerne.autovedtak.AutovedtakLovendringTask
 import no.nav.familie.ks.sak.kjerne.avstemming.GrensesnittavstemmingTask
@@ -326,6 +327,46 @@ class ForvaltningController(
         }
 
         return ResponseEntity.ok(Ressurs.success("Automatisk revurdering opprettet"))
+    }
+
+    @GetMapping("/automatisk-revurdering-lovendring-fremtidig-opphor")
+    fun hentAlleFagsakSomSkalRevurderesFramtidigOpphør(): List<Long> {
+        tilgangService.validerTilgangTilHandling(
+            minimumBehandlerRolle = BehandlerRolle.FORVALTER,
+            handling = "hent automatisk revurdering framtidig opphør",
+        )
+
+        return behandlingRepository.finnBehandlingerSomSkalRekjøresLovendringForFremtidigOpphør()
+    }
+
+    @PostMapping("/automatisk-revurdering-lovendring-fremtidig-opphor/{limit}")
+    fun opprettAutomatiskLovendringFremtidigOpphør(
+        @PathVariable limit: Long,
+    ): ResponseEntity<Ressurs<String>> {
+        tilgangService.validerTilgangTilHandling(
+            minimumBehandlerRolle = BehandlerRolle.FORVALTER,
+            handling = "opprette automatisk revurdering",
+        )
+
+        behandlingRepository.finnBehandlingerSomSkalRekjøresLovendringForFremtidigOpphør().take(limit.toInt()).forEach {
+            AutovedtakLovendringFremtidigOpphørTask.opprettTask(it).apply { taskService.save(this) }
+        }
+
+        return ResponseEntity.ok(Ressurs.success("Automatisk revurdering opprettet"))
+    }
+
+    @PostMapping("/automatisk-revurdering-lovendring-framtidig-opphor/{fagsakId}")
+    fun opprettAutomatiskLovendringRevurderingFramtidigOpphør(
+        @PathVariable fagsakId: Long,
+    ): ResponseEntity<Ressurs<String>> {
+        tilgangService.validerTilgangTilHandling(
+            minimumBehandlerRolle = BehandlerRolle.FORVALTER,
+            handling = "opprette automatisk revurdering framtidig opphør på fagsak",
+        )
+
+        AutovedtakLovendringFremtidigOpphørTask.opprettTask(fagsakId).apply { taskService.save(this) }
+
+        return ResponseEntity.ok(Ressurs.success("Automatisk revurdering på framtidig opphør opprettet"))
     }
 
     @GetMapping(path = ["/behandling/{behandlingId}/begrunnelsetest"])

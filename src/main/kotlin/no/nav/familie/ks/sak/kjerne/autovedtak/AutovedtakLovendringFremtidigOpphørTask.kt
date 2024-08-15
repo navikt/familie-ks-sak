@@ -5,7 +5,6 @@ import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak.LOVENDRING_2024
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
 import no.nav.familie.ks.sak.kjerne.fagsak.FagsakService
-import no.nav.familie.ks.sak.kjerne.fagsak.domene.FagsakStatus
 import no.nav.familie.prosessering.AsyncTaskStep
 import no.nav.familie.prosessering.TaskStepBeskrivelse
 import no.nav.familie.prosessering.domene.Task
@@ -15,12 +14,12 @@ import java.util.Properties
 
 @Service
 @TaskStepBeskrivelse(
-    taskStepType = AutovedtakLovendringIkkeFremtidigOpphørTask.TASK_STEP_TYPE,
-    beskrivelse = "Trigger autovedtak av lovendring",
+    taskStepType = AutovedtakLovendringFremtidigOpphørTask.TASK_STEP_TYPE,
+    beskrivelse = "Trigger autovedtak av lovendring for behandlinger med fremtidig opphør",
     maxAntallFeil = 1,
     settTilManuellOppfølgning = true,
 )
-class AutovedtakLovendringIkkeFremtidigOpphørTask(
+class AutovedtakLovendringFremtidigOpphørTask(
     val autovedtakLovendringService: AutovedtakLovendringService,
     val fagsakService: FagsakService,
     val behandlingService: BehandlingService,
@@ -30,10 +29,6 @@ class AutovedtakLovendringIkkeFremtidigOpphørTask(
 
     override fun doTask(task: Task) {
         val fagsakId = task.payload.toLong()
-        val fagsak = fagsakService.hentFagsak(fagsakId)
-        if (fagsak.status != FagsakStatus.LØPENDE) {
-            throw Feil("Fagsak $fagsakId er ikke løpende")
-        }
 
         if (behandlingService.hentBehandlingerPåFagsak(fagsakId).any { it.opprettetÅrsak == LOVENDRING_2024 }) {
             logger.info("Lovendring 2024 allerede kjørt for fagsakId=$fagsakId")
@@ -42,17 +37,17 @@ class AutovedtakLovendringIkkeFremtidigOpphørTask(
                 behandlingService.hentSisteBehandlingSomErIverksatt(fagsakId)
                     ?: throw Feil("Fant ingen aktiv behandling for fagsak $fagsakId")
 
-            if (vilkårsvurderingService.erFremtidigOpphørIBehandling(sisteIverksatteBehandling)) {
-                error("Siste iverksatte behandling=${sisteIverksatteBehandling.id} på fagsak=$fagsakId har fremtidig opphør.")
+            if (!vilkårsvurderingService.erFremtidigOpphørIBehandling(sisteIverksatteBehandling)) {
+                error("Siste iverksatte behandling=${sisteIverksatteBehandling.id} på fagsak=$fagsakId har ikke fremtidig opphør.")
             }
 
-            autovedtakLovendringService.revurderFagsak(fagsakId = fagsakId)
+            autovedtakLovendringService.revurderFagsak(fagsakId = fagsakId, erFremtidigOpphør = true)
         }
     }
 
     companion object {
-        val logger = LoggerFactory.getLogger(AutovedtakLovendringIkkeFremtidigOpphørTask::class.java)
-        const val TASK_STEP_TYPE = "autovedtakLovendringIkkeFremtidigOpphør"
+        val logger = LoggerFactory.getLogger(AutovedtakLovendringFremtidigOpphørTask::class.java)
+        const val TASK_STEP_TYPE = "autovedtakLovendringFremtidigOpphør"
 
         fun opprettTask(
             fagsakId: Long,

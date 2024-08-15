@@ -1,6 +1,7 @@
 package no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak
 
 import no.nav.familie.ks.sak.common.exception.Feil
+import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.Vedtak
@@ -15,6 +16,7 @@ class VedtakService(
     private val vedtakRepository: VedtakRepository,
     private val vedtaksperiodeService: VedtaksperiodeService,
     private val genererBrevService: GenererBrevService,
+    private val behandlingService: BehandlingService,
 ) {
     fun hentVedtak(vedtakId: Long): Vedtak = vedtakRepository.hentVedtak(vedtakId)
 
@@ -27,8 +29,10 @@ class VedtakService(
     fun oppdaterVedtakMedDatoOgStønadsbrev(behandling: Behandling): Vedtak {
         val vedtak = hentAktivVedtakForBehandling(behandling.id)
 
+        val erLovendringOgFremtidigOpphørOgHarFlereAndeler = behandlingService.erLovendringOgFremtidigOpphørOgHarFlereAndeler(behandling)
+
         vedtak.vedtaksdato = LocalDateTime.now()
-        if (behandling.skalSendeVedtaksbrev()) {
+        if (behandling.skalSendeVedtaksbrev(erLovendringOgFremtidigOpphørOgHarFlereAndeler)) {
             val brev = genererBrevService.genererBrevForBehandling(vedtak)
             vedtak.stønadBrevPdf = brev
         }
