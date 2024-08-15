@@ -72,8 +72,8 @@ class AutovedtakLovendringOpphørteSakerTask(
 
     private fun validerVedtattEtterJuni2024(sisteIverksatteBehandling: Behandling) {
         val vedtak = vedtakService.hentAktivVedtakForBehandling(sisteIverksatteBehandling.id)
-        if (vedtak.vedtaksdato != null && vedtak.vedtaksdato!! > førsteJuni2024) {
-            error("Vedtak=${vedtak.id} har vedtaksdato før juni 2024")
+        if (vedtak.vedtaksdato != null && vedtak.vedtaksdato!! < førsteJuni2024) {
+            error("Vedtak=${vedtak.id} har vedtaksdato før juni 2024 for behandling ${sisteIverksatteBehandling.id}")
         }
     }
 
