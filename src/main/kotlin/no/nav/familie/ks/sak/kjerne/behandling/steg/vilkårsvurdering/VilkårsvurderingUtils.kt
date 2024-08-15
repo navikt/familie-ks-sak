@@ -397,7 +397,12 @@ private fun Collection<VilkårResultat>.overskrivMedVilkårResultaterFraForrigeB
                         /* *
                          * Ønsker å dra med vilkårresultatene som er avslått og opphørt i forrige behandling
                          * for barnehagevilkåret fordi vi krever at alle peridene skal være vurdert, også de med opphør
+                         *
+                         * kopierer ikke med eksplisitt avslag på søknad for dette ikke vil validere med
+                         * validerAtBarePersonerFremstiltKravForEllerSøkerHarFåttEksplisittAvslag ved revurdering av
+                         * en sak som har hatt eksplisitt avslag i forrige behandling.
                          * */
+                    vilkårResultaterAvSammeTypeIForrigeBehandling.filter { it.erEksplisittAvslagPåSøknad == true && it.vilkårType == Vilkår.BARNEHAGEPLASS }.forEach { it.erEksplisittAvslagPåSøknad = null }
                     vilkårResultaterAvSammeTypeIForrigeBehandling
                 }
 
