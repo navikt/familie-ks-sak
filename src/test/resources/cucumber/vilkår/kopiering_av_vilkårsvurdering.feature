@@ -87,7 +87,7 @@ Egenskap: opprettVilkårsvurdering - tester for kopiering av vilkårresultater f
 
       | 3       | MEDLEMSKAP_ANNEN_FORELDER,BOR_MED_SØKER,BOSATT_I_RIKET | 17.12.2022 |            | OPPFYLT      | Nei                  |                      | NASJONALE_REGLER |              |                       |
       | 3       | BARNEHAGEPLASS                                         | 17.12.2022 | 16.02.2023 | IKKE_OPPFYLT | Nei                  |                      |                  | 40           |                       |
-      | 3       | BARNEHAGEPLASS                                         | 17.02.2023 | 31.04.2024 | IKKE_OPPFYLT | Ja                   |                      |                  | 40           |                       |
+      | 3       | BARNEHAGEPLASS                                         | 17.02.2023 | 31.04.2024 | IKKE_OPPFYLT |                      |                      |                  | 40           |                       |
       | 3       | BARNETS_ALDER                                          | 17.12.2023 | 31.07.2024 | OPPFYLT      |                      |                      |                  |              | Ja                    |
       | 3       | BARNEHAGEPLASS                                         | 01.05.2024 |            | OPPFYLT      | Nei                  |                      |                  |              |                       |
 
