@@ -275,9 +275,8 @@ class GenererBrevService(
         val utvidetVedtaksperiodeMedBegrunnelserAvTypeOpphør =
             utvidetVedtaksperioderMedBegrunnelser.singleOrNull {
                 it.type == Vedtaksperiodetype.OPPHØR
-            } ?: throw Feil(
-                "Forventet én vedtaksperiode med begrunnelse av type ${Vedtaksperiodetype.OPPHØR}",
-            )
+            }
+
         vedtaksperiodeService.oppdaterVedtaksperiodeMedBegrunnelser(
             vedtaksperiodeId = utvidetVedtaksperiodeMedBegrunnelserAvTypeUtbetaling.id,
             begrunnelserFraFrontend =
@@ -286,14 +285,17 @@ class GenererBrevService(
                 ),
             eøsBegrunnelserFraFrontend = listOf(),
         )
-        vedtaksperiodeService.oppdaterVedtaksperiodeMedBegrunnelser(
-            vedtaksperiodeId = utvidetVedtaksperiodeMedBegrunnelserAvTypeOpphør.id,
-            begrunnelserFraFrontend =
-                listOf(
-                    NasjonalEllerFellesBegrunnelse.OPPHØR_NYTT_FRAMTIDIG_OPPHØR_BARNEHAGEPLASS,
-                ),
-            eøsBegrunnelserFraFrontend = listOf(),
-        )
+
+        if (utvidetVedtaksperiodeMedBegrunnelserAvTypeOpphør != null) {
+            vedtaksperiodeService.oppdaterVedtaksperiodeMedBegrunnelser(
+                vedtaksperiodeId = utvidetVedtaksperiodeMedBegrunnelserAvTypeOpphør.id,
+                begrunnelserFraFrontend =
+                    listOf(
+                        NasjonalEllerFellesBegrunnelse.OPPHØR_NYTT_FRAMTIDIG_OPPHØR_BARNEHAGEPLASS,
+                    ),
+                eøsBegrunnelserFraFrontend = listOf(),
+            )
+        }
     }
 
     private fun hentGrunnlagOgSignaturData(vedtak: Vedtak): GrunnlagOgSignaturData {

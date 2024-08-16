@@ -291,6 +291,77 @@ class AutovedtakLovendringTest(
     }
 
     @Test
+    fun `automatisk revurdering av fagsak som har opphør og økning av andeler i august sender brev`() {
+        // arrange
+        val fødselsdatoBarn = LocalDate.of(2023, 4, 1)
+        val datoForBarnehageplass = LocalDate.of(2024, 8, 1)
+        val stønadFom = fødselsdatoBarn.plusYears(1).plusMonths(1).toYearMonth()
+        val stønadTom = datoForBarnehageplass.minusMonths(1).toYearMonth()
+
+        opprettSøkerFagsakOgBehandling(fagsakStatus = LØPENDE, behandlingStatus = AVSLUTTET, behandlingResultat = INNVILGET)
+        opprettPersonopplysningGrunnlagOgPersonForBehandling(lagBarn = true, fødselsdatoBarn = fødselsdatoBarn)
+        lagVilkårsvurderingEtterGammeltRegelverk(fødselsdatoBarn)
+        lagTilkjentytelseMedAndelForBarn(fødselsdatoBarn = fødselsdatoBarn, stønadFom = stønadFom, stønadTom = stønadTom)
+        lagVedtak(vedtaksDato = LocalDateTime.of(2024, 7, 1, 0, 0))
+
+        every { brevklient.genererBrev(any(), any()) } returns "brev".toByteArray()
+        every { simuleringService.oppdaterSimuleringPåBehandling(any<Long>()) } returns emptyList()
+        every { localDateProvider.now() } returns LocalDate.of(2024, 8, 1)
+        every { behandlingService.hentSisteBehandlingSomErIverksatt(fagsak.id) } returns behandling
+
+        // act
+        val nyBehandling = autovedtakLovendringService.revurderFagsak(fagsakId = fagsak.id, erFremtidigOpphør = true)!!
+
+        // assert
+        assertThat(nyBehandling.opprettetÅrsak).isEqualTo(LOVENDRING_2024)
+        assertThat(nyBehandling.behandlingStegTilstand.map { it.behandlingSteg }).containsAll(setOf(BehandlingSteg.SIMULERING, BehandlingSteg.VEDTAK))
+        assertThat(nyBehandling.steg).isEqualTo(BehandlingSteg.IVERKSETT_MOT_OPPDRAG)
+
+        val andelTilkjentYtelseNy = andelTilkjentYtelseRepository.finnAndelerTilkjentYtelseForBehandling(nyBehandling.id).single()
+        assertThat(andelTilkjentYtelseNy.stønadFom).isEqualTo(fødselsdatoBarn.plusYears(1).plusMonths(1).toYearMonth())
+        assertThat(andelTilkjentYtelseNy.stønadTom).isEqualTo(fødselsdatoBarn.plusYears(1).plusMonths(7).toYearMonth()) // 7 måneder som i nytt regelverk
+
+        verify { simuleringService.oppdaterSimuleringPåBehandling(any<Long>()) }
+        verify { brevklient.genererBrev(any(), any()) }
+
+        assertTotrinnskontroll(nyBehandling)
+    }
+
+    @Test
+    fun `automatisk revurdering av fagsak som har opphør i starten av juli og ikke økning av andeler i august sender ikke brev`() {
+        // arrange
+        val fødselsdatoBarn = LocalDate.of(2023, 7, 1)
+
+        opprettSøkerFagsakOgBehandling(fagsakStatus = LØPENDE, behandlingStatus = AVSLUTTET, behandlingResultat = INNVILGET)
+        opprettPersonopplysningGrunnlagOgPersonForBehandling(lagBarn = true, fødselsdatoBarn = fødselsdatoBarn)
+        lagVilkårsvurderingEtterGammeltRegelverk(fødselsdatoBarn)
+        lagTilkjentytelseMedAndelForBarn(fødselsdatoBarn = fødselsdatoBarn)
+        lagVedtak()
+
+        every { brevklient.genererBrev(any(), any()) } returns "brev".toByteArray()
+        every { simuleringService.oppdaterSimuleringPåBehandling(any<Long>()) } returns emptyList()
+        every { localDateProvider.now() } returns LocalDate.of(2024, 8, 1)
+        every { behandlingService.hentSisteBehandlingSomErIverksatt(fagsak.id) } returns behandling
+
+        // act
+        val nyBehandling = autovedtakLovendringService.revurderFagsak(fagsakId = fagsak.id, erFremtidigOpphør = true)!!
+
+        // assert
+        assertThat(nyBehandling.opprettetÅrsak).isEqualTo(LOVENDRING_2024)
+        assertThat(nyBehandling.behandlingStegTilstand.map { it.behandlingSteg }).doesNotContainAnyElementsOf(setOf(BehandlingSteg.SIMULERING, BehandlingSteg.VEDTAK))
+        assertThat(nyBehandling.steg).isEqualTo(BehandlingSteg.IVERKSETT_MOT_OPPDRAG)
+
+        val andelTilkjentYtelseNy = andelTilkjentYtelseRepository.finnAndelerTilkjentYtelseForBehandling(nyBehandling.id).single()
+        assertThat(andelTilkjentYtelseNy.stønadFom).isEqualTo(fødselsdatoBarn.plusYears(1).plusMonths(1).toYearMonth())
+        assertThat(andelTilkjentYtelseNy.stønadTom).isEqualTo(fødselsdatoBarn.plusYears(1).plusMonths(7).toYearMonth())
+
+        verify(exactly = 0) { simuleringService.oppdaterSimuleringPåBehandling(any<Long>()) }
+        verify(exactly = 0) { brevklient.genererBrev(any(), any()) }
+
+        assertTotrinnskontroll(nyBehandling)
+    }
+
+    @Test
     fun `automatisk revurdering av fagsak som blir truffet av nytt regelverk skal snike i køen`() {
         // arrange
         opprettSøkerFagsakOgBehandling(

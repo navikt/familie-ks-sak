@@ -64,6 +64,7 @@ import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDate
+import java.time.LocalDateTime
 
 @ExtendWith(SpringExtension::class)
 @ContextConfiguration(initializers = [DbContainerInitializer::class])
@@ -334,8 +335,9 @@ abstract class OppslagSpringRunnerTest {
 
     fun lagVedtak(
         behandling: Behandling = this.behandling,
+        vedtaksDato: LocalDateTime? = null,
     ) {
-        vedtak = vedtakRepository.saveAndFlush(Vedtak(behandling = behandling))
+        vedtak = vedtakRepository.saveAndFlush(Vedtak(behandling = behandling, vedtaksdato = vedtaksDato))
     }
 
     companion object {

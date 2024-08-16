@@ -405,7 +405,7 @@ class BehandlingService(
             vilkårResultaterPåBehandling.filter { it.vilkårType == Vilkår.BARNEHAGEPLASS }.any {
                 it.søkerHarMeldtFraOmBarnehageplass == true
             }
-        return harAndelerEtterJuli2024 && vedtattIJuniEllerJuli2024 && behandlingHarFremtidigOpphør
+        return !harAndelerEtterJuli2024 && vedtattIJuniEllerJuli2024 && !behandlingHarFremtidigOpphør
     }
 
     companion object {

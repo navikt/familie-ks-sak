@@ -194,14 +194,14 @@ class StegService(
             }
 
             BEHANDLINGSRESULTAT ->
-                if (behandling.skalBehandlesAutomatisk() && !behandlingService.erLovendringOgFremtidigOpphørOgHarFlereAndeler(behandling)) {
+                if (behandling.skalBehandlesAutomatisk() && !behandlingService.skalSendeVedtaksbrev(behandling)) {
                     IVERKSETT_MOT_OPPDRAG
                 } else {
                     nesteGyldigeStadier.first()
                 }
 
             IVERKSETT_MOT_OPPDRAG ->
-                if (behandling.skalBehandlesAutomatisk() && !behandlingService.erLovendringOgFremtidigOpphørOgHarFlereAndeler(behandling)) {
+                if (behandling.skalBehandlesAutomatisk() && !behandlingService.skalSendeVedtaksbrev(behandling)) {
                     AVSLUTT_BEHANDLING
                 } else {
                     nesteGyldigeStadier.first()
