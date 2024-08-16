@@ -181,6 +181,7 @@ class StegServiceTest : OppslagSpringRunnerTest() {
                     fagsak = fagsak,
                     type = BehandlingType.REVURDERING,
                     opprettetÅrsak = BehandlingÅrsak.NYE_OPPLYSNINGER,
+                    steg = REGISTRERE_PERSONGRUNNLAG,
                 ),
             )
         lagreArbeidsfordeling(lagArbeidsfordelingPåBehandling(revurderingBehandling.id))
@@ -266,6 +267,7 @@ class StegServiceTest : OppslagSpringRunnerTest() {
                     fagsak = fagsak,
                     type = BehandlingType.REVURDERING,
                     opprettetÅrsak = BehandlingÅrsak.SATSENDRING,
+                    steg = REGISTRERE_PERSONGRUNNLAG,
                 ),
             )
         assertBehandlingHarSteg(revurderingBehandling, REGISTRERE_PERSONGRUNNLAG, KLAR)
