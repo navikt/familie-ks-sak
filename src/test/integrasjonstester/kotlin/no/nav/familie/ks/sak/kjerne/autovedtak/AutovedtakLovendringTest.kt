@@ -207,7 +207,7 @@ class AutovedtakLovendringTest(
                 autovedtakLovendringService.revurderFagsak(fagsakId = fagsak.id, erFremtidigOpphør = true)
             }
         assertThat(exception.message).isEqualTo(
-            "Fant framtidig opphør med flere andeler. Disse skal følges opp manuelt. Feiler tasken med vilje.",
+            "Fant framtidig opphør med nye andeler. Disse skal følges opp manuelt. Feiler tasken med vilje.",
         )
 
         verify(exactly = 0) { simuleringService.oppdaterSimuleringPåBehandling(any<Long>()) }
