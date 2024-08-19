@@ -1,4 +1,4 @@
-package no.nav.familie.ks.sak.no.nav.familie.ks.sak.kjerne.atuovedtak
+package no.nav.familie.ks.sak.no.nav.familie.ks.sak.kjerne.autovedtak
 
 import com.ninjasquad.springmockk.MockkBean
 import com.ninjasquad.springmockk.SpykBean
