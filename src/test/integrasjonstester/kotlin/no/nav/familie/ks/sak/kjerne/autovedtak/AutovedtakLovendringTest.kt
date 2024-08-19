@@ -67,7 +67,6 @@ class AutovedtakLovendringTest(
     @Autowired private val behandlingRepository: BehandlingRepository,
     @Autowired private val totrinnskontrollService: TotrinnskontrollService,
 ) : OppslagSpringRunnerTest() {
-
     @SpykBean
     private lateinit var behandlingService: BehandlingService
 
