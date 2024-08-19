@@ -232,58 +232,6 @@ class AutovedtakLovendringTest(
     }
 
     @Test
-    fun `automatisk revurdering av fagsak som har fremdtidig opphør, men ikke fremtidig opphør begrunnelse sender ikke brev`() {
-        // arrange
-        val fødselsdatoBarn = LocalDate.of(2023, 4, 1)
-        val datoForBarnehageplass = LocalDate.of(2024, 8, 1)
-        val stønadFom = fødselsdatoBarn.plusYears(1).plusMonths(1).toYearMonth()
-        val stønadTom = datoForBarnehageplass.minusMonths(1).toYearMonth()
-
-        opprettSøkerFagsakOgBehandling(fagsakStatus = LØPENDE, behandlingStatus = AVSLUTTET, behandlingResultat = INNVILGET)
-        opprettPersonopplysningGrunnlagOgPersonForBehandling(lagBarn = true, fødselsdatoBarn = fødselsdatoBarn)
-        lagVilkårsvurderingMedFremtidigOpphør(fødselsdatoBarn, datoForBarnehageplass)
-        lagTilkjentytelseMedAndelForBarn(fødselsdatoBarn = fødselsdatoBarn, stønadFom = stønadFom, stønadTom = stønadTom)
-        lagVedtak()
-
-        every { brevklient.genererBrev(any(), any()) } returns "brev".toByteArray()
-        every { simuleringService.oppdaterSimuleringPåBehandling(any<Long>()) } returns emptyList()
-        every { localDateProvider.now() } returns LocalDate.of(2024, 8, 1)
-        every { behandlingService.hentSisteBehandlingSomErIverksatt(fagsak.id) } returns behandling
-
-        var erFremtidigOpphørBegrunnelseIForrigeBehandling: Boolean? = null
-        every { vedtaksperiodeService.vedtakInneholderFremtidigOpphørBegrunnelse(any()) } answers {
-            callOriginal().also { erFremtidigOpphørBegrunnelseIForrigeBehandling = it }
-        }
-
-        // act
-        val nyBehandling = autovedtakLovendringService.revurderFagsak(fagsakId = fagsak.id, erFremtidigOpphør = true)!!
-
-        // assert
-        assertThat(nyBehandling.opprettetÅrsak).isEqualTo(LOVENDRING_2024)
-        assertThat(nyBehandling.steg).isEqualTo(BehandlingSteg.IVERKSETT_MOT_OPPDRAG)
-
-        val andelTilkjentYtelseNy = andelTilkjentYtelseRepository.finnAndelerTilkjentYtelseForBehandling(nyBehandling.id).single()
-        assertThat(andelTilkjentYtelseNy.stønadFom).isEqualTo(fødselsdatoBarn.plusYears(1).plusMonths(1).toYearMonth())
-        assertThat(andelTilkjentYtelseNy.stønadTom).isEqualTo(datoForBarnehageplass.toYearMonth())
-
-        val vilkårResultatRevurdering =
-            vilkårsvurderingRepository
-                .finnAktivForBehandling(nyBehandling.id)!!
-                .personResultater
-                .flatMap { it.vilkårResultater }
-                .single { it.vilkårType == Vilkår.BARNEHAGEPLASS && it.harMeldtBarnehageplassOgErFulltidIBarnehage() }
-
-        assertThat(vilkårResultatRevurdering.periodeFom).isEqualTo(datoForBarnehageplass)
-
-        assertThat(erFremtidigOpphørBegrunnelseIForrigeBehandling).isFalse()
-
-        verify(inverse = true) { simuleringService.oppdaterSimuleringPåBehandling(any<Long>()) }
-        verify(inverse = true) { brevklient.genererBrev(any(), any()) }
-
-        assertTotrinnskontroll(nyBehandling)
-    }
-
-    @Test
     fun `automatisk revurdering av fagsak som har fremdtidig opphør, men ikke økning i andeler sender ikke brev`() {
         // arrange
         val fødselsdatoBarn = LocalDate.of(2023, 5, 1)

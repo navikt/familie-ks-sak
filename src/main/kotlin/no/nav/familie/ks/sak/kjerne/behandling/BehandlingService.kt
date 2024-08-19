@@ -13,6 +13,7 @@ import no.nav.familie.ks.sak.api.mapper.BehandlingMapper.lagPersonerMedAndelTilk
 import no.nav.familie.ks.sak.api.mapper.SøknadGrunnlagMapper.tilSøknadDto
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.util.TIDENES_MORGEN
+import no.nav.familie.ks.sak.common.util.toLocalDate
 import no.nav.familie.ks.sak.common.util.toYearMonth
 import no.nav.familie.ks.sak.integrasjon.sanity.SanityService
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.ArbeidsfordelingService
@@ -51,6 +52,7 @@ import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import java.time.Period
 
 @Service
 class BehandlingService(
@@ -290,13 +292,6 @@ class BehandlingService(
         val fagsakId = behandling.fagsak.id
         val sisteIverksatteBehandling = hentSisteBehandlingSomErIverksatt(fagsakId) ?: throw Feil("Fant ingen iverksatt behandling for fagsak $fagsakId")
 
-        val vedtakForSisteIverksatteBehandling = vedtakRepository.findByBehandlingAndAktiv(sisteIverksatteBehandling.id)
-        val forrigeBehandlingHaddeFramtidigOpphørsbegrunnelse = vedtaksperiodeService.vedtakInneholderFremtidigOpphørBegrunnelse(vedtakForSisteIverksatteBehandling)
-
-        if (!forrigeBehandlingHaddeFramtidigOpphørsbegrunnelse) {
-            return false
-        }
-
         val andelerNåværendeBehandling = andelTilkjentYtelseRepository.finnAndelerTilkjentYtelseForBehandling(behandling.id)
         val andelerForrigeBehandling = andelTilkjentYtelseRepository.finnAndelerTilkjentYtelseForBehandling(sisteIverksatteBehandling.id)
 
@@ -307,6 +302,12 @@ class BehandlingService(
                 andelerNåværendeBehandling.filter { it.aktør == aktør }.maxOfOrNull { it.stønadTom } ?: return@any false
             val sisteForrigeUtbetalingForAktør =
                 andelerForrigeBehandling.filter { it.aktør == aktør }.maxOfOrNull { it.stønadTom } ?: TIDENES_MORGEN.toYearMonth()
+
+            val antallMånederMerUtbetaling = Period.between(sisteForrigeUtbetalingForAktør.toLocalDate(), sisteNåværendeUtbetalingForAktør.toLocalDate()).months
+
+            if (antallMånederMerUtbetaling > 1) {
+                throw Feil("Det skal ikke være mulig å få mer enn 1 måned mer i utbetaling ved revurdering av framtidig opphør sak")
+            }
 
             sisteForrigeUtbetalingForAktør < sisteNåværendeUtbetalingForAktør
         }
