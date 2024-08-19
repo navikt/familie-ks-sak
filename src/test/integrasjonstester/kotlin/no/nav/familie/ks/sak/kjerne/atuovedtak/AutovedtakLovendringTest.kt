@@ -7,6 +7,7 @@ import io.mockk.every
 import io.mockk.justRun
 import io.mockk.verify
 import no.nav.familie.ks.sak.OppslagSpringRunnerTest
+import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.util.LocalDateProvider
 import no.nav.familie.ks.sak.common.util.LocalDateTimeProvider
 import no.nav.familie.ks.sak.common.util.toYearMonth
@@ -30,7 +31,6 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat.INNVIL
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak.LOVENDRING_2024
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg
 import no.nav.familie.ks.sak.kjerne.behandling.steg.simulering.SimuleringService
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.VedtaksperiodeService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.PersonResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
@@ -38,7 +38,6 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vil
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårsvurderingRepository
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelseRepository
-import no.nav.familie.ks.sak.kjerne.beregning.domene.maksBeløp
 import no.nav.familie.ks.sak.kjerne.brev.BrevKlient
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.NasjonalEllerFellesBegrunnelse.OPPHØR_FRAMTIDIG_OPPHØR_BARNEHAGEPLASS
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.FagsakStatus.LØPENDE
@@ -53,6 +52,7 @@ import no.nav.familie.ks.sak.statistikk.saksstatistikk.SakStatistikkService
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import org.springframework.beans.factory.annotation.Autowired
 import java.math.BigDecimal
 import java.time.LocalDate
@@ -67,8 +67,6 @@ class AutovedtakLovendringTest(
     @Autowired private val behandlingRepository: BehandlingRepository,
     @Autowired private val totrinnskontrollService: TotrinnskontrollService,
 ) : OppslagSpringRunnerTest() {
-    @SpykBean
-    private lateinit var vedtaksperiodeService: VedtaksperiodeService
 
     @SpykBean
     private lateinit var behandlingService: BehandlingService
@@ -185,7 +183,7 @@ class AutovedtakLovendringTest(
     }
 
     @Test
-    fun `automatisk revurdering av fagsak som har fremtidig opphør med begrunnelse og økning i andeler beholder fremtidig opphør og sender brev`() {
+    fun `automatisk revurdering av fagsak som har fremtidig opphør med begrunnelse og økning i andeler kaster en exception`() {
         // arrange
         val fødselsdatoBarn = LocalDate.of(2023, 4, 1)
         val datoForBarnehageplass = LocalDate.of(2024, 8, 1)
@@ -204,83 +202,17 @@ class AutovedtakLovendringTest(
         every { localDateProvider.now() } returns LocalDate.of(2024, 8, 1)
         every { behandlingService.hentSisteBehandlingSomErIverksatt(fagsak.id) } returns behandling
 
-        // act
-        val nyBehandling = autovedtakLovendringService.revurderFagsak(fagsakId = fagsak.id, erFremtidigOpphør = true)!!
+        // act & assert
+        val exception =
+            assertThrows<Feil> {
+                autovedtakLovendringService.revurderFagsak(fagsakId = fagsak.id, erFremtidigOpphør = true)
+            }
+        assertThat(exception.message).isEqualTo(
+            "Fant framtidig opphør med flere andeler. Disse skal følges opp manuelt. Feiler tasken med vilje.",
+        )
 
-        // assert
-        assertThat(nyBehandling.opprettetÅrsak).isEqualTo(LOVENDRING_2024)
-        assertThat(nyBehandling.behandlingStegTilstand.map { it.behandlingSteg }).containsAll(setOf(BehandlingSteg.SIMULERING, BehandlingSteg.VEDTAK))
-        assertThat(nyBehandling.steg).isEqualTo(BehandlingSteg.IVERKSETT_MOT_OPPDRAG)
-
-        val andelTilkjentYtelseNy = andelTilkjentYtelseRepository.finnAndelerTilkjentYtelseForBehandling(nyBehandling.id).single()
-        assertThat(andelTilkjentYtelseNy.stønadFom).isEqualTo(fødselsdatoBarn.plusYears(1).plusMonths(1).toYearMonth())
-        assertThat(andelTilkjentYtelseNy.stønadTom).isEqualTo(datoForBarnehageplass.toYearMonth())
-
-        val vilkårResultatRevurdering =
-            vilkårsvurderingRepository
-                .finnAktivForBehandling(nyBehandling.id)!!
-                .personResultater
-                .flatMap { it.vilkårResultater }
-                .single { it.vilkårType == Vilkår.BARNEHAGEPLASS && it.harMeldtBarnehageplassOgErFulltidIBarnehage() }
-
-        assertThat(vilkårResultatRevurdering.periodeFom).isEqualTo(datoForBarnehageplass)
-
-        verify { simuleringService.oppdaterSimuleringPåBehandling(any<Long>()) }
-        verify { brevklient.genererBrev(any(), any()) }
-
-        assertTotrinnskontroll(nyBehandling)
-    }
-
-    @Test
-    fun `automatisk revurdering av fagsak som har fremdtidig opphør, men ikke fremtidig opphør begrunnelse sender ikke brev`() {
-        // arrange
-        val fødselsdatoBarn = LocalDate.of(2023, 4, 1)
-        val datoForBarnehageplass = LocalDate.of(2024, 8, 1)
-        val stønadFom = fødselsdatoBarn.plusYears(1).plusMonths(1).toYearMonth()
-        val stønadTom = datoForBarnehageplass.minusMonths(1).toYearMonth()
-
-        opprettSøkerFagsakOgBehandling(fagsakStatus = LØPENDE, behandlingStatus = AVSLUTTET, behandlingResultat = INNVILGET)
-        opprettPersonopplysningGrunnlagOgPersonForBehandling(lagBarn = true, fødselsdatoBarn = fødselsdatoBarn)
-        lagVilkårsvurderingMedFremtidigOpphør(fødselsdatoBarn, datoForBarnehageplass)
-        lagTilkjentytelseMedAndelForBarn(fødselsdatoBarn = fødselsdatoBarn, stønadFom = stønadFom, stønadTom = stønadTom)
-        lagVedtak()
-
-        every { brevklient.genererBrev(any(), any()) } returns "brev".toByteArray()
-        every { simuleringService.oppdaterSimuleringPåBehandling(any<Long>()) } returns emptyList()
-        every { localDateProvider.now() } returns LocalDate.of(2024, 8, 1)
-        every { behandlingService.hentSisteBehandlingSomErIverksatt(fagsak.id) } returns behandling
-
-        var erFremtidigOpphørBegrunnelseIForrigeBehandling: Boolean? = null
-        every { vedtaksperiodeService.vedtakInneholderFremtidigOpphørBegrunnelse(any()) } answers {
-            callOriginal().also { erFremtidigOpphørBegrunnelseIForrigeBehandling = it }
-        }
-
-        // act
-        val nyBehandling = autovedtakLovendringService.revurderFagsak(fagsakId = fagsak.id, erFremtidigOpphør = true)!!
-
-        // assert
-        assertThat(nyBehandling.opprettetÅrsak).isEqualTo(LOVENDRING_2024)
-        assertThat(nyBehandling.steg).isEqualTo(BehandlingSteg.IVERKSETT_MOT_OPPDRAG)
-
-        val andelTilkjentYtelseNy = andelTilkjentYtelseRepository.finnAndelerTilkjentYtelseForBehandling(nyBehandling.id).single()
-        assertThat(andelTilkjentYtelseNy.stønadFom).isEqualTo(fødselsdatoBarn.plusYears(1).plusMonths(1).toYearMonth())
-        assertThat(andelTilkjentYtelseNy.stønadTom).isEqualTo(datoForBarnehageplass.toYearMonth())
-
-        val vilkårResultatRevurdering =
-            vilkårsvurderingRepository
-                .finnAktivForBehandling(nyBehandling.id)!!
-                .personResultater
-                .flatMap { it.vilkårResultater }
-                .single { it.vilkårType == Vilkår.BARNEHAGEPLASS && it.harMeldtBarnehageplassOgErFulltidIBarnehage() }
-
-        assertThat(vilkårResultatRevurdering.periodeFom).isEqualTo(datoForBarnehageplass)
-
-        assertThat(erFremtidigOpphørBegrunnelseIForrigeBehandling).isFalse()
-
-        verify(inverse = true) { simuleringService.oppdaterSimuleringPåBehandling(any<Long>()) }
-        verify(inverse = true) { brevklient.genererBrev(any(), any()) }
-
-        assertTotrinnskontroll(nyBehandling)
+        verify(exactly = 0) { simuleringService.oppdaterSimuleringPåBehandling(any<Long>()) }
+        verify(exactly = 0) { brevklient.genererBrev(any(), any()) }
     }
 
     @Test
@@ -403,27 +335,6 @@ class AutovedtakLovendringTest(
                     aktør = barn,
                     stønadFom = stønadFom,
                     stønadTom = stønadTom,
-                ),
-            ),
-        )
-    }
-
-    private fun leggTilAndelTilkjentYtelseForBarn(
-        stønadFom: YearMonth,
-        stønadTom: YearMonth,
-        prosent: BigDecimal = BigDecimal.valueOf(100),
-        kalkulertUtbetalingsbeløp: Int = maksBeløp(),
-    ) {
-        tilkjentYtelse.andelerTilkjentYtelse.add(
-            andelTilkjentYtelseRepository.save(
-                lagAndelTilkjentYtelse(
-                    tilkjentYtelse = tilkjentYtelse,
-                    behandling = behandling,
-                    aktør = barn,
-                    stønadFom = stønadFom,
-                    stønadTom = stønadTom,
-                    prosent = prosent,
-                    kalkulertUtbetalingsbeløp = kalkulertUtbetalingsbeløp,
                 ),
             ),
         )

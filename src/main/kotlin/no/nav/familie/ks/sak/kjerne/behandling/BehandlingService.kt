@@ -290,26 +290,26 @@ class BehandlingService(
         val fagsakId = behandling.fagsak.id
         val sisteIverksatteBehandling = hentSisteBehandlingSomErIverksatt(fagsakId) ?: throw Feil("Fant ingen iverksatt behandling for fagsak $fagsakId")
 
-        val vedtakForSisteIverksatteBehandling = vedtakRepository.findByBehandlingAndAktiv(sisteIverksatteBehandling.id)
-        val forrigeBehandlingHaddeFramtidigOpphørsbegrunnelse = vedtaksperiodeService.vedtakInneholderFremtidigOpphørBegrunnelse(vedtakForSisteIverksatteBehandling)
-
-        if (!forrigeBehandlingHaddeFramtidigOpphørsbegrunnelse) {
-            return false
-        }
-
         val andelerNåværendeBehandling = andelTilkjentYtelseRepository.finnAndelerTilkjentYtelseForBehandling(behandling.id)
         val andelerForrigeBehandling = andelTilkjentYtelseRepository.finnAndelerTilkjentYtelseForBehandling(sisteIverksatteBehandling.id)
 
         val aktører = (andelerNåværendeBehandling.map { it.aktør } + andelerForrigeBehandling.map { it.aktør }).distinct()
 
-        return aktører.any { aktør ->
-            val sisteNåværendeUtbetalingForAktør =
-                andelerNåværendeBehandling.filter { it.aktør == aktør }.maxOfOrNull { it.stønadTom } ?: return@any false
-            val sisteForrigeUtbetalingForAktør =
-                andelerForrigeBehandling.filter { it.aktør == aktør }.maxOfOrNull { it.stønadTom } ?: TIDENES_MORGEN.toYearMonth()
+        val erNyeAndeler =
+            aktører.any { aktør ->
+                val sisteNåværendeUtbetalingForAktør =
+                    andelerNåværendeBehandling.filter { it.aktør == aktør }.maxOfOrNull { it.stønadTom } ?: return@any false
+                val sisteForrigeUtbetalingForAktør =
+                    andelerForrigeBehandling.filter { it.aktør == aktør }.maxOfOrNull { it.stønadTom } ?: TIDENES_MORGEN.toYearMonth()
 
-            sisteForrigeUtbetalingForAktør < sisteNåværendeUtbetalingForAktør
+                sisteForrigeUtbetalingForAktør < sisteNåværendeUtbetalingForAktør
+            }
+
+        if (erNyeAndeler) {
+            throw Feil("Fant framtidig opphør med flere andeler. Disse skal følges opp manuelt. Feiler tasken med vilje.")
         }
+
+        return erNyeAndeler
     }
 
     fun hentFerdigstilteBehandlinger(fagsak: Fagsak): List<Behandling> =
