@@ -1,5 +1,7 @@
 package no.nav.familie.ks.sak.kjerne.behandling
 
+import java.time.Period
+import java.time.YearMonth
 import no.nav.familie.ks.sak.api.dto.BehandlingResponsDto
 import no.nav.familie.ks.sak.api.dto.EndreBehandlendeEnhetDto
 import no.nav.familie.ks.sak.api.dto.tilFeilutbetaltValutaDto
@@ -13,6 +15,7 @@ import no.nav.familie.ks.sak.api.mapper.BehandlingMapper.lagPersonerMedAndelTilk
 import no.nav.familie.ks.sak.api.mapper.SøknadGrunnlagMapper.tilSøknadDto
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.util.TIDENES_MORGEN
+import no.nav.familie.ks.sak.common.util.toLocalDate
 import no.nav.familie.ks.sak.common.util.toYearMonth
 import no.nav.familie.ks.sak.integrasjon.sanity.SanityService
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.ArbeidsfordelingService
@@ -31,6 +34,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.refusjonEøs.Refusjon
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.VedtaksperiodeService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
 import no.nav.familie.ks.sak.kjerne.beregning.AndelerTilkjentYtelseOgEndreteUtbetalingerService
+import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelseRepository
 import no.nav.familie.ks.sak.kjerne.brev.mottaker.BrevmottakerService
 import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.tilEndretUtbetalingAndelResponsDto
@@ -295,21 +299,32 @@ class BehandlingService(
 
         val aktører = (andelerNåværendeBehandling.map { it.aktør } + andelerForrigeBehandling.map { it.aktør }).distinct()
 
-        val erNyeAndeler =
-            aktører.any { aktør ->
-                val sisteNåværendeUtbetalingForAktør =
-                    andelerNåværendeBehandling.filter { it.aktør == aktør }.maxOfOrNull { it.stønadTom } ?: return@any false
-                val sisteForrigeUtbetalingForAktør =
-                    andelerForrigeBehandling.filter { it.aktør == aktør }.maxOfOrNull { it.stønadTom } ?: TIDENES_MORGEN.toYearMonth()
+        return aktører.any { aktør ->
+            val sisteNåværendeUtbetalingForAktør =
+                andelerNåværendeBehandling.filter<AndelTilkjentYtelse> { it.aktør == aktør }.maxOfOrNull<AndelTilkjentYtelse, YearMonth> { it.stønadTom } ?: return@any false
+            val sisteForrigeUtbetalingForAktør =
+                andelerForrigeBehandling.filter { it.aktør == aktør }.maxOfOrNull { it.stønadTom } ?: TIDENES_MORGEN.toYearMonth()
 
-                sisteForrigeUtbetalingForAktør < sisteNåværendeUtbetalingForAktør
+            val erOpphørIAugustForForrigeUtbetaling = sisteForrigeUtbetalingForAktør == YearMonth.of(2024, 7)
+            val erOpphørISeptemberForNåværendeUtbetaling = sisteNåværendeUtbetalingForAktør == YearMonth.of(2024, 8)
+
+            if (erOpphørIAugustForForrigeUtbetaling && erOpphørISeptemberForNåværendeUtbetaling) {
+                throw Feil(
+                    "Forrige behandling har opphør i august. Nåværende behandling har opphør i september. Disse tilfellene skal ikke revurderes"
+                )
             }
 
-        if (erNyeAndeler) {
-            throw Feil("Fant framtidig opphør med nye andeler. Disse skal følges opp manuelt. Feiler tasken med vilje.")
-        }
+            val antallMånederMellomForrigeOgNåværendeUtbetalinger = Period.between(
+                sisteForrigeUtbetalingForAktør.toLocalDate(),
+                sisteNåværendeUtbetalingForAktør.toLocalDate(),
+            ).months
 
-        return erNyeAndeler
+            if (antallMånederMellomForrigeOgNåværendeUtbetalinger > 1) {
+                throw Feil("Antall måneder differanse mellom forrige og nåværende utbetaling overstiger 1")
+            }
+
+            sisteForrigeUtbetalingForAktør < sisteNåværendeUtbetalingForAktør
+        }
     }
 
     fun hentFerdigstilteBehandlinger(fagsak: Fagsak): List<Behandling> =
